@@ -22,6 +22,11 @@ uses
 	RipGrepperSettings;
 
 type
+
+	TStringsHelper = class helper for TStrings
+		function Contains(const s : string) : Boolean;
+	end;
+
 	TRipGrepperForm = class(TForm, INewLineEventHandler)
 		panelMain : TPanel;
 		Label1 : TLabel;
@@ -40,22 +45,26 @@ type
 		cmbSearchDir : TComboBox;
 		cmbSearchText : TComboBox;
 		cmbParameters : TComboBox;
-    StatusBar1: TStatusBar;
+		StatusBar1 : TStatusBar;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionSearchExecute(Sender : TObject);
+		procedure FormClose(Sender : TObject; var Action : TCloseAction);
 		procedure FormShow(Sender : TObject);
 
 		private
 			FSettings : TRipGrepperSettings;
+			procedure AddIfNotContains(_cmb : TComboBox);
+			procedure BuildArgs(var sArgs : TStringList);
 			procedure InitSettings;
 
-			{ Private-Deklarationen }
+		protected
+			procedure StoreHistories;
+
 		public
 			constructor Create(_settings : TRipGrepperSettings); reintroduce; overload;
 			class function CreateAndShow(const _settings : TRipGrepperSettings) : string;
 			// INewLineEventHandler
 			procedure OnNewResultLine(const _sLine : string);
-			{ Public-Deklarationen }
 	end;
 
 procedure OnNewLine(_handler : INewLineEventHandler; const _sLine : string);
@@ -93,46 +102,72 @@ begin
 end;
 
 procedure TRipGrepperForm.ActionSearchExecute(Sender : TObject);
-const
-	NECESSARY_PARAMS : TArray<string> = ['--vimgrep', '--trim', '--line-buffered'];
 var
 	sArgs : TStringList;
-	paramsArr : TArray<string>;
-	params : string;
+	rgResultOk : boolean;
 begin
 	sArgs := TStringList.Create();
 	try
-		params := cmbParameters.Text;
-
-		for var s in NECESSARY_PARAMS do begin
-		   if not params.Contains(s) then begin
-			   params := s + ' ' + params;
-		   end;
-		end;
-
-		paramsArr := params.Split([' ']);
-		for var s : string in paramsArr do begin
-			sArgs.Add(s);
-		end;
-
-//		sArgs.Add(TProcessUtils.MaybeQuoteIfNotQuoted(cmbSearchText.Text, ''''));
-		sArgs.Add(cmbSearchText.Text);
-		var
-		workDir := TProcessUtils.MaybeQuoteIfNotQuoted(cmbSearchDir.Text);
-		sArgs.Add(workDir);
-
-		sArgs.Delimiter := ' ';
-		// sArgs.QuoteChar := '"';
+		BuildArgs(sArgs);
 
 		TDebugUtils.DebugMessage('run: ' + FSettings.RipGrepPath + ' ' + sArgs.DelimitedText);
-		lvResult.items.Clear;
+		lvResult.Items.Clear;
 		var
 		cmd := TProcessUtils.MaybeQuoteIfNotQuoted(FSettings.RipGrepPath) + ' ' + sArgs.DelimitedText;
-		// TProcessUtils.GetDosOutput(cmd, workDir, self as INewLineEventHandler);
-		TProcessUtils.RunProcess(FSettings.RipGrepPath, sArgs, workDir, self as INewLineEventHandler);
+		var
+		workDir := TDirectory.GetCurrentDirectory();
+		rgResultOk := TProcessUtils.RunProcess(FSettings.RipGrepPath, sArgs, workDir, self as INewLineEventHandler);
+		if rgResultOk then begin
+			StoreHistories();
+		end;
+
 	finally
 		sArgs.Free;
 	end;
+end;
+
+procedure TRipGrepperForm.AddIfNotContains(_cmb : TComboBox);
+var
+	idxval: Integer;
+	val: string;
+begin
+	val := _cmb.Text;
+	if not _cmb.Items.Contains(val) then begin
+		_cmb.Items.Insert(0, val);
+	end else begin
+		idxval := _cmb.Items.IndexOf(val);
+		_cmb.Items.Delete(idxval);
+		_cmb.Items.Insert(0, val);
+	end;
+end;
+
+procedure TRipGrepperForm.BuildArgs(var sArgs : TStringList);
+const
+	NECESSARY_PARAMS : TArray<string> = ['--vimgrep', '--trim', '--line-buffered'];
+var
+	paramsArr : TArray<string>;
+	params : string;
+begin
+	params := cmbParameters.Text;
+
+	for var s in NECESSARY_PARAMS do begin
+		if not params.Contains(s) then begin
+			params := s + ' ' + params;
+		end;
+	end;
+
+	paramsArr := params.Split([' ']);
+	for var s : string in paramsArr do begin
+		if not s.IsEmpty then begin
+			sArgs.Add(s);
+		end;
+	end;
+
+	sArgs.Add(cmbSearchText.Text);
+	var
+	workDir := TProcessUtils.MaybeQuoteIfNotQuoted(cmbSearchDir.Text);
+	sArgs.Add(workDir);
+	sArgs.Delimiter := ' '; // sArgs.QuoteChar := '"';
 end;
 
 class function TRipGrepperForm.CreateAndShow(const _settings : TRipGrepperSettings) : string;
@@ -150,29 +185,38 @@ begin
 
 end;
 
+procedure TRipGrepperForm.FormClose(Sender : TObject; var Action : TCloseAction);
+begin
+	FSettings.SearchDirs.Assign(cmbSearchDir.Items);
+	FSettings.SearchTexts.Assign(cmbSearchText.Items);
+	FSettings.RipGrepParams.Assign(cmbParameters.Items);
+	FSettings.Store;
+end;
+
 procedure TRipGrepperForm.FormShow(Sender : TObject);
 begin
+	FSettings.Load;
 	InitSettings;
-
-	cmbSearchDir.Text := FSettings.SearchDirs[0];
-	cmbSearchText.Text := FSettings.SearchTexts[0];
-	cmbParameters.Text := FSettings.RipGrepParams[0];;
+	cmbSearchDir.Items.Assign(FSettings.SearchDirs);
+	cmbSearchDir.ItemIndex := 0;
+	cmbSearchText.Items.Assign(FSettings.SearchTexts);
+	cmbSearchText.ItemIndex := 0;
+	cmbParameters.Items.Assign(FSettings.RipGrepParams);
+	cmbParameters.ItemIndex := 0;
 end;
 
 procedure TRipGrepperForm.InitSettings;
-
+var
+	rgExists : Boolean;
+	rgPath : string;
+	scoopInstall : string;
 begin
 	if FSettings.RipGrepPath.IsEmpty or (not FileExists(FSettings.RipGrepPath)) then begin
-		var
-			rgPath : string;
-		var
 		rgExists := TFileUtils.FindExecutable('rg.exe', rgPath);
 		if not rgExists then begin
 			MessageDlg('rg.exe not found', mtError, [mbOk], 0);
 			Application.Terminate();
 		end;
-
-		var
 		scoopInstall := TPath.Combine(GetEnvironmentVariable('SCOOP'), 'apps\ripgrep\current\rg.exe');
 		if FileExists(scoopInstall) then begin
 			rgPath := scoopInstall;
@@ -213,7 +257,7 @@ begin
 				// TDebugUtils.DebugMessage(_sLine);
 				sFileName := _sLine.Substring(0, iPosRow - 1);
 				iPosCol := Pos(':', _sLine, iPosRow + 1);
-				sRow := _sLine.Substring(iPosRow,iPosCol - iPosRow - 1);
+				sRow := _sLine.Substring(iPosRow, iPosCol - iPosRow - 1);
 				iPosMatch := Pos(':', _sLine, iPosCol + 1);
 				sCol := _sLine.Substring(iPosCol, iPosMatch - iPosCol - 1);
 				sMatch := _sLine.Substring(iPosMatch + 1);
@@ -236,6 +280,18 @@ begin
 				end);
 
 		end);
+end;
+
+procedure TRipGrepperForm.StoreHistories;
+begin
+	AddIfNotContains(cmbParameters);
+	AddIfNotContains(cmbSearchDir);
+	AddIfNotContains(cmbSearchText);
+end;
+
+function TStringsHelper.Contains(const s : string) : Boolean;
+begin
+	Result := self.IndexOf(s) <> -1;
 end;
 
 end.
