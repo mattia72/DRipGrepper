@@ -1044,6 +1044,7 @@ object RipGrepperForm: TRipGrepperForm
     0000000000000000000000000000000000000000000000000000000000000000
     0000000000000000000000000000000000000000000000000000000000000000
     00000000000000000000000000000000000000000000000000000000}
+  OnShow = FormShow
   TextHeight = 15
   object panelMain: TPanel
     Left = 0
@@ -1114,12 +1115,24 @@ object RipGrepperForm: TRipGrepperForm
       Margins.Right = 50
       Anchors = [akLeft, akTop, akRight, akBottom]
       Color = clHighlightText
-      Columns = <>
+      Columns = <
+        item
+          AutoSize = True
+          Caption = 'File'
+        end
+        item
+          AutoSize = True
+          Caption = 'Pos'
+        end
+        item
+          AutoSize = True
+          Caption = 'Match'
+        end>
       StyleName = 'Windows'
       ParentShowHint = False
       ShowHint = True
       TabOrder = 1
-      ViewStyle = vsList
+      ViewStyle = vsReport
     end
     object cmbSearchDir: TComboBox
       Left = 111
@@ -1181,9 +1194,9 @@ object RipGrepperForm: TRipGrepperForm
       Top = 8
       Width = 75
       Height = 25
+      Action = ActionCancel
       Anchors = [akTop, akRight]
       Cancel = True
-      Caption = 'Cancel'
       TabOrder = 1
     end
   end
@@ -1467,9 +1480,11 @@ object RipGrepperForm: TRipGrepperForm
     Top = 133
     object ActionSearch: TAction
       Caption = 'Search'
+      OnExecute = ActionSearchExecute
     end
     object ActionCancel: TAction
       Caption = 'Cancel'
+      OnExecute = ActionCancelExecute
     end
     object ActionConfig: TAction
       Hint = 'Config'

@@ -84,6 +84,9 @@
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <Icon_MainIcon>RipGrepper_Icon.ico</Icon_MainIcon>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -106,6 +109,7 @@
         <DCCReference Include="dprocess.pas"/>
         <DCCReference Include="ProcessTools.pas"/>
         <DCCReference Include="DebugTools.pas"/>
+        <DCCReference Include="RipGrepperSettings.pas"/>
         <None Include="pipes_win.inc"/>
         <None Include="process_win.inc"/>
         <BuildConfiguration Include="Base">
@@ -128,6 +132,10 @@
                 <Source>
                     <Source Name="MainSource">RipGrepper.dpr</Source>
                 </Source>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k280.bpl">Microsoft Office 2000 Beispiele für gekapselte Komponenten für Automatisierungsserver</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp280.bpl">Microsoft Office XP Beispiele für gekapselte Komponenten für Automation Server</Excluded_Packages>
+                </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="4">
                 <DeployFile LocalName="Win32\Debug\RipGrepper.exe" Configuration="Debug" Class="ProjectOutput">
