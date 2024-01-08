@@ -1055,8 +1055,6 @@ object RipGrepperForm: TRipGrepperForm
     BevelOuter = bvNone
     Caption = 'panelMain'
     TabOrder = 0
-    ExplicitWidth = 673
-    ExplicitHeight = 498
     DesignSize = (
       468
       305)
@@ -1172,8 +1170,6 @@ object RipGrepperForm: TRipGrepperForm
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 1
-    ExplicitTop = 501
-    ExplicitWidth = 667
     DesignSize = (
       462
       40)

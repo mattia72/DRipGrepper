@@ -232,8 +232,8 @@ Var
   FProcessAttributes : TSecurityAttributes;
   FThreadAttributes : TSecurityAttributes;
   FProcessInformation : TProcessInformation;
-  // FStartupInfo : STARTUPINFOA;  // L505
-  FStartupInfo : STARTUPINFOW;  // L505
+  FStartupInfo : STARTUPINFO;  // L505
+//  FStartupInfo : STARTUPINFOW;  // L505
   HI,HO,HE : THandle;
   Cmd : String;
 
