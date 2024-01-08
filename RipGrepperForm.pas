@@ -40,6 +40,7 @@ type
 		cmbSearchDir : TComboBox;
 		cmbSearchText : TComboBox;
 		cmbParameters : TComboBox;
+    StatusBar1: TStatusBar;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionSearchExecute(Sender : TObject);
 		procedure FormShow(Sender : TObject);
@@ -69,7 +70,8 @@ uses
 	Vcl.Dialogs,
 	System.UITypes,
 	System.IOUtils,
-	System.SysUtils;
+	System.SysUtils,
+	System.Threading;
 
 {$R *.dfm}
 
@@ -91,34 +93,43 @@ begin
 end;
 
 procedure TRipGrepperForm.ActionSearchExecute(Sender : TObject);
+const
+	NECESSARY_PARAMS : TArray<string> = ['--vimgrep', '--trim', '--line-buffered'];
 var
 	sArgs : TStringList;
-	s : string;
+	paramsArr : TArray<string>;
+	params : string;
 begin
 	sArgs := TStringList.Create();
 	try
-		var
-			fp : string := cmbParameters.Text;
-		var
-			patterns : TArray<string> := fp.Split([' ']);
-		for s in patterns do begin
-			sArgs.Add(s);
-			TDebugUtils.DebugMessage(string.Join(' ', sArgs.ToStringArray));
+		params := cmbParameters.Text;
+
+		for var s in NECESSARY_PARAMS do begin
+		   if not params.Contains(s) then begin
+			   params := s + ' ' + params;
+		   end;
 		end;
 
-		sArgs.Add(TProcessUtils.MaybeQuoteIfNotQuoted(cmbSearchText.Text, ''''));
+		paramsArr := params.Split([' ']);
+		for var s : string in paramsArr do begin
+			sArgs.Add(s);
+		end;
+
+//		sArgs.Add(TProcessUtils.MaybeQuoteIfNotQuoted(cmbSearchText.Text, ''''));
+		sArgs.Add(cmbSearchText.Text);
 		var
-		workDir := cmbSearchDir.Text;
-		// sArgs.Add(workDir);
+		workDir := TProcessUtils.MaybeQuoteIfNotQuoted(cmbSearchDir.Text);
+		sArgs.Add(workDir);
+
 		sArgs.Delimiter := ' ';
-//		sArgs.QuoteChar := '"';
+		// sArgs.QuoteChar := '"';
 
 		TDebugUtils.DebugMessage('run: ' + FSettings.RipGrepPath + ' ' + sArgs.DelimitedText);
 		lvResult.items.Clear;
 		var
 		cmd := TProcessUtils.MaybeQuoteIfNotQuoted(FSettings.RipGrepPath) + ' ' + sArgs.DelimitedText;
-		s := TProcessUtils.GetDosOutput(cmd, workDir, self as INewLineEventHandler);
-		// TProcessUtils.RunProcess(FSettings.RipGrepPath, sArgs, workDir, self as INewLineEventHandler);
+		// TProcessUtils.GetDosOutput(cmd, workDir, self as INewLineEventHandler);
+		TProcessUtils.RunProcess(FSettings.RipGrepPath, sArgs, workDir, self as INewLineEventHandler);
 	finally
 		sArgs.Free;
 	end;
@@ -184,14 +195,47 @@ begin
 end;
 
 procedure TRipGrepperForm.OnNewResultLine(const _sLine : string);
+var
+	item : TListItem;
+	iPosMatch, iPosRow : integer;
+	iPosCol : integer;
+	sFileName : string;
+	sRow : string;
+	sCol : string;
+	sMatch : string;
 begin
-	var
-		item : TListItem := lvResult.items.Add();
-	var
-		s : string := string(_sLine);
-	item.Caption := s;
-	// item.SubItems.Add(s);
-	TDebugUtils.DebugMessage(s);
+
+	TTask.Run(
+		procedure
+		begin
+			iPosRow := Pos(':', _sLine, 3);
+			if iPosRow <> 0 then begin
+				// TDebugUtils.DebugMessage(_sLine);
+				sFileName := _sLine.Substring(0, iPosRow - 1);
+				iPosCol := Pos(':', _sLine, iPosRow + 1);
+				sRow := _sLine.Substring(iPosRow,iPosCol - iPosRow - 1);
+				iPosMatch := Pos(':', _sLine, iPosCol + 1);
+				sCol := _sLine.Substring(iPosCol, iPosMatch - iPosCol - 1);
+				sMatch := _sLine.Substring(iPosMatch + 1);
+			end else begin
+				sFileName := _sLine;
+			end;
+			TThread.Synchronize(nil,
+				procedure
+				begin
+					lvREsult.BeginInvoke(
+						procedure()
+						begin
+							item := lvResult.items.Add();
+							item.Caption := sFileName;
+							item.SubItems.Add(sRow);
+							item.SubItems.Add(sCol);
+							item.SubItems.Add(sMatch);
+						end);
+
+				end);
+
+		end);
 end;
 
 end.
