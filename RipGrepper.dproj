@@ -110,6 +110,7 @@
         <DCCReference Include="ProcessTools.pas"/>
         <DCCReference Include="DebugTools.pas"/>
         <DCCReference Include="RipGrepperSettings.pas"/>
+        <DCCReference Include="RipGrepperMatches.pas"/>
         <None Include="pipes_win.inc"/>
         <None Include="process_win.inc"/>
         <BuildConfiguration Include="Base">

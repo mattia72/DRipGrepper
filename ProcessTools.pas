@@ -119,7 +119,7 @@ begin
 		p.WaitOnExit;
 		Result := p.ExitStatus = 0;
 		if not Result then begin
-			NewLineEventHandler(_handler, 'Command ' + p.Executable + ' failed with exit code: ' + p.ExitStatus.ToString);
+			NewLineEventHandler(_handler, p.Executable + ' failed with exit code: ' + p.ExitStatus.ToString);
 		end;
 	finally
 		FreeAndNil(p);

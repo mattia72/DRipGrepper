@@ -5,7 +5,6 @@ interface
 uses
 	Winapi.Windows,
 	Winapi.Messages,
-
 	System.Variants,
 	System.Classes,
 	Vcl.Graphics,
@@ -20,19 +19,12 @@ uses
 	Vcl.ActnList,
 	ProcessTools,
 	RipGrepperSettings,
-	System.Generics.Collections;
+	RipGrepperMatches;
 
 type
 
 	TStringsHelper = class helper for TStrings
 		function Contains(const s: string): Boolean;
-	end;
-
-	TRipGrepMatch = record
-		FileName: string;
-		Row: integer;
-		Col: integer;
-		Text: string;
 	end;
 
 	TRipGrepperForm = class(TForm, INewLineEventHandler)
@@ -61,13 +53,13 @@ type
 		procedure lvResultData(Sender: TObject; Item: TListItem);
 
 	private
-		FData: TList<TRipGrepMatch>;
+		FData: TRipGrepperMatches;
 		FSettings: TRipGrepperSettings;
 		procedure AddIfNotContains(_cmb: TComboBox);
 		procedure BuildArgs(var sArgs: TStringList);
 		procedure ClearData;
 		procedure InitSettings;
-
+		procedure PutIntoGroup(const idx: integer; Item: TListItem);
 	protected
 		procedure StoreHistories;
 
@@ -112,7 +104,7 @@ end;
 constructor TRipGrepperForm.Create(AOwner: TComponent);
 begin
 	inherited Create(AOwner);
-	FData := TList<TRipGrepMatch>.Create();
+	FData := TRipGrepperMatches.Create();
 end;
 
 destructor TRipGrepperForm.Destroy;
@@ -200,9 +192,9 @@ end;
 
 procedure TRipGrepperForm.ClearData;
 begin
+	lvResult.Items.Count := 0;
 	FData.Clear;
 	lvResult.Items.Clear;
-	lvResult.Items.Count := 0;
 end;
 
 class function TRipGrepperForm.CreateAndShow(const _settings: TRipGrepperSettings): string;
@@ -274,56 +266,59 @@ begin
 end;
 
 procedure TRipGrepperForm.lvResultData(Sender: TObject; Item: TListItem);
+var
+	idx: integer;
+  m: TRipGrepperMatchCollection;
 begin
-	if FData.Count > Item.Index then begin
-		Item.Caption := FData[Item.Index].FileName;
-		Item.SubItems.Add(FData[Item.Index].Row.ToString);
-		Item.SubItems.Add(FData[Item.Index].Col.ToString);
-		Item.SubItems.Add(FData[Item.Index].Text);
+	idx := Item.Index;
+	if FData.Count > idx then begin
+		m := FData.Matches;
+		Item.Caption := m[idx].FileName;
+		Item.SubItems.Add(m[idx].Row.ToString);
+		Item.SubItems.Add(m[idx].Col.ToString);
+		Item.SubItems.Add(m[idx].Text);
+		PutIntoGroup(idx, Item);
 	end;
 end;
 
 procedure TRipGrepperForm.OnNewResultLine(const _sLine: string);
 var
-	iPosMatch: integer;
-	iPosRow: integer;
-	iPosCol: integer;
-	sFileName: string;
-	sRow: string;
-	sCol: string;
-	sMatch: string;
+	newItem: TRipGrepMatch;
 begin
 
 	TTask.Run(
 		procedure
 		begin
-			iPosRow := Pos(':', _sLine, 3);
-			if iPosRow <> 0 then begin
-				// TDebugUtils.DebugMessage(_sLine);
-				sFileName := _sLine.Substring(0, iPosRow - 1);
-				iPosCol := Pos(':', _sLine, iPosRow + 1);
-				sRow := _sLine.Substring(iPosRow, iPosCol - iPosRow - 1);
-				iPosMatch := Pos(':', _sLine, iPosCol + 1);
-				sCol := _sLine.Substring(iPosCol, iPosMatch - iPosCol - 1);
-				sMatch := _sLine.Substring(iPosMatch + 1);
-			end else begin
-				sFileName := _sLine;
-			end;
+			newItem.ParseLine(_sLine);
 			TThread.Synchronize(nil,
 				procedure
 				begin
-					var
-						newItem: TRipGrepMatch;
-					newItem.FileName := sFileName;
-					newItem.Row := sRow.ToInteger;
-					newItem.Col := sCol.ToInteger;
-					newItem.Text := sMatch;
-					FData.Add(newItem);
+					FData.Matches.Add(newItem);
 					// virtual listview! Items count should be updated
 					lvResult.Items.Count := FData.Count;
 				end);
 
 		end);
+end;
+
+procedure TRipGrepperForm.PutIntoGroup(const idx: integer; Item: TListItem);
+var
+	m: TRipGrepperMatchCollection;
+begin
+	m := FData.Matches;
+	if FData.Groups.Contains(m[idx].FileName) then begin
+		Item.GroupID := m[idx].GroupID;
+	end else begin
+		var
+		Group := lvResult.Groups.Add;
+		Group.State := [lgsNormal, lgsCollapsible];
+		Group.Header := m[idx].FileName;
+    var match := FData.Matches[idx];
+		match.GroupID := Group.GroupID;
+		FData.Matches[idx] := match;
+		FData.Groups.Add(m[idx].FileName);
+	end;
+  lvResult.GroupView := FData.Groups.Count > 0;
 end;
 
 procedure TRipGrepperForm.StoreHistories;
