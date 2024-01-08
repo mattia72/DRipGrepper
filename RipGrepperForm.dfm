@@ -1135,6 +1135,7 @@ object RipGrepperForm: TRipGrepperForm
           Caption = 'Match'
         end>
       StyleName = 'Windows'
+      RowSelect = True
       ParentShowHint = False
       ShowHint = True
       TabOrder = 1

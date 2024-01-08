@@ -138,6 +138,7 @@ begin
 		idxval := _cmb.Items.IndexOf(val);
 		_cmb.Items.Delete(idxval);
 		_cmb.Items.Insert(0, val);
+        _cmb.ItemIndex := 0;
 	end;
 end;
 
