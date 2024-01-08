@@ -1059,6 +1059,8 @@ object RipGrepperForm: TRipGrepperForm
     BevelOuter = bvNone
     Caption = 'panelMain'
     TabOrder = 0
+    ExplicitWidth = 642
+    ExplicitHeight = 528
     DesignSize = (
       648
       537)
@@ -1105,6 +1107,7 @@ object RipGrepperForm: TRipGrepperForm
       ParentShowHint = False
       ShowHint = True
       TabOrder = 0
+      ExplicitLeft = 597
     end
     object lvResult: TListView
       AlignWithMargins = True
@@ -1135,11 +1138,15 @@ object RipGrepperForm: TRipGrepperForm
           Caption = 'Match'
         end>
       StyleName = 'Windows'
+      OwnerData = True
       RowSelect = True
       ParentShowHint = False
       ShowHint = True
       TabOrder = 1
       ViewStyle = vsReport
+      OnData = lvResultData
+      ExplicitWidth = 607
+      ExplicitHeight = 352
     end
     object cmbSearchDir: TComboBox
       Left = 111
@@ -1149,6 +1156,7 @@ object RipGrepperForm: TRipGrepperForm
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 2
       Text = 'cmbSearchDir'
+      ExplicitWidth = 480
     end
     object cmbSearchText: TComboBox
       Left = 111
@@ -1158,6 +1166,7 @@ object RipGrepperForm: TRipGrepperForm
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 3
       Text = 'cmbSearchDir'
+      ExplicitWidth = 480
     end
     object cmbParameters: TComboBox
       Left = 111
@@ -1167,6 +1176,7 @@ object RipGrepperForm: TRipGrepperForm
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 4
       Text = 'cmbSearchDir'
+      ExplicitWidth = 480
     end
     object StatusBar1: TStatusBar
       Left = 0
@@ -1185,6 +1195,8 @@ object RipGrepperForm: TRipGrepperForm
           Text = 'RipGrepper v1.0.0      '
           Width = 50
         end>
+      ExplicitTop = 509
+      ExplicitWidth = 642
     end
   end
   object pnl_Bottom: TPanel
@@ -1196,6 +1208,8 @@ object RipGrepperForm: TRipGrepperForm
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 1
+    ExplicitTop = 459
+    ExplicitWidth = 642
     DesignSize = (
       648
       44)
@@ -1209,6 +1223,7 @@ object RipGrepperForm: TRipGrepperForm
       Anchors = [akTop, akRight]
       Default = True
       TabOrder = 0
+      ExplicitLeft = 467
     end
     object btn_Cancel: TButton
       AlignWithMargins = True
@@ -1220,6 +1235,7 @@ object RipGrepperForm: TRipGrepperForm
       Anchors = [akTop, akRight]
       Cancel = True
       TabOrder = 1
+      ExplicitLeft = 551
     end
   end
   object ImageListButtons: TImageList

@@ -100,7 +100,7 @@ begin
 				// L505
 				// if Buf[i] in [#10,#13] then
 				if CharInSet(Buf[i], [#10, #13]) then begin
-					OutputLine := OutputLine + Copy(Buf, LineStart, i - LineStart);
+					OutputLine := OutputLine + Copy(string(Buf), LineStart, i - LineStart);
 
 					NewLineEventHandler(_handler, OutputLine);
 					OutputLine := '';
@@ -112,7 +112,7 @@ begin
 				end;
 				Inc(i);
 			end;
-			OutputLine := Copy(Buf, LineStart, Count - LineStart + 1);
+			OutputLine := Copy(string(Buf), LineStart, Count - LineStart + 1);
 		until Count = 0;
 		if OutputLine <> '' then
 			NewLineEventHandler(_handler, OutputLine);

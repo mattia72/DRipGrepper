@@ -19,58 +19,71 @@ uses
 	System.Actions,
 	Vcl.ActnList,
 	ProcessTools,
-	RipGrepperSettings;
+	RipGrepperSettings,
+	System.Generics.Collections;
 
 type
 
 	TStringsHelper = class helper for TStrings
-		function Contains(const s : string) : Boolean;
+		function Contains(const s: string): Boolean;
+	end;
+
+	TRipGrepMatch = record
+		FileName: string;
+		Row: integer;
+		Col: integer;
+		Text: string;
 	end;
 
 	TRipGrepperForm = class(TForm, INewLineEventHandler)
-		panelMain : TPanel;
-		Label1 : TLabel;
-		LabelParams : TLabel;
-		Label3 : TLabel;
-		btnConfig : TButton;
-		lvResult : TListView;
-		pnl_Bottom : TPanel;
-		btn_Save : TButton;
-		btn_Cancel : TButton;
-		ImageListButtons : TImageList;
-		alActions : TActionList;
-		ActionSearch : TAction;
-		ActionCancel : TAction;
-		ActionConfig : TAction;
-		cmbSearchDir : TComboBox;
-		cmbSearchText : TComboBox;
-		cmbParameters : TComboBox;
-		StatusBar1 : TStatusBar;
-		procedure ActionCancelExecute(Sender : TObject);
-		procedure ActionSearchExecute(Sender : TObject);
-		procedure FormClose(Sender : TObject; var Action : TCloseAction);
-		procedure FormShow(Sender : TObject);
+		panelMain: TPanel;
+		Label1: TLabel;
+		LabelParams: TLabel;
+		Label3: TLabel;
+		btnConfig: TButton;
+		lvResult: TListView;
+		pnl_Bottom: TPanel;
+		btn_Save: TButton;
+		btn_Cancel: TButton;
+		ImageListButtons: TImageList;
+		alActions: TActionList;
+		ActionSearch: TAction;
+		ActionCancel: TAction;
+		ActionConfig: TAction;
+		cmbSearchDir: TComboBox;
+		cmbSearchText: TComboBox;
+		cmbParameters: TComboBox;
+		StatusBar1: TStatusBar;
+		procedure ActionCancelExecute(Sender: TObject);
+		procedure ActionSearchExecute(Sender: TObject);
+		procedure FormClose(Sender: TObject; var Action: TCloseAction);
+		procedure FormShow(Sender: TObject);
+		procedure lvResultData(Sender: TObject; Item: TListItem);
 
-		private
-			FSettings : TRipGrepperSettings;
-			procedure AddIfNotContains(_cmb : TComboBox);
-			procedure BuildArgs(var sArgs : TStringList);
-			procedure InitSettings;
+	private
+		FData: TList<TRipGrepMatch>;
+		FSettings: TRipGrepperSettings;
+		procedure AddIfNotContains(_cmb: TComboBox);
+		procedure BuildArgs(var sArgs: TStringList);
+		procedure ClearData;
+		procedure InitSettings;
 
-		protected
-			procedure StoreHistories;
+	protected
+		procedure StoreHistories;
 
-		public
-			constructor Create(_settings : TRipGrepperSettings); reintroduce; overload;
-			class function CreateAndShow(const _settings : TRipGrepperSettings) : string;
-			// INewLineEventHandler
-			procedure OnNewResultLine(const _sLine : string);
+	public
+		constructor Create(_settings: TRipGrepperSettings); reintroduce; overload;
+		constructor Create(AOwner: TComponent); overload; override;
+		destructor Destroy; override;
+		class function CreateAndShow(const _settings: TRipGrepperSettings): string;
+		// INewLineEventHandler
+		procedure OnNewResultLine(const _sLine: string);
 	end;
 
-procedure OnNewLine(_handler : INewLineEventHandler; const _sLine : string);
+procedure OnNewLine(_handler: INewLineEventHandler; const _sLine: string);
 
 var
-	Form1 : TRipGrepperForm;
+	Form1: TRipGrepperForm;
 
 implementation
 
@@ -84,37 +97,51 @@ uses
 
 {$R *.dfm}
 
-procedure OnNewLine(_handler : INewLineEventHandler; const _sLine : string);
+procedure OnNewLine(_handler: INewLineEventHandler; const _sLine: string);
 begin
 	_handler.OnNewResultLine(_sLine);
 	TDebugUtils.DebugMessage(string(_sLine));
 end;
 
-constructor TRipGrepperForm.Create(_settings : TRipGrepperSettings);
+constructor TRipGrepperForm.Create(_settings: TRipGrepperSettings);
 begin
 	inherited Create(nil);
-	FSettings := _settings
+	FSettings := _settings;
 end;
 
-procedure TRipGrepperForm.ActionCancelExecute(Sender : TObject);
+constructor TRipGrepperForm.Create(AOwner: TComponent);
+begin
+	inherited Create(AOwner);
+	FData := TList<TRipGrepMatch>.Create();
+end;
+
+destructor TRipGrepperForm.Destroy;
+begin
+	inherited;
+	FData.Free;
+end;
+
+procedure TRipGrepperForm.ActionCancelExecute(Sender: TObject);
 begin
 	ModalResult := mrCancel;
 end;
 
-procedure TRipGrepperForm.ActionSearchExecute(Sender : TObject);
+procedure TRipGrepperForm.ActionSearchExecute(Sender: TObject);
 var
-	sArgs : TStringList;
-	rgResultOk : boolean;
+	cmd: string;
+	sArgs: TStringList;
+	rgResultOk: Boolean;
+	workDir: string;
 begin
+	ClearData;
 	sArgs := TStringList.Create();
 	try
+
 		BuildArgs(sArgs);
 
 		TDebugUtils.DebugMessage('run: ' + FSettings.RipGrepPath + ' ' + sArgs.DelimitedText);
-		lvResult.Items.Clear;
-		var
+
 		cmd := TProcessUtils.MaybeQuoteIfNotQuoted(FSettings.RipGrepPath) + ' ' + sArgs.DelimitedText;
-		var
 		workDir := TDirectory.GetCurrentDirectory();
 		rgResultOk := TProcessUtils.RunProcess(FSettings.RipGrepPath, sArgs, workDir, self as INewLineEventHandler);
 		if rgResultOk then begin
@@ -126,9 +153,9 @@ begin
 	end;
 end;
 
-procedure TRipGrepperForm.AddIfNotContains(_cmb : TComboBox);
+procedure TRipGrepperForm.AddIfNotContains(_cmb: TComboBox);
 var
-	idxval: Integer;
+	idxval: integer;
 	val: string;
 begin
 	val := _cmb.Text;
@@ -138,16 +165,16 @@ begin
 		idxval := _cmb.Items.IndexOf(val);
 		_cmb.Items.Delete(idxval);
 		_cmb.Items.Insert(0, val);
-        _cmb.ItemIndex := 0;
+		_cmb.ItemIndex := 0;
 	end;
 end;
 
-procedure TRipGrepperForm.BuildArgs(var sArgs : TStringList);
+procedure TRipGrepperForm.BuildArgs(var sArgs: TStringList);
 const
-	NECESSARY_PARAMS : TArray<string> = ['--vimgrep', '--trim', '--line-buffered'];
+	NECESSARY_PARAMS: TArray<string> = ['--vimgrep', '--trim', '--line-buffered'];
 var
-	paramsArr : TArray<string>;
-	params : string;
+	paramsArr: TArray<string>;
+	params: string;
 begin
 	params := cmbParameters.Text;
 
@@ -158,7 +185,7 @@ begin
 	end;
 
 	paramsArr := params.Split([' ']);
-	for var s : string in paramsArr do begin
+	for var s: string in paramsArr do begin
 		if not s.IsEmpty then begin
 			sArgs.Add(s);
 		end;
@@ -171,13 +198,20 @@ begin
 	sArgs.Delimiter := ' '; // sArgs.QuoteChar := '"';
 end;
 
-class function TRipGrepperForm.CreateAndShow(const _settings : TRipGrepperSettings) : string;
+procedure TRipGrepperForm.ClearData;
+begin
+	FData.Clear;
+	lvResult.Items.Clear;
+	lvResult.Items.Count := 0;
+end;
+
+class function TRipGrepperForm.CreateAndShow(const _settings: TRipGrepperSettings): string;
 begin
 	var
 	form := TRipGrepperForm.Create(_settings);
 	try
 		if (mrOk = form.ShowModal()) then begin
-			Result := form.lvResult.items[form.lvResult.ItemIndex].SubItems[0];
+			Result := form.lvResult.Items[form.lvResult.ItemIndex].SubItems[0];
 		end;
 
 	finally
@@ -186,7 +220,7 @@ begin
 
 end;
 
-procedure TRipGrepperForm.FormClose(Sender : TObject; var Action : TCloseAction);
+procedure TRipGrepperForm.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
 	FSettings.SearchDirs.Assign(cmbSearchDir.Items);
 	FSettings.SearchTexts.Assign(cmbSearchText.Items);
@@ -194,7 +228,7 @@ begin
 	FSettings.Store;
 end;
 
-procedure TRipGrepperForm.FormShow(Sender : TObject);
+procedure TRipGrepperForm.FormShow(Sender: TObject);
 begin
 	FSettings.Load;
 	InitSettings;
@@ -208,9 +242,9 @@ end;
 
 procedure TRipGrepperForm.InitSettings;
 var
-	rgExists : Boolean;
-	rgPath : string;
-	scoopInstall : string;
+	rgExists: Boolean;
+	rgPath: string;
+	scoopInstall: string;
 begin
 	if FSettings.RipGrepPath.IsEmpty or (not FileExists(FSettings.RipGrepPath)) then begin
 		rgExists := TFileUtils.FindExecutable('rg.exe', rgPath);
@@ -239,15 +273,25 @@ begin
 	end;
 end;
 
-procedure TRipGrepperForm.OnNewResultLine(const _sLine : string);
+procedure TRipGrepperForm.lvResultData(Sender: TObject; Item: TListItem);
+begin
+	if FData.Count > Item.Index then begin
+		Item.Caption := FData[Item.Index].FileName;
+		Item.SubItems.Add(FData[Item.Index].Row.ToString);
+		Item.SubItems.Add(FData[Item.Index].Col.ToString);
+		Item.SubItems.Add(FData[Item.Index].Text);
+	end;
+end;
+
+procedure TRipGrepperForm.OnNewResultLine(const _sLine: string);
 var
-	item : TListItem;
-	iPosMatch, iPosRow : integer;
-	iPosCol : integer;
-	sFileName : string;
-	sRow : string;
-	sCol : string;
-	sMatch : string;
+	iPosMatch: integer;
+	iPosRow: integer;
+	iPosCol: integer;
+	sFileName: string;
+	sRow: string;
+	sCol: string;
+	sMatch: string;
 begin
 
 	TTask.Run(
@@ -268,16 +312,15 @@ begin
 			TThread.Synchronize(nil,
 				procedure
 				begin
-					lvREsult.BeginInvoke(
-						procedure()
-						begin
-							item := lvResult.items.Add();
-							item.Caption := sFileName;
-							item.SubItems.Add(sRow);
-							item.SubItems.Add(sCol);
-							item.SubItems.Add(sMatch);
-						end);
-
+					var
+						newItem: TRipGrepMatch;
+					newItem.FileName := sFileName;
+					newItem.Row := sRow.ToInteger;
+					newItem.Col := sCol.ToInteger;
+					newItem.Text := sMatch;
+					FData.Add(newItem);
+					// virtual listview! Items count should be updated
+					lvResult.Items.Count := FData.Count;
 				end);
 
 		end);
@@ -290,7 +333,7 @@ begin
 	AddIfNotContains(cmbSearchText);
 end;
 
-function TStringsHelper.Contains(const s : string) : Boolean;
+function TStringsHelper.Contains(const s: string): Boolean;
 begin
 	Result := self.IndexOf(s) <> -1;
 end;
