@@ -1066,11 +1066,11 @@ object RipGrepperForm: TRipGrepperForm
       AlignWithMargins = True
       Left = 16
       Top = 14
-      Width = 89
+      Width = 78
       Height = 15
       Margins.Left = 20
       Margins.Top = 6
-      Caption = 'Search Directory:'
+      Caption = 'Search Path(s):'
     end
     object LabelParams: TLabel
       AlignWithMargins = True
@@ -1134,8 +1134,19 @@ object RipGrepperForm: TRipGrepperForm
           AutoSize = True
           Caption = 'Match'
         end>
+      Groups = <
+        item
+          Header = 'Group Header'
+          GroupID = 0
+          State = [lgsNormal, lgsCollapsible]
+          HeaderAlign = taLeftJustify
+          FooterAlign = taLeftJustify
+          Subtitle = 'Subtitle'
+          TitleImage = -1
+        end>
       StyleName = 'Windows'
       OwnerData = True
+      GroupView = True
       RowSelect = True
       ParentShowHint = False
       ShowHint = True

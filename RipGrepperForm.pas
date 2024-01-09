@@ -54,15 +54,20 @@ type
 
 		private
 			FData : TRipGrepperMatches;
+			FExeName : string;
+			FExeVersion : string;
 			FSettings : TRipGrepperSettings;
 			procedure AddIfNotContains(_cmb : TComboBox);
 			procedure BuildArgs(var sArgs : TStringList);
 			procedure ClearData;
 			procedure InitSettings;
+			procedure LoadSettings;
 			procedure PutIntoGroup(const idx : integer; Item : TListItem);
 			procedure SetColumnWidths;
+			procedure SetStatusBarInfo(const _dtStart : TDateTime = 0);
 			procedure SetStatusBarTexts;
 			procedure StoreHistories;
+			procedure StoreSettings;
 
 		public
 			constructor Create(_settings : TRipGrepperSettings); reintroduce; overload;
@@ -106,9 +111,15 @@ begin
 end;
 
 constructor TRipGrepperForm.Create(AOwner : TComponent);
+var
+	major, minor, build : Cardinal;
 begin
 	inherited Create(AOwner);
 	FData := TRipGrepperMatches.Create();
+
+	GetProductVersion(Application.ExeName, major, minor, build);
+	FExeName := TPath.GetFileNameWithoutExtension(Application.ExeName);
+	FExeVersion := Format('%d.%d.%d', [major, minor, build]);
 end;
 
 destructor TRipGrepperForm.Destroy;
@@ -138,18 +149,14 @@ begin
 	cursor.SetHourGlassCursor;
 
 	try
-
 		BuildArgs(sArgs);
-
 		TDebugUtils.DebugMessage('run: ' + FSettings.RipGrepPath + ' ' + sArgs.DelimitedText);
-
 		cmd := TProcessUtils.MaybeQuoteIfNotQuoted(FSettings.RipGrepPath) + ' ' + sArgs.DelimitedText;
 		workDir := TDirectory.GetCurrentDirectory();
 		rgResultOk := TProcessUtils.RunProcess(FSettings.RipGrepPath, sArgs, workDir, self as INewLineEventHandler);
 		if rgResultOk then begin
 			StoreHistories();
-			SetStatusBarTexts();
-			SetColumnWidths();
+			SetStatusBarInfo(dtStart);
 		end;
 
 	finally
@@ -226,22 +233,13 @@ end;
 
 procedure TRipGrepperForm.FormClose(Sender : TObject; var Action : TCloseAction);
 begin
-	FSettings.SearchDirs.Assign(cmbSearchDir.Items);
-	FSettings.SearchTexts.Assign(cmbSearchText.Items);
-	FSettings.RipGrepParams.Assign(cmbParameters.Items);
-	FSettings.Store;
+	StoreSettings;
 end;
 
 procedure TRipGrepperForm.FormShow(Sender : TObject);
 begin
-	FSettings.Load;
-	InitSettings;
-	cmbSearchDir.Items.Assign(FSettings.SearchDirs);
-	cmbSearchDir.ItemIndex := 0;
-	cmbSearchText.Items.Assign(FSettings.SearchTexts);
-	cmbSearchText.ItemIndex := 0;
-	cmbParameters.Items.Assign(FSettings.RipGrepParams);
-	cmbParameters.ItemIndex := 0;
+	LoadSettings;
+	SetStatusBarInfo();
 end;
 
 procedure TRipGrepperForm.InitSettings;
@@ -277,6 +275,18 @@ begin
 	end;
 end;
 
+procedure TRipGrepperForm.LoadSettings;
+begin
+	FSettings.Load;
+	InitSettings;
+	cmbSearchDir.Items.Assign(FSettings.SearchDirs);
+	cmbSearchDir.ItemIndex := 0;
+	cmbSearchText.Items.Assign(FSettings.SearchTexts);
+	cmbSearchText.ItemIndex := 0;
+	cmbParameters.Items.Assign(FSettings.RipGrepParams);
+	cmbParameters.ItemIndex := 0;
+end;
+
 procedure TRipGrepperForm.lvResultData(Sender : TObject; Item : TListItem);
 var
 	idx : integer;
@@ -284,12 +294,14 @@ var
 begin
 	idx := Item.Index;
 	if FData.Count > idx then begin
+		PutIntoGroup(idx, Item);
 		m := FData.Matches;
 		Item.Caption := m[idx].FileName;
 		Item.SubItems.Add(m[idx].Row.ToString);
 		Item.SubItems.Add(m[idx].Col.ToString);
 		Item.SubItems.Add(m[idx].Text);
-		PutIntoGroup(idx, Item);
+		SetStatusBarTexts();
+		SetColumnWidths;
 	end;
 end;
 
@@ -308,7 +320,6 @@ begin
 					FData.Matches.Add(newItem);
 					// virtual listview! Items count should be updated
 					lvResult.Items.Count := FData.Count;
-                    SetStatusBarTexts();
 				end);
 
 		end);
@@ -332,7 +343,7 @@ begin
 		FData.Matches[idx] := match;
 		FData.Groups.Add(m[idx].FileName);
 	end;
-	lvResult.GroupView := FData.Groups.Count > 0;
+	// lvResult.GroupView := FData.Groups.Count > 0;
 end;
 
 procedure TRipGrepperForm.SetColumnWidths;
@@ -342,9 +353,27 @@ begin
 	end;
 end;
 
+procedure TRipGrepperForm.SetStatusBarInfo(const _dtStart : TDateTime = 0);
+const
+	VERSION_FORMAT = '%s v%s     ';
+var
+	msg : string;
+begin
+	if _dtStart <> 0 then begin
+		msg := Format('Search took %.2f seconds with ' + VERSION_FORMAT, [(Now - _dtStart) * 24 * 60 * 60, FExeName, FExeVersion]);
+	end else begin
+		msg := Format(VERSION_FORMAT, [FExeName, FExeVersion]);
+	end;
+	StatusBar1.Panels[2].Text := msg;
+end;
+
 procedure TRipGrepperForm.SetStatusBarTexts;
 begin
-	StatusBar1.Panels[0].Text := Format('%d matches in %d files', [FData.Matches.Count, FData.Groups.Count]);
+	StatusBar1.BeginInvoke(
+		procedure()
+		begin
+			StatusBar1.Panels[0].Text := Format('%d matches in %d files', [FData.Matches.Count, FData.Groups.Count])
+		end);
 end;
 
 procedure TRipGrepperForm.StoreHistories;
@@ -352,6 +381,14 @@ begin
 	AddIfNotContains(cmbParameters);
 	AddIfNotContains(cmbSearchDir);
 	AddIfNotContains(cmbSearchText);
+end;
+
+procedure TRipGrepperForm.StoreSettings;
+begin
+	FSettings.SearchDirs.Assign(cmbSearchDir.Items);
+	FSettings.SearchTexts.Assign(cmbSearchText.Items);
+	FSettings.RipGrepParams.Assign(cmbParameters.Items);
+	FSettings.Store
 end;
 
 function TStringsHelper.Contains(const s : string) : Boolean;
