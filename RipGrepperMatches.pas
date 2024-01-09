@@ -17,12 +17,14 @@ type
 		procedure SetError(const _sLine: string);
 	public
 		procedure ParseLine(const _sLine: string);
+		class operator Initialize(out Dest: TRipGrepMatch);
 	end;
 
   TRipGrepperMatchCollection =  TList<TRipGrepMatch>;
+
 	TRipGrepperMatches = class
     Matches : TRipGrepperMatchCollection;
-    Groups : TStringList;
+    MatchFiles : TStringList;
 	private
 		function GetCount: Integer;
 	public
@@ -73,24 +75,33 @@ begin
 	IsError := True;
 end;
 
+class operator TRipGrepMatch.Initialize(out Dest: TRipGrepMatch);
+begin
+  Dest.FileName := '';
+  Dest.Row := -1;
+  Dest.Col := -1;
+  Dest.IsError := True;
+	Dest.GroupId := -1;
+end;
+
 constructor TRipGrepperMatches.Create;
 begin
 	inherited;
-	Groups := TStringList.Create(TDuplicates.dupIgnore, True, True);
+	MatchFiles := TStringList.Create(TDuplicates.dupIgnore, True, True);
   Matches := TRipGrepperMatchCollection.Create;
 end;
 
 destructor TRipGrepperMatches.Destroy;
 begin
 	inherited;
-  Groups.Free;
+  MatchFiles.Free;
   Matches.Free;
 end;
 
 procedure TRipGrepperMatches.Clear;
 begin
   Matches.Clear;
-  Groups.Clear;
+  MatchFiles.Clear;
 end;
 
 function TRipGrepperMatches.GetCount: Integer;
