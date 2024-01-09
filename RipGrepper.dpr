@@ -4,7 +4,7 @@ program RipGrepper;
 
 uses
   Vcl.Forms,
-  RipGrepperForm in 'RipGrepperForm.pas' {RipGrepperForm},
+  RipGrepper.UI.MainForm in 'RipGrepper.UI.MainForm.pas' {RipGrepperForm},
   dpipes in 'dpipes.pas',
   dprocess in 'dprocess.pas',
   RipGrepper.Tools.ProcessUtils in 'RipGrepper.Tools.ProcessUtils.pas',

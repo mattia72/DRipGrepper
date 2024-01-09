@@ -1,4 +1,4 @@
-unit RipGrepperForm;
+unit RipGrepper.UI.MainForm;
 
 interface
 
@@ -53,6 +53,7 @@ type
 		procedure ActionCancelExecute(Sender: TObject);
 		procedure ActionConfigExecute(Sender: TObject);
 		procedure ActionSearchExecute(Sender: TObject);
+		procedure ActionSortExecute(Sender: TObject);
 		procedure ActionSwitchViewExecute(Sender: TObject);
 		procedure ActionSwitchViewUpdate(Sender: TObject);
 		procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -160,6 +161,11 @@ begin
 	ClearData;
 	InitStatusBar;
 	DoSearch;
+end;
+
+procedure TRipGrepperForm.ActionSortExecute(Sender: TObject);
+begin
+//
 end;
 
 procedure TRipGrepperForm.AddIfNotContains(_cmb: TComboBox);
