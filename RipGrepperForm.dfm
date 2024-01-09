@@ -2,8 +2,8 @@ object RipGrepperForm: TRipGrepperForm
   Left = 0
   Top = 0
   Caption = 'RipGrepper'
-  ClientHeight = 537
-  ClientWidth = 648
+  ClientHeight = 419
+  ClientWidth = 620
   Color = clBtnFace
   Constraints.MinHeight = 350
   Constraints.MinWidth = 470
@@ -1047,23 +1047,21 @@ object RipGrepperForm: TRipGrepperForm
   OnClose = FormClose
   OnShow = FormShow
   DesignSize = (
-    648
-    537)
+    620
+    419)
   TextHeight = 15
   object panelMain: TPanel
     Left = 0
     Top = 0
-    Width = 648
-    Height = 537
+    Width = 620
+    Height = 419
     Align = alClient
     BevelOuter = bvNone
     Caption = 'panelMain'
     TabOrder = 0
-    ExplicitWidth = 642
-    ExplicitHeight = 528
     DesignSize = (
-      648
-      537)
+      620
+      419)
     object Label1: TLabel
       AlignWithMargins = True
       Left = 16
@@ -1096,7 +1094,7 @@ object RipGrepperForm: TRipGrepperForm
     end
     object btnConfig: TButton
       AlignWithMargins = True
-      Left = 603
+      Left = 575
       Top = 69
       Width = 26
       Height = 24
@@ -1107,14 +1105,13 @@ object RipGrepperForm: TRipGrepperForm
       ParentShowHint = False
       ShowHint = True
       TabOrder = 0
-      ExplicitLeft = 597
     end
     object lvResult: TListView
       AlignWithMargins = True
       Left = 16
       Top = 101
-      Width = 613
-      Height = 361
+      Width = 585
+      Height = 243
       Margins.Left = 20
       Margins.Top = 10
       Margins.Right = 50
@@ -1145,47 +1142,43 @@ object RipGrepperForm: TRipGrepperForm
       TabOrder = 1
       ViewStyle = vsReport
       OnData = lvResultData
-      ExplicitWidth = 607
-      ExplicitHeight = 352
     end
     object cmbSearchDir: TComboBox
       Left = 111
       Top = 11
-      Width = 486
+      Width = 458
       Height = 23
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 2
       Text = 'cmbSearchDir'
-      ExplicitWidth = 480
     end
     object cmbSearchText: TComboBox
       Left = 111
       Top = 40
-      Width = 486
+      Width = 458
       Height = 23
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 3
       Text = 'cmbSearchDir'
-      ExplicitWidth = 480
     end
     object cmbParameters: TComboBox
       Left = 111
       Top = 69
-      Width = 486
+      Width = 458
       Height = 23
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 4
       Text = 'cmbSearchDir'
-      ExplicitWidth = 480
     end
     object StatusBar1: TStatusBar
       Left = 0
-      Top = 518
-      Width = 648
+      Top = 400
+      Width = 620
       Height = 19
       Panels = <
         item
-          Width = 50
+          Text = '0 matches found in 0 files'
+          Width = 200
         end
         item
           Width = 280
@@ -1195,27 +1188,23 @@ object RipGrepperForm: TRipGrepperForm
           Text = 'RipGrepper v1.0.0      '
           Width = 50
         end>
-      ExplicitTop = 509
-      ExplicitWidth = 642
     end
   end
   object pnl_Bottom: TPanel
     Left = 0
-    Top = 468
-    Width = 648
+    Top = 350
+    Width = 620
     Height = 44
     Anchors = [akLeft, akRight, akBottom]
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 1
-    ExplicitTop = 459
-    ExplicitWidth = 642
     DesignSize = (
-      648
+      620
       44)
     object btn_Save: TButton
       AlignWithMargins = True
-      Left = 473
+      Left = 445
       Top = 8
       Width = 75
       Height = 25
@@ -1223,11 +1212,10 @@ object RipGrepperForm: TRipGrepperForm
       Anchors = [akTop, akRight]
       Default = True
       TabOrder = 0
-      ExplicitLeft = 467
     end
     object btn_Cancel: TButton
       AlignWithMargins = True
-      Left = 557
+      Left = 529
       Top = 8
       Width = 75
       Height = 25
@@ -1235,7 +1223,6 @@ object RipGrepperForm: TRipGrepperForm
       Anchors = [akTop, akRight]
       Cancel = True
       TabOrder = 1
-      ExplicitLeft = 551
     end
   end
   object ImageListButtons: TImageList

@@ -1,4 +1,4 @@
-unit DebugTools;
+unit RipGrepper.Tools.DebugTools;
 
 interface
 
