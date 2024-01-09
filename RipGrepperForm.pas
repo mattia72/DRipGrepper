@@ -61,11 +61,12 @@ type
 			procedure BuildArgs(var sArgs : TStringList);
 			procedure ClearData;
 			procedure InitSettings;
+			procedure InitStatusBar;
 			procedure LoadSettings;
 			procedure PutIntoGroup(const idx : integer; Item : TListItem);
 			procedure SetColumnWidths;
 			procedure SetStatusBarInfo(const _dtStart : TDateTime = 0);
-			procedure SetStatusBarTexts;
+			procedure SetStatusBarResultTexts;
 			procedure StoreHistories;
 			procedure StoreSettings;
 
@@ -131,6 +132,7 @@ end;
 procedure TRipGrepperForm.ActionCancelExecute(Sender : TObject);
 begin
 	ModalResult := mrCancel;
+    Close;
 end;
 
 procedure TRipGrepperForm.ActionSearchExecute(Sender : TObject);
@@ -143,16 +145,15 @@ var
 	cursor : TCursorSaver;
 begin
 	ClearData;
-	sArgs := TStringList.Create();
-
-	dtStart := Now;
 	cursor.SetHourGlassCursor;
-
+	InitStatusBar;
+	sArgs := TStringList.Create();
 	try
 		BuildArgs(sArgs);
 		TDebugUtils.DebugMessage('run: ' + FSettings.RipGrepPath + ' ' + sArgs.DelimitedText);
 		cmd := TProcessUtils.MaybeQuoteIfNotQuoted(FSettings.RipGrepPath) + ' ' + sArgs.DelimitedText;
 		workDir := TDirectory.GetCurrentDirectory();
+		dtStart := Now;
 		rgResultOk := TProcessUtils.RunProcess(FSettings.RipGrepPath, sArgs, workDir, self as INewLineEventHandler);
 		if rgResultOk then begin
 			StoreHistories();
@@ -182,7 +183,7 @@ end;
 
 procedure TRipGrepperForm.BuildArgs(var sArgs : TStringList);
 const
-	NECESSARY_PARAMS : TArray<string> = ['--vimgrep', '--trim', '--line-buffered'];
+	NECESSARY_PARAMS : TArray<string> = ['--vimgrep', '--line-buffered'];
 var
 	paramsArr : TArray<string>;
 	params : string;
@@ -275,6 +276,12 @@ begin
 	end;
 end;
 
+procedure TRipGrepperForm.InitStatusBar;
+begin
+	SetStatusBarInfo();
+	StatusBar1.Panels[0].Text := '';
+end;
+
 procedure TRipGrepperForm.LoadSettings;
 begin
 	FSettings.Load;
@@ -300,7 +307,7 @@ begin
 		Item.SubItems.Add(m[idx].Row.ToString);
 		Item.SubItems.Add(m[idx].Col.ToString);
 		Item.SubItems.Add(m[idx].Text);
-		SetStatusBarTexts();
+		SetStatusBarResultTexts();
 		SetColumnWidths;
 	end;
 end;
@@ -367,7 +374,7 @@ begin
 	StatusBar1.Panels[2].Text := msg;
 end;
 
-procedure TRipGrepperForm.SetStatusBarTexts;
+procedure TRipGrepperForm.SetStatusBarResultTexts;
 begin
 	StatusBar1.BeginInvoke(
 		procedure()
