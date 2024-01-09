@@ -54,12 +54,13 @@ type
 
 		private
 			FData : TRipGrepperMatches;
-			FExeName : string;
 			FExeVersion : string;
+		FRgExeVersion: string;
 			FSettings : TRipGrepperSettings;
 			procedure AddIfNotContains(_cmb : TComboBox);
 			procedure BuildArgs(var sArgs : TStringList);
 			procedure ClearData;
+		function GetAppNameAndVersion(const _exePath: string): string;
 			procedure InitSettings;
 			procedure InitStatusBar;
 			procedure LoadSettings;
@@ -112,15 +113,10 @@ begin
 end;
 
 constructor TRipGrepperForm.Create(AOwner : TComponent);
-var
-	major, minor, build : Cardinal;
 begin
 	inherited Create(AOwner);
 	FData := TRipGrepperMatches.Create();
-
-	GetProductVersion(Application.ExeName, major, minor, build);
-	FExeName := TPath.GetFileNameWithoutExtension(Application.ExeName);
-	FExeVersion := Format('%d.%d.%d', [major, minor, build]);
+	FExeVersion :=GetAppNameAndVersion(Application.ExeName);
 end;
 
 destructor TRipGrepperForm.Destroy;
@@ -241,6 +237,19 @@ procedure TRipGrepperForm.FormShow(Sender : TObject);
 begin
 	LoadSettings;
 	SetStatusBarInfo();
+	FRgExeVersion := GetAppNameAndVersion(FSettings.RipGrepPath);
+end;
+
+function TRipGrepperForm.GetAppNameAndVersion(const _exePath: string): string;
+var
+	major: Cardinal;
+	minor: Cardinal;
+	build: Cardinal;
+	name: string;
+begin
+	GetProductVersion(_exePath, major, minor, build);
+	name := TPath.GetFileNameWithoutExtension(_exePath);
+	Result := Format('%s v%d.%d.%d', [name, major, minor, build]);
 end;
 
 procedure TRipGrepperForm.InitSettings;
@@ -362,14 +371,14 @@ end;
 
 procedure TRipGrepperForm.SetStatusBarInfo(const _dtStart : TDateTime = 0);
 const
-	VERSION_FORMAT = '%s v%s     ';
+	EXE_AND_VERSION_FORMAT = '%s   ';
 var
 	msg : string;
 begin
 	if _dtStart <> 0 then begin
-		msg := Format('Search took %.2f seconds with ' + VERSION_FORMAT, [(Now - _dtStart) * 24 * 60 * 60, FExeName, FExeVersion]);
+		msg := Format('Search took %.2f seconds with ' + EXE_AND_VERSION_FORMAT, [(Now - _dtStart) * 24 * 60 * 60, FExeVersion]);
 	end else begin
-		msg := Format(VERSION_FORMAT, [FExeName, FExeVersion]);
+		msg := Format(EXE_AND_VERSION_FORMAT, [FExeVersion]);
 	end;
 	StatusBar1.Panels[2].Text := msg;
 end;
