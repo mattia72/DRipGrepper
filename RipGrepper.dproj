@@ -114,6 +114,7 @@
         <DCCReference Include="RipGrepperMatches.pas"/>
         <DCCReference Include="RipGrepper.Helper.CursorSaver.pas"/>
         <DCCReference Include="RipGrepper.Tools.FileUtils.pas"/>
+        <DCCReference Include="RipGrepper.Helper.Types.pas"/>
         <None Include="pipes_win.inc"/>
         <None Include="process_win.inc"/>
         <BuildConfiguration Include="Base">

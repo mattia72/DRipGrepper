@@ -2,8 +2,8 @@ object RipGrepperForm: TRipGrepperForm
   Left = 0
   Top = 0
   Caption = 'RipGrepper'
-  ClientHeight = 419
-  ClientWidth = 620
+  ClientHeight = 349
+  ClientWidth = 629
   Color = clBtnFace
   Constraints.MinHeight = 350
   Constraints.MinWidth = 470
@@ -1044,17 +1044,18 @@ object RipGrepperForm: TRipGrepperForm
     0000000000000000000000000000000000000000000000000000000000000000
     0000000000000000000000000000000000000000000000000000000000000000
     00000000000000000000000000000000000000000000000000000000}
+  Position = poDesigned
   OnClose = FormClose
   OnShow = FormShow
   DesignSize = (
-    620
-    419)
+    629
+    349)
   TextHeight = 15
   object panelMain: TPanel
     Left = 0
     Top = 0
-    Width = 620
-    Height = 419
+    Width = 629
+    Height = 349
     Align = alClient
     BevelOuter = bvNone
     Caption = 'panelMain'
@@ -1062,8 +1063,8 @@ object RipGrepperForm: TRipGrepperForm
     ExplicitWidth = 614
     ExplicitHeight = 410
     DesignSize = (
-      620
-      419)
+      629
+      349)
     object Label1: TLabel
       AlignWithMargins = True
       Left = 16
@@ -1096,7 +1097,7 @@ object RipGrepperForm: TRipGrepperForm
     end
     object btnConfig: TButton
       AlignWithMargins = True
-      Left = 569
+      Left = 578
       Top = 69
       Width = 26
       Height = 24
@@ -1113,8 +1114,8 @@ object RipGrepperForm: TRipGrepperForm
       AlignWithMargins = True
       Left = 16
       Top = 101
-      Width = 547
-      Height = 243
+      Width = 556
+      Height = 173
       Margins.Left = 20
       Margins.Top = 10
       Margins.Right = 50
@@ -1124,6 +1125,7 @@ object RipGrepperForm: TRipGrepperForm
         item
           AutoSize = True
           Caption = 'File'
+          ImageIndex = 2
         end
         item
           AutoSize = True
@@ -1149,14 +1151,16 @@ object RipGrepperForm: TRipGrepperForm
         end>
       StyleName = 'Windows'
       OwnerData = True
-      GroupHeaderImages = ImageListButtons
       GroupView = True
       ReadOnly = True
       RowSelect = True
       ParentShowHint = False
       ShowHint = True
+      SmallImages = ImageListButtons
+      StateImages = ImageListButtons
       TabOrder = 1
       ViewStyle = vsReport
+      OnColumnClick = lvResultColumnClick
       OnData = lvResultData
       ExplicitWidth = 541
       ExplicitHeight = 234
@@ -1164,7 +1168,7 @@ object RipGrepperForm: TRipGrepperForm
     object cmbSearchDir: TComboBox
       Left = 111
       Top = 11
-      Width = 452
+      Width = 461
       Height = 23
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 2
@@ -1174,7 +1178,7 @@ object RipGrepperForm: TRipGrepperForm
     object cmbSearchText: TComboBox
       Left = 111
       Top = 40
-      Width = 452
+      Width = 461
       Height = 23
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 3
@@ -1184,7 +1188,7 @@ object RipGrepperForm: TRipGrepperForm
     object cmbParameters: TComboBox
       Left = 111
       Top = 69
-      Width = 452
+      Width = 461
       Height = 23
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 4
@@ -1193,8 +1197,8 @@ object RipGrepperForm: TRipGrepperForm
     end
     object StatusBar1: TStatusBar
       Left = 0
-      Top = 400
-      Width = 620
+      Top = 330
+      Width = 629
       Height = 19
       Panels = <
         item
@@ -1207,14 +1211,14 @@ object RipGrepperForm: TRipGrepperForm
         item
           Alignment = taRightJustify
           Text = 'RipGrepper v1.0.0      '
-          Width = 50
+          Width = 150
         end>
       ExplicitTop = 391
       ExplicitWidth = 614
     end
     object btnView: TButton
       AlignWithMargins = True
-      Left = 569
+      Left = 578
       Top = 131
       Width = 26
       Height = 24
@@ -1229,14 +1233,13 @@ object RipGrepperForm: TRipGrepperForm
     end
     object btnSort: TButton
       AlignWithMargins = True
-      Left = 569
+      Left = 578
       Top = 101
       Width = 26
       Height = 24
       Action = ActionSort
       Anchors = [akTop, akRight]
       ImageAlignment = iaCenter
-      ImageIndex = 7
       Images = ImageListButtons
       ParentShowHint = False
       ShowHint = True
@@ -1246,8 +1249,8 @@ object RipGrepperForm: TRipGrepperForm
   end
   object pnl_Bottom: TPanel
     Left = 0
-    Top = 350
-    Width = 614
+    Top = 280
+    Width = 623
     Height = 44
     Anchors = [akLeft, akRight, akBottom]
     BevelOuter = bvNone
@@ -1256,11 +1259,11 @@ object RipGrepperForm: TRipGrepperForm
     ExplicitTop = 341
     ExplicitWidth = 608
     DesignSize = (
-      614
+      623
       44)
     object btn_Save: TButton
       AlignWithMargins = True
-      Left = 439
+      Left = 448
       Top = 8
       Width = 75
       Height = 25
@@ -1272,7 +1275,7 @@ object RipGrepperForm: TRipGrepperForm
     end
     object btn_Cancel: TButton
       AlignWithMargins = True
-      Left = 523
+      Left = 532
       Top = 8
       Width = 75
       Height = 25
@@ -1715,8 +1718,9 @@ object RipGrepperForm: TRipGrepperForm
       OnUpdate = ActionSwitchViewUpdate
     end
     object ActionSort: TAction
-      ImageIndex = 6
+      ImageIndex = 2
       OnExecute = ActionSortExecute
+      OnUpdate = ActionSortUpdate
     end
   end
 end

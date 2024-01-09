@@ -14,14 +14,14 @@ uses
   RipGrepper.Helper.CursorSaver in 'RipGrepper.Helper.CursorSaver.pas',
   RipGrepper.Tools.FileUtils in 'RipGrepper.Tools.FileUtils.pas',
   Vcl.Themes,
-  Vcl.Styles;
+  Vcl.Styles,
+  RipGrepper.Helper.Types in 'RipGrepper.Helper.Types.pas';
 
 {$R *.res}
 
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
-  TStyleManager.TrySetStyle('Windows10 Dark');
   Application.CreateForm(TRipGrepperForm, Form1);
   Application.Run;
 end.

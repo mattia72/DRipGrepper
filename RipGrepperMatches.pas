@@ -3,47 +3,54 @@ unit RipGrepperMatches;
 interface
 
 uses
-	System.Generics.Collections, System.Classes;
+	System.Generics.Collections,
+	System.Classes;
 
 type
 	TRipGrepMatch = record
-		FileName: string;
-		Row: integer;
-		Col: integer;
-		Text: string;
-    GroupId: integer;
-	private
-		IsError: Boolean;
-		procedure SetError(const _sLine: string);
-	public
-		procedure ParseLine(const _sLine: string);
-		class operator Initialize(out Dest: TRipGrepMatch);
+		FileName : string;
+		Row : integer;
+		Col : integer;
+		Text : string;
+		GroupId : integer;
+
+		private
+			IsError : Boolean;
+			procedure SetError(const _sLine : string);
+
+		public
+			procedure ParseLine(const _sLine : string);
+			class operator Initialize(out Dest : TRipGrepMatch);
 	end;
 
-  TRipGrepperMatchCollection =  TList<TRipGrepMatch>;
+	TRipGrepperMatchCollection = TList<TRipGrepMatch>;
 
 	TRipGrepperMatches = class
-    Matches : TRipGrepperMatchCollection;
-    MatchFiles : TStringList;
-	private
-		function GetCount: Integer;
-	public
-		constructor Create;
-		destructor Destroy; override;
-		procedure Clear;
-		property Count: Integer read GetCount;
-  end;
+		Matches : TRipGrepperMatchCollection;
+		MatchFiles : TStringList;
+
+		private
+			function GetCount : Integer;
+
+		public
+			constructor Create;
+			destructor Destroy; override;
+			procedure Clear;
+			procedure SortByFiles(_bDescending : Boolean = False);
+			property Count : Integer read GetCount;
+	end;
 
 implementation
 
 uses
-	System.SysUtils;
+	System.SysUtils,
+	System.Generics.Defaults;
 
-procedure TRipGrepMatch.ParseLine(const _sLine: string);
+procedure TRipGrepMatch.ParseLine(const _sLine : string);
 var
-	iPosMatch: integer;
-	iPosRow: integer;
-	iPosCol: integer;
+	iPosMatch : integer;
+	iPosRow : integer;
+	iPosCol : integer;
 begin
 	iPosRow := Pos(':', _sLine, 3);
 	if iPosRow <> 0 then begin
@@ -68,19 +75,19 @@ begin
 	end;
 end;
 
-procedure TRipGrepMatch.SetError(const _sLine: string);
+procedure TRipGrepMatch.SetError(const _sLine : string);
 begin
 	FileName := '';
 	Text := _sLine;
 	IsError := True;
 end;
 
-class operator TRipGrepMatch.Initialize(out Dest: TRipGrepMatch);
+class operator TRipGrepMatch.Initialize(out Dest : TRipGrepMatch);
 begin
-  Dest.FileName := '';
-  Dest.Row := -1;
-  Dest.Col := -1;
-  Dest.IsError := True;
+	Dest.FileName := '';
+	Dest.Row := -1;
+	Dest.Col := -1;
+	Dest.IsError := True;
 	Dest.GroupId := -1;
 end;
 
@@ -88,25 +95,38 @@ constructor TRipGrepperMatches.Create;
 begin
 	inherited;
 	MatchFiles := TStringList.Create(TDuplicates.dupIgnore, True, True);
-  Matches := TRipGrepperMatchCollection.Create;
+	Matches := TRipGrepperMatchCollection.Create;
 end;
 
 destructor TRipGrepperMatches.Destroy;
 begin
 	inherited;
-  MatchFiles.Free;
-  Matches.Free;
+	MatchFiles.Free;
+	Matches.Free;
 end;
 
 procedure TRipGrepperMatches.Clear;
 begin
-  Matches.Clear;
-  MatchFiles.Clear;
+	Matches.Clear;
+	MatchFiles.Clear;
 end;
 
-function TRipGrepperMatches.GetCount: Integer;
+function TRipGrepperMatches.GetCount : Integer;
 begin
 	Result := Matches.Count;
+end;
+
+procedure TRipGrepperMatches.SortByFiles(_bDescending : Boolean = False);
+begin
+	Matches.Sort(TComparer<TRipGrepMatch>.Construct(
+		function(const Left, Right : TRipGrepMatch) : Integer
+		begin
+			if _bDescending then begin
+				Result := -CompareStr(Left.FileName, Right.FileName);
+			end else begin
+				Result := CompareStr(Left.FileName, Right.FileName);
+			end;
+		end));
 end;
 
 end.
