@@ -58,6 +58,7 @@
         <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
         <SanitizedProjectName>RipGrepper</SanitizedProjectName>
+        <Custom_Styles>Windows10|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows10.vsf;&quot;Windows10 Blue|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows10Blue.vsf&quot;;&quot;Windows10 Dark|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows10Dark.vsf&quot;</Custom_Styles>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_UsePackage>soapserver;IndySystem;vclwinx;MExperts;fmx;vclie;DbxCommonDriver;bindengine;vcldb;IndyIPCommon;VCLRESTComponents;FireDACCommonODBC;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;IndyIPClient;dbxcds;vcledge;vclFireDAC;bindcompvclwinx;bindcomp;FireDACCommon;IndyCore;RESTBackendComponents;bindcompfmx;bindcompdbx;inetdb;rtl;FireDACMySQLDriver;FireDACSqliteDriver;DbxClientDriver;FireDACADSDriver;RESTComponents;soapmidas;DBXSqliteDriver;vcl;vclactnband;IndyIPServer;dsnapxml;fmxFireDAC;dbexpress;dsnapcon;adortl;DBXMySQLDriver;VclSmp;inet;vclimg;vcltouch;FireDACPgDriver;FireDAC;fmxase;inetdbxpress;xmlrtl;tethering;dbrtl;bindcompvcl;dsnap;fmxdae;CloudService;FireDACMSAccDriver;CustomIPTransport;fmxobj;bindcompvclsmp;soaprtl;vcldsnap;DBXInterBaseDriver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
@@ -136,15 +137,8 @@
                     <Source Name="MainSource">RipGrepper.dpr</Source>
                 </Source>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclFMXtee9280.bpl">TeeChart Lite FMX Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclBindCompFireDAC280.bpl">LiveBinding-Ausdruckskomponenten für FireDac</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclFMXFireDAC280.bpl">Embarcadero FMX-FireDAC-Komponenten</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclFireDAC280.bpl">Embarcadero FireDAC-Komponenten</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclVclFireDAC280.bpl">Embarcadero VCL-FireDAC-Komponenten</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k280.bpl">Microsoft Office 2000 Beispiele für gekapselte Komponenten für Automatisierungsserver</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclofficexp280.bpl">Microsoft Office XP Beispiele für gekapselte Komponenten für Automation Server</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclbindcompfmx280.bpl">Embarcadero LiveBindings-Komponenten FireMonkey</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclappanalytics280.bpl">Embarcadero Usertility-Analysekomponente</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclbindcompvcl280.bpl">Embarcadero LiveBindings-Komponenten VCL</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="4">
