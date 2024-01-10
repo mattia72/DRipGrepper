@@ -64,6 +64,7 @@ type
 			FMaxWidths : TArray<integer>;
 			FPasrserType : TParserType;
 			FRgExeVersion : string;
+			FSearchPathIsDir : Boolean;
 			FSettings : TRipGrepperSettings;
 			FSortType : TSortType;
 			FViewStyleIndex : Integer;
@@ -148,6 +149,7 @@ begin
 	for var i := 0 to lvResult.Columns.Count do begin
 		FMaxWidths := FMaxWidths + [0];
 	end;
+    FPasrserType := ptRipGrepSearchCutParent;
 	UpdateSortingImages;
 end;
 
@@ -378,8 +380,8 @@ begin
 		FSettings.RipGrepPath := rgPath.Trim();
 	end;
 
-	if FSettings.SearchDirs.Count = 0 then begin
-		FSettings.SearchDirs.Add(TDirectory.GetCurrentDirectory());
+	if FSettings.SearchPaths.Count = 0 then begin
+		FSettings.SearchPaths.Add(TDirectory.GetCurrentDirectory());
 	end;
 
 	if FSettings.SearchTexts.Count = 0 then begin
@@ -401,7 +403,8 @@ procedure TRipGrepperForm.LoadSettings;
 begin
 	FSettings.Load;
 	InitSettings;
-	cmbSearchDir.Items.Assign(FSettings.SearchDirs);
+	cmbSearchDir.Items.Assign(FSettings.SearchPaths);
+	FSearchPathIsDir := TDirectory.Exists(FSettings.SearchPaths[0]);
 	cmbSearchDir.ItemIndex := 0;
 	cmbSearchText.Items.Assign(FSettings.SearchTexts);
 	cmbSearchText.ItemIndex := 0;
@@ -435,16 +438,25 @@ end;
 procedure TRipGrepperForm.OnNewResultLine(const _sLine : string);
 var
 	newItem : TRipGrepMatch;
+	s : string;
 begin
 	TTask.Run(
 		procedure
 		begin
 			case FPasrserType of
-				ptRipGrepSearch :
-				newItem.ParseLine(_sLine);
-				ptRipGrepSearchCutParent :
-				newItem.ParseLine(_sLine.Replace(FSettings.SearchDirs[0], ''));
+				ptRipGrepSearch : begin
+					newItem.ParseLine(_sLine);
+				end;
+				ptRipGrepSearchCutParent : begin
+					if FSearchPathIsDir then begin
+						s := _sLine.Replace(FSettings.SearchPaths[0], '', [rfIgnoreCase]);
+					end else begin
+						s := _sLine;
+					end;
+					newItem.ParseLine(s);
+				end;
 			end;
+
 			TThread.Synchronize(nil,
 				procedure
 				begin
@@ -519,7 +531,7 @@ end;
 
 procedure TRipGrepperForm.StoreSettings;
 begin
-	FSettings.SearchDirs.Assign(cmbSearchDir.Items);
+	FSettings.SearchPaths.Assign(cmbSearchDir.Items);
 	FSettings.SearchTexts.Assign(cmbSearchText.Items);
 	FSettings.RipGrepParams.Assign(cmbParameters.Items);
 	FSettings.Store

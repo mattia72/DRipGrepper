@@ -15,7 +15,7 @@ type
 			SettingsFile : TIniFile;
 			RipGrepPath : string;
 			RipGrepParams : TStrings;
-			SearchDirs : TStrings;
+			SearchPaths : TStrings;
 			SearchTexts : TStrings;
 
 		private
@@ -49,7 +49,7 @@ end;
 
 class operator TRipGrepperSettings.Finalize(var Dest : TRipGrepperSettings);
 begin
-	Dest.SearchDirs.Free;
+	Dest.SearchPaths.Free;
 	Dest.SearchTexts.Free;
 	Dest.RipGrepParams.Free;
 end;
@@ -57,7 +57,7 @@ end;
 class operator TRipGrepperSettings.Initialize(out Dest : TRipGrepperSettings);
 begin
 	Dest.SettingsFile := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
-	Dest.SearchDirs := TStringList.Create;
+	Dest.SearchPaths := TStringList.Create;
 	Dest.SearchTexts := TStringList.Create;
 	Dest.RipGrepParams := TStringList.Create;
 	Dest.RipGrepPath := '';
@@ -66,7 +66,7 @@ end;
 procedure TRipGrepperSettings.Load;
 begin
 	RipGrepPath := SettingsFile.ReadString('RipGrepSettings', 'Path', '');
-	LoadHistoryEntries(SearchDirs, 'SearchDirsHistory');
+	LoadHistoryEntries(SearchPaths, 'SearchPathsHistory');
 	LoadHistoryEntries(SearchTexts, 'SearchTextsHistory');
 	LoadHistoryEntries(RipGrepParams, 'RipGrepParamsHistory');
 end;
@@ -81,7 +81,7 @@ end;
 procedure TRipGrepperSettings.Store;
 begin
 	SettingsFile.WriteString('RipGrepSettings', 'Path', RipGrepPath);
-	StoreHistoryEntries(SearchDirs, 'SearchDirsHistory');
+	StoreHistoryEntries(SearchPaths, 'SearchPathsHistory');
 	StoreHistoryEntries(SearchTexts, 'SearchTextsHistory');
 	StoreHistoryEntries(RipGrepParams, 'RipGrepParamsHistory');
 end;
