@@ -61,6 +61,7 @@ type
 		private
 			FData : TRipGrepperMatches;
 			FExeVersion : string;
+			FMaxWidths : TArray<integer>;
 			FPasrserType : TParserType;
 			FRgExeVersion : string;
 			FSettings : TRipGrepperSettings;
@@ -71,13 +72,14 @@ type
 			procedure ClearData;
 			procedure DoSearch;
 			function GetAppNameAndVersion(const _exePath : string) : string;
+			function GetMaxWidth(const _width, _colIndex : Integer) : integer;
 			function GetSortingImageIndex : Integer;
 			function GetViewStyleIndex : Integer;
 			procedure InitSettings;
 			procedure InitStatusBar;
 			procedure LoadSettings;
 			procedure PutIntoGroup(const idx : Integer; Item : TListItem);
-			procedure SetColumnWidths;
+			procedure AdjustColumnWidths(_item : TListItem);
 			procedure SetStatusBarInfo(const _dtStart : TDateTime = 0);
 			procedure SetStatusBarResultTexts;
 			procedure StoreHistories;
@@ -143,6 +145,9 @@ begin
 	FData := TRipGrepperMatches.Create();
 	FExeVersion := GetAppNameAndVersion(Application.ExeName);
 	FSortType := stUnsorted;
+	for var i := 0 to lvResult.Columns.Count do begin
+		FMaxWidths := FMaxWidths + [0];
+	end;
 	UpdateSortingImages;
 end;
 
@@ -324,6 +329,15 @@ begin
 	Result := Format('%s v%d.%d.%d', [name, major, minor, build]);
 end;
 
+function TRipGrepperForm.GetMaxWidth(const _width, _colIndex : Integer) : integer;
+begin
+	if _width > FMaxWidths[_colIndex] then begin
+		lvResult.Columns[_colIndex].Width := _width;
+		FMaxWidths[_colIndex] := _width;
+	end;
+	Result := FMaxWidths[_colIndex];
+end;
+
 function TRipGrepperForm.GetSortingImageIndex : Integer;
 begin
 	case FSortType of
@@ -414,7 +428,7 @@ begin
 		Item.SubItems.Add(m[idx].Col.ToString);
 		Item.SubItems.Add(m[idx].Text);
 		SetStatusBarResultTexts();
-		SetColumnWidths;
+		AdjustColumnWidths(Item);
 	end;
 end;
 
@@ -462,10 +476,14 @@ begin
 	end;
 end;
 
-procedure TRipGrepperForm.SetColumnWidths;
+procedure TRipGrepperForm.AdjustColumnWidths(_item : TListItem);
+const
+	SAPCE_TITLE = 50;
+	SAPCE = 20;
 begin
-	for var i := 0 to lvResult.Columns.Count - 1 do begin
-		lvResult.Columns[i].Width := LVSCW_AUTOSIZE or LVSCW_AUTOSIZE_USEHEADER;
+	lvResult.Columns[0].Width := SAPCE_TITLE + GetMaxWidth(ListView_GetStringWidth(lvResult.Handle, PChar(_item.Caption)), 0);
+	for var i := 1 to lvResult.Columns.Count - 1 do begin
+		lvResult.Columns[i].Width := SAPCE + GetMaxWidth(ListView_GetStringWidth(lvResult.Handle, PChar(_item.SubItems[i - 1])), i);
 	end;
 end;
 
