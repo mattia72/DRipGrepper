@@ -7,7 +7,6 @@ type
 		private
 		public
 			class function FindExecutable(sFileName : string; out sOutpuPath : string) : Boolean;
-			class function GetValidPath(const aPath : string) : string;
 	end;
 
 implementation
@@ -33,13 +32,6 @@ begin
 
 	TDebugUtils.DebugMessage(sFileName + ' path:' + sOutpuPath);
 	// WriteDebugMessage(sOutpuPath);
-end;
-
-class function TFileUtils.GetValidPath(const aPath : string) : string;
-begin
-	Result := aPath;
-	if Length(Result) > 0 then
-		Result := IncludeTrailingPathDelimiter(Result);
 end;
 
 end.

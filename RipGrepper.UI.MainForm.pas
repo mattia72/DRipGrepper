@@ -20,19 +20,20 @@ uses
 	RipGrepper.Tools.ProcessUtils,
 	RipGrepperSettings,
 	RipGrepperMatches,
-	RipGrepper.Helper.Types;
+	RipGrepper.Helper.Types,
+	Vcl.ToolWin;
 
 type
 	TRipGrepperForm = class(TForm, INewLineEventHandler)
 		panelMain : TPanel;
-		Label1 : TLabel;
-		LabelParams : TLabel;
-		Label3 : TLabel;
+		lblPaths : TLabel;
+		lblParams : TLabel;
+		lblText : TLabel;
 		btnConfig : TButton;
 		lvResult : TListView;
-		pnl_Bottom : TPanel;
-		btn_Save : TButton;
-		btn_Cancel : TButton;
+		pnlBottom : TPanel;
+		btnSearch : TButton;
+		btnCancel : TButton;
 		ImageListButtons : TImageList;
 		alActions : TActionList;
 		ActionSearch : TAction;
@@ -42,10 +43,13 @@ type
 		cmbSearchText : TComboBox;
 		cmbParameters : TComboBox;
 		StatusBar1 : TStatusBar;
-		btnView : TButton;
 		ActionSwitchView : TAction;
-		btnSort : TButton;
 		ActionSort : TAction;
+		pnlSearch : TPanel;
+		ToolBar1 : TToolBar;
+		tbSort : TToolButton;
+		tbView : TToolButton;
+		gbSearch : TGroupBox;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionConfigExecute(Sender : TObject);
 		procedure ActionSearchExecute(Sender : TObject);
@@ -149,7 +153,7 @@ begin
 	for var i := 0 to lvResult.Columns.Count do begin
 		FMaxWidths := FMaxWidths + [0];
 	end;
-    FPasrserType := ptRipGrepSearchCutParent;
+	FPasrserType := ptRipGrepSearchCutParent;
 	UpdateSortingImages;
 end;
 
@@ -180,7 +184,7 @@ begin
 	FSortType := stUnsorted;
 	UpdateSortingImages;
 	lvResult.Repaint();
-	btnSort.Repaint();
+	// btnSort.Repaint();
 	DoSearch;
 end;
 
@@ -449,7 +453,7 @@ begin
 				end;
 				ptRipGrepSearchCutParent : begin
 					if FSearchPathIsDir then begin
-						s := _sLine.Replace(FSettings.SearchPaths[0], '', [rfIgnoreCase]);
+						s := _sLine.Replace(FSettings.SearchPaths[0], '.', [rfIgnoreCase]);
 					end else begin
 						s := _sLine;
 					end;
