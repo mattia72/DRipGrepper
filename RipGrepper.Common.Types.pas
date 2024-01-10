@@ -1,4 +1,4 @@
-unit RipGrepper.Helper.Types;
+unit RipGrepper.Common.Types;
 
 interface
 

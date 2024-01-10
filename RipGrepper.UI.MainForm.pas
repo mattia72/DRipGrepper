@@ -18,9 +18,9 @@ uses
 	System.Actions,
 	Vcl.ActnList,
 	RipGrepper.Tools.ProcessUtils,
-	RipGrepperSettings,
-	RipGrepperMatches,
-	RipGrepper.Helper.Types,
+	RipGrepper.Common.Settings,
+	RipGrepper.Data.Matches,
+	RipGrepper.Common.Types,
 	Vcl.ToolWin;
 
 type
@@ -50,8 +50,13 @@ type
 		tbSort : TToolButton;
 		tbView : TToolButton;
 		gbSearch : TGroupBox;
+    tbCutParentDir: TToolButton;
+    ActionCutParentDir: TAction;
+    ToolButton1: TToolButton;
+    ToolButton2: TToolButton;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionConfigExecute(Sender : TObject);
+		procedure ActionCutParentDirExecute(Sender: TObject);
 		procedure ActionSearchExecute(Sender : TObject);
 		procedure ActionSortExecute(Sender : TObject);
 		procedure ActionSortUpdate(Sender : TObject);
@@ -66,7 +71,7 @@ type
 			FData : TRipGrepperMatches;
 			FExeVersion : string;
 			FMaxWidths : TArray<integer>;
-			FPasrserType : TParserType;
+			FParserType : TParserType;
 			FRgExeVersion : string;
 			FSearchPathIsDir : Boolean;
 			FSettings : TRipGrepperSettings;
@@ -153,7 +158,7 @@ begin
 	for var i := 0 to lvResult.Columns.Count do begin
 		FMaxWidths := FMaxWidths + [0];
 	end;
-	FPasrserType := ptRipGrepSearchCutParent;
+	FParserType := ptRipGrepSearchCutParent;
 	UpdateSortingImages;
 end;
 
@@ -172,6 +177,14 @@ end;
 procedure TRipGrepperForm.ActionConfigExecute(Sender : TObject);
 begin
 	//
+end;
+
+procedure TRipGrepperForm.ActionCutParentDirExecute(Sender: TObject);
+const
+	PARSER_TYPES : TArray<TParserType> = [ptRipGrepSearch, ptRipGrepSearchCutParent];
+begin
+	var idx := Integer(FParserType) + 1;
+	FParserType := PARSER_TYPES[ idx mod Length(PARSER_TYPES)];
 end;
 
 procedure TRipGrepperForm.ActionSearchExecute(Sender : TObject);
@@ -447,7 +460,7 @@ begin
 	TTask.Run(
 		procedure
 		begin
-			case FPasrserType of
+			case FParserType of
 				ptRipGrepSearch : begin
 					newItem.ParseLine(_sLine);
 				end;
