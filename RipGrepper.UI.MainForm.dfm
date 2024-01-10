@@ -1131,10 +1131,10 @@ object RipGrepperForm: TRipGrepperForm
         Top = 0
         Action = ActionSwitchView
       end
-      object tbCutParentDir: TToolButton
+      object tbShowRelativePath: TToolButton
         Left = 39
         Top = 0
-        Action = ActionCutParentDir
+        Action = ActionShowRelativePath
       end
       object ToolButton1: TToolButton
         Left = 62
@@ -1737,10 +1737,11 @@ object RipGrepperForm: TRipGrepperForm
       OnExecute = ActionSortExecute
       OnUpdate = ActionSortUpdate
     end
-    object ActionCutParentDir: TAction
+    object ActionShowRelativePath: TAction
       Hint = 'Show full or relative file name'
       ImageIndex = 8
-      OnExecute = ActionCutParentDirExecute
+      OnExecute = ActionShowRelativePathExecute
+      OnUpdate = ActionShowRelativePathUpdate
     end
   end
 end

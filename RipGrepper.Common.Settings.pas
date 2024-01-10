@@ -17,10 +17,12 @@ type
 			RipGrepParams : TStrings;
 			SearchPaths : TStrings;
 			SearchTexts : TStrings;
+			ShowRelativePath : Boolean;
 
 		private
 			procedure LoadHistoryEntries(var _list : TStrings; const _section : string);
 			procedure StoreHistoryEntries(const _list : TStrings; const _section : string);
+
 		public
 			procedure Load;
 			procedure Store;
@@ -57,33 +59,38 @@ end;
 class operator TRipGrepperSettings.Initialize(out Dest : TRipGrepperSettings);
 begin
 	Dest.SettingsFile := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
+
+	Dest.RipGrepPath := '';
+	Dest.ShowRelativePath := False;
 	Dest.SearchPaths := TStringList.Create;
 	Dest.SearchTexts := TStringList.Create;
 	Dest.RipGrepParams := TStringList.Create;
-	Dest.RipGrepPath := '';
+
 end;
 
 procedure TRipGrepperSettings.Load;
 begin
 	RipGrepPath := SettingsFile.ReadString('RipGrepSettings', 'Path', '');
+	ShowRelativePath := SettingsFile.ReadBool('RipGrepperSettings', 'ShowRelativePath', False);
 	LoadHistoryEntries(SearchPaths, 'SearchPathsHistory');
 	LoadHistoryEntries(SearchTexts, 'SearchTextsHistory');
 	LoadHistoryEntries(RipGrepParams, 'RipGrepParamsHistory');
 end;
 
-procedure TRipGrepperSettings.StoreHistoryEntries(const _list : TStrings; const _section : string);
-begin
-	for var i := _list.Count -1 downto 0 do begin
-		SettingsFile.WriteString(_section, 'Item_' + i.ToString, _list[i]);
-	end;
-end;
-
 procedure TRipGrepperSettings.Store;
 begin
 	SettingsFile.WriteString('RipGrepSettings', 'Path', RipGrepPath);
+	SettingsFile.WriteBool('RipGrepperSettings', 'ShowRelativePath', ShowRelativePath);
 	StoreHistoryEntries(SearchPaths, 'SearchPathsHistory');
 	StoreHistoryEntries(SearchTexts, 'SearchTextsHistory');
 	StoreHistoryEntries(RipGrepParams, 'RipGrepParamsHistory');
+end;
+
+procedure TRipGrepperSettings.StoreHistoryEntries(const _list : TStrings; const _section : string);
+begin
+	for var i := _list.Count - 1 downto 0 do begin
+		SettingsFile.WriteString(_section, 'Item_' + i.ToString, _list[i]);
+	end;
 end;
 
 end.

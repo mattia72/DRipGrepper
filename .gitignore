@@ -4,3 +4,5 @@ Win32/*
 RipGrepper.delphilsp.json
 RipGrepper.identcache
 RipGrepper.res
+RipGrepper.dproj.local
+.vscode/settings.json

@@ -50,14 +50,15 @@ type
 		tbSort : TToolButton;
 		tbView : TToolButton;
 		gbSearch : TGroupBox;
-    tbCutParentDir: TToolButton;
-    ActionCutParentDir: TAction;
-    ToolButton1: TToolButton;
-    ToolButton2: TToolButton;
+		tbShowRelativePath : TToolButton;
+		ActionShowRelativePath : TAction;
+		ToolButton1 : TToolButton;
+		ToolButton2 : TToolButton;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionConfigExecute(Sender : TObject);
-		procedure ActionCutParentDirExecute(Sender: TObject);
+		procedure ActionShowRelativePathExecute(Sender : TObject);
 		procedure ActionSearchExecute(Sender : TObject);
+		procedure ActionShowRelativePathUpdate(Sender : TObject);
 		procedure ActionSortExecute(Sender : TObject);
 		procedure ActionSortUpdate(Sender : TObject);
 		procedure ActionSwitchViewExecute(Sender : TObject);
@@ -75,6 +76,7 @@ type
 			FRgExeVersion : string;
 			FSearchPathIsDir : Boolean;
 			FSettings : TRipGrepperSettings;
+			FShowRelativePath : Boolean;
 			FSortType : TSortType;
 			FViewStyleIndex : Integer;
 			procedure AddIfNotContains(_cmb : TComboBox);
@@ -90,6 +92,8 @@ type
 			procedure LoadSettings;
 			procedure PutIntoGroup(const idx : Integer; Item : TListItem);
 			procedure AdjustColumnWidths(_item : TListItem);
+			procedure DataToGrid(const _index : Integer; _item : TListItem);
+			procedure InitMaxWidths;
 			procedure SetStatusBarInfo(const _dtStart : TDateTime = 0);
 			procedure SetStatusBarResultTexts;
 			procedure StoreHistories;
@@ -155,9 +159,7 @@ begin
 	FData := TRipGrepperMatches.Create();
 	FExeVersion := GetAppNameAndVersion(Application.ExeName);
 	FSortType := stUnsorted;
-	for var i := 0 to lvResult.Columns.Count do begin
-		FMaxWidths := FMaxWidths + [0];
-	end;
+	InitMaxWidths;
 	FParserType := ptRipGrepSearchCutParent;
 	UpdateSortingImages;
 end;
@@ -179,12 +181,16 @@ begin
 	//
 end;
 
-procedure TRipGrepperForm.ActionCutParentDirExecute(Sender: TObject);
+procedure TRipGrepperForm.ActionShowRelativePathExecute(Sender : TObject);
 const
 	PARSER_TYPES : TArray<TParserType> = [ptRipGrepSearch, ptRipGrepSearchCutParent];
 begin
-	var idx := Integer(FParserType) + 1;
-	FParserType := PARSER_TYPES[ idx mod Length(PARSER_TYPES)];
+	FShowRelativePath := not FShowRelativePath;
+	var
+	idx := Integer(FShowRelativePath);
+	FParserType := PARSER_TYPES[idx mod Length(PARSER_TYPES)];
+	InitMaxWidths();
+	lvResult.Repaint;
 end;
 
 procedure TRipGrepperForm.ActionSearchExecute(Sender : TObject);
@@ -199,6 +205,11 @@ begin
 	lvResult.Repaint();
 	// btnSort.Repaint();
 	DoSearch;
+end;
+
+procedure TRipGrepperForm.ActionShowRelativePathUpdate(Sender : TObject);
+begin
+	tbShowRelativePath.Down := FShowRelativePath;
 end;
 
 procedure TRipGrepperForm.ActionSortExecute(Sender : TObject);
@@ -350,11 +361,15 @@ end;
 
 function TRipGrepperForm.GetMaxWidth(const _width, _colIndex : Integer) : integer;
 begin
-	if _width > FMaxWidths[_colIndex] then begin
-		lvResult.Columns[_colIndex].Width := _width;
-		FMaxWidths[_colIndex] := _width;
+	if Length(FMaxWidths) = 0 then begin
+		Result := 0
+	end else begin
+		if _width > FMaxWidths[_colIndex] then begin
+			lvResult.Columns[_colIndex].Width := _width;
+			FMaxWidths[_colIndex] := _width;
+		end;
+		Result := FMaxWidths[_colIndex];
 	end;
-	Result := FMaxWidths[_colIndex];
 end;
 
 function TRipGrepperForm.GetSortingImageIndex : Integer;
@@ -427,6 +442,7 @@ begin
 	cmbSearchText.ItemIndex := 0;
 	cmbParameters.Items.Assign(FSettings.RipGrepParams);
 	cmbParameters.ItemIndex := 0;
+	FShowRelativePath := FSettings.ShowRelativePath;
 end;
 
 procedure TRipGrepperForm.lvResultColumnClick(Sender : TObject; Column : TListColumn);
@@ -437,16 +453,10 @@ end;
 procedure TRipGrepperForm.lvResultData(Sender : TObject; Item : TListItem);
 var
 	idx : Integer;
-	m : TRipGrepperMatchCollection;
 begin
 	idx := Item.Index;
 	if FData.Count > idx then begin
-		PutIntoGroup(idx, Item);
-		m := FData.Matches;
-		Item.Caption := m[idx].FileName;
-		Item.SubItems.Add(m[idx].Row.ToString);
-		Item.SubItems.Add(m[idx].Col.ToString);
-		Item.SubItems.Add(m[idx].Text);
+		DataToGrid(idx, Item);
 		SetStatusBarResultTexts();
 		AdjustColumnWidths(Item);
 	end;
@@ -455,23 +465,15 @@ end;
 procedure TRipGrepperForm.OnNewResultLine(const _sLine : string);
 var
 	newItem : TRipGrepMatch;
-	s : string;
 begin
 	TTask.Run(
 		procedure
 		begin
 			case FParserType of
-				ptRipGrepSearch : begin
+				ptRipGrepSearch, ptRipGrepSearchCutParent : begin
 					newItem.ParseLine(_sLine);
 				end;
-				ptRipGrepSearchCutParent : begin
-					if FSearchPathIsDir then begin
-						s := _sLine.Replace(FSettings.SearchPaths[0], '.', [rfIgnoreCase]);
-					end else begin
-						s := _sLine;
-					end;
-					newItem.ParseLine(s);
-				end;
+
 			end;
 
 			TThread.Synchronize(nil,
@@ -516,6 +518,36 @@ begin
 	end;
 end;
 
+procedure TRipGrepperForm.DataToGrid(const _index : Integer; _item : TListItem);
+var
+	m : TRipGrepperMatchCollection;
+	fn : string;
+begin
+	PutIntoGroup(_index, _item);
+	m := FData.Matches;
+	fn := m[_index].FileName;
+	if FShowRelativePath then begin
+		fn := fn.Replace(FSettings.SearchPaths[0], '.', [rfIgnoreCase]);
+	end;
+	_item.Caption := fn;
+	_item.SubItems.Add(m[_index].Row.ToString);
+	_item.SubItems.Add(m[_index].Col.ToString);
+	_item.SubItems.Add(m[_index].Text);
+end;
+
+procedure TRipGrepperForm.InitMaxWidths;
+begin
+	if Length(FMaxWidths) = 0 then begin
+		for var i := 0 to lvResult.Columns.Count - 1 do begin
+			FMaxWidths := FMaxWidths + [0];
+		end;
+	end else begin
+		for var i := 0 to lvResult.Columns.Count - 1 do begin
+			FMaxWidths[i] := 0;
+		end;
+	end;
+end;
+
 procedure TRipGrepperForm.SetStatusBarInfo(const _dtStart : TDateTime = 0);
 const
 	EXE_AND_VERSION_FORMAT = '%s   ';
@@ -551,6 +583,7 @@ begin
 	FSettings.SearchPaths.Assign(cmbSearchDir.Items);
 	FSettings.SearchTexts.Assign(cmbSearchText.Items);
 	FSettings.RipGrepParams.Assign(cmbParameters.Items);
+	FSettings.ShowRelativePath := FShowRelativePath;
 	FSettings.Store
 end;
 
