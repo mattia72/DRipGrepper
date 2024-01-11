@@ -47,23 +47,25 @@ implementation
 
 uses
 	System.SysUtils,
-	System.Generics.Defaults, System.RegularExpressions;
+	System.Generics.Defaults,
+	System.RegularExpressions;
 
 procedure TRipGrepMatch.ParseLine(const _sLine : string);
 var
 	iPosMatch : integer;
 	iPosRow : integer;
 	iPosCol : integer;
-    lineRegex: TRegEx;
+	lineRegex : TRegEx;
+	m : TMatch;
 begin
-    lineRegex := TRegex.Create('^(.+):(\d+):(\d+):(.+)$');
-    var m := lineRegex.Matches(_sLine);
-	if  m.Success then begin
+	lineRegex := TRegex.Create('^(.+):(\d+):(\d+):(.+)$');
+	m := lineRegex.Match(_sLine);
+	if m.Success then begin
 		// TDebugUtils.DebugMessage(_sLine);
-		FileName := lineRegex.M;
-        Row := Pos(':', _sLine, iPosCol + 1);
-		Col := StrToIntDef(_sLine.Substring(iPosCol, iPosMatch - iPosCol - 1), 0);
-        Text := _sLine.Substring(iPosMatch);
+		FileName := m.Groups[1].Value;
+		Row := StrToIntDef(m.Groups[2].Value, -1);
+		Col := StrToIntDef(m.Groups[3].Value, -1);
+		Text := m.Groups[4].Value;
 		IsError := False;
 	end else begin
 		SetError(_sLine);
