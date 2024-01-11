@@ -3,7 +3,7 @@ unit RipGrepper.UI.MainForm;
 interface
 
 uses
-	Winapi.Windows,
+
 	Winapi.Messages,
 	System.Variants,
 	System.Classes,
@@ -54,7 +54,10 @@ type
 		ActionShowRelativePath : TAction;
 		ToolButton1 : TToolButton;
 		ToolButton2 : TToolButton;
+		btnCmdLineCopy : TButton;
+		ActionCmdLineCopy : TAction;
 		procedure ActionCancelExecute(Sender : TObject);
+		procedure ActionCmdLineCopyExecute(Sender : TObject);
 		procedure ActionConfigExecute(Sender : TObject);
 		procedure ActionShowRelativePathExecute(Sender : TObject);
 		procedure ActionSearchExecute(Sender : TObject);
@@ -80,7 +83,7 @@ type
 			FSortType : TSortType;
 			FViewStyleIndex : Integer;
 			procedure AddIfNotContains(_cmb : TComboBox);
-			procedure BuildArgs(var sArgs : TStringList);
+			procedure BuildAndAddArgs(var sArgs : TStringList);
 			procedure ClearData;
 			procedure DoSearch;
 			function GetAppNameAndVersion(const _exePath : string) : string;
@@ -92,12 +95,15 @@ type
 			procedure LoadSettings;
 			procedure PutIntoGroup(const idx : Integer; Item : TListItem);
 			procedure AdjustColumnWidths(_item : TListItem);
+			function BuildCmdLine : string;
 			procedure DataToGrid(const _index : Integer; _item : TListItem);
 			procedure InitMaxWidths;
+			procedure AutoSizeStatusbarPanel(sb : TStatusBar; const idx : Integer);
 			procedure SetStatusBarInfo(const _dtStart : TDateTime = 0);
 			procedure SetStatusBarResultTexts;
 			procedure StoreHistories;
 			procedure StoreSettings;
+		function TrueFontWidth(fnt: TFont; const text:string): Integer;
 			procedure UpdateSortingImages;
 			property ViewStyleIndex : Integer read GetViewStyleIndex;
 
@@ -132,7 +138,8 @@ uses
 	RipGrepper.Helper.CursorSaver,
 	RipGrepper.Tools.FileUtils,
 	System.Math,
-	System.Generics.Defaults;
+	System.Generics.Defaults,
+	Vcl.Clipbrd, Winapi.Windows;
 
 const
 	IMAGE_IDX_UNSORTED = 2;
@@ -174,6 +181,11 @@ procedure TRipGrepperForm.ActionCancelExecute(Sender : TObject);
 begin
 	ModalResult := mrCancel;
 	Close;
+end;
+
+procedure TRipGrepperForm.ActionCmdLineCopyExecute(Sender : TObject);
+begin
+	ClipBoard.AsText := BuildCmdLine;
 end;
 
 procedure TRipGrepperForm.ActionConfigExecute(Sender : TObject);
@@ -259,7 +271,7 @@ begin
 	ActionSwitchView.Hint := 'Change View ' + LISTVIEW_TYPE_TEXTS[idx];
 end;
 
-procedure TRipGrepperForm.BuildArgs(var sArgs : TStringList);
+procedure TRipGrepperForm.BuildAndAddArgs(var sArgs : TStringList);
 const
 	NECESSARY_PARAMS : TArray<string> = ['--vimgrep', '--line-buffered'];
 var
@@ -320,7 +332,7 @@ var
 begin
 	sArgs := TStringList.Create();
 	try
-		BuildArgs(sArgs);
+		BuildAndAddArgs(sArgs);
 		TDebugUtils.DebugMessage('run: ' + FSettings.RipGrepPath + ' ' + sArgs.DelimitedText);
 		cmd := TProcessUtils.MaybeQuoteIfNotQuoted(FSettings.RipGrepPath) + ' ' + sArgs.DelimitedText;
 		workDir := TDirectory.GetCurrentDirectory();
@@ -466,6 +478,9 @@ procedure TRipGrepperForm.OnNewResultLine(const _sLine : string);
 var
 	newItem : TRipGrepMatch;
 begin
+	if _sLine = '' then
+		exit;
+
 	TTask.Run(
 		procedure
 		begin
@@ -518,6 +533,21 @@ begin
 	end;
 end;
 
+function TRipGrepperForm.BuildCmdLine : string;
+var
+	sArgs : TStringList;
+begin
+	sArgs := TStringList.Create;
+	try
+		sArgs.Add(FSettings.RipGrepPath);
+		BuildAndAddArgs(sArgs);
+		sArgs.Delimiter := ' ';
+		Result := sArgs.DelimitedText;
+	finally
+		sArgs.Free;
+	end;
+end;
+
 procedure TRipGrepperForm.DataToGrid(const _index : Integer; _item : TListItem);
 var
 	m : TRipGrepperMatchCollection;
@@ -567,7 +597,8 @@ begin
 	StatusBar1.BeginInvoke(
 		procedure()
 		begin
-			StatusBar1.Panels[0].Text := Format('%d matches in %d files', [FData.Matches.Count, FData.MatchFiles.Count])
+			StatusBar1.Panels[0].Text := Format('%d matches in %d files', [FData.Matches.Count, FData.MatchFiles.Count]);
+			AutoSizeStatusbarPanel(StatusBar1, 0);
 		end);
 end;
 
@@ -594,6 +625,41 @@ begin
 	idx := GetSortingImageIndex;
 	lvResult.Columns[0].ImageIndex := idx;
 	ActionSort.ImageIndex := idx;
+end;
+
+procedure TRipGrepperForm.AutoSizeStatusbarPanel(sb : TStatusBar; const idx : Integer);
+var
+	s : string;
+	borders : array [0 .. 2] of Integer;
+begin
+	// don't deal with simple panels
+	if sb.SimplePanel
+	// don't resize the last panel
+		or (idx >= sb.Panels.Count - 1) then
+		Exit;
+
+	// get the borders of the statusbar
+	// border[0] = width of the horizontal border
+	// border[1] = width of the vertical border
+	// border[2] = width of the border between rectangles
+	SendMessage(sb.Handle, SB_GETBORDERS, 0, Integer(@borders));
+
+	s := sb.Panels[idx].Text;
+
+	// calculate the width of the Panel
+	sb.Panels[idx].Width := TrueFontWidth(sb.Font, s) + borders[2] * 2 + 2; // vertical border * 2 + 2 extra Pixels
+end;
+
+function TRipGrepperForm.TrueFontWidth(fnt: TFont; const text:string): Integer;
+var
+   dc: hdc;
+   tsize : Winapi.Windows.TSize;
+begin
+   dc := GetDC(0);
+   SelectObject(DC, fnt.Handle);
+   GetTextExtentPoint32(dc, PChar(text), Length(text), tsize);
+   ReleaseDC(0, DC);
+   Result := tsize.cx;
 end;
 
 end.
