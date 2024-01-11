@@ -4,18 +4,21 @@ interface
 
 uses
 	System.Generics.Collections,
-	System.Classes;
+	System.Classes,
+	RipGrepper.Common.Types;
 
 type
+
 	TRipGrepMatch = record
 		FileName : string;
 		Row : integer;
 		Col : integer;
 		Text : string;
 		GroupId : integer;
+		IsError : Boolean;
 
 		private
-			IsError : Boolean;
+
 			procedure SetError(const _sLine : string);
 
 		public
@@ -44,31 +47,23 @@ implementation
 
 uses
 	System.SysUtils,
-	System.Generics.Defaults;
+	System.Generics.Defaults, System.RegularExpressions;
 
 procedure TRipGrepMatch.ParseLine(const _sLine : string);
 var
 	iPosMatch : integer;
 	iPosRow : integer;
 	iPosCol : integer;
+    lineRegex: TRegEx;
 begin
-	iPosRow := Pos(':', _sLine, 3);
-	if iPosRow <> 0 then begin
+    lineRegex := TRegex.Create('^(.+):(\d+):(\d+):(.+)$');
+    var m := lineRegex.Matches(_sLine);
+	if  m.Success then begin
 		// TDebugUtils.DebugMessage(_sLine);
-		FileName := _sLine.Substring(0, iPosRow - 1);
-		iPosCol := Pos(':', _sLine, iPosRow + 1);
-		Row := StrToIntDef(_sLine.Substring(iPosRow, iPosCol - iPosRow - 1), 0);
-		if Row = 0 then begin
-			SetError(_sLine);
-			exit;
-		end;
-		iPosMatch := Pos(':', _sLine, iPosCol + 1);
+		FileName := lineRegex.M;
+        Row := Pos(':', _sLine, iPosCol + 1);
 		Col := StrToIntDef(_sLine.Substring(iPosCol, iPosMatch - iPosCol - 1), 0);
-		if Col = 0 then begin
-			SetError(_sLine);
-			exit;
-		end;
-		Text := _sLine.Substring(iPosMatch);
+        Text := _sLine.Substring(iPosMatch);
 		IsError := False;
 	end else begin
 		SetError(_sLine);

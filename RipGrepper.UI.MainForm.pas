@@ -527,7 +527,7 @@ begin
 	m := FData.Matches;
 	fn := m[_index].FileName;
 	if FShowRelativePath then begin
-		fn := fn.Replace(FSettings.SearchPaths[0], '.', [rfIgnoreCase]);
+		fn := fn.Replace(cmbSearchDir.Text, '.', [rfIgnoreCase]);
 	end;
 	_item.Caption := fn;
 	_item.SubItems.Add(m[_index].Row.ToString);

@@ -7,9 +7,13 @@ uses
 
 type
 	TSortType = (stUnsorted, stAscending, stDescending);
+
     TParserType = (ptRipGrepSearch, ptRipGrepVersion, ptRipGrepSearchCutParent);
 
-type
+    IParser<T> = interface
+        procedure ParseLineParseLine(var _m : T; const _s : string);
+    end;
+
 	TStringsHelper = class helper for TStrings
 		function Contains(const s : string) : Boolean;
 	end;
