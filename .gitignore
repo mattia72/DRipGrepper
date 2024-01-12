@@ -1,8 +1,8 @@
-__history/*
-__recovery/*
-Win32/*
-RipGrepper.delphilsp.json
-RipGrepper.identcache
-RipGrepper.res
-RipGrepper.dproj.local
+**/__history/*
+**/__recovery/*
+**/Win32/*
+**/*.delphilsp.json
+**/*.identcache
+**/*.res
+**/*.dproj.local
 .vscode/settings.json
