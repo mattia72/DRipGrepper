@@ -35,7 +35,8 @@ uses
 	RipGrepper.Tools.DebugTools,
 	Winapi.Windows,
 	Winapi.ShellAPI,
-	System.Threading;
+	System.Threading,
+	System.AnsiStrings;
 
 class function TProcessUtils.MaybeQuoteIfNotQuoted(const _s : string; const _delimiter : string = '"') : string;
 begin
@@ -97,9 +98,13 @@ begin
 					if (i <> 1) then begin
 						// line shouldn't begin with crlf
 						OutputLine := OutputLine + Copy(string(Buf), LineStart, i - LineStart);
+						if (Length(OutputLine) > 0) and (OutputLine[1] = ':') then begin
+							TDebugUtils.DebugMessage(Format('Buffer begins with crlf (i:%d ls:%d)|%s|', [i, LineStart, OutputLine]));
+						end;
 						NewLineEventHandler(_handler, OutputLine);
-//					end else begin
-//						TDebugUtils.DebugMessage('line begins with crlf');
+						// end else begin
+						// TDebugUtils.DebugMessage(Format('Buffer begins with crlf (i:%d ls:%d)|%s|',
+						// [i, LineStart, Copy(string(Buf), LineStart, i - LineStart)]));
 					end;
 
 					OutputLine := '';
@@ -115,6 +120,9 @@ begin
 		until Count = 0;
 
 		if OutputLine <> '' then begin
+			if OutputLine[1] = ':' then begin
+				TDebugUtils.DebugMessage(Format('Buffer begins with crlf (i:%d ls:%d)|%s|', [i, LineStart, OutputLine]));
+			end;
 			NewLineEventHandler(_handler, OutputLine);
 		end;
 		p.WaitOnExit;

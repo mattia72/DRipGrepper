@@ -18,6 +18,7 @@ type
 		GroupId : integer;
 		IsError : Boolean;
 		ErrorText : string;
+		RecId : integer;
 
 		private
 			FRgResultLineParseRegex : TRegex;
@@ -44,7 +45,9 @@ type
 			constructor Create;
 			destructor Destroy; override;
 			procedure Clear;
-			procedure SortByFiles(_bDescending : Boolean = False);
+			procedure SortByFileName(_bDescending : Boolean = False);
+			procedure SortByRow(_bDescending : Boolean = False);
+			procedure SortByRecID(_bDescending : Boolean = False);
 			property Count : Integer read GetCount;
 	end;
 
@@ -122,7 +125,7 @@ begin
 		Exit;
 	end;
 	IsError := IsError and (Col > 0);
-	if IsError then  begin
+	if IsError then begin
 		ErrorText := 'Invalid Col:' + Col.ToString;
 		Exit
 	end;
@@ -137,6 +140,7 @@ end;
 
 class operator TRipGrepMatch.Initialize(out Dest : TRipGrepMatch);
 begin
+	Dest.RecId := 0;
 	Dest.FileName := '';
 	Dest.Row := -1;
 	Dest.Col := -1;
@@ -172,15 +176,41 @@ begin
 	Result := Matches.Count;
 end;
 
-procedure TRipGrepperMatches.SortByFiles(_bDescending : Boolean = False);
+procedure TRipGrepperMatches.SortByFileName(_bDescending : Boolean = False);
 begin
 	Matches.Sort(TComparer<TRipGrepMatch>.Construct(
 		function(const Left, Right : TRipGrepMatch) : Integer
 		begin
 			if _bDescending then begin
-				Result := -CompareStr(Left.FileName, Right.FileName);
+				Result := -TComparer<string>.Default.Compare(Left.FileName, Right.FileName);
 			end else begin
-				Result := CompareStr(Left.FileName, Right.FileName);
+				Result := TComparer<string>.Default.Compare(Left.FileName, Right.FileName);
+			end;
+		end));
+end;
+
+procedure TRipGrepperMatches.SortByRow(_bDescending : Boolean = False);
+begin
+	Matches.Sort(TComparer<TRipGrepMatch>.Construct(
+		function(const Left, Right : TRipGrepMatch) : Integer
+		begin
+			if _bDescending then begin
+				Result := -TComparer<integer>.Default.Compare(Left.Row, Right.Row);
+			end else begin
+				Result := TComparer<integer>.Default.Compare(Left.Row, Right.Row);
+			end;
+		end));
+end;
+
+procedure TRipGrepperMatches.SortByRecID(_bDescending : Boolean = False);
+begin
+	Matches.Sort(TComparer<TRipGrepMatch>.Construct(
+		function(const Left, Right : TRipGrepMatch) : Integer
+		begin
+			if _bDescending then begin
+				Result := -TComparer<integer>.Default.Compare(Left.RecId, Right.RecId);
+			end else begin
+				Result := TComparer<integer>.Default.Compare(Left.RecId, Right.RecId);
 			end;
 		end));
 end;

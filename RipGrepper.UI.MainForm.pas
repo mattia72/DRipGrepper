@@ -77,6 +77,7 @@ type
 			FExeVersion : string;
 			FMaxWidths : TArray<integer>;
 			FParserType : TParserType;
+			FRecId : Integer;
 			FRgExeVersion : string;
 			FSearchPathIsDir : Boolean;
 			FSettings : TRipGrepperSettings;
@@ -99,7 +100,7 @@ type
 			procedure InitMaxWidths;
 			procedure RunRipGrep;
 			procedure SetStatusBarInfo(const _dtStart : TDateTime = 0);
-			procedure SetStatusBarResultTexts;
+			procedure SetStatusBarResultText(const _s : string);
 			procedure StoreHistories;
 			procedure StoreSettings;
 			procedure UpdateSortingImages;
@@ -165,10 +166,11 @@ begin
 	FData := TRipGrepperMatches.Create();
 	FExeVersion := GetAppNameAndVersion(Application.ExeName);
 	FSortType := stUnsorted;
-	InitMaxWidths;
 	FParserType := ptRipGrepSearchCutParent;
-	UpdateSortingImages;
 	FArguments := TStringList.Create();
+	FRecId := 0;
+	UpdateSortingImages;
+	InitMaxWidths;
 end;
 
 destructor TRipGrepperForm.Destroy;
@@ -232,7 +234,9 @@ begin
 	cursor.SetHourGlassCursor();
 	FSortType := TSortType((Integer(FSortType) + 1) mod 3);
 	if FSortType <> stUnsorted then begin
-		FData.SortByFiles(FSortType = stDescending);
+		FData.SortByFileName(FSortType = stDescending);
+	end else begin
+		FData.SortByRecID(FSortType = stDescending);
 	end;
 	UpdateSortingImages;
 	lvResult.Repaint();
@@ -274,7 +278,7 @@ end;
 
 procedure TRipGrepperForm.ReBuildArguments;
 const
-	NECESSARY_PARAMS : TArray<string> = ['--vimgrep', '--line-buffered'];
+	NECESSARY_PARAMS : TArray<string> = ['--vimgrep'{, '--line-buffered'}];
 var
 	paramsArr : TArray<string>;
 	params : string;
@@ -326,6 +330,7 @@ end;
 
 procedure TRipGrepperForm.DoSearch;
 begin
+	SetStatusBarResultText('Searching...');
 	ReBuildArguments();
 	RunRipGrep();
 end;
@@ -410,7 +415,7 @@ end;
 procedure TRipGrepperForm.InitStatusBar;
 begin
 	SetStatusBarInfo();
-	StatusBar1.Panels[0].Text := '';
+	SetStatusBarResultText('Ready.');
 end;
 
 procedure TRipGrepperForm.LoadSettings;
@@ -439,7 +444,7 @@ begin
 	idx := Item.Index;
 	if FData.Count > idx then begin
 		DataToGrid(idx, Item);
-		SetStatusBarResultTexts();
+		SetStatusBarResultText(Format('%d matches in %d files', [FData.Matches.Count, FData.MatchFiles.Count]));
 		TListViewColumnAdjuster.AdjustColumnWidths(lvResult, Item, FMaxWidths);
 	end;
 end;
@@ -468,6 +473,7 @@ begin
 			TThread.Synchronize(nil,
 				procedure
 				begin
+					newItem.RecId := PostInc(FRecId);
 					FData.Matches.Add(newItem);
 					// virtual listview! Items count should be updated
 					lvResult.Items.Count := FData.Count;
@@ -579,12 +585,12 @@ begin
 	StatusBar1.Panels[2].Text := msg;
 end;
 
-procedure TRipGrepperForm.SetStatusBarResultTexts;
+procedure TRipGrepperForm.SetStatusBarResultText(const _s : string);
 begin
 	StatusBar1.BeginInvoke(
 		procedure()
 		begin
-			StatusBar1.Panels[0].Text := Format('%d matches in %d files', [FData.Matches.Count, FData.MatchFiles.Count]);
+			StatusBar1.Panels[0].Text := _s; //
 			TStatusBarAdjuster.AutoSizeStatusbarPanel(StatusBar1, 0);
 		end);
 end;
