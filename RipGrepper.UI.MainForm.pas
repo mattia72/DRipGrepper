@@ -87,23 +87,19 @@ type
 			procedure ClearData;
 			procedure DoSearch;
 			function GetAppNameAndVersion(const _exePath : string) : string;
-			function GetMaxWidth(const _width, _colIndex : Integer) : integer;
 			function GetSortingImageIndex : Integer;
 			function GetViewStyleIndex : Integer;
 			procedure InitSettings;
 			procedure InitStatusBar;
 			procedure LoadSettings;
 			procedure PutIntoGroup(const idx : Integer; Item : TListItem);
-			procedure AdjustColumnWidths(_item : TListItem);
 			function BuildCmdLine : string;
 			procedure DataToGrid(const _index : Integer; _item : TListItem);
 			procedure InitMaxWidths;
-			procedure AutoSizeStatusbarPanel(sb : TStatusBar; const idx : Integer);
 			procedure SetStatusBarInfo(const _dtStart : TDateTime = 0);
 			procedure SetStatusBarResultTexts;
 			procedure StoreHistories;
 			procedure StoreSettings;
-		function TrueFontWidth(fnt: TFont; const text:string): Integer;
 			procedure UpdateSortingImages;
 			property ViewStyleIndex : Integer read GetViewStyleIndex;
 
@@ -135,11 +131,12 @@ uses
 	System.SysUtils,
 	System.Threading,
 	Winapi.CommCtrl,
-	RipGrepper.Helper.CursorSaver,
+	RipGrepper.Helper.UI,
 	RipGrepper.Tools.FileUtils,
 	System.Math,
 	System.Generics.Defaults,
-	Vcl.Clipbrd, Winapi.Windows;
+	Vcl.Clipbrd,
+	Winapi.Windows;
 
 const
 	IMAGE_IDX_UNSORTED = 2;
@@ -371,19 +368,6 @@ begin
 	Result := Format('%s v%d.%d.%d', [name, major, minor, build]);
 end;
 
-function TRipGrepperForm.GetMaxWidth(const _width, _colIndex : Integer) : integer;
-begin
-	if Length(FMaxWidths) = 0 then begin
-		Result := 0
-	end else begin
-		if _width > FMaxWidths[_colIndex] then begin
-			lvResult.Columns[_colIndex].Width := _width;
-			FMaxWidths[_colIndex] := _width;
-		end;
-		Result := FMaxWidths[_colIndex];
-	end;
-end;
-
 function TRipGrepperForm.GetSortingImageIndex : Integer;
 begin
 	case FSortType of
@@ -470,7 +454,7 @@ begin
 	if FData.Count > idx then begin
 		DataToGrid(idx, Item);
 		SetStatusBarResultTexts();
-		AdjustColumnWidths(Item);
+		TListViewColumnAdjuster.AdjustColumnWidths(lvResult, Item, FMaxWidths);
 	end;
 end;
 
@@ -519,17 +503,6 @@ begin
 		match.GroupID := Group.GroupID;
 		FData.Matches[idx] := match;
 		FData.MatchFiles.Add(m[idx].FileName);
-	end;
-end;
-
-procedure TRipGrepperForm.AdjustColumnWidths(_item : TListItem);
-const
-	SAPCE_TITLE = 50;
-	SAPCE = 20;
-begin
-	lvResult.Columns[0].Width := SAPCE_TITLE + GetMaxWidth(ListView_GetStringWidth(lvResult.Handle, PChar(_item.Caption)), 0);
-	for var i := 1 to lvResult.Columns.Count - 1 do begin
-		lvResult.Columns[i].Width := SAPCE + GetMaxWidth(ListView_GetStringWidth(lvResult.Handle, PChar(_item.SubItems[i - 1])), i);
 	end;
 end;
 
@@ -598,7 +571,7 @@ begin
 		procedure()
 		begin
 			StatusBar1.Panels[0].Text := Format('%d matches in %d files', [FData.Matches.Count, FData.MatchFiles.Count]);
-			AutoSizeStatusbarPanel(StatusBar1, 0);
+			TStatusBarAdjuster.AutoSizeStatusbarPanel(StatusBar1, 0);
 		end);
 end;
 
@@ -625,41 +598,6 @@ begin
 	idx := GetSortingImageIndex;
 	lvResult.Columns[0].ImageIndex := idx;
 	ActionSort.ImageIndex := idx;
-end;
-
-procedure TRipGrepperForm.AutoSizeStatusbarPanel(sb : TStatusBar; const idx : Integer);
-var
-	s : string;
-	borders : array [0 .. 2] of Integer;
-begin
-	// don't deal with simple panels
-	if sb.SimplePanel
-	// don't resize the last panel
-		or (idx >= sb.Panels.Count - 1) then
-		Exit;
-
-	// get the borders of the statusbar
-	// border[0] = width of the horizontal border
-	// border[1] = width of the vertical border
-	// border[2] = width of the border between rectangles
-	SendMessage(sb.Handle, SB_GETBORDERS, 0, Integer(@borders));
-
-	s := sb.Panels[idx].Text;
-
-	// calculate the width of the Panel
-	sb.Panels[idx].Width := TrueFontWidth(sb.Font, s) + borders[2] * 2 + 2; // vertical border * 2 + 2 extra Pixels
-end;
-
-function TRipGrepperForm.TrueFontWidth(fnt: TFont; const text:string): Integer;
-var
-   dc: hdc;
-   tsize : Winapi.Windows.TSize;
-begin
-   dc := GetDC(0);
-   SelectObject(DC, fnt.Handle);
-   GetTextExtentPoint32(dc, PChar(text), Length(text), tsize);
-   ReleaseDC(0, DC);
-   Result := tsize.cx;
 end;
 
 end.

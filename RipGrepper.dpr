@@ -11,11 +11,12 @@ uses
   RipGrepper.Tools.DebugTools in 'RipGrepper.Tools.DebugTools.pas',
   RipGrepper.Common.Settings in 'RipGrepper.Common.Settings.pas',
   RipGrepper.Data.Matches in 'RipGrepper.Data.Matches.pas',
-  RipGrepper.Helper.CursorSaver in 'RipGrepper.Helper.CursorSaver.pas',
+  RipGrepper.Helper.UI in 'RipGrepper.Helper.UI.pas',
   RipGrepper.Tools.FileUtils in 'RipGrepper.Tools.FileUtils.pas',
   Vcl.Themes,
   Vcl.Styles,
-  RipGrepper.Common.Types in 'RipGrepper.Common.Types.pas';
+  RipGrepper.Common.Types in 'RipGrepper.Common.Types.pas',
+  Unit1 in 'Unit1.pas';
 
 {$R *.res}
 

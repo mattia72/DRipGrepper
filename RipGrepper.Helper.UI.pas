@@ -1,0 +1,134 @@
+unit RipGrepper.Helper.UI;
+
+interface
+
+uses
+	System.UITypes,
+	Vcl.ComCtrls,
+	Vcl.Graphics;
+
+type
+	TCursorSaver = record
+		strict private
+			FOldCursor : TCursor;
+
+		private
+		public
+			procedure ChangeTo(NewCursor : TCursor);
+			constructor Create(NewCursor : TCursor); // Verwendung ist nicht so eindeutig
+			procedure SetHourGlassCursor;
+			class operator Finalize(var Dest : TCursorSaver);
+	end;
+
+	TStatusBarAdjuster = class
+
+		private
+			class function TrueFontWidth(fnt : TFont; const text : string) : Integer;
+
+		public
+			class procedure AutoSizeStatusbarPanel(_sb : TStatusBar; const _idx : Integer);
+	end;
+
+	TListViewColumnAdjuster = class(TObject)
+		private
+			class function GetMaxWidth(_lv : TListView; const _width, _colIndex : Integer;
+				var maxWidths : TArray<integer>): integer;
+	public
+			class procedure AdjustColumnWidths(_lv : TListView; _item : TListItem; var
+				maxWidths : TArray<integer>);
+	end;
+
+implementation
+
+uses
+	Vcl.Forms,
+	Winapi.Windows,
+	Winapi.CommCtrl;
+
+{ TCursorSaver }
+
+procedure TCursorSaver.SetHourGlassCursor;
+begin
+	ChangeTo(crHourGlass);
+end;
+
+procedure TCursorSaver.ChangeTo(NewCursor : TCursor);
+begin
+	FOldCursor := Screen.Cursor;
+	Screen.Cursor := NewCursor;
+end;
+
+constructor TCursorSaver.Create(NewCursor : TCursor);
+begin
+	FOldCursor := Screen.Cursor;
+	Screen.Cursor := NewCursor;
+end;
+
+class operator TCursorSaver.Finalize(var Dest : TCursorSaver);
+begin
+	Screen.Cursor := Dest.FOldCursor;
+end;
+
+class procedure TStatusBarAdjuster.AutoSizeStatusbarPanel(_sb : TStatusBar; const _idx : Integer);
+var
+	s : string;
+	borders : array [0 .. 2] of Integer;
+begin
+	// don't deal with simple panels
+	// don't resize the last panel
+	if _sb.SimplePanel or (_idx >= _sb.Panels.Count - 1) then
+		Exit;
+
+	// get the borders of the statusbar
+	// border[0] = width of the horizontal border
+	// border[1] = width of the vertical border
+	// border[2] = width of the border between rectangles
+	SendMessage(_sb.Handle, SB_GETBORDERS, 0, Integer(@borders));
+
+	s := _sb.Panels[_idx].Text;
+
+	// calculate the width of the Panel
+	_sb.Panels[_idx].Width := TrueFontWidth(_sb.Font, s) + borders[2] * 2 + 2; // vertical border * 2 + 2 extra Pixels
+end;
+
+class function TStatusBarAdjuster.TrueFontWidth(fnt : TFont; const text : string) : Integer;
+var
+	dc : hdc;
+	tsize : Winapi.Windows.TSize;
+begin
+	dc := GetDC(0);
+	SelectObject(DC, fnt.Handle);
+	GetTextExtentPoint32(dc, PChar(text), Length(text), tsize);
+	ReleaseDC(0, DC);
+	Result := tsize.cx;
+end;
+
+class procedure TListViewColumnAdjuster.AdjustColumnWidths(_lv : TListView;
+	_item : TListItem; var maxWidths : TArray<integer>);
+const
+	SPACE_TITLE = 50;
+	SPACE = 20;
+begin
+	_lv.Columns[0].Width := SPACE_TITLE +
+	{ } GetMaxWidth(_lv, ListView_GetStringWidth(_lv.Handle, PChar(_item.Caption)), 0, maxWidths);
+	for var i := 1 to _lv.Columns.Count - 1 do begin
+		_lv.Columns[i].Width := SPACE +
+		{ } GetMaxWidth(_lv, ListView_GetStringWidth(_lv.Handle, PChar(_item.SubItems[i - 1])), i, maxWidths);
+	end;
+end;
+
+class function TListViewColumnAdjuster.GetMaxWidth(_lv : TListView; const
+	_width, _colIndex : Integer; var maxWidths : TArray<integer>): integer;
+begin
+	if Length(maxWidths) = 0 then begin
+		Result := 0
+	end else begin
+		if _width > maxWidths[_colIndex] then begin
+			_lv.Columns[_colIndex].Width := _width;
+			maxWidths[_colIndex] := _width;
+		end;
+		Result := maxWidths[_colIndex];
+	end;
+end;
+
+end.

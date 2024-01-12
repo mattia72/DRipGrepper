@@ -112,9 +112,10 @@
         <DCCReference Include="RipGrepper.Tools.DebugTools.pas"/>
         <DCCReference Include="RipGrepper.Common.Settings.pas"/>
         <DCCReference Include="RipGrepper.Data.Matches.pas"/>
-        <DCCReference Include="RipGrepper.Helper.CursorSaver.pas"/>
+        <DCCReference Include="RipGrepper.Helper.UI.pas"/>
         <DCCReference Include="RipGrepper.Tools.FileUtils.pas"/>
         <DCCReference Include="RipGrepper.Common.Types.pas"/>
+        <DCCReference Include="Unit1.pas"/>
         <None Include="pipes_win.inc"/>
         <None Include="process_win.inc"/>
         <BuildConfiguration Include="Base">

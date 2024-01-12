@@ -5,7 +5,8 @@ interface
 uses
 	System.Generics.Collections,
 	System.Classes,
-	RipGrepper.Common.Types;
+	RipGrepper.Common.Types,
+	System.RegularExpressions;
 
 type
 
@@ -16,13 +17,14 @@ type
 		Text : string;
 		GroupId : integer;
 		IsError : Boolean;
-
 		private
-
+			FLineParseRegex : TRegex;
 			procedure SetError(const _sLine : string);
-
 		public
 			procedure ParseLine(const _sLine : string);
+			function Validate : Boolean;
+		function ValidatePath(_s: string): Boolean;
+			class operator Finalize(var Dest : TRipGrepMatch);
 			class operator Initialize(out Dest : TRipGrepMatch);
 	end;
 
@@ -31,10 +33,8 @@ type
 	TRipGrepperMatches = class
 		Matches : TRipGrepperMatchCollection;
 		MatchFiles : TStringList;
-
 		private
 			function GetCount : Integer;
-
 		public
 			constructor Create;
 			destructor Destroy; override;
@@ -48,27 +48,39 @@ implementation
 uses
 	System.SysUtils,
 	System.Generics.Defaults,
-	System.RegularExpressions;
+
+	System.IOUtils,
+	Vcl.Dialogs,
+	RipGrepper.Tools.DebugTools;
+
+const
+	LINE_PARSE_REGEX = '^(\w:)?(.+?):(\d+):(\d+):(.+)$';
+
+function TRipGrepMatch.ValidatePath(_s: string): Boolean;
+begin
+	Result := TPath.HasValidPathChars(FileName, False)
+	{ } and (TPath.IsDriveRooted(FileName) or TPath.IsRelativePath(FileName));
+end;
 
 procedure TRipGrepMatch.ParseLine(const _sLine : string);
 var
-	iPosMatch : integer;
-	iPosRow : integer;
-	iPosCol : integer;
-	lineRegex : TRegEx;
 	m : TMatch;
 begin
-	lineRegex := TRegex.Create('^(.+):(\d+):(\d+):(.+)$');
-	m := lineRegex.Match(_sLine);
+	m := FLineParseRegex.Match(_sLine);
 	if m.Success then begin
 		// TDebugUtils.DebugMessage(_sLine);
-		FileName := m.Groups[1].Value;
-		Row := StrToIntDef(m.Groups[2].Value, -1);
-		Col := StrToIntDef(m.Groups[3].Value, -1);
-		Text := m.Groups[4].Value;
-		IsError := False;
+		FileName := m.Groups[1].Value + m.Groups[2].Value;
+		Row := StrToIntDef(m.Groups[3].Value, -1);
+		Col := StrToIntDef(m.Groups[4].Value, -1);
+		Text := m.Groups[5].Value;
+		IsError := Validate;
 	end else begin
 		SetError(_sLine);
+	end;
+
+	if (IsError) then begin
+		TDebugUtils.DebugMessage('Error parsing line: ' + _sLine + CRLF + 'File: ' + FileName + CRLF + 'Row: ' + Row.ToString + CRLF +
+			'Row: ' + Row.ToString + CRLF + 'Text: ' + Text + CRLF);
 	end;
 end;
 
@@ -79,6 +91,20 @@ begin
 	IsError := True;
 end;
 
+function TRipGrepMatch.Validate : Boolean;
+begin
+	IsError := ValidatePath(FileName);
+	IsError := IsError and (Row > 0);
+	IsError := IsError and (Col > 0);
+	// GroupId?
+	Result := IsError;
+end;
+
+class operator TRipGrepMatch.Finalize(var Dest : TRipGrepMatch);
+begin
+//	Dest.FLineParseRegex;
+end;
+
 class operator TRipGrepMatch.Initialize(out Dest : TRipGrepMatch);
 begin
 	Dest.FileName := '';
@@ -86,6 +112,7 @@ begin
 	Dest.Col := -1;
 	Dest.IsError := True;
 	Dest.GroupId := -1;
+	Dest.FLineParseRegex := TRegex.Create(LINE_PARSE_REGEX);
 end;
 
 constructor TRipGrepperMatches.Create;
