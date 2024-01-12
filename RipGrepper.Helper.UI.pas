@@ -43,7 +43,7 @@ implementation
 uses
 	Vcl.Forms,
 	Winapi.Windows,
-	Winapi.CommCtrl;
+	Winapi.CommCtrl, System.Classes;
 
 { TCursorSaver }
 

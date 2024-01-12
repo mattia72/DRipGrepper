@@ -91,7 +91,6 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="StringPadLeftTest.pas"/>
         <DCCReference Include="RipGrepperTest.pas"/>
         <DCCReference Include="..\RipGrepper\RipGrepper.Data.Matches.pas"/>
         <BuildConfiguration Include="Base">

@@ -72,7 +72,7 @@ var
 	m : TRipGrepMatch;
 begin
 	m.ParseLine(_s);
-	Assert.IsTrue(m.ValidatePath(m.FileName),
+	Assert.IsTrue(m.ValidatePath(),
 		{ } 'Line:' + CRLF +
 		{ } _s + CRLF +
 		{ } m.FileName + CRLF

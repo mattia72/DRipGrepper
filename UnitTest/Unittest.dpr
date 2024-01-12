@@ -13,7 +13,6 @@ uses
   DUnitX.Loggers.Xml.NUnit,
   {$ENDIF }
   DUnitX.TestFramework,
-  StringPadLeftTest in 'StringPadLeftTest.pas',
   RipGrepperTest in 'RipGrepperTest.pas',
   RipGrepper.Data.Matches in '..\RipGrepper\RipGrepper.Data.Matches.pas';
 

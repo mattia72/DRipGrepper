@@ -17,13 +17,16 @@ type
 		Text : string;
 		GroupId : integer;
 		IsError : Boolean;
+		ErrorText : string;
+
 		private
-			FLineParseRegex : TRegex;
-			procedure SetError(const _sLine : string);
+			FRgResultLineParseRegex : TRegex;
+			procedure SetRgResultLineParseError(const _sLine : string);
+
 		public
 			procedure ParseLine(const _sLine : string);
 			function Validate : Boolean;
-		function ValidatePath(_s: string): Boolean;
+			function ValidatePath : Boolean;
 			class operator Finalize(var Dest : TRipGrepMatch);
 			class operator Initialize(out Dest : TRipGrepMatch);
 	end;
@@ -33,8 +36,10 @@ type
 	TRipGrepperMatches = class
 		Matches : TRipGrepperMatchCollection;
 		MatchFiles : TStringList;
+
 		private
 			function GetCount : Integer;
+
 		public
 			constructor Create;
 			destructor Destroy; override;
@@ -54,55 +59,80 @@ uses
 	RipGrepper.Tools.DebugTools;
 
 const
-	LINE_PARSE_REGEX = '^(\w:)?(.+?):(\d+):(\d+):(.+)$';
+	RG_RESULT_LINE_PARSE_REGEX = '^(\w:)?(.+?):(\d+):(\d+):(.+)$';
 
-function TRipGrepMatch.ValidatePath(_s: string): Boolean;
+function TRipGrepMatch.ValidatePath : Boolean;
 begin
-	Result := TPath.HasValidPathChars(FileName, False)
-	{ } and (TPath.IsDriveRooted(FileName) or TPath.IsRelativePath(FileName));
+	if FileName.StartsWith(':') then begin
+		ErrorText := 'Begins with '':''';
+	end else if not TPath.HasValidPathChars(FileName, False) then begin
+		ErrorText := 'Invalid chars in path' + FileName;
+	end else if not(TPath.IsDriveRooted(FileName) or TPath.IsRelativePath(FileName)) then begin
+		ErrorText := 'Not an abs or relative path' + FileName;
+	end;
+	Result := ErrorText = '';
 end;
 
 procedure TRipGrepMatch.ParseLine(const _sLine : string);
 var
 	m : TMatch;
 begin
-	m := FLineParseRegex.Match(_sLine);
+	m := FRgResultLineParseRegex.Match(_sLine);
 	if m.Success then begin
 		// TDebugUtils.DebugMessage(_sLine);
 		FileName := m.Groups[1].Value + m.Groups[2].Value;
 		Row := StrToIntDef(m.Groups[3].Value, -1);
 		Col := StrToIntDef(m.Groups[4].Value, -1);
 		Text := m.Groups[5].Value;
-		IsError := Validate;
+		IsError := not Validate;
 	end else begin
-		SetError(_sLine);
+		SetRgResultLineParseError(_sLine);
 	end;
 
 	if (IsError) then begin
-		TDebugUtils.DebugMessage('Error parsing line: ' + _sLine + CRLF + 'File: ' + FileName + CRLF + 'Row: ' + Row.ToString + CRLF +
-			'Row: ' + Row.ToString + CRLF + 'Text: ' + Text + CRLF);
+		TDebugUtils.DebugMessage('Error parsing line: ' + CRLF +
+			{ } _sLine + CRLF +
+			{ } 'File: ' + FileName + CRLF +
+			{ } 'Row: ' + Row.ToString + CRLF +
+			{ } 'Col: ' + Col.ToString + CRLF +
+			{ } 'Text: ' + Text + CRLF +
+			{ } 'ErrorText: ' + ErrorText + CRLF);
+
 	end;
 end;
 
-procedure TRipGrepMatch.SetError(const _sLine : string);
+procedure TRipGrepMatch.SetRgResultLineParseError(const _sLine : string);
 begin
 	FileName := '';
 	Text := _sLine;
+	ErrorText := 'rg.exe result line couldn''t parsed.';
 	IsError := True;
 end;
 
 function TRipGrepMatch.Validate : Boolean;
 begin
-	IsError := ValidatePath(FileName);
+	Result := False;
+	IsError := not ValidatePath();
+	if IsError then
+		Exit;
+
 	IsError := IsError and (Row > 0);
+	if IsError then begin
+		ErrorText := 'Invalid Row:' + Row.ToString;
+		Exit;
+	end;
 	IsError := IsError and (Col > 0);
+	if IsError then  begin
+		ErrorText := 'Invalid Col:' + Col.ToString;
+		Exit
+	end;
 	// GroupId?
-	Result := IsError;
+	Result := True;
 end;
 
 class operator TRipGrepMatch.Finalize(var Dest : TRipGrepMatch);
 begin
-//	Dest.FLineParseRegex;
+	// Dest.FRgResultLineParseRegex;
 end;
 
 class operator TRipGrepMatch.Initialize(out Dest : TRipGrepMatch);
@@ -112,7 +142,9 @@ begin
 	Dest.Col := -1;
 	Dest.IsError := True;
 	Dest.GroupId := -1;
-	Dest.FLineParseRegex := TRegex.Create(LINE_PARSE_REGEX);
+	Dest.Text := '';
+	Dest.ErrorText := '';
+	Dest.FRgResultLineParseRegex := TRegex.Create(RG_RESULT_LINE_PARSE_REGEX);
 end;
 
 constructor TRipGrepperMatches.Create;

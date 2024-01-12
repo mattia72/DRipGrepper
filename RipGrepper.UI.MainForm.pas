@@ -532,7 +532,11 @@ begin
 	if FShowRelativePath then begin
 		fn := fn.Replace(cmbSearchDir.Text, '.', [rfIgnoreCase]);
 	end;
-	_item.Caption := fn;
+	if m[_index].IsError then begin
+		_item.Caption := '! ' + m[_index].ErrorText + '|' + fn;
+	end else begin
+		_item.Caption := fn;
+	end;
 	_item.SubItems.Add(m[_index].Row.ToString);
 	_item.SubItems.Add(m[_index].Col.ToString);
 	_item.SubItems.Add(m[_index].Text);
