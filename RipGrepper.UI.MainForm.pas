@@ -72,6 +72,7 @@ type
 		procedure lvResultData(Sender : TObject; Item : TListItem);
 
 		private
+			FArguments : TStringList;
 			FData : TRipGrepperMatches;
 			FExeVersion : string;
 			FMaxWidths : TArray<integer>;
@@ -83,7 +84,7 @@ type
 			FSortType : TSortType;
 			FViewStyleIndex : Integer;
 			procedure AddIfNotContains(_cmb : TComboBox);
-			procedure BuildAndAddArgs(var sArgs : TStringList);
+			procedure ReBuildArguments;
 			procedure ClearData;
 			procedure DoSearch;
 			function GetAppNameAndVersion(const _exePath : string) : string;
@@ -96,6 +97,7 @@ type
 			function BuildCmdLine : string;
 			procedure DataToGrid(const _index : Integer; _item : TListItem);
 			procedure InitMaxWidths;
+			procedure RunRipGrep;
 			procedure SetStatusBarInfo(const _dtStart : TDateTime = 0);
 			procedure SetStatusBarResultTexts;
 			procedure StoreHistories;
@@ -109,7 +111,7 @@ type
 			destructor Destroy; override;
 			class function CreateAndShow(const _settings : TRipGrepperSettings) : string;
 			// INewLineEventHandler
-			procedure OnNewResultLine(const _sLine : string);
+			procedure OnNewOutputLine(const _sLine : string);
 	end;
 
 procedure OnNewLine(_handler : INewLineEventHandler; const _sLine : string);
@@ -147,7 +149,7 @@ const
 
 procedure OnNewLine(_handler : INewLineEventHandler; const _sLine : string);
 begin
-	_handler.OnNewResultLine(_sLine);
+	_handler.OnNewOutputLine(_sLine);
 	TDebugUtils.DebugMessage(string(_sLine));
 end;
 
@@ -166,12 +168,14 @@ begin
 	InitMaxWidths;
 	FParserType := ptRipGrepSearchCutParent;
 	UpdateSortingImages;
+	FArguments := TStringList.Create();
 end;
 
 destructor TRipGrepperForm.Destroy;
 begin
 	inherited;
 	FData.Free;
+	FArguments.Free;
 end;
 
 procedure TRipGrepperForm.ActionCancelExecute(Sender : TObject);
@@ -268,7 +272,7 @@ begin
 	ActionSwitchView.Hint := 'Change View ' + LISTVIEW_TYPE_TEXTS[idx];
 end;
 
-procedure TRipGrepperForm.BuildAndAddArgs(var sArgs : TStringList);
+procedure TRipGrepperForm.ReBuildArguments;
 const
 	NECESSARY_PARAMS : TArray<string> = ['--vimgrep', '--line-buffered'];
 var
@@ -276,6 +280,7 @@ var
 	params : string;
 begin
 	params := cmbParameters.Text;
+	FArguments.Clear();
 
 	for var s in NECESSARY_PARAMS do begin
 		if not params.Contains(s) then begin
@@ -286,15 +291,15 @@ begin
 	paramsArr := params.Split([' ']);
 	for var s : string in paramsArr do begin
 		if not s.IsEmpty then begin
-			sArgs.Add(s);
+			FArguments.Add(s);
 		end;
 	end;
 
-	sArgs.Add(cmbSearchText.Text);
+	FArguments.Add(cmbSearchText.Text);
 	var
-	workDir := TProcessUtils.MaybeQuoteIfNotQuoted(cmbSearchDir.Text);
-	sArgs.Add(workDir);
-	sArgs.Delimiter := ' '; // sArgs.QuoteChar := '"';
+	searchPath := TProcessUtils.MaybeQuoteIfNotQuoted(cmbSearchDir.Text);
+	FArguments.Add(searchPath);
+	FArguments.Delimiter := ' '; // sArgs.QuoteChar := '"';
 end;
 
 procedure TRipGrepperForm.ClearData;
@@ -320,28 +325,9 @@ begin
 end;
 
 procedure TRipGrepperForm.DoSearch;
-var
-	cmd : string;
-	dtStart : TDateTime;
-	sArgs : TStringList;
-	rgResultOk : Boolean;
-	workDir : string;
 begin
-	sArgs := TStringList.Create();
-	try
-		BuildAndAddArgs(sArgs);
-		TDebugUtils.DebugMessage('run: ' + FSettings.RipGrepPath + ' ' + sArgs.DelimitedText);
-		cmd := TProcessUtils.MaybeQuoteIfNotQuoted(FSettings.RipGrepPath) + ' ' + sArgs.DelimitedText;
-		workDir := TDirectory.GetCurrentDirectory();
-		dtStart := Now;
-		rgResultOk := TProcessUtils.RunProcess(FSettings.RipGrepPath, sArgs, workDir, self as INewLineEventHandler);
-		if rgResultOk then begin
-			StoreHistories();
-			SetStatusBarInfo(dtStart);
-		end;
-	finally
-		sArgs.Free;
-	end;
+	ReBuildArguments();
+	RunRipGrep();
 end;
 
 procedure TRipGrepperForm.FormClose(Sender : TObject; var Action : TCloseAction);
@@ -458,12 +444,17 @@ begin
 	end;
 end;
 
-procedure TRipGrepperForm.OnNewResultLine(const _sLine : string);
+procedure TRipGrepperForm.OnNewOutputLine(const _sLine : string);
 var
 	newItem : TRipGrepMatch;
 begin
-	if _sLine = '' then
+	if _sLine = '' then begin
 		exit;
+	end;
+
+	if _sLine.StartsWith(':') then begin
+		TDebugUtils.DebugMessage('line begins with :');
+	end;
 
 	TTask.Run(
 		procedure
@@ -472,7 +463,6 @@ begin
 				ptRipGrepSearch, ptRipGrepSearchCutParent : begin
 					newItem.ParseLine(_sLine);
 				end;
-
 			end;
 
 			TThread.Synchronize(nil,
@@ -482,7 +472,6 @@ begin
 					// virtual listview! Items count should be updated
 					lvResult.Items.Count := FData.Count;
 				end);
-
 		end);
 end;
 
@@ -508,16 +497,17 @@ end;
 
 function TRipGrepperForm.BuildCmdLine : string;
 var
-	sArgs : TStringList;
+	cmdLine : TStringList;
 begin
-	sArgs := TStringList.Create;
+	cmdLine := TStringList.Create();
 	try
-		sArgs.Add(FSettings.RipGrepPath);
-		BuildAndAddArgs(sArgs);
-		sArgs.Delimiter := ' ';
-		Result := sArgs.DelimitedText;
+		cmdLine.Add(FSettings.RipGrepPath);
+		ReBuildArguments();
+		cmdLine.AddStrings(FArguments);
+		cmdLine.Delimiter := ' ';
+		Result := cmdLine.DelimitedText;
 	finally
-		sArgs.Free;
+		cmdLine.Free;
 	end;
 end;
 
@@ -553,6 +543,26 @@ begin
 			FMaxWidths[i] := 0;
 		end;
 	end;
+end;
+
+procedure TRipGrepperForm.RunRipGrep;
+var
+	dtStart : TDateTime;
+	rgResultOk : Boolean;
+	workDir : string;
+begin
+	TTask.Run(
+		procedure()
+		begin
+			workDir := TDirectory.GetCurrentDirectory();
+			TDebugUtils.DebugMessage('run: ' + FSettings.RipGrepPath + ' ' + FArguments.DelimitedText);
+			dtStart := Now;
+			rgResultOk := TProcessUtils.RunProcess(FSettings.RipGrepPath, FArguments, workDir, self as INewLineEventHandler);
+			if rgResultOk then begin
+				StoreHistories();
+				SetStatusBarInfo(dtStart);
+			end;
+		end);
 end;
 
 procedure TRipGrepperForm.SetStatusBarInfo(const _dtStart : TDateTime = 0);
