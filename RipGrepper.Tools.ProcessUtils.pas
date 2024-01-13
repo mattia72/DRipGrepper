@@ -61,6 +61,7 @@ var
 begin
 	{ Now process the output }
 	SetLength(sBuf, BUFF_LENGTH);
+    bPrevWasCrLf := False;    // warning
 	repeat
 		if (_s <> nil) then begin
 			iCnt := _s.Read(sBuf[1], Length(sBuf));
@@ -77,15 +78,17 @@ begin
 				if (i <> 1) then begin
 					// line shouldn't begin with cr or lf
 					sLineOut := sLineOut + Copy(string(sBuf), iLineStartIndex, i - iLineStartIndex);
-					if not bPrevWasCrLf then begin
+					if (not bPrevWasCrLf) then begin
+						// if prev was crlf and next won't be crlf
 						NewLineEventHandler(_handler, sLineOut);
 					end;
 				end;
 
 				sLineOut := '';
 				if (i <> 1) and (i < iCnt) and
-				{ } bCurrentIsCrLf and (sBuf[i] <> sBuf[i + 1]) and
-				{ } not bPrevWasCrLf then begin
+				{ } bCurrentIsCrLf and // (sBuf[i] <> sBuf[i + 1]) and
+				{ } not bPrevWasCrLf and
+				{ } CharInSet(sBuf[i + 1], [CR, LF]) then begin
 					Inc(i);
 				end;
 				iLineStartIndex := i + 1;

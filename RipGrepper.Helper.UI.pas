@@ -38,6 +38,10 @@ type
 				maxWidths : TArray<integer>);
 	end;
 
+	TListViewHelper = class helper for TListView
+		function TryGetSelected(out _Idx: Integer): Boolean;
+	end;
+
 implementation
 
 uses
@@ -46,6 +50,12 @@ uses
 	Winapi.CommCtrl, System.Classes;
 
 { TCursorSaver }
+
+function TListViewHelper.TryGetSelected(out _Idx: Integer): Boolean;
+begin
+  _Idx := self.ItemIndex;
+  Result := (_Idx <> -1);
+end;
 
 procedure TCursorSaver.SetHourGlassCursor;
 begin

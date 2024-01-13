@@ -22,6 +22,7 @@ type
 	TNewLineEventHandler = procedure(_obj : INewLineEventHandler; const _s : string);
 	TSortType = (stUnsorted, stAscending, stDescending);
 
+
 	TParserType = (ptRipGrepSearch, ptRipGrepVersion, ptRipGrepSearchCutParent);
 
 	IParser<T> = interface

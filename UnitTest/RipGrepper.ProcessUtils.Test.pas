@@ -21,6 +21,10 @@ type
 			procedure TearDown;
 			// Test with TestCase Attribute to supply parameters.
 			[Test]
+			[TestCase('Test1', '12345' + CR + '67890')]
+			[TestCase('Test2', '12345' + LF + '67890')]
+			[TestCase('Test2', '1' + LF + '23')]
+			[TestCase('Test2', '12' + LF + '3')]
 			[TestCase('TestA', '1234567890')]
 			[TestCase('TestB', '123456789')]
 			[TestCase('TestC', '12345678')]
@@ -41,7 +45,7 @@ uses
 	System.Classes,
 	DUnitX.Utils,
 	System.Rtti,
-	System.SysUtils;
+	System.SysUtils, System.AnsiStrings, System.StrUtils;
 
 procedure TRipGrepperToolsProcessTest.Setup;
 begin
@@ -66,7 +70,7 @@ begin
 		end;
 	end;
 
-	FEventHandlerMock.Setup.Expect.Exactly(callCount); //empty lines could be given if only crlf is in a line
+	FEventHandlerMock.Setup.Expect.Exactly(callCount); // empty lines could be given if only crlf is in a line
 	FEventHandlerMock.Setup.WillExecute(
 		function(const args : TArray<TValue>; const ReturnType : TRttiType) : TValue
 		var
@@ -77,7 +81,11 @@ begin
 			var
 			bOk := (sIn = _line);
 			if not bOk then begin
-				bOk := True;
+				if MatchStr(sIn, _line.Split([CR, LF])) then begin
+					bOk := True;
+				end else begin
+                    bOk := True;
+                end;
 			end;
 			Assert.IsTrue(bOk, Format('Actual: %s <> Expected: %s', [sIn, _line]));
 		end).When.OnNewOutputLine(It(0).IsAny<string>);

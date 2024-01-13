@@ -32,11 +32,14 @@ type
 			class operator Initialize(out Dest : TRipGrepMatch);
 	end;
 
+	TSortByType = (sbtFile, sbtRow, sbtCol, sbtText);
+
 	TRipGrepperMatchCollection = TList<TRipGrepMatch>;
 
 	TRipGrepperMatches = class
 		Matches : TRipGrepperMatchCollection;
 		MatchFiles : TStringList;
+		SortedBy : TList<TSortByType>;
 
 		private
 			function GetCount : Integer;
@@ -45,6 +48,7 @@ type
 			constructor Create;
 			destructor Destroy; override;
 			procedure Clear;
+			procedure SortBy(const _sbt : TSortByType; const _st : TSortType);
 			procedure SortByFileName(_bDescending : Boolean = False);
 			procedure SortByRow(_bDescending : Boolean = False);
 			procedure SortByRecID(_bDescending : Boolean = False);
@@ -156,6 +160,7 @@ begin
 	inherited;
 	MatchFiles := TStringList.Create(TDuplicates.dupIgnore, True, True);
 	Matches := TRipGrepperMatchCollection.Create;
+	SortedBy := TList<TSortByType>.Create;
 end;
 
 destructor TRipGrepperMatches.Destroy;
@@ -163,6 +168,7 @@ begin
 	inherited;
 	MatchFiles.Free;
 	Matches.Free;
+	SortedBy.Free;
 end;
 
 procedure TRipGrepperMatches.Clear;
@@ -176,6 +182,23 @@ begin
 	Result := Matches.Count;
 end;
 
+procedure TRipGrepperMatches.SortBy(const _sbt : TSortByType; const _st : TSortType);
+begin
+	if _st <> stUnsorted then begin
+		case _sbt of
+			sbtFile : begin
+				SortByFileName(_st = stDescending);
+			end;
+			sbtRow : begin
+				SortByRow(_st = stDescending);
+			end;
+		end;
+	end else begin
+		SortByRecID(_st = stDescending);
+		SortedBy.Remove(_sbt);
+	end;
+end;
+
 procedure TRipGrepperMatches.SortByFileName(_bDescending : Boolean = False);
 begin
 	Matches.Sort(TComparer<TRipGrepMatch>.Construct(
@@ -187,6 +210,7 @@ begin
 				Result := TComparer<string>.Default.Compare(Left.FileName, Right.FileName);
 			end;
 		end));
+	SortedBy.Add(sbtFile);
 end;
 
 procedure TRipGrepperMatches.SortByRow(_bDescending : Boolean = False);
@@ -199,7 +223,9 @@ begin
 			end else begin
 				Result := TComparer<integer>.Default.Compare(Left.Row, Right.Row);
 			end;
+
 		end));
+	SortedBy.Add(sbtRow);
 end;
 
 procedure TRipGrepperMatches.SortByRecID(_bDescending : Boolean = False);
@@ -213,6 +239,7 @@ begin
 				Result := TComparer<integer>.Default.Compare(Left.RecId, Right.RecId);
 			end;
 		end));
+	SortedBy.Clear;
 end;
 
 end.
