@@ -21,7 +21,9 @@ uses
 	RipGrepper.Common.Settings,
 	RipGrepper.Data.Matches,
 	RipGrepper.Common.Types,
-	Vcl.ToolWin;
+	Vcl.ToolWin,
+	Vcl.Menus,
+	Winapi.Windows;
 
 type
 	TRipGrepperForm = class(TForm, INewLineEventHandler)
@@ -44,7 +46,7 @@ type
 		cmbParameters : TComboBox;
 		StatusBar1 : TStatusBar;
 		ActionSwitchView : TAction;
-		ActionSort : TAction;
+		ActionSortByFile : TAction;
 		pnlSearch : TPanel;
 		ToolBar1 : TToolBar;
 		tbSort : TToolButton;
@@ -56,20 +58,35 @@ type
 		ToolButton2 : TToolButton;
 		btnCmdLineCopy : TButton;
 		ActionCmdLineCopy : TAction;
+		ActionSortByRow : TAction;
+		PopupMenu1 : TPopupMenu;
+		ActionCopyFileName : TAction;
+		Action11 : TMenuItem;
+		ActionCopyPathToClipboard : TAction;
+		Action12 : TMenuItem;
+		ImageListListView : TImageList;
+		ImageFileIcon : TImage;
+    tbDoSearchCancel: TToolButton;
+    ActionDoSearch: TAction;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionCmdLineCopyExecute(Sender : TObject);
 		procedure ActionConfigExecute(Sender : TObject);
+		procedure ActionCopyFileNameExecute(Sender : TObject);
+		procedure ActionCopyPathToClipboardExecute(Sender : TObject);
 		procedure ActionShowRelativePathExecute(Sender : TObject);
 		procedure ActionSearchExecute(Sender : TObject);
 		procedure ActionShowRelativePathUpdate(Sender : TObject);
-		procedure ActionSortExecute(Sender : TObject);
-		procedure ActionSortUpdate(Sender : TObject);
+		procedure ActionSortByFileExecute(Sender : TObject);
+		procedure ActionSortByFileUpdate(Sender : TObject);
+		procedure ActionSortByRowExecute(Sender : TObject);
+		procedure ActionSortByRowUpdate(Sender : TObject);
 		procedure ActionSwitchViewExecute(Sender : TObject);
 		procedure ActionSwitchViewUpdate(Sender : TObject);
 		procedure FormClose(Sender : TObject; var Action : TCloseAction);
 		procedure FormShow(Sender : TObject);
 		procedure lvResultColumnClick(Sender : TObject; Column : TListColumn);
 		procedure lvResultData(Sender : TObject; Item : TListItem);
+		procedure lvResultDrawItem(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
 
 		private
 			FArguments : TStringList;
@@ -82,34 +99,39 @@ type
 			FSearchPathIsDir : Boolean;
 			FSettings : TRipGrepperSettings;
 			FShowRelativePath : Boolean;
-			FSortType : TSortType;
+			FColumnSortTypes : TArray<TSortType>;
 			FViewStyleIndex : Integer;
 			procedure AddIfNotContains(_cmb : TComboBox);
 			procedure ReBuildArguments;
 			procedure ClearData;
 			procedure DoSearch;
 			function GetAppNameAndVersion(const _exePath : string) : string;
-			function GetSortingImageIndex : Integer;
+			function GetSortingImageIndex(const _idx : Integer) : Integer;
 			function GetViewStyleIndex : Integer;
 			procedure InitSettings;
 			procedure InitStatusBar;
 			procedure LoadSettings;
 			procedure PutIntoGroup(const idx : Integer; Item : TListItem);
 			function BuildCmdLine : string;
+			procedure CopyToClipboardFileOfSelected;
 			procedure DataToGrid(const _index : Integer; _item : TListItem);
+			procedure DoSortOnColumn(const _sbt : TSortByType);
+			function GetIconBitmap(const sFileName : string) : Vcl.Graphics.TBitmap;
+			procedure InitColumnSortTypes;
 			procedure InitMaxWidths;
 			procedure RunRipGrep;
 			procedure SetStatusBarInfo(const _dtStart : TDateTime = 0);
 			procedure SetStatusBarResultText(const _s : string);
 			procedure StoreHistories;
 			procedure StoreSettings;
-			procedure UpdateSortingImages;
+			procedure UpdateSortingImages(const _sbtArr : TArray<TSortByType>);
 			property ViewStyleIndex : Integer read GetViewStyleIndex;
 
 		public
 			constructor Create(_settings : TRipGrepperSettings); reintroduce; overload;
 			constructor Create(AOwner : TComponent); overload; override;
 			destructor Destroy; override;
+			procedure CopyToClipboardPathOfSelected;
 			class function CreateAndShow(const _settings : TRipGrepperSettings) : string;
 			// INewLineEventHandler
 			procedure OnNewOutputLine(const _sLine : string);
@@ -139,12 +161,18 @@ uses
 	System.Math,
 	System.Generics.Defaults,
 	Vcl.Clipbrd,
-	Winapi.Windows;
+	System.Types,
+	Winapi.ShellAPI;
 
 const
-	IMAGE_IDX_UNSORTED = 2;
-	IMAGE_IDX_ASCENDING_SORTED = 6;
-	IMAGE_IDX_DESCENDING_SORTED = 7;
+	IMG_IDX_SHOW_ABS_PATH = 11;
+	IMG_IDX_SHOW_RELATIVE_PATH = 12;
+	IMAGE_IDX_UNSORTED = 3;
+	IMAGE_IDX_DESCENDING_SORTED = 4;
+	IMAGE_IDX_ASCENDING_SORTED = 5;
+	LV_IMAGE_IDX_OK = 0;
+	LV_IMAGE_IDX_ERROR = 1;
+	LV_IMAGE_IDX_INFO = 2;
 
 	{$R *.dfm}
 
@@ -165,19 +193,19 @@ begin
 	inherited Create(AOwner);
 	FData := TRipGrepperMatches.Create();
 	FExeVersion := GetAppNameAndVersion(Application.ExeName);
-	FSortType := stUnsorted;
+	InitColumnSortTypes;
 	FParserType := ptRipGrepSearchCutParent;
 	FArguments := TStringList.Create();
 	FRecId := 0;
-	UpdateSortingImages;
+	UpdateSortingImages([sbtFile, sbtRow]);
 	InitMaxWidths;
 end;
 
 destructor TRipGrepperForm.Destroy;
 begin
-	inherited;
 	FData.Free;
 	FArguments.Free;
+	inherited;
 end;
 
 procedure TRipGrepperForm.ActionCancelExecute(Sender : TObject);
@@ -194,6 +222,16 @@ end;
 procedure TRipGrepperForm.ActionConfigExecute(Sender : TObject);
 begin
 	//
+end;
+
+procedure TRipGrepperForm.ActionCopyFileNameExecute(Sender : TObject);
+begin
+	CopyToClipboardFileOfSelected();
+end;
+
+procedure TRipGrepperForm.ActionCopyPathToClipboardExecute(Sender : TObject);
+begin
+	CopyToClipboardPathOfSelected();
 end;
 
 procedure TRipGrepperForm.ActionShowRelativePathExecute(Sender : TObject);
@@ -215,8 +253,8 @@ begin
 	cursor.SetHourGlassCursor;
 	ClearData;
 	InitStatusBar;
-	FSortType := stUnsorted;
-	UpdateSortingImages;
+	InitColumnSortTypes;
+	UpdateSortingImages([sbtFile, sbtRow]);
 	lvResult.Repaint();
 	// btnSort.Repaint();
 	DoSearch;
@@ -225,26 +263,27 @@ end;
 procedure TRipGrepperForm.ActionShowRelativePathUpdate(Sender : TObject);
 begin
 	tbShowRelativePath.Down := FShowRelativePath;
+	ActionShowRelativePath.ImageIndex := Ifthen(FShowRelativePath, IMG_IDX_SHOW_RELATIVE_PATH, IMG_IDX_SHOW_ABS_PATH);
 end;
 
-procedure TRipGrepperForm.ActionSortExecute(Sender : TObject);
-var
-	cursor : TCursorSaver;
+procedure TRipGrepperForm.ActionSortByFileExecute(Sender : TObject);
 begin
-	cursor.SetHourGlassCursor();
-	FSortType := TSortType((Integer(FSortType) + 1) mod 3);
-	if FSortType <> stUnsorted then begin
-		FData.SortByFileName(FSortType = stDescending);
-	end else begin
-		FData.SortByRecID(FSortType = stDescending);
-	end;
-	UpdateSortingImages;
-	lvResult.Repaint();
+	DoSortOnColumn(sbtFile);
 end;
 
-procedure TRipGrepperForm.ActionSortUpdate(Sender : TObject);
+procedure TRipGrepperForm.ActionSortByFileUpdate(Sender : TObject);
 begin
-	UpdateSortingImages;
+	UpdateSortingImages([sbtFile]);
+end;
+
+procedure TRipGrepperForm.ActionSortByRowExecute(Sender : TObject);
+begin
+	DoSortOnColumn(sbtRow);
+end;
+
+procedure TRipGrepperForm.ActionSortByRowUpdate(Sender : TObject);
+begin
+	UpdateSortingImages([sbtRow]);
 end;
 
 procedure TRipGrepperForm.AddIfNotContains(_cmb : TComboBox);
@@ -278,7 +317,7 @@ end;
 
 procedure TRipGrepperForm.ReBuildArguments;
 const
-	NECESSARY_PARAMS : TArray<string> = ['--vimgrep'{, '--line-buffered'}];
+	NECESSARY_PARAMS : TArray<string> = ['--vimgrep' { , '--line-buffered' } ];
 var
 	paramsArr : TArray<string>;
 	params : string;
@@ -359,9 +398,9 @@ begin
 	Result := Format('%s v%d.%d.%d', [name, major, minor, build]);
 end;
 
-function TRipGrepperForm.GetSortingImageIndex : Integer;
+function TRipGrepperForm.GetSortingImageIndex(const _idx : Integer) : Integer;
 begin
-	case FSortType of
+	case FColumnSortTypes[_idx] of
 		stUnsorted :
 		Result := IMAGE_IDX_UNSORTED;
 		stAscending :
@@ -434,7 +473,12 @@ end;
 
 procedure TRipGrepperForm.lvResultColumnClick(Sender : TObject; Column : TListColumn);
 begin
-	ActionSortExecute(self);
+	case Column.Index of
+		0 :
+		ActionSortByFileExecute(self);
+		1 :
+		ActionSortByRowExecute(self);
+	end;
 end;
 
 procedure TRipGrepperForm.lvResultData(Sender : TObject; Item : TListItem);
@@ -529,13 +573,37 @@ begin
 		fn := fn.Replace(cmbSearchDir.Text, '.', [rfIgnoreCase]);
 	end;
 	if m[_index].IsError then begin
-		_item.Caption := '! ' + m[_index].ErrorText + '|' + fn;
+		_item.Caption := ' ' + fn;
+		_item.ImageIndex := LV_IMAGE_IDX_ERROR;
 	end else begin
 		_item.Caption := fn;
+		_item.ImageIndex := LV_IMAGE_IDX_OK;
 	end;
 	_item.SubItems.Add(m[_index].Row.ToString);
 	_item.SubItems.Add(m[_index].Col.ToString);
 	_item.SubItems.Add(m[_index].Text);
+end;
+
+procedure TRipGrepperForm.DoSortOnColumn(const _sbt : TSortByType);
+var
+	cursor : TCursorSaver;
+	st : TSortType;
+begin
+	cursor.SetHourGlassCursor();
+	try
+		st := FColumnSortTypes[integer(_sbt)];
+		st := TSortType((Integer(st) + 1) mod 3);
+		FColumnSortTypes[integer(_sbt)] := st;
+		FData.SortBy(_sbt, st);
+		UpdateSortingImages([_sbt]);
+	finally
+		lvResult.Repaint();
+	end;
+end;
+
+procedure TRipGrepperForm.InitColumnSortTypes;
+begin
+	FColumnSortTypes := [stUnsorted, stUnsorted, stUnsorted, stUnsorted];
 end;
 
 procedure TRipGrepperForm.InitMaxWidths;
@@ -548,6 +616,85 @@ begin
 		for var i := 0 to lvResult.Columns.Count - 1 do begin
 			FMaxWidths[i] := 0;
 		end;
+	end;
+end;
+
+procedure TRipGrepperForm.CopyToClipboardFileOfSelected;
+var
+	idx : Integer;
+begin
+	if not lvResult.TryGetSelected(idx) then
+		Exit;
+	Clipboard.AsText := TPath.GetFileName(lvResult.Items[idx].Caption);
+end;
+
+procedure TRipGrepperForm.CopyToClipboardPathOfSelected;
+var
+	idx : Integer;
+begin
+	if not lvResult.TryGetSelected(idx) then
+		Exit;
+	Clipboard.AsText := TPath.GetFullPath(lvResult.Items[idx].Caption);
+end;
+
+function TRipGrepperForm.GetIconBitmap(const sFileName : string) : Vcl.Graphics.TBitmap;
+var
+	sfi : TSHFileInfo;
+	icon : TIcon;
+begin
+	icon := TIcon.Create;
+	try
+		SHGetFileInfo(PChar(sFileName), 0, sfi, SizeOf(TSHFileInfo), SHGFI_SMALLICON or SHGFI_ICON);
+		icon.Handle := sfi.hIcon;
+		ImageFileIcon.Picture.Bitmap.Assign(Icon);
+		Result := ImageFileIcon.Picture.Bitmap;
+	finally
+		icon.Free;
+	end;
+end;
+
+procedure TRipGrepperForm.lvResultDrawItem(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
+var
+	bm: Vcl.Graphics.TBitmap;
+	i : Integer;
+	x1, x2 : integer;
+	r : TRect;
+	s : string;
+	sFileName : string;
+//    ts: TTextStyle;
+const
+	DT_ALIGN : array [TAlignment] of integer = (DT_LEFT, DT_RIGHT, DT_CENTER);
+begin
+	Sender.SetAlteringColors(Item);
+	Sender.Canvas.Brush.Style := bsSolid;
+	Sender.Canvas.FillRect(Rect);
+	x1 := 0;
+	x2 := 0;
+	r := Rect;
+	Sender.Canvas.Brush.Style := bsClear;
+
+	sFileName := item.Caption;
+	// SHGetFileInfo(PChar(item.Caption), 0, sfi, SizeOf(sfi), SHGFI_DISPLAYNAME);
+	// item.Caption := sfi.szDisplayName;
+
+	bm := GetIconBitmap(sFileName);
+	Sender.Canvas.Draw(3, r.Top + (r.Bottom - r.Top - bm.Height) div 2, bm);
+
+	for i := 0 to lvResult.Columns.Count - 1 do begin
+		inc(x2, lvResult.Columns[i].Width);
+		r.Left := x1;
+		r.Right := x2;
+		if i = 0 then begin
+			s := Item.Caption;
+			r.Left := bm.Width + 6;
+		end else begin
+			s := Item.SubItems[i - 1];
+		end;
+//        ts.Alignment :=
+//        Sender.Canvas.TextRect(
+		DrawText(Sender.Canvas.Handle, S, length(s), r,
+		{ } DT_SINGLELINE or DT_ALIGN[lvResult.Columns[i].Alignment] or DT_VCENTER or DT_END_ELLIPSIS);
+		x1 := x2;
 	end;
 end;
 
@@ -611,13 +758,23 @@ begin
 	FSettings.Store
 end;
 
-procedure TRipGrepperForm.UpdateSortingImages();
+procedure TRipGrepperForm.UpdateSortingImages(const _sbtArr : TArray<TSortByType>);
 var
-	idx : integer;
+	imgIdx : integer;
 begin
-	idx := GetSortingImageIndex;
-	lvResult.Columns[0].ImageIndex := idx;
-	ActionSort.ImageIndex := idx;
+
+	for var sbt in _sbtArr do begin
+		var
+		i := integer(sbt);
+		imgIdx := GetSortingImageIndex(i);
+		lvResult.Columns[i].ImageIndex := imgIdx;
+		case i of
+			0 :
+			ActionSortByFile.ImageIndex := imgIdx;
+			1 :
+			ActionSortByRow.ImageIndex := imgIdx;
+		end;
+	end;
 end;
 
 end.

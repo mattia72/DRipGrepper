@@ -31,15 +31,16 @@ type
 
 	TListViewColumnAdjuster = class(TObject)
 		private
-			class function GetMaxWidth(_lv : TListView; const _width, _colIndex : Integer;
-				var maxWidths : TArray<integer>): integer;
-	public
-			class procedure AdjustColumnWidths(_lv : TListView; _item : TListItem; var
-				maxWidths : TArray<integer>);
+			class function GetMaxWidth(_lv : TListView; const _width, _colIndex : Integer; var maxWidths : TArray<integer>) : integer;
+
+		public
+			class procedure AdjustColumnWidths(_lv : TListView; _item : TListItem; var maxWidths : TArray<integer>);
 	end;
 
-	TListViewHelper = class helper for TListView
-		function TryGetSelected(out _Idx: Integer): Boolean;
+	TListViewHelper = class Helper for TCustomListView
+		public
+			function TryGetSelected(out _Idx : Integer) : Boolean;
+			procedure SetAlteringColors(Item : TListItem);
 	end;
 
 implementation
@@ -47,14 +48,26 @@ implementation
 uses
 	Vcl.Forms,
 	Winapi.Windows,
-	Winapi.CommCtrl, System.Classes;
+	Winapi.CommCtrl,
+	System.Classes;
+
+procedure TListViewHelper.SetAlteringColors(Item : TListItem);
+begin
+	if Odd(Item.Index) then begin
+		self.Canvas.Font.Color := clBlack;
+		self.Canvas.Brush.Color := $F6F6F6;
+	end else begin
+		self.Canvas.Font.Color := clBlack;
+		self.Canvas.Brush.Color := clWhite;
+	end;
+end;
 
 { TCursorSaver }
 
-function TListViewHelper.TryGetSelected(out _Idx: Integer): Boolean;
+function TListViewHelper.TryGetSelected(out _Idx : Integer) : Boolean;
 begin
-  _Idx := self.ItemIndex;
-  Result := (_Idx <> -1);
+	_Idx := self.ItemIndex;
+	Result := (_Idx <> -1);
 end;
 
 procedure TCursorSaver.SetHourGlassCursor;
@@ -113,8 +126,7 @@ begin
 	Result := tsize.cx;
 end;
 
-class procedure TListViewColumnAdjuster.AdjustColumnWidths(_lv : TListView;
-	_item : TListItem; var maxWidths : TArray<integer>);
+class procedure TListViewColumnAdjuster.AdjustColumnWidths(_lv : TListView; _item : TListItem; var maxWidths : TArray<integer>);
 const
 	SPACE_TITLE = 50;
 	SPACE = 20;
@@ -127,8 +139,8 @@ begin
 	end;
 end;
 
-class function TListViewColumnAdjuster.GetMaxWidth(_lv : TListView; const
-	_width, _colIndex : Integer; var maxWidths : TArray<integer>): integer;
+class function TListViewColumnAdjuster.GetMaxWidth(_lv : TListView; const _width, _colIndex : Integer; var maxWidths : TArray<integer>)
+	: integer;
 begin
 	if Length(maxWidths) = 0 then begin
 		Result := 0
