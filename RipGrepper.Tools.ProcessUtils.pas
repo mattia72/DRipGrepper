@@ -3,14 +3,9 @@ unit RipGrepper.Tools.ProcessUtils;
 interface
 
 uses
-	System.Classes;
-
-type
-	INewLineEventHandler = interface
-		procedure OnNewOutputLine(const _sLine : string);
-	end;
-
-	TNewLineEventHandler = procedure(_obj : INewLineEventHandler; const _s : string);
+	System.Classes,
+	dprocess,
+	RipGrepper.Common.Types;
 
 type
 	TProcessUtils = class(TObject)
@@ -22,6 +17,7 @@ type
 
 		public
 			class function MaybeQuoteIfNotQuoted(const _s : string; const _delimiter : string = '"') : string;
+			class procedure ProcessOutput(const _s : TStream; _handler : INewLineEventHandler);
 			class function RunProcess(const _exe : string; _args : TStrings; _workDir : string; _handler : INewLineEventHandler) : Boolean;
 			class function RunProcessAsync(const _exe : string; _args : TStrings; _workDir : string; _handler : INewLineEventHandler)
 				: Boolean;
@@ -30,7 +26,7 @@ type
 implementation
 
 uses
-	dprocess,
+
 	System.SysUtils,
 	RipGrepper.Tools.DebugTools,
 	Winapi.Windows,
@@ -48,22 +44,69 @@ end;
 
 class procedure TProcessUtils.NewLineEventHandler(_obj : INewLineEventHandler; const _s : string);
 begin
-	_obj.OnNewOutputLine(_s);
+	if Assigned(_obj) then begin
+		_obj.OnNewOutputLine(_s);
+	end;
+end;
+
+class procedure TProcessUtils.ProcessOutput(const _s : TStream; _handler : INewLineEventHandler);
+var
+	bCurrentIsCrLf : Boolean;
+	bPrevWasCrLf : Boolean;
+	sBuf : ansistring;
+	iCnt : integer;
+	i : integer;
+	iLineStartIndex : integer;
+	sLineOut : string;
+begin
+	{ Now process the output }
+	SetLength(sBuf, BUFF_LENGTH);
+	repeat
+		if (_s <> nil) then begin
+			iCnt := _s.Read(sBuf[1], Length(sBuf));
+			// L505 todo: try this when using unicodestring buffer
+			// Count := _s.Output.Read(pchar(Buf)^, BUFF_LENGTH);
+		end else begin
+			iCnt := 0;
+		end;
+		iLineStartIndex := 1;
+		i := 1;
+		while (i <= iCnt) do begin
+			bCurrentIsCrLf := CharInSet(sBuf[i], [CR, LF]);
+			if bCurrentIsCrLf then begin
+				if (i <> 1) then begin
+					// line shouldn't begin with cr or lf
+					sLineOut := sLineOut + Copy(string(sBuf), iLineStartIndex, i - iLineStartIndex);
+					if not bPrevWasCrLf then begin
+						NewLineEventHandler(_handler, sLineOut);
+					end;
+				end;
+
+				sLineOut := '';
+				if (i <> 1) and (i < iCnt) and
+				{ } bCurrentIsCrLf and (sBuf[i] <> sBuf[i + 1]) and
+				{ } not bPrevWasCrLf then begin
+					Inc(i);
+				end;
+				iLineStartIndex := i + 1;
+				bPrevWasCrLf := True;
+			end else begin
+				bPrevWasCrLf := False;
+			end;
+			Inc(i);
+		end;
+		sLineOut := Copy(string(sBuf), iLineStartIndex, iCnt - iLineStartIndex + 1);
+	until iCnt = 0;
+
+	if sLineOut <> '' then begin
+		NewLineEventHandler(_handler, sLineOut);
+	end;
 end;
 
 class function TProcessUtils.RunProcess(const _exe : string; _args : TStrings; _workDir : string; _handler : INewLineEventHandler)
 	: Boolean;
-const
-	BUFF_LENGTH = 1024;
 var
 	p : TProcess;
-	Buf : ansistring;
-	// Buf: string;
-	Count : integer;
-	i : integer;
-	LineStart : integer;
-	OutputLine : string;
-	// OutputLine: ansistring;
 begin
 	p := TProcess.Create(nil);
 	try
@@ -78,53 +121,8 @@ begin
 		TDebugUtils.DebugMessage('arguments: ' + p.Parameters.Text);
 		p.Execute;
 
-		{ Now process the output }
-		OutputLine := '';
-		SetLength(Buf, BUFF_LENGTH);
-		repeat
-			if (p.Output <> nil) then begin
-				Count := p.Output.Read(Buf[1], Length(Buf));
-				// L505 todo: try this when using unicodestring buffer
-				// Count := p.Output.Read(pchar(Buf)^, BUFF_LENGTH);
-			end else begin
-				Count := 0;
-			end;
-			LineStart := 1;
-			i := 1;
-			while (i <= Count) do begin
-				// L505
-				// if Buf[i] in [#10,#13] then
-				if CharInSet(Buf[i], [#10, #13]) then begin
-					if (i <> 1) then begin
-						// line shouldn't begin with crlf
-						OutputLine := OutputLine + Copy(string(Buf), LineStart, i - LineStart);
-						if (Length(OutputLine) > 0) and (OutputLine[1] = ':') then begin
-							TDebugUtils.DebugMessage(Format('Buffer begins with crlf (i:%d ls:%d)|%s|', [i, LineStart, OutputLine]));
-						end;
-						NewLineEventHandler(_handler, OutputLine);
-						// end else begin
-						// TDebugUtils.DebugMessage(Format('Buffer begins with crlf (i:%d ls:%d)|%s|',
-						// [i, LineStart, Copy(string(Buf), LineStart, i - LineStart)]));
-					end;
+		ProcessOutput(p.Output, _handler);
 
-					OutputLine := '';
-					// L505
-					// if (i<Count) and (Buf[i+1] in [#10,#13]) and (Buf[i]<>Buf[i+1]) then
-					if (i <> 1) and (i < Count) and (CharInSet(Buf[i], [#10, #13])) and (Buf[i] <> Buf[i + 1]) then
-						Inc(i);
-					LineStart := i + 1;
-				end;
-				Inc(i);
-			end;
-			OutputLine := Copy(string(Buf), LineStart, Count - LineStart + 1);
-		until Count = 0;
-
-		if OutputLine <> '' then begin
-			if OutputLine[1] = ':' then begin
-				TDebugUtils.DebugMessage(Format('Buffer begins with crlf (i:%d ls:%d)|%s|', [i, LineStart, OutputLine]));
-			end;
-			NewLineEventHandler(_handler, OutputLine);
-		end;
 		p.WaitOnExit;
 		Result := p.ExitStatus = 0;
 		if not Result then begin

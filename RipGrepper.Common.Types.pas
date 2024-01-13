@@ -6,9 +6,20 @@ uses
 	System.Classes;
 
 const
+	CR = #13;
+	LF = #10;
 	CRLF = sLineBreak;
 
 type
+
+	{$M+}
+	INewLineEventHandler = interface
+		['{2AB0567A-EDAB-4FDC-904B-E3F124568978}']
+		procedure OnNewOutputLine(const _sLine : string);
+	end;
+	{$M-}
+
+	TNewLineEventHandler = procedure(_obj : INewLineEventHandler; const _s : string);
 	TSortType = (stUnsorted, stAscending, stDescending);
 
 	TParserType = (ptRipGrepSearch, ptRipGrepVersion, ptRipGrepSearchCutParent);

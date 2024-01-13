@@ -1,4 +1,4 @@
-unit RipGrepperTest;
+unit RipGrepMatchTest;
 
 interface
 
@@ -8,7 +8,7 @@ uses
 type
 
 	[TestFixture]
-	TRipGrepperTest = class
+	TRipGrepMatchTest = class
 		public
 			[Setup]
 			procedure Setup;
@@ -40,20 +40,20 @@ uses
 	System.Classes,
 	System.SysUtils;
 
-procedure TRipGrepperTest.Setup;
+procedure TRipGrepMatchTest.Setup;
 begin
 end;
 
-procedure TRipGrepperTest.TearDown;
+procedure TRipGrepMatchTest.TearDown;
 begin
 end;
 
-procedure TRipGrepperTest.Test1;
+procedure TRipGrepMatchTest.Test1;
 begin
 
 end;
 
-procedure TRipGrepperTest.ParseLineTest(const _s : string);
+procedure TRipGrepMatchTest.ParseLineTest(const _s : string);
 var
 	m : TRipGrepMatch;
 begin
@@ -67,7 +67,7 @@ begin
 		{ } m.Text + CRLF);
 end;
 
-procedure TRipGrepperTest.ValidatePathTest(const _s : string);
+procedure TRipGrepMatchTest.ValidatePathTest(const _s : string);
 var
 	m : TRipGrepMatch;
 begin
@@ -82,6 +82,6 @@ end;
 
 initialization
 
-TDUnitX.RegisterTestFixture(TRipGrepperTest);
+TDUnitX.RegisterTestFixture(TRipGrepMatchTest);
 
 end.

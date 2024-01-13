@@ -13,8 +13,10 @@ uses
   DUnitX.Loggers.Xml.NUnit,
   {$ENDIF }
   DUnitX.TestFramework,
-  RipGrepperTest in 'RipGrepperTest.pas',
-  RipGrepper.Data.Matches in '..\RipGrepper\RipGrepper.Data.Matches.pas';
+  RipGrepMatchTest in 'RipGrepMatchTest.pas',
+  RipGrepper.Data.Matches in '..\RipGrepper.Data.Matches.pas',
+  RipGrepper.ProcessUtils.Test in 'RipGrepper.ProcessUtils.Test.pas',
+  RipGrepper.Tools.ProcessUtils in '..\RipGrepper.Tools.ProcessUtils.pas';
 
 {$IFNDEF TESTINSIGHT}
 var
