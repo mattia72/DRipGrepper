@@ -175,9 +175,6 @@ begin
 	if odSelected in State then begin
 		self.Font.Color := clWhite;
 		self.Brush.Color := clMenuHighlight;
-	end else begin
-		self.Font.Color := clBlack;
-		self.Brush.Color := clWhite;
 	end;
 end;
 
