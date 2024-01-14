@@ -4,13 +4,14 @@ interface
 
 uses
 	System.Classes,
-	System.IniFiles;
+	System.IniFiles,
+	System.Generics.Collections;
 
 type
 	TRipGrepperSettings = record
 		const
 			MAX_HISTORY_COUNT = 20;
-
+			VIEW_SETTINGS : array[0..2] of string = ('ShowRelativePath', 'ShowFileIcon', 'AlternateRowColors');
 		var
 			SettingsFile : TIniFile;
 			RipGrepPath : string;
@@ -28,6 +29,7 @@ type
 		public
 			procedure Load;
 			procedure Store;
+			procedure StoreViewSettings(const _s : string = '');
 			class operator Finalize(var Dest : TRipGrepperSettings);
 			class operator Initialize(out Dest : TRipGrepperSettings);
 	end;
@@ -36,7 +38,10 @@ implementation
 
 uses
 	System.SysUtils,
-	Vcl.Forms;
+	Vcl.Forms,
+	System.StrUtils,
+	RipGrepper.Common.Types,
+	RipGrepper.Tools.DebugTools;
 
 procedure TRipGrepperSettings.LoadHistoryEntries(var _list : TStrings; const _section : string);
 begin
@@ -89,13 +94,35 @@ procedure TRipGrepperSettings.Store;
 begin
 	SettingsFile.WriteString('RipGrepSettings', 'Path', RipGrepPath);
 
-	SettingsFile.WriteBool('RipGrepperSettings', 'ShowRelativePath', ShowRelativePath);
-	SettingsFile.WriteBool('RipGrepperSettings', 'ShowFileIcon', ShowFileIcon);
-	SettingsFile.WriteBool('RipGrepperSettings', 'AlternateRowColors', AlternateRowColors);
+	StoreViewSettings();
 
 	StoreHistoryEntries(SearchPaths, 'SearchPathsHistory');
 	StoreHistoryEntries(SearchTexts, 'SearchTextsHistory');
 	StoreHistoryEntries(RipGrepParams, 'RipGrepParamsHistory');
+end;
+
+procedure TRipGrepperSettings.StoreViewSettings(const _s : string = '');
+var
+	i : integer;
+begin
+	i := 0;
+	if _s.IsEmpty then begin
+		// store all
+		for i := 0 to high(VIEW_SETTINGS) do begin
+			StoreViewSettings(VIEW_SETTINGS[i]);
+		end;
+	end else if MatchStr(_s, VIEW_SETTINGS[i]) then begin
+		SettingsFile.WriteBool('RipGrepperSettings', VIEW_SETTINGS[i], ShowRelativePath);
+		TDebugUtils.DebugMessage(VIEW_SETTINGS[i] + ' stored');
+	end else if MatchStr(_s, VIEW_SETTINGS[PreInc(i)]) then begin
+		SettingsFile.WriteBool('RipGrepperSettings', VIEW_SETTINGS[i], ShowFileIcon);
+		TDebugUtils.DebugMessage(VIEW_SETTINGS[i] + ' stored');
+	end else if MatchStr(_s, VIEW_SETTINGS[PreInc(i)]) then begin
+		SettingsFile.WriteBool('RipGrepperSettings', VIEW_SETTINGS[i], AlternateRowColors);
+		TDebugUtils.DebugMessage(VIEW_SETTINGS[i] + ' stored');
+	end else begin
+		raise Exception.Create('Settings: ' + _s + ' not stored!');
+	end;
 end;
 
 procedure TRipGrepperSettings.StoreHistoryEntries(const _list : TStrings; const _section : string);
