@@ -41,6 +41,13 @@ type
 		public
 			function TryGetSelected(out _Idx : Integer) : Boolean;
 			procedure SetAlteringColors(Item : TListItem);
+			procedure SetSelectedColors(State : TOwnerDrawState);
+	end;
+
+	TCanvasHelper = class Helper for Vcl.Graphics.TCanvas
+		public
+			procedure SetAlteringColors(Item : TListItem);
+			procedure SetSelectedColors(State : TOwnerDrawState);
 	end;
 
 implementation
@@ -53,13 +60,12 @@ uses
 
 procedure TListViewHelper.SetAlteringColors(Item : TListItem);
 begin
-	if Odd(Item.Index) then begin
-		self.Canvas.Font.Color := clBlack;
-		self.Canvas.Brush.Color := $F6F6F6;
-	end else begin
-		self.Canvas.Font.Color := clBlack;
-		self.Canvas.Brush.Color := clWhite;
-	end;
+	Self.Canvas.SetAlteringColors(Item);
+end;
+
+procedure TListViewHelper.SetSelectedColors(State : TOwnerDrawState);
+begin
+	Self.Canvas.SetSelectedColors(State);
 end;
 
 { TCursorSaver }
@@ -150,6 +156,28 @@ begin
 			maxWidths[_colIndex] := _width;
 		end;
 		Result := maxWidths[_colIndex];
+	end;
+end;
+
+procedure TCanvasHelper.SetAlteringColors(Item : TListItem);
+begin
+	if Odd(Item.Index) then begin
+		self.Font.Color := clBlack;
+		self.Brush.Color := cl3DLight; // clGrayText; // clLtGray;
+	end else begin
+		self.Font.Color := clBlack;
+		self.Brush.Color := clWhite;
+	end;
+end;
+
+procedure TCanvasHelper.SetSelectedColors(State : TOwnerDrawState);
+begin
+	if odSelected in State then begin
+		self.Font.Color := clWhite;
+		self.Brush.Color := clMenuHighlight;
+	end else begin
+		self.Font.Color := clBlack;
+		self.Brush.Color := clWhite;
 	end;
 end;
 

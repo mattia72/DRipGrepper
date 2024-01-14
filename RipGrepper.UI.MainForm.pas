@@ -4,7 +4,7 @@ interface
 
 uses
 
-	Winapi.Messages,
+	// Winapi.Messages,
 	System.Variants,
 	System.Classes,
 	Vcl.Graphics,
@@ -13,17 +13,19 @@ uses
 	Vcl.StdCtrls,
 	Vcl.ComCtrls,
 	Vcl.ExtCtrls,
-	System.ImageList,
+	// System.ImageList,
 	Vcl.ImgList,
-	System.Actions,
+	// System.Actions,
 	Vcl.ActnList,
+	Vcl.ToolWin,
+	Vcl.Menus,
 	RipGrepper.Tools.ProcessUtils,
 	RipGrepper.Common.Settings,
 	RipGrepper.Data.Matches,
 	RipGrepper.Common.Types,
-	Vcl.ToolWin,
-	Vcl.Menus,
-	Winapi.Windows;
+	Winapi.Windows,
+	System.ImageList,
+	System.Actions;
 
 type
 	TRipGrepperForm = class(TForm, INewLineEventHandler)
@@ -32,7 +34,7 @@ type
 		lblParams : TLabel;
 		lblText : TLabel;
 		btnConfig : TButton;
-		lvResult : TListView;
+		ListViewResult : TListView;
 		pnlBottom : TPanel;
 		btnSearch : TButton;
 		btnCancel : TButton;
@@ -66,8 +68,8 @@ type
 		Action12 : TMenuItem;
 		ImageListListView : TImageList;
 		ImageFileIcon : TImage;
-    tbDoSearchCancel: TToolButton;
-    ActionDoSearch: TAction;
+		tbDoSearchCancel : TToolButton;
+		ActionDoSearch : TAction;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionCmdLineCopyExecute(Sender : TObject);
 		procedure ActionConfigExecute(Sender : TObject);
@@ -84,9 +86,9 @@ type
 		procedure ActionSwitchViewUpdate(Sender : TObject);
 		procedure FormClose(Sender : TObject; var Action : TCloseAction);
 		procedure FormShow(Sender : TObject);
-		procedure lvResultColumnClick(Sender : TObject; Column : TListColumn);
-		procedure lvResultData(Sender : TObject; Item : TListItem);
-		procedure lvResultDrawItem(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
+		procedure ListViewResultColumnClick(Sender : TObject; Column : TListColumn);
+		procedure ListViewResultData(Sender : TObject; Item : TListItem);
+		procedure ListViewResultDrawItem(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
 
 		private
 			FArguments : TStringList;
@@ -116,6 +118,7 @@ type
 			procedure CopyToClipboardFileOfSelected;
 			procedure DataToGrid(const _index : Integer; _item : TListItem);
 			procedure DoSortOnColumn(const _sbt : TSortByType);
+			procedure DrawItem(Canvas : TCanvas; Rect : TRect; Item : TListItem; State : TOwnerDrawState);
 			function GetIconBitmap(const sFileName : string) : Vcl.Graphics.TBitmap;
 			procedure InitColumnSortTypes;
 			procedure InitMaxWidths;
@@ -149,19 +152,18 @@ var
 implementation
 
 uses
-	RipGrepper.Tools.DebugTools,
-	Vcl.Dialogs,
+	System.Math,
 	System.UITypes,
 	System.IOUtils,
 	System.SysUtils,
 	System.Threading,
-	Winapi.CommCtrl,
+	System.Types,
+	RipGrepper.Tools.DebugTools,
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.FileUtils,
-	System.Math,
 	System.Generics.Defaults,
+	Vcl.Dialogs,
 	Vcl.Clipbrd,
-	System.Types,
 	Winapi.ShellAPI;
 
 const
@@ -243,7 +245,7 @@ begin
 	idx := Integer(FShowRelativePath);
 	FParserType := PARSER_TYPES[idx mod Length(PARSER_TYPES)];
 	InitMaxWidths();
-	lvResult.Repaint;
+	ListViewResult.Repaint;
 end;
 
 procedure TRipGrepperForm.ActionSearchExecute(Sender : TObject);
@@ -255,7 +257,7 @@ begin
 	InitStatusBar;
 	InitColumnSortTypes;
 	UpdateSortingImages([sbtFile, sbtRow]);
-	lvResult.Repaint();
+	ListViewResult.Repaint();
 	// btnSort.Repaint();
 	DoSearch;
 end;
@@ -304,7 +306,7 @@ end;
 
 procedure TRipGrepperForm.ActionSwitchViewExecute(Sender : TObject);
 begin
-	lvResult.ViewStyle := LISTVIEW_TYPES[ViewStyleIndex];
+	ListViewResult.ViewStyle := LISTVIEW_TYPES[ViewStyleIndex];
 end;
 
 procedure TRipGrepperForm.ActionSwitchViewUpdate(Sender : TObject);
@@ -347,9 +349,9 @@ end;
 
 procedure TRipGrepperForm.ClearData;
 begin
-	lvResult.Items.Count := 0;
+	ListViewResult.Items.Count := 0;
 	FData.Clear;
-	lvResult.Items.Clear;
+	ListViewResult.Items.Clear;
 end;
 
 class function TRipGrepperForm.CreateAndShow(const _settings : TRipGrepperSettings) : string;
@@ -358,7 +360,7 @@ begin
 	form := TRipGrepperForm.Create(_settings);
 	try
 		if (mrOk = form.ShowModal()) then begin
-			Result := form.lvResult.Items[form.lvResult.ItemIndex].SubItems[0];
+			Result := form.ListViewResult.Items[form.ListViewResult.ItemIndex].SubItems[0];
 		end;
 
 	finally
@@ -471,7 +473,7 @@ begin
 	FShowRelativePath := FSettings.ShowRelativePath;
 end;
 
-procedure TRipGrepperForm.lvResultColumnClick(Sender : TObject; Column : TListColumn);
+procedure TRipGrepperForm.ListViewResultColumnClick(Sender : TObject; Column : TListColumn);
 begin
 	case Column.Index of
 		0 :
@@ -481,7 +483,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepperForm.lvResultData(Sender : TObject; Item : TListItem);
+procedure TRipGrepperForm.ListViewResultData(Sender : TObject; Item : TListItem);
 var
 	idx : Integer;
 begin
@@ -489,7 +491,7 @@ begin
 	if FData.Count > idx then begin
 		DataToGrid(idx, Item);
 		SetStatusBarResultText(Format('%d matches in %d files', [FData.Matches.Count, FData.MatchFiles.Count]));
-		TListViewColumnAdjuster.AdjustColumnWidths(lvResult, Item, FMaxWidths);
+		TListViewColumnAdjuster.AdjustColumnWidths(ListViewResult, Item, FMaxWidths);
 	end;
 end;
 
@@ -520,7 +522,7 @@ begin
 					newItem.RecId := PostInc(FRecId);
 					FData.Matches.Add(newItem);
 					// virtual listview! Items count should be updated
-					lvResult.Items.Count := FData.Count;
+					ListViewResult.Items.Count := FData.Count;
 				end);
 		end);
 end;
@@ -534,7 +536,7 @@ begin
 		Item.GroupID := m[idx].GroupID;
 	end else begin
 		var
-		Group := lvResult.Groups.Add;
+		Group := ListViewResult.Groups.Add;
 		Group.State := [lgsNormal, lgsCollapsible];
 		Group.Header := m[idx].FileName;
 		var
@@ -597,7 +599,7 @@ begin
 		FData.SortBy(_sbt, st);
 		UpdateSortingImages([_sbt]);
 	finally
-		lvResult.Repaint();
+		ListViewResult.Repaint();
 	end;
 end;
 
@@ -609,11 +611,11 @@ end;
 procedure TRipGrepperForm.InitMaxWidths;
 begin
 	if Length(FMaxWidths) = 0 then begin
-		for var i := 0 to lvResult.Columns.Count - 1 do begin
+		for var i := 0 to ListViewResult.Columns.Count - 1 do begin
 			FMaxWidths := FMaxWidths + [0];
 		end;
 	end else begin
-		for var i := 0 to lvResult.Columns.Count - 1 do begin
+		for var i := 0 to ListViewResult.Columns.Count - 1 do begin
 			FMaxWidths[i] := 0;
 		end;
 	end;
@@ -623,18 +625,65 @@ procedure TRipGrepperForm.CopyToClipboardFileOfSelected;
 var
 	idx : Integer;
 begin
-	if not lvResult.TryGetSelected(idx) then
+	if not ListViewResult.TryGetSelected(idx) then
 		Exit;
-	Clipboard.AsText := TPath.GetFileName(lvResult.Items[idx].Caption);
+	Clipboard.AsText := TPath.GetFileName(ListViewResult.Items[idx].Caption);
 end;
 
 procedure TRipGrepperForm.CopyToClipboardPathOfSelected;
 var
 	idx : Integer;
 begin
-	if not lvResult.TryGetSelected(idx) then
+	if not ListViewResult.TryGetSelected(idx) then
 		Exit;
-	Clipboard.AsText := TPath.GetFullPath(lvResult.Items[idx].Caption);
+	Clipboard.AsText := TPath.GetFullPath(ListViewResult.Items[idx].Caption);
+end;
+
+procedure TRipGrepperForm.DrawItem(Canvas : TCanvas; Rect : TRect; Item : TListItem; State : TOwnerDrawState);
+var
+	bm : Vcl.Graphics.TBitmap;
+	i : Integer;
+	x1 : integer;
+	x2 : integer;
+	r : TRect;
+	s : string;
+	sFileName : string;
+const
+	DT_ALIGN : array [TAlignment] of TTextFormats = (
+	{ } tfLeft,
+	{ } tfRight,
+	{ } tfCenter);
+begin
+	Canvas.SetAlteringColors(Item);
+	Canvas.SetSelectedColors(State);
+
+	Canvas.Brush.Style := bsSolid;
+	Canvas.FillRect(Rect);
+	Canvas.Brush.Style := bsClear;
+
+	x1 := Rect.Left;
+	x2 := Rect.Left;
+	r := Rect;
+
+	sFileName := item.Caption;
+	// SHGetFileInfo(PChar(item.Caption), 0, sfi, SizeOf(sfi), SHGFI_DISPLAYNAME);
+	// item.Caption := sfi.szDisplayName;
+	bm := GetIconBitmap(sFileName);
+	Canvas.Draw(r.Left + 3, r.Top + (r.Bottom - r.Top - bm.Height) div 2, bm);
+
+	for i := 0 to ListViewResult.Columns.Count - 1 do begin
+		inc(x2, ListViewResult.Columns[i].Width);
+		r.Left := x1;
+		r.Right := x2;
+		if i = 0 then begin
+			s := Item.Caption;
+			r.Left := R.Left + bm.Width + 6;
+		end else begin
+			s := Item.SubItems[i - 1];
+		end;
+		Canvas.TextRect(r, s, [tfSingleLine, DT_ALIGN[ListViewResult.Columns[i].Alignment]]);
+		x1 := x2;
+	end;
 end;
 
 function TRipGrepperForm.GetIconBitmap(const sFileName : string) : Vcl.Graphics.TBitmap;
@@ -653,48 +702,18 @@ begin
 	end;
 end;
 
-procedure TRipGrepperForm.lvResultDrawItem(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
+procedure TRipGrepperForm.ListViewResultDrawItem(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
 var
-	bm: Vcl.Graphics.TBitmap;
-	i : Integer;
-	x1, x2 : integer;
-	r : TRect;
-	s : string;
-	sFileName : string;
-//    ts: TTextStyle;
-const
-	DT_ALIGN : array [TAlignment] of integer = (DT_LEFT, DT_RIGHT, DT_CENTER);
+	noFlickerBm : Vcl.Graphics.TBitmap;
 begin
-	Sender.SetAlteringColors(Item);
-	Sender.Canvas.Brush.Style := bsSolid;
-	Sender.Canvas.FillRect(Rect);
-	x1 := 0;
-	x2 := 0;
-	r := Rect;
-	Sender.Canvas.Brush.Style := bsClear;
-
-	sFileName := item.Caption;
-	// SHGetFileInfo(PChar(item.Caption), 0, sfi, SizeOf(sfi), SHGFI_DISPLAYNAME);
-	// item.Caption := sfi.szDisplayName;
-
-	bm := GetIconBitmap(sFileName);
-	Sender.Canvas.Draw(3, r.Top + (r.Bottom - r.Top - bm.Height) div 2, bm);
-
-	for i := 0 to lvResult.Columns.Count - 1 do begin
-		inc(x2, lvResult.Columns[i].Width);
-		r.Left := x1;
-		r.Right := x2;
-		if i = 0 then begin
-			s := Item.Caption;
-			r.Left := bm.Width + 6;
-		end else begin
-			s := Item.SubItems[i - 1];
-		end;
-//        ts.Alignment :=
-//        Sender.Canvas.TextRect(
-		DrawText(Sender.Canvas.Handle, S, length(s), r,
-		{ } DT_SINGLELINE or DT_ALIGN[lvResult.Columns[i].Alignment] or DT_VCENTER or DT_END_ELLIPSIS);
-		x1 := x2;
+	noFlickerBm := Vcl.Graphics.TBitmap.Create();
+	try
+		noFlickerBm.Width := Rect.Right - Rect.Left;
+		noFlickerBm.Height := Rect.Bottom - Rect.Top;
+		DrawItem(Sender.Canvas, Rect, Item, State);
+		// Sender.Canvas.Draw(Rect.Left, Rect.Top, noFlickerBm);
+	finally
+		noFlickerBm.Free;
 	end;
 end;
 
@@ -767,7 +786,7 @@ begin
 		var
 		i := integer(sbt);
 		imgIdx := GetSortingImageIndex(i);
-		lvResult.Columns[i].ImageIndex := imgIdx;
+		ListViewResult.Columns[i].ImageIndex := imgIdx;
 		case i of
 			0 :
 			ActionSortByFile.ImageIndex := imgIdx;
