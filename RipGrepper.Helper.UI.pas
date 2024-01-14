@@ -6,6 +6,7 @@ uses
 	System.UITypes,
 	Vcl.ComCtrls,
 	Vcl.Graphics;
+//	Winapi.Messages;
 
 type
 	TCursorSaver = record
@@ -38,6 +39,8 @@ type
 	end;
 
 	TListViewHelper = class Helper for TCustomListView
+		protected
+//			procedure WMNotify(var AMessage : TWMNotify); message WM_NOTIFY;
 		public
 			function TryGetSelected(out _Idx : Integer) : Boolean;
 			procedure SetAlteringColors(Item : TListItem);
@@ -75,6 +78,18 @@ begin
 	_Idx := self.ItemIndex;
 	Result := (_Idx <> -1);
 end;
+
+//procedure TListViewHelper.WMNotify(var AMessage : TWMNotify);
+//begin
+////	if (AMessage.NMHdr.hwndFrom = self.Handle) and ((AMessage.NMHdr.code = HDN_ENDTRACK) or (AMessage.NMHdr.code = HDN_TRACK)) then begin
+//	if (AMessage.NMHdr.hwndFrom = self.Handle) and ((AMessage.NMHdr.code = HDN_ENDTRACK) or (AMessage.NMHdr.code = HDN_ITEMCHANGING )) then begin
+//		TMessage(AMessage).Result := 0;
+//		InvalidateRect(self.Handle, nil, true);
+////		CodeSite.Send('TListView.WMNotify: HDN_ENDTRACK');
+//	end
+//	else
+//		inherited;
+//end;
 
 procedure TCursorSaver.SetHourGlassCursor;
 begin

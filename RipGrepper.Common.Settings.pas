@@ -18,6 +18,8 @@ type
 			SearchPaths : TStrings;
 			SearchTexts : TStrings;
 			ShowRelativePath : Boolean;
+			ShowFileIcon : Boolean;
+			AlternateRowColors : Boolean;
 
 		private
 			procedure LoadHistoryEntries(var _list : TStrings; const _section : string);
@@ -62,6 +64,8 @@ begin
 
 	Dest.RipGrepPath := '';
 	Dest.ShowRelativePath := False;
+	Dest.ShowFileIcon := False;
+	Dest.AlternateRowColors := False;
 	Dest.SearchPaths := TStringList.Create;
 	Dest.SearchTexts := TStringList.Create;
 	Dest.RipGrepParams := TStringList.Create;
@@ -71,7 +75,11 @@ end;
 procedure TRipGrepperSettings.Load;
 begin
 	RipGrepPath := SettingsFile.ReadString('RipGrepSettings', 'Path', '');
+
 	ShowRelativePath := SettingsFile.ReadBool('RipGrepperSettings', 'ShowRelativePath', False);
+	ShowFileIcon := SettingsFile.ReadBool('RipGrepperSettings', 'ShowFileIcon', False);
+	AlternateRowColors := SettingsFile.ReadBool('RipGrepperSettings', 'AlternateRowColors', False);
+
 	LoadHistoryEntries(SearchPaths, 'SearchPathsHistory');
 	LoadHistoryEntries(SearchTexts, 'SearchTextsHistory');
 	LoadHistoryEntries(RipGrepParams, 'RipGrepParamsHistory');
@@ -80,7 +88,11 @@ end;
 procedure TRipGrepperSettings.Store;
 begin
 	SettingsFile.WriteString('RipGrepSettings', 'Path', RipGrepPath);
+
 	SettingsFile.WriteBool('RipGrepperSettings', 'ShowRelativePath', ShowRelativePath);
+	SettingsFile.WriteBool('RipGrepperSettings', 'ShowFileIcon', ShowFileIcon);
+	SettingsFile.WriteBool('RipGrepperSettings', 'AlternateRowColors', AlternateRowColors);
+
 	StoreHistoryEntries(SearchPaths, 'SearchPathsHistory');
 	StoreHistoryEntries(SearchTexts, 'SearchTextsHistory');
 	StoreHistoryEntries(RipGrepParams, 'RipGrepParamsHistory');
