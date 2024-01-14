@@ -14,14 +14,20 @@ type
 
 	{$M+}
 	INewLineEventHandler = interface
-		['{2AB0567A-EDAB-4FDC-904B-E3F124568978}']
+		['{A2EB8A24-0281-4AAA-BF91-210A95973652}']
 		procedure OnNewOutputLine(const _sLine : string);
+	end;
+
+	ITerminateEventProducer = interface
+		['{9C259E6F-CED7-41AD-B4F8-3A4BDD981965}']
+		function ProcessShouldTerminate() : boolean;
 	end;
 	{$M-}
 
 	TNewLineEventHandler = procedure(_obj : INewLineEventHandler; const _s : string);
-	TSortType = (stUnsorted, stAscending, stDescending);
+	TTerminateEventProducer = function(_obj : ITerminateEventProducer) : boolean;
 
+	TSortType = (stUnsorted, stAscending, stDescending);
 
 	TParserType = (ptRipGrepSearch, ptRipGrepVersion, ptRipGrepSearchCutParent);
 

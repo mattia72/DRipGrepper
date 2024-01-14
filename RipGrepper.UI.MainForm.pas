@@ -29,7 +29,7 @@ uses
 	System.Threading;
 
 type
-	TRipGrepperForm = class(TForm, INewLineEventHandler)
+	TRipGrepperForm = class(TForm, INewLineEventHandler, ITerminateEventProducer)
 		panelMain : TPanel;
 		lblPaths : TLabel;
 		lblParams : TLabel;
@@ -40,7 +40,7 @@ type
 		btnSearch : TButton;
 		btnCancel : TButton;
 		ImageListButtons : TImageList;
-		alActions : TActionList;
+		ActionList : TActionList;
 		ActionSearch : TAction;
 		ActionCancel : TAction;
 		ActionConfig : TAction;
@@ -76,6 +76,10 @@ type
 		ToolButton3 : TToolButton;
 		tbAlternateRowColors : TToolButton;
 		ActionAlternateRowColors : TAction;
+		ActionAbortSearch : TAction;
+		tbAbortSearch : TToolButton;
+		procedure ActionAbortSearchExecute(Sender : TObject);
+		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlternateRowColorsExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsUpdate(Sender : TObject);
 		procedure ActionCancelExecute(Sender : TObject);
@@ -83,6 +87,8 @@ type
 		procedure ActionConfigExecute(Sender : TObject);
 		procedure ActionCopyFileNameExecute(Sender : TObject);
 		procedure ActionCopyPathToClipboardExecute(Sender : TObject);
+		procedure ActionDoSearchExecute(Sender : TObject);
+		procedure ActionDoSearchUpdate(Sender : TObject);
 		procedure ActionShowRelativePathExecute(Sender : TObject);
 		procedure ActionSearchExecute(Sender : TObject);
 		procedure ActionShowFileIconsExecute(Sender : TObject);
@@ -153,9 +159,12 @@ type
 			class function CreateAndShow(const _settings : TRipGrepperSettings) : string;
 			// INewLineEventHandler
 			procedure OnNewOutputLine(const _sLine : string);
+			// ITerminateEventProducer
+			function ProcessShouldTerminate : boolean;
 	end;
 
 procedure OnNewLine(_handler : INewLineEventHandler; const _sLine : string);
+function TerminateProcess(_obj : ITerminateEventProducer) : boolean;
 
 const
 	LISTVIEW_TYPES : TArray<TViewStyle> = [vsList, vsIcon, vsReport, vsSmallIcon];
@@ -199,9 +208,15 @@ const
 	{$R *.dfm}
 
 procedure OnNewLine(_handler : INewLineEventHandler; const _sLine : string);
+
 begin
 	_handler.OnNewOutputLine(_sLine);
 	TDebugUtils.DebugMessage(string(_sLine));
+end;
+
+function TerminateProcess(_obj : ITerminateEventProducer) : boolean;
+begin
+	Result := _obj.ProcessShouldTerminate();
 end;
 
 constructor TRipGrepperForm.Create(_settings : TRipGrepperSettings);
@@ -228,6 +243,16 @@ begin
 	FData.Free;
 	FArguments.Free;
 	inherited;
+end;
+
+procedure TRipGrepperForm.ActionAbortSearchExecute(Sender : TObject);
+begin
+	FRipGrepTask.Cancel;
+end;
+
+procedure TRipGrepperForm.ActionAbortSearchUpdate(Sender : TObject);
+begin
+	ActionAbortSearch.Enabled := Assigned(FRipGrepTask) and (FRipGrepTask.Status = TTaskStatus.Running);
 end;
 
 procedure TRipGrepperForm.ActionAlternateRowColorsExecute(Sender : TObject);
@@ -268,6 +293,16 @@ begin
 	CopyToClipboardPathOfSelected();
 end;
 
+procedure TRipGrepperForm.ActionDoSearchExecute(Sender : TObject);
+begin
+	//
+end;
+
+procedure TRipGrepperForm.ActionDoSearchUpdate(Sender : TObject);
+begin
+	ActionDoSearch.Enabled := Assigned(FRipGrepTask) and (FRipGrepTask.Status <> TTaskStatus.Running);
+end;
+
 procedure TRipGrepperForm.ActionShowRelativePathExecute(Sender : TObject);
 const
 	PARSER_TYPES : TArray<TParserType> = [ptRipGrepSearch, ptRipGrepSearchCutParent];
@@ -306,13 +341,13 @@ end;
 procedure TRipGrepperForm.ActionShowFileIconsUpdate(Sender : TObject);
 begin
 	tbShowFileIcon.Down := FSettings.ShowFileIcon;
-//	ActionShowFileIcons.ImageIndex := Ifthen(FSettings.ShowFileIcon, IMG_IDX_SHOW_FILE_ICON_TRUE, IMG_IDX_SHOW_FILE_ICON_FALSE);
+	// ActionShowFileIcons.ImageIndex := Ifthen(FSettings.ShowFileIcon, IMG_IDX_SHOW_FILE_ICON_TRUE, IMG_IDX_SHOW_FILE_ICON_FALSE);
 end;
 
 procedure TRipGrepperForm.ActionShowRelativePathUpdate(Sender : TObject);
 begin
 	tbShowRelativePath.Down := FSettings.ShowRelativePath;
-//	ActionShowRelativePath.ImageIndex := Ifthen(FSettings.ShowRelativePath, IMG_IDX_SHOW_RELATIVE_PATH, IMG_IDX_SHOW_ABS_PATH);
+	// ActionShowRelativePath.ImageIndex := Ifthen(FSettings.ShowRelativePath, IMG_IDX_SHOW_RELATIVE_PATH, IMG_IDX_SHOW_ABS_PATH);
 end;
 
 procedure TRipGrepperForm.ActionSortByFileExecute(Sender : TObject);
@@ -409,7 +444,6 @@ begin
 		if (mrOk = form.ShowModal()) then begin
 			Result := form.ListViewResult.Items[form.ListViewResult.ItemIndex].SubItems[0];
 		end;
-
 	finally
 		form.Free;
 	end;
@@ -794,22 +828,30 @@ begin
 	FSearchPathIsDir := TDirectory.Exists(FSettings.SearchPaths[0]);
 end;
 
+function TRipGrepperForm.ProcessShouldTerminate : boolean;
+begin
+	Result := Assigned(FRipGrepTask) and (FRipGrepTask.Status = TTaskStatus.Canceled);
+end;
+
 procedure TRipGrepperForm.RunRipGrep;
 var
 	dtStart : TDateTime;
 	workDir : string;
 begin
-	FRipGrepTask := TTask.Run(
+	FRipGrepTask := TTask.Create(
 		procedure()
 		begin
 			workDir := TDirectory.GetCurrentDirectory();
 			TDebugUtils.DebugMessage('run: ' + FSettings.RipGrepPath + ' ' + FArguments.DelimitedText);
 			dtStart := Now;
-			FRipGrepResultOk := TProcessUtils.RunProcess(FSettings.RipGrepPath, FArguments, workDir, self as INewLineEventHandler);
+			FRipGrepResultOk := TProcessUtils.RunProcess(FSettings.RipGrepPath, FArguments, workDir,
+				{ } self as INewLineEventHandler,
+				{ } self as ITerminateEventProducer);
 			if FRipGrepResultOk then begin
 				SetStatusBarInfo(dtStart);
 			end;
 		end);
+	FRipGrepTask.Start;
 end;
 
 procedure TRipGrepperForm.SetStatusBarInfo(const _dtStart : TDateTime = 0);

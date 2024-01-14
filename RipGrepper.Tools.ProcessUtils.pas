@@ -17,10 +17,12 @@ type
 
 		public
 			class function MaybeQuoteIfNotQuoted(const _s : string; const _delimiter : string = '"') : string;
-			class procedure ProcessOutput(const _s : TStream; _handler : INewLineEventHandler);
-			class function RunProcess(const _exe : string; _args : TStrings; _workDir : string; _handler : INewLineEventHandler) : Boolean;
-			class function RunProcessAsync(const _exe : string; _args : TStrings; _workDir : string; _handler : INewLineEventHandler)
-				: Boolean;
+			class procedure ProcessOutput(const _s : TStream; { } _newLineHandler : INewLineEventHandler;
+				_terminateEventProducer : ITerminateEventProducer);
+			class function RunProcess(const _exe : string; _args : TStrings; _workDir : string; _newLIneHandler : INewLineEventHandler;
+				_terminateEventProducer : ITerminateEventProducer) : Boolean;
+			class function RunProcessAsync(const _exe : string; const _args : TStrings; const _workDir : string;
+				_newLineHandler : INewLineEventHandler; _terminateEventProducer : ITerminateEventProducer) : Boolean;
 	end;
 
 implementation
@@ -49,7 +51,9 @@ begin
 	end;
 end;
 
-class procedure TProcessUtils.ProcessOutput(const _s : TStream; _handler : INewLineEventHandler);
+class procedure TProcessUtils.ProcessOutput(const _s : TStream;
+	{ } _newLineHandler : INewLineEventHandler;
+	{ } _terminateEventProducer : ITerminateEventProducer);
 var
 	bCurrentIsCrLf : Boolean;
 	bPrevWasCrLf : Boolean;
@@ -61,8 +65,12 @@ var
 begin
 	{ Now process the output }
 	SetLength(sBuf, BUFF_LENGTH);
-    bPrevWasCrLf := False;    // warning
+	bPrevWasCrLf := False; // warning
 	repeat
+		if (_terminateEventProducer.ProcessShouldTerminate()) then begin
+            TDebugUtils.DebugMessage('Process should terminate');
+			break
+		end;
 		if (_s <> nil) then begin
 			iCnt := _s.Read(sBuf[1], Length(sBuf));
 			// L505 todo: try this when using unicodestring buffer
@@ -80,7 +88,7 @@ begin
 					sLineOut := sLineOut + Copy(string(sBuf), iLineStartIndex, i - iLineStartIndex);
 					if (not bPrevWasCrLf) then begin
 						// if prev was crlf and next won't be crlf
-						NewLineEventHandler(_handler, sLineOut);
+						NewLineEventHandler(_newLineHandler, sLineOut);
 					end;
 				end;
 
@@ -102,12 +110,14 @@ begin
 	until iCnt = 0;
 
 	if sLineOut <> '' then begin
-		NewLineEventHandler(_handler, sLineOut);
+		NewLineEventHandler(_newLineHandler, sLineOut);
 	end;
 end;
 
-class function TProcessUtils.RunProcess(const _exe : string; _args : TStrings; _workDir : string; _handler : INewLineEventHandler)
-	: Boolean;
+class function TProcessUtils.RunProcess(const _exe : string; _args : TStrings;
+	{ } _workDir : string;
+	{ } _newLIneHandler : INewLineEventHandler;
+	{ } _terminateEventProducer : ITerminateEventProducer) : Boolean;
 var
 	p : TProcess;
 begin
@@ -124,20 +134,26 @@ begin
 		TDebugUtils.DebugMessage('arguments: ' + p.Parameters.Text);
 		p.Execute;
 
-		ProcessOutput(p.Output, _handler);
-
-		p.WaitOnExit;
-		Result := p.ExitStatus = 0;
+		ProcessOutput(p.Output, _newLIneHandler, _terminateEventProducer);
+		if (_terminateEventProducer.ProcessShouldTerminate()) then begin
+			Result := p.Terminate(PROCESS_TERMINATE);
+            TDebugUtils.DebugMessage(Format('Process should terminate returned: %s',[BoolToStr(Result, True)]))
+		end else begin
+			p.WaitOnExit;
+		end;
+		Result := p.ExitStatus = ERROR_SUCCESS;
 		if not Result then begin
-			NewLineEventHandler(_handler, p.Executable + ' failed with exit code: ' + p.ExitStatus.ToString);
+			NewLineEventHandler(_newLIneHandler, p.Executable + ' failed with exit code: ' + p.ExitStatus.ToString);
 		end;
 	finally
 		FreeAndNil(p);
 	end;
 end;
 
-class function TProcessUtils.RunProcessAsync(const _exe : string; _args : TStrings; _workDir : string; _handler : INewLineEventHandler)
-	: Boolean;
+class function TProcessUtils.RunProcessAsync(const _exe : string; const _args : TStrings;
+	{ } const _workDir : string;
+	{ } _newLineHandler : INewLineEventHandler;
+	{ } _terminateEventProducer : ITerminateEventProducer) : Boolean;
 var
 	task : ITask;
 begin
@@ -147,7 +163,7 @@ begin
 			TThread.Synchronize(nil,
 				procedure
 				begin
-					RunProcess(_exe, _args, _workdir, _handler);
+					RunProcess(_exe, _args, _workdir, _newLineHandler, _terminateEventProducer);
 				end);
 		end);
 	Result := task.Status = TTAskStatus.Running;
