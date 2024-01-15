@@ -401,7 +401,11 @@ end;
 
 procedure TRipGrepperForm.ReBuildArguments;
 const
-	NECESSARY_PARAMS : TArray<string> = ['--vimgrep' { , '--line-buffered' } ];
+	NECESSARY_PARAMS : TArray<string> = [
+    '--vimgrep',
+    '--line-buffered' //,// some big search couldn't be catched without this
+    //'--pretty' // TODO: parse color escape
+     ];
 var
 	paramsArr : TArray<string>;
 	params : string;
