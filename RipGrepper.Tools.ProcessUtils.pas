@@ -12,6 +12,14 @@ type
 		const
 			BUFF_LENGTH = 1024;
 
+		private
+			class procedure BuffToLine(const sBuf : ansistring; const iCnt : integer; var bPrevWasCrLf : Boolean; var sLineOut : string;
+				_newLineHandler : INewLineEventHandler);
+			class procedure BuffToLine1(const sBuf : ansistring; const iCnt : integer; var bPrevWasCrLf : Boolean; var sLineOut : string;
+				_newLineHandler : INewLineEventHandler);
+			class procedure GoToNextCRLF(var P : PAnsiChar; const PEndVal : PAnsiChar);
+			class function IncTillCRLF(var P : PAnsiChar; const PEndVal : PAnsiChar) : Boolean;
+
 		protected
 			class procedure NewLineEventHandler(_obj : INewLineEventHandler; const _s : string);
 
@@ -51,6 +59,86 @@ begin
 	end;
 end;
 
+class procedure TProcessUtils.BuffToLine(const sBuf : ansistring; const iCnt : integer; var bPrevWasCrLf : Boolean; var sLineOut : string;
+	_newLineHandler : INewLineEventHandler);
+var
+	bCurrentIsCrLf : Boolean;
+	i : integer;
+	iLineStartIndex : integer;
+begin
+	iLineStartIndex := 1;
+	i := 1;
+	while (i <= iCnt) do begin
+		bCurrentIsCrLf := CharInSet(sBuf[i], [CR, LF]);
+		if bCurrentIsCrLf then begin
+			if (i <> 1) then begin
+				// line shouldn't begin with cr or lf
+				sLineOut := sLineOut + Copy(string(sBuf), iLineStartIndex, i - iLineStartIndex);
+				if (not bPrevWasCrLf) then begin
+					// if prev was crlf and next won't be crlf
+					NewLineEventHandler(_newLineHandler, sLineOut);
+				end;
+			end;
+
+			sLineOut := '';
+			if (i <> 1) and (i < iCnt) and
+			{ } bCurrentIsCrLf and // (sBuf[i] <> sBuf[i + 1]) and
+			{ } not bPrevWasCrLf and
+			{ } CharInSet(sBuf[i + 1], [CR, LF]) then begin
+				Inc(i);
+			end;
+			iLineStartIndex := i + 1;
+			bPrevWasCrLf := True;
+		end else begin
+			bPrevWasCrLf := False;
+		end;
+		Inc(i);
+	end;
+	sLineOut := Copy(string(sBuf), iLineStartIndex, iCnt - iLineStartIndex + 1);
+end;
+
+class procedure TProcessUtils.BuffToLine1(const sBuf : ansistring; const iCnt : integer; var bPrevWasCrLf : Boolean; var sLineOut : string;
+	_newLineHandler : INewLineEventHandler);
+var
+	bCurrentIsCrLf : Boolean;
+	P, PStartVal, PEndVal : PAnsiChar;
+	bLineEndFound : Boolean;
+	S : string;
+begin
+	P := Pointer(sBuf);
+	if (P = nil) or (iCnt = 0) then
+		Exit;
+	PEndVal := P + iCnt;
+	while P < PEndVal do begin
+		PStartVal := P;
+		GoToNextCRLF(P, PEndVal);
+		SetString(S, PStartVal, P - PStartVal);
+		sLineOut := sLineOut + S;
+
+		bLineEndFound := IncTillCRLF(P, PEndVal);
+
+		if (bLineEndFound) then begin
+			NewLineEventHandler(_newLineHandler, sLineOut);
+			sLineOut := '';
+		end;
+	end;
+end;
+
+class procedure TProcessUtils.GoToNextCRLF(var P : PAnsiChar; const PEndVal : PAnsiChar);
+begin
+	while (P < PEndVal) and not(P^ in [CR, LF]) do
+		Inc(P);
+end;
+
+class function TProcessUtils.IncTillCRLF(var P : PAnsiChar; const PEndVal : PAnsiChar) : Boolean;
+begin
+	Result := False;
+	while (P < PEndVal) and (P^ in [CR, LF]) do begin
+		Result := True;
+		Inc(P);
+	end;
+end;
+
 class procedure TProcessUtils.ProcessOutput(const _s : TStream;
 	{ } _newLineHandler : INewLineEventHandler;
 	{ } _terminateEventProducer : ITerminateEventProducer);
@@ -68,45 +156,17 @@ begin
 	bPrevWasCrLf := False; // warning
 	repeat
 		if (_terminateEventProducer.ProcessShouldTerminate()) then begin
-            TDebugUtils.DebugMessage('Process should terminate');
+			TDebugUtils.DebugMessage('Process should terminate');
 			break
 		end;
+		iCnt := 0;
 		if (_s <> nil) then begin
-			iCnt := _s.Read(sBuf[1], Length(sBuf));
 			// L505 todo: try this when using unicodestring buffer
 			// Count := _s.Output.Read(pchar(Buf)^, BUFF_LENGTH);
-		end else begin
-			iCnt := 0;
+			iCnt := _s.Read(sBuf[1], Length(sBuf));
 		end;
-		iLineStartIndex := 1;
-		i := 1;
-		while (i <= iCnt) do begin
-			bCurrentIsCrLf := CharInSet(sBuf[i], [CR, LF]);
-			if bCurrentIsCrLf then begin
-				if (i <> 1) then begin
-					// line shouldn't begin with cr or lf
-					sLineOut := sLineOut + Copy(string(sBuf), iLineStartIndex, i - iLineStartIndex);
-					if (not bPrevWasCrLf) then begin
-						// if prev was crlf and next won't be crlf
-						NewLineEventHandler(_newLineHandler, sLineOut);
-					end;
-				end;
 
-				sLineOut := '';
-				if (i <> 1) and (i < iCnt) and
-				{ } bCurrentIsCrLf and // (sBuf[i] <> sBuf[i + 1]) and
-				{ } not bPrevWasCrLf and
-				{ } CharInSet(sBuf[i + 1], [CR, LF]) then begin
-					Inc(i);
-				end;
-				iLineStartIndex := i + 1;
-				bPrevWasCrLf := True;
-			end else begin
-				bPrevWasCrLf := False;
-			end;
-			Inc(i);
-		end;
-		sLineOut := Copy(string(sBuf), iLineStartIndex, iCnt - iLineStartIndex + 1);
+		BuffToLine1(sBuf, iCnt, bPrevWasCrLf, sLineOut, _newLineHandler);
 	until iCnt = 0;
 
 	if sLineOut <> '' then begin
@@ -137,7 +197,7 @@ begin
 		ProcessOutput(p.Output, _newLIneHandler, _terminateEventProducer);
 		if (_terminateEventProducer.ProcessShouldTerminate()) then begin
 			Result := p.Terminate(PROCESS_TERMINATE);
-            TDebugUtils.DebugMessage(Format('Process should terminate returned: %s',[BoolToStr(Result, True)]))
+			TDebugUtils.DebugMessage(Format('Process should terminate returned: %s', [BoolToStr(Result, True)]))
 		end else begin
 			p.WaitOnExit;
 		end;

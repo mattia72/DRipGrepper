@@ -11,7 +11,8 @@ type
 	TRipGrepperSettings = record
 		const
 			MAX_HISTORY_COUNT = 20;
-			VIEW_SETTINGS : array[0..2] of string = ('ShowRelativePath', 'ShowFileIcon', 'AlternateRowColors');
+			VIEW_SETTINGS : array [0 .. 3] of string = ('ShowRelativePath', 'ShowFileIcon', 'AlternateRowColors', 'IndentLines');
+
 		var
 			SettingsFile : TIniFile;
 			RipGrepPath : string;
@@ -21,6 +22,7 @@ type
 			ShowRelativePath : Boolean;
 			ShowFileIcon : Boolean;
 			AlternateRowColors : Boolean;
+			IndentLines : Boolean;
 
 		private
 			procedure LoadHistoryEntries(var _list : TStrings; const _section : string);
@@ -71,6 +73,7 @@ begin
 	Dest.ShowRelativePath := False;
 	Dest.ShowFileIcon := False;
 	Dest.AlternateRowColors := False;
+	Dest.IndentLines := False;
 	Dest.SearchPaths := TStringList.Create;
 	Dest.SearchTexts := TStringList.Create;
 	Dest.RipGrepParams := TStringList.Create;
@@ -84,6 +87,7 @@ begin
 	ShowRelativePath := SettingsFile.ReadBool('RipGrepperSettings', 'ShowRelativePath', False);
 	ShowFileIcon := SettingsFile.ReadBool('RipGrepperSettings', 'ShowFileIcon', False);
 	AlternateRowColors := SettingsFile.ReadBool('RipGrepperSettings', 'AlternateRowColors', False);
+	IndentLines := SettingsFile.ReadBool('RipGrepperSettings', 'IndentLines', False);
 
 	LoadHistoryEntries(SearchPaths, 'SearchPathsHistory');
 	LoadHistoryEntries(SearchTexts, 'SearchTextsHistory');
@@ -119,6 +123,9 @@ begin
 		TDebugUtils.DebugMessage(VIEW_SETTINGS[i] + ' stored');
 	end else if MatchStr(_s, VIEW_SETTINGS[PreInc(i)]) then begin
 		SettingsFile.WriteBool('RipGrepperSettings', VIEW_SETTINGS[i], AlternateRowColors);
+		TDebugUtils.DebugMessage(VIEW_SETTINGS[i] + ' stored');
+	end else if MatchStr(_s, VIEW_SETTINGS[PreInc(i)]) then begin
+		SettingsFile.WriteBool('RipGrepperSettings', VIEW_SETTINGS[i], IndentLines);
 		TDebugUtils.DebugMessage(VIEW_SETTINGS[i] + ' stored');
 	end else begin
 		raise Exception.Create('Settings: ' + _s + ' not stored!');

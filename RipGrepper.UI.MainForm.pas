@@ -52,7 +52,7 @@ type
 		ActionSortByFile : TAction;
 		pnlSearch : TPanel;
 		ToolBar1 : TToolBar;
-		tbSort : TToolButton;
+		tbCopyCmdLine : TToolButton;
 		tbView : TToolButton;
 		gbSearch : TGroupBox;
 		tbShowRelativePath : TToolButton;
@@ -78,6 +78,10 @@ type
 		ActionAlternateRowColors : TAction;
 		ActionAbortSearch : TAction;
 		tbAbortSearch : TToolButton;
+		tbRefreshSearch : TToolButton;
+		ActionRefreshSearch : TAction;
+		tbIndentLines : TToolButton;
+		ActionIndentLine : TAction;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlternateRowColorsExecute(Sender : TObject);
@@ -89,6 +93,8 @@ type
 		procedure ActionCopyPathToClipboardExecute(Sender : TObject);
 		procedure ActionDoSearchExecute(Sender : TObject);
 		procedure ActionDoSearchUpdate(Sender : TObject);
+		procedure ActionIndentLineExecute(Sender : TObject);
+		procedure ActionIndentLineUpdate(Sender : TObject);
 		procedure ActionShowRelativePathExecute(Sender : TObject);
 		procedure ActionSearchExecute(Sender : TObject);
 		procedure ActionShowFileIconsExecute(Sender : TObject);
@@ -303,6 +309,18 @@ begin
 	ActionDoSearch.Enabled := Assigned(FRipGrepTask) and (FRipGrepTask.Status <> TTaskStatus.Running);
 end;
 
+procedure TRipGrepperForm.ActionIndentLineExecute(Sender : TObject);
+begin
+	FSettings.IndentLines := not FSettings.IndentLines;
+	FSettings.StoreViewSettings('IndentLines');
+	ListViewResult.Repaint();
+end;
+
+procedure TRipGrepperForm.ActionIndentLineUpdate(Sender : TObject);
+begin
+	tbIndentLines.Down := FSettings.IndentLines;
+end;
+
 procedure TRipGrepperForm.ActionShowRelativePathExecute(Sender : TObject);
 const
 	PARSER_TYPES : TArray<TParserType> = [ptRipGrepSearch, ptRipGrepSearchCutParent];
@@ -401,11 +419,9 @@ end;
 
 procedure TRipGrepperForm.ReBuildArguments;
 const
-	NECESSARY_PARAMS : TArray<string> = [
-    '--vimgrep',
-    '--line-buffered' //,// some big search couldn't be catched without this
-    //'--pretty' // TODO: parse color escape
-     ];
+	NECESSARY_PARAMS : TArray<string> = ['--vimgrep', '--line-buffered' // ,// some big search couldn't be catched without this
+	// '--pretty' // TODO: parse color escape
+		];
 var
 	paramsArr : TArray<string>;
 	params : string;
@@ -790,7 +806,14 @@ begin
 				r.Left := r.Left + bm.Width;
 			end;
 		end else begin
-			s := Item.SubItems[i - 1];
+			if i = 3 then begin
+				s := Item.SubItems[i - 1];
+				if FSettings.IndentLines then begin
+                    s := s.TrimLeft;
+				end;
+			end else begin
+				s := Item.SubItems[i - 1];
+			end;
 		end;
 		Canvas.TextRect(r, s, [tfSingleLine, DT_ALIGN[ListViewResult.Columns[i].Alignment], tfVerticalCenter, tfEndEllipsis]);
 		x1 := x2;

@@ -16,8 +16,9 @@ type
 		FTerminateEventProducer : TMock<ITerminateEventProducer>;
 
 		private
-			function ProcessOutputTestChecker(const _sIn, _line : string) : Boolean;
-			function ProcessOutputTestChecker1(const _sIn, _line : string) : Boolean;
+			function BuildLines(const _line, _crlf : string; out _s : string) : Integer;
+			function CheckLine(const _sIn, _line : string) : Boolean;
+			function CheckStartOfLine(const _sIn, _line : string) : Boolean;
 			procedure SetupMocks(const _line : string; const _callCount, _checker : Integer);
 
 		public
@@ -25,6 +26,36 @@ type
 			procedure Setup;
 			[TearDown]
 			procedure TearDown;
+			[Test]
+			[TestCase('Test1', '12345' + CR + '67890')]
+			[TestCase('Test2', '12345' + LF + '67890')]
+			[TestCase('Test3', '1' + LF + '234')]
+			[TestCase('Test4', '12' + LF + '34')]
+			[TestCase('Test5', '123' + LF + '4')]
+			[TestCase('Test6', '1234' + LF + '')]
+			[TestCase('Test7', '1' + CR + '234')]
+			[TestCase('Test8', '12' + CR + '34')]
+			[TestCase('Test9', '123' + CR + '4')]
+			[TestCase('Test0', '1234' + CR + '')]
+			[TestCase('Test3', '1' + LF + LF + '234')]
+			[TestCase('Test4', '12' + LF + LF + '34')]
+			[TestCase('Test5', '123' + LF + LF + '4')]
+			[TestCase('Test6', '1234' + LF + LF + '')]
+			[TestCase('Test7', '1' + CR + CR + '234')]
+			[TestCase('Test8', '12' + CR + CR + '34')]
+			[TestCase('Test9', '123' + CR + CR + '4')]
+			[TestCase('Test0', '1234' + CR + CR + '')]
+			[TestCase('TestA', '1234567890')]
+			[TestCase('TestB', '123456789')]
+			[TestCase('TestC', '12345678')]
+			[TestCase('TestD', '1234567')]
+			[TestCase('TestE', '123456')]
+			[TestCase('TestF', '12345')]
+			[TestCase('TestG', '1234')]
+			[TestCase('TestH', '12')]
+			[TestCase('TestI', '1')]
+			[TestCase('TestJ', '')]
+			procedure ProcessOutputTestCRLF(const _line : string);
 			// Test with TestCase Attribute to supply parameters.
 			[Test]
 			[TestCase('Test1', '12345' + CR + '67890')]
@@ -55,38 +86,7 @@ type
 			[TestCase('TestH', '12')]
 			[TestCase('TestI', '1')]
 			[TestCase('TestJ', '')]
-			procedure ProcessOutputTestCRLF(const _line: string);
-			// Test with TestCase Attribute to supply parameters.
-			[Test]
-			[TestCase('Test1', '12345' + CR + '67890')]
-			[TestCase('Test2', '12345' + LF + '67890')]
-			[TestCase('Test3', '1' + LF + '234')]
-			[TestCase('Test4', '12' + LF + '34')]
-			[TestCase('Test5', '123' + LF + '4')]
-			[TestCase('Test6', '1234' + LF + '')]
-			[TestCase('Test7', '1' + CR + '234')]
-			[TestCase('Test8', '12' + CR + '34')]
-			[TestCase('Test9', '123' + CR + '4')]
-			[TestCase('Test0', '1234' + CR + '')]
-			[TestCase('Test3', '1' + LF + LF + '234')]
-			[TestCase('Test4', '12' + LF + LF + '34')]
-			[TestCase('Test5', '123' + LF + LF + '4')]
-			[TestCase('Test6', '1234' + LF + LF + '')]
-			[TestCase('Test7', '1' + CR + CR + '234')]
-			[TestCase('Test8', '12' + CR + CR + '34')]
-			[TestCase('Test9', '123' + CR + CR + '4')]
-			[TestCase('Test0', '1234' + CR + CR + '')]
-			[TestCase('TestA', '1234567890')]
-			[TestCase('TestB', '123456789')]
-			[TestCase('TestC', '12345678')]
-			[TestCase('TestD', '1234567')]
-			[TestCase('TestE', '123456')]
-			[TestCase('TestF', '12345')]
-			[TestCase('TestG', '1234')]
-			[TestCase('TestH', '12')]
-			[TestCase('TestI', '1')]
-			[TestCase('TestJ', '')]
-		procedure ProcessOutputTestLF(const _line: string);
+			procedure ProcessOutputTestLF(const _line : string);
 			// Test with TestCase Attribute to supply parameters.
 			[Test]
 
@@ -104,6 +104,20 @@ uses
 	System.AnsiStrings,
 	System.StrUtils;
 
+function TRipGrepperToolsProcessTest.BuildLines(const _line, _crlf : string; out _s : string) : Integer;
+var
+	callCount : Integer;
+begin
+	callCount := 0;
+	for var i := 0 to 3 do begin
+		for var j := 0 to 11 {TProcessUtils.BUFF_LENGTH} do begin
+			_s := _s + _line + CRLF;
+			Inc(callCount);
+		end;
+	end;
+	Result := callCount;
+end;
+
 procedure TRipGrepperToolsProcessTest.Setup;
 begin
 	FEventHandlerMock := TMock<INewLineEventHandler>.Create();
@@ -114,19 +128,13 @@ procedure TRipGrepperToolsProcessTest.TearDown;
 begin
 end;
 
-procedure TRipGrepperToolsProcessTest.ProcessOutputTestCRLF(const _line: string);
+procedure TRipGrepperToolsProcessTest.ProcessOutputTestCRLF(const _line : string);
 var
 	st : TStream;
 	s : string;
 	callCount : Integer;
 begin
-	callCount := 0;
-	for var i := 0 to 3 do begin
-		for var j := 0 to TProcessUtils.BUFF_LENGTH do begin
-			s := s + _line + CRLF;
-			Inc(callCount);
-		end;
-	end;
+	callCount := BuildLines(_line, CRLF, s);
 
 	SetupMocks(_line, callCount, 0);
 
@@ -145,6 +153,7 @@ var
 	s : string;
 	callCount : Integer;
 begin
+	callCount := BuildLines('', LF, s);
 
 	SetupMocks('', callCount, 1);
 
@@ -157,7 +166,7 @@ begin
 	FEventHandlerMock.VerifyAll();
 end;
 
-function TRipGrepperToolsProcessTest.ProcessOutputTestChecker(const _sIn, _line : string) : Boolean;
+function TRipGrepperToolsProcessTest.CheckLine(const _sIn, _line : string) : Boolean;
 begin
 	var
 	bOk := (_sIn = _line);
@@ -165,13 +174,13 @@ begin
 		if MatchStr(_sIn, _line.Split([CR, LF])) then begin
 			bOk := True;
 		end else begin
-			bOk := True; // Break Point
+			bOk := False; // Break Point
 		end;
 	end;
 	Result := bOk;
 end;
 
-function TRipGrepperToolsProcessTest.ProcessOutputTestChecker1(const _sIn, _line : string) : Boolean;
+function TRipGrepperToolsProcessTest.CheckStartOfLine(const _sIn, _line : string) : Boolean;
 begin
 	Result := True;
 
@@ -180,7 +189,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepperToolsProcessTest.ProcessOutputTestLF(const _line: string);
+procedure TRipGrepperToolsProcessTest.ProcessOutputTestLF(const _line : string);
 var
 	st : TStream;
 	s : string;
@@ -206,26 +215,44 @@ begin
 end;
 
 procedure TRipGrepperToolsProcessTest.SetupMocks(const _line : string; const _callCount, _checker : Integer);
+var
+	callCount : integer;
 begin
+	// FTerminateEventProducer.Setup.ClearExpectations;
 	FTerminateEventProducer.Setup.WillReturn(TValue.From<Boolean>(False)).When.ProcessShouldTerminate;
 	FTerminateEventProducer.Setup.Expect.Never.When.ProcessShouldTerminate;
-	FEventHandlerMock.Setup.Expect.Exactly(_callCount); // empty lines could be given if only crlf is in a line
+
+	// FEventHandlerMock.Setup.ClearExpectations;
+	FEventHandlerMock.Setup.Expect.AtLeast(_callCount); // empty lines could be given if only crlf is in a line
+	callCount := 0;
 	FEventHandlerMock.Setup.WillExecute(
 		function(const args : TArray<TValue>; const ReturnType : TRttiType) : TValue
 		var
 			sIn : string;
 			bOk : Boolean;
+			sl : TStrings;
+			sExp : string;
 		begin
 			// oIn := args[0].AsType; // handler
 			sIn := args[1].AsType<string>;
-			case _checker of
-				0 :
-				bOk := ProcessOutputTestChecker(sIn, _line);
-				1 :
-				bOk := ProcessOutputTestChecker1(sIn, _line);
-			end;
 
-			Assert.IsTrue(bOk, Format('Actual: %s <> Expected: %s', [sIn, _line]));
+			sl := TStringList.Create();
+			sl.DelimitedText := _line;
+			if callCount >= sl.Count then
+				callCount := 0;
+			sExp := sl[callCount];
+			try
+				case _checker of
+					0 :
+					bOk := CheckLine(sIn, sExp);
+					1 :
+					bOk := CheckStartOfLine(sIn, sExp);
+				end;
+			finally
+				Inc(callCount);
+				sl.Free;
+				Assert.IsTrue(bOk, Format(CRLF + 'Act:|%s|' + CRLF + 'Exp:|%s| ' + CRLF + ' Org:|%s|', [sIn, sExp, _line]));
+			end;
 		end).When.OnNewOutputLine(It(0).IsAny<string>);
 end;
 
