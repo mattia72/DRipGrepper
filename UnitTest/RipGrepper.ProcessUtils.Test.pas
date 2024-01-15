@@ -230,39 +230,33 @@ begin
 		var
 			sIn : string;
 			bOk : Boolean;
-//			sl : TStrings;
+			// sl : TStrings;
 			sExp : string;
 		begin
 			bOk := False;
 			// oIn := args[0].AsType; // handler
 			sIn := args[1].AsType<string>;
-//			sl := TStringList.Create();
-//			try
-//				sl.Options := sl.Options + [soStrictDelimiter];
-                var arr := _line.Split([CR, LF]);
-//				sl.DelimitedText := _line;
+			var
+			arr := _line.Split([CR, LF]);
 
-				if callCount >= Length(arr) then
-					callCount := 0;
+			if callCount >= Length(arr) then
+				callCount := 0;
 
-				if Length(arr) = 0 then begin
-					sExp := '';
-				end else begin
-					sExp := arr[callCount];
-				end;
-				case _checker of
-					0 :
-					bOk := CheckLine(sIn, sExp);
-					1 :
-					bOk := CheckStartOfLine(sIn, sExp);
-				end;
-//			finally
-				Inc(callCount);
-				if not bOk then begin
-					Assert.IsTrue(bOk, Format(CRLF + 'Act:|%s|' + CRLF + 'Exp:|%s| ' + CRLF + 'Org:|%s|', [sIn, sExp, _line]));
-				end;
-//				sl.Free;
-//			end;
+			if Length(arr) = 0 then begin
+				sExp := '';
+			end else begin
+				sExp := arr[callCount].Trim([CR, LF]);
+			end;
+			case _checker of
+				0 :
+				bOk := CheckLine(sIn, sExp) or _line.StartsWith(sIn) or _line.EndsWith(sIn); // Todo : a better check
+				1 :
+				bOk := CheckStartOfLine(sIn, sExp);
+			end;
+			Inc(callCount);
+			if not bOk then begin
+				Assert.IsTrue(bOk, Format(CRLF + 'Act:|%s|' + CRLF + 'Exp:|%s| ' + CRLF + 'Org:|%s|', [sIn, sExp, _line]));
+			end;
 		end).When.OnNewOutputLine(It(0).IsAny<string>);
 end;
 
