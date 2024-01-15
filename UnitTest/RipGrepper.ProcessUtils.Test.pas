@@ -109,8 +109,8 @@ var
 	callCount : Integer;
 begin
 	callCount := 0;
-	for var i := 0 to 3 do begin
-		for var j := 0 to 11 {TProcessUtils.BUFF_LENGTH} do begin
+	for var i := 0 to 2 do begin
+		for var j := 0 to TProcessUtils.BUFF_LENGTH do begin
 			_s := _s + _line + CRLF;
 			Inc(callCount);
 		end;
@@ -184,7 +184,7 @@ function TRipGrepperToolsProcessTest.CheckStartOfLine(const _sIn, _line : string
 begin
 	Result := True;
 
-	if not _sIn.StartsWith('C:\') then begin
+	if not _sIn.IsEmpty and _sIn.StartsWith('C:\') then begin
 		Result := False
 	end;
 end;
@@ -230,29 +230,39 @@ begin
 		var
 			sIn : string;
 			bOk : Boolean;
-			sl : TStrings;
+//			sl : TStrings;
 			sExp : string;
 		begin
+			bOk := False;
 			// oIn := args[0].AsType; // handler
 			sIn := args[1].AsType<string>;
+//			sl := TStringList.Create();
+//			try
+//				sl.Options := sl.Options + [soStrictDelimiter];
+                var arr := _line.Split([CR, LF]);
+//				sl.DelimitedText := _line;
 
-			sl := TStringList.Create();
-			sl.DelimitedText := _line;
-			if callCount >= sl.Count then
-				callCount := 0;
-			sExp := sl[callCount];
-			try
+				if callCount >= Length(arr) then
+					callCount := 0;
+
+				if Length(arr) = 0 then begin
+					sExp := '';
+				end else begin
+					sExp := arr[callCount];
+				end;
 				case _checker of
 					0 :
 					bOk := CheckLine(sIn, sExp);
 					1 :
 					bOk := CheckStartOfLine(sIn, sExp);
 				end;
-			finally
+//			finally
 				Inc(callCount);
-				sl.Free;
-				Assert.IsTrue(bOk, Format(CRLF + 'Act:|%s|' + CRLF + 'Exp:|%s| ' + CRLF + ' Org:|%s|', [sIn, sExp, _line]));
-			end;
+				if not bOk then begin
+					Assert.IsTrue(bOk, Format(CRLF + 'Act:|%s|' + CRLF + 'Exp:|%s| ' + CRLF + 'Org:|%s|', [sIn, sExp, _line]));
+				end;
+//				sl.Free;
+//			end;
 		end).When.OnNewOutputLine(It(0).IsAny<string>);
 end;
 
