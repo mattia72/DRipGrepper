@@ -23,23 +23,19 @@ type
 		function ProcessShouldTerminate() : boolean;
 	end;
 
-	IEOFProcessEventHandler= interface
+	IEOFProcessEventHandler = interface
 		['{E6AC51D8-9705-4A56-902B-494B1EC11184}']
 		procedure OnEOFProcess();
 	end;
 
-	{$M-}
 
-//	TNewLineEventHandler = procedure(_obj : INewLineEventHandler; const _s : string);
-//	TTerminateEventProducer = function(_obj : ITerminateEventProducer) : boolean;
+	{$M-}
+	// TNewLineEventHandler = procedure(_obj : INewLineEventHandler; const _s : string);
+	// TTerminateEventProducer = function(_obj : ITerminateEventProducer) : boolean;
 
 	TSortType = (stUnsorted, stAscending, stDescending);
-
-	TParserType = (ptRipGrepSearch, ptRipGrepVersion, ptRipGrepSearchCutParent);
-
-	IParser<T> = interface
-		procedure ParseLineParseLine(var _m : T; const _s : string);
-	end;
+ 	TParserType = (ptRipGrepSearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
+    TFileNameType = (ftAbsolute, ftRelative);
 
 	TStringsHelper = class helper for TStrings
 		function Contains(const s : string) : Boolean;
@@ -48,14 +44,14 @@ type
 function PostInc(var Value : Integer) : Integer;
 function PreInc(var Value : Integer) : Integer;
 
-function GetElapsedTimeInSeconds(const _dtStart: TDateTime): TDateTime;
+function GetElapsedTimeInSeconds(const _dtStart : TDateTime) : TDateTime;
 
-function GetElapsedTime(const _dtStart: TDateTime): string;
+function GetElapsedTime(const _dtStart : TDateTime) : string;
 
 implementation
 
 uses
-  System.SysUtils;
+	System.SysUtils;
 
 function PostInc(var Value : Integer) : Integer;
 begin
@@ -69,12 +65,12 @@ begin
 	Result := Value;
 end;
 
-function GetElapsedTimeInSeconds(const _dtStart: TDateTime): TDateTime;
+function GetElapsedTimeInSeconds(const _dtStart : TDateTime) : TDateTime;
 begin
 	Result := (Now - _dtStart) * 24 * 60 * 60;
 end;
 
-function GetElapsedTime(const _dtStart: TDateTime): string;
+function GetElapsedTime(const _dtStart : TDateTime) : string;
 begin
 	Result := Format('%.2f', [GetElapsedTimeInSeconds(_dtStart)]);
 end;

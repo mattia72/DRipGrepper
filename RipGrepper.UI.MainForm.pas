@@ -127,12 +127,13 @@ type
 			FData : TRipGrepperMatches;
 			FExeVersion : string;
 			FMaxWidths : TArray<integer>;
-			FParserType : TParserType;
-			FRecId : Integer;
+			FFileNameType : TFileNameType;
+			FLineNr : Integer;
 			FRgExeVersion : string;
 			FSearchPathIsDir : Boolean;
 			FSettings : TRipGrepperSettings;
 			FColumnSortTypes : TArray<TSortType>;
+			FMeassureFirstDrawEvent : Boolean;
 			FRipGrepTask : ITask;
 			FStatusBarMessage : string;
 			FStatusBarStatus : string;
@@ -163,8 +164,8 @@ type
 			procedure InitMaxWidths;
 			procedure LoadBeforeSearchSettings;
 			procedure RunRipGrep;
-			procedure SetStatusBarInfo(const _iRipGrepResultOk : Integer = 0);
-			procedure SetStatusBarResultText(const _s : string);
+			procedure SetStatusBarMessage(const _iRipGrepResultOk : Integer = 0);
+			procedure SetStatusBarStatistic(const _s : string);
 			procedure StoreHistories;
 			procedure StoreSearchSettings;
 			procedure UpdateSortingImages(const _sbtArr : TArray<TSortByType>);
@@ -262,9 +263,9 @@ begin
 	FData := TRipGrepperMatches.Create();
 	FExeVersion := GetAppNameAndVersion(Application.ExeName);
 	InitColumnSortTypes;
-	FParserType := ptRipGrepSearchCutParent;
+	FFileNameType := ftAbsolute;
 	FArguments := TStringList.Create();
-	FRecId := 0;
+	FLineNr := 0;
 	UpdateSortingImages([sbtFile, sbtRow]);
 	InitMaxWidths;
 end;
@@ -355,12 +356,12 @@ end;
 
 procedure TRipGrepperForm.ActionShowRelativePathExecute(Sender : TObject);
 const
-	PARSER_TYPES : TArray<TParserType> = [ptRipGrepSearch, ptRipGrepSearchCutParent];
+	PARSER_TYPES : TArray<TFileNameType> = [ftAbsolute, ftRelative];
 begin
 	FSettings.ShowRelativePath := not FSettings.ShowRelativePath;
 	var
 	idx := Integer(FSettings.ShowRelativePath);
-	FParserType := PARSER_TYPES[idx mod Length(PARSER_TYPES)];
+	FFileNameType := PARSER_TYPES[idx mod Length(PARSER_TYPES)];
 	InitMaxWidths();
 	FSettings.StoreViewSettings('ShowRelativePath');
 	ListViewResult.Repaint;
@@ -373,6 +374,7 @@ begin
 	cursor.SetHourGlassCursor;
 	ClearData;
 	FdtStartSearch := 0;
+	FMeassureFirstDrawEvent := True;
 	InitStatusBar;
 	InitColumnSortTypes;
 	UpdateSortingImages([sbtFile, sbtRow]);
@@ -522,7 +524,7 @@ end;
 
 procedure TRipGrepperForm.DoSearch;
 begin
-	SetStatusBarResultText('Searching...');
+	SetStatusBarStatistic('Searching...');
 	ReBuildArguments();
 	RunRipGrep();
 end;
@@ -535,7 +537,7 @@ end;
 procedure TRipGrepperForm.FormShow(Sender : TObject);
 begin
 	LoadSettings;
-	SetStatusBarInfo();
+	SetStatusBarMessage();
 	FRgExeVersion := GetAppNameAndVersion(FSettings.RipGrepPath);
 end;
 
@@ -606,8 +608,8 @@ end;
 
 procedure TRipGrepperForm.InitStatusBar;
 begin
-	SetStatusBarInfo();
-	SetStatusBarResultText('Ready.');
+	SetStatusBarMessage();
+	SetStatusBarStatistic('Ready.');
 end;
 
 procedure TRipGrepperForm.LoadSettings;
@@ -640,7 +642,6 @@ begin
 	idx := Item.Index;
 	if idx < FData.Count then begin
 		DataToGrid(idx, Item);
-		SetStatusBarResultText(Format('%d matches in %d files', [FData.Matches.Count, FData.MatchFiles.Count]));
 	end;
 end;
 
@@ -651,32 +652,29 @@ end;
 
 procedure TRipGrepperForm.OnNewOutputLine(const _sLine : string);
 var
-	newItem : TRipGrepMatch;
+	newItem : IRipGrepMatchLineGroup;
 begin
 	if _sLine = '' then begin
 		exit;
 	end;
-
-	if _sLine.StartsWith(':') then begin
-		TDebugUtils.DebugMessage('line begins with :');
-	end;
-
 	TTask.Run(
 		procedure
 		begin
-			case FParserType of
-				ptRipGrepSearch, ptRipGrepSearchCutParent : begin
-					newItem.ParseLine(_sLine);
+            newItem := TRipGrepMatch.Create();
+			case FFileNameType of
+				ftAbsolute, ftRelative : begin
+					newItem.ParseLine(PostInc(FLineNr), _sLine);
 				end;
 			end;
 
 			TThread.Synchronize(nil,
 				procedure
 				begin
-					newItem.RecId := PostInc(FRecId);
-					FData.Matches.Add(newItem);
+					FData.Add(newItem);
 					// virtual listview! Items count should be updated
 					ListViewResult.Items.Count := FData.Count;
+					SetStatusBarStatistic(Format('%d matches in %d files', [FData.Count, FData.MatchFiles.Count]));
+					SetResultInHistoryList();
 				end);
 		end);
 end;
@@ -686,7 +684,7 @@ var
 	m : TRipGrepperMatchCollection;
 begin
 	m := FData.Matches;
-	if FData.MatchFiles.Contains(m[idx].FileName) then begin
+	if FData.ItemGroups.Contains(m[idx].FileName) then begin
 		Item.GroupID := m[idx].GroupID;
 	end else begin
 		var
@@ -697,7 +695,7 @@ begin
 		match := FData.Matches[idx];
 		match.GroupID := Group.GroupID;
 		FData.Matches[idx] := match;
-		FData.MatchFiles.Add(m[idx].FileName);
+		FData.ItemGroups.Add(m[idx].FileName);
 	end;
 end;
 
@@ -908,6 +906,11 @@ end;
 
 procedure TRipGrepperForm.ListViewResultDrawItem(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
 begin
+	if FMeassureFirstDrawEvent then begin
+		TDebugUtils.DebugMessage(Format('Firs drw event in %s sec.', [GetElapsedTime(FdtStartSearch)]));
+		FMeassureFirstDrawEvent := False;
+	end;
+
 	DrawItemOnCanvas(Sender.Canvas, Rect, Item, State);
 	// DrawItemOnBitmap(Sender, Item, Rect, State);
 end;
@@ -938,9 +941,8 @@ begin
 				{ } self as INewLineEventHandler,
 				{ } self as ITerminateEventProducer,
 				{ } self as IEOFProcessEventHandler);
-			SetStatusBarInfo(iRipGrepResult);
+			SetStatusBarMessage(iRipGrepResult);
 			TDebugUtils.DebugMessage(Format('rg.exe ended in %s sec.', [GetElapsedTime(FdtStartSearch)]));
-			// SetResultInHistoryList();
 		end);
 	FRipGrepTask.Start;
 end;
@@ -954,31 +956,41 @@ begin
 	TThread.Synchronize(nil,
 		procedure()
 		begin
-			idx := ListBoxSearchHistory.Itemindex;
-			val := ListBoxSearchHistory.Items[idx];
-			data := (ListBoxSearchHistory.Items.Objects[idx] as TRipGrepperMatches);
-			ListBoxSearchHistory.Items[idx] := Format('%s' + CRLF + '* %d in %d', [val, data.MatchFiles.Count, data.Matches.Count]);
-			ListBoxSearchHistory.Items.EndUpdate;
+			idx := 0;
+			if idx > -1 then begin
+				val := ListBoxSearchHistory.Items[idx];
+				data := (ListBoxSearchHistory.Items.Objects[idx] as TRipGrepperMatches);
+				ListBoxSearchHistory.Items[idx] := Format('%s (%d in %d)',
+					{ } [val, data.Count, data.MatchFiles.Count]);
+			end;
 		end);
 
 end;
 
-procedure TRipGrepperForm.SetStatusBarInfo(const _iRipGrepResultOk : Integer = 0);
+procedure TRipGrepperForm.SetStatusBarMessage(const _iRipGrepResultOk : Integer = 0);
 var
 	msg : string;
 begin
-	if FdtStartSearch <> 0 then begin
-		msg := Format('Search took %s seconds with ' + EXE_AND_VERSION_FORMAT, [GetElapsedTime(FdtStartSearch), FExeVersion]);
-		FStatusBarStatus := IfThen(_iRipGrepResultOk = TProcessUtils.RIPGREP_ERROR, 'ERROR', 'SUCCES');
-	end else begin
-		msg := Format(EXE_AND_VERSION_FORMAT, [FExeVersion]);
-	end;
-	FStatusBarMessage := msg;
+	TThread.Synchronize(nil,
+		procedure
+		begin
+			if FdtStartSearch <> 0 then begin
+				msg := Format('Search took %s seconds with ' + EXE_AND_VERSION_FORMAT, [GetElapsedTime(FdtStartSearch), FExeVersion]);
+				FStatusBarStatus := IfThen(_iRipGrepResultOk = TProcessUtils.RIPGREP_ERROR, 'ERROR', 'SUCCES');
+			end else begin
+				msg := Format(EXE_AND_VERSION_FORMAT, [FExeVersion]);
+			end;
+			FStatusBarMessage := msg;
+		end);
 end;
 
-procedure TRipGrepperForm.SetStatusBarResultText(const _s : string);
+procedure TRipGrepperForm.SetStatusBarStatistic(const _s : string);
 begin
-	FStatusBarStatistic := _s;
+	TThread.Synchronize(nil,
+		procedure
+		begin
+			FStatusBarStatistic := _s;
+		end);
 end;
 
 procedure TRipGrepperForm.StoreHistories;
