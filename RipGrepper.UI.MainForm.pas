@@ -26,7 +26,8 @@ uses
 	Winapi.Windows,
 	System.ImageList,
 	System.Actions,
-	System.Threading;
+	System.Threading,
+	Vcl.WinXCtrls;
 
 type
 	TRipGrepperForm = class(TForm, INewLineEventHandler, ITerminateEventProducer)
@@ -82,6 +83,11 @@ type
 		ActionRefreshSearch : TAction;
 		tbIndentLines : TToolButton;
 		ActionIndentLine : TAction;
+		SplitView1 : TSplitView;
+		Splitter1 : TSplitter;
+		ListBox1 : TListBox;
+		Panel1 : TPanel;
+		Panel2 : TPanel;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlternateRowColorsExecute(Sender : TObject);
@@ -107,6 +113,7 @@ type
 		procedure ActionSwitchViewExecute(Sender : TObject);
 		procedure ActionSwitchViewUpdate(Sender : TObject);
 		procedure FormClose(Sender : TObject; var Action : TCloseAction);
+		procedure FormResize(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 		procedure ListViewResultColumnClick(Sender : TObject; Column : TListColumn);
 		procedure ListViewResultData(Sender : TObject; Item : TListItem);
@@ -809,7 +816,7 @@ begin
 			if i = 3 then begin
 				s := Item.SubItems[i - 1];
 				if FSettings.IndentLines then begin
-                    s := s.TrimLeft;
+					s := s.TrimLeft;
 				end;
 			end else begin
 				s := Item.SubItems[i - 1];
@@ -818,6 +825,11 @@ begin
 		Canvas.TextRect(r, s, [tfSingleLine, DT_ALIGN[ListViewResult.Columns[i].Alignment], tfVerticalCenter, tfEndEllipsis]);
 		x1 := x2;
 	end;
+end;
+
+procedure TRipGrepperForm.FormResize(Sender : TObject);
+begin
+	SplitView1.Width := ClientWidth;
 end;
 
 function TRipGrepperForm.GetAbsOrRelativePath(const _sFullPath : string) : string;

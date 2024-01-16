@@ -1,10 +1,10 @@
 object RipGrepperForm: TRipGrepperForm
   AlignWithMargins = True
-  Left = 0
-  Top = 0
+  Left = 662
+  Top = 278
   Caption = 'RipGrepper'
-  ClientHeight = 477
-  ClientWidth = 637
+  ClientHeight = 481
+  ClientWidth = 858
   Color = clBtnFace
   Constraints.MinHeight = 350
   Constraints.MinWidth = 470
@@ -1048,98 +1048,40 @@ object RipGrepperForm: TRipGrepperForm
   Position = poDesigned
   ShowHint = True
   OnClose = FormClose
+  OnResize = FormResize
   OnShow = FormShow
   DesignSize = (
-    637
-    477)
+    858
+    481)
   TextHeight = 15
   object panelMain: TPanel
     AlignWithMargins = True
     Left = 0
     Top = 165
-    Width = 635
-    Height = 285
+    Width = 850
+    Height = 289
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     Caption = 'panelMain'
     TabOrder = 0
-    DesignSize = (
-      635
-      285)
     object ImageFileIcon: TImage
       Left = 480
       Top = -32
       Width = 45
       Height = 61
     end
-    object ListViewResult: TListView
-      AlignWithMargins = True
-      Left = 13
-      Top = 30
-      Width = 604
-      Height = 253
-      Margins.Left = 20
-      Margins.Top = 10
-      Margins.Right = 50
-      Anchors = [akLeft, akTop, akRight, akBottom]
-      Color = clHighlightText
-      Columns = <
-        item
-          AutoSize = True
-          Caption = 'File'
-          ImageIndex = 3
-        end
-        item
-          AutoSize = True
-          Caption = 'Row'
-          ImageIndex = 3
-        end
-        item
-          AutoSize = True
-          Caption = 'Col'
-        end
-        item
-          AutoSize = True
-          Caption = 'Match'
-        end>
-      Groups = <
-        item
-          Header = 'Group Header'
-          GroupID = 0
-          State = [lgsNormal, lgsCollapsible]
-          HeaderAlign = taLeftJustify
-          FooterAlign = taLeftJustify
-          Subtitle = 'Subtitle'
-          TitleImage = -1
-        end>
-      StyleName = 'Windows'
-      OwnerData = True
-      OwnerDraw = True
-      GroupView = True
-      ReadOnly = True
-      RowSelect = True
-      ParentShowHint = False
-      PopupMenu = PopupMenu1
-      ShowHint = True
-      SmallImages = ImageListListView
-      StateImages = ImageListListView
-      TabOrder = 0
-      ViewStyle = vsReport
-      OnColumnClick = ListViewResultColumnClick
-      OnData = ListViewResultData
-      OnDrawItem = ListViewResultDrawItem
-    end
     object ToolBar1: TToolBar
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 629
+      Width = 844
       Height = 22
       AutoSize = True
       Caption = 'ToolBar1'
       Images = ImageListButtons
       Indent = 16
-      TabOrder = 1
+      TabOrder = 0
+      ExplicitWidth = 930
       object tbView: TToolButton
         Left = 16
         Top = 0
@@ -1212,21 +1154,135 @@ object RipGrepperForm: TRipGrepperForm
         Action = ActionIndentLine
       end
     end
+    object SplitView1: TSplitView
+      AlignWithMargins = True
+      Left = 3
+      Top = 31
+      Width = 1000
+      Height = 255
+      BevelEdges = [beLeft, beRight, beBottom]
+      OpenedWidth = 1000
+      Placement = svpLeft
+      TabOrder = 1
+      ExplicitLeft = 0
+      ExplicitTop = 28
+      ExplicitHeight = 333
+      object Splitter1: TSplitter
+        Left = 189
+        Top = 0
+        Height = 255
+        Align = alRight
+        ExplicitLeft = 352
+        ExplicitHeight = 333
+      end
+      object Panel1: TPanel
+        Left = 0
+        Top = 0
+        Width = 189
+        Height = 255
+        Align = alClient
+        Caption = 'Panel1'
+        TabOrder = 0
+        ExplicitWidth = 350
+        ExplicitHeight = 333
+        object ListBox1: TListBox
+          AlignWithMargins = True
+          Left = 4
+          Top = 4
+          Width = 181
+          Height = 247
+          Align = alClient
+          ItemHeight = 15
+          TabOrder = 0
+          ExplicitWidth = 293
+          ExplicitHeight = 325
+        end
+      end
+      object Panel2: TPanel
+        Left = 192
+        Top = 0
+        Width = 808
+        Height = 255
+        Align = alRight
+        Caption = 'Panel2'
+        TabOrder = 1
+        ExplicitHeight = 333
+        object ListViewResult: TListView
+          AlignWithMargins = True
+          Left = 4
+          Top = 4
+          Width = 800
+          Height = 247
+          Align = alClient
+          Color = clHighlightText
+          Columns = <
+            item
+              AutoSize = True
+              Caption = 'File'
+              ImageIndex = 3
+            end
+            item
+              AutoSize = True
+              Caption = 'Row'
+              ImageIndex = 3
+            end
+            item
+              AutoSize = True
+              Caption = 'Col'
+            end
+            item
+              AutoSize = True
+              Caption = 'Match'
+            end>
+          Groups = <
+            item
+              Header = 'Group Header'
+              GroupID = 0
+              State = [lgsNormal, lgsCollapsible]
+              HeaderAlign = taLeftJustify
+              FooterAlign = taLeftJustify
+              Subtitle = 'Subtitle'
+              TitleImage = -1
+            end>
+          StyleName = 'Windows'
+          OwnerData = True
+          OwnerDraw = True
+          GroupView = True
+          ReadOnly = True
+          RowSelect = True
+          ParentShowHint = False
+          PopupMenu = PopupMenu1
+          ShowHint = True
+          SmallImages = ImageListListView
+          StateImages = ImageListListView
+          TabOrder = 0
+          ViewStyle = vsReport
+          OnColumnClick = ListViewResultColumnClick
+          OnData = ListViewResultData
+          OnDrawItem = ListViewResultDrawItem
+          ExplicitTop = 11
+          ExplicitWidth = 653
+          ExplicitHeight = 309
+        end
+      end
+    end
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 456
-    Width = 635
+    Top = 460
+    Width = 856
     Height = 20
     Anchors = [akLeft, akRight, akBottom]
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 1
+    ExplicitTop = 523
+    ExplicitWidth = 936
     object StatusBar1: TStatusBar
       AlignWithMargins = True
       Left = 3
       Top = -2
-      Width = 629
+      Width = 850
       Height = 19
       Panels = <
         item
@@ -1242,31 +1298,34 @@ object RipGrepperForm: TRipGrepperForm
           Text = 'RipGrepper v1.0.0      '
           Width = 150
         end>
+      ExplicitWidth = 853
     end
   end
   object pnlSearch: TPanel
     AlignWithMargins = True
     Left = 0
     Top = 0
-    Width = 635
+    Width = 856
     Height = 159
     Anchors = [akLeft, akTop, akRight]
     BevelOuter = bvNone
     TabOrder = 2
+    ExplicitWidth = 936
     DesignSize = (
-      635
+      856
       159)
     object gbSearch: TGroupBox
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 629
+      Width = 850
       Height = 153
       Align = alClient
       Caption = 'Search'
       TabOrder = 2
+      ExplicitWidth = 930
       DesignSize = (
-        629
+        850
         153)
       object lblParams: TLabel
         AlignWithMargins = True
@@ -1295,34 +1354,37 @@ object RipGrepperForm: TRipGrepperForm
       object cmbParameters: TComboBox
         Left = 84
         Top = 82
-        Width = 494
+        Width = 715
         Height = 23
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
         Text = 'cmbSearchDir'
+        ExplicitWidth = 795
       end
       object cmbSearchDir: TComboBox
         Left = 84
         Top = 24
-        Width = 494
+        Width = 715
         Height = 23
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 1
         Text = 'cmbSearchDir'
+        ExplicitWidth = 795
       end
       object cmbSearchText: TComboBox
         Left = 84
         Top = 53
-        Width = 494
+        Width = 715
         Height = 23
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 2
         Text = 'cmbSearchDir'
+        ExplicitWidth = 795
       end
     end
     object btnConfig: TButton
       AlignWithMargins = True
-      Left = 587
+      Left = 808
       Top = 85
       Width = 26
       Height = 24
@@ -1333,10 +1395,11 @@ object RipGrepperForm: TRipGrepperForm
       ParentShowHint = False
       ShowHint = True
       TabOrder = 0
+      ExplicitLeft = 888
     end
     object btnSearch: TButton
       AlignWithMargins = True
-      Left = 464
+      Left = 685
       Top = 122
       Width = 75
       Height = 25
@@ -1344,10 +1407,11 @@ object RipGrepperForm: TRipGrepperForm
       Anchors = [akTop, akRight]
       Default = True
       TabOrder = 1
+      ExplicitLeft = 765
     end
     object btnCancel: TButton
       AlignWithMargins = True
-      Left = 545
+      Left = 766
       Top = 122
       Width = 75
       Height = 25
@@ -1355,10 +1419,11 @@ object RipGrepperForm: TRipGrepperForm
       Anchors = [akTop, akRight]
       Cancel = True
       TabOrder = 3
+      ExplicitLeft = 846
     end
     object btnCmdLineCopy: TButton
       AlignWithMargins = True
-      Left = 587
+      Left = 808
       Top = 27
       Width = 26
       Height = 24
@@ -1369,11 +1434,12 @@ object RipGrepperForm: TRipGrepperForm
       ParentShowHint = False
       ShowHint = True
       TabOrder = 4
+      ExplicitLeft = 888
     end
   end
   object ImageListButtons: TImageList
-    Left = 219
-    Top = 230
+    Left = 299
+    Top = 110
     Bitmap = {
       494C010112001800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000005000000001002000000000000050
@@ -2142,8 +2208,8 @@ object RipGrepperForm: TRipGrepperForm
     end
   end
   object PopupMenu1: TPopupMenu
-    Left = 416
-    Top = 269
+    Left = 152
+    Top = 109
     object Action11: TMenuItem
       Action = ActionCopyFileName
     end
@@ -2152,8 +2218,8 @@ object RipGrepperForm: TRipGrepperForm
     end
   end
   object ImageListListView: TImageList
-    Left = 336
-    Top = 232
+    Left = 360
+    Top = 112
     Bitmap = {
       494C010106000800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
