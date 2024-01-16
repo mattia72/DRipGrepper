@@ -1059,7 +1059,7 @@ object RipGrepperForm: TRipGrepperForm
     Left = 0
     Top = 165
     Width = 773
-    Height = 290
+    Height = 296
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     Caption = 'panelMain'
@@ -1158,7 +1158,7 @@ object RipGrepperForm: TRipGrepperForm
       Left = 3
       Top = 31
       Width = 760
-      Height = 256
+      Height = 262
       BevelEdges = [beLeft, beRight, beBottom]
       OpenedWidth = 760
       Placement = svpLeft
@@ -1167,24 +1167,24 @@ object RipGrepperForm: TRipGrepperForm
         Left = 155
         Top = 0
         Width = 5
-        Height = 256
+        Height = 262
         Align = alRight
       end
       object Panel1: TPanel
         Left = 0
         Top = 0
         Width = 155
-        Height = 256
+        Height = 262
         Align = alClient
         Anchors = [akLeft, akTop, akBottom]
         Caption = 'Panel1'
         TabOrder = 0
-        object ListBox1: TListBox
+        object ListBoxSearchHistory: TListBox
           AlignWithMargins = True
           Left = 4
           Top = 4
           Width = 147
-          Height = 248
+          Height = 254
           Align = alClient
           ItemHeight = 15
           TabOrder = 0
@@ -1194,7 +1194,7 @@ object RipGrepperForm: TRipGrepperForm
         Left = 160
         Top = 0
         Width = 600
-        Height = 256
+        Height = 262
         Align = alRight
         Anchors = [akLeft, akTop, akRight, akBottom]
         Caption = 'Panel2'
@@ -1204,7 +1204,7 @@ object RipGrepperForm: TRipGrepperForm
           Left = 4
           Top = 4
           Width = 592
-          Height = 248
+          Height = 254
           Align = alClient
           Color = clHighlightText
           Columns = <
@@ -1271,14 +1271,15 @@ object RipGrepperForm: TRipGrepperForm
       Top = -2
       Width = 773
       Height = 19
+      Action = ActionStatusBar
       Panels = <
         item
-          Text = 'Ready.'
           Width = 200
         end
         item
           Alignment = taCenter
-          Width = 0
+          Text = 'READY'
+          Width = 70
         end
         item
           Alignment = taRightJustify
@@ -2182,6 +2183,10 @@ object RipGrepperForm: TRipGrepperForm
       ImageIndex = 17
       OnExecute = ActionIndentLineExecute
       OnUpdate = ActionIndentLineUpdate
+    end
+    object ActionStatusBar: TAction
+      Caption = 'Action1'
+      OnUpdate = ActionStatusBarUpdate
     end
   end
   object PopupMenu1: TPopupMenu

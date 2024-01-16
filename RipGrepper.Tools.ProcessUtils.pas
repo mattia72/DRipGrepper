@@ -11,23 +11,28 @@ type
 	TProcessUtils = class(TObject)
 		const
 			BUFF_LENGTH = 1024;
+			RIPGREP_ERROR = 1;
+			RIPGREP_NO_MATCH = 2;
 
 		private
-			class procedure BuffToLine(const _sBuf: ansistring; const _iCnt: integer; var sLineOut: string; _newLineHandler: INewLineEventHandler);
+			class procedure BuffToLine(const _sBuf : ansistring; const _iCnt : integer; var sLineOut : string;
+				_newLineHandler : INewLineEventHandler);
 			class procedure GoToNextCRLF(var P : PAnsiChar; const PEndVal : PAnsiChar);
-			class function GoTillCRLF(var P : PAnsiChar; const PEndVal : PAnsiChar): Integer;
+			class function GoTillCRLF(var P : PAnsiChar; const PEndVal : PAnsiChar) : Integer;
 
 		protected
 			class procedure NewLineEventHandler(_obj : INewLineEventHandler; const _s : string);
+			class procedure EOFProcessingEventHandler(_obj : IEOFProcessEventHandler);
 
 		public
 			class function MaybeQuoteIfNotQuoted(const _s : string; const _delimiter : string = '"') : string;
 			class procedure ProcessOutput(const _s : TStream; { } _newLineHandler : INewLineEventHandler;
-				_terminateEventProducer : ITerminateEventProducer);
+				_terminateEventProducer : ITerminateEventProducer; _eofProcHandler : IEOFProcessEventHandler);
 			class function RunProcess(const _exe : string; _args : TStrings; _workDir : string; _newLIneHandler : INewLineEventHandler;
-				_terminateEventProducer : ITerminateEventProducer) : Boolean;
+				_terminateEventProducer : ITerminateEventProducer; _eofProcHandler : IEOFProcessEventHandler) : Integer;
 			class function RunProcessAsync(const _exe : string; const _args : TStrings; const _workDir : string;
-				_newLineHandler : INewLineEventHandler; _terminateEventProducer : ITerminateEventProducer) : Boolean;
+				_newLineHandler : INewLineEventHandler; _terminateEventProducer : ITerminateEventProducer;
+				_eofProcHandler : IEOFProcessEventHandler) : Boolean;
 	end;
 
 implementation
@@ -39,7 +44,8 @@ uses
 	Winapi.Windows,
 	Winapi.ShellAPI,
 	System.Threading,
-	System.AnsiStrings;
+	System.AnsiStrings,
+	System.Math;
 
 class function TProcessUtils.MaybeQuoteIfNotQuoted(const _s : string; const _delimiter : string = '"') : string;
 begin
@@ -56,8 +62,8 @@ begin
 	end;
 end;
 
-class procedure TProcessUtils.BuffToLine(const _sBuf: ansistring; const _iCnt: integer; var sLineOut: string; _newLineHandler:
-	INewLineEventHandler);
+class procedure TProcessUtils.BuffToLine(const _sBuf : ansistring; const _iCnt : integer; var sLineOut : string;
+	_newLineHandler : INewLineEventHandler);
 var
 	P, PStartVal, PEndVal : PAnsiChar;
 	iLineEndFound : integer;
@@ -75,7 +81,7 @@ begin
 
 		iLineEndFound := GoTillCRLF(P, PEndVal);
 
-        // Empty lines will be skipped
+		// Empty lines will be skipped
 		if (iLineEndFound > 0) and (not sLineOut.IsEmpty) then begin
 			NewLineEventHandler(_newLineHandler, sLineOut);
 			sLineOut := '';
@@ -89,7 +95,14 @@ begin
 		Inc(P);
 end;
 
-class function TProcessUtils.GoTillCRLF(var P : PAnsiChar; const PEndVal : PAnsiChar): Integer;
+class procedure TProcessUtils.EOFProcessingEventHandler(_obj : IEOFProcessEventHandler);
+begin
+	if Assigned(_obj) then begin
+		_obj.OnEOFProcess();
+	end;
+end;
+
+class function TProcessUtils.GoTillCRLF(var P : PAnsiChar; const PEndVal : PAnsiChar) : Integer;
 begin
 	Result := 0;
 	while (P < PEndVal) and (P^ in [CR, LF]) do begin
@@ -100,7 +113,8 @@ end;
 
 class procedure TProcessUtils.ProcessOutput(const _s : TStream;
 	{ } _newLineHandler : INewLineEventHandler;
-	{ } _terminateEventProducer : ITerminateEventProducer);
+	{ } _terminateEventProducer : ITerminateEventProducer;
+	{ } _eofProcHandler : IEOFProcessEventHandler);
 var
 	sBuf : ansistring;
 	iCnt : integer;
@@ -127,12 +141,14 @@ begin
 	if sLineOut <> '' then begin
 		NewLineEventHandler(_newLineHandler, sLineOut);
 	end;
+	_eofProcHandler.OnEOFProcess();
 end;
 
 class function TProcessUtils.RunProcess(const _exe : string; _args : TStrings;
 	{ } _workDir : string;
 	{ } _newLIneHandler : INewLineEventHandler;
-	{ } _terminateEventProducer : ITerminateEventProducer) : Boolean;
+	{ } _terminateEventProducer : ITerminateEventProducer;
+	{ } _eofProcHandler : IEOFProcessEventHandler) : Integer;
 var
 	p : TProcess;
 begin
@@ -149,15 +165,16 @@ begin
 		TDebugUtils.DebugMessage('arguments: ' + p.Parameters.Text);
 		p.Execute;
 
-		ProcessOutput(p.Output, _newLIneHandler, _terminateEventProducer);
+		ProcessOutput(p.Output, _newLIneHandler, _terminateEventProducer, _eofProcHandler);
+
 		if (_terminateEventProducer.ProcessShouldTerminate()) then begin
-			Result := p.Terminate(PROCESS_TERMINATE);
-			TDebugUtils.DebugMessage(Format('Process should terminate returned: %s', [BoolToStr(Result, True)]))
+			Result := IfThen(p.Terminate(PROCESS_TERMINATE), ERROR_CANCELLED, 1);
+			TDebugUtils.DebugMessage(Format('Process should terminate returned: %s', [Result.ToString, True]));
 		end else begin
 			p.WaitOnExit;
 		end;
-		Result := p.ExitStatus = ERROR_SUCCESS;
-		if not Result then begin
+		Result := p.ExitStatus;
+		if Result = RIPGREP_ERROR then begin
 			NewLineEventHandler(_newLIneHandler, p.Executable + ' failed with exit code: ' + p.ExitStatus.ToString);
 		end;
 	finally
@@ -165,10 +182,9 @@ begin
 	end;
 end;
 
-class function TProcessUtils.RunProcessAsync(const _exe : string; const _args : TStrings;
-	{ } const _workDir : string;
-	{ } _newLineHandler : INewLineEventHandler;
-	{ } _terminateEventProducer : ITerminateEventProducer) : Boolean;
+class function TProcessUtils.RunProcessAsync(const _exe : string; const _args : TStrings; const _workDir : string;
+	_newLineHandler : INewLineEventHandler; _terminateEventProducer : ITerminateEventProducer; _eofProcHandler : IEOFProcessEventHandler)
+	: Boolean;
 var
 	task : ITask;
 begin
@@ -178,7 +194,7 @@ begin
 			TThread.Synchronize(nil,
 				procedure
 				begin
-					RunProcess(_exe, _args, _workdir, _newLineHandler, _terminateEventProducer);
+					RunProcess(_exe, _args, _workdir, _newLineHandler, _terminateEventProducer, _eofProcHandler);
 				end);
 		end);
 	Result := task.Status = TTAskStatus.Running;

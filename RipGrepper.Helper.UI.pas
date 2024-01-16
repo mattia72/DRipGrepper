@@ -114,6 +114,8 @@ begin
 end;
 
 class procedure TStatusBarAdjuster.AutoSizeStatusbarPanel(_sb : TStatusBar; const _idx : Integer);
+const
+	MARGIN = 10;
 var
 	s : string;
 	borders : array [0 .. 2] of Integer;
@@ -132,7 +134,7 @@ begin
 	s := _sb.Panels[_idx].Text;
 
 	// calculate the width of the Panel
-	_sb.Panels[_idx].Width := TrueFontWidth(_sb.Font, s) + borders[2] * 2 + 2; // vertical border * 2 + 2 extra Pixels
+	_sb.Panels[_idx].Width := TrueFontWidth(_sb.Font, s) + borders[2] * 2 + MARGIN; // vertical border * 2 + 2 extra Pixels
 end;
 
 class function TStatusBarAdjuster.TrueFontWidth(fnt : TFont; const text : string) : Integer;
