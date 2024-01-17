@@ -1170,14 +1170,14 @@ object RipGrepperForm: TRipGrepperForm
         Height = 262
         Align = alRight
       end
-      object Panel1: TPanel
+      object PanelHistory: TPanel
         Left = 0
         Top = 0
         Width = 155
         Height = 262
         Align = alClient
         Anchors = [akLeft, akTop, akBottom]
-        Caption = 'Panel1'
+        Caption = 'PanelHistory'
         TabOrder = 0
         object ListBoxSearchHistory: TListBox
           AlignWithMargins = True
@@ -1190,14 +1190,14 @@ object RipGrepperForm: TRipGrepperForm
           TabOrder = 0
         end
       end
-      object Panel2: TPanel
+      object PanelResult: TPanel
         Left = 160
         Top = 0
         Width = 600
         Height = 262
         Align = alRight
         Anchors = [akLeft, akTop, akRight, akBottom]
-        Caption = 'Panel2'
+        Caption = 'PanelResult'
         TabOrder = 1
         object ListViewResult: TListView
           AlignWithMargins = True

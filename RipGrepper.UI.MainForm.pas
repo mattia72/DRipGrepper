@@ -86,8 +86,8 @@ type
 		SplitView1 : TSplitView;
 		Splitter1 : TSplitter;
 		ListBoxSearchHistory : TListBox;
-		Panel1 : TPanel;
-		Panel2 : TPanel;
+		PanelHistory : TPanel;
+		PanelResult : TPanel;
 		ActionStatusBar : TAction;
 		procedure ActionStatusBarUpdate(Sender : TObject);
 		procedure ActionAbortSearchExecute(Sender : TObject);
@@ -224,6 +224,7 @@ uses
 	System.StrUtils;
 
 const
+	DRAW_RESULT_ON_EVERY_LINE_COUNT = 100;
 	IMG_IDX_SHOW_ABS_PATH = 11;
 	IMG_IDX_SHOW_RELATIVE_PATH = 12;
 	IMG_IDX_SHOW_FILE_ICON_TRUE = 5;
@@ -671,11 +672,12 @@ begin
 				begin
 					if (not _sLine.IsEmpty) then
 						FData.Add(newItem);
-					if _bIsLast then begin
+					if ((FLineNr mod DRAW_RESULT_ON_EVERY_LINE_COUNT) = 0) or _bIsLast then begin
 						// virtual listview! Items count should be updated
 						ListViewResult.Items.Count := FData.Count;
 						SetStatusBarStatistic(Format('%d matches in %d files', [FData.Count, FData.MatchFiles.Count]));
 						SetResultInHistoryList();
+						ListViewResult.AdjustColumnWidths(FMaxWidths);
 					end;
 				end);
 		end);
@@ -878,8 +880,8 @@ end;
 
 procedure TRipGrepperForm.FormResize(Sender : TObject);
 begin
-	SplitView1.Width := ClientWidth;
-	StatusBar1.Panels[0].Width := Panel1.Width;
+	SplitView1.Width := panelMain.Width;
+	StatusBar1.Panels[0].Width := PanelHistory.Width;
 end;
 
 function TRipGrepperForm.GetAbsOrRelativePath(const _sFullPath : string) : string;

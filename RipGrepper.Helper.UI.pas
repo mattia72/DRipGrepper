@@ -6,7 +6,7 @@ uses
 	System.UITypes,
 	Vcl.ComCtrls,
 	Vcl.Graphics;
-//	Winapi.Messages;
+// Winapi.Messages;
 
 type
 	TCursorSaver = record
@@ -39,10 +39,13 @@ type
 	end;
 
 	TListViewHelper = class Helper for TCustomListView
+		private
 		protected
-//			procedure WMNotify(var AMessage : TWMNotify); message WM_NOTIFY;
+			// procedure WMNotify(var AMessage : TWMNotify); message WM_NOTIFY;
 		public
+			procedure AdjustColumnWidths(var _MaxWidths: TArray<Integer>);
 			function TryGetSelected(out _Idx : Integer) : Boolean;
+			function GetSelectedOrFirst() : TListItem;
 			procedure SetAlteringColors(Item : TListItem);
 			procedure SetSelectedColors(State : TOwnerDrawState);
 	end;
@@ -60,6 +63,24 @@ uses
 	Winapi.Windows,
 	Winapi.CommCtrl,
 	System.Classes;
+
+procedure TListViewHelper.AdjustColumnWidths(var _MaxWidths: TArray<Integer>);
+begin
+	if self.Items.Count > 0 then begin
+		TListViewColumnAdjuster.AdjustColumnWidths(self as TListView, self.GetSelectedOrFirst(), _MaxWidths);
+	end;
+end;
+
+function TListViewHelper.GetSelectedOrFirst : TListItem;
+var
+	idx : Integer;
+begin
+	if TryGetSelected(idx) then begin
+		Result := Items[idx];
+	end else begin
+		Result := Items[0];
+	end;
+end;
 
 procedure TListViewHelper.SetAlteringColors(Item : TListItem);
 begin
@@ -79,17 +100,17 @@ begin
 	Result := (_Idx <> -1);
 end;
 
-//procedure TListViewHelper.WMNotify(var AMessage : TWMNotify);
-//begin
-////	if (AMessage.NMHdr.hwndFrom = self.Handle) and ((AMessage.NMHdr.code = HDN_ENDTRACK) or (AMessage.NMHdr.code = HDN_TRACK)) then begin
-//	if (AMessage.NMHdr.hwndFrom = self.Handle) and ((AMessage.NMHdr.code = HDN_ENDTRACK) or (AMessage.NMHdr.code = HDN_ITEMCHANGING )) then begin
-//		TMessage(AMessage).Result := 0;
-//		InvalidateRect(self.Handle, nil, true);
-////		CodeSite.Send('TListView.WMNotify: HDN_ENDTRACK');
-//	end
-//	else
-//		inherited;
-//end;
+// procedure TListViewHelper.WMNotify(var AMessage : TWMNotify);
+// begin
+/// /	if (AMessage.NMHdr.hwndFrom = self.Handle) and ((AMessage.NMHdr.code = HDN_ENDTRACK) or (AMessage.NMHdr.code = HDN_TRACK)) then begin
+// if (AMessage.NMHdr.hwndFrom = self.Handle) and ((AMessage.NMHdr.code = HDN_ENDTRACK) or (AMessage.NMHdr.code = HDN_ITEMCHANGING )) then begin
+// TMessage(AMessage).Result := 0;
+// InvalidateRect(self.Handle, nil, true);
+/// /		CodeSite.Send('TListView.WMNotify: HDN_ENDTRACK');
+// end
+// else
+// inherited;
+// end;
 
 procedure TCursorSaver.SetHourGlassCursor;
 begin
