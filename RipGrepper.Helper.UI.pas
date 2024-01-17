@@ -43,8 +43,11 @@ type
 		procedure AdjustColumnWidths(var _MaxWidths : TArray<Integer>);
 		function TryGetSelected(out _Idx : Integer) : Boolean;
 		function GetSelectedOrFirst() : TListItem;
+		procedure InitMaxWidths(var _arrMaxWidths: TArray<Integer>);
 		procedure SetAlteringColors(Item : TListItem);
 		procedure SetSelectedColors(State : TOwnerDrawState);
+	private
+	public
 	end;
 
 	TCanvasHelper = class Helper for Vcl.Graphics.TCanvas
@@ -81,6 +84,19 @@ begin
 		Result := Items[idx];
 	end else begin
 		Result := Items[0];
+	end;
+end;
+
+procedure TListViewHelper.InitMaxWidths(var _arrMaxWidths: TArray<Integer>);
+begin
+	if Length(_arrMaxWidths) = 0 then begin
+		for var i := 0 to Columns.Count - 1 do begin
+			_arrMaxWidths := _arrMaxWidths + [0];
+		end;
+	end else begin
+		for var i := 0 to Columns.Count - 1 do begin
+			_arrMaxWidths[i] := 0;
+		end;
 	end;
 end;
 

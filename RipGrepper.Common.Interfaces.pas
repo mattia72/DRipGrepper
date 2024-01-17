@@ -25,30 +25,34 @@ type
 	end;
 
 	ILine = interface
-	['{691C646B-26C8-453F-87BB-7C57F572D34C}']
+		['{691C646B-26C8-453F-87BB-7C57F572D34C}']
 		function GetLineNr : Integer;
 		procedure SetLineNr(const Value : Integer);
 		property LineNr : Integer read GetLineNr write SetLineNr;
 	end;
 
-	ILineParser = interface(ILine)
-	['{B33D6808-8A4F-49AD-A711-F226B55DEE5F}']
+	ILineError = interface(ILine)
 		function GetIsError : Boolean;
+		procedure SetIsError(const Value : Boolean);
+		property IsError : Boolean read GetIsError write SetIsError;
+
+	end;
+
+	ILineParser = interface(ILineError)
+		['{B33D6808-8A4F-49AD-A711-F226B55DEE5F}']
 		function GetLineParseRegex : TRegex;
 		function GetParserType : TParserType;
-		procedure SetIsError(const Value : Boolean);
 		procedure SetLineParseRegex(const Value : TRegex);
 		procedure SetParserType(const Value : TParserType);
 
 		procedure ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False);
 
-		property IsError : Boolean read GetIsError write SetIsError;
 		property LineParseRegex : TRegex read GetLineParseRegex write SetLineParseRegex;
 		property ParserType : TParserType read GetParserType write SetParserType;
 	end;
 
 	IRipGrepMatchLine = interface(ILineParser)
-	['{2358D1CB-390A-4491-95FE-79BF12019C87}']
+		['{2358D1CB-390A-4491-95FE-79BF12019C87}']
 		function GetCol : Integer; stdcall;
 		function GetFileName : string; stdcall;
 		function GetRow : Integer; stdcall;
@@ -65,7 +69,7 @@ type
 	end;
 
 	IRipGrepMatchLineGroup = interface(IRipGrepMatchLine)
-    ['{154707F1-9ECB-4FAE-943D-249A9DB6FFAF}']
+		['{154707F1-9ECB-4FAE-943D-249A9DB6FFAF}']
 		function GetGroupId : Integer;
 		procedure SetGroupId(const Value : Integer);
 		property GroupId : Integer read GetGroupId write SetGroupId;

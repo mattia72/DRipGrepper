@@ -104,6 +104,7 @@ type
 		procedure ActionDoSearchUpdate(Sender : TObject);
 		procedure ActionIndentLineExecute(Sender : TObject);
 		procedure ActionIndentLineUpdate(Sender : TObject);
+		procedure ActionRefreshSearchExecute(Sender : TObject);
 		procedure ActionShowRelativePathExecute(Sender : TObject);
 		procedure ActionSearchExecute(Sender : TObject);
 		procedure ActionShowFileIconsExecute(Sender : TObject);
@@ -159,7 +160,6 @@ type
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
 			function GetIconBitmap(const sFileName : string) : Vcl.Graphics.TBitmap;
 			procedure InitColumnSortTypes;
-			procedure InitMaxWidths;
 			procedure LoadBeforeSearchSettings;
 			procedure RunRipGrep;
 			procedure SetStatusBarMessage(const _iRipGrepResultOk : Integer = 0);
@@ -234,7 +234,7 @@ begin
 	FArguments := TStringList.Create();
 	FLineNr := 0;
 	UpdateSortingImages([sbtFile, sbtRow]);
-	InitMaxWidths;
+	ListViewResult.InitMaxWidths(FMaxWidths);
 end;
 
 destructor TRipGrepperForm.Destroy;
@@ -301,7 +301,7 @@ end;
 
 procedure TRipGrepperForm.ActionDoSearchExecute(Sender : TObject);
 begin
-	ActionSearchExecute(self);
+	//
 end;
 
 procedure TRipGrepperForm.ActionDoSearchUpdate(Sender : TObject);
@@ -321,6 +321,11 @@ begin
 	tbIndentLines.Down := FSettings.IndentLines;
 end;
 
+procedure TRipGrepperForm.ActionRefreshSearchExecute(Sender : TObject);
+begin
+	ActionSearchExecute(self);
+end;
+
 procedure TRipGrepperForm.ActionShowRelativePathExecute(Sender : TObject);
 const
 	PARSER_TYPES : TArray<TFileNameType> = [ftAbsolute, ftRelative];
@@ -329,7 +334,7 @@ begin
 	var
 	idx := Integer(FSettings.ShowRelativePath);
 	FFileNameType := PARSER_TYPES[idx mod Length(PARSER_TYPES)];
-	InitMaxWidths();
+	ListViewResult.InitMaxWidths(FMaxWidths);
 	FSettings.StoreViewSettings('ShowRelativePath');
 	ListViewResult.Repaint;
 end;
@@ -592,7 +597,7 @@ begin
 		procedure
 		begin
 			if (not _sLine.IsEmpty) then begin
-				newItem := TRipGrepMatch.Create();
+				newItem := TRipGrepMatchLine.Create();
 				case FFileNameType of
 					ftAbsolute, ftRelative : begin
 						newItem.ParseLine(PostInc(FLineNr), _sLine, _bIsLast);
@@ -656,19 +661,6 @@ end;
 procedure TRipGrepperForm.InitColumnSortTypes;
 begin
 	FColumnSortTypes := [stUnsorted, stUnsorted, stUnsorted, stUnsorted];
-end;
-
-procedure TRipGrepperForm.InitMaxWidths;
-begin
-	if Length(FMaxWidths) = 0 then begin
-		for var i := 0 to ListViewResult.Columns.Count - 1 do begin
-			FMaxWidths := FMaxWidths + [0];
-		end;
-	end else begin
-		for var i := 0 to ListViewResult.Columns.Count - 1 do begin
-			FMaxWidths[i] := 0;
-		end;
-	end;
 end;
 
 procedure TRipGrepperForm.CopyToClipboardFileOfSelected;
@@ -825,7 +817,7 @@ begin
 
 	cnv.FillRect(TRect.Union(Rect, r2ndRow));
 	cnv.TextOut(Rect.Left + 1, Rect.Top + 1, lb.Items[index]);
-	cnv.TextOut(Rect.Left + 1, Rect.Top + c2ndRowTop, '°');
+	cnv.TextOut(Rect.Left + 1, Rect.Top + c2ndRowTop, 'ï¿½');
 
 	data := lb.Items.Objects[index] as TRipGrepperMatches;
 	cnv.TextOut(Rect.Left + cMatchesLeft, Rect.Top + c2ndRowTop, Format('(%d in %d)', [data.TotalMatchCount, data.FileCount]))
