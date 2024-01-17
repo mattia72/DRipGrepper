@@ -1058,7 +1058,7 @@ object RipGrepperForm: TRipGrepperForm
     AlignWithMargins = True
     Left = 0
     Top = 165
-    Width = 773
+    Width = 779
     Height = 296
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
@@ -1074,7 +1074,7 @@ object RipGrepperForm: TRipGrepperForm
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 767
+      Width = 773
       Height = 22
       AutoSize = True
       Caption = 'ToolBar1'
@@ -1164,16 +1164,15 @@ object RipGrepperForm: TRipGrepperForm
       Placement = svpLeft
       TabOrder = 1
       object Splitter1: TSplitter
-        Left = 155
+        Left = 157
         Top = 0
-        Width = 5
         Height = 262
         Align = alRight
       end
       object PanelHistory: TPanel
         Left = 0
         Top = 0
-        Width = 155
+        Width = 157
         Height = 262
         Align = alClient
         Anchors = [akLeft, akTop, akBottom]
@@ -1183,11 +1182,13 @@ object RipGrepperForm: TRipGrepperForm
           AlignWithMargins = True
           Left = 4
           Top = 4
-          Width = 147
+          Width = 149
           Height = 254
+          Style = lbOwnerDrawVariable
           Align = alClient
           ItemHeight = 15
           TabOrder = 0
+          OnDrawItem = ListBoxSearchHistoryDrawItem
         end
       end
       object PanelResult: TPanel
@@ -1214,17 +1215,15 @@ object RipGrepperForm: TRipGrepperForm
               ImageIndex = 3
             end
             item
-              AutoSize = True
               Caption = 'Row'
               ImageIndex = 3
             end
             item
-              AutoSize = True
               Caption = 'Col'
             end
             item
-              AutoSize = True
               Caption = 'Match'
+              Width = 500
             end>
           Groups = <
             item

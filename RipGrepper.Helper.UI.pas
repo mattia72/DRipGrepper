@@ -5,7 +5,8 @@ interface
 uses
 	System.UITypes,
 	Vcl.ComCtrls,
-	Vcl.Graphics;
+	Vcl.Graphics,
+	Vcl.StdCtrls;
 // Winapi.Messages;
 
 type
@@ -16,13 +17,12 @@ type
 		private
 		public
 			procedure ChangeTo(NewCursor : TCursor);
-			constructor Create(NewCursor : TCursor); // Verwendung ist nicht so eindeutig
+			constructor Create(NewCursor : TCursor);
 			procedure SetHourGlassCursor;
 			class operator Finalize(var Dest : TCursorSaver);
 	end;
 
 	TStatusBarAdjuster = class
-
 		private
 			class function TrueFontWidth(fnt : TFont; const text : string) : Integer;
 
@@ -39,21 +39,22 @@ type
 	end;
 
 	TListViewHelper = class Helper for TCustomListView
-		private
-		protected
-			// procedure WMNotify(var AMessage : TWMNotify); message WM_NOTIFY;
-		public
-			procedure AdjustColumnWidths(var _MaxWidths: TArray<Integer>);
-			function TryGetSelected(out _Idx : Integer) : Boolean;
-			function GetSelectedOrFirst() : TListItem;
-			procedure SetAlteringColors(Item : TListItem);
-			procedure SetSelectedColors(State : TOwnerDrawState);
+		// procedure WMNotify(var AMessage : TWMNotify); message WM_NOTIFY;
+		procedure AdjustColumnWidths(var _MaxWidths : TArray<Integer>);
+		function TryGetSelected(out _Idx : Integer) : Boolean;
+		function GetSelectedOrFirst() : TListItem;
+		procedure SetAlteringColors(Item : TListItem);
+		procedure SetSelectedColors(State : TOwnerDrawState);
 	end;
 
 	TCanvasHelper = class Helper for Vcl.Graphics.TCanvas
-		public
-			procedure SetAlteringColors(Item : TListItem);
-			procedure SetSelectedColors(State : TOwnerDrawState);
+		procedure SetAlteringColors(Item : TListItem);
+		procedure SetSelectedColors(State : TOwnerDrawState);
+	end;
+
+	TItemInserter = class
+		class procedure AddToCmbIfNotContains(_cmb : TComboBox);
+		class procedure AddToListBoxIfNotContains(_lb : TListBox; const _s : string; _val : TObject);
 	end;
 
 implementation
@@ -62,9 +63,10 @@ uses
 	Vcl.Forms,
 	Winapi.Windows,
 	Winapi.CommCtrl,
-	System.Classes;
+	System.Classes,
+	RipGrepper.Helper.Types;
 
-procedure TListViewHelper.AdjustColumnWidths(var _MaxWidths: TArray<Integer>);
+procedure TListViewHelper.AdjustColumnWidths(var _MaxWidths : TArray<Integer>);
 begin
 	if self.Items.Count > 0 then begin
 		TListViewColumnAdjuster.AdjustColumnWidths(self as TListView, self.GetSelectedOrFirst(), _MaxWidths);
@@ -214,6 +216,39 @@ begin
 		self.Font.Color := clWhite;
 		self.Brush.Color := clMenuHighlight;
 	end;
+end;
+
+class procedure TItemInserter.AddToCmbIfNotContains(_cmb : TComboBox);
+var
+	idxval : Integer;
+	val : string;
+begin
+	val := _cmb.Text;
+	if not _cmb.Items.Contains(val) then begin
+		_cmb.Items.Insert(0, val);
+	end else begin
+		idxval := _cmb.Items.IndexOf(val);
+		_cmb.Items.Delete(idxval);
+		_cmb.Items.Insert(0, val);
+		_cmb.ItemIndex := 0;
+	end;
+end;
+
+class procedure TItemInserter.AddToListBoxIfNotContains(_lb : TListBox; const _s : string; _val : TObject);
+var
+	idxval : Integer;
+	val : string;
+begin
+	val := _s;
+	if not _lb.Items.Contains(val) then begin
+		_lb.Items.InsertObject(0, val, _val);
+	end else begin
+		idxval := _lb.Items.IndexOf(val);
+		_lb.Items.Delete(idxval);
+		_lb.Items.InsertObject(0, val, _val);
+		_lb.ItemIndex := 0;
+	end;
+
 end;
 
 end.

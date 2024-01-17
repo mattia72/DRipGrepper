@@ -85,7 +85,8 @@ type
 
 		private
 			FGrouping : Boolean;
-			function GetCount : Integer;
+			function GetTotalMatchCount : Integer;
+			function GetFileCount : Integer;
 			procedure PutIntoGroup(const _idx : Integer; _lv : TListView; _item : TListItem);
 
 		public
@@ -98,7 +99,8 @@ type
 			procedure SortByFileName(_bDescending : Boolean = False);
 			procedure SortByRow(_bDescending : Boolean = False);
 			procedure SortByLineNr(_bDescending : Boolean = False);
-			property Count : Integer read GetCount;
+			property TotalMatchCount : Integer read GetTotalMatchCount;
+			property FileCount : Integer read GetFileCount;
 			property Grouping : Boolean read FGrouping write FGrouping;
 	end;
 
@@ -107,10 +109,10 @@ implementation
 uses
 	System.SysUtils,
 	System.Generics.Defaults,
-
 	System.IOUtils,
 	Vcl.Dialogs,
-	RipGrepper.Tools.DebugTools;
+	RipGrepper.Tools.DebugTools,
+	RipGrepper.Helper.Types;
 
 const
 	RG_RESULT_LINE_PARSE_REGEX = '^(\w:)?(.+?):(\d+):(\d+):(.+)$';
@@ -302,9 +304,14 @@ begin
 	_item.SubItems.Add(Matches[_index].Text);
 end;
 
-function TRipGrepperMatches.GetCount : Integer;
+function TRipGrepperMatches.GetTotalMatchCount : Integer;
 begin
 	Result := Matches.Count;
+end;
+
+function TRipGrepperMatches.GetFileCount : Integer;
+begin
+	Result := MatchFiles.Count;
 end;
 
 procedure TRipGrepperMatches.PutIntoGroup(const _idx : Integer; _lv : TListView; _item : TListItem);

@@ -23,12 +23,13 @@ uses
 	RipGrepper.Common.Settings,
 	RipGrepper.Data.Matches,
 	RipGrepper.Common.Types,
-    RipGrepper.Common.Interfaces,
+	RipGrepper.Common.Interfaces,
 	Winapi.Windows,
 	System.ImageList,
 	System.Actions,
 	System.Threading,
-	Vcl.WinXCtrls;
+	Vcl.WinXCtrls,
+	System.Diagnostics;
 
 type
 	TRipGrepperForm = class(TForm, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
@@ -118,12 +119,13 @@ type
 		procedure FormClose(Sender : TObject; var Action : TCloseAction);
 		procedure FormResize(Sender : TObject);
 		procedure FormShow(Sender : TObject);
+		procedure ListBoxSearchHistoryDrawItem(Control : TWinControl; Index : Integer; Rect : TRect; State : TOwnerDrawState);
 		procedure ListViewResultColumnClick(Sender : TObject; Column : TListColumn);
 		procedure ListViewResultData(Sender : TObject; Item : TListItem);
 		procedure ListViewResultDrawItem(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
 
 		private
-			FdtStartSearch : TDateTime;
+			FswSearchStart : TStopwatch;
 			FArguments : TStringList;
 			FData : TRipGrepperMatches;
 			FExeVersion : string;
@@ -140,8 +142,6 @@ type
 			FStatusBarStatus : string;
 			FStatusBarStatistic : string;
 			FViewStyleIndex : Integer;
-			procedure AddToCmbIfNotContains(_cmb : TComboBox);
-			procedure AddToListBoxIfNotContains(_lb : TListBox; const _s : string);
 			procedure ReBuildArguments;
 			procedure ClearData;
 			procedure DoSearch;
@@ -171,8 +171,6 @@ type
 			property ViewStyleIndex : Integer read GetViewStyleIndex;
 
 		protected
-			procedure SetResultInHistoryList;
-
 		public
 			constructor Create(_settings : TRipGrepperSettings); reintroduce; overload;
 			constructor Create(AOwner : TComponent); overload; override;
@@ -193,9 +191,6 @@ type
 			PNL_MESSAGE_IDX = 2;
 	end;
 
-procedure OnNewLine(_handler : INewLineEventHandler; const _sLine : string; const _bIsLast : Boolean = False);
-function TerminateProcess(_obj : ITerminateEventProducer) : boolean;
-
 const
 	LISTVIEW_TYPES : TArray<TViewStyle> = [vsList, vsIcon, vsReport, vsSmallIcon];
 	LISTVIEW_TYPE_TEXTS : TArray<string> = ['List', 'Icon', 'Report', 'SmallIcon'];
@@ -210,11 +205,11 @@ uses
 	System.UITypes,
 	System.IOUtils,
 	System.SysUtils,
-
 	System.Types,
 	RipGrepper.Tools.DebugTools,
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.FileUtils,
+	RipGrepper.Helper.Types,
 	System.Generics.Defaults,
 	Vcl.Dialogs,
 	Vcl.Clipbrd,
@@ -222,21 +217,7 @@ uses
 	Winapi.CommCtrl,
 	System.StrUtils;
 
-
-
-	{$R *.dfm}
-
-procedure OnNewLine(_handler : INewLineEventHandler; const _sLine : string; const _bIsLast : Boolean = False);
-
-begin
-	_handler.OnNewOutputLine(_sLine, _bIsLast);
-	// TDebugUtils.DebugMessage(_sLine );
-end;
-
-function TerminateProcess(_obj : ITerminateEventProducer) : boolean;
-begin
-	Result := _obj.ProcessShouldTerminate();
-end;
+{$R *.dfm}
 
 constructor TRipGrepperForm.Create(_settings : TRipGrepperSettings);
 begin
@@ -360,7 +341,7 @@ var
 begin
 	cursor.SetHourGlassCursor;
 	ClearData;
-	FdtStartSearch := 0;
+	FswSearchStart := TStopwatch.Create();
 	FMeassureFirstDrawEvent := True;
 	InitStatusBar;
 	InitColumnSortTypes;
@@ -410,22 +391,6 @@ begin
 	UpdateSortingImages([sbtRow]);
 end;
 
-procedure TRipGrepperForm.AddToCmbIfNotContains(_cmb : TComboBox);
-var
-	idxval : Integer;
-	val : string;
-begin
-	val := _cmb.Text;
-	if not _cmb.Items.Contains(val) then begin
-		_cmb.Items.Insert(0, val);
-	end else begin
-		idxval := _cmb.Items.IndexOf(val);
-		_cmb.Items.Delete(idxval);
-		_cmb.Items.Insert(0, val);
-		_cmb.ItemIndex := 0;
-	end;
-end;
-
 procedure TRipGrepperForm.ActionSwitchViewExecute(Sender : TObject);
 begin
 	ListViewResult.ViewStyle := LISTVIEW_TYPES[ViewStyleIndex];
@@ -437,23 +402,6 @@ begin
 	idx := IfThen((FViewStyleIndex + 1) <= (Length(LISTVIEW_TYPES) - 1), FViewStyleIndex + 1, 0);
 	// ActionSwitchView.ImageIndex := idx + 2;
 	ActionSwitchView.Hint := 'Change View ' + LISTVIEW_TYPE_TEXTS[idx];
-end;
-
-procedure TRipGrepperForm.AddToListBoxIfNotContains(_lb : TListBox; const _s : string);
-var
-	idxval : Integer;
-	val : string;
-begin
-	val := _s;
-	if not _lb.Items.Contains(val) then begin
-		_lb.Items.InsertObject(0, val, FData);
-	end else begin
-		idxval := _lb.Items.IndexOf(val);
-		_lb.Items.Delete(idxval);
-		_lb.Items.InsertObject(0, val, FData);
-		_lb.ItemIndex := 0;
-	end;
-
 end;
 
 procedure TRipGrepperForm.ReBuildArguments;
@@ -627,14 +575,14 @@ var
 	idx : Integer;
 begin
 	idx := Item.Index;
-	if idx < FData.Count then begin
+	if idx < FData.TotalMatchCount then begin
 		FData.DataToGrid(idx, ListViewResult, Item);
 	end;
 end;
 
 procedure TRipGrepperForm.OnEOFProcess;
 begin
-	TDebugUtils.DebugMessage(Format('End of processing rg.exe output in %s sec.', [GetElapsedTime(FdtStartSearch)]));
+	TDebugUtils.DebugMessage(Format('End of processing rg.exe output in %s sec.', [GetElapsedTime(FswSearchStart)]));
 end;
 
 procedure TRipGrepperForm.OnNewOutputLine(const _sLine : string; _bIsLast : Boolean = False);
@@ -660,13 +608,17 @@ begin
 						FData.Add(newItem);
 					if ((FLineNr mod DRAW_RESULT_ON_EVERY_LINE_COUNT) = 0) or _bIsLast then begin
 						// virtual listview! Items count should be updated
-						ListViewResult.Items.Count := FData.Count;
-						SetStatusBarStatistic(Format('%d matches in %d files', [FData.Count, FData.MatchFiles.Count]));
-						SetResultInHistoryList();
+						ListViewResult.Items.Count := FData.TotalMatchCount;
+						SetStatusBarStatistic(Format('%d matches in %d files', [FData.TotalMatchCount, FData.FileCount]));
+						ListBoxSearchHistory.Refresh;
 						ListViewResult.AdjustColumnWidths(FMaxWidths);
 					end;
 				end);
 		end);
+
+	if _bIsLast then begin
+		TDebugUtils.DebugMessage(Format('Last line received in %s sec.', [GetElapsedTime(FswSearchStart)]));
+	end;
 end;
 
 function TRipGrepperForm.BuildCmdLine : string;
@@ -810,7 +762,7 @@ begin
 		end else begin
 			if i = 3 then begin
 				s := _Item.SubItems[i - 1];
-				if FSettings.IndentLines then begin
+				if not FSettings.IndentLines then begin
 					s := s.TrimLeft;
 				end;
 			end else begin
@@ -854,10 +806,39 @@ begin
 	end;
 end;
 
+procedure TRipGrepperForm.ListBoxSearchHistoryDrawItem(Control : TWinControl; Index : Integer; Rect : TRect; State : TOwnerDrawState);
+var
+	c2ndRowTop : Integer;
+	cMatchesLeft : Integer;
+	cnv : TCanvas;
+	data : TRipGrepperMatches;
+	lb : TListBox;
+	r2ndRow : TRect;
+begin
+	lb := (Control as TListBox);
+	cnv := lb.Canvas;
+
+	cnv.SetSelectedColors(State);
+
+	c2ndRowTop := cnv.TextHeight(SAllAlphaNumericChars);
+	cMatchesLeft := 20;
+	r2ndRow := Rect;
+	r2ndRow.Offset(0, c2ndRowTop);
+
+	cnv.FillRect(TRect.Union(Rect, r2ndRow));
+
+	cnv.TextOut(Rect.Left + 1, Rect.Top + 1, lb.Items[index]);
+
+	cnv.TextOut(Rect.Left + 1, Rect.Top + c2ndRowTop, '°');
+	data := lb.Items.Objects[index] as TRipGrepperMatches;
+
+	cnv.TextOut(Rect.Left + cMatchesLeft, Rect.Top + c2ndRowTop, Format('(%d in %d)', [data.TotalMatchCount, data.FileCount]))
+end;
+
 procedure TRipGrepperForm.ListViewResultDrawItem(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
 begin
 	if FMeassureFirstDrawEvent then begin
-		TDebugUtils.DebugMessage(Format('Firs drw event in %s sec.', [GetElapsedTime(FdtStartSearch)]));
+		TDebugUtils.DebugMessage(Format('Firs drw event in %s sec.', [GetElapsedTime(FswSearchStart)]));
 		FMeassureFirstDrawEvent := False;
 	end;
 
@@ -885,36 +866,17 @@ begin
 		begin
 			workDir := TDirectory.GetCurrentDirectory();
 			TDebugUtils.DebugMessage('run: ' + FSettings.RipGrepPath + ' ' + FArguments.DelimitedText);
-			FdtStartSearch := Now;
+			FswSearchStart := TStopwatch.StartNew;
 			iRipGrepResult := TProcessUtils.RunProcess(FSettings.RipGrepPath, FArguments,
 				{ } workDir,
 				{ } self as INewLineEventHandler,
 				{ } self as ITerminateEventProducer,
 				{ } self as IEOFProcessEventHandler);
 			SetStatusBarMessage(iRipGrepResult);
-			TDebugUtils.DebugMessage(Format('rg.exe ended in %s sec.', [GetElapsedTime(FdtStartSearch)]));
+			TDebugUtils.DebugMessage(Format('rg.exe ended in %s sec.', [GetElapsedTime(FswSearchStart)]));
+			FswSearchStart.Stop;
 		end);
 	FRipGrepTask.Start;
-end;
-
-procedure TRipGrepperForm.SetResultInHistoryList;
-var
-	data : TRipGrepperMatches;
-	idx : Integer;
-	val : string;
-begin
-	TThread.Synchronize(nil,
-		procedure()
-		begin
-			idx := 0;
-			if idx > -1 then begin
-				val := ListBoxSearchHistory.Items[idx];
-				data := (ListBoxSearchHistory.Items.Objects[idx] as TRipGrepperMatches);
-				ListBoxSearchHistory.Items[idx] := Format('%s (%d in %d)',
-					{ } [val, data.Count, data.MatchFiles.Count]);
-			end;
-		end);
-
 end;
 
 procedure TRipGrepperForm.SetStatusBarMessage(const _iRipGrepResultOk : Integer = 0);
@@ -924,11 +886,12 @@ begin
 	TThread.Synchronize(nil,
 		procedure
 		begin
-			if FdtStartSearch <> 0 then begin
-				msg := Format('Search took %s seconds with ' + EXE_AND_VERSION_FORMAT, [GetElapsedTime(FdtStartSearch), FExeVersion]);
+			if FswSearchStart.IsRunning then begin
+				msg := Format('Search took %s seconds with ' + EXE_AND_VERSION_FORMAT, [GetElapsedTime(FswSearchStart), FExeVersion]);
 				FStatusBarStatus := IfThen(_iRipGrepResultOk = TProcessUtils.RIPGREP_ERROR, 'ERROR', 'SUCCES');
 			end else begin
 				msg := Format(EXE_AND_VERSION_FORMAT, [FExeVersion]);
+				FStatusBarStatus := 'READY';
 			end;
 			FStatusBarMessage := msg;
 		end);
@@ -945,10 +908,10 @@ end;
 
 procedure TRipGrepperForm.StoreHistories;
 begin
-	AddToCmbIfNotContains(cmbParameters);
-	AddToCmbIfNotContains(cmbSearchDir);
-	AddToCmbIfNotContains(cmbSearchText);
-	AddToListBoxIfNotContains(ListBoxSearchHistory, cmbSearchText.Text);
+	TItemInserter.AddToCmbIfNotContains(cmbParameters);
+	TItemInserter.AddToCmbIfNotContains(cmbSearchDir);
+	TItemInserter.AddToCmbIfNotContains(cmbSearchText);
+	TItemInserter.AddToListBoxIfNotContains(ListBoxSearchHistory, cmbSearchText.Text, FData);
 end;
 
 procedure TRipGrepperForm.StoreSearchSettings;

@@ -24,6 +24,7 @@ const
 	LV_IMAGE_IDX_OK = 0;
 	LV_IMAGE_IDX_ERROR = 1;
 	LV_IMAGE_IDX_INFO = 2;
+	SAllAlphaNumericChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890';
 
 type
 
@@ -34,45 +35,9 @@ type
 	TParserType = (ptRipGrepSearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
 	TFileNameType = (ftAbsolute, ftRelative);
 
-	TStringsHelper = class helper for TStrings
-		function Contains(const s : string) : Boolean;
-	end;
-
-function PostInc(var Value : Integer) : Integer;
-function PreInc(var Value : Integer) : Integer;
-function GetElapsedTimeInSeconds(const _dtStart : TDateTime) : TDateTime;
-function GetElapsedTime(const _dtStart : TDateTime) : string;
-
 implementation
 
 uses
 	System.SysUtils;
-
-function PostInc(var Value : Integer) : Integer;
-begin
-	Result := Value;
-	inc(Value);
-end;
-
-function PreInc(var Value : Integer) : Integer;
-begin
-	inc(Value);
-	Result := Value;
-end;
-
-function GetElapsedTimeInSeconds(const _dtStart : TDateTime) : TDateTime;
-begin
-	Result := (Now - _dtStart) * 24 * 60 * 60;
-end;
-
-function GetElapsedTime(const _dtStart : TDateTime) : string;
-begin
-	Result := Format('%.2f', [GetElapsedTimeInSeconds(_dtStart)]);
-end;
-
-function TStringsHelper.Contains(const s : string) : Boolean;
-begin
-	Result := self.IndexOf(s) <> -1;
-end;
 
 end.

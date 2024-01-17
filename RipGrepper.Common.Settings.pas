@@ -43,6 +43,7 @@ uses
 	Vcl.Forms,
 	System.StrUtils,
 	RipGrepper.Common.Types,
+	RipGrepper.Helper.Types,
 	RipGrepper.Tools.DebugTools;
 
 procedure TRipGrepperSettings.LoadHistoryEntries(var _list : TStrings; const _section : string);
