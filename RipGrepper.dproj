@@ -106,8 +106,6 @@
             <Form>RipGrepperForm</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="dpipes.pas"/>
-        <DCCReference Include="dprocess.pas"/>
         <DCCReference Include="RipGrepper.Tools.ProcessUtils.pas"/>
         <DCCReference Include="RipGrepper.Tools.DebugTools.pas"/>
         <DCCReference Include="RipGrepper.Common.Settings.pas"/>
@@ -117,8 +115,8 @@
         <DCCReference Include="RipGrepper.Common.Types.pas"/>
         <DCCReference Include="RipGrepper.Helper.Types.pas"/>
         <DCCReference Include="RipGrepper.Common.Interfaces.pas"/>
-        <None Include="pipes_win.inc"/>
-        <None Include="process_win.inc"/>
+        <DCCReference Include="external\dpipes.pas"/>
+        <DCCReference Include="external\dprocess.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -148,18 +146,6 @@
                 <DeployFile LocalName="Win32\Debug\RipGrepper.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>RipGrepper.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="pipes_win.inc" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="process_win.inc" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

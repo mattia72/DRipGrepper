@@ -5,8 +5,6 @@ program RipGrepper;
 uses
   Vcl.Forms,
   RipGrepper.UI.MainForm in 'RipGrepper.UI.MainForm.pas' {RipGrepperForm},
-  dpipes in 'dpipes.pas',
-  dprocess in 'dprocess.pas',
   RipGrepper.Tools.ProcessUtils in 'RipGrepper.Tools.ProcessUtils.pas',
   RipGrepper.Tools.DebugTools in 'RipGrepper.Tools.DebugTools.pas',
   RipGrepper.Common.Settings in 'RipGrepper.Common.Settings.pas',
@@ -17,7 +15,9 @@ uses
   Vcl.Styles,
   RipGrepper.Common.Types in 'RipGrepper.Common.Types.pas',
   RipGrepper.Helper.Types in 'RipGrepper.Helper.Types.pas',
-  RipGrepper.Common.Interfaces in 'RipGrepper.Common.Interfaces.pas';
+  RipGrepper.Common.Interfaces in 'RipGrepper.Common.Interfaces.pas',
+  dpipes in 'external\dpipes.pas',
+  dprocess in 'external\dprocess.pas';
 
 {$R *.res}
 

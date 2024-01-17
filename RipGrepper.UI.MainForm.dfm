@@ -1399,20 +1399,6 @@ object RipGrepperForm: TRipGrepperForm
       Cancel = True
       TabOrder = 3
     end
-    object btnCmdLineCopy: TButton
-      AlignWithMargins = True
-      Left = 731
-      Top = 27
-      Width = 26
-      Height = 24
-      Action = ActionCmdLineCopy
-      Anchors = [akTop, akRight]
-      ImageAlignment = iaCenter
-      Images = ImageListButtons
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 4
-    end
   end
   object ImageListButtons: TImageList
     Left = 299

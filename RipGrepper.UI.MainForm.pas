@@ -62,7 +62,6 @@ type
 		ActionShowRelativePath : TAction;
 		ToolButton1 : TToolButton;
 		ToolButton2 : TToolButton;
-		btnCmdLineCopy : TButton;
 		ActionCmdLineCopy : TAction;
 		ActionSortByRow : TAction;
 		PopupMenu1 : TPopupMenu;
@@ -817,7 +816,6 @@ var
 begin
 	lb := (Control as TListBox);
 	cnv := lb.Canvas;
-
 	cnv.SetSelectedColors(State);
 
 	c2ndRowTop := cnv.TextHeight(SAllAlphaNumericChars);
@@ -826,12 +824,10 @@ begin
 	r2ndRow.Offset(0, c2ndRowTop);
 
 	cnv.FillRect(TRect.Union(Rect, r2ndRow));
-
 	cnv.TextOut(Rect.Left + 1, Rect.Top + 1, lb.Items[index]);
-
 	cnv.TextOut(Rect.Left + 1, Rect.Top + c2ndRowTop, '°');
-	data := lb.Items.Objects[index] as TRipGrepperMatches;
 
+	data := lb.Items.Objects[index] as TRipGrepperMatches;
 	cnv.TextOut(Rect.Left + cMatchesLeft, Rect.Top + c2ndRowTop, Format('(%d in %d)', [data.TotalMatchCount, data.FileCount]))
 end;
 
@@ -888,7 +884,7 @@ begin
 		begin
 			if FswSearchStart.IsRunning then begin
 				msg := Format('Search took %s seconds with ' + EXE_AND_VERSION_FORMAT, [GetElapsedTime(FswSearchStart), FExeVersion]);
-				FStatusBarStatus := IfThen(_iRipGrepResultOk = TProcessUtils.RIPGREP_ERROR, 'ERROR', 'SUCCES');
+				FStatusBarStatus := IfThen(_iRipGrepResultOk = RIPGREP_ERROR, 'ERROR', 'SUCCES');
 			end else begin
 				msg := Format(EXE_AND_VERSION_FORMAT, [FExeVersion]);
 				FStatusBarStatus := 'READY';

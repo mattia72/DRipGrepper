@@ -10,30 +10,29 @@ uses
 
 type
 	TProcessUtils = class(TObject)
-		const
-			BUFF_LENGTH = 1024;
-			RIPGREP_ERROR = 1;
-			RIPGREP_NO_MATCH = 2;
-
 		private
 			class procedure BuffToLine(const _sBuf : ansistring; const _iCnt : integer; var sLineOut : string;
 				_newLineHandler : INewLineEventHandler);
 			class procedure GoToNextCRLF(var P : PAnsiChar; const PEndVal : PAnsiChar);
 			class function GoTillCRLF(var P : PAnsiChar; const PEndVal : PAnsiChar) : Integer;
 
-		protected
 			class procedure NewLineEventHandler(_obj : INewLineEventHandler; const _s : string; const _bIsLast : Boolean = False);
 			class procedure EOFProcessingEventHandler(_obj : IEOFProcessEventHandler);
 
 		public
 			class function MaybeQuoteIfNotQuoted(const _s : string; const _delimiter : string = '"') : string;
-			class procedure ProcessOutput(const _s : TStream; { } _newLineHandler : INewLineEventHandler;
-				_terminateEventProducer : ITerminateEventProducer; _eofProcHandler : IEOFProcessEventHandler);
-			class function RunProcess(const _exe : string; _args : TStrings; _workDir : string; _newLIneHandler : INewLineEventHandler;
-				_terminateEventProducer : ITerminateEventProducer; _eofProcHandler : IEOFProcessEventHandler) : Integer;
+			class procedure ProcessOutput(const _s : TStream;
+				{ } _newLineHandler : INewLineEventHandler;
+				{ } _terminateEventProducer : ITerminateEventProducer;
+				{ } _eofProcHandler : IEOFProcessEventHandler);
+			class function RunProcess(const _exe : string; _args : TStrings; _workDir : string;
+				{ } _newLIneHandler : INewLineEventHandler;
+				{ } _terminateEventProducer : ITerminateEventProducer;
+				{ } _eofProcHandler : IEOFProcessEventHandler) : Integer;
 			class function RunProcessAsync(const _exe : string; const _args : TStrings; const _workDir : string;
-				_newLineHandler : INewLineEventHandler; _terminateEventProducer : ITerminateEventProducer;
-				_eofProcHandler : IEOFProcessEventHandler) : Boolean;
+				{ } _newLineHandler : INewLineEventHandler;
+				{ } _terminateEventProducer : ITerminateEventProducer;
+				{ } _eofProcHandler : IEOFProcessEventHandler) : Boolean;
 	end;
 
 implementation
@@ -139,9 +138,9 @@ begin
 		BuffToLine(sBuf, iCnt, sLineOut, _newLineHandler);
 	until iCnt = 0;
 
-	//if sLineOut <> '' then begin
-		NewLineEventHandler(_newLineHandler, sLineOut, True);
-	//end;
+	// if sLineOut <> '' then begin
+	NewLineEventHandler(_newLineHandler, sLineOut, True);
+	// end;
 	_eofProcHandler.OnEOFProcess();
 end;
 
