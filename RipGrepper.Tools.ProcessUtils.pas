@@ -21,7 +21,7 @@ type
 			class function GoTillCRLF(var P : PAnsiChar; const PEndVal : PAnsiChar) : Integer;
 
 		protected
-			class procedure NewLineEventHandler(_obj : INewLineEventHandler; const _s : string);
+			class procedure NewLineEventHandler(_obj : INewLineEventHandler; const _s : string; const _bIsLast : Boolean = False);
 			class procedure EOFProcessingEventHandler(_obj : IEOFProcessEventHandler);
 
 		public
@@ -55,10 +55,10 @@ begin
 		Result := _s;
 end;
 
-class procedure TProcessUtils.NewLineEventHandler(_obj : INewLineEventHandler; const _s : string);
+class procedure TProcessUtils.NewLineEventHandler(_obj : INewLineEventHandler; const _s : string; const _bIsLast : Boolean = False);
 begin
 	if Assigned(_obj) then begin
-		_obj.OnNewOutputLine(_s);
+		_obj.OnNewOutputLine(_s, _bIsLast);
 	end;
 end;
 
@@ -138,9 +138,9 @@ begin
 		BuffToLine(sBuf, iCnt, sLineOut, _newLineHandler);
 	until iCnt = 0;
 
-	if sLineOut <> '' then begin
-		NewLineEventHandler(_newLineHandler, sLineOut);
-	end;
+	//if sLineOut <> '' then begin
+		NewLineEventHandler(_newLineHandler, sLineOut, True);
+	//end;
 	_eofProcHandler.OnEOFProcess();
 end;
 

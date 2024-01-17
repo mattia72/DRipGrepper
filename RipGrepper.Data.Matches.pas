@@ -18,14 +18,15 @@ type
 	ILineParser = interface(ILine)
 		function GetIsError : Boolean;
 		function GetLineParseRegex : TRegex;
-		procedure SetLineParseRegex(const Value : TRegex);
 		function GetParserType : TParserType;
-		procedure ParseLine(const _iLnNr : integer; const _s : string);
 		procedure SetIsError(const Value : Boolean);
+		procedure SetLineParseRegex(const Value : TRegex);
 		procedure SetParserType(const Value : TParserType);
-		property LineParseRegex : TRegex read GetLineParseRegex write SetLineParseRegex;
+
+		procedure ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False);
 
 		property IsError : Boolean read GetIsError write SetIsError;
+		property LineParseRegex : TRegex read GetLineParseRegex write SetLineParseRegex;
 		property ParserType : TParserType read GetParserType write SetParserType;
 	end;
 
@@ -49,7 +50,7 @@ type
 
 		public
 
-			procedure ParseLine(const _iLnNr : integer; const _s : string); virtual;
+			procedure ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False); virtual;
 			property LineNr : Integer read GetLineNr write SetLineNr;
 			property LineParseRegex : TRegex read GetLineParseRegex write SetLineParseRegex;
 			property IsError : Boolean read GetIsError write SetIsError;
@@ -107,7 +108,7 @@ type
 			procedure SetText(const Value : string); stdcall;
 
 		public
-			procedure ParseLine(const _iLnNr : integer; const _s : string); override;
+			procedure ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False); override;
 			function Validate : Boolean;
 			function ValidatePath : Boolean;
 			destructor Destroy; override;
@@ -167,7 +168,7 @@ begin
 	Result := ErrorText = '';
 end;
 
-procedure TRipGrepMatch.ParseLine(const _iLnNr : integer; const _s : string);
+procedure TRipGrepMatch.ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False);
 var
 	m : TMatch;
 begin
@@ -411,9 +412,10 @@ end;
 
 { TRipGrepOutputLine }
 
-procedure TRipGrepOutputLine.ParseLine(const _iLnNr : integer; const _s : string);
+procedure TRipGrepOutputLine.ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False);
 begin
 	LineNr := _iLnNr;
+    // rest should be done in the subclass
 end;
 
 procedure TRipGrepOutputLine.SetIsError(const Value : Boolean);

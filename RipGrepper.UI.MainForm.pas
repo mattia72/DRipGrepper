@@ -181,7 +181,7 @@ type
 			procedure CopyToClipboardPathOfSelected;
 			class function CreateAndShow(const _settings : TRipGrepperSettings) : string;
 			// INewLineEventHandler
-			procedure OnNewOutputLine(const _sLine : string);
+			procedure OnNewOutputLine(const _sLine : string; _bIsLast : Boolean = False);
 			// ITerminateEventProducer
 			function ProcessShouldTerminate : boolean;
 			// IEOFProcessEventHandler
@@ -194,7 +194,7 @@ type
 			PNL_MESSAGE_IDX = 2;
 	end;
 
-procedure OnNewLine(_handler : INewLineEventHandler; const _sLine : string);
+procedure OnNewLine(_handler : INewLineEventHandler; const _sLine : string; const _bIsLast : Boolean = False);
 function TerminateProcess(_obj : ITerminateEventProducer) : boolean;
 
 const
@@ -239,11 +239,11 @@ const
 
 	{$R *.dfm}
 
-procedure OnNewLine(_handler : INewLineEventHandler; const _sLine : string);
+procedure OnNewLine(_handler : INewLineEventHandler; const _sLine : string; const _bIsLast : Boolean = False);
 
 begin
-	_handler.OnNewOutputLine(_sLine);
-	TDebugUtils.DebugMessage(string(_sLine));
+	_handler.OnNewOutputLine(_sLine, _bIsLast);
+	// TDebugUtils.DebugMessage(_sLine );
 end;
 
 function TerminateProcess(_obj : ITerminateEventProducer) : boolean;
@@ -650,31 +650,33 @@ begin
 	TDebugUtils.DebugMessage(Format('End of processing rg.exe output in %s sec.', [GetElapsedTime(FdtStartSearch)]));
 end;
 
-procedure TRipGrepperForm.OnNewOutputLine(const _sLine : string);
+procedure TRipGrepperForm.OnNewOutputLine(const _sLine : string; _bIsLast : Boolean = False);
 var
 	newItem : IRipGrepMatchLineGroup;
 begin
-	if _sLine = '' then begin
-		exit;
-	end;
 	TTask.Run(
 		procedure
 		begin
-            newItem := TRipGrepMatch.Create();
-			case FFileNameType of
-				ftAbsolute, ftRelative : begin
-					newItem.ParseLine(PostInc(FLineNr), _sLine);
+			if (not _sLine.IsEmpty) then begin
+				newItem := TRipGrepMatch.Create();
+				case FFileNameType of
+					ftAbsolute, ftRelative : begin
+						newItem.ParseLine(PostInc(FLineNr), _sLine, _bIsLast);
+					end;
 				end;
 			end;
 
 			TThread.Synchronize(nil,
 				procedure
 				begin
-					FData.Add(newItem);
-					// virtual listview! Items count should be updated
-					ListViewResult.Items.Count := FData.Count;
-					SetStatusBarStatistic(Format('%d matches in %d files', [FData.Count, FData.MatchFiles.Count]));
-					SetResultInHistoryList();
+					if (not _sLine.IsEmpty) then
+						FData.Add(newItem);
+					if _bIsLast then begin
+						// virtual listview! Items count should be updated
+						ListViewResult.Items.Count := FData.Count;
+						SetStatusBarStatistic(Format('%d matches in %d files', [FData.Count, FData.MatchFiles.Count]));
+						SetResultInHistoryList();
+					end;
 				end);
 		end);
 end;

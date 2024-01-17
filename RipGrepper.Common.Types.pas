@@ -15,7 +15,7 @@ type
 	{$M+}
 	INewLineEventHandler = interface
 		['{A2EB8A24-0281-4AAA-BF91-210A95973652}']
-		procedure OnNewOutputLine(const _sLine : string);
+		procedure OnNewOutputLine(const _sLine : string; _bIsLast : Boolean = False);
 	end;
 
 	ITerminateEventProducer = interface
