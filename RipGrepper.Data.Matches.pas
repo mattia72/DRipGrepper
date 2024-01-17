@@ -6,29 +6,11 @@ uses
 	System.Generics.Collections,
 	System.Classes,
 	RipGrepper.Common.Types,
-	System.RegularExpressions;
+	RipGrepper.Common.Interfaces,
+	System.RegularExpressions,
+	Vcl.ComCtrls;
 
 type
-	ILine = interface
-		function GetLineNr : Integer;
-		procedure SetLineNr(const Value : Integer);
-		property LineNr : Integer read GetLineNr write SetLineNr;
-	end;
-
-	ILineParser = interface(ILine)
-		function GetIsError : Boolean;
-		function GetLineParseRegex : TRegex;
-		function GetParserType : TParserType;
-		procedure SetIsError(const Value : Boolean);
-		procedure SetLineParseRegex(const Value : TRegex);
-		procedure SetParserType(const Value : TParserType);
-
-		procedure ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False);
-
-		property IsError : Boolean read GetIsError write SetIsError;
-		property LineParseRegex : TRegex read GetLineParseRegex write SetLineParseRegex;
-		property ParserType : TParserType read GetParserType write SetParserType;
-	end;
 
 	TRipGrepOutputLine = class(TInterfacedObject, ILineParser)
 		private
@@ -40,9 +22,6 @@ type
 			function GetParserType : TParserType;
 			procedure SetIsError(const Value : Boolean);
 			procedure SetParserType(const Value : TParserType);
-
-		protected
-
 			function GetLineParseRegex : TRegex;
 			procedure SetLineParseRegex(const Value : TRegex);
 			function GetLineNr : Integer;
@@ -56,28 +35,6 @@ type
 			property IsError : Boolean read GetIsError write SetIsError;
 			property ParserType : TParserType read GetParserType write SetParserType;
 
-	end;
-
-	IRipGrepMatchLine = interface(ILineParser)
-		function GetCol : Integer; stdcall;
-		function GetFileName : string; stdcall;
-		function GetRow : Integer; stdcall;
-		function GetText : string; stdcall;
-		procedure SetCol(const Value : Integer); stdcall;
-		procedure SetFileName(const Value : string); stdcall;
-		procedure SetRow(const Value : Integer); stdcall;
-		procedure SetText(const Value : string); stdcall;
-		property Col : Integer read GetCol write SetCol;
-		property FileName : string read GetFileName write SetFileName;
-		property Row : Integer read GetRow write SetRow;
-		property Text : string read GetText write SetText;
-
-	end;
-
-	IRipGrepMatchLineGroup = interface(IRipGrepMatchLine)
-		function GetGroupId : Integer;
-		procedure SetGroupId(const Value : Integer);
-		property GroupId : Integer read GetGroupId write SetGroupId;
 	end;
 
 	TRipGrepperMatchCollection = TList<IRipGrepMatchLineGroup>;
@@ -96,8 +53,6 @@ type
 			FRow : Integer;
 			FText : string;
 			procedure SetRgResultLineParseError(const _sLine : string);
-
-		protected
 			function GetFileName : string; stdcall;
 			procedure SetFileName(const Value : string); stdcall;
 			function GetRow : Integer; stdcall;
@@ -129,18 +84,22 @@ type
 		SortedBy : TList<TSortByType>;
 
 		private
+			FGrouping : Boolean;
 			function GetCount : Integer;
+			procedure PutIntoGroup(const _idx : Integer; _lv : TListView; _item : TListItem);
 
 		public
 			constructor Create;
 			destructor Destroy; override;
 			procedure Add(const _item : IRipGrepMatchLineGroup);
 			procedure Clear;
-			procedure SortBy(const _sbt : TSortByType; const _st : TSortType);
+			procedure DataToGrid(const _index : Integer; _lv : TListView; _item : TListItem);
+			procedure SortBy(const _sbt : TSortByType; const _st : TSortDirectionType);
 			procedure SortByFileName(_bDescending : Boolean = False);
 			procedure SortByRow(_bDescending : Boolean = False);
 			procedure SortByLineNr(_bDescending : Boolean = False);
 			property Count : Integer read GetCount;
+			property Grouping : Boolean read FGrouping write FGrouping;
 	end;
 
 implementation
@@ -325,12 +284,50 @@ begin
 	MatchFiles.Clear;
 end;
 
+procedure TRipGrepperMatches.DataToGrid(const _index : Integer; _lv : TListView; _item : TListItem);
+var
+	fn : string;
+begin
+	PutIntoGroup(_index, _lv, _item);
+	fn := Matches[_index].FileName;
+	if Matches[_index].IsError then begin
+		_item.Caption := ' ' + fn;
+		_item.ImageIndex := LV_IMAGE_IDX_ERROR;
+	end else begin
+		_item.Caption := fn;
+		_item.ImageIndex := LV_IMAGE_IDX_OK;
+	end;
+	_item.SubItems.Add(Matches[_index].Row.ToString);
+	_item.SubItems.Add(Matches[_index].Col.ToString);
+	_item.SubItems.Add(Matches[_index].Text);
+end;
+
 function TRipGrepperMatches.GetCount : Integer;
 begin
 	Result := Matches.Count;
 end;
 
-procedure TRipGrepperMatches.SortBy(const _sbt : TSortByType; const _st : TSortType);
+procedure TRipGrepperMatches.PutIntoGroup(const _idx : Integer; _lv : TListView; _item : TListItem);
+begin
+	if not Grouping then
+		Exit;
+
+	if ItemGroups.Contains(Matches[_idx].FileName) then begin
+		_item.GroupID := Matches[_idx].GroupID;
+	end else begin
+		var
+		Group := _lv.Groups.Add;
+		Group.State := [lgsNormal, lgsCollapsible];
+		Group.Header := Matches[_idx].FileName;
+		var
+		match := Matches[_idx];
+		match.GroupID := Group.GroupID;
+		Matches[_idx] := match;
+		ItemGroups.Add(Matches[_idx].FileName);
+	end;
+end;
+
+procedure TRipGrepperMatches.SortBy(const _sbt : TSortByType; const _st : TSortDirectionType);
 begin
 	if _st <> stUnsorted then begin
 		case _sbt of
@@ -415,7 +412,7 @@ end;
 procedure TRipGrepOutputLine.ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False);
 begin
 	LineNr := _iLnNr;
-    // rest should be done in the subclass
+	// rest should be done in the subclass
 end;
 
 procedure TRipGrepOutputLine.SetIsError(const Value : Boolean);

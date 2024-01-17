@@ -116,6 +116,7 @@
         <DCCReference Include="RipGrepper.Tools.FileUtils.pas"/>
         <DCCReference Include="RipGrepper.Common.Types.pas"/>
         <DCCReference Include="Unit1.pas"/>
+        <DCCReference Include="RipGrepper.Common.Interfaces.pas"/>
         <None Include="pipes_win.inc"/>
         <None Include="process_win.inc"/>
         <BuildConfiguration Include="Base">

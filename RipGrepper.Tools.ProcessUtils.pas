@@ -5,7 +5,8 @@ interface
 uses
 	System.Classes,
 	dprocess,
-	RipGrepper.Common.Types;
+	RipGrepper.Common.Types,
+	RipGrepper.Common.Interfaces;
 
 type
 	TProcessUtils = class(TObject)

@@ -10,32 +10,29 @@ const
 	LF = #10;
 	CRLF = sLineBreak;
 
+	DRAW_RESULT_ON_EVERY_LINE_COUNT = 100;
+
+	IMG_IDX_SHOW_ABS_PATH = 11;
+	IMG_IDX_SHOW_RELATIVE_PATH = 12;
+	IMG_IDX_SHOW_FILE_ICON_TRUE = 5;
+	IMG_IDX_SHOW_FILE_ICON_FALSE = 2;
+
+	IMAGE_IDX_UNSORTED = 3;
+	IMAGE_IDX_DESCENDING_SORTED = 4;
+	IMAGE_IDX_ASCENDING_SORTED = 5;
+
+	LV_IMAGE_IDX_OK = 0;
+	LV_IMAGE_IDX_ERROR = 1;
+	LV_IMAGE_IDX_INFO = 2;
+
 type
 
-	{$M+}
-	INewLineEventHandler = interface
-		['{A2EB8A24-0281-4AAA-BF91-210A95973652}']
-		procedure OnNewOutputLine(const _sLine : string; _bIsLast : Boolean = False);
-	end;
-
-	ITerminateEventProducer = interface
-		['{9C259E6F-CED7-41AD-B4F8-3A4BDD981965}']
-		function ProcessShouldTerminate() : boolean;
-	end;
-
-	IEOFProcessEventHandler = interface
-		['{E6AC51D8-9705-4A56-902B-494B1EC11184}']
-		procedure OnEOFProcess();
-	end;
-
-
-	{$M-}
 	// TNewLineEventHandler = procedure(_obj : INewLineEventHandler; const _s : string);
 	// TTerminateEventProducer = function(_obj : ITerminateEventProducer) : boolean;
 
-	TSortType = (stUnsorted, stAscending, stDescending);
- 	TParserType = (ptRipGrepSearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
-    TFileNameType = (ftAbsolute, ftRelative);
+	TSortDirectionType = (stUnsorted, stAscending, stDescending);
+	TParserType = (ptRipGrepSearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
+	TFileNameType = (ftAbsolute, ftRelative);
 
 	TStringsHelper = class helper for TStrings
 		function Contains(const s : string) : Boolean;
@@ -43,9 +40,7 @@ type
 
 function PostInc(var Value : Integer) : Integer;
 function PreInc(var Value : Integer) : Integer;
-
 function GetElapsedTimeInSeconds(const _dtStart : TDateTime) : TDateTime;
-
 function GetElapsedTime(const _dtStart : TDateTime) : string;
 
 implementation

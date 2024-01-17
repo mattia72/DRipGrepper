@@ -23,6 +23,7 @@ uses
 	RipGrepper.Common.Settings,
 	RipGrepper.Data.Matches,
 	RipGrepper.Common.Types,
+    RipGrepper.Common.Interfaces,
 	Winapi.Windows,
 	System.ImageList,
 	System.Actions,
@@ -132,7 +133,7 @@ type
 			FRgExeVersion : string;
 			FSearchPathIsDir : Boolean;
 			FSettings : TRipGrepperSettings;
-			FColumnSortTypes : TArray<TSortType>;
+			FColumnSortTypes : TArray<TSortDirectionType>;
 			FMeassureFirstDrawEvent : Boolean;
 			FRipGrepTask : ITask;
 			FStatusBarMessage : string;
@@ -150,10 +151,8 @@ type
 			procedure InitSettings;
 			procedure InitStatusBar;
 			procedure LoadSettings;
-			procedure PutIntoGroup(const idx : Integer; Item : TListItem);
 			function BuildCmdLine : string;
 			procedure CopyToClipboardFileOfSelected;
-			procedure DataToGrid(const _index : Integer; _item : TListItem);
 			procedure DoSortOnColumn(const _sbt : TSortByType);
 			function DrawFileIcon(Canvas : TCanvas; Rect : TRect; Item : TListItem) : Vcl.Graphics.TBitmap;
 			procedure DrawItemOnBitmap(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
@@ -223,20 +222,7 @@ uses
 	Winapi.CommCtrl,
 	System.StrUtils;
 
-const
-	DRAW_RESULT_ON_EVERY_LINE_COUNT = 100;
-	IMG_IDX_SHOW_ABS_PATH = 11;
-	IMG_IDX_SHOW_RELATIVE_PATH = 12;
-	IMG_IDX_SHOW_FILE_ICON_TRUE = 5;
-	IMG_IDX_SHOW_FILE_ICON_FALSE = 2;
 
-	IMAGE_IDX_UNSORTED = 3;
-	IMAGE_IDX_DESCENDING_SORTED = 4;
-	IMAGE_IDX_ASCENDING_SORTED = 5;
-
-	LV_IMAGE_IDX_OK = 0;
-	LV_IMAGE_IDX_ERROR = 1;
-	LV_IMAGE_IDX_INFO = 2;
 
 	{$R *.dfm}
 
@@ -642,7 +628,7 @@ var
 begin
 	idx := Item.Index;
 	if idx < FData.Count then begin
-		DataToGrid(idx, Item);
+		FData.DataToGrid(idx, ListViewResult, Item);
 	end;
 end;
 
@@ -683,26 +669,6 @@ begin
 		end);
 end;
 
-procedure TRipGrepperForm.PutIntoGroup(const idx : Integer; Item : TListItem);
-var
-	m : TRipGrepperMatchCollection;
-begin
-	m := FData.Matches;
-	if FData.ItemGroups.Contains(m[idx].FileName) then begin
-		Item.GroupID := m[idx].GroupID;
-	end else begin
-		var
-		Group := ListViewResult.Groups.Add;
-		Group.State := [lgsNormal, lgsCollapsible];
-		Group.Header := m[idx].FileName;
-		var
-		match := FData.Matches[idx];
-		match.GroupID := Group.GroupID;
-		FData.Matches[idx] := match;
-		FData.ItemGroups.Add(m[idx].FileName);
-	end;
-end;
-
 function TRipGrepperForm.BuildCmdLine : string;
 var
 	cmdLine : TStringList;
@@ -719,35 +685,15 @@ begin
 	end;
 end;
 
-procedure TRipGrepperForm.DataToGrid(const _index : Integer; _item : TListItem);
-var
-	m : TRipGrepperMatchCollection;
-	fn : string;
-begin
-	PutIntoGroup(_index, _item);
-	m := FData.Matches;
-	fn := m[_index].FileName;
-	if m[_index].IsError then begin
-		_item.Caption := ' ' + fn;
-		_item.ImageIndex := LV_IMAGE_IDX_ERROR;
-	end else begin
-		_item.Caption := fn;
-		_item.ImageIndex := LV_IMAGE_IDX_OK;
-	end;
-	_item.SubItems.Add(m[_index].Row.ToString);
-	_item.SubItems.Add(m[_index].Col.ToString);
-	_item.SubItems.Add(m[_index].Text);
-end;
-
 procedure TRipGrepperForm.DoSortOnColumn(const _sbt : TSortByType);
 var
 	cursor : TCursorSaver;
-	st : TSortType;
+	st : TSortDirectionType;
 begin
 	cursor.SetHourGlassCursor();
 	try
 		st := FColumnSortTypes[integer(_sbt)];
-		st := TSortType((Integer(st) + 1) mod 3);
+		st := TSortDirectionType((Integer(st) + 1) mod 3);
 		FColumnSortTypes[integer(_sbt)] := st;
 		FData.SortBy(_sbt, st);
 		UpdateSortingImages([_sbt]);

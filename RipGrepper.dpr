@@ -16,7 +16,8 @@ uses
   Vcl.Themes,
   Vcl.Styles,
   RipGrepper.Common.Types in 'RipGrepper.Common.Types.pas',
-  Unit1 in 'Unit1.pas';
+  Unit1 in 'Unit1.pas',
+  RipGrepper.Common.Interfaces in 'RipGrepper.Common.Interfaces.pas';
 
 {$R *.res}
 
