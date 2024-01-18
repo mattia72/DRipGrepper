@@ -156,9 +156,7 @@ begin
 	// if sLineOut <> '' then begin
 	NewLineEventHandler(_newLineHandler, sLineOut, True);
 	// end;
-	if (Assigned(_eofProcHandler)) then begin
-		_eofProcHandler.OnEOFProcess();
-	end;
+	EOFProcessingEventHandler(_eofProcHandler);
 end;
 
 class function TProcessUtils.RunProcess(const _exe : string; _args : TStrings;

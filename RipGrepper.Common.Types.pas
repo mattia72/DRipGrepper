@@ -10,9 +10,6 @@ const
 	LF = #10;
 	CRLF = sLineBreak;
 	BUFF_LENGTH = 1024;
-    NECESSARY_PARAMS : TArray<string> = ['--vimgrep', '--line-buffered' // ,// some big search couldn't be catched without this
-	// '--pretty' // TODO: parse color escape
-		];
 
 	RIPGREP_ERROR = 1;
 	RIPGREP_NO_MATCH = 2;
@@ -32,6 +29,12 @@ const
 	LV_IMAGE_IDX_ERROR = 1;
 	LV_IMAGE_IDX_INFO = 2;
 	SAllAlphaNumericChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890';
+
+	RG_NECESSARY_PARAMS : TArray<string> = ['--vimgrep', '--line-buffered' // ,// some big search couldn't be catched without this
+	// '--pretty' // TODO: parse color escape
+		];
+
+	RG_MATCH_LINE_REGEX = '^(\w:)?(.+?):(\d+):(\d+):(.+)$';
 
 type
 

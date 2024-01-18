@@ -19,7 +19,8 @@ uses
   dpipes in 'external\dpipes.pas',
   dprocess in 'external\dprocess.pas',
   RipGrepper.UI.SearchForm in 'RipGrepper.UI.SearchForm.pas' {RipGrepperSearchDialogForm},
-  ArrayHelper in 'external\ArrayHelper.pas';
+  ArrayHelper in 'external\ArrayHelper.pas',
+  RipGrepper.Data.Parsers in 'RipGrepper.Data.Parsers.pas';
 
 {$R *.res}
 

@@ -63,7 +63,7 @@ implementation
 uses
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.ProcessUtils,
-	Vcl.Dialogs;
+	Vcl.Dialogs, System.UITypes;
 
 {$R *.dfm}
 

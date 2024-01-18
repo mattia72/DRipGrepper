@@ -191,7 +191,7 @@ var
 begin
 	params := ActualRipGrepParam;
 	FRipGrepArguments.Clear();
-	for var s in NECESSARY_PARAMS do begin
+	for var s in RG_NECESSARY_PARAMS do begin
 		if not params.Contains(s) then begin
 			params := s + ' ' + params;
 		end;

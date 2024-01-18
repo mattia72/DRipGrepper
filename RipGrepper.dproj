@@ -122,6 +122,7 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="external\ArrayHelper.pas"/>
+        <DCCReference Include="RipGrepper.Data.Parsers.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
