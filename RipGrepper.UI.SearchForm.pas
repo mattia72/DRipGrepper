@@ -21,7 +21,7 @@ uses
 	RipGrepper.Common.Settings;
 
 type
-	TSearchDialogForm = class(TForm)
+	TRipGrepperSearchDialogForm = class(TForm)
 		pnlSearch : TPanel;
 		gbSearch : TGroupBox;
 		lblParams : TLabel;
@@ -39,53 +39,81 @@ type
 		ActionSearch : TAction;
 		ActionCancel : TAction;
 		ActionConfig : TAction;
+		procedure ActionSearchExecute(Sender: TObject);
 		procedure FormClose(Sender : TObject; var Action : TCloseAction);
 		procedure FormShow(Sender : TObject);
 
 		private
-			FArguments : TStringList;
-			FSettings : TRipGrepperSettings;
+			FPSettings : PRipGrepperSettings;
 			procedure LoadSettings;
+			procedure StoreHistories;
+			procedure StoreSearchSettings;
 
 			{ Private-Deklarationen }
 		public
-			constructor Create(AOwner : TComponent; _settings : TRipGrepperSettings); overload; virtual;
+			constructor Create(AOwner: TComponent; const _pSettings: PRipGrepperSettings); reintroduce; virtual;
 			{ Public-Deklarationen }
 	end;
 
 var
-	SearchDialogForm : TSearchDialogForm;
+	RipGrepperSearchDialogForm : TRipGrepperSearchDialogForm;
 
 implementation
 
+uses
+	RipGrepper.Helper.UI;
+
 {$R *.dfm}
 
-constructor TSearchDialogForm.Create(AOwner : TComponent; _settings : TRipGrepperSettings);
+constructor TRipGrepperSearchDialogForm.Create(AOwner: TComponent; const _pSettings: PRipGrepperSettings);
 begin
 	inherited Create(AOwner);
+    FPSettings := _pSettings;
 end;
 
-procedure TSearchDialogForm.FormClose(Sender : TObject; var Action : TCloseAction);
+procedure TRipGrepperSearchDialogForm.ActionSearchExecute(Sender: TObject);
+begin
+	StoreHistories();
+    StoreSearchSettings();
+    ModalREsult := mrOk;
+end;
+
+procedure TRipGrepperSearchDialogForm.FormClose(Sender : TObject; var Action : TCloseAction);
 begin
 	//
 end;
 
-procedure TSearchDialogForm.FormShow(Sender : TObject);
+procedure TRipGrepperSearchDialogForm.FormShow(Sender : TObject);
 begin
-	if not FSettings.IsLoaded then begin
+	if not FPSettings^.IsLoaded then begin
 		LoadSettings;
 	end;
 end;
 
-procedure TSearchDialogForm.LoadSettings;
+procedure TRipGrepperSearchDialogForm.LoadSettings;
 begin
-	FSettings.Load;
-	cmbSearchDir.Items.Assign(FSettings.SearchPaths);
+	FPSettings^.Load;
+	cmbSearchDir.Items.Assign(FPSettings^.SearchPathsHistory);
 	cmbSearchDir.ItemIndex := 0;
-	cmbSearchText.Items.Assign(FSettings.SearchTexts);
+	cmbSearchText.Items.Assign(FPSettings^.SearchTextsHistory);
 	cmbSearchText.ItemIndex := 0;
-	cmbParameters.Items.Assign(FSettings.RipGrepParams);
+	cmbParameters.Items.Assign(FPSettings^.RipGrepParamsHistory);
 	cmbParameters.ItemIndex := 0;
+end;
+
+procedure TRipGrepperSearchDialogForm.StoreHistories;
+begin
+	TItemInserter.AddToCmbIfNotContains(cmbParameters);
+	TItemInserter.AddToCmbIfNotContains(cmbSearchDir);
+	TItemInserter.AddToCmbIfNotContains(cmbSearchText);
+end;
+
+procedure TRipGrepperSearchDialogForm.StoreSearchSettings;
+begin
+	FPSettings^.SearchPathsHistory.Assign(cmbSearchDir.Items);
+	FPSettings^.SearchTextsHistory.Assign(cmbSearchText.Items);
+	FPSettings^.RipGrepParamsHistory.Assign(cmbParameters.Items);
+	FPSettings^.Store
 end;
 
 end.

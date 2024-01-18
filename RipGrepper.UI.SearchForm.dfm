@@ -1,4 +1,4 @@
-object SearchDialogForm: TSearchDialogForm
+object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
   Left = 0
   Top = 0
   Caption = 'RipGrepper Search...'
@@ -75,7 +75,6 @@ object SearchDialogForm: TSearchDialogForm
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
         Text = 'cmbSearchDir'
-        ExplicitWidth = 638
       end
       object cmbSearchDir: TComboBox
         Left = 84
@@ -94,7 +93,6 @@ object SearchDialogForm: TSearchDialogForm
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 2
         Text = 'cmbSearchDir'
-        ExplicitWidth = 638
       end
     end
     object btnConfig: TButton
@@ -146,7 +144,7 @@ object SearchDialogForm: TSearchDialogForm
     Left = 424
     Top = 120
     Bitmap = {
-      494C010101000800040010001000FFFFFFFFFF00FFFFFFFFFFFFFFFF424D3600
+      494C010101000800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       000000000000000000000000000000000000000000FF000000FF000000FF0000
       00FF000000FFB3B3B3006E6E6E004E4E4E004D4D4D006D6D6D00B2B2B2000000
@@ -282,7 +280,8 @@ object SearchDialogForm: TSearchDialogForm
       C7E30000000000008E710000000000009E790000000000003FFC000000000000
       3E7C0000000000003E7C0000000000003E3C0000000000003D9C000000000000
       399C0000000000009C390000000000008E71000000000000C7E3000000000000
-      E007000000000000F81F000000000000}
+      E007000000000000F81F00000000000000000000000000000000000000000000
+      000000000000}
   end
   object ActionList: TActionList
     Images = ImageList1
@@ -292,6 +291,7 @@ object SearchDialogForm: TSearchDialogForm
       Caption = 'Search'
       ImageIndex = 10
       ShortCut = 16467
+      OnExecute = ActionSearchExecute
     end
     object ActionCancel: TAction
       Caption = 'Cancel'

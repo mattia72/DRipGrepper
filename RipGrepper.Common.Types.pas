@@ -9,8 +9,10 @@ const
 	CR = #13;
 	LF = #10;
 	CRLF = sLineBreak;
-
 	BUFF_LENGTH = 1024;
+    NECESSARY_PARAMS : TArray<string> = ['--vimgrep', '--line-buffered' // ,// some big search couldn't be catched without this
+	// '--pretty' // TODO: parse color escape
+		];
 
 	RIPGREP_ERROR = 1;
 	RIPGREP_NO_MATCH = 2;

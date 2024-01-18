@@ -18,7 +18,8 @@ uses
   RipGrepper.Common.Interfaces in 'RipGrepper.Common.Interfaces.pas',
   dpipes in 'external\dpipes.pas',
   dprocess in 'external\dprocess.pas',
-  RipGrepper.UI.SearchForm in 'RipGrepper.UI.SearchForm.pas' {SearchDialogForm};
+  RipGrepper.UI.SearchForm in 'RipGrepper.UI.SearchForm.pas' {RipGrepperSearchDialogForm},
+  ArrayHelper in 'external\ArrayHelper.pas';
 
 {$R *.res}
 

@@ -1,4 +1,4 @@
-unit RipGrepper.UI.MainForm;
+﻿unit RipGrepper.UI.MainForm;
 
 interface
 
@@ -34,30 +34,19 @@ uses
 type
 	TRipGrepperForm = class(TForm, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
 		panelMain : TPanel;
-		lblPaths : TLabel;
-		lblParams : TLabel;
-		lblText : TLabel;
-		btnConfig : TButton;
 		ListViewResult : TListView;
 		pnlBottom : TPanel;
-		btnSearch : TButton;
-		btnCancel : TButton;
 		ImageListButtons : TImageList;
 		ActionList : TActionList;
 		ActionSearch : TAction;
 		ActionCancel : TAction;
 		ActionConfig : TAction;
-		cmbSearchDir : TComboBox;
-		cmbSearchText : TComboBox;
-		cmbParameters : TComboBox;
 		StatusBar1 : TStatusBar;
 		ActionSwitchView : TAction;
 		ActionSortByFile : TAction;
-		pnlSearch : TPanel;
 		ToolBar1 : TToolBar;
 		tbCopyCmdLine : TToolButton;
 		tbView : TToolButton;
-		gbSearch : TGroupBox;
 		tbShowRelativePath : TToolButton;
 		ActionShowRelativePath : TAction;
 		ToolButton1 : TToolButton;
@@ -105,6 +94,7 @@ type
 		procedure ActionIndentLineExecute(Sender : TObject);
 		procedure ActionIndentLineUpdate(Sender : TObject);
 		procedure ActionRefreshSearchExecute(Sender : TObject);
+		procedure ActionRefreshSearchUpdate(Sender : TObject);
 		procedure ActionShowRelativePathExecute(Sender : TObject);
 		procedure ActionSearchExecute(Sender : TObject);
 		procedure ActionShowFileIconsExecute(Sender : TObject);
@@ -126,7 +116,6 @@ type
 
 		private
 			FswSearchStart : TStopwatch;
-			FArguments : TStringList;
 			FData : TRipGrepperMatches;
 			FExeVersion : string;
 			FMaxWidths : TArray<integer>;
@@ -142,7 +131,6 @@ type
 			FStatusBarStatus : string;
 			FStatusBarStatistic : string;
 			FViewStyleIndex : Integer;
-			procedure ReBuildArguments;
 			procedure ClearData;
 			procedure DoSearch;
 			function GetAppNameAndVersion(const _exePath : string) : string;
@@ -163,8 +151,6 @@ type
 			procedure RunRipGrep;
 			procedure SetStatusBarMessage(const _iRipGrepResultOk : Integer = 0);
 			procedure SetStatusBarStatistic(const _s : string);
-			procedure StoreHistories;
-			procedure StoreSearchSettings;
 			procedure UpdateSortingImages(const _sbtArr : TArray<TSortByType>);
 			property ViewStyleIndex : Integer read GetViewStyleIndex;
 
@@ -213,7 +199,8 @@ uses
 	Vcl.Clipbrd,
 	Winapi.ShellAPI,
 	Winapi.CommCtrl,
-	System.StrUtils;
+	System.StrUtils,
+	RipGrepper.UI.SearchForm;
 
 {$R *.dfm}
 
@@ -230,7 +217,6 @@ begin
 	FExeVersion := GetAppNameAndVersion(Application.ExeName);
 	InitColumnSortTypes;
 	FFileNameType := ftAbsolute;
-	FArguments := TStringList.Create();
 	FLineNr := 0;
 	UpdateSortingImages([sbtFile, sbtRow]);
 	ListViewResult.InitMaxWidths(FMaxWidths);
@@ -239,7 +225,6 @@ end;
 destructor TRipGrepperForm.Destroy;
 begin
 	FData.Free;
-	FArguments.Free;
 	inherited;
 end;
 
@@ -300,12 +285,21 @@ end;
 
 procedure TRipGrepperForm.ActionDoSearchExecute(Sender : TObject);
 begin
-	//
+	var
+	frm := TRipGrepperSearchDialogForm.Create(self, @FSettings);
+	try
+		if (mrOk = frm.ShowModal) then begin
+			ActionSearchExecute(self);
+		end;
+
+	finally
+		frm.Free;
+	end;
 end;
 
 procedure TRipGrepperForm.ActionDoSearchUpdate(Sender : TObject);
 begin
-	ActionDoSearch.Enabled := Assigned(FRipGrepTask) and (FRipGrepTask.Status <> TTaskStatus.Running);
+	ActionDoSearch.Enabled := FSettings.IsEmpty or (Assigned(FRipGrepTask) and (FRipGrepTask.Status <> TTaskStatus.Running));
 end;
 
 procedure TRipGrepperForm.ActionIndentLineExecute(Sender : TObject);
@@ -323,6 +317,11 @@ end;
 procedure TRipGrepperForm.ActionRefreshSearchExecute(Sender : TObject);
 begin
 	ActionSearchExecute(self);
+end;
+
+procedure TRipGrepperForm.ActionRefreshSearchUpdate(Sender : TObject);
+begin
+	ActionRefreshSearch.Enabled := FSettings.IsLoaded;
 end;
 
 procedure TRipGrepperForm.ActionShowRelativePathExecute(Sender : TObject);
@@ -351,7 +350,7 @@ begin
 	UpdateSortingImages([sbtFile, sbtRow]);
 	ListViewResult.Repaint();
 	LoadBeforeSearchSettings();
-	StoreHistories();
+	TItemInserter.AddToListBoxIfNotContains(ListBoxSearchHistory, FSettings.ActualSearchText, FData);
 	DoSearch();
 end;
 
@@ -407,38 +406,6 @@ begin
 	ActionSwitchView.Hint := 'Change View ' + LISTVIEW_TYPE_TEXTS[idx];
 end;
 
-procedure TRipGrepperForm.ReBuildArguments;
-const
-	NECESSARY_PARAMS : TArray<string> = ['--vimgrep', '--line-buffered' // ,// some big search couldn't be catched without this
-	// '--pretty' // TODO: parse color escape
-		];
-var
-	paramsArr : TArray<string>;
-	params : string;
-begin
-	params := cmbParameters.Text;
-	FArguments.Clear();
-
-	for var s in NECESSARY_PARAMS do begin
-		if not params.Contains(s) then begin
-			params := s + ' ' + params;
-		end;
-	end;
-
-	paramsArr := params.Split([' ']);
-	for var s : string in paramsArr do begin
-		if not s.IsEmpty then begin
-			FArguments.Add(s);
-		end;
-	end;
-
-	FArguments.Add(cmbSearchText.Text);
-	var
-	searchPath := TProcessUtils.MaybeQuoteIfNotQuoted(cmbSearchDir.Text);
-	FArguments.Add(searchPath);
-	FArguments.Delimiter := ' '; // sArgs.QuoteChar := '"';
-end;
-
 procedure TRipGrepperForm.ClearData;
 begin
 	ListViewResult.Items.Count := 0;
@@ -463,13 +430,13 @@ end;
 procedure TRipGrepperForm.DoSearch;
 begin
 	SetStatusBarStatistic('Searching...');
-	ReBuildArguments();
+	FSettings.ReBuildArguments;
 	RunRipGrep();
 end;
 
 procedure TRipGrepperForm.FormClose(Sender : TObject; var Action : TCloseAction);
 begin
-	StoreSearchSettings;
+	// StoreSearchSettings;
 end;
 
 procedure TRipGrepperForm.FormShow(Sender : TObject);
@@ -519,14 +486,7 @@ end;
 
 procedure TRipGrepperForm.LoadSettings;
 begin
-	FSettings.Load;
-	cmbSearchDir.Items.Assign(FSettings.SearchPaths);
 	LoadBeforeSearchSettings();
-	cmbSearchDir.ItemIndex := 0;
-	cmbSearchText.Items.Assign(FSettings.SearchTexts);
-	cmbSearchText.ItemIndex := 0;
-	cmbParameters.Items.Assign(FSettings.RipGrepParams);
-	cmbParameters.ItemIndex := 0;
 end;
 
 procedure TRipGrepperForm.ListViewResultColumnClick(Sender : TObject; Column : TListColumn);
@@ -597,8 +557,7 @@ begin
 	cmdLine := TStringList.Create();
 	try
 		cmdLine.Add(FSettings.RipGrepPath);
-		ReBuildArguments();
-		cmdLine.AddStrings(FArguments);
+		cmdLine.AddStrings(FSettings.ReBuildArguments);
 		cmdLine.Delimiter := ' ';
 		Result := cmdLine.DelimitedText;
 	finally
@@ -742,7 +701,7 @@ function TRipGrepperForm.GetAbsOrRelativePath(const _sFullPath : string) : strin
 begin
 	Result := _sFullPath;
 	if FSettings.ShowRelativePath and FSearchPathIsDir then begin
-		Result := Result.Replace(cmbSearchDir.Text, '.', [rfIgnoreCase]);
+		Result := Result.Replace(FSettings.ActualSearchPath, '.', [rfIgnoreCase]);
 	end;
 end;
 
@@ -762,7 +721,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepperForm.ListBoxSearchHistoryDrawItem(Control : TWinControl; Index : Integer; Rect : TRect; State : TOwnerDrawState);
+procedure TRipGrepperForm.ListBoxSearchHistoryDrawItem(Control : TWinControl; index : Integer; Rect : TRect; State : TOwnerDrawState);
 var
 	c2ndRowTop : Integer;
 	cMatchesLeft : Integer;
@@ -801,7 +760,7 @@ end;
 
 procedure TRipGrepperForm.LoadBeforeSearchSettings;
 begin
-	FSearchPathIsDir := TDirectory.Exists(FSettings.SearchPaths[0]);
+	FSearchPathIsDir := TDirectory.Exists(FSettings.ActualSearchPath);
 end;
 
 function TRipGrepperForm.ProcessShouldTerminate : boolean;
@@ -818,9 +777,9 @@ begin
 		procedure()
 		begin
 			workDir := TDirectory.GetCurrentDirectory();
-			TDebugUtils.DebugMessage('run: ' + FSettings.RipGrepPath + ' ' + FArguments.DelimitedText);
+			TDebugUtils.DebugMessage('run: ' + FSettings.RipGrepPath + ' ' + FSettings.RipGrepArguments.DelimitedText);
 			FswSearchStart := TStopwatch.StartNew;
-			iRipGrepResult := TProcessUtils.RunProcess(FSettings.RipGrepPath, FArguments,
+			iRipGrepResult := TProcessUtils.RunProcess(FSettings.RipGrepPath, FSettings.RipGrepArguments,
 				{ } workDir,
 				{ } self as INewLineEventHandler,
 				{ } self as ITerminateEventProducer,
@@ -857,22 +816,6 @@ begin
 		begin
 			FStatusBarStatistic := _s;
 		end);
-end;
-
-procedure TRipGrepperForm.StoreHistories;
-begin
-	TItemInserter.AddToCmbIfNotContains(cmbParameters);
-	TItemInserter.AddToCmbIfNotContains(cmbSearchDir);
-	TItemInserter.AddToCmbIfNotContains(cmbSearchText);
-	TItemInserter.AddToListBoxIfNotContains(ListBoxSearchHistory, cmbSearchText.Text, FData);
-end;
-
-procedure TRipGrepperForm.StoreSearchSettings;
-begin
-	FSettings.SearchPaths.Assign(cmbSearchDir.Items);
-	FSettings.SearchTexts.Assign(cmbSearchText.Items);
-	FSettings.RipGrepParams.Assign(cmbParameters.Items);
-	FSettings.Store
 end;
 
 procedure TRipGrepperForm.UpdateSortingImages(const _sbtArr : TArray<TSortByType>);
