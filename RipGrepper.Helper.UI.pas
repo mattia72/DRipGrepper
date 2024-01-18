@@ -6,7 +6,8 @@ uses
 	System.UITypes,
 	Vcl.ComCtrls,
 	Vcl.Graphics,
-	Vcl.StdCtrls;
+	Vcl.StdCtrls,
+	System.Types;
 // Winapi.Messages;
 
 type
@@ -43,11 +44,9 @@ type
 		procedure AdjustColumnWidths(var _MaxWidths : TArray<Integer>);
 		function TryGetSelected(out _Idx : Integer) : Boolean;
 		function GetSelectedOrFirst() : TListItem;
-		procedure InitMaxWidths(var _arrMaxWidths: TArray<Integer>);
+		procedure InitMaxWidths(var _arrMaxWidths : TArray<Integer>);
 		procedure SetAlteringColors(Item : TListItem);
 		procedure SetSelectedColors(State : TOwnerDrawState);
-	private
-	public
 	end;
 
 	TCanvasHelper = class Helper for Vcl.Graphics.TCanvas
@@ -58,6 +57,13 @@ type
 	TItemInserter = class
 		class procedure AddToCmbIfNotContains(_cmb : TComboBox);
 		class procedure AddToListBoxIfNotContains(_lb : TListBox; const _s : string; _val : TObject);
+	end;
+
+	TItemDrawer = class
+
+		private
+		public
+			class procedure DrawItemOnBitmap(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
 	end;
 
 implementation
@@ -87,7 +93,7 @@ begin
 	end;
 end;
 
-procedure TListViewHelper.InitMaxWidths(var _arrMaxWidths: TArray<Integer>);
+procedure TListViewHelper.InitMaxWidths(var _arrMaxWidths : TArray<Integer>);
 begin
 	if Length(_arrMaxWidths) = 0 then begin
 		for var i := 0 to Columns.Count - 1 do begin
@@ -265,6 +271,21 @@ begin
 		_lb.ItemIndex := 0;
 	end;
 
+end;
+
+class procedure TItemDrawer.DrawItemOnBitmap(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
+var
+	noFlickerBm : Vcl.Graphics.TBitmap;
+begin
+	noFlickerBm := Vcl.Graphics.TBitmap.Create();
+	try
+		noFlickerBm.Width := Rect.Right - Rect.Left;
+		noFlickerBm.Height := Rect.Bottom - Rect.Top;
+		// DrawItemOnCanvas(noFlickerBm.Canvas, Rect, Item, State);
+		Sender.Canvas.Draw(Rect.Left, Rect.Top, noFlickerBm);
+	finally
+		noFlickerBm.Free;
+	end;
 end;
 
 end.

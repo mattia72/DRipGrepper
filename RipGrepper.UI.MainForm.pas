@@ -142,7 +142,6 @@ type
 			procedure CopyToClipboardFileOfSelected;
 			procedure DoSortOnColumn(const _sbt : TSortByType);
 			function DrawFileIcon(Canvas : TCanvas; Rect : TRect; Item : TListItem) : Vcl.Graphics.TBitmap;
-			procedure DrawItemOnBitmap(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
 			procedure DrawItemOnCanvas(_Canvas : TCanvas; _Rect : TRect; _Item : TListItem; _State : TOwnerDrawState);
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
 			function GetIconBitmap(const sFileName : string) : Vcl.Graphics.TBitmap;
@@ -616,21 +615,6 @@ begin
 	bm := GetIconBitmap(sFileName);
 	Canvas.Draw(Rect.Left + 3, Rect.Top + (Rect.Bottom - Rect.Top - bm.Height) div 2, bm);
 	Result := bm;
-end;
-
-procedure TRipGrepperForm.DrawItemOnBitmap(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
-var
-	noFlickerBm : Vcl.Graphics.TBitmap;
-begin
-	noFlickerBm := Vcl.Graphics.TBitmap.Create();
-	try
-		noFlickerBm.Width := Rect.Right - Rect.Left;
-		noFlickerBm.Height := Rect.Bottom - Rect.Top;
-		DrawItemOnCanvas(noFlickerBm.Canvas, Rect, Item, State);
-		Sender.Canvas.Draw(Rect.Left, Rect.Top, noFlickerBm);
-	finally
-		noFlickerBm.Free;
-	end;
 end;
 
 procedure TRipGrepperForm.DrawItemOnCanvas(_Canvas : TCanvas; _Rect : TRect; _Item : TListItem; _State : TOwnerDrawState);
