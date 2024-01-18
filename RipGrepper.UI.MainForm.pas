@@ -195,7 +195,7 @@ const
 	LISTVIEW_TYPE_TEXTS : TArray<string> = ['List', 'Icon', 'Report', 'SmallIcon'];
 
 var
-	Form1 : TRipGrepperForm;
+	RipGrepperForm : TRipGrepperForm;
 
 implementation
 

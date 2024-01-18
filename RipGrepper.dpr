@@ -17,14 +17,15 @@ uses
   RipGrepper.Helper.Types in 'RipGrepper.Helper.Types.pas',
   RipGrepper.Common.Interfaces in 'RipGrepper.Common.Interfaces.pas',
   dpipes in 'external\dpipes.pas',
-  dprocess in 'external\dprocess.pas';
+  dprocess in 'external\dprocess.pas',
+  RipGrepper.UI.SearchForm in 'RipGrepper.UI.SearchForm.pas' {SearchDialogForm};
 
 {$R *.res}
 
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
-  Application.CreateForm(TRipGrepperForm, Form1);
+  Application.CreateForm(TRipGrepperForm, RipGrepperForm);
   Application.Run;
 end.
 

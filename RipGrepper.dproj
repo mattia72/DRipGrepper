@@ -117,6 +117,10 @@
         <DCCReference Include="RipGrepper.Common.Interfaces.pas"/>
         <DCCReference Include="external\dpipes.pas"/>
         <DCCReference Include="external\dprocess.pas"/>
+        <DCCReference Include="RipGrepper.UI.SearchForm.pas">
+            <Form>SearchDialogForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

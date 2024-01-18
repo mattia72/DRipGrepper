@@ -22,6 +22,10 @@ type
     btnCancel: TButton;
     ActionList1: TActionList;
     ImageList1: TImageList;
+    ActionList: TActionList;
+    ActionSearch: TAction;
+    ActionCancel: TAction;
+    ActionConfig: TAction;
   private
     { Private-Deklarationen }
   public
