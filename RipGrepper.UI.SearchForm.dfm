@@ -22,9 +22,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitLeft = -180
-    ExplicitTop = 0
-    ExplicitWidth = 779
+    ExplicitWidth = 678
     ExplicitHeight = 159
     DesignSize = (
       684
@@ -38,7 +36,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       Align = alClient
       Caption = 'Search'
       TabOrder = 2
-      ExplicitWidth = 773
+      ExplicitWidth = 672
       ExplicitHeight = 153
       DesignSize = (
         678
@@ -75,6 +73,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
         Text = 'cmbSearchDir'
+        ExplicitWidth = 537
       end
       object cmbSearchDir: TComboBox
         Left = 84
@@ -84,6 +83,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 1
         Text = 'cmbSearchDir'
+        ExplicitWidth = 537
       end
       object cmbSearchText: TComboBox
         Left = 84
@@ -93,6 +93,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 2
         Text = 'cmbSearchDir'
+        ExplicitWidth = 537
       end
     end
     object btnConfig: TButton
@@ -108,7 +109,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       ParentShowHint = False
       ShowHint = True
       TabOrder = 0
-      ExplicitLeft = 731
+      ExplicitLeft = 630
     end
     object btnSearch: TButton
       AlignWithMargins = True
@@ -120,7 +121,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       Anchors = [akTop, akRight]
       Default = True
       TabOrder = 1
-      ExplicitLeft = 608
+      ExplicitLeft = 507
     end
     object btnCancel: TButton
       AlignWithMargins = True
@@ -132,7 +133,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       Anchors = [akTop, akRight]
       Cancel = True
       TabOrder = 3
-      ExplicitLeft = 689
+      ExplicitLeft = 588
     end
   end
   object ActionList1: TActionList
@@ -299,9 +300,9 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       ShortCut = 16465
     end
     object ActionConfig: TAction
-      Caption = 'ActionConfig'
       Hint = 'Config'
       ImageIndex = 0
+      OnExecute = ActionConfigExecute
     end
   end
 end

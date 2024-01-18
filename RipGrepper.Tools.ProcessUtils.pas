@@ -9,6 +9,20 @@ uses
 	RipGrepper.Common.Interfaces;
 
 type
+	TSimpleProcessOutputStringReader = class(TInterfacedObject, INewLineEventHandler)
+		procedure OnNewOutputLine(const _sLine : string; _bIsLast : Boolean = False);
+
+		private
+			FOutputText : TStrings;
+			function GetOutputText : TStrings;
+
+		public
+			constructor Create;
+			destructor Destroy; override;
+			class procedure RunProcess(const _exe : string; _args : TStrings; _workDir : string; out _stdOut : TStrings); overload;
+			property OutputText : TStrings read GetOutputText;
+	end;
+
 	TProcessUtils = class(TObject)
 		private
 			class procedure BuffToLine(const _sBuf : ansistring; const _iCnt : integer; var sLineOut : string;
@@ -28,7 +42,8 @@ type
 			class function RunProcess(const _exe : string; _args : TStrings; _workDir : string;
 				{ } _newLIneHandler : INewLineEventHandler;
 				{ } _terminateEventProducer : ITerminateEventProducer;
-				{ } _eofProcHandler : IEOFProcessEventHandler) : Integer;
+				{ } _eofProcHandler : IEOFProcessEventHandler) : Integer; overload;
+			class procedure RunProcess(const _exe : string; _args : TStrings; _workDir : string; out _stdOut : TStrings); overload;
 			class function RunProcessAsync(const _exe : string; const _args : TStrings; const _workDir : string;
 				{ } _newLineHandler : INewLineEventHandler;
 				{ } _terminateEventProducer : ITerminateEventProducer;
@@ -124,7 +139,7 @@ begin
 	SetLength(sBuf, BUFF_LENGTH);
 
 	repeat
-		if (_terminateEventProducer.ProcessShouldTerminate()) then begin
+		if (Assigned(_terminateEventProducer) and _terminateEventProducer.ProcessShouldTerminate()) then begin
 			TDebugUtils.DebugMessage('Process should terminate');
 			break
 		end;
@@ -141,7 +156,9 @@ begin
 	// if sLineOut <> '' then begin
 	NewLineEventHandler(_newLineHandler, sLineOut, True);
 	// end;
-	_eofProcHandler.OnEOFProcess();
+	if (Assigned(_eofProcHandler)) then begin
+		_eofProcHandler.OnEOFProcess();
+	end;
 end;
 
 class function TProcessUtils.RunProcess(const _exe : string; _args : TStrings;
@@ -167,7 +184,7 @@ begin
 
 		ProcessOutput(p.Output, _newLIneHandler, _terminateEventProducer, _eofProcHandler);
 
-		if (_terminateEventProducer.ProcessShouldTerminate()) then begin
+		if (Assigned(_terminateEventProducer) and _terminateEventProducer.ProcessShouldTerminate()) then begin
 			Result := IfThen(p.Terminate(PROCESS_TERMINATE), ERROR_CANCELLED, 1);
 			TDebugUtils.DebugMessage(Format('Process should terminate returned: %s', [Result.ToString, True]));
 		end else begin
@@ -179,6 +196,18 @@ begin
 		end;
 	finally
 		FreeAndNil(p);
+	end;
+end;
+
+class procedure TProcessUtils.RunProcess(const _exe : string; _args : TStrings; _workDir : string; out _stdOut : TStrings);
+begin
+
+	var
+	sor := TSimpleProcessOutputStringReader.Create;
+	try
+
+	finally
+		sor.Free;
 	end;
 end;
 
@@ -198,6 +227,39 @@ begin
 				end);
 		end);
 	Result := task.Status = TTAskStatus.Running;
+end;
+
+constructor TSimpleProcessOutputStringReader.Create;
+begin
+	inherited;
+	FOutputText := TStringList.Create;
+end;
+
+destructor TSimpleProcessOutputStringReader.Destroy;
+begin
+	FOutputText.Free;
+	inherited;
+end;
+
+function TSimpleProcessOutputStringReader.GetOutputText : TStrings;
+begin
+	Result := FOutputText;
+end;
+
+procedure TSimpleProcessOutputStringReader.OnNewOutputLine(const _sLine : string; _bIsLast : Boolean = False);
+begin
+	FOutputText.Add(_sLine);
+end;
+
+class procedure TSimpleProcessOutputStringReader.RunProcess(const _exe : string; _args : TStrings; _workDir : string;
+out _stdOut : TStrings);
+var
+	spor : TSimpleProcessOutputStringReader;
+begin
+	spor := TSimpleProcessOutputStringReader.Create; // It will be freed... How?
+	TProcessUtils.RunProcess(_exe, _args, _workDir, spor as INewLineEventHandler, nil, nil);
+	_stdOut.Clear;
+	_stdOut.Assign(spor.OutputText);
 end;
 
 end.

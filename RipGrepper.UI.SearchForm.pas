@@ -11,7 +11,6 @@ uses
 	Vcl.Graphics,
 	Vcl.Controls,
 	Vcl.Forms,
-	Vcl.Dialogs,
 	Vcl.StdCtrls,
 	Vcl.ExtCtrls,
 	System.ImageList,
@@ -39,7 +38,8 @@ type
 		ActionSearch : TAction;
 		ActionCancel : TAction;
 		ActionConfig : TAction;
-		procedure ActionSearchExecute(Sender: TObject);
+		procedure ActionConfigExecute(Sender : TObject);
+		procedure ActionSearchExecute(Sender : TObject);
 		procedure FormClose(Sender : TObject; var Action : TCloseAction);
 		procedure FormShow(Sender : TObject);
 
@@ -51,7 +51,7 @@ type
 
 			{ Private-Deklarationen }
 		public
-			constructor Create(AOwner: TComponent; const _pSettings: PRipGrepperSettings); reintroduce; virtual;
+			constructor Create(AOwner : TComponent; const _pSettings : PRipGrepperSettings); reintroduce; virtual;
 			{ Public-Deklarationen }
 	end;
 
@@ -61,21 +61,37 @@ var
 implementation
 
 uses
-	RipGrepper.Helper.UI;
+	RipGrepper.Helper.UI,
+	RipGrepper.Tools.ProcessUtils,
+	Vcl.Dialogs;
 
 {$R *.dfm}
 
-constructor TRipGrepperSearchDialogForm.Create(AOwner: TComponent; const _pSettings: PRipGrepperSettings);
+constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _pSettings : PRipGrepperSettings);
 begin
 	inherited Create(AOwner);
-    FPSettings := _pSettings;
+	FPSettings := _pSettings;
 end;
 
-procedure TRipGrepperSearchDialogForm.ActionSearchExecute(Sender: TObject);
+procedure TRipGrepperSearchDialogForm.ActionConfigExecute(Sender : TObject);
+var
+	sl : TStrings;
+begin
+	sl := TStringList.Create();
+	sl.Add('-help');
+	try
+		TSimpleProcessOutputStringReader.RunProcess(FPSettings^.RipGrepPath, sl, '.', sl);
+		MessageDlg(sl.Text, TMsgDlgType.mtInformation, [mbOk], 0);
+	finally
+		sl.Free;
+	end;
+end;
+
+procedure TRipGrepperSearchDialogForm.ActionSearchExecute(Sender : TObject);
 begin
 	StoreHistories();
-    StoreSearchSettings();
-    ModalREsult := mrOk;
+	StoreSearchSettings();
+	ModalREsult := mrOk;
 end;
 
 procedure TRipGrepperSearchDialogForm.FormClose(Sender : TObject; var Action : TCloseAction);
@@ -85,9 +101,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.FormShow(Sender : TObject);
 begin
-	if not FPSettings^.IsLoaded then begin
-		LoadSettings;
-	end;
+	LoadSettings;
 end;
 
 procedure TRipGrepperSearchDialogForm.LoadSettings;

@@ -681,7 +681,7 @@ begin
 					s := s.TrimLeft;
 				end;
 			end else begin
-				s := _Item.SubItems[i - 1];
+				s := _Item.SubItems[i - 1]; //Row, Col
 				if (s = '-1') then
 					s := '';
 			end;
