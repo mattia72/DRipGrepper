@@ -23,8 +23,10 @@ type
 			ShowFileIcon : Boolean;
 			AlternateRowColors : Boolean;
 			IndentLines : Boolean;
+			IsLoaded : Boolean;
 
 		private
+			procedure InitSettings;
 			procedure LoadHistoryEntries(var _list : TStrings; const _section : string);
 			procedure StoreHistoryEntries(const _list : TStrings; const _section : string);
 
@@ -44,7 +46,45 @@ uses
 	System.StrUtils,
 	RipGrepper.Common.Types,
 	RipGrepper.Helper.Types,
-	RipGrepper.Tools.DebugTools;
+	RipGrepper.Tools.DebugTools,
+	RipGrepper.Tools.FileUtils,
+	Vcl.Dialogs,
+	System.IOUtils,
+	Winapi.Windows,
+	System.UITypes;
+
+procedure TRipGrepperSettings.InitSettings;
+var
+	rgExists : Boolean;
+	rgPath : string;
+	scoopInstall : string;
+begin
+	if RipGrepPath.IsEmpty or (not FileExists(RipGrepPath)) then begin
+		rgExists := TFileUtils.FindExecutable('rg.exe', rgPath);
+		if not rgExists then begin
+			MessageDlg('rg.exe not found', mtError, [mbOk], 0);
+			Application.Terminate();
+		end;
+		scoopInstall := TPath.Combine(GetEnvironmentVariable('SCOOP'), 'apps\ripgrep\current\rg.exe');
+		if FileExists(scoopInstall) then begin
+			rgPath := scoopInstall;
+		end;
+
+		RipGrepPath := rgPath.Trim();
+	end;
+
+	if SearchPaths.Count = 0 then begin
+		SearchPaths.Add(TDirectory.GetCurrentDirectory());
+	end;
+
+	if SearchTexts.Count = 0 then begin
+		SearchTexts.Add('search text');
+	end;
+
+	if RipGrepParams.Count = 0 then begin
+		RipGrepParams.Add('');
+	end;
+end;
 
 procedure TRipGrepperSettings.LoadHistoryEntries(var _list : TStrings; const _section : string);
 begin
@@ -69,7 +109,6 @@ end;
 class operator TRipGrepperSettings.Initialize(out Dest : TRipGrepperSettings);
 begin
 	Dest.SettingsFile := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
-
 	Dest.RipGrepPath := '';
 	Dest.ShowRelativePath := False;
 	Dest.ShowFileIcon := False;
@@ -78,7 +117,7 @@ begin
 	Dest.SearchPaths := TStringList.Create;
 	Dest.SearchTexts := TStringList.Create;
 	Dest.RipGrepParams := TStringList.Create;
-
+	Dest.IsLoaded := False;
 end;
 
 procedure TRipGrepperSettings.Load;
@@ -93,17 +132,20 @@ begin
 	LoadHistoryEntries(SearchPaths, 'SearchPathsHistory');
 	LoadHistoryEntries(SearchTexts, 'SearchTextsHistory');
 	LoadHistoryEntries(RipGrepParams, 'RipGrepParamsHistory');
+
+	InitSettings;
+	IsLoaded := True;
 end;
 
 procedure TRipGrepperSettings.Store;
 begin
-	SettingsFile.WriteString('RipGrepSettings', 'Path', RipGrepPath);
-
-	StoreViewSettings();
-
-	StoreHistoryEntries(SearchPaths, 'SearchPathsHistory');
-	StoreHistoryEntries(SearchTexts, 'SearchTextsHistory');
-	StoreHistoryEntries(RipGrepParams, 'RipGrepParamsHistory');
+	if IsLoaded then begin
+		SettingsFile.WriteString('RipGrepSettings', 'Path', RipGrepPath);
+		StoreViewSettings();
+		StoreHistoryEntries(SearchPaths, 'SearchPathsHistory');
+		StoreHistoryEntries(SearchTexts, 'SearchTextsHistory');
+		StoreHistoryEntries(RipGrepParams, 'RipGrepParamsHistory');
+	end;
 end;
 
 procedure TRipGrepperSettings.StoreViewSettings(const _s : string = '');

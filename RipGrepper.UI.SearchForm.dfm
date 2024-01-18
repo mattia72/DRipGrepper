@@ -10,6 +10,8 @@ object SearchDialogForm: TSearchDialogForm
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
+  OnClose = FormClose
+  OnShow = FormShow
   TextHeight = 15
   object pnlSearch: TPanel
     AlignWithMargins = True
@@ -104,6 +106,7 @@ object SearchDialogForm: TSearchDialogForm
       Action = ActionConfig
       Anchors = [akTop, akRight]
       ImageAlignment = iaCenter
+      Images = ImageList1
       ParentShowHint = False
       ShowHint = True
       TabOrder = 0

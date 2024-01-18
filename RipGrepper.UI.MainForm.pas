@@ -148,7 +148,6 @@ type
 			function GetAppNameAndVersion(const _exePath : string) : string;
 			function GetSortingImageIndex(const _idx : Integer) : Integer;
 			function GetViewStyleIndex : Integer;
-			procedure InitSettings;
 			procedure InitStatusBar;
 			procedure LoadSettings;
 			function BuildCmdLine : string;
@@ -512,39 +511,6 @@ begin
 	Result := (FViewStyleIndex mod Length(LISTVIEW_TYPES));
 end;
 
-procedure TRipGrepperForm.InitSettings;
-var
-	rgExists : Boolean;
-	rgPath : string;
-	scoopInstall : string;
-begin
-	if FSettings.RipGrepPath.IsEmpty or (not FileExists(FSettings.RipGrepPath)) then begin
-		rgExists := TFileUtils.FindExecutable('rg.exe', rgPath);
-		if not rgExists then begin
-			MessageDlg('rg.exe not found', mtError, [mbOk], 0);
-			Application.Terminate();
-		end;
-		scoopInstall := TPath.Combine(GetEnvironmentVariable('SCOOP'), 'apps\ripgrep\current\rg.exe');
-		if FileExists(scoopInstall) then begin
-			rgPath := scoopInstall;
-		end;
-
-		FSettings.RipGrepPath := rgPath.Trim();
-	end;
-
-	if FSettings.SearchPaths.Count = 0 then begin
-		FSettings.SearchPaths.Add(TDirectory.GetCurrentDirectory());
-	end;
-
-	if FSettings.SearchTexts.Count = 0 then begin
-		FSettings.SearchTexts.Add('search text');
-	end;
-
-	if FSettings.RipGrepParams.Count = 0 then begin
-		FSettings.RipGrepParams.Add('');
-	end;
-end;
-
 procedure TRipGrepperForm.InitStatusBar;
 begin
 	SetStatusBarMessage();
@@ -554,7 +520,6 @@ end;
 procedure TRipGrepperForm.LoadSettings;
 begin
 	FSettings.Load;
-	InitSettings;
 	cmbSearchDir.Items.Assign(FSettings.SearchPaths);
 	LoadBeforeSearchSettings();
 	cmbSearchDir.ItemIndex := 0;
