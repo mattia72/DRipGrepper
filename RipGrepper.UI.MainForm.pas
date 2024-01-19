@@ -120,7 +120,7 @@ type
 			FExeVersion : string;
 			FMaxWidths : TArray<integer>;
 			FFileNameType : TFileNameType;
-			FLineNr : Integer;
+
 			FRgExeVersion : string;
 			FSearchPathIsDir : Boolean;
 			FSettings : TRipGrepperSettings;
@@ -146,6 +146,7 @@ type
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
 			function GetIconBitmap(const sFileName : string) : Vcl.Graphics.TBitmap;
 			procedure InitColumnSortTypes;
+			procedure InitSearch;
 			procedure LoadBeforeSearchSettings;
 			procedure RunRipGrep;
 			procedure SetStatusBarMessage(const _iRipGrepResultOk : Integer = 0);
@@ -153,7 +154,6 @@ type
 			procedure UpdateSortingImages(const _sbtArr : TArray<TSortByType>);
 			property ViewStyleIndex : Integer read GetViewStyleIndex;
 
-		protected
 		public
 			constructor Create(_settings : TRipGrepperSettings); reintroduce; overload;
 			constructor Create(AOwner : TComponent); overload; override;
@@ -161,22 +161,13 @@ type
 			procedure CopyToClipboardPathOfSelected;
 			class function CreateAndShow(const _settings : TRipGrepperSettings) : string;
 			// INewLineEventHandler
-			procedure OnNewOutputLine(const _sLine : string; _bIsLast : Boolean = False);
+			procedure OnNewOutputLine(const _iLineNr : integer; const _sLine : string; _bIsLast : Boolean = False);
 			// ITerminateEventProducer
 			function ProcessShouldTerminate : boolean;
 			// IEOFProcessEventHandler
 			procedure OnEOFProcess();
 
-		const
-			EXE_AND_VERSION_FORMAT = '%s   ';
-			PNL_STATTS_IDX = 0;
-			PNL_STATUS_IDX = 1;
-			PNL_MESSAGE_IDX = 2;
 	end;
-
-const
-	LISTVIEW_TYPES : TArray<TViewStyle> = [vsList, vsIcon, vsReport, vsSmallIcon];
-	LISTVIEW_TYPE_TEXTS : TArray<string> = ['List', 'Icon', 'Report', 'SmallIcon'];
 
 var
 	RipGrepperForm : TRipGrepperForm;
@@ -199,7 +190,8 @@ uses
 	Winapi.ShellAPI,
 	Winapi.CommCtrl,
 	System.StrUtils,
-	RipGrepper.UI.SearchForm, RipGrepper.Data.Parsers;
+	RipGrepper.UI.SearchForm,
+	RipGrepper.Data.Parsers;
 
 {$R *.dfm}
 
@@ -216,7 +208,6 @@ begin
 	FExeVersion := GetAppNameAndVersion(Application.ExeName);
 	InitColumnSortTypes;
 	FFileNameType := ftAbsolute;
-	FLineNr := 0;
 	UpdateSortingImages([sbtFile, sbtRow]);
 	ListViewResult.InitMaxWidths(FMaxWidths);
 end;
@@ -341,15 +332,7 @@ var
 	cursor : TCursorSaver;
 begin
 	cursor.SetHourGlassCursor;
-	ClearData;
-	FswSearchStart := TStopwatch.Create();
-	FMeassureFirstDrawEvent := True;
-	InitStatusBar;
-	InitColumnSortTypes;
-	UpdateSortingImages([sbtFile, sbtRow]);
-	ListViewResult.Repaint();
-	LoadBeforeSearchSettings();
-	TItemInserter.AddToListBoxIfNotContains(ListBoxSearchHistory, FSettings.ActualSearchText, FData);
+	InitSearch();
 	DoSearch();
 end;
 
@@ -443,6 +426,7 @@ begin
 	LoadSettings;
 	SetStatusBarMessage();
 	FRgExeVersion := GetAppNameAndVersion(FSettings.RipGrepPath);
+
 end;
 
 function TRipGrepperForm.GetAppNameAndVersion(const _exePath : string) : string;
@@ -511,42 +495,61 @@ end;
 procedure TRipGrepperForm.OnEOFProcess;
 begin
 	TDebugUtils.DebugMessage(Format('End of processing rg.exe output in %s sec.', [GetElapsedTime(FswSearchStart)]));
+
 end;
 
-procedure TRipGrepperForm.OnNewOutputLine(const _sLine : string; _bIsLast : Boolean = False);
+procedure TRipGrepperForm.OnNewOutputLine(const _iLineNr : integer; const _sLine : string; _bIsLast : Boolean = False);
 var
 	newItem : IRipGrepMatchLineGroup;
 begin
+	if _bIsLast then begin
+		TDebugUtils.DebugMessage(Format('Last line (%d.) received in %s sec.', [_iLineNr, GetElapsedTime(FswSearchStart)]));
+	end;
+
+	if (_iLineNr >= RG_PROCESSING_LINE_COUNT_LIMIT) then begin
+		if _iLineNr = RG_PROCESSING_LINE_COUNT_LIMIT then begin
+			MessageDlg(Format('Too many results.' + CRLF + 'The first %d will be shown. Try to be more specific.',
+				[_iLineNr, RG_PROCESSING_LINE_COUNT_LIMIT]), TMsgDlgType.mtWarning, [mbOk], 0);
+		end else begin
+			Exit;
+		end;
+	end;
+
 	TTask.Run(
 		procedure
 		begin
-			if (not _sLine.IsEmpty) then begin
-				newItem := TRipGrepMatchLine.Create();
-				case FFileNameType of
-					ftAbsolute, ftRelative : begin
-						newItem.ParseLine(PostInc(FLineNr), _sLine, _bIsLast);
+			try
+				if (not _sLine.IsEmpty) then begin
+					newItem := TRipGrepMatchLine.Create();
+					case FFileNameType of
+						ftAbsolute, ftRelative : begin
+							newItem.ParseLine(_iLineNr, _sLine, _bIsLast);
+						end;
 					end;
 				end;
-			end;
 
-			TThread.Synchronize(nil,
-				procedure
-				begin
-					if (not _sLine.IsEmpty) then
-						FData.Add(newItem);
-					if ((FLineNr mod DRAW_RESULT_ON_EVERY_LINE_COUNT) = 0) or _bIsLast then begin
-						// virtual listview! Items count should be updated
-						ListViewResult.Items.Count := FData.TotalMatchCount;
-						SetStatusBarStatistic(Format('%d matches in %d files', [FData.TotalMatchCount, FData.FileCount]));
-						ListBoxSearchHistory.Refresh;
-						ListViewResult.AdjustColumnWidths(FMaxWidths);
-					end;
-				end);
+				TThread.Synchronize(nil,
+					procedure
+					begin
+						if (not _sLine.IsEmpty) then
+							FData.Add(newItem);
+						if ((_iLineNr mod DRAW_RESULT_ON_EVERY_LINE_COUNT) = 0) or _bIsLast then begin
+							// virtual listview! Items count should be updated
+							ListViewResult.Items.Count := FData.TotalMatchCount;
+							SetStatusBarStatistic(Format('%d matches in %d files', [FData.TotalMatchCount, FData.FileCount]));
+							ListBoxSearchHistory.Refresh;
+							ListViewResult.AdjustColumnWidths(FMaxWidths);
+						end;
+					end);
+			except
+				on e : EOutOfMemory do begin
+					TDebugUtils.DebugMessage(Format('Exception %s ' + CRLF + 'on line %d', [E.Message, _iLineNr]));
+					MessageDlg(Format(E.Message + CRLF + 'Too many results. Try to be more specific', [_iLineNr]), TMsgDlgType.mtError,
+						[mbOk], 0);
+				end;
+			end;
 		end);
 
-	if _bIsLast then begin
-		TDebugUtils.DebugMessage(Format('Last line received in %s sec.', [GetElapsedTime(FswSearchStart)]));
-	end;
 end;
 
 function TRipGrepperForm.BuildCmdLine : string;
@@ -665,7 +668,7 @@ begin
 					s := s.TrimLeft;
 				end;
 			end else begin
-				s := _Item.SubItems[i - 1]; //Row, Col
+				s := _Item.SubItems[i - 1]; // Row, Col
 				if (s = '-1') then
 					s := '';
 			end;
@@ -705,6 +708,19 @@ begin
 	end;
 end;
 
+procedure TRipGrepperForm.InitSearch;
+begin
+	ClearData;
+	FswSearchStart := TStopwatch.Create();
+	FMeassureFirstDrawEvent := True;
+	InitStatusBar;
+	InitColumnSortTypes;
+	UpdateSortingImages([sbtFile, sbtRow]);
+	ListViewResult.Repaint();
+	LoadBeforeSearchSettings();
+	TItemInserter.AddToListBoxIfNotContains(ListBoxSearchHistory, FSettings.ActualSearchText, FData);
+end;
+
 procedure TRipGrepperForm.ListBoxSearchHistoryDrawItem(Control : TWinControl; index : Integer; Rect : TRect; State : TOwnerDrawState);
 var
 	c2ndRowTop : Integer;
@@ -718,17 +734,18 @@ begin
 	cnv := lb.Canvas;
 	cnv.SetSelectedColors(State);
 
-	c2ndRowTop := cnv.TextHeight(SAllAlphaNumericChars);
+	c2ndRowTop := lb.ItemHeight div 2; // cnv.TextHeight(ALL_ALPHANUMERIC_CHARS);
 	cMatchesLeft := 20;
 	r2ndRow := Rect;
 	r2ndRow.Offset(0, c2ndRowTop);
 
-	cnv.FillRect(TRect.Union(Rect, r2ndRow));
+	cnv.FillRect(Rect);
 	cnv.TextOut(Rect.Left + 1, Rect.Top + 1, lb.Items[index]);
-	cnv.TextOut(Rect.Left + 1, Rect.Top + c2ndRowTop, '�');
 
+	cnv.TextOut(Rect.Left + 1, Rect.Top + c2ndRowTop, '*');
 	data := lb.Items.Objects[index] as TRipGrepperData;
 	cnv.TextOut(Rect.Left + cMatchesLeft, Rect.Top + c2ndRowTop, Format('(%d in %d)', [data.TotalMatchCount, data.FileCount]))
+
 end;
 
 procedure TRipGrepperForm.ListViewResultDrawItem(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
@@ -795,11 +812,11 @@ end;
 
 procedure TRipGrepperForm.SetStatusBarStatistic(const _s : string);
 begin
-	TThread.Synchronize(nil,
-		procedure
-		begin
-			FStatusBarStatistic := _s;
-		end);
+	// TThread.Synchronize(nil,
+	// procedure
+	// begin
+	FStatusBarStatistic := _s;
+	// end);
 end;
 
 procedure TRipGrepperForm.UpdateSortingImages(const _sbtArr : TArray<TSortByType>);

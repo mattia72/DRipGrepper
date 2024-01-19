@@ -10,7 +10,7 @@ uses
 
 type
 	TSimpleProcessOutputStringReader = class(TInterfacedObject, INewLineEventHandler)
-		procedure OnNewOutputLine(const _sLine : string; _bIsLast : Boolean = False);
+		procedure OnNewOutputLine(const _iLineNr : integer; const _sLine : string; _bIsLast : Boolean = False);
 
 		private
 			FOutputText : TStrings;
@@ -25,6 +25,8 @@ type
 
 	TProcessUtils = class(TObject)
 		private
+			class var FProcessedLineCount : Integer;
+
 			class procedure BuffToLine(const _sBuf : ansistring; const _iCnt : integer; var sLineOut : string;
 				_newLineHandler : INewLineEventHandler);
 			class procedure GoToNextCRLF(var P : PAnsiChar; const PEndVal : PAnsiChar);
@@ -72,8 +74,13 @@ end;
 
 class procedure TProcessUtils.NewLineEventHandler(_obj : INewLineEventHandler; const _s : string; const _bIsLast : Boolean = False);
 begin
-	if Assigned(_obj) then begin
-		_obj.OnNewOutputLine(_s, _bIsLast);
+	if (AtomicIncrement(FProcessedLineCount) <= RG_PROCESSING_LINE_COUNT_LIMIT) then begin
+		if Assigned(_obj) then begin
+			_obj.OnNewOutputLine(FProcessedLineCount, _s, _bIsLast);
+		end;
+	end else begin
+		if FProcessedLineCount = RG_PROCESSING_LINE_COUNT_LIMIT + 1 then
+			TDebugUtils.DebugMessage(Format('Too many results: %d', [FProcessedLineCount]));
 	end;
 end;
 
@@ -131,27 +138,28 @@ class procedure TProcessUtils.ProcessOutput(const _s : TStream;
 	{ } _terminateEventProducer : ITerminateEventProducer;
 	{ } _eofProcHandler : IEOFProcessEventHandler);
 var
-	sBuf : ansistring;
-	iCnt : integer;
+	sBuff : ansistring;
+	iBuffLength : integer;
 	sLineOut : string;
 begin
+	FProcessedLineCount := 0;
 	{ Now process the output }
-	SetLength(sBuf, BUFF_LENGTH);
+	SetLength(sBuff, BUFF_LENGTH);
 
 	repeat
 		if (Assigned(_terminateEventProducer) and _terminateEventProducer.ProcessShouldTerminate()) then begin
 			TDebugUtils.DebugMessage('Process should terminate');
 			break
 		end;
-		iCnt := 0;
+		iBuffLength := 0;
 		if (_s <> nil) then begin
 			// L505 todo: try this when using unicodestring buffer
 			// Count := _s.Output.Read(pchar(Buf)^, BUFF_LENGTH);
-			iCnt := _s.Read(sBuf[1], Length(sBuf));
+			iBuffLength := _s.Read(sBuff[1], Length(sBuff));
 		end;
 
-		BuffToLine(sBuf, iCnt, sLineOut, _newLineHandler);
-	until iCnt = 0;
+		BuffToLine(sBuff, iBuffLength, sLineOut, _newLineHandler);
+	until iBuffLength = 0;
 
 	// if sLineOut <> '' then begin
 	NewLineEventHandler(_newLineHandler, sLineOut, True);
@@ -244,7 +252,7 @@ begin
 	Result := FOutputText;
 end;
 
-procedure TSimpleProcessOutputStringReader.OnNewOutputLine(const _sLine : string; _bIsLast : Boolean = False);
+procedure TSimpleProcessOutputStringReader.OnNewOutputLine(const _iLineNr : integer; const _sLine : string; _bIsLast : Boolean = False);
 begin
 	FOutputText.Add(_sLine);
 end;

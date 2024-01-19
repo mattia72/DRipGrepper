@@ -1061,10 +1061,6 @@ object RipGrepperForm: TRipGrepperForm
     BevelOuter = bvNone
     Caption = 'panelMain'
     TabOrder = 0
-    ExplicitLeft = 0
-    ExplicitTop = 165
-    ExplicitWidth = 773
-    ExplicitHeight = 287
     object ImageFileIcon: TImage
       Left = 480
       Top = -32
@@ -1082,7 +1078,6 @@ object RipGrepperForm: TRipGrepperForm
       Images = ImageListButtons
       Indent = 5
       TabOrder = 0
-      ExplicitWidth = 767
       object tbView: TToolButton
         Left = 5
         Top = 0
@@ -1165,13 +1160,11 @@ object RipGrepperForm: TRipGrepperForm
       OpenedWidth = 760
       Placement = svpLeft
       TabOrder = 1
-      ExplicitHeight = 253
       object Splitter1: TSplitter
         Left = 157
         Top = 0
         Height = 422
         Align = alRight
-        ExplicitHeight = 262
       end
       object PanelHistory: TPanel
         Left = 0
@@ -1182,7 +1175,6 @@ object RipGrepperForm: TRipGrepperForm
         Anchors = [akLeft, akTop, akBottom]
         Caption = 'PanelHistory'
         TabOrder = 0
-        ExplicitHeight = 253
         object ListBoxSearchHistory: TListBox
           AlignWithMargins = True
           Left = 4
@@ -1191,7 +1183,7 @@ object RipGrepperForm: TRipGrepperForm
           Height = 414
           Style = lbOwnerDrawVariable
           Align = alClient
-          ItemHeight = 15
+          ItemHeight = 30
           TabOrder = 0
           OnDrawItem = ListBoxSearchHistoryDrawItem
         end
@@ -1205,7 +1197,6 @@ object RipGrepperForm: TRipGrepperForm
         Anchors = [akLeft, akTop, akRight, akBottom]
         Caption = 'PanelResult'
         TabOrder = 1
-        ExplicitHeight = 253
         object ListViewResult: TListView
           AlignWithMargins = True
           Left = 4
@@ -1216,18 +1207,18 @@ object RipGrepperForm: TRipGrepperForm
           Color = clHighlightText
           Columns = <
             item
-              AutoSize = True
               Caption = 'File'
               ImageIndex = 3
-              WidthType = (
-                -12)
+              Width = 200
             end
             item
               Caption = 'Row'
               ImageIndex = 3
+              Width = 65
             end
             item
               Caption = 'Col'
+              Width = 65
             end
             item
               Caption = 'Match'
@@ -1259,7 +1250,6 @@ object RipGrepperForm: TRipGrepperForm
           OnColumnClick = ListViewResultColumnClick
           OnData = ListViewResultData
           OnDrawItem = ListViewResultDrawItem
-          ExplicitHeight = 254
         end
       end
     end
@@ -1273,8 +1263,6 @@ object RipGrepperForm: TRipGrepperForm
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 1
-    ExplicitTop = 452
-    ExplicitWidth = 773
     object StatusBar1: TStatusBar
       AlignWithMargins = True
       Left = 3
@@ -1296,7 +1284,6 @@ object RipGrepperForm: TRipGrepperForm
           Text = 'RipGrepper v1.0.0      '
           Width = 150
         end>
-      ExplicitWidth = 767
     end
   end
   object ImageListButtons: TImageList

@@ -8,25 +8,25 @@ uses
 	RipGrepper.Common.Types,
 	RipGrepper.Common.Interfaces,
 	System.RegularExpressions,
-	Vcl.ComCtrls;
+	Vcl.ComCtrls,
+	ArrayHelper;
 
 type
 
 	TRipGrepperMatchCollection = TList<IRipGrepMatchLineGroup>;
 
-	TSortByType = (sbtFile, sbtRow, sbtCol, sbtText);
-
 	TRipGrepperData = class
 		Matches : TRipGrepperMatchCollection;
 		MatchFiles : TStringList;
 		ItemGroups : TStringList;
-		SortedBy : TList<TSortByType>;
+		SortedBy : TSortTypeDirectionList;
 
 		private
 			FGrouping : Boolean;
 			function GetTotalMatchCount : Integer;
 			function GetFileCount : Integer;
 			procedure PutIntoGroup(const _idx : Integer; _lv : TListView; _item : TListItem);
+			procedure SortByType(const _sbt : TSortByType; const _st : TSortDirectionType);
 
 		public
 			constructor Create;
@@ -59,7 +59,6 @@ begin
 	ItemGroups := TStringList.Create(TDuplicates.dupIgnore, True, True);
 	MatchFiles := TStringList.Create(TDuplicates.dupIgnore, True, True);
 	Matches := TRipGrepperMatchCollection.Create;
-	SortedBy := TList<TSortByType>.Create;
 end;
 
 destructor TRipGrepperData.Destroy;
@@ -68,7 +67,6 @@ begin
 	ItemGroups.Free;
 	MatchFiles.Free;
 	Matches.Free;
-	SortedBy.Free;
 end;
 
 procedure TRipGrepperData.Add(const _item : IRipGrepMatchLineGroup);
@@ -88,7 +86,7 @@ procedure TRipGrepperData.DataToGrid(const _index : Integer; _lv : TListView; _i
 var
 	fn : string;
 begin
-	PutIntoGroup(_index, _lv, _item);
+	// (_index, _lv, _item);
 	fn := Matches[_index].FileName;
 	if Matches[_index].IsError then begin
 		_item.Caption := ' ' + fn;
@@ -135,17 +133,14 @@ end;
 procedure TRipGrepperData.SortBy(const _sbt : TSortByType; const _st : TSortDirectionType);
 begin
 	if _st <> stUnsorted then begin
-		case _sbt of
-			sbtFile : begin
-				SortByFileName(_st = stDescending);
-			end;
-			sbtRow : begin
-				SortByRow(_st = stDescending);
-			end;
+		for var sbt in SortedBy.Items do begin
+			if (sbt.SortType <> _sbt) then
+				SortByType(sbt.SortType, sbt.Direction);
 		end;
+		SortByType(_sbt, _st);
 	end else begin
 		SortByLineNr(_st = stDescending);
-		SortedBy.Remove(_sbt);
+		SortedBy.Delete(_sbt);
 	end;
 end;
 
@@ -160,7 +155,8 @@ begin
 				Result := TComparer<string>.Default.Compare(Left.FileName, Right.FileName);
 			end;
 		end));
-	SortedBy.Add(sbtFile);
+	SortedBy.Delete(sbtFile);
+	SortedBy.Items.Add(TSortTypeDirection.New(sbtFile, _bDescending));
 end;
 
 procedure TRipGrepperData.SortByRow(_bDescending : Boolean = False);
@@ -175,7 +171,8 @@ begin
 			end;
 
 		end));
-	SortedBy.Add(sbtRow);
+	SortedBy.Delete(sbtRow);
+	SortedBy.Items.Add(TSortTypeDirection.New(sbtRow, _bDescending));
 end;
 
 procedure TRipGrepperData.SortByLineNr(_bDescending : Boolean = False);
@@ -189,7 +186,19 @@ begin
 				Result := TComparer<integer>.Default.Compare(Left.LineNr, Right.LineNr);
 			end;
 		end));
-	SortedBy.Clear;
+	SortedBy.Items.Clear;
+end;
+
+procedure TRipGrepperData.SortByType(const _sbt : TSortByType; const _st : TSortDirectionType);
+begin
+	case _sbt of
+		sbtFile : begin
+			SortByFileName(_st = stDescending);
+		end;
+		sbtRow : begin
+			SortByRow(_st = stDescending);
+		end;
+	end;
 end;
 
 end.
