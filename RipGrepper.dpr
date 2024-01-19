@@ -20,7 +20,8 @@ uses
   dprocess in 'external\dprocess.pas',
   RipGrepper.UI.SearchForm in 'RipGrepper.UI.SearchForm.pas' {RipGrepperSearchDialogForm},
   ArrayHelper in 'external\ArrayHelper.pas',
-  RipGrepper.Data.Parsers in 'RipGrepper.Data.Parsers.pas';
+  RipGrepper.Data.Parsers in 'RipGrepper.Data.Parsers.pas',
+  RipGrepper.Common.Sorter in 'RipGrepper.Common.Sorter.pas';
 
 {$R *.res}
 

@@ -29,7 +29,7 @@ uses
 	System.Actions,
 	System.Threading,
 	Vcl.WinXCtrls,
-	System.Diagnostics;
+	System.Diagnostics, RipGrepper.Common.Sorter;
 
 type
 	TRipGrepperForm = class(TForm, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
@@ -120,7 +120,6 @@ type
 			FExeVersion : string;
 			FMaxWidths : TArray<integer>;
 			FFileNameType : TFileNameType;
-
 			FRgExeVersion : string;
 			FSearchPathIsDir : Boolean;
 			FSettings : TRipGrepperSettings;

@@ -3,7 +3,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
   Top = 0
   Caption = 'RipGrepper Search...'
   ClientHeight = 174
-  ClientWidth = 690
+  ClientWidth = 538
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,7 +17,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     AlignWithMargins = True
     Left = 3
     Top = 3
-    Width = 684
+    Width = 532
     Height = 168
     Align = alClient
     BevelOuter = bvNone
@@ -25,21 +25,21 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     ExplicitWidth = 678
     ExplicitHeight = 159
     DesignSize = (
-      684
+      532
       168)
     object gbSearch: TGroupBox
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 678
+      Width = 526
       Height = 162
       Align = alClient
       Caption = 'Search'
-      TabOrder = 2
+      TabOrder = 0
       ExplicitWidth = 672
       ExplicitHeight = 153
       DesignSize = (
-        678
+        526
         162)
       object lblParams: TLabel
         AlignWithMargins = True
@@ -68,37 +68,37 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       object cmbParameters: TComboBox
         Left = 84
         Top = 82
-        Width = 543
-        Height = 23
-        Anchors = [akLeft, akTop, akRight]
-        TabOrder = 0
-        Text = 'cmbSearchDir'
-        ExplicitWidth = 537
-      end
-      object cmbSearchDir: TComboBox
-        Left = 84
-        Top = 24
-        Width = 543
-        Height = 23
-        Anchors = [akLeft, akTop, akRight]
-        TabOrder = 1
-        Text = 'cmbSearchDir'
-        ExplicitWidth = 537
-      end
-      object cmbSearchText: TComboBox
-        Left = 84
-        Top = 53
-        Width = 543
+        Width = 391
         Height = 23
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 2
         Text = 'cmbSearchDir'
         ExplicitWidth = 537
       end
+      object cmbSearchDir: TComboBox
+        Left = 84
+        Top = 24
+        Width = 391
+        Height = 23
+        Anchors = [akLeft, akTop, akRight]
+        TabOrder = 0
+        Text = 'cmbSearchDir'
+        ExplicitWidth = 537
+      end
+      object cmbSearchText: TComboBox
+        Left = 84
+        Top = 53
+        Width = 391
+        Height = 23
+        Anchors = [akLeft, akTop, akRight]
+        TabOrder = 1
+        Text = 'cmbSearchDir'
+        ExplicitWidth = 537
+      end
     end
     object btnConfig: TButton
       AlignWithMargins = True
-      Left = 636
+      Left = 484
       Top = 85
       Width = 26
       Height = 24
@@ -108,41 +108,41 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       Images = ImageList1
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 0
+      TabOrder = 2
       ExplicitLeft = 630
     end
     object btnSearch: TButton
       AlignWithMargins = True
-      Left = 513
+      Left = 361
       Top = 122
       Width = 75
       Height = 21
       Action = ActionSearch
       Anchors = [akTop, akRight]
       Default = True
-      TabOrder = 1
+      TabOrder = 3
       ExplicitLeft = 507
     end
     object btnCancel: TButton
       AlignWithMargins = True
-      Left = 594
+      Left = 442
       Top = 122
       Width = 75
       Height = 21
       Action = ActionCancel
       Anchors = [akTop, akRight]
       Cancel = True
-      TabOrder = 3
+      TabOrder = 1
       ExplicitLeft = 588
     end
   end
   object ActionList1: TActionList
     Images = ImageList1
-    Left = 328
+    Left = 192
     Top = 120
   end
   object ImageList1: TImageList
-    Left = 424
+    Left = 256
     Top = 120
     Bitmap = {
       494C010101000800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
@@ -286,8 +286,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
   end
   object ActionList: TActionList
     Images = ImageList1
-    Left = 120
-    Top = 130
+    Left = 96
+    Top = 122
     object ActionSearch: TAction
       Caption = 'Search'
       ImageIndex = 10

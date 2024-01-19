@@ -5,7 +5,7 @@ interface
 uses
 	System.Classes,
 	Vcl.ComCtrls,
-	ArrayHelper;
+	ArrayHelper, System.Generics.Defaults;
 
 const
 
@@ -57,52 +57,10 @@ type
 	TParserType = (ptRipGrepSearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
 	TFileNameType = (ftAbsolute, ftRelative);
 
-	TSortDirectionType = (stUnsorted, stAscending, stDescending);
-	TSortByType = (sbtFile, sbtRow, sbtCol, sbtText);
-
-	TSortTypeDirection = record
-		SortType : TSortByType;
-		Direction : TSortDirectionType;
-		class function New(const _sbt : TSortByType; const _st : TSortDirectionType) : TSortTypeDirection; overload; static;
-		class function New(const _sbt : TSortByType; const _bDescending : Boolean = False) : TSortTypeDirection; overload; static;
-	end;
-
-	TSortTypeDirectionList = record
-		Items : TArrayRecord<TSortTypeDirection>;
-		procedure Delete(const _sbt : TSortByType);
-	end;
 
 implementation
 
 uses
 	System.SysUtils;
-
-procedure TSortTypeDirectionList.Delete(const _sbt : TSortByType);
-begin
-	var
-	i := Items.Find(
-		function(const val : TSortTypeDirection) : boolean
-		begin
-			Result := val.SortType = _sbt;
-		end, 0);
-	if i >= 0 then
-		Items.Delete(i);
-end;
-
-class function TSortTypeDirection.New(const _sbt : TSortByType; const _st : TSortDirectionType) : TSortTypeDirection;
-begin
-	Result.SortType := _sbt;
-	Result.Direction := _st;
-end;
-
-class function TSortTypeDirection.New(const _sbt : TSortByType; const _bDescending : Boolean = False) : TSortTypeDirection;
-begin
-	Result.SortType := _sbt;
-	if _bDescending then begin
-		Result.Direction := stDescending;
-	end else begin
-		Result.Direction := stAscending;
-	end;
-end;
 
 end.

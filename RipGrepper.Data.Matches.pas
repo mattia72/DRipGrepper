@@ -9,7 +9,9 @@ uses
 	RipGrepper.Common.Interfaces,
 	System.RegularExpressions,
 	Vcl.ComCtrls,
-	ArrayHelper;
+	ArrayHelper,
+	System.Generics.Defaults,
+	RipGrepper.Common.Sorter;
 
 type
 
@@ -26,7 +28,8 @@ type
 			function GetTotalMatchCount : Integer;
 			function GetFileCount : Integer;
 			procedure PutIntoGroup(const _idx : Integer; _lv : TListView; _item : TListItem);
-			procedure SortByType(const _sbt : TSortByType; const _st : TSortDirectionType);
+			function GetComparer(const _sbt : TSortByType) : IComparer<IRipGrepMatchLineGroup>;
+			procedure SortMultiColumns(const _st : TSortDirectionType);
 
 		public
 			constructor Create;
@@ -35,9 +38,6 @@ type
 			procedure Clear;
 			procedure DataToGrid(const _index : Integer; _lv : TListView; _item : TListItem);
 			procedure SortBy(const _sbt : TSortByType; const _st : TSortDirectionType);
-			procedure SortByFileName(_bDescending : Boolean = False);
-			procedure SortByRow(_bDescending : Boolean = False);
-			procedure SortByLineNr(_bDescending : Boolean = False);
 			property TotalMatchCount : Integer read GetTotalMatchCount;
 			property FileCount : Integer read GetFileCount;
 			property Grouping : Boolean read FGrouping write FGrouping;
@@ -47,7 +47,7 @@ implementation
 
 uses
 	System.SysUtils,
-	System.Generics.Defaults,
+
 	System.IOUtils,
 	Vcl.Dialogs,
 	RipGrepper.Tools.DebugTools,
@@ -133,71 +133,78 @@ end;
 procedure TRipGrepperData.SortBy(const _sbt : TSortByType; const _st : TSortDirectionType);
 begin
 	if _st <> stUnsorted then begin
-		for var sbt in SortedBy.Items do begin
-			if (sbt.SortType <> _sbt) then
-				SortByType(sbt.SortType, sbt.Direction);
-		end;
-		SortByType(_sbt, _st);
+		SortedBy.MoveToStart(_sbt, _st);
+		SortMultiColumns(_st);
 	end else begin
-		SortByLineNr(_st = stDescending);
 		SortedBy.Delete(_sbt);
+		SortMultiColumns(_st);
 	end;
 end;
 
-procedure TRipGrepperData.SortByFileName(_bDescending : Boolean = False);
-begin
-	Matches.Sort(TComparer<IRipGrepMatchLineGroup>.Construct(
-		function(const Left, Right : IRipGrepMatchLineGroup) : Integer
-		begin
-			if _bDescending then begin
-				Result := -TComparer<string>.Default.Compare(Left.FileName, Right.FileName);
-			end else begin
-				Result := TComparer<string>.Default.Compare(Left.FileName, Right.FileName);
-			end;
-		end));
-	SortedBy.Delete(sbtFile);
-	SortedBy.Items.Add(TSortTypeDirection.New(sbtFile, _bDescending));
-end;
-
-procedure TRipGrepperData.SortByRow(_bDescending : Boolean = False);
-begin
-	Matches.Sort(TComparer<IRipGrepMatchLineGroup>.Construct(
-		function(const Left, Right : IRipGrepMatchLineGroup) : Integer
-		begin
-			if _bDescending then begin
-				Result := -TComparer<integer>.Default.Compare(Left.Row, Right.Row);
-			end else begin
-				Result := TComparer<integer>.Default.Compare(Left.Row, Right.Row);
-			end;
-
-		end));
-	SortedBy.Delete(sbtRow);
-	SortedBy.Items.Add(TSortTypeDirection.New(sbtRow, _bDescending));
-end;
-
-procedure TRipGrepperData.SortByLineNr(_bDescending : Boolean = False);
-begin
-	Matches.Sort(TComparer<IRipGrepMatchLineGroup>.Construct(
-		function(const Left, Right : IRipGrepMatchLineGroup) : Integer
-		begin
-			if _bDescending then begin
-				Result := -TComparer<integer>.Default.Compare(Left.LineNr, Right.LineNr);
-			end else begin
-				Result := TComparer<integer>.Default.Compare(Left.LineNr, Right.LineNr);
-			end;
-		end));
-	SortedBy.Items.Clear;
-end;
-
-procedure TRipGrepperData.SortByType(const _sbt : TSortByType; const _st : TSortDirectionType);
+function TRipGrepperData.GetComparer(const _sbt : TSortByType) : IComparer<IRipGrepMatchLineGroup>;
 begin
 	case _sbt of
+		sbtText : begin
+			Result := TComparer<IRipGrepMatchLineGroup>.Construct(
+				function(const Left, Right : IRipGrepMatchLineGroup) : Integer
+				begin
+					Result := TComparer<string>.Default.Compare(Left.Text, Right.Text);
+				end);
+		end;
 		sbtFile : begin
-			SortByFileName(_st = stDescending);
+			Result := TComparer<IRipGrepMatchLineGroup>.Construct(
+				function(const Left, Right : IRipGrepMatchLineGroup) : Integer
+				begin
+					Result := TComparer<string>.Default.Compare(Left.FileName, Right.FileName);
+				end);
 		end;
 		sbtRow : begin
-			SortByRow(_st = stDescending);
+			Result := TComparer<IRipGrepMatchLineGroup>.Construct(
+				function(const Left, Right : IRipGrepMatchLineGroup) : Integer
+				begin
+					Result := TComparer<integer>.Default.Compare(Left.Row, Right.Row);
+				end);
 		end;
+		sbtCol : begin
+			Result := TComparer<IRipGrepMatchLineGroup>.Construct(
+				function(const Left, Right : IRipGrepMatchLineGroup) : Integer
+				begin
+					Result := TComparer<integer>.Default.Compare(Left.Col, Right.Col);
+				end);
+		end;
+		sbtLineNr : begin
+			Result := TComparer<IRipGrepMatchLineGroup>.Construct(
+				function(const Left, Right : IRipGrepMatchLineGroup) : Integer
+				begin
+					Result := TComparer<integer>.Default.Compare(Left.LineNr, Right.LineNr);
+				end);
+		end;
+	end;
+end;
+
+procedure TRipGrepperData.SortMultiColumns(const _st : TSortDirectionType);
+var
+	criterion : TSortCriterion<IRipGrepMatchLineGroup>;
+	lineComparer : TSortCriteriaComparer<IRipGrepMatchLineGroup>;
+begin
+	lineComparer := TSortCriteriaComparer<IRipGrepMatchLineGroup>.Create;
+	try
+		if (SortedBy.Items.Count > 0) then begin
+			for var i := 0 to SortedBy.Items.Count - 1 do begin
+				criterion := TSortCriterion<IRipGrepMatchLineGroup>.Create;
+				criterion.Ascending := _st = stAscending;
+				criterion.Comparer := GetComparer(SortedBy.Items[i].Column);
+				lineComparer.AddCriterion(criterion);
+			end;
+		end else begin
+			criterion := TSortCriterion<IRipGrepMatchLineGroup>.Create;
+			criterion.Ascending := _st = stAscending;
+			criterion.Comparer := GetComparer(sbtLineNr);
+			lineComparer.AddCriterion(criterion);
+		end;
+		Matches.Sort(lineComparer);
+	finally
+		lineComparer.Free;
 	end;
 end;
 
