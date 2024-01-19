@@ -28,6 +28,7 @@ const
 	LV_IMAGE_IDX_OK = 0;
 	LV_IMAGE_IDX_ERROR = 1;
 	LV_IMAGE_IDX_INFO = 2;
+
 	SAllAlphaNumericChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890';
 
 	RG_NECESSARY_PARAMS : TArray<string> = ['--vimgrep', '--line-buffered' // ,// some big search couldn't be catched without this

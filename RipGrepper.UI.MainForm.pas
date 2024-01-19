@@ -116,7 +116,7 @@ type
 
 		private
 			FswSearchStart : TStopwatch;
-			FData : TRipGrepOutput;
+			FData : TRipGrepperData;
 			FExeVersion : string;
 			FMaxWidths : TArray<integer>;
 			FFileNameType : TFileNameType;
@@ -212,7 +212,7 @@ end;
 constructor TRipGrepperForm.Create(AOwner : TComponent);
 begin
 	inherited Create(AOwner);
-	FData := TRipGrepOutput.Create();
+	FData := TRipGrepperData.Create();
 	FExeVersion := GetAppNameAndVersion(Application.ExeName);
 	InitColumnSortTypes;
 	FFileNameType := ftAbsolute;
@@ -710,7 +710,7 @@ var
 	c2ndRowTop : Integer;
 	cMatchesLeft : Integer;
 	cnv : TCanvas;
-	data : TRipGrepOutput;
+	data : TRipGrepperData;
 	lb : TListBox;
 	r2ndRow : TRect;
 begin
@@ -727,7 +727,7 @@ begin
 	cnv.TextOut(Rect.Left + 1, Rect.Top + 1, lb.Items[index]);
 	cnv.TextOut(Rect.Left + 1, Rect.Top + c2ndRowTop, '�');
 
-	data := lb.Items.Objects[index] as TRipGrepOutput;
+	data := lb.Items.Objects[index] as TRipGrepperData;
 	cnv.TextOut(Rect.Left + cMatchesLeft, Rect.Top + c2ndRowTop, Format('(%d in %d)', [data.TotalMatchCount, data.FileCount]))
 end;
 

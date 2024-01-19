@@ -16,7 +16,7 @@ type
 
 	TSortByType = (sbtFile, sbtRow, sbtCol, sbtText);
 
-	TRipGrepOutput = class
+	TRipGrepperData = class
 		Matches : TRipGrepperMatchCollection;
 		MatchFiles : TStringList;
 		ItemGroups : TStringList;
@@ -53,7 +53,7 @@ uses
 	RipGrepper.Tools.DebugTools,
 	RipGrepper.Helper.Types;
 
-constructor TRipGrepOutput.Create;
+constructor TRipGrepperData.Create;
 begin
 	inherited;
 	ItemGroups := TStringList.Create(TDuplicates.dupIgnore, True, True);
@@ -62,7 +62,7 @@ begin
 	SortedBy := TList<TSortByType>.Create;
 end;
 
-destructor TRipGrepOutput.Destroy;
+destructor TRipGrepperData.Destroy;
 begin
 	inherited;
 	ItemGroups.Free;
@@ -71,20 +71,20 @@ begin
 	SortedBy.Free;
 end;
 
-procedure TRipGrepOutput.Add(const _item : IRipGrepMatchLineGroup);
+procedure TRipGrepperData.Add(const _item : IRipGrepMatchLineGroup);
 begin
 	Matches.Add(_item);
 	MatchFiles.Add(_item.FileName);
 end;
 
-procedure TRipGrepOutput.Clear;
+procedure TRipGrepperData.Clear;
 begin
 	Matches.Clear;
 	ItemGroups.Clear;
 	MatchFiles.Clear;
 end;
 
-procedure TRipGrepOutput.DataToGrid(const _index : Integer; _lv : TListView; _item : TListItem);
+procedure TRipGrepperData.DataToGrid(const _index : Integer; _lv : TListView; _item : TListItem);
 var
 	fn : string;
 begin
@@ -102,17 +102,17 @@ begin
 	_item.SubItems.Add(Matches[_index].Text);
 end;
 
-function TRipGrepOutput.GetTotalMatchCount : Integer;
+function TRipGrepperData.GetTotalMatchCount : Integer;
 begin
 	Result := Matches.Count;
 end;
 
-function TRipGrepOutput.GetFileCount : Integer;
+function TRipGrepperData.GetFileCount : Integer;
 begin
 	Result := MatchFiles.Count;
 end;
 
-procedure TRipGrepOutput.PutIntoGroup(const _idx : Integer; _lv : TListView; _item : TListItem);
+procedure TRipGrepperData.PutIntoGroup(const _idx : Integer; _lv : TListView; _item : TListItem);
 begin
 	if not Grouping then
 		Exit;
@@ -132,7 +132,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepOutput.SortBy(const _sbt : TSortByType; const _st : TSortDirectionType);
+procedure TRipGrepperData.SortBy(const _sbt : TSortByType; const _st : TSortDirectionType);
 begin
 	if _st <> stUnsorted then begin
 		case _sbt of
@@ -149,7 +149,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepOutput.SortByFileName(_bDescending : Boolean = False);
+procedure TRipGrepperData.SortByFileName(_bDescending : Boolean = False);
 begin
 	Matches.Sort(TComparer<IRipGrepMatchLineGroup>.Construct(
 		function(const Left, Right : IRipGrepMatchLineGroup) : Integer
@@ -163,7 +163,7 @@ begin
 	SortedBy.Add(sbtFile);
 end;
 
-procedure TRipGrepOutput.SortByRow(_bDescending : Boolean = False);
+procedure TRipGrepperData.SortByRow(_bDescending : Boolean = False);
 begin
 	Matches.Sort(TComparer<IRipGrepMatchLineGroup>.Construct(
 		function(const Left, Right : IRipGrepMatchLineGroup) : Integer
@@ -178,7 +178,7 @@ begin
 	SortedBy.Add(sbtRow);
 end;
 
-procedure TRipGrepOutput.SortByLineNr(_bDescending : Boolean = False);
+procedure TRipGrepperData.SortByLineNr(_bDescending : Boolean = False);
 begin
 	Matches.Sort(TComparer<IRipGrepMatchLineGroup>.Construct(
 		function(const Left, Right : IRipGrepMatchLineGroup) : Integer
