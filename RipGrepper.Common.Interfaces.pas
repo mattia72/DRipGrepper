@@ -4,7 +4,8 @@ interface
 
 uses
 	System.RegularExpressions,
-	RipGrepper.Common.Types;
+	RipGrepper.Common.Types,
+	ArrayHelper;
 
 type
 
@@ -46,7 +47,6 @@ type
 		procedure SetParserType(const Value : TParserType);
 
 		procedure ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False);
-
 		property LineParseRegex : TRegex read GetLineParseRegex write SetLineParseRegex;
 		property ParserType : TParserType read GetParserType write SetParserType;
 	end;
@@ -76,6 +76,26 @@ type
 	end;
 
 	{$M-}
+
+	TRipGrepMatchLineCollection = TArrayREcord<IRipGrepMatchLine>;
+	TRipGrepMatchLineGroupCollection = TArrayREcord<IRipGrepMatchLineGroup>;
+
+	IHistoryItem = interface(IInterface)
+		['{C95F78AF-4011-460F-8721-5C3D7FC682D7}']
+		function GetFileCount: integer;
+		function GetMatches: TRipGrepMatchLineCollection;
+		function GetRipGrepArguments: TArrayRecord<string>;
+		function GetTotalMatchCount: integer;
+		procedure SetFileCount(const Value: integer);
+		procedure SetMatches(const Value: TRipGrepMatchLineCollection);
+		procedure SetRipGrepArguments(const Value: TArrayRecord<string>);
+		procedure SetTotalMatchCount(const Value: integer);
+
+		property Matches: TRipGrepMatchLineCollection read GetMatches write SetMatches;
+		property RipGrepArguments: TArrayRecord<string> read GetRipGrepArguments write SetRipGrepArguments;
+		property FileCount: integer read GetFileCount write SetFileCount;
+		property TotalMatchCount: integer read GetTotalMatchCount write SetTotalMatchCount;
+	end;
 
 implementation
 

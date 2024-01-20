@@ -7,7 +7,9 @@ uses
 	Vcl.ComCtrls,
 	Vcl.Graphics,
 	Vcl.StdCtrls,
-	System.Types;
+	System.Types,
+	System.Classes,
+	RipGrepper.Common.Interfaces;
 // Winapi.Messages;
 
 type
@@ -15,7 +17,6 @@ type
 		strict private
 			FOldCursor : TCursor;
 
-		private
 		public
 			procedure ChangeTo(NewCursor : TCursor);
 			constructor Create(NewCursor : TCursor);
@@ -47,6 +48,8 @@ type
 		procedure InitMaxWidths(var _arrMaxWidths : TArray<Integer>);
 		procedure SetAlteringColors(Item : TListItem);
 		procedure SetSelectedColors(State : TOwnerDrawState);
+
+		private
 	end;
 
 	TCanvasHelper = class Helper for Vcl.Graphics.TCanvas
@@ -56,14 +59,22 @@ type
 
 	TItemInserter = class
 		class procedure AddToCmbIfNotContains(_cmb : TComboBox);
-		class procedure AddToListBoxIfNotContains(_lb : TListBox; const _s : string; _val : TObject);
+		class function AddToListBoxIfNotContains(_lb : TListBox; const _s : string; _val : TObject) : Integer;
 	end;
 
 	TItemDrawer = class
+		class procedure DrawItemOnBitmap(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
+	end;
+
+	TListViewGrouper = class
 
 		private
+			Grouping : Boolean;
+			ItemGroups : TStrings;
+			Matches : TRipGrepMatchLineGroupCollection;
+
 		public
-			class procedure DrawItemOnBitmap(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
+			procedure PutIntoGroup(const _idx : Integer; _lv : TListView; _item : TListItem);
 	end;
 
 implementation
@@ -72,7 +83,6 @@ uses
 	Vcl.Forms,
 	Winapi.Windows,
 	Winapi.CommCtrl,
-	System.Classes,
 	RipGrepper.Helper.Types;
 
 procedure TListViewHelper.AdjustColumnWidths(var _MaxWidths : TArray<Integer>);
@@ -256,7 +266,7 @@ begin
 	end;
 end;
 
-class procedure TItemInserter.AddToListBoxIfNotContains(_lb : TListBox; const _s : string; _val : TObject);
+class function TItemInserter.AddToListBoxIfNotContains(_lb : TListBox; const _s : string; _val : TObject) : Integer;
 var
 	idxval : Integer;
 	val : string;
@@ -264,13 +274,14 @@ begin
 	val := _s;
 	if not _lb.Items.Contains(val) then begin
 		_lb.Items.InsertObject(0, val, _val);
+		idxval := _lb.Items.Count - 1;
 	end else begin
 		idxval := _lb.Items.IndexOf(val);
 		_lb.Items.Delete(idxval);
 		_lb.Items.InsertObject(0, val, _val);
 		_lb.ItemIndex := 0;
 	end;
-
+	Result := idxval;
 end;
 
 class procedure TItemDrawer.DrawItemOnBitmap(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
@@ -285,6 +296,26 @@ begin
 		Sender.Canvas.Draw(Rect.Left, Rect.Top, noFlickerBm);
 	finally
 		noFlickerBm.Free;
+	end;
+end;
+
+procedure TListViewGrouper.PutIntoGroup(const _idx : Integer; _lv : TListView; _item : TListItem);
+begin
+	if not Grouping then
+		Exit;
+
+	if ItemGroups.Contains(Matches[_idx].FileName) then begin
+		_item.GroupID := Matches[_idx].GroupID;
+	end else begin
+		var
+		Group := _lv.Groups.Add;
+		Group.State := [lgsNormal, lgsCollapsible];
+		Group.Header := Matches[_idx].FileName;
+		var
+		match := Matches[_idx];
+		match.GroupID := Group.GroupID;
+		Matches[_idx] := match;
+		ItemGroups.Add(Matches[_idx].FileName);
 	end;
 end;
 

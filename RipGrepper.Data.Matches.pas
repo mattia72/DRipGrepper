@@ -15,20 +15,15 @@ uses
 
 type
 
-	TRipGrepperMatchCollection = TList<IRipGrepMatchLineGroup>;
-
 	TRipGrepperData = class
-		Matches : TRipGrepperMatchCollection;
+		Matches : TRipGrepMatchLineCollection;
 		MatchFiles : TStringList;
-		ItemGroups : TStringList;
 		SortedBy : TSortTypeDirectionList;
 
 		private
-			FGrouping : Boolean;
 			function GetTotalMatchCount : Integer;
 			function GetFileCount : Integer;
-			procedure PutIntoGroup(const _idx : Integer; _lv : TListView; _item : TListItem);
-			function GetComparer(const _sbt : TSortByType) : IComparer<IRipGrepMatchLineGroup>;
+			function GetComparer(const _sbt : TSortByType): IComparer<IRipGrepMatchLine>;
 			procedure SortMultiColumns(const _st : TSortDirectionType);
 
 		public
@@ -40,8 +35,9 @@ type
 			procedure SortBy(const _sbt : TSortByType; const _st : TSortDirectionType);
 			property TotalMatchCount : Integer read GetTotalMatchCount;
 			property FileCount : Integer read GetFileCount;
-			property Grouping : Boolean read FGrouping write FGrouping;
 	end;
+
+
 
 implementation
 
@@ -56,17 +52,13 @@ uses
 constructor TRipGrepperData.Create;
 begin
 	inherited;
-	ItemGroups := TStringList.Create(TDuplicates.dupIgnore, True, True);
 	MatchFiles := TStringList.Create(TDuplicates.dupIgnore, True, True);
-	Matches := TRipGrepperMatchCollection.Create;
 end;
 
 destructor TRipGrepperData.Destroy;
 begin
 	inherited;
-	ItemGroups.Free;
 	MatchFiles.Free;
-	Matches.Free;
 end;
 
 procedure TRipGrepperData.Add(const _item : IRipGrepMatchLineGroup);
@@ -78,7 +70,6 @@ end;
 procedure TRipGrepperData.Clear;
 begin
 	Matches.Clear;
-	ItemGroups.Clear;
 	MatchFiles.Clear;
 end;
 
@@ -110,26 +101,6 @@ begin
 	Result := MatchFiles.Count;
 end;
 
-procedure TRipGrepperData.PutIntoGroup(const _idx : Integer; _lv : TListView; _item : TListItem);
-begin
-	if not Grouping then
-		Exit;
-
-	if ItemGroups.Contains(Matches[_idx].FileName) then begin
-		_item.GroupID := Matches[_idx].GroupID;
-	end else begin
-		var
-		Group := _lv.Groups.Add;
-		Group.State := [lgsNormal, lgsCollapsible];
-		Group.Header := Matches[_idx].FileName;
-		var
-		match := Matches[_idx];
-		match.GroupID := Group.GroupID;
-		Matches[_idx] := match;
-		ItemGroups.Add(Matches[_idx].FileName);
-	end;
-end;
-
 procedure TRipGrepperData.SortBy(const _sbt : TSortByType; const _st : TSortDirectionType);
 begin
 	if _st <> stUnsorted then begin
@@ -141,40 +112,40 @@ begin
 	end;
 end;
 
-function TRipGrepperData.GetComparer(const _sbt : TSortByType) : IComparer<IRipGrepMatchLineGroup>;
+function TRipGrepperData.GetComparer(const _sbt : TSortByType) : IComparer<IRipGrepMatchLine>;
 begin
 	case _sbt of
 		sbtText : begin
-			Result := TComparer<IRipGrepMatchLineGroup>.Construct(
-				function(const Left, Right : IRipGrepMatchLineGroup) : Integer
+			Result := TComparer<IRipGrepMatchLine>.Construct(
+				function(const Left, Right : IRipGrepMatchLine) : Integer
 				begin
 					Result := TComparer<string>.Default.Compare(Left.Text, Right.Text);
 				end);
 		end;
 		sbtFile : begin
-			Result := TComparer<IRipGrepMatchLineGroup>.Construct(
-				function(const Left, Right : IRipGrepMatchLineGroup) : Integer
+			Result := TComparer<IRipGrepMatchLine>.Construct(
+				function(const Left, Right : IRipGrepMatchLine) : Integer
 				begin
 					Result := TComparer<string>.Default.Compare(Left.FileName, Right.FileName);
 				end);
 		end;
 		sbtRow : begin
-			Result := TComparer<IRipGrepMatchLineGroup>.Construct(
-				function(const Left, Right : IRipGrepMatchLineGroup) : Integer
+			Result := TComparer<IRipGrepMatchLine>.Construct(
+				function(const Left, Right : IRipGrepMatchLine) : Integer
 				begin
 					Result := TComparer<integer>.Default.Compare(Left.Row, Right.Row);
 				end);
 		end;
 		sbtCol : begin
-			Result := TComparer<IRipGrepMatchLineGroup>.Construct(
-				function(const Left, Right : IRipGrepMatchLineGroup) : Integer
+			Result := TComparer<IRipGrepMatchLine>.Construct(
+				function(const Left, Right : IRipGrepMatchLine) : Integer
 				begin
 					Result := TComparer<integer>.Default.Compare(Left.Col, Right.Col);
 				end);
 		end;
 		sbtLineNr : begin
-			Result := TComparer<IRipGrepMatchLineGroup>.Construct(
-				function(const Left, Right : IRipGrepMatchLineGroup) : Integer
+			Result := TComparer<IRipGrepMatchLine>.Construct(
+				function(const Left, Right : IRipGrepMatchLine) : Integer
 				begin
 					Result := TComparer<integer>.Default.Compare(Left.LineNr, Right.LineNr);
 				end);
@@ -184,20 +155,20 @@ end;
 
 procedure TRipGrepperData.SortMultiColumns(const _st : TSortDirectionType);
 var
-	criterion : TSortCriterion<IRipGrepMatchLineGroup>;
-	lineComparer : TSortCriteriaComparer<IRipGrepMatchLineGroup>;
+	criterion : TSortCriterion<IRipGrepMatchLine>;
+	lineComparer : TSortCriteriaComparer<IRipGrepMatchLine>;
 begin
-	lineComparer := TSortCriteriaComparer<IRipGrepMatchLineGroup>.Create;
+	lineComparer := TSortCriteriaComparer<IRipGrepMatchLine>.Create;
 	try
 		if (SortedBy.Items.Count > 0) then begin
 			for var i := 0 to SortedBy.Items.Count - 1 do begin
-				criterion := TSortCriterion<IRipGrepMatchLineGroup>.Create;
+				criterion := TSortCriterion<IRipGrepMatchLine>.Create;
 				criterion.Ascending := _st = stAscending;
 				criterion.Comparer := GetComparer(SortedBy.Items[i].Column);
 				lineComparer.AddCriterion(criterion);
 			end;
 		end else begin
-			criterion := TSortCriterion<IRipGrepMatchLineGroup>.Create;
+			criterion := TSortCriterion<IRipGrepMatchLine>.Create;
 			criterion.Ascending := _st = stAscending;
 			criterion.Comparer := GetComparer(sbtLineNr);
 			lineComparer.AddCriterion(criterion);

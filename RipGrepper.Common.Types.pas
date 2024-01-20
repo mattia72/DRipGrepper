@@ -5,7 +5,8 @@ interface
 uses
 	System.Classes,
 	Vcl.ComCtrls,
-	ArrayHelper, System.Generics.Defaults;
+	ArrayHelper,
+	System.Generics.Defaults;
 
 const
 
@@ -50,9 +51,6 @@ const
 	RG_MATCH_LINE_REGEX = '^(\w:)?(.+?):(\d+):(\d+):(.+)$';
 
 type
-
-	// TNewLineEventHandler = procedure(_obj : INewLineEventHandler; const _s : string);
-	// TTerminateEventProducer = function(_obj : ITerminateEventProducer) : boolean;
 
 	TParserType = (ptRipGrepSearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
 	TFileNameType = (ftAbsolute, ftRelative);
