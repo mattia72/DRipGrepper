@@ -83,7 +83,11 @@ end;
 
 function THistoryItemObject.GetTotalMatchCount : integer;
 begin
-	Result := FPMatches^.Count;
+	if Assigned(@FPMatches) then begin
+        Result := FPMatches^.Count;
+	end else begin
+		Result := 0;
+	end;
 end;
 
 procedure THistoryItemObject.SetFileCount(const Value : integer);

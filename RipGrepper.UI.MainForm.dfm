@@ -1190,6 +1190,7 @@ object RipGrepperForm: TRipGrepperForm
           Align = alClient
           ItemHeight = 30
           TabOrder = 0
+          OnClick = ListBoxSearchHistoryClick
           OnDblClick = ListBoxSearchHistoryDblClick
           OnDrawItem = ListBoxSearchHistoryDrawItem
           ExplicitHeight = 405
@@ -1975,7 +1976,6 @@ object RipGrepperForm: TRipGrepperForm
     object ActionSearch: TAction
       Caption = 'Search'
       ImageIndex = 10
-      ShortCut = 16467
       OnExecute = ActionSearchExecute
     end
     object ActionCancel: TAction
@@ -2029,7 +2029,7 @@ object RipGrepperForm: TRipGrepperForm
       OnExecute = ActionCopyPathToClipboardExecute
     end
     object ActionDoSearch: TAction
-      Caption = 'Action1'
+      Caption = 'Search...'
       Hint = 'Search...'
       ImageIndex = 8
       ShortCut = 16467
@@ -2051,7 +2051,7 @@ object RipGrepperForm: TRipGrepperForm
       OnUpdate = ActionAlternateRowColorsUpdate
     end
     object ActionAbortSearch: TAction
-      Caption = 'Action Abort Search'
+      Caption = 'Abort'
       Hint = 'Abort running search'
       ImageIndex = 9
       ShortCut = 16411
@@ -2059,7 +2059,7 @@ object RipGrepperForm: TRipGrepperForm
       OnUpdate = ActionAbortSearchUpdate
     end
     object ActionRefreshSearch: TAction
-      Caption = 'Refresh search'
+      Caption = 'Refresh'
       ImageIndex = 15
       ShortCut = 116
       OnExecute = ActionRefreshSearchExecute
