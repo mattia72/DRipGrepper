@@ -68,7 +68,7 @@ end;
 procedure TRipGrepperData.Clear;
 begin
 	if PHistObject <> nil then begin
-		PHistObject^.PMatches.Clear;
+		PHistObject^.PMatches.Clear; // Create Array :/
 	end;
 	MatchFiles.Clear;
 end;

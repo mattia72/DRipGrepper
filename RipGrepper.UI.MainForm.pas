@@ -136,7 +136,6 @@ type
 			FViewStyleIndex : Integer;
 			procedure AddNewHistoryItem;
 			procedure RenewHistoryItem;
-			procedure ClearData;
 			procedure DoSearch;
 			function GetSortingImageIndex(const _idx : Integer) : Integer;
 			function GetViewStyleIndex : Integer;
@@ -170,6 +169,7 @@ type
 			// IEOFProcessEventHandler
 			procedure OnEOFProcess();
 			procedure RefreshResultByHistoryItem;
+			procedure SetHistItemObject(_pho : PHistoryItemObject);
 
 	end;
 
@@ -404,7 +404,7 @@ var
 	pHistItem : PHistoryItemObject;
 begin
 	new(pHistItem);
-	FData.PHistObject := phistItem;
+    SetHistItemObject(pHistItem);
 	FCurrentHistoryItemIndex := TItemInserter.
 	{ } AddToListBoxIfNotContains(ListBoxSearchHistory, FSettings.ActualSearchText, TObject(pHistItem));
 end;
@@ -416,18 +416,7 @@ begin
 	pHistItem := GetHistoryObject(ListBoxSearchHistory, ListBoxSearchHistory.ItemIndex);
 	Dispose(pHistItem);
 	new(pHistItem);
-	ListBoxSearchHistory.BeginInvoke(
-		procedure
-		begin
-			FData.PHistObject := phistItem;
-		end);
-end;
-
-procedure TRipGrepperForm.ClearData;
-begin
-	ListViewResult.Items.Count := 0;
-	FData.Clear;
-	ListViewResult.Items.Clear;
+    SetHistItemObject(pHistItem);
 end;
 
 class function TRipGrepperForm.CreateAndShow(const _settings : TRipGrepperSettings) : string;
@@ -776,7 +765,7 @@ begin
 	var
 	hio := GetHistoryObject(lb, lb.ItemIndex);
 	ListViewResult.Items.Count := 0;
-	FData.PHistObject := hio;
+	SetHistItemObject(hio);
 	ListViewResult.Items.Count := hio.PMatches.Count;
 end;
 
@@ -801,6 +790,13 @@ begin
 			FswSearchStart.Stop;
 		end);
 	FRipGrepTask.Start;
+end;
+
+procedure TRipGrepperForm.SetHistItemObject(_pho : PHistoryItemObject);
+begin
+	ListBoxSearchHistory.Items.BeginUpdate;
+	FData.PHistObject := _pho;
+	ListBoxSearchHistory.Items.EndUpdate;
 end;
 
 procedure TRipGrepperForm.SetStatusBarMessage(const _iRipGrepResultOk : Integer = 0);
