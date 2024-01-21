@@ -9,7 +9,7 @@ uses
 	Vcl.StdCtrls,
 	System.Types,
 	System.Classes,
-	RipGrepper.Common.Interfaces;
+	RipGrepper.Common.Interfaces, Vcl.ExtCtrls;
 // Winapi.Messages;
 
 type
@@ -63,7 +63,9 @@ type
 	end;
 
 	TItemDrawer = class
+	public
 		class procedure DrawItemOnBitmap(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
+		class function GetIconBitmap(const sFileName : string; _img :TImage): Vcl.Graphics.TBitmap;
 	end;
 
 	TListViewGrouper = class
@@ -83,7 +85,7 @@ uses
 	Vcl.Forms,
 	Winapi.Windows,
 	Winapi.CommCtrl,
-	RipGrepper.Helper.Types;
+	RipGrepper.Helper.Types, Winapi.ShellAPI;
 
 procedure TListViewHelper.AdjustColumnWidths(var _MaxWidths : TArray<Integer>);
 begin
@@ -296,6 +298,22 @@ begin
 		Sender.Canvas.Draw(Rect.Left, Rect.Top, noFlickerBm);
 	finally
 		noFlickerBm.Free;
+	end;
+end;
+
+class function TItemDrawer.GetIconBitmap(const sFileName : string; _img :TImage): Vcl.Graphics.TBitmap;
+var
+	sfi : TSHFileInfo;
+	icon : TIcon;
+begin
+	icon := TIcon.Create;
+	try
+		SHGetFileInfo(PChar(sFileName), 0, sfi, SizeOf(TSHFileInfo), SHGFI_SMALLICON or SHGFI_ICON);
+		icon.Handle := sfi.hIcon;
+		_img.Picture.Bitmap.Assign(Icon);
+		Result := _img.Picture.Bitmap;
+	finally
+		icon.Free;
 	end;
 end;
 

@@ -125,6 +125,7 @@
         <DCCReference Include="RipGrepper.Data.Parsers.pas"/>
         <DCCReference Include="RipGrepper.Common.Sorter.pas"/>
         <DCCReference Include="RipGrepper.Data.HistoryItemObject.pas"/>
+        <DCCReference Include="RipGrepper.Helper.ListBox.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

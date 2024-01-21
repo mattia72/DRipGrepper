@@ -22,7 +22,8 @@ uses
   ArrayHelper in 'external\ArrayHelper.pas',
   RipGrepper.Data.Parsers in 'RipGrepper.Data.Parsers.pas',
   RipGrepper.Common.Sorter in 'RipGrepper.Common.Sorter.pas',
-  RipGrepper.Data.HistoryItemObject in 'RipGrepper.Data.HistoryItemObject.pas';
+  RipGrepper.Data.HistoryItemObject in 'RipGrepper.Data.HistoryItemObject.pas',
+  RipGrepper.Helper.ListBox in 'RipGrepper.Helper.ListBox.pas';
 
 {$R *.res}
 

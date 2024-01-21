@@ -13,12 +13,12 @@ const
 	CR = #13;
 	LF = #10;
 	CRLF = sLineBreak;
-	BUFF_LENGTH = 1024;
+	BUFF_LENGTH = 1024;                   //Todo: put into settings
 
 	RIPGREP_ERROR = 1;
 	RIPGREP_NO_MATCH = 2;
 
-	DRAW_RESULT_ON_EVERY_LINE_COUNT = 100;
+	DRAW_RESULT_ON_EVERY_LINE_COUNT = 100;  //Todo: put into settings
 
 	LISTVIEW_TYPES : TArray<TViewStyle> = [vsList, vsIcon, vsReport, vsSmallIcon];
 	LISTVIEW_TYPE_TEXTS : TArray<string> = ['List', 'Icon', 'Report', 'SmallIcon'];
@@ -43,7 +43,7 @@ const
 
 	ALL_ALPHANUMERIC_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890';
 
-	RG_PROCESSING_LINE_COUNT_LIMIT = 100000;
+	RG_PROCESSING_LINE_COUNT_LIMIT = 100000;    //Todo: put into settings
 	RG_NECESSARY_PARAMS : TArray<string> = ['--vimgrep', '--line-buffered' // ,// some big search couldn't be catched without this
 	// '--pretty' // TODO: parse color escape
 		];

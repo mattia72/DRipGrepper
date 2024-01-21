@@ -39,6 +39,7 @@ type
 			procedure StoreHistoryEntries(const _list : TStrings; const _section : string);
 
 		public
+			function BuildCmdLine: string;
 			procedure Load;
 			function ReBuildArguments : TStrings;
 			procedure Store;
@@ -72,6 +73,21 @@ uses
 	Winapi.Windows,
 	System.UITypes,
 	RipGrepper.Tools.ProcessUtils;
+
+function TRipGrepperSettings.BuildCmdLine: string;
+var
+	cmdLine : TStringList;
+begin
+	cmdLine := TStringList.Create();
+	try
+		cmdLine.Add(RipGrepPath);
+		cmdLine.AddStrings(ReBuildArguments);
+		cmdLine.Delimiter := ' ';
+		Result := cmdLine.DelimitedText;
+	finally
+		cmdLine.Free;
+	end;
+end;
 
 function TRipGrepperSettings.GetActualRipGrepParam : string;
 begin

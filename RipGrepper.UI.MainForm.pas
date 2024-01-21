@@ -136,19 +136,16 @@ type
 			procedure AddNewHistoryItem;
 			procedure ClearData;
 			procedure DoSearch;
-			function GetAppNameAndVersion(const _exePath : string) : string;
 			function GetSortingImageIndex(const _idx : Integer) : Integer;
 			function GetViewStyleIndex : Integer;
 			procedure InitStatusBar;
 			procedure LoadSettings;
-			function BuildCmdLine : string;
 			procedure CopyToClipboardFileOfSelected;
 			procedure DoSortOnColumn(const _sbt : TSortByType);
 			function DrawFileIcon(Canvas : TCanvas; Rect : TRect; Item : TListItem) : Vcl.Graphics.TBitmap;
 			procedure DrawItemOnCanvas(_Canvas : TCanvas; _Rect : TRect; _Item : TListItem; _State : TOwnerDrawState);
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
 			function GetHistoryObject(_lb : TListBox; const _index : Integer) : PHistoryItemObject;
-			function GetIconBitmap(const sFileName : string) : Vcl.Graphics.TBitmap;
 			procedure InitColumnSortTypes;
 			procedure InitSearch;
 			procedure LoadBeforeSearchSettings;
@@ -210,7 +207,7 @@ constructor TRipGrepperForm.Create(AOwner : TComponent);
 begin
 	inherited Create(AOwner);
 	FData := TRipGrepperData.Create();
-	FExeVersion := GetAppNameAndVersion(Application.ExeName);
+	FExeVersion := TFileUtils.GetAppNameAndVersion(Application.ExeName);
 	InitColumnSortTypes;
 	FFileNameType := ftAbsolute;
 	UpdateSortingImages([sbtFile, sbtRow]);
@@ -260,7 +257,7 @@ end;
 
 procedure TRipGrepperForm.ActionCmdLineCopyExecute(Sender : TObject);
 begin
-	ClipBoard.AsText := BuildCmdLine;
+	ClipBoard.AsText := FSettings.BuildCmdLine;
 end;
 
 procedure TRipGrepperForm.ActionConfigExecute(Sender : TObject);
@@ -441,20 +438,7 @@ procedure TRipGrepperForm.FormShow(Sender : TObject);
 begin
 	LoadSettings;
 	SetStatusBarMessage();
-	FRgExeVersion := GetAppNameAndVersion(FSettings.RipGrepPath);
-
-end;
-
-function TRipGrepperForm.GetAppNameAndVersion(const _exePath : string) : string;
-var
-	major : Cardinal;
-	minor : Cardinal;
-	build : Cardinal;
-	name : string;
-begin
-	GetProductVersion(_exePath, major, minor, build);
-	name := TPath.GetFileNameWithoutExtension(_exePath);
-	Result := Format('%s v%d.%d.%d', [name, major, minor, build]);
+	FRgExeVersion := TFileUtils.GetAppNameAndVersion(FSettings.RipGrepPath);
 end;
 
 function TRipGrepperForm.GetSortingImageIndex(const _idx : Integer) : Integer;
@@ -565,21 +549,6 @@ begin
 	end;
 end;
 
-function TRipGrepperForm.BuildCmdLine : string;
-var
-	cmdLine : TStringList;
-begin
-	cmdLine := TStringList.Create();
-	try
-		cmdLine.Add(FSettings.RipGrepPath);
-		cmdLine.AddStrings(FSettings.ReBuildArguments);
-		cmdLine.Delimiter := ' ';
-		Result := cmdLine.DelimitedText;
-	finally
-		cmdLine.Free;
-	end;
-end;
-
 procedure TRipGrepperForm.DoSortOnColumn(const _sbt : TSortByType);
 var
 	cursor : TCursorSaver;
@@ -626,9 +595,7 @@ var
 	sFileName : string;
 begin
 	sFileName := item.Caption;
-	// SHGetFileInfo(PChar(item.Caption), 0, sfi, SizeOf(sfi), SHGFI_DISPLAYNAME);
-	// item.Caption := sfi.szDisplayName;
-	bm := GetIconBitmap(sFileName);
+	bm := TItemDrawer.GetIconBitmap(sFileName, ImageFileIcon);
 	Canvas.Draw(Rect.Left + 3, Rect.Top + (Rect.Bottom - Rect.Top - bm.Height) div 2, bm);
 	Result := bm;
 end;
@@ -708,22 +675,6 @@ end;
 function TRipGrepperForm.GetHistoryObject(_lb : TListBox; const _index : Integer) : PHistoryItemObject;
 begin
 	Result := PHistoryItemObject(_lb.Items.Objects[_index]);
-end;
-
-function TRipGrepperForm.GetIconBitmap(const sFileName : string) : Vcl.Graphics.TBitmap;
-var
-	sfi : TSHFileInfo;
-	icon : TIcon;
-begin
-	icon := TIcon.Create;
-	try
-		SHGetFileInfo(PChar(sFileName), 0, sfi, SizeOf(TSHFileInfo), SHGFI_SMALLICON or SHGFI_ICON);
-		icon.Handle := sfi.hIcon;
-		ImageFileIcon.Picture.Bitmap.Assign(Icon);
-		Result := ImageFileIcon.Picture.Bitmap;
-	finally
-		icon.Free;
-	end;
 end;
 
 procedure TRipGrepperForm.InitSearch;

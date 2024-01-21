@@ -7,12 +7,14 @@ type
 		private
 		public
 			class function FindExecutable(sFileName : string; out sOutpuPath : string) : Boolean;
+			class function GetAppNameAndVersion(const _exePath : string): string;
 	end;
 
 implementation
 
 uses
-  System.SysUtils, Winapi.ShellAPI, Winapi.Windows, RipGrepper.Tools.DebugTools;
+  System.SysUtils, Winapi.ShellAPI, Winapi.Windows, RipGrepper.Tools.DebugTools,
+  System.IOUtils;
 
 class function TFileUtils.FindExecutable(sFileName : string; out sOutpuPath : string) : Boolean;
 var
@@ -32,6 +34,18 @@ begin
 
 	TDebugUtils.DebugMessage(sFileName + ' path:' + sOutpuPath);
 	// WriteDebugMessage(sOutpuPath);
+end;
+
+class function TFileUtils.GetAppNameAndVersion(const _exePath : string): string;
+var
+	major : Cardinal;
+	minor : Cardinal;
+	build : Cardinal;
+	name : string;
+begin
+	GetProductVersion(_exePath, major, minor, build);
+	name := TPath.GetFileNameWithoutExtension(_exePath);
+	Result := Format('%s v%d.%d.%d', [name, major, minor, build]);
 end;
 
 end.
