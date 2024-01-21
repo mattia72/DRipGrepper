@@ -11,19 +11,20 @@ uses
 	Vcl.ComCtrls,
 	ArrayHelper,
 	System.Generics.Defaults,
-	RipGrepper.Common.Sorter;
+	RipGrepper.Common.Sorter,
+	RipGrepper.Data.HistoryItemObject;
 
 type
 
 	TRipGrepperData = class
-		Matches : TRipGrepMatchLineCollection;
+		PHistObject : PHistoryItemObject;
 		MatchFiles : TStringList;
 		SortedBy : TSortTypeDirectionList;
 
 		private
 			function GetTotalMatchCount : Integer;
 			function GetFileCount : Integer;
-			function GetComparer(const _sbt : TSortByType): IComparer<IRipGrepMatchLine>;
+			function GetComparer(const _sbt : TSortByType) : IComparer<IRipGrepMatchLine>;
 			procedure SortMultiColumns(const _st : TSortDirectionType);
 
 		public
@@ -37,13 +38,10 @@ type
 			property FileCount : Integer read GetFileCount;
 	end;
 
-
-
 implementation
 
 uses
 	System.SysUtils,
-
 	System.IOUtils,
 	Vcl.Dialogs,
 	RipGrepper.Tools.DebugTools,
@@ -63,13 +61,15 @@ end;
 
 procedure TRipGrepperData.Add(const _item : IRipGrepMatchLineGroup);
 begin
-	Matches.Add(_item);
+	PHistObject^.PMatches.Add(_item);
 	MatchFiles.Add(_item.FileName);
 end;
 
 procedure TRipGrepperData.Clear;
 begin
-	Matches.Clear;
+	if PHistObject <> nil then begin
+		PHistObject^.PMatches.Clear;
+	end;
 	MatchFiles.Clear;
 end;
 
@@ -78,22 +78,22 @@ var
 	fn : string;
 begin
 	// (_index, _lv, _item);
-	fn := Matches[_index].FileName;
-	if Matches[_index].IsError then begin
+	fn := PHistObject.PMatches^[_index].FileName;
+	if PHistObject.PMatches^[_index].IsError then begin
 		_item.Caption := ' ' + fn;
 		_item.ImageIndex := LV_IMAGE_IDX_ERROR;
 	end else begin
 		_item.Caption := fn;
 		_item.ImageIndex := LV_IMAGE_IDX_OK;
 	end;
-	_item.SubItems.Add(Matches[_index].Row.ToString);
-	_item.SubItems.Add(Matches[_index].Col.ToString);
-	_item.SubItems.Add(Matches[_index].Text);
+	_item.SubItems.Add(PHistObject.PMatches^[_index].Row.ToString);
+	_item.SubItems.Add(PHistObject.PMatches^[_index].Col.ToString);
+	_item.SubItems.Add(PHistObject.PMatches^[_index].Text);
 end;
 
 function TRipGrepperData.GetTotalMatchCount : Integer;
 begin
-	Result := Matches.Count;
+	Result := PHistObject^.PMatches^.Count;
 end;
 
 function TRipGrepperData.GetFileCount : Integer;
@@ -173,7 +173,7 @@ begin
 			criterion.Comparer := GetComparer(sbtLineNr);
 			lineComparer.AddCriterion(criterion);
 		end;
-		Matches.Sort(lineComparer);
+		PHistObject^.PMatches^.Sort(lineComparer);
 	finally
 		lineComparer.Free;
 	end;

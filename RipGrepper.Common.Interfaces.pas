@@ -78,6 +78,7 @@ type
 	{$M-}
 
 	TRipGrepMatchLineCollection = TArrayREcord<IRipGrepMatchLine>;
+	PRipGrepMatchLineCollection = ^TRipGrepMatchLineCollection;
 	TRipGrepMatchLineGroupCollection = TArrayREcord<IRipGrepMatchLineGroup>;
 
 	IHistoryItem = interface(IInterface)

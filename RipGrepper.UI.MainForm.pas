@@ -111,6 +111,7 @@ type
 		procedure FormClose(Sender : TObject; var Action : TCloseAction);
 		procedure FormResize(Sender : TObject);
 		procedure FormShow(Sender : TObject);
+		procedure ListBoxSearchHistoryDblClick(Sender : TObject);
 		procedure ListBoxSearchHistoryDrawItem(Control : TWinControl; Index : Integer; Rect : TRect; State : TOwnerDrawState);
 		procedure ListViewResultColumnClick(Sender : TObject; Column : TListColumn);
 		procedure ListViewResultData(Sender : TObject; Item : TListItem);
@@ -134,6 +135,7 @@ type
 			FStatusBarStatistic : string;
 			FViewStyleIndex : Integer;
 			procedure AddNewHistoryItem;
+			procedure RenewHistoryItem;
 			procedure ClearData;
 			procedure DoSearch;
 			function GetSortingImageIndex(const _idx : Integer) : Integer;
@@ -142,7 +144,6 @@ type
 			procedure LoadSettings;
 			procedure CopyToClipboardFileOfSelected;
 			procedure DoSortOnColumn(const _sbt : TSortByType);
-			function DrawFileIcon(Canvas : TCanvas; Rect : TRect; Item : TListItem) : Vcl.Graphics.TBitmap;
 			procedure DrawItemOnCanvas(_Canvas : TCanvas; _Rect : TRect; _Item : TListItem; _State : TOwnerDrawState);
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
 			function GetHistoryObject(_lb : TListBox; const _index : Integer) : PHistoryItemObject;
@@ -168,6 +169,7 @@ type
 			function ProcessShouldTerminate : boolean;
 			// IEOFProcessEventHandler
 			procedure OnEOFProcess();
+			procedure RefreshResultByHistoryItem;
 
 	end;
 
@@ -193,7 +195,8 @@ uses
 	Winapi.CommCtrl,
 	System.StrUtils,
 	RipGrepper.UI.SearchForm,
-	RipGrepper.Data.Parsers;
+	RipGrepper.Data.Parsers,
+	RipGrepper.Helper.ListBox;
 
 {$R *.dfm}
 
@@ -307,8 +310,13 @@ begin
 end;
 
 procedure TRipGrepperForm.ActionRefreshSearchExecute(Sender : TObject);
+var
+	cursor : TCursorSaver;
 begin
-	ActionSearchExecute(self);
+	cursor.SetHourGlassCursor;
+	RenewHistoryItem();
+	InitSearch();
+	DoSearch();
 end;
 
 procedure TRipGrepperForm.ActionRefreshSearchUpdate(Sender : TObject);
@@ -334,6 +342,7 @@ var
 	cursor : TCursorSaver;
 begin
 	cursor.SetHourGlassCursor;
+	AddNewHistoryItem;
 	InitSearch();
 	DoSearch();
 end;
@@ -392,11 +401,26 @@ end;
 
 procedure TRipGrepperForm.AddNewHistoryItem;
 var
-	p : PHistoryItemObject;
+	pHistItem : PHistoryItemObject;
 begin
-	new(p);
+	new(pHistItem);
+	FData.PHistObject := phistItem;
 	FCurrentHistoryItemIndex := TItemInserter.
-	{ } AddToListBoxIfNotContains(ListBoxSearchHistory, FSettings.ActualSearchText, TObject(p));
+	{ } AddToListBoxIfNotContains(ListBoxSearchHistory, FSettings.ActualSearchText, TObject(pHistItem));
+end;
+
+procedure TRipGrepperForm.RenewHistoryItem;
+var
+	pHistItem : PHistoryItemObject;
+begin
+	pHistItem := GetHistoryObject(ListBoxSearchHistory, ListBoxSearchHistory.ItemIndex);
+	Dispose(pHistItem);
+	new(pHistItem);
+	ListBoxSearchHistory.BeginInvoke(
+		procedure
+		begin
+			FData.PHistObject := phistItem;
+		end);
 end;
 
 procedure TRipGrepperForm.ClearData;
@@ -429,9 +453,7 @@ end;
 
 procedure TRipGrepperForm.FormClose(Sender : TObject; var Action : TCloseAction);
 begin
-	for var I := 0 to ListBoxSearchHistory.Items.Count - 1 do
-		Dispose(PHistoryItemObject(ListBoxSearchHistory.Items.Objects[I]));
-
+	TListBoxHelper.DiposeItemObjects(ListBoxSearchHistory);
 end;
 
 procedure TRipGrepperForm.FormShow(Sender : TObject);
@@ -520,14 +542,14 @@ begin
 		begin
 			try
 				if (not _sLine.IsEmpty) then begin
-					newItem := TRipGrepMatchLine.Create();
+					newItem := TRipGrepMatchLineParser.Create();
 					case FFileNameType of
 						ftAbsolute, ftRelative : begin
 							newItem.ParseLine(_iLineNr, _sLine, _bIsLast);
 						end;
 					end;
 				end;
- 				TThread.Synchronize(nil,
+				TThread.Synchronize(nil,
 					procedure
 					begin
 						if (not _sLine.IsEmpty) then
@@ -589,17 +611,6 @@ begin
 	Clipboard.AsText := TPath.GetFullPath(ListViewResult.Items[idx].Caption);
 end;
 
-function TRipGrepperForm.DrawFileIcon(Canvas : TCanvas; Rect : TRect; Item : TListItem) : Vcl.Graphics.TBitmap;
-var
-	bm : Vcl.Graphics.TBitmap; // ImageFileIcon
-	sFileName : string;
-begin
-	sFileName := item.Caption;
-	bm := TItemDrawer.GetIconBitmap(sFileName, ImageFileIcon);
-	Canvas.Draw(Rect.Left + 3, Rect.Top + (Rect.Bottom - Rect.Top - bm.Height) div 2, bm);
-	Result := bm;
-end;
-
 procedure TRipGrepperForm.DrawItemOnCanvas(_Canvas : TCanvas; _Rect : TRect; _Item : TListItem; _State : TOwnerDrawState);
 var
 	bm : Vcl.Graphics.TBitmap;
@@ -608,12 +619,10 @@ var
 	x2 : integer;
 	r : TRect;
 	s : string;
-const
-	DT_ALIGN : array [TAlignment] of TTextFormats = (
-	{ } tfLeft,
-	{ } tfRight,
-	{ } tfCenter);
 begin
+	if _item.SubItems.Count = 0 then
+		Exit;
+
 	if (FSettings.AlternateRowColors) then begin
 		_Canvas.SetAlteringColors(_Item);
 	end;
@@ -628,30 +637,36 @@ begin
 	r := _Rect;
 	bm := nil;
 	if FSettings.ShowFileIcon then begin
-		bm := DrawFileIcon(_Canvas, r, _Item);
+		bm := TItemDrawer.DrawFileIcon(_Canvas, r, _Item, ImageFileIcon);
 	end;
 
 	for i := 0 to ListViewResult.Columns.Count - 1 do begin
 		inc(x2, ListView_GetColumnWidth(ListViewResult.Handle, ListViewResult.Columns[i].Index));
 		r.Left := x1;
 		r.Right := x2;
-		if i = 0 then begin
-			s := GetAbsOrRelativePath(_Item.Caption);
-			r.Left := r.Left + 6;
-			if Assigned(bm) then begin
-				r.Left := r.Left + bm.Width;
-			end;
-		end else begin
-			if i = 3 then begin
-				s := _Item.SubItems[i - 1];
-				if not FSettings.IndentLines then begin
-					s := s.TrimLeft;
+		case i of
+			0 : begin
+				s := GetAbsOrRelativePath(_Item.Caption);
+				// File
+				r.Left := r.Left + 6;
+				if Assigned(bm) then begin
+					r.Left := r.Left + bm.Width;
 				end;
-			end else begin
-				s := _Item.SubItems[i - 1]; // Row, Col
+			end;
+			1, 2 : begin
+				s := _Item.SubItems[i - 1];
+				// Row, Col
 				if (s = '-1') then
 					s := '';
 			end;
+			3 : begin
+				s := _Item.SubItems[i - 1]; // Match
+				if not FSettings.IndentLines then begin
+					s := s.TrimLeft;
+				end;
+			end;
+			else
+			TDebugUtils.DebugMessage('Invalid index: ' + i.ToString);
 		end;
 		_Canvas.TextRect(r, s, [tfSingleLine, DT_ALIGN[ListViewResult.Columns[i].Alignment], tfVerticalCenter, tfEndEllipsis]);
 		x1 := x2;
@@ -679,15 +694,21 @@ end;
 
 procedure TRipGrepperForm.InitSearch;
 begin
-	ClearData;
+
+	ListViewResult.Items.Count := 0;
+	// ClearData;
 	FswSearchStart := TStopwatch.Create();
 	FMeassureFirstDrawEvent := True;
 	InitStatusBar;
 	InitColumnSortTypes;
 	UpdateSortingImages([sbtFile, sbtRow]);
-	ListViewResult.Repaint();
+	// ListViewResult.Repaint();
 	LoadBeforeSearchSettings();
-	AddNewHistoryItem;
+end;
+
+procedure TRipGrepperForm.ListBoxSearchHistoryDblClick(Sender : TObject);
+begin
+	RefreshResultByHistoryItem();
 end;
 
 procedure TRipGrepperForm.ListBoxSearchHistoryDrawItem(Control : TWinControl; index : Integer; Rect : TRect; State : TOwnerDrawState);
@@ -740,11 +761,23 @@ end;
 
 procedure TRipGrepperForm.RefreshCounters;
 begin
-	// virtual listview! Items count should be updated
+	// virtual listview! Items count should be updated to refresh ui
 	ListViewResult.Items.Count := FData.TotalMatchCount;
 	SetStatusBarStatistic(Format('%d matches in %d files', [FData.TotalMatchCount, FData.FileCount]));
-	PHistoryItemObject(ListBoxSearchHistory.Items.Objects[0]).CopyData(FData);
+	GetHistoryObject(ListBoxSearchHistory, FCurrentHistoryItemIndex).FileCount := FData.FileCount;
 	ListBoxSearchHistory.Refresh;
+end;
+
+procedure TRipGrepperForm.RefreshResultByHistoryItem;
+var
+	lb : TListBox;
+begin
+	lb := ListBoxSearchHistory;
+	var
+	hio := GetHistoryObject(lb, lb.ItemIndex);
+	ListViewResult.Items.Count := 0;
+	FData.PHistObject := hio;
+	ListViewResult.Items.Count := hio.PMatches.Count;
 end;
 
 procedure TRipGrepperForm.RunRipGrep;

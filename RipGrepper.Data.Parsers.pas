@@ -35,15 +35,15 @@ type
 
 	end;
 
-	TRipGrepErrorLine = class(TRipGrepLineBase)
+	TRipGrepErrorLineParser = class(TRipGrepLineBase)
 
 	end;
 
-	TRipGrepHelpLine = class(TRipGrepLineBase)
+	TRipGrepHelpLineParser = class(TRipGrepLineBase)
 
 	end;
 
-	TRipGrepMatchLine = class(TRipGrepLineBase, IRipGrepMatchLineGroup)
+	TRipGrepMatchLineParser = class(TRipGrepLineBase, IRipGrepMatchLineGroup)
 
 		IsError : Boolean;
 		ErrorText : string;
@@ -89,7 +89,7 @@ uses
 	System.Classes,
 	System.SysUtils;
 
-function TRipGrepMatchLine.ValidatePath : Boolean;
+function TRipGrepMatchLineParser.ValidatePath : Boolean;
 begin
 	if FileName.StartsWith(':') then begin
 		ErrorText := 'Begins with '':''';
@@ -101,7 +101,7 @@ begin
 	Result := ErrorText = '';
 end;
 
-procedure TRipGrepMatchLine.ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False);
+procedure TRipGrepMatchLineParser.ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False);
 var
 	m : TMatch;
 begin
@@ -130,7 +130,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepMatchLine.SetRgResultLineParseError(const _sLine : string);
+procedure TRipGrepMatchLineParser.SetRgResultLineParseError(const _sLine : string);
 begin
 	FileName := '';
 	Text := _sLine;
@@ -138,7 +138,7 @@ begin
 	IsError := True;
 end;
 
-function TRipGrepMatchLine.Validate : Boolean;
+function TRipGrepMatchLineParser.Validate : Boolean;
 begin
 	Result := False;
 	IsError := not ValidatePath();
@@ -159,12 +159,12 @@ begin
 	Result := True;
 end;
 
-destructor TRipGrepMatchLine.Destroy;
+destructor TRipGrepMatchLineParser.Destroy;
 begin
 	// Dest.FLineParseRegex;
 end;
 
-constructor TRipGrepMatchLine.Create;
+constructor TRipGrepMatchLineParser.Create;
 begin
 	LineNr := 0;
 	FileName := '';
@@ -177,52 +177,52 @@ begin
 	FLineParseRegex := TRegex.Create(RG_MATCH_LINE_REGEX);
 end;
 
-function TRipGrepMatchLine.GetCol : Integer;
+function TRipGrepMatchLineParser.GetCol : Integer;
 begin
 	Result := FCol;
 end;
 
-function TRipGrepMatchLine.GetFileName : string;
+function TRipGrepMatchLineParser.GetFileName : string;
 begin
 	Result := FFileName;
 end;
 
-function TRipGrepMatchLine.GetGroupId : Integer;
+function TRipGrepMatchLineParser.GetGroupId : Integer;
 begin
 	Result := FGroupId;
 end;
 
-function TRipGrepMatchLine.GetRow : Integer;
+function TRipGrepMatchLineParser.GetRow : Integer;
 begin
 	Result := FRow;
 end;
 
-function TRipGrepMatchLine.GetText : string;
+function TRipGrepMatchLineParser.GetText : string;
 begin
 	Result := FText;
 end;
 
-procedure TRipGrepMatchLine.SetCol(const Value : Integer);
+procedure TRipGrepMatchLineParser.SetCol(const Value : Integer);
 begin
 	FCol := Value;
 end;
 
-procedure TRipGrepMatchLine.SetFileName(const Value : string);
+procedure TRipGrepMatchLineParser.SetFileName(const Value : string);
 begin
 	FFileName := Value;
 end;
 
-procedure TRipGrepMatchLine.SetGroupId(const Value : Integer);
+procedure TRipGrepMatchLineParser.SetGroupId(const Value : Integer);
 begin
 	FGroupId := Value;
 end;
 
-procedure TRipGrepMatchLine.SetRow(const Value : Integer);
+procedure TRipGrepMatchLineParser.SetRow(const Value : Integer);
 begin
 	FRow := Value;
 end;
 
-procedure TRipGrepMatchLine.SetText(const Value : string);
+procedure TRipGrepMatchLineParser.SetText(const Value : string);
 begin
 	FText := Value;
 end;

@@ -24,15 +24,15 @@ type
 			class operator Finalize(var Dest : TCursorSaver);
 	end;
 
-	TStatusBarAdjuster = class
-		private
-			class function TrueFontWidth(fnt : TFont; const text : string) : Integer;
+    TWidthHelper      = class
+		class function TrueFontWidth(fnt : TFont; const text : string): Integer;
+    end;
 
-		public
-			class procedure AutoSizeStatusbarPanel(_sb : TStatusBar; const _idx : Integer);
+	TStatusBarAdjuster = class
+		class procedure AutoSizeStatusbarPanel(_sb : TStatusBar; const _idx : Integer);
 	end;
 
-	TListViewColumnAdjuster = class(TObject)
+	TListViewColumnAdjuster = class
 		private
 			class function GetMaxWidth(_lv : TListView; const _width, _colIndex : Integer; var maxWidths : TArray<integer>) : integer;
 
@@ -63,7 +63,9 @@ type
 	end;
 
 	TItemDrawer = class
+	private
 	public
+		class function DrawFileIcon(Canvas : TCanvas; Rect : TRect; Item : TListItem; _img :TImage): Vcl.Graphics.TBitmap;
 		class procedure DrawItemOnBitmap(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
 		class function GetIconBitmap(const sFileName : string; _img :TImage): Vcl.Graphics.TBitmap;
 	end;
@@ -191,19 +193,7 @@ begin
 	s := _sb.Panels[_idx].Text;
 
 	// calculate the width of the Panel
-	_sb.Panels[_idx].Width := TrueFontWidth(_sb.Font, s) + borders[2] * 2 + MARGIN; // vertical border * 2 + 2 extra Pixels
-end;
-
-class function TStatusBarAdjuster.TrueFontWidth(fnt : TFont; const text : string) : Integer;
-var
-	dc : hdc;
-	tsize : Winapi.Windows.TSize;
-begin
-	dc := GetDC(0);
-	SelectObject(DC, fnt.Handle);
-	GetTextExtentPoint32(dc, PChar(text), Length(text), tsize);
-	ReleaseDC(0, DC);
-	Result := tsize.cx;
+	_sb.Panels[_idx].Width := TWidthHelper.TrueFontWidth(_sb.Font, s) + borders[2] * 2 + MARGIN; // vertical border * 2 + 2 extra Pixels
 end;
 
 class procedure TListViewColumnAdjuster.AdjustColumnWidths(_lv : TListView; _item : TListItem; var maxWidths : TArray<integer>);
@@ -212,7 +202,9 @@ const
 	SPACE = 20;
 begin
 	_lv.Columns[0].Width := SPACE_TITLE +
-	{ } GetMaxWidth(_lv, ListView_GetStringWidth(_lv.Handle, PChar(_item.Caption)), 0, maxWidths);
+    // in an early state of drawing, it doesn't work well:
+   //	{ } GetMaxWidth(_lv, ListView_GetStringWidth(_lv.Handle, PChar(_item.Caption)), 0, maxWidths);
+	{ } GetMaxWidth(_lv, TWidthHelper.TrueFontWidth(_lv.Font,_item.Caption), 0, maxWidths);
 	for var i := 1 to _lv.Columns.Count - 1 do begin
 		_lv.Columns[i].Width := SPACE +
 		{ } GetMaxWidth(_lv, ListView_GetStringWidth(_lv.Handle, PChar(_item.SubItems[i - 1])), i, maxWidths);
@@ -286,6 +278,17 @@ begin
 	Result := idxval;
 end;
 
+class function TItemDrawer.DrawFileIcon(Canvas : TCanvas; Rect : TRect; Item : TListItem; _img :TImage): Vcl.Graphics.TBitmap;
+var
+	bm : Vcl.Graphics.TBitmap; // ImageFileIcon
+	sFileName : string;
+begin
+	sFileName := item.Caption;
+	bm := TItemDrawer.GetIconBitmap(sFileName, _img);
+	Canvas.Draw(Rect.Left + 3, Rect.Top + (Rect.Bottom - Rect.Top - bm.Height) div 2, bm);
+	Result := bm;
+end;
+
 class procedure TItemDrawer.DrawItemOnBitmap(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
 var
 	noFlickerBm : Vcl.Graphics.TBitmap;
@@ -335,6 +338,18 @@ begin
 		Matches[_idx] := match;
 		ItemGroups.Add(Matches[_idx].FileName);
 	end;
+end;
+
+class function TWidthHelper.TrueFontWidth(fnt : TFont; const text : string): Integer;
+var
+	dc : hdc;
+	tsize : Winapi.Windows.TSize;
+begin
+	dc := GetDC(0);
+	SelectObject(DC, fnt.Handle);
+	GetTextExtentPoint32(dc, PChar(text), Length(text), tsize);
+	ReleaseDC(0, DC);
+	Result := tsize.cx;
 end;
 
 end.

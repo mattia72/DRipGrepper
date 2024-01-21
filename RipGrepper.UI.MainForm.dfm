@@ -1190,6 +1190,7 @@ object RipGrepperForm: TRipGrepperForm
           Align = alClient
           ItemHeight = 30
           TabOrder = 0
+          OnDblClick = ListBoxSearchHistoryDblClick
           OnDrawItem = ListBoxSearchHistoryDrawItem
           ExplicitHeight = 405
         end
