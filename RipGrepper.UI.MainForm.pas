@@ -129,7 +129,7 @@ type
 			FSettings : TRipGrepperSettings;
 			FColumnSortTypes : TArray<TSortDirectionType>;
 			FCurrentHistoryItemIndex : Integer;
-			FPCurrentHistoryItemObject : PHistoryItemObject;
+			FHistObject : THistoryItemObject;
 			FMeassureFirstDrawEvent : Boolean;
 			FRipGrepTask : ITask;
 			FStatusBarMessage : string;
@@ -147,7 +147,7 @@ type
 			procedure DoSortOnColumn(const _sbt : TSortByType);
 			procedure DrawItemOnCanvas(_Canvas : TCanvas; _Rect : TRect; _Item : TListItem; _State : TOwnerDrawState);
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
-			function GetHistoryObject(_lb : TListBox; const _index : Integer) : PHistoryItemObject;
+			function GetHistoryObject(_lb : TListBox; const _index : Integer) : THistoryItemObject;
 			procedure InitColumnSortTypes;
 			procedure InitSearch;
 			procedure LoadBeforeSearchSettings;
@@ -173,7 +173,7 @@ type
 			// IEOFProcessEventHandler
 			procedure OnEOFProcess();
 			procedure RefreshResultByHistoryItem;
-			procedure SetHistItemObject(_pho : PHistoryItemObject);
+			procedure ChangeDataHistItemObject(_ho : THistoryItemObject);
 
 	end;
 
@@ -405,13 +405,13 @@ end;
 
 procedure TRipGrepperForm.AddNewHistoryItem;
 var
-	pHistItem : PHistoryItemObject;
+	HistItem : THistoryItemObject;
 begin
-	new(pHistItem);
-	FPCurrentHistoryItemObject := pHistItem;
-	SetHistItemObject(pHistItem);
+	HistItem := THistoryItemObject.Create();
+	FHistObject := HistItem;
+	ChangeDataHistItemObject(HistItem);
 	CurrentHistoryItemIndex := TItemInserter.
-	{ } AddToListBoxIfNotContains(ListBoxSearchHistory, FSettings.ActualSearchText, TObject(pHistItem));
+	{ } AddToListBoxIfNotContains(ListBoxSearchHistory, FSettings.ActualSearchText, HistItem);
 end;
 
 procedure TRipGrepperForm.RenewHistoryItem;
@@ -422,11 +422,9 @@ begin
 			// pHistItem := GetHistoryObject(ListBoxSearchHistory, CurrentHistoryItemIndex);
 			ListBoxSearchHistory.Items.BeginUpdate;
 			try
-				if Assigned(FPCurrentHistoryItemObject) then begin
-					Dispose(FPCurrentHistoryItemObject);
-				end;
-				new(FPCurrentHistoryItemObject);
-				SetHistItemObject(FPCurrentHistoryItemObject);
+				FHistObject.ClearMatches;
+                FData.ClearMatchFiles;
+//				ChangeDataHistItemObject(FHistObject);
 			finally
 				ListBoxSearchHistory.Items.EndUpdate;
 			end;
@@ -451,12 +449,13 @@ procedure TRipGrepperForm.DoSearch;
 begin
 	SetStatusBarStatistic('Searching...');
 	FSettings.ReBuildArguments;
+    FHistObject.CopySettings(FSettings);
 	RunRipGrep();
 end;
 
 procedure TRipGrepperForm.FormClose(Sender : TObject; var Action : TCloseAction);
 begin
-	TListBoxHelper.DiposeItemObjects(ListBoxSearchHistory);
+	TListBoxHelper.FreeItemObjects(ListBoxSearchHistory);
 end;
 
 procedure TRipGrepperForm.FormShow(Sender : TObject);
@@ -690,11 +689,11 @@ begin
 	end;
 end;
 
-function TRipGrepperForm.GetHistoryObject(_lb : TListBox; const _index : Integer) : PHistoryItemObject;
+function TRipGrepperForm.GetHistoryObject(_lb : TListBox; const _index : Integer): THistoryItemObject;
 begin
 	Result := nil;
 	if (_index > -1) and (_index < _lb.Items.Count) then
-		Result := PHistoryItemObject(_lb.Items.Objects[_index]);
+		Result := THistoryItemObject(_lb.Items.Objects[_index]);
 end;
 
 procedure TRipGrepperForm.InitSearch;
@@ -719,14 +718,14 @@ end;
 procedure TRipGrepperForm.ListBoxSearchHistoryClick(Sender : TObject);
 begin
 	CurrentHistoryItemIndex := ListBoxSearchHistory.ItemIndex;
-	FPCurrentHistoryItemObject := GetHistoryObject(ListBoxSearchHistory, CurrentHistoryItemIndex);
+	FHistObject := GetHistoryObject(ListBoxSearchHistory, CurrentHistoryItemIndex);
 	TDebugUtils.DebugMessage('History clicked:' + CurrentHistoryItemIndex.ToString);
 end;
 
 procedure TRipGrepperForm.ListBoxSearchHistoryDblClick(Sender : TObject);
 begin
 	CurrentHistoryItemIndex := ListBoxSearchHistory.ItemIndex;
-	FPCurrentHistoryItemObject := GetHistoryObject(ListBoxSearchHistory, CurrentHistoryItemIndex);
+	FHistObject := GetHistoryObject(ListBoxSearchHistory, CurrentHistoryItemIndex);
 	TDebugUtils.DebugMessage('History dbl clicked:' + CurrentHistoryItemIndex.ToString);
 	RefreshResultByHistoryItem();
 end;
@@ -736,7 +735,7 @@ var
 	c2ndRowTop : Integer;
 	cMatchesLeft : Integer;
 	cnv : TCanvas;
-	data : PHistoryItemObject;
+	data : THistoryItemObject;
 	lb : TListBox;
 	r2ndRow : TRect;
 begin
@@ -796,8 +795,8 @@ begin
 			ListViewResult.Items.Count := FData.TotalMatchCount;
 			SetStatusBarStatistic(Format('%d matches in %d files', [FData.TotalMatchCount, FData.FileCount]));
 			// var	hio := GetHistoryObject(ListBoxSearchHistory, CurrentHistoryItemIndex);
-			if Assigned(FPCurrentHistoryItemObject) then begin
-				FPCurrentHistoryItemObject.FileCount := FData.FileCount;
+			if Assigned(FHistObject) then begin
+				FHistObject.FileCount := FData.FileCount;
 			end;
 			ListBoxSearchHistory.Refresh;
 		end);
@@ -810,8 +809,8 @@ begin
 		begin
 			// var hio := GetHistoryObject(ListBoxSearchHistory, CurrentHistoryItemIndex);
 			ListViewResult.Items.Count := 0;
-			SetHistItemObject(FPCurrentHistoryItemObject);
-			ListViewResult.Items.Count := FPCurrentHistoryItemObject.PMatches.Count;
+			ChangeDataHistItemObject(FHistObject);
+			ListViewResult.Items.Count := FHistObject.Matches.Count;
 		end);
 end;
 
@@ -838,10 +837,10 @@ begin
 	FRipGrepTask.Start;
 end;
 
-procedure TRipGrepperForm.SetHistItemObject(_pho : PHistoryItemObject);
+procedure TRipGrepperForm.ChangeDataHistItemObject(_ho : THistoryItemObject);
 begin
 	ListBoxSearchHistory.Items.BeginUpdate;
-	FData.PHistObject := _pho;
+	FData.HistObject := _ho;
 	ListBoxSearchHistory.Items.EndUpdate;
 end;
 

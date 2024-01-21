@@ -3,24 +3,26 @@ unit RipGrepper.Helper.ListBox;
 interface
 
 uses
-  Vcl.StdCtrls;
+	Vcl.StdCtrls;
 
 type
 	TListBoxHelper = class
 
 		public
-			class procedure DiposeItemObjects(_lb: TListBox);
+			class procedure FreeItemObjects(_lb : TListBox);
 	end;
 
 implementation
 
 uses
-  RipGrepper.Data.HistoryItemObject;
+	RipGrepper.Data.HistoryItemObject;
 
-class procedure TListBoxHelper.DiposeItemObjects(_lb: TListBox);
+class procedure TListBoxHelper.FreeItemObjects(_lb : TListBox);
 begin
-	for var i := 0 to _lb.Items.Count - 1 do
-		Dispose(PHistoryItemObject(_lb.Items.Objects[i]));
+	for var i := 0 to _lb.Items.Count - 1 do begin
+		_lb.Items.Objects[i].Free;
+		_lb.Items.Objects[i] := nil;
+	end;
 end;
 
 end.

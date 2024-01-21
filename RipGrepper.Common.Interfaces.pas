@@ -5,7 +5,7 @@ interface
 uses
 	System.RegularExpressions,
 	RipGrepper.Common.Types,
-	ArrayHelper;
+	ArrayHelper, System.Generics.Collections;
 
 type
 
@@ -77,9 +77,9 @@ type
 
 	{$M-}
 
-	TRipGrepMatchLineCollection = TArrayREcord<IRipGrepMatchLine>;
-	PRipGrepMatchLineCollection = ^TRipGrepMatchLineCollection;
-	TRipGrepMatchLineGroupCollection = TArrayREcord<IRipGrepMatchLineGroup>;
+	TRipGrepMatchLineCollection = TList<IRipGrepMatchLine>;
+
+	TRipGrepMatchLineGroupCollection = TArrayRecord<IRipGrepMatchLineGroup>;
 
 	IHistoryItem = interface(IInterface)
 		['{C95F78AF-4011-460F-8721-5C3D7FC682D7}']

@@ -6,31 +6,33 @@ uses
 	RipGrepper.Common.Interfaces,
 	ArrayHelper,
 	RipGrepper.Common.Settings,
-	Vcl.ComCtrls;
+	Vcl.ComCtrls,
+	System.Generics.Defaults;
 
 type
-	THistoryItemObject = record // class(TInterfacedObject, IHistoryItem)
+	THistoryItemObject = class(TSingletonImplementation, IHistoryItem)
 		private
 			FFileCount : integer;
-			FPMatches : PRipGrepMatchLineCollection;
+			FMatches : TRipGrepMatchLineCollection;
 			FRipGrepArguments : TArrayRecord<string>;
 			FTotalMatchCount : integer;
 			function GetFileCount : integer;
-			function GetPMatches : PRipGrepMatchLineCollection;
+			function GetMatches : TRipGrepMatchLineCollection;
 			function GetRipGrepArguments : TArrayRecord<string>;
 			function GetTotalMatchCount : integer;
 			procedure SetFileCount(const Value : integer);
-			procedure SetPMatches(const Value : PRipGrepMatchLineCollection);
+			procedure SetMatches(const Value : TRipGrepMatchLineCollection);
 			procedure SetRipGrepArguments(const Value : TArrayRecord<string>);
 			procedure SetTotalMatchCount(const Value : integer);
 
 		public
 			procedure CopySettings(const _settings : TRipGrepperSettings);
 			procedure DataToGrid(_lv : TListView; _item : TListItem; const _index : Integer);
-			class operator Finalize(var Dest : THistoryItemObject);
-			class operator Initialize(out Dest : THistoryItemObject);
+			destructor Destroy; override;
+			constructor Create;
+			procedure ClearMatches;
 			property FileCount : integer read GetFileCount write SetFileCount;
-			property PMatches : PRipGrepMatchLineCollection read GetPMatches write SetPMatches;
+			property Matches : TRipGrepMatchLineCollection read GetMatches write SetMatches;
 			property RipGrepArguments : TArrayRecord<string> read GetRipGrepArguments write SetRipGrepArguments;
 			property TotalMatchCount : integer read GetTotalMatchCount write SetTotalMatchCount;
 	end;
@@ -53,17 +55,17 @@ var
 	fn : string;
 begin
 	// (_index, _lv, _item);
-	fn := PMatches^[_index].FileName;
-	if PMatches^[_index].IsError then begin
+	fn := Matches[_index].FileName;
+	if Matches[_index].IsError then begin
 		_item.Caption := ' ' + fn;
 		_item.ImageIndex := LV_IMAGE_IDX_ERROR;
 	end else begin
 		_item.Caption := fn;
 		_item.ImageIndex := LV_IMAGE_IDX_OK;
 	end;
-	_item.SubItems.Add(PMatches^[_index].Row.ToString);
-	_item.SubItems.Add(PMatches^[_index].Col.ToString);
-	_item.SubItems.Add(PMatches^[_index].Text);
+	_item.SubItems.Add(Matches[_index].Row.ToString);
+	_item.SubItems.Add(Matches[_index].Col.ToString);
+	_item.SubItems.Add(Matches[_index].Text);
 end;
 
 function THistoryItemObject.GetFileCount : integer;
@@ -71,9 +73,9 @@ begin
 	Result := FFileCount;
 end;
 
-function THistoryItemObject.GetPMatches : PRipGrepMatchLineCollection;
+function THistoryItemObject.GetMatches : TRipGrepMatchLineCollection;
 begin
-	Result := FPMatches;
+	Result := FMatches;
 end;
 
 function THistoryItemObject.GetRipGrepArguments : TArrayRecord<string>;
@@ -83,11 +85,7 @@ end;
 
 function THistoryItemObject.GetTotalMatchCount : integer;
 begin
-	if Assigned(@FPMatches) then begin
-        Result := FPMatches^.Count;
-	end else begin
-		Result := 0;
-	end;
+	Result := FMatches.Count;
 end;
 
 procedure THistoryItemObject.SetFileCount(const Value : integer);
@@ -95,9 +93,9 @@ begin
 	FFileCount := Value;
 end;
 
-procedure THistoryItemObject.SetPMatches(const Value : PRipGrepMatchLineCollection);
+procedure THistoryItemObject.SetMatches(const Value : TRipGrepMatchLineCollection);
 begin
-	FPMatches := Value;
+	FMatches := Value;
 end;
 
 procedure THistoryItemObject.SetRipGrepArguments(const Value : TArrayRecord<string>);
@@ -110,19 +108,25 @@ begin
 	FTotalMatchCount := Value;
 end;
 
-class operator THistoryItemObject.Finalize(var Dest : THistoryItemObject);
+destructor THistoryItemObject.Destroy;
 begin
-	Dest.FPMatches^.Clear;
-	Dispose(Dest.FPMatches);
+	FMatches.Free;
+	inherited;
 end;
 
-class operator THistoryItemObject.Initialize(out Dest : THistoryItemObject);
+constructor THistoryItemObject.Create;
 begin
-	Dest.FFileCount := 0;
-	new(Dest.FPMatches);
-	Dest.FPMatches^.Clear;
-	Dest.FTotalMatchCount := 0;
-	Dest.FRipGrepArguments.Clear;
+	inherited;
+	FMatches := TRipGrepMatchLineCollection.Create();
+	FRipGrepArguments.Clear;  //Creates an Array :/
+	ClearMatches;
+end;
+
+procedure THistoryItemObject.ClearMatches;
+begin
+	FFileCount := 0;
+	FMatches.Clear;
+	FTotalMatchCount := 0;
 end;
 
 end.
