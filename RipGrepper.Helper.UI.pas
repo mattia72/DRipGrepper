@@ -9,7 +9,8 @@ uses
 	Vcl.StdCtrls,
 	System.Types,
 	System.Classes,
-	RipGrepper.Common.Interfaces, Vcl.ExtCtrls;
+	RipGrepper.Common.Interfaces,
+	Vcl.ExtCtrls;
 // Winapi.Messages;
 
 type
@@ -24,9 +25,9 @@ type
 			class operator Finalize(var Dest : TCursorSaver);
 	end;
 
-    TWidthHelper      = class
-		class function TrueFontWidth(fnt : TFont; const text : string): Integer;
-    end;
+	TWidthHelper = class
+		class function TrueFontWidth(fnt : TFont; const text : string) : Integer;
+	end;
 
 	TStatusBarAdjuster = class
 		class procedure AutoSizeStatusbarPanel(_sb : TStatusBar; const _idx : Integer);
@@ -63,11 +64,11 @@ type
 	end;
 
 	TItemDrawer = class
-	private
-	public
-		class function DrawFileIcon(Canvas : TCanvas; Rect : TRect; Item : TListItem; _img :TImage): Vcl.Graphics.TBitmap;
-		class procedure DrawItemOnBitmap(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
-		class function GetIconBitmap(const sFileName : string; _img :TImage): Vcl.Graphics.TBitmap;
+		private
+		public
+			class function DrawFileIcon(Canvas : TCanvas; Rect : TRect; Item : TListItem; _img : TImage) : Vcl.Graphics.TBitmap;
+			class procedure DrawItemOnBitmap(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
+			class function GetIconBitmap(const sFileName : string; _img : TImage) : Vcl.Graphics.TBitmap;
 	end;
 
 	TListViewGrouper = class
@@ -87,7 +88,8 @@ uses
 	Vcl.Forms,
 	Winapi.Windows,
 	Winapi.CommCtrl,
-	RipGrepper.Helper.Types, Winapi.ShellAPI;
+	RipGrepper.Helper.Types,
+	Winapi.ShellAPI;
 
 procedure TListViewHelper.AdjustColumnWidths(var _MaxWidths : TArray<Integer>);
 begin
@@ -202,9 +204,9 @@ const
 	SPACE = 20;
 begin
 	_lv.Columns[0].Width := SPACE_TITLE +
-    // in an early state of drawing, it doesn't work well:
-   //	{ } GetMaxWidth(_lv, ListView_GetStringWidth(_lv.Handle, PChar(_item.Caption)), 0, maxWidths);
-	{ } GetMaxWidth(_lv, TWidthHelper.TrueFontWidth(_lv.Font,_item.Caption), 0, maxWidths);
+	// in an early state of drawing, it doesn't work well:
+	// { } GetMaxWidth(_lv, ListView_GetStringWidth(_lv.Handle, PChar(_item.Caption)), 0, maxWidths);
+	{ } GetMaxWidth(_lv, TWidthHelper.TrueFontWidth(_lv.Font, _item.Caption), 0, maxWidths);
 	for var i := 1 to _lv.Columns.Count - 1 do begin
 		_lv.Columns[i].Width := SPACE +
 		{ } GetMaxWidth(_lv, ListView_GetStringWidth(_lv.Handle, PChar(_item.SubItems[i - 1])), i, maxWidths);
@@ -267,18 +269,18 @@ var
 begin
 	val := _s;
 	if not _lb.Items.Contains(val) then begin
-		_lb.Items.InsertObject(0, val, _val);
+//		_lb.Items.InsertObject(0, val, _val);
 		idxval := _lb.Items.Count - 1;
 	end else begin
 		idxval := _lb.Items.IndexOf(val);
 		_lb.Items.Delete(idxval);
-		_lb.Items.InsertObject(0, val, _val);
+//		_lb.Items.InsertObject(0, val, _val);
 		_lb.ItemIndex := 0;
 	end;
 	Result := idxval;
 end;
 
-class function TItemDrawer.DrawFileIcon(Canvas : TCanvas; Rect : TRect; Item : TListItem; _img :TImage): Vcl.Graphics.TBitmap;
+class function TItemDrawer.DrawFileIcon(Canvas : TCanvas; Rect : TRect; Item : TListItem; _img : TImage) : Vcl.Graphics.TBitmap;
 var
 	bm : Vcl.Graphics.TBitmap; // ImageFileIcon
 	sFileName : string;
@@ -304,7 +306,7 @@ begin
 	end;
 end;
 
-class function TItemDrawer.GetIconBitmap(const sFileName : string; _img :TImage): Vcl.Graphics.TBitmap;
+class function TItemDrawer.GetIconBitmap(const sFileName : string; _img : TImage) : Vcl.Graphics.TBitmap;
 var
 	sfi : TSHFileInfo;
 	icon : TIcon;
@@ -340,7 +342,7 @@ begin
 	end;
 end;
 
-class function TWidthHelper.TrueFontWidth(fnt : TFont; const text : string): Integer;
+class function TWidthHelper.TrueFontWidth(fnt : TFont; const text : string) : Integer;
 var
 	dc : hdc;
 	tsize : Winapi.Windows.TSize;

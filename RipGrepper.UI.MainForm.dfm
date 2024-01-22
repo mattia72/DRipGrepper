@@ -1061,8 +1061,6 @@ object RipGrepperForm: TRipGrepperForm
     BevelOuter = bvNone
     Caption = 'panelMain'
     TabOrder = 0
-    ExplicitWidth = 769
-    ExplicitHeight = 447
     object ImageFileIcon: TImage
       Left = 480
       Top = -32
@@ -1080,7 +1078,6 @@ object RipGrepperForm: TRipGrepperForm
       Images = ImageListButtons
       Indent = 5
       TabOrder = 0
-      ExplicitWidth = 763
       object tbView: TToolButton
         Left = 5
         Top = 0
@@ -1163,7 +1160,6 @@ object RipGrepperForm: TRipGrepperForm
       OpenedWidth = 760
       Placement = svpLeft
       TabOrder = 1
-      ExplicitHeight = 413
       object Splitter1: TSplitter
         Left = 157
         Top = 0
@@ -1179,18 +1175,18 @@ object RipGrepperForm: TRipGrepperForm
         Anchors = [akLeft, akTop, akBottom]
         Caption = 'PanelHistory'
         TabOrder = 0
-        ExplicitHeight = 413
         object ListBoxSearchHistory: TListBox
           AlignWithMargins = True
           Left = 4
           Top = 4
           Width = 149
           Height = 414
-          Style = lbOwnerDrawVariable
+          Style = lbVirtualOwnerDraw
           Align = alClient
           ItemHeight = 30
           TabOrder = 0
           OnClick = ListBoxSearchHistoryClick
+          OnData = ListBoxSearchHistoryData
           OnDblClick = ListBoxSearchHistoryDblClick
           OnDrawItem = ListBoxSearchHistoryDrawItem
         end
@@ -1204,7 +1200,6 @@ object RipGrepperForm: TRipGrepperForm
         Anchors = [akLeft, akTop, akRight, akBottom]
         Caption = 'PanelResult'
         TabOrder = 1
-        ExplicitHeight = 413
         object ListViewResult: TListView
           AlignWithMargins = True
           Left = 4
@@ -1271,8 +1266,6 @@ object RipGrepperForm: TRipGrepperForm
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 1
-    ExplicitTop = 453
-    ExplicitWidth = 775
     object StatusBar1: TStatusBar
       AlignWithMargins = True
       Left = 3
@@ -1294,7 +1287,6 @@ object RipGrepperForm: TRipGrepperForm
           Text = 'RipGrepper v1.0.0      '
           Width = 150
         end>
-      ExplicitWidth = 769
     end
   end
   object ImageListButtons: TImageList
