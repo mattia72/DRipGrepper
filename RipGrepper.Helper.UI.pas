@@ -25,6 +25,15 @@ type
 			class operator Finalize(var Dest : TCursorSaver);
 	end;
 
+	TBeginEndUpdater = record
+
+	private
+		ListBox: TListBox;
+	public
+		class function New(_lb: TListBox): TBeginEndUpdater; static;
+		class operator Finalize(var Dest: TBeginEndUpdater);
+    end;
+
 	TWidthHelper = class
 		class function TrueFontWidth(fnt : TFont; const text : string) : Integer;
 	end;
@@ -345,13 +354,24 @@ end;
 class function TWidthHelper.TrueFontWidth(fnt : TFont; const text : string) : Integer;
 var
 	dc : hdc;
-	tsize : Winapi.Windows.TSize;
+	size : Winapi.Windows.TSize;
 begin
 	dc := GetDC(0);
 	SelectObject(DC, fnt.Handle);
-	GetTextExtentPoint32(dc, PChar(text), Length(text), tsize);
+	GetTextExtentPoint32(dc, PChar(text), Length(text), size);
 	ReleaseDC(0, DC);
-	Result := tsize.cx;
+	Result := size.cx;
+end;
+
+class function TBeginEndUpdater.New(_lb: TListBox): TBeginEndUpdater;
+begin
+	Result.ListBox := _lb;
+	Result.ListBox.Items.BeginUpdate;
+end;
+
+class operator TBeginEndUpdater.Finalize(var Dest: TBeginEndUpdater);
+begin
+	Dest.ListBox.Items.EndUpdate;
 end;
 
 end.
