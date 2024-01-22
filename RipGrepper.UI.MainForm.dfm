@@ -1193,7 +1193,6 @@ object RipGrepperForm: TRipGrepperForm
           OnClick = ListBoxSearchHistoryClick
           OnDblClick = ListBoxSearchHistoryDblClick
           OnDrawItem = ListBoxSearchHistoryDrawItem
-          ExplicitHeight = 405
         end
       end
       object PanelResult: TPanel
@@ -2011,6 +2010,7 @@ object RipGrepperForm: TRipGrepperForm
       ImageIndex = 10
       ShortCut = 16451
       OnExecute = ActionCmdLineCopyExecute
+      OnUpdate = ActionCmdLineCopyUpdate
     end
     object ActionSortByRow: TAction
       Caption = 'ActionSortByRow'

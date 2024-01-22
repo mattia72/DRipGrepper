@@ -7,33 +7,35 @@ uses
 	ArrayHelper,
 	RipGrepper.Common.Settings,
 	Vcl.ComCtrls,
-	System.Generics.Defaults;
+	System.Generics.Defaults,
+	System.Classes;
 
 type
 	THistoryItemObject = class(TSingletonImplementation, IHistoryItem)
 		private
 			FFileCount : integer;
 			FMatches : TRipGrepMatchLineCollection;
-			FRipGrepArguments : TArrayRecord<string>;
+			FRipGrepArguments : TStringList;
 			FTotalMatchCount : integer;
 			function GetFileCount : integer;
 			function GetMatches : TRipGrepMatchLineCollection;
-			function GetRipGrepArguments : TArrayRecord<string>;
+			function GetRipGrepArguments : TStringList;
 			function GetTotalMatchCount : integer;
 			procedure SetFileCount(const Value : integer);
 			procedure SetMatches(const Value : TRipGrepMatchLineCollection);
-			procedure SetRipGrepArguments(const Value : TArrayRecord<string>);
+			procedure SetRipGrepArguments(const Value : TStringList);
 			procedure SetTotalMatchCount(const Value : integer);
 
 		public
-			procedure CopySettings(const _settings : TRipGrepperSettings);
+			procedure CopyFromSettings(const _settings : TRipGrepperSettings);
 			procedure DataToGrid(_lv : TListView; _item : TListItem; const _index : Integer);
 			destructor Destroy; override;
 			constructor Create;
 			procedure ClearMatches;
+			procedure CopyToSettings(const _settings : TRipGrepperSettings);
 			property FileCount : integer read GetFileCount write SetFileCount;
 			property Matches : TRipGrepMatchLineCollection read GetMatches write SetMatches;
-			property RipGrepArguments : TArrayRecord<string> read GetRipGrepArguments write SetRipGrepArguments;
+			property RipGrepArguments : TStringList read GetRipGrepArguments write SetRipGrepArguments;
 			property TotalMatchCount : integer read GetTotalMatchCount write SetTotalMatchCount;
 	end;
 
@@ -45,9 +47,9 @@ uses
 	RipGrepper.Common.Types,
 	System.SysUtils;
 
-procedure THistoryItemObject.CopySettings(const _settings : TRipGrepperSettings);
+procedure THistoryItemObject.CopyFromSettings(const _settings : TRipGrepperSettings);
 begin
-	RipGrepArguments.AddRange(_settings.RipGrepArguments.ToStringArray());
+	RipGrepArguments.Assign(_settings.RipGrepArguments);
 end;
 
 procedure THistoryItemObject.DataToGrid(_lv : TListView; _item : TListItem; const _index : Integer);
@@ -78,7 +80,7 @@ begin
 	Result := FMatches;
 end;
 
-function THistoryItemObject.GetRipGrepArguments : TArrayRecord<string>;
+function THistoryItemObject.GetRipGrepArguments : TStringList;
 begin
 	Result := FRipGrepArguments;
 end;
@@ -98,7 +100,7 @@ begin
 	FMatches := Value;
 end;
 
-procedure THistoryItemObject.SetRipGrepArguments(const Value : TArrayRecord<string>);
+procedure THistoryItemObject.SetRipGrepArguments(const Value : TStringList);
 begin
 	FRipGrepArguments := Value;
 end;
@@ -111,6 +113,7 @@ end;
 destructor THistoryItemObject.Destroy;
 begin
 	FMatches.Free;
+    FRipGrepArguments.Free;
 	inherited;
 end;
 
@@ -118,7 +121,7 @@ constructor THistoryItemObject.Create;
 begin
 	inherited;
 	FMatches := TRipGrepMatchLineCollection.Create();
-	FRipGrepArguments.Clear;  //Creates an Array :/
+	FRipGrepArguments := TStringList.Create;
 	ClearMatches;
 end;
 
@@ -127,6 +130,11 @@ begin
 	FFileCount := 0;
 	FMatches.Clear;
 	FTotalMatchCount := 0;
+end;
+
+procedure THistoryItemObject.CopyToSettings(const _settings : TRipGrepperSettings);
+begin
+	_settings.RipGrepArguments.Assign(RipGrepArguments);
 end;
 
 end.

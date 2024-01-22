@@ -5,7 +5,7 @@ interface
 uses
 	System.RegularExpressions,
 	RipGrepper.Common.Types,
-	ArrayHelper, System.Generics.Collections;
+	ArrayHelper, System.Generics.Collections, System.Classes;
 
 type
 
@@ -85,15 +85,15 @@ type
 		['{C95F78AF-4011-460F-8721-5C3D7FC682D7}']
 		function GetFileCount: integer;
 		function GetMatches: TRipGrepMatchLineCollection;
-		function GetRipGrepArguments: TArrayRecord<string>;
+		function GetRipGrepArguments: TStringList;
 		function GetTotalMatchCount: integer;
 		procedure SetFileCount(const Value: integer);
 		procedure SetMatches(const Value: TRipGrepMatchLineCollection);
-		procedure SetRipGrepArguments(const Value: TArrayRecord<string>);
+		procedure SetRipGrepArguments(const Value: TStringList);
 		procedure SetTotalMatchCount(const Value: integer);
 
 		property Matches: TRipGrepMatchLineCollection read GetMatches write SetMatches;
-		property RipGrepArguments: TArrayRecord<string> read GetRipGrepArguments write SetRipGrepArguments;
+		property RipGrepArguments: TStringList read GetRipGrepArguments write SetRipGrepArguments;
 		property FileCount: integer read GetFileCount write SetFileCount;
 		property TotalMatchCount: integer read GetTotalMatchCount write SetTotalMatchCount;
 	end;

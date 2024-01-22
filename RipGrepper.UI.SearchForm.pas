@@ -63,7 +63,8 @@ implementation
 uses
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.ProcessUtils,
-	Vcl.Dialogs, System.UITypes;
+	Vcl.Dialogs,
+	System.UITypes;
 
 {$R *.dfm}
 
@@ -91,7 +92,7 @@ procedure TRipGrepperSearchDialogForm.ActionSearchExecute(Sender : TObject);
 begin
 	StoreHistories();
 	StoreSearchSettings();
-	ModalREsult := mrOk;
+	ModalResult := mrOk;
 end;
 
 procedure TRipGrepperSearchDialogForm.FormClose(Sender : TObject; var Action : TCloseAction);
@@ -127,6 +128,7 @@ begin
 	FPSettings^.SearchPathsHistory.Assign(cmbSearchDir.Items);
 	FPSettings^.SearchTextsHistory.Assign(cmbSearchText.Items);
 	FPSettings^.RipGrepParamsHistory.Assign(cmbParameters.Items);
+	FPSettings^.ReBuildArguments;
 	FPSettings^.Store
 end;
 

@@ -41,7 +41,7 @@ type
 		public
 			function BuildCmdLine: string;
 			procedure Load;
-			function ReBuildArguments : TStrings;
+			function ReBuildArguments: TStrings;
 			procedure Store;
 			procedure StoreViewSettings(const _s : string = '');
 			class operator Finalize(var Dest : TRipGrepperSettings);
@@ -81,7 +81,7 @@ begin
 	cmdLine := TStringList.Create();
 	try
 		cmdLine.Add(RipGrepPath);
-		cmdLine.AddStrings(ReBuildArguments);
+		cmdLine.AddStrings(RipGrepArguments);
 		cmdLine.Delimiter := ' ';
 		Result := cmdLine.DelimitedText;
 	finally
@@ -200,13 +200,13 @@ begin
 	IsLoaded := True;
 end;
 
-function TRipGrepperSettings.ReBuildArguments : TStrings;
+function TRipGrepperSettings.ReBuildArguments: TStrings;
 var
 	paramsArr : TArray<string>;
 	params : string;
 begin
-	params := ActualRipGrepParam;
 	FRipGrepArguments.Clear();
+	params := ActualRipGrepParam;
 	for var s in RG_NECESSARY_PARAMS do begin
 		if not params.Contains(s) then begin
 			params := s + ' ' + params;
