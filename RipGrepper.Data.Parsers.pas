@@ -19,17 +19,17 @@ type
 			procedure SetLineNr(const Value : Integer);
 
 		protected
-			FLineParseRegex: TRegex;
+			FLineParseRegex : TRegex;
 			FParserType : TParserType;
-			function GetLineParseRegex: TRegex;
-			procedure SetLineParseRegex(const Value: TRegex);
+			function GetLineParseRegex : TRegex;
+			procedure SetLineParseRegex(const Value : TRegex);
 			function GetParserType : TParserType;
 			procedure SetParserType(const Value : TParserType);
 
 		public
-			procedure ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False); virtual;
+			function ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False) : Boolean; virtual;
 			property LineNr : Integer read GetLineNr write SetLineNr;
-			property LineParseRegex: TRegex read GetLineParseRegex write SetLineParseRegex;
+			property LineParseRegex : TRegex read GetLineParseRegex write SetLineParseRegex;
 			property IsError : Boolean read GetIsError write SetIsError;
 			property ParserType : TParserType read GetParserType write SetParserType;
 
@@ -132,8 +132,8 @@ end;
 
 procedure TRipGrepMatchLineParser.SetRgResultLineParseError(const _sLine : string);
 begin
-	FileName := '';
-	Text := _sLine;
+	FileName := _sLine;
+	Text := '';
 	ErrorText := 'rg.exe result line couldn''t parsed.';
 	IsError := True;
 end;
@@ -161,7 +161,8 @@ end;
 
 destructor TRipGrepMatchLineParser.Destroy;
 begin
-	// Dest.FLineParseRegex;
+	// TDebugUtils.DebugMessage('Destroy ' + BoolToStr(IsError, True) + ' ' + FileName)
+	inherited;
 end;
 
 constructor TRipGrepMatchLineParser.Create;
@@ -237,9 +238,9 @@ begin
 	Result := FLineNr;
 end;
 
-function TRipGrepLineBase.GetLineParseRegex: TRegex;
+function TRipGrepLineBase.GetLineParseRegex : TRegex;
 begin
-	Result := FLineParseRegex ;
+	Result := FLineParseRegex;
 end;
 
 function TRipGrepLineBase.GetParserType : TParserType;
@@ -249,7 +250,7 @@ end;
 
 { TRipGrepLineBase }
 
-procedure TRipGrepLineBase.ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False);
+function TRipGrepLineBase.ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False) : Boolean;
 begin
 	LineNr := _iLnNr;
 	// rest should be done in the subclass
@@ -265,7 +266,7 @@ begin
 	FLineNr := Value;
 end;
 
-procedure TRipGrepLineBase.SetLineParseRegex(const Value: TRegex);
+procedure TRipGrepLineBase.SetLineParseRegex(const Value : TRegex);
 begin
 	FLineParseRegex := Value;
 end;

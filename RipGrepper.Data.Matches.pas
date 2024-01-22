@@ -22,6 +22,7 @@ type
 		SortedBy : TSortTypeDirectionList;
 
 		private
+			FErrorCounter : Integer;
 			function GetTotalMatchCount : Integer;
 			function GetFileCount : Integer;
 			function GetComparer(const _sbt : TSortByType) : IComparer<IRipGrepMatchLine>;
@@ -51,26 +52,31 @@ constructor TRipGrepperData.Create;
 begin
 	inherited;
 	MatchFiles := TStringList.Create(TDuplicates.dupIgnore, True, True);
+	FErrorCounter := 0;
 end;
 
 destructor TRipGrepperData.Destroy;
 begin
-	inherited;
 	MatchFiles.Free;
+	inherited;
 end;
 
 procedure TRipGrepperData.Add(const _item : IRipGrepMatchLineGroup);
 begin
-	HistObject.Matches.Add(_item);
-	MatchFiles.Add(_item.FileName);
+	TDebugUtils.DebugMessage('Add ' + BoolToStr(_item.IsError, True) + ' ' + _item.FileName);
+
+	if (not _item.IsError) then begin
+		HistObject.Matches.Add(_item);
+		MatchFiles.Add(_item.FileName);
+	end else begin
+		Inc(FErrorCounter);
+	end;
 end;
 
 procedure TRipGrepperData.ClearMatchFiles;
 begin
-//	if HistObject <> nil then begin
-//		HistObject.Matches.Clear;
-//	end;
 	MatchFiles.Clear;
+	FErrorCounter := 0;
 end;
 
 procedure TRipGrepperData.DataToGrid(const _index : Integer; _lv : TListView; _item : TListItem);

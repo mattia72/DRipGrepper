@@ -534,10 +534,9 @@ begin
 end;
 
 procedure TRipGrepperForm.OnNewOutputLine(const _iLineNr : integer; const _sLine : string; _bIsLast : Boolean = False);
-var
-	newItem : IRipGrepMatchLineGroup;
 begin
 	if _bIsLast then begin
+		ListViewResult.AdjustColumnWidths(FMaxWidths);
 		TDebugUtils.DebugMessage(Format('Last line (%d.) received in %s sec.', [_iLineNr, GetElapsedTime(FswSearchStart)]));
 	end;
 
@@ -554,23 +553,26 @@ begin
 		procedure
 		begin
 			try
-				TThread.Synchronize(nil, // ok
+				TThread.Synchronize(nil,
 					procedure
 					begin
 						if (not _sLine.IsEmpty) then begin
+							var
 							newItem := TRipGrepMatchLineParser.Create();
-							case FFileNameType of
+														case FFileNameType of
 								ftAbsolute, ftRelative : begin
+									TDebugUtils.DebugMessage('Before ParseLine ' + BoolToStr(newItem.IsError, True) + ' ' + newItem.FileName);
+
 									newItem.ParseLine(_iLineNr, _sLine, _bIsLast);
+									TDebugUtils.DebugMessage('After ParseLine ' + BoolToStr(newItem.IsError, True) + ' ' + newItem.FileName);
 								end;
 							end;
-						end;
-						if (not _sLine.IsEmpty) then
 							FData.Add(newItem);
+						end;
+						// First 100 than every 100
 						if (_iLineNr < 100) or ((_iLineNr mod DRAW_RESULT_ON_EVERY_LINE_COUNT) = 0) or _bIsLast then begin
 							RefreshCounters;
 						end;
-//						TThread.Synchronize(nil, procedure begin end);
 					end);
 			except
 				on e : EOutOfMemory do begin
@@ -581,9 +583,6 @@ begin
 			end;
 		end);
 
-	if _bIsLast then begin
-		ListViewResult.AdjustColumnWidths(FMaxWidths);
-	end;
 end;
 
 procedure TRipGrepperForm.DoSortOnColumn(const _sbt : TSortByType);
