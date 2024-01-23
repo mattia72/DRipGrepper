@@ -219,8 +219,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object cmbParameters: TComboBox
         Left = 210
-        Top = 205
-        Width = 998
+        Top = 203
+        Width = 930
         Height = 49
         Margins.Left = 8
         Margins.Top = 8
@@ -246,7 +246,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       object cmbSearchText: TComboBox
         Left = 210
         Top = 133
-        Width = 998
+        Width = 930
         Height = 49
         Margins.Left = 8
         Margins.Top = 8
@@ -259,7 +259,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     end
     object btnConfig: TButton
       AlignWithMargins = True
-      Left = 1232
+      Left = 1164
       Top = 206
       Width = 65
       Height = 60
@@ -356,8 +356,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     end
   end
   object ImageList1: TImageList
-    Left = 464
-    Top = 302
+    Left = 451
+    Top = 289
     Bitmap = {
       494C010104000800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020

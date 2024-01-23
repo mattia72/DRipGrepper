@@ -15,6 +15,7 @@ type
 			FRipGrepPath : string;
 			FSearchPath : string;
 			FSearchText : string;
+			procedure AddArgs(const _args : TArray<string>; const _bQuote : Boolean = False);
 
 		public
 			constructor Create;
@@ -246,6 +247,19 @@ begin
 	inherited;
 end;
 
+procedure TRipGrepParameterSettings.AddArgs(const _args : TArray<string>; const _bQuote : Boolean = False);
+begin
+	for var s : string in _args do begin
+		if not s.IsEmpty then begin
+			if _bQuote then begin
+				FRipGrepArguments.Add(TProcessUtils.MaybeQuoteIfNotQuoted(s));
+			end else begin
+				FRipGrepArguments.Add(s);
+			end;
+		end;
+	end;
+end;
+
 function TRipGrepParameterSettings.BuildCmdLine : string;
 var
 	cmdLine : TStringList;
@@ -295,17 +309,12 @@ begin
 		end;
 	end;
 
-	paramsArr := params.Split([' ']);
-	for var s : string in paramsArr do begin
-		if not s.IsEmpty then begin
-			FRipGrepArguments.Add(s);
-		end;
-	end;
+	AddArgs(params.Split([' ']));
 
 	FRipGrepArguments.Add(SearchText);
 
-	var
-	searchPath := TProcessUtils.MaybeQuoteIfNotQuoted(SearchPath);
+	AddArgs(searchPath.Split([',;']), True);
+
 	FRipGrepArguments.Add(searchPath);
 	FRipGrepArguments.Delimiter := ' '; // sArgs.QuoteChar := '"';
 
