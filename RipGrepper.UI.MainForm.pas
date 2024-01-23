@@ -558,13 +558,10 @@ begin
 					begin
 						if (not _sLine.IsEmpty) then begin
 							var
-							newItem := TRipGrepMatchLineParser.Create();
-														case FFileNameType of
+								newItem : IRipGrepMatchLineGroup := TRipGrepMatchLineParser.Create();
+							case FFileNameType of
 								ftAbsolute, ftRelative : begin
-									TDebugUtils.DebugMessage('Before ParseLine ' + BoolToStr(newItem.IsError, True) + ' ' + newItem.FileName);
-
 									newItem.ParseLine(_iLineNr, _sLine, _bIsLast);
-									TDebugUtils.DebugMessage('After ParseLine ' + BoolToStr(newItem.IsError, True) + ' ' + newItem.FileName);
 								end;
 							end;
 							FData.Add(newItem);
@@ -804,12 +801,13 @@ end;
 procedure TRipGrepperForm.RefreshCounters;
 begin
 	// virtual listview! Items count should be updated to refresh ui
-	ListViewResult.Items.Count := FData.TotalMatchCount;
+	ListViewResult.Items.Count := FData.ListItemCount;
 	SetStatusBarStatistic(Format('%d matches in %d files', [FData.TotalMatchCount, FData.FileCount]));
 	if Assigned(FHistObject) then begin
 		var
 		beu := TBeginEndUpdater.New(ListBoxSearchHistory);
 		FHistObject.FileCount := FData.FileCount;
+        FHistObject.ErrorCount := FData.ErrorCount;
 	end;
 	ListBoxSearchHistory.Refresh;
 end;
@@ -821,7 +819,7 @@ begin
 		begin
 			ListViewResult.Items.Count := 0;
 			ChangeDataHistItemObject(FHistObject);
-			ListViewResult.Items.Count := FHistObject.Matches.Count;
+			ListViewResult.Items.Count := FHistObject.Matches.Count + FHistObject.ErrorCount;
 		end);
 end;
 

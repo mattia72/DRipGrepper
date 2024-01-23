@@ -17,26 +17,33 @@ uses
 type
 
 	TRipGrepperData = class
-		HistObject : THistoryItemObject;
 		MatchFiles : TStringList;
 		SortedBy : TSortTypeDirectionList;
 
 		private
-			FErrorCounter : Integer;
+			FErrorCount : Integer;
+			FHistObject : THistoryItemObject;
 			function GetTotalMatchCount : Integer;
 			function GetFileCount : Integer;
 			function GetComparer(const _sbt : TSortByType) : IComparer<IRipGrepMatchLine>;
+			function GetErrorCount : Integer;
+			function GetHistObject : THistoryItemObject;
+			function GetListItemCount : Integer;
+			procedure SetHistObject(const Value : THistoryItemObject);
 			procedure SortMultiColumns(const _st : TSortDirectionType);
 
 		public
 			constructor Create;
 			destructor Destroy; override;
-			procedure Add(const _item : IRipGrepMatchLineGroup);
+			procedure Add(_item : IRipGrepMatchLineGroup);
 			procedure ClearMatchFiles;
 			procedure DataToGrid(const _index : Integer; _lv : TListView; _item : TListItem);
 			procedure SortBy(const _sbt : TSortByType; const _st : TSortDirectionType);
+			property ErrorCount : Integer read GetErrorCount;
 			property TotalMatchCount : Integer read GetTotalMatchCount;
 			property FileCount : Integer read GetFileCount;
+			property HistObject : THistoryItemObject read GetHistObject write SetHistObject;
+			property ListItemCount : Integer read GetListItemCount;
 	end;
 
 implementation
@@ -52,7 +59,7 @@ constructor TRipGrepperData.Create;
 begin
 	inherited;
 	MatchFiles := TStringList.Create(TDuplicates.dupIgnore, True, True);
-	FErrorCounter := 0;
+	FErrorCount := 0;
 end;
 
 destructor TRipGrepperData.Destroy;
@@ -61,22 +68,20 @@ begin
 	inherited;
 end;
 
-procedure TRipGrepperData.Add(const _item : IRipGrepMatchLineGroup);
+procedure TRipGrepperData.Add(_item : IRipGrepMatchLineGroup);
 begin
-	TDebugUtils.DebugMessage('Add ' + BoolToStr(_item.IsError, True) + ' ' + _item.FileName);
-
-	if (not _item.IsError) then begin
-		HistObject.Matches.Add(_item);
-		MatchFiles.Add(_item.FileName);
+	HistObject.Matches.Add(_item);
+	if (_item.IsError) then begin
+		Inc(FErrorCount);
 	end else begin
-		Inc(FErrorCounter);
+		MatchFiles.Add(_item.FileName);
 	end;
 end;
 
 procedure TRipGrepperData.ClearMatchFiles;
 begin
 	MatchFiles.Clear;
-	FErrorCounter := 0;
+	FErrorCount := 0;
 end;
 
 procedure TRipGrepperData.DataToGrid(const _index : Integer; _lv : TListView; _item : TListItem);
@@ -157,6 +162,26 @@ begin
 				end);
 		end;
 	end;
+end;
+
+function TRipGrepperData.GetErrorCount : Integer;
+begin
+	Result := FErrorCount;
+end;
+
+function TRipGrepperData.GetHistObject : THistoryItemObject;
+begin
+	Result := FHistObject;
+end;
+
+function TRipGrepperData.GetListItemCount : Integer;
+begin
+	Result := TotalMatchCount + ErrorCount;
+end;
+
+procedure TRipGrepperData.SetHistObject(const Value : THistoryItemObject);
+begin
+	FHistObject := Value;
 end;
 
 procedure TRipGrepperData.SortMultiColumns(const _st : TSortDirectionType);

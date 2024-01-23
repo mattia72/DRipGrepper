@@ -5,7 +5,9 @@ interface
 uses
 	System.RegularExpressions,
 	RipGrepper.Common.Types,
-	ArrayHelper, System.Generics.Collections, System.Classes;
+	ArrayHelper,
+	System.Generics.Collections,
+	System.Classes;
 
 type
 
@@ -33,9 +35,11 @@ type
 	end;
 
 	ILineError = interface(ILine)
+		['{68A0BCC7-E26E-4B4B-95CA-01A5A4523067}']
+		function GetErrorText : string;
 		function GetIsError : Boolean;
-		procedure SetIsError(const Value : Boolean);
-		property IsError : Boolean read GetIsError write SetIsError;
+		property ErrorText : string read GetErrorText;
+		property IsError : Boolean read GetIsError;
 
 	end;
 
@@ -83,19 +87,19 @@ type
 
 	IHistoryItem = interface(IInterface)
 		['{C95F78AF-4011-460F-8721-5C3D7FC682D7}']
-		function GetFileCount: integer;
-		function GetMatches: TRipGrepMatchLineCollection;
-		function GetRipGrepArguments: TStringList;
-		function GetTotalMatchCount: integer;
-		procedure SetFileCount(const Value: integer);
-		procedure SetMatches(const Value: TRipGrepMatchLineCollection);
-		procedure SetRipGrepArguments(const Value: TStringList);
-		procedure SetTotalMatchCount(const Value: integer);
+		function GetErrorCount: Integer;
+		function GetFileCount : integer;
+		function GetMatches : TRipGrepMatchLineCollection;
+		procedure SetMatches(const Value : TRipGrepMatchLineCollection);
+		function GetRipGrepArguments : TStringList;
+		procedure SetRipGrepArguments(const Value : TStringList);
+		function GetTotalMatchCount : integer;
 
-		property Matches: TRipGrepMatchLineCollection read GetMatches write SetMatches;
-		property RipGrepArguments: TStringList read GetRipGrepArguments write SetRipGrepArguments;
-		property FileCount: integer read GetFileCount write SetFileCount;
-		property TotalMatchCount: integer read GetTotalMatchCount write SetTotalMatchCount;
+		property ErrorCount: Integer read GetErrorCount;
+		property Matches : TRipGrepMatchLineCollection read GetMatches write SetMatches;
+		property RipGrepArguments : TStringList read GetRipGrepArguments write SetRipGrepArguments;
+		property FileCount : integer read GetFileCount;
+		property TotalMatchCount : integer read GetTotalMatchCount;
 	end;
 
 implementation

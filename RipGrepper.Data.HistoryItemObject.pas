@@ -13,19 +13,19 @@ uses
 type
 	THistoryItemObject = class(TSingletonImplementation, IHistoryItem)
 		private
+			FErrorCount: Integer;
 			FFileCount : integer;
 			FMatches : TRipGrepMatchLineCollection;
 			FRipGrepArguments : TStringList;
-			FTotalMatchCount : integer;
+			FTotalMatchCount: integer;
+			function GetErrorCount: Integer; export;
 			function GetFileCount : integer;
 			function GetMatches : TRipGrepMatchLineCollection;
 			function GetRipGrepArguments : TStringList;
-			function GetTotalMatchCount : integer;
+			function GetTotalMatchCount: integer;
 			procedure SetFileCount(const Value : integer);
 			procedure SetMatches(const Value : TRipGrepMatchLineCollection);
 			procedure SetRipGrepArguments(const Value : TStringList);
-			procedure SetTotalMatchCount(const Value : integer);
-
 		public
 			procedure CopyFromSettings(const _settings : TRipGrepperSettings);
 			procedure DataToGrid(_lv : TListView; _item : TListItem; const _index : Integer);
@@ -36,7 +36,8 @@ type
 			property FileCount : integer read GetFileCount write SetFileCount;
 			property Matches : TRipGrepMatchLineCollection read GetMatches write SetMatches;
 			property RipGrepArguments : TStringList read GetRipGrepArguments write SetRipGrepArguments;
-			property TotalMatchCount : integer read GetTotalMatchCount write SetTotalMatchCount;
+			property TotalMatchCount: integer read GetTotalMatchCount;
+			property ErrorCount: Integer read GetErrorCount write FErrorCount;
 	end;
 
 	PHistoryItemObject = ^THistoryItemObject;
@@ -85,9 +86,9 @@ begin
 	Result := FRipGrepArguments;
 end;
 
-function THistoryItemObject.GetTotalMatchCount : integer;
+function THistoryItemObject.GetTotalMatchCount: integer;
 begin
-	Result := FMatches.Count;
+	Result := FMatches.Count - ErrorCount ;
 end;
 
 procedure THistoryItemObject.SetFileCount(const Value : integer);
@@ -103,11 +104,6 @@ end;
 procedure THistoryItemObject.SetRipGrepArguments(const Value : TStringList);
 begin
 	FRipGrepArguments := Value;
-end;
-
-procedure THistoryItemObject.SetTotalMatchCount(const Value : integer);
-begin
-	FTotalMatchCount := Value;
 end;
 
 destructor THistoryItemObject.Destroy;
@@ -130,11 +126,17 @@ begin
 	FFileCount := 0;
 	FMatches.Clear;
 	FTotalMatchCount := 0;
+    FErrorCount := 0;
 end;
 
 procedure THistoryItemObject.CopyToSettings(const _settings : TRipGrepperSettings);
 begin
 	_settings.RipGrepArguments.Assign(RipGrepArguments);
+end;
+
+function THistoryItemObject.GetErrorCount: Integer;
+begin
+    Result := FErrorCount;
 end;
 
 end.

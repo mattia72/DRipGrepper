@@ -11,27 +11,29 @@ uses
 type
 	TRipGrepLineBase = class(TInterfacedObject, ILineParser)
 		private
-			FIsError : Boolean;
+
 			FLineNr : Integer;
-			function GetIsError : Boolean;
-			procedure SetIsError(const Value : Boolean);
 			function GetLineNr : Integer;
 			procedure SetLineNr(const Value : Integer);
 
 		protected
+			FErrorText : string;
+			FIsError : Boolean;
 			FLineParseRegex : TRegex;
 			FParserType : TParserType;
 			function GetLineParseRegex : TRegex;
 			procedure SetLineParseRegex(const Value : TRegex);
 			function GetParserType : TParserType;
 			procedure SetParserType(const Value : TParserType);
-
+			function GetErrorText : string;
+			function GetIsError : Boolean;
 		public
-			function ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False) : Boolean; virtual;
+			procedure ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False); virtual;
 			property LineNr : Integer read GetLineNr write SetLineNr;
 			property LineParseRegex : TRegex read GetLineParseRegex write SetLineParseRegex;
-			property IsError : Boolean read GetIsError write SetIsError;
+			property IsError : Boolean read GetIsError;
 			property ParserType : TParserType read GetParserType write SetParserType;
+			property ErrorText : string read GetErrorText;
 
 	end;
 
@@ -44,9 +46,6 @@ type
 	end;
 
 	TRipGrepMatchLineParser = class(TRipGrepLineBase, IRipGrepMatchLineGroup)
-
-		IsError : Boolean;
-		ErrorText : string;
 		function GetGroupId : Integer;
 		procedure SetGroupId(const Value : Integer);
 
@@ -66,12 +65,12 @@ type
 			function GetText : string; stdcall;
 			procedure SetCol(const Value : Integer); stdcall;
 			procedure SetText(const Value : string); stdcall;
+			function Validate : Boolean;
+			function ValidatePath : Boolean;
 
 		protected
 		public
 			procedure ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False); override;
-			function Validate : Boolean;
-			function ValidatePath : Boolean;
 			destructor Destroy; override;
 			constructor Create;
 			property Col : Integer read GetCol write SetCol;
@@ -92,13 +91,13 @@ uses
 function TRipGrepMatchLineParser.ValidatePath : Boolean;
 begin
 	if FileName.StartsWith(':') then begin
-		ErrorText := 'Begins with '':''';
+		FErrorText := 'Begins with '':''';
 	end else if not TPath.HasValidPathChars(FileName, False) then begin
-		ErrorText := 'Invalid chars in path' + FileName;
+		FErrorText := 'Invalid chars in path' + FileName;
 	end else if not(TPath.IsDriveRooted(FileName) or TPath.IsRelativePath(FileName)) then begin
-		ErrorText := 'Not an abs or relative path' + FileName;
+		FErrorText := 'Not an abs or relative path' + FileName;
 	end;
-	Result := ErrorText = '';
+	Result := FErrorText = '';
 end;
 
 procedure TRipGrepMatchLineParser.ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False);
@@ -114,12 +113,12 @@ begin
 		Row := StrToIntDef(m.Groups[3].Value, -1);
 		Col := StrToIntDef(m.Groups[4].Value, -1);
 		Text := m.Groups[5].Value;
-		IsError := not Validate;
+		FIsError := not Validate;
 	end else begin
 		SetRgResultLineParseError(_s);
 	end;
 
-	if (IsError) then begin
+	if (FIsError) then begin
 		TDebugUtils.DebugMessage('Error parsing line: ' + CRLF +
 			{ } _s + CRLF +
 			{ } 'File: ' + FileName + CRLF +
@@ -134,25 +133,25 @@ procedure TRipGrepMatchLineParser.SetRgResultLineParseError(const _sLine : strin
 begin
 	FileName := _sLine;
 	Text := '';
-	ErrorText := 'rg.exe result line couldn''t parsed.';
-	IsError := True;
+	FErrorText := 'rg.exe result line couldn''t parsed.';
+	FIsError := True;
 end;
 
 function TRipGrepMatchLineParser.Validate : Boolean;
 begin
 	Result := False;
-	IsError := not ValidatePath();
-	if IsError then
+	FIsError := not ValidatePath();
+	if FIsError then
 		Exit;
 
-	IsError := IsError and (Row > 0);
-	if IsError then begin
-		ErrorText := 'Invalid Row:' + Row.ToString;
+	FIsError := FIsError and (Row > 0);
+	if FIsError then begin
+		FErrorText := 'Invalid Row:' + Row.ToString;
 		Exit;
 	end;
-	IsError := IsError and (Col > 0);
-	if IsError then begin
-		ErrorText := 'Invalid Col:' + Col.ToString;
+	FIsError := FIsError and (Col > 0);
+	if FIsError then begin
+		FErrorText := 'Invalid Col:' + Col.ToString;
 		Exit
 	end;
 	// GroupId?
@@ -167,14 +166,14 @@ end;
 
 constructor TRipGrepMatchLineParser.Create;
 begin
-	LineNr := 0;
-	FileName := '';
-	Row := -1;
-	Col := -1;
-	IsError := True;
-	GroupId := -1;
-	Text := '';
-	ErrorText := '';
+	FLineNr := 0;
+	FFileName := '';
+	FRow := -1;
+	FCol := -1;
+	FIsError := True;
+	FGroupId := -1;
+	FText := '';
+	FErrorText := '';
 	FLineParseRegex := TRegex.Create(RG_MATCH_LINE_REGEX);
 end;
 
@@ -228,6 +227,11 @@ begin
 	FText := Value;
 end;
 
+function TRipGrepLineBase.GetErrorText : string;
+begin
+	Result := FErrorText;
+end;
+
 function TRipGrepLineBase.GetIsError : Boolean;
 begin
 	Result := FIsError;
@@ -250,15 +254,10 @@ end;
 
 { TRipGrepLineBase }
 
-function TRipGrepLineBase.ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False) : Boolean;
+procedure TRipGrepLineBase.ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False);
 begin
 	LineNr := _iLnNr;
 	// rest should be done in the subclass
-end;
-
-procedure TRipGrepLineBase.SetIsError(const Value : Boolean);
-begin
-	FIsError := Value;
 end;
 
 procedure TRipGrepLineBase.SetLineNr(const Value : Integer);

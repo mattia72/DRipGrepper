@@ -27,12 +27,13 @@ type
 
 	TBeginEndUpdater = record
 
-	private
-		ListBox: TListBox;
-	public
-		class function New(_lb: TListBox): TBeginEndUpdater; static;
-		class operator Finalize(var Dest: TBeginEndUpdater);
-    end;
+		private
+			ListBox : TListBox;
+
+		public
+			class function New(_lb : TListBox) : TBeginEndUpdater; static;
+			class operator Finalize(var Dest : TBeginEndUpdater);
+	end;
 
 	TWidthHelper = class
 		class function TrueFontWidth(fnt : TFont; const text : string) : Integer;
@@ -212,13 +213,15 @@ const
 	SPACE_TITLE = 50;
 	SPACE = 20;
 begin
-	_lv.Columns[0].Width := SPACE_TITLE +
-	// in an early state of drawing, it doesn't work well:
-	// { } GetMaxWidth(_lv, ListView_GetStringWidth(_lv.Handle, PChar(_item.Caption)), 0, maxWidths);
-	{ } GetMaxWidth(_lv, TWidthHelper.TrueFontWidth(_lv.Font, _item.Caption), 0, maxWidths);
-	for var i := 1 to _lv.Columns.Count - 1 do begin
-		_lv.Columns[i].Width := SPACE +
-		{ } GetMaxWidth(_lv, ListView_GetStringWidth(_lv.Handle, PChar(_item.SubItems[i - 1])), i, maxWidths);
+	if (_lv.Items.Count > 0) and (_item.SubItems.Count > 0) then begin
+        _lv.Columns[0].Width := SPACE_TITLE +
+		// in an early state of drawing, it doesn't work well:
+		// { } GetMaxWidth(_lv, ListView_GetStringWidth(_lv.Handle, PChar(_item.Caption)), 0, maxWidths);
+		{ } GetMaxWidth(_lv, TWidthHelper.TrueFontWidth(_lv.Font, _item.Caption), 0, maxWidths);
+		for var i := 1 to _lv.Columns.Count - 1 do begin
+			_lv.Columns[i].Width := SPACE +
+			{ } GetMaxWidth(_lv, ListView_GetStringWidth(_lv.Handle, PChar(_item.SubItems[i - 1])), i, maxWidths);
+		end;
 	end;
 end;
 
@@ -278,12 +281,12 @@ var
 begin
 	val := _s;
 	if not _lb.Items.Contains(val) then begin
-//		_lb.Items.InsertObject(0, val, _val);
+		// _lb.Items.InsertObject(0, val, _val);
 		idxval := _lb.Items.Count - 1;
 	end else begin
 		idxval := _lb.Items.IndexOf(val);
 		_lb.Items.Delete(idxval);
-//		_lb.Items.InsertObject(0, val, _val);
+		// _lb.Items.InsertObject(0, val, _val);
 		_lb.ItemIndex := 0;
 	end;
 	Result := idxval;
@@ -363,13 +366,13 @@ begin
 	Result := size.cx;
 end;
 
-class function TBeginEndUpdater.New(_lb: TListBox): TBeginEndUpdater;
+class function TBeginEndUpdater.New(_lb : TListBox) : TBeginEndUpdater;
 begin
 	Result.ListBox := _lb;
 	Result.ListBox.Items.BeginUpdate;
 end;
 
-class operator TBeginEndUpdater.Finalize(var Dest: TBeginEndUpdater);
+class operator TBeginEndUpdater.Finalize(var Dest : TBeginEndUpdater);
 begin
 	Dest.ListBox.Items.EndUpdate;
 end;
