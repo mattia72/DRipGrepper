@@ -298,7 +298,6 @@ end;
 
 function TRipGrepParameterSettings.ReBuildArguments : TStrings;
 var
-	paramsArr : TArray<string>;
 	params : string;
 begin
 	FRipGrepArguments.Clear();
@@ -313,9 +312,8 @@ begin
 
 	FRipGrepArguments.Add(SearchText);
 
-	AddArgs(searchPath.Split([',;']), True);
+	AddArgs(searchPath.Split([',',';']), True);
 
-	FRipGrepArguments.Add(searchPath);
 	FRipGrepArguments.Delimiter := ' '; // sArgs.QuoteChar := '"';
 
 	Result := FRipGrepArguments;
