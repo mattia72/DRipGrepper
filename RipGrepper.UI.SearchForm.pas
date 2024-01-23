@@ -17,7 +17,8 @@ uses
 	Vcl.ImgList,
 	System.Actions,
 	Vcl.ActnList,
-	RipGrepper.Common.Settings;
+	RipGrepper.Common.Settings,
+	Vcl.StdActns;
 
 type
 	TRipGrepperSearchDialogForm = class(TForm)
@@ -38,20 +39,26 @@ type
 		ActionSearch : TAction;
 		ActionCancel : TAction;
 		ActionConfig : TAction;
+		btnSearchFolder : TButton;
+		ActionSearchFolder : TAction;
+		btnSearchFile : TButton;
+		FileOpen1 : TFileOpen;
+		procedure ActionSearchFolderExecute(Sender : TObject);
 		procedure ActionConfigExecute(Sender : TObject);
 		procedure ActionSearchExecute(Sender : TObject);
+		procedure FileOpen1Accept(Sender : TObject);
 		procedure FormClose(Sender : TObject; var Action : TCloseAction);
 		procedure FormShow(Sender : TObject);
 
 		private
-			FPSettings : PRipGrepperSettings;
+			FSettings : TRipGrepperSettingsHistory;
 			procedure LoadSettings;
 			procedure StoreHistories;
 			procedure StoreSearchSettings;
 
 			{ Private-Deklarationen }
 		public
-			constructor Create(AOwner : TComponent; const _pSettings : PRipGrepperSettings); reintroduce; virtual;
+			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettingsHistory); reintroduce; virtual;
 			{ Public-Deklarationen }
 	end;
 
@@ -68,10 +75,33 @@ uses
 
 {$R *.dfm}
 
-constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _pSettings : PRipGrepperSettings);
+constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _settings : TRipGrepperSettingsHistory);
 begin
 	inherited Create(AOwner);
-	FPSettings := _pSettings;
+	FSettings := _settings;
+end;
+
+procedure TRipGrepperSearchDialogForm.ActionSearchFolderExecute(Sender : TObject);
+var
+	selectedFiles : string;
+	dlg : TFileOpenDialog;
+begin
+	dlg := TFileOpenDialog.Create(nil);
+	try
+		dlg.DefaultFolder := 'C:\';
+		// dlg. := 'All files (*.*)|*.*';
+		dlg.Options := dlg.Options + [fdoAllowMultiSelect, fdoPickfolders];
+		if dlg.Execute(Handle) then begin
+			selectedFiles := dlg.Files.DelimitedText;
+		end;
+	finally
+		dlg.Free;
+	end;
+
+	if selectedFiles <> '' then begin
+		cmbSearchDir.Text := selectedFiles;
+	end;
+
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionConfigExecute(Sender : TObject);
@@ -81,7 +111,7 @@ begin
 	sl := TStringList.Create();
 	sl.Add('-help');
 	try
-		TSimpleProcessOutputStringReader.RunProcess(FPSettings^.RipGrepPath, sl, '.', sl);
+		TSimpleProcessOutputStringReader.RunProcess(FSettings.RipGrepParameters.RipGrepPath, sl, '.', sl);
 		MessageDlg(sl.Text, TMsgDlgType.mtInformation, [mbOk], 0);
 	finally
 		sl.Free;
@@ -93,6 +123,11 @@ begin
 	StoreHistories();
 	StoreSearchSettings();
 	ModalResult := mrOk;
+end;
+
+procedure TRipGrepperSearchDialogForm.FileOpen1Accept(Sender : TObject);
+begin
+	cmbSearchDir.Text := FileOpen1.Dialog.Files.DelimitedText;
 end;
 
 procedure TRipGrepperSearchDialogForm.FormClose(Sender : TObject; var Action : TCloseAction);
@@ -107,12 +142,12 @@ end;
 
 procedure TRipGrepperSearchDialogForm.LoadSettings;
 begin
-	FPSettings^.Load;
-	cmbSearchDir.Items.Assign(FPSettings^.SearchPathsHistory);
+	FSettings.Load;
+	cmbSearchDir.Items.Assign(FSettings.SearchPathsHistory);
 	cmbSearchDir.ItemIndex := 0;
-	cmbSearchText.Items.Assign(FPSettings^.SearchTextsHistory);
+	cmbSearchText.Items.Assign(FSettings.SearchTextsHistory);
 	cmbSearchText.ItemIndex := 0;
-	cmbParameters.Items.Assign(FPSettings^.RipGrepParamsHistory);
+	cmbParameters.Items.Assign(FSettings.RipGrepParamsHistory);
 	cmbParameters.ItemIndex := 0;
 end;
 
@@ -125,11 +160,16 @@ end;
 
 procedure TRipGrepperSearchDialogForm.StoreSearchSettings;
 begin
-	FPSettings^.SearchPathsHistory.Assign(cmbSearchDir.Items);
-	FPSettings^.SearchTextsHistory.Assign(cmbSearchText.Items);
-	FPSettings^.RipGrepParamsHistory.Assign(cmbParameters.Items);
-	FPSettings^.ReBuildArguments;
-	FPSettings^.Store
+	FSettings.SearchPathsHistory.Assign(cmbSearchDir.Items);
+	FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
+
+	FSettings.SearchTextsHistory.Assign(cmbSearchText.Items);
+	FSettings.RipGrepParameters.SearchText := cmbSearchText.Text;
+
+	FSettings.RipGrepParamsHistory.Assign(cmbParameters.Items);
+	FSettings.RipGrepParameters.RipGrepParam := cmbParameters.Text;
+	FSettings.ReBuildArguments;
+	FSettings.Store
 end;
 
 end.

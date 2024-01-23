@@ -128,7 +128,7 @@ type
 			FFileNameType : TFileNameType;
 			FRgExeVersion : string;
 			FSearchPathIsDir : Boolean;
-			FSettings : TRipGrepperSettings;
+			FSettings : TRipGrepperSettingsHistory;
 			FColumnSortTypes : TArray<TSortDirectionType>;
 			FCurrentHistoryItemIndex : Integer;
 			FHistObject : THistoryItemObject;
@@ -166,11 +166,11 @@ type
 			property ViewStyleIndex : Integer read GetViewStyleIndex;
 
 		public
-			constructor Create(_settings : TRipGrepperSettings); reintroduce; overload;
+			constructor Create(_settings : TRipGrepperSettingsHistory); reintroduce; overload;
 			constructor Create(AOwner : TComponent); overload; override;
 			destructor Destroy; override;
 			procedure CopyToClipboardPathOfSelected;
-			class function CreateAndShow(const _settings : TRipGrepperSettings) : string;
+			class function CreateAndShow(const _settings : TRipGrepperSettingsHistory) : string;
 			function IsSearchRunning : Boolean;
 			// INewLineEventHandler
 			procedure OnNewOutputLine(const _iLineNr : integer; const _sLine : string; _bIsLast : Boolean = False);
@@ -210,15 +210,17 @@ uses
 
 {$R *.dfm}
 
-constructor TRipGrepperForm.Create(_settings : TRipGrepperSettings);
+constructor TRipGrepperForm.Create(_settings : TRipGrepperSettingsHistory);
 begin
 	inherited Create(nil);
+	FSettings.Free;
 	FSettings := _settings;
 end;
 
 constructor TRipGrepperForm.Create(AOwner : TComponent);
 begin
 	inherited Create(AOwner);
+	FSettings := TRipGrepperSettingsHistory.Create();
 	FData := TRipGrepperData.Create();
 	FHistoryObjectList := TStringList.Create(TDuplicates.dupIgnore, False, False);
 
@@ -232,11 +234,12 @@ end;
 
 destructor TRipGrepperForm.Destroy;
 begin
-	FData.Free;
 	for var i := 0 to FHistoryObjectList.Count - 1 do begin
 		FHistoryObjectList.Objects[i].Free;
 	end;
 	FHistoryObjectList.Free;
+	FData.Free;
+	FSettings.Free;
 	inherited;
 end;
 
@@ -259,14 +262,14 @@ end;
 
 procedure TRipGrepperForm.ActionAlternateRowColorsExecute(Sender : TObject);
 begin
-	FSettings.AlternateRowColors := not FSettings.AlternateRowColors;
+	FSettings.RipGrepperViewSettings.AlternateRowColors := (not FSettings.RipGrepperViewSettings.AlternateRowColors);
 	FSettings.StoreViewSettings('AlternateRowColors');
 	ListViewResult.Repaint();
 end;
 
 procedure TRipGrepperForm.ActionAlternateRowColorsUpdate(Sender : TObject);
 begin
-	tbAlternateRowColors.Down := FSettings.AlternateRowColors;
+	tbAlternateRowColors.Down := FSettings.RipGrepperViewSettings.AlternateRowColors;
 end;
 
 procedure TRipGrepperForm.ActionCancelExecute(Sender : TObject);
@@ -277,12 +280,12 @@ end;
 
 procedure TRipGrepperForm.ActionCmdLineCopyExecute(Sender : TObject);
 begin
-	ClipBoard.AsText := FSettings.BuildCmdLine;
+	ClipBoard.AsText := FSettings.RipGrepParameters.BuildCmdLine;
 end;
 
 procedure TRipGrepperForm.ActionCmdLineCopyUpdate(Sender : TObject);
 begin
-	ActionCmdLineCopy.Hint := 'Copy command line:' + CRLF + FSettings.BuildCmdLine;
+	ActionCmdLineCopy.Hint := 'Copy command line:' + CRLF + FSettings.RipGrepParameters.BuildCmdLine;
 end;
 
 procedure TRipGrepperForm.ActionConfigExecute(Sender : TObject);
@@ -303,7 +306,7 @@ end;
 procedure TRipGrepperForm.ActionDoSearchExecute(Sender : TObject);
 begin
 	var
-	frm := TRipGrepperSearchDialogForm.Create(self, @FSettings);
+	frm := TRipGrepperSearchDialogForm.Create(self, FSettings);
 	try
 		if (mrOk = frm.ShowModal) then begin
 			ActionSearchExecute(self);
@@ -321,14 +324,14 @@ end;
 
 procedure TRipGrepperForm.ActionIndentLineExecute(Sender : TObject);
 begin
-	FSettings.IndentLines := not FSettings.IndentLines;
+	FSettings.RipGrepperViewSettings.IndentLines := not FSettings.RipGrepperViewSettings.IndentLines;
 	FSettings.StoreViewSettings('IndentLines');
 	ListViewResult.Repaint();
 end;
 
 procedure TRipGrepperForm.ActionIndentLineUpdate(Sender : TObject);
 begin
-	tbIndentLines.Down := FSettings.IndentLines;
+	tbIndentLines.Down := FSettings.RipGrepperViewSettings.IndentLines;
 end;
 
 procedure TRipGrepperForm.ActionRefreshSearchExecute(Sender : TObject);
@@ -350,9 +353,9 @@ procedure TRipGrepperForm.ActionShowRelativePathExecute(Sender : TObject);
 const
 	PARSER_TYPES : TArray<TFileNameType> = [ftAbsolute, ftRelative];
 begin
-	FSettings.ShowRelativePath := not FSettings.ShowRelativePath;
+	FSettings.RipGrepperViewSettings.ShowRelativePath := not FSettings.RipGrepperViewSettings.ShowRelativePath;
 	var
-	idx := Integer(FSettings.ShowRelativePath);
+	idx := Integer(FSettings.RipGrepperViewSettings.ShowRelativePath);
 	FFileNameType := PARSER_TYPES[idx mod Length(PARSER_TYPES)];
 	ListViewResult.InitMaxWidths(FMaxWidths);
 	FSettings.StoreViewSettings('ShowRelativePath');
@@ -373,20 +376,20 @@ end;
 
 procedure TRipGrepperForm.ActionShowFileIconsExecute(Sender : TObject);
 begin
-	FSettings.ShowFileIcon := not FSettings.ShowFileIcon;
+	FSettings.RipGrepperViewSettings.ShowFileIcon := not FSettings.RipGrepperViewSettings.ShowFileIcon;
 	FSettings.StoreViewSettings('ShowFileIcon');
 	ListViewResult.Repaint();
 end;
 
 procedure TRipGrepperForm.ActionShowFileIconsUpdate(Sender : TObject);
 begin
-	tbShowFileIcon.Down := FSettings.ShowFileIcon;
+	tbShowFileIcon.Down := FSettings.RipGrepperViewSettings.ShowFileIcon;
 	// ActionShowFileIcons.ImageIndex := Ifthen(FSettings.ShowFileIcon, IMG_IDX_SHOW_FILE_ICON_TRUE, IMG_IDX_SHOW_FILE_ICON_FALSE);
 end;
 
 procedure TRipGrepperForm.ActionShowRelativePathUpdate(Sender : TObject);
 begin
-	tbShowRelativePath.Down := FSettings.ShowRelativePath;
+	tbShowRelativePath.Down := FSettings.RipGrepperViewSettings.ShowRelativePath;
 	// ActionShowRelativePath.ImageIndex := Ifthen(FSettings.ShowRelativePath, IMG_IDX_SHOW_RELATIVE_PATH, IMG_IDX_SHOW_ABS_PATH);
 end;
 
@@ -444,7 +447,7 @@ begin
 	FHistObject.ClearMatches;
 end;
 
-class function TRipGrepperForm.CreateAndShow(const _settings : TRipGrepperSettings) : string;
+class function TRipGrepperForm.CreateAndShow(const _settings : TRipGrepperSettingsHistory) : string;
 begin
 	var
 	form := TRipGrepperForm.Create(_settings);
@@ -474,7 +477,7 @@ procedure TRipGrepperForm.FormShow(Sender : TObject);
 begin
 	LoadSettings;
 	SetStatusBarMessage();
-	FRgExeVersion := TFileUtils.GetAppNameAndVersion(FSettings.RipGrepPath);
+	FRgExeVersion := TFileUtils.GetAppNameAndVersion(FSettings.RipGrepParameters.RipGrepPath);
 end;
 
 function TRipGrepperForm.GetSortingImageIndex(const _idx : Integer) : Integer;
@@ -634,7 +637,7 @@ begin
 	if _item.SubItems.Count = 0 then
 		Exit;
 
-	if (FSettings.AlternateRowColors) then begin
+	if (FSettings.RipGrepperViewSettings.AlternateRowColors) then begin
 		_Canvas.SetAlteringColors(_Item);
 	end;
 	_Canvas.SetSelectedColors(_State);
@@ -647,7 +650,7 @@ begin
 	x2 := _Rect.Left;
 	r := _Rect;
 	bm := nil;
-	if FSettings.ShowFileIcon then begin
+	if FSettings.RipGrepperViewSettings.ShowFileIcon then begin
 		bm := TItemDrawer.DrawFileIcon(_Canvas, r, _Item, ImageFileIcon);
 	end;
 
@@ -672,7 +675,7 @@ begin
 			end;
 			3 : begin
 				s := _Item.SubItems[i - 1]; // Match
-				if not FSettings.IndentLines then begin
+				if not FSettings.RipGrepperViewSettings.IndentLines then begin
 					s := s.TrimLeft;
 				end;
 			end;
@@ -693,7 +696,7 @@ end;
 function TRipGrepperForm.GetAbsOrRelativePath(const _sFullPath : string) : string;
 begin
 	Result := _sFullPath;
-	if FSettings.ShowRelativePath and FSearchPathIsDir then begin
+	if FSettings.RipGrepperViewSettings.ShowRelativePath and FSearchPathIsDir then begin
 		Result := Result.Replace(FSettings.ActualSearchPath, '.', [rfIgnoreCase]);
 	end;
 end;
@@ -832,9 +835,10 @@ begin
 		procedure()
 		begin
 			workDir := TDirectory.GetCurrentDirectory();
-			TDebugUtils.DebugMessage('run: ' + FSettings.RipGrepPath + ' ' + FSettings.RipGrepArguments.DelimitedText);
+			TDebugUtils.DebugMessage('run: ' + FSettings.RipGrepParameters.RipGrepPath + ' '
+			{}+ FSettings.RipGrepParameters.RipGrepArguments.DelimitedText);
 			FswSearchStart := TStopwatch.StartNew;
-			iRipGrepResult := TProcessUtils.RunProcess(FSettings.RipGrepPath, FSettings.RipGrepArguments,
+			iRipGrepResult := TProcessUtils.RunProcess(FSettings.RipGrepParameters.RipGrepPath, FSettings.RipGrepParameters.RipGrepArguments,
 				{ } workDir,
 				{ } self as INewLineEventHandler,
 				{ } self as ITerminateEventProducer,

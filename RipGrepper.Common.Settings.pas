@@ -8,22 +8,57 @@ uses
 	System.Generics.Collections;
 
 type
-	TRipGrepperSettings = record
+	TRipGrepParameterSettings = class
+		private
+			FRipGrepArguments : TStrings;
+			FRipGrepParam : string;
+			FRipGrepPath : string;
+			FSearchPath : string;
+			FSearchText : string;
+
+		public
+			constructor Create;
+			destructor Destroy; override;
+			function BuildCmdLine : string;
+			procedure InitRipGrepExePath;
+			function ReBuildArguments : TStrings;
+			property RipGrepParam : string read FRipGrepParam write FRipGrepParam;
+			property SearchPath : string read FSearchPath write FSearchPath;
+			property SearchText : string read FSearchText write FSearchText;
+			property RipGrepArguments : TStrings read FRipGrepArguments write FRipGrepArguments;
+			property RipGrepPath : string read FRipGrepPath write FRipGrepPath;
+	end;
+
+	TRipGrepperViewSettings = class
 		const
-			MAX_HISTORY_COUNT = 20;
 			VIEW_SETTINGS : array [0 .. 3] of string = ('ShowRelativePath', 'ShowFileIcon', 'AlternateRowColors', 'IndentLines');
 
 		var
-			SettingsFile : TIniFile;
-			RipGrepPath : string;
-			ShowRelativePath : Boolean;
-			ShowFileIcon : Boolean;
-			AlternateRowColors : Boolean;
-			IndentLines : Boolean;
-			IsLoaded : Boolean;
 
 		private
+			FAlternateRowColors : Boolean;
+
+		public
+			IndentLines : Boolean;
+			ShowFileIcon : Boolean;
+			ShowRelativePath : Boolean;
+			procedure StoreViewSettings(_ini : TIniFile; const _s : string = '');
+			property AlternateRowColors : Boolean read FAlternateRowColors write FAlternateRowColors;
+
+			procedure Init;
+	end;
+
+	TRipGrepperSettingsHistory = class
+		const
+			MAX_HISTORY_COUNT = 20;
+
 		var
+		private
+		var
+			FIsLoaded : Boolean;
+			FSettingsFile : TIniFile;
+			FRipGrepParameters : TRipGrepParameterSettings;
+			FRipGrepperViewSettings : TRipGrepperViewSettings;
 			FRipGrepParamsHistory : TSTrings;
 			FSearchPathsHistory : TStrings;
 			FSearchTextsHistory : TStrings;
@@ -33,30 +68,30 @@ type
 			function GetActualSearchPath : string;
 			function GetActualSearchText : string;
 			function GetIsEmpty : Boolean;
-			function GetRipGrepArguments : TStrings;
 			procedure InitSettings;
 			procedure LoadHistoryEntries(var _list : TStrings; const _section : string);
 			procedure StoreHistoryEntries(const _list : TStrings; const _section : string);
 
 		public
-			function BuildCmdLine: string;
 			procedure Load;
-			function ReBuildArguments: TStrings;
 			procedure Store;
 			procedure StoreViewSettings(const _s : string = '');
-			class operator Finalize(var Dest : TRipGrepperSettings);
-			class operator Initialize(out Dest : TRipGrepperSettings);
+			destructor Destroy; override;
+			constructor Create;
+			function GetRipGrepArguments : TStrings;
+			function ReBuildArguments : TStrings;
 			property ActualRipGrepParam : string read GetActualRipGrepParam;
 			property ActualSearchPath : string read GetActualSearchPath;
 			property ActualSearchText : string read GetActualSearchText;
 			property IsEmpty : Boolean read GetIsEmpty;
-			property RipGrepArguments : TStrings read GetRipGrepArguments;
+
+			property IsLoaded : Boolean read FIsLoaded;
+			property RipGrepParameters : TRipGrepParameterSettings read FRipGrepParameters write FRipGrepParameters;
 			property SearchPathsHistory : TStrings read FSearchPathsHistory;
 			property RipGrepParamsHistory : TSTrings read FRipGrepParamsHistory;
+			property RipGrepperViewSettings : TRipGrepperViewSettings read FRipGrepperViewSettings write FRipGrepperViewSettings;
 			property SearchTextsHistory : TStrings read FSearchTextsHistory;
 	end;
-
-	PRipGrepperSettings = ^TRipGrepperSettings;
 
 implementation
 
@@ -74,7 +109,144 @@ uses
 	System.UITypes,
 	RipGrepper.Tools.ProcessUtils;
 
-function TRipGrepperSettings.BuildCmdLine: string;
+function TRipGrepperSettingsHistory.GetActualRipGrepParam : string;
+begin
+	RipGrepParamsHistory.TryGetDef(0, Result);
+end;
+
+function TRipGrepperSettingsHistory.GetActualSearchPath : string;
+begin
+	SearchPathsHistory.TryGetDef(0, Result);
+end;
+
+function TRipGrepperSettingsHistory.GetActualSearchText : string;
+begin
+	SearchTextsHistory.TryGetDef(0, Result);
+end;
+
+function TRipGrepperSettingsHistory.GetIsEmpty : Boolean;
+begin
+	Result := FRipGrepParameters.RipGrepPath.IsEmpty;
+end;
+
+function TRipGrepperSettingsHistory.GetRipGrepArguments : TStrings;
+begin
+	Result := FRipGrepParameters.RipGrepArguments;
+end;
+
+procedure TRipGrepperSettingsHistory.InitSettings;
+begin
+	FRipGrepParameters.InitRipGrepExePath();
+
+	if SearchPathsHistory.Count = 0 then begin
+		SearchPathsHistory.Add(TDirectory.GetCurrentDirectory());
+	end;
+
+	if SearchTextsHistory.Count = 0 then begin
+		SearchTextsHistory.Add('search text');
+	end;
+
+	if RipGrepParamsHistory.Count = 0 then begin
+		RipGrepParamsHistory.Add('');
+	end;
+end;
+
+procedure TRipGrepperSettingsHistory.LoadHistoryEntries(var _list : TStrings; const _section : string);
+begin
+	for var i := 0 to MAX_HISTORY_COUNT do begin
+		var
+		s := FSettingsFile.ReadString(_section, 'Item_' + i.ToString, '');
+		if s <> '' then begin
+			_list.Add(s);
+		end
+		else
+			break;
+	end;
+end;
+
+destructor TRipGrepperSettingsHistory.Destroy;
+begin
+	FRipGrepArguments.Free;
+	FRipGrepParamsHistory.Free;
+	FSearchTextsHistory.Free;
+	FSearchPathsHistory.Free;
+	FRipGrepperViewSettings.Free;
+	FRipGrepParameters.Free;
+	FSettingsFile.Free;
+end;
+
+constructor TRipGrepperSettingsHistory.Create;
+begin
+	FSettingsFile := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
+	FRipGrepParameters := TRipGrepParameterSettings.Create();
+	FRipGrepperViewSettings := TRipGrepperViewSettings.Create();
+	FRipGrepperViewSettings.Init();
+	FSearchPathsHistory := TStringList.Create;
+	FSearchTextsHistory := TStringList.Create;
+	FRipGrepParamsHistory := TStringList.Create;
+	FRipGrepArguments := TStringList.Create();
+	FIsLoaded := False;
+end;
+
+procedure TRipGrepperSettingsHistory.Load;
+begin
+	FRipGrepParameters.RipGrepPath := FSettingsFile.ReadString('RipGrepSettings', 'Path', '');
+
+	FRipGrepperViewSettings.ShowRelativePath := FSettingsFile.ReadBool('RipGrepperSettings', 'ShowRelativePath', False);
+	FRipGrepperViewSettings.ShowFileIcon := FSettingsFile.ReadBool('RipGrepperSettings', 'ShowFileIcon', False);
+	FRipGrepperViewSettings.AlternateRowColors := FSettingsFile.ReadBool('RipGrepperSettings', 'AlternateRowColors', False);
+	FRipGrepperViewSettings.IndentLines := FSettingsFile.ReadBool('RipGrepperSettings', 'IndentLines', False);
+
+	LoadHistoryEntries(FSearchPathsHistory, 'SearchPathsHistory');
+	LoadHistoryEntries(FSearchTextsHistory, 'SearchTextsHistory');
+	LoadHistoryEntries(FRipGrepParamsHistory, 'RipGrepParamsHistory');
+
+	InitSettings;
+	FIsLoaded := True;
+end;
+
+function TRipGrepperSettingsHistory.ReBuildArguments : TStrings;
+begin
+	Result := FRipGrepParameters.ReBuildArguments;
+end;
+
+procedure TRipGrepperSettingsHistory.Store;
+begin
+	if IsLoaded then begin
+		FSettingsFile.WriteString('RipGrepSettings', 'Path', FRipGrepParameters.RipGrepPath);
+		StoreViewSettings();
+		StoreHistoryEntries(SearchPathsHistory, 'SearchPathsHistory');
+		StoreHistoryEntries(SearchTextsHistory, 'SearchTextsHistory');
+		StoreHistoryEntries(RipGrepParamsHistory, 'RipGrepParamsHistory');
+	end;
+end;
+
+procedure TRipGrepperSettingsHistory.StoreViewSettings(const _s : string = '');
+begin
+	FRipGrepperViewSettings.StoreViewSettings(FSettingsFile, _s);
+end;
+
+procedure TRipGrepperSettingsHistory.StoreHistoryEntries(const _list : TStrings; const _section : string);
+begin
+	for var i := _list.Count - 1 downto 0 do begin
+		FSettingsFile.WriteString(_section, 'Item_' + i.ToString, _list[i]);
+	end;
+end;
+
+constructor TRipGrepParameterSettings.Create;
+begin
+	inherited;
+	RipGrepPath := '';
+	FRipGrepArguments := TStringList.Create;
+end;
+
+destructor TRipGrepParameterSettings.Destroy;
+begin
+	FRipGrepArguments.Free;
+	inherited;
+end;
+
+function TRipGrepParameterSettings.BuildCmdLine : string;
 var
 	cmdLine : TStringList;
 begin
@@ -89,32 +261,7 @@ begin
 	end;
 end;
 
-function TRipGrepperSettings.GetActualRipGrepParam : string;
-begin
-	RipGrepParamsHistory.TryGetDef(0, Result);
-end;
-
-function TRipGrepperSettings.GetActualSearchPath : string;
-begin
-	SearchPathsHistory.TryGetDef(0, Result);
-end;
-
-function TRipGrepperSettings.GetActualSearchText : string;
-begin
-	SearchTextsHistory.TryGetDef(0, Result);
-end;
-
-function TRipGrepperSettings.GetIsEmpty : Boolean;
-begin
-	Result := RipGrepPath.IsEmpty;
-end;
-
-function TRipGrepperSettings.GetRipGrepArguments : TStrings;
-begin
-	Result := FRipGrepArguments;
-end;
-
-procedure TRipGrepperSettings.InitSettings;
+procedure TRipGrepParameterSettings.InitRipGrepExePath;
 var
 	rgExists : Boolean;
 	rgPath : string;
@@ -133,80 +280,15 @@ begin
 
 		RipGrepPath := rgPath.Trim();
 	end;
-
-	if SearchPathsHistory.Count = 0 then begin
-		SearchPathsHistory.Add(TDirectory.GetCurrentDirectory());
-	end;
-
-	if SearchTextsHistory.Count = 0 then begin
-		SearchTextsHistory.Add('search text');
-	end;
-
-	if RipGrepParamsHistory.Count = 0 then begin
-		RipGrepParamsHistory.Add('');
-	end;
 end;
 
-procedure TRipGrepperSettings.LoadHistoryEntries(var _list : TStrings; const _section : string);
-begin
-	for var i := 0 to MAX_HISTORY_COUNT do begin
-		var
-		s := SettingsFile.ReadString(_section, 'Item_' + i.ToString, '');
-		if s <> '' then begin
-			_list.Add(s);
-		end
-		else
-			break;
-	end;
-end;
-
-class operator TRipGrepperSettings.Finalize(var Dest : TRipGrepperSettings);
-begin
-	Dest.FSearchPathsHistory.Free;
-	Dest.FSearchTextsHistory.Free;
-	Dest.FRipGrepParamsHistory.Free;
-	Dest.FRipGrepArguments.Free;
-end;
-
-class operator TRipGrepperSettings.Initialize(out Dest : TRipGrepperSettings);
-begin
-	Dest.SettingsFile := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
-	Dest.RipGrepPath := '';
-	Dest.ShowRelativePath := False;
-	Dest.ShowFileIcon := False;
-	Dest.AlternateRowColors := False;
-	Dest.IndentLines := False;
-	Dest.FSearchPathsHistory := TStringList.Create;
-	Dest.FSearchTextsHistory := TStringList.Create;
-	Dest.FRipGrepParamsHistory := TStringList.Create;
-	Dest.FRipGrepArguments := TStringList.Create();
-	Dest.IsLoaded := False;
-end;
-
-procedure TRipGrepperSettings.Load;
-begin
-	RipGrepPath := SettingsFile.ReadString('RipGrepSettings', 'Path', '');
-
-	ShowRelativePath := SettingsFile.ReadBool('RipGrepperSettings', 'ShowRelativePath', False);
-	ShowFileIcon := SettingsFile.ReadBool('RipGrepperSettings', 'ShowFileIcon', False);
-	AlternateRowColors := SettingsFile.ReadBool('RipGrepperSettings', 'AlternateRowColors', False);
-	IndentLines := SettingsFile.ReadBool('RipGrepperSettings', 'IndentLines', False);
-
-	LoadHistoryEntries(FSearchPathsHistory, 'SearchPathsHistory');
-	LoadHistoryEntries(FSearchTextsHistory, 'SearchTextsHistory');
-	LoadHistoryEntries(FRipGrepParamsHistory, 'RipGrepParamsHistory');
-
-	InitSettings;
-	IsLoaded := True;
-end;
-
-function TRipGrepperSettings.ReBuildArguments: TStrings;
+function TRipGrepParameterSettings.ReBuildArguments : TStrings;
 var
 	paramsArr : TArray<string>;
 	params : string;
 begin
 	FRipGrepArguments.Clear();
-	params := ActualRipGrepParam;
+	params := RipGrepParam;
 	for var s in RG_NECESSARY_PARAMS do begin
 		if not params.Contains(s) then begin
 			params := s + ' ' + params;
@@ -220,28 +302,25 @@ begin
 		end;
 	end;
 
-	FRipGrepArguments.Add(ActualSearchText);
+	FRipGrepArguments.Add(SearchText);
 
 	var
-	searchPath := TProcessUtils.MaybeQuoteIfNotQuoted(ActualSearchPath);
+	searchPath := TProcessUtils.MaybeQuoteIfNotQuoted(SearchPath);
 	FRipGrepArguments.Add(searchPath);
 	FRipGrepArguments.Delimiter := ' '; // sArgs.QuoteChar := '"';
 
 	Result := FRipGrepArguments;
 end;
 
-procedure TRipGrepperSettings.Store;
+procedure TRipGrepperViewSettings.Init;
 begin
-	if IsLoaded then begin
-		SettingsFile.WriteString('RipGrepSettings', 'Path', RipGrepPath);
-		StoreViewSettings();
-		StoreHistoryEntries(SearchPathsHistory, 'SearchPathsHistory');
-		StoreHistoryEntries(SearchTextsHistory, 'SearchTextsHistory');
-		StoreHistoryEntries(RipGrepParamsHistory, 'RipGrepParamsHistory');
-	end;
+	ShowRelativePath := False;
+	ShowFileIcon := False;
+	AlternateRowColors := False;
+	IndentLines := False;
 end;
 
-procedure TRipGrepperSettings.StoreViewSettings(const _s : string = '');
+procedure TRipGrepperViewSettings.StoreViewSettings(_ini : TIniFile; const _s : string = '');
 var
 	i : integer;
 begin
@@ -249,29 +328,22 @@ begin
 	if _s.IsEmpty then begin
 		// store all
 		for i := 0 to high(VIEW_SETTINGS) do begin
-			StoreViewSettings(VIEW_SETTINGS[i]);
+			StoreViewSettings(_ini, VIEW_SETTINGS[i]);
 		end;
 	end else if MatchStr(_s, VIEW_SETTINGS[i]) then begin
-		SettingsFile.WriteBool('RipGrepperSettings', VIEW_SETTINGS[i], ShowRelativePath);
+		_ini.WriteBool('RipGrepperSettings', VIEW_SETTINGS[i], ShowRelativePath);
 		TDebugUtils.DebugMessage(VIEW_SETTINGS[i] + ' stored');
 	end else if MatchStr(_s, VIEW_SETTINGS[PreInc(i)]) then begin
-		SettingsFile.WriteBool('RipGrepperSettings', VIEW_SETTINGS[i], ShowFileIcon);
+		_ini.WriteBool('RipGrepperSettings', VIEW_SETTINGS[i], ShowFileIcon);
 		TDebugUtils.DebugMessage(VIEW_SETTINGS[i] + ' stored');
 	end else if MatchStr(_s, VIEW_SETTINGS[PreInc(i)]) then begin
-		SettingsFile.WriteBool('RipGrepperSettings', VIEW_SETTINGS[i], AlternateRowColors);
+		_ini.WriteBool('RipGrepperSettings', VIEW_SETTINGS[i], AlternateRowColors);
 		TDebugUtils.DebugMessage(VIEW_SETTINGS[i] + ' stored');
 	end else if MatchStr(_s, VIEW_SETTINGS[PreInc(i)]) then begin
-		SettingsFile.WriteBool('RipGrepperSettings', VIEW_SETTINGS[i], IndentLines);
+		_ini.WriteBool('RipGrepperSettings', VIEW_SETTINGS[i], IndentLines);
 		TDebugUtils.DebugMessage(VIEW_SETTINGS[i] + ' stored');
 	end else begin
 		raise Exception.Create('Settings: ' + _s + ' not stored!');
-	end;
-end;
-
-procedure TRipGrepperSettings.StoreHistoryEntries(const _list : TStrings; const _section : string);
-begin
-	for var i := _list.Count - 1 downto 0 do begin
-		SettingsFile.WriteString(_section, 'Item_' + i.ToString, _list[i]);
 	end;
 end;
 
