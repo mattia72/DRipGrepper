@@ -191,7 +191,7 @@ object RipGrepperForm: TRipGrepperForm
       object tbDoSearchCancel: TToolButton
         Left = 28
         Top = 0
-        Action = ActionDoSearch
+        Action = ActionShowSearchForm
       end
       object tbRefreshSearch: TToolButton
         Left = 51
@@ -1124,13 +1124,13 @@ object RipGrepperForm: TRipGrepperForm
       Caption = 'Copy Path to Clipboard'
       OnExecute = ActionCopyPathToClipboardExecute
     end
-    object ActionDoSearch: TAction
+    object ActionShowSearchForm: TAction
       Caption = 'Search...'
       Hint = 'Search...'
       ImageIndex = 8
       ShortCut = 16467
-      OnExecute = ActionDoSearchExecute
-      OnUpdate = ActionDoSearchUpdate
+      OnExecute = ActionShowSearchFormExecute
+      OnUpdate = ActionShowSearchFormUpdate
     end
     object ActionShowFileIcons: TAction
       Caption = 'Show File  Icons'

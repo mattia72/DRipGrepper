@@ -38,15 +38,16 @@ type
 		ActionList : TActionList;
 		ActionSearch : TAction;
 		ActionCancel : TAction;
-		ActionConfig : TAction;
+    ActionShowRipGrepOptionsForm: TAction;
 		btnSearchFolder : TButton;
 		ActionSearchFolder : TAction;
 		btnSearchFile : TButton;
 		ActionSearchFile : TAction;
 		procedure ActionSearchFolderExecute(Sender : TObject);
-		procedure ActionConfigExecute(Sender : TObject);
+		procedure ActionShowRipGrepOptionsFormExecute(Sender : TObject);
 		procedure ActionSearchExecute(Sender : TObject);
 		procedure ActionSearchFileExecute(Sender : TObject);
+		procedure ShowOptionsForm;
 		procedure FormClose(Sender : TObject; var Action : TCloseAction);
 		procedure FormShow(Sender : TObject);
 
@@ -72,7 +73,8 @@ uses
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.ProcessUtils,
 
-	System.UITypes;
+	System.UITypes,
+	RipGrepper.UI.RipGrepOptionsForm;
 
 {$R *.dfm}
 
@@ -93,18 +95,9 @@ begin
 	end;
 end;
 
-procedure TRipGrepperSearchDialogForm.ActionConfigExecute(Sender : TObject);
-var
-	sl : TStrings;
+procedure TRipGrepperSearchDialogForm.ActionShowRipGrepOptionsFormExecute(Sender : TObject);
 begin
-	sl := TStringList.Create();
-	sl.Add('-help');
-	try
-		TSimpleProcessOutputStringReader.RunProcess(FSettings.RipGrepParameters.RipGrepPath, sl, '.', sl);
-		MessageDlg(sl.Text, TMsgDlgType.mtInformation, [mbOk], 0);
-	finally
-		sl.Free;
-	end;
+	ShowOptionsForm();
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionSearchExecute(Sender : TObject);
@@ -124,6 +117,20 @@ begin
 		cmbSearchDir.Text := selectedFiles;
 	end;
 
+end;
+
+procedure TRipGrepperSearchDialogForm.ShowOptionsForm;
+begin
+	var
+	frm := TRipGrepOptionsForm.Create(self, FSettings.RipGrepParameters);
+	try
+		if (mrOk = frm.ShowModal) then begin
+			cmbOptions.Text := cmbOptions.Text + ' ' + FSettings.RipGrepParameters.Options;
+		end;
+
+	finally
+		frm.Free;
+	end;
 end;
 
 procedure TRipGrepperSearchDialogForm.FormClose(Sender : TObject; var Action : TCloseAction);

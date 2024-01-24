@@ -63,7 +63,7 @@ type
 		ImageListListView : TImageList;
 		ImageFileIcon : TImage;
 		tbDoSearchCancel : TToolButton;
-		ActionDoSearch : TAction;
+		ActionShowSearchForm : TAction;
 		tbShowFileIcon : TToolButton;
 		ActionShowFileIcons : TAction;
 		ToolButton3 : TToolButton;
@@ -92,8 +92,8 @@ type
 		procedure ActionConfigExecute(Sender : TObject);
 		procedure ActionCopyFileNameExecute(Sender : TObject);
 		procedure ActionCopyPathToClipboardExecute(Sender : TObject);
-		procedure ActionDoSearchExecute(Sender : TObject);
-		procedure ActionDoSearchUpdate(Sender : TObject);
+		procedure ActionShowSearchFormExecute(Sender : TObject);
+		procedure ActionShowSearchFormUpdate(Sender : TObject);
 		procedure ActionIndentLineExecute(Sender : TObject);
 		procedure ActionIndentLineUpdate(Sender : TObject);
 		procedure ActionRefreshSearchExecute(Sender : TObject);
@@ -303,7 +303,7 @@ begin
 	CopyToClipboardPathOfSelected();
 end;
 
-procedure TRipGrepperForm.ActionDoSearchExecute(Sender : TObject);
+procedure TRipGrepperForm.ActionShowSearchFormExecute(Sender : TObject);
 begin
 	var
 	frm := TRipGrepperSearchDialogForm.Create(self, FSettings);
@@ -317,9 +317,9 @@ begin
 	end;
 end;
 
-procedure TRipGrepperForm.ActionDoSearchUpdate(Sender : TObject);
+procedure TRipGrepperForm.ActionShowSearchFormUpdate(Sender : TObject);
 begin
-	ActionDoSearch.Enabled := FSettings.IsEmpty or (not IsSearchRunning);
+	ActionShowSearchForm.Enabled := FSettings.IsEmpty or (not IsSearchRunning);
 end;
 
 procedure TRipGrepperForm.ActionIndentLineExecute(Sender : TObject);
@@ -810,7 +810,7 @@ begin
 		var
 		beu := TBeginEndUpdater.New(ListBoxSearchHistory);
 		FHistObject.FileCount := FData.FileCount;
-        FHistObject.ErrorCount := FData.ErrorCount;
+		FHistObject.ErrorCount := FData.ErrorCount;
 	end;
 	ListBoxSearchHistory.Refresh;
 end;
@@ -836,9 +836,10 @@ begin
 		begin
 			workDir := TDirectory.GetCurrentDirectory();
 			TDebugUtils.DebugMessage('run: ' + FSettings.RipGrepParameters.RipGrepPath + ' '
-			{}+ FSettings.RipGrepParameters.RipGrepArguments.DelimitedText);
+				{ } + FSettings.RipGrepParameters.RipGrepArguments.DelimitedText);
 			FswSearchStart := TStopwatch.StartNew;
-			iRipGrepResult := TProcessUtils.RunProcess(FSettings.RipGrepParameters.RipGrepPath, FSettings.RipGrepParameters.RipGrepArguments,
+			iRipGrepResult := TProcessUtils.RunProcess(FSettings.RipGrepParameters.RipGrepPath,
+				FSettings.RipGrepParameters.RipGrepArguments,
 				{ } workDir,
 				{ } self as INewLineEventHandler,
 				{ } self as ITerminateEventProducer,
