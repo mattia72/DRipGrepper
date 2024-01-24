@@ -11,7 +11,7 @@ type
 	TRipGrepParameterSettings = class
 		private
 			FRipGrepArguments : TStrings;
-			FRipGrepParam : string;
+			FOptions: string;
 			FRipGrepPath : string;
 			FSearchPath : string;
 			FSearchText : string;
@@ -23,7 +23,7 @@ type
 			function BuildCmdLine : string;
 			procedure InitRipGrepExePath;
 			function ReBuildArguments : TStrings;
-			property RipGrepParam : string read FRipGrepParam write FRipGrepParam;
+			property Options: string read FOptions write FOptions;
 			property SearchPath : string read FSearchPath write FSearchPath;
 			property SearchText : string read FSearchText write FSearchText;
 			property RipGrepArguments : TStrings read FRipGrepArguments write FRipGrepArguments;
@@ -301,7 +301,7 @@ var
 	params : string;
 begin
 	FRipGrepArguments.Clear();
-	params := RipGrepParam;
+	params := Options;
 	for var s in RG_NECESSARY_PARAMS do begin
 		if not params.Contains(s) then begin
 			params := s + ' ' + params;
