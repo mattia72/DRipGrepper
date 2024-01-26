@@ -59,7 +59,6 @@
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
         <SanitizedProjectName>DRipGrepper</SanitizedProjectName>
         <Custom_Styles>Windows10|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows10.vsf;&quot;Windows10 Blue|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows10Blue.vsf&quot;;&quot;Windows10 Dark|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows10Dark.vsf&quot;</Custom_Styles>
-        <DCC_UnitSearchPath>.\external\dzlib;.\external\GExpert;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_Define>NO_TRANSLATION;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
@@ -135,6 +134,26 @@
         <DCCReference Include="external\dzlib\u_dzMiscUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzTypesUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzTypInfo.pas"/>
+        <DCCReference Include="external\GExpert\GX_IdeDock.pas">
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="external\dzlib\u_dzVersionInfo.pas"/>
+        <DCCReference Include="external\dzlib\u_dzVclUtils.pas"/>
+        <DCCReference Include="external\dzlib\u_dzVariantUtils.pas"/>
+        <DCCReference Include="external\dzlib\u_dzTypes.pas"/>
+        <DCCReference Include="external\dzlib\u_dzTranslator.pas"/>
+        <DCCReference Include="external\dzlib\u_dzStringUtils.pas"/>
+        <DCCReference Include="external\dzlib\u_dzStringArrayUtils.pas"/>
+        <DCCReference Include="external\dzlib\u_dzSortUtils.pas"/>
+        <DCCReference Include="external\dzlib\u_dzSortProvider.pas"/>
+        <DCCReference Include="external\dzlib\u_dzQuicksort.pas"/>
+        <DCCReference Include="external\dzlib\u_dzOsUtils.pas"/>
+        <DCCReference Include="external\dzlib\u_dzNamedThread.pas"/>
+        <DCCReference Include="external\dzlib\u_dzLineBuilder.pas"/>
+        <DCCReference Include="external\dzlib\u_dzFileUtils.pas"/>
+        <DCCReference Include="external\dzlib\u_dzDateUtils.pas"/>
+        <DCCReference Include="external\dzlib\u_dzConvertUtils.pas"/>
+        <DCCReference Include="external\dzlib\u_dzClassUtils.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
