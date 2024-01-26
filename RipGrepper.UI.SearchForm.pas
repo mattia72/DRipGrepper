@@ -58,6 +58,7 @@ type
 			FSettings : TRipGrepperSettingsHistory;
 			function GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
 			procedure LoadSettings;
+			procedure ProcessControl(_ctrl: TControl; _imgList: TImageList); virtual;
 			procedure StoreHistories;
 			procedure StoreSearchSettings;
 
@@ -86,7 +87,7 @@ constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _setti
 begin
 	inherited Create(AOwner);
 	FSettings := _settings;
-    InitDpiScaler();
+	InitDpiScaler();
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionSearchFolderExecute(Sender : TObject);
@@ -132,12 +133,20 @@ begin
 	if not Assigned(FImageScaler) then
 		FImageScaler := TImageListScaler.Create(Self, ImageList1);
 	li := FImageScaler.GetScaledList(_NewDpi);
-	for var i := 0 to ControlCount do begin
-		var
-		btn := Controls[i];
-		if btn is TButton then begin
-			(btn as TButton).Images := li;
-		end;
+	ProcessControl(self, li);
+end;
+
+procedure TRipGrepperSearchDialogForm.ProcessControl(_ctrl: TControl; _imgList: TImageList);
+var
+	i : integer;
+begin
+	if _ctrl is TButton then begin
+		(_ctrl as TButton).Images := _imgList;
+	end;
+
+	if _ctrl is TWinControl then begin
+		for i := 0 to (_ctrl as TWinControl).ControlCount - 1 do
+			ProcessControl((_ctrl as TWinControl).Controls[i], _imgList);
 	end;
 end;
 
