@@ -19,10 +19,12 @@ uses
 	Vcl.ActnList,
 	RipGrepper.Common.Settings,
 	Vcl.StdActns,
-	Vcl.Dialogs;
+	Vcl.Dialogs,
+	u_dzDpiScaleUtils,
+	GX_IdeDock;
 
 type
-	TRipGrepperSearchDialogForm = class(TForm)
+	TRipGrepperSearchDialogForm = class(TfmIdeDockForm)
 		pnlSearch : TPanel;
 		gbSearch : TGroupBox;
 		lblParams : TLabel;
@@ -38,7 +40,7 @@ type
 		ActionList : TActionList;
 		ActionSearch : TAction;
 		ActionCancel : TAction;
-    ActionShowRipGrepOptionsForm: TAction;
+		ActionShowRipGrepOptionsForm : TAction;
 		btnSearchFolder : TButton;
 		ActionSearchFolder : TAction;
 		btnSearchFile : TButton;
@@ -52,16 +54,19 @@ type
 		procedure FormShow(Sender : TObject);
 
 		private
+			FImageScaler : TImageListScaler;
 			FSettings : TRipGrepperSettingsHistory;
 			function GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
 			procedure LoadSettings;
 			procedure StoreHistories;
 			procedure StoreSearchSettings;
 
-			{ Private-Deklarationen }
+		protected
+			procedure ApplyDpi(_NewDpi : Integer; _NewBounds : PRect); override;
+			procedure ArrangeControls; override;
+
 		public
 			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettingsHistory); reintroduce; virtual;
-			{ Public-Deklarationen }
 	end;
 
 var
@@ -72,7 +77,6 @@ implementation
 uses
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.ProcessUtils,
-
 	System.UITypes,
 	RipGrepper.UI.RipGrepOptionsForm;
 
@@ -82,6 +86,7 @@ constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _setti
 begin
 	inherited Create(AOwner);
 	FSettings := _settings;
+    InitDpiScaler();
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionSearchFolderExecute(Sender : TObject);
@@ -119,13 +124,36 @@ begin
 
 end;
 
+procedure TRipGrepperSearchDialogForm.ApplyDpi(_NewDpi : Integer; _NewBounds : PRect);
+var
+	li : TImageList;
+begin
+	inherited;
+	if not Assigned(FImageScaler) then
+		FImageScaler := TImageListScaler.Create(Self, ImageList1);
+	li := FImageScaler.GetScaledList(_NewDpi);
+	for var i := 0 to ControlCount do begin
+		var
+		btn := Controls[i];
+		if btn is TButton then begin
+			(btn as TButton).Images := li;
+		end;
+	end;
+end;
+
+procedure TRipGrepperSearchDialogForm.ArrangeControls;
+begin
+	inherited;
+	//
+end;
+
 procedure TRipGrepperSearchDialogForm.ShowOptionsForm;
 begin
 	var
 	frm := TRipGrepOptionsForm.Create(self, FSettings.RipGrepParameters);
 	try
 		if (mrOk = frm.ShowModal) then begin
-			cmbOptions.Text := cmbOptions.Text + ' ' + FSettings.RipGrepParameters.Options;
+			cmbOptions.Text := FSettings.RipGrepParameters.Options;
 		end;
 
 	finally

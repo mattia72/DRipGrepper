@@ -24,7 +24,11 @@ uses
   RipGrepper.Common.Sorter in 'RipGrepper.Common.Sorter.pas',
   RipGrepper.Data.HistoryItemObject in 'RipGrepper.Data.HistoryItemObject.pas',
   RipGrepper.Helper.ListBox in 'RipGrepper.Helper.ListBox.pas',
-  RipGrepper.UI.RipGrepOptionsForm in 'RipGrepper.UI.RipGrepOptionsForm.pas' {RipGrepOptionsForm};
+  RipGrepper.UI.RipGrepOptionsForm in 'RipGrepper.UI.RipGrepOptionsForm.pas' {RipGrepOptionsForm},
+  u_dzDpiScaleUtils in 'external\dzlib\u_dzDpiScaleUtils.pas',
+  u_dzMiscUtils in 'external\dzlib\u_dzMiscUtils.pas',
+  u_dzTypesUtils in 'external\dzlib\u_dzTypesUtils.pas',
+  u_dzTypInfo in 'external\dzlib\u_dzTypInfo.pas';
 
 {$R *.res}
 

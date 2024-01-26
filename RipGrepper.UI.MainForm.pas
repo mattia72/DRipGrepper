@@ -31,10 +31,12 @@ uses
 	Vcl.WinXCtrls,
 	System.Diagnostics,
 	RipGrepper.Common.Sorter,
-	RipGrepper.Data.HistoryItemObject;
+	RipGrepper.Data.HistoryItemObject,
+	GX_IdeDock,
+	u_dzDpiScaleUtils;
 
 type
-	TRipGrepperForm = class(TForm, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
+	TRipGrepperForm = class(TfmIdeDockForm, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
 		panelMain : TPanel;
 		ListViewResult : TListView;
 		pnlBottom : TPanel;
@@ -133,6 +135,7 @@ type
 			FCurrentHistoryItemIndex : Integer;
 			FHistObject : THistoryItemObject;
 			FHistoryObjectList : TStringList;
+			FImageScaler : TImageListScaler;
 			FMeassureFirstDrawEvent : Boolean;
 			FRipGrepTask : ITask;
 			FStatusBarMessage : string;
@@ -156,6 +159,7 @@ type
 			procedure LoadBeforeSearchSettings;
 			procedure RefreshCounters;
 			procedure RunRipGrep;
+		procedure SetColumnWidths;
 			procedure SetStatusBarMessage(const _iRipGrepResultOk : Integer = 0);
 			procedure SetStatusBarStatistic(const _s : string);
 			procedure UpdateArgumentsAndSettings;
@@ -164,6 +168,10 @@ type
 			property CurrentHistoryItemIndex : Integer read FCurrentHistoryItemIndex write FCurrentHistoryItemIndex;
 			property HistoryObjectList : TStringList read FHistoryObjectList write FHistoryObjectList;
 			property ViewStyleIndex : Integer read GetViewStyleIndex;
+
+		protected
+			procedure ApplyDpi(_NewDpi : Integer; _NewBounds : PRect); override;
+			procedure ArrangeControls; override;
 
 		public
 			constructor Create(_settings : TRipGrepperSettingsHistory); reintroduce; overload;
@@ -206,7 +214,8 @@ uses
 	System.StrUtils,
 	RipGrepper.UI.SearchForm,
 	RipGrepper.Data.Parsers,
-	RipGrepper.Helper.ListBox;
+	RipGrepper.Helper.ListBox,
+	u_dzVclUtils;
 
 {$R *.dfm}
 
@@ -230,6 +239,8 @@ begin
 	InitColumnSortTypes;
 	UpdateSortingImages([sbtFile, sbtRow]);
 	ListViewResult.InitMaxWidths(FMaxWidths);
+
+	InitDpiScaler;
 end;
 
 destructor TRipGrepperForm.Destroy;
@@ -440,6 +451,23 @@ begin
 	ListBoxSearchHistory.Count := HistoryObjectList.Count;
 end;
 
+procedure TRipGrepperForm.ApplyDpi(_NewDpi : Integer; _NewBounds : PRect);
+var
+	li : TImageList;
+begin
+	inherited;
+	if not Assigned(FImageScaler) then
+		FImageScaler := TImageListScaler.Create(Self, ImageListButtons);
+	li := FImageScaler.GetScaledList(_NewDpi);
+	Toolbar1.Images := li;
+end;
+
+procedure TRipGrepperForm.ArrangeControls;
+begin
+	inherited;
+	SetColumnWidths;
+end;
+
 procedure TRipGrepperForm.ClearHistoryObject;
 begin
 	var
@@ -539,7 +567,8 @@ end;
 procedure TRipGrepperForm.OnNewOutputLine(const _iLineNr : integer; const _sLine : string; _bIsLast : Boolean = False);
 begin
 	if _bIsLast then begin
-		ListViewResult.AdjustColumnWidths(FMaxWidths);
+		// ListViewResult.AdjustColumnWidths(FMaxWidths);
+		SetColumnWidths;
 		TDebugUtils.DebugMessage(Format('Last line (%d.) received in %s sec.', [_iLineNr, GetElapsedTime(FswSearchStart)]));
 	end;
 
@@ -691,6 +720,7 @@ procedure TRipGrepperForm.FormResize(Sender : TObject);
 begin
 	SplitView1.Width := panelMain.Width;
 	StatusBar1.Panels[0].Width := PanelHistory.Width;
+    SetColumnWidths;
 end;
 
 function TRipGrepperForm.GetAbsOrRelativePath(const _sFullPath : string) : string;
@@ -861,6 +891,15 @@ end;
 procedure TRipGrepperForm.ListBoxSearchHistoryData(Control : TWinControl; Index : Integer; var Data : string);
 begin
 	Data := HistoryObjectList[index];
+end;
+
+procedure TRipGrepperForm.SetColumnWidths;
+begin
+	// TListView_Resize(ListViewResult);
+	ListView_SetColumnWidth(ListViewResult.Handle, 0, ColumnTextWidth);
+	ListView_SetColumnWidth(ListViewResult.Handle, 1, ColumnHeaderWidth);
+	ListView_SetColumnWidth(ListViewResult.Handle, 2, ColumnHeaderWidth);
+	ListView_SetColumnWidth(ListViewResult.Handle, 3, ColumnTextWidth);
 end;
 
 procedure TRipGrepperForm.SetStatusBarMessage(const _iRipGrepResultOk : Integer = 0);

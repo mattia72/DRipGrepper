@@ -2,8 +2,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
   Left = 756
   Top = 436
   Caption = 'DRipGrepper - Search...'
-  ClientHeight = 164
-  ClientWidth = 547
+  ClientHeight = 184
+  ClientWidth = 554
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -153,26 +153,26 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     AlignWithMargins = True
     Left = 3
     Top = 3
-    Width = 541
-    Height = 158
+    Width = 548
+    Height = 178
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
     DesignSize = (
-      541
-      158)
+      548
+      178)
     object gbSearch: TGroupBox
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 535
-      Height = 152
+      Width = 542
+      Height = 172
       Align = alClient
       Caption = 'Search'
       TabOrder = 0
       DesignSize = (
-        535
-        152)
+        542
+        172)
       object lblParams: TLabel
         AlignWithMargins = True
         Left = 16
@@ -200,7 +200,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       object cmbOptions: TComboBox
         Left = 85
         Top = 82
-        Width = 373
+        Width = 380
         Height = 23
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 2
@@ -209,7 +209,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       object cmbSearchDir: TComboBox
         Left = 84
         Top = 24
-        Width = 373
+        Width = 380
         Height = 23
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
@@ -218,7 +218,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       object cmbSearchText: TComboBox
         Left = 84
         Top = 53
-        Width = 373
+        Width = 380
         Height = 23
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 1
@@ -227,7 +227,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     end
     object btnConfig: TButton
       AlignWithMargins = True
-      Left = 462
+      Left = 469
       Top = 85
       Width = 26
       Height = 24
@@ -241,7 +241,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     end
     object btnSearch: TButton
       AlignWithMargins = True
-      Left = 371
+      Left = 378
       Top = 122
       Width = 74
       Height = 21
@@ -252,7 +252,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     end
     object btnCancel: TButton
       AlignWithMargins = True
-      Left = 451
+      Left = 458
       Top = 122
       Width = 76
       Height = 21
@@ -263,7 +263,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     end
     object btnSearchFolder: TButton
       AlignWithMargins = True
-      Left = 462
+      Left = 469
       Top = 26
       Width = 26
       Height = 25
@@ -277,7 +277,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     end
     object btnSearchFile: TButton
       AlignWithMargins = True
-      Left = 489
+      Left = 496
       Top = 26
       Width = 26
       Height = 25
@@ -294,7 +294,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     Left = 451
     Top = 289
     Bitmap = {
-      494C010106002400040010001000FFFFFFFFFF00FFFFFFFFFFFFFFFF424D3600
+      494C010106002400040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       00000000000000000000000000007D7D7D00545454008B8B8B00000000000000
@@ -562,7 +562,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       C7E38001DFFB07FF8E71BFF9D00B83FF9E79BFF9DFFBC30F3FFCBFF9D81BE003
       3E7CBFF9D81BF9F13E7CBFF9DFFBFBF93E3CBFF9D00BF3FC3D9CBFF9DFFBF0FC
       399CBE01DFFBF0FC9C39BC01DFC3F0FC8E719801DF83F819C7E381FFDF87F831
-      E007FFFFCF8FFC03F81FFFFFC01FFF0F}
+      E007FFFFCF8FFC03F81FFFFFC01FFF0F00000000000000000000000000000000
+      000000000000}
   end
   object ActionList: TActionList
     Images = ImageList1
