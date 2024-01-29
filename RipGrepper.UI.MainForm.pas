@@ -159,7 +159,7 @@ type
 			procedure LoadBeforeSearchSettings;
 			procedure RefreshCounters;
 			procedure RunRipGrep;
-		procedure SetColumnWidths;
+			procedure SetColumnWidths;
 			procedure SetStatusBarMessage(const _iRipGrepResultOk : Integer = 0);
 			procedure SetStatusBarStatistic(const _s : string);
 			procedure UpdateArgumentsAndSettings;
@@ -215,7 +215,9 @@ uses
 	RipGrepper.UI.SearchForm,
 	RipGrepper.Data.Parsers,
 	RipGrepper.Helper.ListBox,
-	u_dzVclUtils;
+	u_dzVclUtils,
+	RipGrepper.Parsers.VimGrepMatchLine,
+	RipGrepper.Common.ParsedObject;
 
 {$R *.dfm}
 
@@ -565,6 +567,7 @@ begin
 end;
 
 procedure TRipGrepperForm.OnNewOutputLine(const _iLineNr : integer; const _sLine : string; _bIsLast : Boolean = False);
+
 begin
 	if _bIsLast then begin
 		// ListViewResult.AdjustColumnWidths(FMaxWidths);
@@ -585,18 +588,20 @@ begin
 		procedure
 		begin
 			try
-				TThread.Synchronize(nil,
+				TThread.Queue(nil,
 					procedure
+					var
+						parsedObj : IParsedObjectRow;
+						parser : ILineParser;
 					begin
 						if (not _sLine.IsEmpty) then begin
-							var
-								newItem : IRipGrepMatchLineGroup := TRipGrepMatchLineParser.Create();
+							parser := TVimGrepMatchLineParser.Create();
 							case FFileNameType of
 								ftAbsolute, ftRelative : begin
-									newItem.ParseLine(_iLineNr, _sLine, _bIsLast);
+									parsedObj := parser.ParseLine(_iLineNr, _sLine, _bIsLast);
 								end;
 							end;
-							FData.Add(newItem);
+							FData.Add(parsedObj);
 						end;
 						// First 100 than every 100
 						if (_iLineNr < 100) or ((_iLineNr mod DRAW_RESULT_ON_EVERY_LINE_COUNT) = 0) or _bIsLast then begin
@@ -720,7 +725,7 @@ procedure TRipGrepperForm.FormResize(Sender : TObject);
 begin
 	SplitView1.Width := panelMain.Width;
 	StatusBar1.Panels[0].Width := PanelHistory.Width;
-    SetColumnWidths;
+	SetColumnWidths;
 end;
 
 function TRipGrepperForm.GetAbsOrRelativePath(const _sFullPath : string) : string;
@@ -765,7 +770,7 @@ begin
 	UpdateHistObject;
 	TDebugUtils.DebugMessage('History clicked: ' + CurrentHistoryItemIndex.ToString);
 	TDebugUtils.DebugMessage('History Object: ' + FHistObject.RipGrepArguments.DelimitedText);
-	TDebugUtils.DebugMessage('History Matches: ' + FHistObject.Matches.Count.ToString);
+	TDebugUtils.DebugMessage('History Matches: ' + FHistObject.Matches.Items.Count.ToString);
 	TDebugUtils.DebugMessage('History Files: ' + FHistObject.FileCount.ToString);
 	RefreshResultByHistoryItem();
 end;
@@ -852,7 +857,7 @@ begin
 		begin
 			ListViewResult.Items.Count := 0;
 			ChangeDataHistItemObject(FHistObject);
-			ListViewResult.Items.Count := FHistObject.Matches.Count + FHistObject.ErrorCount;
+			ListViewResult.Items.Count := FHistObject.Matches.Items.Count + FHistObject.ErrorCount;
 		end);
 end;
 

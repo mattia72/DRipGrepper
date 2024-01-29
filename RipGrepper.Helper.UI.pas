@@ -9,7 +9,7 @@ uses
 	Vcl.StdCtrls,
 	System.Types,
 	System.Classes,
-	RipGrepper.Common.Interfaces,
+	RipGrepper.Common.ParsedObject,
 	Vcl.ExtCtrls;
 // Winapi.Messages;
 
@@ -86,7 +86,7 @@ type
 		private
 			Grouping : Boolean;
 			ItemGroups : TStrings;
-			Matches : TRipGrepMatchLineGroupCollection;
+			Matches : TParsedObjectGroupedRowCollection;
 
 		public
 			procedure PutIntoGroup(const _idx : Integer; _lv : TListView; _item : TListItem);
@@ -339,19 +339,19 @@ begin
 	if not Grouping then
 		Exit;
 
-	if ItemGroups.Contains(Matches[_idx].FileName) then begin
-		_item.GroupID := Matches[_idx].GroupID;
-	end else begin
-		var
-		Group := _lv.Groups.Add;
-		Group.State := [lgsNormal, lgsCollapsible];
-		Group.Header := Matches[_idx].FileName;
-		var
-		match := Matches[_idx];
-		match.GroupID := Group.GroupID;
-		Matches[_idx] := match;
-		ItemGroups.Add(Matches[_idx].FileName);
-	end;
+//	if ItemGroups.Contains(Matches.Items[_idx].Columns[Integer(ciFile)].Text) then begin
+//		_item.GroupID := Matches[_idx].GroupID;
+//	end else begin
+//		var
+//		Group := _lv.Groups.Add;
+//		Group.State := [lgsNormal, lgsCollapsible];
+//		Group.Header := Matches[_idx].FileName;
+//		var
+//		match := Matches[_idx];
+//		match.GroupID := Group.GroupID;
+//		Matches[_idx] := match;
+//		ItemGroups.Add(Matches[_idx].FileName);
+//	end;
 end;
 
 class function TWidthHelper.TrueFontWidth(fnt : TFont; const text : string) : Integer;

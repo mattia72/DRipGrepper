@@ -12,7 +12,7 @@ uses
 	ArrayHelper,
 	System.Generics.Defaults,
 	RipGrepper.Common.Sorter,
-	RipGrepper.Data.HistoryItemObject;
+	RipGrepper.Data.HistoryItemObject, RipGrepper.Common.ParsedObject;
 
 type
 
@@ -25,7 +25,7 @@ type
 			FHistObject : THistoryItemObject;
 			function GetTotalMatchCount : Integer;
 			function GetFileCount : Integer;
-			function GetComparer(const _sbt : TSortByType) : IComparer<IRipGrepMatchLine>;
+			function GetComparer(const _sbt : TSortByType): IComparer<IParsedObjectRow>;
 			function GetErrorCount : Integer;
 			function GetHistObject : THistoryItemObject;
 			function GetListItemCount : Integer;
@@ -35,7 +35,7 @@ type
 		public
 			constructor Create;
 			destructor Destroy; override;
-			procedure Add(_item : IRipGrepMatchLineGroup);
+			procedure Add(_item: IParsedObjectRow);
 			procedure ClearMatchFiles;
 			procedure DataToGrid(const _index : Integer; _lv : TListView; _item : TListItem);
 			procedure SortBy(const _sbt : TSortByType; const _st : TSortDirectionType);
@@ -68,13 +68,13 @@ begin
 	inherited;
 end;
 
-procedure TRipGrepperData.Add(_item : IRipGrepMatchLineGroup);
+procedure TRipGrepperData.Add(_item: IParsedObjectRow);
 begin
-	HistObject.Matches.Add(_item);
+	HistObject.Matches.Items.Add(_item);
 	if (_item.IsError) then begin
 		Inc(FErrorCount);
 	end else begin
-		MatchFiles.Add(_item.FileName);
+		MatchFiles.Add(_item.Columns[0].Text);
 	end;
 end;
 
@@ -89,22 +89,22 @@ var
 	fn : string;
 begin
 	// (_index, _lv, _item);
-	fn := HistObject.Matches[_index].FileName;
-	if HistObject.Matches[_index].IsError then begin
+	fn := HistObject.Matches.Items[_index].Columns[0].Text;
+	if HistObject.Matches.Items[_index].IsError then begin
 		_item.Caption := ' ' + fn;
 		_item.ImageIndex := LV_IMAGE_IDX_ERROR;
 	end else begin
 		_item.Caption := fn;
 		_item.ImageIndex := LV_IMAGE_IDX_OK;
 	end;
-	_item.SubItems.Add(HistObject.Matches[_index].Row.ToString);
-	_item.SubItems.Add(HistObject.Matches[_index].Col.ToString);
-	_item.SubItems.Add(HistObject.Matches[_index].Text);
+	_item.SubItems.Add(HistObject.Matches.Items[_index].Columns[1].Text);
+	_item.SubItems.Add(HistObject.Matches.Items[_index].Columns[2].Text);
+	_item.SubItems.Add(HistObject.Matches.Items[_index].Columns[3].Text);
 end;
 
 function TRipGrepperData.GetTotalMatchCount : Integer;
 begin
-	Result := HistObject.Matches.Count;
+	Result := HistObject.Matches.Items.Count;
 end;
 
 function TRipGrepperData.GetFileCount : Integer;
@@ -123,42 +123,22 @@ begin
 	end;
 end;
 
-function TRipGrepperData.GetComparer(const _sbt : TSortByType) : IComparer<IRipGrepMatchLine>;
+function TRipGrepperData.GetComparer(const _sbt : TSortByType) : IComparer<IParsedObjectRow>;
 begin
 	case _sbt of
-		sbtText : begin
-			Result := TComparer<IRipGrepMatchLine>.Construct(
-				function(const Left, Right : IRipGrepMatchLine) : Integer
+		sbtFile, sbtRow, sbtCol, sbtText : begin
+			Result := TComparer<IParsedObjectRow>.Construct(
+				function(const Left, Right : IParsedObjectRow) : Integer
 				begin
-					Result := TComparer<string>.Default.Compare(Left.Text, Right.Text);
-				end);
-		end;
-		sbtFile : begin
-			Result := TComparer<IRipGrepMatchLine>.Construct(
-				function(const Left, Right : IRipGrepMatchLine) : Integer
-				begin
-					Result := TComparer<string>.Default.Compare(Left.FileName, Right.FileName);
-				end);
-		end;
-		sbtRow : begin
-			Result := TComparer<IRipGrepMatchLine>.Construct(
-				function(const Left, Right : IRipGrepMatchLine) : Integer
-				begin
-					Result := TComparer<integer>.Default.Compare(Left.Row, Right.Row);
-				end);
-		end;
-		sbtCol : begin
-			Result := TComparer<IRipGrepMatchLine>.Construct(
-				function(const Left, Right : IRipGrepMatchLine) : Integer
-				begin
-					Result := TComparer<integer>.Default.Compare(Left.Col, Right.Col);
+					var idx := Integer(_sbt);
+					Result := TComparer<string>.Default.Compare(Left.Columns[idx].Text, Right.Columns[idx].Text);
 				end);
 		end;
 		sbtLineNr : begin
-			Result := TComparer<IRipGrepMatchLine>.Construct(
-				function(const Left, Right : IRipGrepMatchLine) : Integer
+			Result := TComparer<IParsedObjectRow>.Construct(
+				function(const Left, Right : IParsedObjectRow) : Integer
 				begin
-					Result := TComparer<integer>.Default.Compare(Left.LineNr, Right.LineNr);
+					Result := TComparer<integer>.Default.Compare(Left.RowNr, Right.RowNr);
 				end);
 		end;
 	end;
@@ -186,25 +166,25 @@ end;
 
 procedure TRipGrepperData.SortMultiColumns(const _st : TSortDirectionType);
 var
-	criterion : TSortCriterion<IRipGrepMatchLine>;
-	lineComparer : TSortCriteriaComparer<IRipGrepMatchLine>;
+	criterion : TSortCriterion<IParsedObjectRow>;
+	lineComparer : TSortCriteriaComparer<IParsedObjectRow>;
 begin
-	lineComparer := TSortCriteriaComparer<IRipGrepMatchLine>.Create;
+	lineComparer := TSortCriteriaComparer<IParsedObjectRow>.Create;
 	try
 		if (SortedBy.Items.Count > 0) then begin
 			for var i := 0 to SortedBy.Items.Count - 1 do begin
-				criterion := TSortCriterion<IRipGrepMatchLine>.Create;
+				criterion := TSortCriterion<IParsedObjectRow>.Create;
 				criterion.Ascending := _st = stAscending;
 				criterion.Comparer := GetComparer(SortedBy.Items[i].Column);
 				lineComparer.AddCriterion(criterion);
 			end;
 		end else begin
-			criterion := TSortCriterion<IRipGrepMatchLine>.Create;
+			criterion := TSortCriterion<IParsedObjectRow>.Create;
 			criterion.Ascending := _st = stAscending;
 			criterion.Comparer := GetComparer(sbtLineNr);
 			lineComparer.AddCriterion(criterion);
 		end;
-		HistObject.Matches.Sort(lineComparer);
+		HistObject.Matches.Items.Sort(lineComparer);
 	finally
 		lineComparer.Free;
 	end;

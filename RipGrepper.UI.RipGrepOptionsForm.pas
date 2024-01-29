@@ -54,7 +54,7 @@ implementation
 
 uses
 	RipGrepper.Tools.ProcessUtils,
-	System.RegularExpressions;
+	System.RegularExpressions, RipGrepper.Common.Types;
 
 {$R *.dfm}
 
@@ -95,7 +95,7 @@ var
 	regex : TRegex;
 	m : TMatch;
 begin
-	regex := TRegex.Create('^\s*(?<short>-[a-zA-Z])?(, )?(?<long>--[\-a-zA-Z0-9]+)?(?<value>=[\-A-Z]+)?\s*(?<text>.*)');
+	regex := TRegex.Create(RG_HELP_LINE_REGEX);
 	selected := ListBox1.Items[ListBox1.ItemIndex];
 	m := regex.Match(selected);
 	if m.Success then begin

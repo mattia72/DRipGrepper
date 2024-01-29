@@ -4,6 +4,7 @@ interface
 
 uses
 	RipGrepper.Common.Interfaces,
+	RipGrepper.Common.ParsedObject,
 	ArrayHelper,
 	RipGrepper.Common.Settings,
 	Vcl.ComCtrls,
@@ -15,16 +16,16 @@ type
 		private
 			FErrorCount: Integer;
 			FFileCount : integer;
-			FMatches : TRipGrepMatchLineCollection;
+			FMatches : IParsedObjectRowCollection;
 			FRipGrepArguments : TStringList;
 			FTotalMatchCount: integer;
 			function GetErrorCount: Integer; export;
 			function GetFileCount : integer;
-			function GetMatches : TRipGrepMatchLineCollection;
+			function GetMatches: IParsedObjectRowCollection;
 			function GetRipGrepArguments : TStringList;
 			function GetTotalMatchCount: integer;
 			procedure SetFileCount(const Value : integer);
-			procedure SetMatches(const Value : TRipGrepMatchLineCollection);
+			procedure SetMatches(const Value: IParsedObjectRowCollection);
 			procedure SetRipGrepArguments(const Value : TStringList);
 		public
 			procedure CopyFromSettings(const _settings : TRipGrepperSettingsHistory);
@@ -34,7 +35,7 @@ type
 			procedure ClearMatches;
 			procedure CopyToSettings(const _settings : TRipGrepperSettingsHistory);
 			property FileCount : integer read GetFileCount write SetFileCount;
-			property Matches : TRipGrepMatchLineCollection read GetMatches write SetMatches;
+			property Matches: IParsedObjectRowCollection read GetMatches write SetMatches;
 			property RipGrepArguments : TStringList read GetRipGrepArguments write SetRipGrepArguments;
 			property TotalMatchCount: integer read GetTotalMatchCount;
 			property ErrorCount: Integer read GetErrorCount write FErrorCount;
@@ -58,17 +59,17 @@ var
 	fn : string;
 begin
 	// (_index, _lv, _item);
-	fn := Matches[_index].FileName;
-	if Matches[_index].IsError then begin
+	fn := Matches.Items[_index].Columns.Items[0].Text;
+	if Matches.Items[_index].IsError then begin
 		_item.Caption := ' ' + fn;
 		_item.ImageIndex := LV_IMAGE_IDX_ERROR;
 	end else begin
 		_item.Caption := fn;
 		_item.ImageIndex := LV_IMAGE_IDX_OK;
 	end;
-	_item.SubItems.Add(Matches[_index].Row.ToString);
-	_item.SubItems.Add(Matches[_index].Col.ToString);
-	_item.SubItems.Add(Matches[_index].Text);
+	_item.SubItems.Add(Matches.Items[_index].Columns.Items[1].Text);
+	_item.SubItems.Add(Matches.Items[_index].Columns.Items[2].Text);
+	_item.SubItems.Add(Matches.Items[_index].Columns.Items[3].Text);
 end;
 
 function THistoryItemObject.GetFileCount : integer;
@@ -76,7 +77,7 @@ begin
 	Result := FFileCount;
 end;
 
-function THistoryItemObject.GetMatches : TRipGrepMatchLineCollection;
+function THistoryItemObject.GetMatches: IParsedObjectRowCollection;
 begin
 	Result := FMatches;
 end;
@@ -88,7 +89,7 @@ end;
 
 function THistoryItemObject.GetTotalMatchCount: integer;
 begin
-	Result := FMatches.Count - ErrorCount ;
+	Result := FMatches.Items.Count - ErrorCount ;
 end;
 
 procedure THistoryItemObject.SetFileCount(const Value : integer);
@@ -96,7 +97,7 @@ begin
 	FFileCount := Value;
 end;
 
-procedure THistoryItemObject.SetMatches(const Value : TRipGrepMatchLineCollection);
+procedure THistoryItemObject.SetMatches(const Value: IParsedObjectRowCollection);
 begin
 	FMatches := Value;
 end;
@@ -108,7 +109,7 @@ end;
 
 destructor THistoryItemObject.Destroy;
 begin
-	FMatches.Free;
+	//FMatches.Free;
     FRipGrepArguments.Free;
 	inherited;
 end;
@@ -116,7 +117,7 @@ end;
 constructor THistoryItemObject.Create;
 begin
 	inherited;
-	FMatches := TRipGrepMatchLineCollection.Create();
+	FMatches := TParsedObjectRowCollection.Create();
 	FRipGrepArguments := TStringList.Create;
 	ClearMatches;
 end;
@@ -124,7 +125,7 @@ end;
 procedure THistoryItemObject.ClearMatches;
 begin
 	FFileCount := 0;
-	FMatches.Clear;
+	FMatches.Items.Clear;
 	FTotalMatchCount := 0;
     FErrorCount := 0;
 end;

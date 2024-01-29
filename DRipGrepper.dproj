@@ -154,6 +154,8 @@
         <DCCReference Include="external\dzlib\u_dzDateUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzConvertUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzClassUtils.pas"/>
+        <DCCReference Include="RipGrepper.Parsers.VimGrepMatchLine.pas"/>
+        <DCCReference Include="RipGrepper.Common.ParsedObject.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

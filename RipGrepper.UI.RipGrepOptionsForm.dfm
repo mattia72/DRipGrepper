@@ -2,8 +2,8 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
   Left = 797
   Top = 332
   Caption = 'DRipGrepper - RipGrep Options'
-  ClientHeight = 997
-  ClientWidth = 1424
+  ClientHeight = 1046
+  ClientWidth = 1440
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -152,8 +152,8 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
   object PanelMain: TPanel
     Left = 0
     Top = 103
-    Width = 1424
-    Height = 791
+    Width = 1440
+    Height = 840
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -163,17 +163,17 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     TabOrder = 0
     object ListBox1: TListBox
       AlignWithMargins = True
-      Left = 10
-      Top = 10
-      Width = 1385
-      Height = 723
+      Left = 9
+      Top = 9
+      Width = 1401
+      Height = 822
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
       Margins.Bottom = 8
       Align = alLeft
       Anchors = [akLeft, akTop, akRight, akBottom]
-      ItemHeight = 38
+      ItemHeight = 41
       MultiSelect = True
       ParentShowHint = False
       ShowHint = True
@@ -183,8 +183,8 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
   end
   object PanelBottom: TPanel
     Left = 0
-    Top = 894
-    Width = 1424
+    Top = 943
+    Width = 1440
     Height = 103
     Margins.Left = 8
     Margins.Top = 8
@@ -193,11 +193,11 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     Align = alBottom
     TabOrder = 1
     DesignSize = (
-      1424
+      1440
       103)
     object btnOk: TButton
       AlignWithMargins = True
-      Left = 1021
+      Left = 1037
       Top = 28
       Width = 185
       Height = 52
@@ -212,7 +212,7 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     end
     object btnCancel: TButton
       AlignWithMargins = True
-      Left = 1221
+      Left = 1237
       Top = 28
       Width = 190
       Height = 52
@@ -229,7 +229,7 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
   object PanelTop: TPanel
     Left = 0
     Top = 0
-    Width = 1424
+    Width = 1440
     Height = 103
     Margins.Left = 8
     Margins.Top = 8

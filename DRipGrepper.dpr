@@ -46,7 +46,9 @@ uses
   u_dzFileUtils in 'external\dzlib\u_dzFileUtils.pas',
   u_dzDateUtils in 'external\dzlib\u_dzDateUtils.pas',
   u_dzConvertUtils in 'external\dzlib\u_dzConvertUtils.pas',
-  u_dzClassUtils in 'external\dzlib\u_dzClassUtils.pas';
+  u_dzClassUtils in 'external\dzlib\u_dzClassUtils.pas',
+  RipGrepper.Parsers.VimGrepMatchLine in 'RipGrepper.Parsers.VimGrepMatchLine.pas',
+  RipGrepper.Common.ParsedObject in 'RipGrepper.Common.ParsedObject.pas';
 
 {$R *.res}
 

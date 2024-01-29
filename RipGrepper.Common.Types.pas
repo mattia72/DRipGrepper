@@ -6,7 +6,8 @@ uses
 	System.Classes,
 	Vcl.ComCtrls,
 	ArrayHelper,
-	System.Generics.Defaults, Vcl.Graphics;
+	System.Generics.Defaults,
+	Vcl.Graphics;
 
 const
 
@@ -47,17 +48,20 @@ const
 		{ } tfCenter);
 	ALL_ALPHANUMERIC_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890';
 
-	RG_PROCESSING_LINE_COUNT_LIMIT = 100000; // Todo: put into settings
+	RG_PROCESSING_LINE_COUNT_LIMIT = 10000; // Todo: put into settings
 	RG_NECESSARY_PARAMS : TArray<string> = ['--vimgrep', '--line-buffered' // ,// some big search couldn't be catched without this
 	// '--pretty' // TODO: parse color escape
 		];
 
-	RG_MATCH_LINE_REGEX = '^(\w:)?(.+?):(\d+):(\d+):(.+)$';
+	RG_MATCH_LINE_REGEX = '^(?<drive>\w:)?(?<path>.+?):(?<row>\d+):(?<col>\d+):(?<text>.+)$';
+	RG_HELP_LINE_REGEX = '^\s*(?<short>-[a-zA-Z])?(, )?(?<long>--[\-a-zA-Z0-9]+)?(?<value>=[\-A-Z]+)?\s*(?<text>.*)';
 
 type
 
-	TParserType = (ptRipGrepSearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
+	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
 	TFileNameType = (ftAbsolute, ftRelative);
+
+	TColumnIndex = (ciFile, ciRow, ciCol, ciText, ciRowNr);
 
 implementation
 
