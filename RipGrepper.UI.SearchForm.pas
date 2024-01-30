@@ -45,6 +45,7 @@ type
 		ActionSearchFolder : TAction;
 		btnSearchFile : TButton;
 		ActionSearchFile : TAction;
+		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionSearchFolderExecute(Sender : TObject);
 		procedure ActionShowRipGrepOptionsFormExecute(Sender : TObject);
 		procedure ActionSearchExecute(Sender : TObject);
@@ -58,7 +59,7 @@ type
 			FSettings : TRipGrepperSettingsHistory;
 			function GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
 			procedure LoadSettings;
-			procedure ProcessControl(_ctrl: TControl; _imgList: TImageList); virtual;
+			procedure ProcessControl(_ctrl : TControl; _imgList : TImageList); virtual;
 			procedure StoreHistories;
 			procedure StoreSearchSettings;
 
@@ -88,6 +89,11 @@ begin
 	inherited Create(AOwner);
 	FSettings := _settings;
 	InitDpiScaler();
+end;
+
+procedure TRipGrepperSearchDialogForm.ActionCancelExecute(Sender : TObject);
+begin
+	ModalResult := mrCancel;
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionSearchFolderExecute(Sender : TObject);
@@ -136,7 +142,7 @@ begin
 	ProcessControl(self, li);
 end;
 
-procedure TRipGrepperSearchDialogForm.ProcessControl(_ctrl: TControl; _imgList: TImageList);
+procedure TRipGrepperSearchDialogForm.ProcessControl(_ctrl : TControl; _imgList : TImageList);
 var
 	i : integer;
 begin

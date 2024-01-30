@@ -54,7 +54,7 @@ const
 		];
 
 	RG_MATCH_LINE_REGEX = '^(?<drive>\w:)?(?<path>.+?):(?<row>\d+):(?<col>\d+):(?<text>.+)$';
-	RG_HELP_LINE_REGEX = '^\s*(?<short>-[a-zA-Z])?(, )?(?<long>--[\-a-zA-Z0-9]+)?(?<value>=[\-A-Z]+)?\s*(?<text>.*)';
+	RG_HELP_LINE_REGEX = '^\s*(?<short>-[a-zA-Z])?(?<comma>, )?(?<long>--[\-a-zA-Z0-9]+)(?<value>=[\-A-Z]+)?\s*(?<desc>.*)$';
 
 type
 

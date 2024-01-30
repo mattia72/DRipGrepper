@@ -1,13 +1,13 @@
 object RipGrepOptionsForm: TRipGrepOptionsForm
-  Left = 797
-  Top = 332
+  Left = 952
+  Top = 341
   Caption = 'DRipGrepper - RipGrep Options'
-  ClientHeight = 1046
-  ClientWidth = 1440
+  ClientHeight = 418
+  ClientWidth = 576
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -30
+  Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
   Icon.Data = {
@@ -146,65 +146,49 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     FFE3C7FFFFE3C7FFFFE3C7FFFFE3C7FFFFE3C7FC0003C7F80007C7F0000FC000
     FFFFE003FFFFE007FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
   Position = poDesigned
-  OnShow = FormShow
-  PixelsPerInch = 240
-  TextHeight = 41
+  TextHeight = 15
   object PanelMain: TPanel
     Left = 0
-    Top = 103
-    Width = 1440
-    Height = 840
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
+    Top = 56
+    Width = 576
+    Height = 321
     Align = alClient
     Caption = 'PanelMain'
     TabOrder = 0
-    object ListBox1: TListBox
-      AlignWithMargins = True
-      Left = 9
-      Top = 9
-      Width = 1401
-      Height = 822
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Align = alLeft
-      Anchors = [akLeft, akTop, akRight, akBottom]
-      ItemHeight = 41
+    object ListView1: TListView
+      Left = 1
+      Top = 1
+      Width = 574
+      Height = 319
+      Align = alClient
+      Columns = <>
       MultiSelect = True
+      GroupView = True
+      ReadOnly = True
+      RowSelect = True
       ParentShowHint = False
       ShowHint = True
       TabOrder = 0
-      OnClick = ListBox1Click
+      ViewStyle = vsReport
+      OnClick = ListView1Click
     end
   end
   object PanelBottom: TPanel
     Left = 0
-    Top = 943
-    Width = 1440
-    Height = 103
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
+    Top = 377
+    Width = 576
+    Height = 41
     Align = alBottom
     TabOrder = 1
     DesignSize = (
-      1440
-      103)
+      576
+      41)
     object btnOk: TButton
       AlignWithMargins = True
-      Left = 1037
-      Top = 28
-      Width = 185
-      Height = 52
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
+      Left = 415
+      Top = 11
+      Width = 74
+      Height = 21
       Action = ActionOk
       Anchors = [akTop, akRight]
       Default = True
@@ -212,14 +196,10 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     end
     object btnCancel: TButton
       AlignWithMargins = True
-      Left = 1237
-      Top = 28
-      Width = 190
-      Height = 52
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
+      Left = 495
+      Top = 11
+      Width = 76
+      Height = 21
       Action = ActionCancel
       Anchors = [akTop, akRight]
       Cancel = True
@@ -229,14 +209,24 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
   object PanelTop: TPanel
     Left = 0
     Top = 0
-    Width = 1440
-    Height = 103
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
+    Width = 576
+    Height = 56
     Align = alTop
     TabOrder = 2
+    object Label1: TLabel
+      Left = 10
+      Top = 35
+      Width = 310
+      Height = 15
+      Caption = '(You can use Ctrl + Click to select multiple options to edit.)'
+    end
+    object Label2: TLabel
+      Left = 10
+      Top = 14
+      Width = 74
+      Height = 15
+      Caption = 'RipGrep  help:'
+    end
   end
   object ActionList1: TActionList
     Left = 265
