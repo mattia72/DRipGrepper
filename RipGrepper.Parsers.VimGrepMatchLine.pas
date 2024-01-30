@@ -3,31 +3,37 @@ unit RipGrepper.Parsers.VimGrepMatchLine;
 interface
 
 uses
-  RipGrepper.Common.Interfaces, RipGrepper.Common.ParsedObject, ArrayHelper;
+	RipGrepper.Common.Interfaces,
+	RipGrepper.Common.ParsedObject,
+	ArrayHelper;
 
 type
-	TVimGrepMatchLineParser = class (TInterfacedObject, ILineParser)
-	private
-		FParserData: ILineParserData;
-		FParseResult: IParsedObjectRow;
-		function GetParseResult: IParsedObjectRow;
-		procedure SetParseResult(const Value : IParsedObjectRow);
-		procedure SetRgResultLineParseError(out row : TArrayRecord<TColumnData>; const _sLine : string);
-		function Validate(var row : TArrayRecord<TColumnData>): Boolean;
-		function ValidatePath(const sFile : string): Boolean;
-	public
-		property ParserData: ILineParserData read FParserData write FParserData;
-		property ParseResult: IParsedObjectRow read GetParseResult write SetParseResult;
-		constructor Create;
-		function ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False): IParsedObjectRow;
+	TVimGrepMatchLineParser = class(TInterfacedObject, ILineParser)
+		private
+			FParserData : ILineParserData;
+			FParseResult : IParsedObjectRow;
+			function GetParseResult : IParsedObjectRow;
+			procedure SetParseResult(const Value : IParsedObjectRow);
+			procedure SetRgResultLineParseError(out row : TArrayRecord<TColumnData>; const _sLine : string);
+			function Validate(var row : TArrayRecord<TColumnData>) : Boolean;
+			function ValidatePath(const sFile : string) : Boolean;
+
+		public
+			property ParserData : ILineParserData read FParserData write FParserData;
+			property ParseResult : IParsedObjectRow read GetParseResult write SetParseResult;
+			constructor Create;
+			function ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False) : IParsedObjectRow;
 	end;
 
 implementation
 
 uses
-  System.RegularExpressions, RipGrepper.Tools.DebugTools,
-  RipGrepper.Common.Types, System.SysUtils, System.IOUtils,
-  RipGrepper.Data.Parsers;
+	System.RegularExpressions,
+	RipGrepper.Tools.DebugTools,
+	RipGrepper.Common.Types,
+	System.SysUtils,
+	System.IOUtils,
+	RipGrepper.Data.Parsers;
 
 constructor TVimGrepMatchLineParser.Create;
 begin
@@ -36,14 +42,14 @@ begin
 	FParseResult := TParsedObjectRow.Create();
 end;
 
-function TVimGrepMatchLineParser.GetParseResult: IParsedObjectRow;
+function TVimGrepMatchLineParser.GetParseResult : IParsedObjectRow;
 begin
 	Result := FParseResult;
 end;
 
 { TVimGrepMatchLineParser }
 
-function TVimGrepMatchLineParser.ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False): IParsedObjectRow;
+function TVimGrepMatchLineParser.ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False) : IParsedObjectRow;
 var
 	m : TMatch;
 	cd : TArrayRecord<TColumnData>;
@@ -93,7 +99,7 @@ begin
 	ParseResult.IsError := True;
 end;
 
-function TVimGrepMatchLineParser.Validate(var row : TArrayRecord<TColumnData>): Boolean;
+function TVimGrepMatchLineParser.Validate(var row : TArrayRecord<TColumnData>) : Boolean;
 var
 	sCol : string;
 	sRow : string;
@@ -118,7 +124,7 @@ begin
 	Result := True;
 end;
 
-function TVimGrepMatchLineParser.ValidatePath(const sFile : string): Boolean;
+function TVimGrepMatchLineParser.ValidatePath(const sFile : string) : Boolean;
 begin
 	if sFile.StartsWith(':') then begin
 		ParseResult.ErrorText := 'Begins with '':''';

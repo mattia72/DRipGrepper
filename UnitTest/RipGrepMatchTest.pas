@@ -14,10 +14,6 @@ type
 			procedure Setup;
 			[TearDown]
 			procedure TearDown;
-			// Sample Methods
-			// Simple single Test
-			[Test]
-			procedure Test1;
 			// Test with TestCase Attribute to supply parameters.
 			[Test]
 			[TestCase('Test Full Path', 'c:\test\path\file.ext:1:1:test match')]
@@ -38,7 +34,8 @@ uses
 	RipGrepper.Data.Matches,
 	RipGrepper.Common.Types,
 	System.Classes,
-	System.SysUtils;
+	System.SysUtils,
+	RipGrepper.Parsers.VimGrepMatchLine;
 
 procedure TRipGrepMatchTest.Setup;
 begin
@@ -48,36 +45,30 @@ procedure TRipGrepMatchTest.TearDown;
 begin
 end;
 
-procedure TRipGrepMatchTest.Test1;
-begin
-
-end;
-
 procedure TRipGrepMatchTest.ParseLineTest(const _s : string);
 var
-	m : TRipGrepMatch;
+	m : TVimGrepMatchLineParser;
 begin
-	m.ParseLine(_s);
-	Assert.IsTrue(m.Validate,
+	m.ParseLine(0,_s);
+	Assert.IsTrue(not m.ParseResult.IsError,
 		{ } 'Line:' + CRLF +
 		{ } _s + CRLF +
-		{ } m.FileName + CRLF +
-		{ } m.Row.ToString + CRLF +
-		{ } m.Col.ToString + CRLF +
-		{ } m.Text + CRLF);
+		{ } m.ParseResult.Columns[Integer(ciFile)].Text + CRLF +
+		{ } m.ParseResult.Columns[Integer(ciRow)].Text + CRLF +
+		{ } m.ParseResult.Columns[Integer(ciCol)].Text + CRLF +
+		{ } m.ParseResult.Columns[Integer(ciText)].Text+ CRLF);
 end;
 
 procedure TRipGrepMatchTest.ValidatePathTest(const _s : string);
 var
-	m : TRipGrepMatch;
+	m : TVimGrepMatchLineParser;
 begin
-	m.ParseLine(_s);
-	Assert.IsTrue(m.ValidatePath(),
+	m.ParseLine(0, _s);
+	Assert.IsTrue(not m.ParseResult.IsError,
 		{ } 'Line:' + CRLF +
 		{ } _s + CRLF +
-		{ } m.FileName + CRLF
-
-		);
+		{ } m.ParseResult.Columns[Integer(ciFile)].Text
+	);
 end;
 
 initialization

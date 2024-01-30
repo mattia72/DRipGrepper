@@ -6,7 +6,7 @@ uses
 	DUnitX.TestFramework,
 	Delphi.Mocks,
 	RipGrepper.Tools.ProcessUtils,
-	RipGrepper.Common.Types;
+	RipGrepper.Common.Types, RipGrepper.Common.Interfaces;
 
 type
 
@@ -110,7 +110,7 @@ var
 begin
 	callCount := 0;
 	for var i := 0 to 2 do begin
-		for var j := 0 to TProcessUtils.BUFF_LENGTH do begin
+		for var j := 0 to BUFF_LENGTH do begin
 			_s := _s + _line + CRLF;
 			Inc(callCount);
 		end;
@@ -140,7 +140,7 @@ begin
 
 	st := TStringStream.Create(s);
 	try
-		TProcessUtils.ProcessOutput(st, FEventHandlerMock, FTerminateEventProducer);
+		TProcessUtils.ProcessOutput(st, FEventHandlerMock, FTerminateEventProducer, nil);
 	finally
 		st.Free;
 	end;
@@ -159,7 +159,7 @@ begin
 
 	st := TStringStream.Create(s);
 	try
-		TProcessUtils.ProcessOutput(st, FEventHandlerMock, FTerminateEventProducer);
+		TProcessUtils.ProcessOutput(st, FEventHandlerMock, FTerminateEventProducer, nil);
 	finally
 		st.Free;
 	end;
@@ -197,7 +197,7 @@ var
 begin
 	callCount := 0;
 	for var i := 0 to 3 do begin
-		for var j := 0 to TProcessUtils.BUFF_LENGTH do begin
+		for var j := 0 to BUFF_LENGTH do begin
 			s := s + _line + LF;
 			Inc(callCount);
 		end;
@@ -207,7 +207,7 @@ begin
 
 	st := TStringStream.Create(s);
 	try
-		TProcessUtils.ProcessOutput(st, FEventHandlerMock, FTerminateEventProducer);
+		TProcessUtils.ProcessOutput(st, FEventHandlerMock, FTerminateEventProducer, nil);
 	finally
 		st.Free;
 	end;
@@ -235,7 +235,7 @@ begin
 		begin
 			bOk := False;
 			// oIn := args[0].AsType; // handler
-			sIn := args[1].AsType<string>;
+			sIn := args[2].AsType<string>;
 			var
 			arr := _line.Split([CR, LF]);
 
@@ -257,7 +257,7 @@ begin
 			if not bOk then begin
 				Assert.IsTrue(bOk, Format(CRLF + 'Act:|%s|' + CRLF + 'Exp:|%s| ' + CRLF + 'Org:|%s|', [sIn, sExp, _line]));
 			end;
-		end).When.OnNewOutputLine(It(0).IsAny<string>);
+		end).When.OnNewOutputLine(It(0).IsAny<integer>, It(1).IsAny<string>, It(2).IsAny<Boolean>);
 end;
 
 initialization
