@@ -83,6 +83,7 @@ type
 		PanelHistory : TPanel;
 		PanelResult : TPanel;
 		ActionStatusBar : TAction;
+    tbConfigure: TToolButton;
 		procedure ActionStatusBarUpdate(Sender : TObject);
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
@@ -120,6 +121,7 @@ type
 		procedure ListBoxSearchHistoryDrawItem(Control : TWinControl; Index : Integer; Rect : TRect; State : TOwnerDrawState);
 		procedure ListViewResultColumnClick(Sender : TObject; Column : TListColumn);
 		procedure ListViewResultData(Sender : TObject; Item : TListItem);
+		procedure ListViewResultDblClick(Sender : TObject);
 		procedure ListViewResultDrawItem(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
 
 		private
@@ -130,7 +132,7 @@ type
 			FFileNameType : TFileNameType;
 			FRgExeVersion : string;
 			FSearchPathIsDir : Boolean;
-			FSettings : TRipGrepperSettingsHistory;
+			FSettings : TRipGrepperSettings;
 			FColumnSortTypes : TArray<TSortDirectionType>;
 			FCurrentHistoryItemIndex : Integer;
 			FHistObject : THistoryItemObject;
@@ -174,11 +176,11 @@ type
 			procedure ArrangeControls; override;
 
 		public
-			constructor Create(_settings : TRipGrepperSettingsHistory); reintroduce; overload;
+			constructor Create(_settings : TRipGrepperSettings); reintroduce; overload;
 			constructor Create(AOwner : TComponent); overload; override;
 			destructor Destroy; override;
 			procedure CopyToClipboardPathOfSelected;
-			class function CreateAndShow(const _settings : TRipGrepperSettingsHistory) : string;
+			class function CreateAndShow(const _settings : TRipGrepperSettings) : string;
 			function IsSearchRunning : Boolean;
 			// INewLineEventHandler
 			procedure OnNewOutputLine(const _iLineNr : integer; const _sLine : string; _bIsLast : Boolean = False);
@@ -217,21 +219,21 @@ uses
 	RipGrepper.Helper.ListBox,
 	u_dzVclUtils,
 	RipGrepper.Parsers.VimGrepMatchLine,
-	RipGrepper.Common.ParsedObject;
+	RipGrepper.Common.ParsedObject,
+	AGOpenWith, AGOpenWithConfig_Form;
 
 {$R *.dfm}
 
-constructor TRipGrepperForm.Create(_settings : TRipGrepperSettingsHistory);
+constructor TRipGrepperForm.Create(_settings : TRipGrepperSettings);
 begin
 	inherited Create(nil);
-	FSettings.Free;
 	FSettings := _settings;
 end;
 
 constructor TRipGrepperForm.Create(AOwner : TComponent);
 begin
 	inherited Create(AOwner);
-	FSettings := TRipGrepperSettingsHistory.Create();
+	FSettings := TRipGrepperSettingsInstance.Instance;
 	FData := TRipGrepperData.Create();
 	FHistoryObjectList := TStringList.Create(TDuplicates.dupIgnore, False, False);
 
@@ -252,7 +254,7 @@ begin
 	end;
 	FHistoryObjectList.Free;
 	FData.Free;
-	FSettings.Free;
+	FSettings.FreeInstance;
 	inherited;
 end;
 
@@ -303,7 +305,9 @@ end;
 
 procedure TRipGrepperForm.ActionConfigExecute(Sender : TObject);
 begin
-	//
+	var
+	settings := FSettings.RipGrepperOpenWithSettings;
+	TAGOpenWithConfigForm.CreateAndShow(settings);
 end;
 
 procedure TRipGrepperForm.ActionCopyFileNameExecute(Sender : TObject);
@@ -477,7 +481,7 @@ begin
 	FHistObject.ClearMatches;
 end;
 
-class function TRipGrepperForm.CreateAndShow(const _settings : TRipGrepperSettingsHistory) : string;
+class function TRipGrepperForm.CreateAndShow(const _settings : TRipGrepperSettings) : string;
 begin
 	var
 	form := TRipGrepperForm.Create(_settings);
@@ -896,6 +900,16 @@ end;
 procedure TRipGrepperForm.ListBoxSearchHistoryData(Control : TWinControl; Index : Integer; var Data : string);
 begin
 	Data := HistoryObjectList[index];
+end;
+
+procedure TRipGrepperForm.ListViewResultDblClick(Sender : TObject);
+var
+	selected : TListItem;
+begin
+	selected := ListViewResult.Selected;
+	if Assigned(selected) then begin
+		TOpenWith.Execute(selected.Caption);
+	end;
 end;
 
 procedure TRipGrepperForm.SetColumnWidths;

@@ -56,11 +56,11 @@ type
 
 		private
 			FImageScaler : TImageListScaler;
-			FSettings : TRipGrepperSettingsHistory;
+			FSettings : TRipGrepperSettings;
 			function GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
 			procedure LoadSettings;
 			procedure ProcessControl(_ctrl : TControl; _imgList : TImageList); virtual;
-			procedure StoreHistories;
+			procedure StoreHistoriesAsCmbEntries;
 			procedure StoreSearchSettings;
 
 		protected
@@ -68,7 +68,7 @@ type
 			procedure ArrangeControls; override;
 
 		public
-			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettingsHistory); reintroduce; virtual;
+			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettings); reintroduce; virtual;
 	end;
 
 var
@@ -84,7 +84,7 @@ uses
 
 {$R *.dfm}
 
-constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _settings : TRipGrepperSettingsHistory);
+constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _settings : TRipGrepperSettings);
 begin
 	inherited Create(AOwner);
 	FSettings := _settings;
@@ -114,7 +114,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ActionSearchExecute(Sender : TObject);
 begin
-	StoreHistories();
+	StoreHistoriesAsCmbEntries();
 	StoreSearchSettings();
 	ModalResult := mrOk;
 end;
@@ -214,7 +214,7 @@ begin
 	cmbOptions.ItemIndex := 0;
 end;
 
-procedure TRipGrepperSearchDialogForm.StoreHistories;
+procedure TRipGrepperSearchDialogForm.StoreHistoriesAsCmbEntries;
 begin
 	TItemInserter.AddToCmbIfNotContains(cmbOptions);
 	TItemInserter.AddToCmbIfNotContains(cmbSearchDir);

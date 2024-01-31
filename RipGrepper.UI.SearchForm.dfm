@@ -2,12 +2,12 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
   Left = 756
   Top = 436
   Caption = 'DRipGrepper - Search...'
-  ClientHeight = 510
-  ClientWidth = 1400
+  ClientHeight = 175
+  ClientWidth = 606
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -30
+  Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
   Icon.Data = {
@@ -148,111 +148,79 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
   Position = poDesigned
   OnClose = FormClose
   OnShow = FormShow
-  PixelsPerInch = 240
-  TextHeight = 41
+  TextHeight = 15
   object pnlSearch: TPanel
     AlignWithMargins = True
-    Left = 8
-    Top = 8
-    Width = 1384
-    Height = 494
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
+    Left = 3
+    Top = 3
+    Width = 600
+    Height = 169
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
     DesignSize = (
-      1384
-      494)
+      600
+      169)
     object gbSearch: TGroupBox
       AlignWithMargins = True
-      Left = 8
-      Top = 8
-      Width = 1368
-      Height = 478
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
+      Left = 3
+      Top = 3
+      Width = 594
+      Height = 163
       Align = alClient
+      Anchors = [akRight, akBottom]
       Caption = 'Search'
       TabOrder = 0
       DesignSize = (
-        1368
-        478)
+        594
+        163)
       object lblParams: TLabel
         AlignWithMargins = True
-        Left = 40
-        Top = 213
-        Width = 113
-        Height = 41
-        Margins.Left = 8
-        Margins.Top = 8
-        Margins.Right = 8
-        Margins.Bottom = 8
+        Left = 16
+        Top = 85
+        Width = 45
+        Height = 15
         Caption = 'Options:'
       end
       object lblPaths: TLabel
         AlignWithMargins = True
-        Left = 40
-        Top = 75
-        Width = 96
-        Height = 41
-        Margins.Left = 8
-        Margins.Top = 8
-        Margins.Right = 8
-        Margins.Bottom = 8
+        Left = 16
+        Top = 30
+        Width = 40
+        Height = 15
         Caption = 'Path(s):'
       end
       object lblText: TLabel
         AlignWithMargins = True
-        Left = 40
-        Top = 140
-        Width = 60
-        Height = 41
-        Margins.Left = 8
-        Margins.Top = 8
-        Margins.Right = 8
-        Margins.Bottom = 8
+        Left = 16
+        Top = 56
+        Width = 24
+        Height = 15
         Caption = 'Text:'
       end
       object cmbOptions: TComboBox
-        Left = 213
-        Top = 205
-        Width = 963
-        Height = 49
-        Margins.Left = 8
-        Margins.Top = 8
-        Margins.Right = 8
-        Margins.Bottom = 8
+        Left = 85
+        Top = 82
+        Width = 432
+        Height = 23
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 2
         Text = 'cmbOptions'
       end
       object cmbSearchDir: TComboBox
-        Left = 210
-        Top = 60
-        Width = 963
-        Height = 49
-        Margins.Left = 8
-        Margins.Top = 8
-        Margins.Right = 8
-        Margins.Bottom = 8
+        Left = 84
+        Top = 24
+        Width = 432
+        Height = 23
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
         Text = 'cmbSearchDir'
       end
       object cmbSearchText: TComboBox
-        Left = 210
-        Top = 133
-        Width = 963
-        Height = 49
-        Margins.Left = 8
-        Margins.Top = 8
-        Margins.Right = 8
-        Margins.Bottom = 8
+        Left = 84
+        Top = 53
+        Width = 432
+        Height = 23
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 1
         Text = 'cmbSearchText'
@@ -260,14 +228,10 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     end
     object btnConfig: TButton
       AlignWithMargins = True
-      Left = 1187
-      Top = 213
-      Width = 65
-      Height = 60
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
+      Left = 521
+      Top = 85
+      Width = 26
+      Height = 24
       Action = ActionShowRipGrepOptionsForm
       Anchors = [akTop, akRight]
       ImageAlignment = iaCenter
@@ -278,16 +242,12 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     end
     object btnSearch: TButton
       AlignWithMargins = True
-      Left = 959
-      Top = 305
-      Width = 185
-      Height = 53
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
+      Left = 430
+      Top = 128
+      Width = 74
+      Height = 21
       Action = ActionSearch
-      Anchors = [akTop, akRight]
+      Anchors = [akRight, akBottom]
       Default = True
       ImageIndex = 3
       Images = ImageList1
@@ -295,29 +255,21 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     end
     object btnCancel: TButton
       AlignWithMargins = True
-      Left = 1159
-      Top = 305
-      Width = 190
-      Height = 53
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
+      Left = 510
+      Top = 128
+      Width = 76
+      Height = 21
       Action = ActionCancel
-      Anchors = [akTop, akRight]
+      Anchors = [akRight, akBottom]
       Cancel = True
       TabOrder = 1
     end
     object btnSearchFolder: TButton
       AlignWithMargins = True
-      Left = 1187
-      Top = 65
-      Width = 65
-      Height = 63
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
+      Left = 521
+      Top = 26
+      Width = 26
+      Height = 25
       Action = ActionSearchFolder
       Anchors = [akTop, akRight]
       ImageAlignment = iaCenter
@@ -328,14 +280,10 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     end
     object btnSearchFile: TButton
       AlignWithMargins = True
-      Left = 1254
-      Top = 65
-      Width = 65
-      Height = 63
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
+      Left = 548
+      Top = 26
+      Width = 26
+      Height = 25
       Action = ActionSearchFile
       Anchors = [akTop, akRight]
       ImageAlignment = iaCenter

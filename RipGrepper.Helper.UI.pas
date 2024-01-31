@@ -17,7 +17,6 @@ type
 	TCursorSaver = record
 		strict private
 			FOldCursor : TCursor;
-
 		public
 			procedure ChangeTo(NewCursor : TCursor);
 			constructor Create(NewCursor : TCursor);
@@ -26,10 +25,8 @@ type
 	end;
 
 	TBeginEndUpdater = record
-
 		private
 			ListBox : TListBox;
-
 		public
 			class function New(_lb : TListBox) : TBeginEndUpdater; static;
 			class operator Finalize(var Dest : TBeginEndUpdater);
@@ -59,8 +56,6 @@ type
 		procedure InitMaxWidths(var _arrMaxWidths : TArray<Integer>);
 		procedure SetAlteringColors(Item : TListItem);
 		procedure SetSelectedColors(State : TOwnerDrawState);
-
-		private
 	end;
 
 	TCanvasHelper = class Helper for Vcl.Graphics.TCanvas
@@ -74,20 +69,18 @@ type
 	end;
 
 	TItemDrawer = class
-		private
 		public
 			class function DrawFileIcon(Canvas : TCanvas; Rect : TRect; Item : TListItem; _img : TImage) : Vcl.Graphics.TBitmap;
 			class procedure DrawItemOnBitmap(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
 			class function GetIconBitmap(const sFileName : string; _img : TImage) : Vcl.Graphics.TBitmap;
 	end;
 
+	// TODO
 	TListViewGrouper = class
-
 		private
 			Grouping : Boolean;
 			ItemGroups : TStrings;
 			Matches : TParsedObjectGroupedRowCollection;
-
 		public
 			procedure PutIntoGroup(const _idx : Integer; _lv : TListView; _item : TListItem);
 	end;
@@ -214,7 +207,7 @@ const
 	SPACE = 20;
 begin
 	if (_lv.Items.Count > 0) and (_item.SubItems.Count > 0) then begin
-        _lv.Columns[0].Width := SPACE_TITLE +
+		_lv.Columns[0].Width := SPACE_TITLE +
 		// in an early state of drawing, it doesn't work well:
 		// { } GetMaxWidth(_lv, ListView_GetStringWidth(_lv.Handle, PChar(_item.Caption)), 0, maxWidths);
 		{ } GetMaxWidth(_lv, TWidthHelper.TrueFontWidth(_lv.Font, _item.Caption), 0, maxWidths);
@@ -339,19 +332,19 @@ begin
 	if not Grouping then
 		Exit;
 
-//	if ItemGroups.Contains(Matches.Items[_idx].Columns[Integer(ciFile)].Text) then begin
-//		_item.GroupID := Matches[_idx].GroupID;
-//	end else begin
-//		var
-//		Group := _lv.Groups.Add;
-//		Group.State := [lgsNormal, lgsCollapsible];
-//		Group.Header := Matches[_idx].FileName;
-//		var
-//		match := Matches[_idx];
-//		match.GroupID := Group.GroupID;
-//		Matches[_idx] := match;
-//		ItemGroups.Add(Matches[_idx].FileName);
-//	end;
+	// if ItemGroups.Contains(Matches.Items[_idx].Columns[Integer(ciFile)].Text) then begin
+	// _item.GroupID := Matches[_idx].GroupID;
+	// end else begin
+	// var
+	// Group := _lv.Groups.Add;
+	// Group.State := [lgsNormal, lgsCollapsible];
+	// Group.Header := Matches[_idx].FileName;
+	// var
+	// match := Matches[_idx];
+	// match.GroupID := Group.GroupID;
+	// Matches[_idx] := match;
+	// ItemGroups.Add(Matches[_idx].FileName);
+	// end;
 end;
 
 class function TWidthHelper.TrueFontWidth(fnt : TFont; const text : string) : Integer;

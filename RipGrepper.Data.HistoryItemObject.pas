@@ -28,12 +28,12 @@ type
 			procedure SetMatches(const Value: IParsedObjectRowCollection);
 			procedure SetRipGrepArguments(const Value : TStringList);
 		public
-			procedure CopyFromSettings(const _settings : TRipGrepperSettingsHistory);
+			procedure CopyFromSettings(const _settings : TRipGrepperSettings);
 			procedure DataToGrid(_lv : TListView; _item : TListItem; const _index : Integer);
 			destructor Destroy; override;
 			constructor Create;
 			procedure ClearMatches;
-			procedure CopyToSettings(const _settings : TRipGrepperSettingsHistory);
+			procedure CopyToSettings(const _settings : TRipGrepperSettings);
 			property FileCount : integer read GetFileCount write SetFileCount;
 			property Matches: IParsedObjectRowCollection read GetMatches write SetMatches;
 			property RipGrepArguments : TStringList read GetRipGrepArguments write SetRipGrepArguments;
@@ -49,7 +49,7 @@ uses
 	RipGrepper.Common.Types,
 	System.SysUtils;
 
-procedure THistoryItemObject.CopyFromSettings(const _settings : TRipGrepperSettingsHistory);
+procedure THistoryItemObject.CopyFromSettings(const _settings : TRipGrepperSettings);
 begin
 	RipGrepArguments.Assign(_settings.GetRipGrepArguments);
 end;
@@ -130,7 +130,7 @@ begin
     FErrorCount := 0;
 end;
 
-procedure THistoryItemObject.CopyToSettings(const _settings : TRipGrepperSettingsHistory);
+procedure THistoryItemObject.CopyToSettings(const _settings : TRipGrepperSettings);
 begin
 	_settings.RipGrepParameters.RipGrepArguments.Assign(RipGrepArguments);
 end;
