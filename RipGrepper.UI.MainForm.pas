@@ -310,7 +310,7 @@ procedure TRipGrepperForm.ActionConfigExecute(Sender : TObject);
 begin
 	var
 	settings := FSettings.RipGrepperOpenWithSettings;
-	TAGOpenWithConfigForm.CreateAndShow(settings);
+	TOpenWithConfigForm.CreateAndShow(settings);
 end;
 
 procedure TRipGrepperForm.ActionCopyFileNameExecute(Sender : TObject);

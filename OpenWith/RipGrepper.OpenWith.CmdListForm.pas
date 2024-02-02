@@ -37,7 +37,7 @@ uses
 	RipGrepper.Common.Settings;
 
 type
-	TAGOpenWithList = class(TForm)
+	TOpenWithCmdList = class(TForm)
 		lbCommands : TListView;
 		pnl_Bottom : TPanel;
 		btn_Save : TButton;
@@ -64,7 +64,7 @@ type
 			FViewStyleIndex : Integer;
 			class function GetEnabledCmds(const _settings : TRipGrepperOpenWithSettings) : TArray<string>;
 			function GetViewStyleIndex : Integer;
-			class procedure LoadEnbledCmds(_form : TAGOpenWithList; const _settings : TRipGrepperOpenWithSettings);
+			class procedure LoadEnbledCmds(_form : TOpenWithCmdList; const _settings : TRipGrepperOpenWithSettings);
 			property ViewStyleIndex : Integer read GetViewStyleIndex;
 
 		public
@@ -88,7 +88,7 @@ uses
 
 {$R *.dfm}
 
-constructor TAGOpenWithList.Create(AOwner : TComponent; const ASettings : TRipGrepperOpenWithSettings);
+constructor TOpenWithCmdList.Create(AOwner : TComponent; const ASettings : TRipGrepperOpenWithSettings);
 begin
 	inherited Create(AOwner);
 
@@ -100,34 +100,34 @@ begin
 	FSettings := ASettings;
 end;
 
-destructor TAGOpenWithList.Destroy();
+destructor TOpenWithCmdList.Destroy();
 begin
 	inherited Destroy();
 end;
 
-procedure TAGOpenWithList.a_CancelExecute(Sender : TObject);
+procedure TOpenWithCmdList.a_CancelExecute(Sender : TObject);
 begin
 	ModalResult := mrCancel;
 end;
 
-procedure TAGOpenWithList.a_ConfigExecute(Sender : TObject);
+procedure TOpenWithCmdList.a_ConfigExecute(Sender : TObject);
 begin
-	TAGOpenWithConfigForm.CreateAndShow(FSettings);
+	TOpenWithConfigForm.CreateAndShow(FSettings);
 	LoadEnbledCmds(self, FSettings);
 end;
 
-procedure TAGOpenWithList.a_OkExecute(Sender : TObject);
+procedure TOpenWithCmdList.a_OkExecute(Sender : TObject);
 begin
     FSettings.Store;
 	ModalResult := mrOk;
 end;
 
-procedure TAGOpenWithList.a_SwitchViewExecute(Sender : TObject);
+procedure TOpenWithCmdList.a_SwitchViewExecute(Sender : TObject);
 begin
 	lbCommands.ViewStyle := LISTVIEW_TYPES[ViewStyleIndex];
 end;
 
-procedure TAGOpenWithList.a_SwitchViewUpdate(Sender : TObject);
+procedure TOpenWithCmdList.a_SwitchViewUpdate(Sender : TObject);
 begin
 	var
 	idx := IfThen((FViewStyleIndex + 1) <= (Length(LISTVIEW_TYPES) - 1), FViewStyleIndex + 1, 0);
@@ -135,10 +135,10 @@ begin
 	a_SwitchView.Hint := 'Change View ' + LISTVIEW_TYPE_TEXTS[idx];
 end;
 
-class function TAGOpenWithList.CreateAndShow(const _settings : TRipGrepperOpenWithSettings) : string;
+class function TOpenWithCmdList.CreateAndShow(const _settings : TRipGrepperOpenWithSettings) : string;
 begin
 	var
-	form := TAGOpenWithList.Create(nil, _settings);
+	form := TOpenWithCmdList.Create(nil, _settings);
 
 	try
 		LoadEnbledCmds(form, _settings);
@@ -153,14 +153,14 @@ begin
 
 end;
 
-procedure TAGOpenWithList.FormShow(Sender : TObject);
+procedure TOpenWithCmdList.FormShow(Sender : TObject);
 begin
 	if lbCommands.GetCount > 0 then begin
 		lbCommands.ItemIndex := 0;
 	end;
 end;
 
-class function TAGOpenWithList.GetEnabledCmds(const _settings : TRipGrepperOpenWithSettings) : TArray<string>;
+class function TOpenWithCmdList.GetEnabledCmds(const _settings : TRipGrepperOpenWithSettings) : TArray<string>;
 var
 	arrCmd : TArray<string>;
 	i : Integer;
@@ -188,7 +188,7 @@ begin
 
 end;
 
-function TAGOpenWithList.GetViewStyleIndex : Integer;
+function TOpenWithCmdList.GetViewStyleIndex : Integer;
 begin
 	FViewStyleIndex := IfThen(FViewStyleIndex < Length(LISTVIEW_TYPES) - 1, FViewStyleIndex + 1);
 	// skip report
@@ -196,7 +196,7 @@ begin
 	Result := (FViewStyleIndex mod Length(LISTVIEW_TYPES));
 end;
 
-class procedure TAGOpenWithList.LoadEnbledCmds(_form : TAGOpenWithList; const _settings : TRipGrepperOpenWithSettings);
+class procedure TOpenWithCmdList.LoadEnbledCmds(_form : TOpenWithCmdList; const _settings : TRipGrepperOpenWithSettings);
 var
 	sfi : TSHFileInfo;
 	icon : TIcon;
@@ -214,7 +214,7 @@ begin
 			sFileName := Copy(itemText, 1, iPos + 3);
 			sPath := ExtractFileDir(sFileName);
 			if sPath.IsEmpty then begin
-				TAGOpenWithConfigForm.GetExePath(sFileName, sPath);
+				TOpenWithConfigForm.GetExePath(sFileName, sPath);
 				if not sPath.IsEmpty then begin
 					sFileName := sPath;
 				end else begin
@@ -233,7 +233,7 @@ begin
 			item.ImageIndex := _form.ImageListListViewIcons.AddIcon(icon);
 			item.Subitems.Add(itemText);
 
-			OutputDebugString(PChar(Format('TAGOpenWithList.LoadEnbledCmds cmd: %d %s ', [item.ImageIndex, sFileName])));
+			OutputDebugString(PChar(Format('TOpenWithCmdList.LoadEnbledCmds cmd: %d %s ', [item.ImageIndex, sFileName])));
 			DestroyIcon(sfi.hIcon);
 		end;
 	finally

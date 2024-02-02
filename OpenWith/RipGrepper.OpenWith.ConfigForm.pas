@@ -18,7 +18,7 @@ uses
 
 type
 
-	TAGOpenWithConfigForm = class(TForm)
+	TOpenWithConfigForm = class(TForm)
 
 		var
 			ActionListConfig : TActionList;
@@ -95,49 +95,49 @@ uses
 
 {$R *.dfm}
 
-constructor TAGOpenWithConfigForm.Create(AOwner : TComponent; const ASettings : TRipGrepperOpenWithSettings);
+constructor TOpenWithConfigForm.Create(AOwner : TComponent; const ASettings : TRipGrepperOpenWithSettings);
 begin
 	self.FSettings := ASettings;
 	inherited Create(AOwner);
 end;
 
-procedure TAGOpenWithConfigForm.FormCreate(Sender : TObject);
+procedure TOpenWithConfigForm.FormCreate(Sender : TObject);
 begin
 	ReadSettings;
 end;
 
-procedure TAGOpenWithConfigForm.ActionAddExecute(Sender : TObject);
+procedure TOpenWithConfigForm.ActionAddExecute(Sender : TObject);
 begin
 	inherited;
 	lbCommands.Items.Add(edt_OpenWithCmd.Text);
 	ClearOpenWithCmd;
 end;
 
-procedure TAGOpenWithConfigForm.ActionAddUpdate(Sender : TObject);
+procedure TOpenWithConfigForm.ActionAddUpdate(Sender : TObject);
 begin
 	inherited;
 	btnAdd.Enabled := edt_OpenWithCmd.Text <> '';
 end;
 
-procedure TAGOpenWithConfigForm.ActionCancelExecute(Sender : TObject);
+procedure TOpenWithConfigForm.ActionCancelExecute(Sender : TObject);
 begin
 	ModalResult := mrCancel;
 end;
 
-procedure TAGOpenWithConfigForm.ActionModifyExecute(Sender : TObject);
+procedure TOpenWithConfigForm.ActionModifyExecute(Sender : TObject);
 begin
 	inherited;
 	lbCommands.Items[lbCommands.ItemIndex] := edt_OpenWithCmd.Text;
 	ClearOpenWithCmd;
 end;
 
-procedure TAGOpenWithConfigForm.ActionModifyUpdate(Sender : TObject);
+procedure TOpenWithConfigForm.ActionModifyUpdate(Sender : TObject);
 begin
 	inherited;
 	btnModify.Enabled := (lbCommands.SelCount = 1) and (edt_OpenWithCmd.Text <> '');
 end;
 
-procedure TAGOpenWithConfigForm.ActionMoveDownExecute(Sender : TObject);
+procedure TOpenWithConfigForm.ActionMoveDownExecute(Sender : TObject);
 begin
 	inherited;
 	var
@@ -146,13 +146,13 @@ begin
 	MoveItem(idx);
 end;
 
-procedure TAGOpenWithConfigForm.ActionMoveDownUpdate(Sender : TObject);
+procedure TOpenWithConfigForm.ActionMoveDownUpdate(Sender : TObject);
 begin
 	inherited;
 	btnMoveDown.Enabled := (lbCommands.SelCount = 1) and (lbCommands.ItemIndex < lbCommands.Count - 1);
 end;
 
-procedure TAGOpenWithConfigForm.ActionMoveUpExecute(Sender : TObject);
+procedure TOpenWithConfigForm.ActionMoveUpExecute(Sender : TObject);
 begin
 	inherited;
 	var
@@ -161,31 +161,31 @@ begin
 	MoveItem(idx);
 end;
 
-procedure TAGOpenWithConfigForm.ActionMoveUpUpdate(Sender : TObject);
+procedure TOpenWithConfigForm.ActionMoveUpUpdate(Sender : TObject);
 begin
 	inherited;
 	btnMoveUp.Enabled := (lbCommands.SelCount = 1) and (lbCommands.ItemIndex > 0);
 end;
 
-procedure TAGOpenWithConfigForm.ActionOkExecute(Sender : TObject);
+procedure TOpenWithConfigForm.ActionOkExecute(Sender : TObject);
 begin
 	WriteSettings;
 	ModalResult := mrOk;
 end;
 
-procedure TAGOpenWithConfigForm.ActionRemoveExecute(Sender : TObject);
+procedure TOpenWithConfigForm.ActionRemoveExecute(Sender : TObject);
 begin
 	inherited;
 	lbCommands.DeleteSelected;
 end;
 
-procedure TAGOpenWithConfigForm.ActionRemoveUpdate(Sender : TObject);
+procedure TOpenWithConfigForm.ActionRemoveUpdate(Sender : TObject);
 begin
 	inherited;
 	btnRemove.Enabled := (lbCommands.SelCount = 1);
 end;
 
-procedure TAGOpenWithConfigForm.ActionTestExecute(Sender : TObject);
+procedure TOpenWithConfigForm.ActionTestExecute(Sender : TObject);
 begin
 	inherited;
 	// var
@@ -193,13 +193,13 @@ begin
 	// TOpenWithRunner.RunEditorCommand(lbCommands.Items[lbCommands.ItemIndex], sFileName);
 end;
 
-procedure TAGOpenWithConfigForm.ActionTestUpdate(Sender : TObject);
+procedure TOpenWithConfigForm.ActionTestUpdate(Sender : TObject);
 begin
 	inherited;
 	// btnTest.Enabled := (lbCommands.SelCount = 1);
 end;
 
-procedure TAGOpenWithConfigForm.ActionOpenFileDlgExecute(Sender : TObject);
+procedure TOpenWithConfigForm.ActionOpenFileDlgExecute(Sender : TObject);
 begin
 	inherited;
 	OpenDialog1.Filter := 'Executable files (*.exe)|*.exe';
@@ -208,7 +208,7 @@ begin
 	end;
 end;
 
-function TAGOpenWithConfigForm.CheckCommand(const _sCmd : string) : Boolean;
+function TOpenWithConfigForm.CheckCommand(const _sCmd : string) : Boolean;
 var
 	bFound : Boolean;
 	sFileName : string;
@@ -224,7 +224,7 @@ begin
 		end;
 
 		sFileName := Copy(_sCmd, 1, iPos + 3);
-		OutputDebugString(PChar(Format('TAGOpenWithConfigForm.CheckCommand Exe: %s ', [sFileName])));
+		OutputDebugString(PChar(Format('TOpenWithConfigForm.CheckCommand Exe: %s ', [sFileName])));
 		if not FileExists(sFileName) then begin
 			bFound := False;
 			sPath := ExtractFileDir(sFileName);
@@ -242,15 +242,15 @@ begin
 	end;
 end;
 
-procedure TAGOpenWithConfigForm.ClearOpenWithCmd;
+procedure TOpenWithConfigForm.ClearOpenWithCmd;
 begin
 	edt_OpenWithCmd.Text := '';
 end;
 
-class procedure TAGOpenWithConfigForm.CreateAndShow(_settings : TRipGrepperOpenWithSettings);
+class procedure TOpenWithConfigForm.CreateAndShow(_settings : TRipGrepperOpenWithSettings);
 begin
 	var
-	form := TAGOpenWithConfigForm.Create(nil, _settings);
+	form := TOpenWithConfigForm.Create(nil, _settings);
 	try
 		form.ShowModal;
 	finally
@@ -258,13 +258,13 @@ begin
 	end;
 end;
 
-procedure TAGOpenWithConfigForm.edt_OpenWithCmdKeyPress(Sender : TObject; var Key : Char);
+procedure TOpenWithConfigForm.edt_OpenWithCmdKeyPress(Sender : TObject; var Key : Char);
 begin
 	inherited;
 	btnModify.Default := True;
 end;
 
-procedure TAGOpenWithConfigForm.ReadSettings;
+procedure TOpenWithConfigForm.ReadSettings;
 var
 	arr : TArray<string>;
 	listCmdsFromSettings : TStringList;
@@ -279,7 +279,7 @@ begin
 		repeat
 			var
 			sCmd := FSettings.Command[i];
-			OutputDebugString(PChar(Format('TAGOpenWithConfigForm.ReadSettings sCmd:%s ', [sCmd])));
+			OutputDebugString(PChar(Format('TOpenWithConfigForm.ReadSettings sCmd:%s ', [sCmd])));
 			if sCmd = '' then
 				break;
 			listCmdsFromSettings.Add(sCmd);
@@ -291,12 +291,12 @@ begin
 		end;
 
 		for var sCmd : string in listCmdsFromSettings do begin
-			OutputDebugString(PChar(Format('TAGOpenWithConfigForm.ReadSettings s:%s ', [sCmd])));
+			OutputDebugString(PChar(Format('TOpenWithConfigForm.ReadSettings s:%s ', [sCmd])));
 			arr := sCmd.Split([SEPARATOR]);
 			if Length(arr) > 0 then begin
 				lbCommands.Items.Add(arr[1]);
 				lbCommands.Checked[lbCommands.Count - 1] := (arr[0].ToUpper() = 'TRUE');
-				OutputDebugString(PChar(Format('TAGOpenWithConfigForm.ReadSettings %s %s', [arr[0], arr[1]])));
+				OutputDebugString(PChar(Format('TOpenWithConfigForm.ReadSettings %s %s', [arr[0], arr[1]])));
 			end;
 		end;
 	finally
@@ -304,7 +304,7 @@ begin
 	end;
 end;
 
-class function TAGOpenWithConfigForm.GetExePath(sFileName : string; out sOutpuPath : string) : Boolean;
+class function TOpenWithConfigForm.GetExePath(sFileName : string; out sOutpuPath : string) : Boolean;
 var
 	Buffer : array [0 .. MAX_PATH] of Char;
 begin
@@ -312,10 +312,10 @@ begin
 	SetString(sOutpuPath, PChar(@Buffer[0]), Length(Buffer));
 
 	sOutpuPath := sOutpuPath.Remove(sOutpuPath.IndexOf(#0));
-	OutputDebugString(PChar(Format('TAGOpenWithConfigForm.FindExecutable ''%s'' ', [sOutpuPath])));
+	OutputDebugString(PChar(Format('TOpenWithConfigForm.FindExecutable ''%s'' ', [sOutpuPath])));
 end;
 
-procedure TAGOpenWithConfigForm.WriteSettings;
+procedure TOpenWithConfigForm.WriteSettings;
 var
 	settings : string;
 begin
@@ -326,16 +326,16 @@ begin
 		var
 		sCmd := lbCommands.Items[i].Replace(SEPARATOR, '', [rfReplaceAll]);
 		if (CheckCommand(sCmd)) then begin
-			OutputDebugString(PChar(Format('TAGOpenWithConfigForm.WriteSettings %s ', [sCmd])));
+			OutputDebugString(PChar(Format('TOpenWithConfigForm.WriteSettings %s ', [sCmd])));
 			settings := Format('%s' + SEPARATOR + '%s', [BoolToStr(lbCommands.Checked[i], true), sCmd]);
 			FSettings.Command[i] := settings;
-			OutputDebugString(PChar(Format('TAGOpenWithConfigForm.WriteSettings %s ', [FSettings.Command[i]])));
+			OutputDebugString(PChar(Format('TOpenWithConfigForm.WriteSettings %s ', [FSettings.Command[i]])));
 		end;
 	end;
 	FSettings.Store;
 end;
 
-procedure TAGOpenWithConfigForm.lbCommandsClick(Sender : TObject);
+procedure TOpenWithConfigForm.lbCommandsClick(Sender : TObject);
 begin
 	inherited;
 	if edt_OpenWithCmd.Text = '' then begin
@@ -343,14 +343,14 @@ begin
 	end;
 end;
 
-procedure TAGOpenWithConfigForm.lbCommandsDblClick(Sender : TObject);
+procedure TOpenWithConfigForm.lbCommandsDblClick(Sender : TObject);
 begin
 	inherited;
 	PutSelectedToEdit;
-	OutputDebugString(PChar(Format('TAGOpenWithConfigForm.lbCommandsDblClick SelectCount %d', [lbCommands.SelCount])));
+	OutputDebugString(PChar(Format('TOpenWithConfigForm.lbCommandsDblClick SelectCount %d', [lbCommands.SelCount])));
 end;
 
-procedure TAGOpenWithConfigForm.MoveItem(const idx : Integer);
+procedure TOpenWithConfigForm.MoveItem(const idx : Integer);
 begin
 	if (idx >= 0) and (idx < lbCommands.Count) then begin
 		lbCommands.Items.Move(lbCommands.ItemIndex, idx);
@@ -358,10 +358,10 @@ begin
 	end;
 end;
 
-procedure TAGOpenWithConfigForm.PutSelectedToEdit;
+procedure TOpenWithConfigForm.PutSelectedToEdit;
 begin
 	edt_OpenWithCmd.Text := lbCommands.Items[lbCommands.ItemIndex];
-	OutputDebugString(PChar(Format('TAGOpenWithConfigForm.lbCommandsDblClick %s ', [edt_OpenWithCmd.Text])));
+	OutputDebugString(PChar(Format('TOpenWithConfigForm.lbCommandsDblClick %s ', [edt_OpenWithCmd.Text])));
 end;
 
 end.

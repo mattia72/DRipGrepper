@@ -1,4 +1,4 @@
-object AGOpenWithList: TAGOpenWithList
+object OpenWithList: TOpenWithCmdList
   Left = 738
   Top = 170
   Caption = 'Open with...'

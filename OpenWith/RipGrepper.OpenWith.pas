@@ -32,7 +32,7 @@ class function TOpenWith.GetSelectedCmd : string;
 begin
 	var
 	settings := TRipGrepperSettingsInstance.Instance.RipGrepperOpenWithSettings;
-	Result := TAGOpenWithList.CreateAndShow(settings);
+	Result := TOpenWithCmdList.CreateAndShow(settings);
 	OutputDebugString(PChar(Format('OpenWithFunc.GetSelectedCmd Result: "%s"', [Result])));
 end;
 

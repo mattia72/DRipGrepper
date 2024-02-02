@@ -1,4 +1,4 @@
-object AGOpenWithConfigForm: TAGOpenWithConfigForm
+object OpenWithConfigForm: TOpenWithConfigForm
   Left = 756
   Top = 291
   Caption = 'Configure Open with... '
