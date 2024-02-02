@@ -2,7 +2,7 @@
 Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI written in Delphi Pascal with the goal to integrate it as a plugin into Delphi IDE.
 
 ## Features and todos
-- [ ] delphi integration #1
+- [ ] #1
 - [x] search text, parse `rg` output
   - [x] --vimgrep parser
   - [ ] no match parser
