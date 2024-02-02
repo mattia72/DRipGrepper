@@ -9,6 +9,8 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
   - [x] --vimgrep parser
   - [ ] no match parser
   - [ ] --pretty parser
+- [x] toolbar buttons to show/hide
+  - [x] icons
 - [x] help parametrizing `rg` in search dialog
   - [ ] filter not appropriate parameters
   - [ ] quick buttons for
