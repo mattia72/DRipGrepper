@@ -3,7 +3,7 @@
 **/Win32/*
 **/icons/*
 # **/external/dzlib/*
-**/external/UniSynEdit/*
+# **/external/UniSynEdit/*
 **/*.delphilsp.json
 **/*.identcache
 **/*.res
