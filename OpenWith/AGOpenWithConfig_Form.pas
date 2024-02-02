@@ -45,6 +45,7 @@ type
 			pnlMain : TPanel;
 			ActionOk : TAction;
 			ActionCancel : TAction;
+			procedure FormCreate(Sender : TObject);
 			procedure ActionAddExecute(Sender : TObject);
 			procedure ActionAddUpdate(Sender : TObject);
 			procedure ActionCancelExecute(Sender : TObject);
@@ -75,9 +76,9 @@ type
 			{ Public-Deklarationen }
 			constructor Create(AOwner : TComponent; const ASettings : TRipGrepperOpenWithSettings); reintroduce;
 			class procedure CreateAndShow(_settings : TRipGrepperOpenWithSettings);
-			class function ExecutableFoundByWhere(sFileName : string; out sOutpuPath : string) : Boolean;
-			procedure InitSettings;
-			procedure GetSettings;
+			class function GetExePath(sFileName : string; out sOutpuPath : string) : Boolean;
+			procedure ReadSettings;
+			procedure WriteSettings;
 
 	end;
 
@@ -90,7 +91,7 @@ uses
 	Winapi.ShellAPI,
 	// GX_OtaUtils,
 	AGOpenWithRunner,
-	RipGrepper.OpenWith.Constants;
+	RipGrepper.OpenWith.SimpleTypes;
 
 {$R *.dfm}
 
@@ -98,6 +99,11 @@ constructor TAGOpenWithConfigForm.Create(AOwner : TComponent; const ASettings : 
 begin
 	self.FSettings := ASettings;
 	inherited Create(AOwner);
+end;
+
+procedure TAGOpenWithConfigForm.FormCreate(Sender : TObject);
+begin
+	ReadSettings;
 end;
 
 procedure TAGOpenWithConfigForm.ActionAddExecute(Sender : TObject);
@@ -134,7 +140,6 @@ end;
 procedure TAGOpenWithConfigForm.ActionMoveDownExecute(Sender : TObject);
 begin
 	inherited;
-	inherited;
 	var
 	idx := lbCommands.ItemIndex;
 	inc(idx);
@@ -164,6 +169,7 @@ end;
 
 procedure TAGOpenWithConfigForm.ActionOkExecute(Sender : TObject);
 begin
+	WriteSettings;
 	ModalResult := mrOk;
 end;
 
@@ -213,21 +219,22 @@ begin
 		var
 		iPos := Pos('.EXE', AnsiUppercase(_sCmd));
 		if iPos = 0 then begin
-			MessageDlg('Die Befehlszeile enthält keinen Programmaufruf!', mtError, [mbOK], 0);
-			Abort;
+			MessageDlg(Format('"%s" is not an execuatable!', [_sCmd]), mtError, [mbOK], 0);
+			Exit;
 		end;
 
 		sFileName := Copy(_sCmd, 1, iPos + 3);
-		OutputDebugString(PChar(Format('TAGOpenWithConfigForm.GetSettings Exe: %s ', [sFileName])));
+		OutputDebugString(PChar(Format('TAGOpenWithConfigForm.CheckCommand Exe: %s ', [sFileName])));
 		if not FileExists(sFileName) then begin
 			bFound := False;
 			sPath := ExtractFileDir(sFileName);
-			if (sPath = '') and ExecutableFoundByWhere(sFileName, sPath) then begin
+			GetExePath(sFileName, sPath);
+			if (not sPath.IsEmpty) then begin
 				bFound := True;
 			end;
 			if not bFound then begin
-				MessageDlg(Format('Das Programm "%s" wurde nicht gefunden!', [sFileName]), mtError, [mbOK], 0);
-				Abort;
+				MessageDlg(Format('Executable "%s" not found!', [sFileName]), mtError, [mbOK], 0);
+				Exit;
 			end;
 
 		end;
@@ -257,53 +264,58 @@ begin
 	btnModify.Default := True;
 end;
 
-procedure TAGOpenWithConfigForm.InitSettings;
+procedure TAGOpenWithConfigForm.ReadSettings;
 var
 	arr : TArray<string>;
-	list : TStringList;
+	listCmdsFromSettings : TStringList;
 	i : integer;
 begin
 	inherited;
 	lbCommands.MultiSelect := True;
-	lbCommands.Items.Clear;
 
-	list := TStringList.Create;
+	listCmdsFromSettings := TStringList.Create;
 	try
 		i := 0;
 		repeat
 			var
 			sCmd := FSettings.Command[i];
-			OutputDebugString(PChar(Format('TAGOpenWithConfigForm.InitSettings sCmd:%s ', [sCmd])));
+			OutputDebugString(PChar(Format('TAGOpenWithConfigForm.ReadSettings sCmd:%s ', [sCmd])));
 			if sCmd = '' then
 				break;
-			list.Add(sCmd);
+			listCmdsFromSettings.Add(sCmd);
 			inc(i);
 		until (i = MAX_COMMAND_NUM);
 
-		for var sCmd : string in list do begin
-			OutputDebugString(PChar(Format('TAGOpenWithConfigForm.InitSettings s:%s ', [sCmd])));
+		if listCmdsFromSettings.Count <> 0 then begin
+			lbCommands.Items.Clear;
+		end;
+
+		for var sCmd : string in listCmdsFromSettings do begin
+			OutputDebugString(PChar(Format('TAGOpenWithConfigForm.ReadSettings s:%s ', [sCmd])));
 			arr := sCmd.Split([SEPARATOR]);
 			if Length(arr) > 0 then begin
 				lbCommands.Items.Add(arr[1]);
 				lbCommands.Checked[lbCommands.Count - 1] := (arr[0].ToUpper() = 'TRUE');
-				OutputDebugString(PChar(Format('TAGOpenWithConfigForm.InitSettings %s %s', [arr[0], arr[1]])));
+				OutputDebugString(PChar(Format('TAGOpenWithConfigForm.ReadSettings %s %s', [arr[0], arr[1]])));
 			end;
 		end;
 	finally
-		list.Free;
+		listCmdsFromSettings.Free;
 	end;
 end;
 
-class function TAGOpenWithConfigForm.ExecutableFoundByWhere(sFileName : string; out sOutpuPath : string) : Boolean;
+class function TAGOpenWithConfigForm.GetExePath(sFileName : string; out sOutpuPath : string) : Boolean;
 var
 	Buffer : array [0 .. MAX_PATH] of Char;
 begin
 	Result := FindExecutable(PChar(sFileName), PChar(nil), &Buffer) > 0;
 	SetString(sOutpuPath, PChar(@Buffer[0]), Length(Buffer));
-	OutputDebugString(PChar(Format('TAGOpenWithConfigForm.ExecutableFoundByWhere %s ', [sOutpuPath])));
+
+	sOutpuPath := sOutpuPath.Remove(sOutpuPath.IndexOf(#0));
+	OutputDebugString(PChar(Format('TAGOpenWithConfigForm.FindExecutable ''%s'' ', [sOutpuPath])));
 end;
 
-procedure TAGOpenWithConfigForm.GetSettings;
+procedure TAGOpenWithConfigForm.WriteSettings;
 var
 	settings : string;
 begin
@@ -314,13 +326,13 @@ begin
 		var
 		sCmd := lbCommands.Items[i].Replace(SEPARATOR, '', [rfReplaceAll]);
 		if (CheckCommand(sCmd)) then begin
-			OutputDebugString(PChar(Format('TAGOpenWithConfigForm.GetSettings %s ', [sCmd])));
+			OutputDebugString(PChar(Format('TAGOpenWithConfigForm.WriteSettings %s ', [sCmd])));
 			settings := Format('%s' + SEPARATOR + '%s', [BoolToStr(lbCommands.Checked[i], true), sCmd]);
 			FSettings.Command[i] := settings;
-			OutputDebugString(PChar(Format('TAGOpenWithConfigForm.GetSettings %s ', [FSettings.Command[i]])));
+			OutputDebugString(PChar(Format('TAGOpenWithConfigForm.WriteSettings %s ', [FSettings.Command[i]])));
 		end;
 	end;
-
+	FSettings.Store;
 end;
 
 procedure TAGOpenWithConfigForm.lbCommandsClick(Sender : TObject);

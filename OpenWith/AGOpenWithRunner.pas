@@ -4,18 +4,20 @@ interface
 
 uses
 	ToolsAPI,
-	System.Types;
+	System.Types,
+	RipGrepper.OpenWith.SimpleTypes;
 
 type
 	TOpenWithRunner = class
 
 		private
-			class function BuildParams(const editPosition : IOTAEditPosition; const sFileName, sParams : string) : string;
+			class function BuildParams(const _owp: TOpenWithParams; const _sParams: string): string;
 			class function GetEditPosition : IOTAEditPosition;
-			class function unDateien_FehlerMelden(dwErrorCode : DWORD) : string;
+			class function GetParamsFromDelphiIde : TOpenWithParams;
+			class function GetErrorText(dwErrorCode : DWORD) : string;
 
 		public
-			class procedure RunEditorCommand(const sEditorCmd, sFileName : string);
+			class procedure RunEditorCommand(const _sEditorCmd: string; const _owp: TOpenWithParams);
 	end;
 
 implementation
@@ -25,33 +27,34 @@ uses
 	Winapi.Windows,
 	System.SysUtils,
 	Winapi.ShellAPI,
-	Vcl.Dialogs, RipGrepper.Common.Types;
+	Vcl.Dialogs,
+	RipGrepper.Common.Types;
 
-class function TOpenWithRunner.BuildParams(const editPosition : IOTAEditPosition; const sFileName, sParams : string) : string;
+class function TOpenWithRunner.BuildParams(const _owp: TOpenWithParams; const _sParams: string): string;
 var
 	sCmdParams : string;
-	sProjName : string;
+	owp : TOpenWithParams;
 begin
-	sCmdParams := sParams;
-	sProjName := GxOtaGetCurrentProjectName;
-	OutputDebugString(PChar(Format('TOpenWithRunner.InternalExecute proj: %s ', [sProjName])));
+	sCmdParams := _sParams;
 
-	if (sProjName <> '') then begin
-		sCmdParams := StringReplace(sCmdParams, '<DIR>', '%s', [rfReplaceAll]);
-		sCmdParams := Format(sCmdParams, [ExtractFileDir(sProjName)]);
-		OutputDebugString(PChar(Format('TOpenWithRunner.InternalExecute Params: %s ', [sCmdParams])));
+	owp := GetParamsFromDelphiIde();
+	if owp.IsEmpty then begin
+		owp := _owp;
 	end;
 
+	sCmdParams := StringReplace(sCmdParams, '<DIR>', '%s', [rfReplaceAll]);
+	sCmdParams := Format(sCmdParams, [owp.DirPath]);
+
 	sCmdParams := StringReplace(sCmdParams, '<FILE>', '%s', [rfReplaceAll]);
-	sCmdParams := Format(sCmdParams, [sFileName]);
+	sCmdParams := Format(sCmdParams, [owp.FileName]);
 	// OutputDebugString(PChar(Format('TOpenWithRunner.InternalExecute Params: %s ', [sCmdParams])));
 
 	sCmdParams := StringReplace(sCmdParams, '<LINE>', '%d', [rfReplaceAll]);
-	sCmdParams := Format(sCmdParams, [editPosition.Row]);
+	sCmdParams := Format(sCmdParams, [owp.Row]);
 	// OutputDebugString(PChar(Format('TOpenWithRunner.InternalExecute Params: %s ', [sCmdParams])));
 
 	sCmdParams := StringReplace(sCmdParams, '<COL>', '%d', [rfReplaceAll]);
-	Result := Format(sCmdParams, [editPosition.Column]);
+	Result := Format(sCmdParams, [owp.Column]);
 
 end;
 
@@ -73,31 +76,51 @@ begin
 	end;
 end;
 
-class procedure TOpenWithRunner.RunEditorCommand(const sEditorCmd, sFileName : string);
+class function TOpenWithRunner.GetParamsFromDelphiIde() : TOpenWithParams;
+var
+	sProjName : string;
+	editPosition : IOTAEditPosition;
+begin
+	editPosition := GetEditPosition;
+	if Assigned(editPosition) then begin
+		Result.FileName := GxOtaGetCurrentSourceFile;;
+		sProjName := GxOtaGetCurrentProjectName;
+		OutputDebugString(PChar(Format('TOpenWithRunner.InternalExecute proj: %s ', [sProjName])));
+		if (sProjName <> '') then begin
+			Result.DirPath := ExtractFileDir(sProjName);
+		end else begin
+			Result.DirPath := ExtractFileDir(Result.FileName);
+		end;
+		Result.Row := editPosition.Row;
+		Result.Column := editPosition.Column;
+		Result.IsEmpty := False;
+	end;
+end;
+
+class procedure TOpenWithRunner.RunEditorCommand(const _sEditorCmd: string; const _owp: TOpenWithParams);
 var
 	iPos : Integer;
 	err : DWORD;
 	sParams : string;
 begin
-	var
-		editPosition : IOTAEditPosition := GetEditPosition;
-	iPos := Pos('.EXE', AnsiUppercase(sEditorCmd));
-	sParams := Copy(sEditorCmd, iPos + 4, MaxInt);
-	var
-	sCmd := '"' + Copy(sEditorCmd, 1, iPos + 3) + '"';
-	// OutputDebugString(PChar(Format('TOpenWithRunner.InternalExecute Editor path: %s ', [sEditorCmd])));
 
-	sParams := BuildParams(editPosition, sFileName, sParams);
+	iPos := Pos('.EXE', AnsiUppercase(_sEditorCmd));
+	sParams := Copy(_sEditorCmd, iPos + 4, MaxInt);
+	var
+	sCmd := '"' + Copy(_sEditorCmd, 1, iPos + 3) + '"';
+	// OutputDebugString(PChar(Format('TOpenWithRunner.InternalExecute Editor path: %s ', [_sEditorCmd])));
 
-	OutputDebugString(PChar(Format('TOpenWithRunner.InternalExecute cmd: %s %s ', [sEditorCmd, sParams])));
+	sParams := BuildParams(_owp, sParams);
+
+	OutputDebugString(PChar(Format('TOpenWithRunner.InternalExecute cmd: %s %s ', [_sEditorCmd, sParams])));
 	ShellExecute(0, 'open', PChar(sCmd), PChar(sParams), nil, SW_SHOW);
 	err := GetLastError;
 	if err <> 0 then begin
-		MessageDlg(Format('%s %s' + CRLF + CRLF + '%s', [sCmd, sParams, unDateien_FehlerMelden(err)]), mtError, [mbOK], 0);
+		MessageDlg(Format('%s %s' + CRLF + CRLF + '%s', [sCmd, sParams, GetErrorText(err)]), mtError, [mbOK], 0);
 	end;
 end;
 
-class function TOpenWithRunner.unDateien_FehlerMelden(dwErrorCode : DWORD) : string;
+class function TOpenWithRunner.GetErrorText(dwErrorCode : DWORD) : string;
 var
 	sFehler : string;
 	aMessageBuffer : array [0 .. 255] of Char;

@@ -7,14 +7,14 @@ uses
 	System.Classes,
 	Winapi.Windows,
 	Winapi.ShellAPI,
-	Vcl.Menus;
+	Vcl.Menus, RipGrepper.OpenWith.SimpleTypes;
 
 type
 	TOpenWith = class
 		private
 			class function GetSelectedCmd : string;
 		public
-			class procedure Execute(const _sFilePath : string);
+			class procedure Execute(const _owp: TOpenWithParams);
 	end;
 
 implementation
@@ -25,8 +25,7 @@ uses
 	Vcl.Dialogs,
 	AGOpenWithRunner,
 	AGOpenWithList_Form,
-	RipGrepper.OpenWith.Constants,
-	RipGrepper.Common.Settings;
+	RipGrepper.Common.Settings, RipGrepper.Tools.DebugTools;
 
 class function TOpenWith.GetSelectedCmd : string;
 begin
@@ -36,22 +35,21 @@ begin
 	OutputDebugString(PChar(Format('OpenWithFunc.GetSelectedCmd Result: "%s"', [Result])));
 end;
 
-class procedure TOpenWith.Execute(const _sFilePath : string);
+class procedure TOpenWith.Execute(const _owp: TOpenWithParams);
 var
 	iPos : Integer;
 	sEditorCmd : string;
 begin
-	// sFileName := OtaGetCurrentSourceFile;
-	OutputDebugString(PChar(Format('TOpenWith.Execute %s ', [_sFilePath])));
+	TDebugUtils.DebugMessage(Format('TOpenWith.Execute %s ', [_owp.FileName]));
 
-	if FileExists(_sFilePath) then begin
+	if FileExists(_owp.FileName) then begin
 		sEditorCmd := GetSelectedCmd();
 
 		if sEditorCmd.IsEmpty then begin
 			exit;
 		end;
 
-		OutputDebugString(PChar(Format('TOpenWith.Execute Cmd: %s ', [sEditorCmd])));
+		TDebugUtils.DebugMessage(PChar(Format('TOpenWith.Execute Cmd: %s ', [sEditorCmd])));
 
 		iPos := Pos('.EXE', AnsiUppercase(sEditorCmd));
 		if iPos = 0 then begin
@@ -59,7 +57,7 @@ begin
 			exit;
 		end;
 
-		TOpenWithRunner.RunEditorCommand(sEditorCmd, _sFilePath);
+		TOpenWithRunner.RunEditorCommand(sEditorCmd, _owp);
 	end;
 
 end;

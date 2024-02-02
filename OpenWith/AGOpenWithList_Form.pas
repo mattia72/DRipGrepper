@@ -83,7 +83,7 @@ uses
 	System.IOUtils,
 	AGOpenWithConfig_Form,
 	System.Math,
-	RipGrepper.OpenWith.Constants;
+	RipGrepper.OpenWith.SimpleTypes;
 
 {$R *.dfm}
 
@@ -117,6 +117,7 @@ end;
 
 procedure TAGOpenWithList.a_OkExecute(Sender : TObject);
 begin
+    FSettings.Store;
 	ModalResult := mrOk;
 end;
 
@@ -212,8 +213,12 @@ begin
 			sFileName := Copy(itemText, 1, iPos + 3);
 			sPath := ExtractFileDir(sFileName);
 			if sPath.IsEmpty then begin
-				TAGOpenWithConfigForm.ExecutableFoundByWhere(sFileName, sPath);
-				sFileName := sPath;
+				TAGOpenWithConfigForm.GetExePath(sFileName, sPath);
+				if not sPath.IsEmpty then begin
+					sFileName := sPath;
+				end else begin
+                    continue
+				end;
 			end;
 
 			item := _form.lbCommands.Items.Add();

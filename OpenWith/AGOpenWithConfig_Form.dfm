@@ -13,6 +13,7 @@ object AGOpenWithConfigForm: TAGOpenWithConfigForm
   Font.Name = 'Segoe UI'
   Font.Style = []
   Position = poDesigned
+  OnCreate = FormCreate
   TextHeight = 15
   object pnlBottom: TPanel
     Left = 0
