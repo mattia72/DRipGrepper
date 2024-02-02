@@ -6,7 +6,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI written in Delp
   - [x] --vimgrep parser
   - [ ] no match parser
   - [ ] --pretty parser
-- [x] help parametrizing `rg`
+- [x] help parametrizing `rg` in search dialog
   - [ ] filter not appropriate parameters
   - [ ] quick buttons for
     - [ ] --ignore-case
@@ -14,8 +14,10 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI written in Delp
     - [ ] --word-regexp
     - [ ] --fixed-strings
   - [ ] --glob as separate editbox
+- [x] open a configurable editor with matching file on matching position
      
   ## Thanks
 -  [ripgrep](https://github.com/BurntSushi/ripgrep)
 -  [GExpert](https://www.gexperts.org/download)
 -  [dzlib](https://sourceforge.net/p/dzlib/code/HEAD/tree)
+-  [UniSynEdit](https://sourceforge.net/projects/synedit)
