@@ -3,6 +3,8 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI written in Delp
 
 ## Features and todos
 - [ ] delphi IDE integration https://github.com/mattia72/DRipGrepper/issues/1
+- [ ] standalone release
+- [ ] delphi plugin release
 - [x] search text, parse `rg` output
   - [x] --vimgrep parser
   - [ ] no match parser
