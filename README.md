@@ -21,8 +21,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI written in Delp
 - [ ] screenshots in Readme.md
 - [ ] scoop install
 - [ ] chocolatey install
-
-     
+  
   ## Thanks
 -  [ripgrep](https://github.com/BurntSushi/ripgrep)
 -  [dprocess](https://stackoverflow.com/a/45029879/2923283): port from freepascal
