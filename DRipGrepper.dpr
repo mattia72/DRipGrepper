@@ -49,7 +49,7 @@ uses
   u_dzClassUtils in 'external\dzlib\u_dzClassUtils.pas',
   RipGrepper.Parsers.VimGrepMatchLine in 'RipGrepper.Parsers.VimGrepMatchLine.pas',
   RipGrepper.Common.ParsedObject in 'RipGrepper.Common.ParsedObject.pas',
-  AGOpenWithConfig_Form in 'OpenWith\AGOpenWithConfig_Form.pas', {AGOpenWithConfig}
+  AGOpenWithConfig_Form in 'OpenWith\AGOpenWithConfig_Form.pas',
   AGOpenWithList_Form in 'OpenWith\AGOpenWithList_Form.pas' {AGOpenWithList},
   GX_BaseForm in 'external\GExpert\GX_BaseForm.pas' {fmBaseForm},
   GX_OtaUtils in 'external\GExpert\GX_OtaUtils.pas',
@@ -57,7 +57,7 @@ uses
   AGOpenWith in 'OpenWith\AGOpenWith.pas',
   GX_GxUtils in 'external\GExpert\GX_GxUtils.pas',
   GX_IdeUtils in 'external\GExpert\GX_IdeUtils.pas',
-  RipGrepper.OpenWith.Constants in 'OpenWith\RipGrepper.OpenWith.Constants.pas';
+  RipGrepper.OpenWith.SimpleTypes in 'OpenWith\RipGrepper.OpenWith.SimpleTypes.pas';
 
 {$R *.res}
 

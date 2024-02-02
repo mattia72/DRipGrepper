@@ -173,7 +173,7 @@
         <DCCReference Include="OpenWith\AGOpenWith.pas"/>
         <DCCReference Include="external\GExpert\GX_GxUtils.pas"/>
         <DCCReference Include="external\GExpert\GX_IdeUtils.pas"/>
-        <DCCReference Include="OpenWith\RipGrepper.OpenWith.Constants.pas"/>
+        <DCCReference Include="OpenWith\RipGrepper.OpenWith.SimpleTypes.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

@@ -205,7 +205,6 @@ end;
 
 procedure TRipGrepperSearchDialogForm.LoadSettings;
 begin
-	FSettings.Load;
 	cmbSearchDir.Items.Assign(FSettings.SearchPathsHistory);
 	cmbSearchDir.ItemIndex := 0;
 	cmbSearchText.Items.Assign(FSettings.SearchTextsHistory);
@@ -223,14 +222,15 @@ end;
 
 procedure TRipGrepperSearchDialogForm.StoreSearchSettings;
 begin
-	FSettings.SearchPathsHistory.Assign(cmbSearchDir.Items);
+	FSettings.SearchPathsHistory := cmbSearchDir.Items;
 	FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
 
-	FSettings.SearchTextsHistory.Assign(cmbSearchText.Items);
+	FSettings.SearchTextsHistory := cmbSearchText.Items;
 	FSettings.RipGrepParameters.SearchText := cmbSearchText.Text;
 
-	FSettings.RipGrepParamsHistory.Assign(cmbOptions.Items);
+	FSettings.RipGrepParamsHistory := cmbOptions.Items;
 	FSettings.RipGrepParameters.Options := cmbOptions.Text;
+
 	FSettings.ReBuildArguments;
 	FSettings.Store
 end;

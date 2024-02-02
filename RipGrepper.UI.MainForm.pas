@@ -83,7 +83,7 @@ type
 		PanelHistory : TPanel;
 		PanelResult : TPanel;
 		ActionStatusBar : TAction;
-    tbConfigure: TToolButton;
+		tbConfigure : TToolButton;
 		procedure ActionStatusBarUpdate(Sender : TObject);
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
@@ -220,7 +220,9 @@ uses
 	u_dzVclUtils,
 	RipGrepper.Parsers.VimGrepMatchLine,
 	RipGrepper.Common.ParsedObject,
-	AGOpenWith, AGOpenWithConfig_Form;
+	AGOpenWith,
+	AGOpenWithConfig_Form,
+	RipGrepper.OpenWith.SimpleTypes;
 
 {$R *.dfm}
 
@@ -504,6 +506,7 @@ end;
 
 procedure TRipGrepperForm.FormClose(Sender : TObject; var Action : TCloseAction);
 begin
+    FSettings.Store;
 	TListBoxHelper.FreeItemObjects(ListBoxSearchHistory);
 end;
 
@@ -542,6 +545,7 @@ end;
 
 procedure TRipGrepperForm.LoadSettings;
 begin
+	FSettings.Load;
 	LoadBeforeSearchSettings();
 end;
 
@@ -904,11 +908,17 @@ end;
 
 procedure TRipGrepperForm.ListViewResultDblClick(Sender : TObject);
 var
+	owp : TOpenWithParams;
 	selected : TListItem;
 begin
 	selected := ListViewResult.Selected;
 	if Assigned(selected) then begin
-		TOpenWith.Execute(selected.Caption);
+		owp.DirPath := ifthen(FSearchPathIsDir, FSettings.ActualSearchPath, ExtractFileDir(selected.Caption));
+		owp.FileName := selected.Caption;
+		owp.Row := StrToIntDef(selected.SubItems[0], -1);
+		owp.Column := StrToIntDef(selected.SubItems[1], -1);
+		owp.IsEmpty := False;
+		TOpenWith.Execute(owp);
 	end;
 end;
 

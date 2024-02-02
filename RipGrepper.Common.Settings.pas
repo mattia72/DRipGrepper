@@ -17,17 +17,24 @@ type
 
 	TRipGrepperSettingsBase = class(TSingletonImplementation, ISettingsPersister)
 		private
+			FIsModified : Boolean;
 			function GetIniFile : TIniFile;
 			procedure SetIniFile(const Value : TIniFile);
+			procedure SetIsModified(const Value : Boolean);
+
 		protected
 			FIniFile : TIniFile;
 			FIsLoaded : Boolean;
+			function GetIsLoaded : Boolean; virtual;
+			function GetIsModified : Boolean; virtual;
+
 		public
 			constructor Create(const _ini : TIniFile);
 			procedure Load; virtual; abstract;
 			procedure Store; virtual; abstract;
 			property IniFile : TIniFile read GetIniFile write SetIniFile;
-			property IsLoaded : Boolean read FIsLoaded;
+			property IsLoaded : Boolean read GetIsLoaded;
+			property IsModified : Boolean read GetIsModified write SetIsModified;
 	end;
 
 	TRipGrepParameterSettings = class(TRipGrepperSettingsBase)
@@ -38,6 +45,10 @@ type
 			FSearchPath : string;
 			FSearchText : string;
 			procedure AddArgs(const _args : TArray<string>; const _bQuote : Boolean = False);
+			procedure SetOptions(const Value : string);
+			procedure SetSearchPath(const Value : string);
+			procedure SetSearchText(const Value : string);
+
 		public
 			constructor Create(const _ini : TIniFile);
 			destructor Destroy; override;
@@ -46,9 +57,9 @@ type
 			procedure Load; override;
 			function ReBuildArguments : TStrings;
 			procedure Store; override;
-			property Options : string read FOptions write FOptions;
-			property SearchPath : string read FSearchPath write FSearchPath;
-			property SearchText : string read FSearchText write FSearchText;
+			property Options : string read FOptions write SetOptions;
+			property SearchPath : string read FSearchPath write SetSearchPath;
+			property SearchText : string read FSearchText write SetSearchText;
 			property RipGrepArguments : TStrings read FRipGrepArguments write FRipGrepArguments;
 			property RipGrepPath : string read FRipGrepPath write FRipGrepPath;
 	end;
@@ -60,6 +71,7 @@ type
 		var
 		private
 			FAlternateRowColors : Boolean;
+
 		public
 			IndentLines : Boolean;
 			ShowFileIcon : Boolean;
@@ -77,6 +89,7 @@ type
 			FCommandList : TStringList;
 			function GetCommand(Index : Integer) : string;
 			procedure SetCommand(Index : Integer; const Value : string);
+
 		public
 			constructor Create(const _ini : TIniFile);
 			destructor Destroy; override;
@@ -88,6 +101,7 @@ type
 	TRipGrepperSettings = class(TRipGrepperSettingsBase)
 		const
 			MAX_HISTORY_COUNT = 20;
+
 		private
 		var
 			FRipGrepParameters : TRipGrepParameterSettings;
@@ -104,13 +118,19 @@ type
 			function GetIsEmpty : Boolean;
 			procedure InitSettings;
 			procedure LoadHistoryEntries(var _list : TStrings; const _section : string);
+			procedure SetRipGrepParamsHistory(const Value : TSTrings);
+			procedure SetSearchPathsHistory(const Value : TStrings);
+			procedure SetSearchTextsHistory(const Value : TStrings);
 			procedure StoreHistoryEntries(const _list : TStrings; const _section : string);
+
 		public
 			procedure Load; override;
 			procedure Store; override;
 			procedure StoreViewSettings(const _s : string = '');
 			constructor Create;
 			destructor Destroy; override;
+			procedure AssignIfNotEqual(_to, _from : TStrings);
+			function GetIsModified : Boolean; override;
 			function GetRipGrepArguments : TStrings;
 			function ReBuildArguments : TStrings;
 			property ActualRipGrepParam : string read GetActualRipGrepParam;
@@ -119,17 +139,18 @@ type
 			property IsEmpty : Boolean read GetIsEmpty;
 
 			property RipGrepParameters : TRipGrepParameterSettings read FRipGrepParameters write FRipGrepParameters;
-			property SearchPathsHistory : TStrings read FSearchPathsHistory;
-			property RipGrepParamsHistory : TSTrings read FRipGrepParamsHistory;
+			property SearchPathsHistory : TStrings read FSearchPathsHistory write SetSearchPathsHistory;
+			property RipGrepParamsHistory : TSTrings read FRipGrepParamsHistory write SetRipGrepParamsHistory;
 			property RipGrepperOpenWithSettings : TRipGrepperOpenWithSettings read FRipGrepperOpenWithSettings;
 			property RipGrepperViewSettings : TRipGrepperViewSettings read FRipGrepperViewSettings write FRipGrepperViewSettings;
-			property SearchTextsHistory : TStrings read FSearchTextsHistory;
+			property SearchTextsHistory : TStrings read FSearchTextsHistory write SetSearchTextsHistory;
 	end;
 
 	TRipGrepperSettingsInstance = class
 		private
 			class var FInstance : TRipGrepperSettings;
 			class function GetInstance : TRipGrepperSettings; static;
+
 		public
 			constructor Create;
 			class destructor Destroy;
@@ -152,7 +173,7 @@ uses
 	Winapi.Windows,
 	System.UITypes,
 	RipGrepper.Tools.ProcessUtils,
-	RipGrepper.OpenWith.Constants;
+	RipGrepper.OpenWith.SimpleTypes;
 
 function TRipGrepperSettings.GetActualRipGrepParam : string;
 begin
@@ -236,6 +257,19 @@ begin
 	FIsLoaded := False;
 end;
 
+procedure TRipGrepperSettings.AssignIfNotEqual(_to, _from : TStrings);
+begin
+	if 0 <> _to[0].CompareTo(_from[0]) then begin
+		_to.Assign(_from);
+		FIsModified := True;
+	end;
+end;
+
+function TRipGrepperSettings.GetIsModified : Boolean;
+begin
+	Result := FIsModified or FRipGrepParameters.IsModified or FRipGrepperViewSettings.IsModified or FRipGrepperOpenWithSettings.IsModified;
+end;
+
 procedure TRipGrepperSettings.Load;
 begin
 	FRipGrepParameters.Load;
@@ -255,16 +289,34 @@ begin
 	Result := FRipGrepParameters.ReBuildArguments;
 end;
 
+procedure TRipGrepperSettings.SetRipGrepParamsHistory(const Value : TSTrings);
+begin
+	AssignIfNotEqual(FRipGrepParamsHistory, Value);
+end;
+
+procedure TRipGrepperSettings.SetSearchPathsHistory(const Value : TStrings);
+begin
+	AssignIfNotEqual(FSearchPathsHistory, Value);
+end;
+
+procedure TRipGrepperSettings.SetSearchTextsHistory(const Value : TStrings);
+begin
+	AssignIfNotEqual(FSearchTextsHistory, Value);
+end;
+
 procedure TRipGrepperSettings.Store;
 begin
-	if IsLoaded then begin
+	if IsLoaded and IsModified then begin
 		FRipGrepParameters.Store;
 		FRipGrepperViewSettings.Store;
 		FRipGrepperOpenWithSettings.Store;
 
-		StoreHistoryEntries(SearchPathsHistory, 'SearchPathsHistory');
-		StoreHistoryEntries(SearchTextsHistory, 'SearchTextsHistory');
-		StoreHistoryEntries(RipGrepParamsHistory, 'RipGrepParamsHistory');
+		if (FIsModified) then begin
+			StoreHistoryEntries(SearchPathsHistory, 'SearchPathsHistory');
+			StoreHistoryEntries(SearchTextsHistory, 'SearchTextsHistory');
+			StoreHistoryEntries(RipGrepParamsHistory, 'RipGrepParamsHistory');
+			FIsModified := False;
+		end;
 
 	end;
 end;
@@ -368,10 +420,35 @@ begin
 	Result := FRipGrepArguments;
 end;
 
+procedure TRipGrepParameterSettings.SetOptions(const Value : string);
+begin
+	if FOptions <> Value then begin
+		FOptions := Value;
+		FIsModified := True;
+	end;
+end;
+
+procedure TRipGrepParameterSettings.SetSearchPath(const Value : string);
+begin
+	if FSearchPath <> Value then begin
+		FSearchPath := Value;
+		FIsModified := True;
+	end;
+end;
+
+procedure TRipGrepParameterSettings.SetSearchText(const Value : string);
+begin
+	if FSearchText <> Value then begin
+		FSearchText := Value;
+		FIsModified := True;
+	end;
+end;
+
 procedure TRipGrepParameterSettings.Store;
 begin
-	if IsLoaded then begin
+	if IsLoaded and IsModified then begin
 		FIniFile.WriteString('RipGrepSettings', 'Path', RipGrepPath);
+		FIsModified := False;
 	end;
 end;
 
@@ -402,8 +479,9 @@ end;
 
 procedure TRipGrepperViewSettings.Store;
 begin
-	if IsLoaded then begin
+	if IsLoaded and IsModified then begin
 		StoreViewSettings(FIniFile, '');
+		FIsModified := False;
 	end;
 end;
 
@@ -432,6 +510,7 @@ begin
 	end else begin
 		raise Exception.Create('Settings: ' + _s + ' not stored!');
 	end;
+	IsModified := True;
 end;
 
 constructor TRipGrepperSettingsInstance.Create();
@@ -472,8 +551,9 @@ end;
 function TRipGrepperOpenWithSettings.GetCommand(Index : Integer) : string;
 begin
 	Result := '';
-	if FCommandList.Count > 0 then
+	if FCommandList.Count > index then begin
 		Result := FCommandList[index];
+	end;
 end;
 
 procedure TRipGrepperOpenWithSettings.Load;
@@ -488,16 +568,22 @@ begin
 			break
 		end;
 	end;
-
 	FIsLoaded := True;
 end;
 
 procedure TRipGrepperOpenWithSettings.SetCommand(Index : Integer; const Value : string);
 begin
-	if FCommandList.Count > Index then begin
-		FCommandList[index] := Value;
+	if Value.IsEmpty then
+		Exit;
+
+	if FCommandList.Count > index then begin
+		if (FCommandList[index] <> Value) then begin
+			FCommandList[index] := Value;
+			IsModified := True;
+		end;
 	end else begin
 		FCommandList.Add(Value);
+		IsModified := True;
 	end;
 end;
 
@@ -505,13 +591,16 @@ procedure TRipGrepperOpenWithSettings.Store;
 var
 	s : string;
 begin
-	if IsLoaded then begin
-		if not FCommandList.Count > 0 then begin
+	if IsLoaded and IsModified then begin
+		if FCommandList.Count > 0 then begin
 			for var i : integer := 0 to MAX_COMMAND_NUM do begin
 				s := Command[i];
+				if s.IsEmpty then
+					break;
 				FIniFile.WriteString(OPEN_WITH_SETTINGS, OPENWITH_COMMAND_KEY + i.ToString, s);
 			end;
 		end;
+		FIsModified := False;
 	end;
 end;
 
@@ -519,6 +608,8 @@ constructor TRipGrepperSettingsBase.Create(const _ini : TIniFile);
 begin
 	inherited Create();
 	FIniFile := _ini;
+	FIsModified := False;
+	FIsLoaded := False;
 end;
 
 function TRipGrepperSettingsBase.GetIniFile : TIniFile;
@@ -526,9 +617,24 @@ begin
 	Result := FIniFile;
 end;
 
+function TRipGrepperSettingsBase.GetIsLoaded : Boolean;
+begin
+	Result := FIsLoaded;
+end;
+
+function TRipGrepperSettingsBase.GetIsModified : Boolean;
+begin
+	Result := FIsModified;
+end;
+
 procedure TRipGrepperSettingsBase.SetIniFile(const Value : TIniFile);
 begin
 	FIniFile := Value;
+end;
+
+procedure TRipGrepperSettingsBase.SetIsModified(const Value : Boolean);
+begin
+	FIsModified := Value;
 end;
 
 end.
