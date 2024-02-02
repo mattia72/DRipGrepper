@@ -1,4 +1,4 @@
-unit AGOpenWithRunner;
+unit RipGrepper.OpenWith.Runner;
 
 interface
 

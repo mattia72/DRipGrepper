@@ -1,4 +1,4 @@
-unit AGOpenWithConfig_Form;
+unit RipGrepper.OpenWith.ConfigForm;
 
 interface
 
@@ -90,7 +90,7 @@ uses
 	Winapi.Windows,
 	Winapi.ShellAPI,
 	// GX_OtaUtils,
-	AGOpenWithRunner,
+	RipGrepper.OpenWith.Runner,
 	RipGrepper.OpenWith.SimpleTypes;
 
 {$R *.dfm}

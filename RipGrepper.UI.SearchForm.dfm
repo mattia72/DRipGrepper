@@ -2,7 +2,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
   Left = 756
   Top = 436
   Caption = 'DRipGrepper - Search...'
-  ClientHeight = 175
+  ClientHeight = 191
   ClientWidth = 606
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -154,26 +154,23 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     Left = 3
     Top = 3
     Width = 600
-    Height = 169
+    Height = 144
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    DesignSize = (
-      600
-      169)
     object gbSearch: TGroupBox
       AlignWithMargins = True
       Left = 3
       Top = 3
       Width = 594
-      Height = 163
+      Height = 138
       Align = alClient
       Anchors = [akRight, akBottom]
       Caption = 'Search'
       TabOrder = 0
       DesignSize = (
         594
-        163)
+        138)
       object lblParams: TLabel
         AlignWithMargins = True
         Left = 16
@@ -225,72 +222,85 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         TabOrder = 1
         Text = 'cmbSearchText'
       end
+      object btnConfig: TButton
+        AlignWithMargins = True
+        Left = 517
+        Top = 81
+        Width = 26
+        Height = 25
+        Action = ActionShowRipGrepOptionsForm
+        Anchors = [akTop, akRight]
+        ImageAlignment = iaCenter
+        Images = ImageList1
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 3
+      end
+      object btnSearchFolder: TButton
+        AlignWithMargins = True
+        Left = 516
+        Top = 23
+        Width = 26
+        Height = 25
+        Action = ActionSearchFolder
+        Anchors = [akTop, akRight]
+        ImageAlignment = iaCenter
+        Images = ImageList1
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 4
+      end
+      object btnSearchFile: TButton
+        AlignWithMargins = True
+        Left = 541
+        Top = 23
+        Width = 26
+        Height = 25
+        Action = ActionSearchFile
+        Anchors = [akTop, akRight]
+        ImageAlignment = iaCenter
+        Images = ImageList1
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 5
+      end
     end
-    object btnConfig: TButton
-      AlignWithMargins = True
-      Left = 521
-      Top = 85
-      Width = 26
-      Height = 24
-      Action = ActionShowRipGrepOptionsForm
-      Anchors = [akTop, akRight]
-      ImageAlignment = iaCenter
-      Images = ImageList1
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 2
-    end
+  end
+  object pnlBottom: TPanel
+    Left = 0
+    Top = 150
+    Width = 606
+    Height = 41
+    Align = alBottom
+    BevelOuter = bvNone
+    ParentBackground = False
+    TabOrder = 1
+    DesignSize = (
+      606
+      41)
     object btnSearch: TButton
       AlignWithMargins = True
-      Left = 430
-      Top = 128
+      Left = 442
+      Top = 3
       Width = 74
-      Height = 21
+      Height = 25
       Action = ActionSearch
       Anchors = [akRight, akBottom]
       Default = True
       ImageIndex = 3
       Images = ImageList1
-      TabOrder = 3
+      TabOrder = 0
     end
     object btnCancel: TButton
       AlignWithMargins = True
-      Left = 510
-      Top = 128
+      Left = 522
+      Top = 3
       Width = 76
-      Height = 21
+      Height = 25
       Action = ActionCancel
       Anchors = [akRight, akBottom]
       Cancel = True
       TabOrder = 1
-    end
-    object btnSearchFolder: TButton
-      AlignWithMargins = True
-      Left = 521
-      Top = 26
-      Width = 26
-      Height = 25
-      Action = ActionSearchFolder
-      Anchors = [akTop, akRight]
-      ImageAlignment = iaCenter
-      Images = ImageList1
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 4
-    end
-    object btnSearchFile: TButton
-      AlignWithMargins = True
-      Left = 548
-      Top = 26
-      Width = 26
-      Height = 25
-      Action = ActionSearchFile
-      Anchors = [akTop, akRight]
-      ImageAlignment = iaCenter
-      Images = ImageList1
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 5
     end
   end
   object ImageList1: TImageList

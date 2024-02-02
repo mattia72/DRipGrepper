@@ -153,13 +153,14 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     Width = 738
     Height = 223
     Align = alClient
+    BevelOuter = bvNone
     Caption = 'PanelMain'
     TabOrder = 0
     object ListView1: TListView
-      Left = 1
-      Top = 1
-      Width = 736
-      Height = 221
+      Left = 0
+      Top = 0
+      Width = 738
+      Height = 223
       Align = alClient
       Columns = <>
       MultiSelect = True
@@ -179,6 +180,7 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     Width = 738
     Height = 41
     Align = alBottom
+    BevelOuter = bvNone
     TabOrder = 1
     DesignSize = (
       738
@@ -212,6 +214,7 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     Width = 738
     Height = 56
     Align = alTop
+    BevelOuter = bvNone
     TabOrder = 2
     object Label1: TLabel
       Left = 10

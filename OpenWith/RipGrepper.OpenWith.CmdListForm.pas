@@ -1,6 +1,6 @@
 // __ready4Postgres__
 { **-----------------------------------------------------------------------------
-  @file AGOpenWithList_Form.pas
+  @file RipGrepper.OpenWith.CmdListForm.pas
 
   TODO: -- Add description --
 
@@ -13,7 +13,7 @@
 
   -------------------------------------------------------------------------------- }
 
-unit AGOpenWithList_Form;
+unit RipGrepper.OpenWith.CmdListForm;
 
 interface
 
@@ -51,6 +51,7 @@ type
 		btnConfig : TButton;
 		a_Config : TAction;
 		ImageListButtons : TImageList;
+    pnlMain: TPanel;
 		procedure a_CancelExecute(Sender : TObject);
 		procedure a_ConfigExecute(Sender : TObject);
 		procedure a_OkExecute(Sender : TObject);
@@ -81,7 +82,7 @@ implementation
 uses
 	Winapi.ShellAPI,
 	System.IOUtils,
-	AGOpenWithConfig_Form,
+	RipGrepper.OpenWith.ConfigForm,
 	System.Math,
 	RipGrepper.OpenWith.SimpleTypes;
 

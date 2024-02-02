@@ -45,6 +45,7 @@ type
 		ActionSearchFolder : TAction;
 		btnSearchFile : TButton;
 		ActionSearchFile : TAction;
+    pnlBottom: TPanel;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionSearchFolderExecute(Sender : TObject);
 		procedure ActionShowRipGrepOptionsFormExecute(Sender : TObject);

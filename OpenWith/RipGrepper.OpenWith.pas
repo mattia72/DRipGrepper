@@ -1,4 +1,4 @@
-unit AGOpenWith;
+unit RipGrepper.OpenWith;
 
 interface
 
@@ -20,12 +20,13 @@ type
 implementation
 
 uses
-	AGOpenWithConfig_Form,
+	RipGrepper.OpenWith.ConfigForm,
 	System.SysUtils,
 	Vcl.Dialogs,
-	AGOpenWithRunner,
-	AGOpenWithList_Form,
-	RipGrepper.Common.Settings, RipGrepper.Tools.DebugTools;
+	RipGrepper.OpenWith.Runner,
+	RipGrepper.OpenWith.CmdListForm,
+	RipGrepper.Common.Settings,
+	RipGrepper.Tools.DebugTools;
 
 class function TOpenWith.GetSelectedCmd : string;
 begin

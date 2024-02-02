@@ -84,6 +84,7 @@ type
 		PanelResult : TPanel;
 		ActionStatusBar : TAction;
 		tbConfigure : TToolButton;
+    ToolButton4: TToolButton;
 		procedure ActionStatusBarUpdate(Sender : TObject);
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
@@ -220,8 +221,8 @@ uses
 	u_dzVclUtils,
 	RipGrepper.Parsers.VimGrepMatchLine,
 	RipGrepper.Common.ParsedObject,
-	AGOpenWith,
-	AGOpenWithConfig_Form,
+	RipGrepper.OpenWith,
+	RipGrepper.OpenWith.ConfigForm,
 	RipGrepper.OpenWith.SimpleTypes;
 
 {$R *.dfm}
