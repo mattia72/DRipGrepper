@@ -2,7 +2,8 @@
 **/__recovery/*
 **/Win32/*
 **/icons/*
-**/external/dzlib/*
+# **/external/dzlib/*
+**/external/UniSynEdit/*
 **/*.delphilsp.json
 **/*.identcache
 **/*.res
