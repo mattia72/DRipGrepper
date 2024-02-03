@@ -14,9 +14,9 @@ uses
   {$ENDIF }
   DUnitX.TestFramework,
   RipGrepMatchTest in 'RipGrepMatchTest.pas',
-  RipGrepper.Data.Matches in '..\RipGrepper.Data.Matches.pas',
+  RipGrepper.Data.Matches in '..\src\RipGrepper.Data.Matches.pas',
   RipGrepper.ProcessUtils.Test in 'RipGrepper.ProcessUtils.Test.pas',
-  RipGrepper.Tools.ProcessUtils in '..\RipGrepper.Tools.ProcessUtils.pas';
+  RipGrepper.Tools.ProcessUtils in '..\src\RipGrepper.Tools.ProcessUtils.pas';
 
 {$IFNDEF TESTINSIGHT}
 var
