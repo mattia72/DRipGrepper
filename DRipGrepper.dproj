@@ -100,38 +100,40 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <Icon_MainIcon>icons\DripGrepper.ico</Icon_MainIcon>
+        <UWP_DelphiLogo44>icons\DripGrepperLogo.png</UWP_DelphiLogo44>
+        <UWP_DelphiLogo150>icons\DripGrepperLogo.png</UWP_DelphiLogo150>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="RipGrepper.UI.MainForm.pas">
+        <DCCReference Include="src\RipGrepper.UI.MainForm.pas">
             <Form>RipGrepperForm</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="RipGrepper.Tools.ProcessUtils.pas"/>
-        <DCCReference Include="RipGrepper.Tools.DebugTools.pas"/>
-        <DCCReference Include="RipGrepper.Common.Settings.pas"/>
-        <DCCReference Include="RipGrepper.Data.Matches.pas"/>
-        <DCCReference Include="RipGrepper.Helper.UI.pas"/>
-        <DCCReference Include="RipGrepper.Tools.FileUtils.pas"/>
-        <DCCReference Include="RipGrepper.Common.Types.pas"/>
-        <DCCReference Include="RipGrepper.Helper.Types.pas"/>
-        <DCCReference Include="RipGrepper.Common.Interfaces.pas"/>
+        <DCCReference Include="src\RipGrepper.Tools.ProcessUtils.pas"/>
+        <DCCReference Include="src\RipGrepper.Tools.DebugTools.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Settings.pas"/>
+        <DCCReference Include="src\RipGrepper.Data.Matches.pas"/>
+        <DCCReference Include="src\RipGrepper.Helper.UI.pas"/>
+        <DCCReference Include="src\RipGrepper.Tools.FileUtils.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Types.pas"/>
+        <DCCReference Include="src\RipGrepper.Helper.Types.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Interfaces.pas"/>
         <DCCReference Include="external\dpipes.pas"/>
         <DCCReference Include="external\dprocess.pas"/>
-        <DCCReference Include="RipGrepper.UI.SearchForm.pas">
+        <DCCReference Include="src\RipGrepper.UI.SearchForm.pas">
             <Form>RipGrepperSearchDialogForm</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="external\ArrayHelper.pas"/>
-        <DCCReference Include="RipGrepper.Data.Parsers.pas"/>
-        <DCCReference Include="RipGrepper.Common.Sorter.pas"/>
-        <DCCReference Include="RipGrepper.Data.HistoryItemObject.pas"/>
-        <DCCReference Include="RipGrepper.Helper.ListBox.pas"/>
-        <DCCReference Include="RipGrepper.UI.RipGrepOptionsForm.pas">
+        <DCCReference Include="src\RipGrepper.Data.Parsers.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Sorter.pas"/>
+        <DCCReference Include="src\RipGrepper.Data.HistoryItemObject.pas"/>
+        <DCCReference Include="src\RipGrepper.Helper.ListBox.pas"/>
+        <DCCReference Include="src\RipGrepper.UI.RipGrepOptionsForm.pas">
             <Form>RipGrepOptionsForm</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="external\dzlib\u_dzDpiScaleUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzMiscUtils.pas"/>
@@ -157,23 +159,26 @@
         <DCCReference Include="external\dzlib\u_dzDateUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzConvertUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzClassUtils.pas"/>
-        <DCCReference Include="RipGrepper.Parsers.VimGrepMatchLine.pas"/>
-        <DCCReference Include="RipGrepper.Common.ParsedObject.pas"/>
-        <DCCReference Include="OpenWith\RipGrepper.OpenWith.ConfigForm.pas"/>
-        <DCCReference Include="OpenWith\RipGrepper.OpenWith.CmdListForm.pas">
-            <Form>AGOpenWithList</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
+        <DCCReference Include="src\RipGrepper.Parsers.VimGrepMatchLine.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.ParsedObject.pas"/>
         <DCCReference Include="external\GExpert\GX_BaseForm.pas">
             <Form>fmBaseForm</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="external\GExpert\GX_OtaUtils.pas"/>
-        <DCCReference Include="OpenWith\RipGrepper.OpenWith.Runner.pas"/>
-        <DCCReference Include="OpenWith\RipGrepper.OpenWith.pas"/>
         <DCCReference Include="external\GExpert\GX_GxUtils.pas"/>
         <DCCReference Include="external\GExpert\GX_IdeUtils.pas"/>
-        <DCCReference Include="OpenWith\RipGrepper.OpenWith.SimpleTypes.pas"/>
+        <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.CmdListForm.pas">
+            <Form>OpenWithCmdList</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.ConfigForm.pas">
+            <Form>OpenWithConfigForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.pas"/>
+        <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.Runner.pas"/>
+        <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.SimpleTypes.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -224,6 +229,19 @@
                 <DeployFile LocalName="Win32\Debug\DRipGrepper.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>DRipGrepper.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Win32\Release\DRipGrepper.exe" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>DRipGrepper.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="icons\DripGrepperLogo.png" Configuration="Release" Class="UWP_DelphiLogo44">
+                    <Platform Name="Win32">
+                        <RemoteDir>Assets\</RemoteDir>
+                        <RemoteName>Logo44x44.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
