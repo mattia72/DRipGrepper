@@ -396,8 +396,8 @@ object OpenWithConfigForm: TOpenWithConfigForm
   end
   object ActionListConfig: TActionList
     Images = ImageList1
-    Left = 342
-    Top = 74
+    Left = 712
+    Top = 536
     object ActionOpenFileDlg: TAction
       Hint = 'Explore...'
       ImageIndex = 6
@@ -449,12 +449,12 @@ object OpenWithConfigForm: TOpenWithConfigForm
     end
   end
   object OpenDialog1: TOpenDialog
-    Left = 280
-    Top = 75
+    Left = 479
+    Top = 526
   end
   object ImageList1: TImageList
-    Left = 165
-    Top = 140
+    Left = 283
+    Top = 532
     Bitmap = {
       494C010107000800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020

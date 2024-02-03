@@ -14,11 +14,12 @@ uses
 	Vcl.Dialogs,
 	Vcl.Forms,
 	System.ImageList,
-	RipGrepper.Common.Settings;
+	RipGrepper.Common.Settings,
+	RipGrepper.UI.ScaleableBaseForm;
 
 type
 
-	TOpenWithConfigForm = class(TForm)
+	TOpenWithConfigForm = class(TScaleableBaseForm)
 
 		var
 			ActionListConfig : TActionList;
@@ -72,6 +73,7 @@ type
 			procedure MoveItem(const idx : Integer);
 			procedure PutSelectedToEdit;
 
+		protected
 		public
 			{ Public-Deklarationen }
 			constructor Create(AOwner : TComponent; const ASettings : TRipGrepperOpenWithSettings); reintroduce;
@@ -91,14 +93,15 @@ uses
 	Winapi.ShellAPI,
 	// GX_OtaUtils,
 	RipGrepper.OpenWith.Runner,
-	RipGrepper.OpenWith.SimpleTypes, RipGrepper.Tools.DebugTools;
+	RipGrepper.OpenWith.SimpleTypes,
+	RipGrepper.Tools.DebugTools;
 
 {$R *.dfm}
 
 constructor TOpenWithConfigForm.Create(AOwner : TComponent; const ASettings : TRipGrepperOpenWithSettings);
 begin
+	inherited Create(AOwner, ImageList1);
 	self.FSettings := ASettings;
-	inherited Create(AOwner);
 end;
 
 procedure TOpenWithConfigForm.FormCreate(Sender : TObject);

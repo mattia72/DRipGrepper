@@ -4,7 +4,7 @@
         <ProjectVersion>19.5</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -179,6 +179,7 @@
         <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.pas"/>
         <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.Runner.pas"/>
         <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.SimpleTypes.pas"/>
+        <DCCReference Include="src\RipGrepper.UI.ScaleableBaseForm.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

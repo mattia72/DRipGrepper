@@ -259,7 +259,6 @@ object OpenWithCmdList: TOpenWithCmdList
       Anchors = [akLeft, akTop, akRight, akBottom]
       Color = clHighlightText
       Columns = <>
-      Items.ItemData = {}
       StyleName = 'Windows'
       ParentShowHint = False
       ShowHint = True
@@ -292,12 +291,12 @@ object OpenWithCmdList: TOpenWithCmdList
     end
   end
   object ImageListListViewIcons: TImageList
-    Left = 115
-    Top = 25
+    Left = 479
+    Top = 90
   end
   object ImageListButtons: TImageList
-    Left = 90
-    Top = 90
+    Left = 168
+    Top = 259
     Bitmap = {
       494C010106000800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020

@@ -54,7 +54,7 @@ begin
 
 		iPos := Pos('.EXE', AnsiUppercase(sEditorCmd));
 		if iPos = 0 then begin
-			MessageDlg('Editor soll in AGENDA Expert-Manager configuriert werden!', mtError, [mbOK], 0);
+			MessageDlg('There is no editor configured!', mtError, [mbOK], 0);
 			exit;
 		end;
 

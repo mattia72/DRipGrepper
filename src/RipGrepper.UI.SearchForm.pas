@@ -60,7 +60,7 @@ type
 			FSettings : TRipGrepperSettings;
 			function GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
 			procedure LoadSettings;
-			procedure ProcessControl(_ctrl : TControl; _imgList : TImageList); virtual;
+			procedure ProcessControl(_ctrl : TControl; _imgList : TImageList);
 			procedure StoreHistoriesAsCmbEntries;
 			procedure StoreSearchSettings;
 

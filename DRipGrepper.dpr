@@ -57,7 +57,8 @@ uses
   RipGrepper.OpenWith.ConfigForm in 'src\OpenWith\RipGrepper.OpenWith.ConfigForm.pas' {OpenWithConfigForm},
   RipGrepper.OpenWith in 'src\OpenWith\RipGrepper.OpenWith.pas',
   RipGrepper.OpenWith.Runner in 'src\OpenWith\RipGrepper.OpenWith.Runner.pas',
-  RipGrepper.OpenWith.SimpleTypes in 'src\OpenWith\RipGrepper.OpenWith.SimpleTypes.pas';
+  RipGrepper.OpenWith.SimpleTypes in 'src\OpenWith\RipGrepper.OpenWith.SimpleTypes.pas',
+  RipGrepper.UI.ScaleableBaseForm in 'src\RipGrepper.UI.ScaleableBaseForm.pas';
 
 {$R *.res}
 

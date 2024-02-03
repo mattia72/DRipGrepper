@@ -1,18 +1,3 @@
-// __ready4Postgres__
-{ **-----------------------------------------------------------------------------
-  @file RipGrepper.OpenWith.CmdListForm.pas
-
-  TODO: -- Add description --
-
-  (c) 2023, Agenda Informationssysteme GmbH & Co. KG, Rosenheim
-
-  Projekt:
-  @date    12.12.2023
-  @author  mattiassich
-
-
-  -------------------------------------------------------------------------------- }
-
 unit RipGrepper.OpenWith.CmdListForm;
 
 interface
@@ -34,10 +19,12 @@ uses
 	Vcl.ComCtrls,
 	System.ImageList,
 	Vcl.ImgList,
-	RipGrepper.Common.Settings;
+	RipGrepper.Common.Settings,
+	RipGrepper.UI.ScaleableBaseForm,
+	u_dzDpiScaleUtils;
 
 type
-	TOpenWithCmdList = class(TForm)
+	TOpenWithCmdList = class(TScaleableBaseForm)
 		lbCommands : TListView;
 		pnl_Bottom : TPanel;
 		btn_Save : TButton;
@@ -51,7 +38,7 @@ type
 		btnConfig : TButton;
 		a_Config : TAction;
 		ImageListButtons : TImageList;
-    pnlMain: TPanel;
+		pnlMain : TPanel;
 		procedure a_CancelExecute(Sender : TObject);
 		procedure a_ConfigExecute(Sender : TObject);
 		procedure a_OkExecute(Sender : TObject);
@@ -60,14 +47,22 @@ type
 		procedure FormShow(Sender : TObject);
 
 		private
+			FImageScaler : TImageListScaler;
 			FSettings : TRipGrepperOpenWithSettings;
 			FViewStyleIndex : Integer;
+	class var
+		FActualDpi: Integer;
+		procedure CreateScaledIcons;
 			class function GetEnabledCmds(const _settings : TRipGrepperOpenWithSettings) : TArray<string>;
 			function GetViewStyleIndex : Integer;
 			class procedure LoadEnbledCmds(_form : TOpenWithCmdList; const _settings : TRipGrepperOpenWithSettings);
 			property ViewStyleIndex : Integer read GetViewStyleIndex;
 
+		protected
+			procedure ApplyDpi(_NewDpi : Integer; _NewBounds : PRect); override;
+
 		public
+			class var FScaledIcons : TImageList;
 			constructor Create(AOwner : TComponent; const ASettings : TRipGrepperOpenWithSettings); reintroduce;
 			destructor Destroy(); override;
 			class function CreateAndShow(const _settings : TRipGrepperOpenWithSettings) : string;
@@ -84,13 +79,14 @@ uses
 	System.IOUtils,
 	RipGrepper.OpenWith.ConfigForm,
 	System.Math,
-	RipGrepper.OpenWith.SimpleTypes, RipGrepper.Tools.DebugTools;
+	RipGrepper.OpenWith.SimpleTypes,
+	RipGrepper.Tools.DebugTools;
 
 {$R *.dfm}
 
 constructor TOpenWithCmdList.Create(AOwner : TComponent; const ASettings : TRipGrepperOpenWithSettings);
 begin
-	inherited Create(AOwner);
+	inherited Create(AOwner, ImageListButtons);
 
 	lbCommands.items.Clear;
 	lbCommands.SmallImages := ImageListListViewIcons;
@@ -103,6 +99,13 @@ end;
 destructor TOpenWithCmdList.Destroy();
 begin
 	inherited Destroy();
+end;
+
+procedure TOpenWithCmdList.ApplyDpi(_NewDpi : Integer; _NewBounds : PRect);
+begin
+	inherited ApplyDpi(_NewDpi, _NewBounds);
+	FActualDpi := _NewDpi;
+	CreateScaledIcons();
 end;
 
 procedure TOpenWithCmdList.a_CancelExecute(Sender : TObject);
@@ -118,7 +121,7 @@ end;
 
 procedure TOpenWithCmdList.a_OkExecute(Sender : TObject);
 begin
-    FSettings.Store;
+	FSettings.Store;
 	ModalResult := mrOk;
 end;
 
@@ -151,6 +154,13 @@ begin
 		form.Free;
 	end;
 
+end;
+
+procedure TOpenWithCmdList.CreateScaledIcons();
+begin
+	if not Assigned(FImageScaler) then
+		FImageScaler := TImageListScaler.Create(Self, ImageListListViewIcons);
+	FScaledIcons := FImageScaler.GetScaledList(FActualDpi);
 end;
 
 procedure TOpenWithCmdList.FormShow(Sender : TObject);
@@ -218,7 +228,7 @@ begin
 				if not sPath.IsEmpty then begin
 					sFileName := sPath;
 				end else begin
-                    continue
+					continue
 				end;
 			end;
 
@@ -230,7 +240,7 @@ begin
 			SHGetFileInfo(PChar(sFileName), 0, sfi, SizeOf(TSHFileInfo), SHGFI_SMALLICON or SHGFI_ICON);
 			icon.Handle := sfi.hIcon;
 
-			item.ImageIndex := _form.ImageListListViewIcons.AddIcon(icon);
+			item.ImageIndex := _form.FScaledIcons.AddIcon(icon);
 			item.Subitems.Add(itemText);
 
 			TDebugUtils.DebugMessage((Format('TOpenWithCmdList.LoadEnbledCmds cmd: %d %s ', [item.ImageIndex, sFileName])));
