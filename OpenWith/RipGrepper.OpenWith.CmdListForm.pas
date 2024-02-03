@@ -84,7 +84,7 @@ uses
 	System.IOUtils,
 	RipGrepper.OpenWith.ConfigForm,
 	System.Math,
-	RipGrepper.OpenWith.SimpleTypes;
+	RipGrepper.OpenWith.SimpleTypes, RipGrepper.Tools.DebugTools;
 
 {$R *.dfm}
 
@@ -171,7 +171,7 @@ begin
 	i := 0;
 	repeat
 		sCmds := _settings.Command[i];
-		OutputDebugString(PChar(Format('OpenWithFunc.GetSelectedCmd %d: "%s" ', [i, sCmds])));
+		TDebugUtils.DebugMessage((Format('OpenWithFunc.GetSelectedCmd %d: "%s" ', [i, sCmds])));
 
 		if sCmds = '' then begin
 			break
@@ -233,7 +233,7 @@ begin
 			item.ImageIndex := _form.ImageListListViewIcons.AddIcon(icon);
 			item.Subitems.Add(itemText);
 
-			OutputDebugString(PChar(Format('TOpenWithCmdList.LoadEnbledCmds cmd: %d %s ', [item.ImageIndex, sFileName])));
+			TDebugUtils.DebugMessage((Format('TOpenWithCmdList.LoadEnbledCmds cmd: %d %s ', [item.ImageIndex, sFileName])));
 			DestroyIcon(sfi.hIcon);
 		end;
 	finally

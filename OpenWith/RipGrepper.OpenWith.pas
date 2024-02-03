@@ -33,7 +33,7 @@ begin
 	var
 	settings := TRipGrepperSettingsInstance.Instance.RipGrepperOpenWithSettings;
 	Result := TOpenWithCmdList.CreateAndShow(settings);
-	OutputDebugString(PChar(Format('OpenWithFunc.GetSelectedCmd Result: "%s"', [Result])));
+	TDebugUtils.DebugMessage((Format('OpenWithFunc.GetSelectedCmd Result: "%s"', [Result])));
 end;
 
 class procedure TOpenWith.Execute(const _owp: TOpenWithParams);
@@ -50,7 +50,7 @@ begin
 			exit;
 		end;
 
-		TDebugUtils.DebugMessage(PChar(Format('TOpenWith.Execute Cmd: %s ', [sEditorCmd])));
+		TDebugUtils.DebugMessage(Format('TOpenWith.Execute Cmd: %s ', [sEditorCmd]));
 
 		iPos := Pos('.EXE', AnsiUppercase(sEditorCmd));
 		if iPos = 0 then begin

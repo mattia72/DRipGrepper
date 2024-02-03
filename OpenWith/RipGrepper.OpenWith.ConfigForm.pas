@@ -91,7 +91,7 @@ uses
 	Winapi.ShellAPI,
 	// GX_OtaUtils,
 	RipGrepper.OpenWith.Runner,
-	RipGrepper.OpenWith.SimpleTypes;
+	RipGrepper.OpenWith.SimpleTypes, RipGrepper.Tools.DebugTools;
 
 {$R *.dfm}
 
@@ -224,7 +224,7 @@ begin
 		end;
 
 		sFileName := Copy(_sCmd, 1, iPos + 3);
-		OutputDebugString(PChar(Format('TOpenWithConfigForm.CheckCommand Exe: %s ', [sFileName])));
+		TDebugUtils.DebugMessage(Format('TOpenWithConfigForm.CheckCommand Exe: %s ', [sFileName]));
 		if not FileExists(sFileName) then begin
 			bFound := False;
 			sPath := ExtractFileDir(sFileName);
@@ -279,7 +279,7 @@ begin
 		repeat
 			var
 			sCmd := FSettings.Command[i];
-			OutputDebugString(PChar(Format('TOpenWithConfigForm.ReadSettings sCmd:%s ', [sCmd])));
+			TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.ReadSettings sCmd:%s ', [sCmd])));
 			if sCmd = '' then
 				break;
 			listCmdsFromSettings.Add(sCmd);
@@ -291,12 +291,12 @@ begin
 		end;
 
 		for var sCmd : string in listCmdsFromSettings do begin
-			OutputDebugString(PChar(Format('TOpenWithConfigForm.ReadSettings s:%s ', [sCmd])));
+			TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.ReadSettings s:%s ', [sCmd])));
 			arr := sCmd.Split([SEPARATOR]);
 			if Length(arr) > 0 then begin
 				lbCommands.Items.Add(arr[1]);
 				lbCommands.Checked[lbCommands.Count - 1] := (arr[0].ToUpper() = 'TRUE');
-				OutputDebugString(PChar(Format('TOpenWithConfigForm.ReadSettings %s %s', [arr[0], arr[1]])));
+				TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.ReadSettings %s %s', [arr[0], arr[1]])));
 			end;
 		end;
 	finally
@@ -312,7 +312,7 @@ begin
 	SetString(sOutpuPath, PChar(@Buffer[0]), Length(Buffer));
 
 	sOutpuPath := sOutpuPath.Remove(sOutpuPath.IndexOf(#0));
-	OutputDebugString(PChar(Format('TOpenWithConfigForm.FindExecutable ''%s'' ', [sOutpuPath])));
+	TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.FindExecutable ''%s'' ', [sOutpuPath])));
 end;
 
 procedure TOpenWithConfigForm.WriteSettings;
@@ -326,10 +326,10 @@ begin
 		var
 		sCmd := lbCommands.Items[i].Replace(SEPARATOR, '', [rfReplaceAll]);
 		if (CheckCommand(sCmd)) then begin
-			OutputDebugString(PChar(Format('TOpenWithConfigForm.WriteSettings %s ', [sCmd])));
+			TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.WriteSettings %s ', [sCmd])));
 			settings := Format('%s' + SEPARATOR + '%s', [BoolToStr(lbCommands.Checked[i], true), sCmd]);
 			FSettings.Command[i] := settings;
-			OutputDebugString(PChar(Format('TOpenWithConfigForm.WriteSettings %s ', [FSettings.Command[i]])));
+			TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.WriteSettings %s ', [FSettings.Command[i]])));
 		end;
 	end;
 	FSettings.Store;
@@ -347,7 +347,7 @@ procedure TOpenWithConfigForm.lbCommandsDblClick(Sender : TObject);
 begin
 	inherited;
 	PutSelectedToEdit;
-	OutputDebugString(PChar(Format('TOpenWithConfigForm.lbCommandsDblClick SelectCount %d', [lbCommands.SelCount])));
+	TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.lbCommandsDblClick SelectCount %d', [lbCommands.SelCount])));
 end;
 
 procedure TOpenWithConfigForm.MoveItem(const idx : Integer);
@@ -361,7 +361,7 @@ end;
 procedure TOpenWithConfigForm.PutSelectedToEdit;
 begin
 	edt_OpenWithCmd.Text := lbCommands.Items[lbCommands.ItemIndex];
-	OutputDebugString(PChar(Format('TOpenWithConfigForm.lbCommandsDblClick %s ', [edt_OpenWithCmd.Text])));
+	TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.lbCommandsDblClick %s ', [edt_OpenWithCmd.Text])));
 end;
 
 end.

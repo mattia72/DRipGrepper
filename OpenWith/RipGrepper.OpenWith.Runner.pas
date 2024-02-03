@@ -28,7 +28,7 @@ uses
 	System.SysUtils,
 	Winapi.ShellAPI,
 	Vcl.Dialogs,
-	RipGrepper.Common.Types;
+	RipGrepper.Common.Types, RipGrepper.Tools.DebugTools;
 
 class function TOpenWithRunner.BuildParams(const _owp: TOpenWithParams; const _sParams: string): string;
 var
@@ -47,11 +47,11 @@ begin
 
 	sCmdParams := StringReplace(sCmdParams, '<FILE>', '%s', [rfReplaceAll]);
 	sCmdParams := Format(sCmdParams, [owp.FileName]);
-	// OutputDebugString(PChar(Format('TOpenWithRunner.InternalExecute Params: %s ', [sCmdParams])));
+	// TDebugUtils.DebugMessage((Format('TOpenWithRunner.InternalExecute Params: %s ', [sCmdParams])));
 
 	sCmdParams := StringReplace(sCmdParams, '<LINE>', '%d', [rfReplaceAll]);
 	sCmdParams := Format(sCmdParams, [owp.Row]);
-	// OutputDebugString(PChar(Format('TOpenWithRunner.InternalExecute Params: %s ', [sCmdParams])));
+	// TDebugUtils.DebugMessage((Format('TOpenWithRunner.InternalExecute Params: %s ', [sCmdParams])));
 
 	sCmdParams := StringReplace(sCmdParams, '<COL>', '%d', [rfReplaceAll]);
 	Result := Format(sCmdParams, [owp.Column]);
@@ -85,7 +85,7 @@ begin
 	if Assigned(editPosition) then begin
 		Result.FileName := GxOtaGetCurrentSourceFile;;
 		sProjName := GxOtaGetCurrentProjectName;
-		OutputDebugString(PChar(Format('TOpenWithRunner.InternalExecute proj: %s ', [sProjName])));
+		TDebugUtils.DebugMessage((Format('TOpenWithRunner.InternalExecute proj: %s ', [sProjName])));
 		if (sProjName <> '') then begin
 			Result.DirPath := ExtractFileDir(sProjName);
 		end else begin
@@ -108,11 +108,11 @@ begin
 	sParams := Copy(_sEditorCmd, iPos + 4, MaxInt);
 	var
 	sCmd := '"' + Copy(_sEditorCmd, 1, iPos + 3) + '"';
-	// OutputDebugString(PChar(Format('TOpenWithRunner.InternalExecute Editor path: %s ', [_sEditorCmd])));
+	// TDebugUtils.DebugMessage((Format('TOpenWithRunner.InternalExecute Editor path: %s ', [_sEditorCmd])));
 
 	sParams := BuildParams(_owp, sParams);
 
-	OutputDebugString(PChar(Format('TOpenWithRunner.InternalExecute cmd: %s %s ', [_sEditorCmd, sParams])));
+	TDebugUtils.DebugMessage((Format('TOpenWithRunner.InternalExecute cmd: %s %s ', [_sEditorCmd, sParams])));
 	ShellExecute(0, 'open', PChar(sCmd), PChar(sParams), nil, SW_SHOW);
 	err := GetLastError;
 	if err <> 0 then begin
