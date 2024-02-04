@@ -15,12 +15,9 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
   - [x] full/relative path
   - [x] alternate row colors
 - [x] copy `rg` command line into clipboard
-- [x] open a configurable editor with matching file on matching position
-   - [x] on double click
-   - [ ] menu, toolbar
-- [x] sorting by file and row
+- [x] sorting by path and row
 - [ ] grouping by path
-  
+
 ### Search Dialog
 - [x] help parametrizing `rg` in search dialog
   - [ ] filter not appropriate parameters
@@ -29,9 +26,33 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
     - [ ] --case-sensitive
     - [ ] --word-regexp
     - [ ] --fixed-strings
-  - [ ] --glob as separate editbox
+  - [ ] --glob settings as separate editbox
 
-### Other
+### Open with...
+- [x] show configured editors to open matching file on matching position
+   - [x] on double click
+   - [ ] with menu / toolbar
+- [ ] run editor without showing *Open with...* dialog if only one editor is configured
+- [ ] separate editor for distinct extensions
+
+### Configure Open with...
+![Screenshot](./screenshots/04-02-2024_11-04-47.png)
+
+### Configuration
+- [x] configuration is stored in ini file
+  - [x] search text history saved
+  - [x] search paths history saved
+  - [x] `rg` parameter history saved
+  - [x] view settings saved
+    - [x] ShowFileIcon
+    - [x] ShowRelativePath
+    - [x] AlternateRowColors
+    - [x] IndentLines
+  - [ ] configurable length of history 
+  - [x] *Open with...* settings saved
+- [ ] configuration dialog
+
+### Misc
 - [ ] delphi IDE integration https://github.com/mattia72/DRipGrepper/issues/1
 - [ ] standalone release
 - [ ] delphi extension release
