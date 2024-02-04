@@ -32,7 +32,7 @@ type
 		alActions : TActionList;
 		a_Ok : TAction;
 		a_Cancel : TAction;
-		ImageListListViewIcons : TImageList;
+		ImageListIcons : TImageList;
 		btnView : TButton;
 		a_SwitchView : TAction;
 		btnConfig : TButton;
@@ -47,15 +47,14 @@ type
 		procedure FormShow(Sender : TObject);
 
 		private
+			FActualDpi : Integer;
 			FImageScaler : TImageListScaler;
 			FSettings : TRipGrepperOpenWithSettings;
 			FViewStyleIndex : Integer;
-	class var
-		FActualDpi: Integer;
-		procedure CreateScaledIcons;
+
+			procedure CreateScaledIcons;
 			class function GetEnabledCmds(const _settings : TRipGrepperOpenWithSettings) : TArray<string>;
 			function GetViewStyleIndex : Integer;
-			class procedure LoadEnbledCmds(_form : TOpenWithCmdList; const _settings : TRipGrepperOpenWithSettings);
 			property ViewStyleIndex : Integer read GetViewStyleIndex;
 
 		protected
@@ -66,6 +65,7 @@ type
 			constructor Create(AOwner : TComponent; const ASettings : TRipGrepperOpenWithSettings); reintroduce;
 			destructor Destroy(); override;
 			class function CreateAndShow(const _settings : TRipGrepperOpenWithSettings) : string;
+			procedure LoadEnbledCmds;
 	end;
 
 const
@@ -89,9 +89,8 @@ begin
 	inherited Create(AOwner, ImageListButtons);
 
 	lbCommands.items.Clear;
-	lbCommands.SmallImages := ImageListListViewIcons;
-	lbCommands.LargeImages := ImageListListViewIcons;
-	ImageListListViewIcons.ColorDepth := TColorDepth.cd32Bit;
+
+	ImageListIcons.ColorDepth := TColorDepth.cd32Bit;
 	FViewStyleIndex := 0;
 	FSettings := ASettings;
 end;
@@ -104,8 +103,9 @@ end;
 procedure TOpenWithCmdList.ApplyDpi(_NewDpi : Integer; _NewBounds : PRect);
 begin
 	inherited ApplyDpi(_NewDpi, _NewBounds);
+
 	FActualDpi := _NewDpi;
-	CreateScaledIcons();
+	// CreateScaledIcons();
 end;
 
 procedure TOpenWithCmdList.a_CancelExecute(Sender : TObject);
@@ -116,7 +116,7 @@ end;
 procedure TOpenWithCmdList.a_ConfigExecute(Sender : TObject);
 begin
 	TOpenWithConfigForm.CreateAndShow(FSettings);
-	LoadEnbledCmds(self, FSettings);
+	LoadEnbledCmds();
 end;
 
 procedure TOpenWithCmdList.a_OkExecute(Sender : TObject);
@@ -144,7 +144,7 @@ begin
 	form := TOpenWithCmdList.Create(nil, _settings);
 
 	try
-		LoadEnbledCmds(form, _settings);
+		form.LoadEnbledCmds();
 
 		if (mrOk = form.ShowModal()) then begin
 			Result := form.lbCommands.Items[form.lbCommands.ItemIndex].SubItems[0];
@@ -159,8 +159,10 @@ end;
 procedure TOpenWithCmdList.CreateScaledIcons();
 begin
 	if not Assigned(FImageScaler) then
-		FImageScaler := TImageListScaler.Create(Self, ImageListListViewIcons);
+		FImageScaler := TImageListScaler.Create(Self, ImageListIcons);
 	FScaledIcons := FImageScaler.GetScaledList(FActualDpi);
+	lbCommands.SmallImages := FScaledIcons;
+	lbCommands.LargeImages := FScaledIcons;
 end;
 
 procedure TOpenWithCmdList.FormShow(Sender : TObject);
@@ -206,7 +208,7 @@ begin
 	Result := (FViewStyleIndex mod Length(LISTVIEW_TYPES));
 end;
 
-class procedure TOpenWithCmdList.LoadEnbledCmds(_form : TOpenWithCmdList; const _settings : TRipGrepperOpenWithSettings);
+procedure TOpenWithCmdList.LoadEnbledCmds();
 var
 	sfi : TSHFileInfo;
 	icon : TIcon;
@@ -218,8 +220,8 @@ begin
 
 	icon := TIcon.Create;
 	try
-		_form.lbCommands.Items.Clear();
-		for var itemText in GetEnabledCmds(_settings) do begin
+		lbCommands.Items.Clear();
+		for var itemText in GetEnabledCmds(FSettings) do begin
 			iPos := Pos('.EXE', AnsiUppercase(itemText));
 			sFileName := Copy(itemText, 1, iPos + 3);
 			sPath := ExtractFileDir(sFileName);
@@ -232,20 +234,21 @@ begin
 				end;
 			end;
 
-			item := _form.lbCommands.Items.Add();
+			item := lbCommands.Items.Add();
 
 			SHGetFileInfo(PChar(sFileName), 0, sfi, SizeOf(sfi), SHGFI_DISPLAYNAME);
 			item.Caption := sfi.szDisplayName;
 
-			SHGetFileInfo(PChar(sFileName), 0, sfi, SizeOf(TSHFileInfo), SHGFI_SMALLICON or SHGFI_ICON);
+			SHGetFileInfo(PChar(sFileName), 0, sfi, SizeOf(TSHFileInfo), SHGFI_LARGEICON or SHGFI_ICON);
 			icon.Handle := sfi.hIcon;
 
-			item.ImageIndex := _form.FScaledIcons.AddIcon(icon);
+			item.ImageIndex := ImageListIcons.AddIcon(icon);
 			item.Subitems.Add(itemText);
 
 			TDebugUtils.DebugMessage((Format('TOpenWithCmdList.LoadEnbledCmds cmd: %d %s ', [item.ImageIndex, sFileName])));
 			DestroyIcon(sfi.hIcon);
 		end;
+		CreateScaledIcons();
 	finally
 		icon.Free;
 	end;

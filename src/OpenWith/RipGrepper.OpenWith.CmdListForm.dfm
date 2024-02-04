@@ -267,7 +267,7 @@ object OpenWithCmdList: TOpenWithCmdList
     end
   end
   object alActions: TActionList
-    Images = ImageListListViewIcons
+    Images = ImageListIcons
     Left = 222
     Top = 69
     object a_Ok: TAction
@@ -290,7 +290,7 @@ object OpenWithCmdList: TOpenWithCmdList
       OnExecute = a_ConfigExecute
     end
   end
-  object ImageListListViewIcons: TImageList
+  object ImageListIcons: TImageList
     Left = 479
     Top = 90
   end
