@@ -40,7 +40,7 @@ end;
 
 destructor TScaleableBaseForm.Destroy;
 begin
-//    FScaleImageList.Free;
+	FImageScaler.Free;
 	inherited;
 end;
 

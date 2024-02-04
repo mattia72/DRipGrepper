@@ -258,6 +258,7 @@ begin
 	FHistoryObjectList.Free;
 	FData.Free;
 	FSettings.FreeInstance;
+    FImageScaler.Free;
 	inherited;
 end;
 

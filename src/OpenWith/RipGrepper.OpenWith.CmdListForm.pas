@@ -52,8 +52,9 @@ type
 			FSettings : TRipGrepperOpenWithSettings;
 			FViewStyleIndex : Integer;
 
-			procedure CreateScaledIcons;
+			procedure CreateScaledIcons(const bUpdateScaler: Boolean = False);
 			class function GetEnabledCmds(const _settings : TRipGrepperOpenWithSettings) : TArray<string>;
+			function GetFileNameFromCfg(const _configText : string) : string;
 			function GetViewStyleIndex : Integer;
 			property ViewStyleIndex : Integer read GetViewStyleIndex;
 
@@ -97,6 +98,7 @@ end;
 
 destructor TOpenWithCmdList.Destroy();
 begin
+	FImageScaler.Free;
 	inherited Destroy();
 end;
 
@@ -105,7 +107,6 @@ begin
 	inherited ApplyDpi(_NewDpi, _NewBounds);
 
 	FActualDpi := _NewDpi;
-	// CreateScaledIcons();
 end;
 
 procedure TOpenWithCmdList.a_CancelExecute(Sender : TObject);
@@ -117,6 +118,7 @@ procedure TOpenWithCmdList.a_ConfigExecute(Sender : TObject);
 begin
 	TOpenWithConfigForm.CreateAndShow(FSettings);
 	LoadEnbledCmds();
+	CreateScaledIcons(True);
 end;
 
 procedure TOpenWithCmdList.a_OkExecute(Sender : TObject);
@@ -145,6 +147,7 @@ begin
 
 	try
 		form.LoadEnbledCmds();
+		form.CreateScaledIcons();
 
 		if (mrOk = form.ShowModal()) then begin
 			Result := form.lbCommands.Items[form.lbCommands.ItemIndex].SubItems[0];
@@ -156,10 +159,12 @@ begin
 
 end;
 
-procedure TOpenWithCmdList.CreateScaledIcons();
+procedure TOpenWithCmdList.CreateScaledIcons(const bUpdateScaler: Boolean = False);
 begin
-	if not Assigned(FImageScaler) then
+	if bUpdateScaler or not Assigned(FImageScaler) then begin
+		FImageScaler.Free;
 		FImageScaler := TImageListScaler.Create(Self, ImageListIcons);
+	end;
 	FScaledIcons := FImageScaler.GetScaledList(FActualDpi);
 	lbCommands.SmallImages := FScaledIcons;
 	lbCommands.LargeImages := FScaledIcons;
@@ -200,6 +205,22 @@ begin
 
 end;
 
+function TOpenWithCmdList.GetFileNameFromCfg(const _configText : string) : string;
+var
+	iPos : integer;
+	sFileName : string;
+	sPath : string;
+begin
+	iPos := Pos('.EXE', AnsiUppercase(_configText));
+	sFileName := Copy(_configText, 1, iPos + 3);
+	sPath := ExtractFileDir(sFileName);
+	if sPath.IsEmpty then begin
+		TOpenWithConfigForm.GetExePath(sFileName, sPath);
+		sFileName := sPath;
+	end;
+	Result := sFileName;
+end;
+
 function TOpenWithCmdList.GetViewStyleIndex : Integer;
 begin
 	FViewStyleIndex := IfThen(FViewStyleIndex < Length(LISTVIEW_TYPES) - 1, FViewStyleIndex + 1);
@@ -213,26 +234,16 @@ var
 	sfi : TSHFileInfo;
 	icon : TIcon;
 	item : TListItem;
-	iPos : integer;
 	sFileName : string;
-	sPath : string;
 begin
 
 	icon := TIcon.Create;
 	try
 		lbCommands.Items.Clear();
-		for var itemText in GetEnabledCmds(FSettings) do begin
-			iPos := Pos('.EXE', AnsiUppercase(itemText));
-			sFileName := Copy(itemText, 1, iPos + 3);
-			sPath := ExtractFileDir(sFileName);
-			if sPath.IsEmpty then begin
-				TOpenWithConfigForm.GetExePath(sFileName, sPath);
-				if not sPath.IsEmpty then begin
-					sFileName := sPath;
-				end else begin
-					continue
-				end;
-			end;
+		for var configText in GetEnabledCmds(FSettings) do begin
+			sFileName := GetFileNameFromCfg(configText);
+			if sFileName.IsEmpty then
+				continue;
 
 			item := lbCommands.Items.Add();
 
@@ -243,12 +254,12 @@ begin
 			icon.Handle := sfi.hIcon;
 
 			item.ImageIndex := ImageListIcons.AddIcon(icon);
-			item.Subitems.Add(itemText);
+			item.Subitems.Add(configText);
 
 			TDebugUtils.DebugMessage((Format('TOpenWithCmdList.LoadEnbledCmds cmd: %d %s ', [item.ImageIndex, sFileName])));
 			DestroyIcon(sfi.hIcon);
 		end;
-		CreateScaledIcons();
+
 	finally
 		icon.Free;
 	end;
