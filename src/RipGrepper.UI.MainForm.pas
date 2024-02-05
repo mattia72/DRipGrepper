@@ -33,7 +33,8 @@ uses
 	RipGrepper.Common.Sorter,
 	RipGrepper.Data.HistoryItemObject,
 	GX_IdeDock,
-	u_dzDpiScaleUtils;
+	u_dzDpiScaleUtils,
+	RipGrepper.OpenWith.SimpleTypes;
 
 type
 	TRipGrepperForm = class(TfmIdeDockForm, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
@@ -84,7 +85,7 @@ type
 		PanelResult : TPanel;
 		ActionStatusBar : TAction;
 		tbConfigure : TToolButton;
-    ToolButton4: TToolButton;
+		ToolButton4 : TToolButton;
 		procedure ActionStatusBarUpdate(Sender : TObject);
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
@@ -157,6 +158,7 @@ type
 			procedure DrawItemOnCanvas(_Canvas : TCanvas; _Rect : TRect; _Item : TListItem; _State : TOwnerDrawState);
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
+			function GetOpenWithParamsFromSelected : TOpenWithParams;
 			procedure InitColumnSortTypes;
 			procedure InitSearch;
 			procedure LoadBeforeSearchSettings;
@@ -222,8 +224,7 @@ uses
 	RipGrepper.Parsers.VimGrepMatchLine,
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.OpenWith,
-	RipGrepper.OpenWith.ConfigForm,
-	RipGrepper.OpenWith.SimpleTypes;
+	RipGrepper.OpenWith.ConfigForm;
 
 {$R *.dfm}
 
@@ -258,7 +259,7 @@ begin
 	FHistoryObjectList.Free;
 	FData.Free;
 	FSettings.FreeInstance;
-    FImageScaler.Free;
+	FImageScaler.Free;
 	inherited;
 end;
 
@@ -311,7 +312,9 @@ procedure TRipGrepperForm.ActionConfigExecute(Sender : TObject);
 begin
 	var
 	settings := FSettings.RipGrepperOpenWithSettings;
+	settings.TestFile := GetOpenWithParamsFromSelected();
 	TOpenWithConfigForm.CreateAndShow(settings);
+	settings.TestFile := default(TOpenWithParams);
 end;
 
 procedure TRipGrepperForm.ActionCopyFileNameExecute(Sender : TObject);
@@ -508,7 +511,7 @@ end;
 
 procedure TRipGrepperForm.FormClose(Sender : TObject; var Action : TCloseAction);
 begin
-    FSettings.Store;
+	FSettings.Store;
 	TListBoxHelper.FreeItemObjects(ListBoxSearchHistory);
 end;
 
@@ -903,6 +906,20 @@ begin
 	FData.HistObject := _ho;
 end;
 
+function TRipGrepperForm.GetOpenWithParamsFromSelected() : TOpenWithParams;
+var
+	selected : TListItem;
+begin
+	selected := ListViewResult.Selected;
+	if Assigned(selected) then begin
+		Result.DirPath := ifthen(FSearchPathIsDir, FSettings.ActualSearchPath, ExtractFileDir(selected.Caption));
+		Result.FileName := selected.Caption;
+		Result.Row := StrToIntDef(selected.SubItems[0], -1);
+		Result.Column := StrToIntDef(selected.SubItems[1], -1);
+		Result.IsEmpty := False;
+	end;
+end;
+
 procedure TRipGrepperForm.ListBoxSearchHistoryData(Control : TWinControl; Index : Integer; var Data : string);
 begin
 	Data := HistoryObjectList[index];
@@ -911,15 +928,9 @@ end;
 procedure TRipGrepperForm.ListViewResultDblClick(Sender : TObject);
 var
 	owp : TOpenWithParams;
-	selected : TListItem;
 begin
-	selected := ListViewResult.Selected;
-	if Assigned(selected) then begin
-		owp.DirPath := ifthen(FSearchPathIsDir, FSettings.ActualSearchPath, ExtractFileDir(selected.Caption));
-		owp.FileName := selected.Caption;
-		owp.Row := StrToIntDef(selected.SubItems[0], -1);
-		owp.Column := StrToIntDef(selected.SubItems[1], -1);
-		owp.IsEmpty := False;
+	owp := GetOpenWithParamsFromSelected();
+	if not owp.IsEmpty then begin
 		TOpenWith.Execute(owp);
 	end;
 end;

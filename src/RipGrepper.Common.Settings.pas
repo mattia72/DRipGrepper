@@ -6,7 +6,7 @@ uses
 	System.Classes,
 	System.IniFiles,
 	System.Generics.Collections,
-	System.Generics.Defaults;
+	System.Generics.Defaults, RipGrepper.OpenWith.SimpleTypes;
 
 type
 	ISettingsPersister = interface
@@ -87,6 +87,7 @@ type
 	TRipGrepperOpenWithSettings = class(TRipGrepperSettingsBase)
 		private
 			FCommandList : TStringList;
+			FTestFile: TOpenWithParams;
 			function GetCommand(Index : Integer) : string;
 			procedure SetCommand(Index : Integer; const Value : string);
 
@@ -96,6 +97,7 @@ type
 			procedure Load; override;
 			procedure Store; override;
 			property Command[index : Integer] : string read GetCommand write SetCommand;
+			property TestFile : TOpenWithParams read FTestFile write FTestFile;
 	end;
 
 	TRipGrepperSettings = class(TRipGrepperSettingsBase)
@@ -172,8 +174,7 @@ uses
 	System.IOUtils,
 	Winapi.Windows,
 	System.UITypes,
-	RipGrepper.Tools.ProcessUtils,
-	RipGrepper.OpenWith.SimpleTypes;
+	RipGrepper.Tools.ProcessUtils;
 
 function TRipGrepperSettings.GetActualRipGrepParam : string;
 begin

@@ -7,14 +7,16 @@ uses
 	System.Classes,
 	Winapi.Windows,
 	Winapi.ShellAPI,
-	Vcl.Menus, RipGrepper.OpenWith.SimpleTypes;
+	Vcl.Menus,
+	RipGrepper.OpenWith.SimpleTypes;
 
 type
 	TOpenWith = class
 		private
-			class function GetSelectedCmd : string;
+			class function GetSelectedCmd(_owpTestFile : TOpenWithParams) : string;
+
 		public
-			class procedure Execute(const _owp: TOpenWithParams);
+			class procedure Execute(const _owp : TOpenWithParams);
 	end;
 
 implementation
@@ -28,15 +30,17 @@ uses
 	RipGrepper.Common.Settings,
 	RipGrepper.Tools.DebugTools;
 
-class function TOpenWith.GetSelectedCmd : string;
+class function TOpenWith.GetSelectedCmd(_owpTestFile : TOpenWithParams) : string;
 begin
 	var
 	settings := TRipGrepperSettingsInstance.Instance.RipGrepperOpenWithSettings;
+	settings.TestFile := _owpTestFile;
 	Result := TOpenWithCmdList.CreateAndShow(settings);
 	TDebugUtils.DebugMessage((Format('OpenWithFunc.GetSelectedCmd Result: "%s"', [Result])));
+	settings.TestFile := default (TOpenWithParams);
 end;
 
-class procedure TOpenWith.Execute(const _owp: TOpenWithParams);
+class procedure TOpenWith.Execute(const _owp : TOpenWithParams);
 var
 	iPos : Integer;
 	sEditorCmd : string;
@@ -44,7 +48,7 @@ begin
 	TDebugUtils.DebugMessage(Format('TOpenWith.Execute %s ', [_owp.FileName]));
 
 	if FileExists(_owp.FileName) then begin
-		sEditorCmd := GetSelectedCmd();
+		sEditorCmd := GetSelectedCmd(_owp);
 
 		if sEditorCmd.IsEmpty then begin
 			exit;
@@ -54,7 +58,7 @@ begin
 
 		iPos := Pos('.EXE', AnsiUppercase(sEditorCmd));
 		if iPos = 0 then begin
-			MessageDlg('There is no editor configured!', mtError, [mbOK], 0);
+			MessageDlg('There is no executable configured!', mtError, [mbOK], 0);
 			exit;
 		end;
 

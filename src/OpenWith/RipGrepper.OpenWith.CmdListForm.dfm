@@ -2,12 +2,14 @@ object OpenWithCmdList: TOpenWithCmdList
   Left = 738
   Top = 170
   Caption = 'Open with...'
-  ClientHeight = 528
-  ClientWidth = 882
+  ClientHeight = 147
+  ClientWidth = 273
   Color = clBtnFace
+  Constraints.MinHeight = 120
+  Constraints.MinWidth = 250
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -28
+  Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
   Icon.Data = {
@@ -147,48 +149,35 @@ object OpenWithCmdList: TOpenWithCmdList
     FFFFE003FFFFE007FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
   Position = poScreenCenter
   OnShow = FormShow
-  PixelsPerInch = 240
-  TextHeight = 34
+  TextHeight = 13
   object pnl_Bottom: TPanel
     Left = 0
-    Top = 426
-    Width = 882
-    Height = 102
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
+    Top = 106
+    Width = 273
+    Height = 41
     Align = alBottom
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 0
     DesignSize = (
-      882
-      102)
+      273
+      41)
     object btn_Save: TButton
-      Left = 468
-      Top = 20
-      Width = 184
-      Height = 62
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Action = a_Ok
+      Left = 107
+      Top = 8
+      Width = 74
+      Height = 25
+      Action = ActionOk
       Anchors = [akTop, akRight]
       Default = True
       TabOrder = 0
     end
     object btn_Cancel: TButton
-      Left = 668
-      Top = 20
-      Width = 190
-      Height = 62
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Action = a_Cancel
+      Left = 187
+      Top = 8
+      Width = 76
+      Height = 25
+      Action = ActionCancel
       Anchors = [akTop, akRight]
       Cancel = True
       TabOrder = 1
@@ -197,29 +186,20 @@ object OpenWithCmdList: TOpenWithCmdList
   object pnlMain: TPanel
     Left = 0
     Top = 0
-    Width = 882
-    Height = 426
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
+    Width = 273
+    Height = 106
     Align = alClient
     BevelOuter = bvNone
-    Caption = 'pnlMain'
     TabOrder = 1
     DesignSize = (
-      882
-      426)
+      273
+      106)
     object btnConfig: TButton
-      Left = 792
-      Top = 26
-      Width = 66
-      Height = 60
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Action = a_Config
+      Left = 237
+      Top = 10
+      Width = 26
+      Height = 24
+      Action = ActionShowConfig
       Anchors = [akTop, akRight]
       ImageAlignment = iaCenter
       Images = ImageListButtons
@@ -229,15 +209,11 @@ object OpenWithCmdList: TOpenWithCmdList
     end
     object btnView: TButton
       AlignWithMargins = True
-      Left = 792
-      Top = 100
-      Width = 66
-      Height = 60
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Action = a_SwitchView
+      Left = 237
+      Top = 40
+      Width = 26
+      Height = 24
+      Action = ActionSwitchView
       Anchors = [akTop, akRight]
       ImageAlignment = iaCenter
       Images = ImageListButtons
@@ -247,19 +223,19 @@ object OpenWithCmdList: TOpenWithCmdList
     end
     object lbCommands: TListView
       AlignWithMargins = True
-      Left = 50
-      Top = 26
-      Width = 706
-      Height = 382
-      Margins.Left = 50
-      Margins.Top = 26
-      Margins.Right = 126
-      Margins.Bottom = 8
+      Left = 20
+      Top = 10
+      Width = 203
+      Height = 89
+      Margins.Left = 20
+      Margins.Top = 10
+      Margins.Right = 50
       Align = alTop
       Anchors = [akLeft, akTop, akRight, akBottom]
       Color = clHighlightText
       Columns = <>
       StyleName = 'Windows'
+      ReadOnly = True
       ParentShowHint = False
       ShowHint = True
       TabOrder = 2
@@ -270,24 +246,24 @@ object OpenWithCmdList: TOpenWithCmdList
     Images = ImageListIcons
     Left = 222
     Top = 69
-    object a_Ok: TAction
+    object ActionOk: TAction
       Caption = 'Ok'
-      OnExecute = a_OkExecute
+      OnExecute = ActionOkExecute
     end
-    object a_Cancel: TAction
-      Caption = 'Abbruch'
-      OnExecute = a_CancelExecute
+    object ActionCancel: TAction
+      Caption = 'Cancel'
+      OnExecute = ActionCancelExecute
     end
-    object a_SwitchView: TAction
+    object ActionSwitchView: TAction
       Hint = 'Change View'
       ImageIndex = 1
-      OnExecute = a_SwitchViewExecute
-      OnUpdate = a_SwitchViewUpdate
+      OnExecute = ActionSwitchViewExecute
+      OnUpdate = ActionSwitchViewUpdate
     end
-    object a_Config: TAction
-      Hint = 'Config'
+    object ActionShowConfig: TAction
+      Hint = 'Show Config...'
       ImageIndex = 0
-      OnExecute = a_ConfigExecute
+      OnExecute = ActionShowConfigExecute
     end
   end
   object ImageListIcons: TImageList

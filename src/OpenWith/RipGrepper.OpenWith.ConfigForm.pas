@@ -189,17 +189,18 @@ begin
 end;
 
 procedure TOpenWithConfigForm.ActionTestExecute(Sender : TObject);
+var
+	owp : TOpenWithParams;
 begin
 	inherited;
-	// var
-	// sFileName := GxOtaGetCurrentSourceFile;
-	// TOpenWithRunner.RunEditorCommand(lbCommands.Items[lbCommands.ItemIndex], sFileName);
+	owp := FSettings.TestFile; // GxOtaGetCurrentSourceFile;
+	TOpenWithRunner.RunEditorCommand(lbCommands.Items[lbCommands.ItemIndex], owp);
 end;
 
 procedure TOpenWithConfigForm.ActionTestUpdate(Sender : TObject);
 begin
 	inherited;
-	// btnTest.Enabled := (lbCommands.SelCount = 1);
+	btnTest.Enabled := (lbCommands.SelCount = 1) and (not FSettings.TestFile.IsEmpty);
 end;
 
 procedure TOpenWithConfigForm.ActionOpenFileDlgExecute(Sender : TObject);

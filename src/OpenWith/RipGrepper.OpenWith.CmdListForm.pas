@@ -30,20 +30,20 @@ type
 		btn_Save : TButton;
 		btn_Cancel : TButton;
 		alActions : TActionList;
-		a_Ok : TAction;
-		a_Cancel : TAction;
+    ActionOk: TAction;
+    ActionCancel: TAction;
 		ImageListIcons : TImageList;
 		btnView : TButton;
-		a_SwitchView : TAction;
+    ActionSwitchView: TAction;
 		btnConfig : TButton;
-		a_Config : TAction;
+    ActionShowConfig: TAction;
 		ImageListButtons : TImageList;
 		pnlMain : TPanel;
-		procedure a_CancelExecute(Sender : TObject);
-		procedure a_ConfigExecute(Sender : TObject);
-		procedure a_OkExecute(Sender : TObject);
-		procedure a_SwitchViewExecute(Sender : TObject);
-		procedure a_SwitchViewUpdate(Sender : TObject);
+		procedure ActionCancelExecute(Sender : TObject);
+		procedure ActionShowConfigExecute(Sender : TObject);
+		procedure ActionOkExecute(Sender : TObject);
+		procedure ActionSwitchViewExecute(Sender : TObject);
+		procedure ActionSwitchViewUpdate(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 
 		private
@@ -109,35 +109,35 @@ begin
 	FActualDpi := _NewDpi;
 end;
 
-procedure TOpenWithCmdList.a_CancelExecute(Sender : TObject);
+procedure TOpenWithCmdList.ActionCancelExecute(Sender : TObject);
 begin
 	ModalResult := mrCancel;
 end;
 
-procedure TOpenWithCmdList.a_ConfigExecute(Sender : TObject);
+procedure TOpenWithCmdList.ActionShowConfigExecute(Sender : TObject);
 begin
 	TOpenWithConfigForm.CreateAndShow(FSettings);
 	LoadEnbledCmds();
 	CreateScaledIcons(True);
 end;
 
-procedure TOpenWithCmdList.a_OkExecute(Sender : TObject);
+procedure TOpenWithCmdList.ActionOkExecute(Sender : TObject);
 begin
 	FSettings.Store;
 	ModalResult := mrOk;
 end;
 
-procedure TOpenWithCmdList.a_SwitchViewExecute(Sender : TObject);
+procedure TOpenWithCmdList.ActionSwitchViewExecute(Sender : TObject);
 begin
 	lbCommands.ViewStyle := LISTVIEW_TYPES[ViewStyleIndex];
 end;
 
-procedure TOpenWithCmdList.a_SwitchViewUpdate(Sender : TObject);
+procedure TOpenWithCmdList.ActionSwitchViewUpdate(Sender : TObject);
 begin
 	var
 	idx := IfThen((FViewStyleIndex + 1) <= (Length(LISTVIEW_TYPES) - 1), FViewStyleIndex + 1, 0);
-	a_SwitchView.ImageIndex := idx + 2;
-	a_SwitchView.Hint := 'Change View ' + LISTVIEW_TYPE_TEXTS[idx];
+	ActionSwitchView.ImageIndex := idx + 2;
+	ActionSwitchView.Hint := 'Change View ' + LISTVIEW_TYPE_TEXTS[idx];
 end;
 
 class function TOpenWithCmdList.CreateAndShow(const _settings : TRipGrepperOpenWithSettings) : string;
