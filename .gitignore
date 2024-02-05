@@ -7,3 +7,4 @@
 **/*.res
 **/*.dproj.local
 .vscode/settings.json
+deploy/SECRET_TOKEN
