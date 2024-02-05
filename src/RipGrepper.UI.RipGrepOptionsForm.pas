@@ -63,7 +63,6 @@ type
 			FRipGrepParameters : TRipGrepParameterSettings;
 			procedure AddColumn(const _caption : string);
 			procedure AddColumns;
-			function ArrangeRect(const size : TSize; const Rect : TRect) : TRect;
 			procedure DrawItemOnCanvas(_Canvas : TCanvas; const _Rect : TRect; _Item : TListItem; const _State : TOwnerDrawState);
 			function IsParameterHelpLine(_Item : TListItem) : Boolean;
 			function ParseLine(const _s : string) : THelpOptions;
@@ -211,14 +210,6 @@ begin
 	AddColumn('Value');
 end;
 
-function TRipGrepOptionsForm.ArrangeRect(const size : TSize; const Rect : TRect) : TRect;
-begin
-	Result.Top := Rect.Top + (Rect.Bottom - Rect.Top - size.cy) div 2;
-	Result.Bottom := Result.Top + size.cy;
-	Result.Left := Result.Left + CHECKBOX_PADDING;
-	Result.Right := Result.Left + size.cx;
-end;
-
 procedure TRipGrepOptionsForm.DrawItemOnCanvas(_Canvas : TCanvas; const _Rect : TRect; _Item : TListItem; const _State : TOwnerDrawState);
 var
 	i : Integer;
@@ -298,7 +289,9 @@ end;
 
 procedure TRipGrepOptionsForm.ListView1SelectItem(Sender : TObject; Item : TListItem; Selected : Boolean);
 begin
-	Selected := IsParameterHelpLine(Item);
+	if Selected and not IsParameterHelpLine(Item) then begin
+		 Item.Selected := false;
+    end;
 end;
 
 procedure TRipGrepOptionsForm.SetItem(const _ho : THelpOptions; const _groupId : Integer; const _bEnabled : Boolean = True);
