@@ -60,9 +60,9 @@ type
 		ActionSortByRow : TAction;
 		PopupMenu1 : TPopupMenu;
 		ActionCopyFileName : TAction;
-		Action11 : TMenuItem;
+    CopyFileNameToClipboard: TMenuItem;
 		ActionCopyPathToClipboard : TAction;
-		Action12 : TMenuItem;
+    CopyPathToClipboard: TMenuItem;
 		ImageListListView : TImageList;
 		ImageFileIcon : TImage;
 		tbDoSearchCancel : TToolButton;
@@ -86,6 +86,11 @@ type
 		ActionStatusBar : TAction;
 		tbConfigure : TToolButton;
 		ToolButton4 : TToolButton;
+		ActionOpenWith : TAction;
+		ToolButton5 : TToolButton;
+		ToolButton6 : TToolButton;
+    Openwith1: TMenuItem;
+    N1: TMenuItem;
 		procedure ActionStatusBarUpdate(Sender : TObject);
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
@@ -101,6 +106,8 @@ type
 		procedure ActionShowSearchFormUpdate(Sender : TObject);
 		procedure ActionIndentLineExecute(Sender : TObject);
 		procedure ActionIndentLineUpdate(Sender : TObject);
+		procedure ActionOpenWithExecute(Sender : TObject);
+		procedure ActionOpenWithUpdate(Sender: TObject);
 		procedure ActionRefreshSearchExecute(Sender : TObject);
 		procedure ActionRefreshSearchUpdate(Sender : TObject);
 		procedure ActionShowRelativePathExecute(Sender : TObject);
@@ -314,7 +321,7 @@ begin
 	settings := FSettings.RipGrepperOpenWithSettings;
 	settings.TestFile := GetOpenWithParamsFromSelected();
 	TOpenWithConfigForm.CreateAndShow(settings);
-	settings.TestFile := default(TOpenWithParams);
+	settings.TestFile := default (TOpenWithParams);
 end;
 
 procedure TRipGrepperForm.ActionCopyFileNameExecute(Sender : TObject);
@@ -356,6 +363,21 @@ end;
 procedure TRipGrepperForm.ActionIndentLineUpdate(Sender : TObject);
 begin
 	tbIndentLines.Down := FSettings.RipGrepperViewSettings.IndentLines;
+end;
+
+procedure TRipGrepperForm.ActionOpenWithExecute(Sender : TObject);
+var
+	owp : TOpenWithParams;
+begin
+	owp := GetOpenWithParamsFromSelected();
+	if not owp.IsEmpty then begin
+		TOpenWith.Execute(owp);
+	end;
+end;
+
+procedure TRipGrepperForm.ActionOpenWithUpdate(Sender: TObject);
+begin
+     ActionOpenWith.Enabled := ListViewResult.SelCount = 1;
 end;
 
 procedure TRipGrepperForm.ActionRefreshSearchExecute(Sender : TObject);
@@ -926,13 +948,8 @@ begin
 end;
 
 procedure TRipGrepperForm.ListViewResultDblClick(Sender : TObject);
-var
-	owp : TOpenWithParams;
 begin
-	owp := GetOpenWithParamsFromSelected();
-	if not owp.IsEmpty then begin
-		TOpenWith.Execute(owp);
-	end;
+	ActionOpenWithExecute(Sender);
 end;
 
 procedure TRipGrepperForm.SetColumnWidths;

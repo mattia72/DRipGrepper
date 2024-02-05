@@ -31,7 +31,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 ### Open with...
 - [x] show configured editors to open matching file on matching position
    - [x] on double click
-   - [ ] with menu / toolbar
+   - [x] with menu / toolbar
 - [ ] run editor without showing *Open with...* dialog if only one editor is configured
 - [ ] separate editor for distinct extensions
 
