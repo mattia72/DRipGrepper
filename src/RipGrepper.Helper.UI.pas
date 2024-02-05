@@ -17,6 +17,7 @@ type
 	TCursorSaver = record
 		strict private
 			FOldCursor : TCursor;
+
 		public
 			procedure ChangeTo(NewCursor : TCursor);
 			constructor Create(NewCursor : TCursor);
@@ -27,6 +28,7 @@ type
 	TBeginEndUpdater = record
 		private
 			ListBox : TListBox;
+
 		public
 			class function New(_lb : TListBox) : TBeginEndUpdater; static;
 			class operator Finalize(var Dest : TBeginEndUpdater);
@@ -70,7 +72,9 @@ type
 
 	TItemDrawer = class
 		public
+			class function ShrinkRect(const r: TRect; const X0, X1, Y0, Y1: integer): TRect; inline;
 			class function DrawFileIcon(Canvas : TCanvas; Rect : TRect; Item : TListItem; _img : TImage) : Vcl.Graphics.TBitmap;
+			class function DrawCheckBox(_Canvas : TCanvas; _Rect : TRect; _Item : TListItem; _img : TImage) : TRect;
 			class procedure DrawItemOnBitmap(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
 			class function GetIconBitmap(const sFileName : string; _img : TImage) : Vcl.Graphics.TBitmap;
 	end;
@@ -81,6 +85,7 @@ type
 			Grouping : Boolean;
 			ItemGroups : TStrings;
 			Matches : TParsedObjectGroupedRowCollection;
+
 		public
 			procedure PutIntoGroup(const _idx : Integer; _lv : TListView; _item : TListItem);
 	end;
@@ -296,6 +301,19 @@ begin
 	Result := bm;
 end;
 
+class function TItemDrawer.DrawCheckBox(_Canvas : TCanvas; _Rect : TRect; _Item : TListItem; _img : TImage) : TRect;
+var
+	checkboxRect : TRect;
+begin
+	checkboxRect := _Rect;
+	checkboxRect.Offset(3, 3);
+	checkboxRect.Height := _Rect.Height - 6;
+	checkboxRect.Width := _Rect.Height - 6;
+//    _Canvas.Brush.Color :=
+	_Canvas.FrameRect(checkboxRect);
+	Result := checkboxRect;
+end;
+
 class procedure TItemDrawer.DrawItemOnBitmap(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
 var
 	noFlickerBm : Vcl.Graphics.TBitmap;
@@ -325,6 +343,15 @@ begin
 	finally
 		icon.Free;
 	end;
+end;
+
+class function TItemDrawer.ShrinkRect(const r: TRect; const X0, X1, Y0, Y1: integer): TRect;
+begin
+  result := r;
+  inc(result.Left, X0);
+  inc(result.Top, Y0);
+  dec(result.Right, X1);
+  dec(result.Bottom, Y1);
 end;
 
 procedure TListViewGrouper.PutIntoGroup(const _idx : Integer; _lv : TListView; _item : TListItem);

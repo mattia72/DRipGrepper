@@ -18,7 +18,8 @@ uses
 	System.Actions,
 	Vcl.ActnList,
 	ArrayHelper,
-	Vcl.ComCtrls;
+	Vcl.ComCtrls,
+	System.RegularExpressions;
 
 type
 
@@ -43,19 +44,28 @@ type
 		PanelBottom : TPanel;
 		PanelTop : TPanel;
 		ListView1 : TListView;
-    Label1: TLabel;
-    Label2: TLabel;
+		Label1 : TLabel;
+		Label2 : TLabel;
+		Image1 : TImage;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionOkExecute(Sender : TObject);
 		procedure ListView1Click(Sender : TObject);
+		procedure ListView1DrawItem(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
+		procedure ListView1SelectItem(Sender : TObject; Item : TListItem; Selected : Boolean);
 		procedure LoadRipGrepHelp;
 
 		private
 			FGroup : TListGroup;
+			FGroupIngLineRegex : TRegex;
 			FOptionList : TStringList;
+			FRGLongParamHelpRegex : TRegex;
+			FRGParamHelpRegex : TRegex;
 			FRipGrepParameters : TRipGrepParameterSettings;
 			procedure AddColumn(const _caption : string);
 			procedure AddColumns;
+			function ArrangeRect(const size : TSize; const Rect : TRect) : TRect;
+			procedure DrawItemOnCanvas(_Canvas : TCanvas; const _Rect : TRect; _Item : TListItem; const _State : TOwnerDrawState);
+			function IsParameterHelpLine(_Item : TListItem) : Boolean;
 			function ParseLine(const _s : string) : THelpOptions;
 			procedure SetGroup(const _groupHeader : string);
 			procedure SetItem(const _ho : THelpOptions; const _groupId : Integer; const _bEnabled : Boolean = True);
@@ -75,8 +85,13 @@ implementation
 
 uses
 	RipGrepper.Tools.ProcessUtils,
-	System.RegularExpressions,
-	RipGrepper.Common.Types, Winapi.CommCtrl;
+
+	RipGrepper.Common.Types,
+	Winapi.CommCtrl,
+	RipGrepper.Helper.UI,
+	RipGrepper.Tools.DebugTools,
+	Winapi.UxTheme,
+	System.Math;
 
 {$R *.dfm}
 
@@ -87,6 +102,10 @@ begin
 	FOptionList := TStringList.Create(TDuplicates.dupIgnore, False, False);
 	FOptionList.Delimiter := ' ';
 	FOptionList.AddStrings(FRipGrepParameters.Options.Split([' ']));
+
+	FRGParamHelpRegex := TRegex.Create(RG_HELP_LINE_REGEX);
+	FRGLongParamHelpRegex := TRegex.Create(RG_HELP_LONG_PARAM_REGEX);
+	FGroupIngLineRegex := TRegex.Create('^([A-Z][ A-Z]+):');
 
 	LoadRipGrepHelp;
 end;
@@ -150,22 +169,17 @@ end;
 
 function TRipGrepOptionsForm.ParseLine(const _s : string) : THelpOptions;
 var
-	regex : TRegex;
-	gregex : TRegex;
-	m, gm : TMatch;
+	m, groupingMatch : TMatch;
 	ho : THelpOptions;
 	group : string;
 begin
-	regex := TRegex.Create(RG_HELP_LINE_REGEX);
-	gregex := TRegex.Create('^([A-Z][ A-Z]+):');
-	gm := gregex.Match(_s);
-
-	if gm.Success then begin
-		group := gm.Groups[1].Value;
+	groupingMatch := FGroupIngLineRegex.Match(_s);
+	if groupingMatch.Success then begin
+		group := groupingMatch.Groups[1].Value;
 		SetGroup(group);
 		exit
 	end;
-	m := regex.Match(_s);
+	m := FRGParamHelpRegex.Match(_s);
 	if m.Success then begin
 		ho := THelpOptions.New(
 			{ } m.Groups['short'].Value,
@@ -197,6 +211,70 @@ begin
 	AddColumn('Value');
 end;
 
+function TRipGrepOptionsForm.ArrangeRect(const size : TSize; const Rect : TRect) : TRect;
+begin
+	Result.Top := Rect.Top + (Rect.Bottom - Rect.Top - size.cy) div 2;
+	Result.Bottom := Result.Top + size.cy;
+	Result.Left := Result.Left + CHECKBOX_PADDING;
+	Result.Right := Result.Left + size.cx;
+end;
+
+procedure TRipGrepOptionsForm.DrawItemOnCanvas(_Canvas : TCanvas; const _Rect : TRect; _Item : TListItem; const _State : TOwnerDrawState);
+var
+	i : Integer;
+	x1 : integer;
+	x2 : integer;
+	r : TRect;
+	s : string;
+begin
+	if _item.SubItems.Count = 0 then
+		Exit;
+
+	_Canvas.SetSelectedColors(_State);
+
+	if not IsParameterHelpLine(_Item) then begin
+		// _Canvas.Brush.Color := cl3DLight;
+		_Canvas.Font.Color := clGrayText;
+	end;
+
+	_Canvas.Brush.Style := bsSolid;
+	_Canvas.FillRect(_Rect);
+	_Canvas.Brush.Style := bsClear;
+
+	x1 := _Rect.Left;
+	x2 := _Rect.Left;
+	r := _Rect;
+
+	for i := 0 to ListView1.Columns.Count - 1 do begin
+		inc(x2, ListView_GetColumnWidth(ListView1.Handle, ListView1.Columns[i].Index));
+		r.Left := x1;
+		r.Right := x2;
+
+		case i of
+			0 : begin
+				s := _Item.Caption;
+			end;
+			1, 2, 3 : begin
+				s := _Item.SubItems[i - 1];
+			end;
+			else
+			TDebugUtils.DebugMessage('Invalid index: ' + i.ToString);
+		end;
+		_Canvas.TextRect(r, s, [tfSingleLine, DT_ALIGN[ListView1.Columns[i].Alignment], tfVerticalCenter, tfEndEllipsis]);
+		x1 := x2;
+	end;
+end;
+
+function TRipGrepOptionsForm.IsParameterHelpLine(_Item : TListItem) : Boolean;
+var
+	s : string;
+	m : TMatch;
+begin
+	s := _Item.SubItems[1];
+	m := FRGLongParamHelpRegex.Match(s);
+	Result := m.Success;
+end;
+
 procedure TRipGrepOptionsForm.ListView1Click(Sender : TObject);
 var
 	option : string;
@@ -211,6 +289,16 @@ begin
 		end;
 		selected := ListView1.GetNextItem(selected, sdAll, [isSelected]);
 	end;
+end;
+
+procedure TRipGrepOptionsForm.ListView1DrawItem(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
+begin
+	DrawItemOnCanvas(Sender.Canvas, Rect, Item, State);
+end;
+
+procedure TRipGrepOptionsForm.ListView1SelectItem(Sender : TObject; Item : TListItem; Selected : Boolean);
+begin
+	Selected := IsParameterHelpLine(Item);
 end;
 
 procedure TRipGrepOptionsForm.SetItem(const _ho : THelpOptions; const _groupId : Integer; const _bEnabled : Boolean = True);

@@ -20,6 +20,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 
 ### Search Dialog
 - [x] help parametrizing `rg` in search dialog
+  - [x] filter help texts: can't be selected 
   - [ ] filter not appropriate parameters
   - [ ] quick buttons for
     - [ ] --ignore-case
@@ -54,7 +55,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 
 ### Misc
 - [ ] delphi IDE integration https://github.com/mattia72/DRipGrepper/issues/1
-- [ ] standalone release
+- [x] standalone release
 - [ ] delphi extension release
 - [x] screenshots in Readme.md
 - [ ] scoop install

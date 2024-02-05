@@ -429,8 +429,8 @@ object RipGrepperForm: TRipGrepperForm
     end
   end
   object ImageListButtons: TImageList
-    Left = 308
-    Top = 229
+    Left = 368
+    Top = 219
     Bitmap = {
       494C010114001800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000006000000001002000000000000060
@@ -1233,8 +1233,8 @@ object RipGrepperForm: TRipGrepperForm
   end
   object ActionList: TActionList
     Images = ImageListButtons
-    Left = 645
-    Top = 327
+    Left = 560
+    Top = 217
     object ActionSearch: TAction
       Caption = 'Search'
       ImageIndex = 10
@@ -1347,8 +1347,8 @@ object RipGrepperForm: TRipGrepperForm
     end
   end
   object PopupMenu1: TPopupMenu
-    Left = 175
-    Top = 179
+    Left = 270
+    Top = 219
     object Openwith1: TMenuItem
       Action = ActionOpenWith
       Default = True
@@ -1364,8 +1364,8 @@ object RipGrepperForm: TRipGrepperForm
     end
   end
   object ImageListListView: TImageList
-    Left = 487
-    Top = 286
+    Left = 472
+    Top = 216
     Bitmap = {
       494C010106000800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020

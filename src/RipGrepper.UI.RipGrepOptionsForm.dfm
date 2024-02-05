@@ -2,12 +2,12 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
   Left = 952
   Top = 341
   Caption = 'DRipGrepper - RipGrep Options'
-  ClientHeight = 320
-  ClientWidth = 738
+  ClientHeight = 810
+  ClientWidth = 1033
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -12
+  Font.Height = -30
   Font.Name = 'Segoe UI'
   Font.Style = []
   Icon.Data = {
@@ -146,12 +146,17 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     FFE3C7FFFFE3C7FFFFE3C7FFFFE3C7FFFFE3C7FC0003C7F80007C7F0000FC000
     FFFFE003FFFFE007FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
   Position = poDesigned
-  TextHeight = 15
+  PixelsPerInch = 240
+  TextHeight = 41
   object PanelMain: TPanel
     Left = 0
-    Top = 56
-    Width = 738
-    Height = 223
+    Top = 140
+    Width = 1033
+    Height = 568
+    Margins.Left = 8
+    Margins.Top = 8
+    Margins.Right = 8
+    Margins.Bottom = 8
     Align = alClient
     BevelOuter = bvNone
     Caption = 'PanelMain'
@@ -159,11 +164,16 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     object ListView1: TListView
       Left = 0
       Top = 0
-      Width = 738
-      Height = 223
+      Width = 1033
+      Height = 568
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       Align = alClient
       Columns = <>
       MultiSelect = True
+      OwnerDraw = True
       GroupView = True
       ReadOnly = True
       RowSelect = True
@@ -172,25 +182,35 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
       TabOrder = 0
       ViewStyle = vsReport
       OnClick = ListView1Click
+      OnDrawItem = ListView1DrawItem
+      OnSelectItem = ListView1SelectItem
     end
   end
   object PanelBottom: TPanel
     Left = 0
-    Top = 279
-    Width = 738
-    Height = 41
+    Top = 708
+    Width = 1033
+    Height = 102
+    Margins.Left = 8
+    Margins.Top = 8
+    Margins.Right = 8
+    Margins.Bottom = 8
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
     DesignSize = (
-      738
-      41)
+      1033
+      102)
     object btnOk: TButton
       AlignWithMargins = True
-      Left = 577
-      Top = 11
-      Width = 74
-      Height = 21
+      Left = 630
+      Top = 28
+      Width = 185
+      Height = 52
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       Action = ActionOk
       Anchors = [akTop, akRight]
       Default = True
@@ -198,10 +218,14 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     end
     object btnCancel: TButton
       AlignWithMargins = True
-      Left = 657
-      Top = 11
-      Width = 76
-      Height = 21
+      Left = 830
+      Top = 28
+      Width = 190
+      Height = 52
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       Action = ActionCancel
       Anchors = [akTop, akRight]
       Cancel = True
@@ -211,24 +235,46 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
   object PanelTop: TPanel
     Left = 0
     Top = 0
-    Width = 738
-    Height = 56
+    Width = 1033
+    Height = 140
+    Margins.Left = 8
+    Margins.Top = 8
+    Margins.Right = 8
+    Margins.Bottom = 8
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 2
     object Label1: TLabel
-      Left = 10
-      Top = 35
-      Width = 310
-      Height = 15
+      Left = 25
+      Top = 88
+      Width = 775
+      Height = 41
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       Caption = '(You can use Ctrl + Click to select multiple options to edit.)'
     end
     object Label2: TLabel
-      Left = 10
-      Top = 14
-      Width = 74
-      Height = 15
+      Left = 25
+      Top = 35
+      Width = 189
+      Height = 41
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       Caption = 'RipGrep  help:'
+    end
+    object Image1: TImage
+      Left = 675
+      Top = 35
+      Width = 50
+      Height = 50
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
     end
   end
   object ActionList1: TActionList
