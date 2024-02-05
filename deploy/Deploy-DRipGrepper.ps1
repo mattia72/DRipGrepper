@@ -23,15 +23,17 @@ function New-ReleaseWithAsset {
     $parentPath = Split-Path -Parent $PSScriptRoot 
     $ZipDir = Join-Path $parentPath 'Win32\Release'
     Compress-Archive -Path $ZipDir\DRipGrepper.exe -DestinationPath $ZipDir\$global:AssetZipName -Force
-    $ReleaseID = $( Get-Releases -Latest | Select-Object -Property id).id
+    $ReleaseID = $( Get-Releases -Tag $global:Version | Select-Object -Property id).id
+    #$ReleaseID = $( Get-Releases -Latest | Select-Object -Property id).id
     New-Asset -ReleaseID $ReleaseID -ZipDir $ZipDir
 }
 function Get-Releases {
     param (
-        [switch] $Latest
+        [switch] $Latest,
+        $Tag
     )
     $params = @{
-        Uri     = "$global:Url$( $Latest ? "/latest" : '' )"
+        Uri     = "$global:Url$( $Latest ? "/latest" : '' )$($Tag -ne '' ? "/tags/$Tag" : '' )"
         Method  = "GET"
         Headers = $global:headers
         Body    = ''
@@ -68,7 +70,7 @@ function New-ReleaseNotes {
                 tag_name          = $global:Version
                 target_commitish  = "master"
                 previous_tag_name = $global:PrevVersion
-                #configuration_file_path = ".github/custom_release_config.yml"     
+                # configuration_file_path = ".github/release.yml"     
             } | ConvertTo-Json )
     }
 
@@ -91,3 +93,6 @@ function New-Asset {
     "--data-binary", "@$ZipDir\$global:AssetZipName"
     & curl.exe @CurlArgument
 }
+
+#New-ReleaseNotes
+New-ReleaseWithAsset
