@@ -3,14 +3,14 @@ object RipGrepperForm: TRipGrepperForm
   Left = 662
   Top = 278
   Caption = 'DRipGrepper'
-  ClientHeight = 359
-  ClientWidth = 763
+  ClientHeight = 898
+  ClientWidth = 1908
   Color = clBtnFace
-  Constraints.MinHeight = 350
-  Constraints.MinWidth = 470
+  Constraints.MinHeight = 875
+  Constraints.MinWidth = 1175
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -12
+  Font.Height = -30
   Font.Name = 'Segoe UI'
   Font.Style = []
   Icon.Data = {
@@ -154,30 +154,45 @@ object RipGrepperForm: TRipGrepperForm
   OnClose = FormClose
   OnResize = FormResize
   OnShow = FormShow
-  TextHeight = 15
+  PixelsPerInch = 240
+  TextHeight = 41
   object panelMain: TPanel
     AlignWithMargins = True
-    Left = 3
-    Top = 3
-    Width = 757
-    Height = 333
+    Left = 8
+    Top = 8
+    Width = 1892
+    Height = 832
+    Margins.Left = 8
+    Margins.Top = 8
+    Margins.Right = 8
+    Margins.Bottom = 8
     Align = alClient
     BevelOuter = bvNone
     Caption = 'panelMain'
     TabOrder = 0
     object ImageFileIcon: TImage
-      Left = 480
-      Top = -32
-      Width = 45
-      Height = 61
+      Left = 1200
+      Top = -80
+      Width = 113
+      Height = 153
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
     end
     object ToolBar1: TToolBar
       AlignWithMargins = True
-      Left = 3
-      Top = 3
-      Width = 751
-      Height = 22
+      Left = 8
+      Top = 8
+      Width = 1876
+      Height = 55
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       AutoSize = True
+      ButtonHeight = 55
+      ButtonWidth = 58
       Caption = 'ToolBar1'
       Images = ImageListButtons
       Indent = 5
@@ -185,135 +200,217 @@ object RipGrepperForm: TRipGrepperForm
       object tbView: TToolButton
         Left = 5
         Top = 0
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
         Action = ActionSwitchView
         Visible = False
       end
       object tbDoSearchCancel: TToolButton
-        Left = 28
+        Left = 63
         Top = 0
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
         Action = ActionShowSearchForm
       end
       object tbRefreshSearch: TToolButton
-        Left = 51
+        Left = 121
         Top = 0
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
         Action = ActionRefreshSearch
       end
       object ToolButton3: TToolButton
-        Left = 74
+        Left = 179
         Top = 0
-        Width = 8
+        Width = 20
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
         Caption = 'ToolButton3'
         ImageIndex = 13
         Style = tbsSeparator
       end
       object tbAbortSearch: TToolButton
-        Left = 82
+        Left = 199
         Top = 0
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
         Action = ActionAbortSearch
       end
       object ToolButton1: TToolButton
-        Left = 105
+        Left = 257
         Top = 0
-        Width = 8
+        Width = 20
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
         Caption = 'ToolButton1'
         ImageIndex = 9
         Style = tbsSeparator
       end
       object tbCopyCmdLine: TToolButton
         AlignWithMargins = True
-        Left = 113
+        Left = 277
         Top = 0
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
         Action = ActionCmdLineCopy
       end
       object ToolButton2: TToolButton
-        Left = 136
+        Left = 335
         Top = 0
-        Width = 8
+        Width = 20
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
         Caption = 'ToolButton2'
         ImageIndex = 3
         Style = tbsSeparator
       end
       object tbAlternateRowColors: TToolButton
-        Left = 144
+        Left = 355
         Top = 0
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
         Action = ActionAlternateRowColors
       end
       object tbShowFileIcon: TToolButton
-        Left = 167
+        Left = 413
         Top = 0
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
         Action = ActionShowFileIcons
       end
       object tbShowRelativePath: TToolButton
-        Left = 190
+        Left = 471
         Top = 0
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
         Action = ActionShowRelativePath
       end
       object tbIndentLines: TToolButton
-        Left = 213
+        Left = 529
         Top = 0
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
         Action = ActionIndentLine
       end
       object ToolButton4: TToolButton
-        Left = 236
+        Left = 587
         Top = 0
-        Width = 8
+        Width = 20
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
         Caption = 'ToolButton4'
         ImageIndex = 1
         Style = tbsSeparator
       end
       object ToolButton5: TToolButton
-        Left = 244
+        Left = 607
         Top = 0
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
         Action = ActionOpenWith
       end
       object ToolButton6: TToolButton
-        Left = 267
+        Left = 665
         Top = 0
-        Width = 8
+        Width = 20
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
         Caption = 'ToolButton6'
         ImageIndex = 20
         Style = tbsSeparator
       end
       object tbConfigure: TToolButton
-        Left = 275
+        Left = 685
         Top = 0
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
         Action = ActionConfig
       end
     end
     object SplitView1: TSplitView
       AlignWithMargins = True
-      Left = 3
-      Top = 31
-      Width = 760
-      Height = 299
+      Left = 8
+      Top = 79
+      Width = 1900
+      Height = 745
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       BevelEdges = [beLeft, beRight, beBottom]
-      OpenedWidth = 760
+      CompactWidth = 125
+      OpenedWidth = 1900
       Placement = svpLeft
       TabOrder = 1
       object Splitter1: TSplitter
-        Left = 157
+        Left = 393
         Top = 0
-        Height = 299
+        Width = 7
+        Height = 745
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
         Align = alRight
       end
       object PanelHistory: TPanel
         Left = 0
         Top = 0
-        Width = 157
-        Height = 299
+        Width = 393
+        Height = 745
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
         Align = alClient
         Anchors = [akLeft, akTop, akBottom]
         Caption = 'PanelHistory'
         TabOrder = 0
         object ListBoxSearchHistory: TListBox
           AlignWithMargins = True
-          Left = 4
-          Top = 4
-          Width = 149
-          Height = 291
+          Left = 9
+          Top = 9
+          Width = 375
+          Height = 727
+          Margins.Left = 8
+          Margins.Top = 8
+          Margins.Right = 8
+          Margins.Bottom = 8
           Style = lbVirtualOwnerDraw
           Align = alClient
-          ItemHeight = 30
+          ItemHeight = 75
           TabOrder = 0
           OnClick = ListBoxSearchHistoryClick
           OnData = ListBoxSearchHistoryData
@@ -322,20 +419,28 @@ object RipGrepperForm: TRipGrepperForm
         end
       end
       object PanelResult: TPanel
-        Left = 160
+        Left = 400
         Top = 0
-        Width = 600
-        Height = 299
+        Width = 1500
+        Height = 745
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
         Align = alRight
         Anchors = [akLeft, akTop, akRight, akBottom]
         Caption = 'PanelResult'
         TabOrder = 1
         object ListViewResult: TListView
           AlignWithMargins = True
-          Left = 4
-          Top = 4
-          Width = 592
-          Height = 291
+          Left = 10
+          Top = 10
+          Width = 1480
+          Height = 728
+          Margins.Left = 8
+          Margins.Top = 8
+          Margins.Right = 8
+          Margins.Bottom = 8
           Align = alClient
           Color = clHighlightText
           Columns = <
@@ -398,33 +503,41 @@ object RipGrepperForm: TRipGrepperForm
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 339
-    Width = 763
-    Height = 20
+    Top = 848
+    Width = 1908
+    Height = 50
+    Margins.Left = 8
+    Margins.Top = 8
+    Margins.Right = 8
+    Margins.Bottom = 8
     Align = alBottom
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 1
     object StatusBar1: TStatusBar
       AlignWithMargins = True
-      Left = 3
-      Top = -2
-      Width = 757
-      Height = 19
+      Left = 8
+      Top = -5
+      Width = 1892
+      Height = 48
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       Action = ActionStatusBar
       Panels = <
         item
-          Width = 200
+          Width = 500
         end
         item
           Alignment = taCenter
           Text = 'READY'
-          Width = 70
+          Width = 175
         end
         item
           Alignment = taRightJustify
           Text = 'RipGrepper v1.0.0      '
-          Width = 150
+          Width = 375
         end>
     end
   end

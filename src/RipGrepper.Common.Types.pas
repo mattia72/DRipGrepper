@@ -10,7 +10,6 @@ uses
 	Vcl.Graphics;
 
 const
-
 	CR = #13;
 	LF = #10;
 	CRLF = sLineBreak;
@@ -20,6 +19,8 @@ const
 	RIPGREP_NO_MATCH = 2;
 
 	DRAW_RESULT_ON_EVERY_LINE_COUNT = 100; // Todo: put into settings
+	DRAW_RESULT_UNTIL_FIRST_LINE_COUNT = 100;
+
 
 	LISTVIEW_TYPES : TArray<TViewStyle> = [vsList, vsIcon, vsReport, vsSmallIcon];
 	LISTVIEW_TYPE_TEXTS : TArray<string> = ['List', 'Icon', 'Report', 'SmallIcon'];

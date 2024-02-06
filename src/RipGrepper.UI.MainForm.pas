@@ -60,9 +60,9 @@ type
 		ActionSortByRow : TAction;
 		PopupMenu1 : TPopupMenu;
 		ActionCopyFileName : TAction;
-    CopyFileNameToClipboard: TMenuItem;
+		CopyFileNameToClipboard : TMenuItem;
 		ActionCopyPathToClipboard : TAction;
-    CopyPathToClipboard: TMenuItem;
+		CopyPathToClipboard : TMenuItem;
 		ImageListListView : TImageList;
 		ImageFileIcon : TImage;
 		tbDoSearchCancel : TToolButton;
@@ -89,8 +89,8 @@ type
 		ActionOpenWith : TAction;
 		ToolButton5 : TToolButton;
 		ToolButton6 : TToolButton;
-    Openwith1: TMenuItem;
-    N1: TMenuItem;
+		Openwith1 : TMenuItem;
+		N1 : TMenuItem;
 		procedure ActionStatusBarUpdate(Sender : TObject);
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
@@ -107,7 +107,7 @@ type
 		procedure ActionIndentLineExecute(Sender : TObject);
 		procedure ActionIndentLineUpdate(Sender : TObject);
 		procedure ActionOpenWithExecute(Sender : TObject);
-		procedure ActionOpenWithUpdate(Sender: TObject);
+		procedure ActionOpenWithUpdate(Sender : TObject);
 		procedure ActionRefreshSearchExecute(Sender : TObject);
 		procedure ActionRefreshSearchUpdate(Sender : TObject);
 		procedure ActionShowRelativePathExecute(Sender : TObject);
@@ -134,6 +134,7 @@ type
 		procedure ListViewResultDrawItem(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
 
 		private
+			FAbortSearch : Boolean;
 			FswSearchStart : TStopwatch;
 			FData : TRipGrepperData;
 			FExeVersion : string;
@@ -147,6 +148,7 @@ type
 			FHistObject : THistoryItemObject;
 			FHistoryObjectList : TStringList;
 			FImageScaler : TImageListScaler;
+			FIsParsingRunning : Boolean;
 			FMeassureFirstDrawEvent : Boolean;
 			FRipGrepTask : ITask;
 			FStatusBarMessage : string;
@@ -279,7 +281,10 @@ end;
 
 procedure TRipGrepperForm.ActionAbortSearchExecute(Sender : TObject);
 begin
-	FRipGrepTask.Cancel;
+	if IsSearchRunning then begin
+		FRipGrepTask.Cancel;
+	end;
+	FAbortSearch := True;
 end;
 
 procedure TRipGrepperForm.ActionAbortSearchUpdate(Sender : TObject);
@@ -375,9 +380,9 @@ begin
 	end;
 end;
 
-procedure TRipGrepperForm.ActionOpenWithUpdate(Sender: TObject);
+procedure TRipGrepperForm.ActionOpenWithUpdate(Sender : TObject);
 begin
-     ActionOpenWith.Enabled := ListViewResult.SelCount = 1;
+	ActionOpenWith.Enabled := ListViewResult.SelCount = 1;
 end;
 
 procedure TRipGrepperForm.ActionRefreshSearchExecute(Sender : TObject);
@@ -527,6 +532,7 @@ end;
 procedure TRipGrepperForm.DoSearch;
 begin
 	SetStatusBarStatistic('Searching...');
+	FAbortSearch := False;
 	UpdateArgumentsAndSettings;
 	RunRipGrep();
 end;
@@ -602,26 +608,30 @@ begin
 end;
 
 procedure TRipGrepperForm.OnNewOutputLine(const _iLineNr : integer; const _sLine : string; _bIsLast : Boolean = False);
-
 begin
-	if _bIsLast then begin
-		// ListViewResult.AdjustColumnWidths(FMaxWidths);
-		SetColumnWidths;
-		TDebugUtils.DebugMessage(Format('Last line (%d.) received in %s sec.', [_iLineNr, GetElapsedTime(FswSearchStart)]));
-	end;
-
-	if (_iLineNr >= RG_PROCESSING_LINE_COUNT_LIMIT) then begin
-		if _iLineNr = RG_PROCESSING_LINE_COUNT_LIMIT then begin
-			MessageDlg(Format('Too many results.' + CRLF + 'The first %d will be shown. Try to be more specific.',
-				[_iLineNr, RG_PROCESSING_LINE_COUNT_LIMIT]), TMsgDlgType.mtWarning, [mbOk], 0);
-		end else begin
-			Exit;
-		end;
-	end;
-
 	TTask.Run(
 		procedure
 		begin
+
+			if _bIsLast then begin
+				// ListViewResult.AdjustColumnWidths(FMaxWidths);
+				SetColumnWidths;
+				TDebugUtils.DebugMessage(Format('Last line (%d.) received in %s sec.', [_iLineNr, GetElapsedTime(FswSearchStart)]));
+			end;
+
+			if (FAbortSearch) then begin
+				Exit;
+			end;
+
+			if (_iLineNr >= RG_PROCESSING_LINE_COUNT_LIMIT) then begin
+				if _iLineNr = RG_PROCESSING_LINE_COUNT_LIMIT then begin
+					MessageDlg(Format('Too many results.' + CRLF + 'The first %d will be shown. Try to be more specific.',
+						[_iLineNr, RG_PROCESSING_LINE_COUNT_LIMIT]), TMsgDlgType.mtWarning, [mbOk], 0);
+				end else begin
+					Exit;
+				end;
+			end;
+
 			try
 				TThread.Queue(nil,
 					procedure
@@ -639,7 +649,8 @@ begin
 							FData.Add(parsedObj);
 						end;
 						// First 100 than every 100
-						if (_iLineNr < 100) or ((_iLineNr mod DRAW_RESULT_ON_EVERY_LINE_COUNT) = 0) or _bIsLast then begin
+						if (_iLineNr < DRAW_RESULT_UNTIL_FIRST_LINE_COUNT) or
+						((_iLineNr mod DRAW_RESULT_ON_EVERY_LINE_COUNT) = 0) or _bIsLast then begin
 							RefreshCounters;
 						end;
 					end);
@@ -650,6 +661,7 @@ begin
 						[mbOk], 0);
 				end;
 			end;
+			FIsParsingRunning := not _bIsLast;
 		end);
 
 end;
@@ -796,7 +808,7 @@ end;
 
 function TRipGrepperForm.IsSearchRunning : Boolean;
 begin
-	Result := Assigned(FRipGrepTask) and (FRipGrepTask.Status = TTaskStatus.Running);
+	Result := FIsParsingRunning or (Assigned(FRipGrepTask) and (FRipGrepTask.Status = TTaskStatus.Running));
 end;
 
 procedure TRipGrepperForm.ListBoxSearchHistoryClick(Sender : TObject);
