@@ -175,7 +175,8 @@ uses
 	System.IOUtils,
 	Winapi.Windows,
 	System.UITypes,
-	RipGrepper.Tools.ProcessUtils;
+	RipGrepper.Tools.ProcessUtils, 
+	RipGrepper.Helper.UI;
 
 function TRipGrepperSettings.GetActualRipGrepParam : string;
 begin
@@ -259,19 +260,7 @@ end;
 
 procedure TRipGrepperSettings.AddIfNotContains(_to, _from : TStrings);
 begin
-	for var i : integer := 0 to _from.Count - 1 do begin
-		var s : string := _from[i];
-		var idx : integer := _to.IndexOf(s);
-		if i <> idx then begin
-			if idx = -1 then begin
-				_to.Insert(0, s);
-			end else begin
-				_to.Delete(idx);
-				_to.Insert(i, s);
-			end;
-			FIsModified := True;
-		end;
-	end;
+	FIsModified := TItemInserter.AddToSringListIfNotContains(_to, _from);
 end;
 
 function TRipGrepperSettings.GetIsModified : Boolean;

@@ -66,13 +66,15 @@ type
 	end;
 
 	TItemInserter = class
-		class procedure AddToCmbIfNotContains(_cmb : TComboBox);
-		class function AddToListBoxIfNotContains(_lb : TListBox; const _s : string; _val : TObject) : Integer;
+		public
+		class procedure AddTextToItemsIfNotContains(_cmb : TComboBox);
+		class function AddToListBoxIfNotContains(_lb : TListBox; const _s : string; _val : TObject): Integer;
+			class function AddToSringListIfNotContains(_to, _from : TStrings): Boolean;
 	end;
 
 	TItemDrawer = class
 		public
-			class function ShrinkRect(const r: TRect; const X0, X1, Y0, Y1: integer): TRect; inline;
+			class function ShrinkRect(const r : TRect; const X0, X1, Y0, Y1 : integer) : TRect; inline;
 			class function DrawFileIcon(Canvas : TCanvas; Rect : TRect; Item : TListItem; _img : TImage) : Vcl.Graphics.TBitmap;
 			class function DrawCheckBox(_Canvas : TCanvas; _Rect : TRect; _Item : TListItem; _img : TImage) : TRect;
 			class procedure DrawItemOnBitmap(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
@@ -256,7 +258,28 @@ begin
 	end;
 end;
 
-class procedure TItemInserter.AddToCmbIfNotContains(_cmb : TComboBox);
+class function TItemInserter.AddToSringListIfNotContains(_to, _from : TStrings): Boolean;
+var
+	bIsModified : Boolean;
+begin
+	bIsModified := False;
+	for var i : integer := 0 to _from.Count - 1 do begin
+		var s : string := _from[i];
+		var idx : integer := _to.IndexOf(s);
+		if i <> idx then begin
+			if idx = -1 then begin
+				_to.Insert(0, s);
+			end else begin
+				_to.Delete(idx);
+				_to.Insert(i, s);
+			end;
+			bIsModified := True;
+		end;
+	end;
+    Result := bIsModified
+end;
+
+class procedure TItemInserter.AddTextToItemsIfNotContains(_cmb : TComboBox);
 var
 	idxval : Integer;
 	val : string;
@@ -272,7 +295,7 @@ begin
 	end;
 end;
 
-class function TItemInserter.AddToListBoxIfNotContains(_lb : TListBox; const _s : string; _val : TObject) : Integer;
+class function TItemInserter.AddToListBoxIfNotContains(_lb : TListBox; const _s : string; _val : TObject): Integer;
 var
 	idxval : Integer;
 	val : string;
@@ -309,7 +332,7 @@ begin
 	checkboxRect.Offset(3, 3);
 	checkboxRect.Height := _Rect.Height - 6;
 	checkboxRect.Width := _Rect.Height - 6;
-//    _Canvas.Brush.Color :=
+	// _Canvas.Brush.Color :=
 	_Canvas.FrameRect(checkboxRect);
 	Result := checkboxRect;
 end;
@@ -345,13 +368,13 @@ begin
 	end;
 end;
 
-class function TItemDrawer.ShrinkRect(const r: TRect; const X0, X1, Y0, Y1: integer): TRect;
+class function TItemDrawer.ShrinkRect(const r : TRect; const X0, X1, Y0, Y1 : integer) : TRect;
 begin
-  result := r;
-  inc(result.Left, X0);
-  inc(result.Top, Y0);
-  dec(result.Right, X1);
-  dec(result.Bottom, Y1);
+	result := r;
+	inc(result.Left, X0);
+	inc(result.Top, Y0);
+	dec(result.Right, X1);
+	dec(result.Bottom, Y1);
 end;
 
 procedure TListViewGrouper.PutIntoGroup(const _idx : Integer; _lv : TListView; _item : TListItem);
