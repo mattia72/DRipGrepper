@@ -224,11 +224,9 @@ begin
 	for var i := 0 to MAX_HISTORY_COUNT do begin
 		var
 		s := FIniFile.ReadString(_section, 'Item_' + i.ToString, '');
-		if s <> '' then begin
+		if -1 = _list.IndexOf(s) then begin
 			_list.Add(s);
-		end
-		else
-			break;
+		end;
 	end;
 end;
 
@@ -261,9 +259,16 @@ end;
 
 procedure TRipGrepperSettings.AddIfNotContains(_to, _from : TStrings);
 begin
-	for var s : string in _from do begin
-		if -1 = _to.IndexOf(s) then begin
-			_to.Add(s);
+	for var i : integer := 0 to _from.Count - 1 do begin
+		var s : string := _from[i];
+		var idx : integer := _to.IndexOf(s);
+		if i <> idx then begin
+			if idx = -1 then begin
+				_to.Insert(0, s);
+			end else begin
+				_to.Delete(idx);
+				_to.Insert(i, s);
+			end;
 			FIsModified := True;
 		end;
 	end;
