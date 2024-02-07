@@ -216,9 +216,9 @@ end;
 
 procedure TRipGrepperSearchDialogForm.StoreHistoriesAsCmbEntries;
 begin
-	TItemInserter.AddToCmbIfNotContains(cmbOptions);
-	TItemInserter.AddToCmbIfNotContains(cmbSearchDir);
-	TItemInserter.AddToCmbIfNotContains(cmbSearchText);
+	TItemInserter.AddTextToItemsIfNotContains(cmbOptions);
+	TItemInserter.AddTextToItemsIfNotContains(cmbSearchDir);
+	TItemInserter.AddTextToItemsIfNotContains(cmbSearchText);
 end;
 
 procedure TRipGrepperSearchDialogForm.StoreSearchSettings;
