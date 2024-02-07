@@ -6,7 +6,8 @@ uses
 	System.Classes,
 	System.IniFiles,
 	System.Generics.Collections,
-	System.Generics.Defaults, RipGrepper.OpenWith.SimpleTypes;
+	System.Generics.Defaults,
+	RipGrepper.OpenWith.SimpleTypes;
 
 type
 	ISettingsPersister = interface
@@ -87,7 +88,7 @@ type
 	TRipGrepperOpenWithSettings = class(TRipGrepperSettingsBase)
 		private
 			FCommandList : TStringList;
-			FTestFile: TOpenWithParams;
+			FTestFile : TOpenWithParams;
 			function GetCommand(Index : Integer) : string;
 			procedure SetCommand(Index : Integer; const Value : string);
 
@@ -131,7 +132,7 @@ type
 			procedure StoreViewSettings(const _s : string = '');
 			constructor Create;
 			destructor Destroy; override;
-			procedure AssignIfNotEqual(_to, _from : TStrings);
+			procedure AddIfNotContains(_to, _from : TStrings);
 			function GetIsModified : Boolean; override;
 			function GetRipGrepArguments : TStrings;
 			function ReBuildArguments : TStrings;
@@ -251,18 +252,20 @@ begin
 	FRipGrepperViewSettings := TRipGrepperViewSettings.Create(FIniFile);
 	FRipGrepperOpenWithSettings := TRipGrepperOpenWithSettings.Create(FIniFile);
 	FRipGrepperViewSettings.Init();
-	FSearchPathsHistory := TStringList.Create;
-	FSearchTextsHistory := TStringList.Create;
-	FRipGrepParamsHistory := TStringList.Create;
+	FSearchPathsHistory := TStringList.Create(dupIgnore, False, True);
+	FSearchTextsHistory := TStringList.Create(dupIgnore, False, True);
+	FRipGrepParamsHistory := TStringList.Create(dupIgnore, False, True);
 	FRipGrepArguments := TStringList.Create();
 	FIsLoaded := False;
 end;
 
-procedure TRipGrepperSettings.AssignIfNotEqual(_to, _from : TStrings);
+procedure TRipGrepperSettings.AddIfNotContains(_to, _from : TStrings);
 begin
-	if 0 <> _to[0].CompareTo(_from[0]) then begin
-		_to.Assign(_from);
-		FIsModified := True;
+	for var s : string in _from do begin
+		if -1 = _to.IndexOf(s) then begin
+			_to.Add(s);
+			FIsModified := True;
+		end;
 	end;
 end;
 
@@ -292,17 +295,17 @@ end;
 
 procedure TRipGrepperSettings.SetRipGrepParamsHistory(const Value : TSTrings);
 begin
-	AssignIfNotEqual(FRipGrepParamsHistory, Value);
+	AddIfNotContains(FRipGrepParamsHistory, Value);
 end;
 
 procedure TRipGrepperSettings.SetSearchPathsHistory(const Value : TStrings);
 begin
-	AssignIfNotEqual(FSearchPathsHistory, Value);
+	AddIfNotContains(FSearchPathsHistory, Value);
 end;
 
 procedure TRipGrepperSettings.SetSearchTextsHistory(const Value : TStrings);
 begin
-	AssignIfNotEqual(FSearchTextsHistory, Value);
+	AddIfNotContains(FSearchTextsHistory, Value);
 end;
 
 procedure TRipGrepperSettings.Store;
