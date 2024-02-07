@@ -14,10 +14,12 @@ uses
 type
 	THistoryItemObject = class(TSingletonImplementation, IHistoryItem)
 		private
+			FElapsedTimeText: string;
 			FErrorCount: Integer;
 			FFileCount : integer;
 			FMatches : IParsedObjectRowCollection;
 			FRipGrepArguments : TStringList;
+			FRipGrepResult: Integer;
 			FTotalMatchCount: integer;
 			function GetErrorCount: Integer; export;
 			function GetFileCount : integer;
@@ -39,6 +41,8 @@ type
 			property RipGrepArguments : TStringList read GetRipGrepArguments write SetRipGrepArguments;
 			property TotalMatchCount: integer read GetTotalMatchCount;
 			property ErrorCount: Integer read GetErrorCount write FErrorCount;
+			property ElapsedTimeText: string read FElapsedTimeText write FElapsedTimeText;
+			property RipGrepResult: Integer read FRipGrepResult write FRipGrepResult;
 	end;
 
 	PHistoryItemObject = ^THistoryItemObject;

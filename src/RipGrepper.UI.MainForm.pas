@@ -91,6 +91,7 @@ type
 		ToolButton6 : TToolButton;
 		Openwith1 : TMenuItem;
 		N1 : TMenuItem;
+		ActivityIndicator1 : TActivityIndicator;
 		procedure ActionStatusBarUpdate(Sender : TObject);
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
@@ -166,20 +167,25 @@ type
 			procedure DoSortOnColumn(const _sbt : TSortByType);
 			procedure DrawItemOnCanvas(_Canvas : TCanvas; _Rect : TRect; _Item : TListItem; _State : TOwnerDrawState);
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
+			function GetHistObject : THistoryItemObject;
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
 			function GetOpenWithParamsFromSelected : TOpenWithParams;
 			procedure InitColumnSortTypes;
 			procedure InitSearch;
 			procedure LoadBeforeSearchSettings;
+			procedure OnLastLine(const _iLineNr : integer);
 			procedure RefreshCounters;
+			procedure RefreshCountersInGUI;
 			procedure RunRipGrep;
 			procedure SetColumnWidths;
-			procedure SetStatusBarMessage(const _iRipGrepResultOk : Integer = 0);
+			procedure SetHistObject(const Value : THistoryItemObject);
+			procedure SetStatusBarMessage(const _bWithElapsedTime : Boolean = False);
 			procedure SetStatusBarStatistic(const _s : string);
 			procedure UpdateArgumentsAndSettings;
 			procedure UpdateHistObject;
 			procedure UpdateSortingImages(const _sbtArr : TArray<TSortByType>);
 			property CurrentHistoryItemIndex : Integer read FCurrentHistoryItemIndex write FCurrentHistoryItemIndex;
+			property HistObject : THistoryItemObject read GetHistObject write SetHistObject;
 			property HistoryObjectList : TStringList read FHistoryObjectList write FHistoryObjectList;
 			property ViewStyleIndex : Integer read GetViewStyleIndex;
 
@@ -200,7 +206,7 @@ type
 			function ProcessShouldTerminate : boolean;
 			// IEOFProcessEventHandler
 			procedure OnEOFProcess();
-			procedure RefreshResultByHistoryItem;
+			procedure SetResultListViewDataToHistoryObj;
 			procedure ChangeDataHistItemObject(_ho : THistoryItemObject);
 
 	end;
@@ -390,6 +396,7 @@ var
 	cursor : TCursorSaver;
 begin
 	cursor.SetHourGlassCursor;
+	UpdateHistObject();
 	ClearHistoryObject();
 	InitSearch();
 	DoSearch();
@@ -419,7 +426,7 @@ var
 begin
 	cursor.SetHourGlassCursor;
 	AddNewHistoryItem;
-	ListBoxSearchHistory.ItemIndex := 0;
+	ListBoxSearchHistory.ItemIndex := CurrentHistoryItemIndex;
 	FData.ClearMatchFiles;
 	InitSearch();
 	DoSearch();
@@ -482,7 +489,7 @@ var
 	hi : THistoryItemObject;
 begin
 	hi := THistoryItemObject.Create();
-	FHistObject := hi;
+	HistObject := hi;
 	ChangeDataHistItemObject(hi);
 	CurrentHistoryItemIndex := HistoryObjectList.IndexOf(FSettings.ActualSearchText);
 	if CurrentHistoryItemIndex = -1 then begin
@@ -512,7 +519,7 @@ procedure TRipGrepperForm.ClearHistoryObject;
 begin
 	var
 	beu := TBeginEndUpdater.New(ListBoxSearchHistory);
-	FHistObject.ClearMatches;
+	HistObject.ClearMatches;
 end;
 
 class function TRipGrepperForm.CreateAndShow(const _settings : TRipGrepperSettings) : string;
@@ -609,48 +616,47 @@ end;
 
 procedure TRipGrepperForm.OnNewOutputLine(const _iLineNr : integer; const _sLine : string; _bIsLast : Boolean = False);
 begin
+	if (FAbortSearch) then begin
+		OnLastLine(_iLineNr);
+		Exit;
+	end;
+
+	if (_iLineNr >= RG_PROCESSING_LINE_COUNT_LIMIT) then begin
+		OnLastLine(_iLineNr);
+		if _iLineNr = RG_PROCESSING_LINE_COUNT_LIMIT then begin
+			MessageDlg(Format('Too many results.' + CRLF + 'The first %d will be shown. Try to be more specific.',
+				[_iLineNr, RG_PROCESSING_LINE_COUNT_LIMIT]), TMsgDlgType.mtWarning, [mbOk], 0);
+		end else begin
+			Exit;
+		end;
+	end;
+
 	TTask.Run(
 		procedure
 		begin
 
-			if _bIsLast then begin
-				// ListViewResult.AdjustColumnWidths(FMaxWidths);
-				SetColumnWidths;
-				TDebugUtils.DebugMessage(Format('Last line (%d.) received in %s sec.', [_iLineNr, GetElapsedTime(FswSearchStart)]));
-			end;
-
-			if (FAbortSearch) then begin
-				Exit;
-			end;
-
-			if (_iLineNr >= RG_PROCESSING_LINE_COUNT_LIMIT) then begin
-				if _iLineNr = RG_PROCESSING_LINE_COUNT_LIMIT then begin
-					MessageDlg(Format('Too many results.' + CRLF + 'The first %d will be shown. Try to be more specific.',
-						[_iLineNr, RG_PROCESSING_LINE_COUNT_LIMIT]), TMsgDlgType.mtWarning, [mbOk], 0);
-				end else begin
-					Exit;
-				end;
-			end;
-
 			try
-				TThread.Queue(nil,
+				TThread.Synchronize(nil,
 					procedure
-					var
-						parsedObj : IParsedObjectRow;
-						parser : ILineParser;
 					begin
+						if _bIsLast then begin
+							OnLastLine(_iLineNr);
+							TDebugUtils.DebugMessage(Format('Last line (%d.) received in %s sec.',
+								[_iLineNr, GetElapsedTime(FswSearchStart)]));
+							TDebugUtils.DebugMessage(Format('Before parse last line: %d in %d err: %d', [FHistObject.TotalMatchCount,
+								FHistObject.FileCount, FHistObject.ErrorCount]));
+						end;
+
 						if (not _sLine.IsEmpty) then begin
+							var
 							parser := TVimGrepMatchLineParser.Create();
-							case FFileNameType of
-								ftAbsolute, ftRelative : begin
-									parsedObj := parser.ParseLine(_iLineNr, _sLine, _bIsLast);
-								end;
-							end;
+							var
+							parsedObj := parser.ParseLine(_iLineNr, _sLine, _bIsLast);
 							FData.Add(parsedObj);
 						end;
 						// First 100 than every 100
-						if (_iLineNr < DRAW_RESULT_UNTIL_FIRST_LINE_COUNT) or
-						((_iLineNr mod DRAW_RESULT_ON_EVERY_LINE_COUNT) = 0) or _bIsLast then begin
+						if (_iLineNr < DRAW_RESULT_UNTIL_FIRST_LINE_COUNT) or ((_iLineNr mod DRAW_RESULT_ON_EVERY_LINE_COUNT) = 0) or _bIsLast
+						then begin
 							RefreshCounters;
 						end;
 					end);
@@ -661,7 +667,6 @@ begin
 						[mbOk], 0);
 				end;
 			end;
-			FIsParsingRunning := not _bIsLast;
 		end);
 
 end;
@@ -816,10 +821,13 @@ begin
 	CurrentHistoryItemIndex := ListBoxSearchHistory.ItemIndex;
 	UpdateHistObject;
 	TDebugUtils.DebugMessage('History clicked: ' + CurrentHistoryItemIndex.ToString);
-	TDebugUtils.DebugMessage('History Object: ' + FHistObject.RipGrepArguments.DelimitedText);
-	TDebugUtils.DebugMessage('History Matches: ' + FHistObject.Matches.Items.Count.ToString);
-	TDebugUtils.DebugMessage('History Files: ' + FHistObject.FileCount.ToString);
-	RefreshResultByHistoryItem();
+	TDebugUtils.DebugMessage('History Object: ' + HistObject.RipGrepArguments.DelimitedText);
+	TDebugUtils.DebugMessage('History Matches: ' + HistObject.TotalMatchCount.ToString);
+	TDebugUtils.DebugMessage('History Files: ' + HistObject.FileCount.ToString);
+	TDebugUtils.DebugMessage('History Errors: ' + HistObject.ErrorCount.ToString);
+	SetResultListViewDataToHistoryObj();
+	RefreshCountersInGUI;
+	SetStatusBarMessage(True);
 end;
 
 procedure TRipGrepperForm.ListBoxSearchHistoryDblClick(Sender : TObject);
@@ -827,7 +835,7 @@ begin
 	CurrentHistoryItemIndex := ListBoxSearchHistory.ItemIndex;
 	UpdateHistObject;
 	TDebugUtils.DebugMessage('History dbl clicked:' + CurrentHistoryItemIndex.ToString);
-	RefreshResultByHistoryItem();
+	SetResultListViewDataToHistoryObj();
 end;
 
 procedure TRipGrepperForm.ListBoxSearchHistoryDrawItem(Control : TWinControl; index : Integer; Rect : TRect; State : TOwnerDrawState);
@@ -865,7 +873,7 @@ end;
 procedure TRipGrepperForm.ListViewResultDrawItem(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
 begin
 	if FMeassureFirstDrawEvent then begin
-		TDebugUtils.DebugMessage(Format('Firs drw event in %s sec.', [GetElapsedTime(FswSearchStart)]));
+		TDebugUtils.DebugMessage(Format('Firs draw event in %s sec.', [GetElapsedTime(FswSearchStart)]));
 		FMeassureFirstDrawEvent := False;
 	end;
 
@@ -887,19 +895,18 @@ procedure TRipGrepperForm.RefreshCounters;
 begin
 	// virtual listview! Items count should be updated to refresh ui
 	ListViewResult.Items.Count := FData.ListItemCount;
-	SetStatusBarStatistic(Format('%d matches in %d files', [FData.TotalMatchCount, FData.FileCount]));
 	if Assigned(FHistObject) then begin
 		var
 		beu := TBeginEndUpdater.New(ListBoxSearchHistory);
-		FHistObject.FileCount := FData.FileCount;
-		FHistObject.ErrorCount := FData.ErrorCount;
+		FHistObject.FileCount := FData.FileCount; // synced
+		FHistObject.ErrorCount := FData.ErrorCount; // synced
 	end;
-	ListBoxSearchHistory.Refresh;
+	RefreshCountersInGUI;
 end;
 
-procedure TRipGrepperForm.RefreshResultByHistoryItem;
+procedure TRipGrepperForm.SetResultListViewDataToHistoryObj;
 begin
-	TThread.Synchronize(nil, // Refresh result by history
+	TThread.Synchronize(nil, // Refresh listview on history click
 		procedure
 		begin
 			ListViewResult.Items.Count := 0;
@@ -910,7 +917,6 @@ end;
 
 procedure TRipGrepperForm.RunRipGrep;
 var
-	iRipGrepResult : Integer;
 	workDir : string;
 begin
 	FRipGrepTask := TTask.Create(
@@ -920,17 +926,21 @@ begin
 			TDebugUtils.DebugMessage('run: ' + FSettings.RipGrepParameters.RipGrepPath + ' '
 				{ } + FSettings.RipGrepParameters.RipGrepArguments.DelimitedText);
 			FswSearchStart := TStopwatch.StartNew;
-			iRipGrepResult := TProcessUtils.RunProcess(FSettings.RipGrepParameters.RipGrepPath,
+
+			FHistObject.RipGrepResult := TProcessUtils.RunProcess(FSettings.RipGrepParameters.RipGrepPath,
 				FSettings.RipGrepParameters.RipGrepArguments,
 				{ } workDir,
 				{ } self as INewLineEventHandler,
 				{ } self as ITerminateEventProducer,
 				{ } self as IEOFProcessEventHandler);
-			SetStatusBarMessage(iRipGrepResult);
-			TDebugUtils.DebugMessage(Format('rg.exe ended in %s sec.', [GetElapsedTime(FswSearchStart)]));
+
+			FHistObject.ElapsedTimeText := GetElapsedTime(FswSearchStart);
+			SetStatusBarMessage(True);
 			FswSearchStart.Stop;
+			TDebugUtils.DebugMessage(Format('rg.exe ended in %s sec.', [FHistObject.ElapsedTimeText]));
 		end);
 	FRipGrepTask.Start;
+	ActivityIndicator1.Animate := True;
 end;
 
 procedure TRipGrepperForm.ChangeDataHistItemObject(_ho : THistoryItemObject);
@@ -938,6 +948,11 @@ begin
 	var
 	beu := TBeginEndUpdater.New(ListBoxSearchHistory);
 	FData.HistObject := _ho;
+end;
+
+function TRipGrepperForm.GetHistObject : THistoryItemObject;
+begin
+	Result := FHistObject;
 end;
 
 function TRipGrepperForm.GetOpenWithParamsFromSelected() : TOpenWithParams;
@@ -964,6 +979,29 @@ begin
 	ActionOpenWithExecute(Sender);
 end;
 
+procedure TRipGrepperForm.OnLastLine(const _iLineNr : integer);
+begin
+	// ListViewResult.AdjustColumnWidths(FMaxWidths);
+	TThread.Synchronize(nil,
+		procedure
+		begin
+			SetColumnWidths;
+			ActivityIndicator1.Animate := False;
+			FIsParsingRunning := False;
+		end);
+end;
+
+procedure TRipGrepperForm.RefreshCountersInGUI;
+begin
+	TThread.Synchronize(nil,
+		procedure
+		begin
+			ListBoxSearchHistory.Refresh;
+			SetStatusBarStatistic(Format('%d(-%d) matches in %d files', [HistObject.TotalMatchCount, HistObject.ErrorCount,
+				HistObject.FileCount]));
+		end);
+end;
+
 procedure TRipGrepperForm.SetColumnWidths;
 begin
 	// TListView_Resize(ListViewResult);
@@ -973,13 +1011,17 @@ begin
 	ListView_SetColumnWidth(ListViewResult.Handle, 3, ColumnTextWidth);
 end;
 
-procedure TRipGrepperForm.SetStatusBarMessage(const _iRipGrepResultOk : Integer = 0);
-var
-	msg : string;
+procedure TRipGrepperForm.SetHistObject(const Value : THistoryItemObject);
 begin
-	if FswSearchStart.IsRunning then begin
-		msg := Format('Search took %s seconds with ' + EXE_AND_VERSION_FORMAT, [GetElapsedTime(FswSearchStart), FExeVersion]);
-		FStatusBarStatus := IfThen(_iRipGrepResultOk = RIPGREP_ERROR, 'ERROR', 'SUCCES');
+	FHistObject := Value;
+end;
+
+procedure TRipGrepperForm.SetStatusBarMessage(const _bWithElapsedTime : Boolean = False);
+var msg : string;
+begin
+	if _bWithElapsedTime then begin
+		msg := Format('Search took %s seconds with ' + EXE_AND_VERSION_FORMAT, [FHistObject.ElapsedTimeText, FExeVersion]);
+		FStatusBarStatus := IfThen(FHistObject.RipGrepResult = RIPGREP_ERROR, 'ERROR', 'SUCCES');
 	end else begin
 		msg := Format(EXE_AND_VERSION_FORMAT, [FExeVersion]);
 		FStatusBarStatus := 'READY';
@@ -1006,8 +1048,7 @@ begin
 end;
 
 procedure TRipGrepperForm.UpdateSortingImages(const _sbtArr : TArray<TSortByType>);
-var
-	imgIdx : integer;
+var imgIdx : integer;
 begin
 
 	for var sbt in _sbtArr do begin
