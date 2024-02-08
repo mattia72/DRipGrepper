@@ -4,7 +4,8 @@ interface
 
 uses
 	ArrayHelper,
-	System.Generics.Collections, System.Generics.Defaults;
+	System.Generics.Collections,
+	System.Generics.Defaults;
 
 type
 	TColumnData = record
@@ -38,12 +39,23 @@ type
 
 	end;
 
+type
+	// {$DEFINE THREADSAFE_LIST} We don't need it
+
+	{$IFDEF THREADSAFE_LIST}
+	TThreadListType = TThreadList<IParsedObjectRow>;
+	TListType = TList<IParsedObjectRow>;
+	{$ELSE}
+	TListType = TList<IParsedObjectRow>;
+	{$ENDIF}
+
 	IParsedObjectRowCollection = interface
 		['{03AA4D67-689A-43A0-8D07-FAB44124E032}']
-		function GetItems : TList<IParsedObjectRow>;
-		procedure SetItems(const Value : TList<IParsedObjectRow>);
-		property Items : TList<IParsedObjectRow> read GetItems write SetItems;
-
+		function GetItems : TListType;
+		property Items : TListType read GetItems;
+		{$IFDEF THREADSAFE_LIST}
+		procedure Unlock;
+		{$ENDIF}
 	end;
 
 	IParsedObjectGroupRowCollection = interface(IParsedObjectRowCollection)
@@ -79,24 +91,31 @@ type
 
 	TParsedObjectRowCollection = class(TSingletonImplementation, IParsedObjectRowCollection)
 		private
-			FItems : TList<IParsedObjectRow>;
-			function GetItems : TList<IParsedObjectRow>;
-			procedure SetItems(const Value : TList<IParsedObjectRow>);
+			{$IFDEF THREADSAFE_LIST}
+			FItems : TThreadListType;
+			{$ELSE}
+			FItems : TListType;
+			{$ENDIF}
+			function GetItems : TListType;
+			// procedure SetItems(const Value : TListType);
 
 		public
 			constructor Create;
 			destructor Destroy; override;
-			property Items : TList<IParsedObjectRow> read GetItems write SetItems;
+			property Items : TListType read GetItems; // write SetItems;
+			{$IFDEF THREADSAFE_LIST}
+			procedure Unlock;
+			{$ENDIF}
 	end;
 
 	TParsedObjectGroupedRowCollection = class(TParsedObjectRowCollection, IParsedObjectGroupRowCollection)
 		private
-			FGroupId: Integer;
-			function GetGroupId: Integer;
-			procedure SetGroupId(const Value: Integer);
+			FGroupId : Integer;
+			function GetGroupId : Integer;
+			procedure SetGroupId(const Value : Integer);
 
 		public
-			property GroupId: Integer read GetGroupId write SetGroupId;
+			property GroupId : Integer read GetGroupId write SetGroupId;
 	end;
 
 	TParsedObjectGroupCollection = class
@@ -154,7 +173,11 @@ end;
 constructor TParsedObjectRowCollection.Create;
 begin
 	inherited;
-	FItems := TList<IParsedObjectRow>.Create();
+	{$IFDEF THREADSAFE_LIST}
+	FItems := TThreadListType.Create();
+	{$ELSE}
+	FItems := TListType.Create();
+	{$ENDIF}
 end;
 
 destructor TParsedObjectRowCollection.Destroy;
@@ -163,22 +186,33 @@ begin
 	inherited;
 end;
 
-function TParsedObjectRowCollection.GetItems : TList<IParsedObjectRow>;
+function TParsedObjectRowCollection.GetItems : TListType;
 begin
+	{$IFDEF THREADSAFE_LIST}
+	Result := FItems.LockList;
+	{$ELSE}
 	Result := FItems;
+	{$ENDIF}
 end;
 
-procedure TParsedObjectRowCollection.SetItems(const Value : TList<IParsedObjectRow>);
+{$IFDEF THREADSAFE_LIST}
+procedure TParsedObjectRowCollection.Unlock;
 begin
-	FItems := Value;
+	FItems.UnlockList;
 end;
+{$ENDIF}
 
-function TParsedObjectGroupedRowCollection.GetGroupId: Integer;
+// procedure TParsedObjectRowCollection.SetItems(const Value : TListType);
+// begin
+// FItems.LockList := Value;
+// end;
+
+function TParsedObjectGroupedRowCollection.GetGroupId : Integer;
 begin
 	Result := FGroupId;
 end;
 
-procedure TParsedObjectGroupedRowCollection.SetGroupId(const Value: Integer);
+procedure TParsedObjectGroupedRowCollection.SetGroupId(const Value : Integer);
 begin
 	FGroupId := Value;
 end;

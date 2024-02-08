@@ -183,6 +183,7 @@ type
 			procedure SetStatusBarStatistic(const _s : string);
 			procedure UpdateArgumentsAndSettings;
 			procedure UpdateHistObject;
+			procedure UpdateRipGrepArgumentsInHistObj;
 			procedure UpdateSortingImages(const _sbtArr : TArray<TSortByType>);
 			property CurrentHistoryItemIndex : Integer read FCurrentHistoryItemIndex write FCurrentHistoryItemIndex;
 			property HistObject : THistoryItemObject read GetHistObject write SetHistObject;
@@ -239,7 +240,8 @@ uses
 	RipGrepper.Parsers.VimGrepMatchLine,
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.OpenWith,
-	RipGrepper.OpenWith.ConfigForm;
+	RipGrepper.OpenWith.ConfigForm,
+	OtlParallel;
 
 {$R *.dfm}
 
@@ -427,6 +429,7 @@ begin
 	cursor.SetHourGlassCursor;
 	AddNewHistoryItem;
 	ListBoxSearchHistory.ItemIndex := CurrentHistoryItemIndex;
+
 	FData.ClearMatchFiles;
 	InitSearch();
 	DoSearch();
@@ -488,12 +491,16 @@ procedure TRipGrepperForm.AddNewHistoryItem;
 var
 	hi : THistoryItemObject;
 begin
-	hi := THistoryItemObject.Create();
-	HistObject := hi;
-	ChangeDataHistItemObject(hi);
 	CurrentHistoryItemIndex := HistoryObjectList.IndexOf(FSettings.ActualSearchText);
 	if CurrentHistoryItemIndex = -1 then begin
+		hi := THistoryItemObject.Create();
+		HistObject := hi;
+		ChangeDataHistItemObject(hi);
 		CurrentHistoryItemIndex := HistoryObjectList.AddObject(FSettings.ActualSearchText, hi);
+	end else begin
+		UpdateRipGrepArgumentsInHistObj;
+		UpdateHistObject;
+		ClearHistoryObject();
 	end;
 	ListBoxSearchHistory.Count := HistoryObjectList.Count;
 end;
@@ -631,43 +638,37 @@ begin
 		end;
 	end;
 
-	TTask.Run(
-		procedure
-		begin
-
-			try
-				TThread.Synchronize(nil,
-					procedure
-					begin
-						if _bIsLast then begin
-							OnLastLine(_iLineNr);
-							TDebugUtils.DebugMessage(Format('Last line (%d.) received in %s sec.',
-								[_iLineNr, GetElapsedTime(FswSearchStart)]));
-							TDebugUtils.DebugMessage(Format('Before parse last line: %d in %d err: %d', [FHistObject.TotalMatchCount,
-								FHistObject.FileCount, FHistObject.ErrorCount]));
-						end;
-
-						if (not _sLine.IsEmpty) then begin
-							var
-							parser := TVimGrepMatchLineParser.Create();
-							var
-							parsedObj := parser.ParseLine(_iLineNr, _sLine, _bIsLast);
-							FData.Add(parsedObj);
-						end;
-						// First 100 than every 100
-						if (_iLineNr < DRAW_RESULT_UNTIL_FIRST_LINE_COUNT) or ((_iLineNr mod DRAW_RESULT_ON_EVERY_LINE_COUNT) = 0) or _bIsLast
-						then begin
-							RefreshCounters;
-						end;
-					end);
-			except
-				on e : EOutOfMemory do begin
-					TDebugUtils.DebugMessage(Format('Exception %s ' + CRLF + 'on line %d', [E.Message, _iLineNr]));
-					MessageDlg(Format(E.Message + CRLF + 'Too many results. Try to be more specific', [_iLineNr]), TMsgDlgType.mtError,
-						[mbOk], 0);
+	try
+		TThread.Queue(nil, // faster
+			// TThread.Synchronize(nil, // slower
+			procedure
+			begin
+				if _bIsLast then begin
+					OnLastLine(_iLineNr);
+					TDebugUtils.DebugMessage(Format('Last line (%d.) received in %s sec.', [_iLineNr, GetElapsedTime(FswSearchStart)]));
+					TDebugUtils.DebugMessage(Format('Before parse last line: %d in %d err: %d', [FHistObject.TotalMatchCount,
+						FHistObject.FileCount, FHistObject.ErrorCount]));
 				end;
-			end;
-		end);
+
+				if (not _sLine.IsEmpty) then begin
+					var
+					parser := TVimGrepMatchLineParser.Create();
+					var
+					parsedObj := parser.ParseLine(_iLineNr, _sLine, _bIsLast);
+					FData.Add(parsedObj);
+				end;
+				// First 100 than every 100 and the last
+				if (_iLineNr < DRAW_RESULT_UNTIL_FIRST_LINE_COUNT) or ((_iLineNr mod DRAW_RESULT_ON_EVERY_LINE_COUNT) = 0) or _bIsLast then
+				begin
+					RefreshCounters;
+				end;
+			end);
+	except
+		on e : EOutOfMemory do begin
+			TDebugUtils.DebugMessage(Format('Exception %s ' + CRLF + 'on line %d', [E.Message, _iLineNr]));
+			MessageDlg(Format(E.Message + CRLF + 'Too many results. Try to be more specific', [_iLineNr]), TMsgDlgType.mtError, [mbOk], 0);
+		end;
+	end;
 
 end;
 
@@ -866,7 +867,7 @@ begin
 
 	if (not lb.Items.Updating) then begin
 		cnv.TextOut(Rect.Left + cMatchesLeft, Rect.Top + c2ndRowTop,
-		{ } Format('%d in %d', [data.TotalMatchCount, data.FileCount]));
+		{ } Format('%d(%d) in %d', [data.TotalMatchCount, data.ErrorCount, data.FileCount]));
 	end;
 end;
 
@@ -911,7 +912,12 @@ begin
 		begin
 			ListViewResult.Items.Count := 0;
 			ChangeDataHistItemObject(FHistObject);
-			ListViewResult.Items.Count := FHistObject.Matches.Items.Count + FHistObject.ErrorCount;
+			var
+			matchItems := FHistObject.Matches.Items;
+			ListViewResult.Items.Count := matchItems.Count + FHistObject.ErrorCount;
+			{$IFDEF THREADSAFE_LIST}
+			FHistObject.Matches.Unlock;
+			{$ENDIF}
 		end);
 end;
 
@@ -997,7 +1003,7 @@ begin
 		procedure
 		begin
 			ListBoxSearchHistory.Refresh;
-			SetStatusBarStatistic(Format('%d(-%d) matches in %d files', [HistObject.TotalMatchCount, HistObject.ErrorCount,
+			SetStatusBarStatistic(Format('%d(%d) matches in %d files', [HistObject.TotalMatchCount, HistObject.ErrorCount,
 				HistObject.FileCount]));
 		end);
 end;
@@ -1037,7 +1043,7 @@ end;
 procedure TRipGrepperForm.UpdateArgumentsAndSettings;
 begin
 	if FHistObject.RipGrepArguments.Count = 0 then begin
-		FHistObject.CopyFromSettings(FSettings);
+		FHistObject.CopyRipGrepArgsFromSettings(FSettings);
 	end;
 end;
 
@@ -1045,6 +1051,13 @@ procedure TRipGrepperForm.UpdateHistObject;
 begin
 	FHistObject := GetHistoryObject(CurrentHistoryItemIndex);
 	FHistObject.CopyToSettings(FSettings);
+end;
+
+procedure TRipGrepperForm.UpdateRipGrepArgumentsInHistObj;
+begin
+	FHistObject.RipGrepArguments.Clear;
+	FSettings.ReBuildArguments();
+	FHistObject.CopyRipGrepArgsFromSettings(FSettings);
 end;
 
 procedure TRipGrepperForm.UpdateSortingImages(const _sbtArr : TArray<TSortByType>);

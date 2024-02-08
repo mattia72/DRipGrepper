@@ -12,7 +12,8 @@ uses
 	ArrayHelper,
 	System.Generics.Defaults,
 	RipGrepper.Common.Sorter,
-	RipGrepper.Data.HistoryItemObject, RipGrepper.Common.ParsedObject;
+	RipGrepper.Data.HistoryItemObject,
+	RipGrepper.Common.ParsedObject;
 
 type
 
@@ -25,7 +26,7 @@ type
 			FHistObject : THistoryItemObject;
 			function GetTotalMatchCount : Integer;
 			function GetFileCount : Integer;
-			function GetComparer(const _sbt : TSortByType): IComparer<IParsedObjectRow>;
+			function GetComparer(const _sbt : TSortByType) : IComparer<IParsedObjectRow>;
 			function GetErrorCount : Integer;
 			function GetHistObject : THistoryItemObject;
 			function GetListItemCount : Integer;
@@ -35,7 +36,7 @@ type
 		public
 			constructor Create;
 			destructor Destroy; override;
-			procedure Add(_item: IParsedObjectRow);
+			procedure Add(_item : IParsedObjectRow);
 			procedure ClearMatchFiles;
 			procedure DataToGrid(const _index : Integer; _lv : TListView; _item : TListItem);
 			procedure SortBy(const _sbt : TSortByType; const _st : TSortDirectionType);
@@ -68,7 +69,7 @@ begin
 	inherited;
 end;
 
-procedure TRipGrepperData.Add(_item: IParsedObjectRow);
+procedure TRipGrepperData.Add(_item : IParsedObjectRow);
 begin
 	HistObject.Matches.Items.Add(_item);
 	if (_item.IsError) then begin
@@ -76,6 +77,9 @@ begin
 	end else begin
 		MatchFiles.Add(_item.Columns[0].Text);
 	end;
+	{$IFDEF THREADSAFE_LIST}
+	HistObject.Matches.Unlock;
+	{$ENDIF}
 end;
 
 procedure TRipGrepperData.ClearMatchFiles;
@@ -89,22 +93,33 @@ var
 	fn : string;
 begin
 	// (_index, _lv, _item);
-	fn := HistObject.Matches.Items[_index].Columns[0].Text;
-	if HistObject.Matches.Items[_index].IsError then begin
-		_item.Caption := ' ' + fn;
-		_item.ImageIndex := LV_IMAGE_IDX_ERROR;
-	end else begin
-		_item.Caption := fn;
-		_item.ImageIndex := LV_IMAGE_IDX_OK;
+	var
+	matchItems := HistObject.Matches.Items;
+	try
+		fn := matchItems[_index].Columns[0].Text;
+		if matchItems[_index].IsError then begin
+			_item.Caption := ' ' + fn;
+			_item.ImageIndex := LV_IMAGE_IDX_ERROR;
+		end else begin
+			_item.Caption := fn;
+			_item.ImageIndex := LV_IMAGE_IDX_OK;
+		end;
+		_item.SubItems.Add(matchItems[_index].Columns[1].Text);
+		_item.SubItems.Add(matchItems[_index].Columns[2].Text);
+		_item.SubItems.Add(matchItems[_index].Columns[3].Text);
+	finally
+		{$IFDEF THREADSAFE_LIST}
+		HistObject.Matches.Unlock;
+		{$ENDIF}
 	end;
-	_item.SubItems.Add(HistObject.Matches.Items[_index].Columns[1].Text);
-	_item.SubItems.Add(HistObject.Matches.Items[_index].Columns[2].Text);
-	_item.SubItems.Add(HistObject.Matches.Items[_index].Columns[3].Text);
 end;
 
 function TRipGrepperData.GetTotalMatchCount : Integer;
 begin
 	Result := HistObject.Matches.Items.Count;
+	{$IFDEF THREADSAFE_LIST}
+	HistObject.Matches.Unlock;
+	{$ENDIF}
 end;
 
 function TRipGrepperData.GetFileCount : Integer;
@@ -130,7 +145,8 @@ begin
 			Result := TComparer<IParsedObjectRow>.Construct(
 				function(const Left, Right : IParsedObjectRow) : Integer
 				begin
-					var idx := Integer(_sbt);
+					var
+					idx := Integer(_sbt);
 					Result := TComparer<string>.Default.Compare(Left.Columns[idx].Text, Right.Columns[idx].Text);
 				end);
 		end;
@@ -184,7 +200,16 @@ begin
 			criterion.Comparer := GetComparer(sbtLineNr);
 			lineComparer.AddCriterion(criterion);
 		end;
-		HistObject.Matches.Items.Sort(lineComparer);
+
+		var
+		matchItems := HistObject.Matches.Items;
+		try
+			matchItems.Sort(lineComparer);
+		finally
+			{$IFDEF THREADSAFE_LIST}
+			HistObject.Matches.Unlock;
+			{$ENDIF}
+		end;
 	finally
 		lineComparer.Free;
 	end;
