@@ -51,13 +51,13 @@ type
 		function GetFileCount : integer;
 		function GetMatches : IParsedObjectRowCollection;
 		procedure SetMatches(const Value : IParsedObjectRowCollection);
-		function GetRipGrepArguments : TStringList;
-		procedure SetRipGrepArguments(const Value : TStringList);
+		function GetRipGrepArguments : TRipGrepArguments;
+		procedure SetRipGrepArguments(const Value : TRipGrepArguments);
 		function GetTotalMatchCount : integer;
 
 		property ErrorCount : Integer read GetErrorCount;
 		property Matches : IParsedObjectRowCollection read GetMatches write SetMatches;
-		property RipGrepArguments : TStringList read GetRipGrepArguments write SetRipGrepArguments;
+		property RipGrepArguments : TRipGrepArguments read GetRipGrepArguments write SetRipGrepArguments;
 		property FileCount : integer read GetFileCount;
 		property TotalMatchCount : integer read GetTotalMatchCount;
 	end;

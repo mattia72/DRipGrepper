@@ -21,7 +21,6 @@ const
 	DRAW_RESULT_ON_EVERY_LINE_COUNT = 100; // Todo: put into settings
 	DRAW_RESULT_UNTIL_FIRST_LINE_COUNT = 100;
 
-
 	LISTVIEW_TYPES : TArray<TViewStyle> = [vsList, vsIcon, vsReport, vsSmallIcon];
 	LISTVIEW_TYPE_TEXTS : TArray<string> = ['List', 'Icon', 'Report', 'SmallIcon'];
 
@@ -58,12 +57,18 @@ const
 	RG_HELP_LONG_PARAM_REGEX = '(?<long>--[\-a-zA-Z0-9]+)';
 	RG_HELP_LINE_REGEX = '^\s*(?<short>-[a-zA-Z.0-9])?(?<comma>, )?(?<long>--[\-a-zA-Z0-9]+)(?<value>=[\-A-Z]+)?\s*(?<desc>.*)$';
 
+	RG_ARG_SEARCH_PATH = 'SearchPath';
+	RG_ARG_SEARCH_TEXT = 'SearchText';
+	RG_ARG_OPTIONS = 'Options';
+
 type
 
 	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
 	TFileNameType = (ftAbsolute, ftRelative);
 
 	TColumnIndex = (ciFile, ciRow, ciCol, ciText, ciRowNr);
+
+	TRipGrepArguments = TStringList;
 
 implementation
 

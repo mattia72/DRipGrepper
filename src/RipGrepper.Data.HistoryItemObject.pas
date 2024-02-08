@@ -9,7 +9,7 @@ uses
 	RipGrepper.Common.Settings,
 	Vcl.ComCtrls,
 	System.Generics.Defaults,
-	System.Classes;
+	System.Classes, RipGrepper.Common.Types;
 
 type
 	THistoryItemObject = class(TSingletonImplementation, IHistoryItem)
@@ -18,17 +18,17 @@ type
 			FErrorCount : Integer;
 			FFileCount : integer;
 			FMatches : IParsedObjectRowCollection;
-			FRipGrepArguments : TStringList;
+			FRipGrepArguments : TRipGrepArguments;
 			FRipGrepResult : Integer;
 			FTotalMatchCount : integer;
 			function GetErrorCount : Integer; export;
 			function GetFileCount : integer;
 			function GetMatches : IParsedObjectRowCollection;
-			function GetRipGrepArguments : TStringList;
+			function GetRipGrepArguments : TRipGrepArguments;
 			function GetTotalMatchCount : integer;
 			procedure SetFileCount(const Value : integer);
 			procedure SetMatches(const Value : IParsedObjectRowCollection);
-			procedure SetRipGrepArguments(const Value : TStringList);
+			procedure SetRipGrepArguments(const Value : TRipGrepArguments);
 
 		public
 			procedure CopyRipGrepArgsFromSettings(const _settings : TRipGrepperSettings);
@@ -39,11 +39,13 @@ type
 			procedure CopyToSettings(const _settings : TRipGrepperSettings);
 			property FileCount : integer read GetFileCount write SetFileCount;
 			property Matches : IParsedObjectRowCollection read GetMatches write SetMatches;
-			property RipGrepArguments : TStringList read GetRipGrepArguments write SetRipGrepArguments;
+			property RipGrepArguments : TRipGrepArguments read GetRipGrepArguments write SetRipGrepArguments;
 			property TotalMatchCount : integer read GetTotalMatchCount;
 			property ErrorCount : Integer read GetErrorCount write FErrorCount;
 			property ElapsedTimeText : string read FElapsedTimeText write FElapsedTimeText;
 			property RipGrepResult : Integer read FRipGrepResult write FRipGrepResult;
+
+
 	end;
 
 	PHistoryItemObject = ^THistoryItemObject;
@@ -51,7 +53,7 @@ type
 implementation
 
 uses
-	RipGrepper.Common.Types,
+
 	System.SysUtils;
 
 procedure THistoryItemObject.CopyRipGrepArgsFromSettings(const _settings : TRipGrepperSettings);
@@ -95,7 +97,7 @@ begin
 	Result := FMatches;
 end;
 
-function THistoryItemObject.GetRipGrepArguments : TStringList;
+function THistoryItemObject.GetRipGrepArguments : TRipGrepArguments;
 begin
 	Result := FRipGrepArguments;
 end;

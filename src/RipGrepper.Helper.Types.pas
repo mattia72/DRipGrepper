@@ -12,6 +12,7 @@ type
 	TStringsHelper = class Helper for TStrings
 		function Contains(const s : string) : Boolean;
 		function TryGetDef(const _index : Integer; out _val : string; const _default : string = '') : Boolean;
+		function GetValues(_sName : string = '') : TArray<string>;
 	end;
 
 function GetElapsedTime(const _swStart : TStopwatch) : string;
@@ -47,6 +48,20 @@ end;
 function TStringsHelper.Contains(const s : string) : Boolean;
 begin
 	Result := self.IndexOf(s) <> -1;
+end;
+
+function TStringsHelper.GetValues(_sName : string = '') : TArray<string>;
+begin
+	for var s in self do begin
+		var val := s.Remove(0, s.IndexOf('=') + 1);
+		if _sName.IsEmpty then begin
+			Result := Result + [val];
+		end else begin
+			if s.StartsWith(_sName + '=') then begin
+				Result := Result + [val];
+			end;
+		end;
+	end;
 end;
 
 function TStringsHelper.TryGetDef(const _index : Integer; out _val : string; const _default : string = '') : Boolean;

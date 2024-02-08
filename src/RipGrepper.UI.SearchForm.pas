@@ -21,7 +21,8 @@ uses
 	Vcl.StdActns,
 	Vcl.Dialogs,
 	u_dzDpiScaleUtils,
-	GX_IdeDock;
+	GX_IdeDock,
+	RipGrepper.Common.Types;
 
 type
 	TRipGrepperSearchDialogForm = class(TfmIdeDockForm)
@@ -45,7 +46,7 @@ type
 		ActionSearchFolder : TAction;
 		btnSearchFile : TButton;
 		ActionSearchFile : TAction;
-    pnlBottom: TPanel;
+		pnlBottom : TPanel;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionSearchFolderExecute(Sender : TObject);
 		procedure ActionShowRipGrepOptionsFormExecute(Sender : TObject);
@@ -56,11 +57,13 @@ type
 		procedure FormShow(Sender : TObject);
 
 		private
+			FActRipGrepArguments : TRipGrepArguments;
 			FImageScaler : TImageListScaler;
 			FSettings : TRipGrepperSettings;
 			function GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
 			procedure LoadSettings;
 			procedure ProcessControl(_ctrl : TControl; _imgList : TImageList);
+			procedure SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings);
 			procedure StoreHistoriesAsCmbEntries;
 			procedure StoreSearchSettings;
 
@@ -69,7 +72,8 @@ type
 			procedure ArrangeControls; override;
 
 		public
-			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettings); reintroduce; virtual;
+			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettings; const _actualArgs : TRipGrepArguments);
+				reintroduce; virtual;
 	end;
 
 var
@@ -81,14 +85,17 @@ uses
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.ProcessUtils,
 	System.UITypes,
-	RipGrepper.UI.RipGrepOptionsForm;
+	RipGrepper.UI.RipGrepOptionsForm,
+	RipGrepper.Helper.Types;
 
 {$R *.dfm}
 
-constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _settings : TRipGrepperSettings);
+constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _settings : TRipGrepperSettings;
+	const _actualArgs : TRipGrepArguments);
 begin
 	inherited Create(AOwner);
 	FSettings := _settings;
+	FActRipGrepArguments := _actualArgs;
 	InitDpiScaler();
 end;
 
@@ -206,12 +213,19 @@ end;
 
 procedure TRipGrepperSearchDialogForm.LoadSettings;
 begin
-	cmbSearchDir.Items.Assign(FSettings.SearchPathsHistory);
-	cmbSearchDir.ItemIndex := 0;
-	cmbSearchText.Items.Assign(FSettings.SearchTextsHistory);
-	cmbSearchText.ItemIndex := 0;
-	cmbOptions.Items.Assign(FSettings.RipGrepParamsHistory);
-	cmbOptions.ItemIndex := 0;
+	SetComboItemsAndText(cmbSearchDir, RG_ARG_SEARCH_PATH, FSettings.SearchPathsHistory);
+	SetComboItemsAndText(cmbSearchText, RG_ARG_SEARCH_TEXT, FSettings.SearchTextsHistory);
+	SetComboItemsAndText(cmbOptions, RG_ARG_OPTIONS, FSettings.RipGrepParamsHistory);
+end;
+
+procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings);
+begin
+	_cmb.Items.Assign(_items);
+	if Assigned(FActRipGrepArguments) then begin
+		_cmb.Text := string.Join(' ', FActRipGrepArguments.GetValues(_argName));
+	end else begin
+		_cmb.ItemIndex := 0;
+	end;
 end;
 
 procedure TRipGrepperSearchDialogForm.StoreHistoriesAsCmbEntries;

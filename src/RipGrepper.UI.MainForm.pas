@@ -156,7 +156,7 @@ type
 			FStatusBarStatus : string;
 			FStatusBarStatistic : string;
 			FViewStyleIndex : Integer;
-			procedure AddNewHistoryItem;
+			procedure AddOrUpdateHistoryItem;
 			procedure ClearHistoryObject;
 			procedure DoSearch;
 			function GetSortingImageIndex(const _idx : Integer) : Integer;
@@ -348,9 +348,15 @@ begin
 end;
 
 procedure TRipGrepperForm.ActionShowSearchFormExecute(Sender : TObject);
+var
+	args : TRipGrepArguments;
 begin
+	args := nil;
+	if Assigned(HistObject) then begin
+		args := HistObject.RipGrepArguments;
+	end;
 	var
-	frm := TRipGrepperSearchDialogForm.Create(self, FSettings);
+	frm := TRipGrepperSearchDialogForm.Create(self, FSettings, args);
 	try
 		if (mrOk = frm.ShowModal) then begin
 			ActionSearchExecute(self);
@@ -427,7 +433,7 @@ var
 	cursor : TCursorSaver;
 begin
 	cursor.SetHourGlassCursor;
-	AddNewHistoryItem;
+	AddOrUpdateHistoryItem;
 	ListBoxSearchHistory.ItemIndex := CurrentHistoryItemIndex;
 
 	FData.ClearMatchFiles;
@@ -487,7 +493,7 @@ begin
 	ActionSwitchView.Hint := 'Change View ' + LISTVIEW_TYPE_TEXTS[idx];
 end;
 
-procedure TRipGrepperForm.AddNewHistoryItem;
+procedure TRipGrepperForm.AddOrUpdateHistoryItem;
 var
 	hi : THistoryItemObject;
 begin
@@ -924,6 +930,7 @@ end;
 procedure TRipGrepperForm.RunRipGrep;
 var
 	workDir : string;
+	args : TStrings;
 begin
 	FRipGrepTask := TTask.Create(
 		procedure()
@@ -932,14 +939,18 @@ begin
 			TDebugUtils.DebugMessage('run: ' + FSettings.RipGrepParameters.RipGrepPath + ' '
 				{ } + FSettings.RipGrepParameters.RipGrepArguments.DelimitedText);
 			FswSearchStart := TStopwatch.StartNew;
+			args := TStringList.Create;
+			try
+				args.AddStrings(FSettings.RipGrepParameters.RipGrepArguments.GetValues);
+				FHistObject.RipGrepResult := TProcessUtils.RunProcess(FSettings.RipGrepParameters.RipGrepPath, args,
+					{ } workDir,
+					{ } self as INewLineEventHandler,
+					{ } self as ITerminateEventProducer,
+					{ } self as IEOFProcessEventHandler);
 
-			FHistObject.RipGrepResult := TProcessUtils.RunProcess(FSettings.RipGrepParameters.RipGrepPath,
-				FSettings.RipGrepParameters.RipGrepArguments,
-				{ } workDir,
-				{ } self as INewLineEventHandler,
-				{ } self as ITerminateEventProducer,
-				{ } self as IEOFProcessEventHandler);
-
+			finally
+				args.Free;
+			end;
 			FHistObject.ElapsedTimeText := GetElapsedTime(FswSearchStart);
 			SetStatusBarMessage(True);
 			FswSearchStart.Stop;

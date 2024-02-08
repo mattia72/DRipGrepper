@@ -7,7 +7,8 @@ uses
 	System.IniFiles,
 	System.Generics.Collections,
 	System.Generics.Defaults,
-	RipGrepper.OpenWith.SimpleTypes;
+	RipGrepper.OpenWith.SimpleTypes, 
+	RipGrepper.Common.Types;
 
 type
 	ISettingsPersister = interface
@@ -40,12 +41,12 @@ type
 
 	TRipGrepParameterSettings = class(TRipGrepperSettingsBase)
 		private
-			FRipGrepArguments : TStrings;
+			FRipGrepArguments : TRipGrepArguments;
 			FOptions : string;
 			FRipGrepPath : string;
 			FSearchPath : string;
 			FSearchText : string;
-			procedure AddArgs(const _args : TArray<string>; const _bQuote : Boolean = False);
+			procedure AddArgs(const _sName : string; const _args : TArray<string>; const _bQuote : Boolean = False);
 			procedure SetOptions(const Value : string);
 			procedure SetSearchPath(const Value : string);
 			procedure SetSearchText(const Value : string);
@@ -61,7 +62,7 @@ type
 			property Options : string read FOptions write SetOptions;
 			property SearchPath : string read FSearchPath write SetSearchPath;
 			property SearchText : string read FSearchText write SetSearchText;
-			property RipGrepArguments : TStrings read FRipGrepArguments write FRipGrepArguments;
+			property RipGrepArguments : TRipGrepArguments read FRipGrepArguments write FRipGrepArguments;
 			property RipGrepPath : string read FRipGrepPath write FRipGrepPath;
 	end;
 
@@ -113,7 +114,7 @@ type
 			FRipGrepParamsHistory : TSTrings;
 			FSearchPathsHistory : TStrings;
 			FSearchTextsHistory : TStrings;
-			FRipGrepArguments : TStrings;
+			FRipGrepArguments : TRipGrepArguments;
 		class var
 			function GetActualRipGrepParam : string;
 			function GetActualSearchPath : string;
@@ -134,7 +135,7 @@ type
 			destructor Destroy; override;
 			procedure AddIfNotContains(_to, _from : TStrings);
 			function GetIsModified : Boolean; override;
-			function GetRipGrepArguments : TStrings;
+			function GetRipGrepArguments : TRipGrepArguments;
 			function ReBuildArguments : TStrings;
 			property ActualRipGrepParam : string read GetActualRipGrepParam;
 			property ActualSearchPath : string read GetActualSearchPath;
@@ -167,7 +168,7 @@ uses
 	System.SysUtils,
 	Vcl.Forms,
 	System.StrUtils,
-	RipGrepper.Common.Types,
+
 	RipGrepper.Helper.Types,
 	RipGrepper.Tools.DebugTools,
 	RipGrepper.Tools.FileUtils,
@@ -175,7 +176,7 @@ uses
 	System.IOUtils,
 	Winapi.Windows,
 	System.UITypes,
-	RipGrepper.Tools.ProcessUtils, 
+	RipGrepper.Tools.ProcessUtils,
 	RipGrepper.Helper.UI;
 
 function TRipGrepperSettings.GetActualRipGrepParam : string;
@@ -198,7 +199,7 @@ begin
 	Result := FRipGrepParameters.RipGrepPath.IsEmpty;
 end;
 
-function TRipGrepperSettings.GetRipGrepArguments : TStrings;
+function TRipGrepperSettings.GetRipGrepArguments : TRipGrepArguments;
 begin
 	Result := FRipGrepParameters.RipGrepArguments;
 end;
@@ -344,14 +345,14 @@ begin
 	inherited;
 end;
 
-procedure TRipGrepParameterSettings.AddArgs(const _args : TArray<string>; const _bQuote : Boolean = False);
+procedure TRipGrepParameterSettings.AddArgs(const _sName : string; const _args : TArray<string>; const _bQuote : Boolean = False);
 begin
 	for var s : string in _args do begin
 		if not s.IsEmpty then begin
 			if _bQuote then begin
-				FRipGrepArguments.Add(TProcessUtils.MaybeQuoteIfNotQuoted(s));
+				FRipGrepArguments.AddPair(_sName, TProcessUtils.MaybeQuoteIfNotQuoted(s));
 			end else begin
-				FRipGrepArguments.Add(s);
+				FRipGrepArguments.AddPair(_sName, s);
 			end;
 		end;
 	end;
@@ -411,9 +412,9 @@ begin
 		end;
 	end;
 
-	AddArgs(params.Split([' ']));
-	FRipGrepArguments.Add(SearchText);
-	AddArgs(searchPath.Split([',', ';']), True);
+	AddArgs(RG_ARG_OPTIONS, params.Split([' ']));
+	FRipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, SearchText);
+	AddArgs(RG_ARG_SEARCH_PATH, searchPath.Split([',', ';']), True);
 	FRipGrepArguments.Delimiter := ' '; // sArgs.QuoteChar := '"';
 	Result := FRipGrepArguments;
 end;
