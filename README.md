@@ -59,8 +59,11 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 - [x] standalone release
 - [ ] delphi extension release
 - [x] screenshots in Readme.md
-- [ ] scoop install
-- [ ] chocolatey install
+- [ ] [scoop](https://scoop.sh) install
+- [ ] [chocolatey](https://chocolatey.org) install
+
+## Screenshots
+![Screenshot](./screenshots/04-02-2024_10-37-31.png)
 
 ## Thanks
 -  [ripgrep](https://github.com/BurntSushi/ripgrep)
