@@ -1,6 +1,7 @@
-$global:Version = "v1.0.2-alpha"
-$global:PrevVersion = "v1.0.1-alpha"
-$global:Description = "Bugfix release"
+$global:Version = "v1.0.3-alpha"
+$global:PrevVersion = "v1.0.2-alpha"      
+$global:PreRelease = $true
+$global:Description = "Bug Fixes and some improvements"
 $global:AssetZipName = "DRipGrepper.zip"
 
 $global:Owner = "mattia72"
@@ -53,8 +54,8 @@ function New-Release {
                 name                   = "$global:Version"
                 body                   = "$global:Description"
                 draft                  = $false
-                prerelease             = $true
-                generate_release_notes = $false
+                prerelease             = $global:PreRelease
+                generate_release_notes = $true
             } | ConvertTo-Json )
     } 
     $response = $(Invoke-RestMethod @params)
