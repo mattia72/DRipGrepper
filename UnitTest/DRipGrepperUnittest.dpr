@@ -16,7 +16,9 @@ uses
   RipGrepMatchTest in 'RipGrepMatchTest.pas',
   RipGrepper.Data.Matches in '..\src\RipGrepper.Data.Matches.pas',
   RipGrepper.ProcessUtils.Test in 'RipGrepper.ProcessUtils.Test.pas',
-  RipGrepper.Tools.ProcessUtils in '..\src\RipGrepper.Tools.ProcessUtils.pas';
+  RipGrepper.Tools.ProcessUtils in '..\src\RipGrepper.Tools.ProcessUtils.pas',
+  RipGrepper.Helper.Types.Test in 'RipGrepper.Helper.Types.Test.pas',
+  RipGrepper.Helper.Types in '..\src\RipGrepper.Helper.Types.pas';
 
 {$IFNDEF TESTINSIGHT}
 var
