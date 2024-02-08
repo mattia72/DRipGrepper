@@ -2,14 +2,14 @@ object OpenWithCmdList: TOpenWithCmdList
   Left = 738
   Top = 170
   Caption = 'Open with...'
-  ClientHeight = 147
-  ClientWidth = 273
+  ClientHeight = 417
+  ClientWidth = 746
   Color = clBtnFace
-  Constraints.MinHeight = 120
-  Constraints.MinWidth = 250
+  Constraints.MinHeight = 300
+  Constraints.MinWidth = 625
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -11
+  Font.Height = -28
   Font.Name = 'Tahoma'
   Font.Style = []
   Icon.Data = {
@@ -149,34 +149,47 @@ object OpenWithCmdList: TOpenWithCmdList
     FFFFE003FFFFE007FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
   Position = poScreenCenter
   OnShow = FormShow
-  TextHeight = 13
+  PixelsPerInch = 240
+  TextHeight = 34
   object pnl_Bottom: TPanel
     Left = 0
-    Top = 106
-    Width = 273
-    Height = 41
+    Top = 314
+    Width = 746
+    Height = 103
+    Margins.Left = 8
+    Margins.Top = 8
+    Margins.Right = 8
+    Margins.Bottom = 8
     Align = alBottom
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 0
     DesignSize = (
-      273
-      41)
+      746
+      103)
     object btn_Save: TButton
-      Left = 107
-      Top = 8
-      Width = 74
-      Height = 25
+      Left = 284
+      Top = 20
+      Width = 185
+      Height = 63
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       Action = ActionOk
       Anchors = [akTop, akRight]
       Default = True
       TabOrder = 0
     end
     object btn_Cancel: TButton
-      Left = 187
-      Top = 8
-      Width = 76
-      Height = 25
+      Left = 484
+      Top = 20
+      Width = 190
+      Height = 63
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       Action = ActionCancel
       Anchors = [akTop, akRight]
       Cancel = True
@@ -186,19 +199,27 @@ object OpenWithCmdList: TOpenWithCmdList
   object pnlMain: TPanel
     Left = 0
     Top = 0
-    Width = 273
-    Height = 106
+    Width = 746
+    Height = 314
+    Margins.Left = 8
+    Margins.Top = 8
+    Margins.Right = 8
+    Margins.Bottom = 8
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
     DesignSize = (
-      273
-      106)
+      746
+      314)
     object btnConfig: TButton
-      Left = 237
-      Top = 10
-      Width = 26
-      Height = 24
+      Left = 609
+      Top = 25
+      Width = 65
+      Height = 60
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       Action = ActionShowConfig
       Anchors = [akTop, akRight]
       ImageAlignment = iaCenter
@@ -209,10 +230,14 @@ object OpenWithCmdList: TOpenWithCmdList
     end
     object btnView: TButton
       AlignWithMargins = True
-      Left = 237
-      Top = 40
-      Width = 26
-      Height = 24
+      Left = 609
+      Top = 100
+      Width = 65
+      Height = 60
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       Action = ActionSwitchView
       Anchors = [akTop, akRight]
       ImageAlignment = iaCenter
@@ -223,13 +248,14 @@ object OpenWithCmdList: TOpenWithCmdList
     end
     object lbCommands: TListView
       AlignWithMargins = True
-      Left = 20
-      Top = 10
-      Width = 203
-      Height = 89
-      Margins.Left = 20
-      Margins.Top = 10
-      Margins.Right = 50
+      Left = 50
+      Top = 25
+      Width = 571
+      Height = 272
+      Margins.Left = 50
+      Margins.Top = 25
+      Margins.Right = 125
+      Margins.Bottom = 8
       Align = alTop
       Anchors = [akLeft, akTop, akRight, akBottom]
       Color = clHighlightText

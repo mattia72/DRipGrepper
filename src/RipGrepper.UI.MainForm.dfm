@@ -3,8 +3,8 @@ object RipGrepperForm: TRipGrepperForm
   Left = 662
   Top = 278
   Caption = 'DRipGrepper'
-  ClientHeight = 1158
-  ClientWidth = 1925
+  ClientHeight = 1208
+  ClientWidth = 1940
   Color = clBtnFace
   Constraints.MinHeight = 875
   Constraints.MinWidth = 1175
@@ -160,8 +160,8 @@ object RipGrepperForm: TRipGrepperForm
     AlignWithMargins = True
     Left = 8
     Top = 8
-    Width = 1909
-    Height = 1082
+    Width = 1924
+    Height = 1132
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -184,7 +184,7 @@ object RipGrepperForm: TRipGrepperForm
       AlignWithMargins = True
       Left = 8
       Top = 8
-      Width = 1893
+      Width = 1908
       Height = 55
       Margins.Left = 8
       Margins.Top = 8
@@ -364,7 +364,7 @@ object RipGrepperForm: TRipGrepperForm
       Left = 8
       Top = 79
       Width = 1900
-      Height = 995
+      Height = 1045
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
@@ -378,7 +378,7 @@ object RipGrepperForm: TRipGrepperForm
         Left = 393
         Top = 0
         Width = 7
-        Height = 995
+        Height = 1045
         Margins.Left = 8
         Margins.Top = 8
         Margins.Right = 8
@@ -389,7 +389,7 @@ object RipGrepperForm: TRipGrepperForm
         Left = 0
         Top = 0
         Width = 393
-        Height = 995
+        Height = 1045
         Margins.Left = 8
         Margins.Top = 8
         Margins.Right = 8
@@ -403,7 +403,7 @@ object RipGrepperForm: TRipGrepperForm
           Left = 9
           Top = 9
           Width = 375
-          Height = 977
+          Height = 1027
           Margins.Left = 8
           Margins.Top = 8
           Margins.Right = 8
@@ -422,7 +422,7 @@ object RipGrepperForm: TRipGrepperForm
         Left = 400
         Top = 0
         Width = 1500
-        Height = 995
+        Height = 1045
         Margins.Left = 8
         Margins.Top = 8
         Margins.Right = 8
@@ -436,7 +436,7 @@ object RipGrepperForm: TRipGrepperForm
           Left = 10
           Top = 10
           Width = 1480
-          Height = 978
+          Height = 1028
           Margins.Left = 8
           Margins.Top = 8
           Margins.Right = 8
@@ -503,8 +503,8 @@ object RipGrepperForm: TRipGrepperForm
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 1098
-    Width = 1925
+    Top = 1148
+    Width = 1940
     Height = 60
     Margins.Left = 8
     Margins.Top = 8
@@ -515,14 +515,14 @@ object RipGrepperForm: TRipGrepperForm
     ParentBackground = False
     TabOrder = 1
     DesignSize = (
-      1925
+      1940
       60)
     object StatusBar1: TStatusBar
       AlignWithMargins = True
       Left = 8
-      Top = -9
-      Width = 1837
-      Height = 61
+      Top = -11
+      Width = 1852
+      Height = 63
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 80
@@ -544,7 +544,7 @@ object RipGrepperForm: TRipGrepperForm
         end>
     end
     object ActivityIndicator1: TActivityIndicator
-      Left = 1858
+      Left = 1875
       Top = 0
       Margins.Left = 0
       Margins.Top = 0

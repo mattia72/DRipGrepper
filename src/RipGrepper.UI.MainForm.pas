@@ -240,8 +240,7 @@ uses
 	RipGrepper.Parsers.VimGrepMatchLine,
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.OpenWith,
-	RipGrepper.OpenWith.ConfigForm,
-	OtlParallel;
+	RipGrepper.OpenWith.ConfigForm;
 
 {$R *.dfm}
 
