@@ -8,8 +8,10 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 ### Main Window
 - [x] search text, parse `rg` output
   - [x] --vimgrep parser
-  - [ ] no match parser
+  - [x] error parser: if a line couldn't be parsed, then it is put the first column
   - [ ] --pretty parser
+  - [ ] --stats parser eg. msgbox on end with search statistics
+  - [ ] no match parser
 - [x] toolbar buttons to show/hide
   - [x] icons
   - [x] full/relative path
@@ -33,7 +35,6 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 - [x] show configured editors to open matching file on matching position
    - [x] on double click
    - [x] with menu / toolbar
-- [ ] run editor without showing *Open with...* dialog if only one editor is configured
 - [ ] separate editor for distinct extensions
 
 ### Configure Open with...
@@ -54,7 +55,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 - [ ] configuration dialog
 
 ### Misc
-- [ ] delphi IDE integration https://github.com/mattia72/DRipGrepper/issues/1
+- [ ] delphi IDE extension https://github.com/mattia72/DRipGrepper/issues/1
 - [x] standalone release
 - [ ] delphi extension release
 - [x] screenshots in Readme.md
