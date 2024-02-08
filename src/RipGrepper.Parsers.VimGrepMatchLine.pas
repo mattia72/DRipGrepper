@@ -71,15 +71,15 @@ begin
 	ParseResult.RowNr := _iLnNr;
 	ParseResult.Columns := cd;
 
-	if (ParseResult.IsError) then begin
-		TDebugUtils.DebugMessage('Error parsing line: ' + CRLF +
-			{ } _s + CRLF +
-			{ } 'File: ' + cd[Integer(ciFile)].Text + CRLF +
-			{ } 'Row: ' + cd[Integer(ciRow)].Text + CRLF +
-			{ } 'Col: ' + cd[Integer(ciCol)].Text + CRLF +
-			{ } 'Text: ' + cd[Integer(ciText)].Text + CRLF +
-			{ } 'ErrorText: ' + ParseResult.ErrorText);
-	end;
+//	if (ParseResult.IsError) then begin
+//		TDebugUtils.DebugMessage('Error parsing line: ' + CRLF +
+//			{ } _s + CRLF +
+//			{ } 'File: ' + cd[Integer(ciFile)].Text + CRLF +
+//			{ } 'Row: ' + cd[Integer(ciRow)].Text + CRLF +
+//			{ } 'Col: ' + cd[Integer(ciCol)].Text + CRLF +
+//			{ } 'Text: ' + cd[Integer(ciText)].Text + CRLF +
+//			{ } 'ErrorText: ' + ParseResult.ErrorText);
+//  end;
 
 	Result := ParseResult;
 end;
