@@ -1,5 +1,5 @@
-$global:Version = "v1.0.3-alpha"
-$global:PrevVersion = "v1.0.2-alpha"      
+$global:Version = "v1.0.4-beta"
+$global:PrevVersion = "v1.0.3-alpha"      
 $global:PreRelease = $true
 $global:Description = "Bug Fixes and some improvements"
 $global:AssetZipName = "DRipGrepper.zip"
