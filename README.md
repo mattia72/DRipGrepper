@@ -1,15 +1,15 @@
 ## DRipGrepper
-Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Delphi Pascal with the goal to integrate it as an extension into the Delphi IDE.
+Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Delphi Pascal with the goal to integrate in the Delphi IDE as an extension.
 
 ![Screenshot](./screenshots/04-02-2024_10-37-31.png)
 
-## Features and todos
+## Features and Todos
 
 ### Main Window
 - [x] search text, parse `rg` output
   - [x] --vimgrep parser
-  - [x] error parser: if a line couldn't be parsed, then it is put the first column
-  - [ ] --pretty parser
+  - [x] error parser: if a line couldn't be parsed, then it is put in the first column
+  - [ ] --pretty parser matching lines with colorized match position
   - [ ] --stats parser eg. msgbox on end with search statistics
   - [ ] no match parser
 - [x] toolbar buttons to show/hide
@@ -18,9 +18,11 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
   - [x] alternate row colors
 - [x] copy `rg` command line into clipboard
 - [x] sorting by path and row
-- [ ] grouping by path
+- [ ] grouping by path: only for limited match line.
+- [ ] file handling (eg. open in explorer, copy, rename, delete)
+- [ ] replace text in files --replace=TEXT
 
-### Search Dialog
+### :mag: Search Dialog
 - [x] help parametrizing `rg` in search dialog
   - [x] filter help texts: can't be selected 
   - [ ] filter not appropriate parameters
@@ -31,7 +33,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
     - [ ] --fixed-strings
   - [ ] --glob settings as separate editbox
 
-### Open with...
+### :rocket: Open with...
 - [x] show configured editors to open matching file on matching position
    - [x] on double click
    - [x] with menu / toolbar
@@ -71,3 +73,4 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 -  [GExpert](https://www.gexperts.org/download): idea, code and IDE integration framework
 -  [dzlib](https://sourceforge.net/p/dzlib/code/HEAD/tree)
 -  [UniSynEdit](https://sourceforge.net/projects/synedit)
+-  [regexpr](https://regex.sorokin.engineer/en/latest/)
