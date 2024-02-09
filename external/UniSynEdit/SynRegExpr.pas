@@ -2,8 +2,8 @@
 unit SynRegExpr;
 {$ENDIF}
 
-'Do not use this unit, it has a known but that has been fixed in regexpr.pas'
-'All GExperts projects should have a unit alias SynRegExpr=regexpr to use the latter.'
+'Do not use this unit, it has a known but that has been fixed in RegExprReplaceUnit.pas'
+'All GExperts projects should have a unit alias SynRegExpr=RegExprReplaceUnit to use the latter.'
 
 {
      TRegExpr class library

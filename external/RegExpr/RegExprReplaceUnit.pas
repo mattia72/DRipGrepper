@@ -1,4 +1,4 @@
-unit regexpr;
+﻿unit RegExprReplaceUnit;
 
 {
   TRegExpr class library

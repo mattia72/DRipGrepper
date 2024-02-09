@@ -49,7 +49,7 @@
         <SanitizedProjectName>DRipGrepperExtension</SanitizedProjectName>
         <DCC_UnitSearchPath>C:\home\mata\dev\delphi\RipGrepper\external\GExpert;C:\home\mata\dev\delphi\RipGrepper\external\dzlib;C:\home\mata\dev\delphi\RipGrepper\external\UniSynEdit;C:\home\mata\dev\delphi\RipGrepper\external\RegExpr;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_Define>NO_TRANSLATION;NO_TRANSLATION_HINT;NO_OPTIMIZE_DZ_GRAPHIC_UTILS_HINT;UnicodeRE;$(DCC_Define)</DCC_Define>
-        <DCC_UnitAlias>SynRegExpr=regexpr;$(DCC_UnitAlias)</DCC_UnitAlias>
+        <DCC_UnitAlias>SynRegExpr=RegExprReplaceUnit;$(DCC_UnitAlias)</DCC_UnitAlias>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
