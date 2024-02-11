@@ -4,7 +4,8 @@ interface
 
 uses
 	System.Generics.Defaults,
-	System.Generics.Collections, ArrayHelper;
+	System.Generics.Collections,
+	ArrayEx;
 
 type
 	TSortCriterion<T> = class(TObject)
@@ -35,7 +36,7 @@ type
 	end;
 
 	TSortTypeDirectionList = record
-		Items : TArrayRecord<TSortColumnDirection>;
+		Items : TArrayEx<TSortColumnDirection>;
 		procedure Add(_scd : TSortColumnDirection);
 		procedure Delete(const _sbt : TSortByType);
 
@@ -124,7 +125,7 @@ end;
 
 procedure TSortTypeDirectionList.MoveToStart(const _sbt : TSortByType; const _st : TSortDirectionType);
 var
-	new : TArrayRecord<TSortColumnDirection>;
+	new : TArrayEx<TSortColumnDirection>;
 begin
 	new.Add(TSortColumnDirection.New(_sbt, _st));
 	Delete(_sbt);

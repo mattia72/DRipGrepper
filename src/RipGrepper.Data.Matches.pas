@@ -9,7 +9,7 @@ uses
 	RipGrepper.Common.Interfaces,
 	System.RegularExpressions,
 	Vcl.ComCtrls,
-	ArrayHelper,
+	ArrayEx,
 	System.Generics.Defaults,
 	RipGrepper.Common.Sorter,
 	RipGrepper.Data.HistoryItemObject,

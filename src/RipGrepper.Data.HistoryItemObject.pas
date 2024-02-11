@@ -5,7 +5,7 @@ interface
 uses
 	RipGrepper.Common.Interfaces,
 	RipGrepper.Common.ParsedObject,
-	ArrayHelper,
+	ArrayEx,
 	RipGrepper.Common.Settings,
 	Vcl.ComCtrls,
 	System.Generics.Defaults,

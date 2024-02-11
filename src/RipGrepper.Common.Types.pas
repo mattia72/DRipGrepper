@@ -5,7 +5,7 @@ interface
 uses
 	System.Classes,
 	Vcl.ComCtrls,
-	ArrayHelper,
+	ArrayEx,
 	System.Generics.Defaults,
 	Vcl.Graphics;
 

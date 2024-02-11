@@ -17,7 +17,7 @@ uses
 	RipGrepper.Common.Settings,
 	System.Actions,
 	Vcl.ActnList,
-	ArrayHelper,
+	ArrayEx,
 	Vcl.ComCtrls,
 	System.RegularExpressions;
 

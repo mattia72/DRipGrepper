@@ -8,7 +8,7 @@ uses
 	System.RegularExpressions,
 	RipGrepper.Common.Types,
 	RipGrepper.Common.ParsedObject,
-	ArrayHelper;
+	ArrayEx;
 
 type
 

@@ -5,7 +5,7 @@ interface
 uses
 	System.RegularExpressions,
 	RipGrepper.Common.Types,
-	ArrayHelper,
+	ArrayEx,
 	System.Generics.Collections,
 	System.Classes,
 	RipGrepper.Common.ParsedObject;

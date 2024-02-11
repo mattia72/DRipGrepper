@@ -247,7 +247,9 @@ uses
 constructor TRipGrepperForm.Create(_settings : TRipGrepperSettings);
 begin
 	inherited Create(nil);
-	FSettings := _settings;
+	if Assigned(_settings) then begin
+		FSettings := _settings;
+	end;
 end;
 
 constructor TRipGrepperForm.Create(AOwner : TComponent);

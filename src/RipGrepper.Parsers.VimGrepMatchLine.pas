@@ -5,7 +5,7 @@ interface
 uses
 	RipGrepper.Common.Interfaces,
 	RipGrepper.Common.ParsedObject,
-	ArrayHelper;
+	ArrayEx;
 
 type
 	TVimGrepMatchLineParser = class(TInterfacedObject, ILineParser)
@@ -14,8 +14,8 @@ type
 			FParseResult : IParsedObjectRow;
 			function GetParseResult : IParsedObjectRow;
 			procedure SetParseResult(const Value : IParsedObjectRow);
-			procedure SetRgResultLineParseError(out row : TArrayRecord<TColumnData>; const _sLine : string);
-			function Validate(var row : TArrayRecord<TColumnData>) : Boolean;
+			procedure SetRgResultLineParseError(out row : TArrayEx<TColumnData>; const _sLine : string);
+			function Validate(var row : TArrayEx<TColumnData>) : Boolean;
 			function ValidatePath(const sFile : string) : Boolean;
 
 		public
@@ -52,7 +52,7 @@ end;
 function TVimGrepMatchLineParser.ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False) : IParsedObjectRow;
 var
 	m : TMatch;
-	cd : TArrayRecord<TColumnData>;
+	cd : TArrayEx<TColumnData>;
 begin
 	ParseResult.RowNr := _iLnNr;
 
@@ -89,7 +89,7 @@ begin
 	FParseResult := Value;
 end;
 
-procedure TVimGrepMatchLineParser.SetRgResultLineParseError(out row : TArrayRecord<TColumnData>; const _sLine : string);
+procedure TVimGrepMatchLineParser.SetRgResultLineParseError(out row : TArrayEx<TColumnData>; const _sLine : string);
 begin
 	row.Add(TColumnData.New('File', _sLine));
 	row.Add(TColumnData.New('Row', ''));
@@ -99,7 +99,7 @@ begin
 	ParseResult.IsError := True;
 end;
 
-function TVimGrepMatchLineParser.Validate(var row : TArrayRecord<TColumnData>) : Boolean;
+function TVimGrepMatchLineParser.Validate(var row : TArrayEx<TColumnData>) : Boolean;
 var
 	sCol : string;
 	sRow : string;

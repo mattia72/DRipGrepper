@@ -3,7 +3,7 @@ unit RipGrepper.Common.ParsedObject;
 interface
 
 uses
-	ArrayHelper,
+	ArrayEx,
 	System.Generics.Collections,
 	System.Generics.Defaults;
 
@@ -20,9 +20,9 @@ type
 
 	IParsedObject = interface
 		['{5DDAF1CE-48EF-42C0-B87F-102E081B3D16}']
-		function GetColumns : TArrayRecord<TColumnData>;
-		procedure SetColumns(const Value : TArrayRecord<TColumnData>);
-		property Columns : TArrayRecord<TColumnData> read GetColumns write SetColumns;
+		function GetColumns : TArrayEx<TColumnData>;
+		procedure SetColumns(const Value : TArrayEx<TColumnData>);
+		property Columns : TArrayEx<TColumnData> read GetColumns write SetColumns;
 	end;
 
 	IParsedObjectRow = interface(IParsedObject)
@@ -71,10 +71,10 @@ type
 		private
 			FErrorText : string;
 			FIsError : Boolean;
-			FColumns : TArrayRecord<TColumnData>;
+			FColumns : TArrayEx<TColumnData>;
 			FRowNr : Integer;
-			function GetColumns : TArrayRecord<TColumnData>;
-			procedure SetColumns(const Value : TArrayRecord<TColumnData>);
+			function GetColumns : TArrayEx<TColumnData>;
+			procedure SetColumns(const Value : TArrayEx<TColumnData>);
 			function GetErrorText : string;
 			function GetIsError : Boolean;
 			function GetRowNr : Integer;
@@ -83,7 +83,7 @@ type
 			procedure SetRowNr(const Value : Integer);
 
 		public
-			property Columns : TArrayRecord<TColumnData> read GetColumns write SetColumns;
+			property Columns : TArrayEx<TColumnData> read GetColumns write SetColumns;
 			property ErrorText : string read GetErrorText write SetErrorText;
 			property IsError : Boolean read GetIsError write SetIsError;
 			property RowNr : Integer read GetRowNr write SetRowNr;
@@ -130,7 +130,7 @@ begin
 	Result.Text := _Text;
 end;
 
-function TParsedObjectRow.GetColumns : TArrayRecord<TColumnData>;
+function TParsedObjectRow.GetColumns : TArrayEx<TColumnData>;
 begin
 	Result := FColumns;
 end;
@@ -150,7 +150,7 @@ begin
 	Result := FRowNr;
 end;
 
-procedure TParsedObjectRow.SetColumns(const Value : TArrayRecord<TColumnData>);
+procedure TParsedObjectRow.SetColumns(const Value : TArrayEx<TColumnData>);
 begin
 	FColumns := Value;
 end;
