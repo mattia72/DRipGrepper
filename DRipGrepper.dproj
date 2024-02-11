@@ -93,8 +93,8 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Release>3</VerInfo_Release>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.3.1;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <VerInfo_Build>1</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.3.2;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Build>2</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -134,7 +134,7 @@
         <DCCReference Include="src\RipGrepper.UI.SearchForm.pas">
             <Form>RipGrepperSearchDialogForm</Form>
         </DCCReference>
-        <DCCReference Include="external\ArrayHelper.pas"/>
+        <DCCReference Include="external\ArrayEx.pas"/>
         <DCCReference Include="src\RipGrepper.Data.Parsers.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Sorter.pas"/>
         <DCCReference Include="src\RipGrepper.Data.HistoryItemObject.pas"/>

@@ -7,7 +7,7 @@ uses
 	System.IniFiles,
 	System.Generics.Collections,
 	System.Generics.Defaults,
-	RipGrepper.OpenWith.SimpleTypes, 
+	RipGrepper.OpenWith.SimpleTypes,
 	RipGrepper.Common.Types;
 
 type
@@ -103,9 +103,6 @@ type
 	end;
 
 	TRipGrepperSettings = class(TRipGrepperSettingsBase)
-		const
-			MAX_HISTORY_COUNT = 20;
-
 		private
 		var
 			FRipGrepParameters : TRipGrepParameterSettings;
@@ -158,7 +155,7 @@ type
 		public
 			constructor Create;
 			class destructor Destroy;
-			procedure FreeInstance; reintroduce;
+			class procedure FreeInstance; reintroduce;
 			class property Instance : TRipGrepperSettings read GetInstance;
 	end;
 
@@ -306,15 +303,14 @@ end;
 procedure TRipGrepperSettings.Store;
 begin
 	if IsLoaded and IsModified then begin
-		FRipGrepParameters.Store;
 		FRipGrepperViewSettings.Store;
 		FRipGrepperOpenWithSettings.Store;
 
-		if (FIsModified) then begin
+		if (FRipGrepParameters.IsModified) then begin
+			FRipGrepParameters.Store;
 			StoreHistoryEntries(SearchPathsHistory, 'SearchPathsHistory');
 			StoreHistoryEntries(SearchTextsHistory, 'SearchTextsHistory');
 			StoreHistoryEntries(RipGrepParamsHistory, 'RipGrepParamsHistory');
-			FIsModified := False;
 		end;
 
 	end;
@@ -454,7 +450,6 @@ end;
 constructor TRipGrepperViewSettings.Create(const _ini : TIniFile);
 begin
 	inherited;
-
 end;
 
 procedure TRipGrepperViewSettings.Init;
@@ -522,7 +517,7 @@ begin
 	//
 end;
 
-procedure TRipGrepperSettingsInstance.FreeInstance;
+class procedure TRipGrepperSettingsInstance.FreeInstance;
 begin
 	FInstance.Free;
 end;
@@ -628,6 +623,8 @@ end;
 
 procedure TRipGrepperSettingsBase.SetIniFile(const Value : TIniFile);
 begin
+	if Assigned(FIniFile) then
+		FIniFile.Free;
 	FIniFile := Value;
 end;
 

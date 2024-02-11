@@ -276,7 +276,7 @@ begin
 	end;
 	FHistoryObjectList.Free;
 	FData.Free;
-	FSettings.FreeInstance;
+	TRipGrepperSettingsInstance.FreeInstance;
 	FImageScaler.Free;
 	inherited;
 end;

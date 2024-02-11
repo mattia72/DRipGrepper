@@ -15,6 +15,8 @@ const
 	CRLF = sLineBreak;
 	BUFF_LENGTH = 1024; // Todo: put into settings
 
+	MAX_HISTORY_COUNT = 20;
+
 	RIPGREP_ERROR = 1;
 	RIPGREP_NO_MATCH = 2;
 
