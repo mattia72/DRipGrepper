@@ -1,20 +1,25 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{56BB0282-32D5-401B-942A-48BCC46E1A0D}</ProjectGuid>
-        <MainSource>DRipGrepperExtension.dpk</MainSource>
+        <ProjectGuid>{9FAE879E-8EAE-4EEC-9B41-FA9626D8027D}</ProjectGuid>
         <ProjectVersion>19.5</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
-        <AppType>Package</AppType>
+        <AppType>Library</AppType>
+        <MainSource>DRipExtension.dpr</MainSource>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
         <Base_Win32>true</Base_Win32>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+        <Base_Win64>true</Base_Win64>
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
@@ -43,20 +48,21 @@
         <DCC_F>false</DCC_F>
         <DCC_K>false</DCC_K>
         <GenDll>true</GenDll>
-        <GenPackage>true</GenPackage>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-        <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
-        <SanitizedProjectName>DRipGrepperExtension</SanitizedProjectName>
-        <DCC_UnitSearchPath>C:\home\mata\dev\delphi\RipGrepper\external\GExpert;C:\home\mata\dev\delphi\RipGrepper\external\dzlib;C:\home\mata\dev\delphi\RipGrepper\external\UniSynEdit;C:\home\mata\dev\delphi\RipGrepper\external\RegExpr;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <SanitizedProjectName>DRipExtension</SanitizedProjectName>
         <DCC_Define>NO_TRANSLATION;NO_TRANSLATION_HINT;NO_OPTIMIZE_DZ_GRAPHIC_UTILS_HINT;UnicodeRE;$(DCC_Define)</DCC_Define>
-        <DCC_UnitAlias>SynRegExpr=RegExprReplaceUnit;$(DCC_UnitAlias)</DCC_UnitAlias>
+        <DCC_UnitSearchPath>..\external\GExpert;..\external\dzlib;..\external\UniSynEdit;..\external\RegExpr;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
+        <DCC_UsePackage>rtl;vcl;designide;$(DCC_UsePackage)</DCC_UsePackage>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win64)'!=''">
+        <DCC_UsePackage>vclwinx;dxExEL;fmx;dxRichEditDocumentModelRS28;vclie;DbxCommonDriver;bindengine;IndyIPCommon;VCLRESTComponents;cxExportRS28;FireDACCommonDriver;dxHttpIndyRequestRS28;IndyProtocols;dxTileControlRS28;vclx;IndyIPClient;dbxcds;vcledge;cxLibraryRS28;cxPivotGridOLAPRS28;dxCloudServiceLibraryRS28;ECQDBC;dxGDIPlusRS28;dxEdtr;dxCoreRS28;cxPivotGridRS28;inetdb;dxSpreadSheetCoreRS28;DbxClientDriver;dxSkinsCoreRS28;dxSpreadSheetRS28;Tee;soapmidas;dxBarRS28;TeeUI;vclactnband;dxADOServerModeRS28;dxWizardControlRS28;dbexpress;CEF4DelphiVCLRTL;DBXMySQLDriver;VclSmp;inet;dxServerModeRS28;fmxase;vcltouch;dxBarDBNavRS28;dxDBEd;cxTreeListRS28;dxdbtrRS28;dbrtl;EQGrid;AgendaSkinsRS28;CalWidgets_db;fmxdae;TeeDB;dxNavBarRS28;CustomIPTransport;dxGrEd;CEF4DelphiFMXRTL;dxSpreadSheetReportDesignerRS28;WPViewPDFLIB;DBXInterBaseDriver;dxComnRS28;vcldsnap;IndySystem;dxFlowChartDesignerRS28;dxSpreadSheetConditionalFormattingDialogsRS28;cxVerticalGridRS28;dxOrgChartAdvancedCustomizeFormRS28;vcldb;dxDBXServerModeRS28;CalWidgets;dxmdsRS28;dxRibbonRS28;dxRichEditControlRS28;dxELib;dxFlowChartLayoutsRS28;EQTL;vclFireDAC;office2K;bindcomp;FireDACCommon;dxdborRS28;dxRichEditControlCoreRS28;Envision;dxRibbonCustomizationFormRS28;IndyCore;RESTBackendComponents;cxPivotGridChartRS28;dxBarExtDBItemsRS28;bindcompdbx;dxGaugeControlRS28;dxRichEditCoreRS28;cxTreeListdxBarPopupMenuRS28;rtl;dxFlowChartAdvancedCustomizeFormRS28;dxPDFViewerRS28;RESTComponents;DBXSqliteDriver;vcl;IndyIPServer;dsnapxml;dsnapcon;adortl;dxBarExtItemsRS28;dxtrmdRS28;dxorgcRS28;hbTapi28;dxSpreadSheetCoreConditionalFormattingDialogsRS28;cxGridRS28;vclimg;dxSpellCheckerRS28;inetdbxpress;FireDAC;xmlrtl;tethering;dxMapControlRS28;dsnap;EQDBTL;CloudService;ADS;ListLabel28;fmxobj;dxFlowChartRS28;soaprtl;soapserver;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -70,8 +76,12 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
+        <DCC_UnitAlias>SynRegExpr=RegExprReplaceUnit;$(DCC_UnitAlias)</DCC_UnitAlias>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
+        <Manifest_File>(Ohne)</Manifest_File>
+        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <UsePackages>true</UsePackages>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -83,11 +93,9 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="rtl.dcp"/>
-        <DCCReference Include="designide.dcp"/>
-        <DCCReference Include="dbrtl.dcp"/>
-        <DCCReference Include="vcldb.dcp"/>
-        <DCCReference Include="src\GX_SampleExpert.pas"/>
+        <DCCReference Include="src\GX_SampleExpert.pas">
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -102,9 +110,12 @@
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Delphi.Personality.12</Borland.Personality>
-        <Borland.ProjectType>Package</Borland.ProjectType>
+        <Borland.ProjectType>Application</Borland.ProjectType>
         <BorlandProject>
             <Delphi.Personality>
+                <Source>
+                    <Source Name="MainSource">DRipExtension.dpr</Source>
+                </Source>
                 <Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclFMXtee9280.bpl">TeeChart Lite FMX Components</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclBindCompFireDAC280.bpl">LiveBinding-Ausdruckskomponenten für FireDac</Excluded_Packages>
@@ -116,9 +127,6 @@
                     <Excluded_Packages Name="$(BDSBIN)\dclappanalytics280.bpl">Embarcadero Usertility-Analysekomponente</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclbindcompvcl280.bpl">Embarcadero LiveBindings-Komponenten VCL</Excluded_Packages>
                 </Excluded_Packages>
-                <Source>
-                    <Source Name="MainSource">DRipGrepperExtension.dpk</Source>
-                </Source>
             </Delphi.Personality>
             <Deployment Version="4">
                 <DeployFile LocalName="$(BDS)\Redist\iossimulator\libcgunwind.1.0.dylib" Class="DependencyModule">
@@ -136,14 +144,18 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\DRipGrepperExtension.bpl" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="Win32\Debug\DRipExtension.dll" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>DRipGrepperExtension.bpl</RemoteName>
+                        <RemoteName>DRipExtension.dll</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
                 <DeployClass Name="AdditionalDebugSymbols">
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
                     <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="Win32">
@@ -433,6 +445,7 @@
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="Win32">
@@ -441,14 +454,17 @@
                 </DeployClass>
                 <DeployClass Name="DependencyFramework">
                     <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                         <Extensions>.framework</Extensions>
                     </Platform>
                     <Platform Name="OSX64">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                         <Extensions>.framework</Extensions>
                     </Platform>
                     <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                         <Extensions>.framework</Extensions>
                     </Platform>
@@ -457,15 +473,30 @@
                     </Platform>
                 </DeployClass>
                 <DeployClass Name="DependencyModule">
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
                     <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                         <Extensions>.dylib</Extensions>
                     </Platform>
                     <Platform Name="OSX64">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                         <Extensions>.dylib</Extensions>
                     </Platform>
                     <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                         <Extensions>.dylib</Extensions>
                     </Platform>
@@ -488,14 +519,17 @@
                         <Extensions>.dylib</Extensions>
                     </Platform>
                     <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                         <Extensions>.dylib</Extensions>
                     </Platform>
                     <Platform Name="OSX64">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                         <Extensions>.dylib</Extensions>
                     </Platform>
                     <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                         <Extensions>.dylib</Extensions>
                     </Platform>
@@ -521,12 +555,15 @@
                         <Operation>0</Operation>
                     </Platform>
                     <Platform Name="OSX32">
+                        <RemoteDir>Contents\Resources\StartUp\</RemoteDir>
                         <Operation>0</Operation>
                     </Platform>
                     <Platform Name="OSX64">
+                        <RemoteDir>Contents\Resources\StartUp\</RemoteDir>
                         <Operation>0</Operation>
                     </Platform>
                     <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\Resources\StartUp\</RemoteDir>
                         <Operation>0</Operation>
                     </Platform>
                     <Platform Name="Win32">
@@ -541,9 +578,44 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <DeployClass Name="ProjectOSXDebug"/>
-                <DeployClass Name="ProjectOSXEntitlements"/>
-                <DeployClass Name="ProjectOSXInfoPList"/>
+                <DeployClass Name="ProjectOSXDebug">
+                    <Platform Name="OSX64">
+                        <RemoteDir>..\$(PROJECTNAME).app.dSYM\Contents\Resources\DWARF</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>..\$(PROJECTNAME).app.dSYM\Contents\Resources\DWARF</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectOSXEntitlements">
+                    <Platform Name="OSX32">
+                        <RemoteDir>..\</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="OSX64">
+                        <RemoteDir>..\</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>..\</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectOSXInfoPList">
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="OSX64">
+                        <RemoteDir>Contents</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>Contents</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
                 <DeployClass Name="ProjectOSXResource">
                     <Platform Name="OSX32">
                         <RemoteDir>Contents\Resources</RemoteDir>
@@ -580,12 +652,15 @@
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="OSX64">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="Win32">
@@ -620,9 +695,41 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <DeployClass Name="ProjectiOSEntitlements"/>
-                <DeployClass Name="ProjectiOSInfoPList"/>
-                <DeployClass Name="ProjectiOSLaunchScreen"/>
+                <DeployClass Name="ProjectiOSEntitlements">
+                    <Platform Name="iOSDevice32">
+                        <RemoteDir>..\</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>..\</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>..\</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectiOSInfoPList">
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectiOSLaunchScreen">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen</RemoteDir>
+                        <Operation>64</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen</RemoteDir>
+                        <Operation>64</Operation>
+                    </Platform>
+                </DeployClass>
                 <DeployClass Name="ProjectiOSResource">
                     <Platform Name="iOSDevice32">
                         <Operation>1</Operation>
@@ -860,9 +967,9 @@
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="iOSSimARM64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Linux64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="OSX64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="OSXARM64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="OSX64" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="OSXARM64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
             </Deployment>

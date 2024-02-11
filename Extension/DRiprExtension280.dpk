@@ -1,4 +1,4 @@
-package DRipGrepperExtension;
+package DRiprExtension280;
 
 {$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
@@ -38,6 +38,6 @@ requires
   vcldb;
 
 contains
-  GX_SampleExpert in 'src\GX_SampleExpert.pas';
+  DRipExtension in 'src\DRipExtension.pas';
 
 end.
