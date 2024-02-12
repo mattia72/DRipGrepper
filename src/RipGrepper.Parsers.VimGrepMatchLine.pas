@@ -22,6 +22,7 @@ type
 			property ParserData : ILineParserData read FParserData write FParserData;
 			property ParseResult : IParsedObjectRow read GetParseResult write SetParseResult;
 			constructor Create;
+			destructor Destroy; override;
 			function ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False) : IParsedObjectRow;
 	end;
 
@@ -40,6 +41,13 @@ begin
 	inherited;
 	FParserData := TRipGrepLineParserData.Create(TParserType.ptRipGrepSearch, RG_MATCH_LINE_REGEX);
 	FParseResult := TParsedObjectRow.Create();
+end;
+
+destructor TVimGrepMatchLineParser.Destroy;
+begin
+	FParserData := nil;
+	FParseResult := nil;
+	inherited;
 end;
 
 function TVimGrepMatchLineParser.GetParseResult : IParsedObjectRow;
@@ -71,15 +79,15 @@ begin
 	ParseResult.RowNr := _iLnNr;
 	ParseResult.Columns := cd;
 
-//	if (ParseResult.IsError) then begin
-//		TDebugUtils.DebugMessage('Error parsing line: ' + CRLF +
-//			{ } _s + CRLF +
-//			{ } 'File: ' + cd[Integer(ciFile)].Text + CRLF +
-//			{ } 'Row: ' + cd[Integer(ciRow)].Text + CRLF +
-//			{ } 'Col: ' + cd[Integer(ciCol)].Text + CRLF +
-//			{ } 'Text: ' + cd[Integer(ciText)].Text + CRLF +
-//			{ } 'ErrorText: ' + ParseResult.ErrorText);
-//  end;
+	// if (ParseResult.IsError) then begin
+	// TDebugUtils.DebugMessage('Error parsing line: ' + CRLF +
+	// { } _s + CRLF +
+	// { } 'File: ' + cd[Integer(ciFile)].Text + CRLF +
+	// { } 'Row: ' + cd[Integer(ciRow)].Text + CRLF +
+	// { } 'Col: ' + cd[Integer(ciCol)].Text + CRLF +
+	// { } 'Text: ' + cd[Integer(ciText)].Text + CRLF +
+	// { } 'ErrorText: ' + ParseResult.ErrorText);
+	// end;
 
 	Result := ParseResult;
 end;

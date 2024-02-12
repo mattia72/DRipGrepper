@@ -660,9 +660,15 @@ begin
 				if (not _sLine.IsEmpty) then begin
 					var
 					parser := TVimGrepMatchLineParser.Create();
-					var
-					parsedObj := parser.ParseLine(_iLineNr, _sLine, _bIsLast);
-					FData.Add(parsedObj);
+					try
+						var
+						parsedObj := parser.ParseLine(_iLineNr, _sLine, _bIsLast);
+						var
+						o := TParsedObjectRow.Create(parsedObj);
+						FData.Add(o);
+					finally
+						parser.Free;
+					end;
 				end;
 				// First 100 than every 100 and the last
 				if (_iLineNr < DRAW_RESULT_UNTIL_FIRST_LINE_COUNT) or ((_iLineNr mod DRAW_RESULT_ON_EVERY_LINE_COUNT) = 0) or _bIsLast then

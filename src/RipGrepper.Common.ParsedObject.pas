@@ -5,7 +5,8 @@ interface
 uses
 	ArrayEx,
 	System.Generics.Collections,
-	System.Generics.Defaults;
+	System.Generics.Defaults,
+	System.Classes;
 
 type
 	TColumnData = record
@@ -46,6 +47,7 @@ type
 	TThreadListType = TThreadList<IParsedObjectRow>;
 	TListType = TList<IParsedObjectRow>;
 	{$ELSE}
+	TParsedObjectRow = class;
 	TListType = TList<IParsedObjectRow>;
 	{$ENDIF}
 
@@ -83,13 +85,15 @@ type
 			procedure SetRowNr(const Value : Integer);
 
 		public
+			constructor Create(const _por: IParsedObjectRow); overload;
+			procedure CopyTo(var _por : TParsedObjectRow);
 			property Columns : TArrayEx<TColumnData> read GetColumns write SetColumns;
 			property ErrorText : string read GetErrorText write SetErrorText;
 			property IsError : Boolean read GetIsError write SetIsError;
 			property RowNr : Integer read GetRowNr write SetRowNr;
 	end;
 
-	TParsedObjectRowCollection = class(TSingletonImplementation, IParsedObjectRowCollection)
+	TParsedObjectRowCollection = class(TNoRefCountObject, IParsedObjectRowCollection)
 		private
 			{$IFDEF THREADSAFE_LIST}
 			FItems : TThreadListType;
@@ -128,6 +132,23 @@ class function TColumnData.New(const _Title, _Text : string) : TColumnData;
 begin
 	Result.Title := _Title;
 	Result.Text := _Text;
+end;
+
+constructor TParsedObjectRow.Create(const _por: IParsedObjectRow);
+begin
+	inherited Create();
+	ErrorText := _por.ErrorText;
+	Columns := _por.Columns;
+	RowNr := _por.RowNr;
+	IsError := _por.IsError;
+end;
+
+procedure TParsedObjectRow.CopyTo(var _por : TParsedObjectRow);
+begin
+	_por.ErrorText := ErrorText;
+	_por.FColumns := Columns;
+	_por.RowNr := RowNr;
+	_por.IsError := IsError;
 end;
 
 function TParsedObjectRow.GetColumns : TArrayEx<TColumnData>;
@@ -196,12 +217,12 @@ begin
 end;
 
 {$IFDEF THREADSAFE_LIST}
+
 procedure TParsedObjectRowCollection.Unlock;
 begin
 	FItems.UnlockList;
 end;
 {$ENDIF}
-
 // procedure TParsedObjectRowCollection.SetItems(const Value : TListType);
 // begin
 // FItems.LockList := Value;

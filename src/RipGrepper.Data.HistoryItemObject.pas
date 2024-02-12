@@ -17,17 +17,17 @@ type
 			FElapsedTimeText : string;
 			FErrorCount : Integer;
 			FFileCount : integer;
-			FMatches : IParsedObjectRowCollection;
+			FMatches: IParsedObjectRowCollection;
 			FRipGrepArguments : TRipGrepArguments;
 			FRipGrepResult : Integer;
 			FTotalMatchCount : integer;
 			function GetErrorCount : Integer; export;
 			function GetFileCount : integer;
-			function GetMatches : IParsedObjectRowCollection;
+			function GetMatches: IParsedObjectRowCollection;
 			function GetRipGrepArguments : TRipGrepArguments;
 			function GetTotalMatchCount : integer;
 			procedure SetFileCount(const Value : integer);
-			procedure SetMatches(const Value : IParsedObjectRowCollection);
+			procedure SetMatches(const Value: IParsedObjectRowCollection);
 			procedure SetRipGrepArguments(const Value : TRipGrepArguments);
 
 		public
@@ -38,7 +38,7 @@ type
 			procedure ClearMatches;
 			procedure CopyToSettings(const _settings : TRipGrepperSettings);
 			property FileCount : integer read GetFileCount write SetFileCount;
-			property Matches : IParsedObjectRowCollection read GetMatches write SetMatches;
+			property Matches: IParsedObjectRowCollection read GetMatches write SetMatches;
 			property RipGrepArguments : TRipGrepArguments read GetRipGrepArguments write SetRipGrepArguments;
 			property TotalMatchCount : integer read GetTotalMatchCount;
 			property ErrorCount : Integer read GetErrorCount write FErrorCount;
@@ -92,7 +92,7 @@ begin
 	Result := FFileCount;
 end;
 
-function THistoryItemObject.GetMatches : IParsedObjectRowCollection;
+function THistoryItemObject.GetMatches: IParsedObjectRowCollection;
 begin
 	Result := FMatches;
 end;
@@ -115,7 +115,7 @@ begin
 	FFileCount := Value;
 end;
 
-procedure THistoryItemObject.SetMatches(const Value : IParsedObjectRowCollection);
+procedure THistoryItemObject.SetMatches(const Value: IParsedObjectRowCollection);
 begin
 	FMatches := Value;
 end;
@@ -127,7 +127,7 @@ end;
 
 destructor THistoryItemObject.Destroy;
 begin
-	// FMatches.Free;
+	(FMatches as TParsedObjectRowCollection).Free;
 	FRipGrepArguments.Free;
 	inherited;
 end;
