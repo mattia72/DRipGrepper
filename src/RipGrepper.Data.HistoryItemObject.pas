@@ -12,22 +12,22 @@ uses
 	System.Classes, RipGrepper.Common.Types;
 
 type
-	THistoryItemObject = class(TSingletonImplementation, IHistoryItem)
+	THistoryItemObject = class(TNoRefCountObject, IHistoryItem)
 		private
 			FElapsedTimeText : string;
 			FErrorCount : Integer;
 			FFileCount : integer;
-			FMatches: IParsedObjectRowCollection;
+			FMatches: TParsedObjectRowCollection;
 			FRipGrepArguments : TRipGrepArguments;
 			FRipGrepResult : Integer;
 			FTotalMatchCount : integer;
 			function GetErrorCount : Integer; export;
 			function GetFileCount : integer;
-			function GetMatches: IParsedObjectRowCollection;
+			function GetMatches: TParsedObjectRowCollection;
 			function GetRipGrepArguments : TRipGrepArguments;
 			function GetTotalMatchCount : integer;
 			procedure SetFileCount(const Value : integer);
-			procedure SetMatches(const Value: IParsedObjectRowCollection);
+			procedure SetMatches(const Value: TParsedObjectRowCollection);
 			procedure SetRipGrepArguments(const Value : TRipGrepArguments);
 
 		public
@@ -38,7 +38,7 @@ type
 			procedure ClearMatches;
 			procedure CopyToSettings(const _settings : TRipGrepperSettings);
 			property FileCount : integer read GetFileCount write SetFileCount;
-			property Matches: IParsedObjectRowCollection read GetMatches write SetMatches;
+			property Matches: TParsedObjectRowCollection read GetMatches write SetMatches;
 			property RipGrepArguments : TRipGrepArguments read GetRipGrepArguments write SetRipGrepArguments;
 			property TotalMatchCount : integer read GetTotalMatchCount;
 			property ErrorCount : Integer read GetErrorCount write FErrorCount;
@@ -47,8 +47,6 @@ type
 
 
 	end;
-
-	PHistoryItemObject = ^THistoryItemObject;
 
 implementation
 
@@ -92,7 +90,7 @@ begin
 	Result := FFileCount;
 end;
 
-function THistoryItemObject.GetMatches: IParsedObjectRowCollection;
+function THistoryItemObject.GetMatches: TParsedObjectRowCollection;
 begin
 	Result := FMatches;
 end;
@@ -115,7 +113,7 @@ begin
 	FFileCount := Value;
 end;
 
-procedure THistoryItemObject.SetMatches(const Value: IParsedObjectRowCollection);
+procedure THistoryItemObject.SetMatches(const Value: TParsedObjectRowCollection);
 begin
 	FMatches := Value;
 end;

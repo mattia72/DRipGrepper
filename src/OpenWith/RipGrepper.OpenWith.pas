@@ -33,7 +33,7 @@ uses
 class function TOpenWith.GetSelectedCmd(_owpTestFile : TOpenWithParams) : string;
 begin
 	var
-	settings := TRipGrepperSettingsInstance.Instance.RipGrepperOpenWithSettings;
+	settings := GSettings.RipGrepperOpenWithSettings;
 	settings.TestFile := _owpTestFile;
 	Result := TOpenWithCmdList.CreateAndShow(settings);
 	TDebugUtils.DebugMessage((Format('OpenWithFunc.GetSelectedCmd Result: "%s"', [Result])));

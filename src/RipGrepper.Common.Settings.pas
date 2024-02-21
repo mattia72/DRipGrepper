@@ -159,13 +159,15 @@ type
 			class property Instance : TRipGrepperSettings read GetInstance;
 	end;
 
+var
+	GSettings : TRipGrepperSettings;
+
 implementation
 
 uses
 	System.SysUtils,
 	Vcl.Forms,
 	System.StrUtils,
-
 	RipGrepper.Helper.Types,
 	RipGrepper.Tools.DebugTools,
 	RipGrepper.Tools.FileUtils,
@@ -173,6 +175,9 @@ uses
 	System.IOUtils,
 	Winapi.Windows,
 	System.UITypes,
+	{$IFNDEF STANDALONE}
+	DripExtension.IOTA.Utils,
+	{$ENDIF}
 	RipGrepper.Tools.ProcessUtils,
 	RipGrepper.Helper.UI;
 
@@ -244,7 +249,11 @@ end;
 
 constructor TRipGrepperSettings.Create;
 begin
+	{$IFDEF STANDALONE}
 	FIniFile := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
+	{$ELSE}
+	FIniFile := TIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'));
+	{$ENDIF}
 	FRipGrepParameters := TRipGrepParameterSettings.Create(FIniFile);
 	FRipGrepperViewSettings := TRipGrepperViewSettings.Create(FIniFile);
 	FRipGrepperOpenWithSettings := TRipGrepperOpenWithSettings.Create(FIniFile);
@@ -312,7 +321,6 @@ begin
 			StoreHistoryEntries(SearchTextsHistory, 'SearchTextsHistory');
 			StoreHistoryEntries(RipGrepParamsHistory, 'RipGrepParamsHistory');
 		end;
-
 	end;
 end;
 
@@ -392,8 +400,12 @@ end;
 
 procedure TRipGrepParameterSettings.Load;
 begin
-	RipGrepPath := FIniFile.ReadString('RipGrepSettings', 'Path', '');
-	FIsLoaded := True;
+	if Assigned(FIniFile) then begin
+		RipGrepPath := FIniFile.ReadString('RipGrepSettings', 'Path', '');
+		FIsLoaded := True;
+	end else begin
+		raise Exception.Create('Settings file is nil!')
+	end;
 end;
 
 function TRipGrepParameterSettings.ReBuildArguments : TStrings;
@@ -510,6 +522,7 @@ end;
 constructor TRipGrepperSettingsInstance.Create();
 begin
 	inherited;
+	FInstance := nil;
 end;
 
 class destructor TRipGrepperSettingsInstance.Destroy;
@@ -524,7 +537,7 @@ end;
 
 class function TRipGrepperSettingsInstance.GetInstance : TRipGrepperSettings;
 begin
-	if FInstance = nil then begin
+	if Assigned(FInstance) then begin
 		FInstance := TRipGrepperSettings.Create;
 	end;
 	Result := FInstance;
@@ -632,5 +645,13 @@ procedure TRipGrepperSettingsBase.SetIsModified(const Value : Boolean);
 begin
 	FIsModified := Value;
 end;
+
+initialization
+
+GSettings := TRipGrepperSettings.Create;
+
+finalization
+
+GSettings.Free;
 
 end.

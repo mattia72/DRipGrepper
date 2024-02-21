@@ -49,14 +49,14 @@ type
 		['{C95F78AF-4011-460F-8721-5C3D7FC682D7}']
 		function GetErrorCount : Integer;
 		function GetFileCount : integer;
-		function GetMatches : IParsedObjectRowCollection;
-		procedure SetMatches(const Value : IParsedObjectRowCollection);
+		function GetMatches : TParsedObjectRowCollection;
+		procedure SetMatches(const Value : TParsedObjectRowCollection);
 		function GetRipGrepArguments : TRipGrepArguments;
 		procedure SetRipGrepArguments(const Value : TRipGrepArguments);
 		function GetTotalMatchCount : integer;
 
 		property ErrorCount : Integer read GetErrorCount;
-		property Matches : IParsedObjectRowCollection read GetMatches write SetMatches;
+		property Matches : TParsedObjectRowCollection read GetMatches write SetMatches;
 		property RipGrepArguments : TRipGrepArguments read GetRipGrepArguments write SetRipGrepArguments;
 		property FileCount : integer read GetFileCount;
 		property TotalMatchCount : integer read GetTotalMatchCount;

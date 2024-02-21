@@ -10,6 +10,11 @@ uses
 	Vcl.Graphics;
 
 const
+
+	APPNAME = 'DRipGrepper';
+	EXTENSION_NAME = 'DRipExtension';
+	EXTENSION_MENU_CAPTION = 'DRip Extension';
+
 	CR = #13;
 	LF = #10;
 	CRLF = sLineBreak;

@@ -201,14 +201,16 @@ begin
 			lineComparer.AddCriterion(criterion);
 		end;
 
-		var
-		matchItems := HistObject.Matches.Items;
-		try
-			matchItems.Sort(lineComparer);
-		finally
-			{$IFDEF THREADSAFE_LIST}
-			HistObject.Matches.Unlock;
-			{$ENDIF}
+		if Assigned(HistObject) then begin
+			var
+			matchItems := HistObject.Matches.Items;
+			try
+				matchItems.Sort(lineComparer);
+			finally
+				{$IFDEF THREADSAFE_LIST}
+				HistObject.Matches.Unlock;
+				{$ENDIF}
+			end;
 		end;
 	finally
 		lineComparer.Free;

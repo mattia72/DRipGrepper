@@ -170,6 +170,7 @@ type
 			function GetHistObject : THistoryItemObject;
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
 			function GetOpenWithParamsFromSelected : TOpenWithParams;
+			function GetSettings : TRipGrepperSettings;
 			procedure InitColumnSortTypes;
 			procedure InitSearch;
 			procedure LoadBeforeSearchSettings;
@@ -188,6 +189,7 @@ type
 			property CurrentHistoryItemIndex : Integer read FCurrentHistoryItemIndex write FCurrentHistoryItemIndex;
 			property HistObject : THistoryItemObject read GetHistObject write SetHistObject;
 			property HistoryObjectList : TStringList read FHistoryObjectList write FHistoryObjectList;
+			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 			property ViewStyleIndex : Integer read GetViewStyleIndex;
 
 		protected
@@ -250,12 +252,13 @@ begin
 	if Assigned(_settings) then begin
 		FSettings := _settings;
 	end;
+	TDebugUtils.DebugMessage('TRipGrepperForm.Create: ' + FSettings.IniFile.FileName);
 end;
 
 constructor TRipGrepperForm.Create(AOwner : TComponent);
 begin
 	inherited Create(AOwner);
-	FSettings := TRipGrepperSettingsInstance.Instance;
+
 	FData := TRipGrepperData.Create();
 	FHistoryObjectList := TStringList.Create(TDuplicates.dupIgnore, False, False);
 
@@ -272,11 +275,15 @@ end;
 destructor TRipGrepperForm.Destroy;
 begin
 	for var i := 0 to FHistoryObjectList.Count - 1 do begin
-		FHistoryObjectList.Objects[i].Free;
+		if Assigned(FHistoryObjectList.Objects[i])
+		{ } and (FHistoryObjectList.Objects[i] is THistoryItemObject) then begin
+			(FHistoryObjectList.Objects[i] as THistoryItemObject).Free;
+		end;
 	end;
 	FHistoryObjectList.Free;
 	FData.Free;
-	TRipGrepperSettingsInstance.FreeInstance;
+	// TRipGrepperSettingsInstance.FreeInstance;
+	// Settings.Free;
 	FImageScaler.Free;
 	inherited;
 end;
@@ -303,14 +310,14 @@ end;
 
 procedure TRipGrepperForm.ActionAlternateRowColorsExecute(Sender : TObject);
 begin
-	FSettings.RipGrepperViewSettings.AlternateRowColors := (not FSettings.RipGrepperViewSettings.AlternateRowColors);
-	FSettings.StoreViewSettings('AlternateRowColors');
+	Settings.RipGrepperViewSettings.AlternateRowColors := (not Settings.RipGrepperViewSettings.AlternateRowColors);
+	Settings.StoreViewSettings('AlternateRowColors');
 	ListViewResult.Repaint();
 end;
 
 procedure TRipGrepperForm.ActionAlternateRowColorsUpdate(Sender : TObject);
 begin
-	tbAlternateRowColors.Down := FSettings.RipGrepperViewSettings.AlternateRowColors;
+	tbAlternateRowColors.Down := Settings.RipGrepperViewSettings.AlternateRowColors;
 end;
 
 procedure TRipGrepperForm.ActionCancelExecute(Sender : TObject);
@@ -321,18 +328,18 @@ end;
 
 procedure TRipGrepperForm.ActionCmdLineCopyExecute(Sender : TObject);
 begin
-	ClipBoard.AsText := FSettings.RipGrepParameters.BuildCmdLine;
+	ClipBoard.AsText := Settings.RipGrepParameters.BuildCmdLine;
 end;
 
 procedure TRipGrepperForm.ActionCmdLineCopyUpdate(Sender : TObject);
 begin
-	ActionCmdLineCopy.Hint := 'Copy command line:' + CRLF + FSettings.RipGrepParameters.BuildCmdLine;
+	ActionCmdLineCopy.Hint := 'Copy command line:' + CRLF + Settings.RipGrepParameters.BuildCmdLine;
 end;
 
 procedure TRipGrepperForm.ActionConfigExecute(Sender : TObject);
 begin
 	var
-	settings := FSettings.RipGrepperOpenWithSettings;
+	settings := Settings.RipGrepperOpenWithSettings;
 	settings.TestFile := GetOpenWithParamsFromSelected();
 	TOpenWithConfigForm.CreateAndShow(settings);
 	settings.TestFile := default (TOpenWithParams);
@@ -357,7 +364,7 @@ begin
 		args := HistObject.RipGrepArguments;
 	end;
 	var
-	frm := TRipGrepperSearchDialogForm.Create(self, FSettings, args);
+	frm := TRipGrepperSearchDialogForm.Create(self, Settings, args);
 	try
 		if (mrOk = frm.ShowModal) then begin
 			ActionSearchExecute(self);
@@ -370,19 +377,19 @@ end;
 
 procedure TRipGrepperForm.ActionShowSearchFormUpdate(Sender : TObject);
 begin
-	ActionShowSearchForm.Enabled := FSettings.IsEmpty or (not IsSearchRunning);
+	ActionShowSearchForm.Enabled := Settings.IsEmpty or (not IsSearchRunning);
 end;
 
 procedure TRipGrepperForm.ActionIndentLineExecute(Sender : TObject);
 begin
-	FSettings.RipGrepperViewSettings.IndentLines := not FSettings.RipGrepperViewSettings.IndentLines;
-	FSettings.StoreViewSettings('IndentLines');
+	Settings.RipGrepperViewSettings.IndentLines := not Settings.RipGrepperViewSettings.IndentLines;
+	Settings.StoreViewSettings('IndentLines');
 	ListViewResult.Repaint();
 end;
 
 procedure TRipGrepperForm.ActionIndentLineUpdate(Sender : TObject);
 begin
-	tbIndentLines.Down := FSettings.RipGrepperViewSettings.IndentLines;
+	tbIndentLines.Down := Settings.RipGrepperViewSettings.IndentLines;
 end;
 
 procedure TRipGrepperForm.ActionOpenWithExecute(Sender : TObject);
@@ -413,19 +420,19 @@ end;
 
 procedure TRipGrepperForm.ActionRefreshSearchUpdate(Sender : TObject);
 begin
-	ActionRefreshSearch.Enabled := FSettings.IsLoaded and (not IsSearchRunning);
+	ActionRefreshSearch.Enabled := Settings.IsLoaded and (not IsSearchRunning);
 end;
 
 procedure TRipGrepperForm.ActionShowRelativePathExecute(Sender : TObject);
 const
 	PARSER_TYPES : TArray<TFileNameType> = [ftAbsolute, ftRelative];
 begin
-	FSettings.RipGrepperViewSettings.ShowRelativePath := not FSettings.RipGrepperViewSettings.ShowRelativePath;
+	Settings.RipGrepperViewSettings.ShowRelativePath := not Settings.RipGrepperViewSettings.ShowRelativePath;
 	var
-	idx := Integer(FSettings.RipGrepperViewSettings.ShowRelativePath);
+	idx := Integer(Settings.RipGrepperViewSettings.ShowRelativePath);
 	FFileNameType := PARSER_TYPES[idx mod Length(PARSER_TYPES)];
 	ListViewResult.InitMaxWidths(FMaxWidths);
-	FSettings.StoreViewSettings('ShowRelativePath');
+	Settings.StoreViewSettings('ShowRelativePath');
 	ListViewResult.Repaint;
 end;
 
@@ -444,21 +451,21 @@ end;
 
 procedure TRipGrepperForm.ActionShowFileIconsExecute(Sender : TObject);
 begin
-	FSettings.RipGrepperViewSettings.ShowFileIcon := not FSettings.RipGrepperViewSettings.ShowFileIcon;
-	FSettings.StoreViewSettings('ShowFileIcon');
+	Settings.RipGrepperViewSettings.ShowFileIcon := not Settings.RipGrepperViewSettings.ShowFileIcon;
+	Settings.StoreViewSettings('ShowFileIcon');
 	ListViewResult.Repaint();
 end;
 
 procedure TRipGrepperForm.ActionShowFileIconsUpdate(Sender : TObject);
 begin
-	tbShowFileIcon.Down := FSettings.RipGrepperViewSettings.ShowFileIcon;
-	// ActionShowFileIcons.ImageIndex := Ifthen(FSettings.ShowFileIcon, IMG_IDX_SHOW_FILE_ICON_TRUE, IMG_IDX_SHOW_FILE_ICON_FALSE);
+	tbShowFileIcon.Down := Settings.RipGrepperViewSettings.ShowFileIcon;
+	// ActionShowFileIcons.ImageIndex := Ifthen(Settings.ShowFileIcon, IMG_IDX_SHOW_FILE_ICON_TRUE, IMG_IDX_SHOW_FILE_ICON_FALSE);
 end;
 
 procedure TRipGrepperForm.ActionShowRelativePathUpdate(Sender : TObject);
 begin
-	tbShowRelativePath.Down := FSettings.RipGrepperViewSettings.ShowRelativePath;
-	// ActionShowRelativePath.ImageIndex := Ifthen(FSettings.ShowRelativePath, IMG_IDX_SHOW_RELATIVE_PATH, IMG_IDX_SHOW_ABS_PATH);
+	tbShowRelativePath.Down := Settings.RipGrepperViewSettings.ShowRelativePath;
+	// ActionShowRelativePath.ImageIndex := Ifthen(Settings.ShowRelativePath, IMG_IDX_SHOW_RELATIVE_PATH, IMG_IDX_SHOW_ABS_PATH);
 end;
 
 procedure TRipGrepperForm.ActionSortByFileExecute(Sender : TObject);
@@ -498,12 +505,12 @@ procedure TRipGrepperForm.AddOrUpdateHistoryItem;
 var
 	hi : THistoryItemObject;
 begin
-	CurrentHistoryItemIndex := HistoryObjectList.IndexOf(FSettings.ActualSearchText);
+	CurrentHistoryItemIndex := HistoryObjectList.IndexOf(Settings.ActualSearchText);
 	if CurrentHistoryItemIndex = -1 then begin
 		hi := THistoryItemObject.Create();
 		HistObject := hi;
 		ChangeDataHistItemObject(hi);
-		CurrentHistoryItemIndex := HistoryObjectList.AddObject(FSettings.ActualSearchText, hi);
+		CurrentHistoryItemIndex := HistoryObjectList.AddObject(Settings.ActualSearchText, hi);
 	end else begin
 		UpdateRipGrepArgumentsInHistObj;
 		UpdateHistObject;
@@ -538,6 +545,7 @@ end;
 
 class function TRipGrepperForm.CreateAndShow(const _settings : TRipGrepperSettings) : string;
 begin
+	TDebugUtils.DebugMessage('TRipGrepperForm.CreateAndShow: ' + _settings.IniFile.FileName);
 	var
 	form := TRipGrepperForm.Create(_settings);
 	try
@@ -546,6 +554,7 @@ begin
 		end;
 	finally
 		form.Free;
+		TDebugUtils.DebugMessage('TRipGrepperForm.CreateAndShow: finally');
 	end;
 
 end;
@@ -560,15 +569,16 @@ end;
 
 procedure TRipGrepperForm.FormClose(Sender : TObject; var Action : TCloseAction);
 begin
-	FSettings.Store;
+	Settings.Store;
 	TListBoxHelper.FreeItemObjects(ListBoxSearchHistory);
+	ListViewResult.Items.Count := 0;
 end;
 
 procedure TRipGrepperForm.FormShow(Sender : TObject);
 begin
 	LoadSettings;
 	SetStatusBarMessage();
-	FRgExeVersion := TFileUtils.GetAppNameAndVersion(FSettings.RipGrepParameters.RipGrepPath);
+	FRgExeVersion := TFileUtils.GetAppNameAndVersion(Settings.RipGrepParameters.RipGrepPath);
 end;
 
 function TRipGrepperForm.GetSortingImageIndex(const _idx : Integer) : Integer;
@@ -599,7 +609,7 @@ end;
 
 procedure TRipGrepperForm.LoadSettings;
 begin
-	FSettings.Load;
+	Settings.Load;
 	LoadBeforeSearchSettings();
 end;
 
@@ -690,6 +700,9 @@ var
 	cursor : TCursorSaver;
 	st : TSortDirectionType;
 begin
+	if not Assigned(HistObject) then
+		Exit;
+
 	cursor.SetHourGlassCursor();
 	try
 		st := FColumnSortTypes[integer(_sbt)];
@@ -737,7 +750,7 @@ begin
 	if _item.SubItems.Count = 0 then
 		Exit;
 
-	if (FSettings.RipGrepperViewSettings.AlternateRowColors) then begin
+	if (Settings.RipGrepperViewSettings.AlternateRowColors) then begin
 		_Canvas.SetAlteringColors(_Item);
 	end;
 	_Canvas.SetSelectedColors(_State);
@@ -750,7 +763,7 @@ begin
 	x2 := _Rect.Left;
 	r := _Rect;
 	bm := nil;
-	if FSettings.RipGrepperViewSettings.ShowFileIcon then begin
+	if Settings.RipGrepperViewSettings.ShowFileIcon then begin
 		bm := TItemDrawer.DrawFileIcon(_Canvas, r, _Item, ImageFileIcon);
 	end;
 
@@ -775,7 +788,7 @@ begin
 			end;
 			3 : begin
 				s := _Item.SubItems[i - 1]; // Match
-				if not FSettings.RipGrepperViewSettings.IndentLines then begin
+				if not Settings.RipGrepperViewSettings.IndentLines then begin
 					s := s.TrimLeft;
 				end;
 			end;
@@ -797,8 +810,8 @@ end;
 function TRipGrepperForm.GetAbsOrRelativePath(const _sFullPath : string) : string;
 begin
 	Result := _sFullPath;
-	if FSettings.RipGrepperViewSettings.ShowRelativePath and FSearchPathIsDir then begin
-		Result := Result.Replace(FSettings.ActualSearchPath, '.', [rfIgnoreCase]);
+	if Settings.RipGrepperViewSettings.ShowRelativePath and FSearchPathIsDir then begin
+		Result := Result.Replace(Settings.ActualSearchPath, '.', [rfIgnoreCase]);
 	end;
 end;
 
@@ -879,8 +892,14 @@ begin
 	cnv.TextOut(Rect.Left + 1, Rect.Top + c2ndRowTop, '*');
 
 	if (not lb.Items.Updating) then begin
-		cnv.TextOut(Rect.Left + cMatchesLeft, Rect.Top + c2ndRowTop,
-		{ } Format('%d(%d) in %d', [data.TotalMatchCount, data.ErrorCount, data.FileCount]));
+		var
+			sCounter : string;
+		if data.ErrorCount > 0 then begin
+			sCounter := Format('%d(%d) in %d', [data.TotalMatchCount, data.ErrorCount, data.FileCount]);
+		end else begin
+        	sCounter := Format('%d in %d', [data.TotalMatchCount, data.FileCount]);
+		end;
+		cnv.TextOut(Rect.Left + cMatchesLeft, Rect.Top + c2ndRowTop, sCounter);
 	end;
 end;
 
@@ -897,7 +916,7 @@ end;
 
 procedure TRipGrepperForm.LoadBeforeSearchSettings;
 begin
-	FSearchPathIsDir := TDirectory.Exists(FSettings.ActualSearchPath);
+	FSearchPathIsDir := TDirectory.Exists(Settings.ActualSearchPath);
 end;
 
 function TRipGrepperForm.ProcessShouldTerminate : boolean;
@@ -943,13 +962,13 @@ begin
 		procedure()
 		begin
 			workDir := TDirectory.GetCurrentDirectory();
-			TDebugUtils.DebugMessage('run: ' + FSettings.RipGrepParameters.RipGrepPath + ' '
-				{ } + FSettings.RipGrepParameters.RipGrepArguments.DelimitedText);
+			TDebugUtils.DebugMessage('run: ' + Settings.RipGrepParameters.RipGrepPath + ' '
+				{ } + Settings.RipGrepParameters.RipGrepArguments.DelimitedText);
 			FswSearchStart := TStopwatch.StartNew;
 			args := TStringList.Create;
 			try
-				args.AddStrings(FSettings.RipGrepParameters.RipGrepArguments.GetValues);
-				FHistObject.RipGrepResult := TProcessUtils.RunProcess(FSettings.RipGrepParameters.RipGrepPath, args,
+				args.AddStrings(Settings.RipGrepParameters.RipGrepArguments.GetValues);
+				FHistObject.RipGrepResult := TProcessUtils.RunProcess(Settings.RipGrepParameters.RipGrepPath, args,
 					{ } workDir,
 					{ } self as INewLineEventHandler,
 					{ } self as ITerminateEventProducer,
@@ -985,12 +1004,20 @@ var
 begin
 	selected := ListViewResult.Selected;
 	if Assigned(selected) then begin
-		Result.DirPath := ifthen(FSearchPathIsDir, FSettings.ActualSearchPath, ExtractFileDir(selected.Caption));
+		Result.DirPath := ifthen(FSearchPathIsDir, Settings.ActualSearchPath, ExtractFileDir(selected.Caption));
 		Result.FileName := selected.Caption;
 		Result.Row := StrToIntDef(selected.SubItems[0], -1);
 		Result.Column := StrToIntDef(selected.SubItems[1], -1);
 		Result.IsEmpty := False;
 	end;
+end;
+
+function TRipGrepperForm.GetSettings : TRipGrepperSettings;
+begin
+	if not Assigned(FSettings) then begin
+		FSettings := GSettings;
+	end;
+	Result := FSettings;
 end;
 
 procedure TRipGrepperForm.ListBoxSearchHistoryData(Control : TWinControl; Index : Integer; var Data : string);
@@ -1061,21 +1088,21 @@ end;
 procedure TRipGrepperForm.UpdateArgumentsAndSettings;
 begin
 	if FHistObject.RipGrepArguments.Count = 0 then begin
-		FHistObject.CopyRipGrepArgsFromSettings(FSettings);
+		FHistObject.CopyRipGrepArgsFromSettings(Settings);
 	end;
 end;
 
 procedure TRipGrepperForm.UpdateHistObject;
 begin
 	FHistObject := GetHistoryObject(CurrentHistoryItemIndex);
-	FHistObject.CopyToSettings(FSettings);
+	FHistObject.CopyToSettings(Settings);
 end;
 
 procedure TRipGrepperForm.UpdateRipGrepArgumentsInHistObj;
 begin
 	FHistObject.RipGrepArguments.Clear;
-	FSettings.ReBuildArguments();
-	FHistObject.CopyRipGrepArgsFromSettings(FSettings);
+	Settings.ReBuildArguments();
+	FHistObject.CopyRipGrepArgsFromSettings(Settings);
 end;
 
 procedure TRipGrepperForm.UpdateSortingImages(const _sbtArr : TArray<TSortByType>);
