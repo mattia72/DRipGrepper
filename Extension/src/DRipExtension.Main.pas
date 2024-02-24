@@ -1,5 +1,5 @@
 // https://www.gexperts.org/open-tools-api-faq/#sample
-unit DRipExtension;
+unit DRipExtension.Main;
 
 interface
 
@@ -52,6 +52,35 @@ begin
 	RegisterPackageWizard(TDRipExtension.Create);
 end;
 
+procedure TDRipExtension.CreateMenu;
+const
+	MENUITEM_NAME = 'DRipExpertMenuItem';
+var
+	mainMenu : TMainMenu;
+	iPos : integer;
+begin
+	if Assigned(G_MainMenu) then
+		exit;
+
+	mainMenu := (BorlandIDEServices as INTAServices).MainMenu;
+	iPos := mainMenu.Items.Count - 1;
+	for var i := 0 to mainMenu.Items.Count - 1 do begin
+		if CompareText(mainMenu.Items[i].Name, MENUITEM_NAME) = 0 then begin
+			mainMenu.Items.Remove(mainMenu.Items[i]);
+			break
+		end;
+	end;
+	for var i := 0 to mainMenu.Items.Count - 1 do begin
+		if CompareText(mainMenu.Items[i].Name, 'ToolsMenu') = 0 then begin
+			iPos := i;
+			break;
+		end;
+	end;
+
+	G_MainMenu := Vcl.Menus.NewItem(GetMenuText, 0, False, True, DoMainMenuClick, 0, MENUITEM_NAME);
+	mainMenu.Items.Insert(iPos, G_MainMenu);
+end;
+
 constructor TDRipExtension.Create;
 begin
 	inherited;
@@ -63,27 +92,6 @@ begin
 	TDebugUtils.DebugMessage('TDRipExtension.Destroy');
 	FRipGrepperForm.Free;
 	inherited;
-end;
-
-procedure TDRipExtension.CreateMenu;
-var
-	i : integer;
-	aMainMenu : TMainMenu;
-	aInsertPos : integer;
-begin
-	if Assigned(G_MainMenu) then
-		exit;
-
-	aMainMenu := (BorlandIDEServices as INTAServices).MainMenu;
-	aInsertPos := aMainMenu.Items.Count - 1;
-	for i := 0 to aMainMenu.Items.Count - 1 do
-		if CompareText(aMainMenu.Items[i].Name, 'ToolsMenu') = 0 then begin
-			aInsertPos := i;
-			break;
-		end;
-
-	G_MainMenu := Vcl.Menus.NewItem(GetMenuText, 0, False, True, DoMainMenuClick, 0, 'DRipExpertMenuItem');
-	aMainMenu.Items.Insert(aInsertPos, G_MainMenu);
 end;
 
 procedure TDRipExtension.DoMainMenuClick(Sender : TObject);
