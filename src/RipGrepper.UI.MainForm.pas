@@ -34,7 +34,8 @@ uses
 	RipGrepper.Data.HistoryItemObject,
 	GX_IdeDock,
 	u_dzDpiScaleUtils,
-	RipGrepper.OpenWith.SimpleTypes;
+	RipGrepper.OpenWith.SimpleTypes,
+	System.IniFiles;
 
 type
 	TRipGrepperForm = class(TfmIdeDockForm, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
@@ -167,11 +168,13 @@ type
 			procedure DoSortOnColumn(const _sbt : TSortByType);
 			procedure DrawItemOnCanvas(_Canvas : TCanvas; _Rect : TRect; _Item : TListItem; _State : TOwnerDrawState);
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
+			function GetCounterText(data : THistoryItemObject) : string;
 			function GetHistObject : THistoryItemObject;
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
 			function GetOpenWithParamsFromSelected : TOpenWithParams;
 			function GetSettings : TRipGrepperSettings;
 			procedure InitColumnSortTypes;
+			procedure InitForm;
 			procedure InitSearch;
 			procedure LoadBeforeSearchSettings;
 			procedure OnLastLine(const _iLineNr : integer);
@@ -201,7 +204,7 @@ type
 			constructor Create(AOwner : TComponent); overload; override;
 			destructor Destroy; override;
 			procedure CopyToClipboardPathOfSelected;
-			class function CreateAndShow(const _settings : TRipGrepperSettings) : string;
+			class function CreateAndShow(const _settings : TRipGrepperSettings): TRipGrepperForm;
 			function IsSearchRunning : Boolean;
 			// INewLineEventHandler
 			procedure OnNewOutputLine(const _iLineNr : integer; const _sLine : string; _bIsLast : Boolean = False);
@@ -211,7 +214,6 @@ type
 			procedure OnEOFProcess();
 			procedure SetResultListViewDataToHistoryObj;
 			procedure ChangeDataHistItemObject(_ho : THistoryItemObject);
-
 	end;
 
 var
@@ -242,13 +244,19 @@ uses
 	RipGrepper.Parsers.VimGrepMatchLine,
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.OpenWith,
-	RipGrepper.OpenWith.ConfigForm;
+	RipGrepper.OpenWith.ConfigForm,
+	GX_OtaUtils;
+
+const
+	RIPGREPPER_FORM = 'RipGrepperForm';
 
 {$R *.dfm}
 
 constructor TRipGrepperForm.Create(_settings : TRipGrepperSettings);
 begin
 	inherited Create(nil);
+	InitForm;
+
 	if Assigned(_settings) then begin
 		FSettings := _settings;
 	end;
@@ -258,22 +266,16 @@ end;
 constructor TRipGrepperForm.Create(AOwner : TComponent);
 begin
 	inherited Create(AOwner);
-
-	FData := TRipGrepperData.Create();
-	FHistoryObjectList := TStringList.Create(TDuplicates.dupIgnore, False, False);
-
-	FExeVersion := TFileUtils.GetAppNameAndVersion(Application.ExeName);
-	FFileNameType := ftAbsolute;
-
-	InitColumnSortTypes;
-	UpdateSortingImages([sbtFile, sbtRow]);
-	ListViewResult.InitMaxWidths(FMaxWidths);
-
-	InitDpiScaler;
+	InitForm;
 end;
 
 destructor TRipGrepperForm.Destroy;
 begin
+	TDebugUtils.DebugMessage('TRipGrepperForm.Destroy');
+	if not IsStandAlone then begin
+		IdeDockManager.UnRegisterDockableForm(self, RIPGREPPER_FORM);
+	end;
+
 	for var i := 0 to FHistoryObjectList.Count - 1 do begin
 		if Assigned(FHistoryObjectList.Objects[i])
 		{ } and (FHistoryObjectList.Objects[i] is THistoryItemObject) then begin
@@ -505,16 +507,20 @@ procedure TRipGrepperForm.AddOrUpdateHistoryItem;
 var
 	hi : THistoryItemObject;
 begin
+	TDebugUtils.DebugMessage('ActualSearchText: ' + Settings.ActualSearchText);
 	CurrentHistoryItemIndex := HistoryObjectList.IndexOf(Settings.ActualSearchText);
+	TDebugUtils.DebugMessage('CurrentHistoryItemIndex ' + CurrentHistoryItemIndex.ToString);
 	if CurrentHistoryItemIndex = -1 then begin
 		hi := THistoryItemObject.Create();
 		HistObject := hi;
 		ChangeDataHistItemObject(hi);
+		TDebugUtils.DebugMessage('Add HistoryObject ' + Settings.ActualSearchText);
 		CurrentHistoryItemIndex := HistoryObjectList.AddObject(Settings.ActualSearchText, hi);
 	end else begin
 		UpdateRipGrepArgumentsInHistObj;
 		UpdateHistObject;
 		ClearHistoryObject();
+		TDebugUtils.DebugMessage('Update HistoryObject ' + Settings.ActualSearchText);
 	end;
 	ListBoxSearchHistory.Count := HistoryObjectList.Count;
 end;
@@ -543,21 +549,20 @@ begin
 	HistObject.ClearMatches;
 end;
 
-class function TRipGrepperForm.CreateAndShow(const _settings : TRipGrepperSettings) : string;
+class function TRipGrepperForm.CreateAndShow(const _settings : TRipGrepperSettings): TRipGrepperForm;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.CreateAndShow: ' + _settings.IniFile.FileName);
-	var
-	form := TRipGrepperForm.Create(_settings);
+	Result := TRipGrepperForm.Create(_settings);
+
 	try
-		if (mrOk = form.ShowModal()) then begin
-			Result := form.ListViewResult.Items[form.ListViewResult.ItemIndex].SubItems[0];
-		end;
+		IdeDockManager.ShowForm(Result);
+		// if (mrOk = form.ShowModal()) then begin
+		// Result := form.ListViewResult.Items[form.ListViewResult.ItemIndex].SubItems[0];
+		// end;
 	finally
-		form.Free;
 		TDebugUtils.DebugMessage('TRipGrepperForm.CreateAndShow: finally');
 	end;
-
-end;
+ end;
 
 procedure TRipGrepperForm.DoSearch;
 begin
@@ -576,9 +581,12 @@ end;
 
 procedure TRipGrepperForm.FormShow(Sender : TObject);
 begin
+	TDebugUtils.DebugMessage('TRipGrepperForm.FormShow - begin');
+	inherited;
 	LoadSettings;
 	SetStatusBarMessage();
 	FRgExeVersion := TFileUtils.GetAppNameAndVersion(Settings.RipGrepParameters.RipGrepPath);
+	TDebugUtils.DebugMessage('TRipGrepperForm.FormShow - end');
 end;
 
 function TRipGrepperForm.GetSortingImageIndex(const _idx : Integer) : Integer;
@@ -892,14 +900,7 @@ begin
 	cnv.TextOut(Rect.Left + 1, Rect.Top + c2ndRowTop, '*');
 
 	if (not lb.Items.Updating) then begin
-		var
-			sCounter : string;
-		if data.ErrorCount > 0 then begin
-			sCounter := Format('%d(%d) in %d', [data.TotalMatchCount, data.ErrorCount, data.FileCount]);
-		end else begin
-        	sCounter := Format('%d in %d', [data.TotalMatchCount, data.FileCount]);
-		end;
-		cnv.TextOut(Rect.Left + cMatchesLeft, Rect.Top + c2ndRowTop, sCounter);
+		cnv.TextOut(Rect.Left + cMatchesLeft, Rect.Top + c2ndRowTop, GetCounterText(data));
 	end;
 end;
 
@@ -993,6 +994,15 @@ begin
 	FData.HistObject := _ho;
 end;
 
+function TRipGrepperForm.GetCounterText(data : THistoryItemObject) : string;
+begin
+	if data.ErrorCount > 0 then begin
+		Result := Format('%d(%d!) in %d', [data.TotalMatchCount, data.ErrorCount, data.FileCount]);
+	end else begin
+		Result := Format('%d in %d', [data.TotalMatchCount, data.FileCount]);
+	end;
+end;
+
 function TRipGrepperForm.GetHistObject : THistoryItemObject;
 begin
 	Result := FHistObject;
@@ -1018,6 +1028,30 @@ begin
 		FSettings := GSettings;
 	end;
 	Result := FSettings;
+end;
+
+procedure TRipGrepperForm.InitForm;
+begin
+	FData := TRipGrepperData.Create();
+	FHistoryObjectList := TStringList.Create(TDuplicates.dupIgnore, False, False);
+	{$IFDEF STANDALONE}
+	FExeVersion := TFileUtils.GetAppNameAndVersion(Application.ExeName);
+	{$ELSE}
+	FExeVersion := TFileUtils.GetPackageNameAndVersion(HInstance);
+	{$ENDIF}
+	FFileNameType := ftAbsolute;
+
+	InitColumnSortTypes;
+	UpdateSortingImages([sbtFile, sbtRow]);
+	ListViewResult.InitMaxWidths(FMaxWidths);
+
+	InitDpiScaler;
+
+	if not IsStandAlone then begin
+		IdeDockManager.RegisterDockableForm(TRipGrepperForm, self, RIPGREPPER_FORM);
+	end;
+
+	TDebugUtils.DebugMessage('TRipGrepperForm.InitForm Ended');
 end;
 
 procedure TRipGrepperForm.ListBoxSearchHistoryData(Control : TWinControl; Index : Integer; var Data : string);
@@ -1048,8 +1082,7 @@ begin
 		procedure
 		begin
 			ListBoxSearchHistory.Refresh;
-			SetStatusBarStatistic(Format('%d(%d) matches in %d files', [HistObject.TotalMatchCount, HistObject.ErrorCount,
-				HistObject.FileCount]));
+			SetStatusBarStatistic(GetCounterText(HistObject));
 		end);
 end;
 

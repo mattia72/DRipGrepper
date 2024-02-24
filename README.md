@@ -18,6 +18,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
   - [x] alternate row colors
 - [x] copy `rg` command line into clipboard
 - [x] sorting by path and row
+- [ ] sorting by column and text 
 - [ ] grouping by path: only for limited match line.
 - [ ] file handling (eg. open in explorer, copy, rename, delete)
 - [ ] replace text in files --replace=TEXT
@@ -56,8 +57,13 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
   - [x] *Open with...* settings saved
 - [ ] configuration dialog
 
+### Delphi integration https://github.com/mattia72/DRipGrepper/issues/1
+  - [x] dockable window
+  - [ ] menu item in Tools
+  - [ ] click on matching file, opens file in the editor on position 
+  - [ ] search only in opened files/project files/project group
+ 
 ### Misc
-- [ ] delphi IDE extension https://github.com/mattia72/DRipGrepper/issues/1
 - [x] standalone release
 - [ ] delphi extension release
 - [x] screenshots in Readme.md

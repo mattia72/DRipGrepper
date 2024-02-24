@@ -28,6 +28,7 @@ package DRipExtension280;
 {$DEFINE NO_TRANSLATION_HINT}
 {$DEFINE NO_OPTIMIZE_DZ_GRAPHIC_UTILS_HINT}
 {$DEFINE UnicodeRE}
+{$DEFINE EnableIdeDockingSupport}
 {$ENDIF IMPLICITBUILDING}
 {$IMPLICITBUILD ON}
 
@@ -35,9 +36,12 @@ requires
   rtl,
   designide,
   dbrtl,
-  vcldb;
+  vcldb,
+  vcl;
 
 contains
-  DRipExtension in 'src\DRipExtension.pas';
+  DRipExtension in 'src\DRipExtension.pas',
+  DripExtension.IOTA.Utils in 'src\DripExtension.IOTA.Utils.pas';
 
 end.
+
