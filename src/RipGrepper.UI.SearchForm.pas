@@ -21,11 +21,11 @@ uses
 	Vcl.StdActns,
 	Vcl.Dialogs,
 	u_dzDpiScaleUtils,
-	GX_IdeDock,
+	GX_BaseForm,
 	RipGrepper.Common.Types;
 
 type
-	TRipGrepperSearchDialogForm = class(TfmIdeDockForm)
+	TRipGrepperSearchDialogForm = class(TfmBaseForm)
 		pnlSearch : TPanel;
 		gbSearch : TGroupBox;
 		lblParams : TLabel;
@@ -74,6 +74,7 @@ type
 		public
 			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettings; const _actualArgs : TRipGrepArguments);
 				reintroduce; virtual;
+			destructor Destroy; override;
 	end;
 
 var
@@ -86,17 +87,28 @@ uses
 	RipGrepper.Tools.ProcessUtils,
 	System.UITypes,
 	RipGrepper.UI.RipGrepOptionsForm,
-	RipGrepper.Helper.Types;
+	RipGrepper.Helper.Types,
+	GX_OtaUtils;
 
-{$R *.dfm}
+const
+	RIPGREPPER_SEARCH_FORM = 'RipGrepperSearchDialogForm';
+
+	{$R *.dfm}
 
 constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _settings : TRipGrepperSettings;
 	const _actualArgs : TRipGrepArguments);
 begin
 	inherited Create(AOwner);
+
 	FSettings := _settings;
 	FActRipGrepArguments := _actualArgs;
 	InitDpiScaler();
+end;
+
+destructor TRipGrepperSearchDialogForm.Destroy;
+begin
+	inherited;
+	// TODO -cMM: TRipGrepperSearchDialogForm.Destroy default body inserted
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionCancelExecute(Sender : TObject);
