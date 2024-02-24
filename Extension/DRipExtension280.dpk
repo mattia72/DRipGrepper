@@ -40,8 +40,9 @@ requires
   vcl;
 
 contains
-  DRipExtension in 'src\DRipExtension.pas',
+  DRipExtension.Main in 'src\DRipExtension.Main.pas',
   DripExtension.IOTA.Utils in 'src\DripExtension.IOTA.Utils.pas';
 
 end.
+
 

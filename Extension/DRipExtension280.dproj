@@ -97,7 +97,7 @@
         <DCCReference Include="dbrtl.dcp"/>
         <DCCReference Include="vcldb.dcp"/>
         <DCCReference Include="vcl.dcp"/>
-        <DCCReference Include="src\DRipExtension.pas"/>
+        <DCCReference Include="src\DRipExtension.Main.pas"/>
         <DCCReference Include="src\DripExtension.IOTA.Utils.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
