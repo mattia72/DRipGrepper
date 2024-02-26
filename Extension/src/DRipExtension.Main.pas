@@ -11,13 +11,23 @@ type
 	// TNotifierObject has stub implementations for the necessary but
 	// unused IOTANotifer methods
 	TDRipExtension = class(TNotifierObject, IOTAMenuWizard, IOTAWizard)
+		const
+			MENUITEM_NAME = 'DRipExpertMenuItem';
+
 		private
+			FKeyNotifier : IOTAKeyboardBinding;
+			FKeyBinding : integer;
+
 			FRipGrepperForm : TRipGrepperForm;
 			procedure CreateMenu;
 			procedure DoMainMenuClick(Sender : TObject);
+			procedure InitKeyboardNotifier;
+			procedure RegisterKeyboardBinding;
+			procedure RemoveExtensionMenu;
+			procedure UnregisterKeyboardBinding;
 
 		public
-			constructor Create;
+			constructor Create; virtual;
 			destructor Destroy; override;
 			// IOTAWizard interafce methods(required for all wizards/experts)
 			function GetIDString : string;
@@ -46,6 +56,7 @@ uses
 
 var
 	G_MainMenu : TMenuItem;
+	G_DRipExtension : TDRipExtension;
 
 procedure Register;
 begin
@@ -53,8 +64,7 @@ begin
 end;
 
 procedure TDRipExtension.CreateMenu;
-const
-	MENUITEM_NAME = 'DRipExpertMenuItem';
+
 var
 	mainMenu : TMainMenu;
 	iPos : integer;
@@ -62,14 +72,10 @@ begin
 	if Assigned(G_MainMenu) then
 		exit;
 
+	RemoveExtensionMenu();
+
 	mainMenu := (BorlandIDEServices as INTAServices).MainMenu;
 	iPos := mainMenu.Items.Count - 1;
-	for var i := 0 to mainMenu.Items.Count - 1 do begin
-		if CompareText(mainMenu.Items[i].Name, MENUITEM_NAME) = 0 then begin
-			mainMenu.Items.Remove(mainMenu.Items[i]);
-			break
-		end;
-	end;
 	for var i := 0 to mainMenu.Items.Count - 1 do begin
 		if CompareText(mainMenu.Items[i].Name, 'ToolsMenu') = 0 then begin
 			iPos := i;
@@ -84,13 +90,16 @@ end;
 constructor TDRipExtension.Create;
 begin
 	inherited;
-	CreateMenu
+	G_DRipExtension := self;
+	CreateMenu;
 end;
 
 destructor TDRipExtension.Destroy;
 begin
 	TDebugUtils.DebugMessage('TDRipExtension.Destroy');
+	G_MainMenu.Free;
 	FRipGrepperForm.Free;
+	G_DRipExtension := nil;
 	inherited;
 end;
 
@@ -131,6 +140,53 @@ end;
 function TDRipExtension.GetState : TWizardState;
 begin
 	Result := [wsEnabled];
+end;
+
+procedure TDRipExtension.InitKeyboardNotifier;
+begin
+	if not Assigned(FKeyNotifier) then begin
+//		FKeyNotifier := TAGExpertKeyboardNotifier.Create;
+//		FKeyNotifier.OnShortCut := DoShortCut;
+	end;
+end;
+
+procedure TDRipExtension.RegisterKeyboardBinding;
+var
+	kbServices : IOTAKeyboardServices;
+begin
+	if not Assigned(FKeyNotifier) then
+		exit;
+
+	kbServices := BorlandIDEServices as IOTAKeyboardServices;
+	try
+		if Assigned(kbServices) then
+			FKeyBinding := kbServices.AddKeyboardBinding(FKeyNotifier);
+	except
+		FKeyBinding := -1;
+	end;
+end;
+
+procedure TDRipExtension.RemoveExtensionMenu();
+begin
+	var
+	mainMenu := (BorlandIDEServices as INTAServices).MainMenu;
+	for var i := 0 to mainMenu.Items.Count - 1 do begin
+		if CompareText(mainMenu.Items[i].Name, MENUITEM_NAME) = 0 then begin
+			mainMenu.Items.Remove(mainMenu.Items[i]);
+			break
+		end;
+	end;
+end;
+
+procedure TDRipExtension.UnregisterKeyboardBinding;
+begin
+	if FKeyBinding > -1 then begin
+		(BorlandIDEServices as IOTAKeyboardServices).RemoveKeyboardBinding(FKeyBinding);
+		FKeyBinding := -1;
+	end
+	else
+		// FKeyNotifier.Free;
+		FKeyNotifier := nil;
 end;
 
 end.

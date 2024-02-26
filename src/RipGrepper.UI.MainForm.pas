@@ -32,110 +32,122 @@ uses
 	System.Diagnostics,
 	RipGrepper.Common.Sorter,
 	RipGrepper.Data.HistoryItemObject,
-	GX_IdeDock,
+	RipGrepper.UI.DockableForm,
 	u_dzDpiScaleUtils,
 	RipGrepper.OpenWith.SimpleTypes,
-	System.IniFiles;
+	System.IniFiles,
+	ToolsAPI,
+	GX_BaseForm,
+	RipGrepper.UI.MainFrame;
 
 type
-	TRipGrepperForm = class(TfmIdeDockForm, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
-		panelMain : TPanel;
-		ListViewResult : TListView;
-		pnlBottom : TPanel;
-		ImageListButtons : TImageList;
-		ActionList : TActionList;
-		ActionSearch : TAction;
-		ActionCancel : TAction;
-		ActionConfig : TAction;
-		StatusBar1 : TStatusBar;
-		ActionSwitchView : TAction;
-		ActionSortByFile : TAction;
-		ToolBar1 : TToolBar;
-		tbCopyCmdLine : TToolButton;
-		tbView : TToolButton;
-		tbShowRelativePath : TToolButton;
-		ActionShowRelativePath : TAction;
-		ToolButton1 : TToolButton;
-		ToolButton2 : TToolButton;
-		ActionCmdLineCopy : TAction;
-		ActionSortByRow : TAction;
-		PopupMenu1 : TPopupMenu;
-		ActionCopyFileName : TAction;
-		CopyFileNameToClipboard : TMenuItem;
-		ActionCopyPathToClipboard : TAction;
-		CopyPathToClipboard : TMenuItem;
-		ImageListListView : TImageList;
-		ImageFileIcon : TImage;
-		tbDoSearchCancel : TToolButton;
-		ActionShowSearchForm : TAction;
-		tbShowFileIcon : TToolButton;
-		ActionShowFileIcons : TAction;
-		ToolButton3 : TToolButton;
-		tbAlternateRowColors : TToolButton;
-		ActionAlternateRowColors : TAction;
-		ActionAbortSearch : TAction;
-		tbAbortSearch : TToolButton;
-		tbRefreshSearch : TToolButton;
-		ActionRefreshSearch : TAction;
-		tbIndentLines : TToolButton;
-		ActionIndentLine : TAction;
-		SplitView1 : TSplitView;
-		Splitter1 : TSplitter;
-		ListBoxSearchHistory : TListBox;
-		PanelHistory : TPanel;
-		PanelResult : TPanel;
-		ActionStatusBar : TAction;
-		tbConfigure : TToolButton;
-		ToolButton4 : TToolButton;
-		ActionOpenWith : TAction;
-		ToolButton5 : TToolButton;
-		ToolButton6 : TToolButton;
-		Openwith1 : TMenuItem;
-		N1 : TMenuItem;
-		ActivityIndicator1 : TActivityIndicator;
-		procedure ActionStatusBarUpdate(Sender : TObject);
-		procedure ActionAbortSearchExecute(Sender : TObject);
-		procedure ActionAbortSearchUpdate(Sender : TObject);
-		procedure ActionAlternateRowColorsExecute(Sender : TObject);
-		procedure ActionAlternateRowColorsUpdate(Sender : TObject);
-		procedure ActionCancelExecute(Sender : TObject);
-		procedure ActionCmdLineCopyExecute(Sender : TObject);
-		procedure ActionCmdLineCopyUpdate(Sender : TObject);
-		procedure ActionConfigExecute(Sender : TObject);
-		procedure ActionCopyFileNameExecute(Sender : TObject);
-		procedure ActionCopyPathToClipboardExecute(Sender : TObject);
-		procedure ActionShowSearchFormExecute(Sender : TObject);
-		procedure ActionShowSearchFormUpdate(Sender : TObject);
-		procedure ActionIndentLineExecute(Sender : TObject);
-		procedure ActionIndentLineUpdate(Sender : TObject);
-		procedure ActionOpenWithExecute(Sender : TObject);
-		procedure ActionOpenWithUpdate(Sender : TObject);
-		procedure ActionRefreshSearchExecute(Sender : TObject);
-		procedure ActionRefreshSearchUpdate(Sender : TObject);
-		procedure ActionShowRelativePathExecute(Sender : TObject);
-		procedure ActionSearchExecute(Sender : TObject);
-		procedure ActionShowFileIconsExecute(Sender : TObject);
-		procedure ActionShowFileIconsUpdate(Sender : TObject);
-		procedure ActionShowRelativePathUpdate(Sender : TObject);
-		procedure ActionSortByFileExecute(Sender : TObject);
-		procedure ActionSortByFileUpdate(Sender : TObject);
-		procedure ActionSortByRowExecute(Sender : TObject);
-		procedure ActionSortByRowUpdate(Sender : TObject);
-		procedure ActionSwitchViewExecute(Sender : TObject);
-		procedure ActionSwitchViewUpdate(Sender : TObject);
-		procedure FormClose(Sender : TObject; var Action : TCloseAction);
-		procedure FormResize(Sender : TObject);
-		procedure FormShow(Sender : TObject);
-		procedure ListBoxSearchHistoryClick(Sender : TObject);
-		procedure ListBoxSearchHistoryData(Control : TWinControl; Index : Integer; var Data : string);
-		procedure ListBoxSearchHistoryDblClick(Sender : TObject);
-		procedure ListBoxSearchHistoryDrawItem(Control : TWinControl; Index : Integer; Rect : TRect; State : TOwnerDrawState);
-		procedure ListViewResultColumnClick(Sender : TObject; Column : TListColumn);
-		procedure ListViewResultData(Sender : TObject; Item : TListItem);
-		procedure ListViewResultDblClick(Sender : TObject);
-		procedure ListViewResultDrawItem(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
+	TRipGrepperForm = class(TfmBaseForm, { TfmIdeDockForm, } INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
+		var
+			panelMain : TPanel;
+			ListViewResult : TListView;
+			pnlBottom : TPanel;
+			ImageListButtons : TImageList;
+			ActionList : TActionList;
+			ActionSearch : TAction;
+			ActionCancel : TAction;
+			ActionConfig : TAction;
+			StatusBar1 : TStatusBar;
+			ActionSwitchView : TAction;
+			ActionSortByFile : TAction;
+			ToolBar1 : TToolBar;
+			tbCopyCmdLine : TToolButton;
+			tbView : TToolButton;
+			tbShowRelativePath : TToolButton;
+			ActionShowRelativePath : TAction;
+			ToolButton1 : TToolButton;
+			ToolButton2 : TToolButton;
+			ActionCmdLineCopy : TAction;
+			ActionSortByRow : TAction;
+			PopupMenu1 : TPopupMenu;
+			ActionCopyFileName : TAction;
+			CopyFileNameToClipboard : TMenuItem;
+			ActionCopyPathToClipboard : TAction;
+			CopyPathToClipboard : TMenuItem;
+			ImageListListView : TImageList;
+			ImageFileIcon : TImage;
+			tbDoSearchCancel : TToolButton;
+			ActionShowSearchForm : TAction;
+			tbShowFileIcon : TToolButton;
+			ActionShowFileIcons : TAction;
+			ToolButton3 : TToolButton;
+			tbAlternateRowColors : TToolButton;
+			ActionAlternateRowColors : TAction;
+			ActionAbortSearch : TAction;
+			tbAbortSearch : TToolButton;
+			tbRefreshSearch : TToolButton;
+			ActionRefreshSearch : TAction;
+			tbIndentLines : TToolButton;
+			ActionIndentLine : TAction;
+			SplitView1 : TSplitView;
+			Splitter1 : TSplitter;
+			ListBoxSearchHistory : TListBox;
+			PanelHistory : TPanel;
+			PanelResult : TPanel;
+			ActionStatusBar : TAction;
+			tbConfigure : TToolButton;
+			ToolButton4 : TToolButton;
+			ActionOpenWith : TAction;
+			ToolButton5 : TToolButton;
+			ToolButton6 : TToolButton;
+			Openwith1 : TMenuItem;
+			N1 : TMenuItem;
+			ActivityIndicator1 : TActivityIndicator;
+			procedure FormCreate(Sender : TObject);
+			procedure ActionStatusBarUpdate(Sender : TObject);
+			procedure ActionAbortSearchExecute(Sender : TObject);
+			procedure ActionAbortSearchUpdate(Sender : TObject);
+			procedure ActionAlternateRowColorsExecute(Sender : TObject);
+			procedure ActionAlternateRowColorsUpdate(Sender : TObject);
+			procedure ActionCancelExecute(Sender : TObject);
+			procedure ActionCmdLineCopyExecute(Sender : TObject);
+			procedure ActionCmdLineCopyUpdate(Sender : TObject);
+			procedure ActionConfigExecute(Sender : TObject);
+			procedure ActionCopyFileNameExecute(Sender : TObject);
+			procedure ActionCopyPathToClipboardExecute(Sender : TObject);
+			procedure ActionShowSearchFormExecute(Sender : TObject);
+			procedure ActionShowSearchFormUpdate(Sender : TObject);
+			procedure ActionIndentLineExecute(Sender : TObject);
+			procedure ActionIndentLineUpdate(Sender : TObject);
+			procedure ActionOpenWithExecute(Sender : TObject);
+			procedure ActionOpenWithUpdate(Sender : TObject);
+			procedure ActionRefreshSearchExecute(Sender : TObject);
+			procedure ActionRefreshSearchUpdate(Sender : TObject);
+			procedure ActionShowRelativePathExecute(Sender : TObject);
+			procedure ActionSearchExecute(Sender : TObject);
+			procedure ActionShowFileIconsExecute(Sender : TObject);
+			procedure ActionShowFileIconsUpdate(Sender : TObject);
+			procedure ActionShowRelativePathUpdate(Sender : TObject);
+			procedure ActionSortByFileExecute(Sender : TObject);
+			procedure ActionSortByFileUpdate(Sender : TObject);
+			procedure ActionSortByRowExecute(Sender : TObject);
+			procedure ActionSortByRowUpdate(Sender : TObject);
+			procedure ActionSwitchViewExecute(Sender : TObject);
+			procedure ActionSwitchViewUpdate(Sender : TObject);
+			procedure FormClose(Sender : TObject; var Action : TCloseAction);
+			procedure FormResize(Sender : TObject);
+			procedure FormShow(Sender : TObject);
+			/// <summary>
+			/// Returns the class of the frame that you want embedded in the dockable form
+			/// </summary>
+			function GetFrameClass : TCustomFrameClass; // override;
+			procedure ListBoxSearchHistoryClick(Sender : TObject);
+			procedure ListBoxSearchHistoryData(Control : TWinControl; Index : Integer; var Data : string);
+			procedure ListBoxSearchHistoryDblClick(Sender : TObject);
+			procedure ListBoxSearchHistoryDrawItem(Control : TWinControl; Index : Integer; Rect : TRect; State : TOwnerDrawState);
+			procedure ListViewResultColumnClick(Sender : TObject; Column : TListColumn);
+			procedure ListViewResultData(Sender : TObject; Item : TListItem);
+			procedure ListViewResultDblClick(Sender : TObject);
+			procedure ListViewResultDrawItem(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
 
-		private
+		private const
+			RIPGREPPER_FORM = 'RipGrepperForm';
+
+		var
 			FAbortSearch : Boolean;
 			FswSearchStart : TStopwatch;
 			FData : TRipGrepperData;
@@ -198,13 +210,14 @@ type
 		protected
 			procedure ApplyDpi(_NewDpi : Integer; _NewBounds : PRect); override;
 			procedure ArrangeControls; override;
+			procedure CreateParams(var Params : TCreateParams); override;
 
 		public
 			constructor Create(_settings : TRipGrepperSettings); reintroduce; overload;
 			constructor Create(AOwner : TComponent); overload; override;
 			destructor Destroy; override;
 			procedure CopyToClipboardPathOfSelected;
-			class function CreateAndShow(const _settings : TRipGrepperSettings): TRipGrepperForm;
+			class function CreateAndShow(const _settings : TRipGrepperSettings) : TRipGrepperForm;
 			function IsSearchRunning : Boolean;
 			// INewLineEventHandler
 			procedure OnNewOutputLine(const _iLineNr : integer; const _sLine : string; _bIsLast : Boolean = False);
@@ -214,6 +227,7 @@ type
 			procedure OnEOFProcess();
 			procedure SetResultListViewDataToHistoryObj;
 			procedure ChangeDataHistItemObject(_ho : THistoryItemObject);
+			procedure Loaded; override;
 	end;
 
 var
@@ -245,10 +259,8 @@ uses
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.OpenWith,
 	RipGrepper.OpenWith.ConfigForm,
-	GX_OtaUtils;
-
-const
-	RIPGREPPER_FORM = 'RipGrepperForm';
+	GX_OtaUtils,
+	System.TypInfo;
 
 {$R *.dfm}
 
@@ -267,14 +279,22 @@ constructor TRipGrepperForm.Create(AOwner : TComponent);
 begin
 	inherited Create(AOwner);
 	InitForm;
+	LoadSettings;
+end;
+
+procedure TRipGrepperForm.FormCreate(Sender : TObject);
+begin
+   //	LoadSettings;
+	FRgExeVersion := TFileUtils.GetAppNameAndVersion(Settings.RipGrepParameters.RipGrepPath);
 end;
 
 destructor TRipGrepperForm.Destroy;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.Destroy');
-	if not IsStandAlone then begin
-		IdeDockManager.UnRegisterDockableForm(self, RIPGREPPER_FORM);
-	end;
+	// if not IsStandAlone then begin
+	// TDebugUtils.DebugMessage('UnRegisterDockableForm - ' + RIPGREPPER_FORM);
+	// IdeDockManager.UnRegisterDockableForm(self, RIPGREPPER_FORM);
+	// end;
 
 	for var i := 0 to FHistoryObjectList.Count - 1 do begin
 		if Assigned(FHistoryObjectList.Objects[i])
@@ -324,8 +344,8 @@ end;
 
 procedure TRipGrepperForm.ActionCancelExecute(Sender : TObject);
 begin
-	ModalResult := mrCancel;
-	Close;
+	// ModalResult := mrCancel;
+	// Close();
 end;
 
 procedure TRipGrepperForm.ActionCmdLineCopyExecute(Sender : TObject);
@@ -549,20 +569,21 @@ begin
 	HistObject.ClearMatches;
 end;
 
-class function TRipGrepperForm.CreateAndShow(const _settings : TRipGrepperSettings): TRipGrepperForm;
+class function TRipGrepperForm.CreateAndShow(const _settings : TRipGrepperSettings) : TRipGrepperForm;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.CreateAndShow: ' + _settings.IniFile.FileName);
 	Result := TRipGrepperForm.Create(_settings);
 
 	try
-		IdeDockManager.ShowForm(Result);
+		Result.Show;
+		// IdeDockManager.ShowForm(Result);
 		// if (mrOk = form.ShowModal()) then begin
 		// Result := form.ListViewResult.Items[form.ListViewResult.ItemIndex].SubItems[0];
 		// end;
 	finally
 		TDebugUtils.DebugMessage('TRipGrepperForm.CreateAndShow: finally');
 	end;
- end;
+end;
 
 procedure TRipGrepperForm.DoSearch;
 begin
@@ -574,6 +595,7 @@ end;
 
 procedure TRipGrepperForm.FormClose(Sender : TObject; var Action : TCloseAction);
 begin
+	TDebugUtils.DebugMessage('TRipGrepperForm.FormClose - begin action:' + Integer(Action).ToString);
 	Settings.Store;
 	TListBoxHelper.FreeItemObjects(ListBoxSearchHistory);
 	ListViewResult.Items.Count := 0;
@@ -583,9 +605,7 @@ procedure TRipGrepperForm.FormShow(Sender : TObject);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.FormShow - begin');
 	inherited;
-	LoadSettings;
 	SetStatusBarMessage();
-	FRgExeVersion := TFileUtils.GetAppNameAndVersion(Settings.RipGrepParameters.RipGrepPath);
 	TDebugUtils.DebugMessage('TRipGrepperForm.FormShow - end');
 end;
 
@@ -994,6 +1014,17 @@ begin
 	FData.HistObject := _ho;
 end;
 
+procedure TRipGrepperForm.CreateParams(var Params : TCreateParams);
+begin
+	TDebugUtils.DebugMessage('TRipGrepperForm.CreateParams');
+	inherited CreateParams(Params);
+
+	if IsStandAlone then begin
+		Params.ExStyle := Params.ExStyle or WS_EX_APPWINDOW;
+		Params.WndParent := GetDesktopwindow;
+	end;
+end;
+
 function TRipGrepperForm.GetCounterText(data : THistoryItemObject) : string;
 begin
 	if data.ErrorCount > 0 then begin
@@ -1001,6 +1032,11 @@ begin
 	end else begin
 		Result := Format('%d in %d', [data.TotalMatchCount, data.FileCount]);
 	end;
+end;
+
+function TRipGrepperForm.GetFrameClass : TCustomFrameClass;
+begin
+	Result := nil; // TRipGrepperForm;
 end;
 
 function TRipGrepperForm.GetHistObject : THistoryItemObject;
@@ -1047,9 +1083,10 @@ begin
 
 	InitDpiScaler;
 
-	if not IsStandAlone then begin
-		IdeDockManager.RegisterDockableForm(TRipGrepperForm, self, RIPGREPPER_FORM);
-	end;
+	// if not IsStandAlone then begin
+	// TDebugUtils.DebugMessage('RegisterDockableForm - ' + RIPGREPPER_FORM);
+	// IdeDockManager.RegisterDockableForm(TRipGrepperForm, self, RIPGREPPER_FORM);
+	// end;
 
 	TDebugUtils.DebugMessage('TRipGrepperForm.InitForm Ended');
 end;
@@ -1062,6 +1099,25 @@ end;
 procedure TRipGrepperForm.ListViewResultDblClick(Sender : TObject);
 begin
 	ActionOpenWithExecute(Sender);
+end;
+
+procedure TRipGrepperForm.Loaded;
+var
+	PropInfo : PPropInfo;
+	i : Integer;
+	cmp : TComponent;
+begin
+	TDebugUtils.DebugMessage('TRipGrepperForm.Loaded');
+	inherited Loaded;
+	PropInfo := GetPropInfo(Self, 'StyleElements');
+	if Assigned(PropInfo) then
+		SetOrdProp(Self, PropInfo, 0);
+	for I := 0 to ComponentCount - 1 do begin
+		cmp := Components[I];
+		PropInfo := GetPropInfo(cmp, 'StyleElements');
+		if Assigned(PropInfo) then
+			SetOrdProp(cmp, PropInfo, 0);
+	end;
 end;
 
 procedure TRipGrepperForm.OnLastLine(const _iLineNr : integer);

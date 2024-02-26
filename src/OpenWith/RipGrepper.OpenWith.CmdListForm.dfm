@@ -2,8 +2,8 @@ object OpenWithCmdList: TOpenWithCmdList
   Left = 738
   Top = 170
   Caption = 'Open with...'
-  ClientHeight = 417
-  ClientWidth = 746
+  ClientHeight = 515
+  ClientWidth = 778
   Color = clBtnFace
   Constraints.MinHeight = 300
   Constraints.MinWidth = 625
@@ -153,8 +153,8 @@ object OpenWithCmdList: TOpenWithCmdList
   TextHeight = 34
   object pnl_Bottom: TPanel
     Left = 0
-    Top = 314
-    Width = 746
+    Top = 412
+    Width = 778
     Height = 103
     Margins.Left = 8
     Margins.Top = 8
@@ -165,10 +165,10 @@ object OpenWithCmdList: TOpenWithCmdList
     ParentBackground = False
     TabOrder = 0
     DesignSize = (
-      746
+      778
       103)
     object btn_Save: TButton
-      Left = 284
+      Left = 316
       Top = 20
       Width = 185
       Height = 63
@@ -182,7 +182,7 @@ object OpenWithCmdList: TOpenWithCmdList
       TabOrder = 0
     end
     object btn_Cancel: TButton
-      Left = 484
+      Left = 516
       Top = 20
       Width = 190
       Height = 63
@@ -199,8 +199,8 @@ object OpenWithCmdList: TOpenWithCmdList
   object pnlMain: TPanel
     Left = 0
     Top = 0
-    Width = 746
-    Height = 314
+    Width = 778
+    Height = 412
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -209,10 +209,10 @@ object OpenWithCmdList: TOpenWithCmdList
     BevelOuter = bvNone
     TabOrder = 1
     DesignSize = (
-      746
-      314)
+      778
+      412)
     object btnConfig: TButton
-      Left = 609
+      Left = 641
       Top = 25
       Width = 65
       Height = 60
@@ -230,7 +230,7 @@ object OpenWithCmdList: TOpenWithCmdList
     end
     object btnView: TButton
       AlignWithMargins = True
-      Left = 609
+      Left = 641
       Top = 100
       Width = 65
       Height = 60
@@ -250,8 +250,8 @@ object OpenWithCmdList: TOpenWithCmdList
       AlignWithMargins = True
       Left = 50
       Top = 25
-      Width = 571
-      Height = 272
+      Width = 603
+      Height = 370
       Margins.Left = 50
       Margins.Top = 25
       Margins.Right = 125

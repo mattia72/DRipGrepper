@@ -13,7 +13,7 @@ const
 
 	APPNAME = 'DRipGrepper';
 	EXTENSION_NAME = 'DRipExtension';
-	EXTENSION_MENU_CAPTION = 'DRip Extension';
+	EXTENSION_MENU_CAPTION = 'DRip';
 
 	CR = #13;
 	LF = #10;
