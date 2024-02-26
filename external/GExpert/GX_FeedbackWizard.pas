@@ -621,7 +621,7 @@ const
 begin
   Result := '';
   if Tab = tshType then
-    Result := 'GExperts ' + GetFeedbackTypeString + SkipLine // Do not localize.
+    Result := 'DRipExtensions ' + GetFeedbackTypeString + SkipLine // Do not localize.
   else if Tab = tshDescription then
     Result := SDescription + CRLF + mmoDescription.Lines.Text + SkipLine
   else if Tab = tshBugDetails then
@@ -849,7 +849,7 @@ end;
 
 function GetGExpertsSettingsString: string;
 begin
-  Result := ReportItemsInRegistryKey('GExperts Experts:',
+  Result := ReportItemsInRegistryKey('DRipExtensions Experts:',
     ConfigInfo.GExpertsIdeRootRegistryKey + '\EnabledExperts') + CRLF;
 end;
 

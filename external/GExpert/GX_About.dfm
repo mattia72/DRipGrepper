@@ -12,9 +12,7 @@ object fmAbout: TfmAbout
   Font.Height = -12
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
   Scaled = False
-  PixelsPerInch = 96
   TextHeight = 14
   object lblGExperts: TLabel
     Left = 346
@@ -105,8 +103,10 @@ object fmAbout: TfmAbout
     Color = clBtnFace
     Ctl3D = False
     Lines.Strings = (
-      'Experimental build from http://www.domain.com.  '
-      'Please report all bugs to email@domain.com.')
+      'Experimental build from '
+      'http://www.domain.com.  '
+      'Please report all bugs to '
+      'email@domain.com.')
     ParentCtl3D = False
     ReadOnly = True
     TabOrder = 3

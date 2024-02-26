@@ -170,7 +170,7 @@ end;
 
 function TGxMsgBoxAdaptor.GetCaption: string;
 begin
-  Result := 'GExperts Message';
+  Result := 'DRipExtensions Message';
 end;
 
 function TGxMsgBoxAdaptor.GetUniqueIdentifier: string;

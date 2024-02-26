@@ -71,16 +71,16 @@ const
   // Text description of packages with which GExperts must be compiled to work
   RequiredPackageText = '  vcl, vclx, and designide';
 resourcestring
-  SGxBuildError = 'GExperts build error';
+  SGxBuildError = 'DRipExtensions build error';
   SNotBuiltWithRequiredPackages =
- 'GExperts has not been built with the required runtime packages ' + sLineBreak +
+ 'DRipExtensions has not been built with the required runtime packages ' + sLineBreak +
  sLineBreak +
  RequiredPackageText + sLineBreak +
  sLineBreak +
  'Please add these packages to the list of used runtime packages, '+
  'check the "Build with runtime packages" box, and rebuild GExperts.' + sLineBreak +
  sLineBreak +
- 'GExperts will not be installed into the IDE until this has been done.';
+ 'DRipExtensions will not be installed into the IDE until this has been done.';
 begin
   Windows.MessageBox(0, PChar(SNotBuiltWithRequiredPackages),
     PChar(SGxBuildError), MB_OK or MB_ICONERROR);

@@ -144,7 +144,7 @@ begin
 
   if mmoContributors.Focused then
     Exit;
-    
+
   Res :=  SendMessage(mmoContributors.Handle, WM_VSCROLL, SB_LINEDOWN, 0);
   if Res = 0 then begin
     // we have reached the end
@@ -271,7 +271,7 @@ begin
   VerString := GetVersionStr;
   if GExpertsDllMarker = nil then
     VerString := VerString + ' (duplicate, inactive)';
-  AddPluginToSplashScreen(GetSplashIcon, 'GExperts', VerString);
+  AddPluginToSplashScreen(GetSplashIcon, 'DRipExtensions', VerString);
 end;
 
 class function TfmAbout.DoAddToAboutDialog: Integer;
@@ -284,8 +284,8 @@ begin
   if Supports(BorlandIDEServices, IOTAAboutBoxServices, AboutBoxServices) then
   begin
     Result := AboutBoxServices.AddPluginInfo(
-      'GExperts',
-      'GExperts is a free set of tools built to increase the productivity of Delphi and C++Builder'
+	  'DRipExtensions',
+      'DRipExtensions is a free set of tools built to increase the productivity of Delphi and C++Builder'
       + ' programmers by adding several features to the IDE.'
       + ' GExperts is developed as Open Source software and we encourage user contributions to the project.'#13#10
       + '(c) Erik Berry and the GExperts Team'#13#10

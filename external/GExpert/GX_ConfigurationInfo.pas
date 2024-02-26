@@ -177,7 +177,7 @@ type
   /// handles the settings of a particular expert, stored under the section given in the constructor </summary>
   TExpertSettings = class
   private
-    FGExpertsSettings: TGExpertsSettings;              
+    FGExpertsSettings: TGExpertsSettings;
     FSection: string;
   public
     constructor Create(GExpertsSettings: TGExpertsSettings; const Section: string);
@@ -563,12 +563,12 @@ end;
 
 function TConfigInfo.DefaultCachingPath: string;
 begin
-  Result := AddSlash(GetUserLocalApplicationDataFolder) + AddSlash('Gexperts') + IDEEnglishName;
+  Result := AddSlash(GetUserLocalApplicationDataFolder) + AddSlash('DRipExtensions') + IDEEnglishName;
 end;
 
 function TConfigInfo.DefaultConfigPath: string;
 begin
-  Result := AddSlash(GetUserApplicationDataFolder) + AddSlash('GExperts') + IDEEnglishName;
+  Result := AddSlash(GetUserApplicationDataFolder) + AddSlash('DRipExtensions') + IDEEnglishName;
 end;
 
 destructor TConfigInfo.Destroy;
@@ -598,7 +598,7 @@ begin
     FVclPath := AddSlash(Settings.ReadString(ConfigurationKey, 'VCLPath', FVclPath));
     FConfigPath := AddSlash(Settings.ReadString(ConfigurationKey, 'ConfigPath', FConfigPath));
     FCachingPath := AddSlash(Settings.ReadString(ConfigurationKey, 'CachingPath', FCachingPath));
-    FHelpFileLocation := Settings.ReadString(ConfigurationKey, 'HelpFile', FGExpertsPath + 'GExperts.chm');
+    FHelpFileLocation := Settings.ReadString(ConfigurationKey, 'HelpFile', FGExpertsPath + 'DRipExtensions.chm');
     if SameText(ExtractFileExt(FHelpFileLocation), '.hlp') then
       FHelpFileLocation := ChangeFileExt(FHelpFileLocation, '.chm');
 {$IFNDEF GX_STANDALONE}
@@ -669,7 +669,7 @@ end;
 
 function TConfigInfo.GExpertsIdeRootRegistryKey: string;
 const
-  SGExpertsString = 'GExperts-1.3';
+  SGExpertsString = 'DRipExtensions-1.0';
 begin
   Result := AddSlash(FIdeRootRegistryKey) + SGExpertsString;
 end;
