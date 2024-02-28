@@ -38,20 +38,18 @@ uses
 	System.IniFiles,
 	ToolsAPI,
 	GX_BaseForm,
-	RipGrepper.UI.MainFrame;
+	RipGrepper.UI.MainFrame, RipGrepper.UI.BottomFrame;
 
 type
 	TRipGrepperForm = class(TfmBaseForm, { TfmIdeDockForm, } INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
 		var
 			panelMain : TPanel;
 			ListViewResult : TListView;
-			pnlBottom : TPanel;
 			ImageListButtons : TImageList;
 			ActionList : TActionList;
 			ActionSearch : TAction;
 			ActionCancel : TAction;
 			ActionConfig : TAction;
-			StatusBar1 : TStatusBar;
 			ActionSwitchView : TAction;
 			ActionSortByFile : TAction;
 			ToolBar1 : TToolBar;
@@ -96,9 +94,8 @@ type
 			ToolButton6 : TToolButton;
 			Openwith1 : TMenuItem;
 			N1 : TMenuItem;
-			ActivityIndicator1 : TActivityIndicator;
+    BottomFrame: TRipGrepperBottomFrame;
 			procedure FormCreate(Sender : TObject);
-			procedure ActionStatusBarUpdate(Sender : TObject);
 			procedure ActionAbortSearchExecute(Sender : TObject);
 			procedure ActionAbortSearchUpdate(Sender : TObject);
 			procedure ActionAlternateRowColorsExecute(Sender : TObject);
@@ -165,9 +162,6 @@ type
 			FIsParsingRunning : Boolean;
 			FMeassureFirstDrawEvent : Boolean;
 			FRipGrepTask : ITask;
-			FStatusBarMessage : string;
-			FStatusBarStatus : string;
-			FStatusBarStatistic : string;
 			FViewStyleIndex : Integer;
 			procedure AddOrUpdateHistoryItem;
 			procedure ClearHistoryObject;
@@ -308,13 +302,6 @@ begin
 	// Settings.Free;
 	FImageScaler.Free;
 	inherited;
-end;
-
-procedure TRipGrepperForm.ActionStatusBarUpdate(Sender : TObject);
-begin
-	StatusBar1.Panels[PNL_MESSAGE_IDX].Text := FStatusBarMessage;
-	StatusBar1.Panels[PNL_STATUS_IDX].Text := FStatusBarStatus;
-	StatusBar1.Panels[PNL_STATTS_IDX].Text := FStatusBarStatistic;
 end;
 
 procedure TRipGrepperForm.ActionAbortSearchExecute(Sender : TObject);
@@ -831,7 +818,7 @@ end;
 procedure TRipGrepperForm.FormResize(Sender : TObject);
 begin
 	SplitView1.Width := panelMain.Width;
-	StatusBar1.Panels[0].Width := PanelHistory.Width;
+	BottomFrame.StatusBar1.Panels[0].Width := PanelHistory.Width;
 	SetColumnWidths;
 end;
 
@@ -1004,7 +991,7 @@ begin
 			TDebugUtils.DebugMessage(Format('rg.exe ended in %s sec.', [FHistObject.ElapsedTimeText]));
 		end);
 	FRipGrepTask.Start;
-	ActivityIndicator1.Animate := True;
+	BottomFrame.ActivityIndicator1.Animate := True;
 end;
 
 procedure TRipGrepperForm.ChangeDataHistItemObject(_ho : THistoryItemObject);
@@ -1127,7 +1114,7 @@ begin
 		procedure
 		begin
 			SetColumnWidths;
-			ActivityIndicator1.Animate := False;
+			BottomFrame.ActivityIndicator1.Animate := False;
 			FIsParsingRunning := False;
 		end);
 end;
@@ -1161,17 +1148,17 @@ var msg : string;
 begin
 	if _bWithElapsedTime then begin
 		msg := Format('Search took %s seconds with ' + EXE_AND_VERSION_FORMAT, [FHistObject.ElapsedTimeText, FExeVersion]);
-		FStatusBarStatus := IfThen(FHistObject.RipGrepResult = RIPGREP_ERROR, 'ERROR', 'SUCCES');
+		BottomFrame.FStatusBarStatus := IfThen(FHistObject.RipGrepResult = RIPGREP_ERROR, 'ERROR', 'SUCCES');
 	end else begin
 		msg := Format(EXE_AND_VERSION_FORMAT, [FExeVersion]);
-		FStatusBarStatus := 'READY';
+		BottomFrame.FStatusBarStatus := 'READY';
 	end;
-	FStatusBarMessage := msg;
+	BottomFrame.FStatusBarMessage := msg;
 end;
 
 procedure TRipGrepperForm.SetStatusBarStatistic(const _s : string);
 begin
-	FStatusBarStatistic := _s;
+	BottomFrame.FStatusBarStatistic := _s;
 end;
 
 procedure TRipGrepperForm.UpdateArgumentsAndSettings;
