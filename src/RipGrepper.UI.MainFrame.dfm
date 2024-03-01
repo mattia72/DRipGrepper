@@ -1,432 +1,17 @@
-object RipGrepperForm: TRipGrepperForm
-  AlignWithMargins = True
-  Left = 662
-  Top = 278
-  Caption = 'DRipGrepper'
-  ClientHeight = 1180
-  ClientWidth = 1940
-  Color = clBtnFace
-  Constraints.MinHeight = 875
-  Constraints.MinWidth = 1175
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -30
-  Font.Name = 'Segoe UI'
-  Font.Style = []
-  Icon.Data = {
-    0000010001002020000001002000A81000001600000028000000200000004000
-    0000010020000000000000100000130B0000130B000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    000000000000000000000000000000000016000000970000003B000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000016000000D3000000FF00000097000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    00000000000000000016000000D3000000FF000000D300000016000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    000000000000000000000000000F00000081000000D7000000F7000000DE0000
-    00A00000003C000000D3000000FF000000D30000001600000000000000000000
-    00000000000000000000000000010000005E0000009E000000AA000000AA0000
-    00AA000000AA000000AA000000AA000000AA000000AA000000AA000000AA0000
-    00A90000001800000021000000DC000000FF000000FF000000FF000000FF0000
-    00FF000000FF000000FF000000D4000000160000000000000000000000000000
-    00000000000000000000000000A0000000FF000000FF000000FF000000FF0000
-    00FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF0000
-    00A900000003000000CE000000FF000000D2000000440000000E0000002B0000
-    00A1000000FF000000FF0000003D000000000000000000000000000000000000
-    00000000000000000028000000FF000000EF0000006500000055000000550000
-    0055000000550000005500000055000000550000005500000055000000550000
-    002000000051000000FF000000E3000000100000000000000000000000000000
-    0000000000A1000000FF000000A0000000000000000000000000000000000000
-    00000000000000000052000000FF000000AD0000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    000000000093000000FF0000007F000000000000000000000000000000000000
-    00000000002C000000FF000000DE000000000000000000000000000000000000
-    00000000000000000055000000FF000000AA0000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000A3000000FF00000063000000000000000000000000000000000000
-    00000000000F000000FF000000F7000000000000000600000000000000000000
-    00000000000000000055000000FF000000AA0000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    000000000084000000FF00000097000000000000000000000000000000000000
-    000000000045000000FF000000D7000000000000002200000000000000000000
-    00000000000000000055000000FF000000AA0000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    000000000030000000FE000000FA0000003B0000000000000000000000000000
-    0010000000D2000000FF00000081000000140000005100000000000000000000
-    00000000000000000055000000FF000000AA0000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    00000000000000000099000000FF000000FA00000097000000630000007F0000
-    00E3000000FF000000DC0000000F000000810000005500000000000000000000
-    00000000000000000055000000FF000000AA0000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000500000099000000FE000000FF000000FF000000FF0000
-    00FF000000CE0000002100000036000000F60000005500000000000000000000
-    00000000000000000055000000FF000000AA0000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    00000000000000000000000000000000003000000085000000A5000000930000
-    00510000000300000000000000AA000000FF0000005500000000000000000000
-    00000000000000000055000000FF000000AA0000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    00000000000000000000000000AA000000FF0000005500000000000000000000
-    00000000000000000055000000FF000000AA0000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    00000000000000000000000000AA000000FF0000005500000000000000000000
-    00000000000000000055000000FF000000AA0000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    00000000000000000000000000AA000000FF0000005500000000000000000000
-    00000000000000000055000000FF000000AA0000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    00000000000000000000000000AA000000FF0000005500000000000000000000
-    00000000000000000055000000FF000000AA0000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    00000000000000000000000000AA000000FF0000005500000000000000000000
-    00000000000000000055000000FF000000AA0000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    00000000000000000000000000BB000000FF0000004900000000000000000000
-    00000000000000000055000000FF000000AA0000000000000000000000000000
-    000000000000000000000000000000000000000000000000001A000000960000
-    00AA000000AA000000AA000000AA000000AA000000AA000000AA000000AA0000
-    00AA000000AA000000BA000000FE000000F40000001400000000000000000000
-    00000000000000000055000000FF000000AA0000000000000000000000000000
-    00000000000000000000000000000000000000000033000000E4000000FF0000
-    00FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF0000
-    00FF000000FF000000FF000000F4000000570000000000000000000000000000
-    00000000000000000052000000FF000000AD0000000000000000000000000000
-    000000000000000000000000000000000055000000F5000000FF000000BF0000
-    0055000000550000005500000055000000550000005500000055000000550000
-    0055000000550000004900000015000000000000000000000000000000000000
-    00000000000000000029000000FF000000EF0000006400000055000000550000
-    0055000000550000005700000095000000FE000000FF0000009A000000050000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    00000000000000000000000000A1000000FF000000FF000000FF000000FF0000
-    00FF000000FF000000FF000000FF000000FA0000007000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000002000000600000009F000000AA000000AA0000
-    00AA000000AA000000A800000086000000270000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    000000000000000000000000000000000000000000000000000000000000FFFF
-    FFFFFFFFFFF1FFFFFFE1FFFFFFC1FFFFE003E0000007E000000FC000078FC7FF
-    8F8FC7FF8F8BC7FF8F8BC7FF8703C7FFC003C7FFC003C7FFF023C7FFFFE3C7FF
-    FFE3C7FFFFE3C7FFFFE3C7FFFFE3C7FFFFE3C7FC0003C7F80007C7F0000FC000
-    FFFFE003FFFFE007FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
-  Position = poScreenCenter
-  ShowHint = True
-  StyleElements = [seFont, seClient]
-  OnClose = FormClose
-  OnResize = FormResize
-  OnShow = FormShow
+object RipGrepperMainFrame: TRipGrepperMainFrame
+  Left = 0
+  Top = 0
+  Width = 1528
+  Height = 634
+  Margins.Left = 8
+  Margins.Top = 8
+  Margins.Right = 8
+  Margins.Bottom = 8
+  TabOrder = 0
   PixelsPerInch = 240
-  TextHeight = 41
-  object panelMain: TPanel
-    AlignWithMargins = True
-    Left = 8
-    Top = 68
-    Width = 1924
-    Height = 1044
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
-    Align = alClient
-    BevelOuter = bvNone
-    Caption = 'panelMain'
-    TabOrder = 0
-    object ImageFileIcon: TImage
-      Left = 1527
-      Top = 752
-      Width = 113
-      Height = 153
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
-    end
-    object SplitView1: TSplitView
-      AlignWithMargins = True
-      Left = 8
-      Top = 8
-      Width = 1900
-      Height = 1028
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
-      BevelEdges = [beLeft, beRight, beBottom]
-      CompactWidth = 125
-      OpenedWidth = 1900
-      Placement = svpLeft
-      TabOrder = 0
-      object Splitter1: TSplitter
-        Left = 393
-        Top = 0
-        Width = 7
-        Height = 1028
-        Margins.Left = 8
-        Margins.Top = 8
-        Margins.Right = 8
-        Margins.Bottom = 8
-        Align = alRight
-      end
-      object PanelHistory: TPanel
-        Left = 0
-        Top = 0
-        Width = 393
-        Height = 1028
-        Margins.Left = 8
-        Margins.Top = 8
-        Margins.Right = 8
-        Margins.Bottom = 8
-        Align = alClient
-        Anchors = [akLeft, akTop, akBottom]
-        Caption = 'PanelHistory'
-        TabOrder = 0
-        object ListBoxSearchHistory: TListBox
-          AlignWithMargins = True
-          Left = 9
-          Top = 9
-          Width = 375
-          Height = 1010
-          Margins.Left = 8
-          Margins.Top = 8
-          Margins.Right = 8
-          Margins.Bottom = 8
-          Style = lbVirtualOwnerDraw
-          Align = alClient
-          ItemHeight = 75
-          TabOrder = 0
-          OnClick = ListBoxSearchHistoryClick
-          OnData = ListBoxSearchHistoryData
-          OnDblClick = ListBoxSearchHistoryDblClick
-          OnDrawItem = ListBoxSearchHistoryDrawItem
-        end
-      end
-      object PanelResult: TPanel
-        Left = 400
-        Top = 0
-        Width = 1500
-        Height = 1028
-        Margins.Left = 8
-        Margins.Top = 8
-        Margins.Right = 8
-        Margins.Bottom = 8
-        Align = alRight
-        Anchors = [akLeft, akTop, akRight, akBottom]
-        Caption = 'PanelResult'
-        TabOrder = 1
-        object ListViewResult: TListView
-          AlignWithMargins = True
-          Left = 9
-          Top = 9
-          Width = 1482
-          Height = 1010
-          Margins.Left = 8
-          Margins.Top = 8
-          Margins.Right = 8
-          Margins.Bottom = 8
-          Align = alClient
-          Color = clHighlightText
-          Columns = <
-            item
-              Caption = 'File'
-              ImageIndex = 3
-              Width = -1
-              WidthType = (
-                -1)
-            end
-            item
-              Caption = 'Row'
-              ImageIndex = 3
-              Width = -1
-              WidthType = (
-                -1)
-            end
-            item
-              Caption = 'Col'
-              Width = -1
-              WidthType = (
-                -1)
-            end
-            item
-              Caption = 'Match'
-              Width = -1
-              WidthType = (
-                -1)
-            end>
-          Groups = <
-            item
-              Header = 'Group Header'
-              GroupID = 0
-              State = [lgsNormal, lgsCollapsible]
-              HeaderAlign = taLeftJustify
-              FooterAlign = taLeftJustify
-              Subtitle = 'Subtitle'
-              TitleImage = -1
-            end>
-          StyleName = 'Windows'
-          OwnerData = True
-          OwnerDraw = True
-          GroupView = True
-          ReadOnly = True
-          RowSelect = True
-          ParentShowHint = False
-          PopupMenu = PopupMenu1
-          ShowHint = True
-          SmallImages = ImageListListView
-          StateImages = ImageListListView
-          TabOrder = 0
-          ViewStyle = vsReport
-          OnColumnClick = ListViewResultColumnClick
-          OnData = ListViewResultData
-          OnDblClick = ListViewResultDblClick
-          OnDrawItem = ListViewResultDrawItem
-        end
-      end
-    end
-  end
-  inline BottomFrame: TRipGrepperBottomFrame
-    Left = 0
-    Top = 1120
-    Width = 1940
-    Height = 60
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
-    Align = alBottom
-    TabOrder = 1
-    inherited pnlBottom: TPanel
-      Width = 1940
-      inherited StatusBar1: TStatusBar
-        Width = 1852
-      end
-    end
-    inherited ActionList: TActionList
-      Left = 898
-      Top = 3
-    end
-  end
-  inline TopFrame: TRipGrepperTopFrame
-    Left = 0
-    Top = 0
-    Width = 1940
-    Height = 60
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
-    Align = alTop
-    TabOrder = 2
-    inherited ToolBar1: TToolBar
-      Width = 1924
-    end
-    inherited ActionList: TActionList
-      inherited ActionSearch: TAction
-        OnExecute = TopFrameActionSearchExecute
-      end
-      inherited ActionCancel: TAction
-        OnExecute = TopFrameActionCancelExecute
-      end
-      inherited ActionConfig: TAction
-        OnExecute = TopFrameActionConfigExecute
-      end
-      inherited ActionSwitchView: TAction
-        OnExecute = TopFrameActionSwitchViewExecute
-        OnUpdate = nil
-      end
-      inherited ActionSortByFile: TAction
-        OnExecute = nil
-        OnUpdate = nil
-      end
-      inherited ActionShowRelativePath: TAction
-        OnExecute = TopFrameActionShowRelativePathExecute
-        OnUpdate = nil
-      end
-      inherited ActionCmdLineCopy: TAction
-        OnExecute = TopFrameActionCmdLineCopyExecute
-        OnUpdate = nil
-      end
-      inherited ActionSortByRow: TAction
-        OnExecute = nil
-        OnUpdate = nil
-      end
-      inherited ActionCopyFileName: TAction
-        OnExecute = nil
-      end
-      inherited ActionCopyPathToClipboard: TAction
-        OnExecute = nil
-      end
-      inherited ActionShowSearchForm: TAction
-        OnExecute = TopFrameActionShowSearchFormExecute
-        OnUpdate = nil
-      end
-      inherited ActionShowFileIcons: TAction
-        OnExecute = TopFrameActionShowFileIconsExecute
-        OnUpdate = nil
-      end
-      inherited ActionAlternateRowColors: TAction
-        OnExecute = TopFrameActionAlternateRowColorsExecute
-        OnUpdate = nil
-      end
-      inherited ActionAbortSearch: TAction
-        OnExecute = TopFrameActionAbortSearchExecute
-        OnUpdate = nil
-      end
-      inherited ActionRefreshSearch: TAction
-        OnExecute = TopFrameActionRefreshSearchExecute
-        OnUpdate = nil
-      end
-      inherited ActionIndentLine: TAction
-        OnExecute = TopFrameActionIndentLineExecute
-        OnUpdate = nil
-      end
-      inherited ActionOpenWith: TAction
-        OnExecute = TopFrameActionOpenWithExecute
-        OnUpdate = nil
-      end
-    end
-  end
   object ImageListButtons: TImageList
-    Left = 446
-    Top = 219
+    Left = 394
+    Top = 102
     Bitmap = {
       494C010114001800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000006000000001002000000000000060
@@ -1229,97 +814,84 @@ object RipGrepperForm: TRipGrepperForm
   end
   object ActionList: TActionList
     Images = ImageListButtons
-    Left = 807
-    Top = 230
+    Left = 621
+    Top = 65
+    object ActionSearch: TAction
+      Caption = 'Search'
+      ImageIndex = 10
+    end
     object ActionCancel: TAction
       Caption = 'Cancel'
       Hint = 'Cancel'
       ShortCut = 16465
-      OnExecute = ActionCancelExecute
     end
     object ActionConfig: TAction
+      Caption = 'ActionConfig'
       Hint = 'Config'
       ImageIndex = 0
-      OnExecute = ActionConfigExecute
     end
     object ActionSwitchView: TAction
+      Caption = 'ActionSwitchView'
       ImageIndex = 1
-      OnExecute = ActionSwitchViewExecute
-      OnUpdate = ActionSwitchViewUpdate
     end
     object ActionSortByFile: TAction
+      Caption = 'ActionSortByFile'
       Hint = 'Sort by File'
       ImageIndex = 2
-      OnExecute = ActionSortByFileExecute
-      OnUpdate = ActionSortByFileUpdate
     end
     object ActionShowRelativePath: TAction
+      Caption = 'ActionShowRelativePath'
       Hint = 'Show full or relative path'
       ImageIndex = 12
-      OnExecute = ActionShowRelativePathExecute
     end
     object ActionCmdLineCopy: TAction
+      Caption = 'ActionCmdLineCopy'
       Hint = 'Copy rg.exe command line to clipboard'
       ImageIndex = 10
       ShortCut = 16451
-      OnExecute = ActionCmdLineCopyExecute
-      OnUpdate = ActionCmdLineCopyUpdate
     end
     object ActionSortByRow: TAction
       Caption = 'ActionSortByRow'
       Hint = 'Sort'
       ImageIndex = 2
-      OnExecute = ActionSortByRowExecute
-      OnUpdate = ActionSortByRowUpdate
     end
     object ActionCopyFileName: TAction
       Caption = 'Copy Name to Clipboard'
       Hint = 'Sort'
-      OnExecute = ActionCopyFileNameExecute
     end
     object ActionCopyPathToClipboard: TAction
       Caption = 'Copy Path to Clipboard'
-      OnExecute = ActionCopyPathToClipboardExecute
     end
     object ActionShowSearchForm: TAction
       Caption = 'Search...'
       Hint = 'Search...'
       ImageIndex = 8
       ShortCut = 16467
-      OnExecute = ActionShowSearchFormExecute
-      OnUpdate = ActionShowSearchFormUpdate
     end
     object ActionShowFileIcons: TAction
       Caption = 'Show File  Icons'
       Hint = 'Show file  icons'
       ImageIndex = 16
-      OnExecute = ActionShowFileIconsExecute
     end
     object ActionAlternateRowColors: TAction
       Caption = 'Action1'
       Hint = 'Alternate row colors'
       ImageIndex = 13
-      OnExecute = ActionAlternateRowColorsExecute
     end
     object ActionAbortSearch: TAction
       Caption = 'Abort'
       Hint = 'Abort running search'
       ImageIndex = 18
       ShortCut = 16411
-      OnExecute = ActionAbortSearchExecute
-      OnUpdate = ActionAbortSearchUpdate
     end
     object ActionRefreshSearch: TAction
       Caption = 'Refresh'
       ImageIndex = 15
       ShortCut = 116
-      OnExecute = ActionRefreshSearchExecute
-      OnUpdate = ActionRefreshSearchUpdate
     end
     object ActionIndentLine: TAction
       Caption = 'ActionIndentLine'
       ImageIndex = 17
-      OnExecute = ActionIndentLineExecute
     end
     object ActionStatusBar: TAction
       Caption = 'Action1'
@@ -1328,13 +900,11 @@ object RipGrepperForm: TRipGrepperForm
       Caption = 'Open with...'
       Hint = 'Open with...'
       ImageIndex = 19
-      OnExecute = ActionOpenWithExecute
-      OnUpdate = ActionOpenWithUpdate
     end
   end
   object PopupMenu1: TPopupMenu
-    Left = 140
-    Top = 206
+    Left = 270
+    Top = 219
     object Openwith1: TMenuItem
       Action = ActionOpenWith
       Default = True
@@ -1350,8 +920,8 @@ object RipGrepperForm: TRipGrepperForm
     end
   end
   object ImageListListView: TImageList
-    Left = 589
-    Top = 229
+    Left = 856
+    Top = 167
     Bitmap = {
       494C010106000800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020

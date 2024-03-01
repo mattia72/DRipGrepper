@@ -38,7 +38,9 @@ uses
 	System.IniFiles,
 	ToolsAPI,
 	GX_BaseForm,
-	RipGrepper.UI.MainFrame, RipGrepper.UI.BottomFrame;
+	RipGrepper.UI.MainFrame,
+	RipGrepper.UI.BottomFrame,
+	RipGrepper.UI.TopFrame;
 
 type
 	TRipGrepperForm = class(TfmBaseForm, { TfmIdeDockForm, } INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
@@ -47,18 +49,11 @@ type
 			ListViewResult : TListView;
 			ImageListButtons : TImageList;
 			ActionList : TActionList;
-			ActionSearch : TAction;
 			ActionCancel : TAction;
 			ActionConfig : TAction;
 			ActionSwitchView : TAction;
 			ActionSortByFile : TAction;
-			ToolBar1 : TToolBar;
-			tbCopyCmdLine : TToolButton;
-			tbView : TToolButton;
-			tbShowRelativePath : TToolButton;
 			ActionShowRelativePath : TAction;
-			ToolButton1 : TToolButton;
-			ToolButton2 : TToolButton;
 			ActionCmdLineCopy : TAction;
 			ActionSortByRow : TAction;
 			PopupMenu1 : TPopupMenu;
@@ -68,18 +63,11 @@ type
 			CopyPathToClipboard : TMenuItem;
 			ImageListListView : TImageList;
 			ImageFileIcon : TImage;
-			tbDoSearchCancel : TToolButton;
 			ActionShowSearchForm : TAction;
-			tbShowFileIcon : TToolButton;
 			ActionShowFileIcons : TAction;
-			ToolButton3 : TToolButton;
-			tbAlternateRowColors : TToolButton;
 			ActionAlternateRowColors : TAction;
 			ActionAbortSearch : TAction;
-			tbAbortSearch : TToolButton;
-			tbRefreshSearch : TToolButton;
 			ActionRefreshSearch : TAction;
-			tbIndentLines : TToolButton;
 			ActionIndentLine : TAction;
 			SplitView1 : TSplitView;
 			Splitter1 : TSplitter;
@@ -87,19 +75,15 @@ type
 			PanelHistory : TPanel;
 			PanelResult : TPanel;
 			ActionStatusBar : TAction;
-			tbConfigure : TToolButton;
-			ToolButton4 : TToolButton;
 			ActionOpenWith : TAction;
-			ToolButton5 : TToolButton;
-			ToolButton6 : TToolButton;
 			Openwith1 : TMenuItem;
 			N1 : TMenuItem;
-    BottomFrame: TRipGrepperBottomFrame;
+			BottomFrame : TRipGrepperBottomFrame;
+			TopFrame : TRipGrepperTopFrame;
 			procedure FormCreate(Sender : TObject);
 			procedure ActionAbortSearchExecute(Sender : TObject);
 			procedure ActionAbortSearchUpdate(Sender : TObject);
 			procedure ActionAlternateRowColorsExecute(Sender : TObject);
-			procedure ActionAlternateRowColorsUpdate(Sender : TObject);
 			procedure ActionCancelExecute(Sender : TObject);
 			procedure ActionCmdLineCopyExecute(Sender : TObject);
 			procedure ActionCmdLineCopyUpdate(Sender : TObject);
@@ -109,7 +93,6 @@ type
 			procedure ActionShowSearchFormExecute(Sender : TObject);
 			procedure ActionShowSearchFormUpdate(Sender : TObject);
 			procedure ActionIndentLineExecute(Sender : TObject);
-			procedure ActionIndentLineUpdate(Sender : TObject);
 			procedure ActionOpenWithExecute(Sender : TObject);
 			procedure ActionOpenWithUpdate(Sender : TObject);
 			procedure ActionRefreshSearchExecute(Sender : TObject);
@@ -117,8 +100,6 @@ type
 			procedure ActionShowRelativePathExecute(Sender : TObject);
 			procedure ActionSearchExecute(Sender : TObject);
 			procedure ActionShowFileIconsExecute(Sender : TObject);
-			procedure ActionShowFileIconsUpdate(Sender : TObject);
-			procedure ActionShowRelativePathUpdate(Sender : TObject);
 			procedure ActionSortByFileExecute(Sender : TObject);
 			procedure ActionSortByFileUpdate(Sender : TObject);
 			procedure ActionSortByRowExecute(Sender : TObject);
@@ -140,6 +121,19 @@ type
 			procedure ListViewResultData(Sender : TObject; Item : TListItem);
 			procedure ListViewResultDblClick(Sender : TObject);
 			procedure ListViewResultDrawItem(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
+			procedure TopFrameActionAbortSearchExecute(Sender : TObject);
+			procedure TopFrameActionAlternateRowColorsExecute(Sender : TObject);
+			procedure TopFrameActionCancelExecute(Sender : TObject);
+			procedure TopFrameActionCmdLineCopyExecute(Sender : TObject);
+			procedure TopFrameActionConfigExecute(Sender : TObject);
+			procedure TopFrameActionIndentLineExecute(Sender : TObject);
+			procedure TopFrameActionOpenWithExecute(Sender : TObject);
+			procedure TopFrameActionRefreshSearchExecute(Sender : TObject);
+			procedure TopFrameActionSearchExecute(Sender : TObject);
+			procedure TopFrameActionShowFileIconsExecute(Sender : TObject);
+			procedure TopFrameActionShowRelativePathExecute(Sender : TObject);
+			procedure TopFrameActionShowSearchFormExecute(Sender : TObject);
+			procedure TopFrameActionSwitchViewExecute(Sender : TObject);
 
 		private const
 			RIPGREPPER_FORM = 'RipGrepperForm';
@@ -278,7 +272,7 @@ end;
 
 procedure TRipGrepperForm.FormCreate(Sender : TObject);
 begin
-   //	LoadSettings;
+	// LoadSettings;
 	FRgExeVersion := TFileUtils.GetAppNameAndVersion(Settings.RipGrepParameters.RipGrepPath);
 end;
 
@@ -322,11 +316,6 @@ begin
 	Settings.RipGrepperViewSettings.AlternateRowColors := (not Settings.RipGrepperViewSettings.AlternateRowColors);
 	Settings.StoreViewSettings('AlternateRowColors');
 	ListViewResult.Repaint();
-end;
-
-procedure TRipGrepperForm.ActionAlternateRowColorsUpdate(Sender : TObject);
-begin
-	tbAlternateRowColors.Down := Settings.RipGrepperViewSettings.AlternateRowColors;
 end;
 
 procedure TRipGrepperForm.ActionCancelExecute(Sender : TObject);
@@ -396,11 +385,6 @@ begin
 	ListViewResult.Repaint();
 end;
 
-procedure TRipGrepperForm.ActionIndentLineUpdate(Sender : TObject);
-begin
-	tbIndentLines.Down := Settings.RipGrepperViewSettings.IndentLines;
-end;
-
 procedure TRipGrepperForm.ActionOpenWithExecute(Sender : TObject);
 var
 	owp : TOpenWithParams;
@@ -463,18 +447,6 @@ begin
 	Settings.RipGrepperViewSettings.ShowFileIcon := not Settings.RipGrepperViewSettings.ShowFileIcon;
 	Settings.StoreViewSettings('ShowFileIcon');
 	ListViewResult.Repaint();
-end;
-
-procedure TRipGrepperForm.ActionShowFileIconsUpdate(Sender : TObject);
-begin
-	tbShowFileIcon.Down := Settings.RipGrepperViewSettings.ShowFileIcon;
-	// ActionShowFileIcons.ImageIndex := Ifthen(Settings.ShowFileIcon, IMG_IDX_SHOW_FILE_ICON_TRUE, IMG_IDX_SHOW_FILE_ICON_FALSE);
-end;
-
-procedure TRipGrepperForm.ActionShowRelativePathUpdate(Sender : TObject);
-begin
-	tbShowRelativePath.Down := Settings.RipGrepperViewSettings.ShowRelativePath;
-	// ActionShowRelativePath.ImageIndex := Ifthen(Settings.ShowRelativePath, IMG_IDX_SHOW_RELATIVE_PATH, IMG_IDX_SHOW_ABS_PATH);
 end;
 
 procedure TRipGrepperForm.ActionSortByFileExecute(Sender : TObject);
@@ -540,7 +512,7 @@ begin
 	if not Assigned(FImageScaler) then
 		FImageScaler := TImageListScaler.Create(Self, ImageListButtons);
 	li := FImageScaler.GetScaledList(_NewDpi);
-	Toolbar1.Images := li;
+	TopFrame.Toolbar1.Images := li;
 end;
 
 procedure TRipGrepperForm.ArrangeControls;
@@ -1144,7 +1116,8 @@ begin
 end;
 
 procedure TRipGrepperForm.SetStatusBarMessage(const _bWithElapsedTime : Boolean = False);
-var msg : string;
+var
+	msg : string;
 begin
 	if _bWithElapsedTime then begin
 		msg := Format('Search took %s seconds with ' + EXE_AND_VERSION_FORMAT, [FHistObject.ElapsedTimeText, FExeVersion]);
@@ -1159,6 +1132,71 @@ end;
 procedure TRipGrepperForm.SetStatusBarStatistic(const _s : string);
 begin
 	BottomFrame.FStatusBarStatistic := _s;
+end;
+
+procedure TRipGrepperForm.TopFrameActionAbortSearchExecute(Sender : TObject);
+begin
+	ActionAbortSearchExecute(Sender);
+end;
+
+procedure TRipGrepperForm.TopFrameActionAlternateRowColorsExecute(Sender : TObject);
+begin
+	ActionAlternateRowColorsExecute(Sender);
+end;
+
+procedure TRipGrepperForm.TopFrameActionCancelExecute(Sender : TObject);
+begin
+	ActionCancelExecute(Sender);
+end;
+
+procedure TRipGrepperForm.TopFrameActionCmdLineCopyExecute(Sender : TObject);
+begin
+	ActionCmdLineCopyExecute(Sender);
+end;
+
+procedure TRipGrepperForm.TopFrameActionConfigExecute(Sender : TObject);
+begin
+	ActionConfigExecute(Sender);
+end;
+
+procedure TRipGrepperForm.TopFrameActionIndentLineExecute(Sender : TObject);
+begin
+	ActionIndentLineExecute(Sender);
+end;
+
+procedure TRipGrepperForm.TopFrameActionOpenWithExecute(Sender : TObject);
+begin
+	ActionOpenWithExecute(Sender);
+end;
+
+procedure TRipGrepperForm.TopFrameActionRefreshSearchExecute(Sender : TObject);
+begin
+	ActionRefreshSearchExecute(Sender);
+end;
+
+procedure TRipGrepperForm.TopFrameActionSearchExecute(Sender : TObject);
+begin
+	ActionSearchExecute(Sender);
+end;
+
+procedure TRipGrepperForm.TopFrameActionShowFileIconsExecute(Sender : TObject);
+begin
+	ActionShowFileIconsExecute(Sender);
+end;
+
+procedure TRipGrepperForm.TopFrameActionShowRelativePathExecute(Sender : TObject);
+begin
+	ActionShowRelativePathExecute(Sender);
+end;
+
+procedure TRipGrepperForm.TopFrameActionShowSearchFormExecute(Sender : TObject);
+begin
+	ActionShowSearchFormExecute(Sender);
+end;
+
+procedure TRipGrepperForm.TopFrameActionSwitchViewExecute(Sender : TObject);
+begin
+	ActionSwitchViewExecute(Sender);
 end;
 
 procedure TRipGrepperForm.UpdateArgumentsAndSettings;
@@ -1182,7 +1220,8 @@ begin
 end;
 
 procedure TRipGrepperForm.UpdateSortingImages(const _sbtArr : TArray<TSortByType>);
-var imgIdx : integer;
+var
+	imgIdx : integer;
 begin
 
 	for var sbt in _sbtArr do begin
