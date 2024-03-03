@@ -212,8 +212,8 @@ object OpenWithCmdList: TOpenWithCmdList
       778
       412)
     object btnConfig: TButton
-      Left = 641
-      Top = 25
+      Left = 680
+      Top = 24
       Width = 65
       Height = 60
       Margins.Left = 8
@@ -230,7 +230,7 @@ object OpenWithCmdList: TOpenWithCmdList
     end
     object btnView: TButton
       AlignWithMargins = True
-      Left = 641
+      Left = 680
       Top = 100
       Width = 65
       Height = 60

@@ -2,8 +2,8 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
   Left = 952
   Top = 341
   Caption = 'DRipGrepper - RipGrep Options'
-  ClientHeight = 859
-  ClientWidth = 1049
+  ClientHeight = 957
+  ClientWidth = 1081
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -151,8 +151,8 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
   object PanelMain: TPanel
     Left = 0
     Top = 140
-    Width = 1049
-    Height = 617
+    Width = 1081
+    Height = 715
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -188,8 +188,8 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
   end
   object PanelBottom: TPanel
     Left = 0
-    Top = 757
-    Width = 1049
+    Top = 855
+    Width = 1081
     Height = 102
     Margins.Left = 8
     Margins.Top = 8
@@ -199,11 +199,11 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     BevelOuter = bvNone
     TabOrder = 1
     DesignSize = (
-      1049
+      1081
       102)
     object btnOk: TButton
       AlignWithMargins = True
-      Left = 646
+      Left = 678
       Top = 28
       Width = 185
       Height = 52
@@ -218,7 +218,7 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     end
     object btnCancel: TButton
       AlignWithMargins = True
-      Left = 846
+      Left = 878
       Top = 28
       Width = 190
       Height = 52
@@ -235,7 +235,7 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
   object PanelTop: TPanel
     Left = 0
     Top = 0
-    Width = 1049
+    Width = 1081
     Height = 140
     Margins.Left = 8
     Margins.Top = 8
