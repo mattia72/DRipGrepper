@@ -308,10 +308,7 @@ object RipGrepperForm: TRipGrepperForm
           ReadOnly = True
           RowSelect = True
           ParentShowHint = False
-          PopupMenu = PopupMenu1
           ShowHint = True
-          SmallImages = ImageListListView
-          StateImages = ImageListListView
           TabOrder = 0
           ViewStyle = vsReport
           OnColumnClick = ListViewResultColumnClick
@@ -357,71 +354,6 @@ object RipGrepperForm: TRipGrepperForm
     TabOrder = 2
     inherited ToolBar1: TToolBar
       Width = 1924
-    end
-    inherited ActionList: TActionList
-      inherited ActionSearch: TAction
-        OnExecute = TopFrameActionSearchExecute
-      end
-      inherited ActionCancel: TAction
-        OnExecute = TopFrameActionCancelExecute
-      end
-      inherited ActionConfig: TAction
-        OnExecute = TopFrameActionConfigExecute
-      end
-      inherited ActionSwitchView: TAction
-        OnExecute = TopFrameActionSwitchViewExecute
-        OnUpdate = nil
-      end
-      inherited ActionSortByFile: TAction
-        OnExecute = nil
-        OnUpdate = nil
-      end
-      inherited ActionShowRelativePath: TAction
-        OnExecute = TopFrameActionShowRelativePathExecute
-        OnUpdate = nil
-      end
-      inherited ActionCmdLineCopy: TAction
-        OnExecute = TopFrameActionCmdLineCopyExecute
-        OnUpdate = nil
-      end
-      inherited ActionSortByRow: TAction
-        OnExecute = nil
-        OnUpdate = nil
-      end
-      inherited ActionCopyFileName: TAction
-        OnExecute = nil
-      end
-      inherited ActionCopyPathToClipboard: TAction
-        OnExecute = nil
-      end
-      inherited ActionShowSearchForm: TAction
-        OnExecute = TopFrameActionShowSearchFormExecute
-        OnUpdate = nil
-      end
-      inherited ActionShowFileIcons: TAction
-        OnExecute = TopFrameActionShowFileIconsExecute
-        OnUpdate = nil
-      end
-      inherited ActionAlternateRowColors: TAction
-        OnExecute = TopFrameActionAlternateRowColorsExecute
-        OnUpdate = nil
-      end
-      inherited ActionAbortSearch: TAction
-        OnExecute = TopFrameActionAbortSearchExecute
-        OnUpdate = nil
-      end
-      inherited ActionRefreshSearch: TAction
-        OnExecute = TopFrameActionRefreshSearchExecute
-        OnUpdate = nil
-      end
-      inherited ActionIndentLine: TAction
-        OnExecute = TopFrameActionIndentLineExecute
-        OnUpdate = nil
-      end
-      inherited ActionOpenWith: TAction
-        OnExecute = TopFrameActionOpenWithExecute
-        OnUpdate = nil
-      end
     end
   end
   object ImageListButtons: TImageList
@@ -1237,33 +1169,11 @@ object RipGrepperForm: TRipGrepperForm
       ShortCut = 16465
       OnExecute = ActionCancelExecute
     end
-    object ActionConfig: TAction
-      Hint = 'Config'
-      ImageIndex = 0
-      OnExecute = ActionConfigExecute
-    end
-    object ActionSwitchView: TAction
-      ImageIndex = 1
-      OnExecute = ActionSwitchViewExecute
-      OnUpdate = ActionSwitchViewUpdate
-    end
     object ActionSortByFile: TAction
       Hint = 'Sort by File'
       ImageIndex = 2
       OnExecute = ActionSortByFileExecute
       OnUpdate = ActionSortByFileUpdate
-    end
-    object ActionShowRelativePath: TAction
-      Hint = 'Show full or relative path'
-      ImageIndex = 12
-      OnExecute = ActionShowRelativePathExecute
-    end
-    object ActionCmdLineCopy: TAction
-      Hint = 'Copy rg.exe command line to clipboard'
-      ImageIndex = 10
-      ShortCut = 16451
-      OnExecute = ActionCmdLineCopyExecute
-      OnUpdate = ActionCmdLineCopyUpdate
     end
     object ActionSortByRow: TAction
       Caption = 'ActionSortByRow'
@@ -1280,49 +1190,6 @@ object RipGrepperForm: TRipGrepperForm
     object ActionCopyPathToClipboard: TAction
       Caption = 'Copy Path to Clipboard'
       OnExecute = ActionCopyPathToClipboardExecute
-    end
-    object ActionShowSearchForm: TAction
-      Caption = 'Search...'
-      Hint = 'Search...'
-      ImageIndex = 8
-      ShortCut = 16467
-      OnExecute = ActionShowSearchFormExecute
-      OnUpdate = ActionShowSearchFormUpdate
-    end
-    object ActionShowFileIcons: TAction
-      Caption = 'Show File  Icons'
-      Hint = 'Show file  icons'
-      ImageIndex = 16
-      OnExecute = ActionShowFileIconsExecute
-    end
-    object ActionAlternateRowColors: TAction
-      Caption = 'Action1'
-      Hint = 'Alternate row colors'
-      ImageIndex = 13
-      OnExecute = ActionAlternateRowColorsExecute
-    end
-    object ActionAbortSearch: TAction
-      Caption = 'Abort'
-      Hint = 'Abort running search'
-      ImageIndex = 18
-      ShortCut = 16411
-      OnExecute = ActionAbortSearchExecute
-      OnUpdate = ActionAbortSearchUpdate
-    end
-    object ActionRefreshSearch: TAction
-      Caption = 'Refresh'
-      ImageIndex = 15
-      ShortCut = 116
-      OnExecute = ActionRefreshSearchExecute
-      OnUpdate = ActionRefreshSearchUpdate
-    end
-    object ActionIndentLine: TAction
-      Caption = 'ActionIndentLine'
-      ImageIndex = 17
-      OnExecute = ActionIndentLineExecute
-    end
-    object ActionStatusBar: TAction
-      Caption = 'Action1'
     end
     object ActionOpenWith: TAction
       Caption = 'Open with...'
