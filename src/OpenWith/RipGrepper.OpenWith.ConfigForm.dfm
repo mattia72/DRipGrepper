@@ -2,14 +2,14 @@ object OpenWithConfigForm: TOpenWithConfigForm
   Left = 756
   Top = 291
   Caption = 'Configure Open with... '
-  ClientHeight = 308
-  ClientWidth = 336
+  ClientHeight = 819
+  ClientWidth = 856
   Color = clBtnFace
-  Constraints.MinHeight = 284
-  Constraints.MinWidth = 330
+  Constraints.MinHeight = 710
+  Constraints.MinWidth = 825
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -12
+  Font.Height = -30
   Font.Name = 'Segoe UI'
   Font.Style = []
   Icon.Data = {
@@ -149,35 +149,48 @@ object OpenWithConfigForm: TOpenWithConfigForm
     FFFFE003FFFFE007FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
   Position = poDesigned
   OnCreate = FormCreate
-  TextHeight = 15
+  PixelsPerInch = 240
+  TextHeight = 41
   object pnlBottom: TPanel
     Left = 0
-    Top = 266
-    Width = 336
-    Height = 42
+    Top = 714
+    Width = 856
+    Height = 105
+    Margins.Left = 8
+    Margins.Top = 8
+    Margins.Right = 8
+    Margins.Bottom = 8
     Align = alBottom
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 0
     DesignSize = (
-      336
-      42)
+      856
+      105)
     object btn_Save: TButton
       AlignWithMargins = True
-      Left = 172
-      Top = 7
-      Width = 74
-      Height = 25
+      Left = 446
+      Top = 18
+      Width = 185
+      Height = 62
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       Action = ActionOk
       Anchors = [akRight, akBottom]
       TabOrder = 0
     end
     object btn_Cancel: TButton
       AlignWithMargins = True
-      Left = 252
-      Top = 7
-      Width = 76
-      Height = 25
+      Left = 646
+      Top = 18
+      Width = 190
+      Height = 62
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       Action = ActionCancel
       Anchors = [akRight, akBottom]
       TabOrder = 1
@@ -186,32 +199,42 @@ object OpenWithConfigForm: TOpenWithConfigForm
   object pnlMain: TPanel
     Left = 0
     Top = 0
-    Width = 336
-    Height = 266
+    Width = 856
+    Height = 714
+    Margins.Left = 8
+    Margins.Top = 8
+    Margins.Right = 8
+    Margins.Bottom = 8
     Align = alClient
     BevelOuter = bvNone
     Caption = 'pnlMain'
     TabOrder = 1
     DesignSize = (
-      336
-      266)
+      856
+      714)
     object Label1: TLabel
       AlignWithMargins = True
-      Left = 20
-      Top = 204
-      Width = 242
-      Height = 16
-      Margins.Left = 20
-      Margins.Top = 6
+      Left = 50
+      Top = 559
+      Width = 621
+      Height = 40
+      Margins.Left = 50
+      Margins.Top = 15
+      Margins.Right = 8
+      Margins.Bottom = 8
       Anchors = [akLeft, akRight, akBottom]
       AutoSize = False
       Caption = 'Command:'
     end
     object btnAdd: TButton
-      Left = 296
-      Top = 11
-      Width = 26
-      Height = 24
+      Left = 756
+      Top = 28
+      Width = 65
+      Height = 60
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       Action = ActionAdd
       Anchors = [akTop, akRight]
       ImageAlignment = iaCenter
@@ -221,10 +244,14 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 0
     end
     object btnModify: TButton
-      Left = 296
-      Top = 224
-      Width = 26
-      Height = 24
+      Left = 756
+      Top = 609
+      Width = 65
+      Height = 60
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       Action = ActionModify
       Anchors = [akRight, akBottom]
       ImageAlignment = iaCenter
@@ -234,10 +261,14 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 1
     end
     object btnMoveDown: TButton
-      Left = 296
-      Top = 101
-      Width = 26
-      Height = 24
+      Left = 756
+      Top = 253
+      Width = 65
+      Height = 60
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       Action = ActionMoveDown
       Anchors = [akTop, akRight]
       ImageAlignment = iaCenter
@@ -247,10 +278,14 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 2
     end
     object btnMoveUp: TButton
-      Left = 296
-      Top = 71
-      Width = 26
-      Height = 24
+      Left = 756
+      Top = 178
+      Width = 65
+      Height = 60
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       Action = ActionMoveUp
       Anchors = [akTop, akRight]
       ImageAlignment = iaCenter
@@ -260,10 +295,14 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 3
     end
     object btnRemove: TButton
-      Left = 296
-      Top = 41
-      Width = 26
-      Height = 24
+      Left = 756
+      Top = 103
+      Width = 65
+      Height = 60
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       Action = ActionRemove
       Anchors = [akTop, akRight]
       ImageAlignment = iaCenter
@@ -273,10 +312,14 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 4
     end
     object btnTest: TButton
-      Left = 296
-      Top = 131
-      Width = 26
-      Height = 24
+      Left = 756
+      Top = 328
+      Width = 65
+      Height = 60
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       Action = ActionTest
       Anchors = [akTop, akRight]
       ImageAlignment = iaCenter
@@ -286,11 +329,13 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 5
     end
     object Button1: TButton
-      Left = 266
-      Top = 224
-      Width = 26
-      Height = 24
-      Margins.Left = 1
+      Left = 681
+      Top = 609
+      Width = 65
+      Height = 60
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       Action = ActionOpenFileDlg
       Align = alCustom
       Anchors = [akRight, akBottom]
@@ -301,17 +346,18 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 6
     end
     object edt_OpenWithCmd: TEdit
-      Left = 20
-      Top = 226
-      Width = 246
-      Height = 21
-      Margins.Left = 20
-      Margins.Right = 50
+      Left = 50
+      Top = 614
+      Width = 631
+      Height = 46
+      Margins.Left = 50
+      Margins.Top = 8
+      Margins.Right = 125
       Margins.Bottom = 0
       Anchors = [akLeft, akRight, akBottom]
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
-      Font.Height = -11
+      Font.Height = -28
       Font.Name = 'Segoe UI'
       Font.Style = [fsBold]
       ParentFont = False
@@ -320,22 +366,23 @@ object OpenWithConfigForm: TOpenWithConfigForm
     end
     object lbCommands: TCheckListBox
       AlignWithMargins = True
-      Left = 20
-      Top = 10
-      Width = 266
-      Height = 184
+      Left = 50
+      Top = 25
+      Width = 681
+      Height = 509
       Hint = 
         '|Examples:'#13#10'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"'#13#10 +
         'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"'#13#10'no' +
         'tepad++.exe "<FILE>" -n<LINE> -c<COL>'
-      Margins.Left = 20
-      Margins.Top = 10
-      Margins.Right = 50
+      Margins.Left = 50
+      Margins.Top = 25
+      Margins.Right = 125
+      Margins.Bottom = 8
       Align = alTop
       Anchors = [akLeft, akTop, akRight, akBottom]
       AutoComplete = False
       Color = clHighlightText
-      ItemHeight = 15
+      ItemHeight = 41
       Items.Strings = (
         'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"'
         'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"'

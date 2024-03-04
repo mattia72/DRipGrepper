@@ -27,9 +27,6 @@ type
 		ActionStatusBar : TAction;
 		procedure ActionStatusBarUpdate(Sender : TObject);
 
-		private
-
-			{ Private-Deklarationen }
 		public
 			{ Public-Deklarationen }
 			FStatusBarMessage : string;

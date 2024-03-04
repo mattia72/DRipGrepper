@@ -19,10 +19,12 @@ uses
 
 class procedure TListBoxHelper.FreeItemObjects(_lb : TListBox);
 begin
-	for var i := 0 to _lb.Items.Count - 1 do begin
-		_lb.Items.Objects[i].Free;
-		_lb.Items.Objects[i] := nil;
-	end;
+	if Assigned(_lb) then begin
+		for var i := 0 to _lb.Items.Count - 1 do begin
+			_lb.Items.Objects[i].Free;
+			_lb.Items.Objects[i] := nil;
+		end;
+    end;
 end;
 
 end.

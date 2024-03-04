@@ -105,6 +105,7 @@ type
 	TRipGrepperSettings = class(TRipGrepperSettingsBase)
 		private
 		var
+			FActualSearchPath: string;
 			FRipGrepParameters : TRipGrepParameterSettings;
 			FRipGrepperViewSettings : TRipGrepperViewSettings;
 			FRipGrepperOpenWithSettings : TRipGrepperOpenWithSettings;
@@ -112,11 +113,13 @@ type
 			FSearchPathsHistory : TStrings;
 			FSearchTextsHistory : TStrings;
 			FRipGrepArguments : TRipGrepArguments;
+			FSearchPathIsDir: Boolean;
 		class var
 			function GetActualRipGrepParam : string;
 			function GetActualSearchPath : string;
 			function GetActualSearchText : string;
 			function GetIsEmpty : Boolean;
+			function GetSearchPathIsDir: Boolean;
 			procedure InitSettings;
 			procedure LoadHistoryEntries(var _list : TStrings; const _section : string);
 			procedure SetRipGrepParamsHistory(const Value : TSTrings);
@@ -144,6 +147,7 @@ type
 			property RipGrepParamsHistory : TSTrings read FRipGrepParamsHistory write SetRipGrepParamsHistory;
 			property RipGrepperOpenWithSettings : TRipGrepperOpenWithSettings read FRipGrepperOpenWithSettings;
 			property RipGrepperViewSettings : TRipGrepperViewSettings read FRipGrepperViewSettings write FRipGrepperViewSettings;
+			property SearchPathIsDir: Boolean read GetSearchPathIsDir;
 			property SearchTextsHistory : TStrings read FSearchTextsHistory write SetSearchTextsHistory;
 	end;
 
@@ -187,8 +191,14 @@ begin
 end;
 
 function TRipGrepperSettings.GetActualSearchPath : string;
+var
+	s : string;
 begin
-	SearchPathsHistory.TryGetDef(0, Result);
+	if SearchPathsHistory.TryGetDef(0, s) and (s <> FActualSearchPath) then begin
+		FActualSearchPath := s;
+		FSearchPathIsDir := TDirectory.Exists(FActualSearchPath);
+	end;
+	Result := FActualSearchPath;
 end;
 
 function TRipGrepperSettings.GetActualSearchText : string;
@@ -273,6 +283,11 @@ end;
 function TRipGrepperSettings.GetIsModified : Boolean;
 begin
 	Result := FIsModified or FRipGrepParameters.IsModified or FRipGrepperViewSettings.IsModified or FRipGrepperOpenWithSettings.IsModified;
+end;
+
+function TRipGrepperSettings.GetSearchPathIsDir: Boolean;
+begin
+	Result := FSearchPathIsDir;
 end;
 
 procedure TRipGrepperSettings.Load;

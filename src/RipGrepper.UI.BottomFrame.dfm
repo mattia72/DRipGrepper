@@ -1,8 +1,8 @@
 object RipGrepperBottomFrame: TRipGrepperBottomFrame
   Left = 0
   Top = 0
-  Width = 1600
-  Height = 60
+  Width = 800
+  Height = 50
   Margins.Left = 8
   Margins.Top = 8
   Margins.Right = 8
@@ -13,8 +13,8 @@ object RipGrepperBottomFrame: TRipGrepperBottomFrame
   object pnlBottom: TPanel
     Left = 0
     Top = 0
-    Width = 1600
-    Height = 60
+    Width = 800
+    Height = 50
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -24,22 +24,22 @@ object RipGrepperBottomFrame: TRipGrepperBottomFrame
     ParentBackground = False
     TabOrder = 0
     DesignSize = (
-      1600
-      60)
+      800
+      50)
     object StatusBar1: TStatusBar
-      AlignWithMargins = True
-      Left = 8
-      Top = -11
-      Width = 1512
-      Height = 63
+      Left = 0
+      Top = 0
+      Width = 800
+      Height = 50
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 80
       Margins.Bottom = 8
       Action = ActionStatusBar
+      Align = alClient
       Panels = <
         item
-          Width = 500
+          Width = 300
         end
         item
           Alignment = taCenter
@@ -53,7 +53,7 @@ object RipGrepperBottomFrame: TRipGrepperBottomFrame
         end>
     end
     object ActivityIndicator1: TActivityIndicator
-      Left = 1535
+      Left = 735
       Top = 0
       Margins.Left = 0
       Margins.Top = 0
@@ -64,8 +64,8 @@ object RipGrepperBottomFrame: TRipGrepperBottomFrame
     end
   end
   object ActionList: TActionList
-    Left = 807
-    Top = 65526
+    Left = 227
+    Top = 65531
     object ActionStatusBar: TAction
       OnUpdate = ActionStatusBarUpdate
     end
