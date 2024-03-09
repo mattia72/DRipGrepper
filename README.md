@@ -58,7 +58,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 - [ ] configuration dialog
 
 ### Delphi integration https://github.com/mattia72/DRipGrepper/issues/1
-  - [x] dockable window
+  - [ ] dockable window
   - [ ] menu item in Tools
   - [ ] click on matching file, opens file in the editor on position 
   - [ ] search only in opened files/project files/project group
