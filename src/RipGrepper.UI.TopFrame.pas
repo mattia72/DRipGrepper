@@ -99,6 +99,7 @@ implementation
 
 uses
 	RipGrepper.UI.MainForm,
+	RipGrepper.UI.AllFrames,
 	Vcl.Clipbrd,
 	RipGrepper.Common.Types,
 	RipGrepper.OpenWith.ConfigForm,
@@ -110,22 +111,22 @@ uses
 
 procedure TRipGrepperTopFrame.ActionAbortSearchExecute(Sender : TObject);
 begin
-	if RipGrepperForm.MainFrame.IsSearchRunning then begin
-		RipGrepperForm.MainFrame.RipGrepTask.Cancel;
+	if AllFrames.MainFrame.IsSearchRunning then begin
+		AllFrames.MainFrame.RipGrepTask.Cancel;
 	end;
-	RipGrepperForm.MainFrame.AbortSearch := True;
+	AllFrames.MainFrame.AbortSearch := True;
 end;
 
 procedure TRipGrepperTopFrame.ActionAbortSearchUpdate(Sender : TObject);
 begin
-	ActionAbortSearch.Enabled := RipGrepperForm.MainFrame.IsSearchRunning;
+	ActionAbortSearch.Enabled := AllFrames.MainFrame.IsSearchRunning;
 end;
 
 procedure TRipGrepperTopFrame.ActionAlternateRowColorsExecute(Sender : TObject);
 begin
 	Settings.RipGrepperViewSettings.AlternateRowColors := (not Settings.RipGrepperViewSettings.AlternateRowColors);
 	Settings.StoreViewSettings('AlternateRowColors');
-	RipGrepperForm.MainFrame.ListViewResult.Repaint();
+	AllFrames.MainFrame.ListViewResult.Repaint();
 end;
 
 procedure TRipGrepperTopFrame.ActionAlternateRowColorsUpdate(Sender : TObject);
@@ -153,26 +154,26 @@ procedure TRipGrepperTopFrame.ActionConfigExecute(Sender : TObject);
 begin
 	var
 	settings := Settings.RipGrepperOpenWithSettings;
-	settings.TestFile := RipGrepperForm.MainFrame.GetOpenWithParamsFromSelected();
+	settings.TestFile := AllFrames.MainFrame.GetOpenWithParamsFromSelected();
 	TOpenWithConfigForm.CreateAndShow(settings);
 	settings.TestFile := default (TOpenWithParams);
 end;
 
 procedure TRipGrepperTopFrame.ActionCopyFileNameExecute(Sender : TObject);
 begin
-	RipGrepperForm.MainFrame.CopyToClipboardFileOfSelected();
+	AllFrames.MainFrame.CopyToClipboardFileOfSelected();
 end;
 
 procedure TRipGrepperTopFrame.ActionCopyPathToClipboardExecute(Sender : TObject);
 begin
-	RipGrepperForm.MainFrame.CopyToClipboardPathOfSelected();
+	AllFrames.MainFrame.CopyToClipboardPathOfSelected();
 end;
 
 procedure TRipGrepperTopFrame.ActionIndentLineExecute(Sender : TObject);
 begin
 	Settings.RipGrepperViewSettings.IndentLines := not Settings.RipGrepperViewSettings.IndentLines;
 	Settings.StoreViewSettings('IndentLines');
-	RipGrepperForm.MainFrame.ListViewResult.Repaint();
+	AllFrames.MainFrame.ListViewResult.Repaint();
 end;
 
 procedure TRipGrepperTopFrame.ActionIndentLineUpdate(Sender : TObject);
@@ -182,7 +183,7 @@ end;
 
 procedure TRipGrepperTopFrame.ActionOpenWithExecute(Sender : TObject);
 begin
-	RipGrepperForm.MainFrame.ActionOpenWithExecute(Sender);
+	AllFrames.MainFrame.ActionOpenWithExecute(Sender);
 end;
 
 procedure TRipGrepperTopFrame.ActionRefreshSearchExecute(Sender : TObject);
@@ -190,15 +191,15 @@ var
 	cursor : TCursorSaver;
 begin
 	cursor.SetHourGlassCursor;
-	RipGrepperForm.MainFrame.UpdateHistObject();
-	RipGrepperForm.MainFrame.ClearHistoryObject();
-	RipGrepperForm.MainFrame.InitSearch();
-	RipGrepperForm.MainFrame.DoSearch();
+	AllFrames.MainFrame.UpdateHistObject();
+	AllFrames.MainFrame.ClearHistoryObject();
+	AllFrames.MainFrame.InitSearch();
+	AllFrames.MainFrame.DoSearch();
 end;
 
 procedure TRipGrepperTopFrame.ActionRefreshSearchUpdate(Sender : TObject);
 begin
-	ActionRefreshSearch.Enabled := Settings.IsLoaded and (not RipGrepperForm.MainFrame.IsSearchRunning);
+	ActionRefreshSearch.Enabled := Settings.IsLoaded and (not AllFrames.MainFrame.IsSearchRunning);
 end;
 
 procedure TRipGrepperTopFrame.ActionSearchExecute(Sender : TObject);
@@ -207,19 +208,19 @@ var
 begin
 	cursor.SetHourGlassCursor;
 
-	RipGrepperForm.MainFrame.AddOrUpdateHistoryItem;
-	RipGrepperForm.MainFrame.ListBoxSearchHistory.ItemIndex := RipGrepperForm.MainFrame.CurrentHistoryItemIndex;
+	AllFrames.MainFrame.AddOrUpdateHistoryItem;
+	AllFrames.MainFrame.ListBoxSearchHistory.ItemIndex := AllFrames.MainFrame.CurrentHistoryItemIndex;
 
-	RipGrepperForm.MainFrame.Data.ClearMatchFiles;
-	RipGrepperForm.MainFrame.InitSearch();
-	RipGrepperForm.MainFrame.DoSearch();
+	AllFrames.MainFrame.Data.ClearMatchFiles;
+	AllFrames.MainFrame.InitSearch();
+	AllFrames.MainFrame.DoSearch();
 end;
 
 procedure TRipGrepperTopFrame.ActionShowFileIconsExecute(Sender : TObject);
 begin
 	Settings.RipGrepperViewSettings.ShowFileIcon := not Settings.RipGrepperViewSettings.ShowFileIcon;
 	Settings.StoreViewSettings('ShowFileIcon');
-	RipGrepperForm.MainFrame.ListViewResult.Repaint();
+	AllFrames.MainFrame.ListViewResult.Repaint();
 end;
 
 procedure TRipGrepperTopFrame.ActionShowFileIconsUpdate(Sender : TObject);
@@ -235,13 +236,13 @@ begin
 	Settings.RipGrepperViewSettings.ShowRelativePath := not Settings.RipGrepperViewSettings.ShowRelativePath;
 	var
 	idx := Integer(Settings.RipGrepperViewSettings.ShowRelativePath);
-	RipGrepperForm.MainFrame.FileNameType := PARSER_TYPES[idx mod Length(PARSER_TYPES)];
+	AllFrames.MainFrame.FileNameType := PARSER_TYPES[idx mod Length(PARSER_TYPES)];
 	var
-	arr := RipGrepperForm.MainFrame.MaxWidths;
-	RipGrepperForm.MainFrame.ListViewResult.InitMaxWidths(arr);
-	RipGrepperForm.MainFrame.MaxWidths := arr;
+	arr := AllFrames.MainFrame.MaxWidths;
+	AllFrames.MainFrame.ListViewResult.InitMaxWidths(arr);
+	AllFrames.MainFrame.MaxWidths := arr;
 	Settings.StoreViewSettings('ShowRelativePath');
-	RipGrepperForm.MainFrame.ListViewResult.Repaint;
+	AllFrames.MainFrame.ListViewResult.Repaint;
 end;
 
 procedure TRipGrepperTopFrame.ActionShowRelativePathUpdate(Sender : TObject);
@@ -255,8 +256,8 @@ var
 	args : TRipGrepArguments;
 begin
 	args := nil;
-	if Assigned(RipGrepperForm.MainFrame.HistObject) then begin
-		args := RipGrepperForm.MainFrame.HistObject.RipGrepArguments;
+	if Assigned(AllFrames.MainFrame.HistObject) then begin
+		args := AllFrames.MainFrame.HistObject.RipGrepArguments;
 	end;
 	var
 	frm := TRipGrepperSearchDialogForm.Create(self, Settings, args);
@@ -272,22 +273,22 @@ end;
 
 procedure TRipGrepperTopFrame.ActionShowSearchFormUpdate(Sender : TObject);
 begin
-	ActionShowSearchForm.Enabled := Settings.IsEmpty or (not RipGrepperForm.MainFrame.IsSearchRunning);
+	ActionShowSearchForm.Enabled := Settings.IsEmpty or (not AllFrames.MainFrame.IsSearchRunning);
 end;
 
 procedure TRipGrepperTopFrame.ActionSwitchViewExecute(Sender : TObject);
 var
 	idx : integer;
 begin
-	idx := RipGrepperForm.TopFrame.GetNextViewStyleIdx;
-	RipGrepperForm.MainFrame.ListViewResult.ViewStyle := LISTVIEW_TYPES[idx];
+	idx := AllFrames.TopFrame.GetNextViewStyleIdx;
+	AllFrames.MainFrame.ListViewResult.ViewStyle := LISTVIEW_TYPES[idx];
 	FViewStyleIndex := idx;
 end;
 
 procedure TRipGrepperTopFrame.ActionSwitchViewUpdate(Sender : TObject);
 begin
 	var
-	next := RipGrepperForm.TopFrame.GetNextViewStyleIdx();
+	next := AllFrames.TopFrame.GetNextViewStyleIdx();
 	var
 	idx := IfThen(next <= (Length(LISTVIEW_TYPES) - 1), next, 0);
 	// ActionSwitchView.ImageIndex := idx + 2;

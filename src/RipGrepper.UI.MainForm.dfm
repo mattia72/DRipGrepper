@@ -155,52 +155,16 @@ object RipGrepperForm: TRipGrepperForm
   OnShow = FormShow
   PixelsPerInch = 240
   TextHeight = 41
-  inline BottomFrame: TRipGrepperBottomFrame
-    Left = 0
-    Top = 948
-    Width = 1613
-    Height = 60
-    Margins.Left = 20
-    Margins.Top = 20
-    Margins.Right = 20
-    Margins.Bottom = 20
-    Align = alBottom
-    TabOrder = 0
-  end
-  inline TopFrame: TRipGrepperTopFrame
+  inline AllFrames1: TAllFrames
     Left = 0
     Top = 0
     Width = 1613
-    Height = 60
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
-    Align = alTop
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -30
-    Font.Name = 'Segoe UI'
-    Font.Style = []
-    ParentFont = False
-    TabOrder = 1
-  end
-  inline MainFrame: TRipGrepperMainFrame
-    Left = 0
-    Top = 60
-    Width = 1613
-    Height = 888
+    Height = 1008
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
     Margins.Bottom = 8
     Align = alClient
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -30
-    Font.Name = 'Segoe UI'
-    Font.Style = []
-    ParentFont = False
-    TabOrder = 2
+    TabOrder = 0
   end
 end

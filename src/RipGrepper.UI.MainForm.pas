@@ -40,14 +40,13 @@ uses
 	GX_BaseForm,
 	RipGrepper.UI.MainFrame,
 	RipGrepper.UI.BottomFrame,
-	RipGrepper.UI.TopFrame;
+	RipGrepper.UI.TopFrame,
+	RipGrepper.UI.AllFrames;
 
 type
 	TRipGrepperForm = class(TfmBaseForm { TfmIdeDockForm } )
 		var
-			BottomFrame : TRipGrepperBottomFrame;
-			TopFrame : TRipGrepperTopFrame;
-			MainFrame : TRipGrepperMainFrame;
+			AllFrames1 : TAllFrames;
 			procedure ActionCancelExecute(Sender : TObject);
 			procedure FormCreate(Sender : TObject);
 			procedure FormClose(Sender : TObject; var Action : TCloseAction);
@@ -63,9 +62,7 @@ type
 		var
 			FSettings : TRipGrepperSettings;
 			FImageScaler : TImageListScaler;
-			procedure LoadSettings;
 			function GetSettings : TRipGrepperSettings;
-			procedure InitForm;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
 		protected
@@ -78,14 +75,13 @@ type
 			constructor Create(AOwner : TComponent); overload; override;
 			destructor Destroy; override;
 			class function CreateAndShow(const _settings : TRipGrepperSettings) : TRipGrepperForm;
-			procedure InitStatusBar;
+			procedure Init;
 			procedure Loaded; override;
-			procedure SetStatusBarMessage(const _bWithElapsedTime : Boolean = False);
-			procedure SetStatusBarStatistic(const _s : string);
 	end;
 
 var
 	RipGrepperForm : TRipGrepperForm;
+	AllFrames : TAllFrames;
 
 implementation
 
@@ -121,25 +117,25 @@ uses
 constructor TRipGrepperForm.Create(_settings : TRipGrepperSettings);
 begin
 	inherited Create(nil);
-	InitForm;
+	Init;
 
 	if Assigned(_settings) then begin
 		FSettings := _settings;
 	end;
+
 	TDebugUtils.DebugMessage('TRipGrepperForm.Create: ' + FSettings.IniFile.FileName);
 end;
 
 constructor TRipGrepperForm.Create(AOwner : TComponent);
 begin
 	inherited Create(AOwner);
-
-	InitForm;
-	LoadSettings;
+	AllFrames := AllFrames1;
+	Init;
 end;
 
 procedure TRipGrepperForm.FormCreate(Sender : TObject);
 begin
-    //
+	//
 end;
 
 destructor TRipGrepperForm.Destroy;
@@ -167,10 +163,10 @@ var
 	li : TImageList;
 begin
 	inherited;
-	if not Assigned(FImageScaler) then
-		FImageScaler := TImageListScaler.Create(Self, TopFrame.ImageListButtons);
-	li := FImageScaler.GetScaledList(_NewDpi);
-	TopFrame.Toolbar1.Images := li;
+	// if not Assigned(FImageScaler) then
+	// FImageScaler := TImageListScaler.Create(Self, TopFrame.ImageListButtons);
+	// li := FImageScaler.GetScaledList(_NewDpi);
+	// TopFrame.Toolbar1.Images := li;
 end;
 
 procedure TRipGrepperForm.ArrangeControls;
@@ -205,20 +201,8 @@ procedure TRipGrepperForm.FormShow(Sender : TObject);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.FormShow - begin');
 	inherited;
-	SetStatusBarMessage();
+	// AllFrames.OnShow(Sender);
 	TDebugUtils.DebugMessage('TRipGrepperForm.FormShow - end');
-end;
-
-procedure TRipGrepperForm.InitStatusBar;
-begin
-	SetStatusBarMessage();
-	SetStatusBarStatistic('Ready.');
-end;
-
-procedure TRipGrepperForm.LoadSettings;
-begin
-	Settings.Load;
-	// LoadBeforeSearchSettings();
 end;
 
 procedure TRipGrepperForm.CreateParams(var Params : TCreateParams);
@@ -245,18 +229,9 @@ begin
 	Result := FSettings;
 end;
 
-procedure TRipGrepperForm.InitForm;
+procedure TRipGrepperForm.Init;
 begin
-	MainFrame.Init();
-
-	InitDpiScaler;
-
-	// if not IsStandAlone then begin
-	// TDebugUtils.DebugMessage('RegisterDockableForm - ' + RIPGREPPER_FORM);
-	// IdeDockManager.RegisterDockableForm(TRipGrepperForm, self, RIPGREPPER_FORM);
-	// end;
-
-	TDebugUtils.DebugMessage('TRipGrepperForm.InitForm Ended');
+	AllFrames.Init;
 end;
 
 procedure TRipGrepperForm.Loaded;
@@ -276,25 +251,6 @@ begin
 		if Assigned(PropInfo) then
 			SetOrdProp(cmp, PropInfo, 0);
 	end;
-end;
-
-procedure TRipGrepperForm.SetStatusBarMessage(const _bWithElapsedTime : Boolean = False);
-var
-	msg : string;
-begin
-	if _bWithElapsedTime then begin
-		msg := Format('Search took %s seconds with ' + EXE_AND_VERSION_FORMAT, [MainFrame.HistObject.ElapsedTimeText, MainFrame.ExeVersion]);
-		BottomFrame.FStatusBarStatus := IfThen(MainFrame.HistObject.RipGrepResult = RIPGREP_ERROR, 'ERROR', 'SUCCES');
-	end else begin
-		msg := Format(EXE_AND_VERSION_FORMAT, [MainFrame.ExeVersion]);
-		BottomFrame.FStatusBarStatus := 'READY';
-	end;
-	BottomFrame.FStatusBarMessage := msg;
-end;
-
-procedure TRipGrepperForm.SetStatusBarStatistic(const _s : string);
-begin
-	BottomFrame.FStatusBarStatistic := _s;
 end;
 
 end.

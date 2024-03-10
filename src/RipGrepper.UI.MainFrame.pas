@@ -157,21 +157,22 @@ type
 implementation
 
 uses
-	RipGrepper.UI.MainForm,
+	RipGrepper.UI.AllFrames,
 	RipGrepper.OpenWith,
 	System.StrUtils,
 	RipGrepper.Tools.DebugTools,
 	RipGrepper.Helper.UI,
 	System.IOUtils,
 	Vcl.Clipbrd,
-
 	Winapi.CommCtrl,
 	RipGrepper.Helper.ListBox,
 	RipGrepper.Tools.FileUtils,
 	RipGrepper.Helper.Types,
 	RipGrepper.Parsers.VimGrepMatchLine,
 	RipGrepper.Common.ParsedObject,
-	RipGrepper.Tools.ProcessUtils, System.Math;
+	RipGrepper.Tools.ProcessUtils,
+	System.Math,
+	RipGrepper.UI.MainForm;
 
 {$R *.dfm}
 
@@ -293,7 +294,7 @@ end;
 
 procedure TRipGrepperMainFrame.DoSearch;
 begin
-	RipGrepperForm.SetStatusBarStatistic('Searching...');
+	AllFrames.SetStatusBarStatistic('Searching...');
 	FAbortSearch := False;
 	UpdateArgumentsAndSettings;
 	RunRipGrep();
@@ -384,7 +385,7 @@ end;
 procedure TRipGrepperMainFrame.FrameResize(Sender : TObject);
 begin
 	SplitView1.Width := panelMain.Width;
-	RipGrepperForm.BottomFrame.StatusBar1.Panels[0].Width := PanelHistory.Width;
+	AllFrames.BottomFrame.StatusBar1.Panels[0].Width := PanelHistory.Width;
 	SetColumnWidths;
 end;
 
@@ -487,7 +488,7 @@ begin
 	// ClearData;
 	FswSearchStart := TStopwatch.Create();
 	FMeassureFirstDrawEvent := True;
-	RipGrepperForm.InitStatusBar;
+	AllFrames.InitStatusBar;
 	InitColumnSortTypes;
 	UpdateSortingImages([sbtFile, sbtRow]);
 	// ListViewResult.Repaint();
@@ -510,7 +511,7 @@ begin
 	TDebugUtils.DebugMessage('History Errors: ' + HistObject.ErrorCount.ToString);
 	SetResultListViewDataToHistoryObj();
 	RefreshCountersInGUI;
-	RipGrepperForm.SetStatusBarMessage(True);
+	AllFrames.SetStatusBarMessage(True);
 end;
 
 procedure TRipGrepperMainFrame.ListBoxSearchHistoryData(Control : TWinControl; Index : Integer; var Data : string);
@@ -610,7 +611,7 @@ begin
 		procedure
 		begin
 			SetColumnWidths;
-			RipGrepperForm.BottomFrame.ActivityIndicator1.Animate := False;
+			AllFrames.BottomFrame.ActivityIndicator1.Animate := False;
 			FIsParsingRunning := False;
 		end);
 end;
@@ -696,7 +697,7 @@ begin
 		procedure
 		begin
 			ListBoxSearchHistory.Refresh;
-			RipGrepperForm.SetStatusBarStatistic(GetCounterText(HistObject));
+			AllFrames.SetStatusBarStatistic(GetCounterText(HistObject));
 		end);
 end;
 
@@ -725,12 +726,12 @@ begin
 				args.Free;
 			end;
 			FHistObject.ElapsedTimeText := GetElapsedTime(FswSearchStart);
-			RipGrepperForm.SetStatusBarMessage(True);
+			AllFrames.SetStatusBarMessage(True);
 			FswSearchStart.Stop;
 			TDebugUtils.DebugMessage(Format('rg.exe ended in %s sec.', [FHistObject.ElapsedTimeText]));
 		end);
 	FRipGrepTask.Start;
-	RipGrepperForm.BottomFrame.ActivityIndicator1.Animate := True;
+	AllFrames.BottomFrame.ActivityIndicator1.Animate := True;
 end;
 
 procedure TRipGrepperMainFrame.SetColumnWidths;
