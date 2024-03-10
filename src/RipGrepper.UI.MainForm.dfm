@@ -3,14 +3,14 @@ object RipGrepperForm: TRipGrepperForm
   Left = 662
   Top = 278
   Caption = 'DRipGrepper'
-  ClientHeight = 551
-  ClientWidth = 780
+  ClientHeight = 1008
+  ClientWidth = 1613
   Color = clBtnFace
-  Constraints.MinHeight = 350
-  Constraints.MinWidth = 470
+  Constraints.MinHeight = 875
+  Constraints.MinWidth = 1175
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -12
+  Font.Height = -30
   Font.Name = 'Segoe UI'
   Font.Style = []
   Icon.Data = {
@@ -153,70 +153,54 @@ object RipGrepperForm: TRipGrepperForm
   StyleElements = [seFont, seClient]
   OnClose = FormClose
   OnShow = FormShow
-  TextHeight = 15
+  PixelsPerInch = 240
+  TextHeight = 41
   inline BottomFrame: TRipGrepperBottomFrame
     Left = 0
-    Top = 527
-    Width = 780
-    Height = 24
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
+    Top = 948
+    Width = 1613
+    Height = 60
+    Margins.Left = 20
+    Margins.Top = 20
+    Margins.Right = 20
+    Margins.Bottom = 20
     Align = alBottom
     TabOrder = 0
-    inherited pnlBottom: TPanel
-      Width = 780
-      Height = 24
-      inherited StatusBar1: TStatusBar
-        Width = 780
-        Height = 24
-      end
-      inherited ActivityIndicator1: TActivityIndicator
-        Left = 1535
-      end
-    end
-    inherited ActionList: TActionList
-      Left = 898
-      Top = 3
-    end
   end
   inline TopFrame: TRipGrepperTopFrame
     Left = 0
     Top = 0
-    Width = 780
-    Height = 24
+    Width = 1613
+    Height = 60
+    Margins.Left = 8
+    Margins.Top = 8
+    Margins.Right = 8
+    Margins.Bottom = 8
     Align = alTop
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -30
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 1
-    inherited ToolBar1: TToolBar
-      Width = 774
-    end
   end
   inline MainFrame: TRipGrepperMainFrame
     Left = 0
-    Top = 24
-    Width = 780
-    Height = 503
+    Top = 60
+    Width = 1613
+    Height = 888
+    Margins.Left = 8
+    Margins.Top = 8
+    Margins.Right = 8
+    Margins.Bottom = 8
     Align = alClient
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -30
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 2
-    inherited panelMain: TPanel
-      Width = 774
-      Height = 497
-      inherited SplitView1: TSplitView
-        Height = 491
-        inherited Splitter1: TSplitter
-          Height = 491
-        end
-        inherited PanelHistory: TPanel
-          Height = 491
-          inherited ListBoxSearchHistory: TListBox
-            Height = 483
-          end
-        end
-        inherited PanelResult: TPanel
-          Height = 491
-        end
-      end
-    end
   end
 end

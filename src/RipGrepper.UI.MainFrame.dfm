@@ -1,60 +1,91 @@
 object RipGrepperMainFrame: TRipGrepperMainFrame
   Left = 0
   Top = 0
-  Width = 800
-  Height = 487
+  Width = 1569
+  Height = 798
+  Margins.Left = 8
+  Margins.Top = 8
+  Margins.Right = 8
+  Margins.Bottom = 8
   TabOrder = 0
   OnResize = FrameResize
+  PixelsPerInch = 240
   object panelMain: TPanel
     AlignWithMargins = True
-    Left = 3
-    Top = 3
-    Width = 794
-    Height = 481
+    Left = 8
+    Top = 8
+    Width = 1553
+    Height = 782
+    Margins.Left = 8
+    Margins.Top = 8
+    Margins.Right = 8
+    Margins.Bottom = 8
     Align = alClient
     BevelOuter = bvNone
     Caption = 'panelMain'
     TabOrder = 0
     object ImageFileIcon: TImage
-      Left = 611
-      Top = 301
-      Width = 45
-      Height = 61
+      Left = 1528
+      Top = 753
+      Width = 112
+      Height = 152
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
     end
     object SplitView1: TSplitView
       AlignWithMargins = True
-      Left = 3
-      Top = 3
-      Width = 760
-      Height = 475
+      Left = 8
+      Top = 8
+      Width = 1900
+      Height = 766
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       BevelEdges = [beLeft, beRight, beBottom]
-      OpenedWidth = 760
+      CompactWidth = 125
+      OpenedWidth = 1900
       Placement = svpLeft
       TabOrder = 0
       object Splitter1: TSplitter
-        Left = 157
+        Left = 393
         Top = 0
-        Height = 475
+        Width = 7
+        Height = 766
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
         Align = alRight
       end
       object PanelHistory: TPanel
         Left = 0
         Top = 0
-        Width = 157
-        Height = 475
+        Width = 393
+        Height = 766
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
         Align = alClient
         Anchors = [akLeft, akTop, akBottom]
         Caption = 'PanelHistory'
         TabOrder = 0
         object ListBoxSearchHistory: TListBox
           AlignWithMargins = True
-          Left = 4
-          Top = 4
-          Width = 149
-          Height = 467
+          Left = 9
+          Top = 9
+          Width = 375
+          Height = 748
+          Margins.Left = 8
+          Margins.Top = 8
+          Margins.Right = 8
+          Margins.Bottom = 8
           Style = lbVirtualOwnerDraw
           Align = alClient
-          ItemHeight = 30
+          ItemHeight = 75
           TabOrder = 0
           OnClick = ListBoxSearchHistoryClick
           OnData = ListBoxSearchHistoryData
@@ -63,20 +94,28 @@ object RipGrepperMainFrame: TRipGrepperMainFrame
         end
       end
       object PanelResult: TPanel
-        Left = 160
+        Left = 400
         Top = 0
-        Width = 600
-        Height = 475
+        Width = 1500
+        Height = 766
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
         Align = alRight
         Anchors = [akLeft, akTop, akRight, akBottom]
         Caption = 'PanelResult'
         TabOrder = 1
         object ListViewResult: TListView
           AlignWithMargins = True
-          Left = 4
-          Top = 4
-          Width = 592
-          Height = 467
+          Left = 9
+          Top = 9
+          Width = 1482
+          Height = 748
+          Margins.Left = 8
+          Margins.Top = 8
+          Margins.Right = 8
+          Margins.Bottom = 8
           Align = alClient
           Color = clHighlightText
           Columns = <
