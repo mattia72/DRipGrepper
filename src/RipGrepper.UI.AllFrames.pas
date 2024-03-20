@@ -79,6 +79,8 @@ end;
 
 procedure TAllFrames.Init;
 begin
+	TDebugUtils.DebugMessage('TAllFrames.InitForm Begin');
+
 	MainFrame.Init();
 
 	// if not IsStandAlone then begin
@@ -86,7 +88,7 @@ begin
 	// IdeDockManager.RegisterDockableForm(TAllFrames, self, RIPGREPPER_FORM);
 	// end;
 
-	TDebugUtils.DebugMessage('TAllFrames.InitForm Ended');
+	TDebugUtils.DebugMessage('TAllFrames.InitForm End');
 end;
 
 procedure TAllFrames.SetStatusBarMessage(const _bWithElapsedTime : Boolean = False);

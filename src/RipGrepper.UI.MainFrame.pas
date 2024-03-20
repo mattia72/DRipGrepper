@@ -123,6 +123,7 @@ type
 
 			{ Private-Deklarationen }
 		public
+			constructor Create(AOwner : TComponent); override;
 			destructor Destroy; override;
 			procedure AddOrUpdateHistoryItem;
 			procedure ChangeDataHistItemObject(_ho : THistoryItemObject);
@@ -172,12 +173,21 @@ uses
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.Tools.ProcessUtils,
 	System.Math,
-	RipGrepper.UI.MainForm;
+	RipGrepper.UI.MainForm,
+	GX_OtaUtils;
 
 {$R *.dfm}
 
+constructor TRipGrepperMainFrame.Create(AOwner : TComponent);
+begin
+	inherited;
+	TDebugUtils.DebugMessage('TRipGrepperMainFrame.Create');
+end;
+
 destructor TRipGrepperMainFrame.Destroy;
 begin
+	TDebugUtils.DebugMessage('TRipGrepperMainFrame.Destroy');
+
 	TListBoxHelper.FreeItemObjects(ListBoxSearchHistory);
 	ListViewResult.Items.Count := 0;
 	for var i := 0 to FHistoryObjectList.Count - 1 do begin
@@ -384,6 +394,8 @@ end;
 
 procedure TRipGrepperMainFrame.FrameResize(Sender : TObject);
 begin
+	TDebugUtils.DebugMessage('TRipGrepperMainFrame.FrameResize');
+
 	SplitView1.Width := panelMain.Width;
 	AllFrames.BottomFrame.StatusBar1.Panels[0].Width := PanelHistory.Width;
 	SetColumnWidths;
@@ -465,13 +477,17 @@ end;
 
 procedure TRipGrepperMainFrame.Init;
 begin
+	TDebugUtils.DebugMessage('TRipGrepperMainFrame.InitForm Begin');
+
 	FData := TRipGrepperData.Create();
 	FHistoryObjectList := TStringList.Create(TDuplicates.dupIgnore, False, False);
-	{$IFDEF STANDALONE}
-	FExeVersion := TFileUtils.GetAppNameAndVersion(Application.ExeName);
-	{$ELSE}
-	FExeVersion := TFileUtils.GetPackageNameAndVersion(HInstance);
-	{$ENDIF}
+	if IsStandAlone then begin
+		FExeVersion := TFileUtils.GetAppNameAndVersion(Application.ExeName);
+	end else begin
+		FExeVersion := TFileUtils.GetPackageNameAndVersion(HInstance);
+	end;
+	TDebugUtils.DebugMessage('TRipGrepperMainFrame.InitForm ' + FExeVersion);
+
 	FFileNameType := ftAbsolute;
 
 	InitColumnSortTypes;

@@ -32,30 +32,24 @@ uses
 	System.Diagnostics,
 	RipGrepper.Common.Sorter,
 	RipGrepper.Data.HistoryItemObject,
-	RipGrepper.UI.DockableForm,
 	u_dzDpiScaleUtils,
 	RipGrepper.OpenWith.SimpleTypes,
 	System.IniFiles,
 	ToolsAPI,
-	GX_BaseForm,
+	// GX_BaseForm,
 	RipGrepper.UI.MainFrame,
 	RipGrepper.UI.BottomFrame,
 	RipGrepper.UI.TopFrame,
 	RipGrepper.UI.AllFrames;
 
 type
-	TRipGrepperForm = class(TfmBaseForm { TfmIdeDockForm } )
+	TRipGrepperForm = class(TForm { TfmIdeDockForm } )
 		var
 			AllFrames1 : TAllFrames;
 			procedure ActionCancelExecute(Sender : TObject);
 			procedure FormCreate(Sender : TObject);
 			procedure FormClose(Sender : TObject; var Action : TCloseAction);
 			procedure FormShow(Sender : TObject);
-			/// <summary>
-			/// Returns the class of the frame that you want embedded in the dockable form
-			/// </summary>
-			function GetFrameClass : TCustomFrameClass; // override;
-
 		private const
 			RIPGREPPER_FORM = 'RipGrepperForm';
 
@@ -66,8 +60,8 @@ type
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
 		protected
-			procedure ApplyDpi(_NewDpi : Integer; _NewBounds : PRect); override;
-			procedure ArrangeControls; override;
+			procedure ApplyDpi(_NewDpi : Integer; _NewBounds : PRect); // override;
+			procedure ArrangeControls; // override;
 			procedure CreateParams(var Params : TCreateParams); override;
 
 		public
@@ -75,6 +69,8 @@ type
 			constructor Create(AOwner : TComponent); overload; override;
 			destructor Destroy; override;
 			class function CreateAndShow(const _settings : TRipGrepperSettings) : TRipGrepperForm;
+
+			procedure FrameCreated(AFrame : TCustomFrame);
 			procedure Init;
 			procedure Loaded; override;
 	end;
@@ -116,26 +112,35 @@ uses
 
 constructor TRipGrepperForm.Create(_settings : TRipGrepperSettings);
 begin
+	TDebugUtils.DebugMessage('TRipGrepperForm.Create _settings');
 	inherited Create(nil);
-	Init;
+	if IsStandAlone then begin
+		TDebugUtils.DebugMessage('TRipGrepperForm.Create STANDALONE');
+
+		Init;
+	end;
 
 	if Assigned(_settings) then begin
 		FSettings := _settings;
 	end;
 
-	TDebugUtils.DebugMessage('TRipGrepperForm.Create: ' + FSettings.IniFile.FileName);
+	TDebugUtils.DebugMessage('TRipGrepperForm.Create: ' + TPath.GetFileName(FSettings.IniFile.FileName));
 end;
 
 constructor TRipGrepperForm.Create(AOwner : TComponent);
 begin
+	TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner');
 	inherited Create(AOwner);
-	AllFrames := AllFrames1;
-	Init;
+
+	if IsStandAlone then begin
+		TDebugUtils.DebugMessage('TRipGrepperForm.Create STANDALONE');
+		FrameCreated(AllFrames1);
+	end;
 end;
 
 procedure TRipGrepperForm.FormCreate(Sender : TObject);
 begin
-	//
+	TDebugUtils.DebugMessage('TRipGrepperForm.FormCreate');
 end;
 
 destructor TRipGrepperForm.Destroy;
@@ -163,6 +168,8 @@ var
 	li : TImageList;
 begin
 	inherited;
+	TDebugUtils.DebugMessage('TRipGrepperForm.ApplyDpi');
+
 	// if not Assigned(FImageScaler) then
 	// FImageScaler := TImageListScaler.Create(Self, TopFrame.ImageListButtons);
 	// li := FImageScaler.GetScaledList(_NewDpi);
@@ -172,12 +179,13 @@ end;
 procedure TRipGrepperForm.ArrangeControls;
 begin
 	inherited;
+	TDebugUtils.DebugMessage('TRipGrepperForm.ArrangeControls');
 	// SetColumnWidths;
 end;
 
 class function TRipGrepperForm.CreateAndShow(const _settings : TRipGrepperSettings) : TRipGrepperForm;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperForm.CreateAndShow: ' + _settings.IniFile.FileName);
+	TDebugUtils.DebugMessage('TRipGrepperForm.CreateAndShow: ' + TPath.GetFileName(_settings.IniFile.FileName));
 	Result := TRipGrepperForm.Create(_settings);
 
 	try
@@ -216,9 +224,11 @@ begin
 	end;
 end;
 
-function TRipGrepperForm.GetFrameClass : TCustomFrameClass;
+procedure TRipGrepperForm.FrameCreated(AFrame : TCustomFrame);
 begin
-	Result := nil; // TRipGrepperForm;
+	TDebugUtils.DebugMessage('TRipGrepperForm.FrameCreated ' + AFrame.Name);
+	AllFrames := AFrame as TAllFrames;
+	Init;
 end;
 
 function TRipGrepperForm.GetSettings : TRipGrepperSettings;
@@ -231,6 +241,7 @@ end;
 
 procedure TRipGrepperForm.Init;
 begin
+	TDebugUtils.DebugMessage('TRipGrepperForm.Init');
 	AllFrames.Init;
 end;
 

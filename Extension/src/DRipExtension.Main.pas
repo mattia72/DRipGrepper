@@ -5,7 +5,8 @@ interface
 
 uses
 	ToolsAPI,
-	RipGrepper.UI.MainForm;
+	RipGrepper.UI.MainForm,
+	RipGrepper.UI.DockableForm;
 
 type
 	// TNotifierObject has stub implementations for the necessary but
@@ -18,7 +19,7 @@ type
 			FKeyNotifier : IOTAKeyboardBinding;
 			FKeyBinding : integer;
 
-			FRipGrepperForm : TRipGrepperForm;
+			FDockableForm : TRipGrepperDockableForm;
 			procedure CreateMenu;
 			procedure DoMainMenuClick(Sender : TObject);
 			procedure InitKeyboardNotifier;
@@ -79,11 +80,13 @@ begin
 	for var i := 0 to mainMenu.Items.Count - 1 do begin
 		if CompareText(mainMenu.Items[i].Name, 'ToolsMenu') = 0 then begin
 			iPos := i;
+			TDebugUtils.DebugMessage('CreateMenu to iPos ' + iPos.ToString);
 			break;
 		end;
 	end;
 
 	G_MainMenu := Vcl.Menus.NewItem(GetMenuText, 0, False, True, DoMainMenuClick, 0, MENUITEM_NAME);
+	TDebugUtils.DebugMessage('CreateMenu Insert ' + MENUITEM_NAME + ' to iPos ' + iPos.ToString);
 	mainMenu.Items.Insert(iPos, G_MainMenu);
 end;
 
@@ -98,7 +101,12 @@ destructor TDRipExtension.Destroy;
 begin
 	TDebugUtils.DebugMessage('TDRipExtension.Destroy');
 	G_MainMenu.Free;
-	FRipGrepperForm.Free;
+
+	TDebugUtils.DebugMessage('TDRipExtension.Destroy FDockableForm.FreeInstance');
+	FDockableForm.FreeInstance;
+	TDebugUtils.DebugMessage('TDRipExtension.Destroy FDockableForm.Free');
+	FDockableForm.Free;
+
 	G_DRipExtension := nil;
 	inherited;
 end;
@@ -112,14 +120,14 @@ procedure TDRipExtension.Execute;
 begin
 	TDebugUtils.DebugMessage('TDRipExtension.Execute');
 
-	if not Assigned(FRipGrepperForm) then begin
-		TDebugUtils.DebugMessage('CreateAndShow');
-		FRipGrepperForm := TRipGrepperForm.CreateAndShow(GSettings);
+	if not Assigned(FDockableForm) then begin
+		TDebugUtils.DebugMessage('TRipGrepperForm.CreateAndShow');
+		FDockableForm := TRipGrepperDockableForm.Instance;
+		TRipGrepperDockableForm.CreateDockableForm();
 	end else begin
-		TDebugUtils.DebugMessage('Show');
-		FRipGrepperForm.Show();
+		TDebugUtils.DebugMessage('TRipGrepperForm.Show');
+		TRipGrepperDockableForm.CreateDockableForm();
 	end;
-
 end;
 
 function TDRipExtension.GetIDString : string;
@@ -145,8 +153,8 @@ end;
 procedure TDRipExtension.InitKeyboardNotifier;
 begin
 	if not Assigned(FKeyNotifier) then begin
-//		FKeyNotifier := TAGExpertKeyboardNotifier.Create;
-//		FKeyNotifier.OnShortCut := DoShortCut;
+		// FKeyNotifier := TAGExpertKeyboardNotifier.Create;
+		// FKeyNotifier.OnShortCut := DoShortCut;
 	end;
 end;
 
@@ -173,6 +181,7 @@ begin
 	for var i := 0 to mainMenu.Items.Count - 1 do begin
 		if CompareText(mainMenu.Items[i].Name, MENUITEM_NAME) = 0 then begin
 			mainMenu.Items.Remove(mainMenu.Items[i]);
+			TDebugUtils.DebugMessage('RemoveExtensionMenu from index ' + i.ToString);
 			break
 		end;
 	end;
@@ -180,6 +189,7 @@ end;
 
 procedure TDRipExtension.UnregisterKeyboardBinding;
 begin
+	TDebugUtils.DebugMessage('UnregisterKeyboardBinding');
 	if FKeyBinding > -1 then begin
 		(BorlandIDEServices as IOTAKeyboardServices).RemoveKeyboardBinding(FKeyBinding);
 		FKeyBinding := -1;
