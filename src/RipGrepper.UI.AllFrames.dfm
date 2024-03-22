@@ -9,7 +9,7 @@ object AllFrames: TAllFrames
   Margins.Bottom = 8
   Align = alClient
   TabOrder = 0
-  PixelsPerInch = 240
+  PixelsPerInch = 96
   inline BottomFrame: TRipGrepperBottomFrame
     Left = 0
     Top = 652

@@ -30,13 +30,13 @@ type
 		btn_Save : TButton;
 		btn_Cancel : TButton;
 		alActions : TActionList;
-    ActionOk: TAction;
-    ActionCancel: TAction;
+		ActionOk : TAction;
+		ActionCancel : TAction;
 		ImageListIcons : TImageList;
 		btnView : TButton;
-    ActionSwitchView: TAction;
+		ActionSwitchView : TAction;
 		btnConfig : TButton;
-    ActionShowConfig: TAction;
+		ActionShowConfig : TAction;
 		ImageListButtons : TImageList;
 		pnlMain : TPanel;
 		procedure ActionCancelExecute(Sender : TObject);
@@ -52,7 +52,7 @@ type
 			FSettings : TRipGrepperOpenWithSettings;
 			FViewStyleIndex : Integer;
 
-			procedure CreateScaledIcons(const bUpdateScaler: Boolean = False);
+			procedure CreateScaledIcons(const bUpdateScaler : Boolean = False);
 			class function GetEnabledCmds(const _settings : TRipGrepperOpenWithSettings) : TArray<string>;
 			function GetFileNameFromCfg(const _configText : string) : string;
 			function GetViewStyleIndex : Integer;
@@ -87,7 +87,7 @@ uses
 
 constructor TOpenWithCmdList.Create(AOwner : TComponent; const ASettings : TRipGrepperOpenWithSettings);
 begin
-	inherited Create(AOwner, ImageListButtons);
+	inherited Create(AOwner);//, ImageListButtons);
 
 	lbCommands.items.Clear;
 
@@ -159,7 +159,7 @@ begin
 
 end;
 
-procedure TOpenWithCmdList.CreateScaledIcons(const bUpdateScaler: Boolean = False);
+procedure TOpenWithCmdList.CreateScaledIcons(const bUpdateScaler : Boolean = False);
 begin
 	if bUpdateScaler or not Assigned(FImageScaler) then begin
 		FImageScaler.Free;

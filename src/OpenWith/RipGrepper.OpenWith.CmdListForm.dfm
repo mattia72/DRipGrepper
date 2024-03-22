@@ -2,14 +2,12 @@ object OpenWithCmdList: TOpenWithCmdList
   Left = 738
   Top = 170
   Caption = 'Open with...'
-  ClientHeight = 564
-  ClientWidth = 794
+  ClientHeight = 377
+  ClientWidth = 528
   Color = clBtnFace
-  Constraints.MinHeight = 300
-  Constraints.MinWidth = 625
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -28
+  Font.Height = -12
   Font.Name = 'Tahoma'
   Font.Style = []
   Icon.Data = {
@@ -149,29 +147,35 @@ object OpenWithCmdList: TOpenWithCmdList
     FFFFE003FFFFE007FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
   Position = poScreenCenter
   OnShow = FormShow
-  PixelsPerInch = 240
-  TextHeight = 34
+  TextHeight = 14
   object pnl_Bottom: TPanel
     Left = 0
-    Top = 461
-    Width = 794
-    Height = 103
+    Top = 343
+    Width = 528
+    Height = 34
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
     Margins.Bottom = 8
     Align = alBottom
     BevelOuter = bvNone
+    UseDockManager = False
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = 'Tahoma'
+    Font.Style = []
     ParentBackground = False
+    ParentFont = False
     TabOrder = 0
     DesignSize = (
-      794
-      103)
+      528
+      34)
     object btn_Save: TButton
-      Left = 332
-      Top = 20
-      Width = 185
-      Height = 63
+      Left = 353
+      Top = 4
+      Width = 75
+      Height = 25
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
@@ -179,13 +183,19 @@ object OpenWithCmdList: TOpenWithCmdList
       Action = ActionOk
       Anchors = [akTop, akRight]
       Default = True
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 0
     end
     object btn_Cancel: TButton
-      Left = 532
-      Top = 20
-      Width = 190
-      Height = 63
+      Left = 444
+      Top = 4
+      Width = 75
+      Height = 25
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
@@ -193,14 +203,20 @@ object OpenWithCmdList: TOpenWithCmdList
       Action = ActionCancel
       Anchors = [akTop, akRight]
       Cancel = True
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 1
     end
   end
   object pnlMain: TPanel
     Left = 0
     Top = 0
-    Width = 794
-    Height = 461
+    Width = 528
+    Height = 343
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -209,13 +225,13 @@ object OpenWithCmdList: TOpenWithCmdList
     BevelOuter = bvNone
     TabOrder = 1
     DesignSize = (
-      794
-      461)
+      528
+      343)
     object btnConfig: TButton
-      Left = 696
-      Top = 24
-      Width = 65
-      Height = 60
+      Left = 494
+      Top = 8
+      Width = 25
+      Height = 25
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
@@ -230,10 +246,10 @@ object OpenWithCmdList: TOpenWithCmdList
     end
     object btnView: TButton
       AlignWithMargins = True
-      Left = 696
-      Top = 100
-      Width = 65
-      Height = 60
+      Left = 494
+      Top = 49
+      Width = 25
+      Height = 25
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
@@ -248,13 +264,13 @@ object OpenWithCmdList: TOpenWithCmdList
     end
     object lbCommands: TListView
       AlignWithMargins = True
-      Left = 50
-      Top = 25
-      Width = 619
-      Height = 419
-      Margins.Left = 50
-      Margins.Top = 25
-      Margins.Right = 125
+      Left = 8
+      Top = 8
+      Width = 479
+      Height = 318
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 41
       Margins.Bottom = 8
       Align = alTop
       Anchors = [akLeft, akTop, akRight, akBottom]
@@ -270,8 +286,8 @@ object OpenWithCmdList: TOpenWithCmdList
   end
   object alActions: TActionList
     Images = ImageListIcons
-    Left = 222
-    Top = 69
+    Left = 102
+    Top = 59
     object ActionOk: TAction
       Caption = 'Ok'
       OnExecute = ActionOkExecute
@@ -293,12 +309,12 @@ object OpenWithCmdList: TOpenWithCmdList
     end
   end
   object ImageListIcons: TImageList
-    Left = 479
-    Top = 90
+    Left = 329
+    Top = 75
   end
   object ImageListButtons: TImageList
-    Left = 168
-    Top = 259
+    Left = 83
+    Top = 159
     Bitmap = {
       494C010106000800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020

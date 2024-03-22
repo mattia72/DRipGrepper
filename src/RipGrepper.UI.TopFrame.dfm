@@ -2,27 +2,23 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
   Left = 0
   Top = 0
   Width = 1620
-  Height = 60
+  Height = 31
   Margins.Left = 8
   Margins.Top = 8
   Margins.Right = 8
   Margins.Bottom = 8
   Align = alTop
   TabOrder = 0
-  PixelsPerInch = 240
+  PixelsPerInch = 96
   object ToolBar1: TToolBar
     AlignWithMargins = True
-    Left = 8
-    Top = 8
-    Width = 1604
-    Height = 55
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
+    Left = 3
+    Top = 3
+    Width = 1614
+    Height = 25
     AutoSize = True
-    ButtonHeight = 55
-    ButtonWidth = 58
+    ButtonHeight = 25
+    ButtonWidth = 25
     Caption = 'ToolBar1'
     Images = ImageListButtons
     Indent = 5
@@ -37,7 +33,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Action = ActionSwitchView
     end
     object tbDoSearchCancel: TToolButton
-      Left = 63
+      Left = 30
       Top = 0
       Margins.Left = 20
       Margins.Top = 20
@@ -46,7 +42,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Action = ActionShowSearchForm
     end
     object tbRefreshSearch: TToolButton
-      Left = 121
+      Left = 55
       Top = 0
       Margins.Left = 20
       Margins.Top = 20
@@ -55,9 +51,9 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Action = ActionRefreshSearch
     end
     object ToolButton3: TToolButton
-      Left = 179
+      Left = 80
       Top = 0
-      Width = 50
+      Width = 8
       Margins.Left = 20
       Margins.Top = 20
       Margins.Right = 20
@@ -67,7 +63,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Style = tbsSeparator
     end
     object tbAbortSearch: TToolButton
-      Left = 229
+      Left = 88
       Top = 0
       Margins.Left = 20
       Margins.Top = 20
@@ -76,9 +72,9 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Action = ActionAbortSearch
     end
     object ToolButton1: TToolButton
-      Left = 287
+      Left = 113
       Top = 0
-      Width = 50
+      Width = 8
       Margins.Left = 20
       Margins.Top = 20
       Margins.Right = 20
@@ -89,7 +85,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     end
     object tbCopyCmdLine: TToolButton
       AlignWithMargins = True
-      Left = 337
+      Left = 121
       Top = 0
       Margins.Left = 20
       Margins.Top = 20
@@ -98,9 +94,9 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Action = ActionCmdLineCopy
     end
     object ToolButton2: TToolButton
-      Left = 395
+      Left = 146
       Top = 0
-      Width = 50
+      Width = 8
       Margins.Left = 20
       Margins.Top = 20
       Margins.Right = 20
@@ -110,7 +106,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Style = tbsSeparator
     end
     object tbAlternateRowColors: TToolButton
-      Left = 445
+      Left = 154
       Top = 0
       Margins.Left = 20
       Margins.Top = 20
@@ -119,7 +115,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Action = ActionAlternateRowColors
     end
     object tbShowFileIcon: TToolButton
-      Left = 503
+      Left = 179
       Top = 0
       Margins.Left = 20
       Margins.Top = 20
@@ -128,7 +124,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Action = ActionShowFileIcons
     end
     object tbShowRelativePath: TToolButton
-      Left = 561
+      Left = 204
       Top = 0
       Margins.Left = 20
       Margins.Top = 20
@@ -137,7 +133,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Action = ActionShowRelativePath
     end
     object tbIndentLines: TToolButton
-      Left = 619
+      Left = 229
       Top = 0
       Margins.Left = 20
       Margins.Top = 20
@@ -146,9 +142,9 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Action = ActionIndentLine
     end
     object ToolButton4: TToolButton
-      Left = 677
+      Left = 254
       Top = 0
-      Width = 50
+      Width = 8
       Margins.Left = 20
       Margins.Top = 20
       Margins.Right = 20
@@ -158,7 +154,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Style = tbsSeparator
     end
     object ToolButton5: TToolButton
-      Left = 727
+      Left = 262
       Top = 0
       Margins.Left = 20
       Margins.Top = 20
@@ -167,9 +163,9 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Action = ActionOpenWith
     end
     object ToolButton6: TToolButton
-      Left = 785
+      Left = 287
       Top = 0
-      Width = 50
+      Width = 8
       Margins.Left = 20
       Margins.Top = 20
       Margins.Right = 20
@@ -179,7 +175,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Style = tbsSeparator
     end
     object tbConfigure: TToolButton
-      Left = 835
+      Left = 295
       Top = 0
       Margins.Left = 20
       Margins.Top = 20

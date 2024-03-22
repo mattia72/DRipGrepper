@@ -146,7 +146,7 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     FFE3C7FFFFE3C7FFFFE3C7FFFFE3C7FFFFE3C7FC0003C7F80007C7F0000FC000
     FFFFE003FFFFE007FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
   Position = poDesigned
-  PixelsPerInch = 240
+  PixelsPerInch = 96
   TextHeight = 41
   object PanelMain: TPanel
     Left = 0

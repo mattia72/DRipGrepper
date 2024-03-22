@@ -36,20 +36,21 @@ uses
 	RipGrepper.OpenWith.SimpleTypes,
 	System.IniFiles,
 	ToolsAPI,
-	// GX_BaseForm,
+	RipGrepper.UI.ScaleableBaseForm,
 	RipGrepper.UI.MainFrame,
 	RipGrepper.UI.BottomFrame,
 	RipGrepper.UI.TopFrame,
 	RipGrepper.UI.AllFrames;
 
 type
-	TRipGrepperForm = class(TForm { TfmIdeDockForm } )
+	TRipGrepperForm = class( { TForm } TScaleableBaseForm)
 		var
 			AllFrames1 : TAllFrames;
 			procedure ActionCancelExecute(Sender : TObject);
 			procedure FormCreate(Sender : TObject);
 			procedure FormClose(Sender : TObject; var Action : TCloseAction);
 			procedure FormShow(Sender : TObject);
+
 		private const
 			RIPGREPPER_FORM = 'RipGrepperForm';
 
@@ -60,8 +61,8 @@ type
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
 		protected
-			procedure ApplyDpi(_NewDpi : Integer; _NewBounds : PRect); // override;
-			procedure ArrangeControls; // override;
+			procedure ApplyDpi(_NewDpi : Integer; _NewBounds : PRect); override;
+			procedure ArrangeControls; override;
 			procedure CreateParams(var Params : TCreateParams); override;
 
 		public
@@ -116,7 +117,6 @@ begin
 	inherited Create(nil);
 	if IsStandAlone then begin
 		TDebugUtils.DebugMessage('TRipGrepperForm.Create STANDALONE');
-
 		Init;
 	end;
 
@@ -124,13 +124,21 @@ begin
 		FSettings := _settings;
 	end;
 
+	InitDpiScaler();
+
 	TDebugUtils.DebugMessage('TRipGrepperForm.Create: ' + TPath.GetFileName(FSettings.IniFile.FileName));
 end;
 
 constructor TRipGrepperForm.Create(AOwner : TComponent);
+var
+	li : TImageList;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner');
 	inherited Create(AOwner);
+	li :=  AllFrames1.TopFrame.Toolbar1.Images as TImageList;
+	InitImageListScaler(li);
+	AllFrames1.TopFrame.Toolbar1.Images := li;
+
 
 	if IsStandAlone then begin
 		TDebugUtils.DebugMessage('TRipGrepperForm.Create STANDALONE');
@@ -170,10 +178,10 @@ begin
 	inherited;
 	TDebugUtils.DebugMessage('TRipGrepperForm.ApplyDpi');
 
-	// if not Assigned(FImageScaler) then
-	// FImageScaler := TImageListScaler.Create(Self, TopFrame.ImageListButtons);
-	// li := FImageScaler.GetScaledList(_NewDpi);
-	// TopFrame.Toolbar1.Images := li;
+//	if not Assigned(FImageScaler) then
+//		FImageScaler := TImageListScaler.Create(Self, AllFrames.TopFrame.ImageListButtons);
+//	li := FImageScaler.GetScaledList(_NewDpi);
+//	AllFrames.TopFrame.Toolbar1.Images := li;
 end;
 
 procedure TRipGrepperForm.ArrangeControls;

@@ -3,14 +3,14 @@ object RipGrepperForm: TRipGrepperForm
   Left = 662
   Top = 278
   Caption = 'DRipGrepper'
-  ClientHeight = 1008
-  ClientWidth = 1613
+  ClientHeight = 403
+  ClientWidth = 645
   Color = clBtnFace
-  Constraints.MinHeight = 875
-  Constraints.MinWidth = 1175
+  Constraints.MinHeight = 350
+  Constraints.MinWidth = 470
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -30
+  Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
   Icon.Data = {
@@ -153,18 +153,17 @@ object RipGrepperForm: TRipGrepperForm
   StyleElements = [seFont, seClient]
   OnClose = FormClose
   OnShow = FormShow
-  PixelsPerInch = 240
-  TextHeight = 41
+  TextHeight = 15
   inline AllFrames1: TAllFrames
     Left = 0
     Top = 0
     Width = 1613
     Height = 1008
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
-    Align = alClient
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
+      Align = alClient
     TabOrder = 0
   end
 end

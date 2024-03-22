@@ -397,7 +397,9 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperMainFrame.FrameResize');
 
 	SplitView1.Width := panelMain.Width;
-	AllFrames.BottomFrame.StatusBar1.Panels[0].Width := PanelHistory.Width;
+	if Assigned(AllFrames) then begin
+		AllFrames.BottomFrame.StatusBar1.Panels[0].Width := PanelHistory.Width;
+	end;
 	SetColumnWidths;
 end;
 

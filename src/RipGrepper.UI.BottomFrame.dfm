@@ -9,7 +9,7 @@ object RipGrepperBottomFrame: TRipGrepperBottomFrame
   Margins.Bottom = 8
   Align = alBottom
   TabOrder = 0
-  PixelsPerInch = 240
+  PixelsPerInch = 96
   object pnlBottom: TPanel
     Left = 0
     Top = 0

@@ -2,14 +2,12 @@ object OpenWithConfigForm: TOpenWithConfigForm
   Left = 756
   Top = 291
   Caption = 'Configure Open with... '
-  ClientHeight = 819
-  ClientWidth = 856
+  ClientHeight = 406
+  ClientWidth = 642
   Color = clBtnFace
-  Constraints.MinHeight = 710
-  Constraints.MinWidth = 825
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -30
+  Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
   Icon.Data = {
@@ -149,13 +147,12 @@ object OpenWithConfigForm: TOpenWithConfigForm
     FFFFE003FFFFE007FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
   Position = poDesigned
   OnCreate = FormCreate
-  PixelsPerInch = 240
-  TextHeight = 41
+  TextHeight = 15
   object pnlBottom: TPanel
     Left = 0
-    Top = 714
-    Width = 856
-    Height = 105
+    Top = 356
+    Width = 642
+    Height = 50
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -165,59 +162,70 @@ object OpenWithConfigForm: TOpenWithConfigForm
     ParentBackground = False
     TabOrder = 0
     DesignSize = (
-      856
-      105)
+      642
+      50)
     object btn_Save: TButton
       AlignWithMargins = True
-      Left = 446
-      Top = 18
-      Width = 185
-      Height = 62
+      Left = 464
+      Top = 16
+      Width = 75
+      Height = 25
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
       Margins.Bottom = 8
       Action = ActionOk
       Anchors = [akRight, akBottom]
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 0
     end
     object btn_Cancel: TButton
       AlignWithMargins = True
-      Left = 646
-      Top = 18
-      Width = 190
-      Height = 62
+      Left = 555
+      Top = 16
+      Width = 75
+      Height = 25
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
       Margins.Bottom = 8
       Action = ActionCancel
       Anchors = [akRight, akBottom]
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 1
     end
   end
   object pnlMain: TPanel
     Left = 0
     Top = 0
-    Width = 856
-    Height = 714
+    Width = 642
+    Height = 356
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
     Margins.Bottom = 8
     Align = alClient
     BevelOuter = bvNone
-    Caption = 'pnlMain'
     TabOrder = 1
     DesignSize = (
-      856
-      714)
+      642
+      356)
     object Label1: TLabel
       AlignWithMargins = True
-      Left = 50
-      Top = 559
-      Width = 621
-      Height = 40
+      Left = 10
+      Top = 286
+      Width = 407
+      Height = 20
       Margins.Left = 50
       Margins.Top = 15
       Margins.Right = 8
@@ -225,12 +233,18 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Anchors = [akLeft, akRight, akBottom]
       AutoSize = False
       Caption = 'Command:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentFont = False
     end
     object btnAdd: TButton
-      Left = 756
-      Top = 28
-      Width = 65
-      Height = 60
+      Left = 605
+      Top = 8
+      Width = 25
+      Height = 25
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
@@ -244,10 +258,10 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 0
     end
     object btnModify: TButton
-      Left = 756
-      Top = 609
-      Width = 65
-      Height = 60
+      Left = 605
+      Top = 304
+      Width = 25
+      Height = 25
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
@@ -261,10 +275,10 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 1
     end
     object btnMoveDown: TButton
-      Left = 756
-      Top = 253
-      Width = 65
-      Height = 60
+      Left = 605
+      Top = 131
+      Width = 25
+      Height = 25
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
@@ -278,10 +292,10 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 2
     end
     object btnMoveUp: TButton
-      Left = 756
-      Top = 178
-      Width = 65
-      Height = 60
+      Left = 605
+      Top = 90
+      Width = 25
+      Height = 25
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
@@ -295,10 +309,10 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 3
     end
     object btnRemove: TButton
-      Left = 756
-      Top = 103
-      Width = 65
-      Height = 60
+      Left = 605
+      Top = 49
+      Width = 25
+      Height = 25
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
@@ -312,10 +326,10 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 4
     end
     object btnTest: TButton
-      Left = 756
-      Top = 328
-      Width = 65
-      Height = 60
+      Left = 605
+      Top = 172
+      Width = 25
+      Height = 25
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
@@ -329,10 +343,10 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 5
     end
     object Button1: TButton
-      Left = 681
-      Top = 609
-      Width = 65
-      Height = 60
+      Left = 578
+      Top = 304
+      Width = 25
+      Height = 25
       Margins.Top = 8
       Margins.Right = 8
       Margins.Bottom = 8
@@ -346,10 +360,10 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 6
     end
     object edt_OpenWithCmd: TEdit
-      Left = 50
-      Top = 614
-      Width = 631
-      Height = 46
+      Left = 10
+      Top = 306
+      Width = 561
+      Height = 23
       Margins.Left = 50
       Margins.Top = 8
       Margins.Right = 125
@@ -366,27 +380,33 @@ object OpenWithConfigForm: TOpenWithConfigForm
     end
     object lbCommands: TCheckListBox
       AlignWithMargins = True
-      Left = 50
-      Top = 25
-      Width = 681
-      Height = 509
+      Left = 10
+      Top = 8
+      Width = 591
+      Height = 264
       Hint = 
         '|Examples:'#13#10'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"'#13#10 +
         'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"'#13#10'no' +
         'tepad++.exe "<FILE>" -n<LINE> -c<COL>'
-      Margins.Left = 50
-      Margins.Top = 25
-      Margins.Right = 125
+      Margins.Left = 10
+      Margins.Top = 8
+      Margins.Right = 41
       Margins.Bottom = 8
       Align = alTop
       Anchors = [akLeft, akTop, akRight, akBottom]
       AutoComplete = False
       Color = clHighlightText
-      ItemHeight = 41
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ItemHeight = 15
       Items.Strings = (
         'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"'
         'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"'
         'notepad++.exe "<FILE>" -n<LINE> -c<COL>')
+      ParentFont = False
       ParentShowHint = False
       ShowHint = True
       StyleName = 'Windows'

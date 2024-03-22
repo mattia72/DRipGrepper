@@ -1,25 +1,20 @@
 object RipGrepperMainFrame: TRipGrepperMainFrame
   Left = 0
   Top = 0
-  Width = 1569
-  Height = 798
+  Width = 800
+  Height = 361
   Margins.Left = 8
   Margins.Top = 8
   Margins.Right = 8
   Margins.Bottom = 8
   TabOrder = 0
   OnResize = FrameResize
-  PixelsPerInch = 240
   object panelMain: TPanel
     AlignWithMargins = True
-    Left = 8
-    Top = 8
-    Width = 1553
-    Height = 782
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
+    Left = 3
+    Top = 3
+    Width = 794
+    Height = 355
     Align = alClient
     BevelOuter = bvNone
     Caption = 'panelMain'
@@ -35,25 +30,23 @@ object RipGrepperMainFrame: TRipGrepperMainFrame
       Margins.Bottom = 8
     end
     object SplitView1: TSplitView
-      AlignWithMargins = True
-      Left = 8
-      Top = 8
-      Width = 1900
-      Height = 766
+      Left = 0
+      Top = 0
+      Width = 794
+      Height = 355
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
       Margins.Bottom = 8
       BevelEdges = [beLeft, beRight, beBottom]
       CompactWidth = 125
-      OpenedWidth = 1900
+      OpenedWidth = 794
       Placement = svpLeft
       TabOrder = 0
       object Splitter1: TSplitter
-        Left = 393
+        Left = 191
         Top = 0
-        Width = 7
-        Height = 766
+        Height = 355
         Margins.Left = 8
         Margins.Top = 8
         Margins.Right = 8
@@ -63,8 +56,8 @@ object RipGrepperMainFrame: TRipGrepperMainFrame
       object PanelHistory: TPanel
         Left = 0
         Top = 0
-        Width = 393
-        Height = 766
+        Width = 191
+        Height = 355
         Margins.Left = 8
         Margins.Top = 8
         Margins.Right = 8
@@ -77,8 +70,8 @@ object RipGrepperMainFrame: TRipGrepperMainFrame
           AlignWithMargins = True
           Left = 9
           Top = 9
-          Width = 375
-          Height = 748
+          Width = 173
+          Height = 337
           Margins.Left = 8
           Margins.Top = 8
           Margins.Right = 8
@@ -94,10 +87,10 @@ object RipGrepperMainFrame: TRipGrepperMainFrame
         end
       end
       object PanelResult: TPanel
-        Left = 400
+        Left = 194
         Top = 0
-        Width = 1500
-        Height = 766
+        Width = 600
+        Height = 355
         Margins.Left = 8
         Margins.Top = 8
         Margins.Right = 8
@@ -110,8 +103,8 @@ object RipGrepperMainFrame: TRipGrepperMainFrame
           AlignWithMargins = True
           Left = 9
           Top = 9
-          Width = 1482
-          Height = 748
+          Width = 582
+          Height = 337
           Margins.Left = 8
           Margins.Top = 8
           Margins.Right = 8
@@ -288,8 +281,8 @@ object RipGrepperMainFrame: TRipGrepperMainFrame
     end
   end
   object ImageListListView: TImageList
-    Left = 589
-    Top = 229
+    Left = 454
+    Top = 34
     Bitmap = {
       494C010106000800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020

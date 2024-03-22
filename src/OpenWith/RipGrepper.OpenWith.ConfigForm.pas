@@ -100,7 +100,7 @@ uses
 
 constructor TOpenWithConfigForm.Create(AOwner : TComponent; const ASettings : TRipGrepperOpenWithSettings);
 begin
-	inherited Create(AOwner, ImageList1);
+	inherited Create(AOwner);//, ImageList1);
 	self.FSettings := ASettings;
 end;
 
