@@ -2,19 +2,18 @@ object RipGrepperBottomFrame: TRipGrepperBottomFrame
   Left = 0
   Top = 0
   Width = 800
-  Height = 50
+  Height = 30
   Margins.Left = 8
   Margins.Top = 8
   Margins.Right = 8
   Margins.Bottom = 8
   Align = alBottom
   TabOrder = 0
-  PixelsPerInch = 96
   object pnlBottom: TPanel
     Left = 0
     Top = 0
     Width = 800
-    Height = 50
+    Height = 30
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -25,12 +24,12 @@ object RipGrepperBottomFrame: TRipGrepperBottomFrame
     TabOrder = 0
     DesignSize = (
       800
-      50)
+      30)
     object StatusBar1: TStatusBar
       Left = 0
       Top = 0
       Width = 800
-      Height = 50
+      Height = 30
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 80
