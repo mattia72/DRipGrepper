@@ -14,7 +14,6 @@ object AllFrames: TAllFrames
     Left = 0
     Top = 0
     Width = 1453
-    Height = 60
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -26,25 +25,12 @@ object AllFrames: TAllFrames
     Font.Name = 'Segoe UI'
     Font.Style = []
     ParentFont =True
-    TabOrder = 2
-  end
-  inline BottomFrame: TRipGrepperBottomFrame
-    Left = 0
-    Top = 652
-    Width = 1453
-    Height = 60
-    Margins.Left = 20
-    Margins.Top = 20
-    Margins.Right = 20
-    Margins.Bottom = 20
-    Align = alBottom
     TabOrder = 0
   end
   inline MainFrame: TRipGrepperMainFrame
     Left = 0
     Top = 60
     Width = 1453
-    Height = 592
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -57,5 +43,16 @@ object AllFrames: TAllFrames
     Font.Style = []
     ParentFont =True
     TabOrder = 1
+  end
+  inline BottomFrame: TRipGrepperBottomFrame
+    Left = 0
+    Top = 652
+    Width = 1453
+    Margins.Left = 20
+    Margins.Top = 20
+    Margins.Right = 20
+    Margins.Bottom = 20
+    Align = alBottom
+    TabOrder = 2
   end
 end

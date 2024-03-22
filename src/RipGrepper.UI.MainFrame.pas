@@ -189,7 +189,11 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperMainFrame.Destroy');
 
 	TListBoxHelper.FreeItemObjects(ListBoxSearchHistory);
-	ListViewResult.Items.Count := 0;
+
+//	if Assigned(ListViewResult.Items) then begin
+//		ListViewResult.Items.Count := 0;
+//	end;
+
 	for var i := 0 to FHistoryObjectList.Count - 1 do begin
 		if Assigned(FHistoryObjectList.Objects[i])
 		{ } and (FHistoryObjectList.Objects[i] is THistoryItemObject) then begin

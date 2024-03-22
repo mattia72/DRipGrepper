@@ -20,7 +20,7 @@ uses
 class procedure TListBoxHelper.FreeItemObjects(_lb : TListBox);
 begin
 	if Assigned(_lb) then begin
-		for var i := 0 to _lb.Items.Count - 1 do begin
+		for var i := 0 to _lb.Count - 1 do begin
 			_lb.Items.Objects[i].Free;
 			_lb.Items.Objects[i] := nil;
 		end;

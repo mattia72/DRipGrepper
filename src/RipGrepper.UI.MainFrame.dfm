@@ -1,8 +1,8 @@
 object RipGrepperMainFrame: TRipGrepperMainFrame
   Left = 0
   Top = 0
-  Width = 800
-  Height = 361
+  Width = 435
+  Height = 266
   Margins.Left = 8
   Margins.Top = 8
   Margins.Right = 8
@@ -13,8 +13,8 @@ object RipGrepperMainFrame: TRipGrepperMainFrame
     AlignWithMargins = True
     Left = 3
     Top = 3
-    Width = 794
-    Height = 355
+    Width = 429
+    Height = 260
     Align = alClient
     BevelOuter = bvNone
     Caption = 'panelMain'
@@ -33,7 +33,7 @@ object RipGrepperMainFrame: TRipGrepperMainFrame
       Left = 0
       Top = 0
       Width = 794
-      Height = 355
+      Height = 260
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
@@ -46,7 +46,7 @@ object RipGrepperMainFrame: TRipGrepperMainFrame
       object Splitter1: TSplitter
         Left = 191
         Top = 0
-        Height = 355
+        Height = 260
         Margins.Left = 8
         Margins.Top = 8
         Margins.Right = 8
@@ -57,7 +57,7 @@ object RipGrepperMainFrame: TRipGrepperMainFrame
         Left = 0
         Top = 0
         Width = 191
-        Height = 355
+        Height = 260
         Margins.Left = 8
         Margins.Top = 8
         Margins.Right = 8
@@ -71,14 +71,14 @@ object RipGrepperMainFrame: TRipGrepperMainFrame
           Left = 9
           Top = 9
           Width = 173
-          Height = 337
+          Height = 242
           Margins.Left = 8
           Margins.Top = 8
           Margins.Right = 8
           Margins.Bottom = 8
           Style = lbVirtualOwnerDraw
           Align = alClient
-          ItemHeight = 75
+          ItemHeight = 30
           TabOrder = 0
           OnClick = ListBoxSearchHistoryClick
           OnData = ListBoxSearchHistoryData
@@ -90,7 +90,7 @@ object RipGrepperMainFrame: TRipGrepperMainFrame
         Left = 194
         Top = 0
         Width = 600
-        Height = 355
+        Height = 260
         Margins.Left = 8
         Margins.Top = 8
         Margins.Right = 8
@@ -104,7 +104,7 @@ object RipGrepperMainFrame: TRipGrepperMainFrame
           Left = 9
           Top = 9
           Width = 582
-          Height = 337
+          Height = 242
           Margins.Left = 8
           Margins.Top = 8
           Margins.Right = 8

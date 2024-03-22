@@ -157,13 +157,13 @@ object RipGrepperForm: TRipGrepperForm
   inline AllFrames1: TAllFrames
     Left = 0
     Top = 0
-    Width = 1613
-    Height = 1008
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Align = alClient
+    Width = 645
+    Height = 403
+    Margins.Left = 8
+    Margins.Top = 8
+    Margins.Right = 8
+    Margins.Bottom = 8
+    Align = alClient
     TabOrder = 0
-  end
+      end
 end
