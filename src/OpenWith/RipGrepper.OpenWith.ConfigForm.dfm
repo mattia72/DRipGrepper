@@ -181,7 +181,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Font.Height = -12
       Font.Name = 'Segoe UI'
       Font.Style = []
-      ParentFont = False
+      ParentFont =True
       TabOrder = 0
     end
     object btn_Cancel: TButton
@@ -201,7 +201,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Font.Height = -12
       Font.Name = 'Segoe UI'
       Font.Style = []
-      ParentFont = False
+      ParentFont =True
       TabOrder = 1
     end
   end
@@ -238,7 +238,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Font.Height = -12
       Font.Name = 'Segoe UI'
       Font.Style = []
-      ParentFont = False
+      ParentFont =True
     end
     object btnAdd: TButton
       Left = 605
@@ -374,7 +374,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Font.Height = -28
       Font.Name = 'Segoe UI'
       Font.Style = [fsBold]
-      ParentFont = False
+      ParentFont =True
       TabOrder = 7
       OnKeyPress = edt_OpenWithCmdKeyPress
     end
@@ -406,7 +406,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
         'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"'
         'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"'
         'notepad++.exe "<FILE>" -n<LINE> -c<COL>')
-      ParentFont = False
+      ParentFont =True
       ParentShowHint = False
       ShowHint = True
       StyleName = 'Windows'

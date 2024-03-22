@@ -166,7 +166,7 @@ object OpenWithCmdList: TOpenWithCmdList
     Font.Name = 'Tahoma'
     Font.Style = []
     ParentBackground = False
-    ParentFont = False
+    ParentFont =True
     TabOrder = 0
     DesignSize = (
       528
@@ -188,7 +188,7 @@ object OpenWithCmdList: TOpenWithCmdList
       Font.Height = -12
       Font.Name = 'Tahoma'
       Font.Style = []
-      ParentFont = False
+      ParentFont =True
       TabOrder = 0
     end
     object btn_Cancel: TButton
@@ -208,7 +208,7 @@ object OpenWithCmdList: TOpenWithCmdList
       Font.Height = -12
       Font.Name = 'Tahoma'
       Font.Style = []
-      ParentFont = False
+      ParentFont =True
       TabOrder = 1
     end
   end
