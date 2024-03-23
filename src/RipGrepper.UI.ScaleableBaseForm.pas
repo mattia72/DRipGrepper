@@ -10,22 +10,21 @@ uses
 	System.Classes;
 
 type
-	TScaleableBaseForm = class(tfmBaseForm)
+	TScaleableBaseForm = class(TfmBaseForm)
 
 		private
 			FImageScaler : TImageListScaler;
-			procedure FindImageListForDpiScaler(_parent : TComponent);
-			procedure ProcessControl(_ctrl : TControl; _imgList : TImageList); virtual;
+			procedure SetButtonImages(_ctrl : TControl; _imgList : TImageList); virtual;
 
 		protected
 
 			FScaleImageList : TImageList;
 			procedure ApplyDpi(_NewDpi : Integer; _NewBounds : PRect); override;
 			procedure ArrangeControls; override;
+			procedure FindImageListForDpiScaler(_parent : TComponent);
 			procedure InitImageListScaler(_imgList : TImageList);
 
 		public
-			// constructor Create(AOwner: TComponent; var _imgList: TImageList); overload;
 			constructor Create(AOwner : TComponent); override;
 			destructor Destroy; override;
 			procedure Loaded; override;
@@ -36,12 +35,6 @@ implementation
 uses
 	Vcl.StdCtrls,
 	RipGrepper.Tools.DebugTools;
-
-// constructor TScaleableBaseForm.Create(AOwner: TComponent; var _imgList: TImageList);
-// begin
-// inherited Create(AOwner);
-// InitImageListScaler(_imgList);
-// end;
 
 constructor TScaleableBaseForm.Create(AOwner : TComponent);
 begin
@@ -61,10 +54,12 @@ var
 	li : TImageList;
 begin
 	inherited ApplyDpi(_NewDpi, _NewBounds);
-	if not Assigned(FImageScaler) then
+	if not Assigned(FImageScaler) then begin
 		FImageScaler := TImageListScaler.Create(Self, FScaleImageList);
+		TDebugUtils.DebugMessage('TScaleableBaseForm.ApplyDpi ImageScaler Created - ' + FScaleImageList.Name);
+	end;
 	li := FImageScaler.GetScaledList(_NewDpi);
-	ProcessControl(self, li);
+	SetButtonImages(self, li);
 end;
 
 procedure TScaleableBaseForm.ArrangeControls;
@@ -74,7 +69,10 @@ end;
 
 procedure TScaleableBaseForm.FindImageListForDpiScaler(_parent : TComponent);
 begin
+	TDebugUtils.DebugMessage('TScaleableBaseForm.FindImageListForDpiScaler');
+
 	if Assigned(FScaleImageList) then begin
+		TDebugUtils.DebugMessage('TScaleableBaseForm.FindImageListForDpiScaler Exit - ' + FScaleImageList.Name);
 		Exit;
 	end;
 	for var i := 0 to _parent.ComponentCount - 1 do begin
@@ -89,6 +87,7 @@ begin
 				break
 			end;
 		end else if cmp.ComponentCount > 0 then begin
+			TDebugUtils.DebugMessage('TScaleableBaseForm.FindImageListForDpiScaler recursive call ' + cmp.Name);
 			FindImageListForDpiScaler(cmp);
 		end;
 	end;
@@ -96,8 +95,10 @@ end;
 
 procedure TScaleableBaseForm.InitImageListScaler(_imgList : TImageList);
 begin
+	TDebugUtils.DebugMessage('TScaleableBaseForm.InitImageListScaler');
 	if not Assigned(FScaleImageList) then begin
 		self.FScaleImageList := _imgList;
+		TDebugUtils.DebugMessage('TScaleableBaseForm.InitImageListScaler ' + FScaleImageList.Name);
 		InitDpiScaler();
 	end;
 end;
@@ -107,20 +108,21 @@ begin
 	TDebugUtils.DebugMessage('TScaleableBaseForm.Loaded');
 	inherited Loaded;
 
-	FindImageListForDpiScaler(self);
+	// FindImageListForDpiScaler(self);
 end;
 
-procedure TScaleableBaseForm.ProcessControl(_ctrl : TControl; _imgList : TImageList);
+procedure TScaleableBaseForm.SetButtonImages(_ctrl : TControl; _imgList : TImageList);
 var
 	i : integer;
 begin
 	if _ctrl is TButton then begin
+		TDebugUtils.DebugMessage('TScaleableBaseForm.SetButtonImages - ' + _ctrl.Name);
 		(_ctrl as TButton).Images := _imgList;
 	end;
 
 	if _ctrl is TWinControl then begin
 		for i := 0 to (_ctrl as TWinControl).ControlCount - 1 do
-			ProcessControl((_ctrl as TWinControl).Controls[i], _imgList);
+			SetButtonImages((_ctrl as TWinControl).Controls[i], _imgList);
 	end;
 end;
 

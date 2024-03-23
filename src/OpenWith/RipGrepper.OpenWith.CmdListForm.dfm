@@ -160,13 +160,7 @@ object OpenWithCmdList: TOpenWithCmdList
     Align = alBottom
     BevelOuter = bvNone
     UseDockManager = False
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -12
-    Font.Name = 'Tahoma'
-    Font.Style = []
     ParentBackground = False
-    ParentFont =True
     TabOrder = 0
     DesignSize = (
       528
@@ -183,12 +177,6 @@ object OpenWithCmdList: TOpenWithCmdList
       Action = ActionOk
       Anchors = [akTop, akRight]
       Default = True
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont =True
       TabOrder = 0
     end
     object btn_Cancel: TButton
@@ -203,12 +191,6 @@ object OpenWithCmdList: TOpenWithCmdList
       Action = ActionCancel
       Anchors = [akTop, akRight]
       Cancel = True
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont =True
       TabOrder = 1
     end
   end

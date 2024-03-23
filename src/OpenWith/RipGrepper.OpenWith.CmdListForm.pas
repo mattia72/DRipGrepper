@@ -47,7 +47,6 @@ type
 		procedure FormShow(Sender : TObject);
 
 		private
-			FActualDpi : Integer;
 			FImageScaler : TImageListScaler;
 			FSettings : TRipGrepperOpenWithSettings;
 			FViewStyleIndex : Integer;
@@ -81,17 +80,18 @@ uses
 	RipGrepper.OpenWith.ConfigForm,
 	System.Math,
 	RipGrepper.OpenWith.SimpleTypes,
-	RipGrepper.Tools.DebugTools;
+	RipGrepper.Tools.DebugTools,
+	u_dzVclUtils;
 
 {$R *.dfm}
 
 constructor TOpenWithCmdList.Create(AOwner : TComponent; const ASettings : TRipGrepperOpenWithSettings);
 begin
-	inherited Create(AOwner);//, ImageListButtons);
-
+	inherited Create(AOwner); // , ImageListButtons);
 	lbCommands.items.Clear;
 
 	ImageListIcons.ColorDepth := TColorDepth.cd32Bit;
+	FActualDPI := TScreen_GetDpiForForm(Self);
 	FViewStyleIndex := 0;
 	FSettings := ASettings;
 end;

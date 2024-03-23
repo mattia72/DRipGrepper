@@ -66,6 +66,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 ### Misc
 - [x] standalone release
 - [ ] delphi extension release
+- [x] high DPI Scaling ???
 - [x] screenshots in Readme.md
 - [ ] [scoop](https://scoop.sh) install
 - [ ] [chocolatey](https://chocolatey.org) install

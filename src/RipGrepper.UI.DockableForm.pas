@@ -20,14 +20,17 @@ type
 	TRipGrepperDockableForm = class(TInterfacedPersistent, INTACustomDockableForm)
 		private
 			FCaption : string;
-			FIdentifier: string;
-			class var FForm: TRipGrepperForm;
-			FInstance: TRipGrepperDockableForm;
-			class function GetForm: TRipGrepperForm; static;
-			function GetGuid: string;
-			class function GetInstance: TRipGrepperDockableForm; static;
+			FIdentifier : string;
+
+		class var
+			FForm : TRipGrepperForm;
+			FInstance : TRipGrepperDockableForm;
+			class function GetForm : TRipGrepperForm; static;
+			function GetGuid : string;
+			class function GetInstance : TRipGrepperDockableForm; static;
+
 		public
-			class function CreateDockableForm: TRipGrepperForm;
+			class function CreateDockableForm : TRipGrepperForm;
 			class procedure CreateInstance;
 			/// <summary>
 			/// Returns the Caption for the Dockable Form
@@ -38,7 +41,7 @@ type
 			/// This identifier is used as the section name when saving information for
 			/// this form in the desktop state file
 			/// </summary>
-			function GetIdentifier: string;
+			function GetIdentifier : string;
 			/// <summary>
 			/// Returns the class of the frame that you want embedded in the dockable form
 			/// </summary>
@@ -116,10 +119,10 @@ type
 			/// </summary>
 			function EditAction(Action : TEditAction) : Boolean;
 			property Caption : string read GetCaption write FCaption;
-			class property Form: TRipGrepperForm read GetForm;
-			property Identifier: string read GetIdentifier;
+			class property Form : TRipGrepperForm read GetForm;
+			property Identifier : string read GetIdentifier;
 			property FrameClass : TCustomFrameClass read GetFrameClass;
-			class property Instance: TRipGrepperDockableForm read GetInstance;
+			class property Instance : TRipGrepperDockableForm read GetInstance;
 			property MenuActionList : TCustomActionList read GetMenuActionList;
 			property MenuImageList : TCustomImageList read GetMenuImageList;
 			property ToolbarActionList : TCustomActionList read GetToolbarActionList;
@@ -131,8 +134,10 @@ implementation
 
 uses
 	RipGrepper.Common.Types,
-	RipGrepper.Tools.DebugTools, RipGrepper.UI.AllFrames, GX_OtaUtils,
-  System.SysUtils;
+	RipGrepper.Tools.DebugTools,
+	RipGrepper.UI.AllFrames,
+	GX_OtaUtils,
+	System.SysUtils;
 
 { TRipGrepperDockableForm }
 
@@ -167,11 +172,11 @@ begin
 	Result := [];
 end;
 
-function TRipGrepperDockableForm.GetIdentifier: string;
+function TRipGrepperDockableForm.GetIdentifier : string;
 begin
 	if FIdentifier.IsEmpty then
 		FIdentifier := APPNAME + '.' + GetGuid;
-    Result := FIdentifier;
+	Result := FIdentifier;
 end;
 
 function TRipGrepperDockableForm.GetMenuActionList : TCustomActionList;
@@ -206,6 +211,7 @@ end;
 
 class procedure TRipGrepperDockableForm.CreateInstance;
 begin
+	TDebugUtils.DebugMessage('TRipGrepperDockableForm.CreateInstance');
 	FInstance := TRipGrepperDockableForm.Create();
 	(BorlandIDEServices as INTAServices).RegisterDockableForm(FInstance);
 end;
@@ -216,16 +222,16 @@ begin
 	FInstance.Free;
 end;
 
-class function TRipGrepperDockableForm.CreateDockableForm: TRipGrepperForm;
+class function TRipGrepperDockableForm.CreateDockableForm : TRipGrepperForm;
 begin
 	Result := Form;
 end;
 
-class function TRipGrepperDockableForm.GetForm: TRipGrepperForm;
+class function TRipGrepperDockableForm.GetForm : TRipGrepperForm;
 var
 	tc : TCustomForm;
 begin
-	tc := (BorlandIDEServices as INTAServices).CreateDockableForm(FInstance);
+	tc := (BorlandIDEServices as INTAServices).CreateDockableForm(Instance);
 	if tc is TRipGrepperForm then begin
 		FForm := tc as TRipGrepperForm;
 	end;
@@ -237,19 +243,20 @@ begin
 	Result := TAllFrames;
 end;
 
-function TRipGrepperDockableForm.GetGuid: string;
+function TRipGrepperDockableForm.GetGuid : string;
 var
-	aGUID: TGUID;
+	aGUID : TGUID;
 begin
 	CreateGUID(aGUID);
 	Result := GUIDToString(aGUID);
 end;
 
-class function TRipGrepperDockableForm.GetInstance: TRipGrepperDockableForm;
+class function TRipGrepperDockableForm.GetInstance : TRipGrepperDockableForm;
 begin
+	TDebugUtils.DebugMessage('TRipGrepperDockableForm.GetInstance');
 	if not Assigned(FInstance) then begin
 		CreateInstance()
-    end;
+	end;
 	Result := FInstance;
 end;
 

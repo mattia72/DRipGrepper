@@ -135,10 +135,9 @@ var
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner');
 	inherited Create(AOwner);
-	li :=  AllFrames1.TopFrame.Toolbar1.Images as TImageList;
+	li := AllFrames1.TopFrame.Toolbar1.Images as TImageList;
 	InitImageListScaler(li);
 	AllFrames1.TopFrame.Toolbar1.Images := li;
-
 
 	if IsStandAlone then begin
 		TDebugUtils.DebugMessage('TRipGrepperForm.Create STANDALONE');
@@ -177,11 +176,6 @@ var
 begin
 	inherited;
 	TDebugUtils.DebugMessage('TRipGrepperForm.ApplyDpi');
-
-//	if not Assigned(FImageScaler) then
-//		FImageScaler := TImageListScaler.Create(Self, AllFrames.TopFrame.ImageListButtons);
-//	li := FImageScaler.GetScaledList(_NewDpi);
-//	AllFrames.TopFrame.Toolbar1.Images := li;
 end;
 
 procedure TRipGrepperForm.ArrangeControls;
@@ -198,10 +192,6 @@ begin
 
 	try
 		Result.Show;
-		// IdeDockManager.ShowForm(Result);
-		// if (mrOk = form.ShowModal()) then begin
-		// Result := form.ListViewResult.Items[form.ListViewResult.ItemIndex].SubItems[0];
-		// end;
 	finally
 		TDebugUtils.DebugMessage('TRipGrepperForm.CreateAndShow: finally');
 	end;
@@ -250,6 +240,11 @@ end;
 procedure TRipGrepperForm.Init;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.Init');
+	//if not IsStandalone then begin
+		TDebugUtils.DebugMessage('TRipGrepperDockableForm.FrameCreated FindImageListForDpiScaler');
+		FindImageListForDpiScaler(self);
+	//end;
+
 	AllFrames.Init;
 end;
 
