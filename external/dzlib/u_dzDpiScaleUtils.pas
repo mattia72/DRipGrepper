@@ -78,12 +78,13 @@ type
 			FFontSize : Integer;
 			FFont : TFont;
 			FFrm : TWinControl;
-			FCtrlParams : array of TCtrlDpiScaler;
+			FCtrlParams : TArray<TCtrlDpiScaler>;
 			FPnlMaster : TPanel;
 			procedure AddControls(_Ctrl : TWinControl);
 
 		public
 			constructor Create(_frm : TWinControl);
+			destructor Destroy; override;
 			procedure ApplyScale(const _Scaler : TDpiScaler);
 			procedure ApplyDpi(_NewDpi : Integer; _NewBounds : PRect);
 			function Calc(_Value : Integer) : Integer;
@@ -347,19 +348,18 @@ end;
 
 procedure TFormDpiScaler.AddControls(_Ctrl : TWinControl);
 var
-	Offset : Integer;
 	i : Integer;
 	cnt : Integer;
-	Ctrl : TControl;
+	ctrl : TControl;
+	cds : TCtrlDpiScaler;
 begin
 	cnt := _Ctrl.ControlCount;
-	Offset := Length(FCtrlParams);
-	SetLength(FCtrlParams, Offset + cnt);
 	for i := 0 to cnt - 1 do begin
-		Ctrl := _Ctrl.Controls[i];
-		FCtrlParams[Offset + i].Assign(Ctrl);
-		if Ctrl is TWinControl then
-			AddControls(TWinControl(Ctrl));
+		ctrl := _Ctrl.Controls[i];
+		cds.Assign(ctrl);
+		FCtrlParams := FCtrlParams + [cds];
+		if ctrl is TWinControl then
+			AddControls(TWinControl(ctrl));
 	end;
 end;
 
@@ -430,6 +430,7 @@ begin
 	for i := 0 to cnt - 1 do begin
 		FCtrlParams[i].ApplyScale(_Scaler);
 	end;
+
 	FFrm.Constraints.MinWidth := _Scaler.Calc(FMinWidth);
 	FFrm.Constraints.MinHeight := _Scaler.Calc(FMinHeight);
 	FFrm.Constraints.MaxWidth := _Scaler.Calc(FMaxWidth);
@@ -495,6 +496,12 @@ begin
 	LogFmt('  (FontPixelsPerInc: %d, FontSize: %d', [FFont.PixelsPerInch, FFontSize]);
 
 	AddControls(FFrm);
+end;
+
+destructor TFormDpiScaler.Destroy;
+begin
+	FPnlMaster.Free;
+	inherited;
 end;
 
 { TImageListScaler }

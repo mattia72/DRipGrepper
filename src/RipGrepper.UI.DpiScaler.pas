@@ -51,7 +51,7 @@ begin
 	FOwner := AOwner;
 	FMsgHandlerHWND := AllocateHWnd(WndMethod);
 	FindImageListForDpiScaler(FOwner);
-	InitDpiScaler;
+	//InitDpiScaler;
 end;
 
 destructor TRipGrepperDpiScaler.Destroy;
