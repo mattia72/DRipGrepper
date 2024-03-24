@@ -69,7 +69,7 @@ end;
 
 procedure TScaleableBaseForm.FindImageListForDpiScaler(_parent : TComponent);
 begin
-	TDebugUtils.DebugMessage('TScaleableBaseForm.FindImageListForDpiScaler');
+	TDebugUtils.DebugMessage('TScaleableBaseForm.FindImageListForDpiScaler for ' + _parent.Name);
 
 	if Assigned(FScaleImageList) then begin
 		TDebugUtils.DebugMessage('TScaleableBaseForm.FindImageListForDpiScaler Exit - ' + FScaleImageList.Name);

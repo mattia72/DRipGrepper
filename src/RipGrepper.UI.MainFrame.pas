@@ -181,7 +181,7 @@ uses
 constructor TRipGrepperMainFrame.Create(AOwner : TComponent);
 begin
 	inherited;
-	TDebugUtils.DebugMessage('TRipGrepperMainFrame.Create');
+	TDebugUtils.DebugMessage('TRipGrepperMainFrame.Create ' + AOwner.Name);
 end;
 
 destructor TRipGrepperMainFrame.Destroy;
@@ -398,7 +398,7 @@ end;
 
 procedure TRipGrepperMainFrame.FrameResize(Sender : TObject);
 begin
-	TDebugUtils.DebugMessage('TRipGrepperMainFrame.FrameResize');
+	// TDebugUtils.DebugMessage('TRipGrepperMainFrame.FrameResize');
 
 	SplitView1.Width := panelMain.Width;
 	if Assigned(AllFrames) then begin
