@@ -59,8 +59,8 @@
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
         <SanitizedProjectName>DRipGrepper</SanitizedProjectName>
         <Custom_Styles>Windows10|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows10.vsf;&quot;Windows10 Blue|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows10Blue.vsf&quot;;&quot;Windows10 Dark|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows10Dark.vsf&quot;</Custom_Styles>
-        <DCC_Define>NO_TRANSLATION;NO_TRANSLATION_HINT;NO_OPTIMIZE_DZ_GRAPHIC_UTILS_HINT;UnicodeRE;UseOutputDebugString;STANDALONE;$(DCC_Define)</DCC_Define>
-        <DCC_UnitSearchPath>.\OpenWith;.\external\GExpert;.\external\dzlib;$(BDS)\source\ToolsAPI\ToolsAPI.pas;$(BDS)\source\ToolsAPI;.\external\UniSynEdit;.\external\RegExpr;C:\SCCS\agsrc_trunk\!STANDARD\System\FastMM4;C:\SCCS\agsrc_trunk\!STANDARD\System;.\Extension\src;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_Define>NO_TRANSLATION;NO_TRANSLATION_HINT;NO_OPTIMIZE_DZ_GRAPHIC_UTILS_HINT;UnicodeRE;$(DCC_Define)</DCC_Define>
+        <DCC_UnitSearchPath>.\OpenWith;.\external\GExpert;.\external\dzlib;$(BDS)\source\ToolsAPI\ToolsAPI.pas;$(BDS)\source\ToolsAPI;.\external\UniSynEdit;.\external\RegExpr;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <UsePackages>true</UsePackages>
         <DCC_UnitAlias>GX_IdeDockStandAlone=GX_IdeDock;SynRegExpr=RegExprReplaceUnit;$(DCC_UnitAlias)</DCC_UnitAlias>
     </PropertyGroup>
@@ -77,7 +77,7 @@
         <DCC_UsePackage>soapserver;IndySystem;vclwinx;fmx;vclie;DbxCommonDriver;bindengine;vcldb;IndyIPCommon;VCLRESTComponents;FireDACCommonODBC;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;IndyIPClient;dbxcds;vcledge;vclFireDAC;bindcompvclwinx;bindcomp;FireDACCommon;IndyCore;RESTBackendComponents;bindcompfmx;bindcompdbx;inetdb;rtl;FireDACMySQLDriver;FireDACSqliteDriver;DbxClientDriver;FireDACADSDriver;RESTComponents;soapmidas;DBXSqliteDriver;vcl;vclactnband;IndyIPServer;dsnapxml;fmxFireDAC;dbexpress;dsnapcon;adortl;DBXMySQLDriver;VclSmp;inet;vclimg;vcltouch;FireDACPgDriver;FireDAC;fmxase;inetdbxpress;xmlrtl;tethering;dbrtl;bindcompvcl;dsnap;fmxdae;CloudService;FireDACMSAccDriver;CustomIPTransport;fmxobj;bindcompvclsmp;soaprtl;vcldsnap;DBXInterBaseDriver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
-        <DCC_Define>DEBUG;FASTMM4_OPT;$(DCC_Define)</DCC_Define>
+        <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
         <DCC_Optimize>false</DCC_Optimize>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
@@ -88,13 +88,13 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
-        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Release>3</VerInfo_Release>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.3.10;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <VerInfo_Build>10</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.3.2;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Build>2</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -117,7 +117,6 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="C:\SCCS\agsrc_trunk\!STANDARD\Modules\Include\Agenda.Modules.StaticInclude.Features.pas"/>
         <DCCReference Include="src\RipGrepper.UI.MainForm.pas">
             <Form>RipGrepperForm</Form>
         </DCCReference>
@@ -147,7 +146,9 @@
         <DCCReference Include="external\dzlib\u_dzMiscUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzTypesUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzTypInfo.pas"/>
-        <DCCReference Include="external\GExpert\GX_IdeDock.pas"/>
+        <DCCReference Include="external\GExpert\GX_IdeDock.pas">
+            <FormType>dfm</FormType>
+        </DCCReference>
         <DCCReference Include="external\dzlib\u_dzVersionInfo.pas"/>
         <DCCReference Include="external\dzlib\u_dzVclUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzVariantUtils.pas"/>
@@ -186,26 +187,7 @@
         <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.Runner.pas"/>
         <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.SimpleTypes.pas"/>
         <DCCReference Include="src\RipGrepper.UI.ScaleableBaseForm.pas"/>
-        <DCCReference Include="src\RipGrepper.UI.MainFrame.pas">
-            <Form>RipGrepperMainFrame</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\RipGrepper.UI.BottomFrame.pas">
-            <Form>RipGrepperBottomFrame</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\RipGrepper.UI.TopFrame.pas">
-            <Form>RipGrepperTopFrame</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\RipGrepper.UI.AllFrames.pas">
-            <Form>AllFrames</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
+        <DCCReference Include="src\RipGrepper.Common.SyncObjLock.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
