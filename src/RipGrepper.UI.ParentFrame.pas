@@ -18,7 +18,7 @@ uses
 	RipGrepper.Common.Settings;
 
 type
-	TAllFrames = class(TFrame)
+	TParentFrame = class(TFrame)
 		BottomFrame : TRipGrepperBottomFrame;
 		MainFrame : TRipGrepperMainFrame;
 		TopFrame : TRipGrepperTopFrame;
@@ -49,19 +49,19 @@ uses
 
 {$R *.dfm}
 
-constructor TAllFrames.Create(AOwner : TComponent);
+constructor TParentFrame.Create(AOwner : TComponent);
 begin
 	inherited;
 	Settings.Load;
 end;
 
-procedure TAllFrames.OnClose(Sender : TObject; var Action : TCloseAction);
+procedure TParentFrame.OnClose(Sender : TObject; var Action : TCloseAction);
 begin
 	TDebugUtils.DebugMessage('TFrames.FormClose - begin action:' + Integer(Action).ToString);
 	Settings.Store;
 end;
 
-procedure TAllFrames.OnShow(Sender : TObject);
+procedure TParentFrame.OnShow(Sender : TObject);
 begin
 	TDebugUtils.DebugMessage('TFrames.FormShow - begin');
 	inherited;
@@ -69,7 +69,7 @@ begin
 	TDebugUtils.DebugMessage('TFrames.FormShow - end');
 end;
 
-function TAllFrames.GetSettings : TRipGrepperSettings;
+function TParentFrame.GetSettings : TRipGrepperSettings;
 begin
 	if not Assigned(FSettings) then begin
 		FSettings := GSettings;
@@ -77,21 +77,21 @@ begin
 	Result := FSettings;
 end;
 
-procedure TAllFrames.Init;
+procedure TParentFrame.Init;
 begin
-	TDebugUtils.DebugMessage('TAllFrames.InitForm Begin');
+	TDebugUtils.DebugMessage('TParentFrame.InitForm Begin');
 
 	MainFrame.Init();
 
 	// if not IsStandAlone then begin
 	// TDebugUtils.DebugMessage('RegisterDockableForm - ' + RIPGREPPER_FORM);
-	// IdeDockManager.RegisterDockableForm(TAllFrames, self, RIPGREPPER_FORM);
+	// IdeDockManager.RegisterDockableForm(TParentFrame, self, RIPGREPPER_FORM);
 	// end;
 
-	TDebugUtils.DebugMessage('TAllFrames.InitForm End');
+	TDebugUtils.DebugMessage('TParentFrame.InitForm End');
 end;
 
-procedure TAllFrames.SetStatusBarMessage(const _bWithElapsedTime : Boolean = False);
+procedure TParentFrame.SetStatusBarMessage(const _bWithElapsedTime : Boolean = False);
 var
 	msg : string;
 begin
@@ -106,13 +106,13 @@ begin
 	BottomFrame.FStatusBarMessage := msg;
 end;
 
-procedure TAllFrames.InitStatusBar;
+procedure TParentFrame.InitStatusBar;
 begin
 	SetStatusBarMessage();
 	SetStatusBarStatistic('Ready.');
 end;
 
-procedure TAllFrames.SetStatusBarStatistic(const _s : string);
+procedure TParentFrame.SetStatusBarStatistic(const _s : string);
 begin
 	BottomFrame.FStatusBarStatistic := _s;
 end;

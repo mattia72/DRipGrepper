@@ -1,4 +1,4 @@
-object AllFrames: TAllFrames
+object ParentFrame: TParentFrame
   Left = 0
   Top = 0
   Width = 1453

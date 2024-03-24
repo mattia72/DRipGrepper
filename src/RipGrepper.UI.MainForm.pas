@@ -45,7 +45,7 @@ uses
 type
 	TRipGrepperForm = class( { TForm } TScaleableBaseForm)
 		var
-			AllFrames1 : TAllFrames;
+			AllFrames1 : TParentFrame;
 			procedure ActionCancelExecute(Sender : TObject);
 			procedure FormCreate(Sender : TObject);
 			procedure FormClose(Sender : TObject; var Action : TCloseAction);
@@ -78,7 +78,7 @@ type
 
 var
 	RipGrepperForm : TRipGrepperForm;
-	AllFrames : TAllFrames;
+	AllFrames : TParentFrame;
 
 implementation
 
@@ -225,7 +225,7 @@ end;
 procedure TRipGrepperForm.FrameCreated(AFrame : TCustomFrame);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.FrameCreated ' + AFrame.Name);
-	AllFrames := AFrame as TAllFrames;
+	AllFrames := AFrame as TParentFrame;
 	Init;
 end;
 

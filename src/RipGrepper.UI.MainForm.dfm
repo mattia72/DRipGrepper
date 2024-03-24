@@ -154,7 +154,7 @@ object RipGrepperForm: TRipGrepperForm
   OnClose = FormClose
   OnShow = FormShow
   TextHeight = 15
-  inline AllFrames1: TAllFrames
+  inline AllFrames1: TParentFrame
     Left = 0
     Top = 0
     Width = 645
