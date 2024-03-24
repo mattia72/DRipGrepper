@@ -9,7 +9,6 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
   Margins.Bottom = 8
   Align = alTop
   TabOrder = 0
-  PixelsPerInch = 96
   object ToolBar1: TToolBar
     AlignWithMargins = True
     Left = 3

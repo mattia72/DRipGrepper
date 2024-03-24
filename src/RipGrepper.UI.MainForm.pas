@@ -40,7 +40,7 @@ uses
 	RipGrepper.UI.MainFrame,
 	RipGrepper.UI.BottomFrame,
 	RipGrepper.UI.TopFrame,
-	RipGrepper.UI.AllFrames;
+	RipGrepper.UI.ParentFrame;
 
 type
 	TRipGrepperForm = class( { TForm } TScaleableBaseForm)

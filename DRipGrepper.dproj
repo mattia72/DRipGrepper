@@ -200,7 +200,7 @@
 <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="src\RipGrepper.UI.AllFrames.pas">
+        <DCCReference Include="src\RipGrepper.UI.ParentFrame.pas">
             <Form>AllFrames</Form>
 <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>

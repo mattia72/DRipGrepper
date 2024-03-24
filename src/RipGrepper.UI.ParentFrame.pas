@@ -1,4 +1,4 @@
-unit RipGrepper.UI.AllFrames;
+unit RipGrepper.UI.ParentFrame;
 
 interface
 

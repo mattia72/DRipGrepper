@@ -158,7 +158,7 @@ type
 implementation
 
 uses
-	RipGrepper.UI.AllFrames,
+	RipGrepper.UI.ParentFrame,
 	RipGrepper.OpenWith,
 	System.StrUtils,
 	RipGrepper.Tools.DebugTools,

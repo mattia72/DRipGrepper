@@ -99,7 +99,7 @@ implementation
 
 uses
 	RipGrepper.UI.MainForm,
-	RipGrepper.UI.AllFrames,
+	RipGrepper.UI.ParentFrame,
 	Vcl.Clipbrd,
 	RipGrepper.Common.Types,
 	RipGrepper.OpenWith.ConfigForm,

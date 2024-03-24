@@ -60,7 +60,7 @@ uses
   RipGrepper.UI.MainFrame in 'src\RipGrepper.UI.MainFrame.pas' {RipGrepperMainFrame: TFrame},
   RipGrepper.UI.BottomFrame in 'src\RipGrepper.UI.BottomFrame.pas' {RipGrepperBottomFrame: TFrame},
   RipGrepper.UI.TopFrame in 'src\RipGrepper.UI.TopFrame.pas' {RipGrepperTopFrame: TFrame},
-  RipGrepper.UI.AllFrames in 'src\RipGrepper.UI.AllFrames.pas' {AllFrames: TFrame};
+  RipGrepper.UI.ParentFrame in 'src\RipGrepper.UI.ParentFrame.pas' {AllFrames: TFrame};
 
 {$R *.res}
 
