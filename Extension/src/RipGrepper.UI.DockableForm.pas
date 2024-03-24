@@ -158,8 +158,7 @@ end;
 
 procedure TRipGrepperDockableForm.FrameCreated(AFrame : TCustomFrame);
 begin
-	TDebugUtils.DebugMessage('TRipGrepperDockableForm.FrameCreated Begin');
-	FForm.FrameCreated(AFrame);
+	TDebugUtils.DebugMessage('TRipGrepperDockableForm.FrameCreated');
 end;
 
 function TRipGrepperDockableForm.GetCaption : string;
@@ -234,6 +233,7 @@ begin
 	tc := (BorlandIDEServices as INTAServices).CreateDockableForm(Instance);
 	if tc is TRipGrepperForm then begin
 		FForm := tc as TRipGrepperForm;
+		FForm.FrameCreated(FForm.AllFrames1);
 	end;
 	Result := FForm;
 end;
