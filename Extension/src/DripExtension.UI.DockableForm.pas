@@ -240,7 +240,7 @@ end;
 
 function TRipGrepperDockableForm.GetFrameClass : TCustomFrameClass;
 begin
-	Result := TAllFrames;
+	Result := TParentFrame;
 end;
 
 function TRipGrepperDockableForm.GetGuid : string;
