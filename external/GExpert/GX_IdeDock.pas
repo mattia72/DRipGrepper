@@ -201,7 +201,7 @@ procedure TfmIdeDockForm.InitDpiScaler;
 begin
   FScaler := TFormDpiScaler.Create(Self);
 {$IFDEF IDE_IS_HIDPI_AWARE}
-  ApplyDpi(TScreen_GetDpiForForm(Self), nil);
+  ApplyDpi(TScreen_GetDpiForWindow(self), nil);
 {$ENDIF}
 end;
 

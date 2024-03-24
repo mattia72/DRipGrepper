@@ -15,11 +15,11 @@ uses
 	Vcl.Forms,
 	System.ImageList,
 	RipGrepper.Common.Settings,
-	RipGrepper.UI.ScaleableBaseForm;
+	RipGrepper.UI.DpiScaler;
 
 type
 
-	TOpenWithConfigForm = class(TScaleableBaseForm)
+	TOpenWithConfigForm = class(TForm)
 
 		var
 			ActionListConfig : TActionList;
@@ -67,6 +67,7 @@ type
 			procedure lbCommandsDblClick(Sender : TObject);
 
 		private
+			FDpiScaler : TRipGrepperDpiScaler;
 			FSettings : TRipGrepperOpenWithSettings;
 			function CheckCommand(const _sCmd : string) : Boolean;
 			procedure ClearOpenWithCmd;
@@ -77,6 +78,7 @@ type
 		public
 			{ Public-Deklarationen }
 			constructor Create(AOwner : TComponent; const ASettings : TRipGrepperOpenWithSettings); reintroduce;
+			destructor Destroy; override;
 			class procedure CreateAndShow(_settings : TRipGrepperOpenWithSettings);
 			class function GetExePath(sFileName : string; out sOutpuPath : string) : Boolean;
 			procedure ReadSettings;
@@ -100,8 +102,15 @@ uses
 
 constructor TOpenWithConfigForm.Create(AOwner : TComponent; const ASettings : TRipGrepperOpenWithSettings);
 begin
-	inherited Create(AOwner);//, ImageList1);
+	inherited Create(AOwner); // , ImageList1);
 	self.FSettings := ASettings;
+	FDpiScaler := TRipGrepperDpiScaler.Create(self);
+end;
+
+destructor TOpenWithConfigForm.Destroy;
+begin
+	FDpiScaler.Free;
+	inherited;
 end;
 
 procedure TOpenWithConfigForm.FormCreate(Sender : TObject);

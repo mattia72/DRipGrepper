@@ -176,12 +176,6 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Margins.Bottom = 8
       Action = ActionOk
       Anchors = [akRight, akBottom]
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'Segoe UI'
-      Font.Style = []
-      ParentFont =True
       TabOrder = 0
     end
     object btn_Cancel: TButton
@@ -196,12 +190,6 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Margins.Bottom = 8
       Action = ActionCancel
       Anchors = [akRight, akBottom]
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'Segoe UI'
-      Font.Style = []
-      ParentFont =True
       TabOrder = 1
     end
   end
@@ -233,12 +221,6 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Anchors = [akLeft, akRight, akBottom]
       AutoSize = False
       Caption = 'Command:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'Segoe UI'
-      Font.Style = []
-      ParentFont =True
     end
     object btnAdd: TButton
       Left = 605
@@ -369,12 +351,6 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Margins.Right = 125
       Margins.Bottom = 0
       Anchors = [akLeft, akRight, akBottom]
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -28
-      Font.Name = 'Segoe UI'
-      Font.Style = [fsBold]
-      ParentFont =True
       TabOrder = 7
       OnKeyPress = edt_OpenWithCmdKeyPress
     end
@@ -396,17 +372,11 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Anchors = [akLeft, akTop, akRight, akBottom]
       AutoComplete = False
       Color = clHighlightText
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'Segoe UI'
-      Font.Style = []
       ItemHeight = 15
       Items.Strings = (
         'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"'
         'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"'
         'notepad++.exe "<FILE>" -n<LINE> -c<COL>')
-      ParentFont =True
       ParentShowHint = False
       ShowHint = True
       StyleName = 'Windows'

@@ -19,7 +19,8 @@ uses
 	System.Actions,
 	Vcl.ActnList,
 	RipGrepper.Common.Settings,
-	RipGrepper.UI.MainFrame;
+	RipGrepper.UI.MainFrame,
+	RipGrepper.UI.DpiScaler;
 
 type
 
@@ -83,19 +84,16 @@ type
 		procedure ActionSwitchViewUpdate(Sender : TObject);
 
 		private
-			FMainFrame : TRipGrepperMainFrame;
-			FParent : TComponent;
+			FDpiScaler : TRipGrepperDpiScaler;
 			FSettings : TRipGrepperSettings;
 			FViewStyleIndex : integer;
-			function GetMainFrame : TRipGrepperMainFrame;
 			function GetSettings : TRipGrepperSettings;
-			property MainFrame : TRipGrepperMainFrame read GetMainFrame;
-			property Parent : TComponent read FParent write FParent;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
 			{ Private-Deklarationen }
 		public
 			constructor Create(AOwner : TComponent); override;
+			destructor Destroy; override;
 			function GetNextViewStyleIdx : Integer;
 			{ Public-Deklarationen }
 	end;
@@ -119,7 +117,13 @@ uses
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
 	inherited;
-	FParent := AOwner;
+	FDpiScaler := TRipGrepperDpiScaler.Create(self);
+end;
+
+destructor TRipGrepperTopFrame.Destroy;
+begin
+	FDpiScaler.Free;
+	inherited;
 end;
 
 procedure TRipGrepperTopFrame.ActionAbortSearchExecute(Sender : TObject);
@@ -306,14 +310,6 @@ begin
 	idx := IfThen(next <= (Length(LISTVIEW_TYPES) - 1), next, 0);
 	// ActionSwitchView.ImageIndex := idx + 2;
 	ActionSwitchView.Hint := 'Change View ' + LISTVIEW_TYPE_TEXTS[idx];
-end;
-
-function TRipGrepperTopFrame.GetMainFrame : TRipGrepperMainFrame;
-begin
-	if FMainFrame = nil then begin
-		FMainFrame := (Parent as TParentFrame).MainFrame;
-	end;
-	Result := FMainFrame;
 end;
 
 function TRipGrepperTopFrame.GetNextViewStyleIdx : Integer;

@@ -65,7 +65,7 @@ procedure TfmBaseForm.InitDpiScaler;
 begin
 	FScaler := TFormDpiScaler.Create(Self);
 	{$IFDEF IDE_IS_HIDPI_AWARE}
-	FActualDPI := TScreen_GetDpiForForm(Self);
+	FActualDPI := TScreen_GetDpiForWindow(self);
 	ApplyDpi(FActualDPI, nil);
 	{$ENDIF}
 end;

@@ -27,7 +27,6 @@ uses
   u_dzMiscUtils in 'external\dzlib\u_dzMiscUtils.pas',
   u_dzTypesUtils in 'external\dzlib\u_dzTypesUtils.pas',
   u_dzTypInfo in 'external\dzlib\u_dzTypInfo.pas',
-  GX_IdeDock in 'external\GExpert\GX_IdeDock.pas',
   u_dzVersionInfo in 'external\dzlib\u_dzVersionInfo.pas',
   u_dzVclUtils in 'external\dzlib\u_dzVclUtils.pas',
   u_dzVariantUtils in 'external\dzlib\u_dzVariantUtils.pas',
@@ -47,7 +46,6 @@ uses
   u_dzClassUtils in 'external\dzlib\u_dzClassUtils.pas',
   RipGrepper.Parsers.VimGrepMatchLine in 'src\RipGrepper.Parsers.VimGrepMatchLine.pas',
   RipGrepper.Common.ParsedObject in 'src\RipGrepper.Common.ParsedObject.pas',
-  GX_BaseForm in 'external\GExpert\GX_BaseForm.pas' {fmBaseForm},
   GX_OtaUtils in 'external\GExpert\GX_OtaUtils.pas',
   GX_GxUtils in 'external\GExpert\GX_GxUtils.pas',
   GX_IdeUtils in 'external\GExpert\GX_IdeUtils.pas',
@@ -60,7 +58,8 @@ uses
   RipGrepper.UI.MainFrame in 'src\RipGrepper.UI.MainFrame.pas' {RipGrepperMainFrame: TFrame},
   RipGrepper.UI.BottomFrame in 'src\RipGrepper.UI.BottomFrame.pas' {RipGrepperBottomFrame: TFrame},
   RipGrepper.UI.TopFrame in 'src\RipGrepper.UI.TopFrame.pas' {RipGrepperTopFrame: TFrame},
-  RipGrepper.UI.ParentFrame in 'src\RipGrepper.UI.ParentFrame.pas' {ParentFrame: TFrame};
+  RipGrepper.UI.ParentFrame in 'src\RipGrepper.UI.ParentFrame.pas' {ParentFrame: TFrame},
+  RipGrepper.UI.DpiScaler in 'src\RipGrepper.UI.DpiScaler.pas';
 
 {$R *.res}
 

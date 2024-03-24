@@ -20,11 +20,10 @@ uses
 	System.ImageList,
 	Vcl.ImgList,
 	RipGrepper.Common.Settings,
-	RipGrepper.UI.ScaleableBaseForm,
-	u_dzDpiScaleUtils;
+	RipGrepper.UI.DpiScaler, u_dzDpiScaleUtils;
 
 type
-	TOpenWithCmdList = class(TScaleableBaseForm)
+	TOpenWithCmdList = class(TForm)
 		lbCommands : TListView;
 		pnl_Bottom : TPanel;
 		btn_Save : TButton;
@@ -47,6 +46,7 @@ type
 		procedure FormShow(Sender : TObject);
 
 		private
+			FDpiScaler : TRipGrepperDpiScaler;
 			FImageScaler : TImageListScaler;
 			FSettings : TRipGrepperOpenWithSettings;
 			FViewStyleIndex : Integer;
@@ -58,8 +58,6 @@ type
 			property ViewStyleIndex : Integer read GetViewStyleIndex;
 
 		protected
-			procedure ApplyDpi(_NewDpi : Integer; _NewBounds : PRect); override;
-
 		public
 			class var FScaledIcons : TImageList;
 			constructor Create(AOwner : TComponent; const ASettings : TRipGrepperOpenWithSettings); reintroduce;
@@ -87,26 +85,20 @@ uses
 
 constructor TOpenWithCmdList.Create(AOwner : TComponent; const ASettings : TRipGrepperOpenWithSettings);
 begin
-	inherited Create(AOwner); // , ImageListButtons);
+	inherited Create(AOwner);
+	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 	lbCommands.items.Clear;
 
 	ImageListIcons.ColorDepth := TColorDepth.cd32Bit;
-	FActualDPI := TScreen_GetDpiForForm(Self);
 	FViewStyleIndex := 0;
 	FSettings := ASettings;
 end;
 
 destructor TOpenWithCmdList.Destroy();
 begin
+	FDpiScaler.Free;
 	FImageScaler.Free;
 	inherited Destroy();
-end;
-
-procedure TOpenWithCmdList.ApplyDpi(_NewDpi : Integer; _NewBounds : PRect);
-begin
-	inherited ApplyDpi(_NewDpi, _NewBounds);
-
-	FActualDpi := _NewDpi;
 end;
 
 procedure TOpenWithCmdList.ActionCancelExecute(Sender : TObject);
@@ -165,7 +157,7 @@ begin
 		FImageScaler.Free;
 		FImageScaler := TImageListScaler.Create(Self, ImageListIcons);
 	end;
-	FScaledIcons := FImageScaler.GetScaledList(FActualDpi);
+	FScaledIcons := FImageScaler.GetScaledList(FDpiScaler.ActualDPI);
 	lbCommands.SmallImages := FScaledIcons;
 	lbCommands.LargeImages := FScaledIcons;
 end;

@@ -20,12 +20,11 @@ uses
 	RipGrepper.Common.Settings,
 	Vcl.StdActns,
 	Vcl.Dialogs,
-	u_dzDpiScaleUtils,
-	GX_BaseForm,
-	RipGrepper.Common.Types;
+	RipGrepper.Common.Types,
+	RipGrepper.UI.DpiScaler, GX_BaseForm;
 
 type
-	TRipGrepperSearchDialogForm = class(TfmBaseForm)
+	TRipGrepperSearchDialogForm = class(TForm)
 		pnlSearch : TPanel;
 		gbSearch : TGroupBox;
 		lblParams : TLabel;
@@ -58,7 +57,7 @@ type
 
 		private
 			FActRipGrepArguments : TRipGrepArguments;
-			FImageScaler : TImageListScaler;
+			FDpiScaler : TRipGrepperDpiScaler;
 			FSettings : TRipGrepperSettings;
 			function GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
 			procedure LoadSettings;
@@ -68,9 +67,6 @@ type
 			procedure StoreSearchSettings;
 
 		protected
-			procedure ApplyDpi(_NewDpi : Integer; _NewBounds : PRect); override;
-			procedure ArrangeControls; override;
-
 		public
 			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettings; const _actualArgs : TRipGrepArguments);
 				reintroduce; virtual;
@@ -102,13 +98,13 @@ begin
 
 	FSettings := _settings;
 	FActRipGrepArguments := _actualArgs;
-	InitDpiScaler();
+	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 end;
 
 destructor TRipGrepperSearchDialogForm.Destroy;
 begin
+	FDpiScaler.Free;
 	inherited;
-	// TODO -cMM: TRipGrepperSearchDialogForm.Destroy default body inserted
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionCancelExecute(Sender : TObject);
@@ -148,18 +144,6 @@ begin
 	if selectedFiles <> '' then begin
 		cmbSearchDir.Text := selectedFiles;
 	end;
-
-end;
-
-procedure TRipGrepperSearchDialogForm.ApplyDpi(_NewDpi : Integer; _NewBounds : PRect);
-var
-	li : TImageList;
-begin
-	inherited;
-	if not Assigned(FImageScaler) then
-		FImageScaler := TImageListScaler.Create(Self, ImageList1);
-	li := FImageScaler.GetScaledList(_NewDpi);
-	ProcessControl(self, li);
 end;
 
 procedure TRipGrepperSearchDialogForm.ProcessControl(_ctrl : TControl; _imgList : TImageList);
@@ -174,12 +158,6 @@ begin
 		for i := 0 to (_ctrl as TWinControl).ControlCount - 1 do
 			ProcessControl((_ctrl as TWinControl).Controls[i], _imgList);
 	end;
-end;
-
-procedure TRipGrepperSearchDialogForm.ArrangeControls;
-begin
-	inherited;
-	//
 end;
 
 procedure TRipGrepperSearchDialogForm.ShowOptionsForm;

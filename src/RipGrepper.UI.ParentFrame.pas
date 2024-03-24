@@ -15,7 +15,8 @@ uses
 	RipGrepper.UI.TopFrame,
 	RipGrepper.UI.MainFrame,
 	RipGrepper.UI.BottomFrame,
-	RipGrepper.Common.Settings;
+	RipGrepper.Common.Settings,
+	u_dzDpiScaleUtils;
 
 type
 	TParentFrame = class(TFrame)
@@ -29,8 +30,10 @@ type
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
 			{ Private-Deklarationen }
+		protected
 		public
 			constructor Create(AOwner : TComponent); override;
+			destructor Destroy; override;
 			procedure Init;
 			procedure InitStatusBar;
 			procedure OnClose(Sender : TObject; var Action : TCloseAction);
@@ -40,19 +43,32 @@ type
 			{ Public-Deklarationen }
 	end;
 
+var
+	ParentFrame : TParentFrame;
+
 implementation
 
 uses
 	RipGrepper.Tools.DebugTools,
 	RipGrepper.Common.Types,
-	System.StrUtils;
+	System.StrUtils,
+	Vcl.StdCtrls,
+	u_dzVclUtils;
 
 {$R *.dfm}
 
 constructor TParentFrame.Create(AOwner : TComponent);
 begin
 	inherited;
+	ParentFrame := self;
+//
 	Settings.Load;
+end;
+
+destructor TParentFrame.Destroy;
+begin
+//
+	inherited;
 end;
 
 procedure TParentFrame.OnClose(Sender : TObject; var Action : TCloseAction);
@@ -80,14 +96,7 @@ end;
 procedure TParentFrame.Init;
 begin
 	TDebugUtils.DebugMessage('TParentFrame.InitForm Begin');
-
 	MainFrame.Init();
-
-	// if not IsStandAlone then begin
-	// TDebugUtils.DebugMessage('RegisterDockableForm - ' + RIPGREPPER_FORM);
-	// IdeDockManager.RegisterDockableForm(TParentFrame, self, RIPGREPPER_FORM);
-	// end;
-
 	TDebugUtils.DebugMessage('TParentFrame.InitForm End');
 end;
 

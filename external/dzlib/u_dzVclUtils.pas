@@ -1237,7 +1237,7 @@ function TRadioButton_Create(_Parent: TWinControl; const _Caption: string; _Left
 /// The same as TForm.Monitor, but it works.
 /// @returns the monitor on wich the center point of the form is located.
 ///          Warning: The result might be nil if the form is outside the visible area. </summary>
-function TForm_GetMonitor(_frm: TForm): TMonitor;
+function TForm_GetMonitor(_ctrl: TWinControl): TMonitor;
 
 function TForm_GetDesignDPI(_frm: TForm): Integer;
 
@@ -1769,7 +1769,7 @@ function TScreen_TryGetMonitorFromPoint(_pnt: TPoint; out _Monitor: TMonitor): B
 function TScreen_MonitorFromPoint(_pnt: TPoint): TMonitor;
 
 function TScreen_GetDpiForPoint(_pnt: TPoint): Integer;
-function TScreen_GetDpiForForm(_frm: TCustomForm): Integer;
+function TScreen_GetDpiForWindow(_frm: TWinControl): Integer;
 
 procedure TScreen_MakeFullyVisible(_frm: TForm); overload;
 procedure TScreen_MakeFullyVisible(var _Left, _Top, _Width, _Height: Integer); overload;
@@ -4423,7 +4423,7 @@ begin
     Result := Screen.PixelsPerInch;
 end;
 
-function TScreen_GetDpiForForm(_frm: TCustomForm): Integer;
+function TScreen_GetDpiForWindow(_frm: TWinControl): Integer;
 {$IFDEF HAS_TMONITOR_PIXELSPERINCH}
 var
   Monitor: TMonitor;
@@ -4432,7 +4432,7 @@ begin
   Result := Screen.PixelsPerInch;
 {$IFDEF HAS_TMONITOR_PIXELSPERINCH}
   if _frm is TForm then begin
-    Monitor := TForm_GetMonitor(TForm(_frm));
+	Monitor := TForm_GetMonitor(TForm(_frm));
     if Assigned(Monitor) then
       Result := Monitor.PixelsPerInch
   end;
@@ -4452,12 +4452,12 @@ begin
 {$ENDIF}
 end;
 
-function TForm_GetMonitor(_frm: TForm): TMonitor;
+function TForm_GetMonitor(_ctrl: TWinControl): TMonitor;
 var
   Center: TPoint;
 begin
-  Center.X := _frm.Left + _frm.Width div 2;
-  Center.Y := _frm.Top + _frm.Height div 2;
+  Center.X := _ctrl.Left + _ctrl.Width div 2;
+  Center.Y := _ctrl.Top + _ctrl.Height div 2;
   Result := TScreen_MonitorFromPoint(Center);
 end;
 

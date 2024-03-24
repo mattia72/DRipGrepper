@@ -146,7 +146,6 @@
         <DCCReference Include="external\dzlib\u_dzMiscUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzTypesUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzTypInfo.pas"/>
-        <DCCReference Include="external\GExpert\GX_IdeDock.pas"/>
         <DCCReference Include="external\dzlib\u_dzVersionInfo.pas"/>
         <DCCReference Include="external\dzlib\u_dzVclUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzVariantUtils.pas"/>
@@ -166,10 +165,6 @@
         <DCCReference Include="external\dzlib\u_dzClassUtils.pas"/>
         <DCCReference Include="src\RipGrepper.Parsers.VimGrepMatchLine.pas"/>
         <DCCReference Include="src\RipGrepper.Common.ParsedObject.pas"/>
-        <DCCReference Include="external\GExpert\GX_BaseForm.pas">
-            <Form>fmBaseForm</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="external\GExpert\GX_OtaUtils.pas"/>
         <DCCReference Include="external\GExpert\GX_GxUtils.pas"/>
         <DCCReference Include="external\GExpert\GX_IdeUtils.pas"/>
@@ -205,6 +200,7 @@
 <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="src\RipGrepper.UI.DpiScaler.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

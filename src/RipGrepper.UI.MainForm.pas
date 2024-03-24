@@ -36,16 +36,17 @@ uses
 	RipGrepper.OpenWith.SimpleTypes,
 	System.IniFiles,
 	ToolsAPI,
-	RipGrepper.UI.ScaleableBaseForm,
 	RipGrepper.UI.MainFrame,
 	RipGrepper.UI.BottomFrame,
 	RipGrepper.UI.TopFrame,
+	RipGrepper.UI.DpiScaler,
 	RipGrepper.UI.ParentFrame;
 
 type
-	TRipGrepperForm = class( { TForm } TScaleableBaseForm)
+	TRipGrepperForm = class(TForm { TScaleableBaseForm } )
 		var
 			AllFrames1 : TParentFrame;
+
 			procedure ActionCancelExecute(Sender : TObject);
 			procedure FormCreate(Sender : TObject);
 			procedure FormClose(Sender : TObject; var Action : TCloseAction);
@@ -56,13 +57,10 @@ type
 
 		var
 			FSettings : TRipGrepperSettings;
-			FImageScaler : TImageListScaler;
 			function GetSettings : TRipGrepperSettings;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
 		protected
-			procedure ApplyDpi(_NewDpi : Integer; _NewBounds : PRect); override;
-			procedure ArrangeControls; override;
 			procedure CreateParams(var Params : TCreateParams); override;
 
 		public
@@ -78,7 +76,6 @@ type
 
 var
 	RipGrepperForm : TRipGrepperForm;
-	AllFrames : TParentFrame;
 
 implementation
 
@@ -124,20 +121,13 @@ begin
 		FSettings := _settings;
 	end;
 
-	InitDpiScaler();
-
 	TDebugUtils.DebugMessage('TRipGrepperForm.Create: ' + TPath.GetFileName(FSettings.IniFile.FileName));
 end;
 
 constructor TRipGrepperForm.Create(AOwner : TComponent);
-var
-	li : TImageList;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner');
 	inherited Create(AOwner);
-	li := AllFrames1.TopFrame.Toolbar1.Images as TImageList;
-	InitImageListScaler(li);
-	AllFrames1.TopFrame.Toolbar1.Images := li;
 
 	if IsStandAlone then begin
 		TDebugUtils.DebugMessage('TRipGrepperForm.Create STANDALONE');
@@ -153,14 +143,8 @@ end;
 destructor TRipGrepperForm.Destroy;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.Destroy');
-	// if not IsStandAlone then begin
-	// TDebugUtils.DebugMessage('UnRegisterDockableForm - ' + RIPGREPPER_FORM);
-	// IdeDockManager.UnRegisterDockableForm(self, RIPGREPPER_FORM);
-	// end;
 
-	// TRipGrepperSettingsInstance.FreeInstance;
-	// Settings.Free;
-	FImageScaler.Free;
+	// FImageScaler.Free;
 	inherited;
 end;
 
@@ -168,21 +152,6 @@ procedure TRipGrepperForm.ActionCancelExecute(Sender : TObject);
 begin
 	ModalResult := mrCancel;
 	Close();
-end;
-
-procedure TRipGrepperForm.ApplyDpi(_NewDpi : Integer; _NewBounds : PRect);
-var
-	li : TImageList;
-begin
-	inherited;
-	TDebugUtils.DebugMessage('TRipGrepperForm.ApplyDpi');
-end;
-
-procedure TRipGrepperForm.ArrangeControls;
-begin
-	inherited;
-	TDebugUtils.DebugMessage('TRipGrepperForm.ArrangeControls');
-	// SetColumnWidths;
 end;
 
 class function TRipGrepperForm.CreateAndShow(const _settings : TRipGrepperSettings) : TRipGrepperForm;
@@ -225,7 +194,6 @@ end;
 procedure TRipGrepperForm.FrameCreated(AFrame : TCustomFrame);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.FrameCreated ' + AFrame.Name);
-	AllFrames := AFrame as TParentFrame;
 	Init;
 end;
 
@@ -240,12 +208,11 @@ end;
 procedure TRipGrepperForm.Init;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.Init');
-	//if not IsStandalone then begin
-		TDebugUtils.DebugMessage('TRipGrepperDockableForm.FrameCreated FindImageListForDpiScaler');
-		FindImageListForDpiScaler(self);
-	//end;
+	// if not IsStandalone then begin
+	TDebugUtils.DebugMessage('TRipGrepperDockableForm.FrameCreated FindImageListForDpiScaler');
+	// end;
 
-	AllFrames.Init;
+	ParentFrame.Init;
 end;
 
 procedure TRipGrepperForm.Loaded;

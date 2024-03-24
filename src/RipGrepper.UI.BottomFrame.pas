@@ -32,7 +32,11 @@ type
 			FStatusBarMessage : string;
 			FStatusBarStatistic : string;
 			FStatusBarStatus : string;
+		constructor Create(AOwner: TComponent); override;
 	end;
+
+var
+	BottomFrame : TRipGrepperBottomFrame;
 
 implementation
 
@@ -40,6 +44,12 @@ uses
 	RipGrepper.Common.Types;
 
 {$R *.dfm}
+
+constructor TRipGrepperBottomFrame.Create(AOwner: TComponent);
+begin
+	inherited;
+	BottomFrame := self;
+end;
 
 procedure TRipGrepperBottomFrame.ActionStatusBarUpdate(Sender : TObject);
 begin
