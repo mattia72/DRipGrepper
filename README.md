@@ -57,16 +57,19 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
   - [x] *Open with...* settings saved
 - [ ] configuration dialog
 
-### Delphi integration https://github.com/mattia72/DRipGrepper/issues/1
+### Standalone
+  - [x] standalone release
+  - [x] high DPI Scaling 
+
+### Delphi Extension https://github.com/mattia72/DRipGrepper/issues/1
   - [x] dockable window
+  - [ ] high DPI Scaling 
   - [ ] menu item in Tools
   - [ ] click on matching file, opens file in the editor on position 
   - [ ] search only in opened files/project files/project group
+  - [ ] delphi extension release
  
 ### Misc
-- [x] standalone release
-- [ ] delphi extension release
-- [x] high DPI Scaling ???
 - [x] screenshots in Readme.md
 - [ ] [scoop](https://scoop.sh) install
 - [ ] [chocolatey](https://chocolatey.org) install
