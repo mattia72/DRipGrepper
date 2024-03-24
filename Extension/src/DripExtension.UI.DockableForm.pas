@@ -1,4 +1,4 @@
-unit RipGrepper.UI.DockableForm;
+unit DripExtension.UI.DockableForm;
 
 interface
 
