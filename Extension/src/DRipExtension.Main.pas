@@ -6,7 +6,7 @@ interface
 uses
 	ToolsAPI,
 	RipGrepper.UI.MainForm,
-	RipGrepper.UI.DockableForm;
+	DripExtension.UI.DockableForm;
 
 type
 	// TNotifierObject has stub implementations for the necessary but

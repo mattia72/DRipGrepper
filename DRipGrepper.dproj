@@ -93,8 +93,8 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Release>3</VerInfo_Release>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.3.10;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <VerInfo_Build>10</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.3.12;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Build>12</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -117,7 +117,6 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="C:\SCCS\agsrc_trunk\!STANDARD\Modules\Include\Agenda.Modules.StaticInclude.Features.pas"/>
         <DCCReference Include="src\RipGrepper.UI.MainForm.pas">
             <Form>RipGrepperForm</Form>
         </DCCReference>
@@ -188,22 +187,22 @@
         <DCCReference Include="src\RipGrepper.UI.ScaleableBaseForm.pas"/>
         <DCCReference Include="src\RipGrepper.UI.MainFrame.pas">
             <Form>RipGrepperMainFrame</Form>
-            <FormType>dfm</FormType>
+<FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="src\RipGrepper.UI.BottomFrame.pas">
             <Form>RipGrepperBottomFrame</Form>
-            <FormType>dfm</FormType>
+<FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="src\RipGrepper.UI.TopFrame.pas">
             <Form>RipGrepperTopFrame</Form>
-            <FormType>dfm</FormType>
+<FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="src\RipGrepper.UI.AllFrames.pas">
             <Form>AllFrames</Form>
-            <FormType>dfm</FormType>
+<FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <BuildConfiguration Include="Base">

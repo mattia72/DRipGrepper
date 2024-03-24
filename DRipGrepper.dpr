@@ -1,7 +1,6 @@
 program DRipGrepper;
 
 uses
-  Agenda.Modules.StaticInclude.Features in 'C:\SCCS\agsrc_trunk\!STANDARD\Modules\Include\Agenda.Modules.StaticInclude.Features.pas',
   Vcl.Forms,
   RipGrepper.UI.MainForm in 'src\RipGrepper.UI.MainForm.pas' {RipGrepperForm},
   RipGrepper.Tools.ProcessUtils in 'src\RipGrepper.Tools.ProcessUtils.pas',
