@@ -61,7 +61,7 @@ constructor TParentFrame.Create(AOwner : TComponent);
 begin
 	inherited;
 	ParentFrame := self;
-//
+    Init();
 	Settings.Load;
 end;
 

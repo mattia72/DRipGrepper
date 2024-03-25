@@ -23,14 +23,17 @@ type
 			FIdentifier : string;
 
 		class var
-			FForm : TRipGrepperForm;
+			FForm : TCustomForm;
 			FInstance : TRipGrepperDockableForm;
-			class function GetForm : TRipGrepperForm; static;
+			class function GetForm : TCustomForm; static;
 			function GetGuid : string;
 			class function GetInstance : TRipGrepperDockableForm; static;
 
 		public
-			class function CreateDockableForm : TRipGrepperForm;
+			/// <summary>
+			/// Creates an OleDockForm container for our Frame
+			/// </summary>
+			class function CreateDockableForm : TCustomForm;
 			class procedure CreateInstance;
 			/// <summary>
 			/// Returns the Caption for the Dockable Form
@@ -119,7 +122,7 @@ type
 			/// </summary>
 			function EditAction(Action : TEditAction) : Boolean;
 			property Caption : string read GetCaption write FCaption;
-			class property Form : TRipGrepperForm read GetForm;
+			class property Form : TCustomForm read GetForm;
 			property Identifier : string read GetIdentifier;
 			property FrameClass : TCustomFrameClass read GetFrameClass;
 			class property Instance : TRipGrepperDockableForm read GetInstance;
@@ -221,19 +224,18 @@ begin
 	FInstance.Free;
 end;
 
-class function TRipGrepperDockableForm.CreateDockableForm : TRipGrepperForm;
+class function TRipGrepperDockableForm.CreateDockableForm : TCustomForm;
 begin
 	Result := Form;
 end;
 
-class function TRipGrepperDockableForm.GetForm : TRipGrepperForm;
+class function TRipGrepperDockableForm.GetForm : TCustomForm;
 var
-	tc : TCustomForm;
+	cf : TCustomForm;
 begin
-	tc := (BorlandIDEServices as INTAServices).CreateDockableForm(Instance);
-	if tc is TRipGrepperForm then begin
-		FForm := tc as TRipGrepperForm;
-		FForm.FrameCreated(FForm.AllFrames1);
+	if not Assigned(FForm) then begin
+		cf := (BorlandIDEServices as INTAServices).CreateDockableForm(Instance);
+		FForm := cf;
 	end;
 	Result := FForm;
 end;

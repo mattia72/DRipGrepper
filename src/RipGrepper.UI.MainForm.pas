@@ -69,7 +69,6 @@ type
 			destructor Destroy; override;
 			class function CreateAndShow(const _settings : TRipGrepperSettings) : TRipGrepperForm;
 
-			procedure FrameCreated(AFrame : TCustomFrame);
 			procedure Init;
 			procedure Loaded; override;
 	end;
@@ -112,10 +111,7 @@ constructor TRipGrepperForm.Create(_settings : TRipGrepperSettings);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.Create _settings');
 	inherited Create(nil);
-	if IsStandAlone then begin
-		TDebugUtils.DebugMessage('TRipGrepperForm.Create STANDALONE');
-		Init;
-	end;
+
 
 	if Assigned(_settings) then begin
 		FSettings := _settings;
@@ -128,10 +124,9 @@ constructor TRipGrepperForm.Create(AOwner : TComponent);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner');
 	inherited Create(AOwner);
-
 	if IsStandAlone then begin
-		TDebugUtils.DebugMessage('TRipGrepperForm.Create STANDALONE');
-		FrameCreated(AllFrames1);
+		TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner STANDALONE');
+		Init;
 	end;
 end;
 
@@ -189,12 +184,6 @@ begin
 		Params.ExStyle := Params.ExStyle or WS_EX_APPWINDOW;
 		Params.WndParent := GetDesktopwindow;
 	end;
-end;
-
-procedure TRipGrepperForm.FrameCreated(AFrame : TCustomFrame);
-begin
-	TDebugUtils.DebugMessage('TRipGrepperForm.FrameCreated ' + AFrame.Name);
-	Init;
 end;
 
 function TRipGrepperForm.GetSettings : TRipGrepperSettings;

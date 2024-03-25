@@ -104,8 +104,10 @@ type
 			procedure DrawItemOnCanvas(_Canvas : TCanvas; _Rect : TRect; _Item : TListItem; _State : TOwnerDrawState);
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
 			function GetCounterText(data : THistoryItemObject) : string;
+			function GetData : TRipGrepperData;
 			function GetHistObject : THistoryItemObject;
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
+			function GetHistoryObjectList : TStringList;
 			function GetSettings : TRipGrepperSettings;
 			function GetSortingImageIndex(const _idx : Integer) : Integer;
 			procedure InitColumnSortTypes;
@@ -145,11 +147,11 @@ type
 			procedure UpdateHistObject;
 			property AbortSearch : Boolean read FAbortSearch write FAbortSearch;
 			property CurrentHistoryItemIndex : Integer read FCurrentHistoryItemIndex write FCurrentHistoryItemIndex;
-			property Data : TRipGrepperData read FData write FData;
+			property Data : TRipGrepperData read GetData write FData;
 			property ExeVersion : string read FExeVersion write FExeVersion;
 			property FileNameType : TFileNameType read FFileNameType write FFileNameType;
 			property HistObject : THistoryItemObject read GetHistObject write SetHistObject;
-			property HistoryObjectList : TStringList read FHistoryObjectList write FHistoryObjectList;
+			property HistoryObjectList : TStringList read GetHistoryObjectList write FHistoryObjectList;
 			property MaxWidths : TArray<integer> read FMaxWidths write FMaxWidths;
 			property RipGrepTask : ITask read FRipGrepTask write FRipGrepTask;
 			{ Public-Deklarationen }
@@ -177,7 +179,8 @@ uses
 	RipGrepper.Tools.ProcessUtils,
 	System.Math,
 	RipGrepper.UI.MainForm,
-	GX_OtaUtils, RipGrepper.UI.BottomFrame;
+	GX_OtaUtils,
+	RipGrepper.UI.BottomFrame;
 
 {$R *.dfm}
 
@@ -198,10 +201,10 @@ begin
 	// ListViewResult.Items.Count := 0;
 	// end;
 
-	for var i := 0 to FHistoryObjectList.Count - 1 do begin
-		if Assigned(FHistoryObjectList.Objects[i])
-		{ } and (FHistoryObjectList.Objects[i] is THistoryItemObject) then begin
-			(FHistoryObjectList.Objects[i] as THistoryItemObject).Free;
+	for var i := 0 to HistoryObjectList.Count - 1 do begin
+		if Assigned(HistoryObjectList.Objects[i])
+		{ } and (HistoryObjectList.Objects[i] is THistoryItemObject) then begin
+			(HistoryObjectList.Objects[i] as THistoryItemObject).Free;
 		end;
 	end;
 	FHistoryObjectList.Free;
@@ -282,7 +285,7 @@ procedure TRipGrepperMainFrame.ChangeDataHistItemObject(_ho : THistoryItemObject
 begin
 	var
 	beu := TBeginEndUpdater.New(ListBoxSearchHistory);
-	FData.HistObject := _ho;
+	Data.HistObject := _ho;
 end;
 
 procedure TRipGrepperMainFrame.ClearHistoryObject;
@@ -331,7 +334,7 @@ begin
 		st := FColumnSortTypes[integer(_sbt)];
 		st := TSortDirectionType((Integer(st) + 1) mod 3);
 		FColumnSortTypes[integer(_sbt)] := st;
-		FData.SortBy(_sbt, st);
+		Data.SortBy(_sbt, st);
 		UpdateSortingImages([_sbt]);
 	finally
 		ListViewResult.Repaint();
@@ -430,6 +433,14 @@ begin
 	end;
 end;
 
+function TRipGrepperMainFrame.GetData : TRipGrepperData;
+begin
+	if not Assigned(FData) then begin
+		FData := TRipGrepperData.Create;
+	end;
+	Result := FData;
+end;
+
 function TRipGrepperMainFrame.GetHistObject : THistoryItemObject;
 begin
 	Result := FHistObject;
@@ -442,6 +453,14 @@ begin
 		Result := THistoryItemObject(HistoryObjectList.Objects[_index]);
 		// Result := THistoryItemObject(_lb.Items.Objects[_index]);
 	end;
+end;
+
+function TRipGrepperMainFrame.GetHistoryObjectList : TStringList;
+begin
+	if not Assigned(FHistoryObjectList) then begin
+		FHistoryObjectList := TStringList.Create(TDuplicates.dupIgnore, False, False);
+	end;
+	Result := FHistoryObjectList;
 end;
 
 function TRipGrepperMainFrame.GetOpenWithParamsFromSelected : TOpenWithParams;
@@ -489,8 +508,7 @@ procedure TRipGrepperMainFrame.Init;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperMainFrame.InitForm Begin');
 
-	FData := TRipGrepperData.Create();
-	FHistoryObjectList := TStringList.Create(TDuplicates.dupIgnore, False, False);
+	HistoryObjectList.Clear();
 	if IsStandAlone then begin
 		FExeVersion := TFileUtils.GetAppNameAndVersion(Application.ExeName);
 	end else begin
@@ -510,7 +528,7 @@ end;
 procedure TRipGrepperMainFrame.InitSearch;
 begin
 	ListViewResult.Items.Count := 0;
-	FData.ClearMatchFiles;
+	Data.ClearMatchFiles;
 	// ClearData;
 	FswSearchStart := TStopwatch.Create();
 	FMeassureFirstDrawEvent := True;
@@ -599,8 +617,8 @@ var
 	idx : Integer;
 begin
 	idx := Item.Index;
-	if idx < FData.TotalMatchCount then begin
-		FData.DataToGrid(idx, ListViewResult, Item);
+	if idx < Data.TotalMatchCount then begin
+		Data.DataToGrid(idx, ListViewResult, Item);
 	end;
 end;
 
@@ -679,7 +697,7 @@ begin
 						parsedObj := parser.ParseLine(_iLineNr, _sLine, _bIsLast);
 						var
 						o := TParsedObjectRow.Create(parsedObj);
-						FData.Add(o);
+						Data.Add(o);
 					finally
 						parser.Free;
 					end;
@@ -707,12 +725,12 @@ end;
 procedure TRipGrepperMainFrame.RefreshCounters;
 begin
 	// virtual listview! Items count should be updated to refresh ui
-	ListViewResult.Items.Count := FData.ListItemCount;
+	ListViewResult.Items.Count := Data.ListItemCount;
 	if Assigned(FHistObject) then begin
 		var
 		beu := TBeginEndUpdater.New(ListBoxSearchHistory);
-		FHistObject.FileCount := FData.FileCount; // synced
-		FHistObject.ErrorCount := FData.ErrorCount; // synced
+		FHistObject.FileCount := Data.FileCount; // synced
+		FHistObject.ErrorCount := Data.ErrorCount; // synced
 	end;
 	RefreshCountersInGUI;
 end;

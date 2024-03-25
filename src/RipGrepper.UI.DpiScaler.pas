@@ -50,8 +50,8 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperDpiScaler.Create');
 	FOwner := AOwner;
 	FMsgHandlerHWND := AllocateHWnd(WndMethod);
+    // set FScaleImageList
 	FindImageListForDpiScaler(FOwner);
-	//InitDpiScaler;
 end;
 
 destructor TRipGrepperDpiScaler.Destroy;
