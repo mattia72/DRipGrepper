@@ -43,14 +43,14 @@ implementation
 uses
 	RipGrepper.Tools.DebugTools,
 	Vcl.StdCtrls,
-	u_dzVclUtils;
+	u_dzVclUtils, Vcl.ComCtrls;
 
 constructor TRipGrepperDpiScaler.Create(AOwner : TWinControl);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperDpiScaler.Create');
 	FOwner := AOwner;
 	FMsgHandlerHWND := AllocateHWnd(WndMethod);
-    // set FScaleImageList
+	// set FScaleImageList
 	FindImageListForDpiScaler(FOwner);
 end;
 
@@ -66,6 +66,7 @@ procedure TRipGrepperDpiScaler.ApplyDpi(_NewDpi : Integer; _NewBounds : PRect);
 var
 	li : TImageList;
 begin
+	TDebugUtils.DebugMessage('TRipGrepperDpiScaler.ApplyDpi');
 	ApplyDpiForWindow(_NewDpi, _NewBounds);
 
 	if not Assigned(FImageScaler) then begin
@@ -78,6 +79,7 @@ end;
 
 procedure TRipGrepperDpiScaler.ApplyDpiForWindow(_NewDpi : Integer; _NewBounds : PRect);
 begin
+	TDebugUtils.DebugMessage('TRipGrepperDpiScaler.ApplyDpiForWindow');
 	if Assigned(FWinDpiScaler) then begin
 		FWinDpiScaler.ApplyDpi(_NewDpi, _NewBounds);
 		FActualDPI := _NewDpi;
@@ -139,13 +141,18 @@ var
 	i : integer;
 begin
 	if _ctrl is TButton then begin
-		TDebugUtils.DebugMessage('TRipGrepperDpiScaler.SetButtonImages - ' + _ctrl.Name);
+		TDebugUtils.DebugMessage('TRipGrepperDpiScaler.SetButtonImages - Button' + _ctrl.Name);
 		(_ctrl as TButton).Images := _imgList;
+	end else if _ctrl is TToolBar then begin
+		TDebugUtils.DebugMessage('TRipGrepperDpiScaler.SetButtonImages - Toolbar ' + _ctrl.Name);
+		(_ctrl as TToolBar).Images := _imgList;
 	end;
 
 	if _ctrl is TWinControl then begin
 		for i := 0 to (_ctrl as TWinControl).ControlCount - 1 do
 			SetButtonImages((_ctrl as TWinControl).Controls[i], _imgList);
+	end else begin
+		// TDebugUtils.DebugMessage('TRipGrepperDpiScaler.SetButtonImages - Not a WinCtrl:' + _ctrl.Name);
 	end;
 end;
 

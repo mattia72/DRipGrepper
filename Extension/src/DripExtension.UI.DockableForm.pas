@@ -33,7 +33,7 @@ type
 			/// <summary>
 			/// Creates an OleDockForm container for our Frame
 			/// </summary>
-			class function CreateDockableForm : TCustomForm;
+			class function CreateOrShowDockableForm: TCustomForm;
 			class procedure CreateInstance;
 			/// <summary>
 			/// Returns the Caption for the Dockable Form
@@ -162,6 +162,7 @@ end;
 procedure TRipGrepperDockableForm.FrameCreated(AFrame : TCustomFrame);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperDockableForm.FrameCreated');
+	ParentFrame.Init;
 end;
 
 function TRipGrepperDockableForm.GetCaption : string;
@@ -224,19 +225,15 @@ begin
 	FInstance.Free;
 end;
 
-class function TRipGrepperDockableForm.CreateDockableForm : TCustomForm;
+class function TRipGrepperDockableForm.CreateOrShowDockableForm: TCustomForm;
 begin
 	Result := Form;
 end;
 
 class function TRipGrepperDockableForm.GetForm : TCustomForm;
-var
-	cf : TCustomForm;
 begin
-	if not Assigned(FForm) then begin
-		cf := (BorlandIDEServices as INTAServices).CreateDockableForm(Instance);
-		FForm := cf;
-	end;
+    // This creates or shows the form...
+	FForm := (BorlandIDEServices as INTAServices).CreateDockableForm(Instance);
 	Result := FForm;
 end;
 

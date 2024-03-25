@@ -121,12 +121,12 @@ begin
 	TDebugUtils.DebugMessage('TDRipExtension.Execute');
 
 	if not Assigned(FDockableForm) then begin
-		TDebugUtils.DebugMessage('TRipGrepperForm.CreateAndShow');
+		TDebugUtils.DebugMessage('TDRipExtension.Execute - Create FDockableForm');
 		FDockableForm := TRipGrepperDockableForm.Instance;
-		TRipGrepperDockableForm.CreateDockableForm();
+		TRipGrepperDockableForm.CreateOrShowDockableForm();
 	end else begin
-		TDebugUtils.DebugMessage('TRipGrepperForm.Show');
-		TRipGrepperDockableForm.CreateDockableForm();
+		TDebugUtils.DebugMessage('TDRipExtension.Execute - Show FDockableForm');
+		TRipGrepperDockableForm.CreateOrShowDockableForm();
 	end;
 end;
 
