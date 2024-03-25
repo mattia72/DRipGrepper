@@ -43,7 +43,8 @@ implementation
 uses
 	RipGrepper.Tools.DebugTools,
 	Vcl.StdCtrls,
-	u_dzVclUtils, Vcl.ComCtrls;
+	u_dzVclUtils,
+	Vcl.ComCtrls;
 
 constructor TRipGrepperDpiScaler.Create(AOwner : TWinControl);
 begin
@@ -160,6 +161,7 @@ procedure TRipGrepperDpiScaler.WndMethod(var Msg : TMessage);
 begin
 	case Msg.Msg of
 		WM_DPICHANGED : begin
+			TDebugUtils.DebugMessage('TRipGrepperDpiScaler.WndMethod - WM_DPICHANGED');
 			ApplyDpi(Msg.WParamHi, PRect(Msg.LParam));
 			Msg.Result := 0;
 		end;
