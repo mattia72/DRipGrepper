@@ -66,7 +66,9 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
   - [x] high DPI Scaling 
   - [x] menu item in Tools (shortcut configurable in `DripExtension*.ini`)
   - [x] Default shortcut Shift+Alt+R
-  - [ ] click on matching file, opens file in the editor on position 
+  - [x] click on matching file, opens file in the editor on position 
+  - [ ] save window position
+  - [ ] search word on cursor
   - [ ] search only in opened files/project files/project group
   - [ ] delphi extension release
  

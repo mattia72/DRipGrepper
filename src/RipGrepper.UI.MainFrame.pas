@@ -623,8 +623,16 @@ begin
 end;
 
 procedure TRipGrepperMainFrame.ListViewResultDblClick(Sender : TObject);
+var
+	owp : TOpenWithParams;
 begin
-	ActionOpenWithExecute(Sender);
+	if IsStandalone then begin
+		ActionOpenWithExecute(Sender);
+	end else begin
+		owp := GetOpenWithParamsFromSelected();
+		TDebugUtils.DebugMessage(Format('%s(%d, %d)', [owp.FileName, owp.Row, owp.Column]));
+		GxOtaGoToFileLineColumn(owp.FileName, owp.Row, owp.Column, owp.Column - 1);
+	end;
 end;
 
 procedure TRipGrepperMainFrame.ListViewResultDrawItem(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
