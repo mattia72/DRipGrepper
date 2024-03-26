@@ -58,7 +58,7 @@ uses
 	System.Classes;
 
 var
-	DripMenu : TMenuItem;
+	G_DripMenu : TMenuItem;
 	G_DRipExtension : TDRipExtension;
 
 procedure Register;
@@ -73,13 +73,13 @@ var
 	iPos : integer;
 	sc : TShortCut;
 begin
-	if Assigned(DripMenu) then
+	if Assigned(G_DripMenu) then
 		exit;
 	TDebugUtils.DebugMessage('TDRipExtension.CreateMenu');
 
 	RemoveExtensionMenu();
 	sc := TextToShortCut(GSettings.ExtensionSettings.DripGrepperShortCut);
-	DripMenu := Vcl.Menus.NewItem(GetMenuText + '...', sc, False, True, DoDripGrepperMenuClick, 0,
+	G_DripMenu := Vcl.Menus.NewItem(GetMenuText + '...', sc, False, True, DoDripGrepperMenuClick, 0,
 		DRIP_MENUITEM_NAME);
 	TDebugUtils.DebugMessage('TDRipExtension.CreateMenu - NewItem ' + DRIP_MENUITEM_NAME);
 
@@ -91,10 +91,10 @@ begin
 			iPos := Item.IndexOf(IOTAUTils.FindMenuItem('ToolsToolsItem')) - 1;
 		if iPos >= 0 then begin
 			TDebugUtils.DebugMessage('TDRipExtension.CreateMenu - ToolsToolsItem iPos ' + iPos.ToString);
-			Item.Insert(iPos + 1, DripMenu)
+			Item.Insert(iPos + 1, G_DripMenu)
 		end else begin
 			TDebugUtils.DebugMessage('TDRipExtension.CreateMenu - ToolsToolsItem not found');
-			Item.Insert(1, DripMenu);
+			Item.Insert(1, G_DripMenu);
 		end;
 	end;
 
@@ -110,13 +110,11 @@ end;
 destructor TDRipExtension.Destroy;
 begin
 	TDebugUtils.DebugMessage('TDRipExtension.Destroy');
-	DripMenu.Free;
 
-	TDebugUtils.DebugMessage('TDRipExtension.Destroy FDockableForm.FreeInstance');
-	FDockableForm.FreeInstance;
 	TDebugUtils.DebugMessage('TDRipExtension.Destroy FDockableForm.Free');
 	FDockableForm.Free;
-
+	TDebugUtils.DebugMessage('TDRipExtension.Destroy G_DripMenu.Free');
+	G_DripMenu.Free;
 	G_DRipExtension := nil;
 	inherited;
 end;
