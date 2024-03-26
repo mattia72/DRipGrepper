@@ -13,11 +13,15 @@ const
 
 	APPNAME = 'DRipGrepper';
 	EXTENSION_NAME = 'DRipExtension';
-	EXTENSION_MENU_CAPTION = 'DRip';
+	EXTENSION_MENU_CAPTION = 'DRipGrepper';
+	SHORTCUT_DRIPGREPPER = 'Umsch+Alt+R';
 
 	CR = #13;
 	LF = #10;
 	CRLF = sLineBreak;
+	TAB = #9;
+	SPACE = #32;
+
 	BUFF_LENGTH = 1024; // Todo: put into settings
 
 	MAX_HISTORY_COUNT = 20;

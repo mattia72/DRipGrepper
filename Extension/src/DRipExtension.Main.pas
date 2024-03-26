@@ -13,7 +13,7 @@ type
 	// unused IOTANotifer methods
 	TDRipExtension = class(TNotifierObject, IOTAMenuWizard, IOTAWizard)
 		const
-			MENUITEM_NAME = 'DRipExpertMenuItem';
+			DRIP_MENUITEM_NAME = 'DRipExpertMenuItem';
 
 		private
 			FKeyNotifier : IOTAKeyboardBinding;
@@ -21,10 +21,11 @@ type
 
 			FDockableForm : TRipGrepperDockableForm;
 			procedure CreateMenu;
-			procedure DoMainMenuClick(Sender : TObject);
+			procedure DoDripGrepperMenuClick(Sender : TObject);
 			procedure InitKeyboardNotifier;
 			procedure RegisterKeyboardBinding;
 			procedure RemoveExtensionMenu;
+			procedure ShowDripGrepperForm;
 			procedure UnregisterKeyboardBinding;
 
 		public
@@ -53,10 +54,11 @@ uses
 	System.IOUtils,
 	Vcl.Menus,
 	Vcl.Graphics,
-	RipGrepper.Tools.DebugTools;
+	RipGrepper.Tools.DebugTools,
+	System.Classes;
 
 var
-	G_MainMenu : TMenuItem;
+	DripMenu : TMenuItem;
 	G_DRipExtension : TDRipExtension;
 
 procedure Register;
@@ -65,29 +67,37 @@ begin
 end;
 
 procedure TDRipExtension.CreateMenu;
-
 var
 	mainMenu : TMainMenu;
+	Item : TMenuItem;
 	iPos : integer;
+	sc : TShortCut;
 begin
-	if Assigned(G_MainMenu) then
+	if Assigned(DripMenu) then
 		exit;
+	TDebugUtils.DebugMessage('TDRipExtension.CreateMenu');
 
 	RemoveExtensionMenu();
+	sc := TextToShortCut(SHORTCUT_DRIPGREPPER);
+	DripMenu := Vcl.Menus.NewItem(GetMenuText + '...', sc, False, True, DoDripGrepperMenuClick, 0,
+		DRIP_MENUITEM_NAME);
+	TDebugUtils.DebugMessage('TDRipExtension.CreateMenu - NewItem ' + DRIP_MENUITEM_NAME);
 
-	mainMenu := (BorlandIDEServices as INTAServices).MainMenu;
-	iPos := mainMenu.Items.Count - 1;
-	for var i := 0 to mainMenu.Items.Count - 1 do begin
-		if CompareText(mainMenu.Items[i].Name, 'ToolsMenu') = 0 then begin
-			iPos := i;
-			TDebugUtils.DebugMessage('CreateMenu to iPos ' + iPos.ToString);
-			break;
+	Item := IOTAUTils.FindMenuItem('ToolsMenu');
+	if Item <> nil then begin
+		iPos := Item.IndexOf(IOTAUTils.FindMenuItem('ToolsDebuggerOptionsItem'));
+		TDebugUtils.DebugMessage('TDRipExtension.CreateMenu - iPos ' + iPos.ToString);
+		if iPos = -1 then
+			iPos := Item.IndexOf(IOTAUTils.FindMenuItem('ToolsToolsItem')) - 1;
+		if iPos >= 0 then begin
+			TDebugUtils.DebugMessage('TDRipExtension.CreateMenu - ToolsToolsItem iPos ' + iPos.ToString);
+			Item.Insert(iPos + 1, DripMenu)
+		end else begin
+			TDebugUtils.DebugMessage('TDRipExtension.CreateMenu - ToolsToolsItem not found');
+			Item.Insert(1, DripMenu);
 		end;
 	end;
 
-	G_MainMenu := Vcl.Menus.NewItem(GetMenuText, 0, False, True, DoMainMenuClick, 0, MENUITEM_NAME);
-	TDebugUtils.DebugMessage('CreateMenu Insert ' + MENUITEM_NAME + ' to iPos ' + iPos.ToString);
-	mainMenu.Items.Insert(iPos, G_MainMenu);
 end;
 
 constructor TDRipExtension.Create;
@@ -100,7 +110,7 @@ end;
 destructor TDRipExtension.Destroy;
 begin
 	TDebugUtils.DebugMessage('TDRipExtension.Destroy');
-	G_MainMenu.Free;
+	DripMenu.Free;
 
 	TDebugUtils.DebugMessage('TDRipExtension.Destroy FDockableForm.FreeInstance');
 	FDockableForm.FreeInstance;
@@ -111,45 +121,42 @@ begin
 	inherited;
 end;
 
-procedure TDRipExtension.DoMainMenuClick(Sender : TObject);
+procedure TDRipExtension.DoDripGrepperMenuClick(Sender : TObject);
 begin
-	//
+	ShowDripGrepperForm;
 end;
 
+// IOTAWizard
 procedure TDRipExtension.Execute;
 begin
-	TDebugUtils.DebugMessage('TDRipExtension.Execute');
-
-	if not Assigned(FDockableForm) then begin
-		TDebugUtils.DebugMessage('TDRipExtension.Execute - Create FDockableForm');
-		FDockableForm := TRipGrepperDockableForm.Instance;
-		TRipGrepperDockableForm.CreateOrShowDockableForm();
-	end else begin
-		TDebugUtils.DebugMessage('TDRipExtension.Execute - Show FDockableForm');
-		TRipGrepperDockableForm.CreateOrShowDockableForm();
-	end;
+	ShowMessage('https://github.com/mattia72/DRipGrepper');
 end;
 
+// IOTAWizard
 function TDRipExtension.GetIDString : string;
 begin
 	Result := 'ID.' + EXTENSION_NAME;
 end;
 
+// IOTAWizard
 function TDRipExtension.GetMenuText : string;
 begin
-	Result := '&' + GetName();
+	Result := '&' + EXTENSION_NAME;
 end;
 
+// IOTAWizard
 function TDRipExtension.GetName : string;
 begin
 	Result := EXTENSION_MENU_CAPTION;
 end;
 
+// IOTAWizard
 function TDRipExtension.GetState : TWizardState;
 begin
 	Result := [wsEnabled];
 end;
 
+// IOTAWizard
 procedure TDRipExtension.InitKeyboardNotifier;
 begin
 	if not Assigned(FKeyNotifier) then begin
@@ -175,15 +182,33 @@ begin
 end;
 
 procedure TDRipExtension.RemoveExtensionMenu();
+var
+	toolsMenu : TMenu;
+	dripMenuItem : TMenuItem;
 begin
-	var
-	mainMenu := (BorlandIDEServices as INTAServices).MainMenu;
-	for var i := 0 to mainMenu.Items.Count - 1 do begin
-		if CompareText(mainMenu.Items[i].Name, MENUITEM_NAME) = 0 then begin
-			mainMenu.Items.Remove(mainMenu.Items[i]);
-			TDebugUtils.DebugMessage('RemoveExtensionMenu from index ' + i.ToString);
-			break
+	TDebugUtils.DebugMessage('TDRipExtension.RemoveExtensionMenu');
+	toolsMenu := IOTAUTils.FindMenu('ToolsMenu');
+	if toolsMenu <> nil then begin
+		dripMenuItem := IOTAUTils.FindMenuItem(DRIP_MENUITEM_NAME);
+		if dripMenuItem <> nil then begin
+			TDebugUtils.DebugMessage('TDRipExtension.RemoveExtensionMenu - ' + dripMenuItem.Caption);
+			toolsMenu.Items.Remove(dripMenuItem);
 		end;
+	end;
+
+end;
+
+procedure TDRipExtension.ShowDripGrepperForm;
+begin
+	TDebugUtils.DebugMessage('TDRipExtension.ShowDripGrepperForm');
+
+	if not Assigned(FDockableForm) then begin
+		TDebugUtils.DebugMessage('TDRipExtension.ShowDripGrepperForm - Create FDockableForm');
+		FDockableForm := TRipGrepperDockableForm.Instance;
+		TRipGrepperDockableForm.CreateOrShowDockableForm();
+	end else begin
+		TDebugUtils.DebugMessage('TDRipExtension.ShowDripGrepperForm - Show FDockableForm');
+		TRipGrepperDockableForm.CreateOrShowDockableForm();
 	end;
 end;
 

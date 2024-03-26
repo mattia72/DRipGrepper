@@ -63,8 +63,9 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 
 ### Delphi Extension https://github.com/mattia72/DRipGrepper/issues/1
   - [x] dockable window
-  - [ ] high DPI Scaling 
-  - [ ] menu item in Tools
+  - [x] high DPI Scaling 
+  - [x] menu item in Tools
+  - [x] Default shortcut Shift+Alt+R
   - [ ] click on matching file, opens file in the editor on position 
   - [ ] search only in opened files/project files/project group
   - [ ] delphi extension release
@@ -80,7 +81,8 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 ## Thanks
 -  [ripgrep](https://github.com/BurntSushi/ripgrep)
 -  [dprocess](https://stackoverflow.com/a/45029879/2923283): port from freepascal
--  [GExpert](https://www.gexperts.org/download): idea, code and IDE integration framework
+-  [GExpert](https://www.gexperts.org/download)
 -  [dzlib](https://sourceforge.net/p/dzlib/code/HEAD/tree)
 -  [UniSynEdit](https://sourceforge.net/projects/synedit)
 -  [regexpr](https://regex.sorokin.engineer/en/latest/)
+-  [DDevExtensions]( https://github.com/ahausladen/DDevExtensions)
