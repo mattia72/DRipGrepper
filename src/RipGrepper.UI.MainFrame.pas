@@ -506,7 +506,7 @@ end;
 
 procedure TRipGrepperMainFrame.Init;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperMainFrame.InitForm Begin');
+	TDebugUtils.DebugMessage('TRipGrepperMainFrame.Init Begin');
 
 	HistoryObjectList.Clear();
 	if IsStandAlone then begin
@@ -514,7 +514,7 @@ begin
 	end else begin
 		FExeVersion := TFileUtils.GetPackageNameAndVersion(HInstance);
 	end;
-	TDebugUtils.DebugMessage('TRipGrepperMainFrame.InitForm ' + FExeVersion);
+	TDebugUtils.DebugMessage('TRipGrepperMainFrame.Init ' + FExeVersion);
 
 	FFileNameType := ftAbsolute;
 

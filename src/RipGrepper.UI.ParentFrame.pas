@@ -62,7 +62,6 @@ begin
 	inherited;
 	ParentFrame := self;
     Init();
-	Settings.Load;
 end;
 
 destructor TParentFrame.Destroy;
@@ -74,7 +73,7 @@ end;
 procedure TParentFrame.OnClose(Sender : TObject; var Action : TCloseAction);
 begin
 	TDebugUtils.DebugMessage('TFrames.FormClose - begin action:' + Integer(Action).ToString);
-	Settings.Store;
+    Settings.Store;
 end;
 
 procedure TParentFrame.OnShow(Sender : TObject);

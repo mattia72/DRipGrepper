@@ -102,10 +102,23 @@ type
 			property TestFile : TOpenWithParams read FTestFile write FTestFile;
 	end;
 
+	TRipGrepperExtensionSettings = class(TRipGrepperSettingsBase)
+		const
+			INI_SECTION = 'DelphiExtensionSettings';
+
+		private
+			FDripGrepperShortCut : string;
+
+		public
+			procedure Load; override;
+			procedure Store; override;
+			property DripGrepperShortCut : string read FDripGrepperShortCut write FDripGrepperShortCut;
+	end;
+
 	TRipGrepperSettings = class(TRipGrepperSettingsBase)
 		private
 		var
-			FActualSearchPath: string;
+			FActualSearchPath : string;
 			FRipGrepParameters : TRipGrepParameterSettings;
 			FRipGrepperViewSettings : TRipGrepperViewSettings;
 			FRipGrepperOpenWithSettings : TRipGrepperOpenWithSettings;
@@ -113,13 +126,14 @@ type
 			FSearchPathsHistory : TStrings;
 			FSearchTextsHistory : TStrings;
 			FRipGrepArguments : TRipGrepArguments;
-			FSearchPathIsDir: Boolean;
+			FSearchPathIsDir : Boolean;
+			FExtensionSettings : TRipGrepperExtensionSettings;
 		class var
 			function GetActualRipGrepParam : string;
 			function GetActualSearchPath : string;
 			function GetActualSearchText : string;
 			function GetIsEmpty : Boolean;
-			function GetSearchPathIsDir: Boolean;
+			function GetSearchPathIsDir : Boolean;
 			procedure InitSettings;
 			procedure LoadHistoryEntries(var _list : TStrings; const _section : string);
 			procedure SetRipGrepParamsHistory(const Value : TSTrings);
@@ -140,6 +154,7 @@ type
 			property ActualRipGrepParam : string read GetActualRipGrepParam;
 			property ActualSearchPath : string read GetActualSearchPath;
 			property ActualSearchText : string read GetActualSearchText;
+			property ExtensionSettings : TRipGrepperExtensionSettings read FExtensionSettings write FExtensionSettings;
 			property IsEmpty : Boolean read GetIsEmpty;
 
 			property RipGrepParameters : TRipGrepParameterSettings read FRipGrepParameters write FRipGrepParameters;
@@ -147,7 +162,7 @@ type
 			property RipGrepParamsHistory : TSTrings read FRipGrepParamsHistory write SetRipGrepParamsHistory;
 			property RipGrepperOpenWithSettings : TRipGrepperOpenWithSettings read FRipGrepperOpenWithSettings;
 			property RipGrepperViewSettings : TRipGrepperViewSettings read FRipGrepperViewSettings write FRipGrepperViewSettings;
-			property SearchPathIsDir: Boolean read GetSearchPathIsDir;
+			property SearchPathIsDir : Boolean read GetSearchPathIsDir;
 			property SearchTextsHistory : TStrings read FSearchTextsHistory write SetSearchTextsHistory;
 	end;
 
@@ -183,7 +198,8 @@ uses
 	DripExtension.IOTA.Utils,
 	{$ENDIF}
 	RipGrepper.Tools.ProcessUtils,
-	RipGrepper.Helper.UI;
+	RipGrepper.Helper.UI,
+	Vcl.Menus;
 
 function TRipGrepperSettings.GetActualRipGrepParam : string;
 begin
@@ -253,6 +269,7 @@ begin
 	FRipGrepperViewSettings.Free;
 	FRipGrepperOpenWithSettings.Free;
 	FRipGrepParameters.Free;
+	FExtensionSettings.Free;
 	FIniFile.Free;
 	inherited;
 end;
@@ -267,6 +284,7 @@ begin
 	FRipGrepParameters := TRipGrepParameterSettings.Create(FIniFile);
 	FRipGrepperViewSettings := TRipGrepperViewSettings.Create(FIniFile);
 	FRipGrepperOpenWithSettings := TRipGrepperOpenWithSettings.Create(FIniFile);
+	FExtensionSettings := TRipGrepperExtensionSettings.Create(FIniFile);
 	FRipGrepperViewSettings.Init();
 	FSearchPathsHistory := TStringList.Create(dupIgnore, False, True);
 	FSearchTextsHistory := TStringList.Create(dupIgnore, False, True);
@@ -285,7 +303,7 @@ begin
 	Result := FIsModified or FRipGrepParameters.IsModified or FRipGrepperViewSettings.IsModified or FRipGrepperOpenWithSettings.IsModified;
 end;
 
-function TRipGrepperSettings.GetSearchPathIsDir: Boolean;
+function TRipGrepperSettings.GetSearchPathIsDir : Boolean;
 begin
 	Result := FSearchPathIsDir;
 end;
@@ -295,6 +313,7 @@ begin
 	FRipGrepParameters.Load;
 	FRipGrepperViewSettings.Load;
 	FRipGrepperOpenWithSettings.Load;
+	FExtensionSettings.Load;
 
 	LoadHistoryEntries(FSearchPathsHistory, 'SearchPathsHistory');
 	LoadHistoryEntries(FSearchTextsHistory, 'SearchTextsHistory');
@@ -329,6 +348,7 @@ begin
 	if IsLoaded and IsModified then begin
 		FRipGrepperViewSettings.Store;
 		FRipGrepperOpenWithSettings.Store;
+		FExtensionSettings.Store;
 
 		if (FRipGrepParameters.IsModified) then begin
 			FRipGrepParameters.Store;
@@ -661,12 +681,41 @@ begin
 	FIsModified := Value;
 end;
 
+procedure TRipGrepperExtensionSettings.Load;
+
+begin
+	{$IFNDEF STANDALONE}
+	if Assigned(FIniFile) then begin
+		DripGrepperShortCut := FIniFile.ReadString(INI_SECTION, 'DripGrepperShortCut', '');
+		if DripGrepperShortCut = '' then begin
+			DripGrepperShortCut := ShortCutToText(ShortCut(Word('R'), [ssShift, ssAlt]));
+            FIsModified := True;
+		end;
+		FIsLoaded := True;
+	end else begin
+		raise Exception.Create('Settings file is nil!')
+	end;
+	{$ENDIF}
+end;
+
+procedure TRipGrepperExtensionSettings.Store;
+begin
+	{$IFNDEF STANDALONE}
+	if IsLoaded and IsModified then begin
+		FIniFile.WriteString(INI_SECTION, 'DripGrepperShortCut', DripGrepperShortCut);
+		FIsModified := False;
+	end;
+	{$ENDIF}
+end;
+
 initialization
 
 GSettings := TRipGrepperSettings.Create;
+GSettings.Load;
 
 finalization
 
+GSettings.Store;
 GSettings.Free;
 
 end.

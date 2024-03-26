@@ -44,7 +44,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 ![Screenshot](./screenshots/04-02-2024_11-04-47.png)
 
 ### Configuration
-- [x] configuration is stored in ini file
+- [x] configuration is stored in ini file (`DripGrepper.ini` for standalone and `DripExtension*.ini` for the extension)
   - [x] search text history saved
   - [x] search paths history saved
   - [x] `rg` parameter history saved
@@ -64,7 +64,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 ### Delphi Extension https://github.com/mattia72/DRipGrepper/issues/1
   - [x] dockable window
   - [x] high DPI Scaling 
-  - [x] menu item in Tools
+  - [x] menu item in Tools (shortcut configurable in `DripExtension*.ini`)
   - [x] Default shortcut Shift+Alt+R
   - [ ] click on matching file, opens file in the editor on position 
   - [ ] search only in opened files/project files/project group

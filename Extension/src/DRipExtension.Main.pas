@@ -78,7 +78,7 @@ begin
 	TDebugUtils.DebugMessage('TDRipExtension.CreateMenu');
 
 	RemoveExtensionMenu();
-	sc := TextToShortCut(SHORTCUT_DRIPGREPPER);
+	sc := TextToShortCut(GSettings.ExtensionSettings.DripGrepperShortCut);
 	DripMenu := Vcl.Menus.NewItem(GetMenuText + '...', sc, False, True, DoDripGrepperMenuClick, 0,
 		DRIP_MENUITEM_NAME);
 	TDebugUtils.DebugMessage('TDRipExtension.CreateMenu - NewItem ' + DRIP_MENUITEM_NAME);
