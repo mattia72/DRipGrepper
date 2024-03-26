@@ -613,7 +613,7 @@ begin
 {$ENDIF}
 
 {$IFNDEF GX_STANDALONE}
-    Setting := Settings.ReadBool(ConfigurationKey, 'EditorEnhancementsEnabled', False);
+//    Setting := Settings.ReadBool(ConfigurationKey, 'EditorEnhancementsEnabled', False);
 //    EditorEnhancements.Enabled := Setting and not IsStandAlone;
 {$IFDEF STARTUP_LAYOUT_FIX_ENABLED}
     FForceDesktopOnStartup := Settings.ReadBool(ConfigurationKey, 'ForceDesktopOnStartup', False);
