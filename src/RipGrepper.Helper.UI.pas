@@ -10,7 +10,9 @@ uses
 	System.Types,
 	System.Classes,
 	RipGrepper.Common.ParsedObject,
-	Vcl.ExtCtrls;
+	Vcl.ExtCtrls,
+	Vcl.Controls,
+	System.Generics.Collections;
 // Winapi.Messages;
 
 type
@@ -61,15 +63,15 @@ type
 	end;
 
 	TCanvasHelper = class Helper for Vcl.Graphics.TCanvas
-		procedure SetAlteringColors(Item : TListItem);
+		procedure SetAlteringColors(_idx : Integer);
 		procedure SetSelectedColors(State : TOwnerDrawState);
 	end;
 
 	TItemInserter = class
 		public
-		class procedure AddTextToItemsIfNotContains(_cmb : TComboBox);
-		class function AddToListBoxIfNotContains(_lb : TListBox; const _s : string; _val : TObject): Integer;
-			class function AddToSringListIfNotContains(_to, _from : TStrings): Boolean;
+			class procedure AddTextToItemsIfNotContains(_cmb : TComboBox);
+			class function AddToListBoxIfNotContains(_lb : TListBox; const _s : string; _val : TObject) : Integer;
+			class function AddToSringListIfNotContains(_to, _from : TStrings) : Boolean;
 	end;
 
 	TItemDrawer = class
@@ -81,15 +83,17 @@ type
 			class function GetIconBitmap(const sFileName : string; _img : TImage) : Vcl.Graphics.TBitmap;
 	end;
 
-	// TODO
-	TListViewGrouper = class
+	TIconImageList = class
+		FImageList : TImageList;
+		FExtIndexDict : TDictionary<string, integer>;
+		function GetImgIndex(_sFilePath : string) : integer;
+
 		private
-			Grouping : Boolean;
-			ItemGroups : TStrings;
-			Matches : TParsedObjectGroupedRowCollection;
+			FImage : TImage;
 
 		public
-			procedure PutIntoGroup(const _idx : Integer; _lv : TListView; _item : TListItem);
+			constructor Create(_imgList : TImageList);
+			destructor Destroy; override;
 	end;
 
 implementation
@@ -99,7 +103,8 @@ uses
 	Winapi.Windows,
 	Winapi.CommCtrl,
 	RipGrepper.Helper.Types,
-	Winapi.ShellAPI;
+	Winapi.ShellAPI,
+	System.IOUtils;
 
 procedure TListViewHelper.AdjustColumnWidths(var _MaxWidths : TArray<Integer>);
 begin
@@ -134,7 +139,7 @@ end;
 
 procedure TListViewHelper.SetAlteringColors(Item : TListItem);
 begin
-	Self.Canvas.SetAlteringColors(Item);
+	Self.Canvas.SetAlteringColors(Item.Index);
 end;
 
 procedure TListViewHelper.SetSelectedColors(State : TOwnerDrawState);
@@ -239,14 +244,14 @@ begin
 	end;
 end;
 
-procedure TCanvasHelper.SetAlteringColors(Item : TListItem);
+procedure TCanvasHelper.SetAlteringColors(_idx : Integer);
 begin
-	if Odd(Item.Index) then begin
-		self.Font.Color := clBlack;
-		self.Brush.Color := cl3DLight; // clGrayText; // clLtGray;
-	end else begin
+	if Odd(_idx) then begin
 		self.Font.Color := clBlack;
 		self.Brush.Color := clWhite;
+	end else begin
+		self.Font.Color := clBlack;
+		self.Brush.Color := cl3DLight; // clGrayText; // clLtGray;
 	end;
 end;
 
@@ -258,14 +263,16 @@ begin
 	end;
 end;
 
-class function TItemInserter.AddToSringListIfNotContains(_to, _from : TStrings): Boolean;
+class function TItemInserter.AddToSringListIfNotContains(_to, _from : TStrings) : Boolean;
 var
 	bIsModified : Boolean;
 begin
 	bIsModified := False;
 	for var i : integer := 0 to _from.Count - 1 do begin
-		var s : string := _from[i];
-		var idx : integer := _to.IndexOf(s);
+		var
+			s : string := _from[i];
+		var
+			idx : integer := _to.IndexOf(s);
 		if i <> idx then begin
 			if idx = -1 then begin
 				_to.Insert(0, s);
@@ -276,7 +283,7 @@ begin
 			bIsModified := True;
 		end;
 	end;
-    Result := bIsModified
+	Result := bIsModified
 end;
 
 class procedure TItemInserter.AddTextToItemsIfNotContains(_cmb : TComboBox);
@@ -295,7 +302,7 @@ begin
 	end;
 end;
 
-class function TItemInserter.AddToListBoxIfNotContains(_lb : TListBox; const _s : string; _val : TObject): Integer;
+class function TItemInserter.AddToListBoxIfNotContains(_lb : TListBox; const _s : string; _val : TObject) : Integer;
 var
 	idxval : Integer;
 	val : string;
@@ -377,26 +384,6 @@ begin
 	dec(result.Bottom, Y1);
 end;
 
-procedure TListViewGrouper.PutIntoGroup(const _idx : Integer; _lv : TListView; _item : TListItem);
-begin
-	if not Grouping then
-		Exit;
-
-	// if ItemGroups.Contains(Matches.Items[_idx].Columns[Integer(ciFile)].Text) then begin
-	// _item.GroupID := Matches[_idx].GroupID;
-	// end else begin
-	// var
-	// Group := _lv.Groups.Add;
-	// Group.State := [lgsNormal, lgsCollapsible];
-	// Group.Header := Matches[_idx].FileName;
-	// var
-	// match := Matches[_idx];
-	// match.GroupID := Group.GroupID;
-	// Matches[_idx] := match;
-	// ItemGroups.Add(Matches[_idx].FileName);
-	// end;
-end;
-
 class function TWidthHelper.TrueFontWidth(fnt : TFont; const text : string) : Integer;
 var
 	dc : hdc;
@@ -418,6 +405,33 @@ end;
 class operator TBeginEndUpdater.Finalize(var Dest : TBeginEndUpdater);
 begin
 	Dest.ListBox.Items.EndUpdate;
+end;
+
+constructor TIconImageList.Create(_imgList : TImageList);
+begin
+	inherited Create();
+	FImageList := _imgList;
+	FExtIndexDict := TDictionary<string, integer>.Create;
+	FImage := TImage.Create(nil);
+end;
+
+destructor TIconImageList.Destroy;
+begin
+	FExtIndexDict.Free;
+	FImage.Free;
+	inherited;
+end;
+
+function TIconImageList.GetImgIndex(_sFilePath : string) : integer;
+var
+	sExtension : string;
+	bmp : Vcl.Graphics.TBitmap;
+begin
+	sExtension := TPath.GetExtension(_sFilePath);
+	if not FExtIndexDict.TryGetValue(sExtension, Result) then begin
+		bmp := TItemDrawer.GetIconBitmap(_sFilePath, FImage);
+		FExtIndexDict.Add(sExtension, FImageList.AddMasked(bmp, clWhite));
+	end;
 end;
 
 end.

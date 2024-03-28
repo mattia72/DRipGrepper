@@ -20,7 +20,7 @@ object ParentFrame: TParentFrame
     Margins.Bottom = 8
     Align = alTop
     TabOrder = 0
-  end
+      end
   inline MainFrame: TRipGrepperMainFrame
     Left = 0
     Top = 31
@@ -32,7 +32,7 @@ object ParentFrame: TParentFrame
     Margins.Bottom = 8
     Align = alClient
     TabOrder = 1
-  end
+      end
   inline BottomFrame: TRipGrepperBottomFrame
     Left = 0
     Top = 682
@@ -44,5 +44,5 @@ object ParentFrame: TParentFrame
     Margins.Bottom = 20
     Align = alBottom
     TabOrder = 2
-  end
+      end
 end

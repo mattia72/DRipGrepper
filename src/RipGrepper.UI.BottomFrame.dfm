@@ -9,6 +9,7 @@ object RipGrepperBottomFrame: TRipGrepperBottomFrame
   Margins.Bottom = 8
   Align = alBottom
   TabOrder = 0
+  OnResize = FrameResize
   object pnlBottom: TPanel
     Left = 0
     Top = 0
@@ -52,8 +53,8 @@ object RipGrepperBottomFrame: TRipGrepperBottomFrame
         end>
     end
     object ActivityIndicator1: TActivityIndicator
-      Left = 735
-      Top = 0
+      Left = 314
+      Top = 3
       Margins.Left = 0
       Margins.Top = 0
       Margins.Right = 0

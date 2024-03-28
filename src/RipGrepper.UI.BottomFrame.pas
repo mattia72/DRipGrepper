@@ -26,6 +26,7 @@ type
 		ActionList : TActionList;
 		ActionStatusBar : TAction;
 		procedure ActionStatusBarUpdate(Sender : TObject);
+		procedure FrameResize(Sender: TObject);
 
 		public
 			{ Public-Deklarationen }
@@ -33,6 +34,8 @@ type
 			FStatusBarStatistic : string;
 			FStatusBarStatus : string;
 		constructor Create(AOwner: TComponent); override;
+		procedure SetRunningStatus;
+		procedure SetReadyStatus;
 	end;
 
 var
@@ -41,7 +44,7 @@ var
 implementation
 
 uses
-	RipGrepper.Common.Types;
+	RipGrepper.Common.Types, RipGrepper.UI.MiddleFrame;
 
 {$R *.dfm}
 
@@ -56,6 +59,25 @@ begin
 	StatusBar1.Panels[PNL_MESSAGE_IDX].Text := FStatusBarMessage;
 	StatusBar1.Panels[PNL_STATUS_IDX].Text := FStatusBarStatus;
 	StatusBar1.Panels[PNL_STATTS_IDX].Text := FStatusBarStatistic;
+end;
+
+procedure TRipGrepperBottomFrame.FrameResize(Sender: TObject);
+begin
+	var width := MainFrame.PanelHistory.Width;
+	StatusBar1.Panels[0].Width := width;
+	ActivityIndicator1.Left := width + 5
+end;
+
+procedure TRipGrepperBottomFrame.SetRunningStatus;
+begin
+	ActivityIndicator1.Animate := True;
+	FStatusBarStatus := 'RUNNING';
+end;
+
+procedure TRipGrepperBottomFrame.SetReadyStatus;
+begin
+	ActivityIndicator1.Animate := False;
+	FStatusBarStatus := 'READY';
 end;
 
 end.

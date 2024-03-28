@@ -33,6 +33,8 @@ type
 			function GetErrorCount : Integer;
 			function GetHistObject : THistoryItemObject;
 			function GetListItemCount : Integer;
+			function GetParentNode(const _sFilePath : string) : PVirtualNode;
+			procedure AddChildNode(const _parentNode : PVirtualNode; _item : IParsedObjectRow);
 			procedure SetHistObject(const Value : THistoryItemObject);
 			procedure SortMultiColumns(const _st : TSortDirectionType);
 
@@ -41,7 +43,8 @@ type
 			destructor Destroy; override;
 			procedure Add(_item : IParsedObjectRow);
 			procedure ClearMatchFiles;
-			procedure DataToGrid(const _index : Integer; _lv : TListView; _item : TListItem);
+			procedure DataToGrid(const _index : Integer; _lv : TListView; _item : TListItem); overload;
+			procedure DataToGrid; overload;
 			procedure SortBy(const _sbt : TSortByType; const _st : TSortDirectionType);
 			property ErrorCount : Integer read GetErrorCount;
 			property TotalMatchCount : Integer read GetTotalMatchCount;
@@ -75,7 +78,7 @@ end;
 
 procedure TRipGrepperData.Add(_item : IParsedObjectRow);
 var
-	vstNode : TVSFileNodeData;
+	nodeData : TVSFileNodeData;
 	node : PVirtualNode;
 	sFile : string;
 begin
@@ -87,22 +90,11 @@ begin
 			Exit
 		end else begin
 			sFile := _item.Columns[0].Text;
-			var
-			idx := MatchFiles.IndexOf(sFile);
-			if idx < 0 then begin
-				vstNode := TVSFileNodeData.New(_item.Columns[0].Text);
-				node := AddVSTStructure(nil, vstNode);
-				MatchFiles.AddObject(sFile, TObject(node));
-			end else begin
-				node := PVirtualNode(MatchFiles.Objects[idx]);
-			end
+			node := GetParentNode(sFile);
 		end;
 
-		vstNode := TVSFileNodeData.New('',
-			{ } StrToIntDef(_item.Columns[1].Text, -1),
-			{ } StrToIntDef(_item.Columns[2].Text, -1),
-			{ } _item.Columns[3].Text);
-		AddVSTStructure(node, vstNode);
+		AddChildNode(node, _item);
+
 	finally
 		FVst.EndUpdate;
 	end;
@@ -148,6 +140,27 @@ begin
 		_item.SubItems.Add(matchItems[_index].Columns[1].Text);
 		_item.SubItems.Add(matchItems[_index].Columns[2].Text);
 		_item.SubItems.Add(matchItems[_index].Columns[3].Text);
+	finally
+		{$IFDEF THREADSAFE_LIST}
+		HistObject.Matches.Unlock;
+		{$ENDIF}
+	end;
+end;
+
+procedure TRipGrepperData.DataToGrid;
+var
+	node : PVirtualNode;
+	sFile : string;
+	matchItems : TListType;
+begin
+	MatchFiles.Clear;
+	matchItems := HistObject.Matches.Items;
+	try
+		for var item in matchItems do begin
+			sFile := item.Columns[0].Text;
+			node := GetParentNode(sFile);
+			AddChildNode(node, item);
+		end;
 	finally
 		{$IFDEF THREADSAFE_LIST}
 		HistObject.Matches.Unlock;
@@ -214,6 +227,34 @@ end;
 function TRipGrepperData.GetListItemCount : Integer;
 begin
 	Result := TotalMatchCount + ErrorCount;
+end;
+
+function TRipGrepperData.GetParentNode(const _sFilePath : string) : PVirtualNode;
+
+var
+	nodeData : TVSFileNodeData;
+begin
+	var
+	idx := MatchFiles.IndexOf(_sFilePath);
+	if idx < 0 then begin
+		nodeData := TVSFileNodeData.New(_sFilePath);
+		Result := AddVSTStructure(nil, nodeData);
+		MatchFiles.AddObject(_sFilePath, TObject(Result));
+	end else begin
+		Result := PVirtualNode(MatchFiles.Objects[idx]);
+	end;
+
+end;
+
+procedure TRipGrepperData.AddChildNode(const _parentNode : PVirtualNode; _item : IParsedObjectRow);
+var
+	nodeData : TVSFileNodeData;
+begin
+	nodeData := TVSFileNodeData.New('',
+	{ } StrToIntDef(_item.Columns[1].Text, -1),
+	{ } StrToIntDef(_item.Columns[2].Text, -1),
+	{ } _item.Columns[3].Text);
+	AddVSTStructure(_parentNode, nodeData);
 end;
 
 procedure TRipGrepperData.SetHistObject(const Value : THistoryItemObject);

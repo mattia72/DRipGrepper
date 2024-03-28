@@ -19,16 +19,6 @@ object RipGrepperMainFrame: TRipGrepperMainFrame
     BevelOuter = bvNone
     Caption = 'panelMain'
     TabOrder = 0
-    object ImageFileIcon: TImage
-      Left = 1528
-      Top = 753
-      Width = 112
-      Height = 152
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
-    end
     object SplitView1: TSplitView
       Left = 0
       Top = 0
@@ -107,13 +97,19 @@ object RipGrepperMainFrame: TRipGrepperMainFrame
           Align = alClient
           Header.AutoSizeIndex = 3
           Header.Options = [hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible, hoAutoResizeInclCaption]
+          Images = ImageListListView
+          PopupMenu = PopupMenu1
           TabOrder = 0
           TreeOptions.AutoOptions = [toAutoDropExpand, toAutoExpand, toAutoScrollOnExpand, toAutoSort, toAutoSpanColumns, toAutoTristateTracking, toAutoHideButtons, toAutoDeleteMovedNodes, toAutoChangeScale]
           TreeOptions.SelectionOptions = [toFullRowSelect]
+          OnBeforeCellPaint = VstResultBeforeCellPaint
+          OnCompareNodes = VstResultCompareNodes
           OnDrawText = VstResultDrawText
           OnFreeNode = VstResultFreeNode
           OnGetText = VstResultGetText
           OnPaintText = VstResultPaintText
+          OnGetImageIndex = VstResultGetImageIndex
+          OnHeaderClick = VstResultHeaderClick
           Touch.InteractiveGestures = [igPan, igPressAndTap]
           Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
           Columns = <

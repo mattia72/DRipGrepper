@@ -16,12 +16,13 @@ uses
 	RipGrepper.UI.BottomFrame,
 	RipGrepper.Common.Settings,
 	u_dzDpiScaleUtils,
-	RipGrepper.UI.MiddleFrame;
+	RipGrepper.UI.MiddleFrame,
+	VirtualTrees;
 
 type
 	TParentFrame = class(TFrame)
 		BottomFrame : TRipGrepperBottomFrame;
-    	MainFrame: TRipGrepperMainFrame;
+		MainFrame : TRipGrepperMainFrame;
 		TopFrame : TRipGrepperTopFrame;
 
 		private
@@ -61,19 +62,19 @@ constructor TParentFrame.Create(AOwner : TComponent);
 begin
 	inherited;
 	ParentFrame := self;
-    Init();
+	Init();
 end;
 
 destructor TParentFrame.Destroy;
 begin
-//
+	//
 	inherited;
 end;
 
 procedure TParentFrame.OnClose(Sender : TObject; var Action : TCloseAction);
 begin
 	TDebugUtils.DebugMessage('TFrames.FormClose - begin action:' + Integer(Action).ToString);
-    Settings.Store;
+	Settings.Store;
 end;
 
 procedure TParentFrame.OnShow(Sender : TObject);

@@ -58,6 +58,9 @@ type
 		ToolButton5 : TToolButton;
 		ToolButton6 : TToolButton;
 		tbConfigure : TToolButton;
+		tbExpandCollapse : TToolButton;
+		ActionExpandCollapse : TAction;
+    ToolButton7: TToolButton;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlternateRowColorsExecute(Sender : TObject);
@@ -68,6 +71,7 @@ type
 		procedure ActionConfigExecute(Sender : TObject);
 		procedure ActionCopyFileNameExecute(Sender : TObject);
 		procedure ActionCopyPathToClipboardExecute(Sender : TObject);
+		procedure ActionExpandCollapseExecute(Sender : TObject);
 		procedure ActionIndentLineExecute(Sender : TObject);
 		procedure ActionIndentLineUpdate(Sender : TObject);
 		procedure ActionOpenWithExecute(Sender : TObject);
@@ -186,6 +190,17 @@ begin
 	MainFrame.CopyToClipboardPathOfSelected();
 end;
 
+procedure TRipGrepperTopFrame.ActionExpandCollapseExecute(Sender : TObject);
+begin
+	if ActionExpandCollapse.ImageIndex = 22 then begin
+		MainFrame.VstResult.FullExpand();
+		ActionExpandCollapse.ImageIndex := 23;
+	end else begin
+		MainFrame.VstResult.FullCollapse();
+		ActionExpandCollapse.ImageIndex := 22;
+	end;
+end;
+
 procedure TRipGrepperTopFrame.ActionIndentLineExecute(Sender : TObject);
 begin
 	Settings.RipGrepperViewSettings.IndentLines := not Settings.RipGrepperViewSettings.IndentLines;
@@ -256,7 +271,7 @@ begin
 	MainFrame.FileNameType := PARSER_TYPES[idx mod Length(PARSER_TYPES)];
 	var
 	arr := MainFrame.MaxWidths;
-	//MainFrame.VstResult.InitMaxWidths(arr);
+	// MainFrame.VstResult.InitMaxWidths(arr);
 	MainFrame.MaxWidths := arr;
 	Settings.StoreViewSettings('ShowRelativePath');
 	MainFrame.VstResult.Repaint;
@@ -298,7 +313,7 @@ var
 	idx : integer;
 begin
 	idx := GetNextViewStyleIdx;
-	//MainFrame.VstResult.ViewStyle := LISTVIEW_TYPES[idx];
+	// MainFrame.VstResult.ViewStyle := LISTVIEW_TYPES[idx];
 	FViewStyleIndex := idx;
 end;
 

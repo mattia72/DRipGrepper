@@ -12,21 +12,24 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
   - [ ] --pretty parser matching lines with colorized match position
   - [ ] --stats parser eg. msgbox on end with search statistics
   - [ ] no match parser
-- [x] toolbar buttons to show/hide
-  - [x] icons
+- [x] toolbar buttons to 
+  - [x] expand / collapse tree
+  - [x] show/hide icons
   - [x] full/relative path
   - [x] alternate row colors
 - [x] copy `rg` command line into clipboard
-- [x] sorting by path and row
-- [ ] sorting by column and text 
-- [ ] grouping by path: only for limited match line.
+- [x] sorting by path 
+- [x] sorting by row
+- [x] sorting by col
+- [x] sorting by tex
+- [x] grouping by path
 - [ ] file handling (eg. open in explorer, copy, rename, delete)
 - [ ] replace text in files --replace=TEXT
 
 ### :mag: Search Dialog
 - [x] help parametrizing `rg` in search dialog
   - [x] filter help texts: can't be selected 
-  - [ ] filter not appropriate parameters
+  - [ ] expert mode or not appropriate parameters will be filtered 
   - [ ] quick buttons for
     - [ ] --ignore-case
     - [ ] --case-sensitive
@@ -36,8 +39,8 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 
 ### :rocket: Open with...
 - [x] show configured editors to open matching file on matching position
-   - [x] on double click
-   - [x] with menu / toolbar
+   - [ ] on double click
+   - [ ] with menu / toolbar
 - [ ] separate editor for distinct extensions
 
 ### Configure Open with...

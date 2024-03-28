@@ -31,7 +31,8 @@ uses
 	System.Diagnostics,
 	RipGrepper.Common.Types,
 	System.Threading,
-	VirtualTrees;
+	VirtualTrees,
+	RipGrepper.Helper.UI;
 
 type
 	TRipGrepperMainFrame = class(TFrame, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
@@ -61,7 +62,6 @@ type
 		CopyPathToClipboard : TMenuItem;
 		ImageListListView : TImageList;
 		panelMain : TPanel;
-		ImageFileIcon : TImage;
 		SplitView1 : TSplitView;
 		Splitter1 : TSplitter;
 		PanelHistory : TPanel;
@@ -78,17 +78,23 @@ type
 		procedure ListBoxSearchHistoryDblClick(Sender : TObject);
 		procedure ListBoxSearchHistoryDrawItem(Control : TWinControl; Index : Integer; Rect : TRect; State : TOwnerDrawState);
 		procedure ListViewResultDblClick(Sender : TObject);
+		procedure VstResultBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
+			CellPaintMode : TVTCellPaintMode; CellRect : TRect; var ContentRect : TRect);
+		procedure VstResultCompareNodes(Sender : TBaseVirtualTree; Node1, Node2 : PVirtualNode; Column : TColumnIndex;
+			var Result : Integer);
 		procedure VstResultDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
 			const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
 		procedure VstResultFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
+		procedure VstResultGetImageIndex(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind; Column : TColumnIndex;
+			var Ghosted : Boolean; var ImageIndex : TImageIndex);
 		procedure VstResultGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType;
 			var CellText : string);
+		procedure VstResultHeaderClick(Sender : TVTHeader; HitInfo : TVTHeaderHitInfo);
 		procedure VstResultPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
 			TextType : TVSTTextType);
 
 		private
 			FAbortSearch : Boolean;
-			FColumnSortTypes : TArray<TSortDirectionType>;
 			FCurrentHistoryItemIndex : Integer;
 			FData : TRipGrepperData;
 			FExeVersion : string;
@@ -101,6 +107,7 @@ type
 			FRipGrepTask : ITask;
 			FSettings : TRipGrepperSettings;
 			FswSearchStart : TStopwatch;
+			FIconImgList : TIconImageList;
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
 			function GetCounterText(data : THistoryItemObject) : string;
 			function GetData : TRipGrepperData;
@@ -108,7 +115,6 @@ type
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
 			function GetHistoryObjectList : TStringList;
 			function GetSettings : TRipGrepperSettings;
-			procedure InitColumnSortTypes;
 			procedure LoadBeforeSearchSettings;
 			procedure OnLastLine(const _iLineNr : integer);
 			procedure RefreshCounters;
@@ -130,6 +136,7 @@ type
 			procedure CopyToClipboardFileOfSelected;
 			procedure CopyToClipboardPathOfSelected;
 			procedure DoSearch;
+			function GetFilePathFromNode(_node : PVirtualNode) : string;
 			function GetOpenWithParamsFromSelected : TOpenWithParams;
 			function GetRowColText(_i : Integer; _type : TVSTTextType) : string;
 			procedure Init;
@@ -165,7 +172,7 @@ uses
 	RipGrepper.OpenWith,
 	System.StrUtils,
 	RipGrepper.Tools.DebugTools,
-	RipGrepper.Helper.UI,
+
 	System.IOUtils,
 	Vcl.Clipbrd,
 	Winapi.CommCtrl,
@@ -187,6 +194,7 @@ constructor TRipGrepperMainFrame.Create(AOwner : TComponent);
 begin
 	inherited;
 	TDebugUtils.DebugMessage('TRipGrepperMainFrame.Create ' + AOwner.Name);
+	FIconImgList := TIconImageList.Create(ImageListListView);
 	MainFrame := self;
 end;
 
@@ -208,6 +216,7 @@ begin
 	end;
 	FHistoryObjectList.Free;
 	FData.Free;
+	FIconImgList.Free;
 
 	inherited;
 end;
@@ -277,27 +286,23 @@ end;
 procedure TRipGrepperMainFrame.CopyToClipboardFileOfSelected;
 var
 	node : PVirtualNode;
-	data : PVSFileNodeData;
 begin
 	node := VstResult.GetFirstSelected();
 	if not Assigned(node) then
 		Exit;
 
-	data := VstResult.GetNodeData(node);
-	Clipboard.AsText := TPath.GetFileName(data.FilePath);
+	Clipboard.AsText := TPath.GetFileName(GetFilePathFromNode(node));
 end;
 
 procedure TRipGrepperMainFrame.CopyToClipboardPathOfSelected;
 var
 	node : PVirtualNode;
-	data : PVSFileNodeData;
 begin
 	node := VstResult.GetFirstSelected();
 	if not Assigned(node) then
 		Exit;
 
-	data := VstResult.GetNodeData(node);
-	Clipboard.AsText := TPath.GetFullPath(data.FilePath);
+	Clipboard.AsText := TPath.GetFullPath(GetFilePathFromNode(node));
 end;
 
 procedure TRipGrepperMainFrame.DoSearch;
@@ -344,6 +349,18 @@ begin
 		FData := TRipGrepperData.Create(VstResult);
 	end;
 	Result := FData;
+end;
+
+function TRipGrepperMainFrame.GetFilePathFromNode(_node : PVirtualNode) : string;
+var
+	data : PVSFileNodeData;
+begin
+	if _node.ChildCount = 0 then begin
+		data := VstResult.GetNodeData(_node.Parent);
+	end else begin
+		data := VstResult.GetNodeData(_node);
+	end;
+	Result := data.FilePath;
 end;
 
 function TRipGrepperMainFrame.GetHistObject : THistoryItemObject;
@@ -412,11 +429,6 @@ begin
 	Result := FSettings;
 end;
 
-procedure TRipGrepperMainFrame.InitColumnSortTypes;
-begin
-	FColumnSortTypes := [stUnsorted, stUnsorted, stUnsorted, stUnsorted];
-end;
-
 procedure TRipGrepperMainFrame.Init;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperMainFrame.Init Begin');
@@ -430,8 +442,6 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperMainFrame.Init ' + FExeVersion);
 
 	FFileNameType := ftAbsolute;
-
-	InitColumnSortTypes;
 
 	// ListViewResult.InitMaxWidths(FMaxWidths);
 
@@ -451,8 +461,6 @@ begin
 	FswSearchStart := TStopwatch.Create();
 	FMeassureFirstDrawEvent := True;
 	ParentFrame.InitStatusBar;
-	InitColumnSortTypes;
-
 	// ListViewResult.Repaint();
 	LoadBeforeSearchSettings();
 end;
@@ -668,16 +676,16 @@ begin
 			TDebugUtils.DebugMessage(Format('rg.exe ended in %s sec.', [FHistObject.ElapsedTimeText]));
 		end);
 	FRipGrepTask.Start;
-	BottomFrame.ActivityIndicator1.Animate := True;
+	BottomFrame.SetRunningStatus();
 end;
 
 procedure TRipGrepperMainFrame.SetColumnWidths;
 begin
 	// TListView_Resize(ListViewResult);
-//	ListView_SetColumnWidth(ListViewResult.Handle, 0, ColumnTextWidth);
-//	ListView_SetColumnWidth(ListViewResult.Handle, 1, ColumnHeaderWidth);
-//	ListView_SetColumnWidth(ListViewResult.Handle, 2, ColumnHeaderWidth);
-//	ListView_SetColumnWidth(ListViewResult.Handle, 3, ColumnTextWidth);
+	// ListView_SetColumnWidth(ListViewResult.Handle, 0, ColumnTextWidth);
+	// ListView_SetColumnWidth(ListViewResult.Handle, 1, ColumnHeaderWidth);
+	// ListView_SetColumnWidth(ListViewResult.Handle, 2, ColumnHeaderWidth);
+	// ListView_SetColumnWidth(ListViewResult.Handle, 3, ColumnTextWidth);
 end;
 
 procedure TRipGrepperMainFrame.SetHistObject(const Value : THistoryItemObject);
@@ -690,11 +698,10 @@ begin
 	TThread.Synchronize(nil, // Refresh listview on history click
 		procedure
 		begin
-//			ListViewResult.Items.Count := 0;
+			VstResult.Clear;
 			ChangeDataHistItemObject(FHistObject);
-			var
-			matchItems := FHistObject.Matches.Items;
-//			ListViewResult.Items.Count := matchItems.Count + FHistObject.ErrorCount;
+            Data.DataToGrid;
+			// ListViewResult.Items.Count := matchItems.Count + FHistObject.ErrorCount;
 			{$IFDEF THREADSAFE_LIST}
 			FHistObject.Matches.Unlock;
 			{$ENDIF}
@@ -719,6 +726,40 @@ begin
 	FHistObject.RipGrepArguments.Clear;
 	Settings.ReBuildArguments();
 	FHistObject.CopyRipGrepArgsFromSettings(Settings);
+end;
+
+procedure TRipGrepperMainFrame.VstResultBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
+Column : TColumnIndex; CellPaintMode : TVTCellPaintMode; CellRect : TRect; var ContentRect : TRect);
+begin
+	if Settings.RipGrepperViewSettings.AlternateRowColors and (Node.ChildCount = 0) then begin
+		TargetCanvas.SetAlteringColors(Node.Index);
+	end;
+
+	TargetCanvas.FillRect(CellRect);
+end;
+
+procedure TRipGrepperMainFrame.VstResultCompareNodes(Sender : TBaseVirtualTree; Node1, Node2 : PVirtualNode; Column : TColumnIndex;
+var Result : Integer);
+var
+	Data1 : PVSFileNodeData;
+	Data2 : PVSFileNodeData;
+begin
+	Data1 := VstResult.GetNodeData(Node1);
+	Data2 := VstResult.GetNodeData(Node2);
+	if (not Assigned(Data1)) or (not Assigned(Data2)) then
+		Result := 0
+	else
+		case Column of
+			0 :
+			Result := CompareText(Data1.FilePath, Data2.FilePath);
+			1 :
+			Result := CompareValue(Data1.MatchData.Row, Data2.MatchData.Row);
+			2 :
+			Result := CompareValue(Data1.MatchData.Col, Data2.MatchData.Col);
+			3 :
+			Result := CompareText(Data1.MatchData.MatchText, Data2.MatchData.MatchText);
+
+		end;
 end;
 
 procedure TRipGrepperMainFrame.VstResultDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
@@ -767,24 +808,44 @@ begin
 	NodeData^.MatchData.Free;
 end;
 
+procedure TRipGrepperMainFrame.VstResultGetImageIndex(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind;
+Column : TColumnIndex; var Ghosted : Boolean; var ImageIndex : TImageIndex);
+var
+	nodeData : PVSFileNodeData;
+begin
+	if not Settings.RipGrepperViewSettings.ShowFileIcon then
+		Exit;
+
+	if Node.ChildCount > 0 then begin
+		nodeData := Sender.GetNodeData(Node);
+		case Kind of
+			ikNormal, ikSelected :
+			case Column of
+				0 :
+				ImageIndex := FIconImgList.GetImgIndex(nodeData^.FilePath);
+			end;
+		end;
+	end;
+end;
+
 procedure TRipGrepperMainFrame.VstResultGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
 TextType : TVSTTextType; var CellText : string);
 var
-	NodeData : PVSFileNodeData;
+	nodeData : PVSFileNodeData;
 begin
-	NodeData := Sender.GetNodeData(Node);
+	nodeData := Sender.GetNodeData(Node);
 	// return identifier of the node
-	CellText := NodeData^.FilePath;
+	CellText := nodeData^.FilePath;
 
 	// return the the identifier of the node
-	if NodeData.MatchData = nil then
+	if nodeData^.MatchData = nil then
 		CellText := ''
 	else begin
 
 		case Column of
 			- 1, 0 : begin // main column, -1 if columns are hidden, 0 if they are shown
 				if TextType = ttNormal then begin
-					CellText := NodeData.FilePath;
+					CellText := GetAbsOrRelativePath(nodeData^.FilePath);
 				end else begin // ttStatic
 					CellText := '';
 					if Node.ChildCount > 0 then begin
@@ -793,14 +854,37 @@ begin
 				end;
 			end;
 			1 : begin
-				CellText := GetRowColText(NodeData.MatchData.Row, TextType);
+				CellText := GetRowColText(nodeData.MatchData.Row, TextType);
 			end;
-			2 :
-			CellText := GetRowColText(NodeData.MatchData.Col, TextType);
-			3 :
-			CellText := IfThen(TextType = ttNormal, NodeData.MatchData.MatchText);
+			2 : begin
+				CellText := GetRowColText(nodeData.MatchData.Col, TextType);
+			end;
+			3 : begin
+				CellText := IfThen(TextType = ttNormal, nodeData.MatchData.MatchText);
+				if not Settings.RipGrepperViewSettings.IndentLines then begin
+					CellText := CellText.TrimLeft;
+				end;
+			end;
+
 		end;
 	end;
+end;
+
+procedure TRipGrepperMainFrame.VstResultHeaderClick(Sender : TVTHeader; HitInfo : TVTHeaderHitInfo);
+begin
+	// Don't call sorting procedure on right click
+	// Some list-headers have a contextmenu which should popup then.
+	if HitInfo.Button = mbRight then
+		Exit;
+
+	VstResult.SortTree(HitInfo.Column, Sender.SortDirection);
+
+	if Sender.SortColumn <> HitInfo.Column then
+		Sender.SortColumn := HitInfo.Column
+	else if Sender.SortDirection = sdAscending then
+		Sender.SortDirection := sdDescending
+	else
+		Sender.SortDirection := sdAscending;
 end;
 
 procedure TRipGrepperMainFrame.VstResultPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode;
