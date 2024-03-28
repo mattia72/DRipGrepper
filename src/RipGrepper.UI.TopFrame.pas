@@ -19,7 +19,7 @@ uses
 	System.Actions,
 	Vcl.ActnList,
 	RipGrepper.Common.Settings,
-	RipGrepper.UI.MainFrame,
+	RipGrepper.UI.MiddleFrame,
 	RipGrepper.UI.DpiScaler;
 
 type
@@ -143,7 +143,7 @@ procedure TRipGrepperTopFrame.ActionAlternateRowColorsExecute(Sender : TObject);
 begin
 	Settings.RipGrepperViewSettings.AlternateRowColors := (not Settings.RipGrepperViewSettings.AlternateRowColors);
 	Settings.StoreViewSettings('AlternateRowColors');
-	MainFrame.ListViewResult.Repaint();
+	MainFrame.VstResult.Repaint();
 end;
 
 procedure TRipGrepperTopFrame.ActionAlternateRowColorsUpdate(Sender : TObject);
@@ -190,7 +190,7 @@ procedure TRipGrepperTopFrame.ActionIndentLineExecute(Sender : TObject);
 begin
 	Settings.RipGrepperViewSettings.IndentLines := not Settings.RipGrepperViewSettings.IndentLines;
 	Settings.StoreViewSettings('IndentLines');
-	MainFrame.ListViewResult.Repaint();
+	MainFrame.VstResult.Repaint();
 end;
 
 procedure TRipGrepperTopFrame.ActionIndentLineUpdate(Sender : TObject);
@@ -237,7 +237,7 @@ procedure TRipGrepperTopFrame.ActionShowFileIconsExecute(Sender : TObject);
 begin
 	Settings.RipGrepperViewSettings.ShowFileIcon := not Settings.RipGrepperViewSettings.ShowFileIcon;
 	Settings.StoreViewSettings('ShowFileIcon');
-	MainFrame.ListViewResult.Repaint();
+	MainFrame.VstResult.Repaint();
 end;
 
 procedure TRipGrepperTopFrame.ActionShowFileIconsUpdate(Sender : TObject);
@@ -256,10 +256,10 @@ begin
 	MainFrame.FileNameType := PARSER_TYPES[idx mod Length(PARSER_TYPES)];
 	var
 	arr := MainFrame.MaxWidths;
-	MainFrame.ListViewResult.InitMaxWidths(arr);
+	//MainFrame.VstResult.InitMaxWidths(arr);
 	MainFrame.MaxWidths := arr;
 	Settings.StoreViewSettings('ShowRelativePath');
-	MainFrame.ListViewResult.Repaint;
+	MainFrame.VstResult.Repaint;
 end;
 
 procedure TRipGrepperTopFrame.ActionShowRelativePathUpdate(Sender : TObject);
@@ -298,7 +298,7 @@ var
 	idx : integer;
 begin
 	idx := GetNextViewStyleIdx;
-	MainFrame.ListViewResult.ViewStyle := LISTVIEW_TYPES[idx];
+	//MainFrame.VstResult.ViewStyle := LISTVIEW_TYPES[idx];
 	FViewStyleIndex := idx;
 end;
 

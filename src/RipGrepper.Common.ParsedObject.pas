@@ -9,6 +9,28 @@ uses
 	System.Classes;
 
 type
+    TVSMatchData = class
+		Row : integer;
+		Col : integer;
+		MatchText : string;
+		public
+			constructor Create(_row, _col : Integer; _matchText : string);
+	end;
+
+	PVSMatchData = ^TVSMatchData;
+
+	TVSFileNodeData = record
+		FilePath : string;
+		// Icon?
+		MatchData : TVSMatchData;
+		public
+			class function New(_file : string; _row : Integer = -1; _col : Integer = -1; _matchText : string = '')
+				: TVSFileNodeData; static;
+	end;
+
+	PVSFileNodeData = ^TVSFileNodeData;
+
+	// ---------
 	TColumnData = record
 		Title : string;
 		Text : string;
@@ -236,6 +258,19 @@ end;
 procedure TParsedObjectGroupedRowCollection.SetGroupId(const Value : Integer);
 begin
 	FGroupId := Value;
+end;
+
+class function TVSFileNodeData.New(_file : string; _row : Integer = -1; _col : Integer = -1; _matchText : string = '') : TVSFileNodeData;
+begin
+	Result.FilePath := _file;
+	Result.MatchData := TVSMatchData.Create(_row, _col, _matchText);
+end;
+
+constructor TVSMatchData.Create(_row, _col : Integer; _matchText : string);
+begin
+	Row := _row;
+	Col := _col;
+	MatchText := _matchText;
 end;
 
 end.

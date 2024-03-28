@@ -20,9 +20,6 @@ object ParentFrame: TParentFrame
     Margins.Bottom = 8
     Align = alTop
     TabOrder = 0
-    inherited ToolBar1: TToolBar
-      Width = 1447
-    end
   end
   inline MainFrame: TRipGrepperMainFrame
     Left = 0
@@ -35,25 +32,6 @@ object ParentFrame: TParentFrame
     Margins.Bottom = 8
     Align = alClient
     TabOrder = 1
-    inherited panelMain: TPanel
-      Width = 1447
-      Height = 645
-      inherited SplitView1: TSplitView
-        Height = 645
-        inherited Splitter1: TSplitter
-          Height = 645
-        end
-        inherited PanelHistory: TPanel
-          Height = 645
-          inherited ListBoxSearchHistory: TListBox
-            Height = 627
-          end
-        end
-        inherited PanelResult: TPanel
-          Height = 645
-        end
-      end
-    end
   end
   inline BottomFrame: TRipGrepperBottomFrame
     Left = 0
@@ -66,8 +44,5 @@ object ParentFrame: TParentFrame
     Margins.Bottom = 20
     Align = alBottom
     TabOrder = 2
-    inherited pnlBottom: TPanel
-      Width = 1453
-    end
   end
 end

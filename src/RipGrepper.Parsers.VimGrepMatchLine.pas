@@ -67,6 +67,7 @@ begin
 	m := ParserData.LineParseRegex.Match(_s);
 	if m.Success then begin
 		// TDebugUtils.DebugMessage(_s);
+        // according FastMM it is leaky :/
 		cd.Add(TColumnData.New('File', m.Groups['drive'].Value + m.Groups['path'].Value));
 		cd.Add(TColumnData.New('Row', m.Groups['row'].Value));
 		cd.Add(TColumnData.New('Col', m.Groups['col'].Value));

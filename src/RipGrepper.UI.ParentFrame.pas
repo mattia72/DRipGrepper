@@ -13,15 +13,15 @@ uses
 	Vcl.Forms,
 	Vcl.Dialogs,
 	RipGrepper.UI.TopFrame,
-	RipGrepper.UI.MainFrame,
 	RipGrepper.UI.BottomFrame,
 	RipGrepper.Common.Settings,
-	u_dzDpiScaleUtils;
+	u_dzDpiScaleUtils,
+	RipGrepper.UI.MiddleFrame;
 
 type
 	TParentFrame = class(TFrame)
 		BottomFrame : TRipGrepperBottomFrame;
-		MainFrame : TRipGrepperMainFrame;
+    	MainFrame: TRipGrepperMainFrame;
 		TopFrame : TRipGrepperTopFrame;
 
 		private

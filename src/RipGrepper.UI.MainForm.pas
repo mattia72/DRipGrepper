@@ -36,7 +36,6 @@ uses
 	RipGrepper.OpenWith.SimpleTypes,
 	System.IniFiles,
 	ToolsAPI,
-	RipGrepper.UI.MainFrame,
 	RipGrepper.UI.BottomFrame,
 	RipGrepper.UI.TopFrame,
 	RipGrepper.UI.DpiScaler,

@@ -13,7 +13,8 @@ uses
 	System.Generics.Defaults,
 	RipGrepper.Common.Sorter,
 	RipGrepper.Data.HistoryItemObject,
-	RipGrepper.Common.ParsedObject;
+	RipGrepper.Common.ParsedObject,
+	VirtualTrees;
 
 type
 
@@ -24,6 +25,8 @@ type
 		private
 			FErrorCount : Integer;
 			FHistObject : THistoryItemObject;
+			FVst : TCustomVirtualStringTree;
+			function AddVSTStructure(_node : PVirtualNode; _rec : TVSFileNodeData) : PVirtualNode;
 			function GetTotalMatchCount : Integer;
 			function GetFileCount : Integer;
 			function GetComparer(const _sbt : TSortByType) : IComparer<IParsedObjectRow>;
@@ -34,7 +37,7 @@ type
 			procedure SortMultiColumns(const _st : TSortDirectionType);
 
 		public
-			constructor Create;
+			constructor Create(_vst : TCustomVirtualStringTree);
 			destructor Destroy; override;
 			procedure Add(_item : IParsedObjectRow);
 			procedure ClearMatchFiles;
@@ -56,11 +59,12 @@ uses
 	RipGrepper.Tools.DebugTools,
 	RipGrepper.Helper.Types;
 
-constructor TRipGrepperData.Create;
+constructor TRipGrepperData.Create(_vst : TCustomVirtualStringTree);
 begin
-	inherited;
+	inherited Create();
 	MatchFiles := TStringList.Create(TDuplicates.dupIgnore, True, True);
 	FErrorCount := 0;
+	FVst := _vst;
 end;
 
 destructor TRipGrepperData.Destroy;
@@ -70,16 +74,53 @@ begin
 end;
 
 procedure TRipGrepperData.Add(_item : IParsedObjectRow);
+var
+	vstNode : TVSFileNodeData;
+	node : PVirtualNode;
+	sFile : string;
 begin
-	HistObject.Matches.Items.Add(_item);
-	if (_item.IsError) then begin
-		Inc(FErrorCount);
-	end else begin
-		MatchFiles.Add(_item.Columns[0].Text);
+	FVst.BeginUpdate;
+	try
+		HistObject.Matches.Items.Add(_item);
+		if (_item.IsError) then begin
+			Inc(FErrorCount);
+			Exit
+		end else begin
+			sFile := _item.Columns[0].Text;
+			var
+			idx := MatchFiles.IndexOf(sFile);
+			if idx < 0 then begin
+				vstNode := TVSFileNodeData.New(_item.Columns[0].Text);
+				node := AddVSTStructure(nil, vstNode);
+				MatchFiles.AddObject(sFile, TObject(node));
+			end else begin
+				node := PVirtualNode(MatchFiles.Objects[idx]);
+			end
+		end;
+
+		vstNode := TVSFileNodeData.New('',
+			{ } StrToIntDef(_item.Columns[1].Text, -1),
+			{ } StrToIntDef(_item.Columns[2].Text, -1),
+			{ } _item.Columns[3].Text);
+		AddVSTStructure(node, vstNode);
+	finally
+		FVst.EndUpdate;
 	end;
+
 	{$IFDEF THREADSAFE_LIST}
 	HistObject.Matches.Unlock;
 	{$ENDIF}
+end;
+
+function TRipGrepperData.AddVSTStructure(_node : PVirtualNode; _rec : TVSFileNodeData) : PVirtualNode;
+var
+	Data : PVSFileNodeData;
+begin
+	Result := FVst.AddChild(_node);
+	Data := FVst.GetNodeData(Result);
+	// FVst.ValidateNode(Result, False);
+	Data^.FilePath := _rec.FilePath;
+	Data^.MatchData := _rec.MatchData;
 end;
 
 procedure TRipGrepperData.ClearMatchFiles;
