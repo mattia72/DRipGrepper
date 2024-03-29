@@ -20,6 +20,7 @@ type
 			FImageScaler : TImageListScaler;
 			FWinDpiScaler : TFormDpiScaler;
 			FMsgHandlerHWND : HWND;
+			procedure ApplyDpiForImages(_NewDpi: Integer);
 			procedure WndMethod(var Msg : TMessage);
 			procedure SetButtonImages(_ctrl : TControl; _imgList : TImageList);
 
@@ -53,6 +54,10 @@ begin
 	FMsgHandlerHWND := AllocateHWnd(WndMethod);
 	// set FScaleImageList
 	FindImageListForDpiScaler(FOwner);
+	InitDpiScaler();
+	// if not Assigned(FScaleImageList) then begin
+	//
+	// end;
 end;
 
 destructor TRipGrepperDpiScaler.Destroy;
@@ -64,18 +69,24 @@ begin
 end;
 
 procedure TRipGrepperDpiScaler.ApplyDpi(_NewDpi : Integer; _NewBounds : PRect);
-var
-	li : TImageList;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperDpiScaler.ApplyDpi');
 	ApplyDpiForWindow(_NewDpi, _NewBounds);
+	ApplyDpiForImages(_NewDpi);
+end;
 
-	if not Assigned(FImageScaler) then begin
-		FImageScaler := TImageListScaler.Create(FOwner, FScaleImageList);
-		TDebugUtils.DebugMessage('TRipGrepperDpiScaler.ApplyDpi ImageScaler Created - ' + FScaleImageList.Name);
+procedure TRipGrepperDpiScaler.ApplyDpiForImages(_NewDpi: Integer);
+var
+	li: TImageList;
+begin
+	if Assigned(FScaleImageList) then begin
+		if not Assigned(FImageScaler) then begin
+			FImageScaler := TImageListScaler.Create(FOwner, FScaleImageList);
+			TDebugUtils.DebugMessage('TRipGrepperDpiScaler.ApplyDpi ImageScaler Created - ' + FScaleImageList.Name);
+		end;
+		li := FImageScaler.GetScaledList(_NewDpi);
+		SetButtonImages(FOwner, li);
 	end;
-	li := FImageScaler.GetScaledList(_NewDpi);
-	SetButtonImages(FOwner, li);
 end;
 
 procedure TRipGrepperDpiScaler.ApplyDpiForWindow(_NewDpi : Integer; _NewBounds : PRect);
@@ -133,7 +144,7 @@ begin
 	if not Assigned(FScaleImageList) then begin
 		self.FScaleImageList := _imgList;
 		TDebugUtils.DebugMessage('TRipGrepperDpiScaler.InitImageListScaler ' + FScaleImageList.Name);
-		InitDpiScaler();
+		// InitDpiScaler();
 	end;
 end;
 

@@ -19,7 +19,8 @@ uses
 	Vcl.ActnList,
 	ArrayEx,
 	Vcl.ComCtrls,
-	System.RegularExpressions;
+	System.RegularExpressions,
+	RipGrepper.UI.DpiScaler;
 
 type
 
@@ -46,7 +47,6 @@ type
 		ListView1 : TListView;
 		Label1 : TLabel;
 		Label2 : TLabel;
-		Image1 : TImage;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionOkExecute(Sender : TObject);
 		procedure ListView1Click(Sender : TObject);
@@ -55,6 +55,7 @@ type
 		procedure LoadRipGrepHelp;
 
 		private
+			FDpiScaler : TRipGrepperDpiScaler;
 			FGroup : TListGroup;
 			FGroupIngLineRegex : TRegex;
 			FOptionList : TStringList;
@@ -84,7 +85,6 @@ implementation
 
 uses
 	RipGrepper.Tools.ProcessUtils,
-
 	RipGrepper.Common.Types,
 	Winapi.CommCtrl,
 	RipGrepper.Helper.UI,
@@ -105,13 +105,14 @@ begin
 	FRGParamHelpRegex := TRegex.Create(RG_HELP_LINE_REGEX);
 	FRGLongParamHelpRegex := TRegex.Create(RG_HELP_LONG_PARAM_REGEX);
 	FGroupIngLineRegex := TRegex.Create('^([A-Z][ A-Z]+):');
-
+	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 	LoadRipGrepHelp;
 end;
 
 destructor TRipGrepOptionsForm.Destroy;
 begin
 	FOptionList.Free;
+	FDpiScaler.Free;
 	inherited;
 end;
 
@@ -290,8 +291,8 @@ end;
 procedure TRipGrepOptionsForm.ListView1SelectItem(Sender : TObject; Item : TListItem; Selected : Boolean);
 begin
 	if Selected and not IsParameterHelpLine(Item) then begin
-		 Item.Selected := false;
-    end;
+		Item.Selected := false;
+	end;
 end;
 
 procedure TRipGrepOptionsForm.SetItem(const _ho : THelpOptions; const _groupId : Integer; const _bEnabled : Boolean = True);
