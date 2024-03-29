@@ -404,7 +404,7 @@ begin
 	cmdLine := TStringList.Create();
 	try
 		cmdLine.Add(RipGrepPath);
-		cmdLine.AddStrings(RipGrepArguments);
+		cmdLine.AddStrings(RipGrepArguments.GetValues());
 		cmdLine.Delimiter := ' ';
 		Result := cmdLine.DelimitedText;
 	finally

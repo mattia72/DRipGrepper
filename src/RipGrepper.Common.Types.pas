@@ -21,6 +21,8 @@ const
 	CRLF = sLineBreak;
 	TAB = #9;
 	SPACE = #32;
+	ESC_CHAR = #$01B;
+	ESC = ESC_CHAR + '\[';
 
 	BUFF_LENGTH = 1024; // Todo: put into settings
 
@@ -65,6 +67,22 @@ const
 		];
 
 	RG_MATCH_LINE_REGEX = '^(?<drive>\w:)?(?<path>.+?):(?<row>\d+):(?<col>\d+):(?<text>.+)$';
+
+	RG_PRETTY_BLUE = ESC + '0m' + ESC + '36m';
+	RG_PRETTY_GREEN = ESC + '0m' + ESC + '32m';
+	RG_PRETTY_BOLD_RED = ESC + '1m' + ESC + '31m';
+	RG_PRETTY_RESET = ESC + '0m';
+
+	RG_MATCH_PRETTY_LINE_REGEX = '^' +
+	{ } RG_PRETTY_BLUE + '(?<drive>\w:)?(?<path>.+?)' +
+	{ } RG_PRETTY_RESET + ':' +
+	{ } RG_PRETTY_GREEN + '(?<row>\d+)' +
+	{ } RG_PRETTY_RESET + ':' +
+	{ } RG_PRETTY_RESET + '(?<col>\d+)' +
+	{ } RG_PRETTY_RESET + ':(?<text_before_match>.+?)?' +
+	{ } RG_PRETTY_RESET + RG_PRETTY_BOLD_RED + '(?<match_text>.+)' +
+	{ } RG_PRETTY_RESET + '(?<text_after_match>.+?)?$';
+
 	RG_HELP_LONG_PARAM_REGEX = '(?<long>--[\-a-zA-Z0-9]+)';
 	RG_HELP_LINE_REGEX = '^\s*(?<short>-[a-zA-Z.0-9])?(?<comma>, )?(?<long>--[\-a-zA-Z0-9]+)(?<value>=[\-A-Z]+)?\s*(?<desc>.*)$';
 
@@ -74,10 +92,10 @@ const
 
 type
 
-	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
+	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
 	TFileNameType = (ftAbsolute, ftRelative);
 
-	TColumnIndex = (ciFile, ciRow, ciCol, ciText, ciRowNr);
+	TColumnIndex = (ciFile, ciRow, ciCol, ciText, ciMatchText, ciTextAfterMatch, ciRowNr);
 
 	TRipGrepArguments = TStringList;
 

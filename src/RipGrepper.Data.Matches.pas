@@ -92,16 +92,13 @@ begin
 			sFile := _item.Columns[0].Text;
 			node := GetParentNode(sFile);
 		end;
-
 		AddChildNode(node, _item);
-
 	finally
 		FVst.EndUpdate;
+		{$IFDEF THREADSAFE_LIST}
+		HistObject.Matches.Unlock;
+		{$ENDIF}
 	end;
-
-	{$IFDEF THREADSAFE_LIST}
-	HistObject.Matches.Unlock;
-	{$ENDIF}
 end;
 
 function TRipGrepperData.AddVSTStructure(_node : PVirtualNode; _rec : TVSFileNodeData) : PVirtualNode;
@@ -250,10 +247,21 @@ procedure TRipGrepperData.AddChildNode(const _parentNode : PVirtualNode; _item :
 var
 	nodeData : TVSFileNodeData;
 begin
-	nodeData := TVSFileNodeData.New('',
-	{ } StrToIntDef(_item.Columns[1].Text, -1),
-	{ } StrToIntDef(_item.Columns[2].Text, -1),
-	{ } _item.Columns[3].Text);
+	case _item.ParserType of
+		ptRipGrepSearch :
+		nodeData := TVSFileNodeData.New('', //           File
+		{ } StrToIntDef(_item.Columns[1].Text, -1), //    Row
+		{ } StrToIntDef(_item.Columns[2].Text, -1), //    Col
+		{ } _item.Columns[4].Text);                 //    RowText
+		ptRipGrepPrettySearch :
+		nodeData := TVSFileNodeData.New('', // File
+		{ } StrToIntDef(_item.Columns[1].Text, -1), // Row
+		{ } StrToIntDef(_item.Columns[2].Text, -1), // Col
+		{ } _item.Columns[3].Text, // TextBefore
+		{ } _item.Columns[4].Text, // MatchText
+		{ } _item.Columns[5].Text // TextAfter
+		);
+	end;
 	AddVSTStructure(_parentNode, nodeData);
 end;
 

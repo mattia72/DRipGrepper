@@ -6,15 +6,18 @@ uses
 	ArrayEx,
 	System.Generics.Collections,
 	System.Generics.Defaults,
-	System.Classes;
+	System.Classes,
+	RipGrepper.Common.Types;
 
 type
-    TVSMatchData = class
+	TVSMatchData = class
 		Row : integer;
 		Col : integer;
-		MatchText : string;
+		MatchLength : integer;
+		RowText : string;
+
 		public
-			constructor Create(_row, _col : Integer; _matchText : string);
+			constructor Create(_row, _col, _colEnd : Integer; _matchText : string);
 	end;
 
 	PVSMatchData = ^TVSMatchData;
@@ -23,9 +26,11 @@ type
 		FilePath : string;
 		// Icon?
 		MatchData : TVSMatchData;
+
 		public
-			class function New(_file : string; _row : Integer = -1; _col : Integer = -1; _matchText : string = '')
-				: TVSFileNodeData; static;
+			class function New(_file : string; _row, _col : Integer; _textBefore, _matchText, _textAfter : string)
+				: TVSFileNodeData; overload; static;
+			class function New(_file: string; _row: Integer = -1; _col: Integer = -1; _matchText: string = ''): TVSFileNodeData; overload; static;
 	end;
 
 	PVSFileNodeData = ^TVSFileNodeData;
@@ -52,12 +57,15 @@ type
 		['{85536634-C591-43F1-B348-BC93E4E62942}']
 		function GetErrorText : string;
 		function GetIsError : Boolean;
+		function GetParserType : TParserType;
 		function GetRowNr : Integer;
 		procedure SetErrorText(const Value : string);
 		procedure SetIsError(const Value : Boolean);
+		procedure SetParserType(const Value : TParserType);
 		procedure SetRowNr(const Value : Integer);
 		property ErrorText : string read GetErrorText write SetErrorText;
 		property IsError : Boolean read GetIsError write SetIsError;
+		property ParserType : TParserType read GetParserType write SetParserType;
 		property RowNr : Integer read GetRowNr write SetRowNr;
 
 	end;
@@ -92,10 +100,12 @@ type
 	{$M-}
 
 	TParsedObjectRow = class(TInterfacedObject, IParsedObjectRow)
+
 		private
 			FErrorText : string;
 			FIsError : Boolean;
 			FColumns : TArrayEx<TColumnData>;
+			FParserType : TParserType;
 			FRowNr : Integer;
 			function GetColumns : TArrayEx<TColumnData>;
 			procedure SetColumns(const Value : TArrayEx<TColumnData>);
@@ -105,14 +115,17 @@ type
 			procedure SetErrorText(const Value : string);
 			procedure SetIsError(const Value : Boolean);
 			procedure SetRowNr(const Value : Integer);
+			function GetParserType : TParserType;
+			procedure SetParserType(const Value : TParserType);
 
 		public
-			constructor Create(const _por: IParsedObjectRow); overload;
+			constructor Create(const _por : IParsedObjectRow; _parserType : TParserType); overload;
 			procedure CopyTo(var _por : TParsedObjectRow);
 			property Columns : TArrayEx<TColumnData> read GetColumns write SetColumns;
 			property ErrorText : string read GetErrorText write SetErrorText;
 			property IsError : Boolean read GetIsError write SetIsError;
 			property RowNr : Integer read GetRowNr write SetRowNr;
+			property ParserType : TParserType read GetParserType write SetParserType;
 	end;
 
 	TParsedObjectRowCollection = class(TNoRefCountObject, IParsedObjectRowCollection)
@@ -156,13 +169,14 @@ begin
 	Result.Text := _Text;
 end;
 
-constructor TParsedObjectRow.Create(const _por: IParsedObjectRow);
+constructor TParsedObjectRow.Create(const _por : IParsedObjectRow; _parserType : TParserType);
 begin
 	inherited Create();
 	ErrorText := _por.ErrorText;
 	Columns := _por.Columns;
 	RowNr := _por.RowNr;
 	IsError := _por.IsError;
+	ParserType := _parserType;
 end;
 
 procedure TParsedObjectRow.CopyTo(var _por : TParsedObjectRow);
@@ -188,6 +202,11 @@ begin
 	Result := FIsError;
 end;
 
+function TParsedObjectRow.GetParserType : TParserType;
+begin
+	Result := FParserType;
+end;
+
 function TParsedObjectRow.GetRowNr : Integer;
 begin
 	Result := FRowNr;
@@ -206,6 +225,11 @@ end;
 procedure TParsedObjectRow.SetIsError(const Value : Boolean);
 begin
 	FIsError := Value;
+end;
+
+procedure TParsedObjectRow.SetParserType(const Value : TParserType);
+begin
+    FParserType := Value;
 end;
 
 procedure TParsedObjectRow.SetRowNr(const Value : Integer);
@@ -260,17 +284,29 @@ begin
 	FGroupId := Value;
 end;
 
-class function TVSFileNodeData.New(_file : string; _row : Integer = -1; _col : Integer = -1; _matchText : string = '') : TVSFileNodeData;
+class function TVSFileNodeData.New(_file : string; _row, _col : Integer; _textBefore, _matchText, _textAfter : string) : TVSFileNodeData;
+var
+	matchLength : integer;
+	text : string;
 begin
 	Result.FilePath := _file;
-	Result.MatchData := TVSMatchData.Create(_row, _col, _matchText);
+	text := _textBefore + _matchText + _textAfter;
+	matchLength := Length(_matchText);
+	Result.MatchData := TVSMatchData.Create(_row, _col, matchLength, text);
 end;
 
-constructor TVSMatchData.Create(_row, _col : Integer; _matchText : string);
+class function TVSFileNodeData.New(_file: string; _row: Integer = -1; _col: Integer = -1; _matchText: string = ''): TVSFileNodeData;
+begin
+	Result.FilePath := _file;
+	Result.MatchData := TVSMatchData.Create(_row, _col, -1, _matchText);
+end;
+
+constructor TVSMatchData.Create(_row, _col, _colEnd : Integer; _matchText : string);
 begin
 	Row := _row;
 	Col := _col;
-	MatchText := _matchText;
+	MatchLength := _colEnd;
+	RowText := _matchText;
 end;
 
 end.
