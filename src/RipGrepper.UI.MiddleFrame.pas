@@ -108,14 +108,12 @@ type
 			FSettings : TRipGrepperSettings;
 			FswSearchStart : TStopwatch;
 			FIconImgList : TIconImageList;
-			FParserType : TParserType;
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
 			function GetCounterText(data : THistoryItemObject) : string;
 			function GetData : TRipGrepperData;
 			function GetHistObject : THistoryItemObject;
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
 			function GetHistoryObjectList : TStringList;
-			function GetParserType : TParserType;
 			function GetSettings : TRipGrepperSettings;
 			procedure LoadBeforeSearchSettings;
 			procedure OnLastLine(const _iLineNr : integer);
@@ -126,7 +124,6 @@ type
 			procedure SetHistObject(const Value : THistoryItemObject);
 			procedure UpdateArgumentsAndSettings;
 			procedure UpdateRipGrepArgumentsInHistObj;
-			property ParserType : TParserType read GetParserType;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
 			{ Private-Deklarationen }
@@ -200,7 +197,6 @@ begin
 	inherited;
 	TDebugUtils.DebugMessage('TRipGrepperMainFrame.Create ' + AOwner.Name);
 	FIconImgList := TIconImageList.Create(ImageListListView);
-	FParserType := ptEmpty;
 	MainFrame := self;
 end;
 
@@ -419,14 +415,6 @@ begin
 
 end;
 
-function TRipGrepperMainFrame.GetParserType : TParserType;
-begin
-	if FParserType = ptEmpty then begin
-		FParserType := TRipGrepperParsersFactory.TryGetParserType(TArrayEx<string>.Create(HistObject.RipGrepArguments.GetValues()));
-	end;
-	Result := FParserType;
-end;
-
 function TRipGrepperMainFrame.GetRowColText(_i : Integer; _type : TVSTTextType) : string;
 begin
 	Result := '';
@@ -609,13 +597,13 @@ begin
 				end;
 
 				if (not _sLine.IsEmpty) then begin
-					parser := TRipGrepperParsersFactory.GetParser(ParserType);
+					parser := TRipGrepperParsersFactory.GetParser(FHistObject.ParserType);
 
 					try
 						var
 						parsedObj := parser.ParseLine(_iLineNr, _sLine, _bIsLast);
 						var
-						o := TParsedObjectRow.Create(parsedObj, ParserType);
+						o := TParsedObjectRow.Create(parsedObj, FHistObject.ParserType);
 						Data.Add(o);
 					finally
 						parser := nil;
@@ -734,6 +722,7 @@ end;
 procedure TRipGrepperMainFrame.UpdateHistObject;
 begin
 	FHistObject := GetHistoryObject(CurrentHistoryItemIndex);
+    FHistObject.UpdateParserType();
 	FHistObject.CopyToSettings(Settings);
 end;
 
@@ -791,27 +780,27 @@ var
 begin
 	case Column of
 		3 : begin
-			DefaultDraw := false;
+			if FHistObject.ParserType = ptRipGrepPrettySearch then begin
+				DefaultDraw := false;
+				// First, store the default font size and color number
+				fc := TargetCanvas.Font.Color;
+				fs := TargetCanvas.Font.Size;
+				style := TargetCanvas.Font.Style;
 
-			// First, store the default font size and color number
-			fc := TargetCanvas.Font.Color;
-			fs := TargetCanvas.Font.Size;
-			style := TargetCanvas.Font.Style;
-
-			if ParserType = ptRipGrepSearch then begin
-				TargetCanvas.TextOut(CellRect.left, 4, Text);
-			end else begin
 				data := VstResult.GetNodeData(Node);
-				ss0 := Text.Substring(0, data.MatchData.Col);
-				ss1 := Text.Substring(data.MatchData.Col - 1, data.MatchData.MatchLength);
-				ss2 := Text.Substring(data.MatchData.Col + data.MatchData.MatchLength + 1);
+				var shift : integer;
+				var s := data.GetText(Settings.RipGrepperViewSettings.IndentLines, shift);
+				var matchBegin := data.MatchData.Col - 1 - shift;
+
+				ss0 := s.Substring(0, matchBegin);
+				ss1 := s.Substring(matchBegin, data.MatchData.MatchLength);
+				ss2 := s.Substring(matchBegin + data.MatchData.MatchLength);
 
 				TargetCanvas.TextOut(CellRect.left, 4, ss0);
 
 				pos := TargetCanvas.TextWidth(ss0);
-
 				TargetCanvas.Font.Color := clMaroon;
-				TargetCanvas.Font.Style := [fsBold];
+				TargetCanvas.Font.Style := [fsBold, fsUnderline];
 				TargetCanvas.TextOut(CellRect.left + pos, 4, ss1);
 
 				pos := pos + TargetCanvas.TextWidth(ss1);
@@ -885,12 +874,12 @@ begin
 				CellText := GetRowColText(nodeData.MatchData.Col, TextType);
 			end;
 			3 : begin
-				CellText := IfThen(TextType = ttNormal, nodeData.MatchData.RowText);
-				if not Settings.RipGrepperViewSettings.IndentLines then begin
-					CellText := CellText.TrimLeft;
+				if (TextType = ttNormal) then begin
+					var dummy : integer;
+					CellText := nodeData.GetText(Settings.RipGrepperViewSettings.IndentLines, dummy);
 				end;
-			end;
 
+			end;
 		end;
 	end;
 end;

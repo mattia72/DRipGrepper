@@ -252,7 +252,7 @@ begin
 		nodeData := TVSFileNodeData.New('', //           File
 		{ } StrToIntDef(_item.Columns[1].Text, -1), //    Row
 		{ } StrToIntDef(_item.Columns[2].Text, -1), //    Col
-		{ } _item.Columns[4].Text);                 //    RowText
+		{ } _item.Columns[3].Text);                 //    RowText
 		ptRipGrepPrettySearch :
 		nodeData := TVSFileNodeData.New('', // File
 		{ } StrToIntDef(_item.Columns[1].Text, -1), // Row

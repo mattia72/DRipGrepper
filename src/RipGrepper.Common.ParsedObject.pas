@@ -26,11 +26,13 @@ type
 		FilePath : string;
 		// Icon?
 		MatchData : TVSMatchData;
+		function GetText(const _bTrimLeft: Boolean; var _iTrimCount: Integer): string;
 
 		public
-			class function New(_file : string; _row, _col : Integer; _textBefore, _matchText, _textAfter : string)
-				: TVSFileNodeData; overload; static;
-			class function New(_file: string; _row: Integer = -1; _col: Integer = -1; _matchText: string = ''): TVSFileNodeData; overload; static;
+			class function New(_file : string; _row, _col : Integer; _textBefore, _matchText, _textAfter : string) : TVSFileNodeData;
+				overload; static;
+			class function New(_file : string; _row : Integer = -1; _col : Integer = -1; _matchText : string = '') : TVSFileNodeData;
+				overload; static;
 	end;
 
 	PVSFileNodeData = ^TVSFileNodeData;
@@ -163,6 +165,9 @@ type
 
 implementation
 
+uses
+	System.SysUtils;
+
 class function TColumnData.New(const _Title, _Text : string) : TColumnData;
 begin
 	Result.Title := _Title;
@@ -229,7 +234,7 @@ end;
 
 procedure TParsedObjectRow.SetParserType(const Value : TParserType);
 begin
-    FParserType := Value;
+	FParserType := Value;
 end;
 
 procedure TParsedObjectRow.SetRowNr(const Value : Integer);
@@ -284,6 +289,21 @@ begin
 	FGroupId := Value;
 end;
 
+function TVSFileNodeData.GetText(const _bTrimLeft: Boolean; var _iTrimCount: Integer): string;
+var
+	sTrimmed : string;
+begin
+	if not _bTrimLeft then begin
+		Result := MatchData.RowText;
+        _iTrimCount  := 0;
+	end else begin
+		sTrimmed := MatchData.RowText.TrimLeft();
+		_iTrimCount := MatchData.RowText.Length - sTrimmed.Length;
+		Result := sTrimmed;
+	end;
+
+end;
+
 class function TVSFileNodeData.New(_file : string; _row, _col : Integer; _textBefore, _matchText, _textAfter : string) : TVSFileNodeData;
 var
 	matchLength : integer;
@@ -295,7 +315,7 @@ begin
 	Result.MatchData := TVSMatchData.Create(_row, _col, matchLength, text);
 end;
 
-class function TVSFileNodeData.New(_file: string; _row: Integer = -1; _col: Integer = -1; _matchText: string = ''): TVSFileNodeData;
+class function TVSFileNodeData.New(_file : string; _row : Integer = -1; _col : Integer = -1; _matchText : string = '') : TVSFileNodeData;
 begin
 	Result.FilePath := _file;
 	Result.MatchData := TVSMatchData.Create(_row, _col, -1, _matchText);

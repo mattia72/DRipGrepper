@@ -9,7 +9,8 @@ uses
 	RipGrepper.Common.Settings,
 	Vcl.ComCtrls,
 	System.Generics.Defaults,
-	System.Classes, RipGrepper.Common.Types;
+	System.Classes,
+	RipGrepper.Common.Types;
 
 type
 	THistoryItemObject = class(TNoRefCountObject, IHistoryItem)
@@ -17,18 +18,21 @@ type
 			FElapsedTimeText : string;
 			FErrorCount : Integer;
 			FFileCount : integer;
-			FMatches: TParsedObjectRowCollection;
+			FMatches : TParsedObjectRowCollection;
+			FParserType : TParserType;
 			FRipGrepArguments : TRipGrepArguments;
 			FRipGrepResult : Integer;
 			FTotalMatchCount : integer;
 			function GetErrorCount : Integer; export;
 			function GetFileCount : integer;
-			function GetMatches: TParsedObjectRowCollection;
+			function GetMatches : TParsedObjectRowCollection;
 			function GetRipGrepArguments : TRipGrepArguments;
 			function GetTotalMatchCount : integer;
 			procedure SetFileCount(const Value : integer);
-			procedure SetMatches(const Value: TParsedObjectRowCollection);
+			procedure SetMatches(const Value : TParsedObjectRowCollection);
 			procedure SetRipGrepArguments(const Value : TRipGrepArguments);
+			function GetParserType : TParserType;
+			procedure SetParserType(const Value : TParserType);
 
 		public
 			procedure CopyRipGrepArgsFromSettings(const _settings : TRipGrepperSettings);
@@ -37,14 +41,15 @@ type
 			constructor Create;
 			procedure ClearMatches;
 			procedure CopyToSettings(const _settings : TRipGrepperSettings);
+			function UpdateParserType: TParserType;
 			property FileCount : integer read GetFileCount write SetFileCount;
-			property Matches: TParsedObjectRowCollection read GetMatches write SetMatches;
+			property Matches : TParsedObjectRowCollection read GetMatches write SetMatches;
 			property RipGrepArguments : TRipGrepArguments read GetRipGrepArguments write SetRipGrepArguments;
 			property TotalMatchCount : integer read GetTotalMatchCount;
 			property ErrorCount : Integer read GetErrorCount write FErrorCount;
 			property ElapsedTimeText : string read FElapsedTimeText write FElapsedTimeText;
 			property RipGrepResult : Integer read FRipGrepResult write FRipGrepResult;
-
+			property ParserType : TParserType read GetParserType write SetParserType;
 
 	end;
 
@@ -52,7 +57,7 @@ implementation
 
 uses
 
-	System.SysUtils;
+	System.SysUtils, RipGrepper.Parsers.Factory, RipGrepper.Helper.Types;
 
 procedure THistoryItemObject.CopyRipGrepArgsFromSettings(const _settings : TRipGrepperSettings);
 begin
@@ -90,7 +95,7 @@ begin
 	Result := FFileCount;
 end;
 
-function THistoryItemObject.GetMatches: TParsedObjectRowCollection;
+function THistoryItemObject.GetMatches : TParsedObjectRowCollection;
 begin
 	Result := FMatches;
 end;
@@ -113,7 +118,7 @@ begin
 	FFileCount := Value;
 end;
 
-procedure THistoryItemObject.SetMatches(const Value: TParsedObjectRowCollection);
+procedure THistoryItemObject.SetMatches(const Value : TParsedObjectRowCollection);
 begin
 	FMatches := Value;
 end;
@@ -135,6 +140,7 @@ begin
 	inherited;
 	FMatches := TParsedObjectRowCollection.Create();
 	FRipGrepArguments := TStringList.Create;
+    FParserType := ptEmpty;
 	ClearMatches;
 end;
 
@@ -157,6 +163,26 @@ end;
 function THistoryItemObject.GetErrorCount : Integer;
 begin
 	Result := FErrorCount;
+end;
+
+function THistoryItemObject.GetParserType : TParserType;
+begin
+	if FParserType = ptEmpty then begin
+        UpdateParserType();
+    end;
+	Result := FParserType;
+end;
+
+procedure THistoryItemObject.SetParserType(const Value : TParserType);
+begin
+	FParserType := Value;
+end;
+
+function THistoryItemObject.UpdateParserType: TParserType;
+begin
+	FParserType := TRipGrepperParsersFactory.TryGetParserType(
+		TArrayEx<string>.Create(RipGrepArguments.GetValues()));
+	Result := FParserType;
 end;
 
 end.

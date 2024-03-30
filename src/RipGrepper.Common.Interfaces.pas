@@ -50,15 +50,18 @@ type
 		function GetErrorCount : Integer;
 		function GetFileCount : integer;
 		function GetMatches : TParsedObjectRowCollection;
+		function GetParserType: TParserType;
 		procedure SetMatches(const Value : TParsedObjectRowCollection);
 		function GetRipGrepArguments : TRipGrepArguments;
 		procedure SetRipGrepArguments(const Value : TRipGrepArguments);
 		function GetTotalMatchCount : integer;
+		procedure SetParserType(const Value : TParserType);
 
 		property ErrorCount : Integer read GetErrorCount;
 		property Matches : TParsedObjectRowCollection read GetMatches write SetMatches;
 		property RipGrepArguments : TRipGrepArguments read GetRipGrepArguments write SetRipGrepArguments;
 		property FileCount : integer read GetFileCount;
+		property ParserType: TParserType read GetParserType write SetParserType;
 		property TotalMatchCount : integer read GetTotalMatchCount;
 	end;
 
