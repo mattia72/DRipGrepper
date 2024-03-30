@@ -1,7 +1,7 @@
 ## DRipGrepper
 Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Delphi Pascal with the goal to integrate in the Delphi IDE as an extension.
 
-![Screenshot](./screenshots/04-02-2024_10-37-31.png)
+![Screenshot](./screenshots/DripGepper_Form.png)
 
 ## Features and Todos
 

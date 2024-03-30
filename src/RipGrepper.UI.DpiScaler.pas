@@ -42,6 +42,7 @@ type
 implementation
 
 uses
+    System.SysUtils,
 	RipGrepper.Tools.DebugTools,
 	Vcl.StdCtrls,
 	u_dzVclUtils,
@@ -70,7 +71,7 @@ end;
 
 procedure TRipGrepperDpiScaler.ApplyDpi(_NewDpi : Integer; _NewBounds : PRect);
 begin
-	TDebugUtils.DebugMessage('TRipGrepperDpiScaler.ApplyDpi');
+	TDebugUtils.DebugMessage('TRipGrepperDpiScaler.ApplyDpi - ' + _NewDpi.ToString);
 	ApplyDpiForWindow(_NewDpi, _NewBounds);
 	ApplyDpiForImages(_NewDpi);
 end;
