@@ -1226,6 +1226,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Hint = 'Expand results'
       ImageIndex = 22
       OnExecute = ActionExpandCollapseExecute
+      OnUpdate = ActionExpandCollapseUpdate
     end
   end
 end

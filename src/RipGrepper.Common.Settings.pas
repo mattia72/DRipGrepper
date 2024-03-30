@@ -68,18 +68,16 @@ type
 
 	TRipGrepperViewSettings = class(TRipGrepperSettingsBase)
 		const
-			VIEW_SETTINGS : array [0 .. 3] of string = ('ShowRelativePath', 'ShowFileIcon', 'AlternateRowColors', 'IndentLines');
-
-		var
-		private
-			FAlternateRowColors : Boolean;
+			VIEW_SETTINGS : array [0 .. 4] of string = ('ShowRelativePath', 'ShowFileIcon', 'AlternateRowColors', 'IndentLines',
+				'ExpandNodes');
 
 		public
+			AlternateRowColors : Boolean;
 			IndentLines : Boolean;
 			ShowFileIcon : Boolean;
 			ShowRelativePath : Boolean;
+			ExpandNodes : Boolean;
 			procedure StoreViewSettings(_ini : TIniFile; const _s : string = '');
-			property AlternateRowColors : Boolean read FAlternateRowColors write FAlternateRowColors;
 			constructor Create(const _ini : TIniFile);
 			procedure Init;
 			procedure Load; override;
@@ -505,6 +503,7 @@ begin
 	ShowFileIcon := False;
 	AlternateRowColors := False;
 	IndentLines := False;
+	ExpandNodes := True;
 end;
 
 procedure TRipGrepperViewSettings.Load;
@@ -514,6 +513,7 @@ begin
 	ShowFileIcon := FIniFile.ReadBool('RipGrepperSettings', 'ShowFileIcon', False);
 	AlternateRowColors := FIniFile.ReadBool('RipGrepperSettings', 'AlternateRowColors', False);
 	IndentLines := FIniFile.ReadBool('RipGrepperSettings', 'IndentLines', False);
+	ExpandNodes := FIniFile.ReadBool('RipGrepperSettings', 'ExpandNodes', True);
 
 	FIsLoaded := True;
 end;
@@ -547,6 +547,9 @@ begin
 		TDebugUtils.DebugMessage(VIEW_SETTINGS[i] + ' stored');
 	end else if MatchStr(_s, VIEW_SETTINGS[PreInc(i)]) then begin
 		_ini.WriteBool('RipGrepperSettings', VIEW_SETTINGS[i], IndentLines);
+		TDebugUtils.DebugMessage(VIEW_SETTINGS[i] + ' stored');
+	end else if MatchStr(_s, VIEW_SETTINGS[PreInc(i)]) then begin
+		_ini.WriteBool('RipGrepperSettings', VIEW_SETTINGS[i], ExpandNodes);
 		TDebugUtils.DebugMessage(VIEW_SETTINGS[i] + ' stored');
 	end else begin
 		raise Exception.Create('Settings: ' + _s + ' not stored!');
@@ -689,7 +692,7 @@ begin
 		DripGrepperShortCut := FIniFile.ReadString(INI_SECTION, 'DripGrepperShortCut', '');
 		if DripGrepperShortCut = '' then begin
 			DripGrepperShortCut := ShortCutToText(ShortCut(Word('R'), [ssShift, ssAlt]));
-            FIsModified := True;
+			FIsModified := True;
 		end;
 		FIsLoaded := True;
 	end else begin

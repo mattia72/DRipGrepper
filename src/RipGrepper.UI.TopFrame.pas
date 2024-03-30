@@ -60,7 +60,7 @@ type
 		tbConfigure : TToolButton;
 		tbExpandCollapse : TToolButton;
 		ActionExpandCollapse : TAction;
-    ToolButton7: TToolButton;
+		ToolButton7 : TToolButton;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlternateRowColorsExecute(Sender : TObject);
@@ -72,6 +72,7 @@ type
 		procedure ActionCopyFileNameExecute(Sender : TObject);
 		procedure ActionCopyPathToClipboardExecute(Sender : TObject);
 		procedure ActionExpandCollapseExecute(Sender : TObject);
+		procedure ActionExpandCollapseUpdate(Sender : TObject);
 		procedure ActionIndentLineExecute(Sender : TObject);
 		procedure ActionIndentLineUpdate(Sender : TObject);
 		procedure ActionOpenWithExecute(Sender : TObject);
@@ -116,7 +117,8 @@ uses
 	RipGrepper.OpenWith,
 	RipGrepper.Helper.UI,
 	RipGrepper.UI.SearchForm,
-	System.Math;
+	System.Math,
+	System.StrUtils;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -192,13 +194,20 @@ end;
 
 procedure TRipGrepperTopFrame.ActionExpandCollapseExecute(Sender : TObject);
 begin
-	if ActionExpandCollapse.ImageIndex = 22 then begin
+	Settings.RipGrepperViewSettings.ExpandNodes := not Settings.RipGrepperViewSettings.ExpandNodes;
+	Settings.StoreViewSettings('ExpandNodes');
+
+	if Settings.RipGrepperViewSettings.ExpandNodes then begin
 		MainFrame.VstResult.FullExpand();
-		ActionExpandCollapse.ImageIndex := 23;
 	end else begin
 		MainFrame.VstResult.FullCollapse();
-		ActionExpandCollapse.ImageIndex := 22;
 	end;
+end;
+
+procedure TRipGrepperTopFrame.ActionExpandCollapseUpdate(Sender : TObject);
+begin
+	ActionExpandCollapse.ImageIndex := IfThen(Settings.RipGrepperViewSettings.ExpandNodes, 23, 22);
+	ActionExpandCollapse.Hint := IfThen(Settings.RipGrepperViewSettings.ExpandNodes, 'Collapse nodes', 'Expand nodes');
 end;
 
 procedure TRipGrepperTopFrame.ActionIndentLineExecute(Sender : TObject);

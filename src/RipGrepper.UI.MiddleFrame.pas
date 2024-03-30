@@ -562,6 +562,10 @@ begin
 			SetColumnWidths;
 			BottomFrame.ActivityIndicator1.Animate := False;
 			FIsParsingRunning := False;
+			if Settings.RipGrepperViewSettings.ExpandNodes then begin
+				VstResult.FullExpand();
+			end;
+
 		end);
 end;
 
@@ -613,6 +617,7 @@ begin
 				if (_iLineNr < DRAW_RESULT_UNTIL_FIRST_LINE_COUNT) or ((_iLineNr mod DRAW_RESULT_ON_EVERY_LINE_COUNT) = 0) or _bIsLast then
 				begin
 					RefreshCounters;
+					VstResult.Repaint;
 				end;
 			end);
 	except
@@ -722,7 +727,7 @@ end;
 procedure TRipGrepperMainFrame.UpdateHistObject;
 begin
 	FHistObject := GetHistoryObject(CurrentHistoryItemIndex);
-    FHistObject.UpdateParserType();
+	FHistObject.UpdateParserType();
 	FHistObject.CopyToSettings(Settings);
 end;
 
@@ -788,9 +793,12 @@ begin
 				style := TargetCanvas.Font.Style;
 
 				data := VstResult.GetNodeData(Node);
-				var shift : integer;
-				var s := data.GetText(Settings.RipGrepperViewSettings.IndentLines, shift);
-				var matchBegin := data.MatchData.Col - 1 - shift;
+				var
+					shift : integer;
+				var
+				s := data.GetText(Settings.RipGrepperViewSettings.IndentLines, shift);
+				var
+				matchBegin := data.MatchData.Col - 1 - shift;
 
 				ss0 := s.Substring(0, matchBegin);
 				ss1 := s.Substring(matchBegin, data.MatchData.MatchLength);
@@ -875,7 +883,8 @@ begin
 			end;
 			3 : begin
 				if (TextType = ttNormal) then begin
-					var dummy : integer;
+					var
+						dummy : integer;
 					CellText := nodeData.GetText(Settings.RipGrepperViewSettings.IndentLines, dummy);
 				end;
 
