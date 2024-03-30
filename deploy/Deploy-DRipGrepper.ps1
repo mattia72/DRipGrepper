@@ -1,4 +1,4 @@
-$global:Version = "v1.0.4-beta"
+$global:Version = "v2.0.0-beta"
 $global:PrevVersion = "v1.0.3-alpha"      
 $global:PreRelease = $true
 $global:Description = "Bug Fixes and some improvements"
@@ -16,12 +16,23 @@ $global:headers = @{
     Authorization          = "Bearer $global:Token"
     "X-GitHub-Api-Version" = "2022-11-28"
 }
+function Build-Release {
+    # copy scripts
+    Import-Module -Name PSDelphi -Force
+    $parentPath = Split-Path -Parent $PSScriptRoot 
+    $result = $null
+    Build-DelphiProject -ProjectPath $parentPath\DRipGrepper.dproj -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result)
+    if ($null -ne $result -and $result.ErrorCount -gt 0) {
+        Write-Error "Deploy canceled." -ErrorAction Stop
+    }
+}
 
 function New-ReleaseWithAsset {
     New-Release
     New-ReleaseNotes
     Import-Module PSZip
     $parentPath = Split-Path -Parent $PSScriptRoot 
+    Build-Release
     $ZipDir = Join-Path $parentPath 'Win32\Release'
     Compress-Archive -Path $ZipDir\DRipGrepper.exe -DestinationPath $ZipDir\$global:AssetZipName -Force
     $ReleaseID = $( Get-Releases -Tag $global:Version | Select-Object -Property id).id

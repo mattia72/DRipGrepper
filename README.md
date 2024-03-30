@@ -8,8 +8,8 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 ### Main Window
 - [x] search text, parse `rg` output
   - [x] --vimgrep parser
-  - [x] error parser: if a line couldn't be parsed, then it is put in the first column
-  - [ ] --pretty parser matching lines with colorized match position
+  - [ ] error parser: if a line couldn't be parsed, then it is put in the first column
+  - [x] --pretty parser matching lines with colorized match position
   - [ ] --stats parser eg. msgbox on end with search statistics
   - [ ] no match parser
 - [x] toolbar buttons to 
@@ -23,6 +23,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 - [x] sorting by col
 - [x] sorting by tex
 - [x] grouping by path
+- [ ] sorting groups by row / col / text
 - [ ] file handling (eg. open in explorer, copy, rename, delete)
 - [ ] replace text in files --replace=TEXT
 
@@ -56,6 +57,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
     - [x] ShowRelativePath
     - [x] AlternateRowColors
     - [x] IndentLines
+    - [x] ExpandNodes
   - [ ] configurable length of history 
   - [x] *Open with...* settings saved
 - [ ] configuration dialog
