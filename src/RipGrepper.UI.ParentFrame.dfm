@@ -21,7 +21,7 @@ object ParentFrame: TParentFrame
     Align = alTop
     TabOrder = 0
       end
-  inline MainFrame: TRipGrepperMainFrame
+  inline MainFrame: TRipGrepperMiddleFrame
     Left = 0
     Top = 31
     Width = 1453

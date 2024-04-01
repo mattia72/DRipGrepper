@@ -35,7 +35,7 @@ uses
 	RipGrepper.Helper.UI;
 
 type
-	TRipGrepperMainFrame = class(TFrame, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
+	TRipGrepperMiddleFrame = class(TFrame, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
 		ActionList : TActionList;
 		ActionSearch : TAction;
 		ActionCancel : TAction;
@@ -163,7 +163,7 @@ type
 	end;
 
 var
-	MainFrame : TRipGrepperMainFrame;
+	MainFrame : TRipGrepperMiddleFrame;
 
 implementation
 
@@ -192,17 +192,17 @@ uses
 
 {$R *.dfm}
 
-constructor TRipGrepperMainFrame.Create(AOwner : TComponent);
+constructor TRipGrepperMiddleFrame.Create(AOwner : TComponent);
 begin
 	inherited;
-	TDebugUtils.DebugMessage('TRipGrepperMainFrame.Create ' + AOwner.Name);
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.Create ' + AOwner.Name);
 	FIconImgList := TIconImageList.Create(ImageListListView);
 	MainFrame := self;
 end;
 
-destructor TRipGrepperMainFrame.Destroy;
+destructor TRipGrepperMiddleFrame.Destroy;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperMainFrame.Destroy');
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.Destroy');
 
 	TListBoxHelper.FreeItemObjects(ListBoxSearchHistory);
 
@@ -223,17 +223,17 @@ begin
 	inherited;
 end;
 
-procedure TRipGrepperMainFrame.ActionCopyFileNameExecute(Sender : TObject);
+procedure TRipGrepperMiddleFrame.ActionCopyFileNameExecute(Sender : TObject);
 begin
 	CopyToClipboardFileOfSelected();
 end;
 
-procedure TRipGrepperMainFrame.ActionCopyPathToClipboardExecute(Sender : TObject);
+procedure TRipGrepperMiddleFrame.ActionCopyPathToClipboardExecute(Sender : TObject);
 begin
 	CopyToClipboardPathOfSelected();
 end;
 
-procedure TRipGrepperMainFrame.ActionOpenWithExecute(Sender : TObject);
+procedure TRipGrepperMiddleFrame.ActionOpenWithExecute(Sender : TObject);
 var
 	owp : TOpenWithParams;
 begin
@@ -244,12 +244,12 @@ begin
 
 end;
 
-procedure TRipGrepperMainFrame.ActionOpenWithUpdate(Sender : TObject);
+procedure TRipGrepperMiddleFrame.ActionOpenWithUpdate(Sender : TObject);
 begin
 	ActionOpenWith.Enabled := VstResult.SelectedCount = 1;
 end;
 
-procedure TRipGrepperMainFrame.AddOrUpdateHistoryItem;
+procedure TRipGrepperMiddleFrame.AddOrUpdateHistoryItem;
 var
 	hi : THistoryItemObject;
 begin
@@ -271,21 +271,21 @@ begin
 	ListBoxSearchHistory.Count := HistoryObjectList.Count;
 end;
 
-procedure TRipGrepperMainFrame.ChangeDataHistItemObject(_ho : THistoryItemObject);
+procedure TRipGrepperMiddleFrame.ChangeDataHistItemObject(_ho : THistoryItemObject);
 begin
 	var
 	beu := TBeginEndUpdater.New(ListBoxSearchHistory);
 	Data.HistObject := _ho;
 end;
 
-procedure TRipGrepperMainFrame.ClearHistoryObject;
+procedure TRipGrepperMiddleFrame.ClearHistoryObject;
 begin
 	var
 	beu := TBeginEndUpdater.New(ListBoxSearchHistory);
 	HistObject.ClearMatches;
 end;
 
-procedure TRipGrepperMainFrame.CopyToClipboardFileOfSelected;
+procedure TRipGrepperMiddleFrame.CopyToClipboardFileOfSelected;
 var
 	node : PVirtualNode;
 begin
@@ -296,7 +296,7 @@ begin
 	Clipboard.AsText := TPath.GetFileName(GetFilePathFromNode(node));
 end;
 
-procedure TRipGrepperMainFrame.CopyToClipboardPathOfSelected;
+procedure TRipGrepperMiddleFrame.CopyToClipboardPathOfSelected;
 var
 	node : PVirtualNode;
 begin
@@ -307,7 +307,7 @@ begin
 	Clipboard.AsText := TPath.GetFullPath(GetFilePathFromNode(node));
 end;
 
-procedure TRipGrepperMainFrame.DoSearch;
+procedure TRipGrepperMiddleFrame.DoSearch;
 begin
 	ParentFrame.SetStatusBarStatistic('Searching...');
 	FAbortSearch := False;
@@ -315,9 +315,9 @@ begin
 	RunRipGrep();
 end;
 
-procedure TRipGrepperMainFrame.FrameResize(Sender : TObject);
+procedure TRipGrepperMiddleFrame.FrameResize(Sender : TObject);
 begin
-	// TDebugUtils.DebugMessage('TRipGrepperMainFrame.FrameResize');
+	// TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.FrameResize');
 
 	SplitView1.Width := panelMain.Width;
 	if Assigned(ParentFrame) then begin
@@ -326,7 +326,7 @@ begin
 	SetColumnWidths;
 end;
 
-function TRipGrepperMainFrame.GetAbsOrRelativePath(const _sFullPath : string) : string;
+function TRipGrepperMiddleFrame.GetAbsOrRelativePath(const _sFullPath : string) : string;
 begin
 	Result := _sFullPath;
 	var
@@ -336,7 +336,7 @@ begin
 	end;
 end;
 
-function TRipGrepperMainFrame.GetCounterText(data : THistoryItemObject) : string;
+function TRipGrepperMiddleFrame.GetCounterText(data : THistoryItemObject) : string;
 begin
 	if data.ErrorCount > 0 then begin
 		Result := Format('%d(%d!) in %d', [data.TotalMatchCount, data.ErrorCount, data.FileCount]);
@@ -345,7 +345,7 @@ begin
 	end;
 end;
 
-function TRipGrepperMainFrame.GetData : TRipGrepperData;
+function TRipGrepperMiddleFrame.GetData : TRipGrepperData;
 begin
 	if not Assigned(FData) then begin
 		FData := TRipGrepperData.Create(VstResult);
@@ -353,7 +353,7 @@ begin
 	Result := FData;
 end;
 
-function TRipGrepperMainFrame.GetFilePathFromNode(_node : PVirtualNode) : string;
+function TRipGrepperMiddleFrame.GetFilePathFromNode(_node : PVirtualNode) : string;
 var
 	data : PVSFileNodeData;
 begin
@@ -365,12 +365,12 @@ begin
 	Result := data.FilePath;
 end;
 
-function TRipGrepperMainFrame.GetHistObject : THistoryItemObject;
+function TRipGrepperMiddleFrame.GetHistObject : THistoryItemObject;
 begin
 	Result := FHistObject;
 end;
 
-function TRipGrepperMainFrame.GetHistoryObject(const _index : Integer) : THistoryItemObject;
+function TRipGrepperMiddleFrame.GetHistoryObject(const _index : Integer) : THistoryItemObject;
 begin
 	Result := nil;
 	if (_index > -1) and (_index < HistoryObjectList.Count { _lb.Items.Count } ) then begin
@@ -379,7 +379,7 @@ begin
 	end;
 end;
 
-function TRipGrepperMainFrame.GetHistoryObjectList : TStringList;
+function TRipGrepperMiddleFrame.GetHistoryObjectList : TStringList;
 begin
 	if not Assigned(FHistoryObjectList) then begin
 		FHistoryObjectList := TStringList.Create(TDuplicates.dupIgnore, False, False);
@@ -387,7 +387,7 @@ begin
 	Result := FHistoryObjectList;
 end;
 
-function TRipGrepperMainFrame.GetOpenWithParamsFromSelected : TOpenWithParams;
+function TRipGrepperMiddleFrame.GetOpenWithParamsFromSelected : TOpenWithParams;
 var
 	node : PVirtualNode;
 	data : PVSFileNodeData;
@@ -415,7 +415,7 @@ begin
 
 end;
 
-function TRipGrepperMainFrame.GetRowColText(_i : Integer; _type : TVSTTextType) : string;
+function TRipGrepperMiddleFrame.GetRowColText(_i : Integer; _type : TVSTTextType) : string;
 begin
 	Result := '';
 	if (_type = ttNormal) and (_i > 0) then begin
@@ -423,7 +423,7 @@ begin
 	end;
 end;
 
-function TRipGrepperMainFrame.GetSettings : TRipGrepperSettings;
+function TRipGrepperMiddleFrame.GetSettings : TRipGrepperSettings;
 begin
 	if not Assigned(FSettings) then begin
 		FSettings := GSettings;
@@ -431,9 +431,9 @@ begin
 	Result := FSettings;
 end;
 
-procedure TRipGrepperMainFrame.Init;
+procedure TRipGrepperMiddleFrame.Init;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperMainFrame.Init Begin');
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.Init Begin');
 
 	HistoryObjectList.Clear();
 	if IsStandAlone then begin
@@ -441,7 +441,7 @@ begin
 	end else begin
 		FExeVersion := TFileUtils.GetPackageNameAndVersion(HInstance);
 	end;
-	TDebugUtils.DebugMessage('TRipGrepperMainFrame.Init ' + FExeVersion);
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.Init ' + FExeVersion);
 
 	FFileNameType := ftAbsolute;
 
@@ -452,10 +452,10 @@ begin
 
 	VstResult.NodeDataSize := SizeOf(TVSFileNodeData);
 
-	TDebugUtils.DebugMessage('TRipGrepperMainFrame.InitForm Ended');
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.InitForm Ended');
 end;
 
-procedure TRipGrepperMainFrame.InitSearch;
+procedure TRipGrepperMiddleFrame.InitSearch;
 begin
 	VstResult.Clear;
 	Data.ClearMatchFiles;
@@ -467,12 +467,12 @@ begin
 	LoadBeforeSearchSettings();
 end;
 
-function TRipGrepperMainFrame.IsSearchRunning : Boolean;
+function TRipGrepperMiddleFrame.IsSearchRunning : Boolean;
 begin
 	Result := FIsParsingRunning or (Assigned(FRipGrepTask) and (FRipGrepTask.Status = TTaskStatus.Running));
 end;
 
-procedure TRipGrepperMainFrame.ListBoxSearchHistoryClick(Sender : TObject);
+procedure TRipGrepperMiddleFrame.ListBoxSearchHistoryClick(Sender : TObject);
 begin
 	CurrentHistoryItemIndex := ListBoxSearchHistory.ItemIndex;
 	UpdateHistObject;
@@ -486,12 +486,12 @@ begin
 	ParentFrame.SetStatusBarMessage(True);
 end;
 
-procedure TRipGrepperMainFrame.ListBoxSearchHistoryData(Control : TWinControl; Index : Integer; var Data : string);
+procedure TRipGrepperMiddleFrame.ListBoxSearchHistoryData(Control : TWinControl; Index : Integer; var Data : string);
 begin
 	Data := HistoryObjectList[index];
 end;
 
-procedure TRipGrepperMainFrame.ListBoxSearchHistoryDblClick(Sender : TObject);
+procedure TRipGrepperMiddleFrame.ListBoxSearchHistoryDblClick(Sender : TObject);
 begin
 	CurrentHistoryItemIndex := ListBoxSearchHistory.ItemIndex;
 	UpdateHistObject;
@@ -499,7 +499,7 @@ begin
 	SetResultListViewDataToHistoryObj();
 end;
 
-procedure TRipGrepperMainFrame.ListBoxSearchHistoryDrawItem(Control : TWinControl; index : Integer; Rect : TRect; State : TOwnerDrawState);
+procedure TRipGrepperMiddleFrame.ListBoxSearchHistoryDrawItem(Control : TWinControl; index : Integer; Rect : TRect; State : TOwnerDrawState);
 var
 	c2ndRowTop : Integer;
 	cMatchesLeft : Integer;
@@ -530,7 +530,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepperMainFrame.ListViewResultDblClick(Sender : TObject);
+procedure TRipGrepperMiddleFrame.ListViewResultDblClick(Sender : TObject);
 var
 	owp : TOpenWithParams;
 begin
@@ -543,17 +543,17 @@ begin
 	end;
 end;
 
-procedure TRipGrepperMainFrame.LoadBeforeSearchSettings;
+procedure TRipGrepperMiddleFrame.LoadBeforeSearchSettings;
 begin
 	//
 end;
 
-procedure TRipGrepperMainFrame.OnEOFProcess;
+procedure TRipGrepperMiddleFrame.OnEOFProcess;
 begin
 	TDebugUtils.DebugMessage(Format('End of processing rg.exe output in %s sec.', [GetElapsedTime(FswSearchStart)]));
 end;
 
-procedure TRipGrepperMainFrame.OnLastLine(const _iLineNr : integer);
+procedure TRipGrepperMiddleFrame.OnLastLine(const _iLineNr : integer);
 begin
 	// ListViewResult.AdjustColumnWidths(MaxWidths);
 	TThread.Synchronize(nil,
@@ -569,7 +569,7 @@ begin
 		end);
 end;
 
-procedure TRipGrepperMainFrame.OnNewOutputLine(const _iLineNr : integer; const _sLine : string; _bIsLast : Boolean = False);
+procedure TRipGrepperMiddleFrame.OnNewOutputLine(const _iLineNr : integer; const _sLine : string; _bIsLast : Boolean = False);
 begin
 	if (FAbortSearch) then begin
 		OnLastLine(_iLineNr);
@@ -629,12 +629,12 @@ begin
 
 end;
 
-function TRipGrepperMainFrame.ProcessShouldTerminate : boolean;
+function TRipGrepperMiddleFrame.ProcessShouldTerminate : boolean;
 begin
 	Result := Assigned(FRipGrepTask) and (FRipGrepTask.Status = TTaskStatus.Canceled);
 end;
 
-procedure TRipGrepperMainFrame.RefreshCounters;
+procedure TRipGrepperMiddleFrame.RefreshCounters;
 begin
 	if Assigned(FHistObject) then begin
 		var
@@ -645,7 +645,7 @@ begin
 	RefreshCountersInGUI;
 end;
 
-procedure TRipGrepperMainFrame.RefreshCountersInGUI;
+procedure TRipGrepperMiddleFrame.RefreshCountersInGUI;
 begin
 	TThread.Synchronize(nil,
 		procedure
@@ -655,7 +655,7 @@ begin
 		end);
 end;
 
-procedure TRipGrepperMainFrame.RunRipGrep;
+procedure TRipGrepperMiddleFrame.RunRipGrep;
 var
 	workDir : string;
 	args : TStrings;
@@ -688,7 +688,7 @@ begin
 	BottomFrame.SetRunningStatus();
 end;
 
-procedure TRipGrepperMainFrame.SetColumnWidths;
+procedure TRipGrepperMiddleFrame.SetColumnWidths;
 begin
 	// TListView_Resize(ListViewResult);
 	// ListView_SetColumnWidth(ListViewResult.Handle, 0, ColumnTextWidth);
@@ -697,12 +697,12 @@ begin
 	// ListView_SetColumnWidth(ListViewResult.Handle, 3, ColumnTextWidth);
 end;
 
-procedure TRipGrepperMainFrame.SetHistObject(const Value : THistoryItemObject);
+procedure TRipGrepperMiddleFrame.SetHistObject(const Value : THistoryItemObject);
 begin
 	FHistObject := Value;
 end;
 
-procedure TRipGrepperMainFrame.SetResultListViewDataToHistoryObj;
+procedure TRipGrepperMiddleFrame.SetResultListViewDataToHistoryObj;
 begin
 	TThread.Synchronize(nil, // Refresh listview on history click
 		procedure
@@ -717,28 +717,28 @@ begin
 		end);
 end;
 
-procedure TRipGrepperMainFrame.UpdateArgumentsAndSettings;
+procedure TRipGrepperMiddleFrame.UpdateArgumentsAndSettings;
 begin
 	if FHistObject.RipGrepArguments.Count = 0 then begin
 		FHistObject.CopyRipGrepArgsFromSettings(Settings);
 	end;
 end;
 
-procedure TRipGrepperMainFrame.UpdateHistObject;
+procedure TRipGrepperMiddleFrame.UpdateHistObject;
 begin
 	FHistObject := GetHistoryObject(CurrentHistoryItemIndex);
 	FHistObject.UpdateParserType();
 	FHistObject.CopyToSettings(Settings);
 end;
 
-procedure TRipGrepperMainFrame.UpdateRipGrepArgumentsInHistObj;
+procedure TRipGrepperMiddleFrame.UpdateRipGrepArgumentsInHistObj;
 begin
 	FHistObject.RipGrepArguments.Clear;
 	Settings.ReBuildArguments();
 	FHistObject.CopyRipGrepArgsFromSettings(Settings);
 end;
 
-procedure TRipGrepperMainFrame.VstResultBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
+procedure TRipGrepperMiddleFrame.VstResultBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
 Column : TColumnIndex; CellPaintMode : TVTCellPaintMode; CellRect : TRect; var ContentRect : TRect);
 begin
 	if Settings.RipGrepperViewSettings.AlternateRowColors and (Node.ChildCount = 0) then begin
@@ -748,7 +748,7 @@ begin
 	TargetCanvas.FillRect(CellRect);
 end;
 
-procedure TRipGrepperMainFrame.VstResultCompareNodes(Sender : TBaseVirtualTree; Node1, Node2 : PVirtualNode; Column : TColumnIndex;
+procedure TRipGrepperMiddleFrame.VstResultCompareNodes(Sender : TBaseVirtualTree; Node1, Node2 : PVirtualNode; Column : TColumnIndex;
 var Result : Integer);
 var
 	Data1 : PVSFileNodeData;
@@ -774,7 +774,7 @@ begin
 		end;
 end;
 
-procedure TRipGrepperMainFrame.VstResultDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
+procedure TRipGrepperMiddleFrame.VstResultDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
 Column : TColumnIndex; const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
 var
 	fc : TColor;
@@ -822,7 +822,7 @@ begin
 
 end;
 
-procedure TRipGrepperMainFrame.VstResultFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
+procedure TRipGrepperMiddleFrame.VstResultFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
 var
 	NodeData : PVSFileNodeData;
 begin
@@ -830,7 +830,7 @@ begin
 	NodeData^.MatchData.Free;
 end;
 
-procedure TRipGrepperMainFrame.VstResultGetImageIndex(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind;
+procedure TRipGrepperMiddleFrame.VstResultGetImageIndex(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind;
 Column : TColumnIndex; var Ghosted : Boolean; var ImageIndex : TImageIndex);
 var
 	nodeData : PVSFileNodeData;
@@ -850,7 +850,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepperMainFrame.VstResultGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
+procedure TRipGrepperMiddleFrame.VstResultGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
 TextType : TVSTTextType; var CellText : string);
 var
 	nodeData : PVSFileNodeData;
@@ -893,7 +893,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepperMainFrame.VstResultHeaderClick(Sender : TVTHeader; HitInfo : TVTHeaderHitInfo);
+procedure TRipGrepperMiddleFrame.VstResultHeaderClick(Sender : TVTHeader; HitInfo : TVTHeaderHitInfo);
 begin
 	// Don't call sorting procedure on right click
 	// Some list-headers have a contextmenu which should popup then.
@@ -910,7 +910,7 @@ begin
 		Sender.SortDirection := sdAscending;
 end;
 
-procedure TRipGrepperMainFrame.VstResultPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode;
+procedure TRipGrepperMiddleFrame.VstResultPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode;
 Column : TColumnIndex; TextType : TVSTTextType);
 begin
 	if TextType = ttNormal then begin

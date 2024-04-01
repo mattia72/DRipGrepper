@@ -22,7 +22,7 @@ uses
 type
 	TParentFrame = class(TFrame)
 		BottomFrame : TRipGrepperBottomFrame;
-		MainFrame : TRipGrepperMainFrame;
+		MainFrame : TRipGrepperMiddleFrame;
 		TopFrame : TRipGrepperTopFrame;
 
 		private
@@ -105,8 +105,8 @@ var
 	msg : string;
 begin
 	if _bWithElapsedTime then begin
-		msg := Format('Search took %s seconds with ' + EXE_AND_VERSION_FORMAT,
-			[MainFrame.HistObject.ElapsedTimeText, MainFrame.ExeVersion]);
+		msg := Format('Search took %s seconds', //with ' + EXE_AND_VERSION_FORMAT,
+			[MainFrame.HistObject.ElapsedTimeText]); //, MainFrame.ExeVersion]);
 		BottomFrame.FStatusBarStatus := IfThen(MainFrame.HistObject.RipGrepResult = RIPGREP_ERROR, 'ERROR', 'SUCCES');
 	end else begin
 		msg := Format(EXE_AND_VERSION_FORMAT, [MainFrame.ExeVersion]);

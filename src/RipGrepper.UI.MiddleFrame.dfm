@@ -1,4 +1,4 @@
-object RipGrepperMainFrame: TRipGrepperMainFrame
+object RipGrepperMainFrame: TRipGrepperMiddleFrame
   Left = 0
   Top = 0
   Width = 802
