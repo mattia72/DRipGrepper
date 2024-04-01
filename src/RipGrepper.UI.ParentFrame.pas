@@ -17,10 +17,11 @@ uses
 	RipGrepper.Common.Settings,
 	u_dzDpiScaleUtils,
 	RipGrepper.UI.MiddleFrame,
+	RipGrepper.UI.TFrameEx,
 	VirtualTrees;
 
 type
-	TParentFrame = class(TFrame)
+	TParentFrame = class(TFrameEx)
 		BottomFrame : TRipGrepperBottomFrame;
 		MainFrame : TRipGrepperMiddleFrame;
 		TopFrame : TRipGrepperTopFrame;
@@ -38,7 +39,7 @@ type
 			procedure Init;
 			procedure InitStatusBar;
 			procedure OnClose(Sender : TObject; var Action : TCloseAction);
-			procedure OnShow(Sender : TObject);
+			procedure FrameOnShow(Sender : TObject);
 			procedure SetStatusBarMessage(const _bWithElapsedTime : Boolean = False);
 			procedure SetStatusBarStatistic(const _s : string);
 			{ Public-Deklarationen }
@@ -61,6 +62,7 @@ uses
 constructor TParentFrame.Create(AOwner : TComponent);
 begin
 	inherited;
+	OnShow := FrameOnShow;
 	ParentFrame := self;
 	Init();
 end;
@@ -77,10 +79,9 @@ begin
 	Settings.Store;
 end;
 
-procedure TParentFrame.OnShow(Sender : TObject);
+procedure TParentFrame.FrameOnShow(Sender : TObject);
 begin
 	TDebugUtils.DebugMessage('TFrames.FormShow - begin');
-	inherited;
 	SetStatusBarMessage();
 	TDebugUtils.DebugMessage('TFrames.FormShow - end');
 end;
