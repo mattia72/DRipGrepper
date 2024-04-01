@@ -17,7 +17,7 @@ uses
 	RipGrepper.Common.Settings,
 	u_dzDpiScaleUtils,
 	RipGrepper.UI.MiddleFrame,
-	RipGrepper.UI.TFrameEx,
+	RipGrepper.UI.FrameEx,
 	VirtualTrees;
 
 type
