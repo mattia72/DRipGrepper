@@ -639,7 +639,7 @@ begin
 	if Assigned(FHistObject) then begin
 		var
 		beu := TBeginEndUpdater.New(ListBoxSearchHistory);
-		FHistObject.FileCount := VstResult.TotalCount; // synced
+		FHistObject.FileCount := VstResult.RootNodeCount; // synced
 		FHistObject.ErrorCount := Data.ErrorCount; // synced
 	end;
 	RefreshCountersInGUI;
