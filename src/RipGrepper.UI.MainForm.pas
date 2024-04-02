@@ -42,9 +42,9 @@ uses
 	RipGrepper.UI.ParentFrame;
 
 type
-	TRipGrepperForm = class(TForm { TScaleableBaseForm } )
+	TRipGrepperForm = class(TForm)
 		var
-			AllFrames1 : TParentFrame;
+			ParentFrame1 : TParentFrame;
 
 			procedure ActionCancelExecute(Sender : TObject);
 			procedure FormCreate(Sender : TObject);
@@ -110,7 +110,6 @@ constructor TRipGrepperForm.Create(_settings : TRipGrepperSettings);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.Create _settings');
 	inherited Create(nil);
-
 
 	if Assigned(_settings) then begin
 		FSettings := _settings;

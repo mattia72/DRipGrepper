@@ -1,3 +1,6 @@
+# - Change file version in project for all configuration
+# - Change Readme.md !!!
+# - Commit all changes and run this script
 $global:Version = "v2.0.1-beta"
 $global:PrevVersion = "v2.0.0-beta"
 # $global:PrevVersion = "v1.0.4-alpha"      

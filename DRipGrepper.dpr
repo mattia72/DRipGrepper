@@ -54,12 +54,13 @@ uses
   RipGrepper.OpenWith in 'src\OpenWith\RipGrepper.OpenWith.pas',
   RipGrepper.OpenWith.Runner in 'src\OpenWith\RipGrepper.OpenWith.Runner.pas',
   RipGrepper.OpenWith.SimpleTypes in 'src\OpenWith\RipGrepper.OpenWith.SimpleTypes.pas',
-  RipGrepper.UI.ScaleableBaseForm in 'src\RipGrepper.UI.ScaleableBaseForm.pas',
-  RipGrepper.UI.MainFrame in 'src\RipGrepper.UI.MainFrame.pas' {RipGrepperMainFrame: TFrame},
+  RipGrepper.UI.MiddleFrame in 'src\RipGrepper.UI.MiddleFrame.pas' {RipGrepperMiddleFrame: TFrame},
   RipGrepper.UI.BottomFrame in 'src\RipGrepper.UI.BottomFrame.pas' {RipGrepperBottomFrame: TFrame},
   RipGrepper.UI.TopFrame in 'src\RipGrepper.UI.TopFrame.pas' {RipGrepperTopFrame: TFrame},
   RipGrepper.UI.ParentFrame in 'src\RipGrepper.UI.ParentFrame.pas' {ParentFrame: TFrame},
-  RipGrepper.UI.DpiScaler in 'src\RipGrepper.UI.DpiScaler.pas';
+  RipGrepper.UI.DpiScaler in 'src\RipGrepper.UI.DpiScaler.pas',
+  RipGrepper.Parsers.Factory in 'src\RipGrepper.Parsers.Factory.pas',
+  RipGrepper.UI.FrameEx in 'src\RipGrepper.UI.FrameEx.pas';
 
 {$R *.res}
 

@@ -21,9 +21,9 @@ uses
 	VirtualTrees;
 
 type
-	TParentFrame = class(TFrameEx)
+	TParentFrame = class(TFrame)
 		BottomFrame : TRipGrepperBottomFrame;
-		MainFrame : TRipGrepperMiddleFrame;
+	    MainFrame: TRipGrepperMiddleFrame;
 		TopFrame : TRipGrepperTopFrame;
 
 		private
@@ -62,7 +62,7 @@ uses
 constructor TParentFrame.Create(AOwner : TComponent);
 begin
 	inherited;
-	OnShow := FrameOnShow;
+//	OnShow := FrameOnShow;
 	ParentFrame := self;
 	Init();
 end;

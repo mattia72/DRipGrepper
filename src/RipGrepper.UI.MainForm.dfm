@@ -154,7 +154,7 @@ object RipGrepperForm: TRipGrepperForm
   OnClose = FormClose
   OnShow = FormShow
   TextHeight = 15
-  inline AllFrames1: TParentFrame
+  inline ParentFrame1: TParentFrame
     Left = 0
     Top = 0
     Width = 645
@@ -164,6 +164,14 @@ object RipGrepperForm: TRipGrepperForm
     Margins.Right = 8
     Margins.Bottom = 8
     Align = alClient
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
     TabOrder = 0
-      end
+  end
 end
