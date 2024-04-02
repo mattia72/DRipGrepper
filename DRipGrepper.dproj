@@ -206,7 +206,6 @@
         </DCCReference>
         <DCCReference Include="src\RipGrepper.UI.DpiScaler.pas"/>
         <DCCReference Include="src\RipGrepper.Parsers.Factory.pas"/>
-        <DCCReference Include="src\RipGrepper.UI.FrameEx.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

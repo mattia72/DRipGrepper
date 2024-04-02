@@ -59,8 +59,7 @@ uses
   RipGrepper.UI.TopFrame in 'src\RipGrepper.UI.TopFrame.pas' {RipGrepperTopFrame: TFrame},
   RipGrepper.UI.ParentFrame in 'src\RipGrepper.UI.ParentFrame.pas' {ParentFrame: TFrame},
   RipGrepper.UI.DpiScaler in 'src\RipGrepper.UI.DpiScaler.pas',
-  RipGrepper.Parsers.Factory in 'src\RipGrepper.Parsers.Factory.pas',
-  RipGrepper.UI.FrameEx in 'src\RipGrepper.UI.FrameEx.pas';
+  RipGrepper.Parsers.Factory in 'src\RipGrepper.Parsers.Factory.pas';
 
 {$R *.res}
 

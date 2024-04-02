@@ -17,22 +17,20 @@ uses
 	RipGrepper.Common.Settings,
 	u_dzDpiScaleUtils,
 	RipGrepper.UI.MiddleFrame,
-	RipGrepper.UI.FrameEx,
 	VirtualTrees;
 
 type
 	TParentFrame = class(TFrame)
 		BottomFrame : TRipGrepperBottomFrame;
-	    MainFrame: TRipGrepperMiddleFrame;
+		MainFrame : TRipGrepperMiddleFrame;
 		TopFrame : TRipGrepperTopFrame;
 
 		private
 			FSettings : TRipGrepperSettings;
 			function GetSettings : TRipGrepperSettings;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
+			procedure FrameOnShowHide(var M : TMessage); message CM_SHOWINGCHANGED;
 
-			{ Private-Deklarationen }
-		protected
 		public
 			constructor Create(AOwner : TComponent); override;
 			destructor Destroy; override;
@@ -62,7 +60,7 @@ uses
 constructor TParentFrame.Create(AOwner : TComponent);
 begin
 	inherited;
-//	OnShow := FrameOnShow;
+	// OnShow := FrameOnShow;
 	ParentFrame := self;
 	Init();
 end;
@@ -86,6 +84,16 @@ begin
 	TDebugUtils.DebugMessage('TFrames.FormShow - end');
 end;
 
+procedure TParentFrame.FrameOnShowHide(var M : TMessage);
+begin
+    inherited;
+	if Showing then begin // onShow
+		FrameOnShow(self);
+	end else begin // onHide
+
+	end;
+end;
+
 function TParentFrame.GetSettings : TRipGrepperSettings;
 begin
 	if not Assigned(FSettings) then begin
@@ -106,8 +114,8 @@ var
 	msg : string;
 begin
 	if _bWithElapsedTime then begin
-		msg := Format('Search took %s seconds', //with ' + EXE_AND_VERSION_FORMAT,
-			[MainFrame.HistObject.ElapsedTimeText]); //, MainFrame.ExeVersion]);
+		msg := Format('Search took %s seconds', // with ' + EXE_AND_VERSION_FORMAT,
+			[MainFrame.HistObject.ElapsedTimeText]); // , MainFrame.ExeVersion]);
 		BottomFrame.FStatusBarStatus := IfThen(MainFrame.HistObject.RipGrepResult = RIPGREP_ERROR, 'ERROR', 'SUCCES');
 	end else begin
 		msg := Format(EXE_AND_VERSION_FORMAT, [MainFrame.ExeVersion]);
