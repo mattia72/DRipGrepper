@@ -5,7 +5,7 @@ interface
 uses
 	Winapi.Windows,
 	Winapi.Messages,
-	System.SysUtils,
+
 	System.Variants,
 	System.Classes,
 	Vcl.Graphics,
@@ -21,7 +21,12 @@ uses
 	Vcl.StdActns,
 	Vcl.Dialogs,
 	RipGrepper.Common.Types,
-	RipGrepper.UI.DpiScaler, GX_BaseForm;
+	RipGrepper.UI.DpiScaler,
+	GX_BaseForm,
+	Vcl.ButtonGroup,
+	Vcl.Buttons,
+	Vcl.ToolWin,
+	Vcl.ComCtrls;
 
 type
 	TRipGrepperSearchDialogForm = class(TForm)
@@ -46,6 +51,19 @@ type
 		btnSearchFile : TButton;
 		ActionSearchFile : TAction;
 		pnlBottom : TPanel;
+		ActionAddParamIgnoreCase : TAction;
+		ActionAddParamWord : TAction;
+		ActionAddParamRegex : TAction;
+		ToolBar1 : TToolBar;
+		tbIgnoreCase : TToolButton;
+		tbMatchWord : TToolButton;
+		tbUseRegex : TToolButton;
+		procedure ActionAddParamIgnoreCaseExecute(Sender : TObject);
+		procedure ActionAddParamIgnoreCaseUpdate(Sender : TObject);
+		procedure ActionAddParamRegexExecute(Sender : TObject);
+		procedure ActionAddParamRegexUpdate(Sender : TObject);
+		procedure ActionAddParamWordExecute(Sender : TObject);
+		procedure ActionAddParamWordUpdate(Sender : TObject);
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionSearchFolderExecute(Sender : TObject);
 		procedure ActionShowRipGrepOptionsFormExecute(Sender : TObject);
@@ -61,6 +79,9 @@ type
 			FSettings : TRipGrepperSettings;
 			function GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
 			procedure LoadSettings;
+			procedure AddRgOption(const _paramRegex : string; const _bRemove : Boolean = False);
+			procedure ButtonDown(const _paramRegex : string; _tb : TToolButton);
+			procedure RemoveRgOption(const _paramRegex : string);
 			procedure ProcessControl(_ctrl : TControl; _imgList : TImageList);
 			procedure SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings);
 			procedure StoreHistoriesAsCmbEntries;
@@ -84,7 +105,9 @@ uses
 	System.UITypes,
 	RipGrepper.UI.RipGrepOptionsForm,
 	RipGrepper.Helper.Types,
-	GX_OtaUtils;
+	GX_OtaUtils,
+	System.SysUtils,
+	System.RegularExpressions;
 
 const
 	RIPGREPPER_SEARCH_FORM = 'RipGrepperSearchDialogForm';
@@ -105,6 +128,48 @@ destructor TRipGrepperSearchDialogForm.Destroy;
 begin
 	FDpiScaler.Free;
 	inherited;
+end;
+
+procedure TRipGrepperSearchDialogForm.ActionAddParamIgnoreCaseExecute(Sender : TObject);
+begin
+	if (tbIgnoreCase.Down) then begin
+		RemoveRgOption(RG_PARAM_REGEX_IGNORE_CASE)
+	end else begin
+		AddRgOption(RG_PARAM_REGEX_IGNORE_CASE);
+	end;
+end;
+
+procedure TRipGrepperSearchDialogForm.ActionAddParamIgnoreCaseUpdate(Sender : TObject);
+begin
+	ButtonDown(RG_PARAM_REGEX_IGNORE_CASE, tbIgnoreCase);
+end;
+
+procedure TRipGrepperSearchDialogForm.ActionAddParamRegexExecute(Sender : TObject);
+begin
+	if (tbUseRegex.Down) then begin
+		AddRgOption(RG_PARAM_REGEX_FIXED_STRINGS);
+	end else begin
+		RemoveRgOption(RG_PARAM_REGEX_FIXED_STRINGS);
+	end;
+end;
+
+procedure TRipGrepperSearchDialogForm.ActionAddParamRegexUpdate(Sender : TObject);
+begin
+	ButtonDown(RG_PARAM_REGEX_FIXED_STRINGS, tbUseRegex);
+end;
+
+procedure TRipGrepperSearchDialogForm.ActionAddParamWordExecute(Sender : TObject);
+begin
+	if (tbMatchWord.Down) then begin
+		AddRgOption(RG_PARAM_REGEX_FIXED_STRINGS);
+	end else begin
+		RemoveRgOption(RG_PARAM_REGEX_FIXED_STRINGS);
+	end;
+end;
+
+procedure TRipGrepperSearchDialogForm.ActionAddParamWordUpdate(Sender : TObject);
+begin
+	ButtonDown(RG_PARAM_REGEX_FIXED_STRINGS, tbMatchWord);
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionCancelExecute(Sender : TObject);
@@ -206,6 +271,51 @@ begin
 	SetComboItemsAndText(cmbSearchDir, RG_ARG_SEARCH_PATH, FSettings.SearchPathsHistory);
 	SetComboItemsAndText(cmbSearchText, RG_ARG_SEARCH_TEXT, FSettings.SearchTextsHistory);
 	SetComboItemsAndText(cmbOptions, RG_ARG_OPTIONS, FSettings.RipGrepParamsHistory);
+end;
+
+procedure TRipGrepperSearchDialogForm.AddRgOption(const _paramRegex : string; const _bRemove : Boolean = False);
+var
+	list : TStringList;
+	options : string;
+	params : TArray<string>;
+	bFoundIdx : integer;
+begin
+	list := TStringList.Create(dupIgnore, False, True);
+	list.Delimiter := ' ';
+	try
+		options := cmbOptions.Text;
+		list.AddStrings(options.Split([' ']));
+		params := _paramRegex.Split(['|']);
+		for var p in params do begin
+			bFoundIdx := list.IndexOf(p);
+			if (bFoundIdx >= 0) then begin
+				break; // Already has
+			end;
+		end;
+
+		if (bFoundIdx < 0) then begin
+			list.Add(params[1]); // long params
+		end else if (_bRemove) then begin
+			list.Delete(bFoundIdx);
+		end;
+
+		cmbOptions.Text := list.DelimitedText;
+	finally
+		list.Free;
+	end;
+end;
+
+procedure TRipGrepperSearchDialogForm.ButtonDown(const _paramRegex : string; _tb : TToolButton);
+var
+	regex : TRegEx;
+begin
+	regex := TRegEx.Create(RG_PARAM_REGEX_IGNORE_CASE);
+	_tb.Down := regex.IsMatch(cmbOptions.Text);
+end;
+
+procedure TRipGrepperSearchDialogForm.RemoveRgOption(const _paramRegex : string);
+begin
+	AddRgOption(_paramRegex, True);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings);

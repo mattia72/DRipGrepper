@@ -11,6 +11,11 @@ uses
 
 const
 
+	RG_PARAM_REGEX_IGNORE_CASE = '-i|--ignore-case';
+	RG_PARAM_REGEX_CASE_SENSITIVE = '-s|--case-sensitive';
+	RG_PARAM_REGEX_FIXED_STRINGS = '-F|--fixed-strings';
+	RG_PARAM_REGEX_WORD_REGEX = '-w|--word-regexp';
+
 	APPNAME = 'DRipGrepper';
 	EXTENSION_NAME = 'DRipExtension';
 	EXTENSION_MENU_CAPTION = 'DRipGrepper';
