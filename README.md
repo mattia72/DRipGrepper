@@ -31,11 +31,11 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 - [x] help parametrizing `rg` in search dialog
   - [x] filter help texts: can't be selected 
   - [ ] expert mode or not appropriate parameters will be filtered 
-  - [ ] quick buttons for
-    - [ ] --ignore-case
-    - [ ] --case-sensitive
-    - [ ] --word-regexp
-    - [ ] --fixed-strings
+  - [x] quick buttons for
+    - [x] --ignore-case
+    - [x] --case-sensitive
+    - [x] --word-regexp
+    - [x] --fixed-strings
   - [ ] --glob settings as separate editbox
 
 ### :rocket: Open with...
@@ -83,13 +83,10 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 - [ ] [scoop](https://scoop.sh) install
 - [ ] [chocolatey](https://chocolatey.org) install
 
-## Screenshots
-![Screenshot](./screenshots/04-02-2024_10-37-31.png)
-
 ## Thanks
 -  [ripgrep](https://github.com/BurntSushi/ripgrep)
 -  [dprocess](https://stackoverflow.com/a/45029879/2923283): port from freepascal
--  [VirtualTree](https://github.com/TurboPack/VirtualTreeView)
+-  [VirtualTreeView](https://github.com/TurboPack/VirtualTreeView)
 -  [GExpert](https://www.gexperts.org/download)
 -  [dzlib](https://sourceforge.net/p/dzlib/code/HEAD/tree)
 -  [UniSynEdit](https://sourceforge.net/projects/synedit)

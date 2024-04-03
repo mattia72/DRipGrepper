@@ -1,12 +1,20 @@
-# - Change file version in project for all configuration
-# - Change Readme.md !!!
-# - Commit all changes and run this script
-$global:Version = "v2.0.2-beta"
-$global:PrevVersion = "v2.0.1-beta"
-# $global:PrevVersion = "v1.0.4-alpha"      
+# - Change file version in project for all! configuration
+# - Change Readme.md 
+# - Commit and push all changes
+# - run this script
+$global:Version = "v2.1.0-beta"
+$global:PrevVersion = "v2.1.0-beta"
+$global:Description = @"
+Bug Fixes and some improvements
+### Search Dialog
+  - [x] quick buttons for
+    - [x] --ignore-case
+    - [x] --case-sensitive
+    - [x] --word-regexp (if not regex, we should surround with \b - it si not implemented yet)
+    - [x] --fixed-string
+"@
 
 $global:PreRelease = $true
-$global:Description = "Bug Fixes and some improvements"
 $global:AssetZipName = "DRipGrepper.Standalone.exe.zip"
 
 $global:Owner = "mattia72"
