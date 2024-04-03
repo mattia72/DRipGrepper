@@ -41,7 +41,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 ### :rocket: Open with...
 - [x] show configured editors to open matching file on matching position
    - [ ] on double click
-   - [ ] with menu / toolbar
+   - [x] with menu / toolbar
 - [ ] separate editor for distinct extensions
 
 ### Configure Open with...
@@ -72,6 +72,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
   - [x] menu item in Tools (shortcut configurable in `DripExtension*.ini`)
   - [x] Default shortcut Shift+Alt+R
   - [x] click on matching file, opens file in the editor on position 
+  - [ ] popup menu
   - [ ] save window position
   - [ ] search word on cursor
   - [ ] search only in opened files/project files/project group
@@ -88,6 +89,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 ## Thanks
 -  [ripgrep](https://github.com/BurntSushi/ripgrep)
 -  [dprocess](https://stackoverflow.com/a/45029879/2923283): port from freepascal
+-  [VirtualTree](https://github.com/TurboPack/VirtualTreeView)
 -  [GExpert](https://www.gexperts.org/download)
 -  [dzlib](https://sourceforge.net/p/dzlib/code/HEAD/tree)
 -  [UniSynEdit](https://sourceforge.net/projects/synedit)

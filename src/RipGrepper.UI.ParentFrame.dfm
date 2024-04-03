@@ -1,8 +1,8 @@
 object ParentFrame: TParentFrame
   Left = 0
   Top = 0
-  Width = 640
-  Height = 480
+  Width = 851
+  Height = 490
   Margins.Left = 8
   Margins.Top = 8
   Margins.Right = 8
@@ -20,7 +20,7 @@ object ParentFrame: TParentFrame
   inline TopFrame: TRipGrepperTopFrame
     Left = 0
     Top = 0
-    Width = 640
+    Width = 851
     Height = 31
     Margins.Left = 8
     Margins.Top = 8
@@ -29,14 +29,14 @@ object ParentFrame: TParentFrame
     Align = alTop
     TabOrder = 0
     inherited ToolBar1: TToolBar
-      Width = 634
+      Width = 845
     end
   end
   inline MainFrame: TRipGrepperMiddleFrame
     Left = 0
     Top = 31
-    Width = 640
-    Height = 419
+    Width = 851
+    Height = 429
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -44,23 +44,23 @@ object ParentFrame: TParentFrame
     Align = alClient
     TabOrder = 1
     inherited panelMain: TPanel
-      Width = 634
-      Height = 413
+      Width = 845
+      Height = 423
       inherited SplitView1: TSplitView
-        Height = 413
+        Height = 423
         inherited Splitter1: TSplitter
-          Height = 413
+          Height = 423
         end
         inherited PanelHistory: TPanel
-          Height = 413
+          Height = 423
           inherited ListBoxSearchHistory: TListBox
-            Height = 395
+            Height = 405
           end
         end
         inherited PanelResult: TPanel
-          Height = 413
+          Height = 423
           inherited VstResult: TVirtualStringTree
-            Height = 405
+            Height = 415
           end
         end
       end
@@ -68,8 +68,8 @@ object ParentFrame: TParentFrame
   end
   inline BottomFrame: TRipGrepperBottomFrame
     Left = 0
-    Top = 450
-    Width = 640
+    Top = 460
+    Width = 851
     Height = 30
     Margins.Left = 20
     Margins.Top = 20
@@ -78,12 +78,12 @@ object ParentFrame: TParentFrame
     Align = alBottom
     TabOrder = 2
     inherited pnlBottom: TPanel
-      Width = 640
+      Width = 851
       inherited StatusBar1: TStatusBar
-        Width = 640
+        Width = 851
       end
       inherited ActivityIndicator1: TActivityIndicator
-        Left = 346
+        Left = 557
       end
     end
   end

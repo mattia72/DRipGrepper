@@ -2,7 +2,7 @@ object RipGrepperBottomFrame: TRipGrepperBottomFrame
   Left = 0
   Top = 0
   Width = 800
-  Height = 30
+  Height = 31
   Margins.Left = 8
   Margins.Top = 8
   Margins.Right = 8
@@ -14,7 +14,7 @@ object RipGrepperBottomFrame: TRipGrepperBottomFrame
     Left = 0
     Top = 0
     Width = 800
-    Height = 30
+    Height = 31
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -25,16 +25,14 @@ object RipGrepperBottomFrame: TRipGrepperBottomFrame
     TabOrder = 0
     DesignSize = (
       800
-      30)
+      31)
     object StatusBar1: TStatusBar
-      Left = 0
+      AlignWithMargins = True
+      Left = 3
       Top = 0
-      Width = 800
-      Height = 30
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 80
-      Margins.Bottom = 8
+      Width = 794
+      Height = 28
+      Margins.Top = 0
       Action = ActionStatusBar
       Align = alClient
       Panels = <
@@ -54,7 +52,7 @@ object RipGrepperBottomFrame: TRipGrepperBottomFrame
     end
     object ActivityIndicator1: TActivityIndicator
       Left = 314
-      Top = 3
+      Top = 4
       Margins.Left = 0
       Margins.Top = 0
       Margins.Right = 0
