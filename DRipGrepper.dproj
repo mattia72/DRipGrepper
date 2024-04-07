@@ -4,7 +4,7 @@
         <ProjectVersion>19.5</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -59,7 +59,7 @@
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
         <SanitizedProjectName>DRipGrepper</SanitizedProjectName>
         <DCC_Define>NO_TRANSLATION;NO_TRANSLATION_HINT;NO_OPTIMIZE_DZ_GRAPHIC_UTILS_HINT;UnicodeRE;UseOutputDebugString;STANDALONE;$(DCC_Define)</DCC_Define>
-        <DCC_UnitSearchPath>.\OpenWith;.\external\GExpert;.\external\dzlib;$(BDS)\source\ToolsAPI\ToolsAPI.pas;$(BDS)\source\ToolsAPI;.\external\UniSynEdit;.\external\RegExpr;C:\SCCS\agsrc_trunk\!STANDARD\System\FastMM4;C:\SCCS\agsrc_trunk\!STANDARD\System;.\Extension\src;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\FastMM4;.\external\GExpert;.\external\dzlib;$(BDS)\source\ToolsAPI\ToolsAPI.pas;$(BDS)\source\ToolsAPI;.\external\UniSynEdit;.\external\RegExpr;.\Extension\src;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <UsePackages>true</UsePackages>
         <DCC_UnitAlias>GX_IdeDockStandAlone=GX_IdeDock;SynRegExpr=RegExprReplaceUnit;$(DCC_UnitAlias)</DCC_UnitAlias>
     </PropertyGroup>
@@ -97,8 +97,8 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.1.0.23;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.1.0.0;Comments=</VerInfo_Keys>
-        <VerInfo_Build>23</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.1.0.24;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.1.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Build>24</VerInfo_Build>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
         <Icon_MainIcon>icons\DripGrepper.ico</Icon_MainIcon>
         <VerInfo_MinorVer>1</VerInfo_MinorVer>
@@ -117,8 +117,8 @@
         <UWP_DelphiLogo150>icons\DripGrepperLogo.png</UWP_DelphiLogo150>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
-        <VerInfo_Build>3</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=;FileDescription=DRipGrepper;FileVersion=2.0.2.3;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=2.0.2.0;Comments=</VerInfo_Keys>
+        <VerInfo_Build>4</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=DRipGrepper;FileVersion=2.0.2.4;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=2.0.2.0;Comments=</VerInfo_Keys>
         <VerInfo_Release>2</VerInfo_Release>
     </PropertyGroup>
     <ItemGroup>
@@ -178,33 +178,33 @@
         <DCCReference Include="external\GExpert\GX_IdeUtils.pas"/>
         <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.CmdListForm.pas">
             <Form>OpenWithCmdList</Form>
-            <FormType>dfm</FormType>
+<FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.ConfigForm.pas">
             <Form>OpenWithConfigForm</Form>
-            <FormType>dfm</FormType>
+<FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.pas"/>
         <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.Runner.pas"/>
         <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.SimpleTypes.pas"/>
         <DCCReference Include="src\RipGrepper.UI.MiddleFrame.pas">
             <Form>RipGrepperMiddleFrame</Form>
-            <FormType>dfm</FormType>
+<FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="src\RipGrepper.UI.BottomFrame.pas">
             <Form>RipGrepperBottomFrame</Form>
-            <FormType>dfm</FormType>
+<FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="src\RipGrepper.UI.TopFrame.pas">
             <Form>RipGrepperTopFrame</Form>
-            <FormType>dfm</FormType>
+<FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="src\RipGrepper.UI.ParentFrame.pas">
             <Form>ParentFrame</Form>
-            <FormType>dfm</FormType>
+<FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="src\RipGrepper.UI.DpiScaler.pas"/>
