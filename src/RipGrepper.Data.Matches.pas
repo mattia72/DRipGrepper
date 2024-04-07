@@ -78,7 +78,6 @@ end;
 
 procedure TRipGrepperData.Add(_item : IParsedObjectRow);
 var
-	nodeData : TVSFileNodeData;
 	node : PVirtualNode;
 	sFile : string;
 begin

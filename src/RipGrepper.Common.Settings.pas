@@ -8,38 +8,15 @@ uses
 	System.Generics.Collections,
 	System.Generics.Defaults,
 	RipGrepper.OpenWith.SimpleTypes,
-	RipGrepper.Common.Types;
+	RipGrepper.Common.Types,
+	RipGrepper.Common.Settings.Base;
 
 type
-	ISettingsPersister = interface
-		['{A841C46D-56AF-4391-AB88-4C9496589FF4}']
-		procedure Load;
-		procedure Store;
-	end;
-
-	TRipGrepperSettingsBase = class(TSingletonImplementation, ISettingsPersister)
-		private
-			FIsModified : Boolean;
-			function GetIniFile : TIniFile;
-			procedure SetIniFile(const Value : TIniFile);
-			procedure SetIsModified(const Value : Boolean);
-
-		protected
-			FIniFile : TIniFile;
-			FIsLoaded : Boolean;
-			function GetIsLoaded : Boolean; virtual;
-			function GetIsModified : Boolean; virtual;
-
-		public
-			constructor Create(const _ini : TIniFile);
-			procedure Load; virtual; abstract;
-			procedure Store; virtual; abstract;
-			property IniFile : TIniFile read GetIniFile write SetIniFile;
-			property IsLoaded : Boolean read GetIsLoaded;
-			property IsModified : Boolean read GetIsModified write SetIsModified;
-	end;
 
 	TRipGrepParameterSettings = class(TRipGrepperSettingsBase)
+		const
+			INI_SECTION = 'RipGrepSettings';
+
 		private
 			FRipGrepArguments : TRipGrepArguments;
 			FOptions : string;
@@ -55,6 +32,7 @@ type
 			constructor Create(const _ini : TIniFile);
 			destructor Destroy; override;
 			function BuildCmdLine : string;
+			function GetIniSectionName : string; override;
 			procedure InitRipGrepExePath;
 			procedure Load; override;
 			function ReBuildArguments : TStrings;
@@ -71,15 +49,19 @@ type
 			VIEW_SETTINGS : array [0 .. 4] of string = ('ShowRelativePath', 'ShowFileIcon', 'AlternateRowColors', 'IndentLines',
 				'ExpandNodes');
 
+		const
+			INI_SECTION = 'RipGrepperViewSettings';
+
 		public
 			AlternateRowColors : Boolean;
 			IndentLines : Boolean;
 			ShowFileIcon : Boolean;
 			ShowRelativePath : Boolean;
 			ExpandNodes : Boolean;
-			procedure StoreViewSettings(_ini : TIniFile; const _s : string = '');
+			procedure StoreViewSettings(const _s : string = '');
 			constructor Create(const _ini : TIniFile);
-			procedure Init;
+			function GetIniSectionName : string; override;
+			procedure Init; override;
 			procedure Load; override;
 			procedure Store; override;
 	end;
@@ -94,6 +76,7 @@ type
 		public
 			constructor Create(const _ini : TIniFile);
 			destructor Destroy; override;
+			function GetIniSectionName : string; override;
 			procedure Load; override;
 			procedure Store; override;
 			property Command[index : Integer] : string read GetCommand write SetCommand;
@@ -108,9 +91,30 @@ type
 			FDripGrepperShortCut : string;
 
 		public
+			function GetIniSectionName : string; override;
 			procedure Load; override;
 			procedure Store; override;
 			property DripGrepperShortCut : string read FDripGrepperShortCut write FDripGrepperShortCut;
+	end;
+
+	TRipGrepperAppSettings = class(TRipGrepperSettingsBase)
+		const
+			INI_SECTION = 'RipGrepperSettings';
+
+		private
+			FDebugTrace : Boolean;
+			FExpertMode : Boolean;
+			procedure SetExpertMode(const Value : Boolean);
+
+		protected
+			procedure Init; override;
+
+		public
+			function GetIniSectionName : string; override;
+			procedure Load; override;
+			procedure Store; override;
+			property DebugTrace : Boolean read FDebugTrace write FDebugTrace;
+			property ExpertMode : Boolean read FExpertMode write SetExpertMode;
 	end;
 
 	TRipGrepperSettings = class(TRipGrepperSettingsBase)
@@ -126,6 +130,8 @@ type
 			FRipGrepArguments : TRipGrepArguments;
 			FSearchPathIsDir : Boolean;
 			FExtensionSettings : TRipGrepperExtensionSettings;
+			FRipGrepperSettings : TRipGrepperAppSettings;
+
 		class var
 			function GetActualRipGrepParam : string;
 			function GetActualSearchPath : string;
@@ -146,6 +152,7 @@ type
 			constructor Create;
 			destructor Destroy; override;
 			procedure AddIfNotContains(_to, _from : TStrings);
+			function GetIniSectionName : string; override;
 			function GetIsModified : Boolean; override;
 			function GetRipGrepArguments : TRipGrepArguments;
 			function ReBuildArguments : TStrings;
@@ -159,6 +166,7 @@ type
 			property SearchPathsHistory : TStrings read FSearchPathsHistory write SetSearchPathsHistory;
 			property RipGrepParamsHistory : TSTrings read FRipGrepParamsHistory write SetRipGrepParamsHistory;
 			property RipGrepperOpenWithSettings : TRipGrepperOpenWithSettings read FRipGrepperOpenWithSettings;
+			property RipGrepperSettings : TRipGrepperAppSettings read FRipGrepperSettings write FRipGrepperSettings;
 			property RipGrepperViewSettings : TRipGrepperViewSettings read FRipGrepperViewSettings write FRipGrepperViewSettings;
 			property SearchPathIsDir : Boolean read GetSearchPathIsDir;
 			property SearchTextsHistory : TStrings read FSearchTextsHistory write SetSearchTextsHistory;
@@ -268,6 +276,7 @@ begin
 	FRipGrepperOpenWithSettings.Free;
 	FRipGrepParameters.Free;
 	FExtensionSettings.Free;
+	FRipGrepperSettings.Free;
 	FIniFile.Free;
 	inherited;
 end;
@@ -283,17 +292,22 @@ begin
 	FRipGrepperViewSettings := TRipGrepperViewSettings.Create(FIniFile);
 	FRipGrepperOpenWithSettings := TRipGrepperOpenWithSettings.Create(FIniFile);
 	FExtensionSettings := TRipGrepperExtensionSettings.Create(FIniFile);
-	FRipGrepperViewSettings.Init();
 	FSearchPathsHistory := TStringList.Create(dupIgnore, False, True);
 	FSearchTextsHistory := TStringList.Create(dupIgnore, False, True);
 	FRipGrepParamsHistory := TStringList.Create(dupIgnore, False, True);
 	FRipGrepArguments := TStringList.Create();
+	FRipGrepperSettings := TRipGrepperAppSettings.Create(FIniFile);
 	FIsLoaded := False;
 end;
 
 procedure TRipGrepperSettings.AddIfNotContains(_to, _from : TStrings);
 begin
 	FIsModified := TItemInserter.AddToSringListIfNotContains(_to, _from);
+end;
+
+function TRipGrepperSettings.GetIniSectionName : string;
+begin
+	Result := 'DummySection';
 end;
 
 function TRipGrepperSettings.GetIsModified : Boolean;
@@ -308,15 +322,22 @@ end;
 
 procedure TRipGrepperSettings.Load;
 begin
-	FRipGrepParameters.Load;
-	FRipGrepperViewSettings.Load;
-	FRipGrepperOpenWithSettings.Load;
-	FExtensionSettings.Load;
+	try
+		FRipGrepParameters.Load;
+		FRipGrepperViewSettings.Load;
+		FRipGrepperOpenWithSettings.Load;
+		FExtensionSettings.Load;
+		FRipGrepperSettings.Load;
 
-	LoadHistoryEntries(FSearchPathsHistory, 'SearchPathsHistory');
-	LoadHistoryEntries(FSearchTextsHistory, 'SearchTextsHistory');
-	LoadHistoryEntries(FRipGrepParamsHistory, 'RipGrepParamsHistory');
-
+		LoadHistoryEntries(FSearchPathsHistory, 'SearchPathsHistory');
+		LoadHistoryEntries(FSearchTextsHistory, 'SearchTextsHistory');
+		LoadHistoryEntries(FRipGrepParamsHistory, 'RipGrepParamsHistory');
+	except
+		on E : Exception do begin
+			TDebugUtils.DebugMessage(Format('Exception %s ', [E.Message]));
+			MessageDlg(E.Message + CRLF + 'Settings load from ' + FIniFile.FileName + ' went wrong.', TMsgDlgType.mtError, [mbOk], 0);
+		end;
+	end;
 	InitSettings;
 	FIsLoaded := True;
 end;
@@ -347,6 +368,7 @@ begin
 		FRipGrepperViewSettings.Store;
 		FRipGrepperOpenWithSettings.Store;
 		FExtensionSettings.Store;
+		FRipGrepperSettings.Store;
 
 		if (FRipGrepParameters.IsModified) then begin
 			FRipGrepParameters.Store;
@@ -359,7 +381,7 @@ end;
 
 procedure TRipGrepperSettings.StoreViewSettings(const _s : string = '');
 begin
-	FRipGrepperViewSettings.StoreViewSettings(FIniFile, _s);
+	FRipGrepperViewSettings.StoreViewSettings(_s);
 end;
 
 procedure TRipGrepperSettings.StoreHistoryEntries(const _list : TStrings; const _section : string);
@@ -408,6 +430,11 @@ begin
 	finally
 		cmdLine.Free;
 	end;
+end;
+
+function TRipGrepParameterSettings.GetIniSectionName : string;
+begin
+	Result := INI_SECTION;
 end;
 
 procedure TRipGrepParameterSettings.InitRipGrepExePath;
@@ -497,23 +524,29 @@ begin
 	inherited;
 end;
 
+function TRipGrepperViewSettings.GetIniSectionName : string;
+begin
+	Result := INI_SECTION;
+end;
+
 procedure TRipGrepperViewSettings.Init;
 begin
-	ShowRelativePath := False;
-	ShowFileIcon := False;
-	AlternateRowColors := False;
-	IndentLines := False;
-	ExpandNodes := True;
+	inherited;
+	CreateSetting('ShowRelativePath', TRipGrepperSetting.New(vtBoolean, False));
+	CreateSetting('ShowFileIcon', TRipGrepperSetting.New(vtBoolean, False));
+	CreateSetting('AlternateRowColors', TRipGrepperSetting.New(vtBoolean, False));
+	CreateSetting('IndentLines', TRipGrepperSetting.New(vtBoolean, False));
+	CreateSetting('ExpandNodes', TRipGrepperSetting.New(vtBoolean, True));
 end;
 
 procedure TRipGrepperViewSettings.Load;
 begin
-
-	ShowRelativePath := FIniFile.ReadBool('RipGrepperSettings', 'ShowRelativePath', False);
-	ShowFileIcon := FIniFile.ReadBool('RipGrepperSettings', 'ShowFileIcon', False);
-	AlternateRowColors := FIniFile.ReadBool('RipGrepperSettings', 'AlternateRowColors', False);
-	IndentLines := FIniFile.ReadBool('RipGrepperSettings', 'IndentLines', False);
-	ExpandNodes := FIniFile.ReadBool('RipGrepperSettings', 'ExpandNodes', True);
+	inherited Load();
+	ShowRelativePath := LoadSetting('ShowRelativePath');
+	ShowFileIcon := LoadSetting('ShowFileIcon');
+	AlternateRowColors := LoadSetting('AlternateRowColors');
+	IndentLines := LoadSetting('IndentLines');
+	ExpandNodes := LoadSetting('ExpandNodes');
 
 	FIsLoaded := True;
 end;
@@ -521,12 +554,13 @@ end;
 procedure TRipGrepperViewSettings.Store;
 begin
 	if IsLoaded and IsModified then begin
-		StoreViewSettings(FIniFile, '');
+		StoreViewSettings('');
 		FIsModified := False;
 	end;
+	inherited Store();
 end;
 
-procedure TRipGrepperViewSettings.StoreViewSettings(_ini : TIniFile; const _s : string = '');
+procedure TRipGrepperViewSettings.StoreViewSettings(const _s : string = '');
 var
 	i : integer;
 begin
@@ -534,23 +568,18 @@ begin
 	if _s.IsEmpty then begin
 		// store all
 		for i := 0 to high(VIEW_SETTINGS) do begin
-			StoreViewSettings(_ini, VIEW_SETTINGS[i]);
+			StoreViewSettings(VIEW_SETTINGS[i]);
 		end;
 	end else if MatchStr(_s, VIEW_SETTINGS[i]) then begin
-		_ini.WriteBool('RipGrepperSettings', VIEW_SETTINGS[i], ShowRelativePath);
-		TDebugUtils.DebugMessage(VIEW_SETTINGS[i] + ' stored');
+		StoreSetting(VIEW_SETTINGS[i], ShowRelativePath);
 	end else if MatchStr(_s, VIEW_SETTINGS[PreInc(i)]) then begin
-		_ini.WriteBool('RipGrepperSettings', VIEW_SETTINGS[i], ShowFileIcon);
-		TDebugUtils.DebugMessage(VIEW_SETTINGS[i] + ' stored');
+		StoreSetting(VIEW_SETTINGS[i], ShowFileIcon);
 	end else if MatchStr(_s, VIEW_SETTINGS[PreInc(i)]) then begin
-		_ini.WriteBool('RipGrepperSettings', VIEW_SETTINGS[i], AlternateRowColors);
-		TDebugUtils.DebugMessage(VIEW_SETTINGS[i] + ' stored');
+		StoreSetting(VIEW_SETTINGS[i], AlternateRowColors);
 	end else if MatchStr(_s, VIEW_SETTINGS[PreInc(i)]) then begin
-		_ini.WriteBool('RipGrepperSettings', VIEW_SETTINGS[i], IndentLines);
-		TDebugUtils.DebugMessage(VIEW_SETTINGS[i] + ' stored');
+		StoreSetting(VIEW_SETTINGS[i], IndentLines);
 	end else if MatchStr(_s, VIEW_SETTINGS[PreInc(i)]) then begin
-		_ini.WriteBool('RipGrepperSettings', VIEW_SETTINGS[i], ExpandNodes);
-		TDebugUtils.DebugMessage(VIEW_SETTINGS[i] + ' stored');
+		StoreSetting(VIEW_SETTINGS[i], ExpandNodes);
 	end else begin
 		raise Exception.Create('Settings: ' + _s + ' not stored!');
 	end;
@@ -601,6 +630,11 @@ begin
 	end;
 end;
 
+function TRipGrepperOpenWithSettings.GetIniSectionName : string;
+begin
+	Result := OPEN_WITH_SETTINGS;
+end;
+
 procedure TRipGrepperOpenWithSettings.Load;
 var
 	s : string;
@@ -649,39 +683,9 @@ begin
 	end;
 end;
 
-constructor TRipGrepperSettingsBase.Create(const _ini : TIniFile);
+function TRipGrepperExtensionSettings.GetIniSectionName : string;
 begin
-	inherited Create();
-	FIniFile := _ini;
-	FIsModified := False;
-	FIsLoaded := False;
-end;
-
-function TRipGrepperSettingsBase.GetIniFile : TIniFile;
-begin
-	Result := FIniFile;
-end;
-
-function TRipGrepperSettingsBase.GetIsLoaded : Boolean;
-begin
-	Result := FIsLoaded;
-end;
-
-function TRipGrepperSettingsBase.GetIsModified : Boolean;
-begin
-	Result := FIsModified;
-end;
-
-procedure TRipGrepperSettingsBase.SetIniFile(const Value : TIniFile);
-begin
-	if Assigned(FIniFile) then
-		FIniFile.Free;
-	FIniFile := Value;
-end;
-
-procedure TRipGrepperSettingsBase.SetIsModified(const Value : Boolean);
-begin
-	FIsModified := Value;
+	Result := INI_SECTION;
 end;
 
 procedure TRipGrepperExtensionSettings.Load;
@@ -709,6 +713,37 @@ begin
 		FIsModified := False;
 	end;
 	{$ENDIF}
+end;
+
+function TRipGrepperAppSettings.GetIniSectionName : string;
+begin
+	Result := INI_SECTION;
+end;
+
+procedure TRipGrepperAppSettings.Init;
+begin
+	inherited;
+	CreateSetting('DebugTrace', TRipGrepperSetting.New(vtBoolean, False));
+	CreateSetting('ExpertMode', TRipGrepperSetting.New(vtBoolean, True));
+end;
+
+procedure TRipGrepperAppSettings.Load;
+begin
+	inherited Load();
+	FExpertMode := LoadSetting('ExpertMode');
+	FDebugTrace := LoadSetting('DebugTrace');
+end;
+
+procedure TRipGrepperAppSettings.SetExpertMode(const Value : Boolean);
+begin
+	FExpertMode := Value;
+end;
+
+procedure TRipGrepperAppSettings.Store;
+begin
+	StoreSetting('ExpertMode', FExpertMode);
+	StoreSetting('DebugTrace', FDebugTrace);
+	inherited Store();
 end;
 
 initialization
