@@ -58,6 +58,7 @@ type
 		tbIgnoreCase : TToolButton;
 		tbMatchWord : TToolButton;
 		tbUseRegex : TToolButton;
+		gbExpert : TGroupBox;
 		procedure ActionAddParamIgnoreCaseExecute(Sender : TObject);
 		procedure ActionAddParamIgnoreCaseUpdate(Sender : TObject);
 		procedure ActionAddParamRegexExecute(Sender : TObject);
@@ -237,6 +238,7 @@ end;
 procedure TRipGrepperSearchDialogForm.FormShow(Sender : TObject);
 begin
 	LoadSettings;
+	gbExpert.Visible := FSettings.RipGrepperSettings.ExpertMode;
 end;
 
 function TRipGrepperSearchDialogForm.GetSelectedPaths(const _fdo : TFileDialogOptions) : string;

@@ -4,7 +4,7 @@
         <ProjectVersion>19.5</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -209,6 +209,7 @@
         </DCCReference>
         <DCCReference Include="src\RipGrepper.UI.DpiScaler.pas"/>
         <DCCReference Include="src\RipGrepper.Parsers.Factory.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Settings.Base.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
