@@ -3,7 +3,7 @@ program DRipGrepper;
 uses
 	{$IFDEF FASTMM4_OPT}
 	FastMM4,
-    {$ENDIF}
+	{$ENDIF }
 	Vcl.Forms,
 	RipGrepper.UI.MainForm in 'src\RipGrepper.UI.MainForm.pas' {RipGrepperForm} ,
 	RipGrepper.Tools.ProcessUtils in 'src\RipGrepper.Tools.ProcessUtils.pas',
@@ -62,7 +62,8 @@ uses
 	RipGrepper.UI.TopFrame in 'src\RipGrepper.UI.TopFrame.pas' {RipGrepperTopFrame: TFrame} ,
 	RipGrepper.UI.ParentFrame in 'src\RipGrepper.UI.ParentFrame.pas' {ParentFrame: TFrame} ,
 	RipGrepper.UI.DpiScaler in 'src\RipGrepper.UI.DpiScaler.pas',
-	RipGrepper.Parsers.Factory in 'src\RipGrepper.Parsers.Factory.pas';
+	RipGrepper.Parsers.Factory in 'src\RipGrepper.Parsers.Factory.pas',
+	RipGrepper.Common.Settings.Base in 'src\RipGrepper.Common.Settings.Base.pas';
 
 {$R *.res}
 
