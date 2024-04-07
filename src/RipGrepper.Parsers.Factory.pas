@@ -35,7 +35,7 @@ end;
 
 class function TRipGrepperParsersFactory.TryGetParserType(_ripGrepArgs : TArrayEx<string>) : TParserType;
 begin
-	if _ripGrepArgs.Contains('-p') or _ripGrepArgs.Contains('--pretty') then begin
+	if _ripGrepArgs.HasMatch(['-p','--pretty']) then begin
 		Result := ptRipGrepPrettySearch;
 	end else begin
 		Result := ptRipGrepSearch;

@@ -205,6 +205,7 @@ type
 				: Boolean; overload;
 			function BinarySearch(const AItem : T; out AFoundIndex : Integer; const AComparer : IComparer<T>) : Boolean; overload;
 			function BinarySearch(const AItem : T; out AFoundIndex : Integer) : Boolean; overload;
+			function HasMatch(const Values : TArray<T>) : boolean; overload;
 
 			procedure Unique; // remove duplicates
 			function CopyArray(FromIndex : integer; Count : integer = -1) : TArrayEx<T>; // return array slice
@@ -643,6 +644,17 @@ end;
 function TArrayEx<T>.Add(const Value : T) : integer;
 begin
 	Result := TArray.Add<T>(Items, Value);
+end;
+
+function TArrayEx<T>.HasMatch(const Values : TArray<T>) : boolean;
+begin
+	Result := False;
+	for var v : T in Values do begin
+		if TArray.Contains<T>(Items, v) then begin
+			Result := True;
+			Exit
+		end;
+	end;
 end;
 
 procedure TArrayEx<T>.Unique;

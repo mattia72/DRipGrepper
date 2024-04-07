@@ -117,8 +117,8 @@ begin
 	row.Add(TColumnData.New('Row', ''));
 	row.Add(TColumnData.New('Col', ''));
 	row.Add(TColumnData.New('Text', ''));
-	ParseResult.ErrorText := 'rg.exe result line couldn''t parsed.';
-	ParseResult.IsError := True;
+	FParseResult.ErrorText := RG_PARSE_ERROR;
+	FParseResult.IsError := True;
 end;
 
 function TVimGrepMatchLineParser.Validate(var row : TArrayEx<TColumnData>) : Boolean;

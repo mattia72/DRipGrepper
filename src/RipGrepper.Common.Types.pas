@@ -10,6 +10,7 @@ uses
 	Vcl.Graphics;
 
 const
+	RG_PARSE_ERROR = 'rg.exe result line couldn''t parsed.';
 
 	RG_PARAM_REGEX_IGNORE_CASE = '-i|--ignore-case';
 	RG_PARAM_REGEX_CASE_SENSITIVE = '-s|--case-sensitive';

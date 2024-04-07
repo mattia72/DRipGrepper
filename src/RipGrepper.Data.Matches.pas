@@ -86,7 +86,7 @@ begin
 		HistObject.Matches.Items.Add(_item);
 		if (_item.IsError) then begin
 			Inc(FErrorCount);
-			Exit
+			node := GetParentNode(_item.ErrorText);
 		end else begin
 			sFile := _item.Columns[0].Text;
 			node := GetParentNode(sFile);
@@ -246,12 +246,16 @@ procedure TRipGrepperData.AddChildNode(const _parentNode : PVirtualNode; _item :
 var
 	nodeData : TVSFileNodeData;
 begin
+	if _item.IsError then begin
+		_item.ParserType := ptRipGrepError;
+	end;
 	case _item.ParserType of
 		ptRipGrepSearch :
-		nodeData := TVSFileNodeData.New('', //           File
-		{ } StrToIntDef(_item.Columns[1].Text, -1), //    Row
-		{ } StrToIntDef(_item.Columns[2].Text, -1), //    Col
-		{ } _item.Columns[3].Text);                 //    RowText
+		nodeData := TVSFileNodeData.New('', // File
+		{ } StrToIntDef(_item.Columns[1].Text, -1), // Row
+		{ } StrToIntDef(_item.Columns[2].Text, -1), // Col
+		{ } _item.Columns[3].Text // RowText
+			);
 		ptRipGrepPrettySearch :
 		nodeData := TVSFileNodeData.New('', // File
 		{ } StrToIntDef(_item.Columns[1].Text, -1), // Row
@@ -259,8 +263,15 @@ begin
 		{ } _item.Columns[3].Text, // TextBefore
 		{ } _item.Columns[4].Text, // MatchText
 		{ } _item.Columns[5].Text // TextAfter
-		);
+			);
+		ptRipGrepError :
+		nodeData := TVSFileNodeData.New(_item.Columns[0].Text, // File
+		{ } -1, // Row
+		{ } -1, // Col
+		{ } ''); // RowText
+
 	end;
+
 	AddVSTStructure(_parentNode, nodeData);
 end;
 
