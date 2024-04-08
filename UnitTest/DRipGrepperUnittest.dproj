@@ -92,7 +92,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="RipGrepMatchTest.pas"/>
+        <DCCReference Include="RipGrepper.Parser.MatchTest.pas"/>
         <DCCReference Include="..\src\RipGrepper.Data.Matches.pas"/>
         <DCCReference Include="RipGrepper.ProcessUtils.Test.pas"/>
         <DCCReference Include="..\src\RipGrepper.Tools.ProcessUtils.pas"/>

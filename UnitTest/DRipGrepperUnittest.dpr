@@ -6,25 +6,25 @@ program DRipGrepperUnittest;
 {$STRONGLINKTYPES ON}
 
 uses
-	{$IFDEF FASTMM4_OPT}
-	FastMM4,
-	{$ENDIF }
-	System.SysUtils,
-	{$IFDEF TESTINSIGHT}
-	TestInsight.DUnitX,
-	{$ELSE}
-	DUnitX.Loggers.Console,
-	DUnitX.Loggers.Xml.NUnit,
-	{$ENDIF }
-	DUnitX.TestFramework,
-	RipGrepMatchTest in 'RipGrepMatchTest.pas',
-	RipGrepper.Data.Matches in '..\src\RipGrepper.Data.Matches.pas',
-	RipGrepper.ProcessUtils.Test in 'RipGrepper.ProcessUtils.Test.pas',
-	RipGrepper.Tools.ProcessUtils in '..\src\RipGrepper.Tools.ProcessUtils.pas',
-	RipGrepper.Helper.Types.Test in 'RipGrepper.Helper.Types.Test.pas',
-	RipGrepper.Helper.Types in '..\src\RipGrepper.Helper.Types.pas',
-	RipGrepper.Parsers.VimGrepMatchLine in '..\src\RipGrepper.Parsers.VimGrepMatchLine.pas',
-	RipGrepper.Common.Types in '..\src\RipGrepper.Common.Types.pas';
+  {$IFDEF FASTMM4_OPT}
+  FastMM4,
+  {$ENDIF }
+  System.SysUtils,
+  {$IFDEF TESTINSIGHT}
+  TestInsight.DUnitX,
+  {$ELSE}
+  DUnitX.Loggers.Console,
+  DUnitX.Loggers.Xml.NUnit,
+  {$ENDIF }
+  DUnitX.TestFramework,
+  RipGrepper.Parser.MatchTest in 'RipGrepper.Parser.MatchTest.pas',
+  RipGrepper.Data.Matches in '..\src\RipGrepper.Data.Matches.pas',
+  RipGrepper.ProcessUtils.Test in 'RipGrepper.ProcessUtils.Test.pas',
+  RipGrepper.Tools.ProcessUtils in '..\src\RipGrepper.Tools.ProcessUtils.pas',
+  RipGrepper.Helper.Types.Test in 'RipGrepper.Helper.Types.Test.pas',
+  RipGrepper.Helper.Types in '..\src\RipGrepper.Helper.Types.pas',
+  RipGrepper.Parsers.VimGrepMatchLine in '..\src\RipGrepper.Parsers.VimGrepMatchLine.pas',
+  RipGrepper.Common.Types in '..\src\RipGrepper.Common.Types.pas';
 
 {$IFNDEF TESTINSIGHT}
 
