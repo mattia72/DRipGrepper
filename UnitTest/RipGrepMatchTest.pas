@@ -28,10 +28,10 @@ type
 			[TestCase('Test Relative Path, with match begin',
 
 				#$1B'[0m'#$1B'[36m.\test\path\file.ext'#$1B'[0m:'#$1B'[0m'#$1B'[32m24'#$1B'[0m:'#$1B'[0m19'#$1B'[0m:'#$1B'[0m'#$1B'[1m'#$1B'[31mmatch'#$1B'[0mtext_after_match')
-			]
+				]
 			[TestCase('Test File, with match end',
 				#$1B'[0m'#$1B'[36mfile.ext'#$1B'[0m:'#$1B'[0m'#$1B'[32m24'#$1B'[0m:'#$1B'[0m19'#$1B'[0m:'#$1B'[0m'#$1B'[1m'#$1B'[31mmatch'#$1B'[0m')
-			]
+				]
 			procedure ParsePrettyLineTest(const _s : string);
 			// Test with TestCase Attribute to supply parameters.
 			[Test]
@@ -48,7 +48,7 @@ uses
 	RipGrepper.Common.Types,
 	System.Classes,
 	System.SysUtils,
-	RipGrepper.Parsers.VimGrepMatchLine;
+	RipGrepper.Parsers.VimGrepMatchLine, RipGrepper.Common.Interfaces;
 
 procedure TRipGrepMatchTest.Setup;
 begin
@@ -71,6 +71,7 @@ begin
 		{ } m.ParseResult.Columns[Integer(ciRow)].Text + CRLF +
 		{ } m.ParseResult.Columns[Integer(ciCol)].Text + CRLF +
 		{ } m.ParseResult.Columns[Integer(ciText)].Text + CRLF);
+	m.Free;
 end;
 
 procedure TRipGrepMatchTest.ParsePrettyLineTest(const _s : string);
@@ -90,18 +91,19 @@ begin
 		{ } m.ParseResult.Columns[Integer(ciTextAfterMatch)].Text + CRLF
 
 		);
+	m.Free;
 end;
 
 procedure TRipGrepMatchTest.ValidatePathTest(const _s : string);
 var
-	m : TVimGrepMatchLineParser;
+	m : ILineParser;
 begin
 	m := TVimGrepMatchLineParser.Create();
 	m.ParseLine(0, _s);
-	Assert.IsTrue(not m.ParseResult.IsError,
+	Assert.IsTrue(not (m as TVimGrepMatchLineParser).ParseResult.IsError,
 		{ } 'Line:' + CRLF +
 		{ } _s + CRLF +
-		{ } m.ParseResult.Columns[Integer(ciFile)].Text);
+		{ } (m as TVimGrepMatchLineParser).ParseResult.Columns[Integer(ciFile)].Text);
 end;
 
 initialization
