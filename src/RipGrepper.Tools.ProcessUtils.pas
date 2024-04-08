@@ -99,7 +99,7 @@ begin
 		PStartVal := P;
 		GoToNextCRLF(P, PEndVal);
 		SetString(S, PStartVal, P - PStartVal);
-		sLineOut := sLineOut + S;
+		sLineOut := sLineOut + S;  // TODO: FastMM reports here Memory leak
 
 		iLineEndFound := GoTillCRLF(P, PEndVal);
 

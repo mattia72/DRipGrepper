@@ -88,7 +88,7 @@ begin
 			Inc(FErrorCount);
 			node := GetParentNode(_item.ErrorText);
 		end else begin
-			sFile := _item.Columns[0].Text;
+			sFile := _item.Columns[Integer(ciFile)].Text;
 			node := GetParentNode(sFile);
 		end;
 		AddChildNode(node, _item);
@@ -125,7 +125,7 @@ begin
 	var
 	matchItems := HistObject.Matches.Items;
 	try
-		fn := matchItems[_index].Columns[0].Text;
+		fn := matchItems[_index].Columns[Integer(ciFile)].Text;
 		if matchItems[_index].IsError then begin
 			_item.Caption := ' ' + fn;
 			_item.ImageIndex := LV_IMAGE_IDX_ERROR;
@@ -133,9 +133,9 @@ begin
 			_item.Caption := fn;
 			_item.ImageIndex := LV_IMAGE_IDX_OK;
 		end;
-		_item.SubItems.Add(matchItems[_index].Columns[1].Text);
-		_item.SubItems.Add(matchItems[_index].Columns[2].Text);
-		_item.SubItems.Add(matchItems[_index].Columns[3].Text);
+		_item.SubItems.Add(matchItems[_index].Columns[Integer(ciRow)].Text);
+		_item.SubItems.Add(matchItems[_index].Columns[Integer(ciCol)].Text);
+		_item.SubItems.Add(matchItems[_index].Columns[Integer(ciText)].Text);
 	finally
 		{$IFDEF THREADSAFE_LIST}
 		HistObject.Matches.Unlock;
@@ -153,7 +153,7 @@ begin
 	matchItems := HistObject.Matches.Items;
 	try
 		for var item in matchItems do begin
-			sFile := item.Columns[0].Text;
+			sFile := item.Columns[Integer(ciFile)].Text;
 			node := GetParentNode(sFile);
 			AddChildNode(node, item);
 		end;
@@ -252,20 +252,20 @@ begin
 	case _item.ParserType of
 		ptRipGrepSearch :
 		nodeData := TVSFileNodeData.New('', // File
-		{ } StrToIntDef(_item.Columns[1].Text, -1), // Row
-		{ } StrToIntDef(_item.Columns[2].Text, -1), // Col
-		{ } _item.Columns[3].Text // RowText
+		{ } StrToIntDef(_item.Columns[Integer(ciRow)].Text, -1), // Row
+		{ } StrToIntDef(_item.Columns[Integer(ciCol)].Text, -1), // Col
+		{ } _item.Columns[Integer(ciText)].Text // RowText
 			);
 		ptRipGrepPrettySearch :
 		nodeData := TVSFileNodeData.New('', // File
-		{ } StrToIntDef(_item.Columns[1].Text, -1), // Row
-		{ } StrToIntDef(_item.Columns[2].Text, -1), // Col
-		{ } _item.Columns[3].Text, // TextBefore
-		{ } _item.Columns[4].Text, // MatchText
-		{ } _item.Columns[5].Text // TextAfter
+		{ } StrToIntDef(_item.Columns[Integer(ciRow)].Text, -1), // Row
+		{ } StrToIntDef(_item.Columns[Integer(ciCol)].Text, -1), // Col
+		{ } _item.Columns[Integer(ciText)].Text, // TextBefore
+		{ } _item.Columns[Integer(ciMatchText)].Text, // MatchText
+		{ } _item.Columns[Integer(ciTextAfterMatch)].Text // TextAfter
 			);
 		ptRipGrepError :
-		nodeData := TVSFileNodeData.New(_item.Columns[0].Text, // File
+		nodeData := TVSFileNodeData.New(_item.Columns[Integer(ciFile)].Text, // File
 		{ } -1, // Row
 		{ } -1, // Col
 		{ } ''); // RowText

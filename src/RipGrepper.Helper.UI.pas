@@ -44,17 +44,7 @@ type
 		class procedure AutoSizeStatusbarPanel(_sb : TStatusBar; const _idx : Integer);
 	end;
 
-	TListViewColumnAdjuster = class
-		private
-			class function GetMaxWidth(_lv : TListView; const _width, _colIndex : Integer; var maxWidths : TArray<integer>) : integer;
-
-		public
-			class procedure AdjustColumnWidths(_lv : TListView; _item : TListItem; var maxWidths : TArray<integer>);
-	end;
-
 	TListViewHelper = class Helper for TCustomListView
-		// procedure WMNotify(var AMessage : TWMNotify); message WM_NOTIFY;
-		procedure AdjustColumnWidths(var _MaxWidths : TArray<Integer>);
 		function TryGetSelected(out _Idx : Integer) : Boolean;
 		function GetSelectedOrFirst() : TListItem;
 		procedure InitMaxWidths(var _arrMaxWidths : TArray<Integer>);
@@ -104,14 +94,8 @@ uses
 	Winapi.CommCtrl,
 	RipGrepper.Helper.Types,
 	Winapi.ShellAPI,
-	System.IOUtils;
-
-procedure TListViewHelper.AdjustColumnWidths(var _MaxWidths : TArray<Integer>);
-begin
-	if self.Items.Count > 0 then begin
-		TListViewColumnAdjuster.AdjustColumnWidths(self as TListView, self.GetSelectedOrFirst(), _MaxWidths);
-	end;
-end;
+	System.IOUtils, 
+	RipGrepper.Common.Types;
 
 function TListViewHelper.GetSelectedOrFirst : TListItem;
 var
@@ -211,37 +195,6 @@ begin
 
 	// calculate the width of the Panel
 	_sb.Panels[_idx].Width := TWidthHelper.TrueFontWidth(_sb.Font, s) + borders[2] * 2 + MARGIN; // vertical border * 2 + 2 extra Pixels
-end;
-
-class procedure TListViewColumnAdjuster.AdjustColumnWidths(_lv : TListView; _item : TListItem; var maxWidths : TArray<integer>);
-const
-	SPACE_TITLE = 50;
-	SPACE = 20;
-begin
-	if (_lv.Items.Count > 0) and (_item.SubItems.Count > 0) then begin
-		_lv.Columns[0].Width := SPACE_TITLE +
-		// in an early state of drawing, it doesn't work well:
-		// { } GetMaxWidth(_lv, ListView_GetStringWidth(_lv.Handle, PChar(_item.Caption)), 0, maxWidths);
-		{ } GetMaxWidth(_lv, TWidthHelper.TrueFontWidth(_lv.Font, _item.Caption), 0, maxWidths);
-		for var i := 1 to _lv.Columns.Count - 1 do begin
-			_lv.Columns[i].Width := SPACE +
-			{ } GetMaxWidth(_lv, ListView_GetStringWidth(_lv.Handle, PChar(_item.SubItems[i - 1])), i, maxWidths);
-		end;
-	end;
-end;
-
-class function TListViewColumnAdjuster.GetMaxWidth(_lv : TListView; const _width, _colIndex : Integer; var maxWidths : TArray<integer>)
-	: integer;
-begin
-	if Length(maxWidths) = 0 then begin
-		Result := 0
-	end else begin
-		if _width > maxWidths[_colIndex] then begin
-			_lv.Columns[_colIndex].Width := _width;
-			maxWidths[_colIndex] := _width;
-		end;
-		Result := maxWidths[_colIndex];
-	end;
 end;
 
 procedure TCanvasHelper.SetAlteringColors(_idx : Integer);

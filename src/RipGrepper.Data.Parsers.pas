@@ -54,7 +54,7 @@ constructor TRipGrepLineParserData.Create(const _type: TParserType; _regex: stri
 begin
 	inherited Create();
 	FParserType := _type;
-    FLineParseRegex := TRegex.Create(_regex);
+	FLineParseRegex := TRegex.Create(_regex);
 end;
 
 destructor TRipGrepLineParserData.Destroy;
