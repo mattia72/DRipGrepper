@@ -32,7 +32,9 @@ uses
 	RipGrepper.Common.Types,
 	System.Threading,
 	VirtualTrees,
-	RipGrepper.Helper.UI;
+	RipGrepper.Helper.UI,
+	RipGrepper.Parsers.ParallelParser,
+	ArrayEx;
 
 type
 	TRipGrepperMiddleFrame = class(TFrame, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
@@ -108,15 +110,18 @@ type
 			FSettings : TRipGrepperSettings;
 			FswSearchStart : TStopwatch;
 			FIconImgList : TIconImageList;
+			FParsingThreads : TArrayEx<TParallelParser>;
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
 			function GetCounterText(data : THistoryItemObject) : string;
 			function GetData : TRipGrepperData;
 			function GetHistObject : THistoryItemObject;
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
 			function GetHistoryObjectList : TStringList;
+			function GetNewParallelParser : TParallelParser;
 			function GetSettings : TRipGrepperSettings;
 			procedure LoadBeforeSearchSettings;
 			procedure OnLastLine(const _iLineNr : integer);
+			procedure OnParsingProgress;
 			procedure RefreshCounters;
 			procedure RefreshCountersInGUI;
 			procedure RunRipGrep;
@@ -187,8 +192,7 @@ uses
 	GX_OtaUtils,
 	RipGrepper.UI.BottomFrame,
 	VirtualTrees.Types,
-	RipGrepper.Parsers.Factory,
-	ArrayEx;
+	RipGrepper.Parsers.Factory;
 
 {$R *.dfm}
 
@@ -219,6 +223,9 @@ begin
 	FHistoryObjectList.Free;
 	FData.Free;
 	FIconImgList.Free;
+	for var t : TParallelParser in FParsingThreads do begin
+		t.Free;
+	end;
 
 	inherited;
 end;
@@ -415,6 +422,14 @@ begin
 
 end;
 
+function TRipGrepperMiddleFrame.GetNewParallelParser : TParallelParser;
+begin
+	Result := TParallelParser.Create(FData, FHistObject);
+	Result.OnLastLine := OnLastLine;
+	Result.OnProgress := OnParsingProgress;
+	FParsingThreads.Add(Result);
+end;
+
 function TRipGrepperMiddleFrame.GetRowColText(_i : Integer; _type : TVSTTextType) : string;
 begin
 	Result := '';
@@ -499,7 +514,8 @@ begin
 	SetResultListViewDataToHistoryObj();
 end;
 
-procedure TRipGrepperMiddleFrame.ListBoxSearchHistoryDrawItem(Control : TWinControl; index : Integer; Rect : TRect; State : TOwnerDrawState);
+procedure TRipGrepperMiddleFrame.ListBoxSearchHistoryDrawItem(Control : TWinControl; index : Integer; Rect : TRect;
+	State : TOwnerDrawState);
 var
 	c2ndRowTop : Integer;
 	cMatchesLeft : Integer;
@@ -556,6 +572,8 @@ end;
 procedure TRipGrepperMiddleFrame.OnLastLine(const _iLineNr : integer);
 begin
 	// ListViewResult.AdjustColumnWidths(MaxWidths);
+	TDebugUtils.DebugMessage(Format('Last line (%d.) received in %s sec.', [_iLineNr, GetElapsedTime(FswSearchStart)]));
+
 	TThread.Synchronize(nil,
 		procedure
 		begin
@@ -570,6 +588,8 @@ begin
 end;
 
 procedure TRipGrepperMiddleFrame.OnNewOutputLine(const _iLineNr : integer; const _sLine : string; _bIsLast : Boolean = False);
+var
+	parser : TParallelParser;
 begin
 	if (FAbortSearch) then begin
 		OnLastLine(_iLineNr);
@@ -586,47 +606,24 @@ begin
 		end;
 	end;
 
+	parser := GetNewParallelParser();
+	parser.SetNewLine(_iLineNr, _sLine, _bIsLast);
+
 	try
-		TThread.Queue(nil, // faster
-		// TThread.Synchronize(nil, // slower
-			procedure
-			var
-				parser : ILineParser;
-			begin
-				if _bIsLast then begin
-					OnLastLine(_iLineNr);
-					TDebugUtils.DebugMessage(Format('Last line (%d.) received in %s sec.', [_iLineNr, GetElapsedTime(FswSearchStart)]));
-					TDebugUtils.DebugMessage(Format('Before parse last line: %d in %d err: %d', [FHistObject.TotalMatchCount,
-						FHistObject.FileCount, FHistObject.ErrorCount]));
-				end;
-
-				if (not _sLine.IsEmpty) then begin
-					parser := TRipGrepperParsersFactory.GetParser(FHistObject.ParserType);
-
-					try
-						var
-						parsedObj := parser.ParseLine(_iLineNr, _sLine, _bIsLast);
-						var
-						o := TParsedObjectRow.Create(parsedObj, FHistObject.ParserType);
-						Data.Add(o);
-					finally
-						parser := nil;
-					end;
-				end;
-				// First 100 than every 100 and the last
-				if (_iLineNr < DRAW_RESULT_UNTIL_FIRST_LINE_COUNT) or ((_iLineNr mod DRAW_RESULT_ON_EVERY_LINE_COUNT) = 0) or _bIsLast then
-				begin
-					RefreshCounters;
-					VstResult.Repaint;
-				end;
-			end);
+		parser.Parse();
 	except
 		on e : EOutOfMemory do begin
 			TDebugUtils.DebugMessage(Format('Exception %s ' + CRLF + 'on line %d', [E.Message, _iLineNr]));
-			MessageDlg(Format(E.Message + CRLF + 'Too many results. Try to be more specific', [_iLineNr]), TMsgDlgType.mtError, [mbOk], 0);
+			MessageDlg(E.Message + CRLF + 'Too many results. Try to be more specific.', TMsgDlgType.mtError, [mbOk], 0);
 		end;
 	end;
 
+end;
+
+procedure TRipGrepperMiddleFrame.OnParsingProgress;
+begin
+	RefreshCounters;
+	VstResult.Repaint;
 end;
 
 function TRipGrepperMiddleFrame.ProcessShouldTerminate : boolean;
@@ -753,7 +750,7 @@ var Result : Integer);
 var
 	Data1 : PVSFileNodeData;
 	Data2 : PVSFileNodeData;
-	Data1Parent : PVSFileNodeData;
+	Data1Parent : PVSFileNodeData; // TODO: compare file + other column!!!
 	Data2Parent : PVSFileNodeData;
 begin
 	Data1 := VstResult.GetNodeData(Node1);
