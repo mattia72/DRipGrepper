@@ -23,7 +23,7 @@ type
 			property ParseResult : IParsedObjectRow read GetParseResult write SetParseResult;
 			constructor Create; virtual;
 			destructor Destroy; override;
-			function ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False) : IParsedObjectRow; virtual;
+			procedure ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False); virtual;
 	end;
 
 	TVimGrepPrettyMatchLineParser = class(TVimGrepMatchLineParser)
@@ -33,7 +33,7 @@ type
 
 		public
 			constructor Create; override;
-			function ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False) : IParsedObjectRow; override;
+			procedure ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False); override;
 	end;
 
 implementation
@@ -67,13 +67,13 @@ end;
 
 { TVimGrepMatchLineParser }
 
-function TVimGrepMatchLineParser.ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False) : IParsedObjectRow;
+procedure TVimGrepMatchLineParser.ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False);
 var
 	m : TMatch;
 	cd : TArrayEx<TColumnData>;
 begin
-	ParseResult.RowNr := _iLnNr;
-//	ParseResult.ParserType := ParserData.ParserType;
+	FParseResult.RowNr := _iLnNr;
+	// ParseResult.ParserType := ParserData.ParserType;
 
 	m := ParserData.LineParseRegex.Match(_s);
 	if m.Success then begin
@@ -85,25 +85,15 @@ begin
 		cd.Add(TColumnData.New('Row', m.Groups['row'].Value));
 		cd.Add(TColumnData.New('Col', m.Groups['col'].Value));
 		cd.Add(TColumnData.New('Text', m.Groups['text'].Value));
-		ParseResult.IsError := not Validate(cd);
+		FParseResult.IsError := not Validate(cd);
 	end else begin
 		SetRgResultLineParseError(cd, _s);
+		FParseResult.ErrorText := RG_PARSE_ERROR;
+		FParseResult.IsError := True;
 	end;
 
-	ParseResult.RowNr := _iLnNr;
-	ParseResult.Columns := cd;
-
-	// if (ParseResult.IsError) then begin
-	// TDebugUtils.DebugMessage('Error parsing line: ' + CRLF +
-	// { } _s + CRLF +
-	// { } 'File: ' + cd[Integer(ciFile)].Text + CRLF +
-	// { } 'Row: ' + cd[Integer(ciRow)].Text + CRLF +
-	// { } 'Col: ' + cd[Integer(ciCol)].Text + CRLF +
-	// { } 'Text: ' + cd[Integer(ciText)].Text + CRLF +
-	// { } 'ErrorText: ' + ParseResult.ErrorText);
-	// end;
-
-	Result := ParseResult;
+	FParseResult.RowNr := _iLnNr;
+	FParseResult.Columns := cd;
 end;
 
 procedure TVimGrepMatchLineParser.SetParseResult(const Value : IParsedObjectRow);
@@ -117,8 +107,6 @@ begin
 	row.Add(TColumnData.New('Row', ''));
 	row.Add(TColumnData.New('Col', ''));
 	row.Add(TColumnData.New('Text', ''));
-	FParseResult.ErrorText := RG_PARSE_ERROR;
-	FParseResult.IsError := True;
 end;
 
 function TVimGrepMatchLineParser.Validate(var row : TArrayEx<TColumnData>) : Boolean;
@@ -166,14 +154,13 @@ end;
 
 { TVimGrepPrettyMatchLineParser }
 
-function TVimGrepPrettyMatchLineParser.ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False)
-	: IParsedObjectRow;
+procedure TVimGrepPrettyMatchLineParser.ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False);
 var
 	m : TMatch;
 	cd : TArrayEx<TColumnData>;
 begin
 	ParseResult.RowNr := _iLnNr;
-//    ParseResult.ParserType := ParserData.ParserType;
+	// ParseResult.ParserType := ParserData.ParserType;
 
 	m := ParserData.LineParseRegex.Match(_s);
 	if m.Success then begin
@@ -186,7 +173,8 @@ begin
 		cd.Add(TColumnData.New('Col', m.Groups['col'].Value));
 		cd.Add(TColumnData.New('Text', m.Groups['text_before_match'].Value));
 		cd.Add(TColumnData.New('MatchText', m.Groups['match_text'].Value));
-		var count := cd.Count;
+		var
+		count := cd.Count;
 		if m.Groups.Count > count + 2 then begin
 			cd.Add(TColumnData.New('TextAfterMatch', m.Groups['text_after_match'].Value));
 		end else begin
@@ -195,22 +183,12 @@ begin
 		ParseResult.IsError := not Validate(cd);
 	end else begin
 		SetRgResultLineParseError(cd, _s);
+		FParseResult.ErrorText := RG_PARSE_ERROR;
+		FParseResult.IsError := True;
 	end;
 
 	ParseResult.RowNr := _iLnNr;
 	ParseResult.Columns := cd;
-
-	// if (ParseResult.IsError) then begin
-	// TDebugUtils.DebugMessage('Error parsing line: ' + CRLF +
-	// { } _s + CRLF +
-	// { } 'File: ' + cd[Integer(ciFile)].Text + CRLF +
-	// { } 'Row: ' + cd[Integer(ciRow)].Text + CRLF +
-	// { } 'Col: ' + cd[Integer(ciCol)].Text + CRLF +
-	// { } 'Text: ' + cd[Integer(ciText)].Text + CRLF +
-	// { } 'ErrorText: ' + ParseResult.ErrorText);
-	// end;
-
-	Result := ParseResult;
 end;
 
 function TVimGrepPrettyMatchLineParser.Validate(var row : TArrayEx<TColumnData>) : Boolean;

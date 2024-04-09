@@ -41,7 +41,11 @@ type
 
 	ILineParser = interface
 		['{C7B3E1CC-635C-4D67-9681-2352898822CD}']
-		function ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False): IParsedObjectRow;
+		function GetParseResult: IParsedObjectRow;
+		procedure SetParseResult(const Value : IParsedObjectRow);
+		property ParseResult: IParsedObjectRow read GetParseResult write SetParseResult;
+
+		procedure ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False);
 
     end;
 

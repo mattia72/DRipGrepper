@@ -69,7 +69,6 @@ end;
 procedure TParallelParser.ParseLine(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean);
 var
 	ifParser : ILineParser;
-	ifParsed : IParsedObjectRow;
 	oParsed : IParsedObjectRow;
 begin
 	TThread.Queue(nil,
@@ -84,13 +83,12 @@ begin
 
 			if (not _sLine.IsEmpty) then begin
 				ifParser := TRipGrepperParsersFactory.GetParser(FHistObject.ParserType);
-				ifParsed := ifParser.ParseLine(_iLineNr, _sLine, _bIsLast);
-				oParsed := TParsedObjectRow.Create(ifParsed, FHistObject.ParserType);
+				ifParser.ParseLine(_iLineNr, _sLine, _bIsLast);
+				oParsed := TParsedObjectRow.Create(ifParser.ParseResult, FHistObject.ParserType);
 				try
 					FData.Add(oParsed);
 				finally
 					ifParser := nil;
-					ifParsed := nil;
 					oParsed := nil;
 				end;
 			end;

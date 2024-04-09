@@ -36,10 +36,14 @@ type
 	TRipGrepHelpLineParser = class(TInterfacedObject, ILineParser) // inharitance not supported of interface implemetation!!!
 		private
 			FParserData : ILineParserData;
+			FParseResult: IParsedObjectRow;
+			function GetParseResult: IParsedObjectRow;
+			procedure SetParseResult(const Value : IParsedObjectRow);
 
 		public
 			constructor Create;
-			function ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False) : IParsedObjectRow;
+			procedure ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False);
+			property ParseResult: IParsedObjectRow read GetParseResult write SetParseResult;
 	end;
 
 implementation
@@ -90,9 +94,19 @@ begin
 	FParserData := TRipGrepLineParserData.Create(ptRipGrepHelp, RG_HELP_LINE_REGEX);
 end;
 
-function TRipGrepHelpLineParser.ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False) : IParsedObjectRow;
+function TRipGrepHelpLineParser.GetParseResult: IParsedObjectRow;
 begin
-	Result := nil;
+	Result := FParseResult;
+end;
+
+procedure TRipGrepHelpLineParser.ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False);
+begin
+//Todo
+end;
+
+procedure TRipGrepHelpLineParser.SetParseResult(const Value : IParsedObjectRow);
+begin
+	FParseResult := Value;
 end;
 
 end.
