@@ -122,6 +122,7 @@ type
 
 		public
 			constructor Create(const _por : IParsedObjectRow; _parserType : TParserType); overload;
+			destructor Destroy; override;
 			procedure CopyTo(var _por : TParsedObjectRow);
 			property Columns : TArrayEx<TColumnData> read GetColumns write SetColumns;
 			property ErrorText : string read GetErrorText write SetErrorText;
@@ -182,6 +183,11 @@ begin
 	RowNr := _por.RowNr;
 	IsError := _por.IsError;
 	ParserType := _parserType;
+end;
+
+destructor TParsedObjectRow.Destroy;
+begin
+	inherited;
 end;
 
 procedure TParsedObjectRow.CopyTo(var _por : TParsedObjectRow);
