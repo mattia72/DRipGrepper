@@ -79,6 +79,7 @@ object ParentFrame: TParentFrame
     TabOrder = 2
     inherited pnlBottom: TPanel
       Width = 851
+      Height = 30
       inherited StatusBar1: TStatusBar
         Width = 851
       end

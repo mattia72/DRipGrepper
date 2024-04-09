@@ -171,6 +171,7 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
       Margins.Bottom = 8
       Align = alClient
       Columns = <>
+      Items.ItemData = {}
       MultiSelect = True
       OwnerDraw = True
       GroupView = True
