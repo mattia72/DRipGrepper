@@ -154,14 +154,14 @@ type
 			function GetCount : integer;
 			procedure SetCount(const Value : integer);
 			function GetItemAt(Index : integer) : T;
-			function GetMaxIndex: Integer;
+			function GetMaxIndex : Integer;
 			procedure SetItemAt(Index : integer; Value : T);
 
 		public
 			Items : TArray<T>;
 			property Count : integer read GetCount write SetCount;
 			property ItemAt[index : Integer] : T read GetItemAt write SetItemAt; default;
-			property MaxIndex: Integer read GetMaxIndex;
+			property MaxIndex : Integer read GetMaxIndex;
 
 			constructor Create(ACapacity : integer); overload;
 			constructor Create(const AValues : array of T); overload;
@@ -211,14 +211,14 @@ type
 
 			procedure Unique; // remove duplicates
 			function CopyArray(FromIndex : integer; Count : integer = -1) : TArrayEx<T>; // return array slice
-			procedure Delete(Indexes: TArrayEx<integer>); overload;
-			procedure Delete(Indexes: TArray<integer>); overload;
+			procedure Delete(Indexes : TArrayEx<integer>); overload;
+			procedure Delete(Indexes : TArray<integer>); overload;
 
 			// operator overloads
 			class operator Equal(const L, R : TArrayEx<T>) : boolean;
-			class operator Implicit(const Values : array of T): TArrayEx<T>;
-			class operator Implicit(const Values : TArray<T>): TArrayEx<T>;
-			class operator Implicit(const Values : TArrayEx<T>): TArray<T>;
+			class operator Implicit(const Values : array of T) : TArrayEx<T>;
+			class operator Implicit(const Values : TArray<T>) : TArrayEx<T>;
+			class operator Implicit(const Values : TArrayEx<T>) : TArray<T>;
 			class operator NotEqual(const L, R : TArrayEx<T>) : boolean;
 	end;
 
@@ -653,21 +653,22 @@ begin
 	Result := TArray.Add<T>(Items, Value);
 end;
 
-procedure TArrayEx<T>.Delete(Indexes: TArrayEx<integer>);
+procedure TArrayEx<T>.Delete(Indexes : TArrayEx<integer>);
 begin
-	for var i in Indexes do begin
-		Delete(i);
+	Delete(Indexes.Items);
+end;
+
+procedure TArrayEx<T>.Delete(Indexes : TArray<integer>);
+var
+	iShift : integer;
+begin
+	TArray.Sort<integer>(Indexes);
+	for var i:= Length(Indexes) - 1 downto 0 do begin
+		Delete(Indexes[i]);
 	end;
 end;
 
-procedure TArrayEx<T>.Delete(Indexes: TArray<integer>);
-begin
-	for var i in Indexes do begin
-		Delete(i);
-	end;
-end;
-
-function TArrayEx<T>.GetMaxIndex: Integer;
+function TArrayEx<T>.GetMaxIndex : Integer;
 begin
 	Result := Count - 1;
 end;
@@ -698,17 +699,17 @@ begin
 	end;
 end;
 
-class operator TArrayEx<T>.Implicit(const Values : array of T): TArrayEx<T>;
+class operator TArrayEx<T>.Implicit(const Values : array of T) : TArrayEx<T>;
 begin
 	Result := TArrayEx<T>.Create(Values);
 end;
 
-class operator TArrayEx<T>.Implicit(const Values : TArray<T>): TArrayEx<T>;
+class operator TArrayEx<T>.Implicit(const Values : TArray<T>) : TArrayEx<T>;
 begin
 	Result := TArrayEx<T>.Create(Values);
 end;
 
-class operator TArrayEx<T>.Implicit(const Values : TArrayEx<T>): TArray<T>;
+class operator TArrayEx<T>.Implicit(const Values : TArrayEx<T>) : TArray<T>;
 begin
 	Result := Values.Items;
 end;
