@@ -295,6 +295,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         TabOrder = 1
         Text = 'cmbOptions'
         OnExit = cmbOptionsExit
+        OnSelect = cmbOptionsSelect
       end
     end
     object gbOptions: TGroupBox
@@ -351,6 +352,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         TabOrder = 0
         Text = 'cmbFileMasks'
         OnExit = cmbFileMasksExit
+        OnSelect = cmbFileMasksSelect
       end
       object btnSearchFolder: TButton
         AlignWithMargins = True

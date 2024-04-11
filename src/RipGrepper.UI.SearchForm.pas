@@ -74,7 +74,9 @@ type
 		procedure ActionSearchExecute(Sender : TObject);
 		procedure ActionSearchFileExecute(Sender : TObject);
 		procedure cmbFileMasksExit(Sender : TObject);
+		procedure cmbFileMasksSelect(Sender : TObject);
 		procedure cmbOptionsExit(Sender : TObject);
+		procedure cmbOptionsSelect(Sender : TObject);
 		procedure ShowOptionsForm;
 		procedure FormClose(Sender : TObject; var Action : TCloseAction);
 		procedure FormShow(Sender : TObject);
@@ -96,7 +98,9 @@ type
 			procedure SetOption(const _paramRegex : string);
 			procedure StoreHistoriesAsCmbEntries;
 			procedure StoreSearchSettings;
-			function UpdateFileMasksInOptions(const sOptions, sMasks: string): string;
+			procedure UpdateFileMasksInFileMasks;
+			function UpdateFileMasksInOptions(const sOptions, sMasks : string) : string; overload;
+			procedure UpdateFileMasksInOptions; overload;
 
 		protected
 		public
@@ -259,6 +263,7 @@ begin
 
 	Constraints.MinHeight := Height;
 	Constraints.MaxHeight := Height;
+
 end;
 
 function TRipGrepperSearchDialogForm.GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
@@ -283,6 +288,7 @@ begin
 	SetComboItemsAndText(cmbSearchDir, RG_ARG_SEARCH_PATH, FSettings.SearchPathsHistory);
 	SetComboItemsAndText(cmbSearchText, RG_ARG_SEARCH_TEXT, FSettings.SearchTextsHistory);
 	SetComboItemsAndText(cmbOptions, RG_ARG_OPTIONS, FSettings.RipGrepParamsHistory);
+	// SetComboItemsAndText(cmbFileMasks, RG_ARG_OPTIONS, FSettings.FileMasksHistory);
 
 	SetComboItemsFromOptions(cmbFileMasks, RG_PARAM_REGEX_GLOB, FSettings.FileMasksHistory);
 end;
@@ -333,12 +339,22 @@ end;
 
 procedure TRipGrepperSearchDialogForm.cmbFileMasksExit(Sender : TObject);
 begin
-	cmbOptions.Text := UpdateFileMasksInOptions(cmbOptions.Text, cmbFileMasks.Text);
+	UpdateFileMasksInOptions;
+end;
+
+procedure TRipGrepperSearchDialogForm.cmbFileMasksSelect(Sender : TObject);
+begin
+	UpdateFileMasksInOptions;
 end;
 
 procedure TRipGrepperSearchDialogForm.cmbOptionsExit(Sender : TObject);
 begin
-	cmbFileMasks.Text := TRipGrepParameterSettings.GetFileMasksDelimited(cmbOptions.Text, RG_PARAM_REGEX_GLOB);
+	UpdateFileMasksInFileMasks;
+end;
+
+procedure TRipGrepperSearchDialogForm.cmbOptionsSelect(Sender : TObject);
+begin
+	UpdateFileMasksInFileMasks;
 end;
 
 function TRipGrepperSearchDialogForm.GetFullHeight(_ctrl : TControl) : integer;
@@ -373,6 +389,7 @@ procedure TRipGrepperSearchDialogForm.SetComboItemsFromOptions(_cmb : TComboBox;
 var
 	params : TArray<string>;
 begin
+	_cmb.Items.Assign(_items);
 	if Assigned(FActualRipGrepParams) then begin
 		params := FActualRipGrepParams.GetValues(RG_ARG_OPTIONS);
 		_cmb.Text := TRipGrepParameterSettings.GetFileMasksDelimited(string.Join(' ', params), _argMaskRegex);
@@ -415,19 +432,28 @@ begin
 	FSettings.Store
 end;
 
-function TRipGrepperSearchDialogForm.UpdateFileMasksInOptions(const sOptions, sMasks: string): string;
+procedure TRipGrepperSearchDialogForm.UpdateFileMasksInFileMasks;
+begin
+	cmbFileMasks.Text := TRipGrepParameterSettings.GetFileMasksDelimited(cmbOptions.Text, RG_PARAM_REGEX_GLOB);
+end;
+
+function TRipGrepperSearchDialogForm.UpdateFileMasksInOptions(const sOptions, sMasks : string) : string;
 var
 	oldMaskOptions : TArrayEx<string>;
-	newOptions : string;
+	newMaskOptions : string;
 begin
 	Result := sOptions;
 	oldMaskOptions := TRipGrepParameterSettings.GetFileMaskParamsFromOptions(sOptions);
-	newOptions := TRipGrepParameterSettings.GetMissingFileMaskOptions(sOptions, sMasks);
+	newMaskOptions := TRipGrepParameterSettings.GetFileMaskParamsFromDelimitedText(sMasks, ';');
 
-	if not newOptions.IsEmpty then begin
-		Result := TRipGrepParameterSettings.RemoveAllParams(sOptions, RG_PARAM_REGEX_GLOB) + ' ' + newOptions.Trim([' ']);
-	end;
+	Result := TRipGrepParameterSettings.RemoveAllParams(sOptions, RG_PARAM_REGEX_GLOB);
+	Result := Result + ' ' + newMaskOptions.Trim([' ']);
 
+end;
+
+procedure TRipGrepperSearchDialogForm.UpdateFileMasksInOptions;
+begin
+	cmbOptions.Text := UpdateFileMasksInOptions(cmbOptions.Text, cmbFileMasks.Text);
 end;
 
 end.

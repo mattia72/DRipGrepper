@@ -9,7 +9,8 @@ uses
 	System.Generics.Defaults,
 	RipGrepper.OpenWith.SimpleTypes,
 	RipGrepper.Common.Constants,
-	RipGrepper.Common.Settings.Base;
+	RipGrepper.Common.Settings.Base, 
+	ArrayEx;
 
 type
 
@@ -38,10 +39,12 @@ type
 			constructor Create(const _ini : TIniFile);
 			destructor Destroy; override;
 			function BuildCmdLine : string;
+			class function FileMasksToOptions(const _arrMasks, _arrSkipMasks: TArrayEx<string>): string;
 			class function GetFileMaskParamsFromDelimitedText(const _sFileMasksDelimited : string; const _sSeparator : string = ';')
 				: string; overload;
 			class function GetFileMaskParamsFromOptions(const _sOptions : string) : TArray<string>;
-			class function GetFileMaskParamsArrFromDelimitedText(const _sFileMasksDelimited : string) : TArray<string>; overload;
+			class function GetFileMaskParamsArrFromDelimitedText(const _sFileMasksDelimited : string; const _sSeparator : string = ';'):
+				TArray<string>; overload;
 			class function GetFileMasksDelimited(const _sOptions, _argMaskRegex : string) : string;
 			class function RemoveAllParams(const _sOptions, _argMaskRegex : string; const _bSwitch : Boolean = False) : string;
 			function GetIniSectionName : string; override;
@@ -221,8 +224,7 @@ uses
 	RipGrepper.Tools.ProcessUtils,
 	RipGrepper.Helper.UI,
 	Vcl.Menus,
-	System.RegularExpressions,
-	ArrayEx;
+	System.RegularExpressions;
 
 function TRipGrepperSettings.GetActualRipGrepParams : string;
 begin
@@ -462,10 +464,22 @@ begin
 	end;
 end;
 
+class function TRipGrepParameterSettings.FileMasksToOptions(const _arrMasks, _arrSkipMasks: TArrayEx<string>): string;
+var
+	newOptions: string;
+begin
+	for var s in _arrMasks do begin
+		if (not string.IsNullOrWhiteSpace(s)) and (not _arrSkipMasks.Contains(s)) then begin
+			newOptions := newOptions + ' -g ' + s;
+		end;
+	end;
+	Result := newOptions;
+end;
+
 class function TRipGrepParameterSettings.GetFileMaskParamsFromDelimitedText(const _sFileMasksDelimited : string;
 	const _sSeparator : string = ';') : string;
 begin
-	Result := string.Join(_sSeparator, GetFileMaskParamsArrFromDelimitedText(_sFileMasksDelimited));
+	Result := string.Join(' ', GetFileMaskParamsArrFromDelimitedText(_sFileMasksDelimited, _sSeparator));
 end;
 
 class function TRipGrepParameterSettings.GetFileMaskParamsFromOptions(const _sOptions : string) : TArray<string>;
@@ -473,14 +487,14 @@ begin
 	Result := GetFileMasksDelimited(_sOptions, RG_PARAM_REGEX_GLOB).Split([';']);
 end;
 
-class function TRipGrepParameterSettings.GetFileMaskParamsArrFromDelimitedText(const _sFileMasksDelimited : string) : TArray<string>;
+class function TRipGrepParameterSettings.GetFileMaskParamsArrFromDelimitedText(const _sFileMasksDelimited : string; const _sSeparator : string = ';') : TArray<string>;
 var
 	list : TStringList;
 begin
 	list := TStringList.Create(dupIgnore, False, True);
 	list.Delimiter := ' ';
 	try
-		for var s in _sFileMasksDelimited.Split([';']) do begin
+		for var s in _sFileMasksDelimited.Split([_sSeparator]) do begin
 			list.Add('-g');
 			list.Add(s);
 		end;
@@ -540,11 +554,7 @@ begin
 	existingMasks := TRipGrepParameterSettings.GetFileMaskParamsFromOptions(_sOptions);
 	masksEdited := _sMasks.Split([';']);
 
-	for var s in masksEdited do begin
-		if (not string.IsNullOrWhiteSpace(s)) and (not existingMasks.Contains(s)) then begin
-			newOptions := newOptions + ' -g ' + s;
-		end;
-	end;
+	newOptions := FileMasksToOptions(masksEdited, existingMasks);
 	Result := newOptions.Trim;
 end;
 
