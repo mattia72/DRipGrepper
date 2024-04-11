@@ -20,7 +20,8 @@ uses
 	ArrayEx,
 	Vcl.ComCtrls,
 	System.RegularExpressions,
-	RipGrepper.UI.DpiScaler;
+	RipGrepper.UI.DpiScaler,
+	RipGrepper.Common.Settings.RipGrepParameterSettings;
 
 type
 

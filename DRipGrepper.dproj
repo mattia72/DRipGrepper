@@ -118,8 +118,8 @@
         <UWP_DelphiLogo150>icons\DripGrepperLogo.png</UWP_DelphiLogo150>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
-        <VerInfo_Build>4</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=;FileDescription=DRipGrepper;FileVersion=2.0.2.4;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=2.0.2.0;Comments=</VerInfo_Keys>
+        <VerInfo_Build>5</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=DRipGrepper;FileVersion=2.0.2.5;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=2.0.2.0;Comments=</VerInfo_Keys>
         <VerInfo_Release>2</VerInfo_Release>
     </PropertyGroup>
     <ItemGroup>
@@ -136,6 +136,7 @@
         <DCCReference Include="src\RipGrepper.Helper.UI.pas"/>
         <DCCReference Include="src\RipGrepper.Tools.FileUtils.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Constants.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Settings.Base.pas"/>
         <DCCReference Include="src\RipGrepper.Helper.Types.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Interfaces.pas"/>
         <DCCReference Include="external\dpipes.pas"/>
@@ -204,8 +205,8 @@
         </DCCReference>
         <DCCReference Include="src\RipGrepper.UI.DpiScaler.pas"/>
         <DCCReference Include="src\RipGrepper.Parsers.Factory.pas"/>
-        <DCCReference Include="src\RipGrepper.Common.Settings.Base.pas"/>
         <DCCReference Include="src\RipGrepper.Parsers.ParallelParser.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Settings.RipGrepParameterSettings.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

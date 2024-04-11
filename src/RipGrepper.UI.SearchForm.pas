@@ -124,7 +124,7 @@ uses
 	System.SysUtils,
 	System.RegularExpressions,
 	System.Math,
-	ArrayEx;
+	ArrayEx, RipGrepper.Common.Settings.RipGrepParameterSettings;
 
 const
 	RIPGREPPER_SEARCH_FORM = 'RipGrepperSearchDialogForm';
@@ -363,11 +363,8 @@ begin
 end;
 
 function TRipGrepperSearchDialogForm.OptionIsSet(const _paramRegex : string) : Boolean;
-var
-	regex : TRegEx;
 begin
-	regex := TRegEx.Create(_paramRegex);
-	Result := regex.IsMatch(cmbOptions.Text);
+	Result := TRegEx.IsMatch(cmbOptions.Text, _paramRegex);
 end;
 
 procedure TRipGrepperSearchDialogForm.RemoveRgOption(const _paramRegex : string);
