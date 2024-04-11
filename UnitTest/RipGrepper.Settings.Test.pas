@@ -23,8 +23,8 @@ type
 			[Testcase('test2', '--vimgrep -g !*.txt --fixed-strings -g !*.ini -i         -g !*.bak|!*.txt;!*.ini;!*.bak', '|')]
 			procedure TestGetMaskParamsFromOptions(const _sOptions, _sMasks : string);
 			[Test]
-			[Testcase('test1', '--vimgrep -g *.txt --fixed-strings -g *.ini --ignore-case -g *.bak|' + RG_PARAM_REGEX_GLOB + '|0', '|')]
-			[Testcase('test2', '--vimgrep -g !*.txt --fixed-strings -g !*.ini -i         -g !*.bak|!*.txt;!*.ini;!*.bak', '|')]
+			[Testcase('test1', '--vimgrep -g *.txt --fixed-strings -g *.ini --ignore-case -g *.bak;' + RG_PARAM_REGEX_GLOB + ';0', ';')]
+			[Testcase('test2', '--vimgrep -g !*.txt --fixed-strings -g !*.ini -i         -g !*.bak;' + RG_PARAM_REGEX_FIXED_STRINGS + ';1', ';')]
 			procedure TestRemoveAllParams(const _sOptions, _sRegEx : string; const _bSwitch : Integer);
 
 			[Test]
