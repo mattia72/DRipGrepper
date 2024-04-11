@@ -8,7 +8,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 ### Main Window
 - [x] search text, parse `rg` output
   - [x] --vimgrep parser
-  - [ ] error parser: if a line couldn't be parsed, then it is put in the first column
+  - [x] error parser: if a line couldn't be parsed, then it is put in the first column
   - [x] --pretty parser matching lines with colorized match position
   - [ ] --stats parser eg. msgbox on end with search statistics
   - [ ] no match parser
@@ -30,13 +30,14 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 ### :mag: Search Dialog
 - [x] help parametrizing `rg` in search dialog
   - [x] filter help texts: can't be selected 
-  - [ ] expert mode or not appropriate parameters will be filtered 
+  - [x] expert mode set in `DripGrepper.ini` makes rg options visible
+    - [ ] appropriate parameters will be filtered 
   - [x] quick buttons for
     - [x] --ignore-case
     - [x] --case-sensitive
     - [x] --word-regexp
     - [x] --fixed-strings
-  - [ ] --glob settings as separate editbox
+  - [x] --glob settings as separate editbox
 
 ### :rocket: Open with...
 - [x] show configured editors to open matching file on matching position
@@ -72,6 +73,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
   - [x] menu item in Tools (shortcut configurable in `DripExtension*.ini`)
   - [x] Default shortcut Shift+Alt+R
   - [x] click on matching file, opens file in the editor on position 
+     - [ ] expand collapsed code in {$REGION}-s
   - [ ] popup menu
   - [ ] save window position
   - [ ] search word on cursor
@@ -85,10 +87,12 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 
 ## Thanks
 -  [ripgrep](https://github.com/BurntSushi/ripgrep)
+
+-  [CnPack] (https://www.cnpack.org)
+-  [DDevExtensions](https://github.com/ahausladen/DDevExtensions)
 -  [dprocess](https://stackoverflow.com/a/45029879/2923283): port from freepascal
--  [VirtualTreeView](https://github.com/TurboPack/VirtualTreeView)
--  [GExpert](https://www.gexperts.org/download)
 -  [dzlib](https://sourceforge.net/p/dzlib/code/HEAD/tree)
--  [UniSynEdit](https://sourceforge.net/projects/synedit)
+-  [GExpert](https://www.gexperts.org/download)
 -  [regexpr](https://regex.sorokin.engineer/en/latest/)
--  [DDevExtensions]( https://github.com/ahausladen/DDevExtensions)
+-  [UniSynEdit](https://sourceforge.net/projects/synedit)
+-  [VirtualTreeView](https://github.com/TurboPack/VirtualTreeView)

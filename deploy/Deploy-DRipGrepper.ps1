@@ -2,16 +2,16 @@
 # - Change Readme.md 
 # - Commit and push all changes
 # - run this script
-$global:Version = "v2.1.0-beta"
+$global:Version = "v2.2.0-beta"
 $global:PrevVersion = "v2.1.0-beta"
 $global:Description = @"
-Bug Fixes and some improvements
+Bug Fixes and some improvements...
+
 ### Search Dialog
-  - [x] quick buttons for
-    - [x] --ignore-case
-    - [x] --case-sensitive
-    - [x] --word-regexp (if not regex, we should surround with \b - it si not implemented yet)
-    - [x] --fixed-string
+ + Expert Mode (can be set in INI File)
+ + Error parser
+ + File Mask can be set in separate edit box
+ ! FastMM support for memory leak detection
 "@
 
 $global:PreRelease = $true
