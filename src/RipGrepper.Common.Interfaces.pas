@@ -4,7 +4,7 @@ interface
 
 uses
 	System.RegularExpressions,
-	RipGrepper.Common.Types,
+	RipGrepper.Common.Constants,
 	ArrayEx,
 	System.Generics.Collections,
 	System.Classes,

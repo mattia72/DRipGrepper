@@ -5,7 +5,7 @@ interface
 uses
 	System.Generics.Collections,
 	System.Classes,
-	RipGrepper.Common.Types,
+	RipGrepper.Common.Constants,
 	RipGrepper.Common.Interfaces,
 	System.RegularExpressions,
 	Vcl.ComCtrls,

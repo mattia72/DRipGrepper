@@ -50,7 +50,7 @@ implementation
 
 uses
 	RipGrepper.Tools.DebugTools,
-	RipGrepper.Common.Types,
+	RipGrepper.Common.Constants,
 	System.StrUtils,
 	Vcl.StdCtrls,
 	u_dzVclUtils;

@@ -50,7 +50,7 @@ implementation
 
 uses
 	RipGrepper.Data.Matches,
-	RipGrepper.Common.Types,
+	RipGrepper.Common.Constants,
 	System.Classes,
 	System.SysUtils,
 	RipGrepper.Parsers.VimGrepMatchLine,

@@ -14,7 +14,7 @@ uses
   RipGrepper.Tools.FileUtils in 'src\RipGrepper.Tools.FileUtils.pas',
   Vcl.Themes,
   Vcl.Styles,
-  RipGrepper.Common.Types in 'src\RipGrepper.Common.Types.pas',
+  RipGrepper.Common.Constants in 'src\RipGrepper.Common.Constants.pas',
   RipGrepper.Helper.Types in 'src\RipGrepper.Helper.Types.pas',
   RipGrepper.Common.Interfaces in 'src\RipGrepper.Common.Interfaces.pas',
   dpipes in 'external\dpipes.pas',

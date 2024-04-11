@@ -10,7 +10,7 @@ uses
 	Vcl.ComCtrls,
 	System.Generics.Defaults,
 	System.Classes,
-	RipGrepper.Common.Types;
+	RipGrepper.Common.Constants;
 
 type
 	THistoryItemObject = class(TNoRefCountObject, IHistoryItem)

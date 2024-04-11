@@ -7,7 +7,7 @@ uses
 	System.Generics.Collections,
 	System.Generics.Defaults,
 	System.Classes,
-	RipGrepper.Common.Types;
+	RipGrepper.Common.Constants;
 
 type
 	TVSMatchData = class

@@ -5,7 +5,7 @@ interface
 uses
 	System.Classes,
 	dprocess,
-	RipGrepper.Common.Types,
+	RipGrepper.Common.Constants,
 	RipGrepper.Common.Interfaces;
 
 type

@@ -41,7 +41,7 @@ implementation
 uses
 	System.RegularExpressions,
 	RipGrepper.Tools.DebugTools,
-	RipGrepper.Common.Types,
+	RipGrepper.Common.Constants,
 	System.SysUtils,
 	System.IOUtils,
 	RipGrepper.Data.Parsers;

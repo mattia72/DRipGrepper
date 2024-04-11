@@ -44,7 +44,7 @@ var
 implementation
 
 uses
-	RipGrepper.Common.Types, RipGrepper.UI.MiddleFrame;
+	RipGrepper.Common.Constants, RipGrepper.UI.MiddleFrame;
 
 {$R *.dfm}
 

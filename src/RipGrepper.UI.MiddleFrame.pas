@@ -29,7 +29,7 @@ uses
 	RipGrepper.Common.Sorter,
 	RipGrepper.Common.Interfaces,
 	System.Diagnostics,
-	RipGrepper.Common.Types,
+	RipGrepper.Common.Constants,
 	System.Threading,
 	VirtualTrees,
 	RipGrepper.Helper.UI,

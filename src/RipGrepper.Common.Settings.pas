@@ -8,7 +8,7 @@ uses
 	System.Generics.Collections,
 	System.Generics.Defaults,
 	RipGrepper.OpenWith.SimpleTypes,
-	RipGrepper.Common.Types,
+	RipGrepper.Common.Constants,
 	RipGrepper.Common.Settings.Base;
 
 type
@@ -23,16 +23,29 @@ type
 			FRipGrepPath : string;
 			FSearchPath : string;
 			FSearchText : string;
+			FFileMasks : string;
 			procedure AddArgs(const _sName : string; const _args : TArray<string>; const _bQuote : Boolean = False);
+			procedure SetFileMasks(const Value : string);
 			procedure SetOptions(const Value : string);
 			procedure SetSearchPath(const Value : string);
 			procedure SetSearchText(const Value : string);
+			property FileMasks : string read FFileMasks write SetFileMasks;
+
+		protected
+			procedure Init; override;
 
 		public
 			constructor Create(const _ini : TIniFile);
 			destructor Destroy; override;
 			function BuildCmdLine : string;
+			class function GetFileMaskParamsFromDelimitedText(const _sFileMasksDelimited : string; const _sSeparator : string = ';')
+				: string; overload;
+			class function GetFileMaskParamsFromOptions(const _sOptions : string) : TArray<string>;
+			class function GetFileMaskParamsArrFromDelimitedText(const _sFileMasksDelimited : string) : TArray<string>; overload;
+			class function GetFileMasksDelimited(const _sOptions, _argMaskRegex : string) : string;
+			class function RemoveAllParams(const _sOptions, _argMaskRegex : string; const _bSwitch : Boolean = False) : string;
 			function GetIniSectionName : string; override;
+			class function GetMissingFileMaskOptions(const _sOptions, _sMasks : string) : string;
 			procedure InitRipGrepExePath;
 			procedure Load; override;
 			function ReBuildArguments : TStrings;
@@ -104,7 +117,6 @@ type
 		private
 			FDebugTrace : Boolean;
 			FExpertMode : Boolean;
-			procedure SetExpertMode(const Value : Boolean);
 
 		protected
 			procedure Init; override;
@@ -114,7 +126,7 @@ type
 			procedure Load; override;
 			procedure Store; override;
 			property DebugTrace : Boolean read FDebugTrace write FDebugTrace;
-			property ExpertMode : Boolean read FExpertMode write SetExpertMode;
+			property ExpertMode : Boolean read FExpertMode write FExpertMode;
 	end;
 
 	TRipGrepperSettings = class(TRipGrepperSettingsBase)
@@ -130,16 +142,18 @@ type
 			FRipGrepArguments : TRipGrepArguments;
 			FSearchPathIsDir : Boolean;
 			FExtensionSettings : TRipGrepperExtensionSettings;
+			FFileMasksHistory : TStrings;
 			FRipGrepperSettings : TRipGrepperAppSettings;
 
 		class var
-			function GetActualRipGrepParam : string;
+			function GetActualRipGrepParams : string;
 			function GetActualSearchPath : string;
 			function GetActualSearchText : string;
 			function GetIsEmpty : Boolean;
 			function GetSearchPathIsDir : Boolean;
 			procedure InitSettings;
 			procedure LoadHistoryEntries(var _list : TStrings; const _section : string);
+			procedure SetFileMasksHistory(const Value : TStrings);
 			procedure SetRipGrepParamsHistory(const Value : TSTrings);
 			procedure SetSearchPathsHistory(const Value : TStrings);
 			procedure SetSearchTextsHistory(const Value : TStrings);
@@ -156,10 +170,11 @@ type
 			function GetIsModified : Boolean; override;
 			function GetRipGrepArguments : TRipGrepArguments;
 			function ReBuildArguments : TStrings;
-			property ActualRipGrepParam : string read GetActualRipGrepParam;
+			property ActualRipGrepParams : string read GetActualRipGrepParams;
 			property ActualSearchPath : string read GetActualSearchPath;
 			property ActualSearchText : string read GetActualSearchText;
 			property ExtensionSettings : TRipGrepperExtensionSettings read FExtensionSettings write FExtensionSettings;
+			property FileMasksHistory : TStrings read FFileMasksHistory write SetFileMasksHistory;
 			property IsEmpty : Boolean read GetIsEmpty;
 
 			property RipGrepParameters : TRipGrepParameterSettings read FRipGrepParameters write FRipGrepParameters;
@@ -205,9 +220,11 @@ uses
 	{$ENDIF}
 	RipGrepper.Tools.ProcessUtils,
 	RipGrepper.Helper.UI,
-	Vcl.Menus;
+	Vcl.Menus,
+	System.RegularExpressions,
+	ArrayEx;
 
-function TRipGrepperSettings.GetActualRipGrepParam : string;
+function TRipGrepperSettings.GetActualRipGrepParams : string;
 begin
 	RipGrepParamsHistory.TryGetDef(0, Result);
 end;
@@ -253,6 +270,10 @@ begin
 	if RipGrepParamsHistory.Count = 0 then begin
 		RipGrepParamsHistory.Add('');
 	end;
+
+	if FileMasksHistory.Count = 0 then begin
+		FileMasksHistory.Add('');
+	end;
 end;
 
 procedure TRipGrepperSettings.LoadHistoryEntries(var _list : TStrings; const _section : string);
@@ -277,6 +298,7 @@ begin
 	FRipGrepParameters.Free;
 	FExtensionSettings.Free;
 	FRipGrepperSettings.Free;
+	FFileMasksHistory.Free;
 	FIniFile.Free;
 	inherited;
 end;
@@ -297,6 +319,7 @@ begin
 	FRipGrepParamsHistory := TStringList.Create(dupIgnore, False, True);
 	FRipGrepArguments := TStringList.Create();
 	FRipGrepperSettings := TRipGrepperAppSettings.Create(FIniFile);
+	FFileMasksHistory := TStringList.Create(dupIgnore, False, True);
 	FIsLoaded := False;
 end;
 
@@ -332,6 +355,7 @@ begin
 		LoadHistoryEntries(FSearchPathsHistory, 'SearchPathsHistory');
 		LoadHistoryEntries(FSearchTextsHistory, 'SearchTextsHistory');
 		LoadHistoryEntries(FRipGrepParamsHistory, 'RipGrepParamsHistory');
+		LoadHistoryEntries(FFileMasksHistory, 'FileMasksHistory');
 	except
 		on E : Exception do begin
 			TDebugUtils.DebugMessage(Format('Exception %s ', [E.Message]));
@@ -345,6 +369,11 @@ end;
 function TRipGrepperSettings.ReBuildArguments : TStrings;
 begin
 	Result := FRipGrepParameters.ReBuildArguments;
+end;
+
+procedure TRipGrepperSettings.SetFileMasksHistory(const Value : TStrings);
+begin
+	AddIfNotContains(FFileMasksHistory, Value);
 end;
 
 procedure TRipGrepperSettings.SetRipGrepParamsHistory(const Value : TSTrings);
@@ -375,6 +404,7 @@ begin
 			StoreHistoryEntries(SearchPathsHistory, 'SearchPathsHistory');
 			StoreHistoryEntries(SearchTextsHistory, 'SearchTextsHistory');
 			StoreHistoryEntries(RipGrepParamsHistory, 'RipGrepParamsHistory');
+			StoreHistoryEntries(FileMasksHistory, 'FileMasksHistory');
 		end;
 	end;
 end;
@@ -432,9 +462,96 @@ begin
 	end;
 end;
 
+class function TRipGrepParameterSettings.GetFileMaskParamsFromDelimitedText(const _sFileMasksDelimited : string;
+	const _sSeparator : string = ';') : string;
+begin
+	Result := string.Join(_sSeparator, GetFileMaskParamsArrFromDelimitedText(_sFileMasksDelimited));
+end;
+
+class function TRipGrepParameterSettings.GetFileMaskParamsFromOptions(const _sOptions : string) : TArray<string>;
+begin
+	Result := GetFileMasksDelimited(_sOptions, RG_PARAM_REGEX_GLOB).Split([';']);
+end;
+
+class function TRipGrepParameterSettings.GetFileMaskParamsArrFromDelimitedText(const _sFileMasksDelimited : string) : TArray<string>;
+var
+	list : TStringList;
+begin
+	list := TStringList.Create(dupIgnore, False, True);
+	list.Delimiter := ' ';
+	try
+		for var s in _sFileMasksDelimited.Split([';']) do begin
+			list.Add('-g');
+			list.Add(s);
+		end;
+		Result := list.ToStringArray;
+	finally
+		list.Free;
+	end;
+end;
+
+class function TRipGrepParameterSettings.GetFileMasksDelimited(const _sOptions, _argMaskRegex : string) : string;
+var
+	bAddNext : Boolean;
+	fileMask : string;
+begin
+	bAddNext := False;
+	for var s in _sOptions.Split([' ']) do begin
+		if bAddNext then begin
+			fileMask := fileMask + ';' + s;
+			bAddNext := False;
+		end else begin
+			bAddNext := TRegEx.IsMatch(s, _argMaskRegex);
+		end;
+	end;
+	Result := fileMask.Trim([';', ' ']);
+end;
+
+class function TRipGrepParameterSettings.RemoveAllParams(const _sOptions, _argMaskRegex : string; const _bSwitch : Boolean = False)
+	: string;
+var
+	arrOptions : TArrayEx<string>;
+	arrRemoveIdxs : TArrayEx<integer>;
+begin
+	arrOptions := _sOptions.Split([' ']);
+	for var i := 0 to arrOptions.MaxIndex do begin
+		if TRegEx.IsMatch(arrOptions[i], _argMaskRegex) then begin
+			arrRemoveIdxs.Add(i);
+			if not _bSwitch then begin
+				arrRemoveIdxs.Add(i + 1);
+			end;
+		end;
+	end;
+	arrOptions.Delete(arrRemoveIdxs);
+	Result := string.Join(' ', arrOptions.Items);
+end;
+
 function TRipGrepParameterSettings.GetIniSectionName : string;
 begin
 	Result := INI_SECTION;
+end;
+
+class function TRipGrepParameterSettings.GetMissingFileMaskOptions(const _sOptions, _sMasks : string) : string;
+var
+	existingMasks : TArrayEx<string>;
+	masksEdited : TArrayEx<string>;
+	newOptions : string;
+begin
+	existingMasks := TRipGrepParameterSettings.GetFileMaskParamsFromOptions(_sOptions);
+	masksEdited := _sMasks.Split([';']);
+
+	for var s in masksEdited do begin
+		if (not string.IsNullOrWhiteSpace(s)) and (not existingMasks.Contains(s)) then begin
+			newOptions := newOptions + ' -g ' + s;
+		end;
+	end;
+	Result := newOptions.Trim;
+end;
+
+procedure TRipGrepParameterSettings.Init;
+begin
+	inherited;
+	CreateSetting(RG_INI_KEY_RGPATH, TRipGrepperSetting.New(vtString, ''));
 end;
 
 procedure TRipGrepParameterSettings.InitRipGrepExePath;
@@ -460,12 +577,8 @@ end;
 
 procedure TRipGrepParameterSettings.Load;
 begin
-	if Assigned(FIniFile) then begin
-		RipGrepPath := FIniFile.ReadString('RipGrepSettings', 'Path', '');
-		FIsLoaded := True;
-	end else begin
-		raise Exception.Create('Settings file is nil!')
-	end;
+	inherited Load();
+	RipGrepPath := LoadSetting(RG_INI_KEY_RGPATH);
 end;
 
 function TRipGrepParameterSettings.ReBuildArguments : TStrings;
@@ -480,11 +593,22 @@ begin
 		end;
 	end;
 
+	params := params + ' ' + GetFileMaskParamsFromDelimitedText(FileMasks);
+
 	AddArgs(RG_ARG_OPTIONS, params.Split([' ']));
+
 	FRipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, SearchText);
 	AddArgs(RG_ARG_SEARCH_PATH, searchPath.Split([',', ';']), True);
 	FRipGrepArguments.Delimiter := ' '; // sArgs.QuoteChar := '"';
 	Result := FRipGrepArguments;
+end;
+
+procedure TRipGrepParameterSettings.SetFileMasks(const Value : string);
+begin
+	if FFileMasks <> Value then begin
+		FFileMasks := Value;
+		FIsModified := True;
+	end;
 end;
 
 procedure TRipGrepParameterSettings.SetOptions(const Value : string);
@@ -513,10 +637,7 @@ end;
 
 procedure TRipGrepParameterSettings.Store;
 begin
-	if IsLoaded and IsModified then begin
-		FIniFile.WriteString('RipGrepSettings', 'Path', RipGrepPath);
-		FIsModified := False;
-	end;
+	StoreSetting(RG_INI_KEY_RGPATH, RipGrepPath);
 end;
 
 constructor TRipGrepperViewSettings.Create(const _ini : TIniFile);
@@ -732,11 +853,6 @@ begin
 	inherited Load();
 	FExpertMode := LoadSetting('ExpertMode');
 	FDebugTrace := LoadSetting('DebugTrace');
-end;
-
-procedure TRipGrepperAppSettings.SetExpertMode(const Value : Boolean);
-begin
-	FExpertMode := Value;
 end;
 
 procedure TRipGrepperAppSettings.Store;

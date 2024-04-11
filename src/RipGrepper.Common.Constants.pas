@@ -1,4 +1,4 @@
-unit RipGrepper.Common.Types;
+unit RipGrepper.Common.Constants;
 
 interface
 
@@ -10,12 +10,6 @@ uses
 	Vcl.Graphics;
 
 const
-	RG_PARSE_ERROR = 'rg.exe result line couldn''t parsed.';
-
-	RG_PARAM_REGEX_IGNORE_CASE = '-i|--ignore-case';
-	RG_PARAM_REGEX_CASE_SENSITIVE = '-s|--case-sensitive';
-	RG_PARAM_REGEX_FIXED_STRINGS = '-F|--fixed-strings';
-	RG_PARAM_REGEX_WORD_REGEX = '-w|--word-regexp';
 
 	APPNAME = 'DRipGrepper';
 	EXTENSION_NAME = 'DRipExtension';
@@ -68,9 +62,10 @@ const
 	ALL_ALPHANUMERIC_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890';
 
 	RG_PROCESSING_LINE_COUNT_LIMIT = 10000; // Todo: put into settings
-	RG_NECESSARY_PARAMS : TArray<string> = ['--vimgrep', '--line-buffered' // ,// some big search couldn't be catched without this
-	// '--pretty' // TODO: parse color escape
-		];
+	RG_NECESSARY_PARAMS : TArray<string> = [
+	{ } '--vimgrep',
+	{ } '--line-buffered', // some big search couldn't be catched without this
+	{ } '--pretty'];
 
 	RG_MATCH_LINE_REGEX = '^(?<drive>\w:)?(?<path>.+?):(?<row>\d+):(?<col>\d+):(?<text>.+)$';
 
@@ -96,13 +91,21 @@ const
 	RG_ARG_SEARCH_TEXT = 'SearchText';
 	RG_ARG_OPTIONS = 'Options';
 
+	RG_INI_KEY_RGPATH = 'Path';
+
+	RG_PARSE_ERROR = 'rg.exe result line couldn''t parsed.';
+
+	RG_PARAM_REGEX_IGNORE_CASE = '-i|--ignore-case';
+	RG_PARAM_REGEX_CASE_SENSITIVE = '-s|--case-sensitive';
+	RG_PARAM_REGEX_FIXED_STRINGS = '-F|--fixed-strings';
+	RG_PARAM_REGEX_WORD_REGEX = '-w|--word-regexp';
+	RG_PARAM_REGEX_GLOB = '-g|--glob';
+
 type
 
 	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
 	TFileNameType = (ftAbsolute, ftRelative);
-
 	TColumnIndex = (ciFile, ciRow, ciCol, ciText, ciMatchText, ciTextAfterMatch, ciRowNr);
-
 	TRipGrepArguments = TStringList;
 
 implementation

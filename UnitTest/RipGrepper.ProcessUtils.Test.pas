@@ -6,7 +6,7 @@ uses
 	DUnitX.TestFramework,
 	Delphi.Mocks,
 	RipGrepper.Tools.ProcessUtils,
-	RipGrepper.Common.Types, RipGrepper.Common.Interfaces;
+	RipGrepper.Common.Constants, RipGrepper.Common.Interfaces;
 
 type
 

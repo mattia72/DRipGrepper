@@ -28,7 +28,7 @@ uses
 	System.SysUtils,
 	Winapi.ShellAPI,
 	Vcl.Dialogs,
-	RipGrepper.Common.Types, RipGrepper.Tools.DebugTools;
+	RipGrepper.Common.Constants, RipGrepper.Tools.DebugTools;
 
 class function TOpenWithRunner.BuildParams(const _owp: TOpenWithParams; const _sParams: string): string;
 var

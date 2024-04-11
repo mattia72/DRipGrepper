@@ -94,8 +94,8 @@ uses
 	Winapi.CommCtrl,
 	RipGrepper.Helper.Types,
 	Winapi.ShellAPI,
-	System.IOUtils, 
-	RipGrepper.Common.Types;
+	System.IOUtils,
+	RipGrepper.Common.Constants;
 
 function TListViewHelper.GetSelectedOrFirst : TListItem;
 var

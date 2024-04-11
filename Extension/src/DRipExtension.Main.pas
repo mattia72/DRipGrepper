@@ -47,7 +47,7 @@ implementation
 uses
 	Dialogs,
 	System.SysUtils,
-	RipGrepper.Common.Types,
+	RipGrepper.Common.Constants,
 	RipGrepper.Common.Settings,
 	System.IniFiles,
 	DripExtension.IOTA.Utils,

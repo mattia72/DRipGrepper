@@ -85,7 +85,7 @@ implementation
 
 uses
 	RipGrepper.Tools.ProcessUtils,
-	RipGrepper.Common.Types,
+	RipGrepper.Common.Constants,
 	Winapi.CommCtrl,
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.DebugTools,

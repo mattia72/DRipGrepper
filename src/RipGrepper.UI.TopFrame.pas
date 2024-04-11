@@ -111,7 +111,7 @@ uses
 	RipGrepper.UI.MainForm,
 	RipGrepper.UI.ParentFrame,
 	Vcl.Clipbrd,
-	RipGrepper.Common.Types,
+	RipGrepper.Common.Constants,
 	RipGrepper.OpenWith.ConfigForm,
 	RipGrepper.OpenWith.SimpleTypes,
 	RipGrepper.OpenWith,

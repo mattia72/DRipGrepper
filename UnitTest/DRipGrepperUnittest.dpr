@@ -24,7 +24,8 @@ uses
   RipGrepper.Helper.Types.Test in 'RipGrepper.Helper.Types.Test.pas',
   RipGrepper.Helper.Types in '..\src\RipGrepper.Helper.Types.pas',
   RipGrepper.Parsers.VimGrepMatchLine in '..\src\RipGrepper.Parsers.VimGrepMatchLine.pas',
-  RipGrepper.Common.Types in '..\src\RipGrepper.Common.Types.pas';
+  RipGrepper.Common.Constants in '..\src\RipGrepper.Common.Constants.pas',
+  RipGrepper.Settings.Test in 'RipGrepper.Settings.Test.pas';
 
 {$IFNDEF TESTINSIGHT}
 

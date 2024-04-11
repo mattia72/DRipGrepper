@@ -136,7 +136,7 @@ type
 implementation
 
 uses
-	RipGrepper.Common.Types,
+	RipGrepper.Common.Constants,
 	RipGrepper.Tools.DebugTools,
 	RipGrepper.UI.ParentFrame,
 	GX_OtaUtils,

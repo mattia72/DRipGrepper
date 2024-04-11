@@ -41,7 +41,7 @@ uses
 	System.SysUtils,
 	RipGrepper.Parsers.Factory,
 	RipGrepper.Helper.Types,
-	RipGrepper.Common.Types,
+	RipGrepper.Common.Constants,
 	Winapi.Windows;
 
 constructor TParallelParser.Create(_data : TRipGrepperData; _histObj : THistoryItemObject);

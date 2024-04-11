@@ -6,7 +6,7 @@ uses
 	RipGrepper.Data.Matches,
 	RipGrepper.Common.Interfaces,
 	System.RegularExpressions,
-	RipGrepper.Common.Types,
+	RipGrepper.Common.Constants,
 	RipGrepper.Common.ParsedObject,
 	ArrayEx;
 

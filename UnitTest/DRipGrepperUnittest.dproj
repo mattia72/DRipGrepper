@@ -99,7 +99,8 @@
         <DCCReference Include="RipGrepper.Helper.Types.Test.pas"/>
         <DCCReference Include="..\src\RipGrepper.Helper.Types.pas"/>
         <DCCReference Include="..\src\RipGrepper.Parsers.VimGrepMatchLine.pas"/>
-        <DCCReference Include="..\src\RipGrepper.Common.Types.pas"/>
+        <DCCReference Include="..\src\RipGrepper.Common.Constants.pas"/>
+        <DCCReference Include="RipGrepper.Settings.Test.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

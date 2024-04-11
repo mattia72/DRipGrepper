@@ -22,7 +22,7 @@ uses
 	RipGrepper.Tools.ProcessUtils,
 	RipGrepper.Common.Settings,
 	RipGrepper.Data.Matches,
-	RipGrepper.Common.Types,
+	RipGrepper.Common.Constants,
 	RipGrepper.Common.Interfaces,
 	Winapi.Windows,
 	System.ImageList,

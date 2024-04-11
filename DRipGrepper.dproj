@@ -97,8 +97,8 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.1.0.24;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.1.0.0;Comments=</VerInfo_Keys>
-        <VerInfo_Build>24</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.1.0.30;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.1.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Build>30</VerInfo_Build>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
         <Icon_MainIcon>icons\DripGrepper.ico</Icon_MainIcon>
         <VerInfo_MinorVer>1</VerInfo_MinorVer>
@@ -134,7 +134,7 @@
         <DCCReference Include="src\RipGrepper.Data.Matches.pas"/>
         <DCCReference Include="src\RipGrepper.Helper.UI.pas"/>
         <DCCReference Include="src\RipGrepper.Tools.FileUtils.pas"/>
-        <DCCReference Include="src\RipGrepper.Common.Types.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Constants.pas"/>
         <DCCReference Include="src\RipGrepper.Helper.Types.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Interfaces.pas"/>
         <DCCReference Include="external\dpipes.pas"/>
@@ -178,33 +178,27 @@
         <DCCReference Include="external\GExpert\GX_IdeUtils.pas"/>
         <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.CmdListForm.pas">
             <Form>OpenWithCmdList</Form>
-<FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.ConfigForm.pas">
             <Form>OpenWithConfigForm</Form>
-<FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.pas"/>
         <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.Runner.pas"/>
         <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.SimpleTypes.pas"/>
         <DCCReference Include="src\RipGrepper.UI.MiddleFrame.pas">
             <Form>RipGrepperMiddleFrame</Form>
-<FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="src\RipGrepper.UI.BottomFrame.pas">
             <Form>RipGrepperBottomFrame</Form>
-<FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="src\RipGrepper.UI.TopFrame.pas">
             <Form>RipGrepperTopFrame</Form>
-<FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="src\RipGrepper.UI.ParentFrame.pas">
             <Form>ParentFrame</Form>
-<FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="src\RipGrepper.UI.DpiScaler.pas"/>
