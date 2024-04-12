@@ -583,7 +583,7 @@ procedure TRipGrepperAppSettings.Init;
 begin
 	inherited;
 	CreateSetting('DebugTrace', TRipGrepperSetting.New(vtBoolean, False));
-	CreateSetting('ExpertMode', TRipGrepperSetting.New(vtBoolean, True));
+	CreateSetting('ExpertMode', TRipGrepperSetting.New(vtBoolean, False));
 end;
 
 procedure TRipGrepperAppSettings.Load;

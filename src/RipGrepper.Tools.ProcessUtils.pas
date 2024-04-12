@@ -99,7 +99,7 @@ begin
 		PStartVal := P;
 		GoToNextCRLF(P, PEndVal);
 		SetString(S, PStartVal, P - PStartVal);
-		sLineOut := sLineOut + S;  // TODO: FastMM reports here Memory leak
+		sLineOut := sLineOut + S; // TODO: FastMM reports here Memory leak
 
 		iLineEndFound := GoTillCRLF(P, PEndVal);
 
@@ -145,26 +145,29 @@ begin
 	FProcessedLineCount := 0;
 	{ Now process the output }
 	SetLength(sBuff, BUFF_LENGTH);
+	try
+		repeat
+			if (Assigned(_terminateEventProducer) and _terminateEventProducer.ProcessShouldTerminate()) then begin
+				TDebugUtils.DebugMessage('Process should terminate');
+				break
+			end;
+			iBuffLength := 0;
+			if (_s <> nil) then begin
+				// L505 todo: try this when using unicodestring buffer
+				// Count := _s.Output.Read(pchar(Buf)^, BUFF_LENGTH);
+				iBuffLength := _s.Read(sBuff[1], Length(sBuff));
+			end;
 
-	repeat
-		if (Assigned(_terminateEventProducer) and _terminateEventProducer.ProcessShouldTerminate()) then begin
-			TDebugUtils.DebugMessage('Process should terminate');
-			break
-		end;
-		iBuffLength := 0;
-		if (_s <> nil) then begin
-			// L505 todo: try this when using unicodestring buffer
-			// Count := _s.Output.Read(pchar(Buf)^, BUFF_LENGTH);
-			iBuffLength := _s.Read(sBuff[1], Length(sBuff));
-		end;
+			BuffToLine(sBuff, iBuffLength, sLineOut, _newLineHandler);
+		until iBuffLength = 0;
 
-		BuffToLine(sBuff, iBuffLength, sLineOut, _newLineHandler);
-	until iBuffLength = 0;
-
-	// if sLineOut <> '' then begin
-	NewLineEventHandler(_newLineHandler, sLineOut, True);
-	// end;
-	EOFProcessingEventHandler(_eofProcHandler);
+		// if sLineOut <> '' then begin
+		NewLineEventHandler(_newLineHandler, sLineOut, True);
+		// end;
+		EOFProcessingEventHandler(_eofProcHandler);
+	finally
+		// SetLength(sBuff, 0); not necessary
+	end;
 end;
 
 class function TProcessUtils.RunProcess(const _exe : string; _args : TStrings;

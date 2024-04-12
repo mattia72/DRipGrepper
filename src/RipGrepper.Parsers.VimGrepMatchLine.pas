@@ -23,7 +23,7 @@ type
 			property ParseResult : IParsedObjectRow read GetParseResult write SetParseResult;
 			constructor Create; virtual;
 			destructor Destroy; override;
-			procedure ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False); virtual;
+			procedure ParseLine(const _iLnNr: integer; const _sLine: string; const _bIsLast: Boolean = False); virtual;
 	end;
 
 	TVimGrepPrettyMatchLineParser = class(TVimGrepMatchLineParser)
@@ -67,19 +67,19 @@ end;
 
 { TVimGrepMatchLineParser }
 
-procedure TVimGrepMatchLineParser.ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False);
+procedure TVimGrepMatchLineParser.ParseLine(const _iLnNr: integer; const _sLine: string; const _bIsLast: Boolean = False);
 var
 	m : TMatch;
 	cd : TArrayEx<TColumnData>;
+	s : string;
 begin
 	FParseResult.RowNr := _iLnNr;
 	// ParseResult.ParserType := ParserData.ParserType;
 
-	m := ParserData.LineParseRegex.Match(_s);
+	m := ParserData.LineParseRegex.Match(_sLine);
 	if m.Success then begin
-		// TDebugUtils.DebugMessage(_s);
+		// TDebugUtils.DebugMessage(_sLine);
 		// according FastMM it is leaky :/
-		var
 		s := Format('%s%s', [m.Groups['drive'].Value, m.Groups['path'].Value]);
 		cd.Add(TColumnData.New('File', s));
 		cd.Add(TColumnData.New('Row', m.Groups['row'].Value));
@@ -87,7 +87,7 @@ begin
 		cd.Add(TColumnData.New('Text', m.Groups['text'].Value));
 		FParseResult.IsError := not Validate(cd);
 	end else begin
-		SetRgResultLineParseError(cd, _s);
+		SetRgResultLineParseError(cd, _sLine);
 		FParseResult.ErrorText := RG_PARSE_ERROR;
 		FParseResult.IsError := True;
 	end;
