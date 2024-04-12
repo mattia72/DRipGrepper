@@ -9,21 +9,19 @@ $global:PrevVersion = "v2.2.0-beta"
 $global:Description = @"
 Bug Fixes and some improvements...
 
-:warning: Version info correction
-
 "@
 
 ### Search Dialog
- # + Expert Mode (can be set in `DripGrepper.ini`)
- # + File Mask can be set in separate edit box
+# + Expert Mode (can be set in `DripGrepper.ini`)
+# + File Mask can be set in separate edit box
  
 ### Main Window
- # + Error parser
+# + Error parser
 
 ### Bug fixes
- # :mushroom:  FastMM support for memory leak detection
- #
+:mushroom:  FastMM support for memory leak detection
 $global:PreRelease = $true
+$global:StandaloneAppName = "DRipGrepper.exe"
 $global:AssetZipName = "DRipGrepper.Standalone.exe.zip"
 
 $global:Owner = "mattia72"
@@ -38,6 +36,23 @@ $global:headers = @{
     Authorization          = "Bearer $global:Token"
     "X-GitHub-Api-Version" = "2022-11-28"
 }
+function Test-YesAnswer {
+    [CmdletBinding()]
+    param (
+        [string] $Message,
+        [string] $DefaultAnswer = 'y'
+    )
+    while ($answer -inotmatch "[yn]") {
+        Write-Host "$Message [Yn]" -BackgroundColor Yellow -ForegroundColor Black -NoNewline
+        Write-Host " " -NoNewline
+        $answer = Read-Host
+        if ($null -eq $answer -or $answer -eq "") {
+            $answer = $DefaultAnswer
+            break;
+        }
+    }
+   return $answer -imatch "[y]"
+}
 function Build-Release {
     # copy scripts
     Import-Module -Name PSDelphi -Force
@@ -50,13 +65,17 @@ function Build-Release {
 }
 
 function New-ReleaseWithAsset {
-    New-Release
-    New-ReleaseNotes
-    Import-Module PSZip
     $parentPath = Split-Path -Parent $PSScriptRoot 
     Build-Release
     $ZipDir = Join-Path $parentPath 'Win32\Release'
-    Compress-Archive -Path $ZipDir\DRipGrepper.exe -DestinationPath $ZipDir\$global:AssetZipName -Force
+    $ExePath = "$ZipDir\$global:StandaloneAppName"
+    if ( -not $(Test-YesAnswer "Release version: $global:Version. Version of builded app: $((Get-Command $ExePath).FileVersionInfo.FileVersion). Ok?")) {
+        Write-Error "Deploy canceled" -ErrorAction Stop
+    }
+    New-Release
+    New-ReleaseNotes
+    Import-Module PSZip
+    Compress-Archive -Path $ExePath -DestinationPath $ZipDir\$global:AssetZipName -Force
     $ReleaseID = $( Get-Releases -Tag $global:Version | Select-Object -Property id).id
     #$ReleaseID = $( Get-Releases -Latest | Select-Object -Property id).id
     New-Asset -ReleaseID $ReleaseID -ZipDir $ZipDir
