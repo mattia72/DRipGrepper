@@ -10,7 +10,7 @@ uses
 	Vcl.Graphics;
 
 const
-    VERSION_FORMAT = '%s v%d.%d.%d-beta';
+	VERSION_FORMAT = '%s v%d.%d.%d-beta';
 
 	APPNAME = 'DRipGrepper';
 	EXTENSION_NAME = 'DRipExtension';
@@ -66,7 +66,10 @@ const
 	RG_NECESSARY_PARAMS : TArray<string> = [
 	{ } '--vimgrep',
 	{ } '--line-buffered', // some big search couldn't be catched without this
-	{ } '--pretty'];
+	{ } '--pretty',
+	{ } '--no-ignore-parent',
+	{ } '--follow',
+	{ } '--crlf'];
 
 	RG_MATCH_LINE_REGEX = '^(?<drive>\w:)?(?<path>.+?):(?<row>\d+):(?<col>\d+):(?<text>.+)$';
 
