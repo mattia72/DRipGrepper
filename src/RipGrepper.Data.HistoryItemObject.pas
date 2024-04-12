@@ -75,10 +75,10 @@ begin
 		fn := matchItems[_index].Columns.Items[0].Text;
 		if matchItems[_index].IsError then begin
 			_item.Caption := ' ' + fn;
-			_item.ImageIndex := LV_IMAGE_IDX_ERROR;
+			_item.ImageIndex := LV_IMG_IDX_ERROR;
 		end else begin
 			_item.Caption := fn;
-			_item.ImageIndex := LV_IMAGE_IDX_OK;
+			_item.ImageIndex := LV_IMG_IDX_OK;
 		end;
 		_item.SubItems.Add(matchItems[_index].Columns.Items[1].Text);
 		_item.SubItems.Add(matchItems[_index].Columns.Items[2].Text);

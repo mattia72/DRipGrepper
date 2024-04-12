@@ -128,10 +128,10 @@ begin
 		fn := matchItems[_index].Columns[Integer(ciFile)].Text;
 		if matchItems[_index].IsError then begin
 			_item.Caption := ' ' + fn;
-			_item.ImageIndex := LV_IMAGE_IDX_ERROR;
+			_item.ImageIndex := LV_IMG_IDX_ERROR;
 		end else begin
 			_item.Caption := fn;
-			_item.ImageIndex := LV_IMAGE_IDX_OK;
+			_item.ImageIndex := LV_IMG_IDX_OK;
 		end;
 		_item.SubItems.Add(matchItems[_index].Columns[Integer(ciRow)].Text);
 		_item.SubItems.Add(matchItems[_index].Columns[Integer(ciCol)].Text);

@@ -24,7 +24,7 @@ uses
 	Winapi.ShellAPI,
 	Winapi.Windows,
 	RipGrepper.Tools.DebugTools,
-	System.IOUtils, 
+	System.IOUtils,
 	RipGrepper.Common.Constants;
 
 procedure GetPackageNameInfoProc(const Name : string; NameType : TNameType; Flags : Byte; Param : Pointer);
@@ -63,7 +63,7 @@ var
 begin
 	GetProductVersion(_exePath, major, minor, build);
 	name := TPath.GetFileNameWithoutExtension(_exePath);
-	Result := Format(VERSION_FORMAT, [name, major, minor, build]);
+	Result := Format(FORMAT_VERSION_INFO, [name, major, minor, build]);
 end;
 
 class function TFileUtils.GetFileVersionStr(const AFileName : string) : string;
