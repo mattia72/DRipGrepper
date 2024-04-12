@@ -1,19 +1,28 @@
-# - Change file version in project for all! configuration
 # - Change Readme.md 
+# - Change Description in this file (https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
+#                                    https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
+# - Change file version in project for all! configuration
 # - Commit and push all changes
 # - run this script
-$global:Version = "v2.2.0-beta"
-$global:PrevVersion = "v2.1.0-beta"
+$global:Version = "v2.2.1-beta"
+$global:PrevVersion = "v2.2.0-beta"
 $global:Description = @"
 Bug Fixes and some improvements...
 
-### Search Dialog
- + Expert Mode (can be set in INI File)
- + Error parser
- + File Mask can be set in separate edit box
- ! FastMM support for memory leak detection
+:warning: Version info correction
+
 "@
 
+### Search Dialog
+ # + Expert Mode (can be set in `DripGrepper.ini`)
+ # + File Mask can be set in separate edit box
+ 
+### Main Window
+ # + Error parser
+
+### Bug fixes
+ # :mushroom:  FastMM support for memory leak detection
+ #
 $global:PreRelease = $true
 $global:AssetZipName = "DRipGrepper.Standalone.exe.zip"
 

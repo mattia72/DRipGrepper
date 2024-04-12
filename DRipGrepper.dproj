@@ -68,7 +68,7 @@
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.2.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.2.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.2.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.2.0.0;Comments=beta</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
@@ -97,8 +97,8 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.2.2.30;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.2.0.0;Comments=</VerInfo_Keys>
-        <VerInfo_Build>30</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.2.2.31;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.2.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Build>31</VerInfo_Build>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
         <Icon_MainIcon>icons\DripGrepper.ico</Icon_MainIcon>
         <VerInfo_MinorVer>2</VerInfo_MinorVer>
@@ -126,32 +126,9 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="src\RipGrepper.UI.MainForm.pas">
-            <Form>RipGrepperForm</Form>
-        </DCCReference>
-        <DCCReference Include="src\RipGrepper.Tools.ProcessUtils.pas"/>
-        <DCCReference Include="src\RipGrepper.Tools.DebugTools.pas"/>
-        <DCCReference Include="src\RipGrepper.Common.Settings.pas"/>
-        <DCCReference Include="src\RipGrepper.Data.Matches.pas"/>
-        <DCCReference Include="src\RipGrepper.Helper.UI.pas"/>
-        <DCCReference Include="src\RipGrepper.Tools.FileUtils.pas"/>
-        <DCCReference Include="src\RipGrepper.Common.Constants.pas"/>
-        <DCCReference Include="src\RipGrepper.Common.Settings.Base.pas"/>
-        <DCCReference Include="src\RipGrepper.Helper.Types.pas"/>
-        <DCCReference Include="src\RipGrepper.Common.Interfaces.pas"/>
         <DCCReference Include="external\dpipes.pas"/>
         <DCCReference Include="external\dprocess.pas"/>
-        <DCCReference Include="src\RipGrepper.UI.SearchForm.pas">
-            <Form>RipGrepperSearchDialogForm</Form>
-        </DCCReference>
         <DCCReference Include="external\ArrayEx.pas"/>
-        <DCCReference Include="src\RipGrepper.Data.Parsers.pas"/>
-        <DCCReference Include="src\RipGrepper.Common.Sorter.pas"/>
-        <DCCReference Include="src\RipGrepper.Data.HistoryItemObject.pas"/>
-        <DCCReference Include="src\RipGrepper.Helper.ListBox.pas"/>
-        <DCCReference Include="src\RipGrepper.UI.RipGrepOptionsForm.pas">
-            <Form>RipGrepOptionsForm</Form>
-        </DCCReference>
         <DCCReference Include="external\dzlib\u_dzDpiScaleUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzMiscUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzTypesUtils.pas"/>
@@ -173,20 +150,45 @@
         <DCCReference Include="external\dzlib\u_dzDateUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzConvertUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzClassUtils.pas"/>
-        <DCCReference Include="src\RipGrepper.Parsers.VimGrepMatchLine.pas"/>
-        <DCCReference Include="src\RipGrepper.Common.ParsedObject.pas"/>
         <DCCReference Include="external\GExpert\GX_OtaUtils.pas"/>
         <DCCReference Include="external\GExpert\GX_GxUtils.pas"/>
         <DCCReference Include="external\GExpert\GX_IdeUtils.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Constants.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Interfaces.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.ParsedObject.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Settings.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Settings.Base.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Settings.RipGrepParameterSettings.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Sorter.pas"/>
+        <DCCReference Include="src\RipGrepper.Data.HistoryItemObject.pas"/>
+        <DCCReference Include="src\RipGrepper.Data.Matches.pas"/>
+        <DCCReference Include="src\RipGrepper.Data.Parsers.pas"/>
+        <DCCReference Include="src\RipGrepper.Helper.ListBox.pas"/>
+        <DCCReference Include="src\RipGrepper.Helper.Types.pas"/>
+        <DCCReference Include="src\RipGrepper.Helper.UI.pas"/>
+        <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.pas"/>
         <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.CmdListForm.pas">
             <Form>OpenWithCmdList</Form>
         </DCCReference>
         <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.ConfigForm.pas">
             <Form>OpenWithConfigForm</Form>
         </DCCReference>
-        <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.pas"/>
         <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.Runner.pas"/>
         <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.SimpleTypes.pas"/>
+        <DCCReference Include="src\RipGrepper.Parsers.Factory.pas"/>
+        <DCCReference Include="src\RipGrepper.Parsers.ParallelParser.pas"/>
+        <DCCReference Include="src\RipGrepper.Parsers.VimGrepMatchLine.pas"/>
+        <DCCReference Include="src\RipGrepper.Tools.DebugTools.pas"/>
+        <DCCReference Include="src\RipGrepper.Tools.FileUtils.pas"/>
+        <DCCReference Include="src\RipGrepper.Tools.ProcessUtils.pas"/>
+        <DCCReference Include="src\RipGrepper.UI.DpiScaler.pas"/>
+        <DCCReference Include="src\RipGrepper.UI.MainForm.pas">
+            <Form>RipGrepperForm</Form>
+        </DCCReference>
+        <DCCReference Include="src\RipGrepper.UI.TopFrame.pas">
+            <Form>RipGrepperTopFrame</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <DCCReference Include="src\RipGrepper.UI.MiddleFrame.pas">
             <Form>RipGrepperMiddleFrame</Form>
             <DesignClass>TFrame</DesignClass>
@@ -195,18 +197,16 @@
             <Form>RipGrepperBottomFrame</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="src\RipGrepper.UI.TopFrame.pas">
-            <Form>RipGrepperTopFrame</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="src\RipGrepper.UI.ParentFrame.pas">
             <Form>ParentFrame</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="src\RipGrepper.UI.DpiScaler.pas"/>
-        <DCCReference Include="src\RipGrepper.Parsers.Factory.pas"/>
-        <DCCReference Include="src\RipGrepper.Parsers.ParallelParser.pas"/>
-        <DCCReference Include="src\RipGrepper.Common.Settings.RipGrepParameterSettings.pas"/>
+        <DCCReference Include="src\RipGrepper.UI.RipGrepOptionsForm.pas">
+            <Form>RipGrepOptionsForm</Form>
+        </DCCReference>
+        <DCCReference Include="src\RipGrepper.UI.SearchForm.pas">
+            <Form>RipGrepperSearchDialogForm</Form>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

@@ -10,6 +10,7 @@ uses
 	Vcl.Graphics;
 
 const
+    VERSION_FORMAT = '%s v%d.%d.%d - beta';
 
 	APPNAME = 'DRipGrepper';
 	EXTENSION_NAME = 'DRipExtension';
