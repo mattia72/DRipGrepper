@@ -165,12 +165,12 @@ end;
 
 procedure TRipGrepperTopFrame.ActionCmdLineCopyExecute(Sender : TObject);
 begin
-	ClipBoard.AsText := Settings.RipGrepParameters.BuildCmdLine;
+	ClipBoard.AsText := Settings.RipGrepParameters.GetCommandLine;
 end;
 
 procedure TRipGrepperTopFrame.ActionCmdLineCopyUpdate(Sender : TObject);
 begin
-	ActionCmdLineCopy.Hint := 'Copy command line:' + CRLF + Settings.RipGrepParameters.BuildCmdLine;
+	ActionCmdLineCopy.Hint := 'Copy command line:' + CRLF + Settings.RipGrepParameters.GetCommandLine;
 end;
 
 procedure TRipGrepperTopFrame.ActionConfigExecute(Sender : TObject);

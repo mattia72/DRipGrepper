@@ -179,7 +179,8 @@ uses
 	RipGrepper.Tools.ProcessUtils,
 	RipGrepper.Helper.UI,
 	Vcl.Menus,
-	System.RegularExpressions;
+	System.RegularExpressions,
+	RipGrepper.Common.CommandLineBuilder;
 
 function TRipGrepperSettings.GetActualRipGrepParams : string;
 begin
@@ -325,7 +326,9 @@ end;
 
 function TRipGrepperSettings.ReBuildArguments : TStrings;
 begin
-	Result := FRipGrepParameters.ReBuildArguments;
+	var
+	clb := TCommandLineBuilder.New(FRipGrepParameters);
+	Result := clb.ReBuildArguments;
 end;
 
 procedure TRipGrepperSettings.SetFileMasksHistory(const Value : TStrings);
