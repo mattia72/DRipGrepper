@@ -12,9 +12,10 @@ type
 
 		private
 			FParameters : TRipGrepParameterSettings;
-			procedure AddArgs(const _sName : string; const _args : TArray<string>; const _bQuote : Boolean = False);
+			class procedure AddArgs(var _params : TRipGrepParameterSettings; const _sName : string; const _args : TArray<string>;
+				const _bQuote : Boolean = False); static;
 			class procedure AddParamToList(list : TStringList; const _paramRegex : string = ''; const _bRemove : Boolean = False); static;
-			function QuoteStringIfContainsWhiteSpace(const _s : string) : string;
+			class function PutBetweenWordBoundaries(const _s : string) : string; static;
 
 		public
 			class function FileMasksToOptions(const _arrMasks, _arrSkipMasks : TArrayEx<string>) : string; static;
@@ -26,7 +27,8 @@ type
 			class function GetFileMaskParamsFromOptions(const _sOptions : string) : TArray<string>; static;
 			class function GetFileMasksDelimited(const _sOptions, _argMaskRegex : string) : string; static;
 			class function GetMissingFileMaskOptions(const _sOptions, _sMasks : string) : string; static;
-			function ReBuildArguments : TStrings;
+			class function IsWordBounderiesUsed(const _s: string): Boolean; static;
+			class procedure ReBuildArguments(var _params : TRipGrepParameterSettings); static;
 			class function RemoveAllParams(const _sOptions, _argMaskRegex : string; const _bSwitch : Boolean = False) : string; static;
 			class function UpdateRgOptions(const _sOptions : string; const _sParamRegex : string = ''; const _bRemove : Boolean = False)
 				: string; static;
@@ -47,14 +49,15 @@ begin
 	Result.Parameters := _params;
 end;
 
-procedure TCommandLineBuilder.AddArgs(const _sName : string; const _args : TArray<string>; const _bQuote : Boolean = False);
+class procedure TCommandLineBuilder.AddArgs(var _params : TRipGrepParameterSettings; const _sName : string; const _args : TArray<string>;
+	const _bQuote : Boolean = False);
 begin
 	for var s : string in _args do begin
 		if not s.IsEmpty then begin
 			if _bQuote then begin
-				Parameters.RipGrepArguments.AddPair(_sName, TProcessUtils.MaybeQuoteIfNotQuoted(s));
+				_params.RipGrepArguments.AddPair(_sName, TProcessUtils.MaybeQuoteIfNotQuoted(s));
 			end else begin
-				Parameters.RipGrepArguments.AddPair(_sName, s);
+				_params.RipGrepArguments.AddPair(_sName, s);
 			end;
 		end;
 	end;
@@ -108,7 +111,7 @@ begin
 	try
 		for var s : string in _sFileMasksDelimited.Split([_sSeparator]) do begin
 			list.Add('-g');
-			list.Add(s);
+			list.AddIfNotContains(s);
 		end;
 		Result := list.ToStringArray;
 	finally
@@ -157,43 +160,43 @@ begin
 	Result := newOptions.Trim;
 end;
 
-function TCommandLineBuilder.QuoteStringIfContainsWhiteSpace(const _s : string) : string;
+class function TCommandLineBuilder.IsWordBounderiesUsed(const _s: string): Boolean;
 begin
-	Result := '\b' + _s + '\b';
+	Result := (_s.StartsWith('\b', True) or _s.EndsWith('\b', True));
 end;
 
-function TCommandLineBuilder.ReBuildArguments : TStrings;
+class function TCommandLineBuilder.PutBetweenWordBoundaries(const _s : string) : string;
+begin
+	if not IsWordBounderiesUsed(_s) then begin
+		Result := '\b' + _s + '\b';
+	end;
+end;
+
+class procedure TCommandLineBuilder.ReBuildArguments(var _params : TRipGrepParameterSettings);
 var
 	arrRgOptions : TArrayEx<string>;
 	s : string;
 begin
-	Parameters.RipGrepArguments.Clear();
-	arrRgOptions := Parameters.Options.Split([' ']);
+	_params.RipGrepArguments.Clear();
+	arrRgOptions := _params.Options.Split([' ']);
 
 	for s in RG_NECESSARY_PARAMS do begin
-		if not arrRgOptions.Contains(s) then begin
-			arrRgOptions.Insert(0, s);
-		end;
+		arrRgOptions.InsertIfNotContains(0, s);
 	end;
 
-	arrRgOptions.AddRange(GetFileMaskParamsArrFromDelimitedText(Parameters.FileMasks));
-	if not arrRgOptions.Contains('--') then begin
-		arrRgOptions.Add('--'); // indicates that no more flags will be provided
+	arrRgOptions.AddRange(GetFileMaskParamsArrFromDelimitedText(_params.FileMasks));
+	arrRgOptions.AddIfNotContians('--'); // indicates that no more flags will be provided
+
+	AddArgs(_params, RG_ARG_OPTIONS, arrRgOptions);
+
+	s := _params.SearchText;
+	if TRegex.IsMatch(s, '\s') or _params.MatchWholeWord then begin
+		s := PutBetweenWordBoundaries(s);
 	end;
 
-	AddArgs(RG_ARG_OPTIONS, arrRgOptions);
+	_params.RipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, s);
 
-	s := Parameters.SearchText;
-	if TRegex.IsMatch(s, '\s') or Parameters.MatchWholeWord then begin
-		s := QuoteStringIfContainsWhiteSpace(s);
-	end;
-
-	Parameters.RipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, s);
-
-	AddArgs(RG_ARG_SEARCH_PATH, Parameters.SearchPath.Split([',', ';']), True);
-	Parameters.RipGrepArguments.Delimiter := ' ';
-	// sArgs.QuoteChar := '"';
-	Result := Parameters.RipGrepArguments;
+	AddArgs(_params, RG_ARG_SEARCH_PATH, _params.SearchPath.Split([',', ';']), True);
 end;
 
 class function TCommandLineBuilder.RemoveAllParams(const _sOptions, _argMaskRegex : string; const _bSwitch : Boolean = False) : string;
@@ -226,9 +229,7 @@ begin
 		listOptions.AddStrings(_sOptions.Split([' ']));
 
 		AddParamToList(listOptions, _sParamRegex, _bRemove);
-		if not listOptions.Contains('--') then begin
-			listOptions.Add('--');
-		end;
+		listOptions.AddIfNotContains('--');
 
 		Result := listOptions.DelimitedText;
 	finally

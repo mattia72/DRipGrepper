@@ -172,6 +172,7 @@ type
 			procedure Insert(Index : integer; Value : T);
 			function Remove(const AItem : T) : boolean;
 			function AddIfNotContians(const AItem : T) : boolean;
+			function InsertIfNotContains(const Index : Integer; const AItem : T): boolean;
 
 			procedure AddRange(const ValuesToInsert : array of T); overload;
 			procedure AddRange(const ValuesToInsert : TArrayEx<T>); overload;
@@ -653,6 +654,13 @@ begin
 	Result := TArray.Add<T>(Items, Value);
 end;
 
+function TArrayEx<T>.InsertIfNotContains(const Index : Integer; const AItem : T): boolean;
+begin
+	Result := not contains(AItem);
+	if not Result then
+		Insert(index, AItem);
+end;
+
 procedure TArrayEx<T>.Delete(Indexes : TArrayEx<integer>);
 begin
 	Delete(Indexes.Items);
@@ -663,7 +671,7 @@ var
 	iShift : integer;
 begin
 	TArray.Sort<integer>(Indexes);
-	for var i:= Length(Indexes) - 1 downto 0 do begin
+	for var i := Length(Indexes) - 1 downto 0 do begin
 		Delete(Indexes[i]);
 	end;
 end;

@@ -1,16 +1,18 @@
-unit RipGrepper.Settings.Test;
+unit RipGrepper.CommandLineBuilder.Test;
 
 interface
 
 uses
 	DUnitX.TestFramework,
 	System.Classes,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants,
+	RipGrepper.Common.CommandLineBuilder,
+	RipGrepper.Common.Settings.RipGrepParameterSettings, System.IniFiles;
 
 type
 
 	[TestFixture]
-	TSettingsTest = class
+	TCommandLineBuilderTest = class
 
 		public
 			[Setup]
@@ -24,13 +26,20 @@ type
 			procedure TestGetMaskParamsFromOptions(const _sOptions, _sMasks : string);
 			[Test]
 			[Testcase('test1', '--vimgrep -g *.txt --fixed-strings -g *.ini --ignore-case -g *.bak;' + RG_PARAM_REGEX_GLOB + ';0', ';')]
-			[Testcase('test2', '--vimgrep -g !*.txt --fixed-strings -g !*.ini -i         -g !*.bak;' + RG_PARAM_REGEX_FIXED_STRINGS + ';1', ';')]
+			[Testcase('test2', '--vimgrep -g !*.txt --fixed-strings -g !*.ini -i         -g !*.bak;' + RG_PARAM_REGEX_FIXED_STRINGS +
+				';1', ';')]
 			procedure TestRemoveAllParams(const _sOptions, _sRegEx : string; const _bSwitch : Integer);
 
 			[Test]
 			[Testcase('test1', '--vimgrep -g *.txt  -f -g *.imi  -i -g *.buk |*.txt;*.ini;*.bak', '|')]
 			[Testcase('test2', '--vimgrep -g !*.tyt -f -g !*.imi -i -g !*.bak|!*.txt;!*.ini;!*.bak', '|')]
 			procedure TestGetMissingOptions(const _sOptions, _sMasks : string);
+
+			[Test]
+			[Testcase('test1', '--vimgrep -g *.txt --fixed-strings -g *.ini --ignore-case -g *.bak;' + RG_PARAM_REGEX_GLOB + ';0', ';')]
+			[Testcase('test2', '--vimgrep -g !*.txt --fixed-strings -g !*.ini -i         -g !*.bak;' + RG_PARAM_REGEX_FIXED_STRINGS +
+				';1', ';')]
+			procedure TestReBuildArguments(const _sOptions, _sMasksDelimited : string; const _bMatchWord : Integer);
 	end;
 
 implementation
@@ -43,47 +52,47 @@ uses
 	ArrayEx,
 	System.RegularExpressions;
 
-procedure TSettingsTest.Setup;
+procedure TCommandLineBuilderTest.Setup;
 begin
 
 end;
 
-procedure TSettingsTest.TearDown;
+procedure TCommandLineBuilderTest.TearDown;
 begin
 
 end;
 
-procedure TSettingsTest.TestGetMaskParamsFromOptions(const _sOptions, _sMasks : string);
+procedure TCommandLineBuilderTest.TestGetMaskParamsFromOptions(const _sOptions, _sMasks : string);
 var
 	arrMasks : TArrayEx<string>;
 begin
-	arrMasks := TRipGrepParameterSettings.GetFileMaskParamsFromOptions(_sOptions);
+	arrMasks := TCommandLineBuilder.GetFileMaskParamsFromOptions(_sOptions);
 
 	for var s in _sMasks.Split([';']) do begin
 		Assert.IsTrue(arrMasks.Contains(s), '''' + s + ''' should be in the mask array');
 	end;
 end;
 
-procedure TSettingsTest.TestRemoveAllParams(const _sOptions, _sRegEx : string; const _bSwitch : Integer);
+procedure TCommandLineBuilderTest.TestRemoveAllParams(const _sOptions, _sRegEx : string; const _bSwitch : Integer);
 var
 	arrOptions : TArrayEx<string>;
 begin
 	var
-	s := TRipGrepParameterSettings.RemoveAllParams(_sOptions, _sRegex, (_bSwitch = 1));
+	s := TCommandLineBuilder.RemoveAllParams(_sOptions, _sRegex, (_bSwitch = 1));
 	arrOptions := s.Split([' ']);
 	for s in arrOptions do begin
 		Assert.IsFalse(TRegEx.IsMatch(s, _sRegex), '''' + s + ''' should not bee in the options array');
 	end;
 end;
 
-procedure TSettingsTest.TestGetMissingOptions(const _sOptions, _sMasks : string);
+procedure TCommandLineBuilderTest.TestGetMissingOptions(const _sOptions, _sMasks : string);
 var
 	sMaskOptions : string;
 	arrMissingMaskOptions : TArrayEx<string>;
 	arrAllOptions : TArrayEx<string>;
 	arrMasks : TArrayEx<string>;
 begin
-	sMaskOptions := TRipGrepParameterSettings.GetMissingFileMaskOptions(_sOptions, _sMasks);
+	sMaskOptions := TCommandLineBuilder.GetMissingFileMaskOptions(_sOptions, _sMasks);
 	arrMissingMaskOptions := sMaskOptions.Split([' ']);
 
 	for var i : integer := 0 to arrMissingMaskOptions.MaxIndex do begin
@@ -103,8 +112,19 @@ begin
 
 end;
 
+procedure TCommandLineBuilderTest.TestReBuildArguments(const _sOptions, _sMasksDelimited : string; const _bMatchWord : Integer);
+var
+	rgParams : TRipGrepParameterSettings;
+	ini : TIniFile;
+begin
+	ini := TIniFile.Create('DripGrepperUnittest.ini');
+	rgParams := TRipGrepParameterSettings.Create(ini);
+	TCommandLineBuilder.ReBuildArguments(rgParams);
+    Assert.IsTrue(rgParams.RipGrepArguments.Contains('--vimgrep'));
+end;
+
 initialization
 
-TDUnitX.RegisterTestFixture(TSettingsTest);
+TDUnitX.RegisterTestFixture(TCommandLineBuilderTest);
 
 end.

@@ -178,12 +178,17 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ActionAddParamWordExecute(Sender : TObject);
 begin
-	FSettings.RipGrepParameters.MatchWholeWord := not FSettings.RipGrepParameters.MatchWholeWord;
+	if TCommandLineBuilder.IsWordBounderiesUsed(cmbSearchText.Text) then begin
+		FSettings.RipGrepParameters.MatchWholeWord := False;
+	end else begin
+		FSettings.RipGrepParameters.MatchWholeWord := not FSettings.RipGrepParameters.MatchWholeWord;
+	end;
 	UpdateRipGrepOptionsAndCommanLine();
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionAddParamWordUpdate(Sender : TObject);
 begin
+	tbMatchWord.Enabled := not TCommandLineBuilder.IsWordBounderiesUsed(cmbSearchText.Text);
 	tbMatchWord.Down := FSettings.RipGrepParameters.MatchWholeWord;
 end;
 

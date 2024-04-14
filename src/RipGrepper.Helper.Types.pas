@@ -10,9 +10,12 @@ uses
 type
 
 	TStringsHelper = class Helper for TStrings
-		function Contains(const s : string) : Boolean;
-		function TryGetDef(const _index : Integer; out _val : string; const _default : string = '') : Boolean;
-		function GetValues(_sName : string = '') : TArray<string>;
+		public
+			function Contains(const s : string) : Boolean;
+			function TryGetDef(const _index : Integer; out _val : string; const _default : string = '') : Boolean;
+			function GetValues(_sName : string = '') : TArray<string>;
+
+			function AddIfNotContains(const _sValue : string) : Boolean;
 	end;
 
 function GetElapsedTime(const _swStart : TStopwatch) : string;
@@ -45,6 +48,14 @@ begin
 	Result := Format('%d.%.3d', [e.Seconds, e.Milliseconds]);
 end;
 
+function TStringsHelper.AddIfNotContains(const _sValue : string) : Boolean;
+begin
+	Result := not self.Contains(_sValue);
+	if Result then begin
+		self.Add(_sValue);
+	end;
+end;
+
 function TStringsHelper.Contains(const s : string) : Boolean;
 begin
 	Result := self.IndexOf(s) <> -1;
@@ -53,7 +64,8 @@ end;
 function TStringsHelper.GetValues(_sName : string = '') : TArray<string>;
 begin
 	for var s in self do begin
-		var val := s.Remove(0, s.IndexOf('=') + 1);
+		var
+		val := s.Remove(0, s.IndexOf('=') + 1);
 		if _sName.IsEmpty then begin
 			Result := Result + [val];
 		end else begin

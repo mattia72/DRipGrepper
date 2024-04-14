@@ -276,6 +276,7 @@ begin
 	FSearchTextsHistory := TStringList.Create(dupIgnore, False, True);
 	FRipGrepParamsHistory := TStringList.Create(dupIgnore, False, True);
 	FRipGrepArguments := TStringList.Create();
+	FRipGrepArguments.Delimiter := ' ';
 	FRipGrepperSettings := TRipGrepperAppSettings.Create(FIniFile);
 	FFileMasksHistory := TStringList.Create(dupIgnore, False, True);
 	FIsLoaded := False;
@@ -326,9 +327,7 @@ end;
 
 function TRipGrepperSettings.ReBuildArguments : TStrings;
 begin
-	var
-	clb := TCommandLineBuilder.New(FRipGrepParameters);
-	Result := clb.ReBuildArguments;
+	TCommandLineBuilder.ReBuildArguments(FRipGrepParameters);
 end;
 
 procedure TRipGrepperSettings.SetFileMasksHistory(const Value : TStrings);
