@@ -25,8 +25,8 @@ uses
   RipGrepper.Helper.Types in '..\src\RipGrepper.Helper.Types.pas',
   RipGrepper.Parsers.VimGrepMatchLine in '..\src\RipGrepper.Parsers.VimGrepMatchLine.pas',
   RipGrepper.Common.Constants in '..\src\RipGrepper.Common.Constants.pas',
-  RipGrepper.Settings.Test in 'RipGrepper.Settings.Test.pas',
-  ArrayEx in '..\external\ArrayEx.pas';
+  ArrayEx in '..\external\ArrayEx.pas',
+  RipGrepper.CommandLineBuilder.Test in 'RipGrepper.CommandLineBuilder.Test.pas';
 
 {$IFNDEF TESTINSIGHT}
 
