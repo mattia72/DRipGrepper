@@ -63,6 +63,7 @@ end;
 
 function TStringsHelper.GetValues(_sName : string = '') : TArray<string>;
 begin
+	Result := [];
 	for var s in self do begin
 		var
 		val := s.Remove(0, s.IndexOf('=') + 1);

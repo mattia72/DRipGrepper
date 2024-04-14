@@ -7,7 +7,8 @@ uses
 	System.Classes,
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.CommandLineBuilder,
-	RipGrepper.Common.Settings.RipGrepParameterSettings, System.IniFiles;
+	RipGrepper.Common.Settings.RipGrepParameterSettings,
+	System.IniFiles;
 
 type
 
@@ -36,9 +37,6 @@ type
 			procedure TestGetMissingOptions(const _sOptions, _sMasks : string);
 
 			[Test]
-			[Testcase('test1', '--vimgrep -g *.txt --fixed-strings -g *.ini --ignore-case -g *.bak;' + RG_PARAM_REGEX_GLOB + ';0', ';')]
-			[Testcase('test2', '--vimgrep -g !*.txt --fixed-strings -g !*.ini -i         -g !*.bak;' + RG_PARAM_REGEX_FIXED_STRINGS +
-				';1', ';')]
 			procedure TestReBuildArguments(const _sOptions, _sMasksDelimited : string; const _bMatchWord : Integer);
 	end;
 
@@ -116,11 +114,18 @@ procedure TCommandLineBuilderTest.TestReBuildArguments(const _sOptions, _sMasksD
 var
 	rgParams : TRipGrepParameterSettings;
 	ini : TIniFile;
+	v : TArrayEx<string>;
+	a : TArrayEx<integer>;
 begin
 	ini := TIniFile.Create('DripGrepperUnittest.ini');
 	rgParams := TRipGrepParameterSettings.Create(ini);
 	TCommandLineBuilder.ReBuildArguments(rgParams);
-    Assert.IsTrue(rgParams.RipGrepArguments.Contains('--vimgrep'));
+	for var s in RG_NECESSARY_PARAMS do begin
+		v := rgParams.RipGrepArguments.GetValues(RG_ARG_OPTIONS);
+		Assert.IsTrue(v.Contains(s), s + ' necessary option should be contained.');
+		a := v.AllIndexOf(s);
+		Assert.IsTrue(1 = a.Count, s + ' necessary option should appear only once.');
+	end;
 end;
 
 initialization

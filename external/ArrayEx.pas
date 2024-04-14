@@ -121,6 +121,8 @@ type
 		// find with callback
 		class function Find<T>(const Values : TArray<T>; const Callback : TArrayFindCallback<T>; const StartIndex : integer = 0) : integer;
 			overload; static;
+		// get index of equal item
+		class function AllIndexOf<T>(var Values : TArray<T>; Item : T; const Comparer : IComparer<T>): TArray<integer>; overload; static;
 
 		// return an array filtered and converted by callback function
 		class function Map<T>(const Values : TArray<T>; const Callback : TArrayMapCallback<T>) : TArray<T>; static;
@@ -171,8 +173,8 @@ type
 			procedure Delete(Index : integer); overload;
 			procedure Insert(Index : integer; Value : T);
 			function Remove(const AItem : T) : boolean;
-			function AddIfNotContians(const AItem : T) : boolean;
-			function InsertIfNotContains(const Index : Integer; const AItem : T): boolean;
+			function AddIfNotContians(const AItem : T) : Integer;
+			function InsertIfNotContains(const Index : Integer; const AItem : T) : boolean;
 
 			procedure AddRange(const ValuesToInsert : array of T); overload;
 			procedure AddRange(const ValuesToInsert : TArrayEx<T>); overload;
@@ -214,6 +216,8 @@ type
 			function CopyArray(FromIndex : integer; Count : integer = -1) : TArrayEx<T>; // return array slice
 			procedure Delete(Indexes : TArrayEx<integer>); overload;
 			procedure Delete(Indexes : TArray<integer>); overload;
+			function AllIndexOf(Item : T; const Comparer : IComparer<T>): TArray<integer>; overload;
+			function AllIndexOf(Item : T): TArray<integer>; overload;
 
 			// operator overloads
 			class operator Equal(const L, R : TArrayEx<T>) : boolean;
@@ -377,6 +381,16 @@ begin
 	Result := -1;
 end;
 
+class function TArrayHelper.AllIndexOf<T>(var Values : TArray<T>; Item : T; const Comparer : IComparer<T>): TArray<integer>;
+begin
+	Result := [];
+	for var i := low(Values) to high(Values) do begin
+		if Comparer.Compare(Values[i], Item) = 0 then begin
+			Result := Result + [i];
+		end;
+	end;
+end;
+
 class function TArrayHelper.Map<T>(const Values : TArray<T>; const Callback : TArrayMapCallback<T>) : TArray<T>;
 var
 	Item : T;
@@ -512,11 +526,11 @@ begin
 	end;
 end;
 
-function TArrayEx<T>.AddIfNotContians(const AItem : T) : boolean;
+function TArrayEx<T>.AddIfNotContians(const AItem : T) : Integer;
 begin
-	Result := not contains(AItem);
-	if not Result then
-		Add(AItem);
+	Result := -1;
+	if not contains(AItem) then
+		Result := Add(AItem);
 end;
 
 function TArrayEx<T>.Find(const Callback : TArrayFindCallback<T>; const StartIndex : integer) : integer;
@@ -654,10 +668,10 @@ begin
 	Result := TArray.Add<T>(Items, Value);
 end;
 
-function TArrayEx<T>.InsertIfNotContains(const Index : Integer; const AItem : T): boolean;
+function TArrayEx<T>.InsertIfNotContains(const Index : Integer; const AItem : T) : boolean;
 begin
 	Result := not contains(AItem);
-	if not Result then
+	if Result then
 		Insert(index, AItem);
 end;
 
@@ -690,6 +704,16 @@ begin
 			Exit
 		end;
 	end;
+end;
+
+function TArrayEx<T>.AllIndexOf(Item : T; const Comparer : IComparer<T>) : TArray<integer>;
+begin
+	Result := TArray.AllIndexOf<T>(Items, Item, Comparer);
+end;
+
+function TArrayEx<T>.AllIndexOf(Item : T) : TArray<integer>;
+begin
+	Result := TArray.AllIndexOf<T>(Items, Item, TComparer<T>.Default);
 end;
 
 procedure TArrayEx<T>.Unique;
