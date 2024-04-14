@@ -15,7 +15,7 @@ type
 			class procedure AddArgs(var _params : TRipGrepParameterSettings; const _sName : string; const _args : TArray<string>;
 				const _bQuote : Boolean = False); static;
 			class procedure AddParamToList(list : TStringList; const _paramRegex : string = ''; const _bRemove : Boolean = False); static;
-			class function PutBetweenWordBoundaries(const _s : string) : string; static;
+			class procedure PutBetweenWordBoundaries(var _s : string); static;
 
 		public
 			class function FileMasksToOptions(const _arrMasks, _arrSkipMasks : TArrayEx<string>) : string; static;
@@ -27,7 +27,7 @@ type
 			class function GetFileMaskParamsFromOptions(const _sOptions : string) : TArray<string>; static;
 			class function GetFileMasksDelimited(const _sOptions, _argMaskRegex : string) : string; static;
 			class function GetMissingFileMaskOptions(const _sOptions, _sMasks : string) : string; static;
-			class function IsWordBounderiesUsed(const _s: string): Boolean; static;
+			class function IsWordBounderiesUsed(const _s : string) : Boolean; static;
 			class procedure ReBuildArguments(var _params : TRipGrepParameterSettings); static;
 			class function RemoveAllParams(const _sOptions, _argMaskRegex : string; const _bSwitch : Boolean = False) : string; static;
 			class function UpdateRgOptions(const _sOptions : string; const _sParamRegex : string = ''; const _bRemove : Boolean = False)
@@ -160,15 +160,15 @@ begin
 	Result := newOptions.Trim;
 end;
 
-class function TCommandLineBuilder.IsWordBounderiesUsed(const _s: string): Boolean;
+class function TCommandLineBuilder.IsWordBounderiesUsed(const _s : string) : Boolean;
 begin
-	Result := (_s.StartsWith('\b', True) or _s.EndsWith('\b', True));
+	Result := (_s.StartsWith(WB, True) or _s.EndsWith(WB, True));
 end;
 
-class function TCommandLineBuilder.PutBetweenWordBoundaries(const _s : string) : string;
+class procedure TCommandLineBuilder.PutBetweenWordBoundaries(var _s : string);
 begin
 	if not IsWordBounderiesUsed(_s) then begin
-		Result := '\b' + _s + '\b';
+		_s := WB + _s + WB;
 	end;
 end;
 
@@ -190,8 +190,11 @@ begin
 	AddArgs(_params, RG_ARG_OPTIONS, arrRgOptions);
 
 	s := _params.SearchText;
-	if TRegex.IsMatch(s, '\s') or _params.MatchWholeWord then begin
-		s := PutBetweenWordBoundaries(s);
+	if { TRegex.IsMatch(s, '\s') or } _params.MatchWholeWord then begin
+		if IsWordBounderiesUsed(s) then begin
+			_params.MatchWholeWord := false;
+		end;
+		PutBetweenWordBoundaries(s);
 	end;
 
 	_params.RipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, s);

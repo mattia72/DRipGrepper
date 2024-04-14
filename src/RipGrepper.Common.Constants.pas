@@ -100,6 +100,7 @@ const
 
 	RG_PARSE_ERROR = 'rg.exe result line couldn''t parsed.';
 
+	WB = '\b';
 	RG_PARAM_REGEX_IGNORE_CASE = '-i|--ignore-case';
 	RG_PARAM_REGEX_CASE_SENSITIVE = '-s|--case-sensitive';
 	RG_PARAM_REGEX_FIXED_STRINGS = '-F|--fixed-strings';

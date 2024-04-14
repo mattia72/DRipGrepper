@@ -15,6 +15,10 @@ type
 	[TestFixture]
 	TCommandLineBuilderTest = class
 
+		private
+			FIniFile : TIniFile;
+			FParams : TRipGrepParameterSettings;
+
 		public
 			[Setup]
 			procedure Setup;
@@ -37,7 +41,16 @@ type
 			procedure TestGetMissingOptions(const _sOptions, _sMasks : string);
 
 			[Test]
-			procedure TestReBuildArguments(const _sOptions, _sMasksDelimited : string; const _bMatchWord : Integer);
+			[Testcase('Options', '--param1 --param2|*.txt;*.ini;*.bak|1', '|')]
+			[Testcase('Options with necessary', '--vimgrep --param2|*.txt;*.ini;*.bak|1', '|')]
+			procedure TestReBuildArgumentsOptions(const _sOptions, _sMasksDelimited : string; const _bMatchWord : Integer);
+			[Test]
+			[Testcase('Single word              ', 'aaa|1'      , '|')]
+			[Testcase('Double word              ', 'aaa bbb|1'  , '|')]
+			[Testcase('Start Bounded word       ', '\baaa|0', '|')]
+			[Testcase('End Bounded word         ', 'aaa\b|0', '|')]
+			[Testcase('Start Bounded double word', '\Baaa bbb|0', '|')]
+			procedure TestReBuildArgumentsSearchText(const _sSearchText: string; const _bMatchWord: Integer);
 	end;
 
 implementation
@@ -52,12 +65,14 @@ uses
 
 procedure TCommandLineBuilderTest.Setup;
 begin
-
+	FIniFile := TIniFile.Create('DripGrepperUnittest.ini');
+	FParams := TRipGrepParameterSettings.Create(FIniFile);
 end;
 
 procedure TCommandLineBuilderTest.TearDown;
 begin
-
+	FParams.Free;
+	FIniFile.Free;
 end;
 
 procedure TCommandLineBuilderTest.TestGetMaskParamsFromOptions(const _sOptions, _sMasks : string);
@@ -110,21 +125,45 @@ begin
 
 end;
 
-procedure TCommandLineBuilderTest.TestReBuildArguments(const _sOptions, _sMasksDelimited : string; const _bMatchWord : Integer);
+procedure TCommandLineBuilderTest.TestReBuildArgumentsOptions(const _sOptions, _sMasksDelimited : string; const _bMatchWord : Integer);
 var
-	rgParams : TRipGrepParameterSettings;
-	ini : TIniFile;
 	v : TArrayEx<string>;
 	a : TArrayEx<integer>;
 begin
-	ini := TIniFile.Create('DripGrepperUnittest.ini');
-	rgParams := TRipGrepParameterSettings.Create(ini);
-	TCommandLineBuilder.ReBuildArguments(rgParams);
+	FParams.Options := _sOptions;
+	FParams.FileMasks := _sMasksDelimited;
+
+	FParams.SearchText := '';
+	FParams.MatchWholeWord := _bMatchWord = 1;
+
+	TCommandLineBuilder.ReBuildArguments(FParams);
 	for var s in RG_NECESSARY_PARAMS do begin
-		v := rgParams.RipGrepArguments.GetValues(RG_ARG_OPTIONS);
+		v := FParams.RipGrepArguments.GetValues(RG_ARG_OPTIONS);
 		Assert.IsTrue(v.Contains(s), s + ' necessary option should be contained.');
 		a := v.AllIndexOf(s);
 		Assert.IsTrue(1 = a.Count, s + ' necessary option should appear only once.');
+	end;
+end;
+
+procedure TCommandLineBuilderTest.TestReBuildArgumentsSearchText(const _sSearchText: string; const _bMatchWord: Integer);
+var
+	v : TArrayEx<string>;
+	a : TArrayEx<integer>;
+begin
+	FParams.Options := '';
+	FParams.FileMasks := '';
+
+	FParams.SearchText := _sSearchText;
+	FParams.MatchWholeWord := _bMatchWord = 1;
+
+	TCommandLineBuilder.ReBuildArguments(FParams);
+
+	if FParams.MatchWholeWord then begin
+		Assert.AreEqual(WB + _sSearchText + WB, FParams.RipGrepArguments.Values[RG_ARG_SEARCH_TEXT],
+			'if MatchWord is set, then search text should surrounded: ' + WB + _sSearchText + WB);
+	end else begin
+		Assert.AreEqual(_sSearchText, FParams.RipGrepArguments.Values[RG_ARG_SEARCH_TEXT],
+		'if MatchWord is not set, then search text should equal' + _sSearchText);
 	end;
 end;
 
