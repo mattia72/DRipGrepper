@@ -85,10 +85,20 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 - [ ] [scoop](https://scoop.sh) install
 - [ ] [chocolatey](https://chocolatey.org) install
 
+## Installation
+
+If you want to be up to date with the latest versions.
+Install [Scoop](https://scoop.sh), and then you can install and update dripgrepper from the
+[official bucket](https://github.com/mattia72/scoop) :cool:
+
+```
+scoop bucket add dripgrepper-bucket https://github.com/mattia72/scoop
+scoop install dripgrepper
+```
+
 ## Thanks
 -  [ripgrep](https://github.com/BurntSushi/ripgrep)
-
--  [CnPack] (https://www.cnpack.org)
+-  [CnPack](https://www.cnpack.org)
 -  [DDevExtensions](https://github.com/ahausladen/DDevExtensions)
 -  [dprocess](https://stackoverflow.com/a/45029879/2923283): port from freepascal
 -  [dzlib](https://sourceforge.net/p/dzlib/code/HEAD/tree)
