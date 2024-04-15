@@ -81,6 +81,8 @@ type
 
 		// append array
 		class procedure AddRange<T>(var Values : TArray<T>; const ValuesToInsert : array of T); static;
+		// get index of equal item
+		class function CountOf<T>(var Values : TArray<T>; Item : T; const Comparer : IComparer<T>) : integer; overload; static;
 
 		// insert array at index
 		class procedure InsertRange<T>(var Values : TArray<T>; Index : Integer; const ValuesToInsert : array of T); static;
@@ -122,7 +124,7 @@ type
 		class function Find<T>(const Values : TArray<T>; const Callback : TArrayFindCallback<T>; const StartIndex : integer = 0) : integer;
 			overload; static;
 		// get index of equal item
-		class function AllIndexOf<T>(var Values : TArray<T>; Item : T; const Comparer : IComparer<T>): TArray<integer>; overload; static;
+		class function AllIndexOf<T>(var Values : TArray<T>; Item : T; const Comparer : IComparer<T>) : TArray<integer>; overload; static;
 
 		// return an array filtered and converted by callback function
 		class function Map<T>(const Values : TArray<T>; const Callback : TArrayMapCallback<T>) : TArray<T>; static;
@@ -154,15 +156,19 @@ type
 
 		private
 			function GetCount : integer;
+			function GetFirst : T;
 			procedure SetCount(const Value : integer);
 			function GetItemAt(Index : integer) : T;
+			function GetLast : T;
 			function GetMaxIndex : Integer;
 			procedure SetItemAt(Index : integer; Value : T);
 
 		public
 			Items : TArray<T>;
 			property Count : integer read GetCount write SetCount;
+			property First : T read GetFirst;
 			property ItemAt[index : Integer] : T read GetItemAt write SetItemAt; default;
+			property Last : T read GetLast;
 			property MaxIndex : Integer read GetMaxIndex;
 
 			constructor Create(ACapacity : integer); overload;
@@ -216,8 +222,10 @@ type
 			function CopyArray(FromIndex : integer; Count : integer = -1) : TArrayEx<T>; // return array slice
 			procedure Delete(Indexes : TArrayEx<integer>); overload;
 			procedure Delete(Indexes : TArray<integer>); overload;
-			function AllIndexOf(Item : T; const Comparer : IComparer<T>): TArray<integer>; overload;
-			function AllIndexOf(Item : T): TArray<integer>; overload;
+			function AllIndexOf(Item : T; const Comparer : IComparer<T>) : TArray<integer>; overload;
+			function AllIndexOf(Item : T) : TArray<integer>; overload;
+			function CountOf(Item : T) : integer; overload;
+			function CountOf(Item : T; const Comparer : IComparer<T>) : integer; overload;
 
 			// operator overloads
 			class operator Equal(const L, R : TArrayEx<T>) : boolean;
@@ -287,6 +295,16 @@ begin
 	SetLength(Values, length(Values) + length(ValuesToInsert));
 	for I := low(ValuesToInsert) to high(ValuesToInsert) do
 		Values[index + I] := ValuesToInsert[I];
+end;
+
+class function TArrayHelper.CountOf<T>(var Values : TArray<T>; Item : T; const Comparer : IComparer<T>) : integer;
+begin
+	Result := 0;
+	for var i := low(Values) to high(Values) do begin
+		if Comparer.Compare(Values[i], Item) = 0 then begin
+			Inc(Result);
+		end;
+	end;
 end;
 
 class function TArrayHelper.IndexOf<T>(var Values : TArray<T>; Item : T; const Comparer : IComparer<T>) : integer;
@@ -381,7 +399,7 @@ begin
 	Result := -1;
 end;
 
-class function TArrayHelper.AllIndexOf<T>(var Values : TArray<T>; Item : T; const Comparer : IComparer<T>): TArray<integer>;
+class function TArrayHelper.AllIndexOf<T>(var Values : TArray<T>; Item : T; const Comparer : IComparer<T>) : TArray<integer>;
 begin
 	Result := [];
 	for var i := low(Values) to high(Values) do begin
@@ -648,6 +666,16 @@ begin
 	end;
 end;
 
+function TArrayEx<T>.CountOf(Item : T) : integer;
+begin
+	Result := TArray.CountOf<T>(Items, Item, TComparer<T>.Default);
+end;
+
+function TArrayEx<T>.CountOf(Item : T; const Comparer : IComparer<T>) : integer;
+begin
+	Result := TArray.CountOf<T>(Items, Item, Comparer);
+end;
+
 procedure TArrayEx<T>.Sort;
 begin
 	TArray.Sort<T>(Items);
@@ -714,6 +742,16 @@ end;
 function TArrayEx<T>.AllIndexOf(Item : T) : TArray<integer>;
 begin
 	Result := TArray.AllIndexOf<T>(Items, Item, TComparer<T>.Default);
+end;
+
+function TArrayEx<T>.GetFirst : T;
+begin
+	Result := Items[0];
+end;
+
+function TArrayEx<T>.GetLast : T;
+begin
+	Result := Items[MaxIndex];
 end;
 
 procedure TArrayEx<T>.Unique;

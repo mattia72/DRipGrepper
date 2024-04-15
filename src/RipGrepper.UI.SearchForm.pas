@@ -61,8 +61,8 @@ type
 		gbOptions : TGroupBox;
 		lblFileMasks : TLabel;
 		cmbFileMasks : TComboBox;
-		edtCommandLine : TEdit;
 		Label1 : TLabel;
+		memoCommandLine : TMemo;
 		procedure ActionAddParamIgnoreCaseExecute(Sender : TObject);
 		procedure ActionAddParamIgnoreCaseUpdate(Sender : TObject);
 		procedure ActionAddParamRegexExecute(Sender : TObject);
@@ -84,6 +84,7 @@ type
 		procedure ShowOptionsForm;
 		procedure FormClose(Sender : TObject; var Action : TCloseAction);
 		procedure FormShow(Sender : TObject);
+		procedure gbExpertDblClick(Sender : TObject);
 
 		private
 			FActualRipGrepParams : TRipGrepArguments;
@@ -91,21 +92,23 @@ type
 			FSettings : TRipGrepperSettings;
 			function GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
 			procedure LoadSettings;
-			function UpdateRgOptions(const _sParamRegex : string = ''; const _bRemove : Boolean = False) : string;
+			function UpdateRgExeOptions(const _sParamRegex : string = ''; const _bRemove : Boolean = False) : string;
 			procedure ButtonDown(const _paramRegex : string; _tb : TToolButton; const _bNotMatch : Boolean = False);
 			function GetFullHeight(_ctrl : TControl) : integer;
 			function OptionIsSet(const _paramRegex : string) : Boolean;
-			procedure RemoveRgOption(const _paramRegex : string);
+			procedure RemoveRgExeOptions(const _paramRegex : string);
 			procedure ProcessControl(_ctrl : TControl; _imgList : TImageList);
 			procedure SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings);
 			procedure SetComboItemsFromOptions(_cmb : TComboBox; const _argMaskRegex : string; const _items : TStrings);
 			procedure SetOption(const _paramRegex : string);
 			procedure StoreHistoriesAsCmbEntries;
-			procedure SetRipGrepParametersSettings;
+			procedure WriteCtrlsToRipGrepParametersSettings;
 			procedure StoreSearchSettings;
+			procedure UpdateExpertGroupBox;
 			procedure UpdateFileMasksInFileMasks;
 			function UpdateFileMasksInOptions(const sOptions, sMasks : string) : string; overload;
 			procedure UpdateFileMasksInOptions; overload;
+			procedure UpdateHeight;
 
 		protected
 		public
@@ -178,17 +181,22 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ActionAddParamWordExecute(Sender : TObject);
 begin
-	if TCommandLineBuilder.IsWordBounderiesUsed(cmbSearchText.Text) then begin
+	if TCommandLineBuilder.IsWordBoundOnOneSide(cmbSearchText.Text) then begin
 		FSettings.RipGrepParameters.MatchWholeWord := False;
+	end else if TCommandLineBuilder.IsWordBoundOnBothSide(cmbSearchText.Text) then begin
+		FSettings.RipGrepParameters.MatchWholeWord := True;
 	end else begin
 		FSettings.RipGrepParameters.MatchWholeWord := not FSettings.RipGrepParameters.MatchWholeWord;
 	end;
-	UpdateRipGrepOptionsAndCommanLine();
+	var
+	params := FSettings.RipGrepParameters;
+	TCommandLineBuilder.RebuildArguments(params);
+	UpdateCommandLine();
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionAddParamWordUpdate(Sender : TObject);
 begin
-	tbMatchWord.Enabled := not TCommandLineBuilder.IsWordBounderiesUsed(cmbSearchText.Text);
+	tbMatchWord.Enabled := not TCommandLineBuilder.IsWordBoundOnOneSide(cmbSearchText.Text);
 	tbMatchWord.Down := FSettings.RipGrepParameters.MatchWholeWord;
 end;
 
@@ -267,18 +275,8 @@ procedure TRipGrepperSearchDialogForm.FormShow(Sender : TObject);
 begin
 	LoadSettings;
 	UpdateRipGrepOptionsAndCommanLine();
-
-	gbExpert.Visible := FSettings.RipGrepperSettings.ExpertMode;
-
-	Height :=
-	{ } GetFullHeight(gbSearch) +
-	{ } GetFullHeight(gbOptions) +
-	{ } GetFullHeight(pnlSearch) - pnlSearch.Height +
-	{ } GetFullHeight(pnlBottom) +
-	{ } IfThen(gbExpert.Visible, GetFullHeight(gbExpert));
-
-	Constraints.MinHeight := Height;
-	Constraints.MaxHeight := Height;
+	UpdateExpertGroupBox();
+	UpdateHeight();
 end;
 
 function TRipGrepperSearchDialogForm.GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
@@ -308,9 +306,9 @@ begin
 	SetComboItemsFromOptions(cmbFileMasks, RG_PARAM_REGEX_GLOB, FSettings.FileMasksHistory);
 end;
 
-function TRipGrepperSearchDialogForm.UpdateRgOptions(const _sParamRegex : string = ''; const _bRemove : Boolean = False) : string;
+function TRipGrepperSearchDialogForm.UpdateRgExeOptions(const _sParamRegex : string = ''; const _bRemove : Boolean = False) : string;
 begin
-	cmbOptions.Text := TCommandLineBuilder.UpdateRgOptions(cmbOptions.Text, _sParamRegex, _bRemove);
+	cmbOptions.Text := TCommandLineBuilder.UpdateRgExeOptions(cmbOptions.Text, _sParamRegex, _bRemove);
 end;
 
 procedure TRipGrepperSearchDialogForm.ButtonDown(const _paramRegex : string; _tb : TToolButton; const _bNotMatch : Boolean = False);
@@ -357,6 +355,13 @@ begin
 	UpdateCommandLine();
 end;
 
+procedure TRipGrepperSearchDialogForm.gbExpertDblClick(Sender : TObject);
+begin
+	FSettings.RipGrepperSettings.ExpertMode := not FSettings.RipGrepperSettings.ExpertMode;
+	UpdateExpertGroupBox();
+	UpdateHeight();
+end;
+
 function TRipGrepperSearchDialogForm.GetFullHeight(_ctrl : TControl) : integer;
 begin
 	Result := _ctrl.Margins.Top + _ctrl.Height + _ctrl.Margins.Bottom;
@@ -367,9 +372,9 @@ begin
 	Result := TRegEx.IsMatch(cmbOptions.Text, _paramRegex);
 end;
 
-procedure TRipGrepperSearchDialogForm.RemoveRgOption(const _paramRegex : string);
+procedure TRipGrepperSearchDialogForm.RemoveRgExeOptions(const _paramRegex : string);
 begin
-	UpdateRgOptions(_paramRegex, True);
+	UpdateRgExeOptions(_paramRegex, True);
 	UpdateCommandLine();
 end;
 
@@ -399,9 +404,9 @@ end;
 procedure TRipGrepperSearchDialogForm.SetOption(const _paramRegex : string);
 begin
 	if OptionIsSet(_paramRegex) then begin
-		RemoveRgOption(_paramRegex)
+		RemoveRgExeOptions(_paramRegex)
 	end else begin
-		UpdateRgOptions(_paramRegex);
+		UpdateRgExeOptions(_paramRegex);
 	end;
 	UpdateCommandLine();
 end;
@@ -414,11 +419,15 @@ begin
 	TItemInserter.AddTextToItemsIfNotContains(cmbFileMasks);
 end;
 
-procedure TRipGrepperSearchDialogForm.SetRipGrepParametersSettings;
+procedure TRipGrepperSearchDialogForm.WriteCtrlsToRipGrepParametersSettings;
 begin
 	FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
 	FSettings.RipGrepParameters.SearchText := cmbSearchText.Text;
-	FSettings.RipGrepParameters.Options := cmbOptions.Text;
+	if Fsettings.RipGrepperSettings.ExpertMode then begin
+		FSettings.RipGrepParameters.Options := cmbOptions.Text;
+	end else begin
+		FSettings.RipGrepParameters.Options := '';
+	end;
 end;
 
 procedure TRipGrepperSearchDialogForm.StoreSearchSettings;
@@ -428,17 +437,30 @@ begin
 	FSettings.RipGrepParamsHistory := cmbOptions.Items;
 	FSettings.FileMasksHistory := cmbFileMasks.Items;
 
-	SetRipGrepParametersSettings;
+	WriteCtrlsToRipGrepParametersSettings;
 
-	FSettings.ReBuildArguments;
+	FSettings.RebuildArguments;
 	FSettings.Store
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateCommandLine;
 begin
-	SetRipGrepParametersSettings;
-	FSettings.ReBuildArguments();
-	edtCommandLine.Text := FSettings.RipGrepParameters.GetCommandLine();
+	WriteCtrlsToRipGrepParametersSettings;
+	FSettings.RebuildArguments();
+	memoCommandLine.Text := FSettings.RipGrepParameters.GetCommandLine();
+end;
+
+procedure TRipGrepperSearchDialogForm.UpdateExpertGroupBox;
+begin
+	if FSettings.RipGrepperSettings.ExpertMode then begin
+		gbExpert.Height := GROUPBOX_EXPERT_HEIGHT;
+		gbExpert.Caption := EXPERT_GRPBX_CAPTIONS;
+		FSettings.RipGrepperSettings.ExpertMode := True;
+	end else begin
+		gbExpert.Height := 20;
+		gbExpert.Caption := 'Show ' + EXPERT_GRPBX_CAPTIONS;
+		FSettings.RipGrepperSettings.ExpertMode := False;
+	end;
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateFileMasksInFileMasks;
@@ -465,9 +487,24 @@ begin
 	cmbOptions.Text := UpdateFileMasksInOptions(cmbOptions.Text, cmbFileMasks.Text);
 end;
 
+procedure TRipGrepperSearchDialogForm.UpdateHeight;
+begin
+	var
+	iHeight :=
+	{ } GetFullHeight(gbSearch) +
+	{ } GetFullHeight(gbOptions) +
+	{ } GetFullHeight(pnlSearch) - pnlSearch.Height +
+	{ } GetFullHeight(pnlBottom) +
+	{ } GetFullHeight(gbExpert);
+
+	Constraints.MaxHeight := iHeight;
+	Constraints.MinHeight := iHeight;
+	Height := iHeight;
+end;
+
 procedure TRipGrepperSearchDialogForm.UpdateRipGrepOptionsAndCommanLine;
 begin
-	UpdateRgOptions();
+	UpdateRgExeOptions();
 	UpdateCommandLine();
 end;
 

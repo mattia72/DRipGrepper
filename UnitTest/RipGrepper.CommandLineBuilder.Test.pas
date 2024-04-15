@@ -43,14 +43,16 @@ type
 			[Test]
 			[Testcase('Options', '--param1 --param2|*.txt;*.ini;*.bak|1', '|')]
 			[Testcase('Options with necessary', '--vimgrep --param2|*.txt;*.ini;*.bak|1', '|')]
+			[Testcase('Options ends with one --', '--vimgrep --param2 --|*.txt;*.ini;*.bak|1', '|')]
 			procedure TestReBuildArgumentsOptions(const _sOptions, _sMasksDelimited : string; const _bMatchWord : Integer);
 			[Test]
-			[Testcase('Single word              ', 'aaa|1'      , '|')]
-			[Testcase('Double word              ', 'aaa bbb|1'  , '|')]
-			[Testcase('Start Bounded word       ', '\baaa|0', '|')]
-			[Testcase('End Bounded word         ', 'aaa\b|0', '|')]
-			[Testcase('Start Bounded double word', '\Baaa bbb|0', '|')]
-			procedure TestReBuildArgumentsSearchText(const _sSearchText: string; const _bMatchWord: Integer);
+			[Testcase('Single word              ', 'aaa|1|1', '|')]
+			[Testcase('Double word              ', 'aaa bbb|1|1', '|')]
+			[Testcase('Double word              ', 'aaa bbb|1|1', '|')]
+			[Testcase('Start Bounded word       ', '\baaa|0|0', '|')]
+			[Testcase('End Bounded word         ', 'aaa\b|0|0', '|')]
+			[Testcase('Start Bounded double word', '\Baaa bbb|0|0', '|')]
+			procedure TestReBuildArgumentsSearchText(const _sSearchText : string; const _bMatchWord, _bShouldBounded : Integer);
 	end;
 
 implementation
@@ -122,13 +124,13 @@ begin
 		Assert.IsTrue(idx >= 0, 'All options should contain added mask:' + arrMasks[i]);
 		Assert.IsTrue(arrAllOptions[idx - 1] = '-g', arrMasks[i] + ' should preceed -g');
 	end;
-
 end;
 
 procedure TCommandLineBuilderTest.TestReBuildArgumentsOptions(const _sOptions, _sMasksDelimited : string; const _bMatchWord : Integer);
 var
 	v : TArrayEx<string>;
 	a : TArrayEx<integer>;
+	i : integer;
 begin
 	FParams.Options := _sOptions;
 	FParams.FileMasks := _sMasksDelimited;
@@ -136,19 +138,25 @@ begin
 	FParams.SearchText := '';
 	FParams.MatchWholeWord := _bMatchWord = 1;
 
-	TCommandLineBuilder.ReBuildArguments(FParams);
+	TCommandLineBuilder.RebuildArguments(FParams);
+	v := FParams.RipGrepArguments.GetValues(RG_ARG_OPTIONS);
 	for var s in RG_NECESSARY_PARAMS do begin
-		v := FParams.RipGrepArguments.GetValues(RG_ARG_OPTIONS);
 		Assert.IsTrue(v.Contains(s), s + ' necessary option should be contained.');
 		a := v.AllIndexOf(s);
 		Assert.IsTrue(1 = a.Count, s + ' necessary option should appear only once.');
 	end;
+
+	for var s in _sMasksDelimited.Split([';']) do begin
+		Assert.IsTrue(v.Contains(s), s + ' mask should be contained');
+		i := v.IndexOf(s);
+		Assert.AreEqual('-g', v.Items[i - 1], s + ' mask should be preceeded by -g');
+	end;
+
+	Assert.AreEqual(RG_PARAM_END, v.Last, 'The last option should be --');
+	Assert.AreEqual(1, v.CountOf(RG_PARAM_END), 'The last option should be unique');
 end;
 
-procedure TCommandLineBuilderTest.TestReBuildArgumentsSearchText(const _sSearchText: string; const _bMatchWord: Integer);
-var
-	v : TArrayEx<string>;
-	a : TArrayEx<integer>;
+procedure TCommandLineBuilderTest.TestReBuildArgumentsSearchText(const _sSearchText : string; const _bMatchWord, _bShouldBounded : Integer);
 begin
 	FParams.Options := '';
 	FParams.FileMasks := '';
@@ -156,15 +164,22 @@ begin
 	FParams.SearchText := _sSearchText;
 	FParams.MatchWholeWord := _bMatchWord = 1;
 
-	TCommandLineBuilder.ReBuildArguments(FParams);
+	TCommandLineBuilder.RebuildArguments(FParams);
 
-	if FParams.MatchWholeWord then begin
+	if _bShouldBounded = 1 then begin
 		Assert.AreEqual(WB + _sSearchText + WB, FParams.RipGrepArguments.Values[RG_ARG_SEARCH_TEXT],
-			'if MatchWord is set, then search text should surrounded: ' + WB + _sSearchText + WB);
+			'the search text should surrounded: ' + WB + _sSearchText + WB);
 	end else begin
 		Assert.AreEqual(_sSearchText, FParams.RipGrepArguments.Values[RG_ARG_SEARCH_TEXT],
-		'if MatchWord is not set, then search text should equal' + _sSearchText);
+			'if MatchWord is not set, then search text should equal' + _sSearchText);
 	end;
+
+	if FParams.MatchWholeWord then begin
+		for var p in RG_PARAM_REGEX_FIXED_STRINGS.Split(['|']) do begin
+			Assert.IsFalse(FParams.Options.Contains(p), p + ' mustn''t be contained between options')
+		end;
+	end;
+
 end;
 
 initialization

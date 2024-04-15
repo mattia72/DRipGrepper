@@ -16,6 +16,8 @@ type
 				const _bQuote : Boolean = False); static;
 			class procedure AddParamToList(list : TStringList; const _paramRegex : string = ''; const _bRemove : Boolean = False); static;
 			class procedure PutBetweenWordBoundaries(var _s : string); static;
+			class function UpdateSearchText(const _sSearchText : string; var _params : TRipGrepParameterSettings;
+				var arrRgOptions : TArrayEx<string>) : string; static;
 
 		public
 			class function FileMasksToOptions(const _arrMasks, _arrSkipMasks : TArrayEx<string>) : string; static;
@@ -27,10 +29,11 @@ type
 			class function GetFileMaskParamsFromOptions(const _sOptions : string) : TArray<string>; static;
 			class function GetFileMasksDelimited(const _sOptions, _argMaskRegex : string) : string; static;
 			class function GetMissingFileMaskOptions(const _sOptions, _sMasks : string) : string; static;
-			class function IsWordBounderiesUsed(const _s : string) : Boolean; static;
-			class procedure ReBuildArguments(var _params : TRipGrepParameterSettings); static;
+			class function IsWordBoundOnOneSide(const _s : string) : Boolean; static;
+			class function IsWordBoundOnBothSide(const _s : string) : Boolean; static;
+			class procedure RebuildArguments(var _params : TRipGrepParameterSettings); static;
 			class function RemoveAllParams(const _sOptions, _argMaskRegex : string; const _bSwitch : Boolean = False) : string; static;
-			class function UpdateRgOptions(const _sOptions : string; const _sParamRegex : string = ''; const _bRemove : Boolean = False)
+			class function UpdateRgExeOptions(const _sOptions : string; const _sParamRegex : string = ''; const _bRemove : Boolean = False)
 				: string; static;
 			property Parameters : TRipGrepParameterSettings read FParameters write FParameters;
 	end;
@@ -160,19 +163,25 @@ begin
 	Result := newOptions.Trim;
 end;
 
-class function TCommandLineBuilder.IsWordBounderiesUsed(const _s : string) : Boolean;
+class function TCommandLineBuilder.IsWordBoundOnOneSide(const _s : string) : Boolean;
 begin
-	Result := (_s.StartsWith(WB, True) or _s.EndsWith(WB, True));
+	Result := (_s.StartsWith(WB, True) and not _s.EndsWith(WB, True))
+	{ } or (not _s.StartsWith(WB, True) and _s.EndsWith(WB, True));
+end;
+
+class function TCommandLineBuilder.IsWordBoundOnBothSide(const _s : string) : Boolean;
+begin
+	Result := (_s.StartsWith(WB, True) and _s.EndsWith(WB, True));
 end;
 
 class procedure TCommandLineBuilder.PutBetweenWordBoundaries(var _s : string);
 begin
-	if not IsWordBounderiesUsed(_s) then begin
+	if not(_s.StartsWith(WB, True) or _s.EndsWith(WB, True)) then begin
 		_s := WB + _s + WB;
 	end;
 end;
 
-class procedure TCommandLineBuilder.ReBuildArguments(var _params : TRipGrepParameterSettings);
+class procedure TCommandLineBuilder.RebuildArguments(var _params : TRipGrepParameterSettings);
 var
 	arrRgOptions : TArrayEx<string>;
 	s : string;
@@ -185,21 +194,14 @@ begin
 	end;
 
 	arrRgOptions.AddRange(GetFileMaskParamsArrFromDelimitedText(_params.FileMasks));
-	arrRgOptions.AddIfNotContians('--'); // indicates that no more flags will be provided
+	arrRgOptions.Remove(RG_PARAM_END);
+	arrRgOptions.Add(RG_PARAM_END); // indicates that no more flags will be provided
 
+	s := UpdateSearchText(_params.SearchText, _params, arrRgOptions);
 	AddArgs(_params, RG_ARG_OPTIONS, arrRgOptions);
 
-	s := _params.SearchText;
-	if { TRegex.IsMatch(s, '\s') or } _params.MatchWholeWord then begin
-		if IsWordBounderiesUsed(s) then begin
-			_params.MatchWholeWord := false;
-		end;
-		PutBetweenWordBoundaries(s);
-	end;
-
-	_params.RipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, s);
-
-	AddArgs(_params, RG_ARG_SEARCH_PATH, _params.SearchPath.Split([',', ';']), True);
+	_params.RipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, s); // order is important!
+	AddArgs(_params, RG_ARG_SEARCH_PATH, _params.SearchPath.Split([';']), True {Quote if necessary});
 end;
 
 class function TCommandLineBuilder.RemoveAllParams(const _sOptions, _argMaskRegex : string; const _bSwitch : Boolean = False) : string;
@@ -220,7 +222,7 @@ begin
 	Result := string.Join(' ', arrOptions.Items);
 end;
 
-class function TCommandLineBuilder.UpdateRgOptions(const _sOptions : string; const _sParamRegex : string = '';
+class function TCommandLineBuilder.UpdateRgExeOptions(const _sOptions : string; const _sParamRegex : string = '';
 	const _bRemove : Boolean = False) : string;
 var
 	listOptions : TStringList;
@@ -232,12 +234,37 @@ begin
 		listOptions.AddStrings(_sOptions.Split([' ']));
 
 		AddParamToList(listOptions, _sParamRegex, _bRemove);
-		listOptions.AddIfNotContains('--');
 
 		Result := listOptions.DelimitedText;
 	finally
 		listOptions.Free;
 	end;
+end;
+
+class function TCommandLineBuilder.UpdateSearchText(const _sSearchText : string; var _params : TRipGrepParameterSettings;
+	var arrRgOptions : TArrayEx<string>) : string;
+var
+	newSearchText : string;
+	bRemoved : Boolean;
+begin
+	newSearchText := _sSearchText;
+	if _params.MatchWholeWord then begin
+		if IsWordBoundOnOneSide(newSearchText) then begin
+			_params.MatchWholeWord := False;
+		end;
+		bRemoved := False;
+		for var p in RG_PARAM_REGEX_FIXED_STRINGS.Split(['|']) do begin
+			if arrRgOptions.Remove(p) then begin // word boundaries can't be used in case of --fixed-strings
+				bRemoved := True;
+			end;
+		end;
+		if bRemoved then begin
+			newSearchText := TRegEx.Escape(newSearchText); // regex chars like $ should be escaped
+		end;
+		PutBetweenWordBoundaries(newSearchText);
+	end;
+
+	Result := newSearchText;
 end;
 
 end.

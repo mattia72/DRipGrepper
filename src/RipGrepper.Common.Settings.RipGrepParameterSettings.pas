@@ -150,7 +150,6 @@ end;
 
 procedure TRipGrepParameterSettings.SetSearchText(const Value : string);
 begin
-	// quote string if it contains whitespace hapens automatically in TProcess :)
 	if FSearchText <> Value then begin
 		FSearchText := Value;
 		FIsModified := True;

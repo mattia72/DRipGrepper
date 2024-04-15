@@ -127,7 +127,7 @@ type
 			function GetIniSectionName : string; override;
 			function GetIsModified : Boolean; override;
 			function GetRipGrepArguments : TRipGrepArguments;
-			function ReBuildArguments : TStrings;
+			procedure RebuildArguments;
 			property ActualRipGrepParams : string read GetActualRipGrepParams;
 			property ActualSearchPath : string read GetActualSearchPath;
 			property ActualSearchText : string read GetActualSearchText;
@@ -325,9 +325,9 @@ begin
 	FIsLoaded := True;
 end;
 
-function TRipGrepperSettings.ReBuildArguments : TStrings;
+procedure TRipGrepperSettings.RebuildArguments;
 begin
-	TCommandLineBuilder.ReBuildArguments(FRipGrepParameters);
+	TCommandLineBuilder.RebuildArguments(FRipGrepParameters);
 end;
 
 procedure TRipGrepperSettings.SetFileMasksHistory(const Value : TStrings);

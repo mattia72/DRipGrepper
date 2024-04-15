@@ -731,7 +731,7 @@ end;
 procedure TRipGrepperMiddleFrame.UpdateRipGrepArgumentsInHistObj;
 begin
 	FHistObject.RipGrepArguments.Clear;
-	Settings.ReBuildArguments();
+	Settings.RebuildArguments();
 	FHistObject.CopyRipGrepArgsFromSettings(Settings);
 end;
 

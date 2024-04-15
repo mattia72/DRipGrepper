@@ -14,6 +14,8 @@ const
 	EXTENSION_NAME = 'DRipExtension';
 	EXTENSION_MENU_CAPTION = 'DRipGrepper';
 
+    EXPERT_GRPBX_CAPTIONS = 'Expert Settings';
+
 	FORMAT_VERSION_INFO = '%s v%d.%d.%d-beta';
 	FORMAT_VERSION_INFO_IN_STATUSBAR = '%s   ';
 
@@ -56,6 +58,8 @@ const
 	LV_IMG_IDX_OK = 0;
 	LV_IMG_IDX_ERROR = 1;
 	LV_IMG_IDX_INFO = 2;
+
+    GROUPBOX_EXPERT_HEIGHT = 135;
 
 	DT_ALIGN : array [TAlignment] of TTextFormats = (
 		{ } tfLeft,
@@ -106,6 +110,7 @@ const
 	RG_PARAM_REGEX_FIXED_STRINGS = '-F|--fixed-strings';
 	RG_PARAM_REGEX_WORD_REGEX = '-w|--word-regexp';
 	RG_PARAM_REGEX_GLOB = '-g|--glob';
+	RG_PARAM_END = '--';
 
 type
 
