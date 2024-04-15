@@ -10,20 +10,26 @@ uses
 	ArrayEx;
 
 type
+	TGuiSetSearchParams = record
+		 CaseSensitive : Boolean;
+		 MatchWord : Boolean;
+		 UseRegex : Boolean;
+	end;
+
 	TRipGrepParameterSettings = class(TRipGrepperSettingsBase)
 		const
 			INI_SECTION = 'RipGrepSettings';
 
 		private
 			FRipGrepArguments : TRipGrepArguments;
-			FOptions : string;
+			FRgExeOptions: string;
 			FRipGrepPath : string;
 			FSearchPath : string;
 			FSearchText : string;
 			FFileMasks: string;
 			FMatchWholeWord : Boolean;
 			procedure SetFileMasks(const Value: string);
-			procedure SetOptions(const Value : string);
+			procedure SetRgExeOptions(const Value: string);
 			procedure SetSearchPath(const Value : string);
 			procedure SetSearchText(const Value : string);
 		protected
@@ -39,7 +45,7 @@ type
 			procedure Store; override;
 			property FileMasks: string read FFileMasks write SetFileMasks;
 			property MatchWholeWord : Boolean read FMatchWholeWord write FMatchWholeWord;
-			property Options : string read FOptions write SetOptions;
+			property RgExeOptions: string read FRgExeOptions write SetRgExeOptions;
 			property SearchPath : string read FSearchPath write SetSearchPath;
 			property SearchText : string read FSearchText write SetSearchText;
 			property RipGrepArguments : TRipGrepArguments read FRipGrepArguments write FRipGrepArguments;
@@ -132,10 +138,10 @@ begin
 	end;
 end;
 
-procedure TRipGrepParameterSettings.SetOptions(const Value : string);
+procedure TRipGrepParameterSettings.SetRgExeOptions(const Value: string);
 begin
-	if FOptions <> Value then begin
-		FOptions := Value;
+	if FRgExeOptions <> Value then begin
+		FRgExeOptions := Value;
 		FIsModified := True;
 	end;
 end;

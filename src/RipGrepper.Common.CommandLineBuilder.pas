@@ -187,7 +187,7 @@ var
 	s : string;
 begin
 	_params.RipGrepArguments.Clear();
-	arrRgOptions := _params.Options.Split([' ']);
+	arrRgOptions := _params.RgExeOptions.Split([' ']);
 
 	for s in RG_NECESSARY_PARAMS do begin
 		arrRgOptions.InsertIfNotContains(0, s);

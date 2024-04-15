@@ -180,17 +180,25 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionAddParamWordExecute(Sender : TObject);
+var
+	sSearchText : string;
 begin
-	if TCommandLineBuilder.IsWordBoundOnOneSide(cmbSearchText.Text) then begin
-		FSettings.RipGrepParameters.MatchWholeWord := False;
-	end else if TCommandLineBuilder.IsWordBoundOnBothSide(cmbSearchText.Text) then begin
-		FSettings.RipGrepParameters.MatchWholeWord := True;
-	end else begin
-		FSettings.RipGrepParameters.MatchWholeWord := not FSettings.RipGrepParameters.MatchWholeWord;
+	FSettings.RipGrepParameters.MatchWholeWord := not FSettings.RipGrepParameters.MatchWholeWord;
+
+	sSearchText := FSettings.RipGrepParameters.RipGrepArguments.Values[RG_ARG_SEARCH_TEXT];
+
+	if FSettings.RipGrepParameters.MatchWholeWord then begin
+		if TCommandLineBuilder.IsWordBoundOnBothSide(sSearchText) then begin
+			exit;
+		end;
+	end else if TCommandLineBuilder.IsWordBoundOnBothSide(sSearchText) then begin
+
 	end;
 	var
 	params := FSettings.RipGrepParameters;
 	TCommandLineBuilder.RebuildArguments(params);
+
+	UpdateRgExeOptions(RG_PARAM_REGEX_FIXED_STRINGS, FSettings.RipGrepParameters.MatchWholeWord);
 	UpdateCommandLine();
 end;
 
@@ -259,7 +267,7 @@ begin
 	frm := TRipGrepOptionsForm.Create(self, FSettings.RipGrepParameters);
 	try
 		if (mrOk = frm.ShowModal) then begin
-			cmbOptions.Text := FSettings.RipGrepParameters.Options;
+			cmbOptions.Text := FSettings.RipGrepParameters.RgExeOptions;
 		end;
 	finally
 		frm.Free;
@@ -424,9 +432,9 @@ begin
 	FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
 	FSettings.RipGrepParameters.SearchText := cmbSearchText.Text;
 	if Fsettings.RipGrepperSettings.ExpertMode then begin
-		FSettings.RipGrepParameters.Options := cmbOptions.Text;
+		FSettings.RipGrepParameters.RgExeOptions := cmbOptions.Text;
 	end else begin
-		FSettings.RipGrepParameters.Options := '';
+		FSettings.RipGrepParameters.RgExeOptions := '';
 	end;
 end;
 

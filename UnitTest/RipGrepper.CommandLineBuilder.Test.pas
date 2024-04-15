@@ -132,7 +132,7 @@ var
 	a : TArrayEx<integer>;
 	i : integer;
 begin
-	FParams.Options := _sOptions;
+	FParams.RgExeOptions := _sOptions;
 	FParams.FileMasks := _sMasksDelimited;
 
 	FParams.SearchText := '';
@@ -158,7 +158,7 @@ end;
 
 procedure TCommandLineBuilderTest.TestReBuildArgumentsSearchText(const _sSearchText : string; const _bMatchWord, _bShouldBounded : Integer);
 begin
-	FParams.Options := '';
+	FParams.RgExeOptions := '';
 	FParams.FileMasks := '';
 
 	FParams.SearchText := _sSearchText;
@@ -176,7 +176,7 @@ begin
 
 	if FParams.MatchWholeWord then begin
 		for var p in RG_PARAM_REGEX_FIXED_STRINGS.Split(['|']) do begin
-			Assert.IsFalse(FParams.Options.Contains(p), p + ' mustn''t be contained between options')
+			Assert.IsFalse(FParams.RgExeOptions.Contains(p), p + ' mustn''t be contained between options')
 		end;
 	end;
 

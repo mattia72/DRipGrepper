@@ -101,7 +101,7 @@ begin
 	FRipGrepParameters := _settings;
 	FOptionList := TStringList.Create(TDuplicates.dupIgnore, False, False);
 	FOptionList.Delimiter := ' ';
-	FOptionList.AddStrings(FRipGrepParameters.Options.Split([' ']));
+	FOptionList.AddStrings(FRipGrepParameters.RgExeOptions.Split([' ']));
 
 	FRGParamHelpRegex := TRegex.Create(RG_HELP_LINE_REGEX);
 	FRGLongParamHelpRegex := TRegex.Create(RG_HELP_LONG_PARAM_REGEX);
@@ -124,7 +124,7 @@ end;
 
 procedure TRipGrepOptionsForm.ActionOkExecute(Sender : TObject);
 begin
-	FRipGrepParameters.Options := FOptionList.DelimitedText;
+	FRipGrepParameters.RgExeOptions := FOptionList.DelimitedText;
 	ModalResult := mrOk;
 end;
 
