@@ -3,6 +3,9 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 
 ![Screenshot](./screenshots/DripGepper_Form.png)
 
+{:toc}
+
+
 ## Features and Todos
 
 ### Main Window
