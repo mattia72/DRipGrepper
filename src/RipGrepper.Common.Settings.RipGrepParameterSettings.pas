@@ -11,9 +11,10 @@ uses
 
 type
 	TGuiSetSearchParams = record
-		 CaseSensitive : Boolean;
-		 MatchWord : Boolean;
-		 UseRegex : Boolean;
+		CaseSensitive : Boolean;
+		MatchWord : Boolean;
+		UseRegex : Boolean;
+		class function New(const _bCS, _bMW, _bUR: Boolean): TGuiSetSearchParams; static;
 	end;
 
 	TRipGrepParameterSettings = class(TRipGrepperSettingsBase)
@@ -22,14 +23,16 @@ type
 
 		private
 			FRipGrepArguments : TRipGrepArguments;
-			FRgExeOptions: string;
+			FRgExeOptions : string;
 			FRipGrepPath : string;
 			FSearchPath : string;
 			FSearchText : string;
-			FFileMasks: string;
+			FFileMasks : string;
+			FGuiSetSearchParams: TGuiSetSearchParams;
 			FMatchWholeWord : Boolean;
-			procedure SetFileMasks(const Value: string);
-			procedure SetRgExeOptions(const Value: string);
+			procedure SetFileMasks(const Value : string);
+			procedure SetGuiSetSearchParams(const Value: TGuiSetSearchParams);
+			procedure SetRgExeOptions(const Value : string);
 			procedure SetSearchPath(const Value : string);
 			procedure SetSearchText(const Value : string);
 		protected
@@ -43,9 +46,10 @@ type
 			procedure InitRipGrepExePath;
 			procedure Load; override;
 			procedure Store; override;
-			property FileMasks: string read FFileMasks write SetFileMasks;
+			property FileMasks : string read FFileMasks write SetFileMasks;
+			property GuiSetSearchParams: TGuiSetSearchParams read FGuiSetSearchParams write SetGuiSetSearchParams;
 			property MatchWholeWord : Boolean read FMatchWholeWord write FMatchWholeWord;
-			property RgExeOptions: string read FRgExeOptions write SetRgExeOptions;
+			property RgExeOptions : string read FRgExeOptions write SetRgExeOptions;
 			property SearchPath : string read FSearchPath write SetSearchPath;
 			property SearchText : string read FSearchText write SetSearchText;
 			property RipGrepArguments : TRipGrepArguments read FRipGrepArguments write FRipGrepArguments;
@@ -130,7 +134,7 @@ begin
 	RipGrepPath := LoadSetting(RG_INI_KEY_RGPATH);
 end;
 
-procedure TRipGrepParameterSettings.SetFileMasks(const Value: string);
+procedure TRipGrepParameterSettings.SetFileMasks(const Value : string);
 begin
 	if FFileMasks <> Value then begin
 		FFileMasks := Value;
@@ -138,7 +142,13 @@ begin
 	end;
 end;
 
-procedure TRipGrepParameterSettings.SetRgExeOptions(const Value: string);
+procedure TRipGrepParameterSettings.SetGuiSetSearchParams(const Value: TGuiSetSearchParams);
+begin
+	FGuiSetSearchParams := Value;
+	FIsModified := True;
+end;
+
+procedure TRipGrepParameterSettings.SetRgExeOptions(const Value : string);
 begin
 	if FRgExeOptions <> Value then begin
 		FRgExeOptions := Value;
@@ -165,6 +175,13 @@ end;
 procedure TRipGrepParameterSettings.Store;
 begin
 	StoreSetting(RG_INI_KEY_RGPATH, RipGrepPath);
+end;
+
+class function TGuiSetSearchParams.New(const _bCS, _bMW, _bUR: Boolean): TGuiSetSearchParams;
+begin
+	Result.CaseSensitive := _bCS;
+	Result.MatchWord := _bMW;
+	Result.UseRegex := _bUR;
 end;
 
 end.
