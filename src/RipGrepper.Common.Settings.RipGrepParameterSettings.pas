@@ -7,14 +7,23 @@ uses
 	System.Classes,
 	System.IniFiles,
 	RipGrepper.Common.Constants,
-	ArrayEx;
+	ArrayEx,
+	RipGrepper.Helper.Types;
 
 type
+	EGuiSearchOptions = (soIgnoreCase, soMatchWord, soUseRegex);
+
 	TGuiSetSearchParams = record
-		CaseSensitive : Boolean;
-		MatchWord : Boolean;
-		UseRegex : Boolean;
-		class function New(const _bCS, _bMW, _bUR: Boolean): TGuiSetSearchParams; static;
+		SearchText : string;
+		EscapedSearchText : string;
+		SearchOptions : set of EGuiSearchOptions;
+		function IsSet(_options : TArray<EGuiSearchOptions>) : Boolean;
+		class function New(const _sText : string; const _bIC, _bMW, _bUR : Boolean) : TGuiSetSearchParams; static;
+		function SearchOptionsAsBitField : TBitField;
+
+		public
+			procedure SetOption(const _searchOption : EGuiSearchOptions);
+		procedure ResetOption(const _searchOption : EGuiSearchOptions);
 	end;
 
 	TRipGrepParameterSettings = class(TRipGrepperSettingsBase)
@@ -28,13 +37,13 @@ type
 			FSearchPath : string;
 			FSearchText : string;
 			FFileMasks : string;
-			FGuiSetSearchParams: TGuiSetSearchParams;
-			FMatchWholeWord : Boolean;
+			FGuiSetSearchParams : TGuiSetSearchParams;
 			procedure SetFileMasks(const Value : string);
-			procedure SetGuiSetSearchParams(const Value: TGuiSetSearchParams);
+			procedure SetGuiSetSearchParams(const Value : TGuiSetSearchParams);
 			procedure SetRgExeOptions(const Value : string);
 			procedure SetSearchPath(const Value : string);
 			procedure SetSearchText(const Value : string);
+
 		protected
 			procedure Init; override;
 
@@ -47,8 +56,7 @@ type
 			procedure Load; override;
 			procedure Store; override;
 			property FileMasks : string read FFileMasks write SetFileMasks;
-			property GuiSetSearchParams: TGuiSetSearchParams read FGuiSetSearchParams write SetGuiSetSearchParams;
-			property MatchWholeWord : Boolean read FMatchWholeWord write FMatchWholeWord;
+			property GuiSetSearchParams : TGuiSetSearchParams read FGuiSetSearchParams write SetGuiSetSearchParams;
 			property RgExeOptions : string read FRgExeOptions write SetRgExeOptions;
 			property SearchPath : string read FSearchPath write SetSearchPath;
 			property SearchText : string read FSearchText write SetSearchText;
@@ -65,8 +73,7 @@ uses
 	System.IOUtils,
 	Vcl.Forms,
 	RipGrepper.Tools.ProcessUtils,
-	System.RegularExpressions,
-	RipGrepper.Helper.Types;
+	System.RegularExpressions;
 
 constructor TRipGrepParameterSettings.Create(const _ini : TIniFile);
 begin
@@ -142,7 +149,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepParameterSettings.SetGuiSetSearchParams(const Value: TGuiSetSearchParams);
+procedure TRipGrepParameterSettings.SetGuiSetSearchParams(const Value : TGuiSetSearchParams);
 begin
 	FGuiSetSearchParams := Value;
 	FIsModified := True;
@@ -177,11 +184,45 @@ begin
 	StoreSetting(RG_INI_KEY_RGPATH, RipGrepPath);
 end;
 
-class function TGuiSetSearchParams.New(const _bCS, _bMW, _bUR: Boolean): TGuiSetSearchParams;
+function TGuiSetSearchParams.IsSet(_options : TArray<EGuiSearchOptions>) : Boolean;
 begin
-	Result.CaseSensitive := _bCS;
-	Result.MatchWord := _bMW;
-	Result.UseRegex := _bUR;
+	Result := True;
+	for var o in _options do begin
+		if not(o in SearchOptions) then begin
+			Result := False;
+			break
+		end;
+	end;
+end;
+
+class function TGuiSetSearchParams.New(const _sText : string; const _bIC, _bMW, _bUR : Boolean) : TGuiSetSearchParams;
+begin
+	Result.SearchText := _sText;
+	if _bIC then
+		Include(Result.SearchOptions, soIgnoreCase);
+	if _bMW then
+		Include(Result.SearchOptions, soMatchWord);
+	if _bUR then
+		Include(Result.SearchOptions, soUseRegex);
+end;
+
+function TGuiSetSearchParams.SearchOptionsAsBitField : TBitField;
+begin
+	for var i in [soIgnoreCase, soMatchWord, soUseRegex] do begin
+		if i in SearchOptions then begin
+			Result.SetBit(Integer(i));
+		end;
+	end;
+end;
+
+procedure TGuiSetSearchParams.SetOption(const _searchOption : EGuiSearchOptions);
+begin
+	Include(SearchOptions, _searchOption);
+end;
+
+procedure TGuiSetSearchParams.ResetOption(const _searchOption : EGuiSearchOptions);
+begin
+	Exclude(SearchOptions, _searchOption);
 end;
 
 end.

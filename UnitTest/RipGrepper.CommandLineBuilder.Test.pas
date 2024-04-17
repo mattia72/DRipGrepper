@@ -46,23 +46,24 @@ type
 			[Testcase('Options ends with one --', '--vimgrep --param2 --|*.txt;*.ini;*.bak|1', '|')]
 			procedure TestReBuildArgumentsOptions(const _sOptions, _sMasksDelimited : string; const _bMatchWord : Integer);
 			[Test]
-			[Testcase('Single word              ', 'aaa|1|1', '|')]
-			[Testcase('Double word              ', 'aaa bbb|1|1', '|')]
-			[Testcase('Double word              ', 'aaa bbb|1|1', '|')]
-			[Testcase('Start Bounded word       ', '\baaa|0|0', '|')]
-			[Testcase('End Bounded word         ', 'aaa\b|0|0', '|')]
+			[Testcase('Single word              ', 'aaa      |1|1', '|')]
+			[Testcase('Double word              ', 'aaa bbb  |1|1', '|')]
+			[Testcase('Double word              ', 'aaa bbb  |1|1', '|')]
+			[Testcase('Start Bounded word       ', '\baaa    |0|0', '|')]
+			[Testcase('End Bounded word         ', 'aaa\b    |0|0', '|')]
 			[Testcase('Start Bounded double word', '\Baaa bbb|0|0', '|')]
 			procedure TestReBuildArgumentsSearchText(const _sSearchText : string; const _bMatchWord, _bShouldBounded : Integer);
 			[Test]
-			{ ______________________________________________________________________________W|R|B_____ }
+			{ ______________________________________________________________________________W|R|B|E_____ }
 			{ } [Testcase('Single word  MW  UR      ', '-p1 --fixed-strings --p2 --|aa1    |1|1|1', '|')]
 			{ } [Testcase('Double word  MW  UR      ', '-p1 --fixed-strings --p2 --|aa2 bbb|1|1|1', '|')]
 			{ } [Testcase('Single word nMW nUR      ', '-p1 --fixed-strings --p2 --|aa3    |0|0|0', '|')]
 			{ } [Testcase('Double word nMW nUR      ', '-p1 --fixed-strings --p2 --|aa4 bbb|0|0|0', '|')]
+			{ } [Testcase('Double word nMW nUR      ', '-p1 --fixed-strings --p2 --|a*4 b$b|0|0|0|1', '|')]
 			{ } [Testcase('Single word  MW nUR      ', '-p1                 --p2 --|aa5    |0|1|0', '|')]
 			{ } [Testcase('Double word  MW nUR      ', '-p1                 --p2 --|aa6 bbb|0|1|0', '|')]
 			procedure TestUpdateSearchText(const _sOptions, _sSearchText : string;
-				const _bMatchWord, _bUseRegex, _bShouldBounded : Integer);
+				const _bMatchWord, _bUseRegex, _bShouldBounded, _bShouldEscaped : Integer);
 	end;
 
 implementation
@@ -73,7 +74,8 @@ uses
 	System.SysUtils,
 	RipGrepper.Common.Settings,
 	ArrayEx,
-	System.RegularExpressions;
+	System.RegularExpressions,
+	System.Math;
 
 procedure TCommandLineBuilderTest.Setup;
 begin
@@ -145,8 +147,7 @@ begin
 	FParams.RgExeOptions := _sOptions;
 	FParams.FileMasks := _sMasksDelimited;
 
-	FParams.SearchText := '';
-	FParams.GuiSetSearchParams := TGuiSetSearchParams.New(False, _bMatchWord = 1, False);
+	FParams.GuiSetSearchParams := TGuiSetSearchParams.New('', False, _bMatchWord = 1, False);
 
 	TCommandLineBuilder.RebuildArguments(FParams);
 	v := FParams.RipGrepArguments.GetValues(RG_ARG_OPTIONS);
@@ -171,8 +172,7 @@ begin
 	FParams.RgExeOptions := '';
 	FParams.FileMasks := '';
 
-	FParams.SearchText := _sSearchText;
-	FParams.GuiSetSearchParams := TGuiSetSearchParams.New(False, _bMatchWord = 1, False);
+	FParams.GuiSetSearchParams := TGuiSetSearchParams.New(_sSearchText, False, _bMatchWord = 1, False);
 
 	TCommandLineBuilder.RebuildArguments(FParams);
 
@@ -184,7 +184,7 @@ begin
 			'if MatchWord is not set, then search text should equal' + _sSearchText);
 	end;
 
-	if FParams.GuiSetSearchParams.MatchWord then begin
+	if soMatchWord in FParams.GuiSetSearchParams.SearchOptions then begin
 		for var p in RG_PARAM_REGEX_FIXED_STRINGS.Split(['|']) do begin
 			Assert.IsFalse(FParams.RgExeOptions.Contains(p), p + ' mustn''t be contained between options')
 		end;
@@ -193,7 +193,7 @@ begin
 end;
 
 procedure TCommandLineBuilderTest.TestUpdateSearchText(const _sOptions, _sSearchText : string;
-	const _bMatchWord, _bUseRegex, _bShouldBounded : Integer);
+	const _bMatchWord, _bUseRegex, _bShouldBounded, _bShouldEscaped : Integer);
 var
 	arrRgOptions : TArrayEx<string>;
 	sAct : string;
@@ -203,12 +203,11 @@ begin
 	FParams.RgExeOptions := _sOptions;
 	FParams.FileMasks := '';
 
-	FParams.SearchText := _sSearchText;
-	gsp := TGuiSetSearchParams.New(False, _bMatchWord = 1, _bUseRegex = 1);
+	gsp := TGuiSetSearchParams.New(_sSearchText, False, _bMatchWord = 1, _bUseRegex = 1);
 	FParams.GuiSetSearchParams := gsp;
-	arrRgOptions := FParams.RgExeOptions.Split([' ']);
 
-	sAct := TCommandLineBuilder.UpdateSearchText(FParams.SearchText, FParams, arrRgOptions);
+	arrRgOptions := FParams.RgExeOptions.Split([' ']);
+	sAct := TCommandLineBuilder.UpdateSearchTextAndRgExeOptions(gsp, arrRgOptions);
 
 	if _bShouldBounded = 1 then begin
 		Assert.AreEqual(WB + _sSearchText + WB, sAct, 'the search text should surrounded: ' + sAct);
@@ -216,13 +215,13 @@ begin
 		Assert.AreEqual(_sSearchText, sAct, 'if MatchWord is not set, then search text should equal ' + sAct);
 	end;
 
-	if (_bShouldBounded = 1) and not gsp.UseRegex then begin
+	if (_bShouldBounded = 1) and not(soUseRegex in gsp.SearchOptions) then begin
 		for p in RG_PARAM_REGEX_FIXED_STRINGS.Split(['|']) do begin
 			Assert.IsFalse(FParams.RgExeOptions.Contains(p), p + ' mustn''t be contained between options while searching ' + sAct)
 		end;
 	end;
 
-	if not gsp.UseRegex then begin
+	if not(soUseRegex in gsp.SearchOptions) then begin
 		p := RG_PARAM_REGEX_FIXED_STRINGS.Split(['|'])[1];
 		Assert.IsTrue(FParams.RgExeOptions.Contains(p), p + ' should contained between options while searching ' + sAct)
 	end;

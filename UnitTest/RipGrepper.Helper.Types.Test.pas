@@ -33,12 +33,25 @@ type
 			procedure TestGetValues1;
 	end;
 
+	[TestFixture]
+	TBitFieldTest = class
+
+		public
+			[Test]
+			procedure TestBitSetValue;
+			[Test]
+			procedure TestBitSetValue1;
+			[Test]
+			procedure TestBitSetValue2;
+	end;
+
 implementation
 
 uses
 	RipGrepper.Helper.Types,
 	System.StrUtils,
-	System.SysUtils;
+	System.SysUtils,
+	System.Math;
 
 procedure TStringsHelperTest.Setup;
 begin
@@ -89,10 +102,51 @@ begin
 		act_vals := FStrings.GetValues('key' + j.ToString);
 
 		for var i := 0 to high(act_vals) do begin
-			var valIdx := (2 * j) - 2 + i;
+			var
+			valIdx := (2 * j) - 2 + i;
 			Assert.IsTrue(values[valIdx].EndsWith(act_vals[i]), Format('%s should end with %s', [values[valIdx], act_vals[i]]));
 		end;
 	end;
+end;
+
+procedure TBitFieldTest.TestBitSetValue;
+var
+	bf : TBitField;
+	i : integer;
+begin
+	Assert.AreEqual(0, bf.Value, '');
+	for i := 0 to sizeof(integer) - 1 do begin
+		bf.Value := 0;
+		bf.SetBit(i);
+		Assert.AreEqual(Power(2, i), Single(bf.Value), '');
+	end;
+
+end;
+
+procedure TBitFieldTest.TestBitSetValue1;
+var
+	bf : TBitField;
+	i : integer;
+begin
+	Assert.AreEqual(0, bf.Value, '');
+	for i := 0 to sizeof(integer) - 1 do begin
+		bf.SetBit(i);
+		if i > 0 then
+			bf.ResetBit(i - 1);
+		Assert.AreEqual(Power(2, i), Single(bf.Value), '');
+	end;
+
+end;
+
+procedure TBitFieldTest.TestBitSetValue2;
+var
+	bf : TBitField;
+begin
+	Assert.IsTrue(bf.IsEqual([0, 0, 0, 0]), '');
+	bf.SetBit(0);
+	bf.SetBit(2);
+	Assert.IsTrue(bf.IsEqual([1, 0, 1, 0]), '');
+	Assert.IsTrue(bf.IsEqual([1, 8, 1, 8]), '');
 end;
 
 initialization

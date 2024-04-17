@@ -16,6 +16,7 @@ type
 				const _bQuote : Boolean = False); static;
 			class procedure AddParamToList(list : TStringList; const _paramRegex : string = ''; const _bRemove : Boolean = False); static;
 			class procedure PutBetweenWordBoundaries(var _s : string); static;
+			class function RemoveFixedStringsParam(var arrRgOptions : TArrayEx<string>) : Boolean; static;
 			class procedure RemoveWordBoundaries(var _s : string); static;
 
 		public
@@ -34,8 +35,7 @@ type
 			class function RemoveAllParams(const _sOptions, _argMaskRegex : string; const _bSwitch : Boolean = False) : string; static;
 			class function UpdateRgExeOptions(const _sOptions : string; const _sParamRegex : string = ''; const _bRemove : Boolean = False)
 				: string; static;
-			class function UpdateSearchText(const _sSearchText : string; var _params : TRipGrepParameterSettings;
-				var arrRgOptions : TArrayEx<string>) : string; static;
+			class function UpdateSearchTextAndRgExeOptions(var _params : TGuiSetSearchParams; var arrRgOptions : TArrayEx<string>) : string; static;
 			property Parameters : TRipGrepParameterSettings read FParameters write FParameters;
 	end;
 
@@ -85,7 +85,8 @@ begin
 			end;
 
 			if (bFoundIdx < 0) then begin
-				list.Add(params[1]); // long params
+				list.Insert(0, params[1]); // long params
+				break
 			end else if (_bRemove) then begin
 				list.Delete(bFoundIdx);
 			end;
@@ -192,12 +193,13 @@ end;
 class procedure TCommandLineBuilder.RebuildArguments(var _params : TRipGrepParameterSettings);
 var
 	arrRgOptions : TArrayEx<string>;
-	s : string;
+	sSearchText : string;
+	gsp : TGuiSetSearchParams;
 begin
 	_params.RipGrepArguments.Clear();
 	arrRgOptions := _params.RgExeOptions.Split([' ']);
 
-	for s in RG_NECESSARY_PARAMS do begin
+	for var s in RG_NECESSARY_PARAMS do begin
 		arrRgOptions.InsertIfNotContains(0, s);
 	end;
 
@@ -205,10 +207,12 @@ begin
 	arrRgOptions.Remove(RG_PARAM_END); // put it in the end
 	arrRgOptions.Add(RG_PARAM_END); // indicates that no more flags will be provided
 
-	s := UpdateSearchText(_params.SearchText, _params, arrRgOptions);
+	gsp := _params.GuiSetSearchParams;
+	sSearchText := UpdateSearchTextAndRgExeOptions(gsp, arrRgOptions);
+	_params.GuiSetSearchParams := gsp;
 
 	AddArgs(_params, RG_ARG_OPTIONS, arrRgOptions);
-	AddArgs(_params, RG_ARG_SEARCH_TEXT, [s]); // order is important!
+	AddArgs(_params, RG_ARG_SEARCH_TEXT, [sSearchText]); // order is important!
 	AddArgs(_params, RG_ARG_SEARCH_PATH, _params.SearchPath.Split([';']), True { Quote if necessary } );
 end;
 
@@ -230,6 +234,16 @@ begin
 	Result := string.Join(' ', arrOptions.Items);
 end;
 
+class function TCommandLineBuilder.RemoveFixedStringsParam(var arrRgOptions : TArrayEx<string>) : Boolean;
+begin
+	Result := False;
+	for var p in RG_PARAM_REGEX_FIXED_STRINGS.Split(['|']) do begin
+		if arrRgOptions.Remove(p) then begin // word boundaries can't be used in case of --fixed-strings
+			Result := True;
+		end;
+	end;
+end;
+
 class function TCommandLineBuilder.UpdateRgExeOptions(const _sOptions : string; const _sParamRegex : string = '';
 	const _bRemove : Boolean = False) : string;
 var
@@ -238,45 +252,36 @@ begin
 	listOptions := TStringList.Create(dupIgnore, False, True);
 	listOptions.Delimiter := ' ';
 	try
-
 		listOptions.AddStrings(_sOptions.Split([' ']));
-
 		AddParamToList(listOptions, _sParamRegex, _bRemove);
-
 		Result := listOptions.DelimitedText;
 	finally
 		listOptions.Free;
 	end;
 end;
 
-class function TCommandLineBuilder.UpdateSearchText(const _sSearchText : string; var _params : TRipGrepParameterSettings;
-	var arrRgOptions : TArrayEx<string>) : string;
+class function TCommandLineBuilder.UpdateSearchTextAndRgExeOptions(var _params : TGuiSetSearchParams; var arrRgOptions : TArrayEx<string>) : string;
 var
 	newSearchText : string;
 	bRemoved : Boolean;
-	gsp : TGuiSetSearchParams;
+	bitField : TBitField;
 begin
-	gsp := _params.GuiSetSearchParams;
-	newSearchText := _sSearchText;
-	if gsp.MatchWord then begin
-		if not gsp.UseRegex then begin
-			bRemoved := False;
-			for var p in RG_PARAM_REGEX_FIXED_STRINGS.Split(['|']) do begin
-				if arrRgOptions.Remove(p) then begin // word boundaries can't be used in case of --fixed-strings
-					bRemoved := True;
-				end;
-			end;
-			if bRemoved then begin
-				newSearchText := TRegEx.Escape(newSearchText); // regex chars like $ should be escaped
-			end;
-		end;
+	newSearchText := _params.SearchText;
+	bitField := _params.SearchOptionsAsBitField;
 
-		PutBetweenWordBoundaries(newSearchText);
+	if _params.IsSet([soUseRegex]) then begin
+		bRemoved := RemoveFixedStringsParam(arrRgOptions);
+		if bRemoved then begin
+			_params.EscapedSearchText := TRegEx.Escape(newSearchText); // regex chars like $ should be escaped
+			newSearchText := _params.EscapedSearchText;
+		end;
 	end else begin
-		RemoveWordBoundaries(newSearchText);
-		if not gsp.UseRegex then begin
-			 arrRgOptions.AddIfNotContians(RG_PARAM_REGEX_FIXED_STRINGS.Split(['|'])[1]);
-        end;
+		arrRgOptions.InsertIfNotContains(0, RG_PARAM_REGEX_FIXED_STRINGS.Split(['|'])[1]);
+	end;
+
+	if _params.IsSet([soMatchWord]) then begin
+		PutBetweenWordBoundaries(newSearchText);
+        RemoveFixedStringsParam(arrRgOptions);
 	end;
 
 	Result := newSearchText;
