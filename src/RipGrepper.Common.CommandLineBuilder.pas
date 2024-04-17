@@ -35,7 +35,8 @@ type
 			class function RemoveAllParams(const _sOptions, _argMaskRegex : string; const _bSwitch : Boolean = False) : string; static;
 			class function UpdateRgExeOptions(const _sOptions : string; const _sParamRegex : string = ''; const _bRemove : Boolean = False)
 				: string; static;
-			class function UpdateSearchTextAndRgExeOptions(var _params : TGuiSetSearchParams; var arrRgOptions : TArrayEx<string>) : string; static;
+			class function UpdateSearchTextAndRgExeOptions(var _params : TGuiSetSearchParams; var arrRgOptions : TArrayEx<string>)
+				: string; static;
 			property Parameters : TRipGrepParameterSettings read FParameters write FParameters;
 	end;
 
@@ -210,6 +211,7 @@ begin
 	gsp := _params.GuiSetSearchParams;
 	sSearchText := UpdateSearchTextAndRgExeOptions(gsp, arrRgOptions);
 	_params.GuiSetSearchParams := gsp;
+	_params.RgExeOptions := string.Join(' ', arrRgOptions.Items);
 
 	AddArgs(_params, RG_ARG_OPTIONS, arrRgOptions);
 	AddArgs(_params, RG_ARG_SEARCH_TEXT, [sSearchText]); // order is important!
@@ -260,7 +262,8 @@ begin
 	end;
 end;
 
-class function TCommandLineBuilder.UpdateSearchTextAndRgExeOptions(var _params : TGuiSetSearchParams; var arrRgOptions : TArrayEx<string>) : string;
+class function TCommandLineBuilder.UpdateSearchTextAndRgExeOptions(var _params : TGuiSetSearchParams;
+	var arrRgOptions : TArrayEx<string>) : string;
 var
 	newSearchText : string;
 	bRemoved : Boolean;
@@ -281,7 +284,7 @@ begin
 
 	if _params.IsSet([soMatchWord]) then begin
 		PutBetweenWordBoundaries(newSearchText);
-        RemoveFixedStringsParam(arrRgOptions);
+		RemoveFixedStringsParam(arrRgOptions);
 	end;
 
 	Result := newSearchText;
