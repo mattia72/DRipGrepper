@@ -26,7 +26,8 @@ uses
   RipGrepper.Parsers.VimGrepMatchLine in '..\src\RipGrepper.Parsers.VimGrepMatchLine.pas',
   RipGrepper.Common.Constants in '..\src\RipGrepper.Common.Constants.pas',
   ArrayEx in '..\external\ArrayEx.pas',
-  RipGrepper.CommandLineBuilder.Test in 'RipGrepper.CommandLineBuilder.Test.pas';
+  RipGrepper.CommandLineBuilder.Test in 'RipGrepper.CommandLineBuilder.Test.pas',
+  RipGrepper.Common.Settings.RipGrepParameterSettings in '..\src\RipGrepper.Common.Settings.RipGrepParameterSettings.pas';
 
 {$IFNDEF TESTINSIGHT}
 
