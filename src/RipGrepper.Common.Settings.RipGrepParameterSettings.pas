@@ -14,15 +14,14 @@ type
 	EGuiSearchOptions = (soIgnoreCase, soMatchWord, soUseRegex);
 
 	TGuiSetSearchParams = record
+	public
 		SearchText : string;
 		EscapedSearchText : string;
 		SearchOptions : set of EGuiSearchOptions;
 		function IsSet(_options : TArray<EGuiSearchOptions>) : Boolean;
 		class function New(const _sText : string; const _bIC, _bMW, _bUR : Boolean) : TGuiSetSearchParams; static;
 		function SearchOptionsAsBitField : TBitField;
-
-		public
-			procedure SetOption(const _searchOption : EGuiSearchOptions);
+		procedure SetOption(const _searchOption : EGuiSearchOptions);
 		procedure ResetOption(const _searchOption : EGuiSearchOptions);
 	end;
 
