@@ -93,15 +93,14 @@ type
 			FDpiScaler : TRipGrepperDpiScaler;
 			FSettings : TRipGrepperSettings;
 			FRipGrepParameters : TRipGrepParameterSettings;
-			FGuiSetSearchParams : TGuiSetSearchParams;
 			function GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
 			procedure LoadSettings;
-			function UpdateRgExeOptions(const _sParamRegex : string = ''; const _bRemove : Boolean = False) : string;
+			procedure UpdateRgExeOptionsText(const _sParamRegex : string = ''; const _bRemove : Boolean = False);
 			procedure ButtonDown(const _paramRegex : string; _tb : TToolButton; const _bNotMatch : Boolean = False); overload;
 			procedure ButtonDown(const _searchOption : EGuiSearchOptions; _tb : TToolButton; const _bNotMatch : Boolean = False); overload;
 			function GetFullHeight(_ctrl : TControl) : integer;
 			function OptionIsSet(const _paramRegex : string) : Boolean;
-			procedure RemoveRgExeOptions(const _paramRegex : string);
+			procedure RemoveRgExeOptionsText(const _paramRegex : string);
 			procedure ProcessControl(_ctrl : TControl; _imgList : TImageList);
 			procedure SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings);
 			procedure SetComboItemsFromOptions(_cmb : TComboBox; const _argMaskRegex : string; const _items : TStrings);
@@ -253,7 +252,7 @@ begin
 	frm := TRipGrepOptionsForm.Create(self, FRipGrepParameters);
 	try
 		if (mrOk = frm.ShowModal) then begin
-			cmbOptions.Text := FRipGrepParameters.RgExeOptions;
+			cmbOptions.Text := FRipGrepParameters.RgExeOptions;  // from options form
 		end;
 	finally
 		frm.Free;
@@ -300,9 +299,10 @@ begin
 	SetComboItemsFromOptions(cmbFileMasks, RG_PARAM_REGEX_GLOB, FSettings.FileMasksHistory);
 end;
 
-function TRipGrepperSearchDialogForm.UpdateRgExeOptions(const _sParamRegex : string = ''; const _bRemove : Boolean = False) : string;
+procedure TRipGrepperSearchDialogForm.UpdateRgExeOptionsText(const _sParamRegex : string = ''; const _bRemove : Boolean = False);
 begin
-	cmbOptions.Text := TCommandLineBuilder.UpdateRgExeOptions(cmbOptions.Text, _sParamRegex, _bRemove);
+	FRipGrepParameters.RgExeOptions := TCommandLineBuilder.UpdateRgExeOptions(FRipGrepParameters.RgExeOptions, _sParamRegex, _bRemove);
+	cmbOptions.Text := FRipGrepParameters.RgExeOptions;
 end;
 
 procedure TRipGrepperSearchDialogForm.ButtonDown(const _paramRegex : string; _tb : TToolButton; const _bNotMatch : Boolean = False);
@@ -375,14 +375,13 @@ function TRipGrepperSearchDialogForm.OptionIsSet(const _paramRegex : string) : B
 begin
 	Result := True;
 	if not _paramRegex.IsEmpty then begin
-		Result := TRegEx.IsMatch(cmbOptions.Text, ' ' + _paramRegex + ' ');
+		Result := TRegEx.IsMatch(FRipGrepParameters.RgExeOptions, ' ' + _paramRegex + ' ');
 	end;
 end;
 
-procedure TRipGrepperSearchDialogForm.RemoveRgExeOptions(const _paramRegex : string);
+procedure TRipGrepperSearchDialogForm.RemoveRgExeOptionsText(const _paramRegex : string);
 begin
-	UpdateRgExeOptions(_paramRegex, True);
-	UpdateCommandLine();
+	UpdateRgExeOptionsText(_paramRegex, True);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings);
@@ -412,14 +411,15 @@ procedure TRipGrepperSearchDialogForm.SetOption(const _searchOption : EGuiSearch
 begin
 	if (not _paramRegex.IsEmpty and OptionIsSet(_paramRegex))
 	{ } or FRipGrepParameters.GuiSetSearchParams.IsSet([_searchOption]) then begin
-		RemoveRgExeOptions(_paramRegex);
 		FRipGrepParameters.GuiSetSearchParams.ResetOption(_searchOption);
+		RemoveRgExeOptionsText(_paramRegex);
 	end else begin
-		UpdateRgExeOptions(_paramRegex);
 		FRipGrepParameters.GuiSetSearchParams.SetOption(_searchOption);
+		UpdateRgExeOptionsText(_paramRegex);
 	end;
-	UpdateRgExeOptions();
+
 	UpdateCommandLine(True);
+	UpdateRgExeOptionsText();
 end;
 
 procedure TRipGrepperSearchDialogForm.StoreHistoriesAsCmbEntries;
@@ -478,7 +478,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.UpdateFileMasksInFileMasks;
 begin
-	cmbFileMasks.Text := TCommandLineBuilder.GetFileMasksDelimited(cmbOptions.Text, RG_PARAM_REGEX_GLOB);
+	cmbFileMasks.Text := TCommandLineBuilder.GetFileMasksDelimited(FRipGrepParameters.RgExeOptions, RG_PARAM_REGEX_GLOB);
 end;
 
 function TRipGrepperSearchDialogForm.UpdateFileMasksInOptions(const sOptions, sMasks : string) : string;
@@ -497,7 +497,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.UpdateFileMasksInOptions;
 begin
-	cmbOptions.Text := UpdateFileMasksInOptions(cmbOptions.Text, cmbFileMasks.Text);
+	FRipGrepParameters.RgExeOptions := UpdateFileMasksInOptions(FRipGrepParameters.RgExeOptions, cmbFileMasks.Text);
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateHeight;
@@ -517,7 +517,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.UpdateRipGrepOptionsAndCommanLine;
 begin
-	UpdateRgExeOptions();
+	UpdateRgExeOptionsText();
 	UpdateCommandLine();
 end;
 
