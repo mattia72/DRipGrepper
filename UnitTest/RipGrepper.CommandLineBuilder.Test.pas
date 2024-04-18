@@ -216,7 +216,7 @@ var
 	arrOptions : TArrayEx<string>;
 begin
 	var
-	s := TCommandLineBuilder.UpdateRgExeOptions(_sOptions, _sRegex, _bRemove); // Remove
+	s := TCommandLineBuilder.AddRemoveRgExeOptions(_sOptions, _sRegex, _bRemove); // Remove
 	arrOptions := s.Split([' ']);
 	for s in arrOptions do begin
 		Assert.IsFalse(TRegEx.IsMatch(s, _sRegex), '''' + s + ''' should not bee in the options array');

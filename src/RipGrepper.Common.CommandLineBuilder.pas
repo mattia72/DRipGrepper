@@ -35,7 +35,7 @@ type
 			class function IsOptionSet(const _sOptions, _sParamRegex : string) : Boolean; static;
 			class procedure RebuildArguments(var _params : TRipGrepParameterSettings); static;
 			class function RemoveAllParams(const _sOptions, _argMaskRegex : string; const _bSwitch : Boolean = False) : string; static;
-			class function UpdateRgExeOptions(const _sOptions : string; const _sParamRegex : string = ''; const _bRemove : Boolean = False)
+			class function AddRemoveRgExeOptions(const _sOptions : string; const _sParamRegex : string; const _bRemove : Boolean = False)
 				: string; static;
 			class function UpdateSearchTextAndRgExeOptions(var _params : TGuiSetSearchParams; var arrRgOptions : TArrayEx<string>)
 				: string; static;
@@ -262,7 +262,7 @@ begin
 	end;
 end;
 
-class function TCommandLineBuilder.UpdateRgExeOptions(const _sOptions : string; const _sParamRegex : string = '';
+class function TCommandLineBuilder.AddRemoveRgExeOptions(const _sOptions : string; const _sParamRegex : string;
 	const _bRemove : Boolean = False) : string;
 var
 	listOptions : TStringList;
