@@ -26,7 +26,7 @@ type
 			procedure TestGetValues;
 			// Test with TestCase Attribute to supply parameters.
 			[Test]
-			procedure Test2(const AValue1 : Integer; const AValue2 : Integer);
+			procedure TestDeleteAll;
 			// Sample Methods
 			// Simple single Test
 			[Test]
@@ -51,7 +51,7 @@ uses
 	RipGrepper.Helper.Types,
 	System.StrUtils,
 	System.SysUtils,
-	System.Math;
+	System.Math, ArrayEx;
 
 procedure TStringsHelperTest.Setup;
 begin
@@ -84,8 +84,24 @@ begin
 	end;
 end;
 
-procedure TStringsHelperTest.Test2(const AValue1 : Integer; const AValue2 : Integer);
+procedure TStringsHelperTest.TestDeleteAll;
+var
+	arr : TArrayEx<string>;
 begin
+	for var i : integer := 0 to 10 do begin
+		FStrings.Add(i.ToString);
+	end;
+
+	for var i : integer := 0 to 10 do begin
+		 if 0= i mod 2 then begin
+			 arr.Add(i.ToString);
+         end;
+	end;
+
+	FStrings.DeleteAll(arr);
+
+	Assert.AreEqual(-1 , FStrings.IndexOfAny(arr), 'arr shouldn''t contained by the list');
+
 end;
 
 procedure TStringsHelperTest.TestGetValues1;

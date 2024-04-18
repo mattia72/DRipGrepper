@@ -10,12 +10,16 @@ uses
 type
 
 	TStringsHelper = class Helper for TStrings
+		private
 		public
 			function Contains(const s : string) : Boolean;
 			function TryGetDef(const _index : Integer; out _val : string; const _default : string = '') : Boolean;
 			function GetValues(_sName : string = '') : TArray<string>;
 
 			function AddIfNotContains(const _sValue : string) : Boolean;
+			procedure DeleteAll(const _arr : TArray<string>);
+			function IndexOfAny(const _arr : TArray<string>) : Integer;
+			function ContainsAny(const _arr : TArray<string>) : Boolean;
 	end;
 
 	TBitField = record
@@ -24,7 +28,7 @@ type
 		// Check if the bit at _idx position is 1 (true) or 0 (false)
 		function IsBitSet(const _idx : Integer) : Boolean;
 		// Checks 0 and 1 in the array on the appropriate index. Any other value is not relevant.
-		function IsEqual(const _arr : TArray<integer>): Boolean;
+		function IsEqual(const _arr : TArray<integer>) : Boolean;
 		// set the bit at _idx position to 0
 		function ResetBit(const _idx : Integer) : Integer;
 		// set the bit at _idx position to 1
@@ -77,6 +81,18 @@ begin
 	Result := self.IndexOf(s) <> -1;
 end;
 
+procedure TStringsHelper.DeleteAll(const _arr : TArray<string>);
+var
+	iFoundIdx : Integer;
+begin
+	repeat
+		iFoundIdx := self.IndexOfAny(_arr);
+		if (iFoundIdx >= 0) then begin
+			self.Delete(iFoundIdx);
+		end;
+	until (iFoundIdx = -1);
+end;
+
 function TStringsHelper.GetValues(_sName : string = '') : TArray<string>;
 begin
 	Result := [];
@@ -91,6 +107,22 @@ begin
 			end;
 		end;
 	end;
+end;
+
+function TStringsHelper.IndexOfAny(const _arr : TArray<string>) : Integer;
+begin
+	Result := -1;
+	for var p in _arr do begin
+		Result := self.IndexOf(p);
+		if (Result >= 0) then begin
+			break; // Already has
+		end;
+	end;
+end;
+
+function TStringsHelper.ContainsAny(const _arr : TArray<string>) : Boolean;
+begin
+	Result := 0 <= IndexOfAny(_arr);
 end;
 
 function TStringsHelper.TryGetDef(const _index : Integer; out _val : string; const _default : string = '') : Boolean;
@@ -110,7 +142,7 @@ begin
 end;
 
 // Checks 0 and 1 in the array on the appropriate index. Any other value is not relevant.
-function TBitField.IsEqual(const _arr : TArray<integer>): Boolean;
+function TBitField.IsEqual(const _arr : TArray<integer>) : Boolean;
 begin
 	Result := True;
 	for var i : integer := 0 to high(_arr) do begin

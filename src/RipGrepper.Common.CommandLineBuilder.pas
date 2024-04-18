@@ -14,7 +14,8 @@ type
 			FParameters : TRipGrepParameterSettings;
 			class procedure AddArgs(var _params : TRipGrepParameterSettings; const _sName : string; const _args : TArray<string>;
 				const _bQuote : Boolean = False); static;
-			class procedure AddParamToList(list : TStringList; const _paramRegex : string = ''; const _bRemove : Boolean = False); static;
+			class procedure AddParamToList(list : TStringList; const _paramRegex : string = ''); static;
+			class procedure RemoveParamFromList(list : TStringList; const _paramRegex : string = ''); static;
 			class procedure PutBetweenWordBoundaries(var _s : string); static;
 			class function RemoveFixedStringsParam(var arrRgOptions : TArrayEx<string>) : Boolean; static;
 			class procedure RemoveWordBoundaries(var _s : string); static;
@@ -31,6 +32,7 @@ type
 			class function GetMissingFileMaskOptions(const _sOptions, _sMasks : string) : string; static;
 			class function IsWordBoundOnOneSide(const _s : string) : Boolean; static;
 			class function IsWordBoundOnBothSide(const _s : string) : Boolean; static;
+			class function IsOptionSet(const _sOptions, _sParamRegex : string) : Boolean; static;
 			class procedure RebuildArguments(var _params : TRipGrepParameterSettings); static;
 			class function RemoveAllParams(const _sOptions, _argMaskRegex : string; const _bSwitch : Boolean = False) : string; static;
 			class function UpdateRgExeOptions(const _sOptions : string; const _sParamRegex : string = ''; const _bRemove : Boolean = False)
@@ -68,30 +70,27 @@ begin
 	end;
 end;
 
-class procedure TCommandLineBuilder.AddParamToList(list : TStringList; const _paramRegex : string = ''; const _bRemove : Boolean = False);
+class procedure TCommandLineBuilder.AddParamToList(list : TStringList; const _paramRegex : string = '');
 var
 	params : TArrayEx<string>;
-	bFoundIdx : integer;
+	iFoundIdx : integer;
 begin
 	if not _paramRegex.IsEmpty then begin
-		bFoundIdx := -1;
+		params := _paramRegex.Split(['|']);
+		iFoundIdx := list.IndexOfAny(params);
+		if (iFoundIdx < 0) then begin
+			list.Insert(0, params[1]); // long params
+		end;
+	end;
+end;
 
-		repeat
-			params := _paramRegex.Split(['|']);
-			for var p in params do begin
-				bFoundIdx := list.IndexOf(p);
-				if (bFoundIdx >= 0) then begin
-					break; // Already has
-				end;
-			end;
-
-			if (bFoundIdx < 0) then begin
-				list.Insert(0, params[1]); // long params
-				break
-			end else if (_bRemove) then begin
-				list.Delete(bFoundIdx);
-			end;
-		until _bRemove and (bFoundIdx <> -1);
+class procedure TCommandLineBuilder.RemoveParamFromList(list : TStringList; const _paramRegex : string = '');
+var
+	params : TArrayEx<string>;
+begin
+	if not _paramRegex.IsEmpty then begin
+		params := _paramRegex.Split(['|']);
+		list.DeleteAll(params);
 	end;
 end;
 
@@ -177,6 +176,23 @@ begin
 	Result := (_s.StartsWith(WB, True) and _s.EndsWith(WB, True));
 end;
 
+class function TCommandLineBuilder.IsOptionSet(const _sOptions, _sParamRegex : string) : Boolean;
+var
+	arrOptions : TArrayEx<string>;
+begin
+	Result := True;
+	if not _sParamRegex.IsEmpty then begin
+		Result := False;
+		arrOptions := _sParamRegex.Split(['|']);
+		for var op in arrOptions do begin
+			if TRegEx.IsMatch(_sOptions, '\s-+\b' + op.TrimLeft(['-']) + '\b') then begin
+				Result := True;
+				break;
+			end;
+		end;
+	end;
+end;
+
 class procedure TCommandLineBuilder.PutBetweenWordBoundaries(var _s : string);
 begin
 	if not(_s.StartsWith(WB, True) or _s.EndsWith(WB, True)) then begin
@@ -255,7 +271,11 @@ begin
 	listOptions.Delimiter := ' ';
 	try
 		listOptions.AddStrings(_sOptions.Split([' ']));
-		AddParamToList(listOptions, _sParamRegex, _bRemove);
+		if _bRemove then begin
+			RemoveParamFromList(listOptions, _sParamRegex);
+		end else begin
+			AddParamToList(listOptions, _sParamRegex);
+		end;
 		Result := listOptions.DelimitedText;
 	finally
 		listOptions.Free;
