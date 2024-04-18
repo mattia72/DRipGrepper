@@ -103,6 +103,7 @@
         <DCCReference Include="..\external\ArrayEx.pas"/>
         <DCCReference Include="RipGrepper.CommandLineBuilder.Test.pas"/>
         <DCCReference Include="..\src\RipGrepper.Common.Settings.RipGrepParameterSettings.pas"/>
+        <DCCReference Include="..\src\RipGrepper.Common.CommandLineBuilder.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
