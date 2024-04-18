@@ -99,9 +99,10 @@ type
 			procedure ButtonDown(const _paramRegex : string; _tb : TToolButton; const _bNotMatch : Boolean = False); overload;
 			procedure ButtonDown(const _searchOption : EGuiSearchOptions; _tb : TToolButton; const _bNotMatch : Boolean = False); overload;
 			function GetFullHeight(_ctrl : TControl) : integer;
-			function OptionIsSet(const _paramRegex : string) : Boolean;
+			function IsOptionSet(const _paramRegex : string) : Boolean;
 			procedure RemoveRgExeOptionsText(const _paramRegex : string);
 			procedure ProcessControl(_ctrl : TControl; _imgList : TImageList);
+			procedure SetCmbOptionText;
 			procedure SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings);
 			procedure SetComboItemsFromOptions(_cmb : TComboBox; const _argMaskRegex : string; const _items : TStrings);
 			procedure SetOption(const _searchOption : EGuiSearchOptions; const _paramRegex : string = '');
@@ -252,7 +253,7 @@ begin
 	frm := TRipGrepOptionsForm.Create(self, FRipGrepParameters);
 	try
 		if (mrOk = frm.ShowModal) then begin
-			cmbOptions.Text := FRipGrepParameters.RgExeOptions;  // from options form
+			cmbOptions.Text := FRipGrepParameters.RgExeOptions; // from options form
 		end;
 	finally
 		frm.Free;
@@ -302,15 +303,15 @@ end;
 procedure TRipGrepperSearchDialogForm.UpdateRgExeOptionsText(const _sParamRegex : string = ''; const _bRemove : Boolean = False);
 begin
 	FRipGrepParameters.RgExeOptions := TCommandLineBuilder.UpdateRgExeOptions(FRipGrepParameters.RgExeOptions, _sParamRegex, _bRemove);
-	cmbOptions.Text := FRipGrepParameters.RgExeOptions;
+	SetCmbOptionText;
 end;
 
 procedure TRipGrepperSearchDialogForm.ButtonDown(const _paramRegex : string; _tb : TToolButton; const _bNotMatch : Boolean = False);
 begin
 	if (_bNotMatch) then begin
-		_tb.Down := not OptionIsSet(_paramRegex)
+		_tb.Down := not IsOptionSet(_paramRegex)
 	end else begin
-		_tb.Down := OptionIsSet(_paramRegex);
+		_tb.Down := IsOptionSet(_paramRegex);
 	end;
 end;
 
@@ -371,17 +372,21 @@ begin
 	Result := _ctrl.Margins.Top + _ctrl.Height + _ctrl.Margins.Bottom;
 end;
 
-function TRipGrepperSearchDialogForm.OptionIsSet(const _paramRegex : string) : Boolean;
+function TRipGrepperSearchDialogForm.IsOptionSet(const _paramRegex : string) : Boolean;
 begin
-	Result := True;
-	if not _paramRegex.IsEmpty then begin
-		Result := TRegEx.IsMatch(FRipGrepParameters.RgExeOptions, ' ' + _paramRegex + ' ');
-	end;
+	Result := TCommandLineBuilder.IsOptionSet(FRipGrepParameters.RgExeOptions, _paramRegex);
 end;
 
 procedure TRipGrepperSearchDialogForm.RemoveRgExeOptionsText(const _paramRegex : string);
 begin
 	UpdateRgExeOptionsText(_paramRegex, True);
+end;
+
+procedure TRipGrepperSearchDialogForm.SetCmbOptionText;
+begin
+	// Remove necessary options
+	cmbOptions.Text := TCommandLineBuilder.UpdateRgExeOptions(
+		{ } FRipGrepParameters.RgExeOptions, string.Join('|', RG_NECESSARY_PARAMS + [RG_PARAM_REGEX_IGNORE_CASE, RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_END]), True);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings);
@@ -409,7 +414,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.SetOption(const _searchOption : EGuiSearchOptions; const _paramRegex : string = '');
 begin
-	if (not _paramRegex.IsEmpty and OptionIsSet(_paramRegex))
+	if (not _paramRegex.IsEmpty and IsOptionSet(_paramRegex))
 	{ } or FRipGrepParameters.GuiSetSearchParams.IsSet([_searchOption]) then begin
 		FRipGrepParameters.GuiSetSearchParams.ResetOption(_searchOption);
 		RemoveRgExeOptionsText(_paramRegex);

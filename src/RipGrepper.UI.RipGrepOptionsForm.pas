@@ -124,7 +124,7 @@ end;
 
 procedure TRipGrepOptionsForm.ActionOkExecute(Sender : TObject);
 begin
-	FRipGrepParameters.RgExeOptions := FOptionList.DelimitedText;
+	FRipGrepParameters.RgExeOptions := FOptionList.DelimitedText; // from option help form
 	ModalResult := mrOk;
 end;
 
