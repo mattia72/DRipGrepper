@@ -32,7 +32,7 @@ type
 			class function GetMissingFileMaskOptions(const _sOptions, _sMasks : string) : string; static;
 			class function IsWordBoundOnOneSide(const _s : string) : Boolean; static;
 			class function IsWordBoundOnBothSide(const _s : string) : Boolean; static;
-			class function IsOptionSet(const _sOptions, _sParamRegex : string) : Boolean; static;
+			class function IsOptionSet(const _sOptions, _sParamRegex : string; const _sParamValue : string = '') : Boolean; static;
 			class procedure RebuildArguments(var _params : TRipGrepParameterSettings); static;
 			class function RemoveAllParams(const _sOptions, _argMaskRegex : string; const _bSwitch : Boolean = False) : string; static;
 			class function AddRemoveRgExeOptions(const _sOptions : string; const _sParamRegex : string; const _bRemove : Boolean = False)
@@ -190,18 +190,30 @@ begin
 	Result := (_s.StartsWith(WB, True) and _s.EndsWith(WB, True));
 end;
 
-class function TCommandLineBuilder.IsOptionSet(const _sOptions, _sParamRegex : string) : Boolean;
+class function TCommandLineBuilder.IsOptionSet(const _sOptions, _sParamRegex : string; const _sParamValue : string = '') : Boolean;
 var
 	arrOptions : TArrayEx<string>;
+	arrOptionsWithValues : TArrayEx<string>;
 begin
 	Result := True;
 	if not _sParamRegex.IsEmpty then begin
 		Result := False;
 		arrOptions := _sParamRegex.Split(['|']);
-		for var op in arrOptions do begin
-			if TRegEx.IsMatch(_sOptions, '\s-+\b' + op.TrimLeft(['-']) + '\b') then begin
-				Result := True;
-				break;
+		for var i := 0 to arrOptions.MaxIndex do begin
+			var
+				sOp : string := arrOptions[i];
+			var
+			sOpRegex := '\s-+\b' + sOp.TrimLeft(['-']) + '\b';
+			if TRegEx.IsMatch(_sOptions, sOpRegex) then begin
+				if TArrayEx<string>.Create(RG_PARAMS_WITH_VALUE).Contains(sOp) then begin
+					if TRegEx.IsMatch(_sOptions, sOpRegex + '\s+' + TRegEx.Escape(_sParamValue)) then begin
+						Result := True;
+						break
+					end;
+				end else begin
+					Result := True;
+					break;
+				end;
 			end;
 		end;
 	end;

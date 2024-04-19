@@ -32,7 +32,8 @@ type
 			[Test]
 			[Testcase('test1', '--vimgrep -g *.txt --fixed-strings -g *.ini --ignore-case -g *.bak;' + RG_PARAM_REGEX_IGNORE_CASE, ';')]
 			[Testcase('test2', '--vimgrep -g !*.txt --fixed-strings -g !*.ini -i         -g !*.bak;' + RG_PARAM_REGEX_IGNORE_CASE, ';')]
-			procedure TestIsOptionSet(const _sOptions, _sParamRegex : string);
+			[Testcase('test not exist', '--vimgrep -g !*.txt --fixed-strings -g !*.ini - -g !*.bak;' + '-nop|--noparam;1', ';')]
+			procedure TestIsOptionSet(const _sOptions, _sParamRegex : string; _bNotSet : Boolean = False);
 			[Test]
 			[Testcase('test1', '--vimgrep -g *.txt --fixed-strings -g *.ini --ignore-case -g *.bak;' + RG_PARAM_REGEX_GLOB + ';0', ';')]
 			[Testcase('test2', '--vimgrep -g !*.txt --fixed-strings -g !*.ini -i         -g !*.bak;' + RG_PARAM_REGEX_FIXED_STRINGS +
@@ -43,6 +44,11 @@ type
 			[Testcase('test1', '--vimgrep -g *.txt  -f -g *.imi  -i -g *.buk |*.txt;*.ini;*.bak', '|')]
 			[Testcase('test2', '--vimgrep -g !*.tyt -f -g !*.imi -i -g !*.bak|!*.txt;!*.ini;!*.bak', '|')]
 			procedure TestGetMissingOptions(const _sOptions, _sMasks : string);
+			[Test]
+			[Testcase('test opts with value', '--vimgrep -g !*.txt -F -g *.ini -i -g !*.bak;' + RG_PARAM_REGEX_GLOB + ';*.ini;1', ';')]
+			[Testcase('test opts with value', '--vimgrep -g !*.txt -F -g !*.ini -i -g !*.bak;' + RG_PARAM_REGEX_GLOB + ';*.ini;0', ';')]
+			[Testcase('test opts with value', '--vimgrep -g !*.txt -F -g !*.ini -i -g !*.bak;' + RG_PARAM_REGEX_GLOB + ';*.iii;0', ';')]
+			procedure TestIsOptionSetWithValue(const _sOptions, _sParamRegex, _sValue: string; const _bOk: integer);
 
 			[Test]
 			[Testcase('Options', '--param1 --param2|*.txt;*.ini;*.bak|1', '|')]
@@ -119,9 +125,13 @@ begin
 	end;
 end;
 
-procedure TCommandLineBuilderTest.TestIsOptionSet(const _sOptions, _sParamRegex : string);
+procedure TCommandLineBuilderTest.TestIsOptionSet(const _sOptions, _sParamRegex : string; _bNotSet : Boolean = False);
 begin
-	Assert.IsTrue(TCommandLineBuilder.IsOptionSet(_sOptions, _sParamRegex), '''' + _sParamRegex + ''' should be in the mask array');
+	if _bNotSet then begin
+		Assert.IsFalse(TCommandLineBuilder.IsOptionSet(_sOptions, _sParamRegex), '''' + _sParamRegex + ''' should NOT be in the array');
+	end else begin
+		Assert.IsTrue(TCommandLineBuilder.IsOptionSet(_sOptions, _sParamRegex), '''' + _sParamRegex + ''' should be in the array');
+	end;
 end;
 
 procedure TCommandLineBuilderTest.TestRemoveAllParams(const _sOptions, _sRegEx : string; const _bSwitch : Integer);
@@ -159,6 +169,17 @@ begin
 		idx := arrAllOptions.IndexOf(arrMasks[i]);
 		Assert.IsTrue(idx >= 0, 'All options should contain added mask:' + arrMasks[i]);
 		Assert.IsTrue(arrAllOptions[idx - 1] = '-g', arrMasks[i] + ' should preceed -g');
+	end;
+end;
+
+procedure TCommandLineBuilderTest.TestIsOptionSetWithValue(const _sOptions, _sParamRegex, _sValue: string; const _bOk: integer);
+begin
+	if _bOk = 1 then begin
+		Assert.IsTrue(TCommandLineBuilder.IsOptionSet(_sOptions, _sParamRegex, _sValue),
+			{ } '''' + _sParamRegex + ' ' + _sValue + ''' should be in the array');
+	end else begin
+		Assert.IsFalse(TCommandLineBuilder.IsOptionSet(_sOptions, _sParamRegex, _sValue),
+			{ } '''' + _sParamRegex + ' ' + _sValue + ''' should NOT be in the array');
 	end;
 end;
 
