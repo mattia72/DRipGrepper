@@ -87,10 +87,24 @@ end;
 class procedure TCommandLineBuilder.RemoveParamFromList(list : TStringList; const _paramRegex : string = '');
 var
 	params : TArrayEx<string>;
+	paramsWithValues : TArrayEx<string>;
 begin
 	if not _paramRegex.IsEmpty then begin
+		paramsWithValues := RG_PARAMS_WITH_VALUE;
 		params := _paramRegex.Split(['|']);
-		list.DeleteAll(params);
+		for var p in params do begin
+			if paramsWithValues.Contains(p) then begin
+				var
+				idx := list.IndexOf(p);
+				while (idx >= 0) do begin
+					list.Delete(idx); // delete parameter itsef
+					list.Delete(idx); // delete value
+					idx := list.IndexOf(p);
+				end;
+				continue;
+			end;
+			list.DeleteAll([p]);
+		end;
 	end;
 end;
 
@@ -271,6 +285,7 @@ begin
 	listOptions.Delimiter := ' ';
 	try
 		listOptions.AddStrings(_sOptions.Split([' ']));
+
 		if _bRemove then begin
 			RemoveParamFromList(listOptions, _sParamRegex);
 		end else begin

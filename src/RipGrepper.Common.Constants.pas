@@ -110,6 +110,9 @@ const
 	RG_PARAM_REGEX_FIXED_STRINGS = '-F|--fixed-strings';
 	RG_PARAM_REGEX_WORD_REGEX = '-w|--word-regexp';
 	RG_PARAM_REGEX_GLOB = '-g|--glob';
+
+	RG_PARAMS_WITH_VALUE : TArray<string> = ['-g', '--glob'];
+
 	RG_PARAM_END = '--';
 
 type

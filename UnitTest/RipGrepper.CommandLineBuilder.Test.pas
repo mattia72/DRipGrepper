@@ -61,12 +61,17 @@ type
 			[Testcase('test1', '--vimgrep --fixed-strings -g *.ini --ignore-case -g !*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';1', ';')]
 			[Testcase('test2', '--vimgrep  --fixed-strings -g *.ini -i         -g !*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';1', ';')]
 			[Testcase('test2', '--vimgrep  --fixed-strings -g *.ini            -g !*.bak;' + RG_PARAM_REGEX_FIXED_STRINGS + ';1', ';')]
+			[Testcase('test2', '--vimgrep  --fixed-strings -g *.ini            -g !*.bak;' + RG_PARAM_REGEX_GLOB + ';1', ';')]
 			[Testcase('test1', '--vimgrep --fixed-strings -g *.ini --ignore-case -g !*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';0', ';')]
 			[Testcase('test2', '--vimgrep  --fixed-strings -g *.ini -i         -g !*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';0', ';')]
 			[Testcase('test2', '--vimgrep  --fixed-strings -g *.ini            -g !*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';0', ';')]
 			[Testcase('test2', '--vimgrep  -F              -g *.ini            -g !*.bak;' + RG_PARAM_REGEX_FIXED_STRINGS + ';0', ';')]
 			[Testcase('test2', '--vimgrep                  -g *.ini            -g !*.bak;' + RG_PARAM_REGEX_FIXED_STRINGS + ';0', ';')]
 			procedure TestUpdateRgExeOptions(const _sOptions, _sRegEx : string; const _bRemove : Boolean);
+			[Test]
+			[Testcase('test2', '--vimgrep  --fixed-strings -g *.ini -g !*.bak;' + RG_PARAM_REGEX_GLOB + ';1', ';')]
+			[Testcase('test2', '--vimgrep  -g *.ini -g !*.bak --fixed-strings -i;' + RG_PARAM_REGEX_GLOB + ';1', ';')]
+			procedure TestUpdateRgExeOptionsWthValue(const _sOptions, _sRegEx : string; const _bRemove : Boolean);
 			[Test]
 			{ ______________________________________________________________________________W|R|B|E_____ }
 			{ } [Testcase('Single word  MW  UR      ', '-p1 --fixed-strings --p2 --|aa1    |1|1|1', '|')]
@@ -219,6 +224,19 @@ begin
 	s := TCommandLineBuilder.AddRemoveRgExeOptions(_sOptions, _sRegex, _bRemove); // Remove
 	arrOptions := s.Split([' ']);
 	for s in arrOptions do begin
+		Assert.IsFalse(TRegEx.IsMatch(s, _sRegex), '''' + s + ''' should not bee in the options array');
+	end;
+end;
+
+procedure TCommandLineBuilderTest.TestUpdateRgExeOptionsWthValue(const _sOptions, _sRegEx : string; const _bRemove : Boolean);
+var
+	arrOptions : TArrayEx<string>;
+begin
+	var
+	s := TCommandLineBuilder.AddRemoveRgExeOptions(_sOptions, _sRegex, _bRemove); // Remove
+	arrOptions := s.Split([' '], TStringSplitOptions.ExcludeEmpty);
+	for s in arrOptions do begin
+		Assert.IsTrue(TRegEx.IsMatch(s, '^-+\w+'), '''' + s + ''' invalid param (maybe a glob) should not bee in the options array');
 		Assert.IsFalse(TRegEx.IsMatch(s, _sRegex), '''' + s + ''' should not bee in the options array');
 	end;
 end;
