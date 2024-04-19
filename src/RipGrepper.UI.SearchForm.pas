@@ -121,6 +121,7 @@ type
 				reintroduce; virtual;
 			destructor Destroy; override;
 			procedure UpdateCommandLine(const _bSkipReadCtrls : Boolean = False);
+			procedure UpdateCtrls(_ctrlChanged : TControl);
 			procedure UpdateRipGrepOptionsAndCommanLine;
 	end;
 
@@ -326,37 +327,37 @@ end;
 
 procedure TRipGrepperSearchDialogForm.cmbFileMasksChange(Sender : TObject);
 begin
-	UpdateRipGrepOptionsAndCommanLine();
+	UpdateCtrls(cmbFileMasks);
 end;
 
 procedure TRipGrepperSearchDialogForm.cmbFileMasksExit(Sender : TObject);
 begin
-	UpdateRipGrepOptionsAndCommanLine();
+	UpdateCtrls(cmbFileMasks);
 end;
 
 procedure TRipGrepperSearchDialogForm.cmbFileMasksSelect(Sender : TObject);
 begin
-	UpdateFileMasksInOptions;
+	UpdateCtrls(cmbFileMasks);
 end;
 
 procedure TRipGrepperSearchDialogForm.cmbOptionsExit(Sender : TObject);
 begin
-	UpdateFileMasksInFileMasks;
+	UpdateCtrls(cmbOptions);
 end;
 
 procedure TRipGrepperSearchDialogForm.cmbOptionsSelect(Sender : TObject);
 begin
-	UpdateFileMasksInFileMasks;
+	UpdateCtrls(cmbOptions);
 end;
 
 procedure TRipGrepperSearchDialogForm.cmbSearchDirChange(Sender : TObject);
 begin
-	UpdateCommandLine();
+	UpdateCtrls(cmbSearchDir);
 end;
 
 procedure TRipGrepperSearchDialogForm.cmbSearchTextChange(Sender : TObject);
 begin
-	UpdateCommandLine();
+	UpdateCtrls(cmbSearchText);
 end;
 
 procedure TRipGrepperSearchDialogForm.gbExpertDblClick(Sender : TObject);
@@ -386,7 +387,7 @@ begin
 	// Remove necessary options
 	cmbOptions.Text := TCommandLineBuilder.AddRemoveRgExeOptions(
 		{ } FRipGrepParameters.RgExeOptions, string.Join('|', RG_NECESSARY_PARAMS + [RG_PARAM_REGEX_IGNORE_CASE,
-		RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_END]), True);
+		RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_REGEX_GLOB, RG_PARAM_END]), True);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings);
@@ -466,6 +467,21 @@ begin
 		WriteCtrlsToRipGrepParametersSettings;
 	FSettings.RebuildArguments();
 	memoCommandLine.Text := FRipGrepParameters.GetCommandLine();
+end;
+
+procedure TRipGrepperSearchDialogForm.UpdateCtrls(_ctrlChanged : TControl);
+begin
+	if cmbSearchText = _ctrlChanged then begin
+		UpdateCommandLine(); // UpdateCtrls
+	end else if cmbSearchDir = _ctrlChanged then begin
+		UpdateCommandLine(); // UpdateCtrls
+	end else if cmbFileMasks = _ctrlChanged then begin
+		UpdateFileMasksInOptions();
+		UpdateCommandLine(); // UpdateCtrls
+	end else if cmbOptions = _ctrlChanged then begin
+		UpdateCommandLine(); // UpdateCtrls
+        UpdateFileMasksInFileMasks();
+	end;
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateExpertGroupBox;
