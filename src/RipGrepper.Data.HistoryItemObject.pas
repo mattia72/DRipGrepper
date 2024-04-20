@@ -19,6 +19,7 @@ type
 			FErrorCount : Integer;
 			FFileCount : integer;
 			FMatches : TParsedObjectRowCollection;
+			FNoMatchFound: Boolean;
 			FParserType : TParserType;
 			FRipGrepArguments : TRipGrepArguments;
 			FRipGrepResult : Integer;
@@ -48,6 +49,7 @@ type
 			property TotalMatchCount : integer read GetTotalMatchCount;
 			property ErrorCount : Integer read GetErrorCount write FErrorCount;
 			property ElapsedTimeText : string read FElapsedTimeText write FElapsedTimeText;
+			property NoMatchFound: Boolean read FNoMatchFound write FNoMatchFound;
 			property RipGrepResult : Integer read FRipGrepResult write FRipGrepResult;
 			property ParserType : TParserType read GetParserType write SetParserType;
 
@@ -140,7 +142,7 @@ begin
 	inherited;
 	FMatches := TParsedObjectRowCollection.Create();
 	FRipGrepArguments := TStringList.Create;
-    FParserType := ptEmpty;
+	FParserType := ptEmpty;
 	ClearMatches;
 end;
 
@@ -149,6 +151,7 @@ begin
 	FFileCount := 0;
 	FTotalMatchCount := 0;
 	FErrorCount := 0;
+    FNoMatchFound := False;
 	FMatches.Items.Clear;
 	{$IFDEF THREADSAFE_LIST}
 	FMatches.Unlock;

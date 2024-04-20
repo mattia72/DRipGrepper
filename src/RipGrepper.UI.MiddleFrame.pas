@@ -111,6 +111,7 @@ type
 			FswSearchStart : TStopwatch;
 			FIconImgList : TIconImageList;
 			FParsingThreads : TArrayEx<TParallelParser>;
+			procedure ExpandNodes;
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
 			function GetCounterText(data : THistoryItemObject) : string;
 			function GetData : TRipGrepperData;
@@ -322,6 +323,13 @@ begin
 	RunRipGrep();
 end;
 
+procedure TRipGrepperMiddleFrame.ExpandNodes;
+begin
+	if Settings.RipGrepperViewSettings.ExpandNodes then begin
+		VstResult.FullExpand();
+	end;
+end;
+
 procedure TRipGrepperMiddleFrame.FrameResize(Sender : TObject);
 begin
 	// TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.FrameResize');
@@ -348,7 +356,11 @@ begin
 	if data.ErrorCount > 0 then begin
 		Result := Format('%d(%d!) in %d', [data.TotalMatchCount, data.ErrorCount, data.FileCount]);
 	end else begin
-		Result := Format('%d in %d', [data.TotalMatchCount, data.FileCount]);
+		if data.NoMatchFound then begin
+			Result := '0 in 0';
+		end else begin
+			Result := Format('%d in %d', [data.TotalMatchCount, data.FileCount]);
+		end;
 	end;
 end;
 
@@ -497,6 +509,7 @@ begin
 	TDebugUtils.DebugMessage('History Files: ' + HistObject.FileCount.ToString);
 	TDebugUtils.DebugMessage('History Errors: ' + HistObject.ErrorCount.ToString);
 	SetResultListViewDataToHistoryObj();
+	ExpandNodes;
 	RefreshCountersInGUI;
 	ParentFrame.SetStatusBarMessage(True);
 end;
@@ -508,10 +521,9 @@ end;
 
 procedure TRipGrepperMiddleFrame.ListBoxSearchHistoryDblClick(Sender : TObject);
 begin
-	CurrentHistoryItemIndex := ListBoxSearchHistory.ItemIndex;
-	UpdateHistObject;
 	TDebugUtils.DebugMessage('History dbl clicked:' + CurrentHistoryItemIndex.ToString);
-	SetResultListViewDataToHistoryObj();
+	ListBoxSearchHistoryClick(Sender);
+	ParentFrame.TopFrame.ActionShowSearchFormExecute(Sender);
 end;
 
 procedure TRipGrepperMiddleFrame.ListBoxSearchHistoryDrawItem(Control : TWinControl; index : Integer; Rect : TRect;
@@ -580,10 +592,7 @@ begin
 			SetColumnWidths;
 			BottomFrame.ActivityIndicator1.Animate := False;
 			FIsParsingRunning := False;
-			if Settings.RipGrepperViewSettings.ExpandNodes then begin
-				VstResult.FullExpand();
-			end;
-
+			ExpandNodes;
 		end);
 end;
 

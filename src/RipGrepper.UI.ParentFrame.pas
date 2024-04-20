@@ -116,7 +116,7 @@ begin
 	if _bWithElapsedTime then begin
 		msg := Format('Search took %s seconds', // with ' + FORMAT_VERSION_INFO_IN_STATUSBAR,
 			[MainFrame.HistObject.ElapsedTimeText]); // , MainFrame.ExeVersion]);
-		BottomFrame.FStatusBarStatus := IfThen(MainFrame.HistObject.RipGrepResult = RIPGREP_ERROR, 'ERROR', 'SUCCES');
+		BottomFrame.FStatusBarStatus := IfThen(MainFrame.HistObject.RipGrepResult = RG_ERROR, 'ERROR', 'SUCCES');
 	end else begin
 		msg := Format(FORMAT_VERSION_INFO_IN_STATUSBAR, [MainFrame.ExeVersion]);
 		BottomFrame.FStatusBarStatus := 'READY';

@@ -200,8 +200,13 @@ begin
 			p.WaitOnExit;
 		end;
 		Result := p.ExitStatus;
-		if Result = RIPGREP_ERROR then begin
-			NewLineEventHandler(_newLIneHandler, p.Executable + ' failed with exit code: ' + p.ExitStatus.ToString);
+		case Result of
+			RG_SUCCESS :
+			;
+			RG_NO_MATCH :
+			NewLineEventHandler(_newLIneHandler, p.Executable + RG_HAS_NO_OUTUT);
+			RG_ERROR :
+			NewLineEventHandler(_newLIneHandler, p.Executable + RG_ENDED_ERROR + p.ExitStatus.ToString);
 		end;
 	finally
 		FreeAndNil(p);

@@ -56,8 +56,6 @@ begin
 
 	if (_iLineNr < DRAW_RESULT_UNTIL_FIRST_LINE_COUNT) or ((_iLineNr mod DRAW_RESULT_ON_EVERY_LINE_COUNT) = 0) or _bIsLast then begin
 		OnProgress();
-		// RefreshCounters;
-		// VstResult.Repaint;
 	end;
 end;
 

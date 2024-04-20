@@ -14,7 +14,7 @@ const
 	EXTENSION_NAME = 'DRipExtension';
 	EXTENSION_MENU_CAPTION = 'DRipGrepper';
 
-    EXPERT_GRPBX_CAPTIONS = 'Expert Settings';
+	EXPERT_GRPBX_CAPTIONS = 'Expert Settings';
 
 	FORMAT_VERSION_INFO = '%s v%d.%d.%d-beta';
 	FORMAT_VERSION_INFO_IN_STATUSBAR = '%s   ';
@@ -32,9 +32,6 @@ const
 	BUFF_LENGTH = 1024; // Todo: put into settings
 
 	MAX_HISTORY_COUNT = 20;
-
-	RIPGREP_ERROR = 1;
-	RIPGREP_NO_MATCH = 2;
 
 	DRAW_RESULT_ON_EVERY_LINE_COUNT = 100; // Todo: put into settings
 	DRAW_RESULT_UNTIL_FIRST_LINE_COUNT = 100;
@@ -102,8 +99,6 @@ const
 
 	RG_INI_KEY_RGPATH = 'Path';
 
-	RG_PARSE_ERROR = 'rg.exe result line couldn''t parsed.';
-
 	WB = '\b';
 	RG_PARAM_REGEX_IGNORE_CASE = '-i|--ignore-case';
 	RG_PARAM_REGEX_CASE_SENSITIVE = '-s|--case-sensitive';
@@ -114,6 +109,15 @@ const
 	RG_PARAMS_WITH_VALUE : TArray<string> = ['-g', '--glob'];
 
 	RG_PARAM_END = '--';
+
+	RG_ERROR = 2;
+	RG_NO_MATCH = 1;
+	RG_SUCCESS = 0;
+
+    RG_ERROR_MSG_PREFIX = 'rg:';
+	RG_PARSE_ERROR = 'rg.exe result line couldn''t parsed.';
+	RG_ENDED_ERROR = ' failed with exit code: ';
+	RG_HAS_NO_OUTUT = ' has no output.';
 
 type
 
