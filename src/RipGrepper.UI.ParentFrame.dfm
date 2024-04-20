@@ -81,7 +81,8 @@ object ParentFrame: TParentFrame
       Width = 851
       Height = 30
       inherited StatusBar1: TStatusBar
-        Width = 851
+        Width = 845
+        Height = 27
       end
       inherited ActivityIndicator1: TActivityIndicator
         Left = 557

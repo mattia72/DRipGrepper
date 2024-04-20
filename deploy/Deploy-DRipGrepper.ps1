@@ -4,22 +4,30 @@
 # - Change file version in project for all! configuration
 # - Commit and push all changes
 # - run this script
-$global:Version = "v2.2.1-beta"
-$global:PrevVersion = "v2.2.0-beta"
+$global:Version = "v2.3.0-beta"
+$global:PrevVersion = "v2.2.1-beta"
 $global:Description = @"
-Bug Fixes and some improvements...
+## Improvements and Bug Fixes
 
+### :mag: Search Dialog
++ New default parameters like in vscode: --no-ignore-parent --follow --crlf
++ Word boundary handling 
++ Expert mode (can hiden by double click on groupbox header): 
+  - Additional options can be added 
+  - Whole command line can be examined in a memo field
+
+### :warning: Bug Fixes
+* Expert mode switched of by default
+* Status line shows the correct released version
 "@
 
-### Search Dialog
+### :mag: Search Dialog
 # + Expert Mode (can be set in `DripGrepper.ini`)
 # + File Mask can be set in separate edit box
  
 ### Main Window
 # + Error parser
 
-### Bug fixes
-:mushroom:  FastMM support for memory leak detection
 $global:PreRelease = $true
 $global:StandaloneAppName = "DRipGrepper.exe"
 $global:AssetZipName = "DRipGrepper.Standalone.exe.zip"
