@@ -186,7 +186,6 @@ procedure TCommandLineBuilderTest.TestReBuildArgumentsOptions(const _sOptions, _
 var
 	v : TArrayEx<string>;
 	a : TArrayEx<integer>;
-	i : integer;
 begin
 	FParams.RgExeOptions := _sOptions;
 	FParams.FileMasks := _sMasksDelimited;

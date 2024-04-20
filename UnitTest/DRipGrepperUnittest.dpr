@@ -5,6 +5,8 @@ program DRipGrepperUnittest;
 {$ENDIF}
 {$STRONGLINKTYPES ON}
 
+{$WARN DUPLICATE_CTOR_DTOR OFF}
+
 uses
   {$IFDEF FASTMM4_OPT}
   FastMM4,
