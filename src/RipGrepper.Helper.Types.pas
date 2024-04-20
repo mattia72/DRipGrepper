@@ -17,9 +17,13 @@ type
 			function GetValues(_sName : string = '') : TArray<string>;
 
 			function AddIfNotContains(const _sValue : string) : Boolean;
-			procedure DeleteAll(const _arr : TArray<string>);
+			function HasMatch(const _sRegEx : string) : Boolean;
+			function DeleteAll(const _arr : TArray<string>) : Integer;
 			function IndexOfAny(const _arr : TArray<string>) : Integer;
 			function ContainsAny(const _arr : TArray<string>) : Boolean;
+			function DeleteAllMatched(const _sRegEx : string) : integer;
+			function IndexOfAllMatch(const _sRegEx : string) : TArray<integer>;
+			function IndexOfFirstMatch(const _sRegEx : string) : Integer;
 	end;
 
 	TBitField = record
@@ -46,7 +50,8 @@ function PreInc(var Value : Integer) : Integer;
 implementation
 
 uses
-	System.SysUtils;
+	System.SysUtils,
+	System.RegularExpressions;
 
 function PostInc(var Value : Integer) : Integer;
 begin
@@ -81,16 +86,29 @@ begin
 	Result := self.IndexOf(s) <> -1;
 end;
 
-procedure TStringsHelper.DeleteAll(const _arr : TArray<string>);
+function TStringsHelper.HasMatch(const _sRegEx : string) : Boolean;
+begin
+	Result := False;
+	for var s in self do begin
+		if TRegEx.IsMatch(s, _sRegex) then begin
+			Result := True;
+			Exit
+		end;
+	end;
+end;
+
+function TStringsHelper.DeleteAll(const _arr : TArray<string>) : Integer;
 var
 	iFoundIdx : Integer;
 begin
+	Result := 0;
 	repeat
 		iFoundIdx := self.IndexOfAny(_arr);
-		if (iFoundIdx >= 0) then begin
-			self.Delete(iFoundIdx);
-		end;
-	until (iFoundIdx = -1);
+		if (iFoundIdx < 0) then
+			break;
+		self.Delete(iFoundIdx);
+		Inc(Result);
+ 	until False;
 end;
 
 function TStringsHelper.GetValues(_sName : string = '') : TArray<string>;
@@ -123,6 +141,40 @@ end;
 function TStringsHelper.ContainsAny(const _arr : TArray<string>) : Boolean;
 begin
 	Result := 0 <= IndexOfAny(_arr);
+end;
+
+function TStringsHelper.DeleteAllMatched(const _sRegEx : string) : integer;
+var
+	iFoundIdx : Integer;
+begin
+	Result := 0;
+	repeat
+		iFoundIdx := self.IndexOfFirstMatch(_sRegex);
+		if (iFoundIdx < 0) then
+			break;
+		self.Delete(iFoundIdx);
+	until False;
+end;
+
+function TStringsHelper.IndexOfAllMatch(const _sRegEx : string) : TArray<integer>;
+begin
+	Result := [];
+	for var i := 0 to self.Count - 1 do begin
+		if TRegEx.IsMatch(self[i], _sRegex) then begin
+			Result := Result + [i];
+		end;
+	end;
+end;
+
+function TStringsHelper.IndexOfFirstMatch(const _sRegEx : string) : Integer;
+begin
+	Result := -1;
+	for var i := 0 to self.Count - 1 do begin
+		if TRegEx.IsMatch(self[i], _sRegex) then begin
+			Result := i;
+			break;
+		end;
+	end;
 end;
 
 function TStringsHelper.TryGetDef(const _index : Integer; out _val : string; const _default : string = '') : Boolean;
