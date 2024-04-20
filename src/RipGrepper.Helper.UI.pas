@@ -12,7 +12,8 @@ uses
 	RipGrepper.Common.ParsedObject,
 	Vcl.ExtCtrls,
 	Vcl.Controls,
-	System.Generics.Collections;
+	System.Generics.Collections,
+	Winapi.Windows;
 // Winapi.Messages;
 
 type
@@ -79,10 +80,11 @@ type
 		function GetImgIndex(_sFilePath : string) : integer;
 
 		private
+			FHandleForm : HWND;
 			FImage : TImage;
 
 		public
-			constructor Create(_imgList : TImageList);
+			constructor Create(_handleForm : HWND; _imgList : TImageList);
 			destructor Destroy; override;
 	end;
 
@@ -90,12 +92,13 @@ implementation
 
 uses
 	Vcl.Forms,
-	Winapi.Windows,
+
 	Winapi.CommCtrl,
 	RipGrepper.Helper.Types,
 	Winapi.ShellAPI,
 	System.IOUtils,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants,
+	System.SysUtils;
 
 function TListViewHelper.GetSelectedOrFirst : TListItem;
 var
@@ -321,7 +324,7 @@ begin
 	try
 		SHGetFileInfo(PChar(sFileName), 0, sfi, SizeOf(TSHFileInfo), SHGFI_SMALLICON or SHGFI_ICON);
 		icon.Handle := sfi.hIcon;
-		_img.Picture.Bitmap.Assign(Icon);
+		_img.Picture.Bitmap.Assign(icon);
 		Result := _img.Picture.Bitmap;
 	finally
 		icon.Free;
@@ -360,10 +363,11 @@ begin
 	Dest.ListBox.Items.EndUpdate;
 end;
 
-constructor TIconImageList.Create(_imgList : TImageList);
+constructor TIconImageList.Create(_handleForm : HWND; _imgList : TImageList);
 begin
 	inherited Create();
 	FImageList := _imgList;
+	FHandleForm := _handleForm;
 	FExtIndexDict := TDictionary<string, integer>.Create;
 	FImage := TImage.Create(nil);
 end;
@@ -380,10 +384,22 @@ var
 	sExtension : string;
 	bmp : Vcl.Graphics.TBitmap;
 begin
-	sExtension := TPath.GetExtension(_sFilePath);
+	if _sFilePath = RG_ERROR_MSG_PREFIX then begin
+		sExtension := RG_ERROR_MSG_PREFIX;
+	end else begin
+		sExtension := TPath.GetExtension(_sFilePath);
+	end;
+
 	if not FExtIndexDict.TryGetValue(sExtension, Result) then begin
-		bmp := TItemDrawer.GetIconBitmap(_sFilePath, FImage);
-		FExtIndexDict.Add(sExtension, FImageList.AddMasked(bmp, clWhite));
+		if _sFilePath = RG_ERROR_MSG_PREFIX then begin
+			Result := ImageList_AddIcon(FImageList.Handle,
+				ExtractIcon(FHandleForm, PWideChar(TPath.Combine(GetEnvironmentVariable('Windir'), 'System32\imageres.dll')),
+				IMAGERES_DLL_ICON_IDX_ERROR));
+		end else begin
+			bmp := TItemDrawer.GetIconBitmap(_sFilePath, FImage);
+			Result := FImageList.AddMasked(bmp, clWhite);
+		end;
+		FExtIndexDict.Add(sExtension, Result);
 	end;
 end;
 

@@ -201,7 +201,7 @@ constructor TRipGrepperMiddleFrame.Create(AOwner : TComponent);
 begin
 	inherited;
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.Create ' + AOwner.Name);
-	FIconImgList := TIconImageList.Create(ImageListListView);
+	FIconImgList := TIconImageList.Create(Handle, ImageListListView);
 	MainFrame := self;
 end;
 

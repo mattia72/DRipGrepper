@@ -114,7 +114,8 @@ const
 	RG_NO_MATCH = 1;
 	RG_SUCCESS = 0;
 
-    RG_ERROR_MSG_PREFIX = 'rg:';
+	RG_ERROR_MSG_PREFIX = 'rg:';
+	IMAGERES_DLL_ICON_IDX_ERROR = 93;
 	RG_PARSE_ERROR = 'rg.exe result line couldn''t parsed.';
 	RG_ENDED_ERROR = ' failed with exit code: ';
 	RG_HAS_NO_OUTUT = ' has no output.';
