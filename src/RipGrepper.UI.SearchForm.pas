@@ -99,7 +99,6 @@ type
 			function GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
 			procedure LoadSettings;
 			procedure AddRemoveRgExeOptions(const _sParamRegex : string; const _bRemove : Boolean = False);
-			procedure ButtonDown(const _paramRegex : string; _tb : TToolButton; const _bNotMatch : Boolean = False); overload;
 			procedure ButtonDown(const _searchOption : EGuiSearchOptions; _tb : TToolButton; const _bNotMatch : Boolean = False); overload;
 			function GetFullHeight(_ctrl : TControl) : integer;
 			function IsOptionSet(const _sParamRegex : string; const _sParamValue : string = '') : Boolean;
@@ -316,15 +315,6 @@ begin
 	FRipGrepParameters.RgExeOptions := TCommandLineBuilder.AddRemoveRgExeOptions(FRipGrepParameters.RgExeOptions, _sParamRegex, _bRemove);
 end;
 
-procedure TRipGrepperSearchDialogForm.ButtonDown(const _paramRegex : string; _tb : TToolButton; const _bNotMatch : Boolean = False);
-begin
-	if (_bNotMatch) then begin
-		_tb.Down := not IsOptionSet(_paramRegex)
-	end else begin
-		_tb.Down := IsOptionSet(_paramRegex);
-	end;
-end;
-
 procedure TRipGrepperSearchDialogForm.ButtonDown(const _searchOption : EGuiSearchOptions; _tb : TToolButton;
 	const _bNotMatch : Boolean = False);
 begin
@@ -417,7 +407,7 @@ begin
 	_cmb.Items.Assign(_items);
 	if Assigned(FActualRipGrepParams) then begin
 		params := FActualRipGrepParams.GetValues(RG_ARG_OPTIONS);
-		_cmb.Text := TCommandLineBuilder.GetFileMasksDelimited(string.Join(' ', params), _argMaskRegex);
+		_cmb.Text := TCommandLineBuilder.GetFileMasksDelimited(string.Join(' ', params));
 	end else begin
 		_cmb.ItemIndex := 0;
 	end;
@@ -509,7 +499,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.UpdateFileMasksInFileMasks;
 begin
-	cmbFileMasks.Text := TCommandLineBuilder.GetFileMasksDelimited(FRipGrepParameters.RgExeOptions, RG_PARAM_REGEX_GLOB);
+	cmbFileMasks.Text := TCommandLineBuilder.GetFileMasksDelimited(FRipGrepParameters.RgExeOptions);
 end;
 
 function TRipGrepperSearchDialogForm.UpdateFileMasksInOptions(const sOptions, sMasks : string) : string;
@@ -554,7 +544,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.WriteOptionCtrlToRipGrepParametersSetting;
 var
-	optionsText, sOp, sVal : string;
+	optionsText, sOp, sOpName, sVal : string;
 	options : TArrayEx<string>;
 begin
 	optionsText := cmbOptions.Text;
@@ -562,12 +552,11 @@ begin
 	options := optionsText.Split([' '], TStringSplitOptions.ExcludeEmpty);
 	for var i : integer := 0 to options.MaxIndex do begin
 		sOp := options[i];
-		if TArrayEx<string>.Create(RG_PARAMS_WITH_VALUE).Contains(sOp) then begin
-			sVal := options[PreInc(i)];
+		if TCommandLineBuilder.IsOptionWithValue(sOp) then begin
+			sVal := TCommandLineBuilder.GetOptionsValue(sOp,sOpName);
 
-			// TODO not isglob(val)
 			if not IsOptionSet(sOp, sVal) then begin
-				FRipGrepParameters.RgExeOptions.Insert(0, sOp + ' ' + sVal + ' ').Trim;
+				FRipGrepParameters.RgExeOptions.Insert(0, sOpName + '=' + sVal + ' ').Trim;
 			end;
 			if i = options.MaxIndex then
 				break;

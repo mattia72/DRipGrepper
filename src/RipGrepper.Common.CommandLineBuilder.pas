@@ -39,6 +39,10 @@ type
 			class function RemoveAllParams(const _sOptions, _argMaskRegex : string; const _bSwitch : Boolean = False) : string; static;
 			class function AddRemoveRgExeOptions(const _sOptions : string; const _sParamRegex : string; const _bRemove : Boolean = False)
 				: string; static;
+			class function GetOptionsValue(const _sOption : string; var _sOptionName : string) : string; overload; static;
+			class function GetOptionsValue(const _sOption : string) : string; overload; static;
+			class function IsOptionWithValue(const _sOption : string; const _sOptionRegEx : string = '') : Boolean; static;
+			class function IsSetOptionWithValue(const _sOptions, _sOption: string; const _sValue: string = ''): Boolean; static;
 			class function UpdateSearchTextAndRgExeOptions(var _params : TGuiSetSearchParams; var arrRgOptions : TArrayEx<string>)
 				: string; static;
 			property Parameters : TRipGrepParameterSettings read FParameters write FParameters;
@@ -146,8 +150,8 @@ var
 	fileMask : string;
 begin
 	for var sOp in _sOptions.Split([' ']) do begin
-		if TRegEx.IsMatch(sOp, '(' + RG_PARAM_REGEX_GLOB + ')=') then begin
-			fileMask := fileMask + ';' + sOp.Remove(0, sOp.IndexOf('=') + 1);
+		if IsOptionWithValue(sOp, RG_PARAM_REGEX_GLOB) then begin
+			fileMask := fileMask + ';' + GetOptionsValue(sOp);
 		end;
 	end;
 	Result := fileMask.Trim([';', ' ']);
@@ -191,8 +195,8 @@ begin
 			var
 			sOpRegex := GetBoundedParamRegex(sOp);
 			if TRegEx.IsMatch(_sOptions, sOpRegex) then begin
-				if TRegEx.IsMatch(_sOptions, GetBoundedParamWithValueRegex(sOp)) then begin
-					if TRegEx.IsMatch(_sOptions, GetBoundedParamWithValueRegex(sOp, _sParamValue)) then begin
+				if IsSetOptionWithValue(_sOptions, sOp) then begin
+					if TCommandLineBuilder.IsSetOptionWithValue(_sOptions, sOp, _sParamValue) then begin
 						Result := True;
 						break
 					end;
@@ -301,7 +305,34 @@ end;
 
 class function TCommandLineBuilder.GetBoundedParamWithValueRegex(const _sOption : string; const _sParamValue : string = '') : string;
 begin
-	Result := GetBoundedParamRegex(_sOption) + '=' + TRegEx.Escape(_sParamValue);
+	Result := '-+' + WB + _sOption.TrimLeft(['-']) + '=' + TRegEx.Escape(_sParamValue);
+end;
+
+class function TCommandLineBuilder.GetOptionsValue(const _sOption : string; var _sOptionName : string) : string;
+begin
+	_sOptionName := _sOption.Remove(_sOption.IndexOf('='));
+	Result := _sOption.Remove(0, _sOption.IndexOf('=') + 1);
+end;
+
+class function TCommandLineBuilder.GetOptionsValue(const _sOption : string) : string;
+var
+	sOpName : string;
+begin
+	Result := GetOptionsValue(_sOption, sOpName);
+end;
+
+class function TCommandLineBuilder.IsOptionWithValue(const _sOption : string; const _sOptionRegEx : string = '') : Boolean;
+begin
+	if _sOptionRegEx.IsEmpty then begin
+		Result := TRegEx.IsMatch(_sOption, '-+[\w-]+=');
+	end else begin
+		Result := TRegEx.IsMatch(_sOption, '(' + _sOptionRegEx + ')=');
+	end;
+end;
+
+class function TCommandLineBuilder.IsSetOptionWithValue(const _sOptions, _sOption: string; const _sValue: string = ''): Boolean;
+begin
+	Result := TRegEx.IsMatch(_sOptions, GetBoundedParamWithValueRegex(_sOption, _sValue));
 end;
 
 class function TCommandLineBuilder.UpdateSearchTextAndRgExeOptions(var _params : TGuiSetSearchParams;
