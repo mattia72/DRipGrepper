@@ -4,18 +4,14 @@
 # - Change file version in project for all! configuration
 # - Commit and push all changes
 # - run this script
-$global:Version = "v2.4.0-beta"
-$global:PrevVersion = "v2.3.0-beta"
+$global:Version = "v2.4.1-beta"
+$global:PrevVersion = "v2.4.0-beta"
 $global:Description = @"
 ## Improvements and Bug Fixes
 
 ### Main Window
-+ Error parser on rg exit code 1 on lines beginning with ``rg:``
-+ No match parser (0 in 0)
++ Error icon form imageres.dll
 
-### :warning: Bug Fixes
-* Expand / collapse nodes on history item click 
-* Status line shows the correct released version
 "@
 
 ### :mag: Search Dialog
