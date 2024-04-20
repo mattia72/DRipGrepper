@@ -3,9 +3,6 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 
 ![Screenshot](./screenshots/DripGepper_Form.png)
 
-{:toc}
-
-
 ## Features and Todos
 
 ### Main Window
@@ -13,8 +10,10 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
   - [x] --vimgrep parser
   - [x] error parser: if a line couldn't be parsed, then it is put in the first column
   - [x] --pretty parser matching lines with colorized match position
+  - [ ] --vimgrep --context NUM parser
+  - [ ] --invert-match parser
   - [ ] --stats parser eg. msgbox on end with search statistics
-  - [ ] no match parser
+  - [ ] no match parser, if nothing found
 - [x] toolbar buttons to 
   - [x] expand / collapse tree
   - [x] show/hide icons
@@ -66,10 +65,6 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
   - [x] *Open with...* settings saved
 - [ ] configuration dialog
 
-### Standalone
-  - [x] standalone release
-  - [x] high DPI Scaling 
-
 ### Delphi Extension https://github.com/mattia72/DRipGrepper/issues/1
   - [x] dockable window
   - [x] high DPI Scaling 
@@ -85,7 +80,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
  
 ### Misc
 - [x] screenshots in Readme.md
-- [ ] [scoop](https://scoop.sh) install
+- [x] [scoop](https://scoop.sh) install
 - [ ] [chocolatey](https://chocolatey.org) install
 
 ## Installation
