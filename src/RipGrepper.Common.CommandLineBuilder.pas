@@ -42,7 +42,7 @@ type
 			class function GetOptionsValue(const _sOption : string; var _sOptionName : string) : string; overload; static;
 			class function GetOptionsValue(const _sOption : string) : string; overload; static;
 			class function IsOptionWithValue(const _sOption : string; const _sOptionRegEx : string = '') : Boolean; static;
-			class function IsSetOptionWithValue(const _sOptions, _sOption: string; const _sValue: string = ''): Boolean; static;
+			class function IsSetOptionWithValue(const _sOptions, _sOption : string; const _sValue : string = '') : Boolean; static;
 			class function UpdateSearchTextAndRgExeOptions(var _params : TGuiSetSearchParams; var arrRgOptions : TArrayEx<string>)
 				: string; static;
 			property Parameters : TRipGrepParameterSettings read FParameters write FParameters;
@@ -97,10 +97,14 @@ begin
 	if not _paramRegex.IsEmpty then begin
 		params := _paramRegex.Split(['|']);
 		for var p in params do begin
-			var
-			r := GetBoundedParamRegex(p);
-			list.DeleteAllMatched(r);
-			list.DeleteAllMatched(GetBoundedParamWithValueRegex(p));
+			if p = RG_PARAM_END then begin
+				list.DeleteAll([p]);
+			end else begin
+				var
+				r := GetBoundedParamRegex(p);
+				list.DeleteAllMatched(r);
+				list.DeleteAllMatched(GetBoundedParamWithValueRegex(p));
+			end;
 		end;
 	end;
 end;
@@ -285,7 +289,7 @@ begin
 	listOptions := TStringList.Create(dupIgnore, False, True);
 	listOptions.Delimiter := ' ';
 	try
-		listOptions.AddStrings(_sOptions.Split([' ']));
+		listOptions.AddStrings(_sOptions.Split([' '], TStringSplitOptions.ExcludeEmpty));
 
 		if _bRemove then begin
 			RemoveParamFromList(listOptions, _sParamRegex);
@@ -330,7 +334,7 @@ begin
 	end;
 end;
 
-class function TCommandLineBuilder.IsSetOptionWithValue(const _sOptions, _sOption: string; const _sValue: string = ''): Boolean;
+class function TCommandLineBuilder.IsSetOptionWithValue(const _sOptions, _sOption : string; const _sValue : string = '') : Boolean;
 begin
 	Result := TRegEx.IsMatch(_sOptions, GetBoundedParamWithValueRegex(_sOption, _sValue));
 end;
