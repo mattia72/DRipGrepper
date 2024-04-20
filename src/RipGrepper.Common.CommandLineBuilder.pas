@@ -15,6 +15,8 @@ type
 			class procedure AddArgs(var _params : TRipGrepParameterSettings; const _sName : string; const _args : TArray<string>;
 				const _bQuote : Boolean = False); static;
 			class procedure AddParamToList(list : TStringList; const _paramRegex : string = ''); static;
+			class function GetBoundedParamRegex(const _sOption : string) : string; static;
+			class function GetBoundedParamWithValueRegex(const _sOption : string; const _sParamValue : string = '') : string; static;
 			class procedure RemoveParamFromList(list : TStringList; const _paramRegex : string = ''); static;
 			class procedure PutBetweenWordBoundaries(var _s : string); static;
 			class function RemoveFixedStringsParam(var arrRgOptions : TArrayEx<string>) : Boolean; static;
@@ -28,7 +30,7 @@ type
 			class function GetFileMaskParamsFromDelimitedText(const _sFileMasksDelimited : string; const _sSeparator : string = ';')
 				: string; overload; static;
 			class function GetFileMaskParamsFromOptions(const _sOptions : string) : TArray<string>; static;
-			class function GetFileMasksDelimited(const _sOptions, _argMaskRegex : string) : string; static;
+			class function GetFileMasksDelimited(const _sOptions : string) : string; static;
 			class function GetMissingFileMaskOptions(const _sOptions, _sMasks : string) : string; static;
 			class function IsWordBoundOnOneSide(const _s : string) : Boolean; static;
 			class function IsWordBoundOnBothSide(const _s : string) : Boolean; static;
@@ -87,23 +89,14 @@ end;
 class procedure TCommandLineBuilder.RemoveParamFromList(list : TStringList; const _paramRegex : string = '');
 var
 	params : TArrayEx<string>;
-	paramsWithValues : TArrayEx<string>;
 begin
 	if not _paramRegex.IsEmpty then begin
-		paramsWithValues := RG_PARAMS_WITH_VALUE;
 		params := _paramRegex.Split(['|']);
 		for var p in params do begin
-			if paramsWithValues.Contains(p) then begin
-				var
-				idx := list.IndexOf(p);
-				while (idx >= 0) do begin
-					list.Delete(idx); // delete parameter itsef
-					list.Delete(idx); // delete value
-					idx := list.IndexOf(p);
-				end;
-				continue;
-			end;
-			list.DeleteAll([p]);
+			var
+			r := GetBoundedParamRegex(p);
+			list.DeleteAllMatched(r);
+			list.DeleteAllMatched(GetBoundedParamWithValueRegex(p));
 		end;
 	end;
 end;
@@ -114,7 +107,7 @@ var
 begin
 	for var s in _arrMasks do begin
 		if (not string.IsNullOrWhiteSpace(s)) and (not _arrSkipMasks.Contains(s)) then begin
-			newOptions := newOptions + ' -g ' + s;
+			newOptions := newOptions + ' -g=' + s;
 		end;
 	end;
 	Result := newOptions;
@@ -129,8 +122,7 @@ begin
 	list.Delimiter := ' ';
 	try
 		for var s : string in _sFileMasksDelimited.Split([_sSeparator]) do begin
-			list.Add('-g');
-			list.AddIfNotContains(s);
+			list.AddIfNotContains('-g=' + s);
 		end;
 		Result := list.ToStringArray;
 	finally
@@ -146,21 +138,16 @@ end;
 
 class function TCommandLineBuilder.GetFileMaskParamsFromOptions(const _sOptions : string) : TArray<string>;
 begin
-	Result := GetFileMasksDelimited(_sOptions, RG_PARAM_REGEX_GLOB).Split([';']);
+	Result := GetFileMasksDelimited(_sOptions).Split([';']);
 end;
 
-class function TCommandLineBuilder.GetFileMasksDelimited(const _sOptions, _argMaskRegex : string) : string;
+class function TCommandLineBuilder.GetFileMasksDelimited(const _sOptions : string) : string;
 var
-	bAddNext : Boolean;
 	fileMask : string;
 begin
-	bAddNext := False;
-	for var s in _sOptions.Split([' ']) do begin
-		if bAddNext then begin
-			fileMask := fileMask + ';' + s;
-			bAddNext := False;
-		end else begin
-			bAddNext := TRegEx.IsMatch(s, _argMaskRegex);
+	for var sOp in _sOptions.Split([' ']) do begin
+		if TRegEx.IsMatch(sOp, '(' + RG_PARAM_REGEX_GLOB + ')=') then begin
+			fileMask := fileMask + ';' + sOp.Remove(0, sOp.IndexOf('=') + 1);
 		end;
 	end;
 	Result := fileMask.Trim([';', ' ']);
@@ -193,7 +180,6 @@ end;
 class function TCommandLineBuilder.IsOptionSet(const _sOptions, _sParamRegex : string; const _sParamValue : string = '') : Boolean;
 var
 	arrOptions : TArrayEx<string>;
-	arrOptionsWithValues : TArrayEx<string>;
 begin
 	Result := True;
 	if not _sParamRegex.IsEmpty then begin
@@ -203,10 +189,10 @@ begin
 			var
 				sOp : string := arrOptions[i];
 			var
-			sOpRegex := '\s-+\b' + sOp.TrimLeft(['-']) + '\b';
+			sOpRegex := GetBoundedParamRegex(sOp);
 			if TRegEx.IsMatch(_sOptions, sOpRegex) then begin
-				if TArrayEx<string>.Create(RG_PARAMS_WITH_VALUE).Contains(sOp) then begin
-					if TRegEx.IsMatch(_sOptions, sOpRegex + '\s+' + TRegEx.Escape(_sParamValue)) then begin
+				if TRegEx.IsMatch(_sOptions, GetBoundedParamWithValueRegex(sOp)) then begin
+					if TRegEx.IsMatch(_sOptions, GetBoundedParamWithValueRegex(sOp, _sParamValue)) then begin
 						Result := True;
 						break
 					end;
@@ -247,7 +233,8 @@ begin
 	end;
 
 	arrRgOptions.AddRange(GetFileMaskParamsArrFromDelimitedText(_params.FileMasks));
-	arrRgOptions.Remove(RG_PARAM_END); // put it in the end
+	arrRgOptions.Remove(RG_PARAM_END);
+	// put it in the end
 	arrRgOptions.Add(RG_PARAM_END); // indicates that no more flags will be provided
 
 	gsp := _params.GuiSetSearchParams;
@@ -269,9 +256,6 @@ begin
 	for var i := 0 to arrOptions.MaxIndex do begin
 		if TRegEx.IsMatch(arrOptions[i], _argMaskRegex) then begin
 			arrRemoveIdxs.Add(i);
-			if not _bSwitch then begin
-				arrRemoveIdxs.Add(i + 1);
-			end;
 		end;
 	end;
 	arrOptions.Delete(arrRemoveIdxs);
@@ -282,7 +266,8 @@ class function TCommandLineBuilder.RemoveFixedStringsParam(var arrRgOptions : TA
 begin
 	Result := False;
 	for var p in RG_PARAM_REGEX_FIXED_STRINGS.Split(['|']) do begin
-		if arrRgOptions.Remove(p) then begin // word boundaries can't be used in case of --fixed-strings
+		if arrRgOptions.Remove(p) then begin
+			// word boundaries can't be used in case of --fixed-strings
 			Result := True;
 		end;
 	end;
@@ -307,6 +292,16 @@ begin
 	finally
 		listOptions.Free;
 	end;
+end;
+
+class function TCommandLineBuilder.GetBoundedParamRegex(const _sOption : string) : string;
+begin
+	Result := '-+' + WB + _sOption.TrimLeft(['-']) + WB;
+end;
+
+class function TCommandLineBuilder.GetBoundedParamWithValueRegex(const _sOption : string; const _sParamValue : string = '') : string;
+begin
+	Result := GetBoundedParamRegex(_sOption) + '=' + TRegEx.Escape(_sParamValue);
 end;
 
 class function TCommandLineBuilder.UpdateSearchTextAndRgExeOptions(var _params : TGuiSetSearchParams;

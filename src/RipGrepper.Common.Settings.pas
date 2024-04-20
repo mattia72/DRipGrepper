@@ -94,7 +94,7 @@ type
 			FRipGrepParameters : TRipGrepParameterSettings;
 			FRipGrepperViewSettings : TRipGrepperViewSettings;
 			FRipGrepperOpenWithSettings : TRipGrepperOpenWithSettings;
-			FRipGrepParamsHistory : TSTrings;
+			FRipGrepOptionsHistory : TSTrings;
 			FSearchPathsHistory : TStrings;
 			FSearchTextsHistory : TStrings;
 			FRipGrepArguments : TRipGrepArguments;
@@ -112,7 +112,7 @@ type
 			procedure InitSettings;
 			procedure LoadHistoryEntries(var _list : TStrings; const _section : string);
 			procedure SetFileMasksHistory(const Value : TStrings);
-			procedure SetRipGrepParamsHistory(const Value : TSTrings);
+			procedure SetRipGrepOptionsHistory(const Value : TSTrings);
 			procedure SetSearchPathsHistory(const Value : TStrings);
 			procedure SetSearchTextsHistory(const Value : TStrings);
 			procedure StoreHistoryEntries(const _list : TStrings; const _section : string);
@@ -137,7 +137,7 @@ type
 
 			property RipGrepParameters : TRipGrepParameterSettings read FRipGrepParameters write FRipGrepParameters;
 			property SearchPathsHistory : TStrings read FSearchPathsHistory write SetSearchPathsHistory;
-			property RipGrepParamsHistory : TSTrings read FRipGrepParamsHistory write SetRipGrepParamsHistory;
+			property RipGrepOptionsHistory : TSTrings read FRipGrepOptionsHistory write SetRipGrepOptionsHistory;
 			property RipGrepperOpenWithSettings : TRipGrepperOpenWithSettings read FRipGrepperOpenWithSettings;
 			property RipGrepperSettings : TRipGrepperAppSettings read FRipGrepperSettings write FRipGrepperSettings;
 			property RipGrepperViewSettings : TRipGrepperViewSettings read FRipGrepperViewSettings write FRipGrepperViewSettings;
@@ -184,7 +184,7 @@ uses
 
 function TRipGrepperSettings.GetActualRipGrepParams : string;
 begin
-	RipGrepParamsHistory.TryGetDef(0, Result);
+	RipGrepOptionsHistory.TryGetDef(0, Result);
 end;
 
 function TRipGrepperSettings.GetActualSearchPath : string;
@@ -225,8 +225,8 @@ begin
 		SearchTextsHistory.Add('search text');
 	end;
 
-	if RipGrepParamsHistory.Count = 0 then begin
-		RipGrepParamsHistory.Add('');
+	if RipGrepOptionsHistory.Count = 0 then begin
+		RipGrepOptionsHistory.Add('');
 	end;
 
 	if FileMasksHistory.Count = 0 then begin
@@ -248,7 +248,7 @@ end;
 destructor TRipGrepperSettings.Destroy;
 begin
 	FRipGrepArguments.Free;
-	FRipGrepParamsHistory.Free;
+	FRipGrepOptionsHistory.Free;
 	FSearchTextsHistory.Free;
 	FSearchPathsHistory.Free;
 	FRipGrepperViewSettings.Free;
@@ -274,7 +274,7 @@ begin
 	FExtensionSettings := TRipGrepperExtensionSettings.Create(FIniFile);
 	FSearchPathsHistory := TStringList.Create(dupIgnore, False, True);
 	FSearchTextsHistory := TStringList.Create(dupIgnore, False, True);
-	FRipGrepParamsHistory := TStringList.Create(dupIgnore, False, True);
+	FRipGrepOptionsHistory := TStringList.Create(dupIgnore, False, True);
 	FRipGrepArguments := TStringList.Create();
 	FRipGrepArguments.Delimiter := ' ';
 	FRipGrepperSettings := TRipGrepperAppSettings.Create(FIniFile);
@@ -313,7 +313,7 @@ begin
 
 		LoadHistoryEntries(FSearchPathsHistory, 'SearchPathsHistory');
 		LoadHistoryEntries(FSearchTextsHistory, 'SearchTextsHistory');
-		LoadHistoryEntries(FRipGrepParamsHistory, 'RipGrepParamsHistory');
+		LoadHistoryEntries(FRipGrepOptionsHistory, 'RipGrepOptionsHistory');
 		LoadHistoryEntries(FFileMasksHistory, 'FileMasksHistory');
 	except
 		on E : Exception do begin
@@ -335,9 +335,9 @@ begin
 	AddIfNotContains(FFileMasksHistory, Value);
 end;
 
-procedure TRipGrepperSettings.SetRipGrepParamsHistory(const Value : TSTrings);
+procedure TRipGrepperSettings.SetRipGrepOptionsHistory(const Value : TSTrings);
 begin
-	AddIfNotContains(FRipGrepParamsHistory, Value);
+	AddIfNotContains(FRipGrepOptionsHistory, Value);
 end;
 
 procedure TRipGrepperSettings.SetSearchPathsHistory(const Value : TStrings);
@@ -362,7 +362,7 @@ begin
 			FRipGrepParameters.Store;
 			StoreHistoryEntries(SearchPathsHistory, 'SearchPathsHistory');
 			StoreHistoryEntries(SearchTextsHistory, 'SearchTextsHistory');
-			StoreHistoryEntries(RipGrepParamsHistory, 'RipGrepParamsHistory');
+			StoreHistoryEntries(RipGrepOptionsHistory, 'RipGrepOptionsHistory');
 			StoreHistoryEntries(FileMasksHistory, 'FileMasksHistory');
 		end;
 	end;
