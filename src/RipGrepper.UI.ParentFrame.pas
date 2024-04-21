@@ -26,9 +26,8 @@ type
 		TopFrame : TRipGrepperTopFrame;
 
 		private
-			FSettings : TRipGrepperSettings;
-			function GetSettings : TRipGrepperSettings;
-			property Settings : TRipGrepperSettings read GetSettings write FSettings;
+			FSettings: TRipGrepperSettings;
+			function GetSettings: TRipGrepperSettings;
 			procedure FrameOnShowHide(var M : TMessage); message CM_SHOWINGCHANGED;
 
 		public
@@ -40,6 +39,7 @@ type
 			procedure FrameOnShow(Sender : TObject);
 			procedure SetStatusBarMessage(const _bWithElapsedTime : Boolean = False);
 			procedure SetStatusBarStatistic(const _s : string);
+			property Settings: TRipGrepperSettings read GetSettings write FSettings;
 			{ Public-Deklarationen }
 	end;
 
@@ -94,7 +94,7 @@ begin
 	end;
 end;
 
-function TParentFrame.GetSettings : TRipGrepperSettings;
+function TParentFrame.GetSettings: TRipGrepperSettings;
 begin
 	if not Assigned(FSettings) then begin
 		FSettings := GSettings;
