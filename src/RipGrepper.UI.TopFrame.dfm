@@ -1141,8 +1141,8 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       OnExecute = ActionSearchExecute
     end
     object ActionConfig: TAction
-      Caption = 'ActionConfig'
-      Hint = 'Config'
+      Caption = 'Config'
+      Hint = 'Open config dialog...'
       ImageIndex = 0
       OnExecute = ActionConfigExecute
     end
@@ -1177,7 +1177,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     end
     object ActionShowSearchForm: TAction
       Caption = 'Search...'
-      Hint = 'Search...'
+      Hint = 'Open search dialog...'
       ImageIndex = 8
       ShortCut = 16467
       OnExecute = ActionShowSearchFormExecute
@@ -1190,7 +1190,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       OnUpdate = ActionShowFileIconsUpdate
     end
     object ActionAlternateRowColors: TAction
-      Caption = 'Action1'
+      Caption = 'Alternate'
       Hint = 'Alternate row colors'
       ImageIndex = 13
       OnExecute = ActionAlternateRowColorsExecute
@@ -1202,15 +1202,19 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       ImageIndex = 18
       ShortCut = 16411
       OnExecute = ActionAbortSearchExecute
+      OnUpdate = ActionAbortSearchUpdate
     end
     object ActionRefreshSearch: TAction
       Caption = 'Refresh'
+      Hint = 'Refresh search results'
       ImageIndex = 15
       ShortCut = 116
       OnExecute = ActionRefreshSearchExecute
+      OnUpdate = ActionRefreshSearchUpdate
     end
     object ActionIndentLine: TAction
-      Caption = 'ActionIndentLine'
+      Caption = 'Indent'
+      Hint = 'Indent matched lines'
       ImageIndex = 17
       OnExecute = ActionIndentLineExecute
       OnUpdate = ActionIndentLineUpdate
