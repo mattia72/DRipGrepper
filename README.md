@@ -10,7 +10,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
   - [x] --vimgrep parser
   - [x] error parser: if a line couldn't be parsed, then it is put in the first column
   - [x] --pretty parser matching lines with colorized match position
-  - [ ] --vimgrep --context NUM parser
+  - [x] --vimgrep --context NUM (or -A=NUM -B=NUM) parser
   - [ ] --invert-match parser
   - [ ] --stats parser eg. msgbox on end with search statistics
   - [ ] no match parser, if nothing found

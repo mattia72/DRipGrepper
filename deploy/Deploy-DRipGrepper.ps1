@@ -4,13 +4,16 @@
 # - Change file version in project for all! configuration
 # - Commit and push all changes
 # - run this script
-$global:Version = "v2.4.1-beta"
+$global:Version = "v2.5.0-beta"
 $global:PrevVersion = "v2.4.0-beta"
 $global:Description = @"
 ## Improvements and Bug Fixes
 
 ### Main Window
-+ Error icon form imageres.dll
++ :new: parser for parameters: --context=NUM, -A=NUM -B=NUM 
+
+### :warning: Bug Fixes
+* Not parsed lines will be shown as before
 
 "@
 
