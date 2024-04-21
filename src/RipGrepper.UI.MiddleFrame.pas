@@ -71,7 +71,9 @@ type
 		PanelResult : TPanel;
 		VstResult : TVirtualStringTree;
 		procedure ActionCopyFileNameExecute(Sender : TObject);
+		procedure ActionCopyFileNameUpdate(Sender : TObject);
 		procedure ActionCopyPathToClipboardExecute(Sender : TObject);
+		procedure ActionCopyPathToClipboardUpdate(Sender : TObject);
 		procedure ActionOpenWithExecute(Sender : TObject);
 		procedure ActionOpenWithUpdate(Sender : TObject);
 		procedure FrameResize(Sender : TObject);
@@ -236,9 +238,19 @@ begin
 	CopyToClipboardFileOfSelected();
 end;
 
+procedure TRipGrepperMiddleFrame.ActionCopyFileNameUpdate(Sender : TObject);
+begin
+	ActionCopyFileName.Enabled := VstResult.SelectedCount = 1;
+end;
+
 procedure TRipGrepperMiddleFrame.ActionCopyPathToClipboardExecute(Sender : TObject);
 begin
 	CopyToClipboardPathOfSelected();
+end;
+
+procedure TRipGrepperMiddleFrame.ActionCopyPathToClipboardUpdate(Sender : TObject);
+begin
+	ActionCopyPathToClipboard.Enabled := VstResult.SelectedCount = 1;
 end;
 
 procedure TRipGrepperMiddleFrame.ActionOpenWithExecute(Sender : TObject);

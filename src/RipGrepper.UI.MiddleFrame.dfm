@@ -177,13 +177,16 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
       ImageIndex = 2
     end
     object ActionCopyFileName: TAction
-      Caption = 'Copy Name to Clipboard'
-      Hint = 'Sort'
+      Caption = 'Copy file name'
+      Hint = 'Copy file name to clipboard'
       OnExecute = ActionCopyFileNameExecute
+      OnUpdate = ActionCopyFileNameUpdate
     end
     object ActionCopyPathToClipboard: TAction
-      Caption = 'Copy Path to Clipboard'
+      Caption = 'Copy path'
+      Hint = 'Copy file path to clipboard'
       OnExecute = ActionCopyPathToClipboardExecute
+      OnUpdate = ActionCopyPathToClipboardUpdate
     end
     object ActionShowSearchForm: TAction
       Caption = 'Search...'
