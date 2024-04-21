@@ -95,12 +95,10 @@ type
 			function GetSettings : TRipGrepperSettings;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
-			{ Private-Deklarationen }
 		public
 			constructor Create(AOwner : TComponent); override;
 			destructor Destroy; override;
 			function GetNextViewStyleIdx : Integer;
-			{ Public-Deklarationen }
 	end;
 
 implementation
@@ -240,7 +238,8 @@ end;
 
 procedure TRipGrepperTopFrame.ActionRefreshSearchUpdate(Sender : TObject);
 begin
-	ActionRefreshSearch.Enabled := Settings.IsLoaded and (not MainFrame.IsSearchRunning);
+	ActionRefreshSearch.Enabled := Settings.IsLoaded and (not MainFrame.IsSearchRunning)
+		and Assigned(MainFrame.HistObject);
 end;
 
 procedure TRipGrepperTopFrame.ActionSearchExecute(Sender : TObject);
