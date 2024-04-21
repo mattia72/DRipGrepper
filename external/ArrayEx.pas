@@ -156,6 +156,7 @@ type
 
 		private
 			function GetCount : integer;
+			function GetIsEmpty: Boolean;
 			function GetFirst : T;
 			procedure SetCount(const Value : integer);
 			function GetItemAt(Index : integer) : T;
@@ -166,6 +167,7 @@ type
 		public
 			Items : TArray<T>;
 			property Count : integer read GetCount write SetCount;
+			property IsEmpty: Boolean read GetIsEmpty;
 			property First : T read GetFirst;
 			property ItemAt[index : Integer] : T read GetItemAt write SetItemAt; default;
 			property Last : T read GetLast;
@@ -742,6 +744,11 @@ end;
 function TArrayEx<T>.AllIndexOf(Item : T) : TArray<integer>;
 begin
 	Result := TArray.AllIndexOf<T>(Items, Item, TComparer<T>.Default);
+end;
+
+function TArrayEx<T>.GetIsEmpty: Boolean;
+begin
+	Result := length(Items) = 0;
 end;
 
 function TArrayEx<T>.GetFirst : T;

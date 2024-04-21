@@ -68,12 +68,13 @@ const
 	RG_NECESSARY_PARAMS : TArray<string> = [
 	{ } '--vimgrep',
 	{ } '--line-buffered', // some big search couldn't be catched without this
-	{ } '--pretty',
+	{ } // '--pretty',
 	{ } '--no-ignore-parent',
 	{ } '--follow',
 	{ } '--crlf'];
 
 	RG_MATCH_LINE_REGEX = '^(?<drive>\w:)?(?<path>.+?):(?<row>\d+):(?<col>\d+):(?<text>.+)$';
+	RG_MATCH_LINE_CONTEXT_REGEX = '^(?<drive>\w:)?(?<path>.+?)-(?<row>\d+)-(?<text>.*)$';
 
 	RG_PRETTY_BLUE = ESC + '0m' + ESC + '36m';
 	RG_PRETTY_GREEN = ESC + '0m' + ESC + '32m';
@@ -90,8 +91,16 @@ const
 	{ } RG_PRETTY_RESET + RG_PRETTY_BOLD_RED + '(?<match_text>.+)' +
 	{ } RG_PRETTY_RESET + '(?<text_after_match>.+?)?$';
 
+	RG_MATCH_PRETTY_LINE_CONTEXT_REGEX = '^' +
+	{ } RG_PRETTY_BLUE + '(?<drive>\w:)?(?<path>.+?)' +
+	{ } RG_PRETTY_RESET + '-' +
+	{ } RG_PRETTY_GREEN + '(?<row>\d+)' +
+	{ } RG_PRETTY_RESET + '-' + '(?<text>.*)$';
+
 	RG_HELP_LONG_PARAM_REGEX = '(?<long>--[\-a-zA-Z0-9]+)';
 	RG_HELP_LINE_REGEX = '^\s*(?<short>-[a-zA-Z.0-9])?(?<comma>, )?(?<long>--[\-a-zA-Z0-9]+)(?<value>=[\-A-Z]+)?\s*(?<desc>.*)$';
+
+	RG_CONTEXT_SEPARATOR = '--';
 
 	RG_ARG_SEARCH_PATH = 'SearchPath';
 	RG_ARG_SEARCH_TEXT = 'SearchText';
@@ -105,8 +114,6 @@ const
 	RG_PARAM_REGEX_FIXED_STRINGS = '-F|--fixed-strings';
 	RG_PARAM_REGEX_WORD_REGEX = '-w|--word-regexp';
 	RG_PARAM_REGEX_GLOB = '-g|--glob';
-
-	RG_PARAMS_WITH_VALUE : TArray<string> = ['-g', '--glob'];
 
 	RG_PARAM_END = '--';
 

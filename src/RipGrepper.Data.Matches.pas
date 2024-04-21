@@ -36,9 +36,9 @@ type
 			function GetParentNode(const _sNodeText : string) : PVirtualNode;
 			procedure AddChildNode(const _parentNode : PVirtualNode; _item : IParsedObjectRow);
 			function ErrorHandling(const _sFileColumnText : string; _item : IParsedObjectRow) : PVirtualNode;
-		function GetNoMatchFound: Boolean;
+			function GetNoMatchFound : Boolean;
 			procedure SetHistObject(const Value : THistoryItemObject);
-		procedure SetNoMatchFound(const Value: Boolean);
+			procedure SetNoMatchFound(const Value : Boolean);
 			procedure SortMultiColumns(const _st : TSortDirectionType);
 
 		public
@@ -54,7 +54,7 @@ type
 			property FileCount : Integer read GetFileCount;
 			property HistObject : THistoryItemObject read GetHistObject write SetHistObject;
 			property ListItemCount : Integer read GetListItemCount;
-		property NoMatchFound: Boolean read GetNoMatchFound write SetNoMatchFound;
+			property NoMatchFound : Boolean read GetNoMatchFound write SetNoMatchFound;
 	end;
 
 implementation
@@ -86,6 +86,9 @@ var
 	node : PVirtualNode;
 	sFileColumnText : string;
 begin
+	if (_item.Columns.IsEmpty) then
+		Exit;
+
 	FVst.BeginUpdate;
 	try
 		HistObject.Matches.Items.Add(_item);
@@ -307,14 +310,15 @@ begin
 			node := GetParentNode(RG_ERROR_MSG_PREFIX);
 			nodeData := TVSFileNodeData.New(_sFileColumnText.Remove(0, RG_ERROR_MSG_PREFIX.Length));
 			AddVSTStructure(node, nodeData);
+			Exit;
 		end;
-	end else begin
-		Inc(FErrorCount);
-		Result := GetParentNode(_item.ErrorText);
 	end;
+
+	Inc(FErrorCount);
+	Result := GetParentNode(_item.ErrorText);
 end;
 
-function TRipGrepperData.GetNoMatchFound: Boolean;
+function TRipGrepperData.GetNoMatchFound : Boolean;
 begin
 
 	Result := HistObject.NoMatchFound;
@@ -325,7 +329,7 @@ begin
 	FHistObject := Value;
 end;
 
-procedure TRipGrepperData.SetNoMatchFound(const Value: Boolean);
+procedure TRipGrepperData.SetNoMatchFound(const Value : Boolean);
 begin
 	HistObject.NoMatchFound := Value;
 end;

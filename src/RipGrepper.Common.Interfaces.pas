@@ -31,11 +31,14 @@ type
 	ILineParserData = interface
 		['{B33D6808-8A4F-49AD-A711-F226B55DEE5F}']
 		function GetLineParseRegex : TRegex;
+		function GetContextLineParseRegex: TRegex;
 		function GetParserType : TParserType;
 		procedure SetLineParseRegex(const Value : TRegex);
+		procedure SetContextLineParseRegex(const Value: TRegex);
 		procedure SetParserType(const Value : TParserType);
 
 		property LineParseRegex : TRegex read GetLineParseRegex write SetLineParseRegex;
+		property ContextLineParseRegex: TRegex read GetContextLineParseRegex write SetContextLineParseRegex;
 		property ParserType : TParserType read GetParserType write SetParserType;
 	end;
 
