@@ -20,8 +20,6 @@ type
 			class procedure RemoveParamFromList(list : TStringList; const _paramRegex : string = ''); static;
 			class procedure PutBetweenWordBoundaries(var _s : string); static;
 			class function RemoveFixedStringsParam(var arrRgOptions : TArrayEx<string>) : Boolean; static;
-			class procedure RemoveWordBoundaries(var _s : string); static;
-
 		public
 			class function FileMasksToOptions(const _arrMasks, _arrSkipMasks : TArrayEx<string>) : string; static;
 			class function New(_params : TRipGrepParameterSettings) : TCommandLineBuilder; static;
@@ -43,6 +41,7 @@ type
 			class function GetOptionsValue(const _sOption : string) : string; overload; static;
 			class function IsOptionWithValue(const _sOption : string; const _sOptionRegEx : string = '') : Boolean; static;
 			class function IsSetOptionWithValue(const _sOptions, _sOption : string; const _sValue : string = '') : Boolean; static;
+			class procedure RemoveWordBoundaries(var _s : string); static;
 			class function UpdateSearchTextAndRgExeOptions(var _params : TGuiSetSearchParams; var arrRgOptions : TArrayEx<string>)
 				: string; static;
 			property Parameters : TRipGrepParameterSettings read FParameters write FParameters;
