@@ -113,8 +113,6 @@ type
 			procedure ResetOption(const _searchOption : EGuiSearchOptions; const _paramRegex : string = '');
 			procedure SetOptionInGuiAndRgExeOptions(const _bIsOpOk : Boolean; const _searchOption : EGuiSearchOptions;
 				const _paramRegex : string = '');
-		procedure SetOptionsFlagAndText(const _bIsOpOk: Boolean; const _searchOption: EGuiSearchOptions; const _paramRegex: string; var _guiParams:
-			TGuiSetSearchParams);
 			procedure StoreHistoriesAsCmbEntries;
 			procedure WriteCtrlsToRipGrepParametersSettings;
 			procedure StoreSearchSettings;
@@ -455,22 +453,11 @@ procedure TRipGrepperSearchDialogForm.SetOptionInGuiAndRgExeOptions(const _bIsOp
 	const _paramRegex : string = '');
 begin
 
-	SetOptionsFlagAndText(_bIsOpOk, _searchOption, _paramRegex, FGuiSetSearchParams);
+	FRipGrepParameters.RgExeOptions :=
+		TOptionsHelper.GetOptionsAndSetFlag(_bIsOpOk, _searchOption, _paramRegex, FRipGrepParameters.RgExeOptions, FGuiSetSearchParams);
 
 	UpdateCommandLine(True); // RgExeOptions may changed
 	SetCmbOptionText;
-end;
-
-procedure TRipGrepperSearchDialogForm.SetOptionsFlagAndText(const _bIsOpOk: Boolean; const _searchOption: EGuiSearchOptions; const
-	_paramRegex: string; var _guiParams: TGuiSetSearchParams);
-begin
-	if _bIsOpOk or _guiParams.IsSet([_searchOption]) then begin
-		_guiParams.ResetOption(_searchOption);
-		RemoveRgExeOptionsText(_paramRegex);
-	end else begin
-		_guiParams.SetOption(_searchOption);
-		AddRemoveRgExeOptions(_paramRegex);
-	end;
 end;
 
 procedure TRipGrepperSearchDialogForm.StoreHistoriesAsCmbEntries;

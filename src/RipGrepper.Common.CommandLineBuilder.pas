@@ -18,6 +18,8 @@ type
 	public
 		class function AddRemoveRgExeOptions(const _sOptions : string; const _sParamRegex : string; const _bRemove : Boolean = False): string;
 			static;
+		class function GetOptionsAndSetFlag(const _bIsOpOk: Boolean; const _searchOption: EGuiSearchOptions; const _paramRegex, _rgExeOps: string;
+			var _guiParams: TGuiSetSearchParams): string;
 		class function GetOptionsValue(const _sOption : string): string; overload; static;
 		class function GetOptionsValue(const _sOption : string; var _sOptionName : string): string; overload; static;
 		class function IsOptionSet(const _sOptions, _sParamRegex : string; const _sParamValue : string = ''): Boolean; static;
@@ -287,6 +289,18 @@ end;
 class function TOptionsHelper.GetBoundedParamWithValueRegex(const _sOption : string; const _sParamValue : string = ''): string;
 begin
 	Result := '-+' + WB + _sOption.TrimLeft(['-']) + '=' + TRegEx.Escape(_sParamValue);
+end;
+
+class function TOptionsHelper.GetOptionsAndSetFlag(const _bIsOpOk: Boolean; const _searchOption: EGuiSearchOptions; const _paramRegex,
+	_rgExeOps: string; var _guiParams: TGuiSetSearchParams): string;
+begin
+	if _bIsOpOk or _guiParams.IsSet([_searchOption]) then begin
+		_guiParams.ResetOption(_searchOption);
+		Result := TOptionsHelper.AddRemoveRgExeOptions(_rgExeOps, _paramRegex, True);
+	end else begin
+		_guiParams.SetOption(_searchOption);
+		Result := TOptionsHelper.AddRemoveRgExeOptions(_rgExeOps, _paramRegex);
+	end;
 end;
 
 class function TOptionsHelper.GetOptionsValue(const _sOption : string): string;
