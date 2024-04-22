@@ -113,6 +113,8 @@ type
 			procedure ResetOption(const _searchOption : EGuiSearchOptions; const _paramRegex : string = '');
 			procedure SetOptionInGuiAndRgExeOptions(const _bIsOpOk : Boolean; const _searchOption : EGuiSearchOptions;
 				const _paramRegex : string = '');
+		procedure SetOptionsFlagAndText(const _bIsOpOk: Boolean; const _searchOption: EGuiSearchOptions; const _paramRegex: string; var _guiParams:
+			TGuiSetSearchParams);
 			procedure StoreHistoriesAsCmbEntries;
 			procedure WriteCtrlsToRipGrepParametersSettings;
 			procedure StoreSearchSettings;
@@ -270,7 +272,7 @@ begin
 	frm := TRipGrepOptionsForm.Create(self, FRipGrepParameters);
 	try
 		if (mrOk = frm.ShowModal) then begin
-			cmbOptions.Text := TCommandLineBuilder.AddRemoveRgExeOptions(
+			cmbOptions.Text := TOptionsHelper.AddRemoveRgExeOptions(
 				{ } FRipGrepParameters.RgExeOptions, string.Join('|', RG_NECESSARY_PARAMS + [RG_PARAM_REGEX_CASE_SENSITIVE,
 				RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_REGEX_GLOB, RG_PARAM_END]), True); // from options form
 		end;
@@ -330,7 +332,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.AddRemoveRgExeOptions(const _sParamRegex : string; const _bRemove : Boolean = False);
 begin
-	FRipGrepParameters.RgExeOptions := TCommandLineBuilder.AddRemoveRgExeOptions(FRipGrepParameters.RgExeOptions, _sParamRegex, _bRemove);
+	FRipGrepParameters.RgExeOptions := TOptionsHelper.AddRemoveRgExeOptions(FRipGrepParameters.RgExeOptions, _sParamRegex, _bRemove);
 end;
 
 procedure TRipGrepperSearchDialogForm.ButtonDown(const _searchOption : EGuiSearchOptions; _tb : TToolButton;
@@ -392,7 +394,7 @@ end;
 
 function TRipGrepperSearchDialogForm.IsOptionSet(const _sParamRegex : string; const _sParamValue : string = '') : Boolean;
 begin
-	Result := TCommandLineBuilder.IsOptionSet(FRipGrepParameters.RgExeOptions, _sParamRegex, _sParamValue);
+	Result := TOptionsHelper.IsOptionSet(FRipGrepParameters.RgExeOptions, _sParamRegex, _sParamValue);
 end;
 
 procedure TRipGrepperSearchDialogForm.RemoveRgExeOptionsText(const _paramRegex : string);
@@ -403,7 +405,7 @@ end;
 procedure TRipGrepperSearchDialogForm.SetCmbOptionText;
 begin
 	// Remove necessary options
-	cmbOptions.Text := TCommandLineBuilder.AddRemoveRgExeOptions(
+	cmbOptions.Text := TOptionsHelper.AddRemoveRgExeOptions(
 		{ } FRipGrepParameters.RgExeOptions, string.Join('|', RG_NECESSARY_PARAMS + [RG_PARAM_REGEX_CASE_SENSITIVE,
 		RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_REGEX_GLOB, RG_PARAM_END]), True);
 end;
@@ -452,16 +454,23 @@ end;
 procedure TRipGrepperSearchDialogForm.SetOptionInGuiAndRgExeOptions(const _bIsOpOk : Boolean; const _searchOption : EGuiSearchOptions;
 	const _paramRegex : string = '');
 begin
-	if _bIsOpOk or FGuiSetSearchParams.IsSet([_searchOption]) then begin
-		FGuiSetSearchParams.ResetOption(_searchOption);
-		RemoveRgExeOptionsText(_paramRegex);
-	end else begin
-		FGuiSetSearchParams.SetOption(_searchOption);
-		AddRemoveRgExeOptions(_paramRegex);
-	end;
+
+	SetOptionsFlagAndText(_bIsOpOk, _searchOption, _paramRegex, FGuiSetSearchParams);
 
 	UpdateCommandLine(True); // RgExeOptions may changed
 	SetCmbOptionText;
+end;
+
+procedure TRipGrepperSearchDialogForm.SetOptionsFlagAndText(const _bIsOpOk: Boolean; const _searchOption: EGuiSearchOptions; const
+	_paramRegex: string; var _guiParams: TGuiSetSearchParams);
+begin
+	if _bIsOpOk or _guiParams.IsSet([_searchOption]) then begin
+		_guiParams.ResetOption(_searchOption);
+		RemoveRgExeOptionsText(_paramRegex);
+	end else begin
+		_guiParams.SetOption(_searchOption);
+		AddRemoveRgExeOptions(_paramRegex);
+	end;
 end;
 
 procedure TRipGrepperSearchDialogForm.StoreHistoriesAsCmbEntries;
@@ -592,8 +601,8 @@ begin
 	options := optionsText.Split([' '], TStringSplitOptions.ExcludeEmpty);
 	for var i : integer := 0 to options.MaxIndex do begin
 		sOp := options[i];
-		if TCommandLineBuilder.IsOptionWithValue(sOp) then begin
-			sVal := TCommandLineBuilder.GetOptionsValue(sOp, sOpName);
+		if TOptionsHelper.IsOptionWithValue(sOp) then begin
+			sVal := TOptionsHelper.GetOptionsValue(sOp, sOpName);
 
 			if not IsOptionSet(sOp, sVal) then begin
 				FRipGrepParameters.RgExeOptions.Insert(0, sOpName + '=' + sVal + ' ').Trim;
