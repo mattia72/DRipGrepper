@@ -26,7 +26,8 @@ uses
 	Vcl.Buttons,
 	Vcl.ToolWin,
 	Vcl.ComCtrls,
-	RipGrepper.Common.Settings.RipGrepParameterSettings;
+	RipGrepper.Common.Settings.RipGrepParameterSettings,
+	RipGrepper.Data.HistoryItemObject;
 
 type
 	TRipGrepperSearchDialogForm = class(TForm)
@@ -92,8 +93,9 @@ type
 		procedure gbExpertDblClick(Sender : TObject);
 
 		private
-			FActualRipGrepParams : TRipGrepArguments;
+			FHistItemObj : THistoryItemObject;
 			FDpiScaler : TRipGrepperDpiScaler;
+			FGuiSetSearchParams : TGuiSetSearchParams;
 			FSettings : TRipGrepperSettings;
 			FRipGrepParameters : TRipGrepParameterSettings;
 			function GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
@@ -123,7 +125,7 @@ type
 
 		protected
 		public
-			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettings; const _actualArgs : TRipGrepArguments);
+			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettings; const _histObj : THistoryItemObject);
 				reintroduce; virtual;
 			destructor Destroy; override;
 			procedure UpdateCommandLine(const _bSkipReadCtrls : Boolean = False);
@@ -156,13 +158,15 @@ const
 	{$R *.dfm}
 
 constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _settings : TRipGrepperSettings;
-	const _actualArgs : TRipGrepArguments);
+	const _histObj : THistoryItemObject);
 begin
 	inherited Create(AOwner);
 
 	FSettings := _settings;
-	FRipGrepParameters := FSettings.RipGrepParameters;
-	FActualRipGrepParams := _actualArgs;
+	FRipGrepParameters := _settings.RipGrepParameters;
+	FHistItemObj := _histObj;
+	if Assigned(_histObj) then
+		FGuiSetSearchParams := _histObj.GuiSetSearchParams;
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 end;
 
@@ -174,12 +178,12 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ActionAddParamIgnoreCaseExecute(Sender : TObject);
 begin
-	SetOption(soIgnoreCase, RG_PARAM_REGEX_IGNORE_CASE);
+	SetOption(soMatchCase, RG_PARAM_REGEX_CASE_SENSITIVE);
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionAddParamIgnoreCaseUpdate(Sender : TObject);
 begin
-	ButtonDown(soIgnoreCase, tbIgnoreCase);
+	ButtonDown(soMatchCase, tbIgnoreCase);
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionAddParamRegexExecute(Sender : TObject);
@@ -267,7 +271,7 @@ begin
 	try
 		if (mrOk = frm.ShowModal) then begin
 			cmbOptions.Text := TCommandLineBuilder.AddRemoveRgExeOptions(
-				{ } FRipGrepParameters.RgExeOptions, string.Join('|', RG_NECESSARY_PARAMS + [RG_PARAM_REGEX_IGNORE_CASE,
+				{ } FRipGrepParameters.RgExeOptions, string.Join('|', RG_NECESSARY_PARAMS + [RG_PARAM_REGEX_CASE_SENSITIVE,
 				RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_REGEX_GLOB, RG_PARAM_END]), True); // from options form
 		end;
 	finally
@@ -306,13 +310,22 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.LoadSettings;
+var
+	s : string;
 begin
 	SetComboItemsAndText(cmbSearchDir, RG_ARG_SEARCH_PATH, FSettings.SearchPathsHistory);
 	SetComboItemsAndText(cmbSearchText, RG_ARG_SEARCH_TEXT, FSettings.SearchTextsHistory);
 	SetComboItemsAndText(cmbOptions, RG_ARG_OPTIONS, FSettings.RipGrepOptionsHistory);
-	// SetComboItemsAndText(cmbFileMasks, RG_ARG_OPTIONS, FSettings.FileMasksHistory);
-
 	SetComboItemsFromOptions(cmbFileMasks, RG_PARAM_REGEX_GLOB, FSettings.FileMasksHistory);
+
+	ButtonDown(soMatchCase, tbIgnoreCase);
+	ButtonDown(soMatchWord, tbMatchWord);
+	if tbMatchWord.Down then begin
+		s := cmbSearchText.Text;
+		TCommandLineBuilder.RemoveWordBoundaries(s);
+		cmbSearchText.Text := s;
+	end;
+	ButtonDown(soUseRegex, tbUseRegex);
 end;
 
 procedure TRipGrepperSearchDialogForm.AddRemoveRgExeOptions(const _sParamRegex : string; const _bRemove : Boolean = False);
@@ -324,9 +337,9 @@ procedure TRipGrepperSearchDialogForm.ButtonDown(const _searchOption : EGuiSearc
 	const _bNotMatch : Boolean = False);
 begin
 	if (_bNotMatch) then begin
-		_tb.Down := not(_searchOption in FRipGrepParameters.GuiSetSearchParams.SearchOptions);
+		_tb.Down := not(_searchOption in FGuiSetSearchParams.SearchOptions);
 	end else begin
-		_tb.Down := _searchOption in FRipGrepParameters.GuiSetSearchParams.SearchOptions;
+		_tb.Down := _searchOption in FGuiSetSearchParams.SearchOptions;
 	end;
 end;
 
@@ -391,15 +404,15 @@ procedure TRipGrepperSearchDialogForm.SetCmbOptionText;
 begin
 	// Remove necessary options
 	cmbOptions.Text := TCommandLineBuilder.AddRemoveRgExeOptions(
-		{ } FRipGrepParameters.RgExeOptions, string.Join('|', RG_NECESSARY_PARAMS + [RG_PARAM_REGEX_IGNORE_CASE,
+		{ } FRipGrepParameters.RgExeOptions, string.Join('|', RG_NECESSARY_PARAMS + [RG_PARAM_REGEX_CASE_SENSITIVE,
 		RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_REGEX_GLOB, RG_PARAM_END]), True);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings);
 begin
 	_cmb.Items.Assign(_items);
-	if Assigned(FActualRipGrepParams) then begin
-		_cmb.Text := string.Join(' ', FActualRipGrepParams.GetValues(_argName));
+	if Assigned(FHistItemObj) then begin
+		_cmb.Text := string.Join(' ', FHistItemObj.RipGrepArguments.GetValues(_argName));
 	end else begin
 		_cmb.ItemIndex := 0;
 	end;
@@ -410,8 +423,8 @@ var
 	params : TArray<string>;
 begin
 	_cmb.Items.Assign(_items);
-	if Assigned(FActualRipGrepParams) then begin
-		params := FActualRipGrepParams.GetValues(RG_ARG_OPTIONS);
+	if Assigned(FHistItemObj) then begin
+		params := FHistItemObj.RipGrepArguments.GetValues(RG_ARG_OPTIONS);
 		_cmb.Text := TCommandLineBuilder.GetFileMasksDelimited(string.Join(' ', params));
 	end else begin
 		_cmb.ItemIndex := 0;
@@ -439,11 +452,11 @@ end;
 procedure TRipGrepperSearchDialogForm.SetOptionInGuiAndRgExeOptions(const _bIsOpOk : Boolean; const _searchOption : EGuiSearchOptions;
 	const _paramRegex : string = '');
 begin
-	if _bIsOpOk or FRipGrepParameters.GuiSetSearchParams.IsSet([_searchOption]) then begin
-		FRipGrepParameters.GuiSetSearchParams.ResetOption(_searchOption);
+	if _bIsOpOk or FGuiSetSearchParams.IsSet([_searchOption]) then begin
+		FGuiSetSearchParams.ResetOption(_searchOption);
 		RemoveRgExeOptionsText(_paramRegex);
 	end else begin
-		FRipGrepParameters.GuiSetSearchParams.SetOption(_searchOption);
+		FGuiSetSearchParams.SetOption(_searchOption);
 		AddRemoveRgExeOptions(_paramRegex);
 	end;
 
@@ -462,8 +475,9 @@ end;
 procedure TRipGrepperSearchDialogForm.WriteCtrlsToRipGrepParametersSettings;
 begin
 	FRipGrepParameters.SearchPath := cmbSearchDir.Text;
-	FRipGrepParameters.GuiSetSearchParams := TGuiSetSearchParams.New(cmbSearchText.Text, tbIgnoreCase.Down, tbMatchWord.Down,
-		tbUseRegex.Down);
+
+	FGuiSetSearchParams.SearchText := cmbSearchText.Text;
+
 	if Fsettings.RipGrepperSettings.ExpertMode then begin
 		WriteOptionCtrlToRipGrepParametersSetting;
 	end else begin
@@ -479,6 +493,7 @@ begin
 	FSettings.FileMasksHistory := cmbFileMasks.Items;
 
 	WriteCtrlsToRipGrepParametersSettings;
+	FRipGrepParameters.GuiSetSearchParams := FGuiSetSearchParams;
 
 	FSettings.RebuildArguments;
 	FSettings.Store
@@ -488,6 +503,8 @@ procedure TRipGrepperSearchDialogForm.UpdateCommandLine(const _bSkipReadCtrls : 
 begin
 	if not _bSkipReadCtrls then
 		WriteCtrlsToRipGrepParametersSettings;
+
+	FRipGrepParameters.GuiSetSearchParams := FGuiSetSearchParams;
 	FSettings.RebuildArguments();
 	memoCommandLine.Text := FRipGrepParameters.GetCommandLine();
 end;

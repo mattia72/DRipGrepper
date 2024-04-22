@@ -11,18 +11,19 @@ uses
 	RipGrepper.Helper.Types;
 
 type
-	EGuiSearchOptions = (soIgnoreCase, soMatchWord, soUseRegex);
+	EGuiSearchOptions = (soMatchCase, soMatchWord, soUseRegex);
 
 	TGuiSetSearchParams = record
-	public
-		SearchText : string;
-		EscapedSearchText : string;
-		SearchOptions : set of EGuiSearchOptions;
-		function IsSet(_options : TArray<EGuiSearchOptions>) : Boolean;
-		class function New(const _sText : string; const _bIC, _bMW, _bUR : Boolean) : TGuiSetSearchParams; static;
-		function SearchOptionsAsBitField : TBitField;
-		procedure SetOption(const _searchOption : EGuiSearchOptions);
-		procedure ResetOption(const _searchOption : EGuiSearchOptions);
+		public
+			SearchText : string;
+			EscapedSearchText : string;
+			SearchOptions : set of EGuiSearchOptions;
+			function IsSet(_options : TArray<EGuiSearchOptions>) : Boolean;
+			class function New(const _sText : string; const _bIC, _bMW, _bUR : Boolean) : TGuiSetSearchParams; static;
+			function SearchOptionsAsBitField : TBitField;
+			procedure SetOption(const _searchOption : EGuiSearchOptions);
+			procedure ResetOption(const _searchOption : EGuiSearchOptions);
+			function ToString : string;
 	end;
 
 	TRipGrepParameterSettings = class(TRipGrepperSettingsBase)
@@ -198,7 +199,7 @@ class function TGuiSetSearchParams.New(const _sText : string; const _bIC, _bMW, 
 begin
 	Result.SearchText := _sText;
 	if _bIC then
-		Include(Result.SearchOptions, soIgnoreCase);
+		Include(Result.SearchOptions, soMatchCase);
 	if _bMW then
 		Include(Result.SearchOptions, soMatchWord);
 	if _bUR then
@@ -207,7 +208,7 @@ end;
 
 function TGuiSetSearchParams.SearchOptionsAsBitField : TBitField;
 begin
-	for var i in [soIgnoreCase, soMatchWord, soUseRegex] do begin
+	for var i in [soMatchCase, soMatchWord, soUseRegex] do begin
 		if i in SearchOptions then begin
 			Result.SetBit(Integer(i));
 		end;
@@ -222,6 +223,27 @@ end;
 procedure TGuiSetSearchParams.ResetOption(const _searchOption : EGuiSearchOptions);
 begin
 	Exclude(SearchOptions, _searchOption);
+end;
+
+function TGuiSetSearchParams.ToString : string;
+var
+	arr : TArrayEx<string>;
+begin
+	Result := '';
+	for var i in [soMatchCase, soMatchWord, soUseRegex] do begin
+		if i in SearchOptions then begin
+			case i of
+				soMatchCase :
+				arr.Add('MatchCase');
+				soMatchWord :
+				arr.Add('soMatchWord');
+				soUseRegex :
+				arr.Add('soUseRegex');
+			end;
+		end;
+	end;
+
+	Result := string.Join(',', arr.Items);
 end;
 
 end.

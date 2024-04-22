@@ -10,7 +10,7 @@ uses
 	Vcl.ComCtrls,
 	System.Generics.Defaults,
 	System.Classes,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants, RipGrepper.Common.Settings.RipGrepParameterSettings;
 
 type
 	THistoryItemObject = class(TNoRefCountObject, IHistoryItem)
@@ -18,6 +18,7 @@ type
 			FElapsedTimeText : string;
 			FErrorCount : Integer;
 			FFileCount : integer;
+			FGuiSetSearchParams: TGuiSetSearchParams;
 			FMatches : TParsedObjectRowCollection;
 			FNoMatchFound: Boolean;
 			FParserType : TParserType;
@@ -36,8 +37,7 @@ type
 			procedure SetParserType(const Value : TParserType);
 
 		public
-			procedure CopyRipGrepArgsFromSettings(const _settings : TRipGrepperSettings);
-			procedure DataToGrid(_lv : TListView; _item : TListItem; const _index : Integer);
+			procedure LoadFromSettings(const _settings : TRipGrepperSettings);
 			destructor Destroy; override;
 			constructor Create;
 			procedure ClearMatches;
@@ -49,6 +49,7 @@ type
 			property TotalMatchCount : integer read GetTotalMatchCount;
 			property ErrorCount : Integer read GetErrorCount write FErrorCount;
 			property ElapsedTimeText : string read FElapsedTimeText write FElapsedTimeText;
+			property GuiSetSearchParams: TGuiSetSearchParams read FGuiSetSearchParams write FGuiSetSearchParams;
 			property NoMatchFound: Boolean read FNoMatchFound write FNoMatchFound;
 			property RipGrepResult : Integer read FRipGrepResult write FRipGrepResult;
 			property ParserType : TParserType read GetParserType write SetParserType;
@@ -61,35 +62,10 @@ uses
 
 	System.SysUtils, RipGrepper.Parsers.Factory, RipGrepper.Helper.Types;
 
-procedure THistoryItemObject.CopyRipGrepArgsFromSettings(const _settings : TRipGrepperSettings);
+procedure THistoryItemObject.LoadFromSettings(const _settings : TRipGrepperSettings);
 begin
 	RipGrepArguments.Assign(_settings.GetRipGrepArguments);
-end;
-
-procedure THistoryItemObject.DataToGrid(_lv : TListView; _item : TListItem; const _index : Integer);
-var
-	fn : string;
-begin
-	// (_index, _lv, _item);
-	var
-	matchItems := Matches.Items;
-	try
-		fn := matchItems[_index].Columns.Items[0].Text;
-		if matchItems[_index].IsError then begin
-			_item.Caption := ' ' + fn;
-			_item.ImageIndex := LV_IMG_IDX_ERROR;
-		end else begin
-			_item.Caption := fn;
-			_item.ImageIndex := LV_IMG_IDX_OK;
-		end;
-		_item.SubItems.Add(matchItems[_index].Columns.Items[1].Text);
-		_item.SubItems.Add(matchItems[_index].Columns.Items[2].Text);
-		_item.SubItems.Add(matchItems[_index].Columns.Items[3].Text);
-	finally
-		{$IFDEF THREADSAFE_LIST}
-		Matches.Unlock;
-		{$ENDIF}
-	end;
+	GuiSetSearchParams := _settings.RipGrepParameters.GuiSetSearchParams;
 end;
 
 function THistoryItemObject.GetFileCount : integer;
@@ -161,6 +137,7 @@ end;
 procedure THistoryItemObject.CopyToSettings(const _settings : TRipGrepperSettings);
 begin
 	_settings.RipGrepParameters.RipGrepArguments.Assign(RipGrepArguments);
+    _settings.RipGrepParameters.GuiSetSearchParams := GuiSetSearchParams;
 end;
 
 function THistoryItemObject.GetErrorCount : Integer;

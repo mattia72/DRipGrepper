@@ -116,7 +116,7 @@ uses
 	RipGrepper.Helper.UI,
 	RipGrepper.UI.SearchForm,
 	System.Math,
-	System.StrUtils;
+	System.StrUtils, RipGrepper.Common.Settings.RipGrepParameterSettings;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -293,14 +293,9 @@ end;
 
 procedure TRipGrepperTopFrame.ActionShowSearchFormExecute(Sender : TObject);
 var
-	args : TRipGrepArguments;
+	frm: TRipGrepperSearchDialogForm;
 begin
-	args := nil;
-	if Assigned(MainFrame.HistObject) then begin
-		args := MainFrame.HistObject.RipGrepArguments;
-	end;
-	var
-	frm := TRipGrepperSearchDialogForm.Create(self, Settings, args);
+	frm := TRipGrepperSearchDialogForm.Create(self, Settings, MainFrame.HistObject);
 	try
 		if (mrOk = frm.ShowModal) then begin
 			ActionSearchExecute(self);

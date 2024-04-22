@@ -513,6 +513,9 @@ end;
 
 procedure TRipGrepperMiddleFrame.ListBoxSearchHistoryClick(Sender : TObject);
 begin
+	if (CurrentHistoryItemIndex = ListBoxSearchHistory.ItemIndex) then
+		Exit;
+
 	CurrentHistoryItemIndex := ListBoxSearchHistory.ItemIndex;
 	UpdateHistObject;
 	TDebugUtils.DebugMessage('History clicked: ' + CurrentHistoryItemIndex.ToString);
@@ -520,6 +523,7 @@ begin
 	TDebugUtils.DebugMessage('History Matches: ' + HistObject.TotalMatchCount.ToString);
 	TDebugUtils.DebugMessage('History Files: ' + HistObject.FileCount.ToString);
 	TDebugUtils.DebugMessage('History Errors: ' + HistObject.ErrorCount.ToString);
+	TDebugUtils.DebugMessage('History Gui: ' + HistObject.GuiSetSearchParams.SearchText + ' ' + HistObject.GuiSetSearchParams.ToString);
 	SetResultListViewDataToHistoryObj();
 	ExpandNodes;
 	RefreshCountersInGUI;
@@ -738,7 +742,7 @@ end;
 procedure TRipGrepperMiddleFrame.UpdateArgumentsAndSettings;
 begin
 	if FHistObject.RipGrepArguments.Count = 0 then begin
-		FHistObject.CopyRipGrepArgsFromSettings(Settings);
+		FHistObject.LoadFromSettings(Settings);
 	end;
 end;
 
@@ -753,7 +757,7 @@ procedure TRipGrepperMiddleFrame.UpdateRipGrepArgumentsInHistObj;
 begin
 	FHistObject.RipGrepArguments.Clear;
 	Settings.RebuildArguments();
-	FHistObject.CopyRipGrepArgsFromSettings(Settings);
+	FHistObject.LoadFromSettings(Settings);
 end;
 
 procedure TRipGrepperMiddleFrame.VstResultBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
