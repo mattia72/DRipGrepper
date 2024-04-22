@@ -128,9 +128,9 @@ end;
 procedure TCommandLineBuilderTest.TestIsOptionSet(const _sOptions, _sParamRegex : string; _bNotSet : Boolean = False);
 begin
 	if _bNotSet then begin
-		Assert.IsFalse(TCommandLineBuilder.IsOptionSet(_sOptions, _sParamRegex), '''' + _sParamRegex + ''' should NOT be in the array');
+		Assert.IsFalse(TOptionsHelper.IsOptionSet(_sOptions, _sParamRegex), '''' + _sParamRegex + ''' should NOT be in the array');
 	end else begin
-		Assert.IsTrue(TCommandLineBuilder.IsOptionSet(_sOptions, _sParamRegex), '''' + _sParamRegex + ''' should be in the array');
+		Assert.IsTrue(TOptionsHelper.IsOptionSet(_sOptions, _sParamRegex), '''' + _sParamRegex + ''' should be in the array');
 	end;
 end;
 
@@ -174,10 +174,10 @@ end;
 procedure TCommandLineBuilderTest.TestIsOptionSetWithValue(const _sOptions, _sParamRegex, _sValue : string; const _bOk : integer);
 begin
 	if _bOk = 1 then begin
-		Assert.IsTrue(TCommandLineBuilder.IsOptionSet(_sOptions, _sParamRegex, _sValue),
+		Assert.IsTrue(TOptionsHelper.IsOptionSet(_sOptions, _sParamRegex, _sValue),
 			{ } '''' + _sParamRegex + '=' + _sValue + ''' should be in the array');
 	end else begin
-		Assert.IsFalse(TCommandLineBuilder.IsOptionSet(_sOptions, _sParamRegex, _sValue),
+		Assert.IsFalse(TOptionsHelper.IsOptionSet(_sOptions, _sParamRegex, _sValue),
 			{ } '''' + _sParamRegex + '=' + _sValue + ''' should NOT be in the array');
 	end;
 end;
@@ -238,7 +238,7 @@ var
 	arrOptions : TArrayEx<string>;
 begin
 	var
-	s := TCommandLineBuilder.AddRemoveRgExeOptions(_sOptions, _sRegex, _bRemove); // Remove
+	s := TOptionsHelper.AddRemoveRgExeOptions(_sOptions, _sRegex, _bRemove); // Remove
 	arrOptions := s.Split([' ']);
 	for s in arrOptions do begin
 		Assert.IsFalse(TRegEx.IsMatch(s, _sRegex), '''' + s + ''' should not bee in the options array');
@@ -250,7 +250,7 @@ var
 	arrOptions : TArrayEx<string>;
 begin
 	var
-	sArgs := TCommandLineBuilder.AddRemoveRgExeOptions(_sOptions, _sRegex, _bRemove); // Remove
+	sArgs := TOptionsHelper.AddRemoveRgExeOptions(_sOptions, _sRegex, _bRemove); // Remove
 	arrOptions := sArgs.Split([' '], TStringSplitOptions.ExcludeEmpty);
 	for var s in arrOptions do begin
 		Assert.IsTrue(TRegEx.IsMatch(s, '^-+\w+'), '''' + s + ''' invalid param (maybe a glob) should not bee in the options array');
