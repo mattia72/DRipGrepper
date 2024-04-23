@@ -25,6 +25,7 @@ type
 		class function IsOptionSet(const _sOptions, _sParamRegex : string; const _sParamValue : string = ''): Boolean; static;
 		class function IsOptionWithValue(const _sOption : string; const _sOptionRegEx : string = ''): Boolean; static;
 		class function IsSetOptionWithValue(const _sOptions, _sOption : string; const _sValue : string = ''): Boolean; static;
+		class function RemoveAllParams(const _sOptions, _argMaskRegex : string; const _bSwitch : Boolean = False): string; static;
 	end;
 
 	TCommandLineBuilder = class
@@ -45,7 +46,6 @@ type
 			class function IsWordBoundOnOneSide(const _s : string) : Boolean; static;
 			class function IsWordBoundOnBothSide(const _s : string) : Boolean; static;
 			class procedure RebuildArguments(var _params : TRipGrepParameterSettings); static;
-			class function RemoveAllParams(const _sOptions, _argMaskRegex : string; const _bSwitch : Boolean = False) : string; static;
 			class procedure RemoveWordBoundaries(var _s : string); static;
 			class function UpdateSearchTextAndRgExeOptions(var _params : TGuiSetSearchParams; var arrRgOptions : TArrayEx<string>)
 				: string; static;
@@ -190,21 +190,6 @@ begin
 	AddArgs(_params, RG_ARG_OPTIONS, arrRgOptions);
 	AddArgs(_params, RG_ARG_SEARCH_TEXT, [sSearchText]); // order is important!
 	AddArgs(_params, RG_ARG_SEARCH_PATH, _params.SearchPath.Split([';']), True { Quote if necessary } );
-end;
-
-class function TCommandLineBuilder.RemoveAllParams(const _sOptions, _argMaskRegex : string; const _bSwitch : Boolean = False) : string;
-var
-	arrOptions : TArrayEx<string>;
-	arrRemoveIdxs : TArrayEx<integer>;
-begin
-	arrOptions := _sOptions.Split([' ']);
-	for var i := 0 to arrOptions.MaxIndex do begin
-		if TRegEx.IsMatch(arrOptions[i], _argMaskRegex) then begin
-			arrRemoveIdxs.Add(i);
-		end;
-	end;
-	arrOptions.Delete(arrRemoveIdxs);
-	Result := string.Join(' ', arrOptions.Items);
 end;
 
 class function TCommandLineBuilder.RemoveFixedStringsParam(var arrRgOptions : TArrayEx<string>) : Boolean;
@@ -356,6 +341,21 @@ end;
 class function TOptionsHelper.IsSetOptionWithValue(const _sOptions, _sOption : string; const _sValue : string = ''): Boolean;
 begin
 	Result := TRegEx.IsMatch(_sOptions, GetBoundedParamWithValueRegex(_sOption, _sValue));
+end;
+
+class function TOptionsHelper.RemoveAllParams(const _sOptions, _argMaskRegex : string; const _bSwitch : Boolean = False): string;
+var
+	arrOptions : TArrayEx<string>;
+	arrRemoveIdxs : TArrayEx<integer>;
+begin
+	arrOptions := _sOptions.Split([' ']);
+	for var i := 0 to arrOptions.MaxIndex do begin
+		if TRegEx.IsMatch(arrOptions[i], _argMaskRegex) then begin
+			arrRemoveIdxs.Add(i);
+		end;
+	end;
+	arrOptions.Delete(arrRemoveIdxs);
+	Result := string.Join(' ', arrOptions.Items);
 end;
 
 class procedure TOptionsHelper.RemoveParamFromList(list : TStringList; const _paramRegex : string = '');

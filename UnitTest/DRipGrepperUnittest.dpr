@@ -30,7 +30,8 @@ uses
   ArrayEx in '..\external\ArrayEx.pas',
   RipGrepper.CommandLineBuilder.Test in 'RipGrepper.CommandLineBuilder.Test.pas',
   RipGrepper.Common.Settings.RipGrepParameterSettings in '..\src\RipGrepper.Common.Settings.RipGrepParameterSettings.pas',
-  RipGrepper.Common.CommandLineBuilder in '..\src\RipGrepper.Common.CommandLineBuilder.pas';
+  RipGrepper.Common.CommandLineBuilder in '..\src\RipGrepper.Common.CommandLineBuilder.pas',
+  RipGrepper.OptionsHelper.Test in 'RipGrepper.OptionsHelper.Test.pas';
 
 {$IFNDEF TESTINSIGHT}
 
