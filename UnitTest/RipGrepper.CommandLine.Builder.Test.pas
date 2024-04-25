@@ -1,4 +1,4 @@
-unit RipGrepper.CommandLineBuilder.Test;
+unit RipGrepper.CommandLine.Builder.Test;
 
 interface
 
@@ -6,7 +6,7 @@ uses
 	DUnitX.TestFramework,
 	System.Classes,
 	RipGrepper.Common.Constants,
-	RipGrepper.Common.CommandLineBuilder,
+	RipGrepper.CommandLine.Builder,
 	RipGrepper.Common.Settings.RipGrepParameterSettings,
 	System.IniFiles;
 
@@ -68,7 +68,7 @@ uses
 	RipGrepper.Common.Settings,
 	ArrayEx,
 	System.RegularExpressions,
-	System.Math;
+	System.Math, RipGrepper.Common.GuiSearchParams;
 
 procedure TCommandLineBuilderTest.Setup;
 begin
@@ -161,7 +161,7 @@ begin
 			'if MatchWord is not set, then search text should equal' + _sSearchText);
 	end;
 
-	if soMatchWord in FParams.GuiSetSearchParams.SearchOptions then begin
+	if EGuiOption.soMatchWord in FParams.GuiSetSearchParams.SearchOptions then begin
 		for var p in RG_PARAM_REGEX_FIXED_STRINGS.Split(['|']) do begin
 			Assert.IsFalse(FParams.RgExeOptions.Contains(p), p + ' mustn''t be contained between options')
 		end;
@@ -184,21 +184,21 @@ begin
 	FParams.GuiSetSearchParams := gsp;
 
 	arrRgOptions := FParams.RgExeOptions.Split([' ']);
-	sAct := TCommandLineBuilder.UpdateSearchTextAndRgExeOptions(gsp, arrRgOptions);
-
+	TCommandLineBuilder.UpdateSearchTextAndRgExeOptions(gsp, arrRgOptions);
+	sAct := gsp.SearchText;
 	if _bShouldBounded = 1 then begin
 		Assert.AreEqual(WB + _sSearchText + WB, sAct, 'the search text should surrounded: ' + sAct);
 	end else begin
 		Assert.AreEqual(_sSearchText, sAct, 'if MatchWord is not set, then search text should equal ' + sAct);
 	end;
 
-	if (_bShouldBounded = 1) and not(soUseRegex in gsp.SearchOptions) then begin
+	if (_bShouldBounded = 1) and not(EGuiOption.soUseRegex in gsp.SearchOptions) then begin
 		for p in RG_PARAM_REGEX_FIXED_STRINGS.Split(['|']) do begin
 			Assert.IsFalse(FParams.RgExeOptions.Contains(p), p + ' mustn''t be contained between options while searching ' + sAct)
 		end;
 	end;
 
-	if not(soUseRegex in gsp.SearchOptions) then begin
+	if not(EGuiOption.soUseRegex in gsp.SearchOptions) then begin
 		p := RG_PARAM_REGEX_FIXED_STRINGS.Split(['|'])[1];
 		Assert.IsTrue(FParams.RgExeOptions.Contains(p), p + ' should contained between options while searching ' + sAct)
 	end;
