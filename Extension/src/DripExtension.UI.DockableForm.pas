@@ -3,8 +3,6 @@ unit DripExtension.UI.DockableForm;
 interface
 
 uses
-	// GX_BaseForm,
-	//
 	Vcl.Forms,
 	Vcl.ActnList,
 	Vcl.ImgList,
@@ -146,7 +144,7 @@ uses
 
 procedure TRipGrepperDockableForm.CustomizePopupMenu(PopupMenu : TPopupMenu);
 begin
-
+    PopupMenu := ParentFrame.MainFrame.PopupMenu1;
 end;
 
 procedure TRipGrepperDockableForm.CustomizeToolBar(ToolBar : TToolBar);
@@ -163,6 +161,10 @@ procedure TRipGrepperDockableForm.FrameCreated(AFrame : TCustomFrame);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperDockableForm.FrameCreated');
 	ParentFrame.Init;
+	if (ParentFrame.Settings.RipGrepParameters.SearchPath.IsEmpty) then begin
+        ParentFrame.Settings.RipGrepParameters.SearchPath := GxOtaGetCurrentProjectFileName();
+    end;
+
 end;
 
 function TRipGrepperDockableForm.GetCaption : string;

@@ -180,7 +180,7 @@ uses
 	RipGrepper.Helper.UI,
 	Vcl.Menus,
 	System.RegularExpressions,
-	RipGrepper.Common.CommandLineBuilder;
+	RipGrepper.CommandLine.Builder;
 
 function TRipGrepperSettings.GetActualRipGrepParams : string;
 begin

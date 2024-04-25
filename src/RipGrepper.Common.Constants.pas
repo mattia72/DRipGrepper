@@ -134,6 +134,16 @@ type
 	TColumnIndex = (ciFile, ciRow, ciCol, ciText, ciMatchText, ciTextAfterMatch, ciRowNr);
 	TRipGrepArguments = TStringList;
 
+	{$SCOPEDENUMS ON}
+	EGuiOption = (soMatchCase = 0, soMatchWord = 1, soUseRegex = 2);
+	{$SCOPEDENUMS OFF}
+
+const
+	GUI_SEARCH_PARAMS : TArray<EGuiOption> = [
+	{ } EGuiOption.soMatchCase,
+	{ } EGuiOption.soMatchWord,
+	{ } EGuiOption.soUseRegex];
+
 implementation
 
 uses

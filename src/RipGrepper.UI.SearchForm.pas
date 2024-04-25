@@ -101,7 +101,7 @@ type
 			function GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
 			procedure LoadSettings;
 			procedure AddRemoveRgExeOptions(const _sParamRegex : string; const _bRemove : Boolean = False);
-			procedure ButtonDown(const _searchOption : EGuiSearchOptions; _tb : TToolButton; const _bNotMatch : Boolean = False); overload;
+			procedure ButtonDown(const _searchOption : EGuiOption; _tb : TToolButton; const _bNotMatch : Boolean = False); overload;
 			function GetFullHeight(_ctrl : TControl) : integer;
 			function IsOptionSet(const _sParamRegex : string; const _sParamValue : string = '') : Boolean;
 			procedure RemoveRgExeOptionsText(const _paramRegex : string);
@@ -109,10 +109,10 @@ type
 			procedure SetCmbOptionText;
 			procedure SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings);
 			procedure SetComboItemsFromOptions(_cmb : TComboBox; const _argMaskRegex : string; const _items : TStrings);
-			procedure SetOption(const _searchOption : EGuiSearchOptions; const _paramRegex : string = '');
-			procedure ResetOption(const _searchOption : EGuiSearchOptions; const _paramRegex : string = '');
-			procedure SetOptionInGuiAndRgExeOptions(const _bIsOpOk : Boolean; const _searchOption : EGuiSearchOptions;
-				const _paramRegex : string = '');
+			procedure SetOption(const _searchOption : EGuiOption; const _paramRegex : string = '');
+			procedure ResetOption(const _searchOption : EGuiOption; const _paramRegex : string = '');
+			procedure SetOptionInGuiAndRgExeOptions(const _searchOption : EGuiOption; const _paramRegex : string = '';
+				const _bReset : Boolean = False);
 			procedure StoreHistoriesAsCmbEntries;
 			procedure WriteCtrlsToRipGrepParametersSettings;
 			procedure StoreSearchSettings;
@@ -149,8 +149,8 @@ uses
 	System.RegularExpressions,
 	System.Math,
 	ArrayEx,
-	RipGrepper.Common.CommandLineBuilder,
-	Vcl.Clipbrd;
+	RipGrepper.CommandLine.Builder,
+	Vcl.Clipbrd, RipGrepper.CommandLine.OptionHelper;
 
 const
 	RIPGREPPER_SEARCH_FORM = 'RipGrepperSearchDialogForm';
@@ -178,32 +178,32 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ActionAddParamIgnoreCaseExecute(Sender : TObject);
 begin
-	SetOption(soMatchCase, RG_PARAM_REGEX_CASE_SENSITIVE);
+	SetOption(EGuiOption.soMatchCase, RG_PARAM_REGEX_CASE_SENSITIVE);
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionAddParamIgnoreCaseUpdate(Sender : TObject);
 begin
-	ButtonDown(soMatchCase, tbIgnoreCase);
+	ButtonDown(EGuiOption.soMatchCase, tbIgnoreCase);
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionAddParamRegexExecute(Sender : TObject);
 begin
-	ResetOption(soUseRegex, RG_PARAM_REGEX_FIXED_STRINGS);
+	ResetOption(EGuiOption.soUseRegex, RG_PARAM_REGEX_FIXED_STRINGS);
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionAddParamRegexUpdate(Sender : TObject);
 begin
-	ButtonDown(soUseRegex, tbUseRegex);
+	ButtonDown(EGuiOption.soUseRegex, tbUseRegex);
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionAddParamWordExecute(Sender : TObject);
 begin
-	SetOption(soMatchWord);
+	SetOption(EGuiOption.soMatchWord);
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionAddParamWordUpdate(Sender : TObject);
 begin
-	ButtonDown(soMatchWord, tbMatchWord);
+	ButtonDown(EGuiOption.soMatchWord, tbMatchWord);
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionCancelExecute(Sender : TObject);
@@ -318,14 +318,14 @@ begin
 	SetComboItemsAndText(cmbOptions, RG_ARG_OPTIONS, FSettings.RipGrepOptionsHistory);
 	SetComboItemsFromOptions(cmbFileMasks, RG_PARAM_REGEX_GLOB, FSettings.FileMasksHistory);
 
-	ButtonDown(soMatchCase, tbIgnoreCase);
-	ButtonDown(soMatchWord, tbMatchWord);
+	ButtonDown(EGuiOption.soMatchCase, tbIgnoreCase);
+	ButtonDown(EGuiOption.soMatchWord, tbMatchWord);
 	if tbMatchWord.Down then begin
 		s := cmbSearchText.Text;
 		TCommandLineBuilder.RemoveWordBoundaries(s);
 		cmbSearchText.Text := s;
 	end;
-	ButtonDown(soUseRegex, tbUseRegex);
+	ButtonDown(EGuiOption.soUseRegex, tbUseRegex);
 end;
 
 procedure TRipGrepperSearchDialogForm.AddRemoveRgExeOptions(const _sParamRegex : string; const _bRemove : Boolean = False);
@@ -333,7 +333,7 @@ begin
 	FRipGrepParameters.RgExeOptions := TOptionsHelper.AddRemoveRgExeOptions(FRipGrepParameters.RgExeOptions, _sParamRegex, _bRemove);
 end;
 
-procedure TRipGrepperSearchDialogForm.ButtonDown(const _searchOption : EGuiSearchOptions; _tb : TToolButton;
+procedure TRipGrepperSearchDialogForm.ButtonDown(const _searchOption : EGuiOption; _tb : TToolButton;
 	const _bNotMatch : Boolean = False);
 begin
 	if (_bNotMatch) then begin
@@ -431,30 +431,33 @@ begin
 	end;
 end;
 
-procedure TRipGrepperSearchDialogForm.SetOption(const _searchOption : EGuiSearchOptions; const _paramRegex : string = '');
+procedure TRipGrepperSearchDialogForm.SetOption(const _searchOption : EGuiOption; const _paramRegex : string = '');
 var
 	bIsOpSet : Boolean;
 begin
 	bIsOpSet := not _paramRegex.IsEmpty and IsOptionSet(_paramRegex);
+	if not bIsOpset then begin
+		SetOptionInGuiAndRgExeOptions(_searchOption, _paramRegex);
+	end;
 
-	SetOptionInGuiAndRgExeOptions(bIsOpSet, _searchOption, _paramRegex);
 end;
 
-procedure TRipGrepperSearchDialogForm.ResetOption(const _searchOption : EGuiSearchOptions; const _paramRegex : string = '');
+procedure TRipGrepperSearchDialogForm.ResetOption(const _searchOption : EGuiOption; const _paramRegex : string = '');
 var
 	bIsOpNotSet : Boolean;
 begin
 	bIsOpNotSet := not _paramRegex.IsEmpty and (not IsOptionSet(_paramRegex));
-
-	SetOptionInGuiAndRgExeOptions(bIsOpNotSet, _searchOption, _paramRegex);
+	if not bIsOpNotSet then begin
+		SetOptionInGuiAndRgExeOptions(_searchOption, _paramRegex, True);
+	end;
 end;
 
-procedure TRipGrepperSearchDialogForm.SetOptionInGuiAndRgExeOptions(const _bIsOpOk : Boolean; const _searchOption : EGuiSearchOptions;
-	const _paramRegex : string = '');
+procedure TRipGrepperSearchDialogForm.SetOptionInGuiAndRgExeOptions(const _searchOption : EGuiOption;
+	const _paramRegex : string = ''; const _bReset : Boolean = False);
 begin
 
-	FRipGrepParameters.RgExeOptions :=
-		TOptionsHelper.GetOptionsAndSetFlag(_bIsOpOk, _searchOption, _paramRegex, FRipGrepParameters.RgExeOptions, FGuiSetSearchParams);
+	FRipGrepParameters.RgExeOptions := TOptionsHelper.SetFlagAndOption(_searchOption, _paramRegex, FRipGrepParameters.RgExeOptions,
+		FGuiSetSearchParams, _bReset);
 
 	UpdateCommandLine(True); // RgExeOptions may changed
 	SetCmbOptionText;
@@ -547,7 +550,7 @@ begin
 	oldMaskOptions := TCommandLineBuilder.GetFileMaskParamsFromOptions(sOptions);
 	newMaskOptions := TCommandLineBuilder.GetFileMaskParamsFromDelimitedText(sMasks, ';');
 
-	Result := TCommandLineBuilder.RemoveAllParams(sOptions, RG_PARAM_REGEX_GLOB);
+	Result := TOptionsHelper.RemoveAllParams(sOptions, RG_PARAM_REGEX_GLOB);
 	Result := Result + ' ' + newMaskOptions.Trim([' ']);
 
 end;
