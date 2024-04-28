@@ -96,7 +96,7 @@ uses
 	// GX_OtaUtils,
 	RipGrepper.OpenWith.Runner,
 	RipGrepper.OpenWith.SimpleTypes,
-	RipGrepper.Tools.DebugTools;
+	RipGrepper.Tools.DebugUtils;
 
 {$R *.dfm}
 

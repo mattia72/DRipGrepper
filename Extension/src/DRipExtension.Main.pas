@@ -54,7 +54,7 @@ uses
 	System.IOUtils,
 	Vcl.Menus,
 	Vcl.Graphics,
-	RipGrepper.Tools.DebugTools,
+	RipGrepper.Tools.DebugUtils,
 	System.Classes;
 
 var

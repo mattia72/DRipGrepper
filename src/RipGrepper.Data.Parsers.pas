@@ -55,7 +55,7 @@ implementation
 
 uses
 	System.IOUtils,
-	RipGrepper.Tools.DebugTools,
+	RipGrepper.Tools.DebugUtils,
 	System.Classes,
 	System.SysUtils;
 

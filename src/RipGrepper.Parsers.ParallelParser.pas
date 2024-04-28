@@ -37,7 +37,7 @@ implementation
 uses
 	RipGrepper.Common.Interfaces,
 	RipGrepper.Common.ParsedObject,
-	RipGrepper.Tools.DebugTools,
+	RipGrepper.Tools.DebugUtils,
 	System.SysUtils,
 	RipGrepper.Parsers.Factory,
 	RipGrepper.Helper.Types,

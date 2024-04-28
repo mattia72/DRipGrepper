@@ -83,7 +83,7 @@ uses
 	System.IOUtils,
 	System.SysUtils,
 	System.Types,
-	RipGrepper.Tools.DebugTools,
+	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.FileUtils,
 	RipGrepper.Helper.Types,

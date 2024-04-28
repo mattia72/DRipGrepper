@@ -42,7 +42,7 @@ type
 implementation
 
 uses
-	RipGrepper.Tools.DebugTools,
+	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Common.Constants,
 	System.SysUtils,
 	System.IOUtils,

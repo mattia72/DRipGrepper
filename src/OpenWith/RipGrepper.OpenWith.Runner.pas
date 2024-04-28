@@ -11,13 +11,13 @@ type
 	TOpenWithRunner = class
 
 		private
-			class function BuildParams(const _owp: TOpenWithParams; const _sParams: string): string;
+			class function BuildParams(const _owp : TOpenWithParams; const _sParams : string) : string;
 			class function GetEditPosition : IOTAEditPosition;
 			class function GetParamsFromDelphiIde : TOpenWithParams;
 			class function GetErrorText(dwErrorCode : DWORD) : string;
 
 		public
-			class procedure RunEditorCommand(const _sEditorCmd: string; const _owp: TOpenWithParams);
+			class procedure RunEditorCommand(const _sEditorCmd : string; const _owp : TOpenWithParams);
 	end;
 
 implementation
@@ -28,9 +28,10 @@ uses
 	System.SysUtils,
 	Winapi.ShellAPI,
 	Vcl.Dialogs,
-	RipGrepper.Common.Constants, RipGrepper.Tools.DebugTools;
+	RipGrepper.Common.Constants,
+	RipGrepper.Tools.DebugUtils;
 
-class function TOpenWithRunner.BuildParams(const _owp: TOpenWithParams; const _sParams: string): string;
+class function TOpenWithRunner.BuildParams(const _owp : TOpenWithParams; const _sParams : string) : string;
 var
 	sCmdParams : string;
 	owp : TOpenWithParams;
@@ -97,7 +98,7 @@ begin
 	end;
 end;
 
-class procedure TOpenWithRunner.RunEditorCommand(const _sEditorCmd: string; const _owp: TOpenWithParams);
+class procedure TOpenWithRunner.RunEditorCommand(const _sEditorCmd : string; const _owp : TOpenWithParams);
 var
 	iPos : Integer;
 	err : DWORD;

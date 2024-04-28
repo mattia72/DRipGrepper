@@ -57,7 +57,7 @@ implementation
 uses
 
 	System.SysUtils,
-	RipGrepper.Tools.DebugTools,
+	RipGrepper.Tools.DebugUtils,
 	Winapi.Windows,
 	Winapi.ShellAPI,
 	System.Threading,

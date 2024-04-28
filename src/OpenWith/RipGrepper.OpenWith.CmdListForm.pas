@@ -78,7 +78,7 @@ uses
 	RipGrepper.OpenWith.ConfigForm,
 	System.Math,
 	RipGrepper.OpenWith.SimpleTypes,
-	RipGrepper.Tools.DebugTools,
+	RipGrepper.Tools.DebugUtils,
 	u_dzVclUtils;
 
 {$R *.dfm}

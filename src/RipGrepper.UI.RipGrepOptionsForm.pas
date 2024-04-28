@@ -89,7 +89,7 @@ uses
 	RipGrepper.Common.Constants,
 	Winapi.CommCtrl,
 	RipGrepper.Helper.UI,
-	RipGrepper.Tools.DebugTools,
+	RipGrepper.Tools.DebugUtils,
 	Winapi.UxTheme,
 	System.Math;
 

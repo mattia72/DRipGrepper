@@ -49,7 +49,7 @@ var
 implementation
 
 uses
-	RipGrepper.Tools.DebugTools,
+	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Common.Constants,
 	System.StrUtils,
 	Vcl.StdCtrls,

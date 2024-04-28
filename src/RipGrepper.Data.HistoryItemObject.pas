@@ -10,7 +10,8 @@ uses
 	Vcl.ComCtrls,
 	System.Generics.Defaults,
 	System.Classes,
-	RipGrepper.Common.Constants, RipGrepper.Common.Settings.RipGrepParameterSettings;
+	RipGrepper.Common.Constants,
+	RipGrepper.Common.GuiSearchParams;
 
 type
 	THistoryItemObject = class(TNoRefCountObject, IHistoryItem)
@@ -18,9 +19,9 @@ type
 			FElapsedTimeText : string;
 			FErrorCount : Integer;
 			FFileCount : integer;
-			FGuiSetSearchParams: TGuiSetSearchParams;
+			FGuiSetSearchParams : TGuiSetSearchParams;
 			FMatches : TParsedObjectRowCollection;
-			FNoMatchFound: Boolean;
+			FNoMatchFound : Boolean;
 			FParserType : TParserType;
 			FRipGrepArguments : TRipGrepArguments;
 			FRipGrepResult : Integer;
@@ -42,15 +43,15 @@ type
 			constructor Create;
 			procedure ClearMatches;
 			procedure CopyToSettings(const _settings : TRipGrepperSettings);
-			function UpdateParserType: TParserType;
+			function UpdateParserType : TParserType;
 			property FileCount : integer read GetFileCount write SetFileCount;
 			property Matches : TParsedObjectRowCollection read GetMatches write SetMatches;
 			property RipGrepArguments : TRipGrepArguments read GetRipGrepArguments write SetRipGrepArguments;
 			property TotalMatchCount : integer read GetTotalMatchCount;
 			property ErrorCount : Integer read GetErrorCount write FErrorCount;
 			property ElapsedTimeText : string read FElapsedTimeText write FElapsedTimeText;
-			property GuiSetSearchParams: TGuiSetSearchParams read FGuiSetSearchParams write FGuiSetSearchParams;
-			property NoMatchFound: Boolean read FNoMatchFound write FNoMatchFound;
+			property GuiSetSearchParams : TGuiSetSearchParams read FGuiSetSearchParams write FGuiSetSearchParams;
+			property NoMatchFound : Boolean read FNoMatchFound write FNoMatchFound;
 			property RipGrepResult : Integer read FRipGrepResult write FRipGrepResult;
 			property ParserType : TParserType read GetParserType write SetParserType;
 
@@ -60,7 +61,9 @@ implementation
 
 uses
 
-	System.SysUtils, RipGrepper.Parsers.Factory, RipGrepper.Helper.Types;
+	System.SysUtils,
+	RipGrepper.Parsers.Factory,
+	RipGrepper.Helper.Types;
 
 procedure THistoryItemObject.LoadFromSettings(const _settings : TRipGrepperSettings);
 begin
@@ -127,7 +130,7 @@ begin
 	FFileCount := 0;
 	FTotalMatchCount := 0;
 	FErrorCount := 0;
-    FNoMatchFound := False;
+	FNoMatchFound := False;
 	FMatches.Items.Clear;
 	{$IFDEF THREADSAFE_LIST}
 	FMatches.Unlock;
@@ -137,7 +140,7 @@ end;
 procedure THistoryItemObject.CopyToSettings(const _settings : TRipGrepperSettings);
 begin
 	_settings.RipGrepParameters.RipGrepArguments.Assign(RipGrepArguments);
-    _settings.RipGrepParameters.GuiSetSearchParams := GuiSetSearchParams;
+	_settings.RipGrepParameters.GuiSetSearchParams := GuiSetSearchParams;
 end;
 
 function THistoryItemObject.GetErrorCount : Integer;
@@ -148,8 +151,8 @@ end;
 function THistoryItemObject.GetParserType : TParserType;
 begin
 	if FParserType = ptEmpty then begin
-        UpdateParserType();
-    end;
+		UpdateParserType();
+	end;
 	Result := FParserType;
 end;
 
@@ -158,10 +161,9 @@ begin
 	FParserType := Value;
 end;
 
-function THistoryItemObject.UpdateParserType: TParserType;
+function THistoryItemObject.UpdateParserType : TParserType;
 begin
-	FParserType := TRipGrepperParsersFactory.TryGetParserType(
-		TArrayEx<string>.Create(RipGrepArguments.GetValues()));
+	FParserType := TRipGrepperParsersFactory.TryGetParserType(TArrayEx<string>.Create(RipGrepArguments.GetValues()));
 	Result := FParserType;
 end;
 

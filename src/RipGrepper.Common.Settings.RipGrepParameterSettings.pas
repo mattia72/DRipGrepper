@@ -3,27 +3,16 @@ unit RipGrepper.Common.Settings.RipGrepParameterSettings;
 interface
 
 uses
-	RipGrepper.Common.Settings.Base,
 	System.Classes,
 	System.IniFiles,
-	RipGrepper.Common.Constants,
 	ArrayEx,
-	RipGrepper.Helper.Types, System.Generics.Collections;
+	RipGrepper.Common.Constants,
+	RipGrepper.Common.Settings.Base,
+	RipGrepper.Common.GuiSearchParams,
+	RipGrepper.Helper.Types,
+	System.Generics.Collections;
 
 type
-
-	TGuiSetSearchParams = record
-		public
-			SearchText : string;
-			EscapedSearchText : string;
-			SearchOptions : set of EGuiOption;
-			function IsSet(_options : TArray<EGuiOption>) : Boolean;
-			class function New(const _sText : string; const _bIC, _bMW, _bUR : Boolean) : TGuiSetSearchParams; static;
-			function SearchOptionsAsBitField : TBitField;
-			procedure SetOption(const _searchOption : EGuiOption);
-			procedure ResetOption(const _searchOption : EGuiOption);
-			function ToString : string;
-	end;
 
 	TRipGrepParameterSettings = class(TRipGrepperSettingsBase)
 		const
@@ -181,68 +170,6 @@ end;
 procedure TRipGrepParameterSettings.Store;
 begin
 	StoreSetting(RG_INI_KEY_RGPATH, RipGrepPath);
-end;
-
-function TGuiSetSearchParams.IsSet(_options : TArray<EGuiOption>) : Boolean;
-begin
-	Result := True;
-	for var o in _options do begin
-		if not(o in SearchOptions) then begin
-			Result := False;
-			break
-		end;
-	end;
-end;
-
-class function TGuiSetSearchParams.New(const _sText : string; const _bIC, _bMW, _bUR : Boolean) : TGuiSetSearchParams;
-begin
-	Result.SearchText := _sText;
-	if _bIC then
-		Include(Result.SearchOptions, EGuiOption.soMatchCase);
-	if _bMW then
-		Include(Result.SearchOptions, EGuiOption.soMatchWord);
-	if _bUR then
-		Include(Result.SearchOptions, EGuiOption.soUseRegex);
-end;
-
-function TGuiSetSearchParams.SearchOptionsAsBitField : TBitField;
-begin
-	for var i in GUI_SEARCH_PARAMS do begin
-		if i in SearchOptions then begin
-			Result.SetBit(Integer(i));
-		end;
-	end;
-end;
-
-procedure TGuiSetSearchParams.SetOption(const _searchOption : EGuiOption);
-begin
-	Include(SearchOptions, _searchOption);
-end;
-
-procedure TGuiSetSearchParams.ResetOption(const _searchOption : EGuiOption);
-begin
-	Exclude(SearchOptions, _searchOption);
-end;
-
-function TGuiSetSearchParams.ToString : string;
-var
-	arr : TArrayEx<string>;
-begin
-	Result := '';
-	for var i in GUI_SEARCH_PARAMS do begin
-		if i in SearchOptions then begin
-			case i of
-				EGuiOption.soMatchCase :
-				arr.Add('MatchCase');
-				EGuiOption.soMatchWord :
-				arr.Add('soMatchWord');
-				EGuiOption.soUseRegex :
-				arr.Add('soUseRegex');
-			end;
-		end;
-	end;
-
-	Result := string.Join(',', arr.Items);
 end;
 
 end.

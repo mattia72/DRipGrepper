@@ -23,7 +23,7 @@ uses
 
 	Winapi.ShellAPI,
 	Winapi.Windows,
-	RipGrepper.Tools.DebugTools,
+	RipGrepper.Tools.DebugUtils,
 	System.IOUtils,
 	RipGrepper.Common.Constants;
 

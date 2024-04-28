@@ -44,9 +44,10 @@ type
 			procedure Init; virtual;
 			procedure Load; virtual;
 			procedure StoreSetting(const _name : string; const _v : Variant);
-			function LoadSetting(const _name: string): Variant;
-			function LoadDefaultSetting(const _name: string): Variant;
+			function LoadSetting(const _name : string) : Variant;
+			function LoadDefaultSetting(const _name : string) : Variant;
 			procedure Store; virtual;
+
 		public
 			constructor Create(const _ini : TIniFile);
 			destructor Destroy; override;
@@ -59,7 +60,8 @@ type
 implementation
 
 uses
-	System.Classes, RipGrepper.Tools.DebugTools;
+	System.Classes,
+	RipGrepper.Tools.DebugUtils;
 
 constructor TRipGrepperSettingsBase.Create(const _ini : TIniFile);
 begin
@@ -151,7 +153,7 @@ begin
 				vtInteger :
 				FIniFile.WriteInteger(GetIniSectionName, key, setting.Value);
 			end;
-			TDebugUtils.DebugMessage(key + ' stored');
+			TDebugUtils.DebugMessage('TRipGrepperSettingsBase.Store: ' + key + ' stored');
 		end;
 	end;
 end;
@@ -167,15 +169,15 @@ begin
 	end;
 end;
 
-function TRipGrepperSettingsBase.LoadSetting(const _name: string): Variant;
+function TRipGrepperSettingsBase.LoadSetting(const _name : string) : Variant;
 var
 	setting : TRipGrepperSetting;
 begin
 	setting := FSettings[_name];
-    Result := setting.Value;
+	Result := setting.Value;
 end;
 
-function TRipGrepperSettingsBase.LoadDefaultSetting(const _name: string): Variant;
+function TRipGrepperSettingsBase.LoadDefaultSetting(const _name : string) : Variant;
 var
 	setting : TRipGrepperSetting;
 begin

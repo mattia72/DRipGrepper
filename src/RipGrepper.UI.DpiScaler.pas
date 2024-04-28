@@ -43,7 +43,7 @@ implementation
 
 uses
     System.SysUtils,
-	RipGrepper.Tools.DebugTools,
+	RipGrepper.Tools.DebugUtils,
 	Vcl.StdCtrls,
 	u_dzVclUtils,
 	Vcl.ComCtrls;

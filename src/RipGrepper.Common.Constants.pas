@@ -56,7 +56,7 @@ const
 	LV_IMG_IDX_ERROR = 1;
 	LV_IMG_IDX_INFO = 2;
 
-	GROUPBOX_EXPERT_HEIGHT = 180;
+	GROUPBOX_EXPERT_HEIGHT = 240;
 
 	DT_ALIGN : array [TAlignment] of TTextFormats = (
 		{ } tfLeft,
@@ -135,7 +135,7 @@ type
 	TRipGrepArguments = TStringList;
 
 	{$SCOPEDENUMS ON}
-	EGuiOption = (soMatchCase = 0, soMatchWord = 1, soUseRegex = 2);
+	EGuiOption = (soNotSet = 0, soMatchCase = 1, soMatchWord = 2, soUseRegex = 3);
 	{$SCOPEDENUMS OFF}
 
 const

@@ -63,7 +63,7 @@ uses
 	System.SysUtils,
 	System.IOUtils,
 	Vcl.Dialogs,
-	RipGrepper.Tools.DebugTools,
+	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Helper.Types,
 	RipGrepper.Common.Constants;
 

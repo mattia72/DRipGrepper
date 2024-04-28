@@ -28,7 +28,7 @@ uses
 	RipGrepper.OpenWith.Runner,
 	RipGrepper.OpenWith.CmdListForm,
 	RipGrepper.Common.Settings,
-	RipGrepper.Tools.DebugTools;
+	RipGrepper.Tools.DebugUtils;
 
 class function TOpenWith.GetSelectedCmd(_owpTestFile : TOpenWithParams) : string;
 begin

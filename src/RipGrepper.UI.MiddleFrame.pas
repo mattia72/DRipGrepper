@@ -179,7 +179,7 @@ uses
 	RipGrepper.UI.ParentFrame,
 	RipGrepper.OpenWith,
 	System.StrUtils,
-	RipGrepper.Tools.DebugTools,
+	RipGrepper.Tools.DebugUtils,
 
 	System.IOUtils,
 	Vcl.Clipbrd,
@@ -273,20 +273,20 @@ procedure TRipGrepperMiddleFrame.AddOrUpdateHistoryItem;
 var
 	hi : THistoryItemObject;
 begin
-	TDebugUtils.DebugMessage('ActualSearchText: ' + Settings.ActualSearchText);
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.AddOrUpdateHistoryItem ActualSearchText: ' + Settings.ActualSearchText);
 	CurrentHistoryItemIndex := HistoryObjectList.IndexOf(Settings.ActualSearchText);
-	TDebugUtils.DebugMessage('CurrentHistoryItemIndex ' + CurrentHistoryItemIndex.ToString);
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.AddOrUpdateHistoryItem CurrentHistoryItemIndex ' + CurrentHistoryItemIndex.ToString);
 	if CurrentHistoryItemIndex = -1 then begin
 		hi := THistoryItemObject.Create();
 		HistObject := hi;
 		ChangeDataHistItemObject(hi);
-		TDebugUtils.DebugMessage('Add HistoryObject ' + Settings.ActualSearchText);
+		TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.AddOrUpdateHistoryItem Add HistoryObject ' + Settings.ActualSearchText);
 		CurrentHistoryItemIndex := HistoryObjectList.AddObject(Settings.ActualSearchText, hi);
 	end else begin
 		UpdateRipGrepArgumentsInHistObj;
 		UpdateHistObject;
 		ClearHistoryObject();
-		TDebugUtils.DebugMessage('Update HistoryObject ' + Settings.ActualSearchText);
+		TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.AddOrUpdateHistoryItem Update HistoryObject ' + Settings.ActualSearchText);
 	end;
 	ListBoxSearchHistory.Count := HistoryObjectList.Count;
 end;
@@ -518,12 +518,12 @@ begin
 
 	CurrentHistoryItemIndex := ListBoxSearchHistory.ItemIndex;
 	UpdateHistObject;
-	TDebugUtils.DebugMessage('History clicked: ' + CurrentHistoryItemIndex.ToString);
-	TDebugUtils.DebugMessage('History Object: ' + HistObject.RipGrepArguments.DelimitedText);
-	TDebugUtils.DebugMessage('History Matches: ' + HistObject.TotalMatchCount.ToString);
-	TDebugUtils.DebugMessage('History Files: ' + HistObject.FileCount.ToString);
-	TDebugUtils.DebugMessage('History Errors: ' + HistObject.ErrorCount.ToString);
-	TDebugUtils.DebugMessage('History Gui: ' + HistObject.GuiSetSearchParams.SearchText + ' ' + HistObject.GuiSetSearchParams.ToString);
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History clicked: ' + CurrentHistoryItemIndex.ToString);
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History Object: ' + HistObject.RipGrepArguments.DelimitedText);
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History Matches: ' + HistObject.TotalMatchCount.ToString);
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History Files: ' + HistObject.FileCount.ToString);
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History Errors: ' + HistObject.ErrorCount.ToString);
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History Gui: ' + HistObject.GuiSetSearchParams.SearchText + ' ' + HistObject.GuiSetSearchParams.ToString);
 	SetResultListViewDataToHistoryObj();
 	ExpandNodes;
 	RefreshCountersInGUI;
@@ -582,7 +582,7 @@ begin
 		ActionOpenWithExecute(Sender);
 	end else begin
 		owp := GetOpenWithParamsFromSelected();
-		TDebugUtils.DebugMessage(Format('%s(%d, %d)', [owp.FileName, owp.Row, owp.Column]));
+		TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.ListViewResultDblClick: %s(%d, %d)', [owp.FileName, owp.Row, owp.Column]));
 		GxOtaGoToFileLineColumn(owp.FileName, owp.Row, owp.Column, owp.Column - 1);
 	end;
 end;
@@ -594,13 +594,13 @@ end;
 
 procedure TRipGrepperMiddleFrame.OnEOFProcess;
 begin
-	TDebugUtils.DebugMessage(Format('End of processing rg.exe output in %s sec.', [GetElapsedTime(FswSearchStart)]));
+	TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.OnEOFProcess: End of processing rg.exe output in %s sec.', [GetElapsedTime(FswSearchStart)]));
 end;
 
 procedure TRipGrepperMiddleFrame.OnLastLine(const _iLineNr : integer);
 begin
 	// ListViewResult.AdjustColumnWidths(MaxWidths);
-	TDebugUtils.DebugMessage(Format('Last line (%d.) received in %s sec.', [_iLineNr, GetElapsedTime(FswSearchStart)]));
+	TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.OnLastLine: Last line (%d.) received in %s sec.', [_iLineNr, GetElapsedTime(FswSearchStart)]));
 
 	TThread.Synchronize(nil,
 		procedure
@@ -686,7 +686,7 @@ begin
 		procedure()
 		begin
 			workDir := TDirectory.GetCurrentDirectory();
-			TDebugUtils.DebugMessage('run: ' + Settings.RipGrepParameters.RipGrepPath + ' '
+			TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.RunRipGrep: run: ' + Settings.RipGrepParameters.RipGrepPath + ' '
 				{ } + Settings.RipGrepParameters.RipGrepArguments.DelimitedText);
 			FswSearchStart := TStopwatch.StartNew;
 			args := TStringList.Create;
@@ -704,7 +704,7 @@ begin
 			FHistObject.ElapsedTimeText := GetElapsedTime(FswSearchStart);
 			ParentFrame.SetStatusBarMessage(True);
 			FswSearchStart.Stop;
-			TDebugUtils.DebugMessage(Format('rg.exe ended in %s sec.', [FHistObject.ElapsedTimeText]));
+			TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.RunRipGrep: rg.exe ended in %s sec.', [FHistObject.ElapsedTimeText]));
 		end);
 	FRipGrepTask.Start;
 	BottomFrame.SetRunningStatus();
