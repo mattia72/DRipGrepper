@@ -3,11 +3,19 @@ unit RipGrepper.CommandLine.OptionHelper;
 interface
 
 uses
-	RipGrepper.Common.Settings.RipGrepParameterSettings,
+	RipGrepper.Common.GuiSearchParams,
 	System.Classes,
 	RipGrepper.Common.Constants;
 
 type
+
+	TParamRegexHelper = class
+
+		public
+			class function GetLongParam(const _paramRegex : string) : string;
+			class function GetShortParam(const _paramRegex : string): string;
+	end;
+
 	TOptionsHelper = class
 
 		private
@@ -37,8 +45,10 @@ type
 implementation
 
 uses
-  ArrayEx,
-  RipGrepper.Helper.Types, System.SysUtils, System.RegularExpressions;
+	ArrayEx,
+	RipGrepper.Helper.Types,
+	System.SysUtils,
+	System.RegularExpressions;
 
 class procedure TOptionsHelper.AddParamToList(list : TStringList; const _paramRegex : string = '');
 var
@@ -213,6 +223,22 @@ begin
 	end else begin
 		_guiParams.SetOption(_eQueryOption);
 		Result := TOptionsHelper.AddRemoveRgExeOptions(_sRGExeOptions, _sParamRegex, True);
+	end;
+end;
+
+class function TParamRegexHelper.GetLongParam(const _paramRegex : string) : string;
+begin
+	Result := '';
+	if not _paramRegex.IsEmpty then begin
+		 Result := _paramRegex.Split(['|'])[1];
+    end;
+end;
+
+class function TParamRegexHelper.GetShortParam(const _paramRegex : string): string;
+begin
+	Result := '';
+	if not _paramRegex.IsEmpty then begin
+		 Result := _paramRegex.Split(['|'])[0];
 	end;
 end;
 
