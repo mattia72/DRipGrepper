@@ -79,6 +79,7 @@ end;
 
 class function TGuiSetSearchParams.New(const _sText : string; const _bIC, _bMW, _bUR : Boolean) : TGuiSetSearchParams;
 begin
+	Result.Clear();
 	Result.SearchText := _sText;
 	if _bIC then
 		Include(Result.SearchOptions, EGuiOption.soMatchCase);
@@ -122,7 +123,7 @@ begin
 	SearchText := '';
 	FEscapedSearchText := '';
 	FIsRgExeOptionSet := False;
-	SearchOptions := [];
+	SearchOptions := [EGuiOption.soNotSet];
 end;
 
 function TGuiSetSearchParams.GetEscapedSearchText : string;

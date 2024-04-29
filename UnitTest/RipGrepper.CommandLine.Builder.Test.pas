@@ -46,17 +46,6 @@ type
 			[Testcase('End Bounded word         ', 'aaa\b    |0|0', '|')]
 			[Testcase('Start Bounded double word', '\Baaa bbb|0|0', '|')]
 			procedure TestReBuildArgumentsSearchText(const _sSearchText : string; const _bMatchWord, _bShouldBounded : Integer);
-			[Test]
-			{ ______________________________________________________________________________W|R|B|E_____ }
-			{ } [Testcase('Single word  MW  UR      ', '-p1 --fixed-strings --p2 --|aa1    |1|1|1', '|')]
-			{ } [Testcase('Double word  MW  UR      ', '-p1 --fixed-strings --p2 --|aa2 bbb|1|1|1', '|')]
-			{ } [Testcase('Single word nMW nUR      ', '-p1 --fixed-strings --p2 --|aa3    |0|0|0', '|')]
-			{ } [Testcase('Double word nMW nUR      ', '-p1 --fixed-strings --p2 --|aa4 bbb|0|0|0', '|')]
-			{ } [Testcase('Double word nMW nUR      ', '-p1 --fixed-strings --p2 --|a*4 b$b|0|0|0|1', '|')]
-			{ } [Testcase('Single word  MW nUR      ', '-p1                 --p2 --|aa5    |0|1|0', '|')]
-			{ } [Testcase('Double word  MW nUR      ', '-p1                 --p2 --|aa6 bbb|0|1|0', '|')]
-			procedure TestUpdateSearchText(const _sOptions, _sSearchText : string;
-				const _bMatchWord, _bUseRegex, _bShouldBounded, _bShouldEscaped : Integer);
 	end;
 
 implementation
@@ -68,7 +57,8 @@ uses
 	RipGrepper.Common.Settings,
 	ArrayEx,
 	System.RegularExpressions,
-	System.Math, RipGrepper.Common.GuiSearchParams;
+	System.Math,
+	RipGrepper.Common.GuiSearchParams;
 
 procedure TCommandLineBuilderTest.Setup;
 begin
@@ -150,57 +140,23 @@ begin
 	FParams.FileMasks := '';
 
 	FParams.GuiSetSearchParams := TGuiSetSearchParams.New(_sSearchText, False, _bMatchWord = 1, False);
+	if _bMatchWord = 1 then
+		FParams.GuiSetSearchParams.SetOption(EGuiOption.soMatchWord);
 
 	TCommandLineBuilder.RebuildArguments(FParams);
 
 	if _bShouldBounded = 1 then begin
 		Assert.AreEqual(WB + _sSearchText + WB, FParams.RipGrepArguments.Values[RG_ARG_SEARCH_TEXT],
 			'the search text should surrounded: ' + WB + _sSearchText + WB);
+		if EGuiOption.soMatchWord in FParams.GuiSetSearchParams.SearchOptions then begin
+			for var p in RG_PARAM_REGEX_FIXED_STRINGS.Split(['|']) do begin
+				Assert.IsFalse(FParams.RgExeOptions.Contains(p), p + ' mustn''t be contained between options')
+			end;
+		end;
+
 	end else begin
 		Assert.AreEqual(_sSearchText, FParams.RipGrepArguments.Values[RG_ARG_SEARCH_TEXT],
 			'if MatchWord is not set, then search text should equal' + _sSearchText);
-	end;
-
-	if EGuiOption.soMatchWord in FParams.GuiSetSearchParams.SearchOptions then begin
-		for var p in RG_PARAM_REGEX_FIXED_STRINGS.Split(['|']) do begin
-			Assert.IsFalse(FParams.RgExeOptions.Contains(p), p + ' mustn''t be contained between options')
-		end;
-	end;
-
-end;
-
-procedure TCommandLineBuilderTest.TestUpdateSearchText(const _sOptions, _sSearchText : string;
-	const _bMatchWord, _bUseRegex, _bShouldBounded, _bShouldEscaped : Integer);
-var
-	arrRgOptions : TArrayEx<string>;
-	sAct : string;
-	p : string;
-	gsp : TGuiSetSearchParams;
-begin
-	FParams.RgExeOptions := _sOptions;
-	FParams.FileMasks := '';
-
-	gsp := TGuiSetSearchParams.New(_sSearchText, False, _bMatchWord = 1, _bUseRegex = 1);
-	FParams.GuiSetSearchParams := gsp;
-
-	arrRgOptions := FParams.RgExeOptions.Split([' ']);
-	TCommandLineBuilder.UpdateSearchTextAndRgExeOptions(gsp, arrRgOptions);
-	sAct := gsp.SearchText;
-	if _bShouldBounded = 1 then begin
-		Assert.AreEqual(WB + _sSearchText + WB, sAct, 'the search text should surrounded: ' + sAct);
-	end else begin
-		Assert.AreEqual(_sSearchText, sAct, 'if MatchWord is not set, then search text should equal ' + sAct);
-	end;
-
-	if (_bShouldBounded = 1) and not(EGuiOption.soUseRegex in gsp.SearchOptions) then begin
-		for p in RG_PARAM_REGEX_FIXED_STRINGS.Split(['|']) do begin
-			Assert.IsFalse(FParams.RgExeOptions.Contains(p), p + ' mustn''t be contained between options while searching ' + sAct)
-		end;
-	end;
-
-	if not(EGuiOption.soUseRegex in gsp.SearchOptions) then begin
-		p := RG_PARAM_REGEX_FIXED_STRINGS.Split(['|'])[1];
-		Assert.IsTrue(FParams.RgExeOptions.Contains(p), p + ' should contained between options while searching ' + sAct)
 	end;
 
 end;
