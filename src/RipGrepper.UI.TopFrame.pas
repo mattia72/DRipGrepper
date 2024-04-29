@@ -116,7 +116,9 @@ uses
 	RipGrepper.Helper.UI,
 	RipGrepper.UI.SearchForm,
 	System.Math,
-	System.StrUtils, RipGrepper.Common.Settings.RipGrepParameterSettings;
+	System.StrUtils,
+	RipGrepper.Common.Settings.RipGrepParameterSettings,
+	RipGrepper.Tools.DebugUtils;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -238,8 +240,7 @@ end;
 
 procedure TRipGrepperTopFrame.ActionRefreshSearchUpdate(Sender : TObject);
 begin
-	ActionRefreshSearch.Enabled := Settings.IsLoaded and (not MainFrame.IsSearchRunning)
-		and Assigned(MainFrame.HistObject);
+	ActionRefreshSearch.Enabled := Settings.IsLoaded and (not MainFrame.IsSearchRunning) and Assigned(MainFrame.HistObject);
 end;
 
 procedure TRipGrepperTopFrame.ActionSearchExecute(Sender : TObject);
@@ -293,11 +294,16 @@ end;
 
 procedure TRipGrepperTopFrame.ActionShowSearchFormExecute(Sender : TObject);
 var
-	frm: TRipGrepperSearchDialogForm;
+	frm : TRipGrepperSearchDialogForm;
 begin
 	frm := TRipGrepperSearchDialogForm.Create(self, Settings, MainFrame.HistObject);
 	try
 		if (mrOk = frm.ShowModal) then begin
+			TDebugUtils.DebugMessage('TRipGrepperTopFrame.ActionShowSearchFormExecute: after showmodal gui params: ' +
+				Settings.RipGrepParameters.GuiSetSearchParams.ToString);
+			TDebugUtils.DebugMessage('TRipGrepperTopFrame.ActionShowSearchFormExecute: after showmodal cmdline: ' +
+				Settings.RipGrepParameters.GetCommandLine);
+
 			ActionSearchExecute(self);
 		end;
 

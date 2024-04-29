@@ -13,33 +13,28 @@ type
 
 		public
 			class function GetLongParam(const _paramRegex : string) : string;
-			class function GetShortParam(const _paramRegex : string): string;
+			class function GetShortParam(const _paramRegex : string) : string;
 	end;
 
-	TOptionsHelper = class
+	TOptionsHelper = record
 
 		private
-			class procedure AddParamToList(list : TStringList; const _paramRegex : string = ''); static;
 			class function GetBoundedParamWithValueRegex(const _sOption : string; const _sParamValue : string = '') : string; static;
-			class procedure RemoveParamFromList(list : TStringList; const _paramRegex : string = ''); static;
-
 		public
-			class function AddRemoveRgExeOptions(const _sOptions : string; const _sParamRegex : string; const _bRemove : Boolean = False)
-				: string; static;
+			class procedure AddParamToList(list : TStringList; const _paramRegex : string = ''); static;
 			class function GetBoundedParamRegex(const _sOption : string) : string; static;
-			class function SetFlagAndOption(const _eQueryOption : EGuiOption; const _sParamRegex, _sRGExeOptions : string;
-				var _guiParams : TGuiSetSearchParams; const _bReset : Boolean = False) : string;
 			class function GetOptionsValue(const _sOption : string) : string; overload; static;
 			class function GetOptionsValue(const _sOption : string; var _sOptionName : string) : string; overload; static;
-			class function IsOptionSet(const _sOptions, _sParamRegex : string; const _sParamValue : string = '') : Boolean; static;
+			class function IsOptionSet(const _sOptions, _sParamRegex : string; const _sParamValue : string = '') : Boolean;
+				overload; static;
+			function IsOptionSet(const _guiOption : EGuiOption; const _sActualOptions : string) : Boolean; overload;
 			class function IsOptionWithValue(const _sOption : string; const _sOptionRegEx : string = '') : Boolean; static;
 			class function IsSetOptionWithValue(const _sOptions, _sOption : string; const _sValue : string = '') : Boolean; static;
 			class function IsWordBoundOnBothSide(const _s : string) : Boolean; static;
 			class function IsWordBoundOnOneSide(const _s : string) : Boolean; static;
 			class procedure PutBetweenWordBoundaries(var _s : string); static;
 			class function RemoveAllParams(const _sOptions, _argMaskRegex : string; const _bSwitch : Boolean = False) : string; static;
-			class function SetFlagAndResetOption(const _eQueryOption : EGuiOption; const _sParamRegex, _sRGExeOptions : string;
-				var _guiParams : TGuiSetSearchParams; const _bReset : Boolean = False) : string;
+			class procedure RemoveParamFromList(list : TStringList; const _paramRegex : string = ''); static;
 	end;
 
 implementation
@@ -64,27 +59,6 @@ begin
 	end;
 end;
 
-class function TOptionsHelper.AddRemoveRgExeOptions(const _sOptions : string; const _sParamRegex : string;
-	const _bRemove : Boolean = False) : string;
-var
-	listOptions : TStringList;
-begin
-	listOptions := TStringList.Create(dupIgnore, False, True);
-	listOptions.Delimiter := ' ';
-	try
-		listOptions.AddStrings(_sOptions.Split([' '], TStringSplitOptions.ExcludeEmpty));
-
-		if _bRemove then begin
-			RemoveParamFromList(listOptions, _sParamRegex);
-		end else begin
-			AddParamToList(listOptions, _sParamRegex);
-		end;
-		Result := listOptions.DelimitedText;
-	finally
-		listOptions.Free;
-	end;
-end;
-
 class function TOptionsHelper.GetBoundedParamRegex(const _sOption : string) : string;
 begin
 	Result := '-+' + WB + _sOption.TrimLeft(['-']) + WB;
@@ -93,18 +67,6 @@ end;
 class function TOptionsHelper.GetBoundedParamWithValueRegex(const _sOption : string; const _sParamValue : string = '') : string;
 begin
 	Result := '-+' + WB + _sOption.TrimLeft(['-']) + '=' + TRegEx.Escape(_sParamValue);
-end;
-
-class function TOptionsHelper.SetFlagAndOption(const _eQueryOption : EGuiOption; const _sParamRegex, _sRGExeOptions : string;
-	var _guiParams : TGuiSetSearchParams; const _bReset : Boolean = False) : string;
-begin
-	if _bReset then begin
-		_guiParams.ResetOption(_eQueryOption);
-		Result := TOptionsHelper.AddRemoveRgExeOptions(_sRGExeOptions, _sParamRegex, True);
-	end else begin
-		_guiParams.SetOption(_eQueryOption);
-		Result := TOptionsHelper.AddRemoveRgExeOptions(_sRGExeOptions, _sParamRegex);
-	end;
 end;
 
 class function TOptionsHelper.GetOptionsValue(const _sOption : string) : string;
@@ -145,6 +107,20 @@ begin
 				end;
 			end;
 		end;
+	end;
+end;
+
+function TOptionsHelper.IsOptionSet(const _guiOption : EGuiOption; const _sActualOptions : string) : Boolean;
+begin
+	case _guiOption of
+		EGuiOption.soNotSet :
+		{ } Result := IsOptionSet(_sActualOptions, RG_PARAM_REGEX_FIXED_STRINGS);
+		EGuiOption.soMatchCase :
+		{ } Result := IsOptionSet(_sActualOptions, RG_PARAM_REGEX_CASE_SENSITIVE);
+		EGuiOption.soMatchWord :
+		{ } Result := not IsOptionSet(_sActualOptions, RG_PARAM_REGEX_FIXED_STRINGS);
+		EGuiOption.soUseRegex :
+		{ } Result := not IsOptionSet(_sActualOptions, RG_PARAM_REGEX_FIXED_STRINGS);
 	end;
 end;
 
@@ -206,23 +182,11 @@ begin
 				list.DeleteAll([p]);
 			end else begin
 				var
-				r := GetBoundedParamRegex(p);
+				r := TOptionsHelper.GetBoundedParamRegex(p);
 				list.DeleteAllMatched(r);
-				list.DeleteAllMatched(GetBoundedParamWithValueRegex(p));
+				list.DeleteAllMatched(TOptionsHelper.GetBoundedParamWithValueRegex(p));
 			end;
 		end;
-	end;
-end;
-
-class function TOptionsHelper.SetFlagAndResetOption(const _eQueryOption : EGuiOption; const _sParamRegex, _sRGExeOptions : string;
-	var _guiParams : TGuiSetSearchParams; const _bReset : Boolean = False) : string;
-begin
-	if _bReset then begin
-		_guiParams.ResetOption(_eQueryOption);
-		Result := TOptionsHelper.AddRemoveRgExeOptions(_sRGExeOptions, _sParamRegex);
-	end else begin
-		_guiParams.SetOption(_eQueryOption);
-		Result := TOptionsHelper.AddRemoveRgExeOptions(_sRGExeOptions, _sParamRegex, True);
 	end;
 end;
 
@@ -230,15 +194,15 @@ class function TParamRegexHelper.GetLongParam(const _paramRegex : string) : stri
 begin
 	Result := '';
 	if not _paramRegex.IsEmpty then begin
-		 Result := _paramRegex.Split(['|'])[1];
-    end;
+		Result := _paramRegex.Split(['|'])[1];
+	end;
 end;
 
-class function TParamRegexHelper.GetShortParam(const _paramRegex : string): string;
+class function TParamRegexHelper.GetShortParam(const _paramRegex : string) : string;
 begin
 	Result := '';
 	if not _paramRegex.IsEmpty then begin
-		 Result := _paramRegex.Split(['|'])[0];
+		Result := _paramRegex.Split(['|'])[0];
 	end;
 end;
 

@@ -3,17 +3,18 @@ unit RipGrepper.CommandLine.Builder;
 interface
 
 uses
+	RipGrepper.Common.Constants,
+	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Common.Settings.RipGrepParameterSettings,
 	System.Classes,
-	ArrayEx,
-	RipGrepper.Common.Constants;
+	ArrayEx;
 
 type
 	TCommandLineBuilder = class
 		private
 			class procedure AddArgs(var _params : TRipGrepParameterSettings; const _sName : string; const _args : TArray<string>;
 				const _bQuote : Boolean = False); static;
-			class function RemoveFixedStringsParam(var arrRgOptions : TArrayEx<string>) : Boolean; static;
+			class function RemoveParam(var arrRgOptions : TArrayEx<string>; const _paramRegex : string) : Boolean; static;
 
 		public
 			class function FileMasksToOptions(const _arrMasks, _arrSkipMasks : TArrayEx<string>) : string; static;
@@ -26,7 +27,6 @@ type
 			class function GetMissingFileMaskOptions(const _sOptions, _sMasks : string) : string; static;
 			class procedure RebuildArguments(var _params : TRipGrepParameterSettings); static;
 			class procedure RemoveWordBoundaries(var _s : string); static;
-			class procedure UpdateSearchTextAndRgExeOptions(var _params : TGuiSetSearchParams; var arrRgOptions : TArrayEx<string>); static;
 	end;
 
 implementation
@@ -37,7 +37,8 @@ uses
 	RipGrepper.Tools.ProcessUtils,
 	System.RegularExpressions,
 	RipGrepper.Helper.Types,
-	RipGrepper.CommandLine.OptionHelper;
+	RipGrepper.CommandLine.OptionHelper,
+	RipGrepper.Tools.DebugUtils;
 
 class procedure TCommandLineBuilder.AddArgs(var _params : TRipGrepParameterSettings; const _sName : string; const _args : TArray<string>;
 	const _bQuote : Boolean = False);
@@ -51,6 +52,7 @@ begin
 			end;
 		end;
 	end;
+	// TDebugUtils.DebugMessage('AddArgs: ' + string.Join(' ', _params.RipGrepArguments.GetValues()));
 end;
 
 class function TCommandLineBuilder.FileMasksToOptions(const _arrMasks, _arrSkipMasks : TArrayEx<string>) : string;
@@ -128,13 +130,16 @@ end;
 class procedure TCommandLineBuilder.RebuildArguments(var _params : TRipGrepParameterSettings);
 var
 	arrRgOptions : TArrayEx<string>;
-	gsp : TGuiSetSearchParams;
+	guiParamCount : integer;
 begin
+	TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: start');
 	_params.RipGrepArguments.Clear();
-	arrRgOptions := _params.RgExeOptions.Split([' ']);
+
+	arrRgOptions := _params.GuiSetSearchParams.RgOptions.Split([' ']);
+	guiParamCount := arrRgOptions.Count;
 
 	for var s in RG_NECESSARY_PARAMS do begin
-		arrRgOptions.InsertIfNotContains(0, s);
+		arrRgOptions.InsertIfNotContains(guiParamCount, s);
 	end;
 
 	arrRgOptions.AddRange(GetFileMaskParamsArrFromDelimitedText(_params.FileMasks));
@@ -142,52 +147,25 @@ begin
 	// put it in the end
 	arrRgOptions.Add(RG_PARAM_END); // indicates that no more flags will be provided
 
-	gsp := _params.GuiSetSearchParams;
-	UpdateSearchTextAndRgExeOptions(gsp, arrRgOptions);
-	_params.GuiSetSearchParams := gsp;
 	_params.RgExeOptions := string.Join(' ', arrRgOptions.Items);
 
 	AddArgs(_params, RG_ARG_OPTIONS, arrRgOptions);
-	AddArgs(_params, RG_ARG_SEARCH_TEXT, [gsp.SearchText]); // order is important!
+	AddArgs(_params, RG_ARG_SEARCH_TEXT, [_params.GuiSetSearchParams.SearchText]); // order is important!
 	AddArgs(_params, RG_ARG_SEARCH_PATH, _params.SearchPath.Split([';']), True { Quote if necessary } );
+
+	TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: after AddArgs: ' + string.Join(' ',
+		_params.RipGrepArguments.GetValues()));
+	TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: GuiSetSearchParams end ' + _params.GuiSetSearchParams.ToString);
 end;
 
-class function TCommandLineBuilder.RemoveFixedStringsParam(var arrRgOptions : TArrayEx<string>) : Boolean;
+class function TCommandLineBuilder.RemoveParam(var arrRgOptions : TArrayEx<string>; const _paramRegex : string) : Boolean;
 begin
 	Result := False;
-	for var p in RG_PARAM_REGEX_FIXED_STRINGS.Split(['|']) do begin
+	for var p in _paramRegex.Split(['|']) do begin
 		if arrRgOptions.Remove(p) then begin
-			// word boundaries can't be used in case of --fixed-strings
 			Result := True;
 		end;
 	end;
-end;
-
-class procedure TCommandLineBuilder.UpdateSearchTextAndRgExeOptions(var _params : TGuiSetSearchParams; var arrRgOptions : TArrayEx<string>);
-var
-	newSearchText : string;
-	bRemoved : Boolean;
-	bitField : TBitField;
-begin
-	newSearchText := _params.SearchText;
-	bitField := _params.SearchOptionsAsBitField;
-
-	if _params.IsSet([EGuiOption.soUseRegex]) then begin
-		bRemoved := RemoveFixedStringsParam(arrRgOptions);
-		if bRemoved then begin
-			_params.EscapedSearchText := TRegEx.Escape(newSearchText); // regex chars like $ should be escaped
-			newSearchText := _params.EscapedSearchText;
-		end;
-	end else begin
-		arrRgOptions.InsertIfNotContains(0, RG_PARAM_REGEX_FIXED_STRINGS.Split(['|'])[1]);
-	end;
-
-	if _params.IsSet([EGuiOption.soMatchWord]) then begin
-		TOptionsHelper.PutBetweenWordBoundaries(newSearchText);
-		RemoveFixedStringsParam(arrRgOptions);
-	end;
-
-	_params.SearchText := newSearchText;
 end;
 
 end.

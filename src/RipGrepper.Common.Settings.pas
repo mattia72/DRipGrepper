@@ -167,7 +167,7 @@ uses
 	Vcl.Forms,
 	System.StrUtils,
 	RipGrepper.Helper.Types,
-	RipGrepper.Tools.DebugTools,
+	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Tools.FileUtils,
 	Vcl.Dialogs,
 	System.IOUtils,
@@ -317,7 +317,7 @@ begin
 		LoadHistoryEntries(FFileMasksHistory, 'FileMasksHistory');
 	except
 		on E : Exception do begin
-			TDebugUtils.DebugMessage(Format('Exception %s ', [E.Message]));
+			TDebugUtils.DebugMessage(Format('TRipGrepperSettings.Load: Exception %s ', [E.Message]));
 			MessageDlg(E.Message + CRLF + 'Settings load from ' + FIniFile.FileName + ' went wrong.', TMsgDlgType.mtError, [mbOk], 0);
 		end;
 	end;
@@ -327,7 +327,13 @@ end;
 
 procedure TRipGrepperSettings.RebuildArguments;
 begin
+	TDebugUtils.DebugMessage('TRipGrepperSettings.RebuildArguments: GuiSetSearchParams start ' +
+		FRipGrepParameters.GuiSetSearchParams.ToString);
+
 	TCommandLineBuilder.RebuildArguments(FRipGrepParameters);
+
+	TDebugUtils.DebugMessage('TRipGrepperSettings.RebuildArguments: GuiSetSearchParams end ' +
+		FRipGrepParameters.GuiSetSearchParams.ToString);
 end;
 
 procedure TRipGrepperSettings.SetFileMasksHistory(const Value : TStrings);

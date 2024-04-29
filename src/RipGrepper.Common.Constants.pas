@@ -56,8 +56,6 @@ const
 	LV_IMG_IDX_ERROR = 1;
 	LV_IMG_IDX_INFO = 2;
 
-	GROUPBOX_EXPERT_HEIGHT = 240;
-
 	DT_ALIGN : array [TAlignment] of TTextFormats = (
 		{ } tfLeft,
 		{ } tfRight,
