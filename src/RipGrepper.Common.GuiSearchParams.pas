@@ -15,7 +15,7 @@ type
 			FEscapedSearchText : string;
 			FWordBoundedSearchText : string;
 
-			FRgOptions: string;
+			FRgOptions : string;
 
 			FIsRgExeOptionSet : Boolean;
 
@@ -44,7 +44,7 @@ type
 
 			property EscapedSearchText : string read GetEscapedSearchText;
 			property IsRgExeOptionSet : Boolean read FIsRgExeOptionSet write FIsRgExeOptionSet;
-			property RgOptions: string read FRgOptions write FRgOptions;
+			property RgOptions : string read FRgOptions write FRgOptions;
 			property SearchText : string read GetSearchText write FSearchText;
 			property WordBoundedSearchText : string read GetWordBoundedSearchText;
 	end;
@@ -135,9 +135,9 @@ function TGuiSetSearchParams.GetSearchText : string;
 begin
 	Result := FSearchText;
 
-//	if IsSet([EGuiOption.soUseRegex]) then begin
-//		Result := EscapedSearchText;
-//	end;
+	// if IsSet([EGuiOption.soUseRegex]) then begin
+	// Result := EscapedSearchText;
+	// end;
 
 	if IsSet([EGuiOption.soMatchWord]) then begin
 		Result := WordBoundedSearchText;
@@ -169,10 +169,10 @@ begin
 		{ };
 		EGuiOption.soMatchCase :
 		{ } SetRgOptions(RG_PARAM_REGEX_CASE_SENSITIVE, True);
-		EGuiOption.soMatchWord :
-		{ };
-		EGuiOption.soUseRegex :
-		{ };
+		EGuiOption.soMatchWord, EGuiOption.soUseRegex :
+		{ } if SearchOptions <> [] then begin
+			SetRgOptions(RG_PARAM_REGEX_FIXED_STRINGS, True);
+		end;
 	end;
 
 end;
@@ -256,6 +256,7 @@ end;
 
 class operator TGuiSetSearchParams.Initialize(out Dest : TGuiSetSearchParams);
 begin
+	Dest.Clear();
 	Dest.SetOption(EGuiOption.soNotSet);
 end;
 
