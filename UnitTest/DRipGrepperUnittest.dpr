@@ -28,10 +28,12 @@ uses
   RipGrepper.Parsers.VimGrepMatchLine in '..\src\RipGrepper.Parsers.VimGrepMatchLine.pas',
   RipGrepper.Common.Constants in '..\src\RipGrepper.Common.Constants.pas',
   ArrayEx in '..\external\ArrayEx.pas',
-  RipGrepper.CommandLineBuilder.Test in 'RipGrepper.CommandLineBuilder.Test.pas',
+  RipGrepper.CommandLine.Builder.Test in 'RipGrepper.CommandLine.Builder.Test.pas',
   RipGrepper.Common.Settings.RipGrepParameterSettings in '..\src\RipGrepper.Common.Settings.RipGrepParameterSettings.pas',
-  RipGrepper.Common.CommandLineBuilder in '..\src\RipGrepper.Common.CommandLineBuilder.pas',
-  RipGrepper.OptionsHelper.Test in 'RipGrepper.OptionsHelper.Test.pas';
+  RipGrepper.CommandLine.Builder in '..\src\RipGrepper.CommandLine.Builder.pas',
+  RipGrepper.CommandLine.OptionsHelper.Test in 'RipGrepper.CommandLine.OptionsHelper.Test.pas',
+  RipGrepper.CommandLine.OptionHelper in '..\src\RipGrepper.CommandLine.OptionHelper.pas',
+  RipGrepper.Common.GuiSearchParams in '..\src\RipGrepper.Common.GuiSearchParams.pas';
 
 {$IFNDEF TESTINSIGHT}
 

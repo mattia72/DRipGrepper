@@ -61,7 +61,7 @@
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <DCC_UnitSearchPath>..\..\FastMM4;..\..\RipGrepper\src;..\..\RipGrepper\src\OpenWith;..\..\RipGrepper\external;..\..\Delphi-Mocks\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\..\FastMM4;..\..\RipGrepper\src;..\..\RipGrepper\src\OpenWith;..\..\RipGrepper\external;..\..\Delphi-Mocks\Source;..\..\TestInsight\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <DCC_UsePackage>soapserver;IndySystem;vclwinx;fmx;vclie;DbxCommonDriver;bindengine;vcldb;IndyIPCommon;VCLRESTComponents;FireDACCommonODBC;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;IndyIPClient;dbxcds;vcledge;vclFireDAC;bindcompvclwinx;bindcomp;FireDACCommon;IndyCore;RESTBackendComponents;bindcompfmx;bindcompdbx;inetdb;rtl;FireDACMySQLDriver;FireDACSqliteDriver;DbxClientDriver;FireDACADSDriver;RESTComponents;soapmidas;DBXSqliteDriver;vcl;vclactnband;IndyIPServer;dsnapxml;fmxFireDAC;dbexpress;dsnapcon;adortl;DBXMySQLDriver;VclSmp;inet;vclimg;vcltouch;FireDACPgDriver;FireDAC;fmxase;inetdbxpress;xmlrtl;tethering;dbrtl;bindcompvcl;dsnap;fmxdae;CloudService;FireDACMSAccDriver;CustomIPTransport;fmxobj;bindcompvclsmp;soaprtl;vcldsnap;DBXInterBaseDriver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
@@ -101,10 +101,12 @@
         <DCCReference Include="..\src\RipGrepper.Parsers.VimGrepMatchLine.pas"/>
         <DCCReference Include="..\src\RipGrepper.Common.Constants.pas"/>
         <DCCReference Include="..\external\ArrayEx.pas"/>
-        <DCCReference Include="RipGrepper.CommandLineBuilder.Test.pas"/>
+        <DCCReference Include="RipGrepper.CommandLine.Builder.Test.pas"/>
         <DCCReference Include="..\src\RipGrepper.Common.Settings.RipGrepParameterSettings.pas"/>
-        <DCCReference Include="..\src\RipGrepper.Common.CommandLineBuilder.pas"/>
-        <DCCReference Include="RipGrepper.OptionsHelper.Test.pas"/>
+        <DCCReference Include="..\src\RipGrepper.CommandLine.Builder.pas"/>
+        <DCCReference Include="RipGrepper.CommandLine.OptionsHelper.Test.pas"/>
+        <DCCReference Include="..\src\RipGrepper.CommandLine.OptionHelper.pas"/>
+        <DCCReference Include="..\src\RipGrepper.Common.GuiSearchParams.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
