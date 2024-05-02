@@ -53,7 +53,7 @@ uses
   RipGrepper.Parsers.Factory in 'src\RipGrepper.Parsers.Factory.pas',
   RipGrepper.Parsers.ParallelParser in 'src\RipGrepper.Parsers.ParallelParser.pas',
   RipGrepper.Parsers.VimGrepMatchLine in 'src\RipGrepper.Parsers.VimGrepMatchLine.pas',
-  RipGrepper.Tools.DebugTools in 'src\RipGrepper.Tools.DebugTools.pas',
+  RipGrepper.Tools.DebugUtils in 'src\RipGrepper.Tools.DebugUtils.pas',
   RipGrepper.Tools.FileUtils in 'src\RipGrepper.Tools.FileUtils.pas',
   RipGrepper.Tools.ProcessUtils in 'src\RipGrepper.Tools.ProcessUtils.pas',
   RipGrepper.UI.DpiScaler in 'src\RipGrepper.UI.DpiScaler.pas',
@@ -64,7 +64,9 @@ uses
   RipGrepper.UI.ParentFrame in 'src\RipGrepper.UI.ParentFrame.pas' {ParentFrame: TFrame},
   RipGrepper.UI.RipGrepOptionsForm in 'src\RipGrepper.UI.RipGrepOptionsForm.pas' {RipGrepOptionsForm},
   RipGrepper.UI.SearchForm in 'src\RipGrepper.UI.SearchForm.pas' {RipGrepperSearchDialogForm},
-  RipGrepper.Common.CommandLineBuilder in 'src\RipGrepper.Common.CommandLineBuilder.pas';
+  RipGrepper.CommandLine.Builder in 'src\RipGrepper.CommandLine.Builder.pas',
+  RipGrepper.CommandLine.OptionHelper in 'src\RipGrepper.CommandLine.OptionHelper.pas',
+  RipGrepper.Common.GuiSearchParams in 'src\RipGrepper.Common.GuiSearchParams.pas';
 
 {$R *.res}
 
