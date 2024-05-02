@@ -10,11 +10,13 @@ uses
 	Vcl.Graphics;
 
 const
+    WWW_LINK_RG_MAN_PAGE = 'https://www.mankier.com/1/rg#Options';
+	WWW_LNK_GLOBBING_HELP = 'https://www.w3schools.com/git/git_ignore.asp'; //https://www.mankier.com/5/gitignore
 	APPNAME = 'DRipGrepper';
 	EXTENSION_NAME = 'DRipExtension';
 	EXTENSION_MENU_CAPTION = 'DRipGrepper';
 
-	EXPERT_GRPBX_CAPTIONS = 'Expert Settings';
+	CAPTION_GRPBX_EXPERT_MODE = 'Expert Settings';
 
 	FORMAT_VERSION_INFO = '%s v%d.%d.%d-beta';
 	FORMAT_VERSION_INFO_IN_STATUSBAR = '%s   ';

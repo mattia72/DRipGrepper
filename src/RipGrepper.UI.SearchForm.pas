@@ -69,6 +69,10 @@ type
 		cbHidden : TCheckBox;
 		btnCopyToClipBoard : TButton;
 		ActionCopyToClipboard : TAction;
+		btnHelpFileMask : TButton;
+		ActionShowFileMaskHelp : TAction;
+		btnRGOptionsHelp : TButton;
+		ActionShowRGOptionsHelp : TAction;
 		procedure ActionAddParamMatchCaseExecute(Sender : TObject);
 		procedure ActionAddParamMatchCaseUpdate(Sender : TObject);
 		procedure ActionAddParamRegexExecute(Sender : TObject);
@@ -81,6 +85,8 @@ type
 		procedure ActionShowRipGrepOptionsFormExecute(Sender : TObject);
 		procedure ActionSearchExecute(Sender : TObject);
 		procedure ActionSearchFileExecute(Sender : TObject);
+		procedure ActionShowFileMaskHelpExecute(Sender : TObject);
+		procedure ActionShowRGOptionsHelpExecute(Sender : TObject);
 		procedure cmbFileMasksChange(Sender : TObject);
 		procedure cmbFileMasksExit(Sender : TObject);
 		procedure cmbFileMasksSelect(Sender : TObject);
@@ -149,7 +155,8 @@ uses
 	RipGrepper.CommandLine.Builder,
 	Vcl.Clipbrd,
 	RipGrepper.CommandLine.OptionHelper,
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils,
+	Winapi.ShellAPI;
 
 const
 	RIPGREPPER_SEARCH_FORM = 'RipGrepperSearchDialogForm';
@@ -251,6 +258,16 @@ begin
 	if selectedFiles <> '' then begin
 		cmbSearchDir.Text := selectedFiles;
 	end;
+end;
+
+procedure TRipGrepperSearchDialogForm.ActionShowFileMaskHelpExecute(Sender : TObject);
+begin
+	ShellExecute(0, 'OPEN', PChar(WWW_LNK_GLOBBING_HELP), '', '', SW_SHOWNORMAL);
+end;
+
+procedure TRipGrepperSearchDialogForm.ActionShowRGOptionsHelpExecute(Sender : TObject);
+begin
+	ShellExecute(0, 'OPEN', PChar(WWW_LINK_RG_MAN_PAGE), '', '', SW_SHOWNORMAL);
 end;
 
 procedure TRipGrepperSearchDialogForm.ProcessControl(_ctrl : TControl; _imgList : TImageList);
@@ -506,11 +523,13 @@ procedure TRipGrepperSearchDialogForm.UpdateExpertGroupBox;
 begin
 	if FSettings.RipGrepperSettings.ExpertMode then begin
 		gbExpert.Height := FExpertGroupHeight;
-		gbExpert.Caption := EXPERT_GRPBX_CAPTIONS;
+		gbExpert.Caption := CAPTION_GRPBX_EXPERT_MODE;
+		gbExpert.Font.Style := gbExpert.Font.Style - [fsBold, fsUnderline];
 		FSettings.RipGrepperSettings.ExpertMode := True;
 	end else begin
-		gbExpert.Height := 20;
-		gbExpert.Caption := 'Show ' + EXPERT_GRPBX_CAPTIONS;
+		gbExpert.Height := 0;
+		gbExpert.Caption := 'Show ' + CAPTION_GRPBX_EXPERT_MODE;
+		gbExpert.Font.Style := gbExpert.Font.Style + [fsBold, fsUnderline];
 		FSettings.RipGrepperSettings.ExpertMode := False;
 	end;
 end;
@@ -546,8 +565,11 @@ begin
 	{ } GetFullHeight(gbSearch) +
 	{ } GetFullHeight(gbOptions) +
 	{ } GetFullHeight(pnlSearch) - pnlSearch.Height +
-	{ } GetFullHeight(pnlBottom) +
-	{ } GetFullHeight(gbExpert);
+	{ } GetFullHeight(pnlBottom);
+
+	var
+	gbExpertHeight := GetFullHeight(gbExpert);
+	iHeight := iHeight + gbExpertHeight;
 
 	// Constraints.MaxHeight := iHeight;
 	Constraints.MinHeight := iHeight;
@@ -572,7 +594,7 @@ begin
 		if TOptionsHelper.IsOptionWithValue(sOp) then begin
 			sVal := TOptionsHelper.GetOptionsValue(sOp, sOpName);
 
-			if not IsOptionSet(sOp, sVal) then begin
+			if not IsOptionSet(sOpName, sVal) then begin
 				FGuiSetSearchParams.RgOptions.Insert(0, sOpName + '=' + sVal + ' ').Trim;
 			end;
 			if i = options.MaxIndex then
