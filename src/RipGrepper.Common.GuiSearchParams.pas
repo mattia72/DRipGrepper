@@ -9,6 +9,8 @@ uses
 	System.Classes;
 
 type
+	TSearchOptionSet = set of EGuiOption;
+
 	TGuiSetSearchParams = record
 		private
 			FSearchText : string;
@@ -26,7 +28,7 @@ type
 			function SetRgOptions(const _sParamRegex : string; const _bReset : Boolean = False) : string;
 
 		public
-			SearchOptions : set of EGuiOption;
+			SearchOptions : TSearchOptionSet;
 
 			class function AddRemoveRgExeOptions(const _sOptions : string; const _sParamRegex : string; const _bRemove : Boolean = False)
 				: string; static;
@@ -170,7 +172,8 @@ begin
 		EGuiOption.soMatchCase :
 		{ } SetRgOptions(RG_PARAM_REGEX_CASE_SENSITIVE, True);
 		EGuiOption.soMatchWord, EGuiOption.soUseRegex :
-		{ } if SearchOptions <> [] then begin
+		{ } if not( { } (SearchOptions = [EGuiOption.soNotSet]) or { } (SearchOptions = [EGuiOption.soMatchCase]) or
+			{ } (SearchOptions = [])) then begin
 			SetRgOptions(RG_PARAM_REGEX_FIXED_STRINGS, True);
 		end;
 	end;
