@@ -1,7 +1,7 @@
 object RipGrepOptionsForm: TRipGrepOptionsForm
   Left = 952
   Top = 341
-  Caption = 'DRipGrepper - RipGrep Options'
+  Caption = 'DRipGrepper - RipGrep Options Help'
   ClientHeight = 473
   ClientWidth = 807
   Color = clBtnFace
@@ -146,12 +146,14 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     FFE3C7FFFFE3C7FFFFE3C7FFFFE3C7FFFFE3C7FC0003C7F80007C7F0000FC000
     FFFFE003FFFFE007FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
   Position = poOwnerFormCenter
+  OnShow = FormShow
   TextHeight = 15
   object PanelMain: TPanel
-    Left = 0
-    Top = 80
-    Width = 807
-    Height = 343
+    AlignWithMargins = True
+    Left = 8
+    Top = 65
+    Width = 791
+    Height = 350
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -160,29 +162,26 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     BevelOuter = bvNone
     Caption = 'PanelMain'
     TabOrder = 0
-    object ListView1: TListView
-      Left = 0
-      Top = 0
-      Width = 807
-      Height = 343
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
+    object VstResult: TVirtualStringTree
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 785
+      Height = 344
       Align = alClient
-      Columns = <>
-      MultiSelect = True
-      OwnerDraw = True
-      GroupView = True
-      ReadOnly = True
-      RowSelect = True
-      ParentShowHint = False
-      ShowHint = True
+      Header.AutoSizeIndex = 0
+      Header.MainColumn = -1
+      Header.Options = [hoAutoResize, hoColumnResize, hoDrag, hoShowSortGlyphs]
       TabOrder = 0
-      ViewStyle = vsReport
-      OnClick = ListView1Click
-      OnDrawItem = ListView1DrawItem
-      OnSelectItem = ListView1SelectItem
+      TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
+      TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowRoot, toShowTreeLines, toThemeAware, toUseBlendedImages, toUseExplorerTheme]
+      OnChecked = VstResultChecked
+      OnFreeNode = VstResultFreeNode
+      OnGetText = VstResultGetText
+      OnPaintText = VstResultPaintText
+      Touch.InteractiveGestures = [igPan, igPressAndTap]
+      Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
+      Columns = <>
     end
   end
   object PanelBottom: TPanel
@@ -235,7 +234,7 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     Left = 0
     Top = 0
     Width = 807
-    Height = 80
+    Height = 57
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -244,8 +243,8 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     BevelOuter = bvNone
     TabOrder = 2
     object Label1: TLabel
-      Left = 25
-      Top = 53
+      Left = 15
+      Top = 33
       Width = 310
       Height = 15
       Margins.Left = 8
@@ -255,8 +254,8 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
       Caption = '(You can use Ctrl + Click to select multiple options to edit.)'
     end
     object Label2: TLabel
-      Left = 25
-      Top = 35
+      Left = 15
+      Top = 15
       Width = 74
       Height = 15
       Margins.Left = 8
@@ -265,10 +264,24 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
       Margins.Bottom = 8
       Caption = 'RipGrep  help:'
     end
+    object llblHelp: TLinkLabel
+      AlignWithMargins = True
+      Left = 100
+      Top = 15
+      Width = 256
+      Height = 45
+      Cursor = crHandPoint
+      Caption = #39'<a href="http://blog.marcocantu.com/">Blog Marco Cantu</a>'#39
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 0
+      UseVisualStyle = True
+      OnLinkClick = llblHelpLinkClick
+    end
   end
   object ActionList1: TActionList
-    Left = 265
-    Top = 190
+    Left = 390
+    Top = 10
     object ActionOk: TAction
       Caption = 'Ok'
       OnExecute = ActionOkExecute

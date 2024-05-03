@@ -10,14 +10,15 @@ uses
 	RipGrepper.Common.Constants;
 
 type
-	TVSMatchData = class
+	TVSMatchData = record
 		Row : integer;
 		Col : integer;
 		MatchLength : integer;
 		RowText : string;
 
 		public
-			constructor Create(_row, _col, _colEnd : Integer; _matchText : string);
+			class function New(_row, _col, _colEnd : Integer; _matchText : string) : TVSMatchData; static;
+			class operator Initialize(out Dest : TVSMatchData);
 	end;
 
 	PVSMatchData = ^TVSMatchData;
@@ -26,7 +27,7 @@ type
 		FilePath : string;
 		// Icon?
 		MatchData : TVSMatchData;
-		function GetText(const _bTrimLeft: Boolean; var _iTrimCount: Integer): string;
+		function GetText(const _bTrimLeft : Boolean; var _iTrimCount : Integer) : string;
 
 		public
 			class function New(_file : string; _row, _col : Integer; _textBefore, _matchText, _textAfter : string) : TVSFileNodeData;
@@ -295,13 +296,13 @@ begin
 	FGroupId := Value;
 end;
 
-function TVSFileNodeData.GetText(const _bTrimLeft: Boolean; var _iTrimCount: Integer): string;
+function TVSFileNodeData.GetText(const _bTrimLeft : Boolean; var _iTrimCount : Integer) : string;
 var
 	sTrimmed : string;
 begin
 	if not _bTrimLeft then begin
 		Result := MatchData.RowText;
-        _iTrimCount  := 0;
+		_iTrimCount := 0;
 	end else begin
 		sTrimmed := MatchData.RowText.TrimLeft();
 		_iTrimCount := MatchData.RowText.Length - sTrimmed.Length;
@@ -318,21 +319,29 @@ begin
 	Result.FilePath := _file;
 	text := _textBefore + _matchText + _textAfter;
 	matchLength := Length(_matchText);
-	Result.MatchData := TVSMatchData.Create(_row, _col, matchLength, text);
+	Result.MatchData := TVSMatchData.New(_row, _col, matchLength, text);
 end;
 
 class function TVSFileNodeData.New(_file : string; _row : Integer = -1; _col : Integer = -1; _matchText : string = '') : TVSFileNodeData;
 begin
 	Result.FilePath := _file;
-	Result.MatchData := TVSMatchData.Create(_row, _col, -1, _matchText);
+	Result.MatchData := TVSMatchData.New(_row, _col, -1, _matchText);
 end;
 
-constructor TVSMatchData.Create(_row, _col, _colEnd : Integer; _matchText : string);
+class function TVSMatchData.New(_row, _col, _colEnd : Integer; _matchText : string) : TVSMatchData;
 begin
-	Row := _row;
-	Col := _col;
-	MatchLength := _colEnd;
-	RowText := _matchText;
+	Result.Row := _row;
+	Result.Col := _col;
+	Result.MatchLength := _colEnd;
+	Result.RowText := _matchText;
+end;
+
+class operator TVSMatchData.Initialize(out Dest : TVSMatchData);
+begin
+	Dest.Row := -1;
+	Dest.Col := -1;
+	Dest.MatchLength := -1;
+	Dest.RowText := '';
 end;
 
 end.

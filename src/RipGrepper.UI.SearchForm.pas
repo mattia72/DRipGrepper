@@ -262,7 +262,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ActionShowFileMaskHelpExecute(Sender : TObject);
 begin
-	ShellExecute(0, 'OPEN', PChar(WWW_LNK_GLOBBING_HELP), '', '', SW_SHOWNORMAL);
+	ShellExecute(0, 'OPEN', PChar(WWW_LINK_GLOBBING_HELP), '', '', SW_SHOWNORMAL);
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionShowRGOptionsHelpExecute(Sender : TObject);
@@ -291,8 +291,9 @@ begin
 	try
 		if (mrOk = frm.ShowModal) then begin
 			cmbOptions.Text := TGuiSetSearchParams.AddRemoveRgExeOptions(
-				{ } FGuiSetSearchParams.RgOptions, string.Join('|', RG_NECESSARY_PARAMS + [RG_PARAM_REGEX_CASE_SENSITIVE,
-				RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_REGEX_GLOB, RG_PARAM_END]), True); // from options form
+				{ } FSettings.RipGrepParameters.RgExeOptions, string.Join('|', RG_NECESSARY_PARAMS + [RG_PARAM_REGEX_CASE_SENSITIVE,
+				RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_REGEX_GLOB, RG_PARAM_END]), True);
+			UpdateCtrls(cmbOptions);
 		end;
 	finally
 		frm.Free;
@@ -465,11 +466,9 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.WriteCtrlsToRipGrepParametersSettings: start ' + FGuiSetSearchParams.ToString);
 	FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
 	FGuiSetSearchParams.SearchText := cmbSearchText.Text;
-
+	FGuiSetSearchParams.RgOptions := '';
 	if Fsettings.RipGrepperSettings.ExpertMode then begin
 		WriteOptionCtrlToRipGrepParametersSetting;
-	end else begin
-		FGuiSetSearchParams.RgOptions := '';
 	end;
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.WriteCtrlsToRipGrepParametersSettings: end ' + FGuiSetSearchParams.ToString);
 end;

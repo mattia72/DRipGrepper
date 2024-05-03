@@ -112,6 +112,7 @@ end;
 
 function TOptionsHelper.IsOptionSet(const _guiOption : EGuiOption; const _sActualOptions : string) : Boolean;
 begin
+    Result := False;
 	case _guiOption of
 		EGuiOption.soNotSet :
 		{ } Result := IsOptionSet(_sActualOptions, RG_PARAM_REGEX_FIXED_STRINGS);

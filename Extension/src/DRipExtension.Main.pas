@@ -145,7 +145,7 @@ end;
 // IOTAWizard
 function TDRipExtension.GetName : string;
 begin
-	Result := EXTENSION_MENU_CAPTION;
+	Result := CAPTION_EXTENSION_MENU;
 end;
 
 // IOTAWizard

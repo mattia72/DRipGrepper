@@ -519,11 +519,13 @@ begin
 	CurrentHistoryItemIndex := ListBoxSearchHistory.ItemIndex;
 	UpdateHistObject;
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History clicked: ' + CurrentHistoryItemIndex.ToString);
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History Object: ' + HistObject.RipGrepArguments.DelimitedText);
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History Object: ' +
+		HistObject.RipGrepArguments.DelimitedText);
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History Matches: ' + HistObject.TotalMatchCount.ToString);
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History Files: ' + HistObject.FileCount.ToString);
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History Errors: ' + HistObject.ErrorCount.ToString);
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History Gui: ' + HistObject.GuiSetSearchParams.SearchText + ' ' + HistObject.GuiSetSearchParams.ToString);
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History Gui: ' + HistObject.GuiSetSearchParams.SearchText +
+		' ' + HistObject.GuiSetSearchParams.ToString);
 	SetResultListViewDataToHistoryObj();
 	ExpandNodes;
 	RefreshCountersInGUI;
@@ -594,13 +596,15 @@ end;
 
 procedure TRipGrepperMiddleFrame.OnEOFProcess;
 begin
-	TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.OnEOFProcess: End of processing rg.exe output in %s sec.', [GetElapsedTime(FswSearchStart)]));
+	TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.OnEOFProcess: End of processing rg.exe output in %s sec.',
+		[GetElapsedTime(FswSearchStart)]));
 end;
 
 procedure TRipGrepperMiddleFrame.OnLastLine(const _iLineNr : integer);
 begin
 	// ListViewResult.AdjustColumnWidths(MaxWidths);
-	TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.OnLastLine: Last line (%d.) received in %s sec.', [_iLineNr, GetElapsedTime(FswSearchStart)]));
+	TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.OnLastLine: Last line (%d.) received in %s sec.',
+		[_iLineNr, GetElapsedTime(FswSearchStart)]));
 
 	TThread.Synchronize(nil,
 		procedure
@@ -849,7 +853,8 @@ var
 	NodeData : PVSFileNodeData;
 begin
 	NodeData := Sender.GetNodeData(Node);
-	NodeData^.MatchData.Free;
+	NodeData^.MatchData := TVSMatchData.New(0, 0, 0, '');
+	NodeData^.FilePath := ''; // so we don't have mem leaks
 end;
 
 procedure TRipGrepperMiddleFrame.VstResultGetImageIndex(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind;
@@ -882,9 +887,9 @@ begin
 	CellText := nodeData^.FilePath;
 
 	// return the the identifier of the node
-	if nodeData^.MatchData = nil then
-		CellText := ''
-	else begin
+	if nodeData^.MatchData.RowText.IsEmpty then begin
+		CellText := '';
+	end else begin
 
 		case Column of
 			- 1, 0 : begin // main column, -1 if columns are hidden, 0 if they are shown

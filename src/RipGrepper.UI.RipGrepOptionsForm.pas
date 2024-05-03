@@ -21,7 +21,9 @@ uses
 	Vcl.ComCtrls,
 	System.RegularExpressions,
 	RipGrepper.UI.DpiScaler,
-	RipGrepper.Common.Settings.RipGrepParameterSettings;
+	RipGrepper.Common.Settings.RipGrepParameterSettings,
+	VirtualTrees,
+	VirtualTrees.Types;
 
 type
 
@@ -30,10 +32,23 @@ type
 		Long : string;
 		Value : string;
 		Description : string;
-		Group : string;
-		class function New(const _short : string; const _long : string = ''; const _value : string = ''; const _description : string = '';
-			const _group : string = '') : THelpOptions; static;
+
+		class function New(const _short : string; const _long : string = ''; const _value : string = ''; const _description : string = '')
+			: THelpOptions; static;
 	end;
+
+	PHelpOptions = ^THelpOptions;
+
+	THelpOptionsGroup = record
+		Group : string;
+		Option : THelpOptions;
+		class function New(const _short : string; const _long : string = ''; const _value : string = ''; const _description : string = '';
+			const _group : string = '') : THelpOptionsGroup; overload; static;
+		class function New(const _group : PVirtualNode; const _short : string = ''; const _long : string = ''; const _value : string = '';
+			const _description : string = '') : THelpOptionsGroup; overload; static;
+	end;
+
+	PHelpOptionsGroup = ^THelpOptionsGroup;
 
 	TRipGrepOptionsForm = class(TForm)
 		PanelMain : TPanel;
@@ -45,19 +60,25 @@ type
 		ActionAdd : TAction;
 		PanelBottom : TPanel;
 		PanelTop : TPanel;
-		ListView1 : TListView;
 		Label1 : TLabel;
 		Label2 : TLabel;
+		llblHelp : TLinkLabel;
+		VstResult : TVirtualStringTree;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionOkExecute(Sender : TObject);
-		procedure ListView1Click(Sender : TObject);
-		procedure ListView1DrawItem(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
-		procedure ListView1SelectItem(Sender : TObject; Item : TListItem; Selected : Boolean);
-		procedure LoadRipGrepHelp;
+		procedure FormShow(Sender : TObject);
+		procedure llblHelpLinkClick(Sender : TObject; const Link : string; LinkType : TSysLinkType);
+		procedure LoadRipGrepHelp();
+		procedure VstResultChecked(Sender : TBaseVirtualTree; Node : PVirtualNode);
+		procedure VstResultFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
+		procedure VstResultGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType;
+			var CellText : string);
+		procedure VstResultPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
+			TextType : TVSTTextType);
 
 		private
 			FDpiScaler : TRipGrepperDpiScaler;
-			FGroup : TListGroup;
+			FGroupNode : PVirtualNode;
 			FGroupIngLineRegex : TRegex;
 			FOptionList : TStringList;
 			FRGLongParamHelpRegex : TRegex;
@@ -65,11 +86,11 @@ type
 			FRipGrepParameters : TRipGrepParameterSettings;
 			procedure AddColumn(const _caption : string);
 			procedure AddColumns;
-			procedure DrawItemOnCanvas(_Canvas : TCanvas; const _Rect : TRect; _Item : TListItem; const _State : TOwnerDrawState);
+			function AddVSTStructure(AVST : TCustomVirtualStringTree; ANode : PVirtualNode; ARecord : THelpOptionsGroup) : PVirtualNode;
+			procedure InitVirtualTree;
 			function IsParameterHelpLine(_Item : TListItem) : Boolean;
 			function ParseLine(const _s : string) : THelpOptions;
 			procedure SetGroup(const _groupHeader : string);
-			procedure SetItem(const _ho : THelpOptions; const _groupId : Integer; const _bEnabled : Boolean = True);
 
 			{ Private-Deklarationen }
 		public
@@ -91,7 +112,9 @@ uses
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.DebugUtils,
 	Winapi.UxTheme,
-	System.Math;
+	System.Math,
+	Winapi.ShellAPI,
+	VirtualTrees.Header;
 
 {$R *.dfm}
 
@@ -107,7 +130,7 @@ begin
 	FRGLongParamHelpRegex := TRegex.Create(RG_HELP_LONG_PARAM_REGEX);
 	FGroupIngLineRegex := TRegex.Create('^([A-Z][ A-Z]+):');
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
-	LoadRipGrepHelp;
+	llblHelp.Caption := '<a href="' + WWW_LINK_RG_MAN_PAGE + '">' + WWW_LINK_RG_MAN_PAGE + '</a>';
 end;
 
 destructor TRipGrepOptionsForm.Destroy;
@@ -130,28 +153,30 @@ end;
 
 procedure TRipGrepOptionsForm.AddColumn(const _caption : string);
 var
-	col : TListColumn;
+	vtc : TVirtualTreeColumn;
 begin
-	col := ListView1.Columns.Add();
-	col.AutoSize := True;
-	col.Caption := _caption;
+	vtc := VstResult.Header.Columns.Add;
+	vtc.Text := _caption;
 end;
 
 procedure TRipGrepOptionsForm.CreateItems(_sl : TStrings);
 begin
 
-	ListView1.ViewStyle := vsReport;
-	ListView1.GroupView := True;
-	// ListView1.Checkboxes := True;
+	InitVirtualTree;
+
 	AddColumns;
 	SetGroup('INFO');
-	for var s : string in _sl do begin
-		ParseLine(s);
+
+	VstResult.BeginUpdate;
+	try
+		for var s : string in _sl do begin
+			ParseLine(s);
+		end;
+	finally
+		VstResult.EndUpdate;
+		VstResult.FullExpand;
+		VstResult.Realign;
 	end;
-	ListView_SetColumnWidth(ListView1.Handle, 0, ColumnTextWidth);
-	ListView_SetColumnWidth(ListView1.Handle, 1, ColumnTextWidth);
-	ListView_SetColumnWidth(ListView1.Handle, 2, ColumnTextWidth);
-	ListView_SetColumnWidth(ListView1.Handle, 3, ColumnTextWidth);
 end;
 
 procedure TRipGrepOptionsForm.LoadRipGrepHelp;
@@ -171,8 +196,9 @@ end;
 function TRipGrepOptionsForm.ParseLine(const _s : string) : THelpOptions;
 var
 	m, groupingMatch : TMatch;
-	ho : THelpOptions;
+	ho : THelpOptionsGroup;
 	group : string;
+	node : PVirtualNode;
 begin
 	groupingMatch := FGroupIngLineRegex.Match(_s);
 	if groupingMatch.Success then begin
@@ -182,26 +208,29 @@ begin
 	end;
 	m := FRGParamHelpRegex.Match(_s);
 	if m.Success then begin
-		ho := THelpOptions.New(
+		ho := THelpOptionsGroup.New(
+			{ } FGroupNode,
 			{ } m.Groups['short'].Value,
 			{ } m.Groups['long'].Value,
 			{ } m.Groups['value'].Value,
-			{ } m.Groups['desc'].Value,
-			{ } FGroup.Header);
-		SetItem(ho, FGroup.GroupID);
+			{ } m.Groups['desc'].Value);
+
+		node := AddVSTStructure(VstResult, FGroupNode, ho);
+		node.CheckType := ctCheckBox;
+
 	end else begin
-		ho := THelpOptions.New('', '', '', _s);
-		SetItem(ho, FGroup.GroupID, False);
+		ho := THelpOptionsGroup.New('', '', '', _s);
+		AddVSTStructure(VstResult, FGroupNode, ho);
 	end;
 
 end;
 
 procedure TRipGrepOptionsForm.SetGroup(const _groupHeader : string);
+var
+	ho : THelpOptionsGroup;
 begin
-	FGroup := ListView1.Groups.Add();
-	FGroup.Header := _groupHeader;
-	FGroup.State := [lgsNormal, lgsCollapsible];
-	FGroup.HeaderAlign := taLeftJustify;
+	ho.Group := _groupHeader;
+	FGroupNode := AddVSTStructure(VstResult, nil, ho);
 end;
 
 procedure TRipGrepOptionsForm.AddColumns;
@@ -212,50 +241,33 @@ begin
 	AddColumn('Value');
 end;
 
-procedure TRipGrepOptionsForm.DrawItemOnCanvas(_Canvas : TCanvas; const _Rect : TRect; _Item : TListItem; const _State : TOwnerDrawState);
+function TRipGrepOptionsForm.AddVSTStructure(AVST : TCustomVirtualStringTree; ANode : PVirtualNode; ARecord : THelpOptionsGroup)
+	: PVirtualNode;
 var
-	i : Integer;
-	x1 : integer;
-	x2 : integer;
-	r : TRect;
-	s : string;
+	Data : PHelpOptionsGroup;
 begin
-	if _item.SubItems.Count = 0 then
-		Exit;
+	Result := AVST.AddChild(ANode);
+	Data := AVST.GetNodeData(Result);
+	Avst.ValidateNode(Result, False);
+	Data^.Option := ARecord.Option;
+	Data^.Group := ARecord.Group;
+end;
 
-	_Canvas.SetSelectedColors(_State);
+procedure TRipGrepOptionsForm.FormShow(Sender : TObject);
+begin
+	LoadRipGrepHelp;
+end;
 
-	if not IsParameterHelpLine(_Item) then begin
-		// _Canvas.Brush.Color := cl3DLight;
-		_Canvas.Font.Color := clGrayText;
-	end;
+procedure TRipGrepOptionsForm.InitVirtualTree;
+begin
+	VstResult.TreeOptions.StringOptions := VstResult.TreeOptions.StringOptions + [toShowStaticText];
+	VstResult.TreeOptions.PaintOptions := VstResult.TreeOptions.PaintOptions + [toUseExplorerTheme];
+	VstResult.Header.Options := VstResult.Header.Options + [hoVisible, hoDblClickResize, hoAutoResize, hoAutoResizeInclCaption];
+	VstResult.TreeOptions.AutoOptions := VstResult.TreeOptions.AutoOptions + [toAutoSpanColumns];
+	VstResult.TreeOptions.SelectionOptions := VstResult.TreeOptions.SelectionOptions + [toFullRowSelect];
 
-	_Canvas.Brush.Style := bsSolid;
-	_Canvas.FillRect(_Rect);
-	_Canvas.Brush.Style := bsClear;
+	VstResult.NodeDataSize := SizeOf(THelpOptionsGroup);
 
-	x1 := _Rect.Left;
-	x2 := _Rect.Left;
-	r := _Rect;
-
-	for i := 0 to ListView1.Columns.Count - 1 do begin
-		inc(x2, ListView_GetColumnWidth(ListView1.Handle, ListView1.Columns[i].Index));
-		r.Left := x1;
-		r.Right := x2;
-
-		case i of
-			0 : begin
-				s := _Item.Caption;
-			end;
-			1, 2, 3 : begin
-				s := _Item.SubItems[i - 1];
-			end;
-			else
-			TDebugUtils.DebugMessage('Invalid index: ' + i.ToString);
-		end;
-		_Canvas.TextRect(r, s, [tfSingleLine, DT_ALIGN[ListView1.Columns[i].Alignment], tfVerticalCenter, tfEndEllipsis]);
-		x1 := x2;
-	end;
 end;
 
 function TRipGrepOptionsForm.IsParameterHelpLine(_Item : TListItem) : Boolean;
@@ -268,55 +280,101 @@ begin
 	Result := m.Success;
 end;
 
-procedure TRipGrepOptionsForm.ListView1Click(Sender : TObject);
+procedure TRipGrepOptionsForm.llblHelpLinkClick(Sender : TObject; const Link : string; LinkType : TSysLinkType);
+begin
+	ShellExecute(0, 'OPEN', PChar(Link), '', '', SW_SHOWNORMAL);
+end;
+
+procedure TRipGrepOptionsForm.VstResultChecked(Sender : TBaseVirtualTree; Node : PVirtualNode);
 var
+	NodeData : PHelpOptionsGroup;
 	option : string;
-	selected : TListItem;
 begin
-	selected := ListView1.Selected;
-	while selected <> nil do begin
-		// Add long option and value
-		option := selected.SubItems[1] + selected.SubItems[2];
-		if (FOptionList.IndexOf(option) < 0) then begin
-			FOptionList.Add(option);
-		end;
-		selected := ListView1.GetNextItem(selected, sdAll, [isSelected]);
+	NodeData := Sender.GetNodeData(Node);
+	option := NodeData.Option.Long + NodeData.Option.Value;
+	if (FOptionList.IndexOf(option) < 0) then begin
+		FOptionList.Add(option);
 	end;
 end;
 
-procedure TRipGrepOptionsForm.ListView1DrawItem(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
-begin
-	DrawItemOnCanvas(Sender.Canvas, Rect, Item, State);
-end;
-
-procedure TRipGrepOptionsForm.ListView1SelectItem(Sender : TObject; Item : TListItem; Selected : Boolean);
-begin
-	if Selected and not IsParameterHelpLine(Item) then begin
-		Item.Selected := false;
-	end;
-end;
-
-procedure TRipGrepOptionsForm.SetItem(const _ho : THelpOptions; const _groupId : Integer; const _bEnabled : Boolean = True);
+procedure TRipGrepOptionsForm.VstResultFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
 var
-	i : TListItem;
+	NodeData : PHelpOptionsGroup;
 begin
-	i := ListView1.Items.Add();
-	// i.Checked := _bEnabled;
-	i.Caption := _ho.Description;
-	i.SubItems.Add(_ho.short); // 0
-	i.SubItems.Add(_ho.long); // 1
-	i.SubItems.Add(_ho.value); // 2
-	i.GroupId := _groupId;
+	NodeData := Sender.GetNodeData(Node);
+	NodeData.Group := '';
+	NodeData.Option := THelpOptions.New('');
+end;
+
+procedure TRipGrepOptionsForm.VstResultGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
+	TextType : TVSTTextType; var CellText : string);
+var
+	NodeData : PHelpOptionsGroup;
+begin
+	NodeData := Sender.GetNodeData(Node);
+	CellText := '';
+	// return the the identifier of the node
+	if (TextType = ttNormal) and (NodeData^.Option.description <> '') then begin
+		case Column of
+			- 1, 0 : // main column, -1 if columns are hidden, 0 if they are shown
+			CellText := NodeData^.Option.description;
+			1 :
+			CellText := NodeData^.Option.short;
+			2 :
+			CellText := NodeData^.Option.long;
+			3 :
+			CellText := NodeData^.Option.value;
+		end;
+	end else begin
+		if TextType = ttNormal then begin
+			case Column of
+				- 1, 0 :
+				CellText := NodeData^.Group;
+			end;
+		end;
+	end;
+end;
+
+procedure TRipGrepOptionsForm.VstResultPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode;
+	Column : TColumnIndex; TextType : TVSTTextType);
+begin
+	if TextType = ttNormal then begin
+		case Column of
+			0 : begin
+				if Node.ChildCount > 0 then begin
+					TargetCanvas.Font.Style := TargetCanvas.Font.Style + [fsBold];
+					TargetCanvas.Font.Color := clPurple;
+				end;
+			end;
+		end;
+	end else begin // ttStatic
+		// TargetCanvas.Font.Color := clPurple;
+	end;
 end;
 
 class function THelpOptions.New(const _short : string; const _long : string = ''; const _value : string = '';
-	const _description : string = ''; const _group : string = '') : THelpOptions;
+	const _description : string = '') : THelpOptions;
 begin
 	Result.Short := _short;
 	Result.Long := _long;
 	Result.Value := _value;
-	Result.Description := _description;
+	Result.Description := _description.Trim;
+end;
+
+class function THelpOptionsGroup.New(const _short : string; const _long : string = ''; const _value : string = '';
+	const _description : string = ''; const _group : string = '') : THelpOptionsGroup;
+begin
+	Result.Option := THelpOptions.New(_short, _long, _value, _description);
 	Result.Group := _group;
+end;
+
+class function THelpOptionsGroup.New(const _group : PVirtualNode; const _short : string = ''; const _long : string = '';
+	const _value : string = ''; const _description : string = '') : THelpOptionsGroup;
+var
+	ho : THelpOptionsGroup;
+begin
+	ho := _group.GetData<THelpOptionsGroup>();
+	Result := THelpOptionsGroup.New(_short, _long, _value, _description, ho.Group);
 end;
 
 end.

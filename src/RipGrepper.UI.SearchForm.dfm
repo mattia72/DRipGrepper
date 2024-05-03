@@ -369,7 +369,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Margins.Top = 8
         Margins.Right = 8
         Margins.Bottom = 8
-        Action = ActionShowFileMaskHelp
+        Action = ActionShowRGOptionsHelp
         Anchors = [akTop, akRight]
         ImageAlignment = iaCenter
         Images = ImageList1
@@ -1174,12 +1174,12 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       OnExecute = ActionCopyToClipboardExecute
     end
     object ActionShowFileMaskHelp: TAction
-      Hint = 'Show help for globbing...'
+      Hint = 'Show Help for Globbing...'
       ImageIndex = 12
       OnExecute = ActionShowRGOptionsHelpExecute
     end
     object ActionShowRGOptionsHelp: TAction
-      Caption = 'ActionShowRGOptionsHelp'
+      Hint = 'Show RipGrep Man Page...'
       ImageIndex = 12
       OnExecute = ActionShowRGOptionsHelpExecute
     end

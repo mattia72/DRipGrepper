@@ -135,7 +135,7 @@ implementation
 
 uses
 	RipGrepper.Common.Constants,
-	RipGrepper.Tools.DebugTools,
+	RipGrepper.Tools.DebugUtils,
 	RipGrepper.UI.ParentFrame,
 	GX_OtaUtils,
 	System.SysUtils;

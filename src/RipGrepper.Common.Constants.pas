@@ -10,13 +10,14 @@ uses
 	Vcl.Graphics;
 
 const
-    WWW_LINK_RG_MAN_PAGE = 'https://www.mankier.com/1/rg#Options';
-	WWW_LNK_GLOBBING_HELP = 'https://www.w3schools.com/git/git_ignore.asp'; //https://www.mankier.com/5/gitignore
 	APPNAME = 'DRipGrepper';
 	EXTENSION_NAME = 'DRipExtension';
-	EXTENSION_MENU_CAPTION = 'DRipGrepper';
+	CAPTION_EXTENSION_MENU = 'DRipGrepper';
 
 	CAPTION_GRPBX_EXPERT_MODE = 'Expert Settings';
+
+	WWW_LINK_RG_MAN_PAGE = 'https://www.mankier.com/1/rg#Options';
+	WWW_LINK_GLOBBING_HELP = 'https://www.w3schools.com/git/git_ignore.asp'; //https://www.mankier.com/5/gitignore
 
 	FORMAT_VERSION_INFO = '%s v%d.%d.%d-beta';
 	FORMAT_VERSION_INFO_IN_STATUSBAR = '%s   ';
@@ -123,7 +124,7 @@ const
 
 	RG_ERROR_MSG_PREFIX = 'rg:';
 	IMAGERES_DLL_ICON_IDX_ERROR = 93;
-	RG_PARSE_ERROR = 'rg.exe result line couldn''t parsed.';
+	RG_PARSE_ERROR = 'not parsed output';
 	RG_ENDED_ERROR = ' failed with exit code: ';
 	RG_HAS_NO_OUTUT = ' has no output.';
 
@@ -131,7 +132,7 @@ type
 
 	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
 	TFileNameType = (ftAbsolute, ftRelative);
-	TColumnIndex = (ciFile, ciRow, ciCol, ciText, ciMatchText, ciTextAfterMatch, ciRowNr);
+	EColumnIndex = (ciFile, ciRow, ciCol, ciText, ciMatchText, ciTextAfterMatch, ciRowNr);
 	TRipGrepArguments = TStringList;
 
 	{$SCOPEDENUMS ON}
