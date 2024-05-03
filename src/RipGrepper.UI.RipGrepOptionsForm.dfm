@@ -242,17 +242,6 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 2
-    object Label1: TLabel
-      Left = 15
-      Top = 33
-      Width = 310
-      Height = 15
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Caption = '(You can use Ctrl + Click to select multiple options to edit.)'
-    end
     object Label2: TLabel
       Left = 15
       Top = 15
@@ -277,6 +266,15 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
       TabOrder = 0
       UseVisualStyle = True
       OnLinkClick = llblHelpLinkClick
+    end
+    object edtSearch: TEdit
+      Left = 672
+      Top = 26
+      Width = 124
+      Height = 23
+      TabOrder = 1
+      Text = 'edtSearch'
+      OnChange = edtSearchChange
     end
   end
   object ActionList1: TActionList

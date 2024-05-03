@@ -35,6 +35,7 @@ type
 
 		class function New(const _short : string; const _long : string = ''; const _value : string = ''; const _description : string = '')
 			: THelpOptions; static;
+		function ToString : string;
 	end;
 
 	PHelpOptions = ^THelpOptions;
@@ -60,12 +61,13 @@ type
 		ActionAdd : TAction;
 		PanelBottom : TPanel;
 		PanelTop : TPanel;
-		Label1 : TLabel;
 		Label2 : TLabel;
 		llblHelp : TLinkLabel;
 		VstResult : TVirtualStringTree;
+		edtSearch : TEdit;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionOkExecute(Sender : TObject);
+		procedure edtSearchChange(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 		procedure llblHelpLinkClick(Sender : TObject; const Link : string; LinkType : TSysLinkType);
 		procedure LoadRipGrepHelp();
@@ -96,6 +98,7 @@ type
 			constructor Create(AOwner : TComponent; const _settings : TRipGrepParameterSettings); reintroduce; virtual;
 			destructor Destroy; override;
 			procedure CreateItems(_sl : TStrings);
+			procedure SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
 			{ Public-Deklarationen }
 	end;
 
@@ -113,7 +116,8 @@ uses
 	Winapi.UxTheme,
 	System.Math,
 	Winapi.ShellAPI,
-	VirtualTrees.Header;
+	VirtualTrees.Header,
+	System.StrUtils;
 
 {$R *.dfm}
 
@@ -252,6 +256,22 @@ begin
 	Data^.Group := ARecord.Group;
 end;
 
+procedure TRipGrepOptionsForm.edtSearchChange(Sender : TObject);
+var
+	foundNode : PVirtualNode;
+begin
+	inherited;
+	// first param is your starting point. nil starts at top of tree. if you want to implement findnext
+	// functionality you will need to supply the previous found node to continue from that point.
+	// be sure to set the IncrementalSearchTimeout to allow users to type a few characters before starting a search.
+	foundNode := VstResult.IterateSubtree(nil, SearchForText, pointer(edtSearch.text));
+
+	if Assigned(foundNode) then begin
+		VstResult.FocusedNode := foundNode;
+		VstResult.Selected[foundNode] := True;
+	end;
+end;
+
 procedure TRipGrepOptionsForm.FormShow(Sender : TObject);
 begin
 	LoadRipGrepHelp;
@@ -272,6 +292,17 @@ end;
 procedure TRipGrepOptionsForm.llblHelpLinkClick(Sender : TObject; const Link : string; LinkType : TSysLinkType);
 begin
 	ShellExecute(0, 'OPEN', PChar(Link), '', '', SW_SHOWNORMAL);
+end;
+
+procedure TRipGrepOptionsForm.SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
+var
+	dataStr : string;
+	NodeData : PHelpOptionsGroup; // replace by your record structure
+begin
+	NodeData := Sender.GetNodeData(Node);
+	dataStr := NodeData.Option.ToString;
+	Abort := ContainsText(dataStr, string(data)); // abort the search if a node with the text is found.
+	TDebugUtils.DebugMessage(Format('%s in %s', [string(data), dataStr]));
 end;
 
 procedure TRipGrepOptionsForm.VstResultChecked(Sender : TBaseVirtualTree; Node : PVirtualNode);
@@ -348,6 +379,11 @@ begin
 	Result.Long := _long;
 	Result.Value := _value;
 	Result.Description := _description.Trim;
+end;
+
+function THelpOptions.ToString : string;
+begin
+	Result := Description + ' ' + Short + ' ' + Long + ' ' + Value;
 end;
 
 class function THelpOptionsGroup.New(const _short : string; const _long : string = ''; const _value : string = '';
