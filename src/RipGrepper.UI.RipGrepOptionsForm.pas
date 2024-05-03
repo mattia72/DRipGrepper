@@ -88,7 +88,6 @@ type
 			procedure AddColumns;
 			function AddVSTStructure(AVST : TCustomVirtualStringTree; ANode : PVirtualNode; ARecord : THelpOptionsGroup) : PVirtualNode;
 			procedure InitVirtualTree;
-			function IsParameterHelpLine(_Item : TListItem) : Boolean;
 			function ParseLine(const _s : string) : THelpOptions;
 			procedure SetGroup(const _groupHeader : string);
 
@@ -268,16 +267,6 @@ begin
 
 	VstResult.NodeDataSize := SizeOf(THelpOptionsGroup);
 
-end;
-
-function TRipGrepOptionsForm.IsParameterHelpLine(_Item : TListItem) : Boolean;
-var
-	s : string;
-	m : TMatch;
-begin
-	s := _Item.SubItems[1];
-	m := FRGLongParamHelpRegex.Match(s);
-	Result := m.Success;
 end;
 
 procedure TRipGrepOptionsForm.llblHelpLinkClick(Sender : TObject; const Link : string; LinkType : TSysLinkType);
