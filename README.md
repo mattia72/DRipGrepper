@@ -13,7 +13,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
   - [x] --vimgrep --context NUM (or -A=NUM -B=NUM) parser
   - [ ] --invert-match parser
   - [ ] --stats parser eg. msgbox on end with search statistics
-  - [ ] no match parser, if nothing found
+  - [x] no match parser, if nothing found (0 in 0)
 - [x] toolbar buttons to 
   - [x] expand / collapse tree
   - [x] show/hide icons
@@ -33,6 +33,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 - [x] help parametrizing `rg` in search dialog
   - [x] filter help texts: can't be selected 
   - [x] expert mode set in `DripGrepper.ini` makes rg options visible
+    - [x] option helper form 
     - [ ] appropriate parameters will be filtered 
   - [x] quick buttons for
     - [x] --ignore-case
@@ -65,14 +66,14 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
   - [x] *Open with...* settings saved
 - [ ] configuration dialog
 
-### Delphi Extension https://github.com/mattia72/DRipGrepper/issues/1
+### Delphi Extension 
   - [x] dockable window
   - [x] high DPI Scaling 
   - [x] menu item in Tools (shortcut configurable in `DripExtension*.ini`)
   - [x] Default shortcut Shift+Alt+R
   - [x] click on matching file, opens file in the editor on position 
      - [ ] expand collapsed code in {$REGION}-s
-  - [ ] popup menu
+  - [x] popup menu
   - [ ] save window position
   - [ ] search word on cursor
   - [ ] search only in opened files/project files/project group
