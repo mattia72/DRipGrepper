@@ -195,7 +195,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Top = 38
         Width = 413
         Height = 23
-        Hint = 'Search text or pattern'
+        Hint = 'Search Text or Pattern'
         Margins.Left = 8
         Margins.Top = 8
         Margins.Right = 8
@@ -480,11 +480,11 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Left = 8
         Top = 36
         Width = 413
-        Height = 23
-        Hint = 'Files or folders delimited by semicolon'
-        Margins.Left = 8
+		Height = 23
+		Hint = 'Files or Folders, Separated by Semicolons'
+		Margins.Left = 8
         Margins.Top = 8
-        Margins.Right = 8
+		Margins.Right = 8
         Margins.Bottom = 8
         Anchors = [akLeft, akTop, akRight]
         ParentShowHint = False

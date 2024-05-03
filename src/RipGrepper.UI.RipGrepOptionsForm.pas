@@ -23,7 +23,8 @@ uses
 	RipGrepper.UI.DpiScaler,
 	RipGrepper.Common.Settings.RipGrepParameterSettings,
 	VirtualTrees,
-	VirtualTrees.Types;
+	VirtualTrees.Types, 
+	Vcl.WinXCtrls;
 
 type
 
@@ -64,13 +65,13 @@ type
 		Label2 : TLabel;
 		llblHelp : TLinkLabel;
 		VstResult : TVirtualStringTree;
-		edtSearch : TEdit;
+    SearchBox1: TSearchBox;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionOkExecute(Sender : TObject);
-		procedure edtSearchChange(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 		procedure llblHelpLinkClick(Sender : TObject; const Link : string; LinkType : TSysLinkType);
 		procedure LoadRipGrepHelp();
+		procedure SearchBox1Change(Sender: TObject);
 		procedure VstResultChecked(Sender : TBaseVirtualTree; Node : PVirtualNode);
 		procedure VstResultFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
 		procedure VstResultGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType;
@@ -110,10 +111,8 @@ implementation
 uses
 	RipGrepper.Tools.ProcessUtils,
 	RipGrepper.Common.Constants,
-	Winapi.CommCtrl,
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.DebugUtils,
-	Winapi.UxTheme,
 	System.Math,
 	Winapi.ShellAPI,
 	VirtualTrees.Header,
@@ -256,22 +255,6 @@ begin
 	Data^.Group := ARecord.Group;
 end;
 
-procedure TRipGrepOptionsForm.edtSearchChange(Sender : TObject);
-var
-	foundNode : PVirtualNode;
-begin
-	inherited;
-	// first param is your starting point. nil starts at top of tree. if you want to implement findnext
-	// functionality you will need to supply the previous found node to continue from that point.
-	// be sure to set the IncrementalSearchTimeout to allow users to type a few characters before starting a search.
-	foundNode := VstResult.IterateSubtree(nil, SearchForText, pointer(edtSearch.text));
-
-	if Assigned(foundNode) then begin
-		VstResult.FocusedNode := foundNode;
-		VstResult.Selected[foundNode] := True;
-	end;
-end;
-
 procedure TRipGrepOptionsForm.FormShow(Sender : TObject);
 begin
 	LoadRipGrepHelp;
@@ -286,12 +269,27 @@ begin
 	VstResult.TreeOptions.SelectionOptions := VstResult.TreeOptions.SelectionOptions + [toFullRowSelect];
 
 	VstResult.NodeDataSize := SizeOf(THelpOptionsGroup);
-
 end;
 
 procedure TRipGrepOptionsForm.llblHelpLinkClick(Sender : TObject; const Link : string; LinkType : TSysLinkType);
 begin
 	ShellExecute(0, 'OPEN', PChar(Link), '', '', SW_SHOWNORMAL);
+end;
+
+procedure TRipGrepOptionsForm.SearchBox1Change(Sender: TObject);
+var
+	foundNode : PVirtualNode;
+begin
+	inherited;
+	// first param is your starting point. nil starts at top of tree. if you want to implement findnext
+	// functionality you will need to supply the previous found node to continue from that point.
+	// be sure to set the IncrementalSearchTimeout to allow users to type a few characters before starting a search.
+	foundNode := VstResult.IterateSubtree(nil, SearchForText, pointer(SearchBox1.text));
+
+	if Assigned(foundNode) then begin
+		VstResult.FocusedNode := foundNode;
+		VstResult.Selected[foundNode] := True;
+	end;
 end;
 
 procedure TRipGrepOptionsForm.SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);

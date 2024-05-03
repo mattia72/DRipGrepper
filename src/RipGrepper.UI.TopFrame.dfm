@@ -14,9 +14,9 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     Left = 3
     Top = 3
     Width = 1614
-    Height = 25
+    Height = 23
     AutoSize = True
-    ButtonHeight = 25
+    ButtonHeight = 23
     ButtonWidth = 25
     Caption = 'ToolBar1'
     Images = ImageListButtons
@@ -194,6 +194,21 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Margins.Right = 20
       Margins.Bottom = 20
       Action = ActionConfig
+    end
+    object SearchBox1: TSearchBox
+      AlignWithMargins = True
+      Left = 353
+      Top = 0
+      Width = 121
+      Height = 23
+      Hint = 'Search between Results'
+      TabStop = False
+      Alignment = taRightJustify
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 0
+      TextHint = 'Search'
+      OnChange = SearchBox1Change
     end
   end
   object ImageListButtons: TImageList
@@ -1142,7 +1157,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     end
     object ActionConfig: TAction
       Caption = 'Config'
-      Hint = 'Open config dialog...'
+      Hint = 'Open Config...'
       ImageIndex = 0
       OnExecute = ActionConfigExecute
     end
@@ -1154,51 +1169,52 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     end
     object ActionShowRelativePath: TAction
       Caption = 'ActionShowRelativePath'
-      Hint = 'Show full or relative path'
+      Hint = 'Show Full or Relative Path'
       ImageIndex = 12
       OnExecute = ActionShowRelativePathExecute
       OnUpdate = ActionShowRelativePathUpdate
     end
     object ActionCmdLineCopy: TAction
       Caption = 'ActionCmdLineCopy'
-      Hint = 'Copy rg.exe command line to clipboard'
+      Hint = 'Copy Command Line to Clipboard'
       ImageIndex = 24
       ShortCut = 16451
       OnExecute = ActionCmdLineCopyExecute
     end
     object ActionCopyFileName: TAction
       Caption = 'Copy Name to Clipboard'
-      Hint = 'Sort'
+      Hint = 'Copy Name to Clipboard'
       OnExecute = ActionCopyFileNameExecute
     end
     object ActionCopyPathToClipboard: TAction
       Caption = 'Copy Path to Clipboard'
+      Hint = 'Copy Path to Clipboard'
       OnExecute = ActionCopyPathToClipboardExecute
     end
     object ActionShowSearchForm: TAction
       Caption = 'Search...'
-      Hint = 'Open search dialog...'
+      Hint = 'Search...'
       ImageIndex = 8
       ShortCut = 16467
       OnExecute = ActionShowSearchFormExecute
     end
     object ActionShowFileIcons: TAction
       Caption = 'Show File  Icons'
-      Hint = 'Show file  icons'
+      Hint = 'Show File  Icons'
       ImageIndex = 16
       OnExecute = ActionShowFileIconsExecute
       OnUpdate = ActionShowFileIconsUpdate
     end
     object ActionAlternateRowColors: TAction
       Caption = 'Alternate'
-      Hint = 'Alternate row colors'
+      Hint = 'Alternate Row Colors'
       ImageIndex = 13
       OnExecute = ActionAlternateRowColorsExecute
       OnUpdate = ActionAlternateRowColorsUpdate
     end
     object ActionAbortSearch: TAction
       Caption = 'Abort'
-      Hint = 'Abort running search'
+      Hint = 'Abort Running Search'
       ImageIndex = 18
       ShortCut = 16411
       OnExecute = ActionAbortSearchExecute
@@ -1206,7 +1222,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     end
     object ActionRefreshSearch: TAction
       Caption = 'Refresh'
-      Hint = 'Refresh search results'
+      Hint = 'Refresh Results'
       ImageIndex = 15
       ShortCut = 116
       OnExecute = ActionRefreshSearchExecute
@@ -1214,20 +1230,20 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     end
     object ActionIndentLine: TAction
       Caption = 'Indent'
-      Hint = 'Indent matched lines'
+      Hint = 'Indent Matched Lines'
       ImageIndex = 17
       OnExecute = ActionIndentLineExecute
       OnUpdate = ActionIndentLineUpdate
     end
     object ActionOpenWith: TAction
       Caption = 'Open with...'
-      Hint = 'Open with...'
+      Hint = 'Open With...'
       ImageIndex = 19
       OnExecute = ActionOpenWithExecute
     end
     object ActionExpandCollapse: TAction
       Caption = 'Expand'
-      Hint = 'Expand results'
+      Hint = '[B]Expand [/B]Results'
       ImageIndex = 22
       OnExecute = ActionExpandCollapseExecute
       OnUpdate = ActionExpandCollapseUpdate

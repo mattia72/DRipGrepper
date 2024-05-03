@@ -267,14 +267,19 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
       UseVisualStyle = True
       OnLinkClick = llblHelpLinkClick
     end
-    object edtSearch: TEdit
-      Left = 672
-      Top = 26
-      Width = 124
+    object SearchBox1: TSearchBox
+      AlignWithMargins = True
+      Left = 675
+      Top = 31
+      Width = 121
       Height = 23
+      Hint = 'Search Text in Result List'
+      Alignment = taRightJustify
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 1
-      Text = 'edtSearch'
-      OnChange = edtSearchChange
+      TextHint = 'Search Text'
+      OnChange = SearchBox1Change
     end
   end
   object ActionList1: TActionList

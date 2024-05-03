@@ -20,7 +20,10 @@ uses
 	Vcl.ActnList,
 	RipGrepper.Common.Settings,
 	RipGrepper.UI.MiddleFrame,
-	RipGrepper.UI.DpiScaler;
+	RipGrepper.UI.DpiScaler,
+	Vcl.StdCtrls,
+	Vcl.WinXCtrls,
+	VirtualTrees;
 
 type
 
@@ -61,6 +64,7 @@ type
 		tbExpandCollapse : TToolButton;
 		ActionExpandCollapse : TAction;
 		ToolButton7 : TToolButton;
+		SearchBox1 : TSearchBox;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlternateRowColorsExecute(Sender : TObject);
@@ -87,6 +91,7 @@ type
 		procedure ActionShowSearchFormUpdate(Sender : TObject);
 		procedure ActionSwitchViewExecute(Sender : TObject);
 		procedure ActionSwitchViewUpdate(Sender : TObject);
+		procedure SearchBox1Change(Sender : TObject);
 
 		private
 			FDpiScaler : TRipGrepperDpiScaler;
@@ -99,6 +104,7 @@ type
 			constructor Create(AOwner : TComponent); override;
 			destructor Destroy; override;
 			function GetNextViewStyleIdx : Integer;
+			procedure SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
 	end;
 
 implementation
@@ -118,7 +124,8 @@ uses
 	System.Math,
 	System.StrUtils,
 	RipGrepper.Common.Settings.RipGrepParameterSettings,
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils,
+	RipGrepper.UI.RipGrepOptionsForm, RipGrepper.Common.ParsedObject;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -170,7 +177,7 @@ end;
 
 procedure TRipGrepperTopFrame.ActionCmdLineCopyUpdate(Sender : TObject);
 begin
-	ActionCmdLineCopy.Hint := 'Copy command line:' + CRLF + Settings.RipGrepParameters.GetCommandLine;
+	ActionCmdLineCopy.Hint := 'Copy Command Line:' + CRLF + Settings.RipGrepParameters.GetCommandLine;
 end;
 
 procedure TRipGrepperTopFrame.ActionConfigExecute(Sender : TObject);
@@ -207,7 +214,7 @@ end;
 procedure TRipGrepperTopFrame.ActionExpandCollapseUpdate(Sender : TObject);
 begin
 	ActionExpandCollapse.ImageIndex := IfThen(Settings.RipGrepperViewSettings.ExpandNodes, 23, 22);
-	ActionExpandCollapse.Hint := IfThen(Settings.RipGrepperViewSettings.ExpandNodes, 'Collapse nodes', 'Expand nodes');
+	ActionExpandCollapse.Hint := IfThen(Settings.RipGrepperViewSettings.ExpandNodes, 'Collapse Nodes', 'Expand Nodes');
 end;
 
 procedure TRipGrepperTopFrame.ActionIndentLineExecute(Sender : TObject);
@@ -348,6 +355,33 @@ begin
 		FSettings := GSettings;
 	end;
 	Result := FSettings;
+end;
+
+procedure TRipGrepperTopFrame.SearchBox1Change(Sender : TObject);
+var
+	foundNode : PVirtualNode;
+begin
+	inherited;
+	// first param is your starting point. nil starts at top of tree. if you want to implement findnext
+	// functionality you will need to supply the previous found node to continue from that point.
+	// be sure to set the IncrementalSearchTimeout to allow users to type a few characters before starting a search.
+	foundNode := MainFrame.VstResult.IterateSubtree(nil, SearchForText, pointer(SearchBox1.text));
+
+	if Assigned(foundNode) then begin
+		MainFrame.VstResult.FocusedNode := foundNode;
+		MainFrame.VstResult.Selected[foundNode] := True;
+	end;
+end;
+
+procedure TRipGrepperTopFrame.SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
+var
+	dataStr : string;
+	NodeData : PVSFileNodeData; // replace by your record structure
+begin
+	NodeData := Sender.GetNodeData(Node);
+	dataStr := NodeData.FilePath + ' ' + NodeData.MatchData.RowText;
+	Abort := ContainsText(dataStr, string(data)); // abort the search if a node with the text is found.
+	TDebugUtils.DebugMessage(Format('%s in %s', [string(data), dataStr]));
 end;
 
 end.
