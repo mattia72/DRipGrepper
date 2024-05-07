@@ -65,6 +65,7 @@ type
 		ActionExpandCollapse : TAction;
 		ToolButton7 : TToolButton;
 		SearchBox1 : TSearchBox;
+		ToolBar2 : TToolBar;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlternateRowColorsExecute(Sender : TObject);
@@ -125,7 +126,8 @@ uses
 	System.StrUtils,
 	RipGrepper.Common.Settings.RipGrepParameterSettings,
 	RipGrepper.Tools.DebugUtils,
-	RipGrepper.UI.RipGrepOptionsForm, RipGrepper.Common.ParsedObject;
+	RipGrepper.UI.RipGrepOptionsForm,
+	RipGrepper.Common.ParsedObject;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -379,7 +381,7 @@ var
 	NodeData : PVSFileNodeData; // replace by your record structure
 begin
 	NodeData := Sender.GetNodeData(Node);
-	dataStr := NodeData.FilePath + ' ' + NodeData.MatchData.RowText;
+	dataStr := NodeData.FilePath + ' ' + NodeData.MatchData.LineText;
 	Abort := ContainsText(dataStr, string(data)); // abort the search if a node with the text is found.
 	TDebugUtils.DebugMessage(Format('%s in %s', [string(data), dataStr]));
 end;
