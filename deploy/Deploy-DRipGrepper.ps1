@@ -168,5 +168,10 @@ if ( -not $(Test-YesAnswer "Commit updated manifests?")) {
     Write-Error "Commit canceled" -ErrorAction Stop
 }
 git commit -m "dripgrepper $global:Version"
+if ( -not $(Test-YesAnswer "Push updated manifests?")) {
+    Write-Error "Push canceled" -ErrorAction Stop
+}
 git push
+
 Pop-Location
+scoop update dripgrepper

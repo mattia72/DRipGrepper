@@ -795,7 +795,7 @@ begin
 			2 :
 			Result := CompareValue(Data1.MatchData.Col, Data2.MatchData.Col);
 			3 :
-			Result := CompareText(Data1.MatchData.RowText, Data2.MatchData.RowText);
+			Result := CompareText(Data1.MatchData.LineText, Data2.MatchData.LineText);
 
 		end;
 end;
@@ -883,41 +883,34 @@ var
 	nodeData : PVSFileNodeData;
 begin
 	nodeData := Sender.GetNodeData(Node);
-	// return identifier of the node
-	CellText := nodeData^.FilePath;
 
-	// return the the identifier of the node
-	if nodeData^.MatchData.RowText.IsEmpty then begin
-		CellText := '';
-	end else begin
-
-		case Column of
-			- 1, 0 : begin // main column, -1 if columns are hidden, 0 if they are shown
-				if TextType = ttNormal then begin
-					CellText := GetAbsOrRelativePath(nodeData^.FilePath);
-				end else begin // ttStatic
-					CellText := '';
-					if Node.ChildCount > 0 then begin
-						CellText := Format('[%d]', [Node.ChildCount]);
-					end;
+	case Column of
+		- 1, 0 : begin // main column, -1 if columns are hidden, 0 if they are shown
+			if TextType = ttNormal then begin
+				CellText := GetAbsOrRelativePath(nodeData^.FilePath);
+			end else begin // ttStatic
+				CellText := '';
+				if Node.ChildCount > 0 then begin
+					CellText := Format('[%d]', [Node.ChildCount]);
 				end;
-			end;
-			1 : begin
-				CellText := GetRowColText(nodeData.MatchData.Row, TextType);
-			end;
-			2 : begin
-				CellText := GetRowColText(nodeData.MatchData.Col, TextType);
-			end;
-			3 : begin
-				if (TextType = ttNormal) then begin
-					var
-						dummy : integer;
-					CellText := nodeData.GetText(Settings.RipGrepperViewSettings.IndentLines, dummy);
-				end;
-
 			end;
 		end;
+		1 : begin
+			CellText := GetRowColText(nodeData.MatchData.Row, TextType);
+		end;
+		2 : begin
+			CellText := GetRowColText(nodeData.MatchData.Col, TextType);
+		end;
+		3 : begin
+			if (TextType = ttNormal) then begin
+				var
+					dummy : integer;
+				CellText := nodeData.GetText(Settings.RipGrepperViewSettings.IndentLines, dummy);
+			end;
+
+		end;
 	end;
+
 end;
 
 procedure TRipGrepperMiddleFrame.VstResultHeaderClick(Sender : TVTHeader; HitInfo : TVTHeaderHitInfo);

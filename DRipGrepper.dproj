@@ -4,7 +4,7 @@
         <ProjectVersion>19.5</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -120,8 +120,8 @@
         <UWP_DelphiLogo150>icons\DripGrepperLogo.png</UWP_DelphiLogo150>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
-        <VerInfo_Build>15</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=;FileDescription=DRipGrepper;FileVersion=2.6.0.15;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=2.6.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Build>16</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=DRipGrepper;FileVersion=2.6.0.16;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=2.6.0.0;Comments=</VerInfo_Keys>
         <VerInfo_MinorVer>6</VerInfo_MinorVer>
     </PropertyGroup>
     <ItemGroup>

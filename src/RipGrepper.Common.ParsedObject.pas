@@ -14,9 +14,10 @@ type
 		Row : integer;
 		Col : integer;
 		MatchLength : integer;
-		RowText : string;
+		LineText : string;
 
 		public
+			function IsEmpty : Boolean;
 			class function New(_row, _col, _colEnd : Integer; _matchText : string) : TVSMatchData; static;
 			class operator Initialize(out Dest : TVSMatchData);
 	end;
@@ -301,11 +302,11 @@ var
 	sTrimmed : string;
 begin
 	if not _bTrimLeft then begin
-		Result := MatchData.RowText;
+		Result := MatchData.LineText;
 		_iTrimCount := 0;
 	end else begin
-		sTrimmed := MatchData.RowText.TrimLeft();
-		_iTrimCount := MatchData.RowText.Length - sTrimmed.Length;
+		sTrimmed := MatchData.LineText.TrimLeft();
+		_iTrimCount := MatchData.LineText.Length - sTrimmed.Length;
 		Result := sTrimmed;
 	end;
 
@@ -328,12 +329,17 @@ begin
 	Result.MatchData := TVSMatchData.New(_row, _col, -1, _matchText);
 end;
 
+function TVSMatchData.IsEmpty : Boolean;
+begin
+	Result := (Row = -1) and (Col = -1) and (MatchLength = -1) and (LineText.IsEmpty);
+end;
+
 class function TVSMatchData.New(_row, _col, _colEnd : Integer; _matchText : string) : TVSMatchData;
 begin
 	Result.Row := _row;
 	Result.Col := _col;
 	Result.MatchLength := _colEnd;
-	Result.RowText := _matchText;
+	Result.LineText := _matchText;
 end;
 
 class operator TVSMatchData.Initialize(out Dest : TVSMatchData);
@@ -341,7 +347,7 @@ begin
 	Dest.Row := -1;
 	Dest.Col := -1;
 	Dest.MatchLength := -1;
-	Dest.RowText := '';
+	Dest.LineText := '';
 end;
 
 end.

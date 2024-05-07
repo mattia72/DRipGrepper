@@ -37,7 +37,8 @@ requires
   designide,
   dbrtl,
   vcldb,
-  vcl;
+  vcl,
+  VirtualTreesDR;
 
 contains
   DRipExtension.Main in 'src\DRipExtension.Main.pas',

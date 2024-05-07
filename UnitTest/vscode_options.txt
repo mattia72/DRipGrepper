@@ -1,0 +1,29 @@
+c:\home\mata\scoop\apps\vscode\1.88.1\resources\app\node_modules.asar.unpacked\@vscode\ripgrep\bin\
+
+
+rg.exe --hidden --no-require-git --ignore-case 
+-g !**/*.txt/** 
+-g !**/*.txt 
+-g !**/.git 
+-g !**/.svn 
+-g !**/.hg -g !**/CVS -g !**/.DS_Store -g !**/Thumbs.db -g !**/node_modules -g !**/bower_components -g !**/*.code-search 
+--no-ignore-parent --follow --crlf --fixed-strings --no-config --no-ignore-global --json -- SringList .
+
+--regexp "var \w+"
+
+rg.exe --hidden --no-require-git --ignore-case 
+-g **/*.pas/** -g **/*.pas 
+-g !**/__*/** -g !**/__* 
+--no-ignore --follow --crlf 
+--regexp "\bvar V\b" --no-config --no-ignore-global --json -- .
+
+rg.exe --hidden --no-require-git --ignore-case -g !**/__*/** -g !**/__* 
+--no-ignore --follow --crlf 
+--regexp \{\$IF\b 
+--no-config --no-ignore-global --json -- .
+
+Use exclude settings and ignore files:
+
+rg.exe --hidden --no-require-git --ignore-case -g **/R*.pas/** -g **/R*.pas -g **/*.inc/** -g **/*.inc -g !**/*.txt/** -g !**/*.txt 
+-g !**/.git -g !**/.svn -g !**/.hg -g !**/CVS -g !**/.DS_Store -g !**/Thumbs.db -g !**/node_modules -g !**/bower_components -g !**/*.code-search 
+--no-ignore-parent --follow --crlf --engine auto --regexp StringList --no-config --no-ignore-global --json -- .

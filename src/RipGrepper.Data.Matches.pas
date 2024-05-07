@@ -177,7 +177,7 @@ end;
 
 function TRipGrepperData.GetTotalMatchCount : Integer;
 begin
-	Result := HistObject.Matches.Items.Count;
+	Result := HistObject.Matches.Items.Count; // Todo: filter context lines
 	{$IFDEF THREADSAFE_LIST}
 	HistObject.Matches.Unlock;
 	{$ENDIF}
@@ -271,7 +271,7 @@ begin
 		nodeData := TVSFileNodeData.New('', // File
 		{ } StrToIntDef(_item.Columns[Integer(ciRow)].Text, -1), // Row
 		{ } StrToIntDef(_item.Columns[Integer(ciCol)].Text, -1), // Col
-		{ } _item.Columns[Integer(ciText)].Text // RowText
+		{ } _item.Columns[Integer(ciText)].Text // LineText
 			);
 		ptRipGrepPrettySearch :
 		nodeData := TVSFileNodeData.New('', // File
@@ -285,7 +285,7 @@ begin
 		nodeData := TVSFileNodeData.New(_item.Columns[Integer(ciFile)].Text, // File
 		{ } -1, // Row
 		{ } -1, // Col
-		{ } ''); // RowText
+		{ } ''); // LineText
 
 	end;
 
