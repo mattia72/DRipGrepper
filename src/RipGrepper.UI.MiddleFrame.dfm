@@ -33,6 +33,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
       OpenedWidth = 794
       Placement = svpLeft
       TabOrder = 0
+      OnResize = SplitView1Resize
       object Splitter1: TSplitter
         Left = 191
         Top = 0
@@ -42,6 +43,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
         Margins.Right = 8
         Margins.Bottom = 8
         Align = alRight
+        OnMoved = Splitter1Moved
       end
       object PanelHistory: TPanel
         Left = 0
@@ -58,14 +60,10 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
         TabOrder = 0
         object ListBoxSearchHistory: TListBox
           AlignWithMargins = True
-          Left = 9
-          Top = 9
-          Width = 173
-          Height = 319
-          Margins.Left = 8
-          Margins.Top = 8
-          Margins.Right = 8
-          Margins.Bottom = 8
+          Left = 4
+          Top = 4
+          Width = 183
+          Height = 329
           Style = lbVirtualOwnerDraw
           Align = alClient
           ItemHeight = 30

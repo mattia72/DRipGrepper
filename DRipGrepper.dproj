@@ -1107,6 +1107,7 @@
                     <IfExpressions/>
                 </Parser>
             </MMX>
+            <ModelSupport>False</ModelSupport>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>
     </ProjectExtensions>
