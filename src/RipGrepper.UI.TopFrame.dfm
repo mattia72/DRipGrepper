@@ -1,135 +1,38 @@
 object RipGrepperTopFrame: TRipGrepperTopFrame
   Left = 0
   Top = 0
-  Width = 786
-  Height = 26
-  Margins.Left = 8
-  Margins.Top = 0
-  Margins.Right = 8
-  Margins.Bottom = 0
+  Width = 817
+  Height = 37
   Align = alTop
   TabOrder = 0
-  OnResize = FrameResize
   object ControlBar1: TControlBar
-    Left = 0
-    Top = 0
-    Width = 786
-    Height = 26
-    Margins.Top = 1
-    Margins.Bottom = 1
-    Align = alTop
+    AlignWithMargins = True
+    Left = 3
+    Top = 3
+    Width = 811
+    Height = 31
+    Align = alClient
     BevelInner = bvNone
     BevelOuter = bvNone
     BevelKind = bkNone
+    CornerEdge = ceNone
     PopupMenu = PopupMenu1
-    RowSnap = False
     TabOrder = 0
-    DesignSize = (
-      786
-      26)
-    object tbarSearch: TToolBar
-      Left = 11
-      Top = 2
-      Width = 146
-      Height = 23
-      Align = alNone
-      AutoSize = True
-      ButtonHeight = 23
-      ButtonWidth = 25
-      Caption = 'tbarSearch'
-      EdgeInner = esNone
-      EdgeOuter = esNone
-      Images = ImageListButtons
-      Indent = 5
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 0
-      object tbView: TToolButton
-        Left = 5
-        Top = 0
-        Margins.Left = 20
-        Margins.Top = 20
-        Margins.Right = 20
-        Margins.Bottom = 20
-        Action = ActionSwitchView
-      end
-      object tbDoSearchCancel: TToolButton
-        Left = 30
-        Top = 0
-        Margins.Left = 20
-        Margins.Top = 20
-        Margins.Right = 20
-        Margins.Bottom = 20
-        Action = ActionShowSearchForm
-      end
-      object tbRefreshSearch: TToolButton
-        Left = 55
-        Top = 0
-        Margins.Left = 20
-        Margins.Top = 20
-        Margins.Right = 20
-        Margins.Bottom = 20
-        Action = ActionRefreshSearch
-      end
-      object ToolButton3: TToolButton
-        Left = 80
-        Top = 0
-        Width = 8
-        Margins.Left = 20
-        Margins.Top = 20
-        Margins.Right = 20
-        Margins.Bottom = 20
-        Caption = 'ToolButton3'
-        ImageIndex = 13
-        Style = tbsSeparator
-      end
-      object tbAbortSearch: TToolButton
-        Left = 88
-        Top = 0
-        Margins.Left = 20
-        Margins.Top = 20
-        Margins.Right = 20
-        Margins.Bottom = 20
-        Action = ActionAbortSearch
-      end
-      object ToolButton1: TToolButton
-        Left = 113
-        Top = 0
-        Width = 8
-        Margins.Left = 20
-        Margins.Top = 20
-        Margins.Right = 20
-        Margins.Bottom = 20
-        Caption = 'ToolButton1'
-        ImageIndex = 9
-        Style = tbsSeparator
-      end
-      object tbCopyCmdLine: TToolButton
-        AlignWithMargins = True
-        Left = 121
-        Top = 0
-        Margins.Left = 20
-        Margins.Top = 20
-        Margins.Right = 20
-        Margins.Bottom = 20
-        Action = ActionCmdLineCopy
-      end
-    end
+    ExplicitHeight = 29
     object tbarResult: TToolBar
-      Left = 219
+      Left = 180
       Top = 2
-      Width = 302
-      Height = 23
-      Align = alNone
+      Width = 295
+      Height = 48
+      Align = alLeft
+      AutoSize = True
       ButtonHeight = 23
       ButtonWidth = 25
       Caption = 'tbarResult'
       EdgeInner = esNone
       EdgeOuter = esNone
       Images = ImageListButtons
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 1
+      TabOrder = 0
       object tbExpandCollapse: TToolButton
         Left = 0
         Top = 0
@@ -143,23 +46,23 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
         ImageIndex = 1
         Style = tbsSeparator
       end
-      object tbAlternateRowColors: TToolButton
+      object tbShowRelativePath: TToolButton
         Left = 33
         Top = 0
         Margins.Left = 20
         Margins.Top = 20
         Margins.Right = 20
         Margins.Bottom = 20
-        Action = ActionAlternateRowColors
+        Action = ActionShowRelativePath
       end
-      object tbShowRelativePath: TToolButton
+      object tbAlternateRowColors: TToolButton
         Left = 58
         Top = 0
         Margins.Left = 20
         Margins.Top = 20
         Margins.Right = 20
         Margins.Bottom = 20
-        Action = ActionShowRelativePath
+        Action = ActionAlternateRowColors
       end
       object tbShowFileIcon: TToolButton
         Left = 83
@@ -191,8 +94,41 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
         ImageIndex = 1
         Style = tbsSeparator
       end
-      object tbOpenWith: TToolButton
+      object SearchBox1: TSearchBox
         Left = 141
+        Top = 0
+        Width = 121
+        Height = 23
+        Hint = 'Search between Results'
+        TabStop = False
+        BevelInner = bvNone
+        BevelOuter = bvNone
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+        TextHint = 'Search'
+        OnChange = SearchBox1Change
+      end
+      object ToolButton6: TToolButton
+        Left = 262
+        Top = 0
+        Width = 8
+        Margins.Left = 20
+        Margins.Top = 20
+        Margins.Right = 20
+        Margins.Bottom = 20
+        Caption = 'ToolButton6'
+        ImageIndex = 20
+        Style = tbsSeparator
+      end
+      object tbOpenWith: TToolButton
+        Left = 270
         Top = 0
         Margins.Left = 20
         Margins.Top = 20
@@ -200,39 +136,104 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
         Margins.Bottom = 20
         Action = ActionOpenWith
       end
-      object ToolButton5: TToolButton
-        Left = 166
+    end
+    object tbarSearch: TToolBar
+      Left = 11
+      Top = 2
+      Width = 141
+      Height = 48
+      Align = alLeft
+      AutoSize = True
+      ButtonHeight = 23
+      ButtonWidth = 25
+      Caption = 'tbarSearch'
+      EdgeInner = esNone
+      EdgeOuter = esNone
+      Images = ImageListButtons
+      TabOrder = 1
+      object tbView: TToolButton
+        Left = 0
+        Top = 0
+        Margins.Left = 20
+        Margins.Top = 20
+        Margins.Right = 20
+        Margins.Bottom = 20
+        Action = ActionSwitchView
+      end
+      object tbDoSearchCancel: TToolButton
+        Left = 25
+        Top = 0
+        Margins.Left = 20
+        Margins.Top = 20
+        Margins.Right = 20
+        Margins.Bottom = 20
+        Action = ActionShowSearchForm
+      end
+      object tbRefreshSearch: TToolButton
+        Left = 50
+        Top = 0
+        Margins.Left = 20
+        Margins.Top = 20
+        Margins.Right = 20
+        Margins.Bottom = 20
+        Action = ActionRefreshSearch
+      end
+      object ToolButton3: TToolButton
+        Left = 75
         Top = 0
         Width = 8
-        Caption = 'ToolButton5'
-        ImageIndex = 20
+        Margins.Left = 20
+        Margins.Top = 20
+        Margins.Right = 20
+        Margins.Bottom = 20
+        Caption = 'ToolButton3'
+        ImageIndex = 13
         Style = tbsSeparator
       end
-      object SearchBox1: TSearchBox
-        AlignWithMargins = True
-        Left = 174
+      object tbAbortSearch: TToolButton
+        Left = 83
         Top = 0
-        Width = 121
-        Height = 23
-        Hint = 'Search between Results'
-        TabStop = False
-        Alignment = taRightJustify
-        ParentShowHint = False
-        ShowHint = True
-        TabOrder = 0
-        TextHint = 'Search'
-        OnChange = SearchBox1Change
+        Margins.Left = 20
+        Margins.Top = 20
+        Margins.Right = 20
+        Margins.Bottom = 20
+        Action = ActionAbortSearch
+      end
+      object ToolButton1: TToolButton
+        Left = 108
+        Top = 0
+        Width = 8
+        Margins.Left = 20
+        Margins.Top = 20
+        Margins.Right = 20
+        Margins.Bottom = 20
+        Caption = 'ToolButton1'
+        ImageIndex = 9
+        Style = tbsSeparator
+      end
+      object tbCopyCmdLine: TToolButton
+        AlignWithMargins = True
+        Left = 116
+        Top = 0
+        Margins.Left = 20
+        Margins.Top = 20
+        Margins.Right = 20
+        Margins.Bottom = 20
+        Action = ActionCmdLineCopy
       end
     end
     object tbarConfig: TToolBar
-      Left = 761
+      Left = 661
       Top = 2
-      Width = 23
-      Height = 22
-      Align = alNone
-      Anchors = [akLeft, akTop, akRight, akBottom]
+      Width = 25
+      Height = 48
+      Align = alLeft
       AutoSize = True
+      ButtonHeight = 23
+      ButtonWidth = 25
       Caption = 'tbarConfig'
+      EdgeInner = esNone
+      EdgeOuter = esNone
       Images = ImageListButtons
       TabOrder = 2
       object tbConfigure: TToolButton
@@ -243,6 +244,8 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
         Margins.Right = 20
         Margins.Bottom = 20
         Action = ActionConfig
+        ParentShowHint = False
+        ShowHint = True
       end
     end
   end
@@ -1283,16 +1286,16 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       OnExecute = ActionExpandCollapseExecute
       OnUpdate = ActionExpandCollapseUpdate
     end
-    object ActionRealignToolbars: TAction
+    object ActionAlignToolbars: TAction
       Caption = 'Align Toolbars'
-      OnExecute = ActionRealignToolbarsExecute
+      OnExecute = ActionAlignToolbarsExecute
     end
   end
   object PopupMenu1: TPopupMenu
-    Left = 640
-    Top = 10
-    object ShowToolbars1: TMenuItem
-      Action = ActionRealignToolbars
+    Left = 731
+    Top = 3
+    object AlignToolbar1: TMenuItem
+      Action = ActionAlignToolbars
     end
   end
 end
