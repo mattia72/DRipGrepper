@@ -297,13 +297,22 @@ end;
 procedure TRipGrepperMiddleFrame.AlignToolBars;
 begin
   if Assigned(TopFrame) then begin
-    TopFrame.tbarSearch.Top := 0;
-    TopFrame.tbarResult.Top := 0;
-    TopFrame.tbarConfig.Top := 0;
+    TopFrame.tbarSearch.Top := TopFrame.tbarSearch.Margins.Top;
+    TopFrame.tbarResult.Top := TopFrame.tbarResult.Margins.Top;
+    TopFrame.tbarConfig.Top := TopFrame.tbarConfig.Margins.Top;
 
     TopFrame.tbarSearch.Left := 0;
-    TopFrame.tbarResult.Left := PanelResult.Left;
-    TopFrame.tbarConfig.Left := PanelResult.Left + PanelResult.Width - TopFrame.tbarConfig.Width;
+    if PanelHistory.Width >= TopFrame.tbarSearch.Width then begin
+      TopFrame.tbarResult.Left := PanelResult.Left;
+    end else begin
+      TopFrame.tbarResult.Left := TopFrame.tbarSearch.Width + 2 * TopFrame.tbarSearch.Margins.Right;
+    end;
+
+    if PanelResult.Width <= (TopFrame.tbarResult.Width + TopFrame.tbarConfig.Width + 2 * TopFrame.tbarConfig.Margins.Left) then begin
+      TopFrame.tbarResult.Left := TopFrame.tbarConfig.Left - TopFrame.tbarResult.Width - 2 * TopFrame.tbarConfig.Margins.Left;
+    end;
+
+    // TopFrame.tbarConfig.Left := PanelResult.Left + PanelResult.Width - TopFrame.tbarConfig.Width;
   end;
 end;
 

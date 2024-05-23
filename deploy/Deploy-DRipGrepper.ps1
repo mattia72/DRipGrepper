@@ -4,20 +4,14 @@
 # - Change file version in project for all! configuration
 # - Commit and push all changes
 # - run this script
-$global:Version = "v2.6.0-beta"
-$global:PrevVersion = "v2.5.0-beta"
+$global:Version = "v2.6.1-beta"
+$global:PrevVersion = "v2.6.0-beta"
 $global:Description = @"
 ## Improvements and Bug Fixes
 
-## :mag: Search Dialog
-+ Improved option helper form 
 
 ### :warning: Bug Fixes
-* Refresh button caused exception if it pushed by empty history list
-* Hints of toolbar buttons are corrected 
-* Popup menu items are now disabled if no result item is selected 
-* DblClick on history item opens search with its settings
-* Memory leak corrections
+* Alig toolbars on split move and resize
 
 "@
 

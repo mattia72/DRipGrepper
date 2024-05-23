@@ -67,7 +67,6 @@ type
     ToolButton7 : TToolButton;
     SearchBox1 : TSearchBox;
     tbarResult : TToolBar;
-    ControlBar1 : TControlBar;
     tbarConfig : TToolBar;
     PopupMenu1 : TPopupMenu;
     AlignToolbar1 : TMenuItem;
@@ -111,7 +110,7 @@ type
       constructor Create(AOwner : TComponent); override;
       destructor Destroy; override;
       function GetNextViewStyleIdx : integer;
-    procedure Init;
+      procedure Init;
       procedure SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
   end;
 
@@ -377,10 +376,11 @@ end;
 
 procedure TRipGrepperTopFrame.Init;
 begin
- ControlBar1.Height := 31;
-  tbarSearch.Height := ControlBar1.Height;
-  tbarResult.Height := ControlBar1.Height;
-  tbarConfig.Height := ControlBar1.Height;
+//  var
+//  h := 26;
+//  tbarSearch.Height := h;
+//  tbarResult.Height := h;
+//  tbarConfig.Height := h;
 end;
 
 procedure TRipGrepperTopFrame.SearchBox1Change(Sender : TObject);
