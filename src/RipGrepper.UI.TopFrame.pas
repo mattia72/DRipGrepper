@@ -103,6 +103,8 @@ type
       FDpiScaler : TRipGrepperDpiScaler;
       FSettings : TRipGrepperSettings;
       FViewStyleIndex : integer;
+	procedure ActionRealignToolbarsExecute(Sender : TObject);
+	procedure FrameResize(Sender : TObject);
       function GetSettings : TRipGrepperSettings;
       property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
@@ -341,6 +343,11 @@ begin
   ActionShowSearchForm.Enabled := Settings.IsEmpty or (not MainFrame.IsSearchRunning);
 end;
 
+procedure TRipGrepperTopFrame.ActionRealignToolbarsExecute(Sender : TObject);
+begin
+	FrameResize(self);
+end;
+
 procedure TRipGrepperTopFrame.ActionSwitchViewExecute(Sender : TObject);
 var
   idx : integer;
@@ -358,6 +365,21 @@ begin
   idx := IfThen(next <= (Length(LISTVIEW_TYPES) - 1), next, 0);
   // ActionSwitchView.ImageIndex := idx + 2;
   ActionSwitchView.Hint := 'Change View ' + LISTVIEW_TYPE_TEXTS[idx];
+end;
+
+procedure TRipGrepperTopFrame.FrameResize(Sender : TObject);
+begin
+	tbarSearch.Top := 0;
+	tbarResult.Top := 0;
+	tbarConfig.Top := 0;
+
+	tbarSearch.Left := 0;
+	if MainFrame.PanelResult.Left > tbarSearch.Width then begin
+		tbarResult.Left := MainFrame.PanelResult.Left;
+	end else begin
+		tbarResult.Left := tbarSearch.Width;
+	end;
+	tbarConfig.Left := Width - tbarConfig.Width;
 end;
 
 function TRipGrepperTopFrame.GetNextViewStyleIdx : integer;
