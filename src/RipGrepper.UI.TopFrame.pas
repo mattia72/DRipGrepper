@@ -104,6 +104,8 @@ type
       FDpiScaler : TRipGrepperDpiScaler;
       FSettings : TRipGrepperSettings;
       FViewStyleIndex : integer;
+	procedure ActionRealignToolbarsExecute(Sender : TObject);
+	procedure FrameResize(Sender : TObject);
       function GetSettings : TRipGrepperSettings;
       property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
@@ -368,7 +370,7 @@ end;
 
 procedure TRipGrepperTopFrame.FrameResize(Sender : TObject);
 begin
-    tbarSearch.Top := 0;
+	tbarSearch.Top := 0;
 	tbarResult.Top := 0;
 	tbarConfig.Top := 0;
 
