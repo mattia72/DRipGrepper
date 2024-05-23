@@ -28,9 +28,6 @@ object ParentFrame: TParentFrame
     Margins.Bottom = 8
     Align = alTop
     TabOrder = 0
-    inherited ToolBar1: TToolBar
-      Width = 845
-    end
   end
   inline MainFrame: TRipGrepperMiddleFrame
     Left = 0

@@ -23,7 +23,9 @@ uses
 	RipGrepper.UI.DpiScaler,
 	Vcl.StdCtrls,
 	Vcl.WinXCtrls,
-	VirtualTrees;
+	VirtualTrees,
+	Vcl.ExtCtrls,
+	Vcl.Menus;
 
 type
 
@@ -44,7 +46,7 @@ type
 		ActionRefreshSearch : TAction;
 		ActionIndentLine : TAction;
 		ActionOpenWith : TAction;
-		ToolBar1 : TToolBar;
+		tbarSearch : TToolBar;
 		tbView : TToolButton;
 		tbDoSearchCancel : TToolButton;
 		tbRefreshSearch : TToolButton;
@@ -52,27 +54,29 @@ type
 		tbAbortSearch : TToolButton;
 		ToolButton1 : TToolButton;
 		tbCopyCmdLine : TToolButton;
-		ToolButton2 : TToolButton;
 		tbAlternateRowColors : TToolButton;
 		tbShowFileIcon : TToolButton;
 		tbShowRelativePath : TToolButton;
 		tbIndentLines : TToolButton;
 		ToolButton4 : TToolButton;
-		ToolButton5 : TToolButton;
-		ToolButton6 : TToolButton;
+		tbOpenWith : TToolButton;
 		tbConfigure : TToolButton;
 		tbExpandCollapse : TToolButton;
 		ActionExpandCollapse : TAction;
 		ToolButton7 : TToolButton;
 		SearchBox1 : TSearchBox;
-		ToolBar2 : TToolBar;
+		tbarResult : TToolBar;
+		ToolButton5 : TToolButton;
+		ControlBar1 : TControlBar;
+		tbarConfig : TToolBar;
+		PopupMenu1 : TPopupMenu;
+		ShowToolbars1 : TMenuItem;
+    ActionRealignToolbars: TAction;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlternateRowColorsExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsUpdate(Sender : TObject);
-		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionCmdLineCopyExecute(Sender : TObject);
-		procedure ActionCmdLineCopyUpdate(Sender : TObject);
 		procedure ActionConfigExecute(Sender : TObject);
 		procedure ActionCopyFileNameExecute(Sender : TObject);
 		procedure ActionCopyPathToClipboardExecute(Sender : TObject);
@@ -89,9 +93,10 @@ type
 		procedure ActionShowRelativePathExecute(Sender : TObject);
 		procedure ActionShowRelativePathUpdate(Sender : TObject);
 		procedure ActionShowSearchFormExecute(Sender : TObject);
-		procedure ActionShowSearchFormUpdate(Sender : TObject);
+		procedure ActionRealignToolbarsExecute(Sender : TObject);
 		procedure ActionSwitchViewExecute(Sender : TObject);
 		procedure ActionSwitchViewUpdate(Sender : TObject);
+		procedure FrameResize(Sender : TObject);
 		procedure SearchBox1Change(Sender : TObject);
 
 		private
@@ -107,6 +112,9 @@ type
 			function GetNextViewStyleIdx : Integer;
 			procedure SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
 	end;
+
+var
+	TopFrame : TRipGrepperTopFrame;
 
 implementation
 
@@ -133,6 +141,7 @@ constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
 	inherited;
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
+	TopFrame := self;
 end;
 
 destructor TRipGrepperTopFrame.Destroy;
@@ -166,20 +175,9 @@ begin
 	tbAlternateRowColors.Down := Settings.RipGrepperViewSettings.AlternateRowColors;
 end;
 
-procedure TRipGrepperTopFrame.ActionCancelExecute(Sender : TObject);
-begin
-	// ModalResult := mrCancel;
-	// Close();
-end;
-
 procedure TRipGrepperTopFrame.ActionCmdLineCopyExecute(Sender : TObject);
 begin
 	ClipBoard.AsText := Settings.RipGrepParameters.GetCommandLine;
-end;
-
-procedure TRipGrepperTopFrame.ActionCmdLineCopyUpdate(Sender : TObject);
-begin
-	ActionCmdLineCopy.Hint := 'Copy Command Line:' + CRLF + Settings.RipGrepParameters.GetCommandLine;
 end;
 
 procedure TRipGrepperTopFrame.ActionConfigExecute(Sender : TObject);
@@ -321,9 +319,9 @@ begin
 	end;
 end;
 
-procedure TRipGrepperTopFrame.ActionShowSearchFormUpdate(Sender : TObject);
+procedure TRipGrepperTopFrame.ActionRealignToolbarsExecute(Sender : TObject);
 begin
-	ActionShowSearchForm.Enabled := Settings.IsEmpty or (not MainFrame.IsSearchRunning);
+	FrameResize(self);
 end;
 
 procedure TRipGrepperTopFrame.ActionSwitchViewExecute(Sender : TObject);
@@ -343,6 +341,21 @@ begin
 	idx := IfThen(next <= (Length(LISTVIEW_TYPES) - 1), next, 0);
 	// ActionSwitchView.ImageIndex := idx + 2;
 	ActionSwitchView.Hint := 'Change View ' + LISTVIEW_TYPE_TEXTS[idx];
+end;
+
+procedure TRipGrepperTopFrame.FrameResize(Sender : TObject);
+begin
+    tbarSearch.Top := 0;
+	tbarResult.Top := 0;
+	tbarConfig.Top := 0;
+
+	tbarSearch.Left := 0;
+	if MainFrame.PanelResult.Left > tbarSearch.Width then begin
+		tbarResult.Left := MainFrame.PanelResult.Left;
+	end else begin
+		tbarResult.Left := tbarSearch.Width;
+	end;
+	tbarConfig.Left := Width - tbarConfig.Width;
 end;
 
 function TRipGrepperTopFrame.GetNextViewStyleIdx : Integer;
@@ -380,10 +393,12 @@ var
 	dataStr : string;
 	NodeData : PVSFileNodeData; // replace by your record structure
 begin
-	NodeData := Sender.GetNodeData(Node);
-	dataStr := NodeData.FilePath + ' ' + NodeData.MatchData.LineText;
-	Abort := ContainsText(dataStr, string(data)); // abort the search if a node with the text is found.
-	TDebugUtils.DebugMessage(Format('%s in %s', [string(data), dataStr]));
+	if not string(data).IsEmpty then begin
+		NodeData := Sender.GetNodeData(Node);
+		dataStr := NodeData.FilePath + ' ' + NodeData.MatchData.LineText;
+		Abort := ContainsText(dataStr, string(data)); // abort the search if a node with the text is found.
+		TDebugUtils.DebugMessage(Format('%s in %s', [string(data), dataStr]));
+	end;
 end;
 
 end.

@@ -23,7 +23,7 @@ uses
 	RipGrepper.UI.DpiScaler,
 	RipGrepper.Common.Settings.RipGrepParameterSettings,
 	VirtualTrees,
-	VirtualTrees.Types, 
+	VirtualTrees.Types,
 	Vcl.WinXCtrls;
 
 type
@@ -65,13 +65,13 @@ type
 		Label2 : TLabel;
 		llblHelp : TLinkLabel;
 		VstResult : TVirtualStringTree;
-    SearchBox1: TSearchBox;
+		SearchBox1 : TSearchBox;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionOkExecute(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 		procedure llblHelpLinkClick(Sender : TObject; const Link : string; LinkType : TSysLinkType);
 		procedure LoadRipGrepHelp();
-		procedure SearchBox1Change(Sender: TObject);
+		procedure SearchBox1Change(Sender : TObject);
 		procedure VstResultChecked(Sender : TBaseVirtualTree; Node : PVirtualNode);
 		procedure VstResultFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
 		procedure VstResultGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType;
@@ -276,7 +276,7 @@ begin
 	ShellExecute(0, 'OPEN', PChar(Link), '', '', SW_SHOWNORMAL);
 end;
 
-procedure TRipGrepOptionsForm.SearchBox1Change(Sender: TObject);
+procedure TRipGrepOptionsForm.SearchBox1Change(Sender : TObject);
 var
 	foundNode : PVirtualNode;
 begin
@@ -297,10 +297,12 @@ var
 	dataStr : string;
 	NodeData : PHelpOptionsGroup; // replace by your record structure
 begin
-	NodeData := Sender.GetNodeData(Node);
-	dataStr := NodeData.Option.ToString;
-	Abort := ContainsText(dataStr, string(data)); // abort the search if a node with the text is found.
-	TDebugUtils.DebugMessage(Format('%s in %s', [string(data), dataStr]));
+	if not string(data).IsEmpty then begin
+		NodeData := Sender.GetNodeData(Node);
+		dataStr := NodeData.Option.ToString;
+		Abort := ContainsText(dataStr, string(data)); // abort the search if a node with the text is found.
+		TDebugUtils.DebugMessage(Format('%s in %s', [string(data), dataStr]));
+	end;
 end;
 
 procedure TRipGrepOptionsForm.VstResultChecked(Sender : TBaseVirtualTree; Node : PVirtualNode);
