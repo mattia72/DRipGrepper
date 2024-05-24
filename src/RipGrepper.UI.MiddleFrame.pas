@@ -507,6 +507,7 @@ begin
   end else begin
     FExeVersion := TFileUtils.GetPackageNameAndVersion(HInstance);
   end;
+  Align := alClient;
   TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.Init ' + FExeVersion);
   FFileNameType := ftAbsolute;
   VstResult.TreeOptions.StringOptions := VstResult.TreeOptions.StringOptions + [toShowStaticText];

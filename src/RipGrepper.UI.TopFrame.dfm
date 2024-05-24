@@ -20,9 +20,6 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     EdgeOuter = esNone
     Images = ImageListButtons
     TabOrder = 0
-    ExplicitLeft = 0
-    ExplicitTop = 0
-    ExplicitHeight = 23
     object tbConfigure: TToolButton
       Left = 0
       Top = 0
@@ -129,7 +126,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       ParentShowHint = False
       ShowHint = True
       TabOrder = 0
-      TextHint = 'Search'
+      TextHint = 'Search...'
       OnChange = SearchBox1Change
     end
     object ToolButton6: TToolButton
@@ -169,9 +166,6 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     EdgeOuter = esNone
     Images = ImageListButtons
     TabOrder = 2
-    ExplicitLeft = 11
-    ExplicitTop = 2
-    ExplicitHeight = 48
     object tbView: TToolButton
       Left = 0
       Top = 0

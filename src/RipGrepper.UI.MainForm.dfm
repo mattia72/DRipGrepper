@@ -173,5 +173,18 @@ object RipGrepperForm: TRipGrepperForm
     ParentShowHint = False
     ShowHint = True
     TabOrder = 0
+    inherited TopFrame: TRipGrepperTopFrame
+      Width = 645
+      inherited tbarConfig: TToolBar
+        Left = 617
+      end
+    end
+    inherited BottomFrame: TRipGrepperBottomFrame
+      Top = 373
+      Width = 645
+      inherited pnlBottom: TPanel
+        Width = 645
+      end
+    end
   end
 end

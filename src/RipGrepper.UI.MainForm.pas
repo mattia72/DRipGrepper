@@ -169,7 +169,6 @@ procedure TRipGrepperForm.FormShow(Sender : TObject);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.FormShow - begin');
 	inherited;
-	// AllFrames.OnShow(Sender);
 	TDebugUtils.DebugMessage('TRipGrepperForm.FormShow - end');
 end;
 
