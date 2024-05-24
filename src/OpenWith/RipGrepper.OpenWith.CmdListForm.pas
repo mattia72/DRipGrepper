@@ -20,7 +20,8 @@ uses
 	System.ImageList,
 	Vcl.ImgList,
 	RipGrepper.Common.Settings,
-	RipGrepper.UI.DpiScaler, u_dzDpiScaleUtils;
+	RipGrepper.UI.DpiScaler,
+	u_dzDpiScaleUtils;
 
 type
 	TOpenWithCmdList = class(TForm)
@@ -142,7 +143,9 @@ begin
 		form.CreateScaledIcons();
 
 		if (mrOk = form.ShowModal()) then begin
-			Result := form.lbCommands.Items[form.lbCommands.ItemIndex].SubItems[0];
+			if form.lbCommands.ItemIndex > -1 then begin
+				Result := form.lbCommands.Items[form.lbCommands.ItemIndex].SubItems[0];
+			end;
 		end;
 
 	finally
