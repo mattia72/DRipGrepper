@@ -81,13 +81,13 @@ type
 		procedure ListBoxSearchHistoryData(Control : TWinControl; Index : Integer; var Data : string);
 		procedure ListBoxSearchHistoryDblClick(Sender : TObject);
 		procedure ListBoxSearchHistoryDrawItem(Control : TWinControl; Index : Integer; Rect : TRect; State : TOwnerDrawState);
-		procedure ListViewResultDblClick(Sender : TObject);
 		procedure Splitter1Moved(Sender : TObject);
 		procedure SplitView1Resize(Sender : TObject);
 		procedure VstResultBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
 			CellPaintMode : TVTCellPaintMode; CellRect : TRect; var ContentRect : TRect);
 		procedure VstResultCompareNodes(Sender : TBaseVirtualTree; Node1, Node2 : PVirtualNode; Column : TColumnIndex;
 			var Result : Integer);
+		procedure VstResultDblClick(Sender : TObject);
 		procedure VstResultDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
 			const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
 		procedure VstResultFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
@@ -601,19 +601,6 @@ begin
 	end;
 end;
 
-procedure TRipGrepperMiddleFrame.ListViewResultDblClick(Sender : TObject);
-var
-	owp : TOpenWithParams;
-begin
-	if IsStandAlone then begin
-		ActionOpenWithExecute(Sender);
-	end else begin
-		owp := GetOpenWithParamsFromSelected();
-		TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.ListViewResultDblClick: %s(%d, %d)', [owp.FileName, owp.Row, owp.Column]));
-		GxOtaGoToFileLineColumn(owp.FileName, owp.Row, owp.Column, owp.Column - 1);
-	end;
-end;
-
 procedure TRipGrepperMiddleFrame.LoadBeforeSearchSettings;
 begin
 	//
@@ -833,6 +820,19 @@ begin
 			Result := CompareText(Data1.MatchData.LineText, Data2.MatchData.LineText);
 
 		end;
+end;
+
+procedure TRipGrepperMiddleFrame.VstResultDblClick(Sender : TObject);
+var
+	owp : TOpenWithParams;
+begin
+	if IsStandAlone then begin
+		ActionOpenWithExecute(Sender);
+	end else begin
+		owp := GetOpenWithParamsFromSelected();
+		TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.VstResultDblClick: %s(%d, %d)', [owp.FileName, owp.Row, owp.Column]));
+		GxOtaGoToFileLineColumn(owp.FileName, owp.Row, owp.Column, owp.Column - 1);
+	end;
 end;
 
 procedure TRipGrepperMiddleFrame.VstResultDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;

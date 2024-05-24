@@ -89,6 +89,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           TreeOptions.SelectionOptions = [toFullRowSelect]
           OnBeforeCellPaint = VstResultBeforeCellPaint
           OnCompareNodes = VstResultCompareNodes
+          OnDblClick = VstResultDblClick
           OnDrawText = VstResultDrawText
           OnFreeNode = VstResultFreeNode
           OnGetText = VstResultGetText
