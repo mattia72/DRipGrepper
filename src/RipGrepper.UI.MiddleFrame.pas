@@ -301,10 +301,10 @@ begin
     TopFrame.tbarResult.Top := TopFrame.tbarResult.Margins.Top;
     TopFrame.tbarConfig.Top := TopFrame.tbarConfig.Margins.Top;
 
-    TopFrame.tbarSearch.Left := 0;
+	TopFrame.tbarSearch.Left := TopFrame.tbarSearch.Margins.Left;
     if PanelHistory.Width >= TopFrame.tbarSearch.Width then begin
       TopFrame.tbarResult.Left := PanelResult.Left;
-    end else begin
+	end else begin
       TopFrame.tbarResult.Left := TopFrame.tbarSearch.Width + 2 * TopFrame.tbarSearch.Margins.Right;
     end;
 
@@ -505,7 +505,9 @@ begin
   if IsStandAlone then begin
     FExeVersion := TFileUtils.GetAppNameAndVersion(Application.ExeName);
   end else begin
-    FExeVersion := TFileUtils.GetPackageNameAndVersion(HInstance);
+	FExeVersion := TFileUtils.GetPackageNameAndVersion(HInstance);
+	PanelHistory.BevelOuter := bvNone;
+    PanelResult.BevelOuter := bvNone;
   end;
   Align := alClient;
   TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.Init ' + FExeVersion);

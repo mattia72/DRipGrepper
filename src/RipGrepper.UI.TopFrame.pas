@@ -400,7 +400,8 @@ end;
 procedure TRipGrepperTopFrame.Init;
 begin
 	if not IsStandAlone then begin
-        SearchBox1.BorderStyle := bsNone;
+		SearchBox1.BorderStyle := bsNone;
+		Height := Height - 2;
 	end;
 end;
 

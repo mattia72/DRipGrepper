@@ -56,7 +56,6 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
         Margins.Bottom = 8
         Align = alClient
         Anchors = [akLeft, akTop, akBottom]
-        Caption = 'PanelHistory'
         TabOrder = 0
         object ListBoxSearchHistory: TListBox
           AlignWithMargins = True

@@ -22,6 +22,15 @@ object ParentFrame: TParentFrame
     Top = 0
     Width = 851
     Height = 31
+    Align = alTop
+    TabOrder = 0
+    inherited tbarConfig: TToolBar
+      Left = 823
+      Height = 25
+    end
+    inherited tbarSearch: TToolBar
+      Height = 25
+    end
   end
   inline MainFrame: TRipGrepperMiddleFrame
     Left = 0
@@ -29,17 +38,47 @@ object ParentFrame: TParentFrame
     Width = 851
     Height = 429
     TabOrder = 1
+    inherited panelMain: TPanel
+      Width = 845
+      Height = 423
+      inherited SplitView1: TSplitView
+        Height = 423
+        inherited Splitter1: TSplitter
+          Height = 423
+        end
+        inherited PanelHistory: TPanel
+          Height = 423
+          inherited ListBoxSearchHistory: TListBox
+            Height = 415
+          end
+        end
+        inherited PanelResult: TPanel
+          Height = 423
+          inherited VstResult: TVirtualStringTree
+            Height = 415
+          end
+        end
+      end
+    end
   end
   inline BottomFrame: TRipGrepperBottomFrame
     Left = 0
     Top = 460
     Width = 851
     Height = 30
-    Margins.Left = 20
-    Margins.Top = 20
-    Margins.Right = 20
-    Margins.Bottom = 20
     Align = alBottom
     TabOrder = 2
+    inherited pnlBottom: TPanel
+      Width = 851
+      Height = 30
+      inherited StatusBar1: TStatusBar
+        Width = 845
+        Height = 27
+      end
+      inherited ActivityIndicator1: TActivityIndicator
+        Left = 365
+        Top = 3
+      end
+    end
   end
 end
