@@ -26,16 +26,17 @@ type
 		ActionList : TActionList;
 		ActionStatusBar : TAction;
 		procedure ActionStatusBarUpdate(Sender : TObject);
-		procedure FrameResize(Sender: TObject);
+		procedure FrameResize(Sender : TObject);
+		procedure Init;
 
 		public
 			{ Public-Deklarationen }
 			FStatusBarMessage : string;
 			FStatusBarStatistic : string;
 			FStatusBarStatus : string;
-		constructor Create(AOwner: TComponent); override;
-		procedure SetRunningStatus;
-		procedure SetReadyStatus;
+			constructor Create(AOwner : TComponent); override;
+			procedure SetRunningStatus;
+			procedure SetReadyStatus;
 	end;
 
 var
@@ -44,11 +45,13 @@ var
 implementation
 
 uses
-	RipGrepper.Common.Constants, RipGrepper.UI.MiddleFrame;
+	RipGrepper.Common.Constants,
+	RipGrepper.UI.MiddleFrame,
+	GX_OtaUtils;
 
 {$R *.dfm}
 
-constructor TRipGrepperBottomFrame.Create(AOwner: TComponent);
+constructor TRipGrepperBottomFrame.Create(AOwner : TComponent);
 begin
 	inherited;
 	BottomFrame := self;
@@ -61,11 +64,19 @@ begin
 	StatusBar1.Panels[PNL_STATTS_IDX].Text := FStatusBarStatistic;
 end;
 
-procedure TRipGrepperBottomFrame.FrameResize(Sender: TObject);
+procedure TRipGrepperBottomFrame.FrameResize(Sender : TObject);
 begin
-	var width := MainFrame.PanelHistory.Width;
+	var
+	width := MainFrame.PanelHistory.Width;
 	StatusBar1.Panels[0].Width := width;
 	ActivityIndicator1.Left := width + 5
+end;
+
+procedure TRipGrepperBottomFrame.Init;
+begin
+	if not IsStandAlone then begin
+		Height := Height - 5;
+	end;
 end;
 
 procedure TRipGrepperBottomFrame.SetRunningStatus;

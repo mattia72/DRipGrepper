@@ -28,15 +28,16 @@ object ParentFrame: TParentFrame
       Left = 823
       Height = 25
     end
-    inherited tbarSearch: TToolBar
-      Height = 25
-    end
   end
   inline MainFrame: TRipGrepperMiddleFrame
     Left = 0
     Top = 31
     Width = 851
     Height = 429
+    Margins.Left = 8
+    Margins.Top = 8
+    Margins.Right = 8
+    Margins.Bottom = 8
     TabOrder = 1
     inherited panelMain: TPanel
       Width = 845
@@ -66,6 +67,10 @@ object ParentFrame: TParentFrame
     Top = 460
     Width = 851
     Height = 30
+    Margins.Left = 8
+    Margins.Top = 8
+    Margins.Right = 8
+    Margins.Bottom = 8
     Align = alBottom
     TabOrder = 2
     inherited pnlBottom: TPanel

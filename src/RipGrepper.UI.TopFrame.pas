@@ -70,6 +70,9 @@ type
 		tbarConfig : TToolBar;
 		PopupMenu1 : TPopupMenu;
 		AlignToolbar1 : TMenuItem;
+    	ToolButton2: TToolButton;
+    	ToolButton5: TToolButton;
+    	ToolButton8: TToolButton;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlignToolbarsExecute(Sender : TObject);
