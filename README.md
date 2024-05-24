@@ -44,7 +44,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 
 ### :rocket: Open with...
 - [x] show configured editors to open matching file on matching position
-   - [ ] on double click
+   - [ ] on double click ?
    - [x] with menu / toolbar
 - [ ] separate editor for distinct extensions
 
@@ -74,7 +74,8 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
   - [x] click on matching file, opens file in the editor on position 
      - [ ] expand collapsed code in {$REGION}-s
   - [x] popup menu
-  - [ ] save window position
+  - [x] save window position
+     - [ ] save in layout
   - [ ] search word on cursor
   - [ ] search only in opened files/project files/project group
   - [ ] delphi extension release
