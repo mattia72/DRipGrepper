@@ -304,6 +304,8 @@ end;
 
 procedure TRipGrepperSettings.Load;
 begin
+	TDebugUtils.DebugMessage('TRipGrepperSettings.Load: start');
+
 	try
 		FRipGrepParameters.Load;
 		FRipGrepperViewSettings.Load;
@@ -559,6 +561,8 @@ procedure TRipGrepperExtensionSettings.Load;
 
 begin
 	{$IFNDEF STANDALONE}
+	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Load start');
+
 	if Assigned(FIniFile) then begin
 		DripGrepperShortCut := FIniFile.ReadString(INI_SECTION, 'DripGrepperShortCut', '');
 		if DripGrepperShortCut = '' then begin
@@ -575,6 +579,7 @@ end;
 procedure TRipGrepperExtensionSettings.Store;
 begin
 	{$IFNDEF STANDALONE}
+	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Store start');
 	if IsLoaded and IsModified then begin
 		FIniFile.WriteString(INI_SECTION, 'DripGrepperShortCut', DripGrepperShortCut);
 		FIsModified := False;
@@ -597,6 +602,8 @@ end;
 procedure TRipGrepperAppSettings.Load;
 begin
 	inherited Load();
+	TDebugUtils.DebugMessage('TRipGrepperAppSettings.Load start');
+
 	FExpertMode := LoadSetting('ExpertMode');
 	FDebugTrace := LoadSetting('DebugTrace');
 end;

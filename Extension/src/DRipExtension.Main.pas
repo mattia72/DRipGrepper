@@ -79,8 +79,7 @@ begin
 
 	RemoveExtensionMenu();
 	sc := TextToShortCut(GSettings.ExtensionSettings.DripGrepperShortCut);
-	G_DripMenu := Vcl.Menus.NewItem(GetMenuText + '...', sc, False, True, DoDripGrepperMenuClick, 0,
-		DRIP_MENUITEM_NAME);
+	G_DripMenu := Vcl.Menus.NewItem(GetMenuText + '...', sc, False, True, DoDripGrepperMenuClick, 0, DRIP_MENUITEM_NAME);
 	TDebugUtils.DebugMessage('TDRipExtension.CreateMenu - NewItem ' + DRIP_MENUITEM_NAME);
 
 	Item := IOTAUTils.FindMenuItem('ToolsMenu');
@@ -103,6 +102,8 @@ end;
 constructor TDRipExtension.Create;
 begin
 	inherited;
+	TDebugUtils.DebugMessage('TDRipExtension.Create');
+	TRipGrepperDockableForm.CreateInstance; // saved layout loading ...
 	G_DRipExtension := self;
 	CreateMenu;
 end;

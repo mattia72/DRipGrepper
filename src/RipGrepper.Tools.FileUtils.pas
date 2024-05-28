@@ -50,7 +50,7 @@ begin
 		end;
 	end;
 
-	TDebugUtils.DebugMessage(sFileName + ' path:' + sOutpuPath);
+	TDebugUtils.DebugMessage('TFileUtils.FindExecutable: ' + sFileName + ' path:' + sOutpuPath);
 	// WriteDebugMessage(sOutpuPath);
 end;
 

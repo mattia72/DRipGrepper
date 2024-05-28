@@ -28,11 +28,7 @@ type
 			FCaption : string;
 			FIdentifier : string;
 
-		class var
-			FForm : TCustomForm;
-			FInstance : TRipGrepperDockableForm;
-			class function GetForm : TCustomForm; static;
-			function GetGuid : string;
+			class var FInstance : TRipGrepperDockableForm;
 			class function GetInstance : TRipGrepperDockableForm; static;
 
 		public
@@ -128,7 +124,6 @@ type
 			/// </summary>
 			function EditAction(Action : TEditAction) : Boolean;
 			property Caption : string read GetCaption write FCaption;
-			class property Form : TCustomForm read GetForm;
 			property Identifier : string read GetIdentifier;
 			property FrameClass : TCustomFrameClass read GetFrameClass;
 			class property Instance : TRipGrepperDockableForm read GetInstance;
@@ -190,7 +185,7 @@ end;
 function TRipGrepperDockableForm.GetIdentifier : string;
 begin
 	if FIdentifier.IsEmpty then
-		FIdentifier := APPNAME + '.' + GetGuid;
+		FIdentifier := APPNAME; // + '.' + GetGuid;
 	Result := FIdentifier;
 end;
 
@@ -215,38 +210,37 @@ begin
 end;
 
 procedure TRipGrepperDockableForm.LoadWindowState(Desktop : TCustomIniFile; const Section : string);
-var
-	L, T, W, H : Integer;
+// var
+// L, T, W, H : Integer;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperDockableForm.LoadWindowState: ' + Desktop.FileName + '[' + Section + ']');
-
-	L := Desktop.ReadInteger(section, sLeft, form.Left);
-	T := Desktop.ReadInteger(section, sTop, form.Top);
-	W := Desktop.ReadInteger(section, sWidth, form.Width);
-	H := Desktop.ReadInteger(section, sHeight, form.Height);
-	form.SetBounds(L, T, W, H);
-	try
-		form.Windowstate := TWindowState(GetEnumValue(TypeInfo(TWindowState), Desktop.ReadString(section, sState, 'wsNormal')));
-	except
-	end;
-
+	//
+	// L := Desktop.ReadInteger(section, sLeft, form.Left);
+	// T := Desktop.ReadInteger(section, sTop, form.Top);
+	// W := Desktop.ReadInteger(section, sWidth, form.Width);
+	// H := Desktop.ReadInteger(section, sHeight, form.Height);
+	// form.SetBounds(L, T, W, H);
+	// try
+	// form.Windowstate := TWindowState(GetEnumValue(TypeInfo(TWindowState), Desktop.ReadString(section, sState, 'wsNormal')));
+	// except
+	// end;
 end;
 
 procedure TRipGrepperDockableForm.SaveWindowState(Desktop : TCustomIniFile; const Section : string; IsProject : Boolean);
-var
-	wp : TWindowPlacement;
+// var
+// wp : TWindowPlacement;
 begin
 	TDebugUtils.DebugMessage(Format('TRipGrepperDockableForm.SaveWindowState: %s [%s] IsProject:%s',
 		[Desktop.FileName, Section, BoolToStr(IsProject, True)]));
-	wp.length := Sizeof(wp);
-	GetWindowPlacement(form.handle, @wp);
-	var
-	pos := wp.rcNormalPosition;
-	Desktop.WriteInteger(section, sLeft, pos.Left);
-	Desktop.WriteInteger(section, sTop, pos.Top);
-	Desktop.WriteInteger(section, sWidth, pos.Right - pos.Left);
-	Desktop.WriteInteger(section, sHeight, pos.Bottom - pos.Top);
-	Desktop.WriteString(section, sState, GetEnumName(TypeInfo(TWindowState), Ord(form.WindowState)));
+	// wp.length := Sizeof(wp);
+	// GetWindowPlacement(form.handle, @wp);
+	// var
+	// pos := wp.rcNormalPosition;
+	// Desktop.WriteInteger(section, sLeft, pos.Left);
+	// Desktop.WriteInteger(section, sTop, pos.Top);
+	// Desktop.WriteInteger(section, sWidth, pos.Right - pos.Left);
+	// Desktop.WriteInteger(section, sHeight, pos.Bottom - pos.Top);
+	// Desktop.WriteString(section, sState, GetEnumName(TypeInfo(TWindowState), Ord(form.WindowState)));
 end;
 
 class procedure TRipGrepperDockableForm.CreateInstance;
@@ -264,29 +258,13 @@ end;
 
 class function TRipGrepperDockableForm.CreateOrShowDockableForm : TCustomForm;
 begin
-	Result := Form;
-end;
-
-class function TRipGrepperDockableForm.GetForm : TCustomForm;
-begin
-	// This creates or shows the form...
-	FForm := (BorlandIDEServices as INTAServices).CreateDockableForm(Instance);
-	Result := FForm;
+	Result := (BorlandIDEServices as INTAServices).CreateDockableForm(FInstance);
 end;
 
 function TRipGrepperDockableForm.GetFrameClass : TCustomFrameClass;
 begin
 	Result := TParentFrame;
 end;
-
-function TRipGrepperDockableForm.GetGuid : string;
-var
-	aGUID : TGUID;
-begin
-	CreateGUID(aGUID);
-	Result := GUIDToString(aGUID);
-end;
-
 class function TRipGrepperDockableForm.GetInstance : TRipGrepperDockableForm;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperDockableForm.GetInstance');
@@ -295,5 +273,6 @@ begin
 	end;
 	Result := FInstance;
 end;
+
 
 end.

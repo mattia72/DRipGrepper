@@ -480,11 +480,11 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Left = 8
         Top = 36
         Width = 413
-		Height = 23
-		Hint = 'Files or Folders, Separated by Semicolons'
-		Margins.Left = 8
+        Height = 23
+        Hint = 'Files or Folders, Separated by Semicolons'
+        Margins.Left = 8
         Margins.Top = 8
-		Margins.Right = 8
+        Margins.Right = 8
         Margins.Bottom = 8
         Anchors = [akLeft, akTop, akRight]
         ParentShowHint = False
