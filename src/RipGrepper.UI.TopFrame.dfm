@@ -165,7 +165,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Top = 0
       Action = ActionSwitchView
     end
-    object tbDoSearchCancel: TToolButton
+    object tbShowSearchForm: TToolButton
       Left = 33
       Top = 0
       Action = ActionShowSearchForm
