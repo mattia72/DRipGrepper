@@ -93,7 +93,6 @@ uses
 	Vcl.Clipbrd,
 	Winapi.Windows,
 	Winapi.ShellAPI,
-	// GX_OtaUtils,
 	RipGrepper.OpenWith.Runner,
 	RipGrepper.OpenWith.SimpleTypes,
 	RipGrepper.Tools.DebugUtils;

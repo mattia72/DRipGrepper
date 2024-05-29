@@ -101,8 +101,8 @@ uses
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.OpenWith,
 	RipGrepper.OpenWith.ConfigForm,
-	GX_OtaUtils,
-	System.TypInfo;
+	System.TypInfo,
+	RipGrepper.Common.IOTAUtils;
 
 {$R *.dfm}
 
@@ -122,7 +122,7 @@ constructor TRipGrepperForm.Create(AOwner : TComponent);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner');
 	inherited Create(AOwner);
-	if IsStandAlone then begin
+	if IOTAUTils.IsStandAlone then begin
 		TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner STANDALONE');
 		Init;
 	end;
@@ -177,7 +177,7 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.CreateParams');
 	inherited CreateParams(Params);
 
-	if IsStandAlone then begin
+	if IOTAUTils.IsStandAlone then begin
 		Params.ExStyle := Params.ExStyle or WS_EX_APPWINDOW;
 		Params.WndParent := GetDesktopwindow;
 	end;

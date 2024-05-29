@@ -42,7 +42,7 @@ requires
 
 contains
   DRipExtension.Main in 'src\DRipExtension.Main.pas',
-  DripExtension.IOTA.Utils in 'src\DripExtension.IOTA.Utils.pas',
+  RipGrepper.Common.IOTAUtils in '..\src\RipGrepper.Common.IOTAUtils.pas',
   DripExtension.UI.DockableForm in 'src\DripExtension.UI.DockableForm.pas';
 
 end.

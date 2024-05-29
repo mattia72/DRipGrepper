@@ -70,9 +70,9 @@ type
 		tbarConfig : TToolBar;
 		PopupMenu1 : TPopupMenu;
 		AlignToolbar1 : TMenuItem;
-    	ToolButton2: TToolButton;
-    	ToolButton5: TToolButton;
-    	ToolButton8: TToolButton;
+		ToolButton2 : TToolButton;
+		ToolButton5 : TToolButton;
+		ToolButton8 : TToolButton;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlignToolbarsExecute(Sender : TObject);
@@ -141,8 +141,8 @@ uses
 	RipGrepper.Common.Settings.RipGrepParameterSettings,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.UI.RipGrepOptionsForm,
-	RipGrepper.Common.ParsedObject, 
-	GX_OtaUtils;
+	RipGrepper.Common.ParsedObject,
+	RipGrepper.Common.IOTAUtils;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -402,7 +402,7 @@ end;
 
 procedure TRipGrepperTopFrame.Init;
 begin
-	if not IsStandAlone then begin
+	if not IOTAUTils.IsStandAlone then begin
 		SearchBox1.BorderStyle := bsNone;
 		Height := Height - 2;
 	end;

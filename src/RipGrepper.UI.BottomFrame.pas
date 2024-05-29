@@ -47,7 +47,7 @@ implementation
 uses
 	RipGrepper.Common.Constants,
 	RipGrepper.UI.MiddleFrame,
-	GX_OtaUtils;
+	RipGrepper.Common.IOTAUtils;
 
 {$R *.dfm}
 
@@ -74,7 +74,7 @@ end;
 
 procedure TRipGrepperBottomFrame.Init;
 begin
-	if not IsStandAlone then begin
+	if not IOTAUTils.IsStandAlone then begin
 		Height := Height - 5;
 	end;
 end;

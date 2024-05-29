@@ -100,7 +100,7 @@
         <DCCReference Include="vcl.dcp"/>
         <DCCReference Include="VirtualTreesDR.dcp"/>
         <DCCReference Include="src\DRipExtension.Main.pas"/>
-        <DCCReference Include="src\DripExtension.IOTA.Utils.pas"/>
+        <DCCReference Include="..\src\RipGrepper.Common.IOTAUtils.pas"/>
         <DCCReference Include="src\DripExtension.UI.DockableForm.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

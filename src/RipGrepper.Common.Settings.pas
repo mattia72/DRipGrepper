@@ -173,14 +173,12 @@ uses
 	System.IOUtils,
 	Winapi.Windows,
 	System.UITypes,
-	{$IFNDEF STANDALONE}
-	DripExtension.IOTA.Utils,
-	{$ENDIF}
 	RipGrepper.Tools.ProcessUtils,
 	RipGrepper.Helper.UI,
 	Vcl.Menus,
 	System.RegularExpressions,
-	RipGrepper.CommandLine.Builder;
+	RipGrepper.CommandLine.Builder,
+	RipGrepper.Common.IOTAUtils;
 
 function TRipGrepperSettings.GetActualRipGrepParams : string;
 begin
@@ -263,11 +261,11 @@ end;
 
 constructor TRipGrepperSettings.Create;
 begin
-	{$IFDEF STANDALONE}
-	FIniFile := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
-	{$ELSE}
-	FIniFile := TIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'));
-	{$ENDIF}
+	if IOTAUTils.IsStandAlone then begin
+		FIniFile := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
+	end else begin
+		FIniFile := TIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'));
+	end;
 	FRipGrepParameters := TRipGrepParameterSettings.Create(FIniFile);
 	FRipGrepperViewSettings := TRipGrepperViewSettings.Create(FIniFile);
 	FRipGrepperOpenWithSettings := TRipGrepperOpenWithSettings.Create(FIniFile);

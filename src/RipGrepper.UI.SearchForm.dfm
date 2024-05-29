@@ -1176,7 +1176,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     object ActionShowFileMaskHelp: TAction
       Hint = 'Show Help for Globbing...'
       ImageIndex = 12
-      OnExecute = ActionShowRGOptionsHelpExecute
+      OnExecute = ActionShowFileMaskHelpExecute
     end
     object ActionShowRGOptionsHelp: TAction
       Hint = 'Show RipGrep Man Page...'

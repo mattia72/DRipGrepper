@@ -50,7 +50,7 @@ uses
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.Settings,
 	System.IniFiles,
-	DripExtension.IOTA.Utils,
+	RipGrepper.Common.IOTAUtils,
 	System.IOUtils,
 	Vcl.Menus,
 	Vcl.Graphics,
@@ -200,15 +200,7 @@ end;
 procedure TDRipExtension.ShowDripGrepperForm;
 begin
 	TDebugUtils.DebugMessage('TDRipExtension.ShowDripGrepperForm');
-
-	if not Assigned(FDockableForm) then begin
-		TDebugUtils.DebugMessage('TDRipExtension.ShowDripGrepperForm - Create FDockableForm');
-		FDockableForm := TRipGrepperDockableForm.Instance;
-		TRipGrepperDockableForm.CreateOrShowDockableForm();
-	end else begin
-		TDebugUtils.DebugMessage('TDRipExtension.ShowDripGrepperForm - Show FDockableForm');
-		TRipGrepperDockableForm.CreateOrShowDockableForm();
-	end;
+	TRipGrepperDockableForm.ShowDockableFormAndSearch();
 end;
 
 procedure TDRipExtension.UnregisterKeyboardBinding;

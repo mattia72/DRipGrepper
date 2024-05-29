@@ -16,26 +16,19 @@ uses
 
 type
 	TRipGrepperDockableForm = class(TInterfacedPersistent, INTACustomDockableForm)
-		const
-			sSettings = 'Settings';
-			sLeft = 'Left';
-			sTop = 'Top';
-			sWidth = 'Width';
-			sHeight = 'Height';
-			sState = 'State';
-
 		private
 			FCaption : string;
 			FIdentifier : string;
 
 			class var FInstance : TRipGrepperDockableForm;
 			class function GetInstance : TRipGrepperDockableForm; static;
+			procedure HandleSelectedTextInIde;
 
 		public
+			class function ShowDockableFormAndSearch : TCustomForm;
 			/// <summary>
 			/// Creates an OleDockForm container for our Frame
 			/// </summary>
-			class function CreateOrShowDockableForm : TCustomForm;
 			class procedure CreateInstance;
 			/// <summary>
 			/// Returns the Caption for the Dockable Form
@@ -140,10 +133,10 @@ uses
 	RipGrepper.Common.Constants,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.UI.ParentFrame,
-	GX_OtaUtils,
 	System.SysUtils,
 	Winapi.Windows,
-	System.TypInfo;
+	System.TypInfo,
+	RipGrepper.Common.IOTAUtils;
 
 { TRipGrepperDockableForm }
 
@@ -167,7 +160,7 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperDockableForm.FrameCreated');
 	ParentFrame.Init;
 	if (ParentFrame.Settings.RipGrepParameters.SearchPath.IsEmpty) then begin
-		ParentFrame.Settings.RipGrepParameters.SearchPath := GxOtaGetCurrentProjectFileName();
+		ParentFrame.Settings.RipGrepParameters.SearchPath := IOTAUtils.GxOtaGetCurrentProjectFileName();
 	end;
 
 end;
@@ -210,37 +203,14 @@ begin
 end;
 
 procedure TRipGrepperDockableForm.LoadWindowState(Desktop : TCustomIniFile; const Section : string);
-// var
-// L, T, W, H : Integer;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperDockableForm.LoadWindowState: ' + Desktop.FileName + '[' + Section + ']');
-	//
-	// L := Desktop.ReadInteger(section, sLeft, form.Left);
-	// T := Desktop.ReadInteger(section, sTop, form.Top);
-	// W := Desktop.ReadInteger(section, sWidth, form.Width);
-	// H := Desktop.ReadInteger(section, sHeight, form.Height);
-	// form.SetBounds(L, T, W, H);
-	// try
-	// form.Windowstate := TWindowState(GetEnumValue(TypeInfo(TWindowState), Desktop.ReadString(section, sState, 'wsNormal')));
-	// except
-	// end;
 end;
 
 procedure TRipGrepperDockableForm.SaveWindowState(Desktop : TCustomIniFile; const Section : string; IsProject : Boolean);
-// var
-// wp : TWindowPlacement;
 begin
 	TDebugUtils.DebugMessage(Format('TRipGrepperDockableForm.SaveWindowState: %s [%s] IsProject:%s',
 		[Desktop.FileName, Section, BoolToStr(IsProject, True)]));
-	// wp.length := Sizeof(wp);
-	// GetWindowPlacement(form.handle, @wp);
-	// var
-	// pos := wp.rcNormalPosition;
-	// Desktop.WriteInteger(section, sLeft, pos.Left);
-	// Desktop.WriteInteger(section, sTop, pos.Top);
-	// Desktop.WriteInteger(section, sWidth, pos.Right - pos.Left);
-	// Desktop.WriteInteger(section, sHeight, pos.Bottom - pos.Top);
-	// Desktop.WriteString(section, sState, GetEnumName(TypeInfo(TWindowState), Ord(form.WindowState)));
 end;
 
 class procedure TRipGrepperDockableForm.CreateInstance;
@@ -256,15 +226,17 @@ begin
 	FInstance.Free;
 end;
 
-class function TRipGrepperDockableForm.CreateOrShowDockableForm : TCustomForm;
+class function TRipGrepperDockableForm.ShowDockableFormAndSearch : TCustomForm;
 begin
 	Result := (BorlandIDEServices as INTAServices).CreateDockableForm(FInstance);
+	ParentFrame.TopFrame.ActionShowSearchForm.Execute;
 end;
 
 function TRipGrepperDockableForm.GetFrameClass : TCustomFrameClass;
 begin
 	Result := TParentFrame;
 end;
+
 class function TRipGrepperDockableForm.GetInstance : TRipGrepperDockableForm;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperDockableForm.GetInstance');
@@ -274,5 +246,16 @@ begin
 	Result := FInstance;
 end;
 
+procedure TRipGrepperDockableForm.HandleSelectedTextInIde;
+begin
+	if not IOTAUTils.IsStandAlone then begin
+		var
+			selectedText : string;
+		IOTAUtils.GxOtaGetActiveEditorTextAsString(selectedText, True);
+		if not selectedText.IsEmpty then begin
+			ParentFrame.Settings.RipGrepParameters.SearchText := selectedText.Trim();
+		end;
+	end;
+end;
 
 end.

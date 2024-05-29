@@ -212,6 +212,7 @@
         <DCCReference Include="src\RipGrepper.CommandLine.Builder.pas"/>
         <DCCReference Include="src\RipGrepper.CommandLine.OptionHelper.pas"/>
         <DCCReference Include="src\RipGrepper.Common.GuiSearchParams.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.IOTAUtils.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

@@ -195,11 +195,11 @@ uses
 	RipGrepper.Tools.ProcessUtils,
 	System.Math,
 	RipGrepper.UI.MainForm,
-	GX_OtaUtils,
 	RipGrepper.UI.BottomFrame,
 	VirtualTrees.Types,
 	RipGrepper.Parsers.Factory,
-	RipGrepper.UI.TopFrame;
+	RipGrepper.UI.TopFrame,
+	RipGrepper.Common.IOTAUtils;
 
 {$R *.dfm}
 
@@ -503,7 +503,7 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.Init Begin');
 
 	HistoryObjectList.Clear();
-	if IsStandAlone then begin
+	if IOTAUTils.IsStandAlone then begin
 		FExeVersion := TFileUtils.GetAppNameAndVersion(Application.ExeName);
 	end else begin
 		FExeVersion := TFileUtils.GetPackageNameAndVersion(HInstance);
@@ -826,12 +826,12 @@ procedure TRipGrepperMiddleFrame.VstResultDblClick(Sender : TObject);
 var
 	owp : TOpenWithParams;
 begin
-	if IsStandAlone then begin
+	if IOTAUTils.IsStandAlone then begin
 		ActionOpenWithExecute(Sender);
 	end else begin
 		owp := GetOpenWithParamsFromSelected();
 		TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.VstResultDblClick: %s(%d, %d)', [owp.FileName, owp.Row, owp.Column]));
-		GxOtaGoToFileLineColumn(owp.FileName, owp.Row, owp.Column, owp.Column - 1);
+		IOTAUtils.GxOtaGoToFileLineColumn(owp.FileName, owp.Row, owp.Column, owp.Column - 1);
 	end;
 end;
 

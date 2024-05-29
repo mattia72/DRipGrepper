@@ -66,7 +66,8 @@ uses
   RipGrepper.UI.SearchForm in 'src\RipGrepper.UI.SearchForm.pas' {RipGrepperSearchDialogForm},
   RipGrepper.CommandLine.Builder in 'src\RipGrepper.CommandLine.Builder.pas',
   RipGrepper.CommandLine.OptionHelper in 'src\RipGrepper.CommandLine.OptionHelper.pas',
-  RipGrepper.Common.GuiSearchParams in 'src\RipGrepper.Common.GuiSearchParams.pas';
+  RipGrepper.Common.GuiSearchParams in 'src\RipGrepper.Common.GuiSearchParams.pas',
+  RipGrepper.Common.IOTAUtils in 'src\RipGrepper.Common.IOTAUtils.pas';
 
 {$R *.res}
 

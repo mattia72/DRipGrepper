@@ -147,7 +147,6 @@ uses
 	System.UITypes,
 	RipGrepper.UI.RipGrepOptionsForm,
 	RipGrepper.Helper.Types,
-	GX_OtaUtils,
 	System.SysUtils,
 	System.RegularExpressions,
 	System.Math,
@@ -167,12 +166,21 @@ constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _setti
 	const _histObj : THistoryItemObject);
 begin
 	inherited Create(AOwner);
-
 	FSettings := _settings;
-
 	FHistItemObj := _histObj;
-	if Assigned(_histObj) then
+	if Assigned(_histObj) then begin
 		FGuiSetSearchParams := _histObj.GuiSetSearchParams;
+	end else begin
+		var
+			searchText : string := _settings.RipGrepParameters.SearchText;
+		if not searchText.IsEmpty then begin
+			_settings.SearchTextsHistory.DeleteAll([searchText]);
+			_settings.SearchTextsHistory.Insert(0, searchText);
+			FGuiSetSearchParams.SearchText := searchText;
+		end;
+	end;
+
+	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.Create: gui params=' + FGuiSetSearchParams.ToString);
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 	FExpertGroupHeight := gbExpert.Height;
 end;
@@ -307,6 +315,8 @@ end;
 
 procedure TRipGrepperSearchDialogForm.FormShow(Sender : TObject);
 begin
+	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.FormShow');
+
 	LoadSettings;
 	UpdateRipGrepOptionsAndCommanLine();
 	UpdateExpertGroupBox();
@@ -334,6 +344,8 @@ procedure TRipGrepperSearchDialogForm.LoadSettings;
 var
 	s : string;
 begin
+	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.LoadSettings');
+
 	SetComboItemsAndText(cmbSearchDir, RG_ARG_SEARCH_PATH, FSettings.SearchPathsHistory);
 	SetComboItemsAndText(cmbSearchText, RG_ARG_SEARCH_TEXT, FSettings.SearchTextsHistory);
 	SetComboItemsAndText(cmbOptions, RG_ARG_OPTIONS, FSettings.RipGrepOptionsHistory);
@@ -505,6 +517,8 @@ end;
 
 procedure TRipGrepperSearchDialogForm.UpdateCtrls(_ctrlChanged : TControl);
 begin
+	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.UpdateCtrls: ctrl ' + _ctrlChanged.Name);
+
 	if cmbSearchText = _ctrlChanged then begin
 		UpdateMemoCommandLine(); // UpdateCtrls
 	end else if cmbSearchDir = _ctrlChanged then begin

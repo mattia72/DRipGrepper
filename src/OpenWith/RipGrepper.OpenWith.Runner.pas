@@ -23,13 +23,13 @@ type
 implementation
 
 uses
-	GX_OtaUtils,
 	Winapi.Windows,
 	System.SysUtils,
 	Winapi.ShellAPI,
 	Vcl.Dialogs,
 	RipGrepper.Common.Constants,
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils,
+	RipGrepper.Common.IOTAUtils;
 
 class function TOpenWithRunner.BuildParams(const _owp : TOpenWithParams; const _sParams : string) : string;
 var
@@ -84,8 +84,8 @@ var
 begin
 	editPosition := GetEditPosition;
 	if Assigned(editPosition) then begin
-		Result.FileName := GxOtaGetCurrentSourceFile;;
-		sProjName := GxOtaGetCurrentProjectName;
+		Result.FileName := IOTAUtils.GxOtaGetCurrentSourceFile;;
+		sProjName := IOTAUtils.GxOtaGetCurrentProjectName;
 		TDebugUtils.DebugMessage((Format('TOpenWithRunner.InternalExecute proj: %s ', [sProjName])));
 		if (sProjName <> '') then begin
 			Result.DirPath := ExtractFileDir(sProjName);
