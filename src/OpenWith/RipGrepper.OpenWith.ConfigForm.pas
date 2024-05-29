@@ -337,12 +337,14 @@ begin
 	for var i := 0 to lbCommands.Items.Count - 1 do begin
 		var
 		sCmd := lbCommands.Items[i].Replace(SEPARATOR, '', [rfReplaceAll]);
+		TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.WriteSettings %s ', [sCmd])));
 		if (CheckCommand(sCmd)) then begin
-			TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.WriteSettings %s ', [sCmd])));
 			settings := Format('%s' + SEPARATOR + '%s', [BoolToStr(lbCommands.Checked[i], true), sCmd]);
-			FSettings.Command[i] := settings;
-			TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.WriteSettings %s ', [FSettings.Command[i]])));
+		end else begin
+			settings := Format('%s' + SEPARATOR + '%s', [BoolToStr(False, true), sCmd]);
 		end;
+		FSettings.Command[i] := settings;
+		TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.WriteSettings %s ', [FSettings.Command[i]])));
 	end;
 	FSettings.Store;
 end;

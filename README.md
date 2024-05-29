@@ -70,14 +70,14 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
   - [x] dockable window
   - [x] high DPI Scaling 
   - [x] menu item in Tools (shortcut configurable in `DripExtension*.ini`)
-  - [x] Default shortcut Shift+Alt+R
+  - [x] Default shortcut Shift+Alt+R ( :warning: conflict with GExpert/MMX Reverse Statement)
   - [x] click on matching file, opens file in the editor on position 
      - [ ] expand collapsed code in {$REGION}-s
   - [x] popup menu
   - [x] save window position
      - [x] save in layout
      - [x] load saved layout
-  - [ ] search selected text
+  - [x] search selected text
   - [ ] search only in opened files/project files/project group
   - [ ] delphi extension release
  

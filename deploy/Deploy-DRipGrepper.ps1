@@ -12,7 +12,10 @@ $global:Description = @"
 
 ### :warning: Bug Fixes
 * Alig toolbars on split move and resize
+* Open with command will be saved to settings even if it's not valid
 
+### Extension
+* selected text search started on hotkey
 "@
 
 ### :mag: Search Dialog
