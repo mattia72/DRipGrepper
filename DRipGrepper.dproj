@@ -99,10 +99,11 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <VerInfo_Build>35</VerInfo_Build>
+        <VerInfo_Build>36</VerInfo_Build>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
         <Icon_MainIcon>icons\DripGrepper.ico</Icon_MainIcon>
         <VerInfo_MinorVer>6</VerInfo_MinorVer>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.6.0.36;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.6.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -135,7 +136,6 @@
         <DCCReference Include="external\dzlib\u_dzMiscUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzTypesUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzTypInfo.pas"/>
-        <DCCReference Include="external\dzlib\u_dzVersionInfo.pas"/>
         <DCCReference Include="external\dzlib\u_dzVclUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzVariantUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzTypes.pas"/>
@@ -152,9 +152,6 @@
         <DCCReference Include="external\dzlib\u_dzDateUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzConvertUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzClassUtils.pas"/>
-        <DCCReference Include="external\GExpert\GX_OtaUtils.pas"/>
-        <DCCReference Include="external\GExpert\GX_GxUtils.pas"/>
-        <DCCReference Include="external\GExpert\GX_IdeUtils.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Constants.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Interfaces.pas"/>
         <DCCReference Include="src\RipGrepper.Common.ParsedObject.pas"/>
