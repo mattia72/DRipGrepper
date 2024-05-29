@@ -106,7 +106,6 @@ type
 			FDpiScaler : TRipGrepperDpiScaler;
 			FSettings : TRipGrepperSettings;
 			FViewStyleIndex : integer;
-			procedure ActionRealignToolbarsExecute(Sender : TObject);
 			procedure FrameResize(Sender : TObject);
 			function GetSettings : TRipGrepperSettings;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
@@ -345,11 +344,6 @@ end;
 procedure TRipGrepperTopFrame.ActionShowSearchFormUpdate(Sender : TObject);
 begin
 	ActionShowSearchForm.Enabled := Settings.IsEmpty or (not MainFrame.IsSearchRunning);
-end;
-
-procedure TRipGrepperTopFrame.ActionRealignToolbarsExecute(Sender : TObject);
-begin
-	FrameResize(self);
 end;
 
 procedure TRipGrepperTopFrame.ActionSwitchViewExecute(Sender : TObject);
