@@ -6,7 +6,9 @@
 **/*.identcache
 **/*.res
 **/*.dproj.local
+**/*.groupproj.local
 .vscode/settings.json
 deploy/SECRET_TOKEN
 DRipGrepper_project.tvsconfig
 **/*.dsk
+**/*.~dsk

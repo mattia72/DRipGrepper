@@ -1,4 +1,3 @@
-c:\home\mata\scoop\apps\vscode\1.88.1\resources\app\node_modules.asar.unpacked\@vscode\ripgrep\bin\
 
 
 rg.exe --hidden --no-require-git --ignore-case 

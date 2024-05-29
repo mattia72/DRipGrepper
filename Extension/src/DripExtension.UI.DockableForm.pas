@@ -22,7 +22,7 @@ type
 
 			class var FInstance : TRipGrepperDockableForm;
 			class function GetInstance : TRipGrepperDockableForm; static;
-			procedure HandleSelectedTextInIde;
+			class procedure GetInIDESelectedText;
 
 		public
 			class function ShowDockableFormAndSearch : TCustomForm;
@@ -229,6 +229,7 @@ end;
 class function TRipGrepperDockableForm.ShowDockableFormAndSearch : TCustomForm;
 begin
 	Result := (BorlandIDEServices as INTAServices).CreateDockableForm(FInstance);
+	GetInIDESelectedText;
 	ParentFrame.TopFrame.ActionShowSearchForm.Execute;
 end;
 
@@ -246,15 +247,15 @@ begin
 	Result := FInstance;
 end;
 
-procedure TRipGrepperDockableForm.HandleSelectedTextInIde;
+class procedure TRipGrepperDockableForm.GetInIDESelectedText;
+var
+	selectedText : string;
 begin
-	if not IOTAUTils.IsStandAlone then begin
-		var
-			selectedText : string;
-		IOTAUtils.GxOtaGetActiveEditorTextAsString(selectedText, True);
-		if not selectedText.IsEmpty then begin
-			ParentFrame.Settings.RipGrepParameters.SearchText := selectedText.Trim();
-		end;
+	IOTAUtils.GxOtaGetActiveEditorTextAsString(selectedText, True);
+	TDebugUtils.DebugMessage('TRipGrepperDockableForm.GetInIDESelectedText: ' + selectedText);
+
+	if not selectedText.IsEmpty then begin
+		ParentFrame.Settings.RipGrepParameters.SearchText := selectedText.Trim();
 	end;
 end;
 
