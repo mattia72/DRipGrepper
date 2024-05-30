@@ -231,6 +231,7 @@ begin
 	Result := (BorlandIDEServices as INTAServices).CreateDockableForm(FInstance);
 	GetInIDESelectedText;
 	ParentFrame.TopFrame.ActionShowSearchForm.Execute;
+	Result.Visible := True;
 end;
 
 function TRipGrepperDockableForm.GetFrameClass : TCustomFrameClass;

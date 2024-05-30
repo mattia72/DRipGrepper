@@ -70,6 +70,7 @@ begin
 	FIsModified := False;
 	FIsLoaded := False;
 	FSettings := TSettingsDictionary.Create();
+	TDebugUtils.DebugMessage('TRipGrepperSettingsBase.Create: ' + FIniFile.FileName);
 end;
 
 destructor TRipGrepperSettingsBase.Destroy;
@@ -175,6 +176,7 @@ var
 begin
 	setting := FSettings[_name];
 	Result := setting.Value;
+	TDebugUtils.DebugMessage('TRipGrepperSettingsBase.LoadSetting: ' + _name + ' ' + Result);
 end;
 
 function TRipGrepperSettingsBase.LoadDefaultSetting(const _name : string) : Variant;
@@ -183,6 +185,7 @@ var
 begin
 	setting := FSettings[_name];
 	Result := setting.DefaultValue;
+	TDebugUtils.DebugMessage('TRipGrepperSettingsBase.LoadDefaultSetting: ' + _name + ' ' + Result);
 end;
 
 class function TRipGrepperSetting.New(const _type : Integer; const _v : Variant) : TRipGrepperSetting;

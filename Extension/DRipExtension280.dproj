@@ -54,6 +54,7 @@
         <SanitizedProjectName>DRipExtension280</SanitizedProjectName>
         <DCC_UnitSearchPath>..\src;..\external;..\src\OpenWith;..\external\GExpert;..\external\dzlib;..\external\UniSynEdit;..\external\RegExpr;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_Define>NO_TRANSLATION;NO_TRANSLATION_HINT;NO_OPTIMIZE_DZ_GRAPHIC_UTILS_HINT;UnicodeRE;EnableIdeDockingSupport;$(DCC_Define)</DCC_Define>
+        <DCC_UnitAlias>GX_IdeDockStandAlone=GX_IdeDock;SynRegExpr=RegExprReplaceUnit;$(DCC_UnitAlias)</DCC_UnitAlias>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
@@ -80,8 +81,8 @@
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <DCC_UnitAlias>GX_IdeDockStandAlone=GX_IdeDock;SynRegExpr=RegExprReplaceUnit;$(DCC_UnitAlias)</DCC_UnitAlias>
         <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\22.0\bin\bds.exe</Debugger_HostApplication>
+        <DCC_ShowGeneralMessages>true</DCC_ShowGeneralMessages>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -123,12 +124,12 @@
                     <Source Name="MainSource">DRipExtension280.dpk</Source>
                 </Source>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclFMXtee9280.bpl">TeeChart Lite FMX Components</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclBindCompFireDAC280.bpl">LiveBinding-Ausdruckskomponenten für FireDac</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclFMXFireDAC280.bpl">Embarcadero FMX-FireDAC-Komponenten</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclFireDAC280.bpl">Embarcadero FireDAC-Komponenten</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclVclFireDAC280.bpl">Embarcadero VCL-FireDAC-Komponenten</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclofficexp280.bpl">Microsoft Office XP Beispiele für gekapselte Komponenten für Automation Server</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclFMXtee9280.bpl">TeeChart Lite FMX Components</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclbindcompfmx280.bpl">Embarcadero LiveBindings-Komponenten FireMonkey</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclappanalytics280.bpl">Embarcadero Usertility-Analysekomponente</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclbindcompvcl280.bpl">Embarcadero LiveBindings-Komponenten VCL</Excluded_Packages>
