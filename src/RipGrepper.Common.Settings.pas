@@ -62,6 +62,7 @@ type
 			FDripGrepperShortCut : string;
 
 		public
+			constructor Create(const _ini : TIniFile);
 			function GetIniSectionName : string; override;
 			procedure Load; override;
 			procedure Store; override;
@@ -80,6 +81,7 @@ type
 			procedure Init; override;
 
 		public
+			constructor Create(const _ini : TIniFile);
 			function GetIniSectionName : string; override;
 			procedure Load; override;
 			procedure Store; override;
@@ -377,6 +379,7 @@ end;
 procedure TRipGrepperSettings.StoreViewSettings(const _s : string = '');
 begin
 	FRipGrepperViewSettings.StoreViewSettings(_s);
+	FRipGrepperViewSettings.Store;
 end;
 
 procedure TRipGrepperSettings.StoreHistoryEntries(const _list : TStrings; const _section : string);
@@ -389,6 +392,7 @@ end;
 constructor TRipGrepperViewSettings.Create(const _ini : TIniFile);
 begin
 	inherited;
+	TDebugUtils.DebugMessage('TRipGrepperViewSettings.Create: ' + FIniFile.FileName + '[' + GetIniSectionName + ']');
 end;
 
 function TRipGrepperViewSettings.GetIniSectionName : string;
@@ -422,15 +426,18 @@ procedure TRipGrepperViewSettings.Store;
 begin
 	if IsLoaded and IsModified then begin
 		StoreViewSettings('');
+		inherited Store();
 		FIsModified := False;
 	end;
-	inherited Store();
+
 end;
 
 procedure TRipGrepperViewSettings.StoreViewSettings(const _s : string = '');
 var
 	i : integer;
 begin
+	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.StoreViewSettings: ' + _s);
+
 	i := 0;
 	if _s.IsEmpty then begin
 		// store all
@@ -481,6 +488,7 @@ constructor TRipGrepperOpenWithSettings.Create(const _ini : TIniFile);
 begin
 	inherited;
 	FCommandList := TStringList.Create;
+	TDebugUtils.DebugMessage('TRipGrepperOpenWithSettings.Create: ' + FIniFile.FileName + '[' + GetIniSectionName + ']');
 end;
 
 destructor TRipGrepperOpenWithSettings.Destroy;
@@ -550,6 +558,12 @@ begin
 	end;
 end;
 
+constructor TRipGrepperExtensionSettings.Create(const _ini : TIniFile);
+begin
+	inherited;
+	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Create: ' + FIniFile.FileName + '[' + GetIniSectionName + ']');
+end;
+
 function TRipGrepperExtensionSettings.GetIniSectionName : string;
 begin
 	Result := INI_SECTION;
@@ -583,6 +597,12 @@ begin
 		FIsModified := False;
 	end;
 	{$ENDIF}
+end;
+
+constructor TRipGrepperAppSettings.Create(const _ini : TIniFile);
+begin
+	inherited;
+	TDebugUtils.DebugMessage('TRipGrepperAppSettings.Create: ' + FIniFile.FileName + '[' + GetIniSectionName + ']');
 end;
 
 function TRipGrepperAppSettings.GetIniSectionName : string;

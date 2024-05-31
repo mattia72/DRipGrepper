@@ -170,6 +170,7 @@ end;
 procedure TRipGrepParameterSettings.Store;
 begin
 	StoreSetting(RG_INI_KEY_RGPATH, RipGrepPath);
+    inherited Store; //Write to ini
 end;
 
 end.

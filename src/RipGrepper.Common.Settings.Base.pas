@@ -61,7 +61,8 @@ implementation
 
 uses
 	System.Classes,
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils,
+	System.Variants;
 
 constructor TRipGrepperSettingsBase.Create(const _ini : TIniFile);
 begin
@@ -70,7 +71,6 @@ begin
 	FIsModified := False;
 	FIsLoaded := False;
 	FSettings := TSettingsDictionary.Create();
-	TDebugUtils.DebugMessage('TRipGrepperSettingsBase.Create: ' + FIniFile.FileName);
 end;
 
 destructor TRipGrepperSettingsBase.Destroy;
@@ -154,7 +154,10 @@ begin
 				vtInteger :
 				FIniFile.WriteInteger(GetIniSectionName, key, setting.Value);
 			end;
-			TDebugUtils.DebugMessage('TRipGrepperSettingsBase.Store: ' + key + ' stored');
+			TDebugUtils.DebugMessage('TRipGrepperSettingsBase.Store: ' + FIniFile.FileName + '[' + GetIniSectionName + '] ' + key + '=' +
+				VarToStr(setting.Value) + ' stored');
+			setting.IsModified := False;
+			FSettings[key] := setting;
 		end;
 	end;
 end;
@@ -163,8 +166,11 @@ procedure TRipGrepperSettingsBase.StoreSetting(const _name : string; const _v : 
 var
 	setting : TRipGrepperSetting;
 begin
+	TDebugUtils.DebugMessage('TRipGrepperSettingsBase.StoreSetting: ' + _name + '=' + VarToStr(_v) + ' stored in memory');
+
 	setting := FSettings[_name];
 	if setting.Value <> _v then begin
+		setting.Value := _v;
 		setting.IsModified := True;
 		FSettings.AddOrSetValue(_name, setting);
 	end;
