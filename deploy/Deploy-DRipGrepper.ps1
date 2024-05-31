@@ -17,11 +17,11 @@ $global:Description = @"
 * First release of `DripExtension280.bpl`
 * Docking window location saved in layout file
 * Selected text search started on hotkey (default: Shift+Alt+R)
-* :warning: Settings should be stored on change 
+* :warning: View settings, like ShowIcons will be stored in Ini on button click
 "@
 
 ### :mag: Search Dialog
-# + new feature
+# + new featuren
 # + new feature
  
 ### :warning: Bug Fixes
@@ -93,9 +93,9 @@ function Add-ToAssetsDir {
     param (
         $AssetPath
     )
-
-    if ($AssetPath -match 'exe$' -and `
-            -not $(Test-YesAnswer "Release version: $global:Version. Version of builded app: $((Get-Command $AssetPath).FileVersionInfo.FileVersion). Ok?")) {
+    $appVersion = $((Get-Command $AssetPath).FileVersionInfo.FileVersion) # BPL is ok too :)
+    if (-not $(Test-YesAnswer "Release version: $global:Version. Version of builded app: $appVersion. Ok?")) {
+        Write-Info "Search FileVersion=$appVersion in *.dproj and change it!"
         Write-Error "Deploy canceled" -ErrorAction Stop
     }
     New-Item -Path $global:AssetsDirectory -ItemType Directory -ErrorAction SilentlyContinue
@@ -193,20 +193,22 @@ function New-Asset {
     & curl.exe @CurlArgument
 }
 
-#New-ReleaseNotes
-New-ReleaseWithAsset
+function Deploy {
+    #New-ReleaseNotes
+    New-ReleaseWithAsset
 
-#Update scoop
-Push-Location $env:SCOOP\buckets\my-scoop-bucket
-.\bin\checkver.ps1 -Update
-if ( -not $(Test-YesAnswer "Commit updated manifests?")) {
-    Write-Error "Commit canceled" -ErrorAction Stop
-}
-git commit -m "dripgrepper $global:Version"
-if ( -not $(Test-YesAnswer "Push updated manifests?")) {
-    Write-Error "Push canceled" -ErrorAction Stop
-}
-git push
+    #Update scoop
+    Push-Location $env:SCOOP\buckets\my-scoop-bucket
+    .\bin\checkver.ps1 -Update
+    if ( -not $(Test-YesAnswer "Commit updated manifests?")) {
+        Write-Error "Commit canceled" -ErrorAction Stop
+    }
+    git commit -m "dripgrepper $global:Version"
+    if ( -not $(Test-YesAnswer "Push updated manifests?")) {
+        Write-Error "Push canceled" -ErrorAction Stop
+    }
+    git push
 
-Pop-Location
-scoop update dripgrepper
+    Pop-Location
+    scoop update dripgrepper
+}

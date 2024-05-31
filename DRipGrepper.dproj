@@ -68,7 +68,7 @@
     <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
     <BT_BuildType>Debug</BT_BuildType>
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-    <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.6.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.5.0.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.6.1.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.6.1.0;Comments=beta</VerInfo_Keys>
     <VerInfo_Locale>1033</VerInfo_Locale>
     <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
     <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
@@ -78,6 +78,7 @@
     <UWP_DelphiLogo44>icons\DripGrepperLogo.png</UWP_DelphiLogo44>
     <UWP_DelphiLogo150>icons\DripGrepperLogo.png</UWP_DelphiLogo150>
     <VerInfo_MinorVer>6</VerInfo_MinorVer>
+    <VerInfo_Release>1</VerInfo_Release>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Base_Win64)'!=''">
     <DCC_UsePackage>soapserver;IndySystem;vclwinx;fmx;vclie;DbxCommonDriver;bindengine;vcldb;IndyIPCommon;VCLRESTComponents;FireDACCommonODBC;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;IndyIPClient;dbxcds;vcledge;vclFireDAC;bindcompvclwinx;bindcomp;FireDACCommon;IndyCore;RESTBackendComponents;bindcompfmx;bindcompdbx;inetdb;rtl;FireDACMySQLDriver;FireDACSqliteDriver;DbxClientDriver;FireDACADSDriver;RESTComponents;soapmidas;DBXSqliteDriver;vcl;vclactnband;IndyIPServer;dsnapxml;fmxFireDAC;dbexpress;dsnapcon;adortl;DBXMySQLDriver;VclSmp;inet;vclimg;vcltouch;FireDACPgDriver;FireDAC;fmxase;inetdbxpress;xmlrtl;tethering;dbrtl;bindcompvcl;dsnap;fmxdae;CloudService;FireDACMSAccDriver;CustomIPTransport;fmxobj;bindcompvclsmp;soaprtl;vcldsnap;DBXInterBaseDriver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
@@ -92,18 +93,19 @@
     <DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
     <DCC_RangeChecking>true</DCC_RangeChecking>
     <VerInfo_Locale>1031</VerInfo_Locale>
-    <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.6.0.35;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.6.0.0;Comments=</VerInfo_Keys>
+    <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.6.1.35;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.6.0.0;Comments=</VerInfo_Keys>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
     <DCC_RemoteDebug>false</DCC_RemoteDebug>
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_Locale>1033</VerInfo_Locale>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-    <VerInfo_Build>36</VerInfo_Build>
+    <VerInfo_Build>37</VerInfo_Build>
     <VerInfo_MajorVer>2</VerInfo_MajorVer>
     <Icon_MainIcon>icons\DripGrepper.ico</Icon_MainIcon>
     <VerInfo_MinorVer>6</VerInfo_MinorVer>
-    <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.6.0.36;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.6.0.0;Comments=</VerInfo_Keys>
+    <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.6.1.37;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.6.1.0;Comments=</VerInfo_Keys>
+    <VerInfo_Release>1</VerInfo_Release>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_2)'!=''">
     <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -111,7 +113,7 @@
     <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
     <DCC_DebugInformation>0</DCC_DebugInformation>
     <VerInfo_Locale>1031</VerInfo_Locale>
-    <VerInfo_Keys>CompanyName=;FileDescription=DRipGrepper;FileVersion=2.6.0.15;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=2.6.0.0;Comments=</VerInfo_Keys>
+    <VerInfo_Keys>CompanyName=;FileDescription=DRipGrepper;FileVersion=2.6.1.15;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=2.6.0.0;Comments=</VerInfo_Keys>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
@@ -121,8 +123,8 @@
     <UWP_DelphiLogo150>icons\DripGrepperLogo.png</UWP_DelphiLogo150>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <VerInfo_MajorVer>2</VerInfo_MajorVer>
-    <VerInfo_Build>23</VerInfo_Build>
-    <VerInfo_Keys>CompanyName=;FileDescription=DRipGrepper;FileVersion=2.6.0.23;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=2.6.0.0;Comments=</VerInfo_Keys>
+    <VerInfo_Build>38</VerInfo_Build>
+    <VerInfo_Keys>CompanyName=;FileDescription=DRipGrepper;FileVersion=2.6.1.38;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=2.6.0.0;Comments=</VerInfo_Keys>
     <VerInfo_MinorVer>6</VerInfo_MinorVer>
   </PropertyGroup>
   <ItemGroup>
@@ -231,12 +233,12 @@
           <Source Name="MainSource">DRipGrepper.dpr</Source>
         </Source>
         <Excluded_Packages>
-          <Excluded_Packages Name="$(BDSBIN)\dclFMXtee9280.bpl">TeeChart Lite FMX Components</Excluded_Packages>
           <Excluded_Packages Name="$(BDSBIN)\dclBindCompFireDAC280.bpl">LiveBinding-Ausdruckskomponenten für FireDac</Excluded_Packages>
           <Excluded_Packages Name="$(BDSBIN)\dclFMXFireDAC280.bpl">Embarcadero FMX-FireDAC-Komponenten</Excluded_Packages>
           <Excluded_Packages Name="$(BDSBIN)\dclFireDAC280.bpl">Embarcadero FireDAC-Komponenten</Excluded_Packages>
           <Excluded_Packages Name="$(BDSBIN)\dclVclFireDAC280.bpl">Embarcadero VCL-FireDAC-Komponenten</Excluded_Packages>
           <Excluded_Packages Name="$(BDSBIN)\dclofficexp280.bpl">Microsoft Office XP Beispiele für gekapselte Komponenten für Automation Server</Excluded_Packages>
+          <Excluded_Packages Name="$(BDSBIN)\dclFMXtee9280.bpl">TeeChart Lite FMX Components</Excluded_Packages>
           <Excluded_Packages Name="$(BDSBIN)\dclbindcompfmx280.bpl">Embarcadero LiveBindings-Komponenten FireMonkey</Excluded_Packages>
           <Excluded_Packages Name="$(BDSBIN)\dclappanalytics280.bpl">Embarcadero Usertility-Analysekomponente</Excluded_Packages>
           <Excluded_Packages Name="$(BDSBIN)\dclbindcompvcl280.bpl">Embarcadero LiveBindings-Komponenten VCL</Excluded_Packages>

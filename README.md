@@ -64,6 +64,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
     - [x] ExpandNodes
   - [ ] configurable length of history 
   - [x] *Open with...* settings saved
+  - [ ] DebugTrace switch
 - [ ] configuration dialog
 
 ### Delphi Extension 
@@ -78,8 +79,10 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
      - [x] save in layout
      - [x] load saved layout
   - [x] search selected text
+     - [ ] multi line selection handling (in ini?)
   - [ ] search only in opened files/project files/project group
-  - [ ] delphi extension release
+  - [x] delphi extension release
+
  
 ### Misc
 - [x] screenshots in Readme.md
