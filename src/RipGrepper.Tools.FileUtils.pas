@@ -8,11 +8,12 @@ uses
 type
 	TFileUtils = class(TObject)
 		private
-			class function GetFileVersionStr(const AFileName : string) : string;
+			class function GetModuleVersion(Instance : THandle; out iMajor, iMinor, iRelease, iBuild : Integer) : Boolean;
+
 		public
 			class function FindExecutable(sFileName : string; out sOutpuPath : string) : Boolean;
 			class function GetAppNameAndVersion(const _exePath : string) : string;
-			class function GetPackageNameAndVersion(Package : HMODULE): string;
+			class function GetPackageNameAndVersion(Package : HMODULE) : string;
 	end;
 
 procedure GetPackageNameInfoProc(const Name : string; NameType : TNameType; Flags : Byte; Param : Pointer);
@@ -25,7 +26,8 @@ uses
 	Winapi.Windows,
 	RipGrepper.Tools.DebugUtils,
 	System.IOUtils,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants,
+	System.Classes;
 
 procedure GetPackageNameInfoProc(const Name : string; NameType : TNameType; Flags : Byte; Param : Pointer);
 begin
@@ -56,52 +58,81 @@ end;
 
 class function TFileUtils.GetAppNameAndVersion(const _exePath : string) : string;
 var
-	major : Cardinal;
-	minor : Cardinal;
-	build : Cardinal;
+	imajor : integer;
+	iminor : integer;
+	irelease : integer;
+	ibuild : integer;
 	name : string;
 begin
-	GetProductVersion(_exePath, major, minor, build);
+
+	GetModuleVersion(0, imajor, iminor, irelease, ibuild);
 	name := TPath.GetFileNameWithoutExtension(_exePath);
-	Result := Format(FORMAT_VERSION_INFO, [name, major, minor, build]);
+	Result := Format(FORMAT_VERSION_INFO, [name, imajor, iminor, irelease]);
 end;
 
-class function TFileUtils.GetFileVersionStr(const AFileName : string) : string;
+class function TFileUtils.GetModuleVersion(Instance : THandle; out iMajor, iMinor, iRelease, iBuild : Integer) : Boolean;
 var
-	FileName : string;
-	LinfoSize : DWORD;
-	lpdwHandle : DWORD;
-	lpData : Pointer;
-	lplpBuffer : PVSFixedFileInfo;
-	puLen : DWORD;
+	fileInformation : PVSFIXEDFILEINFO;
+	verlen : Cardinal;
+	rs : TResourceStream;
+	m : TMemoryStream;
+	resource : HRSRC;
 begin
-	Result := '';
-	FileName := AFileName;
-	UniqueString(FileName);
-	LinfoSize := GetFileVersionInfoSize(PChar(FileName), lpdwHandle);
-	if LinfoSize <> 0 then begin
-		GetMem(lpData, LinfoSize);
-		try
-			if GetFileVersionInfo(PChar(FileName), lpdwHandle, LinfoSize, lpData) then
-				if VerQueryValue(lpData, '\', Pointer(lplpBuffer), puLen) then
-					Result := Format('%d.%d.%d.%d', [HiWord(lplpBuffer.dwFileVersionMS), LoWord(lplpBuffer.dwFileVersionMS),
-						HiWord(lplpBuffer.dwFileVersionLS), LoWord(lplpBuffer.dwFileVersionLS)]);
-		finally
-			FreeMem(lpData);
-		end;
+	Result := False;
+	// You said zero, but you mean "us"
+	if Instance = 0 then
+		Instance := HInstance;
+
+	// UPDATE: Workaround bug in Delphi if resource doesn't exist
+	resource := FindResource(Instance, PWideChar(1), RT_VERSION);
+	if resource = 0 then begin
+		iMajor := 0;
+		iMinor := 0;
+		iRelease := 0;
+		iBuild := 0;
+		Result := False;
+		Exit;
 	end;
 
+	m := TMemoryStream.Create;
+	try
+		rs := TResourceStream.CreateFromID(Instance, 1, RT_VERSION);
+		try
+			m.CopyFrom(rs, rs.Size);
+		finally
+			rs.Free;
+		end;
+
+		m.Position := 0;
+		if not VerQueryValue(m.Memory, '\', (* var *) Pointer(fileInformation), (* var *) verlen) then begin
+			iMajor := 0;
+			iMinor := 0;
+			iRelease := 0;
+			iBuild := 0;
+			Exit;
+		end;
+
+		iMajor := fileInformation.dwFileVersionMS shr 16;
+		iMinor := fileInformation.dwFileVersionMS and $FFFF;
+		iRelease := fileInformation.dwFileVersionLS shr 16;
+		iBuild := fileInformation.dwFileVersionLS and $FFFF;
+	finally
+		m.Free;
+	end;
+
+	Result := True;
 end;
 
-class function TFileUtils.GetPackageNameAndVersion(Package : HMODULE): string;
+class function TFileUtils.GetPackageNameAndVersion(Package : HMODULE) : string;
 var
 	Flags : Integer;
+	packageName : string;
 begin
 	// Flags should be an out param, but is a var, so this assignment is a little pointless
 	Flags := 0;
 	Result := '';
-	GetPackageInfo(package, @Result, Flags, GetPackageNameInfoProc);
-	Result := Result + ' ' + GetFileVersionStr(Result);
+	GetPackageInfo(package, @packageName, Flags, GetPackageNameInfoProc);
+	Result := GetAppNameAndVersion(packageName);
 end;
 
 end.
