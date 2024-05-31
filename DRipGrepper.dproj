@@ -100,12 +100,12 @@
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_Locale>1033</VerInfo_Locale>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-    <VerInfo_Build>37</VerInfo_Build>
+    <VerInfo_Build>38</VerInfo_Build>
     <VerInfo_MajorVer>2</VerInfo_MajorVer>
     <Icon_MainIcon>icons\DripGrepper.ico</Icon_MainIcon>
     <VerInfo_MinorVer>6</VerInfo_MinorVer>
-    <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.6.1.37;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.6.2.0;Comments=</VerInfo_Keys>
-    <VerInfo_Release>1</VerInfo_Release>
+    <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.6.2.38;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.6.2.0;Comments=</VerInfo_Keys>
+    <VerInfo_Release>2</VerInfo_Release>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_2)'!=''">
     <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -123,9 +123,10 @@
     <UWP_DelphiLogo150>icons\DripGrepperLogo.png</UWP_DelphiLogo150>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <VerInfo_MajorVer>2</VerInfo_MajorVer>
-    <VerInfo_Build>44</VerInfo_Build>
-    <VerInfo_Keys>CompanyName=;FileDescription=DRipGrepper;FileVersion=2.6.2.44;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=2.6.0.0;Comments=</VerInfo_Keys>
+    <VerInfo_Build>47</VerInfo_Build>
+    <VerInfo_Keys>CompanyName=;FileDescription=DRipGrepper;FileVersion=2.6.2.47;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=2.6.2.0;Comments=</VerInfo_Keys>
     <VerInfo_MinorVer>6</VerInfo_MinorVer>
+    <VerInfo_Release>2</VerInfo_Release>
   </PropertyGroup>
   <ItemGroup>
     <DelphiCompile Include="$(MainSource)">

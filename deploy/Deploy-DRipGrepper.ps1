@@ -4,14 +4,13 @@
 # - Change file and product version in every projects for ALL CONFIGURATION!
 # - Commit and push all changes
 # - run this script
-$global:Version = "v2.6.2-beta"
-$global:PrevVersion = "v2.6.1-beta"
+$global:Version = "v2.6.3-beta"
+$global:PrevVersion = "v2.6.2-beta"
 $global:Description = @"
 ## Improvements and Bug Fixes
 
 ### :warning: Bug Fixes
-* scoop install persists an empty directory instead of ini
-* get variant conversion error on empty settings ini 
+* version info corrected on status bar
 "@
 
 ### :mag: Search Dialog
