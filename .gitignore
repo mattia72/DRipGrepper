@@ -12,3 +12,4 @@ deploy/SECRET_TOKEN
 DRipGrepper_project.tvsconfig
 **/*.dsk
 **/*.~dsk
+deploy/assets/*
