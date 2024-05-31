@@ -4,20 +4,14 @@
 # - Change file and product version in every projects for ALL CONFIGURATION!
 # - Commit and push all changes
 # - run this script
-$global:Version = "v2.6.1-beta"
-$global:PrevVersion = "v2.6.0-beta"
+$global:Version = "v2.6.2-beta"
+$global:PrevVersion = "v2.6.1-beta"
 $global:Description = @"
 ## Improvements and Bug Fixes
 
 ### :warning: Bug Fixes
-* Align toolbars on split move and resize
-* Commands in "Open with..." settings form will be saved to settings even if they are not valid
-
-### Extension
-* First release of `DripExtension280.bpl`
-* Docking window location saved in layout file
-* Selected text search started on hotkey (default: Shift+Alt+R)
-* :warning: View settings, like ShowIcons will be stored in Ini on button click
+* scoop install persists an empty directory instead of ini
+* get variant conversion error on empty settings ini 
 "@
 
 ### :mag: Search Dialog
@@ -95,8 +89,7 @@ function Add-ToAssetsDir {
     )
     $appVersion = $((Get-Command $AssetPath).FileVersionInfo.FileVersion) # BPL is ok too :)
     if (-not $(Test-YesAnswer "Release version: $global:Version. Version of builded app: $appVersion. Ok?")) {
-        Write-Info "Search FileVersion=$appVersion in *.dproj and change it!"
-        Write-Error "Deploy canceled" -ErrorAction Stop
+        Write-Error "Search FileVersion=$appVersion in *.dproj and change it!`r`nDeploy stopped." -ErrorAction Stop
     }
     New-Item -Path $global:AssetsDirectory -ItemType Directory -ErrorAction SilentlyContinue
     Copy-Item -Path $AssetPath -Destination $global:AssetsDirectory
@@ -193,16 +186,14 @@ function New-Asset {
     & curl.exe @CurlArgument
 }
 
-function Deploy {
-    #New-ReleaseNotes
-    New-ReleaseWithAsset
+function Update-ScoopManifest {
 
-    #Update scoop
     Push-Location $env:SCOOP\buckets\my-scoop-bucket
     .\bin\checkver.ps1 -Update
     if ( -not $(Test-YesAnswer "Commit updated manifests?")) {
         Write-Error "Commit canceled" -ErrorAction Stop
     }
+    git add . 
     git commit -m "dripgrepper $global:Version"
     if ( -not $(Test-YesAnswer "Push updated manifests?")) {
         Write-Error "Push canceled" -ErrorAction Stop
@@ -211,4 +202,11 @@ function Deploy {
 
     Pop-Location
     scoop update dripgrepper
+}
+
+function Deploy {
+    #New-ReleaseNotes
+    New-ReleaseWithAsset
+    #Update scoop
+    Update-ScoopManifest
 }

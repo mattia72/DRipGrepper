@@ -9,16 +9,25 @@
             "command": ". deploy\\Deploy-DripGrepper.ps1; Deploy",
             "problemMatcher": [],
             "group": {
-                "kind": "none",
+                "kind": "none"
             }
-        },     
+        },
+        {
+            "label": "Update scoop manifest",
+            "type": "shell",
+            "command": ". deploy\\Deploy-DripGrepper.ps1; Update-ScoopManifest",
+            "problemMatcher": [],
+            "group": {
+                "kind": "none"
+            }
+        },
         {
             "label": "Build All",
             "type": "shell",
             "command": ". deploy\\Deploy-DripGrepper.ps1; Build-StandaloneRelease; Build-ExtensionRelease",
             "problemMatcher": [],
             "group": {
-                "kind": "build",
+                "kind": "build"
             }
         },
         {
@@ -26,16 +35,15 @@
             "type": "shell",
             "command": ". deploy\\Deploy-DripGrepper.ps1; Build-StandaloneRelease",
             "group": {
-                "kind": "build",
+                "kind": "build"
             }
-
         },
         {
             "label": "Build DRipExtension",
             "type": "shell",
             "command": ". deploy\\Deploy-DripGrepper.ps1; Build-ExtensionRelease",
             "group": {
-                "kind": "build",
+                "kind": "build"
             }
         }
     ]

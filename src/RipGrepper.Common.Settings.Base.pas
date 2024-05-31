@@ -181,8 +181,10 @@ var
 	setting : TRipGrepperSetting;
 begin
 	setting := FSettings[_name];
-	Result := setting.Value;
-	TDebugUtils.DebugMessage('TRipGrepperSettingsBase.LoadSetting: ' + _name + ' ' + Result);
+	if not (VarIsEmpty(setting.Value) or VarIsNull(setting.Value)) then begin
+		Result := setting.Value;
+	end;
+	TDebugUtils.DebugMessage('TRipGrepperSettingsBase.LoadSetting: ' + _name + ' ' + VarToStr(Result));
 end;
 
 function TRipGrepperSettingsBase.LoadDefaultSetting(const _name : string) : Variant;
