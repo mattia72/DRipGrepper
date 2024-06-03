@@ -189,17 +189,17 @@ end;
 
 function TRipGrepperDockableForm.GetMenuImageList : TCustomImageList;
 begin
-	Result := nil;
+	Result := ParentFrame.MainFrame.ImageList1;
 end;
 
 function TRipGrepperDockableForm.GetToolBarActionList : TCustomActionList;
 begin
-	Result := nil;
+	Result := nil; //ParentFrame.TopFrame.ActionList;  //so we will have an other toolbar, over
 end;
 
 function TRipGrepperDockableForm.GetToolBarImageList : TCustomImageList;
 begin
-	Result := nil;
+	Result := nil; //ParentFrame.TopFrame.ImageListButtons; //so we will have an other toolbar
 end;
 
 procedure TRipGrepperDockableForm.LoadWindowState(Desktop : TCustomIniFile; const Section : string);
