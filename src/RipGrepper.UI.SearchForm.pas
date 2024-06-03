@@ -168,16 +168,23 @@ begin
 	inherited Create(AOwner);
 	FSettings := _settings;
 	FHistItemObj := _histObj;
-	if Assigned(_histObj) then begin
-		FGuiSetSearchParams := _histObj.GuiSetSearchParams;
-	end else begin
-		var
-			searchText : string := _settings.RipGrepParameters.SearchText;
-		if not searchText.IsEmpty then begin
-			_settings.SearchTextsHistory.DeleteAll([searchText]);
-			_settings.SearchTextsHistory.Insert(0, searchText);
-			FGuiSetSearchParams.SearchText := searchText;
-		end;
+	if Assigned(FHistItemObj) then begin
+		TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.Create: set hist obj');
+		FGuiSetSearchParams := FHistItemObj.GuiSetSearchParams;
+	end;
+	var
+		searchText : string := _settings.RipGrepParameters.SearchText;
+	if not searchText.IsEmpty then begin
+		_settings.SearchTextsHistory.DeleteAll([searchText]);
+		_settings.SearchTextsHistory.Insert(0, searchText);
+		TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.Create: new SearchText=' + searchText);
+		FGuiSetSearchParams.SearchText := searchText;
+		if Assigned(FHistItemObj) then begin
+			FHistItemObj.RipGrepArguments.Values[RG_ARG_SEARCH_TEXT] := searchText;
+			TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.Create: new rg arg='
+				+ string.Join('', FHistItemObj.RipGrepArguments.GetValues(RG_ARG_SEARCH_TEXT)));
+ 		end;
+
 	end;
 
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.Create: gui params=' + FGuiSetSearchParams.ToString);
@@ -348,6 +355,7 @@ begin
 
 	SetComboItemsAndText(cmbSearchDir, RG_ARG_SEARCH_PATH, FSettings.SearchPathsHistory);
 	SetComboItemsAndText(cmbSearchText, RG_ARG_SEARCH_TEXT, FSettings.SearchTextsHistory);
+
 	SetComboItemsAndText(cmbOptions, RG_ARG_OPTIONS, FSettings.RipGrepOptionsHistory);
 	SetComboItemsFromOptions(cmbFileMasks, RG_PARAM_REGEX_GLOB, FSettings.FileMasksHistory);
 
