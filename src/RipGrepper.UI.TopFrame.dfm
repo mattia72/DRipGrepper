@@ -1143,15 +1143,10 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     Left = 1418
     Top = 65531
     object ActionSearch: TAction
+      Category = 'Search'
       Caption = 'Search'
       ImageIndex = 10
       OnExecute = ActionSearchExecute
-    end
-    object ActionConfig: TAction
-      Caption = 'Config'
-      Hint = 'Open Config...'
-      ImageIndex = 0
-      OnExecute = ActionConfigExecute
     end
     object ActionSwitchView: TAction
       Caption = 'ActionSwitchView'
@@ -1159,60 +1154,16 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Visible = False
       OnExecute = ActionSwitchViewExecute
     end
-    object ActionShowRelativePath: TAction
-      Caption = 'ActionShowRelativePath'
-      Hint = 'Show Full or Relative Path'
-      ImageIndex = 12
-      OnExecute = ActionShowRelativePathExecute
-      OnUpdate = ActionShowRelativePathUpdate
-    end
-    object ActionCmdLineCopy: TAction
-      Caption = 'ActionCmdLineCopy'
-      Hint = 'Copy Command Line to Clipboard'
-      ImageIndex = 24
-      ShortCut = 16451
-      OnExecute = ActionCmdLineCopyExecute
-    end
-    object ActionCopyFileName: TAction
-      Caption = 'Copy Name to Clipboard'
-      Hint = 'Copy Name to Clipboard'
-      OnExecute = ActionCopyFileNameExecute
-    end
-    object ActionCopyPathToClipboard: TAction
-      Caption = 'Copy Path to Clipboard'
-      Hint = 'Copy Path to Clipboard'
-      OnExecute = ActionCopyPathToClipboardExecute
-    end
     object ActionShowSearchForm: TAction
+      Category = 'Search'
       Caption = 'Search...'
       Hint = 'Search...'
       ImageIndex = 8
       ShortCut = 16467
       OnExecute = ActionShowSearchFormExecute
     end
-    object ActionShowFileIcons: TAction
-      Caption = 'Show File  Icons'
-      Hint = 'Show File  Icons'
-      ImageIndex = 16
-      OnExecute = ActionShowFileIconsExecute
-      OnUpdate = ActionShowFileIconsUpdate
-    end
-    object ActionAlternateRowColors: TAction
-      Caption = 'Alternate'
-      Hint = 'Alternate Row Colors'
-      ImageIndex = 13
-      OnExecute = ActionAlternateRowColorsExecute
-      OnUpdate = ActionAlternateRowColorsUpdate
-    end
-    object ActionAbortSearch: TAction
-      Caption = 'Abort'
-      Hint = 'Abort Running Search'
-      ImageIndex = 18
-      ShortCut = 16411
-      OnExecute = ActionAbortSearchExecute
-      OnUpdate = ActionAbortSearchUpdate
-    end
     object ActionRefreshSearch: TAction
+      Category = 'Search'
       Caption = 'Refresh'
       Hint = 'Refresh Results'
       ImageIndex = 15
@@ -1220,8 +1171,71 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       OnExecute = ActionRefreshSearchExecute
       OnUpdate = ActionRefreshSearchUpdate
     end
+    object ActionAbortSearch: TAction
+      Category = 'Search'
+      Caption = 'Abort'
+      Hint = 'Abort Running Search'
+      ImageIndex = 18
+      ShortCut = 16411
+      OnExecute = ActionAbortSearchExecute
+      OnUpdate = ActionAbortSearchUpdate
+    end
+    object ActionCmdLineCopy: TAction
+      Category = 'Search'
+      Caption = 'ActionCmdLineCopy'
+      Hint = 'Copy Command Line to Clipboard'
+      ImageIndex = 24
+      ShortCut = 16451
+      OnExecute = ActionCmdLineCopyExecute
+    end
+    object ActionExpandCollapse: TAction
+      Category = 'View'
+      Caption = 'Expand'
+      GroupIndex = 1
+      Hint = '[B]Expand [/B]Results'
+      ImageIndex = 22
+      OnExecute = ActionExpandCollapseExecute
+      OnUpdate = ActionExpandCollapseUpdate
+    end
+    object ActionConfig: TAction
+      Category = 'Config'
+      Caption = 'Config'
+      GroupIndex = 3
+      Hint = 'Open Config...'
+      ImageIndex = 0
+      OnExecute = ActionConfigExecute
+    end
+    object ActionShowRelativePath: TAction
+      Category = 'View'
+      Caption = 'ActionShowRelativePath'
+      GroupIndex = 1
+      Hint = 'Show Full or Relative Path'
+      ImageIndex = 12
+      OnExecute = ActionShowRelativePathExecute
+      OnUpdate = ActionShowRelativePathUpdate
+    end
+    object ActionShowFileIcons: TAction
+      Category = 'View'
+      Caption = 'Show File  Icons'
+      GroupIndex = 1
+      Hint = 'Show File  Icons'
+      ImageIndex = 16
+      OnExecute = ActionShowFileIconsExecute
+      OnUpdate = ActionShowFileIconsUpdate
+    end
+    object ActionAlternateRowColors: TAction
+      Category = 'View'
+      Caption = 'Alternate'
+      GroupIndex = 1
+      Hint = 'Alternate Row Colors'
+      ImageIndex = 13
+      OnExecute = ActionAlternateRowColorsExecute
+      OnUpdate = ActionAlternateRowColorsUpdate
+    end
     object ActionIndentLine: TAction
+      Category = 'View'
       Caption = 'Indent'
+      GroupIndex = 1
       Hint = 'Indent Matched Lines'
       ImageIndex = 17
       OnExecute = ActionIndentLineExecute
@@ -1233,19 +1247,13 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       ImageIndex = 19
       OnExecute = ActionOpenWithExecute
     end
-    object ActionExpandCollapse: TAction
-      Caption = 'Expand'
-      Hint = '[B]Expand [/B]Results'
-      ImageIndex = 22
-      OnExecute = ActionExpandCollapseExecute
-      OnUpdate = ActionExpandCollapseUpdate
-    end
     object ActionAlignToolbars: TAction
       Caption = 'Align Toolbars'
       OnExecute = ActionAlignToolbarsExecute
     end
   end
   object PopupMenu1: TPopupMenu
+    Images = ImageListButtons
     Left = 731
     Top = 3
     object AlignToolbar1: TMenuItem

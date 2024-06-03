@@ -37,15 +37,12 @@ type
 		ActionSwitchView : TAction;
 		ActionShowRelativePath : TAction;
 		ActionCmdLineCopy : TAction;
-		ActionCopyFileName : TAction;
-		ActionCopyPathToClipboard : TAction;
 		ActionShowSearchForm : TAction;
 		ActionShowFileIcons : TAction;
 		ActionAlternateRowColors : TAction;
 		ActionAbortSearch : TAction;
 		ActionRefreshSearch : TAction;
 		ActionIndentLine : TAction;
-		ActionOpenWith : TAction;
 		tbarSearch : TToolBar;
 		tbView : TToolButton;
    		tbShowSearchForm: TToolButton;

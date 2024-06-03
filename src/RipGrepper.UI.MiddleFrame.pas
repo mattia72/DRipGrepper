@@ -39,23 +39,8 @@ uses
 type
 	TRipGrepperMiddleFrame = class(TFrame, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
 		ActionList : TActionList;
-		ActionSearch : TAction;
-		ActionCancel : TAction;
-		ActionConfig : TAction;
-		ActionSwitchView : TAction;
-		ActionSortByFile : TAction;
-		ActionShowRelativePath : TAction;
-		ActionCmdLineCopy : TAction;
-		ActionSortByRow : TAction;
 		ActionCopyFileName : TAction;
 		ActionCopyPathToClipboard : TAction;
-		ActionShowSearchForm : TAction;
-		ActionShowFileIcons : TAction;
-		ActionAlternateRowColors : TAction;
-		ActionAbortSearch : TAction;
-		ActionRefreshSearch : TAction;
-		ActionIndentLine : TAction;
-		ActionStatusBar : TAction;
 		ActionOpenWith : TAction;
 		PopupMenu1 : TPopupMenu;
 		Openwith1 : TMenuItem;
@@ -70,6 +55,7 @@ type
 		ListBoxSearchHistory : TListBox;
 		PanelResult : TPanel;
 		VstResult : TVirtualStringTree;
+    ImageList1: TImageList;
 		procedure ActionCopyFileNameExecute(Sender : TObject);
 		procedure ActionCopyFileNameUpdate(Sender : TObject);
 		procedure ActionCopyPathToClipboardExecute(Sender : TObject);

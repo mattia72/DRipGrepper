@@ -11,6 +11,8 @@ $global:Description = @"
 
 ### :warning: Bug Fixes
 * version info corrected on status bar
+* selected text in Delphi should override search text history
+* hotkeys, like Ctrl+S not working if extension window active
 "@
 
 ### :mag: Search Dialog

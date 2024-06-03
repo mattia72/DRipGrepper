@@ -123,8 +123,8 @@
     <UWP_DelphiLogo150>icons\DripGrepperLogo.png</UWP_DelphiLogo150>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <VerInfo_MajorVer>2</VerInfo_MajorVer>
-    <VerInfo_Build>47</VerInfo_Build>
-    <VerInfo_Keys>CompanyName=;FileDescription=DRipGrepper;FileVersion=2.6.2.47;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=2.6.2.0;Comments=</VerInfo_Keys>
+    <VerInfo_Build>55</VerInfo_Build>
+    <VerInfo_Keys>CompanyName=;FileDescription=DRipGrepper;FileVersion=2.6.2.55;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=2.6.2.0;Comments=</VerInfo_Keys>
     <VerInfo_MinorVer>6</VerInfo_MinorVer>
     <VerInfo_Release>2</VerInfo_Release>
   </PropertyGroup>
