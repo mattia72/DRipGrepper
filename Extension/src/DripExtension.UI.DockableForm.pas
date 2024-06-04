@@ -22,7 +22,7 @@ type
 
 			class var FInstance : TRipGrepperDockableForm;
 			class function GetInstance : TRipGrepperDockableForm; static;
-			class procedure GetInIDESelectedText;
+			class function GetInIDESelectedText : string;
 
 		public
 			class function ShowDockableFormAndSearch : TCustomForm;
@@ -161,6 +161,7 @@ begin
 	ParentFrame.Init;
 	if (ParentFrame.Settings.RipGrepParameters.SearchPath.IsEmpty) then begin
 		ParentFrame.Settings.RipGrepParameters.SearchPath := IOTAUtils.GxOtaGetCurrentProjectFileName();
+		TDebugUtils.DebugMessage('TRipGrepperDockableForm.FrameCreated SearchPath:' + ParentFrame.Settings.RipGrepParameters.SearchPath);
 	end;
 
 end;
@@ -194,12 +195,12 @@ end;
 
 function TRipGrepperDockableForm.GetToolBarActionList : TCustomActionList;
 begin
-	Result := nil; //ParentFrame.TopFrame.ActionList;  //so we will have an other toolbar, over
+	Result := nil; // ParentFrame.TopFrame.ActionList;  //so we will have an other toolbar, over
 end;
 
 function TRipGrepperDockableForm.GetToolBarImageList : TCustomImageList;
 begin
-	Result := nil; //ParentFrame.TopFrame.ImageListButtons; //so we will have an other toolbar
+	Result := nil; // ParentFrame.TopFrame.ImageListButtons; //so we will have an other toolbar
 end;
 
 procedure TRipGrepperDockableForm.LoadWindowState(Desktop : TCustomIniFile; const Section : string);
@@ -229,7 +230,13 @@ end;
 class function TRipGrepperDockableForm.ShowDockableFormAndSearch : TCustomForm;
 begin
 	Result := (BorlandIDEServices as INTAServices).CreateDockableForm(FInstance);
-	GetInIDESelectedText;
+	TDebugUtils.DebugMessage('TRipGrepperDockableForm.ShowDockableFormAndSearch Result.Visible=' + BoolToStr(Result.Visible, True));
+
+	var
+	selectedText := GetInIDESelectedText;
+	if not selectedText.IsEmpty then begin
+		ParentFrame.Settings.RipGrepParameters.SearchText := selectedText;
+	end;
 	ParentFrame.TopFrame.ActionShowSearchForm.Execute;
 	Result.Visible := True;
 end;
@@ -248,16 +255,13 @@ begin
 	Result := FInstance;
 end;
 
-class procedure TRipGrepperDockableForm.GetInIDESelectedText;
+class function TRipGrepperDockableForm.GetInIDESelectedText : string;
 var
 	selectedText : string;
 begin
 	IOTAUtils.GxOtaGetActiveEditorTextAsString(selectedText, True);
 	TDebugUtils.DebugMessage('TRipGrepperDockableForm.GetInIDESelectedText: ' + selectedText);
-
-	if not selectedText.IsEmpty then begin
-		ParentFrame.Settings.RipGrepParameters.SearchText := selectedText.Trim();
-	end;
+	Result := selectedText.Trim();
 end;
 
 end.

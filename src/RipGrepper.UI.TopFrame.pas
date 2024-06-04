@@ -323,6 +323,8 @@ var
 begin
 	frm := TRipGrepperSearchDialogForm.Create(self, Settings, MainFrame.HistObject);
 	try
+		TDebugUtils.DebugMessage('TRipGrepperTopFrame.ActionShowSearchFormExecute');
+
 		if (mrOk = frm.ShowModal) then begin
 			TDebugUtils.DebugMessage('TRipGrepperTopFrame.ActionShowSearchFormExecute: after showmodal gui params: ' +
 				Settings.RipGrepParameters.GuiSetSearchParams.ToString);

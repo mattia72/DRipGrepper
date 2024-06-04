@@ -282,7 +282,7 @@ begin
 		if UseSelection and Assigned(IEditView) and Assigned(IEditView.Block) and (IEditView.Block.Size > 0) then begin
 			Lines.Text := GxOtaGetCurrentSelection(False);
 		end else begin
-			GxOtaLoadSourceEditorToUnicodeStrings(ISourceEditor, Lines);
+			//GxOtaLoadSourceEditorToUnicodeStrings(ISourceEditor, Lines);  don't load whole file
 		end;
 		Result := True;
 	end;
