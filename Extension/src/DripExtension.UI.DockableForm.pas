@@ -238,7 +238,11 @@ begin
 		ParentFrame.Settings.RipGrepParameters.SearchText := selectedText;
 	end;
 	ParentFrame.TopFrame.ActionShowSearchForm.Execute;
-	Result.Visible := True;
+	if not Result.Visible then begin
+		TDebugUtils.DebugMessage('TRipGrepperDockableForm.ShowDockableFormAndSearch align to the center of the screen');
+		Result.Left := (Result.Monitor.Width  - Result.Width)  div 2;
+		Result.Top  := (Result.Monitor.Height - Result.Height) div 2;
+	end;
 end;
 
 function TRipGrepperDockableForm.GetFrameClass : TCustomFrameClass;
