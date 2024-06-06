@@ -136,7 +136,8 @@ uses
 	System.SysUtils,
 	Winapi.Windows,
 	System.TypInfo,
-	RipGrepper.Common.IOTAUtils;
+	RipGrepper.Common.IOTAUtils,
+	Vcl.Controls;
 
 { TRipGrepperDockableForm }
 
@@ -238,10 +239,14 @@ begin
 		ParentFrame.Settings.RipGrepParameters.SearchText := selectedText;
 	end;
 	ParentFrame.TopFrame.ActionShowSearchForm.Execute;
-	if not Result.Visible then begin
-		TDebugUtils.DebugMessage('TRipGrepperDockableForm.ShowDockableFormAndSearch align to the center of the screen');
-		Result.Left := (Result.Monitor.Width  - Result.Width)  div 2;
-		Result.Top  := (Result.Monitor.Height - Result.Height) div 2;
+	if not Assigned(Result.HostDockSite) then begin
+		var
+		parent := IOTAUTils.GxOtaGetCurrentIDEEditControl();
+		if not(PtInRect(parent.BoundsRect, Result.BoundsRect.TopLeft)
+			{ } or PtInRect(parent.BoundsRect, Result.BoundsRect.BottomRight)) then begin
+			TDebugUtils.DebugMessage('TRipGrepperDockableForm.ShowDockableFormAndSearch MakeFullyVisible');
+			Result.MakeFullyVisible();
+		end;
 	end;
 end;
 
