@@ -376,8 +376,7 @@ begin
 		cmbSearchText.Text := s;
 	end;
 	ButtonDown(EGuiOption.soUseRegex, tbUseRegex);
-
-	cbHidden.Checked := FSettings.SearchFormSettings.Hidden;
+	UpdateCheckBoxRgParams();
 end;
 
 procedure TRipGrepperSearchDialogForm.ButtonDown(const _searchOption : EGuiOption; _tb : TToolButton; const _bNotMatch : Boolean = False);

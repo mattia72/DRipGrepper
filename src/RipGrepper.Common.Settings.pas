@@ -336,6 +336,7 @@ begin
 		FRipGrepperOpenWithSettings.Load;
 		FExtensionSettings.Load;
 		FRipGrepperSettings.Load;
+		//FSearchFormSettings.Load;
 
 		LoadHistoryEntries(FSearchPathsHistory, 'SearchPathsHistory');
 		LoadHistoryEntries(FSearchTextsHistory, 'SearchTextsHistory');
@@ -392,6 +393,7 @@ begin
 
 		if (FRipGrepParameters.IsModified) then begin
 			FRipGrepParameters.Store;
+			//FSearchFormSettings.Store;
 			StoreHistoryEntries(SearchPathsHistory, 'SearchPathsHistory');
 			StoreHistoryEntries(SearchTextsHistory, 'SearchTextsHistory');
 			StoreHistoryEntries(RipGrepOptionsHistory, 'RipGrepOptionsHistory');

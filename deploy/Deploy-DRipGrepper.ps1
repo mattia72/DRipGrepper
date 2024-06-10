@@ -9,9 +9,13 @@ $global:PrevVersion = "v2.6.2-beta"
 $global:Description = @"
 ## Improvements and Bug Fixes
 
+### :mag: Search Dialog
++ some common options can be set by GUI (--hidden, --no-ignore, --pretty)
+
 ### :warning: Bug Fixes
 * version info corrected on status bar
-* selected text in Delphi should override search text history
+* selected text in Delphi should override search text history, if nothing selected then history will be used
+* result form doesn't appear after search on layouts, which doesn't contained result form
 * hotkeys, like Ctrl+S not working if extension window active
 "@
 
