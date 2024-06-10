@@ -493,16 +493,6 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Text = 'cmbSearchDir'
         OnChange = cmbSearchDirChange
       end
-      object cbHidden: TCheckBox
-        Left = 545
-        Top = 91
-        Width = 97
-        Height = 17
-        Caption = '--hidden'
-        Enabled = False
-        TabOrder = 4
-        Visible = False
-      end
       object btnHelpFileMask: TButton
         AlignWithMargins = True
         Left = 445
@@ -519,7 +509,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Images = ImageList1
         ParentShowHint = False
         ShowHint = True
-        TabOrder = 5
+        TabOrder = 4
       end
       object gbExtensionOnlyFiles: TGroupBox
         AlignWithMargins = True
@@ -532,7 +522,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Margins.Right = 8
         Margins.Bottom = 8
         Caption = 'Files'
-        TabOrder = 6
+        TabOrder = 5
         object cbRgParamHidden: TCheckBox
           AlignWithMargins = True
           Left = 5
@@ -556,9 +546,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
           Margins.Bottom = 0
           Align = alTop
           Caption = '--no-ignore'
-          Enabled = False
           TabOrder = 1
-          Visible = False
+          OnClick = cbRgParamNoIgnoreClick
         end
       end
       object gbView: TGroupBox
@@ -572,7 +561,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Margins.Right = 8
         Margins.Bottom = 8
         Caption = 'View'
-        TabOrder = 7
+        TabOrder = 6
         object cbRgParamPretty: TCheckBox
           AlignWithMargins = True
           Left = 5
@@ -583,8 +572,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
           Margins.Bottom = 0
           Align = alTop
           Caption = '--pretty'
-          Enabled = False
           TabOrder = 0
+          OnClick = cbRgParamPrettyClick
         end
       end
     end

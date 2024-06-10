@@ -66,7 +66,6 @@ type
 		cmbFileMasks : TComboBox;
 		Label1 : TLabel;
 		memoCommandLine : TMemo;
-		cbHidden : TCheckBox;
 		btnCopyToClipBoard : TButton;
 		ActionCopyToClipboard : TAction;
 		btnHelpFileMask : TButton;
@@ -94,6 +93,8 @@ type
 		procedure ActionShowFileMaskHelpExecute(Sender : TObject);
 		procedure ActionShowRGOptionsHelpExecute(Sender : TObject);
 		procedure cbRgParamHiddenClick(Sender : TObject);
+		procedure cbRgParamNoIgnoreClick(Sender : TObject);
+		procedure cbRgParamPrettyClick(Sender : TObject);
 		procedure cmbFileMasksChange(Sender : TObject);
 		procedure cmbFileMasksExit(Sender : TObject);
 		procedure cmbFileMasksSelect(Sender : TObject);
@@ -127,6 +128,7 @@ type
 			procedure StoreHistoriesAsCmbEntries;
 			procedure WriteCtrlsToRipGrepParametersSettings;
 			procedure StoreSearchSettings;
+			procedure UpdateCheckBoxRgParams;
 			procedure UpdateExpertGroupBox;
 			procedure UpdateFileMasksInFileMasks;
 			function UpdateFileMasksInOptions(const sOptions, sMasks : string) : string; overload;
@@ -314,7 +316,7 @@ begin
 	try
 		if (mrOk = frm.ShowModal) then begin
 			cmbOptions.Text := TGuiSearchTextParams.AddRemoveRgExeOptions(
-				{ } FSettings.RipGrepParameters.RgExeOptions, string.Join('|', RG_NECESSARY_PARAMS + RG_OPTINAL_PARAMS), True);
+				{ } FSettings.RipGrepParameters.RgExeOptions, string.Join('|', RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS), True);
 			UpdateCtrls(cmbOptions);
 		end;
 	finally
@@ -393,6 +395,18 @@ begin
 	UpdateCtrls(cmbOptions);
 end;
 
+procedure TRipGrepperSearchDialogForm.cbRgParamNoIgnoreClick(Sender : TObject);
+begin
+	FSettings.SearchFormSettings.NoIgnore := cbRgParamNoIgnore.Checked;
+	UpdateCtrls(cmbOptions);
+end;
+
+procedure TRipGrepperSearchDialogForm.cbRgParamPrettyClick(Sender : TObject);
+begin
+	FSettings.SearchFormSettings.Pretty := cbRgParamPretty.Checked;
+	UpdateCtrls(cmbOptions);
+end;
+
 procedure TRipGrepperSearchDialogForm.cmbFileMasksChange(Sender : TObject);
 begin
 	UpdateCtrls(cmbFileMasks);
@@ -454,7 +468,7 @@ procedure TRipGrepperSearchDialogForm.SetCmbOptionText;
 begin
 	// Remove necessary options
 	cmbOptions.Text := TGuiSearchTextParams.AddRemoveRgExeOptions(
-		{ } FGuiSetSearchParams.RgOptions, string.Join('|', RG_NECESSARY_PARAMS + RG_OPTINAL_PARAMS), True);
+		{ } FGuiSetSearchParams.RgOptions, string.Join('|', RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS), True);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings);
@@ -508,6 +522,8 @@ begin
 	FGuiSetSearchParams.RgOptions := '';
 
 	FGuiSetSearchParams.SetRgOptions(RG_PARAM_REGEX_HIDDEN, not cbRgParamHidden.Checked);
+	FGuiSetSearchParams.SetRgOptions(RG_PARAM_REGEX_NO_IGNORE, not cbRgParamNoIgnore.Checked);
+	FGuiSetSearchParams.SetRgOptions(RG_PARAM_REGEX_PRETTY, not cbRgParamPretty.Checked);
 
 	if Fsettings.RipGrepperSettings.ExpertMode then begin
 		WriteOptionCtrlToRipGrepParametersSetting;
@@ -528,6 +544,13 @@ begin
 
 	FSettings.RebuildArguments;
 	FSettings.Store
+end;
+
+procedure TRipGrepperSearchDialogForm.UpdateCheckBoxRgParams;
+begin
+	cbRgParamHidden.Checked := IsOptionSet(RG_PARAM_REGEX_HIDDEN);
+	cbRgParamNoIgnore.Checked := IsOptionSet(RG_PARAM_REGEX_NO_IGNORE);
+	cbRgParamPretty.Checked := IsOptionSet(RG_PARAM_REGEX_PRETTY);
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateMemoCommandLine(const _bSkipReadCtrls : Boolean = False);
@@ -556,9 +579,13 @@ begin
 	end else if cmbFileMasks = _ctrlChanged then begin
 		UpdateFileMasksInOptions();
 		UpdateMemoCommandLine(); // UpdateCtrls
+	end else if (cbRgParamHidden = _ctrlChanged) or (cbRgParamNoIgnore = _ctrlChanged) or (cbRgParamPretty = _ctrlChanged) then begin
+		UpdateMemoCommandLine(); // this should be done first! UpdateCtrls
+		UpdateCheckBoxRgParams();
 	end else if cmbOptions = _ctrlChanged then begin
-		UpdateMemoCommandLine(); // UpdateCtrls
+		UpdateMemoCommandLine(); // this should be done first! UpdateCtrls
 		UpdateFileMasksInFileMasks();
+		UpdateCheckBoxRgParams();
 	end;
 end;
 
