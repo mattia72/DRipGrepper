@@ -25,9 +25,9 @@ type
 			FSearchPath : string;
 			FSearchText : string;
 			FFileMasks : string;
-			FGuiSetSearchParams : TGuiSetSearchParams;
+			FGuiSetSearchParams : TGuiSearchTextParams;
 			procedure SetFileMasks(const Value : string);
-			procedure SetGuiSetSearchParams(const Value : TGuiSetSearchParams);
+			procedure SeTGuiSearchTextParams(const Value : TGuiSearchTextParams);
 			procedure SetRgExeOptions(const Value : string);
 			procedure SetSearchPath(const Value : string);
 			procedure SetSearchText(const Value : string);
@@ -44,7 +44,7 @@ type
 			procedure Load; override;
 			procedure Store; override;
 			property FileMasks : string read FFileMasks write SetFileMasks;
-			property GuiSetSearchParams : TGuiSetSearchParams read FGuiSetSearchParams write SetGuiSetSearchParams;
+			property GuiSetSearchParams : TGuiSearchTextParams read FGuiSetSearchParams write SeTGuiSearchTextParams;
 			property RgExeOptions : string read FRgExeOptions write SetRgExeOptions;
 			property SearchPath : string read FSearchPath write SetSearchPath;
 			property SearchText : string read FSearchText write SetSearchText;
@@ -137,7 +137,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepParameterSettings.SetGuiSetSearchParams(const Value : TGuiSetSearchParams);
+procedure TRipGrepParameterSettings.SeTGuiSearchTextParams(const Value : TGuiSearchTextParams);
 begin
 	FGuiSetSearchParams := Value;
 	FIsModified := True;

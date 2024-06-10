@@ -89,6 +89,25 @@ type
 			property ExpertMode : Boolean read FExpertMode write FExpertMode;
 	end;
 
+	TRipGrepperSearchFormSettings = class(TRipGrepperSettingsBase)
+		const
+			SEARCH_SETTINGS : array [0 .. 2] of string = ('Pretty', 'Hidden', 'NoIgnore');
+
+		const
+			INI_SECTION = 'RipGrepperSearchSettings';
+
+		public
+			Hidden : Boolean;
+			NoIgnore : Boolean;
+			Pretty : Boolean;
+			procedure StoreSearchSettings(const _s : string = '');
+			constructor Create(const _ini : TIniFile);
+			function GetIniSectionName : string; override;
+			procedure Init; override;
+			procedure Load; override;
+			procedure Store; override;
+	end;
+
 	TRipGrepperSettings = class(TRipGrepperSettingsBase)
 		private
 		var
@@ -104,6 +123,7 @@ type
 			FExtensionSettings : TRipGrepperExtensionSettings;
 			FFileMasksHistory : TStrings;
 			FRipGrepperSettings : TRipGrepperAppSettings;
+			FSearchFormSettings : TRipGrepperSearchFormSettings;
 
 		class var
 			function GetActualRipGrepParams : string;
@@ -145,6 +165,8 @@ type
 			property RipGrepperViewSettings : TRipGrepperViewSettings read FRipGrepperViewSettings write FRipGrepperViewSettings;
 			property SearchPathIsDir : Boolean read GetSearchPathIsDir;
 			property SearchTextsHistory : TStrings read FSearchTextsHistory write SetSearchTextsHistory;
+			property SearchFormSettings : TRipGrepperSearchFormSettings read FSearchFormSettings write FSearchFormSettings;
+
 	end;
 
 	TRipGrepperSettingsInstance = class
@@ -257,6 +279,7 @@ begin
 	FExtensionSettings.Free;
 	FRipGrepperSettings.Free;
 	FFileMasksHistory.Free;
+	FSearchFormSettings.Free;
 	FIniFile.Free;
 	inherited;
 end;
@@ -279,6 +302,7 @@ begin
 	FRipGrepArguments.Delimiter := ' ';
 	FRipGrepperSettings := TRipGrepperAppSettings.Create(FIniFile);
 	FFileMasksHistory := TStringList.Create(dupIgnore, False, True);
+	FSearchFormSettings := TRipGrepperSearchFormSettings.Create(FIniFile);
 	FIsLoaded := False;
 end;
 
@@ -631,6 +655,69 @@ begin
 	StoreSetting('ExpertMode', FExpertMode);
 	StoreSetting('DebugTrace', FDebugTrace);
 	inherited Store();
+end;
+
+constructor TRipGrepperSearchFormSettings.Create(const _ini : TIniFile);
+begin
+	inherited;
+	TDebugUtils.DebugMessage('TRipGrepperSearchFormSettings.Create: ' + FIniFile.FileName + '[' + GetIniSectionName + ']');
+end;
+
+function TRipGrepperSearchFormSettings.GetIniSectionName : string;
+begin
+	Result := INI_SECTION;
+end;
+
+procedure TRipGrepperSearchFormSettings.Init;
+begin
+	inherited;
+	CreateSetting('Pretty', TRipGrepperSetting.New(vtBoolean, False));
+	CreateSetting('Hidden', TRipGrepperSetting.New(vtBoolean, False));
+	CreateSetting('NoIgnore', TRipGrepperSetting.New(vtBoolean, False));
+end;
+
+procedure TRipGrepperSearchFormSettings.Load;
+begin
+	inherited Load();
+	Pretty := LoadSetting('Pretty');
+	Hidden := LoadSetting('Hidden');
+	NoIgnore := LoadSetting('NoIgnore');
+
+	FIsLoaded := True;
+end;
+
+procedure TRipGrepperSearchFormSettings.Store;
+begin
+	if IsLoaded and IsModified then begin
+		StoreSearchSettings('');
+		inherited Store();
+		FIsModified := False;
+	end;
+
+end;
+
+procedure TRipGrepperSearchFormSettings.StoreSearchSettings(const _s : string = '');
+var
+	i : integer;
+begin
+	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.StoreSearchSettings: ' + _s);
+
+	i := 0;
+	if _s.IsEmpty then begin
+		// store all
+		for i := 0 to high(SEARCH_SETTINGS) do begin
+			StoreSearchSettings(SEARCH_SETTINGS[i]);
+		end;
+	end else if MatchStr(_s, SEARCH_SETTINGS[PreInc(i)]) then begin
+		StoreSetting(SEARCH_SETTINGS[i], Pretty);
+	end else if MatchStr(_s, SEARCH_SETTINGS[PreInc(i)]) then begin
+		StoreSetting(SEARCH_SETTINGS[i], Hidden);
+	end else if MatchStr(_s, SEARCH_SETTINGS[PreInc(i)]) then begin
+		StoreSetting(SEARCH_SETTINGS[i], NoIgnore);
+	end else begin
+		raise Exception.Create('Settings: ' + _s + ' not stored!');
+	end;
+	IsModified := True;
 end;
 
 initialization

@@ -54,7 +54,7 @@ begin
 		params := _paramRegex.Split(['|']);
 		iFoundIdx := list.IndexOfAny(params);
 		if (iFoundIdx < 0) then begin
-			list.Insert(0, params[1]); // long params
+			list.Insert(0, params[RG_PARAM_LONG_INDEX]);
 		end;
 	end;
 end;

@@ -19,7 +19,7 @@ type
 			FElapsedTimeText : string;
 			FErrorCount : Integer;
 			FFileCount : integer;
-			FGuiSetSearchParams : TGuiSetSearchParams;
+			FGuiSetSearchParams : TGuiSearchTextParams;
 			FMatches : TParsedObjectRowCollection;
 			FNoMatchFound : Boolean;
 			FParserType : TParserType;
@@ -50,7 +50,7 @@ type
 			property TotalMatchCount : integer read GetTotalMatchCount;
 			property ErrorCount : Integer read GetErrorCount write FErrorCount;
 			property ElapsedTimeText : string read FElapsedTimeText write FElapsedTimeText;
-			property GuiSetSearchParams : TGuiSetSearchParams read FGuiSetSearchParams write FGuiSetSearchParams;
+			property GuiSetSearchParams : TGuiSearchTextParams read FGuiSetSearchParams write FGuiSetSearchParams;
 			property NoMatchFound : Boolean read FNoMatchFound write FNoMatchFound;
 			property RipGrepResult : Integer read FRipGrepResult write FRipGrepResult;
 			property ParserType : TParserType read GetParserType write SetParserType;

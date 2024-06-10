@@ -17,7 +17,7 @@ const
 	CAPTION_GRPBX_EXPERT_MODE = 'Expert Settings';
 
 	WWW_LINK_RG_MAN_PAGE = 'https://www.mankier.com/1/rg#Options';
-	WWW_LINK_GLOBBING_HELP = 'https://www.w3schools.com/git/git_ignore.asp'; //https://www.mankier.com/5/gitignore
+	WWW_LINK_GLOBBING_HELP = 'https://www.w3schools.com/git/git_ignore.asp'; // https://www.mankier.com/5/gitignore
 
 	FORMAT_VERSION_INFO = '%s v%d.%d.%d-beta';
 	FORMAT_VERSION_INFO_IN_STATUSBAR = '%s   ';
@@ -66,13 +66,6 @@ const
 	ALL_ALPHANUMERIC_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890';
 
 	RG_PROCESSING_LINE_COUNT_LIMIT = 10000; // Todo: put into settings
-	RG_NECESSARY_PARAMS : TArray<string> = [
-	{ } '--vimgrep',
-	{ } '--line-buffered', // some big search couldn't be catched without this
-	{ } // '--pretty',
-	{ } '--no-ignore-parent',
-	{ } '--follow',
-	{ } '--crlf'];
 
 	RG_MATCH_LINE_REGEX = '^(?<drive>\w:)?(?<path>.+?):(?<row>\d+):(?<col>\d+):(?<text>.+)$';
 	RG_MATCH_LINE_CONTEXT_REGEX = '^(?<drive>\w:)?(?<path>.+?)-(?<row>\d+)-(?<text>.*)$';
@@ -110,13 +103,30 @@ const
 	RG_INI_KEY_RGPATH = 'Path';
 
 	WB = '\b';
+
 	RG_PARAM_REGEX_IGNORE_CASE = '-i|--ignore-case';
 	RG_PARAM_REGEX_CASE_SENSITIVE = '-s|--case-sensitive';
 	RG_PARAM_REGEX_FIXED_STRINGS = '-F|--fixed-strings';
 	RG_PARAM_REGEX_WORD_REGEX = '-w|--word-regexp';
 	RG_PARAM_REGEX_GLOB = '-g|--glob';
+	RG_PARAM_REGEX_HIDDEN = '-\.|--hidden';
+	RG_PARAM_REGEX_NO_IGNORE = '-u|--no-ignore';
+	RG_PARAM_REGEX_PRETTY = '-p|--pretty';
 
 	RG_PARAM_END = '--';
+	RG_OPTINAL_PARAMS : TArray<string> = [RG_PARAM_REGEX_CASE_SENSITIVE, RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_REGEX_GLOB,
+		RG_PARAM_REGEX_HIDDEN, RG_PARAM_REGEX_NO_IGNORE, RG_PARAM_REGEX_PRETTY, RG_PARAM_END];
+
+	RG_NECESSARY_PARAMS : TArray<string> = [
+	{ } '--vimgrep',
+	{ } '--line-buffered', // some big search couldn't be catched without this
+	{ } // '--pretty',
+	{ } '--no-ignore-parent',
+	{ } '--follow',
+	{ } '--crlf'];
+
+	RG_PARAM_SHORT_INDEX = 0;
+	RG_PARAM_LONG_INDEX = 1;
 
 	RG_ERROR = 2;
 	RG_NO_MATCH = 1;
