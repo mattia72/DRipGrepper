@@ -81,7 +81,8 @@ type
 			[Testcase('test soMatchCase', '1;1;' + RG_PARAM_REGEX_CASE_SENSITIVE, ';')]
 			[Testcase('test soMatchWord', '2;0;' + RG_PARAM_REGEX_FIXED_STRINGS, ';')]
 			[Testcase('test soUseRegex ', '3;0;' + RG_PARAM_REGEX_FIXED_STRINGS, ';')]
-			procedure TestGetOptionsAndSetFlag(const _guiOption, bMatch : Integer; const _paramRegex : string);
+			procedure TestGetOptionsAndSetFlag(const _guiOption, _bMatch : Integer; const
+				_paramRegex : string);
 			[Test]
 			[Testcase('test soMatchCase', '1;0;' + RG_PARAM_REGEX_CASE_SENSITIVE, ';')]
 			[Testcase('test soMatchWord', '2;1;' + RG_PARAM_REGEX_FIXED_STRINGS, ';')]
@@ -127,6 +128,14 @@ type
 			[Testcase('test7 soMatchWord', '2#3')]
 			[Testcase('test8 soMatchWord', '1#2#3')]
 			procedure TestGetOptionsAndSetFlagMatchWord(const _guiOptionsActual : string);
+			[Test]
+			[Testcase('test1', '--vimgrep  --fixed-strings -g=*.ini -g=!*.bak;' + RG_PARAM_REGEX_GLOB + ';*.bbb;0', ';')]
+			[Testcase('test2', '--vimgrep  -g=*.ini -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
+			[Testcase('test3', '--vimgrep  -C=11 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
+			[Testcase('test4', '--vimgrep  -C=99 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
+			[Testcase('test5', '--vimgrep  --context=11 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
+			[Testcase('test6', '--vimgrep  --context=99 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
+			procedure TestAddRgExeOptionsWthValue(const _sOptions, _sRegEx, _sValue : string; const _bUnique : Boolean);
 	end;
 
 implementation
@@ -170,28 +179,27 @@ begin
 	end;
 end;
 
-procedure TOptionsHelperTest.TestGetOptionsAndSetFlag(const _guiOption, bMatch : Integer; const _paramRegex : string);
+procedure TOptionsHelperTest.TestGetOptionsAndSetFlag(const _guiOption, _bMatch : Integer; const _paramRegex : string);
 var
-	_newGuiSearchOption : EGuiOption;
-	_bIsOpOk : Boolean;
-	_rgExeOps : string;
-	_guiParams : TGuiSearchTextParams;
-
+	newGuiSearchOption : EGuiOption;
+	bIsOpOk : Boolean;
+	rgExeOps : string;
+	guiParams : TGuiSearchTextParams;
 begin
-	_newGuiSearchOption := EGuiOption(_guiOption);
-	_guiParams.SearchText := 'search_text';
+	newGuiSearchOption := EGuiOption(_guiOption);
+	guiParams.SearchText := 'search_text';
 
-	_rgExeOps := string.Join(' ', RG_NECESSARY_PARAMS);
-	_guiParams.SearchOptions := [];
-	_bIsOpOk := TRegex.IsMatch(_rgExeOps, TOptionsHelper.GetBoundedParamRegex(_paramRegex.Split(['|'])[1]));
+	rgExeOps := string.Join(' ', RG_NECESSARY_PARAMS);
+	guiParams.SearchOptions := [];
+	bIsOpOk := TRegex.IsMatch(rgExeOps, TOptionsHelper.GetBoundedParamRegex(_paramRegex.Split(['|'])[1]));
 
-	_guiParams.SetOption(_newGuiSearchOption);
+	guiParams.SetOption(newGuiSearchOption);
 	var
-	sNewOptions := _guiParams.RgOptions;
+	sNewOptions := guiParams.RgOptions;
 
-	Assert.IsTrue(not _bIsOpOk, '''' + _paramRegex + ''' should not contains initially');
-	Assert.AreEqual(bMatch = 1, TOptionsHelper.IsOptionSet(sNewOptions, _paramRegex), '''' + _paramRegex + ''' should be in the options');
-	Assert.IsTrue(_guiParams.IsSet([_newGuiSearchOption]), Integer(_newGuiSearchOption).ToString + ' should be in the options');
+	Assert.IsTrue(not bIsOpOk, '''' + _paramRegex + ''' should not contains initially');
+	Assert.AreEqual(_bMatch = 1, TOptionsHelper.IsOptionSet(sNewOptions, _paramRegex), '''' + _paramRegex + ''' should be in the options');
+	Assert.IsTrue(guiParams.IsSet([newGuiSearchOption]), Integer(newGuiSearchOption).ToString + ' should be in the options');
 end;
 
 procedure TOptionsHelperTest.TestGetOptionsAndSetFlagReset(const _guiOption, bMatch : Integer; const _paramRegex : string);
@@ -318,7 +326,7 @@ begin
 		Assert.IsTrue(not TOptionsHelper.IsOptionSet(sNewOptions, RG_PARAM_REGEX_FIXED_STRINGS),
 			{ } '''' + sLongParam + ''' should not be in the options')
 	end else begin
- 		Assert.IsTrue(TOptionsHelper.IsOptionSet(sNewOptions, RG_PARAM_REGEX_FIXED_STRINGS),
+		Assert.IsTrue(TOptionsHelper.IsOptionSet(sNewOptions, RG_PARAM_REGEX_FIXED_STRINGS),
 			{ } '''' + sLongParam + ''' should be in the options')
 
 	end;
@@ -413,7 +421,12 @@ var
 	arrOptions : TArrayEx<string>;
 begin
 	var
-	s := TGuiSearchTextParams.AddRemoveRgExeOptions(_sOptions, _sRegex, _bRemove); // Remove
+		s : string := '';
+	if _bRemove then begin
+		s := TGuiSearchTextParams.RemoveRgExeOptions(_sOptions, _sRegex); // Remove
+	end else begin
+		s := TGuiSearchTextParams.AddRgExeOptions(_sOptions, _sRegex);
+	end;
 	arrOptions := s.Split([' ']);
 	for s in arrOptions do begin
 		Assert.IsFalse(TRegEx.IsMatch(s, _sRegex), '''' + s + ''' should not bee in the options array');
@@ -425,12 +438,38 @@ var
 	arrOptions : TArrayEx<string>;
 begin
 	var
-	sArgs := TGuiSearchTextParams.AddRemoveRgExeOptions(_sOptions, _sRegex, _bRemove); // Remove
+		sArgs : string := '';
+	if _bRemove then begin
+		sArgs := TGuiSearchTextParams.RemoveRgExeOptions(_sOptions, _sRegex); // Remove
+	end else begin
+		sArgs := TGuiSearchTextParams.AddRgExeOptions(_sOptions, _sRegex);
+	end;
+
 	arrOptions := sArgs.Split([' '], TStringSplitOptions.ExcludeEmpty);
 	for var s in arrOptions do begin
 		Assert.IsTrue(TRegEx.IsMatch(s, '^-+\w+'), '''' + s + ''' invalid param (maybe a glob) should not bee in the options array');
 		Assert.IsFalse(TRegEx.IsMatch(s, _sRegex), '''' + s + ''' should not bee in the options array');
 	end;
+end;
+
+procedure TOptionsHelperTest.TestAddRgExeOptionsWthValue(const _sOptions, _sRegEx, _sValue : string; const _bUnique : Boolean);
+var
+	arrOptions : TArrayEx<string>;
+	sArgs : string;
+	bFound : Boolean;
+	sOpWthVal : string;
+begin
+	bFound := False;
+
+	sArgs := TGuiSearchTextParams.AddRgExeOptionWithValue(_sOptions, _sRegex, _sValue, _bUnique);
+	arrOptions := sArgs.Split([' '], TStringSplitOptions.ExcludeEmpty);
+	sOpWthVal := _sRegex.split(['|'])[RG_PARAM_LONG_INDEX] + '=' + _sValue;
+	for var s in arrOptions do begin
+		if TRegEx.IsMatch(s, TRegEx.Escape(sOpWthVal)) then
+			bFound := True;
+		Assert.IsTrue(TRegEx.IsMatch(s, '^-+\w+'), '''' + s + ''' invalid param (maybe a glob) should not bee in the options array');
+	end;
+	Assert.IsTrue(bFound, '''' + sOpWthVal + ''' should bee in the options array');
 end;
 
 procedure TOptionsHelperTest.TestUpdateSearchText(const _sOptions, _sSearchText : string;

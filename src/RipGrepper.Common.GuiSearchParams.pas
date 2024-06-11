@@ -25,10 +25,13 @@ type
 			function GetSearchText : string;
 			function GetWordBoundedSearchText : string;
 			function ResetRgOptions(const _sParamRegex : string; const _bReset : Boolean = False) : string;
+
 		public
 			SearchOptions : TSearchOptionSet;
 
-			class function AddRemoveRgExeOptions(const _sOptions : string; const _sParamRegex : string; const _bRemove : Boolean = False)
+			class function AddRgExeOptions(const _sOptions, _sParamRegex : string) : string; static;
+			class function RemoveRgExeOptions(const _sOptions, _sParamRegex : string) : string; static;
+			class function AddRgExeOptionWithValue(const _sOptions, _sParamRegex, _sValue : string; const _bUnique : Boolean = False)
 				: string; static;
 			class function New(const _sText : string; const _bIC, _bMW, _bUR : Boolean) : TGuiSearchTextParams; static;
 
@@ -39,8 +42,7 @@ type
 			function SearchOptionsAsBitField : TBitField;
 			procedure SetOption(const _searchOption : EGuiOption);
 			procedure SetOrReset(const _newOption : EGuiOption); overload;
-			function SetRgOptions(const _sParamRegex : string; const _bReset : Boolean =
-				False): string;
+			function SetRgOptions(const _sParamRegex : string; const _bReset : Boolean = False) : string;
 			function ToString : string;
 			class operator Initialize(out Dest : TGuiSearchTextParams);
 
@@ -58,8 +60,7 @@ uses
 	System.RegularExpressions,
 	RipGrepper.CommandLine.OptionHelper;
 
-class function TGuiSearchTextParams.AddRemoveRgExeOptions(const _sOptions : string; const _sParamRegex : string;
-	const _bRemove : Boolean = False) : string;
+class function TGuiSearchTextParams.AddRgExeOptions(const _sOptions, _sParamRegex : string) : string;
 var
 	listOptions : TStringList;
 begin
@@ -67,12 +68,38 @@ begin
 	listOptions.Delimiter := ' ';
 	try
 		listOptions.AddStrings(_sOptions.Split([' '], TStringSplitOptions.ExcludeEmpty));
+		TOptionsHelper.AddParamToList(listOptions, _sParamRegex);
+		Result := listOptions.DelimitedText;
+	finally
+		listOptions.Free;
+	end;
+end;
 
-		if _bRemove then begin
-			TOptionsHelper.RemoveParamFromList(listOptions, _sParamRegex);
-		end else begin
-			TOptionsHelper.AddParamToList(listOptions, _sParamRegex);
-		end;
+class function TGuiSearchTextParams.RemoveRgExeOptions(const _sOptions, _sParamRegex : string) : string;
+var
+	listOptions : TStringList;
+begin
+	listOptions := TStringList.Create(dupIgnore, False, True);
+	listOptions.Delimiter := ' ';
+	try
+		listOptions.AddStrings(_sOptions.Split([' '], TStringSplitOptions.ExcludeEmpty));
+		TOptionsHelper.RemoveParamFromList(listOptions, _sParamRegex);
+		Result := listOptions.DelimitedText;
+	finally
+		listOptions.Free;
+	end;
+end;
+
+class function TGuiSearchTextParams.AddRgExeOptionWithValue(const _sOptions, _sParamRegex, _sValue : string;
+	const _bUnique : Boolean = False) : string;
+var
+	listOptions : TStringList;
+begin
+	listOptions := TStringList.Create(dupIgnore, False, True);
+	listOptions.Delimiter := ' ';
+	try
+		listOptions.AddStrings(_sOptions.Split([' '], TStringSplitOptions.ExcludeEmpty));
+		TOptionsHelper.AddParamToList(listOptions, _sParamRegex, _sValue, _bUnique);
 		Result := listOptions.DelimitedText;
 	finally
 		listOptions.Free;
@@ -189,22 +216,21 @@ begin
 	end;
 end;
 
-function TGuiSearchTextParams.SetRgOptions(const _sParamRegex : string; const
-	_bReset : Boolean = False): string;
+function TGuiSearchTextParams.SetRgOptions(const _sParamRegex : string; const _bReset : Boolean = False) : string;
 begin
 	if _bReset then begin
-		RgOptions := TGuiSearchTextParams.AddRemoveRgExeOptions(RgOptions, _sParamRegex, True);
+		RgOptions := TGuiSearchTextParams.RemoveRgExeOptions(RgOptions, _sParamRegex);
 	end else begin
-		RgOptions := TGuiSearchTextParams.AddRemoveRgExeOptions(RgOptions, _sParamRegex);
+		RgOptions := TGuiSearchTextParams.AddRgExeOptions(RgOptions, _sParamRegex);
 	end;
 end;
 
 function TGuiSearchTextParams.ResetRgOptions(const _sParamRegex : string; const _bReset : Boolean = False) : string;
 begin
 	if _bReset then begin
-		RgOptions := TGuiSearchTextParams.AddRemoveRgExeOptions(RgOptions, _sParamRegex);
+		RgOptions := TGuiSearchTextParams.AddRgExeOptions(RgOptions, _sParamRegex);
 	end else begin
-		RgOptions := TGuiSearchTextParams.AddRemoveRgExeOptions(RgOptions, _sParamRegex, True);
+		RgOptions := TGuiSearchTextParams.RemoveRgExeOptions(RgOptions, _sParamRegex);
 	end;
 end;
 
