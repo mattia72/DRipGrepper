@@ -7,9 +7,9 @@
 **/*.res
 **/*.dproj.local
 **/*.groupproj.local
+**/*.dsk
+**/*.~dsk
 .vscode/settings.json
 deploy/SECRET_TOKEN
 DRipGrepper_project.tvsconfig
-**/*.dsk
-**/*.~dsk
 deploy/assets/*

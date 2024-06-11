@@ -101,7 +101,7 @@ var
 begin
 	for var sOp in _sOptions.Split([' ']) do begin
 		if TOptionsHelper.IsOptionWithValue(sOp, RG_PARAM_REGEX_GLOB) then begin
-			fileMask := fileMask + ';' + TOptionsHelper.GetOptionsValue(sOp);
+			fileMask := fileMask + ';' + TOptionsHelper.GetOptionValue(sOp);
 		end;
 	end;
 	Result := fileMask.Trim([';', ' ']);

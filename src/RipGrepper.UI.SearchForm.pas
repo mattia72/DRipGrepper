@@ -28,7 +28,8 @@ uses
   Vcl.ComCtrls,
   RipGrepper.Common.GuiSearchParams,
   RipGrepper.Common.Settings.RipGrepParameterSettings,
-  RipGrepper.Data.HistoryItemObject;
+  RipGrepper.Data.HistoryItemObject,
+  Vcl.Samples.Spin;
 
 type
   TRipGrepperSearchDialogForm = class(TForm)
@@ -72,12 +73,14 @@ type
     ActionShowFileMaskHelp : TAction;
     btnRGOptionsHelp : TButton;
     ActionShowRGOptionsHelp : TAction;
-    gbExtensionOnlyFiles : TGroupBox;
-    gbView : TGroupBox;
+    gbOptionsFiles: TGroupBox;
+    gbOptionsOutput: TGroupBox;
     cbRgParamHidden : TCheckBox;
     cbRgParamNoIgnore : TCheckBox;
     cbRgParamPretty : TCheckBox;
     Action1 : TAction;
+    cbRgParamContext : TCheckBox;
+    seContextLineNum: TSpinEdit;
     procedure ActionAddParamMatchCaseExecute(Sender : TObject);
     procedure ActionAddParamMatchCaseUpdate(Sender : TObject);
     procedure ActionAddParamRegexExecute(Sender : TObject);
@@ -92,6 +95,7 @@ type
     procedure ActionSearchFileExecute(Sender : TObject);
     procedure ActionShowFileMaskHelpExecute(Sender : TObject);
     procedure ActionShowRGOptionsHelpExecute(Sender : TObject);
+    procedure cbRgParamContextClick(Sender : TObject);
     procedure cbRgParamHiddenClick(Sender : TObject);
     procedure cbRgParamNoIgnoreClick(Sender : TObject);
     procedure cbRgParamPrettyClick(Sender : TObject);
@@ -130,7 +134,8 @@ type
       procedure WriteCtrlsToRipGrepParametersSettings;
       procedure StoreSearchSettings;
       procedure UpdateCheckBoxesByRgOptions;
-      procedure UpdateExpertGroupBox;
+      procedure UpdateCheckBoxesBySettings;
+      procedure AlignExpertGroupBox;
       procedure UpdateFileMasksInFileMasks;
       function UpdateFileMasksInOptions(const sOptions, sMasks : string) : string; overload;
       procedure UpdateFileMasksInOptions; overload;
@@ -336,7 +341,7 @@ begin
 
   LoadSettings;
   UpdateRipGrepOptionsAndCommanLine();
-  UpdateExpertGroupBox();
+  AlignExpertGroupBox();
   UpdateHeight();
 end;
 
@@ -377,6 +382,7 @@ begin
     cmbSearchText.Text := s;
   end;
   ButtonDown(EGuiOption.soUseRegex, tbUseRegex);
+  UpdateCheckBoxesBySettings();
 end;
 
 procedure TRipGrepperSearchDialogForm.ButtonDown(const _searchOption : EGuiOption; _tb : TToolButton; const _bNotMatch : Boolean = False);
@@ -386,6 +392,14 @@ begin
   end else begin
     _tb.Down := _searchOption in FGuiSetSearchParams.SearchOptions;
   end;
+end;
+
+procedure TRipGrepperSearchDialogForm.cbRgParamContextClick(Sender : TObject);
+begin
+  if not FCbClickEventEnabled then
+    Exit;
+
+  seContextLineNum.Enabled := cbRgParamContext.Checked;
 end;
 
 procedure TRipGrepperSearchDialogForm.cbRgParamHiddenClick(Sender : TObject);
@@ -453,7 +467,7 @@ end;
 procedure TRipGrepperSearchDialogForm.gbExpertDblClick(Sender : TObject);
 begin
   FSettings.RipGrepperSettings.ExpertMode := not FSettings.RipGrepperSettings.ExpertMode;
-  UpdateExpertGroupBox();
+  AlignExpertGroupBox();
   UpdateHeight();
 end;
 
@@ -555,16 +569,36 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateCheckBoxesByRgOptions;
+var
+  sVal : string;
 begin
   FCbClickEventEnabled := False;
   try
     cbRgParamHidden.Checked := IsOptionSet(RG_PARAM_REGEX_HIDDEN);
     cbRgParamNoIgnore.Checked := IsOptionSet(RG_PARAM_REGEX_NO_IGNORE);
     cbRgParamPretty.Checked := IsOptionSet(RG_PARAM_REGEX_PRETTY);
+    cbRgParamContext.Checked := TOptionsHelper.GetOptionValueFromOptions(FGuiSetSearchParams.RgOptions, RG_PARAM_REGEX_CONTEXT, sVal);
+    seContextLineNum.Text := sVal;
   finally
     FCbClickEventEnabled := True;
   end;
   TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.UpdateCheckBoxesByRgOptions: ' + Format('Hidden %s NoIgnore %s Pretty %s',
+      [BoolToStr(cbRgParamHidden.Checked), BoolToStr(cbRgParamNoIgnore.Checked), BoolToStr(cbRgParamPretty.Checked)]));
+end;
+
+procedure TRipGrepperSearchDialogForm.UpdateCheckBoxesBySettings;
+begin
+  FCbClickEventEnabled := False;
+  try
+    cbRgParamHidden.Checked := FSettings.SearchFormSettings.Hidden;
+    cbRgParamNoIgnore.Checked := FSettings.SearchFormSettings.NoIgnore;
+    cbRgParamPretty.Checked := FSettings.SearchFormSettings.Pretty;
+    cbRgParamContext.Checked := FSettings.SearchFormSettings.Context <> 0;
+    seContextLineNum.Value := FSettings.SearchFormSettings.Context;
+  finally
+    FCbClickEventEnabled := True;
+  end;
+  TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.UpdateCheckBoxesBySettings: ' + Format('Hidden %s NoIgnore %s Pretty %s',
       [BoolToStr(cbRgParamHidden.Checked), BoolToStr(cbRgParamNoIgnore.Checked), BoolToStr(cbRgParamPretty.Checked)]));
 end;
 
@@ -603,7 +637,7 @@ begin
   end;
 end;
 
-procedure TRipGrepperSearchDialogForm.UpdateExpertGroupBox;
+procedure TRipGrepperSearchDialogForm.AlignExpertGroupBox;
 begin
   if FSettings.RipGrepperSettings.ExpertMode then begin
     gbExpert.Height := FExpertGroupHeight;
@@ -677,7 +711,7 @@ begin
   for var i : integer := 0 to options.MaxIndex do begin
     sOp := options[i];
     if TOptionsHelper.IsOptionWithValue(sOp) then begin
-      sVal := TOptionsHelper.GetOptionsValue(sOp, sOpName);
+      sVal := TOptionsHelper.GetOptionValue(sOp, sOpName);
 
       if not IsOptionSet(sOpName, sVal) then begin
         InsertOption(sOpName + '=' + sVal);
