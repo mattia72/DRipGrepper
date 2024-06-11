@@ -43,6 +43,7 @@ type
 			procedure SetOption(const _searchOption : EGuiOption);
 			procedure SetOrReset(const _newOption : EGuiOption); overload;
 			function SetRgOptions(const _sParamRegex : string; const _bReset : Boolean = False) : string;
+			function SetRgOptionsWithValue(const _sParamRegex, _sValue : string; const _bUnique : Boolean = False) : string;
 			function ToString : string;
 			class operator Initialize(out Dest : TGuiSearchTextParams);
 
@@ -261,6 +262,11 @@ begin
 	end else begin
 		SetOption(_newOption);
 	end;
+end;
+
+function TGuiSearchTextParams.SetRgOptionsWithValue(const _sParamRegex, _sValue : string; const _bUnique : Boolean = False) : string;
+begin
+	RgOptions := TGuiSearchTextParams.AddRgExeOptionWithValue(RgOptions, _sParamRegex, _sValue, _bUnique);
 end;
 
 function TGuiSearchTextParams.ToString : string;

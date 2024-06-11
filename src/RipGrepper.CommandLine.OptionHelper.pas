@@ -62,7 +62,7 @@ begin
 				list.Insert(0, params[RG_PARAM_LONG_INDEX]);
 			end;
 		end else begin
-			iFoundIdx := list.IndexOfFirstMatch('^(' + _paramRegex + ')=\w+$');
+			iFoundIdx := list.IndexOfFirstMatch('^(' + _paramRegex + ')=?\w+$');
 			if (iFoundIdx >= 0) and _bUnique then begin
 				list.Delete(iFoundIdx);
 			end;
