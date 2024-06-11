@@ -175,7 +175,7 @@ var
 	_newGuiSearchOption : EGuiOption;
 	_bIsOpOk : Boolean;
 	_rgExeOps : string;
-	_guiParams : TGuiSetSearchParams;
+	_guiParams : TGuiSearchTextParams;
 
 begin
 	_newGuiSearchOption := EGuiOption(_guiOption);
@@ -199,7 +199,7 @@ var
 	_resetGuiSearchOption : EGuiOption;
 	_bIsOpOk : Boolean;
 	_rgExeOps : string;
-	_guiParams : TGuiSetSearchParams;
+	_guiParams : TGuiSearchTextParams;
 
 begin
 	_resetGuiSearchOption := EGuiOption(_guiOption);
@@ -226,7 +226,7 @@ procedure TOptionsHelperTest.TestGetOptionsAndSetFlagsoUseRegex(const _guiOption
 var
 	_bIsOpOk : Boolean;
 	_rgExeOps : string;
-	_guiParams : TGuiSetSearchParams;
+	_guiParams : TGuiSearchTextParams;
 
 begin
 	_guiParams.SearchText := 'search_text';
@@ -254,7 +254,7 @@ procedure TOptionsHelperTest.TestGetOptionsAndSetFlagResetUseRegex(const _guiOpt
 var
 	_bIsOpOk : Boolean;
 	_rgExeOps : string;
-	_guiParams : TGuiSetSearchParams;
+	_guiParams : TGuiSearchTextParams;
 begin
 	_guiParams.SearchText := 'search_text';
 	var
@@ -296,7 +296,7 @@ procedure TOptionsHelperTest.TestGetOptionsAndSetFlagResetMatchWord(const _guiOp
 var
 	_bIsOpOk : Boolean;
 	_rgExeOps : string;
-	_guiParams : TGuiSetSearchParams;
+	_guiParams : TGuiSearchTextParams;
 
 begin
 	_guiParams.SearchText := 'search_text';
@@ -334,7 +334,7 @@ procedure TOptionsHelperTest.TestGetOptionsAndSetFlagMatchWord(const _guiOptions
 var
 	_bIsOpOk : Boolean;
 	_rgExeOps : string;
-	_guiParams : TGuiSetSearchParams;
+	_guiParams : TGuiSearchTextParams;
 
 begin
 	_guiParams.SearchText := 'search_text';
@@ -413,7 +413,7 @@ var
 	arrOptions : TArrayEx<string>;
 begin
 	var
-	s := TGuiSetSearchParams.AddRemoveRgExeOptions(_sOptions, _sRegex, _bRemove); // Remove
+	s := TGuiSearchTextParams.AddRemoveRgExeOptions(_sOptions, _sRegex, _bRemove); // Remove
 	arrOptions := s.Split([' ']);
 	for s in arrOptions do begin
 		Assert.IsFalse(TRegEx.IsMatch(s, _sRegex), '''' + s + ''' should not bee in the options array');
@@ -425,7 +425,7 @@ var
 	arrOptions : TArrayEx<string>;
 begin
 	var
-	sArgs := TGuiSetSearchParams.AddRemoveRgExeOptions(_sOptions, _sRegex, _bRemove); // Remove
+	sArgs := TGuiSearchTextParams.AddRemoveRgExeOptions(_sOptions, _sRegex, _bRemove); // Remove
 	arrOptions := sArgs.Split([' '], TStringSplitOptions.ExcludeEmpty);
 	for var s in arrOptions do begin
 		Assert.IsTrue(TRegEx.IsMatch(s, '^-+\w+'), '''' + s + ''' invalid param (maybe a glob) should not bee in the options array');
@@ -438,12 +438,12 @@ procedure TOptionsHelperTest.TestUpdateSearchText(const _sOptions, _sSearchText 
 var
 	sAct : string;
 	p : string;
-	gsp : TGuiSetSearchParams;
+	gsp : TGuiSearchTextParams;
 begin
 	FParams.RgExeOptions := _sOptions;
 	FParams.FileMasks := '';
 
-	gsp := TGuiSetSearchParams.New(_sSearchText, False, _bMatchWord = 1, _bUseRegex = 1);
+	gsp := TGuiSearchTextParams.New(_sSearchText, False, _bMatchWord = 1, _bUseRegex = 1);
 	gsp.RgOptions := _sOptions;
 	FParams.GuiSetSearchParams := gsp;
 

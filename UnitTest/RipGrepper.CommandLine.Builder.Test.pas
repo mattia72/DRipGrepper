@@ -116,7 +116,7 @@ begin
 	FParams.RgExeOptions := _sOptions;
 	FParams.FileMasks := _sMasksDelimited;
 
-	FParams.GuiSetSearchParams := TGuiSetSearchParams.New('', False, _bMatchWord = 1, False);
+	FParams.GuiSetSearchParams := TGuiSearchTextParams.New('', False, _bMatchWord = 1, False);
 
 	TCommandLineBuilder.RebuildArguments(FParams);
 	v := FParams.RipGrepArguments.GetValues(RG_ARG_OPTIONS);
@@ -139,7 +139,7 @@ begin
 	FParams.RgExeOptions := '';
 	FParams.FileMasks := '';
 
-	FParams.GuiSetSearchParams := TGuiSetSearchParams.New(_sSearchText, False, _bMatchWord = 1, False);
+	FParams.GuiSetSearchParams := TGuiSearchTextParams.New(_sSearchText, False, _bMatchWord = 1, False);
 	if _bMatchWord = 1 then
 		FParams.GuiSetSearchParams.SetOption(EGuiOption.soMatchWord);
 
