@@ -73,7 +73,8 @@ end;
 
 class function TOptionsHelper.GetBoundedParamRegex(const _sOption : string) : string;
 begin
-	Result := '-+' + WB + _sOption.TrimLeft(['-']) + WB;
+  // --no-ignore shouldn't match --no-igonore-parent
+	Result := '-+' + WB + _sOption.TrimLeft(['-']) + '[^-]?';
 end;
 
 class function TOptionsHelper.GetBoundedParamWithValueRegex(const _sOption : string; const _sParamValue : string = '') : string;
