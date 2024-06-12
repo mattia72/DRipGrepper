@@ -45,6 +45,15 @@
             "group": {
                 "kind": "build"
             }
+        },
+        {
+            "label": "Build and run unittests",
+            "type": "shell",
+            "command": ". deploy\\Deploy-DripGrepper.ps1; Build-AndRunUnittest",
+            "problemMatcher": [],
+            "group": {
+                "kind": "none"
+            }
         }
     ]
 }

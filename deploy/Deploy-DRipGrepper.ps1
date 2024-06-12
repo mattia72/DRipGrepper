@@ -76,6 +76,34 @@ function Build-StandaloneRelease {
     }
 }
 
+function Build-AndRunUnittest {
+    # copy scripts
+    Import-Module -Name PSDelphi
+    $parentPath = Split-Path -Parent $PSScriptRoot 
+    $unittestPath = Join-Path $parentPath "UnitTest"
+    $result = $null
+    Build-DelphiProject -ProjectPath $unittestPath\DRipGrepperUnittest.dproj -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result)
+    if ($null -ne $result -and $result.ErrorCount -gt 0) {
+        Write-Error "Deploy canceled." -ErrorAction Stop
+    }
+
+    $unittestPath = Join-Path $unittestPath "\Win32\Release"
+
+    & $unittestPath\DRipGrepperUnittest.exe -exitbehavior:Continue
+    
+    Write-Host -ForegroundColor Blue @"
+    -------------
+    Unittest results:
+    Succeded?   : $?
+    LASTEXITCODE: $LASTEXITCODE
+    -------------
+"@
+
+    if (-not $? -or $LASTEXITCODE -ne 0) {
+        Write-Error "Unittest failed, deploy canceled." -ErrorAction Stop
+    }
+}
+
 function Build-ExtensionRelease {
     # copy scripts
     Import-Module -Name PSDelphi
@@ -100,8 +128,10 @@ function Add-ToAssetsDir {
     Copy-Item -Path $AssetPath -Destination $global:AssetsDirectory
 }
 function New-ReleaseWithAsset {
+    Build-AndRunUnittest
     $parentPath = Split-Path -Parent $PSScriptRoot 
     Build-StandaloneRelease
+
     $ZipDir = $(Join-Path $parentPath 'Win32\Release')
     Add-ToAssetsDir $(Join-Path  $ZipDir $global:StandaloneAppName) 
   
