@@ -151,9 +151,9 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
   object PanelMain: TPanel
     AlignWithMargins = True
     Left = 8
-    Top = 65
+    Top = 52
     Width = 791
-    Height = 350
+    Height = 363
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -167,7 +167,7 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
       Left = 3
       Top = 3
       Width = 785
-      Height = 344
+      Height = 357
       Align = alClient
       Header.AutoSizeIndex = 0
       Header.MainColumn = -1
@@ -234,7 +234,7 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     Left = 0
     Top = 0
     Width = 807
-    Height = 57
+    Height = 44
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -245,20 +245,20 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     object Label2: TLabel
       Left = 15
       Top = 15
-      Width = 74
+      Width = 110
       Height = 15
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
       Margins.Bottom = 8
-      Caption = 'RipGrep  help:'
+      Caption = 'RipGrep  online help:'
     end
     object llblHelp: TLinkLabel
       AlignWithMargins = True
-      Left = 100
+      Left = 131
       Top = 15
-      Width = 256
-      Height = 45
+      Width = 106
+      Height = 19
       Cursor = crHandPoint
       Caption = #39'<a href="http://blog.marcocantu.com/">Blog Marco Cantu</a>'#39
       ParentShowHint = False
@@ -270,15 +270,14 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     object SearchBox1: TSearchBox
       AlignWithMargins = True
       Left = 675
-      Top = 31
+      Top = 11
       Width = 121
       Height = 23
       Hint = 'Search Text in Result List'
-      Alignment = taRightJustify
       ParentShowHint = False
       ShowHint = True
       TabOrder = 1
-      TextHint = 'Search Text'
+      TextHint = 'Search...'
       OnChange = SearchBox1Change
     end
   end
