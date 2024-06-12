@@ -39,6 +39,14 @@
             }
         },
         {
+            "label": "Build and run DRipGrepper",
+            "type": "shell",
+            "command": ". deploy\\Deploy-DripGrepper.ps1; Build-StandaloneRelease; & .\\Win32\\Release\\DripGrepper.exe",
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
             "label": "Build DRipExtension",
             "type": "shell",
             "command": ". deploy\\Deploy-DripGrepper.ps1; Build-ExtensionRelease",
