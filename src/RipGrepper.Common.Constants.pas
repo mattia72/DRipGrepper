@@ -102,7 +102,7 @@ const
 
 	RG_INI_KEY_RGPATH = 'Path';
 
-	WB = '\b';     //word boundary
+	WB = '\b'; // word boundary
 
 	RG_PARAM_REGEX_IGNORE_CASE = '-i|--ignore-case';
 	RG_PARAM_REGEX_CASE_SENSITIVE = '-s|--case-sensitive';
@@ -112,11 +112,19 @@ const
 	RG_PARAM_REGEX_HIDDEN = '-\.|--hidden';
 	RG_PARAM_REGEX_NO_IGNORE = '-u|--no-ignore';
 	RG_PARAM_REGEX_PRETTY = '-p|--pretty';
-  RG_PARAM_REGEX_CONTEXT = '-C|--context';
-
+	RG_PARAM_REGEX_CONTEXT = '-C|--context';
 	RG_PARAM_END = '--';
-	RG_GUI_SET_PARAMS : TArray<string> = [RG_PARAM_REGEX_CASE_SENSITIVE, RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_REGEX_GLOB,
-		RG_PARAM_REGEX_HIDDEN, RG_PARAM_REGEX_NO_IGNORE, RG_PARAM_REGEX_PRETTY, RG_PARAM_END];
+
+	RG_GUI_SET_PARAMS : TArray<string> = [
+	{ } RG_PARAM_REGEX_CASE_SENSITIVE,
+	{ } RG_PARAM_REGEX_FIXED_STRINGS,
+	{ } RG_PARAM_REGEX_GLOB,
+	{ } RG_PARAM_REGEX_HIDDEN,
+	{ } RG_PARAM_REGEX_NO_IGNORE,
+	{ } RG_PARAM_REGEX_PRETTY,
+	{ } RG_PARAM_REGEX_CONTEXT,
+	{ } RG_PARAM_END
+	{ } ];
 
 	RG_NECESSARY_PARAMS : TArray<string> = [
 	{ } '--vimgrep',
