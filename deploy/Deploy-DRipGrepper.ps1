@@ -10,7 +10,7 @@ $global:Description = @"
 ## Improvements and Bug Fixes
 
 ### :mag: Search Dialog
-+ some common options can be set by GUI (--hidden, --no-ignore, --pretty, --context)
++ redesigned, some common options can be set by GUI (--hidden, --no-ignore, --pretty, --context)
 
 ### :warning: Bug Fixes
 * version info corrected on status bar
