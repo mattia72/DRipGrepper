@@ -171,7 +171,7 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
       Align = alClient
       Header.AutoSizeIndex = 0
       Header.MainColumn = -1
-      Header.Options = [hoAutoResize, hoColumnResize, hoDrag, hoShowSortGlyphs]
+      Header.Options = [hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs]
       TabOrder = 0
       TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
       TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowRoot, toShowTreeLines, toThemeAware, toUseBlendedImages, toUseExplorerTheme]
@@ -242,6 +242,9 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 2
+    DesignSize = (
+      807
+      44)
     object Label2: TLabel
       Left = 15
       Top = 15
@@ -274,6 +277,7 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
       Width = 121
       Height = 23
       Hint = 'Search Text in Result List'
+      Anchors = [akTop, akRight]
       ParentShowHint = False
       ShowHint = True
       TabOrder = 1

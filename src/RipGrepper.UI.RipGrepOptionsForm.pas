@@ -241,6 +241,8 @@ begin
 	AddColumn('Short');
 	AddColumn('Long');
 	AddColumn('Value');
+	VstResult.Header.AutoSizeIndex := VstResult.Header.Columns.GetLastVisibleColumn();
+	VstResult.Header.Options := VstResult.Header.Options + [hoAutoResize, hoColumnResize, hoDblClickResize];
 end;
 
 function TRipGrepOptionsForm.AddVSTStructure(AVST : TCustomVirtualStringTree; ANode : PVirtualNode; ARecord : THelpOptionsGroup)
