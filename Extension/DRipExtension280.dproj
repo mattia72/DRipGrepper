@@ -63,13 +63,13 @@
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <DCC_UsePackage>rtl;dbrtl;vcldb;DRipExtension280;vcl;VirtualTreesDR;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UsePackage>rtl;dbrtl;vcldb;DRipExtension280;vcl;VirtualTreesDR;VclSmp;$(DCC_UsePackage)</DCC_UsePackage>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
         <VerInfo_MinorVer>6</VerInfo_MinorVer>
         <VerInfo_Release>1</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <DCC_UsePackage>rtl;dbrtl;vcldb;vcl;VirtualTreesDR;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UsePackage>rtl;dbrtl;vcldb;vcl;VirtualTreesDR;VclSmp;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -107,6 +107,7 @@
         <DCCReference Include="vcldb.dcp"/>
         <DCCReference Include="vcl.dcp"/>
         <DCCReference Include="VirtualTreesDR.dcp"/>
+        <DCCReference Include="VclSmp.dcp"/>
         <DCCReference Include="src\DRipExtension.Main.pas"/>
         <DCCReference Include="..\src\RipGrepper.Common.IOTAUtils.pas"/>
         <DCCReference Include="src\DripExtension.UI.DockableForm.pas"/>

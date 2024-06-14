@@ -38,7 +38,8 @@ requires
   dbrtl,
   vcldb,
   vcl,
-  VirtualTreesDR;
+  VirtualTreesDR,
+  VclSmp;
 
 contains
   DRipExtension.Main in 'src\DRipExtension.Main.pas',
