@@ -137,7 +137,8 @@ uses
 	Winapi.Windows,
 	System.TypInfo,
 	RipGrepper.Common.IOTAUtils,
-	Vcl.Controls;
+	Vcl.Controls,
+	RipGrepper.Common.Settings;
 
 { TRipGrepperDockableForm }
 
@@ -229,6 +230,8 @@ begin
 end;
 
 class function TRipGrepperDockableForm.ShowDockableFormAndSearch : TCustomForm;
+var
+	extSearchSettings : TRipGrepperExtensionEnvironment;
 begin
 	Result := (BorlandIDEServices as INTAServices).CreateDockableForm(FInstance);
 	TDebugUtils.DebugMessage('TRipGrepperDockableForm.ShowDockableFormAndSearch Result.Visible=' + BoolToStr(Result.Visible, True));
@@ -238,6 +241,13 @@ begin
 	if not selectedText.IsEmpty then begin
 		ParentFrame.Settings.RipGrepParameters.SearchText := selectedText;
 	end;
+
+	extSearchSettings.ActiveFile := IOTAUTils.GxOtaGetCurrentSourceFile;
+	extSearchSettings.OpenedFiles :=
+	TDebugUtils.DebugMessage('TRipGrepperDockableForm.ShowDockableFormAndSearch ActiveFile=' + extSearchSettings.ActiveFile);
+    ParentFrame.Settings.ExtensionSettings.CurrentSearchSettings := extSearchSettings;
+
+	// Do search...
 	ParentFrame.TopFrame.ActionShowSearchForm.Execute;
 	if not Assigned(Result.HostDockSite) then begin
 		var
