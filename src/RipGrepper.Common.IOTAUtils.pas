@@ -22,6 +22,8 @@ type
       class function FindMenu(const Name : string) : TMenu;
       // Get the actual TEditControl embedded in the given IDE editor form
       class function GetIDEEditControl(Form : TCustomForm) : TWinControl;
+      class function GetOpenedEditorFiles : TArray<string>;
+      class function GetOpenedEditBuffers : TArray<string>;
       class function GxOtaConvertColumnCharsToBytes(LineData : UTF8String; CharIndex : Integer; EndByte : Boolean) : Integer;
       // Determine is a file exists or the file's module is currently loaded in the IDE
       class function GxOtaFileOrModuleExists(const AFileName : string; UseBase : Boolean = False) : Boolean;
@@ -147,12 +149,11 @@ implementation
 
 uses
   System.IOUtils,
-
   System.SysUtils,
-
   System.StrUtils,
   RipGrepper.Common.Constants,
-  Winapi.Windows;
+  Winapi.Windows,
+  RipGrepper.Tools.DebugUtils;
 
 // Returns the size of any EOL characters at a given position
 // Supports the following EOL formats:
@@ -216,6 +217,48 @@ begin
   if Assigned(Component) then
     if Component is TWinControl then
       Result := Component as TWinControl;
+end;
+
+class function IOTAUTils.GetOpenedEditorFiles : TArray<string>;
+var
+  Module : IOTAModule;
+  Editor : IOTAEditor;
+  Service : IOTAModuleServices;
+begin
+  Result := [];
+  Service := (BorlandIDEServices as IOTAModuleServices);
+  if Assigned(Service) then begin
+    for var i := 0 to Service.ModuleCount - 1 do begin
+      Module := Service.Modules[i];
+      for var j := 0 to Module.GetModuleFileCount - 1 do begin
+        Editor := GxOtaGetFileEditorForModule(Module, j);
+        TDebugUtils.DebugMessage('IOTAUTils.GetOpenedEditorFiles FileName=' + Editor.FileName);
+
+        Result := Result + [Editor.FileName];
+      end;
+    end;
+  end;
+end;
+
+class function IOTAUTils.GetOpenedEditBuffers : TArray<string>;
+var
+  Service : IOTAEditorServices;
+  it : IOTAEditBufferIterator;
+  buf : IOTAEditBuffer;
+begin
+  Result := [];
+  Service := GxOtaGetEditorServices();
+  if Assigned(Service) then begin
+    if (Service.GetEditBufferIterator(it)) then begin
+      for var i := 0 to it.Count - 1 do begin
+        buf := it.EditBuffers[i];
+        TDebugUtils.DebugMessage('IOTAUTils.GetOpenedEditBuffers FileName=' + buf.FileName + ' ViewCount=' + buf.EditViewCount.ToString);
+        if buf.EditViewCount > 0 then begin
+          Result := Result + [buf.FileName];
+        end;
+      end;
+    end;
+  end;
 end;
 
 class function IOTAUTils.GetSettingFilePath : string;

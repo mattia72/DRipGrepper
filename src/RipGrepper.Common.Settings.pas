@@ -54,27 +54,26 @@ type
   end;
 
   TRipGrepperExtensionEnvironment = record
-	  ActiveFile : string;
-	  OpenedFiles : string;
-      ActiveProject : string;
+    ActiveFile : string;
+    OpenedFiles : TArray<string>;
+    ActiveProject : string;
   end;
 
   TRipGrepperExtensionSettings = class(TRipGrepperSettingsBase)
-	const
+    const
       INI_SECTION = 'DelphiExtensionSettings';
 
     private
-	  FDripGrepperShortCut : string;
-	  FCurrentSearchSettings : TRipGrepperExtensionEnvironment;
+      FDripGrepperShortCut : string;
+      FCurrentSearchSettings : TRipGrepperExtensionEnvironment;
 
-	public
-	  constructor Create(const _ini : TIniFile);
-	  function GetIniSectionName : string; override;
-	  procedure Load; override;
-	  procedure Store; override;
-	  property DripGrepperShortCut : string read FDripGrepperShortCut write FDripGrepperShortCut;
-	  property CurrentSearchSettings: TRipGrepperExtensionEnvironment read FCurrentSearchSettings write
-		  FCurrentSearchSettings;
+    public
+      constructor Create(const _ini : TIniFile);
+      function GetIniSectionName : string; override;
+      procedure Load; override;
+      procedure Store; override;
+      property DripGrepperShortCut : string read FDripGrepperShortCut write FDripGrepperShortCut;
+      property CurrentSearchSettings : TRipGrepperExtensionEnvironment read FCurrentSearchSettings write FCurrentSearchSettings;
   end;
 
   TRipGrepperAppSettings = class(TRipGrepperSettingsBase)
