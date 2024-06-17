@@ -91,6 +91,8 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 ### Misc
 - [x] screenshots in Readme.md
 - [x] [scoop](https://scoop.sh) install
+  - [x] standalone
+  - [ ] delphi ide extension
 - [ ] [chocolatey](https://chocolatey.org) install
 
 ## Installation
