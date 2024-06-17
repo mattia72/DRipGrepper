@@ -73,7 +73,6 @@ type
     ActionShowFileMaskHelp : TAction;
     btnRGOptionsHelp : TButton;
     ActionShowRGOptionsHelp : TAction;
-    gbOptionsFiles : TGroupBox;
     gbOptionsOutput : TGroupBox;
     cbRgParamHidden : TCheckBox;
     cbRgParamNoIgnore : TCheckBox;

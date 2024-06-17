@@ -162,6 +162,9 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    DesignSize = (
+      556
+      496)
     object gbSearch: TGroupBox
       AlignWithMargins = True
       Left = 8
@@ -242,9 +245,9 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     object gbExpert: TGroupBox
       AlignWithMargins = True
       Left = 8
-      Top = 337
+      Top = 322
       Width = 540
-      Height = 151
+      Height = 166
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
@@ -270,7 +273,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       OnDblClick = gbExpertDblClick
       DesignSize = (
         540
-        151)
+        166)
       object lblParams: TLabel
         AlignWithMargins = True
         Left = 8
@@ -297,7 +300,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object btnConfig: TButton
         AlignWithMargins = True
-        Left = 453
+        Left = 475
         Top = 36
         Width = 25
         Height = 25
@@ -316,7 +319,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       object cmbOptions: TComboBox
         Left = 8
         Top = 37
-        Width = 438
+        Width = 467
         Height = 23
         Margins.Left = 8
         Margins.Top = 8
@@ -331,8 +334,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       object memoCommandLine: TMemo
         Left = 8
         Top = 85
-        Width = 438
-        Height = 44
+        Width = 467
+        Height = 59
         Anchors = [akLeft, akTop, akRight, akBottom]
         Color = clInfoBk
         Lines.Strings = (
@@ -343,8 +346,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object btnCopyToClipBoard: TButton
         AlignWithMargins = True
-        Left = 453
-        Top = 84
+        Left = 475
+        Top = 82
         Width = 25
         Height = 25
         Margins.Left = 8
@@ -361,7 +364,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object btnRGOptionsHelp: TButton
         AlignWithMargins = True
-        Left = 478
+        Left = 500
         Top = 36
         Width = 25
         Height = 25
@@ -383,226 +386,209 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       Left = 8
       Top = 84
       Width = 540
-      Height = 245
+      Height = 162
       Margins.Left = 8
       Margins.Top = 0
       Margins.Right = 8
       Margins.Bottom = 8
       Align = alTop
-      Caption = 'Options'
+      Caption = 'Filters'
       TabOrder = 2
       DesignSize = (
         540
-        245)
-      object gbOptionsFiles: TGroupBox
+        162)
+      object lblFileMasks: TLabel
         AlignWithMargins = True
-        Left = 8
-        Top = 20
-        Width = 523
-        Height = 153
+        Left = 5
+        Top = 107
+        Width = 132
+        Height = 15
+        Hint = 'eg. src/**/include;!dev/*.exclude'
         Margins.Left = 8
-        Margins.Top = 0
+        Margins.Top = 8
         Margins.Right = 8
         Margins.Bottom = 8
-        Anchors = [akLeft, akTop, akRight]
-        Caption = 'Files'
-        TabOrder = 0
-        DesignSize = (
-          523
-          153)
-        object lblFileMasks: TLabel
-          AlignWithMargins = True
-          Left = 5
-          Top = 107
-          Width = 128
-          Height = 15
-          Hint = 'eg. src/**/include;!dev/*.exclude'
-          Margins.Left = 8
-          Margins.Top = 8
-          Margins.Right = 8
-          Margins.Bottom = 8
-          Caption = 'Files to &include/exclude:'
-        end
-        object lblPaths: TLabel
-          AlignWithMargins = True
-          Left = 5
-          Top = 60
-          Width = 27
-          Height = 15
-          Margins.Left = 8
-          Margins.Top = 8
-          Margins.Right = 8
-          Margins.Bottom = 8
-          Caption = '&Path:'
-        end
-        object cbRgParamHidden: TCheckBox
-          AlignWithMargins = True
-          Left = 7
-          Top = 18
-          Width = 89
-          Height = 17
-          Margins.Top = 0
-          Margins.Bottom = 0
-          Caption = '--hidden'
-          TabOrder = 0
-          OnClick = cbRgParamHiddenClick
-        end
-        object cbRgParamNoIgnore: TCheckBox
-          AlignWithMargins = True
-          Left = 7
-          Top = 35
-          Width = 89
-          Height = 17
-          Margins.Top = 0
-          Margins.Bottom = 0
-          Caption = '--no-ignore'
-          TabOrder = 1
-          OnClick = cbRgParamNoIgnoreClick
-        end
-        object btnHelpFileMask: TButton
-          AlignWithMargins = True
-          Left = 450
-          Top = 120
-          Width = 25
-          Height = 25
-          Margins.Left = 8
-          Margins.Top = 8
-          Margins.Right = 8
-          Margins.Bottom = 8
-          Action = ActionShowFileMaskHelp
-          Anchors = [akTop, akRight]
-          ImageAlignment = iaCenter
-          Images = ImageList1
-          ParentShowHint = False
-          ShowHint = True
-          TabOrder = 2
-        end
-        object btnSearchFile: TButton
-          AlignWithMargins = True
-          Left = 475
-          Top = 74
-          Width = 25
-          Height = 25
-          Margins.Left = 8
-          Margins.Top = 8
-          Margins.Right = 8
-          Margins.Bottom = 8
-          Action = ActionSearchFile
-          Anchors = [akTop, akRight]
-          ImageAlignment = iaCenter
-          Images = ImageList1
-          ParentShowHint = False
-          ShowHint = True
-          TabOrder = 3
-        end
-        object btnSearchFolder: TButton
-          AlignWithMargins = True
-          Left = 450
-          Top = 74
-          Width = 25
-          Height = 25
-          Margins.Left = 8
-          Margins.Top = 8
-          Margins.Right = 8
-          Margins.Bottom = 8
-          Action = ActionSearchFolder
-          Anchors = [akTop, akRight]
-          ImageAlignment = iaCenter
-          Images = ImageList1
-          ParentShowHint = False
-          ShowHint = True
-          TabOrder = 4
-        end
-        object cmbFileMasks: TComboBox
-          Left = 5
-          Top = 122
-          Width = 438
-          Height = 23
-          Hint = 
-            'Include and exclude glob patterns separated by '#39';'#39#13#10'e.g:'#13#10'*.txt;' +
-            #13#10'!*.bak;'#13#10'src/**/every_include_dir/;'#13#10'!exclude_dir/;'
-          Margins.Left = 8
-          Margins.Top = 8
-          Margins.Right = 8
-          Margins.Bottom = 8
-          Anchors = [akLeft, akTop, akRight]
-          ParentShowHint = False
-          ShowHint = True
-          TabOrder = 5
-          Text = 'cmbFileMasks'
-          OnChange = cmbFileMasksChange
-          OnExit = cmbFileMasksExit
-          OnSelect = cmbFileMasksSelect
-        end
-        object cmbSearchDir: TComboBox
-          Left = 5
-          Top = 75
-          Width = 438
-          Height = 23
-          Hint = 'Files or Folders, Separated by Semicolons'
-          Margins.Left = 8
-          Margins.Top = 8
-          Margins.Right = 8
-          Margins.Bottom = 8
-          Anchors = [akLeft, akTop, akRight]
-          ParentShowHint = False
-          ShowHint = True
-          TabOrder = 6
-          Text = 'cmbSearchDir'
-          OnChange = cmbSearchDirChange
-        end
+        Caption = '&Include or exclude paths:'
       end
-      object gbOptionsOutput: TGroupBox
+      object lblPaths: TLabel
         AlignWithMargins = True
-        Left = 8
-        Top = 177
-        Width = 524
-        Height = 60
+        Left = 5
+        Top = 60
+        Width = 27
+        Height = 15
         Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
+        Caption = '&Path:'
+      end
+      object btnHelpFileMask: TButton
+        AlignWithMargins = True
+        Left = 475
+        Top = 120
+        Width = 25
+        Height = 25
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
+        Action = ActionShowFileMaskHelp
+        Anchors = [akTop, akRight]
+        ImageAlignment = iaCenter
+        Images = ImageList1
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+      end
+      object btnSearchFile: TButton
+        AlignWithMargins = True
+        Left = 500
+        Top = 74
+        Width = 25
+        Height = 25
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
+        Action = ActionSearchFile
+        Anchors = [akTop, akRight]
+        ImageAlignment = iaCenter
+        Images = ImageList1
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 1
+      end
+      object btnSearchFolder: TButton
+        AlignWithMargins = True
+        Left = 475
+        Top = 74
+        Width = 25
+        Height = 25
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
+        Action = ActionSearchFolder
+        Anchors = [akTop, akRight]
+        ImageAlignment = iaCenter
+        Images = ImageList1
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 2
+      end
+      object cbRgParamHidden: TCheckBox
+        AlignWithMargins = True
+        Left = 7
+        Top = 18
+        Width = 89
+        Height = 17
         Margins.Top = 0
+        Margins.Bottom = 0
+        Caption = '--hidden'
+        TabOrder = 3
+        OnClick = cbRgParamHiddenClick
+      end
+      object cbRgParamNoIgnore: TCheckBox
+        AlignWithMargins = True
+        Left = 7
+        Top = 35
+        Width = 89
+        Height = 17
+        Margins.Top = 0
+        Margins.Bottom = 0
+        Caption = '--no-ignore'
+        TabOrder = 4
+        OnClick = cbRgParamNoIgnoreClick
+      end
+      object cmbFileMasks: TComboBox
+        Left = 5
+        Top = 122
+        Width = 470
+        Height = 23
+        Hint = 
+          'Include and exclude glob patterns separated by '#39';'#39#13#10'e.g:'#13#10'*.txt;' +
+          #13#10'!*.bak;'#13#10'src/**/every_include_dir/;'#13#10'!exclude_dir/;'
+        Margins.Left = 8
+        Margins.Top = 8
         Margins.Right = 8
         Margins.Bottom = 8
         Anchors = [akLeft, akTop, akRight]
-        Caption = 'Output'
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 5
+        Text = 'cmbFileMasks'
+        OnChange = cmbFileMasksChange
+        OnExit = cmbFileMasksExit
+        OnSelect = cmbFileMasksSelect
+      end
+      object cmbSearchDir: TComboBox
+        Left = 5
+        Top = 75
+        Width = 470
+        Height = 23
+        Hint = 'Files or Folders, Separated by Semicolons'
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
+        Anchors = [akLeft, akTop, akRight]
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 6
+        Text = 'cmbSearchDir'
+        OnChange = cmbSearchDirChange
+      end
+    end
+    object gbOptionsOutput: TGroupBox
+      AlignWithMargins = True
+      Left = 8
+      Top = 254
+      Width = 540
+      Height = 60
+      Margins.Left = 8
+      Margins.Top = 0
+      Margins.Right = 8
+      Margins.Bottom = 8
+      Anchors = [akLeft, akTop, akRight]
+      Caption = 'Output'
+      TabOrder = 3
+      object cbRgParamPretty: TCheckBox
+        AlignWithMargins = True
+        Left = 5
+        Top = 17
+        Width = 530
+        Height = 17
+        Margins.Top = 0
+        Margins.Bottom = 0
+        Align = alTop
+        Caption = '--pretty'
+        TabOrder = 0
+        OnClick = cbRgParamPrettyClick
+      end
+      object cbRgParamContext: TCheckBox
+        AlignWithMargins = True
+        Left = 5
+        Top = 34
+        Width = 69
+        Height = 17
+        Margins.Top = 0
+        Margins.Bottom = 0
+        Caption = '--context'
         TabOrder = 1
-        object cbRgParamPretty: TCheckBox
-          AlignWithMargins = True
-          Left = 5
-          Top = 17
-          Width = 514
-          Height = 17
-          Margins.Top = 0
-          Margins.Bottom = 0
-          Align = alTop
-          Caption = '--pretty'
-          TabOrder = 0
-          OnClick = cbRgParamPrettyClick
-        end
-        object cbRgParamContext: TCheckBox
-          AlignWithMargins = True
-          Left = 5
-          Top = 34
-          Width = 69
-          Height = 17
-          Margins.Top = 0
-          Margins.Bottom = 0
-          Caption = '--context'
-          TabOrder = 1
-          OnClick = cbRgParamContextClick
-        end
-        object seContextLineNum: TSpinEdit
-          AlignWithMargins = True
-          Left = 80
-          Top = 33
-          Width = 36
-          Height = 24
-          MaxLength = 2
-          MaxValue = 99
-          MinValue = 0
-          TabOrder = 2
-          Value = 0
-          OnChange = seContextLineNumChange
-        end
+        OnClick = cbRgParamContextClick
+      end
+      object seContextLineNum: TSpinEdit
+        AlignWithMargins = True
+        Left = 80
+        Top = 33
+        Width = 36
+        Height = 24
+        MaxLength = 2
+        MaxValue = 99
+        MinValue = 0
+        TabOrder = 2
+        Value = 0
+        OnChange = seContextLineNumChange
       end
     end
   end
