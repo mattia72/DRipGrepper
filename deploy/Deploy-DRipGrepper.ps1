@@ -4,7 +4,7 @@
 # - Change file and product version in every projects for ALL CONFIGURATION!
 # - Commit and push all changes
 # - run this script
-$global:Version = "v2.6.3-beta"
+$global:Version = "v2.7.0-beta"
 $global:PrevVersion = "v2.6.2-beta"
 $global:Description = @"
 ## Improvements and Bug Fixes

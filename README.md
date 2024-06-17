@@ -40,7 +40,11 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
     - [x] --case-sensitive
     - [x] --word-regexp
     - [x] --fixed-strings
-  - [x] --glob settings as separate editbox
+  - [x] --glob filter settings can be set in separate editbox
+  - [x] --hidden, --no-ignore can be set in the form
+  - [x] --pretty can be set in the form
+  - [x] --context=NUM can be set in the form
+  
 
 ### :rocket: Open with...
 - [x] show configured editors to open matching file on matching position
