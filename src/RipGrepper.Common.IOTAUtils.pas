@@ -23,7 +23,7 @@ type
       // Get the actual TEditControl embedded in the given IDE editor form
       class function GetIDEEditControl(Form : TCustomForm) : TWinControl;
       class function GetOpenedEditorFiles : TArray<string>;
-      class function GetOpenedEditBuffers : TArray<string>;
+	  class function GetOpenedEditBuffers: TArray<string>;
       class function GxOtaConvertColumnCharsToBytes(LineData : UTF8String; CharIndex : Integer; EndByte : Boolean) : Integer;
       // Determine is a file exists or the file's module is currently loaded in the IDE
       class function GxOtaFileOrModuleExists(const AFileName : string; UseBase : Boolean = False) : Boolean;
@@ -221,43 +221,42 @@ end;
 
 class function IOTAUTils.GetOpenedEditorFiles : TArray<string>;
 var
-  Module : IOTAModule;
-  Editor : IOTAEditor;
-  Service : IOTAModuleServices;
+  module : IOTAModule;
+  editor : IOTAEditor;
+  service : IOTAModuleServices;
 begin
   Result := [];
-  Service := (BorlandIDEServices as IOTAModuleServices);
-  if Assigned(Service) then begin
-    for var i := 0 to Service.ModuleCount - 1 do begin
-      Module := Service.Modules[i];
-      for var j := 0 to Module.GetModuleFileCount - 1 do begin
-        Editor := GxOtaGetFileEditorForModule(Module, j);
-        TDebugUtils.DebugMessage('IOTAUTils.GetOpenedEditorFiles FileName=' + Editor.FileName);
-
-        Result := Result + [Editor.FileName];
-      end;
-    end;
+  service := (BorlandIDEServices as IOTAModuleServices);
+  if Assigned(service) then begin
+	for var i := 0 to service.ModuleCount - 1 do begin
+	  module := service.Modules[i];
+	  for var j := 0 to module.GetModuleFileCount - 1 do begin
+		editor := module.GetModuleFileEditor(j);
+		TDebugUtils.DebugMessage('IOTAUTils.GetOpenedEditorFiles FileName=' + editor.FileName);
+		Result := Result + [editor.FileName];
+	  end;
+	end;
   end;
 end;
 
-class function IOTAUTils.GetOpenedEditBuffers : TArray<string>;
+class function IOTAUTils.GetOpenedEditBuffers: TArray<string>;
 var
-  Service : IOTAEditorServices;
+  service : IOTAEditorServices;
   it : IOTAEditBufferIterator;
-  buf : IOTAEditBuffer;
+  buffer : IOTAEditBuffer;
 begin
   Result := [];
-  Service := GxOtaGetEditorServices();
-  if Assigned(Service) then begin
-    if (Service.GetEditBufferIterator(it)) then begin
-      for var i := 0 to it.Count - 1 do begin
-        buf := it.EditBuffers[i];
-        TDebugUtils.DebugMessage('IOTAUTils.GetOpenedEditBuffers FileName=' + buf.FileName + ' ViewCount=' + buf.EditViewCount.ToString);
-        if buf.EditViewCount > 0 then begin
-          Result := Result + [buf.FileName];
-        end;
-      end;
-    end;
+  service := (BorlandIDEServices as IOTAEditorServices);
+  if Assigned(service) then begin
+	if (service.GetEditBufferIterator(it)) then begin
+	  for var i := 0 to it.Count - 1 do begin
+		buffer := it.EditBuffers[i];
+		TDebugUtils.DebugMessage('IOTAUTils.GetOpenedEditBuffers FileName=' + buffer.FileName + ' ViewCount=' + buffer.EditViewCount.ToString);
+		if buffer.EditViewCount > 0 then begin
+		  Result := Result + [buffer.FileName];
+		end;
+	  end;
+	end;
   end;
 end;
 

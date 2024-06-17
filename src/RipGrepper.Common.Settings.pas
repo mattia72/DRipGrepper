@@ -55,7 +55,7 @@ type
 
   TRipGrepperExtensionEnvironment = record
     ActiveFile : string;
-    OpenedFiles : TArray<string>;
+    OpenedProjectFiles : TArray<string>;
     ActiveProject : string;
   end;
 

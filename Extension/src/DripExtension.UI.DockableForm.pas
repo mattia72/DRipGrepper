@@ -244,7 +244,10 @@ begin
 
   extSearchSettings.ActiveFile := IOTAUTils.GxOtaGetCurrentSourceFile();
   TDebugUtils.DebugMessage('TRipGrepperDockableForm.ShowDockableFormAndSearch ActiveFile=' + extSearchSettings.ActiveFile);
-  extSearchSettings.OpenedFiles := IOTAUTils.GetOpenedEditBuffers();
+
+  //IOTAUTils.GetOpenedEditorFiles();
+
+  extSearchSettings.OpenedProjectFiles := IOTAUTils.GetOpenedEditBuffers();
   ParentFrame.Settings.ExtensionSettings.CurrentSearchSettings := extSearchSettings;
 
   // Do search...
