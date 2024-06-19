@@ -552,7 +552,10 @@ begin
 	// FGuiSetSearchParams.RgOptions := '';
 
 	FGuiSetSearchParams.SetRgOptions(RG_PARAM_REGEX_HIDDEN, not cbRgParamHidden.Checked);
+
 	FGuiSetSearchParams.SetRgOptions(RG_PARAM_REGEX_NO_IGNORE, not cbRgParamNoIgnore.Checked);
+	FGuiSetSearchParams.SetRgOptions(RG_PARAM_REGEX_IGNORE_CASE, cbRgParamNoIgnore.Checked);
+
 	FGuiSetSearchParams.SetRgOptions(RG_PARAM_REGEX_PRETTY, not cbRgParamPretty.Checked);
 	if cbRgParamContext.Checked then begin
 		if seContextLineNum.Text = '' then begin

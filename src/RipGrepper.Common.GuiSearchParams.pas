@@ -200,9 +200,11 @@ begin
   case searchOption of
     EGuiOption.soNotSet :
     { };
-    EGuiOption.soMatchCase :
-    { } SetRgOptions(RG_PARAM_REGEX_CASE_SENSITIVE, True);
-    EGuiOption.soMatchWord, EGuiOption.soUseRegex :
+	EGuiOption.soMatchCase : begin
+	{ } ResetRgOptions(RG_PARAM_REGEX_CASE_SENSITIVE);
+	{ } SetRgOptions(RG_PARAM_REGEX_IGNORE_CASE);
+    end;
+	EGuiOption.soMatchWord, EGuiOption.soUseRegex :
     { } if not( { } (SearchOptions = [EGuiOption.soNotSet]) or { } (SearchOptions = [EGuiOption.soMatchCase]) or { } (SearchOptions = []))
     then begin
       SetRgOptions(RG_PARAM_REGEX_FIXED_STRINGS, True);
@@ -249,19 +251,21 @@ begin
   case _searchOption of
     EGuiOption.soNotSet :
     { } SetRgOptions(RG_PARAM_REGEX_FIXED_STRINGS);
-    EGuiOption.soMatchCase :
-    { } SetRgOptions(RG_PARAM_REGEX_CASE_SENSITIVE);
+	EGuiOption.soMatchCase : begin
+	{ } SetRgOptions(RG_PARAM_REGEX_CASE_SENSITIVE);
+	{ } ResetRgOptions(RG_PARAM_REGEX_IGNORE_CASE);
+	end;
     EGuiOption.soMatchWord :
     { } ResetRgOptions(RG_PARAM_REGEX_FIXED_STRINGS);
     EGuiOption.soUseRegex :
-    { } ResetRgOptions(RG_PARAM_REGEX_FIXED_STRINGS);
+	{ } ResetRgOptions(RG_PARAM_REGEX_FIXED_STRINGS);
   end;
 end;
 
 procedure TGuiSearchTextParams.SetOrReset(const _newOption : EGuiOption);
 begin
   if IsSet([_newOption]) then begin
-    ResetOption(_newOption);
+	ResetOption(_newOption);
   end else begin
     SetOption(_newOption);
   end;
