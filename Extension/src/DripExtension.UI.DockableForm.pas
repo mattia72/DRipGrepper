@@ -22,7 +22,6 @@ type
 
       class var FInstance : TRipGrepperDockableForm;
       class function GetInstance : TRipGrepperDockableForm; static;
-      class function GetInIDESelectedText : string;
 
     public
       class function ShowDockableFormAndSearch : TCustomForm;
@@ -236,20 +235,6 @@ begin
   Result := (BorlandIDEServices as INTAServices).CreateDockableForm(FInstance);
   TDebugUtils.DebugMessage('TRipGrepperDockableForm.ShowDockableFormAndSearch Result.Visible=' + BoolToStr(Result.Visible, True));
 
-  var
-  selectedText := GetInIDESelectedText;
-  if not selectedText.IsEmpty then begin
-    ParentFrame.Settings.RipGrepParameters.SearchText := selectedText;
-  end;
-
-  extSearchSettings.ActiveFile := IOTAUTils.GxOtaGetCurrentSourceFile();
-  TDebugUtils.DebugMessage('TRipGrepperDockableForm.ShowDockableFormAndSearch ActiveFile=' + extSearchSettings.ActiveFile);
-
-  IOTAUTils.GetOpenedEditorFiles();
-  extSearchSettings.ProjectFiles := IOTAUTils.GetProjectFiles();
-  extSearchSettings.OpenedProjectFiles := IOTAUTils.GetOpenedEditBuffers();
-  ParentFrame.Settings.ExtensionSettings.CurrentSearchSettings := extSearchSettings;
-
   // Do search...
   ParentFrame.TopFrame.ActionShowSearchForm.Execute;
   if not Assigned(Result.HostDockSite) then begin
@@ -277,13 +262,5 @@ begin
   Result := FInstance;
 end;
 
-class function TRipGrepperDockableForm.GetInIDESelectedText : string;
-var
-  selectedText : string;
-begin
-  IOTAUtils.GxOtaGetActiveEditorTextAsString(selectedText, True);
-  TDebugUtils.DebugMessage('TRipGrepperDockableForm.GetInIDESelectedText: ' + selectedText);
-  Result := selectedText.Trim();
-end;
 
 end.
