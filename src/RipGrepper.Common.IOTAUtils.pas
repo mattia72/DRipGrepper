@@ -22,8 +22,12 @@ type
       class function FindMenu(const Name : string) : TMenu;
       // Get the actual TEditControl embedded in the given IDE editor form
       class function GetIDEEditControl(Form : TCustomForm) : TWinControl;
+
       class function GetOpenedEditorFiles : TArray<string>;
-	  class function GetOpenedEditBuffers: TArray<string>;
+      class function GetOpenedEditBuffers : TArray<string>;
+
+      class function GetProjectFiles: TArray<string>;
+
       class function GxOtaConvertColumnCharsToBytes(LineData : UTF8String; CharIndex : Integer; EndByte : Boolean) : Integer;
       // Determine is a file exists or the file's module is currently loaded in the IDE
       class function GxOtaFileOrModuleExists(const AFileName : string; UseBase : Boolean = False) : Boolean;
@@ -228,18 +232,18 @@ begin
   Result := [];
   service := (BorlandIDEServices as IOTAModuleServices);
   if Assigned(service) then begin
-	for var i := 0 to service.ModuleCount - 1 do begin
-	  module := service.Modules[i];
-	  for var j := 0 to module.GetModuleFileCount - 1 do begin
-		editor := module.GetModuleFileEditor(j);
-		TDebugUtils.DebugMessage('IOTAUTils.GetOpenedEditorFiles FileName=' + editor.FileName);
-		Result := Result + [editor.FileName];
-	  end;
-	end;
+    for var i := 0 to service.ModuleCount - 1 do begin
+      module := service.Modules[i];
+      for var j := 0 to module.GetModuleFileCount - 1 do begin
+        editor := module.GetModuleFileEditor(j);
+        TDebugUtils.DebugMessage('IOTAUTils.GetOpenedEditorFiles FileName=' + editor.FileName);
+        Result := Result + [editor.FileName];
+      end;
+    end;
   end;
 end;
 
-class function IOTAUTils.GetOpenedEditBuffers: TArray<string>;
+class function IOTAUTils.GetOpenedEditBuffers : TArray<string>;
 var
   service : IOTAEditorServices;
   it : IOTAEditBufferIterator;
@@ -248,21 +252,35 @@ begin
   Result := [];
   service := (BorlandIDEServices as IOTAEditorServices);
   if Assigned(service) then begin
-	if (service.GetEditBufferIterator(it)) then begin
-	  for var i := 0 to it.Count - 1 do begin
-		buffer := it.EditBuffers[i];
-		TDebugUtils.DebugMessage('IOTAUTils.GetOpenedEditBuffers FileName=' + buffer.FileName + ' ViewCount=' + buffer.EditViewCount.ToString);
-		if buffer.EditViewCount > 0 then begin
-		  Result := Result + [buffer.FileName];
-		end;
-	  end;
-	end;
+    if (service.GetEditBufferIterator(it)) then begin
+      for var i := 0 to it.Count - 1 do begin
+        buffer := it.EditBuffers[i];
+        TDebugUtils.DebugMessage('IOTAUTils.GetOpenedEditBuffers FileName=' + buffer.FileName + ' ViewCount=' +
+            buffer.EditViewCount.ToString);
+        if buffer.EditViewCount > 0 then begin
+          Result := Result + [buffer.FileName];
+        end;
+      end;
+    end;
+  end;
+end;
+
+class function IOTAUTils.GetProjectFiles: TArray<string>;
+var
+  fn : string;
+  project : IOTAProject;
+begin
+  Result := [];
+  project := GxOtaGetCurrentProject;
+  for var i : integer := 0 to project.GetModuleCount - 1 do begin
+    fn := project.GetModule(i).GetFileName;
+    TDebugUtils.DebugMessage('IOTAUTils.GetProjectFiles FileName=' + fn);
+    Result := Result + [fn]
   end;
 end;
 
 class function IOTAUTils.GetSettingFilePath : string;
-var
-  aIDEServices : IOTAServices;
+var aIDEServices : IOTAServices;
 begin
   aIDEServices := BorlandIDEServices as IOTAServices;
   Result := aIDEServices.GetLocalApplicationDataDirectory;
@@ -271,10 +289,7 @@ begin
 end;
 
 class function IOTAUTils.GxOtaConvertColumnCharsToBytes(LineData : UTF8String; CharIndex : Integer; EndByte : Boolean) : Integer;
-var
-  UString : string;
-  FinalUChar : string;
-  UTF8Str : UTF8String;
+var UString : string; FinalUChar : string; UTF8Str : UTF8String;
 begin
   UString := UTF8ToUnicodeString(LineData);
   UString := Copy(UString, 1, CharIndex);
@@ -297,8 +312,7 @@ begin
 end;
 
 class function IOTAUTils.GxOtaFocusCurrentIDEEditControl : Boolean;
-var
-  EditControl : TWinControl;
+var EditControl : TWinControl;
 begin
   Result := False;
   EditControl := GxOtaGetCurrentIDEEditControl;
@@ -306,9 +320,7 @@ begin
 end;
 
 class function IOTAUTils.GxOtaGetActiveEditorText(Lines : TStringList; UseSelection : Boolean = True) : Boolean;
-var
-  ISourceEditor : IOTASourceEditor;
-  IEditView : IOTAEditView;
+var ISourceEditor : IOTASourceEditor; IEditView : IOTAEditView;
 begin
   Assert(Assigned(Lines));
   Lines.Clear;
@@ -330,16 +342,14 @@ begin
 end;
 
 class function IOTAUTils.GxOtaGetActiveEditorTextAsString(var Text : string; UseSelection : Boolean = True) : Boolean;
-var
-  Lines : string;
+var Lines : string;
 begin
   Result := GxOtaGetActiveEditorTextAsUnicodeString(Lines, UseSelection);
   Text := Lines;
 end;
 
 class function IOTAUTils.GxOtaGetActiveEditorTextAsUnicodeString(var Text : string; UseSelection : Boolean = True) : Boolean;
-var
-  Lines : TStringList;
+var Lines : TStringList;
 begin
   Lines := TStringList.Create;
   try
@@ -351,8 +361,7 @@ begin
 end;
 
 class function IOTAUTils.GxOtaGetBaseModuleFileName(const FileName : string) : string;
-var
-  AltName : string;
+var AltName : string;
 begin
   Result := FileName;
   if IsForm(FileName) then begin
@@ -369,9 +378,7 @@ begin
 end;
 
 class function IOTAUTils.GxOtaGetCurrentIDEEditControl : TWinControl;
-var
-  EditView : IOTAEditView;
-  EditWindow : INTAEditWindow;
+var EditView : IOTAEditView; EditWindow : INTAEditWindow;
   EditForm : TCustomForm;
 begin
   Result := nil;
@@ -387,8 +394,7 @@ begin
 end;
 
 class function IOTAUTils.GxOtaGetCurrentModule : IOTAModule;
-var
-  ModuleServices : IOTAModuleServices;
+var ModuleServices : IOTAModuleServices;
 begin
   ModuleServices := BorlandIDEServices as IOTAModuleServices;
   Assert(Assigned(ModuleServices));
@@ -408,8 +414,7 @@ begin
 end;
 
 class function IOTAUTils.GxOtaGetCurrentProjectName : string;
-var
-  IProject : IOTAProject;
+var IProject : IOTAProject;
 begin
   Result := '';
 
@@ -421,8 +426,7 @@ begin
 end;
 
 class function IOTAUTils.GxOtaGetCurrentSelection(IncludeTrailingCRLF : Boolean = True) : string;
-var
-  EditView : IOTAEditView;
+var EditView : IOTAEditView;
   EditBlock : IOTAEditBlock;
 begin
   Result := '';
@@ -441,8 +445,7 @@ begin
 end;
 
 class function IOTAUTils.GxOtaGetCurrentSourceEditor : IOTASourceEditor;
-var
-  EditBuffer : IOTAEditBuffer;
+var EditBuffer : IOTAEditBuffer;
 begin
   Result := nil;
   EditBuffer := GxOtaGetTopMostEditBuffer;
@@ -453,9 +456,7 @@ begin
 end;
 
 class function IOTAUTils.GxOtaGetCurrentSourceFile : string;
-var
-  Module : IOTAModule;
-  Editor : IOTAEditor;
+var Module : IOTAModule; Editor : IOTAEditor;
 begin
   Result := '';
   Module := GxOtaGetCurrentModule;
@@ -469,9 +470,7 @@ begin
 end;
 
 class function IOTAUTils.GxOtaGetEditActionsFromModule(Module : IOTAModule) : IOTAEditActions;
-var
-  i : Integer;
-  EditView : IOTAEditView;
+var i : Integer; EditView : IOTAEditView;
   SourceEditor : IOTASourceEditor;
 begin
   Result := nil;
@@ -489,14 +488,8 @@ begin
 end;
 
 class function IOTAUTils.GxOtaGetEditorLine(View : IOTAEditView; LineNo : Integer) : UTF8String;
-var
-  Buffer : IOTAEditBuffer;
-  LineStartByte : Integer;
-  LineEndByte : Integer;
-  Pos : TOTACharPos;
-  LineData : AnsiString;
-  Reader : IOTAEditReader;
-  LineBytes : Integer;
+var Buffer : IOTAEditBuffer;
+  LineStartByte : Integer; LineEndByte : Integer; Pos : TOTACharPos; LineData : AnsiString; Reader : IOTAEditReader; LineBytes : Integer;
 begin
   Assert(Assigned(View));
   Result := '';
@@ -529,16 +522,14 @@ begin
   Assert(Assigned(Result), 'BorlandIDEServices is not assigned');
 end;
 
-class function IOTAUTils.GxOtaGetFileEditorForModule(Module : IOTAModule; Index : Integer) : IOTAEditor;
+class function IOTAUTils.GxOtaGetFileEditorForModule(Module : IOTAModule; index : Integer) : IOTAEditor;
 begin
   Assert(Assigned(Module));
   Result := Module.GetModuleFileEditor(index);
 end;
 
 class function IOTAUTils.GxOtaGetFormEditorFromModule(const Module : IOTAModule) : IOTAFormEditor;
-var
-  i : Integer;
-  Editor : IOTAEditor;
+var i : Integer; Editor : IOTAEditor;
   FormEditor : IOTAFormEditor;
 begin
   Result := nil;
@@ -556,8 +547,7 @@ begin
 end;
 
 class function IOTAUTils.GxOtaGetModule(const FileName : string) : IOTAModule;
-var
-  ModuleServices : IOTAModuleServices;
+var ModuleServices : IOTAModuleServices;
 begin
   ModuleServices := BorlandIDEServices as IOTAModuleServices;
   Assert(Assigned(ModuleServices));
@@ -566,8 +556,7 @@ begin
 end;
 
 class function IOTAUTils.GxOtaGetOpenModuleCount : Integer;
-var
-  ModuleServices : IOTAModuleServices;
+var ModuleServices : IOTAModuleServices;
 begin
   ModuleServices := BorlandIDEServices as IOTAModuleServices;
   Assert(Assigned(ModuleServices));
@@ -577,9 +566,7 @@ end;
 class function IOTAUTils.GxOtaGetProjectFileName(Project : IOTAProject; NormalizeBdsProj : Boolean = False) : string;
 
   function SearchProjectSourceViaModule(var AProjectFileName : string) : Boolean;
-  var
-    i : Integer;
-    Module : IOTAModule;
+  var i : Integer; Module : IOTAModule;
     Editor : IOTAEditor;
   begin
     Result := False;
@@ -595,8 +582,7 @@ class function IOTAUTils.GxOtaGetProjectFileName(Project : IOTAProject; Normaliz
   end;
 
   function SearchProjectSourceViaFileExt(var AProjectFileName : string) : Boolean;
-  var
-    PackageFileName : string;
+  var PackageFileName : string;
   begin
     Result := GxOtaProjectIsEitherDelphi(Project);
     if Result then begin
@@ -629,10 +615,7 @@ begin
 end;
 
 class function IOTAUTils.GxOtaGetProjectGroup : IOTAProjectGroup;
-var
-  IModuleServices : IOTAModuleServices;
-  IModule : IOTAModule;
-  i : Integer;
+var IModuleServices : IOTAModuleServices; IModule : IOTAModule; i : Integer;
 begin
   Assert(Assigned(BorlandIDEServices));
 
@@ -656,10 +639,7 @@ begin
 end;
 
 class function IOTAUTils.GxOtaGetSourceEditorFromModule(Module : IOTAModule; const FileName : string = '') : IOTASourceEditor;
-var
-  i : Integer;
-  IEditor : IOTAEditor;
-  ISourceEditor : IOTASourceEditor;
+var i : Integer; IEditor : IOTAEditor; ISourceEditor : IOTASourceEditor;
 begin
   Result := nil;
   if not Assigned(Module) then
@@ -705,17 +685,10 @@ end;
 
 class procedure IOTAUTils.GxOtaGoToFileLineColumn(const FileName : string; Line : Integer; StartColumn : Integer = 0;
     StopColumn : Integer = 0; ShowInMiddle : Boolean = True);
-var
-  EditView : IOTAEditView;
-  Module : IOTAModule;
-  SourceEditor : IOTASourceEditor;
-  CurPos : TOTAEditPos;
-  CharPos : TOTACharPos;
-  EditPos : TOTAEditPos;
-  MatchLength : Integer;
+var EditView : IOTAEditView; Module : IOTAModule;
+  SourceEditor : IOTASourceEditor; CurPos : TOTAEditPos; CharPos : TOTACharPos; EditPos : TOTAEditPos; MatchLength : Integer;
   LineData : UTF8String;
-resourcestring
-  SCouldNotOpenFile = 'Could not open file %s';
+resourcestring SCouldNotOpenFile = 'Could not open file %s';
 begin
   // Force the source editor to show the right file (cpp, pas, dfm, xfm, etc.)
   if not GxOtaMakeSourceVisible(FileName) then
@@ -774,12 +747,7 @@ begin
 end;
 
 class function IOTAUTils.GxOtaIsFileOpen(const AFileName : string; UseBase : Boolean = False) : Boolean;
-var
-  ModuleServices : IOTAModuleServices;
-  Module : IOTAModule;
-  FileEditor : IOTAEditor;
-  i : Integer;
-  FileName : string;
+var ModuleServices : IOTAModuleServices; Module : IOTAModule; FileEditor : IOTAEditor; i : Integer; FileName : string;
 begin
   Result := False;
 
@@ -806,8 +774,7 @@ begin
 end;
 
 class procedure IOTAUTils.GxOtaLoadSourceEditorToUnicodeStrings(SourceEditor : IOTASourceEditor; Data : TStringList);
-var
-  MemStream : TMemoryStream;
+var MemStream : TMemoryStream;
 begin
   Data.Clear;
   if not Assigned(SourceEditor) then
@@ -834,14 +801,8 @@ begin
 end;
 
 class function IOTAUTils.GxOtaMakeSourceVisible(const FileName : string) : Boolean;
-var
-  EditActions : IOTAEditActions;
-  Module : IOTAModule;
-  FormEditor : IOTAFormEditor;
-  SourceEditor : IOTASourceEditor;
-  FileEditor : IOTAEditor;
-  i : Integer;
-  BaseFileName : string;
+var EditActions : IOTAEditActions; Module : IOTAModule;
+  FormEditor : IOTAFormEditor; SourceEditor : IOTASourceEditor; FileEditor : IOTAEditor; i : Integer; BaseFileName : string;
 begin
   BaseFileName := GxOtaGetBaseModuleFileName(FileName);
   Module := GxOtaGetModule(BaseFileName);
@@ -912,9 +873,7 @@ begin
 end;
 
 class function IOTAUTils.GxOtaModuleIsShowingFormSource(Module : IOTAModule) : Boolean;
-var
-  Editor : IOTAEditor;
-  i : Integer;
+var Editor : IOTAEditor; i : Integer;
 begin
   Result := False;
   if not Assigned(Module) then
@@ -929,9 +888,7 @@ begin
 end;
 
 class function IOTAUTils.GxOtaOpenFile(const FileName : string) : Boolean;
-var
-  ActionServices : IOTAActionServices;
-  hWndSaved : HWND;
+var ActionServices : IOTAActionServices; hWndSaved : HWND;
 begin
   ActionServices := BorlandIDEServices as IOTAActionServices;
   Assert(Assigned(ActionServices));
@@ -950,11 +907,8 @@ end;
 class procedure IOTAUTils.GxOtaSaveReaderToStream(EditReader : IOTAEditReader; Stream : TStream; TrailingNull : Boolean = True);
 const
   // Leave typed constant as is - needed for streaming code.
-  NULL_CHAR : AnsiChar = #0;
-  BUFFER_SIZE = 1024 * 24;
-var
-  EditReaderPos : Integer;
-  ReadDataSize : Integer;
+  NULL_CHAR : AnsiChar = #0; BUFFER_SIZE = 1024 * 24;
+var EditReaderPos : Integer; ReadDataSize : Integer;
   Buffer : array [0 .. BUFFER_SIZE] of AnsiChar; // Array of bytes, might be UTF-8
 begin
   Assert(EditReader <> nil);
@@ -974,11 +928,8 @@ begin
 end;
 
 class function IOTAUTils.GxOtaTryGetCurrentProject(out _Project : IOTAProject) : Boolean;
-var
-  IProjectGroup : IOTAProjectGroup;
-  IModuleServices : IOTAModuleServices;
-  IModule : IOTAModule;
-  i : Integer;
+var IProjectGroup : IOTAProjectGroup;
+  IModuleServices : IOTAModuleServices; IModule : IOTAModule; i : Integer;
 begin
   Result := False;
 
@@ -1075,9 +1026,7 @@ begin
 end;
 
 class procedure IOTAUTils.RemoveLastEOL(var S : string);
-var
-  CurrLen : Integer;
-  EOLSize : Integer;
+var CurrLen : Integer; EOLSize : Integer;
 begin
   CurrLen := Length(S);
   if CurrLen > 0 then begin
