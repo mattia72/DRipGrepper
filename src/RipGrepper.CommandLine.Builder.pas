@@ -38,13 +38,15 @@ uses
 	System.RegularExpressions,
 	RipGrepper.Helper.Types,
 	RipGrepper.CommandLine.OptionHelper,
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils,
+	RipGrepper.Common.IOTAUtils;
 
 class procedure TCommandLineBuilder.AddArgs(var _params : TRipGrepParameterSettings; const _sName : string; const _args : TArray<string>;
 	const _bQuote : Boolean = False);
 begin
 	for var s : string in _args do begin
 		if not s.IsEmpty then begin
+			TDebugUtils.DebugMessage('TCommandLineBuilder.AddArgs: ' + s);
 			if _bQuote then begin
 				_params.RipGrepArguments.AddPair(_sName, TProcessUtils.MaybeQuoteIfNotQuoted(s));
 			end else begin
@@ -130,6 +132,7 @@ end;
 class procedure TCommandLineBuilder.RebuildArguments(var _params : TRipGrepParameterSettings);
 var
 	arrRgOptions : TArrayEx<string>;
+	arrPaths : TArrayEx<string>;
 	guiParamCount : integer;
 begin
 	TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: start');
@@ -151,7 +154,19 @@ begin
 
 	AddArgs(_params, RG_ARG_OPTIONS, arrRgOptions);
 	AddArgs(_params, RG_ARG_SEARCH_TEXT, [_params.GuiSetSearchParams.SearchText]); // order is important!
-	AddArgs(_params, RG_ARG_SEARCH_PATH, _params.SearchPath.Split([';']), True { Quote if necessary } );
+
+	for var s in _params.SearchPath.Split([DIR_DIVIDER]) do begin
+		if IOTAUtils.IsStandAlone then begin
+			if (FileExists(s)) then begin
+				arrPaths.Add(s);
+			end else begin
+				TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: File not exists ' + s + ' skip');
+			end;
+		end else begin
+			arrPaths.Add(s);
+		end;
+	end;
+	AddArgs(_params, RG_ARG_SEARCH_PATH, arrPaths, True { Quote if necessary } );
 
 	TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: after AddArgs: ' + string.Join(' ',
 		_params.RipGrepArguments.GetValues()));

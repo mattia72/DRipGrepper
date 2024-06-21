@@ -1,4 +1,4 @@
-unit RipGrepper.Common.Constants;
+﻿unit RipGrepper.Common.Constants;
 
 interface
 
@@ -31,6 +31,7 @@ const
 	SPACE = #32;
 	ESC_CHAR = #$01B;
 	ESC = ESC_CHAR + '\[';
+	DIR_DIVIDER = ';';
 
 	BUFF_LENGTH = 1024; // Todo: put into settings
 

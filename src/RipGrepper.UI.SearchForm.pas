@@ -700,7 +700,7 @@ begin
 		end;
 		1 : begin
 			cmbSearchDir.Enabled := False;
-			cmbSearchDir.Text := string.Join(';', FSettings.ExtensionSettings.CurrentSearchSettings.ProjectFiles);
+			cmbSearchDir.Text := string.Join(DIR_DIVIDER, FSettings.ExtensionSettings.CurrentSearchSettings.ProjectFiles).Trim([DIR_DIVIDER]);
 		end;
 		2 : begin
 			cmbSearchDir.Enabled := True;

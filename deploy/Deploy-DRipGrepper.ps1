@@ -4,19 +4,20 @@
 # - Change file and product version in every projects for ALL CONFIGURATION!
 # - Commit and push all changes
 # - run this script
-$global:Version = "v2.7.0-beta"
-$global:PrevVersion = "v2.6.2-beta"
+$global:Version = "v2.7.1-beta"
+$global:PrevVersion = "v2.7.0-beta"
 $global:Description = @"
-## Improvements and Bug Fixes
+## :rocket: Improvements (marked with :white_check_mark:, if ready)
 
 ### :mag: Search Dialog
-+ redesigned, some common options can be set by GUI (--hidden, --no-ignore, --pretty, --context)
+- [x] extension: search current file
+- [?] extension: search projekt files
+- [ ] invert match
 
-### :warning: Bug Fixes
-* version info corrected on status bar
-* selected text in Delphi should override search text history, if nothing selected then history will be used
-* result form doesn't appear after search on layouts, which doesn't contained result form
-* hotkeys, like Ctrl+S not working if extension window active
+## :warning: Bugs (marked with :white_check_mark:, if fixed)
+- [ ] dummy text in additional options, can't be deleted from command line
+- [x] first open of search form doesn't update command line
+- [x] the default search is case-sensitive; however, it is not set as rg parameter
 "@
 
 ### :mag: Search Dialog
