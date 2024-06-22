@@ -18,6 +18,7 @@ $global:Description = @"
 - [ ] dummy text in additional options, can't be deleted from command line
 - [x] first open of search form doesn't update command line
 - [x] the default search is case-sensitive; however, it is not set as rg parameter
+- [x] extension: toolbar doesn't show all buttons
 "@
 
 ### :mag: Search Dialog
