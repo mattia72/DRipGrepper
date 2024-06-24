@@ -230,7 +230,7 @@ end;
 
 class function TRipGrepperDockableForm.ShowDockableFormAndSearch : TCustomForm;
 var
-  extSearchSettings : TRipGrepperExtensionEnvironment;
+  extSearchSettings : TRipGrepperExtensionContext;
 begin
   Result := (BorlandIDEServices as INTAServices).CreateDockableForm(FInstance);
   TDebugUtils.DebugMessage('TRipGrepperDockableForm.ShowDockableFormAndSearch Result.Visible=' + BoolToStr(Result.Visible, True));

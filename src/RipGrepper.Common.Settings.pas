@@ -53,7 +53,10 @@ type
       property TestFile : TOpenWithParams read FTestFile write FTestFile;
   end;
 
-  TRipGrepperExtensionEnvironment = record
+  ERipGrepperExtensionContext = (rgecActiveFile, rgecOpenedProjectFiles, rgecProjectFiles, rgecPath);
+
+  TRipGrepperExtensionContext = record
+    Context : ERipGrepperExtensionContext;
     ActiveFile : string;
     OpenedProjectFiles : TArray<string>;
     ProjectFiles : TArray<string>;
@@ -66,7 +69,7 @@ type
 
     private
       FDripGrepperShortCut : string;
-      FCurrentSearchSettings : TRipGrepperExtensionEnvironment;
+      FCurrentSearchSettings : TRipGrepperExtensionContext;
 
     public
       constructor Create(const _ini : TIniFile);
@@ -74,7 +77,7 @@ type
       procedure Load; override;
       procedure Store; override;
       property DripGrepperShortCut : string read FDripGrepperShortCut write FDripGrepperShortCut;
-      property CurrentSearchSettings : TRipGrepperExtensionEnvironment read FCurrentSearchSettings write FCurrentSearchSettings;
+      property CurrentSearchSettings : TRipGrepperExtensionContext read FCurrentSearchSettings write FCurrentSearchSettings;
   end;
 
   TRipGrepperAppSettings = class(TRipGrepperSettingsBase)
@@ -605,20 +608,24 @@ begin
 end;
 
 procedure TRipGrepperExtensionSettings.Load;
-
 begin
   {$IFNDEF STANDALONE}
   TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Load start');
 
   if Assigned(FIniFile) then begin
+    var
+    css := CurrentSearchSettings;
+    css.Context := ERipGrepperExtensionContext(FIniFile.ReadInteger(INI_SECTION, 'DripGrepperContext', EXT_SEARCH_GIVEN_PATH));
+    CurrentSearchSettings := css;
+
     DripGrepperShortCut := FIniFile.ReadString(INI_SECTION, 'DripGrepperShortCut', '');
     if DripGrepperShortCut = '' then begin
       DripGrepperShortCut := ShortCutToText(ShortCut(Word('R'), [ssShift, ssAlt]));
-      FIsModified := True;
     end;
+    FIsModified := True;
     FIsLoaded := True;
   end else begin
-    raise Exception.Create('Settings file is nil!')
+    raise Exception.Create('Settings ini file is nil!')
   end;
   {$ENDIF}
 end;
@@ -629,6 +636,7 @@ begin
   TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Store start');
   if IsLoaded and IsModified then begin
     FIniFile.WriteString(INI_SECTION, 'DripGrepperShortCut', DripGrepperShortCut);
+    FIniFile.WriteInteger(INI_SECTION, 'DripGrepperContext', Integer(CurrentSearchSettings.Context));
     FIsModified := False;
   end;
   {$ENDIF}

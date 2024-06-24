@@ -3,172 +3,177 @@
 interface
 
 uses
-	System.Classes,
-	Vcl.ComCtrls,
-	ArrayEx,
-	System.Generics.Defaults,
-	Vcl.Graphics;
+  System.Classes,
+  Vcl.ComCtrls,
+  ArrayEx,
+  System.Generics.Defaults,
+  Vcl.Graphics;
 
 const
-	APPNAME = 'DRipGrepper';
-	EXTENSION_NAME = 'DRipExtension';
-	CAPTION_EXTENSION_MENU = 'DRipGrepper';
 
-	CAPTION_GRPBX_EXPERT_MODE = 'Expert Settings';
+  APPNAME = 'DRipGrepper';
+  EXTENSION_NAME = 'DRipExtension';
+  CAPTION_EXTENSION_MENU = 'DRipGrepper';
 
-	WWW_LINK_RG_MAN_PAGE = 'https://www.mankier.com/1/rg#Options';
-	WWW_LINK_GLOBBING_HELP = 'https://www.w3schools.com/git/git_ignore.asp'; // https://www.mankier.com/5/gitignore
+  CAPTION_GRPBX_EXPERT_MODE = 'Expert Settings';
 
-	FORMAT_VERSION_INFO = '%s v%d.%d.%d-beta';
-	FORMAT_VERSION_INFO_IN_STATUSBAR = '%s   ';
+  WWW_LINK_RG_MAN_PAGE = 'https://www.mankier.com/1/rg#Options';
+  WWW_LINK_GLOBBING_HELP = 'https://www.w3schools.com/git/git_ignore.asp'; // https://www.mankier.com/5/gitignore
 
-	SHORTCUT_DRIPGREPPER = 'Umsch+Alt+R';
+  FORMAT_VERSION_INFO = '%s v%d.%d.%d-beta';
+  FORMAT_VERSION_INFO_IN_STATUSBAR = '%s   ';
 
-	CR = #13;
-	LF = #10;
-	CRLF = sLineBreak;
-	TAB = #9;
-	SPACE = #32;
-	ESC_CHAR = #$01B;
-	ESC = ESC_CHAR + '\[';
-	DIR_DIVIDER = ';';
+  SHORTCUT_DRIPGREPPER = 'Umsch+Alt+R';
 
-	BUFF_LENGTH = 1024; // Todo: put into settings
+  CR = #13;
+  LF = #10;
+  CRLF = sLineBreak;
+  TAB = #9;
+  SPACE = #32;
+  ESC_CHAR = #$01B;
+  ESC = ESC_CHAR + '\[';
+  DIR_DIVIDER = ';';
 
-	MAX_HISTORY_COUNT = 20;
+  BUFF_LENGTH = 1024; // Todo: put into settings
 
-	DRAW_RESULT_ON_EVERY_LINE_COUNT = 100; // Todo: put into settings
-	DRAW_RESULT_UNTIL_FIRST_LINE_COUNT = 100;
+  MAX_HISTORY_COUNT = 20;
 
-	LISTVIEW_TYPES : TArray<TViewStyle> = [vsList, vsIcon, vsReport, vsSmallIcon];
-	LISTVIEW_TYPE_TEXTS : TArray<string> = ['List', 'Icon', 'Report', 'SmallIcon'];
+  DRAW_RESULT_ON_EVERY_LINE_COUNT = 100; // Todo: put into settings
+  DRAW_RESULT_UNTIL_FIRST_LINE_COUNT = 100;
 
-	IMG_IDX_SHOW_ABS_PATH = 11;
-	IMG_IDX_SHOW_RELATIVE_PATH = 12;
-	IMG_IDX_SHOW_FILE_ICON_TRUE = 5;
-	IMG_IDX_SHOW_FILE_ICON_FALSE = 2;
+  LISTVIEW_TYPES : TArray<TViewStyle> = [vsList, vsIcon, vsReport, vsSmallIcon];
+  LISTVIEW_TYPE_TEXTS : TArray<string> = ['List', 'Icon', 'Report', 'SmallIcon'];
 
-	IMG_IDX_UNSORTED = 3;
-	IMG_IDX_DESCENDING_SORTED = 4;
-	IMG_IDX_ASCENDING_SORTED = 5;
+  IMG_IDX_SHOW_ABS_PATH = 11;
+  IMG_IDX_SHOW_RELATIVE_PATH = 12;
+  IMG_IDX_SHOW_FILE_ICON_TRUE = 5;
+  IMG_IDX_SHOW_FILE_ICON_FALSE = 2;
 
-	PNL_STATTS_IDX = 0;
-	PNL_STATUS_IDX = 1;
-	PNL_MESSAGE_IDX = 2;
+  IMG_IDX_UNSORTED = 3;
+  IMG_IDX_DESCENDING_SORTED = 4;
+  IMG_IDX_ASCENDING_SORTED = 5;
 
-	LV_IMG_IDX_OK = 0;
-	LV_IMG_IDX_ERROR = 1;
-	LV_IMG_IDX_INFO = 2;
+  PNL_STATTS_IDX = 0;
+  PNL_STATUS_IDX = 1;
+  PNL_MESSAGE_IDX = 2;
 
-	DT_ALIGN : array [TAlignment] of TTextFormats = (
-		{ } tfLeft,
-		{ } tfRight,
-		{ } tfCenter);
-	ALL_ALPHANUMERIC_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890';
+  LV_IMG_IDX_OK = 0;
+  LV_IMG_IDX_ERROR = 1;
+  LV_IMG_IDX_INFO = 2;
 
-	RG_PROCESSING_LINE_COUNT_LIMIT = 10000; // Todo: put into settings
+  DT_ALIGN : array [TAlignment] of TTextFormats = (
+      { } tfLeft,
+      { } tfRight,
+      { } tfCenter);
+  ALL_ALPHANUMERIC_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890';
 
-	RG_MATCH_LINE_REGEX = '^(?<drive>\w:)?(?<path>.+?):(?<row>\d+):(?<col>\d+):(?<text>.+)$';
-	RG_MATCH_LINE_CONTEXT_REGEX = '^(?<drive>\w:)?(?<path>.+?)-(?<row>\d+)-(?<text>.*)$';
+  RG_PROCESSING_LINE_COUNT_LIMIT = 10000; // Todo: put into settings
 
-	RG_PRETTY_BLUE = ESC + '0m' + ESC + '36m';
-	RG_PRETTY_GREEN = ESC + '0m' + ESC + '32m';
-	RG_PRETTY_BOLD_RED = ESC + '1m' + ESC + '31m';
-	RG_PRETTY_RESET = ESC + '0m';
+  RG_MATCH_LINE_REGEX = '^(?<drive>\w:)?(?<path>.+?):(?<row>\d+):(?<col>\d+):(?<text>.+)$';
+  RG_MATCH_LINE_CONTEXT_REGEX = '^(?<drive>\w:)?(?<path>.+?)-(?<row>\d+)-(?<text>.*)$';
 
-	RG_MATCH_PRETTY_LINE_REGEX = '^' +
-	{ } RG_PRETTY_BLUE + '(?<drive>\w:)?(?<path>.+?)' +
-	{ } RG_PRETTY_RESET + ':' +
-	{ } RG_PRETTY_GREEN + '(?<row>\d+)' +
-	{ } RG_PRETTY_RESET + ':' +
-	{ } RG_PRETTY_RESET + '(?<col>\d+)' +
-	{ } RG_PRETTY_RESET + ':(?<text_before_match>.+?)?' +
-	{ } RG_PRETTY_RESET + RG_PRETTY_BOLD_RED + '(?<match_text>.+)' +
-	{ } RG_PRETTY_RESET + '(?<text_after_match>.+?)?$';
+  RG_PRETTY_BLUE = ESC + '0m' + ESC + '36m';
+  RG_PRETTY_GREEN = ESC + '0m' + ESC + '32m';
+  RG_PRETTY_BOLD_RED = ESC + '1m' + ESC + '31m';
+  RG_PRETTY_RESET = ESC + '0m';
 
-	RG_MATCH_PRETTY_LINE_CONTEXT_REGEX = '^' +
-	{ } RG_PRETTY_BLUE + '(?<drive>\w:)?(?<path>.+?)' +
-	{ } RG_PRETTY_RESET + '-' +
-	{ } RG_PRETTY_GREEN + '(?<row>\d+)' +
-	{ } RG_PRETTY_RESET + '-' + '(?<text>.*)$';
+  RG_MATCH_PRETTY_LINE_REGEX = '^' +
+  { } RG_PRETTY_BLUE + '(?<drive>\w:)?(?<path>.+?)' +
+  { } RG_PRETTY_RESET + ':' +
+  { } RG_PRETTY_GREEN + '(?<row>\d+)' +
+  { } RG_PRETTY_RESET + ':' +
+  { } RG_PRETTY_RESET + '(?<col>\d+)' +
+  { } RG_PRETTY_RESET + ':(?<text_before_match>.+?)?' +
+  { } RG_PRETTY_RESET + RG_PRETTY_BOLD_RED + '(?<match_text>.+)' +
+  { } RG_PRETTY_RESET + '(?<text_after_match>.+?)?$';
 
-	RG_HELP_LONG_PARAM_REGEX = '(?<long>--[\-a-zA-Z0-9]+)';
-	RG_HELP_LINE_REGEX = '^\s*(?<short>-[a-zA-Z.0-9])?(?<comma>, )?(?<long>--[\-a-zA-Z0-9]+)(?<value>=[\-A-Z]+)?\s*(?<desc>.*)$';
+  RG_MATCH_PRETTY_LINE_CONTEXT_REGEX = '^' +
+  { } RG_PRETTY_BLUE + '(?<drive>\w:)?(?<path>.+?)' +
+  { } RG_PRETTY_RESET + '-' +
+  { } RG_PRETTY_GREEN + '(?<row>\d+)' +
+  { } RG_PRETTY_RESET + '-' + '(?<text>.*)$';
 
-	RG_CONTEXT_SEPARATOR = '--';
+  RG_HELP_LONG_PARAM_REGEX = '(?<long>--[\-a-zA-Z0-9]+)';
+  RG_HELP_LINE_REGEX = '^\s*(?<short>-[a-zA-Z.0-9])?(?<comma>, )?(?<long>--[\-a-zA-Z0-9]+)(?<value>=[\-A-Z]+)?\s*(?<desc>.*)$';
 
-	RG_ARG_SEARCH_PATH = 'SearchPath';
-	RG_ARG_SEARCH_TEXT = 'SearchText';
-	RG_ARG_OPTIONS = 'Options';
+  RG_CONTEXT_SEPARATOR = '--';
 
-	RG_INI_KEY_RGPATH = 'Path';
+  RG_ARG_SEARCH_PATH = 'SearchPath';
+  RG_ARG_SEARCH_TEXT = 'SearchText';
+  RG_ARG_OPTIONS = 'Options';
 
-	WB = '\b'; // word boundary
+  RG_INI_KEY_RGPATH = 'Path';
 
-	RG_PARAM_REGEX_IGNORE_CASE = '-i|--ignore-case';
-	RG_PARAM_REGEX_CASE_SENSITIVE = '-s|--case-sensitive';
-	RG_PARAM_REGEX_FIXED_STRINGS = '-F|--fixed-strings';
-	RG_PARAM_REGEX_WORD_REGEX = '-w|--word-regexp';
-	RG_PARAM_REGEX_GLOB = '-g|--glob';
-	RG_PARAM_REGEX_HIDDEN = '-\.|--hidden';
-	RG_PARAM_REGEX_NO_IGNORE = '-u|--no-ignore';
-	RG_PARAM_REGEX_PRETTY = '-p|--pretty';
-	RG_PARAM_REGEX_CONTEXT = '-C|--context';
-	RG_PARAM_END = '--';
+  WB = '\b'; // word boundary
 
-	RG_GUI_SET_PARAMS : TArray<string> = [
-    { } RG_PARAM_REGEX_IGNORE_CASE,
-	{ } RG_PARAM_REGEX_CASE_SENSITIVE,
-	{ } RG_PARAM_REGEX_FIXED_STRINGS,
-	{ } RG_PARAM_REGEX_GLOB,
-	{ } RG_PARAM_REGEX_HIDDEN,
-	{ } RG_PARAM_REGEX_NO_IGNORE,
-	{ } RG_PARAM_REGEX_PRETTY,
-	{ } RG_PARAM_REGEX_CONTEXT,
-	{ } RG_PARAM_END
-	{ } ];
+  RG_PARAM_REGEX_IGNORE_CASE = '-i|--ignore-case';
+  RG_PARAM_REGEX_CASE_SENSITIVE = '-s|--case-sensitive';
+  RG_PARAM_REGEX_FIXED_STRINGS = '-F|--fixed-strings';
+  RG_PARAM_REGEX_WORD_REGEX = '-w|--word-regexp';
+  RG_PARAM_REGEX_GLOB = '-g|--glob';
+  RG_PARAM_REGEX_HIDDEN = '-\.|--hidden';
+  RG_PARAM_REGEX_NO_IGNORE = '-u|--no-ignore';
+  RG_PARAM_REGEX_PRETTY = '-p|--pretty';
+  RG_PARAM_REGEX_CONTEXT = '-C|--context';
+  RG_PARAM_END = '--';
 
-	RG_NECESSARY_PARAMS : TArray<string> = [
-	{ } '--vimgrep',
-	{ } '--line-buffered', // some big search couldn't be catched without this
-	{ } // '--pretty',
-	{ } '--no-ignore-parent',
-	{ } '--follow',
-	{ } '--crlf'];
+  RG_GUI_SET_PARAMS : TArray<string> = [
+  { } RG_PARAM_REGEX_IGNORE_CASE,
+  { } RG_PARAM_REGEX_CASE_SENSITIVE,
+  { } RG_PARAM_REGEX_FIXED_STRINGS,
+  { } RG_PARAM_REGEX_GLOB,
+  { } RG_PARAM_REGEX_HIDDEN,
+  { } RG_PARAM_REGEX_NO_IGNORE,
+  { } RG_PARAM_REGEX_PRETTY,
+  { } RG_PARAM_REGEX_CONTEXT,
+  { } RG_PARAM_END
+  { } ];
 
-	RG_PARAM_SHORT_INDEX = 0;
-	RG_PARAM_LONG_INDEX = 1;
+  RG_NECESSARY_PARAMS : TArray<string> = [
+  { } '--vimgrep',
+  { } '--line-buffered', // some big search couldn't be catched without this
+  { } // '--pretty',
+  { } '--no-ignore-parent',
+  { } '--follow',
+  { } '--crlf'];
 
-	RG_ERROR = 2;
-	RG_NO_MATCH = 1;
-	RG_SUCCESS = 0;
+  RG_PARAM_SHORT_INDEX = 0;
+  RG_PARAM_LONG_INDEX = 1;
 
-	RG_ERROR_MSG_PREFIX = 'rg:';
-	IMAGERES_DLL_ICON_IDX_ERROR = 93;
-	RG_PARSE_ERROR = 'not parsed output';
-	RG_ENDED_ERROR = ' failed with exit code: ';
-	RG_HAS_NO_OUTUT = ' has no output.';
+  RG_ERROR = 2;
+  RG_NO_MATCH = 1;
+  RG_SUCCESS = 0;
+
+  RG_ERROR_MSG_PREFIX = 'rg:';
+  IMAGERES_DLL_ICON_IDX_ERROR = 93;
+  RG_PARSE_ERROR = 'not parsed output';
+  RG_ENDED_ERROR = ' failed with exit code: ';
+  RG_HAS_NO_OUTUT = ' has no output.';
+
+  EXT_SEARCH_GIVEN_PATH = 2;
+  EXT_SEARCH_PROJECT_FILES = 1;
+  EXT_SEARCH_ACTIVE_FILE = 0;
 
 type
 
-	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
-	TFileNameType = (ftAbsolute, ftRelative);
-	EColumnIndex = (ciFile, ciRow, ciCol, ciText, ciMatchText, ciTextAfterMatch, ciRowNr);
-	TRipGrepArguments = TStringList;
+  TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
+  TFileNameType = (ftAbsolute, ftRelative);
+  EColumnIndex = (ciFile, ciRow, ciCol, ciText, ciMatchText, ciTextAfterMatch, ciRowNr);
+  TRipGrepArguments = TStringList;
 
-	{$SCOPEDENUMS ON}
-	EGuiOption = (soNotSet = 0, soMatchCase = 1, soMatchWord = 2, soUseRegex = 3);
-	{$SCOPEDENUMS OFF}
+  {$SCOPEDENUMS ON}
+  EGuiOption = (soNotSet = 0, soMatchCase = 1, soMatchWord = 2, soUseRegex = 3);
+  {$SCOPEDENUMS OFF}
 
 const
-	GUI_SEARCH_PARAMS : TArray<EGuiOption> = [
-	{ } EGuiOption.soMatchCase,
-	{ } EGuiOption.soMatchWord,
-	{ } EGuiOption.soUseRegex];
+  GUI_SEARCH_PARAMS : TArray<EGuiOption> = [
+  { } EGuiOption.soMatchCase,
+  { } EGuiOption.soMatchWord,
+  { } EGuiOption.soUseRegex];
 
 implementation
 
 uses
-	System.SysUtils;
+  System.SysUtils;
 
 end.
