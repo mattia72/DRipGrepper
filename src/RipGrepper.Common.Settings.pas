@@ -422,8 +422,18 @@ end;
 
 procedure TRipGrepperSettings.StoreHistoryEntries(const _list : TStrings; const _section : string);
 begin
+	var
+	multiLineVal := TStringList.Create;
+	try
   for var i := _list.Count - 1 downto 0 do begin
-    FIniFile.WriteString(_section, 'Item_' + i.ToString, _list[i]);
+			if not _list[i].IsEmpty then begin
+			multiLineVal.Clear;
+			multiLineVal.Text := _list[i];
+			FIniFile.WriteString(_section, 'Item_' + i.ToString, multilineVal[0]);
+			end;
+		end;
+	finally
+		multilineVal.Free;
   end;
 end;
 
