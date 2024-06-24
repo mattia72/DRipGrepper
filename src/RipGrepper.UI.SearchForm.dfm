@@ -552,15 +552,18 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object rbExtensionOptions: TRadioGroup
         Left = 2
-        Top = 17
+        Top = 14
         Width = 552
-        Height = 66
+        Height = 69
         Align = alBottom
+        Caption = 'IDE Context:'
         Items.Strings = (
           'Current file'
           'Files in project'
-          'Other')
+          'Other:')
+        ParentShowHint = False
         ShowFrame = False
+        ShowHint = True
         TabOrder = 0
         OnClick = rbExtensionOptionsClick
       end

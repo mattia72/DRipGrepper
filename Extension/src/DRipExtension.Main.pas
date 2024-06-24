@@ -68,7 +68,6 @@ end;
 
 procedure TDRipExtension.CreateMenu;
 var
-	mainMenu : TMainMenu;
 	Item : TMenuItem;
 	iPos : integer;
 	sc : TShortCut;

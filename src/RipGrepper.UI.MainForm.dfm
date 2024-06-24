@@ -176,7 +176,11 @@ object RipGrepperForm: TRipGrepperForm
     inherited TopFrame: TRipGrepperTopFrame
       Width = 645
       inherited tbarConfig: TToolBar
-        Left = 617
+        Left = 609
+        TabOrder = 2
+      end
+      inherited tbarSearch: TToolBar
+        TabOrder = 0
       end
     end
     inherited BottomFrame: TRipGrepperBottomFrame
@@ -184,6 +188,9 @@ object RipGrepperForm: TRipGrepperForm
       Width = 645
       inherited pnlBottom: TPanel
         Width = 645
+        inherited StatusBar1: TStatusBar
+          Width = 639
+        end
       end
     end
   end

@@ -248,14 +248,14 @@ var
 	val : string;
 begin
 	val := _cmb.Text;
-	if not _cmb.Items.Contains(val) then begin
-		_cmb.Items.Insert(0, val);
-	end else begin
-		idxval := _cmb.Items.IndexOf(val);
-		_cmb.Items.Delete(idxval);
-		_cmb.Items.Insert(0, val);
-		_cmb.ItemIndex := 0;
-	end;
+		if not _cmb.Items.Contains(val) then begin
+			_cmb.Items.Insert(0, val);
+		end else begin
+			idxval := _cmb.Items.IndexOf(val);
+			_cmb.Items.Delete(idxval);
+			_cmb.Items.Insert(0, val);
+			_cmb.ItemIndex := 0;
+		end;
 end;
 
 class function TItemInserter.AddToListBoxIfNotContains(_lb : TListBox; const _s : string; _val : TObject) : Integer;

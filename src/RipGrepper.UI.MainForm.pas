@@ -4,7 +4,6 @@ interface
 
 uses
 
-	// Winapi.Messages,
 	System.Variants,
 	System.Classes,
 	Vcl.Graphics,
@@ -13,9 +12,7 @@ uses
 	Vcl.StdCtrls,
 	Vcl.ComCtrls,
 	Vcl.ExtCtrls,
-	// System.ImageList,
 	Vcl.ImgList,
-	// System.Actions,
 	Vcl.ActnList,
 	Vcl.ToolWin,
 	Vcl.Menus,
