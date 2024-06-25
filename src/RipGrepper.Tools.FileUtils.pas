@@ -8,11 +8,12 @@ uses
 type
 	TFileUtils = class(TObject)
 		private
-			class function GetModuleVersion(Instance : THandle; out iMajor, iMinor, iRelease, iBuild : Integer) : Boolean;
-
+			class function GetModuleVersion(Instance : THandle; out iMajor, iMinor,
+				iRelease, iBuild : Integer): Boolean;
 		public
 			class function FindExecutable(sFileName : string; out sOutpuPath : string) : Boolean;
 			class function GetAppNameAndVersion(const _exePath : string) : string;
+			class function GetAppVersion(const _exePath : string): string;
 			class function GetPackageNameAndVersion(Package : HMODULE) : string;
 	end;
 
@@ -67,10 +68,22 @@ begin
 
 	GetModuleVersion(0, imajor, iminor, irelease, ibuild);
 	name := TPath.GetFileNameWithoutExtension(_exePath);
-	Result := Format(FORMAT_VERSION_INFO, [name, imajor, iminor, irelease]);
+	Result := Format(FORMAT_NAME_VERSION_INFO, [name, imajor, iminor, irelease]);
 end;
 
-class function TFileUtils.GetModuleVersion(Instance : THandle; out iMajor, iMinor, iRelease, iBuild : Integer) : Boolean;
+class function TFileUtils.GetAppVersion(const _exePath : string): string;
+var
+	imajor : integer;
+	iminor : integer;
+	irelease : integer;
+	ibuild : integer;
+begin
+	GetModuleVersion(0, imajor, iminor, irelease, ibuild);
+	Result := Format(FORMAT_VERSION_INFO, [imajor, iminor, irelease]);
+end;
+
+class function TFileUtils.GetModuleVersion(Instance : THandle; out iMajor,
+	iMinor, iRelease, iBuild : Integer): Boolean;
 var
 	fileInformation : PVSFIXEDFILEINFO;
 	verlen : Cardinal;

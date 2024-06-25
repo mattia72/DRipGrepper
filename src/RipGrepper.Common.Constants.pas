@@ -20,7 +20,8 @@ const
   WWW_LINK_RG_MAN_PAGE = 'https://www.mankier.com/1/rg#Options';
   WWW_LINK_GLOBBING_HELP = 'https://www.w3schools.com/git/git_ignore.asp'; // https://www.mankier.com/5/gitignore
 
-  FORMAT_VERSION_INFO = '%s v%d.%d.%d-beta';
+  FORMAT_VERSION_INFO = 'v%d.%d.%d-beta';
+  FORMAT_NAME_VERSION_INFO = '%s ' + FORMAT_VERSION_INFO;
   FORMAT_VERSION_INFO_IN_STATUSBAR = '%s   ';
 
   SHORTCUT_DRIPGREPPER = 'Umsch+Alt+R';

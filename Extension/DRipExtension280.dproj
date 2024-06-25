@@ -124,6 +124,14 @@
         <DCCReference Include="src\DRipExtension.Main.pas"/>
         <DCCReference Include="..\src\RipGrepper.Common.IOTAUtils.pas"/>
         <DCCReference Include="src\DripExtension.UI.DockableForm.pas"/>
+        <RcItem Include="Resources\about_icon.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>about_icon</ResourceId>
+        </RcItem>
+        <RcItem Include="Resources\splash_icon.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>splash_icon</ResourceId>
+        </RcItem>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

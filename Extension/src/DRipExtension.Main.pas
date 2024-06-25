@@ -23,6 +23,10 @@ type
 			procedure CreateMenu;
 			procedure DoDripGrepperMenuClick(Sender : TObject);
 			procedure InitKeyboardNotifier;
+			// **********************************************************************************************************************
+			// Plugin-Infos hinzufügen ( werden beim Start der IDE  und im About-Dialog angezeigt )
+			// **********************************************************************************************************************
+			procedure InitPluginInfo;
 			procedure RegisterKeyboardBinding;
 			procedure RemoveExtensionMenu;
 			procedure ShowDripGrepperForm;
@@ -49,13 +53,15 @@ uses
 	System.SysUtils,
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.Settings,
+	RipGrepper.Tools.FileUtils,
 	System.IniFiles,
 	RipGrepper.Common.IOTAUtils,
 	System.IOUtils,
 	Vcl.Menus,
 	Vcl.Graphics,
 	RipGrepper.Tools.DebugUtils,
-	System.Classes;
+	System.Classes,
+	Winapi.Windows;
 
 var
 	G_DripMenu : TMenuItem;
@@ -102,6 +108,7 @@ constructor TDRipExtension.Create;
 begin
 	inherited;
 	TDebugUtils.DebugMessage('TDRipExtension.Create');
+	InitPluginInfo;
 	TRipGrepperDockableForm.CreateInstance; // saved layout loading ...
 	G_DRipExtension := self;
 	CreateMenu;
@@ -161,6 +168,29 @@ begin
 		// FKeyNotifier := TAGExpertKeyboardNotifier.Create;
 		// FKeyNotifier.OnShortCut := DoShortCut;
 	end;
+end;
+
+// **********************************************************************************************************************
+// Plugin-Infos hinzufügen ( werden beim Start der IDE  und im About-Dialog angezeigt )
+// **********************************************************************************************************************
+procedure TDRipExtension.InitPluginInfo;
+var
+	aBitmap : HBITMAP;
+	aFileName : array [0 .. MAX_PATH] of char;
+	dFileAge : TDateTime;
+	aVersion : string;
+	sExeVersion : string;
+begin
+	aBitmap := LoadBitmap(hInstance, 'splash_icon');
+	GetModuleFileName(hInstance, aFileName, MAX_PATH);
+	System.SysUtils.FileAge(aFileName, dFileAge);
+	aVersion := FormatDateTime(' dd.mm.yy - h:nn', dFileAge);
+	sExeVersion := TFileUtils.GetAppVersion(aFileName);
+	(SplashScreenServices as IOTASplashScreenServices).AddPluginBitmap(EXTENSION_NAME, aBitmap, False, aVersion, sExeVersion);
+
+	// aBitmap := LoadBitmap(hInstance, 'ABOUT_ICON');
+	// fPluginIndexAbout := (BorlandIDEServices as IOTAAboutBoxServices).AddPluginInfo(EXTENSION_NAME, cAGExpertDesc, aBitmap, False, aVersion,
+	// cAGExpertVersion);
 end;
 
 procedure TDRipExtension.RegisterKeyboardBinding;
