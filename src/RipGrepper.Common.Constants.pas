@@ -14,6 +14,7 @@ const
   APPNAME = 'DRipGrepper';
   EXTENSION_NAME = 'DRipExtension';
   CAPTION_EXTENSION_MENU = 'DRipGrepper';
+  HOME_PAGE = 'https://github.com/mattia72/DRipGrepper';
 
   CAPTION_GRPBX_EXPERT_MODE = 'Expert Settings';
 

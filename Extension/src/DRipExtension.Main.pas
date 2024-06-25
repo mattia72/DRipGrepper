@@ -20,15 +20,17 @@ type
 			FKeyBinding : integer;
 
 			FDockableForm : TRipGrepperDockableForm;
+			FiPluginIndexAbout: Integer;
 			procedure CreateMenu;
 			procedure DoDripGrepperMenuClick(Sender : TObject);
 			procedure InitKeyboardNotifier;
-			// **********************************************************************************************************************
-			// Plugin-Infos hinzufügen ( werden beim Start der IDE  und im About-Dialog angezeigt )
-			// **********************************************************************************************************************
 			procedure InitPluginInfo;
 			procedure RegisterKeyboardBinding;
 			procedure RemoveExtensionMenu;
+// **********************************************************************************************************************
+// Plugin-Infos entfernen
+// **********************************************************************************************************************
+			procedure RemovePluginInfo;
 			procedure ShowDripGrepperForm;
 			procedure UnregisterKeyboardBinding;
 
@@ -117,7 +119,7 @@ end;
 destructor TDRipExtension.Destroy;
 begin
 	TDebugUtils.DebugMessage('TDRipExtension.Destroy');
-
+    RemovePluginInfo;
 	TDebugUtils.DebugMessage('TDRipExtension.Destroy FDockableForm.Free');
 	FDockableForm.Free;
 	TDebugUtils.DebugMessage('TDRipExtension.Destroy G_DripMenu.Free');
@@ -134,7 +136,7 @@ end;
 // IOTAWizard
 procedure TDRipExtension.Execute;
 begin
-	ShowMessage('https://github.com/mattia72/DRipGrepper');
+	ShowMessage(EXTENSION_NAME + CRLF + HOME_PAGE);
 end;
 
 // IOTAWizard
@@ -188,9 +190,9 @@ begin
 	sExeVersion := TFileUtils.GetAppVersion(aFileName);
 	(SplashScreenServices as IOTASplashScreenServices).AddPluginBitmap(EXTENSION_NAME, aBitmap, False, aVersion, sExeVersion);
 
-	// aBitmap := LoadBitmap(hInstance, 'ABOUT_ICON');
-	// fPluginIndexAbout := (BorlandIDEServices as IOTAAboutBoxServices).AddPluginInfo(EXTENSION_NAME, cAGExpertDesc, aBitmap, False, aVersion,
-	// cAGExpertVersion);
+	aBitmap := LoadBitmap(hInstance, 'about_icon');
+	 FiPluginIndexAbout := (BorlandIDEServices as IOTAAboutBoxServices).AddPluginInfo(EXTENSION_NAME, EXTENSION_NAME + CRLF + HOME_PAGE, aBitmap, False, aVersion,
+	 sExeVersion);
 end;
 
 procedure TDRipExtension.RegisterKeyboardBinding;
@@ -224,6 +226,12 @@ begin
 		end;
 	end;
 
+end;
+
+procedure TDRipExtension.RemovePluginInfo;
+begin
+	if FiPluginIndexAbout > 0 then
+		(BorlandIDEServices as IOTAAboutBoxServices).RemovePluginInfo(FiPluginIndexAbout);
 end;
 
 procedure TDRipExtension.ShowDripGrepperForm;

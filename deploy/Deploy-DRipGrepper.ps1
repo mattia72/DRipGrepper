@@ -10,7 +10,8 @@ $global:Description = @"
 ## :rocket: Improvements (marked with :white_check_mark:, if ready)
 
 ### :droplet: Extension
-- [x] splash screen on start of IDE
+- [x] icon on splash screen at start of the IDE
+- [x] icon in about box of the IDE
 
 ### :mag: Search Dialog
 - [x] extension: search current file
