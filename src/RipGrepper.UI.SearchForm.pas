@@ -133,7 +133,8 @@ type
 			function IsOptionSet(const _sParamRegex : string; const _sParamValue : string = '') : Boolean;
 			procedure ProcessControl(_ctrl : TControl; _imgList : TImageList);
 			procedure RemoveNecessaryOptionsFromCmbOptionsText;
-			procedure SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings);
+			procedure SetComboItemsAndText(_cmb: TComboBox; const _argName: string; const
+				_items: TStrings; const _separator: string = ' ');
 			procedure SetComboItemsFromOptions(_cmb : TComboBox; const _argMaskRegex : string; const _items : TStrings);
 			procedure UpdateCmbOptionsAndMemoCommandLine;
 			procedure StoreHistoriesAsCmbEntries;
@@ -513,11 +514,13 @@ begin
 		{ } FGuiSetSearchParams.RgOptions, string.Join('|', RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS));
 end;
 
-procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings);
+procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb: TComboBox;
+	const _argName: string; const _items: TStrings; const _separator: string =
+	' ');
 begin
 	_cmb.Items.Assign(_items);
 	if HasHistItemObj then begin
-		_cmb.Text := string.Join(' ', FHistItemObj.RipGrepArguments.GetValues(_argName));
+		_cmb.Text := string.Join(_separator, FHistItemObj.RipGrepArguments.GetValues(_argName));
 	end else begin
 		_cmb.ItemIndex := 0;
 	end;
@@ -779,11 +782,11 @@ begin
 		end;
 		EXT_SEARCH_PROJECT_FILES : begin
 			cmbSearchDir.Enabled := False;
-			cmbSearchDir.Text := string.Join(DIR_DIVIDER, rgec.ProjectFiles).Trim([DIR_DIVIDER]);
+			cmbSearchDir.Text := string.Join(SEARCH_PATH_SEPARATOR, rgec.ProjectFiles).Trim([SEARCH_PATH_SEPARATOR]);
 		end;
 		EXT_SEARCH_GIVEN_PATH : begin
 			cmbSearchDir.Enabled := True;
-			SetComboItemsAndText(cmbSearchDir, RG_ARG_SEARCH_PATH, FSettings.SearchPathsHistory);
+			SetComboItemsAndText(cmbSearchDir, RG_ARG_SEARCH_PATH, FSettings.SearchPathsHistory, SEARCH_PATH_SEPARATOR);
 		end;
 	end;
 	rgec.Context := ERipGrepperExtensionContext(rbExtensionOptions.ItemIndex);

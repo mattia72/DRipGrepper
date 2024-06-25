@@ -32,7 +32,7 @@ const
   SPACE = #32;
   ESC_CHAR = #$01B;
   ESC = ESC_CHAR + '\[';
-  DIR_DIVIDER = ';';
+  SEARCH_PATH_SEPARATOR = ';';
 
   BUFF_LENGTH = 1024; // Todo: put into settings
 

@@ -155,7 +155,7 @@ begin
 	AddArgs(_params, RG_ARG_OPTIONS, arrRgOptions);
 	AddArgs(_params, RG_ARG_SEARCH_TEXT, [_params.GuiSetSearchParams.SearchText]); // order is important!
 
-	for var s in _params.SearchPath.Split([DIR_DIVIDER]) do begin
+	for var s in _params.SearchPath.Split([SEARCH_PATH_SEPARATOR]) do begin
 		if not IOTAUtils.IsStandAlone then begin
 			if (FileExists(s) or DirectoryExists(s)) then begin
 				arrPaths.Add(s);
