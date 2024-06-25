@@ -26,6 +26,16 @@ type
 			function IndexOfFirstMatch(const _sRegEx : string) : Integer;
 	end;
 
+	TMultiLineString = type string;
+
+	TMultiLineStringHelper = record Helper for TMultiLineString
+
+		public
+			function GetLine(const _lineNum : Integer) : string;
+			function GetLineCount: Integer;
+			function IsMultiLine : Boolean;
+	end;
+
 	TBitField = record
 		Value : integer;
 
@@ -51,7 +61,9 @@ implementation
 
 uses
 	System.SysUtils,
-	System.RegularExpressions;
+	System.RegularExpressions,
+	System.StrUtils,
+	RipGrepper.Common.Constants;
 
 function PostInc(var Value : Integer) : Integer;
 begin
@@ -108,7 +120,7 @@ begin
 			break;
 		self.Delete(iFoundIdx);
 		Inc(Result);
- 	until False;
+	until False;
 end;
 
 function TStringsHelper.GetValues(_sName : string = '') : TArray<string>;
@@ -234,6 +246,37 @@ end;
 class operator TBitField.Initialize(out Dest : TBitField);
 begin
 	Dest.Value := 0;
+end;
+
+function TMultiLineStringHelper.GetLine(const _lineNum : Integer) : string;
+var
+	strList : TStringList;
+begin
+	strList := TStringList.Create();
+	try
+		strList.Text := string(self);
+		Result := strList[_lineNum];
+	finally
+		strList.Free;
+	end;
+end;
+
+function TMultiLineStringHelper.GetLineCount: Integer;
+var
+	strList : TStringList;
+begin
+	strList := TStringList.Create();
+	try
+		strList.Text := string(self);
+		Result := strList.Count;
+	finally
+		strList.Free;
+	end;
+end;
+
+function TMultiLineStringHelper.IsMultiLine : Boolean;
+begin
+	Result := string(self).IndexOf(CRLF) <> -1;
 end;
 
 end.

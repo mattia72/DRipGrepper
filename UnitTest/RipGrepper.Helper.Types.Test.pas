@@ -45,13 +45,27 @@ type
 			procedure TestBitSetValue2;
 	end;
 
+	[TestFixture]
+	TMultiLineStringTest = class
+
+		public
+			[Test]
+			procedure TestIsMultiLine;
+			[Test]
+			procedure TestGetLine;
+			[Test]
+			procedure TestGetLineCount;
+	end;
+
 implementation
 
 uses
 	RipGrepper.Helper.Types,
 	System.StrUtils,
 	System.SysUtils,
-	System.Math, ArrayEx;
+	System.Math,
+	ArrayEx,
+	RipGrepper.Common.Constants;
 
 procedure TStringsHelperTest.Setup;
 begin
@@ -93,14 +107,14 @@ begin
 	end;
 
 	for var i : integer := 0 to 10 do begin
-		 if 0= i mod 2 then begin
-			 arr.Add(i.ToString);
-         end;
+		if 0 = i mod 2 then begin
+			arr.Add(i.ToString);
+		end;
 	end;
 
 	FStrings.DeleteAll(arr);
 
-	Assert.AreEqual(-1 , FStrings.IndexOfAny(arr), 'arr shouldn''t contained by the list');
+	Assert.AreEqual(-1, FStrings.IndexOfAny(arr), 'arr shouldn''t contained by the list');
 
 end;
 
@@ -163,6 +177,38 @@ begin
 	bf.SetBit(2);
 	Assert.IsTrue(bf.IsEqual([1, 0, 1, 0]), '');
 	Assert.IsTrue(bf.IsEqual([1, 8, 1, 8]), '');
+end;
+
+procedure TMultiLineStringTest.TestIsMultiLine;
+begin
+	var
+		str : TMultiLineString := 'one liner';
+	Assert.IsFalse(str.IsMultiLine(), '"' + str + '" should not be multiline');
+
+	str := 'one line' + CRLF + 'two line';
+	Assert.IsTrue(str.IsMultiLine(), '"' + str + '" should be multiline');
+end;
+
+procedure TMultiLineStringTest.TestGetLine;
+begin
+	var
+		str : TMultiLineString := 'one liner';
+	Assert.AreEqual(str.GetLine(0), string(str), '"' + str + '" first line should equal itself');
+
+	str := 'one line' + CRLF + 'two line';
+	Assert.AreEqual(str.GetLine(0), 'one line', '"' + str + '" first line should equal first line');
+	Assert.AreEqual(str.GetLine(1), 'two line', '"' + str + '" second line should equal second line');
+
+end;
+
+procedure TMultiLineStringTest.TestGetLineCount;
+begin
+	var
+		str : TMultiLineString := 'one liner';
+	Assert.AreEqual(str.GetLineCount(), 1, '"' + str + '" line count should be 1');
+
+	str := 'one line' + CRLF + 'two line';
+	Assert.AreEqual(str.GetLineCount(), 2 , '"' + str + '" line count should be 2');
 end;
 
 initialization

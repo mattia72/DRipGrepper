@@ -29,7 +29,8 @@ uses
 	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Common.Settings.RipGrepParameterSettings,
 	RipGrepper.Data.HistoryItemObject,
-	Vcl.Samples.Spin;
+	Vcl.Samples.Spin,
+	RipGrepper.Helper.Types;
 
 type
 	TRipGrepperSearchDialogForm = class(TForm)
@@ -141,6 +142,7 @@ type
 			procedure UpdateCheckBoxesByRgOptions;
 			procedure UpdateCheckBoxesBySettings;
 			procedure AlignExpertGroupBox;
+			function CheckAndCorrectMultiLine(const _str : TMultiLineString) : string;
 			function HasHistItemObj : Boolean;
 			function GetInIDESelectedText : string;
 			procedure LoadExtensionSearchSettings;
@@ -169,7 +171,7 @@ uses
 	RipGrepper.Tools.ProcessUtils,
 	System.UITypes,
 	RipGrepper.UI.RipGrepOptionsForm,
-	RipGrepper.Helper.Types,
+
 	System.SysUtils,
 	System.RegularExpressions,
 	System.Math,
@@ -478,12 +480,8 @@ end;
 
 procedure TRipGrepperSearchDialogForm.cmbSearchTextChange(Sender : TObject);
 begin
-	if (string(cmbSearchText.Text).IndexOf(CRLF) = -1) then begin
-		UpdateCtrls(cmbSearchText);
-	end else begin
-		MessageDlg('Multiline string not supported.', TMsgDlgType.mtError, [mbOk], 0);
-		// Save in ini not implemented for multiline strings
-	end;
+	cmbSearchText.Text := CheckAndCorrectMultiLine(cmbSearchText.Text);
+	UpdateCtrls(cmbSearchText);
 end;
 
 procedure TRipGrepperSearchDialogForm.ToggleExpertMode;
@@ -695,6 +693,16 @@ begin
 	end;
 end;
 
+function TRipGrepperSearchDialogForm.CheckAndCorrectMultiLine(const _str : TMultiLineString) : string;
+begin
+	Result := '';
+	if (_str.IsMultiLine) then begin
+		MessageDlg('Multiline string not supported.' + CRLF + 'Only first line will be searched.', TMsgDlgType.mtWarning, [mbOk], 0);
+		// Save in ini not implemented for multiline strings
+	end;
+	Result := _str.GetLine(0);
+end;
+
 function TRipGrepperSearchDialogForm.HasHistItemObj : Boolean;
 begin
 	Result := Assigned(FHistItemObj);
@@ -718,11 +726,13 @@ end;
 
 function TRipGrepperSearchDialogForm.GetInIDESelectedText : string;
 var
-	selectedText : string;
+	selectedText : TMultiLineString;
 begin
-	IOTAUtils.GxOtaGetActiveEditorTextAsString(selectedText, True);
+	IOTAUtils.GxOtaGetActiveEditorTextAsMultilineString(selectedText, True);
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.GetInIDESelectedText: ' + selectedText);
-	Result := selectedText.Trim();
+
+	selectedText := string(selectedText).Trim();
+	Result := CheckAndCorrectMultiLine(selectedText);
 end;
 
 procedure TRipGrepperSearchDialogForm.LoadExtensionSearchSettings;
