@@ -9,13 +9,18 @@ $global:PrevVersion = "v2.7.0-beta"
 $global:Description = @"
 ## :rocket: Improvements (marked with :white_check_mark:, if ready)
 
+### :droplet: Extension
+- [x] splash screen on start of IDE
+
 ### :mag: Search Dialog
 - [x] extension: search current file
 - [?] extension: search projekt files
+- [x] prevent multiline text search 
 - [ ] invert match
 
 ## :warning: Bugs (marked with :white_check_mark:, if fixed)
 - [ ] dummy text in additional options, can't be deleted from command line
+- [ ] what if too much projekt file are listed?
 - [x] first open of search form doesn't update command line
 - [x] the default search is case-sensitive; however, it is not set as rg parameter
 - [x] extension: toolbar doesn't show all buttons
