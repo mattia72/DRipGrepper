@@ -111,8 +111,9 @@ begin
 	if RipGrepPath.IsEmpty or (not FileExists(RipGrepPath)) then begin
 		rgExists := TFileUtils.FindExecutable('rg.exe', rgPath);
 		if not rgExists then begin
-			MessageDlg('rg.exe not found', mtError, [mbOk], 0);
-			Application.Terminate();
+			MessageDlg('RipGrep executable (rg.exe) not found.' + CRLF + 'Check settings in ' + CRLF + FIniFile.FileName + CRLF +
+				' or your PATH', mtError, [mbOk], 0);
+			// raise Exception.Create('RipGrep(rg.exe) not found');
 		end;
 		scoopInstall := TPath.Combine(GetEnvironmentVariable('SCOOP'), 'apps\ripgrep\current\rg.exe');
 		if FileExists(scoopInstall) then begin
@@ -170,7 +171,7 @@ end;
 procedure TRipGrepParameterSettings.Store;
 begin
 	StoreSetting(RG_INI_KEY_RGPATH, RipGrepPath);
-    inherited Store; //Write to ini
+	inherited Store; // Write to ini
 end;
 
 end.
