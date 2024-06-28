@@ -13,7 +13,7 @@ param (
 # - Commit and push all changes
 # - Run this script
 
-$global:Description = Get-Content "$PSScriptRoot\Deploy-Description.md"
+$global:Description = $(Get-Content "$PSScriptRoot\Deploy-Description.md" | Out-String)
 $global:Version = ($global:Description | Select-String '^Version:') -replace 'Version:\s*'
 $global:PrevVersion = ($global:Description | Select-String '^PrevVersion:' ) -replace 'PrevVersion:\s*'
 
