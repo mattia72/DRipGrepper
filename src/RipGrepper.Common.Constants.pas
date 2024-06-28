@@ -152,9 +152,10 @@ const
   RG_ENDED_ERROR = ' failed with exit code: ';
   RG_HAS_NO_OUTUT = ' has no output.';
 
-  EXT_SEARCH_GIVEN_PATH = 2;
-  EXT_SEARCH_PROJECT_FILES = 1;
   EXT_SEARCH_ACTIVE_FILE = 0;
+  EXT_SEARCH_PROJECT_FILES = 1;
+  EXT_SEARCH_OPEN_PROJECT_FILES = 2;
+  EXT_SEARCH_GIVEN_PATH = 3;
 
 type
 

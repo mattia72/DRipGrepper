@@ -16,6 +16,8 @@ $global:Description = @"
 ### :mag: Search Dialog
 - [x] extension: search current file
 - [?] extension: search projekt files
+    - [ ] too large project fails
+- [?] extension: search open projekt files
 - [x] prevent multiline text search 
 - [ ] invert match
 
@@ -75,7 +77,7 @@ function Test-YesAnswer {
 }
 function Build-StandaloneRelease {
     # copy scripts
-    Import-Module -Name PSDelphi
+    Import-Module -Name PSDelphi -Force
     $parentPath = Split-Path -Parent $PSScriptRoot 
     $result = $null
     Build-DelphiProject -ProjectPath $parentPath\DRipGrepper.dproj -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result)
@@ -86,7 +88,7 @@ function Build-StandaloneRelease {
 
 function Build-AndRunUnittest {
     # copy scripts
-    Import-Module -Name PSDelphi
+    Import-Module -Name PSDelphi -Force
     $parentPath = Split-Path -Parent $PSScriptRoot 
     $unittestPath = Join-Path $parentPath "UnitTest"
     $result = $null
@@ -114,7 +116,7 @@ function Build-AndRunUnittest {
 
 function Build-ExtensionRelease {
     # copy scripts
-    Import-Module -Name PSDelphi
+    Import-Module -Name PSDelphi -Force
     $parentPath = Split-Path -Parent $PSScriptRoot 
     $extensionPath = Join-Path $parentPath "Extension"
     $result = $null

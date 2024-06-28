@@ -172,27 +172,25 @@ begin
 	end;
 end;
 
-// **********************************************************************************************************************
-// Plugin-Infos hinzufügen ( werden beim Start der IDE  und im About-Dialog angezeigt )
-// **********************************************************************************************************************
 procedure TDRipExtension.InitPluginInfo;
 var
 	aBitmap : HBITMAP;
 	aFileName : array [0 .. MAX_PATH] of char;
 	dFileAge : TDateTime;
-	aVersion : string;
+	aLicenseStatus : string;
 	sExeVersion : string;
 begin
 	aBitmap := LoadBitmap(hInstance, 'splash_icon');
 	GetModuleFileName(hInstance, aFileName, MAX_PATH);
 	System.SysUtils.FileAge(aFileName, dFileAge);
-	aVersion := FormatDateTime(' dd.mm.yy - h:nn', dFileAge);
+	aLicenseStatus := FormatDateTime('dd.mm.yy - h:nn', dFileAge);
 	sExeVersion := TFileUtils.GetAppVersion(aFileName);
-	(SplashScreenServices as IOTASplashScreenServices).AddPluginBitmap(EXTENSION_NAME, aBitmap, False, aVersion, sExeVersion);
+	(SplashScreenServices as IOTASplashScreenServices).AddPluginBitmap(
+    EXTENSION_NAME, aBitmap, False, '', sExeVersion);
 
 	aBitmap := LoadBitmap(hInstance, 'about_icon');
-	 FiPluginIndexAbout := (BorlandIDEServices as IOTAAboutBoxServices).AddPluginInfo(EXTENSION_NAME, EXTENSION_NAME + CRLF + HOME_PAGE, aBitmap, False, aVersion,
-	 sExeVersion);
+	 FiPluginIndexAbout := (BorlandIDEServices as IOTAAboutBoxServices).AddPluginInfo(EXTENSION_NAME,
+   EXTENSION_NAME + CRLF + HOME_PAGE, aBitmap, False, aLicenseStatus, sExeVersion);
 end;
 
 procedure TDRipExtension.RegisterKeyboardBinding;
