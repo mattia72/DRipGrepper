@@ -1,12 +1,21 @@
+[CmdletBinding()]
+param (
+    [switch] $BuildStandalune,
+    [switch] $BuildExtension,
+    [switch] $RunUnittest,
+    [switch] $Deploy,
+    [switch] $UpdateScoopManifest
+)
+    
 # - Change Readme.md 
 # - Change Deploy-Description.md 
 # - Change file and product version in every projects for ALL CONFIGURATION!
 # - Commit and push all changes
 # - Run this script
-$global:Version = 		(Get-Content .\Deploy-Description.md | Select-String '^Version:' ) -replace 'Version:\s*'
-$global:PrevVersion = (Get-Content .\Deploy-Description.md | Select-String '^PrevVersion:' ) -replace 'PrevVersion:\s*'
-$global:Description = Get-Content "$PSScriptRoot\Deploy-Description.md"
 
+$global:Description = Get-Content "$PSScriptRoot\Deploy-Description.md"
+$global:Version = ($global:Description | Select-String '^Version:') -replace 'Version:\s*'
+$global:PrevVersion = ($global:Description | Select-String '^PrevVersion:' ) -replace 'PrevVersion:\s*'
 
 $global:PreRelease = $true
 $global:StandaloneAppName = "DRipGrepper.exe"
@@ -107,31 +116,41 @@ function Add-ToAssetsDir {
     Copy-Item -Path $AssetPath -Destination $global:AssetsDirectory
 }
 function New-ReleaseWithAsset {
-    Build-AndRunUnittest
-    $parentPath = Split-Path -Parent $PSScriptRoot 
-    Build-StandaloneRelease
 
-    $ZipDir = $(Join-Path $parentPath 'Win32\Release')
-    Add-ToAssetsDir $(Join-Path  $ZipDir $global:StandaloneAppName) 
-  
-    Build-ExtensionRelease
-    Add-ToAssetsDir $(Join-Path $global:ExtensionPath $global:ExtensionFileName) 
-
-    $compress = @{
-        Path             = "$global:AssetsDirectory\*.*"
-        CompressionLevel = "Fastest"
-        DestinationPath  = "$global:AssetsDirectory\$global:AssetZipName"
-        Force            = $true
+    if ($RunUnittest) {
+        Build-AndRunUnittest
     }
-    Compress-Archive @compress
 
-    New-Release
-    New-ReleaseNotes
+    if ($BuildStandalune) {
+        Build-StandaloneRelease 
+    }
+  
+    if ($BuildExtension) {
+        Build-ExtensionRelease
+    }
 
-    $ReleaseID = $( Get-Releases -Tag $global:Version | Select-Object -Property id).id
-    #$ReleaseID = $( Get-Releases -Latest | Select-Object -Property id).id
+    if ($Deploy) {
+        $parentPath = Split-Path -Parent $PSScriptRoot 
+        $ZipDir = $(Join-Path $parentPath 'Win32\Release')
+        Add-ToAssetsDir $(Join-Path  $ZipDir $global:StandaloneAppName) 
+        Add-ToAssetsDir $(Join-Path $global:ExtensionPath $global:ExtensionFileName) 
 
-    New-Asset -ReleaseID $ReleaseID -ZipFilePath "$global:AssetsDirectory\$global:AssetZipName"
+        $compress = @{
+            Path             = "$global:AssetsDirectory\*.*"
+            CompressionLevel = "Fastest"
+            DestinationPath  = "$global:AssetsDirectory\$global:AssetZipName"
+            Force            = $true
+        }
+        Compress-Archive @compress
+
+        New-Release
+        New-ReleaseNotes
+
+        $ReleaseID = $( Get-Releases -Tag $global:Version | Select-Object -Property id).id
+        #$ReleaseID = $( Get-Releases -Latest | Select-Object -Property id).id
+
+        New-Asset -ReleaseID $ReleaseID -ZipFilePath "$global:AssetsDirectory\$global:AssetZipName"
+    }
 }
 function Get-Releases {
     param (
@@ -218,9 +237,13 @@ function Update-ScoopManifest {
     scoop update dripgrepper
 }
 
-function Deploy {
+function New-Deploy {
     #New-ReleaseNotes
     New-ReleaseWithAsset
-    #Update scoop
-    Update-ScoopManifest
+    if ($UpdateScoopManifest) {
+        #Update scoop
+        Update-ScoopManifest
+    }
 }
+
+New-Deploy
