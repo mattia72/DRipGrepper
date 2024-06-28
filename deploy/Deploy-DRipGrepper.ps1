@@ -1,43 +1,12 @@
 # - Change Readme.md 
-# - Change Description in this file (https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
-#                                    https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
+# - Change Deploy-Description.md 
 # - Change file and product version in every projects for ALL CONFIGURATION!
 # - Commit and push all changes
-# - run this script
-$global:Version = "v2.7.1-beta"
-$global:PrevVersion = "v2.7.0-beta"
-$global:Description = @"
-## :rocket: Improvements (marked with :white_check_mark:, if ready)
+# - Run this script
+$global:Version = 		(Get-Content .\Deploy-Description.md | Select-String '^Version:' ) -replace 'Version:\s*'
+$global:PrevVersion = (Get-Content .\Deploy-Description.md | Select-String '^PrevVersion:' ) -replace 'PrevVersion:\s*'
+$global:Description = Get-Content "$PSScriptRoot\Deploy-Description.md"
 
-### :droplet: Extension
-- [x] icon on splash screen at start of the IDE
-- [x] icon in about box of the IDE
-
-### :mag: Search Dialog
-- [x] extension: search current file
-- [?] extension: search projekt files
-    - [ ] too large project fails
-- [?] extension: search open projekt files
-- [x] prevent multiline text search 
-- [ ] invert match
-
-## :warning: Bugs (marked with :white_check_mark:, if fixed)
-- [ ] dummy text in additional options, can't be deleted from command line
-- [ ] what if too much projekt file are listed?
-- [x] first open of search form doesn't update command line
-- [x] the default search is case-sensitive; however, it is not set as rg parameter
-- [x] extension: toolbar doesn't show all buttons
-"@
-
-### :mag: Search Dialog
-# + new featuren
-# + new feature
- 
-### :warning: Bug Fixes
-#* bug
-
-### Main Window
-# + new feature
 
 $global:PreRelease = $true
 $global:StandaloneAppName = "DRipGrepper.exe"
