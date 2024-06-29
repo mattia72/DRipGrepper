@@ -609,8 +609,8 @@ begin
   if (_iLineNr >= RG_PROCESSING_LINE_COUNT_LIMIT) then begin
     OnLastLine(_iLineNr);
     if _iLineNr = RG_PROCESSING_LINE_COUNT_LIMIT then begin
-      MessageDlg(Format('Too many results.' + CRLF + 'The first %d will be shown. Try to be more specific.',
-          [_iLineNr, RG_PROCESSING_LINE_COUNT_LIMIT]), TMsgDlgType.mtWarning, [mbOk], 0);
+      TMsgBox.ShowWarning(Format('Too many results.' + CRLF + 'The first %d will be shown. Try to be more specific.',
+          [_iLineNr, RG_PROCESSING_LINE_COUNT_LIMIT]));
     end else begin
       Exit;
     end;
@@ -624,7 +624,7 @@ begin
   except
     on e : EOutOfMemory do begin
       TDebugUtils.DebugMessage(Format('Exception %s ' + CRLF + 'on line %d', [e.Message, _iLineNr]));
-      MessageDlg(e.Message + CRLF + 'Too many results. Try to be more specific.', TMsgDlgType.mtError, [mbOk], 0);
+      TMsgBox.ShowError(e.Message + CRLF + 'Too many results. Try to be more specific.');
     end;
   end;
 

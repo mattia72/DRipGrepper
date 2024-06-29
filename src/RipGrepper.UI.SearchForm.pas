@@ -698,7 +698,7 @@ function TRipGrepperSearchDialogForm.CheckAndCorrectMultiLine(const _str : TMult
 begin
   Result := '';
   if (_str.IsMultiLine) then begin
-    MessageDlg('Multiline string not supported.' + CRLF + 'Only first line will be searched.', TMsgDlgType.mtWarning, [mbOk], 0);
+    TMsgBox.ShowWarning('Multiline string not supported.' + CRLF + 'Only first line will be searched.');
     // Save in ini not implemented for multiline strings
   end;
   Result := _str.GetLine(0);

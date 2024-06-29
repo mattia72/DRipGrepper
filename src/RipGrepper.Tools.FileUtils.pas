@@ -65,7 +65,6 @@ var
 	ibuild : integer;
 	name : string;
 begin
-
 	GetModuleVersion(0, imajor, iminor, irelease, ibuild);
 	name := TPath.GetFileNameWithoutExtension(_exePath);
 	Result := Format(FORMAT_NAME_VERSION_INFO, [name, imajor, iminor, irelease]);
