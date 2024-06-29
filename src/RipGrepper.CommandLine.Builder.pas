@@ -146,7 +146,7 @@ begin
 	end;
 
 	arrRgOptions.AddRange(GetFileMaskParamsArrFromDelimitedText(_params.FileMasks));
-	arrRgOptions.Remove(RG_PARAM_END);
+	arrRgOptions.RemoveAll(RG_PARAM_END);
 	// put it in the end
 	arrRgOptions.Add(RG_PARAM_END); // indicates that no more flags will be provided
 

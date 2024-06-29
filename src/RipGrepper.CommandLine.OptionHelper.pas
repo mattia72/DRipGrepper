@@ -214,7 +214,7 @@ begin
   if not _paramRegex.IsEmpty then begin
     params := _paramRegex.Split(['|']);
     for var p in params do begin
-      if p = RG_PARAM_END then begin
+      if (p = RG_PARAM_END) or (p = '-') then begin
         list.DeleteAll([p]);
       end else begin
         var

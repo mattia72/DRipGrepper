@@ -61,7 +61,7 @@ uses
 	System.IOUtils,
 	Vcl.Forms,
 	RipGrepper.Tools.ProcessUtils,
-	System.RegularExpressions;
+	System.RegularExpressions, RipGrepper.Helper.UI;
 
 constructor TRipGrepParameterSettings.Create(const _ini : TIniFile);
 begin
@@ -111,8 +111,7 @@ begin
 	if RipGrepPath.IsEmpty or (not FileExists(RipGrepPath)) then begin
 		rgExists := TFileUtils.FindExecutable('rg.exe', rgPath);
 		if not rgExists then begin
-			MessageDlg('RipGrep executable (rg.exe) not found.' + CRLF + 'Check settings in ' + CRLF + FIniFile.FileName + CRLF +
-				' or your PATH', mtError, [mbOk], 0);
+		 TMsgBox.ShowError('RipGrep executable (rg.exe) not found.' + CRLF + 'Check your PATH or settings ini: ' + CRLF + FIniFile.FileName);
 			// raise Exception.Create('RipGrep(rg.exe) not found');
 		end;
 		scoopInstall := TPath.Combine(GetEnvironmentVariable('SCOOP'), 'apps\ripgrep\current\rg.exe');

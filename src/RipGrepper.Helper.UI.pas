@@ -18,8 +18,8 @@ uses
 // Winapi.Messages;
 
 type
-  TMsgBox = class
 
+  TMsgBox = class
     private
       class procedure SetCaption(_msgDlg : TForm);
 

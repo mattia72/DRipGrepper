@@ -78,12 +78,13 @@ type
     cbRgParamHidden : TCheckBox;
     cbRgParamNoIgnore : TCheckBox;
     cbRgParamPretty : TCheckBox;
-    Action1 : TAction;
     cbRgParamContext : TCheckBox;
     seContextLineNum : TSpinEdit;
     rbExtensionOptions : TRadioGroup;
     gbFileFilters : TGroupBox;
     gbPath : TGroupBox;
+    btnShowInLines: TButton;
+    ActionShowInLines: TAction;
     procedure ActionAddParamMatchCaseExecute(Sender : TObject);
     procedure ActionAddParamMatchCaseUpdate(Sender : TObject);
     procedure ActionAddParamRegexExecute(Sender : TObject);
@@ -105,7 +106,7 @@ type
     procedure cmbFileMasksChange(Sender : TObject);
     procedure cmbFileMasksExit(Sender : TObject);
     procedure cmbFileMasksSelect(Sender : TObject);
-    procedure cmbOptionsExit(Sender : TObject);
+    procedure cmbOptionsChange(Sender : TObject);
     procedure cmbOptionsSelect(Sender : TObject);
     procedure cmbSearchDirChange(Sender : TObject);
     procedure cmbSearchTextChange(Sender : TObject);
@@ -123,6 +124,7 @@ type
       FExpertGroupHeight : Integer;
       FGuiSetSearchParams : TGuiSearchTextParams;
       FCbClickEventEnabled : Boolean;
+      FcmbOptionsOldText : string;
       FSettings : TRipGrepperSettings;
 
       function GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
@@ -201,6 +203,7 @@ begin
   end;
   var
     searchText : string := _settings.RipGrepParameters.SearchText;
+
   if not searchText.IsEmpty then begin
     _settings.SearchTextsHistory.DeleteAll([searchText]);
     _settings.SearchTextsHistory.Insert(0, searchText);
@@ -217,6 +220,7 @@ begin
   TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.Create: gui params=' + FGuiSetSearchParams.ToString);
   FDpiScaler := TRipGrepperDpiScaler.Create(self);
   FExpertGroupHeight := gbExpert.Height;
+  cmbOptions.AutoComplete := False; // so we know the old value after change
 end;
 
 destructor TRipGrepperSearchDialogForm.Destroy;
@@ -398,8 +402,10 @@ begin
     cmbSearchText.Text := s;
   end;
   ButtonDown(EGuiOption.soUseRegex, tbUseRegex);
-  if not HasHistItemObj then
+  if not HasHistItemObj then begin
     UpdateCheckBoxesBySettings();
+  end;
+  FcmbOptionsOldText := cmbOptions.Text;
 end;
 
 procedure TRipGrepperSearchDialogForm.ButtonDown(const _searchOption : EGuiOption; _tb : TToolButton; const _bNotMatch : Boolean = False);
@@ -461,11 +467,6 @@ end;
 procedure TRipGrepperSearchDialogForm.cmbFileMasksSelect(Sender : TObject);
 begin
   UpdateCtrls(cmbFileMasks);
-end;
-
-procedure TRipGrepperSearchDialogForm.cmbOptionsExit(Sender : TObject);
-begin
-  UpdateCtrls(cmbOptions);
 end;
 
 procedure TRipGrepperSearchDialogForm.cmbOptionsSelect(Sender : TObject);
@@ -702,6 +703,14 @@ begin
     // Save in ini not implemented for multiline strings
   end;
   Result := _str.GetLine(0);
+end;
+
+procedure TRipGrepperSearchDialogForm.cmbOptionsChange(Sender : TObject);
+begin
+  FGuiSetSearchParams.RgOptions := TGuiSearchTextParams.RemoveRgExeOptions(
+      { } FGuiSetSearchParams.RgOptions, FcmbOptionsOldText);
+  UpdateCtrls(cmbOptions);
+  FcmbOptionsOldText := cmbOptions.Text;
 end;
 
 function TRipGrepperSearchDialogForm.HasHistItemObj : Boolean;

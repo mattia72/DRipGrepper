@@ -371,7 +371,7 @@ begin
   except
     on E : Exception do begin
       TDebugUtils.DebugMessage(Format('TRipGrepperSettings.Load: Exception %s ', [E.Message]));
-      MessageDlg(E.Message + CRLF + 'Settings load from ' + FIniFile.FileName + ' went wrong.', TMsgDlgType.mtError, [mbOk], 0);
+      TMsgBox.ShowError(E.Message + CRLF + 'Settings load from ' + FIniFile.FileName + ' went wrong.');
     end;
   end;
   InitSettings;
