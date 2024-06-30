@@ -83,8 +83,8 @@ type
     rbExtensionOptions : TRadioGroup;
     gbFileFilters : TGroupBox;
     gbPath : TGroupBox;
-    btnShowInLines: TButton;
-    ActionShowInLines: TAction;
+    btnShowInLines : TButton;
+    ActionShowInLines : TAction;
     procedure ActionAddParamMatchCaseExecute(Sender : TObject);
     procedure ActionAddParamMatchCaseUpdate(Sender : TObject);
     procedure ActionAddParamRegexExecute(Sender : TObject);
@@ -98,6 +98,7 @@ type
     procedure ActionSearchExecute(Sender : TObject);
     procedure ActionSearchFileExecute(Sender : TObject);
     procedure ActionShowFileMaskHelpExecute(Sender : TObject);
+    procedure ActionShowInLinesExecute(Sender : TObject);
     procedure ActionShowRGOptionsHelpExecute(Sender : TObject);
     procedure cbRgParamContextClick(Sender : TObject);
     procedure cbRgParamHiddenClick(Sender : TObject);
@@ -173,7 +174,6 @@ uses
   RipGrepper.Tools.ProcessUtils,
   System.UITypes,
   RipGrepper.UI.RipGrepOptionsForm,
-
   System.SysUtils,
   System.RegularExpressions,
   System.Math,
@@ -186,10 +186,7 @@ uses
   System.StrUtils,
   RipGrepper.Common.IOTAUtils;
 
-const
-  RIPGREPPER_SEARCH_FORM = 'RipGrepperSearchDialogForm';
-
-  {$R *.dfm}
+{$R *.dfm}
 
 constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _settings : TRipGrepperSettings;
     const _histObj : THistoryItemObject);
@@ -308,6 +305,21 @@ end;
 procedure TRipGrepperSearchDialogForm.ActionShowFileMaskHelpExecute(Sender : TObject);
 begin
   ShellExecute(0, 'OPEN', PChar(WWW_LINK_GLOBBING_HELP), '', '', SW_SHOWNORMAL);
+end;
+
+procedure TRipGrepperSearchDialogForm.ActionShowInLinesExecute(Sender : TObject);
+var
+  str : string;
+begin
+  if ActionShowInLines.Hint = SHOW_CMD_IN_SEPARATE_LINES then begin
+    str := memoCommandLine.Text;
+    memoCommandLine.Text := string.Join(CRLF, str.Split([' ']));
+    ActionShowInLines.Hint := SHOW_CMD_IN_ONE_LINE;
+  end else begin
+    str := memoCommandLine.Text;
+    memoCommandLine.Text := str.Replace(CRLF, ' ', [rfReplaceAll]);
+    ActionShowInLines.Hint := SHOW_CMD_IN_SEPARATE_LINES;
+  end;;
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionShowRGOptionsHelpExecute(Sender : TObject);
@@ -791,7 +803,7 @@ begin
       cmbSearchDir.Enabled := False;
       cmbSearchDir.Text := string.Join(SEARCH_PATH_SEPARATOR, rgec.ProjectFiles).Trim([SEARCH_PATH_SEPARATOR]);
     end;
-    EXT_SEARCH_OPEN_PROJECT_FILES : begin
+    EXT_SEARCH_OPEN_FILES : begin
       cmbSearchDir.Enabled := False;
       cmbSearchDir.Text := string.Join(SEARCH_PATH_SEPARATOR, rgec.OpenedProjectFiles).Trim([SEARCH_PATH_SEPARATOR]);
     end;

@@ -578,8 +578,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Caption = 'IDE Context:'
         Items.Strings = (
           'Current file'
+          'Open files'
           'Files in project'
-          'Opened project files'
           'Other:')
         ParentShowHint = False
         ShowFrame = False
@@ -1300,7 +1300,9 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       OnExecute = ActionShowRGOptionsHelpExecute
     end
     object ActionShowInLines: TAction
+      Hint = 'Show command in lines'
       ImageIndex = 10
+      OnExecute = ActionShowInLinesExecute
     end
   end
 end

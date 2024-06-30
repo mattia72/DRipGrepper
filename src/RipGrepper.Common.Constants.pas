@@ -153,8 +153,8 @@ const
   RG_HAS_NO_OUTUT = ' has no output.';
 
   EXT_SEARCH_ACTIVE_FILE = 0;
-  EXT_SEARCH_PROJECT_FILES = 1;
-  EXT_SEARCH_OPEN_PROJECT_FILES = 2;
+  EXT_SEARCH_OPEN_FILES = 1;
+  EXT_SEARCH_PROJECT_FILES = 2;
   EXT_SEARCH_GIVEN_PATH = 3;
 
 type
@@ -173,6 +173,9 @@ const
   { } EGuiOption.soMatchCase,
   { } EGuiOption.soMatchWord,
   { } EGuiOption.soUseRegex];
+
+  SHOW_CMD_IN_ONE_LINE = 'Show command in one line';
+  SHOW_CMD_IN_SEPARATE_LINES = 'Show command in lines';
 
 implementation
 

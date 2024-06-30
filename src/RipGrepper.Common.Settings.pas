@@ -61,7 +61,7 @@ type
   ERipGrepperExtensionContext = (
       { } rgecActiveFile = EXT_SEARCH_ACTIVE_FILE,
       { } rgecProjectFiles = EXT_SEARCH_PROJECT_FILES,
-      { } rgecOpenedProjectFiles = EXT_SEARCH_OPEN_PROJECT_FILES,
+      { } rgecOpeneFiles = EXT_SEARCH_OPEN_FILES,
       { } rgecPath = EXT_SEARCH_GIVEN_PATH
       { } );
 
