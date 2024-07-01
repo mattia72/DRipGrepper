@@ -20,19 +20,17 @@ type
 			FKeyBinding : integer;
 
 			FDockableForm : TRipGrepperDockableForm;
-			FiPluginIndexAbout: Integer;
+			FiPluginIndexAbout : Integer;
 			procedure CreateMenu;
 			procedure DoDripGrepperMenuClick(Sender : TObject);
-			procedure InitKeyboardNotifier;
+
 			procedure InitPluginInfo;
-			procedure RegisterKeyboardBinding;
 			procedure RemoveExtensionMenu;
-// **********************************************************************************************************************
-// Plugin-Infos entfernen
-// **********************************************************************************************************************
+			// **********************************************************************************************************************
+			// Plugin-Infos entfernen
+			// **********************************************************************************************************************
 			procedure RemovePluginInfo;
 			procedure ShowDripGrepperForm;
-			procedure UnregisterKeyboardBinding;
 
 		public
 			constructor Create; virtual;
@@ -44,6 +42,11 @@ type
 			procedure Execute;
 			// IOTAMenuWizard (creates a simple menu item on the help menu)
 			function GetMenuText : string;
+			// IOTAWizard
+			procedure InitKeyboardNotifier;
+			procedure RegisterKeyboardBinding;
+			procedure UnregisterKeyboardBinding;
+
 	end;
 
 procedure Register;
@@ -119,7 +122,7 @@ end;
 destructor TDRipExtension.Destroy;
 begin
 	TDebugUtils.DebugMessage('TDRipExtension.Destroy');
-    RemovePluginInfo;
+	RemovePluginInfo;
 	TDebugUtils.DebugMessage('TDRipExtension.Destroy FDockableForm.Free');
 	FDockableForm.Free;
 	TDebugUtils.DebugMessage('TDRipExtension.Destroy G_DripMenu.Free');
@@ -185,12 +188,11 @@ begin
 	System.SysUtils.FileAge(aFileName, dFileAge);
 	aLicenseStatus := FormatDateTime('dd.mm.yy - h:nn', dFileAge);
 	sExeVersion := TFileUtils.GetAppVersion(aFileName);
-	(SplashScreenServices as IOTASplashScreenServices).AddPluginBitmap(
-    EXTENSION_NAME, aBitmap, False, '', sExeVersion);
+	(SplashScreenServices as IOTASplashScreenServices).AddPluginBitmap(EXTENSION_NAME, aBitmap, False, '', sExeVersion);
 
 	aBitmap := LoadBitmap(hInstance, 'about_icon');
-	 FiPluginIndexAbout := (BorlandIDEServices as IOTAAboutBoxServices).AddPluginInfo(EXTENSION_NAME,
-   EXTENSION_NAME + CRLF + HOME_PAGE, aBitmap, False, aLicenseStatus, sExeVersion);
+	FiPluginIndexAbout := (BorlandIDEServices as IOTAAboutBoxServices).AddPluginInfo(EXTENSION_NAME, EXTENSION_NAME + CRLF + HOME_PAGE,
+		aBitmap, False, aLicenseStatus, sExeVersion);
 end;
 
 procedure TDRipExtension.RegisterKeyboardBinding;
