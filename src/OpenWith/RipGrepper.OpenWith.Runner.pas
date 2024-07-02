@@ -29,7 +29,7 @@ uses
 	Vcl.Dialogs,
 	RipGrepper.Common.Constants,
 	RipGrepper.Tools.DebugUtils,
-	RipGrepper.Common.IOTAUtils;
+	RipGrepper.Common.IOTAUtils, RipGrepper.Helper.UI;
 
 class function TOpenWithRunner.BuildParams(const _owp : TOpenWithParams; const _sParams : string) : string;
 var
@@ -117,7 +117,7 @@ begin
 	ShellExecute(0, 'open', PChar(sCmd), PChar(sParams), nil, SW_SHOW);
 	err := GetLastError;
 	if err <> 0 then begin
-		MessageDlg(Format('%s %s' + CRLF + CRLF + '%s', [sCmd, sParams, GetErrorText(err)]), mtError, [mbOK], 0);
+		TMsgBox.ShowError(Format('%s %s' + CRLF + CRLF + '%s', [sCmd, sParams, GetErrorText(err)]));
 	end;
 end;
 

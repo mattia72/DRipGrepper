@@ -28,7 +28,7 @@ uses
 	RipGrepper.OpenWith.Runner,
 	RipGrepper.OpenWith.CmdListForm,
 	RipGrepper.Common.Settings,
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils, RipGrepper.Helper.UI;
 
 class function TOpenWith.GetSelectedCmd(_owpTestFile : TOpenWithParams) : string;
 begin
@@ -58,7 +58,7 @@ begin
 
 		iPos := Pos('.EXE', AnsiUppercase(sEditorCmd));
 		if iPos = 0 then begin
-			MessageDlg('There is no executable configured!', mtError, [mbOK], 0);
+			TMsgBox.ShowError('There is no executable configured!');
 			exit;
 		end;
 

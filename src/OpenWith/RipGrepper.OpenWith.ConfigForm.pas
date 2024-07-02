@@ -95,7 +95,7 @@ uses
 	Winapi.ShellAPI,
 	RipGrepper.OpenWith.Runner,
 	RipGrepper.OpenWith.SimpleTypes,
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils, RipGrepper.Helper.UI;
 
 {$R *.dfm}
 
@@ -231,7 +231,7 @@ begin
 		var
 		iPos := Pos('.EXE', AnsiUppercase(_sCmd));
 		if iPos = 0 then begin
-			MessageDlg(Format('"%s" is not an execuatable!', [_sCmd]), mtError, [mbOK], 0);
+			TMsgBox.ShowError(Format('"%s" is not an execuatable!', [_sCmd]));
 			Exit;
 		end;
 
@@ -245,7 +245,7 @@ begin
 				bFound := True;
 			end;
 			if not bFound then begin
-				MessageDlg(Format('Executable "%s" not found!', [sFileName]), mtError, [mbOK], 0);
+				TMsgBox.ShowError(Format('Executable "%s" not found!', [sFileName]));
 				Exit;
 			end;
 
