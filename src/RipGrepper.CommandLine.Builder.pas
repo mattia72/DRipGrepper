@@ -14,7 +14,8 @@ type
 		private
 			class procedure AddArgs(var _params : TRipGrepParameterSettings; const _sName : string; const _args : TArray<string>;
 				const _bQuote : Boolean = False); static;
-			class function RemoveParam(var arrRgOptions : TArrayEx<string>; const _paramRegex : string) : Boolean; static;
+// TODO: RemoveParam
+//          class function RemoveParam(var arrRgOptions : TArrayEx<string>; const _paramRegex : string) : Boolean; static;
 
 		public
 			class function FileMasksToOptions(const _arrMasks, _arrSkipMasks : TArrayEx<string>) : string; static;
@@ -173,14 +174,15 @@ begin
 	TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: GuiSetSearchParams end ' + _params.GuiSetSearchParams.ToString);
 end;
 
-class function TCommandLineBuilder.RemoveParam(var arrRgOptions : TArrayEx<string>; const _paramRegex : string) : Boolean;
-begin
-	Result := False;
-	for var p in _paramRegex.Split(['|']) do begin
-		if arrRgOptions.Remove(p) then begin
-			Result := True;
-		end;
-	end;
-end;
+// TODO: RemoveParam
+//class function TCommandLineBuilder.RemoveParam(var arrRgOptions : TArrayEx<string>; const _paramRegex : string) : Boolean;
+//begin
+//  Result := False;
+//  for var p in _paramRegex.Split(['|']) do begin
+//      if arrRgOptions.Remove(p) then begin
+//          Result := True;
+//      end;
+//  end;
+//end;
 
 end.
