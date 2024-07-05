@@ -1,7 +1,7 @@
 <!--
 
-Version:     v2.8.0-beta
-PrevVersion: v2.7.0-beta
+Version:     v2.8.1-beta
+PrevVersion: v2.8.0-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -19,20 +19,15 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 ## :rocket: Improvements (marked with :white_check_mark:, if ready)
 
 ### :droplet: Extension
-- [x] icon on splash screen at start of the IDE
-- [x] icon in about box of the IDE
 
 ### :mag: Search Dialog
-- [x] extension: search current file
 - [?] extension: search projekt files
-    - [ ] too large project fails
+    - [ ] too large project fails, how can we deal with it?
 - [?] extension: search open projekt files
-- [x] prevent multiline text search 
+- [x?] extension: search open files, the second approach seems to be working: 
+    - https://stackoverflow.com/questions/78631692/how-to-get-list-of-opened-files-in-delphi-ide
 - [ ] invert match
 
 ## :warning: Bugs (marked with :white_check_mark:, if fixed)
-- [ ] dummy text in additional options, can't be deleted from command line
+- [x] dummy text in additional options, can't be deleted from command line
 - [ ] what if too much projekt file are listed?
-- [x] first open of search form doesn't update command line
-- [x] the default search is case-sensitive; however, it is not set as rg parameter
-- [x] extension: toolbar doesn't show all buttons
