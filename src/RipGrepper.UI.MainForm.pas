@@ -183,7 +183,7 @@ end;
 function TRipGrepperForm.GetSettings : TRipGrepperSettings;
 begin
 	if not Assigned(FSettings) then begin
-		FSettings := GSettings;
+		FSettings := ParentFrame1.Settings;
 	end;
 	Result := FSettings;
 end;

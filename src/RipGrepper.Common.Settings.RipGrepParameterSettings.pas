@@ -19,6 +19,7 @@ type
 			INI_SECTION = 'RipGrepSettings';
 
 		private
+			FbRgPathInitOk : Boolean;
 			FRipGrepArguments : TRipGrepArguments;
 			FRgExeOptions : string;
 			FRipGrepPath : string;
@@ -26,6 +27,7 @@ type
 			FSearchText : string;
 			FFileMasks : string;
 			FGuiSetSearchParams : TGuiSearchTextParams;
+			function GetRipGrepPath : string;
 			procedure SetFileMasks(const Value : string);
 			procedure SeTGuiSearchTextParams(const Value : TGuiSearchTextParams);
 			procedure SetRgExeOptions(const Value : string);
@@ -49,7 +51,7 @@ type
 			property SearchPath : string read FSearchPath write SetSearchPath;
 			property SearchText : string read FSearchText write SetSearchText;
 			property RipGrepArguments : TRipGrepArguments read FRipGrepArguments write FRipGrepArguments;
-			property RipGrepPath : string read FRipGrepPath write FRipGrepPath;
+			property RipGrepPath : string read GetRipGrepPath write FRipGrepPath;
 	end;
 
 implementation
@@ -61,11 +63,13 @@ uses
 	System.IOUtils,
 	Vcl.Forms,
 	RipGrepper.Tools.ProcessUtils,
-	System.RegularExpressions, RipGrepper.Helper.UI;
+	System.RegularExpressions,
+	RipGrepper.Helper.UI;
 
 constructor TRipGrepParameterSettings.Create(const _ini : TIniFile);
 begin
 	inherited Create(_ini);
+	FbRgPathInitOk := False;
 	RipGrepPath := '';
 	FRipGrepArguments := TStringList.Create;
 end;
@@ -96,6 +100,14 @@ begin
 	Result := INI_SECTION;
 end;
 
+function TRipGrepParameterSettings.GetRipGrepPath : string;
+begin
+	if not FbRgPathInitOk then begin
+		InitRipGrepExePath();
+	end;
+	Result := FRipGrepPath;
+end;
+
 procedure TRipGrepParameterSettings.Init;
 begin
 	inherited;
@@ -108,10 +120,10 @@ var
 	rgPath : string;
 	scoopInstall : string;
 begin
-	if RipGrepPath.IsEmpty or (not FileExists(RipGrepPath)) then begin
+	if FRipGrepPath.IsEmpty or (not FileExists(FRipGrepPath)) then begin
 		rgExists := TFileUtils.FindExecutable('rg.exe', rgPath);
 		if not rgExists then begin
-		 TMsgBox.ShowError('RipGrep executable (rg.exe) not found.' + CRLF + 'Check your PATH or settings ini: ' + CRLF + FIniFile.FileName);
+			TMsgBox.ShowError(Format(FORMAT_RIPGREP_EXE_NOT_FOUND, [FIniFile.FileName]));
 			// raise Exception.Create('RipGrep(rg.exe) not found');
 		end;
 		scoopInstall := TPath.Combine(GetEnvironmentVariable('SCOOP'), 'apps\ripgrep\current\rg.exe');
@@ -119,8 +131,9 @@ begin
 			rgPath := scoopInstall;
 		end;
 
-		RipGrepPath := rgPath.Trim();
+		FRipGrepPath := rgPath.Trim();
 	end;
+	FbRgPathInitOk := True;
 end;
 
 procedure TRipGrepParameterSettings.Load;
