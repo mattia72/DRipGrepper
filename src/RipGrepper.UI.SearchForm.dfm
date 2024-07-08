@@ -424,6 +424,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
           Margins.Top = 0
           Margins.Bottom = 0
           Caption = '--hidden'
+          ParentShowHint = False
+          ShowHint = True
           TabOrder = 0
           OnClick = cbRgParamHiddenClick
         end
@@ -436,6 +438,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
           Margins.Top = 0
           Margins.Bottom = 0
           Caption = '--no-ignore'
+          ParentShowHint = False
+          ShowHint = True
           TabOrder = 1
           OnClick = cbRgParamNoIgnoreClick
         end
@@ -600,6 +604,14 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Output'
       TabOrder = 2
+      object lblHintHelper: TLabel
+        Left = 469
+        Top = 30
+        Width = 71
+        Height = 15
+        Caption = 'lblHintHelper'
+        Visible = False
+      end
       object cbRgParamPretty: TCheckBox
         AlignWithMargins = True
         Left = 10
@@ -609,6 +621,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Margins.Top = 0
         Margins.Bottom = 0
         Caption = '--pretty'
+        ParentShowHint = False
+        ShowHint = True
         TabOrder = 0
         OnClick = cbRgParamPrettyClick
       end
@@ -618,9 +632,12 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Top = 34
         Width = 69
         Height = 17
+        Hint = 'Line Count Before and After Matched Line'
         Margins.Top = 0
         Margins.Bottom = 0
         Caption = '--context'
+        ParentShowHint = False
+        ShowHint = True
         TabOrder = 2
         OnClick = cbRgParamContextClick
       end
