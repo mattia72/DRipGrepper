@@ -21,13 +21,13 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 ### :droplet: Extension
 
 ### :mag: Search Dialog
+- [x] extension: search open files, the second approach works: 
+    - https://stackoverflow.com/questions/78631692/how-to-get-list-of-opened-files-in-delphi-ide
 - [?] extension: search projekt files
     - [ ] too large project fails, how can we deal with it?
 - [?] extension: search open projekt files
-- [x?] extension: search open files, the second approach seems to be working: 
-    - https://stackoverflow.com/questions/78631692/how-to-get-list-of-opened-files-in-delphi-ide
-- [ ] invert match
+- [ ] invert match parser
 
 ## :warning: Bugs (marked with :white_check_mark:, if fixed)
 - [x] dummy text in additional options, can't be deleted from command line
-- [ ] what if too much projekt file are listed?
+- [x] rg.exe of vs code doesn't support --pretty
