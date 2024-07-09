@@ -34,7 +34,9 @@ uses
 	VirtualTrees, // GetIt TurboPack VirtualTree
 	RipGrepper.Helper.UI,
 	RipGrepper.Parsers.ParallelParser,
-	ArrayEx;
+	ArrayEx,
+	RipGrepper.Tools.ProcessUtils,
+	RipGrepper.Helper.Types;
 
 type
 	TRipGrepperMiddleFrame = class(TFrame, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
@@ -118,6 +120,7 @@ type
 			procedure RunRipGrep;
 			procedure SetColumnWidths;
 			procedure SetHistObject(const Value : THistoryItemObject);
+			function SliceArgs(_exe : string; _args : TStrings): TStringsArrayEx;
 			procedure UpdateArgumentsAndSettings;
 			procedure UpdateRipGrepArgumentsInHistObj;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
@@ -175,10 +178,10 @@ uses
 	Winapi.CommCtrl,
 	RipGrepper.Helper.ListBox,
 	RipGrepper.Tools.FileUtils,
-	RipGrepper.Helper.Types,
+
 	RipGrepper.Parsers.VimGrepMatchLine,
 	RipGrepper.Common.ParsedObject,
-	RipGrepper.Tools.ProcessUtils,
+
 	System.Math,
 	RipGrepper.UI.MainForm,
 	RipGrepper.UI.BottomFrame,
@@ -668,12 +671,13 @@ procedure TRipGrepperMiddleFrame.RunRipGrep;
 var
 	workDir : string;
 	args : TStrings;
+	argsArrs : TStringsArrayEx;
 begin
 	FRipGrepTask := TTask.Create(
 		procedure()
 		begin
 			if not FileExists(Settings.RipGrepParameters.RipGrepPath) then begin
-				TMsgBox.ShowError(Format(FORMAT_RIPGREP_EXE_NOT_FOUND,[Settings.IniFile.FileName]));
+				TMsgBox.ShowError(Format(FORMAT_RIPGREP_EXE_NOT_FOUND, [Settings.IniFile.FileName]));
 			end;
 			workDir := TDirectory.GetCurrentDirectory();
 			TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.RunRipGrep: run: ' + Settings.RipGrepParameters.RipGrepPath + ' '
@@ -682,11 +686,24 @@ begin
 			args := TStringList.Create;
 			try
 				args.AddStrings(Settings.RipGrepParameters.RipGrepArguments.GetValues);
-				FHistObject.RipGrepResult := TProcessUtils.RunProcess(Settings.RipGrepParameters.RipGrepPath, args,
-					{ } workDir,
-					{ } self as INewLineEventHandler,
-					{ } self as ITerminateEventProducer,
-					{ } self as IEOFProcessEventHandler);
+				argsArrs := SliceArgs(Settings.RipGrepParameters.RipGrepPath, args);
+				for var i := 0 to argsArrs.MaxIndex do begin
+					args.Clear;
+					args.AddStrings(argsArrs[i]);
+					if i < argsArrs.MaxIndex then begin
+						FHistObject.RipGrepResult := TProcessUtils.RunProcess(Settings.RipGrepParameters.RipGrepPath, args,
+							{ } workDir,
+							{ } self as INewLineEventHandler,
+							{ } self as ITerminateEventProducer,
+							{ } nil);
+					end else begin
+						FHistObject.RipGrepResult := TProcessUtils.RunProcess(Settings.RipGrepParameters.RipGrepPath, args,
+							{ } workDir,
+							{ } self as INewLineEventHandler,
+							{ } self as ITerminateEventProducer,
+							{ } self as IEOFProcessEventHandler);
+					end;
+				end;
 
 			finally
 				args.Free;
@@ -727,6 +744,20 @@ begin
 			FHistObject.Matches.Unlock;
 			{$ENDIF}
 		end);
+end;
+
+function TRipGrepperMiddleFrame.SliceArgs(_exe : string; _args : TStrings):
+	TStringsArrayEx;
+begin
+	if (MAX_COMMAND_LINE_LENGTH > TProcessUtils.GetCommandLineLength(_exe, _args)) then begin
+		Result.Add(_args.ToStringArray);
+	end else begin
+		var
+		strsArr := _args.SliceMaxLength(MAX_COMMAND_LINE_LENGTH - 1 - _exe.Length);
+		for var arr in strsArr do begin
+			Result.Add(arr);
+		end;
+	end;
 end;
 
 procedure TRipGrepperMiddleFrame.Splitter1Moved(Sender : TObject);
@@ -816,45 +847,48 @@ var
 	fs, pos : Integer;
 	style : TFontStyles;
 	Data : PVSFileNodeData;
-	ss0, ss1, ss2 : string;
+	s, ss0, ss1, ss2 : string;
+	shift, matchBegin : Integer;
 begin
 	case Column of
 		3 : begin
-			if FHistObject.ParserType = ptRipGrepPrettySearch then begin
-				DefaultDraw := False;
-				// First, store the default font size and color number
-				fc := TargetCanvas.Font.Color;
-				fs := TargetCanvas.Font.Size;
-				style := TargetCanvas.Font.style;
+			case FHistObject.ParserType of
+				ptRipGrepSearch : begin
 
-				Data := VstResult.GetNodeData(Node);
-				var
-					shift : Integer;
-				var
-				s := Data.GetText(Settings.RipGrepperViewSettings.IndentLines, shift);
-				var
-				matchBegin := Data.MatchData.Col - 1 - shift;
+				end;
+				ptRipGrepPrettySearch : begin
+					DefaultDraw := False;
+					// First, store the default font size and color number
+					fc := TargetCanvas.Font.Color;
+					fs := TargetCanvas.Font.Size;
+					style := TargetCanvas.Font.style;
 
-				ss0 := s.Substring(0, matchBegin);
-				ss1 := s.Substring(matchBegin, Data.MatchData.MatchLength);
-				ss2 := s.Substring(matchBegin + Data.MatchData.MatchLength);
+					Data := VstResult.GetNodeData(Node);
+					s := Data.GetText(Settings.RipGrepperViewSettings.IndentLines, shift);
 
-				TargetCanvas.TextOut(CellRect.Left, 4, ss0);
+					matchBegin := Data.MatchData.Col - 1 - shift;
 
-				pos := TargetCanvas.TextWidth(ss0);
-				TargetCanvas.Font.Color := clMaroon;
-				TargetCanvas.Font.style := [fsBold, fsUnderline];
-				TargetCanvas.TextOut(CellRect.Left + pos, 4, ss1);
+					ss0 := s.Substring(0, matchBegin);
+					TargetCanvas.TextOut(CellRect.Left, 4, ss0);
 
-				pos := pos + TargetCanvas.TextWidth(ss1);
-				TargetCanvas.Font.Color := fc;
-				TargetCanvas.Font.Size := fs;
-				TargetCanvas.Font.style := style;
-				TargetCanvas.TextOut(CellRect.Left + pos, 4, ss2);
+					ss1 := s.Substring(matchBegin, Data.MatchData.MatchLength);
+					ss2 := s.Substring(matchBegin + Data.MatchData.MatchLength);
+
+					pos := TargetCanvas.TextWidth(ss0);
+					TargetCanvas.Font.Color := clMaroon;
+					TargetCanvas.Font.style := [fsBold, fsUnderline];
+					TargetCanvas.TextOut(CellRect.Left + pos, 4, ss1);
+
+					pos := pos + TargetCanvas.TextWidth(ss1);
+					TargetCanvas.Font.Color := fc;
+					TargetCanvas.Font.Size := fs;
+					TargetCanvas.Font.style := style;
+					TargetCanvas.TextOut(CellRect.Left + pos, 4, ss2);
+				end;
+
 			end;
 		end;
 	end;
-
 end;
 
 procedure TRipGrepperMiddleFrame.VstResultFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);

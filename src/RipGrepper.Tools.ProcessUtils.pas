@@ -6,7 +6,8 @@ uses
 	System.Classes,
 	dprocess,
 	RipGrepper.Common.Constants,
-	RipGrepper.Common.Interfaces;
+	RipGrepper.Common.Interfaces,
+	ArrayEx;
 
 type
 	TSimpleProcessOutputStringReader = class(TInterfacedObject, INewLineEventHandler)
@@ -50,6 +51,7 @@ type
 				{ } _terminateEventProducer : ITerminateEventProducer;
 				{ } _eofProcHandler : IEOFProcessEventHandler) : Integer; overload;
 			class procedure RunProcess(const _exe : string; _args : TStrings; _workDir : string; out _stdOut : TStrings); overload;
+			class function GetCommandLineLength(const _exe : string; const _args : TStrings) : integer; overload;
 			class function RunProcessAsync(const _exe : string; const _args : TStrings; const _workDir : string;
 				{ } _newLineHandler : INewLineEventHandler;
 				{ } _terminateEventProducer : ITerminateEventProducer;
@@ -198,7 +200,7 @@ begin
 		p.Options := p.Options + [poNewConsole, poUsePipes, poStdErrToOutPut];
 		p.CurrentDirectory := _workDir;
 
-		cmdLineLength := p.Executable.Length + 1 + p.Parameters.Text.Length;
+		cmdLineLength := GetCommandLineLength(_exe, _args);
 		if cmdLineLength >= MAX_COMMAND_LINE_LENGTH then begin
 			ProcessLastLine('The command line is too long', _newLineHandler, _eofProcHandler);
 			Result := RG_ERROR;
@@ -240,7 +242,6 @@ end;
 
 class procedure TProcessUtils.RunProcess(const _exe : string; _args : TStrings; _workDir : string; out _stdOut : TStrings);
 begin
-
 	var
 	sor := TSimpleProcessOutputStringReader.Create;
 	try
@@ -248,6 +249,11 @@ begin
 	finally
 		sor.Free;
 	end;
+end;
+
+class function TProcessUtils.GetCommandLineLength(const _exe : string; const _args : TStrings) : integer;
+begin
+	Result := MaybeQuoteIfNotQuoted(_exe).Length + 1 + _args.Text.Length;
 end;
 
 class function TProcessUtils.RunProcessAsync(const _exe : string; const _args : TStrings; const _workDir : string;
