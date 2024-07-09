@@ -283,6 +283,7 @@ begin
 
 	if selectedDirs <> '' then begin
 		cmbSearchDir.Text := selectedDirs;
+		UpdateCtrls(cmbSearchDir);
 	end;
 end;
 
@@ -305,6 +306,7 @@ begin
 
 	if selectedFiles <> '' then begin
 		cmbSearchDir.Text := selectedFiles;
+		UpdateCtrls(cmbSearchDir);
 	end;
 end;
 

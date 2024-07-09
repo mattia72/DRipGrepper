@@ -161,6 +161,8 @@ const
 	{ } 'Check your PATH or in settings file: ' + CRLF +
 	{ } '%s';
 
+	MAX_COMMAND_LINE_LENGTH = 32767;
+
 type
 
 	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
