@@ -207,6 +207,7 @@ begin
   Settings.TestFile := MainFrame.GetOpenWithParamsFromSelected();
   TOpenWithConfigForm.CreateAndShow(Settings);
   Settings.TestFile := default (TOpenWithParams);
+  Settings.Reload();
 end;
 
 procedure TRipGrepperTopFrame.ActionCopyFileNameExecute(Sender : TObject);

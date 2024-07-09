@@ -35,11 +35,11 @@ type
 
 		protected
 			FIniFile : TIniFile;
-			FIsLoaded : Boolean;
+			FIsLoaded: Boolean;
 			FIsModified : Boolean;
 
 			procedure CreateSetting(const _sName : string; const _setting : TRipGrepperSetting);
-			function GetIsLoaded : Boolean; virtual;
+			function GetIsLoaded: Boolean; virtual;
 			function GetIsModified : Boolean; virtual;
 			procedure Init; virtual;
 			procedure Load; virtual;
@@ -52,6 +52,7 @@ type
 			constructor Create(const _ini : TIniFile);
 			destructor Destroy; override;
 			function GetIniSectionName : string; virtual; abstract;
+			procedure ReLoad;
 			property IniFile : TIniFile read GetIniFile write SetIniFile;
 			property IsLoaded : Boolean read GetIsLoaded;
 			property IsModified : Boolean read GetIsModified write SetIsModified;
@@ -89,7 +90,7 @@ begin
 	Result := FIniFile;
 end;
 
-function TRipGrepperSettingsBase.GetIsLoaded : Boolean;
+function TRipGrepperSettingsBase.GetIsLoaded: Boolean;
 begin
 	Result := FIsLoaded;
 end;
@@ -194,6 +195,11 @@ begin
 	setting := FSettings[_name];
 	Result := setting.DefaultValue;
 	TDebugUtils.DebugMessage('TRipGrepperSettingsBase.LoadDefaultSetting: ' + _name + ' ' + Result);
+end;
+
+procedure TRipGrepperSettingsBase.ReLoad;
+begin
+	FIsLoaded := False;
 end;
 
 class function TRipGrepperSetting.New(const _type : Integer; const _v : Variant) : TRipGrepperSetting;
