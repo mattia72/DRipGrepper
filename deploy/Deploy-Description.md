@@ -24,10 +24,10 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 - [x] extension: search open files, the second approach works: 
     - https://stackoverflow.com/questions/78631692/how-to-get-list-of-opened-files-in-delphi-ide
 - [?] extension: search projekt files
-    - [ ] too large project fails, how can we deal with it?
 - [?] extension: search open projekt files
 - [ ] invert match parser
 
 ## :warning: Bugs (marked with :white_check_mark:, if fixed)
 - [x] dummy text in additional options, can't be deleted from command line
 - [x] rg.exe of vs code doesn't support --pretty
+- [?] too large project fails with ERROR_FILENAME_EXCED_RANGE(206), command slicing is necessary
