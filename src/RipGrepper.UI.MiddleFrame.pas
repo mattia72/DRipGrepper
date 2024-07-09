@@ -36,7 +36,8 @@ uses
 	RipGrepper.Parsers.ParallelParser,
 	ArrayEx,
 	RipGrepper.Tools.ProcessUtils,
-	RipGrepper.Helper.Types;
+	RipGrepper.Helper.Types,
+	RipGrepper.Common.Settings.RipGrepParameterSettings;
 
 type
 	TRipGrepperMiddleFrame = class(TFrame, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
@@ -120,7 +121,7 @@ type
 			procedure RunRipGrep;
 			procedure SetColumnWidths;
 			procedure SetHistObject(const Value : THistoryItemObject);
-			function SliceArgs(_exe : string; _args : TStrings): TStringsArrayEx;
+			function SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
 			procedure UpdateArgumentsAndSettings;
 			procedure UpdateRipGrepArgumentsInHistObj;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
@@ -685,8 +686,7 @@ begin
 			FswSearchStart := TStopwatch.StartNew;
 			args := TStringList.Create;
 			try
-				args.AddStrings(Settings.RipGrepParameters.RipGrepArguments.GetValues);
-				argsArrs := SliceArgs(Settings.RipGrepParameters.RipGrepPath, args);
+				argsArrs := SliceArgs(Settings.RipGrepParameters);
 				for var i := 0 to argsArrs.MaxIndex do begin
 					args.Clear;
 					args.AddStrings(argsArrs[i]);
@@ -746,17 +746,28 @@ begin
 		end);
 end;
 
-function TRipGrepperMiddleFrame.SliceArgs(_exe : string; _args : TStrings):
-	TStringsArrayEx;
+function TRipGrepperMiddleFrame.SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
+var
+	args : TStrings;
+	exe : string;
+	options : string;
 begin
-	if (MAX_COMMAND_LINE_LENGTH > TProcessUtils.GetCommandLineLength(_exe, _args)) then begin
-		Result.Add(_args.ToStringArray);
-	end else begin
-		var
-		strsArr := _args.SliceMaxLength(MAX_COMMAND_LINE_LENGTH - 1 - _exe.Length);
-		for var arr in strsArr do begin
-			Result.Add(arr);
+	options := _rgp.RgExeOptions;
+	args := TStringList.Create;
+	try
+		args.AddStrings(_rgp.RipGrepArguments.GetValues);
+		exe := _rgp.RipGrepPath;
+		if (MAX_COMMAND_LINE_LENGTH > TProcessUtils.GetCommandLineLength(exe, args)) then begin
+			Result.Add(args.ToStringArray);
+		end else begin
+			var
+			strsArr := args.SliceMaxLength(MAX_COMMAND_LINE_LENGTH - 1 - exe.Length);
+			for var arr in strsArr do begin
+				Result.Add(arr);
+			end;
 		end;
+	finally
+		args.Free;
 	end;
 end;
 
