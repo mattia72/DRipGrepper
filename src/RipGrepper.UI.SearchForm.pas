@@ -397,6 +397,7 @@ begin
 		// dlg. := 'All files (*.*)|*.*';
 		dlg.Options := dlg.Options + _fdo;
 		if dlg.Execute(Handle) then begin
+            dlg.Files.Delimiter := SEARCH_PATH_SEPARATOR;
 			Result := dlg.Files.DelimitedText;
 		end;
 	finally

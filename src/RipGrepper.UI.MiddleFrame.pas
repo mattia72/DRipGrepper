@@ -749,21 +749,30 @@ end;
 function TRipGrepperMiddleFrame.SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
 var
 	args : TStrings;
+	op_args : TArray<string>;
+	path_args : TArray<string>;
 	exe : string;
 	options : string;
+	strsArr : TStringsArrayEx;
+	fullCmdLen : integer;
 begin
 	options := _rgp.RgExeOptions;
 	args := TStringList.Create;
 	try
-		args.AddStrings(_rgp.RipGrepArguments.GetValues);
+		args.Delimiter := ' ';
+		args.AddStrings(_rgp.RipGrepArguments.GetValues());
 		exe := _rgp.RipGrepPath;
-		if (MAX_COMMAND_LINE_LENGTH > TProcessUtils.GetCommandLineLength(exe, args)) then begin
+		fullCmdLen := TProcessUtils.GetCommandLineLength(exe, args);
+		if (MAX_COMMAND_LINE_LENGTH > fullCmdLen) then begin
 			Result.Add(args.ToStringArray);
 		end else begin
-			var
-			strsArr := args.SliceMaxLength(MAX_COMMAND_LINE_LENGTH - 1 - exe.Length);
-			for var arr in strsArr do begin
-				Result.Add(arr);
+			args.Clear;
+			path_args := _rgp.SearchPath.Split([SEARCH_PATH_SEPARATOR]);
+			args.AddStrings(path_args);
+			strsArr := args.SliceMaxLength(MAX_COMMAND_LINE_LENGTH - (fullCmdLen - args.Text.Length));
+			op_args := _rgp.RipGrepArguments.GetValues(RG_ARG_OPTIONS);
+			for var arrPath in strsArr do begin
+				Result.Add(op_args + [_rgp.GuiSetSearchParams.SearchText] + arrPath);
 			end;
 		end;
 	finally
