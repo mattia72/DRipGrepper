@@ -357,20 +357,20 @@ begin
 end;
 
 function TRipGrepperMiddleFrame.GetAbsOrRelativePath(const _sFullPath : string) : string;
+var
+	actPath : string;
 begin
 	Result := _sFullPath;
 	if Settings.RipGrepperViewSettings.ShowRelativePath then begin
 		if IOTAUTils.IsStandAlone then begin
-			var
 			actPath := Settings.ActualSearchPath;
-			if ((not actPath.IsEmpty) and Settings.SearchPathIsDir) then begin
-				Result := Result.Replace(actPath, '.', [rfIgnoreCase]);
+			if (actPath.IsEmpty or (not Settings.SearchPathIsDir)) then begin
+				Exit;
 			end;
 		end else begin
-			var
-			projDir := TPath.GetDirectoryName(Settings.ExtensionSettings.CurrentSearchSettings.ActiveProject);
-			Result := ExtractRelativePath(projDir, _sFullPath);
+			actPath := TPath.GetDirectoryName(Settings.ExtensionSettings.CurrentSearchSettings.ActiveProject);
 		end;
+		Result := ExtractRelativePath(actPath + '\', _sFullPath);
 	end;
 end;
 
