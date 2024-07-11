@@ -68,7 +68,7 @@ type
 	TRipGrepperExtensionContext = record
 		Context : ERipGrepperExtensionContext;
 		ActiveFile : string;
-		OpenedProjectFiles : TArray<string>;
+		OpenFiles : TArray<string>;
 		ProjectFiles : TArray<string>;
 		ActiveProject : string;
 

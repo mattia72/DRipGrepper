@@ -812,9 +812,10 @@ begin
 		TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.LoadExtensionSearchSettings SelectedText=' + selectedText);
 	end;
 	extSearchSettings.ActiveFile := IOTAUTils.GxOtaGetCurrentSourceFile();
-	IOTAUTils.GetOpenedEditorFiles();
+
 	extSearchSettings.ProjectFiles := IOTAUTils.GetProjectFiles();
-	extSearchSettings.OpenedProjectFiles := IOTAUTils.GetOpenedEditBuffers();
+	extSearchSettings.OpenFiles := IOTAUTils.GetOpenedEditBuffers();
+	extSearchSettings.ActiveProject := (IOTAUTils.GxOtaGetCurrentProject).FileName;
 
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.LoadExtensionSearchSettings CurrentSearchSettings:' + extSearchSettings.ToString);
 	FSettings.ExtensionSettings.CurrentSearchSettings := extSearchSettings;
@@ -844,7 +845,7 @@ begin
 		end;
 		EXT_SEARCH_OPEN_FILES : begin
 			cmbSearchDir.Enabled := False;
-			cmbSearchDir.Text := string.Join(SEARCH_PATH_SEPARATOR, rgec.OpenedProjectFiles).Trim([SEARCH_PATH_SEPARATOR]);
+			cmbSearchDir.Text := string.Join(SEARCH_PATH_SEPARATOR, rgec.OpenFiles).Trim([SEARCH_PATH_SEPARATOR]);
 		end;
 
 		EXT_SEARCH_GIVEN_PATH : begin
