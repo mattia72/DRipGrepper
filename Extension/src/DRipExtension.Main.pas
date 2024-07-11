@@ -83,14 +83,16 @@ var
 	iPos : integer;
 	sc : TShortCut;
 begin
-	if Assigned(G_DripMenu) then
-		exit;
-	TDebugUtils.DebugMessage('TDRipExtension.CreateMenu');
+	TDebugUtils.DebugMessage('TDRipExtension.CreateMenu start');
+
+	// if Assigned(G_DripMenu) then
+	// exit;
 
 	RemoveExtensionMenu();
 	sc := TextToShortCut(GSettings.ExtensionSettings.DripGrepperShortCut);
+
 	G_DripMenu := Vcl.Menus.NewItem(GetMenuText + '...', sc, False, True, DoDripGrepperMenuClick, 0, DRIP_MENUITEM_NAME);
-	TDebugUtils.DebugMessage('TDRipExtension.CreateMenu - NewItem ' + DRIP_MENUITEM_NAME);
+	TDebugUtils.DebugMessage(Format('TDRipExtension.CreateMenu - NewItem ''%s 0x%x''', [DRIP_MENUITEM_NAME, sc]));
 
 	Item := IOTAUTils.FindMenuItem('ToolsMenu');
 	if Item <> nil then begin
@@ -112,11 +114,12 @@ end;
 constructor TDRipExtension.Create;
 begin
 	inherited;
-	TDebugUtils.DebugMessage('TDRipExtension.Create');
+	TDebugUtils.DebugMessage('TDRipExtension.Create begin');
 	InitPluginInfo;
 	TRipGrepperDockableForm.CreateInstance; // saved layout loading ...
 	G_DRipExtension := self;
 	CreateMenu;
+	TDebugUtils.DebugMessage('TDRipExtension.Create end');
 end;
 
 destructor TDRipExtension.Destroy;
@@ -183,6 +186,7 @@ var
 	aLicenseStatus : string;
 	sExeVersion : string;
 begin
+	TDebugUtils.DebugMessage('TDRipExtension.InitPluginInfo');
 	aBitmap := LoadBitmap(hInstance, 'splash_icon');
 	GetModuleFileName(hInstance, aFileName, MAX_PATH);
 	System.SysUtils.FileAge(aFileName, dFileAge);
