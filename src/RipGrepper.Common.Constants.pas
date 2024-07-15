@@ -7,7 +7,8 @@ uses
 	Vcl.ComCtrls,
 	ArrayEx,
 	System.Generics.Defaults,
-	Vcl.Graphics;
+	Vcl.Graphics,
+	Vcl.Menus;
 
 const
 	APPNAME = 'DRipGrepper';
@@ -23,8 +24,6 @@ const
 	FORMAT_VERSION_INFO = 'v%d.%d.%d-beta';
 	FORMAT_NAME_VERSION_INFO = '%s ' + FORMAT_VERSION_INFO;
 	FORMAT_VERSION_INFO_IN_STATUSBAR = '%s   ';
-
-	SHORTCUT_DRIPGREPPER = 'Umsch+Alt+R';
 
 	CR = #13;
 	LF = #10;
@@ -155,6 +154,7 @@ const
 	EXT_SEARCH_OPEN_FILES = 1;
 	EXT_SEARCH_PROJECT_FILES = 2;
 	EXT_SEARCH_GIVEN_PATH = 3;
+
 	SHOW_CMD_IN_ONE_LINE = 'Show command in one line';
 	SHOW_CMD_IN_SEPARATE_LINES = 'Show command in lines';
 	FORMAT_RIPGREP_EXE_NOT_FOUND = 'RipGrep executable (rg.exe) not found.' + CRLF +
@@ -174,6 +174,11 @@ type
 	EGuiOption = (soNotSet = 0, soMatchCase = 1, soMatchWord = 2, soUseRegex = 3);
 	{$SCOPEDENUMS OFF}
 
+	TDefaults = class
+		class var EXT_DEFAULT_SHORTCUT_SEARCH : string;
+		class constructor Create;
+	end;
+
 const
 	GUI_SEARCH_PARAMS : TArray<EGuiOption> = [
 	{ } EGuiOption.soMatchCase,
@@ -184,5 +189,11 @@ implementation
 
 uses
 	System.SysUtils;
+
+class constructor TDefaults.Create;
+begin
+	inherited;
+	EXT_DEFAULT_SHORTCUT_SEARCH := ShortCutToText(ShortCut(Word('R'), [ssShift, ssAlt]));
+end;
 
 end.

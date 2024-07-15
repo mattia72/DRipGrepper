@@ -221,11 +221,12 @@ begin
 	FInstance := TRipGrepperDockableForm.Create();
 	var
 	services := (BorlandIDEServices as INTAServices);
-	if Assigned(services) then begin
+	try
 		services.RegisterDockableForm(FInstance);
-	end else begin
-        TDebugUtils.DebugMessage('TRipGrepperDockableForm.CreateInstance services not assigned');
-    end;
+	except
+		on e : Exception do
+			TDebugUtils.DebugMessage('TRipGrepperDockableForm.CreateInstance Exception: ' + e.Message);
+	end;
 	TDebugUtils.DebugMessage('TRipGrepperDockableForm.CreateInstance end');
 end;
 

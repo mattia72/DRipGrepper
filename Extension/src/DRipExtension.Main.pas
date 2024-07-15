@@ -89,7 +89,14 @@ begin
 	// exit;
 
 	RemoveExtensionMenu();
+	if not GSettings.ExtensionSettings.IsLoaded then begin
+		GSettings.ExtensionSettings.Load;
+	end;
+	TDebugUtils.DebugMessage('TDRipExtension.CreateMenu shortcut ' + GSettings.ExtensionSettings.DripGrepperShortCut);
 	sc := TextToShortCut(GSettings.ExtensionSettings.DripGrepperShortCut);
+	if sc = 0 then begin
+		sc := TextToShortCut(TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH);
+	end;
 
 	G_DripMenu := Vcl.Menus.NewItem(GetMenuText + '...', sc, False, True, DoDripGrepperMenuClick, 0, DRIP_MENUITEM_NAME);
 	TDebugUtils.DebugMessage(Format('TDRipExtension.CreateMenu - NewItem ''%s 0x%x''', [DRIP_MENUITEM_NAME, sc]));

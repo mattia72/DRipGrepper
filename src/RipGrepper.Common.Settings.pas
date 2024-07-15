@@ -644,7 +644,7 @@ begin
 
 		DripGrepperShortCut := FIniFile.ReadString(INI_SECTION, 'DripGrepperShortCut', '');
 		if DripGrepperShortCut = '' then begin
-			DripGrepperShortCut := ShortCutToText(ShortCut(Word('R'), [ssShift, ssAlt]));
+			DripGrepperShortCut := TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH;
 		end;
 		FIsModified := True;
 		FIsLoaded := True;
