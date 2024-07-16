@@ -144,8 +144,11 @@ const
 	RG_NO_MATCH = 1;
 	RG_SUCCESS = 0;
 
+	ICON_RESOURCE_DLL = 'System32\shell32.dll';
+	ICON_IDX_ERROR = 234;
+	ICON_IDX_PARSE_ERROR = 66;
+
 	RG_ERROR_MSG_PREFIX = 'rg:';
-	IMAGERES_DLL_ICON_IDX_ERROR = 93;
 	RG_PARSE_ERROR = 'not parsed output';
 	RG_ENDED_ERROR = ' failed with exit code: ';
 	RG_HAS_NO_OUTUT = ' has no output.';
@@ -175,8 +178,9 @@ type
 	{$SCOPEDENUMS OFF}
 
 	TDefaults = class
-		class var EXT_DEFAULT_SHORTCUT_SEARCH : string;
-		class constructor Create;
+		class var
+			EXT_DEFAULT_SHORTCUT_SEARCH : string;
+			class constructor Create;
 	end;
 
 const

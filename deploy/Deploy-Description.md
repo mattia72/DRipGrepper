@@ -18,14 +18,19 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 
 ## :rocket: Improvements (marked with :white_check_mark:, if ready)
 
+### :droplet: GUI
+
+#### Main Window
+- [x] other icon for rg.exe error and for not parsed lines
+<!-- #### :mag: Search Dialog -->
+
 ### :droplet: Extension
 
-### :mag: Search Dialog
+#### :mag: Search Dialog
 - [x] extension: search open files, the second approach works: 
     - https://stackoverflow.com/questions/78631692/how-to-get-list-of-opened-files-in-delphi-ide
 - [x] extension: search projekt files
 - [?] extension: search open projekt files
-- [ ] invert match parser
 
 ## :warning: Bugs (marked with :white_check_mark:, if fixed)
 - [x] dummy text in additional options, can't be deleted from command line

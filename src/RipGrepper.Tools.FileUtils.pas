@@ -65,6 +65,7 @@ var
 	Buff : array [0 .. MAX_PATH - 1] of Char;
 begin
 	Retval := GetLongPathName(PChar(ShortPathName), Buff, Length(Buff));
+	{$WARN SYMBOL_PLATFORM OFF}
 	Win32Check(Retval <> 0);
 	Result := Buff;
 end;
