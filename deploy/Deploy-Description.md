@@ -32,6 +32,6 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 - [x] rg.exe of vs code doesn't support --pretty
 - extension: search projekt files:
   - [x] too large project fails with ERROR_FILENAME_EXCED_RANGE(206), command slicing is necessary
-  - [ ] if large project has error it doesn't appear at the top
+  - [x] if large project has error it doesn't appear at the top
   - [x] show full, relative path doesn't work
   - [x] short cut doesn't work

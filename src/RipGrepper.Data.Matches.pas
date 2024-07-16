@@ -26,14 +26,14 @@ type
 			FErrorCount : Integer;
 			FHistObject : THistoryItemObject;
 			FVst : TCustomVirtualStringTree;
-			function AddVSTStructure(_node : PVirtualNode; _rec : TVSFileNodeData) : PVirtualNode;
+			function AddVSTStructure(_node : PVirtualNode; _rec : TVSFileNodeData; _asFirst : Boolean) : PVirtualNode;
 			function GetTotalMatchCount : Integer;
 			function GetFileCount : Integer;
 			function GetComparer(const _sbt : TSortByType) : IComparer<IParsedObjectRow>;
 			function GetErrorCount : Integer;
 			function GetHistObject : THistoryItemObject;
 			function GetListItemCount : Integer;
-			function GetParentNode(const _sNodeText : string) : PVirtualNode;
+			function GetParentNode(const _sNodeText : string; _asFirst : Boolean = False) : PVirtualNode;
 			procedure AddChildNode(const _parentNode : PVirtualNode; _item : IParsedObjectRow);
 			function ErrorHandling(const _sFileColumnText : string; _item : IParsedObjectRow) : PVirtualNode;
 			function GetNoMatchFound : Boolean;
@@ -107,11 +107,15 @@ begin
 	end;
 end;
 
-function TRipGrepperData.AddVSTStructure(_node : PVirtualNode; _rec : TVSFileNodeData) : PVirtualNode;
+function TRipGrepperData.AddVSTStructure(_node : PVirtualNode; _rec : TVSFileNodeData; _asFirst : Boolean) : PVirtualNode;
 var
 	Data : PVSFileNodeData;
 begin
-	Result := FVst.AddChild(_node);
+	if _asFirst then begin
+		Result := FVst.InsertNode(_node, TVTNodeAttachMode.amAddChildFirst);
+	end else begin
+		Result := FVst.AddChild(_node);
+	end;
 	Data := FVst.GetNodeData(Result);
 	// FVst.ValidateNode(Result, False);
 	Data^.FilePath := _rec.FilePath;
@@ -239,8 +243,7 @@ begin
 	end;
 end;
 
-function TRipGrepperData.GetParentNode(const _sNodeText : string) : PVirtualNode;
-
+function TRipGrepperData.GetParentNode(const _sNodeText : string; _asFirst : Boolean = False) : PVirtualNode;
 var
 	nodeData : TVSFileNodeData;
 begin
@@ -248,23 +251,25 @@ begin
 	idx := MatchFiles.IndexOf(_sNodeText);
 	if idx < 0 then begin
 		nodeData := TVSFileNodeData.New(_sNodeText);
-		Result := AddVSTStructure(nil, nodeData);
+		Result := AddVSTStructure(nil, nodeData, _asFirst);
 		MatchFiles.AddObject(_sNodeText, TObject(Result));
 	end else begin
 		Result := PVirtualNode(MatchFiles.Objects[idx]);
 	end;
-
 end;
 
 procedure TRipGrepperData.AddChildNode(const _parentNode : PVirtualNode; _item : IParsedObjectRow);
 var
+	bAsFirst : Boolean;
 	nodeData : TVSFileNodeData;
 begin
 	if not Assigned(_parentNode) then begin
 		Exit;
 	end;
+	bAsFirst := False;
 	if _item.IsError then begin
 		_item.ParserType := ptRipGrepError;
+		bAsFirst := True;
 	end;
 	case _item.ParserType of
 		ptRipGrepSearch :
@@ -286,10 +291,9 @@ begin
 		{ } -1, // Row
 		{ } -1, // Col
 		{ } ''); // LineText
-
 	end;
 
-	AddVSTStructure(_parentNode, nodeData);
+	AddVSTStructure(_parentNode, nodeData, bAsFirst);
 end;
 
 function TRipGrepperData.ErrorHandling(const _sFileColumnText : string; _item : IParsedObjectRow) : PVirtualNode;
@@ -307,15 +311,15 @@ begin
 	end else if _item.ErrorText = RG_PARSE_ERROR then begin
 		if TRegEx.IsMatch(_sFileColumnText, '^' + RG_ERROR_MSG_PREFIX) then begin
 			NoMatchFound := True;
-			node := GetParentNode(RG_ERROR_MSG_PREFIX);
+			node := GetParentNode(RG_ERROR_MSG_PREFIX, True);
 			nodeData := TVSFileNodeData.New(_sFileColumnText.Remove(0, RG_ERROR_MSG_PREFIX.Length));
-			AddVSTStructure(node, nodeData);
+			AddVSTStructure(node, nodeData, true);
 			Exit;
 		end;
 	end;
 
 	Inc(FErrorCount);
-	Result := GetParentNode(_item.ErrorText);
+	Result := GetParentNode(_item.ErrorText, True);
 end;
 
 function TRipGrepperData.GetNoMatchFound : Boolean;
