@@ -10,10 +10,8 @@ uses
 
 type
 	TRipGrepperParsersFactory = class
-
-		private
 		public
-			class function GetParser(_type : TParserType) : ILineParser;
+			class function GetParser(_type : TParserType) : ISearchResultLineParser;
 			class function TryGetParserType(_ripGrepArgs : TArrayEx<string>) : TParserType;
 	end;
 
@@ -23,7 +21,7 @@ uses
 	RipGrepper.Parsers.VimGrepMatchLine,
 	RipGrepper.Helper.Types;
 
-class function TRipGrepperParsersFactory.GetParser(_type : TParserType) : ILineParser;
+class function TRipGrepperParsersFactory.GetParser(_type : TParserType) : ISearchResultLineParser;
 begin
 	case _type of
 		ptRipGrepSearch :

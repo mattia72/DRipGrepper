@@ -9,26 +9,29 @@ uses
 	System.RegularExpressions;
 
 type
-	TVimGrepMatchLineParser = class(TInterfacedObject, ILineParser)
+	TVimGrepMatchLineParser = class(TInterfacedObject, ISearchResultLineParser)
 		private
 			FParserData : ILineParserData;
 			FParseResult : IParsedObjectRow;
+			FSearchParams: ISearchParams;
 			function GetParseResult : IParsedObjectRow;
 			procedure SetParseResult(const Value : IParsedObjectRow);
 			procedure SetRgResultLineParseError(out row : TArrayEx<TColumnData>; const _sLine : string);
 			function Validate(var row : TArrayEx<TColumnData>) : Boolean; virtual;
 			function ValidatePath(const sFile : string) : Boolean;
+			function GetSearchParams: ISearchParams;
+			procedure SetSearchParams(const Value: ISearchParams);
 
 		public
 			property ParserData : ILineParserData read FParserData write FParserData;
 			property ParseResult : IParsedObjectRow read GetParseResult write SetParseResult;
+			property SearchParams: ISearchParams read GetSearchParams write SetSearchParams;
 			constructor Create; virtual;
 			destructor Destroy; override;
 			procedure ParseLine(const _iLnNr : integer; const _sLine : string; const _bIsLast : Boolean = False); virtual;
 	end;
 
 	TVimGrepPrettyMatchLineParser = class(TVimGrepMatchLineParser)
-
 		private
 			procedure ParseContextLine(const _m : TMatch; var _cd : TArrayEx<TColumnData>);
 			procedure ParsePrettyLine(const m : TMatch; var cd : TArrayEx<TColumnData>);
@@ -65,6 +68,11 @@ end;
 function TVimGrepMatchLineParser.GetParseResult : IParsedObjectRow;
 begin
 	Result := FParseResult;
+end;
+
+function TVimGrepMatchLineParser.GetSearchParams: ISearchParams;
+begin
+    Result := FSearchParams;
 end;
 
 { TVimGrepMatchLineParser }
@@ -124,6 +132,11 @@ begin
 	row.Add(TColumnData.New('Row', ''));
 	row.Add(TColumnData.New('Col', ''));
 	row.Add(TColumnData.New('Text', ''));
+end;
+
+procedure TVimGrepMatchLineParser.SetSearchParams(const Value: ISearchParams);
+begin
+	FSearchParams := Value;
 end;
 
 function TVimGrepMatchLineParser.Validate(var row : TArrayEx<TColumnData>) : Boolean;

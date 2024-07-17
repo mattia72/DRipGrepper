@@ -83,7 +83,7 @@ end;
 
 procedure TRipGrepMatchTest.ParseErrorTest(const _s : string);
 var
-	m : ILineParser;
+	m : ISearchResultLineParser;
 	parseRes : IParsedObjectRow;
 begin
 	m := TVimGrepMatchLineParser.Create();
@@ -126,7 +126,7 @@ end;
 
 procedure TRipGrepMatchTest.ValidatePathTest(const _s : string);
 var
-	m : ILineParser;
+	m : ISearchResultLineParser;
 begin
 	m := TVimGrepMatchLineParser.Create();
 	m.ParseLine(0, _s);
