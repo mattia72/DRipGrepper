@@ -22,6 +22,7 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 
 #### Main Window
 - [x] other icon for rg.exe error and for not parsed lines
+- [ ] poor man's prettifier, if rg.exe of vs code doesn't support --pretty
 <!-- #### :mag: Search Dialog -->
 
 ### :droplet: Extension
@@ -33,6 +34,7 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 - [?] extension: search open projekt files
 
 ## :warning: Bugs (marked with :white_check_mark:, if fixed)
+- [ ] path not saved in history
 - [x] dummy text in additional options, can't be deleted from command line
 - [x] rg.exe of vs code doesn't support --pretty
 - [x] after searching invalid path and reopen search window, search path is weird
