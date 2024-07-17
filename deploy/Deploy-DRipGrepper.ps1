@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param (
-    [switch] $BuildStandalune,
+    [switch] $BuildStandalone,
     [switch] $BuildExtension,
     [switch] $RunUnittest,
     [switch] $Deploy,
@@ -13,9 +13,8 @@ param (
 # - Commit and push all changes
 # - Run this script Ctrl+Shift+T Deploy
 
-$global:Description = $(Get-Content "$PSScriptRoot\Deploy-Description.md" | Out-String)
+$global:Description = Get-Content "$PSScriptRoot\Deploy-Description.md"
 $global:Version = ($global:Description | Select-String '^Version:') -replace 'Version:\s*'
-$global:PrevVersion = ($global:Description | Select-String '^PrevVersion:' ) -replace 'PrevVersion:\s*'
 
 $global:PreRelease = $true
 $global:StandaloneAppName = "DRipGrepper.exe"
@@ -121,7 +120,7 @@ function New-ReleaseWithAsset {
         Build-AndRunUnittest
     }
 
-    if ($BuildStandalune) {
+    if ($BuildStandalone) {
         Build-StandaloneRelease 
     }
   
@@ -176,7 +175,7 @@ function New-Release {
                 tag_name               = "$global:Version"
                 target_commitish       = "master"
                 name                   = "$global:Version"
-                body                   = "$global:Description"
+                body                   = "$($global:Description| Out-String)"
                 draft                  = $false
                 prerelease             = $global:PreRelease
                 generate_release_notes = $true

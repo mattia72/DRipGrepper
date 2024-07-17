@@ -4,9 +4,18 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Build All & Deploy",
+            "type": "shell",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone -BuildExtension -Deploy",
+            "problemMatcher": [],
+            "group": {
+                "kind": "none"
+            }
+        },
+        {
             "label": "Deploy",
             "type": "shell",
-            "command": ". deploy\\Deploy-DripGrepper.ps1; Deploy",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -Deploy",
             "problemMatcher": [],
             "group": {
                 "kind": "none"
@@ -15,7 +24,7 @@
         {
             "label": "Update scoop manifest",
             "type": "shell",
-            "command": ". deploy\\Deploy-DripGrepper.ps1; Update-ScoopManifest",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -UpdateScoopManifest",
             "problemMatcher": [],
             "group": {
                 "kind": "none"
@@ -24,7 +33,7 @@
         {
             "label": "Build All",
             "type": "shell",
-            "command": ". deploy\\Deploy-DripGrepper.ps1; Build-StandaloneRelease; Build-ExtensionRelease",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone -BuildExtension",
             "problemMatcher": [],
             "group": {
                 "kind": "build"
@@ -33,7 +42,7 @@
         {
             "label": "Build DRipGrepper",
             "type": "shell",
-            "command": ". deploy\\Deploy-DripGrepper.ps1; Build-StandaloneRelease",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone",
             "group": {
                 "kind": "build"
             }
@@ -41,7 +50,7 @@
         {
             "label": "Build and run DRipGrepper",
             "type": "shell",
-            "command": ". deploy\\Deploy-DripGrepper.ps1; Build-StandaloneRelease; & .\\Win32\\Release\\DripGrepper.exe",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone; & .\\Win32\\Release\\DripGrepper.exe",
             "group": {
                 "kind": "build"
             }
@@ -49,7 +58,7 @@
         {
             "label": "Build DRipExtension",
             "type": "shell",
-            "command": ". deploy\\Deploy-DripGrepper.ps1; Build-ExtensionRelease",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildExtension",
             "group": {
                 "kind": "build"
             }
@@ -57,7 +66,7 @@
         {
             "label": "Build and run unittests",
             "type": "shell",
-            "command": ". deploy\\Deploy-DripGrepper.ps1; Build-AndRunUnittest",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -RunUnittest",
             "problemMatcher": [],
             "group": {
                 "kind": "none"
