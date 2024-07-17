@@ -14,8 +14,8 @@ type
 		private
 			class procedure AddArgs(var _params : TRipGrepParameterSettings; const _sName : string; const _args : TArray<string>;
 				const _bQuote : Boolean = False); static;
-// TODO: RemoveParam
-//          class function RemoveParam(var arrRgOptions : TArrayEx<string>; const _paramRegex : string) : Boolean; static;
+			// TODO: RemoveParam
+			// class function RemoveParam(var arrRgOptions : TArrayEx<string>; const _paramRegex : string) : Boolean; static;
 
 		public
 			class function FileMasksToOptions(const _arrMasks, _arrSkipMasks : TArrayEx<string>) : string; static;
@@ -157,15 +157,8 @@ begin
 	AddArgs(_params, RG_ARG_SEARCH_TEXT, [_params.GuiSetSearchParams.SearchText]); // order is important!
 
 	for var s in _params.SearchPath.Split([SEARCH_PATH_SEPARATOR]) do begin
-		if not IOTAUtils.IsStandAlone then begin
-			if (FileExists(s) or DirectoryExists(s)) then begin
-				arrPaths.Add(s);
-			end else begin
-				TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: File or Dir not exists ' + s + ' skip');
-			end;
-		end else begin
-			arrPaths.Add(s);
-		end;
+		arrPaths.Add(s);
+		TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: Path added:' + s);
 	end;
 	AddArgs(_params, RG_ARG_SEARCH_PATH, arrPaths, True { Quote if necessary } );
 
@@ -175,14 +168,14 @@ begin
 end;
 
 // TODO: RemoveParam
-//class function TCommandLineBuilder.RemoveParam(var arrRgOptions : TArrayEx<string>; const _paramRegex : string) : Boolean;
-//begin
-//  Result := False;
-//  for var p in _paramRegex.Split(['|']) do begin
-//      if arrRgOptions.Remove(p) then begin
-//          Result := True;
-//      end;
-//  end;
-//end;
+// class function TCommandLineBuilder.RemoveParam(var arrRgOptions : TArrayEx<string>; const _paramRegex : string) : Boolean;
+// begin
+// Result := False;
+// for var p in _paramRegex.Split(['|']) do begin
+// if arrRgOptions.Remove(p) then begin
+// Result := True;
+// end;
+// end;
+// end;
 
 end.
