@@ -152,7 +152,6 @@ type
 			function HasHistItemObj : Boolean;
 			function GetInIDESelectedText : string;
 			procedure LoadExtensionSearchSettings;
-			procedure SetSearchTextAndHistory(const _actVal : string; _hist : TStrings; const _rgArg : string);
 			procedure UpdateCmbsOnContextChange;
 			procedure UpdateFileMasksInFileMasks;
 			function UpdateFileMasksInOptions(const sOptions, sMasks : string) : string; overload;
@@ -205,8 +204,6 @@ begin
 		TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.Create: set hist obj');
 		FGuiSetSearchParams := FHistItemObj.GuiSetSearchParams;
 	end;
-
-	//SetSearchTextAndHistory(_settings.RipGrepParameters.SearchText, _settings.SearchTextsHistory, RG_ARG_SEARCH_TEXT);
 
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.Create: gui params=' + FGuiSetSearchParams.ToString);
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
@@ -812,24 +809,6 @@ begin
 	rbExtensionOptions.ItemIndex := Integer(extSearchSettings.Context);
 	UpdateCmbsOnContextChange();
 	FbExtensionOptionsSkipClick := False;
-end;
-
-procedure TRipGrepperSearchDialogForm.SetSearchTextAndHistory(const _actVal : string; _hist : TStrings; const _rgArg : string);
-begin
-
-	if not _actVal.IsEmpty then begin
-		_hist.DeleteAll([_actVal]);
-		_hist.Insert(0, _actVal);
-		TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.SetSearchTextAndHistory: new val=' + _actVal);
-		if _rgArg = RG_ARG_SEARCH_TEXT then begin
-			FGuiSetSearchParams.SearchText := _actVal;
-		end;
-		if HasHistItemObj then begin
-			FHistItemObj.RipGrepArguments.Values[_rgArg] := _actVal;
-			TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.SetSearchTextAndHistory: new rg arg[' + _rgArg + ']=' + string.Join('',
-				FHistItemObj.RipGrepArguments.GetValues(_rgArg)));
-		end;
-	end;
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateCmbsOnContextChange;
