@@ -1,6 +1,6 @@
 <!--
 
-Version:     v2.8.0-beta
+Version:     v2.9.0-beta
 PrevVersion: v2.8.1-beta
 
 Help Formatting:
@@ -22,11 +22,13 @@ Marked with checkmark if ready, else next planned.
 ### :droplet: GUI
 
 #### Main Window
-- [ ] poor man's prettifier, if rg.exe of vs code doesn't support --pretty
+- [x] own prettifier in case if rg.exe of vs code doesn't support --pretty
+- [ ] own prettifier switcher as toolbar button
 
 <!-- #### :mag: Search Dialog -->
 
 ### :droplet: Extension
+- [x] drip icon in menu
 
 #### :mag: Search Dialog
 - [ ] extension: search open projekt files
@@ -34,3 +36,4 @@ Marked with checkmark if ready, else next planned.
 ## :warning: Bugs 
 Checkmarked if fixed, else it is known bug.
 - [x] path not saved in history
+- [ ] indent in case of own prettifier

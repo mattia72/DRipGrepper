@@ -6,7 +6,8 @@ interface
 uses
 	ToolsAPI,
 	RipGrepper.UI.MainForm,
-	DripExtension.UI.DockableForm;
+	DripExtension.UI.DockableForm,
+	Vcl.Graphics;
 
 type
 	// TNotifierObject has stub implementations for the necessary but
@@ -20,9 +21,11 @@ type
 			FKeyBinding : integer;
 
 			FDockableForm : TRipGrepperDockableForm;
+			FIconBmp : TBitmap;
 			FiPluginIndexAbout : Integer;
 			procedure CreateMenu;
 			procedure DoDripGrepperMenuClick(Sender : TObject);
+			function GetIconBmp : Vcl.Graphics.TBitmap;
 
 			procedure InitPluginInfo;
 			procedure RemoveExtensionMenu;
@@ -31,10 +34,12 @@ type
 			// **********************************************************************************************************************
 			procedure RemovePluginInfo;
 			procedure ShowDripGrepperForm;
+			property IconBmp : TBitmap read GetIconBmp;
 
 		public
 			constructor Create; virtual;
 			destructor Destroy; override;
+			function AddToImageList : Integer;
 			// IOTAWizard interafce methods(required for all wizards/experts)
 			function GetIDString : string;
 			function GetName : string;
@@ -63,10 +68,10 @@ uses
 	RipGrepper.Common.IOTAUtils,
 	System.IOUtils,
 	Vcl.Menus,
-	Vcl.Graphics,
 	RipGrepper.Tools.DebugUtils,
 	System.Classes,
-	Winapi.Windows;
+	Winapi.Windows,
+	Vcl.ImgList;
 
 var
 	G_DripMenu : TMenuItem;
@@ -100,6 +105,9 @@ begin
 
 	G_DripMenu := Vcl.Menus.NewItem(GetMenuText + '...', sc, False, True, DoDripGrepperMenuClick, 0, DRIP_MENUITEM_NAME);
 	TDebugUtils.DebugMessage(Format('TDRipExtension.CreateMenu - NewItem ''%s 0x%x''', [DRIP_MENUITEM_NAME, sc]));
+
+	G_DripMenu.ImageIndex := AddToImageList;
+	TDebugUtils.DebugMessage(Format('TDRipExtension.CreateMenu - G_DripMenu.ImageIndex %d', [G_DripMenu.ImageIndex]));
 
 	Item := IOTAUTils.FindMenuItem('ToolsMenu');
 	if Item <> nil then begin
@@ -138,7 +146,18 @@ begin
 	TDebugUtils.DebugMessage('TDRipExtension.Destroy G_DripMenu.Free');
 	G_DripMenu.Free;
 	G_DRipExtension := nil;
+	FIconBmp.Free;
 	inherited;
+end;
+
+function TDRipExtension.AddToImageList : Integer;
+var
+  Services: INTAServices;
+begin
+	Supports(BorlandIDEServices, INTAServices, Services);
+	{ Add an image to the image list. }
+	IconBmp.LoadFromResourceName(HInstance, 'about_icon');
+	Result := Services.AddMasked(IconBmp, IconBmp.TransparentColor, 'DRipExtension icon');
 end;
 
 procedure TDRipExtension.DoDripGrepperMenuClick(Sender : TObject);
@@ -150,6 +169,15 @@ end;
 procedure TDRipExtension.Execute;
 begin
 	ShowMessage(EXTENSION_NAME + CRLF + HOME_PAGE);
+end;
+
+function TDRipExtension.GetIconBmp : Vcl.Graphics.TBitmap;
+begin
+	if not Assigned(FIconBmp) then begin
+		FIconBmp := Vcl.Graphics.TBitmap.Create();
+		FIconBmp.Handle := LoadBitmap(hInstance, 'splash_icon');
+	end;
+	result := FIconBmp;
 end;
 
 // IOTAWizard
@@ -194,12 +222,11 @@ var
 	sExeVersion : string;
 begin
 	TDebugUtils.DebugMessage('TDRipExtension.InitPluginInfo');
-	aBitmap := LoadBitmap(hInstance, 'splash_icon');
 	GetModuleFileName(hInstance, aFileName, MAX_PATH);
 	System.SysUtils.FileAge(aFileName, dFileAge);
 	aLicenseStatus := FormatDateTime('dd.mm.yy - h:nn', dFileAge);
 	sExeVersion := TFileUtils.GetAppVersion(aFileName);
-	(SplashScreenServices as IOTASplashScreenServices).AddPluginBitmap(EXTENSION_NAME, aBitmap, False, '', sExeVersion);
+	(SplashScreenServices as IOTASplashScreenServices).AddPluginBitmap(EXTENSION_NAME, IconBmp.Handle, False, '', sExeVersion);
 
 	aBitmap := LoadBitmap(hInstance, 'about_icon');
 	FiPluginIndexAbout := (BorlandIDEServices as IOTAAboutBoxServices).AddPluginInfo(EXTENSION_NAME, EXTENSION_NAME + CRLF + HOME_PAGE,
