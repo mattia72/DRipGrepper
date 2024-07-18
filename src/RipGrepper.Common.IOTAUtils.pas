@@ -7,12 +7,14 @@ uses
 	ToolsAPI,
 	System.Classes,
 	Vcl.Controls,
-	Vcl.Forms, RipGrepper.Helper.Types;
+	Vcl.Forms,
+	RipGrepper.Helper.Types,
+	Vcl.Graphics;
 
 type
 	IOTAUTils = class
-
 		public
+			class function AddToImageList(_bmp : Vcl.Graphics.TBitmap; const _identText : string) : Integer;
 			// Returns the size of any EOL character(s) at a given position (0 if none)
 			class function EOLSizeAtPos(const S : string; Pos : Integer) : Integer;
 			class function FileMatchesExtension(const FileName, FileExtension : string) : Boolean;
@@ -160,6 +162,14 @@ uses
 	RipGrepper.Common.Constants,
 	Winapi.Windows,
 	RipGrepper.Tools.DebugUtils;
+
+class function IOTAUTils.AddToImageList(_bmp : Vcl.Graphics.TBitmap; const _identText : string): Integer;
+var
+	Services : INTAServices;
+begin
+	Supports(BorlandIDEServices, INTAServices, Services);
+	Result := Services.AddMasked(_bmp, _bmp.TransparentColor, _identText);
+end;
 
 // Returns the size of any EOL characters at a given position
 // Supports the following EOL formats:

@@ -36,4 +36,5 @@ Marked with checkmark if ready, else next planned.
 ## :warning: Bugs 
 Checkmarked if fixed, else it is known bug.
 - [x] path not saved in history
-- [ ] indent in case of own prettifier
+- [ ] indent sometimes not working
+- [ ] rg options helper grid weird

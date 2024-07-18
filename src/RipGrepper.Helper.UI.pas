@@ -418,7 +418,7 @@ begin
 
 		end else begin
 			bmp := TItemDrawer.GetIconBitmap(_sFilePath, FImage);
-			Result := FImageList.AddMasked(bmp, clWhite);
+			Result := FImageList.AddMasked(bmp, bmp.TransparentColor);
 		end;
 		FExtIndexDict.Add(sExtension, Result);
 	end;

@@ -105,8 +105,8 @@ begin
 
 	G_DripMenu := Vcl.Menus.NewItem(GetMenuText + '...', sc, False, True, DoDripGrepperMenuClick, 0, DRIP_MENUITEM_NAME);
 	TDebugUtils.DebugMessage(Format('TDRipExtension.CreateMenu - NewItem ''%s 0x%x''', [DRIP_MENUITEM_NAME, sc]));
-
 	G_DripMenu.ImageIndex := AddToImageList;
+	//G_DripMenu.ImageIndex := IOTAUTils.AddToImageList(IconBmp, 'DripExtension icon');
 	TDebugUtils.DebugMessage(Format('TDRipExtension.CreateMenu - G_DripMenu.ImageIndex %d', [G_DripMenu.ImageIndex]));
 
 	Item := IOTAUTils.FindMenuItem('ToolsMenu');
@@ -151,13 +151,9 @@ begin
 end;
 
 function TDRipExtension.AddToImageList : Integer;
-var
-  Services: INTAServices;
 begin
-	Supports(BorlandIDEServices, INTAServices, Services);
-	{ Add an image to the image list. }
-	IconBmp.LoadFromResourceName(HInstance, 'about_icon');
-	Result := Services.AddMasked(IconBmp, IconBmp.TransparentColor, 'DRipExtension icon');
+	IconBmp.LoadFromResourceName(hInstance, 'about_icon');
+	Result := IOTAUTils.AddToImageList(IconBmp, 'DRipExtension icon');
 end;
 
 procedure TDRipExtension.DoDripGrepperMenuClick(Sender : TObject);
@@ -175,7 +171,6 @@ function TDRipExtension.GetIconBmp : Vcl.Graphics.TBitmap;
 begin
 	if not Assigned(FIconBmp) then begin
 		FIconBmp := Vcl.Graphics.TBitmap.Create();
-		FIconBmp.Handle := LoadBitmap(hInstance, 'splash_icon');
 	end;
 	result := FIconBmp;
 end;
@@ -215,7 +210,7 @@ end;
 
 procedure TDRipExtension.InitPluginInfo;
 var
-	aBitmap : HBITMAP;
+	bmpHandle : HBITMAP;
 	aFileName : array [0 .. MAX_PATH] of char;
 	dFileAge : TDateTime;
 	aLicenseStatus : string;
@@ -226,11 +221,12 @@ begin
 	System.SysUtils.FileAge(aFileName, dFileAge);
 	aLicenseStatus := FormatDateTime('dd.mm.yy - h:nn', dFileAge);
 	sExeVersion := TFileUtils.GetAppVersion(aFileName);
-	(SplashScreenServices as IOTASplashScreenServices).AddPluginBitmap(EXTENSION_NAME, IconBmp.Handle, False, '', sExeVersion);
+	bmpHandle := LoadBitmap(hInstance, 'splash_icon');
+	(SplashScreenServices as IOTASplashScreenServices).AddPluginBitmap(EXTENSION_NAME, bmpHandle, False, '', sExeVersion);
 
-	aBitmap := LoadBitmap(hInstance, 'about_icon');
+	bmpHandle := LoadBitmap(hInstance, 'about_icon');
 	FiPluginIndexAbout := (BorlandIDEServices as IOTAAboutBoxServices).AddPluginInfo(EXTENSION_NAME, EXTENSION_NAME + CRLF + HOME_PAGE,
-		aBitmap, False, aLicenseStatus, sExeVersion);
+		bmpHandle, False, aLicenseStatus, sExeVersion);
 end;
 
 procedure TDRipExtension.RegisterKeyboardBinding;
