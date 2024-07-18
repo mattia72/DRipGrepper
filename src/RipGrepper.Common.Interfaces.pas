@@ -55,7 +55,7 @@ type
 
 	ISearchParams = interface
 		['{CF7C5401-4CBE-4B08-8D4D-62C6E2E70983}']
-		function GuiSearchParams : TGuiSearchTextParams;
+		function GetGuiSearchParams : TGuiSearchTextParams;
 	end;
 
 	ISearchResultLineParser = interface(ILineParser)

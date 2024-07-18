@@ -166,11 +166,14 @@ const
 
 	MAX_COMMAND_LINE_LENGTH = 32767;
 
+	COLUMN_TITLES : TArray<string> = ['File', 'Row', 'Col', 'Text', 'MatchText', 'TextAfterMatch'];
+
 type
 
 	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
 	TFileNameType = (ftAbsolute, ftRelative);
-	EColumnIndex = (ciFile, ciRow, ciCol, ciText, ciMatchText, ciTextAfterMatch, ciRowNr);
+	EColumnIndex = (ciFile, ciRow, ciCol, ciText, ciMatchText, ciTextAfterMatch);
+
 	TRipGrepArguments = TStringList;
 
 	{$SCOPEDENUMS ON}
@@ -178,9 +181,12 @@ type
 	{$SCOPEDENUMS OFF}
 
 	TDefaults = class
-		class var
-			EXT_DEFAULT_SHORTCUT_SEARCH : string;
+		private
+			class function GetColumnTitle(Index : EColumnIndex) : string; static;
+		public
+			class var EXT_DEFAULT_SHORTCUT_SEARCH : string;
 			class constructor Create;
+			class property ColumnTitle[index : EColumnIndex] : string read GetColumnTitle; default;
 	end;
 
 const
@@ -198,6 +204,11 @@ class constructor TDefaults.Create;
 begin
 	inherited;
 	EXT_DEFAULT_SHORTCUT_SEARCH := ShortCutToText(ShortCut(Word('R'), [ssShift, ssAlt]));
+end;
+
+class function TDefaults.GetColumnTitle(Index : EColumnIndex) : string;
+begin
+	Result := COLUMN_TITLES[Integer(Index)];
 end;
 
 end.

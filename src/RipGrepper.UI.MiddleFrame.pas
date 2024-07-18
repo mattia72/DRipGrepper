@@ -881,9 +881,7 @@ begin
 	case Column of
 		3 : begin
 			case FHistObject.ParserType of
-				ptRipGrepSearch : begin
-
-				end;
+				ptRipGrepSearch,
 				ptRipGrepPrettySearch : begin
 					DefaultDraw := False;
 					// First, store the default font size and color number

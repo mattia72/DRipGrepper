@@ -42,7 +42,8 @@ uses
 	RipGrepper.Parsers.Factory,
 	RipGrepper.Helper.Types,
 	RipGrepper.Common.Constants,
-	Winapi.Windows;
+	Winapi.Windows,
+	RipGrepper.Common.TSearchParams;
 
 constructor TParallelParser.Create(_data : TRipGrepperData; _histObj : THistoryItemObject);
 begin
@@ -66,13 +67,13 @@ end;
 
 procedure TParallelParser.ParseLine(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean);
 var
-	ifParser : ILineParser;
+	ifParser : ISearchResultLineParser;
+	ifSearchParam : ISearchParams;
 	oParsed : IParsedObjectRow;
 begin
 	TThread.Queue(nil,
 		procedure
 		begin
-
 			if _bIsLast then begin
 				OnLastLine(_iLineNr);
 				TDebugUtils.DebugMessage(Format('Before parse last line: %d in %d err: %d', [FHistObject.TotalMatchCount,
@@ -81,6 +82,8 @@ begin
 
 			if (not _sLine.IsEmpty) then begin
 				ifParser := TRipGrepperParsersFactory.GetParser(FHistObject.ParserType);
+				ifSearchParam := TSearchParams.Create(FHistObject.GuiSetSearchParams);
+				ifParser.SearchParams := ifSearchParam;
 				ifParser.ParseLine(_iLineNr, _sLine, _bIsLast);
 				oParsed := TParsedObjectRow.Create(ifParser.ParseResult, FHistObject.ParserType);
 				try

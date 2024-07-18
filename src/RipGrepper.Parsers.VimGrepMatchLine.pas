@@ -13,19 +13,20 @@ type
 		private
 			FParserData : ILineParserData;
 			FParseResult : IParsedObjectRow;
-			FSearchParams: ISearchParams;
+			FPrettyRegex : TRegEx;
+			FSearchParams : ISearchParams;
 			function GetParseResult : IParsedObjectRow;
 			procedure SetParseResult(const Value : IParsedObjectRow);
 			procedure SetRgResultLineParseError(out row : TArrayEx<TColumnData>; const _sLine : string);
 			function Validate(var row : TArrayEx<TColumnData>) : Boolean; virtual;
 			function ValidatePath(const sFile : string) : Boolean;
-			function GetSearchParams: ISearchParams;
-			procedure SetSearchParams(const Value: ISearchParams);
+			function GetSearchParams : ISearchParams;
+			procedure SetSearchParams(const Value : ISearchParams);
 
 		public
 			property ParserData : ILineParserData read FParserData write FParserData;
 			property ParseResult : IParsedObjectRow read GetParseResult write SetParseResult;
-			property SearchParams: ISearchParams read GetSearchParams write SetSearchParams;
+			property SearchParams : ISearchParams read GetSearchParams write SetSearchParams;
 			constructor Create; virtual;
 			destructor Destroy; override;
 			procedure ParseLine(const _iLnNr : integer; const _sLine : string; const _bIsLast : Boolean = False); virtual;
@@ -70,9 +71,9 @@ begin
 	Result := FParseResult;
 end;
 
-function TVimGrepMatchLineParser.GetSearchParams: ISearchParams;
+function TVimGrepMatchLineParser.GetSearchParams : ISearchParams;
 begin
-    Result := FSearchParams;
+	Result := FSearchParams;
 end;
 
 { TVimGrepMatchLineParser }
@@ -93,19 +94,31 @@ begin
 		// TDebugUtils.DebugMessage(_sLine);
 		// according FastMM it is leaky :/
 		s := Format('%s%s', [m.Groups['drive'].Value, m.Groups['path'].Value]);
-		cd.Add(TColumnData.New('File', s));
-		cd.Add(TColumnData.New('Row', m.Groups['row'].Value));
-		cd.Add(TColumnData.New('Col', m.Groups['col'].Value));
-		cd.Add(TColumnData.New('Text', m.Groups['text'].Value));
+		cd.Add(TColumnData.New(ciFile, s));
+		cd.Add(TColumnData.New(ciRow, m.Groups['row'].Value));
+		cd.Add(TColumnData.New(ciCol, m.Groups['col'].Value));
+		s := m.Groups['text'].Value;
+		var
+		so := SearchParams.GetGuiSearchParams;
+		m := FPrettyRegex.Match(s);
+		if m.Groups.Count = 4 then begin
+			cd.Add(TColumnData.New(ciText, m.Groups['before'].Value));
+			cd.Add(TColumnData.New(ciMatchText, m.Groups['text'].Value));
+			cd.Add(TColumnData.New(ciTextAfterMatch, m.Groups['after'].Value));
+		end else begin
+			cd.Add(TColumnData.New(ciText, s));
+			cd.Add(TColumnData.New(ciMatchText, ''));
+			cd.Add(TColumnData.New(ciTextAfterMatch, ''));
+		end;
 
 	end else begin
 		m := ParserData.ContextLineParseRegex.Match(_sLine);
 		if m.Success then begin
 			s := Format('%s%s', [m.Groups['drive'].Value, m.Groups['path'].Value]);
-			cd.Add(TColumnData.New('File', s));
-			cd.Add(TColumnData.New('Row', m.Groups['row'].Value));
-			cd.Add(TColumnData.New('Col', ''));
-			cd.Add(TColumnData.New('Text', m.Groups['text'].Value));
+			cd.Add(TColumnData.New(ciFile, s));
+			cd.Add(TColumnData.New(ciRow, m.Groups['row'].Value));
+			cd.Add(TColumnData.New(ciCol, ''));
+			cd.Add(TColumnData.New(ciText, m.Groups['text'].Value));
 		end;
 	end;
 	if (cd.Count > 0) then
@@ -128,15 +141,26 @@ end;
 
 procedure TVimGrepMatchLineParser.SetRgResultLineParseError(out row : TArrayEx<TColumnData>; const _sLine : string);
 begin
-	row.Add(TColumnData.New('File', _sLine));
-	row.Add(TColumnData.New('Row', ''));
-	row.Add(TColumnData.New('Col', ''));
-	row.Add(TColumnData.New('Text', ''));
+	row.Add(TColumnData.New(ciFile, _sLine));
+	row.Add(TColumnData.New(ciRow, ''));
+	row.Add(TColumnData.New(ciCol, ''));
+	row.Add(TColumnData.New(ciText, ''));
 end;
 
-procedure TVimGrepMatchLineParser.SetSearchParams(const Value: ISearchParams);
+procedure TVimGrepMatchLineParser.SetSearchParams(const Value : ISearchParams);
 begin
 	FSearchParams := Value;
+	var
+	gp := FSearchParams.GetGuiSearchParams;
+	var
+	so := gp.SearchOptions;
+	var
+	pattern := '(?<before>^.*)(?<text>' + gp.SearchText + ')(?<after>.*$)';
+	if (EGuiOption.soMatchCase in so) then begin
+		FPrettyRegex := TRegEx.Create(pattern, [roCompiled]);
+	end else begin
+		FPrettyRegex := TRegEx.Create(pattern, [roIgnoreCase, roCompiled]);
+	end;
 end;
 
 function TVimGrepMatchLineParser.Validate(var row : TArrayEx<TColumnData>) : Boolean;
@@ -187,13 +211,12 @@ procedure TVimGrepPrettyMatchLineParser.ParseContextLine(const _m : TMatch; var 
 begin
 	var
 	s := Format('%s%s', [_m.Groups['drive'].Value, _m.Groups['path'].Value]);
-	_cd.Add(TColumnData.New('File', s));
-	_cd.Add(TColumnData.New('Row', _m.Groups['row'].Value));
-	_cd.Add(TColumnData.New('Col', ''));
-	_cd.Add(TColumnData.New('Text', _m.Groups['text'].Value));
-	_cd.Add(TColumnData.New('MatchText', ''));
-	_cd.Add(TColumnData.New('TextAfterMatch', ''));
-
+	_cd.Add(TColumnData.New(ciFile, s));
+	_cd.Add(TColumnData.New(ciRow, _m.Groups['row'].Value));
+	_cd.Add(TColumnData.New(ciCol, ''));
+	_cd.Add(TColumnData.New(ciText, _m.Groups['text'].Value));
+	_cd.Add(TColumnData.New(ciMatchText, ''));
+	_cd.Add(TColumnData.New(ciTextAfterMatch, ''));
 end;
 
 { TVimGrepPrettyMatchLineParser }
@@ -236,17 +259,17 @@ procedure TVimGrepPrettyMatchLineParser.ParsePrettyLine(const m : TMatch; var cd
 begin
 	var
 	s := Format('%s%s', [m.Groups['drive'].Value, m.Groups['path'].Value]);
-	cd.Add(TColumnData.New('File', s));
-	cd.Add(TColumnData.New('Row', m.Groups['row'].Value));
-	cd.Add(TColumnData.New('Col', m.Groups['col'].Value));
-	cd.Add(TColumnData.New('Text', m.Groups['text_before_match'].Value));
-	cd.Add(TColumnData.New('MatchText', m.Groups['match_text'].Value));
+	cd.Add(TColumnData.New(ciFile, s));
+	cd.Add(TColumnData.New(ciRow, m.Groups['row'].Value));
+	cd.Add(TColumnData.New(ciCol, m.Groups['col'].Value));
+	cd.Add(TColumnData.New(ciText, m.Groups['text_before_match'].Value));
+	cd.Add(TColumnData.New(ciMatchText, m.Groups['match_text'].Value));
 	var
 	count := cd.Count;
 	if m.Groups.Count > count + 2 then begin
-		cd.Add(TColumnData.New('TextAfterMatch', m.Groups['text_after_match'].Value));
+		cd.Add(TColumnData.New(ciTextAfterMatch, m.Groups['text_after_match'].Value));
 	end else begin
-		cd.Add(TColumnData.New('TextAfterMatch', ''));
+		cd.Add(TColumnData.New(ciTextAfterMatch, ''));
 	end;
 end;
 

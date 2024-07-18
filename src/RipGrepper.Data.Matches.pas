@@ -272,20 +272,15 @@ begin
 		bAsFirst := True;
 	end;
 	case _item.ParserType of
-		ptRipGrepSearch :
-		nodeData := TVSFileNodeData.New('', // File
-		{ } StrToIntDef(_item.Columns[Integer(ciRow)].Text, -1), // Row
-		{ } StrToIntDef(_item.Columns[Integer(ciCol)].Text, -1), // Col
-		{ } _item.Columns[Integer(ciText)].Text // LineText
-			);
-		ptRipGrepPrettySearch :
-		nodeData := TVSFileNodeData.New('', // File
-		{ } StrToIntDef(_item.Columns[Integer(ciRow)].Text, -1), // Row
-		{ } StrToIntDef(_item.Columns[Integer(ciCol)].Text, -1), // Col
-		{ } _item.Columns[Integer(ciText)].Text, // TextBefore
-		{ } _item.Columns[Integer(ciMatchText)].Text, // MatchText
-		{ } _item.Columns[Integer(ciTextAfterMatch)].Text // TextAfter
-			);
+		ptRipGrepSearch, ptRipGrepPrettySearch : begin
+			nodeData := TVSFileNodeData.New('', // File
+			{ } StrToIntDef(_item.Columns[Integer(ciRow)].Text, -1), // Row
+			{ } StrToIntDef(_item.Columns[Integer(ciCol)].Text, -1), // Col
+			{ } _item.Columns[Integer(ciText)].Text, // TextBefore
+			{ } _item.Columns[Integer(ciMatchText)].Text, // MatchText
+			{ } _item.Columns[Integer(ciTextAfterMatch)].Text // TextAfter
+				);
+		end;
 		ptRipGrepError :
 		nodeData := TVSFileNodeData.New(_item.Columns[Integer(ciFile)].Text, // File
 		{ } -1, // Row

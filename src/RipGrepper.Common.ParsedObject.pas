@@ -45,7 +45,7 @@ type
 		Text : string;
 
 		public
-			class function New(const _Title, _Text : string) : TColumnData; static;
+			class function New(const _Title : EColumnIndex; const _Text : string) : TColumnData; overload; static;
 	end;
 
 	{$M+}
@@ -171,9 +171,9 @@ implementation
 uses
 	System.SysUtils;
 
-class function TColumnData.New(const _Title, _Text : string) : TColumnData;
+class function TColumnData.New(const _Title : EColumnIndex; const _Text : string) : TColumnData;
 begin
-	Result.Title := _Title;
+	Result.Title := TDefaults.ColumnTitle[_Title];
 	Result.Text := _Text;
 end;
 
