@@ -15,6 +15,7 @@ param (
 
 $global:Description = Get-Content "$PSScriptRoot\Deploy-Description.md"
 $global:Version = ($global:Description | Select-String '^Version:') -replace 'Version:\s*'
+$global:PrevVersion = ($global:Description | Select-String '^PrevVersion:') -replace 'PrevVersion:\s*'
 
 $global:PreRelease = $true
 $global:StandaloneAppName = "DRipGrepper.exe"
@@ -181,6 +182,7 @@ function New-Release {
                 generate_release_notes = $true
             } | ConvertTo-Json )
     } 
+    Write-Host "Send rest method with body: $($params.Body)"
     $response = $(Invoke-RestMethod @params)
     $response | Select-Object -Property id, tag_name, body, created_at
 }
@@ -197,7 +199,7 @@ function New-ReleaseNotes {
                 # configuration_file_path = ".github/release.yml"     
             } | ConvertTo-Json )
     }
-
+    Write-Host "Send rest method with body: $($params.Body)"
     $response = $(Invoke-RestMethod @params)
     $response | Select-Object -Property name, body
 }
