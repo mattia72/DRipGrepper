@@ -63,7 +63,8 @@ uses
   RipGrepper.CommandLine.Builder in 'src\RipGrepper.CommandLine.Builder.pas',
   RipGrepper.CommandLine.OptionHelper in 'src\RipGrepper.CommandLine.OptionHelper.pas',
   RipGrepper.Common.GuiSearchParams in 'src\RipGrepper.Common.GuiSearchParams.pas',
-  RipGrepper.Common.IOTAUtils in 'src\RipGrepper.Common.IOTAUtils.pas';
+  RipGrepper.Common.IOTAUtils in 'src\RipGrepper.Common.IOTAUtils.pas',
+  RipGrepper.Common.TSearchParams in 'src\RipGrepper.Common.TSearchParams.pas';
 
 {$R *.res}
 

@@ -30,20 +30,18 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 - [ ] replace text in files --replace=TEXT
 
 ### :mag: Search Dialog
-- [x] help parametrizing `rg` in search dialog
-  - [x] filter help texts: can't be selected 
+- [x] helps parametrizing `rg.exe` in search dialog
   - [x] expert mode set in `DripGrepper.ini` makes rg options visible
     - [x] option helper form 
-    - [ ] appropriate parameters will be filtered 
   - [x] quick buttons for
     - [x] --ignore-case
     - [x] --case-sensitive
     - [x] --word-regexp
     - [x] --fixed-strings
   - [x] --glob filter settings can be set in separate editbox
-  - [x] --hidden, --no-ignore can be set in the form
-  - [x] --pretty can be set in the form
-  - [x] --context=NUM can be set in the form
+  - [x] --hidden, --no-ignore can be set
+  - [x] --pretty can be set
+  - [x] --context=NUM can be set
   
 
 ### :rocket: Open with...
@@ -56,7 +54,7 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
 ![Screenshot](./screenshots/04-02-2024_11-04-47.png)
 
 ### Configuration
-- [x] configuration is stored in ini file (`DripGrepper.ini` for standalone and `DripExtension*.ini` for the extension)
+Configuration is stored in ini file (`DripGrepper.ini` for standalone and `DripExtension*.ini` for the extension)
   - [x] search text history saved
   - [x] search paths history saved
   - [x] `rg` parameter history saved
