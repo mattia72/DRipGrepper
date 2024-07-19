@@ -28,7 +28,7 @@ type
 		FilePath : string;
 		// Icon?
 		MatchData : TVSMatchData;
-		function GetText(const _bTrimLeft : Boolean; var _iTrimCount : Integer) : string;
+		function GetText(const _bTrimLeft : Boolean; var _iSpaceCount, _iTabCount : Integer) : string;
 
 		public
 			class function New(_file : string; _row, _col : Integer; _textBefore, _matchText, _textAfter : string) : TVSFileNodeData;
@@ -169,7 +169,8 @@ type
 implementation
 
 uses
-	System.SysUtils;
+	System.SysUtils,
+	RipGrepper.Helper.Types;
 
 class function TColumnData.New(const _Title : EColumnIndex; const _Text : string) : TColumnData;
 begin
@@ -297,17 +298,26 @@ begin
 	FGroupId := Value;
 end;
 
-function TVSFileNodeData.GetText(const _bTrimLeft : Boolean; var _iTrimCount : Integer) : string;
+function TVSFileNodeData.GetText(const _bTrimLeft : Boolean; var _iSpaceCount, _iTabCount : Integer) : string;
 var
 	sTrimmed : string;
 begin
-	if not _bTrimLeft then begin
-		Result := MatchData.LineText;
-		_iTrimCount := 0;
-	end else begin
-		sTrimmed := MatchData.LineText.TrimLeft();
-		_iTrimCount := MatchData.LineText.Length - sTrimmed.Length;
+	_iSpaceCount := 0;
+	_iTabCount := 0;
+	if _bTrimLeft then begin
+		sTrimmed := MatchData.LineText.Replace(#9,'  ', [rfReplaceAll]).TrimLeft();
+		for var ch in MatchData.LineText.ToCharArray() do begin
+			if ch = ' ' then begin
+				PostInc(_iSpaceCount);
+			end else if ch = #9 then begin
+				PostInc(_iTabCount);
+			end else begin
+				break;
+			end;
+		end;
 		Result := sTrimmed;
+	end else begin
+		Result := MatchData.LineText;
 	end;
 
 end;

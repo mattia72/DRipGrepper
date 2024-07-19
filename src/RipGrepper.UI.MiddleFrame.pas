@@ -870,13 +870,15 @@ end;
 
 procedure TRipGrepperMiddleFrame.VstResultDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
 Column : TColumnIndex; const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
+const
+	FONTSPACE = 4;
 var
 	fc : TColor;
 	fs, pos : Integer;
 	style : TFontStyles;
 	Data : PVSFileNodeData;
 	s, ss0, ss1, ss2 : string;
-	shift, matchBegin : Integer;
+	spaces, tabs, matchBegin : Integer;
 begin
 	case Column of
 		3 : begin
@@ -890,12 +892,12 @@ begin
 					style := TargetCanvas.Font.style;
 
 					Data := VstResult.GetNodeData(Node);
-					s := Data.GetText(Settings.RipGrepperViewSettings.IndentLines, shift);
+					s := Data.GetText(Settings.RipGrepperViewSettings.IndentLines, spaces, tabs);
 
-					matchBegin := Data.MatchData.Col - 1 - shift;
+					matchBegin := Data.MatchData.Col - 1 - (spaces + tabs);
 
 					ss0 := s.Substring(0, matchBegin);
-					TargetCanvas.TextOut(CellRect.Left, 4, ss0);
+					TargetCanvas.TextOut(CellRect.Left, FONTSPACE, ss0);
 
 					ss1 := s.Substring(matchBegin, Data.MatchData.MatchLength);
 					ss2 := s.Substring(matchBegin + Data.MatchData.MatchLength);
@@ -903,15 +905,14 @@ begin
 					pos := TargetCanvas.TextWidth(ss0);
 					TargetCanvas.Font.Color := clMaroon;
 					TargetCanvas.Font.style := [fsBold, fsUnderline];
-					TargetCanvas.TextOut(CellRect.Left + pos, 4, ss1);
+					TargetCanvas.TextOut(CellRect.Left + pos, FONTSPACE, ss1);
 
 					pos := pos + TargetCanvas.TextWidth(ss1);
 					TargetCanvas.Font.Color := fc;
 					TargetCanvas.Font.Size := fs;
 					TargetCanvas.Font.style := style;
-					TargetCanvas.TextOut(CellRect.Left + pos, 4, ss2);
+					TargetCanvas.TextOut(CellRect.Left + pos, FONTSPACE, ss2);
 				end;
-
 			end;
 		end;
 	end;
@@ -973,8 +974,8 @@ begin
 		3 : begin
 			if (TextType = ttNormal) then begin
 				var
-					dummy : Integer;
-				CellText := NodeData.GetText(Settings.RipGrepperViewSettings.IndentLines, dummy);
+					dummy1, dummy2 : Integer;
+				CellText := NodeData.GetText(Settings.RipGrepperViewSettings.IndentLines, dummy1, dummy2);
 			end;
 
 		end;

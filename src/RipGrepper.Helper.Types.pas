@@ -58,8 +58,8 @@ type
 
 function GetElapsedTime(const _swStart : TStopwatch) : string;
 
-function PostInc(var Value : Integer) : Integer;
-function PreInc(var Value : Integer) : Integer;
+function PostInc(var Value: Integer; const n: Integer = 1): Integer;
+function PreInc(var Value: Integer; const n: Integer = 1): Integer;
 
 implementation
 
@@ -69,15 +69,15 @@ uses
 	System.StrUtils,
 	RipGrepper.Common.Constants;
 
-function PostInc(var Value : Integer) : Integer;
+function PostInc(var Value: Integer; const n: Integer = 1): Integer;
 begin
 	Result := Value;
-	inc(Value);
+	inc(Value, n);
 end;
 
-function PreInc(var Value : Integer) : Integer;
+function PreInc(var Value: Integer; const n: Integer = 1): Integer;
 begin
-	inc(Value);
+	inc(Value, n);
 	Result := Value;
 end;
 
