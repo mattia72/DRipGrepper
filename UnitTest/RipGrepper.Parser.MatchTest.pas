@@ -67,18 +67,23 @@ end;
 
 procedure TRipGrepMatchTest.ParseLineTest(const _s : string);
 var
-	m : TVimGrepMatchLineParser;
+	parser : TVimGrepMatchLineParser;
+	ifSearchParam : ISearchParams;
 begin
-	m := TVimGrepMatchLineParser.Create();
-	m.ParseLine(0, _s);
-	Assert.IsTrue(not m.ParseResult.IsError,
+	parser := TVimGrepMatchLineParser.Create();
+	parser.SearchParams := ifSearchParam;
+	parser.ParseLine(0, _s);
+	var pr :=  parser.ParseResult;
+	Assert.IsTrue(not pr.IsError,
 		{ } 'Line:' + CRLF +
 		{ } _s + CRLF +
-		{ } m.ParseResult.Columns[Integer(ciFile)].Text + CRLF +
-		{ } m.ParseResult.Columns[Integer(ciRow)].Text + CRLF +
-		{ } m.ParseResult.Columns[Integer(ciCol)].Text + CRLF +
-		{ } m.ParseResult.Columns[Integer(ciText)].Text + CRLF);
-	m.Free;
+		{ } pr.Columns[Integer(ciFile)].Text + CRLF +
+		{ } pr.Columns[Integer(ciRow)].Text + CRLF +
+		{ } pr.Columns[Integer(ciCol)].Text + CRLF +
+		{ } pr.Columns[Integer(ciText)].Text + CRLF +
+		{ } pr.Columns[Integer(ciMatchText)].Text + CRLF +
+		{ } pr.Columns[Integer(ciTextAfterMatch)].Text);
+	parser.Free;
 end;
 
 procedure TRipGrepMatchTest.ParseErrorTest(const _s : string);

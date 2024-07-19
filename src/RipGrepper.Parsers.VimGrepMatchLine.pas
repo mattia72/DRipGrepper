@@ -99,7 +99,7 @@ begin
 		cd.Add(TColumnData.New(ciCol, m.Groups['col'].Value));
 		s := m.Groups['text'].Value;
 		var
-		so := SearchParams.GetGuiSearchParams;
+		so := SearchParams.GetGuiSearchParams; // not used, but so we have less memory leak!
 		m := FPrettyRegex.Match(s);
 		if m.Groups.Count = 4 then begin
 			cd.Add(TColumnData.New(ciText, m.Groups['before'].Value));
