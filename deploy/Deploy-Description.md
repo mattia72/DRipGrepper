@@ -14,11 +14,12 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 ### :warning: Bug Fixes
 #* bug
 
+# TODO
 # - Change Readme.md 
 # - Change Deploy-Description.md 
 # - Change file and product version in every projects for ALL CONFIGURATION!
 # - Commit and push all changes
-# - Run this script Ctrl+Shift+T Deploy
+# - Run deploy script by pushing Ctrl+Shift+T in VSCode
 -->
 
 ## :rocket: Improvements 
