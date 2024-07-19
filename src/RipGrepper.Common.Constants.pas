@@ -167,7 +167,7 @@ const
 	MAX_COMMAND_LINE_LENGTH = 32767;
 
 	COLUMN_TITLES : TArray<string> = ['File', 'Row', 'Col', 'Text', 'MatchText', 'TextAfterMatch'];
-
+	INDENT_TAB_AS_SPACES = '    ';
 type
 
 	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);

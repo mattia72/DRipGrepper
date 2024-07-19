@@ -883,8 +883,7 @@ begin
 	case Column of
 		3 : begin
 			case FHistObject.ParserType of
-				ptRipGrepSearch,
-				ptRipGrepPrettySearch : begin
+				ptRipGrepSearch, ptRipGrepPrettySearch : begin
 					DefaultDraw := False;
 					// First, store the default font size and color number
 					fc := TargetCanvas.Font.Color;
@@ -892,17 +891,18 @@ begin
 					style := TargetCanvas.Font.style;
 
 					Data := VstResult.GetNodeData(Node);
-					s := Data.GetText(Settings.RipGrepperViewSettings.IndentLines, spaces, tabs);
+					s := Data.GetText(not Settings.RipGrepperViewSettings.IndentLines, spaces, tabs);
 
 					matchBegin := Data.MatchData.Col - 1 - (spaces + tabs);
 
-					ss0 := s.Substring(0, matchBegin);
+					ss0 := s.Substring(0, matchBegin).Replace(#9, INDENT_TAB_AS_SPACES, [rfReplaceAll]);
+					pos := TargetCanvas.TextWidth(ss0);
+
 					TargetCanvas.TextOut(CellRect.Left, FONTSPACE, ss0);
 
 					ss1 := s.Substring(matchBegin, Data.MatchData.MatchLength);
 					ss2 := s.Substring(matchBegin + Data.MatchData.MatchLength);
 
-					pos := TargetCanvas.TextWidth(ss0);
 					TargetCanvas.Font.Color := clMaroon;
 					TargetCanvas.Font.style := [fsBold, fsUnderline];
 					TargetCanvas.TextOut(CellRect.Left + pos, FONTSPACE, ss1);

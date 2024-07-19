@@ -305,7 +305,7 @@ begin
 	_iSpaceCount := 0;
 	_iTabCount := 0;
 	if _bTrimLeft then begin
-		sTrimmed := MatchData.LineText.Replace(#9,'  ', [rfReplaceAll]).TrimLeft();
+		sTrimmed := MatchData.LineText.TrimLeft();
 		for var ch in MatchData.LineText.ToCharArray() do begin
 			if ch = ' ' then begin
 				PostInc(_iSpaceCount);

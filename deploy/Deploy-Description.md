@@ -17,7 +17,7 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 -->
 
 ## :rocket: Improvements 
-Marked with checkmark if ready, else next planned.
+Marked with checkmark if ready, else planned as next.
 
 ### :droplet: GUI
 
@@ -36,5 +36,6 @@ Marked with checkmark if ready, else next planned.
 ## :warning: Bugs 
 Checkmarked if fixed, else it is known bug.
 - [x] path not saved in history
-- [ ] indent sometimes not working
-- [ ] rg options helper grid weird
+- [x] indent sometimes not working
+- [ ] rg options helper grid has weird entries
+- [ ] drip icon in menu has no transparent background
