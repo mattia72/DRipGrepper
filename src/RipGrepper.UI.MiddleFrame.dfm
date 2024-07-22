@@ -49,20 +49,27 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
         Align = alClient
         Anchors = [akLeft, akTop, akBottom]
         TabOrder = 0
-        object ListBoxSearchHistory: TListBox
+        object VstHistory: TVirtualStringTree
           AlignWithMargins = True
           Left = 4
           Top = 4
           Width = 183
           Height = 329
-          Style = lbVirtualOwnerDraw
           Align = alClient
-          ItemHeight = 30
+          Header.AutoSizeIndex = 0
+          Header.MainColumn = -1
+          PopupMenu = PopupMenuHistory
           TabOrder = 0
-          OnClick = ListBoxSearchHistoryClick
-          OnData = ListBoxSearchHistoryData
-          OnDblClick = ListBoxSearchHistoryDblClick
-          OnDrawItem = ListBoxSearchHistoryDrawItem
+          TreeOptions.SelectionOptions = [toFullRowSelect]
+          TreeOptions.StringOptions = [toSaveCaptions, toShowStaticText, toAutoAcceptEditChange]
+          OnFreeNode = VstHistoryFreeNode
+          OnGetText = VstHistoryGetText
+          OnMeasureItem = VstHistoryMeasureItem
+          OnNodeClick = VstHistoryNodeClick
+          OnNodeDblClick = VstHistoryNodeDblClick
+          Touch.InteractiveGestures = [igPan, igPressAndTap]
+          Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
+          Columns = <>
         end
       end
       object PanelResult: TPanel
@@ -83,7 +90,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           Header.AutoSizeIndex = 3
           Header.Options = [hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible, hoAutoResizeInclCaption]
           Images = ImageListListView
-          PopupMenu = PopupMenu1
+          PopupMenu = PopupMenuResult
           TabOrder = 0
           TreeOptions.AutoOptions = [toAutoDropExpand, toAutoExpand, toAutoScrollOnExpand, toAutoSort, toAutoSpanColumns, toAutoTristateTracking, toAutoHideButtons, toAutoDeleteMovedNodes, toAutoChangeScale]
           TreeOptions.SelectionOptions = [toFullRowSelect]
@@ -145,11 +152,14 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
       OnExecute = ActionOpenWithExecute
       OnUpdate = ActionOpenWithUpdate
     end
+    object Action1: TAction
+      Caption = 'Delete'
+    end
   end
-  object PopupMenu1: TPopupMenu
+  object PopupMenuResult: TPopupMenu
     Images = ImageList1
-    Left = 125
-    Top = 19
+    Left = 285
+    Top = 129
     object Openwith1: TMenuItem
       Action = ActionOpenWith
       Default = True
@@ -581,5 +591,13 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
       CFF9892900000000C801C08D00000000C801FE7000000000C001FF3400000000
       C001FF8100000000FE3FFFE10000000000000000000000000000000000000000
       000000000000}
+  end
+  object PopupMenuHistory: TPopupMenu
+    Images = ImageList1
+    Left = 295
+    Top = 199
+    object Action11: TMenuItem
+      Action = Action1
+    end
   end
 end

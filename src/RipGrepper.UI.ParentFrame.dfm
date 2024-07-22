@@ -25,7 +25,7 @@ object ParentFrame: TParentFrame
     Align = alTop
     TabOrder = 0
     inherited tbarConfig: TToolBar
-      Left = 823
+      Left = 815
       Height = 25
     end
   end
@@ -49,9 +49,6 @@ object ParentFrame: TParentFrame
         end
         inherited PanelHistory: TPanel
           Height = 423
-          inherited ListBoxSearchHistory: TListBox
-            Height = 415
-          end
         end
         inherited PanelResult: TPanel
           Height = 423

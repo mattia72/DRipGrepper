@@ -278,7 +278,7 @@ begin
   cursor.SetHourGlassCursor;
 
   MainFrame.AddOrUpdateHistoryItem;
-  MainFrame.ListBoxSearchHistory.ItemIndex := MainFrame.CurrentHistoryItemIndex;
+  MainFrame.SetSelectedHistoryItem(MainFrame.CurrentHistoryItemIndex);
 
   MainFrame.Data.ClearMatchFiles;
   MainFrame.InitSearch();

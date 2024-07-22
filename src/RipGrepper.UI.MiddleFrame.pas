@@ -45,7 +45,7 @@ type
 		ActionCopyFileName : TAction;
 		ActionCopyPathToClipboard : TAction;
 		ActionOpenWith : TAction;
-		PopupMenu1 : TPopupMenu;
+		PopupMenuResult : TPopupMenu;
 		Openwith1 : TMenuItem;
 		N1 : TMenuItem;
 		CopyFileNameToClipboard : TMenuItem;
@@ -55,10 +55,13 @@ type
 		SplitView1 : TSplitView;
 		Splitter1 : TSplitter;
 		PanelHistory : TPanel;
-		ListBoxSearchHistory : TListBox;
 		PanelResult : TPanel;
 		VstResult : TVirtualStringTree;
 		ImageList1 : TImageList;
+		VstHistory : TVirtualStringTree;
+		PopupMenuHistory : TPopupMenu;
+		Action1 : TAction;
+		Action11 : TMenuItem;
 		procedure ActionCopyFileNameExecute(Sender : TObject);
 		procedure ActionCopyFileNameUpdate(Sender : TObject);
 		procedure ActionCopyPathToClipboardExecute(Sender : TObject);
@@ -66,12 +69,14 @@ type
 		procedure ActionOpenWithExecute(Sender : TObject);
 		procedure ActionOpenWithUpdate(Sender : TObject);
 		procedure FrameResize(Sender : TObject);
-		procedure ListBoxSearchHistoryClick(Sender : TObject);
-		procedure ListBoxSearchHistoryData(Control : TWinControl; Index : Integer; var Data : string);
-		procedure ListBoxSearchHistoryDblClick(Sender : TObject);
-		procedure ListBoxSearchHistoryDrawItem(Control : TWinControl; Index : Integer; Rect : TRect; State : TOwnerDrawState);
 		procedure Splitter1Moved(Sender : TObject);
 		procedure SplitView1Resize(Sender : TObject);
+		procedure VstHistoryFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
+		procedure VstHistoryGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType;
+			var CellText : string);
+		procedure VstHistoryMeasureItem(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; var NodeHeight : Integer);
+		procedure VstHistoryNodeClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
+		procedure VstHistoryNodeDblClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
 		procedure VstResultBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
 			CellPaintMode : TVTCellPaintMode; CellRect : TRect; var ContentRect : TRect);
 		procedure VstResultCompareNodes(Sender : TBaseVirtualTree; Node1, Node2 : PVirtualNode; Column : TColumnIndex;
@@ -112,6 +117,7 @@ type
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
 			function GetHistoryObjectList : TStringList;
 			function GetNewParallelParser : TParallelParser;
+			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
 			function GetSettings : TRipGrepperSettings;
 			procedure LoadBeforeSearchSettings;
 			procedure OnLastLine(const _iLineNr : Integer);
@@ -150,6 +156,7 @@ type
 			// ITerminateEventProducer
 			function ProcessShouldTerminate : Boolean;
 			procedure SetResultListViewDataToHistoryObj;
+			procedure SetSelectedHistoryItem(const _idx : Integer);
 			procedure UpdateHistObject;
 			property AbortSearch : Boolean read FAbortSearch write FAbortSearch;
 			property CurrentHistoryItemIndex : Integer read FCurrentHistoryItemIndex write FCurrentHistoryItemIndex;
@@ -204,8 +211,6 @@ end;
 destructor TRipGrepperMiddleFrame.Destroy;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.Destroy');
-
-	TListBoxHelper.FreeItemObjects(ListBoxSearchHistory);
 
 	// if Assigned(ListViewResult.Items) then begin
 	// ListViewResult.Items.Count := 0;
@@ -265,6 +270,8 @@ end;
 
 procedure TRipGrepperMiddleFrame.AddOrUpdateHistoryItem;
 var
+	Node : PVirtualNode;
+	Data : PVSHistoryNodeData;
 	hi : THistoryItemObject;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.AddOrUpdateHistoryItem ActualSearchText: ' + Settings.ActualSearchText);
@@ -276,13 +283,16 @@ begin
 		ChangeDataHistItemObject(hi);
 		TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.AddOrUpdateHistoryItem Add HistoryObject ' + Settings.ActualSearchText);
 		CurrentHistoryItemIndex := HistoryObjectList.AddObject(Settings.ActualSearchText, hi);
+		Node := VstHistory.AddChild(nil);
+		Data := VstHistory.GetNodeData(Node);
+		Data^.SearchText := Settings.ActualSearchText;
+		VstHistory.MultiLine[Node] := True;
 	end else begin
 		UpdateRipGrepArgumentsInHistObj;
 		UpdateHistObject;
 		ClearHistoryObject();
 		TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.AddOrUpdateHistoryItem Update HistoryObject ' + Settings.ActualSearchText);
 	end;
-	ListBoxSearchHistory.Count := HistoryObjectList.Count;
 end;
 
 procedure TRipGrepperMiddleFrame.AlignToolBars;
@@ -295,14 +305,14 @@ end;
 procedure TRipGrepperMiddleFrame.ChangeDataHistItemObject(_ho : THistoryItemObject);
 begin
 	var
-	beu := TBeginEndUpdater.New(ListBoxSearchHistory);
+	beu := TBeginEndUpdater.New(VstHistory);
 	Data.HistObject := _ho;
 end;
 
 procedure TRipGrepperMiddleFrame.ClearHistoryObject;
 begin
 	var
-	beu := TBeginEndUpdater.New(ListBoxSearchHistory);
+	beu := TBeginEndUpdater.New(VstHistory);
 	HistObject.ClearMatches;
 end;
 
@@ -376,6 +386,10 @@ end;
 
 function TRipGrepperMiddleFrame.GetCounterText(Data : THistoryItemObject) : string;
 begin
+	Result := '';
+	if not Assigned(Data) then begin
+		Exit;
+	end;
 	if Data.ErrorCount > 0 then begin
 		Result := Format('%d(%d!) in %d', [Data.TotalMatchCount, Data.ErrorCount, Data.FileCount]);
 	end else begin
@@ -499,6 +513,11 @@ begin
 	VstResult.TreeOptions.StringOptions := VstResult.TreeOptions.StringOptions + [toShowStaticText];
 	VstResult.TreeOptions.PaintOptions := VstResult.TreeOptions.PaintOptions + [toUseExplorerTheme];
 	VstResult.NodeDataSize := SizeOf(TVSFileNodeData);
+
+	VstHistory.TreeOptions.StringOptions := VstResult.TreeOptions.StringOptions + [toShowStaticText];
+	VstHistory.TreeOptions.PaintOptions := VstResult.TreeOptions.PaintOptions + [toUseExplorerTheme];
+	VstHistory.TreeOptions.MiscOptions := VstHistory.TreeOptions.MiscOptions + [TVTMiscOption.toVariablenodeHeight];
+	VstHistory.NodeDataSize := SizeOf(TVSHistoryNodeData);
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.InitForm Ended');
 end;
 
@@ -517,71 +536,6 @@ end;
 function TRipGrepperMiddleFrame.IsSearchRunning : Boolean;
 begin
 	Result := FIsParsingRunning or (Assigned(FRipGrepTask) and (FRipGrepTask.Status = TTaskStatus.Running));
-end;
-
-procedure TRipGrepperMiddleFrame.ListBoxSearchHistoryClick(Sender : TObject);
-begin
-	if (CurrentHistoryItemIndex = ListBoxSearchHistory.ItemIndex) then
-		Exit;
-
-	CurrentHistoryItemIndex := ListBoxSearchHistory.ItemIndex;
-	UpdateHistObject;
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History clicked: ' + CurrentHistoryItemIndex.ToString);
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History Object: ' +
-		HistObject.RipGrepArguments.DelimitedText);
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History Matches: ' + HistObject.TotalMatchCount.ToString);
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History Files: ' + HistObject.FileCount.ToString);
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History Errors: ' + HistObject.ErrorCount.ToString);
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History Gui: ' + HistObject.GuiSetSearchParams.SearchText +
-		' ' + HistObject.GuiSetSearchParams.ToString);
-	SetResultListViewDataToHistoryObj();
-	ExpandNodes;
-	RefreshCountersInGUI;
-	ParentFrame.SetStatusBarMessage(True);
-end;
-
-procedure TRipGrepperMiddleFrame.ListBoxSearchHistoryData(Control : TWinControl; Index : Integer; var Data : string);
-begin
-	Data := HistoryObjectList[index];
-end;
-
-procedure TRipGrepperMiddleFrame.ListBoxSearchHistoryDblClick(Sender : TObject);
-begin
-	TDebugUtils.DebugMessage('History dbl clicked:' + CurrentHistoryItemIndex.ToString);
-	ListBoxSearchHistoryClick(Sender);
-	ParentFrame.TopFrame.ActionShowSearchFormExecute(Sender);
-end;
-
-procedure TRipGrepperMiddleFrame.ListBoxSearchHistoryDrawItem(Control : TWinControl; Index : Integer; Rect : TRect;
-	State : TOwnerDrawState);
-var
-	c2ndRowTop : Integer;
-	cMatchesLeft : Integer;
-	cnv : TCanvas;
-	Data : THistoryItemObject;
-	lb : TListBox;
-	r2ndRow : TRect;
-begin
-	lb := (Control as TListBox);
-	Data := GetHistoryObject(index);
-	if not Assigned(Data) then
-		Exit;
-
-	cnv := lb.Canvas;
-	cnv.SetSelectedColors(State);
-
-	c2ndRowTop := lb.ItemHeight div 2; // cnv.TextHeight(ALL_ALPHANUMERIC_CHARS);
-	cMatchesLeft := 20;
-	r2ndRow := Rect;
-	r2ndRow.Offset(0, c2ndRowTop);
-
-	cnv.FillRect(Rect);
-	cnv.TextOut(Rect.Left + 1, Rect.Top + 1, HistoryObjectList[index]);
-	cnv.TextOut(Rect.Left + 1, Rect.Top + c2ndRowTop, '*');
-
-	if (not lb.Items.Updating) then begin
-		cnv.TextOut(Rect.Left + cMatchesLeft, Rect.Top + c2ndRowTop, GetCounterText(Data));
-	end;
 end;
 
 procedure TRipGrepperMiddleFrame.LoadBeforeSearchSettings;
@@ -659,7 +613,7 @@ procedure TRipGrepperMiddleFrame.RefreshCounters;
 begin
 	if Assigned(FHistObject) then begin
 		var
-		beu := TBeginEndUpdater.New(ListBoxSearchHistory);
+		beu := TBeginEndUpdater.New(VstHistory);
 		FHistObject.FileCount := VstResult.RootNodeCount; // synced
 		FHistObject.ErrorCount := Data.ErrorCount; // synced
 	end;
@@ -671,7 +625,7 @@ begin
 	TThread.Synchronize(nil,
 		procedure
 		begin
-			ListBoxSearchHistory.Refresh;
+			VstHistory.Refresh;
 			ParentFrame.SetStatusBarStatistic(GetCounterText(HistObject));
 		end);
 end;
@@ -754,6 +708,32 @@ begin
 		end);
 end;
 
+function TRipGrepperMiddleFrame.GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
+var
+	node : PVirtualNode;
+begin
+	Result := nil;
+
+	node := Tree.GetFirstChildNoInit(nil);
+	while Assigned(node) do begin
+		if Integer(node.Index) = index then begin
+			Result := node;
+			Exit;
+		end;
+		node := Tree.GetNextNoInit(node);
+	end;
+end;
+
+procedure TRipGrepperMiddleFrame.SetSelectedHistoryItem(const _idx : Integer);
+var
+	Node : PVirtualNode;
+begin
+	Node := GetNodeByIndex(VstHistory, _idx);
+	if Assigned(Node) then begin
+		VstHistory.Selected[Node] := true;
+	end;
+end;
+
 function TRipGrepperMiddleFrame.SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
 var
 	args : TStrings;
@@ -817,6 +797,66 @@ begin
 	FHistObject.RipGrepArguments.Clear;
 	Settings.RebuildArguments();
 	FHistObject.LoadFromSettings(Settings);
+end;
+
+procedure TRipGrepperMiddleFrame.VstHistoryFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
+var
+	Data : PVSHistoryNodeData;
+begin
+	Data := VstHistory.GetNodeData(Node);
+	Data.SearchText := '';
+	// Data.hio.Free;
+end;
+
+procedure TRipGrepperMiddleFrame.VstHistoryGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
+TextType : TVSTTextType; var CellText : string);
+var
+	Data : PVSHistoryNodeData;
+begin
+	Data := VstHistory.GetNodeData(Node);
+
+	if TextType = ttNormal then begin
+		CellText := Data.SearchText + CRLF + ' ' + GetCounterText(GetHistoryObject(Node.Index));
+	end else begin // ttStatic
+		CellText := GetCounterText(GetHistoryObject(Node.Index));
+	end;
+end;
+
+procedure TRipGrepperMiddleFrame.VstHistoryMeasureItem(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
+var NodeHeight : Integer);
+begin
+	if Sender.MultiLine[Node] then begin
+		TargetCanvas.Font := Sender.Font;
+		NodeHeight := VstHistory.ComputeNodeHeight(TargetCanvas, Node, -1);
+	end;
+end;
+
+procedure TRipGrepperMiddleFrame.VstHistoryNodeClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
+begin
+	if (CurrentHistoryItemIndex = Integer(HitInfo.HitNode.Index)) then
+		Exit;
+
+	CurrentHistoryItemIndex := HitInfo.HitNode.Index;
+	UpdateHistObject;
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History clicked: ' + CurrentHistoryItemIndex.ToString);
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History Object: ' +
+		HistObject.RipGrepArguments.DelimitedText);
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History Matches: ' + HistObject.TotalMatchCount.ToString);
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History Files: ' + HistObject.FileCount.ToString);
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History Errors: ' + HistObject.ErrorCount.ToString);
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ListBoxSearchHistoryClick History Gui: ' + HistObject.GuiSetSearchParams.SearchText +
+		' ' + HistObject.GuiSetSearchParams.ToString);
+	SetResultListViewDataToHistoryObj();
+	ExpandNodes;
+	RefreshCountersInGUI;
+	ParentFrame.SetStatusBarMessage(True);
+end;
+
+procedure TRipGrepperMiddleFrame.VstHistoryNodeDblClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
+begin
+	TDebugUtils.DebugMessage('History dbl clicked:' + HitInfo.HitNode.Index.ToString);
+	VstHistoryNodeClick(Sender, HitInfo);
+	ParentFrame.TopFrame.ActionShowSearchFormExecute(Sender);
 end;
 
 procedure TRipGrepperMiddleFrame.VstResultBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;

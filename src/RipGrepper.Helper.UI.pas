@@ -14,7 +14,8 @@ uses
 	Vcl.Controls,
 	System.Generics.Collections,
 	Winapi.Windows,
-	Vcl.Forms;
+	Vcl.Forms, 
+	VirtualTrees;
 // Winapi.Messages;
 
 type
@@ -42,10 +43,10 @@ type
 
 	TBeginEndUpdater = record
 		private
-			ListBox : TListBox;
+			VirtualStrTree : TVirtualStringTree;
 
 		public
-			class function New(_lb : TListBox) : TBeginEndUpdater; static;
+			class function New(_lb : TVirtualStringTree) : TBeginEndUpdater; static;
 			class operator Finalize(var Dest : TBeginEndUpdater);
 	end;
 
@@ -365,15 +366,15 @@ begin
 	Result := size.cx;
 end;
 
-class function TBeginEndUpdater.New(_lb : TListBox) : TBeginEndUpdater;
+class function TBeginEndUpdater.New(_lb : TVirtualStringTree): TBeginEndUpdater;
 begin
-	Result.ListBox := _lb;
-	Result.ListBox.Items.BeginUpdate;
+	Result.VirtualStrTree := _lb;
+	Result.VirtualStrTree.BeginUpdate
 end;
 
 class operator TBeginEndUpdater.Finalize(var Dest : TBeginEndUpdater);
 begin
-	Dest.ListBox.Items.EndUpdate;
+	Dest.VirtualStrTree.EndUpdate;
 end;
 
 constructor TIconImageList.Create(_handleForm : HWND; _imgList : TImageList);

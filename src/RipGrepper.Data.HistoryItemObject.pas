@@ -57,6 +57,12 @@ type
 
 	end;
 
+	TVSHistoryNodeData = record
+        SearchText : string;
+	end;
+
+	PVSHistoryNodeData = ^TVSHistoryNodeData;
+
 implementation
 
 uses
