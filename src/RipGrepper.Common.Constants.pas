@@ -168,6 +168,7 @@ const
 
 	COLUMN_TITLES : TArray<string> = ['File', 'Row', 'Col', 'Text', 'MatchText', 'TextAfterMatch'];
 	INDENT_TAB_AS_SPACES = '    ';
+    TREEVIEW_FONTSPACE = 2;
 type
 
 	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);

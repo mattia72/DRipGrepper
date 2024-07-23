@@ -143,7 +143,7 @@ uses
 
 procedure TRipGrepperDockableForm.CustomizePopupMenu(PopupMenu : TPopupMenu);
 begin
-	PopupMenu := ParentFrame.MainFrame.PopupMenu1;
+	PopupMenu := ParentFrame.MainFrame.PopupMenuResult;
 end;
 
 procedure TRipGrepperDockableForm.CustomizeToolBar(ToolBar : TToolBar);

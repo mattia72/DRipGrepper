@@ -14,7 +14,7 @@ uses
 	Vcl.Controls,
 	System.Generics.Collections,
 	Winapi.Windows,
-	Vcl.Forms, 
+	Vcl.Forms,
 	VirtualTrees;
 // Winapi.Messages;
 
@@ -50,8 +50,8 @@ type
 			class operator Finalize(var Dest : TBeginEndUpdater);
 	end;
 
-	TWidthHelper = class
-		class function TrueFontWidth(fnt : TFont; const text : string) : Integer;
+	TFontSizeHelper = class
+		class function TrueFontSize(fnt : TFont; const text : string): Winapi.Windows.TSize;
 	end;
 
 	TStatusBarAdjuster = class
@@ -211,7 +211,7 @@ begin
 	s := _sb.Panels[_idx].Text;
 
 	// calculate the width of the Panel
-	_sb.Panels[_idx].Width := TWidthHelper.TrueFontWidth(_sb.Font, s) + borders[2] * 2 + MARGIN; // vertical border * 2 + 2 extra Pixels
+	_sb.Panels[_idx].Width := TFontSizeHelper.TrueFontSize(_sb.Font, s).cx + borders[2] * 2 + MARGIN; // vertical border * 2 + 2 extra Pixels
 end;
 
 procedure TCanvasHelper.SetAlteringColors(_idx : Integer);
@@ -354,16 +354,14 @@ begin
 	dec(result.Bottom, Y1);
 end;
 
-class function TWidthHelper.TrueFontWidth(fnt : TFont; const text : string) : Integer;
+class function TFontSizeHelper.TrueFontSize(fnt : TFont; const text : string): Winapi.Windows.TSize;
 var
 	dc : hdc;
-	size : Winapi.Windows.TSize;
 begin
 	dc := GetDC(0);
 	SelectObject(DC, fnt.Handle);
-	GetTextExtentPoint32(dc, PChar(text), Length(text), size);
+	GetTextExtentPoint32(dc, PChar(text), Length(text), Result);
 	ReleaseDC(0, DC);
-	Result := size.cx;
 end;
 
 class function TBeginEndUpdater.New(_lb : TVirtualStringTree): TBeginEndUpdater;

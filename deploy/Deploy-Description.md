@@ -30,6 +30,8 @@ Marked with checkmark if ready, else planned as next.
 #### Main Window
 - [x] own prettifier in case if rg.exe of vs code doesn't support --pretty
 - [ ] own prettifier switcher as toolbar button
+- [?] history item can be deleted
+- [x] history item with colored statistic 
 
 <!-- #### :mag: Search Dialog -->
 

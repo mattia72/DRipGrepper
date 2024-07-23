@@ -57,19 +57,27 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           Height = 329
           Align = alClient
           Header.AutoSizeIndex = 0
-          Header.MainColumn = -1
+          Header.Options = [hoAutoResize, hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible, hoFullRepaintOnResize, hoHeaderClickAutoSort, hoAutoResizeInclCaption]
           PopupMenu = PopupMenuHistory
           TabOrder = 0
+          TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages]
           TreeOptions.SelectionOptions = [toFullRowSelect]
           TreeOptions.StringOptions = [toSaveCaptions, toShowStaticText, toAutoAcceptEditChange]
+          OnDrawText = VstHistoryDrawText
           OnFreeNode = VstHistoryFreeNode
           OnGetText = VstHistoryGetText
+          OnPaintText = VstHistoryPaintText
           OnMeasureItem = VstHistoryMeasureItem
           OnNodeClick = VstHistoryNodeClick
           OnNodeDblClick = VstHistoryNodeDblClick
           Touch.InteractiveGestures = [igPan, igPressAndTap]
           Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
-          Columns = <>
+          Columns = <
+            item
+              Position = 0
+              Text = 'Search'
+              Width = 183
+            end>
         end
       end
       object PanelResult: TPanel
