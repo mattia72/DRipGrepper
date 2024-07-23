@@ -276,9 +276,9 @@ begin
 			nodeData := TVSFileNodeData.New('', // File
 			{ } StrToIntDef(_item.Columns[Integer(ciRow)].Text, -1), // Row
 			{ } StrToIntDef(_item.Columns[Integer(ciCol)].Text, -1), // Col
-			{ } _item.Columns[Integer(ciText)].Text, // TextBefore
-			{ } _item.Columns[Integer(ciMatchText)].Text, // MatchText
-			{ } _item.Columns[Integer(ciTextAfterMatch)].Text // TextAfter
+			{ } _item.GetColumnText(Integer(ciText)), // TextBefore
+			{ } _item.GetColumnText(Integer(ciMatchText)), // MatchText
+			{ } _item.GetColumnText(Integer(ciTextAfterMatch))// TextAfter
 				);
 		end;
 		ptRipGrepError :
