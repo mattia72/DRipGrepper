@@ -166,9 +166,12 @@ const
 
 	MAX_COMMAND_LINE_LENGTH = 32767;
 
-	COLUMN_TITLES : TArray<string> = ['File', 'Row', 'Col', 'Text', 'MatchText', 'TextAfterMatch'];
-	INDENT_TAB_AS_SPACES = '    ';
-    TREEVIEW_FONTSPACE = 2;
+	TREEVIEW_COLUMN_TITLES : TArray<string> = ['File', 'Row', 'Col', 'Text', 'MatchText', 'TextAfterMatch'];
+	TREEVIEW_INDENT_TAB_AS_SPACES = '    ';
+	TREEVIEW_FONTSPACE = 2;
+	TREEVIEW_MATCH_ITEM_COLOR = clDkGray;
+	TREEVIEW_MATCH_TEXT_COLOR = clMaroon;
+	TREEVIEW_STAT_COLOR = clPurple;
 type
 
 	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
@@ -209,7 +212,7 @@ end;
 
 class function TDefaults.GetColumnTitle(Index : EColumnIndex) : string;
 begin
-	Result := COLUMN_TITLES[Integer(Index)];
+	Result := TREEVIEW_COLUMN_TITLES[Integer(Index)];
 end;
 
 end.

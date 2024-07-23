@@ -365,12 +365,12 @@ begin
 			0 : begin
 				if Node.ChildCount > 0 then begin
 					TargetCanvas.Font.Style := TargetCanvas.Font.Style + [fsBold];
-					TargetCanvas.Font.Color := clPurple;
+					TargetCanvas.Font.Color := TREEVIEW_STAT_COLOR;
 				end;
 			end;
 		end;
 	end else begin // ttStatic
-		// TargetCanvas.Font.Color := clPurple;
+		// TargetCanvas.Font.Color := TREEVIEW_STAT_COLOR;
 	end;
 end;
 

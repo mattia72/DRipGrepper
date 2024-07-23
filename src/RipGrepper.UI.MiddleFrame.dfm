@@ -62,11 +62,9 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           TabOrder = 0
           TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages]
           TreeOptions.SelectionOptions = [toFullRowSelect]
-          TreeOptions.StringOptions = [toSaveCaptions, toShowStaticText, toAutoAcceptEditChange]
           OnDrawText = VstHistoryDrawText
           OnFreeNode = VstHistoryFreeNode
           OnGetText = VstHistoryGetText
-          OnPaintText = VstHistoryPaintText
           OnMeasureItem = VstHistoryMeasureItem
           OnNodeClick = VstHistoryNodeClick
           OnNodeDblClick = VstHistoryNodeDblClick
@@ -76,7 +74,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
             item
               Position = 0
               Text = 'Search'
-              Width = 183
+              Width = 179
             end>
         end
       end

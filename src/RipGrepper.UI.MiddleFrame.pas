@@ -79,8 +79,6 @@ type
 		procedure VstHistoryMeasureItem(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; var NodeHeight : Integer);
 		procedure VstHistoryNodeClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
 		procedure VstHistoryNodeDblClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
-		procedure VstHistoryPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
-			TextType : TVSTTextType);
 		procedure VstResultBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
 			CellPaintMode : TVTCellPaintMode; CellRect : TRect; var ContentRect : TRect);
 		procedure VstResultCompareNodes(Sender : TBaseVirtualTree; Node1, Node2 : PVirtualNode; Column : TColumnIndex;
@@ -815,13 +813,18 @@ begin
 			DefaultDraw := False;
 			lineBegin := Text.IndexOf(CRLF);
 			ln1 := Text.Substring(0, lineBegin);
-			TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, ln1);
+			TargetCanvas.Font.Color := TREEVIEW_MATCH_ITEM_COLOR;
+			TargetCanvas.Font.style := [fsBold];
+			//TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, ln1);
+
+			var r := CellRect;
+			Winapi.Windows.DrawText(TargetCanvas.Handle, pwidechar(ln1), length(ln1), r, DT_NOPREFIX or DT_WORDBREAK);
 
 			ln2 := Text.Substring(lineBegin + 2);
-			TargetCanvas.Font.Color := clPurple;
-			size := TFontSizeHelper.TrueFontSize(TargetCanvas.Font, ln1);
-			// TargetCanvas.Font.style := [fsBold, fsUnderline];
-			TargetCanvas.TextOut(CellRect.Left, size.cy, ln2);
+			TargetCanvas.Font.Color := TREEVIEW_STAT_COLOR;
+			TargetCanvas.Font.style := [];
+			size := TFontSizeHelper.TrueFontSize(TargetCanvas.Font, ln2);
+			TargetCanvas.TextOut(CellRect.Left, CellRect.BottomRight.Y - size.cy, ln2);
 
 		end;
 	end;
@@ -885,21 +888,6 @@ begin
 	TDebugUtils.DebugMessage('History dbl clicked:' + HitInfo.HitNode.Index.ToString);
 	VstHistoryNodeClick(Sender, HitInfo);
 	ParentFrame.TopFrame.ActionShowSearchFormExecute(Sender);
-end;
-
-procedure TRipGrepperMiddleFrame.VstHistoryPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode;
-Column : TColumnIndex; TextType : TVSTTextType);
-begin
-	if TextType = ttNormal then begin
-		case Column of
-			0 : begin
-				TargetCanvas.Font.style := TargetCanvas.Font.style + [fsBold];
-				TargetCanvas.Font.Color := clGrayText;
-			end;
-		end;
-	end else begin // ttStatic
-		TargetCanvas.Font.Color := clPurple;
-	end;
 end;
 
 procedure TRipGrepperMiddleFrame.VstResultBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
@@ -976,7 +964,7 @@ begin
 
 					matchBegin := Data.MatchData.Col - 1 - (spaces + tabs);
 
-					ss0 := s.Substring(0, matchBegin).Replace(#9, INDENT_TAB_AS_SPACES, [rfReplaceAll]);
+					ss0 := s.Substring(0, matchBegin).Replace(#9, TREEVIEW_INDENT_TAB_AS_SPACES, [rfReplaceAll]);
 					pos := TargetCanvas.TextWidth(ss0);
 
 					TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, ss0);
@@ -984,7 +972,7 @@ begin
 					ss1 := s.Substring(matchBegin, Data.MatchData.MatchLength);
 					ss2 := s.Substring(matchBegin + Data.MatchData.MatchLength);
 
-					TargetCanvas.Font.Color := clMaroon;
+					TargetCanvas.Font.Color := TREEVIEW_MATCH_TEXT_COLOR;
 					TargetCanvas.Font.style := [fsBold, fsUnderline];
 					TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1);
 
@@ -1087,12 +1075,12 @@ begin
 	if TextType = ttNormal then begin
 		case Column of
 			0 : begin
-				TargetCanvas.Font.style := TargetCanvas.Font.style + [fsBold];
-				TargetCanvas.Font.Color := clGrayText;
+				TargetCanvas.Font.style := [fsBold];
+				TargetCanvas.Font.Color := TREEVIEW_MATCH_ITEM_COLOR;
 			end;
 		end;
 	end else begin // ttStatic
-		TargetCanvas.Font.Color := clPurple; // Not shown on MultiLine
+		TargetCanvas.Font.Color := TREEVIEW_STAT_COLOR; // Not shown on MultiLine
 	end;
 end;
 
