@@ -30,13 +30,14 @@ Marked with checkmark if ready, else planned as next.
 #### Main Window
 - [x] own prettifier in case if rg.exe of vs code doesn't support --pretty
 - [ ] own prettifier switcher as toolbar button
-- [?] history item can be deleted
+- [x] history item can be deleted
 - [x] history item with colored statistic 
 
 <!-- #### :mag: Search Dialog -->
 
 ### :droplet: Extension
 - [x] drip icon in menu
+- [ ] adding "insert as `uses`" in result context menu
 
 #### :mag: Search Dialog
 - [ ] extension: search open projekt files
@@ -48,3 +49,4 @@ Checkmarked if fixed, else it is known bug.
 - [ ] rg options helper grid has weird entries
 - [ ] drip icon in menu has no transparent background
 - [x] context causes exception
+- [ ] search after delete all causes exception

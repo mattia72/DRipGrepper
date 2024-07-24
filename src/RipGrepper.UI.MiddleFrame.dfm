@@ -138,28 +138,35 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
     Left = 251
     Top = 30
     object ActionCopyFileName: TAction
-      Caption = 'Copy file name'
+      Caption = 'Copy File Name'
       Hint = 'Copy file name to clipboard'
       ImageIndex = 0
       OnExecute = ActionCopyFileNameExecute
       OnUpdate = ActionCopyFileNameUpdate
     end
     object ActionCopyPathToClipboard: TAction
-      Caption = 'Copy path'
+      Caption = 'Copy File Path'
       Hint = 'Copy file path to clipboard'
       ImageIndex = 0
       OnExecute = ActionCopyPathToClipboardExecute
       OnUpdate = ActionCopyPathToClipboardUpdate
     end
     object ActionOpenWith: TAction
-      Caption = 'Open with...'
+      Caption = 'Open With...'
       Hint = 'Open with...'
       ImageIndex = 1
       OnExecute = ActionOpenWithExecute
       OnUpdate = ActionOpenWithUpdate
     end
-    object Action1: TAction
+    object ActionHistoryDelete: TAction
       Caption = 'Delete'
+      OnExecute = ActionHistoryDeleteExecute
+      OnUpdate = ActionHistoryDeleteUpdate
+    end
+    object ActionHistoryDeleteAll: TAction
+      Caption = 'Delete All'
+      OnExecute = ActionHistoryDeleteAllExecute
+      OnUpdate = ActionHistoryDeleteAllUpdate
     end
   end
   object PopupMenuResult: TPopupMenu
@@ -603,7 +610,10 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
     Left = 295
     Top = 199
     object Action11: TMenuItem
-      Action = Action1
+      Action = ActionHistoryDelete
+    end
+    object Action12: TMenuItem
+      Action = ActionHistoryDeleteAll
     end
   end
 end
