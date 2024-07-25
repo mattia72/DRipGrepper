@@ -1,7 +1,7 @@
 <!--
 
-Version:     v2.9.0-beta
-PrevVersion: v2.8.1-beta
+Version:     v3.0.0-beta
+PrevVersion: v2.9.0-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -37,7 +37,7 @@ Marked with checkmark if ready, else planned as next.
 
 ### :droplet: Extension
 - [x] drip icon in menu
-- [ ] adding "insert as `uses`" in result context menu
+- [x] adding "insert as `uses`" in result context menu
 
 #### :mag: Search Dialog
 - [ ] extension: search open projekt files
@@ -50,3 +50,4 @@ Checkmarked if fixed, else it is known bug.
 - [ ] drip icon in menu has no transparent background
 - [x] context causes exception
 - [x] search after delete all history causes exception
+- [x] open with fails if command has spaces

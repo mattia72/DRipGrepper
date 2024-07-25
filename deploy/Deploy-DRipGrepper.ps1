@@ -19,7 +19,7 @@ $global:PrevVersion = ($global:Description | Select-String '^PrevVersion:') -rep
 
 $global:PreRelease = $true
 $global:StandaloneAppName = "DRipGrepper.exe"
-$global:ExtensionFileName = "DRipExtension280.bpl";
+$global:ExtensionFileName = "DRipExtension.bpl";
 $global:ExtensionPath = "$env:PUBLIC\Documents\Embarcadero\Studio\22.0\Bpl\"
 $global:AssetZipName = "DRipGrepper.$global:Version.zip"
 $global:AssetsDirectory = "$PSScriptRoot\assets"
@@ -98,7 +98,7 @@ function Build-ExtensionRelease {
     $parentPath = Split-Path -Parent $PSScriptRoot 
     $extensionPath = Join-Path $parentPath "Extension"
     $result = $null
-    Build-DelphiProject -ProjectPath $extensionPath\DRipExtension280.dproj -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result)
+    Build-DelphiProject -ProjectPath $extensionPath\DRipExtension.dproj -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result)
     if ($null -ne $result -and $result.ErrorCount -gt 0) {
         Write-Error "Deploy canceled." -ErrorAction Stop
     }
