@@ -80,7 +80,8 @@ uses
 	System.Math,
 	RipGrepper.OpenWith.SimpleTypes,
 	RipGrepper.Tools.DebugUtils,
-	u_dzVclUtils;
+	u_dzVclUtils,
+	RipGrepper.Tools.FileUtils;
 
 {$R *.dfm}
 
@@ -202,15 +203,13 @@ end;
 
 function TOpenWithCmdList.GetFileNameFromCfg(const _configText : string) : string;
 var
-	iPos : integer;
 	sFileName : string;
 	sPath : string;
 begin
-	iPos := Pos('.EXE', AnsiUppercase(_configText));
-	sFileName := Copy(_configText, 1, iPos + 3);
+	sFileName := TFileUtils.ParseCommand(_configText).ExePath;
 	sPath := ExtractFileDir(sFileName);
 	if sPath.IsEmpty then begin
-		TOpenWithConfigForm.GetExePath(sFileName, sPath);
+		TFileUtils.FindExecutable(sFileName, sPath);
 		sFileName := sPath;
 	end;
 	Result := sFileName;

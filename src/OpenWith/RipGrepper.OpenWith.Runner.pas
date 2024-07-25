@@ -29,7 +29,9 @@ uses
 	Vcl.Dialogs,
 	RipGrepper.Common.Constants,
 	RipGrepper.Tools.DebugUtils,
-	RipGrepper.Common.IOTAUtils, RipGrepper.Helper.UI;
+	RipGrepper.Common.IOTAUtils,
+	RipGrepper.Helper.UI,
+	RipGrepper.Tools.FileUtils;
 
 class function TOpenWithRunner.BuildParams(const _owp : TOpenWithParams; const _sParams : string) : string;
 var
@@ -100,17 +102,14 @@ end;
 
 class procedure TOpenWithRunner.RunEditorCommand(const _sEditorCmd : string; const _owp : TOpenWithParams);
 var
-	iPos : Integer;
 	err : DWORD;
 	sParams : string;
+	cr : TCommandLineRec;
+	sCmd : string;
 begin
-
-	iPos := Pos('.EXE', AnsiUppercase(_sEditorCmd));
-	sParams := Copy(_sEditorCmd, iPos + 4, MaxInt);
-	var
-	sCmd := '"' + Copy(_sEditorCmd, 1, iPos + 3) + '"';
-	// TDebugUtils.DebugMessage((Format('TOpenWithRunner.InternalExecute Editor path: %s ', [_sEditorCmd])));
-
+	cr := TFileUtils.ParseCommand(_sEditorCmd);
+	sParams := string.Join(' ', cr.Arguments);
+	sCmd := '"' + cr.ExePath + '"';
 	sParams := BuildParams(_owp, sParams);
 
 	TDebugUtils.DebugMessage((Format('TOpenWithRunner.InternalExecute cmd: %s %s ', [_sEditorCmd, sParams])));

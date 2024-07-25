@@ -2,8 +2,8 @@ object OpenWithConfigForm: TOpenWithConfigForm
   Left = 756
   Top = 291
   Caption = 'Configure Open with... '
-  ClientHeight = 455
-  ClientWidth = 658
+  ClientHeight = 326
+  ClientWidth = 523
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -150,8 +150,8 @@ object OpenWithConfigForm: TOpenWithConfigForm
   TextHeight = 15
   object pnlBottom: TPanel
     Left = 0
-    Top = 405
-    Width = 658
+    Top = 276
+    Width = 523
     Height = 50
     Margins.Left = 8
     Margins.Top = 8
@@ -162,11 +162,11 @@ object OpenWithConfigForm: TOpenWithConfigForm
     ParentBackground = False
     TabOrder = 0
     DesignSize = (
-      658
+      523
       50)
     object btn_Save: TButton
       AlignWithMargins = True
-      Left = 480
+      Left = 345
       Top = 16
       Width = 75
       Height = 25
@@ -180,7 +180,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
     end
     object btn_Cancel: TButton
       AlignWithMargins = True
-      Left = 571
+      Left = 436
       Top = 16
       Width = 75
       Height = 25
@@ -196,8 +196,8 @@ object OpenWithConfigForm: TOpenWithConfigForm
   object pnlMain: TPanel
     Left = 0
     Top = 0
-    Width = 658
-    Height = 405
+    Width = 523
+    Height = 276
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -206,13 +206,13 @@ object OpenWithConfigForm: TOpenWithConfigForm
     BevelOuter = bvNone
     TabOrder = 1
     DesignSize = (
-      658
-      405)
+      523
+      276)
     object Label1: TLabel
       AlignWithMargins = True
       Left = 10
-      Top = 335
-      Width = 423
+      Top = 206
+      Width = 288
       Height = 20
       Margins.Left = 50
       Margins.Top = 15
@@ -223,7 +223,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Caption = 'Command:'
     end
     object btnAdd: TButton
-      Left = 621
+      Left = 486
       Top = 8
       Width = 25
       Height = 25
@@ -240,8 +240,8 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 0
     end
     object btnModify: TButton
-      Left = 621
-      Top = 353
+      Left = 486
+      Top = 224
       Width = 25
       Height = 25
       Margins.Left = 8
@@ -257,7 +257,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 1
     end
     object btnMoveDown: TButton
-      Left = 621
+      Left = 486
       Top = 131
       Width = 25
       Height = 25
@@ -274,7 +274,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 2
     end
     object btnMoveUp: TButton
-      Left = 621
+      Left = 486
       Top = 90
       Width = 25
       Height = 25
@@ -291,7 +291,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 3
     end
     object btnRemove: TButton
-      Left = 621
+      Left = 486
       Top = 49
       Width = 25
       Height = 25
@@ -308,7 +308,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 4
     end
     object btnTest: TButton
-      Left = 621
+      Left = 486
       Top = 172
       Width = 25
       Height = 25
@@ -325,8 +325,8 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 5
     end
     object Button1: TButton
-      Left = 594
-      Top = 353
+      Left = 459
+      Top = 224
       Width = 25
       Height = 25
       Margins.Top = 8
@@ -343,8 +343,8 @@ object OpenWithConfigForm: TOpenWithConfigForm
     end
     object edt_OpenWithCmd: TEdit
       Left = 10
-      Top = 355
-      Width = 577
+      Top = 226
+      Width = 442
       Height = 23
       Margins.Left = 50
       Margins.Top = 8
@@ -358,8 +358,8 @@ object OpenWithConfigForm: TOpenWithConfigForm
       AlignWithMargins = True
       Left = 10
       Top = 8
-      Width = 607
-      Height = 313
+      Width = 472
+      Height = 184
       Hint = 
         '|Examples:'#13#10'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"'#13#10 +
         'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"'#13#10'no' +
@@ -372,7 +372,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Anchors = [akLeft, akTop, akRight, akBottom]
       AutoComplete = False
       Color = clHighlightText
-      ItemHeight = 32
+      ItemHeight = 15
       Items.Strings = (
         'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"'
         'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"'

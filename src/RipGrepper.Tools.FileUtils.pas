@@ -6,6 +6,11 @@ uses
 	System.SysUtils;
 
 type
+	TCommandLineRec = record
+		ExePath : string;
+		Arguments : TArray<string>;
+	end;
+
 	TFileUtils = class(TObject)
 		private
 			class function GetAppName(const _exePath : string) : string;
@@ -15,6 +20,7 @@ type
 			class function FindExecutable(sFileName : string; out sOutpuPath : string) : Boolean;
 			class function GetAppNameAndVersion(const _exePath : string) : string;
 			class function GetAppVersion(const _exePath : string) : string;
+			class function ParseCommand(const _sCmd : string) : TCommandLineRec;
 			class function GetPackageNameAndVersion(Package : HMODULE) : string;
 			class function ShortToLongPath(const ShortPathName : string) : string;
 	end;
@@ -30,7 +36,8 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	System.IOUtils,
 	RipGrepper.Common.Constants,
-	System.Classes;
+	System.Classes,
+	System.RegularExpressions, System.StrUtils;
 
 procedure GetPackageNameInfoProc(const Name : string; NameType : TNameType; Flags : Byte; Param : Pointer);
 begin
@@ -97,6 +104,22 @@ var
 begin
 	GetModuleVersion(0, imajor, iminor, irelease, ibuild);
 	Result := Format(FORMAT_VERSION_INFO, [imajor, iminor, irelease]);
+end;
+
+class function TFileUtils.ParseCommand(const _sCmd : string): TCommandLineRec;
+var
+	m : TMatch;
+	r : TRegEx;
+begin
+	r := TRegex.Create( '[''"]?(.*.(exe|com|bat))["'']? (.*)', [roIgnoreCase]);
+	m := r.Match(_sCmd);
+
+	if not m.Success then begin
+		Exit;
+	end;
+
+	Result.ExePath := m.Groups[1].Value;
+	Result.Arguments := m.Groups[3].Value.Split([' ']);
 end;
 
 class function TFileUtils.GetModuleVersion(Instance : THandle; out iMajor, iMinor, iRelease, iBuild : Integer) : Boolean;

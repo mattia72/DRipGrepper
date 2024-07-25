@@ -2,8 +2,8 @@ object OpenWithCmdList: TOpenWithCmdList
   Left = 738
   Top = 170
   Caption = 'Open with...'
-  ClientHeight = 377
-  ClientWidth = 528
+  ClientHeight = 249
+  ClientWidth = 376
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -150,8 +150,8 @@ object OpenWithCmdList: TOpenWithCmdList
   TextHeight = 14
   object pnl_Bottom: TPanel
     Left = 0
-    Top = 343
-    Width = 528
+    Top = 215
+    Width = 376
     Height = 34
     Margins.Left = 8
     Margins.Top = 8
@@ -163,10 +163,10 @@ object OpenWithCmdList: TOpenWithCmdList
     ParentBackground = False
     TabOrder = 0
     DesignSize = (
-      528
+      376
       34)
     object btn_Save: TButton
-      Left = 353
+      Left = 201
       Top = 4
       Width = 75
       Height = 25
@@ -180,7 +180,7 @@ object OpenWithCmdList: TOpenWithCmdList
       TabOrder = 0
     end
     object btn_Cancel: TButton
-      Left = 444
+      Left = 292
       Top = 4
       Width = 75
       Height = 25
@@ -197,8 +197,8 @@ object OpenWithCmdList: TOpenWithCmdList
   object pnlMain: TPanel
     Left = 0
     Top = 0
-    Width = 528
-    Height = 343
+    Width = 376
+    Height = 215
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -207,10 +207,10 @@ object OpenWithCmdList: TOpenWithCmdList
     BevelOuter = bvNone
     TabOrder = 1
     DesignSize = (
-      528
-      343)
+      376
+      215)
     object btnConfig: TButton
-      Left = 494
+      Left = 342
       Top = 8
       Width = 25
       Height = 25
@@ -228,7 +228,7 @@ object OpenWithCmdList: TOpenWithCmdList
     end
     object btnView: TButton
       AlignWithMargins = True
-      Left = 494
+      Left = 342
       Top = 49
       Width = 25
       Height = 25
@@ -248,8 +248,8 @@ object OpenWithCmdList: TOpenWithCmdList
       AlignWithMargins = True
       Left = 8
       Top = 8
-      Width = 479
-      Height = 318
+      Width = 327
+      Height = 190
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 41

@@ -80,7 +80,6 @@ type
 			constructor Create(AOwner : TComponent; const ASettings : TRipGrepperOpenWithSettings); reintroduce;
 			destructor Destroy; override;
 			class procedure CreateAndShow(_settings : TRipGrepperOpenWithSettings);
-			class function GetExePath(sFileName : string; out sOutpuPath : string) : Boolean;
 			procedure ReadSettings;
 			procedure WriteSettings;
 
@@ -95,7 +94,10 @@ uses
 	Winapi.ShellAPI,
 	RipGrepper.OpenWith.Runner,
 	RipGrepper.OpenWith.SimpleTypes,
-	RipGrepper.Tools.DebugUtils, RipGrepper.Helper.UI;
+	RipGrepper.Tools.DebugUtils,
+	RipGrepper.Helper.UI,
+	System.RegularExpressions,
+	RipGrepper.Tools.FileUtils;
 
 {$R *.dfm}
 
@@ -228,19 +230,12 @@ var
 begin
 	Result := False;
 	if _sCmd <> '' then begin
-		var
-		iPos := Pos('.EXE', AnsiUppercase(_sCmd));
-		if iPos = 0 then begin
-			TMsgBox.ShowError(Format('"%s" is not an execuatable!', [_sCmd]));
-			Exit;
-		end;
-
-		sFileName := Copy(_sCmd, 1, iPos + 3);
+		sFileName := TFileUtils.ParseCommand(_sCmd).ExePath;
 		TDebugUtils.DebugMessage(Format('TOpenWithConfigForm.CheckCommand Exe: %s ', [sFileName]));
 		if not FileExists(sFileName) then begin
 			bFound := False;
 			sPath := ExtractFileDir(sFileName);
-			GetExePath(sFileName, sPath);
+			TFileUtils.FindExecutable(sFileName, sPath);
 			if (not sPath.IsEmpty) then begin
 				bFound := True;
 			end;
@@ -314,17 +309,6 @@ begin
 	finally
 		listCmdsFromSettings.Free;
 	end;
-end;
-
-class function TOpenWithConfigForm.GetExePath(sFileName : string; out sOutpuPath : string) : Boolean;
-var
-	Buffer : array [0 .. MAX_PATH] of Char;
-begin
-	Result := FindExecutable(PChar(sFileName), PChar(nil), &Buffer) > 0;
-	SetString(sOutpuPath, PChar(@Buffer[0]), Length(Buffer));
-
-	sOutpuPath := sOutpuPath.Remove(sOutpuPath.IndexOf(#0));
-	TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.FindExecutable ''%s'' ', [sOutpuPath])));
 end;
 
 procedure TOpenWithConfigForm.WriteSettings;
