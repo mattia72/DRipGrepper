@@ -74,7 +74,7 @@ type
 		procedure ActionOpenWithExecute(Sender : TObject);
 		procedure ActionOpenWithUpdate(Sender : TObject);
 		procedure FrameResize(Sender : TObject);
-		procedure PopupMenuHistoryPopup(Sender: TObject);
+		procedure PopupMenuHistoryPopup(Sender : TObject);
 		procedure Splitter1Moved(Sender : TObject);
 		procedure SplitView1Resize(Sender : TObject);
 		procedure VstHistoryDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
@@ -790,9 +790,9 @@ begin
 	end;
 end;
 
-procedure TRipGrepperMiddleFrame.PopupMenuHistoryPopup(Sender: TObject);
+procedure TRipGrepperMiddleFrame.PopupMenuHistoryPopup(Sender : TObject);
 begin
-    SetSelectedHistoryItem(CurrentHistoryItemIndex);
+	SetSelectedHistoryItem(CurrentHistoryItemIndex);
 end;
 
 procedure TRipGrepperMiddleFrame.SetSelectedHistoryItem(const _idx : Integer);
@@ -891,7 +891,7 @@ end;
 procedure TRipGrepperMiddleFrame.VstHistoryDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
 Column : TColumnIndex; const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
 var
-	ln1, ln2 : string;
+	ln1, sStatistic : string;
 	lineBegin : Integer;
 	size : Winapi.Windows.TSize;
 	rectTemp : TRect;
@@ -907,11 +907,15 @@ begin
 			rectTemp := CellRect;
 			Winapi.Windows.DrawText(TargetCanvas.Handle, pwidechar(ln1), length(ln1), rectTemp, DT_NOPREFIX or DT_WORDBREAK);
 
-			ln2 := Text.Substring(lineBegin + 2);
-			TargetCanvas.Font.Color := TREEVIEW_STAT_COLOR;
+			sStatistic := Text.Substring(lineBegin + 2);
+			if -1 <> sStatistic.IndexOf('!') then begin
+				TargetCanvas.Font.Color := TREEVIEW_ERROR_COLOR;
+			end else begin
+				TargetCanvas.Font.Color := TREEVIEW_STAT_COLOR;
+			end;
 			TargetCanvas.Font.style := [];
-			size := TFontSizeHelper.TrueFontSize(TargetCanvas.Font, ln2);
-			TargetCanvas.TextOut(CellRect.Left, CellRect.BottomRight.Y - size.cy, ln2);
+			size := TFontSizeHelper.TrueFontSize(TargetCanvas.Font, sStatistic);
+			TargetCanvas.TextOut(CellRect.Left, CellRect.BottomRight.Y - size.cy, sStatistic);
 
 		end;
 	end;
@@ -1038,6 +1042,13 @@ var
 	spaces, tabs, matchBegin : Integer;
 begin
 	case Column of
+		0 : begin
+			if MatchStr(Text, [RG_ERROR_MSG_PREFIX, RG_PARSE_ERROR]) then begin
+				DefaultDraw := False;
+				TargetCanvas.Font.Color := TREEVIEW_ERROR_COLOR;
+				TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, Text);
+			end;
+		end;
 		3 : begin
 			case FHistObject.ParserType of
 				ptRipGrepSearch, ptRipGrepPrettySearch : begin

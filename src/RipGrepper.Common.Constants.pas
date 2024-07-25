@@ -172,6 +172,7 @@ const
 	TREEVIEW_MATCH_ITEM_COLOR = clDkGray;
 	TREEVIEW_MATCH_TEXT_COLOR = clMaroon;
 	TREEVIEW_STAT_COLOR = clPurple;
+	TREEVIEW_ERROR_COLOR = clRed;
 type
 
 	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
