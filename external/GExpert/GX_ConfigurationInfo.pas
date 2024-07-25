@@ -587,7 +587,7 @@ procedure TConfigInfo.LoadSettings;
 var
   Settings: TGExpertsSettings;
 {$IFNDEF GX_STANDALONE}
-  Setting: Boolean;
+  //Setting: Boolean;
 {$ENDIF}
 begin
   {$IFOPT D+} SendDebug('Loading configuration info settings'); {$ENDIF D+}
