@@ -1,4 +1,4 @@
-package DRipExtension280;
+package DRipExtension;
 
 {$R *.res}
 {$R *.dres}

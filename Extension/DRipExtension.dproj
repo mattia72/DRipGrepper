@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{ECEDC3D1-B68C-4AD6-B073-470409BB57F3}</ProjectGuid>
-        <MainSource>DRipExtension280.dpk</MainSource>
+        <MainSource>DRipExtension.dpk</MainSource>
         <ProjectVersion>19.5</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
@@ -57,8 +57,8 @@
         <GenPackage>true</GenPackage>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
         <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
-        <SanitizedProjectName>DRipExtension280</SanitizedProjectName>
-        <DCC_UnitSearchPath>..\src;..\external;..\src\OpenWith;..\external\GExpert;..\external\dzlib;..\external\UniSynEdit;..\external\RegExpr;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <SanitizedProjectName>DRipExtension</SanitizedProjectName>
+        <DCC_UnitSearchPath>..\src;..\external;..\src\OpenWith;..\external\GExpert;..\external\dzlib;..\external\UniSynEdit;..\external\RegExpr;..\external\mwParser;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_Define>NO_TRANSLATION;NO_TRANSLATION_HINT;NO_OPTIMIZE_DZ_GRAPHIC_UTILS_HINT;UnicodeRE;EnableIdeDockingSupport;$(DCC_Define)</DCC_Define>
         <DCC_UnitAlias>GX_IdeDockStandAlone=GX_IdeDock;SynRegExpr=RegExprReplaceUnit;$(DCC_UnitAlias)</DCC_UnitAlias>
         <VerInfo_Locale>1031</VerInfo_Locale>
@@ -70,9 +70,8 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_UsePackage>rtl;dbrtl;vcldb;DRipExtension280;vcl;VirtualTreesDR;VclSmp;$(DCC_UsePackage)</DCC_UsePackage>
-        <VerInfo_MajorVer>2</VerInfo_MajorVer>
-        <VerInfo_MinorVer>9</VerInfo_MinorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=2.9.0.0;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.9.0.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_MajorVer>3</VerInfo_MajorVer>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.0;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.0.0.0;Comments=beta</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <DCC_UsePackage>rtl;dbrtl;vcldb;vcl;VirtualTreesDR;VclSmp;$(DCC_UsePackage)</DCC_UsePackage>
@@ -93,9 +92,8 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\22.0\bin\bds.exe</Debugger_HostApplication>
         <DCC_ShowGeneralMessages>true</DCC_ShowGeneralMessages>
-        <VerInfo_MajorVer>2</VerInfo_MajorVer>
-        <VerInfo_MinorVer>9</VerInfo_MinorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=2.9.0.0;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.9.0.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_MajorVer>3</VerInfo_MajorVer>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.0;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.0.0.0;Comments=beta</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -105,10 +103,9 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_MajorVer>2</VerInfo_MajorVer>
-        <VerInfo_MinorVer>9</VerInfo_MinorVer>
+        <VerInfo_MajorVer>3</VerInfo_MajorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=2.9.0.0;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.9.0.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.0;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.0.0.0;Comments=beta</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -217,7 +214,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">DRipExtension280.dpk</Source>
+                    <Source Name="MainSource">DRipExtension.dpk</Source>
                 </Source>
                 <Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclBindCompFireDAC280.bpl">LiveBinding-Ausdruckskomponenten für FireDac</Excluded_Packages>
@@ -247,9 +244,9 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\DRipExtension280.bpl" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\DRipExtension.bpl" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>DRipExtension280.bpl</RemoteName>
+                        <RemoteName>DRipExtension.bpl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
