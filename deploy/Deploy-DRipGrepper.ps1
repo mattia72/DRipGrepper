@@ -222,7 +222,7 @@ function New-Asset {
 
 function Update-ScoopManifest {
 
-    Push-Location $env:SCOOP\buckets\my-scoop-bucket
+    Push-Location $env:SCOOP\buckets\my-scoop
     .\bin\checkver.ps1 -Update
     if ( -not $(Test-YesAnswer "Commit updated manifests?")) {
         Write-Error "Commit canceled" -ErrorAction Stop
