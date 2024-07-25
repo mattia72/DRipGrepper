@@ -61,9 +61,8 @@ type
 		VstHistory : TVirtualStringTree;
 		PopupMenuHistory : TPopupMenu;
 		ActionHistoryDelete : TAction;
-		Action11 : TMenuItem;
 		ActionHistoryDeleteAll : TAction;
-		Action12 : TMenuItem;
+
 		procedure ActionCopyFileNameExecute(Sender : TObject);
 		procedure ActionCopyFileNameUpdate(Sender : TObject);
 		procedure ActionCopyPathToClipboardExecute(Sender : TObject);
@@ -75,6 +74,7 @@ type
 		procedure ActionOpenWithExecute(Sender : TObject);
 		procedure ActionOpenWithUpdate(Sender : TObject);
 		procedure FrameResize(Sender : TObject);
+		procedure PopupMenuHistoryPopup(Sender: TObject);
 		procedure Splitter1Moved(Sender : TObject);
 		procedure SplitView1Resize(Sender : TObject);
 		procedure VstHistoryDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
@@ -788,6 +788,11 @@ begin
 		end;
 		node := Tree.GetNextNoInit(node);
 	end;
+end;
+
+procedure TRipGrepperMiddleFrame.PopupMenuHistoryPopup(Sender: TObject);
+begin
+    SetSelectedHistoryItem(CurrentHistoryItemIndex);
 end;
 
 procedure TRipGrepperMiddleFrame.SetSelectedHistoryItem(const _idx : Integer);
