@@ -49,4 +49,4 @@ Checkmarked if fixed, else it is known bug.
 - [ ] rg options helper grid has weird entries
 - [ ] drip icon in menu has no transparent background
 - [x] context causes exception
-- [ ] search after delete all causes exception
+- [x] search after delete all history causes exception
