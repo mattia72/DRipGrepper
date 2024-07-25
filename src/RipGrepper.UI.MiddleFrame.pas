@@ -37,7 +37,8 @@ uses
 	ArrayEx,
 	RipGrepper.Tools.ProcessUtils,
 	RipGrepper.Helper.Types,
-	RipGrepper.Common.Settings.RipGrepParameterSettings;
+	RipGrepper.Common.Settings.RipGrepParameterSettings,
+	RipGrepper.Common.ParsedObject;
 
 type
 	TRipGrepperMiddleFrame = class(TFrame, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
@@ -46,10 +47,10 @@ type
 		ActionCopyPathToClipboard : TAction;
 		ActionOpenWith : TAction;
 		PopupMenuResult : TPopupMenu;
-		Openwith1 : TMenuItem;
+		miOpenwith1 : TMenuItem;
 		N1 : TMenuItem;
-		CopyFileNameToClipboard : TMenuItem;
-		CopyPathToClipboard : TMenuItem;
+		miCopyFileNameToClipboard : TMenuItem;
+		miCopyPathToClipboard : TMenuItem;
 		ImageListListView : TImageList;
 		panelMain : TPanel;
 		SplitView1 : TSplitView;
@@ -62,9 +63,25 @@ type
 		PopupMenuHistory : TPopupMenu;
 		ActionHistoryDelete : TAction;
 		ActionHistoryDeleteAll : TAction;
-
+		N2 : TMenuItem;
+		miResultAddAsUsingInterface : TMenuItem;
+		miAddAsUsingImplementation : TMenuItem;
+		ActionAddUsingImplementation : TAction;
+		ActionAddUsingInterface : TAction;
+		ActionCopyLineToClipboard : TAction;
+		ActionCopyMatchToClipboard : TAction;
+		miCopyLine1 : TMenuItem;
+		miCopyMatchingText1 : TMenuItem;
+		procedure ActionAddUsingImplementationExecute(Sender : TObject);
+		procedure ActionAddUsingImplementationUpdate(Sender : TObject);
+		procedure ActionAddUsingInterfaceExecute(Sender : TObject);
+		procedure ActionAddUsingInterfaceUpdate(Sender : TObject);
 		procedure ActionCopyFileNameExecute(Sender : TObject);
 		procedure ActionCopyFileNameUpdate(Sender : TObject);
+		procedure ActionCopyLineToClipboardExecute(Sender : TObject);
+		procedure ActionCopyLineToClipboardUpdate(Sender : TObject);
+		procedure ActionCopyMatchToClipboardExecute(Sender : TObject);
+		procedure ActionCopyMatchToClipboardUpdate(Sender : TObject);
 		procedure ActionCopyPathToClipboardExecute(Sender : TObject);
 		procedure ActionCopyPathToClipboardUpdate(Sender : TObject);
 		procedure ActionHistoryDeleteAllExecute(Sender : TObject);
@@ -117,8 +134,10 @@ type
 			FswSearchStart : TStopwatch;
 			FIconImgList : TIconImageList;
 			FParsingThreads : TArrayEx<TParallelParser>;
+			procedure AddAsUsing(_bToImpl : Boolean);
 			procedure ClearHistoryObjectList;
 			procedure CreateNewHistObject;
+			procedure EnableActionIfResultSelected(_act : TAction);
 			procedure ExpandNodes;
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
 			function GetCounterText(Data : THistoryItemObject) : string;
@@ -128,6 +147,8 @@ type
 			function GetHistoryObjectList : TStringList;
 			function GetNewParallelParser : TParallelParser;
 			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
+			function GetResultSelectedFilePath : string;
+			function GetSelectedResultFileNodeData : PVSFileNodeData;
 			function GetSettings : TRipGrepperSettings;
 			procedure LoadBeforeSearchSettings;
 			procedure OnLastLine(const _iLineNr : Integer);
@@ -191,23 +212,20 @@ uses
 	RipGrepper.OpenWith,
 	System.StrUtils,
 	RipGrepper.Tools.DebugUtils,
-
 	System.IOUtils,
 	Vcl.Clipbrd,
 	Winapi.CommCtrl,
 	RipGrepper.Helper.ListBox,
 	RipGrepper.Tools.FileUtils,
-
 	RipGrepper.Parsers.VimGrepMatchLine,
-	RipGrepper.Common.ParsedObject,
-
 	System.Math,
 	RipGrepper.UI.MainForm,
 	RipGrepper.UI.BottomFrame,
 	VirtualTrees.Types,
 	RipGrepper.Parsers.Factory,
 	RipGrepper.UI.TopFrame,
-	RipGrepper.Common.IOTAUtils;
+	RipGrepper.Common.IOTAUtils,
+	GX_UsesManager;
 
 {$R *.dfm}
 
@@ -233,6 +251,29 @@ begin
 	inherited;
 end;
 
+procedure TRipGrepperMiddleFrame.ActionAddUsingImplementationExecute(Sender : TObject);
+begin
+	AddAsUsing(True);
+end;
+
+procedure TRipGrepperMiddleFrame.ActionAddUsingImplementationUpdate(Sender : TObject);
+begin
+	N2.Visible := not IOTAUTils.IsStandAlone();
+	ActionAddUsingImplementation.Visible := not IOTAUTils.IsStandAlone();
+	EnableActionIfResultSelected(ActionAddUsingImplementation);
+end;
+
+procedure TRipGrepperMiddleFrame.ActionAddUsingInterfaceExecute(Sender : TObject);
+begin
+	AddAsUsing(False);
+end;
+
+procedure TRipGrepperMiddleFrame.ActionAddUsingInterfaceUpdate(Sender : TObject);
+begin
+	ActionAddUsingInterface.Visible := not IOTAUTils.IsStandAlone();
+	EnableActionIfResultSelected(ActionAddUsingInterface);
+end;
+
 procedure TRipGrepperMiddleFrame.ActionCopyFileNameExecute(Sender : TObject);
 begin
 	CopyToClipboardFileOfSelected();
@@ -240,7 +281,35 @@ end;
 
 procedure TRipGrepperMiddleFrame.ActionCopyFileNameUpdate(Sender : TObject);
 begin
-	ActionCopyFileName.Enabled := VstResult.SelectedCount = 1;
+	EnableActionIfResultSelected(ActionCopyFileName);
+end;
+
+procedure TRipGrepperMiddleFrame.ActionCopyLineToClipboardExecute(Sender : TObject);
+var
+	Data : PVSFileNodeData;
+begin
+	Data := GetSelectedResultFileNodeData();
+	if Assigned(Data) then
+		Clipboard.AsText := Data.MatchData.LineText;
+end;
+
+procedure TRipGrepperMiddleFrame.ActionCopyLineToClipboardUpdate(Sender : TObject);
+begin
+	EnableActionIfResultSelected(ActionCopyLineToClipboard);
+end;
+
+procedure TRipGrepperMiddleFrame.ActionCopyMatchToClipboardExecute(Sender : TObject);
+var
+	Data : PVSFileNodeData;
+begin
+	Data := GetSelectedResultFileNodeData();
+	if Assigned(Data) then
+		Clipboard.AsText := Data.MatchData.LineText.Substring(Data.MatchData.Col - 1, Data.MatchData.MatchLength);
+end;
+
+procedure TRipGrepperMiddleFrame.ActionCopyMatchToClipboardUpdate(Sender : TObject);
+begin
+	EnableActionIfResultSelected(ActionCopyMatchToClipboard);
 end;
 
 procedure TRipGrepperMiddleFrame.ActionCopyPathToClipboardExecute(Sender : TObject);
@@ -250,7 +319,7 @@ end;
 
 procedure TRipGrepperMiddleFrame.ActionCopyPathToClipboardUpdate(Sender : TObject);
 begin
-	ActionCopyPathToClipboard.Enabled := VstResult.SelectedCount = 1;
+	EnableActionIfResultSelected(ActionCopyPathToClipboard);
 end;
 
 procedure TRipGrepperMiddleFrame.ActionHistoryDeleteAllExecute(Sender : TObject);
@@ -311,12 +380,37 @@ begin
 	if not owp.IsEmpty then begin
 		TOpenWith.Execute(owp);
 	end;
-
 end;
 
 procedure TRipGrepperMiddleFrame.ActionOpenWithUpdate(Sender : TObject);
 begin
-	ActionOpenWith.Enabled := VstResult.SelectedCount = 1;
+	EnableActionIfResultSelected(ActionOpenWith);
+end;
+
+procedure TRipGrepperMiddleFrame.AddAsUsing(_bToImpl : Boolean);
+var
+	fn : string;
+	usesman : TUsesManager;
+	st : TUsesStatus;
+begin
+	usesman := TUsesManager.Create(IOTAUtils.GxOtaGetCurrentSourceEditor);
+	try
+		fn := TPath.GetFileNameWithoutExtension(GetResultSelectedFilePath);
+
+		st := usesman.GetUsesStatus(fn);
+		if (usNonExisting = st) then begin
+			if _bToImpl then begin
+				usesman.AddToImpSection(fn);
+			end else begin
+				usesman.AddToIntSection(fn);
+			end;
+		end else begin
+			TMsgBox.ShowInfo(Format('Unit %s is already in %s section.', [fn, IfThen(st = usInterface, 'interface', 'implementation')]));
+		end;
+
+	finally
+		usesman.Free;
+	end;
 end;
 
 procedure TRipGrepperMiddleFrame.AddOrUpdateHistoryItem;
@@ -367,25 +461,13 @@ begin
 end;
 
 procedure TRipGrepperMiddleFrame.CopyToClipboardFileOfSelected;
-var
-	Node : PVirtualNode;
 begin
-	Node := VstResult.GetFirstSelected();
-	if not Assigned(Node) then
-		Exit;
-
-	Clipboard.AsText := TPath.GetFileName(GetFilePathFromNode(Node));
+	Clipboard.AsText := TPath.GetFileName(GetResultSelectedFilePath);
 end;
 
 procedure TRipGrepperMiddleFrame.CopyToClipboardPathOfSelected;
-var
-	Node : PVirtualNode;
 begin
-	Node := VstResult.GetFirstSelected();
-	if not Assigned(Node) then
-		Exit;
-
-	Clipboard.AsText := TPath.GetFullPath(GetFilePathFromNode(Node));
+	Clipboard.AsText := TPath.GetFullPath(GetResultSelectedFilePath);
 end;
 
 procedure TRipGrepperMiddleFrame.CreateNewHistObject;
@@ -411,6 +493,11 @@ begin
 	FAbortSearch := False;
 	UpdateArgumentsAndSettings;
 	RunRipGrep();
+end;
+
+procedure TRipGrepperMiddleFrame.EnableActionIfResultSelected(_act : TAction);
+begin
+	_act.Enabled := VstResult.SelectedCount = 1;
 end;
 
 procedure TRipGrepperMiddleFrame.ExpandNodes;
@@ -788,6 +875,28 @@ begin
 		end;
 		node := Tree.GetNextNoInit(node);
 	end;
+end;
+
+function TRipGrepperMiddleFrame.GetResultSelectedFilePath : string;
+var
+	Node : PVirtualNode;
+begin
+	Node := VstResult.GetFirstSelected();
+	if not Assigned(Node) then
+		Exit;
+
+	Result := GetFilePathFromNode(Node);
+end;
+
+function TRipGrepperMiddleFrame.GetSelectedResultFileNodeData : PVSFileNodeData;
+var
+	Node : PVirtualNode;
+begin
+	Result := nil;
+	Node := VstResult.GetFirstSelected();
+	if not Assigned(Node) then
+		Exit;
+	Result := VstResult.GetNodeData(Node);
 end;
 
 procedure TRipGrepperMiddleFrame.PopupMenuHistoryPopup(Sender : TObject);
