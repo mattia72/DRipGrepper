@@ -28,26 +28,19 @@ Marked with checkmark if ready, else planned as next.
 ### :droplet: GUI
 
 #### Main Window
-- [x] own prettifier in case if rg.exe of vs code doesn't support --pretty
 - [ ] own prettifier switcher as toolbar button
-- [x] history item can be deleted
-- [x] history item with colored statistic 
-
+- [ ] replace 
+- [ ] filter result
+- [x] search success unicode char indicators Ok: '✔' Nothing found '⛒' Error '⚠' ;
 <!-- #### :mag: Search Dialog -->
 
 ### :droplet: Extension
-- [x] drip icon in menu
-- [x] adding "insert as `uses`" in result context menu
 
 #### :mag: Search Dialog
 - [ ] extension: search open projekt files
 
 ## :warning: Bugs 
 Checkmarked if fixed, else it is known bug.
-- [x] path not saved in history
-- [x] indent sometimes not working
 - [ ] rg options helper grid has weird entries
 - [ ] drip icon in menu has no transparent background
-- [x] context causes exception
-- [x] search after delete all history causes exception
-- [x] open with fails if command has spaces
+- [ ] search unicode characters fails

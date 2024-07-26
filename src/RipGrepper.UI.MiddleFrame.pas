@@ -1,4 +1,4 @@
-unit RipGrepper.UI.MiddleFrame;
+﻿unit RipGrepper.UI.MiddleFrame;
 
 interface
 
@@ -545,12 +545,13 @@ begin
 		Exit;
 	end;
 	if Data.ErrorCount > 0 then begin
-		Result := Format('%d(%d!) in %d', [Data.TotalMatchCount, Data.ErrorCount, Data.FileCount]);
+		Result := Format('%s %d in %d(%d!)', [TREEVIEW_HISTORY_COUNTER_ERROR_PREFIX, Data.TotalMatchCount, Data.FileCount,
+			Data.ErrorCount]);
 	end else begin
 		if Data.NoMatchFound then begin
-			Result := '0 in 0';
+			Result := TREEVIEW_HISTORY_COUNTER_NOTHING_FOUND_PREFIX + ' 0 in 0';
 		end else begin
-			Result := Format('%d in %d', [Data.TotalMatchCount, Data.FileCount]);
+			Result := Format('%s %d in %d', [TREEVIEW_HISTORY_COUNTER_OK_PREFIX, Data.TotalMatchCount, Data.FileCount]);
 		end;
 	end;
 end;
@@ -1000,7 +1001,7 @@ end;
 procedure TRipGrepperMiddleFrame.VstHistoryDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
 Column : TColumnIndex; const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
 var
-	ln1, sStatistic : string;
+	sSearchText, sStatistic : string;
 	lineBegin : Integer;
 	size : Winapi.Windows.TSize;
 	rectTemp : TRect;
@@ -1008,13 +1009,14 @@ begin
 	case Column of
 		0 : begin
 			DefaultDraw := False;
-			lineBegin := Text.IndexOf(CRLF);
-			ln1 := Text.Substring(0, lineBegin);
+			lineBegin := Text.LastIndexOf(CRLF);
+			sSearchText := Text.Substring(0, lineBegin);
 			TargetCanvas.Font.Color := TREEVIEW_MATCH_ITEM_COLOR;
 			TargetCanvas.Font.style := [fsBold];
-			// TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, ln1);
+			// TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, sSearchText);
 			rectTemp := CellRect;
-			Winapi.Windows.DrawText(TargetCanvas.Handle, pwidechar(ln1), length(ln1), rectTemp, DT_NOPREFIX or DT_WORDBREAK);
+			Winapi.Windows.DrawText(TargetCanvas.Handle, pwidechar(sSearchText), length(sSearchText), rectTemp,
+				DT_NOPREFIX or DT_WORDBREAK);
 
 			sStatistic := Text.Substring(lineBegin + 2);
 			if -1 <> sStatistic.IndexOf('!') then begin
@@ -1024,7 +1026,7 @@ begin
 			end;
 			TargetCanvas.Font.style := [];
 			size := TFontSizeHelper.TrueFontSize(TargetCanvas.Font, sStatistic);
-			TargetCanvas.TextOut(CellRect.Left, CellRect.BottomRight.Y - size.cy, sStatistic);
+			TargetCanvas.TextOut(CellRect.Left + TREEVIEW_FONTSPACE * 4, CellRect.BottomRight.Y - size.cy, sStatistic);
 
 		end;
 	end;
@@ -1048,7 +1050,7 @@ begin
 
 	if TextType = ttNormal then begin
 		CellText := Data.SearchText + CRLF + GetCounterText(GetHistoryObject(Node.Index));
-	end else begin // ttStatic
+	end else begin // ttStatic not shown in Multiline cell
 		CellText := GetCounterText(GetHistoryObject(Node.Index));
 	end;
 end;

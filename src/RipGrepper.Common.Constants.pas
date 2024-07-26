@@ -173,6 +173,10 @@ const
 	TREEVIEW_MATCH_TEXT_COLOR = clMaroon;
 	TREEVIEW_STAT_COLOR = clPurple;
 	TREEVIEW_ERROR_COLOR = clRed;
+
+	TREEVIEW_HISTORY_COUNTER_ERROR_PREFIX = '⚠';
+	TREEVIEW_HISTORY_COUNTER_OK_PREFIX = '✔';
+    TREEVIEW_HISTORY_COUNTER_NOTHING_FOUND_PREFIX = '⛒';
 type
 
 	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
