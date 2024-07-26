@@ -1019,12 +1019,14 @@ begin
 				DT_NOPREFIX or DT_WORDBREAK);
 
 			sStatistic := Text.Substring(lineBegin + 2);
-			if -1 <> sStatistic.IndexOf('!') then begin
+			if -1 <> sStatistic.IndexOf(TREEVIEW_HISTORY_COUNTER_ERROR_PREFIX) then begin
 				TargetCanvas.Font.Color := TREEVIEW_ERROR_COLOR;
+                TargetCanvas.Font.style := [fsBold];
 			end else begin
 				TargetCanvas.Font.Color := TREEVIEW_STAT_COLOR;
+				TargetCanvas.Font.style := [];
 			end;
-			TargetCanvas.Font.style := [];
+			
 			size := TFontSizeHelper.TrueFontSize(TargetCanvas.Font, sStatistic);
 			TargetCanvas.TextOut(CellRect.Left + TREEVIEW_FONTSPACE * 4, CellRect.BottomRight.Y - size.cy, sStatistic);
 

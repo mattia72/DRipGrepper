@@ -21,6 +21,7 @@ type
 			function Validate(var row : TArrayEx<TColumnData>) : Boolean; virtual;
 			function ValidatePath(const sFile : string) : Boolean;
 			function GetSearchParams : ISearchParams;
+			procedure SetPrettyRegex;
 			procedure SetSearchParams(const Value : ISearchParams);
 
 		public
@@ -139,6 +140,30 @@ begin
 	FParseResult := Value;
 end;
 
+procedure TVimGrepMatchLineParser.SetPrettyRegex;
+var
+	pattern: string;
+	s: string;
+begin
+	var
+	gp := FSearchParams.GetGuiSearchParams;
+	var
+	so := gp.SearchOptions;
+
+	if not(EGuiOption.soUseRegex in so) then begin
+		s := TRegEx.Escape(gp.SearchText);
+	end else begin
+		s := gp.SearchText;
+	end;
+
+	pattern := '(?<before>^.*)(?<text>' + s + ')(?<after>.*$)';
+	if (EGuiOption.soMatchCase in so) then begin
+		FPrettyRegex := TRegEx.Create(pattern, [roCompiled]);
+	end else begin
+		FPrettyRegex := TRegEx.Create(pattern, [roIgnoreCase, roCompiled]);
+	end;
+end;
+
 procedure TVimGrepMatchLineParser.SetRgResultLineParseError(out row : TArrayEx<TColumnData>; const _sLine : string);
 begin
 	row.Add(TColumnData.New(ciFile, _sLine));
@@ -150,17 +175,7 @@ end;
 procedure TVimGrepMatchLineParser.SetSearchParams(const Value : ISearchParams);
 begin
 	FSearchParams := Value;
-	var
-	gp := FSearchParams.GetGuiSearchParams;
-	var
-	so := gp.SearchOptions;
-	var
-	pattern := '(?<before>^.*)(?<text>' + gp.SearchText + ')(?<after>.*$)';
-	if (EGuiOption.soMatchCase in so) then begin
-		FPrettyRegex := TRegEx.Create(pattern, [roCompiled]);
-	end else begin
-		FPrettyRegex := TRegEx.Create(pattern, [roIgnoreCase, roCompiled]);
-	end;
+	SetPrettyRegex;
 end;
 
 function TVimGrepMatchLineParser.Validate(var row : TArrayEx<TColumnData>) : Boolean;
