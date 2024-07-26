@@ -28,10 +28,10 @@ type
 		private
 			class var FProcessedLineCount : Integer;
 
-			class procedure BuffToLine(const _sBuf : ansistring; const _iCnt : integer; var sLineOut : string;
+			class procedure BuffToLine(const _sBuf : string; const _iCnt : integer; var sLineOut : string;
 				_newLineHandler : INewLineEventHandler);
-			class procedure GoToNextCRLF(var P : PAnsiChar; const PEndVal : PAnsiChar);
-			class function GoTillCRLF(var P : PAnsiChar; const PEndVal : PAnsiChar) : Integer;
+			class procedure GoToNextCRLF(var P : PChar; const PEndVal : PChar);
+			class function GoTillCRLF(var P : PChar; const PEndVal : PChar) : Integer;
 
 			class procedure NewLineEventHandler(_obj : INewLineEventHandler; const _s : string; const _bIsLast : Boolean = False);
 			class procedure EOFProcessingEventHandler(_obj : IEOFProcessEventHandler);
@@ -90,10 +90,10 @@ begin
 	end;
 end;
 
-class procedure TProcessUtils.BuffToLine(const _sBuf : ansistring; const _iCnt : integer; var sLineOut : string;
+class procedure TProcessUtils.BuffToLine(const _sBuf : string; const _iCnt : integer; var sLineOut : string;
 	_newLineHandler : INewLineEventHandler);
 var
-	P, PStartVal, PEndVal : PAnsiChar;
+	P, PStartVal, PEndVal : PChar;
 	iLineEndFound : integer;
 	S : string;
 begin
@@ -117,9 +117,9 @@ begin
 	end;
 end;
 
-class procedure TProcessUtils.GoToNextCRLF(var P : PAnsiChar; const PEndVal : PAnsiChar);
+class procedure TProcessUtils.GoToNextCRLF(var P : PChar; const PEndVal : PChar);
 begin
-	while (P < PEndVal) and not(P^ in [CR, LF]) do
+	while (P < PEndVal) and not(CharInSet(P^, [CR, LF])) do
 		Inc(P);
 end;
 
@@ -130,10 +130,10 @@ begin
 	end;
 end;
 
-class function TProcessUtils.GoTillCRLF(var P : PAnsiChar; const PEndVal : PAnsiChar) : Integer;
+class function TProcessUtils.GoTillCRLF(var P : PChar; const PEndVal : PChar) : Integer;
 begin
 	Result := 0;
-	while (P < PEndVal) and (P^ in [CR, LF]) do begin
+	while (P < PEndVal) and CharInSet(P^, [CR, LF]) do begin
 		Inc(Result);
 		Inc(P);
 	end;
@@ -153,13 +153,14 @@ class procedure TProcessUtils.ProcessOutput(const _s : TStream;
 	{ } _terminateEventProducer : ITerminateEventProducer;
 	{ } _eofProcHandler : IEOFProcessEventHandler);
 var
-	sBuff : ansistring;
+	byteBuff : TBytes;
+	sBuff : string;
 	iBuffLength : integer;
 	sLineOut : string;
 begin
 	FProcessedLineCount := 0;
 	{ Now process the output }
-	SetLength(sBuff, BUFF_LENGTH);
+	SetLength(byteBuff, BUFF_LENGTH);
 	try
 		repeat
 			if (Assigned(_terminateEventProducer) and _terminateEventProducer.ProcessShouldTerminate()) then begin
@@ -168,11 +169,10 @@ begin
 			end;
 			iBuffLength := 0;
 			if (_s <> nil) then begin
-				// L505 todo: try this when using unicodestring buffer
-				// Count := _s.Output.Read(pchar(Buf)^, BUFF_LENGTH);
-				iBuffLength := _s.Read(sBuff[1], Length(sBuff));
+				iBuffLength := _s.Read(Pointer(byteBuff)^, Length(byteBuff));
 			end;
-
+			sBuff := TEncoding.UTF8.GetString(byteBuff); // unicode conversion
+//			sBuff := StringOf(byteBuff); // unicode conversion  ?
 			BuffToLine(sBuff, iBuffLength, sLineOut, _newLineHandler);
 		until iBuffLength = 0;
 

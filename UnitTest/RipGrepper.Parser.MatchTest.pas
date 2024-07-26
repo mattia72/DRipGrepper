@@ -71,7 +71,7 @@ var
 	ifSearchParam : ISearchParams;
 begin
 	parser := TVimGrepMatchLineParser.Create();
-	parser.SearchParams := ifSearchParam;
+	parser.SearchParams := ifSearchParam;  // TODO Mock!
 	parser.ParseLine(0, _s);
 	var pr :=  parser.ParseResult;
 	Assert.IsTrue(not pr.IsError,

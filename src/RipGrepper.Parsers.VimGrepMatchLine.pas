@@ -82,6 +82,7 @@ end;
 procedure TVimGrepMatchLineParser.ParseLine(const _iLnNr : integer; const _sLine : string; const _bIsLast : Boolean = False);
 var
 	m : TMatch;
+	matchPretty : TMatch;
 	cd : TArrayEx<TColumnData>;
 	s : string;
 begin
@@ -101,11 +102,11 @@ begin
 		s := m.Groups['text'].Value;
 		var  // not used, but so we have less memory leak!
 		so := SearchParams.GetGuiSearchParams;
-		m := FPrettyRegex.Match(s);
-		if m.Groups.Count = 4 then begin
-			cd.Add(TColumnData.New(ciText, m.Groups['before'].Value));
-			cd.Add(TColumnData.New(ciMatchText, m.Groups['text'].Value));
-			cd.Add(TColumnData.New(ciTextAfterMatch, m.Groups['after'].Value));
+		matchPretty := FPrettyRegex.Match(s);
+		if matchPretty.Groups.Count = 4 then begin
+			cd.Add(TColumnData.New(ciText, matchPretty.Groups['before'].Value));
+			cd.Add(TColumnData.New(ciMatchText, matchPretty.Groups['text'].Value));
+			cd.Add(TColumnData.New(ciTextAfterMatch, matchPretty.Groups['after'].Value));
 		end else begin
 			cd.Add(TColumnData.New(ciText, s));
 			cd.Add(TColumnData.New(ciMatchText, ''));

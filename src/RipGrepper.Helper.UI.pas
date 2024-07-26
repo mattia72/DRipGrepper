@@ -399,7 +399,7 @@ var
 	iconIdx : Integer;
 begin
 	bErrorLine := MatchStr(_sFilePath, [RG_ERROR_MSG_PREFIX, RG_PARSE_ERROR]);
-	if bErrorLine then begin
+	if bErrorLine or (not TPath.HasValidPathChars(_sFilePath, False)) then begin
 		sExtension := _sFilePath;
 	end else begin
 		sExtension := TPath.GetExtension(_sFilePath);
