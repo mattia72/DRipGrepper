@@ -38,7 +38,7 @@ type
 			procedure Init; override;
 
 		public
-			constructor Create(const _ini : TIniFile);
+			constructor Create(const _ini : TMemIniFile);
 			destructor Destroy; override;
 			function GetCommandLine : string;
 			function GetIniSectionName : string; override;
@@ -66,7 +66,7 @@ uses
 	System.RegularExpressions,
 	RipGrepper.Helper.UI;
 
-constructor TRipGrepParameterSettings.Create(const _ini : TIniFile);
+constructor TRipGrepParameterSettings.Create(const _ini : TMemIniFile);
 begin
 	inherited Create(_ini);
 	FbRgPathInitOk := False;

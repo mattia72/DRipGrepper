@@ -29,12 +29,12 @@ type
 	TRipGrepperSettingsBase = class(TSingletonImplementation, ISettingsPersister)
 		private
 			FSettings : TSettingsDictionary;
-			function GetIniFile : TIniFile;
-			procedure SetIniFile(const Value : TIniFile);
+			function GetIniFile : TMemIniFile;
+			procedure SetIniFile(const Value : TMemIniFile);
 			procedure SetIsModified(const Value : Boolean);
 
 		protected
-			FIniFile : TIniFile;
+			FIniFile : TMemIniFile;
 			FIsLoaded: Boolean;
 			FIsModified : Boolean;
 
@@ -49,11 +49,11 @@ type
 			procedure Store; virtual;
 
 		public
-			constructor Create(const _ini : TIniFile);
+			constructor Create(const _ini : TMemIniFile);
 			destructor Destroy; override;
 			function GetIniSectionName : string; virtual; abstract;
 			procedure ReLoad;
-			property IniFile : TIniFile read GetIniFile write SetIniFile;
+			property IniFile : TMemIniFile read GetIniFile write SetIniFile;
 			property IsLoaded : Boolean read GetIsLoaded;
 			property IsModified : Boolean read GetIsModified write SetIsModified;
 	end;
@@ -65,7 +65,7 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	System.Variants;
 
-constructor TRipGrepperSettingsBase.Create(const _ini : TIniFile);
+constructor TRipGrepperSettingsBase.Create(const _ini : TMemIniFile);
 begin
 	inherited Create();
 	FIniFile := _ini;
@@ -85,7 +85,7 @@ begin
 	FSettings.Add(_sName, _setting);
 end;
 
-function TRipGrepperSettingsBase.GetIniFile : TIniFile;
+function TRipGrepperSettingsBase.GetIniFile : TMemIniFile;
 begin
 	Result := FIniFile;
 end;
@@ -128,7 +128,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepperSettingsBase.SetIniFile(const Value : TIniFile);
+procedure TRipGrepperSettingsBase.SetIniFile(const Value : TMemIniFile);
 begin
 	if Assigned(FIniFile) then
 		FIniFile.Free;
