@@ -17,7 +17,7 @@ type
   TOptionsHelperTest = class
 
     private
-      FIniFile : TIniFile;
+      FIniFile : TMemIniFile;
       FParams : TRipGrepParameterSettings;
       function SetSearchOptions(const _guiOptionsActual : string) : TSearchOptionSet;
 
@@ -165,7 +165,7 @@ end;
 
 procedure TOptionsHelperTest.Setup;
 begin
-  FIniFile := TIniFile.Create('DripGrepperUnittest.ini');
+  FIniFile := TMemIniFile.Create('DripGrepperUnittest.ini', TEncoding.UTF8);
   FParams := TRipGrepParameterSettings.Create(FIniFile);
 end;
 

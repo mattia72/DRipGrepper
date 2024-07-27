@@ -16,7 +16,7 @@ type
 	TCommandLineBuilderTest = class
 
 		private
-			FIniFile : TIniFile;
+			FIniFile : TMemIniFile;
 			FParams : TRipGrepParameterSettings;
 
 		public
@@ -62,7 +62,7 @@ uses
 
 procedure TCommandLineBuilderTest.Setup;
 begin
-	FIniFile := TIniFile.Create('DripGrepperUnittest.ini');
+	FIniFile := TMemIniFile.Create('DripGrepperUnittest.ini');
 	FParams := TRipGrepParameterSettings.Create(FIniFile);
 end;
 

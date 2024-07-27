@@ -31,8 +31,7 @@ const
   TAB = #9;
   SPACE = #32;
   EOS = #0;
-  ESC_CHAR = #$01B;
-  ESC = ESC_CHAR + '\[';
+
   SEARCH_PATH_SEPARATOR = ';';
 
   BUFF_LENGTH = 1024; // Todo: put into settings
@@ -73,13 +72,15 @@ const
   RG_MATCH_LINE_REGEX = '^(?<drive>\w:)?(?<path>.+?):(?<row>\d+):(?<col>\d+):(?<text>.+)$';
   RG_MATCH_LINE_CONTEXT_REGEX = '^(?<drive>\w:)?(?<path>.+?)-(?<row>\d+)-(?<text>.*)$';
 
+  ESC_CHAR = #$01B;
+  ESC = ESC_CHAR + '\[';
   RG_PRETTY_BLUE = ESC + '0m' + ESC + '36m';
   RG_PRETTY_GREEN = ESC + '0m' + ESC + '32m';
   RG_PRETTY_BOLD_RED = ESC + '1m' + ESC + '31m';
   RG_PRETTY_RESET = ESC + '0m';
 
   RG_MATCH_PRETTY_LINE_REGEX = '^' +
-  { } RG_PRETTY_BLUE + '^(?<drive>\w:)?(?<path>.+?)' +
+  { } RG_PRETTY_BLUE + '(?<drive>\w:)?(?<path>.+?)' +
   { } RG_PRETTY_RESET + ':' +
   { } RG_PRETTY_GREEN + '(?<row>\d+)' +
   { } RG_PRETTY_RESET + ':' +
@@ -89,7 +90,7 @@ const
   { } RG_PRETTY_RESET + '(?<text_after_match>.+?)?$';
 
   RG_MATCH_PRETTY_LINE_CONTEXT_REGEX = '^' +
-  { } RG_PRETTY_BLUE + '^(?<drive>\w:)?(?<path>.+?)' +
+  { } RG_PRETTY_BLUE + '(?<drive>\w:)?(?<path>.+?)' +
   { } RG_PRETTY_RESET + '-' +
   { } RG_PRETTY_GREEN + '(?<row>\d+)' +
   { } RG_PRETTY_RESET + '-' + '(?<text>.*)$';

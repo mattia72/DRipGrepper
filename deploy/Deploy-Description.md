@@ -31,7 +31,7 @@ Marked with checkmark if ready, else planned as next.
 - [ ] own prettifier switcher as toolbar button
 - [ ] replace 
 - [ ] filter result
-- [x] search success unicode char indicators (Ok: '✔' Nothing found: '⛒' Error: '⚠')
+- [x] search success unicode char indicators (Ok:'✔' Nothing found:'⛒' Error:'⚠')
 <!-- #### :mag: Search Dialog -->
 
 ### :droplet: Extension
@@ -43,8 +43,8 @@ Marked with checkmark if ready, else planned as next.
 Checkmarked if fixed, else it is known bug.
 - [ ] rg options helper grid has weird entries
 - [ ] drip icon in menu has no transparent background
-- [ ] search unicode character: 
+- [x] search unicode character: 
     - [x] parsing fails
-    - [ ] highlight fails
+    - [x] highlight fails
     - [x] tree doesn't show unicode
 - [x] searching fixed text with regex chars (.*) won't highlighted

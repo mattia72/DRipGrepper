@@ -171,9 +171,9 @@ begin
 			if (_s <> nil) then begin
 				iBuffLength := _s.Read(Pointer(byteBuff)^, Length(byteBuff));
 			end;
-			sBuff := TEncoding.UTF8.GetString(byteBuff); // unicode conversion
+			sBuff := TEncoding.UTF8.GetString(byteBuff, 0, iBuffLength); // unicode conversion
 //			sBuff := StringOf(byteBuff); // unicode conversion  ?
-			BuffToLine(sBuff, iBuffLength, sLineOut, _newLineHandler);
+			BuffToLine(sBuff, sBuff.Length, sLineOut, _newLineHandler);
 		until iBuffLength = 0;
 
 		ProcessLastLine(sLineOut, _newLineHandler, _eofProcHandler);
