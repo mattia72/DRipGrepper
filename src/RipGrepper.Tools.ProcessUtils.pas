@@ -154,6 +154,7 @@ class procedure TProcessUtils.ProcessOutput(const _s : TStream;
 	{ } _eofProcHandler : IEOFProcessEventHandler);
 var
 	byteBuff : TBytes;
+	enc : TEncoding;
 	sBuff : string;
 	iBuffLength : integer;
 	sLineOut : string;
@@ -171,14 +172,24 @@ begin
 			if (_s <> nil) then begin
 				iBuffLength := _s.Read(Pointer(byteBuff)^, Length(byteBuff));
 			end;
-			sBuff := TEncoding.UTF8.GetString(byteBuff, 0, iBuffLength); // unicode conversion
-//			sBuff := StringOf(byteBuff); // unicode conversion  ?
+			try
+				sBuff := TEncoding.UTF8.GetString(byteBuff, 0, iBuffLength); // unicode conversion
+			except
+				on E : EEncodingError do begin
+					enc := nil;
+					TEncoding.GetBufferEncoding(byteBuff, enc);
+					sBuff := enc.GetString(byteBuff);
+				end;
+			end;
 			BuffToLine(sBuff, sBuff.Length, sLineOut, _newLineHandler);
 		until iBuffLength = 0;
 
 		ProcessLastLine(sLineOut, _newLineHandler, _eofProcHandler);
-	finally
-		// SetLength(sBuff, 0); not necessary
+	except
+		on E : Exception do begin
+			TDebugUtils.DebugMessage('TProcessUtils.ProcessOutput Exception: ' + E.Message + CRLF + 'line:' + sLineOut);
+			raise;
+		end;
 	end;
 end;
 

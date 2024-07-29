@@ -1,7 +1,7 @@
 <!--
 
-Version:     v3.1.0-beta
-PrevVersion: v3.0.0-beta
+Version:     v3.2.0-beta
+PrevVersion: v3.1.0-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -29,7 +29,6 @@ Marked with checkmark if ready, else planned as next.
 - [ ] own prettifier switcher as toolbar button
 - [ ] replace 
 - [ ] filter result
-- [x] search success unicode char indicators (Ok:'✔' Nothing found:'⛒' Error:'⚠')
 <!-- #### :mag: Search Dialog -->
 
 ### :droplet: Extension
@@ -41,8 +40,5 @@ Marked with checkmark if ready, else planned as next.
 Checkmarked if fixed, else it is known bug.
 - [ ] rg options helper grid has weird entries
 - [ ] drip icon in menu has no transparent background
-- [x] search unicode character: 
-    - [x] parsing fails
-    - [x] highlight fails
-    - [x] tree doesn't show unicode
-- [x] searching fixed text with regex chars (.*) won't highlighted
+- [x] rg.exe not found if path surrounded with ""
+- [x] non unicode characters causes exception. Workaround: --encoding=UTF8
