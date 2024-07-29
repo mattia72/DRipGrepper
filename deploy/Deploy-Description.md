@@ -1,7 +1,7 @@
 <!--
 
-Version:     v3.0.0-beta
-PrevVersion: v2.9.0-beta
+Version:     v3.1.0-beta
+PrevVersion: v3.0.0-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -24,8 +24,6 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 
 ## :rocket: Improvements 
 Marked with checkmark if ready, else planned as next.
-
-### :droplet: GUI
 
 #### Main Window
 - [ ] own prettifier switcher as toolbar button
