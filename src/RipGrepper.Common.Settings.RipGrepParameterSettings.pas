@@ -120,6 +120,7 @@ var
 	rgPath : string;
 	scoopInstall : string;
 begin
+
 	if FRipGrepPath.IsEmpty or (not FileExists(FRipGrepPath)) then begin
 		rgExists := TFileUtils.FindExecutable('rg.exe', rgPath);
 		if not rgExists then begin
@@ -139,7 +140,8 @@ end;
 procedure TRipGrepParameterSettings.Load;
 begin
 	inherited Load();
-	RipGrepPath := LoadSetting(RG_INI_KEY_RGPATH);
+	FRipGrepPath := LoadSetting(RG_INI_KEY_RGPATH);
+	FRipGrepPath := FRipGrepPath.Trim(['"', '''']);
 end;
 
 procedure TRipGrepParameterSettings.SetFileMasks(const Value : string);
