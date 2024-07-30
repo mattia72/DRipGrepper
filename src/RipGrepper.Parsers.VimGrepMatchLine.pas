@@ -209,7 +209,7 @@ begin
 	if sFile.StartsWith(':') then begin
 		ParseResult.ErrorText := 'Begins with '':''';
 	end else if not TPath.HasValidPathChars(sFile, False) then begin
-		ParseResult.ErrorText := 'Invalid chars in path' + sFile;
+		ParseResult.ErrorText := 'Invalid chars in path: ' + sFile;
 	end else if not(TPath.IsDriveRooted(sFile) or TPath.IsRelativePath(sFile)) then begin
 		ParseResult.ErrorText := 'Not an abs or relative path' + sFile;
 	end;

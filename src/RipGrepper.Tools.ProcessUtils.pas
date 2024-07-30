@@ -7,7 +7,8 @@ uses
 	dprocess,
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.Interfaces,
-	ArrayEx;
+	ArrayEx,
+	System.SysUtils;
 
 type
 	TSimpleProcessOutputStringReader = class(TInterfacedObject, INewLineEventHandler)
@@ -30,6 +31,7 @@ type
 
 			class procedure BuffToLine(const _sBuf : string; const _iCnt : integer; var sLineOut : string;
 				_newLineHandler : INewLineEventHandler);
+			class procedure EncodeBuffer(const byteBuff : TBytes; var sBuff : string; var iBuffLength : integer);
 			class procedure GoToNextCRLF(var P : PChar; const PEndVal : PChar);
 			class function GoTillCRLF(var P : PChar; const PEndVal : PChar) : Integer;
 
@@ -62,7 +64,6 @@ implementation
 
 uses
 
-	System.SysUtils,
 	RipGrepper.Tools.DebugUtils,
 	Winapi.Windows,
 	Winapi.ShellAPI,
@@ -117,6 +118,21 @@ begin
 	end;
 end;
 
+class procedure TProcessUtils.EncodeBuffer(const byteBuff : TBytes; var sBuff : string; var iBuffLength : integer);
+var
+	enc : TEncoding;
+begin
+	try
+		sBuff := TEncoding.UTF8.GetString(byteBuff, 0, iBuffLength); // unicode conversion
+	except
+		on E : EEncodingError do begin
+			enc := nil;
+			TEncoding.GetBufferEncoding(byteBuff, enc);
+			sBuff := enc.GetString(byteBuff);
+		end;
+	end;
+end;
+
 class procedure TProcessUtils.GoToNextCRLF(var P : PChar; const PEndVal : PChar);
 begin
 	while (P < PEndVal) and not(CharInSet(P^, [CR, LF])) do
@@ -154,7 +170,6 @@ class procedure TProcessUtils.ProcessOutput(const _s : TStream;
 	{ } _eofProcHandler : IEOFProcessEventHandler);
 var
 	byteBuff : TBytes;
-	enc : TEncoding;
 	sBuff : string;
 	iBuffLength : integer;
 	sLineOut : string;
@@ -172,15 +187,7 @@ begin
 			if (_s <> nil) then begin
 				iBuffLength := _s.Read(Pointer(byteBuff)^, Length(byteBuff));
 			end;
-			try
-				sBuff := TEncoding.UTF8.GetString(byteBuff, 0, iBuffLength); // unicode conversion
-			except
-				on E : EEncodingError do begin
-					enc := nil;
-					TEncoding.GetBufferEncoding(byteBuff, enc);
-					sBuff := enc.GetString(byteBuff);
-				end;
-			end;
+			EncodeBuffer(byteBuff, sBuff, iBuffLength);
 			BuffToLine(sBuff, sBuff.Length, sLineOut, _newLineHandler);
 		until iBuffLength = 0;
 
