@@ -105,7 +105,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Top = 0
       Width = 121
       Height = 23
-      Hint = 'Search between Results'
+      Hint = 'Find Text between Results. '#13#10'Push F3 to Find Next Occurrence'
       TabStop = False
       AutoSize = False
       BevelInner = bvNone
@@ -119,7 +119,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       ParentShowHint = False
       ShowHint = True
       TabOrder = 0
-      TextHint = 'Search...'
+      TextHint = 'Find...'
       OnChange = SearchBox1Change
       ButtonWidth = 22
     end
@@ -1250,6 +1250,13 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     object ActionAlignToolbars: TAction
       Caption = 'Align Toolbars'
       OnExecute = ActionAlignToolbarsExecute
+    end
+    object ActionSearchInResult: TAction
+      Category = 'Search'
+      Caption = 'Search in Results'
+      Hint = 'Find in Result Tree (Find Next F3)'
+      ShortCut = 114
+      OnExecute = ActionSearchInResultExecute
     end
   end
   object PopupMenu1: TPopupMenu
