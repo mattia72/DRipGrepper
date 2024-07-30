@@ -1,35 +1,33 @@
-## DRipGrepper
+## :droplet: DRipGrepper
 Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Delphi Pascal with the goal to integrate in the Delphi IDE as an extension.
 
 ![Screenshot](./screenshots/DripGepper_Form.png)
 
 ## Features and Todos
+Marked with checkmark if ready, else planned.
 
-### Main Window
-- [x] search text, parse `rg` output
+- [x] searches text, parses `rg` output
   - [x] --vimgrep parser
-  - [x] error parser: if a line couldn't be parsed, then it is put in the first column
+  - [x] error parser: if a line couldn't be parsed, then it is put in the first column (it maybe encoding problem)
   - [x] --pretty parser matching lines with colorized match position
-  - [x] --vimgrep --context NUM (or -A=NUM -B=NUM) parser
+  - [x] --context NUM (or -A=NUM -B=NUM) parser
   - [ ] --invert-match parser
   - [ ] --stats parser eg. msgbox on end with search statistics
-  - [x] no match parser, if nothing found (0 in 0)
 - [x] toolbar buttons to 
-  - [x] expand / collapse tree
+  - [x] expand/collapse tree
   - [x] show/hide icons
   - [x] full/relative path
   - [x] alternate row colors
 - [x] copy `rg` command line into clipboard
-- [x] sorting by path 
-- [x] sorting by row
-- [x] sorting by col
-- [x] sorting by tex
-- [x] grouping by path
-- [ ] sorting groups by row / col / text
+- [ ] sorting result groups by row / col / text
+- [ ] filtering results
 - [ ] file handling (eg. open in explorer, copy, rename, delete)
 - [ ] replace text in files --replace=TEXT
+- [x] unicode support
 
 ### :mag: Search Dialog
+![Screenshot](./screenshots/SearchForm.png)
+
 - [x] helps parametrizing `rg.exe` in search dialog
   - [x] expert mode set in `DripGrepper.ini` makes rg options visible
     - [x] option helper form 
@@ -40,18 +38,19 @@ Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Del
     - [x] --fixed-strings
   - [x] --glob filter settings can be set in separate editbox
   - [x] --hidden, --no-ignore can be set
-  - [x] --pretty can be set
+  - [x] --pretty can be set (not supported by rg.exe in vscode)
   - [x] --context=NUM can be set
-  
 
 ### :rocket: Open with...
+![Screenshot](./screenshots/OpenWith.png)
+
 - [x] show configured editors to open matching file on matching position
-   - [ ] on double click ?
+   - [ ] on double click
    - [x] with menu / toolbar
-- [ ] separate editor for distinct extensions
+- [ ] separate editors for distinct extensions
 
 ### Configure Open with...
-![Screenshot](./screenshots/04-02-2024_11-04-47.png)
+![Screenshot](./screenshots/ConfigureOpenWith.png)
 
 ### Configuration
 Configuration is stored in ini file (`DripGrepper.ini` for standalone and `DripExtension*.ini` for the extension)
@@ -70,6 +69,8 @@ Configuration is stored in ini file (`DripGrepper.ini` for standalone and `DripE
 - [ ] configuration dialog
 
 ### Delphi Extension 
+![Screenshot](./screenshots/DripExtension.png)
+
   - [x] dockable window
   - [x] high DPI Scaling 
   - [x] menu item in Tools (shortcut configurable in `DripExtension*.ini`)
@@ -77,6 +78,9 @@ Configuration is stored in ini file (`DripGrepper.ini` for standalone and `DripE
   - [x] click on matching file, opens file in the editor on position 
      - [ ] expand collapsed code in {$REGION}-s
   - [x] popup menu
+    - [x] delete history entries
+    - [x] copy path etc.
+    - [x] insert file as `uses` to interface/implementation section
   - [x] save window position
      - [x] save in layout
      - [x] load saved layout
