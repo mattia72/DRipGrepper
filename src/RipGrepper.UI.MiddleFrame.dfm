@@ -172,13 +172,13 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
       OnUpdate = ActionHistoryDeleteAllUpdate
     end
     object ActionAddUsingImplementation: TAction
-      Caption = 'Add as Using to Implementation'
+      Caption = 'Add to Implementation'
       ImageIndex = 4
       OnExecute = ActionAddUsingImplementationExecute
       OnUpdate = ActionAddUsingImplementationUpdate
     end
     object ActionAddUsingInterface: TAction
-      Caption = 'Add as Using to Interface'
+      Caption = 'Add to Interface'
       ImageIndex = 4
       OnExecute = ActionAddUsingInterfaceExecute
       OnUpdate = ActionAddUsingInterfaceUpdate
@@ -207,26 +207,29 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
     object N1: TMenuItem
       Caption = '-'
     end
-    object miCopyFileNameToClipboard: TMenuItem
-      Action = ActionCopyFileName
+    object miCopytoClipboard: TMenuItem
+      Caption = 'Copy to Clipboard'
+      object miCopyFileNameToClipboard: TMenuItem
+        Action = ActionCopyFileName
+      end
+      object miCopyPathToClipboard: TMenuItem
+        Action = ActionCopyPathToClipboard
+      end
+      object miCopyLine: TMenuItem
+        Action = ActionCopyLineToClipboard
+      end
+      object miCopyMatchingText: TMenuItem
+        Action = ActionCopyMatchToClipboard
+      end
     end
-    object miCopyPathToClipboard: TMenuItem
-      Action = ActionCopyPathToClipboard
-    end
-    object miCopyLine1: TMenuItem
-      Action = ActionCopyLineToClipboard
-    end
-    object miCopyMatchingText1: TMenuItem
-      Action = ActionCopyMatchToClipboard
-    end
-    object N2: TMenuItem
-      Caption = '-'
-    end
-    object miResultAddAsUsingInterface: TMenuItem
-      Action = ActionAddUsingInterface
-    end
-    object miAddAsUsingImplementation: TMenuItem
-      Action = ActionAddUsingImplementation
+    object miAddToUSESList: TMenuItem
+      Caption = 'Add to USES List'
+      object miResultAddAsUsingInterface: TMenuItem
+        Action = ActionAddUsingInterface
+      end
+      object miAddAsUsingImplementation: TMenuItem
+        Action = ActionAddUsingImplementation
+      end
     end
   end
   object ImageListListView: TImageList

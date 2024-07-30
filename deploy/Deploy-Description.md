@@ -27,11 +27,10 @@ Marked with checkmark if ready, else planned as next.
 - [ ] own prettifier switcher as toolbar button
 - [ ] replace 
 - [ ] filter result
+- [x] F3 find next 
 <!-- #### :mag: Search Dialog -->
 
-### Extension
-
-#### Search Dialog
+### Search Dialog
 - [ ] extension: search open projekt files
 - [ ] --encoding
 
@@ -41,3 +40,4 @@ Marked with checkmark if fixed, else it is known bug.
 - [ ] drip icon in menu has no transparent background
 - [x] rg.exe not found if path surrounded with ""
 - [x] non unicode characters causes exception. Workaround: --encoding=UTF8
+- [x] can't delete additional options
