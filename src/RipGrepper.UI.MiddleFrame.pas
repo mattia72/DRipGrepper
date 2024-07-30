@@ -48,7 +48,6 @@ type
 		ActionOpenWith : TAction;
 		PopupMenuResult : TPopupMenu;
 		miOpenwith1 : TMenuItem;
-		N1 : TMenuItem;
 		miCopyFileNameToClipboard : TMenuItem;
 		miCopyPathToClipboard : TMenuItem;
 		ImageListListView : TImageList;
@@ -63,15 +62,17 @@ type
 		PopupMenuHistory : TPopupMenu;
 		ActionHistoryDelete : TAction;
 		ActionHistoryDeleteAll : TAction;
-		N2 : TMenuItem;
 		miResultAddAsUsingInterface : TMenuItem;
 		miAddAsUsingImplementation : TMenuItem;
 		ActionAddUsingImplementation : TAction;
 		ActionAddUsingInterface : TAction;
 		ActionCopyLineToClipboard : TAction;
 		ActionCopyMatchToClipboard : TAction;
-		miCopyLine1 : TMenuItem;
-		miCopyMatchingText1 : TMenuItem;
+    miCopyLine: TMenuItem;
+    miCopyMatchingText: TMenuItem;
+    miAddToUSESList: TMenuItem;
+    miCopytoClipboard: TMenuItem;
+    N1: TMenuItem;
 		procedure ActionAddUsingImplementationExecute(Sender : TObject);
 		procedure ActionAddUsingImplementationUpdate(Sender : TObject);
 		procedure ActionAddUsingInterfaceExecute(Sender : TObject);
@@ -258,7 +259,7 @@ end;
 
 procedure TRipGrepperMiddleFrame.ActionAddUsingImplementationUpdate(Sender : TObject);
 begin
-	N2.Visible := not IOTAUTils.IsStandAlone();
+	miAddToUSESList.Visible := not IOTAUTils.IsStandAlone();
 	ActionAddUsingImplementation.Visible := not IOTAUTils.IsStandAlone();
 	EnableActionIfResultSelected(ActionAddUsingImplementation);
 end;
