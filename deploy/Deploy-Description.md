@@ -22,22 +22,21 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 # - Run deploy script by pushing Ctrl+Shift+T in VSCode
 -->
 
-## :rocket: Improvements 
+## Improvements 
 Marked with checkmark if ready, else planned as next.
-
-#### Main Window
 - [ ] own prettifier switcher as toolbar button
 - [ ] replace 
 - [ ] filter result
 <!-- #### :mag: Search Dialog -->
 
-### :droplet: Extension
+### Extension
 
-#### :mag: Search Dialog
+#### Search Dialog
 - [ ] extension: search open projekt files
+- [ ] --encoding
 
 ## :warning: Bugs 
-Checkmarked if fixed, else it is known bug.
+Marked with checkmark if fixed, else it is known bug.
 - [ ] rg options helper grid has weird entries
 - [ ] drip icon in menu has no transparent background
 - [x] rg.exe not found if path surrounded with ""

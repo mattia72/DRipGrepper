@@ -133,7 +133,6 @@ type
 			procedure LoadSettings;
 			procedure ButtonDown(const _searchOption : EGuiOption; _tb : TToolButton; const _bNotMatch : Boolean = False); overload;
 			function GetFullHeight(_ctrl : TControl) : integer;
-			procedure InsertOption(const _sOp : string);
 			function IsOptionSet(const _sParamRegex : string; const _sParamValue : string = '') : Boolean;
 			procedure ProcessControl(_ctrl : TControl; _imgList : TImageList);
 			procedure RemoveNecessaryOptionsFromCmbOptionsText;
@@ -506,11 +505,6 @@ begin
 	Result := _ctrl.Margins.Top + _ctrl.Height + _ctrl.Margins.Bottom;
 end;
 
-procedure TRipGrepperSearchDialogForm.InsertOption(const _sOp : string);
-begin
-	FGuiSetSearchParams.RgOptions.Insert(0, _sOp + ' ').Trim;
-end;
-
 function TRipGrepperSearchDialogForm.IsOptionSet(const _sParamRegex : string; const _sParamValue : string = '') : Boolean;
 begin
 	Result := TOptionsHelper.IsOptionSet(FGuiSetSearchParams.RgOptions, _sParamRegex, _sParamValue);
@@ -520,7 +514,7 @@ procedure TRipGrepperSearchDialogForm.RemoveNecessaryOptionsFromCmbOptionsText;
 begin
 	// Remove necessary options
 	cmbOptions.Text := TGuiSearchTextParams.RemoveRgExeOptions(
-		{ } FGuiSetSearchParams.RgOptions, string.Join('|', RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS));
+		{ } FGuiSetSearchParams.RgAdditionalOptions, string.Join('|', RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS));
 end;
 
 procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings;
@@ -743,10 +737,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.cmbOptionsChange(Sender : TObject);
 begin
-	FGuiSetSearchParams.RgOptions := TGuiSearchTextParams.RemoveRgExeOptions(
-		{ } FGuiSetSearchParams.RgOptions, FcmbOptionsOldText);
 	UpdateCtrls(cmbOptions);
-	FcmbOptionsOldText := cmbOptions.Text;
 end;
 
 function TRipGrepperSearchDialogForm.HasHistItemObj : Boolean;
@@ -899,26 +890,8 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.WriteOptionCtrlToRipGrepParametersSetting;
-var
-	optionsText, sOp, sOpName, sVal : string;
-	options : TArrayEx<string>;
 begin
-	optionsText := cmbOptions.Text;
-	options := optionsText.Split([' '], TStringSplitOptions.ExcludeEmpty);
-	for var i : integer := 0 to options.MaxIndex do begin
-		sOp := options[i];
-		if TOptionsHelper.IsOptionWithValue(sOp) then begin
-			sVal := TOptionsHelper.GetOptionValue(sOp, sOpName);
-
-			if not IsOptionSet(sOpName, sVal) then begin
-				InsertOption(sOpName + '=' + sVal);
-			end;
-			if i = options.MaxIndex then
-				break;
-		end else if not IsOptionSet(sOp) then begin
-			InsertOption(sOp);
-		end;
-	end;
+	FGuiSetSearchParams.RgAdditionalOptions := cmbOptions.Text;
 end;
 
 end.

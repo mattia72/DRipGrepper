@@ -20,6 +20,7 @@ type
 			FRgOptions : string;
 
 			FIsRgExeOptionSet : Boolean;
+			FRgAdditionalOptions: string;
 
 			function GetEscapedSearchText : string;
 			function GetSearchText : string;
@@ -50,6 +51,8 @@ type
 
 			property EscapedSearchText : string read GetEscapedSearchText;
 			property IsRgExeOptionSet : Boolean read FIsRgExeOptionSet write FIsRgExeOptionSet;
+			property RgAdditionalOptions: string read FRgAdditionalOptions write
+				FRgAdditionalOptions;
 			property RgOptions : string read FRgOptions write FRgOptions;
 			property SearchText : string read GetSearchText write FSearchText;
 			property WordBoundedSearchText : string read GetWordBoundedSearchText;

@@ -139,7 +139,8 @@ begin
 	TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: start');
 	_params.RipGrepArguments.Clear();
 
-	arrRgOptions := _params.GuiSetSearchParams.RgOptions.Split([' ']);
+	arrRgOptions := _params.GuiSetSearchParams.RgAdditionalOptions.Split([' ']);
+	arrRgOptions.AddRange(_params.GuiSetSearchParams.RgOptions.Split([' ']));
 	guiParamCount := arrRgOptions.Count;
 
 	for var s in RG_NECESSARY_PARAMS do begin
