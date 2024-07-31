@@ -52,6 +52,12 @@ Marked with checkmark if ready, else planned.
 ### Configure Open with...
 ![Screenshot](./screenshots/ConfigureOpenWith.png)
 
+### Examples:
+* `C:\Program Files\Notepad++\notepad++.exe "<FILE>" -n<LINE> -c<COL>`
+* `"C:\Program Files\Microsoft VS Code\Code.exe" --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"`
+* `C:\Program Files\Git\usr\bin\vim.exe -u "C:\Program Files\Git\etc\vimrc"  -c "+normal <LINE>G<COL>l" "<FILE>" `
+* `nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"`
+
 ### Configuration
 Configuration is stored in ini file (`DripGrepper.ini` for standalone and `DripExtension*.ini` for the extension)
   - [x] search text history saved
