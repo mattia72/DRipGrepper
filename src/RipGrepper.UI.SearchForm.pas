@@ -113,7 +113,7 @@ type
 		procedure cmbFileMasksSelect(Sender : TObject);
 		procedure cmbOptionsChange(Sender : TObject);
 		procedure cmbOptionsSelect(Sender : TObject);
-		procedure cmbRgParamEncodingChange(Sender: TObject);
+		procedure cmbRgParamEncodingChange(Sender : TObject);
 		procedure cmbSearchDirChange(Sender : TObject);
 		procedure cmbSearchTextChange(Sender : TObject);
 		procedure ShowOptionsForm;
@@ -403,7 +403,6 @@ begin
 	SetComboItemsAndText(cmbSearchText, RG_ARG_SEARCH_TEXT, FSettings.SearchTextsHistory);
 	SetComboItemsAndText(cmbOptions, RG_ARG_OPTIONS, FSettings.RipGrepOptionsHistory);
 	SetComboItemsFromOptions(cmbFileMasks, RG_PARAM_REGEX_GLOB, FSettings.FileMasksHistory);
-
 	SetComboItemsAndText(cmbRgParamEncoding, RG_PARAM_REGEX_ENCODING, FSettings.RipGrepperSettings.Encodings);
 
 	// TODO: InitSettings by Ctrls
@@ -543,7 +542,7 @@ begin
 		params := FHistItemObj.RipGrepArguments.GetValues(RG_ARG_OPTIONS);
 		_cmb.Text := TCommandLineBuilder.GetFileMasksDelimited(string.Join(' ', params));
 	end else begin
-		_cmb.ItemIndex := 0;
+		_cmb.Text := _cmb.Items[0];
 	end;
 end;
 
@@ -594,8 +593,9 @@ begin
 
 	if cbRgParamEncoding.Checked then begin
 		if cmbRgParamEncoding.Text = '' then begin
-            cmbRgParamEncoding.ItemIndex := 0;
-        end;
+			cmbRgParamEncoding.Text := cmbRgParamEncoding.Items[0];
+		end;
+		FSettings.SearchFormSettings.Encoding := cmbRgParamEncoding.Text;
 		FGuiSetSearchParams.SetRgOptionsWithValue(RG_PARAM_REGEX_ENCODING, cmbRgParamEncoding.Text, True);
 	end else begin
 		FGuiSetSearchParams.SetRgOptions(RG_PARAM_REGEX_ENCODING, True);
@@ -780,7 +780,7 @@ begin
 	UpdateCtrls(cmbOptions);
 end;
 
-procedure TRipGrepperSearchDialogForm.cmbRgParamEncodingChange(Sender: TObject);
+procedure TRipGrepperSearchDialogForm.cmbRgParamEncodingChange(Sender : TObject);
 begin
 	FSettings.SearchFormSettings.Encoding := IfThen(cmbRgParamEncoding.Enabled, cmbRgParamEncoding.Text);
 	UpdateCtrls(cmbRgParamEncoding);

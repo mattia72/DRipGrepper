@@ -459,7 +459,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         end
         object cmbRgParamEncoding: TComboBox
           AlignWithMargins = True
-          Left = 190
+          Left = 195
           Top = 6
           Width = 81
           Height = 23

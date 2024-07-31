@@ -350,7 +350,9 @@ end;
 
 function TRipGrepperSettings.GetIsModified : Boolean;
 begin
-	Result := FIsModified or FRipGrepParameters.IsModified or FRipGrepperViewSettings.IsModified or FRipGrepperOpenWithSettings.IsModified;
+	Result := FIsModified or FRipGrepParameters.IsModified or
+	{ } FRipGrepperViewSettings.IsModified or
+	{ } FRipGrepperOpenWithSettings.IsModified;
 end;
 
 function TRipGrepperSettings.GetRipGrepParameters : TRipGrepParameterSettings;
