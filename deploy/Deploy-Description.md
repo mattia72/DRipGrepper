@@ -32,12 +32,14 @@ Marked with checkmark if ready, else planned as next.
 
 ### Search Dialog
 - [ ] extension: search open projekt files
-- [ ] --encoding
+- [x] --encoding
 
 ## :warning: Bugs 
 Marked with checkmark if fixed, else it is known bug.
-- [ ] rg options helper grid has weird entries
+- [x] rg options helper grid has weird entries (before rg 14.0 parsing fails. Workaround update rg!)
 - [ ] drip icon in menu has no transparent background
 - [x] rg.exe not found if path surrounded with ""
 - [x] non unicode characters causes exception. Workaround: --encoding=UTF8
 - [x] can't delete additional options
+- [ ] extension: Open with... opens active file in delphi, not the selected
+- [ ] reopen search dlg after search with gui set parameters

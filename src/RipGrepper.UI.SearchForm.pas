@@ -86,6 +86,8 @@ type
 		btnShowInLines : TButton;
 		ActionShowInLines : TAction;
 		lblHintHelper : TLabel;
+		cbRgParamEncoding : TCheckBox;
+		cmbRgParamEncoding : TComboBox;
 		procedure ActionAddParamMatchCaseExecute(Sender : TObject);
 		procedure ActionAddParamMatchCaseUpdate(Sender : TObject);
 		procedure ActionAddParamRegexExecute(Sender : TObject);
@@ -102,6 +104,7 @@ type
 		procedure ActionShowInLinesExecute(Sender : TObject);
 		procedure ActionShowRGOptionsHelpExecute(Sender : TObject);
 		procedure cbRgParamContextClick(Sender : TObject);
+		procedure cbRgParamEncodingClick(Sender : TObject);
 		procedure cbRgParamHiddenClick(Sender : TObject);
 		procedure cbRgParamNoIgnoreClick(Sender : TObject);
 		procedure cbRgParamPrettyClick(Sender : TObject);
@@ -110,6 +113,7 @@ type
 		procedure cmbFileMasksSelect(Sender : TObject);
 		procedure cmbOptionsChange(Sender : TObject);
 		procedure cmbOptionsSelect(Sender : TObject);
+		procedure cmbRgParamEncodingChange(Sender: TObject);
 		procedure cmbSearchDirChange(Sender : TObject);
 		procedure cmbSearchTextChange(Sender : TObject);
 		procedure ShowOptionsForm;
@@ -350,7 +354,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.FormClose(Sender : TObject; var Action : TCloseAction);
 begin
-	//
+	FSettings.UpdateIniFile;
 end;
 
 procedure TRipGrepperSearchDialogForm.FormShow(Sender : TObject);
@@ -399,6 +403,8 @@ begin
 	SetComboItemsAndText(cmbSearchText, RG_ARG_SEARCH_TEXT, FSettings.SearchTextsHistory);
 	SetComboItemsAndText(cmbOptions, RG_ARG_OPTIONS, FSettings.RipGrepOptionsHistory);
 	SetComboItemsFromOptions(cmbFileMasks, RG_PARAM_REGEX_GLOB, FSettings.FileMasksHistory);
+
+	SetComboItemsAndText(cmbRgParamEncoding, RG_PARAM_REGEX_ENCODING, FSettings.RipGrepperSettings.Encodings);
 
 	// TODO: InitSettings by Ctrls
 
@@ -514,7 +520,7 @@ procedure TRipGrepperSearchDialogForm.RemoveNecessaryOptionsFromCmbOptionsText;
 begin
 	// Remove necessary options
 	cmbOptions.Text := TGuiSearchTextParams.RemoveRgExeOptions(
-		{ } FGuiSetSearchParams.RgAdditionalOptions, string.Join('|', RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS));
+		{ } FGuiSetSearchParams.RgAdditionalOptions, string.Join(ARRAY_SEPARATOR, RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS));
 end;
 
 procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings;
@@ -586,6 +592,15 @@ begin
 		FGuiSetSearchParams.SetRgOptions(RG_PARAM_REGEX_CONTEXT, True);
 	end;
 
+	if cbRgParamEncoding.Checked then begin
+		if cmbRgParamEncoding.Text = '' then begin
+            cmbRgParamEncoding.ItemIndex := 0;
+        end;
+		FGuiSetSearchParams.SetRgOptionsWithValue(RG_PARAM_REGEX_ENCODING, cmbRgParamEncoding.Text, True);
+	end else begin
+		FGuiSetSearchParams.SetRgOptions(RG_PARAM_REGEX_ENCODING, True);
+	end;
+
 	if Fsettings.RipGrepperSettings.ExpertMode then begin
 		WriteOptionCtrlToRipGrepParametersSetting;
 	end;
@@ -618,9 +633,15 @@ begin
 		cbRgParamHidden.Checked := IsOptionSet(RG_PARAM_REGEX_HIDDEN);
 		cbRgParamNoIgnore.Checked := IsOptionSet(RG_PARAM_REGEX_NO_IGNORE);
 		cbRgParamPretty.Checked := IsOptionSet(RG_PARAM_REGEX_PRETTY);
+
 		cbRgParamContext.Checked := TOptionsHelper.GetOptionValueFromOptions(FGuiSetSearchParams.RgOptions, RG_PARAM_REGEX_CONTEXT, sVal);
 		seContextLineNum.Enabled := cbRgParamContext.Checked;
 		seContextLineNum.Text := IfThen(seContextLineNum.Enabled, sVal, '0');
+
+		cbRgParamEncoding.Checked := TOptionsHelper.GetOptionValueFromOptions(FGuiSetSearchParams.RgOptions, RG_PARAM_REGEX_ENCODING, sVal);
+		cmbRgParamEncoding.Enabled := cbRgParamEncoding.Checked;
+		cmbRgParamEncoding.Text := IfThen(cmbRgParamEncoding.Enabled, sVal, '');
+
 	finally
 		FCbClickEventEnabled := True;
 	end;
@@ -635,9 +656,14 @@ begin
 		cbRgParamHidden.Checked := FSettings.SearchFormSettings.Hidden;
 		cbRgParamNoIgnore.Checked := FSettings.SearchFormSettings.NoIgnore;
 		cbRgParamPretty.Checked := FSettings.SearchFormSettings.Pretty;
+
 		cbRgParamContext.Checked := FSettings.SearchFormSettings.Context <> 0;
 		seContextLineNum.Enabled := cbRgParamContext.Checked;
 		seContextLineNum.Value := FSettings.SearchFormSettings.Context;
+
+		cbRgParamEncoding.Checked := FSettings.SearchFormSettings.Encoding <> '';
+		cmbRgParamEncoding.Enabled := cbRgParamEncoding.Checked;
+		cmbRgParamEncoding.Text := FSettings.SearchFormSettings.Encoding;
 	finally
 		FCbClickEventEnabled := True;
 	end;
@@ -675,7 +701,10 @@ begin
 	{ } or (cbRgParamNoIgnore = _ctrlChanged)
 	{ } or (cbRgParamPretty = _ctrlChanged)
 	{ } or (cbRgParamContext = _ctrlChanged)
-	{ } or (seContextLineNum = _ctrlChanged) then begin
+	{ } or (seContextLineNum = _ctrlChanged)
+	{ } or (cbRgParamEncoding = _ctrlChanged)
+	{ } or (cmbRgParamEncoding = _ctrlChanged)
+	{ } then begin
 		UpdateMemoCommandLine(); // this should be done first! UpdateCtrls
 	end else if cmbOptions = _ctrlChanged then begin
 		UpdateMemoCommandLine(); // this should be done first! UpdateCtrls
@@ -696,6 +725,17 @@ begin
 		// gbExpert.Caption := 'Show ' + CAPTION_GRPBX_EXPERT_MODE;
 		// gbExpert.Font.Style := gbExpert.Font.Style + [fsBold, fsUnderline];
 	end;
+end;
+
+procedure TRipGrepperSearchDialogForm.cbRgParamEncodingClick(Sender : TObject);
+begin
+	if not FCbClickEventEnabled then
+		Exit;
+
+	cmbRgParamEncoding.Enabled := cbRgParamEncoding.Checked;
+	FSettings.SearchFormSettings.Encoding := IfThen(cmbRgParamEncoding.Enabled, cmbRgParamEncoding.Text);
+	UpdateCtrls(cbRgParamEncoding);
+
 end;
 
 function TRipGrepperSearchDialogForm.CheckAndCorrectMultiLine(const _str : TMultiLineString) : string;
@@ -738,6 +778,12 @@ end;
 procedure TRipGrepperSearchDialogForm.cmbOptionsChange(Sender : TObject);
 begin
 	UpdateCtrls(cmbOptions);
+end;
+
+procedure TRipGrepperSearchDialogForm.cmbRgParamEncodingChange(Sender: TObject);
+begin
+	FSettings.SearchFormSettings.Encoding := IfThen(cmbRgParamEncoding.Enabled, cmbRgParamEncoding.Text);
+	UpdateCtrls(cmbRgParamEncoding);
 end;
 
 function TRipGrepperSearchDialogForm.HasHistItemObj : Boolean;

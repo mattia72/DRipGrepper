@@ -405,7 +405,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       Margins.Top = 0
       Margins.Right = 8
       Align = alTop
-      Caption = 'Filters'
+      Caption = 'Input Filter'
       TabOrder = 1
       object gbFileFilters: TGroupBox
         Left = 2
@@ -442,6 +442,31 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
           ShowHint = True
           TabOrder = 1
           OnClick = cbRgParamNoIgnoreClick
+        end
+        object cbRgParamEncoding: TCheckBox
+          AlignWithMargins = True
+          Left = 108
+          Top = 7
+          Width = 89
+          Height = 17
+          Margins.Top = 0
+          Margins.Bottom = 0
+          Caption = '--encoding'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 2
+          OnClick = cbRgParamEncodingClick
+        end
+        object cmbRgParamEncoding: TComboBox
+          AlignWithMargins = True
+          Left = 190
+          Top = 6
+          Width = 81
+          Height = 23
+          AutoDropDownWidth = True
+          TabOrder = 3
+          Text = 'cmbRgParamEncoding'
+          OnChange = cmbRgParamEncodingChange
         end
       end
       object gbPath: TGroupBox
@@ -596,7 +621,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       AlignWithMargins = True
       Left = 8
       Top = 329
-      Width = 534
+      Width = 540
       Height = 60
       Margins.Left = 8
       Margins.Top = 0
