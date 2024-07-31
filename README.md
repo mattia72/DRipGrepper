@@ -54,7 +54,7 @@ Marked with checkmark if ready, else planned.
 
 ### Examples:
 * `C:\Program Files\Notepad++\notepad++.exe "<FILE>" -n<LINE> -c<COL>`
-* `"C:\Program Files\Microsoft VS Code\Code.exe" --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"`
+* `C:\Program Files\Microsoft VS Code\Code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"`
 * `C:\Program Files\Git\usr\bin\vim.exe -u "C:\Program Files\Git\etc\vimrc"  -c "+normal <LINE>G<COL>l" "<FILE>" `
 * `nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"`
 
