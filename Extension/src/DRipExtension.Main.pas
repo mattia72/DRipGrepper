@@ -62,7 +62,7 @@ uses
 	Dialogs,
 	System.SysUtils,
 	RipGrepper.Common.Constants,
-	RipGrepper.Common.Settings,
+	RipGrepper.Common.Settings.RipGrepperSettings,
 	RipGrepper.Tools.FileUtils,
 	System.IniFiles,
 	RipGrepper.Common.IOTAUtils,

@@ -132,8 +132,6 @@
         <DCCReference Include="..\src\RipGrepper.Common.IOTAUtils.pas"/>
         <DCCReference Include="..\src\RipGrepper.Common.ParsedObject.pas"/>
         <DCCReference Include="..\src\RipGrepper.Common.Settings.Base.pas"/>
-        <DCCReference Include="..\src\RipGrepper.Common.Settings.pas"/>
-        <DCCReference Include="..\src\RipGrepper.Common.Settings.RipGrepParameterSettings.pas"/>
         <DCCReference Include="..\src\RipGrepper.Common.Sorter.pas"/>
         <DCCReference Include="..\src\RipGrepper.Common.SyncObjLock.pas"/>
         <DCCReference Include="..\src\RipGrepper.Data.HistoryItemObject.pas"/>
@@ -192,6 +190,12 @@
         <DCCReference Include="..\src\OpenWith\RipGrepper.OpenWith.pas"/>
         <DCCReference Include="..\src\OpenWith\RipGrepper.OpenWith.Runner.pas"/>
         <DCCReference Include="..\src\OpenWith\RipGrepper.OpenWith.SimpleTypes.pas"/>
+        <DCCReference Include="..\src\RipGrepper.Common.Settings.pas"/>
+        <DCCReference Include="..\src\RipGrepper.Common.Settings.RipGrepParameterSettings.pas"/>
+        <DCCReference Include="..\src\RipGrepper.Common.Settings.RipGrepperOpenWithSettings.pas"/>
+        <DCCReference Include="..\src\RipGrepper.Common.Settings.RipGrepperSearchFormSettings.pas"/>
+        <DCCReference Include="..\src\RipGrepper.Common.Settings.RipGrepperSettings.pas"/>
+        <DCCReference Include="..\src\RipGrepper.Common.Settings.RipGrepperViewSettings.pas"/>
         <RcItem Include="Resources\about_icon.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>about_icon</ResourceId>
