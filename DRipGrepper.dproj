@@ -100,9 +100,9 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <VerInfo_Build>47</VerInfo_Build>
+        <VerInfo_Build>48</VerInfo_Build>
         <VerInfo_MajorVer>3</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=3.1.0.47;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=3.1.0.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=3.1.0.48;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=3.1.0.0;Comments=beta</VerInfo_Keys>
         <VerInfo_MinorVer>1</VerInfo_MinorVer>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -121,8 +121,8 @@
         <UWP_DelphiLogo150>icons\DripGrepperLogo.png</UWP_DelphiLogo150>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_MajorVer>3</VerInfo_MajorVer>
-        <VerInfo_Build>47</VerInfo_Build>
-        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=3.1.0.47;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=3.1.0.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>54</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=3.1.0.54;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=3.1.0.0;Comments=beta</VerInfo_Keys>
         <VerInfo_MinorVer>1</VerInfo_MinorVer>
     </PropertyGroup>
     <ItemGroup>
@@ -155,7 +155,7 @@
         <DCCReference Include="src\RipGrepper.Common.Constants.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Interfaces.pas"/>
         <DCCReference Include="src\RipGrepper.Common.ParsedObject.pas"/>
-        <DCCReference Include="src\RipGrepper.Common.Settings.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Settings.RipGrepperSearchFormSettings.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.Base.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.RipGrepParameterSettings.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Sorter.pas"/>
@@ -211,6 +211,10 @@
         <DCCReference Include="src\RipGrepper.Common.GuiSearchParams.pas"/>
         <DCCReference Include="src\RipGrepper.Common.IOTAUtils.pas"/>
         <DCCReference Include="src\RipGrepper.Common.TSearchParams.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Settings.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Settings.RipGrepperSettings.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Settings.RipGrepperViewSettings.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Settings.RipGrepperOpenWithSettings.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
