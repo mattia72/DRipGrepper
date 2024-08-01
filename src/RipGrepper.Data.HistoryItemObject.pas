@@ -11,7 +11,8 @@ uses
 	System.Generics.Defaults,
 	System.Classes,
 	RipGrepper.Common.Constants,
-	RipGrepper.Common.GuiSearchParams;
+	RipGrepper.Common.GuiSearchParams,
+	RipGrepper.Common.Settings.RipGrepperSettings;
 
 type
 	THistoryItemObject = class(TNoRefCountObject, IHistoryItem)

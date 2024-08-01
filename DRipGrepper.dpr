@@ -31,7 +31,7 @@ uses
   RipGrepper.Common.Constants in 'src\RipGrepper.Common.Constants.pas',
   RipGrepper.Common.Interfaces in 'src\RipGrepper.Common.Interfaces.pas',
   RipGrepper.Common.ParsedObject in 'src\RipGrepper.Common.ParsedObject.pas',
-  RipGrepper.Common.Settings in 'src\RipGrepper.Common.Settings.pas',
+  RipGrepper.Common.Settings.RipGrepperSearchFormSettings in 'src\RipGrepper.Common.Settings.RipGrepperSearchFormSettings.pas',
   RipGrepper.Common.Settings.Base in 'src\RipGrepper.Common.Settings.Base.pas',
   RipGrepper.Common.Settings.RipGrepParameterSettings in 'src\RipGrepper.Common.Settings.RipGrepParameterSettings.pas',
   RipGrepper.Common.Sorter in 'src\RipGrepper.Common.Sorter.pas',
@@ -64,7 +64,11 @@ uses
   RipGrepper.CommandLine.OptionHelper in 'src\RipGrepper.CommandLine.OptionHelper.pas',
   RipGrepper.Common.GuiSearchParams in 'src\RipGrepper.Common.GuiSearchParams.pas',
   RipGrepper.Common.IOTAUtils in 'src\RipGrepper.Common.IOTAUtils.pas',
-  RipGrepper.Common.TSearchParams in 'src\RipGrepper.Common.TSearchParams.pas';
+  RipGrepper.Common.TSearchParams in 'src\RipGrepper.Common.TSearchParams.pas',
+  RipGrepper.Common.Settings in 'src\RipGrepper.Common.Settings.pas',
+  RipGrepper.Common.Settings.RipGrepperSettings in 'src\RipGrepper.Common.Settings.RipGrepperSettings.pas',
+  RipGrepper.Common.Settings.RipGrepperViewSettings in 'src\RipGrepper.Common.Settings.RipGrepperViewSettings.pas',
+  RipGrepper.Common.Settings.RipGrepperOpenWithSettings in 'src\RipGrepper.Common.Settings.RipGrepperOpenWithSettings.pas';
 
 {$R *.res}
 

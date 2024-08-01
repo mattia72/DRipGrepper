@@ -27,8 +27,9 @@ uses
 	Vcl.Dialogs,
 	RipGrepper.OpenWith.Runner,
 	RipGrepper.OpenWith.CmdListForm,
-	RipGrepper.Common.Settings,
-	RipGrepper.Tools.DebugUtils, RipGrepper.Helper.UI;
+	RipGrepper.Common.Settings.RipGrepperSettings,
+	RipGrepper.Tools.DebugUtils,
+	RipGrepper.Helper.UI;
 
 class function TOpenWith.GetSelectedCmd(_owpTestFile : TOpenWithParams) : string;
 begin

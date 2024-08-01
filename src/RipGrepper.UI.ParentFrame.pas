@@ -14,7 +14,7 @@ uses
 	Vcl.Dialogs,
 	RipGrepper.UI.TopFrame,
 	RipGrepper.UI.BottomFrame,
-	RipGrepper.Common.Settings,
+	RipGrepper.Common.Settings.RipGrepperSettings,
 	u_dzDpiScaleUtils,
 	RipGrepper.UI.MiddleFrame,
 	VirtualTrees;

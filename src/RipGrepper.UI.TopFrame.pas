@@ -18,14 +18,14 @@ uses
 	Vcl.ImgList,
 	System.Actions,
 	Vcl.ActnList,
-	RipGrepper.Common.Settings,
 	RipGrepper.UI.MiddleFrame,
 	RipGrepper.UI.DpiScaler,
 	Vcl.StdCtrls,
 	Vcl.WinXCtrls,
 	VirtualTrees,
 	Vcl.ExtCtrls,
-	Vcl.Menus;
+	Vcl.Menus,
+	RipGrepper.Common.Settings.RipGrepperSettings;
 
 type
 
@@ -340,8 +340,7 @@ begin
 		if (mrOk = frm.ShowModal) then begin
 			TDebugUtils.DebugMessage('TRipGrepperTopFrame.ActionShowSearchFormExecute: after showmodal gui params: ' +
 				Settings.RipGrepParameters.GuiSetSearchParams.ToString);
-			TDebugUtils.DebugMessage('TRipGrepperTopFrame.ActionShowSearchFormExecute: after showmodal cmdline: ' +
-				Settings.RipGrepParameters.GetCommandLine);
+			TDebugUtils.DebugMessage('TRipGrepperTopFrame.ActionShowSearchFormExecute: after showmodal cmdline: ' + Settings.RipGrepParameters.GetCommandLine);
 
 			ActionSearchExecute(self);
 		end;

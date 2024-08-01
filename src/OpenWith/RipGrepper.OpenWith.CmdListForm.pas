@@ -21,7 +21,8 @@ uses
 	Vcl.ImgList,
 	RipGrepper.Common.Settings,
 	RipGrepper.UI.DpiScaler,
-	u_dzDpiScaleUtils;
+	u_dzDpiScaleUtils,
+	RipGrepper.Common.Settings.RipGrepperOpenWithSettings;
 
 type
 	TOpenWithCmdList = class(TForm)

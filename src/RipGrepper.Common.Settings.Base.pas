@@ -5,7 +5,8 @@ interface
 uses
 	System.Generics.Defaults,
 	System.IniFiles,
-	System.Generics.Collections;
+	System.Generics.Collections,
+	System.SysUtils;
 
 type
 
@@ -13,6 +14,10 @@ type
 		['{A841C46D-56AF-4391-AB88-4C9496589FF4}']
 		procedure Load;
 		procedure Store;
+	end;
+
+	ESettingsException = class(Exception)
+
 	end;
 
 	TRipGrepperSetting = record
@@ -35,11 +40,11 @@ type
 
 		protected
 			FIniFile : TMemIniFile;
-			FIsLoaded: Boolean;
+			FIsLoaded : Boolean;
 			FIsModified : Boolean;
 
 			procedure CreateSetting(const _sName : string; const _setting : TRipGrepperSetting);
-			function GetIsLoaded: Boolean; virtual;
+			function GetIsLoaded : Boolean; virtual;
 			function GetIsModified : Boolean; virtual;
 			procedure Init; virtual;
 			procedure Load; virtual;
@@ -90,7 +95,7 @@ begin
 	Result := FIniFile;
 end;
 
-function TRipGrepperSettingsBase.GetIsLoaded: Boolean;
+function TRipGrepperSettingsBase.GetIsLoaded : Boolean;
 begin
 	Result := FIsLoaded;
 end;
@@ -154,6 +159,8 @@ begin
 				FIniFile.WriteBool(GetIniSectionName, key, setting.Value);
 				vtInteger :
 				FIniFile.WriteInteger(GetIniSectionName, key, setting.Value);
+				else
+				raise ESettingsException.Create('Settings Type not supported:' + setting.ValueType.ToString);
 			end;
 			TDebugUtils.DebugMessage('TRipGrepperSettingsBase.Store: ' + FIniFile.FileName + '[' + GetIniSectionName + '] ' + key + '=' +
 				VarToStr(setting.Value) + ' stored');
@@ -170,7 +177,10 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperSettingsBase.StoreSetting: ' + _name + '=' + VarToStr(_v) + ' stored in memory');
 
 	setting := FSettings[_name];
-	if setting.Value <> _v then begin
+	if VarIsEmpty(setting.Value) or
+	{ } VarIsNull(setting.Value) or
+	{ } (VarType(setting.Value) <> VarType(_v)) or
+	{ } (setting.Value <> _v) then begin
 		setting.Value := _v;
 		setting.IsModified := True;
 		FSettings.AddOrSetValue(_name, setting);
@@ -182,7 +192,7 @@ var
 	setting : TRipGrepperSetting;
 begin
 	setting := FSettings[_name];
-	if not (VarIsEmpty(setting.Value) or VarIsNull(setting.Value)) then begin
+	if not(VarIsEmpty(setting.Value) or VarIsNull(setting.Value)) then begin
 		Result := setting.Value;
 	end;
 	TDebugUtils.DebugMessage('TRipGrepperSettingsBase.LoadSetting: ' + _name + ' ' + VarToStr(Result));

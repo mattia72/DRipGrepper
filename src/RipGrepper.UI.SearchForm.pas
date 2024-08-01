@@ -16,7 +16,7 @@ uses
 	Vcl.ImgList,
 	System.Actions,
 	Vcl.ActnList,
-	RipGrepper.Common.Settings,
+	RipGrepper.Common.Settings.RipGrepperSettings,
 	Vcl.StdActns,
 	Vcl.Dialogs,
 	RipGrepper.Common.Constants,
@@ -140,8 +140,7 @@ type
 			function IsOptionSet(const _sParamRegex : string; const _sParamValue : string = '') : Boolean;
 			procedure ProcessControl(_ctrl : TControl; _imgList : TImageList);
 			procedure RemoveNecessaryOptionsFromCmbOptionsText;
-			procedure SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings;
-				const _separator : string = ' ');
+			procedure SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings; const _separator : string = ' ');
 			procedure SetComboItemsFromOptions(_cmb : TComboBox; const _argMaskRegex : string; const _items : TStrings);
 			procedure UpdateCmbOptionsAndMemoCommandLine;
 			procedure StoreHistoriesAsCmbEntries;
@@ -163,8 +162,7 @@ type
 			procedure WriteOptionCtrlToRipGrepParametersSetting;
 
 		public
-			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettings; const _histObj : THistoryItemObject);
-				reintroduce; virtual;
+			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettings; const _histObj : THistoryItemObject); reintroduce; virtual;
 			destructor Destroy; override;
 			procedure UpdateMemoCommandLine(const _bSkipReadCtrls : Boolean = False);
 			procedure UpdateCtrls(_ctrlChanged : TControl);
@@ -193,12 +191,12 @@ uses
 	RipGrepper.Common.IOTAUtils,
 	RipGrepper.Tools.FileUtils,
 	System.IOUtils,
-	Winapi.Windows;
+	Winapi.Windows,
+	RipGrepper.Common.Settings;
 
 {$R *.dfm}
 
-constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _settings : TRipGrepperSettings;
-	const _histObj : THistoryItemObject);
+constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _settings : TRipGrepperSettings; const _histObj : THistoryItemObject);
 begin
 	inherited Create(AOwner);
 	FSettings := _settings;
@@ -403,10 +401,10 @@ begin
 	SetComboItemsAndText(cmbSearchText, RG_ARG_SEARCH_TEXT, FSettings.SearchTextsHistory);
 	SetComboItemsAndText(cmbOptions, RG_ARG_OPTIONS, FSettings.RipGrepOptionsHistory);
 	SetComboItemsFromOptions(cmbFileMasks, RG_PARAM_REGEX_GLOB, FSettings.FileMasksHistory);
+    // Set available encodings...
 	SetComboItemsAndText(cmbRgParamEncoding, RG_PARAM_REGEX_ENCODING, FSettings.RipGrepperSettings.Encodings);
 
 	// TODO: InitSettings by Ctrls
-
 	ButtonDown(EGuiOption.soMatchCase, tbIgnoreCase);
 	ButtonDown(EGuiOption.soMatchWord, tbMatchWord);
 	if tbMatchWord.Down then begin
@@ -522,8 +520,7 @@ begin
 		{ } FGuiSetSearchParams.RgAdditionalOptions, string.Join(ARRAY_SEPARATOR, RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS));
 end;
 
-procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings;
-	const _separator : string = ' ');
+procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings; const _separator : string = ' ');
 begin
 	_cmb.Items.Assign(_items);
 	if HasHistItemObj then begin
@@ -551,8 +548,7 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.UpdateCmbOptionsAndMemoCommandLine: start ' + FGuiSetSearchParams.ToString);
 	RemoveNecessaryOptionsFromCmbOptionsText;
 
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.UpdateCmbOptionsAndMemoCommandLine:  ' + string.Join(' ',
-		FGuiSetSearchParams.RgOptions));
+	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.UpdateCmbOptionsAndMemoCommandLine:  ' + string.Join(' ', FGuiSetSearchParams.RgOptions));
 
 	UpdateMemoCommandLine(True); // RgExeOptions may changed
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.UpdateCmbOptionsAndMemoCommandLine: end ' + FGuiSetSearchParams.ToString);
@@ -599,6 +595,7 @@ begin
 		FGuiSetSearchParams.SetRgOptionsWithValue(RG_PARAM_REGEX_ENCODING, cmbRgParamEncoding.Text, True);
 	end else begin
 		FGuiSetSearchParams.SetRgOptions(RG_PARAM_REGEX_ENCODING, True);
+		FSettings.SearchFormSettings.Encoding := '';
 	end;
 
 	if Fsettings.RipGrepperSettings.ExpertMode then begin

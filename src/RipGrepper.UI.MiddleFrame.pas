@@ -38,7 +38,8 @@ uses
 	RipGrepper.Tools.ProcessUtils,
 	RipGrepper.Helper.Types,
 	RipGrepper.Common.Settings.RipGrepParameterSettings,
-	RipGrepper.Common.ParsedObject;
+	RipGrepper.Common.ParsedObject,
+	RipGrepper.Common.Settings.RipGrepperSettings;
 
 type
 	TRipGrepperMiddleFrame = class(TFrame, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
@@ -68,11 +69,11 @@ type
 		ActionAddUsingInterface : TAction;
 		ActionCopyLineToClipboard : TAction;
 		ActionCopyMatchToClipboard : TAction;
-    miCopyLine: TMenuItem;
-    miCopyMatchingText: TMenuItem;
-    miAddToUSESList: TMenuItem;
-    miCopytoClipboard: TMenuItem;
-    N1: TMenuItem;
+		miCopyLine : TMenuItem;
+		miCopyMatchingText : TMenuItem;
+		miAddToUSESList : TMenuItem;
+		miCopytoClipboard : TMenuItem;
+		N1 : TMenuItem;
 		procedure ActionAddUsingImplementationExecute(Sender : TObject);
 		procedure ActionAddUsingImplementationUpdate(Sender : TObject);
 		procedure ActionAddUsingInterfaceExecute(Sender : TObject);
@@ -95,26 +96,23 @@ type
 		procedure PopupMenuHistoryPopup(Sender : TObject);
 		procedure Splitter1Moved(Sender : TObject);
 		procedure SplitView1Resize(Sender : TObject);
-		procedure VstHistoryDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
-			const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
+		procedure VstHistoryDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex; const Text : string;
+			const CellRect : TRect; var DefaultDraw : Boolean);
 		procedure VstHistoryFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
-		procedure VstHistoryGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType;
-			var CellText : string);
+		procedure VstHistoryGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType; var CellText : string);
 		procedure VstHistoryMeasureItem(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; var NodeHeight : Integer);
 		procedure VstHistoryNodeClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
 		procedure VstHistoryNodeDblClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
 		procedure VstResultBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
 			CellPaintMode : TVTCellPaintMode; CellRect : TRect; var ContentRect : TRect);
-		procedure VstResultCompareNodes(Sender : TBaseVirtualTree; Node1, Node2 : PVirtualNode; Column : TColumnIndex;
-			var Result : Integer);
+		procedure VstResultCompareNodes(Sender : TBaseVirtualTree; Node1, Node2 : PVirtualNode; Column : TColumnIndex; var Result : Integer);
 		procedure VstResultDblClick(Sender : TObject);
-		procedure VstResultDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
-			const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
+		procedure VstResultDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex; const Text : string;
+			const CellRect : TRect; var DefaultDraw : Boolean);
 		procedure VstResultFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
-		procedure VstResultGetImageIndex(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind; Column : TColumnIndex;
-			var Ghosted : Boolean; var ImageIndex : TImageIndex);
-		procedure VstResultGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType;
-			var CellText : string);
+		procedure VstResultGetImageIndex(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind; Column : TColumnIndex; var Ghosted : Boolean;
+			var ImageIndex : TImageIndex);
+		procedure VstResultGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType; var CellText : string);
 		procedure VstResultHeaderClick(Sender : TVTHeader; HitInfo : TVTHeaderHitInfo);
 		procedure VstResultPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
 			TextType : TVSTTextType);
@@ -355,8 +353,7 @@ begin
 	HistoryObjectList.Delete(CurrentHistoryItemIndex);
 	FreeAndNil(ho);
 
-	FCurrentHistoryItemIndex := IfThen(VstHistory.RootNodeCount = 0, -1, IfThen(FCurrentHistoryItemIndex = 0, 0,
-		FCurrentHistoryItemIndex - 1));
+	FCurrentHistoryItemIndex := IfThen(VstHistory.RootNodeCount = 0, -1, IfThen(FCurrentHistoryItemIndex = 0, 0, FCurrentHistoryItemIndex - 1));
 
 	if CurrentHistoryItemIndex <> -1 then begin
 		UpdateHistObjectAndGui;
@@ -546,8 +543,7 @@ begin
 		Exit;
 	end;
 	if Data.ErrorCount > 0 then begin
-		Result := Format('%s %d in %d(%d!)', [TREEVIEW_HISTORY_COUNTER_ERROR_PREFIX, Data.TotalMatchCount, Data.FileCount,
-			Data.ErrorCount]);
+		Result := Format('%s %d in %d(%d!)', [TREEVIEW_HISTORY_COUNTER_ERROR_PREFIX, Data.TotalMatchCount, Data.FileCount, Data.ErrorCount]);
 	end else begin
 		if Data.NoMatchFound then begin
 			Result := TREEVIEW_HISTORY_COUNTER_NOTHING_FOUND_PREFIX + ' 0 in 0';
@@ -700,15 +696,13 @@ end;
 
 procedure TRipGrepperMiddleFrame.OnEOFProcess;
 begin
-	TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.OnEOFProcess: End of processing rg.exe output in %s sec.',
-		[GetElapsedTime(FswSearchStart)]));
+	TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.OnEOFProcess: End of processing rg.exe output in %s sec.', [GetElapsedTime(FswSearchStart)]));
 end;
 
 procedure TRipGrepperMiddleFrame.OnLastLine(const _iLineNr : Integer);
 begin
 	// ListViewResult.AdjustColumnWidths(MaxWidths);
-	TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.OnLastLine: Last line (%d.) received in %s sec.',
-		[_iLineNr, GetElapsedTime(FswSearchStart)]));
+	TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.OnLastLine: Last line (%d.) received in %s sec.', [_iLineNr, GetElapsedTime(FswSearchStart)]));
 
 	TThread.Synchronize(nil,
 		procedure
@@ -984,8 +978,8 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.UpdateHistObjectAndGui History Matches: ' + HistObject.TotalMatchCount.ToString);
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.UpdateHistObjectAndGui History Files: ' + HistObject.FileCount.ToString);
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.UpdateHistObjectAndGui History Errors: ' + HistObject.ErrorCount.ToString);
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.UpdateHistObjectAndGui History Gui: ' + HistObject.GuiSetSearchParams.SearchText + ' '
-		+ HistObject.GuiSetSearchParams.ToString);
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.UpdateHistObjectAndGui History Gui: ' + HistObject.GuiSetSearchParams.SearchText + ' ' +
+		HistObject.GuiSetSearchParams.ToString);
 	SetResultListViewDataToHistoryObj();
 	ExpandNodes;
 	RefreshCountersInGUI;
@@ -999,8 +993,8 @@ begin
 	FHistObject.LoadFromSettings(Settings);
 end;
 
-procedure TRipGrepperMiddleFrame.VstHistoryDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
-Column : TColumnIndex; const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
+procedure TRipGrepperMiddleFrame.VstHistoryDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
+const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
 var
 	sSearchText, sStatistic : string;
 	lineBegin : Integer;
@@ -1016,18 +1010,17 @@ begin
 			TargetCanvas.Font.style := [fsBold];
 			// TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, sSearchText);
 			rectTemp := CellRect;
-			Winapi.Windows.DrawText(TargetCanvas.Handle, pwidechar(sSearchText), length(sSearchText), rectTemp,
-				DT_NOPREFIX or DT_WORDBREAK);
+			Winapi.Windows.DrawText(TargetCanvas.Handle, pwidechar(sSearchText), length(sSearchText), rectTemp, DT_NOPREFIX or DT_WORDBREAK);
 
 			sStatistic := Text.Substring(lineBegin + 2);
 			if -1 <> sStatistic.IndexOf(TREEVIEW_HISTORY_COUNTER_ERROR_PREFIX) then begin
 				TargetCanvas.Font.Color := TREEVIEW_ERROR_COLOR;
-                TargetCanvas.Font.style := [fsBold];
+				TargetCanvas.Font.style := [fsBold];
 			end else begin
 				TargetCanvas.Font.Color := TREEVIEW_STAT_COLOR;
 				TargetCanvas.Font.style := [];
 			end;
-			
+
 			size := TFontSizeHelper.TrueFontSize(TargetCanvas.Font, sStatistic);
 			TargetCanvas.TextOut(CellRect.Left + TREEVIEW_FONTSPACE * 4, CellRect.BottomRight.Y - size.cy, sStatistic);
 
@@ -1044,8 +1037,8 @@ begin
 	// Data.hio.Free;
 end;
 
-procedure TRipGrepperMiddleFrame.VstHistoryGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
-TextType : TVSTTextType; var CellText : string);
+procedure TRipGrepperMiddleFrame.VstHistoryGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType;
+var CellText : string);
 var
 	Data : PVSHistoryNodeData;
 begin
@@ -1058,8 +1051,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepperMiddleFrame.VstHistoryMeasureItem(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
-var NodeHeight : Integer);
+procedure TRipGrepperMiddleFrame.VstHistoryMeasureItem(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; var NodeHeight : Integer);
 begin
 	if Sender.MultiLine[Node] then begin
 		TargetCanvas.Font := Sender.Font;
@@ -1084,8 +1076,8 @@ begin
 	ParentFrame.TopFrame.ActionShowSearchFormExecute(Sender);
 end;
 
-procedure TRipGrepperMiddleFrame.VstResultBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
-Column : TColumnIndex; CellPaintMode : TVTCellPaintMode; CellRect : TRect; var ContentRect : TRect);
+procedure TRipGrepperMiddleFrame.VstResultBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
+CellPaintMode : TVTCellPaintMode; CellRect : TRect; var ContentRect : TRect);
 begin
 	if Settings.RipGrepperViewSettings.AlternateRowColors and (Node.ChildCount = 0) then begin
 		TargetCanvas.SetAlteringColors(Node.Index);
@@ -1094,8 +1086,7 @@ begin
 	TargetCanvas.FillRect(CellRect);
 end;
 
-procedure TRipGrepperMiddleFrame.VstResultCompareNodes(Sender : TBaseVirtualTree; Node1, Node2 : PVirtualNode; Column : TColumnIndex;
-var Result : Integer);
+procedure TRipGrepperMiddleFrame.VstResultCompareNodes(Sender : TBaseVirtualTree; Node1, Node2 : PVirtualNode; Column : TColumnIndex; var Result : Integer);
 var
 	Data1 : PVSFileNodeData;
 	Data2 : PVSFileNodeData;
@@ -1145,8 +1136,8 @@ begin
 	end;
 end;
 
-procedure TRipGrepperMiddleFrame.VstResultDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
-Column : TColumnIndex; const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
+procedure TRipGrepperMiddleFrame.VstResultDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
+const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
 var
 	fc : TColor;
 	fs, pos : Integer;
@@ -1209,8 +1200,8 @@ begin
 	NodeData^.FilePath := ''; // so we don't have mem leaks
 end;
 
-procedure TRipGrepperMiddleFrame.VstResultGetImageIndex(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind;
-Column : TColumnIndex; var Ghosted : Boolean; var ImageIndex : TImageIndex);
+procedure TRipGrepperMiddleFrame.VstResultGetImageIndex(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind; Column : TColumnIndex;
+var Ghosted : Boolean; var ImageIndex : TImageIndex);
 var
 	NodeData : PVSFileNodeData;
 begin
@@ -1229,8 +1220,8 @@ begin
 	end;
 end;
 
-procedure TRipGrepperMiddleFrame.VstResultGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
-TextType : TVSTTextType; var CellText : string);
+procedure TRipGrepperMiddleFrame.VstResultGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType;
+var CellText : string);
 var
 	NodeData : PVSFileNodeData;
 begin
@@ -1282,8 +1273,8 @@ begin
 		Sender.SortDirection := sdAscending;
 end;
 
-procedure TRipGrepperMiddleFrame.VstResultPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode;
-Column : TColumnIndex; TextType : TVSTTextType);
+procedure TRipGrepperMiddleFrame.VstResultPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
+TextType : TVSTTextType);
 begin
 	if TextType = ttNormal then begin
 		case Column of
