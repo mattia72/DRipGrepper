@@ -1,7 +1,7 @@
 <!--
 
-Version:     v3.2.0-beta
-PrevVersion: v3.1.0-beta
+Version:     v3.3.0-beta
+PrevVersion: v3.2.0-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -27,23 +27,13 @@ Marked with checkmark if ready, else planned as next.
 - [ ] own prettifier switcher as toolbar button
 - [ ] replace 
 - [ ] filter result
-- [x] F3 find next 
 <!-- #### :mag: Search Dialog -->
 
 ### Search Dialog
 - [ ] extension: search open projekt files
-- [x] --encoding
-- [x] `Set as Default` button
 
 ## :warning: Bugs 
 Marked with checkmark if fixed, else it is known bug.
-- [x] rg options helper grid has weird entries (before rg 14.0 parsing fails. Workaround update rg!)
 - [ ] drip icon in menu has no transparent background
-- [x] rg.exe not found if path surrounded with ""
-- [x] non unicode characters causes exception. Workaround: --encoding=UTF8
-- [x] can't delete additional options
 - [ ] extension: Open with... opens active file in delphi, not the selected
-- [x] reopen search dlg after search with gui set parameters
-    - [x] reopen by dblclick on history item: sets the parameters of history item
-    - [x] open by toolbar button: opens with default parameters... (can be saved in search form `Set as Default`)
 - [ ] search whole word won't be highlighted 
