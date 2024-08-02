@@ -53,8 +53,6 @@ contains
   RipGrepper.Common.IOTAUtils in '..\src\RipGrepper.Common.IOTAUtils.pas',
   RipGrepper.Common.ParsedObject in '..\src\RipGrepper.Common.ParsedObject.pas',
   RipGrepper.Common.Settings.Base in '..\src\RipGrepper.Common.Settings.Base.pas',
-  RipGrepper.Common.Settings in '..\src\RipGrepper.Common.Settings.pas',
-  RipGrepper.Common.Settings.RipGrepParameterSettings in '..\src\RipGrepper.Common.Settings.RipGrepParameterSettings.pas',
   RipGrepper.Common.Sorter in '..\src\RipGrepper.Common.Sorter.pas',
   RipGrepper.Common.SyncObjLock in '..\src\RipGrepper.Common.SyncObjLock.pas',
   RipGrepper.Data.HistoryItemObject in '..\src\RipGrepper.Data.HistoryItemObject.pas',
@@ -81,7 +79,13 @@ contains
   RipGrepper.OpenWith.ConfigForm in '..\src\OpenWith\RipGrepper.OpenWith.ConfigForm.pas' {OpenWithConfigForm},
   RipGrepper.OpenWith in '..\src\OpenWith\RipGrepper.OpenWith.pas',
   RipGrepper.OpenWith.Runner in '..\src\OpenWith\RipGrepper.OpenWith.Runner.pas',
-  RipGrepper.OpenWith.SimpleTypes in '..\src\OpenWith\RipGrepper.OpenWith.SimpleTypes.pas';
+  RipGrepper.OpenWith.SimpleTypes in '..\src\OpenWith\RipGrepper.OpenWith.SimpleTypes.pas',
+  RipGrepper.Common.Settings in '..\src\RipGrepper.Common.Settings.pas',
+  RipGrepper.Common.Settings.RipGrepParameterSettings in '..\src\RipGrepper.Common.Settings.RipGrepParameterSettings.pas',
+  RipGrepper.Common.Settings.RipGrepperOpenWithSettings in '..\src\RipGrepper.Common.Settings.RipGrepperOpenWithSettings.pas',
+  RipGrepper.Common.Settings.RipGrepperSearchFormSettings in '..\src\RipGrepper.Common.Settings.RipGrepperSearchFormSettings.pas',
+  RipGrepper.Common.Settings.RipGrepperSettings in '..\src\RipGrepper.Common.Settings.RipGrepperSettings.pas',
+  RipGrepper.Common.Settings.RipGrepperViewSettings in '..\src\RipGrepper.Common.Settings.RipGrepperViewSettings.pas';
 
 end.
 

@@ -33,6 +33,7 @@ Marked with checkmark if ready, else planned as next.
 ### Search Dialog
 - [ ] extension: search open projekt files
 - [x] --encoding
+- [x] `Set as Default` button
 
 ## :warning: Bugs 
 Marked with checkmark if fixed, else it is known bug.
@@ -42,4 +43,7 @@ Marked with checkmark if fixed, else it is known bug.
 - [x] non unicode characters causes exception. Workaround: --encoding=UTF8
 - [x] can't delete additional options
 - [ ] extension: Open with... opens active file in delphi, not the selected
-- [ ] reopen search dlg after search with gui set parameters
+- [x] reopen search dlg after search with gui set parameters
+    - [x] reopen by dblclick on history item: sets the parameters of history item
+    - [x] open by toolbar button: opens with default parameters... (can be saved in search form `Set as Default`)
+- [ ] search whole word won't be highlighted 
