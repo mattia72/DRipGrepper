@@ -143,7 +143,8 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.UI.RipGrepOptionsForm,
 	RipGrepper.Common.ParsedObject,
-	RipGrepper.Common.IOTAUtils;
+	RipGrepper.Common.IOTAUtils,
+	RipGrepper.Data.HistoryItemObject;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -272,7 +273,7 @@ end;
 
 procedure TRipGrepperTopFrame.ActionRefreshSearchUpdate(Sender : TObject);
 begin
-	ActionRefreshSearch.Enabled := Settings.IsLoaded and (not MainFrame.IsSearchRunning) and Assigned(MainFrame.HistObject);
+	ActionRefreshSearch.Enabled := Settings.IsLoaded and (not MainFrame.IsSearchRunning) and Assigned(MainFrame.HistItemObject);
 end;
 
 procedure TRipGrepperTopFrame.ActionSearchExecute(Sender : TObject);
@@ -332,14 +333,19 @@ end;
 procedure TRipGrepperTopFrame.ActionShowSearchFormExecute(Sender : TObject);
 var
 	frm : TRipGrepperSearchDialogForm;
+	histObj : THistoryItemObject;
 begin
-	frm := TRipGrepperSearchDialogForm.Create(self, Settings, MainFrame.HistObject);
+	histObj := nil;
+	if Sender is TBaseVirtualTree then begin
+		histObj := MainFrame.HistItemObject;
+	end;
+	frm := TRipGrepperSearchDialogForm.Create(self, Settings, histObj);
 	try
 		TDebugUtils.DebugMessage('TRipGrepperTopFrame.ActionShowSearchFormExecute');
 
 		if (mrOk = frm.ShowModal) then begin
 			TDebugUtils.DebugMessage('TRipGrepperTopFrame.ActionShowSearchFormExecute: after showmodal gui params: ' +
-				Settings.RipGrepParameters.GuiSetSearchParams.ToString);
+				Settings.RipGrepParameters.GuiSearchTextParams.ToString);
 			TDebugUtils.DebugMessage('TRipGrepperTopFrame.ActionShowSearchFormExecute: after showmodal cmdline: ' + Settings.RipGrepParameters.GetCommandLine);
 
 			ActionSearchExecute(self);

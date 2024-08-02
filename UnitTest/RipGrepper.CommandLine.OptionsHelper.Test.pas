@@ -500,7 +500,7 @@ begin
 
   gsp := TGuiSearchTextParams.New(_sSearchText, False, _bMatchWord = 1, _bUseRegex = 1);
   gsp.RgOptions := _sOptions;
-  FParams.GuiSetSearchParams := gsp;
+  FParams.GuiSearchTextParams := gsp;
 
   if (_bMatchWord = 1) then
     gsp.SetOption(EGuiOption.soMatchWord);

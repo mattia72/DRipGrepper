@@ -82,7 +82,7 @@ begin
 
 			if (not _sLine.IsEmpty) then begin
 				ifParser := TRipGrepperParsersFactory.GetParser(FHistObject.ParserType);
-				ifSearchParam := TSearchParams.Create(FHistObject.GuiSetSearchParams);
+				ifSearchParam := TSearchParams.Create(FHistObject.GuiSearchTextParams);
 				ifParser.SearchParams := ifSearchParam;
 				ifParser.ParseLine(_iLineNr, _sLine, _bIsLast);
 				oParsed := TParsedObjectRow.Create(ifParser.ParseResult, FHistObject.ParserType);

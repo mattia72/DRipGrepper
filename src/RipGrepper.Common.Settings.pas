@@ -59,7 +59,7 @@ type
 		private
 			FDebugTrace : Boolean;
 			FExpertMode : Boolean;
-			FEncodings : TStringList;
+			FEncodingItems: TStringList;
 
 		protected
 			procedure Init; override;
@@ -72,7 +72,7 @@ type
 			procedure Store; override;
 			property DebugTrace : Boolean read FDebugTrace write FDebugTrace;
 			property ExpertMode : Boolean read FExpertMode write FExpertMode;
-			property Encodings : TStringList read FEncodings write FEncodings;
+			property EncodingItems: TStringList read FEncodingItems write FEncodingItems;
 	end;
 
 implementation
@@ -155,12 +155,12 @@ constructor TRipGrepperAppSettings.Create(const _ini : TMemIniFile);
 begin
 	inherited;
 	TDebugUtils.DebugMessage('TRipGrepperAppSettings.Create: ' + FIniFile.FileName + '[' + GetIniSectionName + ']');
-	FEncodings := TStringList.Create();
+	FEncodingItems := TStringList.Create();
 end;
 
 destructor TRipGrepperAppSettings.Destroy;
 begin
-	FEncodings.Free;
+	FEncodingItems.Free;
 	inherited;
 end;
 
@@ -174,7 +174,7 @@ begin
 	inherited;
 	CreateSetting('DebugTrace', TRipGrepperSetting.New(vtBoolean, False));
 	CreateSetting('ExpertMode', TRipGrepperSetting.New(vtBoolean, False));
-	CreateSetting('Encodings', TRipGrepperSetting.New(vtstring, string.join(ARRAY_SEPARATOR, RG_PARAM_ENCODING_VALUES)));
+	CreateSetting('EncodingItems', TRipGrepperSetting.New(vtstring, string.join(ARRAY_SEPARATOR, RG_PARAM_ENCODING_VALUES)));
 end;
 
 procedure TRipGrepperAppSettings.Load;
@@ -184,14 +184,14 @@ begin
 
 	FExpertMode := LoadSetting('ExpertMode');
 	FDebugTrace := LoadSetting('DebugTrace');
-	FEncodings.AddStrings(string(LoadSetting('Encodings')).Split([ARRAY_SEPARATOR]));
+	FEncodingItems.AddStrings(string(LoadSetting('EncodingItems')).Split([ARRAY_SEPARATOR]));
 end;
 
 procedure TRipGrepperAppSettings.Store;
 begin
 	StoreSetting('ExpertMode', FExpertMode);
 	StoreSetting('DebugTrace', FDebugTrace);
-	StoreSetting('Encodings', string.join(ARRAY_SEPARATOR, FEncodings.ToStringArray()));
+	StoreSetting('EncodingItems', string.join(ARRAY_SEPARATOR, FEncodingItems.ToStringArray()));
 	inherited Store();
 end;
 

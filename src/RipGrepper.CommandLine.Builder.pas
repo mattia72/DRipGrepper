@@ -19,10 +19,9 @@ type
 
 		public
 			class function FileMasksToOptions(const _arrMasks, _arrSkipMasks : TArrayEx<string>) : string; static;
-			class function GetFileMaskParamsArrFromDelimitedText(const _sFileMasksDelimited : string; const _sSeparator : string = ';')
-				: TArray<string>; overload; static;
-			class function GetFileMaskParamsFromDelimitedText(const _sFileMasksDelimited : string; const _sSeparator : string = ';')
-				: string; overload; static;
+			class function GetFileMaskParamsArrFromDelimitedText(const _sFileMasksDelimited : string; const _sSeparator : string = ';') : TArray<string>;
+				overload; static;
+			class function GetFileMaskParamsFromDelimitedText(const _sFileMasksDelimited : string; const _sSeparator : string = ';') : string; overload; static;
 			class function GetFileMaskParamsFromOptions(const _sOptions : string) : TArray<string>; static;
 			class function GetFileMasksDelimited(const _sOptions : string) : string; static;
 			class function GetMissingFileMaskOptions(const _sOptions, _sMasks : string) : string; static;
@@ -70,8 +69,8 @@ begin
 	Result := newOptions;
 end;
 
-class function TCommandLineBuilder.GetFileMaskParamsArrFromDelimitedText(const _sFileMasksDelimited : string;
-	const _sSeparator : string = ';') : TArray<string>;
+class function TCommandLineBuilder.GetFileMaskParamsArrFromDelimitedText(const _sFileMasksDelimited : string; const _sSeparator : string = ';')
+	: TArray<string>;
 var
 	list : TStringList;
 begin
@@ -87,8 +86,7 @@ begin
 	end;
 end;
 
-class function TCommandLineBuilder.GetFileMaskParamsFromDelimitedText(const _sFileMasksDelimited : string;
-	const _sSeparator : string = ';') : string;
+class function TCommandLineBuilder.GetFileMaskParamsFromDelimitedText(const _sFileMasksDelimited : string; const _sSeparator : string = ';') : string;
 begin
 	Result := string.Join(' ', GetFileMaskParamsArrFromDelimitedText(_sFileMasksDelimited, _sSeparator));
 end;
@@ -134,20 +132,29 @@ class procedure TCommandLineBuilder.RebuildArguments(var _params : TRipGrepParam
 var
 	arrRgOptions : TArrayEx<string>;
 	arrPaths : TArrayEx<string>;
-	guiParamCount : integer;
+	paramCount : integer;
 begin
 	TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: start');
 	_params.RipGrepArguments.Clear();
 
-	arrRgOptions := _params.GuiSetSearchParams.RgAdditionalOptions.Split([' ']);
-	arrRgOptions.AddRange(_params.GuiSetSearchParams.RgOptions.Split([' ']));
-	guiParamCount := arrRgOptions.Count;
+	TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: add ' + _params.GuiSearchTextParams.RgAdditionalOptions);
+	arrRgOptions := _params.GuiSearchTextParams.RgAdditionalOptions.Split([' ']);
 
+	paramCount := arrRgOptions.Count;
+	for var s in _params.GuiSearchTextParams.RgOptions.Split([' ']) do begin
+		arrRgOptions.InsertIfNotContains(paramCount, s);
+		TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: add search text param: ' + s);
+	end;
+
+	paramCount := arrRgOptions.Count;
 	for var s in RG_NECESSARY_PARAMS do begin
-		arrRgOptions.InsertIfNotContains(guiParamCount, s);
+		arrRgOptions.InsertIfNotContains(paramCount, s);
+		TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: add necessary param: ' + s);
 	end;
 
 	arrRgOptions.AddRange(GetFileMaskParamsArrFromDelimitedText(_params.FileMasks));
+	TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: add all mask param: ' + _params.FileMasks);
+
 	arrRgOptions.RemoveAll(RG_PARAM_END);
 	// put it in the end
 	arrRgOptions.Add(RG_PARAM_END); // indicates that no more flags will be provided
@@ -155,7 +162,7 @@ begin
 	_params.RgExeOptions := string.Join(' ', arrRgOptions.Items);
 
 	AddArgs(_params, RG_ARG_OPTIONS, arrRgOptions);
-	AddArgs(_params, RG_ARG_SEARCH_TEXT, [_params.GuiSetSearchParams.SearchText]); // order is important!
+	AddArgs(_params, RG_ARG_SEARCH_TEXT, [_params.GuiSearchTextParams.SearchText]); // order is important!
 
 	for var s in _params.SearchPath.Split([SEARCH_PATH_SEPARATOR]) do begin
 		arrPaths.Add(s);
@@ -163,9 +170,8 @@ begin
 	end;
 	AddArgs(_params, RG_ARG_SEARCH_PATH, arrPaths, True { Quote if necessary } );
 
-	TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: after AddArgs: ' + string.Join(' ',
-		_params.RipGrepArguments.GetValues()));
-	TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: GuiSetSearchParams end ' + _params.GuiSetSearchParams.ToString);
+	TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: after AddArgs: ' + string.Join(' ', _params.RipGrepArguments.GetValues()));
+	TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: GuiSearchTextParams end ' + _params.GuiSearchTextParams.ToString);
 end;
 
 // TODO: RemoveParam

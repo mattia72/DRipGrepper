@@ -116,7 +116,7 @@ begin
 	FParams.RgExeOptions := _sOptions;
 	FParams.FileMasks := _sMasksDelimited;
 
-	FParams.GuiSetSearchParams := TGuiSearchTextParams.New('', False, _bMatchWord = 1, False);
+	FParams.GuiSearchTextParams := TGuiSearchTextParams.New('', False, _bMatchWord = 1, False);
 
 	TCommandLineBuilder.RebuildArguments(FParams);
 	v := FParams.RipGrepArguments.GetValues(RG_ARG_OPTIONS);
@@ -139,16 +139,16 @@ begin
 	FParams.RgExeOptions := '';
 	FParams.FileMasks := '';
 
-	FParams.GuiSetSearchParams := TGuiSearchTextParams.New(_sSearchText, False, _bMatchWord = 1, False);
+	FParams.GuiSearchTextParams := TGuiSearchTextParams.New(_sSearchText, False, _bMatchWord = 1, False);
 	if _bMatchWord = 1 then
-		FParams.GuiSetSearchParams.SetOption(EGuiOption.soMatchWord);
+		FParams.GuiSearchTextParams.SetOption(EGuiOption.soMatchWord);
 
 	TCommandLineBuilder.RebuildArguments(FParams);
 
 	if _bShouldBounded = 1 then begin
 		Assert.AreEqual(WB + _sSearchText + WB, FParams.RipGrepArguments.Values[RG_ARG_SEARCH_TEXT],
 			'the search text should surrounded: ' + WB + _sSearchText + WB);
-		if EGuiOption.soMatchWord in FParams.GuiSetSearchParams.SearchOptions then begin
+		if EGuiOption.soMatchWord in FParams.GuiSearchTextParams.SearchOptions then begin
 			for var p in RG_PARAM_REGEX_FIXED_STRINGS.Split(['|']) do begin
 				Assert.IsFalse(FParams.RgExeOptions.Contains(p), p + ' mustn''t be contained between options')
 			end;

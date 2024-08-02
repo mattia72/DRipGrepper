@@ -54,8 +54,10 @@ type
 			procedure Store; virtual;
 
 		public
-			constructor Create(const _ini : TMemIniFile);
+			constructor Create(const _ini : TMemIniFile); overload;
+			constructor Create; overload;
 			destructor Destroy; override;
+			procedure Copy(const _other : TRipGrepperSettingsBase);
 			function GetIniSectionName : string; virtual; abstract;
 			procedure ReLoad;
 			property IniFile : TMemIniFile read GetIniFile write SetIniFile;
@@ -73,7 +75,13 @@ uses
 constructor TRipGrepperSettingsBase.Create(const _ini : TMemIniFile);
 begin
 	inherited Create();
+    Create();
 	FIniFile := _ini;
+end;
+
+constructor TRipGrepperSettingsBase.Create;
+begin
+	inherited;
 	FIsModified := False;
 	FIsLoaded := False;
 	FSettings := TSettingsDictionary.Create();
@@ -83,6 +91,14 @@ destructor TRipGrepperSettingsBase.Destroy;
 begin
 	FSettings.Free;
 	inherited;
+end;
+
+procedure TRipGrepperSettingsBase.Copy(const _other : TRipGrepperSettingsBase);
+begin
+	FIsModified := _other.IsModified;
+	FIsLoaded := _other.IsLoaded;
+	FSettings.Free;
+	FSettings := TSettingsDictionary.Create(_other.FSettings);
 end;
 
 procedure TRipGrepperSettingsBase.CreateSetting(const _sName : string; const _setting : TRipGrepperSetting);

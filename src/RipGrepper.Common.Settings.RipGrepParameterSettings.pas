@@ -26,7 +26,7 @@ type
 			FSearchPath : string;
 			FSearchText : string;
 			FFileMasks : string;
-			FGuiSetSearchParams : TGuiSearchTextParams;
+			FGuiSearchTextParams: TGuiSearchTextParams;
 			function GetRipGrepPath : string;
 			procedure SetFileMasks(const Value : string);
 			procedure SeTGuiSearchTextParams(const Value : TGuiSearchTextParams);
@@ -46,7 +46,7 @@ type
 			procedure Load; override;
 			procedure Store; override;
 			property FileMasks : string read FFileMasks write SetFileMasks;
-			property GuiSetSearchParams : TGuiSearchTextParams read FGuiSetSearchParams write SeTGuiSearchTextParams;
+			property GuiSearchTextParams: TGuiSearchTextParams read FGuiSearchTextParams write SeTGuiSearchTextParams;
 			property RgExeOptions : string read FRgExeOptions write SetRgExeOptions;
 			property SearchPath : string read FSearchPath write SetSearchPath;
 			property SearchText : string read FSearchText write SetSearchText;
@@ -154,7 +154,7 @@ end;
 
 procedure TRipGrepParameterSettings.SeTGuiSearchTextParams(const Value : TGuiSearchTextParams);
 begin
-	FGuiSetSearchParams := Value;
+	FGuiSearchTextParams := Value;
 	FIsModified := True;
 end;
 

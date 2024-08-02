@@ -2,8 +2,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
   Left = 756
   Top = 436
   Caption = 'DRipGrepper - Search...'
-  ClientHeight = 594
-  ClientWidth = 556
+  ClientHeight = 612
+  ClientWidth = 559
   Color = clBtnFace
   Constraints.MinWidth = 420
   Font.Charset = DEFAULT_CHARSET
@@ -153,8 +153,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
   object pnlSearch: TPanel
     Left = 0
     Top = 0
-    Width = 556
-    Height = 560
+    Width = 559
+    Height = 578
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -163,13 +163,13 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     BevelOuter = bvNone
     TabOrder = 0
     DesignSize = (
-      556
-      560)
+      559
+      578)
     object gbSearch: TGroupBox
       AlignWithMargins = True
       Left = 8
       Top = 3
-      Width = 540
+      Width = 543
       Height = 68
       Margins.Left = 8
       Margins.Right = 8
@@ -177,7 +177,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       Caption = 'Search'
       TabOrder = 0
       DesignSize = (
-        540
+        543
         68)
       object lblText: TLabel
         AlignWithMargins = True
@@ -194,7 +194,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       object cmbSearchText: TComboBox
         Left = 8
         Top = 36
-        Width = 445
+        Width = 448
         Height = 23
         Hint = 'Search Text or Pattern'
         Margins.Left = 8
@@ -207,7 +207,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         OnChange = cmbSearchTextChange
       end
       object ToolBar1: TToolBar
-        Left = 458
+        Left = 461
         Top = 36
         Width = 75
         Height = 28
@@ -243,8 +243,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       AlignWithMargins = True
       Left = 8
       Top = 392
-      Width = 540
-      Height = 165
+      Width = 543
+      Height = 183
       Margins.Left = 8
       Margins.Top = 0
       Margins.Right = 8
@@ -267,8 +267,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       ShowHint = True
       TabOrder = 3
       DesignSize = (
-        540
-        165)
+        543
+        183)
       object lblParams: TLabel
         AlignWithMargins = True
         Left = 8
@@ -295,7 +295,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object btnConfig: TButton
         AlignWithMargins = True
-        Left = 481
+        Left = 484
         Top = 36
         Width = 23
         Height = 23
@@ -314,7 +314,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       object cmbOptions: TComboBox
         Left = 8
         Top = 36
-        Width = 473
+        Width = 476
         Height = 23
         Margins.Left = 8
         Margins.Top = 8
@@ -330,8 +330,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       object memoCommandLine: TMemo
         Left = 8
         Top = 82
-        Width = 473
-        Height = 75
+        Width = 476
+        Height = 93
         Anchors = [akLeft, akTop, akRight, akBottom]
         Color = clInfoBk
         Lines.Strings = (
@@ -342,7 +342,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object btnCopyToClipBoard: TButton
         AlignWithMargins = True
-        Left = 481
+        Left = 484
         Top = 82
         Width = 23
         Height = 23
@@ -360,7 +360,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object btnRGOptionsHelp: TButton
         AlignWithMargins = True
-        Left = 503
+        Left = 506
         Top = 36
         Width = 23
         Height = 23
@@ -378,7 +378,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object btnShowInLines: TButton
         AlignWithMargins = True
-        Left = 481
+        Left = 484
         Top = 106
         Width = 23
         Height = 23
@@ -399,7 +399,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       AlignWithMargins = True
       Left = 8
       Top = 74
-      Width = 540
+      Width = 543
       Height = 255
       Margins.Left = 8
       Margins.Top = 0
@@ -410,7 +410,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       object gbFileFilters: TGroupBox
         Left = 2
         Top = 205
-        Width = 536
+        Width = 539
         Height = 48
         Align = alBottom
         ShowFrame = False
@@ -472,13 +472,13 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       object gbPath: TGroupBox
         Left = 2
         Top = 113
-        Width = 536
+        Width = 539
         Height = 92
         Align = alBottom
         ShowFrame = False
         TabOrder = 1
         DesignSize = (
-          536
+          539
           92)
         object lblFileMasks: TLabel
           AlignWithMargins = True
@@ -508,7 +508,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         object cmbFileMasks: TComboBox
           Left = 6
           Top = 68
-          Width = 479
+          Width = 482
           Height = 23
           Hint = 
             'Include and exclude glob patterns separated by '#39';'#39#13#10'e.g:'#13#10'*.txt;' +
@@ -529,7 +529,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         object cmbSearchDir: TComboBox
           Left = 5
           Top = 21
-          Width = 480
+          Width = 483
           Height = 23
           Hint = 'Files or Folders, Separated by Semicolons'
           Margins.Left = 8
@@ -545,7 +545,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         end
         object btnSearchFile: TButton
           AlignWithMargins = True
-          Left = 508
+          Left = 511
           Top = 21
           Width = 23
           Height = 23
@@ -563,7 +563,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         end
         object btnSearchFolder: TButton
           AlignWithMargins = True
-          Left = 485
+          Left = 488
           Top = 21
           Width = 23
           Height = 23
@@ -581,7 +581,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         end
         object btnHelpFileMask: TButton
           AlignWithMargins = True
-          Left = 485
+          Left = 488
           Top = 68
           Width = 23
           Height = 23
@@ -601,7 +601,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       object rbExtensionOptions: TRadioGroup
         Left = 2
         Top = 20
-        Width = 536
+        Width = 539
         Height = 93
         Align = alBottom
         Caption = 'IDE Context:'
@@ -621,7 +621,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       AlignWithMargins = True
       Left = 8
       Top = 329
-      Width = 540
+      Width = 543
       Height = 60
       Margins.Left = 8
       Margins.Top = 0
@@ -683,8 +683,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 560
-    Width = 556
+    Top = 578
+    Width = 559
     Height = 34
     Margins.Left = 8
     Margins.Top = 8
@@ -696,11 +696,11 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     ParentBackground = False
     TabOrder = 1
     DesignSize = (
-      556
+      559
       34)
     object btnSearch: TButton
       AlignWithMargins = True
-      Left = 386
+      Left = 389
       Top = 3
       Width = 75
       Height = 25
@@ -717,7 +717,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     end
     object btnCancel: TButton
       AlignWithMargins = True
-      Left = 467
+      Left = 470
       Top = 3
       Width = 75
       Height = 25
@@ -729,6 +729,17 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       Anchors = [akRight, akBottom]
       Cancel = True
       TabOrder = 1
+    end
+    object btnSetAsDefault: TButton
+      Left = 16
+      Top = 3
+      Width = 103
+      Height = 25
+      Action = ActionSetAsDefault
+      Images = ImageList1
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 2
     end
   end
   object ImageList1: TImageList
@@ -1345,6 +1356,12 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       Hint = 'Show command in lines'
       ImageIndex = 10
       OnExecute = ActionShowInLinesExecute
+    end
+    object ActionSetAsDefault: TAction
+      Caption = 'Set as Default'
+      Hint = 'Set Parameters as Default'
+      ImageIndex = 5
+      OnExecute = ActionSetAsDefaultExecute
     end
   end
 end

@@ -43,7 +43,8 @@ type
 			procedure SetPretty(const Value : Boolean);
 
 		public
-			constructor Create(const _ini : TMemIniFile);
+			constructor Create(const _ini : TMemIniFile); overload;
+			constructor Create; overload;
 
 			procedure StoreSearchSettings(const _s : string = '');
 			function GetIniSectionName : string; override;
@@ -51,6 +52,7 @@ type
 			procedure Init; override;
 			procedure Load; override;
 			procedure Store; override;
+			procedure Copy(const _other : TRipGrepperSearchFormSettings);
 
 			property Context : Integer read FContext write SetContext;
 			property Encoding : string read FEncoding write SetEncoding;
@@ -83,6 +85,20 @@ constructor TRipGrepperSearchFormSettings.Create(const _ini : TMemIniFile);
 begin
 	inherited;
 	TDebugUtils.DebugMessage('TRipGrepperSearchFormSettings.Create: ' + FIniFile.FileName + '[' + GetIniSectionName + ']');
+end;
+
+constructor TRipGrepperSearchFormSettings.Create;
+begin
+	inherited;
+end;
+
+procedure TRipGrepperSearchFormSettings.Copy(const _other : TRipGrepperSearchFormSettings);
+begin
+	Context := _other.Context;
+	Encoding := _other.Encoding;
+	Hidden := _other.Hidden;
+	NoIgnore := _other.NoIgnore;
+	Pretty := _other.Pretty;
 end;
 
 function TRipGrepperSearchFormSettings.GetIniSectionName : string;
