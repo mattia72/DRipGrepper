@@ -24,9 +24,9 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 
 ## Improvements 
 Marked with checkmark if ready, else planned as next.
-- [ ] own prettifier switcher as toolbar button
 - [ ] replace 
 - [ ] filter result
+- [ ] own prettifier switcher as toolbar button
 <!-- #### :mag: Search Dialog -->
 
 ### Search Dialog
@@ -34,6 +34,7 @@ Marked with checkmark if ready, else planned as next.
 
 ## :warning: Bugs 
 Marked with checkmark if fixed, else it is known bug.
-- [ ] drip icon in menu has no transparent background
 - [ ] extension: Open with... opens active file in delphi, not the selected
-- [ ] search whole word won't be highlighted 
+- [x] search whole word won't be highlighted 
+- [ ] drip icon in menu has no transparent background
+- [ ] extension: dblclik on history shouldn't search selected.
