@@ -100,7 +100,7 @@ begin
 		cd.Add(TColumnData.New(ciRow, m.Groups['row'].Value));
 		cd.Add(TColumnData.New(ciCol, m.Groups['col'].Value));
 		s := m.Groups['text'].Value;
-		var  // not used, but so we have less memory leak!
+		var // not used, but so we have less memory leak!
 		so := SearchParams.GetGuiSearchParams;
 		matchPretty := FPrettyRegex.Match(s);
 		if matchPretty.Groups.Count = 4 then begin
@@ -143,15 +143,16 @@ end;
 
 procedure TVimGrepMatchLineParser.SetPrettyRegex;
 var
-	pattern: string;
-	s: string;
+	pattern : string;
+	s : string;
 begin
 	var
 	gp := FSearchParams.GetGuiSearchParams;
 	var
 	so := gp.SearchOptions;
 
-	if not(EGuiOption.soUseRegex in so) then begin
+	if not((EGuiOption.soUseRegex in so) or
+		{ } (EGuiOption.soMatchWord in so)) then begin
 		s := TRegEx.Escape(gp.SearchText);
 	end else begin
 		s := gp.SearchText;
