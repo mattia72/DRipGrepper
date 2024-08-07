@@ -43,7 +43,7 @@ uses
 	RipGrepper.Helper.Types,
 	RipGrepper.Common.Constants,
 	Winapi.Windows,
-	RipGrepper.Common.TSearchParams;
+	RipGrepper.Common.SearchParams;
 
 constructor TParallelParser.Create(_data : TRipGrepperData; _histObj : THistoryItemObject);
 begin

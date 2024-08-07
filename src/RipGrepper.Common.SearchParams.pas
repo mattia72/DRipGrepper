@@ -1,4 +1,4 @@
-unit RipGrepper.Common.TSearchParams;
+unit RipGrepper.Common.SearchParams;
 
 interface
 
