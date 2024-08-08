@@ -15,22 +15,16 @@ uses
 
 type
 	TRipGrepperSettingsDefaults = class(TRipGrepperSettingsBase)
-
 		strict private
-
 			FRipGrepperSearchFormSettings : TRipGrepperSearchFormSettings;
 			FExtensionSettings : TRipGrepperExtensionSettings;
-
-		protected
-			FActualSearchPath : string;
-			function GetActualSearchPath : string; virtual;
 
 		public
 			constructor Create;
 			destructor Destroy; override;
 			procedure Load; override;
 			procedure Store; override;
-			property ActualSearchPath : string read GetActualSearchPath;
+
 			property ExtensionSettings : TRipGrepperExtensionSettings read FExtensionSettings write FExtensionSettings;
 			property RipGrepperSearchFormSettings : TRipGrepperSearchFormSettings read FRipGrepperSearchFormSettings write FRipGrepperSearchFormSettings;
 	end;
@@ -40,14 +34,18 @@ type
 			FRipGrepParameters : TRipGrepParameterSettings;
 			FRipGrepperViewSettings : TRipGrepperViewSettings;
 			FRipGrepperOpenWithSettings : TRipGrepperOpenWithSettings;
+
 			FRipGrepOptionsHistory : TSTrings;
 			FSearchPathsHistory : TStrings;
 			FSearchTextsHistory : TStrings;
+            FFileMasksHistory : TStrings;
+
 			FRipGrepArguments : TRipGrepArguments;
 			FSearchPathIsDir : Boolean;
-			FFileMasksHistory : TStrings;
 			FRipGrepperSettings : TRipGrepperAppSettings;
-			function GetActualRipGrepParams : string;
+
+			FActualSearchPath : string;
+
 			function GetActualSearchText : string;
 			function GetIsEmpty : Boolean;
 			function GetRipGrepParameters : TRipGrepParameterSettings;
@@ -59,9 +57,7 @@ type
 			procedure SetSearchPathsHistory(const Value : TStrings);
 			procedure SetSearchTextsHistory(const Value : TStrings);
 			procedure StoreHistoryEntries(const _list : TStrings; const _section : string);
-
-		protected
-			function GetActualSearchPath : string; override;
+			function GetActualSearchPath : string;
 
 		public
 			procedure Load; override;
@@ -75,11 +71,11 @@ type
 			function GetRipGrepArguments : TRipGrepArguments;
 			procedure RebuildArguments;
 			procedure UpdateIniFile;
-			property ActualRipGrepParams : string read GetActualRipGrepParams;
 			property ActualSearchText : string read GetActualSearchText;
 			property FileMasksHistory : TStrings read FFileMasksHistory write SetFileMasksHistory;
 			property IsEmpty : Boolean read GetIsEmpty;
 
+			property ActualSearchPath : string read GetActualSearchPath;
 			property RipGrepParameters : TRipGrepParameterSettings read GetRipGrepParameters write FRipGrepParameters;
 			property SearchPathsHistory : TStrings read FSearchPathsHistory write SetSearchPathsHistory;
 			property RipGrepOptionsHistory : TSTrings read FRipGrepOptionsHistory write SetRipGrepOptionsHistory;
@@ -118,11 +114,6 @@ uses
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.CommandLine.Builder;
-
-function TRipGrepperSettings.GetActualRipGrepParams : string;
-begin
-	RipGrepOptionsHistory.TryGetDef(0, Result);
-end;
 
 function TRipGrepperSettings.GetActualSearchText : string;
 begin
@@ -362,6 +353,7 @@ end;
 
 constructor TRipGrepperSettingsDefaults.Create;
 begin
+    inherited;
 	if IOTAUTils.IsStandAlone then begin
 		FIniFile := TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8);
 	end else begin
@@ -379,18 +371,13 @@ begin
 	inherited;
 end;
 
-function TRipGrepperSettingsDefaults.GetActualSearchPath : string;
-begin
-	Result := FActualSearchPath;
-end;
-
 procedure TRipGrepperSettingsDefaults.Load;
 begin
 	inherited;
 	TDebugUtils.DebugMessage('TRipGrepperSettingsDefaults.Load: start');
 	FRipGrepperSearchFormSettings.Load;
 	FExtensionSettings.Load;
-   	FIsLoaded := True;
+	FIsLoaded := True;
 end;
 
 procedure TRipGrepperSettingsDefaults.Store;
