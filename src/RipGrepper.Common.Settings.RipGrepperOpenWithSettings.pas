@@ -6,7 +6,8 @@ uses
 	RipGrepper.Common.Settings.Base,
 	System.Classes,
 	System.IniFiles,
-	RipGrepper.OpenWith.SimpleTypes;
+	RipGrepper.OpenWith.Constants,
+	RipGrepper.OpenWith.Params;
 
 type
 	TRipGrepperOpenWithSettings = class(TRipGrepperSettingsBase)

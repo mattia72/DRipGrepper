@@ -13,6 +13,7 @@ uses
 
 type
 	IOTAUTils = class
+		private
 		public
 			class function AddToImageList(_bmp : Vcl.Graphics.TBitmap; const _identText : string) : Integer;
 			// Returns the size of any EOL character(s) at a given position (0 if none)
@@ -22,6 +23,7 @@ type
 			class function GetSettingFilePath : string;
 			class function FindMenuItem(const Name : string) : TMenuItem;
 			class function FindMenu(const Name : string) : TMenu;
+			class function GetEditPosition: IOTAEditPosition;
 			// Get the actual TEditControl embedded in the given IDE editor form
 			class function GetIDEEditControl(Form : TCustomForm) : TWinControl;
 
@@ -219,6 +221,24 @@ begin
 		Result := TMenu(Comp)
 	else
 		Result := nil;
+end;
+
+class function IOTAUTils.GetEditPosition: IOTAEditPosition;
+var
+	aEditorServices : IOTAEditorServices;
+	aEditBuffer : IOTAEditBuffer;
+	aEditBlock : IOTAEditBlock;
+begin
+	Result := nil;
+	aEditorServices := BorlandIDEServices as IOTAEditorServices;
+	if Assigned(aEditorServices) and Assigned(aEditorServices.TopView) then begin
+		aEditBlock := aEditorServices.TopView.GetBlock;
+		aEditBuffer := aEditorServices.TopView.GetBuffer;
+		if Assigned(aEditBlock) and Assigned(aEditBuffer) then begin
+			Result := aEditBuffer.EditPosition;
+		end;
+
+	end;
 end;
 
 class function IOTAUTils.GetIDEEditControl(Form : TCustomForm) : TWinControl;

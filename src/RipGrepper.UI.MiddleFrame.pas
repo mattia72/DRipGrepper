@@ -22,7 +22,8 @@ uses
 	Vcl.StdCtrls,
 	Vcl.ExtCtrls,
 	Vcl.ToolWin,
-	RipGrepper.OpenWith.SimpleTypes,
+	RipGrepper.OpenWith.Constants,
+	RipGrepper.OpenWith.Params,
 	RipGrepper.Common.Settings,
 	RipGrepper.Data.HistoryItemObject,
 	RipGrepper.Data.Matches,
@@ -123,7 +124,7 @@ type
 			FData : TRipGrepperData;
 			FExeVersion : string;
 			FFileNameType : TFileNameType;
-			FHistItemObject: THistoryItemObject;
+			FHistItemObject : THistoryItemObject;
 			FHistoryObjectList : TStringList;
 			FIsParsingRunning : Boolean;
 			FMaxWidths : TArray<Integer>;
@@ -141,7 +142,7 @@ type
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
 			function GetCounterText(Data : THistoryItemObject) : string;
 			function GetData : TRipGrepperData;
-			function GetHistItemObject: THistoryItemObject;
+			function GetHistItemObject : THistoryItemObject;
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
 			function GetHistoryObjectList : TStringList;
 			function GetNewParallelParser : TParallelParser;
@@ -156,7 +157,7 @@ type
 			procedure RefreshCountersInGUI;
 			procedure RunRipGrep;
 			procedure SetColumnWidths;
-			procedure SetHistItemObject(const Value: THistoryItemObject);
+			procedure SetHistItemObject(const Value : THistoryItemObject);
 			function SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
 			procedure UpdateArgumentsAndSettings;
 			procedure UpdateHistObjectAndGui;
@@ -194,7 +195,7 @@ type
 			property Data : TRipGrepperData read GetData write FData;
 			property ExeVersion : string read FExeVersion write FExeVersion;
 			property FileNameType : TFileNameType read FFileNameType write FFileNameType;
-			property HistItemObject: THistoryItemObject read GetHistItemObject write SetHistItemObject;
+			property HistItemObject : THistoryItemObject read GetHistItemObject write SetHistItemObject;
 			property HistoryObjectList : TStringList read GetHistoryObjectList write FHistoryObjectList;
 			property MaxWidths : TArray<Integer> read FMaxWidths write FMaxWidths;
 			property RipGrepTask : ITask read FRipGrepTask write FRipGrepTask;
@@ -573,7 +574,7 @@ begin
 	Result := Data.FilePath;
 end;
 
-function TRipGrepperMiddleFrame.GetHistItemObject: THistoryItemObject;
+function TRipGrepperMiddleFrame.GetHistItemObject : THistoryItemObject;
 begin
 	Result := FHistItemObject;
 end;
@@ -620,6 +621,8 @@ begin
 		Result.Column := Data.MatchData.Col;
 		Result.IsEmpty := False;
 	end;
+
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.GetOpenWithParamsFromSelected ' + Result.ToString);
 
 end;
 
@@ -837,7 +840,7 @@ begin
 	// ListView_SetColumnWidth(ListViewResult.Handle, 3, ColumnTextWidth);
 end;
 
-procedure TRipGrepperMiddleFrame.SetHistItemObject(const Value: THistoryItemObject);
+procedure TRipGrepperMiddleFrame.SetHistItemObject(const Value : THistoryItemObject);
 begin
 	FHistItemObject := Value;
 end;

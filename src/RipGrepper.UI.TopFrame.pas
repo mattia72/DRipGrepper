@@ -133,7 +133,7 @@ uses
 	Vcl.Clipbrd,
 	RipGrepper.Common.Constants,
 	RipGrepper.OpenWith.ConfigForm,
-	RipGrepper.OpenWith.SimpleTypes,
+	RipGrepper.OpenWith.Params,
 	RipGrepper.OpenWith,
 	RipGrepper.Helper.UI,
 	RipGrepper.UI.SearchForm,

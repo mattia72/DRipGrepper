@@ -27,6 +27,7 @@ Marked with checkmark if ready, else planned as next.
 - [ ] replace 
 - [ ] filter result
 - [ ] own prettifier switcher as toolbar button
+- [ ] extension: new menu item for 'Open with active file in IDE'
 <!-- #### :mag: Search Dialog -->
 
 ### Search Dialog
@@ -34,7 +35,9 @@ Marked with checkmark if ready, else planned as next.
 
 ## :warning: Bugs 
 Marked with checkmark if fixed, else it is known bug.
-- [ ] extension: Open with... opens active file in delphi, not the selected
+- [x] extension: Open with... opens active file in delphi, not the selected
 - [x] search whole word won't be highlighted 
 - [ ] drip icon in menu has no transparent background
 - [ ] extension: dblclik on history shouldn't search selected.
+- [ ] default settings doesn't save combo boxes
+- [ ] delete of second history entry causes exception 

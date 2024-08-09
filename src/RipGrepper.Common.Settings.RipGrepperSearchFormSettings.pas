@@ -7,7 +7,7 @@ uses
 	System.IniFiles,
 	System.Generics.Collections,
 	System.Generics.Defaults,
-	RipGrepper.OpenWith.SimpleTypes,
+	RipGrepper.OpenWith.Constants,
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.Settings.Base,
 	ArrayEx,
@@ -174,7 +174,6 @@ begin
 		inherited Store();
 		FIsModified := False;
 	end;
-
 end;
 
 procedure TRipGrepperSearchFormSettings.StoreSearchSettings(const _s : string = '');

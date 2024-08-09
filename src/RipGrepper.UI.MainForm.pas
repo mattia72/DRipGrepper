@@ -30,7 +30,7 @@ uses
 	RipGrepper.Common.Sorter,
 	RipGrepper.Data.HistoryItemObject,
 	u_dzDpiScaleUtils,
-	RipGrepper.OpenWith.SimpleTypes,
+	RipGrepper.OpenWith.Constants,
 	System.IniFiles,
 	ToolsAPI,
 	RipGrepper.UI.BottomFrame,
@@ -158,7 +158,7 @@ end;
 
 procedure TRipGrepperForm.FormClose(Sender : TObject; var Action : TCloseAction);
 begin
-	TDebugUtils.DebugMessage('TRipGrepperForm.FormClose - begin action:' + Integer(Action).ToString);
+	TDebugUtils.DebugMessage('TRipGrepperForm.FormClose - begin action: ' + Integer(Action).ToString);
 	Settings.Store;
 end;
 

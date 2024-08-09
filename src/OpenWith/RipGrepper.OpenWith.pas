@@ -8,7 +8,7 @@ uses
 	Winapi.Windows,
 	Winapi.ShellAPI,
 	Vcl.Menus,
-	RipGrepper.OpenWith.SimpleTypes;
+	RipGrepper.OpenWith.Params;
 
 type
 	TOpenWith = class
@@ -46,7 +46,7 @@ var
 	iPos : Integer;
 	sEditorCmd : string;
 begin
-	TDebugUtils.DebugMessage(Format('TOpenWith.Execute %s ', [_owp.FileName]));
+	TDebugUtils.DebugMessage(Format('TOpenWith.Execute %s ', [_owp.ToString]));
 
 	if FileExists(_owp.FileName) then begin
 		sEditorCmd := GetSelectedCmd(_owp);

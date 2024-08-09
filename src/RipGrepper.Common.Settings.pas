@@ -7,7 +7,7 @@ uses
 	System.IniFiles,
 	System.Generics.Collections,
 	System.Generics.Defaults,
-	RipGrepper.OpenWith.SimpleTypes,
+	RipGrepper.OpenWith.Constants,
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.Settings.Base,
 	ArrayEx,

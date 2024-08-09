@@ -5,15 +5,13 @@ interface
 uses
 	ToolsAPI,
 	System.Types,
-	RipGrepper.OpenWith.SimpleTypes;
+	RipGrepper.OpenWith.Params;
 
 type
 	TOpenWithRunner = class
 
 		private
 			class function BuildParams(const _owp : TOpenWithParams; const _sParams : string) : string;
-			class function GetEditPosition : IOTAEditPosition;
-			class function GetParamsFromDelphiIde : TOpenWithParams;
 			class function GetErrorText(dwErrorCode : DWORD) : string;
 
 		public
@@ -36,68 +34,23 @@ uses
 class function TOpenWithRunner.BuildParams(const _owp : TOpenWithParams; const _sParams : string) : string;
 var
 	sCmdParams : string;
-	owp : TOpenWithParams;
 begin
 	sCmdParams := _sParams;
 
-	owp := GetParamsFromDelphiIde();
-	if owp.IsEmpty then begin
-		owp := _owp;
-	end;
-
 	sCmdParams := StringReplace(sCmdParams, '<DIR>', '%s', [rfReplaceAll]);
-	sCmdParams := Format(sCmdParams, [owp.DirPath]);
+	sCmdParams := Format(sCmdParams, [_owp.DirPath]);
 
 	sCmdParams := StringReplace(sCmdParams, '<FILE>', '%s', [rfReplaceAll]);
-	sCmdParams := Format(sCmdParams, [owp.FileName]);
+	sCmdParams := Format(sCmdParams, [_owp.FileName]);
 	// TDebugUtils.DebugMessage((Format('TOpenWithRunner.InternalExecute Params: %s ', [sCmdParams])));
 
 	sCmdParams := StringReplace(sCmdParams, '<LINE>', '%d', [rfReplaceAll]);
-	sCmdParams := Format(sCmdParams, [owp.Row]);
+	sCmdParams := Format(sCmdParams, [_owp.Row]);
 	// TDebugUtils.DebugMessage((Format('TOpenWithRunner.InternalExecute Params: %s ', [sCmdParams])));
 
 	sCmdParams := StringReplace(sCmdParams, '<COL>', '%d', [rfReplaceAll]);
-	Result := Format(sCmdParams, [owp.Column]);
+	Result := Format(sCmdParams, [_owp.Column]);
 
-end;
-
-class function TOpenWithRunner.GetEditPosition : IOTAEditPosition;
-var
-	aEditorServices : IOTAEditorServices;
-	aEditBuffer : IOTAEditBuffer;
-	aEditBlock : IOTAEditBlock;
-begin
-	Result := nil;
-	aEditorServices := BorlandIDEServices as IOTAEditorServices;
-	if Assigned(aEditorServices) and Assigned(aEditorServices.TopView) then begin
-		aEditBlock := aEditorServices.TopView.GetBlock;
-		aEditBuffer := aEditorServices.TopView.GetBuffer;
-		if Assigned(aEditBlock) and Assigned(aEditBuffer) then begin
-			Result := aEditBuffer.EditPosition;
-		end;
-
-	end;
-end;
-
-class function TOpenWithRunner.GetParamsFromDelphiIde() : TOpenWithParams;
-var
-	sProjName : string;
-	editPosition : IOTAEditPosition;
-begin
-	editPosition := GetEditPosition;
-	if Assigned(editPosition) then begin
-		Result.FileName := IOTAUtils.GxOtaGetCurrentSourceFile;;
-		sProjName := IOTAUtils.GxOtaGetCurrentProjectName;
-		TDebugUtils.DebugMessage((Format('TOpenWithRunner.InternalExecute proj: %s ', [sProjName])));
-		if (sProjName <> '') then begin
-			Result.DirPath := ExtractFileDir(sProjName);
-		end else begin
-			Result.DirPath := ExtractFileDir(Result.FileName);
-		end;
-		Result.Row := editPosition.Row;
-		Result.Column := editPosition.Column;
-		Result.IsEmpty := False;
-	end;
 end;
 
 class procedure TOpenWithRunner.RunEditorCommand(const _sEditorCmd : string; const _owp : TOpenWithParams);
@@ -112,7 +65,7 @@ begin
 	sCmd := '"' + cr.ExePath + '"';
 	sParams := BuildParams(_owp, sParams);
 
-	TDebugUtils.DebugMessage((Format('TOpenWithRunner.InternalExecute cmd: %s %s ', [_sEditorCmd, sParams])));
+	TDebugUtils.DebugMessage((Format('TOpenWithRunner.RunEditorCommand cmd: %s %s ', [_sEditorCmd, sParams])));
 	ShellExecute(0, 'open', PChar(sCmd), PChar(sParams), nil, SW_SHOW);
 	err := GetLastError;
 	if err <> 0 then begin

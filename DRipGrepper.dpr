@@ -45,7 +45,7 @@ uses
   RipGrepper.OpenWith.CmdListForm in 'src\OpenWith\RipGrepper.OpenWith.CmdListForm.pas' {OpenWithCmdList},
   RipGrepper.OpenWith.ConfigForm in 'src\OpenWith\RipGrepper.OpenWith.ConfigForm.pas' {OpenWithConfigForm},
   RipGrepper.OpenWith.Runner in 'src\OpenWith\RipGrepper.OpenWith.Runner.pas',
-  RipGrepper.OpenWith.SimpleTypes in 'src\OpenWith\RipGrepper.OpenWith.SimpleTypes.pas',
+  RipGrepper.OpenWith.Constants in 'src\OpenWith\RipGrepper.OpenWith.Constants.pas',
   RipGrepper.Parsers.Factory in 'src\RipGrepper.Parsers.Factory.pas',
   RipGrepper.Parsers.ParallelParser in 'src\RipGrepper.Parsers.ParallelParser.pas',
   RipGrepper.Parsers.VimGrepMatchLine in 'src\RipGrepper.Parsers.VimGrepMatchLine.pas',
@@ -64,11 +64,12 @@ uses
   RipGrepper.CommandLine.OptionHelper in 'src\RipGrepper.CommandLine.OptionHelper.pas',
   RipGrepper.Common.GuiSearchParams in 'src\RipGrepper.Common.GuiSearchParams.pas',
   RipGrepper.Common.IOTAUtils in 'src\RipGrepper.Common.IOTAUtils.pas',
-  RipGrepper.Common.TSearchParams in 'src\RipGrepper.Common.TSearchParams.pas',
+  RipGrepper.Common.SearchParams in 'src\RipGrepper.Common.SearchParams.pas',
   RipGrepper.Common.Settings in 'src\RipGrepper.Common.Settings.pas',
   RipGrepper.Common.Settings.RipGrepperSettings in 'src\RipGrepper.Common.Settings.RipGrepperSettings.pas',
   RipGrepper.Common.Settings.RipGrepperViewSettings in 'src\RipGrepper.Common.Settings.RipGrepperViewSettings.pas',
-  RipGrepper.Common.Settings.RipGrepperOpenWithSettings in 'src\RipGrepper.Common.Settings.RipGrepperOpenWithSettings.pas';
+  RipGrepper.Common.Settings.RipGrepperOpenWithSettings in 'src\RipGrepper.Common.Settings.RipGrepperOpenWithSettings.pas',
+  RipGrepper.OpenWith.Params in 'src\OpenWith\RipGrepper.OpenWith.Params.pas';
 
 {$R *.res}
 

@@ -79,7 +79,7 @@ uses
 	System.IOUtils,
 	RipGrepper.OpenWith.ConfigForm,
 	System.Math,
-	RipGrepper.OpenWith.SimpleTypes,
+	RipGrepper.OpenWith.Constants,
 	RipGrepper.Tools.DebugUtils,
 	u_dzVclUtils,
 	RipGrepper.Tools.FileUtils;
