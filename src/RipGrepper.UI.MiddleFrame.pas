@@ -48,6 +48,7 @@ type
 		ActionCopyFileName : TAction;
 		ActionCopyPathToClipboard : TAction;
 		ActionOpenWith : TAction;
+		ActionOpenInIde : TAction;
 		PopupMenuResult : TPopupMenu;
 		miOpenwith1 : TMenuItem;
 		miCopyFileNameToClipboard : TMenuItem;
@@ -75,6 +76,7 @@ type
 		miAddToUSESList : TMenuItem;
 		miCopytoClipboard : TMenuItem;
 		N1 : TMenuItem;
+		miOpenInIde : TMenuItem;
 		procedure ActionAddUsingImplementationExecute(Sender : TObject);
 		procedure ActionAddUsingImplementationUpdate(Sender : TObject);
 		procedure ActionAddUsingInterfaceExecute(Sender : TObject);
@@ -93,6 +95,8 @@ type
 		procedure ActionHistoryDeleteUpdate(Sender : TObject);
 		procedure ActionOpenWithExecute(Sender : TObject);
 		procedure ActionOpenWithUpdate(Sender : TObject);
+		procedure ActionOpenInIdeExecute(Sender : TObject);
+		procedure ActionOpenInIdeUpdate(Sender : TObject);
 		procedure FrameResize(Sender : TObject);
 		procedure PopupMenuHistoryPopup(Sender : TObject);
 		procedure Splitter1Moved(Sender : TObject);
@@ -153,6 +157,7 @@ type
 			procedure LoadBeforeSearchSettings;
 			procedure OnLastLine(const _iLineNr : Integer);
 			procedure OnParsingProgress;
+		procedure OpenSelectedInIde;
 			procedure RefreshCounters;
 			procedure RefreshCountersInGUI;
 			procedure RunRipGrep;
@@ -384,6 +389,18 @@ end;
 procedure TRipGrepperMiddleFrame.ActionOpenWithUpdate(Sender : TObject);
 begin
 	EnableActionIfResultSelected(ActionOpenWith);
+end;
+
+procedure TRipGrepperMiddleFrame.ActionOpenInIdeExecute(Sender : TObject);
+begin
+	OpenSelectedInIde;
+end;
+
+procedure TRipGrepperMiddleFrame.ActionOpenInIdeUpdate(Sender : TObject);
+begin
+	EnableActionIfResultSelected(ActionOpenInIde);
+	ActionOpenInIde.Enabled := ActionOpenInIde.Enabled and (not IOTAUTils.IsStandAlone);
+	ActionOpenInIde.Visible := not IOTAUTils.IsStandAlone;
 end;
 
 procedure TRipGrepperMiddleFrame.AddAsUsing(_bToImpl : Boolean);
@@ -673,6 +690,13 @@ begin
 	VstHistory.TreeOptions.PaintOptions := VstHistory.TreeOptions.PaintOptions + [toUseExplorerTheme];
 	VstHistory.TreeOptions.MiscOptions := VstHistory.TreeOptions.MiscOptions + [TVTMiscOption.toVariablenodeHeight];
 	VstHistory.NodeDataSize := SizeOf(TVSHistoryNodeData);
+
+	miOpenwith1.Default := IOTAUTils.IsStandAlone;
+	miOpenInIde.Default := not IOTAUTils.IsStandAlone;
+	if not miOpenInIde.Default then begin
+		PopupMenuResult.Items[0].Visible := False;
+	end;
+
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.InitForm Ended');
 end;
 
@@ -896,6 +920,15 @@ begin
 	if not Assigned(Node) then
 		Exit;
 	Result := VstResult.GetNodeData(Node);
+end;
+
+procedure TRipGrepperMiddleFrame.OpenSelectedInIde;
+var
+	owp: TOpenWithParams;
+begin
+	owp := GetOpenWithParamsFromSelected();
+	TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.VstResultDblClick: %s(%d:%d)', [owp.FileName, owp.Row, owp.Column]));
+	IOTAUtils.GxOtaGoToFileLineColumn(owp.FileName, owp.Row, owp.Column, owp.Column - 1);
 end;
 
 procedure TRipGrepperMiddleFrame.PopupMenuHistoryPopup(Sender : TObject);
@@ -1127,15 +1160,11 @@ begin
 end;
 
 procedure TRipGrepperMiddleFrame.VstResultDblClick(Sender : TObject);
-var
-	owp : TOpenWithParams;
 begin
 	if IOTAUTils.IsStandAlone then begin
 		ActionOpenWithExecute(Sender);
 	end else begin
-		owp := GetOpenWithParamsFromSelected();
-		TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.VstResultDblClick: %s(%d, %d)', [owp.FileName, owp.Row, owp.Column]));
-		IOTAUtils.GxOtaGoToFileLineColumn(owp.FileName, owp.Row, owp.Column, owp.Column - 1);
+		OpenSelectedInIde;
 	end;
 end;
 

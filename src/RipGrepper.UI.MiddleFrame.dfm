@@ -1,16 +1,16 @@
 object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
   Left = 0
   Top = 0
-  Width = 802
-  Height = 343
+  Width = 788
+  Height = 335
   TabOrder = 0
   OnResize = FrameResize
   object panelMain: TPanel
     AlignWithMargins = True
     Left = 3
     Top = 3
-    Width = 796
-    Height = 337
+    Width = 782
+    Height = 329
     Align = alClient
     BevelOuter = bvNone
     Caption = 'panelMain'
@@ -19,7 +19,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
       Left = 0
       Top = 0
       Width = 794
-      Height = 337
+      Height = 329
       BevelEdges = [beLeft, beRight, beBottom]
       CompactWidth = 125
       OpenedWidth = 794
@@ -29,7 +29,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
       object Splitter1: TSplitter
         Left = 191
         Top = 0
-        Height = 337
+        Height = 329
         Margins.Left = 8
         Margins.Top = 8
         Margins.Right = 8
@@ -41,7 +41,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
         Left = 0
         Top = 0
         Width = 191
-        Height = 337
+        Height = 329
         Margins.Left = 8
         Margins.Top = 8
         Margins.Right = 8
@@ -54,7 +54,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           Left = 4
           Top = 4
           Width = 183
-          Height = 329
+          Height = 321
           Align = alClient
           Header.AutoSizeIndex = 0
           Header.Options = [hoAutoResize, hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible, hoFullRepaintOnResize, hoHeaderClickAutoSort, hoAutoResizeInclCaption]
@@ -83,7 +83,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
         Left = 194
         Top = 0
         Width = 600
-        Height = 337
+        Height = 329
         Align = alRight
         Anchors = [akLeft, akTop, akRight, akBottom]
         TabOrder = 1
@@ -92,7 +92,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           Left = 4
           Top = 4
           Width = 592
-          Height = 329
+          Height = 321
           Align = alClient
           Header.AutoSizeIndex = 3
           Header.Options = [hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible, hoAutoResizeInclCaption]
@@ -159,6 +159,12 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
       OnExecute = ActionOpenWithExecute
       OnUpdate = ActionOpenWithUpdate
     end
+    object ActionOpenInIde: TAction
+      Caption = 'Open in IDE'
+      Hint = 'Open in Delphi IDE'
+      OnExecute = ActionOpenInIdeExecute
+      OnUpdate = ActionOpenInIdeUpdate
+    end
     object ActionHistoryDelete: TAction
       Caption = 'Delete'
       ImageIndex = 2
@@ -200,6 +206,9 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
     Images = ImageList1
     Left = 285
     Top = 129
+    object miOpenInIde: TMenuItem
+      Action = ActionOpenInIde
+    end
     object miOpenwith1: TMenuItem
       Action = ActionOpenWith
       Default = True

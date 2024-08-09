@@ -137,6 +137,7 @@ type
 			FcmbOptionsOldText : string;
 			FOrigRipGrepperSearchFormSettings : TRipGrepperSearchFormSettings;
 			FSettings : TRipGrepperSettings;
+			FDefaultSettings : TRipGrepperSettings; // TODO !
 
 			function GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
 			procedure LoadSettings;
@@ -150,7 +151,7 @@ type
 			procedure UpdateCmbOptionsAndMemoCommandLine;
 			procedure StoreHistoriesAsCmbEntries;
 			procedure WriteCtrlsToRipGrepParametersSettings;
-			procedure WriteCtrlsToSettings;
+			procedure WriteCtrlsToSettings(const _settings: TRipGrepperSettings);
 			procedure UpdateCheckBoxesByRgOptions;
 			procedure UpdateCheckBoxesBySettings;
 			procedure AlignExpertGroupBox;
@@ -291,7 +292,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ActionSearchExecute(Sender : TObject);
 begin
-	WriteCtrlsToSettings();
+	WriteCtrlsToSettings(FSettings);
 	ModalResult := mrOk;
 end;
 
@@ -309,7 +310,8 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ActionSetAsDefaultExecute(Sender : TObject);
 begin
-	FSettings.Store;
+	WriteCtrlsToSettings(FDefaultSettings);
+	FDefaultSettings.Store();
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionShowFileMaskHelpExecute(Sender : TObject);
@@ -629,20 +631,20 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.WriteCtrlsToRipGrepParametersSettings: end ' + FGuiSetSearchParams.ToString);
 end;
 
-procedure TRipGrepperSearchDialogForm.WriteCtrlsToSettings;
+procedure TRipGrepperSearchDialogForm.WriteCtrlsToSettings(const _settings: TRipGrepperSettings);
 begin
 	StoreHistoriesAsCmbEntries();
 
-	FSettings.SearchPathsHistory := cmbSearchDir.Items;
-	FSettings.SearchTextsHistory := cmbSearchText.Items;
-	FSettings.RipGrepOptionsHistory := cmbOptions.Items;
-	FSettings.FileMasksHistory := cmbFileMasks.Items;
+	_settings.SearchPathsHistory := cmbSearchDir.Items;
+	_settings.SearchTextsHistory := cmbSearchText.Items;
+	_settings.RipGrepOptionsHistory := cmbOptions.Items;
+	_settings.FileMasksHistory := cmbFileMasks.Items;
 
 	WriteCtrlsToRipGrepParametersSettings;
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.WriteCtrlsToSettings: set GuiSearchTextParams=' + FGuiSetSearchParams.ToString);
-	FSettings.RipGrepParameters.GuiSearchTextParams := FGuiSetSearchParams;
+	_settings.RipGrepParameters.GuiSearchTextParams := FGuiSetSearchParams;
 
-	FSettings.RebuildArguments();
+	_settings.RebuildArguments();
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateCheckBoxesByRgOptions;
