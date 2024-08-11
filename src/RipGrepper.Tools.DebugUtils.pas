@@ -5,6 +5,8 @@ interface
 type
 	TDebugUtils = class(TObject)
 		private
+			class procedure InnerOutputDebugString(const _s : string);
+
 		public
 			class procedure DebugMessage(const _s : string);
 			class procedure Msg(const _s : string);
@@ -16,11 +18,13 @@ implementation
 
 uses
 	Winapi.Windows,
-	System.SysUtils;
+	System.SysUtils,
+	RipGrepper.Common.Settings.RipGrepperSettings,
+	System.RegularExpressions;
 
 class procedure TDebugUtils.DebugMessage(const _s : string);
 begin
-	OutputDebugString(PChar(_s));
+	InnerOutputDebugString(_s);
 end;
 
 class procedure TDebugUtils.Msg(const _s : string);
@@ -30,7 +34,15 @@ end;
 
 class procedure TDebugUtils.DebugMessageFormat(const _s : string; const _args : array of const);
 begin
-	OutputDebugString(PChar(Format(_s, _args)));
+	InnerOutputDebugString(Format(_s, _args));
+end;
+
+class procedure TDebugUtils.InnerOutputDebugString(const _s : string);
+begin
+	if Assigned(GSettings) and Assigned(GSettings.RipGrepperSettings) and GSettings.RipGrepperSettings.DebugTrace then begin
+		// if TRegEx.IsMatch(_s, '') then
+		OutputDebugString(PChar(_s));
+	end;
 end;
 
 class procedure TDebugUtils.MsgFmt(const _s : string; const _args : array of const);

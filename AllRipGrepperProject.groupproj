@@ -9,7 +9,10 @@
         <Projects Include="UnitTest\DRipGrepperUnittest.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Extension\DRipExtension280.dproj">
+        <Projects Include="..\gexperts-code-r4173-trunk\Projects\DelphiXx120\GExpertsRS120.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Extension\DRipExtension.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -38,23 +41,32 @@
     <Target Name="DRipGrepperUnittest:Make">
         <MSBuild Projects="UnitTest\DRipGrepperUnittest.dproj" Targets="Make"/>
     </Target>
-    <Target Name="DRipExtension280">
-        <MSBuild Projects="Extension\DRipExtension280.dproj"/>
+    <Target Name="GExpertsRS120">
+        <MSBuild Projects="..\gexperts-code-r4173-trunk\Projects\DelphiXx120\GExpertsRS120.dproj"/>
     </Target>
-    <Target Name="DRipExtension280:Clean">
-        <MSBuild Projects="Extension\DRipExtension280.dproj" Targets="Clean"/>
+    <Target Name="GExpertsRS120:Clean">
+        <MSBuild Projects="..\gexperts-code-r4173-trunk\Projects\DelphiXx120\GExpertsRS120.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="DRipExtension280:Make">
-        <MSBuild Projects="Extension\DRipExtension280.dproj" Targets="Make"/>
+    <Target Name="GExpertsRS120:Make">
+        <MSBuild Projects="..\gexperts-code-r4173-trunk\Projects\DelphiXx120\GExpertsRS120.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DRipExtension">
+        <MSBuild Projects="Extension\DRipExtension.dproj"/>
+    </Target>
+    <Target Name="DRipExtension:Clean">
+        <MSBuild Projects="Extension\DRipExtension.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DRipExtension:Make">
+        <MSBuild Projects="Extension\DRipExtension.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="DRipGrepper;DRipGrepperUnittest;DRipExtension280"/>
+        <CallTarget Targets="DRipGrepper;DRipGrepperUnittest;GExpertsRS120;DRipExtension"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="DRipGrepper:Clean;DRipGrepperUnittest:Clean;DRipExtension280:Clean"/>
+        <CallTarget Targets="DRipGrepper:Clean;DRipGrepperUnittest:Clean;GExpertsRS120:Clean;DRipExtension:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="DRipGrepper:Make;DRipGrepperUnittest:Make;DRipExtension280:Make"/>
+        <CallTarget Targets="DRipGrepper:Make;DRipGrepperUnittest:Make;GExpertsRS120:Make;DRipExtension:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
