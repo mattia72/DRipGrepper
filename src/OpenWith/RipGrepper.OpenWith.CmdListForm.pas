@@ -40,12 +40,14 @@ type
 		ActionShowConfig : TAction;
 		ImageListButtons : TImageList;
 		pnlMain : TPanel;
+		lblHint : TLabel;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionShowConfigExecute(Sender : TObject);
 		procedure ActionOkExecute(Sender : TObject);
 		procedure ActionSwitchViewExecute(Sender : TObject);
 		procedure ActionSwitchViewUpdate(Sender : TObject);
 		procedure FormShow(Sender : TObject);
+		procedure lbCommandsDblClick(Sender : TObject);
 
 		private
 			FDpiScaler : TRipGrepperDpiScaler;
@@ -172,13 +174,14 @@ begin
 	if lbCommands.GetCount > 0 then begin
 		lbCommands.ItemIndex := 0;
 	end;
+	lblHint.Caption := Format('Open %s(%d:%d) with ...',
+		[ExtractRelativePath(FSettings.TestFile.DirPath + '\', FSettings.TestFile.FileName), FSettings.TestFile.Column,
+		FSettings.TestFile.Row]);
 end;
 
 class function TOpenWithCmdList.GetEnabledCmds(const _settings : TRipGrepperOpenWithSettings) : TArray<string>;
-var
-	arrCmd : TArray<string>;
-	i : Integer;
-	sCmds : string;
+var arrCmd : TArray<string>;
+	i : Integer; sCmds : string;
 begin
 	Result := [];
 
@@ -203,9 +206,7 @@ begin
 end;
 
 function TOpenWithCmdList.GetFileNameFromCfg(const _configText : string) : string;
-var
-	sFileName : string;
-	sPath : string;
+var sFileName : string; sPath : string;
 begin
 	sFileName := TFileUtils.ParseCommand(_configText).ExePath;
 	sPath := ExtractFileDir(sFileName);
@@ -224,12 +225,13 @@ begin
 	Result := (FViewStyleIndex mod Length(LISTVIEW_TYPES));
 end;
 
+procedure TOpenWithCmdList.lbCommandsDblClick(Sender : TObject);
+begin
+	ActionOkExecute(Sender);
+end;
+
 procedure TOpenWithCmdList.LoadEnbledCmds();
-var
-	sfi : TSHFileInfo;
-	icon : TIcon;
-	item : TListItem;
-	sFileName : string;
+var sfi : TSHFileInfo; icon : TIcon; item : TListItem; sFileName : string;
 begin
 
 	icon := TIcon.Create;

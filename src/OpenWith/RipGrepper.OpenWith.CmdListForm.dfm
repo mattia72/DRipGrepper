@@ -2,8 +2,8 @@ object OpenWithCmdList: TOpenWithCmdList
   Left = 738
   Top = 170
   Caption = 'Open with...'
-  ClientHeight = 249
-  ClientWidth = 376
+  ClientHeight = 238
+  ClientWidth = 276
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -150,8 +150,8 @@ object OpenWithCmdList: TOpenWithCmdList
   TextHeight = 14
   object pnl_Bottom: TPanel
     Left = 0
-    Top = 215
-    Width = 376
+    Top = 204
+    Width = 276
     Height = 34
     Margins.Left = 8
     Margins.Top = 8
@@ -163,10 +163,10 @@ object OpenWithCmdList: TOpenWithCmdList
     ParentBackground = False
     TabOrder = 0
     DesignSize = (
-      376
+      276
       34)
     object btn_Save: TButton
-      Left = 201
+      Left = 101
       Top = 4
       Width = 75
       Height = 25
@@ -180,7 +180,7 @@ object OpenWithCmdList: TOpenWithCmdList
       TabOrder = 0
     end
     object btn_Cancel: TButton
-      Left = 292
+      Left = 192
       Top = 4
       Width = 75
       Height = 25
@@ -197,8 +197,8 @@ object OpenWithCmdList: TOpenWithCmdList
   object pnlMain: TPanel
     Left = 0
     Top = 0
-    Width = 376
-    Height = 215
+    Width = 276
+    Height = 204
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -207,11 +207,26 @@ object OpenWithCmdList: TOpenWithCmdList
     BevelOuter = bvNone
     TabOrder = 1
     DesignSize = (
-      376
-      215)
-    object btnConfig: TButton
-      Left = 342
+      276
+      204)
+    object lblHint: TLabel
+      AlignWithMargins = True
+      Left = 8
       Top = 8
+      Width = 260
+      Height = 29
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
+      Align = alTop
+      Caption = 'lblHint'
+      WordWrap = True
+    end
+    object btnConfig: TButton
+      AlignWithMargins = True
+      Left = 242
+      Top = 53
       Width = 25
       Height = 25
       Margins.Left = 8
@@ -228,8 +243,8 @@ object OpenWithCmdList: TOpenWithCmdList
     end
     object btnView: TButton
       AlignWithMargins = True
-      Left = 342
-      Top = 49
+      Left = 242
+      Top = 81
       Width = 25
       Height = 25
       Margins.Left = 8
@@ -247,15 +262,14 @@ object OpenWithCmdList: TOpenWithCmdList
     object lbCommands: TListView
       AlignWithMargins = True
       Left = 8
-      Top = 8
-      Width = 327
-      Height = 190
+      Top = 53
+      Width = 227
+      Height = 143
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 41
       Margins.Bottom = 8
-      Align = alTop
-      Anchors = [akLeft, akTop, akRight, akBottom]
+      Align = alClient
       Color = clHighlightText
       Columns = <>
       StyleName = 'Windows'
@@ -264,11 +278,12 @@ object OpenWithCmdList: TOpenWithCmdList
       ShowHint = True
       TabOrder = 2
       ViewStyle = vsList
+      OnDblClick = lbCommandsDblClick
     end
   end
   object alActions: TActionList
     Images = ImageListIcons
-    Left = 102
+    Left = 30
     Top = 59
     object ActionOk: TAction
       Caption = 'Ok'
@@ -291,12 +306,12 @@ object OpenWithCmdList: TOpenWithCmdList
     end
   end
   object ImageListIcons: TImageList
-    Left = 329
-    Top = 75
+    Left = 89
+    Top = 51
   end
   object ImageListButtons: TImageList
-    Left = 83
-    Top = 159
+    Left = 27
+    Top = 119
     Bitmap = {
       494C010106000800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020

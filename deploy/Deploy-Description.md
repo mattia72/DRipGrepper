@@ -27,7 +27,8 @@ Marked with checkmark if ready, else planned as next.
 - [ ] replace 
 - [ ] filter result
 - [ ] own prettifier switcher as toolbar button
-- [ ] extension: new menu item for 'Open with active file in IDE'
+- [x] extension: new menu item for 'Open with active file in IDE'
+    - [x] toolbar button opens active file in Delphi if nothing selected
 <!-- #### :mag: Search Dialog -->
 
 ### Search Dialog
