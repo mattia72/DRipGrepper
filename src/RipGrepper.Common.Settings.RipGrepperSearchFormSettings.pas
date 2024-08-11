@@ -84,7 +84,6 @@ uses
 constructor TRipGrepperSearchFormSettings.Create(const _ini : TMemIniFile);
 begin
 	inherited;
-	TDebugUtils.DebugMessage('TRipGrepperSearchFormSettings.Create: ' + FIniFile.FileName + '[' + GetIniSectionName + ']');
 end;
 
 constructor TRipGrepperSearchFormSettings.Create;

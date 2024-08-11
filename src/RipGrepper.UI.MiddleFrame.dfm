@@ -75,7 +75,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
             item
               Position = 0
               Text = 'Search'
-              Width = 179
+              Width = 183
             end>
         end
       end
