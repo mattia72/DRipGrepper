@@ -37,6 +37,7 @@ Marked with checkmark if ready, else planned as next.
 Marked with checkmark if fixed, else it is known bug.
 - [x] extension: Open with... opens active file in delphi, not the selected
 - [x] search whole word won't be highlighted 
+- [x] search form init without file masks
 - [ ] extension: dblclik on history shouldn't search selected.
 - [ ] default settings doesn't save combo boxes
 - [ ] delete of second history entry causes exception 
