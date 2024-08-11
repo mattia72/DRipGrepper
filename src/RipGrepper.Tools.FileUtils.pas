@@ -37,8 +37,7 @@ uses
 	System.IOUtils,
 	RipGrepper.Common.Constants,
 	System.Classes,
-	System.RegularExpressions,
-	System.StrUtils;
+	System.RegularExpressions, System.StrUtils;
 
 procedure GetPackageNameInfoProc(const Name : string; NameType : TNameType; Flags : Byte; Param : Pointer);
 begin
@@ -107,12 +106,12 @@ begin
 	Result := Format(FORMAT_VERSION_INFO, [imajor, iminor, irelease]);
 end;
 
-class function TFileUtils.ParseCommand(const _sCmd : string) : TCommandLineRec;
+class function TFileUtils.ParseCommand(const _sCmd : string): TCommandLineRec;
 var
 	m : TMatch;
 	r : TRegEx;
 begin
-	r := TRegex.Create('[''"]?(.*.(exe|com|bat))["'']? (.*)', [roIgnoreCase]);
+	r := TRegex.Create( '[''"]?(.*.(exe|com|bat))["'']? (.*)', [roIgnoreCase]);
 	m := r.Match(_sCmd);
 
 	if not m.Success then begin

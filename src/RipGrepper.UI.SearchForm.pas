@@ -603,11 +603,13 @@ end;
 procedure TRipGrepperSearchDialogForm.WriteCtrlsToRipGrepParametersSettings;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.WriteCtrlsToRipGrepParametersSettings: start ' + FGuiSetSearchParams.ToString);
-	FGuiSetSearchParams.SearchText := cmbSearchText.Text;
 	FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
 	FSettings.RipGrepParameters.FileMasks := cmbFileMasks.Text;
+	FGuiSetSearchParams.SearchText := cmbSearchText.Text;
+	// FGuiSetSearchParams.RgOptions := '';
 
 	FGuiSetSearchParams.SetRgOptions(RG_PARAM_REGEX_HIDDEN, not cbRgParamHidden.Checked);
+
 	FGuiSetSearchParams.SetRgOptions(RG_PARAM_REGEX_NO_IGNORE, not cbRgParamNoIgnore.Checked);
 	FGuiSetSearchParams.SetRgOptions(RG_PARAM_REGEX_IGNORE_CASE, cbRgParamNoIgnore.Checked);
 
