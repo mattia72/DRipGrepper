@@ -3,14 +3,14 @@ unit RipGrepper.Common.Settings.RipGrepperOpenWithSettings;
 interface
 
 uses
-	RipGrepper.Common.Settings.Base,
+	RipGrepper.Common.Settings.Persistable,
 	System.Classes,
 	System.IniFiles,
 	RipGrepper.OpenWith.Constants,
 	RipGrepper.OpenWith.Params;
 
 type
-	TRipGrepperOpenWithSettings = class(TRipGrepperSettingsBase)
+	TRipGrepperOpenWithSettings = class(TPersistableSettings)
 		private
 			FCommandList : TStringList;
 			FTestFile : TOpenWithParams;
@@ -20,7 +20,6 @@ type
 		public
 			constructor Create(const _ini : TMemIniFile);
 			destructor Destroy; override;
-			function GetIniSectionName : string; override;
 			procedure Load; override;
 			procedure Store; override;
 			property Command[index : Integer] : string read GetCommand write SetCommand;
@@ -36,8 +35,9 @@ uses
 constructor TRipGrepperOpenWithSettings.Create(const _ini : TMemIniFile);
 begin
 	inherited;
+	IniSectionName := OPEN_WITH_SETTINGS;
 	FCommandList := TStringList.Create;
-	TDebugUtils.DebugMessage('TRipGrepperOpenWithSettings.Create: ' + FIniFile.FileName + '[' + GetIniSectionName + ']');
+	TDebugUtils.DebugMessage('TRipGrepperOpenWithSettings.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
 end;
 
 destructor TRipGrepperOpenWithSettings.Destroy;
@@ -52,11 +52,6 @@ begin
 	if FCommandList.Count > index then begin
 		Result := FCommandList[index];
 	end;
-end;
-
-function TRipGrepperOpenWithSettings.GetIniSectionName : string;
-begin
-	Result := OPEN_WITH_SETTINGS;
 end;
 
 procedure TRipGrepperOpenWithSettings.Load;

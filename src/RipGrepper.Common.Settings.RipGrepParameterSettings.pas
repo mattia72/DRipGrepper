@@ -7,14 +7,14 @@ uses
 	System.IniFiles,
 	ArrayEx,
 	RipGrepper.Common.Constants,
-	RipGrepper.Common.Settings.Base,
+	RipGrepper.Common.Settings.Persistable,
 	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Helper.Types,
 	System.Generics.Collections;
 
 type
 
-	TRipGrepParameterSettings = class(TRipGrepperSettingsBase)
+	TRipGrepParameterSettings = class(TPersistableSettings)
 		const
 			INI_SECTION = 'RipGrepSettings';
 
@@ -26,7 +26,7 @@ type
 			FSearchPath : string;
 			FSearchText : string;
 			FFileMasks : string;
-			FGuiSearchTextParams: TGuiSearchTextParams;
+			FGuiSearchTextParams : TGuiSearchTextParams;
 			function GetRipGrepPath : string;
 			procedure SetFileMasks(const Value : string);
 			procedure SeTGuiSearchTextParams(const Value : TGuiSearchTextParams);
@@ -41,12 +41,12 @@ type
 			constructor Create(const _ini : TMemIniFile);
 			destructor Destroy; override;
 			function GetCommandLine : string;
-			function GetIniSectionName : string; override;
 			procedure InitRipGrepExePath;
 			procedure Load; override;
 			procedure Store; override;
+			procedure StoreAsDefault; override;
 			property FileMasks : string read FFileMasks write SetFileMasks;
-			property GuiSearchTextParams: TGuiSearchTextParams read FGuiSearchTextParams write SeTGuiSearchTextParams;
+			property GuiSearchTextParams : TGuiSearchTextParams read FGuiSearchTextParams write SeTGuiSearchTextParams;
 			property RgExeOptions : string read FRgExeOptions write SetRgExeOptions;
 			property SearchPath : string read FSearchPath write SetSearchPath;
 			property SearchText : string read FSearchText write SetSearchText;
@@ -69,6 +69,7 @@ uses
 constructor TRipGrepParameterSettings.Create(const _ini : TMemIniFile);
 begin
 	inherited Create(_ini);
+	IniSectionName := INI_SECTION;
 	FbRgPathInitOk := False;
 	RipGrepPath := '';
 	FRipGrepArguments := TStringList.Create;
@@ -95,11 +96,6 @@ begin
 	end;
 end;
 
-function TRipGrepParameterSettings.GetIniSectionName : string;
-begin
-	Result := INI_SECTION;
-end;
-
 function TRipGrepParameterSettings.GetRipGrepPath : string;
 begin
 	if not FbRgPathInitOk then begin
@@ -110,8 +106,21 @@ end;
 
 procedure TRipGrepParameterSettings.Init;
 begin
-	inherited;
+	inherited Init();
 	CreateSetting(RG_INI_KEY_RGPATH, TRipGrepperSetting.New(vtString, ''));
+	CreateSetting('SearchPath', TRipGrepperSetting.New(vtString, ''));
+	CreateSetting('FileMasks', TRipGrepperSetting.New(vtString, ''));
+end;
+
+procedure TRipGrepParameterSettings.Load;
+begin
+	inherited Load();
+	FRipGrepPath := LoadSetting(RG_INI_KEY_RGPATH);
+	FRipGrepPath := FRipGrepPath.Trim(['"', '''']);
+	if GetIniSectionName = DEFAULTS_INI_SECTION then begin
+		FSearchPath := LoadSetting('SearchPath');
+		FFileMasks := LoadSetting('FileMasks');
+	end;
 end;
 
 procedure TRipGrepParameterSettings.InitRipGrepExePath;
@@ -135,13 +144,6 @@ begin
 		FRipGrepPath := rgPath.Trim();
 	end;
 	FbRgPathInitOk := True;
-end;
-
-procedure TRipGrepParameterSettings.Load;
-begin
-	inherited Load();
-	FRipGrepPath := LoadSetting(RG_INI_KEY_RGPATH);
-	FRipGrepPath := FRipGrepPath.Trim(['"', '''']);
 end;
 
 procedure TRipGrepParameterSettings.SetFileMasks(const Value : string);
@@ -186,6 +188,14 @@ procedure TRipGrepParameterSettings.Store;
 begin
 	StoreSetting(RG_INI_KEY_RGPATH, RipGrepPath);
 	inherited Store; // Write to ini
+end;
+
+procedure TRipGrepParameterSettings.StoreAsDefault;
+begin
+	StoreSetting('SearchPath', FSearchPath);
+	StoreSetting('FileMasks', FFileMasks);
+
+	inherited StoreAsDefault; // Write to ini
 end;
 
 end.

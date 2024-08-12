@@ -187,6 +187,9 @@ const
 	TREEVIEW_HISTORY_COUNTER_OK_PREFIX = '✔';
 	TREEVIEW_HISTORY_COUNTER_NOTHING_FOUND_PREFIX = '⛒';
 
+	DEFAULTS_INI_SECTION = 'RipGrepperSettingsDefaults';
+	ROOT_DUMMY_INI_SECTION = 'Root Dummy Section';
+
 type
 
 	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);

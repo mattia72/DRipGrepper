@@ -131,7 +131,7 @@
         <DCCReference Include="..\src\RipGrepper.Common.Interfaces.pas"/>
         <DCCReference Include="..\src\RipGrepper.Common.IOTAUtils.pas"/>
         <DCCReference Include="..\src\RipGrepper.Common.ParsedObject.pas"/>
-        <DCCReference Include="..\src\RipGrepper.Common.Settings.Base.pas"/>
+        <DCCReference Include="..\src\RipGrepper.Common.Settings.Persistable.pas"/>
         <DCCReference Include="..\src\RipGrepper.Common.Sorter.pas"/>
         <DCCReference Include="..\src\RipGrepper.Common.SyncObjLock.pas"/>
         <DCCReference Include="..\src\RipGrepper.Data.HistoryItemObject.pas"/>

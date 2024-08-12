@@ -32,7 +32,7 @@ uses
   RipGrepper.Common.Interfaces in 'src\RipGrepper.Common.Interfaces.pas',
   RipGrepper.Common.ParsedObject in 'src\RipGrepper.Common.ParsedObject.pas',
   RipGrepper.Common.Settings.RipGrepperSearchFormSettings in 'src\RipGrepper.Common.Settings.RipGrepperSearchFormSettings.pas',
-  RipGrepper.Common.Settings.Base in 'src\RipGrepper.Common.Settings.Base.pas',
+  RipGrepper.Common.Settings.Persistable in 'src\RipGrepper.Common.Settings.Persistable.pas',
   RipGrepper.Common.Settings.RipGrepParameterSettings in 'src\RipGrepper.Common.Settings.RipGrepParameterSettings.pas',
   RipGrepper.Common.Sorter in 'src\RipGrepper.Common.Sorter.pas',
   RipGrepper.Data.HistoryItemObject in 'src\RipGrepper.Data.HistoryItemObject.pas',

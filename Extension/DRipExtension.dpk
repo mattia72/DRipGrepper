@@ -52,7 +52,7 @@ contains
   RipGrepper.Common.Interfaces in '..\src\RipGrepper.Common.Interfaces.pas',
   RipGrepper.Common.IOTAUtils in '..\src\RipGrepper.Common.IOTAUtils.pas',
   RipGrepper.Common.ParsedObject in '..\src\RipGrepper.Common.ParsedObject.pas',
-  RipGrepper.Common.Settings.Base in '..\src\RipGrepper.Common.Settings.Base.pas',
+  RipGrepper.Common.Settings.Persistable in '..\src\RipGrepper.Common.Settings.Persistable.pas',
   RipGrepper.Common.Sorter in '..\src\RipGrepper.Common.Sorter.pas',
   RipGrepper.Common.SyncObjLock in '..\src\RipGrepper.Common.SyncObjLock.pas',
   RipGrepper.Data.HistoryItemObject in '..\src\RipGrepper.Data.HistoryItemObject.pas',

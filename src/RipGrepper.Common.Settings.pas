@@ -9,7 +9,7 @@ uses
 	System.Generics.Defaults,
 	RipGrepper.OpenWith.Constants,
 	RipGrepper.Common.Constants,
-	RipGrepper.Common.Settings.Base,
+	RipGrepper.Common.Settings.Persistable,
 	ArrayEx,
 	RipGrepper.Common.Settings.RipGrepParameterSettings,
 	RipGrepper.Common.Settings.RipGrepperSearchFormSettings;
@@ -34,7 +34,7 @@ type
 			function ToString : string;
 	end;
 
-	TRipGrepperExtensionSettings = class(TRipGrepperSettingsBase)
+	TRipGrepperExtensionSettings = class(TPersistableSettings)
 		const
 			INI_SECTION = 'DelphiExtensionSettings';
 
@@ -44,15 +44,15 @@ type
 
 		public
 			constructor Create(const _ini : TMemIniFile);
-			function GetIniSectionName : string; override;
 			procedure Load; override;
 			procedure Store; override;
+			procedure StoreAsDefault; override;
 			function ToString : string; override;
 			property DripGrepperShortCut : string read FDripGrepperShortCut write FDripGrepperShortCut;
 			property CurrentSearchSettings : TRipGrepperExtensionContext read FCurrentSearchSettings write FCurrentSearchSettings;
 	end;
 
-	TRipGrepperAppSettings = class(TRipGrepperSettingsBase)
+	TRipGrepperAppSettings = class(TPersistableSettings)
 		const
 			INI_SECTION = 'RipGrepperSettings';
 
@@ -67,7 +67,6 @@ type
 		public
 			constructor Create(const _ini : TMemIniFile);
 			destructor Destroy; override;
-			function GetIniSectionName : string; override;
 			procedure Load; override;
 			procedure Store; override;
 			property DebugTrace : Boolean read FDebugTrace write FDebugTrace;
@@ -98,12 +97,8 @@ uses
 constructor TRipGrepperExtensionSettings.Create(const _ini : TMemIniFile);
 begin
 	inherited;
-	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Create: ' + FIniFile.FileName + '[' + GetIniSectionName + ']');
-end;
-
-function TRipGrepperExtensionSettings.GetIniSectionName : string;
-begin
-	Result := INI_SECTION;
+	IniSectionName :=  INI_SECTION;
+	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
 end;
 
 procedure TRipGrepperExtensionSettings.Load;
@@ -114,10 +109,10 @@ begin
 	if Assigned(FIniFile) then begin
 		var
 		css := CurrentSearchSettings;
-		css.Context := ERipGrepperExtensionContext(FIniFile.ReadInteger(INI_SECTION, 'DripGrepperContext', EXT_SEARCH_GIVEN_PATH));
+		css.Context := ERipGrepperExtensionContext(FIniFile.ReadInteger(GetIniSectionName, 'DripGrepperContext', EXT_SEARCH_GIVEN_PATH));
 		CurrentSearchSettings := css;
 
-		DripGrepperShortCut := FIniFile.ReadString(INI_SECTION, 'DripGrepperShortCut', '');
+		DripGrepperShortCut := FIniFile.ReadString(GetIniSectionName, 'DripGrepperShortCut', '');
 		if DripGrepperShortCut = '' then begin
 			DripGrepperShortCut := TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH;
 		end;
@@ -139,8 +134,23 @@ begin
 	bStore := IsLoaded and IsModified;
 	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Store ' + BoolToStr(bStore) + ' ' + ToString());
 	if bStore then begin
-		FIniFile.WriteString(INI_SECTION, 'DripGrepperShortCut', DripGrepperShortCut);
-		FIniFile.WriteInteger(INI_SECTION, 'DripGrepperContext', Integer(CurrentSearchSettings.Context));
+		FIniFile.WriteString(GetIniSectionName, 'DripGrepperShortCut', DripGrepperShortCut);
+		FIniFile.WriteInteger(GetIniSectionName, 'DripGrepperContext', Integer(CurrentSearchSettings.Context));
+		FIsModified := False;
+	end;
+
+end;
+
+procedure TRipGrepperExtensionSettings.StoreAsDefault;
+begin
+	if IOTAUTils.IsStandAlone then begin
+		Exit;
+	end;
+	var
+	bStore := IsLoaded and IsModified;
+	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.StoreAsDefault ' + BoolToStr(bStore) + ' ' + ToString());
+	if bStore then begin
+		FIniFile.WriteInteger(DEFAULTS_INI_SECTION, 'DripGrepperContext', Integer(CurrentSearchSettings.Context));
 		FIsModified := False;
 	end;
 
@@ -154,7 +164,8 @@ end;
 constructor TRipGrepperAppSettings.Create(const _ini : TMemIniFile);
 begin
 	inherited;
-	TDebugUtils.DebugMessage('TRipGrepperAppSettings.Create: ' + FIniFile.FileName + '[' + GetIniSectionName + ']');
+    IniSectionName := INI_SECTION;
+	TDebugUtils.DebugMessage('TRipGrepperAppSettings.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
 	FEncodingItems := TStringList.Create();
 end;
 
@@ -162,11 +173,6 @@ destructor TRipGrepperAppSettings.Destroy;
 begin
 	FEncodingItems.Free;
 	inherited;
-end;
-
-function TRipGrepperAppSettings.GetIniSectionName : string;
-begin
-	Result := INI_SECTION;
 end;
 
 procedure TRipGrepperAppSettings.Init;

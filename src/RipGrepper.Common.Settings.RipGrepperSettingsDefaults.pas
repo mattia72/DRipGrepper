@@ -4,20 +4,21 @@ interface
 
 uses
 	RipGrepper.Common.Settings,
-	RipGrepper.Common.Settings.Base,
-	RipGrepper.Common.Settings.RipGrepperSearchFormSettings;
+	RipGrepper.Common.Settings.Persistable,
+	RipGrepper.Common.Settings.RipGrepperSearchFormSettings,
+	RipGrepper.Common.Settings.RipGrepParameterSettings;
 
 type
-	TRipGrepperSettingsDefaults = class(TRipGrepperSettingsBase)
-		strict private
-		const
-			INI_SECTION = 'RipGrepperSettingsDefaults';
-
+	TRipGrepperSettingsDefaults = class(TPersistableSettings)
 		var
 			FRipGrepperSearchFormSettings : TRipGrepperSearchFormSettings;
 			FExtensionSettings : TRipGrepperExtensionSettings;
-			FSearchPath : string;
-			procedure SetSearchPath(const Value : string);
+		private
+			function GetRipGrepParameters : TRipGrepParameterSettings;
+
+		protected
+			FRipGrepParameters : TRipGrepParameterSettings;
+			function GetIniSectionName : string; override;
 
 		public
 			constructor Create;
@@ -25,11 +26,12 @@ type
 			procedure Init; override;
 			procedure Load; override;
 			procedure Store; override;
+			procedure StoreAsDefault; override;
 
 			property ExtensionSettings : TRipGrepperExtensionSettings read FExtensionSettings write FExtensionSettings;
+			property RipGrepParameters : TRipGrepParameterSettings read GetRipGrepParameters write FRipGrepParameters;
 			property RipGrepperSearchFormSettings : TRipGrepperSearchFormSettings read FRipGrepperSearchFormSettings
 				write FRipGrepperSearchFormSettings;
-			property SearchPath : string read FSearchPath write SetSearchPath;
 	end;
 
 implementation
@@ -63,38 +65,49 @@ begin
 	inherited;
 end;
 
+function TRipGrepperSettingsDefaults.GetIniSectionName : string;
+begin
+	Result := DEFAULTS_INI_SECTION;
+end;
+
+function TRipGrepperSettingsDefaults.GetRipGrepParameters : TRipGrepParameterSettings;
+begin
+	Result := FRipGrepParameters;
+end;
+
 procedure TRipGrepperSettingsDefaults.Init;
 begin
 	inherited;
-	CreateSetting('SearchPath', TRipGrepperSetting.New(vtBoolean, False));
 end;
 
 procedure TRipGrepperSettingsDefaults.Load;
 begin
-	inherited;
+	inherited Load();
 	TDebugUtils.DebugMessage('TRipGrepperSettingsDefaults.Load: start');
-	FSearchPath := LoadSetting('SearchPath');
+
+	FRipGrepParameters.Load;
 	FRipGrepperSearchFormSettings.Load;
 	FExtensionSettings.Load;
 	FIsLoaded := True;
-end;
-
-procedure TRipGrepperSettingsDefaults.SetSearchPath(const Value : string);
-begin
-	if FSearchPath <> Value then begin
-		FSearchPath := Value;
-		FIsModified := True;
-	end;
 end;
 
 procedure TRipGrepperSettingsDefaults.Store;
 begin
 	inherited;
 	if IsLoaded and IsModified then begin
-		FIniFile.WriteString(INI_SECTION, 'SearchPath', SearchPath);
-
+        FRipGrepParameters.Store;
 		FExtensionSettings.Store;
 		FRipGrepperSearchFormSettings.Store;
+	end;
+end;
+
+procedure TRipGrepperSettingsDefaults.StoreAsDefault;
+begin
+	inherited;
+	if IsLoaded and IsModified then begin
+		FRipGrepParameters.StoreAsDefault;
+		FExtensionSettings.StoreAsDefault;
+		FRipGrepperSearchFormSettings.StoreAsDefault;
 	end;
 end;
 

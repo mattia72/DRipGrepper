@@ -137,7 +137,6 @@ type
 			FcmbOptionsOldText : string;
 			FOrigRipGrepperSearchFormSettings : TRipGrepperSearchFormSettings;
 			FSettings : TRipGrepperSettings;
-			FDefaultSettings : TRipGrepperSettings; // TODO !
 
 			function GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
 			procedure LoadSettings;
@@ -200,7 +199,8 @@ uses
 	RipGrepper.Tools.FileUtils,
 	System.IOUtils,
 	Winapi.Windows,
-	RipGrepper.Common.Settings;
+	RipGrepper.Common.Settings,
+  RipGrepper.Common.Settings.RipGrepperSettingsDefaults;
 
 {$R *.dfm}
 
@@ -313,8 +313,8 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ActionSetAsDefaultExecute(Sender : TObject);
 begin
-	WriteCtrlsToSettings(FDefaultSettings);
-	FDefaultSettings.Store();
+	WriteCtrlsToSettings(FSettings);
+	(FSettings as TRipGrepperSettingsDefaults).StoreAsDefault();
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionShowFileMaskHelpExecute(Sender : TObject);

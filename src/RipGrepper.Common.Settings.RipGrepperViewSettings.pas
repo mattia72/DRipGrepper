@@ -3,11 +3,11 @@ unit RipGrepper.Common.Settings.RipGrepperViewSettings;
 interface
 
 uses
-	RipGrepper.Common.Settings.Base,
+	RipGrepper.Common.Settings.Persistable,
 	System.IniFiles;
 
 type
-	TRipGrepperViewSettings = class(TRipGrepperSettingsBase)
+	TRipGrepperViewSettings = class(TPersistableSettings)
 		const
 			VIEW_SETTINGS : array [0 .. 4] of string = (
 				{ } 'ShowRelativePath',
@@ -27,7 +27,6 @@ type
 			ExpandNodes : Boolean;
 			procedure StoreViewSettings(const _s : string = '');
 			constructor Create(const _ini : TMemIniFile);
-			function GetIniSectionName : string; override;
 			procedure Init; override;
 			procedure Load; override;
 			procedure Store; override;
@@ -44,12 +43,8 @@ uses
 constructor TRipGrepperViewSettings.Create(const _ini : TMemIniFile);
 begin
 	inherited;
+	IniSectionName := INI_SECTION;
 	TDebugUtils.DebugMessage('TRipGrepperViewSettings.Create: ' + FIniFile.FileName + '[' + GetIniSectionName + ']');
-end;
-
-function TRipGrepperViewSettings.GetIniSectionName : string;
-begin
-	Result := INI_SECTION;
 end;
 
 procedure TRipGrepperViewSettings.Init;

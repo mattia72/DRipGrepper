@@ -9,7 +9,7 @@ uses
 	System.Generics.Defaults,
 	RipGrepper.OpenWith.Constants,
 	RipGrepper.Common.Constants,
-	RipGrepper.Common.Settings.Base,
+	RipGrepper.Common.Settings.Persistable,
 	ArrayEx,
 	RipGrepper.Common.Settings.RipGrepParameterSettings;
 
@@ -22,7 +22,7 @@ type
 		{ } rgecPath = EXT_SEARCH_GIVEN_PATH
 		{ } );
 
-	TRipGrepperSearchFormSettings = class(TRipGrepperSettingsBase)
+	TRipGrepperSearchFormSettings = class(TPersistableSettings)
 		const
 			SEARCH_SETTINGS : array [0 .. 4] of string = ('Pretty', 'Hidden', 'NoIgnore', 'Context', 'Encoding');
 
@@ -47,12 +47,11 @@ type
 			constructor Create; overload;
 
 			procedure StoreSearchSettings(const _s : string = '');
-			function GetIniSectionName : string; override;
-
 			procedure Init; override;
 			procedure Load; override;
 			procedure Store; override;
 			procedure Copy(const _other : TRipGrepperSearchFormSettings);
+			procedure StoreAsDefault; override;
 
 			property Context : Integer read FContext write SetContext;
 			property Encoding : string read FEncoding write SetEncoding;
@@ -89,6 +88,7 @@ end;
 constructor TRipGrepperSearchFormSettings.Create;
 begin
 	inherited;
+    IniSectionName := INI_SECTION;
 end;
 
 procedure TRipGrepperSearchFormSettings.Copy(const _other : TRipGrepperSearchFormSettings);
@@ -98,11 +98,6 @@ begin
 	Hidden := _other.Hidden;
 	NoIgnore := _other.NoIgnore;
 	Pretty := _other.Pretty;
-end;
-
-function TRipGrepperSearchFormSettings.GetIniSectionName : string;
-begin
-	Result := INI_SECTION;
 end;
 
 procedure TRipGrepperSearchFormSettings.Init;
@@ -171,6 +166,15 @@ begin
 	if IsLoaded and IsModified then begin
 		StoreSearchSettings('');
 		inherited Store();
+		FIsModified := False;
+	end;
+end;
+
+procedure TRipGrepperSearchFormSettings.StoreAsDefault;
+begin
+	if IsLoaded and IsModified then begin
+		StoreSearchSettings('');
+		inherited StoreAsDefault();
 		FIsModified := False;
 	end;
 end;
