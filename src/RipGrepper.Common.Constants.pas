@@ -105,7 +105,7 @@ const
 	RG_ARG_SEARCH_TEXT = 'SearchText';
 	RG_ARG_OPTIONS = 'Options';
 
-	RG_INI_KEY_RGPATH = 'Path';
+	RG_INI_KEY_RGPATH = 'RgExePath';
 
 	WB = '\b'; // word boundary
 

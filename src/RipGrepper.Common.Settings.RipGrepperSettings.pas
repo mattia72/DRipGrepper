@@ -53,7 +53,6 @@ type
 			function GetIsModified : Boolean; override;
 			function GetRipGrepArguments : TRipGrepArguments;
 			procedure RebuildArguments;
-			procedure UpdateIniFile;
 			property ActualSearchText : string read GetActualSearchText;
 			property FileMasksHistory : TStrings read FFileMasksHistory write SetFileMasksHistory;
 			property IsEmpty : Boolean read GetIsEmpty;
@@ -293,11 +292,6 @@ begin
 			FIniFile.WriteString(_section, 'Item_' + i.ToString, multiLineVal.GetLine(0));
 		end;
 	end;
-end;
-
-procedure TRipGrepperSettings.UpdateIniFile;
-begin
-	FIniFile.UpdateFile;
 end;
 
 constructor TRipGrepperSettingsInstance.Create();

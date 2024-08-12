@@ -65,6 +65,7 @@ type
 			destructor Destroy; override;
 			procedure Copy(const _other : TPersistableSettings);
 			procedure ReLoad;
+			procedure UpdateIniFile;
 			property IniFile : TMemIniFile read GetIniFile write SetIniFile;
 			property IniSectionName : string read FIniSectionName write SetIniSectionName;
 			property IsLoaded : Boolean read GetIsLoaded;
@@ -251,6 +252,11 @@ begin
 		setting := FSettings[key];
 		WriteToIni(DEFAULTS_INI_SECTION, key, setting);
 	end;
+end;
+
+procedure TPersistableSettings.UpdateIniFile;
+begin
+	FIniFile.UpdateFile;
 end;
 
 procedure TPersistableSettings.WriteToIni(const iniSection, key : string; var setting : TRipGrepperSetting);

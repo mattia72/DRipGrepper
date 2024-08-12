@@ -187,7 +187,7 @@ end;
 procedure TRipGrepParameterSettings.Store;
 begin
 	StoreSetting(RG_INI_KEY_RGPATH, RipGrepPath);
-	inherited Store; // Write to ini
+	inherited Store; // Write to mem ini, after UpdateIniFile will be saved
 end;
 
 procedure TRipGrepParameterSettings.StoreAsDefault;
@@ -195,7 +195,7 @@ begin
 	StoreSetting('SearchPath', FSearchPath);
 	StoreSetting('FileMasks', FFileMasks);
 
-	inherited StoreAsDefault; // Write to ini
+	inherited StoreAsDefault; // Write to mem ini, after UpdateIniFile will be saved
 end;
 
 end.

@@ -315,6 +315,7 @@ procedure TRipGrepperSearchDialogForm.ActionSetAsDefaultExecute(Sender : TObject
 begin
 	WriteCtrlsToSettings(FSettings);
 	(FSettings as TRipGrepperSettingsDefaults).StoreAsDefault();
+    FSettings.UpdateIniFile;
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionShowFileMaskHelpExecute(Sender : TObject);
