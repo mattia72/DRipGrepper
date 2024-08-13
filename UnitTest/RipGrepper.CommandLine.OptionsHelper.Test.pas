@@ -149,7 +149,7 @@ uses
   RipGrepper.Helper.Types,
   System.StrUtils,
   System.SysUtils,
-  RipGrepper.Common.Settings,
+  RipGrepper.Common.Settings.Misc,
   ArrayEx,
   System.RegularExpressions,
   System.Math,

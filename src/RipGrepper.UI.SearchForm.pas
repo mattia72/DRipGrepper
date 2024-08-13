@@ -197,7 +197,7 @@ uses
 	RipGrepper.Tools.FileUtils,
 	System.IOUtils,
 	Winapi.Windows,
-	RipGrepper.Common.Settings,
+	RipGrepper.Common.Settings.Misc,
 	RipGrepper.Common.Settings.RipGrepperSettingsDefaults;
 
 {$R *.dfm}

@@ -121,8 +121,8 @@
         <UWP_DelphiLogo150>icons\DripGrepperLogo.png</UWP_DelphiLogo150>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_MajorVer>3</VerInfo_MajorVer>
-        <VerInfo_Build>55</VerInfo_Build>
-        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=3.2.0.55;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=3.2.0.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>56</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=3.2.0.56;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=3.2.0.0;Comments=beta</VerInfo_Keys>
         <VerInfo_MinorVer>2</VerInfo_MinorVer>
     </PropertyGroup>
     <ItemGroup>
@@ -211,7 +211,7 @@
         <DCCReference Include="src\RipGrepper.Common.GuiSearchParams.pas"/>
         <DCCReference Include="src\RipGrepper.Common.IOTAUtils.pas"/>
         <DCCReference Include="src\RipGrepper.Common.SearchParams.pas"/>
-        <DCCReference Include="src\RipGrepper.Common.Settings.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Settings.Misc.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.RipGrepperSettings.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.RipGrepperViewSettings.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.RipGrepperOpenWithSettings.pas"/>

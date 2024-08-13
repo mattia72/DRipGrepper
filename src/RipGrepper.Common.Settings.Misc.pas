@@ -1,4 +1,4 @@
-unit RipGrepper.Common.Settings;
+unit RipGrepper.Common.Settings.Misc;
 
 interface
 

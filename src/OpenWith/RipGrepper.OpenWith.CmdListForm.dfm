@@ -214,7 +214,7 @@ object OpenWithCmdList: TOpenWithCmdList
       Left = 8
       Top = 8
       Width = 260
-      Height = 29
+      Height = 14
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
@@ -262,9 +262,9 @@ object OpenWithCmdList: TOpenWithCmdList
     object lbCommands: TListView
       AlignWithMargins = True
       Left = 8
-      Top = 53
+      Top = 38
       Width = 227
-      Height = 143
+      Height = 158
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 41

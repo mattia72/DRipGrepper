@@ -6,7 +6,7 @@ uses
 	RipGrepper.Common.Interfaces,
 	RipGrepper.Common.ParsedObject,
 	ArrayEx,
-	RipGrepper.Common.Settings,
+	RipGrepper.Common.Settings.Misc,
 	Vcl.ComCtrls,
 	System.Generics.Defaults,
 	System.Classes,

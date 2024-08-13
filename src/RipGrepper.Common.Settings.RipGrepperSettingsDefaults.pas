@@ -3,7 +3,7 @@ unit RipGrepper.Common.Settings.RipGrepperSettingsDefaults;
 interface
 
 uses
-	RipGrepper.Common.Settings,
+	RipGrepper.Common.Settings.Misc,
 	RipGrepper.Common.Settings.Persistable,
 	RipGrepper.Common.Settings.RipGrepperSearchFormSettings,
 	RipGrepper.Common.Settings.RipGrepParameterSettings;

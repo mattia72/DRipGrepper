@@ -65,7 +65,7 @@ uses
   RipGrepper.Common.GuiSearchParams in 'src\RipGrepper.Common.GuiSearchParams.pas',
   RipGrepper.Common.IOTAUtils in 'src\RipGrepper.Common.IOTAUtils.pas',
   RipGrepper.Common.SearchParams in 'src\RipGrepper.Common.SearchParams.pas',
-  RipGrepper.Common.Settings in 'src\RipGrepper.Common.Settings.pas',
+  RipGrepper.Common.Settings.Misc in 'src\RipGrepper.Common.Settings.Misc.pas',
   RipGrepper.Common.Settings.RipGrepperSettings in 'src\RipGrepper.Common.Settings.RipGrepperSettings.pas',
   RipGrepper.Common.Settings.RipGrepperViewSettings in 'src\RipGrepper.Common.Settings.RipGrepperViewSettings.pas',
   RipGrepper.Common.Settings.RipGrepperOpenWithSettings in 'src\RipGrepper.Common.Settings.RipGrepperOpenWithSettings.pas',
