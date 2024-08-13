@@ -22,6 +22,7 @@ type
 			class function GetAppVersion(const _exePath : string) : string;
 			class function ParseCommand(const _sCmd : string) : TCommandLineRec;
 			class function GetPackageNameAndVersion(Package : HMODULE) : string;
+			class function GetVsCodeDir: string;
 			class function ShortToLongPath(const ShortPathName : string) : string;
 	end;
 
@@ -186,6 +187,16 @@ begin
 	Result := '';
 	GetPackageInfo(package, @packageName, Flags, GetPackageNameInfoProc);
 	Result := GetAppNameAndVersion(packageName);
+end;
+
+class function TFileUtils.GetVsCodeDir: string;
+begin
+	Result :='';
+	var
+		sCodePath : string;
+	if TFileUtils.FindExecutable('code', sCodePath) then begin
+		Result := TPath.GetDirectoryName(sCodePath);
+	end;
 end;
 
 end.

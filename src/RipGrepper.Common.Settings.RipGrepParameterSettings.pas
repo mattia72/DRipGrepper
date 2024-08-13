@@ -127,18 +127,31 @@ procedure TRipGrepParameterSettings.InitRipGrepExePath;
 var
 	rgExists : Boolean;
 	rgPath : string;
-	scoopInstall : string;
+	scoopRgPath : string;
+	vscodeRgPath : string;
 begin
 
 	if FRipGrepPath.IsEmpty or (not FileExists(FRipGrepPath)) then begin
 		rgExists := TFileUtils.FindExecutable('rg.exe', rgPath);
 		if not rgExists then begin
-			TMsgBox.ShowError(Format(FORMAT_RIPGREP_EXE_NOT_FOUND, [FIniFile.FileName]));
+			scoopRgPath := TPath.Combine(GetEnvironmentVariable('SCOOP'), 'apps\ripgrep\current\rg.exe');
+			if FileExists(scoopRgPath) then begin
+				rgPath := scoopRgPath;
+			end else begin
+				var
+					sVsDir : string := TFileUtils.GetVsCodeDir;
+				if not sVsDir.IsEmpty then begin
+					sVsDir := TFileUtils.ShortToLongPath(sVsDir.Remove(sVsDir.Length - '\bin'.Length));
+					vscodeRgPath := TPath.Combine(sVsdir, VSCODE_RG_EXE_PATH);
+					if FileExists(vscodeRgPath) then begin
+						rgPath := vscodeRgPath;
+					end;
+				end;
+			end;
+			if not FileExists(rgPath) then begin
+				TMsgBox.ShowError(Format(FORMAT_RIPGREP_EXE_NOT_FOUND, [FIniFile.FileName]));
+			end;
 			// raise Exception.Create('RipGrep(rg.exe) not found');
-		end;
-		scoopInstall := TPath.Combine(GetEnvironmentVariable('SCOOP'), 'apps\ripgrep\current\rg.exe');
-		if FileExists(scoopInstall) then begin
-			rgPath := scoopInstall;
 		end;
 
 		FRipGrepPath := rgPath.Trim();

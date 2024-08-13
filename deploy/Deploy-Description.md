@@ -27,6 +27,7 @@ Marked with checkmark if ready, else planned as next.
 - [ ] replace 
 - [ ] filter result
 - [ ] own prettifier switcher as toolbar button
+- [x] path of rg.exe in vs code detected automatically
 - [x] extension: new menu item for 'Open with active file in IDE'
     - [x] toolbar button opens active file in Delphi if nothing selected
 <!-- #### :mag: Search Dialog -->

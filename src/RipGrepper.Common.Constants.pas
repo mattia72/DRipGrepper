@@ -11,11 +11,13 @@ uses
 	Vcl.Menus;
 
 const
-	APPNAME = 'DRipGrepper';
+    APPNAME = 'DRipGrepper';
 	EXTENSION_NAME = 'DRipExtension';
 	CAPTION_EXTENSION_MENU = 'DRipGrepper';
 	HOME_PAGE = 'https://github.com/mattia72/DRipGrepper';
 
+	VSCODE_RG_EXE_PATH = 'resources\app\node_modules.asar.unpacked\@vscode\ripgrep\bin\rg.exe';
+	
 	CAPTION_GRPBX_EXPERT_MODE = 'Expert Settings';
 
 	WWW_LINK_RG_MAN_PAGE = 'https://www.mankier.com/1/rg#Options';
