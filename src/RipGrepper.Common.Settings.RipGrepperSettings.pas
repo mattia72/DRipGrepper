@@ -15,8 +15,13 @@ uses
 	RipGrepper.Common.Settings.RipGrepperOpenWithSettings;
 
 type
-	TRipGrepperSettings = class(TRipGrepperSettingsDefaults)
+	TRipGrepperSettings = class(TPersistableSettings)
+		FExtensionSettings : TRipGrepperExtensionSettings;
+		FRipGrepperSearchFormSettings : TRipGrepperSearchFormSettings;
+
 		private
+			FRipGrepParameters : TRipGrepParameterSettings;
+			FRipGrepperSettingsDefaults : TRipGrepperSettingsDefaults;
 			FRipGrepperViewSettings : TRipGrepperViewSettings;
 			FRipGrepperOpenWithSettings : TRipGrepperOpenWithSettings;
 
@@ -43,6 +48,7 @@ type
 			procedure StoreHistoryEntries(const _list : TStrings; const _section : string);
 			function GetActualSearchPath : string;
 
+		protected
 		public
 			procedure Load; override;
 			procedure Store; override;
@@ -58,10 +64,16 @@ type
 			property IsEmpty : Boolean read GetIsEmpty;
 
 			property ActualSearchPath : string read GetActualSearchPath;
+			property ExtensionSettings : TRipGrepperExtensionSettings read FExtensionSettings write FExtensionSettings;
 			property SearchPathsHistory : TStrings read FSearchPathsHistory write SetSearchPathsHistory;
 			property RipGrepOptionsHistory : TSTrings read FRipGrepOptionsHistory write SetRipGrepOptionsHistory;
+			property RipGrepParameters : TRipGrepParameterSettings read FRipGrepParameters write FRipGrepParameters;
 			property RipGrepperOpenWithSettings : TRipGrepperOpenWithSettings read FRipGrepperOpenWithSettings;
+			property RipGrepperSearchFormSettings : TRipGrepperSearchFormSettings read FRipGrepperSearchFormSettings
+				write FRipGrepperSearchFormSettings;
 			property RipGrepperSettings : TRipGrepperAppSettings read FRipGrepperSettings write FRipGrepperSettings;
+			property RipGrepperSettingsDefaults : TRipGrepperSettingsDefaults read FRipGrepperSettingsDefaults
+				write FRipGrepperSettingsDefaults;
 			property RipGrepperViewSettings : TRipGrepperViewSettings read FRipGrepperViewSettings write FRipGrepperViewSettings;
 			property SearchPathIsDir : Boolean read GetSearchPathIsDir;
 			property SearchTextsHistory : TStrings read FSearchTextsHistory write SetSearchTextsHistory;
@@ -152,6 +164,7 @@ begin
 	FRipGrepperOpenWithSettings.Free;
 	FRipGrepParameters.Free;
 	FRipGrepperSettings.Free;
+	FRipGrepperSettingsDefaults.Free;
 	FFileMasksHistory.Free;
 	UpdateIniFile;
 	FIniFile.Free;
@@ -162,6 +175,7 @@ constructor TRipGrepperSettings.Create;
 begin
 	inherited;
 	IniSectionName := ROOT_DUMMY_INI_SECTION;
+	FRipGrepperSettingsDefaults := TRipGrepperSettingsDefaults.Create(FIniFile);
 	FRipGrepperSettings := TRipGrepperAppSettings.Create(FIniFile);
 	FRipGrepParameters := TRipGrepParameterSettings.Create(FIniFile);
 	FRipGrepperViewSettings := TRipGrepperViewSettings.Create(FIniFile);

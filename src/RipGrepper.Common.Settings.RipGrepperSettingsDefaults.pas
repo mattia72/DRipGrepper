@@ -6,13 +6,14 @@ uses
 	RipGrepper.Common.Settings.Misc,
 	RipGrepper.Common.Settings.Persistable,
 	RipGrepper.Common.Settings.RipGrepperSearchFormSettings,
-	RipGrepper.Common.Settings.RipGrepParameterSettings;
+	RipGrepper.Common.Settings.RipGrepParameterSettings, System.IniFiles;
 
 type
 	TRipGrepperSettingsDefaults = class(TPersistableSettings)
 		var
 			FRipGrepperSearchFormSettings : TRipGrepperSearchFormSettings;
 			FExtensionSettings : TRipGrepperExtensionSettings;
+
 		private
 			function GetRipGrepParameters : TRipGrepParameterSettings;
 
@@ -21,7 +22,7 @@ type
 			function GetIniSectionName : string; override;
 
 		public
-			constructor Create;
+			constructor Create(_iniFile: TMemIniFile);
 			destructor Destroy; override;
 			procedure Init; override;
 			procedure Load; override;
@@ -38,28 +39,25 @@ implementation
 
 uses
 	RipGrepper.Common.IOTAUtils,
-	System.IniFiles,
 	System.SysUtils,
 	System.IOUtils,
 	Vcl.Forms,
 	RipGrepper.Common.Constants,
 	RipGrepper.Tools.DebugUtils;
 
-constructor TRipGrepperSettingsDefaults.Create;
+constructor TRipGrepperSettingsDefaults.Create(_iniFile: TMemIniFile);
 begin
-	inherited;
-	if IOTAUTils.IsStandAlone then begin
-		FIniFile := TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8);
-	end else begin
-		FIniFile := TMemIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'), TEncoding.UTF8);
-	end;
-	FRipGrepperSearchFormSettings := TRipGrepperSearchFormSettings.Create(FIniFile);
-	FExtensionSettings := TRipGrepperExtensionSettings.Create(FIniFile);
+	inherited Create();
+
+	FRipGrepParameters := TRipGrepParameterSettings.Create(_iniFile);
+	FRipGrepperSearchFormSettings := TRipGrepperSearchFormSettings.Create(_iniFile);
+	FExtensionSettings := TRipGrepperExtensionSettings.Create(_iniFile);
 	FIsLoaded := False;
 end;
 
 destructor TRipGrepperSettingsDefaults.Destroy;
 begin
+	FRipGrepParameters.Free;
 	FRipGrepperSearchFormSettings.Free;
 	FExtensionSettings.Free;
 	inherited;
@@ -95,7 +93,7 @@ procedure TRipGrepperSettingsDefaults.Store;
 begin
 	inherited;
 	if IsLoaded and IsModified then begin
-        FRipGrepParameters.Store;
+		FRipGrepParameters.Store;
 		FExtensionSettings.Store;
 		FRipGrepperSearchFormSettings.Store;
 	end;

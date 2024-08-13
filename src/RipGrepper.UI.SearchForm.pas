@@ -311,7 +311,7 @@ end;
 procedure TRipGrepperSearchDialogForm.ActionSetAsDefaultExecute(Sender : TObject);
 begin
 	WriteCtrlsToSettings(FSettings);
-	(FSettings as TRipGrepperSettingsDefaults).StoreAsDefault();
+	FSettings.RipGrepperSettingsDefaults.StoreAsDefault();
 	FSettings.UpdateIniFile;
 end;
 

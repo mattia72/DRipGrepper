@@ -39,13 +39,13 @@ type
 			FIniSectionName : string;
 			procedure AddOrSet(_settingsDict : TSettingsDictionary; const _name : string; const _v : Variant);
 			function GetIniFile : TMemIniFile;
-			function GetSetting(const _name : string; _settingsDict : TSettingsDictionary): Variant;
+			function GetSetting(const _name : string; _settingsDict : TSettingsDictionary) : Variant;
 			procedure LoadSettings(const _sIniSection : string; _settingsDict : TSettingsDictionary);
 			procedure SetIniFile(const Value : TMemIniFile);
 			procedure SetIniSectionName(const Value : string);
 			procedure SetIsModified(const Value : Boolean);
 			procedure WriteSettings(const _sIniSection : string; _settingsDict : TSettingsDictionary);
-			procedure WriteToIni(const _sIniSection, _sKey: string; var _setting: TRipGrepperSetting);
+			procedure WriteToIni(const _sIniSection, _sKey : string; var _setting : TRipGrepperSetting);
 
 		protected
 			FIniFile : TMemIniFile;
@@ -87,7 +87,8 @@ uses
 	System.Classes,
 	RipGrepper.Tools.DebugUtils,
 	System.Variants,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants, Vcl.Forms, RipGrepper.Common.IOTAUtils,
+  System.IOUtils;
 
 constructor TPersistableSettings.Create(const _ini : TMemIniFile);
 begin
@@ -99,6 +100,11 @@ end;
 constructor TPersistableSettings.Create;
 begin
 	inherited;
+	if IOTAUTils.IsStandAlone then begin
+		FIniFile := TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8);
+	end else begin
+		FIniFile := TMemIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'), TEncoding.UTF8);
+	end;
 	FIsModified := False;
 	FIsLoaded := False;
 	FSettings := TSettingsDictionary.Create();
@@ -138,7 +144,8 @@ begin
 	FDefaultSettings := TSettingsDictionary.Create(_other.FDefaultSettings);
 end;
 
-procedure TPersistableSettings.CreateSetting(const _sName : string; const _setting : TRipGrepperSetting; const _bAlsoDefault : Boolean = False);
+procedure TPersistableSettings.CreateSetting(const _sName : string; const _setting : TRipGrepperSetting;
+	const _bAlsoDefault : Boolean = False);
 begin
 	FSettings.Add(_sName, _setting);
 	if _bAlsoDefault then begin
@@ -171,7 +178,7 @@ begin
 	Result := FIsModified;
 end;
 
-function TPersistableSettings.GetSetting(const _name : string; _settingsDict : TSettingsDictionary): Variant;
+function TPersistableSettings.GetSetting(const _name : string; _settingsDict : TSettingsDictionary) : Variant;
 var
 	setting : TRipGrepperSetting;
 begin
@@ -320,7 +327,7 @@ begin
 	end;
 end;
 
-procedure TPersistableSettings.WriteToIni(const _sIniSection, _sKey: string; var _setting: TRipGrepperSetting);
+procedure TPersistableSettings.WriteToIni(const _sIniSection, _sKey : string; var _setting : TRipGrepperSetting);
 begin
 	if _setting.IsModified or (_sIniSection = DEFAULTS_INI_SECTION) then begin
 		case _setting.ValueType of
@@ -333,8 +340,8 @@ begin
 			else
 			raise ESettingsException.Create('Settings Type not supported:' + VarTypeAsText(_setting.ValueType));
 		end;
-		TDebugUtils.DebugMessage('TPersistableSettings.Store: ' + FIniFile.FileName + '[' + _sIniSection + '] ' + _sKey + '=' + VarToStr(_setting.Value) +
-			' stored');
+		TDebugUtils.DebugMessage('TPersistableSettings.Store: ' + FIniFile.FileName + '[' + _sIniSection + '] ' + _sKey + '=' +
+			VarToStr(_setting.Value) + ' stored');
 	end;
 end;
 
