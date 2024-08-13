@@ -107,9 +107,9 @@ end;
 procedure TRipGrepParameterSettings.Init;
 begin
 	inherited Init();
-	CreateSetting(RG_INI_KEY_RGPATH, TRipGrepperSetting.New(vtString, ''));
-	CreateSetting('SearchPath', TRipGrepperSetting.New(vtString, ''));
-	CreateSetting('FileMasks', TRipGrepperSetting.New(vtString, ''));
+	CreateSetting(RG_INI_KEY_RGPATH, TRipGrepperSetting.New(varString, ''));
+	CreateDefaultSetting('SearchPath', TRipGrepperSetting.New(varString, ''));
+	CreateDefaultSetting('FileMasks', TRipGrepperSetting.New(varString, ''));
 end;
 
 procedure TRipGrepParameterSettings.Load;
@@ -117,10 +117,9 @@ begin
 	inherited Load();
 	FRipGrepPath := LoadSetting(RG_INI_KEY_RGPATH);
 	FRipGrepPath := FRipGrepPath.Trim(['"', '''']);
-	if GetIniSectionName = DEFAULTS_INI_SECTION then begin
-		FSearchPath := LoadSetting('SearchPath');
-		FFileMasks := LoadSetting('FileMasks');
-	end;
+
+	FSearchPath := LoadDefaultSetting('SearchPath');
+	FFileMasks := LoadDefaultSetting('FileMasks');
 end;
 
 procedure TRipGrepParameterSettings.InitRipGrepExePath;
@@ -205,8 +204,8 @@ end;
 
 procedure TRipGrepParameterSettings.StoreAsDefault;
 begin
-	StoreSetting('SearchPath', FSearchPath);
-	StoreSetting('FileMasks', FFileMasks);
+	StoreDefaultSetting('SearchPath', FSearchPath);
+	StoreDefaultSetting('FileMasks', FFileMasks);
 
 	inherited StoreAsDefault; // Write to mem ini, after UpdateIniFile will be saved
 end;

@@ -88,7 +88,7 @@ end;
 constructor TRipGrepperSearchFormSettings.Create;
 begin
 	inherited;
-    IniSectionName := INI_SECTION;
+	IniSectionName := INI_SECTION;
 end;
 
 procedure TRipGrepperSearchFormSettings.Copy(const _other : TRipGrepperSearchFormSettings);
@@ -103,21 +103,21 @@ end;
 procedure TRipGrepperSearchFormSettings.Init;
 begin
 	inherited;
-	CreateSetting('Pretty', TRipGrepperSetting.New(vtBoolean, True));
-	CreateSetting('Hidden', TRipGrepperSetting.New(vtBoolean, False));
-	CreateSetting('NoIgnore', TRipGrepperSetting.New(vtBoolean, False));
-	CreateSetting('Context', TRipGrepperSetting.New(vtInteger, 0));
-	CreateSetting('Encoding', TRipGrepperSetting.New(vtString, ''));
+	CreateSetting('Pretty', TRipGrepperSetting.New(varBoolean, True), True);
+	CreateSetting('Hidden', TRipGrepperSetting.New(varBoolean, False), True);
+	CreateSetting('NoIgnore', TRipGrepperSetting.New(varBoolean, False), True);
+	CreateSetting('Context', TRipGrepperSetting.New(varInteger, 0), True);
+	CreateSetting('Encoding', TRipGrepperSetting.New(varString, ''), True);
 end;
 
 procedure TRipGrepperSearchFormSettings.Load;
 begin
 	inherited Load();
-	Pretty := LoadSetting('Pretty');
-	Hidden := LoadSetting('Hidden');
-	NoIgnore := LoadSetting('NoIgnore');
-	Context := LoadSetting('Context');
-	Encoding := LoadSetting('Encoding');
+	Pretty := LoadSetting('Pretty', True);
+	Hidden := LoadSetting('Hidden', True);
+	NoIgnore := LoadSetting('NoIgnore', True);
+	Context := LoadSetting('Context', True);
+	Encoding := LoadSetting('Encoding', True);
 	FIsLoaded := True;
 end;
 
@@ -172,11 +172,8 @@ end;
 
 procedure TRipGrepperSearchFormSettings.StoreAsDefault;
 begin
-	if IsLoaded and IsModified then begin
-		StoreSearchSettings('');
-		inherited StoreAsDefault();
-		FIsModified := False;
-	end;
+	StoreSearchSettings('');
+	inherited StoreAsDefault();
 end;
 
 procedure TRipGrepperSearchFormSettings.StoreSearchSettings(const _s : string = '');
@@ -192,15 +189,15 @@ begin
 			StoreSearchSettings(SEARCH_SETTINGS[i]);
 		end;
 	end else if MatchStr(_s, SEARCH_SETTINGS[i]) then begin
-		StoreSetting(SEARCH_SETTINGS[i], Pretty);
+		StoreSetting(SEARCH_SETTINGS[i], Pretty, True);
 	end else if MatchStr(_s, SEARCH_SETTINGS[PreInc(i)]) then begin
-		StoreSetting(SEARCH_SETTINGS[i], Hidden);
+		StoreSetting(SEARCH_SETTINGS[i], Hidden, True);
 	end else if MatchStr(_s, SEARCH_SETTINGS[PreInc(i)]) then begin
-		StoreSetting(SEARCH_SETTINGS[i], NoIgnore);
+		StoreSetting(SEARCH_SETTINGS[i], NoIgnore, True);
 	end else if MatchStr(_s, SEARCH_SETTINGS[PreInc(i)]) then begin
-		StoreSetting(SEARCH_SETTINGS[i], Context);
+		StoreSetting(SEARCH_SETTINGS[i], Context, True);
 	end else if MatchStr(_s, SEARCH_SETTINGS[PreInc(i)]) then begin
-		StoreSetting(SEARCH_SETTINGS[i], Encoding);
+		StoreSetting(SEARCH_SETTINGS[i], Encoding, True);
 	end else begin
 		raise Exception.Create('Settings: ' + _s + ' not stored!');
 	end;
