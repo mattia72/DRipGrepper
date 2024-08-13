@@ -11,13 +11,13 @@ uses
 	Vcl.Menus;
 
 const
-    APPNAME = 'DRipGrepper';
+	APPNAME = 'DRipGrepper';
 	EXTENSION_NAME = 'DRipExtension';
 	CAPTION_EXTENSION_MENU = 'DRipGrepper';
 	HOME_PAGE = 'https://github.com/mattia72/DRipGrepper';
 
 	VSCODE_RG_EXE_PATH = 'resources\app\node_modules.asar.unpacked\@vscode\ripgrep\bin\rg.exe';
-	
+
 	CAPTION_GRPBX_EXPERT_MODE = 'Expert Settings';
 
 	WWW_LINK_RG_MAN_PAGE = 'https://www.mankier.com/1/rg#Options';
@@ -111,11 +111,6 @@ const
 
 	WB = '\b'; // word boundary
 
-	RG_PARAM_ENCODING_VALUES : TArray<string> = [
-	{ } 'none',
-	{ } 'utf8',
-	{ } 'windows-1252'];
-
 	RG_PARAM_REGEX_IGNORE_CASE = '-i|--ignore-case';
 	RG_PARAM_REGEX_CASE_SENSITIVE = '-s|--case-sensitive';
 	RG_PARAM_REGEX_FIXED_STRINGS = '-F|--fixed-strings';
@@ -208,7 +203,11 @@ type
 		private
 			class function GetColumnTitle(Index : EColumnIndex) : string; static;
 
-		public
+		public const
+			RG_PARAM_ENCODING_VALUES : TArray<string> = [
+			{ } 'none',
+			{ } 'utf8',
+			{ } 'windows-1252'];
 			class var EXT_DEFAULT_SHORTCUT_SEARCH : string;
 			class constructor Create;
 			class property ColumnTitle[index : EColumnIndex] : string read GetColumnTitle; default;

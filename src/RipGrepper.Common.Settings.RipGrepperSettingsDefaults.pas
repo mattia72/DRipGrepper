@@ -67,7 +67,7 @@ end;
 
 function TRipGrepperSettingsDefaults.GetIniSectionName : string;
 begin
-	Result := DEFAULTS_INI_SECTION;
+	Result := inherited;
 end;
 
 function TRipGrepperSettingsDefaults.GetRipGrepParameters : TRipGrepParameterSettings;

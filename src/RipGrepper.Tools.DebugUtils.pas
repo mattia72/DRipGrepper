@@ -39,7 +39,12 @@ end;
 
 class procedure TDebugUtils.InnerOutputDebugString(const _s : string);
 begin
-	if Assigned(GSettings) and Assigned(GSettings.RipGrepperSettings) and GSettings.RipGrepperSettings.DebugTrace then begin
+	var
+	bForce := False;
+	{$IFDEF DEBUG}
+	bForce := not bForce;
+	{$ENDIF}
+	if bForce or (Assigned(GSettings) and Assigned(GSettings.RipGrepperSettings) and GSettings.RipGrepperSettings.DebugTrace) then begin
 		// if TRegEx.IsMatch(_s, '') then
 		OutputDebugString(PChar(_s));
 	end;

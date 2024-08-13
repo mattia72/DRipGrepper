@@ -39,13 +39,13 @@ type
 			FIniSectionName : string;
 			procedure AddOrSet(_settingsDict : TSettingsDictionary; const _name : string; const _v : Variant);
 			function GetIniFile : TMemIniFile;
-			function GetSetting(const _name : string; _settingsDict : TSettingsDictionary) : string;
+			function GetSetting(const _name : string; _settingsDict : TSettingsDictionary): Variant;
 			procedure LoadSettings(const _sIniSection : string; _settingsDict : TSettingsDictionary);
 			procedure SetIniFile(const Value : TMemIniFile);
 			procedure SetIniSectionName(const Value : string);
 			procedure SetIsModified(const Value : Boolean);
 			procedure WriteSettings(const _sIniSection : string; _settingsDict : TSettingsDictionary);
-			procedure WriteToIni(const iniSection, key : string; var setting : TRipGrepperSetting);
+			procedure WriteToIni(const _sIniSection, _sKey: string; var _setting: TRipGrepperSetting);
 
 		protected
 			FIniFile : TMemIniFile;
@@ -63,6 +63,7 @@ type
 			function LoadSettingDefaultValue(const _name : string) : Variant;
 			procedure Store; virtual;
 			function GetIniSectionName : string; virtual;
+			procedure LoadDefault; virtual;
 			function LoadDefaultSetting(const _name : string) : Variant;
 			procedure StoreAsDefault; virtual;
 			procedure StoreDefaultSetting(const _name : string; const _v : Variant);
@@ -115,7 +116,7 @@ procedure TPersistableSettings.AddOrSet(_settingsDict : TSettingsDictionary; con
 var
 	setting : TRipGrepperSetting;
 begin
-	setting := _settingsDict[_name];
+	_settingsDict.TryGetValue(_name, setting);
 	if VarIsEmpty(setting.Value) or
 	{ } VarIsNull(setting.Value) or
 	{ } (VarType(setting.Value) <> VarType(_v)) or
@@ -170,7 +171,7 @@ begin
 	Result := FIsModified;
 end;
 
-function TPersistableSettings.GetSetting(const _name : string; _settingsDict : TSettingsDictionary) : string;
+function TPersistableSettings.GetSetting(const _name : string; _settingsDict : TSettingsDictionary): Variant;
 var
 	setting : TRipGrepperSetting;
 begin
@@ -193,6 +194,13 @@ procedure TPersistableSettings.Load;
 begin
 	Init();
 	LoadSettings(GetIniSectionName, FSettings);
+	if FDefaultSettings.Count = 0 then begin
+		LoadSettings(DEFAULTS_INI_SECTION, FDefaultSettings);
+	end;
+end;
+
+procedure TPersistableSettings.LoadDefault;
+begin
 	LoadSettings(DEFAULTS_INI_SECTION, FDefaultSettings);
 end;
 
@@ -224,7 +232,7 @@ end;
 
 function TPersistableSettings.LoadSetting(const _name : string; const _bAlsoDefault : Boolean = False) : Variant;
 begin
-	GetSetting(_name, FSettings);
+	Result := GetSetting(_name, FSettings);
 	if _bAlsoDefault then begin
 		LoadDefaultSetting(_name);
 	end;
@@ -232,7 +240,7 @@ end;
 
 function TPersistableSettings.LoadDefaultSetting(const _name : string) : Variant;
 begin
-	GetSetting(_name, FDefaultSettings);
+	Result := GetSetting(_name, FDefaultSettings);
 end;
 
 function TPersistableSettings.LoadSettingDefaultValue(const _name : string) : Variant;
@@ -252,6 +260,8 @@ var
 begin
 	strs := TStringList.Create();
 	try
+		if _sIniSection = ROOT_DUMMY_INI_SECTION then
+			Exit;
 		try
 			FIniFile.ReadSectionValues(_sIniSection, strs);
 			for var i : integer := 0 to strs.Count - 1 do begin
@@ -259,14 +269,9 @@ begin
 				value := strs.Values[name];
 				var
 					setting : TRipGrepperSetting;
-				if _settingsDict.TryGetValue(name, setting) then begin
-					setting.Value := value;
-					TDebugUtils.DebugMessage(Format('TPersistableSettings.Load: [%s] %s = %s', [_sIniSection, name, value]));
-					_settingsDict.AddOrSetValue(name, setting);
-					// end else begin
-					// AddOrSet(_settingsDict, name, value);
-				end;
-
+				setting.Value := value;
+				TDebugUtils.DebugMessage(Format('TPersistableSettings.Load: [%s] %s = %s', [_sIniSection, name, value]));
+				AddOrSet(_settingsDict, name, value);
 			end;
 		except
 			on E : Exception do
@@ -315,20 +320,20 @@ begin
 	end;
 end;
 
-procedure TPersistableSettings.WriteToIni(const iniSection, key : string; var setting : TRipGrepperSetting);
+procedure TPersistableSettings.WriteToIni(const _sIniSection, _sKey: string; var _setting: TRipGrepperSetting);
 begin
-	if setting.IsModified or (iniSection = DEFAULTS_INI_SECTION) then begin
-		case setting.ValueType of
+	if _setting.IsModified or (_sIniSection = DEFAULTS_INI_SECTION) then begin
+		case _setting.ValueType of
 			varString, varUString :
-			FIniFile.WriteString(iniSection, key, setting.Value);
+			FIniFile.WriteString(_sIniSection, _sKey, _setting.Value);
 			varBoolean :
-			FIniFile.WriteBool(iniSection, key, setting.Value);
+			FIniFile.WriteBool(_sIniSection, _sKey, _setting.Value);
 			varInteger :
-			FIniFile.WriteInteger(iniSection, key, setting.Value);
+			FIniFile.WriteInteger(_sIniSection, _sKey, _setting.Value);
 			else
-			raise ESettingsException.Create('Settings Type not supported:' + VarTypeAsText(setting.ValueType));
+			raise ESettingsException.Create('Settings Type not supported:' + VarTypeAsText(_setting.ValueType));
 		end;
-		TDebugUtils.DebugMessage('TPersistableSettings.Store: ' + FIniFile.FileName + '[' + iniSection + '] ' + key + '=' + VarToStr(setting.Value) +
+		TDebugUtils.DebugMessage('TPersistableSettings.Store: ' + FIniFile.FileName + '[' + _sIniSection + '] ' + _sKey + '=' + VarToStr(_setting.Value) +
 			' stored');
 	end;
 end;

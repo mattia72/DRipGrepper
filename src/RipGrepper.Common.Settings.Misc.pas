@@ -180,7 +180,8 @@ begin
 	inherited;
 	CreateSetting('DebugTrace', TRipGrepperSetting.New(varBoolean, False));
 	CreateSetting('ExpertMode', TRipGrepperSetting.New(varBoolean, False));
-	CreateSetting('EncodingItems', TRipGrepperSetting.New(varstring, string.join(ARRAY_SEPARATOR, RG_PARAM_ENCODING_VALUES)));
+	CreateSetting('EncodingItems', TRipGrepperSetting.New(varString, string.join(ARRAY_SEPARATOR,
+		TDefaults.RG_PARAM_ENCODING_VALUES)));
 end;
 
 procedure TRipGrepperAppSettings.Load;
