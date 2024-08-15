@@ -353,8 +353,10 @@ begin
 
 	Node := GetNodeByIndex(VstHistory, CurrentHistoryItemIndex);
 	Data := VstHistory.GetNodeData(Node);
+	TDebugUtils.DebugMessageFormat('TRipGrepperMiddleFrame.ActionHistoryDeleteExecute: idx:%d Node:%s, ho:%s',
+		[CurrentHistoryItemIndex, Data.SearchText, ho.GuiSearchTextParams.SearchText]);
 
-	Assert(Data.SearchText = ho.GuiSearchTextParams.SearchText);
+	Assert(Data.SearchText = ho.GuiSearchTextParams.SearchText, Data.SearchText + ' != ' + ho.GuiSearchTextParams.SearchText);
 
 	VstHistory.DeleteNode(Node);
 	VstHistory.Refresh;

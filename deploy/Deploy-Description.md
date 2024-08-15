@@ -27,6 +27,7 @@ Marked with checkmark if ready, else planned as next.
 - [ ] replace 
 - [ ] filter result
 - [ ] own prettifier switcher as toolbar button
+- [ ] save search history in file
 - [x] path of rg.exe in vs code detected automatically
 - [x] extension: new menu item for 'Open with active file in IDE'
     - [x] toolbar button opens active file in Delphi if nothing selected
@@ -42,5 +43,5 @@ Marked with checkmark if fixed, else it is known bug.
 - [x] search form init without file masks
 - [ ] extension: dblclik on history shouldn't search selected.
 - [ ] default settings doesn't save combo boxes
-- [ ] delete of second history entry causes exception 
+- [ ] delete of some history entry causes exception 
 - [ ] drip icon in menu has no transparent background
