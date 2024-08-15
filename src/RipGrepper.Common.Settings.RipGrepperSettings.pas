@@ -16,10 +16,11 @@ uses
 
 type
 	TRipGrepperSettings = class(TPersistableSettings)
-		FExtensionSettings : TRipGrepperExtensionSettings;
-		FRipGrepperSearchFormSettings : TRipGrepperSearchFormSettings;
 
 		private
+			FExtensionSettings : TRipGrepperExtensionSettings;
+			FRipGrepperSearchFormSettings : TRipGrepperSearchFormSettings;
+
 			FRipGrepParameters : TRipGrepParameterSettings;
 			FRipGrepperSettingsDefaults : TRipGrepperSettingsDefaults;
 			FRipGrepperViewSettings : TRipGrepperViewSettings;
@@ -69,11 +70,9 @@ type
 			property RipGrepOptionsHistory : TSTrings read FRipGrepOptionsHistory write SetRipGrepOptionsHistory;
 			property RipGrepParameters : TRipGrepParameterSettings read FRipGrepParameters write FRipGrepParameters;
 			property RipGrepperOpenWithSettings : TRipGrepperOpenWithSettings read FRipGrepperOpenWithSettings;
-			property RipGrepperSearchFormSettings : TRipGrepperSearchFormSettings read FRipGrepperSearchFormSettings
-				write FRipGrepperSearchFormSettings;
+			property RipGrepperSearchFormSettings : TRipGrepperSearchFormSettings read FRipGrepperSearchFormSettings write FRipGrepperSearchFormSettings;
 			property RipGrepperSettings : TRipGrepperAppSettings read FRipGrepperSettings write FRipGrepperSettings;
-			property RipGrepperSettingsDefaults : TRipGrepperSettingsDefaults read FRipGrepperSettingsDefaults
-				write FRipGrepperSettingsDefaults;
+			property RipGrepperSettingsDefaults : TRipGrepperSettingsDefaults read FRipGrepperSettingsDefaults write FRipGrepperSettingsDefaults;
 			property RipGrepperViewSettings : TRipGrepperViewSettings read FRipGrepperViewSettings write FRipGrepperViewSettings;
 			property SearchPathIsDir : Boolean read GetSearchPathIsDir;
 			property SearchTextsHistory : TStrings read FSearchTextsHistory write SetSearchTextsHistory;
@@ -165,9 +164,10 @@ begin
 	FRipGrepParameters.Free;
 	FRipGrepperSettings.Free;
 	FRipGrepperSettingsDefaults.Free;
+	FExtensionSettings.Free;
+	FRipGrepperSearchFormSettings.Free;
 	FFileMasksHistory.Free;
 	UpdateIniFile;
-	FIniFile.Free;
 	inherited;
 end;
 
@@ -175,6 +175,10 @@ constructor TRipGrepperSettings.Create;
 begin
 	inherited;
 	IniSectionName := ROOT_DUMMY_INI_SECTION;
+
+	FExtensionSettings := TRipGrepperExtensionSettings.Create(FIniFile);
+	FRipGrepperSearchFormSettings := TRipGrepperSearchFormSettings.Create(FIniFile);
+
 	FRipGrepperSettingsDefaults := TRipGrepperSettingsDefaults.Create(FIniFile);
 	FRipGrepperSettings := TRipGrepperAppSettings.Create(FIniFile);
 	FRipGrepParameters := TRipGrepParameterSettings.Create(FIniFile);
@@ -244,13 +248,11 @@ end;
 
 procedure TRipGrepperSettings.RebuildArguments;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperSettings.RebuildArguments: GuiSearchTextParams start ' +
-		FRipGrepParameters.GuiSearchTextParams.ToString);
+	TDebugUtils.DebugMessage('TRipGrepperSettings.RebuildArguments: GuiSearchTextParams start ' + FRipGrepParameters.GuiSearchTextParams.ToString);
 
 	TCommandLineBuilder.RebuildArguments(FRipGrepParameters);
 
-	TDebugUtils.DebugMessage('TRipGrepperSettings.RebuildArguments: GuiSearchTextParams end ' +
-		FRipGrepParameters.GuiSearchTextParams.ToString);
+	TDebugUtils.DebugMessage('TRipGrepperSettings.RebuildArguments: GuiSearchTextParams end ' + FRipGrepParameters.GuiSearchTextParams.ToString);
 end;
 
 procedure TRipGrepperSettings.SetFileMasksHistory(const Value : TStrings);

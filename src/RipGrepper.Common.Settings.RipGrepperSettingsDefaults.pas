@@ -47,7 +47,7 @@ uses
 
 constructor TRipGrepperSettingsDefaults.Create(_iniFile: TMemIniFile);
 begin
-	inherited Create();
+	inherited Create(_iniFile);
 
 	FRipGrepParameters := TRipGrepParameterSettings.Create(_iniFile);
 	FRipGrepperSearchFormSettings := TRipGrepperSearchFormSettings.Create(_iniFile);

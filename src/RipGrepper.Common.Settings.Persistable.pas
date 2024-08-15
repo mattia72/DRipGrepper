@@ -34,21 +34,22 @@ type
 
 	TPersistableSettings = class(TSingletonImplementation, IIniPersistable)
 		private
+			FbOwnIniFile : Boolean;
 			FSettings : TSettingsDictionary;
 			FDefaultSettings : TSettingsDictionary;
 			FIniSectionName : string;
 			procedure AddOrSet(_settingsDict : TSettingsDictionary; const _name : string; const _v : Variant);
-			function GetIniFile : TMemIniFile;
+			procedure CreateIniFile;
+			function GetIniFile: TMemIniFile;
 			function GetSetting(const _name : string; _settingsDict : TSettingsDictionary) : Variant;
 			procedure LoadSettings(const _sIniSection : string; _settingsDict : TSettingsDictionary);
-			procedure SetIniFile(const Value : TMemIniFile);
 			procedure SetIniSectionName(const Value : string);
 			procedure SetIsModified(const Value : Boolean);
 			procedure WriteSettings(const _sIniSection : string; _settingsDict : TSettingsDictionary);
 			procedure WriteToIni(const _sIniSection, _sKey : string; var _setting : TRipGrepperSetting);
 
 		protected
-			FIniFile : TMemIniFile;
+			FIniFile: TMemIniFile;
 			FIsLoaded : Boolean;
 			FIsModified : Boolean;
 
@@ -75,7 +76,7 @@ type
 			procedure Copy(const _other : TPersistableSettings);
 			procedure ReLoad;
 			procedure UpdateIniFile;
-			property IniFile : TMemIniFile read GetIniFile write SetIniFile;
+			property IniFile: TMemIniFile read GetIniFile;
 			property IniSectionName : string read FIniSectionName write SetIniSectionName;
 			property IsLoaded : Boolean read GetIsLoaded;
 			property IsModified : Boolean read GetIsModified write SetIsModified;
@@ -87,34 +88,39 @@ uses
 	System.Classes,
 	RipGrepper.Tools.DebugUtils,
 	System.Variants,
-	RipGrepper.Common.Constants, Vcl.Forms, RipGrepper.Common.IOTAUtils,
-  System.IOUtils;
+	RipGrepper.Common.Constants,
+	Vcl.Forms,
+	RipGrepper.Common.IOTAUtils,
+	System.IOUtils;
 
 constructor TPersistableSettings.Create(const _ini : TMemIniFile);
 begin
 	inherited Create();
-	Create();
 	FIniFile := _ini;
+	Create();
+	FbOwnIniFile := False;
 end;
 
 constructor TPersistableSettings.Create;
 begin
 	inherited;
-	if IOTAUTils.IsStandAlone then begin
-		FIniFile := TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8);
-	end else begin
-		FIniFile := TMemIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'), TEncoding.UTF8);
-	end;
 	FIsModified := False;
 	FIsLoaded := False;
 	FSettings := TSettingsDictionary.Create();
 	FDefaultSettings := TSettingsDictionary.Create();
+	if not Assigned(FIniFile) then begin
+		CreateIniFile;
+		FbOwnIniFile := True;
+	end;
 end;
 
 destructor TPersistableSettings.Destroy;
 begin
 	FSettings.Free;
 	FDefaultSettings.Free;
+	if FbOwnIniFile then begin
+		FIniFile.Free;
+	end;
 	inherited;
 end;
 
@@ -144,8 +150,7 @@ begin
 	FDefaultSettings := TSettingsDictionary.Create(_other.FDefaultSettings);
 end;
 
-procedure TPersistableSettings.CreateSetting(const _sName : string; const _setting : TRipGrepperSetting;
-	const _bAlsoDefault : Boolean = False);
+procedure TPersistableSettings.CreateSetting(const _sName : string; const _setting : TRipGrepperSetting; const _bAlsoDefault : Boolean = False);
 begin
 	FSettings.Add(_sName, _setting);
 	if _bAlsoDefault then begin
@@ -158,7 +163,16 @@ begin
 	FDefaultSettings.Add(_sName, _setting);
 end;
 
-function TPersistableSettings.GetIniFile : TMemIniFile;
+procedure TPersistableSettings.CreateIniFile;
+begin
+	if IOTAUTils.IsStandAlone then begin
+		FIniFile := TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8);
+	end else begin
+		FIniFile := TMemIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'), TEncoding.UTF8);
+	end;
+end;
+
+function TPersistableSettings.GetIniFile: TMemIniFile;
 begin
 	Result := FIniFile;
 end;
@@ -209,13 +223,6 @@ end;
 procedure TPersistableSettings.LoadDefault;
 begin
 	LoadSettings(DEFAULTS_INI_SECTION, FDefaultSettings);
-end;
-
-procedure TPersistableSettings.SetIniFile(const Value : TMemIniFile);
-begin
-	if Assigned(FIniFile) then
-		FIniFile.Free;
-	FIniFile := Value;
 end;
 
 procedure TPersistableSettings.SetIsModified(const Value : Boolean);
@@ -340,8 +347,8 @@ begin
 			else
 			raise ESettingsException.Create('Settings Type not supported:' + VarTypeAsText(_setting.ValueType));
 		end;
-		TDebugUtils.DebugMessage('TPersistableSettings.Store: ' + FIniFile.FileName + '[' + _sIniSection + '] ' + _sKey + '=' +
-			VarToStr(_setting.Value) + ' stored');
+		TDebugUtils.DebugMessage('TPersistableSettings.Store: ' + FIniFile.FileName + '[' + _sIniSection + '] ' + _sKey + '=' + VarToStr(_setting.Value) +
+			' stored');
 	end;
 end;
 
