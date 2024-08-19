@@ -25,7 +25,8 @@ uses
 	VirtualTrees,
 	Vcl.ExtCtrls,
 	Vcl.Menus,
-	RipGrepper.Common.Settings.RipGrepperSettings;
+	RipGrepper.Common.Settings.RipGrepperSettings,
+	RipGrepper.Data.HistoryItemObject;
 
 type
 
@@ -103,12 +104,14 @@ type
 
 		private
 			FDpiScaler : TRipGrepperDpiScaler;
+			FHistItemObj : THistoryItemObject;
 			FPrevFoundNode : PVirtualNode;
 			FSettings : TRipGrepperSettings;
 			FViewStyleIndex : integer;
 			function GetSettings : TRipGrepperSettings;
 			function GetToolBarWidth(_tb : TToolBar) : Integer;
 			procedure SelectNextFoundNode(const _prevFoundNode : PVirtualNode);
+			procedure StartNewSearch;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
 		public
@@ -118,6 +121,8 @@ type
 			function GetNextViewStyleIdx : integer;
 			procedure Init;
 			procedure SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
+			property HistItemObj : THistoryItemObject read FHistItemObj;
+
 	end;
 
 var
@@ -143,8 +148,7 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.UI.RipGrepOptionsForm,
 	RipGrepper.Common.ParsedObject,
-	RipGrepper.Common.IOTAUtils,
-	RipGrepper.Data.HistoryItemObject;
+	RipGrepper.Common.IOTAUtils;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -265,10 +269,7 @@ var
 	cursor : TCursorSaver;
 begin
 	cursor.SetHourGlassCursor;
-	MainFrame.UpdateHistObject();
-	MainFrame.ClearHistoryObject();
-	MainFrame.InitSearch();
-	MainFrame.DoSearch();
+	MainFrame.RefreshSearch();
 end;
 
 procedure TRipGrepperTopFrame.ActionRefreshSearchUpdate(Sender : TObject);
@@ -281,13 +282,7 @@ var
 	cursor : TCursorSaver;
 begin
 	cursor.SetHourGlassCursor;
-
-	MainFrame.AddOrUpdateHistoryItem;
-	MainFrame.SetSelectedHistoryItem(MainFrame.CurrentHistoryItemIndex);
-
-	MainFrame.Data.ClearMatchFiles;
-	MainFrame.InitSearch();
-	MainFrame.DoSearch();
+	MainFrame.PrepareAndDoSearch();
 end;
 
 procedure TRipGrepperTopFrame.ActionSearchInResultExecute(Sender : TObject);
@@ -331,29 +326,9 @@ begin
 end;
 
 procedure TRipGrepperTopFrame.ActionShowSearchFormExecute(Sender : TObject);
-var
-	frm : TRipGrepperSearchDialogForm;
-	histObj : THistoryItemObject;
 begin
-	histObj := nil;
-	if Sender is TBaseVirtualTree then begin
-		histObj := MainFrame.HistItemObject;
-	end;
-	frm := TRipGrepperSearchDialogForm.Create(self, Settings, histObj);
-	try
-		TDebugUtils.DebugMessage('TRipGrepperTopFrame.ActionShowSearchFormExecute');
-
-		if (mrOk = frm.ShowModal) then begin
-			TDebugUtils.DebugMessage('TRipGrepperTopFrame.ActionShowSearchFormExecute: after showmodal gui params: ' +
-				Settings.RipGrepParameters.GuiSearchTextParams.ToString);
-			TDebugUtils.DebugMessage('TRipGrepperTopFrame.ActionShowSearchFormExecute: after showmodal cmdline: ' + Settings.RipGrepParameters.GetCommandLine);
-
-			ActionSearchExecute(self);
-		end;
-
-	finally
-		frm.Free;
-	end;
+	TDebugUtils.DebugMessage('TRipGrepperTopFrame.ActionShowSearchFormExecute');
+	StartNewSearch;
 end;
 
 procedure TRipGrepperTopFrame.ActionShowSearchFormUpdate(Sender : TObject);
@@ -399,7 +374,6 @@ begin
 	if iResultMinWidth <= (tbarResult.Width + tbarConfig.Width + 2 * tbarConfig.Margins.Left) then begin
 		tbarResult.Left := tbarConfig.Left - tbarResult.Width - 2 * tbarConfig.Margins.Left;
 	end;
-
 end;
 
 function TRipGrepperTopFrame.GetNextViewStyleIdx : integer;
@@ -447,13 +421,11 @@ var
 	dataStr : string;
 	NodeData : PVSFileNodeData; // replace by your record structure
 begin
-
 	NodeData := Sender.GetNodeData(Node);
 	dataStr := NodeData.FilePath + ' ' + NodeData.MatchData.LineText;
 	Abort := ContainsText(dataStr, string(Data));
 	// abort the search if a node with the text is found.
 	TDebugUtils.DebugMessage(Format('Search ''%s'' in %s', [string(Data), dataStr]));
-
 end;
 
 procedure TRipGrepperTopFrame.SelectNextFoundNode(const _prevFoundNode : PVirtualNode);
@@ -484,6 +456,23 @@ begin
 	end;
 	if bLast then begin
 		FPrevFoundNode := nil;
+	end;
+end;
+
+procedure TRipGrepperTopFrame.StartNewSearch;
+var
+	formResult : Integer;
+begin
+	TDebugUtils.DebugMessage('TRipGrepperTopFrame.StartNewSearch');
+	FHistItemObj := nil;
+	formResult := TRipGrepperSearchDialogForm.ShowSearchForm(self, Settings, FHistItemObj);
+	if (mrOk = formResult) then begin
+		MainFrame.HistItemObject := FHistItemObj;
+		TDebugUtils.DebugMessage('TRipGrepperTopFrame.StartNewSearch: after showmodal gui params: ' +
+			Settings.RipGrepParameters.GuiSearchTextParams.ToString);
+		TDebugUtils.DebugMessage('TRipGrepperTopFrame.StartNewSearch: after showmodal cmdline: ' +
+			Settings.RipGrepParameters.GetCommandLine);
+		ActionSearchExecute(self);
 	end;
 end;
 

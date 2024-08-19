@@ -145,7 +145,8 @@ type
 			function IsOptionSet(const _sParamRegex : string; const _sParamValue : string = '') : Boolean;
 			procedure ProcessControl(_ctrl : TControl; _imgList : TImageList);
 			procedure RemoveNecessaryOptionsFromCmbOptionsText;
-			procedure SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings; const _separator : string = ' ');
+			procedure SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings;
+				const _separator : string = ' ');
 			procedure SetComboItemsFromOptions(_cmb : TComboBox; const _argMaskRegex : string; const _items : TStrings);
 			procedure UpdateCmbOptionsAndMemoCommandLine;
 			procedure StoreHistoriesAsCmbEntries;
@@ -167,8 +168,12 @@ type
 			procedure WriteOptionCtrlToRipGrepParametersSetting;
 
 		public
-			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettings; const _histObj : THistoryItemObject); reintroduce; virtual;
+			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettings; const _histObj : THistoryItemObject);
+				reintroduce; virtual;
 			destructor Destroy; override;
+
+			class function ShowSearchForm(_owner : TComponent; _settings : TRipGrepperSettings; _histObj : THistoryItemObject) : integer;
+
 			procedure UpdateMemoCommandLine(const _bSkipReadCtrls : Boolean = False);
 			procedure UpdateCtrls(_ctrlChanged : TControl);
 	end;
@@ -202,7 +207,8 @@ uses
 
 {$R *.dfm}
 
-constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _settings : TRipGrepperSettings; const _histObj : THistoryItemObject);
+constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _settings : TRipGrepperSettings;
+	const _histObj : THistoryItemObject);
 begin
 	inherited Create(AOwner);
 	FSettings := _settings;
@@ -373,6 +379,9 @@ procedure TRipGrepperSearchDialogForm.FormClose(Sender : TObject; var Action : T
 begin
 	if HasHistItemObj then begin
 		FHistItemObj.RipGrepperSearchFormSettings.Copy(FSettings.RipGrepperSearchFormSettings);
+		FHistItemObj.RipGrepArguments.Clear;
+		FHistItemObj.RipGrepArguments.Assign(FSettings.GetRipGrepArguments());
+		FHistItemObj.GuiSearchTextParams := FGuiSetSearchParams;
 		FSettings.RipGrepperSearchFormSettings.Copy(FOrigRipGrepperSearchFormSettings);
 	end;
 	FSettings.UpdateIniFile;
@@ -538,17 +547,20 @@ end;
 
 procedure TRipGrepperSearchDialogForm.RemoveNecessaryOptionsFromCmbOptionsText;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.RemoveNecessaryOptionsFromCmbOptionsText: start' + FGuiSetSearchParams.RgAdditionalOptions);
+	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.RemoveNecessaryOptionsFromCmbOptionsText: start' +
+		FGuiSetSearchParams.RgAdditionalOptions);
 
 	// Remove necessary options
 	cmbOptions.Text := TGuiSearchTextParams.RemoveRgExeOptions(
 		{ } FGuiSetSearchParams.RgAdditionalOptions, string.Join(ARRAY_SEPARATOR, RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS));
 	WriteOptionCtrlToRipGrepParametersSetting;
 
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.RemoveNecessaryOptionsFromCmbOptionsText: end' + FGuiSetSearchParams.RgAdditionalOptions);
+	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.RemoveNecessaryOptionsFromCmbOptionsText: end' +
+		FGuiSetSearchParams.RgAdditionalOptions);
 end;
 
-procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings; const _separator : string = ' ');
+procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings;
+	const _separator : string = ' ');
 begin
 	_cmb.Items.Assign(_items);
 	if HasHistItemObj then begin
@@ -578,7 +590,8 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.UpdateCmbOptionsAndMemoCommandLine: start ' + FGuiSetSearchParams.ToString);
 	RemoveNecessaryOptionsFromCmbOptionsText;
 
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.UpdateCmbOptionsAndMemoCommandLine:  ' + string.Join(' ', FGuiSetSearchParams.RgOptions));
+	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.UpdateCmbOptionsAndMemoCommandLine:  ' + string.Join(' ',
+		FGuiSetSearchParams.RgOptions));
 
 	UpdateMemoCommandLine(True); // RgExeOptions may changed
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.UpdateCmbOptionsAndMemoCommandLine: end ' + FGuiSetSearchParams.ToString);
@@ -850,10 +863,12 @@ begin
 	end;
 
 	extSearchSettings := FSettings.ExtensionSettings.CurrentSearchSettings;
-	selectedText := GetInIDESelectedText;
-	if not selectedText.IsEmpty then begin
-		cmbSearchText.Text := selectedText;
-		TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.LoadExtensionSearchSettings SelectedText=' + selectedText);
+	if not HasHistItemObj then begin
+		selectedText := GetInIDESelectedText;
+		if not selectedText.IsEmpty then begin
+			cmbSearchText.Text := selectedText;
+			TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.LoadExtensionSearchSettings SelectedText=' + selectedText);
+		end;
 	end;
 	extSearchSettings.ActiveFile := IOTAUTils.GxOtaGetCurrentSourceFile();
 
@@ -868,6 +883,24 @@ begin
 	rbExtensionOptions.ItemIndex := Integer(extSearchSettings.Context);
 	UpdateCmbsOnContextChange();
 	FbExtensionOptionsSkipClick := False;
+end;
+
+class function TRipGrepperSearchDialogForm.ShowSearchForm(_owner : TComponent; _settings : TRipGrepperSettings;
+	_histObj : THistoryItemObject) : integer;
+var
+	frm : TRipGrepperSearchDialogForm;
+begin
+	frm := TRipGrepperSearchDialogForm.Create(_owner, _settings, _histObj);
+	try
+		Result := frm.ShowModal();
+		if mrOk = Result then begin
+			_settings.LastSearchText := frm.cmbSearchText.Text
+		end else begin
+			_settings.LastSearchText := '';
+        end;
+	finally
+		frm.Free;
+	end;
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateCmbsOnContextChange;

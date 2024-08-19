@@ -36,8 +36,8 @@ type
 			FRipGrepperSettings : TRipGrepperAppSettings;
 
 			FActualSearchPath : string;
+			FLastSearchText: string;
 
-			function GetActualSearchText : string;
 			function GetIsEmpty : Boolean;
 			function GetSearchPathIsDir : Boolean;
 			procedure InitSettings;
@@ -58,9 +58,10 @@ type
 			destructor Destroy; override;
 			procedure AddIfNotContains(_to, _from : TStrings);
 			function GetIsModified : Boolean; override;
+			function GetLastHistorySearchText: string;
 			function GetRipGrepArguments : TRipGrepArguments;
 			procedure RebuildArguments;
-			property ActualSearchText : string read GetActualSearchText;
+			property LastSearchText: string read FLastSearchText write FLastSearchText;
 			property FileMasksHistory : TStrings read FFileMasksHistory write SetFileMasksHistory;
 			property IsEmpty : Boolean read GetIsEmpty;
 
@@ -107,7 +108,7 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.CommandLine.Builder;
 
-function TRipGrepperSettings.GetActualSearchText : string;
+function TRipGrepperSettings.GetLastHistorySearchText: string;
 begin
 	SearchTextsHistory.TryGetDef(0, Result);
 end;

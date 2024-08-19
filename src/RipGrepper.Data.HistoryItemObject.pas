@@ -39,7 +39,7 @@ type
 			procedure SetRipGrepArguments(const Value : TRipGrepArguments);
 			function GetParserType : TParserType;
 			procedure SetParserType(const Value : TParserType);
-
+			function GetSearchText: string;
 		public
 			procedure LoadFromSettings(const _settings : TRipGrepperSettings);
 			destructor Destroy; override;
@@ -58,6 +58,7 @@ type
 			property RipGrepResult : Integer read FRipGrepResult write FRipGrepResult;
 			property ParserType : TParserType read GetParserType write SetParserType;
 			property RipGrepperSearchFormSettings : TRipGrepperSearchFormSettings read FRipGrepperSearchFormSettings write FRipGrepperSearchFormSettings;
+			property SearchText: string read GetSearchText;
 
 	end;
 
@@ -168,6 +169,11 @@ begin
 		UpdateParserType();
 	end;
 	Result := FParserType;
+end;
+
+function THistoryItemObject.GetSearchText: string;
+begin
+	Result := GuiSearchTextParams.SearchText;
 end;
 
 procedure THistoryItemObject.SetParserType(const Value : TParserType);

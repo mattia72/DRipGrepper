@@ -73,6 +73,7 @@ type
 		function GetParserType : TParserType;
 		procedure SetMatches(const Value : TParsedObjectRowCollection);
 		function GetRipGrepArguments : TRipGrepArguments;
+		function GetSearchText: string;
 		procedure SetRipGrepArguments(const Value : TRipGrepArguments);
 		function GetTotalMatchCount : integer;
 		procedure SetParserType(const Value : TParserType);
@@ -82,6 +83,7 @@ type
 		property RipGrepArguments : TRipGrepArguments read GetRipGrepArguments write SetRipGrepArguments;
 		property FileCount : integer read GetFileCount;
 		property ParserType : TParserType read GetParserType write SetParserType;
+		property SearchText: string read GetSearchText;
 		property TotalMatchCount : integer read GetTotalMatchCount;
 	end;
 

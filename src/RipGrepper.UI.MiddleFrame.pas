@@ -43,6 +43,8 @@ uses
 	RipGrepper.Common.Settings.RipGrepperSettings;
 
 type
+	THistoryObjectList = TArrayEx<IHistoryItem>;
+
 	TRipGrepperMiddleFrame = class(TFrame, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
 		ActionList : TActionList;
 		ActionCopyFileName : TAction;
@@ -131,8 +133,8 @@ type
 			FData : TRipGrepperData;
 			FExeVersion : string;
 			FFileNameType : TFileNameType;
-			FHistItemObject : THistoryItemObject;
-			FHistoryObjectList : TStringList;
+			FHistItemObj : THistoryItemObject;
+			FHistoryObjectList : THistoryObjectList;
 			FIsParsingRunning : Boolean;
 			FMaxWidths : TArray<Integer>;
 			FMeassureFirstDrawEvent : Boolean;
@@ -142,21 +144,23 @@ type
 			FIconImgList : TIconImageList;
 			FParsingThreads : TArrayEx<TParallelParser>;
 			procedure AddAsUsing(_bToImpl : Boolean);
+			procedure ChangeHistoryNodeText;
 			procedure ClearHistoryObjectList;
 			procedure CreateNewHistObject;
+			procedure DoSearch;
 			procedure EnableActionIfResultSelected(_act : TAction);
 			procedure ExpandNodes;
-			function GetAbsOrRelativePath(const _sFullPath : string): string;
+			function GetAbsOrRelativePath(const _sFullPath : string) : string;
 			function GetCounterText(Data : THistoryItemObject) : string;
 			function GetData : TRipGrepperData;
 			function GetHistItemObject : THistoryItemObject;
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
-			function GetHistoryObjectList : TStringList;
 			function GetNewParallelParser : TParallelParser;
 			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
 			function GetResultSelectedFilePath : string;
 			function GetSelectedResultFileNodeData : PVSFileNodeData;
 			function GetSettings : TRipGrepperSettings;
+			procedure InitSearch;
 			procedure LoadBeforeSearchSettings;
 			procedure OnLastLine(const _iLineNr : Integer);
 			procedure OnParsingProgress;
@@ -168,6 +172,7 @@ type
 			procedure SetHistItemObject(const Value : THistoryItemObject);
 			function SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
 			procedure UpdateArgumentsAndSettings;
+			procedure UpdateHistObject;
 			procedure UpdateHistObjectAndGui;
 			procedure UpdateRipGrepArgumentsInHistObj;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
@@ -182,29 +187,27 @@ type
 			procedure ClearHistoryObject;
 			procedure CopyToClipboardFileOfSelected;
 			procedure CopyToClipboardPathOfSelected;
-			procedure DoSearch;
 			function GetFilePathFromNode(_node : PVirtualNode) : string;
 			function GetOpenWithParamsFromSelected : TOpenWithParams;
 			function GetRowColText(_i : Integer; _type : TVSTTextType) : string;
 			procedure Init;
-			procedure InitSearch;
 			function IsSearchRunning : Boolean;
 			// IEOFProcessEventHandler
 			procedure OnEOFProcess;
 			// INewLineEventHandler
 			procedure OnNewOutputLine(const _iLineNr : Integer; const _sLine : string; _bIsLast : Boolean = False);
+			procedure PrepareAndDoSearch;
 			// ITerminateEventProducer
 			function ProcessShouldTerminate : Boolean;
+			procedure RefreshSearch;
 			procedure SetResultListViewDataToHistoryObj;
 			procedure SetSelectedHistoryItem(const _idx : Integer);
-			procedure UpdateHistObject;
 			property AbortSearch : Boolean read FAbortSearch write FAbortSearch;
 			property CurrentHistoryItemIndex : Integer read FCurrentHistoryItemIndex write FCurrentHistoryItemIndex;
 			property Data : TRipGrepperData read GetData write FData;
 			property ExeVersion : string read FExeVersion write FExeVersion;
 			property FileNameType : TFileNameType read FFileNameType write FFileNameType;
 			property HistItemObject : THistoryItemObject read GetHistItemObject write SetHistItemObject;
-			property HistoryObjectList : TStringList read GetHistoryObjectList write FHistoryObjectList;
 			property MaxWidths : TArray<Integer> read FMaxWidths write FMaxWidths;
 			property RipGrepTask : ITask read FRipGrepTask write FRipGrepTask;
 			{ Public-Deklarationen }
@@ -233,7 +236,9 @@ uses
 	RipGrepper.Parsers.Factory,
 	RipGrepper.UI.TopFrame,
 	RipGrepper.Common.IOTAUtils,
-	GX_UsesManager;
+	GX_UsesManager,
+	System.Generics.Defaults,
+	RipGrepper.UI.SearchForm;
 
 {$R *.dfm}
 
@@ -249,7 +254,6 @@ destructor TRipGrepperMiddleFrame.Destroy;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.Destroy');
 	ClearHistoryObjectList;
-	FHistoryObjectList.Free;
 	FData.Free;
 	FIconImgList.Free;
 	for var t : TParallelParser in FParsingThreads do begin
@@ -361,11 +365,11 @@ begin
 	VstHistory.DeleteNode(Node);
 	VstHistory.Refresh;
 
-	HistoryObjectList.Delete(CurrentHistoryItemIndex);
+	FHistoryObjectList.Delete(CurrentHistoryItemIndex);
 	FreeAndNil(ho);
 
-	FCurrentHistoryItemIndex := IfThen(VstHistory.RootNodeCount = 0, -1, IfThen(FCurrentHistoryItemIndex = 0, 0,
-		FCurrentHistoryItemIndex - 1));
+	CurrentHistoryItemIndex := IfThen(VstHistory.RootNodeCount = 0, -1, IfThen(CurrentHistoryItemIndex = 0, 0,
+		CurrentHistoryItemIndex - 1));
 
 	if CurrentHistoryItemIndex <> -1 then begin
 		UpdateHistObjectAndGui;
@@ -440,16 +444,15 @@ end;
 
 procedure TRipGrepperMiddleFrame.AddOrUpdateHistoryItem;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.AddOrUpdateHistoryItem ActualSearchText: ' + Settings.ActualSearchText);
-	CurrentHistoryItemIndex := HistoryObjectList.IndexOf(Settings.ActualSearchText);
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.AddOrUpdateHistoryItem LastSearchText: ' + Settings.LastSearchText);
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.AddOrUpdateHistoryItem CurrentHistoryItemIndex ' + CurrentHistoryItemIndex.ToString);
-	if CurrentHistoryItemIndex = -1 then begin
+	if not Assigned(HistItemObject) then begin
 		CreateNewHistObject;
 	end else begin
 		UpdateRipGrepArgumentsInHistObj;
 		UpdateHistObject;
 		ClearHistoryObject();
-		TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.AddOrUpdateHistoryItem Update HistoryObject ' + Settings.ActualSearchText);
+		TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.AddOrUpdateHistoryItem Update HistoryObject ' + Settings.LastSearchText);
 	end;
 end;
 
@@ -467,6 +470,22 @@ begin
 	Data.HistObject := _ho;
 end;
 
+procedure TRipGrepperMiddleFrame.ChangeHistoryNodeText;
+var
+	Node : PVirtualNode;
+	Data : PVSHistoryNodeData;
+begin
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.ChangeHistoryNodeText: idx = ' + CurrentHistoryItemIndex.ToString);
+
+	Node := GetNodeByIndex(VstHistory, CurrentHistoryItemIndex);
+	Data := VstHistory.GetNodeData(Node);
+	TDebugUtils.DebugMessageFormat('TRipGrepperMiddleFrame.ChangeHistoryNodeText: SearchText orig=''%s'' new=''%''',
+		[Data^.SearchText, Settings.LastSearchText]);
+	if not Settings.LastSearchText.IsEmpty then begin
+		Data^.SearchText := Settings.LastSearchText;
+	end;
+end;
+
 procedure TRipGrepperMiddleFrame.ClearHistoryObject;
 begin
 	var
@@ -476,13 +495,13 @@ end;
 
 procedure TRipGrepperMiddleFrame.ClearHistoryObjectList;
 begin
-	for var i := 0 to HistoryObjectList.Count - 1 do begin
-		if Assigned(HistoryObjectList.Objects[i])
-		{ } and (HistoryObjectList.Objects[i] is THistoryItemObject) then begin
-			(HistoryObjectList.Objects[i] as THistoryItemObject).Free;
+	for var i := 0 to FHistoryObjectList.Count - 1 do begin
+		if (FHistoryObjectList.Count > i)
+		{ } and (FHistoryObjectList[i] is THistoryItemObject) then begin
+			(FHistoryObjectList[i] as THistoryItemObject).Free;
 		end;
 	end;
-	HistoryObjectList.Clear;
+	FHistoryObjectList.Clear;
 end;
 
 procedure TRipGrepperMiddleFrame.CopyToClipboardFileOfSelected;
@@ -504,11 +523,11 @@ begin
 	hi := THistoryItemObject.Create();
 	HistItemObject := hi;
 	ChangeDataHistItemObject(hi);
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.AddOrUpdateHistoryItem Add HistoryObject ' + Settings.ActualSearchText);
-	CurrentHistoryItemIndex := HistoryObjectList.AddObject(Settings.ActualSearchText, hi);
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.AddOrUpdateHistoryItem Add HistoryObject ' + Settings.LastSearchText);
+	CurrentHistoryItemIndex := FHistoryObjectList.Add(hi);
 	Node := VstHistory.AddChild(nil);
 	Data := VstHistory.GetNodeData(Node);
-	Data^.SearchText := Settings.ActualSearchText;
+	Data^.SearchText := Settings.LastSearchText;
 	VstHistory.MultiLine[Node] := True;
 end;
 
@@ -545,7 +564,7 @@ begin
 	SetColumnWidths;
 end;
 
-function TRipGrepperMiddleFrame.GetAbsOrRelativePath(const _sFullPath : string): string;
+function TRipGrepperMiddleFrame.GetAbsOrRelativePath(const _sFullPath : string) : string;
 var
 	actPath : string;
 begin
@@ -603,24 +622,16 @@ end;
 
 function TRipGrepperMiddleFrame.GetHistItemObject : THistoryItemObject;
 begin
-	Result := FHistItemObject;
+	Result := FHistItemObj;
 end;
 
 function TRipGrepperMiddleFrame.GetHistoryObject(const _index : Integer) : THistoryItemObject;
 begin
 	Result := nil;
-	if (_index > -1) and (_index < HistoryObjectList.Count { _lb.Items.Count } ) then begin
-		Result := THistoryItemObject(HistoryObjectList.Objects[_index]);
+	if (_index > -1) and (_index < FHistoryObjectList.Count { _lb.Items.Count } ) then begin
+		Result := THistoryItemObject(FHistoryObjectList[_index]);
 		// Result := THistoryItemObject(_lb.Items.Objects[_index]);
 	end;
-end;
-
-function TRipGrepperMiddleFrame.GetHistoryObjectList : TStringList;
-begin
-	if not Assigned(FHistoryObjectList) then begin
-		FHistoryObjectList := TStringList.Create(TDuplicates.dupIgnore, False, False);
-	end;
-	Result := FHistoryObjectList;
 end;
 
 function TRipGrepperMiddleFrame.GetOpenWithParamsFromSelected : TOpenWithParams;
@@ -655,7 +666,7 @@ end;
 
 function TRipGrepperMiddleFrame.GetNewParallelParser : TParallelParser;
 begin
-	Result := TParallelParser.Create(FData, FHistItemObject);
+	Result := TParallelParser.Create(FData, FHistItemObj);
 	Result.OnLastLine := OnLastLine;
 	Result.OnProgress := OnParsingProgress;
 	FParsingThreads.Add(Result);
@@ -681,7 +692,7 @@ procedure TRipGrepperMiddleFrame.Init;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.Init Begin');
 	FCurrentHistoryItemIndex := -1;
-	HistoryObjectList.Clear();
+	FHistoryObjectList.Clear();
 	if IOTAUTils.IsStandAlone then begin
 		FExeVersion := TFileUtils.GetAppNameAndVersion(Application.ExeName);
 	end else begin
@@ -799,11 +810,11 @@ end;
 
 procedure TRipGrepperMiddleFrame.RefreshCounters;
 begin
-	if Assigned(FHistItemObject) then begin
+	if Assigned(FHistItemObj) then begin
 		var
 		beu := TBeginEndUpdater.New(VstHistory);
-		FHistItemObject.FileCount := VstResult.RootNodeCount; // synced
-		FHistItemObject.ErrorCount := Data.ErrorCount; // synced
+		FHistItemObj.FileCount := VstResult.RootNodeCount; // synced
+		FHistItemObj.ErrorCount := Data.ErrorCount; // synced
 	end;
 	RefreshCountersInGUI;
 end;
@@ -841,13 +852,13 @@ begin
 					args.Clear;
 					args.AddStrings(argsArrs[i]);
 					if i < argsArrs.MaxIndex then begin
-						FHistItemObject.RipGrepResult := TProcessUtils.RunProcess(Settings.RipGrepParameters.RipGrepPath, args,
+						FHistItemObj.RipGrepResult := TProcessUtils.RunProcess(Settings.RipGrepParameters.RipGrepPath, args,
 							{ } workDir,
 							{ } self as INewLineEventHandler,
 							{ } self as ITerminateEventProducer,
 							{ } nil);
 					end else begin
-						FHistItemObject.RipGrepResult := TProcessUtils.RunProcess(Settings.RipGrepParameters.RipGrepPath, args,
+						FHistItemObj.RipGrepResult := TProcessUtils.RunProcess(Settings.RipGrepParameters.RipGrepPath, args,
 							{ } workDir,
 							{ } self as INewLineEventHandler,
 							{ } self as ITerminateEventProducer,
@@ -858,11 +869,10 @@ begin
 			finally
 				args.Free;
 			end;
-			FHistItemObject.ElapsedTimeText := GetElapsedTime(FswSearchStart);
+			FHistItemObj.ElapsedTimeText := GetElapsedTime(FswSearchStart);
 			ParentFrame.SetStatusBarMessage(True);
 			FswSearchStart.Stop;
-			TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.RunRipGrep: rg.exe ended in %s sec.',
-				[FHistItemObject.ElapsedTimeText]));
+			TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.RunRipGrep: rg.exe ended in %s sec.', [FHistItemObj.ElapsedTimeText]));
 		end);
 	FRipGrepTask.Start;
 	BottomFrame.SetRunningStatus();
@@ -879,7 +889,7 @@ end;
 
 procedure TRipGrepperMiddleFrame.SetHistItemObject(const Value : THistoryItemObject);
 begin
-	FHistItemObject := Value;
+	FHistItemObj := Value;
 end;
 
 procedure TRipGrepperMiddleFrame.SetResultListViewDataToHistoryObj;
@@ -888,11 +898,11 @@ begin
 		procedure
 		begin
 			VstResult.Clear;
-			ChangeDataHistItemObject(FHistItemObject);
+			ChangeDataHistItemObject(FHistItemObj);
 			Data.DataToGrid;
-			// ListViewResult.Items.Count := matchItems.Count + FHistItemObject.ErrorCount;
+			// ListViewResult.Items.Count := matchItems.Count + FHistItemObj.ErrorCount;
 			{$IFDEF THREADSAFE_LIST}
-			FHistItemObject.Matches.Unlock;
+			FHistItemObj.Matches.Unlock;
 			{$ENDIF}
 		end);
 end;
@@ -947,6 +957,23 @@ end;
 procedure TRipGrepperMiddleFrame.PopupMenuHistoryPopup(Sender : TObject);
 begin
 	SetSelectedHistoryItem(CurrentHistoryItemIndex);
+end;
+
+procedure TRipGrepperMiddleFrame.PrepareAndDoSearch;
+begin
+	AddOrUpdateHistoryItem;
+	SetSelectedHistoryItem(MainFrame.CurrentHistoryItemIndex);
+	Data.ClearMatchFiles;
+	InitSearch();
+	DoSearch();
+end;
+
+procedure TRipGrepperMiddleFrame.RefreshSearch;
+begin
+	UpdateHistObject();
+	ClearHistoryObject();
+	InitSearch();
+	DoSearch();
 end;
 
 procedure TRipGrepperMiddleFrame.SetSelectedHistoryItem(const _idx : Integer);
@@ -1005,17 +1032,17 @@ end;
 
 procedure TRipGrepperMiddleFrame.UpdateArgumentsAndSettings;
 begin
-	if FHistItemObject.RipGrepArguments.Count = 0 then begin
-		FHistItemObject.LoadFromSettings(Settings);
+	if FHistItemObj.RipGrepArguments.Count = 0 then begin
+		FHistItemObj.LoadFromSettings(Settings);
 	end;
 end;
 
 procedure TRipGrepperMiddleFrame.UpdateHistObject;
 begin
-	FHistItemObject := GetHistoryObject(CurrentHistoryItemIndex);
-	if Assigned(FHistItemObject) then begin
-		FHistItemObject.UpdateParserType();
-		FHistItemObject.CopyToSettings(Settings);
+	FHistItemObj := GetHistoryObject(CurrentHistoryItemIndex);
+	if Assigned(FHistItemObj) then begin
+		FHistItemObj.UpdateParserType();
+		FHistItemObj.CopyToSettings(Settings);
 	end;
 end;
 
@@ -1038,9 +1065,9 @@ end;
 
 procedure TRipGrepperMiddleFrame.UpdateRipGrepArgumentsInHistObj;
 begin
-	FHistItemObject.RipGrepArguments.Clear;
+	FHistItemObj.RipGrepArguments.Clear;
 	Settings.RebuildArguments();
-	FHistItemObject.LoadFromSettings(Settings);
+	FHistItemObj.LoadFromSettings(Settings);
 end;
 
 procedure TRipGrepperMiddleFrame.VstHistoryDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
@@ -1117,15 +1144,27 @@ begin
 		Exit;
 
 	CurrentHistoryItemIndex := HitInfo.HitNode.Index;
-
 	UpdateHistObjectAndGui;
 end;
 
 procedure TRipGrepperMiddleFrame.VstHistoryNodeDblClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
+var
+	formResult : integer;
 begin
-	TDebugUtils.DebugMessage('History dbl clicked:' + HitInfo.HitNode.Index.ToString);
+	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.VstHistoryNodeDblClick: idx = ' + HitInfo.HitNode.Index.ToString);
 	VstHistoryNodeClick(Sender, HitInfo);
-	ParentFrame.TopFrame.ActionShowSearchFormExecute(Sender);
+
+	formResult := TRipGrepperSearchDialogForm.ShowSearchForm(self, Settings, FHistItemObj);
+	if mrOK = formResult then begin
+		TDebugUtils.DebugMessage('TRipGrepperTopFrame.VstHistoryNodeDblClick: after ShowSearchForm cmdline: ' +
+			Settings.RipGrepParameters.GetCommandLine);
+		PrepareAndDoSearch();
+	end else begin
+		TDebugUtils.DebugMessage('TRipGrepperTopFrame.VstHistoryNodeDblClick: ShowSearchForm cancel');
+	end;
+
+	ChangeHistoryNodeText;
+	UpdateHistObjectAndGui;
 end;
 
 procedure TRipGrepperMiddleFrame.VstResultBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
@@ -1204,7 +1243,7 @@ begin
 			end;
 		end;
 		3 : begin
-			case FHistItemObject.ParserType of
+			case FHistItemObj.ParserType of
 				ptRipGrepSearch, ptRipGrepPrettySearch : begin
 					DefaultDraw := False;
 					// First, store the default font size and color number
