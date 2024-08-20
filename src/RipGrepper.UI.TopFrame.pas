@@ -469,7 +469,7 @@ begin
 	if (mrOk = formResult) then begin
 		MainFrame.HistItemObject := FHistItemObj;
 		TDebugUtils.DebugMessage('TRipGrepperTopFrame.StartNewSearch: after showmodal gui params: ' +
-			Settings.RipGrepParameters.GuiSearchTextParams.ToString);
+			Settings.RipGrepParameters.GuiSearchTextParams.GetAsString);
 		TDebugUtils.DebugMessage('TRipGrepperTopFrame.StartNewSearch: after showmodal cmdline: ' +
 			Settings.RipGrepParameters.GetCommandLine);
 		ActionSearchExecute(self);

@@ -73,7 +73,7 @@ type
 			constructor Create(const _ini : TMemIniFile); overload;
 			constructor Create; overload;
 			destructor Destroy; override;
-			procedure Copy(const _other : TPersistableSettings);
+			procedure Copy(const _other : TPersistableSettings); virtual;
 			procedure ReLoad;
 			procedure UpdateIniFile;
 			property IniFile: TMemIniFile read GetIniFile;

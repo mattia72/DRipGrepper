@@ -79,7 +79,7 @@ uses
 procedure THistoryItemObject.LoadFromSettings(const _settings : TRipGrepperSettings);
 begin
 	RipGrepArguments.Assign(_settings.GetRipGrepArguments);
-	GuiSearchTextParams := _settings.RipGrepParameters.GuiSearchTextParams;
+	GuiSearchTextParams.Copy(_settings.RipGrepParameters.GuiSearchTextParams);
 	RipGrepperSearchFormSettings.Copy(_settings.RipGrepperSearchFormSettings);
 end;
 
@@ -124,8 +124,9 @@ end;
 destructor THistoryItemObject.Destroy;
 begin
 	(FMatches as TParsedObjectRowCollection).Free;
-	FRipGrepArguments.Free;
+	FGuiSearchTextParams.Free;
 	FRipGrepperSearchFormSettings.Free;
+	FRipGrepArguments.Free;
 	inherited;
 end;
 
@@ -134,6 +135,7 @@ begin
 	inherited;
 	FMatches := TParsedObjectRowCollection.Create();
 	FRipGrepperSearchFormSettings := TRipGrepperSearchFormSettings.Create();
+	FGuiSearchTextParams := TGuiSearchTextParams.Create;
 	FRipGrepArguments := TStringList.Create;
 	FParserType := ptEmpty;
 	ClearMatches;
@@ -154,7 +156,7 @@ end;
 procedure THistoryItemObject.CopyToSettings(const _settings : TRipGrepperSettings);
 begin
 	_settings.RipGrepParameters.RipGrepArguments.Assign(RipGrepArguments);
-	_settings.RipGrepParameters.GuiSearchTextParams := GuiSearchTextParams;
+	_settings.RipGrepParameters.GuiSearchTextParams.Copy(GuiSearchTextParams);
 	_settings.RipGrepperSearchFormSettings.Copy(RipGrepperSearchFormSettings);
 end;
 

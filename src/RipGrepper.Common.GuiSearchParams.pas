@@ -6,21 +6,21 @@ uses
 	RipGrepper.Common.Constants,
 	RipGrepper.Helper.Types,
 	ArrayEx,
-	System.Classes;
+	System.Classes,
+	RipGrepper.Common.Settings.Persistable,
+	System.IniFiles;
 
 type
 	TSearchOptionSet = set of EGuiOption;
 
-	TGuiSearchTextParams = record
+	TGuiSearchTextParams = class(TPersistableSettings)
 		private
 			FSearchText : string;
 			FEscapedSearchText : string;
 			FWordBoundedSearchText : string;
-
 			FRgOptions : string;
-
 			FIsRgExeOptionSet : Boolean;
-			FRgAdditionalOptions: string;
+			FRgAdditionalOptions : string;
 
 			function GetEscapedSearchText : string;
 			function GetSearchText : string;
@@ -31,28 +31,31 @@ type
 		public
 			SearchOptions : TSearchOptionSet;
 
+			constructor Create(const _ini : TMemIniFile); overload;
+			constructor Create(const _sText : string; const _bIC, _bMW, _bUR : Boolean); overload;
+			constructor Create; overload;
+
 			class function AddRgExeOptions(const _sOptions, _sParamRegex : string) : string; static;
 			class function RemoveRgExeOptions(const _sOptions, _sParamRegex : string) : string; static;
 			class function AddRgExeOptionWithValue(const _sOptions, _sParamRegex, _sValue : string; const _bUnique : Boolean = False)
 				: string; static;
-			class function New(const _sText : string; const _bIC, _bMW, _bUR : Boolean) : TGuiSearchTextParams; static;
-
 			function GetNext(const _newOption : EGuiOption) : TGuiSearchTextParams;
 			function IsSet(_options : TArray<EGuiOption>) : Boolean;
 			procedure Clear;
+			procedure Copy(const _other : TGuiSearchTextParams); reintroduce;
+			class function GetAsSearchOptionSet(const _bIC, _bMW, _bUR : Boolean) : TSearchOptionSet; static;
 			procedure ResetOption(const _searchOption : EGuiOption);
 			function SearchOptionsAsBitField : TBitField;
 			procedure SetOption(const _searchOption : EGuiOption);
 			procedure SetOrReset(const _newOption : EGuiOption); overload;
 			function SetRgOptions(const _sParamRegex : string; const _bReset : Boolean = False) : string;
 			function SetRgOptionsWithValue(const _sParamRegex, _sValue : string; const _bUnique : Boolean = False) : string;
-			function ToString : string;
-			class operator Initialize(out Dest : TGuiSearchTextParams);
+			procedure StoreAsDefault; override;
+			function GetAsString : string;
 
 			property EscapedSearchText : string read GetEscapedSearchText;
 			property IsRgExeOptionSet : Boolean read FIsRgExeOptionSet write FIsRgExeOptionSet;
-			property RgAdditionalOptions: string read FRgAdditionalOptions write
-				FRgAdditionalOptions;
+			property RgAdditionalOptions : string read FRgAdditionalOptions write FRgAdditionalOptions;
 			property RgOptions : string read FRgOptions write FRgOptions;
 			property SearchText : string read GetSearchText write FSearchText;
 			property WordBoundedSearchText : string read GetWordBoundedSearchText;
@@ -63,7 +66,8 @@ implementation
 uses
 	System.SysUtils,
 	System.RegularExpressions,
-	RipGrepper.CommandLine.OptionHelper;
+	RipGrepper.CommandLine.OptionHelper,
+	RipGrepper.Tools.DebugUtils;
 
 class function TGuiSearchTextParams.AddRgExeOptions(const _sOptions, _sParamRegex : string) : string;
 var
@@ -113,16 +117,17 @@ begin
 	end;
 end;
 
-class function TGuiSearchTextParams.New(const _sText : string; const _bIC, _bMW, _bUR : Boolean) : TGuiSearchTextParams;
+// for UnitTests...
+constructor TGuiSearchTextParams.Create(const _sText : string; const _bIC, _bMW, _bUR : Boolean);
 begin
-	Result.Clear();
-	Result.SearchText := _sText;
+	Clear();
+	SearchText := _sText;
 	if _bIC then
-		Include(Result.SearchOptions, EGuiOption.soMatchCase);
+		Include(SearchOptions, EGuiOption.soMatchCase);
 	if _bMW then
-		Include(Result.SearchOptions, EGuiOption.soMatchWord);
+		Include(SearchOptions, EGuiOption.soMatchWord);
 	if _bUR then
-		Include(Result.SearchOptions, EGuiOption.soUseRegex);
+		Include(SearchOptions, EGuiOption.soUseRegex);
 end;
 
 function TGuiSearchTextParams.GetNext(const _newOption : EGuiOption) : TGuiSearchTextParams;
@@ -165,6 +170,21 @@ end;
 function TGuiSearchTextParams.GetEscapedSearchText : string;
 begin
 	Result := TRegEx.Escape(FSearchText);
+end;
+
+class function TGuiSearchTextParams.GetAsSearchOptionSet(const _bIC, _bMW, _bUR : Boolean) : TSearchOptionSet;
+begin
+	Result := [eGuiOption.soNotSet];
+	if _bIC then
+		Include(Result, EGuiOption.soMatchCase);
+	if _bMW then
+		Include(Result, EGuiOption.soMatchWord);
+	if _bUR then
+		Include(Result, EGuiOption.soUseRegex);
+
+	if Result <> [EGuiOption.soNotSet] then begin
+		Exclude(Result, EGuiOption.soNotSet);
+	end;
 end;
 
 function TGuiSearchTextParams.GetSearchText : string;
@@ -281,7 +301,12 @@ begin
 	RgOptions := TGuiSearchTextParams.AddRgExeOptionWithValue(RgOptions, _sParamRegex, _sValue, _bUnique);
 end;
 
-function TGuiSearchTextParams.ToString : string;
+procedure TGuiSearchTextParams.StoreAsDefault;
+begin
+	StoreDefaultSetting('SearchParams', GetAsString);
+end;
+
+function TGuiSearchTextParams.GetAsString : string;
 var
 	arr : TArrayEx<string>;
 begin
@@ -309,10 +334,30 @@ begin
 	Assert(Length(arr) <= 1, listOptions.DelimitedText + CRLF + 'Option list is corrupt. -- should appear only once!');
 end;
 
-class operator TGuiSearchTextParams.Initialize(out Dest : TGuiSearchTextParams);
+constructor TGuiSearchTextParams.Create(const _ini : TMemIniFile);
 begin
-	Dest.Clear();
-	Dest.SetOption(EGuiOption.soNotSet);
+	inherited Create(_ini);
+	// IniSectionName := 'Dummy';
+	TDebugUtils.DebugMessage('TGuiSearchTextParams.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
+	Create;
+end;
+
+constructor TGuiSearchTextParams.Create;
+begin
+	Clear();
+	SetOption(EGuiOption.soNotSet);
+end;
+
+procedure TGuiSearchTextParams.Copy(const _other : TGuiSearchTextParams);
+begin
+	SearchOptions := _other.SearchOptions;
+	FSearchText := _other.SearchText;
+
+	FEscapedSearchText := _other.EscapedSearchText;
+	FWordBoundedSearchText := _other.WordBoundedSearchText;
+	FRgOptions := _other.RgOptions;
+	FIsRgExeOptionSet := _other.IsRgExeOptionSet;
+	FRgAdditionalOptions := _other.RgAdditionalOptions;
 end;
 
 end.

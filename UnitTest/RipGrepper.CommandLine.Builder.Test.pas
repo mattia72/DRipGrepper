@@ -116,7 +116,7 @@ begin
 	FParams.RgExeOptions := _sOptions;
 	FParams.FileMasks := _sMasksDelimited;
 
-	FParams.GuiSearchTextParams := TGuiSearchTextParams.New('', False, _bMatchWord = 1, False);
+	FParams.GuiSearchTextParams := TGuiSearchTextParams.Create('', False, _bMatchWord = 1, False);
 
 	TCommandLineBuilder.RebuildArguments(FParams);
 	v := FParams.RipGrepArguments.GetValues(RG_ARG_OPTIONS);
@@ -132,6 +132,7 @@ begin
 
 	Assert.AreEqual(RG_PARAM_END, v.Last, 'The last option should be --');
 	Assert.AreEqual(1, v.CountOf(RG_PARAM_END), 'The last option should be unique');
+    FParams.GuiSearchTextParams.Free;
 end;
 
 procedure TCommandLineBuilderTest.TestReBuildArgumentsSearchText(const _sSearchText : string; const _bMatchWord, _bShouldBounded : Integer);
@@ -139,7 +140,7 @@ begin
 	FParams.RgExeOptions := '';
 	FParams.FileMasks := '';
 
-	FParams.GuiSearchTextParams := TGuiSearchTextParams.New(_sSearchText, False, _bMatchWord = 1, False);
+	FParams.GuiSearchTextParams := TGuiSearchTextParams.Create(_sSearchText, False, _bMatchWord = 1, False);
 	if _bMatchWord = 1 then
 		FParams.GuiSearchTextParams.SetOption(EGuiOption.soMatchWord);
 
@@ -158,7 +159,7 @@ begin
 		Assert.AreEqual(_sSearchText, FParams.RipGrepArguments.Values[RG_ARG_SEARCH_TEXT],
 			'if MatchWord is not set, then search text should equal' + _sSearchText);
 	end;
-
+    FParams.GuiSearchTextParams.Free;
 end;
 
 initialization

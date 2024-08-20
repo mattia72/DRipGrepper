@@ -50,7 +50,7 @@ type
 			procedure Init; override;
 			procedure Load; override;
 			procedure Store; override;
-			procedure Copy(const _other : TRipGrepperSearchFormSettings);
+			procedure Copy(const _other : TRipGrepperSearchFormSettings); reintroduce;
 			procedure StoreAsDefault; override;
 
 			property Context : Integer read FContext write SetContext;

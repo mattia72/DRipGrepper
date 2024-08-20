@@ -6,7 +6,8 @@ uses
 	RipGrepper.Common.Settings.Misc,
 	RipGrepper.Common.Settings.Persistable,
 	RipGrepper.Common.Settings.RipGrepperSearchFormSettings,
-	RipGrepper.Common.Settings.RipGrepParameterSettings, System.IniFiles;
+	RipGrepper.Common.Settings.RipGrepParameterSettings,
+	System.IniFiles;
 
 type
 	TRipGrepperSettingsDefaults = class(TPersistableSettings)
@@ -22,10 +23,11 @@ type
 			function GetIniSectionName : string; override;
 
 		public
-			constructor Create(_iniFile: TMemIniFile);
+			constructor Create(_iniFile : TMemIniFile);
 			destructor Destroy; override;
 			procedure Init; override;
 			procedure Load; override;
+			procedure LoadDefault; override;
 			procedure Store; override;
 			procedure StoreAsDefault; override;
 
@@ -45,7 +47,7 @@ uses
 	RipGrepper.Common.Constants,
 	RipGrepper.Tools.DebugUtils;
 
-constructor TRipGrepperSettingsDefaults.Create(_iniFile: TMemIniFile);
+constructor TRipGrepperSettingsDefaults.Create(_iniFile : TMemIniFile);
 begin
 	inherited Create(_iniFile);
 
@@ -89,24 +91,28 @@ begin
 	FIsLoaded := True;
 end;
 
-procedure TRipGrepperSettingsDefaults.Store;
+procedure TRipGrepperSettingsDefaults.LoadDefault;
 begin
 	inherited;
-	if IsLoaded and IsModified then begin
-		FRipGrepParameters.Store;
-		FExtensionSettings.Store;
-		FRipGrepperSearchFormSettings.Store;
-	end;
+	FRipGrepParameters.Load;
+	FExtensionSettings.Load;
+	FRipGrepperSearchFormSettings.Load;
+
+end;
+
+procedure TRipGrepperSettingsDefaults.Store;
+begin
+	//
 end;
 
 procedure TRipGrepperSettingsDefaults.StoreAsDefault;
 begin
 	inherited;
-	if IsLoaded and IsModified then begin
-		FRipGrepParameters.StoreAsDefault;
-		FExtensionSettings.StoreAsDefault;
-		FRipGrepperSearchFormSettings.StoreAsDefault;
-	end;
+	// if IsLoaded and IsModified then begin
+	FRipGrepParameters.StoreAsDefault;
+	FExtensionSettings.StoreAsDefault;
+	FRipGrepperSearchFormSettings.StoreAsDefault;
+	// end;
 end;
 
 end.

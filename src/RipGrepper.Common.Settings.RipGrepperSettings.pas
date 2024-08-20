@@ -22,7 +22,7 @@ type
 			FRipGrepperSearchFormSettings : TRipGrepperSearchFormSettings;
 
 			FRipGrepParameters : TRipGrepParameterSettings;
-			FRipGrepperSettingsDefaults : TRipGrepperSettingsDefaults;
+			FDefaultSettings: TRipGrepperSettingsDefaults;
 			FRipGrepperViewSettings : TRipGrepperViewSettings;
 			FRipGrepperOpenWithSettings : TRipGrepperOpenWithSettings;
 
@@ -73,7 +73,7 @@ type
 			property RipGrepperOpenWithSettings : TRipGrepperOpenWithSettings read FRipGrepperOpenWithSettings;
 			property RipGrepperSearchFormSettings : TRipGrepperSearchFormSettings read FRipGrepperSearchFormSettings write FRipGrepperSearchFormSettings;
 			property RipGrepperSettings : TRipGrepperAppSettings read FRipGrepperSettings write FRipGrepperSettings;
-			property RipGrepperSettingsDefaults : TRipGrepperSettingsDefaults read FRipGrepperSettingsDefaults write FRipGrepperSettingsDefaults;
+			property DefaultSettings: TRipGrepperSettingsDefaults read FDefaultSettings write FDefaultSettings;
 			property RipGrepperViewSettings : TRipGrepperViewSettings read FRipGrepperViewSettings write FRipGrepperViewSettings;
 			property SearchPathIsDir : Boolean read GetSearchPathIsDir;
 			property SearchTextsHistory : TStrings read FSearchTextsHistory write SetSearchTextsHistory;
@@ -164,7 +164,7 @@ begin
 	FRipGrepperOpenWithSettings.Free;
 	FRipGrepParameters.Free;
 	FRipGrepperSettings.Free;
-	FRipGrepperSettingsDefaults.Free;
+	FDefaultSettings.Free;
 	FExtensionSettings.Free;
 	FRipGrepperSearchFormSettings.Free;
 	FFileMasksHistory.Free;
@@ -180,7 +180,7 @@ begin
 	FExtensionSettings := TRipGrepperExtensionSettings.Create(FIniFile);
 	FRipGrepperSearchFormSettings := TRipGrepperSearchFormSettings.Create(FIniFile);
 
-	FRipGrepperSettingsDefaults := TRipGrepperSettingsDefaults.Create(FIniFile);
+	FDefaultSettings := TRipGrepperSettingsDefaults.Create(FIniFile);
 	FRipGrepperSettings := TRipGrepperAppSettings.Create(FIniFile);
 	FRipGrepParameters := TRipGrepParameterSettings.Create(FIniFile);
 	FRipGrepperViewSettings := TRipGrepperViewSettings.Create(FIniFile);
