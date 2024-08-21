@@ -33,8 +33,7 @@ type
 
 			property ExtensionSettings : TRipGrepperExtensionSettings read FExtensionSettings write FExtensionSettings;
 			property RipGrepParameters : TRipGrepParameterSettings read GetRipGrepParameters write FRipGrepParameters;
-			property RipGrepperSearchFormSettings : TRipGrepperSearchFormSettings read FRipGrepperSearchFormSettings
-				write FRipGrepperSearchFormSettings;
+			property RipGrepperSearchFormSettings : TRipGrepperSearchFormSettings read FRipGrepperSearchFormSettings write FRipGrepperSearchFormSettings;
 	end;
 
 implementation
@@ -97,7 +96,7 @@ begin
 	FRipGrepParameters.Load;
 	FExtensionSettings.Load;
 	FRipGrepperSearchFormSettings.Load;
-
+	FIsLoaded := True;
 end;
 
 procedure TRipGrepperSettingsDefaults.Store;

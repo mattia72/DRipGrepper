@@ -29,7 +29,7 @@ type
 			FGuiSearchTextParams : TGuiSearchTextParams;
 			function GetRipGrepPath : string;
 			procedure SetFileMasks(const Value : string);
-			procedure SeTGuiSearchTextParams(const Value : TGuiSearchTextParams);
+			procedure SetGuiSearchTextParams(const Value : TGuiSearchTextParams);
 			procedure SetRgExeOptions(const Value : string);
 			procedure SetSearchPath(const Value : string);
 			procedure SetSearchText(const Value : string);
@@ -47,7 +47,7 @@ type
 			procedure Store; override;
 			procedure StoreAsDefault; override;
 			property FileMasks : string read FFileMasks write SetFileMasks;
-			property GuiSearchTextParams : TGuiSearchTextParams read FGuiSearchTextParams write SeTGuiSearchTextParams;
+			property GuiSearchTextParams : TGuiSearchTextParams read FGuiSearchTextParams write SetGuiSearchTextParams;
 			property RgExeOptions : string read FRgExeOptions write SetRgExeOptions;
 			property SearchPath : string read FSearchPath write SetSearchPath;
 			property SearchText : string read FSearchText write SetSearchText;
@@ -72,7 +72,7 @@ begin
 	inherited Create(_ini);
 	IniSectionName := INI_SECTION;
 	FGuiSearchTextParams := TGuiSearchTextParams.Create(_ini);
-    FGuiSearchTextParams.IniSectionName := INI_SECTION;
+	FGuiSearchTextParams.IniSectionName := INI_SECTION;
 	FbRgPathInitOk := False;
 	RipGrepPath := '';
 	FRipGrepArguments := TStringList.Create;
@@ -122,11 +122,14 @@ begin
 	FRipGrepPath := LoadSetting(RG_INI_KEY_RGPATH);
 	FRipGrepPath := FRipGrepPath.Trim(['"', '''']);
 
-	(*TODO: extracted code
+	LoadDefault;
+end;
+
+procedure TRipGrepParameterSettings.LoadDefault;
+begin
 	FSearchPath := LoadDefaultSetting('SearchPath');
 	FFileMasks := LoadDefaultSetting('FileMasks');
-	*)
-	LoadDefault;
+	FGuiSearchTextParams.LoadDefault;
 end;
 
 procedure TRipGrepParameterSettings.InitRipGrepExePath;
@@ -165,12 +168,6 @@ begin
 	FbRgPathInitOk := True;
 end;
 
-procedure TRipGrepParameterSettings.LoadDefault;
-begin
-	FSearchPath := LoadDefaultSetting('SearchPath');
-	FFileMasks := LoadDefaultSetting('FileMasks');
-end;
-
 procedure TRipGrepParameterSettings.SetFileMasks(const Value : string);
 begin
 	if FFileMasks <> Value then begin
@@ -179,8 +176,9 @@ begin
 	end;
 end;
 
-procedure TRipGrepParameterSettings.SeTGuiSearchTextParams(const Value : TGuiSearchTextParams);
+procedure TRipGrepParameterSettings.SetGuiSearchTextParams(const Value : TGuiSearchTextParams);
 begin
+	FGuiSearchTextParams.Free;
 	FGuiSearchTextParams := Value;
 	FIsModified := True;
 end;
