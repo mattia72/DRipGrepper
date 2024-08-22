@@ -38,10 +38,10 @@ type
 			class destructor Destroy;
 		private
 			FbOwnIniFile : Boolean;
-			FSettings : TSettingsDictionary;
+			FSettingsDict : TSettingsDictionary;
 			FIniSectionName : string;
 	class var
-			FDefaultSettings: TSettingsDictionary;
+			FDefaultSettingsDict: TSettingsDictionary;
 			procedure AddOrSet(_settingsDict : TSettingsDictionary; const _name : string; const _v : Variant);
 			procedure CreateIniFile;
 			function GetIniFile: TMemIniFile;
@@ -110,8 +110,7 @@ begin
 	inherited;
 	FIsModified := False;
 	FIsLoaded := False;
-	FSettings := TSettingsDictionary.Create();
-
+	FSettingsDict := TSettingsDictionary.Create();
 	if not Assigned(FIniFile) then begin
 		CreateIniFile;
 		FbOwnIniFile := True;
@@ -120,13 +119,12 @@ end;
 
 class constructor TPersistableSettings.Create;
 begin
-	   FDefaultSettings := TSettingsDictionary.Create();
+	   FDefaultSettingsDict := TSettingsDictionary.Create();
 end;
 
 destructor TPersistableSettings.Destroy;
 begin
-	FSettings.Free;
-	FDefaultSettings.Free;
+	FSettingsDict.Free;
 	if FbOwnIniFile then begin
 		FIniFile.Free;
 	end;
@@ -135,7 +133,7 @@ end;
 
 class destructor TPersistableSettings.Destroy;
 begin
-	FDefaultSettings.Free;
+	FDefaultSettingsDict.Free;
 end;
 
 procedure TPersistableSettings.AddOrSet(_settingsDict : TSettingsDictionary; const _name : string; const _v : Variant);
@@ -158,15 +156,14 @@ procedure TPersistableSettings.Copy(const _other : TPersistableSettings);
 begin
 	FIsModified := _other.IsModified;
 	FIsLoaded := _other.IsLoaded;
-	FSettings.Free;
-	FSettings := TSettingsDictionary.Create(_other.FSettings);
-	FDefaultSettings.Free;
-	FDefaultSettings := TSettingsDictionary.Create(_other.FDefaultSettings);
+	FSettingsDict.Free;
+	FSettingsDict := TSettingsDictionary.Create(_other.FSettingsDict);
+//	FDefaultSettingsDict := TSettingsDictionary.Create(_other.FDefaultSettingsDict);
 end;
 
 procedure TPersistableSettings.CreateSetting(const _sName : string; const _setting : TRipGrepperSetting; const _bAlsoDefault : Boolean = False);
 begin
-	FSettings.Add(_sName, _setting);
+	FSettingsDict.Add(_sName, _setting);
 	if _bAlsoDefault then begin
 		CreateDefaultSetting(_sName, _setting);
 	end;
@@ -174,7 +171,7 @@ end;
 
 procedure TPersistableSettings.CreateDefaultSetting(const _sName : string; const _setting : TRipGrepperSetting);
 begin
-	FDefaultSettings.Add(_sName, _setting);
+	FDefaultSettingsDict.AddOrSetValue(_sName, _setting);
 end;
 
 procedure TPersistableSettings.CreateIniFile;
@@ -210,7 +207,7 @@ function TPersistableSettings.GetSetting(const _name : string; _settingsDict : T
 var
 	setting : TRipGrepperSetting;
 begin
-	if FSettings.TryGetValue(_name, setting) then begin
+	if FSettingsDict.TryGetValue(_name, setting) then begin
 		if not(VarIsEmpty(setting.Value) or VarIsNull(setting.Value)) then begin
 			Result := setting.Value;
 		end;
@@ -228,15 +225,15 @@ end;
 procedure TPersistableSettings.Load;
 begin
 	Init();
-	LoadSettings(GetIniSectionName, FSettings);
-	if FDefaultSettings.Count = 0 then begin
-		LoadSettings(DEFAULTS_INI_SECTION, FDefaultSettings);
+	LoadSettings(GetIniSectionName, FSettingsDict);
+	if FDefaultSettingsDict.Count = 0 then begin
+		LoadSettings(DEFAULTS_INI_SECTION, FDefaultSettingsDict);
 	end;
 end;
 
 procedure TPersistableSettings.LoadDefault;
 begin
-	LoadSettings(DEFAULTS_INI_SECTION, FDefaultSettings);
+	LoadSettings(DEFAULTS_INI_SECTION, FDefaultSettingsDict);
 end;
 
 procedure TPersistableSettings.SetIsModified(const Value : Boolean);
@@ -246,13 +243,13 @@ end;
 
 procedure TPersistableSettings.Store;
 begin
-	WriteSettings(GetIniSectionName, FSettings);
+	WriteSettings(GetIniSectionName, FSettingsDict);
 end;
 
 procedure TPersistableSettings.StoreSetting(const _name : string; const _v : Variant; const _bAlsoDefault : Boolean = False);
 begin
 	TDebugUtils.DebugMessage('TPersistableSettings.StoreSetting: ' + _name + '=' + VarToStr(_v) + ' store in memory...');
-	AddOrSet(FSettings, _name, _v);
+	AddOrSet(FSettingsDict, _name, _v);
 	if _bAlsoDefault then begin
 		StoreDefaultSetting(_name, _v);
 	end;
@@ -260,7 +257,7 @@ end;
 
 function TPersistableSettings.LoadSetting(const _name : string; const _bAlsoDefault : Boolean = False) : Variant;
 begin
-	Result := GetSetting(_name, FSettings);
+	Result := GetSetting(_name, FSettingsDict);
 	if _bAlsoDefault then begin
 		LoadDefaultSetting(_name);
 	end;
@@ -268,14 +265,14 @@ end;
 
 function TPersistableSettings.LoadDefaultSetting(const _name : string) : Variant;
 begin
-	Result := GetSetting(_name, FDefaultSettings);
+	Result := GetSetting(_name, FDefaultSettingsDict);
 end;
 
 function TPersistableSettings.LoadSettingDefaultValue(const _name : string) : Variant;
 var
 	setting : TRipGrepperSetting;
 begin
-	setting := FSettings[_name];
+	setting := FSettingsDict[_name];
 	Result := setting.DefaultValue;
 	TDebugUtils.DebugMessage('TPersistableSettings.LoadSettingDefaultValue: ' + _name + ' ' + Result);
 end;
@@ -322,13 +319,13 @@ end;
 
 procedure TPersistableSettings.StoreAsDefault;
 begin
-	WriteSettings(DEFAULTS_INI_SECTION, FDefaultSettings);
+	WriteSettings(DEFAULTS_INI_SECTION, FDefaultSettingsDict);
 end;
 
 procedure TPersistableSettings.StoreDefaultSetting(const _name : string; const _v : Variant);
 begin
 	TDebugUtils.DebugMessage('TPersistableSettings.StoreDefaultSetting: ' + _name + '=' + VarToStr(_v) + ' store in memory...');
-	AddOrSet(FDefaultSettings, _name, _v);
+	AddOrSet(FDefaultSettingsDict, _name, _v);
 end;
 
 procedure TPersistableSettings.UpdateIniFile;

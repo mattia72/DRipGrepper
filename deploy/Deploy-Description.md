@@ -34,7 +34,7 @@ Marked with checkmark if ready, else planned as next.
 <!-- #### :mag: Search Dialog -->
 
 ### Search Dialog
-- [ ] extension: search open projekt files
+- [ ] extension: search opened projekt files only
 
 ## :warning: Bugs 
 Marked with checkmark if fixed, else it is known bug.
@@ -42,6 +42,6 @@ Marked with checkmark if fixed, else it is known bug.
 - [x] search whole word won't be highlighted 
 - [x] search form init without file masks
 - [x] extension: dblclik on history shouldn't search selected.
-- [ ] default settings doesn't save combo boxes
+- [ ] save as default doesn't save every combo boxes
 - [ ] delete of some history entry causes exception 
 - [ ] drip icon in menu has no transparent background
