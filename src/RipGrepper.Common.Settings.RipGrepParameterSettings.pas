@@ -127,6 +127,7 @@ end;
 
 procedure TRipGrepParameterSettings.LoadDefault;
 begin
+	inherited;
 	FSearchPath := LoadDefaultSetting('SearchPath');
 	FFileMasks := LoadDefaultSetting('FileMasks');
 	FGuiSearchTextParams.LoadDefault;

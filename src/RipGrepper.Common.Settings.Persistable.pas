@@ -36,15 +36,17 @@ type
 		strict private
 			class constructor Create;
 			class destructor Destroy;
+			class var FbDefaultLoaded : Boolean;
+
 		private
+
 			FbOwnIniFile : Boolean;
 			FSettingsDict : TSettingsDictionary;
 			FIniSectionName : string;
-	class var
-			FDefaultSettingsDict: TSettingsDictionary;
+			class var FDefaultSettingsDict : TSettingsDictionary;
 			procedure AddOrSet(_settingsDict : TSettingsDictionary; const _name : string; const _v : Variant);
 			procedure CreateIniFile;
-			function GetIniFile: TMemIniFile;
+			function GetIniFile : TMemIniFile;
 			function GetSetting(const _name : string; _settingsDict : TSettingsDictionary) : Variant;
 			procedure LoadSettings(const _sIniSection : string; _settingsDict : TSettingsDictionary);
 			procedure SetIniSectionName(const Value : string);
@@ -53,7 +55,7 @@ type
 			procedure WriteToIni(const _sIniSection, _sKey : string; var _setting : TRipGrepperSetting);
 
 		protected
-			FIniFile: TMemIniFile;
+			FIniFile : TMemIniFile;
 			FIsLoaded : Boolean;
 			FIsModified : Boolean;
 
@@ -80,7 +82,7 @@ type
 			procedure Copy(const _other : TPersistableSettings); virtual;
 			procedure ReLoad;
 			procedure UpdateIniFile;
-			property IniFile: TMemIniFile read GetIniFile;
+			property IniFile : TMemIniFile read GetIniFile;
 			property IniSectionName : string read FIniSectionName write SetIniSectionName;
 			property IsLoaded : Boolean read GetIsLoaded;
 			property IsModified : Boolean read GetIsModified write SetIsModified;
@@ -119,7 +121,8 @@ end;
 
 class constructor TPersistableSettings.Create;
 begin
-	   FDefaultSettingsDict := TSettingsDictionary.Create();
+	FDefaultSettingsDict := TSettingsDictionary.Create();
+	FbDefaultLoaded := False;
 end;
 
 destructor TPersistableSettings.Destroy;
@@ -158,10 +161,11 @@ begin
 	FIsLoaded := _other.IsLoaded;
 	FSettingsDict.Free;
 	FSettingsDict := TSettingsDictionary.Create(_other.FSettingsDict);
-//	FDefaultSettingsDict := TSettingsDictionary.Create(_other.FDefaultSettingsDict);
+	// FDefaultSettingsDict := TSettingsDictionary.Create(_other.FDefaultSettingsDict);
 end;
 
-procedure TPersistableSettings.CreateSetting(const _sName : string; const _setting : TRipGrepperSetting; const _bAlsoDefault : Boolean = False);
+procedure TPersistableSettings.CreateSetting(const _sName : string; const _setting : TRipGrepperSetting;
+	const _bAlsoDefault : Boolean = False);
 begin
 	FSettingsDict.Add(_sName, _setting);
 	if _bAlsoDefault then begin
@@ -171,7 +175,9 @@ end;
 
 procedure TPersistableSettings.CreateDefaultSetting(const _sName : string; const _setting : TRipGrepperSetting);
 begin
-	FDefaultSettingsDict.AddOrSetValue(_sName, _setting);
+	if not FDefaultSettingsDict.ContainsKey(_sName) then begin
+		FDefaultSettingsDict.Add(_sName, _setting);
+    end;
 end;
 
 procedure TPersistableSettings.CreateIniFile;
@@ -183,7 +189,7 @@ begin
 	end;
 end;
 
-function TPersistableSettings.GetIniFile: TMemIniFile;
+function TPersistableSettings.GetIniFile : TMemIniFile;
 begin
 	Result := FIniFile;
 end;
@@ -226,14 +232,14 @@ procedure TPersistableSettings.Load;
 begin
 	Init();
 	LoadSettings(GetIniSectionName, FSettingsDict);
-	if FDefaultSettingsDict.Count = 0 then begin
-		LoadSettings(DEFAULTS_INI_SECTION, FDefaultSettingsDict);
-	end;
 end;
 
 procedure TPersistableSettings.LoadDefault;
 begin
-	LoadSettings(DEFAULTS_INI_SECTION, FDefaultSettingsDict);
+	if not FbDefaultLoaded then begin
+		LoadSettings(DEFAULTS_INI_SECTION, FDefaultSettingsDict);
+		FbDefaultLoaded := True;
+	end;
 end;
 
 procedure TPersistableSettings.SetIsModified(const Value : Boolean);
@@ -358,8 +364,8 @@ begin
 			else
 			raise ESettingsException.Create('Settings Type not supported:' + VarTypeAsText(_setting.ValueType));
 		end;
-		TDebugUtils.DebugMessage('TPersistableSettings.Store: ' + FIniFile.FileName + '[' + _sIniSection + '] ' + _sKey + '=' + VarToStr(_setting.Value) +
-			' stored');
+		TDebugUtils.DebugMessage('TPersistableSettings.Store: ' + FIniFile.FileName + '[' + _sIniSection + '] ' + _sKey + '=' +
+			VarToStr(_setting.Value) + ' stored');
 	end;
 end;
 
