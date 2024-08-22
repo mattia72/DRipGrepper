@@ -33,11 +33,15 @@ type
 	TSettingsDictionary = TDictionary<string, TRipGrepperSetting>;
 
 	TPersistableSettings = class(TSingletonImplementation, IIniPersistable)
+		strict private
+			class constructor Create;
+			class destructor Destroy;
 		private
 			FbOwnIniFile : Boolean;
 			FSettings : TSettingsDictionary;
-			FDefaultSettings : TSettingsDictionary;
 			FIniSectionName : string;
+	class var
+			FDefaultSettings: TSettingsDictionary;
 			procedure AddOrSet(_settingsDict : TSettingsDictionary; const _name : string; const _v : Variant);
 			procedure CreateIniFile;
 			function GetIniFile: TMemIniFile;
@@ -107,11 +111,16 @@ begin
 	FIsModified := False;
 	FIsLoaded := False;
 	FSettings := TSettingsDictionary.Create();
-	FDefaultSettings := TSettingsDictionary.Create();
+
 	if not Assigned(FIniFile) then begin
 		CreateIniFile;
 		FbOwnIniFile := True;
 	end;
+end;
+
+class constructor TPersistableSettings.Create;
+begin
+	   FDefaultSettings := TSettingsDictionary.Create();
 end;
 
 destructor TPersistableSettings.Destroy;
@@ -122,6 +131,11 @@ begin
 		FIniFile.Free;
 	end;
 	inherited;
+end;
+
+class destructor TPersistableSettings.Destroy;
+begin
+	FDefaultSettings.Free;
 end;
 
 procedure TPersistableSettings.AddOrSet(_settingsDict : TSettingsDictionary; const _name : string; const _v : Variant);

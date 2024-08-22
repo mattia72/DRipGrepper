@@ -122,10 +122,6 @@ begin
 	FRipGrepPath := LoadSetting(RG_INI_KEY_RGPATH);
 	FRipGrepPath := FRipGrepPath.Trim(['"', '''']);
 
-	(*TODO: extracted code
-	FSearchPath := LoadDefaultSetting('SearchPath');
-	FFileMasks := LoadDefaultSetting('FileMasks');
-	*)
 	LoadDefault;
 end;
 
