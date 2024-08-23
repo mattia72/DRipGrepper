@@ -11,11 +11,11 @@ uses
 
 type
 	TRipGrepperSettingsDefaults = class(TPersistableSettings)
+		private
 		var
 			FRipGrepperSearchFormSettings : TRipGrepperSearchFormSettings;
 			FExtensionSettings : TRipGrepperExtensionSettings;
 
-		private
 			function GetRipGrepParameters : TRipGrepParameterSettings;
 
 		protected
@@ -106,11 +106,11 @@ end;
 
 procedure TRipGrepperSettingsDefaults.StoreAsDefault;
 begin
-	inherited;
 	// if IsLoaded and IsModified then begin
 	FRipGrepParameters.StoreAsDefault;
 	FExtensionSettings.StoreAsDefault;
 	FRipGrepperSearchFormSettings.StoreAsDefault;
+	inherited;
 	// end;
 end;
 

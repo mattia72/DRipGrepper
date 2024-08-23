@@ -178,9 +178,9 @@ end;
 procedure TRipGrepperAppSettings.Init;
 begin
 	inherited;
-	CreateSetting('DebugTrace', TRipGrepperSetting.New(varBoolean, False));
-	CreateSetting('ExpertMode', TRipGrepperSetting.New(varBoolean, False));
-	CreateSetting('EncodingItems', TRipGrepperSetting.New(varString, string.join(ARRAY_SEPARATOR,
+	CreateSetting('DebugTrace', TSettingVariant.New(varBoolean, False));
+	CreateSetting('ExpertMode', TSettingVariant.New(varBoolean, False));
+	CreateSetting('EncodingItems', TSettingVariant.New(varString, string.join(ARRAY_SEPARATOR,
 		TDefaults.RG_PARAM_ENCODING_VALUES)));
 end;
 

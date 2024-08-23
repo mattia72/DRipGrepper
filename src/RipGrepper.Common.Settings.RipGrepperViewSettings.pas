@@ -50,11 +50,11 @@ end;
 procedure TRipGrepperViewSettings.Init;
 begin
 	inherited;
-	CreateSetting('ShowRelativePath', TRipGrepperSetting.New(varBoolean, False));
-	CreateSetting('ShowFileIcon', TRipGrepperSetting.New(varBoolean, False));
-	CreateSetting('AlternateRowColors', TRipGrepperSetting.New(varBoolean, False));
-	CreateSetting('IndentLines', TRipGrepperSetting.New(varBoolean, False));
-	CreateSetting('ExpandNodes', TRipGrepperSetting.New(varBoolean, True));
+	CreateSetting('ShowRelativePath', TSettingVariant.New(varBoolean, False));
+	CreateSetting('ShowFileIcon', TSettingVariant.New(varBoolean, False));
+	CreateSetting('AlternateRowColors', TSettingVariant.New(varBoolean, False));
+	CreateSetting('IndentLines', TSettingVariant.New(varBoolean, False));
+	CreateSetting('ExpandNodes', TSettingVariant.New(varBoolean, True));
 end;
 
 procedure TRipGrepperViewSettings.Load;

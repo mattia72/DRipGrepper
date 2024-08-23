@@ -31,7 +31,7 @@ uses
 	RipGrepper.Data.HistoryItemObject,
 	Vcl.Samples.Spin,
 	RipGrepper.Helper.Types,
-	RipGrepper.Common.Settings.RipGrepperSearchFormSettings;
+	RipGrepper.Common.Settings.RipGrepperSearchFormSettings, RipGrepper.Common.Settings.RipGrepperSettingsDefaults;
 
 type
 	TRipGrepperSearchDialogForm = class(TForm)
@@ -205,8 +205,7 @@ uses
 	RipGrepper.Tools.FileUtils,
 	System.IOUtils,
 	Winapi.Windows,
-	RipGrepper.Common.Settings.Misc,
-	RipGrepper.Common.Settings.RipGrepperSettingsDefaults;
+	RipGrepper.Common.Settings.Misc;
 
 {$R *.dfm}
 
@@ -325,6 +324,8 @@ end;
 procedure TRipGrepperSearchDialogForm.ActionSetAsDefaultExecute(Sender : TObject);
 begin
 	WriteCtrlsToSettings(FSettings);
+
+
 	FSettings.DefaultSettings.StoreAsDefault();
 	FSettings.UpdateIniFile;
 end;
@@ -850,8 +851,9 @@ procedure TRipGrepperSearchDialogForm.LoadDefaultSettings;
 begin
 	var def := FSettings.DefaultSettings;
 	def.LoadDefault;
-	cmbSearchDir.Text := def.RipGrepParameters.SearchPath;
-	cmbFileMasks.Text := def.RipGrepParameters.FileMasks;
+	// TODO set only if it was saved before!
+	cmbSearchDir.Text := IfThen(def.RipGrepParameters.SearchPath.IsEmpty, cmbSearchDir.Text);
+	cmbFileMasks.Text := IfThen(def.RipGrepParameters.FileMasks.IsEmpty, cmbFileMasks.Text);
 	FGuiSetSearchParams.SearchOptions := def.RipGrepParameters.GuiSearchTextParams.SearchOptions;
 	UpdateCheckBoxesBySettings(FSettings.DefaultSettings.RipGrepperSearchFormSettings);
 end;

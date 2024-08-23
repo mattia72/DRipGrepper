@@ -22,7 +22,7 @@ type
 			FRipGrepperSearchFormSettings : TRipGrepperSearchFormSettings;
 
 			FRipGrepParameters : TRipGrepParameterSettings;
-			FDefaultSettings: TRipGrepperSettingsDefaults;
+			FDefaultSettings : TRipGrepperSettingsDefaults;
 			FRipGrepperViewSettings : TRipGrepperViewSettings;
 			FRipGrepperOpenWithSettings : TRipGrepperOpenWithSettings;
 
@@ -36,7 +36,7 @@ type
 			FRipGrepperSettings : TRipGrepperAppSettings;
 
 			FActualSearchPath : string;
-			FLastSearchText: string;
+			FLastSearchText : string;
 
 			function GetIsEmpty : Boolean;
 			function GetSearchPathIsDir : Boolean;
@@ -57,11 +57,12 @@ type
 			constructor Create;
 			destructor Destroy; override;
 			procedure AddIfNotContains(_to, _from : TStrings);
+			procedure CopyToDefault(_def : TRipGrepperSettingsDefaults);
 			function GetIsModified : Boolean; override;
-			function GetLastHistorySearchText: string;
+			function GetLastHistorySearchText : string;
 			function GetRipGrepArguments : TRipGrepArguments;
 			procedure RebuildArguments;
-			property LastSearchText: string read FLastSearchText write FLastSearchText;
+			property LastSearchText : string read FLastSearchText write FLastSearchText;
 			property FileMasksHistory : TStrings read FFileMasksHistory write SetFileMasksHistory;
 			property IsEmpty : Boolean read GetIsEmpty;
 
@@ -73,7 +74,7 @@ type
 			property RipGrepperOpenWithSettings : TRipGrepperOpenWithSettings read FRipGrepperOpenWithSettings;
 			property RipGrepperSearchFormSettings : TRipGrepperSearchFormSettings read FRipGrepperSearchFormSettings write FRipGrepperSearchFormSettings;
 			property RipGrepperSettings : TRipGrepperAppSettings read FRipGrepperSettings write FRipGrepperSettings;
-			property DefaultSettings: TRipGrepperSettingsDefaults read FDefaultSettings write FDefaultSettings;
+			property DefaultSettings : TRipGrepperSettingsDefaults read FDefaultSettings write FDefaultSettings;
 			property RipGrepperViewSettings : TRipGrepperViewSettings read FRipGrepperViewSettings write FRipGrepperViewSettings;
 			property SearchPathIsDir : Boolean read GetSearchPathIsDir;
 			property SearchTextsHistory : TStrings read FSearchTextsHistory write SetSearchTextsHistory;
@@ -108,7 +109,7 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.CommandLine.Builder;
 
-function TRipGrepperSettings.GetLastHistorySearchText: string;
+function TRipGrepperSettings.GetLastHistorySearchText : string;
 begin
 	SearchTextsHistory.TryGetDef(0, Result);
 end;
@@ -198,6 +199,11 @@ end;
 procedure TRipGrepperSettings.AddIfNotContains(_to, _from : TStrings);
 begin
 	FIsModified := TItemInserter.AddToSringListIfNotContains(_to, _from);
+end;
+
+procedure TRipGrepperSettings.CopyToDefault(_def : TRipGrepperSettingsDefaults);
+begin
+	DefaultSettings.RipGrepParameters.Copy(self.RipGrepParameters);
 end;
 
 function TRipGrepperSettings.GetActualSearchPath : string;

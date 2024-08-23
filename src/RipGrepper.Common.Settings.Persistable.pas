@@ -21,16 +21,18 @@ type
 
 	end;
 
-	TRipGrepperSetting = record
+	TSettingVariant = record
 		ValueType : TVarType;
 		DefaultValue : Variant;
 		Value : Variant;
 		IsModified : Boolean;
-
-		class function New(const _type : TVarType; const _value : Variant) : TRipGrepperSetting; static;
+		IsDefaultRelevant : Boolean;
+		Section : string;
+		class function New(const _type : TVarType; const _value : Variant; const _section : string = ''; const _isDefRelevant : Boolean = False)
+			: TSettingVariant; static;
 	end;
 
-	TSettingsDictionary = TDictionary<string, TRipGrepperSetting>;
+	TSettingsDictionary = TDictionary<string, TSettingVariant>;
 
 	TPersistableSettings = class(TSingletonImplementation, IIniPersistable)
 		strict private
@@ -52,15 +54,15 @@ type
 			procedure SetIniSectionName(const Value : string);
 			procedure SetIsModified(const Value : Boolean);
 			procedure WriteSettings(const _sIniSection : string; _settingsDict : TSettingsDictionary);
-			procedure WriteToIni(const _sIniSection, _sKey : string; var _setting : TRipGrepperSetting);
+			procedure WriteToIni(const _sIniSection, _sKey : string; var _setting : TSettingVariant);
 
 		protected
 			FIniFile : TMemIniFile;
 			FIsLoaded : Boolean;
 			FIsModified : Boolean;
 
-			procedure CreateSetting(const _sName : string; const _setting : TRipGrepperSetting; const _bAlsoDefault : Boolean = False);
-			procedure CreateDefaultSetting(const _sName : string; const _setting : TRipGrepperSetting);
+			procedure CreateSetting(const _sName : string; const _setting : TSettingVariant; const _bAlsoDefault : Boolean = False);
+			procedure CreateDefaultSetting(const _sName : string; const _setting : TSettingVariant);
 			function GetIsLoaded : Boolean; virtual;
 			function GetIsModified : Boolean; virtual;
 			procedure Init; virtual;
@@ -141,7 +143,7 @@ end;
 
 procedure TPersistableSettings.AddOrSet(_settingsDict : TSettingsDictionary; const _name : string; const _v : Variant);
 var
-	setting : TRipGrepperSetting;
+	setting : TSettingVariant;
 begin
 	_settingsDict.TryGetValue(_name, setting);
 	if VarIsEmpty(setting.Value) or
@@ -161,11 +163,9 @@ begin
 	FIsLoaded := _other.IsLoaded;
 	FSettingsDict.Free;
 	FSettingsDict := TSettingsDictionary.Create(_other.FSettingsDict);
-	// FDefaultSettingsDict := TSettingsDictionary.Create(_other.FDefaultSettingsDict);
 end;
 
-procedure TPersistableSettings.CreateSetting(const _sName : string; const _setting : TRipGrepperSetting;
-	const _bAlsoDefault : Boolean = False);
+procedure TPersistableSettings.CreateSetting(const _sName : string; const _setting : TSettingVariant; const _bAlsoDefault : Boolean = False);
 begin
 	FSettingsDict.Add(_sName, _setting);
 	if _bAlsoDefault then begin
@@ -173,11 +173,11 @@ begin
 	end;
 end;
 
-procedure TPersistableSettings.CreateDefaultSetting(const _sName : string; const _setting : TRipGrepperSetting);
+procedure TPersistableSettings.CreateDefaultSetting(const _sName : string; const _setting : TSettingVariant);
 begin
 	if not FDefaultSettingsDict.ContainsKey(_sName) then begin
 		FDefaultSettingsDict.Add(_sName, _setting);
-    end;
+	end;
 end;
 
 procedure TPersistableSettings.CreateIniFile;
@@ -211,7 +211,7 @@ end;
 
 function TPersistableSettings.GetSetting(const _name : string; _settingsDict : TSettingsDictionary) : Variant;
 var
-	setting : TRipGrepperSetting;
+	setting : TSettingVariant;
 begin
 	if FSettingsDict.TryGetValue(_name, setting) then begin
 		if not(VarIsEmpty(setting.Value) or VarIsNull(setting.Value)) then begin
@@ -276,7 +276,7 @@ end;
 
 function TPersistableSettings.LoadSettingDefaultValue(const _name : string) : Variant;
 var
-	setting : TRipGrepperSetting;
+	setting : TSettingVariant;
 begin
 	setting := FSettingsDict[_name];
 	Result := setting.DefaultValue;
@@ -299,7 +299,7 @@ begin
 				name := strs.Names[i];
 				value := strs.Values[name];
 				var
-					setting : TRipGrepperSetting;
+					setting : TSettingVariant;
 				setting.Value := value;
 				TDebugUtils.DebugMessage(Format('TPersistableSettings.Load: [%s] %s = %s', [_sIniSection, name, value]));
 				AddOrSet(_settingsDict, name, value);
@@ -341,7 +341,7 @@ end;
 
 procedure TPersistableSettings.WriteSettings(const _sIniSection : string; _settingsDict : TSettingsDictionary);
 var
-	setting : TRipGrepperSetting;
+	setting : TSettingVariant;
 begin
 	for var key in _settingsDict.Keys do begin
 		setting := _settingsDict[key];
@@ -351,7 +351,9 @@ begin
 	end;
 end;
 
-procedure TPersistableSettings.WriteToIni(const _sIniSection, _sKey : string; var _setting : TRipGrepperSetting);
+procedure TPersistableSettings.WriteToIni(const _sIniSection, _sKey : string; var _setting : TSettingVariant);
+var
+	v : Variant;
 begin
 	if _setting.IsModified or (_sIniSection = DEFAULTS_INI_SECTION) then begin
 		case _setting.ValueType of
@@ -361,20 +363,33 @@ begin
 			FIniFile.WriteBool(_sIniSection, _sKey, _setting.Value);
 			varInteger :
 			FIniFile.WriteInteger(_sIniSection, _sKey, _setting.Value);
+			varArray : begin
+				var i := VarArrayLowBound(_setting.Value, 1);
+				var len := VarArrayHighBound(_setting.Value, 1);
+
+				while i <= len do begin
+					v := _setting.Value[i];  //v
+					FIniFile.WriteString(_sIniSection, _sKey, v);
+					Inc(i);
+				end;
+			end
 			else
 			raise ESettingsException.Create('Settings Type not supported:' + VarTypeAsText(_setting.ValueType));
 		end;
-		TDebugUtils.DebugMessage('TPersistableSettings.Store: ' + FIniFile.FileName + '[' + _sIniSection + '] ' + _sKey + '=' +
-			VarToStr(_setting.Value) + ' stored');
+		TDebugUtils.DebugMessage('TPersistableSettings.Store: ' + FIniFile.FileName + '[' + _sIniSection + '] ' + _sKey + '=' + VarToStr(_setting.Value) +
+			' stored');
 	end;
 end;
 
-class function TRipGrepperSetting.New(const _type : TVarType; const _value : Variant) : TRipGrepperSetting;
+class function TSettingVariant.New(const _type : TVarType; const _value : Variant; const _section : string = ''; const _isDefRelevant : Boolean = False)
+	: TSettingVariant;
 begin
 	Result.ValueType := _type;
 	Result.Value := _value;
 	Result.DefaultValue := _value;
 	Result.IsModified := False;
+	Result.Section := _section;
+	Result.IsDefaultRelevant := _isDefRelevant;
 end;
 
 end.

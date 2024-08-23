@@ -362,7 +362,7 @@ end;
 
 procedure TGuiSearchTextParams.Init;
 begin
-	CreateDefaultSetting('SearchParams', TRipGrepperSetting.New(varString, ''));
+	CreateDefaultSetting('SearchParams', TSettingVariant.New(varString, ''));
 end;
 
 procedure TGuiSearchTextParams.Load;

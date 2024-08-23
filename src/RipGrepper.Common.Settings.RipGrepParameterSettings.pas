@@ -111,9 +111,9 @@ end;
 procedure TRipGrepParameterSettings.Init;
 begin
 	inherited Init();
-	CreateSetting(RG_INI_KEY_RGPATH, TRipGrepperSetting.New(varString, ''));
-	CreateDefaultSetting('SearchPath', TRipGrepperSetting.New(varString, ''));
-	CreateDefaultSetting('FileMasks', TRipGrepperSetting.New(varString, ''));
+	CreateSetting(RG_INI_KEY_RGPATH, TSettingVariant.New(varString, ''));
+	CreateDefaultSetting('SearchPath', TSettingVariant.New(varString, ''));
+	CreateDefaultSetting('FileMasks', TSettingVariant.New(varString, ''));
 end;
 
 procedure TRipGrepParameterSettings.Load;
