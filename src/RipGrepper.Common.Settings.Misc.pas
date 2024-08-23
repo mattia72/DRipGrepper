@@ -189,16 +189,13 @@ begin
 	inherited Load();
 	TDebugUtils.DebugMessage('TRipGrepperAppSettings.Load start');
 
-	FExpertMode := LoadSetting('ExpertMode');
-	FDebugTrace := LoadSetting('DebugTrace');
-	FEncodingItems.AddStrings(string(LoadSetting('EncodingItems')).Split([ARRAY_SEPARATOR]));
+	FExpertMode := GetSetting('ExpertMode');
+	FDebugTrace := GetSetting('DebugTrace');
+	FEncodingItems.AddStrings(string(GetSetting('EncodingItems')).Split([ARRAY_SEPARATOR]));
 end;
 
 procedure TRipGrepperAppSettings.Store;
 begin
-	StoreSetting('ExpertMode', FExpertMode);
-	StoreSetting('DebugTrace', FDebugTrace);
-	StoreSetting('EncodingItems', string.join(ARRAY_SEPARATOR, FEncodingItems.ToStringArray()));
 	inherited Store();
 end;
 

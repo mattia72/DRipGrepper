@@ -53,8 +53,8 @@ type
 
 		var
 			FSettings : TRipGrepperSettings;
-			function GetSettings : TRipGrepperSettings;
-			property Settings : TRipGrepperSettings read GetSettings write FSettings;
+			//function GetSettings : TRipGrepperSettings;
+			//property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
 		protected
 			procedure CreateParams(var Params : TCreateParams); override;
@@ -159,7 +159,7 @@ end;
 procedure TRipGrepperForm.FormClose(Sender : TObject; var Action : TCloseAction);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.FormClose - begin action: ' + Integer(Action).ToString);
-	Settings.Store;
+//	Settings.Store;
 end;
 
 procedure TRipGrepperForm.FormShow(Sender : TObject);
@@ -180,13 +180,13 @@ begin
 	end;
 end;
 
-function TRipGrepperForm.GetSettings : TRipGrepperSettings;
-begin
-	if not Assigned(FSettings) then begin
-		FSettings := ParentFrame1.Settings;
-	end;
-	Result := FSettings;
-end;
+//function TRipGrepperForm.GetSettings : TRipGrepperSettings;
+//begin
+//	if not Assigned(FSettings) then begin
+//		FSettings := ParentFrame1.Settings;
+//	end;
+//	Result := FSettings;
+//end;
 
 procedure TRipGrepperForm.Init;
 begin

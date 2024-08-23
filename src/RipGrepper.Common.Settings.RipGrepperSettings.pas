@@ -301,7 +301,7 @@ end;
 
 procedure TRipGrepperSettings.StoreViewSettings(const _s : string = '');
 begin
-	FRipGrepperViewSettings.StoreViewSettings(_s);
+	FRipGrepperViewSettings.SetViewSettingValues(_s);
 	FRipGrepperViewSettings.Store;
 end;
 

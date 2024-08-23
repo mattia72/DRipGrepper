@@ -30,6 +30,7 @@ type
 		Section : string;
 		class function New(const _type : TVarType; const _value : Variant; const _section : string = ''; const _isDefRelevant : Boolean = False)
 			: TSettingVariant; static;
+		class function NewDefault(const _type : TVarType; const _value : Variant) : TSettingVariant; static;
 	end;
 
 	TSettingsDictionary = TDictionary<string, TSettingVariant>;
@@ -38,22 +39,22 @@ type
 		strict private
 			class constructor Create;
 			class destructor Destroy;
+			class var FSettingsDict : TSettingsDictionary;
 			class var FbDefaultLoaded : Boolean;
 
 		private
 
 			FbOwnIniFile : Boolean;
-			FSettingsDict : TSettingsDictionary;
 			FIniSectionName : string;
-			class var FDefaultSettingsDict : TSettingsDictionary;
-			procedure AddOrSet(_settingsDict : TSettingsDictionary; const _name : string; const _v : Variant);
+			procedure AddOrSet(_settingsDict : TSettingsDictionary; const _name : string; const _v : Variant); overload;
+			procedure AddOrSet(_settingsDict : TSettingsDictionary; const _name : string; const _sv : TSettingVariant); overload;
 			procedure CreateIniFile;
 			function GetIniFile : TMemIniFile;
-			function GetSetting(const _name : string; _settingsDict : TSettingsDictionary) : Variant;
+			function GetSetting(const _name : string; _settingsDict : TSettingsDictionary): Variant; overload;
 			procedure LoadSettings(const _sIniSection : string; _settingsDict : TSettingsDictionary);
 			procedure SetIniSectionName(const Value : string);
 			procedure SetIsModified(const Value : Boolean);
-			procedure WriteSettings(const _sIniSection : string; _settingsDict : TSettingsDictionary);
+			procedure WriteSettings(_settingsDict : TSettingsDictionary; const _sIniSection : string = '');
 			procedure WriteToIni(const _sIniSection, _sKey : string; var _setting : TSettingVariant);
 
 		protected
@@ -61,14 +62,13 @@ type
 			FIsLoaded : Boolean;
 			FIsModified : Boolean;
 
-			procedure CreateSetting(const _sName : string; const _setting : TSettingVariant; const _bAlsoDefault : Boolean = False);
-			procedure CreateDefaultSetting(const _sName : string; const _setting : TSettingVariant);
+			procedure CreateSetting(const _sName : string; const _setting : TSettingVariant);
 			function GetIsLoaded : Boolean; virtual;
 			function GetIsModified : Boolean; virtual;
 			procedure Init; virtual;
 			procedure Load; virtual;
 			procedure StoreSetting(const _name : string; const _v : Variant; const _bAlsoDefault : Boolean = False);
-			function LoadSetting(const _name : string; const _bAlsoDefault : Boolean = False) : Variant;
+			function GetSetting(const _name : string): Variant; overload;
 			function LoadSettingDefaultValue(const _name : string) : Variant;
 			procedure Store; virtual;
 			function GetIniSectionName : string; virtual;
@@ -88,6 +88,8 @@ type
 			property IniSectionName : string read FIniSectionName write SetIniSectionName;
 			property IsLoaded : Boolean read GetIsLoaded;
 			property IsModified : Boolean read GetIsModified write SetIsModified;
+			procedure SetSettingValue(_sKey : string; const _v : Variant);
+			// class property SettingsDict: TSettingsDictionary read FSettingsDict;
 	end;
 
 implementation
@@ -99,7 +101,8 @@ uses
 	RipGrepper.Common.Constants,
 	Vcl.Forms,
 	RipGrepper.Common.IOTAUtils,
-	System.IOUtils;
+	System.IOUtils,
+	System.StrUtils;
 
 constructor TPersistableSettings.Create(const _ini : TMemIniFile);
 begin
@@ -123,7 +126,7 @@ end;
 
 class constructor TPersistableSettings.Create;
 begin
-	FDefaultSettingsDict := TSettingsDictionary.Create();
+	FSettingsDict := TSettingsDictionary.Create();
 	FbDefaultLoaded := False;
 end;
 
@@ -138,22 +141,39 @@ end;
 
 class destructor TPersistableSettings.Destroy;
 begin
-	FDefaultSettingsDict.Free;
+	FSettingsDict.Free;
 end;
 
 procedure TPersistableSettings.AddOrSet(_settingsDict : TSettingsDictionary; const _name : string; const _v : Variant);
 var
 	setting : TSettingVariant;
 begin
-	_settingsDict.TryGetValue(_name, setting);
+	var
+	bExists := _settingsDict.TryGetValue(_name, setting);
 	if VarIsEmpty(setting.Value) or
 	{ } VarIsNull(setting.Value) or
 	{ } (VarType(setting.Value) <> VarType(_v)) or
-	{ } (setting.Value <> _v) then begin
+	{if} (setting.Value <> _v) then begin
 		setting.Value := _v;
-		setting.IsModified := True;
+		setting.IsModified := bExists;
 		setting.ValueType := VarType(_v);
+		if not bExists then begin
+			setting.IsDefaultRelevant := False;
+		end;
 		_settingsDict.AddOrSetValue(_name, setting);
+	end;
+end;
+
+procedure TPersistableSettings.AddOrSet(_settingsDict : TSettingsDictionary; const _name : string; const _sv : TSettingVariant);
+var
+	setting : TSettingVariant;
+begin
+	_settingsDict.TryGetValue(_name, setting);
+	if VarIsEmpty(setting.Value) or
+	{ } VarIsNull(setting.Value) or
+	{ } (VarType(setting.Value) <> VarType(_sv.Value)) or
+	{ } (setting.Value <> _sv.Value) then begin
+		_settingsDict.AddOrSetValue(_name, _sv);
 	end;
 end;
 
@@ -165,19 +185,9 @@ begin
 	FSettingsDict := TSettingsDictionary.Create(_other.FSettingsDict);
 end;
 
-procedure TPersistableSettings.CreateSetting(const _sName : string; const _setting : TSettingVariant; const _bAlsoDefault : Boolean = False);
+procedure TPersistableSettings.CreateSetting(const _sName : string; const _setting : TSettingVariant);
 begin
 	FSettingsDict.Add(_sName, _setting);
-	if _bAlsoDefault then begin
-		CreateDefaultSetting(_sName, _setting);
-	end;
-end;
-
-procedure TPersistableSettings.CreateDefaultSetting(const _sName : string; const _setting : TSettingVariant);
-begin
-	if not FDefaultSettingsDict.ContainsKey(_sName) then begin
-		FDefaultSettingsDict.Add(_sName, _setting);
-	end;
 end;
 
 procedure TPersistableSettings.CreateIniFile;
@@ -237,7 +247,11 @@ end;
 procedure TPersistableSettings.LoadDefault;
 begin
 	if not FbDefaultLoaded then begin
-		LoadSettings(DEFAULTS_INI_SECTION, FDefaultSettingsDict);
+		for var val in FSettingsDict.Values do begin
+			if not val.IsDefaultRelevant then
+				continue;
+			LoadSettings(val.Section, FSettingsDict);
+		end;
 		FbDefaultLoaded := True;
 	end;
 end;
@@ -247,9 +261,14 @@ begin
 	FIsModified := Value;
 end;
 
+procedure TPersistableSettings.SetSettingValue(_sKey : string; const _v : Variant);
+begin
+	AddOrSet(FSettingsDict, _sKey, _v);
+end;
+
 procedure TPersistableSettings.Store;
 begin
-	WriteSettings(GetIniSectionName, FSettingsDict);
+	WriteSettings(FSettingsDict);
 end;
 
 procedure TPersistableSettings.StoreSetting(const _name : string; const _v : Variant; const _bAlsoDefault : Boolean = False);
@@ -261,17 +280,14 @@ begin
 	end;
 end;
 
-function TPersistableSettings.LoadSetting(const _name : string; const _bAlsoDefault : Boolean = False) : Variant;
+function TPersistableSettings.GetSetting(const _name : string): Variant;
 begin
 	Result := GetSetting(_name, FSettingsDict);
-	if _bAlsoDefault then begin
-		LoadDefaultSetting(_name);
-	end;
 end;
 
 function TPersistableSettings.LoadDefaultSetting(const _name : string) : Variant;
 begin
-	Result := GetSetting(_name, FDefaultSettingsDict);
+	Result := GetSetting('DEFAULT_' + _name, FSettingsDict);
 end;
 
 function TPersistableSettings.LoadSettingDefaultValue(const _name : string) : Variant;
@@ -301,8 +317,9 @@ begin
 				var
 					setting : TSettingVariant;
 				setting.Value := value;
+				setting.Section := _sIniSection;
 				TDebugUtils.DebugMessage(Format('TPersistableSettings.Load: [%s] %s = %s', [_sIniSection, name, value]));
-				AddOrSet(_settingsDict, name, value);
+				AddOrSet(_settingsDict, name, setting);
 			end;
 		except
 			on E : Exception do
@@ -325,13 +342,13 @@ end;
 
 procedure TPersistableSettings.StoreAsDefault;
 begin
-	WriteSettings(DEFAULTS_INI_SECTION, FDefaultSettingsDict);
+	WriteSettings(FSettingsDict, DEFAULTS_INI_SECTION);
 end;
 
 procedure TPersistableSettings.StoreDefaultSetting(const _name : string; const _v : Variant);
 begin
 	TDebugUtils.DebugMessage('TPersistableSettings.StoreDefaultSetting: ' + _name + '=' + VarToStr(_v) + ' store in memory...');
-	AddOrSet(FDefaultSettingsDict, _name, _v);
+	AddOrSet(FSettingsDict, _name, _v);
 end;
 
 procedure TPersistableSettings.UpdateIniFile;
@@ -339,13 +356,17 @@ begin
 	FIniFile.UpdateFile;
 end;
 
-procedure TPersistableSettings.WriteSettings(const _sIniSection : string; _settingsDict : TSettingsDictionary);
+procedure TPersistableSettings.WriteSettings(_settingsDict : TSettingsDictionary; const _sIniSection : string = '');
 var
 	setting : TSettingVariant;
 begin
 	for var key in _settingsDict.Keys do begin
+		if (_sIniSection = DEFAULTS_INI_SECTION) and (not _settingsDict[key].IsDefaultRelevant) then
+			continue;
 		setting := _settingsDict[key];
-		WriteToIni(_sIniSection, key, setting);
+
+		WriteToIni(
+			{ } IfThen(_sIniSection = DEFAULTS_INI_SECTION, DEFAULTS_INI_SECTION, setting.Section), key, setting);
 		setting.IsModified := False;
 		_settingsDict[key] := setting;
 	end;
@@ -364,12 +385,14 @@ begin
 			varInteger :
 			FIniFile.WriteInteger(_sIniSection, _sKey, _setting.Value);
 			varArray : begin
-				var i := VarArrayLowBound(_setting.Value, 1);
-				var len := VarArrayHighBound(_setting.Value, 1);
+				var
+				i := VarArrayLowBound(_setting.Value, 1);
+				var
+				len := VarArrayHighBound(_setting.Value, 1);
 
 				while i <= len do begin
-					v := _setting.Value[i];  //v
-					FIniFile.WriteString(_sIniSection, _sKey, v);
+					v := _setting.Value[i]; // v should be string
+					FIniFile.WriteString(_sIniSection, Format('%s_Item%d', [_sKey, i]), v);
 					Inc(i);
 				end;
 			end
@@ -390,6 +413,16 @@ begin
 	Result.IsModified := False;
 	Result.Section := _section;
 	Result.IsDefaultRelevant := _isDefRelevant;
+end;
+
+class function TSettingVariant.NewDefault(const _type : TVarType; const _value : Variant) : TSettingVariant;
+begin
+	Result.ValueType := _type;
+	Result.Value := _value;
+	Result.DefaultValue := _value;
+	Result.IsModified := False;
+	Result.Section := DEFAULTS_INI_SECTION;
+	Result.IsDefaultRelevant := True;
 end;
 
 end.
