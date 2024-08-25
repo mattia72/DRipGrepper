@@ -37,6 +37,7 @@ type
 	TRipGrepperExtensionSettings = class(TPersistableSettings)
 		const
 			INI_SECTION = 'DelphiExtensionSettings';
+ 			KEY_CONTEXT = 'DripGrepperContext';
 
 		private
 			FDripGrepperShortCut : string;
@@ -44,7 +45,9 @@ type
 
 		public
 			constructor Create(const _ini : TMemIniFile);
+			procedure Init; override;
 			procedure Load; override;
+			procedure LoadDefault; override;
 			procedure Store; override;
 			procedure StoreAsDefault; override;
 			function ToString : string; override;
@@ -59,7 +62,7 @@ type
 		private
 			FDebugTrace : Boolean;
 			FExpertMode : Boolean;
-			FEncodingItems: TStringList;
+			FEncodingItems : TStringList;
 
 		protected
 			procedure Init; override;
@@ -71,7 +74,7 @@ type
 			procedure Store; override;
 			property DebugTrace : Boolean read FDebugTrace write FDebugTrace;
 			property ExpertMode : Boolean read FExpertMode write FExpertMode;
-			property EncodingItems: TStringList read FEncodingItems write FEncodingItems;
+			property EncodingItems : TStringList read FEncodingItems write FEncodingItems;
 	end;
 
 implementation
@@ -97,8 +100,14 @@ uses
 constructor TRipGrepperExtensionSettings.Create(const _ini : TMemIniFile);
 begin
 	inherited;
-	IniSectionName :=  INI_SECTION;
+	IniSectionName := INI_SECTION;
 	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
+end;
+
+procedure TRipGrepperExtensionSettings.Init;
+begin
+	inherited;
+	CreateDefaultSetting(KEY_CONTEXT, vtInteger, EXT_SEARCH_GIVEN_PATH)
 end;
 
 procedure TRipGrepperExtensionSettings.Load;
@@ -123,6 +132,11 @@ begin
 	end else begin
 		raise ESettingsException.Create('Settings ini file is nil!')
 	end;
+end;
+
+procedure TRipGrepperExtensionSettings.LoadDefault;
+begin
+	inherited LoadDefault;
 end;
 
 procedure TRipGrepperExtensionSettings.Store;
@@ -150,7 +164,7 @@ begin
 	bStore := IsLoaded and IsModified;
 	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.StoreAsDefault ' + BoolToStr(bStore) + ' ' + ToString());
 	if bStore then begin
-		FIniFile.WriteInteger(DEFAULTS_INI_SECTION, 'DripGrepperContext', Integer(CurrentSearchSettings.Context));
+		FIniFile.WriteInteger(DEFAULTS_INI_SECTION, KEY_CONTEXT, Integer(CurrentSearchSettings.Context));
 		FIsModified := False;
 	end;
 
@@ -164,7 +178,7 @@ end;
 constructor TRipGrepperAppSettings.Create(const _ini : TMemIniFile);
 begin
 	inherited;
-    IniSectionName := INI_SECTION;
+	IniSectionName := INI_SECTION;
 	TDebugUtils.DebugMessage('TRipGrepperAppSettings.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
 	FEncodingItems := TStringList.Create();
 end;
@@ -178,10 +192,9 @@ end;
 procedure TRipGrepperAppSettings.Init;
 begin
 	inherited;
-	CreateSetting('DebugTrace',varBoolean, False);
+	CreateSetting('DebugTrace', varBoolean, False);
 	CreateSetting('ExpertMode', varBoolean, False);
-	CreateSetting('EncodingItems', varString, string.join(ARRAY_SEPARATOR,
-		TDefaults.RG_PARAM_ENCODING_VALUES));
+	CreateSetting('EncodingItems', varString, string.join(ARRAY_SEPARATOR, TDefaults.RG_PARAM_ENCODING_VALUES));
 end;
 
 procedure TRipGrepperAppSettings.Load;

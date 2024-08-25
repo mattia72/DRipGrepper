@@ -52,6 +52,7 @@ type
 			procedure Store; override;
 			procedure Copy(const _other : TRipGrepperSearchFormSettings); reintroduce;
 			procedure StoreAsDefault; override;
+			procedure LoadDefault; override;
 
 			property Context: Integer read GetContext write SetContext;
 			property Encoding: string read GetEncoding write SetEncoding;
@@ -174,6 +175,11 @@ procedure TRipGrepperSearchFormSettings.StoreAsDefault;
 begin
 	StoreSearchSettings();
 	inherited StoreAsDefault();
+end;
+
+procedure TRipGrepperSearchFormSettings.LoadDefault;
+begin
+	inherited LoadDefault();
 end;
 
 procedure TRipGrepperSearchFormSettings.StoreSearchSettings(const _s : string = '');

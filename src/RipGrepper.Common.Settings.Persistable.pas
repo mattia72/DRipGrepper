@@ -49,6 +49,7 @@ type
 				const _isDefRelevant : Boolean = False); overload;
 			procedure CreateDefaultSetting(const _sName : string; const _type : TVarType; const _value : Variant); overload;
 			function GetDictKeyName(const _key : string) : string;
+			function GetDefaultDictKeyName(const _key : string): string;
 			function GetIsLoaded : Boolean; virtual;
 			function GetIsModified : Boolean; virtual;
 			procedure Init; virtual;
@@ -73,6 +74,7 @@ type
 			property IsLoaded : Boolean read GetIsLoaded;
 			property IsModified : Boolean read GetIsModified write SetIsModified;
 			destructor Destroy; override;
+			procedure CopyDefaults; virtual;
 			function GetSetting(const _name : string) : Variant; overload;
 			procedure SetSettingValue(_sKey : string; const _v : Variant);
 			// class property SettingsDict: TSettingsDictionary read FSettingsDict;
@@ -139,7 +141,7 @@ begin
 		FSettingsDict.AddOrChange(sKey, setting);
 	end else begin
 		if not bExists then begin
-			setting := TSettingVariant.Create(_v);  //ISettingVariant
+			setting := TSettingVariant.Create(_v); // ISettingVariant
 			FSettingsDict.Add(sKey, setting);
 		end else begin
 			FSettingsDict.AddOrChange(sKey, setting);
@@ -175,6 +177,21 @@ begin
 	end;
 end;
 
+procedure TPersistableSettings.CopyDefaults;
+var
+	setting : ISettingVariant;
+begin
+	for var key in FSettingsDict.Keys do begin
+		if key.StartsWith(IniSectionName) then begin
+			setting := FSettingsDict[key];
+			if setting.IsDefaultRelevant then begin
+                setting.Value := setting.DefaultValue;
+				FSettingsDict.AddOrChange(key, setting);
+			end;
+		end;
+	end;
+end;
+
 procedure TPersistableSettings.CreateSetting(const _sName : string; const _setting : ISettingVariant);
 begin
 	if _setting.IsDefaultRelevant then begin
@@ -198,7 +215,7 @@ procedure TPersistableSettings.CreateSetting(const _sName : string; const _type 
 var
 	setting : ISettingVariant;
 begin
-	setting := TSettingVariant.Create(_type, _value, _isDefRelevant); //ISettingVariant
+	setting := TSettingVariant.Create(_type, _value, _isDefRelevant); // ISettingVariant
 	CreateSetting(_sName, setting);
 end;
 
@@ -206,7 +223,7 @@ procedure TPersistableSettings.CreateDefaultSetting(const _sName : string; const
 var
 	setting : ISettingVariant;
 begin
-	setting := TSettingVariant.Create(_type, _value, True);  //ISettingVariant
+	setting := TSettingVariant.Create(_type, _value, True); // ISettingVariant
 	CreateSetting(_sName, setting);
 end;
 
@@ -216,6 +233,16 @@ begin
 		Result := _key;
 	end else begin
 		Result := IniSectionName + ARRAY_SEPARATOR + _key;
+	end;
+end;
+
+function TPersistableSettings.GetDefaultDictKeyName(const _key : string): string;
+begin
+	if _key.Contains(ARRAY_SEPARATOR) then begin
+		var arr := _key.Split([ARRAY_SEPARATOR]);
+		Result := DEFAULTS_INI_SECTION+ ARRAY_SEPARATOR + arr[1];
+	end else begin
+		Result := DEFAULTS_INI_SECTION+ ARRAY_SEPARATOR + _key;
 	end;
 end;
 
@@ -318,7 +345,7 @@ procedure TPersistableSettings.ReadSettings(const _sIniSection : string);
 var
 	strs : TStringList;
 	name : string;
-	setting: ISettingVariant;
+	setting : ISettingVariant;
 	value : string;
 begin
 	strs := TStringList.Create();
@@ -330,7 +357,7 @@ begin
 			for var i : integer := 0 to strs.Count - 1 do begin
 				name := strs.Names[i];
 				value := strs.Values[name];
-				setting := TSettingVariant.Create(value);   //ISettingVariant
+				setting := TSettingVariant.Create(value); // ISettingVariant
 
 				TDebugUtils.DebugMessage(Format('TPersistableSettings.Load: [%s] %s = %s', [_sIniSection, name, value]));
 				AddOrSet(_sIniSection + ARRAY_SEPARATOR + name, setting);
@@ -362,7 +389,7 @@ end;
 procedure TPersistableSettings.StoreDefaultSetting(const _name : string; const _v : Variant);
 begin
 	TDebugUtils.DebugMessage('TPersistableSettings.StoreDefaultSetting: ' + _name + '=' + VarToStr(_v) + ' store in memory...');
-	AddOrSet(_name, _v);
+	AddOrSet(GetDefaultDictKeyName(_name), _v);
 end;
 
 procedure TPersistableSettings.UpdateIniFile;
