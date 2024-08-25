@@ -43,7 +43,7 @@ uses
 	RipGrepper.Common.Settings.RipGrepperSettings;
 
 type
-	THistoryObjectList = TArrayEx<IHistoryItem>;
+	THistoryObjectList = TArrayEx<IHistoryItemObject>;
 
 	TRipGrepperMiddleFrame = class(TFrame, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
 		ActionList : TActionList;
@@ -133,7 +133,7 @@ type
 			FData : TRipGrepperData;
 			FExeVersion : string;
 			FFileNameType : TFileNameType;
-			FHistItemObj : THistoryItemObject;
+			FHistItemObj : IHistoryItemObject;
 			FHistoryObjectList : THistoryObjectList;
 			FIsParsingRunning : Boolean;
 			FMaxWidths : TArray<Integer>;
@@ -151,9 +151,9 @@ type
 			procedure EnableActionIfResultSelected(_act : TAction);
 			procedure ExpandNodes;
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
-			function GetCounterText(Data : THistoryItemObject) : string;
+			function GetCounterText(Data : IHistoryItemObject) : string;
 			function GetData : TRipGrepperData;
-			function GetHistItemObject : THistoryItemObject;
+			function GetHistItemObject : IHistoryItemObject;
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
 			function GetNewParallelParser : TParallelParser;
 			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
@@ -169,7 +169,7 @@ type
 			procedure RefreshCountersInGUI;
 			procedure RunRipGrep;
 			procedure SetColumnWidths;
-			procedure SetHistItemObject(const Value : THistoryItemObject);
+			procedure SetHistItemObject(const Value : IHistoryItemObject);
 			function SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
 			procedure UpdateArgumentsAndSettings;
 			procedure UpdateHistObject;
@@ -183,7 +183,7 @@ type
 			destructor Destroy; override;
 			procedure AddOrUpdateHistoryItem;
 			procedure AlignToolBars;
-			procedure ChangeDataHistItemObject(_ho : THistoryItemObject);
+			procedure ChangeDataHistItemObject(_ho : IHistoryItemObject);
 			procedure ClearHistoryObject;
 			procedure CopyToClipboardFileOfSelected;
 			procedure CopyToClipboardPathOfSelected;
@@ -207,7 +207,7 @@ type
 			property Data : TRipGrepperData read GetData write FData;
 			property ExeVersion : string read FExeVersion write FExeVersion;
 			property FileNameType : TFileNameType read FFileNameType write FFileNameType;
-			property HistItemObject : THistoryItemObject read GetHistItemObject write SetHistItemObject;
+			property HistItemObject : IHistoryItemObject read GetHistItemObject write SetHistItemObject;
 			property MaxWidths : TArray<Integer> read FMaxWidths write FMaxWidths;
 			property RipGrepTask : ITask read FRipGrepTask write FRipGrepTask;
 			{ Public-Deklarationen }
@@ -349,7 +349,7 @@ end;
 
 procedure TRipGrepperMiddleFrame.ActionHistoryDeleteExecute(Sender : TObject);
 var
-	ho : THistoryItemObject;
+	ho : IHistoryItemObject;
 	Node : PVirtualNode;
 	Data : PVSHistoryNodeData;
 begin
@@ -366,7 +366,8 @@ begin
 	VstHistory.Refresh;
 
 	FHistoryObjectList.Delete(CurrentHistoryItemIndex);
-	FreeAndNil(ho);
+	// FreeAndNil(ho);
+	ho := nil;
 
 	CurrentHistoryItemIndex := IfThen(VstHistory.RootNodeCount = 0, -1, IfThen(CurrentHistoryItemIndex = 0, 0,
 		CurrentHistoryItemIndex - 1));
@@ -463,7 +464,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepperMiddleFrame.ChangeDataHistItemObject(_ho : THistoryItemObject);
+procedure TRipGrepperMiddleFrame.ChangeDataHistItemObject(_ho : IHistoryItemObject);
 begin
 	var
 	beu := TBeginEndUpdater.New(VstHistory);
@@ -498,7 +499,8 @@ begin
 	for var i := 0 to FHistoryObjectList.Count - 1 do begin
 		if (FHistoryObjectList.Count > i)
 		{ } and (FHistoryObjectList[i] is THistoryItemObject) then begin
-			(FHistoryObjectList[i] as THistoryItemObject).Free;
+			//(FHistoryObjectList[i] as THistoryItemObject).Free; // NoRefCountObj!
+			FHistoryObjectList[i] := nil;
 		end;
 	end;
 	FHistoryObjectList.Clear;
@@ -518,7 +520,7 @@ procedure TRipGrepperMiddleFrame.CreateNewHistObject;
 var
 	Node : PVirtualNode;
 	Data : PVSHistoryNodeData;
-	hi : THistoryItemObject;
+	hi : IHistoryItemObject;
 begin
 	hi := THistoryItemObject.Create();
 	HistItemObject := hi;
@@ -582,7 +584,7 @@ begin
 	end;
 end;
 
-function TRipGrepperMiddleFrame.GetCounterText(Data : THistoryItemObject) : string;
+function TRipGrepperMiddleFrame.GetCounterText(Data : IHistoryItemObject) : string;
 begin
 	Result := '';
 	if not Assigned(Data) then begin
@@ -620,7 +622,7 @@ begin
 	Result := Data.FilePath;
 end;
 
-function TRipGrepperMiddleFrame.GetHistItemObject : THistoryItemObject;
+function TRipGrepperMiddleFrame.GetHistItemObject : IHistoryItemObject;
 begin
 	Result := FHistItemObj;
 end;
@@ -887,7 +889,7 @@ begin
 	// ListView_SetColumnWidth(ListViewResult.Handle, 3, ColumnTextWidth);
 end;
 
-procedure TRipGrepperMiddleFrame.SetHistItemObject(const Value : THistoryItemObject);
+procedure TRipGrepperMiddleFrame.SetHistItemObject(const Value : IHistoryItemObject);
 begin
 	FHistItemObj := Value;
 end;

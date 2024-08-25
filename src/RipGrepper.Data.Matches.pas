@@ -24,20 +24,20 @@ type
 
 		private
 			FErrorCount : Integer;
-			FHistObject : THistoryItemObject;
+			FHistObject: IHistoryItemObject;
 			FVst : TCustomVirtualStringTree;
 			function AddVSTStructure(_node : PVirtualNode; _rec : TVSFileNodeData; _asFirst : Boolean) : PVirtualNode;
 			function GetTotalMatchCount : Integer;
 			function GetFileCount : Integer;
 			function GetComparer(const _sbt : TSortByType) : IComparer<IParsedObjectRow>;
 			function GetErrorCount : Integer;
-			function GetHistObject : THistoryItemObject;
+			function GetHistObject: IHistoryItemObject;
 			function GetListItemCount : Integer;
 			function GetParentNode(const _sNodeText : string; _asFirst : Boolean = False) : PVirtualNode;
 			procedure AddChildNode(const _parentNode : PVirtualNode; _item : IParsedObjectRow);
 			function ErrorHandling(const _sFileColumnText : string; _item : IParsedObjectRow) : PVirtualNode;
 			function GetNoMatchFound : Boolean;
-			procedure SetHistObject(const Value : THistoryItemObject);
+			procedure SetHistObject(const Value: IHistoryItemObject);
 			procedure SetNoMatchFound(const Value : Boolean);
 			procedure SortMultiColumns(const _st : TSortDirectionType);
 
@@ -52,7 +52,7 @@ type
 			property ErrorCount : Integer read GetErrorCount;
 			property TotalMatchCount : Integer read GetTotalMatchCount;
 			property FileCount : Integer read GetFileCount;
-			property HistObject : THistoryItemObject read GetHistObject write SetHistObject;
+			property HistObject: IHistoryItemObject read GetHistObject write SetHistObject;
 			property ListItemCount : Integer read GetListItemCount;
 			property NoMatchFound : Boolean read GetNoMatchFound write SetNoMatchFound;
 	end;
@@ -230,7 +230,7 @@ begin
 	Result := FErrorCount;
 end;
 
-function TRipGrepperData.GetHistObject : THistoryItemObject;
+function TRipGrepperData.GetHistObject: IHistoryItemObject;
 begin
 	Result := FHistObject;
 end;
@@ -323,7 +323,7 @@ begin
 	Result := HistObject.NoMatchFound;
 end;
 
-procedure TRipGrepperData.SetHistObject(const Value : THistoryItemObject);
+procedure TRipGrepperData.SetHistObject(const Value: IHistoryItemObject);
 begin
 	FHistObject := Value;
 end;

@@ -26,7 +26,7 @@ uses
 	Vcl.ExtCtrls,
 	Vcl.Menus,
 	RipGrepper.Common.Settings.RipGrepperSettings,
-	RipGrepper.Data.HistoryItemObject;
+	RipGrepper.Common.Interfaces;
 
 type
 
@@ -104,7 +104,7 @@ type
 
 		private
 			FDpiScaler : TRipGrepperDpiScaler;
-			FHistItemObj : THistoryItemObject;
+			FHistItemObj : IHistoryItemObject;
 			FPrevFoundNode : PVirtualNode;
 			FSettings : TRipGrepperSettings;
 			FViewStyleIndex : integer;
@@ -121,7 +121,7 @@ type
 			function GetNextViewStyleIdx : integer;
 			procedure Init;
 			procedure SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
-			property HistItemObj : THistoryItemObject read FHistItemObj;
+			property HistItemObj : IHistoryItemObject read FHistItemObj;
 
 	end;
 

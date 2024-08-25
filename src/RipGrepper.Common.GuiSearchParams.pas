@@ -31,23 +31,25 @@ type
 		protected
 			procedure Init; override;
 			procedure Load; override;
+
 		public
 			SearchOptions : TSearchOptionSet;
 
 			constructor Create(const _ini : TMemIniFile); overload;
-			constructor Create(const _sText : string; const _bMC : Boolean = False; const _bMW : Boolean = False; const _bUR : Boolean = False);
-				overload;
+			constructor Create(const _sText : string; const _bMC : Boolean = False; const _bMW : Boolean = False;
+				const _bUR : Boolean = False); overload;
 			constructor Create; overload;
 			procedure Clear;
 			procedure Copy(const _other : TGuiSearchTextParams); reintroduce;
 
 			class function AddRgExeOptions(const _sOptions, _sParamRegex : string) : string; static;
 			class function RemoveRgExeOptions(const _sOptions, _sParamRegex : string) : string; static;
-			class function AddRgExeOptionWithValue(const _sOptions, _sParamRegex, _sValue : string; const _bUnique : Boolean = False) : string; static;
+			class function AddRgExeOptionWithValue(const _sOptions, _sParamRegex, _sValue : string; const _bUnique : Boolean = False)
+				: string; static;
 			function GetNext(const _newOption : EGuiOption) : TGuiSearchTextParams;
 			function IsSet(_options : TArray<EGuiOption>) : Boolean;
 
-			class function GetAsSearchOptionSet(const _bMC, _bMW, _bUR : Boolean): TSearchOptionSet; static;
+			class function GetAsSearchOptionSet(const _bMC, _bMW, _bUR : Boolean) : TSearchOptionSet; static;
 			procedure ResetOption(const _searchOption : EGuiOption);
 			function SearchOptionsAsBitField : TBitField;
 			procedure SetOption(const _searchOption : EGuiOption);
@@ -105,7 +107,8 @@ begin
 	end;
 end;
 
-class function TGuiSearchTextParams.AddRgExeOptionWithValue(const _sOptions, _sParamRegex, _sValue : string; const _bUnique : Boolean = False) : string;
+class function TGuiSearchTextParams.AddRgExeOptionWithValue(const _sOptions, _sParamRegex, _sValue : string;
+	const _bUnique : Boolean = False) : string;
 var
 	listOptions : TStringList;
 begin
@@ -122,7 +125,8 @@ begin
 end;
 
 // for UnitTests...
-constructor TGuiSearchTextParams.Create(const _sText : string; const _bMC : Boolean = False; const _bMW : Boolean = False; const _bUR : Boolean = False);
+constructor TGuiSearchTextParams.Create(const _sText : string; const _bMC : Boolean = False; const _bMW : Boolean = False;
+	const _bUR : Boolean = False);
 begin
 	Create();
 	SearchText := _sText;
@@ -362,7 +366,7 @@ end;
 
 procedure TGuiSearchTextParams.Init;
 begin
-	CreateSetting('SearchParams', TSettingVariant.NewDefault(varString, ''));
+	CreateDefaultSetting('SearchParams', varString, '');
 end;
 
 procedure TGuiSearchTextParams.Load;

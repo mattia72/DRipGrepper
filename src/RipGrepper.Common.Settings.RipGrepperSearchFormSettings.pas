@@ -128,11 +128,11 @@ end;
 procedure TRipGrepperSearchFormSettings.Init;
 begin
 	inherited;
-	CreateSetting('Pretty', TSettingVariant.NewDefault(varBoolean, True));
-	CreateSetting('Hidden', TSettingVariant.NewDefault(varBoolean, False));
-	CreateSetting('NoIgnore', TSettingVariant.NewDefault(varBoolean, False));
-	CreateSetting('Context', TSettingVariant.NewDefault(varInteger, 0));
-	CreateSetting('Encoding', TSettingVariant.NewDefault(varString, ''));
+	CreateDefaultSetting('Pretty',   varBoolean, True);
+	CreateDefaultSetting('Hidden',   varBoolean, False);
+	CreateDefaultSetting('NoIgnore', varBoolean, False);
+	CreateDefaultSetting('Context',  varInteger, 0);
+	CreateDefaultSetting('Encoding', varString, '');
 end;
 
 procedure TRipGrepperSearchFormSettings.Load;

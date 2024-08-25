@@ -16,30 +16,43 @@ uses
 	RipGrepper.Common.Settings.RipGrepperSearchFormSettings;
 
 type
-	THistoryItemObject = class(TNoRefCountObject, IHistoryItem)
+//	THistoryItemObject = class(TNoRefCountObject, IHistoryItemObject)
+	THistoryItemObject = class(TInterfacedObject, IHistoryItemObject)
 		private
 			FElapsedTimeText : string;
-			FErrorCount : Integer;
+			FErrorCount: Integer;
 			FFileCount : integer;
-			FGuiSearchTextParams: TGuiSearchTextParams;
+			FGuiSearchTextParams : TGuiSearchTextParams;
 			FMatches : TParsedObjectRowCollection;
 			FNoMatchFound : Boolean;
 			FParserType : TParserType;
 			FRipGrepArguments : TRipGrepArguments;
 			FRipGrepperSearchFormSettings : TRipGrepperSearchFormSettings;
-			FRipGrepResult : Integer;
+			FRipGrepResult: Integer;
 			FTotalMatchCount : integer;
-			function GetErrorCount : Integer; export;
+			function GetElapsedTimeText : string;
+			function GetErrorCount: Integer; export;
 			function GetFileCount : integer;
+			function GetGuiSearchTextParams : TGuiSearchTextParams;
 			function GetMatches : TParsedObjectRowCollection;
+			function GetNoMatchFound : Boolean;
 			function GetRipGrepArguments : TRipGrepArguments;
 			function GetTotalMatchCount : integer;
 			procedure SetFileCount(const Value : integer);
 			procedure SetMatches(const Value : TParsedObjectRowCollection);
 			procedure SetRipGrepArguments(const Value : TRipGrepArguments);
 			function GetParserType : TParserType;
+			function GetRipGrepperSearchFormSettings : TRipGrepperSearchFormSettings;
+			function GetRipGrepResult: Integer;
 			procedure SetParserType(const Value : TParserType);
-			function GetSearchText: string;
+			function GetSearchText : string;
+			procedure SetElapsedTimeText(const Value : string);
+			procedure SetErrorCount(const Value: Integer);
+			procedure SetGuiSearchTextParams(const Value : TGuiSearchTextParams);
+			procedure SetNoMatchFound(const Value : Boolean);
+			procedure SetRipGrepperSearchFormSettings(const Value : TRipGrepperSearchFormSettings);
+			procedure SetRipGrepResult(const Value: Integer);
+
 		public
 			procedure LoadFromSettings(const _settings : TRipGrepperSettings);
 			destructor Destroy; override;
@@ -51,14 +64,15 @@ type
 			property Matches : TParsedObjectRowCollection read GetMatches write SetMatches;
 			property RipGrepArguments : TRipGrepArguments read GetRipGrepArguments write SetRipGrepArguments;
 			property TotalMatchCount : integer read GetTotalMatchCount;
-			property ErrorCount : Integer read GetErrorCount write FErrorCount;
-			property ElapsedTimeText : string read FElapsedTimeText write FElapsedTimeText;
-			property GuiSearchTextParams: TGuiSearchTextParams read FGuiSearchTextParams write FGuiSearchTextParams;
-			property NoMatchFound : Boolean read FNoMatchFound write FNoMatchFound;
-			property RipGrepResult : Integer read FRipGrepResult write FRipGrepResult;
+			property ErrorCount: Integer read GetErrorCount write SetErrorCount;
+			property ElapsedTimeText : string read GetElapsedTimeText write SetElapsedTimeText;
+			property GuiSearchTextParams : TGuiSearchTextParams read GetGuiSearchTextParams write SetGuiSearchTextParams;
+			property NoMatchFound : Boolean read GetNoMatchFound write SetNoMatchFound;
+			property RipGrepResult: Integer read GetRipGrepResult write SetRipGrepResult;
 			property ParserType : TParserType read GetParserType write SetParserType;
-			property RipGrepperSearchFormSettings : TRipGrepperSearchFormSettings read FRipGrepperSearchFormSettings write FRipGrepperSearchFormSettings;
-			property SearchText: string read GetSearchText;
+			property RipGrepperSearchFormSettings : TRipGrepperSearchFormSettings read GetRipGrepperSearchFormSettings
+				write SetRipGrepperSearchFormSettings;
+			property SearchText : string read GetSearchText;
 
 	end;
 
@@ -160,9 +174,24 @@ begin
 	_settings.RipGrepperSearchFormSettings.Copy(RipGrepperSearchFormSettings);
 end;
 
-function THistoryItemObject.GetErrorCount : Integer;
+function THistoryItemObject.GetElapsedTimeText : string;
+begin
+	Result := FElapsedTimeText;
+end;
+
+function THistoryItemObject.GetErrorCount: Integer;
 begin
 	Result := FErrorCount;
+end;
+
+function THistoryItemObject.GetGuiSearchTextParams : TGuiSearchTextParams;
+begin
+	Result := FGuiSearchTextParams;
+end;
+
+function THistoryItemObject.GetNoMatchFound : Boolean;
+begin
+	Result := FNoMatchFound;
 end;
 
 function THistoryItemObject.GetParserType : TParserType;
@@ -173,14 +202,54 @@ begin
 	Result := FParserType;
 end;
 
-function THistoryItemObject.GetSearchText: string;
+function THistoryItemObject.GetRipGrepperSearchFormSettings : TRipGrepperSearchFormSettings;
+begin
+	Result := FRipGrepperSearchFormSettings;
+end;
+
+function THistoryItemObject.GetRipGrepResult: Integer;
+begin
+	Result := FRipGrepResult;
+end;
+
+function THistoryItemObject.GetSearchText : string;
 begin
 	Result := GuiSearchTextParams.SearchText;
+end;
+
+procedure THistoryItemObject.SetElapsedTimeText(const Value : string);
+begin
+	FElapsedTimeText := Value;
+end;
+
+procedure THistoryItemObject.SetErrorCount(const Value: Integer);
+begin
+	FErrorCount := Value;
+end;
+
+procedure THistoryItemObject.SetGuiSearchTextParams(const Value : TGuiSearchTextParams);
+begin
+	FGuiSearchTextParams := Value;
+end;
+
+procedure THistoryItemObject.SetNoMatchFound(const Value : Boolean);
+begin
+	FNoMatchFound := Value;
 end;
 
 procedure THistoryItemObject.SetParserType(const Value : TParserType);
 begin
 	FParserType := Value;
+end;
+
+procedure THistoryItemObject.SetRipGrepperSearchFormSettings(const Value : TRipGrepperSearchFormSettings);
+begin
+	FRipGrepperSearchFormSettings := Value;
+end;
+
+procedure THistoryItemObject.SetRipGrepResult(const Value: Integer);
+begin
+	FRipGrepResult := Value;
 end;
 
 function THistoryItemObject.UpdateParserType : TParserType;

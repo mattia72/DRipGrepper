@@ -20,8 +20,6 @@ type
 
 		protected
 			FRipGrepParameters : TRipGrepParameterSettings;
-			function GetIniSectionName : string; override;
-
 		public
 			constructor Create(_iniFile : TMemIniFile);
 			destructor Destroy; override;
@@ -62,11 +60,6 @@ begin
 	FRipGrepperSearchFormSettings.Free;
 	FExtensionSettings.Free;
 	inherited;
-end;
-
-function TRipGrepperSettingsDefaults.GetIniSectionName : string;
-begin
-	Result := inherited;
 end;
 
 function TRipGrepperSettingsDefaults.GetRipGrepParameters : TRipGrepParameterSettings;

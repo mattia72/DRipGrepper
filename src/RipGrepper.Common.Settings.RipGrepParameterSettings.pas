@@ -111,9 +111,9 @@ end;
 procedure TRipGrepParameterSettings.Init;
 begin
 	inherited Init();
-	CreateSetting(RG_INI_KEY_RGPATH, TSettingVariant.New(varString, ''));
-	CreateSetting('SearchPath', TSettingVariant.NewDefault(varString, ''));
-	CreateSetting('FileMasks', TSettingVariant.NewDefault(varString, ''));
+	CreateSetting(RG_INI_KEY_RGPATH, varString, '');
+	CreateDefaultSetting('SearchPath', varString, '');
+	CreateDefaultSetting('FileMasks', varString, '');
 end;
 
 procedure TRipGrepParameterSettings.Load;
@@ -123,6 +123,7 @@ begin
 	FRipGrepPath := FRipGrepPath.Trim(['"', '''']);
 
 	LoadDefault;
+
 end;
 
 procedure TRipGrepParameterSettings.LoadDefault;

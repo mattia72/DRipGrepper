@@ -28,10 +28,11 @@ uses
 	Vcl.ComCtrls,
 	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Common.Settings.RipGrepParameterSettings,
-	RipGrepper.Data.HistoryItemObject,
 	Vcl.Samples.Spin,
 	RipGrepper.Helper.Types,
-	RipGrepper.Common.Settings.RipGrepperSearchFormSettings, RipGrepper.Common.Settings.RipGrepperSettingsDefaults;
+	RipGrepper.Common.Settings.RipGrepperSearchFormSettings,
+	RipGrepper.Common.Settings.RipGrepperSettingsDefaults,
+    RipGrepper.Common.Interfaces;
 
 type
 	TRipGrepperSearchDialogForm = class(TForm)
@@ -129,7 +130,7 @@ type
 
 		private
 			FbExtensionOptionsSkipClick : Boolean;
-			FHistItemObj : THistoryItemObject;
+			FHistItemObj : IHistoryItemObject;
 			FDpiScaler : TRipGrepperDpiScaler;
 			FExpertGroupHeight : Integer;
 			FGuiSetSearchParams : TGuiSearchTextParams;
@@ -151,31 +152,30 @@ type
 			procedure UpdateCmbOptionsAndMemoCommandLine;
 			procedure StoreHistoriesAsCmbEntries;
 			procedure WriteCtrlsToRipGrepParametersSettings;
-			procedure WriteCtrlsToSettings(const _settings : TRipGrepperSettings);
+			procedure WriteCtrlsToSettings(const _bDefaultOnly : Boolean = False);
 			procedure UpdateCheckBoxesByRgOptions;
-			procedure UpdateCheckBoxesBySettings(const _searchFormSettings: TRipGrepperSearchFormSettings);
+			procedure UpdateCheckBoxesBySettings(const _searchFormSettings : TRipGrepperSearchFormSettings);
 			procedure AlignExpertGroupBox;
 			function CheckAndCorrectMultiLine(const _str : TMultiLineString) : string;
 			procedure ChecVsCodeRipGrep;
 			function HasHistItemObj : Boolean;
 			function GetInIDESelectedText : string;
 			procedure LoadExtensionSearchSettings;
-		procedure UpdateButtonsBySettings;
+			procedure UpdateButtonsBySettings;
 			procedure UpdateCmbsOnContextChange;
 			procedure UpdateFileMasksInFileMasks;
 			function UpdateFileMasksInOptions(const sOptions, sMasks : string) : string; overload;
 			procedure UpdateFileMasksInOptions; overload;
 			procedure UpdateHeight;
 			procedure WriteOptionCtrlToRipGrepParametersSetting;
-		procedure WriteSearchFormSettingsToCtrls(const _searchFormSettings: TRipGrepperSearchFormSettings);
+			procedure WriteSearchFormSettingsToCtrls(const _searchFormSettings : TRipGrepperSearchFormSettings);
 
 		public
-			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettings; const _histObj : THistoryItemObject);
-				reintroduce; virtual;
+			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettings; const _histObj :IHistoryItemObject); reintroduce; virtual;
 			destructor Destroy; override;
-		procedure LoadDefaultSettings;
+			procedure LoadDefaultSettings;
 
-			class function ShowSearchForm(_owner : TComponent; _settings : TRipGrepperSettings; _histObj : THistoryItemObject) : integer;
+			class function ShowSearchForm(_owner : TComponent; _settings : TRipGrepperSettings; _histObj : IHistoryItemObject): integer;
 
 			procedure UpdateMemoCommandLine(const _bSkipReadCtrls : Boolean = False);
 			procedure UpdateCtrls(_ctrlChanged : TControl);
@@ -210,7 +210,7 @@ uses
 {$R *.dfm}
 
 constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _settings : TRipGrepperSettings;
-	const _histObj : THistoryItemObject);
+	const _histObj :IHistoryItemObject);
 begin
 	inherited Create(AOwner);
 	FSettings := _settings;
@@ -237,7 +237,7 @@ destructor TRipGrepperSearchDialogForm.Destroy;
 begin
 	if not HasHistItemObj then begin
 		FGuiSetSearchParams.Free;
-    end;
+	end;
 	FOrigRipGrepperSearchFormSettings.Free;
 	FDpiScaler.Free;
 	inherited;
@@ -305,7 +305,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ActionSearchExecute(Sender : TObject);
 begin
-	WriteCtrlsToSettings(FSettings);
+	WriteCtrlsToSettings(False);
 	ModalResult := mrOk;
 end;
 
@@ -323,8 +323,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ActionSetAsDefaultExecute(Sender : TObject);
 begin
-	WriteCtrlsToSettings(FSettings);
-
+	WriteCtrlsToSettings(True);
 
 	FSettings.DefaultSettings.StoreAsDefault();
 	FSettings.UpdateIniFile;
@@ -649,20 +648,24 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.WriteCtrlsToRipGrepParametersSettings: end ' + FGuiSetSearchParams.ToString);
 end;
 
-procedure TRipGrepperSearchDialogForm.WriteCtrlsToSettings(const _settings : TRipGrepperSettings);
+procedure TRipGrepperSearchDialogForm.WriteCtrlsToSettings(const _bDefaultOnly : Boolean = False);
 begin
 	StoreHistoriesAsCmbEntries();
 
-	_settings.SearchPathsHistory := cmbSearchDir.Items;
-	_settings.SearchTextsHistory := cmbSearchText.Items;
-	_settings.RipGrepOptionsHistory := cmbOptions.Items;
-	_settings.FileMasksHistory := cmbFileMasks.Items;
+	FSettings.SearchPathsHistory := cmbSearchDir.Items;
+	FSettings.SearchTextsHistory := cmbSearchText.Items;
+	FSettings.RipGrepOptionsHistory := cmbOptions.Items;
+	FSettings.FileMasksHistory := cmbFileMasks.Items;
 
 	WriteCtrlsToRipGrepParametersSettings;
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.WriteCtrlsToSettings: set GuiSearchTextParams=' + FGuiSetSearchParams.ToString);
-	_settings.RipGrepParameters.GuiSearchTextParams.Copy(FGuiSetSearchParams);
+	FSettings.RipGrepParameters.GuiSearchTextParams.Copy(FGuiSetSearchParams);
 
-	_settings.RebuildArguments();
+	if _bDefaultOnly then begin
+		FSettings.DefaultSettings.Copy(FSettings);
+	end;
+
+	FSettings.RebuildArguments();
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateCheckBoxesByRgOptions;
@@ -690,7 +693,7 @@ begin
 		[BoolToStr(cbRgParamHidden.Checked), BoolToStr(cbRgParamNoIgnore.Checked), BoolToStr(cbRgParamPretty.Checked)]));
 end;
 
-procedure TRipGrepperSearchDialogForm.UpdateCheckBoxesBySettings(const _searchFormSettings: TRipGrepperSearchFormSettings);
+procedure TRipGrepperSearchDialogForm.UpdateCheckBoxesBySettings(const _searchFormSettings : TRipGrepperSearchFormSettings);
 begin
 	FCbClickEventEnabled := False;
 	try
@@ -849,7 +852,8 @@ end;
 
 procedure TRipGrepperSearchDialogForm.LoadDefaultSettings;
 begin
-	var def := FSettings.DefaultSettings;
+	var
+	def := FSettings.DefaultSettings;
 	def.LoadDefault;
 	// TODO set only if it was saved before!
 	cmbSearchDir.Text := IfThen(def.RipGrepParameters.SearchPath.IsEmpty, cmbSearchDir.Text);
@@ -891,7 +895,7 @@ begin
 end;
 
 class function TRipGrepperSearchDialogForm.ShowSearchForm(_owner : TComponent; _settings : TRipGrepperSettings;
-	_histObj : THistoryItemObject) : integer;
+	_histObj : IHistoryItemObject) : integer;
 var
 	frm : TRipGrepperSearchDialogForm;
 begin
@@ -902,7 +906,7 @@ begin
 			_settings.LastSearchText := frm.cmbSearchText.Text
 		end else begin
 			_settings.LastSearchText := '';
-        end;
+		end;
 	finally
 		frm.Free;
 	end;
@@ -910,7 +914,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.UpdateButtonsBySettings;
 var
-	s: string;
+	s : string;
 begin
 	ButtonDown(EGuiOption.soMatchCase, tbIgnoreCase);
 	ButtonDown(EGuiOption.soMatchWord, tbMatchWord);
@@ -1015,7 +1019,7 @@ begin
 	FGuiSetSearchParams.RgAdditionalOptions := cmbOptions.Text;
 end;
 
-procedure TRipGrepperSearchDialogForm.WriteSearchFormSettingsToCtrls(const _searchFormSettings: TRipGrepperSearchFormSettings);
+procedure TRipGrepperSearchDialogForm.WriteSearchFormSettingsToCtrls(const _searchFormSettings : TRipGrepperSearchFormSettings);
 begin
 	cbRgParamHidden.Checked := _searchFormSettings.Hidden;
 	cbRgParamNoIgnore.Checked := _searchFormSettings.NoIgnore;

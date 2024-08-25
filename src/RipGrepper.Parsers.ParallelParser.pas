@@ -4,8 +4,8 @@ interface
 
 uses
 	System.Classes,
-	RipGrepper.Data.HistoryItemObject,
-	RipGrepper.Data.Matches;
+	RipGrepper.Data.Matches, 
+	RipGrepper.Common.Interfaces;
 
 type
 	TLastLineEvent = procedure(const _iLineNr : Integer) of object;
@@ -13,7 +13,7 @@ type
 
 	TParallelParser = class // class(TThread)
 		private
-			FHistObject : THistoryItemObject;
+			FHistObject: IHistoryItemObject;
 			FData : TRipGrepperData;
 			FIsLast : Boolean;
 			FLine : string;
@@ -25,7 +25,7 @@ type
 
 		protected
 		public
-			constructor Create(_data : TRipGrepperData; _histObj : THistoryItemObject);
+			constructor Create(_data : TRipGrepperData; _histObj : IHistoryItemObject);
 			procedure Parse;
 			procedure SetNewLine(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean);
 			property OnLastLine : TLastLineEvent read FOnLastLine write FOnLastLine;
@@ -35,7 +35,6 @@ type
 implementation
 
 uses
-	RipGrepper.Common.Interfaces,
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.Tools.DebugUtils,
 	System.SysUtils,
@@ -45,7 +44,7 @@ uses
 	Winapi.Windows,
 	RipGrepper.Common.SearchParams;
 
-constructor TParallelParser.Create(_data : TRipGrepperData; _histObj : THistoryItemObject);
+constructor TParallelParser.Create(_data : TRipGrepperData; _histObj : IHistoryItemObject);
 begin
 	inherited Create();
 	FHistObject := _histObj;
