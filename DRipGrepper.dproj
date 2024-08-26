@@ -216,7 +216,8 @@
         <DCCReference Include="src\RipGrepper.Common.Settings.RipGrepperViewSettings.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.RipGrepperOpenWithSettings.pas"/>
         <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.Params.pas"/>
-        <DCCReference Include="src\RipGrepper.Common.Settings.RipGrepperSettingsDefaults.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Settings.SettingVariant.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Settings.SettingsDictionary.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
