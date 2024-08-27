@@ -8,6 +8,7 @@ uses
 
 type
 	ISettingVariant = interface
+		['{D4A1E2B3-5F6C-4A7D-8B9E-1C2D3E4F5A6B}']
 		function Equals(_other : ISettingVariant) : Boolean;
 		function GetDefaultValue : Variant;
 		function GetInitialValue : Variant;
@@ -16,6 +17,8 @@ type
 		function GetValue : Variant;
 		function GetValueType : TVarType;
 		function IsEmpty : Boolean;
+		function GetSaveToIni : Boolean; // New getter
+		procedure SetSaveToIni(const Value : Boolean); // New setter
 		procedure SetDefaultValue(const Value : Variant);
 		procedure SetInitialValue(const Value : Variant);
 		procedure SetIsDefaultRelevant(const Value : Boolean);
@@ -28,10 +31,10 @@ type
 		property IsModified : Boolean read GetIsModified write SetIsModified;
 		property Value : Variant read GetValue write SetValue;
 		property ValueType : TVarType read GetValueType write SetValueType;
+		property SaveToIni : Boolean read GetSaveToIni write SetSaveToIni; // New property
 	end;
 
 	TSettingVariant = class(TInterfacedObject, ISettingVariant)
-
 		private
 			FDefaultValue : Variant;
 			FValue : Variant;
@@ -39,18 +42,21 @@ type
 			FInitialValue : Variant;
 			FIsModified : Boolean;
 			FIsDefaultRelevant : Boolean;
+			FSaveToIni : Boolean; // New field
 			function GetDefaultValue : Variant;
 			function GetValue : Variant;
 			function GetInitialValue : Variant;
 			function GetIsModified : Boolean;
 			function GetIsDefaultRelevant : Boolean;
 			function GetValueType : TVarType;
+			function GetSaveToIni : Boolean;
 			procedure SetDefaultValue(const Value : Variant);
 			procedure SetValue(const Value : Variant);
 			procedure SetInitialValue(const Value : Variant);
 			procedure SetIsModified(const Value : Boolean);
 			procedure SetIsDefaultRelevant(const Value : Boolean);
 			procedure SetValueType(const Value : TVarType);
+			procedure SetSaveToIni(const Value : Boolean);
 
 		public
 			constructor Create(const _type : TVarType; const _value : Variant; const _isDefRelevant : Boolean = False); overload;
@@ -65,7 +71,7 @@ type
 			property IsModified : Boolean read GetIsModified write SetIsModified;
 			property IsDefaultRelevant : Boolean read GetIsDefaultRelevant write SetIsDefaultRelevant;
 			property ValueType : TVarType read GetValueType write SetValueType;
-
+			property SaveToIni : Boolean read GetSaveToIni write SetSaveToIni; // New property
 	end;
 
 implementation
@@ -94,13 +100,43 @@ begin
 end;
 
 function TSettingVariant.CompareTo(Value : ISettingVariant) : Integer;
+var
+	res : TVariantRelationship;
 begin
-	Result := Integer(VarCompareValue(self.FValue, Value.Value));
+	res := VarCompareValue(self.FValue, Value.Value);
+	if res = vrEqual then begin
+		res := VarCompareValue(FDefaultValue, Value.DefaultValue);
+		if res = vrEqual then begin
+			res := VarCompareValue(FInitialValue, Value.InitialValue);
+			if res = vrEqual then begin
+				if FIsModified <> Value.IsModified then
+					Result := Ord(FIsModified) - Ord(Value.IsModified)
+				else if FIsDefaultRelevant <> Value.IsDefaultRelevant then
+					Result := Ord(FIsDefaultRelevant) - Ord(Value.IsDefaultRelevant)
+				else if FSaveToIni <> Value.SaveToIni then
+					Result := Ord(FSaveToIni) - Ord(Value.SaveToIni)
+				else
+					Result := 0;
+				Exit;
+			end;
+		end;
+	end;
+	Result := Integer(res);
 end;
 
 function TSettingVariant.Equals(_other : ISettingVariant) : Boolean;
 begin
-	Result := _other.Value = Value;
+	Result := (VarCompareValue(FValue, _other.Value) = vrEqual) and
+	{ } (VarCompareValue(FDefaultValue, _other.DefaultValue) = vrEqual) and
+	{ } (VarCompareValue(FInitialValue, _other.InitialValue) = vrEqual) and
+	{ } (FIsModified = _other.IsModified) and
+	{ } (FIsDefaultRelevant = _other.IsDefaultRelevant) and
+	{ } (FSaveToIni = _other.SaveToIni);
+end;
+
+function TSettingVariant.IsEmpty : Boolean;
+begin
+	Result := VarIsEmpty(Value) or VarIsNull(Value);
 end;
 
 function TSettingVariant.GetDefaultValue : Variant;
@@ -133,9 +169,9 @@ begin
 	Result := FValueType;
 end;
 
-function TSettingVariant.IsEmpty : Boolean;
+function TSettingVariant.GetSaveToIni : Boolean;
 begin
-	Result := VarIsEmpty(Value) or VarIsNull(Value);
+	Result := FSaveToIni;
 end;
 
 procedure TSettingVariant.SetDefaultValue(const Value : Variant);
@@ -166,6 +202,11 @@ end;
 procedure TSettingVariant.SetValueType(const Value : TVarType);
 begin
 	FValueType := Value;
+end;
+
+procedure TSettingVariant.SetSaveToIni(const Value : Boolean);
+begin
+	FSaveToIni := Value;
 end;
 
 end.
