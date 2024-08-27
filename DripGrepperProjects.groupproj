@@ -6,7 +6,7 @@
         <Projects Include="DRipGrepper.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Extension\DRipExtension.dproj">
+        <Projects Include="Extension\DRipExtension280.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -26,23 +26,23 @@
     <Target Name="DRipGrepper:Make">
         <MSBuild Projects="DRipGrepper.dproj" Targets="Make"/>
     </Target>
-    <Target Name="DRipExtension">
-        <MSBuild Projects="Extension\DRipExtension.dproj"/>
+    <Target Name="DRipExtension280">
+        <MSBuild Projects="Extension\DRipExtension280.dproj"/>
     </Target>
-    <Target Name="DRipExtension:Clean">
-        <MSBuild Projects="Extension\DRipExtension.dproj" Targets="Clean"/>
+    <Target Name="DRipExtension280:Clean">
+        <MSBuild Projects="Extension\DRipExtension280.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="DRipExtension:Make">
-        <MSBuild Projects="Extension\DRipExtension.dproj" Targets="Make"/>
+    <Target Name="DRipExtension280:Make">
+        <MSBuild Projects="Extension\DRipExtension280.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="DRipGrepper;DRipExtension"/>
+        <CallTarget Targets="DRipGrepper;DRipExtension280"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="DRipGrepper:Clean;DRipExtension:Clean"/>
+        <CallTarget Targets="DRipGrepper:Clean;DRipExtension280:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="DRipGrepper:Make;DRipExtension:Make"/>
+        <CallTarget Targets="DRipGrepper:Make;DRipExtension280:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
