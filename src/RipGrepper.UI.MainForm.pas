@@ -133,8 +133,6 @@ end;
 destructor TRipGrepperForm.Destroy;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.Destroy');
-
-	// FImageScaler.Free;
 	inherited;
 end;
 
@@ -180,21 +178,9 @@ begin
 	end;
 end;
 
-//function TRipGrepperForm.GetSettings : TRipGrepperSettings;
-//begin
-//	if not Assigned(FSettings) then begin
-//		FSettings := ParentFrame1.Settings;
-//	end;
-//	Result := FSettings;
-//end;
-
 procedure TRipGrepperForm.Init;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.Init');
-	// if not IsStandalone then begin
-	TDebugUtils.DebugMessage('TRipGrepperDockableForm.FrameCreated FindImageListForDpiScaler');
-	// end;
-
 	ParentFrame.Init;
 end;
 
