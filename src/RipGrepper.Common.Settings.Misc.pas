@@ -160,14 +160,7 @@ begin
 	if IOTAUTils.IsStandAlone then begin
 		Exit;
 	end;
-	var
-	bStore := IsLoaded and IsModified;
-	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.StoreAsDefault ' + BoolToStr(bStore) + ' ' + ToString());
-	if bStore then begin
-		FIniFile.WriteInteger(DEFAULTS_INI_SECTION, KEY_CONTEXT, Integer(CurrentSearchSettings.Context));
-		FIsModified := False;
-	end;
-
+    inherited StoreAsDefault;
 end;
 
 function TRipGrepperExtensionSettings.ToString : string;

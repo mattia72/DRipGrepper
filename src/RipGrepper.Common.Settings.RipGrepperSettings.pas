@@ -309,7 +309,7 @@ begin
 		FExtensionSettings.StoreAsDefault;
 		FRipGrepperSearchFormSettings.StoreAsDefault;
 	end;
-	inherited;
+	inherited StoreAsDefault;
 end;
 
 procedure TRipGrepperSettings.StoreViewSettings(const _s : string = '');

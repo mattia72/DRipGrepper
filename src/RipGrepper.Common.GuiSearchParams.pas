@@ -307,6 +307,7 @@ end;
 procedure TGuiSearchTextParams.StoreAsDefault;
 begin
 	StoreDefaultSetting('SearchParams', GetAsString(True));
+    inherited StoreAsDefault;
 end;
 
 function TGuiSearchTextParams.GetAsString(const _bGuiOptionsOnly : Boolean = False) : string;
