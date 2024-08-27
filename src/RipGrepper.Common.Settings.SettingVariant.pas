@@ -17,8 +17,8 @@ type
 		function GetValue : Variant;
 		function GetValueType : TVarType;
 		function IsEmpty : Boolean;
-		function GetSaveToIni : Boolean; // New getter
-		procedure SetSaveToIni(const Value : Boolean); // New setter
+		function GetSaveToIni : Boolean;
+		procedure SetSaveToIni(const Value : Boolean);
 		procedure SetDefaultValue(const Value : Variant);
 		procedure SetInitialValue(const Value : Variant);
 		procedure SetIsDefaultRelevant(const Value : Boolean);
@@ -71,7 +71,7 @@ type
 			property IsModified : Boolean read GetIsModified write SetIsModified;
 			property IsDefaultRelevant : Boolean read GetIsDefaultRelevant write SetIsDefaultRelevant;
 			property ValueType : TVarType read GetValueType write SetValueType;
-			property SaveToIni : Boolean read GetSaveToIni write SetSaveToIni; // New property
+			property SaveToIni : Boolean read GetSaveToIni write SetSaveToIni;
 	end;
 
 implementation
