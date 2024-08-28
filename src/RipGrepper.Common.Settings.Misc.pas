@@ -46,7 +46,7 @@ type
 		public
 			constructor Create(const _ini : TMemIniFile);
 			procedure Init; override;
-			procedure Load; override;
+			procedure Read; override;
 			procedure LoadDefault; override;
 			procedure Store; override;
 			procedure StoreAsDefault; override;
@@ -70,7 +70,7 @@ type
 		public
 			constructor Create(const _ini : TMemIniFile);
 			destructor Destroy; override;
-			procedure Load; override;
+			procedure Read; override;
 			procedure Store; override;
 			property DebugTrace : Boolean read FDebugTrace write FDebugTrace;
 			property ExpertMode : Boolean read FExpertMode write FExpertMode;
@@ -110,7 +110,7 @@ begin
 	CreateDefaultSetting(KEY_CONTEXT, vtInteger, EXT_SEARCH_GIVEN_PATH)
 end;
 
-procedure TRipGrepperExtensionSettings.Load;
+procedure TRipGrepperExtensionSettings.Read;
 begin
 	if IOTAUTils.IsStandAlone then begin
 		Exit;
@@ -126,8 +126,8 @@ begin
 			DripGrepperShortCut := TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH;
 		end;
 		FIsModified := True;
-		FIsLoaded := True;
-		TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Load ' + ToString());
+		//IsAlreadyRead := True;
+		TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Read ' + ToString());
 
 	end else begin
 		raise ESettingsException.Create('Settings ini file is nil!')
@@ -145,7 +145,7 @@ begin
 		Exit;
 	end;
 	var
-	bStore := IsLoaded and IsModified;
+	bStore := IsAlreadyRead and IsModified;
 	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Store ' + BoolToStr(bStore) + ' ' + ToString());
 	if bStore then begin
 		FIniFile.WriteString(GetIniSectionName, 'DripGrepperShortCut', DripGrepperShortCut);
@@ -190,10 +190,10 @@ begin
 	CreateSetting('EncodingItems', varString, string.join(ARRAY_SEPARATOR, TDefaults.RG_PARAM_ENCODING_VALUES));
 end;
 
-procedure TRipGrepperAppSettings.Load;
+procedure TRipGrepperAppSettings.Read;
 begin
-	inherited Load();
-	TDebugUtils.DebugMessage('TRipGrepperAppSettings.Load start');
+	inherited Read();
+	TDebugUtils.DebugMessage('TRipGrepperAppSettings.Read start');
 
 	FExpertMode := GetSetting('ExpertMode');
 	FDebugTrace := GetSetting('DebugTrace');

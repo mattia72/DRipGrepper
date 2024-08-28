@@ -49,7 +49,7 @@ type
 
 		protected
 		public
-			procedure Load; override;
+			procedure Read; override;
 			procedure Store; override;
 			procedure StoreViewSettings(const _s : string = '');
 			constructor Create;
@@ -189,8 +189,6 @@ begin
 	FRipGrepArguments := TStringList.Create();
 	FRipGrepArguments.Delimiter := ' ';
 	FFileMasksHistory := TStringList.Create(dupIgnore, False, True);
-
-	FIsLoaded := False;
 end;
 
 procedure TRipGrepperSettings.AddIfNotContains(_to, _from : TStrings);
@@ -221,15 +219,15 @@ begin
 	Result := FSearchPathIsDir;
 end;
 
-procedure TRipGrepperSettings.Load;
+procedure TRipGrepperSettings.Read;
 begin
-	inherited Load;
-	TDebugUtils.DebugMessage('TRipGrepperSettings.Load: start');
+	inherited Read;
+	TDebugUtils.DebugMessage('TRipGrepperSettings.Read: start');
 
 	try
-		FRipGrepperViewSettings.Load;
-		FRipGrepperOpenWithSettings.Load;
-		FRipGrepperSettings.Load;
+		FRipGrepperViewSettings.Read;
+		FRipGrepperOpenWithSettings.Read;
+		FRipGrepperSettings.Read;
 
 		LoadHistoryEntries(FSearchPathsHistory, 'SearchPathsHistory');
 		LoadHistoryEntries(FSearchTextsHistory, 'SearchTextsHistory');
@@ -237,16 +235,19 @@ begin
 		LoadHistoryEntries(FFileMasksHistory, 'FileMasksHistory');
 	except
 		on E : Exception do begin
-			TDebugUtils.DebugMessage(Format('TRipGrepperSettings.Load: Exception %s ', [E.Message]));
-			TMsgBox.ShowError(E.Message + CRLF + 'Settings load from ' + FIniFile.FileName + ' went wrong.');
+			TDebugUtils.DebugMessage(Format('TRipGrepperSettings.Read: Exception %s ', [E.Message]));
+			TMsgBox.ShowError(E.Message + CRLF + 'Settings Read from ' + FIniFile.FileName + ' went wrong.');
 		end;
 	end;
 	InitSettings;
-	FIsLoaded := True;
 end;
 
 procedure TRipGrepperSettings.LoadDefault;
 begin
+	if not IsAlreadyRead then begin
+		Read;
+    end;
+
 	FRipGrepParameters.LoadDefault;
 	FExtensionSettings.LoadDefault;
 	FRipGrepperSearchFormSettings.LoadDefault;
@@ -288,7 +289,7 @@ end;
 procedure TRipGrepperSettings.Store;
 begin
 	inherited;
-	if IsLoaded and IsModified then begin
+	if IsAlreadyRead and IsModified then begin
 		FRipGrepperViewSettings.Store;
 		FRipGrepperOpenWithSettings.Store;
 		FRipGrepperSettings.Store;
@@ -304,7 +305,7 @@ end;
 
 procedure TRipGrepperSettings.StoreAsDefault;
 begin
-	if IsLoaded then begin
+	if IsAlreadyRead then begin
 		FRipGrepParameters.StoreAsDefault;
 		FExtensionSettings.StoreAsDefault;
 		FRipGrepperSearchFormSettings.StoreAsDefault;

@@ -28,7 +28,7 @@ type
 			procedure SetViewSettingValues(const _s : string = '');
 			constructor Create(const _ini : TMemIniFile);
 			procedure Init; override;
-			procedure Load; override;
+			procedure Read; override;
 			procedure Store; override;
 	end;
 
@@ -57,16 +57,14 @@ begin
 	CreateSetting('ExpandNodes', varBoolean, True);
 end;
 
-procedure TRipGrepperViewSettings.Load;
+procedure TRipGrepperViewSettings.Read;
 begin
-	inherited Load();
+	inherited Read();
 	ShowRelativePath := GetSetting('ShowRelativePath');
 	ShowFileIcon := GetSetting('ShowFileIcon');
 	AlternateRowColors := GetSetting('AlternateRowColors');
 	IndentLines := GetSetting('IndentLines');
 	ExpandNodes := GetSetting('ExpandNodes');
-
-	FIsLoaded := True;
 end;
 
 procedure TRipGrepperViewSettings.Store;

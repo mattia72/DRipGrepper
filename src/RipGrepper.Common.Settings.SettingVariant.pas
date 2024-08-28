@@ -59,7 +59,8 @@ type
 			procedure SetSaveToIni(const Value : Boolean);
 
 		public
-			constructor Create(const _type : TVarType; const _value : Variant; const _isDefRelevant : Boolean = False); overload;
+			constructor Create(const _type: TVarType; const _value: Variant; const _isDefRelevant: Boolean = False; const _saveToIni: Boolean = True);
+				overload;
 			constructor Create(const _value : Variant); overload;
 			destructor Destroy; override;
 			function CompareTo(Value : ISettingVariant) : Integer;
@@ -76,13 +77,15 @@ type
 
 implementation
 
-constructor TSettingVariant.Create(const _type : TVarType; const _value : Variant; const _isDefRelevant : Boolean = False);
+constructor TSettingVariant.Create(const _type: TVarType; const _value: Variant; const _isDefRelevant: Boolean = False; const _saveToIni:
+	Boolean = True);
 begin
 	FValueType := _type;
 	FValue := _value;
 	FInitialValue := _value;
 	FIsModified := False;
 	FIsDefaultRelevant := _isDefRelevant;
+	FSaveToIni := _saveToIni;
 end;
 
 constructor TSettingVariant.Create(const _value : Variant);
@@ -92,6 +95,7 @@ begin
 	FInitialValue := _value;
 	FIsModified := False;
 	FIsDefaultRelevant := False;
+    FSaveToIni := True;
 end;
 
 destructor TSettingVariant.Destroy;

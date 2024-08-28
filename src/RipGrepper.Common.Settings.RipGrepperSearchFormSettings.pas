@@ -48,7 +48,7 @@ type
 
 			procedure StoreSearchSettings(const _s : string = '');
 			procedure Init; override;
-			procedure Load; override;
+			procedure Read; override;
 			procedure Store; override;
 			procedure Copy(const _other : TRipGrepperSearchFormSettings); reintroduce;
 			procedure StoreAsDefault; override;
@@ -83,12 +83,13 @@ uses
 
 constructor TRipGrepperSearchFormSettings.Create(const _ini : TMemIniFile);
 begin
-	inherited;
+	inherited Create(_ini);
+	IniSectionName := INI_SECTION;
 end;
 
 constructor TRipGrepperSearchFormSettings.Create;
 begin
-	inherited;
+	inherited Create;
 	IniSectionName := INI_SECTION;
 end;
 
@@ -136,9 +137,9 @@ begin
 	CreateDefaultSetting('Encoding', varString, '');
 end;
 
-procedure TRipGrepperSearchFormSettings.Load;
+procedure TRipGrepperSearchFormSettings.Read;
 begin
-	inherited Load();
+	inherited Read();
 end;
 
 procedure TRipGrepperSearchFormSettings.SetContext(const Value: Integer);

@@ -42,7 +42,7 @@ type
 			destructor Destroy; override;
 			function GetCommandLine : string;
 			procedure InitRipGrepExePath;
-			procedure Load; override;
+			procedure Read; override;
 			procedure LoadDefault; override;
 			procedure Store; override;
 			procedure StoreAsDefault; override;
@@ -116,9 +116,9 @@ begin
 	CreateDefaultSetting('FileMasks', varString, '');
 end;
 
-procedure TRipGrepParameterSettings.Load;
+procedure TRipGrepParameterSettings.Read;
 begin
-	inherited Load();
+	inherited Read();
 	FRipGrepPath := GetSetting(RG_INI_KEY_RGPATH);
 	FRipGrepPath := FRipGrepPath.Trim(['"', '''']);
 

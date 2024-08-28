@@ -274,7 +274,7 @@ end;
 
 procedure TRipGrepperTopFrame.ActionRefreshSearchUpdate(Sender : TObject);
 begin
-	ActionRefreshSearch.Enabled := Settings.IsLoaded and (not MainFrame.IsSearchRunning) and Assigned(MainFrame.HistItemObject);
+	ActionRefreshSearch.Enabled := Settings.IsAlreadyRead and (not MainFrame.IsSearchRunning) and Assigned(MainFrame.HistItemObject);
 end;
 
 procedure TRipGrepperTopFrame.ActionSearchExecute(Sender : TObject);

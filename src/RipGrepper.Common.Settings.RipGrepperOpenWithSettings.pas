@@ -20,7 +20,7 @@ type
 		public
 			constructor Create(const _ini : TMemIniFile);
 			destructor Destroy; override;
-			procedure Load; override;
+			procedure Read; override;
 			procedure Store; override;
 			property Command[index : Integer] : string read GetCommand write SetCommand;
 			property TestFile : TOpenWithParams read FTestFile write FTestFile;
@@ -54,7 +54,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepperOpenWithSettings.Load;
+procedure TRipGrepperOpenWithSettings.Read;
 var
 	s : string;
 begin
@@ -66,7 +66,7 @@ begin
 			break
 		end;
 	end;
-	FIsLoaded := True;
+	//FIsAlreadyRead := True;
 end;
 
 procedure TRipGrepperOpenWithSettings.SetCommand(Index : Integer; const Value : string);
@@ -89,7 +89,7 @@ procedure TRipGrepperOpenWithSettings.Store;
 var
 	s : string;
 begin
-	if IsLoaded and IsModified then begin
+	if IsAlreadyRead and IsModified then begin
 		if FCommandList.Count > 0 then begin
 			for var i : integer := 0 to MAX_COMMAND_NUM do begin
 				s := Command[i];

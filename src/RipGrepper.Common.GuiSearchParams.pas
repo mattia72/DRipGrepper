@@ -30,7 +30,7 @@ type
 
 		protected
 			procedure Init; override;
-			procedure Load; override;
+			procedure Read; override;
 
 		public
 			SearchOptions : TSearchOptionSet;
@@ -343,7 +343,7 @@ end;
 constructor TGuiSearchTextParams.Create(const _ini : TMemIniFile);
 begin
 	inherited Create(_ini);
-	// IniSectionName := 'Dummy';
+	IniSectionName := 'GuiSearchTextParams';
 	TDebugUtils.DebugMessage('TGuiSearchTextParams.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
 	Create;
 end;
@@ -370,9 +370,9 @@ begin
 	CreateDefaultSetting('SearchParams', varString, '');
 end;
 
-procedure TGuiSearchTextParams.Load;
+procedure TGuiSearchTextParams.Read;
 begin
-	// noting to load
+	// noting to Read
 end;
 
 procedure TGuiSearchTextParams.LoadDefault;

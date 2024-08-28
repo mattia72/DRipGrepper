@@ -98,8 +98,8 @@ function TParentFrame.GetSettings : TRipGrepperSettings;
 begin
 	if not Assigned(FSettings) then begin
 		FSettings := GSettings;
-		if not FSettings.IsLoaded then begin
-			FSettings.Load;
+		if not FSettings.IsAlreadyRead then begin
+			FSettings.Read;
 		end;
 	end;
 	Result := FSettings;
