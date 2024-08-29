@@ -95,7 +95,7 @@ begin
 
 	RemoveExtensionMenu();
 	if not GSettings.ExtensionSettings.IsAlreadyRead then begin
-		GSettings.ExtensionSettings.Read;
+		GSettings.ExtensionSettings.ReadIni;
 	end;
 	TDebugUtils.DebugMessage('TDRipExtension.CreateMenu shortcut ' + GSettings.ExtensionSettings.DripGrepperShortCut);
 	sc := TextToShortCut(GSettings.ExtensionSettings.DripGrepperShortCut);

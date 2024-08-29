@@ -64,7 +64,7 @@ type
 			constructor Create(const _value : Variant); overload;
 			destructor Destroy; override;
 			function CompareTo(Value : ISettingVariant) : Integer;
-			function Equals(_other : ISettingVariant) : Boolean;
+			function Equals(_other : ISettingVariant) : Boolean; reintroduce;
 			function IsEmpty : Boolean;
 			property DefaultValue : Variant read GetDefaultValue write SetDefaultValue;
 			property Value : Variant read GetValue write SetValue;

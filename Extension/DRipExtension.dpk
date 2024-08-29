@@ -86,7 +86,6 @@ contains
   RipGrepper.Common.Settings.RipGrepperSearchFormSettings in '..\src\RipGrepper.Common.Settings.RipGrepperSearchFormSettings.pas',
   RipGrepper.Common.Settings.RipGrepperSettings in '..\src\RipGrepper.Common.Settings.RipGrepperSettings.pas',
   RipGrepper.Common.Settings.RipGrepperViewSettings in '..\src\RipGrepper.Common.Settings.RipGrepperViewSettings.pas',
-  RipGrepper.Common.Settings.RipGrepperSettingsDefaults in '..\src\RipGrepper.Common.Settings.RipGrepperSettingsDefaults.pas',
   RipGrepper.OpenWith.Params in '..\src\OpenWith\RipGrepper.OpenWith.Params.pas',
   RipGrepper.Common.SearchParams in '..\src\RipGrepper.Common.SearchParams.pas',
   ArrayEx in '..\external\ArrayEx.pas',

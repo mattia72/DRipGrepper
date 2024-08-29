@@ -196,7 +196,6 @@
         <DCCReference Include="..\src\RipGrepper.Common.Settings.RipGrepperSearchFormSettings.pas"/>
         <DCCReference Include="..\src\RipGrepper.Common.Settings.RipGrepperSettings.pas"/>
         <DCCReference Include="..\src\RipGrepper.Common.Settings.RipGrepperViewSettings.pas"/>
-        <DCCReference Include="..\src\RipGrepper.Common.Settings.RipGrepperSettingsDefaults.pas"/>
         <DCCReference Include="..\src\OpenWith\RipGrepper.OpenWith.Params.pas"/>
         <DCCReference Include="..\src\RipGrepper.Common.SearchParams.pas"/>
         <DCCReference Include="..\external\ArrayEx.pas"/>

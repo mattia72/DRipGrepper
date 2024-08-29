@@ -100,8 +100,10 @@ begin
 		cd.Add(TColumnData.New(ciRow, m.Groups['row'].Value));
 		cd.Add(TColumnData.New(ciCol, m.Groups['col'].Value));
 		s := m.Groups['text'].Value;
+
 		var // not used, but so we have less memory leak!
 		so := SearchParams.GetGuiSearchParams;
+
 		matchPretty := FPrettyRegex.Match(s);
 		if matchPretty.Groups.Count = 4 then begin
 			cd.Add(TColumnData.New(ciText, matchPretty.Groups['before'].Value));
@@ -112,7 +114,6 @@ begin
 			cd.Add(TColumnData.New(ciMatchText, ''));
 			cd.Add(TColumnData.New(ciTextAfterMatch, ''));
 		end;
-
 	end else begin
 		m := ParserData.ContextLineParseRegex.Match(_sLine);
 		if m.Success then begin
