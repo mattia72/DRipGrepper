@@ -20,7 +20,7 @@ type
 		public
 			constructor Create(const _ini : TMemIniFile);
 			destructor Destroy; override;
-			procedure ReadIni; override; // TODO: Check if this is correct
+			procedure ReadIni; override; // TODO: use persistable base
 			procedure Store; override;
 			property Command[index : Integer] : string read GetCommand write SetCommand;
 			property TestFile : TOpenWithParams read FTestFile write FTestFile;

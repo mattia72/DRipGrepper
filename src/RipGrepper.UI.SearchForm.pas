@@ -444,7 +444,6 @@ begin
 	// Set available encodings...
 	SetComboItemsAndText(cmbRgParamEncoding, RG_PARAM_REGEX_ENCODING, FSettings.RipGrepperSettings.EncodingItems);
 
-	// TODO: InitSettings by Ctrls
 	UpdateButtonsBySettings;
 
 	UpdateCheckBoxesBySettings(FSettings.RipGrepperSearchFormSettings);

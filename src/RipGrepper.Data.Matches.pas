@@ -181,7 +181,7 @@ end;
 
 function TRipGrepperData.GetTotalMatchCount : Integer;
 begin
-	Result := HistObject.Matches.Items.Count; // Todo: filter context lines
+	Result := HistObject.Matches.Items.Count; // TODO: filter context lines (they have no column nummber)
 	{$IFDEF THREADSAFE_LIST}
 	HistObject.Matches.Unlock;
 	{$ENDIF}
