@@ -27,7 +27,7 @@ Marked with checkmark if ready, else planned as next.
 - [ ] replace 
 - [ ] filter result
 - [ ] own prettifier switcher as toolbar button
-- [ ] save search history in file
+- [ ] save search histories in file
 - [x] path of rg.exe in vs code detected automatically
 - [x] extension: new menu item for 'Open with active file in IDE'
     - [x] toolbar button opens active file in Delphi if nothing selected
@@ -42,6 +42,11 @@ Marked with checkmark if fixed, else it is known bug.
 - [x] search whole word won't be highlighted 
 - [x] search form init without file masks
 - [x] extension: dblclik on history shouldn't search selected.
-- [ ] save as default doesn't save every combo boxes
+- [x] save as default doesn't save every combo boxes
+  - [ ] Extension: save as default causes exception
+  - [ ] Additional Options has to have saved defaults also
+- [x] Encoding is duplicated if switched from windows-xxx to utf8
+- [x] open search form from history and change filemask duplicate -g parameters
+- [ ] Extension: refresh F5 disabled
 - [ ] delete of some history entry causes exception 
 - [ ] drip icon in menu has no transparent background
