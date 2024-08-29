@@ -28,8 +28,7 @@ type
 			class function GetOptionValue(const _sOption : string) : string; overload; static;
 			class function GetOptionValue(const _sOption : string; var _sOptionName : string) : string; overload; static;
 			class function GetOptionValueFromOptions(const _sOptions, _sOptionRegex : string; var _sValue : string) : Boolean; static;
-			class function IsOptionSet(const _sOptions, _sParamRegex : string; const _sParamValue : string = '') : Boolean;
-				overload; static;
+			class function IsOptionSet(const _sOptions, _sParamRegex : string; const _sParamValue : string = '') : Boolean; overload; static;
 			function IsOptionSet(const _guiOption : EGuiOption; const _sActualOptions : string) : Boolean; overload;
 			class function IsOptionWithValue(const _sOption : string; const _sOptionRegEx : string = '') : Boolean; static;
 			class function IsSetOptionWithValue(const _sOptions, _sOption : string; const _sValue : string = '') : Boolean; static;
@@ -58,11 +57,11 @@ begin
 		params := _paramRegex.Split(['|']);
 		if _sValue.IsEmpty then begin
 			iFoundIdx := list.IndexOfFirstMatch('^(' + _paramRegex + ')$');
-      if (iFoundIdx < 0) then begin
-			list.Insert(0, params[RG_PARAM_LONG_INDEX]);
-      end;
+			if (iFoundIdx < 0) then begin
+				list.Insert(0, params[RG_PARAM_LONG_INDEX]);
+			end;
 		end else begin
-			iFoundIdx := list.IndexOfFirstMatch('^(' + _paramRegex + ')=?([\w-]+)?$');
+			iFoundIdx := list.IndexOfFirstMatch(Format(RG_PARAM_REGEX_VALUE_FORMAT, [_paramRegex]));
 			if (iFoundIdx >= 0) and _bUnique then begin
 				list.Delete(iFoundIdx);
 			end;

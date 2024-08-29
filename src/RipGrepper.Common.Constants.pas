@@ -123,6 +123,8 @@ const
 	RG_PARAM_REGEX_ENCODING = '-E|--encoding';
 	RG_PARAM_END = '--';
 
+	RG_PARAM_REGEX_VALUE_FORMAT='^(%s)=?([\w-]+)?$';
+
 	RG_GUI_SET_PARAMS : TArray<string> = [
 	{ } RG_PARAM_REGEX_IGNORE_CASE,
 	{ } RG_PARAM_REGEX_CASE_SENSITIVE,
