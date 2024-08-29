@@ -42,8 +42,9 @@ type
 			destructor Destroy; override;
 			function GetCommandLine : string;
 			procedure InitRipGrepExePath;
-			procedure Read; override;
+			procedure ReadIni; override;
 			procedure LoadDefault; override;
+			procedure RefreshMembers; override;
 			procedure Store; override;
 			procedure StoreAsDefault; override;
 			property FileMasks : string read FFileMasks write SetFileMasks;
@@ -110,28 +111,20 @@ end;
 
 procedure TRipGrepParameterSettings.Init;
 begin
-	inherited Init();
 	CreateSetting(RG_INI_KEY_RGPATH, varString, '');
 	CreateDefaultSetting('SearchPath', varString, '');
 	CreateDefaultSetting('FileMasks', varString, '');
 end;
 
-procedure TRipGrepParameterSettings.Read;
+procedure TRipGrepParameterSettings.ReadIni;
 begin
-	inherited Read();
-	FRipGrepPath := GetSetting(RG_INI_KEY_RGPATH);
-	FRipGrepPath := FRipGrepPath.Trim(['"', '''']);
-
-	LoadDefault;
-
+	inherited ReadIni();
 end;
 
 procedure TRipGrepParameterSettings.LoadDefault;
 begin
-	inherited;
-	FSearchPath := LoadDefaultSetting('SearchPath');
-	FFileMasks := LoadDefaultSetting('FileMasks');
 	FGuiSearchTextParams.LoadDefault;
+	inherited LoadDefault;
 end;
 
 procedure TRipGrepParameterSettings.InitRipGrepExePath;
@@ -168,6 +161,13 @@ begin
 		FRipGrepPath := rgPath.Trim();
 	end;
 	FbRgPathInitOk := True;
+end;
+
+procedure TRipGrepParameterSettings.RefreshMembers;
+begin
+	FSearchPath := GetSetting('SearchPath');
+	FFileMasks := GetSetting('FileMasks');
+	FGuiSearchTextParams.RefreshMembers;
 end;
 
 procedure TRipGrepParameterSettings.SetFileMasks(const Value : string);
@@ -219,9 +219,7 @@ procedure TRipGrepParameterSettings.StoreAsDefault;
 begin
 	StoreDefaultSetting('SearchPath', FSearchPath);
 	StoreDefaultSetting('FileMasks', FFileMasks);
-
 	GuiSearchTextParams.StoreAsDefault();
-
 	inherited StoreAsDefault; // Write to mem ini, after UpdateIniFile will be saved
 end;
 

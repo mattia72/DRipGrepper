@@ -37,7 +37,7 @@ type
 	TRipGrepperExtensionSettings = class(TPersistableSettings)
 		const
 			INI_SECTION = 'DelphiExtensionSettings';
- 			KEY_CONTEXT = 'DripGrepperContext';
+			KEY_CONTEXT = 'DripGrepperContext';
 
 		private
 			FDripGrepperShortCut : string;
@@ -46,8 +46,9 @@ type
 		public
 			constructor Create(const _ini : TMemIniFile);
 			procedure Init; override;
-			procedure Read; override;
+			procedure ReadIni; override;
 			procedure LoadDefault; override;
+			procedure RefreshMembers; override;
 			procedure Store; override;
 			procedure StoreAsDefault; override;
 			function ToString : string; override;
@@ -70,7 +71,8 @@ type
 		public
 			constructor Create(const _ini : TMemIniFile);
 			destructor Destroy; override;
-			procedure Read; override;
+			procedure ReadIni; override;
+			procedure RefreshMembers; override;
 			procedure Store; override;
 			property DebugTrace : Boolean read FDebugTrace write FDebugTrace;
 			property ExpertMode : Boolean read FExpertMode write FExpertMode;
@@ -106,32 +108,17 @@ end;
 
 procedure TRipGrepperExtensionSettings.Init;
 begin
-	inherited;
-	CreateDefaultSetting(KEY_CONTEXT, vtInteger, EXT_SEARCH_GIVEN_PATH)
+	CreateSetting('DripGrepperShortCut', vtString, TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH);
+	CreateDefaultSetting(KEY_CONTEXT, vtInteger, EXT_SEARCH_GIVEN_PATH);
 end;
 
-procedure TRipGrepperExtensionSettings.Read;
+procedure TRipGrepperExtensionSettings.ReadIni;
 begin
 	if IOTAUTils.IsStandAlone then begin
 		Exit;
 	end;
-	if Assigned(FIniFile) then begin
-		var
-		css := CurrentSearchSettings;
-		css.Context := ERipGrepperExtensionContext(FIniFile.ReadInteger(GetIniSectionName, 'DripGrepperContext', EXT_SEARCH_GIVEN_PATH));
-		CurrentSearchSettings := css;
+	inherited ReadIni();
 
-		DripGrepperShortCut := FIniFile.ReadString(GetIniSectionName, 'DripGrepperShortCut', '');
-		if DripGrepperShortCut = '' then begin
-			DripGrepperShortCut := TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH;
-		end;
-		FIsModified := True;
-		//IsAlreadyRead := True;
-		TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Read ' + ToString());
-
-	end else begin
-		raise ESettingsException.Create('Settings ini file is nil!')
-	end;
 end;
 
 procedure TRipGrepperExtensionSettings.LoadDefault;
@@ -139,20 +126,34 @@ begin
 	inherited LoadDefault;
 end;
 
+procedure TRipGrepperExtensionSettings.RefreshMembers;
+begin
+	if IOTAUTils.IsStandAlone then begin
+		Exit;
+	end;
+
+	var
+	css := CurrentSearchSettings;
+	css.Context := ERipGrepperExtensionContext(GetSetting('DripGrepperContext'));
+	CurrentSearchSettings := css;
+
+	DripGrepperShortCut := GetSetting('DripGrepperShortCut');
+	if DripGrepperShortCut = '' then begin
+		DripGrepperShortCut := TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH;
+	end;
+
+	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.RefreshMembers ' + ToString());
+end;
+
 procedure TRipGrepperExtensionSettings.Store;
 begin
 	if IOTAUTils.IsStandAlone then begin
 		Exit;
 	end;
-	var
-	bStore := IsAlreadyRead and IsModified;
-	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Store ' + BoolToStr(bStore) + ' ' + ToString());
-	if bStore then begin
-		FIniFile.WriteString(GetIniSectionName, 'DripGrepperShortCut', DripGrepperShortCut);
-		FIniFile.WriteInteger(GetIniSectionName, 'DripGrepperContext', Integer(CurrentSearchSettings.Context));
-		FIsModified := False;
-	end;
 
+	StoreSetting('DripGrepperShortCut', DripGrepperShortCut);
+	StoreSetting('DripGrepperContext', Integer(CurrentSearchSettings.Context));
+	inherited Store; // Write to mem ini, after UpdateIniFile will be saved
 end;
 
 procedure TRipGrepperExtensionSettings.StoreAsDefault;
@@ -160,7 +161,7 @@ begin
 	if IOTAUTils.IsStandAlone then begin
 		Exit;
 	end;
-    inherited StoreAsDefault;
+	inherited StoreAsDefault;
 end;
 
 function TRipGrepperExtensionSettings.ToString : string;
@@ -184,19 +185,21 @@ end;
 
 procedure TRipGrepperAppSettings.Init;
 begin
-	inherited;
 	CreateSetting('DebugTrace', varBoolean, False);
 	CreateSetting('ExpertMode', varBoolean, False);
 	CreateSetting('EncodingItems', varString, string.join(ARRAY_SEPARATOR, TDefaults.RG_PARAM_ENCODING_VALUES));
 end;
 
-procedure TRipGrepperAppSettings.Read;
+procedure TRipGrepperAppSettings.ReadIni;
 begin
-	inherited Read();
-	TDebugUtils.DebugMessage('TRipGrepperAppSettings.Read start');
+	inherited ReadIni();
+end;
 
+procedure TRipGrepperAppSettings.RefreshMembers;
+begin
 	FExpertMode := GetSetting('ExpertMode');
 	FDebugTrace := GetSetting('DebugTrace');
+    FEncodingItems.Clear;
 	FEncodingItems.AddStrings(string(GetSetting('EncodingItems')).Split([ARRAY_SEPARATOR]));
 end;
 

@@ -31,16 +31,16 @@ type
 
 		private
 
-			function GetContext: Integer;
-			function GetEncoding: string;
-			function GetHidden: Boolean;
-			function GetNoIgnore: Boolean;
-			function GetPretty: Boolean;
-			procedure SetContext(const Value: Integer);
-			procedure SetEncoding(const Value: string);
-			procedure SetHidden(const Value: Boolean);
-			procedure SetNoIgnore(const Value: Boolean);
-			procedure SetPretty(const Value: Boolean);
+			function GetContext : Integer;
+			function GetEncoding : string;
+			function GetHidden : Boolean;
+			function GetNoIgnore : Boolean;
+			function GetPretty : Boolean;
+			procedure SetContext(const Value : Integer);
+			procedure SetEncoding(const Value : string);
+			procedure SetHidden(const Value : Boolean);
+			procedure SetNoIgnore(const Value : Boolean);
+			procedure SetPretty(const Value : Boolean);
 
 		public
 			constructor Create(const _ini : TMemIniFile); overload;
@@ -48,17 +48,18 @@ type
 
 			procedure StoreSearchSettings(const _s : string = '');
 			procedure Init; override;
-			procedure Read; override;
+			procedure ReadIni; override;
 			procedure Store; override;
 			procedure Copy(const _other : TRipGrepperSearchFormSettings); reintroduce;
 			procedure StoreAsDefault; override;
 			procedure LoadDefault; override;
+			procedure RefreshMembers; override;
 
-			property Context: Integer read GetContext write SetContext;
-			property Encoding: string read GetEncoding write SetEncoding;
-			property Hidden: Boolean read GetHidden write SetHidden;
-			property NoIgnore: Boolean read GetNoIgnore write SetNoIgnore;
-			property Pretty: Boolean read GetPretty write SetPretty;
+			property Context : Integer read GetContext write SetContext;
+			property Encoding : string read GetEncoding write SetEncoding;
+			property Hidden : Boolean read GetHidden write SetHidden;
+			property NoIgnore : Boolean read GetNoIgnore write SetNoIgnore;
+			property Pretty : Boolean read GetPretty write SetPretty;
 	end;
 
 implementation
@@ -102,67 +103,66 @@ begin
 	Pretty := _other.Pretty;
 end;
 
-function TRipGrepperSearchFormSettings.GetContext: Integer;
+function TRipGrepperSearchFormSettings.GetContext : Integer;
 begin
 	Result := GetSetting('Context');
 end;
 
-function TRipGrepperSearchFormSettings.GetEncoding: string;
+function TRipGrepperSearchFormSettings.GetEncoding : string;
 begin
 	Result := GetSetting('Encoding');
 end;
 
-function TRipGrepperSearchFormSettings.GetHidden: Boolean;
+function TRipGrepperSearchFormSettings.GetHidden : Boolean;
 begin
 	Result := GetSetting('Hidden');
 end;
 
-function TRipGrepperSearchFormSettings.GetNoIgnore: Boolean;
+function TRipGrepperSearchFormSettings.GetNoIgnore : Boolean;
 begin
 	Result := GetSetting('NoIgnore');
 end;
 
-function TRipGrepperSearchFormSettings.GetPretty: Boolean;
+function TRipGrepperSearchFormSettings.GetPretty : Boolean;
 begin
 	Result := GetSetting('Pretty');
 end;
 
 procedure TRipGrepperSearchFormSettings.Init;
 begin
-	inherited;
-	CreateDefaultSetting('Pretty',   varBoolean, True);
-	CreateDefaultSetting('Hidden',   varBoolean, False);
+	CreateDefaultSetting('Pretty', varBoolean, True);
+	CreateDefaultSetting('Hidden', varBoolean, False);
 	CreateDefaultSetting('NoIgnore', varBoolean, False);
-	CreateDefaultSetting('Context',  varInteger, 0);
+	CreateDefaultSetting('Context', varInteger, 0);
 	CreateDefaultSetting('Encoding', varString, '');
 end;
 
-procedure TRipGrepperSearchFormSettings.Read;
+procedure TRipGrepperSearchFormSettings.ReadIni;
 begin
-	inherited Read();
+	inherited ReadIni();
 end;
 
-procedure TRipGrepperSearchFormSettings.SetContext(const Value: Integer);
+procedure TRipGrepperSearchFormSettings.SetContext(const Value : Integer);
 begin
 	SetSettingValue('Context', Value);
 end;
 
-procedure TRipGrepperSearchFormSettings.SetEncoding(const Value: string);
+procedure TRipGrepperSearchFormSettings.SetEncoding(const Value : string);
 begin
 	SetSettingValue('Encoding', Value);
 end;
 
-procedure TRipGrepperSearchFormSettings.SetHidden(const Value: Boolean);
+procedure TRipGrepperSearchFormSettings.SetHidden(const Value : Boolean);
 begin
 	SetSettingValue('Hidden', Value);
 end;
 
-procedure TRipGrepperSearchFormSettings.SetNoIgnore(const Value: Boolean);
+procedure TRipGrepperSearchFormSettings.SetNoIgnore(const Value : Boolean);
 begin
 	SetSettingValue('NoIgnore', Value);
 end;
 
-procedure TRipGrepperSearchFormSettings.SetPretty(const Value: Boolean);
+procedure TRipGrepperSearchFormSettings.SetPretty(const Value : Boolean);
 begin
 	SetSettingValue('Pretty', Value);
 end;
@@ -181,6 +181,12 @@ end;
 procedure TRipGrepperSearchFormSettings.LoadDefault;
 begin
 	inherited LoadDefault();
+end;
+
+procedure TRipGrepperSearchFormSettings.RefreshMembers;
+begin
+	// members are direct bounded so nothing to do, but abstract so it should exist
+	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.RefreshMembers');
 end;
 
 procedure TRipGrepperSearchFormSettings.StoreSearchSettings(const _s : string = '');

@@ -152,7 +152,7 @@ uses
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
-	inherited;
+	inherited Create(AOwner);
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 	TopFrame := self;
 end;
@@ -160,7 +160,7 @@ end;
 destructor TRipGrepperTopFrame.Destroy;
 begin
 	FDpiScaler.Free;
-	inherited;
+	inherited Destroy;
 end;
 
 procedure TRipGrepperTopFrame.ActionAbortSearchExecute(Sender : TObject);
@@ -411,7 +411,7 @@ end;
 
 procedure TRipGrepperTopFrame.SearchBox1Change(Sender : TObject);
 begin
-	inherited;
+	inherited; //OnChange(Sender);
 	FPrevFoundNode := nil;
 	SelectNextFoundNode(FPrevFoundNode);
 end;

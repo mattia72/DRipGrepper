@@ -239,7 +239,7 @@ begin
 	end;
 	FOrigRipGrepperSearchFormSettings.Free;
 	FDpiScaler.Free;
-	inherited;
+	inherited Destroy;
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionAddParamMatchCaseExecute(Sender : TObject);
@@ -661,7 +661,7 @@ begin
 	FSettings.RipGrepParameters.GuiSearchTextParams.Copy(FGuiSetSearchParams);
 
 	if _bDefaultOnly then begin
-		FSettings.CopyDefaults();
+		FSettings.CopyDefaultsToValues();
 	end;
 
 	FSettings.RebuildArguments();
@@ -853,8 +853,8 @@ procedure TRipGrepperSearchDialogForm.LoadDefaultSettings;
 begin
 	FSettings.LoadDefault;
 	// TODO set only if it was saved before!
-	cmbSearchDir.Text := IfThen(FSettings.RipGrepParameters.SearchPath.IsEmpty, cmbSearchDir.Text);
-	cmbFileMasks.Text := IfThen(FSettings.RipGrepParameters.FileMasks.IsEmpty, cmbFileMasks.Text);
+	cmbSearchDir.Text := IfThen(FSettings.RipGrepParameters.SearchPath.IsEmpty, cmbSearchDir.Text, FSettings.RipGrepParameters.SearchPath);
+	cmbFileMasks.Text := IfThen(FSettings.RipGrepParameters.FileMasks.IsEmpty, cmbFileMasks.Text, FSettings.RipGrepParameters.FileMasks);
 	FGuiSetSearchParams.SearchOptions := FSettings.RipGrepParameters.GuiSearchTextParams.SearchOptions;
 	UpdateCheckBoxesBySettings(FSettings.RipGrepperSearchFormSettings);
 end;

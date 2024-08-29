@@ -139,7 +139,7 @@ destructor TRipGrepOptionsForm.Destroy;
 begin
 	FOptionList.Free;
 	FDpiScaler.Free;
-	inherited;
+	inherited Destroy;
 end;
 
 procedure TRipGrepOptionsForm.ActionCancelExecute(Sender : TObject);
@@ -282,7 +282,7 @@ procedure TRipGrepOptionsForm.SearchBox1Change(Sender : TObject);
 var
 	foundNode : PVirtualNode;
 begin
-	inherited;
+	inherited ;   //SearchBox1Change(Sender)
 	// first param is your starting point. nil starts at top of tree. if you want to implement findnext
 	// functionality you will need to supply the previous found node to continue from that point.
 	// be sure to set the IncrementalSearchTimeout to allow users to type a few characters before starting a search.

@@ -49,7 +49,7 @@ type
 
 		protected
 		public
-			procedure Read; override;
+			procedure ReadIni; override;
 			procedure Store; override;
 			procedure StoreViewSettings(const _s : string = '');
 			constructor Create;
@@ -58,8 +58,10 @@ type
 			function GetIsModified : Boolean; override;
 			function GetLastHistorySearchText : string;
 			function GetRipGrepArguments : TRipGrepArguments;
+			procedure Init; override;
 			procedure LoadDefault; override;
 			procedure RebuildArguments;
+			procedure RefreshMembers; override;
 			procedure StoreAsDefault; override;
 			property LastSearchText : string read FLastSearchText write FLastSearchText;
 			property FileMasksHistory : TStrings read FFileMasksHistory write SetFileMasksHistory;
@@ -71,8 +73,7 @@ type
 			property RipGrepOptionsHistory : TSTrings read FRipGrepOptionsHistory write SetRipGrepOptionsHistory;
 			property RipGrepParameters : TRipGrepParameterSettings read FRipGrepParameters write FRipGrepParameters;
 			property RipGrepperOpenWithSettings : TRipGrepperOpenWithSettings read FRipGrepperOpenWithSettings;
-			property RipGrepperSearchFormSettings : TRipGrepperSearchFormSettings read FRipGrepperSearchFormSettings
-				write FRipGrepperSearchFormSettings;
+			property RipGrepperSearchFormSettings : TRipGrepperSearchFormSettings read FRipGrepperSearchFormSettings write FRipGrepperSearchFormSettings;
 			property RipGrepperSettings : TRipGrepperAppSettings read FRipGrepperSettings write FRipGrepperSettings;
 			property RipGrepperViewSettings : TRipGrepperViewSettings read FRipGrepperViewSettings write FRipGrepperViewSettings;
 			property SearchPathIsDir : Boolean read GetSearchPathIsDir;
@@ -86,7 +87,7 @@ type
 			class function GetInstance : TRipGrepperSettings; static;
 
 		public
-			constructor Create;
+			class constructor Create;
 			class destructor Destroy;
 			class procedure FreeInstance; reintroduce;
 			class property Instance : TRipGrepperSettings read GetInstance;
@@ -219,15 +220,20 @@ begin
 	Result := FSearchPathIsDir;
 end;
 
-procedure TRipGrepperSettings.Read;
+procedure TRipGrepperSettings.Init;
 begin
-	inherited Read;
+	// nothing todo
+end;
+
+procedure TRipGrepperSettings.ReadIni;
+begin
+	inherited ReadIni();
 	TDebugUtils.DebugMessage('TRipGrepperSettings.Read: start');
 
 	try
-		FRipGrepperViewSettings.Read;
-		FRipGrepperOpenWithSettings.Read;
-		FRipGrepperSettings.Read;
+		FRipGrepperViewSettings.ReadIni;
+		FRipGrepperOpenWithSettings.ReadIni;
+		FRipGrepperSettings.ReadIni;
 
 		LoadHistoryEntries(FSearchPathsHistory, 'SearchPathsHistory');
 		LoadHistoryEntries(FSearchTextsHistory, 'SearchTextsHistory');
@@ -235,7 +241,7 @@ begin
 		LoadHistoryEntries(FFileMasksHistory, 'FileMasksHistory');
 	except
 		on E : Exception do begin
-			TDebugUtils.DebugMessage(Format('TRipGrepperSettings.Read: Exception %s ', [E.Message]));
+			TDebugUtils.DebugMessage(Format('TRipGrepperSettings.ReadIni: Exception %s ', [E.Message]));
 			TMsgBox.ShowError(E.Message + CRLF + 'Settings Read from ' + FIniFile.FileName + ' went wrong.');
 		end;
 	end;
@@ -245,8 +251,8 @@ end;
 procedure TRipGrepperSettings.LoadDefault;
 begin
 	if not IsAlreadyRead then begin
-		Read;
-    end;
+		ReadIni();
+	end;
 
 	FRipGrepParameters.LoadDefault;
 	FExtensionSettings.LoadDefault;
@@ -257,13 +263,14 @@ end;
 
 procedure TRipGrepperSettings.RebuildArguments;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperSettings.RebuildArguments: GuiSearchTextParams start ' +
-		FRipGrepParameters.GuiSearchTextParams.ToString);
-
+	TDebugUtils.DebugMessage('TRipGrepperSettings.RebuildArguments: GuiSearchTextParams start ' + FRipGrepParameters.GuiSearchTextParams.ToString);
 	TCommandLineBuilder.RebuildArguments(FRipGrepParameters);
+	TDebugUtils.DebugMessage('TRipGrepperSettings.RebuildArguments: GuiSearchTextParams end ' + FRipGrepParameters.GuiSearchTextParams.ToString);
+end;
 
-	TDebugUtils.DebugMessage('TRipGrepperSettings.RebuildArguments: GuiSearchTextParams end ' +
-		FRipGrepParameters.GuiSearchTextParams.ToString);
+procedure TRipGrepperSettings.RefreshMembers;
+begin
+	// nothing todo
 end;
 
 procedure TRipGrepperSettings.SetFileMasksHistory(const Value : TStrings);
@@ -305,11 +312,9 @@ end;
 
 procedure TRipGrepperSettings.StoreAsDefault;
 begin
-	if IsAlreadyRead then begin
-		FRipGrepParameters.StoreAsDefault;
-		FExtensionSettings.StoreAsDefault;
-		FRipGrepperSearchFormSettings.StoreAsDefault;
-	end;
+	FRipGrepParameters.StoreAsDefault;
+	FExtensionSettings.StoreAsDefault;
+	FRipGrepperSearchFormSettings.StoreAsDefault;
 	inherited StoreAsDefault;
 end;
 
@@ -331,7 +336,7 @@ begin
 	end;
 end;
 
-constructor TRipGrepperSettingsInstance.Create();
+class constructor TRipGrepperSettingsInstance.Create;
 begin
 	inherited;
 	FInstance := nil;
@@ -339,7 +344,10 @@ end;
 
 class destructor TRipGrepperSettingsInstance.Destroy;
 begin
-	//
+	if Assigned(FInstance) then
+		FInstance.Store;
+	FInstance.Free;
+	inherited;
 end;
 
 class procedure TRipGrepperSettingsInstance.FreeInstance;
@@ -349,7 +357,7 @@ end;
 
 class function TRipGrepperSettingsInstance.GetInstance : TRipGrepperSettings;
 begin
-	if Assigned(FInstance) then begin
+	if not Assigned(FInstance) then begin
 		FInstance := TRipGrepperSettings.Create;
 	end;
 	Result := FInstance;
@@ -357,11 +365,11 @@ end;
 
 initialization
 
-GSettings := TRipGrepperSettings.Create;
+GSettings := TRipGrepperSettingsInstance.Instance;
 
 finalization
 
-GSettings.Store;
-GSettings.Free;
+// GSettings.Store;
+// GSettings.Free;
 
 end.

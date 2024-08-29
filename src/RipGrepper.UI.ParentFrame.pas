@@ -99,7 +99,7 @@ begin
 	if not Assigned(FSettings) then begin
 		FSettings := GSettings;
 		if not FSettings.IsAlreadyRead then begin
-			FSettings.Read;
+			FSettings.ReadIni;
 		end;
 	end;
 	Result := FSettings;

@@ -20,7 +20,7 @@ type
 		public
 			constructor Create(const _ini : TMemIniFile);
 			destructor Destroy; override;
-			procedure Read; override;
+			procedure ReadIni; override; // TODO: Check if this is correct
 			procedure Store; override;
 			property Command[index : Integer] : string read GetCommand write SetCommand;
 			property TestFile : TOpenWithParams read FTestFile write FTestFile;
@@ -54,7 +54,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepperOpenWithSettings.Read;
+procedure TRipGrepperOpenWithSettings.ReadIni;
 var
 	s : string;
 begin

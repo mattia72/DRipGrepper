@@ -30,22 +30,20 @@ type
 
 		protected
 			procedure Init; override;
-			procedure Read; override;
+			procedure ReadIni; override;
 
 		public
 			SearchOptions : TSearchOptionSet;
 
 			constructor Create(const _ini : TMemIniFile); overload;
-			constructor Create(const _sText : string; const _bMC : Boolean = False; const _bMW : Boolean = False;
-				const _bUR : Boolean = False); overload;
+			constructor Create(const _sText : string; const _bMC : Boolean = False; const _bMW : Boolean = False; const _bUR : Boolean = False); overload;
 			constructor Create; overload;
 			procedure Clear;
 			procedure Copy(const _other : TGuiSearchTextParams); reintroduce;
 
 			class function AddRgExeOptions(const _sOptions, _sParamRegex : string) : string; static;
 			class function RemoveRgExeOptions(const _sOptions, _sParamRegex : string) : string; static;
-			class function AddRgExeOptionWithValue(const _sOptions, _sParamRegex, _sValue : string; const _bUnique : Boolean = False)
-				: string; static;
+			class function AddRgExeOptionWithValue(const _sOptions, _sParamRegex, _sValue : string; const _bUnique : Boolean = False) : string; static;
 			function GetNext(const _newOption : EGuiOption) : TGuiSearchTextParams;
 			function IsSet(_options : TArray<EGuiOption>) : Boolean;
 
@@ -59,6 +57,7 @@ type
 			procedure StoreAsDefault; override;
 			function GetAsString(const _bGuiOptionsOnly : Boolean = False) : string;
 			procedure LoadDefault; override;
+			procedure RefreshMembers; override;
 
 			property EscapedSearchText : string read GetEscapedSearchText;
 			property IsRgExeOptionSet : Boolean read FIsRgExeOptionSet write FIsRgExeOptionSet;
@@ -107,8 +106,7 @@ begin
 	end;
 end;
 
-class function TGuiSearchTextParams.AddRgExeOptionWithValue(const _sOptions, _sParamRegex, _sValue : string;
-	const _bUnique : Boolean = False) : string;
+class function TGuiSearchTextParams.AddRgExeOptionWithValue(const _sOptions, _sParamRegex, _sValue : string; const _bUnique : Boolean = False) : string;
 var
 	listOptions : TStringList;
 begin
@@ -125,8 +123,7 @@ begin
 end;
 
 // for UnitTests...
-constructor TGuiSearchTextParams.Create(const _sText : string; const _bMC : Boolean = False; const _bMW : Boolean = False;
-	const _bUR : Boolean = False);
+constructor TGuiSearchTextParams.Create(const _sText : string; const _bMC : Boolean = False; const _bMW : Boolean = False; const _bUR : Boolean = False);
 begin
 	Create();
 	SearchText := _sText;
@@ -307,7 +304,7 @@ end;
 procedure TGuiSearchTextParams.StoreAsDefault;
 begin
 	StoreDefaultSetting('SearchParams', GetAsString(True));
-    inherited StoreAsDefault;
+	inherited StoreAsDefault;
 end;
 
 function TGuiSearchTextParams.GetAsString(const _bGuiOptionsOnly : Boolean = False) : string;
@@ -370,21 +367,26 @@ begin
 	CreateDefaultSetting('SearchParams', varString, '');
 end;
 
-procedure TGuiSearchTextParams.Read;
+procedure TGuiSearchTextParams.ReadIni;
 begin
-	// noting to Read
+	inherited ReadIni();
 end;
 
 procedure TGuiSearchTextParams.LoadDefault;
+begin
+	inherited LoadDefault();
+end;
+
+procedure TGuiSearchTextParams.RefreshMembers;
 var
 	sParams : string;
 begin
-	Init();
-	sParams := LoadDefaultSetting('SearchParams');
+	sParams := GetSetting('SearchParams');
 	SearchOptions := GetAsSearchOptionSet(
 		{ } sParams.Contains('MatchCase'),
 		{ } sParams.Contains('MatchWord'),
 		{ } sParams.Contains('UseRegex'));
+	// SearchText := SearchText;
 end;
 
 end.
