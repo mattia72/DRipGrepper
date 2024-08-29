@@ -79,10 +79,17 @@ type
 		miCopytoClipboard : TMenuItem;
 		N1 : TMenuItem;
 		miOpenInIde : TMenuItem;
+		ActionCopyCmdLineToClipboard : TAction;
+		N2 : TMenuItem;
+		pmCopyCommandLine : TMenuItem;
+		N3 : TMenuItem;
+		pmOpenSearchForm : TMenuItem;
 		procedure ActionAddUsingImplementationExecute(Sender : TObject);
 		procedure ActionAddUsingImplementationUpdate(Sender : TObject);
 		procedure ActionAddUsingInterfaceExecute(Sender : TObject);
 		procedure ActionAddUsingInterfaceUpdate(Sender : TObject);
+		procedure ActionCopyCmdLineToClipboardExecute(Sender : TObject);
+		procedure ActionOpenSearchFormExecute(Sender : TObject);
 		procedure ActionCopyFileNameExecute(Sender : TObject);
 		procedure ActionCopyFileNameUpdate(Sender : TObject);
 		procedure ActionCopyLineToClipboardExecute(Sender : TObject);
@@ -106,6 +113,9 @@ type
 		procedure VstHistoryDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
 			const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
 		procedure VstHistoryFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
+		procedure VstHistoryGetHint(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
+			var LineBreakStyle : TVTTooltipLineBreakStyle; var HintText : string);
+		procedure VstHistoryGetHintKind(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; var Kind : TVTHintKind);
 		procedure VstHistoryGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType;
 			var CellText : string);
 		procedure VstHistoryMeasureItem(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; var NodeHeight : Integer);
@@ -238,7 +248,8 @@ uses
 	RipGrepper.Common.IOTAUtils,
 	GX_UsesManager,
 	System.Generics.Defaults,
-	RipGrepper.UI.SearchForm;
+	RipGrepper.UI.SearchForm,
+	System.RegularExpressions;
 
 {$R *.dfm}
 
@@ -284,6 +295,27 @@ procedure TRipGrepperMiddleFrame.ActionAddUsingInterfaceUpdate(Sender : TObject)
 begin
 	ActionAddUsingInterface.Visible := not IOTAUTils.IsStandAlone();
 	EnableActionIfResultSelected(ActionAddUsingInterface);
+end;
+
+procedure TRipGrepperMiddleFrame.ActionCopyCmdLineToClipboardExecute(Sender : TObject);
+begin
+	TopFrame.ActionCmdLineCopyExecute(Sender);
+end;
+
+procedure TRipGrepperMiddleFrame.ActionOpenSearchFormExecute(Sender : TObject);
+begin
+	var
+	formResult := TRipGrepperSearchDialogForm.ShowSearchForm(self, Settings, FHistItemObj);
+	if mrOK = formResult then begin
+		TDebugUtils.DebugMessage('TRipGrepperTopFrame.VstHistoryNodeDblClick: after ShowSearchForm cmdline: ' +
+			Settings.RipGrepParameters.GetCommandLine);
+		PrepareAndDoSearch();
+	end else begin
+		TDebugUtils.DebugMessage('TRipGrepperTopFrame.VstHistoryNodeDblClick: ShowSearchForm cancel');
+	end;
+
+	ChangeHistoryNodeText;
+	UpdateHistObjectAndGui;
 end;
 
 procedure TRipGrepperMiddleFrame.ActionCopyFileNameExecute(Sender : TObject);
@@ -360,7 +392,10 @@ begin
 	TDebugUtils.DebugMessageFormat('TRipGrepperMiddleFrame.ActionHistoryDeleteExecute: idx:%d Node:%s, ho:%s',
 		[CurrentHistoryItemIndex, Data.SearchText, ho.GuiSearchTextParams.SearchText]);
 
-	Assert(Data.SearchText = ho.GuiSearchTextParams.SearchText, Data.SearchText + ' != ' + ho.GuiSearchTextParams.SearchText);
+	Assert((Data.SearchText = ho.GuiSearchTextParams.SearchText) or
+		(WB + Data.SearchText + WB = ho.GuiSearchTextParams.WordBoundedSearchText) or
+		(TRegEx.Escape(Data.SearchText) = ho.GuiSearchTextParams.EscapedSearchText),
+		Data.SearchText + ' != ' + ho.GuiSearchTextParams.SearchText);
 
 	VstHistory.DeleteNode(Node);
 	VstHistory.Refresh;
@@ -499,7 +534,7 @@ begin
 	for var i := 0 to FHistoryObjectList.Count - 1 do begin
 		if (FHistoryObjectList.Count > i)
 		{ } and (FHistoryObjectList[i] is THistoryItemObject) then begin
-			//(FHistoryObjectList[i] as THistoryItemObject).Free; // NoRefCountObj!
+			// (FHistoryObjectList[i] as THistoryItemObject).Free; // NoRefCountObj!
 			FHistoryObjectList[i] := nil;
 		end;
 	end;
@@ -1117,6 +1152,24 @@ begin
 	// Data.hio.Free;
 end;
 
+procedure TRipGrepperMiddleFrame.VstHistoryGetHint(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
+var LineBreakStyle : TVTTooltipLineBreakStyle; var HintText : string);
+var
+	ho : IHistoryItemObject;
+begin
+	ho := GetHistoryObject(Node.Index);
+	LineBreakStyle := TVTTooltipLineBreakStyle.hlbForceMultiLine;
+	var
+	lineBreakTab := CRLF + '  ';
+	HintText := 'rg.exe' + lineBreakTab + string.Join(lineBreakTab, ho.RipGrepArguments.GetValues());
+end;
+
+procedure TRipGrepperMiddleFrame.VstHistoryGetHintKind(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
+var Kind : TVTHintKind);
+begin
+	Kind := TVTHintKind.vhkText;
+end;
+
 procedure TRipGrepperMiddleFrame.VstHistoryGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
 TextType : TVSTTextType; var CellText : string);
 var
@@ -1150,23 +1203,10 @@ begin
 end;
 
 procedure TRipGrepperMiddleFrame.VstHistoryNodeDblClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
-var
-	formResult : integer;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.VstHistoryNodeDblClick: idx = ' + HitInfo.HitNode.Index.ToString);
 	VstHistoryNodeClick(Sender, HitInfo);
-
-	formResult := TRipGrepperSearchDialogForm.ShowSearchForm(self, Settings, FHistItemObj);
-	if mrOK = formResult then begin
-		TDebugUtils.DebugMessage('TRipGrepperTopFrame.VstHistoryNodeDblClick: after ShowSearchForm cmdline: ' +
-			Settings.RipGrepParameters.GetCommandLine);
-		PrepareAndDoSearch();
-	end else begin
-		TDebugUtils.DebugMessage('TRipGrepperTopFrame.VstHistoryNodeDblClick: ShowSearchForm cancel');
-	end;
-
-	ChangeHistoryNodeText;
-	UpdateHistObjectAndGui;
+	ActionOpenSearchFormExecute(Sender);
 end;
 
 procedure TRipGrepperMiddleFrame.VstResultBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;

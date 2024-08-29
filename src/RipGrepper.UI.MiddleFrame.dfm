@@ -56,16 +56,38 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           Width = 183
           Height = 321
           Align = alClient
+          Colors.BorderColor = 15987699
+          Colors.DisabledColor = clGray
+          Colors.DropMarkColor = 15385233
+          Colors.DropTargetColor = 15385233
+          Colors.DropTargetBorderColor = 15385233
+          Colors.FocusedSelectionColor = 15385233
+          Colors.FocusedSelectionBorderColor = 15385233
+          Colors.GridLineColor = 15987699
+          Colors.HeaderHotColor = clBlack
+          Colors.HotColor = clBlack
+          Colors.SelectionRectangleBlendColor = 15385233
+          Colors.SelectionRectangleBorderColor = 15385233
+          Colors.SelectionTextColor = clBlack
+          Colors.TreeLineColor = 9471874
+          Colors.UnfocusedColor = clGray
+          Colors.UnfocusedSelectionColor = clWhite
+          Colors.UnfocusedSelectionBorderColor = clWhite
           Header.AutoSizeIndex = 0
           Header.Options = [hoAutoResize, hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible, hoFullRepaintOnResize, hoHeaderClickAutoSort, hoAutoResizeInclCaption]
+          HintMode = hmHint
           Images = ImageList1
+          ParentShowHint = False
           PopupMenu = PopupMenuHistory
+          ShowHint = True
           TabOrder = 0
           TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages]
           TreeOptions.SelectionOptions = [toFullRowSelect]
           OnDrawText = VstHistoryDrawText
           OnFreeNode = VstHistoryFreeNode
           OnGetText = VstHistoryGetText
+          OnGetHintKind = VstHistoryGetHintKind
+          OnGetHint = VstHistoryGetHint
           OnMeasureItem = VstHistoryMeasureItem
           OnNodeClick = VstHistoryNodeClick
           OnNodeDblClick = VstHistoryNodeDblClick
@@ -75,7 +97,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
             item
               Position = 0
               Text = 'Search'
-              Width = 183
+              Width = 179
             end>
         end
       end
@@ -94,6 +116,23 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           Width = 592
           Height = 321
           Align = alClient
+          Colors.BorderColor = 15987699
+          Colors.DisabledColor = clGray
+          Colors.DropMarkColor = 15385233
+          Colors.DropTargetColor = 15385233
+          Colors.DropTargetBorderColor = 15385233
+          Colors.FocusedSelectionColor = 15385233
+          Colors.FocusedSelectionBorderColor = 15385233
+          Colors.GridLineColor = 15987699
+          Colors.HeaderHotColor = clBlack
+          Colors.HotColor = clBlack
+          Colors.SelectionRectangleBlendColor = 15385233
+          Colors.SelectionRectangleBorderColor = 15385233
+          Colors.SelectionTextColor = clBlack
+          Colors.TreeLineColor = 9471874
+          Colors.UnfocusedColor = clGray
+          Colors.UnfocusedSelectionColor = clWhite
+          Colors.UnfocusedSelectionBorderColor = clWhite
           Header.AutoSizeIndex = 3
           Header.Options = [hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible, hoAutoResizeInclCaption]
           Images = ImageListListView
@@ -200,6 +239,16 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
       ImageIndex = 0
       OnExecute = ActionCopyLineToClipboardExecute
       OnUpdate = ActionCopyLineToClipboardUpdate
+    end
+    object ActionCopyCmdLineToClipboard: TAction
+      Caption = 'Copy Command Line'
+      ImageIndex = 0
+      OnExecute = ActionCopyCmdLineToClipboardExecute
+    end
+    object ActionOpenSearchForm: TAction
+      Caption = 'Open Search Form...'
+      ImageIndex = 0
+      OnExecute = ActionOpenSearchFormExecute
     end
   end
   object PopupMenuResult: TPopupMenu
@@ -928,11 +977,27 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
     OnPopup = PopupMenuHistoryPopup
     Left = 295
     Top = 199
+    object pmOpenSearchForm: TMenuItem
+      Action = ActionOpenSearchForm
+      Default = True
+    end
+    object N3: TMenuItem
+      Caption = '-'
+    end
+    object pmCopyCommandLine: TMenuItem
+      Action = ActionCopyCmdLineToClipboard
+      ShortCut = 16451
+    end
+    object N2: TMenuItem
+      Caption = '-'
+    end
     object pmHistoryDelete: TMenuItem
       Action = ActionHistoryDelete
+      ShortCut = 46
     end
     object pmHistoryDeleteAll: TMenuItem
       Action = ActionHistoryDeleteAll
+      ShortCut = 16430
     end
   end
 end
