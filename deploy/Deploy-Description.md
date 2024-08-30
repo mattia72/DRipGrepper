@@ -47,6 +47,7 @@ Marked with checkmark if fixed, else it is known bug.
 - [x] save as default doesn't save every combo boxes
   - [X] Extension: save as default causes exception
   - [ ] Additional Options has to have saved defaults also
+  - [ ] Extension First open doesn't load defaults
 - [x] Encoding is duplicated if switched from windows-xxx to utf8
 - [x] open search form from history and change filemask duplicate -g parameters
 - [x] Extension: refresh F5 disabled

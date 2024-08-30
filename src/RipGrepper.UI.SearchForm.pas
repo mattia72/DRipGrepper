@@ -938,7 +938,6 @@ begin
 			cmbSearchDir.Enabled := False;
 			cmbSearchDir.Text := string.Join(SEARCH_PATH_SEPARATOR, rgec.OpenFiles).Trim([SEARCH_PATH_SEPARATOR]);
 		end;
-
 		EXT_SEARCH_GIVEN_PATH : begin
 			cmbSearchDir.Enabled := True;
 			SetComboItemsAndText(cmbSearchDir, RG_ARG_SEARCH_PATH, FSettings.SearchPathsHistory, SEARCH_PATH_SEPARATOR);
