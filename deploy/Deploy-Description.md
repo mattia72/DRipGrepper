@@ -45,7 +45,7 @@ Marked with checkmark if fixed, else it is known bug.
 - [x] search form init without file masks
 - [x] extension: dblclik on history shouldn't search selected.
 - [x] save as default doesn't save every combo boxes
-  - [ ] Extension: save as default causes exception
+  - [X] Extension: save as default causes exception
   - [ ] Additional Options has to have saved defaults also
 - [x] Encoding is duplicated if switched from windows-xxx to utf8
 - [x] open search form from history and change filemask duplicate -g parameters

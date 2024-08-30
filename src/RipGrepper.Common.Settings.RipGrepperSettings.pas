@@ -17,7 +17,6 @@ type
 	TRipGrepperSettings = class(TPersistableSettings)
 
 		private
-			FExtensionSettings : TRipGrepperExtensionSettings;
 			FRipGrepperSearchFormSettings : TRipGrepperSearchFormSettings;
 
 			FRipGrepParameters : TRipGrepParameterSettings;
@@ -61,14 +60,13 @@ type
 			procedure Init; override;
 			procedure LoadDefault; override;
 			procedure RebuildArguments;
-			procedure RefreshMembers; override;
+			procedure RefreshMembers(const _bWithDefault: Boolean); override;
 			procedure StoreAsDefault; override;
 			property LastSearchText : string read FLastSearchText write FLastSearchText;
 			property FileMasksHistory : TStrings read FFileMasksHistory write SetFileMasksHistory;
 			property IsEmpty : Boolean read GetIsEmpty;
 
 			property ActualSearchPath : string read GetActualSearchPath;
-			property ExtensionSettings : TRipGrepperExtensionSettings read FExtensionSettings write FExtensionSettings;
 			property SearchPathsHistory : TStrings read FSearchPathsHistory write SetSearchPathsHistory;
 			property RipGrepOptionsHistory : TSTrings read FRipGrepOptionsHistory write SetRipGrepOptionsHistory;
 			property RipGrepParameters : TRipGrepParameterSettings read FRipGrepParameters write FRipGrepParameters;
@@ -165,7 +163,6 @@ begin
 	FRipGrepperOpenWithSettings.Free;
 	FRipGrepParameters.Free;
 	FRipGrepperSettings.Free;
-	FExtensionSettings.Free;
 	FRipGrepperSearchFormSettings.Free;
 	FFileMasksHistory.Free;
 	UpdateIniFile;
@@ -177,7 +174,6 @@ begin
 	inherited;
 	IniSectionName := ROOT_DUMMY_INI_SECTION;
 
-	FExtensionSettings := TRipGrepperExtensionSettings.Create(FIniFile);
 	FRipGrepperSearchFormSettings := TRipGrepperSearchFormSettings.Create(FIniFile);
 
 	FRipGrepperSettings := TRipGrepperAppSettings.Create(FIniFile);
@@ -255,7 +251,6 @@ begin
 	end;
 
 	FRipGrepParameters.LoadDefault;
-	FExtensionSettings.LoadDefault;
 	FRipGrepperSearchFormSettings.LoadDefault;
 
 	inherited LoadDefault;
@@ -268,7 +263,7 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperSettings.RebuildArguments: GuiSearchTextParams end ' + FRipGrepParameters.GuiSearchTextParams.ToString);
 end;
 
-procedure TRipGrepperSettings.RefreshMembers;
+procedure TRipGrepperSettings.RefreshMembers(const _bWithDefault: Boolean);
 begin
 	// nothing todo
 end;
@@ -313,8 +308,6 @@ end;
 procedure TRipGrepperSettings.StoreAsDefault;
 begin
 	FRipGrepParameters.StoreAsDefault;
-	FExtensionSettings.StoreAsDefault;
-	FRipGrepperSearchFormSettings.StoreAsDefault;
 	inherited StoreAsDefault;
 end;
 

@@ -28,8 +28,7 @@ type
 			procedure SetViewSettingValues(const _s : string = '');
 			constructor Create(const _ini : TMemIniFile);
 			procedure Init; override;
-			procedure ReadIni; override;
-			procedure RefreshMembers; override;
+			procedure RefreshMembers(const _bWithDefault: Boolean); override;
 			procedure Store; override;
 	end;
 
@@ -57,13 +56,10 @@ begin
 	CreateSetting('ExpandNodes', varBoolean, True);
 end;
 
-procedure TRipGrepperViewSettings.ReadIni;
+procedure TRipGrepperViewSettings.RefreshMembers(const _bWithDefault: Boolean);
 begin
-	inherited ReadIni();
-end;
-
-procedure TRipGrepperViewSettings.RefreshMembers;
-begin
+	if _bWithDefault then
+		Exit;
 	ShowRelativePath := GetSetting('ShowRelativePath');
 	ShowFileIcon := GetSetting('ShowFileIcon');
 	AlternateRowColors := GetSetting('AlternateRowColors');
@@ -102,7 +98,6 @@ begin
 	end else begin
 		raise Exception.Create('Settings: ' + _s + ' not stored!');
 	end;
-	IsModified := True;
 end;
 
 end.

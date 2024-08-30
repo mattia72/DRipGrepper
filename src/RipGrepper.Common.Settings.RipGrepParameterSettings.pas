@@ -44,7 +44,7 @@ type
 			procedure InitRipGrepExePath;
 			procedure ReadIni; override;
 			procedure LoadDefault; override;
-			procedure RefreshMembers; override;
+			procedure RefreshMembers(const _bWithDefault : Boolean); override;
 			procedure Store; override;
 			procedure StoreAsDefault; override;
 			property FileMasks : string read FFileMasks write SetFileMasks;
@@ -118,6 +118,7 @@ end;
 
 procedure TRipGrepParameterSettings.ReadIni;
 begin
+	FGuiSearchTextParams.ReadIni;
 	inherited ReadIni();
 end;
 
@@ -163,11 +164,13 @@ begin
 	FbRgPathInitOk := True;
 end;
 
-procedure TRipGrepParameterSettings.RefreshMembers;
+procedure TRipGrepParameterSettings.RefreshMembers(const _bWithDefault : Boolean);
 begin
-	FSearchPath := GetSetting('SearchPath');
-	FFileMasks := GetSetting('FileMasks');
-	FGuiSearchTextParams.RefreshMembers;
+	if not _bWithDefault then begin
+		FSearchPath := GetSetting('SearchPath');
+		FFileMasks := GetSetting('FileMasks');
+	end;
+	FGuiSearchTextParams.RefreshMembers(_bWithDefault);
 end;
 
 procedure TRipGrepParameterSettings.SetFileMasks(const Value : string);
@@ -212,6 +215,7 @@ end;
 procedure TRipGrepParameterSettings.Store;
 begin
 	StoreSetting(RG_INI_KEY_RGPATH, RipGrepPath);
+	GuiSearchTextParams.Store;
 	inherited Store; // Write to mem ini, after UpdateIniFile will be saved
 end;
 

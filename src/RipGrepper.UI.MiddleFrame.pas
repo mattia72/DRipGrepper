@@ -613,7 +613,7 @@ begin
 				Exit;
 			end;
 		end else begin
-			actPath := TPath.GetDirectoryName(Settings.ExtensionSettings.CurrentSearchSettings.ActiveProject);
+			actPath := TPath.GetDirectoryName(Settings.RipGrepperSearchFormSettings.ExtensionSettings.CurrentContext.ActiveProject);
 		end;
 		Result := ExtractRelativePath(actPath + '\', _sFullPath);
 	end;

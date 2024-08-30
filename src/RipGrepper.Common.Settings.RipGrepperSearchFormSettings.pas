@@ -11,7 +11,8 @@ uses
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.Settings.Persistable,
 	ArrayEx,
-	RipGrepper.Common.Settings.RipGrepParameterSettings;
+	RipGrepper.Common.Settings.RipGrepParameterSettings,
+	RipGrepper.Common.Settings.Misc;
 
 type
 
@@ -31,6 +32,7 @@ type
 
 		private
 
+			FExtensionSettings : TRipGrepperExtensionSettings;
 			function GetContext : Integer;
 			function GetEncoding : string;
 			function GetHidden : Boolean;
@@ -45,18 +47,20 @@ type
 		public
 			constructor Create(const _ini : TMemIniFile); overload;
 			constructor Create; overload;
+			destructor Destroy; override;
 
-			procedure StoreSearchSettings(const _s : string = '');
+			procedure StoreSearchSettings(_bAsDefault : Boolean; const _s : string = '');
 			procedure Init; override;
 			procedure ReadIni; override;
 			procedure Store; override;
 			procedure Copy(const _other : TRipGrepperSearchFormSettings); reintroduce;
 			procedure StoreAsDefault; override;
 			procedure LoadDefault; override;
-			procedure RefreshMembers; override;
+			procedure RefreshMembers(const _bWithDefault: Boolean); override;
 
 			property Context : Integer read GetContext write SetContext;
 			property Encoding : string read GetEncoding write SetEncoding;
+			property ExtensionSettings : TRipGrepperExtensionSettings read FExtensionSettings write FExtensionSettings;
 			property Hidden : Boolean read GetHidden write SetHidden;
 			property NoIgnore : Boolean read GetNoIgnore write SetNoIgnore;
 			property Pretty : Boolean read GetPretty write SetPretty;
@@ -85,13 +89,21 @@ uses
 constructor TRipGrepperSearchFormSettings.Create(const _ini : TMemIniFile);
 begin
 	inherited Create(_ini);
+	FExtensionSettings := TRipGrepperExtensionSettings.Create(_ini);
 	IniSectionName := INI_SECTION;
 end;
 
 constructor TRipGrepperSearchFormSettings.Create;
 begin
 	inherited Create;
+	FExtensionSettings := TRipGrepperExtensionSettings.Create();
 	IniSectionName := INI_SECTION;
+end;
+
+destructor TRipGrepperSearchFormSettings.Destroy;
+begin
+	FExtensionSettings.Free;
+	inherited;
 end;
 
 procedure TRipGrepperSearchFormSettings.Copy(const _other : TRipGrepperSearchFormSettings);
@@ -101,6 +113,7 @@ begin
 	Hidden := _other.Hidden;
 	NoIgnore := _other.NoIgnore;
 	Pretty := _other.Pretty;
+	FExtensionSettings.Copy(_other.ExtensionSettings);
 end;
 
 function TRipGrepperSearchFormSettings.GetContext : Integer;
@@ -139,6 +152,7 @@ end;
 
 procedure TRipGrepperSearchFormSettings.ReadIni;
 begin
+	FExtensionSettings.ReadIni;
 	inherited ReadIni();
 end;
 
@@ -169,27 +183,29 @@ end;
 
 procedure TRipGrepperSearchFormSettings.Store;
 begin
+	StoreSearchSettings(False);
 	inherited Store();
 end;
 
 procedure TRipGrepperSearchFormSettings.StoreAsDefault;
 begin
-	StoreSearchSettings();
+	StoreSearchSettings(True);
+	FExtensionSettings.StoreAsDefault;
 	inherited StoreAsDefault();
 end;
 
 procedure TRipGrepperSearchFormSettings.LoadDefault;
 begin
+	FExtensionSettings.LoadDefault;
 	inherited LoadDefault();
 end;
 
-procedure TRipGrepperSearchFormSettings.RefreshMembers;
+procedure TRipGrepperSearchFormSettings.RefreshMembers(const _bWithDefault: Boolean);
 begin
-	// members are direct bounded so nothing to do, but abstract so it should exist
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.RefreshMembers');
+	FExtensionSettings.RefreshMembers(_bWithDefault);
 end;
 
-procedure TRipGrepperSearchFormSettings.StoreSearchSettings(const _s : string = '');
+procedure TRipGrepperSearchFormSettings.StoreSearchSettings(_bAsDefault : Boolean; const _s : string = '');
 var
 	i : integer;
 begin
@@ -199,22 +215,21 @@ begin
 	if _s.IsEmpty then begin
 		// store all
 		for i := 0 to high(SEARCH_SETTINGS) do begin
-			StoreSearchSettings(SEARCH_SETTINGS[i]);
+			StoreSearchSettings(_bAsDefault, SEARCH_SETTINGS[i]);
 		end;
 	end else if MatchStr(_s, SEARCH_SETTINGS[i]) then begin
-		StoreSetting(SEARCH_SETTINGS[i], Pretty, True);
+		StoreSetting(SEARCH_SETTINGS[i], Pretty, _bAsDefault);
 	end else if MatchStr(_s, SEARCH_SETTINGS[PreInc(i)]) then begin
-		StoreSetting(SEARCH_SETTINGS[i], Hidden, True);
+		StoreSetting(SEARCH_SETTINGS[i], Hidden, _bAsDefault);
 	end else if MatchStr(_s, SEARCH_SETTINGS[PreInc(i)]) then begin
-		StoreSetting(SEARCH_SETTINGS[i], NoIgnore, True);
+		StoreSetting(SEARCH_SETTINGS[i], NoIgnore, _bAsDefault);
 	end else if MatchStr(_s, SEARCH_SETTINGS[PreInc(i)]) then begin
-		StoreSetting(SEARCH_SETTINGS[i], Context, True);
+		StoreSetting(SEARCH_SETTINGS[i], Context, _bAsDefault);
 	end else if MatchStr(_s, SEARCH_SETTINGS[PreInc(i)]) then begin
-		StoreSetting(SEARCH_SETTINGS[i], Encoding, True);
+		StoreSetting(SEARCH_SETTINGS[i], Encoding, _bAsDefault);
 	end else begin
 		raise Exception.Create('Settings: ' + _s + ' not stored!');
 	end;
-	IsModified := True;
 end;
 
 end.

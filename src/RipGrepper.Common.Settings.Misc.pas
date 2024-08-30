@@ -11,8 +11,7 @@ uses
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.Settings.Persistable,
 	ArrayEx,
-	RipGrepper.Common.Settings.RipGrepParameterSettings,
-	RipGrepper.Common.Settings.RipGrepperSearchFormSettings;
+	RipGrepper.Common.Settings.RipGrepParameterSettings;
 
 type
 
@@ -24,7 +23,7 @@ type
 		{ } );
 
 	TRipGrepperExtensionContext = record
-		Context : ERipGrepperExtensionContext;
+		IDEContext : ERipGrepperExtensionContext;
 		ActiveFile : string;
 		OpenFiles : TArray<string>;
 		ProjectFiles : TArray<string>;
@@ -37,23 +36,25 @@ type
 	TRipGrepperExtensionSettings = class(TPersistableSettings)
 		const
 			INI_SECTION = 'DelphiExtensionSettings';
-			KEY_CONTEXT = 'DripGrepperContext';
+			KEY_CONTEXT = 'IDEContext';
+			KEY_SHORTCUT = 'DripGrepperShortCut';
 
 		private
 			FDripGrepperShortCut : string;
 			FCurrentSearchSettings : TRipGrepperExtensionContext;
 
 		public
-			constructor Create(const _ini : TMemIniFile);
+			constructor Create(const _ini : TMemIniFile); overload;
+			constructor Create; overload;
 			procedure Init; override;
 			procedure ReadIni; override;
 			procedure LoadDefault; override;
-			procedure RefreshMembers; override;
+			procedure RefreshMembers(const _bWithDefault : Boolean); override;
 			procedure Store; override;
 			procedure StoreAsDefault; override;
 			function ToString : string; override;
 			property DripGrepperShortCut : string read FDripGrepperShortCut write FDripGrepperShortCut;
-			property CurrentSearchSettings : TRipGrepperExtensionContext read FCurrentSearchSettings write FCurrentSearchSettings;
+			property CurrentContext : TRipGrepperExtensionContext read FCurrentSearchSettings write FCurrentSearchSettings;
 	end;
 
 	TRipGrepperAppSettings = class(TPersistableSettings)
@@ -71,8 +72,7 @@ type
 		public
 			constructor Create(const _ini : TMemIniFile);
 			destructor Destroy; override;
-			procedure ReadIni; override;
-			procedure RefreshMembers; override;
+			procedure RefreshMembers(const _bWithDefault : Boolean); override;
 			procedure Store; override;
 			property DebugTrace : Boolean read FDebugTrace write FDebugTrace;
 			property ExpertMode : Boolean read FExpertMode write FExpertMode;
@@ -106,6 +106,13 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
 end;
 
+constructor TRipGrepperExtensionSettings.Create;
+begin
+	inherited;
+	IniSectionName := INI_SECTION;
+	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
+end;
+
 procedure TRipGrepperExtensionSettings.Init;
 begin
 	CreateSetting('DripGrepperShortCut', vtString, TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH);
@@ -118,7 +125,6 @@ begin
 		Exit;
 	end;
 	inherited ReadIni();
-
 end;
 
 procedure TRipGrepperExtensionSettings.LoadDefault;
@@ -126,20 +132,22 @@ begin
 	inherited LoadDefault;
 end;
 
-procedure TRipGrepperExtensionSettings.RefreshMembers;
+procedure TRipGrepperExtensionSettings.RefreshMembers(const _bWithDefault : Boolean);
 begin
 	if IOTAUTils.IsStandAlone then begin
 		Exit;
 	end;
 
 	var
-	css := CurrentSearchSettings;
-	css.Context := ERipGrepperExtensionContext(GetSetting('DripGrepperContext'));
-	CurrentSearchSettings := css;
+	css := CurrentContext;
+	css.IDEContext := ERipGrepperExtensionContext(GetSetting(KEY_CONTEXT, _bWithDefault));
+	CurrentContext := css;
 
-	DripGrepperShortCut := GetSetting('DripGrepperShortCut');
-	if DripGrepperShortCut = '' then begin
-		DripGrepperShortCut := TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH;
+	if not _bWithDefault then begin
+		DripGrepperShortCut := GetSetting(KEY_SHORTCUT);
+		if DripGrepperShortCut = '' then begin
+			DripGrepperShortCut := TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH;
+		end;
 	end;
 
 	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.RefreshMembers ' + ToString());
@@ -151,8 +159,8 @@ begin
 		Exit;
 	end;
 
-	StoreSetting('DripGrepperShortCut', DripGrepperShortCut);
-	StoreSetting(KEY_CONTEXT, Integer(CurrentSearchSettings.Context));
+	StoreSetting(KEY_SHORTCUT, DripGrepperShortCut);
+	StoreSetting(KEY_CONTEXT, Integer(CurrentContext.IDEContext));
 	inherited Store; // Write to mem ini, after UpdateIniFile will be saved
 end;
 
@@ -161,16 +169,16 @@ begin
 	if IOTAUTils.IsStandAlone then begin
 		Exit;
 	end;
-	TDebugUtils.DebugMessageFormat()('TRipGrepperAppSettings.StoreAsDefault: Context=%d',
-		{ } [Integer(CurrentSearchSettings.Context)]);
+	TDebugUtils.DebugMessageFormat('TRipGrepperAppSettings.StoreAsDefault: Context=%d',
+		{ } [Integer(CurrentContext.IDEContext)]);
 
-	StoreDefaultSetting(KEY_CONTEXT, Integer(CurrentSearchSettings.Context));
+	StoreDefaultSetting(KEY_CONTEXT, Integer(CurrentContext.IDEContext));
 	inherited StoreAsDefault;
 end;
 
 function TRipGrepperExtensionSettings.ToString : string;
 begin
-	Result := Format('ShortCut: %s, CurrentSearchSettings: %s', [DripGrepperShortCut, CurrentSearchSettings.ToString]);
+	Result := Format('ShortCut: %s, CurrentContext: %s', [DripGrepperShortCut, CurrentContext.ToString]);
 end;
 
 constructor TRipGrepperAppSettings.Create(const _ini : TMemIniFile);
@@ -194,13 +202,10 @@ begin
 	CreateSetting('EncodingItems', varString, string.join(ARRAY_SEPARATOR, TDefaults.RG_PARAM_ENCODING_VALUES));
 end;
 
-procedure TRipGrepperAppSettings.ReadIni;
+procedure TRipGrepperAppSettings.RefreshMembers(const _bWithDefault : Boolean);
 begin
-	inherited ReadIni();
-end;
-
-procedure TRipGrepperAppSettings.RefreshMembers;
-begin
+	if _bWithDefault then
+		Exit;
 	FExpertMode := GetSetting('ExpertMode');
 	FDebugTrace := GetSetting('DebugTrace');
 	FEncodingItems.Clear;
@@ -209,12 +214,14 @@ end;
 
 procedure TRipGrepperAppSettings.Store;
 begin
+	StoreSetting('DebugTrace', FDebugTrace);
+	StoreSetting('ExpertMode', FExpertMode);
 	inherited Store();
 end;
 
 function TRipGrepperExtensionContext.ToString : string;
 begin
-	Result := Format('Context: %d, ActiveProject: %s, ActiveFile: %s', [Integer(Context), ActiveProject, ActiveFile]);
+	Result := Format('IDEContext: %d, ActiveProject: %s, ActiveFile: %s', [Integer(IDEContext), ActiveProject, ActiveFile]);
 end;
 
 end.

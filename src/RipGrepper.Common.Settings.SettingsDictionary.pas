@@ -34,8 +34,7 @@ procedure TSettingsDictionary.AddOrChange(const Key : string; const Value : ISet
 var
 	setting : ISettingVariant;
 begin
-	self.TryGetValue(Key, setting);
-	if Assigned(setting) and (not setting.Equals(Value)) then begin
+	if self.TryGetValue(Key, setting) and Assigned(setting) and (not setting.Equals(Value)) then begin
 		self[Key] := nil;
 	end;
 	AddOrSetValue(Key, Value);

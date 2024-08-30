@@ -30,8 +30,6 @@ type
 
 		protected
 			procedure Init; override;
-			procedure ReadIni; override;
-
 		public
 			SearchOptions : TSearchOptionSet;
 
@@ -57,7 +55,7 @@ type
 			procedure StoreAsDefault; override;
 			function GetAsString(const _bGuiOptionsOnly : Boolean = False) : string;
 			procedure LoadDefault; override;
-			procedure RefreshMembers; override;
+			procedure RefreshMembers(const _bWithDefault: Boolean = False); override;
 
 			property EscapedSearchText : string read GetEscapedSearchText;
 			property IsRgExeOptionSet : Boolean read FIsRgExeOptionSet write FIsRgExeOptionSet;
@@ -367,21 +365,16 @@ begin
 	CreateDefaultSetting('SearchParams', varString, '');
 end;
 
-procedure TGuiSearchTextParams.ReadIni;
-begin
-	inherited ReadIni();
-end;
-
 procedure TGuiSearchTextParams.LoadDefault;
 begin
 	inherited LoadDefault();
 end;
 
-procedure TGuiSearchTextParams.RefreshMembers;
+procedure TGuiSearchTextParams.RefreshMembers(const _bWithDefault: Boolean = False);
 var
 	sParams : string;
 begin
-	sParams := GetSetting('SearchParams');
+	sParams := GetSetting('SearchParams', _bWithDefault);
 	SearchOptions := GetAsSearchOptionSet(
 		{ } sParams.Contains('MatchCase'),
 		{ } sParams.Contains('MatchWord'),

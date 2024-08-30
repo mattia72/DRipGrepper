@@ -77,11 +77,11 @@ begin
 	if FCommandList.Count > index then begin
 		if (FCommandList[index] <> Value) then begin
 			FCommandList[index] := Value;
-			IsModified := True;
+			FIsModified := True;
 		end;
 	end else begin
 		FCommandList.Add(Value);
-		IsModified := True;
+		FIsModified := True;
 	end;
 end;
 

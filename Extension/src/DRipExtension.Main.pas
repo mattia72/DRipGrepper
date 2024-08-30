@@ -63,6 +63,7 @@ uses
 	System.SysUtils,
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.Settings.RipGrepperSettings,
+	RipGrepper.Common.Settings.Misc,
 	RipGrepper.Tools.FileUtils,
 	System.IniFiles,
 	RipGrepper.Common.IOTAUtils,
@@ -87,6 +88,7 @@ var
 	Item : TMenuItem;
 	iPos : integer;
 	sc : TShortCut;
+	extSettings: TRipGrepperExtensionSettings;
 begin
 	TDebugUtils.DebugMessage('TDRipExtension.CreateMenu start');
 
@@ -94,11 +96,12 @@ begin
 	// exit;
 
 	RemoveExtensionMenu();
-	if not GSettings.ExtensionSettings.IsAlreadyRead then begin
-		GSettings.ExtensionSettings.ReadIni;
+	extSettings := GSettings.RipGrepperSearchFormSettings.ExtensionSettings;
+	if not extSettings.IsAlreadyRead then begin
+		extSettings.ReadIni;
 	end;
-	TDebugUtils.DebugMessage('TDRipExtension.CreateMenu shortcut ' + GSettings.ExtensionSettings.DripGrepperShortCut);
-	sc := TextToShortCut(GSettings.ExtensionSettings.DripGrepperShortCut);
+	TDebugUtils.DebugMessage('TDRipExtension.CreateMenu shortcut ' + extSettings.DripGrepperShortCut);
+	sc := TextToShortCut(extSettings.DripGrepperShortCut);
 	if sc = 0 then begin
 		sc := TextToShortCut(TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH);
 	end;

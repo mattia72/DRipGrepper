@@ -52,7 +52,6 @@ type
 			procedure SetNoMatchFound(const Value : Boolean);
 			procedure SetRipGrepperSearchFormSettings(const Value : TRipGrepperSearchFormSettings);
 			procedure SetRipGrepResult(const Value: Integer);
-
 		public
 			procedure LoadFromSettings(const _settings : TRipGrepperSettings);
 			destructor Destroy; override;
