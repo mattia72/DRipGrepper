@@ -1138,7 +1138,6 @@ begin
 
 			size := TFontSizeHelper.TrueFontSize(TargetCanvas.Font, sStatistic);
 			TargetCanvas.TextOut(CellRect.Left + TREEVIEW_FONTSPACE * 4, CellRect.BottomRight.Y - size.cy, sStatistic);
-
 		end;
 	end;
 end;

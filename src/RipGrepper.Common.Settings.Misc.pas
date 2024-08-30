@@ -152,7 +152,7 @@ begin
 	end;
 
 	StoreSetting('DripGrepperShortCut', DripGrepperShortCut);
-	StoreSetting('DripGrepperContext', Integer(CurrentSearchSettings.Context));
+	StoreSetting(KEY_CONTEXT, Integer(CurrentSearchSettings.Context));
 	inherited Store; // Write to mem ini, after UpdateIniFile will be saved
 end;
 
@@ -161,6 +161,10 @@ begin
 	if IOTAUTils.IsStandAlone then begin
 		Exit;
 	end;
+	TDebugUtils.DebugMessageFormat()('TRipGrepperAppSettings.StoreAsDefault: Context=%d',
+		{ } [Integer(CurrentSearchSettings.Context)]);
+
+	StoreDefaultSetting(KEY_CONTEXT, Integer(CurrentSearchSettings.Context));
 	inherited StoreAsDefault;
 end;
 
@@ -199,7 +203,7 @@ procedure TRipGrepperAppSettings.RefreshMembers;
 begin
 	FExpertMode := GetSetting('ExpertMode');
 	FDebugTrace := GetSetting('DebugTrace');
-    FEncodingItems.Clear;
+	FEncodingItems.Clear;
 	FEncodingItems.AddStrings(string(GetSetting('EncodingItems')).Split([ARRAY_SEPARATOR]));
 end;
 
