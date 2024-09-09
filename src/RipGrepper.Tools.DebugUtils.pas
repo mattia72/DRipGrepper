@@ -53,7 +53,7 @@ end;
 class procedure TDebugUtils.InnerOutputDebugString(const _s : string);
 begin
 	var
-	bForce := True;
+	bForce := False;
 	{$IFDEF DEBUG}
 	bForce := not bForce;
 	{$ENDIF}
@@ -72,12 +72,12 @@ end;
 
 procedure TDebugMsgBeginEnd.Msg(const _sMsg : string);
 begin
-	TDebugUtils.DebugMessage(FProcName + ' - ' + _sMsg);
+	TDebugUtils.Msg(FProcName + ' - ' + _sMsg);
 end;
 
 procedure TDebugMsgBeginEnd.MsgFmt(const _s : string; const _args : array of const);
 begin
-	TDebugUtils.DebugMessageFormat(FProcName + ' - ' + _s, _args);
+	TDebugUtils.MsgFmt(FProcName + ' - ' + _s, _args);
 end;
 
 class function TDebugMsgBeginEnd.New(const _sProcName : string) : TDebugMsgBeginEnd;

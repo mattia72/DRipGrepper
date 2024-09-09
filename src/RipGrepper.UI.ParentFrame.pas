@@ -67,19 +67,21 @@ end;
 
 destructor TParentFrame.Destroy;
 begin
-	//
+	TDebugUtils.Msg('TParentFrame.Destroy - Settings.Store');
+   //	Settings.Store; not enough
 	inherited;
 end;
 
 procedure TParentFrame.OnClose(Sender : TObject; var Action : TCloseAction);
 begin
-	TDebugUtils.DebugMessage('TFrames.FormClose - begin action:' + Integer(Action).ToString);
-	Settings.Store;
+	TDebugUtils.DebugMessage('TParentFrame.OnClose - begin action:' + Integer(Action).ToString);
+	Settings.Store; //combo box histories can be stored here
 end;
 
 procedure TParentFrame.FrameOnShow(Sender : TObject);
 begin
-	var dbgMsg := TDebugMsgBeginEnd.New('TFrames.FormShow');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.FrameOnShow');
 	SetStatusBarMessage();
 end;
 
@@ -106,7 +108,8 @@ end;
 
 procedure TParentFrame.Init;
 begin
-	var dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.InitForm');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.InitForm');
 	MainFrame.Init();
 	TopFrame.Init();
 	BottomFrame.Init();

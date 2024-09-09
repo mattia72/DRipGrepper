@@ -252,8 +252,10 @@ procedure TPersistableSettings.CreateSetting(const _sName : string; const _setti
 begin
 	if _setting.IsDefaultRelevant then begin
 		FSettingsDict.AddOrChange(GetDefaultDictKeyName(_sName), _setting);
+		TDebugUtils.MsgFmt('TPersistableSettings.CreateSetting - %s', [GetDefaultDictKeyName(_sName)]);
 	end;
 	FSettingsDict.AddOrChange(GetDictKeyName(_sName), _setting);
+	TDebugUtils.MsgFmt('TPersistableSettings.CreateSetting - %s', [GetDictKeyName(_sName)]);
 end;
 
 procedure TPersistableSettings.CreateIniFile;
@@ -277,6 +279,8 @@ procedure TPersistableSettings.CreateDefaultSetting(const _sName : string; const
 var
 	setting : ISettingVariant;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.CreateDefaultSetting');
 	setting := TSettingVariant.Create(_type, _value, True); // ISettingVariant
 	CreateSetting(_sName, setting);
 end;
@@ -315,12 +319,13 @@ begin
 end;
 
 function TPersistableSettings.GetIsModified : Boolean;
+var
+	i : ISettingVariant;
+	arr : TArrayEx<ISettingVariant>;
 begin
 	if not FIsModified then begin
-		var
-			arr : TArrayEx<ISettingVariant> := FSettingsDict.Values.ToArray;
-		var
-			i : ISettingVariant := TSettingVariant.Create();
+		arr := FSettingsDict.Values.ToArray;
+		i := TSettingVariant.Create();
 		i.IsModified := True;
 		FIsModified := 0 < arr.CountOf(i, TComparer<ISettingVariant>.Construct(
 			function(const Left, Right : ISettingVariant) : Integer
@@ -329,7 +334,6 @@ begin
 			end));
 	end;
 	Result := FIsModified;
-
 end;
 
 function TPersistableSettings.InnerGetSetting(const _name : string; const _bWithDefault : Boolean) : Variant;
@@ -352,6 +356,8 @@ end;
 
 procedure TPersistableSettings.ReadIni;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.ReadIni');
 	Init();
 	ReadSettings();
 	// RefreshMembers(FDefaultLoadRuns);
@@ -361,23 +367,30 @@ procedure TPersistableSettings.LoadDefault;
 var
 	val : ISettingVariant;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.LoadDefault');
+
 	if not IsAlreadyRead then begin
+		dbgMsg.Msg('ReadIni');
 		ReadIni;
 	end;
 
 	for var key in FSettingsDict.Keys do begin
-		if not key.StartsWith(IniSectionName) then
+		if not key.StartsWith(IniSectionName) then begin
+			dbgMsg.MsgFmt('Skip %s', [key]);
 			continue;
+		end;
 
 		val := FSettingsDict[key];
 		if val.IsDefaultRelevant then begin
 			val.Value := val.DefaultValue;
-			TDebugUtils.DebugMessageFormat('TPersistableSettings.LoadDefault: %s=%s', [key, VarToStr(val.Value)]);
+			dbgMsg.MsgFmt('%s=%s', [key, VarToStr(val.Value)]);
 		end else begin
 			continue;
 		end;
 	end;
 
+	dbgMsg.Msg('call RefreshMembers');
 	RefreshMembers(True);
 end;
 
@@ -421,7 +434,7 @@ var
 begin
 	setting := FSettingsDict[_name];
 	Result := setting.DefaultValue;
-	TDebugUtils.DebugMessage('TPersistableSettings.LoadSettingDefaultValue: ' + _name + ' ' + Result);
+	TDebugUtils.Msg('TPersistableSettings.LoadSettingDefaultValue: ' + _name + ' ' + Result);
 end;
 
 procedure TPersistableSettings.ReadSettings;
@@ -432,42 +445,52 @@ var
 	setting : ISettingVariant;
 	value : string;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.ReadSettings');
 	strs := TStringList.Create();
 	try
 		if IniSectionName = ROOT_DUMMY_INI_SECTION then
 			Exit;
 		try
+			dbgMsg.MsgFmt('Read section: %s', [IniSectionName]);
 			FIniFile.ReadSectionValues(IniSectionName, strs);
 			FIsAlreadyRead := strs.Count > 0;
+			dbgMsg.Msg(strs.DelimitedText);
 
+			dbgMsg.Msg('create base settings');
 			// create base settings
 			for var i : integer := 0 to strs.Count - 1 do begin
 				name := strs.Names[i];
-				if name.EndsWith(DEFAULT_KEY) then
+				if name.EndsWith(DEFAULT_KEY) then begin
+					dbgMsg.MsgFmt('skip %s', [name]);
 					continue;
+				end;
 				value := strs.Values[name];
 				setting := TSettingVariant.Create(value); // ISettingVariant
-				TDebugUtils.DebugMessage(Format('TPersistableSettings.ReadSettings: [%s] %s = %s', [IniSectionName, name, value]));
+				dbgMsg.MsgFmt('[%s] %s = %s', [IniSectionName, name, value]);
 				AddOrSet(GetDictKeyName(name), setting);
 			end;
 
+			dbgMsg.Msg('set default settings');
 			// set default settings
 			for var i : integer := 0 to strs.Count - 1 do begin
 				name := strs.Names[i];
-				if not name.EndsWith(DEFAULT_KEY) then
+				if not name.EndsWith(DEFAULT_KEY) then begin
+					dbgMsg.MsgFmt('skip %s', [name]);
 					continue;
+				end;
 
 				baseName := name.Replace(DEFAULT_KEY, '');
 				value := strs.Values[name];
 				if FSettingsDict.TryGetValue(GetDictKeyName(baseName), setting) then begin
 					setting.IsDefaultRelevant := True;
 					setting.DefaultValue := value;
-					TDebugUtils.DebugMessage(Format('TPersistableSettings.ReadSettings: [%s] %s = %s', [IniSectionName, name, value]));
+					dbgMsg.MsgFmt('[%s] %s = %s', [IniSectionName, name, value]);
 					// AddOrSet(GetDictKeyName(baseName), setting);
 				end else begin
 					// We didn't write it in INI before...
 					setting := TSettingVariant.Create(value); // ISettingVariant
-					TDebugUtils.DebugMessage(Format('TPersistableSettings.ReadSettings: [%s] %s = %s', [IniSectionName, baseName, value]));
+					dbgMsg.MsgFmt('[%s] %s = %s', [IniSectionName, baseName, value]);
 					setting.SaveToIni := False;
 					setting.DefaultValue := value;
 					AddOrSet(GetDictKeyName(baseName), setting);
@@ -501,7 +524,7 @@ end;
 
 procedure TPersistableSettings.StoreDefaultSetting(const _name : string; const _v : Variant);
 begin
-	TDebugUtils.DebugMessage('TPersistableSettings.StoreDefaultSetting: ' + _name + '=' + VarToStr(_v) + ' store in memory...');
+	TDebugUtils.Msg('TPersistableSettings.StoreDefaultSetting: ' + _name + '=' + VarToStr(_v) + ' store in memory...');
 	AddOrSet(GetDefaultDictKeyName(_name), _v);
 end;
 
@@ -564,8 +587,7 @@ begin
 			else
 			raise ESettingsException.Create('Settings Type not supported:' + VarTypeAsText(_setting.ValueType));
 		end;
-		TDebugUtils.DebugMessage('TPersistableSettings.Store: ' + FIniFile.FileName + '[' + _sIniSection + '] ' + _sKey + '=' + VarToStr(_setting.Value) +
-			' stored');
+		TDebugUtils.Msg('TPersistableSettings.Store: ' + FIniFile.FileName + '[' + _sIniSection + '] ' + _sKey + '=' + VarToStr(_setting.Value) + ' stored');
 	end;
 end;
 

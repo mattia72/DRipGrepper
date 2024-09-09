@@ -143,6 +143,8 @@ end;
 
 procedure TRipGrepperSearchFormSettings.Init;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchFormSettings.Init');
 	CreateDefaultSetting('Pretty', varBoolean, True);
 	CreateDefaultSetting('Hidden', varBoolean, False);
 	CreateDefaultSetting('NoIgnore', varBoolean, False);
@@ -196,6 +198,8 @@ end;
 
 procedure TRipGrepperSearchFormSettings.LoadDefault;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchFormSettings.LoadDefault');
 	FExtensionSettings.LoadDefault;
 	inherited LoadDefault();
 end;

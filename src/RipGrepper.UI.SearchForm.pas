@@ -160,7 +160,7 @@ type
 			function GetInIDESelectedText : string;
 			procedure LoadExtensionSearchSettings;
 			procedure UpdateButtonsBySettings;
-			procedure UpdateCmbsOnContextChange;
+			procedure UpdateCmbsOnIDEContextChange;
 			procedure UpdateFileMasksInFileMasks;
 			function UpdateFileMasksInOptions(const sOptions, sMasks : string) : string; overload;
 			procedure UpdateFileMasksInOptions; overload;
@@ -820,7 +820,7 @@ begin
 	if IOTAUTils.IsStandAlone or FbExtensionOptionsSkipClick then begin
 		Exit;
 	end;
-	UpdateCmbsOnContextChange();
+	UpdateCmbsOnIDEContextChange();
 	WriteCtrlsToRipGrepParametersSettings();
 	UpdateCmbOptionsAndMemoCommandLine();
 end;
@@ -844,11 +844,18 @@ end;
 
 procedure TRipGrepperSearchDialogForm.LoadDefaultSettings;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.LoadDefaultSettings');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadDefaultSettings');
 	FSettings.LoadDefault;
+
 	// TODO set only if it was saved before!
 	cmbSearchDir.Text := IfThen(FSettings.RipGrepParameters.SearchPath.IsEmpty, cmbSearchDir.Text, FSettings.RipGrepParameters.SearchPath);
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.LoadDefaultSettings cmbSearchDir=' + cmbSearchDir.Text);
+	dbgMsg.Msg('cmbSearchDir=' + cmbSearchDir.Text);
+
+	if not IOTAUtils.IsStandAlone then begin
+		UpdateCmbsOnIDEContextChange();
+	end;
+
 	cmbFileMasks.Text := IfThen(FSettings.RipGrepParameters.FileMasks.IsEmpty, cmbFileMasks.Text, FSettings.RipGrepParameters.FileMasks);
 	FGuiSetSearchParams.SearchOptions := FSettings.RipGrepParameters.GuiSearchTextParams.SearchOptions;
 	UpdateCheckBoxesBySettings(FSettings.RipGrepperSearchFormSettings);
@@ -863,7 +870,7 @@ begin
 		Exit;
 	end;
 
-	extSearchSettings := FSettings.RipGrepperSearchFormSettings.ExtensionSettings.CurrentContext;
+	extSearchSettings := FSettings.RipGrepperSearchFormSettings.ExtensionSettings.CurrentIDEContext;
 	if not HasHistItemObj then begin
 		selectedText := GetInIDESelectedText;
 		if not selectedText.IsEmpty then begin
@@ -877,12 +884,12 @@ begin
 	extSearchSettings.OpenFiles := IOTAUTils.GetOpenedEditBuffers();
 	extSearchSettings.ActiveProject := (IOTAUTils.GxOtaGetCurrentProject).FileName;
 
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.LoadExtensionSearchSettings CurrentContext:' + extSearchSettings.ToString);
-	FSettings.RipGrepperSearchFormSettings.ExtensionSettings.CurrentContext := extSearchSettings;
+	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.LoadExtensionSearchSettings CurrentIDEContext:' + extSearchSettings.ToString);
+	FSettings.RipGrepperSearchFormSettings.ExtensionSettings.CurrentIDEContext := extSearchSettings;
 
 	FbExtensionOptionsSkipClick := True;
 	rbExtensionOptions.ItemIndex := Integer(extSearchSettings.IDEContext);
-	UpdateCmbsOnContextChange();
+	UpdateCmbsOnIDEContextChange();
 	FbExtensionOptionsSkipClick := False;
 end;
 
@@ -917,14 +924,16 @@ begin
 	ButtonDown(EGuiOption.soUseRegex, tbUseRegex);
 end;
 
-procedure TRipGrepperSearchDialogForm.UpdateCmbsOnContextChange;
+procedure TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange;
 var
 	rgec : TRipGrepperExtensionContext;
 begin
+	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange');
+
 	if IOTAUTils.IsStandAlone then begin
 		Exit;
 	end;
-	rgec := FSettings.RipGrepperSearchFormSettings.ExtensionSettings.CurrentContext;
+	rgec := FSettings.RipGrepperSearchFormSettings.ExtensionSettings.CurrentIDEContext;
 	case rbExtensionOptions.ItemIndex of
 		EXT_SEARCH_ACTIVE_FILE : begin
 			cmbSearchDir.Enabled := False;
@@ -945,8 +954,8 @@ begin
 	end;
 	FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
 	rgec.IDEContext := ERipGrepperExtensionContext(rbExtensionOptions.ItemIndex);
-	FSettings.RipGrepperSearchFormSettings.ExtensionSettings.CurrentContext := rgec;
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.UpdateCmbsOnContextChange: ' + rgec.ToString);
+	FSettings.RipGrepperSearchFormSettings.ExtensionSettings.CurrentIDEContext := rgec;
+	dbgMsg.Msg(rgec.ToString);
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateFileMasksInFileMasks;

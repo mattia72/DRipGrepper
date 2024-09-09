@@ -224,8 +224,10 @@ end;
 
 procedure TRipGrepperSettings.ReadIni;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.ReadIni');
+
 	inherited ReadIni();
-	TDebugUtils.DebugMessage('TRipGrepperSettings.Read: start');
 
 	try
 		FRipGrepperViewSettings.ReadIni;
@@ -247,16 +249,13 @@ end;
 
 procedure TRipGrepperSettings.LoadDefault;
 begin
-	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.LoadDefault');
-	if not IsAlreadyRead then begin
-		dbgMsg.Msg('ReadIni');
-		ReadIni();
-	end;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.LoadDefault');
+
+	inherited LoadDefault;
 
 	FRipGrepParameters.LoadDefault;
 	FRipGrepperSearchFormSettings.LoadDefault;
-
-	inherited LoadDefault;
 end;
 
 procedure TRipGrepperSettings.RebuildArguments;
@@ -293,8 +292,12 @@ end;
 
 procedure TRipGrepperSettings.Store;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.Store');
+
 	inherited;
-	if IsAlreadyRead and IsModified then begin
+	if IsModified then begin
+		dbgMsg.Msg('IsModified');
 		FRipGrepperViewSettings.Store;
 		FRipGrepperOpenWithSettings.Store;
 		FRipGrepperSettings.Store;
@@ -348,6 +351,7 @@ end;
 
 class procedure TRipGrepperSettingsInstance.FreeInstance;
 begin
+	FInstance.Store;
 	FInstance.Free;
 end;
 
@@ -355,7 +359,6 @@ class function TRipGrepperSettingsInstance.GetInstance : TRipGrepperSettings;
 begin
 	if not Assigned(FInstance) then begin
 		FInstance := TRipGrepperSettings.Create;
-		OutputDebugString(PChar('TRipGrepperSettingsInstance.GetInstance TRipGrepperSettings created'));
 	end;
 	Result := FInstance;
 end;
@@ -363,6 +366,10 @@ end;
 initialization
 
 GSettings := TRipGrepperSettingsInstance.Instance;
+GSettings.RipGrepperSettings.ReadIni;
+GSettings.RipGrepperSettings.RefreshMembers(False);
+// OutputDebugString(PChar('TRipGrepperSettingsInstance.GetInstance TRipGrepperSettings created'));
+TDebugUtils.DebugMessage('TRipGrepperSettingsInstance initialization');
 
 finalization
 
