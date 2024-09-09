@@ -162,14 +162,13 @@ end;
 
 procedure TRipGrepperForm.FormShow(Sender : TObject);
 begin
-	TDebugUtils.DebugMessage('TRipGrepperForm.FormShow - begin');
+	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.FormShow');
 	inherited;
-	TDebugUtils.DebugMessage('TRipGrepperForm.FormShow - end');
 end;
 
 procedure TRipGrepperForm.CreateParams(var Params : TCreateParams);
 begin
-	TDebugUtils.DebugMessage('TRipGrepperForm.CreateParams');
+	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.CreateParams');
 	inherited CreateParams(Params);
 
 	if IOTAUTils.IsStandAlone then begin
@@ -180,7 +179,7 @@ end;
 
 procedure TRipGrepperForm.Init;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperForm.Init');
+	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.Init');
 	ParentFrame.Init;
 end;
 
@@ -190,7 +189,7 @@ var
 	i : Integer;
 	cmp : TComponent;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperForm.Loaded');
+	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.Loaded');
 	inherited Loaded;
 	PropInfo := GetPropInfo(Self, 'StyleElements');
 	if Assigned(PropInfo) then

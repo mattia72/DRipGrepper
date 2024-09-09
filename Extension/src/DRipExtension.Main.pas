@@ -132,21 +132,20 @@ end;
 constructor TDRipExtension.Create;
 begin
 	inherited;
-	TDebugUtils.DebugMessage('TDRipExtension.Create begin');
+	var dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.Create');
 	InitPluginInfo;
 	TRipGrepperDockableForm.CreateInstance; // saved layout loading ...
 	G_DRipExtension := self;
 	CreateMenu;
-	TDebugUtils.DebugMessage('TDRipExtension.Create end');
 end;
 
 destructor TDRipExtension.Destroy;
 begin
-	TDebugUtils.DebugMessage('TDRipExtension.Destroy');
+	var dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.Destroy');
 	RemovePluginInfo;
-	TDebugUtils.DebugMessage('TDRipExtension.Destroy FDockableForm.Free');
+	dbgMsg.Msg('TDRipExtension.Destroy FDockableForm.Free');
 	FDockableForm.Free;
-	TDebugUtils.DebugMessage('TDRipExtension.Destroy G_DripMenu.Free');
+	dbgMsg.Msg('TDRipExtension.Destroy G_DripMenu.Free');
 	G_DripMenu.Free;
 	G_DRipExtension := nil;
 	FIconBmp.Free;

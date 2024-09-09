@@ -727,7 +727,7 @@ end;
 
 procedure TRipGrepperMiddleFrame.Init;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.Init Begin');
+	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.Init');
 	FCurrentHistoryItemIndex := -1;
 	FHistoryObjectList.Clear();
 	if IOTAUTils.IsStandAlone then begin
@@ -738,7 +738,7 @@ begin
 		PanelResult.BevelOuter := bvNone;
 	end;
 	Align := alClient;
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.Init ' + FExeVersion);
+	dbgMsg.Msg('TRipGrepperMiddleFrame.Init ' + FExeVersion);
 	FFileNameType := ftAbsolute;
 	VstResult.TreeOptions.StringOptions := VstResult.TreeOptions.StringOptions + [toShowStaticText];
 	VstResult.TreeOptions.PaintOptions := VstResult.TreeOptions.PaintOptions + [toUseExplorerTheme];
@@ -754,8 +754,6 @@ begin
 	if not miOpenInIde.Default then begin
 		PopupMenuResult.Items[0].Visible := False;
 	end;
-
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.InitForm Ended');
 end;
 
 procedure TRipGrepperMiddleFrame.InitSearch;

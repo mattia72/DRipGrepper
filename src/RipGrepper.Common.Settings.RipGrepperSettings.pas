@@ -60,7 +60,7 @@ type
 			procedure Init; override;
 			procedure LoadDefault; override;
 			procedure RebuildArguments;
-			procedure RefreshMembers(const _bWithDefault: Boolean); override;
+			procedure RefreshMembers(const _bWithDefault : Boolean); override;
 			procedure StoreAsDefault; override;
 			property LastSearchText : string read FLastSearchText write FLastSearchText;
 			property FileMasksHistory : TStrings read FFileMasksHistory write SetFileMasksHistory;
@@ -105,7 +105,8 @@ uses
 	Vcl.Forms,
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.DebugUtils,
-	RipGrepper.CommandLine.Builder;
+	RipGrepper.CommandLine.Builder,
+	Winapi.Windows;
 
 function TRipGrepperSettings.GetLastHistorySearchText : string;
 begin
@@ -246,7 +247,9 @@ end;
 
 procedure TRipGrepperSettings.LoadDefault;
 begin
+	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.LoadDefault');
 	if not IsAlreadyRead then begin
+		dbgMsg.Msg('ReadIni');
 		ReadIni();
 	end;
 
@@ -263,7 +266,7 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperSettings.RebuildArguments: GuiSearchTextParams end ' + FRipGrepParameters.GuiSearchTextParams.ToString);
 end;
 
-procedure TRipGrepperSettings.RefreshMembers(const _bWithDefault: Boolean);
+procedure TRipGrepperSettings.RefreshMembers(const _bWithDefault : Boolean);
 begin
 	// nothing todo
 end;
@@ -352,6 +355,7 @@ class function TRipGrepperSettingsInstance.GetInstance : TRipGrepperSettings;
 begin
 	if not Assigned(FInstance) then begin
 		FInstance := TRipGrepperSettings.Create;
+		OutputDebugString(PChar('TRipGrepperSettingsInstance.GetInstance TRipGrepperSettings created'));
 	end;
 	Result := FInstance;
 end;

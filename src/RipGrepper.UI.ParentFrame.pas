@@ -79,9 +79,8 @@ end;
 
 procedure TParentFrame.FrameOnShow(Sender : TObject);
 begin
-	TDebugUtils.DebugMessage('TFrames.FormShow - begin');
+	var dbgMsg := TDebugMsgBeginEnd.New('TFrames.FormShow');
 	SetStatusBarMessage();
-	TDebugUtils.DebugMessage('TFrames.FormShow - end');
 end;
 
 procedure TParentFrame.FrameOnShowHide(var M : TMessage);
@@ -107,11 +106,10 @@ end;
 
 procedure TParentFrame.Init;
 begin
-	TDebugUtils.DebugMessage('TParentFrame.InitForm Begin');
+	var dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.InitForm');
 	MainFrame.Init();
 	TopFrame.Init();
 	BottomFrame.Init();
-	TDebugUtils.DebugMessage('TParentFrame.InitForm End');
 end;
 
 procedure TParentFrame.SetStatusBarMessage(const _bWithElapsedTime : Boolean = False);

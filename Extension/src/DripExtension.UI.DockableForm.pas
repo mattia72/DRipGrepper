@@ -217,7 +217,8 @@ end;
 
 class procedure TRipGrepperDockableForm.CreateInstance;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperDockableForm.CreateInstance begin');
+	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperDockableForm.CreateInstance');
+
 	FInstance := TRipGrepperDockableForm.Create();
 	var
 	services := (BorlandIDEServices as INTAServices);
@@ -225,9 +226,8 @@ begin
 		services.RegisterDockableForm(FInstance);
 	except
 		on e : Exception do
-			TDebugUtils.DebugMessage('TRipGrepperDockableForm.CreateInstance Exception: ' + e.Message);
+			dbgMsg.Msg(e.Message);
 	end;
-	TDebugUtils.DebugMessage('TRipGrepperDockableForm.CreateInstance end');
 end;
 
 class procedure TRipGrepperDockableForm.DestroyInstance;
