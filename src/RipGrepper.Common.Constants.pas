@@ -212,6 +212,7 @@ type
 			{ } 'utf8',
 			{ } 'windows-1252'];
 			class var EXT_DEFAULT_SHORTCUT_SEARCH : string;
+			class var EXT_DEFAULT_SHORTCUT_OPEN_WITH : string;
 			class constructor Create;
 			class property ColumnTitle[index : EColumnIndex] : string read GetColumnTitle; default;
 	end;
@@ -231,6 +232,7 @@ class constructor TDefaults.Create;
 begin
 	inherited;
 	EXT_DEFAULT_SHORTCUT_SEARCH := ShortCutToText(ShortCut(Word('R'), [ssShift, ssAlt]));
+	EXT_DEFAULT_SHORTCUT_OPEN_WITH := ShortCutToText(ShortCut(Word('O'), [ssShift, ssAlt]));
 end;
 
 class function TDefaults.GetColumnTitle(Index : EColumnIndex) : string;

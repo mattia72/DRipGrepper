@@ -37,11 +37,13 @@ type
 		const
 			INI_SECTION = 'DelphiExtensionSettings';
 			KEY_CONTEXT = 'IDEContext';
-			KEY_SHORTCUT = 'DripGrepperShortCut';
+			KEY_SHORTCUT_DRIPGREPPER = 'DripGrepperShortCut';
+			KEY_SHORTCUT_OPENWITH = 'DripGrepperShortCut';
 
 		private
 			FDripGrepperShortCut : string;
 			FCurrentSearchSettings : TRipGrepperExtensionContext;
+			FOpenWithShortCut : string;
 
 		public
 			constructor Create(const _ini : TMemIniFile); overload;
@@ -54,7 +56,8 @@ type
 			procedure StoreAsDefault; override;
 			function ToString : string; override;
 			property DripGrepperShortCut : string read FDripGrepperShortCut write FDripGrepperShortCut;
-			property CurrentContext : TRipGrepperExtensionContext read FCurrentSearchSettings write FCurrentSearchSettings;
+			property OpenWithShortCut : string read FOpenWithShortCut write FOpenWithShortCut;
+			property CurrentIDEContext : TRipGrepperExtensionContext read FCurrentSearchSettings write FCurrentSearchSettings;
 	end;
 
 	TRipGrepperAppSettings = class(TPersistableSettings)
@@ -115,12 +118,17 @@ end;
 
 procedure TRipGrepperExtensionSettings.Init;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.Init');
 	CreateSetting('DripGrepperShortCut', vtString, TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH);
+	CreateSetting('OpenWithShortCut', vtString, TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH);
 	CreateDefaultSetting(KEY_CONTEXT, vtInteger, EXT_SEARCH_GIVEN_PATH);
 end;
 
 procedure TRipGrepperExtensionSettings.ReadIni;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.ReadIni');
 	if IOTAUTils.IsStandAlone then begin
 		Exit;
 	end;
@@ -129,28 +137,40 @@ end;
 
 procedure TRipGrepperExtensionSettings.LoadDefault;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.LoadDefault');
 	inherited LoadDefault;
+	dbgMsg.Msg('inherited LoadDefault ended')
 end;
 
 procedure TRipGrepperExtensionSettings.RefreshMembers(const _bWithDefault : Boolean);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.RefreshMembers');
 	if IOTAUTils.IsStandAlone then begin
 		Exit;
 	end;
 
 	var
-	css := CurrentContext;
+	css := CurrentIDEContext;
 	css.IDEContext := ERipGrepperExtensionContext(GetSetting(KEY_CONTEXT, _bWithDefault));
-	CurrentContext := css;
+	CurrentIDEContext := css;
 
 	if not _bWithDefault then begin
-		DripGrepperShortCut := GetSetting(KEY_SHORTCUT);
+		DripGrepperShortCut := GetSetting(KEY_SHORTCUT_DRIPGREPPER);
 		if DripGrepperShortCut = '' then begin
 			DripGrepperShortCut := TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH;
 		end;
 	end;
 
-	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.RefreshMembers ' + ToString());
+	if not _bWithDefault then begin
+		OpenWithShortCut := GetSetting(KEY_SHORTCUT_OPENWITH);
+		if OpenWithShortCut = '' then begin
+			OpenWithShortCut := TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH;
+		end;
+	end;
+
+	dbgMsg.Msg(ToString());
 end;
 
 procedure TRipGrepperExtensionSettings.Store;
@@ -159,8 +179,9 @@ begin
 		Exit;
 	end;
 
-	StoreSetting(KEY_SHORTCUT, DripGrepperShortCut);
-	StoreSetting(KEY_CONTEXT, Integer(CurrentContext.IDEContext));
+	StoreSetting(KEY_SHORTCUT_DRIPGREPPER, DripGrepperShortCut);
+	StoreSetting(KEY_SHORTCUT_OPENWITH, OpenWithShortCut);
+	StoreSetting(KEY_CONTEXT, Integer(CurrentIDEContext.IDEContext));
 	inherited Store; // Write to mem ini, after UpdateIniFile will be saved
 end;
 
@@ -170,15 +191,15 @@ begin
 		Exit;
 	end;
 	TDebugUtils.DebugMessageFormat('TRipGrepperAppSettings.StoreAsDefault: Context=%d',
-		{ } [Integer(CurrentContext.IDEContext)]);
+		{ } [Integer(CurrentIDEContext.IDEContext)]);
 
-	StoreDefaultSetting(KEY_CONTEXT, Integer(CurrentContext.IDEContext));
+	StoreDefaultSetting(KEY_CONTEXT, Integer(CurrentIDEContext.IDEContext));
 	inherited StoreAsDefault;
 end;
 
 function TRipGrepperExtensionSettings.ToString : string;
 begin
-	Result := Format('ShortCut: %s, CurrentContext: %s', [DripGrepperShortCut, CurrentContext.ToString]);
+	Result := Format('ShortCut: %s, CurrentIDEContext: %s', [DripGrepperShortCut, CurrentIDEContext.ToString]);
 end;
 
 constructor TRipGrepperAppSettings.Create(const _ini : TMemIniFile);

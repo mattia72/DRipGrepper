@@ -28,6 +28,7 @@ Marked with checkmark if ready, else planned as next.
 - [ ] filter result
 - [ ] own prettifier switcher as toolbar button
 - [ ] save search histories in file
+- [x] extension: new menu item for `Open With...`
 <!-- #### :mag: Search Dialog -->
 
 ### Search Dialog
