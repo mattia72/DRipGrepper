@@ -159,6 +159,7 @@ begin
 	dbgMsg.MsgFmt('IDEContext %s', [VarToStrDef(val,'')]);
 	css.IDEContext := ERipGrepperExtensionContext(val);
 	CurrentIDEContext := css;
+	dbgMsg.MsgFmt('after copy IDEContext %d', [Integer(CurrentIDEContext.IDEContext)]);
 
 	if not _bWithDefault then begin
 		DripGrepperShortCut := GetSetting(KEY_SHORTCUT_DRIPGREPPER);

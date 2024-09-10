@@ -28,17 +28,15 @@ Marked with checkmark if ready, else planned as next.
 - [ ] filter result
 - [ ] own prettifier switcher as toolbar button
 - [ ] save search histories in file
-- [x] extension: new menu item for `Open With...`
 - [x] `Open With...` shows opening file in a memo box with hint
-<!-- #### :mag: Search Dialog -->
-
-### Search Dialog
-- [ ] extension: search opened projekt files only
+- [x] __extension__: new menu item for `Open With...`
+- [ ] __extension__: search opened projekt files only
 
 ## :warning: Bugs 
 Marked with checkmark if fixed, else it is known bug.
 - [x] save as default doesn't save every combo boxes
   - [ ] `Additional Options` has to have saved defaults also
-  - [ ] Extension: first open doesn't load defaults of IDE Context
+  - [ ] __extension__: first open doesn't load defaults of IDE Context
+- [ ] every settings should be saved on close 
 - [ ] delete of some history entry causes exception 
 - [ ] drip icon in menu has no transparent background

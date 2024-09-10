@@ -186,6 +186,7 @@ end;
 procedure TRipGrepperSearchFormSettings.Store;
 begin
 	StoreSearchSettings(False);
+    FExtensionSettings.Store;
 	inherited Store();
 end;
 
