@@ -29,6 +29,7 @@ Marked with checkmark if ready, else planned as next.
 - [ ] own prettifier switcher as toolbar button
 - [ ] save search histories in file
 - [x] extension: new menu item for `Open With...`
+- [x] `Open With...` shows opening file in a memo box with hint
 <!-- #### :mag: Search Dialog -->
 
 ### Search Dialog
