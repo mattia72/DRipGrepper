@@ -40,7 +40,9 @@ type
 		ActionShowConfig : TAction;
 		ImageListButtons : TImageList;
 		pnlMain : TPanel;
-		lblHint : TLabel;
+    	lblHint2: TLabel;
+    	Memo1: TMemo;
+    	lblHint1: TLabel;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionShowConfigExecute(Sender : TObject);
 		procedure ActionOkExecute(Sender : TObject);
@@ -174,9 +176,12 @@ begin
 	if lbCommands.GetCount > 0 then begin
 		lbCommands.ItemIndex := 0;
 	end;
-	lblHint.Caption := Format('Open %s(%d:%d) with ...',
+	lblHint1.Caption := 'Open';
+	Memo1.Text := Format('%s(%d:%d)',
 		[ExtractRelativePath(FSettings.TestFile.DirPath + '\', FSettings.TestFile.FileName), FSettings.TestFile.Column,
 		FSettings.TestFile.Row]);
+	Memo1.Hint := Memo1.Text;
+	lblHint2.Caption := 'with...';
 end;
 
 class function TOpenWithCmdList.GetEnabledCmds(const _settings : TRipGrepperOpenWithSettings) : TArray<string>;
