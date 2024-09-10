@@ -191,6 +191,9 @@ end;
 
 procedure TRipGrepperSearchFormSettings.StoreAsDefault;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchFormSettings.StoreAsDefault');
+
 	StoreSearchSettings(True);
 	FExtensionSettings.StoreAsDefault;
 	inherited StoreAsDefault();

@@ -313,6 +313,9 @@ end;
 
 procedure TRipGrepperSettings.StoreAsDefault;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.StoreAsDefault');
+	FRipGrepperSearchFormSettings.StoreAsDefault;
 	FRipGrepParameters.StoreAsDefault;
 	inherited StoreAsDefault;
 end;

@@ -866,6 +866,9 @@ var
 	extSearchSettings : TRipGrepperExtensionContext;
 	selectedText : string;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadExtensionSearchSettings');
+
 	if IOTAUTils.IsStandAlone then begin
 		Exit;
 	end;
@@ -875,7 +878,7 @@ begin
 		selectedText := GetInIDESelectedText;
 		if not selectedText.IsEmpty then begin
 			cmbSearchText.Text := selectedText;
-			TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.LoadExtensionSearchSettings SelectedText=' + selectedText);
+			dbgMsg.Msg('SelectedText=' + selectedText);
 		end;
 	end;
 	extSearchSettings.ActiveFile := IOTAUTils.GxOtaGetCurrentSourceFile();
@@ -884,7 +887,7 @@ begin
 	extSearchSettings.OpenFiles := IOTAUTils.GetOpenedEditBuffers();
 	extSearchSettings.ActiveProject := (IOTAUTils.GxOtaGetCurrentProject).FileName;
 
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.LoadExtensionSearchSettings CurrentIDEContext:' + extSearchSettings.ToString);
+	dbgMsg.Msg('CurrentIDEContext:' + extSearchSettings.ToString);
 	FSettings.RipGrepperSearchFormSettings.ExtensionSettings.CurrentIDEContext := extSearchSettings;
 
 	FbExtensionOptionsSkipClick := True;
