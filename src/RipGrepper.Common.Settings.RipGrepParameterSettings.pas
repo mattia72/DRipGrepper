@@ -66,7 +66,8 @@ uses
 	Vcl.Forms,
 	RipGrepper.Tools.ProcessUtils,
 	System.RegularExpressions,
-	RipGrepper.Helper.UI;
+	RipGrepper.Helper.UI,
+	RipGrepper.Tools.DebugUtils;
 
 constructor TRipGrepParameterSettings.Create(const _ini : TMemIniFile);
 begin
@@ -199,6 +200,7 @@ end;
 procedure TRipGrepParameterSettings.SetSearchPath(const Value : string);
 begin
 	if FSearchPath <> Value then begin
+		TDebugUtils.Msg('SetSearchPath=' + Value);
 		FSearchPath := Value;
 		FIsModified := True;
 	end;

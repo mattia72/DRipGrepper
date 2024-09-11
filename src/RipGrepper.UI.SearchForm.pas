@@ -160,6 +160,7 @@ type
 			function HasHistItemObj : Boolean;
 			function GetInIDESelectedText : string;
 			procedure LoadExtensionSearchSettings;
+			procedure SetCmbSearchPathText(const _sPath : string);
 			procedure UpdateButtonsBySettings;
 			procedure UpdateCmbsOnIDEContextChange;
 			procedure UpdateFileMasksInFileMasks;
@@ -293,7 +294,7 @@ begin
 	selectedDirs := GetSelectedPaths([fdoAllowMultiSelect, fdoPickfolders]);
 
 	if selectedDirs <> '' then begin
-		cmbSearchDir.Text := selectedDirs;
+		SetCmbSearchPathText(selectedDirs);
 		UpdateCtrls(cmbSearchDir);
 	end;
 end;
@@ -316,7 +317,7 @@ begin
 	selectedFiles := GetSelectedPaths([fdoAllowMultiSelect]);
 
 	if selectedFiles <> '' then begin
-		cmbSearchDir.Text := selectedFiles;
+		SetCmbSearchPathText(selectedFiles);
 		UpdateCtrls(cmbSearchDir);
 	end;
 end;
@@ -567,13 +568,17 @@ end;
 procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings;
 	const _separator : string = ' ');
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetComboItemsAndText');
+
 	_cmb.Items.Assign(_items);
 	if HasHistItemObj then begin
 		_cmb.Text := string.Join(_separator, FHistItemObj.RipGrepArguments.GetValues(_argName));
+        dbgMsg.MsgFmt('%s=%s', [_cmb.Name, _cmb.Text]);
 	end else begin
 		_cmb.ItemIndex := 0;
+		 dbgMsg.MsgFmt('idx:%d, %s=%s', [_cmb.ItemIndex, _cmb.Name, _cmb.Text]);
 	end;
-	TDebugUtils.DebugMessageFormat('TRipGrepperSearchDialogForm.SetComboItemsAndText: %s - %s', [_cmb.Name, _cmb.Text]);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetComboItemsFromOptions(_cmb : TComboBox; const _argMaskRegex : string; const _items : TStrings);
@@ -614,10 +619,17 @@ end;
 
 procedure TRipGrepperSearchDialogForm.WriteCtrlsToRipGrepParametersSettings;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.WriteCtrlsToRipGrepParametersSettings: start ' + FGuiSetSearchParams.ToString);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.WriteCtrlsToRipGrepParametersSettings');
+
+	dbgMsg.Msg('FGuiSetSearchParams=' + FGuiSetSearchParams.ToString);
 	FGuiSetSearchParams.SearchText := cmbSearchText.Text;
+
 	FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
+	dbgMsg.Msg('SearchPath=' + cmbSearchDir.Text);
+
 	FSettings.RipGrepParameters.FileMasks := cmbFileMasks.Text;
+	dbgMsg.Msg('FileMasks=' + cmbFileMasks.Text);
 
 	FGuiSetSearchParams.SetRgOptions(RG_PARAM_REGEX_HIDDEN, not cbRgParamHidden.Checked);
 	FGuiSetSearchParams.SetRgOptions(RG_PARAM_REGEX_NO_IGNORE, not cbRgParamNoIgnore.Checked);
@@ -859,7 +871,8 @@ begin
 	FSettings.LoadDefault;
 
 	// TODO set only if it was saved before!
-	cmbSearchDir.Text := IfThen(FSettings.RipGrepParameters.SearchPath.IsEmpty, cmbSearchDir.Text, FSettings.RipGrepParameters.SearchPath);
+	SetCmbSearchPathText(
+		 IfThen(FSettings.RipGrepParameters.SearchPath.IsEmpty, cmbSearchDir.Text, FSettings.RipGrepParameters.SearchPath));
 	dbgMsg.Msg('cmbSearchDir=' + cmbSearchDir.Text);
 
 	if not IOTAUtils.IsStandAlone then begin
@@ -910,6 +923,12 @@ begin
 	FbExtensionOptionsSkipClick := False;
 end;
 
+procedure TRipGrepperSearchDialogForm.SetCmbSearchPathText(const _sPath : string);
+begin
+	cmbSearchDir.Text := _sPath;
+	TDebugUtils.Msg('cmbSearchDir.Text=' + cmbSearchDir.Text);
+end;
+
 class function TRipGrepperSearchDialogForm.ShowSearchForm(_owner : TComponent; _settings : TRipGrepperSettings;
 	_histObj : IHistoryItemObject) : integer;
 var
@@ -958,15 +977,15 @@ begin
 	case rbExtensionOptions.ItemIndex of
 		EXT_SEARCH_ACTIVE_FILE : begin
 			cmbSearchDir.Enabled := False;
-			cmbSearchDir.Text := rgec.ActiveFile;
+			SetCmbSearchPathText(rgec.ActiveFile);
 		end;
 		EXT_SEARCH_PROJECT_FILES : begin
 			cmbSearchDir.Enabled := False;
-			cmbSearchDir.Text := string.Join(SEARCH_PATH_SEPARATOR, rgec.ProjectFiles).Trim([SEARCH_PATH_SEPARATOR]);
+			SetCmbSearchPathText(string.Join(SEARCH_PATH_SEPARATOR, rgec.ProjectFiles).Trim([SEARCH_PATH_SEPARATOR]));
 		end;
 		EXT_SEARCH_OPEN_FILES : begin
 			cmbSearchDir.Enabled := False;
-			cmbSearchDir.Text := string.Join(SEARCH_PATH_SEPARATOR, rgec.OpenFiles).Trim([SEARCH_PATH_SEPARATOR]);
+			SetCmbSearchPathText(string.Join(SEARCH_PATH_SEPARATOR, rgec.OpenFiles).Trim([SEARCH_PATH_SEPARATOR]));
 		end;
 		EXT_SEARCH_GIVEN_PATH : begin
 			cmbSearchDir.Enabled := True;
