@@ -6,15 +6,12 @@ type
 
 	TDebugUtils = class(TObject)
 		strict private
-			class constructor Create;
-
-		private
 		class var
 			FDebugTraceActive : Boolean;
 			FDebugTraceInactiveMsgShown : Boolean;
-
+			
+			class constructor Create;
 			class procedure InnerOutputDebugString(const _s : string);
-
 		public
 			class procedure DebugMessage(const _s : string);
 			class procedure Msg(const _s : string);
