@@ -5,7 +5,14 @@ interface
 type
 
 	TDebugUtils = class(TObject)
+		strict private
+			class constructor Create;
+
 		private
+		class var
+			FDebugTraceActive : Boolean;
+			FDebugTraceInactiveMsgShown : Boolean;
+
 			class procedure InnerOutputDebugString(const _s : string);
 
 		public
@@ -33,7 +40,21 @@ uses
 	Winapi.Windows,
 	System.SysUtils,
 	RipGrepper.Common.Settings.RipGrepperSettings,
-	System.RegularExpressions;
+	System.RegularExpressions,
+	RipGrepper.Common.Constants;
+
+class constructor TDebugUtils.Create;
+begin
+	if not Assigned(GSettings) then begin
+		GSettings := TRipGrepperSettingsInstance.Instance;
+		GSettings.RipGrepperSettings.ReadIni;
+		GSettings.RipGrepperSettings.RefreshMembers(False);
+	end;
+
+	FDebugTraceActive := { } (Assigned(GSettings) and
+		{ } Assigned(GSettings.RipGrepperSettings) and
+		{ } GSettings.RipGrepperSettings.DebugTrace)
+end;
 
 class procedure TDebugUtils.DebugMessage(const _s : string);
 begin
@@ -52,16 +73,14 @@ end;
 
 class procedure TDebugUtils.InnerOutputDebugString(const _s : string);
 begin
-	var
-	bForce := False;
-	{$IFDEF DEBUG}
-	bForce := not bForce;
-	{$ENDIF}
-
-	if bForce or
-	{ } ((Assigned(GSettings) and Assigned(GSettings.RipGrepperSettings) and GSettings.RipGrepperSettings.DebugTrace)) then begin
+	if FDebugTraceActive then begin
 		// if TRegEx.IsMatch(_s, '') then
 		OutputDebugString(PChar(_s));
+	end else begin
+		if not FDebugTraceInactiveMsgShown then begin
+			FDebugTraceInactiveMsgShown := True;
+			OutputDebugString(PChar(APPNAME + 'DebugTrace off'));
+		end;
 	end;
 end;
 
@@ -91,4 +110,6 @@ begin
 	TDebugUtils.DebugMessage(Dest.FProcName + ' - end');
 end;
 
+// GSettings.Store;
+// GSettings.Free;
 end.

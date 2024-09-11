@@ -371,17 +371,5 @@ begin
 	Result := FInstance;
 end;
 
-initialization
-
-GSettings := TRipGrepperSettingsInstance.Instance;
-GSettings.RipGrepperSettings.ReadIni;
-GSettings.RipGrepperSettings.RefreshMembers(False);
-// OutputDebugString(PChar('TRipGrepperSettingsInstance.GetInstance TRipGrepperSettings created'));
-TDebugUtils.DebugMessage('TRipGrepperSettingsInstance initialization');
-
-finalization
-
-// GSettings.Store;
-// GSettings.Free;
 
 end.
