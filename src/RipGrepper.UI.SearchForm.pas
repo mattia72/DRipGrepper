@@ -392,6 +392,7 @@ begin
 		FHistItemObj.GuiSearchTextParams.Copy(FGuiSetSearchParams);
 		FSettings.RipGrepperSearchFormSettings.Copy(FOrigRipGrepperSearchFormSettings);
 	end;
+	FSettings.StoreHistories();
 	FSettings.UpdateIniFile;
 end;
 

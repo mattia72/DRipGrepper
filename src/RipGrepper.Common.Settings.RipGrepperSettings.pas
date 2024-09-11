@@ -45,7 +45,6 @@ type
 			procedure SetSearchTextsHistory(const Value : TStrings);
 			procedure StoreHistoryEntries(const _list : TStrings; const _section : string);
 			function GetActualSearchPath : string;
-
 		protected
 		public
 			procedure ReadIni; override;
@@ -62,6 +61,7 @@ type
 			procedure RebuildArguments;
 			procedure RefreshMembers(const _bWithDefault : Boolean); override;
 			procedure StoreAsDefault; override;
+			procedure StoreHistories;
 			property LastSearchText : string read FLastSearchText write FLastSearchText;
 			property FileMasksHistory : TStrings read FFileMasksHistory write SetFileMasksHistory;
 			property IsEmpty : Boolean read GetIsEmpty;
@@ -303,10 +303,7 @@ begin
 		FRipGrepperSettings.Store;
 
 		if (FRipGrepParameters.IsModified) then begin
-			StoreHistoryEntries(SearchPathsHistory, 'SearchPathsHistory');
-			StoreHistoryEntries(SearchTextsHistory, 'SearchTextsHistory');
-			StoreHistoryEntries(RipGrepOptionsHistory, 'RipGrepOptionsHistory');
-			StoreHistoryEntries(FileMasksHistory, 'FileMasksHistory');
+			StoreHistories();
 		end;
 	end;
 end;
@@ -318,6 +315,14 @@ begin
 	FRipGrepperSearchFormSettings.StoreAsDefault;
 	FRipGrepParameters.StoreAsDefault;
 	inherited StoreAsDefault;
+end;
+
+procedure TRipGrepperSettings.StoreHistories;
+begin
+	StoreHistoryEntries(SearchPathsHistory, 'SearchPathsHistory');
+	StoreHistoryEntries(SearchTextsHistory, 'SearchTextsHistory');
+	StoreHistoryEntries(RipGrepOptionsHistory, 'RipGrepOptionsHistory');
+	StoreHistoryEntries(FileMasksHistory, 'FileMasksHistory');
 end;
 
 procedure TRipGrepperSettings.StoreViewSettings(const _s : string = '');

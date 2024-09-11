@@ -40,3 +40,4 @@ Marked with checkmark if fixed, else it is known bug.
 - [ ] every settings should be saved on close 
 - [ ] delete of some history entry causes exception 
 - [ ] drip icon in menu has no transparent background
+- [x] search history should be saved after every search
