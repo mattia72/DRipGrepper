@@ -20,7 +20,9 @@ type
 		public
 			constructor Create(const _ini : TMemIniFile);
 			destructor Destroy; override;
+			procedure Init; override;
 			procedure ReadIni; override; // TODO: use persistable base
+			procedure RefreshMembers(const _bWithDefault : Boolean); override;
 			procedure Store; override;
 			property Command[index : Integer] : string read GetCommand write SetCommand;
 			property TestFile : TOpenWithParams read FTestFile write FTestFile;
@@ -54,6 +56,12 @@ begin
 	end;
 end;
 
+procedure TRipGrepperOpenWithSettings.Init;
+begin
+	inherited;
+	// TODO -cMM: TRipGrepperOpenWithSettings.Init default body inserted
+end;
+
 procedure TRipGrepperOpenWithSettings.ReadIni;
 var
 	s : string;
@@ -67,6 +75,12 @@ begin
 		end;
 	end;
 	//FIsAlreadyRead := True;
+end;
+
+procedure TRipGrepperOpenWithSettings.RefreshMembers(const _bWithDefault : Boolean);
+begin
+	inherited;
+	// TODO -cMM: TRipGrepperOpenWithSettings.RefreshMembers default body inserted
 end;
 
 procedure TRipGrepperOpenWithSettings.SetCommand(Index : Integer; const Value : string);
