@@ -68,14 +68,14 @@ end;
 destructor TParentFrame.Destroy;
 begin
 	TDebugUtils.Msg('TParentFrame.Destroy - Settings.Store');
-   //	Settings.Store; not enough
+	// Settings.Store; not enough
 	inherited;
 end;
 
 procedure TParentFrame.OnClose(Sender : TObject; var Action : TCloseAction);
 begin
-	TDebugUtils.DebugMessage('TParentFrame.OnClose - begin action:' + Integer(Action).ToString);
-	Settings.Store; //combo box histories can be stored here
+	TDebugUtils.Msg('TParentFrame.OnClose - begin action:' + Integer(Action).ToString);
+	Settings.Store; // combo box histories can be stored here
 end;
 
 procedure TParentFrame.FrameOnShow(Sender : TObject);
@@ -99,9 +99,7 @@ function TParentFrame.GetSettings : TRipGrepperSettings;
 begin
 	if not Assigned(FSettings) then begin
 		FSettings := GSettings;
-		if not FSettings.IsAlreadyRead then begin
-			FSettings.ReadIni;
-		end;
+		FSettings.ReadIni;
 	end;
 	Result := FSettings;
 end;

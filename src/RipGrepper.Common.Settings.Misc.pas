@@ -30,7 +30,7 @@ type
 		ActiveProject : string;
 
 		public
-			function ToString : string;
+			function ToLogString: string;
 	end;
 
 	TRipGrepperExtensionSettings = class(TPersistableSettings)
@@ -54,7 +54,7 @@ type
 			procedure RefreshMembers(const _bWithDefault : Boolean); override;
 			procedure Store; override;
 			procedure StoreAsDefault; override;
-			function ToString : string; override;
+			function ToLogString: string; override;
 			property DripGrepperShortCut : string read FDripGrepperShortCut write FDripGrepperShortCut;
 			property OpenWithShortCut : string read FOpenWithShortCut write FOpenWithShortCut;
 			property CurrentIDEContext : TRipGrepperExtensionContext read FCurrentSearchSettings write FCurrentSearchSettings;
@@ -175,7 +175,7 @@ begin
 		end;
 	end;
 
-	dbgMsg.Msg(ToString());
+	dbgMsg.Msg(ToLogString());
 end;
 
 procedure TRipGrepperExtensionSettings.Store;
@@ -205,10 +205,10 @@ begin
 	inherited StoreAsDefault;
 end;
 
-function TRipGrepperExtensionSettings.ToString : string;
+function TRipGrepperExtensionSettings.ToLogString: string;
 begin
-	Result := Format('OpenWithShortCut: %s, ShortCut: %s, CurrentIDEContext: %s',
-		[OpenWithShortCut, DripGrepperShortCut, CurrentIDEContext.ToString]);
+	Result := Format('OpenWithShortCut=%s, ShortCut=%s, CurrentIDEContext=[%s]',
+		[OpenWithShortCut, DripGrepperShortCut, CurrentIDEContext.ToLogString]);
 end;
 
 constructor TRipGrepperAppSettings.Create(const _ini : TMemIniFile);
@@ -249,7 +249,7 @@ begin
 	inherited Store();
 end;
 
-function TRipGrepperExtensionContext.ToString : string;
+function TRipGrepperExtensionContext.ToLogString: string;
 begin
 	Result := Format('IDEContext: %d, ActiveProject: %s, ActiveFile: %s', [Integer(IDEContext), ActiveProject, ActiveFile]);
 end;

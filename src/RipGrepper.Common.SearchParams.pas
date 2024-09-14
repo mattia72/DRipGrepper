@@ -26,6 +26,10 @@ end;
 
 function TSearchParams.GetGuiSearchParams : TGuiSearchTextParams;
 begin
+//	if not FGuiSearchTextParams.IsAlreadyRead then begin
+//		FGuiSearchTextParams.ReadIni;
+//      FGuiSearchTextParams.LoadDefault;
+//	end;
 	Result := FGuiSearchTextParams;
 end;
 
