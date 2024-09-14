@@ -120,6 +120,9 @@
         <DCCReference Include="RipGrepper.CommandLine.OptionsHelper.Test.pas"/>
         <DCCReference Include="..\src\RipGrepper.CommandLine.OptionHelper.pas"/>
         <DCCReference Include="..\src\RipGrepper.Common.GuiSearchParams.pas"/>
+        <DCCReference Include="RipGrepper.Common.Settings.Test.pas"/>
+        <DCCReference Include="..\src\RipGrepper.Common.Settings.RipGrepperSearchFormSettings.pas"/>
+        <DCCReference Include="..\src\RipGrepper.Common.Settings.Persistable.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
