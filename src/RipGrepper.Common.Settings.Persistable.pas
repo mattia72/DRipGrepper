@@ -61,9 +61,10 @@ type
 			procedure Init; virtual; abstract;
 			procedure StoreSetting(const _name : string; const _v : Variant; const _bAsDefault : Boolean = False);
 			function LoadSettingDefaultValue(const _name : string) : Variant;
-			function GetIniSectionName : string;
+			function GetIniSectionName: string; virtual;
 			procedure LoadDefault; virtual;
 			procedure StoreDefaultSetting(const _name : string; const _v : Variant);
+			function ToLogString : string; virtual;
 
 		public
 			constructor Create(const _ini : TMemIniFile); overload;
@@ -129,9 +130,10 @@ begin
 	FSettingsDict := TSettingsDictionary.Create();
 	FbDefaultLoaded := False;
 	if not Assigned(FIniFile) then begin
-		CreateIniFile;
+		CreateIniFile();
 		FbOwnIniFile := True;
 	end;
+	Init();
 end;
 
 destructor TPersistableSettings.Destroy;
@@ -267,7 +269,8 @@ begin
 	end;
 end;
 
-procedure TPersistableSettings.CreateSetting(const _sName : string; const _type : TVarType; const _value : Variant; const _isDefRelevant : Boolean = False);
+procedure TPersistableSettings.CreateSetting(const _sName : string; const _type : TVarType; const _value : Variant;
+	const _isDefRelevant : Boolean = False);
 var
 	setting : ISettingVariant;
 begin
@@ -308,7 +311,7 @@ begin
 	Result := FIniFile;
 end;
 
-function TPersistableSettings.GetIniSectionName : string;
+function TPersistableSettings.GetIniSectionName: string;
 begin
 	Result := FIniSectionName;
 end;
@@ -320,14 +323,14 @@ end;
 
 function TPersistableSettings.GetIsModified : Boolean;
 var
-	i : ISettingVariant;
+	setting : ISettingVariant;
 	arr : TArrayEx<ISettingVariant>;
 begin
 	if not FIsModified then begin
 		arr := FSettingsDict.Values.ToArray;
-		i := TSettingVariant.Create();
-		i.IsModified := True;
-		FIsModified := 0 < arr.CountOf(i, TComparer<ISettingVariant>.Construct(
+		setting := TSettingVariant.Create(); // ISettingVariant
+		setting.IsModified := True;
+		FIsModified := 0 < arr.CountOf(setting, TComparer<ISettingVariant>.Construct(
 			function(const Left, Right : ISettingVariant) : Integer
 			begin
 				Result := TComparer<Boolean>.Default.Compare(Left.IsModified, Right.IsModified);
@@ -340,6 +343,7 @@ function TPersistableSettings.InnerGetSetting(const _name : string; const _bWith
 var
 	setting : ISettingVariant;
 begin
+
 	if FSettingsDict.TryGetValue(GetDictKeyName(_name), setting) then begin
 		if (not setting.IsEmpty) then begin
 			if _bWithDefault then begin
@@ -348,9 +352,10 @@ begin
 				Result := setting.Value;
 			end;
 		end;
-		TDebugUtils.DebugMessage('TPersistableSettings.GetSetting: ' + _name + ' ' + VarToStr(Result));
 	end else begin
-		TDebugUtils.DebugMessage('TPersistableSettings.GetSetting: ' + _name + ' not found!');
+		var
+		dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.InnerGetSetting');
+		dbgMsg.Msg(_name + ' not found!');
 	end;
 end;
 
@@ -406,7 +411,8 @@ end;
 
 procedure TPersistableSettings.StoreSetting(const _name : string; const _v : Variant; const _bAsDefault : Boolean = False);
 begin
-	TDebugUtils.DebugMessageFormat('TPersistableSettings.StoreSetting: in memory %s=%s as default=', [_name, VarToStr(_v), BoolToStr(_bAsDefault, True)]);
+	TDebugUtils.DebugMessageFormat('TPersistableSettings.StoreSetting: in memory %s=%s as default=',
+		[_name, VarToStr(_v), BoolToStr(_bAsDefault, True)]);
 	if _bAsDefault then begin
 		StoreDefaultSetting(_name, _v);
 	end else begin
@@ -449,8 +455,10 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.ReadSettings');
 	strs := TStringList.Create();
 	try
-		if IniSectionName = ROOT_DUMMY_INI_SECTION then
+		if FIsAlreadyRead or (IniSectionName = ROOT_DUMMY_INI_SECTION) then begin
+			dbgMsg.MsgFmt('FIsAlreadyRead %s Section: %s', [BoolToStr(FIsAlreadyRead, True), IniSectionName]);
 			Exit;
+		end;
 		try
 			dbgMsg.MsgFmt('Read section: %s', [IniSectionName]);
 			FIniFile.ReadSectionValues(IniSectionName, strs);
@@ -528,6 +536,19 @@ begin
 	AddOrSet(GetDefaultDictKeyName(_name), _v);
 end;
 
+function TPersistableSettings.ToLogString : string;
+var
+	strs : TStrings;
+begin
+	strs := TStringList.Create();
+	try
+		FIniFile.GetStrings(strs);
+		Result := strs.DelimitedText;
+	finally
+		strs.Free;
+	end
+end;
+
 procedure TPersistableSettings.UpdateIniFile;
 begin
 	FIniFile.UpdateFile;
@@ -564,6 +585,9 @@ procedure TPersistableSettings.WriteToIni(const _sIniSection, _sKey : string; co
 var
 	v : Variant;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.WriteToIni');
+
 	if _setting.IsModified or (_sKey.EndsWith(DEFAULT_KEY)) then begin
 		case _setting.ValueType of
 			varString, varUString :
@@ -587,7 +611,7 @@ begin
 			else
 			raise ESettingsException.Create('Settings Type not supported:' + VarTypeAsText(_setting.ValueType));
 		end;
-		TDebugUtils.Msg('TPersistableSettings.Store: ' + FIniFile.FileName + '[' + _sIniSection + '] ' + _sKey + '=' + VarToStr(_setting.Value) + ' stored');
+		dbgMsg.Msg(FIniFile.FileName + '[' + _sIniSection + '] ' + _sKey + '=' + VarToStr(_setting.Value) + ' stored');
 	end;
 end;
 
