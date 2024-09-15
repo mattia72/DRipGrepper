@@ -30,7 +30,7 @@ type
 
 			FRipGrepArguments : TRipGrepArguments;
 			FSearchPathIsDir : Boolean;
-			FRipGrepperSettings : TRipGrepperAppSettings;
+			FRipGrepperSettings: TRipGrepperAppSettings;
 
 			FActualSearchPath : string;
 			FLastSearchText : string;
@@ -45,6 +45,7 @@ type
 			procedure SetSearchTextsHistory(const Value : TStrings);
 			procedure StoreHistoryEntries(const _list : TStrings; const _section : string);
 			function GetActualSearchPath : string;
+			function GetRipGrepperSearchFormSettings : TRipGrepperSearchFormSettings;
 		protected
 		public
 			procedure ReadIni; override;
@@ -71,8 +72,9 @@ type
 			property RipGrepOptionsHistory : TSTrings read FRipGrepOptionsHistory write SetRipGrepOptionsHistory;
 			property RipGrepParameters : TRipGrepParameterSettings read FRipGrepParameters write FRipGrepParameters;
 			property RipGrepperOpenWithSettings : TRipGrepperOpenWithSettings read FRipGrepperOpenWithSettings;
-			property RipGrepperSearchFormSettings : TRipGrepperSearchFormSettings read FRipGrepperSearchFormSettings write FRipGrepperSearchFormSettings;
-			property RipGrepperSettings : TRipGrepperAppSettings read FRipGrepperSettings write FRipGrepperSettings;
+			property RipGrepperSearchFormSettings : TRipGrepperSearchFormSettings read GetRipGrepperSearchFormSettings
+				write FRipGrepperSearchFormSettings;
+			property RipGrepperSettings: TRipGrepperAppSettings read FRipGrepperSettings write FRipGrepperSettings;
 			property RipGrepperViewSettings : TRipGrepperViewSettings read FRipGrepperViewSettings write FRipGrepperViewSettings;
 			property SearchPathIsDir : Boolean read GetSearchPathIsDir;
 			property SearchTextsHistory : TStrings read FSearchTextsHistory write SetSearchTextsHistory;
@@ -172,8 +174,8 @@ end;
 
 constructor TRipGrepperSettings.Create;
 begin
-	inherited;
 	IniSectionName := ROOT_DUMMY_INI_SECTION;
+	inherited;
 
 	FRipGrepperSearchFormSettings := TRipGrepperSearchFormSettings.Create(FIniFile);
 
@@ -210,6 +212,14 @@ begin
 	Result := FIsModified or FRipGrepParameters.IsModified or
 	{ } FRipGrepperViewSettings.IsModified or
 	{ } FRipGrepperOpenWithSettings.IsModified;
+end;
+
+function TRipGrepperSettings.GetRipGrepperSearchFormSettings : TRipGrepperSearchFormSettings;
+begin
+	if not FRipGrepperSearchFormSettings.IsAlreadyRead then begin
+		FRipGrepperSearchFormSettings.ReadIni;
+	end;
+	Result := FRipGrepperSearchFormSettings;
 end;
 
 function TRipGrepperSettings.GetSearchPathIsDir : Boolean;
@@ -260,9 +270,11 @@ end;
 
 procedure TRipGrepperSettings.RebuildArguments;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperSettings.RebuildArguments: GuiSearchTextParams start ' + FRipGrepParameters.GuiSearchTextParams.ToString);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.RebuildArguments');
+	dbgMsg.Msg(FRipGrepParameters.GuiSearchTextParams.ToString);
 	TCommandLineBuilder.RebuildArguments(FRipGrepParameters);
-	TDebugUtils.DebugMessage('TRipGrepperSettings.RebuildArguments: GuiSearchTextParams end ' + FRipGrepParameters.GuiSearchTextParams.ToString);
+	dbgMsg.Msg(FRipGrepParameters.GuiSearchTextParams.ToString);
 end;
 
 procedure TRipGrepperSettings.RefreshMembers(const _bWithDefault : Boolean);
@@ -370,6 +382,5 @@ begin
 	end;
 	Result := FInstance;
 end;
-
 
 end.

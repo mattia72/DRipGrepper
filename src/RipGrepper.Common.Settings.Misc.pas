@@ -105,15 +105,15 @@ uses
 
 constructor TRipGrepperExtensionSettings.Create(const _ini : TMemIniFile);
 begin
-	inherited;
 	IniSectionName := INI_SECTION;
+	inherited;
 	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
 end;
 
 constructor TRipGrepperExtensionSettings.Create;
 begin
-	inherited;
 	IniSectionName := INI_SECTION;
+	inherited;
 	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
 end;
 
@@ -213,8 +213,8 @@ end;
 
 constructor TRipGrepperAppSettings.Create(const _ini : TMemIniFile);
 begin
-	inherited;
 	IniSectionName := INI_SECTION;
+	inherited;
 	TDebugUtils.DebugMessage('TRipGrepperAppSettings.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
 	FEncodingItems := TStringList.Create();
 end;

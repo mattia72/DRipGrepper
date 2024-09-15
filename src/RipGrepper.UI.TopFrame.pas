@@ -275,8 +275,8 @@ end;
 procedure TRipGrepperTopFrame.ActionRefreshSearchUpdate(Sender : TObject);
 begin
 	ActionRefreshSearch.Enabled := // Settings.IsAlreadyRead and
-	 {} (not MainFrame.IsSearchRunning)
-	 {} and Assigned(MainFrame.HistItemObject);
+	{ } (not MainFrame.IsSearchRunning)
+	{ } and Assigned(MainFrame.HistItemObject);
 end;
 
 procedure TRipGrepperTopFrame.ActionSearchExecute(Sender : TObject);
@@ -413,7 +413,7 @@ end;
 
 procedure TRipGrepperTopFrame.SearchBox1Change(Sender : TObject);
 begin
-	inherited; //OnChange(Sender);
+	inherited; // OnChange(Sender);
 	FPrevFoundNode := nil;
 	SelectNextFoundNode(FPrevFoundNode);
 end;
@@ -465,15 +465,14 @@ procedure TRipGrepperTopFrame.StartNewSearch;
 var
 	formResult : Integer;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperTopFrame.StartNewSearch');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperTopFrame.StartNewSearch');
 	FHistItemObj := nil;
 	formResult := TRipGrepperSearchDialogForm.ShowSearchForm(self, Settings, FHistItemObj);
 	if (mrOk = formResult) then begin
 		MainFrame.HistItemObject := FHistItemObj;
-		TDebugUtils.DebugMessage('TRipGrepperTopFrame.StartNewSearch: after showmodal gui params: ' +
-			Settings.RipGrepParameters.GuiSearchTextParams.GetAsString);
-		TDebugUtils.DebugMessage('TRipGrepperTopFrame.StartNewSearch: after showmodal cmdline: ' +
-			Settings.RipGrepParameters.GetCommandLine);
+		dbgMsg.Msg('after showmodal gui params: ' + Settings.RipGrepParameters.GuiSearchTextParams.ToLogString);
+		dbgMsg.Msg('after showmodal cmdline: ' + Settings.RipGrepParameters.GetCommandLine);
 		ActionSearchExecute(self);
 	end;
 end;

@@ -42,8 +42,8 @@ uses
 
 constructor TRipGrepperViewSettings.Create(const _ini : TMemIniFile);
 begin
-	inherited;
 	IniSectionName := INI_SECTION;
+	inherited;
 	TDebugUtils.DebugMessage('TRipGrepperViewSettings.Create: ' + FIniFile.FileName + '[' + GetIniSectionName + ']');
 end;
 

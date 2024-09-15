@@ -71,8 +71,8 @@ uses
 
 constructor TRipGrepParameterSettings.Create(const _ini : TMemIniFile);
 begin
-	inherited Create(_ini);
 	IniSectionName := INI_SECTION;
+	inherited Create(_ini);
 	FGuiSearchTextParams := TGuiSearchTextParams.Create(_ini);
 	FGuiSearchTextParams.IniSectionName := INI_SECTION;
 	FbRgPathInitOk := False;

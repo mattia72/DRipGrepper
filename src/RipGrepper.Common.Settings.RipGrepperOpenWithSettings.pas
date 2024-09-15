@@ -36,8 +36,8 @@ uses
 
 constructor TRipGrepperOpenWithSettings.Create(const _ini : TMemIniFile);
 begin
-	inherited;
 	IniSectionName := OPEN_WITH_SETTINGS;
+	inherited;
 	FCommandList := TStringList.Create;
 	TDebugUtils.DebugMessage('TRipGrepperOpenWithSettings.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
 end;
