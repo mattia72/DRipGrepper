@@ -25,16 +25,23 @@ type
 
 	TRipGrepperSearchFormSettings = class(TPersistableSettings)
 		const
-			SEARCH_SETTINGS : array [0 .. 4] of string = ('Pretty', 'Hidden', 'NoIgnore', 'Context', 'Encoding');
+			SEARCH_SETTINGS : array [0 .. 4] of string =
+			{ } ('Pretty', 'Hidden', 'NoIgnore', 'Context', 'Encoding');
 
 		const
 			INI_SECTION = 'RipGrepperSearchSettings';
 
 		private
 
+			FContext : Integer;
+			FEncoding : string;
 			FExtensionSettings : TRipGrepperExtensionSettings;
+			FHidden : Boolean;
+			FNoIgnore : Boolean;
+			FPretty : Boolean;
 			function GetContext : Integer;
 			function GetEncoding : string;
+			function GetExtensionSettings : TRipGrepperExtensionSettings;
 			function GetHidden : Boolean;
 			function GetNoIgnore : Boolean;
 			function GetPretty : Boolean;
@@ -56,11 +63,12 @@ type
 			procedure Copy(const _other : TRipGrepperSearchFormSettings); reintroduce;
 			procedure StoreAsDefault; override;
 			procedure LoadDefault; override;
-			procedure RefreshMembers(const _bWithDefault: Boolean); override;
+			procedure RefreshMembers(const _bWithDefault : Boolean); override;
+			function ToLogString : string; override;
 
 			property Context : Integer read GetContext write SetContext;
 			property Encoding : string read GetEncoding write SetEncoding;
-			property ExtensionSettings : TRipGrepperExtensionSettings read FExtensionSettings write FExtensionSettings;
+			property ExtensionSettings : TRipGrepperExtensionSettings read GetExtensionSettings write FExtensionSettings;
 			property Hidden : Boolean read GetHidden write SetHidden;
 			property NoIgnore : Boolean read GetNoIgnore write SetNoIgnore;
 			property Pretty : Boolean read GetPretty write SetPretty;
@@ -88,16 +96,16 @@ uses
 
 constructor TRipGrepperSearchFormSettings.Create(const _ini : TMemIniFile);
 begin
+	IniSectionName := INI_SECTION;
 	inherited Create(_ini);
 	FExtensionSettings := TRipGrepperExtensionSettings.Create(_ini);
-	IniSectionName := INI_SECTION;
 end;
 
 constructor TRipGrepperSearchFormSettings.Create;
 begin
+	IniSectionName := INI_SECTION;
 	inherited Create;
 	FExtensionSettings := TRipGrepperExtensionSettings.Create();
-	IniSectionName := INI_SECTION;
 end;
 
 destructor TRipGrepperSearchFormSettings.Destroy;
@@ -118,7 +126,7 @@ end;
 
 function TRipGrepperSearchFormSettings.GetContext : Integer;
 begin
-	Result := GetSetting('Context');
+	Result := FContext;
 end;
 
 function TRipGrepperSearchFormSettings.GetEncoding : string;
@@ -140,17 +148,17 @@ end;
 
 function TRipGrepperSearchFormSettings.GetHidden : Boolean;
 begin
-	Result := GetSetting('Hidden');
+	Result := FHidden;
 end;
 
 function TRipGrepperSearchFormSettings.GetNoIgnore : Boolean;
 begin
-	Result := GetSetting('NoIgnore');
+	Result := FNoIgnore;
 end;
 
 function TRipGrepperSearchFormSettings.GetPretty : Boolean;
 begin
-	Result := GetSetting('Pretty');
+	Result := FPretty;
 end;
 
 procedure TRipGrepperSearchFormSettings.Init;
@@ -172,33 +180,33 @@ end;
 
 procedure TRipGrepperSearchFormSettings.SetContext(const Value : Integer);
 begin
-	SetSettingValue('Context', Value);
+	FContext := Value;
 end;
 
 procedure TRipGrepperSearchFormSettings.SetEncoding(const Value : string);
 begin
-	SetSettingValue('Encoding', Value);
+	FEncoding := Value;
 end;
 
 procedure TRipGrepperSearchFormSettings.SetHidden(const Value : Boolean);
 begin
-	SetSettingValue('Hidden', Value);
+	FHidden := Value;
 end;
 
 procedure TRipGrepperSearchFormSettings.SetNoIgnore(const Value : Boolean);
 begin
-	SetSettingValue('NoIgnore', Value);
+	FNoIgnore := Value;
 end;
 
 procedure TRipGrepperSearchFormSettings.SetPretty(const Value : Boolean);
 begin
-	SetSettingValue('Pretty', Value);
+	FPretty := Value;
 end;
 
 procedure TRipGrepperSearchFormSettings.Store;
 begin
 	StoreSearchSettings(False);
-    FExtensionSettings.Store;
+	FExtensionSettings.Store;
 	inherited Store();
 end;
 
@@ -220,8 +228,13 @@ begin
 	inherited LoadDefault();
 end;
 
-procedure TRipGrepperSearchFormSettings.RefreshMembers(const _bWithDefault: Boolean);
+procedure TRipGrepperSearchFormSettings.RefreshMembers(const _bWithDefault : Boolean);
 begin
+	Pretty := GetSetting('Pretty', _bWithDefault);
+	Hidden := GetSetting('Hidden', _bWithDefault);
+	NoIgnore := GetSetting('NoIgnore', _bWithDefault);
+	Context := GetSetting('Context', _bWithDefault);
+	Encoding := GetSetting('Encoding', _bWithDefault);
 	FExtensionSettings.RefreshMembers(_bWithDefault);
 end;
 
@@ -250,6 +263,16 @@ begin
 	end else begin
 		raise Exception.Create('Settings: ' + _s + ' not stored!');
 	end;
+end;
+
+function TRipGrepperSearchFormSettings.ToLogString : string;
+begin
+	Result := Format('Hidden=%s NoIgnore=%s Pretty=%s Context=%d Encoding=%s Extension:[%s]',
+		{ } [BoolToStr(Hidden, True),
+		{ } BoolToStr(NoIgnore, True),
+		{ } BoolToStr(Pretty, True),
+		{ } Context,
+		{ } Encoding, FExtensionSettings.ToLogString]);
 end;
 
 end.
