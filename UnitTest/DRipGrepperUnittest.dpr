@@ -34,9 +34,11 @@ uses
   RipGrepper.CommandLine.OptionsHelper.Test in 'RipGrepper.CommandLine.OptionsHelper.Test.pas',
   RipGrepper.CommandLine.OptionHelper in '..\src\RipGrepper.CommandLine.OptionHelper.pas',
   RipGrepper.Common.GuiSearchParams in '..\src\RipGrepper.Common.GuiSearchParams.pas',
-  RipGrepper.Common.Settings.Test in 'RipGrepper.Common.Settings.Test.pas',
+  RipGrepper.Common.Settings.RipGrepperSearchFormSettingsTest in 'RipGrepper.Common.Settings.RipGrepperSearchFormSettingsTest.pas',
   RipGrepper.Common.Settings.RipGrepperSearchFormSettings in '..\src\RipGrepper.Common.Settings.RipGrepperSearchFormSettings.pas',
-  RipGrepper.Common.Settings.Persistable in '..\src\RipGrepper.Common.Settings.Persistable.pas';
+  RipGrepper.Common.Settings.Persistable in '..\src\RipGrepper.Common.Settings.Persistable.pas',
+  RipGrepper.Common.Settings.SettingVariant in '..\src\RipGrepper.Common.Settings.SettingVariant.pas',
+  RipGrepper.Common.Settings.PersistableSettingsTest in 'RipGrepper.Common.Settings.PersistableSettingsTest.pas';
 
 {$IFNDEF TESTINSIGHT}
 
