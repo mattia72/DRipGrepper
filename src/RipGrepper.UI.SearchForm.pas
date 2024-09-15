@@ -214,21 +214,25 @@ constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _setti
 	const _histObj : IHistoryItemObject);
 begin
 	inherited Create(AOwner);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.Create');
+
 	FSettings := _settings;
 	FHistItemObj := _histObj;
 	if HasHistItemObj then begin
-		TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.Create: set hist obj');
 		FGuiSetSearchParams := FHistItemObj.GuiSearchTextParams;
 		if Assigned(FHistItemObj.RipGrepperSearchFormSettings) then begin
 			FOrigRipGrepperSearchFormSettings := TRipGrepperSearchFormSettings.Create;
+			dbgMsg.Msg('Hist: ' + FHistItemObj.RipGrepperSearchFormSettings.ToLogString);
+
 			FOrigRipGrepperSearchFormSettings.Copy(FHistItemObj.RipGrepperSearchFormSettings);
 			FSettings.RipGrepperSearchFormSettings.Copy(FHistItemObj.RipGrepperSearchFormSettings);
 		end;
 	end else begin
 		FGuiSetSearchParams := TGuiSearchTextParams.Create();
 	end;
-
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.Create: gui params=' + FGuiSetSearchParams.GetAsString);
+	dbgMsg.Msg(FSettings.RipGrepperSearchFormSettings.ToLogString);
+	dbgMsg.Msg('gui params=' + FGuiSetSearchParams.ToLogString);
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 	FExpertGroupHeight := gbExpert.Height;
 	cmbOptions.AutoComplete := False; // so we know the old value after change
@@ -413,7 +417,6 @@ begin
 	ChecVsCodeRipGrep;
 
 	WriteCtrlsToRipGrepParametersSettings;
-
 	UpdateCmbOptionsAndMemoCommandLine;
 	UpdateCheckBoxesByRgOptions();
 
@@ -441,7 +444,9 @@ end;
 
 procedure TRipGrepperSearchDialogForm.LoadSettings;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.LoadSettings');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadSettings');
+	dbgMsg.MsgFmt('FSettings.IsAlreadyRead=%s', [BoolToStr(FSettings.IsAlreadyRead)]);
 
 	SetComboItemsAndText(cmbSearchDir, RG_ARG_SEARCH_PATH, FSettings.SearchPathsHistory, ';');
 	SetComboItemsAndText(cmbSearchText, RG_ARG_SEARCH_TEXT, FSettings.SearchTextsHistory);
@@ -450,9 +455,7 @@ begin
 	SetComboItemsAndText(cmbRgParamEncoding, RG_PARAM_REGEX_ENCODING, FSettings.RipGrepperSettings.EncodingItems);
 
 	UpdateButtonsBySettings;
-
 	UpdateCheckBoxesBySettings(FSettings.RipGrepperSearchFormSettings);
-
 	SetComboItemsAndText(cmbOptions, RG_ARG_OPTIONS, FSettings.RipGrepOptionsHistory);
 	FcmbOptionsOldText := cmbOptions.Text;
 end;
@@ -553,16 +556,18 @@ end;
 
 procedure TRipGrepperSearchDialogForm.RemoveNecessaryOptionsFromCmbOptionsText;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.RemoveNecessaryOptionsFromCmbOptionsText: start' +
-		FGuiSetSearchParams.RgAdditionalOptions);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.RemoveNecessaryOptionsFromCmbOptionsText');
+	dbgMsg.Msg('Additional Options=' + FGuiSetSearchParams.RgAdditionalOptions);
 
 	// Remove necessary options
 	cmbOptions.Text := TGuiSearchTextParams.RemoveRgExeOptions(
 		{ } FGuiSetSearchParams.RgAdditionalOptions, string.Join(ARRAY_SEPARATOR, RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS));
+	dbgMsg.Msg('cmbOptions.Text=' + cmbOptions.Text);
+
 	WriteOptionCtrlToRipGrepParametersSetting;
 
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.RemoveNecessaryOptionsFromCmbOptionsText: end' +
-		FGuiSetSearchParams.RgAdditionalOptions);
+	dbgMsg.Msg('Additional Options=' + FGuiSetSearchParams.RgAdditionalOptions);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings;
@@ -574,10 +579,10 @@ begin
 	_cmb.Items.Assign(_items);
 	if HasHistItemObj then begin
 		_cmb.Text := string.Join(_separator, FHistItemObj.RipGrepArguments.GetValues(_argName));
-        dbgMsg.MsgFmt('%s=%s', [_cmb.Name, _cmb.Text]);
+		dbgMsg.MsgFmt('%s=%s', [_cmb.Name, _cmb.Text]);
 	end else begin
 		_cmb.ItemIndex := 0;
-		 dbgMsg.MsgFmt('idx:%d, %s=%s', [_cmb.ItemIndex, _cmb.Name, _cmb.Text]);
+		dbgMsg.MsgFmt('idx:%d, %s=%s', [_cmb.ItemIndex, _cmb.Name, _cmb.Text]);
 	end;
 end;
 
@@ -597,14 +602,13 @@ end;
 
 procedure TRipGrepperSearchDialogForm.UpdateCmbOptionsAndMemoCommandLine;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.UpdateCmbOptionsAndMemoCommandLine: start ' + FGuiSetSearchParams.ToString);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCmbOptionsAndMemoCommandLine');
+	dbgMsg.Msg('FGuiSetSearchParams=' + FGuiSetSearchParams.ToString);
 	RemoveNecessaryOptionsFromCmbOptionsText;
-
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.UpdateCmbOptionsAndMemoCommandLine:  ' + string.Join(' ',
-		FGuiSetSearchParams.RgOptions));
-
+	dbgMsg.Msg('RgOptions=' + string.Join(' ', FGuiSetSearchParams.RgOptions));
 	UpdateMemoCommandLine(True); // RgExeOptions may changed
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.UpdateCmbOptionsAndMemoCommandLine: end ' + FGuiSetSearchParams.ToString);
+	dbgMsg.Msg('FGuiSetSearchParams=' + FGuiSetSearchParams.ToString);
 end;
 
 procedure TRipGrepperSearchDialogForm.StoreHistoriesAsCmbEntries;
@@ -631,18 +635,18 @@ begin
 	FSettings.RipGrepParameters.FileMasks := cmbFileMasks.Text;
 	dbgMsg.Msg('FileMasks=' + cmbFileMasks.Text);
 
-	FGuiSetSearchParams.SetRgOptions(RG_PARAM_REGEX_HIDDEN, not cbRgParamHidden.Checked);
-	FGuiSetSearchParams.SetRgOptions(RG_PARAM_REGEX_NO_IGNORE, not cbRgParamNoIgnore.Checked);
-	FGuiSetSearchParams.SetRgOptions(RG_PARAM_REGEX_IGNORE_CASE, cbRgParamNoIgnore.Checked);
+	FGuiSetSearchParams.SetRgOption(RG_PARAM_REGEX_HIDDEN, not cbRgParamHidden.Checked);
+	FGuiSetSearchParams.SetRgOption(RG_PARAM_REGEX_NO_IGNORE, not cbRgParamNoIgnore.Checked);
+	FGuiSetSearchParams.SetRgOption(RG_PARAM_REGEX_IGNORE_CASE, cbRgParamNoIgnore.Checked);
 
-	FGuiSetSearchParams.SetRgOptions(RG_PARAM_REGEX_PRETTY, not(cbRgParamPretty.Enabled and cbRgParamPretty.Checked));
+	FGuiSetSearchParams.SetRgOption(RG_PARAM_REGEX_PRETTY, not(cbRgParamPretty.Enabled and cbRgParamPretty.Checked));
 	if cbRgParamContext.Checked then begin
 		if seContextLineNum.Text = '' then begin
 			seContextLineNum.Text := '0';
 		end;
-		FGuiSetSearchParams.SetRgOptionsWithValue(RG_PARAM_REGEX_CONTEXT, seContextLineNum.Text, True);
+		FGuiSetSearchParams.SetRgOptionWithValue(RG_PARAM_REGEX_CONTEXT, seContextLineNum.Text, True);
 	end else begin
-		FGuiSetSearchParams.SetRgOptions(RG_PARAM_REGEX_CONTEXT, True);
+		FGuiSetSearchParams.SetRgOption(RG_PARAM_REGEX_CONTEXT, True);
 	end;
 
 	if cbRgParamEncoding.Checked then begin
@@ -650,9 +654,9 @@ begin
 			cmbRgParamEncoding.Text := cmbRgParamEncoding.Items[0];
 		end;
 		FSettings.RipGrepperSearchFormSettings.Encoding := cmbRgParamEncoding.Text;
-		FGuiSetSearchParams.SetRgOptionsWithValue(RG_PARAM_REGEX_ENCODING, cmbRgParamEncoding.Text, True);
+		FGuiSetSearchParams.SetRgOptionWithValue(RG_PARAM_REGEX_ENCODING, cmbRgParamEncoding.Text, True);
 	end else begin
-		FGuiSetSearchParams.SetRgOptions(RG_PARAM_REGEX_ENCODING, True);
+		FGuiSetSearchParams.SetRgOption(RG_PARAM_REGEX_ENCODING, True);
 		FSettings.RipGrepperSearchFormSettings.Encoding := '';
 	end;
 
@@ -686,6 +690,9 @@ procedure TRipGrepperSearchDialogForm.UpdateCheckBoxesByRgOptions;
 var
 	sVal : string;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCheckBoxesByRgOptions');
+
 	FCbClickEventEnabled := False;
 	try
 		cbRgParamHidden.Checked := IsOptionSet(RG_PARAM_REGEX_HIDDEN);
@@ -703,25 +710,34 @@ begin
 	finally
 		FCbClickEventEnabled := True;
 	end;
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.UpdateCheckBoxesByRgOptions: ' + Format('Hidden %s NoIgnore %s Pretty %s',
-		[BoolToStr(cbRgParamHidden.Checked), BoolToStr(cbRgParamNoIgnore.Checked), BoolToStr(cbRgParamPretty.Checked)]));
+	dbgMsg.MsgFmt('Hidden %s NoIgnore %s Pretty %s',
+		{ } [BoolToStr(cbRgParamHidden.Checked),
+		{ } BoolToStr(cbRgParamNoIgnore.Checked),
+		{ } BoolToStr(cbRgParamPretty.Checked)]);
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateCheckBoxesBySettings(const _searchFormSettings : TRipGrepperSearchFormSettings);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCheckBoxesBySettings');
+
 	FCbClickEventEnabled := False;
 	try
 		WriteSearchFormSettingsToCtrls(_searchFormSettings);
 	finally
 		FCbClickEventEnabled := True;
 	end;
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.UpdateCheckBoxesBySettings: ' + Format('Hidden %s NoIgnore %s Pretty %s',
-		[BoolToStr(cbRgParamHidden.Checked), BoolToStr(cbRgParamNoIgnore.Checked), BoolToStr(cbRgParamPretty.Checked)]));
+	dbgMsg.MsgFmt('cbHidden %s cbNoIgnore %s cbPretty %s',
+		{ } [BoolToStr(cbRgParamHidden.Checked),
+		{ } BoolToStr(cbRgParamNoIgnore.Checked),
+		{ } BoolToStr(cbRgParamPretty.Checked)]);
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateMemoCommandLine(const _bSkipReadCtrls : Boolean = False);
 begin
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.UpdateMemoCommandLine: start ' + FGuiSetSearchParams.ToString);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateMemoCommandLine');
+	dbgMsg.Msg('FGuiSetSearchParams= ' + FGuiSetSearchParams.ToLogString);
 
 	if not _bSkipReadCtrls then
 		WriteCtrlsToRipGrepParametersSettings;
@@ -730,13 +746,14 @@ begin
 	FSettings.RebuildArguments();
 	memoCommandLine.Text := FSettings.RipGrepParameters.GetCommandLine();
 	FGuiSetSearchParams.Copy(FSettings.RipGrepParameters.GuiSearchTextParams);
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.UpdateMemoCommandLine: end ' + FGuiSetSearchParams.ToString);
-
+	dbgMsg.Msg('FGuiSetSearchParams= ' + FGuiSetSearchParams.ToLogString);
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateCtrls(_ctrlChanged : TControl);
 begin
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.UpdateCtrls: ctrl ' + _ctrlChanged.Name);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCtrls');
+	dbgMsg.Msg('ctrl ' + _ctrlChanged.Name);
 
 	if cmbSearchText = _ctrlChanged then begin
 		UpdateMemoCommandLine(); // UpdateCtrls
@@ -798,13 +815,11 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ChecVsCodeRipGrep;
 begin
-	var
-		sVsDir : string := TFileUtils.GetVsCodeDir;
+	var sVsDir : string := TFileUtils.GetVsCodeDir;
 	if not sVsDir.IsEmpty then begin
 		sVsDir := TFileUtils.ShortToLongPath(sVsDir.Remove(sVsDir.Length - '\bin'.Length));
 
-		var
-			sRgPath : string;
+		var sRgPath : string;
 		TFileUtils.FindExecutable(FSettings.RipGrepParameters.RipGrepPath, sRgPath);
 
 		// Rg in VSCode doesn't support --pretty
@@ -854,8 +869,7 @@ begin
 end;
 
 function TRipGrepperSearchDialogForm.GetInIDESelectedText : string;
-var
-	selectedText : TMultiLineString;
+var selectedText : TMultiLineString;
 begin
 	IOTAUtils.GxOtaGetActiveEditorTextAsMultilineString(selectedText, True);
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.GetInIDESelectedText: ' + selectedText);
@@ -871,26 +885,26 @@ begin
 	FSettings.LoadDefault;
 
 	// TODO set only if it was saved before!
-	SetCmbSearchPathText(
-		 IfThen(FSettings.RipGrepParameters.SearchPath.IsEmpty, cmbSearchDir.Text, FSettings.RipGrepParameters.SearchPath));
+	SetCmbSearchPathText(IfThen(FSettings.RipGrepParameters.SearchPath.IsEmpty, cmbSearchDir.Text, FSettings.RipGrepParameters.SearchPath));
 	dbgMsg.Msg('cmbSearchDir=' + cmbSearchDir.Text);
 
 	if not IOTAUtils.IsStandAlone then begin
 		var
 		cic := FSettings.RipGrepperSearchFormSettings.ExtensionSettings.CurrentIDEContext;
-		dbgMsg.Msg('IDEContext=' + cic.ToString);
+		dbgMsg.Msg('IDEContext=' + cic.ToLogString);
 		rbExtensionOptions.ItemIndex := Integer(cic.IDEContext);
 		UpdateCmbsOnIDEContextChange();
+		dbgMsg.Msg('cmbSearchDir=' + cmbSearchDir.Text);
 	end;
 
 	cmbFileMasks.Text := IfThen(FSettings.RipGrepParameters.FileMasks.IsEmpty, cmbFileMasks.Text, FSettings.RipGrepParameters.FileMasks);
+	dbgMsg.Msg('cmbFileMasks.Text=' + cmbFileMasks.Text);
 	FGuiSetSearchParams.SearchOptions := FSettings.RipGrepParameters.GuiSearchTextParams.SearchOptions;
 	UpdateCheckBoxesBySettings(FSettings.RipGrepperSearchFormSettings);
 end;
 
 procedure TRipGrepperSearchDialogForm.LoadExtensionSearchSettings;
-var
-	extSearchSettings : TRipGrepperExtensionContext;
+var extSearchSettings : TRipGrepperExtensionContext;
 	selectedText : string;
 begin
 	var
@@ -899,6 +913,9 @@ begin
 	if IOTAUTils.IsStandAlone then begin
 		Exit;
 	end;
+
+	dbgMsg.MsgFmt('ExtensionSettings.IsAlreadyRead=%s', [
+		{ } BoolToStr(FSettings.RipGrepperSearchFormSettings.ExtensionSettings.IsAlreadyRead)]);
 
 	extSearchSettings := FSettings.RipGrepperSearchFormSettings.ExtensionSettings.CurrentIDEContext;
 	if not HasHistItemObj then begin
@@ -914,7 +931,7 @@ begin
 	extSearchSettings.OpenFiles := IOTAUTils.GetOpenedEditBuffers();
 	extSearchSettings.ActiveProject := (IOTAUTils.GxOtaGetCurrentProject).FileName;
 
-	dbgMsg.Msg('CurrentIDEContext:' + extSearchSettings.ToString);
+	dbgMsg.Msg('CurrentIDEContext:' + extSearchSettings.ToLogString);
 	FSettings.RipGrepperSearchFormSettings.ExtensionSettings.CurrentIDEContext := extSearchSettings;
 
 	FbExtensionOptionsSkipClick := True;
@@ -931,8 +948,7 @@ end;
 
 class function TRipGrepperSearchDialogForm.ShowSearchForm(_owner : TComponent; _settings : TRipGrepperSettings;
 	_histObj : IHistoryItemObject) : integer;
-var
-	frm : TRipGrepperSearchDialogForm;
+var frm : TRipGrepperSearchDialogForm;
 begin
 	frm := TRipGrepperSearchDialogForm.Create(_owner, _settings, _histObj);
 	try
@@ -948,8 +964,7 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateButtonsBySettings;
-var
-	s : string;
+var s : string;
 begin
 	ButtonDown(EGuiOption.soMatchCase, tbIgnoreCase);
 	ButtonDown(EGuiOption.soMatchWord, tbMatchWord);
@@ -962,40 +977,39 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange;
-var
-	rgec : TRipGrepperExtensionContext;
+var rgec : TRipGrepperExtensionContext;
 begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange');
+	if not IOTAUTils.IsStandAlone then begin
+		var
+		dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange');
 
-	if IOTAUTils.IsStandAlone then begin
-		Exit;
-	end;
-	rgec := FSettings.RipGrepperSearchFormSettings.ExtensionSettings.CurrentIDEContext;
-	dbgMsg.Msg('IDEContext=' + rgec.ToString);
+		rgec := FSettings.RipGrepperSearchFormSettings.ExtensionSettings.CurrentIDEContext;
+		dbgMsg.Msg(rgec.ToLogString);
 
-	case rbExtensionOptions.ItemIndex of
-		EXT_SEARCH_ACTIVE_FILE : begin
-			cmbSearchDir.Enabled := False;
-			SetCmbSearchPathText(rgec.ActiveFile);
+		cmbSearchDir.Enabled := False;
+		case rbExtensionOptions.ItemIndex of
+			EXT_SEARCH_ACTIVE_FILE : begin
+				SetCmbSearchPathText(rgec.ActiveFile);
+			end;
+			EXT_SEARCH_PROJECT_FILES : begin
+				SetCmbSearchPathText(string.Join(SEARCH_PATH_SEPARATOR, rgec.ProjectFiles).Trim([SEARCH_PATH_SEPARATOR]));
+			end;
+			EXT_SEARCH_OPEN_FILES : begin
+				SetCmbSearchPathText(string.Join(SEARCH_PATH_SEPARATOR, rgec.OpenFiles).Trim([SEARCH_PATH_SEPARATOR]));
+			end;
+			EXT_SEARCH_GIVEN_PATH : begin
+				cmbSearchDir.Enabled := True;
+				SetComboItemsAndText(cmbSearchDir, RG_ARG_SEARCH_PATH, FSettings.SearchPathsHistory, SEARCH_PATH_SEPARATOR);
+			end;
+			else begin
+				raise Exception.Create('Extension IDE Context not supported');
+			end;
 		end;
-		EXT_SEARCH_PROJECT_FILES : begin
-			cmbSearchDir.Enabled := False;
-			SetCmbSearchPathText(string.Join(SEARCH_PATH_SEPARATOR, rgec.ProjectFiles).Trim([SEARCH_PATH_SEPARATOR]));
-		end;
-		EXT_SEARCH_OPEN_FILES : begin
-			cmbSearchDir.Enabled := False;
-			SetCmbSearchPathText(string.Join(SEARCH_PATH_SEPARATOR, rgec.OpenFiles).Trim([SEARCH_PATH_SEPARATOR]));
-		end;
-		EXT_SEARCH_GIVEN_PATH : begin
-			cmbSearchDir.Enabled := True;
-			SetComboItemsAndText(cmbSearchDir, RG_ARG_SEARCH_PATH, FSettings.SearchPathsHistory, SEARCH_PATH_SEPARATOR);
-		end;
+		FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
+		rgec.IDEContext := ERipGrepperExtensionContext(rbExtensionOptions.ItemIndex);
+		FSettings.RipGrepperSearchFormSettings.ExtensionSettings.CurrentIDEContext := rgec;
+		dbgMsg.Msg(rgec.ToLogString);
 	end;
-	FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
-	rgec.IDEContext := ERipGrepperExtensionContext(rbExtensionOptions.ItemIndex);
-	FSettings.RipGrepperSearchFormSettings.ExtensionSettings.CurrentIDEContext := rgec;
-	dbgMsg.Msg(rgec.ToString);
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateFileMasksInFileMasks;
@@ -1004,9 +1018,7 @@ begin
 end;
 
 function TRipGrepperSearchDialogForm.UpdateFileMasksInOptions(const sOptions, sMasks : string) : string;
-var
-	oldMaskOptions : TArrayEx<string>;
-	newMaskOptions : string;
+var oldMaskOptions : TArrayEx<string>; newMaskOptions : string;
 begin
 	Result := sOptions;
 	oldMaskOptions := TCommandLineBuilder.GetFileMaskParamsFromOptions(sOptions);
@@ -1056,22 +1068,34 @@ end;
 
 procedure TRipGrepperSearchDialogForm.WriteOptionCtrlToRipGrepParametersSetting;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.WriteOptionCtrlToRipGrepParametersSetting');
 	FGuiSetSearchParams.RgAdditionalOptions := cmbOptions.Text;
+	dbgMsg.Msg('FGuiSetSearchParams.RgAdditionalOptions=' + FGuiSetSearchParams.RgAdditionalOptions);
 end;
 
 procedure TRipGrepperSearchDialogForm.WriteSearchFormSettingsToCtrls(const _searchFormSettings : TRipGrepperSearchFormSettings);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.WriteSearchFormSettingsToCtrls');
+
+	dbgMsg.MsgFmt('_searchFormSettings(%p).IsAlreadyRead=%s', [@_searchFormSettings, BoolToStr(_searchFormSettings.IsAlreadyRead)]);
 	cbRgParamHidden.Checked := _searchFormSettings.Hidden;
+	dbgMsg.MsgFmt('cbRgParamHidden.Checked %s', [BoolToStr(cbRgParamHidden.Checked)]);
 	cbRgParamNoIgnore.Checked := _searchFormSettings.NoIgnore;
+	dbgMsg.MsgFmt('cbRgParamNoIgnore.Checked %s', [BoolToStr(cbRgParamNoIgnore.Checked)]);
 	cbRgParamPretty.Checked := _searchFormSettings.Pretty;
+	dbgMsg.MsgFmt('cbRgParamPretty.Checked %s', [BoolToStr(cbRgParamPretty.Checked)]);
 
 	cbRgParamContext.Checked := _searchFormSettings.Context <> 0;
 	seContextLineNum.Enabled := cbRgParamContext.Checked;
 	seContextLineNum.Value := _searchFormSettings.Context;
+	dbgMsg.MsgFmt('seContextLineNum.Value=%d', [seContextLineNum.Value]);
 
 	cbRgParamEncoding.Checked := _searchFormSettings.Encoding <> '';
 	cmbRgParamEncoding.Enabled := cbRgParamEncoding.Checked;
 	cmbRgParamEncoding.Text := _searchFormSettings.Encoding;
+	dbgMsg.Msg('cmbRgParamEncoding.Text=' + cmbRgParamEncoding.Text);
 end;
 
 end.
