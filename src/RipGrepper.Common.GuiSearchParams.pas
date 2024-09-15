@@ -38,6 +38,7 @@ type
 			constructor Create(const _ini : TMemIniFile); overload;
 			constructor Create(const _sText: string; const _bMC, _bMW, _bUR: Boolean); overload;
 			constructor Create(const _iniSection: string); overload;
+			destructor Destroy; override;
 			procedure Clear;
 			procedure Copy(const _other : TGuiSearchTextParams); reintroduce;
 
@@ -353,6 +354,12 @@ begin
     IniSectionName := _iniSection;
 	inherited Create();
 	Clear();
+end;
+
+destructor TGuiSearchTextParams.Destroy;
+begin
+	inherited;
+	// TODO -cMM: TGuiSearchTextParams.Destroy default body inserted
 end;
 
 procedure TGuiSearchTextParams.Copy(const _other : TGuiSearchTextParams);

@@ -31,7 +31,7 @@ type
 			property StrSetting : string read FStrSetting write FStrSetting;
 	end;
 
-//	[TestFixture]
+	[TestFixture]
 	TPersistableSettingsTest = class
 		const
 			INIFILE = 'PersistableSettingsTest.ini';

@@ -241,6 +241,7 @@ begin
 
 	try
 		FRipGrepperViewSettings.ReadIni;
+		FRipGrepperViewSettings.RefreshMembers(false);
 		FRipGrepperOpenWithSettings.ReadIni;
 		FRipGrepperSettings.ReadIni;
 

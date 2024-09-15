@@ -58,8 +58,6 @@ end;
 
 procedure TRipGrepperViewSettings.RefreshMembers(const _bWithDefault: Boolean);
 begin
-	if _bWithDefault then
-		Exit;
 	ShowRelativePath := GetSetting('ShowRelativePath');
 	ShowFileIcon := GetSetting('ShowFileIcon');
 	AlternateRowColors := GetSetting('AlternateRowColors');
