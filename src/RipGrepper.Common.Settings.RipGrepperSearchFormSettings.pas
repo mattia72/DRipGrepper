@@ -123,7 +123,19 @@ end;
 
 function TRipGrepperSearchFormSettings.GetEncoding : string;
 begin
-	Result := GetSetting('Encoding');
+	Result := FEncoding;
+end;
+
+function TRipGrepperSearchFormSettings.GetExtensionSettings : TRipGrepperExtensionSettings;
+begin
+	if not FExtensionSettings.IsAlreadyRead then begin
+		var
+		dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchFormSettings.GetExtensionSettings');
+
+		FExtensionSettings.ReadIni;
+		FExtensionSettings.LoadDefault;
+	end;
+	Result := FExtensionSettings;
 end;
 
 function TRipGrepperSearchFormSettings.GetHidden : Boolean;

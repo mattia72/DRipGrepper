@@ -103,10 +103,7 @@ begin
 
 	RemoveExtensionMenu();
 	extSettings := GSettings.RipGrepperSearchFormSettings.ExtensionSettings;
-	if not extSettings.IsAlreadyRead then begin
-		dbgMsg.Msg('ReadIni');
-		extSettings.ReadIni;
-	end;
+
 	dbgMsg.Msg('shortcut ' + extSettings.DripGrepperShortCut);
 	sc := TextToShortCut(extSettings.DripGrepperShortCut);
 	if sc = 0 then begin
