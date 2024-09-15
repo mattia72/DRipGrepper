@@ -229,7 +229,9 @@ begin
 			FSettings.RipGrepperSearchFormSettings.Copy(FHistItemObj.RipGrepperSearchFormSettings);
 		end;
 	end else begin
-		FGuiSetSearchParams := TGuiSearchTextParams.Create();
+		FSettings.LoadDefault;
+		FGuiSetSearchParams := TGuiSearchTextParams.Create(TRipGrepParameterSettings.INI_SECTION);
+		FGuiSetSearchParams.LoadDefault;
 	end;
 	dbgMsg.Msg(FSettings.RipGrepperSearchFormSettings.ToLogString);
 	dbgMsg.Msg('gui params=' + FGuiSetSearchParams.ToLogString);
@@ -408,11 +410,10 @@ begin
 
 	LoadSettings;
 	LoadExtensionSearchSettings;
-
-	dbgMsg.MsgFmt('HasHistItemObj=%s', [BoolToStr(HasHistItemObj, True)]);
-	if not HasHistItemObj then begin
-		LoadDefaultSettings();
-	end;
+	// dbgMsg.MsgFmt('HasHistItemObj=%s', [BoolToStr(HasHistItemObj, True)]);
+	// if not HasHistItemObj then begin
+	// LoadDefaultSettings();
+	// end;
 
 	ChecVsCodeRipGrep;
 
@@ -884,7 +885,7 @@ procedure TRipGrepperSearchDialogForm.LoadDefaultSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadDefaultSettings');
-	FSettings.LoadDefault;
+	// FSettings.LoadDefault;
 
 	// TODO set only if it was saved before!
 	SetCmbSearchPathText(IfThen(FSettings.RipGrepParameters.SearchPath.IsEmpty, cmbSearchDir.Text, FSettings.RipGrepParameters.SearchPath));
