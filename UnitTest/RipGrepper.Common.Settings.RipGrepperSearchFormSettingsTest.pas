@@ -1,4 +1,4 @@
-unit RipGrepper.Common.Settings.Test;
+unit RipGrepper.Common.Settings.RipGrepperSearchFormSettingsTest;
 
 interface
 
@@ -30,11 +30,13 @@ type
 			procedure TearDown;
 
 			[Test]
-			procedure CreatedSettingsShouldLoadDefaultsTest;
+			procedure RefreshMembersShouldLoadDefaultsTest;
 			[Test]
 			procedure LoadDefaultsShouldReadDefaultFromIni;
 			[Test]
 			procedure AfterCopyValuesValuesShouldBeEqual;
+			[Test]
+			procedure LoadDefaultsReadsIni;
 
 	end;
 
@@ -49,17 +51,18 @@ uses
 constructor TRipGrepperSearchFormSettingsTest.Create;
 begin
 	inherited;
-	FIniFile := TMemIniFile.Create(INIFILE, TEncoding.UTF8);
+//	FIniFile := TMemIniFile.Create(INIFILE, TEncoding.UTF8);
 end;
 
 destructor TRipGrepperSearchFormSettingsTest.Destroy;
 begin
-	FIniFile.Free;
+//	FIniFile.Free;
 	inherited;
 end;
 
-procedure TRipGrepperSearchFormSettingsTest.CreatedSettingsShouldLoadDefaultsTest;
+procedure TRipGrepperSearchFormSettingsTest.RefreshMembersShouldLoadDefaultsTest;
 begin
+	FSettings.RefreshMembers(True);
 	Assert.AreEqual(True, FSettings.Pretty, 'Pretty should be true');
 	Assert.AreEqual(False, FSettings.Hidden, 'Hidden should be true');
 	Assert.AreEqual(False, FSettings.NoIgnore, 'NoIgnore should be true');
@@ -70,8 +73,8 @@ end;
 procedure TRipGrepperSearchFormSettingsTest.LoadDefaultsShouldReadDefaultFromIni;
 begin
 	SetDefaults;
-
 	FSettings.LoadDefault;
+	Assert.IsTrue(FSettings.IsAlreadyRead);
 	Assert.AreEqual('utf8', FSettings.Encoding, 'Encoding should be utf8');
 	Assert.AreEqual(5, FSettings.Context, 'Context should be 5');
 	Assert.AreEqual(False, FSettings.Pretty, 'Pretty should be false');
@@ -98,6 +101,14 @@ begin
 	end;
 end;
 
+procedure TRipGrepperSearchFormSettingsTest.LoadDefaultsReadsIni;
+begin
+	SetDefaults;
+	Assert.IsFalse(FSettings.IsAlreadyRead);
+	FSettings.LoadDefault;
+	Assert.IsTrue(FSettings.IsAlreadyRead);
+end;
+
 procedure TRipGrepperSearchFormSettingsTest.SetDefaults;
 begin
 	var
@@ -111,12 +122,14 @@ end;
 
 procedure TRipGrepperSearchFormSettingsTest.Setup;
 begin
+	FIniFile := TMemIniFile.Create(INIFILE, TEncoding.UTF8);
 	FSettings := TRipGrepperSearchFormSettings.Create(FIniFile);
 end;
 
 procedure TRipGrepperSearchFormSettingsTest.TearDown;
 begin
 	FSettings.Free;
+	FIniFile.Free;
 end;
 
 initialization

@@ -85,6 +85,9 @@ begin
 	FInitialValue := _value;
 	FIsModified := False;
 	FIsDefaultRelevant := _isDefRelevant;
+	if FIsDefaultRelevant then begin
+		FDefaultValue := _value;
+	   end;
 	FSaveToIni := _saveToIni;
 end;
 

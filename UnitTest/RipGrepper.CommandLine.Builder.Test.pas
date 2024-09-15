@@ -70,6 +70,7 @@ end;
 
 procedure TCommandLineBuilderTest.TearDown;
 begin
+//	FGuiParams.Free;
 	FParams.Free;
 	FIniFile.Free;
 end;
@@ -96,7 +97,8 @@ begin
 	arrMissingMaskOptions := sMaskOptions.Split([' ']);
 
 	for var i : integer := 0 to arrMissingMaskOptions.MaxIndex do begin
-		Assert.IsTrue(TRegex.IsMatch(arrMissingMaskOptions[i], '-g='), Format('%d. param should be -g= not ', [i, arrMissingMaskOptions[i]]));
+		Assert.IsTrue(TRegex.IsMatch(arrMissingMaskOptions[i], '-g='), Format('%d. param should be -g= not ',
+			[i, arrMissingMaskOptions[i]]));
 	end;
 
 	arrMasks := _sMasks.Split([';']);
@@ -150,8 +152,8 @@ begin
 	TCommandLineBuilder.RebuildArguments(FParams);
 
 	if _bShouldBounded = 1 then begin
-		Assert.AreEqual(WB + _sSearchText + WB, FParams.RipGrepArguments.Values[RG_ARG_SEARCH_TEXT], 'the search text should surrounded: ' + WB +
-			_sSearchText + WB);
+		Assert.AreEqual(WB + _sSearchText + WB, FParams.RipGrepArguments.Values[RG_ARG_SEARCH_TEXT],
+			'the search text should surrounded: ' + WB + _sSearchText + WB);
 		if EGuiOption.soMatchWord in FParams.GuiSearchTextParams.SearchOptions then begin
 			for var p in RG_PARAM_REGEX_FIXED_STRINGS.Split(['|']) do begin
 				Assert.IsFalse(FParams.RgExeOptions.Contains(p), p + ' mustn''t be contained between options')
@@ -159,8 +161,8 @@ begin
 		end;
 
 	end else begin
-		Assert.AreEqual(_sSearchText, FParams.RipGrepArguments.Values[RG_ARG_SEARCH_TEXT], 'if MatchWord is not set, then search text should equal' +
-			_sSearchText);
+		Assert.AreEqual(_sSearchText, FParams.RipGrepArguments.Values[RG_ARG_SEARCH_TEXT],
+			'if MatchWord is not set, then search text should equal' + _sSearchText);
 	end;
 
 end;
