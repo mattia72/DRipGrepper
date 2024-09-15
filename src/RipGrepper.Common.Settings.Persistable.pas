@@ -28,7 +28,6 @@ type
 
 	TPersistableSettings = class(TSingletonImplementation, IIniPersistable)
 		private
-			FSettingsDict : TSettingsDictionary;
 			FbDefaultLoaded : Boolean;
 			FbOwnIniFile : Boolean;
 			FIniSectionName : string;
@@ -46,10 +45,13 @@ type
 
 		protected
 			FIniFile : TMemIniFile;
+			FSettingsDict : TSettingsDictionary;
+
 			FIsModified : Boolean;
 
 			procedure CreateSetting(const _sName : string; const _setting : ISettingVariant); overload;
-			procedure CreateSetting(const _sName : string; const _type : TVarType; const _value : Variant; const _isDefRelevant : Boolean = False); overload;
+			procedure CreateSetting(const _sName : string; const _type : TVarType; const _value : Variant;
+				const _isDefRelevant : Boolean = False); overload;
 			procedure CreateDefaultSetting(const _sName : string; const _type : TVarType; const _value : Variant); overload;
 			function GetDictKeyName(const _key : string; const _bForDefault : Boolean = False) : string;
 			function GetDefaultDictKeyName(const _key : string) : string;
@@ -363,9 +365,9 @@ procedure TPersistableSettings.ReadIni;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.ReadIni');
-	Init();
-	ReadSettings();
-	// RefreshMembers(FDefaultLoadRuns);
+	if not IsAlreadyRead then begin
+		ReadSettings();
+	end;
 end;
 
 procedure TPersistableSettings.LoadDefault;
