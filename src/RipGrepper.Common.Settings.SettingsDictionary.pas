@@ -19,7 +19,7 @@ implementation
 
 constructor TSettingsDictionary.Create;
 begin
-	inherited;
+	inherited Create;
 end;
 
 destructor TSettingsDictionary.Destroy;
@@ -27,7 +27,7 @@ begin
 	for var key in Keys do begin
 		Self[key] := nil;
 	end;
-	inherited;
+	inherited Destroy;
 end;
 
 procedure TSettingsDictionary.AddOrChange(const Key : string; const Value : ISettingVariant);
