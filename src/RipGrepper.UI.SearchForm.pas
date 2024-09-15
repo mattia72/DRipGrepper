@@ -739,8 +739,10 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateMemoCommandLine');
 	dbgMsg.Msg('FGuiSetSearchParams= ' + FGuiSetSearchParams.ToLogString);
 
-	if not _bSkipReadCtrls then
+	if not _bSkipReadCtrls then begin
+		dbgMsg.Msg('not SkipReadCtrls');
 		WriteCtrlsToRipGrepParametersSettings;
+	end;
 
 	FSettings.RipGrepParameters.GuiSearchTextParams.Copy(FGuiSetSearchParams);
 	FSettings.RebuildArguments();
