@@ -34,7 +34,7 @@ type
 			FIsAlreadyRead : Boolean;
 			procedure AddOrSet(const _name : string; const _v : Variant); overload;
 			procedure AddOrSet(const _name : string; const _sv : ISettingVariant); overload;
-			procedure AddOrSetDefaultValue(const _key: string; const _value: Variant; const _bSaveToIni: Boolean);
+			procedure AddOrSetDefaultValue(const _key : string; const _value : Variant; const _bSaveToIni : Boolean);
 			procedure CreateIniFile;
 			function GetDefaultSetting(const _name : string) : Variant;
 			function GetIniFile : TMemIniFile;
@@ -193,7 +193,7 @@ begin
 	end;
 end;
 
-procedure TPersistableSettings.AddOrSetDefaultValue(const _key: string; const _value: Variant; const _bSaveToIni: Boolean);
+procedure TPersistableSettings.AddOrSetDefaultValue(const _key : string; const _value : Variant; const _bSaveToIni : Boolean);
 var
 	setting : ISettingVariant;
 begin
@@ -202,7 +202,8 @@ begin
 	setting := TSettingVariant.Create(_value); // ISettingVariant
 	setting.SaveToIni := _bSaveToIni;
 	setting.DefaultValue := _value;
-	var dictKeyName := GetDictKeyName(_key);
+	var
+	dictKeyName := GetDictKeyName(_key);
 	AddOrSet(dictKeyName, setting);
 	dbgMsg.MsgFmt('[%s] %s.DefaultValue = %s', [IniSectionName, _key, VartoStr(FSettingsDict[dictKeyName].DefaultValue)]);
 end;
@@ -409,6 +410,7 @@ begin
 		end;
 
 		val := FSettingsDict[key];
+
 		if val.IsDefaultRelevant then begin
 			val.Value := val.DefaultValue;
 			dbgMsg.MsgFmt('%s=%s', [key, VarToStr(val.Value)]);
@@ -515,7 +517,10 @@ begin
 						setting.Value := value;
 						AddOrSet(dictKeyName, setting);
 						AddOrSetDefaultValue(baseName, value, True);
-						dbgMsg.MsgFmt('[%s] %s.Value = %s', [IniSectionName, name, VartoStr(FSettingsDict[dictKeyName].Value)]);
+						dbgMsg.MsgFmt('[%s] %s.Value = %s',
+						{ } [IniSectionName, baseName, VartoStr(FSettingsDict[dictKeyName].Value)]);
+						dbgMsg.MsgFmt('[%s] %s.Value = %s',
+						{ } [IniSectionName, name, VartoStr(FSettingsDict[GetDefaultDictKeyName(baseName)].Value)]);
 					end else begin
 						// We didn't write it in INI before...
 						AddOrSetDefaultValue(baseName, value, False);
