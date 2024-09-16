@@ -515,6 +515,7 @@ begin
 					if FSettingsDict.TryGetValue(dictKeyName, setting) then begin
 						setting.IsDefaultRelevant := True;
 						setting.Value := value;
+						setting.DefaultValue := value;
 						AddOrSet(dictKeyName, setting);
 						AddOrSetDefaultValue(baseName, value, True);
 						dbgMsg.MsgFmt('[%s] %s.Value = %s',
