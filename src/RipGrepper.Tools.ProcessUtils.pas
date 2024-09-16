@@ -44,10 +44,10 @@ type
 
 		public
 			class function MaybeQuoteIfNotQuoted(const _s : string; const _delimiter : string = '"') : string;
-			class procedure ProcessOutput(const _s : TStream;
+			class function ProcessOutput(const _s : TStream;
 				{ } _newLineHandler : INewLineEventHandler;
 				{ } _terminateEventProducer : ITerminateEventProducer;
-				{ } _eofProcHandler : IEOFProcessEventHandler);
+				{ } _eofProcHandler : IEOFProcessEventHandler) : integer;
 			class function RunProcess(const _exe : string; _args : TStrings; _workDir : string;
 				{ } _newLIneHandler : INewLineEventHandler;
 				{ } _terminateEventProducer : ITerminateEventProducer;
@@ -164,10 +164,10 @@ begin
 	EOFProcessingEventHandler(_eofProcHandler);
 end;
 
-class procedure TProcessUtils.ProcessOutput(const _s : TStream;
+class function TProcessUtils.ProcessOutput(const _s : TStream; 
 	{ } _newLineHandler : INewLineEventHandler;
-	{ } _terminateEventProducer : ITerminateEventProducer;
-	{ } _eofProcHandler : IEOFProcessEventHandler);
+	{ } _terminateEventProducer : ITerminateEventProducer; 
+	{ } _eofProcHandler : IEOFProcessEventHandler) : integer;
 var
 	byteBuff : TBytes;
 	sBuff : string;
@@ -198,6 +198,7 @@ begin
 			raise;
 		end;
 	end;
+	Result := FProcessedLineCount;
 end;
 
 class function TProcessUtils.RunProcess(const _exe : string; _args : TStrings;
