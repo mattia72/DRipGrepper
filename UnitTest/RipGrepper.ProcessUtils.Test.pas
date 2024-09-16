@@ -6,7 +6,8 @@ uses
 	DUnitX.TestFramework,
 	Delphi.Mocks,
 	RipGrepper.Tools.ProcessUtils,
-	RipGrepper.Common.Constants, RipGrepper.Common.Interfaces;
+	RipGrepper.Common.Constants,
+	RipGrepper.Common.Interfaces;
 
 type
 
@@ -133,6 +134,7 @@ var
 	st : TStream;
 	s : string;
 	callCount : Integer;
+	processedLineCount : Integer;
 begin
 	callCount := BuildLines(_line, CRLF, s);
 
@@ -140,10 +142,11 @@ begin
 
 	st := TStringStream.Create(s);
 	try
-		TProcessUtils.ProcessOutput(st, FEventHandlerMock, FTerminateEventProducer, nil);
+		processedLineCount := TProcessUtils.ProcessOutput(st, FEventHandlerMock, FTerminateEventProducer, nil);
 	finally
 		st.Free;
 	end;
+	Assert.IsTrue(processedLineCount > 0, 'processedLineCount should be > 0.');
 	FEventHandlerMock.VerifyAll();
 end;
 
@@ -152,6 +155,7 @@ var
 	st : TStream;
 	s : string;
 	callCount : Integer;
+	processedLineCount : Integer;
 begin
 	callCount := BuildLines('', LF, s);
 
@@ -159,10 +163,11 @@ begin
 
 	st := TStringStream.Create(s);
 	try
-		TProcessUtils.ProcessOutput(st, FEventHandlerMock, FTerminateEventProducer, nil);
+		processedLineCount := TProcessUtils.ProcessOutput(st, FEventHandlerMock, FTerminateEventProducer, nil);
 	finally
 		st.Free;
 	end;
+	Assert.IsTrue(processedLineCount > 0, 'processedLineCount should be > 0.');
 	FEventHandlerMock.VerifyAll();
 end;
 
@@ -194,6 +199,7 @@ var
 	st : TStream;
 	s : string;
 	callCount : Integer;
+	processedLineCount : Integer;
 begin
 	callCount := 0;
 	for var i := 0 to 3 do begin
@@ -207,10 +213,11 @@ begin
 
 	st := TStringStream.Create(s);
 	try
-		TProcessUtils.ProcessOutput(st, FEventHandlerMock, FTerminateEventProducer, nil);
+		processedLineCount := TProcessUtils.ProcessOutput(st, FEventHandlerMock, FTerminateEventProducer, nil);
 	finally
 		st.Free;
 	end;
+	Assert.IsTrue(processedLineCount > 0, 'processedLineCount should be > 0.');
 	FEventHandlerMock.VerifyAll();
 end;
 
