@@ -26,6 +26,7 @@ type
 
 		public
 			procedure Msg(const _sMsg : string);
+			procedure ErrorMsg(const _sMsg : string);
 			procedure MsgFmt(const _s : string; const _args : array of const);
 			class function New(const _sProcName : string) : TDebugMsgBeginEnd; static;
 			class operator Finalize(var Dest : TDebugMsgBeginEnd);
@@ -89,6 +90,11 @@ end;
 procedure TDebugMsgBeginEnd.Msg(const _sMsg : string);
 begin
 	TDebugUtils.Msg(FProcName + ' - ' + _sMsg);
+end;
+
+procedure TDebugMsgBeginEnd.ErrorMsg(const _sMsg : string);
+begin
+	TDebugUtils.Msg(FProcName + ' - ERROR -' + _sMsg);
 end;
 
 procedure TDebugMsgBeginEnd.MsgFmt(const _s : string; const _args : array of const);
