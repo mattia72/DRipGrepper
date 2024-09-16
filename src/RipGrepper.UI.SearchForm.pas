@@ -229,6 +229,9 @@ begin
 			FSettings.RipGrepperSearchFormSettings.Copy(FHistItemObj.RipGrepperSearchFormSettings);
 		end;
 	end else begin
+		if (not FSettings.RipGrepperSearchFormSettings.IsAlreadyRead) then begin
+			dbgMsg.ErrorMsg('RipGrepperSearchFormSettings.IsAlreadyRead');
+		end;
 		FSettings.LoadDefault;
 		FGuiSetSearchParams := TGuiSearchTextParams.Create(TRipGrepParameterSettings.INI_SECTION);
 		FGuiSetSearchParams.LoadDefault;
@@ -816,11 +819,13 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ChecVsCodeRipGrep;
 begin
-	var sVsDir : string := TFileUtils.GetVsCodeDir;
+	var
+		sVsDir : string := TFileUtils.GetVsCodeDir;
 	if not sVsDir.IsEmpty then begin
 		sVsDir := TFileUtils.ShortToLongPath(sVsDir.Remove(sVsDir.Length - '\bin'.Length));
 
-		var sRgPath : string;
+		var
+			sRgPath : string;
 		TFileUtils.FindExecutable(FSettings.RipGrepParameters.RipGrepPath, sRgPath);
 
 		// Rg in VSCode doesn't support --pretty
@@ -870,7 +875,8 @@ begin
 end;
 
 function TRipGrepperSearchDialogForm.GetInIDESelectedText : string;
-var selectedText : TMultiLineString;
+var
+	selectedText : TMultiLineString;
 begin
 	IOTAUtils.GxOtaGetActiveEditorTextAsMultilineString(selectedText, True);
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.GetInIDESelectedText: ' + selectedText);
@@ -905,7 +911,8 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.LoadExtensionSearchSettings;
-var extSearchSettings : TRipGrepperExtensionContext;
+var
+	extSearchSettings : TRipGrepperExtensionContext;
 	selectedText : string;
 begin
 	var
@@ -949,7 +956,8 @@ end;
 
 class function TRipGrepperSearchDialogForm.ShowSearchForm(_owner : TComponent; _settings : TRipGrepperSettings;
 	_histObj : IHistoryItemObject) : integer;
-var frm : TRipGrepperSearchDialogForm;
+var
+	frm : TRipGrepperSearchDialogForm;
 begin
 	frm := TRipGrepperSearchDialogForm.Create(_owner, _settings, _histObj);
 	try
@@ -965,7 +973,8 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateButtonsBySettings;
-var s : string;
+var
+	s : string;
 begin
 	ButtonDown(EGuiOption.soMatchCase, tbIgnoreCase);
 	ButtonDown(EGuiOption.soMatchWord, tbMatchWord);
@@ -978,7 +987,8 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange;
-var rgec : TRipGrepperExtensionContext;
+var
+	rgec : TRipGrepperExtensionContext;
 begin
 	if not IOTAUTils.IsStandAlone then begin
 		var
@@ -1019,7 +1029,9 @@ begin
 end;
 
 function TRipGrepperSearchDialogForm.UpdateFileMasksInOptions(const sOptions, sMasks : string) : string;
-var oldMaskOptions : TArrayEx<string>; newMaskOptions : string;
+var
+	oldMaskOptions : TArrayEx<string>;
+	newMaskOptions : string;
 begin
 	Result := sOptions;
 	oldMaskOptions := TCommandLineBuilder.GetFileMaskParamsFromOptions(sOptions);
