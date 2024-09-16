@@ -6,7 +6,8 @@ uses
 	RipGrepper.Common.Settings.RipGrepperSearchFormSettings,
 	System.IniFiles,
 	RipGrepper.Common.Settings.Persistable,
-	DUnitX.TestFramework, RipGrepper.Common.Settings.SettingsDictionary;
+	DUnitX.TestFramework,
+	RipGrepper.Common.Settings.SettingsDictionary;
 
 const
 	STR_INITIAL_VALUE = 'str_initial_value';
@@ -20,8 +21,8 @@ type
 
 		public
 			constructor Create(const _ini : TMemIniFile); overload;
-			constructor Create(const _iniSection: string); overload;
-			function GetDict: TSettingsDictionary;
+			constructor Create(const _iniSection : string); overload;
+			function GetDict : TSettingsDictionary;
 			procedure Init; override;
 			procedure ReadIni; override;
 			procedure RefreshMembers(const _bWithDefault : Boolean); override;
@@ -57,6 +58,8 @@ type
 			[Test]
 			procedure AfterCopyValuesValuesShouldBeEqual;
 			[Test]
+			procedure AfterCopyDefaultsToValuesSetsDefaultValueAndCreatesNewKey;
+			[Test]
 			procedure LoadDefaultsReadsIni;
 			[Test]
 			procedure InitCreatesKeysInDict;
@@ -67,17 +70,18 @@ implementation
 
 uses
 	System.SysUtils,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants,
+	System.Variants;
 
 constructor TPersistableSettingsTest.Create;
 begin
 	inherited;
-//	FIniFile := TMemIniFile.Create(INIFILE, TEncoding.UTF8);
+	// FIniFile := TMemIniFile.Create(INIFILE, TEncoding.UTF8);
 end;
 
 destructor TPersistableSettingsTest.Destroy;
 begin
-//	FIniFile.Free;
+	// FIniFile.Free;
 	inherited;
 end;
 
@@ -109,6 +113,24 @@ begin
 	end;
 end;
 
+procedure TPersistableSettingsTest.AfterCopyDefaultsToValuesSetsDefaultValueAndCreatesNewKey;
+begin
+	SetDefaults;
+	FSettings.LoadDefault;
+
+	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings.GetSetting('StrSetting' + DEFAULT_KEY)), 'StrSetting_DEFAULT.Value should be equal');
+//	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings.GetSetting('StrSetting' + DEFAULT_KEY, True)),
+//		'StrSetting_DEFAULT.DefaultValue should be equal');
+
+	FSettings.CopyDefaultsToValues;
+	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings.GetSetting('StrSetting')), 'StrSetting.Value should be equal');
+	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings.GetSetting('StrSetting', True)),
+		'StrSetting.Default should be equal'); // it is in fact StrSetting_DEFAULT.Value;
+	Assert.AreEqual(VarToStr(FSettings.GetSetting('StrSetting' + DEFAULT_KEY)), VarToStr(FSettings.GetSetting('StrSetting', True)),
+		'StrSetting.Default should be equal StrSetting_DEFAULT.Value');
+
+end;
+
 procedure TPersistableSettingsTest.LoadDefaultsReadsIni;
 begin
 	SetDefaults;
@@ -119,7 +141,7 @@ end;
 
 procedure TPersistableSettingsTest.InitCreatesKeysInDict;
 begin
-	Assert.AreEqual({default_members*2+normal_members}2, FSettings.GetDict.Count);
+	Assert.AreEqual( { default_members*2+normal_members } 2, FSettings.GetDict.Count);
 end;
 
 procedure TPersistableSettingsTest.SetDefaults;
@@ -138,22 +160,22 @@ end;
 procedure TPersistableSettingsTest.TearDown;
 begin
 	FSettings.Free;
-    FIniFile.Free;
+	FIniFile.Free;
 end;
 
 constructor TTestSettings.Create(const _ini : TMemIniFile);
 begin
-    IniSectionName := TPersistableSettingsTest.INI_SECTION; // should be set before create
+	IniSectionName := TPersistableSettingsTest.INI_SECTION; // should be set before create
 	inherited Create(_ini);
 end;
 
-constructor TTestSettings.Create(const _iniSection: string);
+constructor TTestSettings.Create(const _iniSection : string);
 begin
-	IniSectionName := _iniSection;  //as in  GUISearchTextParams
+	IniSectionName := _iniSection; // as in  GUISearchTextParams
 	inherited Create();
 end;
 
-function TTestSettings.GetDict: TSettingsDictionary;
+function TTestSettings.GetDict : TSettingsDictionary;
 begin
 	Result := FSettingsDict;
 end;

@@ -34,10 +34,11 @@ type
 			FIsAlreadyRead : Boolean;
 			procedure AddOrSet(const _name : string; const _v : Variant); overload;
 			procedure AddOrSet(const _name : string; const _sv : ISettingVariant); overload;
+			procedure AddOrSetDefaultValue(const _key : string; const _value : Variant);
 			procedure CreateIniFile;
 			function GetDefaultSetting(const _name : string) : Variant;
 			function GetIniFile : TMemIniFile;
-			function InnerGetSetting(const _name : string; const _bWithDefault : Boolean) : Variant; overload;
+			function InnerGetSetting(const _name : string; const _bDefaultValue : Boolean): Variant; overload;
 			procedure ReadSettings;
 			procedure SetIniSectionName(const Value : string);
 			procedure WriteSettings(_bDefault : Boolean = False);
@@ -63,7 +64,7 @@ type
 			procedure Init; virtual; abstract;
 			procedure StoreSetting(const _name : string; const _v : Variant; const _bAsDefault : Boolean = False);
 			function LoadSettingDefaultValue(const _name : string) : Variant;
-			function GetIniSectionName: string; virtual;
+			function GetIniSectionName : string; virtual;
 			procedure LoadDefault; virtual;
 			procedure StoreDefaultSetting(const _name : string; const _v : Variant);
 			function ToLogString : string; virtual;
@@ -180,6 +181,7 @@ var
 	sKey : string;
 begin
 	sKey := GetDictKeyName(_name);
+    setting := nil;
 	if FSettingsDict.TryGetValue(sKey, setting) and Assigned(setting) then begin
 		if not setting.Equals(_sv) then begin
 			setting := _sv;
@@ -189,6 +191,19 @@ begin
 	end else begin
 		FSettingsDict.AddOrChange(sKey, _sv);
 	end;
+end;
+
+procedure TPersistableSettings.AddOrSetDefaultValue(const _key : string; const _value : Variant);
+var
+	setting : ISettingVariant;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.AddOrSetDefaultValue');
+	setting := TSettingVariant.Create(_value); // ISettingVariant
+	dbgMsg.MsgFmt('[%s] %s = %s', [IniSectionName, _key, _value]);
+	setting.SaveToIni := False;
+	setting.DefaultValue := _value;
+	AddOrSet(GetDictKeyName(_key), setting);
 end;
 
 procedure TPersistableSettings.Copy(const _other : TPersistableSettings);
@@ -246,6 +261,7 @@ begin
 		baseKey := defKey.Replace(DEFAULT_KEY, '');
 		if FSettingsDict.TryGetValue(baseKey, setting) then begin
 			FSettingsDict[defKey].Value := setting.DefaultValue;
+//			FSettingsDict[defKey].DefaultValue := setting.DefaultValue;
 		end else begin
 			raise ESettingsException.CreateFmt('%s not found in ini.', [baseKey]);
 		end;
@@ -313,7 +329,7 @@ begin
 	Result := FIniFile;
 end;
 
-function TPersistableSettings.GetIniSectionName: string;
+function TPersistableSettings.GetIniSectionName : string;
 begin
 	Result := FIniSectionName;
 end;
@@ -341,15 +357,15 @@ begin
 	Result := FIsModified;
 end;
 
-function TPersistableSettings.InnerGetSetting(const _name : string; const _bWithDefault : Boolean) : Variant;
+function TPersistableSettings.InnerGetSetting(const _name : string; const _bDefaultValue : Boolean) : Variant;
 var
 	setting : ISettingVariant;
 begin
 
 	if FSettingsDict.TryGetValue(GetDictKeyName(_name), setting) then begin
 		if (not setting.IsEmpty) then begin
-			if _bWithDefault then begin
-				Result := setting.DefaultValue;
+			if _bDefaultValue then begin
+				Result := setting.DefaultValue; //not used yet
 			end else begin
 				Result := setting.Value;
 			end;
@@ -424,7 +440,7 @@ end;
 
 function TPersistableSettings.GetDefaultSetting(const _name : string) : Variant;
 begin
-	Result := InnerGetSetting(GetDefaultDictKeyName(_name), True);
+	Result := InnerGetSetting(GetDefaultDictKeyName(_name), False);
 end;
 
 function TPersistableSettings.GetSetting(const _name : string; const _bDefault : Boolean = False) : Variant;
@@ -499,11 +515,7 @@ begin
 					// AddOrSet(GetDictKeyName(baseName), setting);
 				end else begin
 					// We didn't write it in INI before...
-					setting := TSettingVariant.Create(value); // ISettingVariant
-					dbgMsg.MsgFmt('[%s] %s = %s', [IniSectionName, baseName, value]);
-					setting.SaveToIni := False;
-					setting.DefaultValue := value;
-					AddOrSet(GetDictKeyName(baseName), setting);
+					AddOrSetDefaultValue(baseName, value);
 					// raise ESettingsException.CreateFmt('Key not found in ini: %s', [baseName]);
 				end;
 			end;
@@ -529,13 +541,15 @@ end;
 procedure TPersistableSettings.StoreAsDefault;
 begin
 	CopyValuesToDefaults;
-	WriteSettings(True);
+	WriteSettings(True); // Write to mem ini, after UpdateIniFile will be saved
+	UpdateIniFile;
 end;
 
 procedure TPersistableSettings.StoreDefaultSetting(const _name : string; const _v : Variant);
 begin
 	TDebugUtils.Msg('TPersistableSettings.StoreDefaultSetting: ' + _name + '=' + VarToStr(_v) + ' store in memory...');
 	AddOrSet(GetDefaultDictKeyName(_name), _v);
+	AddOrSetDefaultValue(_name, _v);
 end;
 
 function TPersistableSettings.ToLogString : string;
