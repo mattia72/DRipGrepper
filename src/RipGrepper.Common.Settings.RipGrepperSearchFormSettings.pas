@@ -116,12 +116,8 @@ end;
 
 procedure TRipGrepperSearchFormSettings.Copy(const _other : TRipGrepperSearchFormSettings);
 begin
-	Context := _other.Context;
-	Encoding := _other.Encoding;
-	Hidden := _other.Hidden;
-	NoIgnore := _other.NoIgnore;
-	Pretty := _other.Pretty;
 	FExtensionSettings.Copy(_other.ExtensionSettings);
+	inherited Copy(_other as TPersistableSettings);
 end;
 
 function TRipGrepperSearchFormSettings.GetContext : Integer;
