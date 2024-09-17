@@ -227,6 +227,7 @@ begin
 
 			FOrigRipGrepperSearchFormSettings.Copy(FHistItemObj.RipGrepperSearchFormSettings);
 			FSettings.RipGrepperSearchFormSettings.Copy(FHistItemObj.RipGrepperSearchFormSettings);
+			FSettings.RefreshMembers(False);
 		end;
 	end else begin
 		if (not FSettings.RipGrepperSearchFormSettings.IsAlreadyRead) then begin
@@ -395,10 +396,12 @@ procedure TRipGrepperSearchDialogForm.FormClose(Sender : TObject; var Action : T
 begin
 	if HasHistItemObj then begin
 		FHistItemObj.RipGrepperSearchFormSettings.Copy(FSettings.RipGrepperSearchFormSettings);
+		FHistItemObj.RipGrepperSearchFormSettings.RefreshMembers(False);
 		FHistItemObj.RipGrepArguments.Clear;
 		FHistItemObj.RipGrepArguments.Assign(FSettings.GetRipGrepArguments());
 		FHistItemObj.GuiSearchTextParams.Copy(FGuiSetSearchParams);
 		FSettings.RipGrepperSearchFormSettings.Copy(FOrigRipGrepperSearchFormSettings);
+		FSettings.RipGrepperSearchFormSettings.RefreshMembers(False);
 	end;
 	FSettings.StoreHistories();
 	FSettings.UpdateIniFile;
