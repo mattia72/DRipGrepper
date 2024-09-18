@@ -51,12 +51,12 @@ uses
 constructor TRipGrepperSearchFormSettingsTest.Create;
 begin
 	inherited;
-//	FIniFile := TMemIniFile.Create(INIFILE, TEncoding.UTF8);
+	// FIniFile := TMemIniFile.Create(INIFILE, TEncoding.UTF8);
 end;
 
 destructor TRipGrepperSearchFormSettingsTest.Destroy;
 begin
-//	FIniFile.Free;
+	// FIniFile.Free;
 	inherited;
 end;
 
@@ -90,7 +90,7 @@ begin
 	s := TRipGrepperSearchFormSettings.Create();
 	try
 		s.Copy(FSettings);
-
+		s.RefreshMembers(false);
 		Assert.AreEqual(s.Encoding, FSettings.Encoding, 'Encoding should be utf8');
 		Assert.AreEqual(s.Context, FSettings.Context, 'Context should be 5');
 		Assert.AreEqual(s.Pretty, FSettings.Pretty, 'Pretty should be false');
