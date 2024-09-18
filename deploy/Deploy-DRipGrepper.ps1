@@ -132,6 +132,11 @@ function New-ReleaseWithAsset {
     if ($Deploy) {
         $parentPath = Split-Path -Parent $PSScriptRoot 
         $ZipDir = $(Join-Path $parentPath 'Win32\Release')
+
+        # Remove items recursively from the AssetsDirectory
+        Remove-Item -Path "$global:AssetsDirectory\*" -Recurse -Force -Verbose -Confirm
+
+
         Add-ToAssetsDir $(Join-Path  $ZipDir $global:StandaloneAppName) 
         Add-ToAssetsDir $(Join-Path $global:ExtensionPath $global:ExtensionFileName) 
 
