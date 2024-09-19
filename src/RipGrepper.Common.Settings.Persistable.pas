@@ -53,7 +53,7 @@ type
 			procedure CreateSetting(const _sName : string; const _setting : ISettingVariant); overload;
 			procedure CreateSetting(const _sName : string; const _type : TVarType; const _value : Variant;
 				const _isDefRelevant : Boolean = False); overload;
-			procedure CreateDefaultSetting(const _sName : string; const _type : TVarType; const _value : Variant); overload;
+			procedure CreateDefaultRelevantSetting(const _sName : string; const _type : TVarType; const _value : Variant); overload;
 			function GetDictKeyName(const _key : string; const _bForDefault : Boolean = False) : string;
 			function GetDefaultDictKeyName(const _key : string) : string;
 			function GetIsAlreadyRead : Boolean; virtual;
@@ -310,12 +310,12 @@ begin
 	CreateSetting(_sName, setting);
 end;
 
-procedure TPersistableSettings.CreateDefaultSetting(const _sName : string; const _type : TVarType; const _value : Variant);
+procedure TPersistableSettings.CreateDefaultRelevantSetting(const _sName : string; const _type : TVarType; const _value : Variant);
 var
 	setting : ISettingVariant;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.CreateDefaultSetting');
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.CreateDefaultRelevantSetting');
 	setting := TSettingVariant.Create(_type, _value, True); // ISettingVariant
 	CreateSetting(_sName, setting);
 end;

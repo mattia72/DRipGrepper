@@ -376,7 +376,7 @@ end;
 
 procedure TGuiSearchTextParams.Init;
 begin
-	CreateDefaultSetting('SearchParams', varString, '');
+	CreateDefaultRelevantSetting('SearchParams', varString, '');
 end;
 
 procedure TGuiSearchTextParams.LoadDefault;

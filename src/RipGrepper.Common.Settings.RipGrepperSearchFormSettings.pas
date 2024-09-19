@@ -163,11 +163,11 @@ procedure TRipGrepperSearchFormSettings.Init;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchFormSettings.Init');
-	CreateDefaultSetting('Pretty', varBoolean, True);
-	CreateDefaultSetting('Hidden', varBoolean, False);
-	CreateDefaultSetting('NoIgnore', varBoolean, False);
-	CreateDefaultSetting('Context', varInteger, 0);
-	CreateDefaultSetting('Encoding', varString, '');
+	CreateDefaultRelevantSetting('Pretty', varBoolean, True);
+	CreateDefaultRelevantSetting('Hidden', varBoolean, False);
+	CreateDefaultRelevantSetting('NoIgnore', varBoolean, False);
+	CreateDefaultRelevantSetting('Context', varInteger, 0);
+	CreateDefaultRelevantSetting('Encoding', varString, '');
 end;
 
 procedure TRipGrepperSearchFormSettings.ReadIni;

@@ -113,8 +113,8 @@ end;
 procedure TRipGrepParameterSettings.Init;
 begin
 	CreateSetting(RG_INI_KEY_RGPATH, varString, '');
-	CreateDefaultSetting('SearchPath', varString, '');
-	CreateDefaultSetting('FileMasks', varString, '');
+	CreateDefaultRelevantSetting('SearchPath', varString, '');
+	CreateDefaultRelevantSetting('FileMasks', varString, '');
 end;
 
 procedure TRipGrepParameterSettings.ReadIni;

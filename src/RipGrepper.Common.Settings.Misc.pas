@@ -100,7 +100,7 @@ uses
 	Vcl.Menus,
 	System.RegularExpressions,
 	RipGrepper.CommandLine.Builder,
-	RipGrepper.Common.IOTAUtils, 
+	RipGrepper.Common.IOTAUtils,
 	System.Variants;
 
 constructor TRipGrepperExtensionSettings.Create(const _ini : TMemIniFile);
@@ -123,7 +123,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.Init');
 	CreateSetting('DripGrepperShortCut', vtString, TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH);
 	CreateSetting('OpenWithShortCut', vtString, TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH);
-	CreateDefaultSetting(KEY_IDE_CONTEXT, vtInteger, EXT_SEARCH_GIVEN_PATH);
+	CreateDefaultRelevantSetting(KEY_IDE_CONTEXT, vtInteger, EXT_SEARCH_GIVEN_PATH);
 end;
 
 procedure TRipGrepperExtensionSettings.ReadIni;
