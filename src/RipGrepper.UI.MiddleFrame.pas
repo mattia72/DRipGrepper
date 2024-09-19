@@ -154,9 +154,9 @@ type
 			FIconImgList : TIconImageList;
 			FParsingThreads : TArrayEx<TParallelParser>;
 			procedure AddAsUsing(_bToImpl : Boolean);
+			procedure AddVstHistItem;
 			procedure ChangeHistoryNodeText;
 			procedure ClearHistoryObjectList;
-			procedure CreateNewHistObject;
 			procedure DoSearch;
 			procedure EnableActionIfResultSelected(_act : TAction);
 			procedure ExpandNodes;
@@ -197,6 +197,7 @@ type
 			procedure ClearHistoryObject;
 			procedure CopyToClipboardFileOfSelected;
 			procedure CopyToClipboardPathOfSelected;
+			function CreateNewHistObject : IHistoryItemObject;
 			function GetFilePathFromNode(_node : PVirtualNode) : string;
 			function GetOpenWithParamsFromSelected : TOpenWithParams;
 			function GetRowColText(_i : Integer; _type : TVSTTextType) : string;
@@ -480,16 +481,28 @@ end;
 
 procedure TRipGrepperMiddleFrame.AddOrUpdateHistoryItem;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.AddOrUpdateHistoryItem LastSearchText: ' + Settings.LastSearchText);
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.AddOrUpdateHistoryItem CurrentHistoryItemIndex ' + CurrentHistoryItemIndex.ToString);
-	if not Assigned(HistItemObject) then begin
-		CreateNewHistObject;
-	end else begin
-		UpdateRipGrepArgumentsInHistObj;
-		UpdateHistObject;
-		ClearHistoryObject();
-		TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.AddOrUpdateHistoryItem Update HistoryObject ' + Settings.LastSearchText);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.AddOrUpdateHistoryItem');
+	dbgMsg.Msg('CurrentHistoryItemIndex ' + CurrentHistoryItemIndex.ToString);
+	if not FHistItemObj.HasResult then begin
+		AddVstHistItem;
 	end;
+	ChangeHistoryNodeText;
+	UpdateRipGrepArgumentsInHistObj;
+	UpdateHistObject;
+	ClearHistoryObject();
+	dbgMsg.Msg('Update HistoryObject ' + Settings.LastSearchText);
+end;
+
+procedure TRipGrepperMiddleFrame.AddVstHistItem;
+var
+	Node : PVirtualNode;
+	Data : PVSHistoryNodeData;
+begin
+	Node := VstHistory.AddChild(nil);
+	Data := VstHistory.GetNodeData(Node);
+	Data^.SearchText := Settings.LastSearchText;
+	VstHistory.MultiLine[Node] := True;
 end;
 
 procedure TRipGrepperMiddleFrame.AlignToolBars;
@@ -551,21 +564,13 @@ begin
 	Clipboard.AsText := TPath.GetFullPath(GetResultSelectedFilePath);
 end;
 
-procedure TRipGrepperMiddleFrame.CreateNewHistObject;
-var
-	Node : PVirtualNode;
-	Data : PVSHistoryNodeData;
-	hi : IHistoryItemObject;
+function TRipGrepperMiddleFrame.CreateNewHistObject : IHistoryItemObject;
 begin
-	hi := THistoryItemObject.Create();
-	HistItemObject := hi;
-	ChangeDataHistItemObject(hi);
+	Result := THistoryItemObject.Create();
+	HistItemObject := Result;
+	ChangeDataHistItemObject(Result);
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.AddOrUpdateHistoryItem Add HistoryObject ' + Settings.LastSearchText);
-	CurrentHistoryItemIndex := FHistoryObjectList.Add(hi);
-	Node := VstHistory.AddChild(nil);
-	Data := VstHistory.GetNodeData(Node);
-	Data^.SearchText := Settings.LastSearchText;
-	VstHistory.MultiLine[Node] := True;
+	CurrentHistoryItemIndex := FHistoryObjectList.Add(Result);
 end;
 
 procedure TRipGrepperMiddleFrame.DoSearch;
@@ -727,7 +732,8 @@ end;
 
 procedure TRipGrepperMiddleFrame.Init;
 begin
-	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.Init');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.Init');
 	FCurrentHistoryItemIndex := -1;
 	FHistoryObjectList.Clear();
 	if IOTAUTils.IsStandAlone then begin
