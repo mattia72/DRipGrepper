@@ -210,11 +210,13 @@ end;
 
 procedure TPersistableSettings.Copy(const _other : TPersistableSettings);
 begin
-	FIsModified := _other.IsModified;
-	FIsAlreadyRead := _other.IsAlreadyRead;
-	for var key in _other.FSettingsDict.Keys do begin
-		if key.StartsWith(IniSectionName) then begin
-			FSettingsDict.AddOrChange(key, _other.FSettingsDict[key]);
+	if Assigned(_other) then begin
+		FIsModified := _other.IsModified;
+		FIsAlreadyRead := _other.IsAlreadyRead;
+		for var key in _other.FSettingsDict.Keys do begin
+			if key.StartsWith(IniSectionName) then begin
+				FSettingsDict.AddOrChange(key, _other.FSettingsDict[key]);
+			end;
 		end;
 	end;
 end;
