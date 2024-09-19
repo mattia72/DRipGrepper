@@ -242,11 +242,13 @@ function Update-ScoopManifest {
 }
 
 function New-Deploy {
-    #New-ReleaseNotes
-    New-ReleaseWithAsset
     if ($UpdateScoopManifest) {
-        #Update scoop
+        #Update scoop to latest github release
         Update-ScoopManifest
+    }
+    else {
+        #New-ReleaseNotes
+        New-ReleaseWithAsset
     }
 }
 
