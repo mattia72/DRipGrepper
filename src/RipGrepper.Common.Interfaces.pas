@@ -10,7 +10,7 @@ uses
 	System.Classes,
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.Common.GuiSearchParams,
-	RipGrepper.Common.Settings.RipGrepperSearchFormSettings, 
+	RipGrepper.Common.Settings.RipGrepperSearchFormSettings,
 	RipGrepper.Common.Settings.RipGrepperSettings;
 
 type
@@ -72,8 +72,8 @@ type
 		procedure ClearMatches;
 		procedure CopyToSettings(const _settings : TRipGrepperSettings);
 		function GetElapsedTimeText : string;
-		function GetErrorCount: Integer;
-		function GetFileCount: integer;
+		function GetErrorCount : Integer;
+		function GetFileCount : integer;
 		function GetGuiSearchTextParams : TGuiSearchTextParams;
 		function GetMatches : TParsedObjectRowCollection;
 		function GetNoMatchFound : Boolean;
@@ -85,22 +85,23 @@ type
 		function GetSearchText : string;
 		procedure SetRipGrepArguments(const Value : TRipGrepArguments);
 		function GetTotalMatchCount : integer;
+		function HasResult : Boolean;
 		procedure LoadFromSettings(const _settings : TRipGrepperSettings);
 		procedure SetElapsedTimeText(const Value : string);
-		procedure SetErrorCount(const Value: Integer);
-		procedure SetFileCount(const Value: integer);
+		procedure SetErrorCount(const Value : Integer);
+		procedure SetFileCount(const Value : integer);
 		procedure SetGuiSearchTextParams(const Value : TGuiSearchTextParams);
 		procedure SetNoMatchFound(const Value : Boolean);
 		procedure SetParserType(const Value : TParserType);
 		procedure SetRipGrepperSearchFormSettings(const Value : TRipGrepperSearchFormSettings);
 		procedure SetRipGrepResult(const Value : Integer);
-		function UpdateParserType: TParserType;
+		function UpdateParserType : TParserType;
 
 		property ElapsedTimeText : string read GetElapsedTimeText write SetElapsedTimeText;
-		property ErrorCount: Integer read GetErrorCount write SetErrorCount;
+		property ErrorCount : Integer read GetErrorCount write SetErrorCount;
 		property Matches : TParsedObjectRowCollection read GetMatches write SetMatches;
 		property RipGrepArguments : TRipGrepArguments read GetRipGrepArguments write SetRipGrepArguments;
-		property FileCount: integer read GetFileCount write SetFileCount;
+		property FileCount : integer read GetFileCount write SetFileCount;
 		property GuiSearchTextParams : TGuiSearchTextParams read GetGuiSearchTextParams write SetGuiSearchTextParams;
 		property NoMatchFound : Boolean read GetNoMatchFound write SetNoMatchFound;
 		property ParserType : TParserType read GetParserType write SetParserType;

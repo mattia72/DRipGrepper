@@ -18,11 +18,13 @@ uses
 type
 //	THistoryItemObject = class(TNoRefCountObject, IHistoryItemObject)
 	THistoryItemObject = class(TInterfacedObject, IHistoryItemObject)
+
 		private
 			FElapsedTimeText : string;
 			FErrorCount: Integer;
 			FFileCount : integer;
 			FGuiSearchTextParams : TGuiSearchTextParams;
+			FHasResult: Boolean;
 			FMatches : TParsedObjectRowCollection;
 			FNoMatchFound : Boolean;
 			FParserType : TParserType;
@@ -53,12 +55,14 @@ type
 			procedure SetRipGrepperSearchFormSettings(const Value : TRipGrepperSearchFormSettings);
 			procedure SetRipGrepResult(const Value: Integer);
 		public
-			procedure LoadFromSettings(const _settings : TRipGrepperSettings);
-			destructor Destroy; override;
 			constructor Create;
+			destructor Destroy; override;
 			procedure ClearMatches;
 			procedure CopyToSettings(const _settings : TRipGrepperSettings);
+			function HasResult: Boolean;
+			procedure LoadFromSettings(const _settings : TRipGrepperSettings);
 			function UpdateParserType : TParserType;
+
 			property FileCount : integer read GetFileCount write SetFileCount;
 			property Matches : TParsedObjectRowCollection read GetMatches write SetMatches;
 			property RipGrepArguments : TRipGrepArguments read GetRipGrepArguments write SetRipGrepArguments;
@@ -152,6 +156,7 @@ begin
 	FRipGrepArguments := TStringList.Create;
 	FParserType := ptEmpty;
 	ClearMatches;
+    FHasResult := False;
 end;
 
 procedure THistoryItemObject.ClearMatches;
@@ -216,6 +221,11 @@ begin
 	Result := GuiSearchTextParams.SearchText;
 end;
 
+function THistoryItemObject.HasResult: Boolean;
+begin
+	Result := FHasResult;
+end;
+
 procedure THistoryItemObject.SetElapsedTimeText(const Value : string);
 begin
 	FElapsedTimeText := Value;
@@ -249,6 +259,7 @@ end;
 procedure THistoryItemObject.SetRipGrepResult(const Value: Integer);
 begin
 	FRipGrepResult := Value;
+    FHasResult := True;
 end;
 
 function THistoryItemObject.UpdateParserType : TParserType;

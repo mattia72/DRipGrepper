@@ -40,20 +40,27 @@ type
 		ActionShowConfig : TAction;
 		ImageListButtons : TImageList;
 		pnlMain : TPanel;
-    	lblHint2: TLabel;
-    	Memo1: TMemo;
-    	lblHint1: TLabel;
+		lblHint2 : TLabel;
+		Memo1 : TMemo;
+		lblHint1 : TLabel;
+		pnl_Right : TPanel;
+		pnl_Top : TPanel;
+		procedure FormCreate(Sender : TObject);
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionShowConfigExecute(Sender : TObject);
 		procedure ActionOkExecute(Sender : TObject);
 		procedure ActionSwitchViewExecute(Sender : TObject);
 		procedure ActionSwitchViewUpdate(Sender : TObject);
+		procedure FormResize(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 		procedure lbCommandsDblClick(Sender : TObject);
 
 		private
 			FDpiScaler : TRipGrepperDpiScaler;
 			FImageScaler : TImageListScaler;
+			FMemoLineMargin : Integer;
+			FOrigMemoHeight : Integer;
+			FOrigTopPanelHeight : Integer;
 			FSettings : TRipGrepperOpenWithSettings;
 			FViewStyleIndex : Integer;
 
@@ -61,6 +68,7 @@ type
 			class function GetEnabledCmds(const _settings : TRipGrepperOpenWithSettings) : TArray<string>;
 			function GetFileNameFromCfg(const _configText : string) : string;
 			function GetViewStyleIndex : Integer;
+			procedure SetMemoHeightByLineCount;
 			property ViewStyleIndex : Integer read GetViewStyleIndex;
 
 		protected
@@ -99,6 +107,11 @@ begin
 	ImageListIcons.ColorDepth := TColorDepth.cd32Bit;
 	FViewStyleIndex := 0;
 	FSettings := ASettings;
+end;
+
+procedure TOpenWithCmdList.FormCreate(Sender : TObject);
+begin
+//	KeyPreview := True;
 end;
 
 destructor TOpenWithCmdList.Destroy();
@@ -171,22 +184,34 @@ begin
 	lbCommands.LargeImages := FScaledIcons;
 end;
 
+procedure TOpenWithCmdList.FormResize(Sender : TObject);
+begin
+	SetMemoHeightByLineCount;
+end;
+
 procedure TOpenWithCmdList.FormShow(Sender : TObject);
 begin
 	if lbCommands.GetCount > 0 then begin
 		lbCommands.ItemIndex := 0;
 	end;
 	lblHint1.Caption := 'Open';
-	Memo1.Text := Format('%s(%d:%d)',
-		[ExtractRelativePath(FSettings.TestFile.DirPath + '\', FSettings.TestFile.FileName), FSettings.TestFile.Column,
-		FSettings.TestFile.Row]);
+	FOrigMemoHeight := Memo1.Height;
+	FMemoLineMargin := FOrigMemoHeight - Abs(Memo1.Font.Height);
+	FOrigTopPanelHeight := pnl_Top.Height;
+	Memo1.Text := Format('%s(%d:%d)', [ExtractRelativePath(FSettings.TestFile.DirPath + '\', FSettings.TestFile.FileName),
+		FSettings.TestFile.Column, FSettings.TestFile.Row]);
 	Memo1.Hint := Memo1.Text;
 	lblHint2.Caption := 'with...';
+	// Increase height of Memo1 if text is multiple lines
+	SetMemoHeightByLineCount;
+	ActiveControl := lbCommands;
 end;
 
 class function TOpenWithCmdList.GetEnabledCmds(const _settings : TRipGrepperOpenWithSettings) : TArray<string>;
-var arrCmd : TArray<string>;
-	i : Integer; sCmds : string;
+var
+	arrCmd : TArray<string>;
+	i : Integer;
+	sCmds : string;
 begin
 	Result := [];
 
@@ -211,7 +236,9 @@ begin
 end;
 
 function TOpenWithCmdList.GetFileNameFromCfg(const _configText : string) : string;
-var sFileName : string; sPath : string;
+var
+	sFileName : string;
+	sPath : string;
 begin
 	sFileName := TFileUtils.ParseCommand(_configText).ExePath;
 	sPath := ExtractFileDir(sFileName);
@@ -236,7 +263,11 @@ begin
 end;
 
 procedure TOpenWithCmdList.LoadEnbledCmds();
-var sfi : TSHFileInfo; icon : TIcon; item : TListItem; sFileName : string;
+var
+	sfi : TSHFileInfo;
+	icon : TIcon;
+	item : TListItem;
+	sFileName : string;
 begin
 
 	icon := TIcon.Create;
@@ -264,6 +295,22 @@ begin
 
 	finally
 		icon.Free;
+	end;
+end;
+
+procedure TOpenWithCmdList.SetMemoHeightByLineCount;
+var
+	lineHeight : Integer;
+	lineCount : Integer;
+begin
+	lineCount := Memo1.Lines.Count;
+	if lineCount > 1 then begin
+		lineHeight := Abs(Memo1.Font.Height) * (lineCount - 1);
+		Memo1.Height := FOrigMemoHeight + lineHeight + FMemoLineMargin;
+		pnl_Top.Height := FOrigTopPanelHeight + lineHeight + FMemoLineMargin;
+	end else begin
+		Memo1.Height := FOrigMemoHeight;
+		pnl_Top.Height := FOrigTopPanelHeight;
 	end;
 end;
 

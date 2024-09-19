@@ -116,7 +116,7 @@ function Add-ToAssetsDir {
     Copy-Item -Path $AssetPath -Destination $global:AssetsDirectory
 }
 function New-ReleaseWithAsset {
-   # Remove items recursively from the AssetsDirectory
+    # Remove items recursively from the AssetsDirectory
     Remove-Item -Path "$global:AssetsDirectory\*" -Recurse -Force -Verbose -Confirm
 
     if ($RunUnittest) {
@@ -242,13 +242,13 @@ function Update-ScoopManifest {
 }
 
 function New-Deploy {
-    if ($UpdateScoopManifest) {
-        #Update scoop to latest github release
-        Update-ScoopManifest
-    }
-    else {
+    if ($Deploy -or $BuildStandalone -or $BuildExtension -or $RunUnittest) {
         #New-ReleaseNotes
         New-ReleaseWithAsset
+    }
+    if ($UpdateScoopManifest) {
+        #Update scoop with latest version from github
+        Update-ScoopManifest
     }
 }
 

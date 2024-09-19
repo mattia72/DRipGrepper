@@ -86,6 +86,7 @@ procedure TRipGrepperSearchFormSettingsTest.AfterCopyValuesValuesShouldBeEqual;
 begin
 	SetDefaults;
 	FSettings.LoadDefault;
+	FSettings.RefreshMembers(false);
 	var
 	s := TRipGrepperSearchFormSettings.Create();
 	try

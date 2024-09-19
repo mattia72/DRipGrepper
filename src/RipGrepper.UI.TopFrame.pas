@@ -467,10 +467,10 @@ var
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperTopFrame.StartNewSearch');
-	FHistItemObj := nil;
+	FHistItemObj := MainFrame.CreateNewHistObject;
 	formResult := TRipGrepperSearchDialogForm.ShowSearchForm(self, Settings, FHistItemObj);
 	if (mrOk = formResult) then begin
-		MainFrame.HistItemObject := FHistItemObj;
+		//MainFrame.HistItemObject := FHistItemObj;
 		dbgMsg.Msg('after showmodal gui params: ' + Settings.RipGrepParameters.GuiSearchTextParams.ToLogString);
 		dbgMsg.Msg('after showmodal cmdline: ' + Settings.RipGrepParameters.GetCommandLine);
 		ActionSearchExecute(self);
