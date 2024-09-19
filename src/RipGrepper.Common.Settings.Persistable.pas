@@ -223,7 +223,7 @@ end;
 
 procedure TPersistableSettings.CopyDefaultsToValues;
 var
-	setting : ISettingVariant;
+	setting,  defaultSetting: ISettingVariant; 
 begin
 	for var key in FSettingsDict.Keys do begin
 		if not key.StartsWith(IniSectionName) then
@@ -232,7 +232,11 @@ begin
 			continue;
 		setting := FSettingsDict[key];
 		if setting.IsDefaultRelevant then begin
-			setting.Value := setting.DefaultValue;
+			if FSettingsDict.TryGetValue(key + DEFAULT_KEY, defaultSetting) then begin
+				setting.Value := defaultSetting.Value;
+			end else begin
+				setting.Value := setting.DefaultValue;
+			end;
 			FSettingsDict.AddOrChange(key, setting);
 		end;
 	end;
@@ -241,7 +245,7 @@ end;
 procedure TPersistableSettings.CopyValuesToDefaults;
 var
 	baseKey : string;
-	setting : ISettingVariant;
+	setting,  defaultSetting: ISettingVariant;
 begin
 
 	for var key in FSettingsDict.Keys do begin
@@ -249,10 +253,16 @@ begin
 			continue;
 		if key.EndsWith(DEFAULT_KEY) then
 			continue;
-		setting := FSettingsDict[key];
+				setting := FSettingsDict[key];
 		if setting.IsDefaultRelevant then begin
+			if not FSettingsDict.TryGetValue(key + DEFAULT_KEY, defaultSetting) then begin
+				defaultSetting.Value := setting.Value;
+				defaultSetting.DefaultValue := setting.Value;
+				FSettingsDict.AddOrChange(key, defaultSetting);
+			end else begin
 			setting.DefaultValue := setting.Value;
 			FSettingsDict.AddOrChange(key, setting);
+			end;
 		end;
 	end;
 
