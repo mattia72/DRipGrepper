@@ -157,7 +157,7 @@ type
 			procedure AlignExpertGroupBox;
 			function CheckAndCorrectMultiLine(const _str : TMultiLineString) : string;
 			procedure ChecVsCodeRipGrep;
-			function HasHistItemObj : Boolean;
+			function HasHistItemObjWithResult: Boolean;
 			function GetInIDESelectedText : string;
 			procedure LoadExtensionSearchSettings;
 			procedure SetCmbSearchPathText(const _sPath : string);
@@ -219,7 +219,7 @@ begin
 
 	FSettings := _settings;
 	FHistItemObj := _histObj;
-	if HasHistItemObj then begin
+	if HasHistItemObjWithResult then begin
 		FGuiSetSearchParams := FHistItemObj.GuiSearchTextParams;
 		if Assigned(FHistItemObj.RipGrepperSearchFormSettings) then begin
 			FOrigRipGrepperSearchFormSettings := TRipGrepperSearchFormSettings.Create;
@@ -233,7 +233,7 @@ begin
 		if (not FSettings.RipGrepperSearchFormSettings.IsAlreadyRead) then begin
 			dbgMsg.ErrorMsg('RipGrepperSearchFormSettings.IsAlreadyRead');
 		end;
-		FSettings.LoadDefault;
+		FSettings.CopyDefaultsToValues;
 		FSettings.RefreshMembers(false);
 
 		FGuiSetSearchParams := TGuiSearchTextParams.Create(TRipGrepParameterSettings.INI_SECTION);
@@ -249,7 +249,7 @@ end;
 
 destructor TRipGrepperSearchDialogForm.Destroy;
 begin
-	if not HasHistItemObj then begin
+	if not HasHistItemObjWithResult then begin
 		FGuiSetSearchParams.Free;
 	end;
 	FOrigRipGrepperSearchFormSettings.Free;
@@ -397,7 +397,8 @@ end;
 
 procedure TRipGrepperSearchDialogForm.FormClose(Sender : TObject; var Action : TCloseAction);
 begin
-	if HasHistItemObj then begin
+	if HasHistItemObjWithResult then begin
+		FSettings.RipGrepperSearchFormSettings.StoreSearchSettings(False);
 		FHistItemObj.RipGrepperSearchFormSettings.Copy(FSettings.RipGrepperSearchFormSettings);
 		FHistItemObj.RipGrepperSearchFormSettings.RefreshMembers(False);
 		FHistItemObj.RipGrepArguments.Clear;
@@ -417,8 +418,8 @@ begin
 
 	LoadSettings;
 	LoadExtensionSearchSettings;
-	// dbgMsg.MsgFmt('HasHistItemObj=%s', [BoolToStr(HasHistItemObj, True)]);
-	// if not HasHistItemObj then begin
+	// dbgMsg.MsgFmt('HasHistItemObjWithResult=%s', [BoolToStr(HasHistItemObjWithResult, True)]);
+	// if not HasHistItemObjWithResult then begin
 	// LoadDefaultSettings();
 	// end;
 
@@ -585,7 +586,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetComboItemsAndText');
 
 	_cmb.Items.Assign(_items);
-	if HasHistItemObj then begin
+	if HasHistItemObjWithResult then begin
 		_cmb.Text := string.Join(_separator, FHistItemObj.RipGrepArguments.GetValues(_argName));
 		dbgMsg.MsgFmt('%s=%s', [_cmb.Name, _cmb.Text]);
 	end else begin
@@ -599,7 +600,7 @@ var
 	params : TArray<string>;
 begin
 	_cmb.Items.Assign(_items);
-	if HasHistItemObj then begin
+	if HasHistItemObjWithResult then begin
 		params := FHistItemObj.RipGrepArguments.GetValues(RG_ARG_OPTIONS);
 		_cmb.Text := TCommandLineBuilder.GetFileMasksDelimited(string.Join(' ', params));
 	end else begin
@@ -859,9 +860,9 @@ begin
 	UpdateCtrls(cmbRgParamEncoding);
 end;
 
-function TRipGrepperSearchDialogForm.HasHistItemObj : Boolean;
+function TRipGrepperSearchDialogForm.HasHistItemObjWithResult: Boolean;
 begin
-	Result := Assigned(FHistItemObj);
+	Result := Assigned(FHistItemObj) and (FHistItemObj.HasResult);
 end;
 
 procedure TRipGrepperSearchDialogForm.rbExtensionOptionsClick(Sender : TObject);
@@ -932,7 +933,7 @@ begin
 		{ } BoolToStr(FSettings.RipGrepperSearchFormSettings.ExtensionSettings.IsAlreadyRead)]);
 
 	extSearchSettings := FSettings.RipGrepperSearchFormSettings.ExtensionSettings.CurrentIDEContext;
-	if not HasHistItemObj then begin
+	if not HasHistItemObjWithResult then begin
 		selectedText := GetInIDESelectedText;
 		if not selectedText.IsEmpty then begin
 			cmbSearchText.Text := selectedText;

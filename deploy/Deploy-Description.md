@@ -29,10 +29,10 @@ Marked with checkmark if ready, else planned as next.
 - [ ] own prettifier switcher as toolbar button
 - [ ] save search histories in file
 - [ ] __extension__: search opened projekt files only
+- [X] Resizing the `Open With...` form does not make the file name unreadable
 
 ## :exclamation: Bugs 
 Marked with checkmark if fixed, else it is known bug.
-- [X] only current asset should be deployed
 - [x] save as default doesn't save every combo boxes
   - [ ] `Additional Options` has to have saved defaults also
   - [x] __extension__: first open doesn't load defaults of IDE Context
