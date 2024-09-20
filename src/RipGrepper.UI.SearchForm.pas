@@ -234,8 +234,7 @@ begin
 			dbgMsg.ErrorMsg('RipGrepperSearchFormSettings.IsAlreadyRead');
 		end;
 		FSettings.CopyDefaultsToValues;
-		FSettings.RefreshMembers(false);
-
+		
 		FGuiSetSearchParams := TGuiSearchTextParams.Create(TRipGrepParameterSettings.INI_SECTION);
 		FGuiSetSearchParams.LoadDefault;
 		FGuiSetSearchParams.RefreshMembers(false);
