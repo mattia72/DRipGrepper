@@ -39,7 +39,10 @@ uses
   RipGrepper.Common.Settings.Persistable in '..\src\RipGrepper.Common.Settings.Persistable.pas',
   RipGrepper.Common.Settings.SettingVariant in '..\src\RipGrepper.Common.Settings.SettingVariant.pas',
   RipGrepper.Common.Settings.PersistableSettingsTest in 'RipGrepper.Common.Settings.PersistableSettingsTest.pas',
-  RipGrepper.Common.Settings.JsonTest in 'RipGrepper.Common.Settings.JsonTest.pas';
+  RipGrepper.Common.Settings.JsonTest in 'RipGrepper.Common.Settings.JsonTest.pas',
+  Pkg.Json.DTO in 'Pkg.Json.DTO.pas',
+  RootUnit in 'RootUnit.pas',
+  RipGrepper.Common.Settings.RipGrepperSettingsTest in 'RipGrepper.Common.Settings.RipGrepperSettingsTest.pas';
 
 {$IFNDEF TESTINSIGHT}
 
