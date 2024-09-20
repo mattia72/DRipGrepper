@@ -10,7 +10,7 @@ uses
 	RipGrepper.Common.Settings.SettingsDictionary;
 
 const
-	STR_INITIAL_VALUE = 'str_initial_value';
+	INITIAL_STR_VALUE = 'str_initial_value';
 	DEFAULT_STR_VAL = 'default_str_val';
 
 type
@@ -41,7 +41,7 @@ type
 		private
 			FIniFile : TMemIniFile;
 			FSettings : TTestSettings;
-			procedure SetDefaults;
+			procedure CreateDefaultsInIni;
 
 		public
 			constructor Create;
@@ -59,6 +59,8 @@ type
 			procedure AfterCopyValuesValuesShouldBeEqual;
 			[Test]
 			procedure AfterCopyDefaultsToValuesSetsDefaultValueAndCreatesNewKey;
+			[Test]
+			procedure AfterCopyDefaultValuesShouldBeEqual;
 			[Test]
 			procedure LoadDefaultsReadsIni;
 			[Test]
@@ -88,25 +90,27 @@ end;
 procedure TPersistableSettingsTest.FirstRefreshMembersShouldLoadInitialValue;
 begin
 	FSettings.RefreshMembers(True);
-	Assert.AreEqual(STR_INITIAL_VALUE, FSettings.StrSetting);
+	Assert.AreEqual(INITIAL_STR_VALUE, FSettings.StrSetting);
 end;
 
 procedure TPersistableSettingsTest.LoadDefaultsShouldReadDefaultFromIni;
 begin
-	SetDefaults;
+	CreateDefaultsInIni;
+	FSettings.RefreshMembers(false);
+	Assert.AreEqual(INITIAL_STR_VALUE, FSettings.StrSetting, 'StrSetting should be ' + INITIAL_STR_VALUE);
+
 	FSettings.LoadDefault;
-	Assert.AreEqual(DEFAULT_STR_VAL, FSettings.StrSetting, 'StrSetting should be default');
+	Assert.AreEqual(DEFAULT_STR_VAL, FSettings.StrSetting, 'StrSetting should be default ' + DEFAULT_STR_VAL);
 end;
 
 procedure TPersistableSettingsTest.AfterCopyValuesValuesShouldBeEqual;
 begin
-	SetDefaults;
+	CreateDefaultsInIni;
 	FSettings.LoadDefault;
 	var
 	s := TTestSettings.Create(TPersistableSettingsTest.INI_SECTION);
 	try
 		s.Copy(FSettings);
-		s.LoadDefault;
 		Assert.AreEqual(s.StrSetting, FSettings.StrSetting, 'StrSetting should be equal');
 	finally
 		s.Free;
@@ -115,25 +119,38 @@ end;
 
 procedure TPersistableSettingsTest.AfterCopyDefaultsToValuesSetsDefaultValueAndCreatesNewKey;
 begin
-	SetDefaults;
+	CreateDefaultsInIni;
 	FSettings.LoadDefault;
 
-	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings.GetSetting('StrSetting' + DEFAULT_KEY)), 'StrSetting_DEFAULT.Value should be equal');
-//	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings.GetSetting('StrSetting' + DEFAULT_KEY, True)),
-//		'StrSetting_DEFAULT.DefaultValue should be equal');
+	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings.GetSetting('StrSetting' + DEFAULT_KEY)),
+		'StrSetting_DEFAULT.Value should be equal');
+	// Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings.GetSetting('StrSetting' + DEFAULT_KEY, True)),
+	// 'StrSetting_DEFAULT.DefaultValue should be equal');
 
 	FSettings.CopyDefaultsToValues;
 	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings.GetSetting('StrSetting')), 'StrSetting.Value should be equal');
-	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings.GetSetting('StrSetting', True)),
-		'StrSetting.Default should be equal'); // it is in fact StrSetting_DEFAULT.Value;
+	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings.GetSetting('StrSetting', True)), 'StrSetting.Default should be equal');
+	// it is in fact StrSetting_DEFAULT.Value;
 	Assert.AreEqual(VarToStr(FSettings.GetSetting('StrSetting' + DEFAULT_KEY)), VarToStr(FSettings.GetSetting('StrSetting', True)),
 		'StrSetting.Default should be equal StrSetting_DEFAULT.Value');
 
 end;
 
+procedure TPersistableSettingsTest.AfterCopyDefaultValuesShouldBeEqual;
+begin
+	var
+	s := TTestSettings.Create(TPersistableSettingsTest.INI_SECTION);
+	try
+		s.Copy(FSettings);
+		Assert.AreEqual(s.StrSetting, FSettings.StrSetting, 'StrSetting should be equal');
+	finally
+		s.Free;
+	end;
+end;
+
 procedure TPersistableSettingsTest.LoadDefaultsReadsIni;
 begin
-	SetDefaults;
+	CreateDefaultsInIni;
 	Assert.IsFalse(FSettings.IsAlreadyRead);
 	FSettings.LoadDefault;
 	Assert.IsTrue(FSettings.IsAlreadyRead);
@@ -144,7 +161,7 @@ begin
 	Assert.AreEqual( { default_members*2+normal_members } 2, FSettings.GetDict.Count);
 end;
 
-procedure TPersistableSettingsTest.SetDefaults;
+procedure TPersistableSettingsTest.CreateDefaultsInIni;
 begin
 	var
 	sec := FSettings.IniSectionName;
@@ -155,6 +172,7 @@ procedure TPersistableSettingsTest.Setup;
 begin
 	FIniFile := TMemIniFile.Create(INIFILE, TEncoding.UTF8);
 	FSettings := TTestSettings.Create(FIniFile);
+	FSettings.RefreshMembers(false);
 end;
 
 procedure TPersistableSettingsTest.TearDown;
@@ -182,7 +200,7 @@ end;
 
 procedure TTestSettings.Init;
 begin
-	CreateDefaultSetting('StrSetting', vtString, STR_INITIAL_VALUE);
+	CreateDefaultRelevantSetting('StrSetting', vtString, INITIAL_STR_VALUE);
 end;
 
 procedure TTestSettings.ReadIni;

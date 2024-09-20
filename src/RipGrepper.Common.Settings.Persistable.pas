@@ -59,11 +59,10 @@ type
 			function GetIsAlreadyRead : Boolean; virtual;
 			function GetIsModified : Boolean; virtual;
 			/// <summary>TPersistableSettings.Init
-			/// CreateSetting and CreateDefaultSetting should be called here
+			/// CreateSetting and CreateDefaultRelevantSetting should be called here
 			/// </summary>
 			procedure Init; virtual; abstract;
 			procedure StoreSetting(const _name : string; const _v : Variant; const _bAsDefault : Boolean = False);
-			function LoadSettingDefaultValue(const _name : string) : Variant;
 			function GetIniSectionName : string; virtual;
 			procedure LoadDefault; virtual;
 			procedure StoreDefaultSetting(const _name : string; const _v : Variant);
@@ -195,22 +194,22 @@ end;
 
 procedure TPersistableSettings.AddOrSetDefaultValue(const _key : string; const _value : Variant; const _bSaveToIni : Boolean);
 var
+	dictKeyName : string;
 	setting : ISettingVariant;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.AddOrSetDefaultValue');
 	setting := TSettingVariant.Create(_value); // ISettingVariant
 	setting.SaveToIni := _bSaveToIni;
-	setting.DefaultValue := _value;
-	var
-	dictKeyName := GetDictKeyName(_key);
+	dictKeyName := GetDefaultDictKeyName(_key);
 	AddOrSet(dictKeyName, setting);
-	dbgMsg.MsgFmt('[%s] %s.DefaultValue = %s', [IniSectionName, _key, VartoStr(FSettingsDict[dictKeyName].DefaultValue)]);
+	dbgMsg.MsgFmt('[%s] %s_DEFAULT.Value = %s', [IniSectionName, _key, VartoStr(FSettingsDict[dictKeyName].Value)]);
 end;
 
 procedure TPersistableSettings.Copy(const _other : TPersistableSettings);
 begin
 	if Assigned(_other) then begin
+		_other.Store;
 		FIsModified := _other.IsModified;
 		FIsAlreadyRead := _other.IsAlreadyRead;
 		for var key in _other.FSettingsDict.Keys do begin
@@ -218,12 +217,13 @@ begin
 				FSettingsDict.AddOrChange(key, _other.FSettingsDict[key]);
 			end;
 		end;
+        RefreshMembers(false);
 	end;
 end;
 
 procedure TPersistableSettings.CopyDefaultsToValues;
 var
-	setting,  defaultSetting: ISettingVariant; 
+	setting, defaultSetting : ISettingVariant;
 begin
 	for var key in FSettingsDict.Keys do begin
 		if not key.StartsWith(IniSectionName) then
@@ -234,52 +234,32 @@ begin
 		if setting.IsDefaultRelevant then begin
 			if FSettingsDict.TryGetValue(key + DEFAULT_KEY, defaultSetting) then begin
 				setting.Value := defaultSetting.Value;
-			end else begin
-				setting.Value := setting.DefaultValue;
 			end;
 			FSettingsDict.AddOrChange(key, setting);
 		end;
 	end;
+	RefreshMembers(True);
 end;
 
 procedure TPersistableSettings.CopyValuesToDefaults;
 var
-	baseKey : string;
-	setting,  defaultSetting: ISettingVariant;
+	setting, defaultSetting : ISettingVariant;
 begin
-
+	RefreshMembers(false);
 	for var key in FSettingsDict.Keys do begin
 		if not key.StartsWith(IniSectionName) then
 			continue;
 		if key.EndsWith(DEFAULT_KEY) then
 			continue;
-				setting := FSettingsDict[key];
+		setting := FSettingsDict[key];
 		if setting.IsDefaultRelevant then begin
 			if not FSettingsDict.TryGetValue(key + DEFAULT_KEY, defaultSetting) then begin
 				defaultSetting.Value := setting.Value;
-				defaultSetting.DefaultValue := setting.Value;
 				FSettingsDict.AddOrChange(key, defaultSetting);
-			end else begin
-			setting.DefaultValue := setting.Value;
-			FSettingsDict.AddOrChange(key, setting);
 			end;
 		end;
 	end;
-
-	for var defKey in FSettingsDict.Keys do begin
-		if not defKey.StartsWith(IniSectionName) then
-			continue;
-		if not defKey.EndsWith(DEFAULT_KEY) then
-			continue;
-
-		baseKey := defKey.Replace(DEFAULT_KEY, '');
-		if FSettingsDict.TryGetValue(baseKey, setting) then begin
-			FSettingsDict[defKey].Value := setting.DefaultValue;
-			// FSettingsDict[defKey].DefaultValue := setting.DefaultValue;
-		end else begin
-			raise ESettingsException.CreateFmt('%s not found in ini.', [baseKey]);
-		end;
-	end;
+    RefreshMembers(true);
 end;
 
 procedure TPersistableSettings.CreateSetting(const _sName : string; const _setting : ISettingVariant);
@@ -374,21 +354,21 @@ end;
 function TPersistableSettings.InnerGetSetting(const _name : string; const _bDefaultValue : Boolean) : Variant;
 var
 	setting : ISettingVariant;
-	dictKeyName : string;
+	keyName : string;
 begin
-	dictKeyName := GetDictKeyName(_name);
-	if FSettingsDict.TryGetValue(dictKeyName, setting) then begin
+	if _bDefaultValue then begin
+		keyName := GetDefaultDictKeyName(_name);
+	end else begin
+		keyName := GetDictKeyName(_name);
+	end;
+	if FSettingsDict.TryGetValue(keyName, setting) then begin
 		if (not setting.IsEmpty) then begin
-			if _bDefaultValue then begin
-				Result := setting.DefaultValue; // not used yet
-			end else begin
-				Result := setting.Value;
-			end;
+			Result := setting.Value;
 		end;
 	end else begin
 		var
 		dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.InnerGetSetting');
-		dbgMsg.Msg(_name + ' not found!');
+		dbgMsg.Msg(keyName + ' not found!');
 	end;
 end;
 
@@ -404,8 +384,6 @@ begin
 end;
 
 procedure TPersistableSettings.LoadDefault;
-var
-	val : ISettingVariant;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.LoadDefault');
@@ -415,24 +393,8 @@ begin
 		ReadIni;
 	end;
 
-	for var key in FSettingsDict.Keys do begin
-		if not key.StartsWith(IniSectionName) then begin
-			dbgMsg.MsgFmt('Skip %s', [key]);
-			continue;
-		end;
-
-		val := FSettingsDict[key];
-
-		if val.IsDefaultRelevant then begin
-			val.Value := val.DefaultValue;
-			dbgMsg.MsgFmt('%s=%s', [key, VarToStr(val.Value)]);
-		end else begin
-			continue;
-		end;
-	end;
-
-	dbgMsg.Msg('call RefreshMembers');
-	RefreshMembers(True);
+	CopyDefaultsToValues;
+    RefreshMembers(true);
 end;
 
 procedure TPersistableSettings.SetSettingValue(_sKey : string; const _v : Variant);
@@ -468,15 +430,6 @@ begin
 	end else begin
 		Result := InnerGetSetting(_name, False);
 	end;
-end;
-
-function TPersistableSettings.LoadSettingDefaultValue(const _name : string) : Variant;
-var
-	setting : ISettingVariant;
-begin
-	setting := FSettingsDict[_name];
-	Result := setting.DefaultValue;
-	TDebugUtils.Msg('TPersistableSettings.LoadSettingDefaultValue: ' + _name + ' ' + Result);
 end;
 
 procedure TPersistableSettings.ReadSettings;
@@ -527,7 +480,6 @@ begin
 					if FSettingsDict.TryGetValue(dictKeyName, setting) then begin
 						setting.IsDefaultRelevant := True;
 						setting.Value := value;
-						setting.DefaultValue := value;
 						AddOrSet(dictKeyName, setting);
 						AddOrSetDefaultValue(baseName, value, True);
 						dbgMsg.MsgFmt('[%s] %s.Value = %s',

@@ -47,7 +47,6 @@ type
 			function GetActualSearchPath : string;
 			function GetRipGrepperSearchFormSettings : TRipGrepperSearchFormSettings;
 
-		protected
 		public
 			procedure ReadIni; override;
 			procedure Store; override;
@@ -55,6 +54,7 @@ type
 			constructor Create;
 			destructor Destroy; override;
 			procedure AddIfNotContains(_to, _from : TStrings);
+			procedure Copy(const _other : TPersistableSettings); reintroduce; override;
 			function GetIsModified : Boolean; override;
 			function GetLastHistorySearchText : string;
 			function GetRipGrepArguments : TRipGrepArguments;
@@ -197,6 +197,25 @@ begin
 	FIsModified := TItemInserter.AddToSringListIfNotContains(_to, _from);
 end;
 
+procedure TRipGrepperSettings.Copy(const _other : TPersistableSettings);
+begin
+	if Assigned(_other) then begin
+		var
+		s := _other as TRipGrepperSettings;
+
+		FRipGrepperSearchFormSettings.Copy(s.RipGrepperSearchFormSettings);
+		FRipGrepperSettings.Copy(s.RipGrepperSettings);
+		FRipGrepParameters.Copy(s.RipGrepParameters);;
+		FRipGrepperViewSettings.Copy(s.RipGrepperViewSettings);;
+		FRipGrepperOpenWithSettings.Copy(s.RipGrepperOpenWithSettings);;
+		FSearchPathsHistory.Assign(s.SearchPathsHistory);
+		FSearchTextsHistory.Assign(s.SearchTextsHistory);
+		FRipGrepOptionsHistory.Assign(s.RipGrepOptionsHistory);
+		FRipGrepArguments.Assign(s.FRipGrepArguments);
+		inherited Copy(_other as TPersistableSettings);
+	end;
+end;
+
 function TRipGrepperSettings.GetActualSearchPath : string;
 var
 	s : string;
@@ -309,13 +328,14 @@ procedure TRipGrepperSettings.Store;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.Store');
-
 	inherited;
 	if IsModified then begin
 		dbgMsg.Msg('IsModified');
 		FRipGrepperViewSettings.Store;
 		FRipGrepperOpenWithSettings.Store;
 		FRipGrepperSettings.Store;
+		FRipGrepperSearchFormSettings.Store;
+		FRipGrepParameters.Store;
 
 		if (FRipGrepParameters.IsModified) then begin
 			StoreHistories();

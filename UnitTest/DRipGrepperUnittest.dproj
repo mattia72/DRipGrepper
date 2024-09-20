@@ -129,6 +129,7 @@
         <DCCReference Include="Pkg.Json.DTO.pas"/>
         <DCCReference Include="RootUnit.pas"/>
         <DCCReference Include="RipGrepper.Common.Settings.RipGrepperSettingsTest.pas"/>
+        <DCCReference Include="..\src\RipGrepper.Common.Settings.RipGrepperSettings.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
