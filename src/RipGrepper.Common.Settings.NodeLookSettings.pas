@@ -1,4 +1,4 @@
-unit RipGrepper.Common.Settings.RipGrepperViewSettings;
+unit RipGrepper.Common.Settings.NodeLookSettings;
 
 interface
 
@@ -7,7 +7,7 @@ uses
 	System.IniFiles;
 
 type
-	TRipGrepperViewSettings = class(TPersistableSettings)
+	TNodeLookSettings = class(TPersistableSettings)
 		const
 			VIEW_SETTINGS : array [0 .. 4] of string = (
 				{ } 'ShowRelativePath',
@@ -17,7 +17,7 @@ type
 				{ } 'ExpandNodes');
 
 		const
-			INI_SECTION = 'RipGrepperViewSettings';
+			INI_SECTION = 'NodeLookSettings';
 
 		public
 			AlternateRowColors : Boolean;
@@ -40,14 +40,14 @@ uses
 	RipGrepper.Helper.Types,
 	System.SysUtils;
 
-constructor TRipGrepperViewSettings.Create(const _ini : TMemIniFile);
+constructor TNodeLookSettings.Create(const _ini : TMemIniFile);
 begin
 	IniSectionName := INI_SECTION;
 	inherited;
-	TDebugUtils.DebugMessage('TRipGrepperViewSettings.Create: ' + FIniFile.FileName + '[' + GetIniSectionName + ']');
+	TDebugUtils.DebugMessage('TNodeLookSettings.Create: ' + FIniFile.FileName + '[' + GetIniSectionName + ']');
 end;
 
-procedure TRipGrepperViewSettings.Init;
+procedure TNodeLookSettings.Init;
 begin
 	CreateSetting('ShowRelativePath', varBoolean, False);
 	CreateSetting('ShowFileIcon', varBoolean, False);
@@ -56,7 +56,7 @@ begin
 	CreateSetting('ExpandNodes', varBoolean, True);
 end;
 
-procedure TRipGrepperViewSettings.RefreshMembers(const _bWithDefault: Boolean);
+procedure TNodeLookSettings.RefreshMembers(const _bWithDefault: Boolean);
 begin
 	ShowRelativePath := GetSetting('ShowRelativePath');
 	ShowFileIcon := GetSetting('ShowFileIcon');
@@ -65,13 +65,13 @@ begin
 	ExpandNodes := GetSetting('ExpandNodes');
 end;
 
-procedure TRipGrepperViewSettings.Store;
+procedure TNodeLookSettings.Store;
 begin
 	SetViewSettingValues();
 	inherited Store();
 end;
 
-procedure TRipGrepperViewSettings.SetViewSettingValues(const _s : string = '');
+procedure TNodeLookSettings.SetViewSettingValues(const _s : string = '');
 var
 	i : integer;
 begin

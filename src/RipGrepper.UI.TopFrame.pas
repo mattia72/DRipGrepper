@@ -183,14 +183,14 @@ end;
 
 procedure TRipGrepperTopFrame.ActionAlternateRowColorsExecute(Sender : TObject);
 begin
-	Settings.RipGrepperViewSettings.AlternateRowColors := (not Settings.RipGrepperViewSettings.AlternateRowColors);
+	Settings.NodeLookSettings.AlternateRowColors := (not Settings.NodeLookSettings.AlternateRowColors);
 	Settings.StoreViewSettings('AlternateRowColors');
 	MainFrame.VstResult.Repaint();
 end;
 
 procedure TRipGrepperTopFrame.ActionAlternateRowColorsUpdate(Sender : TObject);
 begin
-	tbAlternateRowColors.Down := Settings.RipGrepperViewSettings.AlternateRowColors;
+	tbAlternateRowColors.Down := Settings.NodeLookSettings.AlternateRowColors;
 end;
 
 procedure TRipGrepperTopFrame.ActionCancelExecute(Sender : TObject);
@@ -231,10 +231,10 @@ end;
 
 procedure TRipGrepperTopFrame.ActionExpandCollapseExecute(Sender : TObject);
 begin
-	Settings.RipGrepperViewSettings.ExpandNodes := not Settings.RipGrepperViewSettings.ExpandNodes;
+	Settings.NodeLookSettings.ExpandNodes := not Settings.NodeLookSettings.ExpandNodes;
 	Settings.StoreViewSettings('ExpandNodes');
 
-	if Settings.RipGrepperViewSettings.ExpandNodes then begin
+	if Settings.NodeLookSettings.ExpandNodes then begin
 		MainFrame.VstResult.FullExpand();
 	end else begin
 		MainFrame.VstResult.FullCollapse();
@@ -243,20 +243,20 @@ end;
 
 procedure TRipGrepperTopFrame.ActionExpandCollapseUpdate(Sender : TObject);
 begin
-	ActionExpandCollapse.ImageIndex := IfThen(Settings.RipGrepperViewSettings.ExpandNodes, 23, 22);
-	ActionExpandCollapse.Hint := IfThen(Settings.RipGrepperViewSettings.ExpandNodes, 'Collapse Nodes', 'Expand Nodes');
+	ActionExpandCollapse.ImageIndex := IfThen(Settings.NodeLookSettings.ExpandNodes, 23, 22);
+	ActionExpandCollapse.Hint := IfThen(Settings.NodeLookSettings.ExpandNodes, 'Collapse Nodes', 'Expand Nodes');
 end;
 
 procedure TRipGrepperTopFrame.ActionIndentLineExecute(Sender : TObject);
 begin
-	Settings.RipGrepperViewSettings.IndentLines := not Settings.RipGrepperViewSettings.IndentLines;
+	Settings.NodeLookSettings.IndentLines := not Settings.NodeLookSettings.IndentLines;
 	Settings.StoreViewSettings('IndentLines');
 	MainFrame.VstResult.Repaint();
 end;
 
 procedure TRipGrepperTopFrame.ActionIndentLineUpdate(Sender : TObject);
 begin
-	tbIndentLines.Down := Settings.RipGrepperViewSettings.IndentLines;
+	tbIndentLines.Down := Settings.NodeLookSettings.IndentLines;
 end;
 
 procedure TRipGrepperTopFrame.ActionOpenWithExecute(Sender : TObject);
@@ -294,14 +294,14 @@ end;
 
 procedure TRipGrepperTopFrame.ActionShowFileIconsExecute(Sender : TObject);
 begin
-	Settings.RipGrepperViewSettings.ShowFileIcon := not Settings.RipGrepperViewSettings.ShowFileIcon;
+	Settings.NodeLookSettings.ShowFileIcon := not Settings.NodeLookSettings.ShowFileIcon;
 	Settings.StoreViewSettings('ShowFileIcon');
 	MainFrame.VstResult.Repaint();
 end;
 
 procedure TRipGrepperTopFrame.ActionShowFileIconsUpdate(Sender : TObject);
 begin
-	tbShowFileIcon.Down := Settings.RipGrepperViewSettings.ShowFileIcon;
+	tbShowFileIcon.Down := Settings.NodeLookSettings.ShowFileIcon;
 	// ActionShowFileIcons.ImageIndex := Ifthen(Settings.ShowFileIcon, IMG_IDX_SHOW_FILE_ICON_TRUE, IMG_IDX_SHOW_FILE_ICON_FALSE);
 end;
 
@@ -309,9 +309,9 @@ procedure TRipGrepperTopFrame.ActionShowRelativePathExecute(Sender : TObject);
 const
 	PARSER_TYPES : TArray<TFileNameType> = [ftAbsolute, ftRelative];
 begin
-	Settings.RipGrepperViewSettings.ShowRelativePath := not Settings.RipGrepperViewSettings.ShowRelativePath;
+	Settings.NodeLookSettings.ShowRelativePath := not Settings.NodeLookSettings.ShowRelativePath;
 	var
-	idx := integer(Settings.RipGrepperViewSettings.ShowRelativePath);
+	idx := integer(Settings.NodeLookSettings.ShowRelativePath);
 	MainFrame.FileNameType := PARSER_TYPES[idx mod Length(PARSER_TYPES)];
 	var
 	arr := MainFrame.MaxWidths;
@@ -323,7 +323,7 @@ end;
 
 procedure TRipGrepperTopFrame.ActionShowRelativePathUpdate(Sender : TObject);
 begin
-	tbShowRelativePath.Down := Settings.RipGrepperViewSettings.ShowRelativePath;
+	tbShowRelativePath.Down := Settings.NodeLookSettings.ShowRelativePath;
 	// ActionShowRelativePath.ImageIndex := Ifthen(Settings.ShowRelativePath, IMG_IDX_SHOW_RELATIVE_PATH, IMG_IDX_SHOW_ABS_PATH);
 end;
 

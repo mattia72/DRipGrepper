@@ -105,7 +105,7 @@ type
 			property Value : Boolean read FValue write FValue;
 	end;
 
-	TRipGrepperViewSettings = class
+	TNodeLookSettings = class
 		private
 			[JSONName('AlternateRowColors')]
 			FAlternateRowColors : TAlternateRowColors;
@@ -254,14 +254,14 @@ type
 			FRipGrepperSearchSettings : TRipGrepperSearchSettings;
 			[JSONName('RipGrepperSettings')]
 			FRipGrepperSettings : TRipGrepperSettings;
-			[JSONName('RipGrepperViewSettings')]
-			FRipGrepperViewSettings : TRipGrepperViewSettings;
+			[JSONName('NodeLookSettings')]
+			FNodeLookSettings : TNodeLookSettings;
 
 		published
 			property RipGrepSettings : TRipGrepSettings read FRipGrepSettings;
 			property RipGrepperSearchSettings : TRipGrepperSearchSettings read FRipGrepperSearchSettings;
 			property RipGrepperSettings : TRipGrepperSettings read FRipGrepperSettings;
-			property RipGrepperViewSettings : TRipGrepperViewSettings read FRipGrepperViewSettings;
+			property NodeLookSettings : TNodeLookSettings read FNodeLookSettings;
 
 		public
 			constructor Create; override;
@@ -286,9 +286,9 @@ begin
 	inherited;
 end;
 
-{ TRipGrepperViewSettings }
+{ TNodeLookSettings }
 
-constructor TRipGrepperViewSettings.Create;
+constructor TNodeLookSettings.Create;
 begin
 	inherited;
 	FShowRelativePath := TShowRelativePath.Create;
@@ -298,7 +298,7 @@ begin
 	FAlternateRowColors := TAlternateRowColors.Create;
 end;
 
-destructor TRipGrepperViewSettings.Destroy;
+destructor TNodeLookSettings.Destroy;
 begin
 	FShowRelativePath.Free;
 	FShowFileIcon.Free;
@@ -355,7 +355,7 @@ begin
 	inherited;
 	FRipGrepSettings := TRipGrepSettings.Create;
 	FRipGrepperSearchSettings := TRipGrepperSearchSettings.Create;
-	FRipGrepperViewSettings := TRipGrepperViewSettings.Create;
+	FNodeLookSettings := TNodeLookSettings.Create;
 	FRipGrepperSettings := TRipGrepperSettings.Create;
 end;
 
@@ -363,7 +363,7 @@ destructor TRoot.Destroy;
 begin
 	FRipGrepSettings.Free;
 	FRipGrepperSearchSettings.Free;
-	FRipGrepperViewSettings.Free;
+	FNodeLookSettings.Free;
 	FRipGrepperSettings.Free;
 	inherited;
 end;

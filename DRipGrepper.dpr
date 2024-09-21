@@ -68,7 +68,7 @@ uses
   RipGrepper.Common.IOTAUtils in 'src\RipGrepper.Common.IOTAUtils.pas',
   RipGrepper.Common.SearchParams in 'src\RipGrepper.Common.SearchParams.pas',
   RipGrepper.Common.Settings.Misc in 'src\RipGrepper.Common.Settings.Misc.pas',
-  RipGrepper.Common.Settings.RipGrepperViewSettings in 'src\RipGrepper.Common.Settings.RipGrepperViewSettings.pas',
+  RipGrepper.Common.Settings.NodeLookSettings in 'src\RipGrepper.Common.Settings.NodeLookSettings.pas',
   RipGrepper.Common.Settings.OpenWithSettings in 'src\RipGrepper.Common.Settings.OpenWithSettings.pas',
   RipGrepper.OpenWith.Params in 'src\OpenWith\RipGrepper.OpenWith.Params.pas',
   RipGrepper.Common.Settings.SettingVariant in 'src\RipGrepper.Common.Settings.SettingVariant.pas',

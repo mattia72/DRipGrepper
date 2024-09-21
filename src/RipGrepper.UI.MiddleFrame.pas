@@ -588,7 +588,7 @@ end;
 
 procedure TRipGrepperMiddleFrame.ExpandNodes;
 begin
-	if Settings.RipGrepperViewSettings.ExpandNodes then begin
+	if Settings.NodeLookSettings.ExpandNodes then begin
 		VstResult.FullExpand();
 	end;
 end;
@@ -611,7 +611,7 @@ var
 	actPath : string;
 begin
 	Result := _sFullPath;
-	if Settings.RipGrepperViewSettings.ShowRelativePath then begin
+	if Settings.NodeLookSettings.ShowRelativePath then begin
 		if IOTAUTils.IsStandAlone then begin
 			actPath := Settings.ActualSearchPath;
 			if (actPath.IsEmpty or (not Settings.SearchPathIsDir)) then begin
@@ -1215,7 +1215,7 @@ end;
 procedure TRipGrepperMiddleFrame.VstResultBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
 Column : TColumnIndex; CellPaintMode : TVTCellPaintMode; CellRect : TRect; var ContentRect : TRect);
 begin
-	if Settings.RipGrepperViewSettings.AlternateRowColors and (Node.ChildCount = 0) then begin
+	if Settings.NodeLookSettings.AlternateRowColors and (Node.ChildCount = 0) then begin
 		TargetCanvas.SetAlteringColors(Node.Index);
 	end;
 
@@ -1297,7 +1297,7 @@ begin
 					style := TargetCanvas.Font.style;
 
 					Data := VstResult.GetNodeData(Node);
-					s := Data.GetText(not Settings.RipGrepperViewSettings.IndentLines, spaces, tabs);
+					s := Data.GetText(not Settings.NodeLookSettings.IndentLines, spaces, tabs);
 
 					matchBegin := Data.MatchData.Col - 1 - (spaces + tabs);
 
@@ -1338,7 +1338,7 @@ Column : TColumnIndex; var Ghosted : Boolean; var ImageIndex : TImageIndex);
 var
 	NodeData : PVSFileNodeData;
 begin
-	if not Settings.RipGrepperViewSettings.ShowFileIcon then
+	if not Settings.NodeLookSettings.ShowFileIcon then
 		Exit;
 
 	if Node.ChildCount > 0 then begin
@@ -1381,7 +1381,7 @@ begin
 			if (TextType = ttNormal) then begin
 				var
 					dummy1, dummy2 : Integer;
-				CellText := NodeData.GetText(Settings.RipGrepperViewSettings.IndentLines, dummy1, dummy2);
+				CellText := NodeData.GetText(Settings.NodeLookSettings.IndentLines, dummy1, dummy2);
 			end;
 
 		end;

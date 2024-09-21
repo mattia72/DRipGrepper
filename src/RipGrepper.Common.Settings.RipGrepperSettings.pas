@@ -10,7 +10,7 @@ uses
 	System.Classes,
 	RipGrepper.Common.Constants,
 	System.IniFiles,
-	RipGrepper.Common.Settings.RipGrepperViewSettings,
+	RipGrepper.Common.Settings.NodeLookSettings,
 	RipGrepper.Common.Settings.OpenWithSettings;
 
 type
@@ -20,7 +20,7 @@ type
 			FSearchFormSettings : TSearchFormSettings;
 
 			FRipGrepParameters : TRipGrepParameterSettings;
-			FRipGrepperViewSettings : TRipGrepperViewSettings;
+			FNodeLookSettings : TNodeLookSettings;
 			FOpenWithSettings : TOpenWithSettings;
 
 			FRipGrepOptionsHistory : TSTrings;
@@ -76,7 +76,7 @@ type
 			property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings
 				write FSearchFormSettings;
 			property RipGrepperSettings : TRipGrepperAppSettings read FRipGrepperSettings write FRipGrepperSettings;
-			property RipGrepperViewSettings : TRipGrepperViewSettings read FRipGrepperViewSettings write FRipGrepperViewSettings;
+			property NodeLookSettings : TNodeLookSettings read FNodeLookSettings write FNodeLookSettings;
 			property SearchPathIsDir : Boolean read GetSearchPathIsDir;
 			property SearchTextsHistory : TStrings read FSearchTextsHistory write SetSearchTextsHistory;
 	end;
@@ -163,7 +163,7 @@ begin
 	FRipGrepOptionsHistory.Free;
 	FSearchTextsHistory.Free;
 	FSearchPathsHistory.Free;
-	FRipGrepperViewSettings.Free;
+	FNodeLookSettings.Free;
 	FOpenWithSettings.Free;
 	FRipGrepParameters.Free;
 	FRipGrepperSettings.Free;
@@ -182,7 +182,7 @@ begin
 
 	FRipGrepperSettings := TRipGrepperAppSettings.Create(FIniFile);
 	FRipGrepParameters := TRipGrepParameterSettings.Create(FIniFile);
-	FRipGrepperViewSettings := TRipGrepperViewSettings.Create(FIniFile);
+	FNodeLookSettings := TNodeLookSettings.Create(FIniFile);
 	FOpenWithSettings := TOpenWithSettings.Create(FIniFile);
 	FSearchPathsHistory := TStringList.Create(dupIgnore, False, True);
 	FSearchTextsHistory := TStringList.Create(dupIgnore, False, True);
@@ -206,7 +206,7 @@ begin
 		FSearchFormSettings.Copy(s.SearchFormSettings);
 		FRipGrepperSettings.Copy(s.RipGrepperSettings);
 		FRipGrepParameters.Copy(s.RipGrepParameters);;
-		FRipGrepperViewSettings.Copy(s.RipGrepperViewSettings);;
+		FNodeLookSettings.Copy(s.NodeLookSettings);;
 		FOpenWithSettings.Copy(s.OpenWithSettings);;
 		FSearchPathsHistory.Assign(s.SearchPathsHistory);
 		FSearchTextsHistory.Assign(s.SearchTextsHistory);
@@ -230,7 +230,7 @@ end;
 function TRipGrepperSettings.GetIsModified : Boolean;
 begin
 	Result := FIsModified or FRipGrepParameters.IsModified or
-	{ } FRipGrepperViewSettings.IsModified or
+	{ } FNodeLookSettings.IsModified or
 	{ } FOpenWithSettings.IsModified;
 end;
 
@@ -260,8 +260,8 @@ begin
 	inherited ReadIni();
 
 	try
-		FRipGrepperViewSettings.ReadIni;
-		FRipGrepperViewSettings.RefreshMembers(false);
+		FNodeLookSettings.ReadIni;
+		FNodeLookSettings.RefreshMembers(false);
 		FOpenWithSettings.ReadIni;
 		FRipGrepperSettings.ReadIni;
 
@@ -331,7 +331,7 @@ begin
 	inherited;
 	if IsModified then begin
 		dbgMsg.Msg('IsModified');
-		FRipGrepperViewSettings.Store;
+		FNodeLookSettings.Store;
 		FOpenWithSettings.Store;
 		FRipGrepperSettings.Store;
 		FSearchFormSettings.Store;
@@ -362,8 +362,8 @@ end;
 
 procedure TRipGrepperSettings.StoreViewSettings(const _s : string = '');
 begin
-	FRipGrepperViewSettings.SetViewSettingValues(_s);
-	FRipGrepperViewSettings.Store;
+	FNodeLookSettings.SetViewSettingValues(_s);
+	FNodeLookSettings.Store;
 end;
 
 procedure TRipGrepperSettings.StoreHistoryEntries(const _list : TStrings; const _section : string);
