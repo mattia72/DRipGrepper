@@ -358,8 +358,7 @@ end;
 
 destructor TGuiSearchTextParams.Destroy;
 begin
-	inherited;
-	// TODO -cMM: TGuiSearchTextParams.Destroy default body inserted
+	inherited Destroy(); //ok
 end;
 
 procedure TGuiSearchTextParams.Copy(const _other : TGuiSearchTextParams);

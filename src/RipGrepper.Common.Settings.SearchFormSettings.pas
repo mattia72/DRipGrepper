@@ -111,7 +111,7 @@ end;
 destructor TSearchFormSettings.Destroy;
 begin
 	FExtensionSettings.Free;
-	inherited;
+	inherited Destroy(); //ok;
 end;
 
 procedure TSearchFormSettings.Copy(const _other : TSearchFormSettings);

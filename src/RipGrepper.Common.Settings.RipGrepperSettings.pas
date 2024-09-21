@@ -170,7 +170,7 @@ begin
 	FSearchFormSettings.Free;
 	FFileMasksHistory.Free;
 	UpdateIniFile;
-	inherited;
+	inherited Destroy(); //ok;
 end;
 
 constructor TRipGrepperSettings.Create;

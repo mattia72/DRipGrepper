@@ -45,7 +45,7 @@ end;
 destructor TOpenWithSettings.Destroy;
 begin
 	FCommandList.Free;
-	inherited;
+	inherited Destroy(); //ok
 end;
 
 function TOpenWithSettings.GetCommand(Index : Integer) : string;

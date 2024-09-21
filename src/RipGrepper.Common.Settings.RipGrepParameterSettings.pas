@@ -84,7 +84,7 @@ destructor TRipGrepParameterSettings.Destroy;
 begin
 	FGuiSearchTextParams.Free;
 	FRipGrepArguments.Free;
-	inherited;
+	inherited Destroy() //ok;
 end;
 
 function TRipGrepParameterSettings.GetCommandLine : string;

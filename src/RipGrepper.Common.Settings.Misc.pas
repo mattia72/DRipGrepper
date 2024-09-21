@@ -222,7 +222,7 @@ end;
 destructor TAppSettings.Destroy;
 begin
 	FEncodingItems.Free;
-	inherited;
+	inherited Destroy() //ok;
 end;
 
 procedure TAppSettings.Init;
