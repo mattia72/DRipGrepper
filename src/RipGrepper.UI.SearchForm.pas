@@ -460,7 +460,7 @@ begin
 	SetComboItemsAndText(cmbSearchText, RG_ARG_SEARCH_TEXT, FSettings.SearchTextsHistory);
 	SetComboItemsFromOptions(cmbFileMasks, RG_PARAM_REGEX_GLOB, FSettings.FileMasksHistory);
 	// Set available encodings...
-	SetComboItemsAndText(cmbRgParamEncoding, RG_PARAM_REGEX_ENCODING, FSettings.RipGrepperSettings.EncodingItems);
+	SetComboItemsAndText(cmbRgParamEncoding, RG_PARAM_REGEX_ENCODING, FSettings.AppSettings.EncodingItems);
 
 	UpdateButtonsBySettings;
 	UpdateCheckBoxesBySettings(FSettings.SearchFormSettings);
@@ -547,7 +547,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ToggleExpertMode;
 begin
-	FSettings.RipGrepperSettings.ExpertMode := not FSettings.RipGrepperSettings.ExpertMode;
+	FSettings.AppSettings.ExpertMode := not FSettings.AppSettings.ExpertMode;
 	AlignExpertGroupBox();
 	UpdateHeight();
 end;
@@ -668,7 +668,7 @@ begin
 		FSettings.SearchFormSettings.Encoding := '';
 	end;
 
-	if Fsettings.RipGrepperSettings.ExpertMode then begin
+	if Fsettings.AppSettings.ExpertMode then begin
 		WriteOptionCtrlToRipGrepParametersSetting;
 	end;
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.WriteCtrlsToRipGrepParametersSettings: end ' + FGuiSetSearchParams.ToString);
@@ -790,7 +790,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.AlignExpertGroupBox;
 begin
-	if FSettings.RipGrepperSettings.ExpertMode then begin
+	if FSettings.AppSettings.ExpertMode then begin
 		gbExpert.Height := FExpertGroupHeight;
 		gbExpert.Caption := CAPTION_GRPBX_EXPERT_MODE;
 		// gbExpert.Font.Style := gbExpert.Font.Style - [fsBold, fsUnderline];

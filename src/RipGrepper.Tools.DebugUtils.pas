@@ -9,7 +9,7 @@ type
 		class var
 			FDebugTraceActive : Boolean;
 			FDebugTraceInactiveMsgShown : Boolean;
-			
+
 			class constructor Create;
 			class procedure InnerOutputDebugString(const _s : string);
 		public
@@ -45,13 +45,13 @@ class constructor TDebugUtils.Create;
 begin
 	if not Assigned(GSettings) then begin
 		GSettings := TRipGrepperSettingsInstance.Instance;
-		GSettings.RipGrepperSettings.ReadIni;
-		GSettings.RipGrepperSettings.RefreshMembers(False);
+		GSettings.AppSettings.ReadIni;
+		GSettings.AppSettings.RefreshMembers(False);
 	end;
 
 	FDebugTraceActive := { } (Assigned(GSettings) and
-		{ } Assigned(GSettings.RipGrepperSettings) and
-		{ } GSettings.RipGrepperSettings.DebugTrace)
+		{ } Assigned(GSettings.AppSettings) and
+		{ } GSettings.AppSettings.DebugTrace)
 end;
 
 class procedure TDebugUtils.DebugMessage(const _s : string);

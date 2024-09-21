@@ -60,7 +60,7 @@ type
 			property CurrentIDEContext : TRipGrepperExtensionContext read FCurrentSearchSettings write FCurrentSearchSettings;
 	end;
 
-	TRipGrepperAppSettings = class(TPersistableSettings)
+	TAppSettings = class(TPersistableSettings)
 		const
 			INI_SECTION = 'RipGrepperSettings';
 
@@ -198,7 +198,7 @@ begin
 	if IOTAUTils.IsStandAlone then begin
 		Exit;
 	end;
-	dbgMsg.MsgFmt('TRipGrepperAppSettings.StoreAsDefault: IDEContext=%d',
+	dbgMsg.MsgFmt('TAppSettings.StoreAsDefault: IDEContext=%d',
 		{ } [Integer(CurrentIDEContext.IDEContext)]);
 
 	StoreDefaultSetting(KEY_IDE_CONTEXT, Integer(CurrentIDEContext.IDEContext));
@@ -211,28 +211,28 @@ begin
 		[OpenWithShortCut, DripGrepperShortCut, CurrentIDEContext.ToLogString]);
 end;
 
-constructor TRipGrepperAppSettings.Create(const _ini : TMemIniFile);
+constructor TAppSettings.Create(const _ini : TMemIniFile);
 begin
 	IniSectionName := INI_SECTION;
 	inherited;
-	TDebugUtils.DebugMessage('TRipGrepperAppSettings.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
+	TDebugUtils.DebugMessage('TAppSettings.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
 	FEncodingItems := TStringList.Create();
 end;
 
-destructor TRipGrepperAppSettings.Destroy;
+destructor TAppSettings.Destroy;
 begin
 	FEncodingItems.Free;
 	inherited;
 end;
 
-procedure TRipGrepperAppSettings.Init;
+procedure TAppSettings.Init;
 begin
 	CreateSetting('DebugTrace', varBoolean, False);
 	CreateSetting('ExpertMode', varBoolean, False);
 	CreateSetting('EncodingItems', varString, string.join(ARRAY_SEPARATOR, TDefaults.RG_PARAM_ENCODING_VALUES));
 end;
 
-procedure TRipGrepperAppSettings.RefreshMembers(const _bWithDefault : Boolean);
+procedure TAppSettings.RefreshMembers(const _bWithDefault : Boolean);
 begin
 	if _bWithDefault then
 		Exit;
@@ -242,7 +242,7 @@ begin
 	FEncodingItems.AddStrings(string(GetSetting('EncodingItems')).Split([ARRAY_SEPARATOR]));
 end;
 
-procedure TRipGrepperAppSettings.Store;
+procedure TAppSettings.Store;
 begin
 	StoreSetting('DebugTrace', FDebugTrace);
 	StoreSetting('ExpertMode', FExpertMode);
