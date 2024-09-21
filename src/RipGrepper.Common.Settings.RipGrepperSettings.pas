@@ -6,7 +6,7 @@ uses
 	RipGrepper.Common.Settings.Misc,
 	RipGrepper.Common.Settings.Persistable,
 	RipGrepper.Common.Settings.RipGrepParameterSettings,
-	RipGrepper.Common.Settings.RipGrepperSearchFormSettings,
+	RipGrepper.Common.Settings.SearchFormSettings,
 	System.Classes,
 	RipGrepper.Common.Constants,
 	System.IniFiles,
@@ -17,7 +17,7 @@ type
 	TRipGrepperSettings = class(TPersistableSettings)
 
 		private
-			FRipGrepperSearchFormSettings : TRipGrepperSearchFormSettings;
+			FSearchFormSettings : TSearchFormSettings;
 
 			FRipGrepParameters : TRipGrepParameterSettings;
 			FRipGrepperViewSettings : TRipGrepperViewSettings;
@@ -45,7 +45,7 @@ type
 			procedure SetSearchTextsHistory(const Value : TStrings);
 			procedure StoreHistoryEntries(const _list : TStrings; const _section : string);
 			function GetActualSearchPath : string;
-			function GetRipGrepperSearchFormSettings : TRipGrepperSearchFormSettings;
+			function GetSearchFormSettings : TSearchFormSettings;
 
 		public
 			procedure ReadIni; override;
@@ -73,8 +73,8 @@ type
 			property RipGrepOptionsHistory : TSTrings read FRipGrepOptionsHistory write SetRipGrepOptionsHistory;
 			property RipGrepParameters : TRipGrepParameterSettings read FRipGrepParameters write FRipGrepParameters;
 			property RipGrepperOpenWithSettings : TRipGrepperOpenWithSettings read FRipGrepperOpenWithSettings;
-			property RipGrepperSearchFormSettings : TRipGrepperSearchFormSettings read GetRipGrepperSearchFormSettings
-				write FRipGrepperSearchFormSettings;
+			property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings
+				write FSearchFormSettings;
 			property RipGrepperSettings : TRipGrepperAppSettings read FRipGrepperSettings write FRipGrepperSettings;
 			property RipGrepperViewSettings : TRipGrepperViewSettings read FRipGrepperViewSettings write FRipGrepperViewSettings;
 			property SearchPathIsDir : Boolean read GetSearchPathIsDir;
@@ -167,7 +167,7 @@ begin
 	FRipGrepperOpenWithSettings.Free;
 	FRipGrepParameters.Free;
 	FRipGrepperSettings.Free;
-	FRipGrepperSearchFormSettings.Free;
+	FSearchFormSettings.Free;
 	FFileMasksHistory.Free;
 	UpdateIniFile;
 	inherited;
@@ -178,7 +178,7 @@ begin
 	IniSectionName := ROOT_DUMMY_INI_SECTION;
 	inherited;
 
-	FRipGrepperSearchFormSettings := TRipGrepperSearchFormSettings.Create(FIniFile);
+	FSearchFormSettings := TSearchFormSettings.Create(FIniFile);
 
 	FRipGrepperSettings := TRipGrepperAppSettings.Create(FIniFile);
 	FRipGrepParameters := TRipGrepParameterSettings.Create(FIniFile);
@@ -203,7 +203,7 @@ begin
 		var
 		s := _other as TRipGrepperSettings;
 
-		FRipGrepperSearchFormSettings.Copy(s.RipGrepperSearchFormSettings);
+		FSearchFormSettings.Copy(s.SearchFormSettings);
 		FRipGrepperSettings.Copy(s.RipGrepperSettings);
 		FRipGrepParameters.Copy(s.RipGrepParameters);;
 		FRipGrepperViewSettings.Copy(s.RipGrepperViewSettings);;
@@ -234,12 +234,12 @@ begin
 	{ } FRipGrepperOpenWithSettings.IsModified;
 end;
 
-function TRipGrepperSettings.GetRipGrepperSearchFormSettings : TRipGrepperSearchFormSettings;
+function TRipGrepperSettings.GetSearchFormSettings : TSearchFormSettings;
 begin
-	if not FRipGrepperSearchFormSettings.IsAlreadyRead then begin
-		FRipGrepperSearchFormSettings.ReadIni;
+	if not FSearchFormSettings.IsAlreadyRead then begin
+		FSearchFormSettings.ReadIni;
 	end;
-	Result := FRipGrepperSearchFormSettings;
+	Result := FSearchFormSettings;
 end;
 
 function TRipGrepperSettings.GetSearchPathIsDir : Boolean;
@@ -286,7 +286,7 @@ begin
 	inherited LoadDefault;
 
 	FRipGrepParameters.LoadDefault;
-	FRipGrepperSearchFormSettings.LoadDefault;
+	FSearchFormSettings.LoadDefault;
 end;
 
 procedure TRipGrepperSettings.RebuildArguments;
@@ -301,7 +301,7 @@ end;
 procedure TRipGrepperSettings.RefreshMembers(const _bWithDefault : Boolean);
 begin
 	FRipGrepParameters.RefreshMembers(_bWithDefault);
-	FRipGrepperSearchFormSettings.RefreshMembers(_bWithDefault);;
+	FSearchFormSettings.RefreshMembers(_bWithDefault);;
 end;
 
 procedure TRipGrepperSettings.SetFileMasksHistory(const Value : TStrings);
@@ -334,7 +334,7 @@ begin
 		FRipGrepperViewSettings.Store;
 		FRipGrepperOpenWithSettings.Store;
 		FRipGrepperSettings.Store;
-		FRipGrepperSearchFormSettings.Store;
+		FSearchFormSettings.Store;
 		FRipGrepParameters.Store;
 
 		if (FRipGrepParameters.IsModified) then begin
@@ -347,7 +347,7 @@ procedure TRipGrepperSettings.StoreAsDefault;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.StoreAsDefault');
-	FRipGrepperSearchFormSettings.StoreAsDefault;
+	FSearchFormSettings.StoreAsDefault;
 	FRipGrepParameters.StoreAsDefault;
 	inherited StoreAsDefault;
 end;

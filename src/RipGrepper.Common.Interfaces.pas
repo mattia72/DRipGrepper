@@ -10,7 +10,7 @@ uses
 	System.Classes,
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.Common.GuiSearchParams,
-	RipGrepper.Common.Settings.RipGrepperSearchFormSettings,
+	RipGrepper.Common.Settings.SearchFormSettings,
 	RipGrepper.Common.Settings.RipGrepperSettings;
 
 type
@@ -80,7 +80,7 @@ type
 		function GetParserType : TParserType;
 		procedure SetMatches(const Value : TParsedObjectRowCollection);
 		function GetRipGrepArguments : TRipGrepArguments;
-		function GetRipGrepperSearchFormSettings : TRipGrepperSearchFormSettings;
+		function GetSearchFormSettings : TSearchFormSettings;
 		function GetRipGrepResult : Integer;
 		function GetSearchText : string;
 		procedure SetRipGrepArguments(const Value : TRipGrepArguments);
@@ -93,7 +93,7 @@ type
 		procedure SetGuiSearchTextParams(const Value : TGuiSearchTextParams);
 		procedure SetNoMatchFound(const Value : Boolean);
 		procedure SetParserType(const Value : TParserType);
-		procedure SetRipGrepperSearchFormSettings(const Value : TRipGrepperSearchFormSettings);
+		procedure SetSearchFormSettings(const Value : TSearchFormSettings);
 		procedure SetRipGrepResult(const Value : Integer);
 		function UpdateParserType : TParserType;
 
@@ -105,8 +105,8 @@ type
 		property GuiSearchTextParams : TGuiSearchTextParams read GetGuiSearchTextParams write SetGuiSearchTextParams;
 		property NoMatchFound : Boolean read GetNoMatchFound write SetNoMatchFound;
 		property ParserType : TParserType read GetParserType write SetParserType;
-		property RipGrepperSearchFormSettings : TRipGrepperSearchFormSettings read GetRipGrepperSearchFormSettings
-			write SetRipGrepperSearchFormSettings;
+		property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings
+			write SetSearchFormSettings;
 		property RipGrepResult : Integer read GetRipGrepResult write SetRipGrepResult;
 		property SearchText : string read GetSearchText;
 		property TotalMatchCount : integer read GetTotalMatchCount;

@@ -3,7 +3,7 @@ unit RipGrepper.Common.Settings.PersistableSettingsTest;
 interface
 
 uses
-	RipGrepper.Common.Settings.RipGrepperSearchFormSettings,
+	RipGrepper.Common.Settings.SearchFormSettings,
 	System.IniFiles,
 	RipGrepper.Common.Settings.Persistable,
 	DUnitX.TestFramework,

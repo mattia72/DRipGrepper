@@ -1,4 +1,4 @@
-unit RipGrepper.Common.Settings.RipGrepperSearchFormSettingsTest;
+unit RipGrepper.Common.Settings.SearchFormSettingsTest;
 
 interface
 
@@ -7,18 +7,18 @@ uses
 	System.IniFiles,
 	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Common.Settings.RipGrepParameterSettings,
-	RipGrepper.Common.Settings.RipGrepperSearchFormSettings;
+	RipGrepper.Common.Settings.SearchFormSettings;
 
 type
 
 	[TestFixture]
-	TRipGrepperSearchFormSettingsTest = class
+	TSearchFormSettingsTest = class
 		const
 			INIFILE = 'DripGrepperUnittest.ini';
 
 		private
 			FIniFile : TMemIniFile;
-			FSettings : TRipGrepperSearchFormSettings;
+			FSettings : TSearchFormSettings;
 			procedure SetDefaults;
 
 		public
@@ -48,19 +48,19 @@ uses
 	System.Variants,
 	RipGrepper.Common.Constants;
 
-constructor TRipGrepperSearchFormSettingsTest.Create;
+constructor TSearchFormSettingsTest.Create;
 begin
 	inherited;
 	// FIniFile := TMemIniFile.Create(INIFILE, TEncoding.UTF8);
 end;
 
-destructor TRipGrepperSearchFormSettingsTest.Destroy;
+destructor TSearchFormSettingsTest.Destroy;
 begin
 	// FIniFile.Free;
 	inherited;
 end;
 
-procedure TRipGrepperSearchFormSettingsTest.RefreshMembersShouldLoadDefaultsTest;
+procedure TSearchFormSettingsTest.RefreshMembersShouldLoadDefaultsTest;
 begin
 	FSettings.RefreshMembers(True);
 	Assert.AreEqual(True, FSettings.Pretty, 'Pretty should be true');
@@ -70,7 +70,7 @@ begin
 	Assert.AreEqual('', FSettings.Encoding, 'Encoding should be ''''');
 end;
 
-procedure TRipGrepperSearchFormSettingsTest.LoadDefaultsShouldReadDefaultFromIni;
+procedure TSearchFormSettingsTest.LoadDefaultsShouldReadDefaultFromIni;
 begin
 	SetDefaults;
 	FSettings.LoadDefault;
@@ -82,13 +82,13 @@ begin
 	Assert.AreEqual(True, FSettings.NoIgnore, 'NoIgnore should be true');
 end;
 
-procedure TRipGrepperSearchFormSettingsTest.AfterCopyValuesValuesShouldBeEqual;
+procedure TSearchFormSettingsTest.AfterCopyValuesValuesShouldBeEqual;
 begin
 	SetDefaults;
 	FSettings.LoadDefault;
 	FSettings.RefreshMembers(false);
 	var
-	s := TRipGrepperSearchFormSettings.Create();
+	s := TSearchFormSettings.Create();
 	try
 		s.Copy(FSettings);
 		s.RefreshMembers(false);
@@ -102,7 +102,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepperSearchFormSettingsTest.LoadDefaultsReadsIni;
+procedure TSearchFormSettingsTest.LoadDefaultsReadsIni;
 begin
 	SetDefaults;
 	Assert.IsFalse(FSettings.IsAlreadyRead);
@@ -110,7 +110,7 @@ begin
 	Assert.IsTrue(FSettings.IsAlreadyRead);
 end;
 
-procedure TRipGrepperSearchFormSettingsTest.SetDefaults;
+procedure TSearchFormSettingsTest.SetDefaults;
 begin
 	var
 	sec := FSettings.IniSectionName;
@@ -121,13 +121,13 @@ begin
 	FIniFile.WriteBool(sec, 'NoIgnore' + DEFAULT_KEY, True);
 end;
 
-procedure TRipGrepperSearchFormSettingsTest.Setup;
+procedure TSearchFormSettingsTest.Setup;
 begin
 	FIniFile := TMemIniFile.Create(INIFILE, TEncoding.UTF8);
-	FSettings := TRipGrepperSearchFormSettings.Create(FIniFile);
+	FSettings := TSearchFormSettings.Create(FIniFile);
 end;
 
-procedure TRipGrepperSearchFormSettingsTest.TearDown;
+procedure TSearchFormSettingsTest.TearDown;
 begin
 	FSettings.Free;
 	FIniFile.Free;
@@ -135,6 +135,6 @@ end;
 
 initialization
 
-TDUnitX.RegisterTestFixture(TRipGrepperSearchFormSettingsTest);
+TDUnitX.RegisterTestFixture(TSearchFormSettingsTest);
 
 end.

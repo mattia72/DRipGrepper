@@ -3,7 +3,7 @@ unit RipGrepper.Common.Settings.RipGrepperSettingsTest;
 interface
 
 uses
-	RipGrepper.Common.Settings.RipGrepperSearchFormSettings,
+	RipGrepper.Common.Settings.SearchFormSettings,
 	System.IniFiles,
 	RipGrepper.Common.Settings.RipGrepperSettings,
 	DUnitX.TestFramework;
@@ -59,11 +59,11 @@ end;
 procedure TRipGrepperSettingsTest.RefreshMembersShouldLoadDefaultsTest;
 begin
 	FSettings.RefreshMembers(True);
-	Assert.AreEqual(True, FSettings.RipGrepperSearchFormSettings.Pretty, 'Pretty should be true');
-	Assert.AreEqual(False, FSettings.RipGrepperSearchFormSettings.Hidden, 'Hidden should be true');
-	Assert.AreEqual(False, FSettings.RipGrepperSearchFormSettings.NoIgnore, 'NoIgnore should be true');
-	Assert.AreEqual(0, FSettings.RipGrepperSearchFormSettings.Context, 'Context should be true');
-	Assert.AreEqual('', FSettings.RipGrepperSearchFormSettings.Encoding, 'Encoding should be ''''');
+	Assert.AreEqual(True, FSettings.SearchFormSettings.Pretty, 'Pretty should be true');
+	Assert.AreEqual(False, FSettings.SearchFormSettings.Hidden, 'Hidden should be true');
+	Assert.AreEqual(False, FSettings.SearchFormSettings.NoIgnore, 'NoIgnore should be true');
+	Assert.AreEqual(0, FSettings.SearchFormSettings.Context, 'Context should be true');
+	Assert.AreEqual('', FSettings.SearchFormSettings.Encoding, 'Encoding should be ''''');
 end;
 
 procedure TRipGrepperSettingsTest.LoadDefaultsShouldReadDefaultFromIni;
@@ -71,11 +71,11 @@ begin
 	SetDefaults;
 	FSettings.LoadDefault;
 	// Assert.IsTrue(FSettings.IsAlreadyRead, 'IsAlreadyRead should read');
-	Assert.AreEqual('utf8', FSettings.RipGrepperSearchFormSettings.Encoding, 'Encoding should be utf8');
-	Assert.AreEqual(5, FSettings.RipGrepperSearchFormSettings.Context, 'Context should be 5');
-	Assert.AreEqual(False, FSettings.RipGrepperSearchFormSettings.Pretty, 'Pretty should be false');
-	Assert.AreEqual(True, FSettings.RipGrepperSearchFormSettings.Hidden, 'Hidden should be true');
-	Assert.AreEqual(True, FSettings.RipGrepperSearchFormSettings.NoIgnore, 'NoIgnore should be true');
+	Assert.AreEqual('utf8', FSettings.SearchFormSettings.Encoding, 'Encoding should be utf8');
+	Assert.AreEqual(5, FSettings.SearchFormSettings.Context, 'Context should be 5');
+	Assert.AreEqual(False, FSettings.SearchFormSettings.Pretty, 'Pretty should be false');
+	Assert.AreEqual(True, FSettings.SearchFormSettings.Hidden, 'Hidden should be true');
+	Assert.AreEqual(True, FSettings.SearchFormSettings.NoIgnore, 'NoIgnore should be true');
 end;
 
 procedure TRipGrepperSettingsTest.AfterCopyValuesValuesShouldBeEqual;
@@ -87,16 +87,16 @@ begin
 	try
 		s.Copy(FSettings);
 
-		Assert.AreEqual(s.RipGrepperSearchFormSettings.Encoding,
-			{ } FSettings.RipGrepperSearchFormSettings.Encoding, 'Encoding should be utf8');
-		Assert.AreEqual(s.RipGrepperSearchFormSettings.Context,
-			{ } FSettings.RipGrepperSearchFormSettings.Context, 'Context should be 5');
-		Assert.AreEqual(s.RipGrepperSearchFormSettings.Pretty,
-			{ } FSettings.RipGrepperSearchFormSettings.Pretty, 'Pretty should be false');
-		Assert.AreEqual(s.RipGrepperSearchFormSettings.Hidden,
-			{ } FSettings.RipGrepperSearchFormSettings.Hidden, 'Hidden should be true');
-		Assert.AreEqual(s.RipGrepperSearchFormSettings.NoIgnore,
-			{ } FSettings.RipGrepperSearchFormSettings.NoIgnore, 'NoIgnore should be true');
+		Assert.AreEqual(s.SearchFormSettings.Encoding,
+			{ } FSettings.SearchFormSettings.Encoding, 'Encoding should be utf8');
+		Assert.AreEqual(s.SearchFormSettings.Context,
+			{ } FSettings.SearchFormSettings.Context, 'Context should be 5');
+		Assert.AreEqual(s.SearchFormSettings.Pretty,
+			{ } FSettings.SearchFormSettings.Pretty, 'Pretty should be false');
+		Assert.AreEqual(s.SearchFormSettings.Hidden,
+			{ } FSettings.SearchFormSettings.Hidden, 'Hidden should be true');
+		Assert.AreEqual(s.SearchFormSettings.NoIgnore,
+			{ } FSettings.SearchFormSettings.NoIgnore, 'NoIgnore should be true');
 	finally
 		s.Free;
 	end;
@@ -104,17 +104,17 @@ end;
 
 procedure TRipGrepperSettingsTest.SetDefaults;
 begin
-	FSettings.RipGrepperSearchFormSettings.Encoding := 'utf8';
-	FSettings.RipGrepperSearchFormSettings.Context := 5;
-	FSettings.RipGrepperSearchFormSettings.Pretty := False;
-	FSettings.RipGrepperSearchFormSettings.Hidden := True;
-	FSettings.RipGrepperSearchFormSettings.NoIgnore := True;
+	FSettings.SearchFormSettings.Encoding := 'utf8';
+	FSettings.SearchFormSettings.Context := 5;
+	FSettings.SearchFormSettings.Pretty := False;
+	FSettings.SearchFormSettings.Hidden := True;
+	FSettings.SearchFormSettings.NoIgnore := True;
 	FSettings.StoreAsDefault;
-	FSettings.RipGrepperSearchFormSettings.Encoding := 'none';
-	FSettings.RipGrepperSearchFormSettings.Context := 1;
-	FSettings.RipGrepperSearchFormSettings.Pretty := True;
-	FSettings.RipGrepperSearchFormSettings.Hidden := True;
-	FSettings.RipGrepperSearchFormSettings.NoIgnore := True;
+	FSettings.SearchFormSettings.Encoding := 'none';
+	FSettings.SearchFormSettings.Context := 1;
+	FSettings.SearchFormSettings.Pretty := True;
+	FSettings.SearchFormSettings.Hidden := True;
+	FSettings.SearchFormSettings.NoIgnore := True;
 
 end;
 

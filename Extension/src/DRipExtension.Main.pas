@@ -102,7 +102,7 @@ begin
 	// exit;
 
 	RemoveExtensionMenu();
-	extSettings := GSettings.RipGrepperSearchFormSettings.ExtensionSettings;
+	extSettings := GSettings.SearchFormSettings.ExtensionSettings;
 
 	dbgMsg.Msg('shortcut ' + extSettings.DripGrepperShortCut);
 	sc := TextToShortCut(extSettings.DripGrepperShortCut);

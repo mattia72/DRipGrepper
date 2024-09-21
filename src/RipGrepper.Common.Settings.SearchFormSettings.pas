@@ -1,4 +1,4 @@
-unit RipGrepper.Common.Settings.RipGrepperSearchFormSettings;
+unit RipGrepper.Common.Settings.SearchFormSettings;
 
 interface
 
@@ -23,7 +23,7 @@ type
 		{ } rgecPath = EXT_SEARCH_GIVEN_PATH
 		{ } );
 
-	TRipGrepperSearchFormSettings = class(TPersistableSettings)
+	TSearchFormSettings = class(TPersistableSettings)
 		const
 			SEARCH_SETTINGS : array [0 .. 4] of string =
 			{ } ('Pretty', 'Hidden', 'NoIgnore', 'Context', 'Encoding');
@@ -60,7 +60,7 @@ type
 			procedure Init; override;
 			procedure ReadIni; override;
 			procedure Store; override;
-			procedure Copy(const _other : TRipGrepperSearchFormSettings); reintroduce;
+			procedure Copy(const _other : TSearchFormSettings); reintroduce;
 			procedure StoreAsDefault; override;
 			procedure LoadDefault; override;
 			procedure RefreshMembers(const _bWithDefault : Boolean); override;
@@ -94,27 +94,27 @@ uses
 	RipGrepper.CommandLine.Builder,
 	RipGrepper.Common.IOTAUtils;
 
-constructor TRipGrepperSearchFormSettings.Create(const _ini : TMemIniFile);
+constructor TSearchFormSettings.Create(const _ini : TMemIniFile);
 begin
 	IniSectionName := INI_SECTION;
 	inherited Create(_ini);
 	FExtensionSettings := TRipGrepperExtensionSettings.Create(_ini);
 end;
 
-constructor TRipGrepperSearchFormSettings.Create;
+constructor TSearchFormSettings.Create;
 begin
 	IniSectionName := INI_SECTION;
 	inherited Create;
 	FExtensionSettings := TRipGrepperExtensionSettings.Create();
 end;
 
-destructor TRipGrepperSearchFormSettings.Destroy;
+destructor TSearchFormSettings.Destroy;
 begin
 	FExtensionSettings.Free;
 	inherited;
 end;
 
-procedure TRipGrepperSearchFormSettings.Copy(const _other : TRipGrepperSearchFormSettings);
+procedure TSearchFormSettings.Copy(const _other : TSearchFormSettings);
 begin
 	if Assigned(_other) then begin
 		FExtensionSettings.Copy(_other.ExtensionSettings);
@@ -122,21 +122,21 @@ begin
 	end;
 end;
 
-function TRipGrepperSearchFormSettings.GetContext : Integer;
+function TSearchFormSettings.GetContext : Integer;
 begin
 	Result := FContext;
 end;
 
-function TRipGrepperSearchFormSettings.GetEncoding : string;
+function TSearchFormSettings.GetEncoding : string;
 begin
 	Result := FEncoding;
 end;
 
-function TRipGrepperSearchFormSettings.GetExtensionSettings : TRipGrepperExtensionSettings;
+function TSearchFormSettings.GetExtensionSettings : TRipGrepperExtensionSettings;
 begin
 	if not FExtensionSettings.IsAlreadyRead then begin
 		var
-		dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchFormSettings.GetExtensionSettings');
+		dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.GetExtensionSettings');
 
 		FExtensionSettings.ReadIni;
 		FExtensionSettings.LoadDefault;
@@ -144,25 +144,25 @@ begin
 	Result := FExtensionSettings;
 end;
 
-function TRipGrepperSearchFormSettings.GetHidden : Boolean;
+function TSearchFormSettings.GetHidden : Boolean;
 begin
 	Result := FHidden;
 end;
 
-function TRipGrepperSearchFormSettings.GetNoIgnore : Boolean;
+function TSearchFormSettings.GetNoIgnore : Boolean;
 begin
 	Result := FNoIgnore;
 end;
 
-function TRipGrepperSearchFormSettings.GetPretty : Boolean;
+function TSearchFormSettings.GetPretty : Boolean;
 begin
 	Result := FPretty;
 end;
 
-procedure TRipGrepperSearchFormSettings.Init;
+procedure TSearchFormSettings.Init;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchFormSettings.Init');
+	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.Init');
 	CreateDefaultRelevantSetting('Pretty', varBoolean, True);
 	CreateDefaultRelevantSetting('Hidden', varBoolean, False);
 	CreateDefaultRelevantSetting('NoIgnore', varBoolean, False);
@@ -170,63 +170,63 @@ begin
 	CreateDefaultRelevantSetting('Encoding', varString, '');
 end;
 
-procedure TRipGrepperSearchFormSettings.ReadIni;
+procedure TSearchFormSettings.ReadIni;
 begin
 	FExtensionSettings.ReadIni;
 	inherited ReadIni();
 end;
 
-procedure TRipGrepperSearchFormSettings.SetContext(const Value : Integer);
+procedure TSearchFormSettings.SetContext(const Value : Integer);
 begin
 	FContext := Value;
 end;
 
-procedure TRipGrepperSearchFormSettings.SetEncoding(const Value : string);
+procedure TSearchFormSettings.SetEncoding(const Value : string);
 begin
 	FEncoding := Value;
 end;
 
-procedure TRipGrepperSearchFormSettings.SetHidden(const Value : Boolean);
+procedure TSearchFormSettings.SetHidden(const Value : Boolean);
 begin
 	FHidden := Value;
 end;
 
-procedure TRipGrepperSearchFormSettings.SetNoIgnore(const Value : Boolean);
+procedure TSearchFormSettings.SetNoIgnore(const Value : Boolean);
 begin
 	FNoIgnore := Value;
 end;
 
-procedure TRipGrepperSearchFormSettings.SetPretty(const Value : Boolean);
+procedure TSearchFormSettings.SetPretty(const Value : Boolean);
 begin
 	FPretty := Value;
 end;
 
-procedure TRipGrepperSearchFormSettings.Store;
+procedure TSearchFormSettings.Store;
 begin
 	StoreSearchSettings(False);
 	FExtensionSettings.Store;
 	inherited Store();
 end;
 
-procedure TRipGrepperSearchFormSettings.StoreAsDefault;
+procedure TSearchFormSettings.StoreAsDefault;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchFormSettings.StoreAsDefault');
+	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.StoreAsDefault');
 
 	StoreSearchSettings(True);
 	FExtensionSettings.StoreAsDefault;
 	inherited StoreAsDefault();
 end;
 
-procedure TRipGrepperSearchFormSettings.LoadDefault;
+procedure TSearchFormSettings.LoadDefault;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchFormSettings.LoadDefault');
+	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.LoadDefault');
 	FExtensionSettings.LoadDefault;
 	inherited LoadDefault();
 end;
 
-procedure TRipGrepperSearchFormSettings.RefreshMembers(const _bWithDefault : Boolean);
+procedure TSearchFormSettings.RefreshMembers(const _bWithDefault : Boolean);
 begin
 	Pretty := GetSetting('Pretty', _bWithDefault);
 	Hidden := GetSetting('Hidden', _bWithDefault);
@@ -236,7 +236,7 @@ begin
 	FExtensionSettings.RefreshMembers(_bWithDefault);
 end;
 
-procedure TRipGrepperSearchFormSettings.StoreSearchSettings(_bAsDefault : Boolean; const _s : string = '');
+procedure TSearchFormSettings.StoreSearchSettings(_bAsDefault : Boolean; const _s : string = '');
 var
 	i : integer;
 begin
@@ -263,7 +263,7 @@ begin
 	end;
 end;
 
-function TRipGrepperSearchFormSettings.ToLogString : string;
+function TSearchFormSettings.ToLogString : string;
 begin
 	Result := Format('Hidden=%s NoIgnore=%s Pretty=%s Context=%d Encoding=%s Extension:[%s]',
 		{ } [BoolToStr(Hidden, True),

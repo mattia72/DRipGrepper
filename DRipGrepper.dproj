@@ -160,7 +160,7 @@
         <DCCReference Include="src\RipGrepper.Common.Interfaces.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.RipGrepperSettings.pas"/>
         <DCCReference Include="src\RipGrepper.Common.ParsedObject.pas"/>
-        <DCCReference Include="src\RipGrepper.Common.Settings.RipGrepperSearchFormSettings.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Settings.SearchFormSettings.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.Persistable.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.RipGrepParameterSettings.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Sorter.pas"/>
