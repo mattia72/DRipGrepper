@@ -16,7 +16,7 @@ uses
 	System.ImageList,
 	RipGrepper.Common.Settings.Misc,
 	RipGrepper.UI.DpiScaler,
-	RipGrepper.Common.Settings.RipGrepperOpenWithSettings;
+	RipGrepper.Common.Settings.OpenWithSettings;
 
 type
 
@@ -69,7 +69,7 @@ type
 
 		private
 			FDpiScaler : TRipGrepperDpiScaler;
-			FSettings : TRipGrepperOpenWithSettings;
+			FSettings : TOpenWithSettings;
 			function CheckCommand(const _sCmd : string) : Boolean;
 			procedure ClearOpenWithCmd;
 			procedure MoveItem(const idx : Integer);
@@ -78,9 +78,9 @@ type
 		protected
 		public
 			{ Public-Deklarationen }
-			constructor Create(AOwner : TComponent; const ASettings : TRipGrepperOpenWithSettings); reintroduce;
+			constructor Create(AOwner : TComponent; const ASettings : TOpenWithSettings); reintroduce;
 			destructor Destroy; override;
-			class procedure CreateAndShow(_settings : TRipGrepperOpenWithSettings);
+			class procedure CreateAndShow(_settings : TOpenWithSettings);
 			procedure ReadSettings;
 			procedure WriteSettings;
 
@@ -103,7 +103,7 @@ uses
 
 {$R *.dfm}
 
-constructor TOpenWithConfigForm.Create(AOwner : TComponent; const ASettings : TRipGrepperOpenWithSettings);
+constructor TOpenWithConfigForm.Create(AOwner : TComponent; const ASettings : TOpenWithSettings);
 begin
 	inherited Create(AOwner); // , ImageList1);
 	self.FSettings := ASettings;
@@ -256,7 +256,7 @@ begin
 	edt_OpenWithCmd.Text := '';
 end;
 
-class procedure TOpenWithConfigForm.CreateAndShow(_settings : TRipGrepperOpenWithSettings);
+class procedure TOpenWithConfigForm.CreateAndShow(_settings : TOpenWithSettings);
 begin
 	var
 	form := TOpenWithConfigForm.Create(nil, _settings);

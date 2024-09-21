@@ -69,7 +69,7 @@ uses
   RipGrepper.Common.SearchParams in 'src\RipGrepper.Common.SearchParams.pas',
   RipGrepper.Common.Settings.Misc in 'src\RipGrepper.Common.Settings.Misc.pas',
   RipGrepper.Common.Settings.RipGrepperViewSettings in 'src\RipGrepper.Common.Settings.RipGrepperViewSettings.pas',
-  RipGrepper.Common.Settings.RipGrepperOpenWithSettings in 'src\RipGrepper.Common.Settings.RipGrepperOpenWithSettings.pas',
+  RipGrepper.Common.Settings.OpenWithSettings in 'src\RipGrepper.Common.Settings.OpenWithSettings.pas',
   RipGrepper.OpenWith.Params in 'src\OpenWith\RipGrepper.OpenWith.Params.pas',
   RipGrepper.Common.Settings.SettingVariant in 'src\RipGrepper.Common.Settings.SettingVariant.pas',
   RipGrepper.Common.Settings.SettingsDictionary in 'src\RipGrepper.Common.Settings.SettingsDictionary.pas',

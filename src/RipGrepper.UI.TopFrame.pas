@@ -212,7 +212,7 @@ end;
 procedure TRipGrepperTopFrame.ActionConfigExecute(Sender : TObject);
 begin
 	var
-	Settings := Settings.RipGrepperOpenWithSettings;
+	Settings := Settings.OpenWithSettings;
 	Settings.TestFile := MainFrame.GetOpenWithParamsFromSelected();
 	TOpenWithConfigForm.CreateAndShow(Settings);
 	Settings.TestFile := default (TOpenWithParams);

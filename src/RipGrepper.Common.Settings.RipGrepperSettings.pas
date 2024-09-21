@@ -11,7 +11,7 @@ uses
 	RipGrepper.Common.Constants,
 	System.IniFiles,
 	RipGrepper.Common.Settings.RipGrepperViewSettings,
-	RipGrepper.Common.Settings.RipGrepperOpenWithSettings;
+	RipGrepper.Common.Settings.OpenWithSettings;
 
 type
 	TRipGrepperSettings = class(TPersistableSettings)
@@ -21,7 +21,7 @@ type
 
 			FRipGrepParameters : TRipGrepParameterSettings;
 			FRipGrepperViewSettings : TRipGrepperViewSettings;
-			FRipGrepperOpenWithSettings : TRipGrepperOpenWithSettings;
+			FOpenWithSettings : TOpenWithSettings;
 
 			FRipGrepOptionsHistory : TSTrings;
 			FSearchPathsHistory : TStrings;
@@ -72,7 +72,7 @@ type
 			property SearchPathsHistory : TStrings read FSearchPathsHistory write SetSearchPathsHistory;
 			property RipGrepOptionsHistory : TSTrings read FRipGrepOptionsHistory write SetRipGrepOptionsHistory;
 			property RipGrepParameters : TRipGrepParameterSettings read FRipGrepParameters write FRipGrepParameters;
-			property RipGrepperOpenWithSettings : TRipGrepperOpenWithSettings read FRipGrepperOpenWithSettings;
+			property OpenWithSettings : TOpenWithSettings read FOpenWithSettings;
 			property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings
 				write FSearchFormSettings;
 			property RipGrepperSettings : TRipGrepperAppSettings read FRipGrepperSettings write FRipGrepperSettings;
@@ -164,7 +164,7 @@ begin
 	FSearchTextsHistory.Free;
 	FSearchPathsHistory.Free;
 	FRipGrepperViewSettings.Free;
-	FRipGrepperOpenWithSettings.Free;
+	FOpenWithSettings.Free;
 	FRipGrepParameters.Free;
 	FRipGrepperSettings.Free;
 	FSearchFormSettings.Free;
@@ -183,7 +183,7 @@ begin
 	FRipGrepperSettings := TRipGrepperAppSettings.Create(FIniFile);
 	FRipGrepParameters := TRipGrepParameterSettings.Create(FIniFile);
 	FRipGrepperViewSettings := TRipGrepperViewSettings.Create(FIniFile);
-	FRipGrepperOpenWithSettings := TRipGrepperOpenWithSettings.Create(FIniFile);
+	FOpenWithSettings := TOpenWithSettings.Create(FIniFile);
 	FSearchPathsHistory := TStringList.Create(dupIgnore, False, True);
 	FSearchTextsHistory := TStringList.Create(dupIgnore, False, True);
 	FRipGrepOptionsHistory := TStringList.Create(dupIgnore, False, True);
@@ -207,7 +207,7 @@ begin
 		FRipGrepperSettings.Copy(s.RipGrepperSettings);
 		FRipGrepParameters.Copy(s.RipGrepParameters);;
 		FRipGrepperViewSettings.Copy(s.RipGrepperViewSettings);;
-		FRipGrepperOpenWithSettings.Copy(s.RipGrepperOpenWithSettings);;
+		FOpenWithSettings.Copy(s.OpenWithSettings);;
 		FSearchPathsHistory.Assign(s.SearchPathsHistory);
 		FSearchTextsHistory.Assign(s.SearchTextsHistory);
 		FRipGrepOptionsHistory.Assign(s.RipGrepOptionsHistory);
@@ -231,7 +231,7 @@ function TRipGrepperSettings.GetIsModified : Boolean;
 begin
 	Result := FIsModified or FRipGrepParameters.IsModified or
 	{ } FRipGrepperViewSettings.IsModified or
-	{ } FRipGrepperOpenWithSettings.IsModified;
+	{ } FOpenWithSettings.IsModified;
 end;
 
 function TRipGrepperSettings.GetSearchFormSettings : TSearchFormSettings;
@@ -262,7 +262,7 @@ begin
 	try
 		FRipGrepperViewSettings.ReadIni;
 		FRipGrepperViewSettings.RefreshMembers(false);
-		FRipGrepperOpenWithSettings.ReadIni;
+		FOpenWithSettings.ReadIni;
 		FRipGrepperSettings.ReadIni;
 
 		LoadHistoryEntries(FSearchPathsHistory, 'SearchPathsHistory');
@@ -332,7 +332,7 @@ begin
 	if IsModified then begin
 		dbgMsg.Msg('IsModified');
 		FRipGrepperViewSettings.Store;
-		FRipGrepperOpenWithSettings.Store;
+		FOpenWithSettings.Store;
 		FRipGrepperSettings.Store;
 		FSearchFormSettings.Store;
 		FRipGrepParameters.Store;

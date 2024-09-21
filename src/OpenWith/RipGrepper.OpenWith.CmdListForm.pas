@@ -22,7 +22,7 @@ uses
 	RipGrepper.Common.Settings.Misc,
 	RipGrepper.UI.DpiScaler,
 	u_dzDpiScaleUtils,
-	RipGrepper.Common.Settings.RipGrepperOpenWithSettings;
+	RipGrepper.Common.Settings.OpenWithSettings;
 
 type
 	TOpenWithCmdList = class(TForm)
@@ -61,11 +61,11 @@ type
 			FMemoLineMargin : Integer;
 			FOrigMemoHeight : Integer;
 			FOrigTopPanelHeight : Integer;
-			FSettings : TRipGrepperOpenWithSettings;
+			FSettings : TOpenWithSettings;
 			FViewStyleIndex : Integer;
 
 			procedure CreateScaledIcons(const bUpdateScaler : Boolean = False);
-			class function GetEnabledCmds(const _settings : TRipGrepperOpenWithSettings) : TArray<string>;
+			class function GetEnabledCmds(const _settings : TOpenWithSettings) : TArray<string>;
 			function GetFileNameFromCfg(const _configText : string) : string;
 			function GetViewStyleIndex : Integer;
 			procedure SetMemoHeightByLineCount;
@@ -74,9 +74,9 @@ type
 		protected
 		public
 			class var FScaledIcons : TImageList;
-			constructor Create(AOwner : TComponent; const ASettings : TRipGrepperOpenWithSettings); reintroduce;
+			constructor Create(AOwner : TComponent; const ASettings : TOpenWithSettings); reintroduce;
 			destructor Destroy(); override;
-			class function CreateAndShow(const _settings : TRipGrepperOpenWithSettings) : string;
+			class function CreateAndShow(const _settings : TOpenWithSettings) : string;
 			procedure LoadEnbledCmds;
 	end;
 
@@ -98,7 +98,7 @@ uses
 
 {$R *.dfm}
 
-constructor TOpenWithCmdList.Create(AOwner : TComponent; const ASettings : TRipGrepperOpenWithSettings);
+constructor TOpenWithCmdList.Create(AOwner : TComponent; const ASettings : TOpenWithSettings);
 begin
 	inherited Create(AOwner);
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
@@ -152,7 +152,7 @@ begin
 	ActionSwitchView.Hint := 'Change View ' + LISTVIEW_TYPE_TEXTS[idx];
 end;
 
-class function TOpenWithCmdList.CreateAndShow(const _settings : TRipGrepperOpenWithSettings) : string;
+class function TOpenWithCmdList.CreateAndShow(const _settings : TOpenWithSettings) : string;
 begin
 	var
 	form := TOpenWithCmdList.Create(nil, _settings);
@@ -207,7 +207,7 @@ begin
 	ActiveControl := lbCommands;
 end;
 
-class function TOpenWithCmdList.GetEnabledCmds(const _settings : TRipGrepperOpenWithSettings) : TArray<string>;
+class function TOpenWithCmdList.GetEnabledCmds(const _settings : TOpenWithSettings) : TArray<string>;
 var
 	arrCmd : TArray<string>;
 	i : Integer;

@@ -1,4 +1,4 @@
-unit RipGrepper.Common.Settings.RipGrepperOpenWithSettings;
+unit RipGrepper.Common.Settings.OpenWithSettings;
 
 interface
 
@@ -10,7 +10,7 @@ uses
 	RipGrepper.OpenWith.Params;
 
 type
-	TRipGrepperOpenWithSettings = class(TPersistableSettings)
+	TOpenWithSettings = class(TPersistableSettings)
 		private
 			FCommandList : TStringList;
 			FTestFile : TOpenWithParams;
@@ -34,21 +34,21 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	System.SysUtils;
 
-constructor TRipGrepperOpenWithSettings.Create(const _ini : TMemIniFile);
+constructor TOpenWithSettings.Create(const _ini : TMemIniFile);
 begin
 	IniSectionName := OPEN_WITH_SETTINGS;
 	inherited;
 	FCommandList := TStringList.Create;
-	TDebugUtils.DebugMessage('TRipGrepperOpenWithSettings.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
+	TDebugUtils.DebugMessage('TOpenWithSettings.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
 end;
 
-destructor TRipGrepperOpenWithSettings.Destroy;
+destructor TOpenWithSettings.Destroy;
 begin
 	FCommandList.Free;
 	inherited;
 end;
 
-function TRipGrepperOpenWithSettings.GetCommand(Index : Integer) : string;
+function TOpenWithSettings.GetCommand(Index : Integer) : string;
 begin
 	Result := '';
 	if FCommandList.Count > index then begin
@@ -56,13 +56,13 @@ begin
 	end;
 end;
 
-procedure TRipGrepperOpenWithSettings.Init;
+procedure TOpenWithSettings.Init;
 begin
 	inherited;
-	// TODO -cMM: TRipGrepperOpenWithSettings.Init default body inserted
+	// TODO -cMM: TOpenWithSettings.Init default body inserted
 end;
 
-procedure TRipGrepperOpenWithSettings.ReadIni;
+procedure TOpenWithSettings.ReadIni;
 var
 	s : string;
 begin
@@ -77,13 +77,13 @@ begin
 	//FIsAlreadyRead := True;
 end;
 
-procedure TRipGrepperOpenWithSettings.RefreshMembers(const _bWithDefault : Boolean);
+procedure TOpenWithSettings.RefreshMembers(const _bWithDefault : Boolean);
 begin
 	inherited;
-	// TODO -cMM: TRipGrepperOpenWithSettings.RefreshMembers default body inserted
+	// TODO -cMM: TOpenWithSettings.RefreshMembers default body inserted
 end;
 
-procedure TRipGrepperOpenWithSettings.SetCommand(Index : Integer; const Value : string);
+procedure TOpenWithSettings.SetCommand(Index : Integer; const Value : string);
 begin
 	if Value.IsEmpty then
 		Exit;
@@ -99,7 +99,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepperOpenWithSettings.Store;
+procedure TOpenWithSettings.Store;
 var
 	s : string;
 begin

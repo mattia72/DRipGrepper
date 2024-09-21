@@ -34,7 +34,7 @@ uses
 class function TOpenWith.GetSelectedCmd(_owpTestFile : TOpenWithParams) : string;
 begin
 	var
-	settings := GSettings.RipGrepperOpenWithSettings;
+	settings := GSettings.OpenWithSettings;
 	settings.TestFile := _owpTestFile;
 	Result := TOpenWithCmdList.CreateAndShow(settings);
 	TDebugUtils.DebugMessage((Format('OpenWithFunc.GetSelectedCmd Result: "%s"', [Result])));
