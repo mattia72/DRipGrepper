@@ -194,6 +194,7 @@ type
 			procedure AddOrUpdateHistoryItem;
 			procedure AlignToolBars;
 			procedure ChangeDataHistItemObject(_ho : IHistoryItemObject);
+			procedure ClearFilter(const _bForce : Boolean = False);
 			procedure ClearHistoryObject;
 			procedure CopyToClipboardFileOfSelected;
 			procedure CopyToClipboardPathOfSelected;
@@ -537,6 +538,21 @@ begin
 	end;
 end;
 
+procedure TRipGrepperMiddleFrame.ClearFilter(const _bForce : Boolean = False);
+begin
+	TopFrame.edtFilter.Text := '';
+	if _bForce then begin
+		VstResult.BeginUpdate;
+		try
+			for var Node in VstResult.InitializedNodes(True) do begin
+				VstResult.IsFiltered[Node] := False;
+			end;
+		finally
+			VstResult.EndUpdate;
+		end;
+	end;
+end;
+
 procedure TRipGrepperMiddleFrame.ClearHistoryObject;
 begin
 	var
@@ -600,23 +616,20 @@ var
 	Node : PVirtualNode;
 	Data : PVSFileNodeData;
 begin
-	if _sFilterPattern.IsEmpty then begin
-		Exit;
-	end;
-
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.FilterNodes');
 	VstResult.BeginUpdate;
 	try
-		for Node in VstResult.VisibleNodes() do begin
+		// ClearFilter;
+		for Node in VstResult.InitializedNodes(True) do begin
 			Data := VstResult.GetNodeData(Node);
 			var
 			bIsFiltered := IsNodeFiltered(Data, _sFilterPattern);
 			VstResult.IsFiltered[Node] := bIsFiltered;
-			if not bIsFiltered and Assigned(Node.Parent) then begin
+			if not bIsFiltered and Assigned(Node.Parent) and (Node.Parent <> VstResult.RootNode) then begin
 				VstResult.IsFiltered[Node.Parent] := False;
 			end;
-			// dbgMsg.MsgFmtIf(not bIsFiltered, 'not IsFiltered: %s', [Data.MatchData.LineText]);
+			dbgMsg.MsgFmtIf(not bIsFiltered, 'not IsFiltered: %s', [Data.MatchData.LineText]);
 		end;
 	finally
 		VstResult.EndUpdate;
@@ -1138,7 +1151,8 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.UpdateHistObjectAndGui History Gui: ' + HistItemObject.GuiSearchTextParams.SearchText +
 		' ' + HistItemObject.GuiSearchTextParams.ToString);
 	SetResultListViewDataToHistoryObj();
-	ExpandNodes;
+	ExpandNodes();
+	ClearFilter();
 	RefreshCountersInGUI;
 	ParentFrame.SetStatusBarMessage(True);
 end;

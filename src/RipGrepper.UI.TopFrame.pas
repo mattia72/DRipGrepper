@@ -63,7 +63,6 @@ type
 		tbExpandCollapse : TToolButton;
 		ActionExpandCollapse : TAction;
 		ToolButton7 : TToolButton;
-		SearchBox1 : TSearchBox;
 		tbarResult : TToolBar;
 		tbarConfig : TToolBar;
 		PopupMenu1 : TPopupMenu;
@@ -72,6 +71,7 @@ type
 		ToolButton5 : TToolButton;
 		ToolButton8 : TToolButton;
 		ActionSearchInResult : TAction;
+		edtFilter : TButtonedEdit;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlignToolbarsExecute(Sender : TObject);
@@ -100,6 +100,7 @@ type
 		procedure ActionShowSearchFormUpdate(Sender : TObject);
 		procedure ActionSwitchViewExecute(Sender : TObject);
 		procedure ActionSwitchViewUpdate(Sender : TObject);
+		procedure edtFilterChange(Sender : TObject);
 		procedure SearchBox1Change(Sender : TObject);
 
 		private
@@ -110,7 +111,7 @@ type
 			FViewStyleIndex : integer;
 			function GetSettings : TRipGrepperSettings;
 			function GetToolBarWidth(_tb : TToolBar) : Integer;
-			procedure SelectNextFoundNode(const _prevFoundNode : PVirtualNode);
+			procedure SelectNextFoundNode(const _prevFoundNode : PVirtualNode; const _searchPattern : string);
 			procedure StartNewSearch;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
@@ -289,7 +290,7 @@ end;
 
 procedure TRipGrepperTopFrame.ActionSearchInResultExecute(Sender : TObject);
 begin
-	SelectNextFoundNode(FPrevFoundNode);
+	SelectNextFoundNode(FPrevFoundNode, edtFilter.Text);
 end;
 
 procedure TRipGrepperTopFrame.ActionShowFileIconsExecute(Sender : TObject);
@@ -378,6 +379,11 @@ begin
 	end;
 end;
 
+procedure TRipGrepperTopFrame.edtFilterChange(Sender : TObject);
+begin
+	MainFrame.FilterNodes(edtFilter.Text);
+end;
+
 function TRipGrepperTopFrame.GetNextViewStyleIdx : integer;
 begin
 	Result := IfThen(FViewStyleIndex < Length(LISTVIEW_TYPES) - 1, FViewStyleIndex + 1, 0);
@@ -406,7 +412,7 @@ end;
 procedure TRipGrepperTopFrame.Init;
 begin
 	if not IOTAUTils.IsStandAlone then begin
-		SearchBox1.BorderStyle := bsNone;
+		edtFilter.BorderStyle := bsNone;
 		Height := Height - 2;
 	end;
 end;
@@ -416,7 +422,7 @@ begin
 	inherited; // OnChange(Sender);
 	FPrevFoundNode := nil;
 	// SelectNextFoundNode(FPrevFoundNode);
-	MainFrame.FilterNodes(SearchBox1.Text);
+	MainFrame.FilterNodes(edtFilter.Text);
 end;
 
 procedure TRipGrepperTopFrame.SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
@@ -431,12 +437,12 @@ begin
 	TDebugUtils.DebugMessage(Format('Search ''%s'' in %s', [string(Data), dataStr]));
 end;
 
-procedure TRipGrepperTopFrame.SelectNextFoundNode(const _prevFoundNode : PVirtualNode);
+procedure TRipGrepperTopFrame.SelectNextFoundNode(const _prevFoundNode : PVirtualNode; const _searchPattern : string);
 var
 	bLast : Boolean;
 	nextNode, lastNode, foundNode : PVirtualNode;
 begin
-	if SearchBox1.Text = '' then begin
+	if _searchPattern.IsEmpty then begin
 		Exit;
 	end;
 	lastNode := MainFrame.VstResult.GetLast(nil, true);
@@ -452,7 +458,7 @@ begin
 		// first param is your starting point. nil starts at top of tree. if you want to implement findnext
 		// functionality you will need to supply the previous found node to continue from that point.
 		// be sure to set the IncrementalSearchTimeout to allow users to type a few characters before starting a search.
-		foundNode := MainFrame.VstResult.IterateSubtree(nextNode, SearchForText, Pointer(SearchBox1.text));
+		foundNode := MainFrame.VstResult.IterateSubtree(nextNode, SearchForText, Pointer(_searchPattern));
 	until Assigned(foundNode) or bLast;
 
 	if Assigned(foundNode) then begin

@@ -38,8 +38,8 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
   end
   object tbarResult: TToolBar
     AlignWithMargins = True
-    Left = 166
-    Top = 3
+    Left = 190
+    Top = 0
     Width = 303
     Height = 23
     Align = alNone
@@ -100,28 +100,21 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       ImageIndex = 1
       Style = tbsSeparator
     end
-    object SearchBox1: TSearchBox
+    object edtFilter: TButtonedEdit
       Left = 149
       Top = 0
       Width = 121
       Height = 23
       Hint = 'Filter Results'
       TabStop = False
-      AutoSize = False
-      BevelInner = bvNone
-      BevelOuter = bvNone
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'Segoe UI'
-      Font.Style = []
-      ParentFont = False
+      Images = ImageListButtons
       ParentShowHint = False
+      RightButton.ImageIndex = 1
+      RightButton.Visible = True
       ShowHint = True
       TabOrder = 0
       TextHint = 'Filter...'
-      OnChange = SearchBox1Change
-      ButtonWidth = 22
+      OnChange = edtFilterChange
     end
     object ToolButton6: TToolButton
       Left = 270
