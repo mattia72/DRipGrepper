@@ -12,6 +12,7 @@ type
 
 			class constructor Create;
 			class procedure InnerOutputDebugString(const _s : string);
+
 		public
 			class procedure DebugMessage(const _s : string);
 			class procedure Msg(const _s : string);
@@ -27,7 +28,9 @@ type
 		public
 			procedure Msg(const _sMsg : string);
 			procedure ErrorMsg(const _sMsg : string);
+			procedure MsgIf(const _bCondition : Boolean; const _sMsg : string);
 			procedure MsgFmt(const _s : string; const _args : array of const);
+			procedure MsgFmtIf(const _bCondition : Boolean; const _s : string; const _args : array of const);
 			class function New(const _sProcName : string) : TDebugMsgBeginEnd; static;
 			class operator Finalize(var Dest : TDebugMsgBeginEnd);
 	end;
@@ -97,9 +100,21 @@ begin
 	TDebugUtils.Msg(FProcName + ' - ERROR -' + _sMsg);
 end;
 
+procedure TDebugMsgBeginEnd.MsgIf(const _bCondition : Boolean; const _sMsg : string);
+begin
+	if _bCondition then
+		TDebugUtils.Msg(FProcName + ' - ' + _sMsg);
+end;
+
 procedure TDebugMsgBeginEnd.MsgFmt(const _s : string; const _args : array of const);
 begin
 	TDebugUtils.MsgFmt(FProcName + ' - ' + _s, _args);
+end;
+
+procedure TDebugMsgBeginEnd.MsgFmtIf(const _bCondition : Boolean; const _s : string; const _args : array of const);
+begin
+	if _bCondition then
+		TDebugUtils.MsgFmt(FProcName + ' - ' + _s, _args);
 end;
 
 class function TDebugMsgBeginEnd.New(const _sProcName : string) : TDebugMsgBeginEnd;
