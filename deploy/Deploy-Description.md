@@ -1,7 +1,7 @@
 <!--
 
-Version:     v3.4.1-beta
-PrevVersion: v3.4.0-beta
+Version:     v3.5.0-beta
+PrevVersion: v3.4.1-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -25,7 +25,7 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 ## :boom: Improvements 
 Marked with checkmark if ready, else planned as next.
 - [ ] replace 
-- [ ] filter result
+- [x] filter result
 - [ ] own prettifier switcher as toolbar button
 - [ ] save search histories in file
 - [ ] __extension__: search opened projekt files only
@@ -37,4 +37,4 @@ Marked with checkmark if fixed, else it is known bug.
   - [ ] `Additional Options` has to have saved defaults also
   - [x] __extension__: first open doesn't load defaults of IDE Context
 - [ ] drip icon in menu has no transparent background
-- [ ] open search from history loads default settings instead of history settings for --hidden
+- [x] open search from history loads default settings instead of history settings for --hidden

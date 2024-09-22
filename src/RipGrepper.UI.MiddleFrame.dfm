@@ -97,7 +97,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
             item
               Position = 0
               Text = 'Search'
-              Width = 183
+              Width = 179
             end>
         end
       end
@@ -136,6 +136,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           Header.AutoSizeIndex = 3
           Header.Options = [hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible, hoAutoResizeInclCaption]
           Images = ImageListListView
+          IncrementalSearch = isAll
           PopupMenu = PopupMenuResult
           TabOrder = 0
           TreeOptions.AutoOptions = [toAutoDropExpand, toAutoExpand, toAutoScrollOnExpand, toAutoSort, toAutoSpanColumns, toAutoTristateTracking, toAutoHideButtons, toAutoDeleteMovedNodes, toAutoChangeScale]

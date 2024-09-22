@@ -415,13 +415,14 @@ procedure TRipGrepperTopFrame.SearchBox1Change(Sender : TObject);
 begin
 	inherited; // OnChange(Sender);
 	FPrevFoundNode := nil;
-	SelectNextFoundNode(FPrevFoundNode);
+	// SelectNextFoundNode(FPrevFoundNode);
+	MainFrame.FilterNodes(SearchBox1.Text);
 end;
 
 procedure TRipGrepperTopFrame.SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
 var
 	dataStr : string;
-	NodeData : PVSFileNodeData; // replace by your record structure
+	NodeData : PVSFileNodeData;
 begin
 	NodeData := Sender.GetNodeData(Node);
 	dataStr := NodeData.FilePath + ' ' + NodeData.MatchData.LineText;
@@ -435,6 +436,9 @@ var
 	bLast : Boolean;
 	nextNode, lastNode, foundNode : PVirtualNode;
 begin
+	if SearchBox1.Text = '' then begin
+		Exit;
+	end;
 	lastNode := MainFrame.VstResult.GetLast(nil, true);
 	nextNode := _prevFoundNode;
 	repeat
@@ -470,7 +474,7 @@ begin
 	FHistItemObj := MainFrame.CreateNewHistObject;
 	formResult := TRipGrepperSearchDialogForm.ShowSearchForm(self, Settings, FHistItemObj);
 	if (mrOk = formResult) then begin
-		//MainFrame.HistItemObject := FHistItemObj;
+		// MainFrame.HistItemObject := FHistItemObj;
 		dbgMsg.Msg('after showmodal gui params: ' + Settings.RipGrepParameters.GuiSearchTextParams.ToLogString);
 		dbgMsg.Msg('after showmodal cmdline: ' + Settings.RipGrepParameters.GetCommandLine);
 		ActionSearchExecute(self);

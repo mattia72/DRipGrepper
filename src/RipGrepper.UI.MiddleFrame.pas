@@ -198,10 +198,12 @@ type
 			procedure CopyToClipboardFileOfSelected;
 			procedure CopyToClipboardPathOfSelected;
 			function CreateNewHistObject : IHistoryItemObject;
+			procedure FilterNodes(const _sFilterPattern : string);
 			function GetFilePathFromNode(_node : PVirtualNode) : string;
 			function GetOpenWithParamsFromSelected : TOpenWithParams;
 			function GetRowColText(_i : Integer; _type : TVSTTextType) : string;
 			procedure Init;
+			function IsNodeFiltered(const Data : PVSFileNodeData; const _sFilterText : string) : Boolean;
 			function IsSearchRunning : Boolean;
 			// IEOFProcessEventHandler
 			procedure OnEOFProcess;
@@ -590,6 +592,34 @@ procedure TRipGrepperMiddleFrame.ExpandNodes;
 begin
 	if Settings.NodeLookSettings.ExpandNodes then begin
 		VstResult.FullExpand();
+	end;
+end;
+
+procedure TRipGrepperMiddleFrame.FilterNodes(const _sFilterPattern : string);
+var
+	Node : PVirtualNode;
+	Data : PVSFileNodeData;
+begin
+	if _sFilterPattern.IsEmpty then begin
+		Exit;
+	end;
+
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.FilterNodes');
+	VstResult.BeginUpdate;
+	try
+		for Node in VstResult.VisibleNodes() do begin
+			Data := VstResult.GetNodeData(Node);
+			var
+			bIsFiltered := IsNodeFiltered(Data, _sFilterPattern);
+			VstResult.IsFiltered[Node] := bIsFiltered;
+			if not bIsFiltered and Assigned(Node.Parent) then begin
+				VstResult.IsFiltered[Node.Parent] := False;
+			end;
+			// dbgMsg.MsgFmtIf(not bIsFiltered, 'not IsFiltered: %s', [Data.MatchData.LineText]);
+		end;
+	finally
+		VstResult.EndUpdate;
 	end;
 end;
 
@@ -984,6 +1014,15 @@ begin
 	if not Assigned(Node) then
 		Exit;
 	Result := VstResult.GetNodeData(Node);
+end;
+
+function TRipGrepperMiddleFrame.IsNodeFiltered(const Data : PVSFileNodeData; const _sFilterText : string) : Boolean;
+begin
+	if _sFilterText.IsEmpty then begin
+		Result := False;
+	end else begin
+		Result := not TRegEx.IsMatch(Data.MatchData.LineText, _sFilterText);
+	end;
 end;
 
 procedure TRipGrepperMiddleFrame.OpenSelectedInIde;

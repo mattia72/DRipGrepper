@@ -105,7 +105,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Top = 0
       Width = 121
       Height = 23
-      Hint = 'Find Text between Results. '#13#10'Push F3 to Find Next Occurrence'
+      Hint = 'Filter Results'
       TabStop = False
       AutoSize = False
       BevelInner = bvNone
@@ -119,7 +119,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       ParentShowHint = False
       ShowHint = True
       TabOrder = 0
-      TextHint = 'Find...'
+      TextHint = 'Filter...'
       OnChange = SearchBox1Change
       ButtonWidth = 22
     end
@@ -1253,9 +1253,11 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     end
     object ActionSearchInResult: TAction
       Category = 'Search'
-      Caption = 'Search in Results'
+      Caption = 'Find...'
+      Enabled = False
       Hint = 'Find in Result Tree (Find Next F3)'
       ShortCut = 114
+      Visible = False
       OnExecute = ActionSearchInResultExecute
     end
   end
