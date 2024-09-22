@@ -38,3 +38,4 @@ Marked with checkmark if fixed, else it is known bug.
   - [x] __extension__: first open doesn't load defaults of IDE Context
 - [ ] drip icon in menu has no transparent background
 - [x] open search from history loads default settings instead of history settings for --hidden
+- [x] cancel should not change any settings in search form

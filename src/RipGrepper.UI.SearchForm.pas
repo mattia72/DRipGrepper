@@ -157,7 +157,7 @@ type
 			procedure AlignExpertGroupBox;
 			function CheckAndCorrectMultiLine(const _str : TMultiLineString) : string;
 			procedure ChecVsCodeRipGrep;
-			function HasHistItemObjWithResult: Boolean;
+			function HasHistItemObjWithResult : Boolean;
 			function GetInIDESelectedText : string;
 			procedure LoadExtensionSearchSettings;
 			procedure SetCmbSearchPathText(const _sPath : string);
@@ -396,18 +396,20 @@ end;
 
 procedure TRipGrepperSearchDialogForm.FormClose(Sender : TObject; var Action : TCloseAction);
 begin
-	if HasHistItemObjWithResult then begin
-		FSettings.SearchFormSettings.StoreSearchSettings(False);
-		FHistItemObj.SearchFormSettings.Copy(FSettings.SearchFormSettings);
-		FHistItemObj.SearchFormSettings.RefreshMembers(False);
-		FHistItemObj.RipGrepArguments.Clear;
-		FHistItemObj.RipGrepArguments.Assign(FSettings.GetRipGrepArguments());
-		FHistItemObj.GuiSearchTextParams.Copy(FGuiSetSearchParams);
-		FSettings.SearchFormSettings.Copy(FOrigSearchFormSettings);
-		FSettings.SearchFormSettings.RefreshMembers(False);
+	if ModalResult <> mrCancel then begin
+		if HasHistItemObjWithResult then begin
+			FSettings.SearchFormSettings.StoreSearchSettings(False);
+			FHistItemObj.SearchFormSettings.Copy(FSettings.SearchFormSettings);
+			FHistItemObj.SearchFormSettings.RefreshMembers(False);
+			FHistItemObj.RipGrepArguments.Clear;
+			FHistItemObj.RipGrepArguments.Assign(FSettings.GetRipGrepArguments());
+			FHistItemObj.GuiSearchTextParams.Copy(FGuiSetSearchParams);
+			FSettings.SearchFormSettings.Copy(FOrigSearchFormSettings);
+			FSettings.SearchFormSettings.RefreshMembers(False);
+		end;
+		FSettings.StoreHistories();
+		FSettings.UpdateIniFile;
 	end;
-	FSettings.StoreHistories();
-	FSettings.UpdateIniFile;
 end;
 
 procedure TRipGrepperSearchDialogForm.FormShow(Sender : TObject);
@@ -859,7 +861,7 @@ begin
 	UpdateCtrls(cmbRgParamEncoding);
 end;
 
-function TRipGrepperSearchDialogForm.HasHistItemObjWithResult: Boolean;
+function TRipGrepperSearchDialogForm.HasHistItemObjWithResult : Boolean;
 begin
 	Result := Assigned(FHistItemObj) and (FHistItemObj.HasResult);
 end;
