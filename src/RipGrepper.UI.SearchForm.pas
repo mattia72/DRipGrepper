@@ -35,7 +35,7 @@ uses
 
 type
 	TRipGrepperSearchDialogForm = class(TForm)
-		pnlSearch : TPanel;
+   		pnlMiddle: TPanel;
 		gbSearch : TGroupBox;
 		lblParams : TLabel;
 		lblPaths : TLabel;
@@ -91,6 +91,7 @@ type
 		cmbRgParamEncoding : TComboBox;
 		btnSetAsDefault : TButton;
 		ActionSetAsDefault : TAction;
+	    pnlTop: TPanel;
 		procedure ActionAddParamMatchCaseExecute(Sender : TObject);
 		procedure ActionAddParamMatchCaseUpdate(Sender : TObject);
 		procedure ActionAddParamRegexExecute(Sender : TObject);
@@ -1066,15 +1067,15 @@ begin
 		gbOptionsFilters.Height := gbOptionsFilters.Height - shift;
 		gbOptionsOutput.Top := gbOptionsOutput.Top - shift;
 		gbExpert.Height := gbExpert.Height + shift;
-		pnlSearch.Height := pnlSearch.Height - shift;
+		pnlMiddle.Height := pnlMiddle.Height - shift;
 	end;
 
 	var
 	iHeight :=
-	{ } GetFullHeight(gbSearch) +
+	{ } GetFullHeight(pnlTop) +
 	{ } GetFullHeight(gbOptionsFilters) +
 	{ } GetFullHeight(gbOptionsOutput) +
-	{ } GetFullHeight(pnlSearch) - pnlSearch.Height +
+	{ } GetFullHeight(pnlMiddle) - pnlMiddle.Height +
 	{ } GetFullHeight(pnlBottom);
 
 	if gbExpert.Visible then begin
