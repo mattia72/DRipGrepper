@@ -86,12 +86,12 @@ contains
   RipGrepper.Common.Settings.SearchFormSettings in '..\src\RipGrepper.Common.Settings.SearchFormSettings.pas',
   RipGrepper.Common.Settings.RipGrepperSettings in '..\src\RipGrepper.Common.Settings.RipGrepperSettings.pas',
   RipGrepper.Common.Settings.NodeLookSettings in '..\src\RipGrepper.Common.Settings.NodeLookSettings.pas',
+  RipGrepper.Common.Settings.SettingVariant in '..\src\RipGrepper.Common.Settings.SettingVariant.pas',
   RipGrepper.OpenWith.Params in '..\src\OpenWith\RipGrepper.OpenWith.Params.pas',
   RipGrepper.Common.SearchParams in '..\src\RipGrepper.Common.SearchParams.pas',
   ArrayEx in '..\external\ArrayEx.pas',
   dpipes in '..\external\dpipes.pas',
   dprocess in '..\external\dprocess.pas';
-
 end.
 
 

@@ -204,6 +204,7 @@
         <DCCReference Include="..\external\ArrayEx.pas"/>
         <DCCReference Include="..\external\dpipes.pas"/>
         <DCCReference Include="..\external\dprocess.pas"/>
+        <DCCReference Include="..\src\RipGrepper.Common.Settings.SettingVariant.pas"/>
         <RcItem Include="Resources\about_icon.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>about_icon</ResourceId>
