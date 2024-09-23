@@ -24,9 +24,13 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 
 ## :boom: Improvements 
 Marked with checkmark if ready, else planned as next.
+- [x] enhanced filter control 
 - [ ] replace 
+- [ ] save/load search histories in file
+- [ ] config form
+  - [ ] install as _extension_ in delphi ide
+- [ ] json config files
 - [ ] own prettifier switcher as toolbar button
-- [ ] save search histories in file
 - [ ] __extension__: search opened projekt files only
 
 ## :exclamation: Bugs 

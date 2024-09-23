@@ -72,6 +72,8 @@ type
 		ToolButton8 : TToolButton;
 		ActionSearchInResult : TAction;
 		edtFilter : TButtonedEdit;
+    edtReplace: TButtonedEdit;
+    ToolButton9: TToolButton;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlignToolbarsExecute(Sender : TObject);

@@ -40,7 +40,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     AlignWithMargins = True
     Left = 190
     Top = 0
-    Width = 303
+    Width = 432
     Height = 23
     Align = alNone
     AutoSize = True
@@ -117,8 +117,33 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       OnChange = edtFilterChange
       OnRightButtonClick = edtFilterRightButtonClick
     end
-    object ToolButton6: TToolButton
+    object ToolButton9: TToolButton
       Left = 270
+      Top = 0
+      Width = 8
+      Caption = 'ToolButton9'
+      ImageIndex = 20
+      Style = tbsSeparator
+    end
+    object edtReplace: TButtonedEdit
+      Left = 278
+      Top = 0
+      Width = 121
+      Height = 23
+      Hint = 'Replace Resulted Items'
+      TabStop = False
+      Images = ImageListButtons
+      ParentShowHint = False
+      RightButton.ImageIndex = 25
+      RightButton.Visible = True
+      ShowHint = True
+      TabOrder = 1
+      TextHint = 'Replace...'
+      OnChange = edtFilterChange
+      OnRightButtonClick = edtFilterRightButtonClick
+    end
+    object ToolButton6: TToolButton
+      Left = 399
       Top = 0
       Width = 8
       Caption = 'ToolButton6'
@@ -126,7 +151,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Style = tbsSeparator
     end
     object tbOpenWith: TToolButton
-      Left = 278
+      Left = 407
       Top = 0
       Action = ActionOpenWith
     end
