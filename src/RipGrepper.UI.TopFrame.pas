@@ -334,7 +334,7 @@ end;
 procedure TRipGrepperTopFrame.ActionShowSearchFormExecute(Sender : TObject);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperTopFrame.ActionShowSearchFormExecute');
-    SetFilter(False);
+	SetFilter(False);
 	StartNewSearch;
 end;
 
@@ -495,7 +495,8 @@ end;
 
 procedure TRipGrepperTopFrame.SetFilter(const _bOn : Boolean = True);
 begin
-	edtFilter.RightButton.ImageIndex := IfThen(_bOn, IMG_IDX_FILTER_ON, IMG_IDX_FILTER_OFF);
+	edtFilter.RightButton.ImageIndex :=
+	{ } IfThen(_bOn and (edtFilter.Text <> ''), IMG_IDX_FILTER_ON, IMG_IDX_FILTER_OFF);
 end;
 
 procedure TRipGrepperTopFrame.StartNewSearch;
