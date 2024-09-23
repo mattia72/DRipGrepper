@@ -101,6 +101,7 @@ type
 		procedure ActionSwitchViewExecute(Sender : TObject);
 		procedure ActionSwitchViewUpdate(Sender : TObject);
 		procedure edtFilterChange(Sender : TObject);
+		procedure edtFilterRightButtonClick(Sender : TObject);
 		procedure SearchBox1Change(Sender : TObject);
 
 		private
@@ -111,6 +112,7 @@ type
 			FViewStyleIndex : integer;
 			function GetSettings : TRipGrepperSettings;
 			function GetToolBarWidth(_tb : TToolBar) : Integer;
+			function IsFilterOn : Boolean;
 			procedure SelectNextFoundNode(const _prevFoundNode : PVirtualNode; const _searchPattern : string);
 			procedure StartNewSearch;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
@@ -122,6 +124,7 @@ type
 			function GetNextViewStyleIdx : integer;
 			procedure Init;
 			procedure SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
+			procedure SetFilter(const _bOn : Boolean = True);
 			property HistItemObj : IHistoryItemObject read FHistItemObj;
 
 	end;
@@ -331,6 +334,7 @@ end;
 procedure TRipGrepperTopFrame.ActionShowSearchFormExecute(Sender : TObject);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperTopFrame.ActionShowSearchFormExecute');
+    SetFilter(False);
 	StartNewSearch;
 end;
 
@@ -381,7 +385,20 @@ end;
 
 procedure TRipGrepperTopFrame.edtFilterChange(Sender : TObject);
 begin
-	MainFrame.FilterNodes(edtFilter.Text);
+	if IsFilterOn then begin
+		MainFrame.FilterNodes(edtFilter.Text);
+	end;
+end;
+
+procedure TRipGrepperTopFrame.edtFilterRightButtonClick(Sender : TObject);
+begin
+	if IsFilterOn then begin
+		MainFrame.ClearFilter(True);
+		SetFilter(False);
+	end else begin
+		MainFrame.FilterNodes(edtFilter.Text);
+		SetFilter();
+	end;
 end;
 
 function TRipGrepperTopFrame.GetNextViewStyleIdx : integer;
@@ -415,6 +432,11 @@ begin
 		edtFilter.BorderStyle := bsNone;
 		Height := Height - 2;
 	end;
+end;
+
+function TRipGrepperTopFrame.IsFilterOn : Boolean;
+begin
+	Result := edtFilter.RightButton.ImageIndex = IMG_IDX_FILTER_ON;
 end;
 
 procedure TRipGrepperTopFrame.SearchBox1Change(Sender : TObject);
@@ -471,6 +493,11 @@ begin
 	end;
 end;
 
+procedure TRipGrepperTopFrame.SetFilter(const _bOn : Boolean = True);
+begin
+	edtFilter.RightButton.ImageIndex := IfThen(_bOn, IMG_IDX_FILTER_ON, IMG_IDX_FILTER_OFF);
+end;
+
 procedure TRipGrepperTopFrame.StartNewSearch;
 var
 	formResult : Integer;
@@ -480,7 +507,6 @@ begin
 	FHistItemObj := MainFrame.CreateNewHistObject;
 	formResult := TRipGrepperSearchDialogForm.ShowSearchForm(self, Settings, FHistItemObj);
 	if (mrOk = formResult) then begin
-		// MainFrame.HistItemObject := FHistItemObj;
 		dbgMsg.Msg('after showmodal gui params: ' + Settings.RipGrepParameters.GuiSearchTextParams.ToLogString);
 		dbgMsg.Msg('after showmodal cmdline: ' + Settings.RipGrepParameters.GetCommandLine);
 		ActionSearchExecute(self);

@@ -540,7 +540,6 @@ end;
 
 procedure TRipGrepperMiddleFrame.ClearFilter(const _bForce : Boolean = False);
 begin
-	TopFrame.edtFilter.Text := '';
 	if _bForce then begin
 		VstResult.BeginUpdate;
 		try
@@ -620,7 +619,6 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.FilterNodes');
 	VstResult.BeginUpdate;
 	try
-		// ClearFilter;
 		for Node in VstResult.InitializedNodes(True) do begin
 			Data := VstResult.GetNodeData(Node);
 			var
@@ -1152,7 +1150,7 @@ begin
 		' ' + HistItemObject.GuiSearchTextParams.ToString);
 	SetResultListViewDataToHistoryObj();
 	ExpandNodes();
-	ClearFilter();
+	TopFrame.SetFilter(False);
 	RefreshCountersInGUI;
 	ParentFrame.SetStatusBarMessage(True);
 end;

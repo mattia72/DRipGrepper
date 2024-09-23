@@ -109,13 +109,13 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       TabStop = False
       Images = ImageListButtons
       ParentShowHint = False
-      RightButton.HotImageIndex = 28
       RightButton.ImageIndex = 27
       RightButton.Visible = True
       ShowHint = True
       TabOrder = 0
       TextHint = 'Filter...'
       OnChange = edtFilterChange
+      OnRightButtonClick = edtFilterRightButtonClick
     end
     object ToolButton6: TToolButton
       Left = 270
