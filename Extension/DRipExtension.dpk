@@ -80,7 +80,7 @@ contains
   RipGrepper.OpenWith in '..\src\OpenWith\RipGrepper.OpenWith.pas',
   RipGrepper.OpenWith.Runner in '..\src\OpenWith\RipGrepper.OpenWith.Runner.pas',
   RipGrepper.OpenWith.Constants in '..\src\OpenWith\RipGrepper.OpenWith.Constants.pas',
-  RipGrepper.Common.Settings.Misc in '..\src\RipGrepper.Common.Settings.Misc.pas',
+  RipGrepper.Common.Settings.AppSettings in '..\src\RipGrepper.Common.Settings.AppSettings.pas',
   RipGrepper.Common.Settings.RipGrepParameterSettings in '..\src\RipGrepper.Common.Settings.RipGrepParameterSettings.pas',
   RipGrepper.Common.Settings.OpenWithSettings in '..\src\RipGrepper.Common.Settings.OpenWithSettings.pas',
   RipGrepper.Common.Settings.SearchFormSettings in '..\src\RipGrepper.Common.Settings.SearchFormSettings.pas',
@@ -92,6 +92,7 @@ contains
   ArrayEx in '..\external\ArrayEx.pas',
   dpipes in '..\external\dpipes.pas',
   dprocess in '..\external\dprocess.pas';
+
 end.
 
 
