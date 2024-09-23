@@ -61,7 +61,7 @@ procedure TRipGrepperBottomFrame.ActionStatusBarUpdate(Sender : TObject);
 begin
 	StatusBar1.Panels[PNL_MESSAGE_IDX].Text := FStatusBarMessage;
 	StatusBar1.Panels[PNL_STATUS_IDX].Text := FStatusBarStatus;
-	StatusBar1.Panels[PNL_STATTS_IDX].Text := FStatusBarStatistic;
+	StatusBar1.Panels[PNL_STATISTIC_IDX].Text := FStatusBarStatistic;
 end;
 
 procedure TRipGrepperBottomFrame.FrameResize(Sender : TObject);
