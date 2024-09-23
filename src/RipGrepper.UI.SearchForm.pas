@@ -207,7 +207,8 @@ uses
 	RipGrepper.Tools.FileUtils,
 	System.IOUtils,
 	Winapi.Windows,
-	RipGrepper.Common.Settings.Misc;
+	RipGrepper.Common.Settings.AppSettings,
+	RipGrepper.Common.Settings.ExtensionSettings;
 
 {$R *.dfm}
 

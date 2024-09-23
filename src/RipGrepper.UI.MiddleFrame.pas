@@ -24,7 +24,7 @@ uses
 	Vcl.ToolWin,
 	RipGrepper.OpenWith.Constants,
 	RipGrepper.OpenWith.Params,
-	RipGrepper.Common.Settings.Misc,
+	RipGrepper.Common.Settings.AppSettings,
 	RipGrepper.Data.HistoryItemObject,
 	RipGrepper.Data.Matches,
 	RipGrepper.Common.Sorter,

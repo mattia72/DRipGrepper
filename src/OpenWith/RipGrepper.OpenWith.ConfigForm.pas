@@ -14,7 +14,7 @@ uses
 	Vcl.Dialogs,
 	Vcl.Forms,
 	System.ImageList,
-	RipGrepper.Common.Settings.Misc,
+	RipGrepper.Common.Settings.AppSettings,
 	RipGrepper.UI.DpiScaler,
 	RipGrepper.Common.Settings.OpenWithSettings;
 

@@ -14,7 +14,7 @@ uses
 	Vcl.Dialogs,
 	Vcl.ExtCtrls,
 	Vcl.StdCtrls,
-	RipGrepper.Common.Settings.Misc,
+	RipGrepper.Common.Settings.AppSettings,
 	System.Actions,
 	Vcl.ActnList,
 	ArrayEx,

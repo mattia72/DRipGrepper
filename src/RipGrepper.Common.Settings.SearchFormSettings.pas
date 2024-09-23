@@ -7,12 +7,13 @@ uses
 	System.IniFiles,
 	System.Generics.Collections,
 	System.Generics.Defaults,
+	ArrayEx,
 	RipGrepper.OpenWith.Constants,
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.Settings.Persistable,
-	ArrayEx,
 	RipGrepper.Common.Settings.RipGrepParameterSettings,
-	RipGrepper.Common.Settings.Misc;
+	RipGrepper.Common.Settings.AppSettings,
+	RipGrepper.Common.Settings.ExtensionSettings;
 
 type
 
@@ -111,7 +112,7 @@ end;
 destructor TSearchFormSettings.Destroy;
 begin
 	FExtensionSettings.Free;
-	inherited Destroy(); //ok;
+	inherited Destroy(); // ok;
 end;
 
 procedure TSearchFormSettings.Copy(const _other : TSearchFormSettings);

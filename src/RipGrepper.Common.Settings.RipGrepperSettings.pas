@@ -6,7 +6,7 @@ uses
 	System.Classes,
 	System.IniFiles,
 	RipGrepper.Common.Constants,
-	RipGrepper.Common.Settings.Misc,
+	RipGrepper.Common.Settings.AppSettings,
 	RipGrepper.Common.Settings.Persistable,
 	RipGrepper.Common.Settings.RipGrepParameterSettings,
 	RipGrepper.Common.Settings.SearchFormSettings,

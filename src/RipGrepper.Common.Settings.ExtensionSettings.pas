@@ -1,20 +1,13 @@
-unit RipGrepper.Common.Settings.Misc;
+unit RipGrepper.Common.Settings.ExtensionSettings;
 
 interface
 
 uses
-	System.Classes,
-	System.IniFiles,
-	System.Generics.Collections,
-	System.Generics.Defaults,
-	RipGrepper.OpenWith.Constants,
-	RipGrepper.Common.Constants,
 	RipGrepper.Common.Settings.Persistable,
-	ArrayEx,
-	RipGrepper.Common.Settings.RipGrepParameterSettings;
+	System.IniFiles,
+	RipGrepper.Common.Constants;
 
 type
-
 	ERipGrepperExtensionContext = (
 		{ } rgecActiveFile = EXT_SEARCH_ACTIVE_FILE,
 		{ } rgecProjectFiles = EXT_SEARCH_PROJECT_FILES,
@@ -30,7 +23,7 @@ type
 		ActiveProject : string;
 
 		public
-			function ToLogString: string;
+			function ToLogString : string;
 	end;
 
 	TRipGrepperExtensionSettings = class(TPersistableSettings)
@@ -54,53 +47,19 @@ type
 			procedure RefreshMembers(const _bWithDefault : Boolean); override;
 			procedure Store; override;
 			procedure StoreAsDefault; override;
-			function ToLogString: string; override;
+			function ToLogString : string; override;
 			property DripGrepperShortCut : string read FDripGrepperShortCut write FDripGrepperShortCut;
 			property OpenWithShortCut : string read FOpenWithShortCut write FOpenWithShortCut;
 			property CurrentIDEContext : TRipGrepperExtensionContext read FCurrentSearchSettings write FCurrentSearchSettings;
 	end;
 
-	TAppSettings = class(TPersistableSettings)
-		const
-			INI_SECTION = 'RipGrepperSettings';
-
-		private
-			FDebugTrace : Boolean;
-			FExpertMode : Boolean;
-			FEncodingItems : TStringList;
-
-		protected
-			procedure Init; override;
-
-		public
-			constructor Create(const _ini : TMemIniFile);
-			destructor Destroy; override;
-			procedure RefreshMembers(const _bWithDefault : Boolean); override;
-			procedure Store; override;
-			property DebugTrace : Boolean read FDebugTrace write FDebugTrace;
-			property ExpertMode : Boolean read FExpertMode write FExpertMode;
-			property EncodingItems : TStringList read FEncodingItems write FEncodingItems;
-	end;
-
 implementation
 
 uses
-	System.SysUtils,
-	Vcl.Forms,
-	System.StrUtils,
-	RipGrepper.Helper.Types,
 	RipGrepper.Tools.DebugUtils,
-	RipGrepper.Tools.FileUtils,
-	Vcl.Dialogs,
-	System.IOUtils,
-	Winapi.Windows,
-	System.UITypes,
-	RipGrepper.Tools.ProcessUtils,
-	RipGrepper.Helper.UI,
-	Vcl.Menus,
-	System.RegularExpressions,
-	RipGrepper.CommandLine.Builder,
+
 	RipGrepper.Common.IOTAUtils,
+	System.SysUtils,
 	System.Variants;
 
 constructor TRipGrepperExtensionSettings.Create(const _ini : TMemIniFile);
@@ -148,15 +107,16 @@ procedure TRipGrepperExtensionSettings.RefreshMembers(const _bWithDefault : Bool
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.RefreshMembers');
-	dbgMsg.MsgFmt('WithDefault %s',[BoolToStr(_bWithDefault, True)]);
+	dbgMsg.MsgFmt('WithDefault %s', [BoolToStr(_bWithDefault, True)]);
 	if IOTAUTils.IsStandAlone then begin
 		Exit;
 	end;
 
 	var
 	css := CurrentIDEContext;
-	var val := GetSetting(KEY_IDE_CONTEXT, _bWithDefault);
-	dbgMsg.MsgFmt('IDEContext %s', [VarToStrDef(val,'')]);
+	var
+	val := GetSetting(KEY_IDE_CONTEXT, _bWithDefault);
+	dbgMsg.MsgFmt('IDEContext %s', [VarToStrDef(val, '')]);
 	css.IDEContext := ERipGrepperExtensionContext(val);
 	CurrentIDEContext := css;
 	dbgMsg.MsgFmt('after copy IDEContext %d', [Integer(CurrentIDEContext.IDEContext)]);
@@ -205,51 +165,13 @@ begin
 	inherited StoreAsDefault;
 end;
 
-function TRipGrepperExtensionSettings.ToLogString: string;
+function TRipGrepperExtensionSettings.ToLogString : string;
 begin
 	Result := Format('OpenWithShortCut=%s, ShortCut=%s, CurrentIDEContext=[%s]',
 		[OpenWithShortCut, DripGrepperShortCut, CurrentIDEContext.ToLogString]);
 end;
 
-constructor TAppSettings.Create(const _ini : TMemIniFile);
-begin
-	IniSectionName := INI_SECTION;
-	inherited;
-	TDebugUtils.DebugMessage('TAppSettings.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
-	FEncodingItems := TStringList.Create();
-end;
-
-destructor TAppSettings.Destroy;
-begin
-	FEncodingItems.Free;
-	inherited Destroy() //ok;
-end;
-
-procedure TAppSettings.Init;
-begin
-	CreateSetting('DebugTrace', varBoolean, False);
-	CreateSetting('ExpertMode', varBoolean, False);
-	CreateSetting('EncodingItems', varString, string.join(ARRAY_SEPARATOR, TDefaults.RG_PARAM_ENCODING_VALUES));
-end;
-
-procedure TAppSettings.RefreshMembers(const _bWithDefault : Boolean);
-begin
-	if _bWithDefault then
-		Exit;
-	FExpertMode := GetSetting('ExpertMode');
-	FDebugTrace := GetSetting('DebugTrace');
-	FEncodingItems.Clear;
-	FEncodingItems.AddStrings(string(GetSetting('EncodingItems')).Split([ARRAY_SEPARATOR]));
-end;
-
-procedure TAppSettings.Store;
-begin
-	StoreSetting('DebugTrace', FDebugTrace);
-	StoreSetting('ExpertMode', FExpertMode);
-	inherited Store();
-end;
-
-function TRipGrepperExtensionContext.ToLogString: string;
+function TRipGrepperExtensionContext.ToLogString : string;
 begin
 	Result := Format('IDEContext: %d, ActiveProject: %s, ActiveFile: %s', [Integer(IDEContext), ActiveProject, ActiveFile]);
 end;

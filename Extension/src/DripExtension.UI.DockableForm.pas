@@ -137,7 +137,7 @@ uses
 	System.TypInfo,
 	RipGrepper.Common.IOTAUtils,
 	Vcl.Controls,
-	RipGrepper.Common.Settings.Misc;
+	RipGrepper.Common.Settings.AppSettings;
 
 { TRipGrepperDockableForm }
 

@@ -19,7 +19,7 @@ uses
 	Vcl.ComCtrls,
 	System.ImageList,
 	Vcl.ImgList,
-	RipGrepper.Common.Settings.Misc,
+	RipGrepper.Common.Settings.AppSettings,
 	RipGrepper.UI.DpiScaler,
 	u_dzDpiScaleUtils,
 	RipGrepper.Common.Settings.OpenWithSettings;

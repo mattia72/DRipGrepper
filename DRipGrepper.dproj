@@ -213,13 +213,14 @@
         <DCCReference Include="src\RipGrepper.Common.GuiSearchParams.pas"/>
         <DCCReference Include="src\RipGrepper.Common.IOTAUtils.pas"/>
         <DCCReference Include="src\RipGrepper.Common.SearchParams.pas"/>
-        <DCCReference Include="src\RipGrepper.Common.Settings.Misc.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Settings.AppSettings.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.NodeLookSettings.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.OpenWithSettings.pas"/>
         <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.Params.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.SettingVariant.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.SettingsDictionary.pas"/>
         <DCCReference Include="src\RipGrepper.Tools.PackageInstall.pas"/>
+        <DCCReference Include="src\RipGrepper.Common.Settings.ExtensionSettings.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

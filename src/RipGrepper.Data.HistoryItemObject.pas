@@ -3,13 +3,13 @@ unit RipGrepper.Data.HistoryItemObject;
 interface
 
 uses
-	RipGrepper.Common.Interfaces,
-	RipGrepper.Common.ParsedObject,
-	ArrayEx,
-	RipGrepper.Common.Settings.Misc,
 	Vcl.ComCtrls,
 	System.Generics.Defaults,
 	System.Classes,
+	ArrayEx,
+	RipGrepper.Common.Interfaces,
+	RipGrepper.Common.ParsedObject,
+	RipGrepper.Common.Settings.AppSettings,
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Common.Settings.RipGrepperSettings,

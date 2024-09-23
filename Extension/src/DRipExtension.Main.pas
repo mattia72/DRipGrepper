@@ -66,7 +66,7 @@ uses
 	System.SysUtils,
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.Settings.RipGrepperSettings,
-	RipGrepper.Common.Settings.Misc,
+	RipGrepper.Common.Settings.AppSettings,
 	RipGrepper.Tools.FileUtils,
 	System.IniFiles,
 	RipGrepper.Common.IOTAUtils,

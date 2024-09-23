@@ -56,7 +56,7 @@ uses
 	RipGrepper.Helper.Types,
 	System.StrUtils,
 	System.SysUtils,
-	RipGrepper.Common.Settings.Misc,
+	RipGrepper.Common.Settings.AppSettings,
 	ArrayEx,
 	System.RegularExpressions,
 	System.Math;
