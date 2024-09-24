@@ -1,4 +1,4 @@
-unit RipGrepper.UI.MiddleFrame;
+﻿unit RipGrepper.UI.MiddleFrame;
 
 interface
 
@@ -152,6 +152,7 @@ type
 			FSettings : TRipGrepperSettings;
 			FswSearchStart : TStopwatch;
 			FIconImgList : TIconImageList;
+			FIsReplaceMode : Boolean;
 			FParsingThreads : TArrayEx<TParallelParser>;
 			procedure AddAsUsing(_bToImpl : Boolean);
 			procedure AddVstHistItem;
@@ -165,6 +166,7 @@ type
 			function GetData : TRipGrepperData;
 			function GetHistItemObject : IHistoryItemObject;
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
+			function GetIsReplaceMode : Boolean;
 			function GetNewParallelParser : TParallelParser;
 			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
 			function GetResultSelectedFilePath : string;
@@ -185,6 +187,7 @@ type
 			procedure UpdateHistObject;
 			procedure UpdateHistObjectAndGui;
 			procedure UpdateRipGrepArgumentsInHistObj;
+			property IsReplaceMode : Boolean read GetIsReplaceMode write FIsReplaceMode;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
 			{ Private-Deklarationen }
@@ -623,9 +626,13 @@ begin
 			Data := VstResult.GetNodeData(Node);
 			var
 			bIsFiltered := IsNodeFiltered(Data, _sFilterPattern);
-			VstResult.IsFiltered[Node] := bIsFiltered;
-			if not bIsFiltered and Assigned(Node.Parent) and (Node.Parent <> VstResult.RootNode) then begin
-				VstResult.IsFiltered[Node.Parent] := False;
+			if (Node.Parent = VstResult.RootNode) then begin
+				// TODO:  filter for filenames should include childs
+			end else begin
+				VstResult.IsFiltered[Node] := bIsFiltered;
+				if not bIsFiltered and Assigned(Node.Parent) and (Node.Parent <> VstResult.RootNode) then begin
+					VstResult.IsFiltered[Node.Parent] := False;
+				end;
 			end;
 			dbgMsg.MsgFmtIf(not bIsFiltered, 'not IsFiltered: %s', [Data.MatchData.LineText]);
 		end;
@@ -715,6 +722,11 @@ begin
 		Result := THistoryItemObject(FHistoryObjectList[_index]);
 		// Result := THistoryItemObject(_lb.Items.Objects[_index]);
 	end;
+end;
+
+function TRipGrepperMiddleFrame.GetIsReplaceMode : Boolean;
+begin
+	Result := not Settings.RipGrepParameters.ReplaceText.IsEmpty;
 end;
 
 function TRipGrepperMiddleFrame.GetOpenWithParamsFromSelected : TOpenWithParams;
@@ -1323,12 +1335,12 @@ end;
 procedure TRipGrepperMiddleFrame.VstResultDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
 Column : TColumnIndex; const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
 var
-	fc : TColor;
+	fc, bc : TColor;
 	fs, pos : Integer;
 	style : TFontStyles;
 	Data : PVSFileNodeData;
-	s, ss0, ss1, ss2 : string;
-	spaces, tabs, matchBegin : Integer;
+	s, ss0, ss1, ss1_repl, ss2 : string;
+	iSpaces, iTabs, matchBegin : Integer;
 begin
 	case Column of
 		0 : begin
@@ -1344,13 +1356,14 @@ begin
 					DefaultDraw := False;
 					// First, store the default font size and color number
 					fc := TargetCanvas.Font.Color;
+					bc := TargetCanvas.Brush.Color;
 					fs := TargetCanvas.Font.Size;
 					style := TargetCanvas.Font.style;
 
 					Data := VstResult.GetNodeData(Node);
 					s := Data.GetLineText(not Settings.NodeLookSettings.IndentLines, iSpaces, iTabs);
 
-					matchBegin := Data.MatchData.Col - 1 - (spaces + tabs);
+					matchBegin := Data.MatchData.Col - 1 - (iSpaces + iTabs);
 
 					ss0 := s.Substring(0, matchBegin).Replace(#9, TREEVIEW_INDENT_TAB_AS_SPACES, [rfReplaceAll]);
 					pos := TargetCanvas.TextWidth(ss0);
@@ -1358,14 +1371,32 @@ begin
 					TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, ss0);
 
 					ss1 := s.Substring(matchBegin, Data.MatchData.MatchLength);
+					if IsReplaceMode then begin
+						ss1_repl := TRegEx.Replace(ss1, Settings.LastSearchText, Settings.RipGrepParameters.ReplaceText, [roIgnoreCase]);
+					end;
 					ss2 := s.Substring(matchBegin + Data.MatchData.MatchLength);
 
-					TargetCanvas.Font.Color := TREEVIEW_MATCH_TEXT_COLOR;
-					TargetCanvas.Font.style := [fsBold, fsUnderline];
+					if IsReplaceMode then begin
+						TargetCanvas.Font.Color := TREEVIEW_REPLACED_TEXT_COLOR;
+						TargetCanvas.Brush.Color := TREEVIEW_REPLACED_TEXT_BGCOLOR;
+						TargetCanvas.Font.style := TREEVIEW_REPLACED_TEXT_STYLE;
+					end else begin
+						TargetCanvas.Font.Color := TREEVIEW_MATCH_TEXT_COLOR;
+						TargetCanvas.Brush.Color := TREEVIEW_MATCH_TEXT_BGCOLOR;
+						TargetCanvas.Font.style := TREEVIEW_MATCH_TEXT_STYLE;
+					end;;
 					TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1);
 
 					pos := pos + TargetCanvas.TextWidth(ss1);
+					if IsReplaceMode then begin
+						TargetCanvas.Font.Color := TREEVIEW_REPLACE_TEXT_COLOR;
+						TargetCanvas.Font.style := TREEVIEW_REPLACE_TEXT_STYLE;
+						TargetCanvas.Brush.Color := TREEVIEW_REPLACE_TEXT_BGCOLOR;
+						TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1_repl);
+						pos := pos + TargetCanvas.TextWidth(ss1_repl);
+					end;
 					TargetCanvas.Font.Color := fc;
+					TargetCanvas.Brush.Color := bc;
 					TargetCanvas.Font.Size := fs;
 					TargetCanvas.Font.style := style;
 					TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss2);

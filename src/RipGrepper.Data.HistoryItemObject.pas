@@ -59,6 +59,7 @@ type
 			destructor Destroy; override;
 			procedure ClearMatches;
 			procedure CopyToSettings(const _settings : TRipGrepperSettings);
+			function GetReplaceText: string;
 			function HasResult: Boolean;
 			procedure LoadFromSettings(const _settings : TRipGrepperSettings);
 			function UpdateParserType : TParserType;
@@ -76,6 +77,7 @@ type
 			property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings
 				write SetSearchFormSettings;
 			property SearchText : string read GetSearchText;
+			property ReplaceText: string read GetReplaceText;
 
 	end;
 
@@ -204,6 +206,11 @@ begin
 		UpdateParserType();
 	end;
 	Result := FParserType;
+end;
+
+function THistoryItemObject.GetReplaceText: string;
+begin
+// TODO: replace text in hist?
 end;
 
 function THistoryItemObject.GetSearchFormSettings : TSearchFormSettings;

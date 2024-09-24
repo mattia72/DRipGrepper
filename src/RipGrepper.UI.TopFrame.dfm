@@ -139,7 +139,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       ShowHint = True
       TabOrder = 1
       TextHint = 'Replace...'
-      OnChange = edtFilterChange
+      OnChange = edtReplaceChange
       OnRightButtonClick = edtFilterRightButtonClick
     end
     object ToolButton6: TToolButton

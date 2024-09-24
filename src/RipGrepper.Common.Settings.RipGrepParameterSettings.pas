@@ -25,6 +25,7 @@ type
 			FRipGrepPath : string;
 			FSearchPath : string;
 			FSearchText : string;
+			FReplaceText: string;
 			FFileMasks : string;
 			FGuiSearchTextParams : TGuiSearchTextParams;
 			function GetRipGrepPath : string;
@@ -32,6 +33,7 @@ type
 			procedure SetGuiSearchTextParams(const Value : TGuiSearchTextParams);
 			procedure SetRgExeOptions(const Value : string);
 			procedure SetSearchPath(const Value : string);
+			procedure SetReplaceText(const Value: string);
 			procedure SetSearchText(const Value : string);
 
 		protected
@@ -54,6 +56,7 @@ type
 			property SearchText : string read FSearchText write SetSearchText;
 			property RipGrepArguments : TRipGrepArguments read FRipGrepArguments write FRipGrepArguments;
 			property RipGrepPath : string read GetRipGrepPath write FRipGrepPath;
+			property ReplaceText: string read FReplaceText write SetReplaceText;
 	end;
 
 implementation
@@ -203,6 +206,15 @@ begin
 		TDebugUtils.Msg('SetSearchPath=' + Value);
 		FSearchPath := Value;
 		FIsModified := True;
+	end;
+end;
+
+procedure TRipGrepParameterSettings.SetReplaceText(const Value: string);
+begin
+	if FReplaceText <> Value then begin
+		TDebugUtils.Msg('SetReplaceText=' + Value);
+		FReplaceText := Value;
+//		FIsModified := True;
 	end;
 end;
 

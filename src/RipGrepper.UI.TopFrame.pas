@@ -104,6 +104,7 @@ type
 		procedure ActionSwitchViewUpdate(Sender : TObject);
 		procedure edtFilterChange(Sender : TObject);
 		procedure edtFilterRightButtonClick(Sender : TObject);
+		procedure edtReplaceChange(Sender: TObject);
 		procedure SearchBox1Change(Sender : TObject);
 
 		private
@@ -401,6 +402,11 @@ begin
 		MainFrame.FilterNodes(edtFilter.Text);
 		SetFilter();
 	end;
+end;
+
+procedure TRipGrepperTopFrame.edtReplaceChange(Sender: TObject);
+begin
+    FSettings.RipGrepParameters.ReplaceText := edtReplace.Text;
 end;
 
 function TRipGrepperTopFrame.GetNextViewStyleIdx : integer;
