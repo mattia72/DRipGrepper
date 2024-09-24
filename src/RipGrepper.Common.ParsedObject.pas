@@ -28,7 +28,7 @@ type
 		FilePath : string;
 		// Icon?
 		MatchData : TVSMatchData;
-		function GetText(const _bTrimLeft : Boolean; var _iSpaceCount, _iTabCount : Integer) : string;
+		function GetLineText(const _bTrimLeft : Boolean; var _iSpaceCount, _iTabCount : Integer): string;
 
 		public
 			class function New(_file : string; _row, _col : Integer; _textBefore, _matchText, _textAfter : string) : TVSFileNodeData;
@@ -308,7 +308,7 @@ begin
 	FGroupId := Value;
 end;
 
-function TVSFileNodeData.GetText(const _bTrimLeft : Boolean; var _iSpaceCount, _iTabCount : Integer) : string;
+function TVSFileNodeData.GetLineText(const _bTrimLeft : Boolean; var _iSpaceCount, _iTabCount : Integer): string;
 var
 	sTrimmed : string;
 begin

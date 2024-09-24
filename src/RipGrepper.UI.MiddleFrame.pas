@@ -1,4 +1,4 @@
-﻿unit RipGrepper.UI.MiddleFrame;
+unit RipGrepper.UI.MiddleFrame;
 
 interface
 
@@ -1348,7 +1348,7 @@ begin
 					style := TargetCanvas.Font.style;
 
 					Data := VstResult.GetNodeData(Node);
-					s := Data.GetText(not Settings.NodeLookSettings.IndentLines, spaces, tabs);
+					s := Data.GetLineText(not Settings.NodeLookSettings.IndentLines, iSpaces, iTabs);
 
 					matchBegin := Data.MatchData.Col - 1 - (spaces + tabs);
 
@@ -1432,7 +1432,7 @@ begin
 			if (TextType = ttNormal) then begin
 				var
 					dummy1, dummy2 : Integer;
-				CellText := NodeData.GetText(Settings.NodeLookSettings.IndentLines, dummy1, dummy2);
+				CellText := NodeData.GetLineText(Settings.NodeLookSettings.IndentLines, dummy1, dummy2);
 			end;
 
 		end;
