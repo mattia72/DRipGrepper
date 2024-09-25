@@ -526,6 +526,9 @@ begin
 		dbgMsg.Msg('after showmodal gui params: ' + Settings.RipGrepParameters.GuiSearchTextParams.ToLogString);
 		dbgMsg.Msg('after showmodal cmdline: ' + Settings.RipGrepParameters.GetCommandLine);
 		ActionSearchExecute(self);
+	end else begin
+		MainFrame.DeleteCurrentHistoryItemFromList;
+		FHistItemObj := nil;
 	end;
 end;
 
