@@ -35,8 +35,7 @@ uses
 
 type
 	TRipGrepperSearchDialogForm = class(TForm)
-   		pnlMiddle: TPanel;
-		gbSearch : TGroupBox;
+		pnlMiddle : TPanel;
 		lblParams : TLabel;
 		lblPaths : TLabel;
 		lblText : TLabel;
@@ -91,7 +90,9 @@ type
 		cmbRgParamEncoding : TComboBox;
 		btnSetAsDefault : TButton;
 		ActionSetAsDefault : TAction;
-	    pnlTop: TPanel;
+		pnlTop : TPanel;
+		TabControl1 : TTabControl;
+		cmbReplaceText : TComboBox;
 		procedure ActionAddParamMatchCaseExecute(Sender : TObject);
 		procedure ActionAddParamMatchCaseUpdate(Sender : TObject);
 		procedure ActionAddParamRegexExecute(Sender : TObject);
@@ -127,6 +128,7 @@ type
 		procedure ToggleExpertMode;
 		procedure rbExtensionOptionsClick(Sender : TObject);
 		procedure seContextLineNumChange(Sender : TObject);
+		procedure TabControl1Change(Sender : TObject);
 
 		private
 			FbExtensionOptionsSkipClick : Boolean;
@@ -138,6 +140,7 @@ type
 			FcmbOptionsOldText : string;
 			FOrigSearchFormSettings : TSearchFormSettings;
 			FSettings : TRipGrepperSettings;
+			FTabCtrlOrigHeight : Integer;
 
 			function GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
 			procedure LoadSettings;
@@ -418,7 +421,7 @@ procedure TRipGrepperSearchDialogForm.FormShow(Sender : TObject);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.FormShow');
-
+	FTabCtrlOrigHeight := TabControl1.Height;
 	LoadSettings;
 	LoadExtensionSearchSettings;
 	// dbgMsg.MsgFmt('HasHistItemObjWithResult=%s', [BoolToStr(HasHistItemObjWithResult, True)]);
@@ -433,6 +436,7 @@ begin
 	UpdateCheckBoxesByRgOptions();
 
 	AlignExpertGroupBox();
+	cmbReplaceText.Visible := TabControl1.TabIndex = 1;
 	UpdateHeight();
 end;
 
@@ -986,6 +990,12 @@ begin
 	end;
 end;
 
+procedure TRipGrepperSearchDialogForm.TabControl1Change(Sender : TObject);
+begin
+	cmbReplaceText.Visible := TabControl1.TabIndex = 1;
+	UpdateHeight;
+end;
+
 procedure TRipGrepperSearchDialogForm.UpdateButtonsBySettings;
 var
 	s : string;
@@ -1063,6 +1073,12 @@ end;
 
 procedure TRipGrepperSearchDialogForm.UpdateHeight;
 begin
+	if cmbReplaceText.Visible then begin
+		TabControl1.Height := FTabCtrlOrigHeight;
+	end else begin
+		TabControl1.Height := TabControl1.Height - GetFullHeight(cmbReplaceText);
+	end;
+
 	if IOTAUTils.IsStandAlone then begin
 		rbExtensionOptions.Enabled := False;
 		rbExtensionOptions.Visible := False;
