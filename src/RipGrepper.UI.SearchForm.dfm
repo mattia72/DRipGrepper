@@ -152,9 +152,9 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
   TextHeight = 15
   object pnlMiddle: TPanel
     Left = 0
-    Top = 73
+    Top = 116
     Width = 552
-    Height = 491
+    Height = 448
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -164,13 +164,13 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     TabOrder = 0
     DesignSize = (
       552
-      491)
+      448)
     object gbExpert: TGroupBox
       AlignWithMargins = True
       Left = 8
       Top = 321
       Width = 536
-      Height = 167
+      Height = 124
       Margins.Left = 8
       Margins.Top = 0
       Margins.Right = 8
@@ -194,7 +194,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       TabOrder = 2
       DesignSize = (
         536
-        167)
+        124)
       object lblParams: TLabel
         AlignWithMargins = True
         Left = 8
@@ -257,7 +257,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Left = 8
         Top = 82
         Width = 469
-        Height = 77
+        Height = 34
         Anchors = [akLeft, akTop, akRight, akBottom]
         Color = clInfoBk
         Lines.Strings = (
@@ -668,32 +668,33 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       TabOrder = 2
     end
   end
-  object pnlTop: TPanel
+  object TabControl1: TTabControl
     Left = 0
     Top = 0
     Width = 552
-    Height = 73
+    Height = 116
     Align = alTop
-    BevelOuter = bvNone
     TabOrder = 2
-    object gbSearch: TGroupBox
-      AlignWithMargins = True
-      Left = 8
-      Top = 3
-      Width = 536
-      Height = 68
-      Margins.Left = 8
-      Margins.Right = 8
-      Align = alTop
-      Caption = 'Search'
+    Tabs.Strings = (
+      'Search'
+      'Replace')
+    TabIndex = 0
+    OnChange = TabControl1Change
+    object pnlTop: TPanel
+      Left = 4
+      Top = 26
+      Width = 544
+      Height = 86
+      Align = alClient
+      BevelOuter = bvNone
       TabOrder = 0
       DesignSize = (
-        536
-        68)
+        544
+        86)
       object lblText: TLabel
         AlignWithMargins = True
-        Left = 8
-        Top = 21
+        Left = 14
+        Top = 6
         Width = 62
         Height = 15
         Margins.Left = 8
@@ -703,9 +704,9 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Caption = '&Text to find:'
       end
       object cmbSearchText: TComboBox
-        Left = 8
-        Top = 36
-        Width = 441
+        Left = 14
+        Top = 26
+        Width = 421
         Height = 23
         Hint = 'Search Text or Pattern'
         Margins.Left = 8
@@ -718,12 +719,13 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         OnChange = cmbSearchTextChange
       end
       object ToolBar1: TToolBar
-        Left = 454
-        Top = 36
-        Width = 75
-        Height = 28
+        Left = 446
+        Top = 26
+        Width = 69
+        Height = 23
         Align = alNone
         Anchors = [akTop, akRight]
+        AutoSize = True
         ButtonHeight = 23
         Caption = 'tbSearchTextOptions'
         EdgeInner = esNone
@@ -748,6 +750,20 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
           Top = 0
           Action = ActionAddParamRegex
         end
+      end
+      object cmbReplaceText: TComboBox
+        Left = 14
+        Top = 59
+        Width = 421
+        Height = 23
+        Hint = 'Replace Text or Pattern'
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
+        Anchors = [akLeft, akTop, akRight]
+        TabOrder = 2
+        Text = 'cmbReplaceText'
       end
     end
   end
