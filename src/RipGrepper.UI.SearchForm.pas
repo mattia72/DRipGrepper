@@ -38,7 +38,6 @@ type
 		pnlMiddle : TPanel;
 		lblParams : TLabel;
 		lblPaths : TLabel;
-		lblText : TLabel;
 		cmbOptions : TComboBox;
 		cmbSearchDir : TComboBox;
 		cmbSearchText : TComboBox;
@@ -138,10 +137,13 @@ type
 			FGuiSetSearchParams : TGuiSearchTextParams;
 			FCbClickEventEnabled : Boolean;
 			FcmbOptionsOldText : string;
+			FOptionsFiltersOrigHeight : Integer;
+			FOptionsOutputOrigTop : Integer;
+			FpnlMiddleOrigHeight : Integer;
 			FOrigSearchFormSettings : TSearchFormSettings;
 			FSettings : TRipGrepperSettings;
-			FTabCtrlOrigHeight : Integer;
-
+			FTopPanelOrigHeight : Integer;
+			FOrigHeight : integer;
 			function GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
 			procedure LoadSettings;
 			procedure ButtonDown(const _searchOption : EGuiOption; _tb : TToolButton; const _bNotMatch : Boolean = False); overload;
@@ -247,7 +249,14 @@ begin
 	dbgMsg.Msg(FSettings.SearchFormSettings.ToLogString);
 	dbgMsg.Msg('gui params=' + FGuiSetSearchParams.ToLogString);
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
+
 	FExpertGroupHeight := gbExpert.Height;
+	FOptionsFiltersOrigHeight := gbOptionsFilters.Height;
+	FOptionsOutputOrigTop := gbOptionsOutput.Top;
+	FpnlMiddleOrigHeight := pnlMiddle.Height;
+	FTopPanelOrigHeight := pnlTop.Height;
+	FOrigHeight := Height;
+
 	cmbOptions.AutoComplete := False; // so we know the old value after change
 end;
 
@@ -421,7 +430,6 @@ procedure TRipGrepperSearchDialogForm.FormShow(Sender : TObject);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.FormShow');
-	FTabCtrlOrigHeight := TabControl1.Height;
 	LoadSettings;
 	LoadExtensionSearchSettings;
 	// dbgMsg.MsgFmt('HasHistItemObjWithResult=%s', [BoolToStr(HasHistItemObjWithResult, True)]);
@@ -973,7 +981,8 @@ class function TRipGrepperSearchDialogForm.ShowSearchForm(_owner : TComponent; _
 var
 	frm : TRipGrepperSearchDialogForm;
 begin
-	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.ShowSearchForm');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.ShowSearchForm');
 	frm := TRipGrepperSearchDialogForm.Create(_owner, _settings, _histObj);
 	try
 		Result := frm.ShowModal();
@@ -981,8 +990,9 @@ begin
 			_settings.LastSearchText := frm.cmbSearchText.Text
 		end else begin
 			_settings.LastSearchText := _histObj.SearchText;
-			dbgMsg.MsgFmtIf(_histObj.SearchText <>_histObj.GuiSearchTextParams.SearchText, 
-				{} 'ERROR? _histObj.SearchText=%s <> GuiSearchTextParams=%s', [_histObj.SearchText, _histObj.GuiSearchTextParams.SearchText]);
+			dbgMsg.MsgFmtIf(_histObj.SearchText <> _histObj.GuiSearchTextParams.SearchText,
+				{ } 'ERROR? _histObj.SearchText=%s <> GuiSearchTextParams=%s',
+				[_histObj.SearchText, _histObj.GuiSearchTextParams.SearchText]);
 		end;
 		dbgMsg.Msg('LastSearchText=' + _settings.LastSearchText);
 	finally
@@ -1073,40 +1083,53 @@ end;
 
 procedure TRipGrepperSearchDialogForm.UpdateHeight;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateHeight');
+	//Height := FOrigHeight;
+	dbgMsg.Msg('Height=' + Height.ToString);
 	if cmbReplaceText.Visible then begin
-		TabControl1.Height := FTabCtrlOrigHeight;
+		pnlTop.Height := FTopPanelOrigHeight;
 	end else begin
-		TabControl1.Height := TabControl1.Height - GetFullHeight(cmbReplaceText);
+		pnlTop.Height := FTopPanelOrigHeight - GetFullHeight(cmbReplaceText);
 	end;
-
+	dbgMsg.Msg('pnlTop.Height=' + pnlTop.Height.ToString);
+	pnlMiddle.Top := pnlTop.Height;
 	if IOTAUTils.IsStandAlone then begin
 		rbExtensionOptions.Enabled := False;
 		rbExtensionOptions.Visible := False;
 		var
-		shift := (rbExtensionOptions.Height + 2 * rbExtensionOptions.Margins.Bottom);
+		extensionSpace := GetFullHeight(rbExtensionOptions);
+		dbgMsg.Msg('extensionSpace=' + extensionSpace.ToString);
 		// Margins.Top is 0
-		gbOptionsFilters.Height := gbOptionsFilters.Height - shift;
-		gbOptionsOutput.Top := gbOptionsOutput.Top - shift;
-		gbExpert.Height := gbExpert.Height + shift;
-		pnlMiddle.Height := pnlMiddle.Height - shift;
+
+		gbOptionsFilters.Height := FOptionsFiltersOrigHeight - extensionSpace;
+		gbOptionsOutput.Top := FOptionsOutputOrigTop - extensionSpace;
+		gbExpert.Height := FExpertGroupHeight + extensionSpace;
+		gbExpert.Top := gbOptionsOutput.Top + gbOptionsOutput.Height;
+		dbgMsg.Msg('gbExpert.Top=' + gbExpert.Top.ToString);
+		pnlMiddle.Height := FpnlMiddleOrigHeight - extensionSpace;
+		dbgMsg.Msg('pnlMiddle.Height=' + pnlMiddle.Height.ToString);
 	end;
 
 	var
 	iHeight :=
 	{ } GetFullHeight(pnlTop) +
+	{ } pnlMiddle.Margins.Top +
 	{ } GetFullHeight(gbOptionsFilters) +
 	{ } GetFullHeight(gbOptionsOutput) +
-	{ } GetFullHeight(pnlMiddle) - pnlMiddle.Height +
+	{ } pnlMiddle.Margins.Bottom +
 	{ } GetFullHeight(pnlBottom);
 
 	if gbExpert.Visible then begin
-		iHeight := iHeight + GetFullHeight(gbExpert);
+		iHeight := iHeight + GetFullHeight(gbExpert); // expertHeight will be changed by parent height.
 	end else begin
 		iHeight := iHeight + 2 * gbOptionsOutput.Margins.Bottom; // Margins.Top is 0
 	end;
 
 	Constraints.MinHeight := iHeight;
 	Height := iHeight;
+	dbgMsg.Msg('Height=' + Height.ToString);
+
 end;
 
 procedure TRipGrepperSearchDialogForm.WriteOptionCtrlToRipGrepParametersSetting;

@@ -38,6 +38,7 @@ Marked with checkmark if fixed, else it is known bug.
 - [ ] `Additional Options` has to have saved defaults also
 - [ ] drip icon in menu has no transparent background
 - [ ] history item delete mit `DEL` key, deletes the first item
+- [ ] history item open, set match case doesn't remove --ignore-case
 - [x] _extension_ Exception:
 ```
     [471C512A]{DRipExtension.bpl} Ripgrepper.Ui.Middleframe.TRipGrepperMiddleFrame.ChangeHistoryNodeText + $6E
