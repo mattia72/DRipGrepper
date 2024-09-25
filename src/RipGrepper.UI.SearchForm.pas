@@ -969,14 +969,18 @@ class function TRipGrepperSearchDialogForm.ShowSearchForm(_owner : TComponent; _
 var
 	frm : TRipGrepperSearchDialogForm;
 begin
+	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.ShowSearchForm');
 	frm := TRipGrepperSearchDialogForm.Create(_owner, _settings, _histObj);
 	try
 		Result := frm.ShowModal();
 		if mrOk = Result then begin
 			_settings.LastSearchText := frm.cmbSearchText.Text
 		end else begin
-			_settings.LastSearchText := '';
+			_settings.LastSearchText := _histObj.SearchText;
+			dbgMsg.MsgFmtIf(_histObj.SearchText <>_histObj.GuiSearchTextParams.SearchText, 
+				{} 'ERROR? _histObj.SearchText=%s <> GuiSearchTextParams=%s', [_histObj.SearchText, _histObj.GuiSearchTextParams.SearchText]);
 		end;
+		dbgMsg.Msg('LastSearchText=' + _settings.LastSearchText);
 	finally
 		frm.Free;
 	end;
