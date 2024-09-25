@@ -182,9 +182,9 @@ type
 			procedure RunRipGrep;
 			procedure SetColumnWidths;
 			procedure SetHistItemObject(const Value : IHistoryItemObject);
-		procedure SetTextColorMatch(TargetCanvas: TCanvas);
-		procedure SetTextColorReplacedText(TargetCanvas: TCanvas);
-		procedure SetTextColorReplaceText(var pos: Integer; var ss1_repl: string; TargetCanvas: TCanvas; const CellRect: TRect);
+			procedure SetTextColorMatch(TargetCanvas: TCanvas);
+			procedure SetTextColorReplacedText(TargetCanvas: TCanvas);
+			procedure SetTextColorReplaceText(var pos: Integer; var ss1_repl: string; TargetCanvas: TCanvas; const CellRect: TRect);
 			function SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
 			procedure UpdateArgumentsAndSettings;
 			procedure UpdateHistObject;
@@ -202,6 +202,7 @@ type
 			procedure ChangeDataHistItemObject(_ho : IHistoryItemObject);
 			procedure ClearFilter(const _bForce : Boolean = False);
 			procedure ClearHistoryObject;
+			procedure DeleteCurrentHistoryItemFromList;
 			procedure CopyToClipboardFileOfSelected;
 			procedure CopyToClipboardPathOfSelected;
 			function CreateNewHistObject : IHistoryItemObject;
@@ -409,22 +410,31 @@ begin
 
 	VstHistory.DeleteNode(Node);
 	VstHistory.Refresh;
+	DeleteCurrentHistoryItemFromList;
+	  // FreeAndNil(ho);
+  	ho := nil;
+end;
 
+procedure TRipGrepperMiddleFrame.DeleteCurrentHistoryItemFromList;
+begin
+	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.DeleteCurrentHistoryItemFromList');
+	dbgMsg.Msg('Deleting history item at index ' + CurrentHistoryItemIndex.ToString);
 	FHistoryObjectList.Delete(CurrentHistoryItemIndex);
-	// FreeAndNil(ho);
-	ho := nil;
 
-	CurrentHistoryItemIndex := IfThen(VstHistory.RootNodeCount = 0, -1, IfThen(CurrentHistoryItemIndex = 0, 0,
-		CurrentHistoryItemIndex - 1));
 
-	if CurrentHistoryItemIndex <> -1 then begin
-		UpdateHistObjectAndGui;
-		VstHistory.Selected[GetNodeByIndex(VstHistory, CurrentHistoryItemIndex)] := True;
-	end else begin
-		VstResult.Clear;
-		VstHistory.Clear;
-		HistItemObject := nil;
-	end;
+  CurrentHistoryItemIndex := IfThen(VstHistory.RootNodeCount = 0, -1, IfThen(CurrentHistoryItemIndex = 0, 0,
+    CurrentHistoryItemIndex - 1));
+	
+  dbgMsg.Msg('CurrentHistoryItemIndex=' + CurrentHistoryItemIndex.ToString);
+
+  if CurrentHistoryItemIndex <> -1 then begin
+    UpdateHistObjectAndGui;
+    VstHistory.Selected[GetNodeByIndex(VstHistory, CurrentHistoryItemIndex)] := True;
+  end else begin
+    VstResult.Clear;
+    VstHistory.Clear;
+    HistItemObject := nil;
+  end;
 end;
 
 procedure TRipGrepperMiddleFrame.ActionHistoryDeleteUpdate(Sender : TObject);
@@ -500,7 +510,7 @@ begin
 	UpdateRipGrepArgumentsInHistObj;
 	UpdateHistObject;
 	ClearHistoryObject();
-	dbgMsg.Msg('Update HistoryObject ' + Settings.LastSearchText);
+	dbgMsg.Msg('Update HistoryObject LastSearchText=' + Settings.LastSearchText);
 end;
 
 procedure TRipGrepperMiddleFrame.AddVstHistItem;
@@ -589,11 +599,13 @@ end;
 
 function TRipGrepperMiddleFrame.CreateNewHistObject : IHistoryItemObject;
 begin
+	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.CreateNewHistObject');
 	Result := THistoryItemObject.Create();
 	HistItemObject := Result;
 	ChangeDataHistItemObject(Result);
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.AddOrUpdateHistoryItem Add HistoryObject ' + Settings.LastSearchText);
+	dbgMsg.Msg('Add HistoryObject ' + Settings.LastSearchText);
 	CurrentHistoryItemIndex := FHistoryObjectList.Add(Result);
+	dbgMsg.Msg('CurrentHistoryItemIndex=' + CurrentHistoryItemIndex.ToString);
 end;
 
 procedure TRipGrepperMiddleFrame.DoSearch;
@@ -1397,7 +1409,7 @@ begin
 					TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, ss0);
 
 					ss1 := s.Substring(matchBegin, Data.MatchData.MatchLength);
-					if IsReplaceMode then begin
+					if IsReplaceMode and (not Settings.LastSearchText.IsEmpty) then begin
 						ss1_repl := TRegEx.Replace(ss1, Settings.LastSearchText, Settings.RipGrepParameters.ReplaceText, [roIgnoreCase]);
 					end;
 					ss2 := s.Substring(matchBegin + Data.MatchData.MatchLength);
