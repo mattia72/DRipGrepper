@@ -182,6 +182,9 @@ type
 			procedure RunRipGrep;
 			procedure SetColumnWidths;
 			procedure SetHistItemObject(const Value : IHistoryItemObject);
+		procedure SetTextColorMatch(TargetCanvas: TCanvas);
+		procedure SetTextColorReplacedText(TargetCanvas: TCanvas);
+		procedure SetTextColorReplaceText(var pos: Integer; var ss1_repl: string; TargetCanvas: TCanvas; const CellRect: TRect);
 			function SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
 			procedure UpdateArgumentsAndSettings;
 			procedure UpdateHistObject;
@@ -1089,6 +1092,29 @@ begin
 	end;
 end;
 
+procedure TRipGrepperMiddleFrame.SetTextColorMatch(TargetCanvas: TCanvas);
+begin
+	TargetCanvas.Font.Color := TREEVIEW_MATCH_TEXT_COLOR;
+	TargetCanvas.Brush.Color := TREEVIEW_MATCH_TEXT_BGCOLOR;
+	TargetCanvas.Font.style := TREEVIEW_MATCH_TEXT_STYLE;
+end;
+
+procedure TRipGrepperMiddleFrame.SetTextColorReplacedText(TargetCanvas: TCanvas);
+begin
+	TargetCanvas.Font.Color := TREEVIEW_REPLACED_TEXT_COLOR;
+	TargetCanvas.Brush.Color := TREEVIEW_REPLACED_TEXT_BGCOLOR;
+	TargetCanvas.Font.style := TREEVIEW_REPLACED_TEXT_STYLE;
+end;
+
+procedure TRipGrepperMiddleFrame.SetTextColorReplaceText(var pos: Integer; var ss1_repl: string; TargetCanvas: TCanvas; const CellRect:
+	TRect);
+begin
+	TargetCanvas.Font.Color := TREEVIEW_REPLACE_TEXT_COLOR;
+	TargetCanvas.Font.style := TREEVIEW_REPLACE_TEXT_STYLE;
+	TargetCanvas.Brush.Color := TREEVIEW_REPLACE_TEXT_BGCOLOR;
+	TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1_repl);
+end;
+
 function TRipGrepperMiddleFrame.SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
 var
 	args : TStrings;
@@ -1377,22 +1403,15 @@ begin
 					ss2 := s.Substring(matchBegin + Data.MatchData.MatchLength);
 
 					if IsReplaceMode then begin
-						TargetCanvas.Font.Color := TREEVIEW_REPLACED_TEXT_COLOR;
-						TargetCanvas.Brush.Color := TREEVIEW_REPLACED_TEXT_BGCOLOR;
-						TargetCanvas.Font.style := TREEVIEW_REPLACED_TEXT_STYLE;
+						SetTextColorReplacedText(TargetCanvas);
 					end else begin
-						TargetCanvas.Font.Color := TREEVIEW_MATCH_TEXT_COLOR;
-						TargetCanvas.Brush.Color := TREEVIEW_MATCH_TEXT_BGCOLOR;
-						TargetCanvas.Font.style := TREEVIEW_MATCH_TEXT_STYLE;
+						SetTextColorMatch(TargetCanvas);
 					end;;
 					TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1);
 
 					pos := pos + TargetCanvas.TextWidth(ss1);
 					if IsReplaceMode then begin
-						TargetCanvas.Font.Color := TREEVIEW_REPLACE_TEXT_COLOR;
-						TargetCanvas.Font.style := TREEVIEW_REPLACE_TEXT_STYLE;
-						TargetCanvas.Brush.Color := TREEVIEW_REPLACE_TEXT_BGCOLOR;
-						TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1_repl);
+						SetTextColorReplaceText(pos, ss1_repl, TargetCanvas, CellRect);
 						pos := pos + TargetCanvas.TextWidth(ss1_repl);
 					end;
 					TargetCanvas.Font.Color := fc;

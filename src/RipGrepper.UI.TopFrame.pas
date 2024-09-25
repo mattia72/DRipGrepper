@@ -72,8 +72,8 @@ type
 		ToolButton8 : TToolButton;
 		ActionSearchInResult : TAction;
 		edtFilter : TButtonedEdit;
-    edtReplace: TButtonedEdit;
-    ToolButton9: TToolButton;
+		edtReplace : TButtonedEdit;
+		ToolButton9 : TToolButton;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlignToolbarsExecute(Sender : TObject);
@@ -104,7 +104,8 @@ type
 		procedure ActionSwitchViewUpdate(Sender : TObject);
 		procedure edtFilterChange(Sender : TObject);
 		procedure edtFilterRightButtonClick(Sender : TObject);
-		procedure edtReplaceChange(Sender: TObject);
+		procedure edtReplaceChange(Sender : TObject);
+		procedure edtReplaceRightButtonClick(Sender : TObject);
 		procedure SearchBox1Change(Sender : TObject);
 
 		private
@@ -404,9 +405,15 @@ begin
 	end;
 end;
 
-procedure TRipGrepperTopFrame.edtReplaceChange(Sender: TObject);
+procedure TRipGrepperTopFrame.edtReplaceChange(Sender : TObject);
 begin
-    FSettings.RipGrepParameters.ReplaceText := edtReplace.Text;
+	FSettings.RipGrepParameters.ReplaceText := edtReplace.Text;
+    MainFrame.VstResult.Repaint;
+end;
+
+procedure TRipGrepperTopFrame.edtReplaceRightButtonClick(Sender : TObject);
+begin
+	// TODO: DoReplace
 end;
 
 function TRipGrepperTopFrame.GetNextViewStyleIdx : integer;
@@ -437,8 +444,8 @@ end;
 procedure TRipGrepperTopFrame.Init;
 begin
 	if not IOTAUTils.IsStandAlone then begin
-		edtFilter.BorderStyle := bsNone;
-		Height := Height - 2;
+//		edtFilter.BorderStyle := bsNone;
+//		Height := Height - 2;
 	end;
 end;
 
