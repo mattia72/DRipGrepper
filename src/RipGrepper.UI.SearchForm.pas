@@ -1100,10 +1100,11 @@ begin
 		var
 		extensionSpace := GetFullHeight(rbExtensionOptions);
 		dbgMsg.Msg('extensionSpace=' + extensionSpace.ToString);
-		// Margins.Top is 0
 
 		gbOptionsFilters.Height := FOptionsFiltersOrigHeight - extensionSpace;
 		gbOptionsOutput.Top := FOptionsOutputOrigTop - extensionSpace;
+
+		dbgMsg.Msg('gbExpert.Top=' + gbExpert.Top.ToString);
 		gbExpert.Height := FExpertGroupHeight + extensionSpace;
 		gbExpert.Top := gbOptionsOutput.Top + gbOptionsOutput.Height;
 		dbgMsg.Msg('gbExpert.Top=' + gbExpert.Top.ToString);
