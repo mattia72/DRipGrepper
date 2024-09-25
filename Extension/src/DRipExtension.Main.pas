@@ -62,21 +62,25 @@ procedure Register;
 implementation
 
 uses
-	Dialogs,
-	System.SysUtils,
+	ArrayEx,
 	RipGrepper.Common.Constants,
-	RipGrepper.Common.Settings.RipGrepperSettings,
-	RipGrepper.Common.Settings.AppSettings,
-	RipGrepper.Tools.FileUtils,
-	System.IniFiles,
 	RipGrepper.Common.IOTAUtils,
-	System.IOUtils,
-	Vcl.Menus,
+	RipGrepper.Common.Settings.AppSettings,
+	RipGrepper.Common.Settings.ExtensionSettings,
+	RipGrepper.Common.Settings.RipGrepperSettings,
+	RipGrepper.OpenWith,
+	RipGrepper.OpenWith.Params,
 	RipGrepper.Tools.DebugUtils,
+	RipGrepper.Tools.FileUtils,
 	System.Classes,
-	Winapi.Windows,
+	System.IniFiles,
+	System.IOUtils,
+	System.SysUtils,
+	Vcl.Dialogs,
 	Vcl.ImgList,
-	ArrayEx, RipGrepper.OpenWith.Params, RipGrepper.OpenWith;
+	Vcl.Menus,
+	Winapi.Windows
+	;
 
 var
 	G_DripMenu : TMenuItem;
@@ -252,8 +256,8 @@ begin
 	(SplashScreenServices as IOTASplashScreenServices).AddPluginBitmap(EXTENSION_NAME, bmpHandle, False, '', sExeVersion);
 
 	bmpHandle := LoadBitmap(hInstance, 'about_icon');
-	FiPluginIndexAbout := (BorlandIDEServices as IOTAAboutBoxServices).AddPluginInfo(EXTENSION_NAME, EXTENSION_NAME + CRLF + HOME_PAGE, bmpHandle, False,
-		aLicenseStatus, sExeVersion);
+	FiPluginIndexAbout := (BorlandIDEServices as IOTAAboutBoxServices).AddPluginInfo(EXTENSION_NAME, EXTENSION_NAME + CRLF + HOME_PAGE,
+		bmpHandle, False, aLicenseStatus, sExeVersion);
 end;
 
 procedure TDRipExtension.RegisterKeyboardBinding;
