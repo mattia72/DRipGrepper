@@ -117,7 +117,9 @@ type
 			function GetSettings : TRipGrepperSettings;
 			function GetToolBarWidth(_tb : TToolBar) : Integer;
 			function IsFilterOn : Boolean;
+			function IsReplaceMode : Boolean;
 			procedure SelectNextFoundNode(const _prevFoundNode : PVirtualNode; const _searchPattern : string);
+			procedure SetReplaceText(const _sReplText : string);
 			procedure StartNewSearch;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
@@ -129,6 +131,7 @@ type
 			procedure Init;
 			procedure SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
 			procedure SetFilter(const _bOn : Boolean = True);
+			procedure SetReplaceMode(const _bOn : Boolean = True);
 			property HistItemObj : IHistoryItemObject read FHistItemObj;
 
 	end;
@@ -407,13 +410,20 @@ end;
 
 procedure TRipGrepperTopFrame.edtReplaceChange(Sender : TObject);
 begin
-	FSettings.RipGrepParameters.ReplaceText := edtReplace.Text;
-    MainFrame.VstResult.Repaint;
+	if IsReplaceMode then begin
+		SetReplaceText(edtReplace.Text);
+	end;
 end;
 
 procedure TRipGrepperTopFrame.edtReplaceRightButtonClick(Sender : TObject);
 begin
-	// TODO: DoReplace
+	if IsReplaceMode then begin
+		SetReplaceMode(False);
+		SetReplaceText('');
+	end else begin
+		SetReplaceMode();
+		SetReplaceText(edtReplace.Text);
+	end;
 end;
 
 function TRipGrepperTopFrame.GetNextViewStyleIdx : integer;
@@ -444,14 +454,19 @@ end;
 procedure TRipGrepperTopFrame.Init;
 begin
 	if not IOTAUTils.IsStandAlone then begin
-//		edtFilter.BorderStyle := bsNone;
-//		Height := Height - 2;
+		// edtFilter.BorderStyle := bsNone;
+		// Height := Height - 2;
 	end;
 end;
 
 function TRipGrepperTopFrame.IsFilterOn : Boolean;
 begin
 	Result := edtFilter.RightButton.ImageIndex = IMG_IDX_FILTER_ON;
+end;
+
+function TRipGrepperTopFrame.IsReplaceMode : Boolean;
+begin
+	Result := edtReplace.RightButton.ImageIndex = IMG_IDX_REPLACE_ON;
 end;
 
 procedure TRipGrepperTopFrame.SearchBox1Change(Sender : TObject);
@@ -512,6 +527,18 @@ procedure TRipGrepperTopFrame.SetFilter(const _bOn : Boolean = True);
 begin
 	edtFilter.RightButton.ImageIndex :=
 	{ } IfThen(_bOn and (edtFilter.Text <> ''), IMG_IDX_FILTER_ON, IMG_IDX_FILTER_OFF);
+end;
+
+procedure TRipGrepperTopFrame.SetReplaceMode(const _bOn : Boolean);
+begin
+	edtReplace.RightButton.ImageIndex :=
+	{ } IfThen(_bOn, IMG_IDX_REPLACE_ON, IMG_IDX_REPLACE_OFF);
+end;
+
+procedure TRipGrepperTopFrame.SetReplaceText(const _sReplText : string);
+begin
+	FSettings.RipGrepParameters.ReplaceText := _sReplText;
+	MainFrame.VstResult.Repaint;
 end;
 
 procedure TRipGrepperTopFrame.StartNewSearch;
