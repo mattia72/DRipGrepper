@@ -105,7 +105,7 @@ begin
 		so := SearchParams.GetGuiSearchParams;
 
 		matchPretty := FPrettyRegex.Match(s);
-		if matchPretty.Groups.Count = 4 then begin
+		if matchPretty.Groups.Count >= 4 then begin
 			cd.Add(TColumnData.New(ciText, matchPretty.Groups['before'].Value));
 			cd.Add(TColumnData.New(ciMatchText, matchPretty.Groups['text'].Value));
 			cd.Add(TColumnData.New(ciTextAfterMatch, matchPretty.Groups['after'].Value));
