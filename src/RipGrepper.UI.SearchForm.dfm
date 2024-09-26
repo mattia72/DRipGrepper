@@ -162,7 +162,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     Margins.Bottom = 8
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 1
     DesignSize = (
       541
       498)
@@ -351,7 +351,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
           Caption = '--hidden'
           ParentShowHint = False
           ShowHint = True
-          TabOrder = 0
+          TabOrder = 1
           OnClick = cbRgParamHiddenClick
         end
         object cbRgParamNoIgnore: TCheckBox
@@ -365,7 +365,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
           Caption = '--no-ignore'
           ParentShowHint = False
           ShowHint = True
-          TabOrder = 1
+          TabOrder = 3
           OnClick = cbRgParamNoIgnoreClick
         end
         object cbRgParamEncoding: TCheckBox
@@ -389,7 +389,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
           Width = 81
           Height = 23
           AutoDropDownWidth = True
-          TabOrder = 3
+          TabOrder = 0
           Text = 'cmbRgParamEncoding'
           OnChange = cmbRgParamEncodingChange
         end
@@ -618,7 +618,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     BevelOuter = bvNone
     UseDockManager = False
     ParentBackground = False
-    TabOrder = 1
+    TabOrder = 2
     DesignSize = (
       541
       34)
@@ -637,7 +637,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       Default = True
       ImageIndex = 3
       Images = ImageList1
-      TabOrder = 0
+      TabOrder = 1
     end
     object btnCancel: TButton
       AlignWithMargins = True
@@ -652,7 +652,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       Action = ActionCancel
       Anchors = [akRight, akBottom]
       Cancel = True
-      TabOrder = 1
+      TabOrder = 2
     end
     object btnSetAsDefault: TButton
       Left = 16
@@ -663,7 +663,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       Images = ImageList1
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 2
+      TabOrder = 0
     end
   end
   object pnlTop: TPanel
@@ -673,7 +673,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     Height = 106
     Align = alTop
     BevelOuter = bvNone
-    TabOrder = 2
+    TabOrder = 0
     object TabControl1: TTabControl
       AlignWithMargins = True
       Left = 8
@@ -703,7 +703,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Margins.Right = 8
         Margins.Bottom = 8
         Anchors = [akLeft, akTop, akRight]
-        TabOrder = 0
+        TabOrder = 2
         Text = 'cmbReplaceText'
       end
       object cmbSearchText: TComboBox
@@ -717,7 +717,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Margins.Right = 8
         Margins.Bottom = 8
         Anchors = [akLeft, akTop, akRight]
-        TabOrder = 1
+        TabOrder = 0
         Text = 'cmbSearchText'
         OnChange = cmbSearchTextChange
       end
@@ -736,7 +736,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Images = ImageList1
         ParentShowHint = False
         ShowHint = True
-        TabOrder = 2
+        TabOrder = 1
         TabStop = True
         object tbIgnoreCase: TToolButton
           Left = 0

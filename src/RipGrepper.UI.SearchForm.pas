@@ -161,7 +161,6 @@ type
 			procedure WriteCtrlsToSettings(const _bDefaultOnly : Boolean = False);
 			procedure UpdateCheckBoxesByRgOptions;
 			procedure UpdateCheckBoxesBySettings(const _searchFormSettings : TSearchFormSettings);
-			procedure AlignExpertGroupBox;
 			function CheckAndCorrectMultiLine(const _str : TMultiLineString) : string;
 			procedure ChecVsCodeRipGrep;
 			function GetFullHeights : integer;
@@ -446,9 +445,9 @@ begin
 	UpdateCmbOptionsAndMemoCommandLine;
 	UpdateCheckBoxesByRgOptions();
 
-	AlignExpertGroupBox();
 	cmbReplaceText.Visible := TabControl1.TabIndex = 1;
 	UpdateHeight();
+    ActiveControl := cmbSearchText;
 end;
 
 function TRipGrepperSearchDialogForm.GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
@@ -567,7 +566,6 @@ end;
 procedure TRipGrepperSearchDialogForm.ToggleExpertMode;
 begin
 	FSettings.AppSettings.ExpertMode := not FSettings.AppSettings.ExpertMode;
-	AlignExpertGroupBox();
 	UpdateHeight();
 end;
 
@@ -807,20 +805,6 @@ begin
 	end;
 end;
 
-procedure TRipGrepperSearchDialogForm.AlignExpertGroupBox;
-begin
-	if FSettings.AppSettings.ExpertMode then begin
-		gbExpert.Height := FExpertGroupHeight;
-		gbExpert.Caption := CAPTION_GRPBX_EXPERT_MODE;
-		// gbExpert.Font.Style := gbExpert.Font.Style - [fsBold, fsUnderline];
-	end else begin
-		gbExpert.Height := 0;
-		gbExpert.Visible := False;
-		// gbExpert.Caption := 'Show ' + CAPTION_GRPBX_EXPERT_MODE;
-		// gbExpert.Font.Style := gbExpert.Font.Style + [fsBold, fsUnderline];
-	end;
-end;
-
 procedure TRipGrepperSearchDialogForm.cbRgParamEncodingClick(Sender : TObject);
 begin
 	if not FCbClickEventEnabled then
@@ -829,7 +813,6 @@ begin
 	cmbRgParamEncoding.Enabled := cbRgParamEncoding.Checked;
 	FSettings.SearchFormSettings.Encoding := IfThen(cmbRgParamEncoding.Enabled, cmbRgParamEncoding.Text);
 	UpdateCtrls(cbRgParamEncoding);
-
 end;
 
 function TRipGrepperSearchDialogForm.CheckAndCorrectMultiLine(const _str : TMultiLineString) : string;
@@ -881,11 +864,15 @@ end;
 procedure TRipGrepperSearchDialogForm.FormResize(Sender : TObject);
 begin
 	inherited;
-	SetExpertGroupSize;
+//	var ctrlBackup := ActiveControl;
+//	ActiveControl := nil;
+	SetExpertGroupSize();
+//	ActiveControl := ctrlBackup; // TODO: after resize every edit is selected
 end;
 
 function TRipGrepperSearchDialogForm.GetFullHeights() : integer;
 begin
+	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.GetFullHeights()');
 	Result :=
 	{ } GetFullHeight(pnlTop) +
 	{ } pnlMiddle.Margins.Top +
@@ -893,6 +880,7 @@ begin
 	{ } GetFullHeight(gbOptionsOutput) +
 	{ } pnlMiddle.Margins.Bottom +
 	{ } GetFullHeight(pnlBottom);
+    dbgMsg.Msg('Result=' + Result.ToString);
 end;
 
 function TRipGrepperSearchDialogForm.HasHistItemObjWithResult : Boolean;
@@ -996,11 +984,11 @@ begin
 	TDebugUtils.Msg('cmbSearchDir.Text=' + cmbSearchDir.Text);
 end;
 
-procedure TRipGrepperSearchDialogForm.SetExpertGroupSize;
+procedure TRipGrepperSearchDialogForm.SetExpertGroupSize();
 begin
 	var
 	iexpertHeight := Height - GetFullHeights();
-	gbExpert.Visible := iexpertHeight > 0;
+	gbExpert.Visible := FSettings.AppSettings.ExpertMode and (iexpertHeight > 0);
 	if gbExpert.Visible then begin
 		gbExpert.Top := gbOptionsOutput.Top + gbOptionsOutput.Height + gbOptionsOutput.Margins.Bottom;
 		gbExpert.Height := iexpertHeight;
@@ -1135,7 +1123,6 @@ begin
 		gbOptionsFilters.Height := FOptionsFiltersOrigHeight - extensionSpace;
 		gbOptionsOutput.Top := FOptionsOutputOrigTop - extensionSpace;
 
-		dbgMsg.Msg('gbExpert.Top=' + gbExpert.Top.ToString);
 		pnlMiddle.Height := FpnlMiddleOrigHeight - extensionSpace;
 		dbgMsg.Msg('pnlMiddle.Height=' + pnlMiddle.Height.ToString);
 	end;
@@ -1144,15 +1131,13 @@ begin
 	iHeight := GetFullHeights;
 	Constraints.MinHeight := iHeight;
 
-	if gbExpert.Visible then begin
-		iHeight := iHeight + GetFullHeight(gbExpert); // expertHeight will be changed by parent height.
-	end else begin
-		iHeight := iHeight + 2 * gbOptionsOutput.Margins.Bottom; // Margins.Top is 0
+	if FSettings.AppSettings.ExpertMode then begin
+		iHeight := iHeight + gbExpert.Height; // expertHeight will be changed by parent height.
 	end;
 
 	Height := iHeight;
 	dbgMsg.Msg('Height=' + Height.ToString);
-	SetExpertGroupSize;
+	SetExpertGroupSize();
 end;
 
 procedure TRipGrepperSearchDialogForm.WriteOptionCtrlToRipGrepParametersSetting;
