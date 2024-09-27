@@ -662,7 +662,6 @@ begin
 
 	FGuiSetSearchParams.SetRgOption(RG_PARAM_REGEX_HIDDEN, not cbRgParamHidden.Checked);
 	FGuiSetSearchParams.SetRgOption(RG_PARAM_REGEX_NO_IGNORE, not cbRgParamNoIgnore.Checked);
-	FGuiSetSearchParams.SetRgOption(RG_PARAM_REGEX_IGNORE_CASE, cbRgParamNoIgnore.Checked);
 
 	FGuiSetSearchParams.SetRgOption(RG_PARAM_REGEX_PRETTY, not(cbRgParamPretty.Enabled and cbRgParamPretty.Checked));
 	if cbRgParamContext.Checked then begin
