@@ -110,6 +110,7 @@ begin
 			cd.Add(TColumnData.New(ciMatchText, matchPretty.Groups['text'].Value));
 			cd.Add(TColumnData.New(ciTextAfterMatch, matchPretty.Groups['after'].Value));
 		end else begin
+			// in this case highlighting doesn't work...
 			cd.Add(TColumnData.New(ciText, s));
 			cd.Add(TColumnData.New(ciMatchText, ''));
 			cd.Add(TColumnData.New(ciTextAfterMatch, ''));

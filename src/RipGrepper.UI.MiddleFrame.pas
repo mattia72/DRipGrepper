@@ -1420,7 +1420,6 @@ begin
 						SetTextColorMatch(TargetCanvas);
 					end;;
 					TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1);
-
 					pos := pos + TargetCanvas.TextWidth(ss1);
 					if IsReplaceMode then begin
 						SetTextColorReplaceText(pos, ss1_repl, TargetCanvas, CellRect);
