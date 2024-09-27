@@ -26,12 +26,14 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 Marked with checkmark if ready, else planned as next.
 - [x] enhanced filter control 
 - [ ] replace 
+- [ ] _extension_ save all before search
 - [ ] save/load search histories in file
 - [ ] config form
   - [ ] install as _extension_ in delphi ide
 - [ ] json config files
 - [ ] own prettifier switcher as toolbar button
 - [ ] __extension__: search opened projekt files only
+- [ ] run in powershell / command prompt
 
 ## :exclamation: Bugs 
 Marked with checkmark if fixed, else it is known bug.
@@ -39,6 +41,7 @@ Marked with checkmark if fixed, else it is known bug.
 - [ ] drip icon in menu has no transparent background
 - [ ] history item delete mit `DEL` key, deletes the first item
 - [ ] history item open, set match case doesn't remove --ignore-case
+- [x] regexp with groups not highlighted
 - [x] _extension_ Exception:
 ```
     [471C512A]{DRipExtension.bpl} Ripgrepper.Ui.Middleframe.TRipGrepperMiddleFrame.ChangeHistoryNodeText + $6E

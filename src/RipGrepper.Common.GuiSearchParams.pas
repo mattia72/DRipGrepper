@@ -36,8 +36,8 @@ type
 			SearchOptions : TSearchOptionSet;
 
 			constructor Create(const _ini : TMemIniFile); overload;
-			constructor Create(const _sText: string; const _bMC, _bMW, _bUR: Boolean); overload;
-			constructor Create(const _iniSection: string); overload;
+			constructor Create(const _sText : string; const _bMC, _bMW, _bUR : Boolean); overload;
+			constructor Create(const _iniSection : string); overload;
 			destructor Destroy; override;
 			procedure Clear;
 			procedure Copy(const _other : TGuiSearchTextParams); reintroduce;
@@ -46,6 +46,8 @@ type
 			class function RemoveRgExeOptions(const _sOptions, _sParamRegex : string) : string; static;
 			class function AddRgExeOptionWithValue(const _sOptions, _sParamRegex, _sValue : string; const _bUnique : Boolean = False)
 				: string; static;
+			procedure CopyDefaultsToValues; override;
+			procedure CopyValuesToDefaults; override;
 			function GetNext(const _newOption : EGuiOption) : TGuiSearchTextParams;
 			function IsSet(_options : TArray<EGuiOption>) : Boolean;
 
@@ -60,7 +62,7 @@ type
 			function GetAsString(const _bGuiOptionsOnly : Boolean = False) : string;
 			procedure LoadDefault; override;
 			procedure RefreshMembers(const _bWithDefault : Boolean = False); override;
-			function ToLogString: string; override;
+			function ToLogString : string; override;
 
 			property EscapedSearchText : string read GetEscapedSearchText;
 			property IsRgExeOptionSet : Boolean read FIsRgExeOptionSet write FIsRgExeOptionSet;
@@ -127,7 +129,7 @@ begin
 end;
 
 // for UnitTests...
-constructor TGuiSearchTextParams.Create(const _sText: string; const _bMC, _bMW, _bUR: Boolean);
+constructor TGuiSearchTextParams.Create(const _sText : string; const _bMC, _bMW, _bUR : Boolean);
 begin
 	Create();
 	SearchText := _sText;
@@ -256,7 +258,7 @@ begin
 	if _bReset then begin
 		RgOptions := TGuiSearchTextParams.RemoveRgExeOptions(RgOptions, _sParamRegex);
 	end else begin
-		FRgOptions := TGuiSearchTextParams.AddRgExeOptions(RgOptions, _sParamRegex);
+		RgOptions := TGuiSearchTextParams.AddRgExeOptions(RgOptions, _sParamRegex);
 	end;
 end;
 
@@ -278,11 +280,15 @@ begin
 	end;
 
 	case _searchOption of
-		EGuiOption.soNotSet :
-		{ } SetRgOption(RG_PARAM_REGEX_FIXED_STRINGS);
+		EGuiOption.soNotSet : begin
+			// ignore case by default
+			ResetRgOption(RG_PARAM_REGEX_CASE_SENSITIVE);
+			SetRgOption(RG_PARAM_REGEX_IGNORE_CASE);
+			SetRgOption(RG_PARAM_REGEX_FIXED_STRINGS);
+		end;
 		EGuiOption.soMatchCase : begin
-			SetRgOption(RG_PARAM_REGEX_CASE_SENSITIVE);
 			ResetRgOption(RG_PARAM_REGEX_IGNORE_CASE);
+			SetRgOption(RG_PARAM_REGEX_CASE_SENSITIVE);
 		end;
 		EGuiOption.soMatchWord :
 		{ } ResetRgOption(RG_PARAM_REGEX_FIXED_STRINGS);
@@ -349,16 +355,16 @@ begin
 	Create();
 end;
 
-constructor TGuiSearchTextParams.Create(const _iniSection: string);
+constructor TGuiSearchTextParams.Create(const _iniSection : string);
 begin
-    IniSectionName := _iniSection;
+	IniSectionName := _iniSection;
 	inherited Create();
 	Clear();
 end;
 
 destructor TGuiSearchTextParams.Destroy;
 begin
-	inherited Destroy(); //ok
+	inherited Destroy(); // ok
 end;
 
 procedure TGuiSearchTextParams.Copy(const _other : TGuiSearchTextParams);
@@ -371,6 +377,16 @@ begin
 	FRgOptions := _other.RgOptions;
 	FIsRgExeOptionSet := _other.IsRgExeOptionSet;
 	FRgAdditionalOptions := _other.RgAdditionalOptions;
+end;
+
+procedure TGuiSearchTextParams.CopyDefaultsToValues;
+begin
+	inherited CopyDefaultsToValues;
+end;
+
+procedure TGuiSearchTextParams.CopyValuesToDefaults;
+begin
+	inherited CopyValuesToDefaults;
 end;
 
 procedure TGuiSearchTextParams.Init;
@@ -387,20 +403,37 @@ procedure TGuiSearchTextParams.RefreshMembers(const _bWithDefault : Boolean = Fa
 var
 	sParams : string;
 begin
+	var dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.RefreshMembers');
 	sParams := GetSetting('SearchParams', _bWithDefault);
+    dbgMsg.Msg(RgOptions);
 	SearchOptions := GetAsSearchOptionSet(
 		{ } sParams.Contains('MatchCase'),
 		{ } sParams.Contains('MatchWord'),
 		{ } sParams.Contains('UseRegex'));
-	// SearchText := SearchText;
+
+	if SearchOptions = [] then begin
+		SetOption(EGuiOption.soNotSet);
+	end else begin
+		for var so in SearchOptions do begin
+			SetOption(so);
+		end;
+	end;
+	dbgMsg.Msg(RgOptions);
 end;
 
 procedure TGuiSearchTextParams.SetRgOptions(const Value : string);
 begin
 	FRgOptions := Value;
+	{$IFDEF DEBUG}
+	if Value.IndexOf('--ignore-case') > 0 then begin
+		if Value.IndexOf('--case-sensitive') > 0 then begin
+			Assert(True, '--case-sensitive and --ignore-case shouldn''t be there at the same time');
+		end;
+	end;
+	{$ENDIF}
 end;
 
-function TGuiSearchTextParams.ToLogString: string;
+function TGuiSearchTextParams.ToLogString : string;
 begin
 	Result := GetAsString();
 end;

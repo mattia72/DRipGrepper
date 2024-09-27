@@ -30,7 +30,7 @@ type
 
 			FRipGrepArguments : TRipGrepArguments;
 			FSearchPathIsDir : Boolean;
-			FAppSettings: TAppSettings;
+			FAppSettings : TAppSettings;
 
 			FActualSearchPath : string;
 			FLastSearchText : string;
@@ -55,6 +55,7 @@ type
 			destructor Destroy; override;
 			procedure AddIfNotContains(_to, _from : TStrings);
 			procedure Copy(const _other : TPersistableSettings); reintroduce; override;
+			procedure CopyDefaultsToValues; override;
 			function GetIsModified : Boolean; override;
 			function GetLastHistorySearchText : string;
 			function GetRipGrepArguments : TRipGrepArguments;
@@ -73,9 +74,8 @@ type
 			property RipGrepOptionsHistory : TSTrings read FRipGrepOptionsHistory write SetRipGrepOptionsHistory;
 			property RipGrepParameters : TRipGrepParameterSettings read FRipGrepParameters write FRipGrepParameters;
 			property OpenWithSettings : TOpenWithSettings read FOpenWithSettings;
-			property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings
-				write FSearchFormSettings;
-			property AppSettings: TAppSettings read FAppSettings write FAppSettings;
+			property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings write FSearchFormSettings;
+			property AppSettings : TAppSettings read FAppSettings write FAppSettings;
 			property NodeLookSettings : TNodeLookSettings read FNodeLookSettings write FNodeLookSettings;
 			property SearchPathIsDir : Boolean read GetSearchPathIsDir;
 			property SearchTextsHistory : TStrings read FSearchTextsHistory write SetSearchTextsHistory;
@@ -170,7 +170,7 @@ begin
 	FSearchFormSettings.Free;
 	FFileMasksHistory.Free;
 	UpdateIniFile;
-	inherited Destroy(); //ok;
+	inherited Destroy(); // ok;
 end;
 
 constructor TRipGrepperSettings.Create;
@@ -214,6 +214,13 @@ begin
 		FRipGrepArguments.Assign(s.FRipGrepArguments);
 		inherited Copy(_other as TPersistableSettings);
 	end;
+end;
+
+procedure TRipGrepperSettings.CopyDefaultsToValues;
+begin
+	FSearchFormSettings.CopyDefaultsToValues;
+	FRipGrepParameters.CopyDefaultsToValues;
+	inherited CopyDefaultsToValues;
 end;
 
 function TRipGrepperSettings.GetActualSearchPath : string;

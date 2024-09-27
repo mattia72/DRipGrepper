@@ -62,6 +62,7 @@ type
 			procedure ReadIni; override;
 			procedure Store; override;
 			procedure Copy(const _other : TSearchFormSettings); reintroduce;
+			procedure CopyDefaultsToValues; override;
 			procedure StoreAsDefault; override;
 			procedure LoadDefault; override;
 			procedure RefreshMembers(const _bWithDefault : Boolean); override;
@@ -121,6 +122,12 @@ begin
 		FExtensionSettings.Copy(_other.ExtensionSettings);
 		inherited Copy(_other as TPersistableSettings);
 	end;
+end;
+
+procedure TSearchFormSettings.CopyDefaultsToValues;
+begin
+	FExtensionSettings.CopyDefaultsToValues;
+	inherited CopyDefaultsToValues;
 end;
 
 function TSearchFormSettings.GetContext : Integer;

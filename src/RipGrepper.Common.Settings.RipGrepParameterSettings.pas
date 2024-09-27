@@ -25,7 +25,7 @@ type
 			FRipGrepPath : string;
 			FSearchPath : string;
 			FSearchText : string;
-			FReplaceText: string;
+			FReplaceText : string;
 			FFileMasks : string;
 			FGuiSearchTextParams : TGuiSearchTextParams;
 			function GetRipGrepPath : string;
@@ -33,7 +33,7 @@ type
 			procedure SetGuiSearchTextParams(const Value : TGuiSearchTextParams);
 			procedure SetRgExeOptions(const Value : string);
 			procedure SetSearchPath(const Value : string);
-			procedure SetReplaceText(const Value: string);
+			procedure SetReplaceText(const Value : string);
 			procedure SetSearchText(const Value : string);
 
 		protected
@@ -42,6 +42,7 @@ type
 		public
 			constructor Create(const _ini : TMemIniFile);
 			destructor Destroy; override;
+			procedure CopyDefaultsToValues; override;
 			function GetCommandLine : string;
 			procedure InitRipGrepExePath;
 			procedure ReadIni; override;
@@ -56,7 +57,7 @@ type
 			property SearchText : string read FSearchText write SetSearchText;
 			property RipGrepArguments : TRipGrepArguments read FRipGrepArguments write FRipGrepArguments;
 			property RipGrepPath : string read GetRipGrepPath write FRipGrepPath;
-			property ReplaceText: string read FReplaceText write SetReplaceText;
+			property ReplaceText : string read FReplaceText write SetReplaceText;
 	end;
 
 implementation
@@ -87,7 +88,13 @@ destructor TRipGrepParameterSettings.Destroy;
 begin
 	FGuiSearchTextParams.Free;
 	FRipGrepArguments.Free;
-	inherited Destroy() //ok;
+	inherited Destroy() // ok;
+end;
+
+procedure TRipGrepParameterSettings.CopyDefaultsToValues;
+begin
+	FGuiSearchTextParams.CopyDefaultsToValues;
+	inherited CopyDefaultsToValues;
 end;
 
 function TRipGrepParameterSettings.GetCommandLine : string;
@@ -209,12 +216,12 @@ begin
 	end;
 end;
 
-procedure TRipGrepParameterSettings.SetReplaceText(const Value: string);
+procedure TRipGrepParameterSettings.SetReplaceText(const Value : string);
 begin
 	if FReplaceText <> Value then begin
 		TDebugUtils.Msg('SetReplaceText=' + Value);
 		FReplaceText := Value;
-//		FIsModified := True;
+		// FIsModified := True;
 	end;
 end;
 
