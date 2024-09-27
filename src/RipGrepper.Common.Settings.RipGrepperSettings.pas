@@ -294,6 +294,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.RebuildArguments');
 	dbgMsg.Msg(FRipGrepParameters.GuiSearchTextParams.ToString);
+	dbgMsg.Msg(FRipGrepParameters.ToString);
 	TCommandLineBuilder.RebuildArguments(FRipGrepParameters);
 	dbgMsg.Msg(FRipGrepParameters.GuiSearchTextParams.ToString);
 end;
