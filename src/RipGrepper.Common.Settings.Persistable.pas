@@ -346,7 +346,6 @@ procedure TPersistableSettings.StoreAsDefaultsToDict;
 begin
 	CopyValuesToDefaults;
 	WriteSettings(True); // Write to mem ini, after UpdateIniFile will be saved
-	UpdateIniFile;
 end;
 
 function TPersistableSettings.ToLogString : string;
