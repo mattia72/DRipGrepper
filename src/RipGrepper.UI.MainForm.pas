@@ -157,7 +157,7 @@ end;
 procedure TRipGrepperForm.FormClose(Sender : TObject; var Action : TCloseAction);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.FormClose - begin action: ' + Integer(Action).ToString);
-   //	Settings.Store; not enough?
+   //	Settings.StoreToDict; not enough?
 end;
 
 procedure TRipGrepperForm.FormShow(Sender : TObject);

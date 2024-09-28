@@ -424,7 +424,7 @@ begin
 
   CurrentHistoryItemIndex := IfThen(VstHistory.RootNodeCount = 0, -1, IfThen(CurrentHistoryItemIndex = 0, 0,
     CurrentHistoryItemIndex - 1));
-	
+
   dbgMsg.Msg('CurrentHistoryItemIndex=' + CurrentHistoryItemIndex.ToString);
 
   if CurrentHistoryItemIndex <> -1 then begin

@@ -67,21 +67,21 @@ end;
 
 destructor TParentFrame.Destroy;
 begin
-	TDebugUtils.Msg('TParentFrame.Destroy - Settings.Store');
-	// Settings.Store; not enough
+	TDebugUtils.Msg('TParentFrame.Destroy - Settings.StoreToDict');
 	inherited;
 end;
 
 procedure TParentFrame.OnClose(Sender : TObject; var Action : TCloseAction);
 begin
 	TDebugUtils.Msg('TParentFrame.OnClose - begin action:' + Integer(Action).ToString);
-	Settings.Store; // combo box histories can be stored here
+	Settings.StoreToDict; // combo box histories can be StoreToDictd here
 end;
 
 procedure TParentFrame.FrameOnShow(Sender : TObject);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.FrameOnShow');
+	Settings.LoadInitialSettings;
 	SetStatusBarMessage();
 end;
 

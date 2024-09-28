@@ -49,7 +49,7 @@ begin
 	if not Assigned(GSettings) then begin
 		GSettings := TRipGrepperSettingsInstance.Instance;
 		GSettings.AppSettings.ReadIni;
-		GSettings.AppSettings.RefreshMembers(False);
+		GSettings.AppSettings.LoadFromDict();
 	end;
 
 	FDebugTraceActive := { } (Assigned(GSettings) and
@@ -128,6 +128,6 @@ begin
 	TDebugUtils.DebugMessage(Dest.FProcName + ' - end');
 end;
 
-// GSettings.Store;
+// GSettings.StoreToDict;
 // GSettings.Free;
 end.

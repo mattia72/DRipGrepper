@@ -37,7 +37,6 @@ type
 
 			function GetIsEmpty : Boolean;
 			function GetSearchPathIsDir : Boolean;
-			procedure InitSettings;
 			procedure LoadHistoryEntries(var _list : TStrings; const _section : string);
 			procedure SetFileMasksHistory(const Value : TStrings);
 			procedure SetRipGrepOptionsHistory(const Value : TSTrings);
@@ -46,6 +45,7 @@ type
 			procedure StoreHistoryEntries(const _list : TStrings; const _section : string);
 			function GetActualSearchPath : string;
 			function GetSearchFormSettings : TSearchFormSettings;
+			procedure LoadFirstNecessarySettings;
 
 		public
 			procedure ReadIni; override;
@@ -63,6 +63,7 @@ type
 			procedure LoadDefaultsFromDict; override;
 			procedure RebuildArguments;
 			procedure LoadFromDict(); override;
+			procedure LoadInitialSettings;
 			procedure StoreAsDefaultsToDict; override;
 			procedure StoreHistories;
 			property LastSearchText : string read FLastSearchText write FLastSearchText;
@@ -126,8 +127,9 @@ begin
 	Result := FRipGrepParameters.RipGrepArguments;
 end;
 
-procedure TRipGrepperSettings.InitSettings;
+procedure TRipGrepperSettings.LoadInitialSettings;
 begin
+	LoadFirstNecessarySettings;
 
 	if SearchPathsHistory.Count = 0 then begin
 		SearchPathsHistory.Add(TDirectory.GetCurrentDirectory());
@@ -263,27 +265,18 @@ procedure TRipGrepperSettings.ReadIni;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.ReadIni');
-
-	inherited ReadIni();
-
 	try
 		FNodeLookSettings.ReadIni();
 		FNodeLookSettings.ReadIni();
 		FOpenWithSettings.ReadIni();
 		FAppSettings.ReadIni();
-
-        FNodeLookSettings.LoadFromDict();
-		LoadHistoryEntries(FSearchPathsHistory, 'SearchPathsHistory');
-		LoadHistoryEntries(FSearchTextsHistory, 'SearchTextsHistory');
-		LoadHistoryEntries(FRipGrepOptionsHistory, 'RipGrepOptionsHistory');
-		LoadHistoryEntries(FFileMasksHistory, 'FileMasksHistory');
+		inherited ReadIni();
 	except
 		on E : Exception do begin
 			TDebugUtils.DebugMessage(Format('TRipGrepperSettings.ReadIni: Exception %s ', [E.Message]));
 			TMsgBox.ShowError(E.Message + CRLF + 'Settings Read from ' + FIniFile.FileName + ' went wrong.');
 		end;
 	end;
-	InitSettings;
 end;
 
 procedure TRipGrepperSettings.LoadDefaultsFromDict;
@@ -293,6 +286,15 @@ begin
 
 	FRipGrepParameters.LoadDefaultsFromDict;
 	FSearchFormSettings.LoadDefaultsFromDict;
+end;
+
+procedure TRipGrepperSettings.LoadFirstNecessarySettings;
+begin
+	FNodeLookSettings.LoadFromDict();
+	LoadHistoryEntries(FSearchPathsHistory, 'SearchPathsHistory');
+	LoadHistoryEntries(FSearchTextsHistory, 'SearchTextsHistory');
+	LoadHistoryEntries(FRipGrepOptionsHistory, 'RipGrepOptionsHistory');
+	LoadHistoryEntries(FFileMasksHistory, 'FileMasksHistory');
 end;
 
 procedure TRipGrepperSettings.RebuildArguments;

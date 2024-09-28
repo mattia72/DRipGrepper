@@ -236,7 +236,7 @@ begin
 
 			FOrigSearchFormSettings.Copy(FHistItemObj.SearchFormSettings);
 			FSettings.SearchFormSettings.Copy(FHistItemObj.SearchFormSettings);
-			FSettings.RefreshMembers(False);
+			FSettings.LoadFromDict();
 		end;
 	end else begin
 		if (not FSettings.SearchFormSettings.IsAlreadyRead) then begin
@@ -245,8 +245,8 @@ begin
 		FSettings.CopyDefaultsToValues;
 
 		FGuiSetSearchParams := TGuiSearchTextParams.Create(TRipGrepParameterSettings.INI_SECTION);
-		FGuiSetSearchParams.LoadDefault;
-		FGuiSetSearchParams.RefreshMembers(false);
+        FGuiSetSearchParams.ReadIni;
+		FGuiSetSearchParams.LoadDefaultsFromDict;
 	end;
 	dbgMsg.Msg(FSettings.SearchFormSettings.ToLogString);
 	dbgMsg.Msg('gui params=' + FGuiSetSearchParams.ToLogString);
@@ -353,7 +353,8 @@ end;
 procedure TRipGrepperSearchDialogForm.ActionSetAsDefaultExecute(Sender : TObject);
 begin
 	WriteCtrlsToSettings(True);
-	FSettings.StoreAsDefault();
+	FSettings.StoreAsDefaultsToDict();
+    FSettings.UpdateIniFile;
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionShowFileMaskHelpExecute(Sender : TObject);
@@ -416,12 +417,12 @@ begin
 		if HasHistItemObjWithResult then begin
 			FSettings.SearchFormSettings.StoreSearchSettings(False);
 			FHistItemObj.SearchFormSettings.Copy(FSettings.SearchFormSettings);
-			FHistItemObj.SearchFormSettings.RefreshMembers(False);
+			FHistItemObj.SearchFormSettings.LoadFromDict();
 			FHistItemObj.RipGrepArguments.Clear;
 			FHistItemObj.RipGrepArguments.Assign(FSettings.GetRipGrepArguments());
 			FHistItemObj.GuiSearchTextParams.Copy(FGuiSetSearchParams);
 			FSettings.SearchFormSettings.Copy(FOrigSearchFormSettings);
-			FSettings.SearchFormSettings.RefreshMembers(False);
+			FSettings.SearchFormSettings.LoadFromDict();
 		end;
 		FSettings.StoreHistories();
 		FSettings.UpdateIniFile;
@@ -704,6 +705,8 @@ begin
 	FSettings.RipGrepParameters.GuiSearchTextParams.Copy(FGuiSetSearchParams);
 
 	if _bDefaultOnly then begin
+		FSettings.RipGrepParameters.GuiSearchTextParams.StoreAsDefaultsToDict;
+		FSettings.SearchFormSettings.StoreAsDefaultsToDict;
 		FSettings.CopyDefaultsToValues();
 	end;
 

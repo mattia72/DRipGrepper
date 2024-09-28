@@ -135,7 +135,7 @@ end;
 
 procedure TOpenWithCmdList.ActionOkExecute(Sender : TObject);
 begin
-	FSettings.Store;
+	FSettings.StoreToDict;
 	ModalResult := mrOk;
 end;
 

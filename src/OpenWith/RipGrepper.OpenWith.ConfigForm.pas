@@ -332,7 +332,7 @@ begin
 		FSettings.Command[i] := settings;
 		TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.WriteSettings %s ', [FSettings.Command[i]])));
 	end;
-	FSettings.Store;
+	FSettings.StoreToDict;
 end;
 
 procedure TOpenWithConfigForm.lbCommandsClick(Sender : TObject);
