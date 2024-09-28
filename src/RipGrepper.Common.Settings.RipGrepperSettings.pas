@@ -49,7 +49,7 @@ type
 
 		public
 			procedure ReadIni; override;
-			procedure Store; override;
+			procedure StoreToDict; override;
 			procedure StoreViewSettings(const _s : string = '');
 			constructor Create;
 			destructor Destroy; override;
@@ -60,10 +60,10 @@ type
 			function GetLastHistorySearchText : string;
 			function GetRipGrepArguments : TRipGrepArguments;
 			procedure Init; override;
-			procedure LoadDefault; override;
+			procedure LoadDefaultsFromDict; override;
 			procedure RebuildArguments;
-			procedure RefreshMembers(const _bWithDefault : Boolean); override;
-			procedure StoreAsDefault; override;
+			procedure LoadFromDict(); override;
+			procedure StoreAsDefaultsToDict; override;
 			procedure StoreHistories;
 			property LastSearchText : string read FLastSearchText write FLastSearchText;
 			property FileMasksHistory : TStrings read FFileMasksHistory write SetFileMasksHistory;
@@ -267,11 +267,12 @@ begin
 	inherited ReadIni();
 
 	try
-		FNodeLookSettings.ReadIni;
-		FNodeLookSettings.RefreshMembers(false);
-		FOpenWithSettings.ReadIni;
-		FAppSettings.ReadIni;
+		FNodeLookSettings.ReadIni();
+		FNodeLookSettings.ReadIni();
+		FOpenWithSettings.ReadIni();
+		FAppSettings.ReadIni();
 
+        FNodeLookSettings.LoadFromDict();
 		LoadHistoryEntries(FSearchPathsHistory, 'SearchPathsHistory');
 		LoadHistoryEntries(FSearchTextsHistory, 'SearchTextsHistory');
 		LoadHistoryEntries(FRipGrepOptionsHistory, 'RipGrepOptionsHistory');
@@ -285,15 +286,13 @@ begin
 	InitSettings;
 end;
 
-procedure TRipGrepperSettings.LoadDefault;
+procedure TRipGrepperSettings.LoadDefaultsFromDict;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.LoadDefault');
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.LoadDefaultsFromDict');
 
-	inherited LoadDefault;
-
-	FRipGrepParameters.LoadDefault;
-	FSearchFormSettings.LoadDefault;
+	FRipGrepParameters.LoadDefaultsFromDict;
+	FSearchFormSettings.LoadDefaultsFromDict;
 end;
 
 procedure TRipGrepperSettings.RebuildArguments;
@@ -306,10 +305,10 @@ begin
 	dbgMsg.Msg(FRipGrepParameters.GuiSearchTextParams.ToString);
 end;
 
-procedure TRipGrepperSettings.RefreshMembers(const _bWithDefault : Boolean);
+procedure TRipGrepperSettings.LoadFromDict;
 begin
-	FRipGrepParameters.RefreshMembers(_bWithDefault);
-	FSearchFormSettings.RefreshMembers(_bWithDefault);;
+	FRipGrepParameters.LoadFromDict;
+	FSearchFormSettings.LoadFromDict;
 end;
 
 procedure TRipGrepperSettings.SetFileMasksHistory(const Value : TStrings);
@@ -332,18 +331,18 @@ begin
 	AddIfNotContains(FSearchTextsHistory, Value);
 end;
 
-procedure TRipGrepperSettings.Store;
+procedure TRipGrepperSettings.StoreToDict;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.Store');
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.StoreToDict');
 	inherited;
 	if IsModified then begin
 		dbgMsg.Msg('IsModified');
-		FNodeLookSettings.Store;
-		FOpenWithSettings.Store;
-		FAppSettings.Store;
-		FSearchFormSettings.Store;
-		FRipGrepParameters.Store;
+		FNodeLookSettings.StoreToDict;
+		FOpenWithSettings.StoreToDict;
+		FAppSettings.StoreToDict;
+		FSearchFormSettings.StoreToDict;
+		FRipGrepParameters.StoreToDict;
 
 		if (FRipGrepParameters.IsModified) then begin
 			StoreHistories();
@@ -351,13 +350,13 @@ begin
 	end;
 end;
 
-procedure TRipGrepperSettings.StoreAsDefault;
+procedure TRipGrepperSettings.StoreAsDefaultsToDict;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.StoreAsDefault');
-	FSearchFormSettings.StoreAsDefault;
-	FRipGrepParameters.StoreAsDefault;
-	inherited StoreAsDefault;
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.StoreAsDefaultsToDict');
+	FSearchFormSettings.StoreAsDefaultsToDict;
+	FRipGrepParameters.StoreAsDefaultsToDict;
+	inherited StoreAsDefaultsToDict;
 end;
 
 procedure TRipGrepperSettings.StoreHistories;
@@ -371,7 +370,7 @@ end;
 procedure TRipGrepperSettings.StoreViewSettings(const _s : string = '');
 begin
 	FNodeLookSettings.SetViewSettingValues(_s);
-	FNodeLookSettings.Store;
+	FNodeLookSettings.StoreToDict;
 end;
 
 procedure TRipGrepperSettings.StoreHistoryEntries(const _list : TStrings; const _section : string);
@@ -395,14 +394,14 @@ end;
 class destructor TRipGrepperSettingsInstance.Destroy;
 begin
 	if Assigned(FInstance) then
-		FInstance.Store;
+		FInstance.StoreToDict;
 	FInstance.Free;
 	inherited;
 end;
 
 class procedure TRipGrepperSettingsInstance.FreeInstance;
 begin
-	FInstance.Store;
+	FInstance.StoreToDict;
 	FInstance.Free;
 end;
 

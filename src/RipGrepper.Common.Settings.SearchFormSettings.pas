@@ -46,6 +46,7 @@ type
 			function GetHidden : Boolean;
 			function GetNoIgnore : Boolean;
 			function GetPretty : Boolean;
+			procedure LoadMembers(const _bDefault : Boolean);
 			procedure SetContext(const Value : Integer);
 			procedure SetEncoding(const Value : string);
 			procedure SetHidden(const Value : Boolean);
@@ -60,12 +61,12 @@ type
 			procedure StoreSearchSettings(_bAsDefault : Boolean; const _s : string = '');
 			procedure Init; override;
 			procedure ReadIni; override;
-			procedure Store; override;
+			procedure StoreToDict; override;
 			procedure Copy(const _other : TSearchFormSettings); reintroduce;
 			procedure CopyDefaultsToValues; override;
-			procedure StoreAsDefault; override;
-			procedure LoadDefault; override;
-			procedure RefreshMembers(const _bWithDefault : Boolean); override;
+			procedure StoreAsDefaultsToDict; override;
+			procedure LoadDefaultsFromDict; override;
+			procedure LoadFromDict(); override;
 			function ToLogString : string; override;
 
 			property Context : Integer read GetContext write SetContext;
@@ -147,7 +148,7 @@ begin
 		dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.GetExtensionSettings');
 
 		FExtensionSettings.ReadIni;
-		FExtensionSettings.LoadDefault;
+		FExtensionSettings.LoadDefaultsFromDict;
 	end;
 	Result := FExtensionSettings;
 end;
@@ -171,11 +172,11 @@ procedure TSearchFormSettings.Init;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.Init');
-	CreateDefaultRelevantSetting('Pretty', varBoolean, True);
-	CreateDefaultRelevantSetting('Hidden', varBoolean, False);
-	CreateDefaultRelevantSetting('NoIgnore', varBoolean, False);
-	CreateDefaultRelevantSetting('Context', varInteger, 0);
-	CreateDefaultRelevantSetting('Encoding', varString, '');
+	SettingsDict.CreateDefaultRelevantSetting('Pretty', varBoolean, True);
+	SettingsDict.CreateDefaultRelevantSetting('Hidden', varBoolean, False);
+	SettingsDict.CreateDefaultRelevantSetting('NoIgnore', varBoolean, False);
+	SettingsDict.CreateDefaultRelevantSetting('Context', varInteger, 0);
+	SettingsDict.CreateDefaultRelevantSetting('Encoding', varString, '');
 end;
 
 procedure TSearchFormSettings.ReadIni;
@@ -209,39 +210,47 @@ begin
 	FPretty := Value;
 end;
 
-procedure TSearchFormSettings.Store;
+procedure TSearchFormSettings.StoreToDict;
 begin
 	StoreSearchSettings(False);
-	FExtensionSettings.Store;
-	inherited Store();
+	FExtensionSettings.StoreToDict;
+	inherited StoreToDict();
 end;
 
-procedure TSearchFormSettings.StoreAsDefault;
+procedure TSearchFormSettings.StoreAsDefaultsToDict;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.StoreAsDefault');
+	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.StoreAsDefaultsToDict');
 
 	StoreSearchSettings(True);
-	FExtensionSettings.StoreAsDefault;
-	inherited StoreAsDefault();
+	FExtensionSettings.StoreAsDefaultsToDict;
+	inherited StoreAsDefaultsToDict();
 end;
 
-procedure TSearchFormSettings.LoadDefault;
+procedure TSearchFormSettings.LoadDefaultsFromDict;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.LoadDefault');
-	FExtensionSettings.LoadDefault;
-	inherited LoadDefault();
+	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.LoadDefaultsFromDict');
+	LoadMembers(True);
+	FExtensionSettings.LoadDefaultsFromDict;
 end;
 
-procedure TSearchFormSettings.RefreshMembers(const _bWithDefault : Boolean);
+procedure TSearchFormSettings.LoadFromDict;
 begin
-	Pretty := GetSetting('Pretty', _bWithDefault);
-	Hidden := GetSetting('Hidden', _bWithDefault);
-	NoIgnore := GetSetting('NoIgnore', _bWithDefault);
-	Context := GetSetting('Context', _bWithDefault);
-	Encoding := GetSetting('Encoding', _bWithDefault);
-	FExtensionSettings.RefreshMembers(_bWithDefault);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.LoadFromDict');
+
+	LoadMembers(False);
+	FExtensionSettings.LoadFromDict();
+end;
+
+procedure TSearchFormSettings.LoadMembers(const _bDefault : Boolean);
+begin
+	Pretty := SettingsDict.GetSetting('Pretty', _bDefault);
+	Hidden := SettingsDict.GetSetting('Hidden', _bDefault);
+	NoIgnore := SettingsDict.GetSetting('NoIgnore', _bDefault);
+	Context := SettingsDict.GetSetting('Context', _bDefault);
+	Encoding := SettingsDict.GetSetting('Encoding', _bDefault);
 end;
 
 procedure TSearchFormSettings.StoreSearchSettings(_bAsDefault : Boolean; const _s : string = '');
@@ -252,20 +261,20 @@ begin
 
 	i := 0;
 	if _s.IsEmpty then begin
-		// store all
+		// StoreToDict all
 		for i := 0 to high(SEARCH_SETTINGS) do begin
 			StoreSearchSettings(_bAsDefault, SEARCH_SETTINGS[i]);
 		end;
 	end else if MatchStr(_s, SEARCH_SETTINGS[i]) then begin
-		StoreSetting(SEARCH_SETTINGS[i], Pretty, _bAsDefault);
+		SettingsDict.StoreSetting(SEARCH_SETTINGS[i], Pretty, _bAsDefault);
 	end else if MatchStr(_s, SEARCH_SETTINGS[PreInc(i)]) then begin
-		StoreSetting(SEARCH_SETTINGS[i], Hidden, _bAsDefault);
+		SettingsDict.StoreSetting(SEARCH_SETTINGS[i], Hidden, _bAsDefault);
 	end else if MatchStr(_s, SEARCH_SETTINGS[PreInc(i)]) then begin
-		StoreSetting(SEARCH_SETTINGS[i], NoIgnore, _bAsDefault);
+		SettingsDict.StoreSetting(SEARCH_SETTINGS[i], NoIgnore, _bAsDefault);
 	end else if MatchStr(_s, SEARCH_SETTINGS[PreInc(i)]) then begin
-		StoreSetting(SEARCH_SETTINGS[i], Context, _bAsDefault);
+		SettingsDict.StoreSetting(SEARCH_SETTINGS[i], Context, _bAsDefault);
 	end else if MatchStr(_s, SEARCH_SETTINGS[PreInc(i)]) then begin
-		StoreSetting(SEARCH_SETTINGS[i], Encoding, _bAsDefault);
+		SettingsDict.StoreSetting(SEARCH_SETTINGS[i], Encoding, _bAsDefault);
 	end else begin
 		raise Exception.Create('Settings: ' + _s + ' not stored!');
 	end;

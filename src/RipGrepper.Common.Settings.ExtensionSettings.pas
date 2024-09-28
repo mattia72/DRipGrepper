@@ -37,16 +37,17 @@ type
 			FDripGrepperShortCut : string;
 			FCurrentSearchSettings : TRipGrepperExtensionContext;
 			FOpenWithShortCut : string;
+			procedure LoadIdeContextFromDict(const _bDefault : Boolean);
 
 		public
 			constructor Create(const _ini : TMemIniFile); overload;
 			constructor Create; overload;
 			procedure Init; override;
 			procedure ReadIni; override;
-			procedure LoadDefault; override;
-			procedure RefreshMembers(const _bWithDefault : Boolean); override;
-			procedure Store; override;
-			procedure StoreAsDefault; override;
+			procedure LoadDefaultsFromDict; override;
+			procedure LoadFromDict(); override;
+			procedure StoreToDict; override;
+			procedure StoreAsDefaultsToDict; override;
 			function ToLogString : string; override;
 			property DripGrepperShortCut : string read FDripGrepperShortCut write FDripGrepperShortCut;
 			property OpenWithShortCut : string read FOpenWithShortCut write FOpenWithShortCut;
@@ -80,9 +81,9 @@ procedure TRipGrepperExtensionSettings.Init;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.Init');
-	CreateSetting('DripGrepperShortCut', vtString, TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH);
-	CreateSetting('OpenWithShortCut', vtString, TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH);
-	CreateDefaultRelevantSetting(KEY_IDE_CONTEXT, vtInteger, EXT_SEARCH_GIVEN_PATH);
+	SettingsDict.CreateSetting('DripGrepperShortCut', vtString, TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH);
+	SettingsDict.CreateSetting('OpenWithShortCut', vtString, TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH);
+	SettingsDict.CreateDefaultRelevantSetting(KEY_IDE_CONTEXT, vtInteger, EXT_SEARCH_GIVEN_PATH);
 end;
 
 procedure TRipGrepperExtensionSettings.ReadIni;
@@ -95,74 +96,76 @@ begin
 	inherited ReadIni();
 end;
 
-procedure TRipGrepperExtensionSettings.LoadDefault;
+procedure TRipGrepperExtensionSettings.LoadDefaultsFromDict;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.LoadDefault');
-	inherited LoadDefault;
-	dbgMsg.Msg('inherited LoadDefault ended')
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.LoadDefaultsFromDict');
+	LoadIdeContextFromDict(True);
 end;
 
-procedure TRipGrepperExtensionSettings.RefreshMembers(const _bWithDefault : Boolean);
+procedure TRipGrepperExtensionSettings.LoadFromDict;
 begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.RefreshMembers');
-	dbgMsg.MsgFmt('WithDefault %s', [BoolToStr(_bWithDefault, True)]);
 	if IOTAUTils.IsStandAlone then begin
 		Exit;
 	end;
-
 	var
-	css := CurrentIDEContext;
-	var
-	val := GetSetting(KEY_IDE_CONTEXT, _bWithDefault);
-	dbgMsg.MsgFmt('IDEContext %s', [VarToStrDef(val, '')]);
-	css.IDEContext := ERipGrepperExtensionContext(val);
-	CurrentIDEContext := css;
-	dbgMsg.MsgFmt('after copy IDEContext %d', [Integer(CurrentIDEContext.IDEContext)]);
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.LoadFromDict');
 
-	if not _bWithDefault then begin
-		DripGrepperShortCut := GetSetting(KEY_SHORTCUT_DRIPGREPPER);
-		if DripGrepperShortCut = '' then begin
-			DripGrepperShortCut := TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH;
-		end;
+	LoadIdeContextFromDict(False);
+
+	DripGrepperShortCut := SettingsDict.GetSetting(KEY_SHORTCUT_DRIPGREPPER);
+	if DripGrepperShortCut = '' then begin
+		DripGrepperShortCut := TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH;
 	end;
-
-	if not _bWithDefault then begin
-		OpenWithShortCut := GetSetting(KEY_SHORTCUT_OPENWITH);
-		if OpenWithShortCut = '' then begin
-			OpenWithShortCut := TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH;
-		end;
+	OpenWithShortCut := SettingsDict.GetSetting(KEY_SHORTCUT_OPENWITH);
+	if OpenWithShortCut = '' then begin
+		OpenWithShortCut := TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH;
 	end;
 
 	dbgMsg.Msg(ToLogString());
 end;
 
-procedure TRipGrepperExtensionSettings.Store;
-begin
-	if IOTAUTils.IsStandAlone then begin
-		Exit;
-	end;
-
-	StoreSetting(KEY_SHORTCUT_DRIPGREPPER, DripGrepperShortCut);
-	StoreSetting(KEY_SHORTCUT_OPENWITH, OpenWithShortCut);
-	StoreSetting(KEY_IDE_CONTEXT, Integer(CurrentIDEContext.IDEContext));
-	inherited Store; // Write to mem ini, after UpdateIniFile will be saved
-end;
-
-procedure TRipGrepperExtensionSettings.StoreAsDefault;
+procedure TRipGrepperExtensionSettings.LoadIdeContextFromDict(const _bDefault : Boolean);
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.StoreAsDefault');
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.LoadIdeContextFromDict Default=' + BoolToStr(_bDefault));
+
+	var
+	val := SettingsDict.GetSetting(KEY_IDE_CONTEXT, _bDefault);
+	dbgMsg.MsgFmt('IDEContext %s', [VarToStrDef(val, '')]);
+
+	var
+	css := CurrentIDEContext;
+	css.IDEContext := ERipGrepperExtensionContext(val);
+	CurrentIDEContext := css;
+	dbgMsg.MsgFmt('after copy IDEContext %d', [Integer(CurrentIDEContext.IDEContext)]);
+end;
+
+procedure TRipGrepperExtensionSettings.StoreToDict;
+begin
+	if IOTAUTils.IsStandAlone then begin
+		Exit;
+	end;
+
+	SettingsDict.StoreSetting(KEY_SHORTCUT_DRIPGREPPER, DripGrepperShortCut);
+	SettingsDict.StoreSetting(KEY_SHORTCUT_OPENWITH, OpenWithShortCut);
+	SettingsDict.StoreSetting(KEY_IDE_CONTEXT, Integer(CurrentIDEContext.IDEContext));
+	inherited StoreToDict; // Write to mem ini, after UpdateIniFile will be saved
+end;
+
+procedure TRipGrepperExtensionSettings.StoreAsDefaultsToDict;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.StoreAsDefaultsToDict');
 
 	if IOTAUTils.IsStandAlone then begin
 		Exit;
 	end;
-	dbgMsg.MsgFmt('TAppSettings.StoreAsDefault: IDEContext=%d',
+	dbgMsg.MsgFmt('TAppSettings.StoreAsDefaultsToDict: IDEContext=%d',
 		{ } [Integer(CurrentIDEContext.IDEContext)]);
 
-	StoreDefaultSetting(KEY_IDE_CONTEXT, Integer(CurrentIDEContext.IDEContext));
-	inherited StoreAsDefault;
+	SettingsDict.StoreDefaultSetting(KEY_IDE_CONTEXT, Integer(CurrentIDEContext.IDEContext));
+	inherited StoreAsDefaultsToDict;
 end;
 
 function TRipGrepperExtensionSettings.ToLogString : string;

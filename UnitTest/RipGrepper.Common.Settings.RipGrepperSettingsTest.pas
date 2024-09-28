@@ -58,7 +58,7 @@ end;
 
 procedure TRipGrepperSettingsTest.RefreshMembersShouldLoadDefaultsTest;
 begin
-	FSettings.RefreshMembers(True);
+	FSettings.LoadDefaultsFromDict;
 	Assert.AreEqual(True, FSettings.SearchFormSettings.Pretty, 'Pretty should be true');
 	Assert.AreEqual(False, FSettings.SearchFormSettings.Hidden, 'Hidden should be true');
 	Assert.AreEqual(False, FSettings.SearchFormSettings.NoIgnore, 'NoIgnore should be true');
@@ -69,7 +69,7 @@ end;
 procedure TRipGrepperSettingsTest.LoadDefaultsShouldReadDefaultFromIni;
 begin
 	SetDefaults;
-	FSettings.LoadDefault;
+	FSettings.LoadDefaultsFromDict;
 	// Assert.IsTrue(FSettings.IsAlreadyRead, 'IsAlreadyRead should read');
 	Assert.AreEqual('utf8', FSettings.SearchFormSettings.Encoding, 'Encoding should be utf8');
 	Assert.AreEqual(5, FSettings.SearchFormSettings.Context, 'Context should be 5');
@@ -81,7 +81,7 @@ end;
 procedure TRipGrepperSettingsTest.AfterCopyValuesValuesShouldBeEqual;
 begin
 	SetDefaults;
-	FSettings.LoadDefault;
+	FSettings.LoadDefaultsFromDict;
 	var
 	s := TRipGrepperSettings.Create();
 	try
@@ -109,7 +109,7 @@ begin
 	FSettings.SearchFormSettings.Pretty := False;
 	FSettings.SearchFormSettings.Hidden := True;
 	FSettings.SearchFormSettings.NoIgnore := True;
-	FSettings.StoreAsDefault;
+	FSettings.StoreAsDefaultsToDict;
 	FSettings.SearchFormSettings.Encoding := 'none';
 	FSettings.SearchFormSettings.Context := 1;
 	FSettings.SearchFormSettings.Pretty := True;

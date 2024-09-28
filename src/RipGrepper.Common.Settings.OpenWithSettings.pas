@@ -22,8 +22,9 @@ type
 			destructor Destroy; override;
 			procedure Init; override;
 			procedure ReadIni; override; // TODO: use persistable base
-			procedure RefreshMembers(const _bWithDefault : Boolean); override;
-			procedure Store; override;
+			procedure LoadFromDict(); override;
+			procedure LoadDefaultsFromDict; override;
+			procedure StoreToDict; override;
 			property Command[index : Integer] : string read GetCommand write SetCommand;
 			property TestFile : TOpenWithParams read FTestFile write FTestFile;
 	end;
@@ -77,10 +78,14 @@ begin
 	//FIsAlreadyRead := True;
 end;
 
-procedure TOpenWithSettings.RefreshMembers(const _bWithDefault : Boolean);
+procedure TOpenWithSettings.LoadFromDict;
 begin
-	inherited;
-	// TODO -cMM: TOpenWithSettings.RefreshMembers default body inserted
+	// TODO -cMM: TOpenWithSettings.LoadFromDict default body inserted
+end;
+
+procedure TOpenWithSettings.LoadDefaultsFromDict;
+begin
+	// it has no defaults yet
 end;
 
 procedure TOpenWithSettings.SetCommand(Index : Integer; const Value : string);
@@ -99,7 +104,7 @@ begin
 	end;
 end;
 
-procedure TOpenWithSettings.Store;
+procedure TOpenWithSettings.StoreToDict;
 var
 	s : string;
 begin

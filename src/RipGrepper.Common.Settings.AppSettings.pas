@@ -30,8 +30,9 @@ type
 		public
 			constructor Create(const _ini : TMemIniFile);
 			destructor Destroy; override;
-			procedure RefreshMembers(const _bWithDefault : Boolean); override;
-			procedure Store; override;
+			procedure LoadFromDict(); override;
+			procedure LoadDefaultsFromDict; override;
+			procedure StoreToDict; override;
 			property DebugTrace : Boolean read FDebugTrace write FDebugTrace;
 			property ExpertMode : Boolean read FExpertMode write FExpertMode;
 			property EncodingItems : TStringList read FEncodingItems write FEncodingItems;
@@ -74,26 +75,29 @@ end;
 
 procedure TAppSettings.Init;
 begin
-	CreateSetting('DebugTrace', varBoolean, False);
-	CreateSetting('ExpertMode', varBoolean, False);
-	CreateSetting('EncodingItems', varString, string.join(ARRAY_SEPARATOR, TDefaults.RG_PARAM_ENCODING_VALUES));
+	SettingsDict.CreateSetting('DebugTrace', varBoolean, False);
+	SettingsDict.CreateSetting('ExpertMode', varBoolean, False);
+	SettingsDict.CreateSetting('EncodingItems', varString, string.join(ARRAY_SEPARATOR, TDefaults.RG_PARAM_ENCODING_VALUES));
 end;
 
-procedure TAppSettings.RefreshMembers(const _bWithDefault : Boolean);
+procedure TAppSettings.LoadFromDict;
 begin
-	if _bWithDefault then
-		Exit;
-	FExpertMode := GetSetting('ExpertMode');
-	FDebugTrace := GetSetting('DebugTrace');
+	FExpertMode := SettingsDict.GetSetting('ExpertMode');
+	FDebugTrace := SettingsDict.GetSetting('DebugTrace');
 	FEncodingItems.Clear;
-	FEncodingItems.AddStrings(string(GetSetting('EncodingItems')).Split([ARRAY_SEPARATOR]));
+	FEncodingItems.AddStrings(string(SettingsDict.GetSetting('EncodingItems')).Split([ARRAY_SEPARATOR]));
 end;
 
-procedure TAppSettings.Store;
+procedure TAppSettings.LoadDefaultsFromDict;
 begin
-	StoreSetting('DebugTrace', FDebugTrace);
-	StoreSetting('ExpertMode', FExpertMode);
-	inherited Store();
+// nothing to do
+end;
+
+procedure TAppSettings.StoreToDict;
+begin
+	SettingsDict.StoreSetting('DebugTrace', FDebugTrace);
+	SettingsDict.StoreSetting('ExpertMode', FExpertMode);
+	inherited StoreToDict();
 end;
 
 end.

@@ -25,9 +25,10 @@ type
 			function GetDict : TSettingsDictionary;
 			procedure Init; override;
 			procedure ReadIni; override;
-			procedure RefreshMembers(const _bWithDefault : Boolean); override;
-			procedure Store; override;
-			procedure StoreAsDefault; override;
+			procedure LoadFromDict(); override;
+			procedure LoadDefaultsFromDict; override;
+			procedure StoreToDict; override;
+			procedure StoreAsDefaultsToDict; override;
 
 			property StrSetting : string read FStrSetting write FStrSetting;
 	end;
@@ -89,24 +90,27 @@ end;
 
 procedure TPersistableSettingsTest.FirstRefreshMembersShouldLoadInitialValue;
 begin
-	FSettings.RefreshMembers(True);
+	FSettings.LoadDefaultsFromDict;
 	Assert.AreEqual(INITIAL_STR_VALUE, FSettings.StrSetting);
 end;
 
 procedure TPersistableSettingsTest.LoadDefaultsShouldReadDefaultFromIni;
 begin
 	CreateDefaultsInIni;
-	FSettings.RefreshMembers(false);
-	Assert.AreEqual(INITIAL_STR_VALUE, FSettings.StrSetting, 'StrSetting should be ' + INITIAL_STR_VALUE);
+	FSettings.ReadIni;
+	Assert.AreEqual('', FSettings.StrSetting, 'StrSetting should be empty');
+	FSettings.LoadFromDict();
+	Assert.AreEqual(DEFAULT_STR_VAL, FSettings.StrSetting, 'If only default value is in the ini file, then StrSetting should be ' +
+		DEFAULT_STR_VAL);
 
-	FSettings.LoadDefault;
+	FSettings.LoadDefaultsFromDict;
 	Assert.AreEqual(DEFAULT_STR_VAL, FSettings.StrSetting, 'StrSetting should be default ' + DEFAULT_STR_VAL);
 end;
 
 procedure TPersistableSettingsTest.AfterCopyValuesValuesShouldBeEqual;
 begin
 	CreateDefaultsInIni;
-	FSettings.LoadDefault;
+	FSettings.LoadDefaultsFromDict;
 	var
 	s := TTestSettings.Create(TPersistableSettingsTest.INI_SECTION);
 	try
@@ -120,19 +124,20 @@ end;
 procedure TPersistableSettingsTest.AfterCopyDefaultsToValuesSetsDefaultValueAndCreatesNewKey;
 begin
 	CreateDefaultsInIni;
-	FSettings.LoadDefault;
+	FSettings.ReadIni;
+	FSettings.LoadDefaultsFromDict;
 
-	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings.GetSetting('StrSetting' + DEFAULT_KEY)),
+	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings.SettingsDict.GetSetting('StrSetting' + DEFAULT_KEY)),
 		'StrSetting_DEFAULT.Value should be equal');
 	// Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings.GetSetting('StrSetting' + DEFAULT_KEY, True)),
 	// 'StrSetting_DEFAULT.DefaultValue should be equal');
 
 	FSettings.CopyDefaultsToValues;
-	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings.GetSetting('StrSetting')), 'StrSetting.Value should be equal');
-	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings.GetSetting('StrSetting', True)), 'StrSetting.Default should be equal');
+	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings.SettingsDict.GetSetting('StrSetting')), 'StrSetting.Value should be equal');
+	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings.SettingsDict.GetSetting('StrSetting', True)), 'StrSetting.Default should be equal');
 	// it is in fact StrSetting_DEFAULT.Value;
-	Assert.AreEqual(VarToStr(FSettings.GetSetting('StrSetting' + DEFAULT_KEY)), VarToStr(FSettings.GetSetting('StrSetting', True)),
-		'StrSetting.Default should be equal StrSetting_DEFAULT.Value');
+	Assert.AreEqual(VarToStr(FSettings.SettingsDict.GetSetting('StrSetting' + DEFAULT_KEY)),
+		VarToStr(FSettings.SettingsDict.GetSetting('StrSetting', True)), 'StrSetting.Default should be equal StrSetting_DEFAULT.Value');
 
 end;
 
@@ -152,7 +157,8 @@ procedure TPersistableSettingsTest.LoadDefaultsReadsIni;
 begin
 	CreateDefaultsInIni;
 	Assert.IsFalse(FSettings.IsAlreadyRead);
-	FSettings.LoadDefault;
+	FSettings.ReadIni;
+	FSettings.LoadDefaultsFromDict;
 	Assert.IsTrue(FSettings.IsAlreadyRead);
 end;
 
@@ -166,13 +172,13 @@ begin
 	var
 	sec := FSettings.IniSectionName;
 	FIniFile.WriteString(sec, 'StrSetting' + DEFAULT_KEY, DEFAULT_STR_VAL);
+	Assert.AreEqual('empty', FIniFile.ReadString(sec, 'StrSetting', 'empty'), 'StrSetting should not exist in the ini file');
 end;
 
 procedure TPersistableSettingsTest.Setup;
 begin
 	FIniFile := TMemIniFile.Create(INIFILE, TEncoding.UTF8);
 	FSettings := TTestSettings.Create(FIniFile);
-	FSettings.RefreshMembers(false);
 end;
 
 procedure TPersistableSettingsTest.TearDown;
@@ -200,27 +206,32 @@ end;
 
 procedure TTestSettings.Init;
 begin
-	CreateDefaultRelevantSetting('StrSetting', vtString, INITIAL_STR_VALUE);
+	SettingsDict.CreateDefaultRelevantSetting('StrSetting', vtString, INITIAL_STR_VALUE);
 end;
 
 procedure TTestSettings.ReadIni;
 begin
-	inherited
+	inherited ReadIni;
 end;
 
-procedure TTestSettings.RefreshMembers(const _bWithDefault : Boolean);
+procedure TTestSettings.LoadFromDict;
 begin
-	StrSetting := GetSetting('StrSetting', _bWithDefault);
+	StrSetting := SettingsDict.GetSetting('StrSetting');
 end;
 
-procedure TTestSettings.Store;
+procedure TTestSettings.LoadDefaultsFromDict;
 begin
-	StoreSetting('StrSetting', StrSetting);
+	StrSetting := SettingsDict.GetSetting('StrSetting', True);
 end;
 
-procedure TTestSettings.StoreAsDefault;
+procedure TTestSettings.StoreToDict;
 begin
-	StoreDefaultSetting('StrSetting', StrSetting);
+	SettingsDict.StoreSetting('StrSetting', StrSetting);
+end;
+
+procedure TTestSettings.StoreAsDefaultsToDict;
+begin
+	SettingsDict.StoreDefaultSetting('StrSetting', StrSetting);
 end;
 
 initialization

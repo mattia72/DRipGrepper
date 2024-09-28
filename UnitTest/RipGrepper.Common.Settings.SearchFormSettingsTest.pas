@@ -62,7 +62,7 @@ end;
 
 procedure TSearchFormSettingsTest.RefreshMembersShouldLoadDefaultsTest;
 begin
-	FSettings.RefreshMembers(True);
+	FSettings.LoadDefaultsFromDict;
 	Assert.AreEqual(True, FSettings.Pretty, 'Pretty should be true');
 	Assert.AreEqual(False, FSettings.Hidden, 'Hidden should be true');
 	Assert.AreEqual(False, FSettings.NoIgnore, 'NoIgnore should be true');
@@ -73,8 +73,9 @@ end;
 procedure TSearchFormSettingsTest.LoadDefaultsShouldReadDefaultFromIni;
 begin
 	SetDefaults;
-	FSettings.LoadDefault;
-	Assert.IsTrue(FSettings.IsAlreadyRead);
+	FSettings.ReadIni;
+	FSettings.LoadDefaultsFromDict;
+	Assert.IsTrue(FSettings.IsAlreadyRead, 'IsAlreadyRead should be true');
 	Assert.AreEqual('utf8', FSettings.Encoding, 'Encoding should be utf8');
 	Assert.AreEqual(5, FSettings.Context, 'Context should be 5');
 	Assert.AreEqual(False, FSettings.Pretty, 'Pretty should be false');
@@ -85,13 +86,13 @@ end;
 procedure TSearchFormSettingsTest.AfterCopyValuesValuesShouldBeEqual;
 begin
 	SetDefaults;
-	FSettings.LoadDefault;
-	FSettings.RefreshMembers(false);
+	FSettings.LoadDefaultsFromDict;
+	FSettings.LoadFromDict();
 	var
 	s := TSearchFormSettings.Create();
 	try
 		s.Copy(FSettings);
-		s.RefreshMembers(false);
+		s.LoadFromDict();
 		Assert.AreEqual(s.Encoding, FSettings.Encoding, 'Encoding should be utf8');
 		Assert.AreEqual(s.Context, FSettings.Context, 'Context should be 5');
 		Assert.AreEqual(s.Pretty, FSettings.Pretty, 'Pretty should be false');
@@ -106,7 +107,8 @@ procedure TSearchFormSettingsTest.LoadDefaultsReadsIni;
 begin
 	SetDefaults;
 	Assert.IsFalse(FSettings.IsAlreadyRead);
-	FSettings.LoadDefault;
+    FSettings.ReadIni;
+	FSettings.LoadDefaultsFromDict;
 	Assert.IsTrue(FSettings.IsAlreadyRead);
 end;
 

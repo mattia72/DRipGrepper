@@ -25,6 +25,7 @@ type
 			function GetEscapedSearchText : string;
 			function GetSearchText : string;
 			function GetWordBoundedSearchText : string;
+			procedure LoadSearchOptionsFromDict(const _bDefault : Boolean);
 			function ResetRgOption(const _sParamRegex : string; const _bReset : Boolean = False) : string;
 			procedure SetRgOptions(const Value : string);
 			class procedure ValidateOptions(listOptions : TStringList); static;
@@ -35,7 +36,7 @@ type
 		public
 			SearchOptions : TSearchOptionSet;
 
-			constructor Create(const _ini : TMemIniFile); overload;
+			constructor Create(const _ini : TMemIniFile; const _iniSection : string); overload;
 			constructor Create(const _sText : string; const _bMC, _bMW, _bUR : Boolean); overload;
 			constructor Create(const _iniSection : string); overload;
 			destructor Destroy; override;
@@ -58,10 +59,10 @@ type
 			procedure SetOrReset(const _newOption : EGuiOption); overload;
 			function SetRgOption(const _sParamRegex : string; const _bReset : Boolean = False) : string;
 			function SetRgOptionWithValue(const _sParamRegex, _sValue : string; const _bUnique : Boolean = False) : string;
-			procedure StoreAsDefault; override;
+			procedure StoreAsDefaultsToDict; override;
 			function GetAsString(const _bGuiOptionsOnly : Boolean = False) : string;
-			procedure LoadDefault; override;
-			procedure RefreshMembers(const _bWithDefault : Boolean = False); override;
+			procedure LoadDefaultsFromDict; override;
+			procedure LoadFromDict(); override;
 			function ToLogString : string; override;
 
 			property EscapedSearchText : string read GetEscapedSearchText;
@@ -311,10 +312,10 @@ begin
 	RgOptions := TGuiSearchTextParams.AddRgExeOptionWithValue(RgOptions, _sParamRegex, _sValue, _bUnique);
 end;
 
-procedure TGuiSearchTextParams.StoreAsDefault;
+procedure TGuiSearchTextParams.StoreAsDefaultsToDict;
 begin
-	StoreDefaultSetting('SearchParams', GetAsString(True));
-	inherited StoreAsDefault;
+	SettingsDict.StoreDefaultSetting('SearchParams', GetAsString(True));
+	inherited StoreAsDefaultsToDict;
 end;
 
 function TGuiSearchTextParams.GetAsString(const _bGuiOptionsOnly : Boolean = False) : string;
@@ -347,9 +348,9 @@ begin
 	Assert(Length(arr) <= 1, listOptions.DelimitedText + CRLF + 'Option list is corrupt. -- should appear only once!');
 end;
 
-constructor TGuiSearchTextParams.Create(const _ini : TMemIniFile);
+constructor TGuiSearchTextParams.Create(const _ini : TMemIniFile; const _iniSection : string);
 begin
-	IniSectionName := 'GuiSearchTextParams';
+	IniSectionName := _iniSection;
 	inherited Create(_ini);
 	TDebugUtils.DebugMessage('TGuiSearchTextParams.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
 	Create();
@@ -377,6 +378,8 @@ begin
 	FRgOptions := _other.RgOptions;
 	FIsRgExeOptionSet := _other.IsRgExeOptionSet;
 	FRgAdditionalOptions := _other.RgAdditionalOptions;
+
+	// inherited Copy(_other as TPersistableSettings);
 end;
 
 procedure TGuiSearchTextParams.CopyDefaultsToValues;
@@ -391,26 +394,35 @@ end;
 
 procedure TGuiSearchTextParams.Init;
 begin
-	CreateDefaultRelevantSetting('SearchParams', varString, '');
+	SettingsDict.CreateDefaultRelevantSetting('SearchParams', varString, '');
 end;
 
-procedure TGuiSearchTextParams.LoadDefault;
+procedure TGuiSearchTextParams.LoadDefaultsFromDict;
 begin
-	inherited LoadDefault();
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.LoadDefaultsFromDict');
+	LoadSearchOptionsFromDict(True);
 end;
 
-procedure TGuiSearchTextParams.RefreshMembers(const _bWithDefault : Boolean = False);
+procedure TGuiSearchTextParams.LoadFromDict();
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.LoadFromDict');
+	LoadSearchOptionsFromDict(False);
+end;
+
+procedure TGuiSearchTextParams.LoadSearchOptionsFromDict(const _bDefault : Boolean);
 var
 	sParams : string;
 begin
-	var dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.RefreshMembers');
-	sParams := GetSetting('SearchParams', _bWithDefault);
-    dbgMsg.Msg(RgOptions);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.LoadSearchOptionsFromDict Default=' + BoolToStr(_bDefault));
+	sParams := SettingsDict.GetSetting('SearchParams', _bDefault);
+	dbgMsg.Msg(RgOptions);
 	SearchOptions := GetAsSearchOptionSet(
 		{ } sParams.Contains('MatchCase'),
 		{ } sParams.Contains('MatchWord'),
 		{ } sParams.Contains('UseRegex'));
-
 	if SearchOptions = [] then begin
 		SetOption(EGuiOption.soNotSet);
 	end else begin

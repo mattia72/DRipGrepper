@@ -46,10 +46,10 @@ type
 			function GetCommandLine : string;
 			procedure InitRipGrepExePath;
 			procedure ReadIni; override;
-			procedure LoadDefault; override;
-			procedure RefreshMembers(const _bWithDefault : Boolean); override;
-			procedure Store; override;
-			procedure StoreAsDefault; override;
+			procedure LoadDefaultsFromDict; override;
+			procedure LoadFromDict; override;
+			procedure StoreToDict; override;
+			procedure StoreAsDefaultsToDict; override;
 			property FileMasks : string read FFileMasks write SetFileMasks;
 			property GuiSearchTextParams : TGuiSearchTextParams read FGuiSearchTextParams write SetGuiSearchTextParams;
 			property RgExeOptions : string read FRgExeOptions write SetRgExeOptions;
@@ -77,8 +77,7 @@ constructor TRipGrepParameterSettings.Create(const _ini : TMemIniFile);
 begin
 	IniSectionName := INI_SECTION;
 	inherited Create(_ini);
-	FGuiSearchTextParams := TGuiSearchTextParams.Create(_ini);
-	FGuiSearchTextParams.IniSectionName := INI_SECTION;
+	FGuiSearchTextParams := TGuiSearchTextParams.Create(_ini, INI_SECTION);
 	FbRgPathInitOk := False;
 	RipGrepPath := '';
 	FRipGrepArguments := TStringList.Create;
@@ -122,9 +121,9 @@ end;
 
 procedure TRipGrepParameterSettings.Init;
 begin
-	CreateSetting(RG_INI_KEY_RGPATH, varString, '');
-	CreateDefaultRelevantSetting('SearchPath', varString, '');
-	CreateDefaultRelevantSetting('FileMasks', varString, '');
+	SettingsDict.CreateSetting(RG_INI_KEY_RGPATH, varString, '');
+	SettingsDict.CreateDefaultRelevantSetting('SearchPath', varString, '');
+	SettingsDict.CreateDefaultRelevantSetting('FileMasks', varString, '');
 end;
 
 procedure TRipGrepParameterSettings.ReadIni;
@@ -133,10 +132,9 @@ begin
 	inherited ReadIni();
 end;
 
-procedure TRipGrepParameterSettings.LoadDefault;
+procedure TRipGrepParameterSettings.LoadDefaultsFromDict;
 begin
-	FGuiSearchTextParams.LoadDefault;
-	inherited LoadDefault;
+	FGuiSearchTextParams.LoadDefaultsFromDict;
 end;
 
 procedure TRipGrepParameterSettings.InitRipGrepExePath;
@@ -175,13 +173,11 @@ begin
 	FbRgPathInitOk := True;
 end;
 
-procedure TRipGrepParameterSettings.RefreshMembers(const _bWithDefault : Boolean);
+procedure TRipGrepParameterSettings.LoadFromDict();
 begin
-	if not _bWithDefault then begin
-		FSearchPath := GetSetting('SearchPath');
-		FFileMasks := GetSetting('FileMasks');
-	end;
-	FGuiSearchTextParams.RefreshMembers(_bWithDefault);
+	FSearchPath := SettingsDict.GetSetting('SearchPath');
+	FFileMasks := SettingsDict.GetSetting('FileMasks');
+	FGuiSearchTextParams.LoadFromDict();
 end;
 
 procedure TRipGrepParameterSettings.SetFileMasks(const Value : string);
@@ -233,19 +229,21 @@ begin
 	end;
 end;
 
-procedure TRipGrepParameterSettings.Store;
+procedure TRipGrepParameterSettings.StoreToDict;
 begin
-	StoreSetting(RG_INI_KEY_RGPATH, RipGrepPath);
-	GuiSearchTextParams.Store;
-	inherited Store; // Write to mem ini, after UpdateIniFile will be saved
+	SettingsDict.StoreSetting(RG_INI_KEY_RGPATH, RipGrepPath);
+	SettingsDict.StoreSetting('SearchPath', FSearchPath);
+	SettingsDict.StoreSetting('FileMasks', FFileMasks);
+	GuiSearchTextParams.StoreToDict;
+	inherited StoreToDict; // Write to mem ini, after UpdateIniFile will be saved
 end;
 
-procedure TRipGrepParameterSettings.StoreAsDefault;
+procedure TRipGrepParameterSettings.StoreAsDefaultsToDict;
 begin
-	StoreDefaultSetting('SearchPath', FSearchPath);
-	StoreDefaultSetting('FileMasks', FFileMasks);
-	GuiSearchTextParams.StoreAsDefault();
-	inherited StoreAsDefault; // Write to mem ini, after UpdateIniFile will be saved
+	SettingsDict.StoreDefaultSetting('SearchPath', FSearchPath);
+	SettingsDict.StoreDefaultSetting('FileMasks', FFileMasks);
+	GuiSearchTextParams.StoreAsDefaultsToDict();
+	inherited StoreAsDefaultsToDict;
 end;
 
 end.
