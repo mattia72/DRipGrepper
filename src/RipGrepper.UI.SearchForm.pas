@@ -57,7 +57,7 @@ type
 		ActionAddParamMatchCase : TAction;
 		ActionAddParamWord : TAction;
 		ActionAddParamRegex : TAction;
-		ToolBar1 : TToolBar;
+		toolbarSearchTextOptions : TToolBar;
 		tbIgnoreCase : TToolButton;
 		tbMatchWord : TToolButton;
 		tbUseRegex : TToolButton;
@@ -245,7 +245,7 @@ begin
 		FSettings.CopyDefaultsToValues;
 
 		FGuiSetSearchParams := TGuiSearchTextParams.Create(TRipGrepParameterSettings.INI_SECTION);
-        FGuiSetSearchParams.ReadIni;
+		FGuiSetSearchParams.ReadIni;
 		FGuiSetSearchParams.LoadDefaultsFromDict;
 	end;
 	dbgMsg.Msg(FSettings.SearchFormSettings.ToLogString);
@@ -259,6 +259,7 @@ begin
 	FTopPanelOrigHeight := pnlTop.Height;
 	FOrigHeight := Height;
 
+	toolbarSearchTextOptions.AutoSize := False; // else shrinked as extension
 	cmbOptions.AutoComplete := False; // so we know the old value after change
 end;
 
@@ -354,7 +355,7 @@ procedure TRipGrepperSearchDialogForm.ActionSetAsDefaultExecute(Sender : TObject
 begin
 	WriteCtrlsToSettings(True);
 	FSettings.StoreAsDefaultsToDict();
-    FSettings.UpdateIniFile;
+	FSettings.UpdateIniFile;
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionShowFileMaskHelpExecute(Sender : TObject);
@@ -435,10 +436,6 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.FormShow');
 	LoadSettings;
 	LoadExtensionSearchSettings;
-	// dbgMsg.MsgFmt('HasHistItemObjWithResult=%s', [BoolToStr(HasHistItemObjWithResult, True)]);
-	// if not HasHistItemObjWithResult then begin
-	// LoadDefaultSettings();
-	// end;
 
 	ChecVsCodeRipGrep;
 
@@ -448,7 +445,7 @@ begin
 
 	cmbReplaceText.Visible := TabControl1.TabIndex = 1;
 	UpdateHeight();
-    ActiveControl := cmbSearchText;
+	ActiveControl := cmbSearchText;
 end;
 
 function TRipGrepperSearchDialogForm.GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
@@ -866,15 +863,16 @@ end;
 procedure TRipGrepperSearchDialogForm.FormResize(Sender : TObject);
 begin
 	inherited;
-//	var ctrlBackup := ActiveControl;
-//	ActiveControl := nil;
+	// var ctrlBackup := ActiveControl;
+	// ActiveControl := nil;
 	SetExpertGroupSize();
-//	ActiveControl := ctrlBackup; // TODO: after resize every edit is selected
+	// ActiveControl := ctrlBackup; // TODO: after resize every edit is selected
 end;
 
 function TRipGrepperSearchDialogForm.GetFullHeights() : integer;
 begin
-	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.GetFullHeights()');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.GetFullHeights()');
 	Result :=
 	{ } GetFullHeight(pnlTop) +
 	{ } pnlMiddle.Margins.Top +
@@ -882,7 +880,7 @@ begin
 	{ } GetFullHeight(gbOptionsOutput) +
 	{ } pnlMiddle.Margins.Bottom +
 	{ } GetFullHeight(pnlBottom);
-    dbgMsg.Msg('Result=' + Result.ToString);
+	dbgMsg.Msg('Result=' + Result.ToString);
 end;
 
 function TRipGrepperSearchDialogForm.HasHistItemObjWithResult : Boolean;

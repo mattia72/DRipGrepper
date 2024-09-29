@@ -721,16 +721,15 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Text = 'cmbSearchText'
         OnChange = cmbSearchTextChange
       end
-      object ToolBar1: TToolBar
+      object toolbarSearchTextOptions: TToolBar
         Left = 421
         Top = 31
         Width = 69
         Height = 23
         Align = alNone
         Anchors = [akTop, akRight]
-        AutoSize = True
         ButtonHeight = 23
-        Caption = 'tbSearchTextOptions'
+        Caption = 'toolbarSearchTextOptions'
         EdgeInner = esNone
         EdgeOuter = esNone
         Images = ImageList1
