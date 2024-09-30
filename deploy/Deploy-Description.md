@@ -24,7 +24,6 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 
 ## :boom: Improvements 
 Marked with checkmark if ready, else planned as next.
-- [x] enhanced filter control 
 - [ ] replace 
   - [x] replace ctrl on toolbar
   - [x] different color to highlight replaced text 
@@ -38,7 +37,7 @@ Marked with checkmark if ready, else planned as next.
 - [ ] json config files
 - [ ] own prettifier switcher as toolbar button
 - [ ] __extension__: search opened projekt files only
-- [ ] run in powershell / command prompt
+- [ ] copy to desktop to run in powershell / command prompt
 
 ## :exclamation: Bugs 
 Marked with checkmark if fixed, else it is known bug.
