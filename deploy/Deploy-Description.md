@@ -1,7 +1,7 @@
 <!--
 
-Version:     v3.5.0-beta
-PrevVersion: v3.4.1-beta
+Version:     v3.5.1-beta
+PrevVersion: v3.5.0-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -33,14 +33,14 @@ Marked with checkmark if ready, else planned as next.
 - [ ] json config files
 - [ ] own prettifier switcher as toolbar button
 - [ ] __extension__: search opened projekt files only
-- [ ] run in powershell / command prompt
+- [ ] copy to desktop to run in powershell / command prompt
 
 ## :exclamation: Bugs 
 Marked with checkmark if fixed, else it is known bug.
 - [ ] `Additional Options` has to have saved defaults also
 - [ ] drip icon in menu has no transparent background
 - [ ] history item delete mit `DEL` key, deletes the first item
-- [ ] history item open, set match case doesn't remove --ignore-case
+- [x] history item open, set match case doesn't remove --ignore-case
 - [x] regexp with groups not highlighted
 - [x] _extension_ Exception:
 ```
