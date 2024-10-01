@@ -5,7 +5,7 @@ interface
 uses
 	RipGrepper.Common.GuiSearchParams,
 	System.Classes,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants, ArrayEx;
 
 type
 
@@ -14,6 +14,15 @@ type
 		public
 			class function GetLongParam(const _paramRegex : string) : string;
 			class function GetShortParam(const _paramRegex : string) : string;
+	end;
+
+	TOptionStrings = record
+		FOptions : TArrayEx<string>;
+		class function New(const _sOptions : string): TOptionStrings; static;
+
+		public
+			class function Split(const _sOptions: string): TArrayEx<string>; static;
+			function AsString : string;
 	end;
 
 	TOptionsHelper = record
@@ -28,7 +37,8 @@ type
 			class function GetOptionValue(const _sOption : string) : string; overload; static;
 			class function GetOptionValue(const _sOption : string; var _sOptionName : string) : string; overload; static;
 			class function GetOptionValueFromOptions(const _sOptions, _sOptionRegex : string; var _sValue : string) : Boolean; static;
-			class function IsOptionSet(const _sOptions, _sParamRegex : string; const _sParamValue : string = '') : Boolean; overload; static;
+			class function IsOptionSet(const _sOptions, _sParamRegex : string; const _sParamValue : string = '') : Boolean;
+				overload; static;
 			function IsOptionSet(const _guiOption : EGuiOption; const _sActualOptions : string) : Boolean; overload;
 			class function IsOptionWithValue(const _sOption : string; const _sOptionRegEx : string = '') : Boolean; static;
 			class function IsSetOptionWithValue(const _sOptions, _sOption : string; const _sValue : string = '') : Boolean; static;
@@ -42,16 +52,18 @@ type
 implementation
 
 uses
-	ArrayEx,
+
 	RipGrepper.Helper.Types,
 	System.SysUtils,
-	System.RegularExpressions;
+	System.RegularExpressions,
+	RipGrepper.Tools.ProcessUtils;
 
 class procedure TOptionsHelper.AddParamToList(list : TStringList; const _paramRegex : string = ''; const _sValue : string = '';
 	const _bUnique : Boolean = False);
 var
 	params : TArrayEx<string>;
 	iFoundIdx : integer;
+	sValue : string;
 begin
 	if not _paramRegex.IsEmpty then begin
 		params := _paramRegex.Split(['|']);
@@ -65,7 +77,11 @@ begin
 			if (iFoundIdx >= 0) and _bUnique then begin
 				list.Delete(iFoundIdx);
 			end;
-			list.Insert(0, params[RG_PARAM_LONG_INDEX] + '=' + _sValue);
+			sValue := _sValue;
+			if _sValue.IndexOf(' ') <> -1 then begin
+				sValue := TProcessUtils.MaybeQuoteIfNotQuoted(_sValue, RG_PARAM_QUOTE_CHAR);
+			end;
+			list.Insert(0, params[RG_PARAM_LONG_INDEX] + '=' + sValue);
 		end;
 	end;
 end;
@@ -240,6 +256,31 @@ begin
 	if not _paramRegex.IsEmpty then begin
 		Result := _paramRegex.Split(['|'])[0];
 	end;
+end;
+
+class function TOptionStrings.Split(const _sOptions: string): TArrayEx<string>;
+begin
+	var
+	arr := _sOptions.Split([' ']);
+	for var s in arr do begin
+		if TRegEx.IsMatch(s, '^--?\w+(=\w?)?$') then begin
+			Result.Add(s);
+		end else begin
+			var last := Result.Last;
+			Result.Delete(Result.MaxIndex);
+			Result.Add(last + ' ' + s);
+		end;
+	end;
+end;
+
+function TOptionStrings.AsString : string;
+begin
+	Result := string.Join(' ', FOptions.Items);
+end;
+
+class function TOptionStrings.New(const _sOptions : string): TOptionStrings;
+begin
+	Result.FOptions := TOptionStrings.Split(_sOptions);
 end;
 
 end.

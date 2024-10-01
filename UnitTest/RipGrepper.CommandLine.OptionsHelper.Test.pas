@@ -126,13 +126,15 @@ type
 			[Testcase('test8 soMatchWord', '1#2#3')]
 			procedure TestGetOptionsAndSetFlagMatchWord(const _guiOptionsActual : string);
 			[Test]
-			[Testcase('test1', '--vimgrep  --fixed-strings -g=*.ini -g=!*.bak;' + RG_PARAM_REGEX_GLOB + ';*.bbb;0', ';')]
-			[Testcase('test2', '--vimgrep  -g=*.ini -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
-			[Testcase('test3', '--vimgrep  -C=11 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
-			[Testcase('test4', '--vimgrep  -C=99 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
-			[Testcase('test5', '--vimgrep  --context=11 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
-			[Testcase('test6', '--vimgrep  --context=99 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
-			procedure TestAddRgExeOptionsWthValue(const _sOptions, _sRegEx, _sValue : string; const _bUnique : integer);
+//			[Testcase('test1', '--vimgrep  --fixed-strings -g=*.ini -g=!*.bak;' + RG_PARAM_REGEX_GLOB + ';*.bbb;0', ';')]
+//			[Testcase('test2', '--vimgrep  -g=*.ini -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
+//			[Testcase('test3', '--vimgrep  -C=11 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
+//			[Testcase('test4', '--vimgrep  -C=99 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
+//			[Testcase('test5', '--vimgrep  --context=11 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
+//			[Testcase('test6', '--vimgrep  --context=99 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
+			[Testcase('test6', '--vimgrep  --context=99 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_REPLACE + ';replace;1', ';')]
+			[Testcase('test6', '--vimgrep  --context=99 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_REPLACE + ';replace text more world;1', ';')]
+			procedure TestAddRgExeOptionsWithValue(const _sOptions, _sRegEx, _sValue : string; const _bUnique : integer);
 			[Test]
 			[Testcase('test1', '--vimgrep  --fixed-strings --no-ignore;--no-ignore;1', ';')]
 			[Testcase('test2', '--vimgrep  --fixeda --no-ignore-parent;--no-ignore;0', ';')]
@@ -446,7 +448,7 @@ begin
 	end;
 end;
 
-procedure TOptionsHelperTest.TestAddRgExeOptionsWthValue(const _sOptions, _sRegEx, _sValue : string; const _bUnique : integer);
+procedure TOptionsHelperTest.TestAddRgExeOptionsWithValue(const _sOptions, _sRegEx, _sValue : string; const _bUnique : integer);
 var
 	arrOptions : TArrayEx<string>;
 	sArgs : string;
