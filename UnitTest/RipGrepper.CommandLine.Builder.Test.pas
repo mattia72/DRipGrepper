@@ -59,7 +59,8 @@ uses
 	RipGrepper.Common.Settings.AppSettings,
 	ArrayEx,
 	System.RegularExpressions,
-	System.Math;
+	System.Math, 
+	RipGrepper.CommandLine.OptionStrings;
 
 procedure TCommandLineBuilderTest.Setup;
 begin
@@ -116,7 +117,7 @@ var
 	v : TArrayEx<string>;
 	a : TArrayEx<integer>;
 begin
-	FParams.RgExeOptions := _sOptions;
+	FParams.RgExeOptions := TOptionStrings.New(_sOptions);
 	FParams.FileMasks := _sMasksDelimited;
 	FGuiParams.SearchOptions := TGuiSearchTextParams.GetAsSearchOptionSet(False, _bMatchWord = 1, False);
 	FParams.GuiSearchTextParams := FGuiParams;
@@ -140,7 +141,7 @@ end;
 
 procedure TCommandLineBuilderTest.TestReBuildArgumentsSearchText(const _sSearchText : string; const _bMatchWord, _bShouldBounded : Integer);
 begin
-	FParams.RgExeOptions := '';
+	FParams.RgExeOptions := TOptionStrings.New('');
 	FParams.FileMasks := '';
 	FGuiParams.SearchText := _sSearchText;
 	FGuiParams.SearchOptions := TGuiSearchTextParams.GetAsSearchOptionSet(False, _bMatchWord = 1, False);
@@ -156,7 +157,7 @@ begin
 			'the search text should surrounded: ' + WB + _sSearchText + WB);
 		if EGuiOption.soMatchWord in FParams.GuiSearchTextParams.SearchOptions then begin
 			for var p in RG_PARAM_REGEX_FIXED_STRINGS.Split(['|']) do begin
-				Assert.IsFalse(FParams.RgExeOptions.Contains(p), p + ' mustn''t be contained between options')
+				Assert.IsFalse(FParams.RgExeOptions.IsOptionSet(p), p + ' mustn''t be contained between options')
 			end;
 		end;
 

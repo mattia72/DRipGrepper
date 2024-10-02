@@ -43,7 +43,9 @@ uses
   Pkg.Json.DTO in 'Pkg.Json.DTO.pas',
   RootUnit in 'RootUnit.pas',
   RipGrepper.Common.Settings.RipGrepperSettingsTest in 'RipGrepper.Common.Settings.RipGrepperSettingsTest.pas',
-  RipGrepper.Common.Settings.RipGrepperSettings in '..\src\RipGrepper.Common.Settings.RipGrepperSettings.pas';
+  RipGrepper.Common.Settings.RipGrepperSettings in '..\src\RipGrepper.Common.Settings.RipGrepperSettings.pas',
+  RipGrepper.CommandLine.OptionStrings in '..\src\RipGrepper.CommandLine.OptionStrings.pas',
+  RipGrepper.CommandLine.OptionStrings.Test in 'RipGrepper.CommandLine.OptionStrings.Test.pas';
 
 {$IFNDEF TESTINSIGHT}
 

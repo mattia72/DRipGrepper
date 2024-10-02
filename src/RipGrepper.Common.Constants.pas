@@ -108,9 +108,11 @@ const
 	RG_HELP_LINE_REGEX = '^\s*(?<short>-[a-zA-Z.0-9])?(?<comma>, )?(?<long>--[\-a-zA-Z0-9]+)(?<value>=[\-A-Z]+)?\s*(?<desc>.*)$';
 
 	RG_CONTEXT_SEPARATOR = '--';
+	RG_PARAM_QUOTE_CHAR = '''';
 
 	RG_ARG_SEARCH_PATH = 'SearchPath';
 	RG_ARG_SEARCH_TEXT = 'SearchText';
+	RG_ARG_REPLACE_TEXT = 'ReplaceText';
 	RG_ARG_OPTIONS = 'Options';
 
 	RG_INI_KEY_RGPATH = 'RgExePath';
@@ -127,9 +129,12 @@ const
 	RG_PARAM_REGEX_PRETTY = '-p|--pretty';
 	RG_PARAM_REGEX_CONTEXT = '-C|--context';
 	RG_PARAM_REGEX_ENCODING = '-E|--encoding';
+	RG_PARAM_REGEX_REPLACE = '-r|--replace';
 	RG_PARAM_END = '--';
 
-	RG_PARAM_REGEX_VALUE_FORMAT = '^(%s)=?([\w-]+)?$';
+	RG_PARAM_REGEX_VALUE_FORMAT = '^(%s)=?(.+)?$';
+	RG_PARAM_REGEX_VARIANT_WITH_OPTIONAL_VALUE = '^(-\w)\|(--\w[\w-]+)=?(.+)?$';
+	RG_PARAM_REGEX_SINGLE_WITH_OPTIONAL_VALUE = '^(-+[\w-]+)=?(.+)?$';
 
 	RG_GUI_SET_PARAMS : TArray<string> = [
 	{ } RG_PARAM_REGEX_IGNORE_CASE,
@@ -141,6 +146,7 @@ const
 	{ } RG_PARAM_REGEX_PRETTY,
 	{ } RG_PARAM_REGEX_CONTEXT,
 	{ } RG_PARAM_REGEX_ENCODING,
+	{ } RG_PARAM_REGEX_REPLACE,
 	{ } RG_PARAM_END
 	{ } ];
 
@@ -183,7 +189,16 @@ const
 	TREEVIEW_COLUMN_TITLES : TArray<string> = ['File', 'Row', 'Col', 'Text', 'MatchText', 'TextAfterMatch'];
 	TREEVIEW_INDENT_TAB_AS_SPACES = '    ';
 	TREEVIEW_FONTSPACE = 2;
-	TREEVIEW_MATCH_ITEM_COLOR = clDkGray;
+
+	HIST_TREEVIEW_SEARCH_TEXT_COLOR = clDkGray;
+	HIST_TREEVIEW_SEARCH_TEXT_BGCOLOR = clWhite;
+	HIST_TREEVIEW_SEARCH_TEXT_STYLE = [fsBold];
+
+	HIST_TREEVIEW_REPLACED_TEXT_COLOR = clWhite;
+	HIST_TREEVIEW_REPLACED_TEXT_BGCOLOR = clMaroon;
+	HIST_TREEVIEW_REPLACED_TEXT_STYLE = [fsStrikeOut];
+
+	TREEVIEW_NORMAL_TEXT_COLOR = clDkGray;
 
 	TREEVIEW_MATCH_TEXT_COLOR = clWhite;
 	TREEVIEW_MATCH_TEXT_BGCOLOR = clOlive;
@@ -200,6 +215,8 @@ const
 	TREEVIEW_STAT_COLOR = clPurple;
 	TREEVIEW_ERROR_COLOR = clRed;
 
+	// See it in Word Segoe ui
+	TREEVIEW_HISTORY_REPLACE_PREFIX = '⇄';
 	TREEVIEW_HISTORY_COUNTER_ERROR_PREFIX = '⚠';
 	TREEVIEW_HISTORY_COUNTER_OK_PREFIX = '✔';
 	TREEVIEW_HISTORY_COUNTER_NOTHING_FOUND_PREFIX = '⛒';

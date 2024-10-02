@@ -7,24 +7,36 @@ uses
 	System.Classes;
 
 type
-	TOptionStrings = record
-		FOptions : TArrayEx<string>;
-		class function New(const _sOptions : string) : TOptionStrings; static;
+	TOptionVariants = record
+		Short : string;
+		Long : string;
+		Value : string;
+		HasValue : Boolean;
+		function ToLongString : string;
+		function ToShortString : string;
+	end;
 
+	TOptionStrings = record
 		private
-			procedure DeleteAll(const _sParam : string);
+			FOptions : TArrayEx<string>;
+			procedure RemoveAll(const _sParam : string; _bAsIs : Boolean = False);
 			function GetMatchedIndexes(const _sParamRegex : string) : TArrayEx<integer>;
 			function GetFirsMatchedIndex(const _sParamRegex : string) : integer;
 			function IsConcreteOptionSet(const _sOption : string; const _sParamValue : string = '') : Boolean;
+			procedure RemoveAllAsBoundedParam(const _sParam: string);
 			procedure ValidateOptions;
 
 		public
+			class function New(const _sOptions : string) : TOptionStrings; overload; static;
+			class function New(const _arrOptions : TArrayEx<string>) : TOptionStrings; overload; static;
+
 			function AddOption(const _sParamRegex : string) : string;
 			procedure AddOptionWithValue(const _paramRegex : string = ''; const _sValue : string = ''; const _bUnique : Boolean = False);
 			function AsArray : TArrayEx<string>;
 			class function ToArray(const _sOptions : string) : TArrayEx<string>; static;
 			function AsString : string;
 			function GetOptionValue(const _sOptionRegex : string; var _sValue : string) : Boolean;
+			class function GetOptionVariantsAndValue(const _sParamRegex : string; out _opVariants : TOptionVariants) : Boolean; static;
 			function IsOptionSet(_sParamRegex : string; const _sParamValue : string = '') : Boolean; overload;
 			function IsSetOptionWithValue(const _sOption : string; const _sValue : string = '') : Boolean;
 			class function MaybeQuoteIfNotQuoted(const _s : string; const _delimiter : string = '"') : string; static;
@@ -39,7 +51,8 @@ uses
 	System.SysUtils,
 	RipGrepper.Common.Constants,
 	RipGrepper.CommandLine.OptionHelper,
-	RipGrepper.CommandLine.Builder;
+	RipGrepper.CommandLine.Builder,
+	System.StrUtils;
 
 function TOptionStrings.AddOption(const _sParamRegex : string) : string;
 begin
@@ -103,27 +116,22 @@ begin
 	Result := string.Join(' ', FOptions.Items);
 end;
 
-procedure TOptionStrings.DeleteAll(const _sParam : string);
-var
-	regexBoundedParam : string;
-	regexBoundedParamWithValue : string;
-	idxArr : TArrayEx<integer>;
+procedure TOptionStrings.RemoveAll(const _sParam : string; _bAsIs : Boolean = False);
 begin
-	if (_sParam = RG_PARAM_END) or (_sParam = '-') then begin
+	if _sParam.IsEmpty then begin
+		Exit;
+	end;
+	if (_sParam = RG_PARAM_END) or (_sParam = '-') or _bAsIs then begin
 		FOptions.RemoveAll(_sParam);
-	end else begin;
-		regexBoundedParam := TOptionsHelper.GetBoundedParamRegex(_sParam);
-		regexBoundedParamWithValue := TOptionsHelper.GetBoundedParamWithValueRegex(_sParam);
-		idxArr := GetMatchedIndexes(regexBoundedParam);
-		idxArr.AddRange(GetMatchedIndexes(regexBoundedParamWithValue));
-		FOptions.Delete(idxArr);
+	end else begin
+        RemoveAllAsBoundedParam(_sParam);
 	end;
 end;
 
 function TOptionStrings.GetMatchedIndexes(const _sParamRegex : string) : TArrayEx<integer>;
 begin
 	for var i := 0 to FOptions.MaxIndex do begin
-		if TRegEx.IsMatch(FOptions[i], _sParamRegex) then begin
+		if (not FOptions[i].IsEmpty) and TRegEx.IsMatch(FOptions[i], _sParamRegex) then begin
 			Result.Add(i);
 		end;
 	end;
@@ -157,14 +165,66 @@ begin
 
 end;
 
+class function TOptionStrings.GetOptionVariantsAndValue(const _sParamRegex : string; out _opVariants : TOptionVariants) : Boolean;
+var
+	m : TMatch;
+begin
+	Result := False;
+	m := TRegex.Match(_sParamRegex, RG_PARAM_REGEX_VARIANT_WITH_OPTIONAL_VALUE);
+	if m.Success then begin
+		case m.Groups.Count of
+			4 : begin
+				_opVariants.Short := m.Groups[1].Value;
+				_opVariants.Long := m.Groups[2].Value;
+				_opVariants.Value := m.Groups[3].Value;
+				_opVariants.HasValue := True;
+			end;
+			3 : begin
+				_opVariants.Short := m.Groups[1].Value;
+				_opVariants.Long := m.Groups[2].Value;
+				_opVariants.Value := '';
+				_opVariants.HasValue := False;
+			end;
+		end;
+		Result := True;
+		Exit;
+	end;
+
+	m := TRegex.Match(_sParamRegex, RG_PARAM_REGEX_SINGLE_WITH_OPTIONAL_VALUE);
+	if m.Success then begin
+		case m.Groups.Count of
+			3 : begin
+				var
+				val := m.Groups[1].Value;
+				_opVariants.Short := IfThen(val.StartsWith('--'), '', val);
+				_opVariants.Long := IfThen(val.StartsWith('--'), val, '');
+				_opVariants.Value := m.Groups[2].Value;
+				_opVariants.HasValue := True;
+			end;
+			2 : begin
+				var
+				val := m.Groups[1].Value;
+				_opVariants.Short := IfThen(val.StartsWith('--'), '', val);
+				_opVariants.Long := IfThen(val.StartsWith('--'), val, '');
+				_opVariants.Value := '';
+				_opVariants.HasValue := False;
+			end;
+		end;
+		Result := True;
+	end;
+end;
+
 function TOptionStrings.IsOptionSet(_sParamRegex : string; const _sParamValue : string = '') : Boolean;
 var
-	arrOptions : TArrayEx<string>;
+	arrOptions : TOptionVariants;
 begin
 	Result := True;
 	if not _sParamRegex.IsEmpty then begin
-		arrOptions := _sParamRegex.Split(['|']);
-		Result := IsConcreteOptionSet(arrOptions[RG_PARAM_SHORT_INDEX]) or IsConcreteOptionSet(arrOptions[RG_PARAM_LONG_INDEX]);
+		if GetOptionVariantsAndValue(_sParamRegex, arrOptions) then begin
+			Result := IsConcreteOptionSet(arrOptions.Short, _sParamValue) or IsConcreteOptionSet(arrOptions.Long, _sParamValue);
+		end else begin
+			Result := IsConcreteOptionSet(_sParamRegex, _sParamValue);
+		end;
 	end;
 end;
 
@@ -204,12 +264,41 @@ begin
 	end;
 end;
 
-procedure TOptionStrings.RemoveOption(const _paramRegex : string);
-var params : TArray<string>;
+class function TOptionStrings.New(const _arrOptions : TArrayEx<string>) : TOptionStrings;
 begin
-	params := _paramRegex.Split(['|']);
-	DeleteAll(params[RG_PARAM_SHORT_INDEX]);
-	DeleteAll(params[RG_PARAM_LONG_INDEX]);
+	Result.FOptions := _arrOptions;
+end;
+
+procedure TOptionStrings.RemoveAllAsBoundedParam(const _sParam: string);
+var
+	regexBoundedParam: string;
+	regexBoundedParamWithValue: string;
+	idxArr: TArrayEx<integer>;
+begin
+	regexBoundedParam := TOptionsHelper.GetBoundedParamRegex(_sParam);
+	regexBoundedParamWithValue := TOptionsHelper.GetBoundedParamWithValueRegex(_sParam);
+	idxArr := GetMatchedIndexes(regexBoundedParamWithValue);
+	if idxArr.IsEmpty then begin
+		idxArr := GetMatchedIndexes(regexBoundedParam);
+	end;
+	FOptions.Delete(idxArr);
+end;
+
+procedure TOptionStrings.RemoveOption(const _paramRegex : string);
+var
+	params : TOptionVariants;
+begin
+	if GetOptionVariantsAndValue(_paramRegex, params) then begin
+		if params.HasValue then begin
+			RemoveAll(params.ToShortString, True);
+			RemoveAll(params.ToLongString, True);
+		end else begin
+			RemoveAll(params.Short);
+			RemoveAll(params.Long);
+		end;
+	end else begin
+		RemoveAll(_paramRegex, True); // so the whole option item should match
+	end;
 end;
 
 procedure TOptionStrings.UpdateFileMasks(_sNewMasks : string);
@@ -222,7 +311,7 @@ begin
 	oldMaskOptions := TCommandLineBuilder.GetFileMaskParamsFromOptions(sOptions);
 	newMaskOptions := TCommandLineBuilder.GetFileMaskParamsFromDelimitedText(_sNewMasks, ';');
 
-	DeleteAll(RG_PARAM_REGEX_GLOB);
+	RemoveAll(RG_PARAM_REGEX_GLOB);
 	sOptions := AsString() + ' ' + newMaskOptions.Trim([' ']);
 	FOptions := ToArray(sOptions);
 end;
@@ -232,6 +321,16 @@ begin
 	var
 	arr := GetMatchedIndexes(TOptionsHelper.GetBoundedParamRegex(RG_PARAM_END));
 	Assert(arr.Count <= 1, AsString() + CRLF + 'Option list is corrupt. -- should appear only once!');
+end;
+
+function TOptionVariants.ToLongString : string;
+begin
+	Result := Long + '=' + Value;
+end;
+
+function TOptionVariants.ToShortString : string;
+begin
+	Result := Short + '=' + Value;
 end;
 
 end.
