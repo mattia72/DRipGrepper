@@ -12,7 +12,7 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 # + new feature
  
 ### :warning: Bug Fixes
-#* bug
+# * bug
 
 # TODO
 # - Change Readme.md 
