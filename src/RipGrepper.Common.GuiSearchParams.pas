@@ -4,12 +4,12 @@ interface
 
 uses
 	RipGrepper.Common.Constants,
-	RipGrepper.Helper.Types,
 	ArrayEx,
 	System.Classes,
 	RipGrepper.Common.Settings.Persistable,
 	System.IniFiles,
-	RipGrepper.CommandLine.OptionStrings;
+	RipGrepper.CommandLine.OptionStrings, 
+	RipGrepper.Helper.Types;
 
 type
 	TSearchOptionSet = set of EGuiOption;
