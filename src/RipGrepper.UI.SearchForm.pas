@@ -118,6 +118,7 @@ type
 		procedure cmbFileMasksSelect(Sender : TObject);
 		procedure cmbOptionsChange(Sender : TObject);
 		procedure cmbOptionsSelect(Sender : TObject);
+		procedure cmbReplaceTextChange(Sender : TObject);
 		procedure cmbRgParamEncodingChange(Sender : TObject);
 		procedure cmbSearchDirChange(Sender : TObject);
 		procedure cmbSearchTextChange(Sender : TObject);
@@ -172,7 +173,6 @@ type
 			procedure UpdateButtonsBySettings;
 			procedure UpdateCmbsOnIDEContextChange;
 			procedure UpdateFileMasksInFileMasks;
-			function UpdateFileMasksInOptions(const sOptions, sMasks : string) : string; overload;
 			procedure UpdateFileMasksInOptions; overload;
 			procedure UpdateHeight;
 			procedure WriteOptionCtrlToRipGrepParametersSetting;
@@ -182,6 +182,7 @@ type
 			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettings; const _histObj : IHistoryItemObject);
 				reintroduce; virtual;
 			destructor Destroy; override;
+			function IsReplaceMode : Boolean;
 			procedure LoadDefaultSettings;
 
 			class function ShowSearchForm(_owner : TComponent; _settings : TRipGrepperSettings; _histObj : IHistoryItemObject) : integer;
@@ -215,7 +216,8 @@ uses
 	System.IOUtils,
 	Winapi.Windows,
 	RipGrepper.Common.Settings.AppSettings,
-	RipGrepper.Common.Settings.ExtensionSettings;
+	RipGrepper.Common.Settings.ExtensionSettings,
+	RipGrepper.CommandLine.OptionStrings;
 
 {$R *.dfm}
 
@@ -403,8 +405,9 @@ begin
 	frm := TRipGrepOptionsForm.Create(self, FSettings.RipGrepParameters);
 	try
 		if (mrOk = frm.ShowModal) then begin
-			cmbOptions.Text := TGuiSearchTextParams.RemoveRgExeOptions(
-				{ } FSettings.RipGrepParameters.RgExeOptions, string.Join('|', RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS));
+			FSettings.RipGrepParameters.RgExeOptions.RemoveOption(
+				{ } string.Join('|', RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS));
+			cmbOptions.Text := FSettings.RipGrepParameters.RgExeOptions.AsString;
 			UpdateCtrls(cmbOptions);
 		end;
 	finally
@@ -443,7 +446,7 @@ begin
 	UpdateCmbOptionsAndMemoCommandLine;
 	UpdateCheckBoxesByRgOptions();
 
-	cmbReplaceText.Visible := TabControl1.TabIndex = 1;
+	cmbReplaceText.Visible := IsReplaceMode();
 	UpdateHeight();
 	ActiveControl := cmbSearchText;
 end;
@@ -474,6 +477,7 @@ begin
 
 	SetComboItemsAndText(cmbSearchDir, RG_ARG_SEARCH_PATH, FSettings.SearchPathsHistory, ';');
 	SetComboItemsAndText(cmbSearchText, RG_ARG_SEARCH_TEXT, FSettings.SearchTextsHistory);
+	SetComboItemsAndText(cmbReplaceText, RG_ARG_REPLACE_TEXT, FSettings.ReplaceTextsHistory);
 	SetComboItemsFromOptions(cmbFileMasks, RG_PARAM_REGEX_GLOB, FSettings.FileMasksHistory);
 	// Set available encodings...
 	SetComboItemsAndText(cmbRgParamEncoding, RG_PARAM_REGEX_ENCODING, FSettings.AppSettings.EncodingItems);
@@ -574,23 +578,24 @@ end;
 
 function TRipGrepperSearchDialogForm.IsOptionSet(const _sParamRegex : string; const _sParamValue : string = '') : Boolean;
 begin
-	Result := TOptionsHelper.IsOptionSet(FGuiSetSearchParams.RgOptions, _sParamRegex, _sParamValue);
+	Result := FGuiSetSearchParams.RgOptions.IsOptionSet(_sParamRegex, _sParamValue);
 end;
 
 procedure TRipGrepperSearchDialogForm.RemoveNecessaryOptionsFromCmbOptionsText;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.RemoveNecessaryOptionsFromCmbOptionsText');
-	dbgMsg.Msg('Additional Options=' + FGuiSetSearchParams.RgAdditionalOptions);
+	dbgMsg.Msg('Additional Options=' + FGuiSetSearchParams.RgAdditionalOptions.AsString);
 
 	// Remove necessary options
-	cmbOptions.Text := TGuiSearchTextParams.RemoveRgExeOptions(
-		{ } FGuiSetSearchParams.RgAdditionalOptions, string.Join(ARRAY_SEPARATOR, RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS));
+	FGuiSetSearchParams.RgAdditionalOptions.RemoveOption(
+		{ } string.Join('|', RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS));
+	cmbOptions.Text := FGuiSetSearchParams.RgAdditionalOptions.AsString;
 	dbgMsg.Msg('cmbOptions.Text=' + cmbOptions.Text);
 
 	WriteOptionCtrlToRipGrepParametersSetting;
 
-	dbgMsg.Msg('Additional Options=' + FGuiSetSearchParams.RgAdditionalOptions);
+	dbgMsg.Msg('Additional Options=' + cmbOptions.Text);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings;
@@ -629,7 +634,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCmbOptionsAndMemoCommandLine');
 	dbgMsg.Msg('FGuiSetSearchParams=' + FGuiSetSearchParams.ToString);
 	RemoveNecessaryOptionsFromCmbOptionsText;
-	dbgMsg.Msg('RgOptions=' + string.Join(' ', FGuiSetSearchParams.RgOptions));
+	dbgMsg.Msg('RgOptions=' + string.Join(' ', FGuiSetSearchParams.RgOptions.AsString));
 	UpdateMemoCommandLine(True); // RgExeOptions may changed
 	dbgMsg.Msg('FGuiSetSearchParams=' + FGuiSetSearchParams.ToString);
 end;
@@ -641,6 +646,7 @@ begin
 		TItemInserter.AddTextToItemsIfNotContains(cmbSearchDir);
 	end;
 	TItemInserter.AddTextToItemsIfNotContains(cmbSearchText);
+	TItemInserter.AddTextToItemsIfNotContains(cmbReplaceText);
 	TItemInserter.AddTextToItemsIfNotContains(cmbFileMasks);
 end;
 
@@ -651,6 +657,15 @@ begin
 
 	dbgMsg.Msg('FGuiSetSearchParams=' + FGuiSetSearchParams.ToString);
 	FGuiSetSearchParams.SearchText := cmbSearchText.Text;
+	FGuiSetSearchParams.IsReplaceMode := IsReplaceMode;
+	if IsReplaceMode then begin
+		FGuiSetSearchParams.ReplaceText := cmbReplaceText.Text;
+		FGuiSetSearchParams.SetRgOptionWithValue(RG_PARAM_REGEX_REPLACE, FGuiSetSearchParams.ReplaceText, True);
+	end else begin
+		FGuiSetSearchParams.SetRgOption(RG_PARAM_REGEX_REPLACE, True);
+		FGuiSetSearchParams.ReplaceText := '';
+	end;
+	dbgMsg.Msg('ReplaceText=' + FGuiSetSearchParams.ReplaceText);
 
 	FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
 	dbgMsg.Msg('SearchPath=' + cmbSearchDir.Text);
@@ -685,6 +700,7 @@ begin
 	if Fsettings.AppSettings.ExpertMode then begin
 		WriteOptionCtrlToRipGrepParametersSetting;
 	end;
+
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.WriteCtrlsToRipGrepParametersSettings: end ' + FGuiSetSearchParams.ToString);
 end;
 
@@ -694,6 +710,7 @@ begin
 
 	FSettings.SearchPathsHistory := cmbSearchDir.Items;
 	FSettings.SearchTextsHistory := cmbSearchText.Items;
+	FSettings.ReplaceTextsHistory := cmbReplaceText.Items;
 	FSettings.RipGrepOptionsHistory := cmbOptions.Items;
 	FSettings.FileMasksHistory := cmbFileMasks.Items;
 
@@ -723,11 +740,11 @@ begin
 		cbRgParamNoIgnore.Checked := IsOptionSet(RG_PARAM_REGEX_NO_IGNORE);
 		cbRgParamPretty.Checked := IsOptionSet(RG_PARAM_REGEX_PRETTY);
 
-		cbRgParamContext.Checked := TOptionsHelper.GetOptionValueFromOptions(FGuiSetSearchParams.RgOptions, RG_PARAM_REGEX_CONTEXT, sVal);
+		cbRgParamContext.Checked := FGuiSetSearchParams.RgOptions.GetOptionValue(RG_PARAM_REGEX_CONTEXT, sVal);
 		seContextLineNum.Enabled := cbRgParamContext.Checked;
 		seContextLineNum.Text := IfThen(seContextLineNum.Enabled, sVal, '0');
 
-		cbRgParamEncoding.Checked := TOptionsHelper.GetOptionValueFromOptions(FGuiSetSearchParams.RgOptions, RG_PARAM_REGEX_ENCODING, sVal);
+		cbRgParamEncoding.Checked := FGuiSetSearchParams.RgOptions.GetOptionValue(RG_PARAM_REGEX_ENCODING, sVal);
 		cmbRgParamEncoding.Enabled := cbRgParamEncoding.Checked;
 		cmbRgParamEncoding.Text := IfThen(cmbRgParamEncoding.Enabled, sVal, '');
 
@@ -782,6 +799,8 @@ begin
 	dbgMsg.Msg('ctrl ' + _ctrlChanged.Name);
 
 	if cmbSearchText = _ctrlChanged then begin
+		UpdateMemoCommandLine(); // UpdateCtrls
+	end else if cmbReplaceText = _ctrlChanged then begin
 		UpdateMemoCommandLine(); // UpdateCtrls
 	end else if cmbSearchDir = _ctrlChanged then begin
 		UpdateMemoCommandLine(); // UpdateCtrls
@@ -854,6 +873,11 @@ begin
 	UpdateCtrls(cmbOptions);
 end;
 
+procedure TRipGrepperSearchDialogForm.cmbReplaceTextChange(Sender : TObject);
+begin
+	UpdateCtrls(cmbReplaceText);
+end;
+
 procedure TRipGrepperSearchDialogForm.cmbRgParamEncodingChange(Sender : TObject);
 begin
 	FSettings.SearchFormSettings.Encoding := IfThen(cmbRgParamEncoding.Enabled, cmbRgParamEncoding.Text);
@@ -913,6 +937,11 @@ begin
 
 	selectedText := string(selectedText).Trim();
 	Result := CheckAndCorrectMultiLine(selectedText);
+end;
+
+function TRipGrepperSearchDialogForm.IsReplaceMode : Boolean;
+begin
+	Result := TabControl1.TabIndex = 1;
 end;
 
 procedure TRipGrepperSearchDialogForm.LoadDefaultSettings;
@@ -1006,9 +1035,12 @@ begin
 	try
 		Result := frm.ShowModal();
 		if mrOk = Result then begin
-			_settings.LastSearchText := frm.cmbSearchText.Text
+			_settings.LastSearchText := frm.cmbSearchText.Text;
+			_settings.IsReplaceMode := frm.IsReplaceMode;
+			_settings.LastReplaceText := frm.cmbReplaceText.Text
 		end else begin
 			_settings.LastSearchText := _histObj.SearchText;
+			_settings.LastReplaceText := _histObj.ReplaceText;
 			dbgMsg.MsgFmtIf(_histObj.SearchText <> _histObj.GuiSearchTextParams.SearchText,
 				{ } 'ERROR? _histObj.SearchText=%s <> GuiSearchTextParams=%s',
 				[_histObj.SearchText, _histObj.GuiSearchTextParams.SearchText]);
@@ -1021,7 +1053,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.TabControl1Change(Sender : TObject);
 begin
-	cmbReplaceText.Visible := TabControl1.TabIndex = 1;
+	cmbReplaceText.Visible := IsReplaceMode();
 	UpdateHeight;
 end;
 
@@ -1078,25 +1110,12 @@ end;
 
 procedure TRipGrepperSearchDialogForm.UpdateFileMasksInFileMasks;
 begin
-	cmbFileMasks.Text := TCommandLineBuilder.GetFileMasksDelimited(FGuiSetSearchParams.RgOptions);
-end;
-
-function TRipGrepperSearchDialogForm.UpdateFileMasksInOptions(const sOptions, sMasks : string) : string;
-var
-	oldMaskOptions : TArrayEx<string>;
-	newMaskOptions : string;
-begin
-	Result := sOptions;
-	oldMaskOptions := TCommandLineBuilder.GetFileMaskParamsFromOptions(sOptions);
-	newMaskOptions := TCommandLineBuilder.GetFileMaskParamsFromDelimitedText(sMasks, ';');
-
-	Result := TOptionsHelper.RemoveAllParams(sOptions, RG_PARAM_REGEX_GLOB);
-	Result := Result + ' ' + newMaskOptions.Trim([' ']);
+	cmbFileMasks.Text := TCommandLineBuilder.GetFileMasksDelimited(FGuiSetSearchParams.RgOptions.AsString);
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateFileMasksInOptions;
 begin
-	FGuiSetSearchParams.RgOptions := UpdateFileMasksInOptions(FGuiSetSearchParams.RgOptions, cmbFileMasks.Text);
+	FGuiSetSearchParams.RgOptions.UpdateFileMasks(cmbFileMasks.Text);
 	FSettings.RipGrepParameters.FileMasks := cmbFileMasks.Text;
 end;
 
@@ -1144,8 +1163,8 @@ procedure TRipGrepperSearchDialogForm.WriteOptionCtrlToRipGrepParametersSetting;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.WriteOptionCtrlToRipGrepParametersSetting');
-	FGuiSetSearchParams.RgAdditionalOptions := cmbOptions.Text;
-	dbgMsg.Msg('FGuiSetSearchParams.RgAdditionalOptions=' + FGuiSetSearchParams.RgAdditionalOptions);
+	FGuiSetSearchParams.RgAdditionalOptions := TOptionStrings.New(cmbOptions.Text);
+	dbgMsg.Msg('FGuiSetSearchParams.RgAdditionalOptions=' + FGuiSetSearchParams.RgAdditionalOptions.AsString);
 end;
 
 procedure TRipGrepperSearchDialogForm.WriteSearchFormSettingsToCtrls(const _searchFormSettings : TSearchFormSettings);

@@ -74,7 +74,8 @@ uses
   RipGrepper.Common.Settings.SettingVariant in 'src\RipGrepper.Common.Settings.SettingVariant.pas',
   RipGrepper.Common.Settings.SettingsDictionary in 'src\RipGrepper.Common.Settings.SettingsDictionary.pas',
   RipGrepper.Tools.PackageInstall in 'src\RipGrepper.Tools.PackageInstall.pas',
-  RipGrepper.Common.Settings.ExtensionSettings in 'src\RipGrepper.Common.Settings.ExtensionSettings.pas';
+  RipGrepper.Common.Settings.ExtensionSettings in 'src\RipGrepper.Common.Settings.ExtensionSettings.pas',
+  RipGrepper.CommandLine.OptionStrings in 'src\RipGrepper.CommandLine.OptionStrings.pas';
 
 {$R *.res}
 

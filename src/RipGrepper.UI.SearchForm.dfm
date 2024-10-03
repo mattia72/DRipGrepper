@@ -705,6 +705,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 2
         Text = 'cmbReplaceText'
+        OnChange = cmbReplaceTextChange
       end
       object cmbSearchText: TComboBox
         Left = 14

@@ -182,9 +182,9 @@ type
 			procedure RunRipGrep;
 			procedure SetColumnWidths;
 			procedure SetHistItemObject(const Value : IHistoryItemObject);
-			procedure SetTextColorMatch(TargetCanvas: TCanvas);
-			procedure SetTextColorReplacedText(TargetCanvas: TCanvas);
-			procedure SetTextColorReplaceText(var pos: Integer; var ss1_repl: string; TargetCanvas: TCanvas; const CellRect: TRect);
+			procedure SetTextColorMatch(TargetCanvas : TCanvas);
+			procedure SetTextColorReplacedText(TargetCanvas : TCanvas);
+			procedure SetTextColorReplaceText(var pos : Integer; var ss1_repl : string; TargetCanvas : TCanvas; const CellRect : TRect);
 			function SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
 			procedure UpdateArgumentsAndSettings;
 			procedure UpdateHistObject;
@@ -411,30 +411,30 @@ begin
 	VstHistory.DeleteNode(Node);
 	VstHistory.Refresh;
 	DeleteCurrentHistoryItemFromList;
-	  // FreeAndNil(ho);
-  	ho := nil;
+	// FreeAndNil(ho);
+	ho := nil;
 end;
 
 procedure TRipGrepperMiddleFrame.DeleteCurrentHistoryItemFromList;
 begin
-	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.DeleteCurrentHistoryItemFromList');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.DeleteCurrentHistoryItemFromList');
 	dbgMsg.Msg('Deleting history item at index ' + CurrentHistoryItemIndex.ToString);
 	FHistoryObjectList.Delete(CurrentHistoryItemIndex);
 
+	CurrentHistoryItemIndex := IfThen(VstHistory.RootNodeCount = 0, -1, IfThen(CurrentHistoryItemIndex = 0, 0,
+		CurrentHistoryItemIndex - 1));
 
-  CurrentHistoryItemIndex := IfThen(VstHistory.RootNodeCount = 0, -1, IfThen(CurrentHistoryItemIndex = 0, 0,
-    CurrentHistoryItemIndex - 1));
+	dbgMsg.Msg('CurrentHistoryItemIndex=' + CurrentHistoryItemIndex.ToString);
 
-  dbgMsg.Msg('CurrentHistoryItemIndex=' + CurrentHistoryItemIndex.ToString);
-
-  if CurrentHistoryItemIndex <> -1 then begin
-    UpdateHistObjectAndGui;
-    VstHistory.Selected[GetNodeByIndex(VstHistory, CurrentHistoryItemIndex)] := True;
-  end else begin
-    VstResult.Clear;
-    VstHistory.Clear;
-    HistItemObject := nil;
-  end;
+	if CurrentHistoryItemIndex <> -1 then begin
+		UpdateHistObjectAndGui;
+		VstHistory.Selected[GetNodeByIndex(VstHistory, CurrentHistoryItemIndex)] := True;
+	end else begin
+		VstResult.Clear;
+		VstHistory.Clear;
+		HistItemObject := nil;
+	end;
 end;
 
 procedure TRipGrepperMiddleFrame.ActionHistoryDeleteUpdate(Sender : TObject);
@@ -521,6 +521,8 @@ begin
 	Node := VstHistory.AddChild(nil);
 	Data := VstHistory.GetNodeData(Node);
 	Data^.SearchText := Settings.LastSearchText;
+	Data^.IsReplaceMode := Settings.IsReplaceMode;
+	Data^.ReplaceText := Settings.LastReplaceText;
 	VstHistory.MultiLine[Node] := True;
 end;
 
@@ -551,6 +553,8 @@ begin
 		[Data^.SearchText, Settings.LastSearchText]);
 	if not Settings.LastSearchText.IsEmpty then begin
 		Data^.SearchText := Settings.LastSearchText;
+		Data^.IsReplaceMode := Settings.IsReplaceMode;
+		Data^.ReplaceText := Settings.LastReplaceText;
 	end;
 end;
 
@@ -599,7 +603,8 @@ end;
 
 function TRipGrepperMiddleFrame.CreateNewHistObject : IHistoryItemObject;
 begin
-	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.CreateNewHistObject');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.CreateNewHistObject');
 	Result := THistoryItemObject.Create();
 	HistItemObject := Result;
 	ChangeDataHistItemObject(Result);
@@ -1104,22 +1109,22 @@ begin
 	end;
 end;
 
-procedure TRipGrepperMiddleFrame.SetTextColorMatch(TargetCanvas: TCanvas);
+procedure TRipGrepperMiddleFrame.SetTextColorMatch(TargetCanvas : TCanvas);
 begin
 	TargetCanvas.Font.Color := TREEVIEW_MATCH_TEXT_COLOR;
 	TargetCanvas.Brush.Color := TREEVIEW_MATCH_TEXT_BGCOLOR;
 	TargetCanvas.Font.style := TREEVIEW_MATCH_TEXT_STYLE;
 end;
 
-procedure TRipGrepperMiddleFrame.SetTextColorReplacedText(TargetCanvas: TCanvas);
+procedure TRipGrepperMiddleFrame.SetTextColorReplacedText(TargetCanvas : TCanvas);
 begin
 	TargetCanvas.Font.Color := TREEVIEW_REPLACED_TEXT_COLOR;
 	TargetCanvas.Brush.Color := TREEVIEW_REPLACED_TEXT_BGCOLOR;
 	TargetCanvas.Font.style := TREEVIEW_REPLACED_TEXT_STYLE;
 end;
 
-procedure TRipGrepperMiddleFrame.SetTextColorReplaceText(var pos: Integer; var ss1_repl: string; TargetCanvas: TCanvas; const CellRect:
-	TRect);
+procedure TRipGrepperMiddleFrame.SetTextColorReplaceText(var pos : Integer; var ss1_repl : string; TargetCanvas : TCanvas;
+const CellRect : TRect);
 begin
 	TargetCanvas.Font.Color := TREEVIEW_REPLACE_TEXT_COLOR;
 	TargetCanvas.Font.style := TREEVIEW_REPLACE_TEXT_STYLE;
@@ -1137,7 +1142,7 @@ var
 	strsArr : TStringsArrayEx;
 	fullCmdLen : integer;
 begin
-	options := _rgp.RgExeOptions;
+	options := _rgp.RgExeOptions.AsString;
 	args := TStringList.Create;
 	try
 		args.Delimiter := ' ';
@@ -1225,8 +1230,11 @@ begin
 			DefaultDraw := False;
 			lineBegin := Text.LastIndexOf(CRLF);
 			sSearchText := Text.Substring(0, lineBegin);
-			TargetCanvas.Font.Color := TREEVIEW_MATCH_ITEM_COLOR;
-			TargetCanvas.Font.style := [fsBold];
+
+			TargetCanvas.Font.Color := HIST_TREEVIEW_SEARCH_TEXT_COLOR;
+			TargetCanvas.Brush.Color := HIST_TREEVIEW_SEARCH_TEXT_BGCOLOR;
+			TargetCanvas.Font.style := HIST_TREEVIEW_SEARCH_TEXT_STYLE;
+
 			// TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, sSearchText);
 			rectTemp := CellRect;
 			Winapi.Windows.DrawText(TargetCanvas.Handle, pwidechar(sSearchText), length(sSearchText), rectTemp,
@@ -1253,6 +1261,7 @@ var
 begin
 	Data := VstHistory.GetNodeData(Node);
 	Data.SearchText := '';
+	Data.ReplaceText := '';
 	// Data.hio.Free;
 end;
 
@@ -1282,7 +1291,20 @@ begin
 	Data := VstHistory.GetNodeData(Node);
 
 	if TextType = ttNormal then begin
+		// if Data.IsReplaceMode then begin
+		// 	case Column of
+		// 		0 :
 		CellText := Data.SearchText + CRLF + GetCounterText(GetHistoryObject(Node.Index));
+		// 		1 :
+		// 		CellText := Data.ReplaceText
+		// 	end;
+		//
+		// end else begin
+		// 	case Column of
+		// 		0 :
+		// 		CellText := Data.SearchText + CRLF + GetCounterText(GetHistoryObject(Node.Index));
+		// 	end;
+		// end;
 	end else begin // ttStatic not shown in Multiline cell
 		CellText := GetCounterText(GetHistoryObject(Node.Index));
 	end;
@@ -1525,7 +1547,7 @@ begin
 		case Column of
 			0 : begin
 				TargetCanvas.Font.style := [fsBold];
-				TargetCanvas.Font.Color := TREEVIEW_MATCH_ITEM_COLOR;
+				TargetCanvas.Font.Color := TREEVIEW_NORMAL_TEXT_COLOR;
 			end;
 		end;
 	end else begin // ttStatic

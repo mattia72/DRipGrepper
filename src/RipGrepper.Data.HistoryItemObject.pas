@@ -25,6 +25,7 @@ type
 			FFileCount : integer;
 			FGuiSearchTextParams : TGuiSearchTextParams;
 			FHasResult : Boolean;
+			FIsReplaceMode: Boolean;
 			FMatches : TParsedObjectRowCollection;
 			FNoMatchFound : Boolean;
 			FParserType : TParserType;
@@ -36,6 +37,7 @@ type
 			function GetErrorCount : Integer; export;
 			function GetFileCount : integer;
 			function GetGuiSearchTextParams : TGuiSearchTextParams;
+			function GetIsReplaceMode: Boolean;
 			function GetMatches : TParsedObjectRowCollection;
 			function GetNoMatchFound : Boolean;
 			function GetRipGrepArguments : TRipGrepArguments;
@@ -51,6 +53,7 @@ type
 			procedure SetElapsedTimeText(const Value : string);
 			procedure SetErrorCount(const Value : Integer);
 			procedure SetGuiSearchTextParams(const Value : TGuiSearchTextParams);
+			procedure SetIsReplaceMode(const Value: Boolean);
 			procedure SetNoMatchFound(const Value : Boolean);
 			procedure SetSearchFormSettings(const Value : TSearchFormSettings);
 			procedure SetRipGrepResult(const Value : Integer);
@@ -72,6 +75,7 @@ type
 			property ErrorCount : Integer read GetErrorCount write SetErrorCount;
 			property ElapsedTimeText : string read GetElapsedTimeText write SetElapsedTimeText;
 			property GuiSearchTextParams : TGuiSearchTextParams read GetGuiSearchTextParams write SetGuiSearchTextParams;
+			property IsReplaceMode: Boolean read GetIsReplaceMode write SetIsReplaceMode;
 			property NoMatchFound : Boolean read GetNoMatchFound write SetNoMatchFound;
 			property RipGrepResult : Integer read GetRipGrepResult write SetRipGrepResult;
 			property ParserType : TParserType read GetParserType write SetParserType;
@@ -83,6 +87,8 @@ type
 
 	TVSHistoryNodeData = record
 		SearchText : string;
+        IsReplaceMode : Boolean;
+		ReplaceText : string;
 	end;
 
 	PVSHistoryNodeData = ^TVSHistoryNodeData;
@@ -196,6 +202,11 @@ begin
 	Result := FGuiSearchTextParams;
 end;
 
+function THistoryItemObject.GetIsReplaceMode: Boolean;
+begin
+	Result := FIsReplaceMode;
+end;
+
 function THistoryItemObject.GetNoMatchFound : Boolean;
 begin
 	Result := FNoMatchFound;
@@ -247,6 +258,11 @@ end;
 procedure THistoryItemObject.SetGuiSearchTextParams(const Value : TGuiSearchTextParams);
 begin
 	FGuiSearchTextParams := Value;
+end;
+
+procedure THistoryItemObject.SetIsReplaceMode(const Value: Boolean);
+begin
+	FIsReplaceMode := Value;
 end;
 
 procedure THistoryItemObject.SetNoMatchFound(const Value : Boolean);

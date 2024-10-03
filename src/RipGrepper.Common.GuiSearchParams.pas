@@ -8,7 +8,8 @@ uses
 	ArrayEx,
 	System.Classes,
 	RipGrepper.Common.Settings.Persistable,
-	System.IniFiles;
+	System.IniFiles,
+	RipGrepper.CommandLine.OptionStrings;
 
 type
 	TSearchOptionSet = set of EGuiOption;
@@ -17,19 +18,21 @@ type
 		private
 			FSearchText : string;
 			FEscapedSearchText : string;
+			FIsReplaceMode : Boolean;
 			FWordBoundedSearchText : string;
-			FRgOptions : string;
+			FRgOptions : TOptionStrings;
 			FIsRgExeOptionSet : Boolean;
-			FRgAdditionalOptions : string;
+			FReplaceText : string;
+			FRgAdditionalOptions: TOptionStrings;
 
 			function GetEscapedSearchText : string;
+			function GetReplaceText : string;
 			function GetSearchText : string;
 			function GetWordBoundedSearchText : string;
 			procedure LoadSearchOptionsFromDict(const _bDefault : Boolean);
 			function ResetRgOption(const _sParamRegex : string; const _bReset : Boolean = False) : string;
-			procedure SetRgOptions(const Value : string);
-			class procedure ValidateOptions(listOptions : TStringList); static;
-
+			procedure SetIsReplaceMode(const Value : Boolean);
+			procedure SetRgOptions(const Value : TOptionStrings);
 		protected
 			procedure Init; override;
 
@@ -37,16 +40,12 @@ type
 			SearchOptions : TSearchOptionSet;
 
 			constructor Create(const _ini : TMemIniFile; const _iniSection : string); overload;
-			constructor Create(const _sText : string; const _bMC, _bMW, _bUR : Boolean); overload;
+			constructor Create(const _sText, _sRepl : string; const _bMC, _bMW, _bUR : Boolean); overload;
 			constructor Create(const _iniSection : string); overload;
 			destructor Destroy; override;
 			procedure Clear;
 			procedure Copy(const _other : TGuiSearchTextParams); reintroduce;
 
-			class function AddRgExeOptions(const _sOptions, _sParamRegex : string) : string; static;
-			class function RemoveRgExeOptions(const _sOptions, _sParamRegex : string) : string; static;
-			class function AddRgExeOptionWithValue(const _sOptions, _sParamRegex, _sValue : string; const _bUnique : Boolean = False)
-				: string; static;
 			procedure CopyDefaultsToValues; override;
 			procedure CopyValuesToDefaults; override;
 			function GetNext(const _newOption : EGuiOption) : TGuiSearchTextParams;
@@ -64,11 +63,14 @@ type
 			procedure LoadDefaultsFromDict; override;
 			procedure LoadFromDict(); override;
 			function ToLogString : string; override;
+			class procedure ValidateOptions(listOptions : TStringList); static;
 
 			property EscapedSearchText : string read GetEscapedSearchText;
+			property IsReplaceMode : Boolean read FIsReplaceMode write SetIsReplaceMode;
 			property IsRgExeOptionSet : Boolean read FIsRgExeOptionSet write FIsRgExeOptionSet;
-			property RgAdditionalOptions : string read FRgAdditionalOptions write FRgAdditionalOptions;
-			property RgOptions : string read FRgOptions write SetRgOptions;
+			property ReplaceText : string read GetReplaceText write FReplaceText;
+			property RgAdditionalOptions: TOptionStrings read FRgAdditionalOptions write FRgAdditionalOptions;
+			property RgOptions : TOptionStrings read FRgOptions write SetRgOptions;
 			property SearchText : string read GetSearchText write FSearchText;
 			property WordBoundedSearchText : string read GetWordBoundedSearchText;
 	end;
@@ -78,59 +80,11 @@ implementation
 uses
 	System.SysUtils,
 	System.RegularExpressions,
-	RipGrepper.CommandLine.OptionHelper,
-	RipGrepper.Tools.DebugUtils;
-
-class function TGuiSearchTextParams.AddRgExeOptions(const _sOptions, _sParamRegex : string) : string;
-var
-	listOptions : TStringList;
-begin
-	listOptions := TStringList.Create(dupIgnore, False, True);
-	listOptions.Delimiter := ' ';
-	try
-		listOptions.AddStrings(_sOptions.Split([' '], TStringSplitOptions.ExcludeEmpty));
-		TOptionsHelper.AddParamToList(listOptions, _sParamRegex);
-		ValidateOptions(listOptions);
-		Result := listOptions.DelimitedText;
-	finally
-		listOptions.Free;
-	end;
-end;
-
-class function TGuiSearchTextParams.RemoveRgExeOptions(const _sOptions, _sParamRegex : string) : string;
-var
-	listOptions : TStringList;
-begin
-	listOptions := TStringList.Create(dupIgnore, False, True);
-	listOptions.Delimiter := ' ';
-	try
-		listOptions.AddStrings(_sOptions.Split([' '], TStringSplitOptions.ExcludeEmpty));
-		TOptionsHelper.RemoveParamFromList(listOptions, _sParamRegex);
-		Result := listOptions.DelimitedText;
-	finally
-		listOptions.Free;
-	end;
-end;
-
-class function TGuiSearchTextParams.AddRgExeOptionWithValue(const _sOptions, _sParamRegex, _sValue : string;
-	const _bUnique : Boolean = False) : string;
-var
-	listOptions : TStringList;
-begin
-	listOptions := TStringList.Create(dupIgnore, False, True);
-	listOptions.Delimiter := ' ';
-	try
-		listOptions.AddStrings(_sOptions.Split([' '], TStringSplitOptions.ExcludeEmpty));
-		TOptionsHelper.AddParamToList(listOptions, _sParamRegex, _sValue, _bUnique);
-		ValidateOptions(listOptions);
-		Result := listOptions.DelimitedText;
-	finally
-		listOptions.Free;
-	end;
-end;
+	RipGrepper.Tools.DebugUtils,
+	RipGrepper.CommandLine.OptionHelper;
 
 // for UnitTests...
-constructor TGuiSearchTextParams.Create(const _sText : string; const _bMC, _bMW, _bUR : Boolean);
+constructor TGuiSearchTextParams.Create(const _sText, _sRepl : string; const _bMC, _bMW, _bUR : Boolean);
 begin
 	Create();
 	SearchText := _sText;
@@ -257,18 +211,18 @@ end;
 function TGuiSearchTextParams.SetRgOption(const _sParamRegex : string; const _bReset : Boolean = False) : string;
 begin
 	if _bReset then begin
-		RgOptions := TGuiSearchTextParams.RemoveRgExeOptions(RgOptions, _sParamRegex);
+		RgOptions.RemoveOption(_sParamRegex);
 	end else begin
-		RgOptions := TGuiSearchTextParams.AddRgExeOptions(RgOptions, _sParamRegex);
+		RgOptions.AddOption(_sParamRegex);
 	end;
 end;
 
 function TGuiSearchTextParams.ResetRgOption(const _sParamRegex : string; const _bReset : Boolean = False) : string;
 begin
 	if _bReset then begin
-		RgOptions := TGuiSearchTextParams.AddRgExeOptions(RgOptions, _sParamRegex);
+		RgOptions.AddOption(_sParamRegex);
 	end else begin
-		RgOptions := TGuiSearchTextParams.RemoveRgExeOptions(RgOptions, _sParamRegex);
+		RgOptions.RemoveOption(_sParamRegex);
 	end;
 end;
 
@@ -309,7 +263,7 @@ end;
 
 function TGuiSearchTextParams.SetRgOptionWithValue(const _sParamRegex, _sValue : string; const _bUnique : Boolean = False) : string;
 begin
-	RgOptions := TGuiSearchTextParams.AddRgExeOptionWithValue(RgOptions, _sParamRegex, _sValue, _bUnique);
+	RgOptions.AddOptionWithValue(_sParamRegex, _sValue, _bUnique);
 end;
 
 procedure TGuiSearchTextParams.StoreAsDefaultsToDict;
@@ -337,7 +291,7 @@ begin
 	end;
 	Result := '[' + string.Join(',', arr.Items) + ']';
 	if not _bGuiOptionsOnly then begin
-		Result := SearchText + ' ' + Result + ' IsRgOpSet:' + BoolToStr(IsRgExeOptionSet, True) + CRLF + RgOptions;
+		Result := SearchText + ' ' + Result + ' IsRgOpSet:' + BoolToStr(IsRgExeOptionSet, True) + CRLF + RgOptions.AsString;
 	end;
 end;
 
@@ -372,6 +326,7 @@ procedure TGuiSearchTextParams.Copy(const _other : TGuiSearchTextParams);
 begin
 	SearchOptions := _other.SearchOptions;
 	FSearchText := _other.SearchText;
+	FReplaceText := _other.ReplaceText;
 
 	FEscapedSearchText := _other.EscapedSearchText;
 	FWordBoundedSearchText := _other.WordBoundedSearchText;
@@ -390,6 +345,11 @@ end;
 procedure TGuiSearchTextParams.CopyValuesToDefaults;
 begin
 	inherited CopyValuesToDefaults;
+end;
+
+function TGuiSearchTextParams.GetReplaceText : string;
+begin
+	Result := FReplaceText;
 end;
 
 procedure TGuiSearchTextParams.Init;
@@ -418,7 +378,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.LoadSearchOptionsFromDict Default=' + BoolToStr(_bDefault));
 	sParams := SettingsDict.GetSetting('SearchParams', _bDefault);
-	dbgMsg.Msg(RgOptions);
+	dbgMsg.Msg(RgOptions.AsString);
 	SearchOptions := GetAsSearchOptionSet(
 		{ } sParams.Contains('MatchCase'),
 		{ } sParams.Contains('MatchWord'),
@@ -430,15 +390,20 @@ begin
 			SetOption(so);
 		end;
 	end;
-	dbgMsg.Msg(RgOptions);
+	dbgMsg.Msg(RgOptions.AsString);
 end;
 
-procedure TGuiSearchTextParams.SetRgOptions(const Value : string);
+procedure TGuiSearchTextParams.SetIsReplaceMode(const Value : Boolean);
+begin
+	FIsReplaceMode := Value;
+end;
+
+procedure TGuiSearchTextParams.SetRgOptions(const Value : TOptionStrings);
 begin
 	FRgOptions := Value;
 	{$IFDEF DEBUG}
-	if Value.IndexOf('--ignore-case') > 0 then begin
-		if Value.IndexOf('--case-sensitive') > 0 then begin
+	if Value.AsArray.Contains('--ignore-case') then begin
+		if Value.AsArray.Contains('--case-sensitive') then begin
 			Assert(True, '--case-sensitive and --ignore-case shouldn''t be there at the same time');
 		end;
 	end;

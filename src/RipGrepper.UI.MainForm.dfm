@@ -189,12 +189,6 @@ object RipGrepperForm: TRipGrepperForm
           inherited PanelHistory: TPanel
             inherited VstHistory: TVirtualStringTree
               Height = 415
-              Columns = <
-                item
-                  Position = 0
-                  Text = 'Search'
-                  Width = 179
-                end>
             end
           end
         end

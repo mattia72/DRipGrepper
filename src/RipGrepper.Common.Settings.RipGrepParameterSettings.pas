@@ -10,7 +10,7 @@ uses
 	RipGrepper.Common.Settings.Persistable,
 	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Helper.Types,
-	System.Generics.Collections;
+	System.Generics.Collections, RipGrepper.CommandLine.OptionStrings;
 
 type
 
@@ -21,7 +21,7 @@ type
 		private
 			FbRgPathInitOk : Boolean;
 			FRipGrepArguments : TRipGrepArguments;
-			FRgExeOptions : string;
+			FRgExeOptions: TOptionStrings;
 			FRipGrepPath : string;
 			FSearchPath : string;
 			FSearchText : string;
@@ -31,7 +31,7 @@ type
 			function GetRipGrepPath : string;
 			procedure SetFileMasks(const Value : string);
 			procedure SetGuiSearchTextParams(const Value : TGuiSearchTextParams);
-			procedure SetRgExeOptions(const Value : string);
+			procedure SetRgExeOptions(const Value: TOptionStrings);
 			procedure SetSearchPath(const Value : string);
 			procedure SetReplaceText(const Value : string);
 			procedure SetSearchText(const Value : string);
@@ -52,7 +52,7 @@ type
 			procedure StoreAsDefaultsToDict; override;
 			property FileMasks : string read FFileMasks write SetFileMasks;
 			property GuiSearchTextParams : TGuiSearchTextParams read FGuiSearchTextParams write SetGuiSearchTextParams;
-			property RgExeOptions : string read FRgExeOptions write SetRgExeOptions;
+			property RgExeOptions: TOptionStrings read FRgExeOptions write SetRgExeOptions;
 			property SearchPath : string read FSearchPath write SetSearchPath;
 			property SearchText : string read FSearchText write SetSearchText;
 			property RipGrepArguments : TRipGrepArguments read FRipGrepArguments write FRipGrepArguments;
@@ -195,9 +195,9 @@ begin
 	FIsModified := True;
 end;
 
-procedure TRipGrepParameterSettings.SetRgExeOptions(const Value : string);
+procedure TRipGrepParameterSettings.SetRgExeOptions(const Value: TOptionStrings);
 begin
-	if FRgExeOptions <> Value then begin
+	if FRgExeOptions.AsString <> Value.AsString then begin
 		FRgExeOptions := Value;
 		FIsModified := True;
 	end;

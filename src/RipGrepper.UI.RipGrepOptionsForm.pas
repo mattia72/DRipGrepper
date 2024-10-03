@@ -116,7 +116,7 @@ uses
 	System.Math,
 	Winapi.ShellAPI,
 	VirtualTrees.Header,
-	System.StrUtils;
+	System.StrUtils, RipGrepper.CommandLine.OptionStrings;
 
 {$R *.dfm}
 
@@ -126,7 +126,7 @@ begin
 	FRipGrepParameters := _settings;
 	FOptionList := TStringList.Create(TDuplicates.dupIgnore, False, False);
 	FOptionList.Delimiter := ' ';
-	FOptionList.AddStrings(FRipGrepParameters.RgExeOptions.Split([' ']));
+	FOptionList.AddStrings(FRipGrepParameters.RgExeOptions.AsArray.Items);
 
 	FRGParamHelpRegex := TRegex.Create(RG_HELP_LINE_REGEX);
 	FRGLongParamHelpRegex := TRegex.Create(RG_HELP_LONG_PARAM_REGEX);
@@ -149,7 +149,7 @@ end;
 
 procedure TRipGrepOptionsForm.ActionOkExecute(Sender : TObject);
 begin
-	FRipGrepParameters.RgExeOptions := FOptionList.DelimitedText; // from option help form
+	FRipGrepParameters.RgExeOptions := TOptionStrings.New(FOptionList.DelimitedText); // from option help form
 	ModalResult := mrOk;
 end;
 

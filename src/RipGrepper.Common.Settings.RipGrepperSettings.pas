@@ -33,7 +33,10 @@ type
 			FAppSettings : TAppSettings;
 
 			FActualSearchPath : string;
+			FIsReplaceMode : Boolean;
 			FLastSearchText : string;
+			FLastReplaceText : string;
+			FReplaceTextsHistory : TStrings;
 
 			function GetIsEmpty : Boolean;
 			function GetSearchPathIsDir : Boolean;
@@ -46,6 +49,8 @@ type
 			function GetActualSearchPath : string;
 			function GetSearchFormSettings : TSearchFormSettings;
 			procedure LoadFirstNecessarySettings;
+			procedure SetIsReplaceMode(const Value : Boolean);
+			procedure SetReplaceTextsHistory(const Value : TStrings);
 
 		public
 			procedure ReadIni; override;
@@ -77,9 +82,12 @@ type
 			property OpenWithSettings : TOpenWithSettings read FOpenWithSettings;
 			property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings write FSearchFormSettings;
 			property AppSettings : TAppSettings read FAppSettings write FAppSettings;
+			property IsReplaceMode : Boolean read FIsReplaceMode write SetIsReplaceMode;
+			property LastReplaceText : string read FLastReplaceText write FLastReplaceText;
 			property NodeLookSettings : TNodeLookSettings read FNodeLookSettings write FNodeLookSettings;
 			property SearchPathIsDir : Boolean read GetSearchPathIsDir;
 			property SearchTextsHistory : TStrings read FSearchTextsHistory write SetSearchTextsHistory;
+			property ReplaceTextsHistory : TStrings read FReplaceTextsHistory write SetReplaceTextsHistory;
 	end;
 
 type
@@ -164,6 +172,7 @@ begin
 	FRipGrepArguments.Free;
 	FRipGrepOptionsHistory.Free;
 	FSearchTextsHistory.Free;
+	FReplaceTextsHistory.Free;
 	FSearchPathsHistory.Free;
 	FNodeLookSettings.Free;
 	FOpenWithSettings.Free;
@@ -188,6 +197,7 @@ begin
 	FOpenWithSettings := TOpenWithSettings.Create(FIniFile);
 	FSearchPathsHistory := TStringList.Create(dupIgnore, False, True);
 	FSearchTextsHistory := TStringList.Create(dupIgnore, False, True);
+	FReplaceTextsHistory := TStringList.Create(dupIgnore, False, True);
 	FRipGrepOptionsHistory := TStringList.Create(dupIgnore, False, True);
 	FRipGrepArguments := TStringList.Create();
 	FRipGrepArguments.Delimiter := ' ';
@@ -212,6 +222,7 @@ begin
 		FOpenWithSettings.Copy(s.OpenWithSettings);;
 		FSearchPathsHistory.Assign(s.SearchPathsHistory);
 		FSearchTextsHistory.Assign(s.SearchTextsHistory);
+		FReplaceTextsHistory.Assign(s.ReplaceTextsHistory);
 		FRipGrepOptionsHistory.Assign(s.RipGrepOptionsHistory);
 		FRipGrepArguments.Assign(s.FRipGrepArguments);
 		inherited Copy(_other as TPersistableSettings);
@@ -293,6 +304,7 @@ begin
 	FNodeLookSettings.LoadFromDict();
 	LoadHistoryEntries(FSearchPathsHistory, 'SearchPathsHistory');
 	LoadHistoryEntries(FSearchTextsHistory, 'SearchTextsHistory');
+	LoadHistoryEntries(FReplaceTextsHistory, 'ReplaceTextsHistory');
 	LoadHistoryEntries(FRipGrepOptionsHistory, 'RipGrepOptionsHistory');
 	LoadHistoryEntries(FFileMasksHistory, 'FileMasksHistory');
 end;
@@ -316,6 +328,16 @@ end;
 procedure TRipGrepperSettings.SetFileMasksHistory(const Value : TStrings);
 begin
 	AddIfNotContains(FFileMasksHistory, Value);
+end;
+
+procedure TRipGrepperSettings.SetIsReplaceMode(const Value : Boolean);
+begin
+	FIsReplaceMode := Value;
+end;
+
+procedure TRipGrepperSettings.SetReplaceTextsHistory(const Value : TStrings);
+begin
+	AddIfNotContains(FReplaceTextsHistory, Value);
 end;
 
 procedure TRipGrepperSettings.SetRipGrepOptionsHistory(const Value : TSTrings);
@@ -376,8 +398,7 @@ begin
 end;
 
 procedure TRipGrepperSettings.StoreHistoryEntries(const _list : TStrings; const _section : string);
-var
-	multiLineVal : TMultiLineString;
+var multiLineVal : TMultiLineString;
 begin
 	for var i := _list.Count - 1 downto 0 do begin
 		if not _list[i].IsEmpty then begin
