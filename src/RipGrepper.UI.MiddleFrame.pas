@@ -43,6 +43,15 @@ uses
 	RipGrepper.Common.Settings.RipGrepperSettings;
 
 type
+	TDrawParams = record
+		FgColor : TColor;
+		BgColor : TColor;
+		FontSize : TColor;
+		FontStyle : TFontStyles;
+		class function Save(const _canvas : TCanvas) : TDrawParams; static;
+		procedure Load(const _canvas : TCanvas);
+	end;
+
 	THistoryObjectList = TArrayEx<IHistoryItemObject>;
 
 	TRipGrepperMiddleFrame = class(TFrame, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
@@ -1227,6 +1236,9 @@ var
 begin
 	case Column of
 		0 : begin
+			// First, store the default font size and color number
+			var backup := TDrawParams.Save(TargetCanvas);
+
 			DefaultDraw := False;
 			lineBegin := Text.LastIndexOf(CRLF);
 			sSearchText := Text.Substring(0, lineBegin);
@@ -1239,6 +1251,8 @@ begin
 			rectTemp := CellRect;
 			Winapi.Windows.DrawText(TargetCanvas.Handle, pwidechar(sSearchText), length(sSearchText), rectTemp,
 				DT_NOPREFIX or DT_WORDBREAK);
+
+			backup.Load(TargetCanvas);
 
 			sStatistic := Text.Substring(lineBegin + 2);
 			if -1 <> sStatistic.IndexOf(TREEVIEW_HISTORY_COUNTER_ERROR_PREFIX) then begin
@@ -1292,18 +1306,18 @@ begin
 
 	if TextType = ttNormal then begin
 		// if Data.IsReplaceMode then begin
-		// 	case Column of
-		// 		0 :
+		// case Column of
+		// 0 :
 		CellText := Data.SearchText + CRLF + GetCounterText(GetHistoryObject(Node.Index));
-		// 		1 :
-		// 		CellText := Data.ReplaceText
-		// 	end;
+		// 1 :
+		// CellText := Data.ReplaceText
+		// end;
 		//
 		// end else begin
-		// 	case Column of
-		// 		0 :
-		// 		CellText := Data.SearchText + CRLF + GetCounterText(GetHistoryObject(Node.Index));
-		// 	end;
+		// case Column of
+		// 0 :
+		// CellText := Data.SearchText + CRLF + GetCounterText(GetHistoryObject(Node.Index));
+		// end;
 		// end;
 	end else begin // ttStatic not shown in Multiline cell
 		CellText := GetCounterText(GetHistoryObject(Node.Index));
@@ -1395,9 +1409,7 @@ end;
 procedure TRipGrepperMiddleFrame.VstResultDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
 Column : TColumnIndex; const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
 var
-	fc, bc : TColor;
-	fs, pos : Integer;
-	style : TFontStyles;
+	pos : Integer;
 	Data : PVSFileNodeData;
 	s, ss0, ss1, ss1_repl, ss2 : string;
 	iSpaces, iTabs, matchBegin : Integer;
@@ -1414,11 +1426,9 @@ begin
 			case FHistItemObj.ParserType of
 				ptRipGrepSearch, ptRipGrepPrettySearch : begin
 					DefaultDraw := False;
-					// First, store the default font size and color number
-					fc := TargetCanvas.Font.Color;
-					bc := TargetCanvas.Brush.Color;
-					fs := TargetCanvas.Font.Size;
-					style := TargetCanvas.Font.style;
+					var
+						// First, store the default font size and color number
+					backup := TDrawParams.Save(TargetCanvas);
 
 					Data := VstResult.GetNodeData(Node);
 					s := Data.GetLineText(not Settings.NodeLookSettings.IndentLines, iSpaces, iTabs);
@@ -1447,10 +1457,8 @@ begin
 						SetTextColorReplaceText(pos, ss1_repl, TargetCanvas, CellRect);
 						pos := pos + TargetCanvas.TextWidth(ss1_repl);
 					end;
-					TargetCanvas.Font.Color := fc;
-					TargetCanvas.Brush.Color := bc;
-					TargetCanvas.Font.Size := fs;
-					TargetCanvas.Font.style := style;
+
+					backup.Load(TargetCanvas);
 					TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss2);
 				end;
 			end;
@@ -1553,6 +1561,22 @@ begin
 	end else begin // ttStatic
 		TargetCanvas.Font.Color := TREEVIEW_STAT_COLOR; // Not shown on MultiLine
 	end;
+end;
+
+class function TDrawParams.Save(const _canvas : TCanvas) : TDrawParams;
+begin
+	Result.FgColor := _canvas.Font.Color;
+	Result.BgColor := _canvas.Brush.Color;
+	Result.FontSize := _canvas.Font.Size;
+	Result.FontStyle := _canvas.Font.style;
+end;
+
+procedure TDrawParams.Load(const _canvas : TCanvas);
+begin
+	_canvas.Font.Color := FgColor;
+	_canvas.Brush.Color := BgColor;
+	_canvas.Font.Size := FontSize;
+	_canvas.Font.style := FontStyle;
 end;
 
 end.
