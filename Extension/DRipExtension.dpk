@@ -91,7 +91,9 @@ contains
   RipGrepper.Common.SearchParams in '..\src\RipGrepper.Common.SearchParams.pas',
   ArrayEx in '..\external\ArrayEx.pas',
   dpipes in '..\external\dpipes.pas',
-  dprocess in '..\external\dprocess.pas';
+  dprocess in '..\external\dprocess.pas',
+  RipGrepper.CommandLine.OptionStrings in '..\src\RipGrepper.CommandLine.OptionStrings.pas',
+  RipGrepper.Common.Settings.ExtensionSettings in '..\src\RipGrepper.Common.Settings.ExtensionSettings.pas';
 
 end.
 
