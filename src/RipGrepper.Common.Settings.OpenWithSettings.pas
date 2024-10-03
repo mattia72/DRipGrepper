@@ -25,7 +25,7 @@ type
 			procedure LoadFromDict(); override;
 			procedure LoadDefaultsFromDict; override;
 			procedure StoreToDict; override;
-			function ToString: string;
+			function ToString: string; override;
 			property Command[index : Integer] : string read GetCommand write SetCommand;
 			property TestFile : TOpenWithParams read FTestFile write FTestFile;
 	end;
