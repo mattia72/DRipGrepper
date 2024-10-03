@@ -133,8 +133,9 @@ const
 	RG_PARAM_END = '--';
 
 	RG_PARAM_REGEX_VALUE_FORMAT = '^(%s)=?(.+)?$';
-	RG_PARAM_REGEX_VARIANT_WITH_OPTIONAL_VALUE = '^(-\w)\|(--\w[\w-]+)=?(.+)?$';
-	RG_PARAM_REGEX_SINGLE_WITH_OPTIONAL_VALUE = '^(-+[\w-]+)=?(.+)?$';
+	RG_PARAM_REGEX_VARIANT_WITH_OPTIONAL_VALUE = '^(-\\?[\w.])\|(--\w[\w-]+)=?(.+)?$';
+	RG_PARAM_REGEX_SINGLE_WITH_OPTIONAL_VALUE = '^(-+[\w.\\-]+)=?([^|]+)?$';
+	RG_PARAM_WORD_IN_OPTION_LIST = '^--?\\?[-\w.]+(=[''"]?[!.*\/\w -]+[''"]?)?$';
 
 	RG_GUI_SET_PARAMS : TArray<string> = [
 	{ } RG_PARAM_REGEX_IGNORE_CASE,

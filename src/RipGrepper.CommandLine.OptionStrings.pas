@@ -23,7 +23,7 @@ type
 			function GetMatchedIndexes(const _sParamRegex : string) : TArrayEx<integer>;
 			function GetFirsMatchedIndex(const _sParamRegex : string) : integer;
 			function IsConcreteOptionSet(const _sOption : string; const _sParamValue : string = '') : Boolean;
-			procedure RemoveAllAsBoundedParam(const _sParam: string);
+			procedure RemoveAllAsBoundedParam(const _sParam : string);
 			procedure ValidateOptions;
 
 		public
@@ -99,7 +99,7 @@ begin
 	arr := _sOptions.Split([' '], TStringSplitOptions.ExcludeEmpty);
 	for var s in arr do begin
 		var
-		regex := '^--?[-\w]+(=[''"]?[!.*\/\w -]+[''"]?)?$';
+		regex := RG_PARAM_WORD_IN_OPTION_LIST;
 		if TRegEx.IsMatch(s, regex) then begin
 			Result.Add(s);
 		end else begin
@@ -124,7 +124,7 @@ begin
 	if (_sParam = RG_PARAM_END) or (_sParam = '-') or _bAsIs then begin
 		FOptions.RemoveAll(_sParam);
 	end else begin
-        RemoveAllAsBoundedParam(_sParam);
+		RemoveAllAsBoundedParam(_sParam);
 	end;
 end;
 
@@ -170,6 +170,14 @@ var
 	m : TMatch;
 begin
 	Result := False;
+//	if _sParamRegex = RG_PARAM_END then begin
+//		_opVariants.Short := RG_PARAM_END;
+//		_opVariants.Long := RG_PARAM_END;
+//		_opVariants.Value := '';
+//		_opVariants.HasValue := False;
+//		Result := True;
+//        Exit;
+//	end;
 	m := TRegex.Match(_sParamRegex, RG_PARAM_REGEX_VARIANT_WITH_OPTIONAL_VALUE);
 	if m.Success then begin
 		case m.Groups.Count of
@@ -183,7 +191,7 @@ begin
 				_opVariants.Short := m.Groups[1].Value;
 				_opVariants.Long := m.Groups[2].Value;
 				_opVariants.Value := '';
-				_opVariants.HasValue := False;
+				_opVariants.HasValue := _sParamRegex.IndexOf('=') >= 0;
 			end;
 		end;
 		Result := True;
@@ -207,7 +215,7 @@ begin
 				_opVariants.Short := IfThen(val.StartsWith('--'), '', val);
 				_opVariants.Long := IfThen(val.StartsWith('--'), val, '');
 				_opVariants.Value := '';
-				_opVariants.HasValue := False;
+				_opVariants.HasValue := _sParamRegex.IndexOf('=') >= 0;
 			end;
 		end;
 		Result := True;
@@ -269,11 +277,11 @@ begin
 	Result.FOptions := _arrOptions;
 end;
 
-procedure TOptionStrings.RemoveAllAsBoundedParam(const _sParam: string);
+procedure TOptionStrings.RemoveAllAsBoundedParam(const _sParam : string);
 var
-	regexBoundedParam: string;
-	regexBoundedParamWithValue: string;
-	idxArr: TArrayEx<integer>;
+	regexBoundedParam : string;
+	regexBoundedParamWithValue : string;
+	idxArr : TArrayEx<integer>;
 begin
 	regexBoundedParam := TOptionsHelper.GetBoundedParamRegex(_sParam);
 	regexBoundedParamWithValue := TOptionsHelper.GetBoundedParamWithValueRegex(_sParam);

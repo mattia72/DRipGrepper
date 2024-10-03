@@ -50,7 +50,7 @@ object MiddleLeftFrame: TMiddleLeftFrame
       item
         Position = 0
         Text = 'Search'
-        Width = 599
+        Width = 603
       end>
   end
   object ActionList: TActionList
