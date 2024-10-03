@@ -44,3 +44,4 @@ Marked with checkmark if fixed, else it is known bug.
 - [ ] `Additional Options` has to have saved defaults also
 - [ ] drip icon in menu has no transparent background
 - [ ] history item delete mit `DEL` key, deletes the first item
+- [x] extension : file name not visible

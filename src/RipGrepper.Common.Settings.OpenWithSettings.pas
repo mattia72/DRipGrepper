@@ -25,6 +25,7 @@ type
 			procedure LoadFromDict(); override;
 			procedure LoadDefaultsFromDict; override;
 			procedure StoreToDict; override;
+			function ToString: string;
 			property Command[index : Integer] : string read GetCommand write SetCommand;
 			property TestFile : TOpenWithParams read FTestFile write FTestFile;
 	end;
@@ -119,6 +120,11 @@ begin
 		end;
 		FIsModified := False;
 	end;
+end;
+
+function TOpenWithSettings.ToString: string;
+begin
+	Result := FTestFile.ToString;
 end;
 
 end.

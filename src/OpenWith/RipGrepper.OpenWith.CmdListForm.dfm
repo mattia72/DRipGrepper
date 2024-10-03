@@ -179,6 +179,8 @@ object OpenWithCmdList: TOpenWithCmdList
       Margins.Bottom = 8
       Action = ActionOk
       Anchors = [akTop, akRight]
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 0
     end
     object btn_Cancel: TButton
@@ -193,6 +195,8 @@ object OpenWithCmdList: TOpenWithCmdList
       Action = ActionCancel
       Anchors = [akTop, akRight]
       Cancel = True
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 1
     end
   end
@@ -342,10 +346,14 @@ object OpenWithCmdList: TOpenWithCmdList
     Top = 124
     object ActionOk: TAction
       Caption = 'Ok'
+      Hint = 'Open File with Selected Application'
+      ShortCut = 16397
       OnExecute = ActionOkExecute
     end
     object ActionCancel: TAction
       Caption = 'Cancel'
+      Hint = 'Cancel'
+      ShortCut = 16411
       OnExecute = ActionCancelExecute
     end
     object ActionSwitchView: TAction

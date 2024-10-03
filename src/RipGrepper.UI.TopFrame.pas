@@ -222,9 +222,10 @@ end;
 
 procedure TRipGrepperTopFrame.ActionConfigExecute(Sender : TObject);
 begin
-	var
-	Settings := Settings.OpenWithSettings;
+	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperTopFrame.ActionConfigExecute');
+	var	Settings := Settings.OpenWithSettings;
 	Settings.TestFile := MainFrame.GetOpenWithParamsFromSelected();
+	dbgMsg.Msg('TestFile: ' + Settings.TestFile.DirPath + '\' + Settings.TestFile.FileName);
 	TOpenWithConfigForm.CreateAndShow(Settings);
 	Settings.TestFile := default (TOpenWithParams);
 	Settings.Reload();

@@ -49,7 +49,6 @@ end;
 function TOpenWithParams.ToString : string;
 begin
 	Result := Format('%s%s(%d:%d)', [DirPath, FileName, Row, Column]);
-
 end;
 
 class operator TOpenWithParams.Initialize(out Dest : TOpenWithParams);

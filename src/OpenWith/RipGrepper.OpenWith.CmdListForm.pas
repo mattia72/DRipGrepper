@@ -68,6 +68,7 @@ type
 			class function GetEnabledCmds(const _settings : TOpenWithSettings) : TArray<string>;
 			function GetFileNameFromCfg(const _configText : string) : string;
 			function GetViewStyleIndex : Integer;
+			procedure SaveOrigHeights;
 			procedure SetMemoHeightByLineCount;
 			property ViewStyleIndex : Integer read GetViewStyleIndex;
 
@@ -77,6 +78,7 @@ type
 			constructor Create(AOwner : TComponent; const ASettings : TOpenWithSettings); reintroduce;
 			destructor Destroy(); override;
 			class function CreateAndShow(const _settings : TOpenWithSettings) : string;
+			procedure InitCtrlsTexts;
 			procedure LoadEnbledCmds;
 	end;
 
@@ -100,6 +102,8 @@ uses
 
 constructor TOpenWithCmdList.Create(AOwner : TComponent; const ASettings : TOpenWithSettings);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithCmdList.Create');
 	inherited Create(AOwner);
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 	lbCommands.items.Clear;
@@ -107,11 +111,15 @@ begin
 	ImageListIcons.ColorDepth := TColorDepth.cd32Bit;
 	FViewStyleIndex := 0;
 	FSettings := ASettings;
+	dbgMsg.MsgFmt('FSettings: %s', [FSettings.ToString]);
+
+	SaveOrigHeights;
+    InitCtrlsTexts;
 end;
 
 procedure TOpenWithCmdList.FormCreate(Sender : TObject);
 begin
-//	KeyPreview := True;
+	// KeyPreview := True;
 end;
 
 destructor TOpenWithCmdList.Destroy();
@@ -155,9 +163,11 @@ end;
 class function TOpenWithCmdList.CreateAndShow(const _settings : TOpenWithSettings) : string;
 begin
 	var
+	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithCmdList.CreateAndShow');
+	var
 	form := TOpenWithCmdList.Create(nil, _settings);
-
 	try
+//		form.InitCtrlsTexts();
 		form.LoadEnbledCmds();
 		form.CreateScaledIcons();
 
@@ -191,19 +201,11 @@ end;
 
 procedure TOpenWithCmdList.FormShow(Sender : TObject);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithCmdList.FormShow');
 	if lbCommands.GetCount > 0 then begin
 		lbCommands.ItemIndex := 0;
 	end;
-	lblHint1.Caption := 'Open';
-	FOrigMemoHeight := Memo1.Height;
-	FMemoLineMargin := FOrigMemoHeight - Abs(Memo1.Font.Height);
-	FOrigTopPanelHeight := pnl_Top.Height;
-	Memo1.Text := Format('%s(%d:%d)', [ExtractRelativePath(FSettings.TestFile.DirPath + '\', FSettings.TestFile.FileName),
-		FSettings.TestFile.Column, FSettings.TestFile.Row]);
-	Memo1.Hint := Memo1.Text;
-	lblHint2.Caption := 'with...';
-	// Increase height of Memo1 if text is multiple lines
-	SetMemoHeightByLineCount;
 	ActiveControl := lbCommands;
 end;
 
@@ -257,6 +259,18 @@ begin
 	Result := (FViewStyleIndex mod Length(LISTVIEW_TYPES));
 end;
 
+procedure TOpenWithCmdList.InitCtrlsTexts;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithCmdList.InitCtrlsTexts');
+	lblHint1.Caption := 'Open';
+	dbgMsg.MsgFmt('FSettings.TestFile: %s', [FSettings.TestFile.ToString]);
+	Memo1.Text := Format('%s(%d:%d)', [ExtractRelativePath(FSettings.TestFile.DirPath + '\', FSettings.TestFile.FileName),
+		FSettings.TestFile.Column, FSettings.TestFile.Row]);
+	Memo1.Hint := Memo1.Text;
+	lblHint2.Caption := 'with...';
+end;
+
 procedure TOpenWithCmdList.lbCommandsDblClick(Sender : TObject);
 begin
 	ActionOkExecute(Sender);
@@ -298,12 +312,27 @@ begin
 	end;
 end;
 
+procedure TOpenWithCmdList.SaveOrigHeights;
+begin
+//	if FOrigMemoHeight = 0 then begin
+		FOrigMemoHeight := Memo1.Height;
+		FMemoLineMargin := FOrigMemoHeight - Abs(Memo1.Font.Height);
+		FOrigTopPanelHeight := pnl_Top.Height;
+//	end;
+end;
+
 procedure TOpenWithCmdList.SetMemoHeightByLineCount;
 var
 	lineHeight : Integer;
 	lineCount : Integer;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithCmdList.SetMemoHeightByLineCount');
+
+//	SaveOrigHeights;
+
 	lineCount := Memo1.Lines.Count;
+	dbgMsg.MsgFmt('lineCount: %d', [lineCount]);
 	if lineCount > 1 then begin
 		lineHeight := Abs(Memo1.Font.Height) * (lineCount - 1);
 		Memo1.Height := FOrigMemoHeight + lineHeight + FMemoLineMargin;
@@ -312,6 +341,7 @@ begin
 		Memo1.Height := FOrigMemoHeight;
 		pnl_Top.Height := FOrigTopPanelHeight;
 	end;
+	dbgMsg.MsgFmt('Memo1.Height: %d, pnl_Top.Height: %d', [Memo1.Height, pnl_Top.Height]);
 end;
 
 end.

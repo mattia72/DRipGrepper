@@ -186,7 +186,9 @@ procedure TDRipExtension.DoOpenWithMenuClick(Sender : TObject);
 var
 	owp : TOpenWithParams;
 begin
+	var dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.DoOpenWithMenuClick');
 	owp := TOpenWithParams.GetParamsOfActiveFileInDelphiIde();
+	dbgMsg.MsgFmt('TDRipExtension.DoOpenWithMenuClick %s', [owp.ToString]);
 	if not owp.IsEmpty then begin
 		TOpenWith.Execute(owp);
 	end;
