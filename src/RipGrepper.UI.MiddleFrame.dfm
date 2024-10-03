@@ -49,56 +49,24 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
         Align = alClient
         Anchors = [akLeft, akTop, akBottom]
         TabOrder = 0
-        object VstHistory: TVirtualStringTree
-          AlignWithMargins = True
-          Left = 4
-          Top = 4
-          Width = 183
-          Height = 321
+        inline MiddleLeftFrame1: TMiddleLeftFrame
+          Left = 1
+          Top = 1
+          Width = 189
+          Height = 327
           Align = alClient
-          Colors.BorderColor = 15987699
-          Colors.DisabledColor = clGray
-          Colors.DropMarkColor = 15385233
-          Colors.DropTargetColor = 15385233
-          Colors.DropTargetBorderColor = 15385233
-          Colors.FocusedSelectionColor = 15385233
-          Colors.FocusedSelectionBorderColor = 15385233
-          Colors.GridLineColor = 15987699
-          Colors.HeaderHotColor = clBlack
-          Colors.HotColor = clBlack
-          Colors.SelectionRectangleBlendColor = 15385233
-          Colors.SelectionRectangleBorderColor = 15385233
-          Colors.SelectionTextColor = clBlack
-          Colors.TreeLineColor = 9471874
-          Colors.UnfocusedColor = clGray
-          Colors.UnfocusedSelectionColor = clWhite
-          Colors.UnfocusedSelectionBorderColor = clWhite
-          Header.AutoSizeIndex = 0
-          Header.Options = [hoAutoResize, hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible, hoFullRepaintOnResize, hoHeaderClickAutoSort, hoAutoResizeInclCaption]
-          HintMode = hmHint
-          Images = ImageList1
-          ParentShowHint = False
-          PopupMenu = PopupMenuHistory
-          ShowHint = True
           TabOrder = 0
-          TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages]
-          TreeOptions.SelectionOptions = [toFullRowSelect]
-          OnDrawText = VstHistoryDrawText
-          OnFreeNode = VstHistoryFreeNode
-          OnGetText = VstHistoryGetText
-          OnGetHintKind = VstHistoryGetHintKind
-          OnGetHint = VstHistoryGetHint
-          OnMeasureItem = VstHistoryMeasureItem
-          OnNodeClick = VstHistoryNodeClick
-          OnNodeDblClick = VstHistoryNodeDblClick
-          Touch.InteractiveGestures = [igPan, igPressAndTap]
-          Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
-          Columns = <
-            item
-              Position = 0
-              Text = 'Search'
-              Width = 183
-            end>
+          inherited VstHistory: TVirtualStringTree
+            Width = 183
+            Height = 321
+            OnDrawText = nil
+            Columns = <
+              item
+                Position = 0
+                Text = 'Search'
+                Width = 179
+              end>
+          end
         end
       end
       object PanelResult: TPanel
@@ -204,18 +172,6 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
       Hint = 'Open in Delphi IDE'
       OnExecute = ActionOpenInIdeExecute
       OnUpdate = ActionOpenInIdeUpdate
-    end
-    object ActionHistoryDelete: TAction
-      Caption = 'Delete'
-      ImageIndex = 2
-      OnExecute = ActionHistoryDeleteExecute
-      OnUpdate = ActionHistoryDeleteUpdate
-    end
-    object ActionHistoryDeleteAll: TAction
-      Caption = 'Delete All'
-      ImageIndex = 3
-      OnExecute = ActionHistoryDeleteAllExecute
-      OnUpdate = ActionHistoryDeleteAllUpdate
     end
     object ActionAddUsingImplementation: TAction
       Caption = 'Add to Implementation'
@@ -975,7 +931,6 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
   end
   object PopupMenuHistory: TPopupMenu
     Images = ImageList1
-    OnPopup = PopupMenuHistoryPopup
     Left = 295
     Top = 199
     object pmOpenSearchForm: TMenuItem
@@ -993,11 +948,9 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
       Caption = '-'
     end
     object pmHistoryDelete: TMenuItem
-      Action = ActionHistoryDelete
       ShortCut = 46
     end
     object pmHistoryDeleteAll: TMenuItem
-      Action = ActionHistoryDeleteAll
       ShortCut = 16430
     end
   end

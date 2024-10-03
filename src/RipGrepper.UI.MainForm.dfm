@@ -183,17 +183,6 @@ object RipGrepperForm: TRipGrepperForm
         TabOrder = 0
       end
     end
-    inherited MainFrame: TRipGrepperMiddleFrame
-      inherited panelMain: TPanel
-        inherited SplitView1: TSplitView
-          inherited PanelHistory: TPanel
-            inherited VstHistory: TVirtualStringTree
-              Height = 415
-            end
-          end
-        end
-      end
-    end
     inherited BottomFrame: TRipGrepperBottomFrame
       Top = 371
       Width = 670

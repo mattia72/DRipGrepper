@@ -555,7 +555,7 @@ begin
 		dbgMsg.Msg('after showmodal cmdline: ' + Settings.RipGrepParameters.GetCommandLine);
 		ActionSearchExecute(self);
 	end else begin
-		MainFrame.DeleteCurrentHistoryItemFromList;
+		ParentFrame.MainFrame.MiddleLeftFrame1.DeleteCurrentHistoryItemFromList;
 		FHistItemObj := nil;
 	end;
 end;
