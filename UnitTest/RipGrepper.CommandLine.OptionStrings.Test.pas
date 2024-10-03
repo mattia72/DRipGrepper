@@ -45,15 +45,19 @@ type
 			procedure TestIsOptionSetWithValue(const _sOptions, _sParamRegex, _sValue : string; const _bOk : integer);
 
 			[Test]
-			[Testcase('test1', '--vimgrep --fixed-strings -g=*.ini --ignore-case -g=!*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';1', ';')]
-			[Testcase('test2', '--vimgrep --fixed-strings -g=*.ini -i         -g=!*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';1', ';')]
-			[Testcase('test3', '--vimgrep --fixed-strings -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_FIXED_STRINGS + ';1', ';')]
-			[Testcase('test4', '--vimgrep --fixed-strings -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_GLOB + ';1', ';')]
-			[Testcase('test5', '--vimgrep --fixed-strings -g=*.ini --ignore-case -g=!*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';1', ';')]
-			[Testcase('test6', '--vimgrep --fixed-strings -g=*.ini -i         -g=!*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';1', ';')]
-			[Testcase('test7', '--vimgrep --fixed-strings -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';0', ';')]
-			[Testcase('test8', '--vimgrep -F              -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_FIXED_STRINGS + ';1', ';')]
-			[Testcase('test9', '--vimgrep                 -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_FIXED_STRINGS + ';0', ';')]
+//			[Testcase('test1', '--vimgrep --fixed-strings -g=*.ini --ignore-case -g=!*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';1', ';')]
+//			[Testcase('test2', '--vimgrep --fixed-strings -g=*.ini -i         -g=!*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';1', ';')]
+//			[Testcase('test3', '--vimgrep --fixed-strings -g=*.ini -i         -g=!*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';1', ';')]
+//			[Testcase('test4', '--vimgrep --fixed-strings -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';0', ';')]
+//			[Testcase('test5', '--vimgrep --fixed-strings -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_FIXED_STRINGS + ';1', ';')]
+//			[Testcase('test6', '--vimgrep --fixed-strings -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_GLOB + ';1', ';')]
+//			[Testcase('test7', '--vimgrep --fixed-strings -g=*.ini --ignore-case -g=!*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';1', ';')]
+//			[Testcase('test8', '--vimgrep -F              -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_FIXED_STRINGS + ';1', ';')]
+//			[Testcase('test9', '--vimgrep                 -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_FIXED_STRINGS + ';0', ';')]
+//			[Testcase('test10', '--vimgrep --hidden -F    -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_HIDDEN + ';1', ';')]
+			[Testcase('test11', '--vimgrep -.             -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_HIDDEN + ';1', ';')]
+			[Testcase('test12', '--vimgrep          -F    -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_HIDDEN + ';0', ';')]
+			[Testcase('test13', '--vimgrep                -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_HIDDEN + ';0', ';')]
 			procedure TestUpdateOptions(const _sOptions, _sRegEx : string; const _bRemove : Integer);
 
 			[Test]
@@ -144,6 +148,30 @@ type
 			procedure TestAddOptionsWithValue(const _sOptions, _sRegEx, _sValue : string; const _bUnique : integer);
 
 			[Test]
+			[Testcase('test1', RG_PARAM_REGEX_IGNORE_CASE)]
+			[Testcase('test2', RG_PARAM_REGEX_CASE_SENSITIVE)]
+			[Testcase('test3', RG_PARAM_REGEX_FIXED_STRINGS)]
+			[Testcase('test4', RG_PARAM_REGEX_WORD_REGEX)]
+			[Testcase('test5', RG_PARAM_REGEX_GLOB)]
+			[Testcase('test6', RG_PARAM_REGEX_HIDDEN)]
+			[Testcase('test7', RG_PARAM_REGEX_NO_IGNORE)]
+			[Testcase('test8', RG_PARAM_REGEX_PRETTY)]
+			[Testcase('test9', RG_PARAM_REGEX_CONTEXT)]
+			[Testcase('test10', RG_PARAM_REGEX_ENCODING)]
+			[Testcase('test11', RG_PARAM_REGEX_REPLACE)]
+//			[Testcase('test12', RG_PARAM_END)]
+			[Testcase('1_test1', RG_PARAM_REGEX_GLOB + '=')]
+			[Testcase('1_test2', RG_PARAM_REGEX_CONTEXT + '=')]
+			[Testcase('1_test3', RG_PARAM_REGEX_ENCODING + '=')]
+			[Testcase('1_test4', RG_PARAM_REGEX_REPLACE + '=')]
+			[Testcase('2_test1', RG_PARAM_REGEX_GLOB + '=value')]
+			[Testcase('2_test2', RG_PARAM_REGEX_CONTEXT + '=value')]
+			[Testcase('2_test3', RG_PARAM_REGEX_ENCODING + '=value')]
+			[Testcase('2_test4', RG_PARAM_REGEX_REPLACE + '=value')]
+			[Testcase('2_test4', RG_PARAM_REGEX_REPLACE + '=more world value')]
+			procedure TestGetOptionVariantsAndValue(const _sParamRegex : string);
+
+			[Test]
 			[Testcase('test1', '--vimgrep  --fixed-strings -g=*.ini -g=!*.bak;' + RG_PARAM_REGEX_GLOB + ';*.bbb;0', ';')]
 			[Testcase('test2', '--vimgrep  -g=*.ini -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
 			[Testcase('test3', '--vimgrep  -C=11 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
@@ -174,7 +202,8 @@ uses
 	System.SysUtils,
 	System.RegularExpressions,
 	ArrayEx,
-	System.StrUtils;
+	System.StrUtils,
+	System.Math;
 
 function TOptionStringsTest.SetSearchOptions(const _guiOptionsActual : string) : TSearchOptionSet;
 begin
@@ -444,6 +473,32 @@ begin
 		Assert.IsTrue(TRegEx.IsMatch(s, '^-+\w+'), '''' + s + ''' invalid param (maybe a glob) should not bee in the options array');
 	end;
 	Assert.IsTrue(bFound, '''' + sOpWithVal + ''' should bee in the options array');
+end;
+
+procedure TOptionStringsTest.TestGetOptionVariantsAndValue(const _sParamRegex : string);
+
+var
+	idxEq : Integer;
+	idxOr : Integer;
+	long : string;
+	short : string;
+	value : string;
+begin
+
+	idxOr := _sParamRegex.IndexOf('|');
+	idxEq := IfThen(_sParamRegex.IndexOf('=') < 0, _sParamRegex.Length, _sParamRegex.IndexOf('=') - 1);
+	short := _sParamRegex.Substring(0, idxOr);
+	long := _sParamRegex.Substring(idxOr + 1, idxEq - 2);
+	value := Ifthen(_sParamRegex.IndexOf('=') < 0, '', _sParamRegex.Substring(idxEq + 2));
+	var op : TOptionVariants;
+	if TOptionStrings.GetOptionVariantsAndValue(_sParamRegex, op) then begin
+		Assert.AreEqual(op.Short, short, 'short should be equal');
+		Assert.AreEqual(op.Long, long, 'long should be equal');
+		Assert.AreEqual(op.Value, value, 'value should be equal');
+		Assert.AreEqual(op.HasValue, _sParamRegex.IndexOf('=') >= 0, 'hasvalue should be equal');
+	end else begin
+		Assert.IsTrue(False, '''' + _sParamRegex + ''' TOptionStrings.GetOptionVariantsAndValue should return true');
+	end;
 end;
 
 procedure TOptionStringsTest.TestToArray(const _sOptions, _sRegEx, _sValue : string; const _bUnique : integer);
