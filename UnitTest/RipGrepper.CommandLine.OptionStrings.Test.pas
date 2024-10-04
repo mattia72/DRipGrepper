@@ -45,16 +45,16 @@ type
 			procedure TestIsOptionSetWithValue(const _sOptions, _sParamRegex, _sValue : string; const _bOk : integer);
 
 			[Test]
-//			[Testcase('test1', '--vimgrep --fixed-strings -g=*.ini --ignore-case -g=!*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';1', ';')]
-//			[Testcase('test2', '--vimgrep --fixed-strings -g=*.ini -i         -g=!*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';1', ';')]
-//			[Testcase('test3', '--vimgrep --fixed-strings -g=*.ini -i         -g=!*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';1', ';')]
-//			[Testcase('test4', '--vimgrep --fixed-strings -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';0', ';')]
-//			[Testcase('test5', '--vimgrep --fixed-strings -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_FIXED_STRINGS + ';1', ';')]
-//			[Testcase('test6', '--vimgrep --fixed-strings -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_GLOB + ';1', ';')]
-//			[Testcase('test7', '--vimgrep --fixed-strings -g=*.ini --ignore-case -g=!*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';1', ';')]
-//			[Testcase('test8', '--vimgrep -F              -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_FIXED_STRINGS + ';1', ';')]
-//			[Testcase('test9', '--vimgrep                 -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_FIXED_STRINGS + ';0', ';')]
-//			[Testcase('test10', '--vimgrep --hidden -F    -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_HIDDEN + ';1', ';')]
+			[Testcase('test1', '--vimgrep --fixed-strings -g=*.ini --ignore-case -g=!*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';1', ';')]
+			[Testcase('test2', '--vimgrep --fixed-strings -g=*.ini -i         -g=!*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';1', ';')]
+			[Testcase('test3', '--vimgrep --fixed-strings -g=*.ini -i         -g=!*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';1', ';')]
+			[Testcase('test4', '--vimgrep --fixed-strings -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';0', ';')]
+			[Testcase('test5', '--vimgrep --fixed-strings -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_FIXED_STRINGS + ';1', ';')]
+			[Testcase('test6', '--vimgrep --fixed-strings -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_GLOB + ';1', ';')]
+			[Testcase('test7', '--vimgrep --fixed-strings -g=*.ini --ignore-case -g=!*.bak;' + RG_PARAM_REGEX_IGNORE_CASE + ';1', ';')]
+			[Testcase('test8', '--vimgrep -F              -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_FIXED_STRINGS + ';1', ';')]
+			[Testcase('test9', '--vimgrep                 -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_FIXED_STRINGS + ';0', ';')]
+			[Testcase('test10', '--vimgrep --hidden -F    -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_HIDDEN + ';1', ';')]
 			[Testcase('test11', '--vimgrep -.             -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_HIDDEN + ';1', ';')]
 			[Testcase('test12', '--vimgrep          -F    -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_HIDDEN + ';0', ';')]
 			[Testcase('test13', '--vimgrep                -g=*.ini            -g=!*.bak;' + RG_PARAM_REGEX_HIDDEN + ';0', ';')]
@@ -476,7 +476,6 @@ begin
 end;
 
 procedure TOptionStringsTest.TestGetOptionVariantsAndValue(const _sParamRegex : string);
-
 var
 	idxEq : Integer;
 	idxOr : Integer;
@@ -487,7 +486,7 @@ begin
 
 	idxOr := _sParamRegex.IndexOf('|');
 	idxEq := IfThen(_sParamRegex.IndexOf('=') < 0, _sParamRegex.Length, _sParamRegex.IndexOf('=') - 1);
-	short := _sParamRegex.Substring(0, idxOr);
+	short := _sParamRegex.Substring(0, idxOr).Replace('\', '');
 	long := _sParamRegex.Substring(idxOr + 1, idxEq - 2);
 	value := Ifthen(_sParamRegex.IndexOf('=') < 0, '', _sParamRegex.Substring(idxEq + 2));
 	var op : TOptionVariants;

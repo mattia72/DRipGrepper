@@ -8,12 +8,17 @@ uses
 
 type
 	TOptionVariants = record
-		Short : string;
-		Long : string;
-		Value : string;
-		HasValue : Boolean;
-		function ToLongString : string;
-		function ToShortString : string;
+		private
+			FShort : string;
+			procedure SetShort(const Value : string);
+
+		public
+			Long : string;
+			Value : string;
+			HasValue : Boolean;
+			function ToLongString : string;
+			function ToShortString : string;
+			property Short : string read FShort write SetShort;
 	end;
 
 	TOptionStrings = record
@@ -121,7 +126,7 @@ begin
 	if _sParam.IsEmpty then begin
 		Exit;
 	end;
-	if (_sParam = RG_PARAM_END) or (_sParam = '-') or _bAsIs then begin
+	if (_sParam = RG_PARAM_END) or (_sParam = '-') or (_sParam = '-.') or _bAsIs then begin
 		FOptions.RemoveAll(_sParam);
 	end else begin
 		RemoveAllAsBoundedParam(_sParam);
@@ -170,14 +175,14 @@ var
 	m : TMatch;
 begin
 	Result := False;
-//	if _sParamRegex = RG_PARAM_END then begin
-//		_opVariants.Short := RG_PARAM_END;
-//		_opVariants.Long := RG_PARAM_END;
-//		_opVariants.Value := '';
-//		_opVariants.HasValue := False;
-//		Result := True;
-//        Exit;
-//	end;
+	// if _sParamRegex = RG_PARAM_END then begin
+	// _opVariants.Short := RG_PARAM_END;
+	// _opVariants.Long := RG_PARAM_END;
+	// _opVariants.Value := '';
+	// _opVariants.HasValue := False;
+	// Result := True;
+	// Exit;
+	// end;
 	m := TRegex.Match(_sParamRegex, RG_PARAM_REGEX_VARIANT_WITH_OPTIONAL_VALUE);
 	if m.Success then begin
 		case m.Groups.Count of
@@ -329,6 +334,11 @@ begin
 	var
 	arr := GetMatchedIndexes(TOptionsHelper.GetBoundedParamRegex(RG_PARAM_END));
 	Assert(arr.Count <= 1, AsString() + CRLF + 'Option list is corrupt. -- should appear only once!');
+end;
+
+procedure TOptionVariants.SetShort(const Value : string);
+begin
+	FShort := Value.Replace('\','');
 end;
 
 function TOptionVariants.ToLongString : string;
