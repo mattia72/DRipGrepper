@@ -104,8 +104,10 @@ begin
 	try
 		cmdLine.Add(RipGrepPath);
 		cmdLine.AddStrings(RipGrepArguments.GetValues());
-		cmdLine.Delimiter := ' ';
-		Result := cmdLine.DelimitedText;
+		// DelimitedText puts unnecessary quotes so we build it
+		for var s in cmdLine do begin
+			Result := Result + ' ' + s;
+		end;
 	finally
 		cmdLine.Free;
 	end;

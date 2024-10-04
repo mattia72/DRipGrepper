@@ -44,8 +44,10 @@ type
 			class function GetOptionVariantsAndValue(const _sParamRegex : string; out _opVariants : TOptionVariants) : Boolean; static;
 			function IsOptionSet(_sParamRegex : string; const _sParamValue : string = '') : Boolean; overload;
 			function IsSetOptionWithValue(const _sOption : string; const _sValue : string = '') : Boolean;
-			class function MaybeQuoteIfNotQuoted(const _s : string; const _delimiter : string = '"') : string; static;
+			class function MaybeQuoteIfNotQuoted(const _s : string; const _delimiter : char = '"'): string; static;
+			class function MaybeDeQuoteIfQuoted(const _s : string; const _delimiter : char = '"'): string; static;
 			procedure RemoveOption(const _paramRegex : string);
+			procedure RemoveOptions(const _paramRegexes: TArrayEx<string>);
 			procedure UpdateFileMasks(_sNewMasks : string); overload;
 	end;
 
@@ -246,11 +248,10 @@ begin
 	Result := TRegEx.IsMatch(AsString, TOptionsHelper.GetBoundedParamWithValueRegex(_sOption, _sValue));
 end;
 
-class function TOptionStrings.MaybeQuoteIfNotQuoted(const _s : string; const _delimiter : string = '"') : string;
+class function TOptionStrings.MaybeQuoteIfNotQuoted(const _s : string; const _delimiter : char = '"') : string;
 begin
 	if (Pos(' ', _s) <> 0) and not TRegEx.IsMatch(_s, '^' + _delimiter + '.*' + _delimiter + '$') then begin
-		Result := _delimiter + _s + _delimiter
-		// _s.QuotedString ?
+		Result := _s.QuotedString(_delimiter);
 	end else begin
 		Result := _s;
 	end;
@@ -274,6 +275,15 @@ begin
 		end else begin
 			Result := True;
 		end;
+	end;
+end;
+
+class function TOptionStrings.MaybeDeQuoteIfQuoted(const _s : string; const _delimiter : char = '"'): string;
+begin
+	if (Pos(' ', _s) <> 0) and TRegEx.IsMatch(_s, '^' + _delimiter + '.*' + _delimiter + '$') then begin
+		Result := _s.DeQuotedString(_delimiter);
+	end else begin
+		Result := _s;
 	end;
 end;
 
@@ -314,6 +324,13 @@ begin
 	end;
 end;
 
+procedure TOptionStrings.RemoveOptions(const _paramRegexes: TArrayEx<string>);
+begin
+	for var s in _paramRegexes do begin
+         RemoveOption(s);
+    end;
+end;
+
 procedure TOptionStrings.UpdateFileMasks(_sNewMasks : string);
 var
 	oldMaskOptions : TArrayEx<string>;
@@ -338,7 +355,7 @@ end;
 
 procedure TOptionVariants.SetShort(const Value : string);
 begin
-	FShort := Value.Replace('\','');
+	FShort := Value.Replace('\', '');
 end;
 
 function TOptionVariants.ToLongString : string;
