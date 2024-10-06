@@ -45,4 +45,5 @@ Marked with checkmark if fixed, else it is known bug.
 - [ ] drip icon in menu has no transparent background
 - [ ] history item delete mit `DEL` key, deletes the first item
 - [x] extension : file name not visible
-- [ ] --hidden not updated 
+- [x] --hidden not updated 
+- [ ] if an opened history search item is changed to replace, results are empty.only if after refresh will grid filled
