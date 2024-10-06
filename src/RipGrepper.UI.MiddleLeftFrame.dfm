@@ -39,6 +39,7 @@ object MiddleLeftFrame: TMiddleLeftFrame
     OnDrawText = VstHistoryDrawText
     OnFreeNode = VstHistoryFreeNode
     OnGetText = VstHistoryGetText
+    OnPaintText = VstHistoryPaintText
     OnGetHintKind = VstHistoryGetHintKind
     OnGetHint = VstHistoryGetHint
     OnMeasureItem = VstHistoryMeasureItem
@@ -50,7 +51,12 @@ object MiddleLeftFrame: TMiddleLeftFrame
       item
         Position = 0
         Text = 'Search'
-        Width = 603
+        Width = 62
+      end
+      item
+        Position = 1
+        Text = 'Replace'
+        Width = 537
       end>
   end
   object ActionList: TActionList

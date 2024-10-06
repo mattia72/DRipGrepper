@@ -48,8 +48,14 @@ type
 		procedure VstHistoryMeasureItem(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; var NodeHeight : Integer);
 		procedure VstHistoryNodeClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
 		procedure VstHistoryNodeDblClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
+		procedure VstHistoryPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
+			TextType : TVSTTextType);
 
-		private
+		private const
+			COL_SEARCH_TEXT = 0;
+			COL_REPLACE_TEXT = 1;
+
+		var
 			FCurrentHistoryItemIndex : Integer;
 			FData : TRipGrepperData;
 			FHistoryObjectList : THistoryObjectArray;
@@ -201,8 +207,16 @@ begin
 	Data := VstHistory.GetNodeData(Node);
 	Data^.SearchText := Settings.LastSearchText;
 	Data^.IsReplaceMode := Settings.IsReplaceMode;
-	Data^.ReplaceText := Settings.LastReplaceText;
-	VstHistory.MultiLine[Node] := True;
+	Data^.ReplaceText := '';
+
+	if Settings.IsReplaceMode then begin
+		Node := VstHistory.AddChild(Node);
+		Data := VstHistory.GetNodeData(Node);
+		Data^.SearchText := '';
+		Data^.ReplaceText := Settings.LastReplaceText;
+	end;
+
+	// VstHistory.MultiLine[Node] := True;
 end;
 
 procedure TMiddleLeftFrame.ChangeDataHistItemObject(_ho : IHistoryItemObject);
@@ -322,6 +336,7 @@ begin
 	FCurrentHistoryItemIndex := -1;
 	FHistoryObjectList.Clear();
 
+	VstHistory.TreeOptions.AutoOptions := VstHistory.TreeOptions.AutoOptions + [toAutoExpand, toAutoSpanColumns]; //
 	VstHistory.TreeOptions.StringOptions := VstHistory.TreeOptions.StringOptions + [toShowStaticText];
 	VstHistory.TreeOptions.PaintOptions := VstHistory.TreeOptions.PaintOptions + [toUseExplorerTheme];
 	VstHistory.TreeOptions.MiscOptions := VstHistory.TreeOptions.MiscOptions + [TVTMiscOption.toVariablenodeHeight];
@@ -358,12 +373,12 @@ var
 	rectTemp : TRect;
 begin
 	case Column of
-		0 : begin
+		COL_SEARCH_TEXT : begin
 			// First, store the default font size and color number
+			DefaultDraw := False;
 			var
 			backup := TDrawParams.Save(TargetCanvas);
 
-			DefaultDraw := False;
 			lineBegin := Text.LastIndexOf(CRLF);
 			sSearchText := Text.Substring(0, lineBegin);
 
@@ -388,7 +403,7 @@ begin
 			size := TFontSizeHelper.TrueFontSize(TargetCanvas.Font, sStatistic);
 			TargetCanvas.TextOut(CellRect.Left + TREEVIEW_FONTSPACE * 4, CellRect.BottomRight.Y - size.cy, sStatistic);
 
-			//backup.Load(TargetCanvas);
+			// backup.Load(TargetCanvas);
 		end;
 	end;
 end;
@@ -427,25 +442,29 @@ var
 	Data : PVSHistoryNodeData;
 begin
 	Data := VstHistory.GetNodeData(Node);
-
-	if TextType = ttNormal then begin
-		// if Data.IsReplaceMode then begin
-		// case Column of
-		// 0 :
-		CellText := Data.SearchText + CRLF + MainFrame.GetCounterText(GetHistoryObject(Node.Index));
-		// 1 :
-		// CellText := Data.ReplaceText
-		// end;
-		//
-		// end else begin
-		// case Column of
-		// 0 :
-		// CellText := Data.SearchText + CRLF + GetCounterText(GetHistoryObject(Node.Index));
-		// end;
-		// end;
-	end else begin // ttStatic not shown in Multiline cell
-		CellText := MainFrame.GetCounterText(GetHistoryObject(Node.Index));
+	case Column of
+		COL_SEARCH_TEXT : begin
+			if TextType = ttNormal then begin
+				CellText := Data.SearchText; // + CRLF + MainFrame.GetCounterText(GetHistoryObject(Node.Index));
+			end else begin
+				// only for root
+				if not Data.SearchText.IsEmpty then begin
+					// ttStatic not shown in Multiline cell
+					CellText := MainFrame.GetCounterText(GetHistoryObject(Node.Index));
+				end;
+			end;
+		end;
+		COL_REPLACE_TEXT : begin
+			if Data.IsReplaceMode then begin
+				if TextType = ttNormal then begin
+					CellText := Data.ReplaceText;
+				end else begin
+					CellText := '';
+				end;
+			end;
+		end;
 	end;
+
 end;
 
 procedure TMiddleLeftFrame.VstHistoryMeasureItem(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
@@ -471,6 +490,21 @@ begin
 	TDebugUtils.DebugMessage('TMiddleLeftFrame.VstHistoryNodeDblClick: idx = ' + HitInfo.HitNode.Index.ToString);
 	VstHistoryNodeClick(Sender, HitInfo);
 	ActionOpenSearchFormExecute(Sender);
+end;
+
+procedure TMiddleLeftFrame.VstHistoryPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode;
+	Column : TColumnIndex; TextType : TVSTTextType);
+begin
+	if TextType = ttNormal then begin
+		case Column of
+			COL_SEARCH_TEXT : begin
+				TargetCanvas.Font.style := [fsBold];
+				TargetCanvas.Font.Color := TREEVIEW_NORMAL_TEXT_COLOR;
+			end;
+		end;
+	end else begin // ttStatic
+		TargetCanvas.Font.Color := TREEVIEW_STAT_COLOR; // Not shown on MultiLine
+	end;
 end;
 
 end.

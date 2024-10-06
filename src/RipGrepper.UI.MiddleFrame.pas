@@ -113,7 +113,14 @@ type
 		procedure VstResultPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
 			TextType : TVSTTextType);
 
-		private
+		private const
+			COL_HIDDEN = -1;
+			COL_FILE = 0;
+			COL_ROW_NUM = 1;
+			COL_COL_NUM = 2;
+			COL_MATCH_TEXT = 3;
+
+		var
 			FAbortSearch : Boolean;
 			FData : TRipGrepperData;
 			FExeVersion : string;
@@ -1035,13 +1042,13 @@ begin
 		Result := 0
 	else
 		case Column of
-			0 :
+			COL_FILE :
 			Result := CompareText(Data1.FilePath, Data2.FilePath);
-			1 :
+			COL_ROW_NUM :
 			Result := { CompareText(s1, s2) + } CompareValue(Data1.MatchData.Row, Data2.MatchData.Row);
-			2 :
+			COL_COL_NUM :
 			Result := { CompareText(s1, s2) + } CompareValue(Data1.MatchData.Col, Data2.MatchData.Col);
-			3 :
+			COL_MATCH_TEXT :
 			Result := CompareText(Data1.MatchData.LineText, Data2.MatchData.LineText);
 		end;
 end;
@@ -1064,14 +1071,14 @@ var
 	iSpaces, iTabs, matchBegin : Integer;
 begin
 	case Column of
-		0 : begin
+		COL_FILE : begin
 			if MatchStr(Text, [RG_ERROR_MSG_PREFIX, RG_PARSE_ERROR]) then begin
 				DefaultDraw := False;
 				TargetCanvas.Font.Color := TREEVIEW_ERROR_COLOR;
 				TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, Text);
 			end;
 		end;
-		3 : begin
+		COL_MATCH_TEXT : begin
 			case FHistItemObj.ParserType of
 				ptRipGrepSearch, ptRipGrepPrettySearch : begin
 					DefaultDraw := False;
@@ -1137,7 +1144,7 @@ begin
 		case Kind of
 			ikNormal, ikSelected :
 			case Column of
-				0 :
+				COL_FILE :
 				ImageIndex := FIconImgList.GetImgIndex(NodeData^.FilePath);
 			end;
 		end;
@@ -1152,7 +1159,7 @@ begin
 	NodeData := Sender.GetNodeData(Node);
 
 	case Column of
-		- 1, 0 : begin // main column, -1 if columns are hidden, 0 if they are shown
+		COL_HIDDEN, COL_FILE : begin // main column, -1 if columns are hidden, 0 if they are shown
 			if TextType = ttNormal then begin
 				CellText := GetAbsOrRelativePath(NodeData^.FilePath);
 			end else begin // ttStatic
@@ -1162,13 +1169,13 @@ begin
 				end;
 			end;
 		end;
-		1 : begin
+		COL_ROW_NUM : begin
 			CellText := GetRowColText(NodeData.MatchData.Row, TextType);
 		end;
-		2 : begin
+		COL_COL_NUM : begin
 			CellText := GetRowColText(NodeData.MatchData.Col, TextType);
 		end;
-		3 : begin
+		COL_MATCH_TEXT : begin
 			if (TextType = ttNormal) then begin
 				var
 					dummy1, dummy2 : Integer;
@@ -1202,7 +1209,7 @@ Column : TColumnIndex; TextType : TVSTTextType);
 begin
 	if TextType = ttNormal then begin
 		case Column of
-			0 : begin
+			COL_FILE : begin
 				TargetCanvas.Font.style := [fsBold];
 				TargetCanvas.Font.Color := TREEVIEW_NORMAL_TEXT_COLOR;
 			end;
