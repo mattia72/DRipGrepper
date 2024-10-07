@@ -87,7 +87,9 @@ type
 			class function GetIconBitmap(const sFileName : string; _img : TImage) : Vcl.Graphics.TBitmap;
 			class procedure SetTextColorMatch(TargetCanvas : TCanvas);
 			class procedure SetTextColorErrorStaticText(TargetCanvas: TCanvas; const _bError: Boolean);
-			class procedure SetTextColorNormalText(TargetCanvas : TCanvas);
+			class procedure SetTextColorHistorySearchText(TargetCanvas : TCanvas);
+			class procedure SetTextColorHistoryReplaceText(TargetCanvas : TCanvas);
+			class procedure SetTextColorHistoryReplacedText(TargetCanvas : TCanvas);
 			class procedure SetTextColorReplacedText(TargetCanvas : TCanvas);
 			class procedure SetTextColorReplaceText(TargetCanvas : TCanvas);
 	end;
@@ -369,11 +371,25 @@ begin
 		end;
 end;
 
-class procedure TItemDrawer.SetTextColorNormalText(TargetCanvas : TCanvas);
+class procedure TItemDrawer.SetTextColorHistorySearchText(TargetCanvas : TCanvas);
 begin
-	TargetCanvas.Font.Color := HIST_TREEVIEW_SEARCH_TEXT_COLOR;
-	TargetCanvas.Brush.Color := HIST_TREEVIEW_SEARCH_TEXT_BGCOLOR;
+//	TargetCanvas.Font.Color := HIST_TREEVIEW_SEARCH_TEXT_COLOR;
+//	TargetCanvas.Brush.Color := HIST_TREEVIEW_SEARCH_TEXT_BGCOLOR;
 	TargetCanvas.Font.style := HIST_TREEVIEW_SEARCH_TEXT_STYLE;
+end;
+
+class procedure TItemDrawer.SetTextColorHistoryReplaceText(TargetCanvas : TCanvas);
+begin
+//	TargetCanvas.Font.Color := HIST_TREEVIEW_SEARCH_TEXT_COLOR;
+//	TargetCanvas.Brush.Color := HIST_TREEVIEW_SEARCH_TEXT_BGCOLOR;
+	TargetCanvas.Font.style := TREEVIEW_REPLACE_TEXT_STYLE;
+end;
+
+class procedure TItemDrawer.SetTextColorHistoryReplacedText(TargetCanvas : TCanvas);
+begin
+//	TargetCanvas.Font.Color := HIST_TREEVIEW_SEARCH_TEXT_COLOR;
+//	TargetCanvas.Brush.Color := HIST_TREEVIEW_SEARCH_TEXT_BGCOLOR;
+	TargetCanvas.Font.style := TREEVIEW_REPLACED_TEXT_STYLE;
 end;
 
 class procedure TItemDrawer.SetTextColorReplacedText(TargetCanvas : TCanvas);
