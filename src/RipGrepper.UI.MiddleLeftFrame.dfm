@@ -36,7 +36,6 @@ object MiddleLeftFrame: TMiddleLeftFrame
     TabOrder = 0
     TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages]
     TreeOptions.SelectionOptions = [toFullRowSelect]
-    OnDrawText = VstHistoryDrawText
     OnFreeNode = VstHistoryFreeNode
     OnGetText = VstHistoryGetText
     OnPaintText = VstHistoryPaintText
@@ -51,12 +50,13 @@ object MiddleLeftFrame: TMiddleLeftFrame
       item
         Position = 0
         Text = 'Search'
-        Width = 62
+        Width = 80
       end
       item
+        Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coSmartResize, coAllowFocus, coEditable, coStyleColor]
         Position = 1
         Text = 'Replace'
-        Width = 537
+        Width = 519
       end>
   end
   object ActionList: TActionList

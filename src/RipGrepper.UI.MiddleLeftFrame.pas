@@ -37,8 +37,6 @@ type
 		procedure ActionHistoryDeleteUpdate(Sender : TObject);
 		procedure ActionOpenSearchFormExecute(Sender : TObject);
 		procedure PopupMenuHistoryPopup(Sender : TObject);
-		procedure VstHistoryDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
-			const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
 		procedure VstHistoryFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
 		procedure VstHistoryGetHint(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
 			var LineBreakStyle : TVTTooltipLineBreakStyle; var HintText : string);
@@ -61,10 +59,14 @@ type
 			FHistoryObjectList : THistoryObjectArray;
 			FSettings : TRipGrepperSettings;
 			procedure AddVstHistItem;
+			procedure AddVstReplaceNode(Node : PVirtualNode);
+			procedure ChangeVstReplaceNode(Node : PVirtualNode; const _Data : PVSHistoryNodeData = nil);
 			function GetData : TRipGrepperData;
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
 			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
 			function GetSettings : TRipGrepperSettings;
+			procedure ShowReplaceColumn(const _bShow : Boolean);
+			procedure UpdateReplaceColumnVisible;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
 			{ Private-Deklarationen }
@@ -192,6 +194,9 @@ begin
 		AddVstHistItem;
 	end;
 	ChangeHistoryNodeText;
+
+	UpdateReplaceColumnVisible;
+
 	MainFrame.UpdateRipGrepArgumentsInHistObj;
 	MainFrame.UpdateHistObject;
 	ClearHistoryObject();
@@ -206,17 +211,24 @@ begin
 	Node := VstHistory.AddChild(nil);
 	Data := VstHistory.GetNodeData(Node);
 	Data^.SearchText := Settings.LastSearchText;
-	Data^.IsReplaceMode := Settings.IsReplaceMode;
-	Data^.ReplaceText := '';
+	Data^.ReplaceData.IsReplaceMode := Settings.IsReplaceMode;
+	Data^.ReplaceData.ReplaceText := '';
 
 	if Settings.IsReplaceMode then begin
-		Node := VstHistory.AddChild(Node);
-		Data := VstHistory.GetNodeData(Node);
-		Data^.SearchText := '';
-		Data^.ReplaceText := Settings.LastReplaceText;
+		AddVstReplaceNode(Node);
 	end;
-
 	// VstHistory.MultiLine[Node] := True;
+end;
+
+procedure TMiddleLeftFrame.AddVstReplaceNode(Node : PVirtualNode);
+var
+	Data : PVSHistoryNodeData;
+begin
+	Node := VstHistory.AddChild(Node);
+	Data := VstHistory.GetNodeData(Node);
+	Data^.SearchText := '';
+	Data^.ReplaceData.IsReplaceMode := True;
+	Data^.ReplaceData.ReplaceText := Settings.LastReplaceText;
 end;
 
 procedure TMiddleLeftFrame.ChangeDataHistItemObject(_ho : IHistoryItemObject);
@@ -240,8 +252,34 @@ begin
 		[Data^.SearchText, Settings.LastSearchText]);
 	if not Settings.LastSearchText.IsEmpty then begin
 		Data^.SearchText := Settings.LastSearchText;
-		Data^.IsReplaceMode := Settings.IsReplaceMode;
-		Data^.ReplaceText := Settings.LastReplaceText;
+		var
+		bChangedReplaceMode := Data^.ReplaceData.IsReplaceMode <> Settings.IsReplaceMode;
+		if bChangedReplaceMode then begin
+			ChangeVstReplaceNode(Node, Data);
+		end;
+	end;
+end;
+
+procedure TMiddleLeftFrame.ChangeVstReplaceNode(Node : PVirtualNode; const _Data : PVSHistoryNodeData = nil);
+var
+	Data : PVSHistoryNodeData;
+begin
+	TDebugUtils.DebugMessage('TMiddleLeftFrame.ChangeVstReplaceNode');
+	Data := _Data;
+	if not Assigned(Data) then begin
+		Data := VstHistory.GetNodeData(Node);
+	end;
+
+	Data^.ReplaceData.IsReplaceMode := Settings.IsReplaceMode;
+	if Data^.ReplaceData.IsReplaceMode then begin
+		if Node.ChildCount = 0 then begin
+			AddVstReplaceNode(Node);
+			Data^.ReplaceData.ReplaceText := '';
+		end;
+	end else begin
+		if Node.ChildCount > 0 then begin
+			VstHistory.DeleteNode(Node.FirstChild);
+		end;
 	end;
 end;
 
@@ -310,7 +348,6 @@ var
 	node : PVirtualNode;
 begin
 	Result := nil;
-
 	node := Tree.GetFirstChildNoInit(nil);
 	while Assigned(node) do begin
 		if Integer(node.Index) = index then begin
@@ -340,7 +377,10 @@ begin
 	VstHistory.TreeOptions.StringOptions := VstHistory.TreeOptions.StringOptions + [toShowStaticText];
 	VstHistory.TreeOptions.PaintOptions := VstHistory.TreeOptions.PaintOptions + [toUseExplorerTheme];
 	VstHistory.TreeOptions.MiscOptions := VstHistory.TreeOptions.MiscOptions + [TVTMiscOption.toVariablenodeHeight];
+
 	VstHistory.NodeDataSize := SizeOf(TVSHistoryNodeData);
+
+	ShowReplaceColumn(False);
 end;
 
 procedure TMiddleLeftFrame.PopupMenuHistoryPopup(Sender : TObject);
@@ -364,48 +404,29 @@ begin
 	end;
 end;
 
-procedure TMiddleLeftFrame.VstHistoryDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
-	const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
-var
-	sSearchText, sStatistic : string;
-	lineBegin : Integer;
-	size : Winapi.Windows.TSize;
-	rectTemp : TRect;
+procedure TMiddleLeftFrame.ShowReplaceColumn(const _bShow : Boolean);
 begin
-	case Column of
-		COL_SEARCH_TEXT : begin
-			// First, store the default font size and color number
-			DefaultDraw := False;
-			var
-			backup := TDrawParams.Save(TargetCanvas);
+	if _bShow then begin
+		VstHistory.Header.Columns[COL_REPLACE_TEXT].Options := VstHistory.Header.Columns[COL_REPLACE_TEXT].Options + [coVisible];
+	end else begin
+		VstHistory.Header.Columns[COL_REPLACE_TEXT].Options := VstHistory.Header.Columns[COL_REPLACE_TEXT].Options - [coVisible];
+	end;
+	VstHistory.Header.AutoSizeIndex := 0; // VstHistory.Header.Columns.GetLastVisibleColumn();
+end;
 
-			lineBegin := Text.LastIndexOf(CRLF);
-			sSearchText := Text.Substring(0, lineBegin);
-
-			TargetCanvas.Font.Color := HIST_TREEVIEW_SEARCH_TEXT_COLOR;
-			TargetCanvas.Brush.Color := HIST_TREEVIEW_SEARCH_TEXT_BGCOLOR;
-			TargetCanvas.Font.style := HIST_TREEVIEW_SEARCH_TEXT_STYLE;
-
-			// TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, sSearchText);
-			rectTemp := CellRect;
-			Winapi.Windows.DrawText(TargetCanvas.Handle, pwidechar(sSearchText), length(sSearchText), rectTemp,
-				DT_NOPREFIX or DT_WORDBREAK);
-
-			sStatistic := Text.Substring(lineBegin + 2);
-			if -1 <> sStatistic.IndexOf(TREEVIEW_HISTORY_COUNTER_ERROR_PREFIX) then begin
-				TargetCanvas.Font.Color := TREEVIEW_ERROR_COLOR;
-				TargetCanvas.Font.style := [fsBold];
-			end else begin
-				TargetCanvas.Font.Color := TREEVIEW_STAT_COLOR;
-				TargetCanvas.Font.style := [];
-			end;
-
-			size := TFontSizeHelper.TrueFontSize(TargetCanvas.Font, sStatistic);
-			TargetCanvas.TextOut(CellRect.Left + TREEVIEW_FONTSPACE * 4, CellRect.BottomRight.Y - size.cy, sStatistic);
-
-			// backup.Load(TargetCanvas);
+procedure TMiddleLeftFrame.UpdateReplaceColumnVisible;
+var
+	bFoundReplace : Boolean;
+begin
+	bFoundReplace := False;
+	for var node in VstHistory.Nodes do begin
+		if node.ChildCount > 0 then begin
+			bFoundReplace := True;
+			break;
 		end;
 	end;
+
+	ShowReplaceColumn(bFoundReplace);
 end;
 
 procedure TMiddleLeftFrame.VstHistoryFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
@@ -414,7 +435,7 @@ var
 begin
 	Data := VstHistory.GetNodeData(Node);
 	Data.SearchText := '';
-	Data.ReplaceText := '';
+	Data.ReplaceData.ReplaceText := '';
 	// Data.hio.Free;
 end;
 
@@ -455,11 +476,11 @@ begin
 			end;
 		end;
 		COL_REPLACE_TEXT : begin
-			if Data.IsReplaceMode then begin
+			if Data.ReplaceData.IsReplaceMode then begin
 				if TextType = ttNormal then begin
-					CellText := Data.ReplaceText;
+					CellText := Data.ReplaceData.ReplaceText;
 				end else begin
-					CellText := '';
+					CellText := ' ';
 				end;
 			end;
 		end;
@@ -477,12 +498,19 @@ begin
 end;
 
 procedure TMiddleLeftFrame.VstHistoryNodeClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
+var
+	idx : integer;
 begin
-	if (CurrentHistoryItemIndex = Integer(HitInfo.HitNode.Index)) then
-		Exit;
+	if HitInfo.HitNode.Parent = VstHistory.RootNode then begin
+		idx := HitInfo.HitNode.Parent.Index;
+	end else begin
+		idx := HitInfo.HitNode.Index;
+	end;
 
-	CurrentHistoryItemIndex := HitInfo.HitNode.Index;
-	MainFrame.UpdateHistObjectAndGui;
+	if (CurrentHistoryItemIndex <> idx) then begin
+		CurrentHistoryItemIndex := idx;
+		MainFrame.UpdateHistObjectAndGui;
+	end;
 end;
 
 procedure TMiddleLeftFrame.VstHistoryNodeDblClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
@@ -495,15 +523,24 @@ end;
 procedure TMiddleLeftFrame.VstHistoryPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode;
 	Column : TColumnIndex; TextType : TVSTTextType);
 begin
+	var
+		hio : IHistoryItemObject := GetHistoryObject(Node.Index);
+
 	if TextType = ttNormal then begin
 		case Column of
 			COL_SEARCH_TEXT : begin
-				TargetCanvas.Font.style := [fsBold];
-				TargetCanvas.Font.Color := TREEVIEW_NORMAL_TEXT_COLOR;
+				if hio.IsReplaceMode then begin
+					TItemDrawer.SetTextColorHistoryReplacedText(TargetCanvas);
+				end else begin
+					TItemDrawer.SetTextColorHistorySearchText(TargetCanvas);
+				end;
 			end;
-		end;
+			COL_REPLACE_TEXT : begin
+				TItemDrawer.SetTextColorHistoryReplaceText(TargetCanvas);
+			end;
+		end
 	end else begin // ttStatic
-		TargetCanvas.Font.Color := TREEVIEW_STAT_COLOR; // Not shown on MultiLine
+		TItemDrawer.SetTextColorErrorStaticText(TargetCanvas, hio.ErrorCount > 0);
 	end;
 end;
 
