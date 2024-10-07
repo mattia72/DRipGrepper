@@ -29,6 +29,7 @@ type
 			FMatches : TParsedObjectRowCollection;
 			FNoMatchFound : Boolean;
 			FParserType : TParserType;
+			FReplaceText : string;
 			FRipGrepArguments : TRipGrepArguments;
 			FSearchFormSettings : TSearchFormSettings;
 			FRipGrepResult : Integer;
@@ -81,7 +82,7 @@ type
 			property ParserType : TParserType read GetParserType write SetParserType;
 			property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings write SetSearchFormSettings;
 			property SearchText : string read GetSearchText;
-			property ReplaceText : string read GetReplaceText;
+			property ReplaceText : string read GetReplaceText write FReplaceText;
 
 	end;
 
@@ -111,6 +112,8 @@ begin
 	RipGrepArguments.Assign(_settings.GetRipGrepArguments);
 	GuiSearchTextParams.Copy(_settings.RipGrepParameters.GuiSearchTextParams);
 	SearchFormSettings.Copy(_settings.SearchFormSettings);
+	_settings.IsReplaceMode := IsReplaceMode;
+	_settings.LastReplaceText := FReplaceText;
 end;
 
 function THistoryItemObject.GetFileCount : integer;
@@ -189,6 +192,8 @@ begin
 	_settings.RipGrepParameters.RipGrepArguments.Assign(RipGrepArguments);
 	_settings.RipGrepParameters.GuiSearchTextParams.Copy(GuiSearchTextParams);
 	_settings.SearchFormSettings.Copy(SearchFormSettings);
+	IsReplaceMode := _settings.IsReplaceMode;
+	FReplaceText := _settings.LastReplaceText;
 end;
 
 function THistoryItemObject.GetElapsedTimeText : string;
@@ -226,7 +231,7 @@ end;
 
 function THistoryItemObject.GetReplaceText : string;
 begin
-	// TODO: replace text in hist?
+	Result := FReplaceText;
 end;
 
 function THistoryItemObject.GetSearchFormSettings : TSearchFormSettings;
