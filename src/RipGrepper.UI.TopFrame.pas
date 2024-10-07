@@ -325,10 +325,7 @@ begin
 	var
 	idx := integer(Settings.NodeLookSettings.ShowRelativePath);
 	MainFrame.FileNameType := PARSER_TYPES[idx mod Length(PARSER_TYPES)];
-	var
-	arr := MainFrame.MaxWidths;
-	// MainFrame.VstResult.InitMaxWidths(arr);
-	MainFrame.MaxWidths := arr;
+
 	Settings.StoreViewSettings('ShowRelativePath');
 	MainFrame.VstResult.Repaint;
 end;
