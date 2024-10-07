@@ -44,10 +44,10 @@ type
 			class function GetOptionVariantsAndValue(const _sParamRegex : string; out _opVariants : TOptionVariants) : Boolean; static;
 			function IsOptionSet(_sParamRegex : string; const _sParamValue : string = '') : Boolean; overload;
 			function IsSetOptionWithValue(const _sOption : string; const _sValue : string = '') : Boolean;
-			class function MaybeQuoteIfNotQuoted(const _s : string; const _delimiter : char = '"'): string; static;
-			class function MaybeDeQuoteIfQuoted(const _s : string; const _delimiter : char = '"'): string; static;
+			class function MaybeQuoteIfNotQuoted(const _s : string; const _delimiter : char = '"') : string; static;
+			class function MaybeDeQuoteIfQuoted(const _s : string; const _delimiter : char = '"') : string; static;
 			procedure RemoveOption(const _paramRegex : string);
-			procedure RemoveOptions(const _paramRegexes: TArrayEx<string>);
+			procedure RemoveOptions(const _paramRegexes : TArrayEx<string>);
 			procedure UpdateFileMasks(_sNewMasks : string); overload;
 	end;
 
@@ -101,6 +101,8 @@ begin
 end;
 
 class function TOptionStrings.ToArray(const _sOptions : string) : TArrayEx<string>;
+var
+	sLastAllOptions : string;
 begin
 	var
 	arr := _sOptions.Split([' '], TStringSplitOptions.ExcludeEmpty);
@@ -110,10 +112,13 @@ begin
 		if TRegEx.IsMatch(s, regex) then begin
 			Result.Add(s);
 		end else begin
-			var
-			last := Result.Last;
-			Result.Delete(Result.MaxIndex);
-			Result.Add(last + ' ' + s);
+			if Result.Count > 0 then begin
+				sLastAllOptions := Result.Last;
+				Result.Delete(Result.MaxIndex);
+				Result.Add(sLastAllOptions + ' ' + s);
+			end else begin
+                Result.Add(s);
+			end;
 		end;
 	end;
 end;
@@ -278,7 +283,7 @@ begin
 	end;
 end;
 
-class function TOptionStrings.MaybeDeQuoteIfQuoted(const _s : string; const _delimiter : char = '"'): string;
+class function TOptionStrings.MaybeDeQuoteIfQuoted(const _s : string; const _delimiter : char = '"') : string;
 begin
 	if (Pos(' ', _s) <> 0) and TRegEx.IsMatch(_s, '^' + _delimiter + '.*' + _delimiter + '$') then begin
 		Result := _s.DeQuotedString(_delimiter);
@@ -324,11 +329,11 @@ begin
 	end;
 end;
 
-procedure TOptionStrings.RemoveOptions(const _paramRegexes: TArrayEx<string>);
+procedure TOptionStrings.RemoveOptions(const _paramRegexes : TArrayEx<string>);
 begin
 	for var s in _paramRegexes do begin
-         RemoveOption(s);
-    end;
+		RemoveOption(s);
+	end;
 end;
 
 procedure TOptionStrings.UpdateFileMasks(_sNewMasks : string);
