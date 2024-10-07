@@ -51,7 +51,7 @@ type
 	end;
 
 	TFontSizeHelper = class
-		class function TrueFontSize(fnt : TFont; const text : string): Winapi.Windows.TSize;
+		class function TrueFontSize(fnt : TFont; const text : string) : Winapi.Windows.TSize;
 	end;
 
 	TStatusBarAdjuster = class
@@ -85,6 +85,11 @@ type
 			class function DrawCheckBox(_Canvas : TCanvas; _Rect : TRect; _Item : TListItem; _img : TImage) : TRect;
 			class procedure DrawItemOnBitmap(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
 			class function GetIconBitmap(const sFileName : string; _img : TImage) : Vcl.Graphics.TBitmap;
+			class procedure SetTextColorMatch(TargetCanvas : TCanvas);
+			class procedure SetTextColorErrorStaticText(TargetCanvas: TCanvas; const _bError: Boolean);
+			class procedure SetTextColorNormalText(TargetCanvas : TCanvas);
+			class procedure SetTextColorReplacedText(TargetCanvas : TCanvas);
+			class procedure SetTextColorReplaceText(TargetCanvas : TCanvas);
 	end;
 
 	TIconImageList = class
@@ -211,7 +216,8 @@ begin
 	s := _sb.Panels[_idx].Text;
 
 	// calculate the width of the Panel
-	_sb.Panels[_idx].Width := TFontSizeHelper.TrueFontSize(_sb.Font, s).cx + borders[2] * 2 + MARGIN; // vertical border * 2 + 2 extra Pixels
+	_sb.Panels[_idx].Width := TFontSizeHelper.TrueFontSize(_sb.Font, s).cx + borders[2] * 2 + MARGIN;
+	// vertical border * 2 + 2 extra Pixels
 end;
 
 procedure TCanvasHelper.SetAlteringColors(_idx : Integer);
@@ -345,6 +351,45 @@ begin
 	end;
 end;
 
+class procedure TItemDrawer.SetTextColorMatch(TargetCanvas : TCanvas);
+begin
+	TargetCanvas.Font.Color := TREEVIEW_MATCH_TEXT_COLOR;
+	TargetCanvas.Brush.Color := TREEVIEW_MATCH_TEXT_BGCOLOR;
+	TargetCanvas.Font.style := TREEVIEW_MATCH_TEXT_STYLE;
+end;
+
+class procedure TItemDrawer.SetTextColorErrorStaticText(TargetCanvas: TCanvas; const _bError: Boolean);
+begin
+		if _bError then begin
+			TargetCanvas.Font.Color := TREEVIEW_ERROR_COLOR;
+			TargetCanvas.Font.style := [fsBold];
+		end else begin
+			TargetCanvas.Font.Color := TREEVIEW_STAT_COLOR;
+			TargetCanvas.Font.style := [];
+		end;
+end;
+
+class procedure TItemDrawer.SetTextColorNormalText(TargetCanvas : TCanvas);
+begin
+	TargetCanvas.Font.Color := HIST_TREEVIEW_SEARCH_TEXT_COLOR;
+	TargetCanvas.Brush.Color := HIST_TREEVIEW_SEARCH_TEXT_BGCOLOR;
+	TargetCanvas.Font.style := HIST_TREEVIEW_SEARCH_TEXT_STYLE;
+end;
+
+class procedure TItemDrawer.SetTextColorReplacedText(TargetCanvas : TCanvas);
+begin
+	TargetCanvas.Font.Color := TREEVIEW_REPLACED_TEXT_COLOR;
+	TargetCanvas.Brush.Color := TREEVIEW_REPLACED_TEXT_BGCOLOR;
+	TargetCanvas.Font.style := TREEVIEW_REPLACED_TEXT_STYLE;
+end;
+
+class procedure TItemDrawer.SetTextColorReplaceText(TargetCanvas : TCanvas);
+begin
+	TargetCanvas.Font.Color := TREEVIEW_REPLACE_TEXT_COLOR;
+	TargetCanvas.Font.style := TREEVIEW_REPLACE_TEXT_STYLE;
+	TargetCanvas.Brush.Color := TREEVIEW_REPLACE_TEXT_BGCOLOR;
+end;
+
 class function TItemDrawer.ShrinkRect(const r : TRect; const X0, X1, Y0, Y1 : integer) : TRect;
 begin
 	result := r;
@@ -354,7 +399,7 @@ begin
 	dec(result.Bottom, Y1);
 end;
 
-class function TFontSizeHelper.TrueFontSize(fnt : TFont; const text : string): Winapi.Windows.TSize;
+class function TFontSizeHelper.TrueFontSize(fnt : TFont; const text : string) : Winapi.Windows.TSize;
 var
 	dc : hdc;
 begin
@@ -364,7 +409,7 @@ begin
 	ReleaseDC(0, DC);
 end;
 
-class function TBeginEndUpdater.New(_lb : TVirtualStringTree): TBeginEndUpdater;
+class function TBeginEndUpdater.New(_lb : TVirtualStringTree) : TBeginEndUpdater;
 begin
 	Result.VirtualStrTree := _lb;
 	Result.VirtualStrTree.BeginUpdate
