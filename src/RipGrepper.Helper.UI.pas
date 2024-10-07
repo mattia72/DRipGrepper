@@ -58,14 +58,6 @@ type
 		class procedure AutoSizeStatusbarPanel(_sb : TStatusBar; const _idx : Integer);
 	end;
 
-	TListViewHelper = class Helper for TCustomListView
-		function TryGetSelected(out _Idx : Integer) : Boolean;
-		function GetSelectedOrFirst() : TListItem;
-		procedure InitMaxWidths(var _arrMaxWidths : TArray<Integer>);
-		procedure SetAlteringColors(Item : TListItem);
-		procedure SetSelectedColors(State : TOwnerDrawState);
-	end;
-
 	TCanvasHelper = class Helper for Vcl.Graphics.TCanvas
 		procedure SetAlteringColors(_idx : Integer);
 		procedure SetSelectedColors(State : TOwnerDrawState);
@@ -121,59 +113,6 @@ uses
 	Vcl.Dialogs,
 	System.StrUtils;
 
-function TListViewHelper.GetSelectedOrFirst : TListItem;
-var
-	idx : Integer;
-begin
-	if TryGetSelected(idx) then begin
-		Result := Items[idx];
-	end else begin
-		Result := Items[0];
-	end;
-end;
-
-procedure TListViewHelper.InitMaxWidths(var _arrMaxWidths : TArray<Integer>);
-begin
-	if Length(_arrMaxWidths) = 0 then begin
-		for var i := 0 to Columns.Count - 1 do begin
-			_arrMaxWidths := _arrMaxWidths + [0];
-		end;
-	end else begin
-		for var i := 0 to Columns.Count - 1 do begin
-			_arrMaxWidths[i] := 0;
-		end;
-	end;
-end;
-
-procedure TListViewHelper.SetAlteringColors(Item : TListItem);
-begin
-	Self.Canvas.SetAlteringColors(Item.Index);
-end;
-
-procedure TListViewHelper.SetSelectedColors(State : TOwnerDrawState);
-begin
-	Self.Canvas.SetSelectedColors(State);
-end;
-
-{ TCursorSaver }
-
-function TListViewHelper.TryGetSelected(out _Idx : Integer) : Boolean;
-begin
-	_Idx := self.ItemIndex;
-	Result := (_Idx <> -1);
-end;
-
-// procedure TListViewHelper.WMNotify(var AMessage : TWMNotify);
-// begin
-/// /	if (AMessage.NMHdr.hwndFrom = self.Handle) and ((AMessage.NMHdr.code = HDN_ENDTRACK) or (AMessage.NMHdr.code = HDN_TRACK)) then begin
-// if (AMessage.NMHdr.hwndFrom = self.Handle) and ((AMessage.NMHdr.code = HDN_ENDTRACK) or (AMessage.NMHdr.code = HDN_ITEMCHANGING )) then begin
-// TMessage(AMessage).Result := 0;
-// InvalidateRect(self.Handle, nil, true);
-/// /		CodeSite.Send('TListView.WMNotify: HDN_ENDTRACK');
-// end
-// else
-// inherited;
-// end;
 
 procedure TCursorSaver.SetHourGlassCursor;
 begin

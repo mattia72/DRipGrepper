@@ -127,7 +127,6 @@ type
 			FFileNameType : TFileNameType;
 			FHistItemObj : IHistoryItemObject;
 			FIsParsingRunning : Boolean;
-			FMaxWidths : TArray<Integer>;
 			FMeassureFirstDrawEvent : Boolean;
 			FRipGrepTask : ITask;
 			FSettings : TRipGrepperSettings;
@@ -197,7 +196,6 @@ type
 			property FileNameType : TFileNameType read FFileNameType write FFileNameType;
 			property HistItemObj : IHistoryItemObject read FHistItemObj write FHistItemObj;
 			property HistItemObject : IHistoryItemObject read GetHistItemObject write SetHistItemObject;
-			property MaxWidths : TArray<Integer> read FMaxWidths write FMaxWidths;
 			property RipGrepTask : ITask read FRipGrepTask write FRipGrepTask;
 			{ Public-Deklarationen }
 	end;
@@ -682,7 +680,6 @@ end;
 
 procedure TRipGrepperMiddleFrame.OnLastLine(const _iLineNr : Integer);
 begin
-	// ListViewResult.AdjustColumnWidths(MaxWidths);
 	TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.OnLastLine: Last line (%d.) received in %s sec.',
 		[_iLineNr, GetElapsedTime(FswSearchStart)]));
 
@@ -812,11 +809,7 @@ end;
 
 procedure TRipGrepperMiddleFrame.SetColumnWidths;
 begin
-	// TListView_Resize(ListViewResult);
-	// ListView_SetColumnWidth(ListViewResult.Handle, 0, ColumnTextWidth);
-	// ListView_SetColumnWidth(ListViewResult.Handle, 1, ColumnHeaderWidth);
-	// ListView_SetColumnWidth(ListViewResult.Handle, 2, ColumnHeaderWidth);
-	// ListView_SetColumnWidth(ListViewResult.Handle, 3, ColumnTextWidth);
+//
 end;
 
 procedure TRipGrepperMiddleFrame.SetHistItemObject(const Value : IHistoryItemObject);
