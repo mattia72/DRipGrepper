@@ -111,6 +111,7 @@ type
 		property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings write SetSearchFormSettings;
 		property RipGrepResult : Integer read GetRipGrepResult write SetRipGrepResult;
 		property SearchText : string read GetSearchText;
+		property IsReplaceMode : Boolean read GetIsReplaceMode write SetIsReplaceMode;
 		property ReplaceText : string read GetReplaceText;
 		property TotalMatchCount : integer read GetTotalMatchCount;
 	end;
