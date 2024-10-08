@@ -470,6 +470,7 @@ begin
 	UpdateButtonsBySettings;
 	UpdateCheckBoxesBySettings();
 	SetComboItemsAndText(cmbOptions, RG_ARG_OPTIONS, FSettings.ExpertOptionHistory);
+
 	FcmbOptionsOldText := cmbOptions.Text;
 end;
 
@@ -570,7 +571,7 @@ procedure TRipGrepperSearchDialogForm.RemoveNecessaryOptionsFromCmbOptionsText;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.RemoveNecessaryOptionsFromCmbOptionsText');
-	dbgMsg.Msg('Additional Options=' + FParamsSetByGui.ExpertOptions.AsString);
+	dbgMsg.Msg('ExpertOptions=' + FParamsSetByGui.ExpertOptions.AsString);
 
 	// Remove necessary options
 	FParamsSetByGui.ExpertOptions.RemoveOptions(RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS);
@@ -579,7 +580,7 @@ begin
 
 	WriteOptionCtrlToRipGrepParametersSetting;
 
-	dbgMsg.Msg('Additional Options=' + cmbOptions.Text);
+	dbgMsg.Msg('ExpertOptions=' + FParamsSetByGui.ExpertOptions.AsString);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; const _argName : string; const _items : TStrings;
