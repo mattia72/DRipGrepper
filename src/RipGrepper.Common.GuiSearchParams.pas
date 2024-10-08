@@ -23,7 +23,7 @@ type
 			FRgOptions : TOptionStrings;
 			FIsRgExeOptionSet : Boolean;
 			FReplaceText : string;
-			FRgAdditionalOptions : TOptionStrings;
+			FExpertOptions : TOptionStrings;
 
 			function GetEscapedSearchText : string;
 			function GetReplaceText : string;
@@ -70,7 +70,7 @@ type
 			property IsReplaceMode : Boolean read FIsReplaceMode write SetIsReplaceMode;
 			property IsRgExeOptionSet : Boolean read FIsRgExeOptionSet write FIsRgExeOptionSet;
 			property ReplaceText : string read GetReplaceText write FReplaceText;
-			property RgAdditionalOptions : TOptionStrings read FRgAdditionalOptions write FRgAdditionalOptions;
+			property ExpertOptions : TOptionStrings read FExpertOptions write FExpertOptions;
 			property RgOptions : TOptionStrings read FRgOptions write SetRgOptions;
 			property SearchText : string read GetSearchText write FSearchText;
 			property WordBoundedSearchText : string read GetWordBoundedSearchText;
@@ -336,7 +336,7 @@ begin
 	FWordBoundedSearchText := _other.WordBoundedSearchText;
 	FRgOptions := _other.RgOptions;
 	FIsRgExeOptionSet := _other.IsRgExeOptionSet;
-	FRgAdditionalOptions := _other.RgAdditionalOptions;
+	FExpertOptions := _other.ExpertOptions;
 
 	// inherited Copy(_other as TPersistableSettings);
 end;

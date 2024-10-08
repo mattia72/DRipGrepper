@@ -40,7 +40,7 @@ uses
 	RipGrepper.Helper.Types,
 	RipGrepper.CommandLine.OptionHelper,
 	RipGrepper.Tools.DebugUtils,
-	RipGrepper.Common.IOTAUtils, 
+	RipGrepper.Common.IOTAUtils,
 	RipGrepper.CommandLine.OptionStrings;
 
 class procedure TCommandLineBuilder.AddArgs(var _params : TRipGrepParameterSettings; const _sName : string; const _args : TArray<string>;
@@ -141,8 +141,8 @@ begin
 	TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: start');
 	_params.RipGrepArguments.Clear();
 
-	TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: add additional ops:' + _params.GuiSearchTextParams.RgAdditionalOptions.AsString);
-	arrRgOptions := _params.GuiSearchTextParams.RgAdditionalOptions.AsArray;
+	TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: add additional ops:' + _params.GuiSearchTextParams.ExpertOptions.AsString);
+	arrRgOptions := _params.GuiSearchTextParams.ExpertOptions.AsArray;
 
 	fileMaskParams := GetFileMaskParamsArrFromDelimitedText(_params.FileMasks);
 	paramCount := arrRgOptions.Count;

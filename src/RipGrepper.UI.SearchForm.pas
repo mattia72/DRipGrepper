@@ -570,11 +570,11 @@ procedure TRipGrepperSearchDialogForm.RemoveNecessaryOptionsFromCmbOptionsText;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.RemoveNecessaryOptionsFromCmbOptionsText');
-	dbgMsg.Msg('Additional Options=' + FParamsSetByGui.RgAdditionalOptions.AsString);
+	dbgMsg.Msg('Additional Options=' + FParamsSetByGui.ExpertOptions.AsString);
 
 	// Remove necessary options
-	FParamsSetByGui.RgAdditionalOptions.RemoveOptions(RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS);
-	cmbOptions.Text := FParamsSetByGui.RgAdditionalOptions.AsString;
+	FParamsSetByGui.ExpertOptions.RemoveOptions(RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS);
+	cmbOptions.Text := FParamsSetByGui.ExpertOptions.AsString;
 	dbgMsg.Msg('cmbOptions.Text=' + cmbOptions.Text);
 
 	WriteOptionCtrlToRipGrepParametersSetting;
@@ -1182,8 +1182,8 @@ procedure TRipGrepperSearchDialogForm.WriteOptionCtrlToRipGrepParametersSetting;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.WriteOptionCtrlToRipGrepParametersSetting');
-	FParamsSetByGui.RgAdditionalOptions := TOptionStrings.New(cmbOptions.Text);
-	dbgMsg.Msg('FParamsSetByGui.RgAdditionalOptions=' + FParamsSetByGui.RgAdditionalOptions.AsString);
+	FParamsSetByGui.ExpertOptions := TOptionStrings.New(cmbOptions.Text);
+	dbgMsg.Msg('FParamsSetByGui.ExpertOptions=' + FParamsSetByGui.ExpertOptions.AsString);
 end;
 
 procedure TRipGrepperSearchDialogForm.WriteSearchFormSettingsToCtrls;
