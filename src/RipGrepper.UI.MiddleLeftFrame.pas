@@ -62,6 +62,7 @@ type
 			procedure AddVstReplaceNode(Node : PVirtualNode);
 			procedure ChangeVstReplaceNode(Node : PVirtualNode; const _Data : PVSHistoryNodeData = nil);
 			function GetData : TRipGrepperData;
+			function GetHistNodeIndex(Node : PVirtualNode) : integer;
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
 			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
 			function GetSettings : TRipGrepperSettings;
@@ -334,6 +335,15 @@ begin
 	Result := FData;
 end;
 
+function TMiddleLeftFrame.GetHistNodeIndex(Node : PVirtualNode) : integer;
+begin
+	if (Node.Parent = VstHistory.RootNode) then begin
+		Result := Node.Index;
+	end else begin
+		Result := Node.Parent.Index;
+	end;
+end;
+
 function TMiddleLeftFrame.GetHistoryObject(const _index : Integer) : THistoryItemObject;
 begin
 	Result := nil;
@@ -380,7 +390,9 @@ begin
 
 	VstHistory.NodeDataSize := SizeOf(TVSHistoryNodeData);
 
+    VstHistory.Header.Columns[COL_SEARCH_TEXT].MinWidth := 50;
 	ShowReplaceColumn(False);
+
 end;
 
 procedure TMiddleLeftFrame.PopupMenuHistoryPopup(Sender : TObject);
@@ -469,7 +481,7 @@ begin
 				CellText := Data.SearchText; // + CRLF + MainFrame.GetCounterText(GetHistoryObject(Node.Index));
 			end else begin
 				// only for root
-				if not Data.SearchText.IsEmpty then begin
+				if Node.Parent = VstHistory.RootNode then begin
 					// ttStatic not shown in Multiline cell
 					CellText := MainFrame.GetCounterText(GetHistoryObject(Node.Index));
 				end;
@@ -501,11 +513,7 @@ procedure TMiddleLeftFrame.VstHistoryNodeClick(Sender : TBaseVirtualTree; const 
 var
 	idx : integer;
 begin
-	if HitInfo.HitNode.Parent = VstHistory.RootNode then begin
-		idx := HitInfo.HitNode.Parent.Index;
-	end else begin
-		idx := HitInfo.HitNode.Index;
-	end;
+	idx := GetHistNodeIndex(HitInfo.HitNode);
 
 	if (CurrentHistoryItemIndex <> idx) then begin
 		CurrentHistoryItemIndex := idx;
@@ -522,9 +530,10 @@ end;
 
 procedure TMiddleLeftFrame.VstHistoryPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode;
 	Column : TColumnIndex; TextType : TVSTTextType);
+var
+	hio : IHistoryItemObject;
 begin
-	var
-		hio : IHistoryItemObject := GetHistoryObject(Node.Index);
+	hio := GetHistoryObject(GetHistNodeIndex(Node));
 
 	if TextType = ttNormal then begin
 		case Column of

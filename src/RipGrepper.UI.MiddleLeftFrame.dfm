@@ -34,8 +34,8 @@ object MiddleLeftFrame: TMiddleLeftFrame
     ParentShowHint = False
     ShowHint = True
     TabOrder = 0
-    TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages]
-    TreeOptions.SelectionOptions = [toFullRowSelect]
+    TreeOptions.PaintOptions = [toShowBackground, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages]
+    TreeOptions.SelectionOptions = [toFullRowSelect, toSiblingSelectConstraint]
     OnFreeNode = VstHistoryFreeNode
     OnGetText = VstHistoryGetText
     OnPaintText = VstHistoryPaintText
@@ -50,7 +50,7 @@ object MiddleLeftFrame: TMiddleLeftFrame
       item
         Position = 0
         Text = 'Search'
-        Width = 80
+        Width = 599
       end
       item
         Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coSmartResize, coAllowFocus, coEditable, coStyleColor]
@@ -58,6 +58,7 @@ object MiddleLeftFrame: TMiddleLeftFrame
         Text = 'Replace'
         Width = 519
       end>
+    DefaultText = ''
   end
   object ActionList: TActionList
     Left = 251

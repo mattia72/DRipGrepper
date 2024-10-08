@@ -1057,6 +1057,7 @@ begin
 			_settings.LastReplaceText := frm.cmbReplaceText.Text
 		end else begin
 			_settings.LastSearchText := _histObj.SearchText;
+			_settings.IsReplaceMode := _histObj.IsReplaceMode;
 			_settings.LastReplaceText := _histObj.ReplaceText;
 			dbgMsg.MsgFmtIf(_histObj.SearchText <> _histObj.GuiSearchTextParams.SearchText,
 				{ } 'ERROR? _histObj.SearchText=%s <> GuiSearchTextParams=%s',
@@ -1189,13 +1190,10 @@ procedure TRipGrepperSearchDialogForm.WriteSearchFormSettingsToCtrls;
 var
 	searchFormSettings : TSearchFormSettings;
 begin
-
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.WriteSearchFormSettingsToCtrls');
 
-	var
-	bReplaceMode := FParamsSetByGui.ReplaceText <> '';
-	TabControl1.TabIndex := IfThen(bReplaceMode, 1, 0);
+	TabControl1.TabIndex := IfThen(FParamsSetByGui.IsReplaceMode, 1, 0);
 	cmbReplaceText.Text := FParamsSetByGui.ReplaceText;
 
 	searchFormSettings := FSettings.SearchFormSettings;

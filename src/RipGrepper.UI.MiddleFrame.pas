@@ -529,6 +529,8 @@ begin
 	if Data.ErrorCount > 0 then begin
 		Result := Format('%s %d in %d(%d!)', [TREEVIEW_HISTORY_COUNTER_ERROR_PREFIX, Data.TotalMatchCount, Data.FileCount,
 			Data.ErrorCount]);
+	end else if Data.IsReplaceMode then begin
+		Result := Format('%s %d in %d', [TREEVIEW_HISTORY_REPLACE_PREFIX, Data.TotalMatchCount, Data.FileCount]);
 	end else begin
 		if Data.NoMatchFound then begin
 			Result := TREEVIEW_HISTORY_COUNTER_NOTHING_FOUND_PREFIX + ' 0 in 0';
@@ -809,7 +811,7 @@ end;
 
 procedure TRipGrepperMiddleFrame.SetColumnWidths;
 begin
-//
+	//
 end;
 
 procedure TRipGrepperMiddleFrame.SetHistItemObject(const Value : IHistoryItemObject);

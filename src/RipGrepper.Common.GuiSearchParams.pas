@@ -8,7 +8,7 @@ uses
 	System.Classes,
 	RipGrepper.Common.Settings.Persistable,
 	System.IniFiles,
-	RipGrepper.CommandLine.OptionStrings, 
+	RipGrepper.CommandLine.OptionStrings,
 	RipGrepper.Helper.Types;
 
 type
@@ -23,7 +23,7 @@ type
 			FRgOptions : TOptionStrings;
 			FIsRgExeOptionSet : Boolean;
 			FReplaceText : string;
-			FRgAdditionalOptions: TOptionStrings;
+			FRgAdditionalOptions : TOptionStrings;
 
 			function GetEscapedSearchText : string;
 			function GetReplaceText : string;
@@ -33,6 +33,7 @@ type
 			function ResetRgOption(const _sParamRegex : string; const _bReset : Boolean = False) : string;
 			procedure SetIsReplaceMode(const Value : Boolean);
 			procedure SetRgOptions(const Value : TOptionStrings);
+
 		protected
 			procedure Init; override;
 
@@ -69,7 +70,7 @@ type
 			property IsReplaceMode : Boolean read FIsReplaceMode write SetIsReplaceMode;
 			property IsRgExeOptionSet : Boolean read FIsRgExeOptionSet write FIsRgExeOptionSet;
 			property ReplaceText : string read GetReplaceText write FReplaceText;
-			property RgAdditionalOptions: TOptionStrings read FRgAdditionalOptions write FRgAdditionalOptions;
+			property RgAdditionalOptions : TOptionStrings read FRgAdditionalOptions write FRgAdditionalOptions;
 			property RgOptions : TOptionStrings read FRgOptions write SetRgOptions;
 			property SearchText : string read GetSearchText write FSearchText;
 			property WordBoundedSearchText : string read GetWordBoundedSearchText;
@@ -291,7 +292,9 @@ begin
 	end;
 	Result := '[' + string.Join(',', arr.Items) + ']';
 	if not _bGuiOptionsOnly then begin
-		Result := SearchText + ' ' + Result + ' IsRgOpSet:' + BoolToStr(IsRgExeOptionSet, True) + CRLF + RgOptions.AsString;
+		Result := Format('%s %s IsRgOpSet: %s' + CRLF + '%s' + CRLF + 'IsReplMmode:%s - %s',
+		[SearchText, Result, BoolToStr(IsRgExeOptionSet, True),
+			RgOptions.AsString, BoolToStr(IsReplaceMode, True), ReplaceText]);
 	end;
 end;
 
@@ -327,6 +330,7 @@ begin
 	SearchOptions := _other.SearchOptions;
 	FSearchText := _other.SearchText;
 	FReplaceText := _other.ReplaceText;
+	FIsReplaceMode := _other.IsReplaceMode;
 
 	FEscapedSearchText := _other.EscapedSearchText;
 	FWordBoundedSearchText := _other.WordBoundedSearchText;
@@ -372,8 +376,7 @@ begin
 end;
 
 procedure TGuiSearchTextParams.LoadSearchOptionsFromDict(const _bDefault : Boolean);
-var
-	sParams : string;
+var sParams : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.LoadSearchOptionsFromDict Default=' + BoolToStr(_bDefault));
