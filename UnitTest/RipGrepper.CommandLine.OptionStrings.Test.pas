@@ -159,7 +159,7 @@ type
 			[Testcase('test9', RG_PARAM_REGEX_CONTEXT)]
 			[Testcase('test10', RG_PARAM_REGEX_ENCODING)]
 			[Testcase('test11', RG_PARAM_REGEX_REPLACE)]
-//			[Testcase('test12', RG_PARAM_END)]
+			// [Testcase('test12', RG_PARAM_END)]
 			[Testcase('1_test1', RG_PARAM_REGEX_GLOB + '=')]
 			[Testcase('1_test2', RG_PARAM_REGEX_CONTEXT + '=')]
 			[Testcase('1_test3', RG_PARAM_REGEX_ENCODING + '=')]
@@ -170,6 +170,16 @@ type
 			[Testcase('2_test4', RG_PARAM_REGEX_REPLACE + '=value')]
 			[Testcase('2_test4', RG_PARAM_REGEX_REPLACE + '=more world value')]
 			procedure TestGetOptionVariantsAndValue(const _sParamRegex : string);
+
+			[Test]
+
+			[Testcase('test1', '-x --YYYY --vimgrep  -r="replace more word" --fixed-strings -i;', ';')]
+			[Testcase('test1', '-x --YYYY --vimgrep  --replace=replace_word --fixed-strings -i;', ';')]
+			[Testcase('test1', '-x --YYYY --vimgrep  --replace=replace_word --fixed-strings -i;', ';')]
+			[Testcase('test2', '-x --YYYY --vimgrep  -g=*.ini -g=!*.bak --fixed-strings -i;', ';')]
+			[Testcase('test2', '-x --YYYY --vimgrep  -C=11 -g=!*.bak --fixed-strings -i;', ';')]
+			[Testcase('test2', '-x --YYYY --vimgrep  --context=99 -g=!*.bak --fixed-strings -i;', ';')]
+			procedure TestRemoveMultipleOptionsWithValue(const _sOptions : string);
 
 			[Test]
 			[Testcase('test1', '--vimgrep  --fixed-strings -g=*.ini -g=!*.bak;' + RG_PARAM_REGEX_GLOB + ';*.bbb;0', ';')]
@@ -489,7 +499,8 @@ begin
 	short := _sParamRegex.Substring(0, idxOr).Replace('\', '');
 	long := _sParamRegex.Substring(idxOr + 1, idxEq - 2);
 	value := Ifthen(_sParamRegex.IndexOf('=') < 0, '', _sParamRegex.Substring(idxEq + 2));
-	var op : TOptionVariants;
+	var
+		op : TOptionVariants;
 	if TOptionStrings.GetOptionVariantsAndValue(_sParamRegex, op) then begin
 		Assert.AreEqual(op.Short, short, 'short should be equal');
 		Assert.AreEqual(op.Long, long, 'long should be equal');
@@ -497,6 +508,24 @@ begin
 		Assert.AreEqual(op.HasValue, _sParamRegex.IndexOf('=') >= 0, 'hasvalue should be equal');
 	end else begin
 		Assert.IsTrue(False, '''' + _sParamRegex + ''' TOptionStrings.GetOptionVariantsAndValue should return true');
+	end;
+end;
+
+procedure TOptionStringsTest.TestRemoveMultipleOptionsWithValue(const _sOptions : string);
+begin
+	var
+	op := TOptionStrings.New(_sOptions);
+	op.RemoveOptions(RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS);
+	Assert.IsTrue(op.IsOptionSet('-x'), '-x should be set');
+	Assert.IsTrue(op.IsOptionSet('-YYYY'), '-YYYY should be set');
+
+	for var s in op.AsArray do begin
+		Assert.IsTrue(TRegEx.IsMatch(s, '^-+\w+'), '''' + s + ''' invalid param (maybe a glob) should not bee in the options array');
+
+		for var r in RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS do begin
+			if r = RG_PARAM_END then continue;
+			Assert.IsFalse(TRegEx.IsMatch(s, r), '''' + s + ''' should not bee in the options array. ''' + r + ''' removed');
+		end;
 	end;
 end;
 
