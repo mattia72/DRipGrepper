@@ -23,7 +23,7 @@ type
 			FNodeLookSettings : TNodeLookSettings;
 			FOpenWithSettings : TOpenWithSettings;
 
-			FRipGrepOptionsHistory : TSTrings;
+			FExpertOptionHistory : TSTrings;
 			FSearchPathsHistory : TStrings;
 			FSearchTextsHistory : TStrings;
 			FFileMasksHistory : TStrings;
@@ -42,7 +42,7 @@ type
 			function GetSearchPathIsDir : Boolean;
 			procedure LoadHistoryEntries(var _list : TStrings; const _section : string);
 			procedure SetFileMasksHistory(const Value : TStrings);
-			procedure SetRipGrepOptionsHistory(const Value : TSTrings);
+			procedure SetExpertOptionHistory(const Value : TSTrings);
 			procedure SetSearchPathsHistory(const Value : TStrings);
 			procedure SetSearchTextsHistory(const Value : TStrings);
 			procedure StoreHistoryEntries(const _list : TStrings; const _section : string);
@@ -77,7 +77,7 @@ type
 
 			property ActualSearchPath : string read GetActualSearchPath;
 			property SearchPathsHistory : TStrings read FSearchPathsHistory write SetSearchPathsHistory;
-			property RipGrepOptionsHistory : TSTrings read FRipGrepOptionsHistory write SetRipGrepOptionsHistory;
+			property ExpertOptionHistory : TSTrings read FExpertOptionHistory write SetExpertOptionHistory;
 			property RipGrepParameters : TRipGrepParameterSettings read FRipGrepParameters write FRipGrepParameters;
 			property OpenWithSettings : TOpenWithSettings read FOpenWithSettings;
 			property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings write FSearchFormSettings;
@@ -147,8 +147,8 @@ begin
 		SearchTextsHistory.Add('search text');
 	end;
 
-	if RipGrepOptionsHistory.Count = 0 then begin
-		RipGrepOptionsHistory.Add('');
+	if ExpertOptionHistory.Count = 0 then begin
+		ExpertOptionHistory.Add('');
 	end;
 
 	if FileMasksHistory.Count = 0 then begin
@@ -170,7 +170,7 @@ end;
 destructor TRipGrepperSettings.Destroy;
 begin
 	FRipGrepArguments.Free;
-	FRipGrepOptionsHistory.Free;
+	FExpertOptionHistory.Free;
 	FSearchTextsHistory.Free;
 	FReplaceTextsHistory.Free;
 	FSearchPathsHistory.Free;
@@ -198,7 +198,7 @@ begin
 	FSearchPathsHistory := TStringList.Create(dupIgnore, False, True);
 	FSearchTextsHistory := TStringList.Create(dupIgnore, False, True);
 	FReplaceTextsHistory := TStringList.Create(dupIgnore, False, True);
-	FRipGrepOptionsHistory := TStringList.Create(dupIgnore, False, True);
+	FExpertOptionHistory := TStringList.Create(dupIgnore, False, True);
 	FRipGrepArguments := TStringList.Create();
 	FRipGrepArguments.Delimiter := ' ';
 	FFileMasksHistory := TStringList.Create(dupIgnore, False, True);
@@ -223,7 +223,7 @@ begin
 		FSearchPathsHistory.Assign(s.SearchPathsHistory);
 		FSearchTextsHistory.Assign(s.SearchTextsHistory);
 		FReplaceTextsHistory.Assign(s.ReplaceTextsHistory);
-		FRipGrepOptionsHistory.Assign(s.RipGrepOptionsHistory);
+		FExpertOptionHistory.Assign(s.ExpertOptionHistory);
 		FRipGrepArguments.Assign(s.FRipGrepArguments);
 		inherited Copy(_other as TPersistableSettings);
 	end;
@@ -305,7 +305,7 @@ begin
 	LoadHistoryEntries(FSearchPathsHistory, 'SearchPathsHistory');
 	LoadHistoryEntries(FSearchTextsHistory, 'SearchTextsHistory');
 	LoadHistoryEntries(FReplaceTextsHistory, 'ReplaceTextsHistory');
-	LoadHistoryEntries(FRipGrepOptionsHistory, 'RipGrepOptionsHistory');
+	LoadHistoryEntries(FExpertOptionHistory, 'ExpertOptionHistory');
 	LoadHistoryEntries(FFileMasksHistory, 'FileMasksHistory');
 end;
 
@@ -340,9 +340,9 @@ begin
 	AddIfNotContains(FReplaceTextsHistory, Value);
 end;
 
-procedure TRipGrepperSettings.SetRipGrepOptionsHistory(const Value : TSTrings);
+procedure TRipGrepperSettings.SetExpertOptionHistory(const Value : TSTrings);
 begin
-	AddIfNotContains(FRipGrepOptionsHistory, Value);
+	AddIfNotContains(FExpertOptionHistory, Value);
 end;
 
 procedure TRipGrepperSettings.SetSearchPathsHistory(const Value : TStrings);
@@ -387,7 +387,7 @@ procedure TRipGrepperSettings.StoreHistories;
 begin
 	StoreHistoryEntries(SearchPathsHistory, 'SearchPathsHistory');
 	StoreHistoryEntries(SearchTextsHistory, 'SearchTextsHistory');
-	StoreHistoryEntries(RipGrepOptionsHistory, 'RipGrepOptionsHistory');
+	StoreHistoryEntries(ExpertOptionHistory, 'ExpertOptionHistory');
 	StoreHistoryEntries(FileMasksHistory, 'FileMasksHistory');
 end;
 

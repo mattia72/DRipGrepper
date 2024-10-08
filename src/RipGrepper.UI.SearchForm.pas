@@ -469,7 +469,7 @@ begin
 
 	UpdateButtonsBySettings;
 	UpdateCheckBoxesBySettings();
-	SetComboItemsAndText(cmbOptions, RG_ARG_OPTIONS, FSettings.RipGrepOptionsHistory);
+	SetComboItemsAndText(cmbOptions, RG_ARG_OPTIONS, FSettings.ExpertOptionHistory);
 	FcmbOptionsOldText := cmbOptions.Text;
 end;
 
@@ -695,7 +695,7 @@ begin
 	FSettings.SearchPathsHistory := cmbSearchDir.Items;
 	FSettings.SearchTextsHistory := cmbSearchText.Items;
 	FSettings.ReplaceTextsHistory := cmbReplaceText.Items;
-	FSettings.RipGrepOptionsHistory := cmbOptions.Items;
+	FSettings.ExpertOptionHistory := cmbOptions.Items;
 	FSettings.FileMasksHistory := cmbFileMasks.Items;
 
 	WriteCtrlsToRipGrepParametersSettings;
