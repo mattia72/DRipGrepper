@@ -187,7 +187,7 @@ type
 			function ProcessShouldTerminate : Boolean;
 			procedure RefreshSearch;
 			procedure SetResultListViewDataToHistoryObj;
-			procedure UpdateHistObject;
+			procedure UpdateHistObjectAndCopyToSettings;
 			procedure UpdateHistObjectAndGui;
 			procedure UpdateRipGrepArgumentsInHistObj;
 			property AbortSearch : Boolean read FAbortSearch write FAbortSearch;
@@ -880,12 +880,13 @@ begin
 	Data.ClearMatchFiles();
 	InitSearch();
 	DoSearch();
+	MiddleLeftFrame1.ChangeHistoryNodeText;
 end;
 
 procedure TRipGrepperMiddleFrame.RefreshSearch;
 begin
-	UpdateHistObject();
-	MiddleLeftFrame1.ClearHistoryObject();
+	UpdateHistObjectAndCopyToSettings();
+	MiddleLeftFrame1.ClearMatchesInHistoryObject();
 	InitSearch();
 	DoSearch();
 end;
@@ -941,7 +942,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepperMiddleFrame.UpdateHistObject;
+procedure TRipGrepperMiddleFrame.UpdateHistObjectAndCopyToSettings;
 begin
 	FHistItemObj := MiddleLeftFrame1.GetCurrentHistoryObject();
 	if Assigned(FHistItemObj) then begin
@@ -952,7 +953,7 @@ end;
 
 procedure TRipGrepperMiddleFrame.UpdateHistObjectAndGui;
 begin
-	UpdateHistObject;
+	UpdateHistObjectAndCopyToSettings;
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.UpdateHistObjectAndGui History Object: ' +
 		HistItemObject.RipGrepArguments.DelimitedText);
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.UpdateHistObjectAndGui History Matches: ' + HistItemObject.TotalMatchCount.ToString);

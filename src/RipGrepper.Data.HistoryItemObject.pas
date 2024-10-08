@@ -25,11 +25,9 @@ type
 			FFileCount : integer;
 			FGuiSearchTextParams : TGuiSearchTextParams;
 			FHasResult : Boolean;
-			FIsReplaceMode : Boolean;
 			FMatches : TParsedObjectRowCollection;
 			FNoMatchFound : Boolean;
 			FParserType : TParserType;
-			FReplaceText : string;
 			FRipGrepArguments : TRipGrepArguments;
 			FSearchFormSettings : TSearchFormSettings;
 			FRipGrepResult : Integer;
@@ -54,7 +52,6 @@ type
 			procedure SetElapsedTimeText(const Value : string);
 			procedure SetErrorCount(const Value : Integer);
 			procedure SetGuiSearchTextParams(const Value : TGuiSearchTextParams);
-			procedure SetIsReplaceMode(const Value : Boolean);
 			procedure SetNoMatchFound(const Value : Boolean);
 			procedure SetSearchFormSettings(const Value : TSearchFormSettings);
 			procedure SetRipGrepResult(const Value : Integer);
@@ -76,13 +73,13 @@ type
 			property ErrorCount : Integer read GetErrorCount write SetErrorCount;
 			property ElapsedTimeText : string read GetElapsedTimeText write SetElapsedTimeText;
 			property GuiSearchTextParams : TGuiSearchTextParams read GetGuiSearchTextParams write SetGuiSearchTextParams;
-			property IsReplaceMode : Boolean read GetIsReplaceMode write SetIsReplaceMode;
+			property IsReplaceMode : Boolean read GetIsReplaceMode;
 			property NoMatchFound : Boolean read GetNoMatchFound write SetNoMatchFound;
 			property RipGrepResult : Integer read GetRipGrepResult write SetRipGrepResult;
 			property ParserType : TParserType read GetParserType write SetParserType;
 			property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings write SetSearchFormSettings;
 			property SearchText : string read GetSearchText;
-			property ReplaceText : string read GetReplaceText write FReplaceText;
+			property ReplaceText : string read GetReplaceText;
 
 	end;
 
@@ -112,8 +109,7 @@ begin
 	RipGrepArguments.Assign(_settings.GetRipGrepArguments);
 	GuiSearchTextParams.Copy(_settings.RipGrepParameters.GuiSearchTextParams);
 	SearchFormSettings.Copy(_settings.SearchFormSettings);
-	_settings.IsReplaceMode := IsReplaceMode;
-	_settings.LastReplaceText := FReplaceText;
+	_settings.LastReplaceText := ReplaceText;
 end;
 
 function THistoryItemObject.GetFileCount : integer;
@@ -192,8 +188,6 @@ begin
 	_settings.RipGrepParameters.RipGrepArguments.Assign(RipGrepArguments);
 	_settings.RipGrepParameters.GuiSearchTextParams.Copy(GuiSearchTextParams);
 	_settings.SearchFormSettings.Copy(SearchFormSettings);
-	IsReplaceMode := _settings.IsReplaceMode;
-	FReplaceText := _settings.LastReplaceText;
 end;
 
 function THistoryItemObject.GetElapsedTimeText : string;
@@ -213,7 +207,7 @@ end;
 
 function THistoryItemObject.GetIsReplaceMode : Boolean;
 begin
-	Result := FIsReplaceMode;
+	Result := GuiSearchTextParams.IsReplaceMode;
 end;
 
 function THistoryItemObject.GetNoMatchFound : Boolean;
@@ -231,7 +225,7 @@ end;
 
 function THistoryItemObject.GetReplaceText : string;
 begin
-	Result := FReplaceText;
+	Result := GuiSearchTextParams.ReplaceText;
 end;
 
 function THistoryItemObject.GetSearchFormSettings : TSearchFormSettings;
@@ -267,11 +261,6 @@ end;
 procedure THistoryItemObject.SetGuiSearchTextParams(const Value : TGuiSearchTextParams);
 begin
 	FGuiSearchTextParams := Value;
-end;
-
-procedure THistoryItemObject.SetIsReplaceMode(const Value : Boolean);
-begin
-	FIsReplaceMode := Value;
 end;
 
 procedure THistoryItemObject.SetNoMatchFound(const Value : Boolean);

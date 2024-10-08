@@ -43,7 +43,6 @@ type
 		procedure VstHistoryGetHintKind(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; var Kind : TVTHintKind);
 		procedure VstHistoryGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType;
 			var CellText : string);
-		procedure VstHistoryMeasureItem(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; var NodeHeight : Integer);
 		procedure VstHistoryNodeClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
 		procedure VstHistoryNodeDblClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
 		procedure VstHistoryPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
@@ -77,7 +76,7 @@ type
 			procedure AddOrUpdateHistoryItem;
 			procedure ChangeDataHistItemObject(_ho : IHistoryItemObject);
 			procedure ChangeHistoryNodeText;
-			procedure ClearHistoryObject;
+			procedure ClearMatchesInHistoryObject;
 			procedure ClearHistoryObjectList;
 			procedure DeleteCurrentHistoryItemFromList;
 			function GetCurrentHistoryObject : IHistoryItemObject;
@@ -167,7 +166,7 @@ begin
 	if mrOK = formResult then begin
 		TDebugUtils.DebugMessage('TRipGrepperTopFrame.VstHistoryNodeDblClick: after ShowSearchForm cmdline: ' +
 			Settings.RipGrepParameters.GetCommandLine);
-		PrepareAndDoSearch();
+		MainFrame.PrepareAndDoSearch();
 	end else begin
 		TDebugUtils.DebugMessage('TRipGrepperTopFrame.VstHistoryNodeDblClick: ShowSearchForm cancel');
 	end;
@@ -193,14 +192,18 @@ begin
 	dbgMsg.Msg('CurrentHistoryItemIndex ' + CurrentHistoryItemIndex.ToString);
 	if not MainFrame.HistItemObj.HasResult then begin
 		AddVstHistItem;
+	end else begin
+		ChangeHistoryNodeText;
 	end;
-	ChangeHistoryNodeText;
 
 	UpdateReplaceColumnVisible;
 
+	if MainFrame.HistItemObj.HasResult then begin
+		MainFrame.UpdateHistObjectAndCopyToSettings;
+	end;
 	MainFrame.UpdateRipGrepArgumentsInHistObj;
-	MainFrame.UpdateHistObject;
-	ClearHistoryObject();
+
+	ClearMatchesInHistoryObject();
 	dbgMsg.Msg('Update HistoryObject LastSearchText=' + Settings.LastSearchText);
 end;
 
@@ -259,6 +262,7 @@ begin
 			ChangeVstReplaceNode(Node, Data);
 		end;
 	end;
+    VstHistory.Repaint;
 end;
 
 procedure TMiddleLeftFrame.ChangeVstReplaceNode(Node : PVirtualNode; const _Data : PVSHistoryNodeData = nil);
@@ -284,7 +288,7 @@ begin
 	end;
 end;
 
-procedure TMiddleLeftFrame.ClearHistoryObject;
+procedure TMiddleLeftFrame.ClearMatchesInHistoryObject;
 begin
 	var
 	beu := TBeginEndUpdater.New(VstHistory);
@@ -390,7 +394,7 @@ begin
 
 	VstHistory.NodeDataSize := SizeOf(TVSHistoryNodeData);
 
-    VstHistory.Header.Columns[COL_SEARCH_TEXT].MinWidth := 50;
+	VstHistory.Header.Columns[COL_SEARCH_TEXT].MinWidth := 50;
 	ShowReplaceColumn(False);
 
 end;
@@ -491,22 +495,11 @@ begin
 			if Data.ReplaceData.IsReplaceMode then begin
 				if TextType = ttNormal then begin
 					CellText := Data.ReplaceData.ReplaceText;
-				end else begin
-					CellText := ' ';
 				end;
 			end;
 		end;
 	end;
 
-end;
-
-procedure TMiddleLeftFrame.VstHistoryMeasureItem(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
-	var NodeHeight : Integer);
-begin
-	if Sender.MultiLine[Node] then begin
-		TargetCanvas.Font := Sender.Font;
-		NodeHeight := VstHistory.ComputeNodeHeight(TargetCanvas, Node, -1);
-	end;
 end;
 
 procedure TMiddleLeftFrame.VstHistoryNodeClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
@@ -532,8 +525,10 @@ procedure TMiddleLeftFrame.VstHistoryPaintText(Sender : TBaseVirtualTree; const 
 	Column : TColumnIndex; TextType : TVSTTextType);
 var
 	hio : IHistoryItemObject;
+	idx : integer;
 begin
-	hio := GetHistoryObject(GetHistNodeIndex(Node));
+	idx := GetHistNodeIndex(Node);
+	hio := GetHistoryObject(idx);
 
 	if TextType = ttNormal then begin
 		case Column of

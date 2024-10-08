@@ -93,7 +93,6 @@ type
 		procedure SetErrorCount(const Value : Integer);
 		procedure SetFileCount(const Value : integer);
 		procedure SetGuiSearchTextParams(const Value : TGuiSearchTextParams);
-		procedure SetIsReplaceMode(const Value : Boolean);
 		procedure SetNoMatchFound(const Value : Boolean);
 		procedure SetParserType(const Value : TParserType);
 		procedure SetSearchFormSettings(const Value : TSearchFormSettings);
@@ -111,7 +110,7 @@ type
 		property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings write SetSearchFormSettings;
 		property RipGrepResult : Integer read GetRipGrepResult write SetRipGrepResult;
 		property SearchText : string read GetSearchText;
-		property IsReplaceMode : Boolean read GetIsReplaceMode write SetIsReplaceMode;
+		property IsReplaceMode : Boolean read GetIsReplaceMode;
 		property ReplaceText : string read GetReplaceText;
 		property TotalMatchCount : integer read GetTotalMatchCount;
 	end;

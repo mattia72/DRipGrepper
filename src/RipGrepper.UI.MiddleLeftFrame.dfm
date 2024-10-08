@@ -41,7 +41,6 @@ object MiddleLeftFrame: TMiddleLeftFrame
     OnPaintText = VstHistoryPaintText
     OnGetHintKind = VstHistoryGetHintKind
     OnGetHint = VstHistoryGetHint
-    OnMeasureItem = VstHistoryMeasureItem
     OnNodeClick = VstHistoryNodeClick
     OnNodeDblClick = VstHistoryNodeDblClick
     Touch.InteractiveGestures = [igPan, igPressAndTap]

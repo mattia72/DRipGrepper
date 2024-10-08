@@ -33,7 +33,7 @@ type
 			FAppSettings : TAppSettings;
 
 			FActualSearchPath : string;
-			FIsReplaceMode : Boolean;
+
 			FLastSearchText : string;
 			FLastReplaceText : string;
 			FReplaceTextsHistory : TStrings;
@@ -47,9 +47,9 @@ type
 			procedure SetSearchTextsHistory(const Value : TStrings);
 			procedure StoreHistoryEntries(const _list : TStrings; const _section : string);
 			function GetActualSearchPath : string;
+			function GetIsReplaceMode: Boolean;
 			function GetSearchFormSettings : TSearchFormSettings;
 			procedure LoadFirstNecessarySettings;
-			procedure SetIsReplaceMode(const Value : Boolean);
 			procedure SetReplaceTextsHistory(const Value : TStrings);
 
 		public
@@ -82,7 +82,7 @@ type
 			property OpenWithSettings : TOpenWithSettings read FOpenWithSettings;
 			property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings write FSearchFormSettings;
 			property AppSettings : TAppSettings read FAppSettings write FAppSettings;
-			property IsReplaceMode : Boolean read FIsReplaceMode write SetIsReplaceMode;
+			property IsReplaceMode: Boolean read GetIsReplaceMode;
 			property LastReplaceText : string read FLastReplaceText write FLastReplaceText;
 			property NodeLookSettings : TNodeLookSettings read FNodeLookSettings write FNodeLookSettings;
 			property SearchPathIsDir : Boolean read GetSearchPathIsDir;
@@ -254,6 +254,11 @@ begin
 	{ } FOpenWithSettings.IsModified;
 end;
 
+function TRipGrepperSettings.GetIsReplaceMode: Boolean;
+begin
+    Result := RipGrepParameters.GuiSearchTextParams.IsReplaceMode;
+end;
+
 function TRipGrepperSettings.GetSearchFormSettings : TSearchFormSettings;
 begin
 	if not FSearchFormSettings.IsAlreadyRead then begin
@@ -328,11 +333,6 @@ end;
 procedure TRipGrepperSettings.SetFileMasksHistory(const Value : TStrings);
 begin
 	AddIfNotContains(FFileMasksHistory, Value);
-end;
-
-procedure TRipGrepperSettings.SetIsReplaceMode(const Value : Boolean);
-begin
-	FIsReplaceMode := Value;
 end;
 
 procedure TRipGrepperSettings.SetReplaceTextsHistory(const Value : TStrings);

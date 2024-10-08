@@ -1054,11 +1054,9 @@ begin
 		Result := frm.ShowModal();
 		if mrOk = Result then begin
 			_settings.LastSearchText := frm.cmbSearchText.Text;
-			_settings.IsReplaceMode := frm.IsReplaceMode;
 			_settings.LastReplaceText := frm.cmbReplaceText.Text
 		end else begin
 			_settings.LastSearchText := _histObj.SearchText;
-			_settings.IsReplaceMode := _histObj.IsReplaceMode;
 			_settings.LastReplaceText := _histObj.ReplaceText;
 			dbgMsg.MsgFmtIf(_histObj.SearchText <> _histObj.GuiSearchTextParams.SearchText,
 				{ } 'ERROR? _histObj.SearchText=%s <> GuiSearchTextParams=%s',
