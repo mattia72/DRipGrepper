@@ -14,7 +14,8 @@ uses
 	RipGrepper.Common.Sorter,
 	RipGrepper.Data.HistoryItemObject,
 	RipGrepper.Common.ParsedObject,
-	VirtualTrees;
+	VirtualTrees,
+	RipGrepper.Common.NodeData;
 
 type
 

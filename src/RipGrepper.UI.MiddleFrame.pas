@@ -41,7 +41,8 @@ uses
 	RipGrepper.Common.Settings.RipGrepParameterSettings,
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.Common.Settings.RipGrepperSettings,
-	RipGrepper.UI.MiddleLeftFrame;
+	RipGrepper.UI.MiddleLeftFrame, 
+	RipGrepper.Common.NodeData;
 
 type
 	TRipGrepperMiddleFrame = class(TFrame, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
