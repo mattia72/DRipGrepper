@@ -76,7 +76,8 @@ uses
   RipGrepper.Tools.PackageInstall in 'src\RipGrepper.Tools.PackageInstall.pas',
   RipGrepper.Common.Settings.ExtensionSettings in 'src\RipGrepper.Common.Settings.ExtensionSettings.pas',
   RipGrepper.CommandLine.OptionStrings in 'src\RipGrepper.CommandLine.OptionStrings.pas',
-  RipGrepper.UI.MiddleLeftFrame in 'src\RipGrepper.UI.MiddleLeftFrame.pas' {MiddleLeftFrame: TFrame};
+  RipGrepper.UI.MiddleLeftFrame in 'src\RipGrepper.UI.MiddleLeftFrame.pas' {MiddleLeftFrame: TFrame},
+  RipGrepper.Common.NodeData in 'src\RipGrepper.Common.NodeData.pas';
 
 {$R *.res}
 

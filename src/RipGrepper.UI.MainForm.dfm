@@ -3,8 +3,8 @@ object RipGrepperForm: TRipGrepperForm
   Left = 662
   Top = 278
   Caption = 'DRipGrepper'
-  ClientHeight = 401
-  ClientWidth = 670
+  ClientHeight = 391
+  ClientWidth = 726
   Color = clBtnFace
   Constraints.MinHeight = 350
   Constraints.MinWidth = 470
@@ -157,8 +157,8 @@ object RipGrepperForm: TRipGrepperForm
   inline ParentFrame1: TParentFrame
     Left = 0
     Top = 0
-    Width = 670
-    Height = 401
+    Width = 726
+    Height = 391
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -174,9 +174,9 @@ object RipGrepperForm: TRipGrepperForm
     ShowHint = True
     TabOrder = 0
     inherited TopFrame: TRipGrepperTopFrame
-      Width = 670
+      Width = 726
       inherited tbarConfig: TToolBar
-        Left = 634
+        Left = 690
         TabOrder = 2
       end
       inherited tbarSearch: TToolBar
@@ -184,15 +184,15 @@ object RipGrepperForm: TRipGrepperForm
       end
     end
     inherited BottomFrame: TRipGrepperBottomFrame
-      Top = 371
-      Width = 670
+      Top = 361
+      Width = 726
       inherited pnlBottom: TPanel
-        Width = 670
+        Width = 726
         inherited StatusBar1: TStatusBar
-          Width = 664
+          Width = 720
         end
         inherited ActivityIndicator1: TActivityIndicator
-          Left = 390
+          Left = 446
         end
       end
     end

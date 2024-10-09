@@ -74,9 +74,14 @@ type
 		edtFilter : TButtonedEdit;
 		edtReplace : TButtonedEdit;
 		ToolButton9 : TToolButton;
+		tbSaveReplacement : TToolButton;
+		ActionSaveReplacement : TAction;
+		ActionAllReplacement : TAction;
+		tbSaveAllReplacement : TToolButton;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlignToolbarsExecute(Sender : TObject);
+		procedure ActionAllReplacementExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsUpdate(Sender : TObject);
 		procedure ActionCancelExecute(Sender : TObject);
@@ -92,6 +97,7 @@ type
 		procedure ActionOpenWithExecute(Sender : TObject);
 		procedure ActionRefreshSearchExecute(Sender : TObject);
 		procedure ActionRefreshSearchUpdate(Sender : TObject);
+		procedure ActionSaveReplacementExecute(Sender : TObject);
 		procedure ActionSearchExecute(Sender : TObject);
 		procedure ActionSearchInResultExecute(Sender : TObject);
 		procedure ActionShowFileIconsExecute(Sender : TObject);
@@ -107,6 +113,8 @@ type
 		procedure edtReplaceChange(Sender : TObject);
 		procedure edtReplaceRightButtonClick(Sender : TObject);
 		procedure SearchBox1Change(Sender : TObject);
+		procedure tbSaveAllReplacementClick(Sender : TObject);
+		procedure tbSaveReplacementClick(Sender : TObject);
 
 		private
 			FDpiScaler : TRipGrepperDpiScaler;
@@ -132,6 +140,7 @@ type
 			procedure SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
 			procedure SetFilter(const _bOn : Boolean = True);
 			procedure SetReplaceMode(const _bOn : Boolean = True);
+			procedure ReplaceLineInFile(const fileName : string; lineNum : Integer; const replaceLine : string);
 			property HistItemObj : IHistoryItemObject read FHistItemObj;
 
 	end;
@@ -159,7 +168,8 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.UI.RipGrepOptionsForm,
 	RipGrepper.Common.ParsedObject,
-	RipGrepper.Common.IOTAUtils;
+	RipGrepper.Common.IOTAUtils,
+	RipGrepper.Common.NodeData, System.IOUtils;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -192,6 +202,11 @@ begin
 	MainFrame.AlignToolBars;
 end;
 
+procedure TRipGrepperTopFrame.ActionAllReplacementExecute(Sender : TObject);
+begin
+	//
+end;
+
 procedure TRipGrepperTopFrame.ActionAlternateRowColorsExecute(Sender : TObject);
 begin
 	Settings.NodeLookSettings.AlternateRowColors := (not Settings.NodeLookSettings.AlternateRowColors);
@@ -222,8 +237,10 @@ end;
 
 procedure TRipGrepperTopFrame.ActionConfigExecute(Sender : TObject);
 begin
-	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperTopFrame.ActionConfigExecute');
-	var	Settings := Settings.OpenWithSettings;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperTopFrame.ActionConfigExecute');
+	var
+	Settings := Settings.OpenWithSettings;
 	Settings.TestFile := MainFrame.GetOpenWithParamsFromSelected();
 	dbgMsg.Msg('TestFile: ' + Settings.TestFile.DirPath + '\' + Settings.TestFile.FileName);
 	TOpenWithConfigForm.CreateAndShow(Settings);
@@ -289,6 +306,50 @@ begin
 	ActionRefreshSearch.Enabled := // Settings.IsAlreadyRead and
 	{ } (not MainFrame.IsSearchRunning)
 	{ } and Assigned(MainFrame.HistItemObject);
+end;
+
+procedure TRipGrepperTopFrame.ActionSaveReplacementExecute(Sender : TObject);
+var
+	data : TVSFileNodeData;
+	replaceLine : string;
+	fileName : string;
+	lineNum : integer;
+begin
+	MainFrame.VstResult.GetSelectedData<TVSFileNodeData>();
+
+	fileName := data.FilePath;
+	if fileName.IsEmpty then begin
+		var
+		owp := MainFrame.GetOpenWithParamsFromSelected();
+		fileName := TPath.Combine(owp.DirPath, owp.FileName);
+	end;
+	lineNum := data.MatchData.Row;
+	replaceLine := data.MatchData.LineText;
+	ReplaceLineInFile(fileName, lineNum, replaceLine);
+end;
+
+procedure TRipGrepperTopFrame.ReplaceLineInFile(const fileName : string; lineNum : Integer; const replaceLine : string);
+var
+	fileLines : TStringList;
+	backupFileName : string;
+begin
+	fileLines := TStringList.Create;
+	try
+		fileLines.LoadFromFile(fileName);
+
+		backupFileName := ChangeFileExt(fileName, '.bak');
+		fileLines.SaveToFile(backupFileName);
+
+		// Replace the specified line
+		if (lineNum >= 0) and (lineNum < fileLines.Count) then begin
+			fileLines[lineNum] := replaceLine;
+		end;
+
+		// Write the modified list back to the file
+		fileLines.SaveToFile(fileName);
+	finally
+		fileLines.Free;
+	end;
 end;
 
 procedure TRipGrepperTopFrame.ActionSearchExecute(Sender : TObject);
@@ -555,6 +616,16 @@ begin
 		ParentFrame.MainFrame.MiddleLeftFrame1.DeleteCurrentHistoryItemFromList;
 		FHistItemObj := nil;
 	end;
+end;
+
+procedure TRipGrepperTopFrame.tbSaveAllReplacementClick(Sender : TObject);
+begin
+	//
+end;
+
+procedure TRipGrepperTopFrame.tbSaveReplacementClick(Sender : TObject);
+begin
+	//
 end;
 
 end.
