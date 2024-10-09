@@ -37,6 +37,8 @@ type
 		procedure ActionHistoryDeleteUpdate(Sender : TObject);
 		procedure ActionOpenSearchFormExecute(Sender : TObject);
 		procedure PopupMenuHistoryPopup(Sender : TObject);
+		procedure VstHistoryBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
+			CellPaintMode : TVTCellPaintMode; CellRect : TRect; var ContentRect : TRect);
 		procedure VstHistoryFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
 		procedure VstHistoryGetHint(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
 			var LineBreakStyle : TVTTooltipLineBreakStyle; var HintText : string);
@@ -65,6 +67,7 @@ type
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
 			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
 			function GetSettings : TRipGrepperSettings;
+			procedure SetReplaceCtrls(_hio : IHistoryItemObject = nil);
 			procedure ShowReplaceColumn(const _bShow : Boolean);
 			procedure UpdateReplaceColumnVisible;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
@@ -241,6 +244,8 @@ begin
 	beu := TBeginEndUpdater.New(VstHistory);
 	// First access to data will create MainFrame.Data
 	MainFrame.Data.HistObject := _ho;
+
+	SetReplaceCtrls(_ho);
 end;
 
 procedure TMiddleLeftFrame.ChangeHistoryNodeText;
@@ -262,7 +267,7 @@ begin
 			ChangeVstReplaceNode(Node, Data);
 		end;
 	end;
-    VstHistory.Repaint;
+	VstHistory.Repaint;
 end;
 
 procedure TMiddleLeftFrame.ChangeVstReplaceNode(Node : PVirtualNode; const _Data : PVSHistoryNodeData = nil);
@@ -410,6 +415,20 @@ begin
 	SetSelectedHistoryItem(CurrentHistoryItemIndex);
 end;
 
+procedure TMiddleLeftFrame.SetReplaceCtrls(_hio : IHistoryItemObject = nil);
+var
+	hio : IHistoryItemObject;
+begin
+	if not Assigned(_hio) then begin
+		hio := GetCurrentHistoryObject();
+	end else begin
+		hio := _hio;
+	end;
+
+	ParentFrame.TopFrame.edtReplace.Enabled := not hio.IsReplaceMode;
+	ParentFrame.TopFrame.edtReplace.Text := hio.ReplaceText;
+end;
+
 procedure TMiddleLeftFrame.SetSelectedHistoryItem(const _idx : Integer);
 var
 	Node : PVirtualNode;
@@ -443,6 +462,29 @@ begin
 	end;
 
 	ShowReplaceColumn(bFoundReplace);
+end;
+
+procedure TMiddleLeftFrame.VstHistoryBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
+	Column : TColumnIndex; CellPaintMode : TVTCellPaintMode; CellRect : TRect; var ContentRect : TRect);
+var
+	R : TRect;
+begin
+	if CellPaintMode = cpmPaint then begin
+		R := Sender.GetDisplayRect(Node, Column, True, False, True);
+		R.Offset(0, -R.Top);
+		case Sender.GetNodeLevel(Node) of
+			0 : begin
+				if (Node.ChildCount = 0) then begin
+					TargetCanvas.Brush.Color := HIST_TREEVIEW_SEARCH_TEXT_BGCOLOR;
+				end else begin
+					TargetCanvas.Brush.Color := HIST_TREEVIEW_REPLACED_TEXT_BGCOLOR;
+				end;
+			end;
+			1 :
+			TargetCanvas.Brush.Color := HIST_TREEVIEW_REPLACE_TEXT_BGCOLOR;
+		end;
+		TargetCanvas.FillRect(R);
+	end;
 end;
 
 procedure TMiddleLeftFrame.VstHistoryFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
@@ -512,6 +554,8 @@ begin
 		CurrentHistoryItemIndex := idx;
 		MainFrame.UpdateHistObjectAndGui;
 	end;
+
+	SetReplaceCtrls;
 end;
 
 procedure TMiddleLeftFrame.VstHistoryNodeDblClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);

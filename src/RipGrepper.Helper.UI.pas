@@ -313,21 +313,21 @@ end;
 class procedure TItemDrawer.SetTextColorHistorySearchText(TargetCanvas : TCanvas);
 begin
 	TargetCanvas.Font.Color := HIST_TREEVIEW_SEARCH_TEXT_COLOR;
-	TargetCanvas.Brush.Color := HIST_TREEVIEW_SEARCH_TEXT_BGCOLOR;
+	//TargetCanvas.Brush.Color := HIST_TREEVIEW_SEARCH_TEXT_BGCOLOR;
 	TargetCanvas.Font.style := HIST_TREEVIEW_SEARCH_TEXT_STYLE;
 end;
 
 class procedure TItemDrawer.SetTextColorHistoryReplaceText(TargetCanvas : TCanvas);
 begin
 	TargetCanvas.Font.Color := HIST_TREEVIEW_REPLACE_TEXT_COLOR;
-	TargetCanvas.Brush.Color := HIST_TREEVIEW_REPLACE_TEXT_BGCOLOR;
+	//TargetCanvas.Brush.Color := HIST_TREEVIEW_REPLACE_TEXT_BGCOLOR;
 	TargetCanvas.Font.style := TREEVIEW_REPLACE_TEXT_STYLE;
 end;
 
 class procedure TItemDrawer.SetTextColorHistoryReplacedText(TargetCanvas : TCanvas);
 begin
 	TargetCanvas.Font.Color := HIST_TREEVIEW_REPLACED_TEXT_COLOR;
-	TargetCanvas.Brush.Color := HIST_TREEVIEW_REPLACED_TEXT_BGCOLOR;
+	//TargetCanvas.Brush.Color := HIST_TREEVIEW_REPLACED_TEXT_BGCOLOR;
 	TargetCanvas.Font.style := TREEVIEW_REPLACED_TEXT_STYLE;
 end;
 

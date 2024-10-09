@@ -36,6 +36,7 @@ object MiddleLeftFrame: TMiddleLeftFrame
     TabOrder = 0
     TreeOptions.PaintOptions = [toShowBackground, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages]
     TreeOptions.SelectionOptions = [toFullRowSelect, toSiblingSelectConstraint]
+    OnBeforeCellPaint = VstHistoryBeforeCellPaint
     OnFreeNode = VstHistoryFreeNode
     OnGetText = VstHistoryGetText
     OnPaintText = VstHistoryPaintText
