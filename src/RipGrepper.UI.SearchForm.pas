@@ -92,6 +92,8 @@ type
 		pnlTop : TPanel;
 		TabControl1 : TTabControl;
 		cmbReplaceText : TComboBox;
+    	btnRGReplaceHelp: TButton;
+    	ActionShowRGReplaceOptionHelp: TAction;
 		procedure ActionAddParamMatchCaseExecute(Sender : TObject);
 		procedure ActionAddParamMatchCaseUpdate(Sender : TObject);
 		procedure ActionAddParamRegexExecute(Sender : TObject);
@@ -108,6 +110,7 @@ type
 		procedure ActionShowFileMaskHelpExecute(Sender : TObject);
 		procedure ActionShowInLinesExecute(Sender : TObject);
 		procedure ActionShowRGOptionsHelpExecute(Sender : TObject);
+		procedure ActionShowRGReplaceOptionHelpExecute(Sender: TObject);
 		procedure cbRgParamContextClick(Sender : TObject);
 		procedure cbRgParamEncodingClick(Sender : TObject);
 		procedure cbRgParamHiddenClick(Sender : TObject);
@@ -367,6 +370,11 @@ end;
 procedure TRipGrepperSearchDialogForm.ActionShowRGOptionsHelpExecute(Sender : TObject);
 begin
 	ShellExecute(0, 'OPEN', PChar(WWW_LINK_RG_MAN_PAGE), '', '', SW_SHOWNORMAL);
+end;
+
+procedure TRipGrepperSearchDialogForm.ActionShowRGReplaceOptionHelpExecute(Sender: TObject);
+begin
+    ShellExecute(0, 'OPEN', PChar(WWW_LINK_RG_REPLACE_MAN_PAGE), '', '', SW_SHOWNORMAL);
 end;
 
 procedure TRipGrepperSearchDialogForm.ProcessControl(_ctrl : TControl; _imgList : TImageList);

@@ -21,6 +21,7 @@ const
 	CAPTION_GRPBX_EXPERT_MODE = 'Expert Settings';
 
 	WWW_LINK_RG_MAN_PAGE = 'https://www.mankier.com/1/rg#Options';
+	WWW_LINK_RG_REPLACE_MAN_PAGE = 'https://www.mankier.com/1/rg#-r';
 	WWW_LINK_GLOBBING_HELP = 'https://www.w3schools.com/git/git_ignore.asp'; // https://www.mankier.com/5/gitignore
 
 	FORMAT_VERSION_INFO = 'v%d.%d.%d-beta';
