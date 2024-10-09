@@ -142,9 +142,10 @@ type
 			[Testcase('test4', '--vimgrep  -C=99 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
 			[Testcase('test5', '--vimgrep  --context=11 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
 			[Testcase('test6', '--vimgrep  --context=99 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
-			[Testcase('test7', '--vimgrep  --context=99 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_REPLACE + ';replace;1', ';')]
-			[Testcase('test8', '--vimgrep  --context=99 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_REPLACE +
-				';replace text more world;1', ';')]
+			[Testcase('test7', '--vimgrep  --context=99 -g=!*.bak -F -i;' + RG_PARAM_REGEX_REPLACE + ';replace;1', ';')]
+			[Testcase('test8', '--vimgrep  -C=99 -g=!*.bak -F -i;' + RG_PARAM_REGEX_REPLACE + ';replace text more world;1', ';')]
+			[Testcase('test9', '--vimgrep  -C=99 -g=!*.bak -F -i;' + RG_PARAM_REGEX_REPLACE + ';replace text more world;1', ';')]
+			[Testcase('test10', '--vimgrep  -C=99 -g=!*.bak -F -i;' + RG_PARAM_REGEX_REPLACE + ';'''';1', ';')]
 			procedure TestAddOptionsWithValue(const _sOptions, _sRegEx, _sValue : string; const _bUnique : integer);
 
 			[Test]
@@ -467,15 +468,20 @@ procedure TOptionStringsTest.TestAddOptionsWithValue(const _sOptions, _sRegEx, _
 var
 	arrOptions : TArrayEx<string>;
 	bFound : Boolean;
+	quotedVal : string;
 	sOpWithVal : string;
 begin
 	bFound := False;
-
 	var
 	op := TOptionStrings.New(_sOptions);
 	op.AddOptionWithValue(_sRegex, _sValue, _bUnique = 1);
 	arrOptions := op.AsArray;
-	sOpWithVal := _sRegex.split(['|'])[RG_PARAM_LONG_INDEX] + '=' + TOptionStrings.MaybeQuoteIfNotQuoted(_sValue);
+	if _sValue = QuotedStr('') then begin
+		quotedVal := '';
+	end else begin
+		quotedVal := TOptionStrings.MaybeQuoteIfNotQuoted(_sValue);
+	end;
+	sOpWithVal := _sRegex.split(['|'])[RG_PARAM_LONG_INDEX] + '=' + quotedVal;
 	for var s in arrOptions do begin
 		if TRegEx.IsMatch(s, '^' + TRegEx.Escape(sOpWithVal)) then begin
 			bFound := True;
@@ -523,7 +529,8 @@ begin
 		Assert.IsTrue(TRegEx.IsMatch(s, '^-+\w+'), '''' + s + ''' invalid param (maybe a glob) should not bee in the options array');
 
 		for var r in RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS do begin
-			if r = RG_PARAM_END then continue;
+			if r = RG_PARAM_END then
+				continue;
 			Assert.IsFalse(TRegEx.IsMatch(s, r), '''' + s + ''' should not bee in the options array. ''' + r + ''' removed');
 		end;
 	end;

@@ -89,7 +89,9 @@ begin
 			sValue := _sValue;
 			if _sValue.IndexOf(' ') <> -1 then begin
 				sValue := MaybeQuoteIfNotQuoted(_sValue);
-			end;
+			end else if _sValue = QuotedStr('') then begin
+				sValue := '';
+            end;
 			FOptions.Insert(0, params[RG_PARAM_LONG_INDEX] + '=' + sValue);
 		end;
 	end;

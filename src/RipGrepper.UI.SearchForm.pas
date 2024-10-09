@@ -92,8 +92,8 @@ type
 		pnlTop : TPanel;
 		TabControl1 : TTabControl;
 		cmbReplaceText : TComboBox;
-    	btnRGReplaceHelp: TButton;
-    	ActionShowRGReplaceOptionHelp: TAction;
+		btnRGReplaceHelp : TButton;
+		ActionShowRGReplaceOptionHelp : TAction;
 		procedure ActionAddParamMatchCaseExecute(Sender : TObject);
 		procedure ActionAddParamMatchCaseUpdate(Sender : TObject);
 		procedure ActionAddParamRegexExecute(Sender : TObject);
@@ -110,7 +110,7 @@ type
 		procedure ActionShowFileMaskHelpExecute(Sender : TObject);
 		procedure ActionShowInLinesExecute(Sender : TObject);
 		procedure ActionShowRGOptionsHelpExecute(Sender : TObject);
-		procedure ActionShowRGReplaceOptionHelpExecute(Sender: TObject);
+		procedure ActionShowRGReplaceOptionHelpExecute(Sender : TObject);
 		procedure cbRgParamContextClick(Sender : TObject);
 		procedure cbRgParamEncodingClick(Sender : TObject);
 		procedure cbRgParamHiddenClick(Sender : TObject);
@@ -174,6 +174,8 @@ type
 			procedure LoadInitialSettings;
 			procedure SetCmbSearchPathText(const _sPath : string);
 			procedure SetExpertGroupSize;
+			class procedure SetReplaceText(_settings : TRipGrepperSettings; const _replaceText : string);
+			procedure SetReplaceTextSetting(const _replaceText : string);
 			procedure UpdateButtonsBySettings;
 			procedure UpdateCmbsOnIDEContextChange;
 			procedure UpdateFileMasksInFileMasks;
@@ -372,9 +374,9 @@ begin
 	ShellExecute(0, 'OPEN', PChar(WWW_LINK_RG_MAN_PAGE), '', '', SW_SHOWNORMAL);
 end;
 
-procedure TRipGrepperSearchDialogForm.ActionShowRGReplaceOptionHelpExecute(Sender: TObject);
+procedure TRipGrepperSearchDialogForm.ActionShowRGReplaceOptionHelpExecute(Sender : TObject);
 begin
-    ShellExecute(0, 'OPEN', PChar(WWW_LINK_RG_REPLACE_MAN_PAGE), '', '', SW_SHOWNORMAL);
+	ShellExecute(0, 'OPEN', PChar(WWW_LINK_RG_REPLACE_MAN_PAGE), '', '', SW_SHOWNORMAL);
 end;
 
 procedure TRipGrepperSearchDialogForm.ProcessControl(_ctrl : TControl; _imgList : TImageList);
@@ -652,7 +654,7 @@ begin
 	FParamsSetByGui.SearchText := cmbSearchText.Text;
 	FParamsSetByGui.IsReplaceMode := IsReplaceMode;
 	if IsReplaceMode then begin
-		FParamsSetByGui.ReplaceText := cmbReplaceText.Text;
+		SetReplaceTextSetting(cmbReplaceText.Text);
 		FParamsSetByGui.SetRgOptionWithValue(RG_PARAM_REGEX_REPLACE, FParamsSetByGui.ReplaceText, True);
 	end else begin
 		FParamsSetByGui.SetRgOption(RG_PARAM_REGEX_REPLACE, True);
@@ -1050,6 +1052,30 @@ begin
 	end;
 end;
 
+class procedure TRipGrepperSearchDialogForm.SetReplaceText(_settings : TRipGrepperSettings; const _replaceText : string);
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetReplaceText');
+
+	_settings.LastReplaceText := _replaceText;
+	if _settings.IsReplaceMode and _replaceText.IsEmpty then begin
+		_settings.LastReplaceText := QuotedStr('');
+	end;
+	dbgMsg.Msg('LastReplaceText=' + _settings.LastReplaceText);
+end;
+
+procedure TRipGrepperSearchDialogForm.SetReplaceTextSetting(const _replaceText : string);
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetReplaceText');
+
+	FParamsSetByGui.ReplaceText := _replaceText;
+	if FParamsSetByGui.IsReplaceMode and _replaceText.IsEmpty then begin
+		FParamsSetByGui.ReplaceText := QuotedStr('');
+	end;
+	dbgMsg.Msg('LastReplaceText=' + FParamsSetByGui.ReplaceText);
+end;
+
 class function TRipGrepperSearchDialogForm.ShowSearchForm(_owner : TComponent; _settings : TRipGrepperSettings;
 	_histObj : IHistoryItemObject) : integer;
 var
@@ -1062,10 +1088,10 @@ begin
 		Result := frm.ShowModal();
 		if mrOk = Result then begin
 			_settings.LastSearchText := frm.cmbSearchText.Text;
-			_settings.LastReplaceText := frm.cmbReplaceText.Text
+			SetReplaceText(_settings, frm.cmbReplaceText.Text);
 		end else begin
 			_settings.LastSearchText := _histObj.SearchText;
-			_settings.LastReplaceText := _histObj.ReplaceText;
+			SetReplaceText(_settings, _histObj.ReplaceText);
 			dbgMsg.MsgFmtIf(_histObj.SearchText <> _histObj.GuiSearchTextParams.SearchText,
 				{ } 'ERROR? _histObj.SearchText=%s <> GuiSearchTextParams=%s',
 				[_histObj.SearchText, _histObj.GuiSearchTextParams.SearchText]);
