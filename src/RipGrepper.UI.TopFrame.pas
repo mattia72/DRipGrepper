@@ -140,7 +140,6 @@ type
 			procedure SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
 			procedure SetFilter(const _bOn : Boolean = True);
 			procedure SetReplaceMode(const _bOn : Boolean = True);
-			procedure ReplaceLineInFile(const fileName : string; lineNum : Integer; const replaceLine : string);
 			property HistItemObj : IHistoryItemObject read FHistItemObj;
 
 	end;
@@ -171,8 +170,8 @@ uses
 	RipGrepper.Common.IOTAUtils,
 	RipGrepper.Common.NodeData,
 	System.IOUtils,
-	RipGrepper.Helper.Types,
-	System.SysUtils;
+	System.SysUtils,
+	RipGrepper.Tools.FileUtils;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -329,31 +328,7 @@ begin
 		end;
 		lineNum := data.MatchData.Row;
 		replaceLine := data.MatchData.LineText;
-		ReplaceLineInFile(fileName, lineNum, replaceLine);
-	end;
-end;
-
-procedure TRipGrepperTopFrame.ReplaceLineInFile(const fileName : string; lineNum : Integer; const replaceLine : string);
-var
-	fileLines : TEncodedStringList;
-	backupFileName : string;
-begin
-	backupFileName := ChangeFileExt(fileName, FormatDateTime('.yyyymmddhhnn', Now) + '.bak');
-	CopyFile(PWideChar(fileName), PWideChar(backupFileName), true);
-
-	fileLines := TEncodedStringList.Create;
-	try
-		fileLines.LoadFromFile(fileName);
-
-		// Replace the specified line
-		if (lineNum >= 0) and (lineNum < fileLines.Count) then begin
-			fileLines[lineNum] := replaceLine;
-		end;
-
-		// Write the modified list back to the file
-		fileLines.SaveToFile(fileName);
-	finally
-		fileLines.Free;
+		TEncodedStringList.ReplaceLineInFile(fileName, lineNum, replaceLine);
 	end;
 end;
 
