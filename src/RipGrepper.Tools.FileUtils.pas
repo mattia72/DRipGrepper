@@ -259,11 +259,15 @@ class procedure TEncodedStringList.ReplaceLineInFile(const _fileName: string; co
 	_createBackup: Boolean = True);
 var
 	files : TReplaceList;
+	val: TReplaceData;
+	arr : TArrayEx<TReplaceData>;
 begin
 
 	files := TReplaceList.Create;
 	try
-        files.Add(_fileName, TReplaceData.New(_row, _replaceLine));
+		val := TReplaceData.New(_row, _replaceLine);
+		arr.Add(val);
+		files.Add(_fileName, arr);
 	finally
 		files.Free;
 	end;
