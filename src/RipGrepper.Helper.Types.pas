@@ -58,26 +58,6 @@ type
 			class operator Initialize(out Dest : TBitField);
 	end;
 
-type
-	TDrawParams = record
-		FgColor : TColor;
-		BgColor : TColor;
-		FontSize : TColor;
-		FontStyle : TFontStyles;
-		class function Save(const _canvas : TCanvas) : TDrawParams; static;
-		procedure Load(const _canvas : TCanvas);
-	end;
-
-type
-	TEncodedStringList = class(TStringList)
-		private
-			FOrigEncoding : TEncoding;
-			function GetFileEncoding(const _sFilePath : string) : TEncoding;
-
-		public
-			procedure LoadFromFile(const FileName : string); override;
-			procedure SaveToFile(const FileName : string); override;
-	end;
 
 function GetElapsedTime(const _swStart : TStopwatch) : string;
 
@@ -89,7 +69,8 @@ implementation
 uses
 	System.RegularExpressions,
 	System.StrUtils,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants,
+	Winapi.Windows;
 
 function PostInc(var Value : Integer; const n : Integer = 1) : Integer;
 begin
@@ -354,54 +335,6 @@ end;
 function TMultiLineStringHelper.IsMultiLine : Boolean;
 begin
 	Result := string(self).IndexOf(CRLF) <> -1;
-end;
-
-class function TDrawParams.Save(const _canvas : TCanvas) : TDrawParams;
-begin
-	Result.FgColor := _canvas.Font.Color;
-	Result.BgColor := _canvas.Brush.Color;
-	Result.FontSize := _canvas.Font.Size;
-	Result.FontStyle := _canvas.Font.style;
-end;
-
-procedure TDrawParams.Load(const _canvas : TCanvas);
-begin
-	_canvas.Font.Color := FgColor;
-	_canvas.Brush.Color := BgColor;
-	_canvas.Font.Size := FontSize;
-	_canvas.Font.style := FontStyle;
-end;
-
-function TEncodedStringList.GetFileEncoding(const _sFilePath : string) : TEncoding;
-const
-	MaxBOMLength = 100;
-var
-	Stream : TStream;
-	Buffer : TBytes;
-begin
-	Result := nil;
-	Stream := TFileStream.Create(_sFilePath, fmOpenRead or fmShareDenyNone);
-	try
-		SetLength(Buffer, MaxBOMLength);
-		Stream.Read(Buffer[0], MaxBOMLength);
-		TEncoding.GetBufferEncoding(Buffer, Result);
-	finally
-		Stream.Free;
-	end;
-end;
-
-procedure TEncodedStringList.LoadFromFile(const FileName : string);
-begin
-	FOrigEncoding := GetFileEncoding(FileName);
-	inherited LoadFromFile(FileName);
-end;
-
-procedure TEncodedStringList.SaveToFile(const FileName : string);
-begin
-	if Assigned(FOrigEncoding) then
-		SaveToFile(FileName, FOrigEncoding)
-	else
-		inherited SaveToFile(FileName);
 end;
 
 end.

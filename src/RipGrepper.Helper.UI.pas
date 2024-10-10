@@ -100,6 +100,15 @@ type
 			destructor Destroy; override;
 	end;
 
+	TDrawParams = record
+		FgColor : TColor;
+		BgColor : TColor;
+		FontSize : TColor;
+		FontStyle : TFontStyles;
+		class function Save(const _canvas : TCanvas) : TDrawParams; static;
+		procedure Load(const _canvas : TCanvas);
+	end;
+
 implementation
 
 uses
@@ -462,6 +471,22 @@ begin
 	finally
 		MsgDlg.Free;
 	end;
+end;
+
+class function TDrawParams.Save(const _canvas : TCanvas) : TDrawParams;
+begin
+	Result.FgColor := _canvas.Font.Color;
+	Result.BgColor := _canvas.Brush.Color;
+	Result.FontSize := _canvas.Font.Size;
+	Result.FontStyle := _canvas.Font.style;
+end;
+
+procedure TDrawParams.Load(const _canvas : TCanvas);
+begin
+	_canvas.Font.Color := FgColor;
+	_canvas.Brush.Color := BgColor;
+	_canvas.Font.Size := FontSize;
+	_canvas.Font.style := FontStyle;
 end;
 
 end.

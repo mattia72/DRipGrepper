@@ -3,7 +3,10 @@ unit RipGrepper.Tools.FileUtils;
 interface
 
 uses
-	System.SysUtils;
+	System.SysUtils,
+	System.Classes,
+	System.Generics.Collections,
+	ArrayEx;
 
 type
 	TCommandLineRec = record
@@ -17,13 +20,35 @@ type
 			class function GetModuleVersion(Instance : THandle; out iMajor, iMinor, iRelease, iBuild : Integer) : Boolean;
 
 		public
+			class procedure CreateBackup(const fileName : string);
 			class function FindExecutable(sFileName : string; out sOutpuPath : string) : Boolean;
 			class function GetAppNameAndVersion(const _exePath : string) : string;
 			class function GetAppVersion(const _exePath : string) : string;
 			class function ParseCommand(const _sCmd : string) : TCommandLineRec;
 			class function GetPackageNameAndVersion(Package : HMODULE) : string;
-			class function GetVsCodeDir: string;
+			class function GetVsCodeDir : string;
 			class function ShortToLongPath(const ShortPathName : string) : string;
+	end;
+
+	TReplaceData = record
+		Row : integer;
+		Line : string;
+		class function New(const _row: Integer; const _line: string): TReplaceData; static;
+	end;
+
+	TReplaceList = TDictionary<string, TArrayEx<TReplaceData>>;
+
+	TEncodedStringList = class(TStringList)
+		private
+			FOrigEncoding : TEncoding;
+			function GetFileEncoding(const _sFilePath : string) : TEncoding;
+
+		public
+			procedure LoadFromFile(const FileName : string); override;
+			class procedure ReplaceLineInFile(const _fileName: string; const _row: Integer; const _replaceLine: string; const _createBackup: Boolean =
+				True);
+			class procedure ReplaceLineInFiles(_list : TReplaceList; const _createBackup : Boolean = True);
+			procedure SaveToFile(const FileName : string); override;
 	end;
 
 procedure GetPackageNameInfoProc(const Name : string; NameType : TNameType; Flags : Byte; Param : Pointer);
@@ -37,7 +62,6 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	System.IOUtils,
 	RipGrepper.Common.Constants,
-	System.Classes,
 	System.RegularExpressions,
 	System.StrUtils;
 
@@ -46,6 +70,14 @@ begin
 	if NameType = ntDcpBpiName then begin
 		PString(Param)^ := name;
 	end;
+end;
+
+class procedure TFileUtils.CreateBackup(const fileName : string);
+var
+	backupFileName : string;
+begin
+	backupFileName := ChangeFileExt(fileName, FormatDateTime('.yyyymmddhhnn', Now) + '.bak');
+	CopyFile(PWideChar(fileName), PWideChar(backupFileName), true);
 end;
 
 class function TFileUtils.FindExecutable(sFileName : string; out sOutpuPath : string) : Boolean;
@@ -189,14 +221,92 @@ begin
 	Result := GetAppNameAndVersion(packageName);
 end;
 
-class function TFileUtils.GetVsCodeDir: string;
+class function TFileUtils.GetVsCodeDir : string;
 begin
-	Result :='';
+	Result := '';
 	var
 		sCodePath : string;
 	if TFileUtils.FindExecutable('code', sCodePath) then begin
 		Result := TPath.GetDirectoryName(sCodePath);
 	end;
+end;
+
+function TEncodedStringList.GetFileEncoding(const _sFilePath : string) : TEncoding;
+const
+	MaxBOMLength = 100;
+var
+	Stream : TStream;
+	Buffer : TBytes;
+begin
+	Result := nil;
+	Stream := TFileStream.Create(_sFilePath, fmOpenRead or fmShareDenyNone);
+	try
+		SetLength(Buffer, MaxBOMLength);
+		Stream.Read(Buffer[0], MaxBOMLength);
+		TEncoding.GetBufferEncoding(Buffer, Result);
+	finally
+		Stream.Free;
+	end;
+end;
+
+procedure TEncodedStringList.LoadFromFile(const FileName : string);
+begin
+	FOrigEncoding := GetFileEncoding(FileName);
+	inherited LoadFromFile(FileName);
+end;
+
+class procedure TEncodedStringList.ReplaceLineInFile(const _fileName: string; const _row: Integer; const _replaceLine: string; const
+	_createBackup: Boolean = True);
+var
+	files : TReplaceList;
+begin
+
+	files := TReplaceList.Create;
+	try
+        files.Add(_fileName, TReplaceData.New(_row, _replaceLine));
+	finally
+		files.Free;
+	end;
+
+end;
+
+class procedure TEncodedStringList.ReplaceLineInFiles(_list : TReplaceList; const _createBackup : Boolean = True);
+var
+	fileLines : TEncodedStringList;
+begin
+	for var fileName in _list.Keys do begin
+		if _createBackup then begin
+			TFileUtils.CreateBackup(fileName);
+		end;
+		fileLines := TEncodedStringList.Create;
+		try
+			fileLines.LoadFromFile(fileName);
+			for var rd : TReplaceData in _list[fileName] do begin
+				if ( rd.Row >= 0) and (rd.Row < fileLines.Count) then begin
+					fileLines[rd.Row] := rd.Line;
+				end;
+			end;
+			fileLines.SaveToFile(fileName);
+		finally
+			fileLines.Free;
+		end;
+
+	end;
+end;
+
+procedure TEncodedStringList.SaveToFile(const FileName : string);
+begin
+	if Assigned(FOrigEncoding) then begin
+		SaveToFile(FileName, FOrigEncoding)
+	end else begin
+		inherited SaveToFile(FileName);
+	end;
+end;
+
+class function TReplaceData.New(const _row: Integer; const _line: string): TReplaceData;
+begin
+	Result.Row := _row;
+	Result.Line := _line;
 end;
 
 end.
