@@ -6,8 +6,9 @@ uses
 	System.Diagnostics,
 	System.TimeSpan,
 	System.Classes,
-	ArrayEx, 
-	Vcl.Graphics;
+	ArrayEx,
+	Vcl.Graphics,
+	System.SysUtils;
 
 type
 	TStringsArrayEx = TArrayEx<TArray<string>>;
@@ -67,26 +68,36 @@ type
 		procedure Load(const _canvas : TCanvas);
 	end;
 
+type
+	TEncodedStringList = class(TStringList)
+		private
+			FOrigEncoding : TEncoding;
+			function GetFileEncoding(const _sFilePath : string) : TEncoding;
+
+		public
+			procedure LoadFromFile(const FileName : string); override;
+			procedure SaveToFile(const FileName : string); override;
+	end;
+
 function GetElapsedTime(const _swStart : TStopwatch) : string;
 
-function PostInc(var Value: Integer; const n: Integer = 1): Integer;
-function PreInc(var Value: Integer; const n: Integer = 1): Integer;
+function PostInc(var Value : Integer; const n : Integer = 1) : Integer;
+function PreInc(var Value : Integer; const n : Integer = 1) : Integer;
 
 implementation
 
 uses
-	System.SysUtils,
 	System.RegularExpressions,
 	System.StrUtils,
 	RipGrepper.Common.Constants;
 
-function PostInc(var Value: Integer; const n: Integer = 1): Integer;
+function PostInc(var Value : Integer; const n : Integer = 1) : Integer;
 begin
 	Result := Value;
 	inc(Value, n);
 end;
 
-function PreInc(var Value: Integer; const n: Integer = 1): Integer;
+function PreInc(var Value : Integer; const n : Integer = 1) : Integer;
 begin
 	inc(Value, n);
 	Result := Value;
@@ -359,6 +370,38 @@ begin
 	_canvas.Brush.Color := BgColor;
 	_canvas.Font.Size := FontSize;
 	_canvas.Font.style := FontStyle;
+end;
+
+function TEncodedStringList.GetFileEncoding(const _sFilePath : string) : TEncoding;
+const
+	MaxBOMLength = 100;
+var
+	Stream : TStream;
+	Buffer : TBytes;
+begin
+	Result := nil;
+	Stream := TFileStream.Create(_sFilePath, fmOpenRead or fmShareDenyNone);
+	try
+		SetLength(Buffer, MaxBOMLength);
+		Stream.Read(Buffer[0], MaxBOMLength);
+		TEncoding.GetBufferEncoding(Buffer, Result);
+	finally
+		Stream.Free;
+	end;
+end;
+
+procedure TEncodedStringList.LoadFromFile(const FileName : string);
+begin
+	FOrigEncoding := GetFileEncoding(FileName);
+	inherited LoadFromFile(FileName);
+end;
+
+procedure TEncodedStringList.SaveToFile(const FileName : string);
+begin
+	if Assigned(FOrigEncoding) then
+		SaveToFile(FileName, FOrigEncoding)
+	else
+		inherited SaveToFile(FileName);
 end;
 
 end.
