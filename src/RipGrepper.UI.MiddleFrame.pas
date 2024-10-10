@@ -214,7 +214,6 @@ uses
 	System.IOUtils,
 	Vcl.Clipbrd,
 	Winapi.CommCtrl,
-	RipGrepper.Helper.ListBox,
 	RipGrepper.Tools.FileUtils,
 	RipGrepper.Parsers.VimGrepMatchLine,
 	System.Math,
