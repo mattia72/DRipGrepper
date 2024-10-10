@@ -5,7 +5,7 @@ interface
 uses
 	Winapi.Windows,
 	Winapi.Messages,
-	System.SysUtils,
+
 	System.Variants,
 	System.Classes,
 	Vcl.Graphics,
@@ -169,7 +169,10 @@ uses
 	RipGrepper.UI.RipGrepOptionsForm,
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.Common.IOTAUtils,
-	RipGrepper.Common.NodeData, System.IOUtils;
+	RipGrepper.Common.NodeData,
+	System.IOUtils,
+	RipGrepper.Helper.Types,
+	System.SysUtils;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -310,35 +313,37 @@ end;
 
 procedure TRipGrepperTopFrame.ActionSaveReplacementExecute(Sender : TObject);
 var
-	data : TVSFileNodeData;
+	selectedData : TArray<TVSFileNodeData>;
 	replaceLine : string;
 	fileName : string;
 	lineNum : integer;
 begin
-	MainFrame.VstResult.GetSelectedData<TVSFileNodeData>();
+	selectedData := MainFrame.VstResult.GetSelectedData<TVSFileNodeData>();
 
-	fileName := data.FilePath;
-	if fileName.IsEmpty then begin
-		var
-		owp := MainFrame.GetOpenWithParamsFromSelected();
-		fileName := TPath.Combine(owp.DirPath, owp.FileName);
+	for var data in selectedData do begin
+		fileName := data.FilePath;
+		if fileName.IsEmpty then begin
+			var
+			owp := MainFrame.GetOpenWithParamsFromSelected();
+			fileName := TPath.Combine(owp.DirPath, owp.FileName);
+		end;
+		lineNum := data.MatchData.Row;
+		replaceLine := data.MatchData.LineText;
+		ReplaceLineInFile(fileName, lineNum, replaceLine);
 	end;
-	lineNum := data.MatchData.Row;
-	replaceLine := data.MatchData.LineText;
-	ReplaceLineInFile(fileName, lineNum, replaceLine);
 end;
 
 procedure TRipGrepperTopFrame.ReplaceLineInFile(const fileName : string; lineNum : Integer; const replaceLine : string);
 var
-	fileLines : TStringList;
+	fileLines : TEncodedStringList;
 	backupFileName : string;
 begin
-	fileLines := TStringList.Create;
+	backupFileName := ChangeFileExt(fileName, FormatDateTime('.yyyymmddhhnn', Now) + '.bak');
+	CopyFile(PWideChar(fileName), PWideChar(backupFileName), true);
+
+	fileLines := TEncodedStringList.Create;
 	try
 		fileLines.LoadFromFile(fileName);
-
-		backupFileName := ChangeFileExt(fileName, '.bak');
-		fileLines.SaveToFile(backupFileName);
 
 		// Replace the specified line
 		if (lineNum >= 0) and (lineNum < fileLines.Count) then begin
