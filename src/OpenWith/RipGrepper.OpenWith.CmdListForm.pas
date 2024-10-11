@@ -111,10 +111,13 @@ begin
 	ImageListIcons.ColorDepth := TColorDepth.cd32Bit;
 	FViewStyleIndex := 0;
 	FSettings := ASettings;
+
+	//FSettings.ReLoad; TODO: AlreadyRead shoul be set
+	FSettings.ReadIni;  //we should read ini every time, it can be overwritten by another instance...
 	dbgMsg.MsgFmt('FSettings: %s', [FSettings.ToString]);
 
 	SaveOrigHeights;
-    InitCtrlsTexts;
+	InitCtrlsTexts;
 end;
 
 procedure TOpenWithCmdList.FormCreate(Sender : TObject);
@@ -164,6 +167,7 @@ class function TOpenWithCmdList.CreateAndShow(const _settings : TOpenWithSetting
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithCmdList.CreateAndShow');
+
 	var
 	form := TOpenWithCmdList.Create(nil, _settings);
 	try

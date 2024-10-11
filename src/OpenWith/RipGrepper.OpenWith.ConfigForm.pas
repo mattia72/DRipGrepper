@@ -16,7 +16,7 @@ uses
 	System.ImageList,
 	RipGrepper.Common.Settings.AppSettings,
 	RipGrepper.UI.DpiScaler,
-	RipGrepper.Common.Settings.OpenWithSettings;
+	RipGrepper.Common.Settings.OpenWithSettings, System.IniFiles;
 
 type
 
@@ -106,7 +106,8 @@ uses
 constructor TOpenWithConfigForm.Create(AOwner : TComponent; const ASettings : TOpenWithSettings);
 begin
 	inherited Create(AOwner); // , ImageList1);
-	self.FSettings := ASettings;
+	FSettings := ASettings;
+	FSettings.ReadIni; // we should read ini every time, it can be overwritten by another instance...
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 end;
 
@@ -233,6 +234,9 @@ begin
 	Result := False;
 	if _sCmd <> '' then begin
 		sFileName := TFileUtils.ParseCommand(_sCmd).ExePath;
+		if sFileName.IsEmpty then begin
+			sFileName := _sCmd;
+		end;
 		TDebugUtils.DebugMessage(Format('TOpenWithConfigForm.CheckCommand Exe: %s ', [sFileName]));
 		if not FileExists(sFileName) then begin
 			bFound := False;
@@ -280,6 +284,9 @@ var
 	i : integer;
 begin
 	inherited;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithConfigForm.ReadSettings');
+
 	lbCommands.MultiSelect := True;
 
 	listCmdsFromSettings := TStringList.Create;
@@ -288,7 +295,7 @@ begin
 		repeat
 			var
 			sCmd := FSettings.Command[i];
-			TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.ReadSettings sCmd:%s ', [sCmd])));
+			dbgMsg.MsgFmt('sCmd:%s ', [sCmd]);
 			if sCmd = '' then
 				break;
 			listCmdsFromSettings.Add(sCmd);
@@ -300,12 +307,15 @@ begin
 		end;
 
 		for var sCmd : string in listCmdsFromSettings do begin
-			TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.ReadSettings s:%s ', [sCmd])));
-			arr := sCmd.Split([SEPARATOR]);
+			dbgMsg.MsgFmt('%s ', [sCmd]);
+			arr := sCmd.Split([SEPARATOR]); // TAB
 			if Length(arr) > 0 then begin
 				lbCommands.Items.Add(arr[1]);
-				lbCommands.Checked[lbCommands.Count - 1] := (arr[0].ToUpper() = 'TRUE');
-				TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.ReadSettings %s %s', [arr[0], arr[1]])));
+				var
+				bEnable := (arr[0].ToUpper() = 'TRUE');
+				lbCommands.Checked[lbCommands.Count - 1] := bEnable;
+
+				dbgMsg.MsgFmt('%s "%s" "%s"', [BoolToStr(bEnable, True), arr[0], arr[1]]);
 			end;
 		end;
 	finally
@@ -316,23 +326,24 @@ end;
 procedure TOpenWithConfigForm.WriteSettings;
 var
 	settings : string;
+	sCmd : string;
 begin
 	inherited;
-
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithConfigForm.WriteSettings');
 	settings := '';
 	for var i := 0 to lbCommands.Items.Count - 1 do begin
-		var
 		sCmd := lbCommands.Items[i].Replace(SEPARATOR, '', [rfReplaceAll]);
-		TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.WriteSettings %s ', [sCmd])));
-		if (CheckCommand(sCmd)) then begin
+		dbgMsg.Msg(Format('%s', [sCmd]));
+		if (lbCommands.Checked[i] and CheckCommand(sCmd)) then begin
 			settings := Format('%s' + SEPARATOR + '%s', [BoolToStr(lbCommands.Checked[i], true), sCmd]);
 		end else begin
 			settings := Format('%s' + SEPARATOR + '%s', [BoolToStr(False, true), sCmd]);
 		end;
 		FSettings.Command[i] := settings;
-		TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.WriteSettings %s ', [FSettings.Command[i]])));
+		dbgMsg.Msg(Format('%s', [FSettings.Command[i]]));
 	end;
-	FSettings.StoreToDict;
+	FSettings.WriteToIni; //save always
 end;
 
 procedure TOpenWithConfigForm.lbCommandsClick(Sender : TObject);

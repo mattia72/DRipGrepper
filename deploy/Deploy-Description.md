@@ -23,14 +23,14 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 -->
 
 ## :boom: Improvements 
-Marked with checkmark if ready, else planned as next.
+Marked with checkmark if ready, else planned ...
 - [ ] replace 
   - [x] replace ctrl on toolbar
   - [x] different color to highlight replaced text 
   - [ ] save / save all buttons
-  - [ ] rg.exe -r option handling
+  - [x] rg.exe -r option handling
 - [ ] popumenu to filter on file names only
-- [ ] _extension_ save all before search
+- [ ] __extension__: save all before search message?
 - [ ] save/load search histories in file
 - [ ] config form
   - [ ] install as _extension_ in delphi ide
@@ -44,6 +44,8 @@ Marked with checkmark if fixed, else it is known bug.
 - [ ] `Additional Options` has to have saved defaults also
 - [ ] drip icon in menu has no transparent background
 - [ ] history item delete mit `DEL` key, deletes the first item
-- [x] extension : file name not visible
+- [x] __extension__ : file name not visible
 - [x] --hidden not updated 
-- [ ] if an opened history search item is changed to replace, results are empty.only if after refresh will grid filled
+- [x] if an opened history search item is changed to replace, results are empty. (after refresh will grid filled)
+- [ ] replace to empty string causes parser error if --pretty is set
+- [x] __extension__ : Open with settings changed from menu will overwritten on closing IDE

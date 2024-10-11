@@ -78,6 +78,7 @@ type
 			/// </summary>
 			procedure LoadFromDict(); virtual; abstract;
 			procedure LoadDefaultsFromDict; virtual; abstract;
+			procedure ReCreateMemIni;
 			/// <summary>TPersistableSettings.StoreToDict
 			/// Members.StoreToDict should be called here
 			/// Writes to ini.
@@ -332,6 +333,13 @@ begin
 	end;
 end;
 
+procedure TPersistableSettings.ReCreateMemIni;
+begin
+	var iniFileName := FIniFile.FileName;
+	FIniFile.Free;
+	FIniFile := TMemIniFile.Create(iniFileName, TEncoding.UTF8);
+end;
+
 procedure TPersistableSettings.ReLoad;
 begin
 	FIsAlreadyRead := False;
@@ -363,6 +371,8 @@ end;
 
 procedure TPersistableSettings.UpdateIniFile;
 begin
+	var dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
+	dbgMsg.Msg('IniFile:' + FIniFile.FileName);
 	FIniFile.UpdateFile;
 end;
 
