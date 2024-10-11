@@ -16,7 +16,8 @@ uses
 	System.ImageList,
 	RipGrepper.Common.Settings.AppSettings,
 	RipGrepper.UI.DpiScaler,
-	RipGrepper.Common.Settings.OpenWithSettings, System.IniFiles;
+	RipGrepper.Common.Settings.OpenWithSettings,
+	System.IniFiles;
 
 type
 
@@ -262,12 +263,16 @@ end;
 
 class procedure TOpenWithConfigForm.CreateAndShow(_settings : TOpenWithSettings);
 begin
+	// write ini file content
+	_settings.UpdateIniFile;
 	var
 	form := TOpenWithConfigForm.Create(nil, _settings);
 	try
 		form.ShowModal;
 	finally
-		form.Free
+		form.Free;
+		// re read content
+		_settings.ReCreateMemIni;
 	end;
 end;
 
@@ -343,7 +348,7 @@ begin
 		FSettings.Command[i] := settings;
 		dbgMsg.Msg(Format('%s', [FSettings.Command[i]]));
 	end;
-	FSettings.WriteToIni; //save always
+	FSettings.WriteToIni; // save always
 end;
 
 procedure TOpenWithConfigForm.lbCommandsClick(Sender : TObject);
