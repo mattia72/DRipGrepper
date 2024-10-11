@@ -150,7 +150,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     object tbSaveAllReplacement: TToolButton
       Left = 424
       Top = 0
-      Action = ActionAllReplacement
+      Action = ActionSaveAllReplacement
     end
     object ToolButton6: TToolButton
       Left = 449
@@ -1455,11 +1455,11 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       ShortCut = 16467
       OnExecute = ActionShowSearchFormExecute
     end
-    object ActionAllReplacement: TAction
+    object ActionSaveAllReplacement: TAction
       Hint = 'Save All Replacement'
       ImageIndex = 32
       ShortCut = 12371
-      OnExecute = ActionAllReplacementExecute
+      OnExecute = ActionSaveAllReplacementExecute
     end
     object ActionRefreshSearch: TAction
       Category = 'Search'

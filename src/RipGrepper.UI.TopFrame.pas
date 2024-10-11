@@ -76,12 +76,12 @@ type
 		ToolButton9 : TToolButton;
 		tbSaveReplacement : TToolButton;
 		ActionSaveReplacement : TAction;
-		ActionAllReplacement : TAction;
+		ActionSaveAllReplacement: TAction;
 		tbSaveAllReplacement : TToolButton;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlignToolbarsExecute(Sender : TObject);
-		procedure ActionAllReplacementExecute(Sender : TObject);
+		procedure ActionSaveAllReplacementExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsUpdate(Sender : TObject);
 		procedure ActionCancelExecute(Sender : TObject);
@@ -139,7 +139,8 @@ type
 			procedure Init;
 			procedure SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
 			procedure SetFilter(const _bOn : Boolean = True);
-			procedure SetReplaceMode(const _bOn : Boolean = True);
+			procedure SetReplaceMode(const _bOn: Boolean = True; const _sReplaceText: string = '');
+			procedure ReplaceLineInFile(const fileName : string; lineNum : Integer; const replaceLine : string);
 			property HistItemObj : IHistoryItemObject read FHistItemObj;
 
 	end;
@@ -170,8 +171,8 @@ uses
 	RipGrepper.Common.IOTAUtils,
 	RipGrepper.Common.NodeData,
 	System.IOUtils,
-	System.SysUtils,
-	RipGrepper.Tools.FileUtils;
+	RipGrepper.Helper.Types,
+	System.SysUtils;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -204,7 +205,7 @@ begin
 	MainFrame.AlignToolBars;
 end;
 
-procedure TRipGrepperTopFrame.ActionAllReplacementExecute(Sender : TObject);
+procedure TRipGrepperTopFrame.ActionSaveAllReplacementExecute(Sender : TObject);
 begin
 	//
 end;
@@ -328,8 +329,13 @@ begin
 		end;
 		lineNum := data.MatchData.Row;
 		replaceLine := data.MatchData.LineText;
-		TEncodedStringList.ReplaceLineInFile(fileName, lineNum, replaceLine);
+		ReplaceLineInFile(fileName, lineNum, replaceLine);
 	end;
+end;
+
+procedure TRipGrepperTopFrame.ReplaceLineInFile(const fileName : string; lineNum : Integer; const replaceLine : string);
+begin
+
 end;
 
 procedure TRipGrepperTopFrame.ActionSearchExecute(Sender : TObject);
@@ -460,7 +466,7 @@ begin
 		SetReplaceMode(False);
 		SetReplaceText('');
 	end else begin
-		SetReplaceMode();
+		SetReplaceMode(True);
 		SetReplaceText(edtReplace.Text);
 	end;
 end;
@@ -568,10 +574,16 @@ begin
 	{ } IfThen(_bOn and (edtFilter.Text <> ''), IMG_IDX_FILTER_ON, IMG_IDX_FILTER_OFF);
 end;
 
-procedure TRipGrepperTopFrame.SetReplaceMode(const _bOn : Boolean);
+procedure TRipGrepperTopFrame.SetReplaceMode(const _bOn: Boolean = True; const _sReplaceText: string = '');
 begin
 	edtReplace.RightButton.ImageIndex :=
 	{ } IfThen(_bOn, IMG_IDX_REPLACE_ON, IMG_IDX_REPLACE_OFF);
+
+	edtReplace.Enabled := _bOn;
+	edtReplace.Text := _sReplaceText;
+
+	ActionSaveReplacement.Enabled := _bOn;
+	ActionSaveAllReplacement.Enabled := _bOn;
 end;
 
 procedure TRipGrepperTopFrame.SetReplaceText(const _sReplText : string);

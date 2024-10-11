@@ -187,6 +187,7 @@ type
 			// ITerminateEventProducer
 			function ProcessShouldTerminate : Boolean;
 			procedure RefreshSearch;
+			procedure SetReplaceMode(const _bOn: Boolean);
 			procedure SetResultListViewDataToHistoryObj;
 			procedure UpdateHistObjectAndCopyToSettings;
 			procedure UpdateHistObjectAndGui;
@@ -889,6 +890,15 @@ begin
 	MiddleLeftFrame1.ClearMatchesInHistoryObject();
 	InitSearch();
 	DoSearch();
+end;
+
+procedure TRipGrepperMiddleFrame.SetReplaceMode(const _bOn: Boolean);
+begin
+	if _bOn then begin
+		VstResult.TreeOptions.SelectionOptions := VstResult.TreeOptions.SelectionOptions + [toMultiSelect];
+	end else begin
+		VstResult.TreeOptions.SelectionOptions := VstResult.TreeOptions.SelectionOptions - [toMultiSelect];
+	end;
 end;
 
 function TRipGrepperMiddleFrame.SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;

@@ -259,6 +259,8 @@ class procedure TEncodedStringList.ReplaceLineInFile(const _fileName: string; co
 	_createBackup: Boolean = True);
 var
 	files : TReplaceList;
+	val: TReplaceData;
+	arr : TArrayEx<TReplaceData>;
 begin
 
 	files := TReplaceList.Create;

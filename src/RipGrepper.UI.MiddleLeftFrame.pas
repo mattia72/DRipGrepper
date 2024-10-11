@@ -67,7 +67,7 @@ type
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
 			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
 			function GetSettings : TRipGrepperSettings;
-			procedure SetReplaceCtrls(_hio : IHistoryItemObject = nil);
+			procedure SetReplaceMode(_hio : IHistoryItemObject = nil);
 			procedure ShowReplaceColumn(const _bShow : Boolean);
 			procedure UpdateReplaceColumnVisible;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
@@ -245,7 +245,7 @@ begin
 	// First access to data will create MainFrame.Data
 	MainFrame.Data.HistObject := _ho;
 
-	SetReplaceCtrls(_ho);
+	SetReplaceMode(_ho);
 end;
 
 procedure TMiddleLeftFrame.ChangeHistoryNodeText;
@@ -415,7 +415,7 @@ begin
 	SetSelectedHistoryItem(CurrentHistoryItemIndex);
 end;
 
-procedure TMiddleLeftFrame.SetReplaceCtrls(_hio : IHistoryItemObject = nil);
+procedure TMiddleLeftFrame.SetReplaceMode(_hio : IHistoryItemObject = nil);
 var
 	hio : IHistoryItemObject;
 begin
@@ -425,8 +425,7 @@ begin
 		hio := _hio;
 	end;
 
-	ParentFrame.TopFrame.edtReplace.Enabled := not hio.IsReplaceMode;
-	ParentFrame.TopFrame.edtReplace.Text := hio.ReplaceText;
+    ParentFrame.TopFrame.SetReplaceMode(hio.IsReplaceMode, hio.ReplaceText);
 end;
 
 procedure TMiddleLeftFrame.SetSelectedHistoryItem(const _idx : Integer);
@@ -555,7 +554,7 @@ begin
 		MainFrame.UpdateHistObjectAndGui;
 	end;
 
-	SetReplaceCtrls;
+	SetReplaceMode;
 end;
 
 procedure TMiddleLeftFrame.VstHistoryNodeDblClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
