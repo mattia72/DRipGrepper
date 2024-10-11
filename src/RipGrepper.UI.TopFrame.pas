@@ -580,7 +580,7 @@ begin
 	{ } IfThen(_bOn, IMG_IDX_REPLACE_ON, IMG_IDX_REPLACE_OFF);
 
 	edtReplace.Enabled := _bOn;
-	edtReplace.Text := _sReplaceText;
+	edtReplace.Text := IfThen(_sReplaceText <> '''''',_sReplaceText);
 
 	ActionSaveReplacement.Enabled := _bOn;
 	ActionSaveAllReplacement.Enabled := _bOn;
