@@ -263,7 +263,8 @@ begin
 
 	files := TReplaceList.Create;
 	try
-        files.Add(_fileName, TReplaceData.New(_row, _replaceLine));
+		var arr :=  [TReplaceData.New(_row, _replaceLine)];
+        files.Add(_fileName, arr);
 	finally
 		files.Free;
 	end;
