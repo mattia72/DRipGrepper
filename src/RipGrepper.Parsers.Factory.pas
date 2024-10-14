@@ -4,7 +4,7 @@ interface
 
 uses
 	RipGrepper.Common.Interfaces,
-	RipGrepper.Common.Constants,
+	RipGrepper.Common.SimpleTypes,
 	System.Classes,
 	ArrayEx;
 

@@ -5,6 +5,7 @@ interface
 uses
 	System.RegularExpressions,
 	RipGrepper.Common.Constants,
+    RipGrepper.Common.SimpleTypes,
 	ArrayEx,
 	System.Generics.Collections,
 	System.Classes,

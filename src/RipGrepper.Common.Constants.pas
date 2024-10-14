@@ -202,7 +202,7 @@ const
 
 	HIST_TREEVIEW_REPLACED_TEXT_COLOR = clMaroon;
 	HIST_TREEVIEW_REPLACED_TEXT_BGCOLOR = clWhite;
-	HIST_TREEVIEW_REPLACED_TEXT_STYLE = []; //[fsStrikeOut];
+	HIST_TREEVIEW_REPLACED_TEXT_STYLE = []; // [fsStrikeOut];
 
 	TREEVIEW_NORMAL_TEXT_COLOR = clDkGray;
 
@@ -233,16 +233,7 @@ const
 
 type
 
-	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
-	TFileNameType = (ftAbsolute, ftRelative);
 	EColumnIndex = (ciFile, ciRow, ciCol, ciText, ciMatchText, ciTextAfterMatch);
-
-	TRipGrepArguments = TStringList;
-
-	{$SCOPEDENUMS ON}
-	EGuiOption = (soNotSet = 0, soMatchCase = 1, soMatchWord = 2, soUseRegex = 3);
-	{$SCOPEDENUMS OFF}
-
 	TDefaults = class
 		private
 			class function GetColumnTitle(Index : EColumnIndex) : string; static;
@@ -257,6 +248,10 @@ type
 			class constructor Create;
 			class property ColumnTitle[index : EColumnIndex] : string read GetColumnTitle; default;
 	end;
+
+   	{$SCOPEDENUMS ON}
+	EGuiOption = (soNotSet = 0, soMatchCase = 1, soMatchWord = 2, soUseRegex = 3);
+	{$SCOPEDENUMS OFF}
 
 const
 	GUI_SEARCH_PARAMS : TArray<EGuiOption> = [

@@ -7,10 +7,10 @@ uses
 	System.Generics.Collections,
 	System.Generics.Defaults,
 	System.Classes,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants,
+	RipGrepper.Common.SimpleTypes;
 
 type
-
 
 	// ---------
 	TColumnData = record
@@ -33,7 +33,7 @@ type
 	IParsedObjectRow = interface(IParsedObject)
 		['{85536634-C591-43F1-B348-BC93E4E62942}']
 		function GetErrorText : string;
-		function GetColumnText(const _idx:integer) : string;
+		function GetColumnText(const _idx : integer) : string;
 		function GetIsError : Boolean;
 		function GetParserType : TParserType;
 		function GetRowNr : Integer;
@@ -100,7 +100,7 @@ type
 			constructor Create(const _por : IParsedObjectRow; _parserType : TParserType); overload;
 			destructor Destroy; override;
 			procedure CopyTo(var _por : TParsedObjectRow);
-			function GetColumnText(const _idx:integer): string;
+			function GetColumnText(const _idx : integer) : string;
 			property Columns : TArrayEx<TColumnData> read GetColumns write SetColumns;
 			property ErrorText : string read GetErrorText write SetErrorText;
 			property IsError : Boolean read GetIsError write SetIsError;
@@ -181,12 +181,12 @@ begin
 	Result := FColumns;
 end;
 
-function TParsedObjectRow.GetColumnText(const _idx:integer): string;
+function TParsedObjectRow.GetColumnText(const _idx : integer) : string;
 begin
 	Result := '';
 	if Columns.Count > _idx then begin
 		Result := FColumns[_idx].Text;
-    end;
+	end;
 end;
 
 function TParsedObjectRow.GetErrorText : string;

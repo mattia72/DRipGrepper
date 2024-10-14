@@ -66,7 +66,8 @@ uses
 	Vcl.Dialogs,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Helper.Types,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants,
+    RipGrepper.Common.SimpleTypes;
 
 constructor TRipGrepperData.Create(_vst : TCustomVirtualStringTree);
 begin

@@ -49,6 +49,7 @@ implementation
 uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Common.Constants,
+    RipGrepper.Common.SimpleTypes,
 	System.SysUtils,
 	System.IOUtils,
 	RipGrepper.Data.Parsers;

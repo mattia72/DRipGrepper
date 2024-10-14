@@ -7,6 +7,7 @@ uses
 	RipGrepper.Common.Interfaces,
 	System.RegularExpressions,
 	RipGrepper.Common.Constants,
+    RipGrepper.Common.SimpleTypes,
 	RipGrepper.Common.ParsedObject,
 	ArrayEx;
 

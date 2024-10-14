@@ -11,6 +11,7 @@ uses
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.Common.Settings.AppSettings,
 	RipGrepper.Common.Constants,
+    RipGrepper.Common.SimpleTypes,
 	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Common.Settings.RipGrepperSettings,
 	RipGrepper.Common.Settings.SearchFormSettings;
