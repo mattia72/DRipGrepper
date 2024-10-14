@@ -5,7 +5,6 @@ interface
 uses
 	Winapi.Windows,
 	Winapi.Messages,
-
 	System.Variants,
 	System.Classes,
 	Vcl.Graphics,
@@ -26,7 +25,8 @@ uses
 	Vcl.ExtCtrls,
 	Vcl.Menus,
 	RipGrepper.Common.Settings.RipGrepperSettings,
-	RipGrepper.Common.Interfaces;
+	RipGrepper.Common.Interfaces,
+	RipGrepper.Common.SimpleTypes;
 
 type
 
@@ -76,7 +76,7 @@ type
 		ToolButton9 : TToolButton;
 		tbSaveReplacement : TToolButton;
 		ActionSaveReplacement : TAction;
-		ActionSaveAllReplacement: TAction;
+		ActionSaveAllReplacement : TAction;
 		tbSaveAllReplacement : TToolButton;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
@@ -116,18 +116,18 @@ type
 
 		private
 			FDpiScaler : TRipGrepperDpiScaler;
-		FIsGuiReplaceMode: Boolean;
+			FGuiReplaceModes : TGuiReplaceModes;
 			FHistItemObj : IHistoryItemObject;
 			FPrevFoundNode : PVirtualNode;
 			FSettings : TRipGrepperSettings;
 			FViewStyleIndex : integer;
-		function GetIsGuiReplaceMode: Boolean;
+			function GetIsGuiReplaceMode : Boolean;
 			function GetSettings : TRipGrepperSettings;
 			function GetToolBarWidth(_tb : TToolBar) : Integer;
 			function IsFilterOn : Boolean;
 			function IsReplaceMode : Boolean;
 			procedure SelectNextFoundNode(const _prevFoundNode : PVirtualNode; const _searchPattern : string);
-		procedure SetIsGuiReplaceMode(const Value: Boolean);
+			procedure SetGuiReplaceModes;
 			procedure SetReplaceTextInSettings(const _sReplText : string);
 			procedure StartNewSearch;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
@@ -140,9 +140,9 @@ type
 			procedure Init;
 			procedure SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
 			procedure SetFilter(const _bOn : Boolean = True);
-			procedure SetReplaceMode(const _bOn: Boolean = True; const _sReplaceText: string = '');
+			procedure SetGuiReplaceMode(const _modes : TGuiReplaceModes; const _sReplaceText : string = '');
 			procedure ReplaceLineInFile(const fileName : string; lineNum : Integer; const replaceLine : string);
-		property IsGuiReplaceMode: Boolean read GetIsGuiReplaceMode write SetIsGuiReplaceMode;
+			property IsGuiReplaceMode : Boolean read GetIsGuiReplaceMode;
 			property HistItemObj : IHistoryItemObject read FHistItemObj;
 
 	end;
@@ -181,6 +181,7 @@ begin
 	inherited Create(AOwner);
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 	TopFrame := self;
+	FGuiReplaceModes := [EGuiReplaceMode.grmEnabled];
 end;
 
 destructor TRipGrepperTopFrame.Destroy;
@@ -465,18 +466,18 @@ end;
 procedure TRipGrepperTopFrame.edtReplaceRightButtonClick(Sender : TObject);
 begin
 	if IsGuiReplaceMode then begin
-		IsGuiReplaceMode := False;
+		Exclude(FGuiReplaceModes, EGuiReplaceMode.grmActive);
 		SetReplaceTextInSettings('');
 	end else begin
-		IsGuiReplaceMode := True;
+		Include(FGuiReplaceModes, EGuiReplaceMode.grmActive);
 		SetReplaceTextInSettings(edtReplace.Text);
 	end;
-    SetReplaceMode(IsGuiReplaceMode);
+	SetGuiReplaceModes();
 end;
 
-function TRipGrepperTopFrame.GetIsGuiReplaceMode: Boolean;
+function TRipGrepperTopFrame.GetIsGuiReplaceMode : Boolean;
 begin
-	Result := FIsGuiReplaceMode;
+	Result := EGuiReplaceMode.grmActive in FGuiReplaceModes;
 end;
 
 function TRipGrepperTopFrame.GetNextViewStyleIdx : integer;
@@ -582,21 +583,27 @@ begin
 	{ } IfThen(_bOn and (edtFilter.Text <> ''), IMG_IDX_FILTER_ON, IMG_IDX_FILTER_OFF);
 end;
 
-procedure TRipGrepperTopFrame.SetIsGuiReplaceMode(const Value: Boolean);
+procedure TRipGrepperTopFrame.SetGuiReplaceMode(const _modes : TGuiReplaceModes; const _sReplaceText : string = '');
 begin
-	FIsGuiReplaceMode := Value;
+	FGuiReplaceModes := _modes;
+	edtReplace.Text := _sReplaceText;
+	SetGuiReplaceModes();
 end;
 
-procedure TRipGrepperTopFrame.SetReplaceMode(const _bOn: Boolean = True; const _sReplaceText: string = '');
+procedure TRipGrepperTopFrame.SetGuiReplaceModes();
+
 begin
-	edtReplace.RightButton.ImageIndex :=
-	{ } IfThen(_bOn, IMG_IDX_REPLACE_ON, IMG_IDX_REPLACE_OFF);
-
-	edtReplace.Enabled := _bOn;
-	edtReplace.Text := _sReplaceText;
-
-	ActionSaveReplacement.Enabled := _bOn;
-	ActionSaveAllReplacement.Enabled := _bOn;
+	if FGuiReplaceModes = [] then begin
+		edtReplace.RightButton.ImageIndex := IMG_IDX_REPLACE_OFF;
+		edtReplace.Enabled := FALSE;
+		ActionSaveReplacement.Enabled := False;
+		ActionSaveAllReplacement.Enabled := False;
+	end else begin
+		edtReplace.Enabled := EGuiReplaceMode.grmEnabled in FGuiReplaceModes;
+		edtReplace.RightButton.ImageIndex := IfThen(EGuiReplaceMode.grmActive in FGuiReplaceModes, IMG_IDX_REPLACE_ON, IMG_IDX_REPLACE_OFF);
+		ActionSaveReplacement.Enabled := EGuiReplaceMode.grmSaveEnabled in FGuiReplaceModes;
+		ActionSaveAllReplacement.Enabled := EGuiReplaceMode.grmSaveEnabled in FGuiReplaceModes;
+	end;
 end;
 
 procedure TRipGrepperTopFrame.SetReplaceTextInSettings(const _sReplText : string);
@@ -621,7 +628,7 @@ begin
 		ParentFrame.MainFrame.MiddleLeftFrame1.DeleteCurrentHistoryItemFromList;
 		FHistItemObj := nil;
 	end;
-    ParentFrame.MainFrame.MiddleLeftFrame1.SetReplaceMode();
+	ParentFrame.MainFrame.MiddleLeftFrame1.SetReplaceMode();
 end;
 
 end.

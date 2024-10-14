@@ -31,6 +31,7 @@ uses
 	RipGrepper.Common.Interfaces,
 	System.Diagnostics,
 	RipGrepper.Common.Constants,
+    RipGrepper.Common.SimpleTypes,
 	System.Threading,
 	VirtualTrees, // GetIt TurboPack VirtualTree
 	RipGrepper.Helper.UI,

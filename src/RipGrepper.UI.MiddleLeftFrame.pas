@@ -108,7 +108,8 @@ uses
 	VirtualTrees.Types,
 	System.SysUtils,
 	System.StrUtils,
-	RipGrepper.Helper.Types;
+	RipGrepper.Helper.Types,
+	RipGrepper.Common.SimpleTypes;
 
 {$R *.dfm}
 
@@ -424,8 +425,17 @@ begin
 		hio := _hio;
 	end;
 
-    ParentFrame.TopFrame.SetReplaceMode(hio.IsReplaceMode, hio.ReplaceText);
-    ParentFrame.MainFrame.SetReplaceMode(hio.IsReplaceMode);
+	var
+		mode : TGuiReplaceModes;
+	if hio.IsReplaceMode then begin
+		Include(mode, EGuiReplaceMode.grmActive);
+		Include(mode, EGuiReplaceMode.grmSaveEnabled);
+	end else begin
+		Include(mode, EGuiReplaceMode.grmEnabled);
+	end;
+
+	ParentFrame.TopFrame.SetGuiReplaceMode(mode, hio.ReplaceText);
+	ParentFrame.MainFrame.SetReplaceMode(hio.IsReplaceMode);
 end;
 
 procedure TMiddleLeftFrame.SetSelectedHistoryItem(const _idx : Integer);
