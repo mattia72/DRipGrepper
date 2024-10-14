@@ -101,6 +101,7 @@ type
 		procedure SplitView1Resize(Sender : TObject);
 		procedure VstResultBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
 			CellPaintMode : TVTCellPaintMode; CellRect : TRect; var ContentRect : TRect);
+		procedure VstResultChecked(Sender : TBaseVirtualTree; Node : PVirtualNode);
 		procedure VstResultCompareNodes(Sender : TBaseVirtualTree; Node1, Node2 : PVirtualNode; Column : TColumnIndex;
 			var Result : Integer);
 		procedure VstResultDblClick(Sender : TObject);
@@ -1012,6 +1013,13 @@ begin
 	TargetCanvas.FillRect(CellRect);
 end;
 
+procedure TRipGrepperMiddleFrame.VstResultChecked(Sender : TBaseVirtualTree; Node : PVirtualNode);
+begin
+	if Node.Parent = VstResult.RootNode then begin
+		SelectAllSubNode(Node);
+	end;
+end;
+
 procedure TRipGrepperMiddleFrame.VstResultCompareNodes(Sender : TBaseVirtualTree; Node1, Node2 : PVirtualNode; Column : TColumnIndex;
 var Result : Integer);
 var
@@ -1163,8 +1171,8 @@ begin
 				if Node.Parent = VstResult.RootNode then begin
 					CellText := GetAbsOrRelativePath(NodeData^.FilePath);
 				end else begin
-                    CellText := NodeData^.FilePath;
-                end;
+					CellText := NodeData^.FilePath;
+				end;
 			end else begin // ttStatic
 				CellText := '';
 				if Node.Parent = VstResult.RootNode then begin
