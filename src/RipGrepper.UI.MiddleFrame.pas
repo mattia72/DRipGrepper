@@ -31,7 +31,7 @@ uses
 	RipGrepper.Common.Interfaces,
 	System.Diagnostics,
 	RipGrepper.Common.Constants,
-    RipGrepper.Common.SimpleTypes,
+	RipGrepper.Common.SimpleTypes,
 	System.Threading,
 	VirtualTrees, // GetIt TurboPack VirtualTree
 	RipGrepper.Helper.UI,
@@ -156,6 +156,7 @@ type
 			procedure RefreshCounters;
 			procedure RefreshCountersInGUI;
 			procedure RunRipGrep;
+			procedure SelectAllSubNode(ANode : PVirtualNode);
 			procedure SetColumnWidths;
 			procedure SetHistItemObject(const Value : IHistoryItemObject);
 			function SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
@@ -893,6 +894,18 @@ begin
 	DoSearch();
 end;
 
+procedure TRipGrepperMiddleFrame.SelectAllSubNode(ANode : PVirtualNode);
+begin
+	var
+	beu := TBeginEndUpdater.New(VstResult);
+	var
+	subNode := VstResult.GetFirstChild(ANode);
+	while Assigned(subNode) do begin
+		VstResult.Selected[subNode] := True;
+		subNode := VstResult.GetNextSibling(subNode);
+	end;
+end;
+
 procedure TRipGrepperMiddleFrame.SetReplaceMode(const _bOn : Boolean);
 begin
 	if _bOn then begin
@@ -902,6 +915,7 @@ begin
 		VstResult.TreeOptions.MiscOptions := VstResult.TreeOptions.MiscOptions - [toCheckSupport];
 		VstResult.TreeOptions.SelectionOptions := VstResult.TreeOptions.SelectionOptions - [toMultiSelect, toSyncCheckboxesWithSelection];
 	end;
+	VstResult.Realign;
 end;
 
 function TRipGrepperMiddleFrame.SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
@@ -1146,10 +1160,14 @@ begin
 	case Column of
 		COL_HIDDEN, COL_FILE : begin // main column, -1 if columns are hidden, 0 if they are shown
 			if TextType = ttNormal then begin
-				CellText := GetAbsOrRelativePath(NodeData^.FilePath);
+				if Node.Parent = VstResult.RootNode then begin
+					CellText := GetAbsOrRelativePath(NodeData^.FilePath);
+				end else begin
+                    CellText := NodeData^.FilePath;
+                end;
 			end else begin // ttStatic
 				CellText := '';
-				if Node.ChildCount > 0 then begin
+				if Node.Parent = VstResult.RootNode then begin
 					CellText := Format('[%d]', [Node.ChildCount]);
 				end;
 			end;
