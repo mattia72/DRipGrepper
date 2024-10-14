@@ -233,6 +233,7 @@ object OpenWithCmdList: TOpenWithCmdList
       TabOrder = 0
       ViewStyle = vsList
       OnDblClick = lbCommandsDblClick
+      OnKeyDown = lbCommandsKeyDown
     end
   end
   object pnl_Right: TPanel

@@ -54,6 +54,7 @@ type
 		procedure FormResize(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 		procedure lbCommandsDblClick(Sender : TObject);
+		procedure lbCommandsKeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
 
 		private
 			FDpiScaler : TRipGrepperDpiScaler;
@@ -112,8 +113,8 @@ begin
 	FViewStyleIndex := 0;
 	FSettings := ASettings;
 
-	//FSettings.ReLoad; TODO: AlreadyRead shoul be set
-	FSettings.ReadIni;  //we should read ini every time, it can be overwritten by another instance...
+	// FSettings.ReLoad; TODO: AlreadyRead shoul be set
+	FSettings.ReadIni; // we should read ini every time, it can be overwritten by another instance...
 	dbgMsg.MsgFmt('FSettings: %s', [FSettings.ToString]);
 
 	SaveOrigHeights;
@@ -171,7 +172,7 @@ begin
 	var
 	form := TOpenWithCmdList.Create(nil, _settings);
 	try
-//		form.InitCtrlsTexts();
+		// form.InitCtrlsTexts();
 		form.LoadEnbledCmds();
 		form.CreateScaledIcons();
 
@@ -280,6 +281,13 @@ begin
 	ActionOkExecute(Sender);
 end;
 
+procedure TOpenWithCmdList.lbCommandsKeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
+begin
+	if Key = VK_RETURN then begin
+		ActionOkExecute(Sender);
+	end;
+end;
+
 procedure TOpenWithCmdList.LoadEnbledCmds();
 var
 	sfi : TSHFileInfo;
@@ -318,11 +326,11 @@ end;
 
 procedure TOpenWithCmdList.SaveOrigHeights;
 begin
-//	if FOrigMemoHeight = 0 then begin
-		FOrigMemoHeight := Memo1.Height;
-		FMemoLineMargin := FOrigMemoHeight - Abs(Memo1.Font.Height);
-		FOrigTopPanelHeight := pnl_Top.Height;
-//	end;
+	// if FOrigMemoHeight = 0 then begin
+	FOrigMemoHeight := Memo1.Height;
+	FMemoLineMargin := FOrigMemoHeight - Abs(Memo1.Font.Height);
+	FOrigTopPanelHeight := pnl_Top.Height;
+	// end;
 end;
 
 procedure TOpenWithCmdList.SetMemoHeightByLineCount;
@@ -333,7 +341,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithCmdList.SetMemoHeightByLineCount');
 
-//	SaveOrigHeights;
+	// SaveOrigHeights;
 
 	lineCount := Memo1.Lines.Count;
 	dbgMsg.MsgFmt('lineCount: %d', [lineCount]);
