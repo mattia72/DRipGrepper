@@ -67,7 +67,6 @@ type
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
 			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
 			function GetSettings : TRipGrepperSettings;
-			procedure SetReplaceMode(_hio : IHistoryItemObject = nil);
 			procedure ShowReplaceColumn(const _bShow : Boolean);
 			procedure UpdateReplaceColumnVisible;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
@@ -85,6 +84,7 @@ type
 			function GetCurrentHistoryObject : IHistoryItemObject;
 			procedure Init;
 			procedure PrepareAndDoSearch;
+			procedure SetReplaceMode(_hio : IHistoryItemObject = nil);
 			procedure SetSelectedHistoryItem(const _idx : Integer);
 			property CurrentHistoryItemIndex : Integer read FCurrentHistoryItemIndex write FCurrentHistoryItemIndex;
 			property Data : TRipGrepperData read GetData write FData;
@@ -240,8 +240,7 @@ end;
 
 procedure TMiddleLeftFrame.ChangeDataHistItemObject(_ho : IHistoryItemObject);
 begin
-	var
-	beu := TBeginEndUpdater.New(VstHistory);
+	// var beu := TBeginEndUpdater.New(VstHistory);
 	// First access to data will create MainFrame.Data
 	MainFrame.Data.HistObject := _ho;
 
@@ -426,6 +425,7 @@ begin
 	end;
 
     ParentFrame.TopFrame.SetReplaceMode(hio.IsReplaceMode, hio.ReplaceText);
+    ParentFrame.MainFrame.SetReplaceMode(hio.IsReplaceMode);
 end;
 
 procedure TMiddleLeftFrame.SetSelectedHistoryItem(const _idx : Integer);

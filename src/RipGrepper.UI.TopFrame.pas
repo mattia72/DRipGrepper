@@ -76,7 +76,7 @@ type
 		ToolButton9 : TToolButton;
 		tbSaveReplacement : TToolButton;
 		ActionSaveReplacement : TAction;
-		ActionSaveAllReplacement : TAction;
+		ActionSaveAllReplacement: TAction;
 		tbSaveAllReplacement : TToolButton;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
@@ -113,21 +113,22 @@ type
 		procedure edtReplaceChange(Sender : TObject);
 		procedure edtReplaceRightButtonClick(Sender : TObject);
 		procedure SearchBox1Change(Sender : TObject);
-		procedure tbSaveAllReplacementClick(Sender : TObject);
-		procedure tbSaveReplacementClick(Sender : TObject);
 
 		private
 			FDpiScaler : TRipGrepperDpiScaler;
+		FIsGuiReplaceMode: Boolean;
 			FHistItemObj : IHistoryItemObject;
 			FPrevFoundNode : PVirtualNode;
 			FSettings : TRipGrepperSettings;
 			FViewStyleIndex : integer;
+		function GetIsGuiReplaceMode: Boolean;
 			function GetSettings : TRipGrepperSettings;
 			function GetToolBarWidth(_tb : TToolBar) : Integer;
 			function IsFilterOn : Boolean;
 			function IsReplaceMode : Boolean;
 			procedure SelectNextFoundNode(const _prevFoundNode : PVirtualNode; const _searchPattern : string);
-			procedure SetReplaceText(const _sReplText : string);
+		procedure SetIsGuiReplaceMode(const Value: Boolean);
+			procedure SetReplaceTextInSettings(const _sReplText : string);
 			procedure StartNewSearch;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
@@ -139,8 +140,9 @@ type
 			procedure Init;
 			procedure SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
 			procedure SetFilter(const _bOn : Boolean = True);
-			procedure SetReplaceMode(const _bOn : Boolean = True; const _sReplaceText : string = '');
+			procedure SetReplaceMode(const _bOn: Boolean = True; const _sReplaceText: string = '');
 			procedure ReplaceLineInFile(const fileName : string; lineNum : Integer; const replaceLine : string);
+		property IsGuiReplaceMode: Boolean read GetIsGuiReplaceMode write SetIsGuiReplaceMode;
 			property HistItemObj : IHistoryItemObject read FHistItemObj;
 
 	end;
@@ -172,8 +174,7 @@ uses
 	RipGrepper.Common.NodeData,
 	System.IOUtils,
 	RipGrepper.Helper.Types,
-	System.SysUtils,
-	RipGrepper.Tools.FileUtils;
+	System.SysUtils;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -318,32 +319,25 @@ var
 	replaceLine : string;
 	fileName : string;
 	lineNum : integer;
-	list : TReplaceList;
 begin
 	selectedData := MainFrame.VstResult.GetSelectedData<TVSFileNodeData>();
-	list := TReplaceList.Create;
-	try
 
-		for var data in selectedData do begin
-			fileName := data.FilePath;
-			if fileName.IsEmpty then begin
-				var
-				owp := MainFrame.GetOpenWithParamsFromSelected();
-				fileName := TPath.Combine(owp.DirPath, owp.FileName);
-			end;
-			lineNum := data.MatchData.Row;
-			replaceLine := data.MatchData.LineText;
-            list.Add(fileName, lineNum, replaceLine);
+	for var data in selectedData do begin
+		fileName := data.FilePath;
+		if fileName.IsEmpty then begin
+			var
+			owp := MainFrame.GetOpenWithParamsFromSelected();
+			fileName := TPath.Combine(owp.DirPath, owp.FileName);
 		end;
-		TEncodedStringlist.ReplaceLineInFiles(list);
-	finally
-		list.Free
+		lineNum := data.MatchData.Row;
+		replaceLine := data.MatchData.LineText;
+		ReplaceLineInFile(fileName, lineNum, replaceLine);
 	end;
 end;
 
 procedure TRipGrepperTopFrame.ReplaceLineInFile(const fileName : string; lineNum : Integer; const replaceLine : string);
 begin
-	TEncodedStringlist.ReplaceLineInFile(fileName, lineNum, replaceLine);
+
 end;
 
 procedure TRipGrepperTopFrame.ActionSearchExecute(Sender : TObject);
@@ -463,20 +457,26 @@ end;
 
 procedure TRipGrepperTopFrame.edtReplaceChange(Sender : TObject);
 begin
-	if IsReplaceMode then begin
-		SetReplaceText(edtReplace.Text);
+	if IsGuiReplaceMode then begin
+		SetReplaceTextInSettings(edtReplace.Text);
 	end;
 end;
 
 procedure TRipGrepperTopFrame.edtReplaceRightButtonClick(Sender : TObject);
 begin
-	if IsReplaceMode then begin
-		SetReplaceMode(False);
-		SetReplaceText('');
+	if IsGuiReplaceMode then begin
+		IsGuiReplaceMode := False;
+		SetReplaceTextInSettings('');
 	end else begin
-		SetReplaceMode(True);
-		SetReplaceText(edtReplace.Text);
+		IsGuiReplaceMode := True;
+		SetReplaceTextInSettings(edtReplace.Text);
 	end;
+    SetReplaceMode(IsGuiReplaceMode);
+end;
+
+function TRipGrepperTopFrame.GetIsGuiReplaceMode: Boolean;
+begin
+	Result := FIsGuiReplaceMode;
 end;
 
 function TRipGrepperTopFrame.GetNextViewStyleIdx : integer;
@@ -582,19 +582,24 @@ begin
 	{ } IfThen(_bOn and (edtFilter.Text <> ''), IMG_IDX_FILTER_ON, IMG_IDX_FILTER_OFF);
 end;
 
-procedure TRipGrepperTopFrame.SetReplaceMode(const _bOn : Boolean = True; const _sReplaceText : string = '');
+procedure TRipGrepperTopFrame.SetIsGuiReplaceMode(const Value: Boolean);
+begin
+	FIsGuiReplaceMode := Value;
+end;
+
+procedure TRipGrepperTopFrame.SetReplaceMode(const _bOn: Boolean = True; const _sReplaceText: string = '');
 begin
 	edtReplace.RightButton.ImageIndex :=
 	{ } IfThen(_bOn, IMG_IDX_REPLACE_ON, IMG_IDX_REPLACE_OFF);
 
 	edtReplace.Enabled := _bOn;
-	edtReplace.Text := IfThen(_sReplaceText <> '''''', _sReplaceText);
+	edtReplace.Text := _sReplaceText;
 
 	ActionSaveReplacement.Enabled := _bOn;
 	ActionSaveAllReplacement.Enabled := _bOn;
 end;
 
-procedure TRipGrepperTopFrame.SetReplaceText(const _sReplText : string);
+procedure TRipGrepperTopFrame.SetReplaceTextInSettings(const _sReplText : string);
 begin
 	FSettings.RipGrepParameters.ReplaceText := _sReplText;
 	MainFrame.VstResult.Repaint;
@@ -616,16 +621,7 @@ begin
 		ParentFrame.MainFrame.MiddleLeftFrame1.DeleteCurrentHistoryItemFromList;
 		FHistItemObj := nil;
 	end;
-end;
-
-procedure TRipGrepperTopFrame.tbSaveAllReplacementClick(Sender : TObject);
-begin
-	//
-end;
-
-procedure TRipGrepperTopFrame.tbSaveReplacementClick(Sender : TObject);
-begin
-	//
+    ParentFrame.MainFrame.MiddleLeftFrame1.SetReplaceMode();
 end;
 
 end.

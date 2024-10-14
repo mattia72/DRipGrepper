@@ -41,7 +41,7 @@ uses
 	RipGrepper.Common.Settings.RipGrepParameterSettings,
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.Common.Settings.RipGrepperSettings,
-	RipGrepper.UI.MiddleLeftFrame, 
+	RipGrepper.UI.MiddleLeftFrame,
 	RipGrepper.Common.NodeData;
 
 type
@@ -133,7 +133,7 @@ type
 			FSettings : TRipGrepperSettings;
 			FswSearchStart : TStopwatch;
 			FIconImgList : TIconImageList;
-			FIsReplaceMode : Boolean;
+			FIsGuiReplaceMode : Boolean;
 			FParsingThreads : TArrayEx<TParallelParser>;
 			procedure AddAsUsing(_bToImpl : Boolean);
 			procedure DoSearch;
@@ -142,7 +142,7 @@ type
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
 			function GetData : TRipGrepperData;
 			function GetHistItemObject : IHistoryItemObject;
-			function GetIsReplaceMode : Boolean;
+			function GetIsGuiReplaceMode : Boolean;
 			function GetNewParallelParser : TParallelParser;
 			function GetResultSelectedFilePath : string;
 			function GetSelectedResultFileNodeData : PVSFileNodeData;
@@ -159,7 +159,7 @@ type
 			procedure SetHistItemObject(const Value : IHistoryItemObject);
 			function SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
 			procedure UpdateArgumentsAndSettings;
-			property IsReplaceMode : Boolean read GetIsReplaceMode write FIsReplaceMode;
+			property IsGuiReplaceMode : Boolean read GetIsGuiReplaceMode write FIsGuiReplaceMode;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
 			{ Private-Deklarationen }
@@ -187,7 +187,7 @@ type
 			// ITerminateEventProducer
 			function ProcessShouldTerminate : Boolean;
 			procedure RefreshSearch;
-			procedure SetReplaceMode(const _bOn: Boolean);
+			procedure SetReplaceMode(const _bOn : Boolean);
 			procedure SetResultListViewDataToHistoryObj;
 			procedure UpdateHistObjectAndCopyToSettings;
 			procedure UpdateHistObjectAndGui;
@@ -567,9 +567,9 @@ begin
 	Result := FHistItemObj;
 end;
 
-function TRipGrepperMiddleFrame.GetIsReplaceMode : Boolean;
+function TRipGrepperMiddleFrame.GetIsGuiReplaceMode : Boolean;
 begin
-	Result := not Settings.RipGrepParameters.ReplaceText.IsEmpty;
+	Result := ParentFrame.TopFrame.IsGuiReplaceMode;
 end;
 
 function TRipGrepperMiddleFrame.GetOpenWithParamsFromSelected : TOpenWithParams;
@@ -892,12 +892,14 @@ begin
 	DoSearch();
 end;
 
-procedure TRipGrepperMiddleFrame.SetReplaceMode(const _bOn: Boolean);
+procedure TRipGrepperMiddleFrame.SetReplaceMode(const _bOn : Boolean);
 begin
 	if _bOn then begin
-		VstResult.TreeOptions.SelectionOptions := VstResult.TreeOptions.SelectionOptions + [toMultiSelect];
+		VstResult.TreeOptions.MiscOptions := VstResult.TreeOptions.MiscOptions + [toCheckSupport];
+		VstResult.TreeOptions.SelectionOptions := VstResult.TreeOptions.SelectionOptions + [toMultiSelect, toSyncCheckboxesWithSelection];
 	end else begin
-		VstResult.TreeOptions.SelectionOptions := VstResult.TreeOptions.SelectionOptions - [toMultiSelect];
+		VstResult.TreeOptions.MiscOptions := VstResult.TreeOptions.MiscOptions - [toCheckSupport];
+		VstResult.TreeOptions.SelectionOptions := VstResult.TreeOptions.SelectionOptions - [toMultiSelect, toSyncCheckboxesWithSelection];
 	end;
 end;
 
@@ -1077,19 +1079,19 @@ begin
 					TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, ss0);
 
 					ss1 := s.Substring(matchBegin, Data.MatchData.MatchLength);
-					if IsReplaceMode and (not Settings.LastSearchText.IsEmpty) then begin
+					if IsGuiReplaceMode and (not Settings.LastSearchText.IsEmpty) then begin
 						ss1_repl := TRegEx.Replace(ss1, Settings.LastSearchText, Settings.RipGrepParameters.ReplaceText, [roIgnoreCase]);
 					end;
 					ss2 := s.Substring(matchBegin + Data.MatchData.MatchLength);
 
-					if IsReplaceMode then begin
+					if IsGuiReplaceMode then begin
 						TItemDrawer.SetTextColorReplacedText(TargetCanvas);
 					end else begin
 						TItemDrawer.SetTextColorMatch(TargetCanvas);
 					end;;
 					TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1);
 					pos := pos + TargetCanvas.TextWidth(ss1);
-					if IsReplaceMode then begin
+					if IsGuiReplaceMode then begin
 						TItemDrawer.SetTextColorReplaceText(TargetCanvas);
 						TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1_repl);
 
