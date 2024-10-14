@@ -99,6 +99,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           TreeOptions.AutoOptions = [toAutoDropExpand, toAutoExpand, toAutoScrollOnExpand, toAutoSort, toAutoSpanColumns, toAutoTristateTracking, toAutoHideButtons, toAutoDeleteMovedNodes, toAutoChangeScale]
           TreeOptions.SelectionOptions = [toFullRowSelect]
           OnBeforeCellPaint = VstResultBeforeCellPaint
+          OnChecked = VstResultChecked
           OnCompareNodes = VstResultCompareNodes
           OnDblClick = VstResultDblClick
           OnDrawText = VstResultDrawText
