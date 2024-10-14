@@ -33,10 +33,17 @@ type
 	TReplaceData = record
 		Row : integer;
 		Line : string;
-		class function New(const _row: Integer; const _line: string): TReplaceData; static;
+		class function New(const _row : Integer; const _line : string) : TReplaceData; static;
 	end;
 
-	TReplaceList = TDictionary<string, TArrayEx<TReplaceData>>;
+	TReplaceList = class
+		Items : TDictionary<string, TArrayEx<TReplaceData>>;
+		procedure Add(fileName : string; row : integer; replaceLine : string);
+
+		public
+			constructor Create;
+			destructor Destroy; override;
+	end;
 
 	TEncodedStringList = class(TStringList)
 		private
@@ -45,8 +52,8 @@ type
 
 		public
 			procedure LoadFromFile(const FileName : string); override;
-			class procedure ReplaceLineInFile(const _fileName: string; const _row: Integer; const _replaceLine: string; const _createBackup: Boolean =
-				True);
+			class procedure ReplaceLineInFile(const _fileName : string; const _row : Integer; const _replaceLine : string;
+				const _createBackup : Boolean = True);
 			class procedure ReplaceLineInFiles(_list : TReplaceList; const _createBackup : Boolean = True);
 			procedure SaveToFile(const FileName : string); override;
 	end;
@@ -255,19 +262,17 @@ begin
 	inherited LoadFromFile(FileName);
 end;
 
-class procedure TEncodedStringList.ReplaceLineInFile(const _fileName: string; const _row: Integer; const _replaceLine: string; const
-	_createBackup: Boolean = True);
+class procedure TEncodedStringList.ReplaceLineInFile(const _fileName : string; const _row : Integer; const _replaceLine : string;
+	const _createBackup : Boolean = True);
 var
-	files : TReplaceList;
-	arr : TArrayEx<TReplaceData>;
+	list : TReplaceList;
 begin
-
-	files := TReplaceList.Create;
+	list := TReplaceList.Create;
 	try
-		arr :=  [TReplaceData.New(_row, _replaceLine)];
-        files.Add(_fileName, arr);
+		list.Add(_fileName, _row, _replaceLine);
+		TEncodedStringList.ReplaceLineInFiles(list);
 	finally
-		files.Free;
+		list.Free;
 	end;
 end;
 
@@ -275,16 +280,16 @@ class procedure TEncodedStringList.ReplaceLineInFiles(_list : TReplaceList; cons
 var
 	fileLines : TEncodedStringList;
 begin
-	for var fileName in _list.Keys do begin
+	for var fileName in _list.Items.Keys do begin
 		if _createBackup then begin
 			TFileUtils.CreateBackup(fileName);
 		end;
 		fileLines := TEncodedStringList.Create;
 		try
 			fileLines.LoadFromFile(fileName);
-			for var rd : TReplaceData in _list[fileName] do begin
-				if ( rd.Row >= 0) and (rd.Row < fileLines.Count) then begin
-					fileLines[rd.Row] := rd.Line;
+			for var rd : TReplaceData in _list.Items[fileName] do begin
+				if (rd.Row >= 0) and (rd.Row < fileLines.Count) then begin
+					fileLines[rd.Row - 1] := rd.Line;
 				end;
 			end;
 			fileLines.SaveToFile(fileName);
@@ -304,10 +309,36 @@ begin
 	end;
 end;
 
-class function TReplaceData.New(const _row: Integer; const _line: string): TReplaceData;
+class function TReplaceData.New(const _row : Integer; const _line : string) : TReplaceData;
 begin
 	Result.Row := _row;
 	Result.Line := _line;
+end;
+
+constructor TReplaceList.Create;
+begin
+	inherited;
+	Items := TDictionary < string, TArrayEx < TReplaceData >>.Create;
+end;
+
+destructor TReplaceList.Destroy;
+begin
+	Items.Free;
+	inherited;
+end;
+
+{ TReplaceList }
+
+procedure TReplaceList.Add(fileName : string; row : integer; replaceLine : string);
+var
+	replaceList : TArrayEx<TReplaceData>;
+begin
+	if Items.TryGetValue(fileName, replaceList) then begin
+		replaceList.Add(TReplaceData.New(row, replaceLine));
+	end else begin
+		replaceList := [TReplaceData.New(row, replaceLine)];
+	end;
+	Items.AddOrSetValue(fileName, replaceList);
 end;
 
 end.

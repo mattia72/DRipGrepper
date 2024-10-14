@@ -282,10 +282,16 @@ begin
 	cd.Add(TColumnData.New(ciRow, m.Groups['row'].Value));
 	cd.Add(TColumnData.New(ciCol, m.Groups['col'].Value));
 	cd.Add(TColumnData.New(ciText, m.Groups['text_before_match'].Value));
-	cd.Add(TColumnData.New(ciMatchText, m.Groups['match_text'].Value));
 	var
 	count := cd.Count;
 	if m.Groups.Count > count + 2 then begin
+		cd.Add(TColumnData.New(ciMatchText, m.Groups['match_text'].Value));
+	end else begin
+		cd.Add(TColumnData.New(ciMatchText, ''));
+	end;
+
+	count := cd.Count;
+	if m.Groups.Count > count + 3 then begin
 		cd.Add(TColumnData.New(ciTextAfterMatch, m.Groups['text_after_match'].Value));
 	end else begin
 		cd.Add(TColumnData.New(ciTextAfterMatch, ''));

@@ -39,9 +39,10 @@ type
 			procedure SetIniSectionName(const Value : string);
 			procedure WriteSettings(_bDefault : Boolean = False);
 			procedure WriteToIni(const _sIniSection, _sKey : string; const _setting : ISettingVariant);
+
 		protected
 			FIniFile : TMemIniFile;
-			FSettingsDict: TSettingsDictionary;
+			FSettingsDict : TSettingsDictionary;
 
 			FIsModified : Boolean;
 
@@ -65,7 +66,7 @@ type
 			property IniSectionName : string read GetIniSectionName write SetIniSectionName;
 			property IsAlreadyRead : Boolean read GetIsAlreadyRead;
 			property IsModified : Boolean read GetIsModified;
-			property SettingsDict: TSettingsDictionary read FSettingsDict write FSettingsDict;
+			property SettingsDict : TSettingsDictionary read FSettingsDict write FSettingsDict;
 			destructor Destroy; override;
 			procedure CopyDefaultsToValues; virtual;
 			procedure CopyValuesToDefaults; virtual;
@@ -78,7 +79,8 @@ type
 			/// </summary>
 			procedure LoadFromDict(); virtual; abstract;
 			procedure LoadDefaultsFromDict; virtual; abstract;
-			procedure ReCreateMemIni;
+			class procedure ReCreateMemIni(var _ini : TMemIniFile); overload;
+			procedure ReCreateMemIni; overload;
 			/// <summary>TPersistableSettings.StoreToDict
 			/// Members.StoreToDict should be called here
 			/// Writes to ini.
@@ -333,11 +335,17 @@ begin
 	end;
 end;
 
+class procedure TPersistableSettings.ReCreateMemIni(var _ini : TMemIniFile);
+begin
+	var
+	iniFileName := _ini.FileName;
+	_ini.Free;
+	_ini := TMemIniFile.Create(iniFileName, TEncoding.UTF8);
+end;
+
 procedure TPersistableSettings.ReCreateMemIni;
 begin
-	var iniFileName := FIniFile.FileName;
-	FIniFile.Free;
-	FIniFile := TMemIniFile.Create(iniFileName, TEncoding.UTF8);
+	ReCreateMemIni(FIniFile);
 end;
 
 procedure TPersistableSettings.ReLoad;
@@ -371,7 +379,8 @@ end;
 
 procedure TPersistableSettings.UpdateIniFile;
 begin
-	var dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
 	dbgMsg.Msg('IniFile:' + FIniFile.FileName);
 	FIniFile.UpdateFile;
 end;

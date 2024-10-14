@@ -47,5 +47,5 @@ Marked with checkmark if fixed, else it is known bug.
 - [x] __extension__ : file name not visible
 - [x] --hidden not updated 
 - [x] if an opened history search item is changed to replace, results are empty. (after refresh will grid filled)
-- [ ] replace to empty string causes parser error if --pretty is set
+- [x] replace to empty string causes parser error if --pretty is set
 - [x] __extension__ : Open with settings changed from menu will overwritten on closing IDE
