@@ -19,7 +19,7 @@ uses
 	ArrayEx,
 	RipGrepper.Common.Interfaces,
 	RipGrepper.Data.Matches,
-	RipGrepper.Data.HistoryItemObject;
+	RipGrepper.Data.HistoryItemObject, Vcl.Menus, System.ImageList, Vcl.ImgList;
 
 type
 	THistoryObjectArray = TArrayEx<IHistoryItemObject>;
@@ -31,6 +31,15 @@ type
 		ActionHistoryDeleteAll : TAction;
 		ActionCopyCmdLineToClipboard : TAction;
 		ActionOpenSearchForm : TAction;
+    PopupMenuHistory: TPopupMenu;
+    pmOpenSearchForm: TMenuItem;
+    N3: TMenuItem;
+    pmCopyCommandLine: TMenuItem;
+    N2: TMenuItem;
+    pmHistoryDelete: TMenuItem;
+    pmHistoryDeleteAll: TMenuItem;
+    ImageList1: TImageList;
+		procedure ActionCopyCmdLineToClipboardExecute(Sender: TObject);
 		procedure ActionHistoryDeleteAllExecute(Sender : TObject);
 		procedure ActionHistoryDeleteAllUpdate(Sender : TObject);
 		procedure ActionHistoryDeleteExecute(Sender : TObject);
@@ -120,6 +129,11 @@ begin
 	MiddleLeftFrame := self;
 end;
 
+procedure TMiddleLeftFrame.ActionCopyCmdLineToClipboardExecute(Sender: TObject);
+begin
+     ParentFrame.MainFrame.ActionCopyCmdLineToClipboardExecute(Sender);
+end;
+
 procedure TMiddleLeftFrame.ActionHistoryDeleteAllExecute(Sender : TObject);
 begin
 	MainFrame.VstResult.Clear;
@@ -139,7 +153,7 @@ var
 	Node : PVirtualNode;
 	Data : PVSHistoryNodeData;
 begin
-	ho := (* TODO: extracted code // GetHistoryObject(CurrentHistoryItemIndex) *) GetCurrentHistoryObject;
+	ho := GetCurrentHistoryObject;
 
 	Node := GetNodeByIndex(VstHistory, CurrentHistoryItemIndex);
 	Data := VstHistory.GetNodeData(Node);

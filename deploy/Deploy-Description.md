@@ -43,7 +43,8 @@ Marked with checkmark if ready, else planned ...
 Marked with checkmark if fixed, else it is known bug.
 - [ ] `Additional Options` has to have saved defaults also
 - [ ] drip icon in menu has no transparent background
-- [ ] history item delete mit `DEL` key, deletes the first item
+- [x] history item delete mit `DEL` key, deletes the first item
+- [ ] exception if rg.exe not found 
 - [x] __extension__ : file name not visible
 - [x] --hidden not updated 
 - [x] if an opened history search item is changed to replace, results are empty. (after refresh will grid filled)
