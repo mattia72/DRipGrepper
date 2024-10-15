@@ -427,15 +427,21 @@ begin
 
 	var
 		mode : TGuiReplaceModes;
-	if hio.IsReplaceMode then begin
+	if not Assigned(_hio) then begin
+        mode := [];
+    end else if hio.IsReplaceMode then begin
 		Include(mode, EGuiReplaceMode.grmActive);
 		Include(mode, EGuiReplaceMode.grmSaveEnabled);
 	end else begin
 		Include(mode, EGuiReplaceMode.grmEnabled);
 	end;
 
-	ParentFrame.TopFrame.SetGuiReplaceMode(mode, hio.ReplaceText);
-	ParentFrame.MainFrame.SetReplaceMode(hio.IsReplaceMode);
+    var repText := '';
+    if Assigned(_hio) then begin
+        repText := hio.ReplaceText;
+    end;
+	ParentFrame.TopFrame.SetGuiReplaceMode(mode, repText);
+	ParentFrame.MainFrame.SetReplaceMode(Assigned(_hio) and hio.IsReplaceMode);
 end;
 
 procedure TMiddleLeftFrame.SetSelectedHistoryItem(const _idx : Integer);
