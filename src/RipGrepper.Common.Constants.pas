@@ -16,7 +16,7 @@ const
 	CAPTION_EXTENSION_MENU = 'DRipGrepper';
 	HOME_PAGE = 'https://github.com/mattia72/DRipGrepper';
 
-	VSCODE_RG_EXE_PATH = 'resources\app\node_modules.asar.unpacked\@vscode\ripgrep\bin\rg.exe';
+	VSCODE_RG_EXE_FIND_PATH = 'resources\app';
 
 	CAPTION_GRPBX_EXPERT_MODE = 'Expert Settings';
 

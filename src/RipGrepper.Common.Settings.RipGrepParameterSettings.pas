@@ -12,7 +12,7 @@ uses
 	RipGrepper.Helper.Types,
 	System.Generics.Collections,
 	RipGrepper.CommandLine.OptionStrings,
-    RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.SimpleTypes;
 
 type
 
@@ -148,33 +148,38 @@ var
 	scoopRgPath : string;
 	vscodeRgPath : string;
 begin
-
+	var
+	dbgMsg := TDebugMsgBeginEnd.New(' TRipGrepParameterSettings.InitRipGrepExePath');
 	if FRipGrepPath.IsEmpty or (not FileExists(FRipGrepPath)) then begin
 		rgExists := TFileUtils.FindExecutable('rg.exe', rgPath);
+		dbgMsg.MsgFmt('rgExists=%s, rgPath=%s', [BoolToStr(rgExists), rgPath]);
 		if not rgExists then begin
 			scoopRgPath := TPath.Combine(GetEnvironmentVariable('SCOOP'), 'apps\ripgrep\current\rg.exe');
 			if FileExists(scoopRgPath) then begin
 				rgPath := scoopRgPath;
+				dbgMsg.MsgFmt('RG.EXE Found in scoopRgPath=%s', [scoopRgPath]);
 			end else begin
 				var
 					sVsDir : string := TFileUtils.GetVsCodeDir;
 				if not sVsDir.IsEmpty then begin
 					sVsDir := TFileUtils.ShortToLongPath(sVsDir.Remove(sVsDir.Length - '\bin'.Length));
-					vscodeRgPath := TPath.Combine(sVsdir, VSCODE_RG_EXE_PATH);
-					if FileExists(vscodeRgPath) then begin
+					vscodeRgPath := TFileUtils.FindFileInSubDirs(TPath.Combine(sVsDir, VSCODE_RG_EXE_FIND_PATH), 'rg.exe');
+					if not vscodeRgPath.IsEmpty then begin
 						rgPath := vscodeRgPath;
+						dbgMsg.MsgFmt('RG.EXE Found in vscodeRgPath=%s', [vscodeRgPath]);
 					end;
 				end;
 			end;
 			if not FileExists(rgPath) then begin
+				dbgMsg.MsgFmt('RG.EXE not found in rgPath=%s', [rgPath]);
 				TMsgBox.ShowError(Format(FORMAT_RIPGREP_EXE_NOT_FOUND, [FIniFile.FileName]));
+				rgPath := '';
 			end;
 			// raise Exception.Create('RipGrep(rg.exe) not found');
 		end;
-
 		FRipGrepPath := rgPath.Trim();
 	end;
-	FbRgPathInitOk := True;
+	FbRgPathInitOk := FileExists(FRipGrepPath);
 end;
 
 procedure TRipGrepParameterSettings.LoadFromDict();

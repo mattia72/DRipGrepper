@@ -22,6 +22,7 @@ type
 		public
 			class procedure CreateBackup(const fileName : string);
 			class function FindExecutable(sFileName : string; out sOutpuPath : string) : Boolean;
+			class function FindFileInSubDirs(const _dir: string; const _file : string): string;
 			class function GetAppNameAndVersion(const _exePath : string) : string;
 			class function GetAppVersion(const _exePath : string) : string;
 			class function ParseCommand(const _sCmd : string) : TCommandLineRec;
@@ -105,6 +106,23 @@ begin
 
 	TDebugUtils.DebugMessage('TFileUtils.FindExecutable: ' + sFileName + ' path:' + sOutpuPath);
 	// WriteDebugMessage(sOutpuPath);
+end;
+
+class function TFileUtils.FindFileInSubDirs(const _dir: string; const _file : string): string;
+begin
+	Result := '';
+	var rgPath := TPath.Combine(_dir, _file);
+	if FileExists(rgPath) then begin
+		Result := rgPath;
+	end else begin
+		var dirs := TDirectory.GetDirectories(_dir);
+		for var dir in dirs do begin
+			Result := FindFileInSubDirs(dir, _file);
+			if not Result.IsEmpty then begin
+				break;
+			end;
+		end;
+	end;
 end;
 
 class function TFileUtils.ShortToLongPath(const ShortPathName : string) : string;
