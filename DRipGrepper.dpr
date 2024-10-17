@@ -78,7 +78,8 @@ uses
   RipGrepper.CommandLine.OptionStrings in 'src\RipGrepper.CommandLine.OptionStrings.pas',
   RipGrepper.UI.MiddleLeftFrame in 'src\RipGrepper.UI.MiddleLeftFrame.pas' {MiddleLeftFrame: TFrame},
   RipGrepper.Common.NodeData in 'src\RipGrepper.Common.NodeData.pas',
-  RipGrepper.Common.SimpleTypes in 'src\RipGrepper.Common.SimpleTypes.pas';
+  RipGrepper.Common.SimpleTypes in 'src\RipGrepper.Common.SimpleTypes.pas',
+  RipGrepper.UI.ConfigForm in 'src\RipGrepper.UI.ConfigForm.pas' {ConfigForm};
 
 {$R *.res}
 

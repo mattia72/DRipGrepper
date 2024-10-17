@@ -174,7 +174,8 @@ uses
 	RipGrepper.Common.NodeData,
 	System.IOUtils,
 	RipGrepper.Helper.Types,
-	System.SysUtils;
+	System.SysUtils,
+	RipGrepper.UI.ConfigForm;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -246,12 +247,21 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperTopFrame.ActionConfigExecute');
 	var
-	Settings := Settings.OpenWithSettings;
-	Settings.TestFile := MainFrame.GetOpenWithParamsFromSelected();
-	dbgMsg.Msg('TestFile: ' + Settings.TestFile.DirPath + '\' + Settings.TestFile.FileName);
-	TOpenWithConfigForm.CreateAndShow(Settings);
-	Settings.TestFile := default (TOpenWithParams);
-	Settings.Reload();
+	owSettings := Settings.OpenWithSettings;
+	owSettings.TestFile := MainFrame.GetOpenWithParamsFromSelected();
+	dbgMsg.Msg('TestFile: ' + owSettings.TestFile.DirPath + '\' + owSettings.TestFile.FileName);
+
+	// TOpenWithConfigForm.CreateAndShow(Settings);
+	var
+	owForm := TConfigForm.Create(Settings);
+	try
+		owForm.ShowModal;
+	finally
+		owForm.Free;
+	end;
+
+	owSettings.TestFile := default (TOpenWithParams);
+	owSettings.Reload();
 end;
 
 procedure TRipGrepperTopFrame.ActionCopyFileNameExecute(Sender : TObject);
