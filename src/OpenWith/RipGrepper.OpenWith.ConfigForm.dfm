@@ -372,10 +372,12 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Anchors = [akLeft, akTop, akRight, akBottom]
       AutoComplete = False
       Color = clHighlightText
+      ItemHeight = 15
       Items.Strings = (
-        'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"'
         'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"'
-        'notepad++.exe "<FILE>" -n<LINE> -c<COL>')
+        'notepad++.exe "<FILE>" -n<LINE> -c<COL>'
+        'explorer.exe /select,"<FILE>"'
+        'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"')
       ParentShowHint = False
       ShowHint = True
       StyleName = 'Windows'
