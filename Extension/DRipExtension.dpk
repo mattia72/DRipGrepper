@@ -93,7 +93,10 @@ contains
   dpipes in '..\external\dpipes.pas',
   dprocess in '..\external\dprocess.pas',
   RipGrepper.CommandLine.OptionStrings in '..\src\RipGrepper.CommandLine.OptionStrings.pas',
-  RipGrepper.Common.Settings.ExtensionSettings in '..\src\RipGrepper.Common.Settings.ExtensionSettings.pas';
+  RipGrepper.Common.Settings.ExtensionSettings in '..\src\RipGrepper.Common.Settings.ExtensionSettings.pas',
+  RipGrepper.Common.Settings.SettingsDictionary in '..\src\RipGrepper.Common.Settings.SettingsDictionary.pas',
+  RipGrepper.UI.MiddleLeftFrame in '..\src\RipGrepper.UI.MiddleLeftFrame.pas',
+  RipGrepper.UI.ConfigForm in '..\src\RipGrepper.UI.ConfigForm.pas';
 
 end.
 

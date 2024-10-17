@@ -210,6 +210,13 @@
         <DCCReference Include="..\external\dprocess.pas"/>
         <DCCReference Include="..\src\RipGrepper.CommandLine.OptionStrings.pas"/>
         <DCCReference Include="..\src\RipGrepper.Common.Settings.ExtensionSettings.pas"/>
+        <DCCReference Include="..\src\RipGrepper.Common.Settings.SettingsDictionary.pas"/>
+        <DCCReference Include="..\src\RipGrepper.UI.MiddleLeftFrame.pas">
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="..\src\RipGrepper.UI.ConfigForm.pas">
+            <FormType>dfm</FormType>
+        </DCCReference>
         <RcItem Include="Resources\about_icon.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>about_icon</ResourceId>
