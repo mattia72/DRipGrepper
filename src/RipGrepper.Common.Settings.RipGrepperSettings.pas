@@ -6,7 +6,7 @@ uses
 	System.Classes,
 	System.IniFiles,
 	RipGrepper.Common.Constants,
-    RipGrepper.Common.SimpleTypes,
+	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Common.Settings.AppSettings,
 	RipGrepper.Common.Settings.Persistable,
 	RipGrepper.Common.Settings.RipGrepParameterSettings,
@@ -48,7 +48,7 @@ type
 			procedure SetSearchTextsHistory(const Value : TStrings);
 			procedure StoreHistoryEntries(const _list : TStrings; const _section : string);
 			function GetActualSearchPath : string;
-			function GetIsReplaceMode: Boolean;
+			function GetIsReplaceMode : Boolean;
 			function GetSearchFormSettings : TSearchFormSettings;
 			procedure LoadFirstNecessarySettings;
 			procedure SetReplaceTextsHistory(const Value : TStrings);
@@ -70,6 +70,8 @@ type
 			procedure RebuildArguments;
 			procedure LoadFromDict(); override;
 			procedure LoadInitialSettings;
+			procedure ReCreateMemIni; overload; virtual;
+			procedure ReLoad; override;
 			procedure StoreAsDefaultsToDict; override;
 			procedure StoreHistories;
 			property LastSearchText : string read FLastSearchText write FLastSearchText;
@@ -83,7 +85,7 @@ type
 			property OpenWithSettings : TOpenWithSettings read FOpenWithSettings;
 			property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings write FSearchFormSettings;
 			property AppSettings : TAppSettings read FAppSettings write FAppSettings;
-			property IsReplaceMode: Boolean read GetIsReplaceMode;
+			property IsReplaceMode : Boolean read GetIsReplaceMode;
 			property LastReplaceText : string read FLastReplaceText write FLastReplaceText;
 			property NodeLookSettings : TNodeLookSettings read FNodeLookSettings write FNodeLookSettings;
 			property SearchPathIsDir : Boolean read GetSearchPathIsDir;
@@ -216,11 +218,12 @@ begin
 		var
 		s := _other as TRipGrepperSettings;
 
-		FSearchFormSettings.Copy(s.SearchFormSettings);
 		FAppSettings.Copy(s.AppSettings);
-		FRipGrepParameters.Copy(s.RipGrepParameters);;
 		FNodeLookSettings.Copy(s.NodeLookSettings);;
 		FOpenWithSettings.Copy(s.OpenWithSettings);;
+		FRipGrepParameters.Copy(s.RipGrepParameters);;
+		FSearchFormSettings.Copy(s.SearchFormSettings);
+
 		FSearchPathsHistory.Assign(s.SearchPathsHistory);
 		FSearchTextsHistory.Assign(s.SearchTextsHistory);
 		FReplaceTextsHistory.Assign(s.ReplaceTextsHistory);
@@ -255,9 +258,9 @@ begin
 	{ } FOpenWithSettings.IsModified;
 end;
 
-function TRipGrepperSettings.GetIsReplaceMode: Boolean;
+function TRipGrepperSettings.GetIsReplaceMode : Boolean;
 begin
-    Result := RipGrepParameters.GuiSearchTextParams.IsReplaceMode;
+	Result := RipGrepParameters.GuiSearchTextParams.IsReplaceMode;
 end;
 
 function TRipGrepperSettings.GetSearchFormSettings : TSearchFormSettings;
@@ -283,10 +286,11 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.ReadIni');
 	try
-		FNodeLookSettings.ReadIni();
+		FAppSettings.ReadIni();
 		FNodeLookSettings.ReadIni();
 		FOpenWithSettings.ReadIni();
-		FAppSettings.ReadIni();
+		FRipGrepParameters.ReadIni();
+		FSearchFormSettings.ReadIni();
 		inherited ReadIni();
 	except
 		on E : Exception do begin
@@ -331,6 +335,26 @@ begin
 	FSearchFormSettings.LoadFromDict;
 end;
 
+procedure TRipGrepperSettings.ReCreateMemIni;
+begin
+	inherited;
+	FAppSettings.IniFile := IniFile;
+	FNodeLookSettings.IniFile := IniFile;
+	FOpenWithSettings.IniFile := IniFile;
+	FRipGrepParameters.IniFile := IniFile;
+	FSearchFormSettings.IniFile := IniFile;
+end;
+
+procedure TRipGrepperSettings.ReLoad;
+begin
+	FAppSettings.ReLoad;
+	FNodeLookSettings.ReLoad;
+	FOpenWithSettings.ReLoad;
+	FRipGrepParameters.ReLoad;
+	FSearchFormSettings.ReLoad;
+	inherited;
+end;
+
 procedure TRipGrepperSettings.SetFileMasksHistory(const Value : TStrings);
 begin
 	AddIfNotContains(FFileMasksHistory, Value);
@@ -363,11 +387,11 @@ begin
 	inherited;
 	if IsModified then begin
 		dbgMsg.Msg('IsModified');
+		FAppSettings.StoreToDict;
 		FNodeLookSettings.StoreToDict;
 		FOpenWithSettings.StoreToDict;
-		FAppSettings.StoreToDict;
-		FSearchFormSettings.StoreToDict;
 		FRipGrepParameters.StoreToDict;
+		FSearchFormSettings.StoreToDict;
 
 		if (FRipGrepParameters.IsModified) then begin
 			StoreHistories();

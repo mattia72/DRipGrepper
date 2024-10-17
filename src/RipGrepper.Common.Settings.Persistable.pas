@@ -34,8 +34,9 @@ type
 			FIniSectionName : string;
 			FIsAlreadyRead : Boolean;
 			procedure CreateIniFile;
-			function GetIniFile : TMemIniFile;
+			function GetIniFile: TMemIniFile;
 			procedure ReadSettings;
+			procedure SetIniFile(const Value: TMemIniFile);
 			procedure SetIniSectionName(const Value : string);
 			procedure WriteSettings(_bDefault : Boolean = False);
 			procedure WriteToIni(const _sIniSection, _sKey : string; const _setting : ISettingVariant);
@@ -60,9 +61,9 @@ type
 			constructor Create(const _ini : TMemIniFile); overload;
 			constructor Create; overload;
 			procedure Copy(const _other : TPersistableSettings); virtual;
-			procedure ReLoad;
+			procedure ReLoad; virtual;
 			procedure UpdateIniFile;
-			property IniFile : TMemIniFile read GetIniFile;
+			property IniFile: TMemIniFile read GetIniFile write SetIniFile;
 			property IniSectionName : string read GetIniSectionName write SetIniSectionName;
 			property IsAlreadyRead : Boolean read GetIsAlreadyRead;
 			property IsModified : Boolean read GetIsModified;
@@ -80,7 +81,7 @@ type
 			procedure LoadFromDict(); virtual; abstract;
 			procedure LoadDefaultsFromDict; virtual; abstract;
 			class procedure ReCreateMemIni(var _ini : TMemIniFile); overload;
-			procedure ReCreateMemIni; overload;
+			procedure ReCreateMemIni; overload; virtual;
 			/// <summary>TPersistableSettings.StoreToDict
 			/// Members.StoreToDict should be called here
 			/// Writes to ini.
@@ -202,7 +203,7 @@ begin
 	end;
 end;
 
-function TPersistableSettings.GetIniFile : TMemIniFile;
+function TPersistableSettings.GetIniFile: TMemIniFile;
 begin
 	Result := FIniFile;
 end;
@@ -351,6 +352,12 @@ end;
 procedure TPersistableSettings.ReLoad;
 begin
 	FIsAlreadyRead := False;
+	ReadIni;
+end;
+
+procedure TPersistableSettings.SetIniFile(const Value: TMemIniFile);
+begin
+	FIniFile := Value;
 end;
 
 procedure TPersistableSettings.SetIniSectionName(const Value : string);

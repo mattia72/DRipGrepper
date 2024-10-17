@@ -1,8 +1,8 @@
 object OpenWithConfigForm: TOpenWithConfigForm
   Left = 756
   Top = 291
-  Caption = 'Configure Open with... '
-  ClientHeight = 326
+  Caption = 'Configure Open With... '
+  ClientHeight = 330
   ClientWidth = 523
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -150,7 +150,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
   TextHeight = 15
   object pnlBottom: TPanel
     Left = 0
-    Top = 276
+    Top = 280
     Width = 523
     Height = 50
     Margins.Left = 8
@@ -166,7 +166,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       50)
     object btn_Save: TButton
       AlignWithMargins = True
-      Left = 345
+      Left = 339
       Top = 16
       Width = 75
       Height = 25
@@ -180,7 +180,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
     end
     object btn_Cancel: TButton
       AlignWithMargins = True
-      Left = 436
+      Left = 430
       Top = 16
       Width = 75
       Height = 25
@@ -197,7 +197,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
     Left = 0
     Top = 0
     Width = 523
-    Height = 276
+    Height = 280
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -207,12 +207,12 @@ object OpenWithConfigForm: TOpenWithConfigForm
     TabOrder = 1
     DesignSize = (
       523
-      276)
+      280)
     object Label1: TLabel
       AlignWithMargins = True
       Left = 10
-      Top = 206
-      Width = 288
+      Top = 210
+      Width = 282
       Height = 20
       Margins.Left = 50
       Margins.Top = 15
@@ -223,7 +223,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Caption = 'Command:'
     end
     object btnAdd: TButton
-      Left = 486
+      Left = 480
       Top = 8
       Width = 25
       Height = 25
@@ -240,8 +240,8 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 0
     end
     object btnModify: TButton
-      Left = 486
-      Top = 224
+      Left = 480
+      Top = 228
       Width = 25
       Height = 25
       Margins.Left = 8
@@ -257,7 +257,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 1
     end
     object btnMoveDown: TButton
-      Left = 486
+      Left = 480
       Top = 131
       Width = 25
       Height = 25
@@ -274,7 +274,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 2
     end
     object btnMoveUp: TButton
-      Left = 486
+      Left = 480
       Top = 90
       Width = 25
       Height = 25
@@ -291,7 +291,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 3
     end
     object btnRemove: TButton
-      Left = 486
+      Left = 480
       Top = 49
       Width = 25
       Height = 25
@@ -308,7 +308,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 4
     end
     object btnTest: TButton
-      Left = 486
+      Left = 480
       Top = 172
       Width = 25
       Height = 25
@@ -325,8 +325,8 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 5
     end
     object Button1: TButton
-      Left = 459
-      Top = 224
+      Left = 453
+      Top = 228
       Width = 25
       Height = 25
       Margins.Top = 8
@@ -343,8 +343,8 @@ object OpenWithConfigForm: TOpenWithConfigForm
     end
     object edt_OpenWithCmd: TEdit
       Left = 10
-      Top = 226
-      Width = 442
+      Top = 230
+      Width = 436
       Height = 23
       Margins.Left = 50
       Margins.Top = 8
@@ -359,7 +359,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Left = 10
       Top = 8
       Width = 472
-      Height = 184
+      Height = 188
       Hint = 
         '|Examples:'#13#10'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"'#13#10 +
         'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"'#13#10'no' +
