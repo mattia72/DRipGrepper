@@ -13,7 +13,7 @@ type
 	TOpenWithSettings = class(TPersistableSettings)
 		private
 			FCommandList : TStringList;
-			FOwnIniFile: TMemIniFile;
+			FOwnIniFile : TMemIniFile;
 			FTestFile : TOpenWithParams;
 			function GetCommand(Index : Integer) : string;
 			procedure SetCommand(Index : Integer; const Value : string);
@@ -21,6 +21,7 @@ type
 		public
 			constructor Create(const _ini : TMemIniFile);
 			destructor Destroy; override;
+			procedure ClearCommandList;
 			procedure Init; override;
 			procedure ReadIni; override; // TODO: use persistable base
 			procedure LoadFromDict(); override;
@@ -51,6 +52,12 @@ begin
 	FCommandList.Free;
 	FOwnIniFile.Free;
 	inherited Destroy(); // ok
+end;
+
+procedure TOpenWithSettings.ClearCommandList;
+begin
+	FCommandList.Clear;
+	FIsModified := True;
 end;
 
 function TOpenWithSettings.GetCommand(Index : Integer) : string;
@@ -115,8 +122,9 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.WriteToIni');
 	if { IsAlreadyRead never set :( } IsModified then begin
+		ReCreateMemIni(FOwnIniFile);
+		FOwnIniFile.EraseSection(OPEN_WITH_SETTINGS);
 		if FCommandList.Count > 0 then begin
-			ReCreateMemIni(FOwnIniFile);
 			for var i : integer := 0 to MAX_COMMAND_NUM do begin
 				s := Command[i];
 				if s.IsEmpty then
@@ -124,8 +132,8 @@ begin
 				FOwnIniFile.WriteString(OPEN_WITH_SETTINGS, OPENWITH_COMMAND_KEY + i.ToString, s);
 				dbgMsg.MsgFmt('[%s] %s%d: %s', [OPEN_WITH_SETTINGS, OPENWITH_COMMAND_KEY, i, s]);
 			end;
-            FOwnIniFile.UpdateFile;
 		end;
+		FOwnIniFile.UpdateFile;
 		FIsModified := False;
 	end;
 end;

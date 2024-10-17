@@ -337,6 +337,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithConfigForm.WriteSettings');
 	settings := '';
+    FSettings.ClearCommandList; // so deleted entries will be recognized
 	for var i := 0 to lbCommands.Items.Count - 1 do begin
 		sCmd := lbCommands.Items[i].Replace(SEPARATOR, '', [rfReplaceAll]);
 		dbgMsg.Msg(Format('%s', [sCmd]));
