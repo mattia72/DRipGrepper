@@ -104,6 +104,9 @@ begin
 
 		var // not used, but so we have less memory leak!
 		so := SearchParams.GetGuiSearchParams;
+		if so.IsReplaceMode then begin 
+			// TODO: implement replace mode
+		end;
 
 		matchPretty := FPrettyRegex.Match(s);
 		if matchPretty.Groups.Count >= 4 then begin

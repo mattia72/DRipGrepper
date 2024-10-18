@@ -125,7 +125,6 @@ type
 			function GetSettings : TRipGrepperSettings;
 			function GetToolBarWidth(_tb : TToolBar) : Integer;
 			function IsFilterOn : Boolean;
-			function IsReplaceMode : Boolean;
 			procedure SelectNextFoundNode(const _prevFoundNode : PVirtualNode; const _searchPattern : string);
 			procedure SetGuiReplaceModes;
 			procedure SetReplaceTextInSettings(const _sReplText : string);
@@ -138,6 +137,7 @@ type
 			procedure AlignToolBars(iTbResultLeft, iSearchMaxWidth, iResultMinWidth : integer);
 			function GetNextViewStyleIdx : integer;
 			procedure Init;
+			function IsReplaceMode : Boolean;
 			procedure SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
 			procedure SetFilter(const _bOn : Boolean = True);
 			procedure SetGuiReplaceMode(const _modes : TGuiReplaceModes; const _sReplaceText : string = '');

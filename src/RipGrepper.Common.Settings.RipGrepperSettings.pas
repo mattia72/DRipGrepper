@@ -60,7 +60,7 @@ type
 			constructor Create;
 			destructor Destroy; override;
 			procedure AddIfNotContains(_to, _from : TStrings);
-			procedure Copy(const _other : TPersistableSettings); reintroduce; override;
+			procedure Copy(const _other : TPersistableSettings); override;
 			procedure CopyDefaultsToValues; override;
 			function GetIsModified : Boolean; override;
 			function GetLastHistorySearchText : string;
@@ -70,7 +70,7 @@ type
 			procedure RebuildArguments;
 			procedure LoadFromDict(); override;
 			procedure LoadInitialSettings;
-			procedure ReCreateMemIni; overload; virtual;
+			procedure ReCreateMemIni; override;
 			procedure ReLoad; override;
 			procedure StoreAsDefaultsToDict; override;
 			procedure StoreHistories;
