@@ -1,7 +1,7 @@
 object OpenWithCmdList: TOpenWithCmdList
   Left = 738
   Top = 170
-  Caption = 'Open with...'
+  Caption = 'Open With...'
   ClientHeight = 292
   ClientWidth = 360
   Color = clBtnFace
