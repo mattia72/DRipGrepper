@@ -158,14 +158,10 @@
         <DCCReference Include="external\dzlib\u_dzConvertUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzClassUtils.pas"/>
         <DCCReference Include="external\dzlib\u_DelphiVersions.pas"/>
-        <DCCReference Include="src\RipGrepper.Common.Constants.pas"/>
-        <DCCReference Include="src\RipGrepper.Common.Interfaces.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.RipGrepperSettings.pas"/>
-        <DCCReference Include="src\RipGrepper.Common.ParsedObject.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.SearchFormSettings.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.Persistable.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.RipGrepParameterSettings.pas"/>
-        <DCCReference Include="src\RipGrepper.Common.Sorter.pas"/>
         <DCCReference Include="src\RipGrepper.Data.HistoryItemObject.pas"/>
         <DCCReference Include="src\RipGrepper.Data.Matches.pas"/>
         <DCCReference Include="src\RipGrepper.Data.Parsers.pas"/>
@@ -215,9 +211,6 @@
         </DCCReference>
         <DCCReference Include="src\RipGrepper.CommandLine.Builder.pas"/>
         <DCCReference Include="src\RipGrepper.CommandLine.OptionHelper.pas"/>
-        <DCCReference Include="src\RipGrepper.Common.GuiSearchParams.pas"/>
-        <DCCReference Include="src\RipGrepper.Common.IOTAUtils.pas"/>
-        <DCCReference Include="src\RipGrepper.Common.SearchParams.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.AppSettings.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.NodeLookSettings.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.OpenWithSettings.pas"/>
@@ -232,12 +225,19 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="src\RipGrepper.Common.NodeData.pas"/>
-        <DCCReference Include="src\RipGrepper.Common.SimpleTypes.pas"/>
         <DCCReference Include="src\RipGrepper.UI.ConfigForm.pas">
             <Form>ConfigForm</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="src\Common\RipGrepper.Common.Constants.pas"/>
+        <DCCReference Include="src\Common\RipGrepper.Common.GuiSearchParams.pas"/>
+        <DCCReference Include="src\Common\RipGrepper.Common.Interfaces.pas"/>
+        <DCCReference Include="src\Common\RipGrepper.Common.IOTAUtils.pas"/>
+        <DCCReference Include="src\Common\RipGrepper.Common.NodeData.pas"/>
+        <DCCReference Include="src\Common\RipGrepper.Common.ParsedObject.pas"/>
+        <DCCReference Include="src\Common\RipGrepper.Common.SearchParams.pas"/>
+        <DCCReference Include="src\Common\RipGrepper.Common.SimpleTypes.pas"/>
+        <DCCReference Include="src\Common\RipGrepper.Common.Sorter.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
