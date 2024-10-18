@@ -17,7 +17,9 @@ uses
 	RipGrepper.Common.Settings.AppSettings,
 	RipGrepper.UI.DpiScaler,
 	RipGrepper.Common.Settings.OpenWithSettings,
-	System.IniFiles;
+	System.IniFiles,
+	Vcl.ComCtrls,
+	Vcl.ToolWin;
 
 type
 
@@ -26,20 +28,15 @@ type
 		var
 			ActionListConfig : TActionList;
 			pnlBottom : TPanel;
-			btnMoveUp : TButton;
-			btnMoveDown : TButton;
 			ActionMoveUp : TAction;
 			ActionMoveDown : TAction;
-			btnTest : TButton;
 			ActionTest : TAction;
 			edt_OpenWithCmd : TEdit;
 			OpenDialog1 : TOpenDialog;
-			Button1 : TButton;
+			btnOpenFile : TButton;
 			ActionOpenFileDlg : TAction;
 			Label1 : TLabel;
 			lbCommands : TCheckListBox;
-			btnAdd : TButton;
-			btnRemove : TButton;
 			btnModify : TButton;
 			ActionModify : TAction;
 			ActionAdd : TAction;
@@ -48,6 +45,12 @@ type
 			pnlMain : TPanel;
 			ActionOk : TAction;
 			ActionCancel : TAction;
+			ToolBar1 : TToolBar;
+			tbPlus : TToolButton;
+			tbMinus : TToolButton;
+			tbUp : TToolButton;
+			tbDown : TToolButton;
+			tbTestRun : TToolButton;
 			procedure FormCreate(Sender : TObject);
 			procedure ActionAddExecute(Sender : TObject);
 			procedure ActionAddUpdate(Sender : TObject);
@@ -133,7 +136,7 @@ end;
 procedure TOpenWithConfigForm.ActionAddUpdate(Sender : TObject);
 begin
 	inherited;
-	btnAdd.Enabled := edt_OpenWithCmd.Text <> '';
+	ActionAdd.Enabled := edt_OpenWithCmd.Text <> '';
 end;
 
 procedure TOpenWithConfigForm.ActionCancelExecute(Sender : TObject);
@@ -166,7 +169,7 @@ end;
 procedure TOpenWithConfigForm.ActionMoveDownUpdate(Sender : TObject);
 begin
 	inherited;
-	btnMoveDown.Enabled := (lbCommands.SelCount = 1) and (lbCommands.ItemIndex < lbCommands.Count - 1);
+	ActionMoveDown.Enabled := (lbCommands.SelCount = 1) and (lbCommands.ItemIndex < lbCommands.Count - 1);
 end;
 
 procedure TOpenWithConfigForm.ActionMoveUpExecute(Sender : TObject);
@@ -181,7 +184,7 @@ end;
 procedure TOpenWithConfigForm.ActionMoveUpUpdate(Sender : TObject);
 begin
 	inherited;
-	btnMoveUp.Enabled := (lbCommands.SelCount = 1) and (lbCommands.ItemIndex > 0);
+	ActionMoveUp.Enabled := (lbCommands.SelCount = 1) and (lbCommands.ItemIndex > 0);
 end;
 
 procedure TOpenWithConfigForm.ActionOkExecute(Sender : TObject);
@@ -199,7 +202,7 @@ end;
 procedure TOpenWithConfigForm.ActionRemoveUpdate(Sender : TObject);
 begin
 	inherited;
-	btnRemove.Enabled := (lbCommands.SelCount = 1);
+	ActionRemove.Enabled := (lbCommands.SelCount = 1);
 end;
 
 procedure TOpenWithConfigForm.ActionTestExecute(Sender : TObject);
@@ -214,7 +217,7 @@ end;
 procedure TOpenWithConfigForm.ActionTestUpdate(Sender : TObject);
 begin
 	inherited;
-	btnTest.Enabled := (lbCommands.SelCount = 1) and (not FSettings.TestFile.IsEmpty);
+	ActionTest.Enabled := (lbCommands.SelCount = 1) and (not FSettings.TestFile.IsEmpty);
 end;
 
 procedure TOpenWithConfigForm.ActionOpenFileDlgExecute(Sender : TObject);
@@ -337,7 +340,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithConfigForm.WriteSettings');
 	settings := '';
-    FSettings.ClearCommandList; // so deleted entries will be recognized
+	FSettings.ClearCommandList; // so deleted entries will be recognized
 	for var i := 0 to lbCommands.Items.Count - 1 do begin
 		sCmd := lbCommands.Items[i].Replace(SEPARATOR, '', [rfReplaceAll]);
 		dbgMsg.Msg(Format('%s', [sCmd]));

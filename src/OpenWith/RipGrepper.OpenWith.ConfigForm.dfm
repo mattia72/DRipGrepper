@@ -2,7 +2,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
   Left = 756
   Top = 291
   Caption = 'Configure Open With... '
-  ClientHeight = 330
+  ClientHeight = 329
   ClientWidth = 523
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -150,7 +150,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
   TextHeight = 15
   object pnlBottom: TPanel
     Left = 0
-    Top = 280
+    Top = 279
     Width = 523
     Height = 50
     Margins.Left = 8
@@ -197,7 +197,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
     Left = 0
     Top = 0
     Width = 523
-    Height = 280
+    Height = 279
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -207,11 +207,11 @@ object OpenWithConfigForm: TOpenWithConfigForm
     TabOrder = 1
     DesignSize = (
       523
-      280)
+      279)
     object Label1: TLabel
       AlignWithMargins = True
       Left = 10
-      Top = 210
+      Top = 228
       Width = 282
       Height = 20
       Margins.Left = 50
@@ -222,26 +222,9 @@ object OpenWithConfigForm: TOpenWithConfigForm
       AutoSize = False
       Caption = 'Command:'
     end
-    object btnAdd: TButton
-      Left = 480
-      Top = 8
-      Width = 25
-      Height = 25
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Action = ActionAdd
-      Anchors = [akTop, akRight]
-      ImageAlignment = iaCenter
-      Images = ImageList1
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 0
-    end
     object btnModify: TButton
       Left = 480
-      Top = 228
+      Top = 246
       Width = 25
       Height = 25
       Margins.Left = 8
@@ -254,79 +237,11 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Images = ImageList1
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 1
+      TabOrder = 0
     end
-    object btnMoveDown: TButton
-      Left = 480
-      Top = 131
-      Width = 25
-      Height = 25
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Action = ActionMoveDown
-      Anchors = [akTop, akRight]
-      ImageAlignment = iaCenter
-      Images = ImageList1
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 2
-    end
-    object btnMoveUp: TButton
-      Left = 480
-      Top = 90
-      Width = 25
-      Height = 25
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Action = ActionMoveUp
-      Anchors = [akTop, akRight]
-      ImageAlignment = iaCenter
-      Images = ImageList1
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 3
-    end
-    object btnRemove: TButton
-      Left = 480
-      Top = 49
-      Width = 25
-      Height = 25
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Action = ActionRemove
-      Anchors = [akTop, akRight]
-      ImageAlignment = iaCenter
-      Images = ImageList1
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 4
-    end
-    object btnTest: TButton
-      Left = 480
-      Top = 172
-      Width = 25
-      Height = 25
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Action = ActionTest
-      Anchors = [akTop, akRight]
-      ImageAlignment = iaCenter
-      Images = ImageList1
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 5
-    end
-    object Button1: TButton
+    object btnOpenFile: TButton
       Left = 453
-      Top = 228
+      Top = 246
       Width = 25
       Height = 25
       Margins.Top = 8
@@ -339,11 +254,11 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Images = ImageList1
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 6
+      TabOrder = 1
     end
     object edt_OpenWithCmd: TEdit
       Left = 10
-      Top = 230
+      Top = 248
       Width = 436
       Height = 23
       Margins.Left = 50
@@ -351,24 +266,23 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Margins.Right = 125
       Margins.Bottom = 0
       Anchors = [akLeft, akRight, akBottom]
-      TabOrder = 7
+      TabOrder = 2
       OnKeyPress = edt_OpenWithCmdKeyPress
     end
     object lbCommands: TCheckListBox
       AlignWithMargins = True
       Left = 10
-      Top = 8
-      Width = 472
-      Height = 188
+      Top = 30
+      Width = 501
+      Height = 186
       Hint = 
         '|Examples:'#13#10'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"'#13#10 +
         'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"'#13#10'no' +
         'tepad++.exe "<FILE>" -n<LINE> -c<COL>'
-      Margins.Left = 10
+      Margins.Left = 8
       Margins.Top = 8
-      Margins.Right = 41
+      Margins.Right = 8
       Margins.Bottom = 8
-      Align = alTop
       Anchors = [akLeft, akTop, akRight, akBottom]
       AutoComplete = False
       Color = clHighlightText
@@ -381,9 +295,47 @@ object OpenWithConfigForm: TOpenWithConfigForm
       ParentShowHint = False
       ShowHint = True
       StyleName = 'Windows'
-      TabOrder = 8
+      TabOrder = 3
       OnClick = lbCommandsClick
       OnDblClick = lbCommandsDblClick
+    end
+    object ToolBar1: TToolBar
+      AlignWithMargins = True
+      Left = 8
+      Top = 3
+      Width = 507
+      Height = 22
+      Margins.Left = 8
+      Margins.Right = 8
+      AutoSize = True
+      Caption = 'ToolBar1'
+      Images = ImageList1
+      TabOrder = 4
+      object tbPlus: TToolButton
+        Left = 0
+        Top = 0
+        Action = ActionAdd
+      end
+      object tbMinus: TToolButton
+        Left = 23
+        Top = 0
+        Action = ActionRemove
+      end
+      object tbUp: TToolButton
+        Left = 46
+        Top = 0
+        Action = ActionMoveUp
+      end
+      object tbDown: TToolButton
+        Left = 69
+        Top = 0
+        Action = ActionMoveDown
+      end
+      object tbTestRun: TToolButton
+        Left = 92
+        Top = 0
+        Action = ActionTest
+      end
     end
   end
   object ActionListConfig: TActionList

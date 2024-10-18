@@ -13,9 +13,27 @@
             }
         },
         {
+            "label": "Build All & Local Deploy",
+            "type": "shell",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone -BuildExtension -LocalDeploy",
+            "problemMatcher": [],
+            "group": {
+                "kind": "none"
+            }
+        },
+        {
             "label": "Deploy",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -Deploy",
+            "problemMatcher": [],
+            "group": {
+                "kind": "none"
+            }
+        },
+        {
+            "label": "Local Deploy",
+            "type": "shell",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -LocalDeploy",
             "problemMatcher": [],
             "group": {
                 "kind": "none"

@@ -4,6 +4,7 @@ param (
     [switch] $BuildExtension,
     [switch] $RunUnittest,
     [switch] $Deploy,
+    [switch] $LocalDeploy,
     [switch] $UpdateScoopManifest
 )
     
@@ -131,7 +132,7 @@ function New-ReleaseWithAsset {
         Build-ExtensionRelease
     }
 
-    if ($Deploy) {
+    if ($Deploy -or $LocalDeploy) {
         $parentPath = Split-Path -Parent $PSScriptRoot 
         $ZipDir = $(Join-Path $parentPath 'Win32\Release')
 
@@ -145,7 +146,10 @@ function New-ReleaseWithAsset {
             Force            = $true
         }
         Compress-Archive @compress
+        Get-Childitem $global:AssetsDirectory
+    }
 
+    if ($Deploy) {
         New-Release
         New-ReleaseNotes
 
@@ -242,7 +246,7 @@ function Update-ScoopManifest {
 }
 
 function New-Deploy {
-    if ($Deploy -or $BuildStandalone -or $BuildExtension -or $RunUnittest) {
+    if ($LocalDeploy -or $Deploy -or $BuildStandalone -or $BuildExtension -or $RunUnittest) {
         #New-ReleaseNotes
         New-ReleaseWithAsset
     }
