@@ -2,6 +2,9 @@ unit RipGrepper.Tools.DebugUtils;
 
 interface
 
+uses
+	RipGrepper.Common.Settings.Instance;
+
 type
 
 	TDebugUtils = class(TObject)
@@ -128,6 +131,4 @@ begin
 	TDebugUtils.DebugMessage(Dest.FProcName + ' - end');
 end;
 
-// GSettings.StoreToDict;
-// GSettings.Free;
 end.

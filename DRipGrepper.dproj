@@ -203,8 +203,22 @@
         <DCCReference Include="src\Common\RipGrepper.Common.SearchParams.pas"/>
         <DCCReference Include="src\Common\RipGrepper.Common.SimpleTypes.pas"/>
         <DCCReference Include="src\Common\RipGrepper.Common.Sorter.pas"/>
+        <DCCReference Include="src\UI\RipGrepper.UI.MainForm.pas">
+            <Form>RipGrepperForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="src\UI\RipGrepper.UI.TopFrame.pas">
+            <Form>RipGrepperTopFrame</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <DCCReference Include="src\UI\RipGrepper.UI.BottomFrame.pas">
             <Form>RipGrepperBottomFrame</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\UI\RipGrepper.UI.MiddleFrame.pas">
+            <Form>RipGrepperMiddleFrame</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -213,15 +227,6 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="src\UI\RipGrepper.UI.DpiScaler.pas"/>
-        <DCCReference Include="src\UI\RipGrepper.UI.MainForm.pas">
-            <Form>RipGrepperForm</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="src\UI\RipGrepper.UI.MiddleFrame.pas">
-            <Form>RipGrepperMiddleFrame</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="src\UI\RipGrepper.UI.MiddleLeftFrame.pas">
             <Form>MiddleLeftFrame</Form>
             <FormType>dfm</FormType>
@@ -240,11 +245,7 @@
             <Form>RipGrepperSearchDialogForm</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="src\UI\RipGrepper.UI.TopFrame.pas">
-            <Form>RipGrepperTopFrame</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
+        <DCCReference Include="src\RipGrepper.Common.Settings.Instance.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

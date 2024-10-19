@@ -79,7 +79,8 @@ uses
   RipGrepper.UI.MiddleLeftFrame in 'src\UI\RipGrepper.UI.MiddleLeftFrame.pas' {MiddleLeftFrame: TFrame},
   RipGrepper.UI.ParentFrame in 'src\UI\RipGrepper.UI.ParentFrame.pas' {ParentFrame: TFrame},
   RipGrepper.UI.RipGrepOptionsForm in 'src\UI\RipGrepper.UI.RipGrepOptionsForm.pas' {RipGrepOptionsForm},
-  RipGrepper.UI.SearchForm in 'src\UI\RipGrepper.UI.SearchForm.pas' {RipGrepperSearchDialogForm};
+  RipGrepper.UI.SearchForm in 'src\UI\RipGrepper.UI.SearchForm.pas' {RipGrepperSearchDialogForm},
+  RipGrepper.Common.Settings.Instance in 'src\RipGrepper.Common.Settings.Instance.pas';
 
 {$R *.res}
 

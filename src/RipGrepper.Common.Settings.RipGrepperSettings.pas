@@ -93,19 +93,6 @@ type
 			property ReplaceTextsHistory : TStrings read FReplaceTextsHistory write SetReplaceTextsHistory;
 	end;
 
-type
-	TRipGrepperSettingsInstance = class
-		private
-			class var FInstance : TRipGrepperSettings;
-			class function GetInstance : TRipGrepperSettings; static;
-
-		public
-			class constructor Create;
-			class destructor Destroy;
-			class procedure FreeInstance; reintroduce;
-			class property Instance : TRipGrepperSettings read GetInstance;
-	end;
-
 var
 	GSettings : TRipGrepperSettings;
 
@@ -433,32 +420,5 @@ begin
 	end;
 end;
 
-class constructor TRipGrepperSettingsInstance.Create;
-begin
-	inherited;
-	FInstance := nil;
-end;
-
-class destructor TRipGrepperSettingsInstance.Destroy;
-begin
-	if Assigned(FInstance) then
-		FInstance.StoreToDict;
-	FInstance.Free;
-	inherited;
-end;
-
-class procedure TRipGrepperSettingsInstance.FreeInstance;
-begin
-	FInstance.StoreToDict;
-	FInstance.Free;
-end;
-
-class function TRipGrepperSettingsInstance.GetInstance : TRipGrepperSettings;
-begin
-	if not Assigned(FInstance) then begin
-		FInstance := TRipGrepperSettings.Create;
-	end;
-	Result := FInstance;
-end;
 
 end.
