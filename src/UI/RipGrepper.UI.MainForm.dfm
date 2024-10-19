@@ -183,6 +183,31 @@ object RipGrepperForm: TRipGrepperForm
         TabOrder = 0
       end
     end
+    inherited MainFrame: TRipGrepperMiddleFrame
+      inherited panelMain: TPanel
+        inherited SplitView1: TSplitView
+          inherited PanelHistory: TPanel
+            inherited MiddleLeftFrame1: TMiddleLeftFrame
+              inherited VstHistory: TVirtualStringTree
+                Columns = <
+                  item
+                    Position = 0
+                    Text = 'Search'
+                    Width = 183
+                  end
+                  item
+                    Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coSmartResize, coAllowFocus, coEditable, coStyleColor]
+                    Position = 1
+                    Text = 'Replace'
+                    Width = 519
+                  end>
+                DefaultText = ''
+              end
+            end
+          end
+        end
+      end
+    end
     inherited BottomFrame: TRipGrepperBottomFrame
       Top = 361
       Width = 726

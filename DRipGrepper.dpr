@@ -50,14 +50,6 @@ uses
   RipGrepper.Tools.DebugUtils in 'src\RipGrepper.Tools.DebugUtils.pas',
   RipGrepper.Tools.FileUtils in 'src\RipGrepper.Tools.FileUtils.pas',
   RipGrepper.Tools.ProcessUtils in 'src\RipGrepper.Tools.ProcessUtils.pas',
-  RipGrepper.UI.DpiScaler in 'src\RipGrepper.UI.DpiScaler.pas',
-  RipGrepper.UI.MainForm in 'src\RipGrepper.UI.MainForm.pas' {RipGrepperForm},
-  RipGrepper.UI.TopFrame in 'src\RipGrepper.UI.TopFrame.pas' {RipGrepperTopFrame: TFrame},
-  RipGrepper.UI.MiddleFrame in 'src\RipGrepper.UI.MiddleFrame.pas' {RipGrepperMiddleFrame: TFrame},
-  RipGrepper.UI.BottomFrame in 'src\RipGrepper.UI.BottomFrame.pas' {RipGrepperBottomFrame: TFrame},
-  RipGrepper.UI.ParentFrame in 'src\RipGrepper.UI.ParentFrame.pas' {ParentFrame: TFrame},
-  RipGrepper.UI.RipGrepOptionsForm in 'src\RipGrepper.UI.RipGrepOptionsForm.pas' {RipGrepOptionsForm},
-  RipGrepper.UI.SearchForm in 'src\RipGrepper.UI.SearchForm.pas' {RipGrepperSearchDialogForm},
   RipGrepper.CommandLine.Builder in 'src\RipGrepper.CommandLine.Builder.pas',
   RipGrepper.CommandLine.OptionHelper in 'src\RipGrepper.CommandLine.OptionHelper.pas',
   RipGrepper.Common.Settings.AppSettings in 'src\RipGrepper.Common.Settings.AppSettings.pas',
@@ -69,8 +61,6 @@ uses
   RipGrepper.Tools.PackageInstall in 'src\RipGrepper.Tools.PackageInstall.pas',
   RipGrepper.Common.Settings.ExtensionSettings in 'src\RipGrepper.Common.Settings.ExtensionSettings.pas',
   RipGrepper.CommandLine.OptionStrings in 'src\RipGrepper.CommandLine.OptionStrings.pas',
-  RipGrepper.UI.MiddleLeftFrame in 'src\RipGrepper.UI.MiddleLeftFrame.pas' {MiddleLeftFrame: TFrame},
-  RipGrepper.UI.ConfigForm in 'src\RipGrepper.UI.ConfigForm.pas' {ConfigForm},
   RipGrepper.Common.Constants in 'src\Common\RipGrepper.Common.Constants.pas',
   RipGrepper.Common.GuiSearchParams in 'src\Common\RipGrepper.Common.GuiSearchParams.pas',
   RipGrepper.Common.Interfaces in 'src\Common\RipGrepper.Common.Interfaces.pas',
@@ -79,7 +69,17 @@ uses
   RipGrepper.Common.ParsedObject in 'src\Common\RipGrepper.Common.ParsedObject.pas',
   RipGrepper.Common.SearchParams in 'src\Common\RipGrepper.Common.SearchParams.pas',
   RipGrepper.Common.SimpleTypes in 'src\Common\RipGrepper.Common.SimpleTypes.pas',
-  RipGrepper.Common.Sorter in 'src\Common\RipGrepper.Common.Sorter.pas';
+  RipGrepper.Common.Sorter in 'src\Common\RipGrepper.Common.Sorter.pas',
+  RipGrepper.UI.MainForm in 'src\UI\RipGrepper.UI.MainForm.pas' {RipGrepperForm},
+  RipGrepper.UI.TopFrame in 'src\UI\RipGrepper.UI.TopFrame.pas' {RipGrepperTopFrame: TFrame},
+  RipGrepper.UI.BottomFrame in 'src\UI\RipGrepper.UI.BottomFrame.pas' {RipGrepperBottomFrame: TFrame},
+  RipGrepper.UI.MiddleFrame in 'src\UI\RipGrepper.UI.MiddleFrame.pas' {RipGrepperMiddleFrame: TFrame},
+  RipGrepper.UI.ConfigForm in 'src\UI\RipGrepper.UI.ConfigForm.pas' {ConfigForm},
+  RipGrepper.UI.DpiScaler in 'src\UI\RipGrepper.UI.DpiScaler.pas',
+  RipGrepper.UI.MiddleLeftFrame in 'src\UI\RipGrepper.UI.MiddleLeftFrame.pas' {MiddleLeftFrame: TFrame},
+  RipGrepper.UI.ParentFrame in 'src\UI\RipGrepper.UI.ParentFrame.pas' {ParentFrame: TFrame},
+  RipGrepper.UI.RipGrepOptionsForm in 'src\UI\RipGrepper.UI.RipGrepOptionsForm.pas' {RipGrepOptionsForm},
+  RipGrepper.UI.SearchForm in 'src\UI\RipGrepper.UI.SearchForm.pas' {RipGrepperSearchDialogForm};
 
 {$R *.res}
 

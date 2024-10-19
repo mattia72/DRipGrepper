@@ -23,7 +23,7 @@ object ParentFrame: TParentFrame
     Width = 851
     Height = 31
     Align = alTop
-    TabOrder = 0
+    TabOrder = 2
     inherited tbarConfig: TToolBar
       Left = 815
       Height = 25
@@ -49,6 +49,25 @@ object ParentFrame: TParentFrame
         end
         inherited PanelHistory: TPanel
           Height = 423
+          inherited MiddleLeftFrame1: TMiddleLeftFrame
+            Height = 421
+            inherited VstHistory: TVirtualStringTree
+              Height = 415
+              Columns = <
+                item
+                  Position = 0
+                  Text = 'Search'
+                  Width = 179
+                end
+                item
+                  Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coSmartResize, coAllowFocus, coEditable, coStyleColor]
+                  Position = 1
+                  Text = 'Replace'
+                  Width = 519
+                end>
+              DefaultText = ''
+            end
+          end
         end
         inherited PanelResult: TPanel
           Height = 423
@@ -69,7 +88,7 @@ object ParentFrame: TParentFrame
     Margins.Right = 8
     Margins.Bottom = 8
     Align = alBottom
-    TabOrder = 2
+    TabOrder = 0
     inherited pnlBottom: TPanel
       Width = 851
       Height = 30

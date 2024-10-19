@@ -101,9 +101,9 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <VerInfo_Build>60</VerInfo_Build>
+        <VerInfo_Build>62</VerInfo_Build>
         <VerInfo_MajorVer>3</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=3.5.2.60;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=3.5.2.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=3.5.2.62;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=3.5.2.0;Comments=beta</VerInfo_Keys>
         <VerInfo_MinorVer>5</VerInfo_MinorVer>
         <VerInfo_Release>2</VerInfo_Release>
         <DCC_DebugInfoInTds>true</DCC_DebugInfoInTds>
@@ -183,32 +183,6 @@
         <DCCReference Include="src\RipGrepper.Tools.DebugUtils.pas"/>
         <DCCReference Include="src\RipGrepper.Tools.FileUtils.pas"/>
         <DCCReference Include="src\RipGrepper.Tools.ProcessUtils.pas"/>
-        <DCCReference Include="src\RipGrepper.UI.DpiScaler.pas"/>
-        <DCCReference Include="src\RipGrepper.UI.MainForm.pas">
-            <Form>RipGrepperForm</Form>
-        </DCCReference>
-        <DCCReference Include="src\RipGrepper.UI.TopFrame.pas">
-            <Form>RipGrepperTopFrame</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\RipGrepper.UI.MiddleFrame.pas">
-            <Form>RipGrepperMiddleFrame</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\RipGrepper.UI.BottomFrame.pas">
-            <Form>RipGrepperBottomFrame</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\RipGrepper.UI.ParentFrame.pas">
-            <Form>ParentFrame</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\RipGrepper.UI.RipGrepOptionsForm.pas">
-            <Form>RipGrepOptionsForm</Form>
-        </DCCReference>
-        <DCCReference Include="src\RipGrepper.UI.SearchForm.pas">
-            <Form>RipGrepperSearchDialogForm</Form>
-        </DCCReference>
         <DCCReference Include="src\RipGrepper.CommandLine.Builder.pas"/>
         <DCCReference Include="src\RipGrepper.CommandLine.OptionHelper.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.AppSettings.pas"/>
@@ -220,15 +194,6 @@
         <DCCReference Include="src\RipGrepper.Tools.PackageInstall.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.ExtensionSettings.pas"/>
         <DCCReference Include="src\RipGrepper.CommandLine.OptionStrings.pas"/>
-        <DCCReference Include="src\RipGrepper.UI.MiddleLeftFrame.pas">
-            <Form>MiddleLeftFrame</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\RipGrepper.UI.ConfigForm.pas">
-            <Form>ConfigForm</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="src\Common\RipGrepper.Common.Constants.pas"/>
         <DCCReference Include="src\Common\RipGrepper.Common.GuiSearchParams.pas"/>
         <DCCReference Include="src\Common\RipGrepper.Common.Interfaces.pas"/>
@@ -238,6 +203,48 @@
         <DCCReference Include="src\Common\RipGrepper.Common.SearchParams.pas"/>
         <DCCReference Include="src\Common\RipGrepper.Common.SimpleTypes.pas"/>
         <DCCReference Include="src\Common\RipGrepper.Common.Sorter.pas"/>
+        <DCCReference Include="src\UI\RipGrepper.UI.BottomFrame.pas">
+            <Form>RipGrepperBottomFrame</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\UI\RipGrepper.UI.ConfigForm.pas">
+            <Form>ConfigForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="src\UI\RipGrepper.UI.DpiScaler.pas"/>
+        <DCCReference Include="src\UI\RipGrepper.UI.MainForm.pas">
+            <Form>RipGrepperForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="src\UI\RipGrepper.UI.MiddleFrame.pas">
+            <Form>RipGrepperMiddleFrame</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\UI\RipGrepper.UI.MiddleLeftFrame.pas">
+            <Form>MiddleLeftFrame</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\UI\RipGrepper.UI.ParentFrame.pas">
+            <Form>ParentFrame</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\UI\RipGrepper.UI.RipGrepOptionsForm.pas">
+            <Form>RipGrepOptionsForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="src\UI\RipGrepper.UI.SearchForm.pas">
+            <Form>RipGrepperSearchDialogForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="src\UI\RipGrepper.UI.TopFrame.pas">
+            <Form>RipGrepperTopFrame</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -259,15 +266,8 @@
                     <Source Name="MainSource">DRipGrepper.dpr</Source>
                 </Source>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclBindCompFireDAC280.bpl">LiveBinding-Ausdruckskomponenten für FireDac</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclFMXFireDAC280.bpl">Embarcadero FMX-FireDAC-Komponenten</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclFireDAC280.bpl">Embarcadero FireDAC-Komponenten</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclVclFireDAC280.bpl">Embarcadero VCL-FireDAC-Komponenten</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp280.bpl">Microsoft Office XP Beispiele für gekapselte Komponenten für Automation Server</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclFMXtee9280.bpl">TeeChart Lite FMX Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclbindcompfmx280.bpl">Embarcadero LiveBindings-Komponenten FireMonkey</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclappanalytics280.bpl">Embarcadero Usertility-Analysekomponente</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclbindcompvcl280.bpl">Embarcadero LiveBindings-Komponenten VCL</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k280.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp280.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="4">
