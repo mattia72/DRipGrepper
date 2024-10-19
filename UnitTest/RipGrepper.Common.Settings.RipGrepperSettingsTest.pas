@@ -18,7 +18,7 @@ type
 		private
 			FIniFile : TMemIniFile;
 			FSettings : TRipGrepperSettings;
-			procedure EmptyFile(const _filePath: string);
+			procedure EmptyFile(const _filePath : string);
 			procedure SetDefaults;
 
 		public
@@ -42,7 +42,8 @@ implementation
 uses
 	RipGrepper.Common.Constants,
 	System.SysUtils,
-	Vcl.Forms;
+	Vcl.Forms,
+	RipGrepper.Common.Settings.Instance;
 
 constructor TRipGrepperSettingsTest.Create;
 begin
@@ -120,18 +121,18 @@ end;
 
 procedure TRipGrepperSettingsTest.Setup;
 begin
-	// FIniFile := TMemIniFile.Create(INIFILE, TEncoding.UTF8);
-	FSettings := TRipGrepperSettings.Create();
+	FSettings := TRipGrepperSettingsInstance.GetInstance();
+	// FSettings := TRipGrepperSettings.Create();
 end;
 
 procedure TRipGrepperSettingsTest.TearDown;
 begin
-	FSettings.Free;
+	// FSettings.Free; //instance will be free
 	FIniFile.Free;
 	EmptyFile(Application.ExeName + '.ini');
 end;
 
-procedure TRipGrepperSettingsTest.EmptyFile(const _filePath: string);
+procedure TRipGrepperSettingsTest.EmptyFile(const _filePath : string);
 var
 	txtFile : TextFile;
 begin
