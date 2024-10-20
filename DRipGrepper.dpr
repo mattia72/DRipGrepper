@@ -47,9 +47,6 @@ uses
   RipGrepper.Parsers.Factory in 'src\RipGrepper.Parsers.Factory.pas',
   RipGrepper.Parsers.ParallelParser in 'src\RipGrepper.Parsers.ParallelParser.pas',
   RipGrepper.Parsers.VimGrepMatchLine in 'src\RipGrepper.Parsers.VimGrepMatchLine.pas',
-  RipGrepper.Tools.DebugUtils in 'src\RipGrepper.Tools.DebugUtils.pas',
-  RipGrepper.Tools.FileUtils in 'src\RipGrepper.Tools.FileUtils.pas',
-  RipGrepper.Tools.ProcessUtils in 'src\RipGrepper.Tools.ProcessUtils.pas',
   RipGrepper.CommandLine.Builder in 'src\RipGrepper.CommandLine.Builder.pas',
   RipGrepper.CommandLine.OptionHelper in 'src\RipGrepper.CommandLine.OptionHelper.pas',
   RipGrepper.Common.Settings.AppSettings in 'src\RipGrepper.Common.Settings.AppSettings.pas',
@@ -58,7 +55,6 @@ uses
   RipGrepper.OpenWith.Params in 'src\OpenWith\RipGrepper.OpenWith.Params.pas',
   RipGrepper.Common.Settings.SettingVariant in 'src\RipGrepper.Common.Settings.SettingVariant.pas',
   RipGrepper.Common.Settings.SettingsDictionary in 'src\RipGrepper.Common.Settings.SettingsDictionary.pas',
-  RipGrepper.Tools.PackageInstall in 'src\RipGrepper.Tools.PackageInstall.pas',
   RipGrepper.Common.Settings.ExtensionSettings in 'src\RipGrepper.Common.Settings.ExtensionSettings.pas',
   RipGrepper.CommandLine.OptionStrings in 'src\RipGrepper.CommandLine.OptionStrings.pas',
   RipGrepper.Common.Constants in 'src\Common\RipGrepper.Common.Constants.pas',
@@ -80,7 +76,11 @@ uses
   RipGrepper.UI.ParentFrame in 'src\UI\RipGrepper.UI.ParentFrame.pas' {ParentFrame: TFrame},
   RipGrepper.UI.RipGrepOptionsForm in 'src\UI\RipGrepper.UI.RipGrepOptionsForm.pas' {RipGrepOptionsForm},
   RipGrepper.UI.SearchForm in 'src\UI\RipGrepper.UI.SearchForm.pas' {RipGrepperSearchDialogForm},
-  RipGrepper.Common.Settings.Instance in 'src\RipGrepper.Common.Settings.Instance.pas';
+  RipGrepper.Common.Settings.Instance in 'src\RipGrepper.Common.Settings.Instance.pas',
+  RipGrepper.Tools.DebugUtils in 'src\Tools\RipGrepper.Tools.DebugUtils.pas',
+  RipGrepper.Tools.FileUtils in 'src\Tools\RipGrepper.Tools.FileUtils.pas',
+  RipGrepper.Tools.PackageInstall in 'src\Tools\RipGrepper.Tools.PackageInstall.pas',
+  RipGrepper.Tools.ProcessUtils in 'src\Tools\RipGrepper.Tools.ProcessUtils.pas';
 
 {$R *.res}
 

@@ -180,9 +180,6 @@
         <DCCReference Include="src\RipGrepper.Parsers.Factory.pas"/>
         <DCCReference Include="src\RipGrepper.Parsers.ParallelParser.pas"/>
         <DCCReference Include="src\RipGrepper.Parsers.VimGrepMatchLine.pas"/>
-        <DCCReference Include="src\RipGrepper.Tools.DebugUtils.pas"/>
-        <DCCReference Include="src\RipGrepper.Tools.FileUtils.pas"/>
-        <DCCReference Include="src\RipGrepper.Tools.ProcessUtils.pas"/>
         <DCCReference Include="src\RipGrepper.CommandLine.Builder.pas"/>
         <DCCReference Include="src\RipGrepper.CommandLine.OptionHelper.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.AppSettings.pas"/>
@@ -191,7 +188,6 @@
         <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.Params.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.SettingVariant.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.SettingsDictionary.pas"/>
-        <DCCReference Include="src\RipGrepper.Tools.PackageInstall.pas"/>
         <DCCReference Include="src\RipGrepper.Common.Settings.ExtensionSettings.pas"/>
         <DCCReference Include="src\RipGrepper.CommandLine.OptionStrings.pas"/>
         <DCCReference Include="src\Common\RipGrepper.Common.Constants.pas"/>
@@ -246,6 +242,10 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="src\RipGrepper.Common.Settings.Instance.pas"/>
+        <DCCReference Include="src\Tools\RipGrepper.Tools.DebugUtils.pas"/>
+        <DCCReference Include="src\Tools\RipGrepper.Tools.FileUtils.pas"/>
+        <DCCReference Include="src\Tools\RipGrepper.Tools.PackageInstall.pas"/>
+        <DCCReference Include="src\Tools\RipGrepper.Tools.ProcessUtils.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
