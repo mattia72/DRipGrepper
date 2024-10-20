@@ -268,7 +268,7 @@ begin
 	// nothing todo
 end;
 
-procedure TRipGrepperSettings.ReadIni;
+procedure TRipGrepperSettings.ReadIni;  // Composit
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.ReadIni');
@@ -322,7 +322,7 @@ begin
 	FSearchFormSettings.LoadFromDict;
 end;
 
-procedure TRipGrepperSettings.ReCreateMemIni;
+procedure TRipGrepperSettings.ReCreateMemIni;  // Composit
 begin
 	inherited;
 	FAppSettings.IniFile := IniFile;
@@ -330,9 +330,10 @@ begin
 	FOpenWithSettings.IniFile := IniFile;
 	FRipGrepParameters.IniFile := IniFile;
 	FSearchFormSettings.IniFile := IniFile;
+	FSearchFormSettings.ReCreateMemIni();
 end;
 
-procedure TRipGrepperSettings.ReLoad;
+procedure TRipGrepperSettings.ReLoad; // Composit
 begin
 	FAppSettings.ReLoad;
 	FNodeLookSettings.ReLoad;
@@ -419,6 +420,5 @@ begin
 		end;
 	end;
 end;
-
 
 end.
