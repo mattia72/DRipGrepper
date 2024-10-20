@@ -451,6 +451,7 @@ begin
 	ParentFrame.SetStatusBarStatistic('Searching...');
 	FAbortSearch := False;
 	UpdateArgumentsAndSettings;
+	// hist object parser type should set before painting begins...
 	UpdateHistObjectAndCopyToSettings;
 	RunRipGrep();
 end;
