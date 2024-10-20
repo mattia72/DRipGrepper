@@ -213,6 +213,17 @@
         <DCCReference Include="..\src\Tools\RipGrepper.Tools.FileUtils.pas"/>
         <DCCReference Include="..\src\Tools\RipGrepper.Tools.PackageInstall.pas"/>
         <DCCReference Include="..\src\Tools\RipGrepper.Tools.ProcessUtils.pas"/>
+        <DCCReference Include="..\src\Settings\RipGrepper.Settings.AppSettings.pas"/>
+        <DCCReference Include="..\src\Settings\RipGrepper.Settings.ExtensionSettings.pas"/>
+        <DCCReference Include="..\src\Settings\RipGrepper.Settings.Instance.pas"/>
+        <DCCReference Include="..\src\Settings\RipGrepper.Settings.NodeLookSettings.pas"/>
+        <DCCReference Include="..\src\Settings\RipGrepper.Settings.OpenWithSettings.pas"/>
+        <DCCReference Include="..\src\Settings\RipGrepper.Settings.Persistable.pas"/>
+        <DCCReference Include="..\src\Settings\RipGrepper.Settings.RipGrepParameterSettings.pas"/>
+        <DCCReference Include="..\src\Settings\RipGrepper.Settings.RipGrepperSettings.pas"/>
+        <DCCReference Include="..\src\Settings\RipGrepper.Settings.SearchFormSettings.pas"/>
+        <DCCReference Include="..\src\Settings\RipGrepper.Settings.SettingsDictionary.pas"/>
+        <DCCReference Include="..\src\Settings\RipGrepper.Settings.SettingVariant.pas"/>
         <RcItem Include="Resources\about_icon.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>about_icon</ResourceId>

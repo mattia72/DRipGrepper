@@ -89,7 +89,18 @@ contains
   RipGrepper.Tools.DebugUtils in '..\src\Tools\RipGrepper.Tools.DebugUtils.pas',
   RipGrepper.Tools.FileUtils in '..\src\Tools\RipGrepper.Tools.FileUtils.pas',
   RipGrepper.Tools.PackageInstall in '..\src\Tools\RipGrepper.Tools.PackageInstall.pas',
-  RipGrepper.Tools.ProcessUtils in '..\src\Tools\RipGrepper.Tools.ProcessUtils.pas';
+  RipGrepper.Tools.ProcessUtils in '..\src\Tools\RipGrepper.Tools.ProcessUtils.pas',
+  RipGrepper.Settings.AppSettings in '..\src\Settings\RipGrepper.Settings.AppSettings.pas',
+  RipGrepper.Settings.ExtensionSettings in '..\src\Settings\RipGrepper.Settings.ExtensionSettings.pas',
+  RipGrepper.Settings.Instance in '..\src\Settings\RipGrepper.Settings.Instance.pas',
+  RipGrepper.Settings.NodeLookSettings in '..\src\Settings\RipGrepper.Settings.NodeLookSettings.pas',
+  RipGrepper.Settings.OpenWithSettings in '..\src\Settings\RipGrepper.Settings.OpenWithSettings.pas',
+  RipGrepper.Settings.Persistable in '..\src\Settings\RipGrepper.Settings.Persistable.pas',
+  RipGrepper.Settings.RipGrepParameterSettings in '..\src\Settings\RipGrepper.Settings.RipGrepParameterSettings.pas',
+  RipGrepper.Settings.RipGrepperSettings in '..\src\Settings\RipGrepper.Settings.RipGrepperSettings.pas',
+  RipGrepper.Settings.SearchFormSettings in '..\src\Settings\RipGrepper.Settings.SearchFormSettings.pas',
+  RipGrepper.Settings.SettingsDictionary in '..\src\Settings\RipGrepper.Settings.SettingsDictionary.pas',
+  RipGrepper.Settings.SettingVariant in '..\src\Settings\RipGrepper.Settings.SettingVariant.pas';
 
 end.
 
