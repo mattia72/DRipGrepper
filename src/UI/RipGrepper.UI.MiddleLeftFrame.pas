@@ -19,7 +19,10 @@ uses
 	ArrayEx,
 	RipGrepper.Common.Interfaces,
 	RipGrepper.Data.Matches,
-	RipGrepper.Data.HistoryItemObject, Vcl.Menus, System.ImageList, Vcl.ImgList;
+	RipGrepper.Data.HistoryItemObject,
+	Vcl.Menus,
+	System.ImageList,
+	Vcl.ImgList;
 
 type
 	THistoryObjectArray = TArrayEx<IHistoryItemObject>;
@@ -31,15 +34,15 @@ type
 		ActionHistoryDeleteAll : TAction;
 		ActionCopyCmdLineToClipboard : TAction;
 		ActionOpenSearchForm : TAction;
-    PopupMenuHistory: TPopupMenu;
-    pmOpenSearchForm: TMenuItem;
-    N3: TMenuItem;
-    pmCopyCommandLine: TMenuItem;
-    N2: TMenuItem;
-    pmHistoryDelete: TMenuItem;
-    pmHistoryDeleteAll: TMenuItem;
-    ImageList1: TImageList;
-		procedure ActionCopyCmdLineToClipboardExecute(Sender: TObject);
+		PopupMenuHistory : TPopupMenu;
+		pmOpenSearchForm : TMenuItem;
+		N3 : TMenuItem;
+		pmCopyCommandLine : TMenuItem;
+		N2 : TMenuItem;
+		pmHistoryDelete : TMenuItem;
+		pmHistoryDeleteAll : TMenuItem;
+		ImageList1 : TImageList;
+		procedure ActionCopyCmdLineToClipboardExecute(Sender : TObject);
 		procedure ActionHistoryDeleteAllExecute(Sender : TObject);
 		procedure ActionHistoryDeleteAllUpdate(Sender : TObject);
 		procedure ActionHistoryDeleteExecute(Sender : TObject);
@@ -129,9 +132,9 @@ begin
 	MiddleLeftFrame := self;
 end;
 
-procedure TMiddleLeftFrame.ActionCopyCmdLineToClipboardExecute(Sender: TObject);
+procedure TMiddleLeftFrame.ActionCopyCmdLineToClipboardExecute(Sender : TObject);
 begin
-     ParentFrame.MainFrame.ActionCopyCmdLineToClipboardExecute(Sender);
+	ParentFrame.MainFrame.ActionCopyCmdLineToClipboardExecute(Sender);
 end;
 
 procedure TMiddleLeftFrame.ActionHistoryDeleteAllExecute(Sender : TObject);
@@ -432,6 +435,8 @@ end;
 procedure TMiddleLeftFrame.SetReplaceMode(_hio : IHistoryItemObject = nil);
 var
 	hio : IHistoryItemObject;
+	mode : TGuiReplaceModes;
+	repText : string;
 begin
 	if not Assigned(_hio) then begin
 		hio := GetCurrentHistoryObject();
@@ -439,21 +444,20 @@ begin
 		hio := _hio;
 	end;
 
-	var
-		mode : TGuiReplaceModes;
-	if not Assigned(_hio) then begin
-        mode := [];
-    end else if hio.IsReplaceMode then begin
-		Include(mode, EGuiReplaceMode.grmActive);
-		Include(mode, EGuiReplaceMode.grmSaveEnabled);
-	end else begin
-		Include(mode, EGuiReplaceMode.grmEnabled);
+	mode := [];
+	if Assigned(_hio) then begin
+		if hio.IsReplaceMode then begin
+			Include(mode, EGuiReplaceMode.grmActive);
+			Include(mode, EGuiReplaceMode.grmSaveEnabled);
+		end else begin
+			Include(mode, EGuiReplaceMode.grmEnabled);
+		end;
 	end;
 
-    var repText := '';
-    if Assigned(_hio) then begin
-        repText := hio.ReplaceText;
-    end;
+	repText := '';
+	if Assigned(_hio) then begin
+		repText := hio.ReplaceText;
+	end;
 	ParentFrame.TopFrame.SetGuiReplaceMode(mode, repText);
 	ParentFrame.MainFrame.SetReplaceMode(Assigned(_hio) and hio.IsReplaceMode);
 end;
