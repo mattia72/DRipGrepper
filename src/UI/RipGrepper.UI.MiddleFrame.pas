@@ -1,4 +1,4 @@
-﻿unit RipGrepper.UI.MiddleFrame;
+unit RipGrepper.UI.MiddleFrame;
 
 interface
 
@@ -162,6 +162,7 @@ type
 			procedure SetHistItemObject(const Value : IHistoryItemObject);
 			function SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
 			procedure UpdateArgumentsAndSettings;
+		procedure UpdateGui;
 			property IsGuiReplaceMode : Boolean read GetIsGuiReplaceMode write FIsGuiReplaceMode;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
@@ -295,8 +296,8 @@ begin
 		TDebugUtils.DebugMessage('TRipGrepperTopFrame.VstHistoryNodeDblClick: ShowSearchForm cancel');
 	end;
 
-	MiddleLeftFrame1.ChangeHistoryNodeText;
-	UpdateHistObjectAndGui;
+	MiddleLeftFrame1.ChangeHistoryNodeText();
+	UpdateGui();
 end;
 
 procedure TRipGrepperMiddleFrame.ActionCopyFileNameExecute(Sender : TObject);
@@ -450,6 +451,7 @@ begin
 	ParentFrame.SetStatusBarStatistic('Searching...');
 	FAbortSearch := False;
 	UpdateArgumentsAndSettings;
+	UpdateHistObjectAndCopyToSettings;
 	RunRipGrep();
 end;
 
@@ -970,6 +972,15 @@ begin
 	end;
 end;
 
+procedure TRipGrepperMiddleFrame.UpdateGui;
+begin
+	SetResultListViewDataToHistoryObj();
+	ExpandNodes();
+	TopFrame.SetFilter(False);
+	RefreshCountersInGUI;
+	ParentFrame.SetStatusBarMessage(True);
+end;
+
 procedure TRipGrepperMiddleFrame.UpdateHistObjectAndCopyToSettings;
 begin
 	FHistItemObj := MiddleLeftFrame1.GetCurrentHistoryObject();
@@ -989,11 +1000,7 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.UpdateHistObjectAndGui History Errors: ' + HistItemObject.ErrorCount.ToString);
 	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.UpdateHistObjectAndGui History Gui: ' + HistItemObject.GuiSearchTextParams.SearchText +
 		' ' + HistItemObject.GuiSearchTextParams.ToString);
-	SetResultListViewDataToHistoryObj();
-	ExpandNodes();
-	TopFrame.SetFilter(False);
-	RefreshCountersInGUI;
-	ParentFrame.SetStatusBarMessage(True);
+	UpdateGui();
 end;
 
 procedure TRipGrepperMiddleFrame.UpdateRipGrepArgumentsInHistObj;
