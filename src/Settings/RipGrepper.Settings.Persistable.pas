@@ -1,4 +1,4 @@
-unit RipGrepper.Common.Settings.Persistable;
+unit RipGrepper.Settings.Persistable;
 
 interface
 
@@ -7,8 +7,8 @@ uses
 	System.IniFiles,
 	System.Generics.Collections,
 	System.SysUtils,
-	RipGrepper.Common.Settings.SettingVariant,
-	RipGrepper.Common.Settings.SettingsDictionary;
+	RipGrepper.Settings.SettingVariant,
+	RipGrepper.Settings.SettingsDictionary;
 
 type
 

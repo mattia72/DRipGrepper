@@ -15,7 +15,7 @@ uses
 	VirtualTrees,
 	System.Actions,
 	Vcl.ActnList,
-	RipGrepper.Common.Settings.RipGrepperSettings,
+	RipGrepper.Settings.RipGrepperSettings,
 	ArrayEx,
 	RipGrepper.Common.Interfaces,
 	RipGrepper.Data.Matches,

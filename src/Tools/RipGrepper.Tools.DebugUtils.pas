@@ -3,7 +3,7 @@ unit RipGrepper.Tools.DebugUtils;
 interface
 
 uses
-	RipGrepper.Common.Settings.Instance;
+	RipGrepper.Settings.Instance;
 
 type
 
@@ -43,7 +43,7 @@ implementation
 uses
 	Winapi.Windows,
 	System.SysUtils,
-	RipGrepper.Common.Settings.RipGrepperSettings,
+	RipGrepper.Settings.RipGrepperSettings,
 	System.RegularExpressions,
 	RipGrepper.Common.Constants;
 

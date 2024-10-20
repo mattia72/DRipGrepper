@@ -1,4 +1,4 @@
-unit RipGrepper.Common.Settings.RipGrepParameterSettings;
+unit RipGrepper.Settings.RipGrepParameterSettings;
 
 interface
 
@@ -7,7 +7,7 @@ uses
 	System.IniFiles,
 	ArrayEx,
 	RipGrepper.Common.Constants,
-	RipGrepper.Common.Settings.Persistable,
+	RipGrepper.Settings.Persistable,
 	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Helper.Types,
 	System.Generics.Collections,

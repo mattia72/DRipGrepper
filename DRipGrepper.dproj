@@ -235,17 +235,17 @@
         <DCCReference Include="src\Tools\RipGrepper.Tools.FileUtils.pas"/>
         <DCCReference Include="src\Tools\RipGrepper.Tools.PackageInstall.pas"/>
         <DCCReference Include="src\Tools\RipGrepper.Tools.ProcessUtils.pas"/>
-        <DCCReference Include="src\Settings\RipGrepper.Common.Settings.AppSettings.pas"/>
-        <DCCReference Include="src\Settings\RipGrepper.Common.Settings.ExtensionSettings.pas"/>
-        <DCCReference Include="src\Settings\RipGrepper.Common.Settings.Instance.pas"/>
-        <DCCReference Include="src\Settings\RipGrepper.Common.Settings.NodeLookSettings.pas"/>
-        <DCCReference Include="src\Settings\RipGrepper.Common.Settings.OpenWithSettings.pas"/>
-        <DCCReference Include="src\Settings\RipGrepper.Common.Settings.Persistable.pas"/>
-        <DCCReference Include="src\Settings\RipGrepper.Common.Settings.RipGrepParameterSettings.pas"/>
-        <DCCReference Include="src\Settings\RipGrepper.Common.Settings.RipGrepperSettings.pas"/>
-        <DCCReference Include="src\Settings\RipGrepper.Common.Settings.SearchFormSettings.pas"/>
-        <DCCReference Include="src\Settings\RipGrepper.Common.Settings.SettingsDictionary.pas"/>
-        <DCCReference Include="src\Settings\RipGrepper.Common.Settings.SettingVariant.pas"/>
+        <DCCReference Include="src\Settings\RipGrepper.Settings.AppSettings.pas"/>
+        <DCCReference Include="src\Settings\RipGrepper.Settings.ExtensionSettings.pas"/>
+        <DCCReference Include="src\Settings\RipGrepper.Settings.Instance.pas"/>
+        <DCCReference Include="src\Settings\RipGrepper.Settings.NodeLookSettings.pas"/>
+        <DCCReference Include="src\Settings\RipGrepper.Settings.OpenWithSettings.pas"/>
+        <DCCReference Include="src\Settings\RipGrepper.Settings.Persistable.pas"/>
+        <DCCReference Include="src\Settings\RipGrepper.Settings.RipGrepParameterSettings.pas"/>
+        <DCCReference Include="src\Settings\RipGrepper.Settings.RipGrepperSettings.pas"/>
+        <DCCReference Include="src\Settings\RipGrepper.Settings.SearchFormSettings.pas"/>
+        <DCCReference Include="src\Settings\RipGrepper.Settings.SettingsDictionary.pas"/>
+        <DCCReference Include="src\Settings\RipGrepper.Settings.SettingVariant.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

@@ -1,11 +1,11 @@
-unit RipGrepper.Common.Settings.RipGrepperSettingsTest;
+unit RipGrepper.Settings.RipGrepperSettingsTest;
 
 interface
 
 uses
-	RipGrepper.Common.Settings.SearchFormSettings,
+	RipGrepper.Settings.SearchFormSettings,
 	System.IniFiles,
-	RipGrepper.Common.Settings.RipGrepperSettings,
+	RipGrepper.Settings.RipGrepperSettings,
 	DUnitX.TestFramework;
 
 type
@@ -43,7 +43,7 @@ uses
 	RipGrepper.Common.Constants,
 	System.SysUtils,
 	Vcl.Forms,
-	RipGrepper.Common.Settings.Instance;
+	RipGrepper.Settings.Instance;
 
 constructor TRipGrepperSettingsTest.Create;
 begin

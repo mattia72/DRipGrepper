@@ -1,13 +1,13 @@
-unit RipGrepper.Common.Settings.PersistableSettingsTest;
+unit RipGrepper.Settings.PersistableSettingsTest;
 
 interface
 
 uses
-	RipGrepper.Common.Settings.SearchFormSettings,
+	RipGrepper.Settings.SearchFormSettings,
 	System.IniFiles,
-	RipGrepper.Common.Settings.Persistable,
+	RipGrepper.Settings.Persistable,
 	DUnitX.TestFramework,
-	RipGrepper.Common.Settings.SettingsDictionary;
+	RipGrepper.Settings.SettingsDictionary;
 
 const
 	INITIAL_STR_VALUE = 'str_initial_value';

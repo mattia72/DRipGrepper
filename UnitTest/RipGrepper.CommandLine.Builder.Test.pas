@@ -7,7 +7,7 @@ uses
 	System.Classes,
 	RipGrepper.Common.Constants,
 	RipGrepper.CommandLine.Builder,
-	RipGrepper.Common.Settings.RipGrepParameterSettings,
+	RipGrepper.Settings.RipGrepParameterSettings,
 	System.IniFiles,
 	RipGrepper.Common.GuiSearchParams;
 
@@ -56,10 +56,10 @@ uses
 	RipGrepper.Helper.Types,
 	System.StrUtils,
 	System.SysUtils,
-	RipGrepper.Common.Settings.AppSettings,
+	RipGrepper.Settings.AppSettings,
 	ArrayEx,
 	System.RegularExpressions,
-	System.Math, 
+	System.Math,
 	RipGrepper.CommandLine.OptionStrings;
 
 procedure TCommandLineBuilderTest.Setup;

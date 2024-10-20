@@ -27,7 +27,7 @@ uses
 	Vcl.Dialogs,
 	RipGrepper.OpenWith.Runner,
 	RipGrepper.OpenWith.CmdListForm,
-	RipGrepper.Common.Settings.RipGrepperSettings,
+	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Helper.UI;
 

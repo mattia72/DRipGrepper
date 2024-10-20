@@ -17,7 +17,7 @@ uses
 	Vcl.ToolWin,
 	Vcl.Menus,
 	RipGrepper.Tools.ProcessUtils,
-	RipGrepper.Common.Settings.RipGrepperSettings,
+	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.Data.Matches,
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.Interfaces,

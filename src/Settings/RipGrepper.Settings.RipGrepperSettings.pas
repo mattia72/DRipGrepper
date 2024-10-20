@@ -1,4 +1,4 @@
-unit RipGrepper.Common.Settings.RipGrepperSettings;
+unit RipGrepper.Settings.RipGrepperSettings;
 
 interface
 
@@ -7,12 +7,12 @@ uses
 	System.IniFiles,
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.SimpleTypes,
-	RipGrepper.Common.Settings.AppSettings,
-	RipGrepper.Common.Settings.Persistable,
-	RipGrepper.Common.Settings.RipGrepParameterSettings,
-	RipGrepper.Common.Settings.SearchFormSettings,
-	RipGrepper.Common.Settings.NodeLookSettings,
-	RipGrepper.Common.Settings.OpenWithSettings;
+	RipGrepper.Settings.AppSettings,
+	RipGrepper.Settings.Persistable,
+	RipGrepper.Settings.RipGrepParameterSettings,
+	RipGrepper.Settings.SearchFormSettings,
+	RipGrepper.Settings.NodeLookSettings,
+	RipGrepper.Settings.OpenWithSettings;
 
 type
 	TRipGrepperSettings = class(TPersistableSettings)

@@ -286,7 +286,6 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Anchors = [akLeft, akTop, akRight, akBottom]
       AutoComplete = False
       Color = clHighlightText
-      ItemHeight = 15
       Items.Strings = (
         'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"'
         'notepad++.exe "<FILE>" -n<LINE> -c<COL>'

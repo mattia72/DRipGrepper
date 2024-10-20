@@ -9,12 +9,12 @@ uses
 	ArrayEx,
 	RipGrepper.Common.Interfaces,
 	RipGrepper.Common.ParsedObject,
-	RipGrepper.Common.Settings.AppSettings,
+	RipGrepper.Settings.AppSettings,
 	RipGrepper.Common.Constants,
     RipGrepper.Common.SimpleTypes,
 	RipGrepper.Common.GuiSearchParams,
-	RipGrepper.Common.Settings.RipGrepperSettings,
-	RipGrepper.Common.Settings.SearchFormSettings;
+	RipGrepper.Settings.RipGrepperSettings,
+	RipGrepper.Settings.SearchFormSettings;
 
 type
 	// THistoryItemObject = class(TNoRefCountObject, IHistoryItemObject)
@@ -103,7 +103,7 @@ uses
 	System.SysUtils,
 	RipGrepper.Parsers.Factory,
 	RipGrepper.Helper.Types,
-	RipGrepper.Common.Settings.RipGrepParameterSettings;
+	RipGrepper.Settings.RipGrepParameterSettings;
 
 procedure THistoryItemObject.LoadFromSettings(const _settings : TRipGrepperSettings);
 begin

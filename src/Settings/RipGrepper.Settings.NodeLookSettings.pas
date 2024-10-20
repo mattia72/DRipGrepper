@@ -1,9 +1,9 @@
-unit RipGrepper.Common.Settings.NodeLookSettings;
+unit RipGrepper.Settings.NodeLookSettings;
 
 interface
 
 uses
-	RipGrepper.Common.Settings.Persistable,
+	RipGrepper.Settings.Persistable,
 	System.IniFiles;
 
 type

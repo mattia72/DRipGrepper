@@ -5,7 +5,7 @@ interface
 uses
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.GuiSearchParams,
-	RipGrepper.Common.Settings.RipGrepParameterSettings,
+	RipGrepper.Settings.RipGrepParameterSettings,
 	System.Classes,
 	ArrayEx;
 

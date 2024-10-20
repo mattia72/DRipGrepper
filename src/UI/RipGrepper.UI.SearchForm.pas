@@ -16,7 +16,7 @@ uses
 	Vcl.ImgList,
 	System.Actions,
 	Vcl.ActnList,
-	RipGrepper.Common.Settings.RipGrepperSettings,
+	RipGrepper.Settings.RipGrepperSettings,
 	Vcl.StdActns,
 	Vcl.Dialogs,
 	RipGrepper.Common.Constants,
@@ -27,10 +27,10 @@ uses
 	Vcl.ToolWin,
 	Vcl.ComCtrls,
 	RipGrepper.Common.GuiSearchParams,
-	RipGrepper.Common.Settings.RipGrepParameterSettings,
+	RipGrepper.Settings.RipGrepParameterSettings,
 	Vcl.Samples.Spin,
 	RipGrepper.Helper.Types,
-	RipGrepper.Common.Settings.SearchFormSettings,
+	RipGrepper.Settings.SearchFormSettings,
 	RipGrepper.Common.Interfaces;
 
 type
@@ -221,8 +221,8 @@ uses
 	RipGrepper.Tools.FileUtils,
 	System.IOUtils,
 	Winapi.Windows,
-	RipGrepper.Common.Settings.AppSettings,
-	RipGrepper.Common.Settings.ExtensionSettings,
+	RipGrepper.Settings.AppSettings,
+	RipGrepper.Settings.ExtensionSettings,
 	RipGrepper.CommandLine.OptionStrings;
 
 {$R *.dfm}

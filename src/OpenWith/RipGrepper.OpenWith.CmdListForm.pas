@@ -19,10 +19,10 @@ uses
 	Vcl.ComCtrls,
 	System.ImageList,
 	Vcl.ImgList,
-	RipGrepper.Common.Settings.AppSettings,
+	RipGrepper.Settings.AppSettings,
 	RipGrepper.UI.DpiScaler,
 	u_dzDpiScaleUtils,
-	RipGrepper.Common.Settings.OpenWithSettings;
+	RipGrepper.Settings.OpenWithSettings;
 
 type
 	TOpenWithCmdList = class(TForm)

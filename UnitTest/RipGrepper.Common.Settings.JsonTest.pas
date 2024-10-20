@@ -1,4 +1,4 @@
-unit RipGrepper.Common.Settings.JsonTest;
+unit RipGrepper.Settings.JsonTest;
 
 interface
 

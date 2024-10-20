@@ -1,4 +1,4 @@
-unit RipGrepper.Common.Settings.SearchFormSettingsTest;
+unit RipGrepper.Settings.SearchFormSettingsTest;
 
 interface
 
@@ -6,8 +6,8 @@ uses
 	DUnitX.TestFramework,
 	System.IniFiles,
 	RipGrepper.Common.GuiSearchParams,
-	RipGrepper.Common.Settings.RipGrepParameterSettings,
-	RipGrepper.Common.Settings.SearchFormSettings;
+	RipGrepper.Settings.RipGrepParameterSettings,
+	RipGrepper.Settings.SearchFormSettings;
 
 type
 

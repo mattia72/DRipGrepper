@@ -1,9 +1,9 @@
-unit RipGrepper.Common.Settings.Instance;
+unit RipGrepper.Settings.Instance;
 
 interface
 
 uses
-	RipGrepper.Common.Settings.RipGrepperSettings,
+	RipGrepper.Settings.RipGrepperSettings,
 	System.SysUtils;
 
 type

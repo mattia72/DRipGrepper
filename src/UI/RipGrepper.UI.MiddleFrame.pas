@@ -24,7 +24,7 @@ uses
 	Vcl.ToolWin,
 	RipGrepper.OpenWith.Constants,
 	RipGrepper.OpenWith.Params,
-	RipGrepper.Common.Settings.AppSettings,
+	RipGrepper.Settings.AppSettings,
 	RipGrepper.Data.HistoryItemObject,
 	RipGrepper.Data.Matches,
 	RipGrepper.Common.Sorter,
@@ -39,9 +39,9 @@ uses
 	ArrayEx,
 	RipGrepper.Tools.ProcessUtils,
 	RipGrepper.Helper.Types,
-	RipGrepper.Common.Settings.RipGrepParameterSettings,
+	RipGrepper.Settings.RipGrepParameterSettings,
 	RipGrepper.Common.ParsedObject,
-	RipGrepper.Common.Settings.RipGrepperSettings,
+	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.UI.MiddleLeftFrame,
 	RipGrepper.Common.NodeData;
 

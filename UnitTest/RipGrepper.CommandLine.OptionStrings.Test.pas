@@ -5,7 +5,7 @@ interface
 uses
 	DUnitX.TestFramework,
 	RipGrepper.Common.GuiSearchParams,
-	RipGrepper.Common.Settings.RipGrepParameterSettings,
+	RipGrepper.Settings.RipGrepParameterSettings,
 	System.IniFiles,
 	RipGrepper.Common.Constants;
 

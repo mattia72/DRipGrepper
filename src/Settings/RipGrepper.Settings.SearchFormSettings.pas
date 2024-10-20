@@ -1,4 +1,4 @@
-unit RipGrepper.Common.Settings.SearchFormSettings;
+unit RipGrepper.Settings.SearchFormSettings;
 
 interface
 
@@ -10,10 +10,10 @@ uses
 	ArrayEx,
 	RipGrepper.OpenWith.Constants,
 	RipGrepper.Common.Constants,
-	RipGrepper.Common.Settings.Persistable,
-	RipGrepper.Common.Settings.RipGrepParameterSettings,
-	RipGrepper.Common.Settings.AppSettings,
-	RipGrepper.Common.Settings.ExtensionSettings;
+	RipGrepper.Settings.Persistable,
+	RipGrepper.Settings.RipGrepParameterSettings,
+	RipGrepper.Settings.AppSettings,
+	RipGrepper.Settings.ExtensionSettings;
 
 type
 

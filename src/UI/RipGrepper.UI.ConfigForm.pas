@@ -13,7 +13,7 @@ uses
 	Vcl.Forms,
 	Vcl.Dialogs,
 	Vcl.ComCtrls,
-	RipGrepper.Common.Settings.RipGrepperSettings,
+	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.OpenWith.ConfigForm,
 	System.Actions,
 	Vcl.ActnList,

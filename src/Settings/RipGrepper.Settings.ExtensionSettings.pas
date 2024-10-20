@@ -1,9 +1,9 @@
-unit RipGrepper.Common.Settings.ExtensionSettings;
+unit RipGrepper.Settings.ExtensionSettings;
 
 interface
 
 uses
-	RipGrepper.Common.Settings.Persistable,
+	RipGrepper.Settings.Persistable,
 	System.IniFiles,
 	RipGrepper.Common.Constants;
 

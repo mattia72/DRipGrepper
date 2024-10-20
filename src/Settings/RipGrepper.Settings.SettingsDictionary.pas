@@ -1,9 +1,9 @@
-unit RipGrepper.Common.Settings.SettingsDictionary;
+unit RipGrepper.Settings.SettingsDictionary;
 
 interface
 
 uses
-	RipGrepper.Common.Settings.SettingVariant,
+	RipGrepper.Settings.SettingVariant,
 	System.Generics.Collections,
 	System.Variants;
 

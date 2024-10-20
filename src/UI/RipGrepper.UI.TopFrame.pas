@@ -24,7 +24,7 @@ uses
 	VirtualTrees,
 	Vcl.ExtCtrls,
 	Vcl.Menus,
-	RipGrepper.Common.Settings.RipGrepperSettings,
+	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.Common.Interfaces,
 	RipGrepper.Common.SimpleTypes;
 
@@ -166,7 +166,7 @@ uses
 	RipGrepper.UI.SearchForm,
 	System.Math,
 	System.StrUtils,
-	RipGrepper.Common.Settings.RipGrepParameterSettings,
+	RipGrepper.Settings.RipGrepParameterSettings,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.UI.RipGrepOptionsForm,
 	RipGrepper.Common.ParsedObject,

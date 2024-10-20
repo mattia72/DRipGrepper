@@ -1,4 +1,4 @@
-unit RipGrepper.Common.Settings.AppSettings;
+unit RipGrepper.Settings.AppSettings;
 
 interface
 
@@ -9,9 +9,9 @@ uses
 	System.Generics.Defaults,
 	RipGrepper.OpenWith.Constants,
 	RipGrepper.Common.Constants,
-	RipGrepper.Common.Settings.Persistable,
+	RipGrepper.Settings.Persistable,
 	ArrayEx,
-	RipGrepper.Common.Settings.RipGrepParameterSettings;
+	RipGrepper.Settings.RipGrepParameterSettings;
 
 type
 

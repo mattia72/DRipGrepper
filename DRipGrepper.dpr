@@ -70,17 +70,17 @@ uses
   RipGrepper.Tools.FileUtils in 'src\Tools\RipGrepper.Tools.FileUtils.pas',
   RipGrepper.Tools.PackageInstall in 'src\Tools\RipGrepper.Tools.PackageInstall.pas',
   RipGrepper.Tools.ProcessUtils in 'src\Tools\RipGrepper.Tools.ProcessUtils.pas',
-  RipGrepper.Common.Settings.AppSettings in 'src\Settings\RipGrepper.Common.Settings.AppSettings.pas',
-  RipGrepper.Common.Settings.ExtensionSettings in 'src\Settings\RipGrepper.Common.Settings.ExtensionSettings.pas',
-  RipGrepper.Common.Settings.Instance in 'src\Settings\RipGrepper.Common.Settings.Instance.pas',
-  RipGrepper.Common.Settings.NodeLookSettings in 'src\Settings\RipGrepper.Common.Settings.NodeLookSettings.pas',
-  RipGrepper.Common.Settings.OpenWithSettings in 'src\Settings\RipGrepper.Common.Settings.OpenWithSettings.pas',
-  RipGrepper.Common.Settings.Persistable in 'src\Settings\RipGrepper.Common.Settings.Persistable.pas',
-  RipGrepper.Common.Settings.RipGrepParameterSettings in 'src\Settings\RipGrepper.Common.Settings.RipGrepParameterSettings.pas',
-  RipGrepper.Common.Settings.RipGrepperSettings in 'src\Settings\RipGrepper.Common.Settings.RipGrepperSettings.pas',
-  RipGrepper.Common.Settings.SearchFormSettings in 'src\Settings\RipGrepper.Common.Settings.SearchFormSettings.pas',
-  RipGrepper.Common.Settings.SettingsDictionary in 'src\Settings\RipGrepper.Common.Settings.SettingsDictionary.pas',
-  RipGrepper.Common.Settings.SettingVariant in 'src\Settings\RipGrepper.Common.Settings.SettingVariant.pas';
+  RipGrepper.Settings.AppSettings in 'src\Settings\RipGrepper.Settings.AppSettings.pas',
+  RipGrepper.Settings.ExtensionSettings in 'src\Settings\RipGrepper.Settings.ExtensionSettings.pas',
+  RipGrepper.Settings.Instance in 'src\Settings\RipGrepper.Settings.Instance.pas',
+  RipGrepper.Settings.NodeLookSettings in 'src\Settings\RipGrepper.Settings.NodeLookSettings.pas',
+  RipGrepper.Settings.OpenWithSettings in 'src\Settings\RipGrepper.Settings.OpenWithSettings.pas',
+  RipGrepper.Settings.Persistable in 'src\Settings\RipGrepper.Settings.Persistable.pas',
+  RipGrepper.Settings.RipGrepParameterSettings in 'src\Settings\RipGrepper.Settings.RipGrepParameterSettings.pas',
+  RipGrepper.Settings.RipGrepperSettings in 'src\Settings\RipGrepper.Settings.RipGrepperSettings.pas',
+  RipGrepper.Settings.SearchFormSettings in 'src\Settings\RipGrepper.Settings.SearchFormSettings.pas',
+  RipGrepper.Settings.SettingsDictionary in 'src\Settings\RipGrepper.Settings.SettingsDictionary.pas',
+  RipGrepper.Settings.SettingVariant in 'src\Settings\RipGrepper.Settings.SettingVariant.pas';
 
 {$R *.res}
 

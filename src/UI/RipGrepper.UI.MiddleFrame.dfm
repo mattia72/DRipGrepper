@@ -56,6 +56,11 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           Height = 327
           Align = alClient
           TabOrder = 0
+          inherited VstHistory: TVirtualStringTree
+            Width = 183
+            Height = 321
+            DefaultText = ''
+          end
         end
       end
       object PanelResult: TPanel

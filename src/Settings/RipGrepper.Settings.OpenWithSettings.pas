@@ -1,9 +1,9 @@
-unit RipGrepper.Common.Settings.OpenWithSettings;
+unit RipGrepper.Settings.OpenWithSettings;
 
 interface
 
 uses
-	RipGrepper.Common.Settings.Persistable,
+	RipGrepper.Settings.Persistable,
 	System.Classes,
 	System.IniFiles,
 	RipGrepper.OpenWith.Constants,

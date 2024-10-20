@@ -11,8 +11,8 @@ uses
 	System.Classes,
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.Common.GuiSearchParams,
-	RipGrepper.Common.Settings.SearchFormSettings,
-	RipGrepper.Common.Settings.RipGrepperSettings;
+	RipGrepper.Settings.SearchFormSettings,
+	RipGrepper.Settings.RipGrepperSettings;
 
 type
 

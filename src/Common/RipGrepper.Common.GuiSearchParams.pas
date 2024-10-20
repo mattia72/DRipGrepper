@@ -6,7 +6,7 @@ uses
 	RipGrepper.Common.Constants,
 	ArrayEx,
 	System.Classes,
-	RipGrepper.Common.Settings.Persistable,
+	RipGrepper.Settings.Persistable,
 	System.IniFiles,
 	RipGrepper.CommandLine.OptionStrings,
 	RipGrepper.Helper.Types;
