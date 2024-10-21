@@ -22,7 +22,7 @@ type
 		public
 			class procedure CreateBackup(const fileName : string);
 			class function FindExecutable(sFileName : string; out sOutpuPath : string) : Boolean;
-			class function FindFileInSubDirs(const _dir: string; const _file : string): string;
+			class function FindFileInSubDirs(const _dir : string; const _file : string) : string;
 			class function GetAppNameAndVersion(const _exePath : string) : string;
 			class function GetAppVersion(const _exePath : string) : string;
 			class function ParseCommand(const _sCmd : string) : TCommandLineRec;
@@ -39,17 +39,18 @@ type
 
 	TReplaceList = class
 		Items : TDictionary<string, TArrayEx<TReplaceData>>;
-		procedure Add(fileName : string; row : integer; replaceLine : string);
 
 		public
 			constructor Create;
 			destructor Destroy; override;
+			procedure Add(fileName : string; row : integer; replaceLine : string);
 	end;
 
 	TEncodedStringList = class(TStringList)
 		private
 			FOrigEncoding : TEncoding;
 			function GetFileEncoding(const _sFilePath : string) : TEncoding;
+			class function ShowWarningBeforeSave(_list : TReplaceList) : Boolean;
 
 		public
 			procedure LoadFromFile(const FileName : string); override;
@@ -71,7 +72,9 @@ uses
 	System.IOUtils,
 	RipGrepper.Common.Constants,
 	System.RegularExpressions,
-	System.StrUtils;
+	System.StrUtils,
+	RipGrepper.Helper.UI,
+	System.UITypes;
 
 procedure GetPackageNameInfoProc(const Name : string; NameType : TNameType; Flags : Byte; Param : Pointer);
 begin
@@ -108,14 +111,16 @@ begin
 	// WriteDebugMessage(sOutpuPath);
 end;
 
-class function TFileUtils.FindFileInSubDirs(const _dir: string; const _file : string): string;
+class function TFileUtils.FindFileInSubDirs(const _dir : string; const _file : string) : string;
 begin
 	Result := '';
-	var rgPath := TPath.Combine(_dir, _file);
+	var
+	rgPath := TPath.Combine(_dir, _file);
 	if FileExists(rgPath) then begin
 		Result := rgPath;
 	end else begin
-		var dirs := TDirectory.GetDirectories(_dir);
+		var
+		dirs := TDirectory.GetDirectories(_dir);
 		for var dir in dirs do begin
 			Result := FindFileInSubDirs(dir, _file);
 			if not Result.IsEmpty then begin
@@ -298,6 +303,10 @@ class procedure TEncodedStringList.ReplaceLineInFiles(_list : TReplaceList; cons
 var
 	fileLines : TEncodedStringList;
 begin
+
+	if not ShowWarningBeforeSave(_list) then
+		Exit;
+
 	for var fileName in _list.Items.Keys do begin
 		if _createBackup then begin
 			TFileUtils.CreateBackup(fileName);
@@ -310,6 +319,7 @@ begin
 					fileLines[rd.Row - 1] := rd.Line;
 				end;
 			end;
+
 			fileLines.SaveToFile(fileName);
 		finally
 			fileLines.Free;
@@ -325,6 +335,21 @@ begin
 	end else begin
 		inherited SaveToFile(FileName);
 	end;
+end;
+
+class function TEncodedStringList.ShowWarningBeforeSave(_list : TReplaceList) : Boolean;
+var
+	replaceCount : Integer;
+begin
+	replaceCount := 0;
+
+	for var fileName in _list.Items.Keys do begin
+		for var rd : TReplaceData in _list.Items[fileName] do begin
+			Inc(replaceCount);
+		end;
+	end;
+	Result := mrYes = TMsgBox.ShowQuestion(Format('Are you sure to change %d line(s) in %d file(s)?',
+		[replaceCount, _list.Items.Keys.Count]));
 end;
 
 class function TReplaceData.New(const _row : Integer; const _line : string) : TReplaceData;

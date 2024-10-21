@@ -28,6 +28,7 @@ type
 			class procedure ShowError(const _msg : string);
 			class procedure ShowWarning(const _msg : string);
 			class procedure ShowInfo(const _msg : string);
+			class function ShowQuestion(const _msg : string): Integer;
 	end;
 
 	TCursorSaver = record
@@ -468,6 +469,18 @@ begin
 	try
 		SetCaption(MsgDlg);
 		MsgDlg.ShowModal;
+	finally
+		MsgDlg.Free;
+	end;
+end;
+
+class function TMsgBox.ShowQuestion(const _msg : string): Integer;
+begin
+	var
+		MsgDlg : TForm := CreateMessageDialog(_msg, TMsgDlgType.mtConfirmation, mbYesNo);
+	try
+		SetCaption(MsgDlg);
+		Result := MsgDlg.ShowModal;
 	finally
 		MsgDlg.Free;
 	end;
