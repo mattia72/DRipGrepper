@@ -59,6 +59,18 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           inherited VstHistory: TVirtualStringTree
             Width = 183
             Height = 321
+            Columns = <
+              item
+                Position = 0
+                Text = 'Search'
+                Width = 183
+              end
+              item
+                Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coSmartResize, coAllowFocus, coEditable, coStyleColor]
+                Position = 1
+                Text = 'Replace'
+                Width = 519
+              end>
             DefaultText = ''
           end
         end

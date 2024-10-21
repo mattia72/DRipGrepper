@@ -40,7 +40,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     AlignWithMargins = True
     Left = 190
     Top = 0
-    Width = 482
+    Width = 457
     Height = 23
     Align = alNone
     AutoSize = True
@@ -147,13 +147,8 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Top = 0
       Action = ActionSaveReplacement
     end
-    object tbSaveAllReplacement: TToolButton
-      Left = 424
-      Top = 0
-      Action = ActionSaveAllReplacement
-    end
     object ToolButton6: TToolButton
-      Left = 449
+      Left = 424
       Top = 0
       Width = 8
       Caption = 'ToolButton6'
@@ -161,7 +156,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Style = tbsSeparator
     end
     object tbOpenWith: TToolButton
-      Left = 457
+      Left = 432
       Top = 0
       Action = ActionOpenWith
     end
@@ -1456,9 +1451,11 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       OnExecute = ActionShowSearchFormExecute
     end
     object ActionSaveAllReplacement: TAction
+      Enabled = False
       Hint = 'Save All Replacement'
       ImageIndex = 32
       ShortCut = 12371
+      Visible = False
       OnExecute = ActionSaveAllReplacementExecute
     end
     object ActionRefreshSearch: TAction
@@ -1564,6 +1561,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       ImageIndex = 31
       ShortCut = 16467
       OnExecute = ActionSaveReplacementExecute
+      OnUpdate = ActionSaveReplacementUpdate
     end
   end
   object PopupMenu1: TPopupMenu

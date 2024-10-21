@@ -77,7 +77,6 @@ type
 		tbSaveReplacement : TToolButton;
 		ActionSaveReplacement : TAction;
 		ActionSaveAllReplacement : TAction;
-		tbSaveAllReplacement : TToolButton;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlignToolbarsExecute(Sender : TObject);
@@ -98,6 +97,7 @@ type
 		procedure ActionRefreshSearchExecute(Sender : TObject);
 		procedure ActionRefreshSearchUpdate(Sender : TObject);
 		procedure ActionSaveReplacementExecute(Sender : TObject);
+		procedure ActionSaveReplacementUpdate(Sender : TObject);
 		procedure ActionSearchExecute(Sender : TObject);
 		procedure ActionSearchInResultExecute(Sender : TObject);
 		procedure ActionShowFileIconsExecute(Sender : TObject);
@@ -125,6 +125,7 @@ type
 			function GetSettings : TRipGrepperSettings;
 			function GetToolBarWidth(_tb : TToolBar) : Integer;
 			function IsFilterOn : Boolean;
+			procedure SaveSelectedReplacements;
 			procedure SelectNextFoundNode(const _prevFoundNode : PVirtualNode; const _searchPattern : string);
 			procedure SetGuiReplaceModes;
 			procedure SetReplaceTextInSettings(const _sReplText : string);
@@ -175,7 +176,8 @@ uses
 	System.IOUtils,
 	RipGrepper.Helper.Types,
 	System.SysUtils,
-	RipGrepper.UI.ConfigForm;
+	RipGrepper.UI.ConfigForm,
+	RipGrepper.Tools.FileUtils;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -325,25 +327,13 @@ begin
 end;
 
 procedure TRipGrepperTopFrame.ActionSaveReplacementExecute(Sender : TObject);
-var
-	selectedData : TArray<TVSFileNodeData>;
-	replaceLine : string;
-	fileName : string;
-	lineNum : integer;
 begin
-	selectedData := MainFrame.VstResult.GetSelectedData<TVSFileNodeData>();
+	SaveSelectedReplacements;
+end;
 
-	for var data in selectedData do begin
-		fileName := data.FilePath;
-		if fileName.IsEmpty then begin
-			var
-			owp := MainFrame.GetOpenWithParamsFromSelected();
-			fileName := TPath.Combine(owp.DirPath, owp.FileName);
-		end;
-		lineNum := data.MatchData.Row;
-		replaceLine := data.MatchData.LineText;
-		ReplaceLineInFile(fileName, lineNum, replaceLine);
-	end;
+procedure TRipGrepperTopFrame.ActionSaveReplacementUpdate(Sender : TObject);
+begin
+	ActionSaveReplacement.Enabled := MainFrame.VstResult.CheckedCount > 0;
 end;
 
 procedure TRipGrepperTopFrame.ReplaceLineInFile(const fileName : string; lineNum : Integer; const replaceLine : string);
@@ -531,6 +521,39 @@ end;
 function TRipGrepperTopFrame.IsReplaceMode : Boolean;
 begin
 	Result := edtReplace.RightButton.ImageIndex = IMG_IDX_REPLACE_ON;
+end;
+
+procedure TRipGrepperTopFrame.SaveSelectedReplacements;
+var
+	node : PVirtualNode;
+	data : PVSFileNodeData;
+	parentData : PVSFileNodeData;
+	replaceLine : string;
+	fileName : string;
+	lineNum : integer;
+	replaceList : TReplaceList;
+begin
+
+	replaceList := TReplaceList.Create();
+	try
+
+		node := MainFrame.VstResult.GetFirstChecked();
+		while Assigned(node) do begin
+			if node.Parent <> MainFrame.VstResult.RootNode then begin
+				data := MainFrame.VstResult.GetNodeData(node);
+				parentData := MainFrame.VstResult.GetNodeData(node.Parent);
+				fileName := parentData.FilePath;
+				lineNum := data.MatchData.Row;
+				replaceLine := data.MatchData.LineText;
+				replaceList.Add(fileName, lineNum, replaceLine);
+			end;
+			node := MainFrame.VstResult.GetNextChecked(Node);
+		end;
+
+		TEncodedStringList.ReplaceLineInFiles(replaceList);
+	finally
+		replaceList.Free;
+	end;
 end;
 
 procedure TRipGrepperTopFrame.SearchBox1Change(Sender : TObject);

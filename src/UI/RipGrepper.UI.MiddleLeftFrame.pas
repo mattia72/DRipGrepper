@@ -459,7 +459,7 @@ begin
 		repText := hio.ReplaceText;
 	end;
 	ParentFrame.TopFrame.SetGuiReplaceMode(mode, repText);
-	ParentFrame.MainFrame.SetReplaceMode(Assigned(_hio) and hio.IsReplaceMode);
+	ParentFrame.MainFrame.SetReplaceMode(Assigned(hio) and hio.IsReplaceMode);
 end;
 
 procedure TMiddleLeftFrame.SetSelectedHistoryItem(const _idx : Integer);

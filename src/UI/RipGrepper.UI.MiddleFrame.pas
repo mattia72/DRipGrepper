@@ -1,4 +1,4 @@
-unit RipGrepper.UI.MiddleFrame;
+﻿unit RipGrepper.UI.MiddleFrame;
 
 interface
 
@@ -162,7 +162,7 @@ type
 			procedure SetHistItemObject(const Value : IHistoryItemObject);
 			function SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
 			procedure UpdateArgumentsAndSettings;
-		procedure UpdateGui;
+			procedure UpdateGui;
 			property IsGuiReplaceMode : Boolean read GetIsGuiReplaceMode write FIsGuiReplaceMode;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
@@ -695,7 +695,6 @@ begin
 	TThread.Synchronize(nil,
 		procedure
 		begin
-			SetColumnWidths;
 			BottomFrame.ActivityIndicator1.Animate := False;
 			FIsParsingRunning := False;
 			ExpandNodes;
@@ -818,7 +817,7 @@ end;
 
 procedure TRipGrepperMiddleFrame.SetColumnWidths;
 begin
-	//
+	VstResult.Header.Columns[COL_FILE].Width := IfThen(toCheckSupport in VstResult.TreeOptions.MiscOptions, 70, 50);
 end;
 
 procedure TRipGrepperMiddleFrame.SetHistItemObject(const Value : IHistoryItemObject);
@@ -904,8 +903,10 @@ begin
 	beu := TBeginEndUpdater.New(VstResult);
 	var
 	subNode := VstResult.GetFirstChild(ANode);
+	var
+		bChecked : Boolean := ANode.CheckState.IsChecked;
 	while Assigned(subNode) do begin
-		VstResult.Selected[subNode] := True;
+		VstResult.Selected[subNode] := bChecked;
 		subNode := VstResult.GetNextSibling(subNode);
 	end;
 end;
@@ -919,7 +920,9 @@ begin
 		VstResult.TreeOptions.MiscOptions := VstResult.TreeOptions.MiscOptions - [toCheckSupport];
 		VstResult.TreeOptions.SelectionOptions := VstResult.TreeOptions.SelectionOptions - [toMultiSelect, toSyncCheckboxesWithSelection];
 	end;
-	VstResult.Realign;
+	// VstResult.Repaint; 
+	VstResult.Realign; 
+	SetColumnWidths;
 end;
 
 function TRipGrepperMiddleFrame.SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
