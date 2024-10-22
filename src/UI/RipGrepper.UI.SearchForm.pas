@@ -847,7 +847,8 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ChecVsCodeRipGrep;
 begin
-    var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.ChecVsCodeRipGrep');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.ChecVsCodeRipGrep');
 	var
 		sVsDir : string := TFileUtils.GetVsCodeDir;
 	if not sVsDir.IsEmpty then begin
@@ -867,7 +868,7 @@ begin
 			lblHintHelper.Hint := 'rg.exe in VSCode doesn''t support --pretty';
 			lblHintHelper.ShowHint := True;
 			lblHintHelper.Visible := True;
-            dbgMsg.Msg(lblHintHelper.Hint);
+			dbgMsg.Msg(lblHintHelper.Hint);
 		end;
 	end;
 end;
@@ -879,6 +880,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.cmbReplaceTextChange(Sender : TObject);
 begin
+	cmbReplaceText.Text := CheckAndCorrectMultiLine(cmbReplaceText.Text);
 	UpdateCtrls(cmbReplaceText);
 end;
 

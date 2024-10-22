@@ -400,6 +400,7 @@ procedure TRipGrepperSettings.StoreHistories;
 begin
 	StoreHistoryEntries(SearchPathsHistory, 'SearchPathsHistory');
 	StoreHistoryEntries(SearchTextsHistory, 'SearchTextsHistory');
+	StoreHistoryEntries(ReplaceTextsHistory, 'ReplaceTextsHistory');
 	StoreHistoryEntries(ExpertOptionHistory, 'ExpertOptionHistory');
 	StoreHistoryEntries(FileMasksHistory, 'FileMasksHistory');
 end;
