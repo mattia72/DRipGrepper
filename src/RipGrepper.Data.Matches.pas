@@ -118,6 +118,7 @@ begin
 	end else begin
 		Result := FVst.AddChild(_node);
 	end;
+	Result.CheckType := ctCheckBox;
 	Data := FVst.GetNodeData(Result);
 	// FVst.ValidateNode(Result, False);
 	Data^.FilePath := _rec.FilePath;
@@ -291,6 +292,7 @@ begin
 	end;
 
 	AddVSTStructure(_parentNode, nodeData, bAsFirst);
+	_parentNode.CheckType :=  ctCheckBox;
 end;
 
 function TRipGrepperData.ErrorHandling(const _sFileColumnText : string; _item : IParsedObjectRow) : PVirtualNode;

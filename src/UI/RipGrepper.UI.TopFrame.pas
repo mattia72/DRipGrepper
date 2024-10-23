@@ -130,6 +130,7 @@ type
 			procedure SaveSelectedReplacements;
 			procedure SelectNextFoundNode(const _prevFoundNode : PVirtualNode; const _searchPattern : string);
 			procedure SetReplaceModeOnGui;
+			procedure SetReplaceModeOnToolBar;
 			procedure SetReplaceTextInSettings(const _sReplText : string);
 			procedure StartNewSearch;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
@@ -140,7 +141,7 @@ type
 			procedure AlignToolBars(iTbResultLeft, iSearchMaxWidth, iResultMinWidth : integer);
 			function GetNextViewStyleIdx : integer;
 			procedure Init;
-			function IsReplaceMode : Boolean;
+			function IsRgReplaceMode : Boolean;
 			procedure SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
 			procedure SetFilter(const _bOn : Boolean = True);
 			procedure SetGuiReplaceMode(const _modes : TGuiReplaceModes; const _sReplaceText : string = '');
@@ -178,7 +179,8 @@ uses
 	System.IOUtils,
 	RipGrepper.Helper.Types,
 	System.SysUtils,
-	RipGrepper.UI.ConfigForm;
+	RipGrepper.UI.ConfigForm,
+	System.RegularExpressions;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -469,9 +471,11 @@ procedure TRipGrepperTopFrame.edtReplaceRightButtonClick(Sender : TObject);
 begin
 	if IsGuiReplaceMode then begin
 		Exclude(FGuiReplaceModes, EGuiReplaceMode.grmActive);
+		Exclude(FGuiReplaceModes, EGuiReplaceMode.grmSaveEnabled);
 		SetReplaceTextInSettings('');
 	end else begin
 		Include(FGuiReplaceModes, EGuiReplaceMode.grmActive);
+		Include(FGuiReplaceModes, EGuiReplaceMode.grmSaveEnabled);
 		SetReplaceTextInSettings(edtReplace.Text);
 	end;
 	SetReplaceModeOnGui();
@@ -493,7 +497,12 @@ begin
 			parentData := MainFrame.VstResult.GetNodeData(node.Parent);
 			fileName := parentData.FilePath;
 			lineNum := data.MatchData.Row;
-			replaceLine := data.MatchData.LineText;
+			if IsRgReplaceMode then begin
+				replaceLine := data.MatchData.LineText;
+			end else if IsGuiReplaceMode then begin
+				replaceLine := TRegEx.Replace(data.MatchData.LineText, Settings.LastSearchText, Settings.RipGrepParameters.ReplaceText,
+					[roIgnoreCase]);
+			end;
 			replaceList.Add(fileName, lineNum, replaceLine);
 		end;
 		node := MainFrame.VstResult.GetNextChecked(Node);
@@ -543,9 +552,9 @@ begin
 	Result := edtFilter.RightButton.ImageIndex = IMG_IDX_FILTER_ON;
 end;
 
-function TRipGrepperTopFrame.IsReplaceMode : Boolean;
+function TRipGrepperTopFrame.IsRgReplaceMode : Boolean;
 begin
-	Result := edtReplace.RightButton.ImageIndex = IMG_IDX_REPLACE_ON;
+	Result := EGuiReplaceMode.grmRGReplace in FGuiReplaceModes;
 end;
 
 procedure TRipGrepperTopFrame.SaveSelectedReplacements;
@@ -629,6 +638,12 @@ begin
 end;
 
 procedure TRipGrepperTopFrame.SetReplaceModeOnGui();
+begin
+	SetReplaceModeOnToolBar();
+	ParentFrame.MainFrame.SetReplaceModeOnGrid(EGuiReplaceMode.grmActive in FGuiReplaceModes);
+end;
+
+procedure TRipGrepperTopFrame.SetReplaceModeOnToolBar;
 
 begin
 	ActionSaveReplacement.Enabled := EGuiReplaceMode.grmSaveEnabled in FGuiReplaceModes;

@@ -454,6 +454,7 @@ begin
 		if hio.IsReplaceMode then begin
 			Include(mode, EGuiReplaceMode.grmActive);
 			Include(mode, EGuiReplaceMode.grmSaveEnabled);
+			Include(mode, EGuiReplaceMode.grmRGReplace);
 		end else begin
 			Include(mode, EGuiReplaceMode.grmEditEnabled);
 		end;
@@ -464,7 +465,6 @@ begin
 		repText := hio.ReplaceText;
 	end;
 	ParentFrame.TopFrame.SetGuiReplaceMode(mode, repText);
-	ParentFrame.MainFrame.SetReplaceMode(Assigned(hio) and hio.IsReplaceMode);
 end;
 
 procedure TMiddleLeftFrame.SetSelectedHistoryItem(const _idx : Integer);

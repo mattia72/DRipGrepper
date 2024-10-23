@@ -12,7 +12,7 @@ type
 	TRipGrepArguments = TStringList;
 
 	{$SCOPEDENUMS ON}
-	EGuiReplaceMode = (grmEditEnabled, grmActive, grmSaveEnabled);
+	EGuiReplaceMode = (grmRGReplace, grmEditEnabled, grmActive, grmSaveEnabled);
 	{$SCOPEDENUMS OFF}
 	TGuiReplaceModes = set of EGuiReplaceMode;
 

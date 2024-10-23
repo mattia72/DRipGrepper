@@ -135,7 +135,6 @@ type
 			FSettings : TRipGrepperSettings;
 			FswSearchStart : TStopwatch;
 			FIconImgList : TIconImageList;
-			FIsGuiReplaceMode : Boolean;
 			FParsingThreads : TArrayEx<TParallelParser>;
 			procedure AddAsUsing(_bToImpl : Boolean);
 			procedure DoSearch;
@@ -144,7 +143,8 @@ type
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
 			function GetData : TRipGrepperData;
 			function GetHistItemObject : IHistoryItemObject;
-			function GetIsGuiReplaceMode : Boolean;
+			function GetIsGuiReplaceMode: Boolean;
+			function GetIsRgReplaceMode : Boolean;
 			function GetNewParallelParser : TParallelParser;
 			function GetResultSelectedFilePath : string;
 			function GetSelectedResultFileNodeData : PVSFileNodeData;
@@ -163,7 +163,8 @@ type
 			function SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
 			procedure UpdateArgumentsAndSettings;
 			procedure UpdateGui;
-			property IsGuiReplaceMode : Boolean read GetIsGuiReplaceMode write FIsGuiReplaceMode;
+			property IsGuiReplaceMode: Boolean read GetIsGuiReplaceMode;
+			property IsRgReplaceMode : Boolean read GetIsRgReplaceMode;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
 			{ Private-Deklarationen }
@@ -191,7 +192,7 @@ type
 			// ITerminateEventProducer
 			function ProcessShouldTerminate : Boolean;
 			procedure RefreshSearch;
-			procedure SetReplaceMode(const _bOn : Boolean);
+			procedure SetReplaceModeOnGrid(const _bOn : Boolean);
 			procedure SetResultListViewDataToHistoryObj;
 			procedure UpdateHistObjectAndCopyToSettings;
 			procedure UpdateHistObjectAndGui;
@@ -573,9 +574,14 @@ begin
 	Result := FHistItemObj;
 end;
 
-function TRipGrepperMiddleFrame.GetIsGuiReplaceMode : Boolean;
+function TRipGrepperMiddleFrame.GetIsGuiReplaceMode: Boolean;
 begin
 	Result := ParentFrame.TopFrame.IsGuiReplaceMode;
+end;
+
+function TRipGrepperMiddleFrame.GetIsRgReplaceMode : Boolean;
+begin
+	Result := Settings.IsReplaceMode;
 end;
 
 function TRipGrepperMiddleFrame.GetOpenWithParamsFromSelected : TOpenWithParams;
@@ -911,7 +917,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepperMiddleFrame.SetReplaceMode(const _bOn : Boolean);
+procedure TRipGrepperMiddleFrame.SetReplaceModeOnGrid(const _bOn : Boolean);
 begin
 	if _bOn then begin
 		VstResult.TreeOptions.MiscOptions := VstResult.TreeOptions.MiscOptions + [toCheckSupport];
@@ -920,8 +926,8 @@ begin
 		VstResult.TreeOptions.MiscOptions := VstResult.TreeOptions.MiscOptions - [toCheckSupport];
 		VstResult.TreeOptions.SelectionOptions := VstResult.TreeOptions.SelectionOptions - [toMultiSelect, toSyncCheckboxesWithSelection];
 	end;
-	// VstResult.Repaint; 
-	VstResult.Realign; 
+	// VstResult.Repaint;
+	VstResult.Realign;
 	SetColumnWidths;
 end;
 
@@ -1118,14 +1124,16 @@ begin
 					end;
 					ss2 := s.Substring(matchBegin + Data.MatchData.MatchLength);
 
-					if IsGuiReplaceMode then begin
+					if IsGuiReplaceMode or IsRgReplaceMode then begin
 						TItemDrawer.SetTextColorReplacedText(TargetCanvas);
 					end else begin
 						TItemDrawer.SetTextColorMatch(TargetCanvas);
-					end;;
-					TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1);
-					pos := pos + TargetCanvas.TextWidth(ss1);
-					if IsGuiReplaceMode then begin
+					end;
+					if not IsRgReplaceMode then begin
+						TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1);
+						pos := pos + TargetCanvas.TextWidth(ss1);
+					end;
+					if IsGuiReplaceMode or IsRgReplaceMode then begin
 						TItemDrawer.SetTextColorReplaceText(TargetCanvas);
 						TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1_repl);
 
