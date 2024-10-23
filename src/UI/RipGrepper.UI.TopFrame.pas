@@ -26,7 +26,8 @@ uses
 	Vcl.Menus,
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.Common.Interfaces,
-	RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.SimpleTypes,
+	RipGrepper.Tools.FileUtils;
 
 type
 
@@ -121,13 +122,14 @@ type
 			FPrevFoundNode : PVirtualNode;
 			FSettings : TRipGrepperSettings;
 			FViewStyleIndex : integer;
+			procedure GetCheckedReplaceList(var replaceList : TReplaceList);
 			function GetIsGuiReplaceMode : Boolean;
 			function GetSettings : TRipGrepperSettings;
 			function GetToolBarWidth(_tb : TToolBar) : Integer;
 			function IsFilterOn : Boolean;
 			procedure SaveSelectedReplacements;
 			procedure SelectNextFoundNode(const _prevFoundNode : PVirtualNode; const _searchPattern : string);
-			procedure SetGuiReplaceModes;
+			procedure SetReplaceModeOnGui;
 			procedure SetReplaceTextInSettings(const _sReplText : string);
 			procedure StartNewSearch;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
@@ -176,15 +178,14 @@ uses
 	System.IOUtils,
 	RipGrepper.Helper.Types,
 	System.SysUtils,
-	RipGrepper.UI.ConfigForm,
-	RipGrepper.Tools.FileUtils;
+	RipGrepper.UI.ConfigForm;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
 	inherited Create(AOwner);
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 	TopFrame := self;
-	FGuiReplaceModes := [EGuiReplaceMode.grmEnabled];
+	FGuiReplaceModes := []; // [EGuiReplaceMode.grmEditEnabled];
 end;
 
 destructor TRipGrepperTopFrame.Destroy;
@@ -333,7 +334,8 @@ end;
 
 procedure TRipGrepperTopFrame.ActionSaveReplacementUpdate(Sender : TObject);
 begin
-	ActionSaveReplacement.Enabled := MainFrame.VstResult.CheckedCount > 0;
+	ActionSaveReplacement.Enabled := (EGuiReplaceMode.grmSaveEnabled in FGuiReplaceModes)
+	{ } and (MainFrame.VstResult.CheckedCount > 0);
 end;
 
 procedure TRipGrepperTopFrame.ReplaceLineInFile(const fileName : string; lineNum : Integer; const replaceLine : string);
@@ -472,7 +474,30 @@ begin
 		Include(FGuiReplaceModes, EGuiReplaceMode.grmActive);
 		SetReplaceTextInSettings(edtReplace.Text);
 	end;
-	SetGuiReplaceModes();
+	SetReplaceModeOnGui();
+end;
+
+procedure TRipGrepperTopFrame.GetCheckedReplaceList(var replaceList : TReplaceList);
+var
+	node : PVirtualNode;
+	data : PVSFileNodeData;
+	parentData : PVSFileNodeData;
+	replaceLine : string;
+	fileName : string;
+	lineNum : integer;
+begin
+	node := MainFrame.VstResult.GetFirstChecked();
+	while Assigned(node) do begin
+		if node.Parent <> MainFrame.VstResult.RootNode then begin
+			data := MainFrame.VstResult.GetNodeData(node);
+			parentData := MainFrame.VstResult.GetNodeData(node.Parent);
+			fileName := parentData.FilePath;
+			lineNum := data.MatchData.Row;
+			replaceLine := data.MatchData.LineText;
+			replaceList.Add(fileName, lineNum, replaceLine);
+		end;
+		node := MainFrame.VstResult.GetNextChecked(Node);
+	end;
 end;
 
 function TRipGrepperTopFrame.GetIsGuiReplaceMode : Boolean;
@@ -525,31 +550,11 @@ end;
 
 procedure TRipGrepperTopFrame.SaveSelectedReplacements;
 var
-	node : PVirtualNode;
-	data : PVSFileNodeData;
-	parentData : PVSFileNodeData;
-	replaceLine : string;
-	fileName : string;
-	lineNum : integer;
 	replaceList : TReplaceList;
 begin
-
 	replaceList := TReplaceList.Create();
 	try
-
-		node := MainFrame.VstResult.GetFirstChecked();
-		while Assigned(node) do begin
-			if node.Parent <> MainFrame.VstResult.RootNode then begin
-				data := MainFrame.VstResult.GetNodeData(node);
-				parentData := MainFrame.VstResult.GetNodeData(node.Parent);
-				fileName := parentData.FilePath;
-				lineNum := data.MatchData.Row;
-				replaceLine := data.MatchData.LineText;
-				replaceList.Add(fileName, lineNum, replaceLine);
-			end;
-			node := MainFrame.VstResult.GetNextChecked(Node);
-		end;
-
+		GetCheckedReplaceList(replaceList);
 		TEncodedStringList.ReplaceLineInFiles(replaceList);
 	finally
 		replaceList.Free;
@@ -620,22 +625,21 @@ procedure TRipGrepperTopFrame.SetGuiReplaceMode(const _modes : TGuiReplaceModes;
 begin
 	FGuiReplaceModes := _modes;
 	edtReplace.Text := _sReplaceText;
-	SetGuiReplaceModes();
+	SetReplaceModeOnGui();
 end;
 
-procedure TRipGrepperTopFrame.SetGuiReplaceModes();
+procedure TRipGrepperTopFrame.SetReplaceModeOnGui();
 
 begin
-	if FGuiReplaceModes = [] then begin
-		edtReplace.RightButton.ImageIndex := IMG_IDX_REPLACE_OFF;
-		edtReplace.Enabled := FALSE;
-		ActionSaveReplacement.Enabled := False;
-		ActionSaveAllReplacement.Enabled := False;
-	end else begin
-		edtReplace.Enabled := EGuiReplaceMode.grmEnabled in FGuiReplaceModes;
-		edtReplace.RightButton.ImageIndex := IfThen(EGuiReplaceMode.grmActive in FGuiReplaceModes, IMG_IDX_REPLACE_ON, IMG_IDX_REPLACE_OFF);
-		ActionSaveReplacement.Enabled := EGuiReplaceMode.grmSaveEnabled in FGuiReplaceModes;
-		ActionSaveAllReplacement.Enabled := EGuiReplaceMode.grmSaveEnabled in FGuiReplaceModes;
+	ActionSaveReplacement.Enabled := EGuiReplaceMode.grmSaveEnabled in FGuiReplaceModes;
+	// ActionSaveAllReplacement.Enabled := EGuiReplaceMode.grmSaveEnabled in FGuiReplaceModes;
+
+	edtReplace.Enabled := EGuiReplaceMode.grmEditEnabled in FGuiReplaceModes;
+	edtReplace.RightButton.ImageIndex := IfThen(
+		{ } (EGuiReplaceMode.grmActive in FGuiReplaceModes), IMG_IDX_REPLACE_ON, IMG_IDX_REPLACE_OFF);
+
+	if (not edtReplace.Enabled) and (edtReplace.Text = '') then begin
+		edtReplace.Text := edtReplace.TextHint;
 	end;
 end;
 

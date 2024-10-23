@@ -247,13 +247,16 @@ end;
 
 procedure TMiddleLeftFrame.AddVstReplaceNode(Node : PVirtualNode);
 var
-	Data : PVSHistoryNodeData;
+	childNode: PVirtualNode;
+	data : PVSHistoryNodeData;
 begin
-	Node := VstHistory.AddChild(Node);
-	Data := VstHistory.GetNodeData(Node);
-	Data^.SearchText := '';
-	Data^.ReplaceData.IsReplaceMode := True;
-	Data^.ReplaceData.ReplaceText := Settings.LastReplaceText;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.AddVstReplaceNode');
+	childNode := VstHistory.AddChild(Node);
+	data := VstHistory.GetNodeData(childNode);
+	data^.SearchText := '';
+	data^.ReplaceData.IsReplaceMode := True;
+	data^.ReplaceData.ReplaceText := Settings.LastReplaceText;
 end;
 
 procedure TMiddleLeftFrame.ChangeDataHistItemObject(_ho : IHistoryItemObject);
@@ -417,6 +420,8 @@ begin
 	VstHistory.NodeDataSize := SizeOf(TVSHistoryNodeData);
 
 	VstHistory.Header.Columns[COL_SEARCH_TEXT].MinWidth := 50;
+
+	SetReplaceMode();
 	ShowReplaceColumn(False);
 
 end;
@@ -445,17 +450,17 @@ begin
 	end;
 
 	mode := [];
-	if Assigned(_hio) then begin
+	if Assigned(hio) then begin
 		if hio.IsReplaceMode then begin
 			Include(mode, EGuiReplaceMode.grmActive);
 			Include(mode, EGuiReplaceMode.grmSaveEnabled);
 		end else begin
-			Include(mode, EGuiReplaceMode.grmEnabled);
+			Include(mode, EGuiReplaceMode.grmEditEnabled);
 		end;
 	end;
 
 	repText := '';
-	if Assigned(_hio) then begin
+	if Assigned(hio) then begin
 		repText := hio.ReplaceText;
 	end;
 	ParentFrame.TopFrame.SetGuiReplaceMode(mode, repText);
@@ -588,7 +593,7 @@ begin
 		MainFrame.UpdateHistObjectAndGui;
 	end;
 
-	SetReplaceMode;
+	SetReplaceMode();
 end;
 
 procedure TMiddleLeftFrame.VstHistoryNodeDblClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
