@@ -89,13 +89,15 @@ const
 	RG_PRETTY_BOLD_RED = ESC + '1m' + ESC + '31m';
 	RG_PRETTY_RESET = ESC + '0m';
 
+	// saved regex here: https://regex101.com/r/Q7WJcd/1
+	// ^#\$1B'\[0m'#\$1B'\[36m(?<drive>\w:)?(?<path>.+?)'#\$1B'\[0m:'#\$1B'\[0m'#\$1B'\[32m(?<row>\d+)'#\$1B'\[0m:'#\$1B'\[0m(?<col>\d+)'#\$1B'\[0m:(?<text_before_match>.*?)?('#\$1B'\[0m'#\$1B'\[1m'#\$1B'\[31m(?<match_text>.+)'#\$1B'\[0m(?<text_after_match>.*?)?)?$
 	RG_MATCH_PRETTY_LINE_REGEX = '^' +
-	{ } RG_PRETTY_BLUE + '(?<drive>\w:)?(?<path>.+?)' +    // +? one or unlimited as few as possible (lazy )
+	{ } RG_PRETTY_BLUE + '(?<drive>\w:)?(?<path>.+?)' + // +? one or unlimited as few as possible (lazy )
 	{ } RG_PRETTY_RESET + ':' +
 	{ } RG_PRETTY_GREEN + '(?<row>\d+)' +
 	{ } RG_PRETTY_RESET + ':' +
 	{ } RG_PRETTY_RESET + '(?<col>\d+)' +
-	{ } RG_PRETTY_RESET + ':(?<text_before_match>.*?)?' +     // *? zero or unlimited as few as possible (lazy)
+	{ } RG_PRETTY_RESET + ':(?<text_before_match>.*?)?' + // *? zero or unlimited as few as possible (lazy)
 	{ } '(' + RG_PRETTY_RESET + RG_PRETTY_BOLD_RED + '(?<match_text>.+)' +
 	{ } RG_PRETTY_RESET + '(?<text_after_match>.*?)?' + ')?$';
 
@@ -234,6 +236,7 @@ const
 type
 
 	EColumnIndex = (ciFile, ciRow, ciCol, ciText, ciMatchText, ciTextAfterMatch);
+
 	TDefaults = class
 		private
 			class function GetColumnTitle(Index : EColumnIndex) : string; static;
@@ -249,7 +252,8 @@ type
 			class property ColumnTitle[index : EColumnIndex] : string read GetColumnTitle; default;
 	end;
 
-   	{$SCOPEDENUMS ON}
+	{$SCOPEDENUMS ON}
+
 	EGuiOption = (soNotSet = 0, soMatchCase = 1, soMatchWord = 2, soUseRegex = 3);
 	{$SCOPEDENUMS OFF}
 

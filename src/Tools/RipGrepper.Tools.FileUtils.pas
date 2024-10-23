@@ -303,7 +303,6 @@ class procedure TEncodedStringList.ReplaceLineInFiles(_list : TReplaceList; cons
 var
 	fileLines : TEncodedStringList;
 begin
-
 	if not ShowWarningBeforeSave(_list) then
 		Exit;
 
@@ -319,12 +318,10 @@ begin
 					fileLines[rd.Row - 1] := rd.Line;
 				end;
 			end;
-
 			fileLines.SaveToFile(fileName);
 		finally
 			fileLines.Free;
 		end;
-
 	end;
 end;
 
