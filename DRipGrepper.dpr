@@ -32,7 +32,6 @@ uses
   RipGrepper.Data.HistoryItemObject in 'src\RipGrepper.Data.HistoryItemObject.pas',
   RipGrepper.Data.Matches in 'src\RipGrepper.Data.Matches.pas',
   RipGrepper.Data.Parsers in 'src\RipGrepper.Data.Parsers.pas',
-  RipGrepper.Helper.ListBox in 'src\RipGrepper.Helper.ListBox.pas',
   RipGrepper.Helper.Types in 'src\RipGrepper.Helper.Types.pas',
   RipGrepper.Helper.UI in 'src\RipGrepper.Helper.UI.pas',
   RipGrepper.OpenWith in 'src\OpenWith\RipGrepper.OpenWith.pas',
@@ -92,5 +91,4 @@ begin
 	Application.MainFormOnTaskbar := True;
 	Application.CreateForm(TRipGrepperForm, RipGrepperForm);
   Application.Run;
-
 end.

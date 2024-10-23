@@ -135,7 +135,6 @@
         <DCCReference Include="..\src\RipGrepper.Data.HistoryItemObject.pas"/>
         <DCCReference Include="..\src\RipGrepper.Data.Matches.pas"/>
         <DCCReference Include="..\src\RipGrepper.Data.Parsers.pas"/>
-        <DCCReference Include="..\src\RipGrepper.Helper.ListBox.pas"/>
         <DCCReference Include="..\src\RipGrepper.Helper.Types.pas"/>
         <DCCReference Include="..\src\RipGrepper.Helper.UI.pas"/>
         <DCCReference Include="..\src\RipGrepper.Parsers.Factory.pas"/>
