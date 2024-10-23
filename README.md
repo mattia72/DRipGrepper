@@ -11,11 +11,7 @@ Marked with checkmark if ready, else planned.
 - [x] searches text, parses `rg` output
   - [x] --vimgrep parser
   - [x] error parser: if a line couldn't be parsed, then it is put in the first column (it maybe encoding problem)
-  - [x] --pretty parser matching lines with colorized match position
-  - [x] --context NUM (or -A=NUM -B=NUM) parser
-  - [ ] --invert-match parser
-  - [ ] --stats parser eg. msgbox on end with search statistics
-- [x] toolbar buttons to 
+ - [x] toolbar buttons to 
   - [x] expand/collapse tree
   - [x] show/hide icons
   - [x] full/relative path
@@ -24,7 +20,7 @@ Marked with checkmark if ready, else planned.
 - [ ] sorting result groups by row / col / text
 - [ ] filtering results
 - [ ] file handling (eg. open in explorer, copy, rename, delete)
-- [ ] replace text in files --replace=TEXT
+- [x] replace text in files --replace=TEXT
 - [x] unicode support
 
 ### :mag: Search Dialog
@@ -41,13 +37,16 @@ Marked with checkmark if ready, else planned.
   - [x] --glob filter settings can be set in separate editbox
   - [x] --hidden, --no-ignore can be set
   - [x] --pretty can be set (not supported by rg.exe in vscode)
-  - [x] --context=NUM can be set
+  - [x] --context NUM (or -A=NUM -B=NUM) parser
+  - [ ] --invert-match parser
+  - [ ] --stats parser eg. msgbox on end with search statistics
+
 
 ### :rocket: Open with...
 ![Screenshot](./screenshots/OpenWith.png)
 
 - [x] show configured editors to open matching file on matching position
-   - [ ] on double click
+   - [x] on double click
    - [x] with menu / toolbar
 - [ ] separate editors for distinct extensions
 
@@ -74,7 +73,11 @@ Configuration is stored in ini file (`DripGrepper.ini` for standalone and `DripE
   - [ ] configurable length of history 
   - [x] *Open with...* settings saved
   - [ ] DebugTrace switch
-- [ ] configuration dialog
+  - [x] config form 
+    - [x] Open with...
+    - [ ] App settings: rg path, debug trace, expert mode
+    - [ ] Extension
+    - [ ] View : colors
 
 ### Delphi Extension 
 ![Screenshot](./screenshots/DripExtension.png)
@@ -102,7 +105,7 @@ Configuration is stored in ini file (`DripGrepper.ini` for standalone and `DripE
 - [x] screenshots in Readme.md
 - [x] [scoop](https://scoop.sh) install
   - [x] standalone
-  - [ ] delphi ide extension
+  - [x] delphi ide extension
 - [ ] [chocolatey](https://chocolatey.org) install
 
 ## Installation

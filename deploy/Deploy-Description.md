@@ -24,9 +24,9 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 
 ## :boom: Improvements 
 Marked with checkmark if ready, else planned ...
-- [ ] replace 
+- [x] replace 
   - [x] different color to highlight replaced text 
-  - [ ] save / save all buttons
+  - [x] save selected / ~~save all~~ button~~s~~
 - [ ] popumenu to filter on file names only
 - [ ] __extension__: save all before search message?
 - [ ] save/load search histories in file
@@ -39,6 +39,7 @@ Marked with checkmark if ready, else planned ...
 
 ## :exclamation: Bugs 
 Marked with checkmark if fixed, else it is known bug.
+- [ ] after save shoud research the replacement?
 - [ ] `Additional Options` has to have saved defaults also
 - [ ] drip icon in menu has no transparent background
 - [ ] exception if rg.exe not found 
