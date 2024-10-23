@@ -90,14 +90,14 @@ const
 	RG_PRETTY_RESET = ESC + '0m';
 
 	RG_MATCH_PRETTY_LINE_REGEX = '^' +
-	{ } RG_PRETTY_BLUE + '(?<drive>\w:)?(?<path>.+?)' +
+	{ } RG_PRETTY_BLUE + '(?<drive>\w:)?(?<path>.+?)' +    // +? one or unlimited as few as possible (lazy )
 	{ } RG_PRETTY_RESET + ':' +
 	{ } RG_PRETTY_GREEN + '(?<row>\d+)' +
 	{ } RG_PRETTY_RESET + ':' +
 	{ } RG_PRETTY_RESET + '(?<col>\d+)' +
-	{ } RG_PRETTY_RESET + ':(?<text_before_match>.*?)?' +
+	{ } RG_PRETTY_RESET + ':(?<text_before_match>.*?)?' +     // *? zero or unlimited as few as possible (lazy)
 	{ } '(' + RG_PRETTY_RESET + RG_PRETTY_BOLD_RED + '(?<match_text>.+)' +
-	{ } RG_PRETTY_RESET + '(?<text_after_match>.+?)?' + ')?$';
+	{ } RG_PRETTY_RESET + '(?<text_after_match>.*?)?' + ')?$';
 
 	RG_MATCH_PRETTY_LINE_CONTEXT_REGEX = '^' +
 	{ } RG_PRETTY_BLUE + '(?<drive>\w:)?(?<path>.+?)' +
