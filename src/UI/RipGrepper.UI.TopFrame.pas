@@ -129,6 +129,7 @@ type
 			function IsFilterOn : Boolean;
 			procedure SaveSelectedReplacements;
 			procedure SelectNextFoundNode(const _prevFoundNode : PVirtualNode; const _searchPattern : string);
+			procedure SetGuiReplaceModes(const _bOn : Boolean = True);
 			procedure SetReplaceModeOnGui;
 			procedure SetReplaceModeOnToolBar;
 			procedure SetReplaceTextInSettings(const _sReplText : string);
@@ -470,18 +471,20 @@ procedure TRipGrepperTopFrame.edtReplaceChange(Sender : TObject);
 begin
 	if IsGuiReplaceMode then begin
 		SetReplaceTextInSettings(edtReplace.Text);
+	end else begin
+		if not string(edtReplace.Text).IsEmpty then begin
+			edtReplaceRightButtonClick(self);
+		end;
 	end;
 end;
 
 procedure TRipGrepperTopFrame.edtReplaceRightButtonClick(Sender : TObject);
 begin
 	if IsGuiReplaceMode then begin
-		Exclude(FGuiReplaceModes, EGuiReplaceMode.grmActive);
-		Exclude(FGuiReplaceModes, EGuiReplaceMode.grmSaveEnabled);
 		SetReplaceTextInSettings('');
+		SetGuiReplaceModes(False);
 	end else begin
-		Include(FGuiReplaceModes, EGuiReplaceMode.grmActive);
-		Include(FGuiReplaceModes, EGuiReplaceMode.grmSaveEnabled);
+		SetGuiReplaceModes(True);
 		SetReplaceTextInSettings(edtReplace.Text);
 	end;
 	SetReplaceModeOnGui();
@@ -643,6 +646,17 @@ begin
 	SetReplaceModeOnGui();
 end;
 
+procedure TRipGrepperTopFrame.SetGuiReplaceModes(const _bOn : Boolean = True);
+begin
+	if _bOn then begin
+		Include(FGuiReplaceModes, EGuiReplaceMode.grmActive);
+		Include(FGuiReplaceModes, EGuiReplaceMode.grmSaveEnabled);
+	end else begin
+		Exclude(FGuiReplaceModes, EGuiReplaceMode.grmActive);
+		Exclude(FGuiReplaceModes, EGuiReplaceMode.grmSaveEnabled);
+	end;
+end;
+
 procedure TRipGrepperTopFrame.SetReplaceModeOnGui();
 begin
 	SetReplaceModeOnToolBar();
@@ -666,8 +680,10 @@ end;
 
 procedure TRipGrepperTopFrame.SetReplaceTextInSettings(const _sReplText : string);
 begin
-	FSettings.RipGrepParameters.ReplaceText := _sReplText;
-	MainFrame.VstResult.Repaint;
+	if Assigned(FSettings) then begin
+		FSettings.RipGrepParameters.ReplaceText := _sReplText;
+		MainFrame.VstResult.Repaint;
+	end;
 end;
 
 procedure TRipGrepperTopFrame.StartNewSearch;
