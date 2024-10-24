@@ -1,7 +1,7 @@
 <!--
 
-Version:     v3.6.0-beta
-PrevVersion: v3.5.2-beta
+Version:     v3.6.1-beta
+PrevVersion: v3.6.0-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -24,9 +24,6 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 
 ## :boom: Improvements 
 Marked with checkmark if ready, else planned ...
-- [x] replace
-  - [x] different color to highlight replaced text
-  - [x] save selected / ~~save all~~ buttons
 - [ ] popup menu to filter on file names only
 - [ ] **extension**: save all before search message?
 - [ ] save/load search histories in file
@@ -38,7 +35,6 @@ Marked with checkmark if ready, else planned ...
 
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.
-- [ ] after save should re-search the replaced text as in VSCode
 - [ ] `Additional Options` has to have saved defaults also
 - [ ] drip icon in menu has no transparent background
 - [ ] exception if rg.exe not found
