@@ -332,6 +332,12 @@ end;
 procedure TRipGrepperTopFrame.ActionSaveReplacementExecute(Sender : TObject);
 begin
 	SaveSelectedReplacements;
+	ActionRefreshSearchExecute(self);
+	if IsRGReplaceMode then begin
+		// nothing to do?
+	end else if IsGuiReplaceMode then begin
+		SetGuiReplaceMode([EGuiReplaceMode.grmEditEnabled], '');
+	end;
 end;
 
 procedure TRipGrepperTopFrame.ActionSaveReplacementUpdate(Sender : TObject);
