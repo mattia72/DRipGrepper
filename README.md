@@ -40,9 +40,9 @@ Marked with checkmark if ready, else planned.
 ### :mag: Search Dialog
 ![Screenshot](./screenshots/SearchForm.png)
 
-- [x] Helps in parametrizing `rg.exe` in the search dialog
+- [x] Helps parametrizing `rg.exe` 
   - [x] Expert mode set in `DripGrepper.ini` makes `rg` options visible
-    - [x] Option helper form 
+    - [x] Option helper form generated from `rg` help ![Screenshot](./screenshots/OptionsHelpForm.png)
   - [x] Quick buttons for:
     - [x] `--ignore-case`
     - [x] `--case-sensitive`
@@ -54,7 +54,6 @@ Marked with checkmark if ready, else planned.
   - [x] `--context NUM` (or `-A=NUM -B=NUM`) parser
   - [ ] `--invert-match` parser
   - [ ] `--stats` parser, e.g., message box on end with search statistics
-
 
 ### :rocket: Open with...
 ![Screenshot](./screenshots/OpenWith.png)
@@ -84,8 +83,6 @@ Configuration is stored in ini file (`DripGrepper.ini` for standalone and `DripE
     - [ ] Extension settings
     - [ ] View settings: colors
 
-### Delphi Extension 
-![Screenshot](./screenshots/DripExtension.png)
 ### Delphi Extension 
 ![Screenshot](./screenshots/DripExtension.png)
 
