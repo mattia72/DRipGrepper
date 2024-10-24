@@ -8,47 +8,47 @@ The [release](https://github.com/mattia72/DRipGrepper/releases) includes the sta
 ## Features and Todos
 Marked with checkmark if ready, else planned.
 
-- [x] searches text, parses `rg` output
-  - [x] --vimgrep parser
-  - [x] error parser: if a line couldn't be parsed, then it is put in the first column (it maybe encoding problem)
- - [x] toolbar buttons to 
-  - [x] expand/collapse tree
-  - [x] show/hide icons
-  - [x] full/relative path
-  - [x] alternate row colors
-- [x] copy `rg` command line into clipboard
-- [ ] sorting result groups by row / col / text
-- [ ] filtering results
-- [ ] file handling (eg. open in explorer, copy, rename, delete)
-- [x] replace text in files --replace=TEXT
-- [x] unicode support
+- [x] Searches text, parses output of `rg --vimgrep` 
+  - [x] Error parser: if a line couldn't be parsed, it is placed in the first column (it may be an encoding problem)
+- [x] Toolbar buttons to:
+  - [x] Expand/collapse tree
+  - [x] Show/hide icons
+  - [x] Full/relative path
+  - [x] Alternate row colors
+- [x] Copy `rg` command line into clipboard
+- [ ] Sorting result groups by row/col/text
+- [x] Filtering results
+  - [ ] Filter by file path
+- [x] File handling (e.g., open in explorer or in another tool)
+- [x] Replace text in files with `--replace=TEXT`
+- [x] Unicode support
 
 ### :mag: Search Dialog
 ![Screenshot](./screenshots/SearchForm.png)
 
-- [x] helps parametrizing `rg.exe` in search dialog
-  - [x] expert mode set in `DripGrepper.ini` makes rg options visible
-    - [x] option helper form 
-  - [x] quick buttons for
-    - [x] --ignore-case
-    - [x] --case-sensitive
-    - [x] --word-regexp
-    - [x] --fixed-strings
-  - [x] --glob filter settings can be set in separate editbox
-  - [x] --hidden, --no-ignore can be set
-  - [x] --pretty can be set (not supported by rg.exe in vscode)
-  - [x] --context NUM (or -A=NUM -B=NUM) parser
-  - [ ] --invert-match parser
-  - [ ] --stats parser eg. msgbox on end with search statistics
+- [x] Helps in parametrizing `rg.exe` in the search dialog
+  - [x] Expert mode set in `DripGrepper.ini` makes `rg` options visible
+    - [x] Option helper form 
+  - [x] Quick buttons for:
+    - [x] `--ignore-case`
+    - [x] `--case-sensitive`
+    - [x] `--word-regexp`
+    - [x] `--fixed-strings`
+  - [x] `--glob` filter settings can be set in a separate edit box
+  - [x] `--hidden`, `--no-ignore` can be set
+  - [x] `--pretty` can be set (not supported by `rg.exe` in VSCode)
+  - [x] `--context NUM` (or `-A=NUM -B=NUM`) parser
+  - [ ] `--invert-match` parser
+  - [ ] `--stats` parser, e.g., message box on end with search statistics
 
 
 ### :rocket: Open with...
 ![Screenshot](./screenshots/OpenWith.png)
 
-- [x] show configured editors to open matching file on matching position
-   - [x] on double click
-   - [x] with menu / toolbar
-- [ ] separate editors for distinct extensions
+- [x] Show configured editors to open matching files at the matching position
+  - [x] On double-click
+  - [x] Via menu/toolbar
+- [ ] Separate editors for distinct file extensions
 
 ### Configure Open with...
 ![Screenshot](./screenshots/ConfigureOpenWith.png)
@@ -60,56 +60,42 @@ Marked with checkmark if ready, else planned.
 * `nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"`
 
 ### Configuration
-Configuration is stored in ini file (`DripGrepper.ini` for standalone and `DripExtension*.ini` for the extension)
-  - [x] search text history saved
-  - [x] search paths history saved
-  - [x] `rg` parameter history saved
-  - [x] view settings saved
-    - [x] ShowFileIcon
-    - [x] ShowRelativePath
-    - [x] AlternateRowColors
-    - [x] IndentLines
-    - [x] ExpandNodes
-  - [ ] configurable length of history 
+Configuration is stored in ini file (`DripGrepper.ini` for standalone and `DripExtension.ini` for the extension)
+  - [ ] configurable length of history
   - [x] *Open with...* settings saved
-  - [ ] DebugTrace switch
-  - [x] config form 
+  - [x] DebugTrace switch
+  - [x] config form
     - [x] Open with...
     - [ ] App settings: rg path, debug trace, expert mode
-    - [ ] Extension
-    - [ ] View : colors
+    - [ ] Extension settings
+    - [ ] View settings: colors
 
 ### Delphi Extension 
 ![Screenshot](./screenshots/DripExtension.png)
+### Delphi Extension 
+![Screenshot](./screenshots/DripExtension.png)
 
-  - [x] dockable window
-  - [x] high DPI Scaling 
-  - [x] menu item in Tools (shortcut configurable in `DripExtension*.ini`)
-  - [x] Default shortcut Shift+Alt+R ( :warning: conflict with GExpert/MMX Reverse Statement)
-  - [x] click on matching file, opens file in the editor on position 
-     - [ ] expand collapsed code in {$REGION}-s
-  - [x] popup menu
-    - [x] delete history entries
-    - [x] copy path etc.
-    - [x] insert file as `uses` to interface/implementation section
-  - [x] save window position
-     - [x] save in layout
-     - [x] load saved layout
-  - [x] search selected text
-     - [ ] multi line selection handling (in ini?)
-  - [ ] search only in opened files/project files/project group
-  - [x] delphi extension release
-
- 
-### Misc
-- [x] screenshots in Readme.md
-- [x] [scoop](https://scoop.sh) install
-  - [x] standalone
-  - [x] delphi ide extension
-- [ ] [chocolatey](https://chocolatey.org) install
+- [x] Dockable window
+- [x] High DPI scaling
+- [x] Menu item in Tools (shortcut configurable in `DripExtension*.ini`)
+- [x] Default shortcut Shift+Alt+R (:warning: conflict with GExpert/MMX Reverse Statement)
+- [x] Click on matching file opens file in the editor at the position
+  - [ ] Expand collapsed code in {$REGION}-s
+- [x] Popup menu
+  - [x] Delete history entries
+  - [x] Copy path, etc.
+  - [x] Insert file as `uses` to interface/implementation section
+- [x] Save window position
+  - [x] Save in layout
+  - [x] Load saved layout
+- [x] Search selected text
+  - [ ] Multi-line selection handling (in ini?)
+- [ ] Search only in opened files/project files/project group
+- [x] Delphi extension release
 
 ## Installation
 
+### Scoop
 If you want to be up to date with the latest versions.
 Install [Scoop](https://scoop.sh), and then you can install and update dripgrepper from the
 [official bucket](https://github.com/mattia72/scoop) :cool:
@@ -118,6 +104,17 @@ Install [Scoop](https://scoop.sh), and then you can install and update dripgrepp
 scoop bucket add dripgrepper-bucket https://github.com/mattia72/scoop
 scoop install dripgrepper
 ```
+
+### Manual
+* Download latest [release](https://github.com/mattia72/DRipGrepper/releases)
+* Unzip somewhere
+* Ready
+
+### Delphi Integration
+* Open Delphi
+* Open `Component | Install Packages...` menu item
+* Add `DripExtension.bpl` to Design packages list
+* Ready
 
 ## Thanks
 -  [ripgrep](https://github.com/BurntSushi/ripgrep)

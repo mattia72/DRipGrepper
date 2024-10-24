@@ -8,9 +8,9 @@ param (
     [switch] $UpdateScoopManifest
 )
     
-# - Change Readme.md 
-# - Change Deploy-Description.md 
-# - Change file and product version in every projects for ALL CONFIGURATION!
+# - Update Readme.md 
+# - Update Deploy-Description.md 
+# - Update file and product version in every projects for ALL CONFIGURATION!
 # - Commit and push all changes
 # - Run this script Ctrl+Shift+T Deploy
 

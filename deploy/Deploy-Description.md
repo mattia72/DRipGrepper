@@ -1,7 +1,7 @@
 <!--
 
-Version:     v3.5.2-beta
-PrevVersion: v3.5.1-beta
+Version:     v3.6.0-beta
+PrevVersion: v3.5.2-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -15,32 +15,31 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 # * bug
 
 # TODO
-# - Change Readme.md 
-# - Change Deploy-Description.md 
-# - Change file and product version in every projects for ALL CONFIGURATION!
+# - Update Readme.md 
+# - Update Deploy-Description.md 
+# - Update file and product version in every projects for ALL CONFIGURATION!
 # - Commit and push all changes
 # - Run deploy script by pushing Ctrl+Shift+T in VSCode
 -->
 
 ## :boom: Improvements 
 Marked with checkmark if ready, else planned ...
-- [x] replace 
-  - [x] different color to highlight replaced text 
-  - [x] save selected / ~~save all~~ button~~s~~
-- [ ] popumenu to filter on file names only
-- [ ] __extension__: save all before search message?
+- [x] replace
+  - [x] different color to highlight replaced text
+  - [x] save selected / ~~save all~~ buttons
+- [ ] popup menu to filter on file names only
+- [ ] **extension**: save all before search message?
 - [ ] save/load search histories in file
 - [x] config form
-  - [ ] install as _extension_ in delphi ide
-- [ ] json config files
-- [ ] own prettifier switcher as toolbar button
-- [ ] __extension__: search opened projekt files only
-- [ ] copy to desktop to run in powershell / command prompt
+  - [ ] install as **extension** in Delphi IDE
+- [ ] JSON config files
+- [ ] **extension**: search opened project files only
+- [ ] copy to desktop to run in PowerShell / command prompt
 
-## :exclamation: Bugs 
-Marked with checkmark if fixed, else it is known bug.
-- [ ] after save shoud research the replacement?
+## :exclamation: Bugs
+Marked with checkmark if fixed, else it is a known bug.
+- [ ] after save should re-search the replaced text as in VSCode
 - [ ] `Additional Options` has to have saved defaults also
 - [ ] drip icon in menu has no transparent background
-- [ ] exception if rg.exe not found 
+- [ ] exception if rg.exe not found
 
