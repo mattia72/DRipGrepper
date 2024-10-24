@@ -1,3 +1,17 @@
+
+## Table of Contents
+- [DRipGrepper](#droplet-dripgrepper)
+- [Features and Todos](#features-and-todos)
+- [Search Dialog](#mag-search-dialog)
+- [Open with...](#rocket-open-with)
+- [Configuration](#configuration)
+- [Delphi Extension](#delphi-extension)
+- [Installation](#installation)
+  - [Scoop](#scoop)
+  - [Manual](#manual)
+  - [Delphi Integration](#delphi-integration)
+- [Thanks](#thanks)
+
 ## :droplet: DRipGrepper
 Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Delphi Pascal.
 The goal is to create a useful standalone helper tool for searching and parametrizing [ripgrep](https://github.com/BurntSushi/ripgrep), then integrating as Delphi IDE extension.
