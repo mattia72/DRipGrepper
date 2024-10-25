@@ -121,6 +121,7 @@ type
 			FHistItemObj : IHistoryItemObject;
 			FPrevFoundNode : PVirtualNode;
 			FSettings : TRipGrepperSettings;
+			FSkipReplaceChange : Boolean;
 			FViewStyleIndex : integer;
 			procedure GetCheckedReplaceList(var replaceList : TReplaceList);
 			function GetIsGuiReplaceMode : Boolean;
@@ -469,6 +470,9 @@ end;
 
 procedure TRipGrepperTopFrame.edtReplaceChange(Sender : TObject);
 begin
+	if FSkipReplaceChange then begin
+		Exit;
+	end;
 	if IsGuiReplaceMode then begin
 		SetReplaceTextInSettings(edtReplace.Text);
 	end else begin
@@ -674,7 +678,9 @@ begin
 		{ } (EGuiReplaceMode.grmActive in FGuiReplaceModes), IMG_IDX_REPLACE_ON, IMG_IDX_REPLACE_OFF);
 
 	if (not edtReplace.Enabled) and (edtReplace.Text = '') then begin
+		FSkipReplaceChange := True;
 		edtReplace.Text := edtReplace.TextHint;
+		FSkipReplaceChange := False;
 	end;
 end;
 
