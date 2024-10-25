@@ -176,6 +176,7 @@ type
 			procedure SetExpertGroupSize;
 			class procedure SetReplaceText(_settings : TRipGrepperSettings; const _replaceText : string);
 			procedure SetReplaceTextSetting(const _replaceText : string);
+		procedure ShowReplaceCtrls(const _bShow: Boolean);
 			procedure UpdateButtonsBySettings;
 			procedure UpdateCmbsOnIDEContextChange;
 			procedure UpdateFileMasksInFileMasks;
@@ -440,8 +441,8 @@ begin
 	UpdateCmbOptionsAndMemoCommandLine;
 	UpdateCheckBoxesByRgOptions();
 
-	cmbReplaceText.Visible := IsReplaceMode();
-	UpdateHeight();
+	ShowReplaceCtrls(IsReplaceMode());
+ 	UpdateHeight();
 	ActiveControl := cmbSearchText;
 end;
 
@@ -1080,6 +1081,12 @@ begin
 	dbgMsg.Msg('LastReplaceText=' + FParamsSetByGui.ReplaceText);
 end;
 
+procedure TRipGrepperSearchDialogForm.ShowReplaceCtrls(const _bShow: Boolean);
+begin
+	cmbReplaceText.Visible := _bShow;
+	ActionShowRGReplaceOptionHelp.Visible := _bShow;
+end;
+
 class function TRipGrepperSearchDialogForm.ShowSearchForm(_owner : TComponent; _settings : TRipGrepperSettings;
 	_histObj : IHistoryItemObject) : integer;
 var
@@ -1108,7 +1115,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.TabControl1Change(Sender : TObject);
 begin
-	cmbReplaceText.Visible := IsReplaceMode();
+	ShowReplaceCtrls(IsReplaceMode());
 	UpdateHeight;
 	UpdateCtrls(TabControl1);
 end;
