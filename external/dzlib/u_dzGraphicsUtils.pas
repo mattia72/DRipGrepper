@@ -21,6 +21,8 @@ unit u_dzGraphicsUtils;
 {$IFNDEF NO_OPTIMIZE_DZ_GRAPHIC_UTILS_HINT}
 {$MESSAGE HINT 'optimization is off, consider turning it on for significantly better performance'}
 {$ENDIF}
+// if optimization is turned off, we also turn off inlining
+{$UNDEF SUPPORTS_INLINE}
 {$ELSE}
 // If optimization is on, we turn off assertions, just in case the programmer forgot.
 // The reason for this is that we have some assertions below that might significantly impact
@@ -60,7 +62,10 @@ uses
   u_dzTypesUtils;
 
 type
-  EdzPixelFormatNotSupported = class(EdzException)
+  EdzGraphicsUtils = class(EdzException);
+
+type
+  EdzPixelFormatNotSupported = class(EdzGraphicsUtils)
     constructor Create(_PixelFormat: TPixelFormat); overload;
   end;
 
@@ -100,7 +105,8 @@ type
     Red: Byte;
 {$IFDEF SUPPORTS_ENHANCED_RECORDS}
     function GetValues(_Idx: TValueIdxTriple): Byte; inline;
-    procedure SetValues(_Idx: TValueIdxTriple; _Value: Byte); inline;
+    procedure SetValues(_Idx: TValueIdxTriple; _Value: Byte); overload; inline;
+    procedure SetValues(_Red, _Green, _Blue: Byte); overload;
     function GetColor: TColor;
     ///<summary>
     /// Sets Blue, Green and Red for the given Color, supporting system colors in addition to RGB colors
@@ -125,52 +131,34 @@ type
 function GetRgbBrightness(_Red, _Green, _Blue: Byte; _Channel: TRgbBrightnessChannelEnum): Byte;
 
 function CalcBytesPerPixel(_PixelFormat: TPixelFormat): Integer;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 function CalcBytesPerLine(_Width, _BytesPerPixel: Integer): Integer; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
+
 function CalcBytesPerLine(_Width: Integer; _PixelFormat: TPixelFormat): Integer; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
+
 function CalcBytesPerLine(_Width: Integer; _bmp: TBitmap): Integer; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 procedure IncPtr(var _Ptr: Pointer; _Offset: IntPtr);
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 function AddToPtr(const _Ptr: Pointer; _Offset: IntPtr): Pointer;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 function PtrDiff(const _Ptr1, _Ptr2: Pointer): IntPtr;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 function TdzRgbTriple_GetFastLuminance(const _Triple: TdzRgbTriple): Byte;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 procedure TdzRgbTriple_SetColor(var _Triple: TdzRgbTriple; _Color: TColor);
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 function GetFastLuminance(const _Red, _Green, _Blue: Byte): Byte;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 type
   TdzRgbTripleArray = packed array[0..MaxInt div SizeOf(TdzRgbTriple) - 1] of TdzRgbTriple;
@@ -203,15 +191,11 @@ type
 
 ///<summary> Returns the bounding box of the active clipping region </summary>
 function TCanvas_GetClipRect(_Canvas: TCanvas): TRect;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 ///<summary> Sets a clipping rect, returns true, if the region is not empty, false if it is empty </summary>
 function TCanvas_SetClipRect(_Canvas: TCanvas; _Rect: TRect): Boolean;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 type
   TDrawTextFlags = (
@@ -256,39 +240,32 @@ type
   TDrawTextFlagSetNoAlign = set of TDrawTextFlagsNoAlign;
 
 ///<summary>
-/// Calculates the Rect necessary for drawing the text.
-/// @returns the calculated height </summary>
+/// Uses WinApi.DrawText to draw the given text on the canvas.
+/// @param Flags determines how the text is drawn. if it contains dtfCalcRect, this function
+///              does not draw the text but only calculates the Rect necessary for drawing it.
+/// @returns 0, if the call to WinApi.DrawText fails
+///          the calculated height of the text in logical units.
+///          If dtfBottomSingle or dtfVCenterSingle is specified, the return value is the offset
+///          from Rect.top to the bottom of the drawn text. </summary>
 function TCanvas_DrawText(_Canvas: TCanvas; const _Text: string; var _Rect: TRect; _Flags: TDrawTextFlagSet): Integer;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 function TCanvas_DrawTextSingleLine(_Canvas: TCanvas; const _Text: string; var _Rect: TRect;
   _HAlign: TDrawTextHorizontalAlignment; _VAlign: TDrawTextVerticalAlignment;
   _Flags: TDrawTextFlagSetNoAlign): Integer;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 procedure TCanvas_DrawLine(_cnv: TCanvas; _x1, _y1, _x2, _y2: Integer); overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 procedure TCanvas_DrawLine(_cnv: TCanvas; _pnt1, _pnt2: TPoint); overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 procedure TCanvas_DrawHorizontalLine(_cnv: TCanvas; _x1, _x2, _y: Integer);
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 procedure TCanvas_DrawVerticalLine(_cnv: TCanvas; _x, _y1, _y2: Integer);
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 ///<summary> calls Windows.SaveDC and returns an interface which will automatically call
 ///          Windows.RestoreDC when destroyed </summary>
@@ -303,95 +280,70 @@ procedure TCanvas_DrawArrow(_Canvas: TCanvas; _From, _To: TPoint; _ArrowHeadLeng
 /// @param Tip is the coordinates of the vertex point
 /// @param Height is the height of the triangle, if negative, the triangle is painted upside down </summary>
 procedure TCanvas_DrawTriangle(_Canvas: TCanvas; _Tip: TPoint; _Height: Integer);
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 function TCanvas_BitBlt(_Canvas: TCanvas; _DestPos: TPoint; _Size: TPoint; _Src: TBitmap; _SrcPos: TPoint;
   _Rop: DWORD = SRCCOPY): LongBool; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 function TCanvas_BitBlt(_Canvas: TCanvas; _DestPos: TPoint; _Size: TPoint; _Src: TBitmap;
   _Rop: DWORD = SRCCOPY): LongBool; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 function TCanvas_BitBlt(_Canvas: TCanvas; _DestRect: TRect; _Src: TBitmap; _SrcPos: TPoint;
   _Rop: DWORD = SRCCOPY): LongBool; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 function TCanvas_BitBlt(_Canvas: TCanvas; _DestPos: TPoint; _Src: TBitmap; _SrcPos: TPoint;
   _Rop: DWORD = SRCCOPY): LongBool; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 function TCanvas_BitBlt(_Canvas: TCanvas; _DestPos: TPoint; _Src: TBitmap; _Rop: DWORD = SRCCOPY): LongBool; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 ///<summary> abbreviation for StretchBlt that takes TCanvas and TPoint values. </summary>
 function dzStretchBlt(_DestCnv: TCanvas; _DestTopLeft: TPoint; _DestSize: TPoint;
   _SrcCnv: TCanvas; _SrcTopLeft: TPoint; _SrcSize: TPoint; _Rop: DWORD = SRCCOPY): BOOL; overload;
-{$IFDEF SUPPORTS_INLINE}inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 function dzStretchBlt(_DestCnv: TCanvas; _DestLeft, _DestTop: Integer; _DestSize: TPoint;
   _SrcCnv: TCanvas; _SrcTopLeft: TPoint; _SrcSize: TPoint; _Rop: DWORD = SRCCOPY): BOOL; overload;
-{$IFDEF SUPPORTS_INLINE}inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 ///<summary> abbreviation for StretchBlt that takes TCanvas, TBitmap and TPoint values. </summary>
 function dzStretchBlt(_DestCnv: TCanvas; _DestTopLeft: TPoint; _DestSize: TPoint;
   _SrcBmp: TBitmap; _SrcTopLeft: TPoint; _SrcSize: TPoint; _Rop: DWORD = SRCCOPY): BOOL; overload;
-{$IFDEF SUPPORTS_INLINE}inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 ///<summary> abbreviation for StretchBlt that takes TCanvas, TBitmap and TPoint values. </summary>
 function dzStretchBlt(_DestCnv: TCanvas; _DestLeft, _DestTop: Integer; _DestSize: TPoint;
   _SrcBmp: TBitmap; _SrcTopLeft: TPoint; _SrcSize: TPoint; _Rop: DWORD = SRCCOPY): BOOL; overload;
-{$IFDEF SUPPORTS_INLINE}inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 ///<summary> abbreviation for StretchBlt that takes two TBitmap and TPoint values. </summary>
 function dzStretchBlt(_DestBmp: TBitmap; _DestTopLeft: TPoint; _DestSize: TPoint;
   _SrcBmp: TBitmap; _SrcTopLeft: TPoint; _SrcSize: TPoint; _Rop: DWORD = SRCCOPY): BOOL; overload;
-{$IFDEF SUPPORTS_INLINE}inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 ///<summary> abbreviation for StretchBlt that takes TRect </summary>
 function dzStretchBlt(_DestHandle: Hdc; _DestRect: TRect;
   _SrcHandle: Hdc; _SrcRect: TRect; _Rop: DWORD = SRCCOPY): LongBool; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 ///<summary> abbreviation for StretchBlt that takes TCanvas and TRect </summary>
 function dzStretchBlt(_DestCnv: TCanvas; _DestRect: TRect;
   _SrcHandle: Hdc; _SrcRect: TRect; _Rop: DWORD = SRCCOPY): LongBool; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 ///<summary> abbreviation for StretchBlt that takes TRect and TBitmap </summary>
 function dzStretchBlt(_DestHandle: Hdc; _DestRect: TRect;
   _Src: TBitmap; _Rop: DWORD = SRCCOPY): LongBool; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 ///<summary> abbreviation for StretchBlt that takes TCanvas, TRect and TBitmap </summary>
 function dzStretchBlt(_DestCnv: TCanvas; _DestRect: TRect;
   _Src: TBitmap; _Rop: DWORD = SRCCOPY): LongBool; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 ///<summary>
 /// Abbreviation for StretchBlt that takes two TBitmap, resizes and keeps the spect ratio,
@@ -399,89 +351,64 @@ inline;
 /// The original stretchmode and the brush origin are preserved.
 /// https://msdn.microsoft.com/en-us/library/windows/desktop/dd145089(v=vs.85).aspx </summary>
 function dzStretchBlt(_DestBmp, _SrcBmp: TBitmap; _Rop: DWORD = SRCCOPY): LongBool; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 ///<summary> abbreviation for BitBlt that takes TPoint / TRect and TBitmap parameters </summary>
 function dzBitBlt(_DestHandle: Hdc; _DestPos: TPoint; _Size: TPoint; _Src: TBitmap; _SrcPos: TPoint;
   _Rop: DWORD = SRCCOPY): LongBool; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 function dzBitBlt(_DestHandle: Hdc; _DestPos: TPoint; _Size: TPoint; _Src: TBitmap;
   _Rop: DWORD = SRCCOPY): LongBool; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 function dzBitBlt(_DestHandle: Hdc; _DestRect: TRect; _Src: TBitmap; _SrcPos: TPoint;
   _Rop: DWORD = SRCCOPY): LongBool; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 function dzBitBlt(_DestHandle: Hdc; _DestPos: TPoint; _Src: TBitmap; _SrcPos: TPoint;
   _Rop: DWORD = SRCCOPY): LongBool; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 function dzBitBlt(_DestHandle: Hdc; _DestPos: TPoint; _Src: TBitmap;
   _Rop: DWORD = SRCCOPY): LongBool; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 procedure TBitmap_SetSize(_bmp: TBitmap; _Width, _Height: Integer);
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 function TBitmap_BitBlt(_DestBmp: TBitmap; _DestPos: TPoint; _Size: TPoint; _Src: TBitmap; _SrcPos: TPoint;
   _Rop: DWORD = SRCCOPY): LongBool; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
+
 function TBitmap_BitBlt(_DestBmp: TBitmap; _DestPos: TPoint; _Size: TPoint; _Src: TBitmap;
   _Rop: DWORD = SRCCOPY): LongBool; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
+
 function TBitmap_BitBlt(_DestBmp: TBitmap; _DestRect: TRect; _Src: TBitmap; _SrcPos: TPoint;
   _Rop: DWORD = SRCCOPY): LongBool; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
+
 function TBitmap_BitBlt(_DestBmp: TBitmap; _DestPos: TPoint; _Src: TBitmap; _SrcPos: TPoint;
   _Rop: DWORD = SRCCOPY): LongBool; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
+
 function TBitmap_BitBlt(_DestBmp: TBitmap; _DestPos: TPoint; _Src: TBitmap;
   _Rop: DWORD = SRCCOPY): LongBool; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 ///<summary> load a jpeg file and assign it to the bitmap </summary>
 procedure TBitmap_LoadJpg(_bmp: TBitmap; const _JpgFn: string); overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
+
 {$IF Declared(TBitmap32)}
 procedure TBitmap_LoadJpg(_bmp: TBitmap32; const _JpgFn: string); overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 {$IFEND}
 
 ///<summary> save a bitmap as a jpeg file </summary>
 procedure TBitmap_SaveJpg(_bmp: TBitmap; const _JpgFn: string);
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 ///<summary>
 /// Assign a buffer containg a bitmap in BGR 8 format to the TBitmap </summary>
@@ -498,30 +425,62 @@ procedure TBitmap_AssignRgb8(_Buffer: PByte; _bmp: TBitmap; _YIsReversed: Boolea
 procedure TBitmap_AssignMono824(_Buffer: PByte; _bmp: TBitmap; _YIsReversed: Boolean);
 
 ///<summary>
-/// Assign a buffer containg a bitmap in Mono 8 format to a 8 bit gray scale TBitmap </summary>
-procedure TBitmap_AssignMono8(_Buffer: PByte; _bmp: TBitmap; _YIsReversed: Boolean);
+/// Assign a buffer containing a bitmap in Mono 8 format to a 8 bit gray scale TBitmap
+/// @NOTE: The bitmap is assumed to already have the correct size and pixel format </summary>
+procedure TBitmap_AssignMono8(_Buffer: PByte; _bmp: TBitmap; _YIsReversed: Boolean); overload;
+procedure TBitmap_AssignMono8(_Buffer: PByte; _bmp: TBitmap; _YIsReversed: Boolean; _RowStride: Int64); overload;
+
+type
+  ///<summary>
+  /// Converts the value at the given position to a Byte and increments BufPtr to point to the
+  /// next value </summary>
+  TBufferBitsToMono8Func = function(var _BufPtr: Pointer): Byte;
+  TBufferBitsToMono8Meth = function(var _BufPtr: Pointer): Byte of object;
+  TBufferBitsToRgb8Func = function(var _BufPtr: Pointer): TdzRgbTriple;
+  TBufferBitsToRgb8Meth = function(var _BufPtr: Pointer): TdzRgbTriple of object;
 
 ///<summary>
-/// converts a pf24bit or pf32bit monochrome bitmap to a pf8bit monochrome bitmap </summary>
+/// Converts a 12 bit value at the given position to a Byte and increments BufPtr by 2 </summary>
+function BufferBits12ToMono8(var _BufPtr: Pointer): Byte;
+///<summary>
+/// Converts a 12 bit value at the given position to a rainbow color and increments BufPtr by 2 </summary>
+function BufferBits12ToRgb8(var _BufPtr: Pointer): TdzRgbTriple;
+
+///<summary>
+/// Assign a buffer containing a bitmap in Monochrome format to a 8 bit gray scale TBitmap
+/// @param BufferBitsToMono8Func is a callback function that converts the value at a given
+///                              position to a Byte and increments the position to point to
+///                              the next value.
+/// @param RowStride (optional) is the number of bytes in Buffer for one row. If 0 it is assumed
+///                  that BufferBitsToMono8 will increment Buffer correctly </summary>
+procedure TBitmap_AssignToMono8(_BufferBitsToMono8Func: TBufferBitsToMono8Func;
+  _Buffer: Pointer; _bmp: TBitmap; _YIsReversed: Boolean; _RowStride: Int64 = 0); overload;
+procedure TBitmap_AssignToMono8(_BufferBitsToMono8Meth: TBufferBitsToMono8Meth;
+  _Buffer: Pointer; _bmp: TBitmap; _YIsReversed: Boolean; _RowStride: Int64 = 0); overload;
+
+procedure TBitmap_AssignToRgb8(_BufferBitsToRgb8Func: TBufferBitsToRgb8Func;
+  _Buffer: Pointer; _bmp: TBitmap; _YIsReversed: Boolean; _RowStride: Int64 = 0); overload;
+procedure TBitmap_AssignToRgb8(_BufferBitsToRgb8Meth: TBufferBitsToRgb8Meth;
+  _Buffer: Pointer; _bmp: TBitmap; _YIsReversed: Boolean; _RowStride: Int64 = 0); overload;
+
+///<summary>
+/// Converts a pf8Bit, pf24bit or pf32bit monochrome bitmap to a new pf8bit monochrome bitmap </summary>
 function TBitmap_MonoToMono8(_bmp: TBitmap): TBitmap; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
+
+///<summary>
+/// converts a pf8Bit, pf24bit or pf32bit monochrome bitmap to a pf8bit monochrome bitmap </summary>
 procedure TBitmap_MonoToMono8(_InBmp, _OutBmp: TBitmap); overload;
 
 ///<summary>
 /// Makes the given bitmap pf8Bit grayscale </summary>
 procedure TBitmap_MakeMono8(_bmp: TBitmap);
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 ///<summary>
 /// Create an empty Mono8 TBitmap </summary>
 function TBitmap_CreateMono8: TBitmap;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 ///<summary>
 /// Calculates the positive y coordinate for the given x coordinate for an ellipse
@@ -531,9 +490,7 @@ inline;
 /// @param y returns the y coordinate if it can be calculated
 /// @returns true if the x coordinate was inside the ellipse, false if not </summary>
 function TryCalcEllipsePoint(_a, _b, _x: Extended; out _y: Extended): Boolean;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 ///<summary>
 /// Calculates both y coordinates for the given x coordinate for an ellipse
@@ -544,9 +501,7 @@ inline;
 /// @param y1, y2 return the y coordinates if they can be calculated
 /// @returns true if the x coordinate was inside the ellipse, false if not </summary>
 function TryCalcEllipsePoints(_x0, _y0, _a, _b, _x: Extended; out _y1, _y2: Extended): Boolean;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 ///<summary>
 /// Blurs a rectangular area in the given bitmap.
@@ -572,9 +527,7 @@ procedure TBitmap_BlurEllipse(_bmp: TBitmap; _Left, _Top, _Right, _Bottom: Integ
 procedure TBitmap8_Sharpen(_SrcBmp, _DstBmp: TBitmap; _Alpha: Single); overload;
 procedure TBitmap24_Sharpen(_SrcBmp, _DstBmp: TBitmap; _Alpha: Single); overload;
 procedure TBitmap_Sharpen(_SrcBmp, _DstBmp: TBitmap; _Alpha: Single); overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 ///<summary>
 /// Sharpens a bitmap, pixelformat must be pf24bit
@@ -586,9 +539,7 @@ inline;
 procedure TBitmap8_Sharpen(_SrcBmp, _DstBmp: TBitmap; const _AlphaMap: TSingleMatrix); overload;
 procedure TBitmap24_Sharpen(_SrcBmp, _DstBmp: TBitmap; const _AlphaMap: TSingleMatrix); overload;
 procedure TBitmap_Sharpen(_SrcBmp, _DstBmp: TBitmap; const _AlphaMap: TSingleMatrix); overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 ///<summary>
 /// Balances the brightness of the SrcBmp bitmap and returns the result in the DstBmp bitmap
@@ -741,10 +692,8 @@ type
     FHighCutOff: Byte;
     FDivisor: Integer;
     procedure StretchColor(var _Color: Byte);
-{$IFDEF SUPPORTS_INLINE}
-    inline;
-{$ENDIF}
-  public
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
+    public
     constructor Create(_LowCutoff, _HighCutoff: Byte);
     procedure FilterCallback(_x, _y: Integer; var _Pixel: TdzRgbTriple); overload;
     procedure FilterCallback(_x, _y: Integer; var _Pixel: Byte); overload;
@@ -755,10 +704,8 @@ type
   private
     FMoveBy: Integer;
     procedure MoveColor(var _Color: Byte);
-{$IFDEF SUPPORTS_INLINE}
-    inline;
-{$ENDIF}
-  public
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
+    public
     constructor Create(_MoveBy: Integer);
     procedure FilterCallback(_x, _y: Integer; var _Pixel: TdzRgbTriple); overload;
     procedure FilterCallback(_x, _y: Integer; var _Pixel: Byte); overload;
@@ -772,15 +719,11 @@ function MakeGrayPalette(_NumColors: TNumColors = 256): HPALETTE;
 ///<summary>
 // Calculates the (perceived) brightness of an RGB color value (luminance) </summary>
 function ColorBrightness(_Red, _Green, _Blue: Byte): Byte; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 ///<summary>
 // Calculates the (perceived) brightness of a TColor value (luminance) </summary>
 function ColorBrightness(_Color: TColor): Byte; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 ///<summary>
 /// @returns clWhite or clBlack depending on the brightness (luminance) of the color </summary>
@@ -792,27 +735,26 @@ function BestForegroundForColor(_Color: TColor): TColor; overload;
 ///<summary>
 /// @param Hue is a value between 0 and 1 </summary>
 function RainbowColor(_Hue: Double): TColor; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
+
+///<summary>
+/// @param Hue is a value between 0 and 1 </summary>
+procedure RainbowColor(_Hue: Double; out _Color: TdzRgbTriple); overload;
+// Note: Cannot be declared as inline
+
 ///<summary>
 /// @param Brightness is a grayscale value </summary>
 function RainbowColor(_Brightness: Byte): TColor; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
+
 procedure RainbowColor(_Brightness: Byte; out _Red, _Green, _Blue: Byte); overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
+
 procedure RainbowColor(_Brightness: Byte; out _Pixel: TdzRgbTriple); overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
+
 function RainbowColor(_MinHue, _MaxHue, _Hue: Integer): TColor; overload;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 function TryStr2Color(const _s: string; out _Color: TColor): Boolean;
 
@@ -830,12 +772,11 @@ uses
   pngimage, // support for TImage.LoadGraphics for PNG files
 {$ENDIF}
   GraphUtil,
+  u_dzTypeInfoUtils,
   u_dzFileUtils;
 
 function _(const _s: string): string;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 begin
   Result := dzDGetText(_s, 'dzlib');
 end;
@@ -1429,6 +1370,13 @@ begin
   TdzRgbTripleValues(Self)[_Idx] := _Value;
 end;
 
+procedure TdzRgbTriple.SetValues(_Red, _Green, _Blue: Byte);
+begin
+  Red := _Red;
+  Green := _Green;
+  Blue := _Blue;
+end;
+
 procedure TdzRgbTriple.SetBrightness(_Value: Byte);
 begin
   Red := _Value;
@@ -1658,9 +1606,6 @@ end;
 {$ENDIF}
 
 procedure TBitmap_SetSize(_bmp: TBitmap; _Width, _Height: Integer);
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
 begin
 {$IFDEF SUPPPORTS_BITMAP_SETSIZE}
   _bmp.SetSize(_Width, _Height);
@@ -1764,8 +1709,8 @@ begin
   Assert(Assigned(_bmp), 'bitmap is not assigned');
   Result := (_bmp.PixelFormat = _Expected);
   if not Result then begin
-    ActualName := GetEnumName(TypeInfo(TPixelFormat), Ord(_bmp.PixelFormat));
-    ExpectedName := GetEnumName(TypeInfo(TPixelFormat), Ord(_Expected));
+    ActualName := SafeGetEnumName(TypeInfo(TPixelFormat), Ord(_bmp.PixelFormat));
+    ExpectedName := SafeGetEnumName(TypeInfo(TPixelFormat), Ord(_Expected));
     Assert(False, 'unexpected PixelFormat ' + ActualName + ' (expected ' + ExpectedName + ')');
   end;
 end;
@@ -1916,22 +1861,200 @@ end;
 
 procedure TBitmap_AssignMono8(_Buffer: PByte; _bmp: TBitmap; _YIsReversed: Boolean);
 var
+  w: Integer;
+begin
+  Assert(AssertPixelFormat(_bmp, pf8bit));
+  w := _bmp.Width;
+  TBitmap_AssignMono8(_Buffer, _bmp, _YIsReversed, w);
+end;
+
+procedure TBitmap_AssignMono8(_Buffer: PByte; _bmp: TBitmap; _YIsReversed: Boolean; _RowStride: Int64);
+var
+  w: Integer;
+  h: Integer;
   y: Integer;
   ScanLine: PByte;
 begin
   Assert(AssertPixelFormat(_bmp, pf8bit));
+  w := _bmp.Width;
+  h := _bmp.Height;
+
+  Assert(_RowStride >= w);
 
   // Unfortunately the y coordinates of TBitmap are reversed (the picture is upside down).
   // So we can only copy the whole picture in one go, if the buffer is also upside down
   // (many cameras have this feature). If not, we have to copy it one line at a time.
-  if _YIsReversed then begin
-    ScanLine := _bmp.ScanLine[_bmp.Height - 1];
-    Move(_Buffer^, ScanLine^, _bmp.Height * _bmp.Width);
+  if _YIsReversed and (_RowStride = w) then begin
+    ScanLine := _bmp.ScanLine[h - 1];
+    Move(_Buffer^, ScanLine^, h * w);
   end else begin
-    for y := 0 to _bmp.Height - 1 do begin
+    for y := 0 to h - 1 do begin
       ScanLine := _bmp.ScanLine[y];
-      Move(_Buffer^, ScanLine^, _bmp.Width);
-      Inc(_Buffer, _bmp.Width);
+      Move(_Buffer^, ScanLine^, w);
+      Inc(_Buffer, _RowStride);
+    end;
+  end;
+end;
+
+function BufferBits12ToMono8(var _BufPtr: Pointer): Byte;
+begin
+  Result := MulDiv(PUInt16(_BufPtr)^, 255, 1 shl 12 - 1);
+  IncPtr(_BufPtr, 2);
+end;
+
+function BufferBits12ToRgb8(var _BufPtr: Pointer): TdzRgbTriple;
+var
+  Value: Double;
+begin
+  Value := PUInt16(_BufPtr)^ / (1 shl 12 - 1);
+  RainbowColor(Value, Result);
+  IncPtr(_BufPtr, 2);
+end;
+
+procedure TBitmap_AssignToMono8(_BufferBitsToMono8Func: TBufferBitsToMono8Func;
+  _Buffer: Pointer; _bmp: TBitmap; _YIsReversed: Boolean; _RowStride: Int64); overload;
+var
+  y: Integer;
+  x: Integer;
+  w: Integer;
+  h: Integer;
+  ScanLine: PByte;
+  Buf: Pointer;
+begin
+  Assert(AssertPixelFormat(_bmp, pf8bit));
+
+  w := _bmp.Width;
+  h := _bmp.Height;
+
+  Assert((_RowStride = 0) or (_RowStride >= w));
+
+  for y := 0 to _bmp.Height - 1 do begin
+    if _YIsReversed then begin
+      ScanLine := _bmp.ScanLine[h - 1];
+    end else begin
+      ScanLine := _bmp.ScanLine[y];
+    end;
+    Buf := _Buffer;
+    for x := 0 to w - 1 do begin
+      ScanLine^ := _BufferBitsToMono8Func(Buf);
+      Inc(ScanLine);
+    end;
+    if _RowStride > 0 then begin
+      IncPtr(_Buffer, _RowStride);
+    end else begin
+      // we assume that BufferBitsToMono8Func inrements the buffer correctly
+      _Buffer := Buf;
+    end;
+  end;
+end;
+
+procedure TBitmap_AssignToMono8(_BufferBitsToMono8Meth: TBufferBitsToMono8Meth;
+  _Buffer: Pointer; _bmp: TBitmap; _YIsReversed: Boolean; _RowStride: Int64 = 0); overload;
+var
+  y: Integer;
+  x: Integer;
+  w: Integer;
+  h: Integer;
+  ScanLine: PByte;
+  Buf: Pointer;
+begin
+  Assert(AssertPixelFormat(_bmp, pf8bit));
+
+  w := _bmp.Width;
+  h := _bmp.Height;
+
+  Assert((_RowStride = 0) or (_RowStride >= w));
+
+  for y := 0 to _bmp.Height - 1 do begin
+    if _YIsReversed then begin
+      ScanLine := _bmp.ScanLine[h - 1];
+    end else begin
+      ScanLine := _bmp.ScanLine[y];
+    end;
+    Buf := _Buffer;
+    for x := 0 to w - 1 do begin
+      ScanLine^ := _BufferBitsToMono8Meth(Buf);
+      Inc(ScanLine);
+    end;
+    if _RowStride > 0 then begin
+      IncPtr(_Buffer, _RowStride);
+    end else begin
+      // we assume that _BufferBitsToMono8Meth inrements the buffer correctly
+      _Buffer := Buf;
+    end;
+  end;
+end;
+
+procedure TBitmap_AssignToRgb8(_BufferBitsToRgb8Func: TBufferBitsToRgb8Func;
+  _Buffer: Pointer; _bmp: TBitmap; _YIsReversed: Boolean; _RowStride: Int64 = 0);
+var
+  y: Integer;
+  x: Integer;
+  w: Integer;
+  h: Integer;
+  ScanLine: PdzRgbTriple;
+  Buf: Pointer;
+begin
+  Assert(AssertPixelFormat(_bmp, pf24bit));
+
+  w := _bmp.Width;
+  h := _bmp.Height;
+
+  Assert((_RowStride = 0) or (_RowStride >= w));
+
+  for y := 0 to _bmp.Height - 1 do begin
+    if _YIsReversed then begin
+      ScanLine := _bmp.ScanLine[h - 1];
+    end else begin
+      ScanLine := _bmp.ScanLine[y];
+    end;
+    Buf := _Buffer;
+    for x := 0 to w - 1 do begin
+      ScanLine^ := _BufferBitsToRgb8Func(Buf);
+      Inc(ScanLine);
+    end;
+    if _RowStride > 0 then begin
+      IncPtr(_Buffer, _RowStride);
+    end else begin
+      // we assume that _BufferBitsToRgb8Func inrements the buffer correctly
+      _Buffer := Buf;
+    end;
+  end;
+end;
+
+procedure TBitmap_AssignToRgb8(_BufferBitsToRgb8Meth: TBufferBitsToRgb8Meth;
+  _Buffer: Pointer; _bmp: TBitmap; _YIsReversed: Boolean; _RowStride: Int64 = 0);
+var
+  y: Integer;
+  x: Integer;
+  w: Integer;
+  h: Integer;
+  ScanLine: PdzRgbTriple;
+  Buf: Pointer;
+begin
+  Assert(AssertPixelFormat(_bmp, pf24bit));
+
+  w := _bmp.Width;
+  h := _bmp.Height;
+
+  Assert((_RowStride = 0) or (_RowStride >= w));
+
+  for y := 0 to _bmp.Height - 1 do begin
+    if _YIsReversed then begin
+      ScanLine := _bmp.ScanLine[h - 1];
+    end else begin
+      ScanLine := _bmp.ScanLine[y];
+    end;
+    Buf := _Buffer;
+    for x := 0 to w - 1 do begin
+      ScanLine^ := _BufferBitsToRgb8Meth(Buf);
+      Inc(ScanLine);
+    end;
+    if _RowStride > 0 then begin
+      IncPtr(_Buffer, _RowStride);
+    end else begin
+      // we assume that _BufferBitsToRgb8Meth inrements the buffer correctly
+      _Buffer := Buf;
     end;
   end;
 end;
@@ -1989,8 +2112,6 @@ var
   SrcLine: PByte;
   DstLine: PByte;
 begin
-  Assert(AssertPixelFormat(_InBmp, [pf8bit, pf24bit, pf32bit]));
-
   case _InBmp.PixelFormat of
     pf8bit: begin
         CopyScanLine := Copy8Bit;
@@ -2005,11 +2126,13 @@ begin
         SrcBytesPerPixel := 4;
       end;
   else
-    raise EdzPixelFormatNotSupported.Create(_InBmp.PixelFormat)
+    raise EdzPixelFormatNotSupported.Create(_InBmp.PixelFormat);
   end;
 
   w := _InBmp.Width;
   h := _InBmp.Height;
+  if (w = 0) or (h = 0) then
+    raise EdzGraphicsUtils.CreateFmt(_('Cannot handle empty bitmap (Width: %d, Height: %d)'), [w, h]);
 
   _OutBmp.PixelFormat := pf8bit;
   _OutBmp.Palette := MakeGrayPalette();
@@ -2386,14 +2509,16 @@ var
   BytesPerLine: Integer;
 begin
   Assert(Assigned(_SrcBmp));
+  Assert(Assigned(_DstBmp));
 
   _SrcBmp.PixelFormat := pf24bit;
-  _DstBmp.PixelFormat := pf24bit;
   w := _SrcBmp.Width;
   h := _SrcBmp.Height;
+
+  _DstBmp.PixelFormat := pf24bit;
   TBitmap_SetSize(_DstBmp, w, h);
 
-  if h = 0 then
+  if (h = 0) or (w = 0) then
     Exit; //==>
 
   BytesPerLine := ((w * 8 * BytesPerPixel + 31) and not 31) div 8;
@@ -2432,16 +2557,17 @@ var
   BytesPerLine: Integer;
 begin
   Assert(Assigned(_SrcBmp));
+  Assert(Assigned(_DstBmp));
 
   _SrcBmp.PixelFormat := pf8bit;
-  _DstBmp.Assign(nil);
-  _DstBmp.PixelFormat := pf8bit;
   w := _SrcBmp.Width;
   h := _SrcBmp.Height;
+  _DstBmp.Assign(nil);
+  _DstBmp.PixelFormat := pf8bit;
   _DstBmp.Palette := MakeGrayPalette;
   TBitmap_SetSize(_DstBmp, w, h);
 
-  if h = 0 then
+  if (h = 0) or (w = 0) then
     Exit; //==>
 
   BytesPerLine := ((w * 8 * BytesPerPixel + 31) and not 31) div 8;
@@ -3896,6 +4022,31 @@ begin
   end;
 end;
 
+procedure TdzRgbTriple_SetValues(var _Triple: TdzRgbTriple; _Red, _Green, _Blue: Byte);
+begin
+  _Triple.Red := _Red;
+  _Triple.Green := _Green;
+  _Triple.Blue := _Blue;
+end;
+
+procedure RainbowColor(_Hue: Double; out _Color: TdzRgbTriple);
+var
+  Value: Double;
+  IntValue: Integer;
+begin
+  Value := EnsureRange(_Hue, 0, 1) * 6;
+  IntValue := Round(Frac(Value) * 255);
+  case Trunc(Value) of
+    0: TdzRgbTriple_SetValues(_Color, 255, IntValue, 0);
+    1: TdzRgbTriple_SetValues(_Color, 255 - IntValue, 255, 0);
+    2: TdzRgbTriple_SetValues(_Color, 0, 255, IntValue);
+    3: TdzRgbTriple_SetValues(_Color, 0, 255 - IntValue, 255);
+    4: TdzRgbTriple_SetValues(_Color, IntValue, 0, 255);
+  else // 5
+    TdzRgbTriple_SetValues(_Color, 255, 0, 255 - IntValue);
+  end;
+end;
+
 procedure RainbowColor(_Brightness: Byte; out _Red, _Green, _Blue: Byte);
 var
   Brightness: Integer;
@@ -4250,4 +4401,7 @@ begin
 end;
 
 end.
+// Here, Delphi 2007 sometimes throws a [DCC Error] F2084 Internal Error: AV06FA6FD9-R00000D1A-0
+// Usually it helps to do a full rebuild or delete the DCU output directory contents
+// In one case the problem went away when I changed the order of units in the project file
 

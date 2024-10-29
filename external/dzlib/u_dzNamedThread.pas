@@ -57,6 +57,9 @@ type
     /// which thread is being checked.
     /// @returns The value of the protected Perminated property </summary>
     function CheckTerminated: Boolean;
+{$IFNDEF TTHREAD_HAS_START}
+    procedure Start;
+{$ENDIF}
   end;
 
 implementation
@@ -116,6 +119,13 @@ procedure TNamedThread.SetName;
 begin
   SetName(FThreadName);
 end;
+
+{$IFNDEF TTHREAD_HAS_START}
+procedure TNamedThread.Start;
+begin
+  Resume;
+end;
+{$ENDIF}
 
 initialization
   // set the name for the main thread to 'Main'

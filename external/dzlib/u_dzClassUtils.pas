@@ -7,6 +7,10 @@ unit u_dzClassUtils;
 
 {$INCLUDE 'dzlib.inc'}
 
+{$IFDEF DEBUG}
+{.$UNDEF SUPPORTS_INLINE}
+{$ENDIF}
+
 interface
 
 uses
@@ -19,6 +23,7 @@ uses
   Registry,
   u_dzTranslator,
   u_dzTypes,
+  u_dzMiscUtils, // for inlining
   u_dzDateUtils; // we need this for the $IF Declared() directives
 
 // NOTE: The naming convention is <extended-class>_<Methodname>
@@ -137,6 +142,10 @@ procedure TStrings_RemoveEmptyLines(_Strings: TStrings; _TrimFirst: Boolean = Tr
 /// @returns the number of lines that have been removed </summary>
 function TStrings_RemoveEmptyLinesFromEnd(_Strings: TStrings): Integer;
 
+///<summary>
+/// Same as TStrings.Text but without the line break after the last entry </summary>
+function TStrings_Text(_Strings: TStrings): string;
+
 /// <summary>
 /// Free a TStrings object including all it's Object[n]s </summary>
 procedure TStrings_FreeWithObjects(_Strings: TStrings);
@@ -237,6 +246,44 @@ function TObjectList_Extract(_lst: TObjectList; _Idx: Integer): TObject;
 function TComponent_FindComponent(_Owner: TComponent; const _Name: string; _Recursive: Boolean;
   out _Found: TComponent; _CmpClass: TComponentClass = nil): Boolean;
 
+{$IFDEF DELPHIX_TOKYO_UP}
+///<summary>
+/// Reads a maximum of Count bytes from the stream into the buffer and returns true if at least
+/// one byte could be read. </summary>
+function TStream_TryRead(_st: TStream; _Buffer: TBytes; _Offset, _Count: Int32;
+  out _BytesRead: Int32): Boolean; overload;
+{$IFDEF SUPPORTS_INLINE}
+inline;
+{$ENDIF}
+
+///<summary>
+/// Reads a maximum of Count bytes from the stream into the buffer and returns true if at least
+/// one byte could be read. </summary>
+function TStream_TryRead(_st: TStream; _Buffer: TBytes; _Offset, _Count: Int64;
+  out _BytesRead: Int64): Boolean; overload;
+{$IFDEF SUPPORTS_INLINE}
+inline;
+{$ENDIF}
+{$ENDIF}
+
+///<summary>
+/// Reads a maximum of Count bytes from the stream into the buffer and returns true if at least
+/// one byte could be read. </summary>
+function TStream_TryRead(_st: TStream; var _Buffer; _Count: Int32;
+  out _BytesRead: Int32): Boolean; overload;
+{$IFDEF SUPPORTS_INLINE}
+inline;
+{$ENDIF}
+
+///<summary>
+/// Reads a maximum of Count bytes from the stream into the buffer and returns true if at least
+/// one byte could be read. </summary>
+function TStream_TryRead(_st: TStream; var _Buffer: TBytes; _Count: Int32;
+  out _BytesRead: Int32): Boolean; overload;
+{$IFDEF SUPPORTS_INLINE}
+inline;
+{$ENDIF}
+
 /// <summary>
 /// Write a string to the stream
 /// @param Stream is the TStream to write to.
@@ -332,6 +379,9 @@ function TIniFile_ReadString(const _Filename: string; const _Section, _Ident: st
 ///<summary>
 /// Reads a string from the ini-file, raises an exception if the value is empty </summary>
 function TIniFile_ReadString(_Ini: TCustomIniFile; const _Section, _Ident: string): string; overload;
+///<summary>
+/// Reads a string from the ini-file, raises an exception if the value is empty </summary>
+function TIniFile_ReadString(const _Filename: string; const _Section, _Ident: string): string; overload;
 
 ///<summary>
 /// Writes a string to the ini-file. </summary>
@@ -360,7 +410,7 @@ function TIniFile_TryReadFloat(_Ini: TCustomIniFile; const _Section, _Ident: str
 function TIniFile_TryReadFloat(const _Filename: string; const _Section, _Ident: string; out _Value: Extended): Boolean; overload;
 function TIniFile_TryReadFloat(const _Filename: string; const _Section, _Ident: string; out _Value: Double): Boolean; overload;
 function TIniFile_TryReadFloat(const _Filename: string; const _Section, _Ident: string; out _Value: Single): Boolean; overload;
-function TIniFile_ReadFloat(_Ini: TCustomIniFile; const _Section, _Ident: string; out _Value: Extended): Boolean; overload deprecated; // use TryReadFloat instead
+function TIniFile_ReadFloat(_Ini: TCustomIniFile; const _Section, _Ident: string; out _Value: Extended): Boolean; overload; deprecated; // use TryReadFloat instead
 function TIniFile_ReadFloat(_Ini: TCustomIniFile; const _Section, _Ident: string): Extended; overload;
 function TIniFile_ReadFloat(const _Filename: string; const _Section, _Ident: string): Extended; overload;
 
@@ -423,9 +473,11 @@ procedure TIniFile_WriteDate(const _Filename: string; const _Section, _Ident: st
 function TIniFile_SectionExists(const _Filename: string; const _Section: string): Boolean;
 
 ///<summary>
-/// Clears all entries in the given section but does not delete the section header.
-///</summary>
-procedure TIniFile_ClearSection(_Ini: TCustomIniFile; const _Section: string);
+/// Clears all entries in the given section but does not delete the section header.</summary>
+procedure TIniFile_ClearSection(const _Filename, _Section: string); overload;
+///<summary>
+/// Clears all entries in the given section but does not delete the section header.</summary>
+procedure TIniFile_ClearSection(_Ini: TCustomIniFile; const _Section: string); overload;
 
 ///<summary>
 /// Clears all entries in the given section and writes the values from the TStrings to it
@@ -437,49 +489,41 @@ procedure TIniFile_WriteSectionValues(_Ini: TCustomIniFile; const _Section: stri
 /// (This is short for opening the file, calling Ini.ReadSection and closing it.)
 /// @returns false, if the section does not exist. </summary>
 function TIniFile_TryReadSectionKeys(const _Filename, _Section: string; _sl: TStrings): Boolean;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 /// <summary>
 /// Reads the given section from the given .INI file and returns all its keys as a TStrings
 /// (This is short for opening the file, calling Ini.ReadSection and closing it.)
 /// @raises Exception if the section does not exist. </summary>
 procedure TIniFile_ReadSectionKeys(const _Filename, _Section: string; _sl: TStrings);
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 ///<summary>
 /// Reads the given section from the given .INI file and returns it as Name=Value pairs.
 /// (This is short for opening the file, calling Ini.ReadSectionValues and closing it.)
 /// @raises Exception if the section does not exist. </summary>
 procedure TIniFile_ReadSectionValues(const _Filename, _Section: string; _sl: TStrings);
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
+
 ///<summary>
 /// @returns True, if the section exists
 ///          False if not
 /// Note: Also returns false if the file does not exist. </summary>
 function TIniFile_TryReadSectionValues(const _Filename, _Section: string; _sl: TStrings): Boolean;
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
+
+///<summary>
+/// Dumps the contents of MemIniFile as a string </summary>
+function TMemIniFile_Dump(_Ini: TMemIniFile): string;
 
 procedure TMemIniFile_ReadSubSections(_Ini: TMemIniFile; const _Section: string; _Sections: TStrings);
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
+
 procedure TRegistryIniFile_ReadSubSections(_Ini: TRegistryIniFile; const _Section: string; _Sections: TStrings);
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 procedure TCustomIniFile_ReadSubSections(_Ini: TCustomIniFile; const _Section: string; _Sections: TStrings);
-{$IFDEF SUPPORTS_INLINE}
-inline;
-{$ENDIF}
+{(*}{$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}{*)}
 
 type
   TIniSection = class
@@ -532,7 +576,8 @@ type
 ///          when it goes out of scope. </summary>
 function TRegistry_OpenKeyReadonly(const _Key: string; _HKEY: HKEY = HKEY_CURRENT_USER): IRegistryGuard;
 
-function TRegistry_TryOpenKeyReadonly(const _Key: string; _HKEY: HKEY = HKEY_CURRENT_USER): IRegistryGuard;
+function TRegistry_TryOpenKeyReadonly(const _Key: string; _HKEY: HKEY = HKEY_CURRENT_USER;
+  _ReadWow64: Boolean = False): IRegistryGuard;
 
 ///<summary>
 /// Opens a registry key for writing
@@ -567,7 +612,7 @@ function TRegistry_TryReadString(const _Path: string; out _Value: string;
 /// @raises any exception that TRegistry raises if something goes wrong reading the value,
 ///         e.g. the value exists, but is not a string </summary>
 function TRegistry_TryReadString(const _Key: string; const _Entry: string; out _Value: string;
-  _HKEY: HKEY = HKEY_CURRENT_USER): Boolean; overload;
+  _HKEY: HKEY = HKEY_CURRENT_USER; _ReadWow64: Boolean = False): Boolean; overload;
 
 ///<summary>
 /// Tries to read a string value from the given (open) TRegistry instance.
@@ -711,7 +756,6 @@ implementation
 uses
   StrUtils,
   u_dzConvertUtils,
-  u_dzMiscUtils,
   u_dzStringUtils;
 
 function _(const _s: string): string;
@@ -885,6 +929,22 @@ begin
       // we found the last non-empty line -> we are done
       Exit; //==>
     end;
+  end;
+end;
+
+function TStrings_Text(_Strings: TStrings): string;
+var
+  i: Integer;
+  IsFirst: Boolean;
+begin
+  Result := '';
+  IsFirst := True;
+  for i := 0 to _Strings.Count - 1 do begin
+    if IsFirst then begin
+      Result := _Strings[i];
+      IsFirst := False;
+    end else
+      Result := Result + #13#10 + _Strings[i];
   end;
 end;
 
@@ -1091,6 +1151,36 @@ begin
   Result := _st.Values[Name];
 end;
 
+function TStream_TryRead(_st: TStream; var _Buffer: TBytes; _Count: Int32;
+  out _BytesRead: Int32): Boolean; overload;
+begin
+  _BytesRead := _st.Read(_Buffer, _Count);
+  Result := (_BytesRead > 0);
+end;
+
+function TStream_TryRead(_st: TStream; var _Buffer; _Count: Int32;
+  out _BytesRead: Int32): Boolean; overload;
+begin
+  _BytesRead := _st.Read(_Buffer, _Count);
+  Result := (_BytesRead > 0);
+end;
+
+{$IFDEF DELPHIX_TOKYO_UP}
+function TStream_TryRead(_st: TStream; _Buffer: TBytes; _Offset, _Count: Int32;
+  out _BytesRead: Int32): Boolean; overload;
+begin
+  _BytesRead := _st.Read(_Buffer, _Offset, _Count);
+  Result := (_BytesRead > 0);
+end;
+
+function TStream_TryRead(_st: TStream; _Buffer: TBytes; _Offset, _Count: Int64;
+  out _BytesRead: Int64): Boolean; overload;
+begin
+  _BytesRead := _st.Read64(_Buffer, _Offset, _Count);
+  Result := (_BytesRead > 0);
+end;
+{$ENDIF}
+
 function TStream_WriteString(_Stream: TStream; const _s: RawByteString): Integer;
 var
   Len: Integer;
@@ -1099,13 +1189,16 @@ var
 begin
   s := AnsiString(_s);
   Len := Length(s);
-  Result := _Stream.Write(PAnsiChar(s)^, Len);
-  if Result <> Len then begin
-    ErrCode := GetLastError;
-    RaiseLastOSErrorEx(ErrCode,
-      Format(_('Error writing string of length %d to stream, wrote only %d bytes: %%1:s (%%0:d)'),
-      [Len, Result]));
-  end;
+  if Len > 0 then begin
+    Result := _Stream.Write(PAnsiChar(s)^, Len);
+    if Result <> Len then begin
+      ErrCode := GetLastError;
+      RaiseLastOSErrorEx(ErrCode,
+        Format(_('Error writing string of length %d to stream, wrote only %d bytes: %%1:s (%%0:d)'),
+        [Len, Result]));
+    end;
+  end else
+    Result := 0;
 end;
 
 {$IFDEF UNICODE}
@@ -1268,6 +1361,18 @@ begin
     ErrStr := Format(_('String value for [%s]%s must not be empty in ini file'), [_Section, _Ident])
       + ' ' + _Ini.Filename;
     raise Exception.Create(ErrStr);
+  end;
+end;
+
+function TIniFile_ReadString(const _Filename: string; const _Section, _Ident: string): string;
+var
+  Ini: TMemIniFile;
+begin
+  Ini := TMemIniFile.Create(_Filename);
+  try
+    Result := TIniFile_ReadString(Ini, _Section, _Ident);
+  finally
+    FreeAndNil(Ini);
   end;
 end;
 
@@ -1620,6 +1725,19 @@ begin
   end;
 end;
 
+procedure TIniFile_ClearSection(const _Filename, _Section: string);
+var
+  Ini: TMemIniFile;
+begin
+  Ini := TMemIniFile.Create(_Filename);
+  try
+    TIniFile_ClearSection(Ini, _Section);
+    Ini.UpdateFile;
+  finally
+    FreeAndNil(Ini);
+  end;
+end;
+
 procedure TIniFile_WriteSectionValues(_Ini: TCustomIniFile; const _Section: string; _sl: TStrings);
 var
   i: Integer;
@@ -1682,6 +1800,23 @@ begin
     ErrStr := Format(_('Section "%s" does not exist in ini file'), [_Section])
       + ' ' + _Filename;
     raise Exception.Create(ErrStr);
+  end;
+end;
+
+function TMemIniFile_Dump(_Ini: TMemIniFile): string;
+var
+  sl: TStringList;
+begin
+  if _Ini = nil then
+    Result := ''
+  else begin
+    sl := TStringList.Create;
+    try
+      _Ini.GetStrings(sl);
+      Result := sl.Text;
+    finally
+      FreeAndNil(sl);
+    end;
   end;
 end;
 
@@ -1973,11 +2108,17 @@ begin
     FReg.WriteString(_Item, _Value);
 end;
 
-function TRegistry_TryOpenKeyReadonly(const _Key: string; _HKEY: HKEY = HKEY_CURRENT_USER): IRegistryGuard;
+{$IF not defined(KEY_WOW64_64KEY)}
+const
+  KEY_WOW64_64KEY = $0100;
+{$IFEND}
+
+function TRegistry_TryOpenKeyReadonly(const _Key: string; _HKEY: HKEY = HKEY_CURRENT_USER;
+  _ReadWow64: Boolean = False): IRegistryGuard;
 var
   Reg: TRegistry;
 begin
-  Reg := TRegistry.Create;
+  Reg := TRegistry.Create(key_Read or KEY_WOW64_64KEY);
   Reg.RootKey := _HKEY;
   if not Reg.OpenKeyReadOnly(_Key) then
     FreeAndNil(Reg);
@@ -2048,11 +2189,11 @@ begin
 end;
 
 function TRegistry_TryReadString(const _Key: string; const _Entry: string; out _Value: string;
-  _HKEY: HKEY = HKEY_CURRENT_USER): Boolean;
+  _HKEY: HKEY = HKEY_CURRENT_USER; _ReadWow64: Boolean = False): Boolean;
 var
   Guard: IRegistryGuard;
 begin
-  Guard := TRegistry_TryOpenKeyReadonly(_Key, _HKEY);
+  Guard := TRegistry_TryOpenKeyReadonly(_Key, _HKEY, _ReadWow64);
   Result := Guard.IsValid and TRegistry_TryReadString(Guard.Reg, _Entry, _Value);
 end;
 
@@ -2400,4 +2541,8 @@ begin
   FIni.WriteString(FSection, _Ident, _Value);
 end;
 
+{$IFDEF DEBUG}
+initialization
+  TMemIniFile_Dump(nil);
+{$ENDIF}
 end.

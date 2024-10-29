@@ -55,7 +55,11 @@ function TryVar2Number(const _v: Variant; out _Value: Double): Boolean; overload
 function TryVar2Number(const _v: Variant; out _Value: Extended): Boolean; overload;
 {$ENDIF}
 
-function GetNullableTypesFlagInterface: IInterface;
+type
+  INullableTypesFlagInterface = interface(IInterface)
+  end;
+
+function GetNullableTypesFlagInterface: INullableTypesFlagInterface;
 
 procedure DivideNumbers(_a, _b: Integer; out _Value: Integer); overload;
 procedure DivideNumbers(_a, _b: Int64; out _Value: Int64); overload;
@@ -104,9 +108,9 @@ const
 const
   FlagInterfaceInstance: Pointer = @FlagInterfaceVTable;
 
-function GetNullableTypesFlagInterface: IInterface;
+function GetNullableTypesFlagInterface: INullableTypesFlagInterface;
 begin
-  Result := IInterface(@FlagInterfaceInstance);
+  Result := INullableTypesFlagInterface(@FlagInterfaceInstance);
 end;
 
 var

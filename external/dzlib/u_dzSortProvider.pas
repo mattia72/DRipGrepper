@@ -134,7 +134,14 @@ end;
 
 function TdzIntegerArraySortProvider.doCompare(_IndexA, _IndexB: Integer): Integer;
 begin
+{$IFOPT R+}
+{$DEFINE WAS_R_PLUS}
+{$R-}
+{$ENDIF}
   Result := CompareValue(FOriginal^[_IndexA], FOriginal^[_IndexB]);
+{$IFDEF WAS_R_PLUS}
+{$R+}
+{$ENDIF}
 end;
 
 { TdzSortProvider }

@@ -107,11 +107,17 @@ type
     function TryGetFloatProperty(const _Name: string; out _Value: Double): Boolean; overload;
     function TryGetFloatProperty(const _Name: string; out _Value: Single): Boolean; overload;
 {$IFDEF SUPPORTS_EXTENDED}
+    class function GetFloatProperty(_Instance: TObject; const _Name: string): Extended; overload;
+    class function GetFloatProperty(_Instance: TObject; const _Name: string; const _Default: Extended): Extended; overload;
     function GetFloatProperty(const _Name: string; const _Default: Extended): Extended; overload;
     function GetFloatProperty(const _Name: string): Extended; overload;
+    class function SetFloatProperty(_Instance: TObject; const _Name: string; const _Value: Extended): Boolean; overload;
 {$ELSE}
+    class function GetFloatProperty(_Instance: TObject; const _Name: string): Double; overload;
+    class function GetFloatProperty(_Instance: TObject; const _Name: string; const _Default: Double): Double; overload;
     function GetFloatProperty(const _Name: string; const _Default: Double): Double; overload;
     function GetFloatProperty(const _Name: string): Double; overload;
+    class function SetFloatProperty(_Instance: TObject; const _Name: string; const _Value: Double): Boolean; overload;
 {$ENDIF}
 
     ///<summary>
@@ -153,6 +159,7 @@ type
     class function GetObjectProperty(_Instance: TObject; const _Name: string; _Default: TObject): TObject; overload;
     function GetObjectProperty(const _Name: string): TObject; overload;
     class function GetObjectProperty(_Instance: TObject; const _Name: string): TObject; overload;
+    class function SetObjectProperty(_Instance: TObject; const _Name: string; _Value: TObject): Boolean;
 
     ///<summary>
     /// Access an event property
@@ -298,10 +305,20 @@ end;
 class function TAdvancedObject.SetIntProperty(_Instance: TObject; const _Name: string;
   _Value: Integer): Boolean;
 begin
-  Result  := u_dzTypInfo.TrySetIntProperty(_Instance, _Name, _Value);
+  Result := u_dzTypInfo.TrySetIntProperty(_Instance, _Name, _Value);
 end;
 
 {$IFDEF SUPPORTS_EXTENDED}
+class function TAdvancedObject.GetFloatProperty(_Instance: TObject; const _Name: string): Extended;
+begin
+  Result := u_dzTypInfo.GetFloatProperty(_Instance, _Name);
+end;
+
+class function TAdvancedObject.GetFloatProperty(_Instance: TObject; const _Name: string; const _Default: Extended): Extended;
+begin
+  Result := u_dzTypInfo.GetFloatProperty(_Instance, _Name, _Default);
+end;
+
 function TAdvancedObject.GetFloatProperty(const _Name: string; const _Default: Extended): Extended;
 begin
   Result := u_dzTypInfo.GetFloatProperty(Self, _Name, _Default);
@@ -311,7 +328,23 @@ function TAdvancedObject.GetFloatProperty(const _Name: string): Extended;
 begin
   Result := u_dzTypInfo.GetFloatProperty(Self, _Name);
 end;
+
+class function TAdvancedObject.SetFloatProperty(_Instance: TObject; const _Name: string; const _Value: Extended): Boolean;
+begin
+  Result := u_dzTypInfo.TrySetFloatProperty(_Instance, _Name, _Value);
+end;
+
 {$ELSE}
+class function TAdvancedObject.GetFloatProperty(_Instance: TObject; const _Name: string): Double;
+begin
+  Result := u_dzTypInfo.GetFloatProperty(_Instance, _Name);
+end;
+
+class function TAdvancedObject.GetFloatProperty(_Instance: TObject; const _Name: string; const _Default: Double): Double;
+begin
+  Result := u_dzTypInfo.GetFloatProperty(_Instance, _Name, _Default);
+end;
+
 function TAdvancedObject.GetFloatProperty(const _Name: string; const _Default: Double): Double; overload;
 begin
   Result := u_dzTypInfo.GetFloatProperty(Self, _Name, _Default);
@@ -320,6 +353,11 @@ end;
 function TAdvancedObject.GetFloatProperty(const _Name: string): Double; overload;
 begin
   Result := u_dzTypInfo.GetFloatProperty(Self, _Name);
+end;
+
+class function TAdvancedObject.SetFloatProperty(_Instance: TObject; const _Name: string; const _Value: Double): Boolean;
+begin
+  Result := u_dzTypInfo.TrySetFloatProperty(_Instance, _Name, _Value);
 end;
 {$ENDIF}
 
@@ -354,6 +392,11 @@ end;
 function TAdvancedObject.GetObjectProperty(const _Name: string): TObject;
 begin
   Result := GetObjectProperty(Self, _Name);
+end;
+
+class function TAdvancedObject.SetObjectProperty(_Instance: TObject; const _Name: string; _Value: TObject): Boolean;
+begin
+  Result := u_dzTypInfo.TrySetObjectProperty(_Instance, _Name, _Value);
 end;
 
 function TAdvancedObject.GetStringProperty(const _Name, _Default: string): string;
@@ -586,7 +629,7 @@ begin
     SetLength(Result, cnt);
     for i := 0 to cnt - 1 do begin
       PropInfo := Props^[i];
-      Result[i] := String(PropInfo.Name);
+      Result[i] := string(PropInfo.Name);
     end;
   finally
     FreeMem(Props);

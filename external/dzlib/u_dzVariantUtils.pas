@@ -242,6 +242,14 @@ function Var2StrEx(_v: Variant; const _Source: string): string;
 /// Note that VarIsSame('3', 3) will return false, because the variant types are different.
 function VarIsSame(_A, _B: Variant): Boolean;
 
+///<summary>
+/// converts a TVarRec (the type used in an array of const) to a string for debugging purposes </summary>
+function TVarRec_ToString(const _v: TVarRec): string;
+
+///<summary>
+/// converts a array of const to a string of the form 'value0, value1, ..., valueN' for debugging purposes </summary>
+function ArrayOfConst2String(const _arr: array of const): string;
+
 implementation
 
 uses
@@ -680,6 +688,85 @@ begin
     Result := False
   else
     Result := (_A = _B);
+end;
+
+function TVarRec_ToString(const _v: TVarRec): string;
+
+  function Object2Str(_obj: TObject): string;
+  begin
+    if Assigned(_obj) then
+      Result := Format('%s($%p)', [_obj.ClassName, Pointer(_obj)])
+    else
+      Result := 'TObject(nil)';
+  end;
+
+  function Class2Str(_cls: TClass): string;
+  begin
+    if Assigned(_cls) then
+      Result := 'class(' + _cls.ClassName + ')'
+    else
+      Result := 'class(nil)';
+  end;
+
+begin
+  try
+    case _v.VType of
+      vtInteger:
+        Result := IntToStr(_v.VInteger);
+      vtBoolean: begin
+          if _v.VBoolean then
+            Result := 'True'
+          else
+            Result := 'False';
+        end;
+      vtChar: Result := Char(_v.VChar);
+      vtExtended: Result := Format('%g', [_v.VExtended^]);
+      vtString: Result := '''' + string(_v.VString^) + '''';
+      vtPointer: Result := Format('$%p', [_v.VPointer]);
+      vtPChar: Result := string(_v.VPChar);
+      vtObject: Result := Object2Str(_v.VObject);
+      vtClass: Result := Class2Str(_v.VClass);
+{$IF Declared(vtWideChar)}
+      vtWideChar: Result := _v.VWideChar;
+{$IFEND}
+{$IF declared(vtPWideChar)}
+      vtPWideChar: Result := string(WideString(_v.VPWideChar));
+{$IFEND}
+      vtAnsiString: Result := '''' + string(PAnsiString(_v.VAnsiString)) + '''';
+{$IF declared(vtCurrency)}
+      vtCurrency: Result := CurrToStr(_v.VCurrency^);
+{$IFEND}
+{$IF declared(vtVariant)}
+      vtvariant: Result := Var2Str(_v.VVariant^);
+{$IFEND}
+{$IF declared(vtInterface)}
+      vtInterface: Result := Format('Intf($%p)', [_v.VInterface]);
+{$IFEND}
+      vtWideString: Result := '''' + string(PWideString(_v.VWideString)) + '''';
+      vtInt64: Result := IntToStr(_v.VInt64^);
+{$IF declared(vtUnicodeString)}
+      vtUnicodeString: Result := '''' + string(_v.VUnicodeString) + '''';
+{$IFEND}
+    else
+      Result := '<unsupported type ' + IntToStr(_v.VType) + '>';
+    end;
+  except
+    on e: Exception do begin
+      Result := '<conversion of type ' + IntToStr(_v.VType) + ' failed>';
+    end;
+  end;
+end;
+
+function ArrayOfConst2String(const _arr: array of const): string;
+var
+  i: Integer;
+begin
+  Result := '';
+  for i := 0 to Length(_arr) - 1 do begin
+    if Result <> '' then
+      Result := Result + ', ';
+    Result := Result + TVarRec_ToString(_arr[i]);
+  end;
 end;
 
 end.

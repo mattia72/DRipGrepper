@@ -1,127 +1,131 @@
 unit GX_Experts;
 
+{$I GX_CondDefine.inc}
+
 interface
 
 uses
-  SysUtils,
-  Classes,
-  ActnList,
-  Menus,
-  Forms,
-  GX_ConfigurationInfo;
+  Classes, Graphics, Forms, ActnList, Menus,
+  GX_ConfigurationInfo, GX_BaseExpert;
 
 type
-  TGX_Expert = class
+  TGX_Expert = class(TGX_BaseExpert)
   private
-    FActive: Boolean;
+    procedure ActionOnUpdate(Sender: TObject);
   protected
-    procedure SetActive(New: Boolean); virtual;
-    procedure InternalLoadSettings(_Settings: IExpertSettings); virtual;
-    procedure InternalSaveSettings(_Settings: IExpertSettings); virtual;
-    procedure SetShortCut(Value: TShortCut); virtual;
-    procedure UpdateAction(Action: TCustomAction); virtual;
-    function HasSubmenuItems: Boolean; virtual;
-    function HasCallCount: Boolean; virtual;
-    procedure CreateSubMenuItems(MenuItem: TMenuItem); virtual;
+    function GetExpertIndex: Integer;
     procedure SetFormIcon(Form: TForm);
+    procedure SetActive(New: Boolean); override;
+    procedure UpdateAction(Action: TCustomAction); virtual;
+    // Defaults to False
+    function HasSubmenuItems: Boolean; virtual;
+    // you usually don't need to override this
+    procedure LoadActiveAndShortCut(Settings: TGExpertsSettings); override;
+    // you usually don't need to override this
+    procedure SaveActiveAndShortCut(Settings: TGExpertsSettings); override;
   public
+    ///<summary>
+    /// @returns the category of this expert. It is used to create submenus in the GExperts menu.
+    ///          Defaults to an empty string, meaning the expert is listed directly in
+    ///          the GExperts menu. </summary>
+    class function GetCategory: string; virtual;
     constructor Create; virtual;
-    function GetDefaultShortCut: TShortCut; virtual;
-    function GetActionCaption: string; virtual;
-    function CanHaveShortCut: Boolean; virtual;
-    class function ConfigurationKey: string; virtual;
-    class function GetName: string; virtual;
-    function GetHelpString: string; virtual;
+    destructor Destroy; override;
+    // Information functions that need to be overriden
+    // by each expert to provide required registration
+    // information.
+
+    // Determine if the expert action is enabled
+    function GetActionEnabled: Boolean; virtual;
+    // Name to be displayed for the expert in the GExperts
+    // *configuration* dialog; this is a different entry than
+    // the action caption (GetActionCaption) but by default
+    // it calls GetActionCaption and removes any Hotkey characters and '...'
+    // This is probably OK for most experts.
+    function GetDisplayName: string; override;
+    // Defaults to True
     function HasMenuItem: Boolean; virtual;
-    procedure Execute(Sender: TObject); virtual;
-    procedure Configure; virtual;
-    function HasConfigOptions: Boolean; virtual;
-    procedure IncCallCount;
-    procedure LoadSettings;
-    procedure SaveSettings;
-    property Active: Boolean read FActive write FActive;
+    // Defaults to False
+    function HasDesignerMenuItem: Boolean; virtual;
+    procedure DoCreateSubMenuItems(MenuItem: TMenuItem);
+    procedure CreateSubMenuItems(MenuItem: TMenuItem); virtual;
+//    procedure Execute(Sender: TObject); virtual; // declared in TGX_BaseExpert
+    // Do any delayed setup after the IDE is done initializing
+    procedure AfterIDEInitialized; virtual;
+    // Update the action state
+    procedure DoUpdateAction;
+    // Calls HasMenuItem
+    function CanHaveShortCut: boolean; override;
+    // Index of expert; used to determine a "historic"
+    // menu item order in the GExperts menu item.
+    property ExpertIndex: Integer read GetExpertIndex;
   end;
 
-type
   TGX_ExpertClass = class of TGX_Expert;
 
+var
+  GX_ExpertList: TList = nil;
+  ExpertIndexLookup: TStringList = nil;
+
 procedure RegisterGX_Expert(AClass: TGX_ExpertClass);
+function GetGX_ExpertClassByIndex(const Index: Integer): TGX_ExpertClass;
 
 implementation
 
 uses
-  Graphics;
-
-procedure RegisterGX_Expert(AClass: TGX_ExpertClass);
-begin
-  // do nothing
-end;
+  {$IFOPT D+} GX_DbugIntf, {$ENDIF}
+  SysUtils, Dialogs,
+  GX_MenuActions,
+  GX_OtaUtils, GX_GenericUtils;
 
 { TGX_Expert }
 
-function TGX_Expert.CanHaveShortCut: Boolean;
+procedure TGX_Expert.ActionOnUpdate(Sender: TObject);
 begin
-  Result := False;
+  DoUpdateAction;
 end;
 
-class function TGX_Expert.ConfigurationKey: string;
-begin
-  Result := '';
-end;
-
-procedure TGX_Expert.Configure;
-begin
-  // do nothing
-end;
-
+// Note: Don't call LoadSettings in Create.  This is done for you
+// when the expert is created.  See TGExperts.InstallAddIn.
 constructor TGX_Expert.Create;
 begin
-  inherited;
+  inherited Create;
+
+  // Don't set Active to True.
+  // Instead override IsDefaultActive and let LoadSettings do it
 end;
 
 procedure TGX_Expert.CreateSubMenuItems(MenuItem: TMenuItem);
 begin
-  // do nothing
+  // Override to create any submenu items in the main menu
 end;
 
-procedure TGX_Expert.Execute(Sender: TObject);
+destructor TGX_Expert.Destroy;
 begin
-  // do nothing
+  // Set active to False, this makes it possible to handle all creation and
+  // destruction inside SetActive
+  Active := False;
+
+  inherited Destroy;
 end;
 
-function TGX_Expert.GetActionCaption: string;
-begin
-  Result := '';
-end;
-
-function TGX_Expert.GetDefaultShortCut: TShortCut;
-begin
-  Result := 0;
-end;
-
-function TGX_Expert.GetHelpString: string;
+class function TGX_Expert.GetCategory: string;
 begin
   Result := '';
 end;
 
-class function TGX_Expert.GetName: string;
+function TGX_Expert.GetExpertIndex: Integer;
+var
+  Index: Integer;
 begin
-  Result := '';
-end;
-
-function TGX_Expert.HasCallCount: Boolean;
-begin
-  Result := False;
-end;
-
-function TGX_Expert.HasConfigOptions: Boolean;
-begin
-  Result := False;
+  Result := MaxInt - 10000;
+  if ExpertIndexLookup.Find(ClassName, Index) then
+    Result := GXNativeInt(ExpertIndexLookup.Objects[Index]);
 end;
 
 function TGX_Expert.HasMenuItem: Boolean;
 begin
-  Result := False;
+  Result := True;
 end;
 
 function TGX_Expert.HasSubmenuItems: Boolean;
@@ -129,49 +133,193 @@ begin
   Result := False;
 end;
 
-procedure TGX_Expert.IncCallCount;
+const
+  ShortCutIdent = 'ExpertShortcuts'; // Do not localize.
+  EnabledIdent = 'EnabledExperts'; // Do not localize.
+
+procedure TGX_Expert.LoadActiveAndShortCut(Settings: TGExpertsSettings); 
 begin
-  // do nothing
+  // Do not put these two Settings.xxx lines in InternalLoadSettings,
+  // since a descendant might forget to call 'inherited'
+  ShortCut := Settings.ReadInteger(ShortCutIdent, GetName, ShortCut);
+  Active := Settings.ReadBool(EnabledIdent, GetName, IsDefaultActive);
 end;
 
-procedure TGX_Expert.InternalLoadSettings(_Settings: IExpertSettings);
+procedure TGX_Expert.SaveActiveAndShortCut(Settings: TGExpertsSettings);
 begin
-  // do nothing
-end;
-
-procedure TGX_Expert.InternalSaveSettings(_Settings: IExpertSettings);
-begin
-  // do nothing
-end;
-
-procedure TGX_Expert.LoadSettings;
-begin
-  InternalLoadSettings(ConfigInfo.GetExpertSettings(ConfigurationKey, ''));
-end;
-
-procedure TGX_Expert.SaveSettings;
-begin
-  InternalSaveSettings(ConfigInfo.GetExpertSettings(ConfigurationKey, ''));
+  // Do not put these two Settings.xxx lines in InternalSaveSettings,
+  // since a descendant might forget to call 'inherited'
+  Settings.WriteBool(EnabledIdent, GetName, Active);
+  Settings.WriteInteger(ShortCutIdent, GetName, ShortCut);
 end;
 
 procedure TGX_Expert.SetActive(New: Boolean);
 begin
-  // do nothing
+  if New = FActive then
+    Exit;
+
+  if HasMenuItem or HasDesignerMenuItem then
+  begin
+    if New and not IsStandAlone then
+      FActionInt := GXMenuActionManager.RequestMenuExpertAction(Self)
+    else
+      FActionInt := nil;
+  end;
+
+  if Assigned(FActionInt) then
+    FActionInt.OnUpdate := ActionOnUpdate;
+
+  inherited;
+end;
+
+{ Globals }
+
+function GetGX_ExpertClass(const ClassName: string): TGX_ExpertClass;
+var
+  i: Integer;
+begin
+  Assert(GX_ExpertList <> nil, 'Uses clauses are out of order.  GX_ExpertList is nil!');
+
+  for i := 0 to GX_ExpertList.Count - 1 do
+  begin
+    Result := GX_ExpertList[i];
+    if Result.ClassNameIs(ClassName) then Exit;
+  end;
+  Result := nil;
+end;
+
+function GetGX_ExpertClassByIndex(const Index: Integer): TGX_ExpertClass;
+begin
+  Result := nil;
+  if (Index >= 0) and (Index <= GX_ExpertList.Count - 1) then
+    Result := GX_ExpertList[Index];
+end;
+
+procedure RegisterGX_Expert(AClass: TGX_ExpertClass);
+var
+  ExpertClassName: string;
+begin
+  ExpertClassName := AClass.ClassName;
+  {$IFOPT D+} SendDebug('Registering expert: ' +  ExpertClassName); {$ENDIF D+}
+  if GetGX_ExpertClass(ExpertClassName) <> nil then
+  begin
+    Assert(False, 'Duplicate call to RegisterGX_Expert for ' + ExpertClassName);
+    Exit;
+  end;
+  GX_ExpertList.Add(AClass);
+end;
+
+procedure InitExpertIndexLookup;
+const
+  OldExpertOrder: array [0..29] of string = (
+  'TProcedureExpert',
+  'TExpertManagerExpert',
+  'TGrepDlgExpert',
+  'TGrepExpert',
+  'TMsgExpExpert',
+  'TBackupExpert',
+  'TTabExpert',
+  'TCleanExpert',
+  'TClipExpert',
+  'TFilesExpert',
+  'TClassExpert',
+  'TSourceExportExpert',
+  'TCodeLibExpert',
+  'TASCIIExpert',
+  'TPEExpert',
+  'TReplaceCompExpert',
+  'TGridExpert',
+  'TShortCutExpert',
+  'TDependExpert',
+  'TLayoutExpert',
+  'TToDoExpert',
+  'TCodeProofreaderExpert',
+  'TProjOptionSetsExpert',
+  'TCompsToCodeExpert',
+  'TCompRenameExpert',
+  'TCopyComponentNamesExpert',
+  'TGxMenusForEditorExperts',
+  'TMacroLibExpert',
+  'TOpenFileExpert',
+  'TFindCompRefWizard'
+  );
+var
+  i: Integer;
+begin
+  Assert(not Assigned(ExpertIndexLookup));
+  ExpertIndexLookup := TStringList.Create;
+  for i := Low(OldExpertOrder) to High(OldExpertOrder) do
+    ExpertIndexLookup.AddObject(OldExpertOrder[i], TObject(i));
+  ExpertIndexLookup.Sorted := True;
 end;
 
 procedure TGX_Expert.SetFormIcon(Form: TForm);
+var
+  bmp: TBitmap;
 begin
-  // do nothing
+  Assert(Assigned(Form));
+  bmp := GetBitmap;
+  if Assigned(bmp) then
+    ConvertBitmapToIcon(bmp, Form.Icon);
 end;
 
-procedure TGX_Expert.SetShortCut(Value: TShortCut);
+function TGX_Expert.HasDesignerMenuItem: Boolean;
 begin
-  // do nothing
+  Result := False;
 end;
+
+function TGX_Expert.GetActionEnabled: Boolean;
+begin
+  Result := FActionInt.GetEnabled;
+end;
+
+procedure TGX_Expert.DoCreateSubMenuItems(MenuItem: TMenuItem);
+begin
+  if HasSubMenuItems then
+    if Assigned(MenuItem) then
+      CreateSubMenuItems(MenuItem);
+end;
+
+procedure TGX_Expert.DoUpdateAction;
+begin
+  UpdateAction(FActionInt.GetAction);
+end;
+
+function TGX_Expert.GetDisplayName: string;
+begin
+  Result := StringReplace(GetActionCaption, '...', '', [rfReplaceAll]);
+  Result := StripHotkey(Result);
+end;
+
+function TGX_Expert.CanHaveShortCut: boolean;
+begin
+  Result := HasMenuItem;
+end;
+
+{$IFDEF GX_BCB}
+class function TGX_Expert.GetName: string;
+begin
+  Result := ClassName;
+end;
+{$ENDIF}
 
 procedure TGX_Expert.UpdateAction(Action: TCustomAction);
 begin
-  // do nothing
+  // Update Enabled, Visible, Caption, etc.
 end;
 
+procedure TGX_Expert.AfterIDEInitialized;
+begin
+  // Do any delayed setup here that needs some later-created IDE items
+end;
+
+initialization
+  GX_ExpertList := TList.Create;
+  InitExpertIndexLookup;
+
+finalization
+  FreeAndNil(GX_ExpertList);
+  FreeAndNil(ExpertIndexLookup);
+
 end.
+

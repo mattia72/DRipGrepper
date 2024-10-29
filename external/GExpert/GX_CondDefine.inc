@@ -52,7 +52,6 @@
         {$IF CompilerVersion >= 17}
           {$DEFINE GX_VER170_up}  // Delphi 9/2005 (BDS 2)
           {$DEFINE GX_DELPHI2005_UP}
-          {$DEFINE SupportsInline}
           {$IF CompilerVersion >= 18}
             {$DEFINE GX_VER180_up}  // BDS 2006 (10; BDS 3)
             {$DEFINE GX_DELPHI2006_UP}
@@ -97,7 +96,7 @@
                                   {$IF CompilerVersion >= 30}
                                     {$DEFINE GX_VER300_up}  // RAD Studio 10 Seattle (23; BDS 17)
                                     {$DEFINE GX_DELPHI_SEATTLE_UP}
-                                      {$DEFINE GX_DELPHI10_UP}
+                                    {$DEFINE GX_DELPHI10_UP}
                                     {$IF CompilerVersion >= 31}
                                       {$DEFINE GX_VER310_up}  // RAD Studio 10.1 Berlin (24; BDS 18)
                                       {$DEFINE GX_DELPHI_BERLIN_UP}
@@ -118,6 +117,9 @@
                                               {$DEFINE GX_VER350_up}  // RAD Studio 11 Alexandria (28; BDS 22)
                                               {$DEFINE GX_DELPHI11_UP}
                                               {$IF CompilerVersion >= 36}
+                                                {$DEFINE GX_VER360_up}  // RAD Studio 12 Athens (29; BDS 23)
+                                                {$DEFINE GX_DELPHI12_UP}
+                                                {$IF CompilerVersion >= 37}
     unsupported Delphi version
     If you get here, you are probably trying to compile GExperts with a new Delphi release.
     In addition to define a new GX_VERxxx_UP symbol, you should also have a look at
@@ -130,7 +132,9 @@
     * SynEdit.inc
     * SynEditJedi.inc (That is a copy of jedi.inc from Project JEDI)
     * dzlibjedi.Inc (That is a copy of jedi.inc from Project JEDI)
+    * regexpr_compilers.inc
     todo: List the other units that might need to be adapted.
+                                                {$IFEND}
                                               {$IFEND}
                                             {$IFEND}
                                           {$IFEND}
@@ -166,7 +170,7 @@ Kylix is no longer supported.  You can try compiling with the GExperts source fr
 {$ENDIF}
 
 // Turn on IDE docking support
-{$DEFINE EnableIdeDockingSupport}
+{$DEFINE GX_EnableIdeDockingSupport}
 
 {$WARN SYMBOL_PLATFORM OFF}
 {$WARN UNIT_PLATFORM OFF}
@@ -176,23 +180,34 @@ Kylix is no longer supported.  You can try compiling with the GExperts source fr
 
 {$IFDEF GX_DELPHI2005_UP}
   {$DEFINE GX_SUPPORTS_FOLDING}
+  {. inlining in Delphi 2005 wasn't stable enough to use $DEFINE GX_SupportsInline}
 {$ENDIF GX_DELPHI2005_UP}
 
 {$IFDEF GX_DELPHI2006_UP}
+  {$DEFINE GX_SupportsInline}
   {$DEFINE GX_HAS_ALIGN_WITH_MARGINS}
+  {$DEFINE GX_HAS_STRICT_DELIMITER}
 {$ENDIF GX_DELPHI2005_UP}
 
+{$IFDEF GX_DELPHI10_UP}
+  {$IFNDEF GX_DELPHI10_1_UP}
+    {$DEFINE GX_TWMDPI_HAS_SCALLEDRECT_TYPO}
+    {$DEFINE GX_HIDE_NAVBAR_NECESSARY}
+  {$ENDIF GX_DELPHI10_1_UP}
+{$ENDIF GX_DELPHI10_UP}
+
+
 {$IFDEF GX_DELPHI10_2_UP}
-{$IFNDEF GX_DELPHI10_3_UP}
-// only for Delphi 10.2
-  {$DEFINE STARTUP_LAYOUT_FIX_ENABLED}
-{$ENDIF GX_DELPHI10_3_UP}
+  {$IFNDEF GX_DELPHI10_3_UP}
+    // only for Delphi 10.2
+    {$DEFINE GX_STARTUP_LAYOUT_FIX_ENABLED}
+  {$ENDIF GX_DELPHI10_3_UP}
 {$ENDIF GX_DELPHI10_2_UP}
 
 {$IFDEF GX_DELPHI10_2_UP}
   // That problem still exists in Delphi 10.3 Rio, but let's hope it won't in later versions
   {$IFNDEF GX_DELPHI10_4_UP}
-    {$DEFINE SEARCH_PATH_REDRAW_FIX_ENABLED}
+    {$DEFINE GX_SEARCH_PATH_REDRAW_FIX_ENABLED}
   {$ENDIF GX_DELPHI10_4_UP}
 {$ENDIF GX_DELPHI10_2_UP}
 
@@ -200,52 +215,55 @@ Kylix is no longer supported.  You can try compiling with the GExperts source fr
   // That problem was introduced in Delphi 10.3 Rio, and still exists in 10.4 Sydney.
   // Let's hope it will be fixed in later versions
   {$IFNDEF GX_DELPHI11_UP}
-    {$DEFINE KEYBOARD_SHORTCUT_BROKER_FIX_ENABLED}
+    {$DEFINE GX_KEYBOARD_SHORTCUT_BROKER_FIX_ENABLED}
   {$ENDIF GX_DELPHI10_4_UP}
   // Starting with Delphi 10.3 Rio, the popup menu for the editor window gets recreated
   // every time in its OnPopup event.
-  {$DEFINE EDITOR_POPUP_MENU_GETS_RECREATED}
+  {$DEFINE GX_EDITOR_POPUP_MENU_GETS_RECREATED}
 {$ENDIF GX_DELPHI10_3_UP}
 
 {$IFDEF GX_DELPHI10_2_UP}
   {$IFNDEF GX_DELPHI10_4_UP
     // Assigninig icons has redraw problems in the early themed IDEs (Delphi 10.2 and 10.3)
     // This was fixed in Delphi 10.4.
-    {$DEFINE ICONS_IN_POPUP_MENUS_ARE_BROKEN}
+    {$DEFINE GX_ICONS_IN_POPUP_MENUS_ARE_BROKEN}
     // possibly earlier
-    {$DEFINE HAS_UNIT_REGULAREXPRESSIONS}
+    {$DEFINE GX_HAS_UNIT_REGULAREXPRESSIONS}
   {$ENDIF}
 {$ENDIF GX_DELPHI10_2_UP}
 
 {$IFDEF GX_DELPHI10_3_UP}
   // Fix for https://quality.embarcadero.com/browse/RSP-28064
   {$IFNDEF GX_DELPHI10_4_UP} // Fixed in 10.4
-    {$DEFINE LISTBOX_OWNERDRAW_FIX_ENABLED}
+    {$DEFINE GX_LISTBOX_OWNERDRAW_FIX_ENABLED}
   {$ENDIF GX_DELPHI10_4_UP}
 {$ENDIF GX_DELPHI10_3_UP}
 
 {$IFDEF GX_DELPHI2010_UP}
-  {$DEFINE CUSTOMINIFILE_HAS_READSUBSECTIONS}
-{$ENDIF}
-
-{$IFNDEF GX_DELPHI11_UP}
-  // Delphi 11 removed the property OldCreateOrder from TForm which breaks compatiblity
-  // of dfm files for older Delphi versions.
-  {$DEFINE HAS_PROPERTY_OLDCREATEORDER}
+  {$DEFINE GX_CUSTOMINIFILE_HAS_READSUBSECTIONS}
 {$ENDIF}
 
 {$IFDEF GX_DELPHI11_UP}
-  {$DEFINE IDE_IS_HIDPI_AWARE}
+  {$DEFINE GX_IDE_IS_HIDPI_AWARE}
   {$IFNDEF GX_DELPHI_12_UP}
     // we hope this gets fixed in Delphi 12 and later ...
     {$DEFINE GX_WRONG_BUTTON_PARENTS_IN_PATH_EDIT_FIX_ENABLED}
+    {$DEFINE GX_AV_IN_CODE_FORMATTER_FIX_ENABLED}
+    {$DEFINE GX_ACTION_BROKER_IMAGELIST_FIX_ENABLED}
   {$ENDIF}
 {$ENDIF}
-{.$DEFINE IDE_IS_HIDPI_AWARE}
+{.$DEFINE GX_IDE_IS_HIDPI_AWARE}
+
+{$IFDEF GX_DELPHI12_UP}
+// Fix for bug #393 GExperts key mappings is removed when I unload/install another "ToolsApi" package
+// todo: Try to figure out which Delphi versions had this problem. It wasn't just Delphi 12
+{$DEFINE GX_KEYBOARD_BINDING_FIX}
+{$ENDIF}
 
 // Define UniSynEdit if SynEdit is available
 {$IFDEF SYNEDIT}
   {$DEFINE UniSynEdit}
+  {$DEFINE GX_ENHANCED_EDITOR}
 {$ELSE}
   GExperts now requires SynEdit.
 {$ENDIF SYNEDIT}

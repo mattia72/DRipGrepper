@@ -82,6 +82,8 @@ type
   UIntPtr = UInt64;
 {$IFEND}
 {$IFEND}
+  // This is to prevent a compile error if none of the above types needs to be declarred
+  TBlaBlaBlaBlaBlaBlaBla = Pointer;
 
 {$IF not declared(MaxUInt32)}
 const
@@ -167,10 +169,59 @@ type
 {$IFEND}
   TStringArray = TStringDynArray;
   TRawByteStringArray = array of RawByteString;
-  TIntegerArray = array of Integer;
-  TSingleArray = array of Single;
-  TDoubleArray = array of Double;
-  TExtendedArray = array of Extended;
+
+{$IF not declared(TInt32DynArray)}
+  TInt32DynArray = array of Int32;
+{$IFEND}
+{$IF not declared(PInt32DynArray)}
+  PInt32DynArray = ^TInt32DynArray;
+{$IFEND}
+{$IF not declared(TIntegerDynArray)}
+  TIntegerDynArray = TInt32DynArray
+  {$IFDEF SUPPORTS_DEPRECATED_TYPES} deprecated {$ENDIF}; // use TInt32DynArray instead
+{$IFEND}
+{$IF not declared(PIntegerDynArray)}
+  PIntegerDynArray = PInt32DynArray
+  {$IFDEF SUPPORTS_DEPRECATED_TYPES} deprecated {$ENDIF}; // use PInt32DynArray instead
+{$IFEND}
+  TIntegerArray = TInt32DynArray
+  {$IFDEF SUPPORTS_DEPRECATED_TYPES} deprecated {$ENDIF}; // use TInt32DynArray or TIntegerDynArray instead
+  PIntegerArray = PInt32DynArray
+  {$IFDEF SUPPORTS_DEPRECATED_TYPES} deprecated {$ENDIF}; // use PInt32DynArray or PIntegerDynArray instead
+
+{$IF not declared(TSingleDynArray)}
+  TSingleDynArray = array of Single;
+{$IFEND}
+{$IF not declared(PSingleDynArray)}
+  PSingleDynArray = ^TSingleDynArray;
+{$IFEND}
+  TSingleArray = TSingleDynArray
+  {$IFDEF SUPPORTS_DEPRECATED_TYPES} deprecated {$ENDIF}; // use TSingleDynArray instead
+  PSingleArray = PSingleDynArray
+  {$IFDEF SUPPORTS_DEPRECATED_TYPES} deprecated {$ENDIF}; // use PSingleDynArray instead
+
+{$IF not declared(TDoubleDynArray)}
+  TDoubleDynArray = array of Double;
+{$IFEND}
+{$IF not declared(PDoubleDynArray)}
+  PDoubleDynArray = ^TDoubleDynArray;
+{$IFEND}
+  TDoubleArray = TDoubleDynArray
+  {$IFDEF SUPPORTS_DEPRECATED_TYPES} deprecated {$ENDIF}; // use TDoubleDynArray instead
+  PDoubleArray = PDoubleDynArray
+  {$IFDEF SUPPORTS_DEPRECATED_TYPES} deprecated {$ENDIF}; // use PDoubleDynArray instead
+
+{$IF not declared(TExtendedDynArray)}
+  TExtendedDynArray = array of Extended;
+{$IFEND}
+{$IF not declared(PExtendedDynArray)}
+  PExtendedDynArray = ^TExtendedDynArray;
+{$IFEND}
+  TExtendedArray = TExtendedDynArray
+  {$IFDEF SUPPORTS_DEPRECATED_TYPES} deprecated {$ENDIF}; // use TExtendedDynArray instead
+  PExtendedArray = PExtendedDynArray
+  {$IFDEF SUPPORTS_DEPRECATED_TYPES} deprecated {$ENDIF}; // use PExtendedDynArray instead
+
 {$IF not Declared(TBytes)}
   TBytes = array of Byte;
 {$IFEND}
@@ -185,6 +236,8 @@ type
 
 type
   TMethodPointer = procedure of object;
+const
+  NilEvent: TMethod = (Code: nil; Data: nil);
 
 type
   TRectLTWH = record

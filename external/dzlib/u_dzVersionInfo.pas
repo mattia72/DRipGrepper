@@ -33,8 +33,10 @@ type
     Build: Integer;
     IsValid: Boolean;
 {$IFDEF SUPPORTS_ENHANCED_RECORDS}
+    class function Create(_Major, _Minor: Integer; _Revision: Integer = 0; _Build: Integer = 0): TFileVersionRec; static;
     procedure CheckValid;
-    procedure Init(_Major, _Minor, _Revision, _Build: Integer);
+    procedure Init(_Major, _Minor: Integer; _Revision: Integer = 0; _Build: Integer = 0);
+    function AsString(_Parts: TVersionParts = vpMajorMinorRevision): string;
     class operator GreaterThan(_a, _b: TFileVersionRec): Boolean;
     class operator GreaterThanOrEqual(_a, _b: TFileVersionRec): Boolean;
     class operator Equal(_a, _b: TFileVersionRec): Boolean;
@@ -184,6 +186,12 @@ uses
   Windows,
   u_dzTranslator,
   u_dzOsUtils;
+
+function _(const _s: string): string;
+{(*}{$IFDEF SUPPORTS_INLINE} inline;{$ENDIF}{*)}
+begin
+  Result := dzlibGetText(_s);
+end;
 
 { TCustomFileInfo }
 
@@ -781,6 +789,11 @@ begin
     raise EAIInvalidVersionInfo.Create(_('Invalid version info'));
 end;
 
+class function TFileVersionRec.Create(_Major, _Minor, _Revision, _Build: Integer): TFileVersionRec;
+begin
+  Result.Init(_Major, _Minor, _Revision, _Build);
+end;
+
 class operator TFileVersionRec.Equal(_a, _b: TFileVersionRec): Boolean;
 begin
   _a.CheckValid;
@@ -819,6 +832,22 @@ begin
   Minor := _Minor;
   Revision := _Revision;
   Build := _Build;
+  IsValid := True;
+end;
+
+function TFileVersionRec.AsString(_Parts: TVersionParts = vpMajorMinorRevision): string;
+begin
+  if IsValid then begin
+    case _Parts of
+      vpMajor: Result := IntToStr(Major);
+      vpMajorMinor: Result := IntToStr(Major) + '.' + IntToStr(Minor);
+      vpMajorMinorRevision: Result := IntToStr(Major) + '.' + IntToStr(Minor) + '.' + IntToStr(Revision);
+      vpFull: Result := IntToStr(Major) + '.' + IntToStr(Minor) + '.' + IntToStr(Revision) + '.' + IntToStr(Build)
+    else
+      raise EAIUnknownProperty.CreateFmt(_('Invalid version part (%d)'), [Ord(_Parts)]);
+    end;
+  end else
+    Result := _('<no version information>');
 end;
 
 class operator TFileVersionRec.LessThan(_a, _b: TFileVersionRec): Boolean;
@@ -874,4 +903,3 @@ begin
 end;
 
 end.
-

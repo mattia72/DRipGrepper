@@ -27,6 +27,8 @@ procedure TStringArray_Delete(var _arr: TStringArray; _Index: Integer; _Count: I
 function TStringArray_Contains(const _arr: TStringArray; const _s: string; out _Idx: Integer): Boolean; overload;
 function TStringArray_Contains(const _arr: TStringArray; const _s: string): Boolean; overload;
 
+function TStringArray_AsCsv(const _arr: TStringArray; const _Separator: string = ','): string;
+
 function TStringArray_FromStrings(_sl: TStrings): TStringArray;
 {$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}
 
@@ -120,7 +122,7 @@ begin
   end;
 end;
 
-procedure TStringArray_Delete(var _arr: TStringArray; _Index: Integer; _Count: Integer); overload;
+procedure TStringArray_Delete(var _arr: TStringArray; _Index: Integer; _Count: Integer);
 var
   len: Integer;
   i: Integer;
@@ -166,6 +168,23 @@ var
   Idx: Integer;
 begin
   Result := TStringArray_Contains(_arr, _s, Idx);
+end;
+
+function TStringArray_AsCsv(const _arr: TStringArray; const _Separator: string = ','): string;
+var
+  i: Integer;
+  len: Integer;
+begin
+  len := Length(_arr);
+  case len of
+    0: Result := '';
+    1: Result := _arr[0];
+  else
+    Result := _arr[0];
+    for i := 1 to len - 1 do begin
+      Result := Result + _Separator + _arr[i];
+    end;
+  end;
 end;
 
 function TStringArray_Concat(const _Arr1, _Arr2: array of string): TStringArray;

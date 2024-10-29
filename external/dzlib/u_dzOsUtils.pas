@@ -403,11 +403,11 @@ end;
 function GetComputerNameEx(_NameFormat: COMPUTER_NAME_FORMAT = ComputerNameNetBIOS;
   _RaiseException: Boolean = False): string;
 const
-{$IF CompilerVersion >= 20} // Delphi 2009 / BDS 6
+{$IFDEF UNICODE}
   ENTRY_POINT_NAME = 'GetComputerNameExW';
 {$ELSE}
   ENTRY_POINT_NAME = 'GetComputerNameExA';
-{$IFEND}
+{$ENDIF}
 var
   BufSize: DWORD;
   GetComputerNameExApi: function(NameFormat: DWORD; lpNameBuffer: PChar; var nSize: ULONG): BOOL; stdcall;
@@ -431,11 +431,11 @@ function GetUserNameEx(_NameFormat: EXTENDED_NAME_FORMAT = NameSamCompatible;
   _RaiseException: Boolean = False): string;
 const
   DLL_NAME = 'secur32.dll';
-{$IF CompilerVersion >= 20} // Delphi 2009 / BDS 6
+{$IFDEF UNICODE}
   ENTRY_POINT_NAME = 'GetUserNameExW';
 {$ELSE}
   ENTRY_POINT_NAME = 'GetUserNameExA';
-{$IFEND}
+{$ENDIF}
 var
   Len: Cardinal;
   ModuleHandle: THandle;
@@ -824,9 +824,19 @@ end;
 
 function ShellExecEx(const _Filename: string; const _Parameters: string;
   const _Verb: string; _CmdShow: Integer; _ShowAssociateDialog: Boolean = False): Boolean;
+const
+{$IFDEF UNICODE}
+  ENTRY_POINT_NAME = 'ShellExecuteExW';
+{$ELSE}
+  ENTRY_POINT_NAME = 'ShellExecuteExA';
+{$ENDIF}
 var
   Sei: TShellExecuteInfo;
+  ShellExecuteExApi: Function(lpExecInfo: PShellExecuteInfo):Bool; stdcall;
 begin
+  ShellExecuteExApi := GetProcAddress(GetModuleHandle(shell32), ENTRY_POINT_NAME);
+  if not Assigned(ShellExecuteExApi) then
+    raise EOSError.CreateFmt(_('Could not get address of entry point %s in module %s'), [ENTRY_POINT_NAME, shell32]);
   FillChar(Sei, SizeOf(Sei), #0);
   Sei.cbSize := SizeOf(Sei);
   Sei.FMask := SEE_MASK_DOENVSUBST;
@@ -842,7 +852,7 @@ begin
   else
     Sei.lpVerb := nil;
   Sei.nShow := _CmdShow;
-  Result := ShellExecuteEx(@Sei);
+  Result := ShellExecuteExApi(@Sei);
 end;
 
 function OpenExplorerAndSelectFile(const _Filename: string): Boolean;
@@ -1128,10 +1138,10 @@ function GetVersionEx(var lpVersionInformation: TOsVersionInfoEx): BOOL; stdcall
 
 function GetKernel32Version(out _Major, _Minor, _Revision, _Build: Integer): Boolean;
 var
-  Kernel32Handle: DWORD;
+  Kernel32Handle: HModule;
   Kernel32Filename: string;
 begin
-  Kernel32Handle := GetModuleHandle('kernel32.dll');
+  Kernel32Handle := GetModuleHandle(kernel32);
   Kernel32Filename := u_dzOsUtils.GetModuleFilename(Kernel32Handle);
   Result := GetFileProductInfo(Kernel32Filename, _Major, _Minor, _Revision, _Build);
 end;

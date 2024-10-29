@@ -46,6 +46,11 @@ type
      ideRS104U2, // Rad Studio 10.4 Sydney Update 2
      ideRS11,   // Rad Studio 11 Alexandria
      ideRS11U1, // Rad Studio 11 Alexandria Update 1 (aka version 11.1)
+     ideRS11U2, // Rad Studio 11 Alexandria Update 2 (aka version 11.2)
+     ideRS11U3, // Rad Studio 11 Alexandria Update 3 (aka version 11.3)
+     ideRS12,   // Rad Studio 12 Athens
+     ideRS12P1, // Rad Studio 12 Athens Patch 1
+     ideRS12U1, // Rad Studio 12 Athens Update 1
      // C# Builder
      ideCSB100,
      // C++Builder
@@ -67,6 +72,7 @@ type
 // higher.
 
 function GetBorlandIdeVersion: TBorlandIdeVersion;
+function GetBorlandIdeVersionStr: string;
 
 implementation
 
@@ -358,6 +364,9 @@ end;
   B.Studio.Host.dll    9.0.1810.11291 688,128    Thursday, December 09, 2004, 9:01:00 AM
   bordbk9.dll          90.1.2.1       782,336    Thursday, December 09, 2004, 9:01:00 AM
 
+  We do not have the version numbers for Delphi 2005 Update 2, so we assume that
+  the version numbers are > those of Update 1 and < those of Update 3.
+
   Delphi 2005 Update 3:
 
   File                 File Version   Size       Modified Time
@@ -401,6 +410,8 @@ end;
 
 {
   BDS 2006:
+
+  todo: get at least the version numbers of Delphi 2006 from my installation
 
   File                 File Version   Size       Modified Time
   delphicoreide100.bpl
@@ -842,9 +853,9 @@ end;
 }
 function GetRS101Version: TBorlandIdeVersion;
 const
-  CoreIde2400: TVersionNumber = (Minor: 24; Major: 0; Build: 6822; Release: 22858);
-  CoreIde2400Upd1: TVersionNumber = (Minor: 24; Major: 0; Build: 8770; Release: 24468);
-  CoreIde2400Upd2: TVersionNumber = (Minor: 24; Major: 0; Build: 9432; Release: 25048);
+  CoreIde2400: TVersionNumber = (Minor: 0; Major: 24; Build: 6822; Release: 22858);
+  CoreIde2400Upd1: TVersionNumber = (Minor: 0; Major: 24; Build: 8770; Release: 24468);
+  CoreIde2400Upd2: TVersionNumber = (Minor: 0; Major: 24; Build: 9432; Release: 25048);
 var
   CoreIdeFileVersion: TVersionNumber;
   VersionNumber: Integer;
@@ -872,7 +883,7 @@ end;
 }
 function GetRS102Version: TBorlandIdeVersion;
 const
-  CoreIde2500: TVersionNumber = (Minor: 25; Major: 0; Build: 314; Release: 26309);
+  CoreIde2500: TVersionNumber = (Minor: 0; Major: 25; Build: 314; Release: 26309);
 begin
   Result := ideRS102;
 end;
@@ -908,10 +919,10 @@ end;
 }
 function GetRS103Version: TBorlandIdeVersion;
 const
-  CoreIde2600: TVersionNumber = (Minor: 26; Major: 0; Build: 4364; Release: 32429);
-  CoreIde2600Upd1: TVersionNumber = (Minor: 26; Major: 0; Build: 4899; Release: 33219);
-  CoreIde2600Upd2: TVersionNumber = (Minor: 26; Major: 0; Build: 6593; Release: 34749);
-  CoreIde2600Upd3: TVersionNumber = (Minor: 26; Major: 0; Build: 7899; Release: 36039);
+  CoreIde2600: TVersionNumber = (Minor: 0; Major: 26; Build: 4364; Release: 32429);
+  CoreIde2600Upd1: TVersionNumber = (Minor: 0; Major: 26; Build: 4899; Release: 33219);
+  CoreIde2600Upd2: TVersionNumber = (Minor: 0; Major: 26; Build: 6593; Release: 34749);
+  CoreIde2600Upd3: TVersionNumber = (Minor: 0; Major: 26; Build: 7899; Release: 36039);
 var
   CoreIdeFileVersion: TVersionNumber;
   VersionNumber: Integer;
@@ -972,9 +983,9 @@ end;
 function GetRS104Version: TBorlandIdeVersion;
 const
   RegKey = 'Software\Embarcadero\BDS\21.0\CatalogRepository\Elements\10.4Patch2pro-10';
-  CoreIde2700:     TVersionNumber = (Minor: 27; Major: 0; Build: 9797; Release:  37829);
-  CoreIde2700UPd1: TVersionNumber = (Minor: 27; Major: 0; Build: 1461; Release:  38860);
-  CoreIde2700UPd2: TVersionNumber = (Minor: 27; Major: 0; Build: 4203; Release:  40680);
+  CoreIde2700:     TVersionNumber = (Minor: 0; Major: 27; Build: 9797; Release:  37829);
+  CoreIde2700UPd1: TVersionNumber = (Minor: 0; Major: 27; Build: 1461; Release:  38860);
+  CoreIde2700UPd2: TVersionNumber = (Minor: 0; Major: 27; Build: 4203; Release:  40680);
 var
   RegValue: Integer;
   CoreIdeFileVersion: TVersionNumber;
@@ -1010,19 +1021,80 @@ end;
   coreide280.bpl       28.0.44500.8973
   bds.exe              28.0.44500.8973
   dcldb280.bpl         28.0.44500.8973
+
+  Delphi 11.2 (Update 2)
+  File                 File Version
+  delphicoreide280.bpl 28.0.46141.0937
+  coreide280.bpl       28.0.46141.0937
+  bds.exe              28.0.46141.0937
+  dcldb280.bpl         28.0.46141.0937
+
+  Delphi 11.3 (Update 3)
+  File                 File Version
+  delphicoreide280.bpl 28.0.47991.2819
+  coreide280.bpl       28.0.47991.2819
+  bds.exe              28.0.47991.2819
+  dcldb280.bpl         28.0.47991.2819
+
 }
 function GetRS11Version: TBorlandIdeVersion;
 const
-  CoreIde2800: TVersionNumber = (Minor: 28; Major: 0; Build: 6491; Release: 42600);
-  CoreIde2800Upd1: TVersionNumber = (Minor: 28; Major: 0; Build: 8973; Release: 44500);
+  CoreIde2800: TVersionNumber =     (Minor: 0; Major: 28; Build: 6491; Release: 42600);
+  CoreIde2800Upd1: TVersionNumber = (Minor: 0; Major: 28; Build: 8973; Release: 44500);
+  CoreIde2800Upd2: TVersionNumber = (Minor: 0; Major: 28; Build: 0937; Release: 46141);
+  CoreIde2800Upd3: TVersionNumber = (Minor: 0; Major: 28; Build: 2819; Release: 47991);
 var
   CoreIdeFileVersion: TVersionNumber;
 begin
   CoreIdeFileVersion := GetFileVersionNumber(GetIdeRootDirectory + 'Bin\coreide280.bpl');
-  if CompareVersionNumber(CoreIdeFileVersion, CoreIde2800Upd1) >= 0 then begin
+  if CompareVersionNumber(CoreIdeFileVersion, CoreIde2800Upd3) >= 0 then begin
+    Result := ideRS11U3
+  end else if CompareVersionNumber(CoreIdeFileVersion, CoreIde2800Upd2) >= 0 then begin
+    Result := ideRS11U2
+  end else if CompareVersionNumber(CoreIdeFileVersion, CoreIde2800Upd1) >= 0 then begin
     Result := ideRS11U1
   end else begin
     Result := ideRS11;
+  end;
+end;
+
+{
+  Delphi 12 Athens
+  delphicoreide290.bpl 29.0.50491.5718
+  coreide290.bpl       29.0.50491.5718
+  bds.exe              29.0.50491.5718
+  dcldb290.bpl         29.0.50491.5718
+  rtl290.bpl           29.0.51211.6493
+
+  Delphi 12 (Patch 1)
+  rtl290.bpl           29.0.51211.6493
+
+  Delphi 12 (Update 1)
+  delphicoreide290.bpl 29.0.51961.7529
+  coreide290.bpl       29.0.51961.7529
+  bds.exe              29.0.51961.7529
+  dcldb290.bpl         29.0.51961.7529
+  rtl290.bpl           29.0.51961.7529
+
+}
+
+function GetRS12Version: TBorlandIdeVersion;
+const
+  RtlBpl2900: TVersionNumber =     (Minor: 0; Major: 29; Build: 5718; Release: 50491);
+  RtlBpl2900Patch1: TVersionNumber = (Minor: 0; Major: 29; Build: 6493; Release: 51211);
+  RtlBpl2900Upd1:TVersionNumber = (Minor: 0; Major: 29; Build: 7529; Release: 51961);
+var
+  RtlBplFileVersion: TVersionNumber;
+begin
+  RtlBplFileVersion := GetFileVersionNumber(GetIdeRootDirectory + 'Bin\rtl290.bpl');
+  if CompareVersionNumber(RtlBplFileVersion, RtlBpl2900Upd1) >= 0 then begin
+    Result := ideRS12U1;
+  end else if CompareVersionNumber(RtlBplFileVersion, RtlBpl2900Patch1) >= 0 then begin
+    Result := ideRS12P1
+  end else if CompareVersionNumber(RtlBplFileVersion, RtlBpl2900) >= 0 then begin
+    Result := ideRS12
+  end else begin
+    Result := ideUnknown;
   end;
 end;
 
@@ -1158,8 +1230,13 @@ begin
 
   {$IFDEF VER350}
     Result := GetRS11Version;
-    Assert(Result in [ideRS11, ideRS11U1]);
+    Assert(Result in [ideRS11, ideRS11U1, ideRS11U2, ideRS11U3]);
   {$ENDIF VER350}
+
+  {$IFDEF VER360}
+    Result := GetRS12Version;
+    Assert(Result in [ideRS12, ideRS12P1, ideRS12U1]);
+  {$ENDIF VER360}
 
   if Result = ideUnknown then
     MessageDlg('Unknown IDE major version detected.  Please update GX_GetIdeVersion.pas.', mtError, [mbOK], 0);
@@ -1167,9 +1244,96 @@ begin
   DetectedVersion := Result;
 end;
 
-{$IF CompilerVersion > 35} // new Delphi version
+{$IF CompilerVersion > 36} // new Delphi version
   'Add the information for the new Delphi version above and increase the CompilerVersion in this conditional'
 {$IFEND}
+
+function GetBorlandIdeVersionStr: string;
+begin
+  case GetBorlandIdeVersion of
+     ideD600: Result := 'Delphi 6.00';
+     ideD601R: Result := 'Delphi 6.01 (recalled)';
+     ideD601F: Result := 'Delphi 6.01 (final)';
+     ideD602: Result := 'Delphi 6.02';
+
+     ideD700: Result := 'Delphi 7.0';
+     ideD71: Result := 'Delphi 7.1';
+
+     ideD800: Result := 'Delphi 8.00';
+     ideD801: Result := 'Delphi 8.01';
+     ideD802: Result := 'Delphi 8.02';
+
+     ideD900: Result := 'Delphi 2005';
+     ideD901: Result := 'Delphi 2005 upd 1';
+     ideD902: Result := 'Delphi 2005 upd 2';
+     ideD903: Result := 'Delphi 2005 upd 3';
+
+     ideBDS2006: Result := 'BDS 2006';
+
+     ideDelphi2007: Result := 'RAD Studio 2007';
+
+     ideRS2009: Result := 'RAD Studio 2009';
+     ideRS2009U1: Result := 'RAD Studio 2009 upd 1';
+     ideRS2009U2: Result := 'RAD Studio 2009 upd 2';
+     ideRS2009U3: Result := 'RAD Studio 2009 upd 3';
+     ideRS2009U4: Result := 'RAD Studio 2009 upd 4';
+
+     ideRS2010: Result := 'RAD Studio 2009';
+     ideRS2010U1: Result := 'RAD Studio 2009 upd 1';
+     ideRS2010U4: Result := 'RAD Studio 2009 upd 4';
+     ideRS2010U5: Result := 'RAD Studio 2009 upd 5';
+
+     ideRSXE1: Result := 'RAD Studio XE';
+     ideRSXE1U1: Result := 'RAD Studio XE upd 1';
+     ideRSXE2: Result := 'RAD Studio XE2';
+     ideRSXE3: Result := 'RAD Studio XE3';
+     ideRSXE4: Result := 'RAD Studio XE4';
+     ideRSXE5: Result := 'RAD Studio XE5';
+     ideRSXE6: Result := 'RAD Studio XE6';
+     ideRSXE7: Result := 'RAD Studio XE7';
+     ideRSXE8: Result := 'RAD Studio XE8';
+
+     ideRS10: Result := 'RAD Studio 10 (Seattle)';
+
+     ideRS101: Result := 'RAD Studio 10.1 (Berlin)';
+     ideRS101U1: Result := 'RAD Studio 10.1 (Berlin) upd 1';
+     ideRS101U2: Result := 'RAD Studio 10.1 (Berlin) upd 2';
+
+     ideRS102: Result := 'RAD Studio 10.2 (Tokyo)';
+
+     ideRS103: Result := 'RAD Studio 10.3 (Rio)';
+     ideRS103U1: Result := 'RAD Studio 10.3 (Rio) upd 1';
+     ideRS103U2: Result := 'RAD Studio 10.3 (Rio) upd 2';
+     ideRS103U3: Result := 'RAD Studio 10.3 (Rio) upd 3';
+
+     ideRS104: Result := 'RAD Studio 10.4 (Sydney)';
+     ideRS104P2: Result := 'RAD Studio 10.4 (Sydney) patch 2';
+     ideRS104U1: Result := 'RAD Studio 10.4 (Sydney) upd 1';
+     ideRS104U2: Result := 'RAD Studio 10.4 (Sydney) upd 2';
+
+     ideRS11: Result := 'RAD Studio 11 (Alexandria)';
+     ideRS11U1: Result := 'RAD Studio 11.1 (Alexandria upd 1)';
+     ideRS11U2: Result := 'RAD Studio 11.2 (Alexandria upd 2)';
+     ideRS11U3: Result := 'RAD Studio 11.3 (Alexandria upd 3)';
+
+     ideRS12: Result := 'RAD Studio 12 (Athens)';
+     ideRS12P1: Result := 'RAD Studio 12 (Athens) patch 1';
+     ideRS12U1: Result := 'RAD Studio 12.1 (Athens upd 1)';
+
+     ideCSB100: Result := 'C# Builder 1.00';
+
+     ideBCB600: Result := 'C++ Builder 6.00';
+     ideBCB601: Result := 'C++ Builder 6.01';
+     ideBCB602: Result := 'C++ Builder 6.02';
+     ideBCB604: Result := 'C++ Builder 6.04';
+
+     ideKylix100: Result := 'Kylix 1.00';
+     ideKylix200: Result := 'Kylix 2.00';
+     ideKylix300: Result := 'Kylix 3.00';
+  else
+    Result := 'Unknown IDE version';
+  end;
+end;
 
 initialization
   DetectedVersion := ideUndetected;

@@ -21,9 +21,9 @@ const
 {$IFNDEF __DZ_NULLABLE_NUMBER_TEMPLATE_SECOND_PASS__}
 
 type
-  _NULLABLE_NUMBER_ = record
+  TdzNullableNumber = record
   private
-    FIsValid: IInterface;
+    FIsValid: INullableTypesFlagInterface;
     FValue: _NULLABLE_TYPE_BASE_;
   public
     procedure Invalidate;
@@ -45,53 +45,55 @@ type
     function Abs: _NULLABLE_TYPE_BASE_;
     function Format(const _FormatStr: string): string; overload;
     function Format(const _FormatStr: string; const _Settings: TFormatSettings): string; overload;
-    class operator Negative(_a: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
-    class operator Positive(_a: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
-    class operator Inc(_a: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
-    class operator Dec(_a: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
+    class operator Negative(_a: TdzNullableNumber): TdzNullableNumber;
+    class operator Positive(_a: TdzNullableNumber): TdzNullableNumber;
+    class operator Inc(_a: TdzNullableNumber): TdzNullableNumber;
+    class operator Dec(_a: TdzNullableNumber): TdzNullableNumber;
 
-    class operator Add(_a, _b: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
-    class operator Add(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_TYPE_BASE_): _NULLABLE_NUMBER_;
-    class operator Add(_a: _NULLABLE_TYPE_BASE_; _b: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
+    class operator Add(_a, _b: TdzNullableNumber): TdzNullableNumber;
+    class operator Add(_a: TdzNullableNumber; _b: _NULLABLE_TYPE_BASE_): TdzNullableNumber;
+    class operator Add(_a: _NULLABLE_TYPE_BASE_; _b: TdzNullableNumber): TdzNullableNumber;
 
-    class operator Subtract(_a, _b: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
-    class operator Subtract(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_TYPE_BASE_): _NULLABLE_NUMBER_;
-    class operator Subtract(_a: _NULLABLE_TYPE_BASE_; _b: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
+    class operator Subtract(_a, _b: TdzNullableNumber): TdzNullableNumber;
+    class operator Subtract(_a: TdzNullableNumber; _b: _NULLABLE_TYPE_BASE_): TdzNullableNumber;
+    class operator Subtract(_a: _NULLABLE_TYPE_BASE_; _b: TdzNullableNumber): TdzNullableNumber;
 
-    class operator Multiply(_a, _b: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
-    class operator Multiply(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_TYPE_BASE_): _NULLABLE_NUMBER_;
-    class operator Multiply(_a: _NULLABLE_TYPE_BASE_; _b: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
+    class operator Multiply(_a, _b: TdzNullableNumber): TdzNullableNumber;
+    class operator Multiply(_a: TdzNullableNumber; _b: _NULLABLE_TYPE_BASE_): TdzNullableNumber;
+    class operator Multiply(_a: _NULLABLE_TYPE_BASE_; _b: TdzNullableNumber): TdzNullableNumber;
 
-    class operator Divide(_a, _b: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
-    class operator Divide(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_TYPE_BASE_): _NULLABLE_NUMBER_;
-    class operator Divide(_a: _NULLABLE_TYPE_BASE_; _b: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
+    class operator Divide(_a, _b: TdzNullableNumber): TdzNullableNumber;
+    class operator Divide(_a: TdzNullableNumber; _b: _NULLABLE_TYPE_BASE_): TdzNullableNumber;
+    class operator Divide(_a: _NULLABLE_TYPE_BASE_; _b: TdzNullableNumber): TdzNullableNumber;
 
-    class operator Implicit(_Value: _NULLABLE_TYPE_BASE_): _NULLABLE_NUMBER_;
-    class operator Implicit(_a: _NULLABLE_NUMBER_): _NULLABLE_TYPE_BASE_;
+    class operator Implicit(_Value: _NULLABLE_TYPE_BASE_): TdzNullableNumber;
+    class operator Implicit(_a: TdzNullableNumber): _NULLABLE_TYPE_BASE_;
 
-    class operator Explicit(const _s: string): _NULLABLE_NUMBER_;
-    class operator Explicit(_a: _NULLABLE_NUMBER_): string;
+    class operator Explicit(const _s: string): TdzNullableNumber;
+    class operator Explicit(_a: TdzNullableNumber): string;
 
-    class operator LessThan(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_TYPE_BASE_): Boolean;
-    class operator LessThanOrEqual(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_TYPE_BASE_): Boolean;
-    class operator GreaterThan(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_TYPE_BASE_): Boolean;
-    class operator GreaterThanOrEqual(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_TYPE_BASE_): Boolean;
-    class operator Equal(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_TYPE_BASE_): Boolean;
-    class operator NotEqual(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_TYPE_BASE_): Boolean;
+    class operator LessThan(_a: TdzNullableNumber; _b: _NULLABLE_TYPE_BASE_): Boolean;
+    class operator LessThanOrEqual(_a: TdzNullableNumber; _b: _NULLABLE_TYPE_BASE_): Boolean;
+    class operator GreaterThan(_a: TdzNullableNumber; _b: _NULLABLE_TYPE_BASE_): Boolean;
+    class operator GreaterThanOrEqual(_a: TdzNullableNumber; _b: _NULLABLE_TYPE_BASE_): Boolean;
+    class operator Equal(_a: TdzNullableNumber; _b: _NULLABLE_TYPE_BASE_): Boolean;
+    class operator NotEqual(_a: TdzNullableNumber; _b: _NULLABLE_TYPE_BASE_): Boolean;
 
-    class operator LessThan(_a, _b: _NULLABLE_NUMBER_): Boolean;
-    class operator LessThanOrEqual(_a, _b: _NULLABLE_NUMBER_): Boolean;
-    class operator GreaterThan(_a, _b: _NULLABLE_NUMBER_): Boolean;
-    class operator GreaterThanOrEqual(_a, _b: _NULLABLE_NUMBER_): Boolean;
-    class operator Equal(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_NUMBER_): Boolean;
-    class operator NotEqual(_a, _b: _NULLABLE_NUMBER_): Boolean;
+    class operator LessThan(_a, _b: TdzNullableNumber): Boolean;
+    class operator LessThanOrEqual(_a, _b: TdzNullableNumber): Boolean;
+    class operator GreaterThan(_a, _b: TdzNullableNumber): Boolean;
+    class operator GreaterThanOrEqual(_a, _b: TdzNullableNumber): Boolean;
+    class operator Equal(_a: TdzNullableNumber; _b: TdzNullableNumber): Boolean;
+    class operator NotEqual(_a, _b: TdzNullableNumber): Boolean;
 
     /// <summary> invalid values are considered smaller than any valid values
     /// and equal to each other </summary>
-    class function Compare(_a, _b: _NULLABLE_NUMBER_): Integer; static;
-    class function Invalid: _NULLABLE_NUMBER_; static;
-    class function FromVariant(_a: Variant): _NULLABLE_NUMBER_; static;
-    class function FromStr(const _s: string): _NULLABLE_NUMBER_; static;
+    class function Compare(_a, _b: TdzNullableNumber): Integer; static;
+    /// <summary> invalid values are considered equal to each other </summary>
+    class function IsSame(_a, _b: TdzNullableNumber): Boolean; static;
+    class function Invalid: TdzNullableNumber; static;
+    class function FromVariant(_a: Variant): TdzNullableNumber; static;
+    class function FromStr(const _s: string): TdzNullableNumber; static;
   end;
 
 {$ENDIF __DZ_NULLABLE_NUMBER_TEMPLATE_SECOND_PASS__}
@@ -111,92 +113,92 @@ uses
 
 {$IFDEF __DZ_NULLABLE_NUMBER_TEMPLATE_SECOND_PASS__}
 
-{ _NULLABLE_NUMBER_ }
+{ TdzNullableNumber }
 
-class operator _NULLABLE_NUMBER_.Negative(_a: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
+class operator TdzNullableNumber.Negative(_a: TdzNullableNumber): TdzNullableNumber;
 begin
   Result := -_a.Value;
 end;
 
-class operator _NULLABLE_NUMBER_.Positive(_a: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
+class operator TdzNullableNumber.Positive(_a: TdzNullableNumber): TdzNullableNumber;
 begin
   Result := _a.Value;
 end;
 
-class operator _NULLABLE_NUMBER_.Inc(_a: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
+class operator TdzNullableNumber.Inc(_a: TdzNullableNumber): TdzNullableNumber;
 begin
   Result := _a.Value + 1;
 end;
 
-class operator _NULLABLE_NUMBER_.Dec(_a: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
+class operator TdzNullableNumber.Dec(_a: TdzNullableNumber): TdzNullableNumber;
 begin
   Result := _a.Value - 1;
 end;
 
-class operator _NULLABLE_NUMBER_.Add(_a, _b: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
+class operator TdzNullableNumber.Add(_a, _b: TdzNullableNumber): TdzNullableNumber;
 begin
   if not _a.IsValid or not _b.IsValid then
     raise EInvalidValue.Create(_('Cannot add two nullable values if one of them is not valid.'));
   Result := _a.Value + _b.Value;
 end;
 
-class operator _NULLABLE_NUMBER_.Add(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_TYPE_BASE_): _NULLABLE_NUMBER_;
+class operator TdzNullableNumber.Add(_a: TdzNullableNumber; _b: _NULLABLE_TYPE_BASE_): TdzNullableNumber;
 begin
   if not _a.IsValid then
     raise EInvalidValue.Create(_('Cannot add to a nullable value if it is not valid'));
   Result := _a.Value + _b;
 end;
 
-class operator _NULLABLE_NUMBER_.Add(_a: _NULLABLE_TYPE_BASE_; _b: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
+class operator TdzNullableNumber.Add(_a: _NULLABLE_TYPE_BASE_; _b: TdzNullableNumber): TdzNullableNumber;
 begin
   if not _b.IsValid then
     raise EInvalidValue.Create(_('Cannot add to a nullable value if it is not valid'));
   Result := _a + _b.Value;
 end;
 
-class operator _NULLABLE_NUMBER_.Subtract(_a, _b: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
+class operator TdzNullableNumber.Subtract(_a, _b: TdzNullableNumber): TdzNullableNumber;
 begin
   if not _a.IsValid or not _b.IsValid then
     raise EInvalidValue.Create(_('Cannot subtract two nullable values if one of them is not valid'));
   Result := _a.Value - _b.Value;
 end;
 
-class operator _NULLABLE_NUMBER_.Subtract(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_TYPE_BASE_): _NULLABLE_NUMBER_;
+class operator TdzNullableNumber.Subtract(_a: TdzNullableNumber; _b: _NULLABLE_TYPE_BASE_): TdzNullableNumber;
 begin
   if not _a.IsValid then
     raise EInvalidValue.Create(_('Cannot subtract from a nullable value if it is not valid'));
   Result := _a.Value - _b;
 end;
 
-class operator _NULLABLE_NUMBER_.Subtract(_a: _NULLABLE_TYPE_BASE_; _b: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
+class operator TdzNullableNumber.Subtract(_a: _NULLABLE_TYPE_BASE_; _b: TdzNullableNumber): TdzNullableNumber;
 begin
   if not _b.IsValid then
     raise EInvalidValue.Create(_('Cannot subtract from a value if it is not valid'));
   Result := _a - _b.Value;
 end;
 
-class operator _NULLABLE_NUMBER_.Multiply(_a, _b: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
+class operator TdzNullableNumber.Multiply(_a, _b: TdzNullableNumber): TdzNullableNumber;
 begin
   if not _a.IsValid or not _b.IsValid then
     raise EInvalidValue.Create(_('Cannot multiply two nullable values if one of them is not valid'));
   Result := _a.Value * _b.Value;
 end;
 
-class operator _NULLABLE_NUMBER_.Multiply(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_TYPE_BASE_): _NULLABLE_NUMBER_;
+class operator TdzNullableNumber.Multiply(_a: TdzNullableNumber; _b: _NULLABLE_TYPE_BASE_): TdzNullableNumber;
 begin
   if not _a.IsValid then
     raise EInvalidValue.Create(_('Cannot multiply a nullable value if it is not valid'));
   Result := _a.Value * _b;
 end;
 
-class operator _NULLABLE_NUMBER_.Multiply(_a: _NULLABLE_TYPE_BASE_; _b: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
+class operator TdzNullableNumber.Multiply(_a: _NULLABLE_TYPE_BASE_; _b: TdzNullableNumber): TdzNullableNumber;
 begin
   if not _b.IsValid then
     raise EInvalidValue.Create(_('Cannot multiply a nullable value if it is not valid'));
   Result := _a * _b.Value;
 end;
 
-class operator _NULLABLE_NUMBER_.Divide(_a, _b: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
+class operator TdzNullableNumber.Divide(_a, _b: TdzNullableNumber): TdzNullableNumber;
 var
   Res: _NULLABLE_TYPE_BASE_;
 begin
@@ -206,7 +208,7 @@ begin
   Result := Res;
 end;
 
-class operator _NULLABLE_NUMBER_.Divide(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_TYPE_BASE_): _NULLABLE_NUMBER_;
+class operator TdzNullableNumber.Divide(_a: TdzNullableNumber; _b: _NULLABLE_TYPE_BASE_): TdzNullableNumber;
 var
   Res: _NULLABLE_TYPE_BASE_;
 begin
@@ -216,7 +218,7 @@ begin
   Result := Res;
 end;
 
-class operator _NULLABLE_NUMBER_.Divide(_a: _NULLABLE_TYPE_BASE_; _b: _NULLABLE_NUMBER_): _NULLABLE_NUMBER_;
+class operator TdzNullableNumber.Divide(_a: _NULLABLE_TYPE_BASE_; _b: TdzNullableNumber): TdzNullableNumber;
 var
   Res: _NULLABLE_TYPE_BASE_;
 begin
@@ -226,7 +228,7 @@ begin
   Result := Res;
 end;
 
-procedure _NULLABLE_NUMBER_.AssignStr(const _s: string; const _FormatSettings: TFormatSettings);
+procedure TdzNullableNumber.AssignStr(const _s: string; const _FormatSettings: TFormatSettings);
 begin
   if SameText('NULL', _s) then
     FIsValid := nil
@@ -236,7 +238,7 @@ begin
     FIsValid := nil;
 end;
 
-procedure _NULLABLE_NUMBER_.AssignStr(const _s: string; _DecSeparator: Char);
+procedure TdzNullableNumber.AssignStr(const _s: string; _DecSeparator: Char);
 var
   FormatSettings: TFormatSettings;
 begin
@@ -255,12 +257,12 @@ begin
   end;
 end;
 
-procedure _NULLABLE_NUMBER_.AssignStr(const _s: string);
+procedure TdzNullableNumber.AssignStr(const _s: string);
 begin
   AssignStr(_s, UserLocaleFormatSettings^);
 end;
 
-class operator _NULLABLE_NUMBER_.Explicit(const _s: string): _NULLABLE_NUMBER_;
+class operator TdzNullableNumber.Explicit(const _s: string): TdzNullableNumber;
 begin
   if TryStrToNumber(_s, Result.FValue, UserLocaleFormatSettings^) then
     Result.FIsValid := GetNullableTypesFlagInterface
@@ -268,7 +270,7 @@ begin
     Result.FIsValid := nil;
 end;
 
-class operator _NULLABLE_NUMBER_.Explicit(_a: _NULLABLE_NUMBER_): string;
+class operator TdzNullableNumber.Explicit(_a: TdzNullableNumber): string;
 begin
   if _a.IsValid then
     Result := NumberToStr(_a.Value)
@@ -276,28 +278,28 @@ begin
     Result := '';
 end;
 
-class function _NULLABLE_NUMBER_.FromVariant(_a: Variant): _NULLABLE_NUMBER_;
+class function TdzNullableNumber.FromVariant(_a: Variant): TdzNullableNumber;
 begin
   Result.AssignVariant(_a);
 end;
 
-class function _NULLABLE_NUMBER_.FromStr(const _s: string): _NULLABLE_NUMBER_;
+class function TdzNullableNumber.FromStr(const _s: string): TdzNullableNumber;
 begin
   Result.AssignStr(_s);
 end;
 
-class operator _NULLABLE_NUMBER_.Implicit(_Value: _NULLABLE_TYPE_BASE_): _NULLABLE_NUMBER_;
+class operator TdzNullableNumber.Implicit(_Value: _NULLABLE_TYPE_BASE_): TdzNullableNumber;
 begin
   Result.FValue := _Value;
   Result.FIsValid := GetNullableTypesFlagInterface;
 end;
 
-class operator _NULLABLE_NUMBER_.Implicit(_a: _NULLABLE_NUMBER_): _NULLABLE_TYPE_BASE_;
+class operator TdzNullableNumber.Implicit(_a: TdzNullableNumber): _NULLABLE_TYPE_BASE_;
 begin
   Result := _a.Value;
 end;
 
-procedure _NULLABLE_NUMBER_.AssignVariant(_a: Variant);
+procedure TdzNullableNumber.AssignVariant(_a: Variant);
 begin
   if TryVar2Number(_a, FValue) then
     FIsValid := GetNullableTypesFlagInterface
@@ -305,7 +307,7 @@ begin
     FIsValid := nil;
 end;
 
-class function _NULLABLE_NUMBER_.Compare(_a, _b: _NULLABLE_NUMBER_): Integer;
+class function TdzNullableNumber.Compare(_a, _b: TdzNullableNumber): Integer;
 begin
   if _a.IsValid then begin
     if _b.IsValid then
@@ -318,12 +320,27 @@ begin
     Result := -1;
 end;
 
-function _NULLABLE_NUMBER_.Dump: string;
+class function TdzNullableNumber.IsSame(_a, _b: TdzNullableNumber): Boolean;
+begin
+  if _a.IsValid then begin
+    if _b.IsValid then
+      Result := (_a.FValue = _b.FValue)
+    else
+      Result := False
+  end else begin
+    if _b.IsValid then
+      Result := False
+    else
+      Result := True;
+  end;
+end;
+
+function TdzNullableNumber.Dump: string;
 begin
   Result := ToString('<invalid>'); // do not translate
 end;
 
-function _NULLABLE_NUMBER_.ToString(const _Default: string): string;
+function TdzNullableNumber.ToString(const _Default: string): string;
 begin
   if IsValid then
     Result := NumberToStr(FValue)
@@ -331,22 +348,22 @@ begin
     Result := _Default;
 end;
 
-function _NULLABLE_NUMBER_.Abs: _NULLABLE_TYPE_BASE_;
+function TdzNullableNumber.Abs: _NULLABLE_TYPE_BASE_;
 begin
   Result := System.Abs(Value);
 end;
 
-function _NULLABLE_NUMBER_.Format(const _FormatStr: string): string;
+function TdzNullableNumber.Format(const _FormatStr: string): string;
 begin
   Result := SysUtils.Format(_FormatStr, [Value]);
 end;
 
-function _NULLABLE_NUMBER_.Format(const _FormatStr: string; const _Settings: TFormatSettings): string;
+function TdzNullableNumber.Format(const _FormatStr: string; const _Settings: TFormatSettings): string;
 begin
   Result := SysUtils.Format(_FormatStr, [Value], _Settings);
 end;
 
-function _NULLABLE_NUMBER_.ToVariant: Variant;
+function TdzNullableNumber.ToVariant: Variant;
 begin
   if IsValid then
     Result := Value
@@ -354,74 +371,74 @@ begin
     Result := Variants.Null;
 end;
 
-function _NULLABLE_NUMBER_.GetValue(out _Value: _NULLABLE_TYPE_BASE_): Boolean;
+function TdzNullableNumber.GetValue(out _Value: _NULLABLE_TYPE_BASE_): Boolean;
 begin
   Result := IsValid;
   if Result then
     _Value := FValue;
 end;
 
-procedure _NULLABLE_NUMBER_.Invalidate;
+procedure TdzNullableNumber.Invalidate;
 begin
   FIsValid := nil;
 end;
 
-function _NULLABLE_NUMBER_.IsValid: Boolean;
+function TdzNullableNumber.IsValid: Boolean;
 begin
   Result := FIsValid <> nil;
 end;
 
-class operator _NULLABLE_NUMBER_.LessThan(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_TYPE_BASE_): Boolean;
+class operator TdzNullableNumber.LessThan(_a: TdzNullableNumber; _b: _NULLABLE_TYPE_BASE_): Boolean;
 begin
   Result := CompareValue(_a.Value, _b) < 0;
 end;
 
-class operator _NULLABLE_NUMBER_.LessThanOrEqual(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_TYPE_BASE_): Boolean;
+class operator TdzNullableNumber.LessThanOrEqual(_a: TdzNullableNumber; _b: _NULLABLE_TYPE_BASE_): Boolean;
 begin
   Result := CompareValue(_a.Value, _b) <= 0;
 end;
 
-class operator _NULLABLE_NUMBER_.GreaterThan(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_TYPE_BASE_): Boolean;
+class operator TdzNullableNumber.GreaterThan(_a: TdzNullableNumber; _b: _NULLABLE_TYPE_BASE_): Boolean;
 begin
   Result := CompareValue(_a.Value, _b) > 0;
 end;
 
-class operator _NULLABLE_NUMBER_.GreaterThanOrEqual(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_TYPE_BASE_): Boolean;
+class operator TdzNullableNumber.GreaterThanOrEqual(_a: TdzNullableNumber; _b: _NULLABLE_TYPE_BASE_): Boolean;
 begin
   Result := CompareValue(_a.Value, _b) >= 0;
 end;
 
-class operator _NULLABLE_NUMBER_.Equal(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_TYPE_BASE_): Boolean;
+class operator TdzNullableNumber.Equal(_a: TdzNullableNumber; _b: _NULLABLE_TYPE_BASE_): Boolean;
 begin
   Result := SameValue(_a.Value, _b);
 end;
 
-class operator _NULLABLE_NUMBER_.NotEqual(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_TYPE_BASE_): Boolean;
+class operator TdzNullableNumber.NotEqual(_a: TdzNullableNumber; _b: _NULLABLE_TYPE_BASE_): Boolean;
 begin
   Result := not SameValue(_a.Value, _b);
 end;
 
-class operator _NULLABLE_NUMBER_.LessThan(_a, _b: _NULLABLE_NUMBER_): Boolean;
+class operator TdzNullableNumber.LessThan(_a, _b: TdzNullableNumber): Boolean;
 begin
   Result := (Compare(_a, _b) < 0);
 end;
 
-class operator _NULLABLE_NUMBER_.LessThanOrEqual(_a, _b: _NULLABLE_NUMBER_): Boolean;
+class operator TdzNullableNumber.LessThanOrEqual(_a, _b: TdzNullableNumber): Boolean;
 begin
   Result := (Compare(_a, _b) <= 0);
 end;
 
-class operator _NULLABLE_NUMBER_.GreaterThan(_a, _b: _NULLABLE_NUMBER_): Boolean;
+class operator TdzNullableNumber.GreaterThan(_a, _b: TdzNullableNumber): Boolean;
 begin
   Result := (Compare(_a, _b) > 0);
 end;
 
-class operator _NULLABLE_NUMBER_.GreaterThanOrEqual(_a, _b: _NULLABLE_NUMBER_): Boolean;
+class operator TdzNullableNumber.GreaterThanOrEqual(_a, _b: TdzNullableNumber): Boolean;
 begin
   Result := (Compare(_a, _b) >= 0);
 end;
 
-class operator _NULLABLE_NUMBER_.Equal(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_NUMBER_): Boolean;
+class operator TdzNullableNumber.Equal(_a: TdzNullableNumber; _b: TdzNullableNumber): Boolean;
 begin
   if _a.IsValid then begin
     if _b.IsValid then begin
@@ -442,17 +459,17 @@ begin
   end;
 end;
 
-class operator _NULLABLE_NUMBER_.NotEqual(_a: _NULLABLE_NUMBER_; _b: _NULLABLE_NUMBER_): Boolean;
+class operator TdzNullableNumber.NotEqual(_a: TdzNullableNumber; _b: TdzNullableNumber): Boolean;
 begin
   Result := not (_a = _b);
 end;
 
-class function _NULLABLE_NUMBER_.Invalid: _NULLABLE_NUMBER_;
+class function TdzNullableNumber.Invalid: TdzNullableNumber;
 begin
   Result.Invalidate;
 end;
 
-function _NULLABLE_NUMBER_.Value: _NULLABLE_TYPE_BASE_;
+function TdzNullableNumber.Value: _NULLABLE_TYPE_BASE_;
 begin
   if not IsValid then
     raise EInvalidValue.CreateFmt(_('%s is invalid'), [_NULLABLE_TYPE_NAME_]);

@@ -10,7 +10,7 @@ uses
   Classes,
   Controls,
   ImgList,
-{$IFDEF IDE_IS_HIDPI_AWARE}
+{$IFDEF GX_IDE_IS_HIDPI_AWARE}
   u_dzDpiScaleUtils,
 {$ENDIF}
   ImageList;
@@ -20,7 +20,7 @@ type
     Images: TImageList;
     DisabledImages: TImageList;
   private
-{$IFDEF IDE_IS_HIDPI_AWARE}
+{$IFDEF GX_IDE_IS_HIDPI_AWARE}
     FImagesScaler: TImageListScaler;
     FDisabledScaler: TImageListScaler;
 {$ENDIF}
@@ -57,6 +57,9 @@ const
 
   ImageIndexInterface = 86;
 
+  ImageIndexMoveDown  = 92;
+  ImageIndexMoveUp    = 93;
+
 function GetSharedImageList: TImageList;
 
 implementation
@@ -78,7 +81,7 @@ end;
 
 function TdmSharedImages.GetScaledDisabledImages(_DPI: Integer): TImageList;
 begin
-{$IFDEF IDE_IS_HIDPI_AWARE}
+{$IFDEF GX_IDE_IS_HIDPI_AWARE}
   if not Assigned(FDisabledScaler) then
     FDisabledScaler := TImageListScaler.Create(Self, DisabledImages);
   Result := FDisabledScaler.GetScaledList(_DPI);
@@ -89,7 +92,7 @@ end;
 
 function TdmSharedImages.GetScaledImages(_DPI: Integer): TImageList;
 begin
-{$IFDEF IDE_IS_HIDPI_AWARE}
+{$IFDEF GX_IDE_IS_HIDPI_AWARE}
   if not Assigned(FImagesScaler) then
     FImagesScaler := TImageListScaler.Create(Self, Images);
   Result := FImagesScaler.GetScaledList(_DPI);

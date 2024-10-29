@@ -16,7 +16,7 @@ uses
   TypInfo,
   u_dzTranslator;
 
-  // I am not going to proved support for Variant properties here. I hate Variants.
+// I am not going to provide support for Variant properties here. I hate Variants.
 
 const
   ///<summary> property types that can be converted to string </summary>
@@ -48,6 +48,7 @@ function TryGetFloatProperty(_Instance: TObject; const _Name: string; out _Value
 function TryGetIntProperty(_Instance: TObject; const _Name: string; out _Value: Integer): Boolean;
 function TrySetIntProperty(_Instance: TObject; const _Name: string; _Value: Integer): Boolean;
 function TryGetBoolProperty(_Instance: TObject; const _Name: string; out _Value: Boolean): Boolean;
+function TrySetBoolProperty(_Instance: TObject; const _Name: string; _Value: Boolean): Boolean;
 ///<summary>
 /// Reads an enum type property with type checking.
 /// @param TypeInfo is the PTypeInfo for the enum, pass TypeInfo(YourEnumType) here </summary>
@@ -61,14 +62,17 @@ function TryGetEnumProperty(_Instance: TObject; const _Name: string;
 {$IFDEF SUPPORTS_EXTENDED}
 function GetFloatProperty(_Instance: TObject; const _Name: string; const _Default: Extended): Extended; overload;
 function GetFloatProperty(_Instance: TObject; const _Name: string): Extended; overload;
+function TrySetFloatProperty(_Instance: TObject; const _Name: string; const _Value: Extended): Boolean; overload;
 {$ELSE}
 function GetFloatProperty(_Instance: TObject; const _Name: string; const _Default: Double): Double; overload;
 function GetFloatProperty(_Instance: TObject; const _Name: string): Double; overload;
+function TrySetFloatProperty(_Instance: TObject; const _Name: string; const _Value: Double): Boolean; overload;
 {$ENDIF SUPPORTS_EXTENDED}
 
 function TryGetObjectProperty(_Instance: TObject; const _Name: string; out _Value: TObject): Boolean;
 function GetObjectProperty(_Instance: TObject; const _Name: string; _Default: TObject): TObject; overload;
 function GetObjectProperty(_Instance: TObject; const _Name: string): TObject; overload;
+function TrySetObjectProperty(_Instance: TObject; const _Name: string; _Value: TObject): Boolean;
 
 function TryGetEventProperty(_Instance: TObject; const _Name: string; out _Value: TMethod): Boolean;
 function GetEventProperty(_Instance: TObject; const _Name: string; _Default: TMethod): TMethod; overload;
@@ -84,6 +88,9 @@ procedure GetEnumValues(_Instance: TObject; const _Name: string; _sl: TStrings);
 implementation
 
 {$IFDEF DELPHI2007_UP}
+
+uses
+  u_dzTypes;
 
 function _(const _s: string): string; inline;
 begin
@@ -156,6 +163,17 @@ begin
   if not TryGetFloatProperty(_Instance, _Name, Result) then
     raise EPropertyError.CreateFmt(_('Float property %s not found.'), [_Name]);
 end;
+
+function TrySetFloatProperty(_Instance: TObject; const _Name: string; const _Value: Extended): Boolean;
+var
+  PropInfo: PPropInfo;
+begin
+  PropInfo := GetPropInfo(_Instance.ClassInfo, _Name);
+  Result := Assigned(PropInfo) and (PropInfo.PropType^.Kind in FLOAT_PROPERTY_TYPES);
+  if Result then
+    SetPropValue(_Instance, PropInfo, _Value);
+end;
+
 {$ELSE}
 function GetFloatProperty(_Instance: TObject; const _Name: string; const _Default: Double): Double;
 begin
@@ -167,6 +185,16 @@ function GetFloatProperty(_Instance: TObject; const _Name: string): Double;
 begin
   if not TryGetFloatProperty(_Instance, _Name, Result) then
     raise EPropertyError.CreateFmt(_('Float property %s not found.'), [_Name]);
+end;
+
+function TrySetFloatProperty(_Instance: TObject; const _Name: string; const _Value: Double): Boolean;
+var
+  PropInfo: PPropInfo;
+begin
+  PropInfo := GetPropInfo(_Instance.ClassInfo, _Name);
+  Result := Assigned(PropInfo) and (PropInfo.PropType^.Kind in FLOAT_PROPERTY_TYPES);
+  if Result then
+    SetPropValue(_Instance, PropInfo, _Value);
 end;
 {$ENDIF}
 
@@ -199,6 +227,16 @@ begin
     and (GetTypeData(PropInfo.PropType^)^.BaseType^ = TypeInfo(Boolean));
   if Result then
     _Value := Boolean(GetOrdProp(_Instance, PropInfo));
+end;
+
+function TrySetBoolProperty(_Instance: TObject; const _Name: string; _Value: Boolean): Boolean;
+var
+  PropInfo: PPropInfo;
+begin
+  PropInfo := GetPropInfo(_Instance.ClassInfo, _Name);
+  Result := Assigned(PropInfo) and (PropInfo.PropType^.Kind = tkEnumeration);
+  if Result then
+    SetOrdProp(_Instance, PropInfo, Ord(_Value));
 end;
 
 function TryGetEnumProperty(_Instance: TObject; const _Name: string; const _TypeInfo: PTypeInfo;
@@ -243,6 +281,17 @@ function GetObjectProperty(_Instance: TObject; const _Name: string): TObject;
 begin
   if not TryGetObjectProperty(_Instance, _Name, Result) then
     raise EPropertyError.CreateFmt(_('Object property %s not found.'), [_Name]);
+end;
+
+function TrySetObjectProperty(_Instance: TObject; const _Name: string; _Value: TObject): Boolean;
+var
+  PropInfo: PPropInfo;
+begin
+  PropInfo := GetPropInfo(_Instance.ClassInfo, _Name);
+  Result := Assigned(PropInfo) and (PropInfo.PropType^.Kind = tkClass);
+  if Result then begin
+    SetObjectProp(_Instance, PropInfo, _Value);
+  end;
 end;
 
 function TryGetEventProperty(_Instance: TObject; const _Name: string; out _Value: TMethod): Boolean;
@@ -318,3 +367,4 @@ end;
 {$ENDIF DELPHI2007_UP}
 
 end.
+

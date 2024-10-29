@@ -13,8 +13,10 @@ unit u_dzDateUtils;
 interface
 
 uses
+  Windows, // for inlining
   SysUtils,
   u_dzTranslator,
+  u_dzStringUtils, // for inlining
   u_dzTypes;
 
 type
@@ -161,8 +163,7 @@ implementation
 uses
   SysConst,
   StrUtils,
-  DateUtils,
-  u_dzStringUtils;
+  DateUtils;
 
 function _(const _s: string): string;
 {$IFDEF SUPPORTS_INLINE}

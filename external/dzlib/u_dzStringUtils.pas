@@ -56,6 +56,12 @@ function CharInSet(_c: Char; const _CharSet: TSysCharSet): Boolean;
 {$ENDIF SUPPORTS_UNICODE}
 
 ///<summary>
+/// Cuts off the string at the first #0 and returns the new length </summary>
+function StrTrimNul(var _s: AnsiString): Integer;
+///<summary> use StrTrimNul </summary>
+function StrTrimZero(var _s: AnsiString): Integer; deprecated; // use StrTrimNul
+
+///<summary>
 /// Converts an array of byte to a string, interpreting the bytes as AnsiString </summary>
 function ByteArrayToString(const _buf: array of Byte): string;
 ///<summary>
@@ -309,7 +315,7 @@ function CenterStr(const _s: string; _MaxLen: Integer): string;
 
 ///<summary>
 /// @returns the sub string starting from position Start </summary>
-{$IFDEF SUPPORTS_UNICODE_STRING}
+{$IFDEF SUPPORTS_UNICODE}
 function TailStr(const _s: AnsiString; _Start: Integer): AnsiString; overload;
 {$ENDIF}
 function TailStr(const _s: string; _Start: Integer): string; overload;
@@ -347,7 +353,13 @@ function ReplaceChars(const _s: string; _Search: TCharSet; const _Replace: strin
 ///<summary>
 /// Replaces all control characters (ord(c) < ord(' ')) with ReplaceChar.
 /// If RemoveDuplicates is true, a sequence of control characters is replaced by a single ReplaceChar. </summary>
-function ReplaceCtrlChars(const _s: string; _ReplaceChar: Char; _RemoveDuplicates: Boolean = True): string;
+function ReplaceCtrlChars(const _s: string; _ReplaceChar: Char; _RemoveDuplicates: Boolean = True): string; overload;
+{$IFDEF SUPPORTS_UNICODE}
+///<summary>
+/// Replaces all control characters (ord(c) < ord(' ')) with ReplaceChar.
+/// If RemoveDuplicates is true, a sequence of control characters is replaced by a single ReplaceChar. </summary>
+function ReplaceCtrlChars(const _s: AnsiString; _ReplaceChar: AnsiChar; _RemoveDuplicates: Boolean = True): AnsiString; overload;
+{$ENDIF SUPPORTS_UNICODE}
 
 ///<summary>
 /// Replaces all control characters (ord(c) < ord(' ')) with Spaces.
@@ -382,6 +394,35 @@ function nthWord(const _s: string; _WordNo: Integer; _Delimiter: TCharSet): stri
 ///<summary>
 /// @returns the Nth character of S or ' ' if S has less than N charaters. </summary>
 function nthCharOf(const _s: string; _n: Integer): Char;
+
+{$IFDEF SUPPORTS_UNICODE}
+///<summary>
+/// Extract the first word of S using the given delimiters. The word is deleted from S.
+/// See also ExtractStr.
+/// NOTE: Duplicate delimiters are ignored, so 'abc  def' will be split into two words (which you
+///       would expect), but also 'abc'#9#9'def' is two words (which you might not expect) </summary>
+function ExtractFirstWord(var _s: AnsiString; const _Delimiter: AnsiString): AnsiString; overload;
+///<summary>
+/// Extract the first word of S using the given delimiters. The word is deleted from S.
+/// See also ExtractStr.
+/// NOTE: Duplicate delimiters are ignored, so 'abc  def' will be split into two words (which you
+///       would expect), but also 'abc'#9#9'def' is two words (which you might not expect) </summary>
+function ExtractFirstWord(var _s: AnsiString; _Delimiter: TCharSet): AnsiString; overload;
+///<summary>
+/// Extract the first word of S using the given delimiters. The word is deleted from S.
+/// See also ExtractStr.
+/// NOTE: Duplicate delimiters are ignored, so 'abc  def' will be split into two words (which you
+///       would expect), but also 'abc'#9#9'def' is two words (which you might not expect)
+/// @returns true, if a word could be extracted, false otherwise </summary>
+function ExtractFirstWord(var _s: AnsiString; const _Delimiter: AnsiString; out _FirstWord: AnsiString): Boolean; overload;
+///<summary>
+/// Extract the first word of S using the given delimiters. The word is deleted from S.
+/// See also ExtractStr.
+/// NOTE: Duplicate delimiters are ignored, so 'abc  def' will be split into two words (which you
+///       would expect), but also 'abc'#9#9'def' is two words (which you might not expect)
+/// @returns true, if a word could be extracted, false otherwise </summary>
+function ExtractFirstWord(var _s: AnsiString; _Delimiter: TCharSet; out _FirstWord: AnsiString): Boolean; overload;
+{$ENDIF SUPPORTS_UNICODE}
 
 ///<summary>
 /// Extract the first word of S using the given delimiters. The word is deleted from S.
@@ -568,23 +609,29 @@ begin
 end;
 
 function nthWordStartAndEnd(const _s: string; _WordNo: Integer;
-  const _Delimiter: AnsiString; out _Start, _Ende: Integer): Boolean; overload;
+  const _Delimiter: string; out _Start, _Ende: Integer): Boolean; overload;
 var
   i: Integer;
   DelimiterSet: TCharSet;
 begin
   DelimiterSet := [];
   for i := 1 to Length(_Delimiter) do
-    Include(DelimiterSet, _Delimiter[i]);
+    Include(DelimiterSet, AnsiChar(_Delimiter[i]));
   Result := nthWordStartAndEnd(_s, _WordNo, DelimiterSet, _Start, _Ende);
 end;
 
 {$IFDEF SUPPORTS_UNICODE}
 
-function nthWordStartAndEnd(const _s: string; _WordNo: Integer;
-  const _Delimiter: string; out _Start, _Ende: Integer): Boolean; overload;
+function nthWordStartAndEnd(const _s: AnsiString; _WordNo: Integer;
+  const _Delimiter: AnsiString; out _Start, _Ende: Integer): Boolean; overload;
 begin
-  Result := nthWordStartAndEnd(_s, _WordNo, AnsiString(_Delimiter), _Start, _Ende);
+  Result := nthWordStartAndEnd(string(_s), _WordNo, string(_Delimiter), _Start, _Ende);
+end;
+
+function nthWordStartAndEnd(const _s: AnsiString; _WordNo: Integer;
+  const _Delimiter: TCharSet; out _Start, _Ende: Integer): Boolean; overload;
+begin
+  Result := nthWordStartAndEnd(string(_s), _WordNo, _Delimiter, _Start, _Ende);
 end;
 {$ENDIF SUPPORTS_UNICODE}
 
@@ -645,6 +692,46 @@ begin
     _s := TailStr(_s, Ende + 1);
   end;
 end;
+
+{$IFDEF SUPPORTS_UNICODE}
+function ExtractFirstWord(var _s: AnsiString; _Delimiter: TCharSet): AnsiString;
+begin
+  if not ExtractFirstWord(_s, _Delimiter, Result) then begin // s contained only Delimiters
+    Result := '';
+    _s := '';
+  end;
+end;
+
+function ExtractFirstWord(var _s: AnsiString; const _Delimiter: AnsiString): AnsiString;
+begin
+  if not ExtractFirstWord(_s, _Delimiter, Result) then begin // s contained only Delimiters
+    Result := '';
+    _s := '';
+  end;
+end;
+
+function ExtractFirstWord(var _s: AnsiString; const _Delimiter: AnsiString; out _FirstWord: AnsiString): Boolean;
+var
+  Start, Ende: Integer;
+begin
+  Result := nthWordStartAndEnd(_s, 1, _Delimiter, Start, Ende);
+  if Result then begin
+    _FirstWord := Copy(_s, Start, Ende - Start);
+    _s := TailStr(_s, Ende + 1);
+  end;
+end;
+
+function ExtractFirstWord(var _s: AnsiString; _Delimiter: TCharSet; out _FirstWord: AnsiString): Boolean;
+var
+  Start, Ende: Integer;
+begin
+  Result := nthWordStartAndEnd(_s, 1, _Delimiter, Start, Ende);
+  if Result then begin
+    _FirstWord := Copy(_s, Start, Ende - Start);
+    _s := TailStr(_s, Ende + 1);
+  end;
+end;
+{$ENDIF SUPPORTS_UNICODE}
 
 function ExtractFirstN(var _s: string; _n: Integer): string;
 begin
@@ -775,6 +862,13 @@ begin
     end else
       Dup := False;
 end;
+
+{$IFDEF SUPPORTS_UNICODE}
+function ReplaceCtrlChars(const _s: AnsiString; _ReplaceChar: AnsiChar; _RemoveDuplicates: Boolean = True): AnsiString;
+begin
+  Result := AnsiString(ReplaceCtrlChars(string(_s), Char(_ReplaceChar), _RemoveDuplicates));
+end;
+{$ENDIF SUPPORTS_UNICODE}
 
 function ContainsOnlyCharsFrom(const _s: string; _ValidChars: TCharSet): Boolean;
 var
@@ -1195,8 +1289,7 @@ begin
     Result := Copy(_s, _Start, Length(_s) - _Start + 1);
 end;
 
-{$IFDEF SUPPORTS_UNICODE_STRING}
-
+{$IFDEF SUPPORTS_UNICODE}
 function TailStr(const _s: AnsiString; _Start: Integer): AnsiString; overload;
 begin
   if _Start > Length(_s) then
@@ -1521,6 +1614,25 @@ var
 begin
   s := PAnsiChar(@_buf[0]);
   Result := string(s);
+end;
+
+function StrTrimNul(var _s: AnsiString): Integer;
+var
+  i: Integer;
+begin
+  Result := Length(_s);
+  for i := 1 to Result do begin
+    if _s[i] = #0 then begin
+      Result := i - 1;
+      SetLength(_s, Result);
+      Exit; //==>
+    end;
+  end;
+end;
+
+function StrTrimZero(var _s: AnsiString): Integer;
+begin
+  Result := StrTrimNul(_s);
 end;
 
 function IsStringIn(const _s: string; const _Arr: array of string; out _Idx: Integer): Boolean;

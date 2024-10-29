@@ -13,22 +13,24 @@ interface
 uses
   SysUtils,
   u_dzTranslator,
+  u_dzNullableTypesUtils,
   u_dzNullableExtended;
 
 type
   TNullableTimespan = record
   private
-    FIsValid: IInterface;
+    FIsValid: INullableTypesFlagInterface;
     ///<summary>
-    /// Note: This used to be a double, encoded like in TDateTime but since that turned out
-    ///       to have rather severe rounding errors I now use an Int64 each for days and
-    ///       Microseconds. The actual timespan is always the sum of both.
-    ///       They should always have the same sign. </summary>
+    /// @NOTE: This used to be a double, encoded like in TDateTime but since that turned out
+    ///        to have rather severe rounding errors I now use an Int64 each for days and
+    ///        Microseconds. The actual timespan is always the sum of both.
+    ///        They should always have the same sign. </summary>
     FFullDays: Int64;
     FMicroSeconds: Int64;
     procedure CheckIsValid;
     procedure SetDaysAndMicroseconds(_FullDays: Int64; _MicroSeconds: Int64); inline;
   public
+    function Dump: string;
     procedure Invalidate;
     function IsValid: Boolean;
     function InDays: Double;
@@ -75,23 +77,33 @@ type
     function GetMilliSeconds(out _MilliSeconds: Integer): Boolean; overload; deprecated; // use TryGetMillSeconds
     procedure GetDaysHoursMinutesSeconds(out _Days, _Hours, _Minutes, _Seconds: Int64); overload;
     procedure GetDaysHoursMinutesSeconds(out _Days, _Hours, _Minutes: Int64; out _Seconds: Double); overload;
-    ///<summary> Generates a string of the form 'hh<separator>mm'
-    ///          @param Separator is used to separate the hour and minute part,
-    ///                           if Separator is #0, no separator is used.
-    ///          @param NullValue is the value used if the TNullableTimespan value is not valid. </summary>
+    ///<summary>
+    /// Generates a string of the form 'hh<separator>mm'
+    /// @param Separator is used to separate the hour and minute part,
+    ///                  if Separator is #0, no separator will be used.
+    /// @param NullValue is the value used if the TNullableTimespan value is not valid. </summary>
     function ToHHmm(_Separator: Char = #0; const _NullValue: string = ''): string;
-    ///<summary> Converts the value to a string representation of InHours with the given
-    ///          number of decimals. Returns an NullValue, if invalid.</summary>
+    ///<summary>
+    /// Converts the value to a string representation of InHours with the given
+    /// number of decimals. Returns NullValue, if invalid.</summary>
     function ToHourStr(_Decimals: Integer = 1; const _NullValue: string = ''): string;
-    function ForDisplay: string;
-    ///<summary> Calculates the value from the given Days, Hours, Minutes, Seconds and
-    ///          Milliseconds. All these values can be higher than the usual maximum value
-    ///          eg. you could passs 26 hours and 100 seconds and still get a valid
-    ///          result of 1 day, 2 hours, 1 Minute and 40 seconds.
-    ///          Note: you cannot assign month's or years because they vary in length </summary>
+    ///<summary>
+    /// Generates a string for displaying the value.
+    /// @param Full defines whether the string should only use the two most significant values (False)
+    ///        or all values (True). Defaults to False.
+    ///        Most significatn means that it will contain the days and hours, if days is > 0,
+    ///        hours and minutes if hours > 0, minutes and seconds otherwise. </summary>
+    function ForDisplay(_Full: Boolean = False): string;
+    ///<summary>
+    /// Calculates the value from the given Days, Hours, Minutes, Seconds and Milliseconds.
+    /// All these values can be higher than the usual maximum value e.g. you could passs
+    /// 26 hours and 100 seconds and still get a valid esult of 1 day, 2 hours, 1 Minute
+    /// and 40 seconds.
+    /// @NOTE: you cannot assign month's or years because they vary in length </summary>
     procedure Assign(_Days, _Hours, _Minutes, _Seconds, _MilliSeconds: Word);
-    ///<summary> Note that Days is not a TDateTime value representing a date but just a number
-    ///          of days with possibly fractions. </summary>
+    ///<summary>
+    /// @Note: Days is not a TDateTime value representing a date but just a number
+    /// of days with possibly fractions. </summary>
     procedure AssignDays(_Days: Double);
     procedure AssignHours(_Hours: Extended); overload;
     procedure AssignHours(_Hours: TNullableExtended); overload;
@@ -130,6 +142,7 @@ type
     class operator Multiply(_a: TNullableTimespan; _b: Extended): TNullableTimespan;
 
     class function Zero: TNullableTimespan; static;
+    class function OneDay: TNullableTimespan; static;
     class function FromDays(_Days: Double): TNullableTimespan; static;
     class function FromHours(_Hours: Extended): TNullableTimespan; overload; static;
     class function FromHours(_Hours: TNullableExtended): TNullableTimespan; overload; static;
@@ -151,8 +164,7 @@ uses
   Math,
   DateUtils,
   u_dzConvertUtils,
-  u_dzDateUtils,
-  u_dzNullableTypesUtils;
+  u_dzDateUtils;
 
 function _(const _s: string): string; inline;
 begin
@@ -316,7 +328,7 @@ end;
 procedure TNullableTimespan.Assign(_Days, _Hours, _Minutes, _Seconds, _MilliSeconds: Word);
 begin
   SetDaysAndMicroseconds(_Days, _Hours * MicrosecondsPerHour + _Minutes * MicrosecondsPerMinute
-    + _Seconds + MicrosecondsPerSecond + _MilliSeconds * MicrosecondsPerMillisecond);
+    + _Seconds * MicrosecondsPerSecond + _MilliSeconds * MicrosecondsPerMillisecond);
 end;
 
 function TNullableTimespan.TryGetDays(out _Days: Double): Boolean;
@@ -598,7 +610,7 @@ begin
   Result := Result + _ToAppend;
 end;
 
-function TNullableTimespan.ForDisplay: string;
+function TNullableTimespan.ForDisplay(_Full: Boolean = False): string;
 var
   d: Int64;
   h: Int64;
@@ -606,16 +618,20 @@ var
   s: Double;
 begin
   if IsValid then begin
-    Result := '';
     GetDaysHoursMinutesSeconds(d, h, m, s);
-    if d > 0 then
-      Result := AppendToStr(Result, Format(_('%d days'), [d]));
-    if h > 0 then
-      Result := AppendToStr(Result, Format(_('%d hours'), [h]));
-    if (d = 0) then
-      Result := AppendToStr(Result, Format(_('%d minutes'), [m]));
-    if (d = 0) and (h = 0) then
-      Result := AppendToStr(Result, Format(_('%.2f seconds'), [s]));
+    if _Full then begin
+      Result := Format(_('%d days %d hours %d minutes %.3f seconds'), [d, h, m, s]);
+    end else begin
+      Result := '';
+      if d > 0 then
+        Result := AppendToStr(Result, Format(_('%d days'), [d]));
+      if h > 0 then
+        Result := AppendToStr(Result, Format(_('%d hours'), [h]));
+      if (d = 0) then
+        Result := AppendToStr(Result, Format(_('%d minutes'), [m]));
+      if (d = 0) and (h = 0) then
+        Result := AppendToStr(Result, Format(_('%.3f seconds'), [s]));
+    end;
   end else
     Result := _('invalid');
 end;
@@ -625,9 +641,22 @@ begin
   Result.AssignZero;
 end;
 
+class function TNullableTimespan.OneDay: TNullableTimespan;
+begin
+  Result.AssignDays(1);
+end;
+
 class operator TNullableTimespan.GreaterThanOrEqual(_a, _b: TNullableTimespan): Boolean;
 begin
   Result := not (_a < _b);
+end;
+
+function TNullableTimespan.Dump: string;
+begin
+  if not IsValid then
+    Result := '<invalid>'
+  else
+    Result := ForDisplay(False) + Format('(%d days, %d Microseconds)', [FFullDays, FMicroSeconds]);
 end;
 
 procedure TNullableTimespan.Invalidate;
@@ -718,6 +747,17 @@ begin
   Result := FFullDays * MicrosecondsPerDay + FMicroSeconds;
 end;
 
+{$IFDEF DEBUG}
+procedure AssertDumpAvailable;
+var
+  ts: TNullableTimespan;
+begin
+  ts.Dump;
+end;
+
+initialization
+  AssertDumpAvailable;
+{$ENDIF DEBUG}
 {$ENDIF SUPPORTS_ENHANCED_RECORDS}
 
 end.

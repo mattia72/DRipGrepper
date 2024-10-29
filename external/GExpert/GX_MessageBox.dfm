@@ -2,7 +2,7 @@ object fmGxMessageBox: TfmGxMessageBox
   Left = 501
   Top = 221
   BorderStyle = bsDialog
-  Caption = 'DRipExtensions Message'
+  Caption = 'GExperts Message'
   ClientHeight = 244
   ClientWidth = 409
   Color = clBtnFace

@@ -5,7 +5,8 @@ unit GX_About;
 interface
 
 uses
-  Windows, Classes, Controls, Forms, StdCtrls, ExtCtrls, GX_BaseForm,
+  Windows, Classes, Controls, Forms, StdCtrls, ExtCtrls,
+  GX_BaseForm,
   GX_MemoEscFix;
 
 type
@@ -23,16 +24,18 @@ type
     lblWebPage: TLabel;
     lblProjectLeader: TLabel;
     lblContributors: TLabel;
-    lblErik: TLabel;
+    lblProjectLeaderName: TLabel;
     lblWebSite: TLabel;
     lblPreRelease1: TLabel;
     lblPreRelease2: TLabel;
     mmoBuildDetails: TMemo;
     mmoContributors: TMemo;
     tim_Scroll: TTimer;
+    lblIdeVersion: TLabel;
     procedure btnEmailClick(Sender: TObject);
     procedure tim_ScrollTimer(Sender: TObject);
   private
+    procedure InitFonts;
     procedure InitVersionInfoControls;
   protected
     class function GetVersionStr: string; virtual;
@@ -66,11 +69,13 @@ implementation
 uses
   {$IFOPT D+} GX_DbugIntf, {$ENDIF}
   SysUtils, Graphics, ToolsApi, Messages,
-  GX_GenericUtils, GX_FeedbackWizard, GX_LibrarySource, u_dzVclUtils;
+  u_dzVclUtils,
+  GX_GxUtils,
+  GX_GenericUtils, GX_FeedbackWizard, GX_LibrarySource, GX_GetIdeVersion;
 
 const
-  DefaultBugEmail = 'bugs@gexperts.org';  // Do not localize.
-  DefaultSuggestionEmail = 'suggestions@gexperts.org'; // Do not localize.
+  DefaultBugEmail = 'https://bugs.dummzeuch.de/';  // Do not localize.
+  DefaultSuggestionEmail = 'https://features.dummzeuch.de/'; // Do not localize.
 var
   BuildDetails: string = '';
   BugEmail: string = DefaultBugEmail;
@@ -78,27 +83,26 @@ var
 
 procedure TfmAbout.btnEmailClick(Sender: TObject);
 begin
+{$IF DECLARED(TfmFeedbackWizard)}
   TfmFeedbackWizard.Execute(Application, BugEmail, SuggestionEmail);
   Close;
+{$IFEND}
 end;
 
 constructor TfmAbout.Create(AOwner: TComponent);
 begin
   inherited;
-  SetFontBold(lblContributors);
-  SetFontBold(lblProjectLeader);
-  SetFontBold(lblWebSite);
-  SetFontBold(lblVersion);
-  SetFontBold(lblGExperts);
-  SetFontColor(lblPreRelease1, clRed);
-  SetFontColor(lblPreRelease2, clRed);
-  SetFontSize(lblGExperts, +4);
-  SetFontSize(lblVersion, +4);
-  SetFontUnderline(lblErik);
-  SetFontColor(lblErik, clBlue);
-  SetFontColor(mmoBuildDetails, clRed);
-
+  GxSetDefaultFont(Self);
+  TControl_SetMinConstraints(Self);
   TLabel_MakeUrlLabel(lblWebPage);
+
+{$IF DECLARED(TfmFeedbackWizard)}
+  btnEmail.Visible := True;
+  lblProjectLeaderName.Cursor := crHandPoint;
+  lblProjectLeaderName.OnClick := btnEmailClick;
+{$ELSE}
+  btnEmail.Visible := False;
+{$IFEND}
 
   imgLogo.Picture.Bitmap.LoadFromResourceName(HInstance, 'ABOUT_WIZ');
   InitVersionInfoControls;
@@ -118,11 +122,31 @@ begin
   end;
 
   InitDpiScaler;
+  InitFonts;
+end;
+
+procedure TfmAbout.InitFonts;
+begin
+  SetFontBold(lblContributors);
+  SetFontBold(lblProjectLeader);
+  SetFontBold(lblWebSite);
+  SetFontBold(lblVersion);
+  SetFontBold(lblGExperts);
+  SetFontColor(lblPreRelease1, clRed);
+  SetFontColor(lblPreRelease2, clRed);
+  SetFontSize(lblGExperts, +4);
+  SetFontSize(lblVersion, +2);
+{$IF DECLARED(TfmFeedbackWizard)}
+  SetFontUnderline(lblProjectLeaderName);
+  SetFontColor(lblProjectLeaderName, clBlue);
+{$IFEND}
+  SetFontColor(mmoBuildDetails, clRed);
 end;
 
 procedure TfmAbout.InitVersionInfoControls;
 begin
   lblVersion.Caption := GetVersionStr;
+  lblIdeVersion.Caption := 'running in ' + GetBorlandIdeVersionStr;
 end;
 
 class procedure TfmAbout.SetCustomBuildDetails(const Details: string);
@@ -144,7 +168,7 @@ begin
 
   if mmoContributors.Focused then
     Exit;
-
+    
   Res :=  SendMessage(mmoContributors.Handle, WM_VSCROLL, SB_LINEDOWN, 0);
   if Res = 0 then begin
     // we have reached the end
@@ -176,11 +200,17 @@ var
 begin
   Version.IsValid := False;
   Version := GetFileVersionNumber(ThisDllName, False, False);
-  if Version.IsValid then
-    Result := Format('%d.%d.%d build %d', [Version.Major, Version.Minor, Version.Release, Version.Build])
-  else
+  if Version.IsValid then begin
+    Result := Format('%d.%d.%d', [Version.Major, Version.Minor, Version.Release, Version.Build]);
+    if Version.Build <> 0 then
+      Result := Result + '  build ' + IntToStr(Version.Build);
+  end else
     Result := SUnknown;
+{$IFOPT D+}
+  Result := SVersion + ' ' + Result + ' - Debug';
+{$ELSE}
   Result := SVersion + ' ' + Result;
+{$ENDIF}
 end;
 
 {$IFOPT D+}
@@ -271,25 +301,34 @@ begin
   VerString := GetVersionStr;
   if GExpertsDllMarker = nil then
     VerString := VerString + ' (duplicate, inactive)';
-  AddPluginToSplashScreen(GetSplashIcon, 'DRipExtensions', VerString);
+  AddPluginToSplashScreen(GetSplashIcon, 'GExperts', VerString);
 end;
 
 class function TfmAbout.DoAddToAboutDialog: Integer;
 {$IFDEF GX_VER170_up}
 // Only Delphi 2005 and up support the about box services
-var
-  AboutBoxServices: IOTAAboutBoxServices;
-begin
-  Result := -1;
-  if Supports(BorlandIDEServices, IOTAAboutBoxServices, AboutBoxServices) then
-  begin
-    Result := AboutBoxServices.AddPluginInfo(
-	  'DRipExtensions',
-      'DRipExtensions is a free set of tools built to increase the productivity of Delphi and C++Builder'
+const
+  Description = 'GExperts is a free set of tools built to increase the productivity of Delphi and C++Builder'
       + ' programmers by adding several features to the IDE.'
       + ' GExperts is developed as Open Source software and we encourage user contributions to the project.'#13#10
-      + '(c) Erik Berry and the GExperts Team'#13#10
-      + 'http://www.gexperts.org',
+      + '(c) Thomas Mueller, Erik Berry and the GExperts Team';
+var
+  AboutBoxServices: IOTAAboutBoxServices;
+  DupeString: string;
+  Desc: string;
+begin
+  if GExpertsDllMarker = nil then begin
+    DupeString := ' (duplicate, inactive)';
+    Desc := 'GExperts is listed twice in the IDE Experts list, so this instance is inactive.'#13#10
+      + 'Use the Expert Manager to remove the duplicate!';
+  end else
+    Desc := Description;
+  Result := -1;
+  if Supports(BorlandIDEServices, IOTAAboutBoxServices, AboutBoxServices) then begin
+    Result := AboutBoxServices.AddPluginInfo(
+      'GExperts' + DupeString,
+      Desc + #13#10
+      + 'https://gexperts.dummzeuch.de',
       GetAboutIcon,
       False,
       '', // leave this empty!

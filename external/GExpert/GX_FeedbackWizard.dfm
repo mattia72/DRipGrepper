@@ -1,8 +1,9 @@
 object fmFeedbackWizard: TfmFeedbackWizard
   Left = 285
   Top = 155
+  AutoScroll = False
   BorderIcons = [biSystemMenu]
-  Caption = 'DRipExtensions Feedback Wizard'
+  Caption = 'GExperts Feedback Wizard'
   ClientHeight = 515
   ClientWidth = 701
   Color = clBtnFace
@@ -16,6 +17,7 @@ object fmFeedbackWizard: TfmFeedbackWizard
   Position = poScreenCenter
   Scaled = False
   OnClose = FormClose
+  PixelsPerInch = 96
   TextHeight = 14
   object pnlTop: TPanel
     Left = 0
@@ -46,7 +48,7 @@ object fmFeedbackWizard: TfmFeedbackWizard
         Alignment = taCenter
         Anchors = [akLeft, akTop, akRight]
         AutoSize = False
-        Caption = 'DRipExtensions Feedback Wizard'
+        Caption = 'GExperts Feedback Wizard'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWhite
         Font.Height = -24
@@ -99,6 +101,7 @@ object fmFeedbackWizard: TfmFeedbackWizard
       Top = 0
       Width = 5
       Height = 396
+      Cursor = crHSplit
       Align = alRight
       AutoSnap = False
       Beveled = True
@@ -112,14 +115,15 @@ object fmFeedbackWizard: TfmFeedbackWizard
       ActivePage = tshInfoHelp
       Align = alRight
       MultiLine = True
+      TabIndex = 0
       TabOrder = 0
       object tshInfoHelp: TTabSheet
         Caption = 'Help'
         object mmoInfoHelp: TMemo
           Left = 0
           Top = 0
-          Width = 183
-          Height = 349
+          Width = 195
+          Height = 367
           Align = alClient
           Color = 15858687
           HideSelection = False
@@ -160,6 +164,7 @@ object fmFeedbackWizard: TfmFeedbackWizard
         Height = 392
         ActivePage = tshType
         Align = alClient
+        TabIndex = 0
         TabOrder = 0
         OnResize = pgeMainResize
         object tshType: TTabSheet
@@ -319,7 +324,7 @@ object fmFeedbackWizard: TfmFeedbackWizard
               Top = 20
               Width = 280
               Height = 17
-              Caption = 'DRipExtensions &Version'
+              Caption = 'GExperts &Version'
               Checked = True
               Enabled = False
               State = cbChecked

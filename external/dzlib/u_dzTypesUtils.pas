@@ -61,6 +61,14 @@ inline;
 {$ENDIF}
 overload;
 
+///<summary>
+/// Quicksort for the Array between Lo and Hi </summary>
+procedure TSingleDynArray_Sort(var _Arr: TSingleDynArray; _Lo, _Hi: Integer);
+
+///<summary>
+/// Quicksort for the Array between Lo and Hi </summary>
+procedure TDoubleDynArray_Sort(var _Arr: TDoubleDynArray; _Lo, _Hi: Integer);
+
 implementation
 
 function TRect_Width(const _Rect: TRect): Integer;
@@ -111,6 +119,64 @@ function TRect_Contains(const _Rect: TRect; _x, _y: Integer): Boolean;
 begin
   Result := (_Rect.Left <= _x) and (_Rect.Right >= _x)
     and (_Rect.Top <= _y) and (_Rect.Bottom >= _y);
+end;
+
+procedure TSingleDynArray_Sort(var _Arr: TSingleDynArray; _Lo, _Hi: Integer);
+var
+  Lo, Hi: Integer;
+  Pivot, t: Single;
+begin
+  Lo := _Lo;
+  Hi := _Hi;
+  if Lo > Hi then
+    Exit; //==>
+  Pivot := _Arr[(Lo + Hi) div 2];
+  repeat
+    while _Arr[Lo] < Pivot do
+      Inc(Lo);
+    while _Arr[Hi] > Pivot do
+      Dec(Hi);
+    if Lo <= Hi then begin
+      t := _Arr[Lo];
+      _Arr[Lo] := _Arr[Hi];
+      _Arr[Hi] := t;
+      Inc(Lo);
+      Dec(Hi);
+    end;
+  until Lo > Hi;
+  if Hi > _Lo then
+    TSingleDynArray_Sort(_Arr, _Lo, Hi);
+  if Lo < _Hi then
+    TSingleDynArray_Sort(_Arr, Lo, _Hi);
+end;
+
+procedure TDoubleDynArray_Sort(var _Arr: TDoubleDynArray; _Lo, _Hi: Integer);
+var
+  Lo, Hi: Integer;
+  Pivot, t: Single;
+begin
+  Lo := _Lo;
+  Hi := _Hi;
+  if Lo > Hi then
+    Exit; //==>
+  Pivot := _Arr[(Lo + Hi) div 2];
+  repeat
+    while _Arr[Lo] < Pivot do
+      Inc(Lo);
+    while _Arr[Hi] > Pivot do
+      Dec(Hi);
+    if Lo <= Hi then begin
+      t := _Arr[Lo];
+      _Arr[Lo] := _Arr[Hi];
+      _Arr[Hi] := t;
+      Inc(Lo);
+      Dec(Hi);
+    end;
+  until Lo > Hi;
+  if Hi > _Lo then
+    TDoubleDynArray_Sort(_Arr, _Lo, Hi);
+  if Lo < _Hi then
+    TDoubleDynArray_Sort(_Arr, Lo, _Hi);
 end;
 
 end.

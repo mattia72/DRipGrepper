@@ -126,6 +126,13 @@ type
     /// * CreateDisposition := fcCreateTruncateIfExists;
     /// raises an exception on error </summary>
     procedure OpenCreateWriteNoSharing;
+    ///<summary>
+    /// Opens a new file for writing only (or truncates an existing file):
+    /// * AccessMode := [faWrite];
+    /// * ShareMode := fsShareRead;
+    /// * CreateDisposition := fcCreateTruncateIfExists;
+    /// raises an exception on error </summary>
+    procedure OpenCreateWriteShareRead;
     ///<summary> Opens the file and seeks to the end. Returns the new position (that is: The file length). </summary>
     function Append: LongInt;
     ///<summary>
@@ -342,6 +349,14 @@ procedure TdzFile.OpenCreateWriteNoSharing;
 begin
   CreateDisposition := fcCreateTruncateIfExists;
   ShareMode := fsNoSharing;
+  AccessMode := [faWrite];
+  Open;
+end;
+
+procedure TdzFile.OpenCreateWriteShareRead;
+begin
+  CreateDisposition := fcCreateTruncateIfExists;
+  ShareMode := [fsRead];
   AccessMode := [faWrite];
   Open;
 end;

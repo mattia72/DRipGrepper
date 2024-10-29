@@ -11,6 +11,9 @@ uses
   Controls,
   Forms;
 
+const
+  USER_DEFAULT_SCREEN_DPI = 96;
+
 {$IFDEF SUPPORTS_ENHANCED_RECORDS}
 type
   TDpiScaler = record

@@ -30,9 +30,16 @@ type
     ///          <0 if Item[Idx1] < Item[Idx2]
     ///          >0 if Item[Idx1] > Item[Idx2] </summary>
     function Compare(_Idx1, _Idx2: Integer): Integer;
-  ///<summary>
-  /// Swap the items at the given indexes </summary>
+    ///<summary>
+    /// Swap the items at the given indexes </summary>
     procedure Swap(_Idx1, _Idx2: Integer);
+  end;
+
+type
+  ///<summary>
+  /// Adds a Count method to the ISortDataHander interface </summary>
+  ISortDataHandlerEx = interface(ISortDataHandler)['{C2DD7397-C0C3-4519-AA24-7FB2EF559DAD}']
+    function Count: Integer;
   end;
 
 type

@@ -1,12 +1,14 @@
 object fmBaseForm: TfmBaseForm
   Left = 300
   Top = 220
-  Caption = 'DRipExtensions'
-  ClientHeight = 688
-  ClientWidth = 701
+  AutoScroll = False
+  Caption = 'GExperts'
+  ClientHeight = 541
+  ClientWidth = 653
   Color = clBtnFace
   ParentFont = True
+  OldCreateOrder = False
   Position = poScreenCenter
   Scaled = False
-  TextHeight = 41
+  TextHeight = 13
 end

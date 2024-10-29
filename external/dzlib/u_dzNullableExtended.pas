@@ -28,7 +28,7 @@ const
 {$INCLUDE 't_NullableNumber.tpl'}
 
 type
-  TNullableExtended = _NULLABLE_NUMBER_;
+  TNullableExtended = TdzNullableNumber;
   TdzNullableExtended = TNullableExtended deprecated;
 
 {$ENDIF DELPHI2007_UP}
@@ -39,6 +39,17 @@ implementation
 
 {$INCLUDE 't_NullableNumber.tpl'}
 
+{$IFDEF DEBUG}
+procedure AssertDumpAvailable;
+var
+  e: TNullableExtended;
+begin
+  e.Dump;
+end;
+
+initialization
+  AssertDumpAvailable;
+{$ENDIF DEBUG}
 {$ENDIF DELPHI2007_UP}
 
 end.

@@ -127,7 +127,7 @@ type
     property EnableKeyboardShortcuts: Boolean read GetEnableKeyboardShortcuts;
     property EnableCustomFont: Boolean read GetEnableCustomFont write SetEnableCustomFont;
     function CustomFont: TFont;
-{$IFDEF STARTUP_LAYOUT_FIX_ENABLED}
+{$IFDEF GX_STARTUP_LAYOUT_FIX_ENABLED}
     function GetForceDesktopOnStartup: Boolean;
     procedure SetForceDesktopOnStartup(const _Value: Boolean);
     function GetForcedStartupDesktop: string;
@@ -161,7 +161,10 @@ type
     procedure ReadSection(const Section: string; Strings: TStrings); override;
     procedure ReadSections(Strings: TStrings); overload; override;
     procedure ReadSectionValues(const Section: string; Strings: TStrings); override;
-{$IFDEF CUSTOMINIFILE_HAS_READSUBSECTIONS}
+    ///<summary>
+    /// Delete all values in the section and write the strings to it </summary>
+    procedure WriteSectionValues(const Section: string; Strings: TStrings);
+{$IFDEF GX_CUSTOMINIFILE_HAS_READSUBSECTIONS}
     procedure ReadSubSections(const Section: string; Strings: TStrings; Recurse: Boolean = False); override;
 {$ELSE}
     procedure ReadSubSections(const Section: string; Strings: TStrings; Recurse: Boolean = False);
@@ -273,7 +276,6 @@ uses
   {$IFOPT D+} GX_DbugIntf, {$ENDIF}
   SysUtils, Math,
   u_dzVclUtils,
-  GX_EditorEnhancements,
   GX_MessageBox, // todo: remove UI from the configuration
   GX_GenericUtils, GX_GenericClasses, GX_IdeUtils, GX_OtaUtils, GX_VerDepConst,
   GX_BaseForm, GX_IdeDock, GX_GxUtils;
@@ -296,7 +298,7 @@ type
     FCustomFont: TFont;
     FHideWindowMenu: Boolean;
     FMoveComponentMenu: Boolean;
-{$IFDEF STARTUP_LAYOUT_FIX_ENABLED}
+{$IFDEF GX_STARTUP_LAYOUT_FIX_ENABLED}
     FForceDesktopOnStartup: Boolean;
     FForcedStartupDesktop: string;
 {$ENDIF}
@@ -337,7 +339,7 @@ type
     procedure SetEnableCustomFont(const Value: Boolean);
     function CustomFont: TFont;
     procedure UpdateScreenForms;
-{$IFDEF STARTUP_LAYOUT_FIX_ENABLED}
+{$IFDEF GX_STARTUP_LAYOUT_FIX_ENABLED}
     function GetForceDesktopOnStartup: Boolean;
     procedure SetForceDesktopOnStartup(const _Value: Boolean);
     function GetForcedStartupDesktop: string;
@@ -553,22 +555,18 @@ begin
   FConfigPath := DefaultConfigPath;
   FCachingPath := DefaultCachingPath;
 
-{$IFNDEF GX_STANDALONE}
-//  EditorEnhancements.Enabled := False;
-{$ENDIF}
-
   LoadSettings;
   ShowGxMessageBox(TShowBadDirectoryMessage, FConfigPath);
 end;
 
 function TConfigInfo.DefaultCachingPath: string;
 begin
-  Result := AddSlash(GetUserLocalApplicationDataFolder) + AddSlash('DRipExtensions') + IDEEnglishName;
+  Result := AddSlash(GetUserLocalApplicationDataFolder) + AddSlash('Gexperts') + IDEEnglishName;
 end;
 
 function TConfigInfo.DefaultConfigPath: string;
 begin
-  Result := AddSlash(GetUserApplicationDataFolder) + AddSlash('DRipExtensions') + IDEEnglishName;
+  Result := AddSlash(GetUserApplicationDataFolder) + AddSlash('GExperts') + IDEEnglishName;
 end;
 
 destructor TConfigInfo.Destroy;
@@ -576,7 +574,6 @@ begin
   {$IFOPT D+} SendDebug('TConfigInfo.Destroy'); {$ENDIF D+}
   //SaveSettings; // Call this below to prevent re-creating TConfigInfo
 {$IFNDEF GX_STANDALONE}
-//  FreeEditorEnhancements;
   FreeAndNil(FCustomFont);
 {$ENDIF}
 
@@ -586,9 +583,6 @@ end;
 procedure TConfigInfo.LoadSettings;
 var
   Settings: TGExpertsSettings;
-{$IFNDEF GX_STANDALONE}
-  //Setting: Boolean;
-{$ENDIF}
 begin
   {$IFOPT D+} SendDebug('Loading configuration info settings'); {$ENDIF D+}
 
@@ -598,7 +592,7 @@ begin
     FVclPath := AddSlash(Settings.ReadString(ConfigurationKey, 'VCLPath', FVclPath));
     FConfigPath := AddSlash(Settings.ReadString(ConfigurationKey, 'ConfigPath', FConfigPath));
     FCachingPath := AddSlash(Settings.ReadString(ConfigurationKey, 'CachingPath', FCachingPath));
-    FHelpFileLocation := Settings.ReadString(ConfigurationKey, 'HelpFile', FGExpertsPath + 'DRipExtensions.chm');
+    FHelpFileLocation := Settings.ReadString(ConfigurationKey, 'HelpFile', FGExpertsPath + 'GExperts.chm');
     if SameText(ExtractFileExt(FHelpFileLocation), '.hlp') then
       FHelpFileLocation := ChangeFileExt(FHelpFileLocation, '.chm');
 {$IFNDEF GX_STANDALONE}
@@ -613,9 +607,7 @@ begin
 {$ENDIF}
 
 {$IFNDEF GX_STANDALONE}
-//    Setting := Settings.ReadBool(ConfigurationKey, 'EditorEnhancementsEnabled', False);
-//    EditorEnhancements.Enabled := Setting and not IsStandAlone;
-{$IFDEF STARTUP_LAYOUT_FIX_ENABLED}
+{$IFDEF GX_STARTUP_LAYOUT_FIX_ENABLED}
     FForceDesktopOnStartup := Settings.ReadBool(ConfigurationKey, 'ForceDesktopOnStartup', False);
     FForcedStartupDesktop := Settings.ReadString(ConfigurationKey, 'ForcedStartupDestkop', '');
 {$ENDIF}
@@ -645,10 +637,9 @@ begin
     Settings.WriteBool(ConfigurationKey, 'PlaceGxMainMenuInToolsMenu', FPlaceGxMainMenuInToolsMenu);
     Settings.WriteBool(ConfigurationKey, 'HideWindowMenu', FHideWindowMenu);
     Settings.WriteBool(ConfigurationKey, 'MoveComponentMenu', FMoveComponentMenu);
-//    Settings.WriteBool(ConfigurationKey, 'EditorEnhancementsEnabled', EditorEnhancements.Enabled);
-	Settings.WriteBool(ConfigurationKey, 'EnableCustomFont', FEnableCustomFont);
+    Settings.WriteBool(ConfigurationKey, 'EnableCustomFont', FEnableCustomFont);
     Settings.SaveFont(AddSlash(ConfigurationKey) + 'CustomFont', FCustomFont);
-{$IFDEF STARTUP_LAYOUT_FIX_ENABLED}
+{$IFDEF GX_STARTUP_LAYOUT_FIX_ENABLED}
     Settings.WriteBool(ConfigurationKey, 'ForceDesktopOnStartup', FForceDesktopOnStartup);
     Settings.WriteString(ConfigurationKey, 'ForcedStartupDestkop', FForcedStartupDesktop);
 {$ENDIF}
@@ -669,7 +660,7 @@ end;
 
 function TConfigInfo.GExpertsIdeRootRegistryKey: string;
 const
-  SGExpertsString = 'DRipExtensions-1.0';
+  SGExpertsString = 'GExperts-1.3';
 begin
   Result := AddSlash(FIdeRootRegistryKey) + SGExpertsString;
 end;
@@ -814,7 +805,7 @@ begin
 end;
 
 {$IFNDEF GX_STANDALONE}
-{$IFDEF STARTUP_LAYOUT_FIX_ENABLED}
+{$IFDEF GX_STARTUP_LAYOUT_FIX_ENABLED}
 function TConfigInfo.GetForceDesktopOnStartup: Boolean;
 begin
   Result := FForceDesktopOnStartup;
@@ -859,7 +850,7 @@ begin
   FEnableCustomFont := Value;
 end;
 
-{$IFDEF STARTUP_LAYOUT_FIX_ENABLED}
+{$IFDEF GX_STARTUP_LAYOUT_FIX_ENABLED}
 
 procedure TConfigInfo.SetForceDesktopOnStartup(const _Value: Boolean);
 begin
@@ -870,7 +861,7 @@ procedure TConfigInfo.SetForcedStartupDesktop(const _Value: string);
 begin
   FForcedStartupDesktop := _Value;
 end;
-{$ENDIF STARTUP_LAYOUT_FIX_ENABLED}
+{$ENDIF GX_STARTUP_LAYOUT_FIX_ENABLED}
 {$ENDIF GX_STANDALONE}
 
 { TShowBadDirectoryMessage }
@@ -1023,46 +1014,97 @@ var
   SizeChanged   : Boolean;
   R             : TRect;
   Rect: TRect;
-  w: Integer;
-  h: Integer;
+  OrigLeft: Integer;
+  OrigTop: Integer;
+  OrigWidth: Integer;
+  OrigHeight: Integer;
+  NewLeft: Integer;
+  NewTop: Integer;
+  NewWidth: Integer;
+  NewHeight: Integer;
+{$IFDEF GX_IDE_IS_HIDPI_AWARE}
+  OrigDpi: Integer;
+  NewDpi: Integer;
+{$ENDIF}
+
 begin
   if Section = '' then
     StorageSection := Form.ClassName
   else
     StorageSection := Section;
 
+{$IFDEF GX_IDE_IS_HIDPI_AWARE}
+  OrigDpi := TScreen_GetDpiForForm(Form);
+  NewDPI  := OrigDPI;
+{$ENDIF}
+
   R := Form.BoundsRect;
-  w := Form.Width;
-  h := Form.Height;
+  OrigLeft := R.Left;
+  OrigTop := R.Top;
+  OrigWidth := R.Right - OrigLeft;
+  OrigHeight := R.Bottom - OrigTop;
+
+  // we assign NewXxx to OrigXxx which will 1. prevent a compiler warning and 2. save some checks
+  // below
+  NewLeft := OrigLeft;
+  NewTop := OrigTop;
+  NewWidth := OrigWidth;
+  NewHeight := OrigHeight;
+
   PosChanged := False;
   SizeChanged := False;
 
+{$IFDEF GX_IDE_IS_HIDPI_AWARE}
+  if (FormSaveFlags <> []) and ValueExists(StorageSection, 'DPi') then
+    NewDpi := ReadInteger(StorageSection, 'Dpi', OrigDpi);
+{$ENDIF}
+
   if (fsPosition in FormSaveFlags) and ValueExists(StorageSection, 'Left') then
   begin
-    R.Left := ReadInteger(StorageSection, 'Left', Form.Left);
-    R.Top := ReadInteger(StorageSection, 'Top', Form.Top);
+    NewLeft := ReadInteger(StorageSection, 'Left', OrigLeft);
+    NewTop := ReadInteger(StorageSection, 'Top', OrigTop);
     PosChanged := True;
   end;
 
   if (fsSize in FormSaveFlags) and ValueExists(StorageSection, 'Width') then
   begin
-    R.Right := R.Left + ReadInteger(StorageSection, 'Width', Form.Width);
-    R.Bottom := R.Top + ReadInteger(StorageSection, 'Height', Form.Height);
+    NewWidth := ReadInteger(StorageSection, 'Width', OrigWidth);
+    NewHeight := ReadInteger(StorageSection, 'Height', OrigHeight);
     SizeChanged := True;
   end;
 
+{$IFDEF GX_IDE_IS_HIDPI_AWARE}
+  if (NewDpi > 0) and (OrigDpi > 0) and (NewDpi<> OrigDpi) then begin
+    NewWidth  := MulDiv(NewWidth, NewDpi, OrigDpi);
+    NewHeight := MulDiv(NewHeight, NewDpi, OrigDpi);
+  end;
+{$ENDIF}
+
   if PosChanged then begin
-    if not SizeChanged then begin
-      R.Right := R.Left + w;
-      R.Bottom := R.Top + h;
-    end;
+    R.Left := NewLeft;
+    R.Top := NewTop;
+    R.Right := NewLeft + NewWidth;
+    R.Bottom := NewTop + NewHeight;
     TScreen_MakeFullyVisible(R);
     Form.BoundsRect := R;
+{$IFDEF GX_IDE_IS_HIDPI_AWARE}
+    // Setting the bounds possibly calls WMDpiChanged which will rescale the form
+    // and change the size. So we call it again which will hopefully correct this.
+    Form.BoundsRect := R;
+{$ENDIF}
   end else if SizeChanged then begin
     // center with the given size
     Rect := GetScreenWorkArea(Form);
-    Form.SetBounds(Rect.Left + (Rect.Right - Rect.Left - (R.Right - R.Left)) div 2,
-      Rect.Top + (Rect.Bottom - Rect.Top - (R.Bottom - R.Top)) div 2, R.Right - R.Left, R.Bottom - R.Top);
+    R.Left := Rect.Left + (Rect.Right - Rect.Left - NewWidth) div 2;
+    R.Top := Rect.Top + (Rect.Bottom - Rect.Top - NewHeight) div 2;
+    R.Right := R.Left + NewWidth;
+    R.Bottom := R.Top + NewHeight;
+    Form.BoundsRect := R;
+{$IFDEF GX_IDE_IS_HIDPI_AWARE}
+    // Setting the bounds possibly calls WMDpiChanged which will rescale the form
+    // and change the size. So we call it again which will hopefully correct this.
+    Form.BoundsRect := R;
+{$ENDIF}
   end else
     CenterForm(Form);
 end;
@@ -1076,6 +1118,12 @@ begin
     StorageSection := Form.ClassName
   else
     StorageSection := Section;
+{$IFDEF GX_IDE_IS_HIDPI_AWARE}
+  if FormSaveFlags <> [] then
+  begin
+    WriteInteger(StorageSection, 'Dpi', TScreen_GetDpiForForm(Form));
+  end;
+{$ENDIF}
   if fsPosition in FormSaveFlags then
   begin
     WriteInteger(StorageSection, 'Left', Form.Left);
@@ -1400,6 +1448,18 @@ end;
 procedure TGExpertsBaseSettings.WriteInteger(const Section, Ident: string; Value: Integer);
 begin
   FIniFile.WriteInteger(Section, Ident, Value);
+end;
+
+procedure TGExpertsBaseSettings.WriteSectionValues(const Section: string; Strings: TStrings);
+var
+  i: Integer;
+  ItemName: string;
+begin
+  FIniFile.EraseSection(Section);
+  for i := 0 to Strings.Count - 1 do begin
+    ItemName := Strings.Names[i];
+    FIniFile.WriteString(Section, ItemName, Strings.Values[ItemName]);
+  end;
 end;
 
 procedure TGExpertsBaseSettings.WriteString(const Section, Ident, Value: String);

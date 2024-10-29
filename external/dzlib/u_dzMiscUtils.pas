@@ -74,7 +74,10 @@ function HexDumpExtended(const _ext: Extended): string;
 function HexDumpString(const _s: AnsiString): string;
 
 ///<summary> converts a hexdump of a double back to a double value </summary>
-procedure HexDumpToDbl(const _s: string; var _Value: Double);
+procedure HexDumpToDbl(const _s: string; var _Value: Double); overload;
+{$IFDEF SUPPORTS_UNICODE}
+procedure HexDumpToDbl(const _s: AnsiString; var _Value: Double); overload;
+{$ENDIF SUPPORTS_UNICODE}
 
 ///<summary> converts a hexdump of an extended back to an extended value </summary>
 procedure HexDumpToExtended(const _s: string; var _Value: Extended);
@@ -222,16 +225,6 @@ procedure NotImplemented;
 implementation
 
 uses
-{$IFDEF debug}
-{$IFNDEF console}
-  Controls,
-  Dialogs,
-  FileCtrl,
-{$IFDEF HAS_UNIT_SYSTEM_UITYPES}
-  System.UITypes,
-{$ENDIF}
-{$ENDIF}
-{$ENDIF}
   StrUtils,
   u_dzFileUtils,
   u_dzStringUtils,
@@ -249,9 +242,7 @@ end;
 
 procedure NotImplemented;
 begin
-{$IFNDEF console}
-  if mrAbort = MessageDlg('Function not implemented!', mtWarning, [mbAbort, mbIgnore], 0) then
-{$ENDIF}
+  if ID_YES <> Windows.MessageBox(0, 'Function not implemented! Continue anyway?', 'Warning', MB_YESNO + MB_ICONWARNING) then
     raise ENotImplemented.Create('Function not implemented');
 end;
 {$ENDIF debug}
@@ -280,17 +271,22 @@ end;
 
 function HKeyToString(_HKey: HKey): string;
 begin
-  case _HKey of
-    HKEY_CLASSES_ROOT: Result := 'HKEY_CLASSES_ROOT'; // do not translate
-    HKEY_CURRENT_USER: Result := 'HKEY_CURRENT_USER'; // do not translate
-    HKEY_LOCAL_MACHINE: Result := 'HKEY_LOCAL_MACHINE'; // do not translate
-    HKEY_USERS: Result := 'HKEY_USERS'; // do not translate
-    HKEY_PERFORMANCE_DATA: Result := 'HKEY_PERFORMANCE_DATA'; // do not translate
-    HKEY_CURRENT_CONFIG: Result := 'HKEY_CURRENT_CONFIG'; // do not translate
-    HKEY_DYN_DATA: Result := 'HKEY_DYN_DATA'; // do not translate
+  if _HKey = HKEY_CLASSES_ROOT then
+    Result := 'HKEY_CLASSES_ROOT' // do not translate
+  else if _HKey = HKEY_CURRENT_USER then
+    Result := 'HKEY_CURRENT_USER' // do not translate
+  else if _HKey = HKEY_LOCAL_MACHINE then
+    Result := 'HKEY_LOCAL_MACHINE' // do not translate
+  else if _HKey = HKEY_USERS then
+    Result := 'HKEY_USERS' // do not translate
+  else if _HKey = HKEY_PERFORMANCE_DATA then
+    Result := 'HKEY_PERFORMANCE_DATA' // do not translate
+  else if _HKey = HKEY_CURRENT_CONFIG then
+    Result := 'HKEY_CURRENT_CONFIG' // do not translate
+  else if _HKey = HKEY_DYN_DATA then
+    Result := 'HKEY_DYN_DATA' // do not translate
   else
     Result := Format(_('unknown Registry Root Key %x'), [_HKey]);
-  end;
 end;
 
 function RegDataTypeToString(_DataType: TRegDataType): string;
@@ -508,6 +504,13 @@ begin
     p^[i] := Dec;
   end;
 end;
+
+{$IFDEF SUPPORTS_UNICODE}
+procedure HexDumpToDbl(const _s: AnsiString; var _Value: Double);
+begin
+  HexDumpToDbl(string(_s), _Value);
+end;
+{$ENDIF SUPPORTS_UNICODE}
 
 procedure HexDumpToExtended(const _s: string; var _Value: Extended);
 type
