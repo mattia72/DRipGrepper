@@ -77,7 +77,6 @@ type
     FFormDesignFontSize: Integer;
     FFrm: TForm;
     FCtrlParams: array of TCtrlDpiScaler;
-    FDesigDpi: Integer;
     FPnlMaster: TPanel;
     procedure AddControls(_Ctrl: TWinControl);
     function FindCtrlScaler(_ctrl: TControl): PCtrlDpiScaler;
@@ -87,7 +86,7 @@ type
     procedure ApplyDpi(_NewDpi: Integer; _NewBounds: PRect);
     function Calc(_Value: Integer): Integer;
     procedure DisableControlFontScaling(_ctrl: TControl);
-    property DesignDPI: Integer read FDesigDpi;
+    property DesignDPI: Integer read FDesignDpi;
   end;
 
 implementation
@@ -143,19 +142,6 @@ type
   TFormHack = class(TForm)
   end;
 
-function TForm_GetDesignDPI(_Frm: TForm): UINT;
-begin
-{$IFDEF HAS_TFORM_GETDESIGNDPI}
-  if Assigned(_Frm) then begin
-    Result := TFormHack(_Frm).GetDesignDpi;
-    LogFmt('TForm_GetDesignDPI(%s: %s): Result: %d', [_Frm.Name, _Frm.ClassName, Result]);
-  end else
-    Result := DEFAULT_DPI;
-{$ELSE}
-  Result := DEFAULT_DPI;
-{$ENDIF}
-end;
-
 type
   TGetDpiForWindow = function(_HWnd: HWND): UINT; stdcall;
 var
@@ -168,20 +154,6 @@ begin
   Handle := LoadLibrary('user32.dll');
   if Handle <> 0 then begin
     GetDpiForWindow := GetProcAddress(Handle, 'GetDpiForWindow');
-  end;
-end;
-
-function TScreen_GetDpiForForm(_Frm: TCustomForm): UINT;
-var
-  DpiForWindow: UINT;
-begin
-  Result := Screen.PixelsPerInch;
-  if _Frm is TForm then begin
-    if Assigned(GetDpiForWindow) then begin
-      DpiForWindow := GetDpiForWindow(_Frm.Handle);
-      LogFmt('TScreen_GetDpiForForm(%s): Screen.PixelsPerInch: %d DpiForWindow: %d', [_Frm.Name, Result, DpiForWindow]);
-      Result := DpiForWindow;
-    end;
   end;
 end;
 

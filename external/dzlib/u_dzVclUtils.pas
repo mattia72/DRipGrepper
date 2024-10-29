@@ -1962,6 +1962,8 @@ procedure TStringGrid_AssignCol(_Grid: TStringGrid; _Col: Integer; _sl: TStrings
 /// NOTE: sl will not be cleared. </summary>
 procedure TStringGrid_GetCol(_Grid: TStringGrid; _Col: Integer; _sl: TStrings);
 
+function TWinControl_GetDesignDPI(_ctrl : TWinControl): UINT;
+
 implementation
 
 uses
@@ -4790,6 +4792,15 @@ begin
 {$ELSE}
   Result := DEFAULT_DPI;
 {$ENDIF}
+end;
+
+function TWinControl_GetDesignDPI(_ctrl : TWinControl): UINT;
+begin
+	{$IFDEF HAS_TFORM_GETDESIGNDPI}
+	Result := _ctrl.PixelsPerInch;
+	{$ELSE}
+	Result := 96;
+	{$ENDIF}
 end;
 
 function TForm_GetMonitor(_frm: TForm): TMonitor;

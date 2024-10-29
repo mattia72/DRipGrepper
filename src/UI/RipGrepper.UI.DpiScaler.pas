@@ -46,7 +46,8 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	Vcl.StdCtrls,
 	u_dzVclUtils,
-	Vcl.ComCtrls;
+	Vcl.ComCtrls,
+	Vcl.Forms;
 
 constructor TRipGrepperDpiScaler.Create(AOwner : TWinControl);
 begin
@@ -133,9 +134,9 @@ end;
 
 procedure TRipGrepperDpiScaler.InitDpiScaler;
 begin
-	FWinDpiScaler := TFormDpiScaler.Create(FOwner);
+	FWinDpiScaler := TFormDpiScaler.Create(TForm(FOwner));
 
-	FActualDPI := TScreen_GetDpiForWindow(FOwner);
+	FActualDPI := TWinControl_GetDesignDPI(FOwner);
 	ApplyDpi(FActualDPI, nil);
 end;
 
