@@ -176,7 +176,7 @@ type
 			procedure SetExpertGroupSize;
 			class procedure SetReplaceText(_settings : TRipGrepperSettings; const _replaceText : string);
 			procedure SetReplaceTextSetting(const _replaceText : string);
-		procedure ShowReplaceCtrls(const _bShow: Boolean);
+			procedure ShowReplaceCtrls(const _bShow : Boolean);
 			procedure UpdateButtonsBySettings;
 			procedure UpdateCmbsOnIDEContextChange;
 			procedure UpdateFileMasksInFileMasks;
@@ -218,7 +218,7 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	Winapi.ShellAPI,
 	System.StrUtils,
-	RipGrepper.Common.IOTAUtils,
+	{$IFNDEF STANDALONE} RipGrepper.Common.IOTAUtils, {$ENDIF}
 	RipGrepper.Tools.FileUtils,
 	System.IOUtils,
 	Winapi.Windows,
@@ -442,7 +442,7 @@ begin
 	UpdateCheckBoxesByRgOptions();
 
 	ShowReplaceCtrls(IsReplaceMode());
- 	UpdateHeight();
+	UpdateHeight();
 	ActiveControl := cmbSearchText;
 end;
 
@@ -921,7 +921,14 @@ end;
 
 procedure TRipGrepperSearchDialogForm.rbExtensionOptionsClick(Sender : TObject);
 begin
-	if IOTAUTils.IsStandAlone or FbExtensionOptionsSkipClick then begin
+	{$IFDEF STANDALONE}
+	var
+	bStandalone := True;
+	{$ELSE}
+	var
+	bStandalone := False;
+	{$ENDIF}
+	if bStandalone or FbExtensionOptionsSkipClick then begin
 		Exit;
 	end;
 	UpdateCmbsOnIDEContextChange();
@@ -939,7 +946,9 @@ function TRipGrepperSearchDialogForm.GetInIDESelectedText : string;
 var
 	selectedText : TMultiLineString;
 begin
+	{$IFNDEF STANDALONE}
 	IOTAUtils.GxOtaGetActiveEditorTextAsMultilineString(selectedText, True);
+	{$ENDIF}
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.GetInIDESelectedText: ' + selectedText);
 
 	selectedText := string(selectedText).Trim();
@@ -960,8 +969,14 @@ begin
 	// TODO set only if it was saved before!
 	SetCmbSearchPathText(IfThen(FSettings.RipGrepParameters.SearchPath.IsEmpty, cmbSearchDir.Text, FSettings.RipGrepParameters.SearchPath));
 	dbgMsg.Msg('cmbSearchDir=' + cmbSearchDir.Text);
-
-	if not IOTAUtils.IsStandAlone then begin
+	{$IFDEF STANDALONE}
+	var
+	bStandalone := True;
+	{$ELSE}
+	var
+	bStandalone := False;
+	{$ENDIF}
+	if not bStandalone then begin
 		var
 		cic := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
 		dbgMsg.Msg('IDEContext=' + cic.ToLogString);
@@ -979,21 +994,28 @@ end;
 procedure TRipGrepperSearchDialogForm.LoadExtensionSearchSettings;
 var
 	extSearchSettings : TRipGrepperExtensionContext;
-	selectedText : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadExtensionSearchSettings');
-
-	if IOTAUTils.IsStandAlone then begin
+	{$IFDEF STANDALONE}
+	var
+	bStandalone := True;
+	{$ELSE}
+	var
+	bStandalone := False;
+	{$ENDIF}
+	if bStandalone then begin
 		Exit;
 	end;
 
 	dbgMsg.MsgFmt('ExtensionSettings.IsAlreadyRead=%s', [
 		{ } BoolToStr(FSettings.SearchFormSettings.ExtensionSettings.IsAlreadyRead)]);
+	var
+	selectedText := GetInIDESelectedText;
 
+	{$IFNDEF STANDALONE}
 	extSearchSettings := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
 	if not HasHistItemObjWithResult then begin
-		selectedText := GetInIDESelectedText;
 		if not selectedText.IsEmpty then begin
 			cmbSearchText.Text := selectedText;
 			dbgMsg.Msg('SelectedText=' + selectedText);
@@ -1007,7 +1029,7 @@ begin
 
 	dbgMsg.Msg('CurrentIDEContext:' + extSearchSettings.ToLogString);
 	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext := extSearchSettings;
-
+	{$ENDIF}
 	FbExtensionOptionsSkipClick := True;
 	rbExtensionOptions.ItemIndex := Integer(extSearchSettings.IDEContext);
 	UpdateCmbsOnIDEContextChange();
@@ -1081,7 +1103,7 @@ begin
 	dbgMsg.Msg('LastReplaceText=' + FParamsSetByGui.ReplaceText);
 end;
 
-procedure TRipGrepperSearchDialogForm.ShowReplaceCtrls(const _bShow: Boolean);
+procedure TRipGrepperSearchDialogForm.ShowReplaceCtrls(const _bShow : Boolean);
 begin
 	cmbReplaceText.Visible := _bShow;
 	ActionShowRGReplaceOptionHelp.Visible := _bShow;
@@ -1138,7 +1160,14 @@ procedure TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange;
 var
 	rgec : TRipGrepperExtensionContext;
 begin
-	if not IOTAUTils.IsStandAlone then begin
+	{$IFDEF STANDALONE}
+	var
+	bStandalone := True;
+	{$ELSE}
+	var
+	bStandalone := False;
+	{$ENDIF}
+	if not bStandalone then begin
 		var
 		dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange');
 
@@ -1195,7 +1224,14 @@ begin
 	end;
 	dbgMsg.Msg('pnlTop.Height=' + pnlTop.Height.ToString);
 	pnlMiddle.Top := pnlTop.Height;
-	if IOTAUTils.IsStandAlone then begin
+	{$IFDEF STANDALONE}
+	var
+	bStandalone := True;
+	{$ELSE}
+	var
+	bStandalone := False;
+	{$ENDIF}
+	if bStandalone then begin
 		rbExtensionOptions.Enabled := False;
 		rbExtensionOptions.Visible := False;
 		var

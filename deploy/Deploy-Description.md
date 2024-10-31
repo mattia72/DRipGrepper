@@ -1,7 +1,7 @@
 <!--
 
-Version:     v3.6.1-beta
-PrevVersion: v3.6.0-beta
+Version:     v3.6.2-beta
+PrevVersion: v3.6.1-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -32,11 +32,12 @@ Marked with checkmark if ready, else planned ...
 - [ ] JSON config files
 - [ ] **extension**: search opened project files only
 - [ ] copy to desktop to run in PowerShell / command prompt
+- [ ] Win64 release
 
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.
 - [ ] `Additional Options` has to have saved defaults also
 - [ ] drip icon in menu has no transparent background
 - [ ] exception if rg.exe not found
-- [x] correction to show/hide & enable/disable replace ctrls
+- [x] try to correct not found bpl error
 

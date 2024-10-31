@@ -143,7 +143,7 @@ type
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
 			function GetData : TRipGrepperData;
 			function GetHistItemObject : IHistoryItemObject;
-			function GetIsGuiReplaceMode: Boolean;
+			function GetIsGuiReplaceMode : Boolean;
 			function GetIsRgReplaceMode : Boolean;
 			function GetNewParallelParser : TParallelParser;
 			function GetResultSelectedFilePath : string;
@@ -163,7 +163,7 @@ type
 			function SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
 			procedure UpdateArgumentsAndSettings;
 			procedure UpdateGui;
-			property IsGuiReplaceMode: Boolean read GetIsGuiReplaceMode;
+			property IsGuiReplaceMode : Boolean read GetIsGuiReplaceMode;
 			property IsRgReplaceMode : Boolean read GetIsRgReplaceMode;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
@@ -228,8 +228,9 @@ uses
 	VirtualTrees.Types,
 	RipGrepper.Parsers.Factory,
 	RipGrepper.UI.TopFrame,
-	RipGrepper.Common.IOTAUtils,
+	{$IFNDEF STANDALONE} RipGrepper.Common.IOTAUtils,
 	GX_UsesManager,
+	{$ENDIF}
 	System.Generics.Defaults,
 	RipGrepper.UI.SearchForm,
 	System.RegularExpressions;
@@ -264,8 +265,13 @@ end;
 
 procedure TRipGrepperMiddleFrame.ActionAddUsingImplementationUpdate(Sender : TObject);
 begin
-	miAddToUSESList.Visible := not IOTAUTils.IsStandAlone();
-	ActionAddUsingImplementation.Visible := not IOTAUTils.IsStandAlone();
+{$IFDEF STANDALONE}
+var bStandalone := True;
+{$ELSE}
+var bStandalone := False;
+{$ENDIF}
+	miAddToUSESList.Visible := bStandalone;
+	ActionAddUsingImplementation.Visible := bStandalone;
 	EnableActionIfResultSelected(ActionAddUsingImplementation);
 end;
 
@@ -276,7 +282,11 @@ end;
 
 procedure TRipGrepperMiddleFrame.ActionAddUsingInterfaceUpdate(Sender : TObject);
 begin
-	ActionAddUsingInterface.Visible := not IOTAUTils.IsStandAlone();
+	{$IFNDEF STANDALONE}
+	ActionAddUsingInterface.Visible := True;
+	{$ELSE}
+	ActionAddUsingInterface.Visible := False;
+	{$ENDIF}
 	EnableActionIfResultSelected(ActionAddUsingInterface);
 end;
 
@@ -353,8 +363,15 @@ procedure TRipGrepperMiddleFrame.ActionOpenWithExecute(Sender : TObject);
 var
 	owp : TOpenWithParams;
 begin
+	{$IFDEF STANDALONE}
+	var
+	bStandalone := True;
+	{$ELSE}
+	var
+	bStandalone := False;
+	{$ENDIF}
 	owp := GetOpenWithParamsFromSelected();
-	if owp.IsEmpty and (not IOTAUTils.IsStandAlone) then begin
+	if owp.IsEmpty and (not bStandalone) then begin
 		owp := TOpenWithParams.GetParamsOfActiveFileInDelphiIde();
 	end;
 	if not owp.IsEmpty then begin
@@ -374,21 +391,27 @@ end;
 
 procedure TRipGrepperMiddleFrame.ActionOpenInIdeUpdate(Sender : TObject);
 begin
+	{$IFDEF STANDALONE}
+	var
+	bStandalone := True;
+	{$ELSE}
+	var
+	bStandalone := False;
+	{$ENDIF}
 	EnableActionIfResultSelected(ActionOpenInIde);
-	ActionOpenInIde.Enabled := ActionOpenInIde.Enabled and (not IOTAUTils.IsStandAlone);
-	ActionOpenInIde.Visible := not IOTAUTils.IsStandAlone;
+	ActionOpenInIde.Enabled := ActionOpenInIde.Enabled and (not bStandalone);
+	ActionOpenInIde.Visible := (not bStandalone)
 end;
 
 procedure TRipGrepperMiddleFrame.AddAsUsing(_bToImpl : Boolean);
-var
-	fn : string;
-	usesman : TUsesManager;
-	st : TUsesStatus;
 begin
-	usesman := TUsesManager.Create(IOTAUtils.GxOtaGetCurrentSourceEditor);
+	{$IFNDEF STANDALONE}
+	var
+		usesman : TUsesManager := TUsesManager.Create(IOTAUtils.GxOtaGetCurrentSourceEditor);
 	try
-		fn := TPath.GetFileNameWithoutExtension(GetResultSelectedFilePath);
+		var fn :string := TPath.GetFileNameWithoutExtension(GetResultSelectedFilePath);
 
+		var
 		st := usesman.GetUsesStatus(fn);
 		if (usNonExisting = st) then begin
 			if _bToImpl then begin
@@ -403,6 +426,7 @@ begin
 	finally
 		usesman.Free;
 	end;
+	{$ENDIF}
 end;
 
 procedure TRipGrepperMiddleFrame.AlignToolBars;
@@ -516,7 +540,14 @@ var
 begin
 	Result := _sFullPath;
 	if Settings.NodeLookSettings.ShowRelativePath then begin
-		if IOTAUTils.IsStandAlone then begin
+		{$IFDEF STANDALONE}
+		var
+		bStandalone := True;
+		{$ELSE}
+		var
+		bStandalone := False;
+		{$ENDIF}
+		if bStandalone then begin
 			actPath := Settings.ActualSearchPath;
 			if (actPath.IsEmpty or (not Settings.SearchPathIsDir)) then begin
 				Exit;
@@ -574,7 +605,7 @@ begin
 	Result := FHistItemObj;
 end;
 
-function TRipGrepperMiddleFrame.GetIsGuiReplaceMode: Boolean;
+function TRipGrepperMiddleFrame.GetIsGuiReplaceMode : Boolean;
 begin
 	Result := ParentFrame.TopFrame.IsGuiReplaceMode;
 end;
@@ -642,8 +673,14 @@ procedure TRipGrepperMiddleFrame.Init;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.Init');
-
-	if IOTAUTils.IsStandAlone then begin
+	{$IFDEF STANDALONE}
+	var
+	bStandalone := True;
+	{$ELSE}
+	var
+	bStandalone := False;
+	{$ENDIF}
+	if bStandalone then begin
 		FExeVersion := TFileUtils.GetAppNameAndVersion(Application.ExeName);
 	end else begin
 		FExeVersion := TFileUtils.GetPackageNameAndVersion(HInstance);
@@ -659,8 +696,8 @@ begin
 
 	MiddleLeftFrame1.Init;
 
-	miOpenwith1.Default := IOTAUTils.IsStandAlone;
-	miOpenInIde.Default := not IOTAUTils.IsStandAlone;
+	miOpenwith1.Default := bStandalone;
+	miOpenInIde.Default := not bStandalone;
 	if not miOpenInIde.Default then begin
 		PopupMenuResult.Items[0].Visible := False;
 	end;
@@ -881,9 +918,11 @@ procedure TRipGrepperMiddleFrame.OpenSelectedInIde;
 var
 	owp : TOpenWithParams;
 begin
+    {$IFNDEF STANDALONE}
 	owp := GetOpenWithParamsFromSelected();
 	TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.OpenSelectedInIde: %s(%d:%d)', [owp.FileName, owp.Row, owp.Column]));
 	IOTAUtils.GxOtaGoToFileLineColumn(owp.FileName, owp.Row, owp.Column, owp.Column - 1);
+    {$ENDIF}
 end;
 
 procedure TRipGrepperMiddleFrame.PrepareAndDoSearch;
@@ -1077,7 +1116,14 @@ end;
 
 procedure TRipGrepperMiddleFrame.VstResultDblClick(Sender : TObject);
 begin
-	if IOTAUTils.IsStandAlone then begin
+	{$IFDEF STANDALONE}
+	var
+	bStandalone := True;
+	{$ELSE}
+	var
+	bStandalone := False;
+	{$ENDIF}
+	if bStandalone then begin
 		ActionOpenWithExecute(Sender);
 	end else begin
 		OpenSelectedInIde;

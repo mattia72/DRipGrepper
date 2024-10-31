@@ -32,7 +32,6 @@ uses
 	u_dzDpiScaleUtils,
 	RipGrepper.OpenWith.Constants,
 	System.IniFiles,
-	ToolsAPI,
 	RipGrepper.UI.BottomFrame,
 	RipGrepper.UI.TopFrame,
 	RipGrepper.UI.DpiScaler,
@@ -97,8 +96,7 @@ uses
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.OpenWith,
 	RipGrepper.OpenWith.ConfigForm,
-	System.TypInfo,
-	RipGrepper.Common.IOTAUtils;
+	System.TypInfo;
 
 {$R *.dfm}
 
@@ -118,10 +116,10 @@ constructor TRipGrepperForm.Create(AOwner : TComponent);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner');
 	inherited Create(AOwner);
-	if IOTAUTils.IsStandAlone then begin
+	{$IFDEF STANDALONE}
 		TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner STANDALONE');
 		Init;
-	end;
+	{$ENDIF}
 end;
 
 procedure TRipGrepperForm.FormCreate(Sender : TObject);
@@ -169,11 +167,10 @@ procedure TRipGrepperForm.CreateParams(var Params : TCreateParams);
 begin
 	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.CreateParams');
 	inherited CreateParams(Params);
-
-	if IOTAUTils.IsStandAlone then begin
+{$IFDEF STANDALONE}
 		Params.ExStyle := Params.ExStyle or WS_EX_APPWINDOW;
 		Params.WndParent := GetDesktopwindow;
-	end;
+{$ENDIF}
 end;
 
 procedure TRipGrepperForm.Init;

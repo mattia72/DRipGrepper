@@ -1,10 +1,9 @@
 unit RipGrepper.Common.IOTAUtils;
-
+{$IFNDEF STANDALONE} 
 interface
-
 uses
 	Vcl.Menus,
-	ToolsAPI,
+	ToolsAPI, 
 	System.Classes,
 	Vcl.Controls,
 	Vcl.Forms,
@@ -1173,5 +1172,8 @@ begin
 		end;
 	end;
 end;
-
+{$ELSE}
+interface
+implementation
+{$ENDIF}
 end.

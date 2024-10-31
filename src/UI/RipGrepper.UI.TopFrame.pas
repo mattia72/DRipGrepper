@@ -176,7 +176,6 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.UI.RipGrepOptionsForm,
 	RipGrepper.Common.ParsedObject,
-	RipGrepper.Common.IOTAUtils,
 	RipGrepper.Common.NodeData,
 	System.IOUtils,
 	RipGrepper.Helper.Types,
@@ -554,10 +553,7 @@ end;
 
 procedure TRipGrepperTopFrame.Init;
 begin
-	if not IOTAUTils.IsStandAlone then begin
-		// edtFilter.BorderStyle := bsNone;
-		// Height := Height - 2;
-	end;
+//
 end;
 
 function TRipGrepperTopFrame.IsFilterOn : Boolean;

@@ -5,8 +5,8 @@
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
-        <Platform Condition="'$(Platform)'==''">Win32</Platform>
-        <TargetedPlatforms>1</TargetedPlatforms>
+        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
         <MainSource>DRipGrepper.dpr</MainSource>
     </PropertyGroup>
@@ -34,6 +34,12 @@
         <Cfg_1>true</Cfg_1>
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64)'!=''">
+        <Cfg_1_Win64>true</Cfg_1_Win64>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
         <Cfg_2>true</Cfg_2>
         <CfgParent>Base</CfgParent>
@@ -41,6 +47,12 @@
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
         <Cfg_2_Win32>true</Cfg_2_Win32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
+        <Cfg_2_Win64>true</Cfg_2_Win64>
         <CfgParent>Cfg_2</CfgParent>
         <Cfg_2>true</Cfg_2>
         <Base>true</Base>
@@ -59,8 +71,7 @@
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
         <SanitizedProjectName>DRipGrepper</SanitizedProjectName>
         <DCC_Define>NO_TRANSLATION;NO_TRANSLATION_HINT;NO_OPTIMIZE_DZ_GRAPHIC_UTILS_HINT;UnicodeRE;UseOutputDebugString;STANDALONE;$(DCC_Define)</DCC_Define>
-        <DCC_UnitSearchPath>..\FastMM4;.\external\GExpert;.\external\dzlib;$(BDS)\source\ToolsAPI\ToolsAPI.pas;$(BDS)\source\ToolsAPI;.\external\UniSynEdit;.\external\RegExpr;.\external\mwParser;.\Extension\src;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-        <UsePackages>true</UsePackages>
+        <DCC_UnitSearchPath>..\FastMM4;.\external\GExpert;.\external\dzlib;$(BDS)\source\ToolsAPI;.\external\UniSynEdit;.\external\RegExpr;.\external\mwParser;.\Extension\src;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_UnitAlias>GX_IdeDockStandAlone=GX_IdeDock;SynRegExpr=RegExprReplaceUnit;$(DCC_UnitAlias)</DCC_UnitAlias>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
@@ -68,7 +79,7 @@
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=3.6.1.63;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipGrepper;ProductVersion=3.6.1.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=3.6.2.63;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipGrepper;ProductVersion=3.6.2.0;Comments=beta</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
@@ -79,10 +90,16 @@
         <UWP_DelphiLogo150>icons\DripGrepperLogo.png</UWP_DelphiLogo150>
         <VerInfo_Build>63</VerInfo_Build>
         <VerInfo_MinorVer>6</VerInfo_MinorVer>
-        <VerInfo_Release>1</VerInfo_Release>
+        <VerInfo_Release>2</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <DCC_UsePackage>soapserver;IndySystem;vclwinx;fmx;vclie;DbxCommonDriver;bindengine;vcldb;IndyIPCommon;VCLRESTComponents;FireDACCommonODBC;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;IndyIPClient;dbxcds;vcledge;vclFireDAC;bindcompvclwinx;bindcomp;FireDACCommon;IndyCore;RESTBackendComponents;bindcompfmx;bindcompdbx;inetdb;rtl;FireDACMySQLDriver;FireDACSqliteDriver;DbxClientDriver;FireDACADSDriver;RESTComponents;soapmidas;DBXSqliteDriver;vcl;vclactnband;IndyIPServer;dsnapxml;fmxFireDAC;dbexpress;dsnapcon;adortl;DBXMySQLDriver;VclSmp;inet;vclimg;vcltouch;FireDACPgDriver;FireDAC;fmxase;inetdbxpress;xmlrtl;tethering;dbrtl;bindcompvcl;dsnap;fmxdae;CloudService;FireDACMSAccDriver;CustomIPTransport;fmxobj;bindcompvclsmp;soaprtl;vcldsnap;DBXInterBaseDriver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
+        <BT_BuildType>Debug</BT_BuildType>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>DEBUG;FASTMM4_OPT;$(DCC_Define)</DCC_Define>
@@ -103,11 +120,14 @@
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_Build>63</VerInfo_Build>
         <VerInfo_MajorVer>3</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=3.6.1.63;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=3.6.1.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=3.6.2.63;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=3.6.2.0;Comments=beta</VerInfo_Keys>
         <VerInfo_MinorVer>6</VerInfo_MinorVer>
         <DCC_DebugInfoInTds>true</DCC_DebugInfoInTds>
         <Icon_MainIcon>icons\DripGrepper.ico</Icon_MainIcon>
-        <VerInfo_Release>1</VerInfo_Release>
+        <VerInfo_Release>2</VerInfo_Release>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
+        <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -125,10 +145,13 @@
         <UWP_DelphiLogo150>icons\DripGrepperLogo.png</UWP_DelphiLogo150>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_MajorVer>3</VerInfo_MajorVer>
-        <VerInfo_Build>63</VerInfo_Build>
-        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=3.6.1.63;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=3.6.1.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>64</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=3.6.2.64;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=3.6.2.0;Comments=beta</VerInfo_Keys>
         <VerInfo_MinorVer>6</VerInfo_MinorVer>
-        <VerInfo_Release>1</VerInfo_Release>
+        <VerInfo_Release>2</VerInfo_Release>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
+        <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -158,6 +181,7 @@
         <DCCReference Include="external\dzlib\u_dzConvertUtils.pas"/>
         <DCCReference Include="external\dzlib\u_dzClassUtils.pas"/>
         <DCCReference Include="external\dzlib\u_DelphiVersions.pas"/>
+        <DCCReference Include="src\Common\RipGrepper.Common.IOTAUtils.pas"/>
         <DCCReference Include="src\RipGrepper.Data.HistoryItemObject.pas"/>
         <DCCReference Include="src\RipGrepper.Data.Matches.pas"/>
         <DCCReference Include="src\RipGrepper.Data.Parsers.pas"/>
@@ -182,7 +206,6 @@
         <DCCReference Include="src\Common\RipGrepper.Common.Constants.pas"/>
         <DCCReference Include="src\Common\RipGrepper.Common.GuiSearchParams.pas"/>
         <DCCReference Include="src\Common\RipGrepper.Common.Interfaces.pas"/>
-        <DCCReference Include="src\Common\RipGrepper.Common.IOTAUtils.pas"/>
         <DCCReference Include="src\Common\RipGrepper.Common.NodeData.pas"/>
         <DCCReference Include="src\Common\RipGrepper.Common.ParsedObject.pas"/>
         <DCCReference Include="src\Common\RipGrepper.Common.SearchParams.pas"/>
@@ -266,8 +289,15 @@
                     <Source Name="MainSource">DRipGrepper.dpr</Source>
                 </Source>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k280.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp280.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="C:\home\mata\dev\delphi\RipGrepper\deploy\assets\DRipExtension.bpl">Datei C:\home\mata\dev\delphi\RipGrepper\deploy\assets\DRipExtension.bpl nicht gefunden</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclBindCompFireDAC280.bpl">LiveBinding-Ausdruckskomponenten für FireDac</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclFMXFireDAC280.bpl">Embarcadero FMX-FireDAC-Komponenten</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclVclFireDAC280.bpl">Embarcadero VCL-FireDAC-Komponenten</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp280.bpl">Microsoft Office XP Beispiele für gekapselte Komponenten für Automation Server</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclFMXtee9280.bpl">TeeChart Lite FMX Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclbindcompfmx280.bpl">Embarcadero LiveBindings-Komponenten FireMonkey</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclappanalytics280.bpl">Embarcadero Usertility-Analysekomponente</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclbindcompvcl280.bpl">Embarcadero LiveBindings-Komponenten VCL</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="4">
@@ -1122,7 +1152,7 @@
             </Deployment>
             <Platforms>
                 <Platform value="Win32">True</Platform>
-                <Platform value="Win64">False</Platform>
+                <Platform value="Win64">True</Platform>
             </Platforms>
             <MMX>
                 <UsesClauseFormatter AutoFormat="0">

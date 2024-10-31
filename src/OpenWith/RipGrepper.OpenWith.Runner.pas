@@ -3,7 +3,6 @@ unit RipGrepper.OpenWith.Runner;
 interface
 
 uses
-	ToolsAPI,
 	System.Types,
 	RipGrepper.OpenWith.Params;
 
@@ -27,7 +26,6 @@ uses
 	Vcl.Dialogs,
 	RipGrepper.Common.Constants,
 	RipGrepper.Tools.DebugUtils,
-	RipGrepper.Common.IOTAUtils,
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.FileUtils;
 
@@ -103,7 +101,7 @@ begin
 		ERROR_WRITE_PROTECT :
 		sFehler := sFehler + 'Schreibschutz!';
 		ERROR_NOT_READY :
-		sFehler := sFehler + 'Das Gerät ist nicht bereit!';
+		sFehler := sFehler + 'Das Gerï¿½t ist nicht bereit!';
 		ERROR_CRC :
 		sFehler := sFehler + 'Datenfehler!';
 		ERROR_SEEK :
@@ -117,37 +115,37 @@ begin
 		ERROR_READ_FAULT :
 		sFehler := sFehler + 'Allgemeiner Lesefehler!';
 		ERROR_GEN_FAILURE :
-		sFehler := sFehler + 'Gerät funktioniert nicht!';
+		sFehler := sFehler + 'Gerï¿½t funktioniert nicht!';
 		ERROR_SHARING_VIOLATION :
 		sFehler := sFehler + 'Datei ist in Benutzung!';
 		ERROR_HANDLE_DISK_FULL :
-		sFehler := sFehler + 'Datenträger voll!';
+		sFehler := sFehler + 'Datentrï¿½ger voll!';
 		ERROR_BAD_NETPATH :
 		sFehler := sFehler + 'Netzwerkpfad nicht gefunden!';
 		ERROR_NETWORK_BUSY :
 		sFehler := sFehler + 'Netzwerk ist ausgelastet!';
 		ERROR_DEV_NOT_EXIST :
-		sFehler := sFehler + 'Netzwerkbereich nicht verfügbar!';
+		sFehler := sFehler + 'Netzwerkbereich nicht verfï¿½gbar!';
 		ERROR_FILE_EXISTS :
 		sFehler := sFehler + 'Datei bereits vorhanden!';
 		ERROR_CANNOT_MAKE :
 		sFehler := sFehler + 'Datei konnte nicht angelegt werden!';
 		ERROR_DISK_CHANGE :
-		sFehler := sFehler + 'Datenträger nicht eingelegt!';
+		sFehler := sFehler + 'Datentrï¿½ger nicht eingelegt!';
 		ERROR_DRIVE_LOCKED :
-		sFehler := sFehler + 'Datenträger ist gesprerrt!';
+		sFehler := sFehler + 'Datentrï¿½ger ist gesprerrt!';
 		ERROR_OPEN_FAILED :
-		sFehler := sFehler + 'Datei konnte nicht geöffnet werden!';
+		sFehler := sFehler + 'Datei konnte nicht geï¿½ffnet werden!';
 		ERROR_BUFFER_OVERFLOW :
 		sFehler := sFehler + 'Dateiname ist zu lang!';
 		ERROR_DISK_FULL :
-		sFehler := sFehler + 'Datenträger voll!';
+		sFehler := sFehler + 'Datentrï¿½ger voll!';
 		ERROR_NO_MORE_SEARCH_HANDLES :
 		sFehler := sFehler + 'Keine Dateihandles frei!';
 		ERROR_INVALID_TARGET_HANDLE :
 		sFehler := sFehler + 'Falscher Dateihandle!';
 		ERROR_BAD_DRIVER_LEVEL :
-		sFehler := sFehler + 'Falscher/Fehlerhafter Gerätetreiber!';
+		sFehler := sFehler + 'Falscher/Fehlerhafter Gerï¿½tetreiber!';
 		ERROR_INSUFFICIENT_BUFFER :
 		sFehler := sFehler + 'Der Lesepuffer ist zu klein!';
 		ERROR_INVALID_NAME :

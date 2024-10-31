@@ -56,7 +56,6 @@ uses
 	Vcl.Menus,
 	System.RegularExpressions,
 	RipGrepper.CommandLine.Builder,
-	RipGrepper.Common.IOTAUtils,
 	System.Variants;
 
 constructor TAppSettings.Create(const _ini : TMemIniFile);

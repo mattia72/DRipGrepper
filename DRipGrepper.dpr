@@ -29,6 +29,9 @@ uses
   u_dzConvertUtils in 'external\dzlib\u_dzConvertUtils.pas',
   u_dzClassUtils in 'external\dzlib\u_dzClassUtils.pas',
   u_DelphiVersions in 'external\dzlib\u_DelphiVersions.pas',
+  {$IFNDEF STANDALONE}
+  RipGrepper.Common.IOTAUtils in 'src\Common\RipGrepper.Common.IOTAUtils.pas',
+  {$ENDIF}
   RipGrepper.Data.HistoryItemObject in 'src\RipGrepper.Data.HistoryItemObject.pas',
   RipGrepper.Data.Matches in 'src\RipGrepper.Data.Matches.pas',
   RipGrepper.Data.Parsers in 'src\RipGrepper.Data.Parsers.pas',
@@ -49,7 +52,6 @@ uses
   RipGrepper.Common.Constants in 'src\Common\RipGrepper.Common.Constants.pas',
   RipGrepper.Common.GuiSearchParams in 'src\Common\RipGrepper.Common.GuiSearchParams.pas',
   RipGrepper.Common.Interfaces in 'src\Common\RipGrepper.Common.Interfaces.pas',
-  RipGrepper.Common.IOTAUtils in 'src\Common\RipGrepper.Common.IOTAUtils.pas',
   RipGrepper.Common.NodeData in 'src\Common\RipGrepper.Common.NodeData.pas',
   RipGrepper.Common.ParsedObject in 'src\Common\RipGrepper.Common.ParsedObject.pas',
   RipGrepper.Common.SearchParams in 'src\Common\RipGrepper.Common.SearchParams.pas',

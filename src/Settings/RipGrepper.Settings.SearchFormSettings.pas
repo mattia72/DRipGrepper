@@ -96,8 +96,7 @@ uses
 	RipGrepper.Helper.UI,
 	Vcl.Menus,
 	System.RegularExpressions,
-	RipGrepper.CommandLine.Builder,
-	RipGrepper.Common.IOTAUtils;
+	RipGrepper.CommandLine.Builder;
 
 constructor TSearchFormSettings.Create(const _ini : TMemIniFile);
 begin

@@ -102,7 +102,6 @@ uses
 	RipGrepper.Helper.Types,
 	System.IOUtils,
 	System.SysUtils,
-	RipGrepper.Common.IOTAUtils,
 	System.AnsiStrings,
 	Vcl.Forms,
 	RipGrepper.Helper.UI,

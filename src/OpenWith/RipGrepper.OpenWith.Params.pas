@@ -20,20 +20,20 @@ type
 implementation
 
 uses
-	RipGrepper.Common.IOTAUtils,
+	{$IFNDEF STANDALONE} RipGrepper.Common.IOTAUtils, {$ENDIF}
 	RipGrepper.Tools.DebugUtils,
-	System.SysUtils,
-	ToolsAPI;
+	System.SysUtils;
 
 class function TOpenWithParams.GetParamsOfActiveFileInDelphiIde : TOpenWithParams;
-var
-	sProjName : string;
-	editPosition : IOTAEditPosition;
 begin
+	Result := default (TOpenWithParams);
+	{$IFNDEF STANDALONE}
+	var
 	editPosition := IOTAUTils.GetEditPosition;
 	if Assigned(editPosition) then begin
 		Result.FileName := IOTAUtils.GxOtaGetCurrentSourceFile;;
-		sProjName := IOTAUtils.GxOtaGetCurrentProjectName;
+		var
+			sProjName : string := IOTAUtils.GxOtaGetCurrentProjectName;
 		TDebugUtils.DebugMessage((Format('TOpenWithParams.GetParamsOfActiveFileInDelphiIde proj: %s ', [sProjName])));
 		if (sProjName <> '') then begin
 			Result.DirPath := ExtractFileDir(sProjName);
@@ -44,6 +44,7 @@ begin
 		Result.Column := editPosition.Column;
 		Result.IsEmpty := False;
 	end;
+	{$ENDIF}
 end;
 
 function TOpenWithParams.ToString : string;

@@ -58,8 +58,7 @@ implementation
 
 uses
 	RipGrepper.Tools.DebugUtils,
-
-	RipGrepper.Common.IOTAUtils,
+	{$IFNDEF STANDALONE} RipGrepper.Common.IOTAUtils, {$ENDIF}
 	System.SysUtils,
 	System.Variants;
 
@@ -90,9 +89,13 @@ procedure TRipGrepperExtensionSettings.ReadIni;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.ReadIni');
-	if IOTAUTils.IsStandAlone then begin
+	{$IFDEF STANDALONE}
 		Exit;
-	end;
+	{$ELSE}
+		if IOTAUTils.IsStandAlone then begin
+			Exit;
+		end;
+	{$ENDIF}
 	inherited ReadIni();
 end;
 
@@ -105,9 +108,13 @@ end;
 
 procedure TRipGrepperExtensionSettings.LoadFromDict;
 begin
-	if IOTAUTils.IsStandAlone then begin
+	{$IFDEF STANDALONE}
 		Exit;
-	end;
+	{$ELSE}
+		if IOTAUTils.IsStandAlone then begin
+			Exit;
+		end;
+	{$ENDIF}
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.LoadFromDict');
 
@@ -143,9 +150,13 @@ end;
 
 procedure TRipGrepperExtensionSettings.StoreToDict;
 begin
-	if IOTAUTils.IsStandAlone then begin
+	{$IFDEF STANDALONE}
 		Exit;
-	end;
+	{$ELSE}
+		if IOTAUTils.IsStandAlone then begin
+			Exit;
+		end;
+	{$ENDIF}
 
 	SettingsDict.StoreSetting(KEY_SHORTCUT_DRIPGREPPER, DripGrepperShortCut);
 	SettingsDict.StoreSetting(KEY_SHORTCUT_OPENWITH, OpenWithShortCut);
@@ -158,9 +169,13 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.StoreAsDefaultsToDict');
 
-	if IOTAUTils.IsStandAlone then begin
+	{$IFDEF STANDALONE}
 		Exit;
-	end;
+	{$ELSE}
+		if IOTAUTils.IsStandAlone then begin
+			Exit;
+		end;
+	{$ENDIF}
 	dbgMsg.MsgFmt('TAppSettings.StoreAsDefaultsToDict: IDEContext=%d',
 		{ } [Integer(CurrentIDEContext.IDEContext)]);
 

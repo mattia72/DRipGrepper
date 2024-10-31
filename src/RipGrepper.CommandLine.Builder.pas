@@ -40,7 +40,7 @@ uses
 	RipGrepper.Helper.Types,
 	RipGrepper.CommandLine.OptionHelper,
 	RipGrepper.Tools.DebugUtils,
-	RipGrepper.Common.IOTAUtils,
+	{$IFNDEF STANDALONE} RipGrepper.Common.IOTAUtils, {$ENDIF}
 	RipGrepper.CommandLine.OptionStrings;
 
 class procedure TCommandLineBuilder.AddArgs(var _params : TRipGrepParameterSettings; const _sName : string; const _args : TArray<string>;

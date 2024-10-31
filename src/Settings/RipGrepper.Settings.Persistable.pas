@@ -102,7 +102,7 @@ uses
 	System.Variants,
 	RipGrepper.Common.Constants,
 	Vcl.Forms,
-	RipGrepper.Common.IOTAUtils,
+	{$IFNDEF STANDALONE} RipGrepper.Common.IOTAUtils, {$ENDIF}
 	System.IOUtils,
 	System.StrUtils,
 	ArrayEx;
@@ -196,11 +196,11 @@ end;
 
 procedure TPersistableSettings.CreateIniFile;
 begin
-	if IOTAUTils.IsStandAlone then begin
+{$IFDEF STANDALONE}
 		FIniFile := TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8);
-	end else begin
+{$ELSE}
 		FIniFile := TMemIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'), TEncoding.UTF8);
-	end;
+{$ENDIF}
 end;
 
 function TPersistableSettings.GetIniFile: TMemIniFile;

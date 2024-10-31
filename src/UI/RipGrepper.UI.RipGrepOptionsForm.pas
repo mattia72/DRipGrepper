@@ -116,7 +116,9 @@ uses
 	System.Math,
 	Winapi.ShellAPI,
 	VirtualTrees.Header,
-	System.StrUtils, RipGrepper.CommandLine.OptionStrings;
+	System.StrUtils, 
+	RipGrepper.CommandLine.OptionStrings, 
+	System.UITypes;
 
 {$R *.dfm}
 
