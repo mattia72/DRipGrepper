@@ -63,6 +63,7 @@ function TSortCriteriaComparer<T>.Compare(const Right, Left : T) : Integer;
 var
 	Criterion : TSortCriterion<T>;
 begin
+	Result := 0;
 	for Criterion in SortCriteria do begin
 		Result := Criterion.Comparer.Compare(Right, Left);
 		if not Criterion.Ascending then

@@ -27,7 +27,7 @@ type
 
 	end;
 
-	TPersistableSettings = class(TSingletonImplementation, IIniPersistable)
+	TPersistableSettings = class(TNoRefCountObject, IIniPersistable)
 		private
 			FbDefaultLoaded : Boolean;
 			FbOwnIniFile : Boolean;
