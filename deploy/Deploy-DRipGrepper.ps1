@@ -20,6 +20,7 @@ $global:PrevVersion = ($global:Description | Select-String '^PrevVersion:') -rep
 
 $global:PreRelease = $true
 $global:StandaloneAppName = "DRipGrepper.exe"
+$global:StandaloneAppName64 = "DRipGrepper64.exe"
 $global:ExtensionFileName = "DRipExtension.bpl";
 $global:ExtensionPath = "$env:PUBLIC\Documents\Embarcadero\Studio\22.0\Bpl\"
 $global:AssetZipName = "DRipGrepper.$global:Version.zip"
@@ -59,7 +60,11 @@ function Build-StandaloneRelease {
     Import-Module -Name PSDelphi -Force
     $parentPath = Split-Path -Parent $PSScriptRoot 
     $result = $null
-    Build-DelphiProject -ProjectPath $parentPath\DRipGrepper.dproj -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result)
+    Build-DelphiProject -ProjectPath $parentPath\DRipGrepper.dproj -BuildConfig Release -Platform "Win32" -StopOnFirstFailure -CountResult -Result ([ref]$result)
+    if ($null -ne $result -and $result.ErrorCount -gt 0) {
+        Write-Error "Deploy canceled." -ErrorAction Stop
+    }
+    Build-DelphiProject -ProjectPath $parentPath\DRipGrepper.dproj -BuildConfig Release -Platform "Win64" -StopOnFirstFailure -CountResult -Result ([ref]$result)
     if ($null -ne $result -and $result.ErrorCount -gt 0) {
         Write-Error "Deploy canceled." -ErrorAction Stop
     }
@@ -107,14 +112,21 @@ function Build-ExtensionRelease {
 
 function Add-ToAssetsDir {
     param (
-        $AssetPath
+        $AssetPath,
+        [switch]$Win64
     )
-    $appVersion = $((Get-Command $AssetPath).FileVersionInfo.FileVersion) # BPL is ok too :)
-    if (-not $(Test-YesAnswer "Release version: $global:Version. Version of builded app: $appVersion. Ok?")) {
+
+    $cmd = $(Get-Command $AssetPath)
+    $appVersion = $($cmd.FileVersionInfo.FileVersion) # BPL is ok too :)
+    if (-not $(Test-YesAnswer "Release version: $global:Version. Version of $($cmd.Name)($($Win64 ? 'Win64': 'Win32')) app: $appVersion. Ok?")) {
         Write-Error "Search FileVersion=$appVersion in *.dproj and change it!`r`nDeploy stopped." -ErrorAction Stop
     }
     New-Item -Path $global:AssetsDirectory -ItemType Directory -ErrorAction SilentlyContinue
-    Copy-Item -Path $AssetPath -Destination $global:AssetsDirectory
+    if ($Win64) {
+        Copy-Item -Path $AssetPath -Destination $global:AssetsDirectory\$global:StandaloneAppName64 -Verbose
+    } else {
+        Copy-Item -Path $AssetPath -Destination $global:AssetsDirectory -Verbose
+    }
 }
 function New-ReleaseWithAsset {
     # Remove items recursively from the AssetsDirectory
@@ -135,8 +147,10 @@ function New-ReleaseWithAsset {
     if ($Deploy -or $LocalDeploy) {
         $parentPath = Split-Path -Parent $PSScriptRoot 
         $ZipDir = $(Join-Path $parentPath 'Win32\Release')
+        $Zip64Dir = $(Join-Path $parentPath 'Win64\Release')
 
         Add-ToAssetsDir $(Join-Path  $ZipDir $global:StandaloneAppName) 
+        Add-ToAssetsDir $(Join-Path  $Zip64Dir $global:StandaloneAppName) -Win64 
         Add-ToAssetsDir $(Join-Path $global:ExtensionPath $global:ExtensionFileName) 
 
         $compress = @{
