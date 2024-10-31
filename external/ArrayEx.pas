@@ -712,8 +712,6 @@ begin
 end;
 
 procedure TArrayEx<T>.Delete(Indexes : TArray<integer>);
-var
-  iShift : integer;
 begin
   TArray.Sort<integer>(Indexes);
   for var i := Length(Indexes) - 1 downto 0 do begin
