@@ -1,7 +1,7 @@
 <!--
 
-Version:     v3.6.2-beta
-PrevVersion: v3.6.1-beta
+Version:     v3.7.0-beta
+PrevVersion: v3.6.2-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -32,7 +32,7 @@ Marked with checkmark if ready, else planned ...
 - [ ] JSON config files
 - [ ] **extension**: search opened project files only
 - [ ] copy to desktop to run in PowerShell / command prompt
-- [ ] Win64 release
+- [x] win64 release
 
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.
