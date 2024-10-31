@@ -50,8 +50,8 @@ implementation
 
 {$R *.dfm}
 
-uses
-  GX_GxUtils;
+//uses
+  //GX_GxUtils;
 
 class function TfmBaseForm.Execute(_Owner: TComponent): Boolean;
 var
@@ -133,7 +133,7 @@ begin
 
   FGxHintCustomDataRec.ScaleHint := Self.ScaleHint;
   CopyMemory(@(FGxHintCustomDataRec.ID), @GxHintCustomDataId, SizeOf(FGxHintCustomDataRec.ID));
-  GxSetDefaultFont(Self);
+  //GxSetDefaultFont(Self);
 end;
 
 destructor TfmBaseForm.Destroy;
