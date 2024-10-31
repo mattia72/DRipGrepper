@@ -38,4 +38,5 @@ Marked with checkmark if fixed, else it is a known bug.
 - [ ] `Additional Options` has to have saved defaults also
 - [ ] drip icon in menu has no transparent background
 - [ ] exception if rg.exe not found
+- [x] correction to show/hide & enable/disable replace ctrls
 
