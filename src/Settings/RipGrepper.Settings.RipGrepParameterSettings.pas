@@ -157,7 +157,7 @@ begin
 			scoopRgPath := TPath.Combine(GetEnvironmentVariable('SCOOP'), 'apps\ripgrep\current\rg.exe');
 			if FileExists(scoopRgPath) then begin
 				rgPath := scoopRgPath;
-				dbgMsg.MsgFmt('RG.EXE Found in scoopRgPath=%s', [scoopRgPath]);
+				dbgMsg.MsgFmt('rg.exe found in scoopRgPath=%s', [scoopRgPath]);
 			end else begin
 				var
 					sVsDir : string := TFileUtils.GetVsCodeDir;
@@ -166,12 +166,12 @@ begin
 					vscodeRgPath := TFileUtils.FindFileInSubDirs(TPath.Combine(sVsDir, VSCODE_RG_EXE_FIND_PATH), 'rg.exe');
 					if not vscodeRgPath.IsEmpty then begin
 						rgPath := vscodeRgPath;
-						dbgMsg.MsgFmt('RG.EXE Found in vscodeRgPath=%s', [vscodeRgPath]);
+						dbgMsg.MsgFmt('rg.exe found in vscodeRgPath=%s', [vscodeRgPath]);
 					end;
 				end;
 			end;
 			if not FileExists(rgPath) then begin
-				dbgMsg.MsgFmt('RG.EXE not found in rgPath=%s', [rgPath]);
+				dbgMsg.MsgFmt('rg.exe not found in rgPath=%s', [rgPath]);
 				TMsgBox.ShowError(Format(FORMAT_RIPGREP_EXE_NOT_FOUND, [FIniFile.FileName]));
 				rgPath := '';
 			end;

@@ -148,13 +148,15 @@ var
   GetDpiForWindow: TGetDpiForWindow = nil;
 
 procedure InitApiCalls;
-var
-  Handle: Cardinal;
+//var
+//Handle: Cardinal;
 begin
-  Handle := LoadLibrary('user32.dll');
-  if Handle <> 0 then begin
-    GetDpiForWindow := GetProcAddress(Handle, 'GetDpiForWindow');
-  end;
+// causes exception while debugging in win64 and icon scaling is better without this
+
+//Handle := LoadLibrary('user32.dll');    // causes exception in win64 and scaling is better without this
+//if Handle <> 0 then begin
+//  GetDpiForWindow := GetProcAddress(Handle, 'GetDpiForWindow');
+//end;
 end;
 
 { TDpiScaler }

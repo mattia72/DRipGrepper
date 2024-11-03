@@ -156,7 +156,7 @@ var
 begin
 	name := GetAppName(_exePath);
 	GetModuleVersion(0, imajor, iminor, irelease, ibuild);
-	Result := Format(FORMAT_NAME_VERSION_INFO, [name, imajor, iminor, irelease]);
+	Result := Format(FORMAT_NAME_VERSION_INFO, [name, APP_PLATFORM, imajor, iminor, irelease, ibuild]);
 end;
 
 class function TFileUtils.GetAppVersion(const _exePath : string) : string;
@@ -167,7 +167,7 @@ var
 	ibuild : integer;
 begin
 	GetModuleVersion(0, imajor, iminor, irelease, ibuild);
-	Result := Format(FORMAT_VERSION_INFO, [imajor, iminor, irelease]);
+	Result := Format(FORMAT_VERSION_INFO, [imajor, iminor, irelease, ibuild]);
 end;
 
 class function TFileUtils.ParseCommand(const _sCmd : string) : TCommandLineRec;

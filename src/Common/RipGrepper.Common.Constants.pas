@@ -13,6 +13,13 @@ uses
 const
 	APPNAME = 'DRipGrepper';
 	EXTENSION_NAME = 'DRipExtension';
+
+    {$IFDEF WIN64}
+    const APP_PLATFORM = 'x64';
+    {$ELSE}
+    const APP_PLATFORM = 'x32';
+    {$ENDIF}
+
 	CAPTION_EXTENSION_MENU = 'DRipGrepper';
 	HOME_PAGE = 'https://github.com/mattia72/DRipGrepper';
 
@@ -24,8 +31,8 @@ const
 	WWW_LINK_RG_REPLACE_MAN_PAGE = 'https://www.mankier.com/1/rg#-r';
 	WWW_LINK_GLOBBING_HELP = 'https://www.w3schools.com/git/git_ignore.asp'; // https://www.mankier.com/5/gitignore
 
-	FORMAT_VERSION_INFO = 'v%d.%d.%d-beta';
-	FORMAT_NAME_VERSION_INFO = '%s ' + FORMAT_VERSION_INFO;
+	FORMAT_VERSION_INFO = 'v%d.%d.%d.%d-beta';
+	FORMAT_NAME_VERSION_INFO = '%s (%s) ' + FORMAT_VERSION_INFO;
 	FORMAT_VERSION_INFO_IN_STATUSBAR = '%s   ';
 
 	CR = #13;
