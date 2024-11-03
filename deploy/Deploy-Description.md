@@ -33,7 +33,7 @@ Marked with checkmark if ready, else planned ...
 - [ ] **extension**: search opened project files only
 - [ ] copy to desktop to run in PowerShell / command prompt
 - [x] win64 release
-  - [ ] sparate zip assets
+  - [x] sparate zip assets
 
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.

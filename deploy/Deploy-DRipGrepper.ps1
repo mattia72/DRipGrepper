@@ -23,6 +23,7 @@ $global:StandaloneAppName = "DRipGrepper.exe"
 $global:ExtensionFileName = "DRipExtension.bpl"
 
 $global:AssetZipName = "DRipGrepper.{0}.{1}.zip"
+$global:AssetExtensionZipName = "DRipExtension.{0}.{1}.zip"
 $global:AssetsDirectory = "$PSScriptRoot\assets"
 
 $global:Owner = "mattia72"
@@ -44,7 +45,7 @@ function Get-DelphiName {
 
     switch -regex ($versionNumber) {
         "^22\.*" { [PSCustomObject]@{ Name = "Delphi 11 Alexandria"; Dir = "Delphi11" } }
-        "^23\.*" { [PSCustomObject]@{ Name = "Delphi 12 Athen";      Dir = "Delphi12" } }
+        "^23\.*" { [PSCustomObject]@{ Name = "Delphi 12 Athen"; Dir = "Delphi12" } }
         Default { "Unknown" }
     }
 }
@@ -164,7 +165,6 @@ function Build-ExtensionRelease {
         Write-Error "Deploy canceled." -ErrorAction Stop
     }
 }
-
 function Add-ToAssetsDir {
     param (
         $AssetDir,
@@ -179,6 +179,44 @@ function Add-ToAssetsDir {
     }
     New-Item -Path $AssetDir -ItemType Directory -Force -ErrorAction SilentlyContinue
     Copy-Item -Path $AssetItemPath -Destination $AssetDir -Verbose
+}
+
+function New-StandaloneZips {
+    $projectPath = Split-Path -Parent $PSScriptRoot 
+
+    "Win32" , "Win64" | ForEach-Object {
+        $ZipDir = $(Join-Path $projectPath "$_\Release")
+        $AssetDir = $(Join-Path $global:AssetsDirectory $_)
+    
+        $win64 = $($_ -eq 'Win64')
+        Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $global:StandaloneAppName) -Win64:$win64
+    
+        $compress = @{
+            Path             = "$AssetDir\*.*"
+            CompressionLevel = "Fastest"
+            DestinationPath  = "$global:AssetsDirectory\$($global:AssetZipName -f $($win64 ? 'x64' : 'x86'), $global:Version)"
+            Force            = $true
+        }
+        Compress-Archive @compress
+    }
+}
+function New-ExtensionZip {
+    Get-InstalledDelphiVersions | ForEach-Object {
+        $delphiBplRoot = $("$env:PUBLIC\Documents\Embarcadero\Studio\$($_.Version)") 
+        $extensionPath = Join-Path "$delphiBplRoot" "Bpl\$global:ExtensionFileName"
+    
+        $AssetDir = $(Join-Path $global:AssetsDirectory "$($_.Data.Dir).Bpl")
+                
+        Add-ToAssetsDir -AssetDir $AssetDir $extensionPath 
+    
+        $compress = @{
+            Path             = "$AssetDir\*.*"
+            CompressionLevel = "Fastest"
+            DestinationPath  = "$global:AssetsDirectory\$($global:AssetExtensionZipName -f $_.Data.Dir, $global:Version)"
+            Force            = $true
+        }
+        Compress-Archive @compress
+    }
 }
 
 function New-ReleaseWithAsset {
@@ -197,28 +235,9 @@ function New-ReleaseWithAsset {
         Build-ExtensionRelease
     }
 
-    $latestVersion = $(Get-InstalledDelphiVersions -Latest)
-    $delphiBplRoot = $("$env:PUBLIC\Documents\Embarcadero\Studio\$($latestVersion.Version)") 
-    $extensionPath = Join-Path "$delphiBplRoot" "Bpl\$global:ExtensionFileName"
-
     if ($Deploy -or $LocalDeploy) {
-        $projectPath = Split-Path -Parent $PSScriptRoot 
-        "Win32" , "Win64" | % {
-            $ZipDir = $(Join-Path $projectPath "$_\Release")
-            $AssetDir = $(Join-Path $global:AssetsDirectory $_)
-
-            $win64 = $($_ -eq 'Win64')
-            Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $global:StandaloneAppName) -Win64:$win64
-            Add-ToAssetsDir -AssetDir $AssetDir $extensionPath -Win64:$win64
-
-            $compress = @{
-                Path             = "$AssetDir\*.*"
-                CompressionLevel = "Fastest"
-                DestinationPath  = "$global:AssetsDirectory\$($global:AssetZipName -f $($win64 ? 'x64' : 'x86'), $global:Version)"
-                Force            = $true
-            }
-            Compress-Archive @compress
-        }
+        New-StandaloneZips 
+        New-ExtensionZip 
         Get-Childitem $global:AssetsDirectory
     }
 
