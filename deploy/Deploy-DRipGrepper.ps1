@@ -20,10 +20,9 @@ $global:PrevVersion = ($global:Description | Select-String '^PrevVersion:') -rep
 
 $global:PreRelease = $true
 $global:StandaloneAppName = "DRipGrepper.exe"
-$global:StandaloneAppName64 = "DRipGrepper64.exe"
-$global:ExtensionFileName = "DRipExtension.bpl";
-$global:ExtensionPath = "$env:PUBLIC\Documents\Embarcadero\Studio\22.0\Bpl\"
-$global:AssetZipName = "DRipGrepper.$global:Version.zip"
+$global:ExtensionFileName = "DRipExtension.bpl"
+
+$global:AssetZipName = "DRipGrepper.{0}.{1}.zip"
 $global:AssetsDirectory = "$PSScriptRoot\assets"
 
 $global:Owner = "mattia72"
@@ -38,6 +37,56 @@ $global:headers = @{
     Authorization          = "Bearer $global:Token"
     "X-GitHub-Api-Version" = "2022-11-28"
 }
+function Get-DelphiName {
+    param (
+        [string]$versionNumber
+    )
+
+    switch -regex ($versionNumber) {
+        "^22\.*" { [PSCustomObject]@{ Name = "Delphi 11 Alexandria"; Dir = "Delphi11" } }
+        "^23\.*" { [PSCustomObject]@{ Name = "Delphi 12 Athen";      Dir = "Delphi12" } }
+        Default { "Unknown" }
+    }
+}
+
+function Get-InstalledDelphiVersions {
+    param (
+        [switch] $Latest
+    )
+    $delphiRegistryPaths = @(
+        # "HKLM:\SOFTWARE\Borland\Delphi",
+        # "HKLM:\SOFTWARE\Wow6432Node\Borland\Delphi",
+        "HKLM:\SOFTWARE\Embarcadero\BDS",
+        "HKLM:\SOFTWARE\Wow6432Node\Embarcadero\BDS"
+    )
+    $installedDelphiVersions = @()
+    foreach ($path in $delphiRegistryPaths) {
+        if (Test-Path $path) {
+            Get-ChildItem -Path $path | ForEach-Object {
+                $version = $_.PSChildName
+                $delphiName = Get-DelphiName -versionNumber $version
+                $installedDelphiVersions += [PSCustomObject]@{ Version = $version; Data = $delphiName }
+            }
+        }
+    }
+
+    $sortedDelphiVersions = $installedDelphiVersions | Sort-Object -Property Version -Descending
+    if ($installedDelphiVersions.Count -eq 0) {
+        Write-Host "No Delphi versions found." -ForegroundColor Red
+        $null
+    }
+    else {
+        Write-Host "Installed Delphi versions:" -ForegroundColor Blue
+        $sortedDelphiVersions | ForEach-Object { Write-Host $_.Data.Name }
+        if ($Latest) {
+            $installedDelphiVersions[0]
+        }
+        else {
+            $installedDelphiVersions
+        }
+    }
+}
+
 function Test-YesAnswer {
     [CmdletBinding()]
     param (
@@ -55,16 +104,23 @@ function Test-YesAnswer {
     }
     return $answer -imatch "[y]"
 }
+function Get-ProjectPath {
+    param (
+        $Path
+    )
+    $latestVersion = $(Get-InstalledDelphiVersions -Latest) 
+    Join-Path $(Split-Path -Parent $PSScriptRoot) "$Path\$($latestVersion.Data.Dir)"
+}
 function Build-StandaloneRelease {
     # copy scripts
     Import-Module -Name PSDelphi -Force
-    $parentPath = Split-Path -Parent $PSScriptRoot 
+    $projectPath = Get-ProjectPath "src\Project"
     $result = $null
-    Build-DelphiProject -ProjectPath $parentPath\DRipGrepper.dproj -BuildConfig Release -Platform "Win32" -StopOnFirstFailure -CountResult -Result ([ref]$result)
+    Build-DelphiProject -ProjectPath $projectPath\DRipGrepper.dproj -BuildConfig Release -Platform "Win32" -StopOnFirstFailure -CountResult -Result ([ref]$result)
     if ($null -ne $result -and $result.ErrorCount -gt 0) {
         Write-Error "Deploy canceled." -ErrorAction Stop
     }
-    Build-DelphiProject -ProjectPath $parentPath\DRipGrepper.dproj -BuildConfig Release -Platform "Win64" -StopOnFirstFailure -CountResult -Result ([ref]$result)
+    Build-DelphiProject -ProjectPath $projectPath\DRipGrepper.dproj -BuildConfig Release -Platform "Win64" -StopOnFirstFailure -CountResult -Result ([ref]$result)
     if ($null -ne $result -and $result.ErrorCount -gt 0) {
         Write-Error "Deploy canceled." -ErrorAction Stop
     }
@@ -73,8 +129,8 @@ function Build-StandaloneRelease {
 function Build-AndRunUnittest {
     # copy scripts
     Import-Module -Name PSDelphi -Force
-    $parentPath = Split-Path -Parent $PSScriptRoot 
-    $unittestPath = Join-Path $parentPath "UnitTest"
+    $projectPath = Split-Path -Parent $PSScriptRoot 
+    $unittestPath = Join-Path $projectPath "UnitTest"
     $result = $null
     Build-DelphiProject -ProjectPath $unittestPath\DRipGrepperUnittest.dproj -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result)
     if ($null -ne $result -and $result.ErrorCount -gt 0) {
@@ -101,10 +157,9 @@ function Build-AndRunUnittest {
 function Build-ExtensionRelease {
     # copy scripts
     Import-Module -Name PSDelphi -Force
-    $parentPath = Split-Path -Parent $PSScriptRoot 
-    $extensionPath = Join-Path $parentPath "Extension"
+    $projectPath = Get-ProjectPath "Extension\src\Project" 
     $result = $null
-    Build-DelphiProject -ProjectPath $extensionPath\DRipExtension.dproj -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result)
+    Build-DelphiProject -ProjectPath $projectPath\DRipExtension.dproj -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result)
     if ($null -ne $result -and $result.ErrorCount -gt 0) {
         Write-Error "Deploy canceled." -ErrorAction Stop
     }
@@ -112,25 +167,23 @@ function Build-ExtensionRelease {
 
 function Add-ToAssetsDir {
     param (
-        $AssetPath,
+        $AssetDir,
+        $AssetItemPath,
         [switch]$Win64
     )
 
-    $cmd = $(Get-Command $AssetPath)
+    $cmd = $(Get-Command $AssetItemPath)
     $appVersion = $($cmd.FileVersionInfo.FileVersion) # BPL is ok too :)
     if (-not $(Test-YesAnswer "Release version: $global:Version. Version of $($cmd.Name)($($Win64 ? 'Win64': 'Win32')) app: $appVersion. Ok?")) {
         Write-Error "Search FileVersion=$appVersion in *.dproj and change it!`r`nDeploy stopped." -ErrorAction Stop
     }
-    New-Item -Path $global:AssetsDirectory -ItemType Directory -ErrorAction SilentlyContinue
-    if ($Win64) {
-        Copy-Item -Path $AssetPath -Destination $global:AssetsDirectory\$global:StandaloneAppName64 -Verbose
-    } else {
-        Copy-Item -Path $AssetPath -Destination $global:AssetsDirectory -Verbose
-    }
+    New-Item -Path $AssetDir -ItemType Directory -Force -ErrorAction SilentlyContinue
+    Copy-Item -Path $AssetItemPath -Destination $AssetDir -Verbose
 }
+
 function New-ReleaseWithAsset {
     # Remove items recursively from the AssetsDirectory
-    Remove-Item -Path "$global:AssetsDirectory\*" -Recurse -Force -Verbose -Confirm
+    Remove-Item -Path "$global:AssetsDirectory\*" -Recurse -Force -Verbose -Confirm -ErrorAction SilentlyContinue
 
     if ($RunUnittest) {
         Build-AndRunUnittest
@@ -144,22 +197,27 @@ function New-ReleaseWithAsset {
         Build-ExtensionRelease
     }
 
+    $delphiBplRoot = $("$env:PUBLIC\Documents\Embarcadero\Studio\$(Get-InstalledDelphiVersions -Latest)") 
+    $extensionPath = Join-Path "$delphiBplRoot" "Bpl\$global:ExtensionFileName"
+
     if ($Deploy -or $LocalDeploy) {
-        $parentPath = Split-Path -Parent $PSScriptRoot 
-        $ZipDir = $(Join-Path $parentPath 'Win32\Release')
-        $Zip64Dir = $(Join-Path $parentPath 'Win64\Release')
+        $projectPath = Split-Path -Parent $PSScriptRoot 
+        "Win32" , "Win64" | % {
+            $ZipDir = $(Join-Path $projectPath "$_\Release")
+            $AssetDir = $(Join-Path $global:AssetsDirectory $_)
 
-        Add-ToAssetsDir $(Join-Path  $ZipDir $global:StandaloneAppName) 
-        Add-ToAssetsDir $(Join-Path  $Zip64Dir $global:StandaloneAppName) -Win64 
-        Add-ToAssetsDir $(Join-Path $global:ExtensionPath $global:ExtensionFileName) 
+            $win64 = $($_ -eq 'Win64')
+            Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $global:StandaloneAppName) -Win64:$win64
+            Add-ToAssetsDir -AssetDir $AssetDir $extensionPath -Win64:$win64
 
-        $compress = @{
-            Path             = "$global:AssetsDirectory\*.*"
-            CompressionLevel = "Fastest"
-            DestinationPath  = "$global:AssetsDirectory\$global:AssetZipName"
-            Force            = $true
+            $compress = @{
+                Path             = "$AssetDir\*.*"
+                CompressionLevel = "Fastest"
+                DestinationPath  = "$global:AssetsDirectory\$($global:AssetZipName -f $_, $global:Version)"
+                Force            = $true
+            }
+            Compress-Archive @compress
         }
-        Compress-Archive @compress
         Get-Childitem $global:AssetsDirectory
     }
 
@@ -170,7 +228,8 @@ function New-ReleaseWithAsset {
         $ReleaseID = $( Get-Releases -Tag $global:Version | Select-Object -Property id).id
         #$ReleaseID = $( Get-Releases -Latest | Select-Object -Property id).id
 
-        New-Asset -ReleaseID $ReleaseID -ZipFilePath "$global:AssetsDirectory\$global:AssetZipName"
+        Get-ChildItem $global:AssetsDirectory -Filter "*.zip" | ForEach-Object {
+            New-Asset -ReleaseID $ReleaseID -ZipFilePath "$_" }
     }
 }
 function Get-Releases {
@@ -230,13 +289,14 @@ function New-Asset {
         $ReleaseID,
         $ZipFilePath
     )
+    $AssetZipName = $(Split-Path $ZipFilePath -Leaf)
     $CurlArgument = '-L', 
     '-X', 'POST',
     "-H", "Accept: application/vnd.github+json" ,
     "-H", "Authorization: Bearer $global:Token" ,
     "-H", "X-GitHub-Api-Version: 2022-11-28" ,
     "-H", "Content-Type: application/octet-stream" ,
-    "https://uploads.github.com/repos/$global:Owner/$global:Repo/releases/$ReleaseID/assets?name=$global:AssetZipName" ,
+    "https://uploads.github.com/repos/$global:Owner/$global:Repo/releases/$ReleaseID/assets?name=$AssetZipName" ,
     "--data-binary", "@$ZipFilePath"
     & curl.exe @CurlArgument
 }
