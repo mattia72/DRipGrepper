@@ -17,7 +17,7 @@ const
     {$IFDEF WIN64}
     const APP_PLATFORM = 'x64';
     {$ELSE}
-    const APP_PLATFORM = 'x32';
+    const APP_PLATFORM = 'x86';
     {$ENDIF}
 
 	CAPTION_EXTENSION_MENU = 'DRipGrepper';

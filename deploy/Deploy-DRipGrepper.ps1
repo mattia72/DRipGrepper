@@ -31,6 +31,7 @@ $global:Repo = "DRipGrepper"
 $global:Url = "https://api.github.com/repos/$global:Owner/$global:Repo/releases"
 $global:Token = $(Get-Content $PSScriptRoot\SECRET_TOKEN)
 
+$global:InstalledDelphiVersions = @()
 
 $global:headers = @{
     "Content-Type"         = "application/json"
@@ -50,10 +51,18 @@ function Get-DelphiName {
     }
 }
 
+function Get-LastInstalledDelphiVersion {
+    if ($global:InstalledDelphiVersions.Count -eq 0) {
+        Get-InstalledDelphiVersions
+    }
+    return $global:InstalledDelphiVersions[0]
+}
 function Get-InstalledDelphiVersions {
-    param (
-        [switch] $Latest
-    )
+
+    if ($global:InstalledDelphiVersions.Count -ne 0) {
+        return $global:InstalledDelphiVersions
+    }
+
     $delphiRegistryPaths = @(
         # "HKLM:\SOFTWARE\Borland\Delphi",
         # "HKLM:\SOFTWARE\Wow6432Node\Borland\Delphi",
@@ -71,20 +80,13 @@ function Get-InstalledDelphiVersions {
         }
     }
 
-    $sortedDelphiVersions = $installedDelphiVersions | Sort-Object -Property Version -Descending
+    $global:InstalledDelphiVersions = $installedDelphiVersions | Sort-Object -Property Version -Descending
     if ($installedDelphiVersions.Count -eq 0) {
-        Write-Host "No Delphi versions found." -ForegroundColor Red
-        $null
+        Write-Error "No Delphi versions found." 
     }
     else {
         Write-Host "Installed Delphi versions:" -ForegroundColor Blue
         $sortedDelphiVersions | ForEach-Object { Write-Host $_.Data.Name }
-        if ($Latest) {
-            $installedDelphiVersions[0]
-        }
-        else {
-            $installedDelphiVersions
-        }
     }
 }
 
@@ -109,7 +111,7 @@ function Get-ProjectPath {
     param (
         $Path
     )
-    $latestVersion = $(Get-InstalledDelphiVersions -Latest) 
+    $latestVersion = Get-LastInstalledDelphiVersions 
     Join-Path $(Split-Path -Parent $PSScriptRoot) "$Path\$($latestVersion.Data.Dir)"
 }
 function Build-StandaloneRelease {
@@ -149,7 +151,6 @@ function Build-AndRunUnittest {
     LASTEXITCODE: $LASTEXITCODE
     -------------
 "@
-
     if (-not $? -or $LASTEXITCODE -ne 0) {
         Write-Error "Unittest failed, deploy canceled." -ErrorAction Stop
     }
@@ -185,16 +186,20 @@ function New-StandaloneZips {
     $projectPath = Split-Path -Parent $PSScriptRoot 
 
     "Win32" , "Win64" | ForEach-Object {
-        $ZipDir = $(Join-Path $projectPath "$_\Release")
+        $lastDelphiVer = Get-LastInstalledDelphiVersion
+        $ZipDir = $(Join-Path $projectPath "src\Project\$($lastDelphiVer.Data.Dir)\$_\Release")
         $AssetDir = $(Join-Path $global:AssetsDirectory $_)
     
         $win64 = $($_ -eq 'Win64')
         Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $global:StandaloneAppName) -Win64:$win64
     
+        $dest = "$global:AssetsDirectory\$($global:AssetZipName -f $($win64 ? 'x64' : 'x86'), $global:Version)"
+        Write-Host "$AssetDir\*.* to`n $dest" 
+
         $compress = @{
             Path             = "$AssetDir\*.*"
             CompressionLevel = "Fastest"
-            DestinationPath  = "$global:AssetsDirectory\$($global:AssetZipName -f $($win64 ? 'x64' : 'x86'), $global:Version)"
+            DestinationPath  = $dest
             Force            = $true
         }
         Compress-Archive @compress
