@@ -197,7 +197,8 @@ function New-ReleaseWithAsset {
         Build-ExtensionRelease
     }
 
-    $delphiBplRoot = $("$env:PUBLIC\Documents\Embarcadero\Studio\$(Get-InstalledDelphiVersions -Latest)") 
+    $latestVersion = $(Get-InstalledDelphiVersions -Latest)
+    $delphiBplRoot = $("$env:PUBLIC\Documents\Embarcadero\Studio\$($latestVersion.Version)") 
     $extensionPath = Join-Path "$delphiBplRoot" "Bpl\$global:ExtensionFileName"
 
     if ($Deploy -or $LocalDeploy) {
@@ -213,7 +214,7 @@ function New-ReleaseWithAsset {
             $compress = @{
                 Path             = "$AssetDir\*.*"
                 CompressionLevel = "Fastest"
-                DestinationPath  = "$global:AssetsDirectory\$($global:AssetZipName -f $_, $global:Version)"
+                DestinationPath  = "$global:AssetsDirectory\$($global:AssetZipName -f $($win64 ? 'x64' : 'x86'), $global:Version)"
                 Force            = $true
             }
             Compress-Archive @compress
