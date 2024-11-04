@@ -4,8 +4,8 @@
         <ProjectVersion>20.1</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
-        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <Config Condition="'$(Config)'==''">Release</Config>
+        <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
         <MainSource>DRipGrepper.dpr</MainSource>
@@ -163,9 +163,8 @@
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_MajorVer>3</VerInfo_MajorVer>
         <VerInfo_MinorVer>8</VerInfo_MinorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.8.0.1;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=3.8.0.0</VerInfo_Keys>
-        <VerInfo_Build>1</VerInfo_Build>
-        <Icon_MainIcon>..\..\..\..\..\..\icons\Drip.ico</Icon_MainIcon>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.8.0.2;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=3.8.0.0</VerInfo_Keys>
+        <VerInfo_Build>2</VerInfo_Build>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
