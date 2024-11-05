@@ -3,7 +3,7 @@ unit RipGrepper.Common.SimpleTypes;
 interface
 
 uses
-  System.Classes;
+	System.Classes;
 
 type
 	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
@@ -13,6 +13,7 @@ type
 
 	{$SCOPEDENUMS ON}
 	EGuiReplaceMode = (grmRGReplace, grmEditEnabled, grmActive, grmSaveEnabled);
+	EFilterMode = (fmFilterFile, fmFilterText);
 	{$SCOPEDENUMS OFF}
 	TGuiReplaceModes = set of EGuiReplaceMode;
 

@@ -140,6 +140,8 @@ type
 			procedure DoSearch;
 			procedure EnableActionIfResultSelected(_act : TAction);
 			procedure ExpandNodes;
+			procedure FilterTextMode(const Node : PVirtualNode; const _sFilterPattern : string);
+			procedure FilterFileMode(const Node : PVirtualNode; const _sFilterPattern : string);
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
 			function GetData : TRipGrepperData;
 			function GetHistItemObject : IHistoryItemObject;
@@ -176,13 +178,13 @@ type
 			procedure CopyToClipboardFileOfSelected;
 			procedure CopyToClipboardPathOfSelected;
 			function CreateNewHistObject : IHistoryItemObject;
-			procedure FilterNodes(const _sFilterPattern : string);
+			procedure FilterNodes(const _sFilterPattern : string; const _filterMode : EFilterMode);
 			function GetCounterText(Data : IHistoryItemObject) : string;
 			function GetFilePathFromNode(_node : PVirtualNode) : string;
 			function GetOpenWithParamsFromSelected : TOpenWithParams;
 			function GetRowColText(_i : Integer; _type : TVSTTextType) : string;
 			procedure Init;
-			function IsNodeFiltered(const Data : PVSFileNodeData; const _sFilterText : string) : Boolean;
+			function IsNodeFiltered(const Data : PVSFileNodeData; const _sFilterText : string; const _filterMode : EFilterMode) : Boolean;
 			function IsSearchRunning : Boolean;
 			// IEOFProcessEventHandler
 			procedure OnEOFProcess;
@@ -265,11 +267,13 @@ end;
 
 procedure TRipGrepperMiddleFrame.ActionAddUsingImplementationUpdate(Sender : TObject);
 begin
-{$IFDEF STANDALONE}
-var bStandalone := True;
-{$ELSE}
-var bStandalone := False;
-{$ENDIF}
+	{$IFDEF STANDALONE}
+	var
+	bStandalone := True;
+	{$ELSE}
+	var
+	bStandalone := False;
+	{$ENDIF}
 	miAddToUSESList.Visible := bStandalone;
 	ActionAddUsingImplementation.Visible := bStandalone;
 	EnableActionIfResultSelected(ActionAddUsingImplementation);
@@ -408,25 +412,24 @@ begin
 	{$IFNDEF STANDALONE}
 	var
 		usesman : TUsesManager := TUsesManager.Create(IOTAUtils.GxOtaGetCurrentSourceEditor);
-	try
-		var fn :string := TPath.GetFileNameWithoutExtension(GetResultSelectedFilePath);
+		try var fn : string := TPath.GetFileNameWithoutExtension(GetResultSelectedFilePath);
 
-		var
-		st := usesman.GetUsesStatus(fn);
-		if (usNonExisting = st) then begin
-			if _bToImpl then begin
-				usesman.AddToImpSection(fn);
-			end else begin
-				usesman.AddToIntSection(fn);
-			end;
+	var
+	st := usesman.GetUsesStatus(fn);
+	if (usNonExisting = st) then begin
+		if _bToImpl then begin
+			usesman.AddToImpSection(fn);
 		end else begin
-			TMsgBox.ShowInfo(Format('Unit %s is already in %s section.', [fn, IfThen(st = usInterface, 'interface', 'implementation')]));
+			usesman.AddToIntSection(fn);
 		end;
-
-	finally
-		usesman.Free;
+	end else begin
+		TMsgBox.ShowInfo(Format('Unit %s is already in %s section.', [fn, IfThen(st = usInterface, 'interface', 'implementation')]));
 	end;
-	{$ENDIF}
+
+finally
+	usesman.Free;
+end;
+{$ENDIF}
 end;
 
 procedure TRipGrepperMiddleFrame.AlignToolBars;
@@ -493,44 +496,71 @@ begin
 	end;
 end;
 
-procedure TRipGrepperMiddleFrame.FilterNodes(const _sFilterPattern : string);
+procedure TRipGrepperMiddleFrame.FilterNodes(const _sFilterPattern : string; const _filterMode : EFilterMode);
 var
 	Node : PVirtualNode;
-	Data : PVSFileNodeData;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.FilterNodes');
 	VstResult.BeginUpdate;
 	try
 		for Node in VstResult.InitializedNodes(True) do begin
-			Data := VstResult.GetNodeData(Node);
-			var
-			bIsFiltered := IsNodeFiltered(Data, _sFilterPattern);
-			if (Node.Parent = VstResult.RootNode) then begin
-				// TODO:  filter for filenames should include childs
+			if _filterMode = EFilterMode.fmFilterFile then begin
+				FilterFileMode(Node, _sFilterPattern);
 			end else begin
-				VstResult.IsFiltered[Node] := bIsFiltered;
-				if not bIsFiltered and Assigned(Node.Parent) and (Node.Parent <> VstResult.RootNode) then begin
-					VstResult.IsFiltered[Node.Parent] := False;
-				end;
+				FilterTextMode(Node, _sFilterPattern);
 			end;
-			dbgMsg.MsgFmtIf(not bIsFiltered, 'not IsFiltered: %s', [Data.MatchData.LineText]);
 		end;
 	finally
 		VstResult.EndUpdate;
 	end;
 end;
 
+procedure TRipGrepperMiddleFrame.FilterTextMode(const Node : PVirtualNode; const _sFilterPattern : string);
+var
+	bIsFiltered : Boolean;
+	Data : PVSFileNodeData;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.FilterTextMode');
+
+	if (Node.Parent <> VstResult.RootNode) then begin
+		Data := VstResult.GetNodeData(Node);
+		bIsFiltered := IsNodeFiltered(Data, _sFilterPattern, EFilterMode.fmFilterText);
+
+		VstResult.IsFiltered[Node] := bIsFiltered;
+		if not bIsFiltered and Assigned(Node.Parent) and (Node.Parent <> VstResult.RootNode) then begin
+			VstResult.IsFiltered[Node.Parent] := False;
+		end;
+		dbgMsg.MsgFmtIf(not bIsFiltered, 'not IsFiltered: %s', [Data.MatchData.LineText]);
+	end;
+end;
+
+procedure TRipGrepperMiddleFrame.FilterFileMode(const Node : PVirtualNode; const _sFilterPattern : string);
+var
+	bIsFiltered : Boolean;
+	Data : PVSFileNodeData;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.FilterFileMode');
+	Data := VstResult.GetNodeData(Node);
+
+	if (Node.Parent = VstResult.RootNode) then begin
+		bIsFiltered := IsNodeFiltered(Data, _sFilterPattern, EFilterMode.fmFilterFile);
+		VstResult.IsFiltered[Node] := bIsFiltered;
+		dbgMsg.MsgFmtIf(not bIsFiltered, 'not IsFiltered: %s', [Data.MatchData.LineText]);
+	end else begin
+		VstResult.IsFiltered[Node] := VstResult.IsFiltered[Node.Parent];
+	end;
+end;
+
 procedure TRipGrepperMiddleFrame.FrameResize(Sender : TObject);
 begin
-	// TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.FrameResize');
-
 	SplitView1.Width := panelMain.Width;
 	if Assigned(ParentFrame) then begin
 		BottomFrame.StatusBar1.Panels[0].Width := PanelHistory.Width;
 	end;
 	AlignToolBars;
-
 	SetColumnWidths;
 end;
 
@@ -905,12 +935,17 @@ begin
 	Result := VstResult.GetNodeData(Node);
 end;
 
-function TRipGrepperMiddleFrame.IsNodeFiltered(const Data : PVSFileNodeData; const _sFilterText : string) : Boolean;
+function TRipGrepperMiddleFrame.IsNodeFiltered(const Data : PVSFileNodeData; const _sFilterText : string; const _filterMode : EFilterMode)
+	: Boolean;
 begin
 	if _sFilterText.IsEmpty then begin
 		Result := False;
 	end else begin
-		Result := not TRegEx.IsMatch(Data.MatchData.LineText, _sFilterText);
+		if _filterMode = EFilterMode.fmFilterFile then begin
+			Result := not TRegEx.IsMatch(Data.FilePath, _sFilterText);
+		end else begin
+			Result := not TRegEx.IsMatch(Data.MatchData.LineText, _sFilterText);
+		end;
 	end;
 end;
 
@@ -918,11 +953,11 @@ procedure TRipGrepperMiddleFrame.OpenSelectedInIde;
 var
 	owp : TOpenWithParams;
 begin
-    {$IFNDEF STANDALONE}
+	{$IFNDEF STANDALONE}
 	owp := GetOpenWithParamsFromSelected();
 	TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.OpenSelectedInIde: %s(%d:%d)', [owp.FileName, owp.Row, owp.Column]));
 	IOTAUtils.GxOtaGoToFileLineColumn(owp.FileName, owp.Row, owp.Column, owp.Column - 1);
-    {$ENDIF}
+	{$ENDIF}
 end;
 
 procedure TRipGrepperMiddleFrame.PrepareAndDoSearch;

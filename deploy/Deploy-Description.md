@@ -24,7 +24,7 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 
 ## :boom: Improvements 
 Marked with checkmark if ready, else planned ...
-- [ ] popup menu to filter on file names only
+- [x] popup menu to filter on file names only
 - [ ] **extension**: save all before search message?
 - [ ] save/load search histories in file
 - [x] config form
@@ -40,4 +40,5 @@ Marked with checkmark if fixed, else it is a known bug.
 - [ ] `Additional Options` has to have saved defaults also
 - [ ] drip icon in menu has no transparent background
 - [ ] exception if rg.exe not found
+- [ ] **extension**: add to uses list not shown
 

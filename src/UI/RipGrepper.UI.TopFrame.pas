@@ -66,7 +66,7 @@ type
 		ToolButton7 : TToolButton;
 		tbarResult : TToolBar;
 		tbarConfig : TToolBar;
-		PopupMenu1 : TPopupMenu;
+		PopupMenuToolBar : TPopupMenu;
 		AlignToolbar1 : TMenuItem;
 		ToolButton2 : TToolButton;
 		ToolButton5 : TToolButton;
@@ -78,10 +78,11 @@ type
 		tbSaveReplacement : TToolButton;
 		ActionSaveReplacement : TAction;
 		ActionSaveAllReplacement : TAction;
+		miSetFileFilterMode: TMenuItem;
+		miSetTextFilterMode: TMenuItem;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlignToolbarsExecute(Sender : TObject);
-		procedure ActionSaveAllReplacementExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsUpdate(Sender : TObject);
 		procedure ActionCancelExecute(Sender : TObject);
@@ -101,6 +102,8 @@ type
 		procedure ActionSaveReplacementUpdate(Sender : TObject);
 		procedure ActionSearchExecute(Sender : TObject);
 		procedure ActionSearchInResultExecute(Sender : TObject);
+		procedure ActionSetFileFilterModeExecute(Sender : TObject);
+		procedure ActionSetTextFilterModeExecute(Sender : TObject);
 		procedure ActionShowFileIconsExecute(Sender : TObject);
 		procedure ActionShowFileIconsUpdate(Sender : TObject);
 		procedure ActionShowRelativePathExecute(Sender : TObject);
@@ -117,6 +120,7 @@ type
 
 		private
 			FDpiScaler : TRipGrepperDpiScaler;
+			FFilterMode : EFilterMode;
 			FGuiReplaceModes : TGuiReplaceModes;
 			FHistItemObj : IHistoryItemObject;
 			FPrevFoundNode : PVirtualNode;
@@ -135,6 +139,7 @@ type
 			procedure SetReplaceModeOnToolBar;
 			procedure SetReplaceTextInSettings(const _sReplText : string);
 			procedure StartNewSearch;
+		procedure UpdateFilterMenu;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
 		public
@@ -189,6 +194,7 @@ begin
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 	TopFrame := self;
 	FGuiReplaceModes := []; // [EGuiReplaceMode.grmEditEnabled];
+    FFilterMode := EFilterMode.fmFilterFile;
 end;
 
 destructor TRipGrepperTopFrame.Destroy;
@@ -213,11 +219,6 @@ end;
 procedure TRipGrepperTopFrame.ActionAlignToolbarsExecute(Sender : TObject);
 begin
 	MainFrame.AlignToolBars;
-end;
-
-procedure TRipGrepperTopFrame.ActionSaveAllReplacementExecute(Sender : TObject);
-begin
-	//
 end;
 
 procedure TRipGrepperTopFrame.ActionAlternateRowColorsExecute(Sender : TObject);
@@ -365,6 +366,18 @@ begin
 	SelectNextFoundNode(FPrevFoundNode, edtFilter.Text);
 end;
 
+procedure TRipGrepperTopFrame.ActionSetFileFilterModeExecute(Sender : TObject);
+begin
+	FFilterMode := EFilterMode.fmFilterFile;
+    UpdateFilterMenu;
+end;
+
+procedure TRipGrepperTopFrame.ActionSetTextFilterModeExecute(Sender : TObject);
+begin
+	FFilterMode := EFilterMode.fmFilterText;
+	UpdateFilterMenu;
+end;
+
 procedure TRipGrepperTopFrame.ActionShowFileIconsExecute(Sender : TObject);
 begin
 	Settings.NodeLookSettings.ShowFileIcon := not Settings.NodeLookSettings.ShowFileIcon;
@@ -452,7 +465,7 @@ end;
 procedure TRipGrepperTopFrame.edtFilterChange(Sender : TObject);
 begin
 	if IsFilterOn then begin
-		MainFrame.FilterNodes(edtFilter.Text);
+		MainFrame.FilterNodes(edtFilter.Text, FFilterMode);
 	end;
 end;
 
@@ -462,7 +475,7 @@ begin
 		MainFrame.ClearFilter(True);
 		SetFilter(False);
 	end else begin
-		MainFrame.FilterNodes(edtFilter.Text);
+		MainFrame.FilterNodes(edtFilter.Text, FFilterMode);
 		SetFilter();
 	end;
 end;
@@ -553,7 +566,7 @@ end;
 
 procedure TRipGrepperTopFrame.Init;
 begin
-//
+	//
 end;
 
 function TRipGrepperTopFrame.IsFilterOn : Boolean;
@@ -584,7 +597,7 @@ begin
 	inherited; // OnChange(Sender);
 	FPrevFoundNode := nil;
 	// SelectNextFoundNode(FPrevFoundNode);
-	MainFrame.FilterNodes(edtFilter.Text);
+	MainFrame.FilterNodes(edtFilter.Text, FFilterMode);
 end;
 
 procedure TRipGrepperTopFrame.SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
@@ -705,6 +718,12 @@ begin
 		FHistItemObj := nil;
 	end;
 	ParentFrame.MainFrame.MiddleLeftFrame1.SetReplaceMode();
+end;
+
+procedure TRipGrepperTopFrame.UpdateFilterMenu;
+begin
+	miSetFileFilterMode.Checked := FFilterMode =  EFilterMode.fmFilterFile;
+	miSetTextFilterMode.Checked := FFilterMode =  EFilterMode.fmFilterText;
 end;
 
 end.

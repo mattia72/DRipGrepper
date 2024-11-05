@@ -109,6 +109,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       TabStop = False
       Images = ImageListButtons
       ParentShowHint = False
+      PopupMenu = PopupMenuFilterMode
       RightButton.ImageIndex = 25
       RightButton.Visible = True
       ShowHint = True
@@ -1430,6 +1431,15 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     Images = ImageListButtons
     Left = 1418
     Top = 65531
+    object ActionSetFileFilterMode: TAction
+      Caption = 'Filter File'
+      Checked = True
+      OnExecute = ActionSetFileFilterModeExecute
+    end
+    object ActionSetTextFilterMode: TAction
+      Caption = 'Filter Text'
+      OnExecute = ActionSetTextFilterModeExecute
+    end
     object ActionSearch: TAction
       Category = 'Search'
       Caption = 'Search'
@@ -1456,7 +1466,6 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       ImageIndex = 32
       ShortCut = 12371
       Visible = False
-      OnExecute = ActionSaveAllReplacementExecute
     end
     object ActionRefreshSearch: TAction
       Category = 'Search'
@@ -1564,12 +1573,25 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       OnUpdate = ActionSaveReplacementUpdate
     end
   end
-  object PopupMenu1: TPopupMenu
+  object PopupMenuToolbar: TPopupMenu
     Images = ImageListButtons
     Left = 731
     Top = 65534
     object AlignToolbar1: TMenuItem
       Action = ActionAlignToolbars
+    end
+  end
+  object PopupMenuFilterMode: TPopupMenu
+    Images = ImageListButtons
+    Left = 731
+    Top = 65534
+    object miSetFileFilterMode: TMenuItem
+      Action = ActionSetFileFilterMode
+      RadioItem = True
+    end
+    object miSetTextFilterMode: TMenuItem
+      Action = ActionSetTextFilterMode
+      RadioItem = True
     end
   end
 end
