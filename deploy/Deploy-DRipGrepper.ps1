@@ -114,19 +114,30 @@ function Get-ProjectPath {
     $latestVersion = Get-LastInstalledDelphiVersions 
     Join-Path $(Split-Path -Parent $PSScriptRoot) "$Path\$($latestVersion.Data.Dir)"
 }
+
+function Test-BuildResult {
+    param (
+        $result
+    )
+    $project = $(Split-Path $result.ProjectPath -Leaf) 
+    if ($null -ne $result -and $result.ErrorCount -gt 0) {
+        Write-Error "$project build failed with $($result.ErrorCount) error(s). Deploy canceled." -ErrorAction Stop
+    }
+    else {
+        $fg = $result.WarningCount -gt 0 ? 'Yellow' : 'Green'
+        Write-Host "$project build succeded. $($result.ErrorCount) error(s), $($result.WarningCount) warning(s)." -ForegroundColor $fg
+    }
+}
+
 function Build-StandaloneRelease {
     # copy scripts
     Import-Module -Name PSDelphi -Force
     $projectPath = Get-ProjectPath "src\Project"
     $result = $null
-    Build-DelphiProject -ProjectPath $projectPath\DRipGrepper.dproj -BuildConfig Release -Platform "Win32" -StopOnFirstFailure -CountResult -Result ([ref]$result)
-    if ($null -ne $result -and $result.ErrorCount -gt 0) {
-        Write-Error "Deploy canceled." -ErrorAction Stop
-    }
-    Build-DelphiProject -ProjectPath $projectPath\DRipGrepper.dproj -BuildConfig Release -Platform "Win64" -StopOnFirstFailure -CountResult -Result ([ref]$result)
-    if ($null -ne $result -and $result.ErrorCount -gt 0) {
-        Write-Error "Deploy canceled." -ErrorAction Stop
-    }
+    Build-DelphiProject -ProjectPath $projectPath\DRipGrepper.dproj -BuildConfig Release -Platform "Win32" -StopOnFirstFailure -CountResult -Result ([ref]$result) | Out-Null
+    Test-BuildResult -result $result
+    Build-DelphiProject -ProjectPath $projectPath\DRipGrepper.dproj -BuildConfig Release -Platform "Win64" -StopOnFirstFailure -CountResult -Result ([ref]$result) | Out-Null
+    Test-BuildResult -result $result    
 }
 
 function Build-AndRunUnittest {
@@ -135,11 +146,8 @@ function Build-AndRunUnittest {
     $projectPath = Split-Path -Parent $PSScriptRoot 
     $unittestPath = Join-Path $projectPath "UnitTest"
     $result = $null
-    Build-DelphiProject -ProjectPath $unittestPath\DRipGrepperUnittest.dproj -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result)
-    if ($null -ne $result -and $result.ErrorCount -gt 0) {
-        Write-Error "Deploy canceled." -ErrorAction Stop
-    }
-
+    Build-DelphiProject -ProjectPath $unittestPath\DRipGrepperUnittest.dproj -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result) | Out-Null
+    Test-BuildResult -result $result    
     $unittestPath = Join-Path $unittestPath "\Win32\Release"
 
     & $unittestPath\DRipGrepperUnittest.exe -exitbehavior:Continue
@@ -161,10 +169,8 @@ function Build-ExtensionRelease {
     Import-Module -Name PSDelphi -Force
     $projectPath = Get-ProjectPath "Extension\src\Project" 
     $result = $null
-    Build-DelphiProject -ProjectPath $projectPath\DRipExtension.dproj -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result)
-    if ($null -ne $result -and $result.ErrorCount -gt 0) {
-        Write-Error "Deploy canceled." -ErrorAction Stop
-    }
+    Build-DelphiProject -ProjectPath $projectPath\DRipExtension.dproj -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result) | Out-Null
+    Test-BuildResult -result $result
 }
 function Add-ToAssetsDir {
     param (

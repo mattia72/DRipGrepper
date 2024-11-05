@@ -1,14 +1,14 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{690C375C-03A1-4C11-8B81-E628EF382F2C}</ProjectGuid>
+        <ProjectGuid>{04615F54-46E4-466F-BD6A-656F9935C01F}</ProjectGuid>
         <ProjectVersion>19.5</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
-        <TargetedPlatforms>3</TargetedPlatforms>
-        <AppType>Application</AppType>
-        <MainSource>DRipGrepper.dpr</MainSource>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <TargetedPlatforms>1</TargetedPlatforms>
+        <AppType>Console</AppType>
+        <MainSource>DRipGrepperUnittest.dpr</MainSource>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -34,12 +34,6 @@
         <Cfg_1>true</Cfg_1>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64)'!=''">
-        <Cfg_1_Win64>true</Cfg_1_Win64>
-        <CfgParent>Cfg_1</CfgParent>
-        <Cfg_1>true</Cfg_1>
-        <Base>true</Base>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
         <Cfg_2>true</Cfg_2>
         <CfgParent>Base</CfgParent>
@@ -47,12 +41,6 @@
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
         <Cfg_2_Win32>true</Cfg_2_Win32>
-        <CfgParent>Cfg_2</CfgParent>
-        <Cfg_2>true</Cfg_2>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
-        <Cfg_2_Win64>true</Cfg_2_Win64>
         <CfgParent>Cfg_2</CfgParent>
         <Cfg_2>true</Cfg_2>
         <Base>true</Base>
@@ -66,40 +54,23 @@
         <DCC_F>false</DCC_F>
         <DCC_K>false</DCC_K>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-        <Icon_MainIcon>icons\Drip.ico</Icon_MainIcon>
-        <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
-        <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
-        <SanitizedProjectName>DRipGrepper</SanitizedProjectName>
-        <DCC_Define>NO_TRANSLATION;NO_TRANSLATION_HINT;NO_OPTIMIZE_DZ_GRAPHIC_UTILS_HINT;UnicodeRE;UseOutputDebugString;STANDALONE;$(DCC_Define)</DCC_Define>
-        <DCC_UnitSearchPath>..\FastMM4;.\external\GExpert;.\external\dzlib;$(BDS)\source\ToolsAPI;.\external\UniSynEdit;.\external\RegExpr;.\external\mwParser;.\Extension\src;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-        <DCC_UnitAlias>GX_IdeDockStandAlone=GX_IdeDock;SynRegExpr=RegExprReplaceUnit;$(DCC_UnitAlias)</DCC_UnitAlias>
+        <UsingDelphiRTL>true</UsingDelphiRTL>
+        <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
+        <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
+        <DCC_UnitSearchPath>$(DUnitX);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <SanitizedProjectName>DRipGrepperUnittest</SanitizedProjectName>
+        <DCC_Define>STANDALONE;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <DCC_UsePackage>soapserver;IndySystem;vclwinx;DesignIde;fmx;vclie;DbxCommonDriver;bindengine;vcldb;IndyIPCommon;VCLRESTComponents;FireDACCommonODBC;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;IndyIPClient;dbxcds;vcledge;vclFireDAC;bindcompvclwinx;bindcomp;FireDACCommon;IndyCore;RESTBackendComponents;bindcompfmx;bindcompdbx;inetdb;rtl;FireDACMySQLDriver;FireDACSqliteDriver;DbxClientDriver;FireDACADSDriver;RESTComponents;soapmidas;DBXSqliteDriver;vcl;vclactnband;IndyIPServer;dsnapxml;fmxFireDAC;dbexpress;dsnapcon;adortl;DBXMySQLDriver;VclSmp;inet;vclimg;vcltouch;FireDACPgDriver;FireDAC;fmxase;inetdbxpress;xmlrtl;tethering;dbrtl;bindcompvcl;dsnap;fmxdae;CloudService;FireDACMSAccDriver;CustomIPTransport;fmxobj;bindcompvclsmp;soaprtl;vcldsnap;DBXInterBaseDriver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UsePackage>soapserver;IndySystem;vclwinx;fmx;vclie;DbxCommonDriver;bindengine;vcldb;IndyIPCommon;VCLRESTComponents;FireDACCommonODBC;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;IndyIPClient;dbxcds;vcledge;vclFireDAC;bindcompvclwinx;bindcomp;FireDACCommon;IndyCore;RESTBackendComponents;bindcompfmx;bindcompdbx;inetdb;rtl;FireDACMySQLDriver;FireDACSqliteDriver;DbxClientDriver;FireDACADSDriver;RESTComponents;soapmidas;DBXSqliteDriver;vcl;vclactnband;IndyIPServer;dsnapxml;fmxFireDAC;dbexpress;dsnapcon;adortl;DBXMySQLDriver;VclSmp;inet;vclimg;vcltouch;FireDACPgDriver;FireDAC;fmxase;inetdbxpress;xmlrtl;tethering;dbrtl;bindcompvcl;dsnap;fmxdae;CloudService;FireDACMSAccDriver;CustomIPTransport;fmxobj;bindcompvclsmp;soaprtl;vcldsnap;DBXInterBaseDriver;FireDACIBDriver;DesignIde;$(DCC_UsePackage)</DCC_UsePackage>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.7.0.0;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.6.0.0</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
-        <VerInfo_MajorVer>3</VerInfo_MajorVer>
-        <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <Icon_MainIcon>icons\DripGrepper.ico</Icon_MainIcon>
-        <UWP_DelphiLogo44>icons\DripGrepperLogo.png</UWP_DelphiLogo44>
-        <UWP_DelphiLogo150>icons\DripGrepperLogo.png</UWP_DelphiLogo150>
-        <VerInfo_MinorVer>7</VerInfo_MinorVer>
+        <DCC_UnitSearchPath>..\..\..\..\FastMM4;..\..\..\..\RipGrepper\src;..\..\..\..\RipGrepper\src\Common;..\..\..\..\RipGrepper\src\Tools;..\..\..\..\RipGrepper\src\Settings;..\..\..\..\RipGrepper\src\OpenWith;..\..\..\..\RipGrepper\external;..\..\..\..\Delphi-Mocks\Source;..\..\..\..\TestInsight\Source;$(BDS)\source\ToolsAPI;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <DCC_UsePackage>soapserver;IndySystem;vclwinx;fmx;vclie;DbxCommonDriver;bindengine;vcldb;IndyIPCommon;VCLRESTComponents;FireDACCommonODBC;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;IndyIPClient;dbxcds;vcledge;vclFireDAC;bindcompvclwinx;bindcomp;FireDACCommon;IndyCore;RESTBackendComponents;bindcompfmx;bindcompdbx;inetdb;rtl;FireDACMySQLDriver;FireDACSqliteDriver;DbxClientDriver;FireDACADSDriver;RESTComponents;soapmidas;DBXSqliteDriver;vcl;vclactnband;IndyIPServer;dsnapxml;fmxFireDAC;dbexpress;dsnapcon;adortl;DBXMySQLDriver;VclSmp;inet;vclimg;vcltouch;FireDACPgDriver;FireDAC;fmxase;inetdbxpress;xmlrtl;tethering;dbrtl;bindcompvcl;dsnap;fmxdae;CloudService;FireDACMSAccDriver;CustomIPTransport;fmxobj;bindcompvclsmp;soaprtl;vcldsnap;DBXInterBaseDriver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
-        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
-        <BT_BuildType>Debug</BT_BuildType>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.7.0.0;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.6.0.0</VerInfo_Keys>
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-        <VerInfo_MajorVer>3</VerInfo_MajorVer>
-        <VerInfo_MinorVer>7</VerInfo_MinorVer>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>DEBUG;FASTMM4_OPT;$(DCC_Define)</DCC_Define>
@@ -110,166 +81,50 @@
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
         <DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
         <DCC_RangeChecking>true</DCC_RangeChecking>
-        <VerInfo_Locale>1031</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.6.2.35;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.6.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <VerInfo_MajorVer>3</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.7.0.0;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=2.6.0.0</VerInfo_Keys>
-        <VerInfo_MinorVer>7</VerInfo_MinorVer>
-        <DCC_DebugInfoInTds>true</DCC_DebugInfoInTds>
-        <Icon_MainIcon>icons\DripGrepper.ico</Icon_MainIcon>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
-        <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
-        <VerInfo_MajorVer>3</VerInfo_MajorVer>
-        <VerInfo_MinorVer>7</VerInfo_MinorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.7.0.0;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.6.0.0</VerInfo_Keys>
+        <Manifest_File>..\..\(Ohne)</Manifest_File>
+        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <UsePackages>true</UsePackages>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
         <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
         <DCC_DebugInformation>0</DCC_DebugInformation>
-        <VerInfo_Locale>1031</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=DRipGrepper;FileVersion=2.6.2.15;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=2.6.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <UsePackages>true</UsePackages>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <Icon_MainIcon>icons\icons8-search-folder-windows-11-outline-32.ico</Icon_MainIcon>
-        <UWP_DelphiLogo44>icons\DripGrepperLogo.png</UWP_DelphiLogo44>
-        <UWP_DelphiLogo150>icons\DripGrepperLogo.png</UWP_DelphiLogo150>
-        <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <VerInfo_MajorVer>3</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.7.0.0;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=2.6.0.0</VerInfo_Keys>
-        <VerInfo_MinorVer>7</VerInfo_MinorVer>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
-        <VerInfo_MajorVer>3</VerInfo_MajorVer>
-        <VerInfo_MinorVer>7</VerInfo_MinorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.7.0.0;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=2.6.0.0</VerInfo_Keys>
+        <Manifest_File>..\..\(Ohne)</Manifest_File>
+        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="external\dpipes.pas"/>
-        <DCCReference Include="external\dprocess.pas"/>
-        <DCCReference Include="external\ArrayEx.pas"/>
-        <DCCReference Include="external\dzlib\u_dzDpiScaleUtils.pas"/>
-        <DCCReference Include="external\dzlib\u_dzMiscUtils.pas"/>
-        <DCCReference Include="external\dzlib\u_dzTypesUtils.pas"/>
-        <DCCReference Include="external\dzlib\u_dzTypInfo.pas"/>
-        <DCCReference Include="external\dzlib\u_dzVclUtils.pas"/>
-        <DCCReference Include="external\dzlib\u_dzVariantUtils.pas"/>
-        <DCCReference Include="external\dzlib\u_dzTypes.pas"/>
-        <DCCReference Include="external\dzlib\u_dzTranslator.pas"/>
-        <DCCReference Include="external\dzlib\u_dzStringUtils.pas"/>
-        <DCCReference Include="external\dzlib\u_dzStringArrayUtils.pas"/>
-        <DCCReference Include="external\dzlib\u_dzSortUtils.pas"/>
-        <DCCReference Include="external\dzlib\u_dzSortProvider.pas"/>
-        <DCCReference Include="external\dzlib\u_dzQuicksort.pas"/>
-        <DCCReference Include="external\dzlib\u_dzOsUtils.pas"/>
-        <DCCReference Include="external\dzlib\u_dzNamedThread.pas"/>
-        <DCCReference Include="external\dzlib\u_dzLineBuilder.pas"/>
-        <DCCReference Include="external\dzlib\u_dzFileUtils.pas"/>
-        <DCCReference Include="external\dzlib\u_dzDateUtils.pas"/>
-        <DCCReference Include="external\dzlib\u_dzConvertUtils.pas"/>
-        <DCCReference Include="external\dzlib\u_dzClassUtils.pas"/>
-        <DCCReference Include="external\dzlib\u_DelphiVersions.pas"/>
-        <DCCReference Include="src\Common\RipGrepper.Common.IOTAUtils.pas"/>
-        <DCCReference Include="src\RipGrepper.Data.HistoryItemObject.pas"/>
-        <DCCReference Include="src\RipGrepper.Data.Matches.pas"/>
-        <DCCReference Include="src\RipGrepper.Data.Parsers.pas"/>
-        <DCCReference Include="src\RipGrepper.Helper.Types.pas"/>
-        <DCCReference Include="src\RipGrepper.Helper.UI.pas"/>
-        <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.pas"/>
-        <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.CmdListForm.pas">
-            <Form>OpenWithCmdList</Form>
-        </DCCReference>
-        <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.ConfigForm.pas">
-            <Form>OpenWithConfigForm</Form>
-        </DCCReference>
-        <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.Runner.pas"/>
-        <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.Constants.pas"/>
-        <DCCReference Include="src\RipGrepper.Parsers.Factory.pas"/>
-        <DCCReference Include="src\RipGrepper.Parsers.ParallelParser.pas"/>
-        <DCCReference Include="src\RipGrepper.Parsers.VimGrepMatchLine.pas"/>
-        <DCCReference Include="src\RipGrepper.CommandLine.Builder.pas"/>
-        <DCCReference Include="src\RipGrepper.CommandLine.OptionHelper.pas"/>
-        <DCCReference Include="src\OpenWith\RipGrepper.OpenWith.Params.pas"/>
-        <DCCReference Include="src\RipGrepper.CommandLine.OptionStrings.pas"/>
-        <DCCReference Include="src\Common\RipGrepper.Common.Constants.pas"/>
-        <DCCReference Include="src\Common\RipGrepper.Common.GuiSearchParams.pas"/>
-        <DCCReference Include="src\Common\RipGrepper.Common.Interfaces.pas"/>
-        <DCCReference Include="src\Common\RipGrepper.Common.NodeData.pas"/>
-        <DCCReference Include="src\Common\RipGrepper.Common.ParsedObject.pas"/>
-        <DCCReference Include="src\Common\RipGrepper.Common.SearchParams.pas"/>
-        <DCCReference Include="src\Common\RipGrepper.Common.SimpleTypes.pas"/>
-        <DCCReference Include="src\Common\RipGrepper.Common.Sorter.pas"/>
-        <DCCReference Include="src\UI\RipGrepper.UI.MainForm.pas">
-            <Form>RipGrepperForm</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="src\UI\RipGrepper.UI.TopFrame.pas">
-            <Form>RipGrepperTopFrame</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\UI\RipGrepper.UI.BottomFrame.pas">
-            <Form>RipGrepperBottomFrame</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\UI\RipGrepper.UI.MiddleFrame.pas">
-            <Form>RipGrepperMiddleFrame</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\UI\RipGrepper.UI.ConfigForm.pas">
-            <Form>ConfigForm</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="src\UI\RipGrepper.UI.DpiScaler.pas"/>
-        <DCCReference Include="src\UI\RipGrepper.UI.MiddleLeftFrame.pas">
-            <Form>MiddleLeftFrame</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\UI\RipGrepper.UI.ParentFrame.pas">
-            <Form>ParentFrame</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\UI\RipGrepper.UI.RipGrepOptionsForm.pas">
-            <Form>RipGrepOptionsForm</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="src\UI\RipGrepper.UI.SearchForm.pas">
-            <Form>RipGrepperSearchDialogForm</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="src\Tools\RipGrepper.Tools.DebugUtils.pas"/>
-        <DCCReference Include="src\Tools\RipGrepper.Tools.FileUtils.pas"/>
-        <DCCReference Include="src\Tools\RipGrepper.Tools.PackageInstall.pas"/>
-        <DCCReference Include="src\Tools\RipGrepper.Tools.ProcessUtils.pas"/>
-        <DCCReference Include="src\Settings\RipGrepper.Settings.AppSettings.pas"/>
-        <DCCReference Include="src\Settings\RipGrepper.Settings.ExtensionSettings.pas"/>
-        <DCCReference Include="src\Settings\RipGrepper.Settings.Instance.pas"/>
-        <DCCReference Include="src\Settings\RipGrepper.Settings.NodeLookSettings.pas"/>
-        <DCCReference Include="src\Settings\RipGrepper.Settings.OpenWithSettings.pas"/>
-        <DCCReference Include="src\Settings\RipGrepper.Settings.Persistable.pas"/>
-        <DCCReference Include="src\Settings\RipGrepper.Settings.RipGrepParameterSettings.pas"/>
-        <DCCReference Include="src\Settings\RipGrepper.Settings.RipGrepperSettings.pas"/>
-        <DCCReference Include="src\Settings\RipGrepper.Settings.SearchFormSettings.pas"/>
-        <DCCReference Include="src\Settings\RipGrepper.Settings.SettingsDictionary.pas"/>
-        <DCCReference Include="src\Settings\RipGrepper.Settings.SettingVariant.pas"/>
+        <DCCReference Include="..\..\RipGrepper.Parser.MatchTest.pas"/>
+        <DCCReference Include="..\..\..\src\RipGrepper.Data.Matches.pas"/>
+        <DCCReference Include="..\..\RipGrepper.ProcessUtils.Test.pas"/>
+        <DCCReference Include="..\..\..\src\RipGrepper.Tools.ProcessUtils.pas"/>
+        <DCCReference Include="..\..\RipGrepper.Helper.Types.Test.pas"/>
+        <DCCReference Include="..\..\..\src\RipGrepper.Helper.Types.pas"/>
+        <DCCReference Include="..\..\..\src\RipGrepper.Parsers.VimGrepMatchLine.pas"/>
+        <DCCReference Include="..\..\..\external\ArrayEx.pas"/>
+        <DCCReference Include="..\..\RipGrepper.CommandLine.Builder.Test.pas"/>
+        <DCCReference Include="..\..\..\src\RipGrepper.CommandLine.Builder.pas"/>
+        <DCCReference Include="..\..\RipGrepper.CommandLine.OptionsHelper.Test.pas"/>
+        <DCCReference Include="..\..\..\src\RipGrepper.CommandLine.OptionHelper.pas"/>
+        <DCCReference Include="..\..\RipGrepper.Settings.SearchFormSettingsTest.pas"/>
+        <DCCReference Include="..\..\RipGrepper.Settings.PersistableSettingsTest.pas"/>
+        <DCCReference Include="..\..\RipGrepper.Settings.JsonTest.pas"/>
+        <DCCReference Include="..\..\Pkg.Json.DTO.pas"/>
+        <DCCReference Include="..\..\RootUnit.pas"/>
+        <DCCReference Include="..\..\RipGrepper.Settings.RipGrepperSettingsTest.pas"/>
+        <DCCReference Include="..\..\..\src\RipGrepper.CommandLine.OptionStrings.pas"/>
+        <DCCReference Include="..\..\RipGrepper.CommandLine.OptionStrings.Test.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -288,7 +143,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">DRipGrepper.dpr</Source>
+                    <Source Name="MainSource">DRipGrepperUnittest.dpr</Source>
                 </Source>
                 <Excluded_Packages>
                     <Excluded_Packages Name="C:\home\mata\dev\delphi\RipGrepper\deploy\assets\DRipExtension.bpl">Datei C:\home\mata\dev\delphi\RipGrepper\deploy\assets\DRipExtension.bpl nicht gefunden</Excluded_Packages>
@@ -303,29 +158,24 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="4">
-                <DeployFile LocalName="Win32\Debug\DRipGrepper.exe" Configuration="Debug" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>DRipGrepper.exe</RemoteName>
+                <DeployFile LocalName="$(BDS)\Redist\iossimulator\libcgunwind.1.0.dylib" Class="DependencyModule">
+                    <Platform Name="iOSSimulator">
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Win32\Release\DRipGrepper.exe" Configuration="Release" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>DRipGrepper.exe</RemoteName>
+                <DeployFile LocalName="$(BDS)\Redist\iossimulator\libpcre.dylib" Class="DependencyModule">
+                    <Platform Name="iOSSimulator">
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="icons\DripGrepperLogo.png" Configuration="Debug" Class="UWP_DelphiLogo44">
-                    <Platform Name="Win32">
-                        <RemoteDir>Assets\</RemoteDir>
-                        <RemoteName>Logo44x44.png</RemoteName>
+                <DeployFile LocalName="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib" Class="DependencyModule">
+                    <Platform Name="OSX32">
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="icons\DripGrepperLogo.png" Configuration="Release" Class="UWP_DelphiLogo44">
+                <DeployFile LocalName="Win32\Debug\DRipGrepperUnittest.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteDir>Assets\</RemoteDir>
-                        <RemoteName>Logo44x44.png</RemoteName>
+                        <RemoteName>DRipGrepperUnittest.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -1154,18 +1004,8 @@
             </Deployment>
             <Platforms>
                 <Platform value="Win32">True</Platform>
-                <Platform value="Win64">True</Platform>
+                <Platform value="Win64">False</Platform>
             </Platforms>
-            <MMX>
-                <UsesClauseFormatter AutoFormat="0">
-                    <GroupNames>Winapi;System.Win;System;Data;REST;Xml;Vcl;FMX</GroupNames>
-                </UsesClauseFormatter>
-                <Parser>
-                    <Defines/>
-                    <IfExpressions/>
-                </Parser>
-            </MMX>
-            <ModelSupport>False</ModelSupport>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>
     </ProjectExtensions>
