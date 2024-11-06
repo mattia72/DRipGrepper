@@ -78,8 +78,8 @@ type
 		tbSaveReplacement : TToolButton;
 		ActionSaveReplacement : TAction;
 		ActionSaveAllReplacement : TAction;
-		miSetFileFilterMode: TMenuItem;
-		miSetTextFilterMode: TMenuItem;
+		miSetFileFilterMode : TMenuItem;
+		miSetTextFilterMode : TMenuItem;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlignToolbarsExecute(Sender : TObject);
@@ -113,6 +113,7 @@ type
 		procedure ActionSwitchViewExecute(Sender : TObject);
 		procedure ActionSwitchViewUpdate(Sender : TObject);
 		procedure edtFilterChange(Sender : TObject);
+		procedure edtFilterKeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
 		procedure edtFilterRightButtonClick(Sender : TObject);
 		procedure edtReplaceChange(Sender : TObject);
 		procedure edtReplaceRightButtonClick(Sender : TObject);
@@ -139,7 +140,7 @@ type
 			procedure SetReplaceModeOnToolBar;
 			procedure SetReplaceTextInSettings(const _sReplText : string);
 			procedure StartNewSearch;
-		procedure UpdateFilterMenu;
+			procedure UpdateFilterMenu;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
 		public
@@ -194,7 +195,7 @@ begin
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 	TopFrame := self;
 	FGuiReplaceModes := []; // [EGuiReplaceMode.grmEditEnabled];
-    FFilterMode := EFilterMode.fmFilterFile;
+	FFilterMode := EFilterMode.fmFilterFile;
 end;
 
 destructor TRipGrepperTopFrame.Destroy;
@@ -369,7 +370,7 @@ end;
 procedure TRipGrepperTopFrame.ActionSetFileFilterModeExecute(Sender : TObject);
 begin
 	FFilterMode := EFilterMode.fmFilterFile;
-    UpdateFilterMenu;
+	UpdateFilterMenu;
 end;
 
 procedure TRipGrepperTopFrame.ActionSetTextFilterModeExecute(Sender : TObject);
@@ -467,6 +468,16 @@ begin
 	if IsFilterOn then begin
 		MainFrame.FilterNodes(edtFilter.Text, FFilterMode);
 	end;
+end;
+
+procedure TRipGrepperTopFrame.edtFilterKeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
+begin
+	if Key = VK_RETURN then begin
+		// Enter key was pressed
+		SetFilter();
+		MainFrame.FilterNodes(edtFilter.Text, FFilterMode);
+	end;
+	Key := 0;
 end;
 
 procedure TRipGrepperTopFrame.edtFilterRightButtonClick(Sender : TObject);
@@ -722,8 +733,8 @@ end;
 
 procedure TRipGrepperTopFrame.UpdateFilterMenu;
 begin
-	miSetFileFilterMode.Checked := FFilterMode =  EFilterMode.fmFilterFile;
-	miSetTextFilterMode.Checked := FFilterMode =  EFilterMode.fmFilterText;
+	miSetFileFilterMode.Checked := FFilterMode = EFilterMode.fmFilterFile;
+	miSetTextFilterMode.Checked := FFilterMode = EFilterMode.fmFilterText;
 end;
 
 end.

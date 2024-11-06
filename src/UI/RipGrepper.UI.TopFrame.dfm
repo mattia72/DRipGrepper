@@ -116,6 +116,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       TabOrder = 0
       TextHint = 'Filter...'
       OnChange = edtFilterChange
+      OnKeyDown = edtFilterKeyDown
       OnRightButtonClick = edtFilterRightButtonClick
     end
     object ToolButton9: TToolButton
