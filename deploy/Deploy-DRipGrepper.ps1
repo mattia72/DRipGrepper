@@ -119,13 +119,22 @@ function Test-BuildResult {
     param (
         $result
     )
-    $project = $(Split-Path $result.ProjectPath -Leaf) 
+    $projectName = $(Split-Path $result.ProjectPath -Leaf) 
     if ($null -ne $result -and $result.ErrorCount -gt 0) {
-        Write-Error "$project build failed with $($result.ErrorCount) error(s). Deploy canceled." -ErrorAction Stop
+        Write-Error "$projectName build failed with $($result.ErrorCount) error(s). Deploy canceled." -ErrorAction Stop
     }
     else {
+        if (Test-Path $result.AssetPath -PathType Leaf -ErrorAction SilentlyContinue) {
+            $appName = $(Split-Path -Leaf $result.AssetPath) 
+            $cmd = $(Get-Command $result.AssetPath)
+            $appVersion = $($cmd.FileVersionInfo.FileVersion) # BPL is ok too :)
+        }
+        else {
+            $appName = $projectName
+            $appVersion = "Unknown"
+        }
         $fg = $result.WarningCount -gt 0 ? 'Yellow' : 'Green'
-        Write-Host "$project build succeded. $($result.ErrorCount) error(s), $($result.WarningCount) warning(s)." -ForegroundColor $fg
+        Write-Host "$appName $appVersion build succeded. $($result.ErrorCount) error(s), $($result.WarningCount) warning(s)." -ForegroundColor $fg
     }
 }
 
@@ -181,7 +190,7 @@ function Add-ToAssetsDir {
 
     $cmd = $(Get-Command $AssetItemPath)
     $appVersion = $($cmd.FileVersionInfo.FileVersion) # BPL is ok too :)
-    if (-not $(Test-YesAnswer "Release version: $global:Version. Version of $($cmd.Name)($($Win64 ? 'Win64': 'Win32')) app: $appVersion. Ok?")) {
+    if (-not $(Test-YesAnswer "Release version: $global:Version. Version of $($cmd.Name)($($Win64 ? 'Win64': 'Win32')) appName: $appVersion. Ok?")) {
         Write-Error "Search FileVersion=$appVersion in *.dproj and change it!`r`nDeploy stopped." -ErrorAction Stop
     }
     New-Item -Path $AssetDir -ItemType Directory -Force -ErrorAction SilentlyContinue
@@ -231,8 +240,6 @@ function New-ExtensionZip {
 }
 
 function New-ReleaseWithAsset {
-    # Remove items recursively from the AssetsDirectory
-    Remove-Item -Path "$global:AssetsDirectory\*" -Recurse -Force -Verbose -Confirm -ErrorAction SilentlyContinue
 
     if ($RunUnittest) {
         Build-AndRunUnittest
@@ -247,6 +254,8 @@ function New-ReleaseWithAsset {
     }
 
     if ($Deploy -or $LocalDeploy) {
+        # Remove items recursively from the AssetsDirectory
+        Remove-Item -Path "$global:AssetsDirectory\*" -Recurse -Force -Verbose -Confirm -ErrorAction SilentlyContinue
         New-StandaloneZips 
         New-ExtensionZip 
         Get-Childitem $global:AssetsDirectory
