@@ -86,7 +86,7 @@ function Get-InstalledDelphiVersions {
     }
     else {
         Write-Host "Installed Delphi versions:" -ForegroundColor Blue
-        $sortedDelphiVersions | ForEach-Object { Write-Host $_.Data.Name }
+        $global:InstalledDelphiVersions | ForEach-Object { Write-Host $_.Data.Name }
     }
 }
 
@@ -111,7 +111,7 @@ function Get-ProjectPath {
     param (
         $Path
     )
-    $latestVersion = Get-LastInstalledDelphiVersions 
+    $latestVersion = Get-LastInstalledDelphiVersion 
     Join-Path $(Split-Path -Parent $PSScriptRoot) "$Path\$($latestVersion.Data.Dir)"
 }
 

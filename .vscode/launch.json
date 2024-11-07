@@ -9,14 +9,14 @@
             "args": []
         },
         {
-            "name": "PowerShell: Launch Script",
+            "name": "PowerShell: Launch Deploy Script",
             "type": "PowerShell",
             "request": "launch",
             "script": "${workspaceFolder}/deploy/Deploy-DripGrepper.ps1",
             "args": [
-                "-LocalDeploy"
-                , "-Deploy"
-                // , "-BuildStandalone"
+                // "-LocalDeploy"
+                // , "-Deploy"
+                 "-BuildStandalone"
                 , "-BuildExtension"
             ]
         },
