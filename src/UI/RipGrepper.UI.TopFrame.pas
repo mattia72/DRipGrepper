@@ -79,6 +79,7 @@ type
 		ActionSaveReplacement : TAction;
 		ActionSaveAllReplacement : TAction;
 		ActionSetFilterModeCaseSensitive : TAction;
+		ActionSetFilterModeRegex : TAction;
 		miSetFileFilterMode : TMenuItem;
 		miSetTextFilterMode : TMenuItem;
 		N1 : TMenuItem;
@@ -127,7 +128,6 @@ type
 		procedure SearchBox1Change(Sender : TObject);
 
 		private
-			ActionSetFilterModeRegex : TAction;
 			FDpiScaler : TRipGrepperDpiScaler;
 			FFilterMode : set of EFilterMode;
 			FGuiReplaceModes : TGuiReplaceModes;

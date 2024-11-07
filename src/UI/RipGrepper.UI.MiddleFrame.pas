@@ -961,7 +961,7 @@ begin
 		if EFilterMode.fmCaseSensitive in _filterModes then begin
 			options := [];
 		end;
-		Result := not TRegEx.IsMatch(_input, _filter, options);
+		Result := TRegEx.IsMatch(_input, _filter, options);
 	end else begin
 		if EFilterMode.fmCaseSensitive in _filterModes then begin
 			Result := _input.Contains(_filter);
