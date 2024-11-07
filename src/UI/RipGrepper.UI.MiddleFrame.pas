@@ -140,8 +140,8 @@ type
 			procedure DoSearch;
 			procedure EnableActionIfResultSelected(_act : TAction);
 			procedure ExpandNodes;
-			procedure FilterTextMode(const Node : PVirtualNode; const _sFilterPattern : string);
-			procedure FilterFileMode(const Node : PVirtualNode; const _sFilterPattern : string);
+			procedure FilterTextMode(const Node : PVirtualNode; const _sFilterPattern : string; const _filterModes : TFilterModes);
+			procedure FilterFileMode(const Node : PVirtualNode; const _sFilterPattern : string; const _filterModes : TFilterModes);
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
 			function GetData : TRipGrepperData;
 			function GetHistItemObject : IHistoryItemObject;
@@ -152,6 +152,7 @@ type
 			function GetSelectedResultFileNodeData : PVSFileNodeData;
 			function GetSettings : TRipGrepperSettings;
 			procedure InitSearch;
+			function IsTextMatch(_input, _filter : string; const _filterModes : TFilterModes) : Boolean;
 			procedure LoadBeforeSearchSettings;
 			procedure OnLastLine(const _iLineNr : Integer);
 			procedure OnParsingProgress;
@@ -178,13 +179,13 @@ type
 			procedure CopyToClipboardFileOfSelected;
 			procedure CopyToClipboardPathOfSelected;
 			function CreateNewHistObject : IHistoryItemObject;
-			procedure FilterNodes(const _sFilterPattern : string; const _filterMode : EFilterMode);
+			procedure FilterNodes(const _sFilterPattern : string; const _filterModes : TFilterModes);
 			function GetCounterText(Data : IHistoryItemObject) : string;
 			function GetFilePathFromNode(_node : PVirtualNode) : string;
 			function GetOpenWithParamsFromSelected : TOpenWithParams;
 			function GetRowColText(_i : Integer; _type : TVSTTextType) : string;
 			procedure Init;
-			function IsNodeFiltered(const Data : PVSFileNodeData; const _sFilterText : string; const _filterMode : EFilterMode) : Boolean;
+			function IsNodeFiltered(const Data : PVSFileNodeData; const _sFilterText : string; const _filterModes : TFilterModes) : Boolean;
 			function IsSearchRunning : Boolean;
 			// IEOFProcessEventHandler
 			procedure OnEOFProcess;
@@ -496,7 +497,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepperMiddleFrame.FilterNodes(const _sFilterPattern : string; const _filterMode : EFilterMode);
+procedure TRipGrepperMiddleFrame.FilterNodes(const _sFilterPattern : string; const _filterModes : TFilterModes);
 var
 	Node : PVirtualNode;
 begin
@@ -505,10 +506,10 @@ begin
 	VstResult.BeginUpdate;
 	try
 		for Node in VstResult.InitializedNodes(True) do begin
-			if _filterMode = EFilterMode.fmFilterFile then begin
-				FilterFileMode(Node, _sFilterPattern);
-			end else begin
-				FilterTextMode(Node, _sFilterPattern);
+			if EFilterMode.fmFilterFile in _filterModes then begin
+				FilterFileMode(Node, _sFilterPattern, _filterModes);
+			end else if EFilterMode.fmFilterText in _filterModes then begin
+				FilterTextMode(Node, _sFilterPattern, _filterModes);
 			end;
 		end;
 	finally
@@ -516,7 +517,8 @@ begin
 	end;
 end;
 
-procedure TRipGrepperMiddleFrame.FilterTextMode(const Node : PVirtualNode; const _sFilterPattern : string);
+procedure TRipGrepperMiddleFrame.FilterTextMode(const Node : PVirtualNode; const _sFilterPattern : string;
+	const _filterModes : TFilterModes);
 var
 	bIsFiltered : Boolean;
 	Data : PVSFileNodeData;
@@ -526,7 +528,7 @@ begin
 
 	if (Node.Parent <> VstResult.RootNode) then begin
 		Data := VstResult.GetNodeData(Node);
-		bIsFiltered := IsNodeFiltered(Data, _sFilterPattern, EFilterMode.fmFilterText);
+		bIsFiltered := IsNodeFiltered(Data, _sFilterPattern, _filterModes);
 
 		VstResult.IsFiltered[Node] := bIsFiltered;
 		if not bIsFiltered and Assigned(Node.Parent) and (Node.Parent <> VstResult.RootNode) then begin
@@ -536,7 +538,8 @@ begin
 	end;
 end;
 
-procedure TRipGrepperMiddleFrame.FilterFileMode(const Node : PVirtualNode; const _sFilterPattern : string);
+procedure TRipGrepperMiddleFrame.FilterFileMode(const Node : PVirtualNode; const _sFilterPattern : string;
+	const _filterModes : TFilterModes);
 var
 	bIsFiltered : Boolean;
 	Data : PVSFileNodeData;
@@ -546,7 +549,7 @@ begin
 	Data := VstResult.GetNodeData(Node);
 
 	if (Node.Parent = VstResult.RootNode) then begin
-		bIsFiltered := IsNodeFiltered(Data, _sFilterPattern, EFilterMode.fmFilterFile);
+		bIsFiltered := IsNodeFiltered(Data, _sFilterPattern, _filterModes);
 		VstResult.IsFiltered[Node] := bIsFiltered;
 		dbgMsg.MsgFmtIf(not bIsFiltered, 'not IsFiltered: %s', [Data.MatchData.LineText]);
 	end else begin
@@ -935,16 +938,35 @@ begin
 	Result := VstResult.GetNodeData(Node);
 end;
 
-function TRipGrepperMiddleFrame.IsNodeFiltered(const Data : PVSFileNodeData; const _sFilterText : string; const _filterMode : EFilterMode)
+function TRipGrepperMiddleFrame.IsNodeFiltered(const Data : PVSFileNodeData; const _sFilterText : string; const _filterModes : TFilterModes)
 	: Boolean;
 begin
 	if _sFilterText.IsEmpty then begin
 		Result := False;
 	end else begin
-		if _filterMode = EFilterMode.fmFilterFile then begin
-			Result := not TRegEx.IsMatch(Data.FilePath, _sFilterText);
+		if EFilterMode.fmFilterFile in _filterModes then begin
+			Result := not IsTextMatch(Data.FilePath, _sFilterText, _filterModes);
 		end else begin
-			Result := not TRegEx.IsMatch(Data.MatchData.LineText, _sFilterText);
+			Result := not IsTextMatch(Data.MatchData.LineText, _sFilterText, _filterModes);
+		end;
+	end;
+end;
+
+function TRipGrepperMiddleFrame.IsTextMatch(_input, _filter : string; const _filterModes : TFilterModes) : Boolean;
+var
+	options : TRegexOptions;
+begin
+	if EFilterMode.fmRegex in _filterModes then begin
+		options := [roIgnoreCase];
+		if EFilterMode.fmCaseSensitive in _filterModes then begin
+			options := [];
+		end;
+		Result := not TRegEx.IsMatch(_input, _filter, options);
+	end else begin
+		if EFilterMode.fmCaseSensitive in _filterModes then begin
+			Result := _input.Contains(_filter);
+		end else begin
+			Result := _input.ToUpper.Contains(_filter.ToUpper);
 		end;
 	end;
 end;

@@ -24,7 +24,9 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 
 ## :boom: Improvements 
 Marked with checkmark if ready, else planned ...
-- [x] popup menu to filter on file names only
+- [x] popup menu to filter on file names and text
+  - [x] filter by pressing enter
+  - [x] popupmenu case sensitive and regex
 - [ ] **extension**: save all before search message?
 - [ ] save/load search histories in file
 - [x] config form

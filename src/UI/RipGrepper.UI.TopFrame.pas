@@ -78,8 +78,12 @@ type
 		tbSaveReplacement : TToolButton;
 		ActionSaveReplacement : TAction;
 		ActionSaveAllReplacement : TAction;
+		ActionSetFilterModeCaseSensitive : TAction;
 		miSetFileFilterMode : TMenuItem;
 		miSetTextFilterMode : TMenuItem;
+		N1 : TMenuItem;
+		miFilterModeCaseSensitive : TMenuItem;
+		miFilterModeUseRegex : TMenuItem;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlignToolbarsExecute(Sender : TObject);
@@ -103,6 +107,8 @@ type
 		procedure ActionSearchExecute(Sender : TObject);
 		procedure ActionSearchInResultExecute(Sender : TObject);
 		procedure ActionSetFileFilterModeExecute(Sender : TObject);
+		procedure ActionSetFilterModeCaseSensitiveExecute(Sender : TObject);
+		procedure ActionSetFilterModeRegexExecute(Sender : TObject);
 		procedure ActionSetTextFilterModeExecute(Sender : TObject);
 		procedure ActionShowFileIconsExecute(Sender : TObject);
 		procedure ActionShowFileIconsUpdate(Sender : TObject);
@@ -116,12 +122,14 @@ type
 		procedure edtFilterKeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
 		procedure edtFilterRightButtonClick(Sender : TObject);
 		procedure edtReplaceChange(Sender : TObject);
+		procedure edtReplaceKeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
 		procedure edtReplaceRightButtonClick(Sender : TObject);
 		procedure SearchBox1Change(Sender : TObject);
 
 		private
+			ActionSetFilterModeRegex : TAction;
 			FDpiScaler : TRipGrepperDpiScaler;
-			FFilterMode : EFilterMode;
+			FFilterMode : set of EFilterMode;
 			FGuiReplaceModes : TGuiReplaceModes;
 			FHistItemObj : IHistoryItemObject;
 			FPrevFoundNode : PVirtualNode;
@@ -140,6 +148,7 @@ type
 			procedure SetReplaceModeOnToolBar;
 			procedure SetReplaceTextInSettings(const _sReplText : string);
 			procedure StartNewSearch;
+			procedure ToggleFilterMode(const _fm : EFilterMode);
 			procedure UpdateFilterMenu;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
@@ -195,7 +204,7 @@ begin
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 	TopFrame := self;
 	FGuiReplaceModes := []; // [EGuiReplaceMode.grmEditEnabled];
-	FFilterMode := EFilterMode.fmFilterFile;
+	FFilterMode := [EFilterMode.fmFilterFile];
 end;
 
 destructor TRipGrepperTopFrame.Destroy;
@@ -369,13 +378,25 @@ end;
 
 procedure TRipGrepperTopFrame.ActionSetFileFilterModeExecute(Sender : TObject);
 begin
-	FFilterMode := EFilterMode.fmFilterFile;
+	Include(FFilterMode, EFilterMode.fmFilterFile);
 	UpdateFilterMenu;
+end;
+
+procedure TRipGrepperTopFrame.ActionSetFilterModeCaseSensitiveExecute(Sender : TObject);
+begin
+	ToggleFilterMode(EFilterMode.fmCaseSensitive);
+	ActionSetFilterModeCaseSensitive.Checked := EFilterMode.fmCaseSensitive in FFilterMode;
+end;
+
+procedure TRipGrepperTopFrame.ActionSetFilterModeRegexExecute(Sender : TObject);
+begin
+	ToggleFilterMode(EFilterMode.fmRegex);
+	ActionSetFilterModeRegex.Checked := EFilterMode.fmRegex in FFilterMode;
 end;
 
 procedure TRipGrepperTopFrame.ActionSetTextFilterModeExecute(Sender : TObject);
 begin
-	FFilterMode := EFilterMode.fmFilterText;
+	Include(FFilterMode, EFilterMode.fmFilterText);
 	UpdateFilterMenu;
 end;
 
@@ -503,6 +524,18 @@ begin
 			edtReplaceRightButtonClick(self);
 		end;
 	end;
+end;
+
+procedure TRipGrepperTopFrame.edtReplaceKeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
+begin
+	if Key = VK_RETURN then begin
+		if IsGuiReplaceMode then begin
+			SetGuiReplaceModes(True);
+		end;
+		SetReplaceTextInSettings(edtReplace.Text);
+		SetReplaceModeOnGui()
+	end;
+	Key := 0;
 end;
 
 procedure TRipGrepperTopFrame.edtReplaceRightButtonClick(Sender : TObject);
@@ -731,10 +764,19 @@ begin
 	ParentFrame.MainFrame.MiddleLeftFrame1.SetReplaceMode();
 end;
 
+procedure TRipGrepperTopFrame.ToggleFilterMode(const _fm : EFilterMode);
+begin
+	if _fm in FFilterMode then begin
+		Exclude(FFilterMode, _fm);
+	end else begin
+		Include(FFilterMode, _fm);
+	end;
+end;
+
 procedure TRipGrepperTopFrame.UpdateFilterMenu;
 begin
-	miSetFileFilterMode.Checked := FFilterMode = EFilterMode.fmFilterFile;
-	miSetTextFilterMode.Checked := FFilterMode = EFilterMode.fmFilterText;
+	miSetFileFilterMode.Checked := EFilterMode.fmFilterFile in FFilterMode;
+	miSetTextFilterMode.Checked := EFilterMode.fmFilterText in FFilterMode;
 end;
 
 end.

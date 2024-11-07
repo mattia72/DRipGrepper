@@ -142,6 +142,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       TabOrder = 1
       TextHint = 'Replace...'
       OnChange = edtReplaceChange
+      OnKeyDown = edtReplaceKeyDown
       OnRightButtonClick = edtReplaceRightButtonClick
     end
     object tbSaveReplacement: TToolButton
@@ -1433,13 +1434,25 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     Left = 1418
     Top = 65531
     object ActionSetFileFilterMode: TAction
+      Category = 'Filter'
       Caption = 'Filter File'
       Checked = True
       OnExecute = ActionSetFileFilterModeExecute
     end
     object ActionSetTextFilterMode: TAction
+      Category = 'Filter'
       Caption = 'Filter Text'
       OnExecute = ActionSetTextFilterModeExecute
+    end
+    object ActionSetFilterModeCaseSensitive: TAction
+      Category = 'Filter'
+      Caption = 'Case Sensitive'
+      OnExecute = ActionSetFilterModeCaseSensitiveExecute
+    end
+    object ActionSetFilterModeRegex: TAction
+      Category = 'Filter'
+      Caption = 'Use Regex'
+      OnExecute = ActionSetFilterModeRegexExecute
     end
     object ActionSearch: TAction
       Category = 'Search'
@@ -1448,6 +1461,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       OnExecute = ActionSearchExecute
     end
     object ActionSwitchView: TAction
+      Category = 'View'
       Caption = 'ActionSwitchView'
       ImageIndex = 1
       Visible = False
@@ -1593,6 +1607,15 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     object miSetTextFilterMode: TMenuItem
       Action = ActionSetTextFilterMode
       RadioItem = True
+    end
+    object N1: TMenuItem
+      Caption = '-'
+    end
+    object miFilterModeCaseSensitive: TMenuItem
+      Action = ActionSetFilterModeCaseSensitive
+    end
+    object miFilterModeUseRegex: TMenuItem
+      Action = ActionSetFilterModeRegex
     end
   end
 end
