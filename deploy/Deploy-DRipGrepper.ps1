@@ -115,29 +115,6 @@ function Get-ProjectPath {
     Join-Path $(Split-Path -Parent $PSScriptRoot) "$Path\$($latestVersion.Data.Dir)"
 }
 
-function Test-BuildResult {
-    param (
-        $result
-    )
-    $projectName = $(Split-Path $result.ProjectPath -Leaf) 
-    if ($null -ne $result -and $result.ErrorCount -gt 0) {
-        Write-Error "$projectName build failed with $($result.ErrorCount) error(s). Deploy canceled." -ErrorAction Stop
-    }
-    else {
-        if (Test-Path $result.AssetPath -PathType Leaf -ErrorAction SilentlyContinue) {
-            $appName = $(Split-Path -Leaf $result.AssetPath) 
-            $cmd = $(Get-Command $result.AssetPath)
-            $appVersion = $($cmd.FileVersionInfo.FileVersion) # BPL is ok too :)
-        }
-        else {
-            $appName = $projectName
-            $appVersion = "Unknown"
-        }
-        $fg = $result.WarningCount -gt 0 ? 'Yellow' : 'Green'
-        Write-Host "$appName $appVersion build succeded. $($result.ErrorCount) error(s), $($result.WarningCount) warning(s)." -ForegroundColor $fg
-    }
-}
-
 function Build-StandaloneRelease {
     # copy scripts
     Import-Module -Name PSDelphi -Force
