@@ -27,7 +27,7 @@ Marked with checkmark if ready, else planned ...
 - [x] popup menu to filter on file names and text
   - [x] filter by pressing enter
   - [x] popupmenu case sensitive and regex
-  - [ ] save/load settings
+  - [x] save/load settings
 - [ ] **extension**: save all before search message?
 - [ ] save/load search histories in file
 - [x] config form

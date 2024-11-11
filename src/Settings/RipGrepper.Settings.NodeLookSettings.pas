@@ -4,7 +4,8 @@ interface
 
 uses
 	RipGrepper.Settings.Persistable,
-	System.IniFiles;
+	System.IniFiles,
+	RipGrepper.Settings.NodeLook.FilterSettings;
 
 type
 	TNodeLookSettings = class(TPersistableSettings)
@@ -19,6 +20,10 @@ type
 		const
 			INI_SECTION = 'NodeLookSettings';
 
+		private
+			FFilterSettings : TFilterSettings;
+			procedure SetFilterSettings(const Value : TFilterSettings);
+
 		public
 			AlternateRowColors : Boolean;
 			IndentLines : Boolean;
@@ -26,11 +31,16 @@ type
 			ShowRelativePath : Boolean;
 			ExpandNodes : Boolean;
 			procedure SetViewSettingValues(const _s : string = '');
-			constructor Create(const _ini : TMemIniFile);
+			constructor Create(const _ini : TMemIniFile); overload;
+			constructor Create; overload;
+			destructor Destroy; override;
+			function GetIsModified : Boolean; override;
 			procedure Init; override;
 			procedure LoadFromDict(); override;
 			procedure LoadDefaultsFromDict; override;
+			procedure ReadIni; override;
 			procedure StoreToDict; override;
+			property FilterSettings : TFilterSettings read FFilterSettings write SetFilterSettings;
 	end;
 
 implementation
@@ -44,8 +54,29 @@ uses
 constructor TNodeLookSettings.Create(const _ini : TMemIniFile);
 begin
 	IniSectionName := INI_SECTION;
+	FFilterSettings := TFilterSettings.Create(_ini);
 	inherited;
 	TDebugUtils.DebugMessage('TNodeLookSettings.Create: ' + FIniFile.FileName + '[' + GetIniSectionName + ']');
+end;
+
+constructor TNodeLookSettings.Create;
+begin
+	IniSectionName := INI_SECTION;
+	inherited;
+	FFilterSettings := TFilterSettings.Create();
+	TDebugUtils.DebugMessage('TNodeLookSettings.Create: ' + FIniFile.FileName + '[' + GetIniSectionName + ']');
+end;
+
+destructor TNodeLookSettings.Destroy;
+begin
+	FFilterSettings.Free;
+	inherited Destroy(); // ok;
+end;
+
+function TNodeLookSettings.GetIsModified : Boolean;
+begin
+	Result := FIsModified or
+	{ } FFilterSettings.IsModified;
 end;
 
 procedure TNodeLookSettings.Init;
@@ -55,6 +86,7 @@ begin
 	SettingsDict.CreateSetting('AlternateRowColors', varBoolean, False);
 	SettingsDict.CreateSetting('IndentLines', varBoolean, False);
 	SettingsDict.CreateSetting('ExpandNodes', varBoolean, True);
+	FFilterSettings.Init();
 end;
 
 procedure TNodeLookSettings.LoadFromDict;
@@ -64,16 +96,29 @@ begin
 	AlternateRowColors := SettingsDict.GetSetting('AlternateRowColors');
 	IndentLines := SettingsDict.GetSetting('IndentLines');
 	ExpandNodes := SettingsDict.GetSetting('ExpandNodes');
+	FilterSettings.LoadFromDict();
 end;
 
 procedure TNodeLookSettings.LoadDefaultsFromDict;
 begin
-//
+	//
+end;
+
+procedure TNodeLookSettings.ReadIni;
+begin
+	FilterSettings.ReadIni;
+	inherited ReadIni();
+end;
+
+procedure TNodeLookSettings.SetFilterSettings(const Value : TFilterSettings);
+begin
+	FFilterSettings := Value;
 end;
 
 procedure TNodeLookSettings.StoreToDict;
 begin
 	SetViewSettingValues();
+	FFilterSettings.StoreToDict();
 	inherited StoreToDict();
 end;
 
@@ -82,7 +127,6 @@ var
 	i : integer;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.SetViewSettingValues: ' + _s);
-
 	i := 0;
 	if _s.IsEmpty then begin
 		// StoreToDict all
@@ -100,7 +144,7 @@ begin
 	end else if MatchStr(_s, VIEW_SETTINGS[PreInc(i)]) then begin
 		SettingsDict.SetSettingValue(VIEW_SETTINGS[i], ExpandNodes);
 	end else begin
-		raise Exception.Create('Settings: ' + _s + ' not stored!');
+		FilterSettings.SetViewSettingValues(_s);
 	end;
 end;
 

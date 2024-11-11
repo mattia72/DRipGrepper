@@ -140,6 +140,7 @@ type
 			procedure DoSearch;
 			procedure EnableActionIfResultSelected(_act : TAction);
 			procedure ExpandNodes;
+			procedure FilterAllFileNode();
 			procedure FilterTextMode(const Node : PVirtualNode; const _sFilterPattern : string; const _filterModes : TFilterModes);
 			procedure FilterFileMode(const Node : PVirtualNode; const _sFilterPattern : string; const _filterModes : TFilterModes);
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
@@ -497,6 +498,15 @@ begin
 	end;
 end;
 
+procedure TRipGrepperMiddleFrame.FilterAllFileNode;
+begin
+	for var Node:PVirtualNode in VstResult.InitializedNodes(True) do begin
+		if (Node.Parent = VstResult.RootNode) then begin
+			VstResult.IsFiltered[Node] := True;
+		end;
+	end;
+end;
+
 procedure TRipGrepperMiddleFrame.FilterNodes(const _sFilterPattern : string; const _filterModes : TFilterModes);
 var
 	Node : PVirtualNode;
@@ -505,6 +515,9 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.FilterNodes');
 	VstResult.BeginUpdate;
 	try
+		if EFilterMode.fmFilterText in _filterModes then begin
+			FilterAllFileNode();
+		end;
 		for Node in VstResult.InitializedNodes(True) do begin
 			if EFilterMode.fmFilterFile in _filterModes then begin
 				FilterFileMode(Node, _sFilterPattern, _filterModes);
@@ -956,7 +969,7 @@ function TRipGrepperMiddleFrame.IsTextMatch(_input, _filter : string; const _fil
 var
 	options : TRegexOptions;
 begin
-	if EFilterMode.fmRegex in _filterModes then begin
+	if EFilterMode.fmUseRegex in _filterModes then begin
 		options := [roIgnoreCase];
 		if EFilterMode.fmCaseSensitive in _filterModes then begin
 			options := [];

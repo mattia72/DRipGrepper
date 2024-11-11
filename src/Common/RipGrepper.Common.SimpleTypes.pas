@@ -13,7 +13,7 @@ type
 
 	{$SCOPEDENUMS ON}
 	EGuiReplaceMode = (grmRGReplace, grmEditEnabled, grmActive, grmSaveEnabled);
-	EFilterMode = (fmFilterFile, fmFilterText, fmCaseSensitive, fmRegex);
+	EFilterMode = (fmFilterFile, fmFilterText, fmCaseSensitive, fmUseRegex);
 	{$SCOPEDENUMS OFF}
 	TGuiReplaceModes = set of EGuiReplaceMode;
     TFilterModes = set of EFilterMode;

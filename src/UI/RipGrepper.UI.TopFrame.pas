@@ -78,6 +78,8 @@ type
 		tbSaveReplacement : TToolButton;
 		ActionSaveReplacement : TAction;
 		ActionSaveAllReplacement : TAction;
+		ActionSetFileFilterMode : TAction;
+		ActionSetTextFilterMode : TAction;
 		ActionSetFilterModeCaseSensitive : TAction;
 		ActionSetFilterModeRegex : TAction;
 		miSetFileFilterMode : TMenuItem;
@@ -129,7 +131,7 @@ type
 
 		private
 			FDpiScaler : TRipGrepperDpiScaler;
-			FFilterMode : set of EFilterMode;
+			FFilterMode : TFilterModes;
 			FGuiReplaceModes : TGuiReplaceModes;
 			FHistItemObj : IHistoryItemObject;
 			FPrevFoundNode : PVirtualNode;
@@ -143,6 +145,7 @@ type
 			function IsFilterOn : Boolean;
 			procedure SaveSelectedReplacements;
 			procedure SelectNextFoundNode(const _prevFoundNode : PVirtualNode; const _searchPattern : string);
+			procedure SetFilterMode(const _fm : EFilterMode; const _bReset : Boolean = False);
 			procedure SetGuiReplaceModes(const _bOn : Boolean = True);
 			procedure SetReplaceModeOnGui;
 			procedure SetReplaceModeOnToolBar;
@@ -196,7 +199,8 @@ uses
 	RipGrepper.Helper.Types,
 	System.SysUtils,
 	RipGrepper.UI.ConfigForm,
-	System.RegularExpressions;
+	System.RegularExpressions,
+	RipGrepper.Settings.NodeLook.FilterSettings;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -378,26 +382,32 @@ end;
 
 procedure TRipGrepperTopFrame.ActionSetFileFilterModeExecute(Sender : TObject);
 begin
-	Include(FFilterMode, EFilterMode.fmFilterFile);
+	SetFilterMode(EFilterMode.fmFilterText, True);
+	SetFilterMode(EFilterMode.fmFilterFile);
 	UpdateFilterMenu;
+	Settings.StoreViewSettings(TFilterSettings.SETTING_FILTERMODE);
 end;
 
 procedure TRipGrepperTopFrame.ActionSetFilterModeCaseSensitiveExecute(Sender : TObject);
 begin
 	ToggleFilterMode(EFilterMode.fmCaseSensitive);
 	ActionSetFilterModeCaseSensitive.Checked := EFilterMode.fmCaseSensitive in FFilterMode;
+	Settings.StoreViewSettings(TFilterSettings.SETTING_CASE_SENSITIVE);
 end;
 
 procedure TRipGrepperTopFrame.ActionSetFilterModeRegexExecute(Sender : TObject);
 begin
-	ToggleFilterMode(EFilterMode.fmRegex);
-	ActionSetFilterModeRegex.Checked := EFilterMode.fmRegex in FFilterMode;
+	ToggleFilterMode(EFilterMode.fmUseRegex);
+	ActionSetFilterModeRegex.Checked := EFilterMode.fmUseRegex in FFilterMode;
+	Settings.StoreViewSettings(TFilterSettings.SETTING_USE_REGEX);
 end;
 
 procedure TRipGrepperTopFrame.ActionSetTextFilterModeExecute(Sender : TObject);
 begin
-	Include(FFilterMode, EFilterMode.fmFilterText);
+	SetFilterMode(EFilterMode.fmFilterFile, True);
+	SetFilterMode(EFilterMode.fmFilterText);
 	UpdateFilterMenu;
+	Settings.StoreViewSettings(TFilterSettings.SETTING_FILTERMODE);
 end;
 
 procedure TRipGrepperTopFrame.ActionShowFileIconsExecute(Sender : TObject);
@@ -610,7 +620,8 @@ end;
 
 procedure TRipGrepperTopFrame.Init;
 begin
-	//
+	FFilterMode := Settings.NodeLookSettings.FilterSettings.FilterModes;
+	UpdateFilterMenu;
 end;
 
 function TRipGrepperTopFrame.IsFilterOn : Boolean;
@@ -696,6 +707,16 @@ begin
 	{ } IfThen(_bOn and (edtFilter.Text <> ''), IMG_IDX_FILTER_ON, IMG_IDX_FILTER_OFF);
 end;
 
+procedure TRipGrepperTopFrame.SetFilterMode(const _fm : EFilterMode; const _bReset : Boolean = False);
+begin
+	if _bReset then begin
+		Exclude(FFilterMode, _fm);
+	end else begin
+		Include(FFilterMode, _fm);
+	end;
+	Settings.NodeLookSettings.FilterSettings.FilterModes := FFilterMode;
+end;
+
 procedure TRipGrepperTopFrame.SetGuiReplaceMode(const _modes : TGuiReplaceModes; const _sReplaceText : string = '');
 begin
 	FGuiReplaceModes := _modes;
@@ -771,12 +792,15 @@ begin
 	end else begin
 		Include(FFilterMode, _fm);
 	end;
+	Settings.NodeLookSettings.FilterSettings.FilterModes := FFilterMode;
 end;
 
 procedure TRipGrepperTopFrame.UpdateFilterMenu;
 begin
-	miSetFileFilterMode.Checked := EFilterMode.fmFilterFile in FFilterMode;
-	miSetTextFilterMode.Checked := EFilterMode.fmFilterText in FFilterMode;
+	ActionSetFileFilterMode.Checked := EFilterMode.fmFilterFile in FFilterMode;
+	ActionSetTextFilterMode.Checked := EFilterMode.fmFilterText in FFilterMode;
+	ActionSetFilterModeCaseSensitive.Checked := EFilterMode.fmCaseSensitive in FFilterMode;
+	ActionSetFilterModeRegex.Checked := EFilterMode.fmUseRegex in FFilterMode;
 end;
 
 end.

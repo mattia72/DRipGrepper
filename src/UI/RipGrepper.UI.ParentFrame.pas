@@ -82,6 +82,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.FrameOnShow');
 	Settings.LoadInitialSettings;
+    TopFrame.Init();
 	SetStatusBarMessage();
 end;
 
