@@ -21,6 +21,7 @@ The [release](https://github.com/mattia72/DRipGrepper/releases) includes the sta
 
 ## Features and Todos
 Marked with checkmark if ready, else planned.
+Most actual working items, you will find in the last [release notes](https://github.com/mattia72/DRipGrepper/releases) 
 
 - [x] Searches text, parses output of `rg --vimgrep` 
   - [x] Error parser: if a line couldn't be parsed, it is placed in the first column (it may be an encoding problem)
@@ -32,7 +33,7 @@ Marked with checkmark if ready, else planned.
 - [x] Copy `rg` command line into clipboard
 - [ ] Sorting result groups by row/col/text
 - [x] Filtering results
-  - [ ] Filter by file path
+  - [x] Filter by file path/matching lines
 - [x] File handling (e.g., open in explorer or in another tool)
 - [x] Replace text in files with `--replace=TEXT`
 - [x] Unicode support
@@ -74,12 +75,12 @@ Marked with checkmark if ready, else planned.
 
 ### Configuration
 Configuration is stored in ini file (`DripGrepper.ini` for standalone and `DripExtension.ini` for the extension)
-  - [ ] configurable length of history
   - [x] *Open with...* settings saved
   - [x] DebugTrace switch
   - [x] config form
     - [x] Open with...
     - [ ] App settings: rg path, debug trace, expert mode
+      - [ ] configurable length of history
     - [ ] Extension settings
     - [ ] View settings: colors
 
@@ -102,7 +103,7 @@ Configuration is stored in ini file (`DripGrepper.ini` for standalone and `DripE
 - [x] Search selected text
   - [ ] Multi-line selection handling (in ini?)
 - [ ] Search only in opened files/project files/project group
-- [x] Delphi extension release
+  - [ ] Search type, variable declaration, function definition
 
 ## Installation
 
@@ -118,10 +119,9 @@ scoop install dripgrepper
 
 ### Manual
 * Download latest [release](https://github.com/mattia72/DRipGrepper/releases)
-* Unzip somewhere
-* Ready
+* Unzip
 
-### Delphi Integration
+#### Delphi Integration
 * Open Delphi
 * Open `Component | Install Packages...` menu item
 * Add `DripExtension.bpl` to Design packages list
