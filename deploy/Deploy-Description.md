@@ -34,14 +34,16 @@ Marked with checkmark if ready, else planned ...
   - [ ] install as **extension** in Delphi IDE
 - [ ] JSON config files
 - [ ] **extension**: search opened project files only
-- [ ] copy to desktop to run in PowerShell / command prompt
+- [ ] copy to clipboard for running in PowerShell or command prompt
 - [x] win64 release
   - [x] sparate zip assets for platforms and extension
+  - [ ] **extension** zip for separate delphi versions?
 
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.
-- [ ] `Additional Options` has to have saved defaults also
-- [ ] drip icon in menu has no transparent background
+- [ ] **extension**: current file path is not saved in history
+- [ ] **extension**: exception if there is no project opened 
 - [ ] exception if rg.exe not found
-- [ ] **extension**: add to uses list not shown
+- [ ] **extension**: add to uses list popup menu sometimes not shown
+- [ ] **extension**: drip icon in menu has no transparent background
 
