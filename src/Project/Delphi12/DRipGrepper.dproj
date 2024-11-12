@@ -134,8 +134,8 @@
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_MajorVer>3</VerInfo_MajorVer>
         <VerInfo_MinorVer>8</VerInfo_MinorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.8.0.13;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.8.0.0</VerInfo_Keys>
-        <VerInfo_Build>13</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.8.0.16;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.8.0.0</VerInfo_Keys>
+        <VerInfo_Build>16</VerInfo_Build>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     </PropertyGroup>
@@ -282,6 +282,9 @@
         <DCCReference Include="..\..\Settings\RipGrepper.Settings.SettingsDictionary.pas"/>
         <DCCReference Include="..\..\Settings\RipGrepper.Settings.SettingVariant.pas"/>
         <DCCReference Include="..\..\Settings\RipGrepper.Settings.NodeLook.FilterSettings.pas"/>
+        <DCCReference Include="..\..\Tools\RipGrepper.Tools.Replacer.pas"/>
+        <DCCReference Include="..\..\Tools\RipGrepper.Tools.Replacer.Context.pas"/>
+        <DCCReference Include="..\..\Common\RipGrepper.Common.EncodedStringList.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

@@ -46,20 +46,6 @@ type
 			procedure Add(fileName : string; row : integer; replaceLine : string);
 	end;
 
-	TEncodedStringList = class(TStringList)
-		private
-			FOrigEncoding : TEncoding;
-			function GetFileEncoding(const _sFilePath : string) : TEncoding;
-			class function ShowWarningBeforeSave(_list : TReplaceList) : Boolean;
-
-		public
-			procedure LoadFromFile(const FileName : string); override;
-			class procedure ReplaceLineInFile(const _fileName : string; const _row : Integer; const _replaceLine : string;
-				const _createBackup : Boolean = True);
-			class procedure ReplaceLineInFiles(_list : TReplaceList; const _createBackup : Boolean = True);
-			procedure SaveToFile(const FileName : string); override;
-	end;
-
 procedure GetPackageNameInfoProc(const Name : string; NameType : TNameType; Flags : Byte; Param : Pointer);
 
 implementation
@@ -259,94 +245,6 @@ begin
 	if TFileUtils.FindExecutable('code', sCodePath) then begin
 		Result := TPath.GetDirectoryName(sCodePath);
 	end;
-end;
-
-function TEncodedStringList.GetFileEncoding(const _sFilePath : string) : TEncoding;
-const
-	MaxBOMLength = 100;
-var
-	Stream : TStream;
-	Buffer : TBytes;
-begin
-	Result := nil;
-	Stream := TFileStream.Create(_sFilePath, fmOpenRead or fmShareDenyNone);
-	try
-		SetLength(Buffer, MaxBOMLength);
-		Stream.Read(Buffer[0], MaxBOMLength);
-		TEncoding.GetBufferEncoding(Buffer, Result);
-	finally
-		Stream.Free;
-	end;
-end;
-
-procedure TEncodedStringList.LoadFromFile(const FileName : string);
-begin
-	FOrigEncoding := GetFileEncoding(FileName);
-	inherited LoadFromFile(FileName);
-end;
-
-class procedure TEncodedStringList.ReplaceLineInFile(const _fileName : string; const _row : Integer; const _replaceLine : string;
-	const _createBackup : Boolean = True);
-var
-	list : TReplaceList;
-begin
-	list := TReplaceList.Create;
-	try
-		list.Add(_fileName, _row, _replaceLine);
-		TEncodedStringList.ReplaceLineInFiles(list);
-	finally
-		list.Free;
-	end;
-end;
-
-class procedure TEncodedStringList.ReplaceLineInFiles(_list : TReplaceList; const _createBackup : Boolean = True);
-var
-	fileLines : TEncodedStringList;
-begin
-	if not ShowWarningBeforeSave(_list) then
-		Exit;
-
-	for var fileName in _list.Items.Keys do begin
-		if _createBackup then begin
-			TFileUtils.CreateBackup(fileName);
-		end;
-		fileLines := TEncodedStringList.Create;
-		try
-			fileLines.LoadFromFile(fileName);
-			for var rd : TReplaceData in _list.Items[fileName] do begin
-				if (rd.Row >= 0) and (rd.Row < fileLines.Count) then begin
-					fileLines[rd.Row - 1] := rd.Line;
-				end;
-			end;
-			fileLines.SaveToFile(fileName);
-		finally
-			fileLines.Free;
-		end;
-	end;
-end;
-
-procedure TEncodedStringList.SaveToFile(const FileName : string);
-begin
-	if Assigned(FOrigEncoding) then begin
-		SaveToFile(FileName, FOrigEncoding)
-	end else begin
-		inherited SaveToFile(FileName);
-	end;
-end;
-
-class function TEncodedStringList.ShowWarningBeforeSave(_list : TReplaceList) : Boolean;
-var
-	replaceCount : Integer;
-begin
-	replaceCount := 0;
-
-	for var fileName in _list.Items.Keys do begin
-		for var rd : TReplaceData in _list.Items[fileName] do begin
-			Inc(replaceCount);
-		end;
-	end;
-	Result := mrYes = TMsgBox.ShowQuestion(Format('Are you sure to change %d line(s) in %d file(s)?',
-		[replaceCount, _list.Items.Keys.Count]));
 end;
 
 class function TReplaceData.New(const _row : Integer; const _line : string) : TReplaceData;

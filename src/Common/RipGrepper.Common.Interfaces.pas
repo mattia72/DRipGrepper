@@ -5,14 +5,14 @@ interface
 uses
 	System.RegularExpressions,
 	RipGrepper.Common.Constants,
-    RipGrepper.Common.SimpleTypes,
+	RipGrepper.Common.SimpleTypes,
 	ArrayEx,
 	System.Generics.Collections,
 	System.Classes,
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Settings.SearchFormSettings,
-	RipGrepper.Settings.RipGrepperSettings;
+	RipGrepper.Settings.RipGrepperSettings, RipGrepper.Common.EncodedStringList;
 
 type
 
@@ -114,6 +114,12 @@ type
 		property IsReplaceMode : Boolean read GetIsReplaceMode;
 		property ReplaceText : string read GetReplaceText;
 		property TotalMatchCount : integer read GetTotalMatchCount;
+	end;
+
+	IReplaceContext = interface(IInterface)
+		['{44381611-EDB5-4204-B325-B1F266897843}']
+		procedure GetFileLines(_file : string; _list : TEncodedStringList);
+		procedure WriteFileLines(_file : string; _list : TEncodedStringList);
 	end;
 
 	{$M-}

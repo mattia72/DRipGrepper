@@ -41,6 +41,7 @@ Marked with checkmark if ready, else planned ...
 
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.
+- [ ] **extension**: replace doesn't replace files opened in buffer
 - [ ] **extension**: current file path is not saved in history
 - [ ] **extension**: exception if there is no project opened 
 - [ ] exception if rg.exe not found
