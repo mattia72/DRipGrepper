@@ -81,7 +81,8 @@ uses
   RipGrepper.Settings.RipGrepperSettings in '..\..\Settings\RipGrepper.Settings.RipGrepperSettings.pas',
   RipGrepper.Settings.SearchFormSettings in '..\..\Settings\RipGrepper.Settings.SearchFormSettings.pas',
   RipGrepper.Settings.SettingsDictionary in '..\..\Settings\RipGrepper.Settings.SettingsDictionary.pas',
-  RipGrepper.Settings.SettingVariant in '..\..\Settings\RipGrepper.Settings.SettingVariant.pas';
+  RipGrepper.Settings.SettingVariant in '..\..\Settings\RipGrepper.Settings.SettingVariant.pas',
+  RipGrepper.Settings.NodeLook.FilterSettings in '..\..\Settings\RipGrepper.Settings.NodeLook.FilterSettings.pas';
 
 {$R *.res}
 
