@@ -41,9 +41,10 @@ Marked with checkmark if ready, else planned ...
 
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.
-- [ ] **extension**: current file path is not saved in history
+- [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: exception if there is no project opened 
 - [ ] exception if rg.exe not found
+- [ ] --hidden switch is on sometimes if opened from history list TODO: check empty _sParamvalue
 - [ ] **extension**: add to uses list popup menu sometimes not shown
 - [ ] **extension**: drip icon in menu has no transparent background
 

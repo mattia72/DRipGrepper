@@ -91,7 +91,7 @@ begin
 				sValue := MaybeQuoteIfNotQuoted(_sValue);
 			end else if _sValue = QuotedStr('') then begin
 				sValue := '';
-            end;
+			end;
 			FOptions.Insert(0, params[RG_PARAM_LONG_INDEX] + '=' + sValue);
 		end;
 	end;
@@ -119,7 +119,7 @@ begin
 				Result.Delete(Result.MaxIndex);
 				Result.Add(sLastAllOptions + ' ' + s);
 			end else begin
-                Result.Add(s);
+				Result.Add(s);
 			end;
 		end;
 	end;
@@ -240,10 +240,11 @@ function TOptionStrings.IsOptionSet(_sParamRegex : string; const _sParamValue : 
 var
 	arrOptions : TOptionVariants;
 begin
-	Result := True;
+	Result := True; // TODO: check empty _sParamvalue
 	if not _sParamRegex.IsEmpty then begin
 		if GetOptionVariantsAndValue(_sParamRegex, arrOptions) then begin
-			Result := IsConcreteOptionSet(arrOptions.Short, _sParamValue) or IsConcreteOptionSet(arrOptions.Long, _sParamValue);
+			Result := IsConcreteOptionSet(arrOptions.Short, _sParamValue) or
+			{ } IsConcreteOptionSet(arrOptions.Long, _sParamValue);
 		end else begin
 			Result := IsConcreteOptionSet(_sParamRegex, _sParamValue);
 		end;
