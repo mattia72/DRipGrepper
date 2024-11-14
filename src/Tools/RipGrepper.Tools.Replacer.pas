@@ -26,7 +26,11 @@ implementation
 uses
 	RipGrepper.Helper.UI,
 	System.UITypes,
-	RipGrepper.Tools.Replacer.Context,
+	{$IFDEF STANDALONE}
+	RipGrepper.Tools.Replacer.StandaloneContext,
+	{$ELSE}
+	RipGrepper.Tools.Replacer.ExtensionContext,
+	{$ENDIF}
 	RipGrepper.Common.Interfaces,
 	RipGrepper.Common.EncodedStringList;
 

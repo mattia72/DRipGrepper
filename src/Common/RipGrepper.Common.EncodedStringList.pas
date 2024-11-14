@@ -10,11 +10,16 @@ uses
 type
 	TEncodedStringList = class(TStringList)
 		private
+			FIsBinary: Boolean;
 			FOrigEncoding : TEncoding;
 			function GetFileEncoding(const _sFilePath : string) : TEncoding;
+
 		public
-			procedure LoadFromFile(const FileName : string); override;
+			// Load a binary/text form file into a TStrings object
+			procedure LoadFormFileToStrings(const _sFileName : string; out _bWasBinary : Boolean); overload;
+			procedure LoadFromFile(const _sFileName: string); override;
 			procedure SaveToFile(const FileName : string); override;
+			property IsBinary: Boolean read FIsBinary write FIsBinary;
 	end;
 
 implementation
@@ -37,10 +42,54 @@ begin
 	end;
 end;
 
-procedure TEncodedStringList.LoadFromFile(const FileName : string);
+procedure TEncodedStringList.LoadFormFileToStrings(const _sFileName : string; out _bWasBinary : Boolean);
+var
+	srcStream : TStream;
+	destStream : TStream;
+	origStreamFormat : TStreamOriginalFormat;
 begin
-	FOrigEncoding := GetFileEncoding(FileName);
-	inherited LoadFromFile(FileName);
+	self.Clear;
+
+	destStream := nil;
+	srcStream := TFileStream.Create(_sFileName, fmOpenRead or fmShareDenyWrite);
+	try
+		destStream := TMemoryStream.Create;
+		srcStream.Position := 0;
+		origStreamFormat := TestStreamFormat(srcStream);
+		srcStream.Position := 0;
+		_bWasBinary := (origStreamFormat = sofBinary);
+		case origStreamFormat of
+			sofUnknown :
+			raise Exception.CreateFmt('Invalid stream format for form file: %s.  (sofUnknown)', [_sFileName]);
+			sofBinary : begin
+				ObjectResourceToText(srcStream, destStream, origStreamFormat);
+				destStream.Position := 0;
+				if origStreamFormat = sofUTF8Text then begin
+					self.LoadFromStream(destStream, TEncoding.UTF8)
+				end else begin
+					self.LoadFromStream(destStream, TEncoding.Default);
+				end;
+			end;
+			sofText : begin
+				self.LoadFromStream(srcStream);
+			end;
+			sofUTF8Text : begin
+				self.LoadFromStream(srcStream, TEncoding.UTF8);
+			end
+
+			else
+			raise Exception.Create('Unknown form file format: ' + IntToStr(Ord(origStreamFormat)));
+		end;
+	finally
+		FreeAndNil(srcStream);
+		FreeAndNil(destStream);
+	end;
+end;
+
+procedure TEncodedStringList.LoadFromFile(const _sFileName: string);
+begin
+	FOrigEncoding := GetFileEncoding(_sFileName);
+	LoadFormFileToStrings(_sFileName, FIsBinary);
 end;
 
 procedure TEncodedStringList.SaveToFile(const FileName : string);

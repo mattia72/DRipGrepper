@@ -5,7 +5,7 @@
         <ProjectVersion>20.1</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Package</AppType>
@@ -116,7 +116,7 @@
         <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.8.0.51;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.8.0.0;Comments=beta</VerInfo_Keys>
         <VerInfo_MinorVer>8</VerInfo_MinorVer>
         <VerInfo_Build>51</VerInfo_Build>
-        <Icon_MainIcon>..\..\..\..\..\icons\Drip.ico</Icon_MainIcon>
+        <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -131,6 +131,7 @@
         <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.8.0.51;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.8.0.0;Comments=beta</VerInfo_Keys>
         <VerInfo_MinorVer>8</VerInfo_MinorVer>
         <VerInfo_Build>51</VerInfo_Build>
+        <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -238,6 +239,10 @@
         <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.SearchFormSettings.pas"/>
         <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.SettingsDictionary.pas"/>
         <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.SettingVariant.pas"/>
+        <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.Replacer.pas"/>
+        <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.EncodedStringList.pas"/>
+        <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.NodeLook.FilterSettings.pas"/>
+        <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.Replacer.ExtensionContext.pas"/>
         <RcItem Include="..\..\..\Resources\about_icon.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>about_icon</ResourceId>
