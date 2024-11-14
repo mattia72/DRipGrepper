@@ -244,9 +244,22 @@ uses
 constructor TRipGrepperMiddleFrame.Create(AOwner : TComponent);
 begin
 	inherited;
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.Create ' + AOwner.Name);
+    var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.Create');
 	FIconImgList := TIconImageList.Create(Handle, ImageListListView);
 	MainFrame := self;
+	{$IFDEF STANDALONE}
+	var
+	bStandalone := True;
+	{$ELSE}
+	var
+	bStandalone := False;
+	{$ENDIF}
+	miAddToUSESList.Visible := not bStandalone;
+	ActionAddUsingImplementation.Visible := not bStandalone;
+	ActionAddUsingInterface.Visible := not bStandalone;
+
+    TDebugUtils.DebugMessageFormat('TRipGrepperMiddleFrame.Create: AddToUsesList.Visible=%s', [BoolToStr(not bStandalone)]);
 end;
 
 destructor TRipGrepperMiddleFrame.Destroy;
@@ -269,15 +282,6 @@ end;
 
 procedure TRipGrepperMiddleFrame.ActionAddUsingImplementationUpdate(Sender : TObject);
 begin
-	{$IFDEF STANDALONE}
-	var
-	bStandalone := True;
-	{$ELSE}
-	var
-	bStandalone := False;
-	{$ENDIF}
-	miAddToUSESList.Visible := bStandalone;
-	ActionAddUsingImplementation.Visible := bStandalone;
 	EnableActionIfResultSelected(ActionAddUsingImplementation);
 end;
 
@@ -288,11 +292,6 @@ end;
 
 procedure TRipGrepperMiddleFrame.ActionAddUsingInterfaceUpdate(Sender : TObject);
 begin
-	{$IFNDEF STANDALONE}
-	ActionAddUsingInterface.Visible := True;
-	{$ELSE}
-	ActionAddUsingInterface.Visible := False;
-	{$ENDIF}
 	EnableActionIfResultSelected(ActionAddUsingInterface);
 end;
 
@@ -500,7 +499,7 @@ end;
 
 procedure TRipGrepperMiddleFrame.FilterAllFileNode;
 begin
-	for var Node:PVirtualNode in VstResult.InitializedNodes(True) do begin
+	for var Node : PVirtualNode in VstResult.InitializedNodes(True) do begin
 		if (Node.Parent = VstResult.RootNode) then begin
 			VstResult.IsFiltered[Node] := True;
 		end;

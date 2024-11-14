@@ -1,7 +1,7 @@
 <!--
 
-Version:     v3.8.0-beta
-PrevVersion: v3.7.0-beta
+Version:     v3.8.2-beta
+PrevVersion: v3.8.1-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -42,9 +42,10 @@ Marked with checkmark if ready, else planned ...
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.
 - [ ] **extension**: replace doesn't replace files opened in buffer
-- [ ] **extension**: current file path is not saved in history
+- [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: exception if there is no project opened 
 - [ ] exception if rg.exe not found
-- [ ] **extension**: add to uses list popup menu sometimes not shown
+- [ ] --hidden switch is on sometimes if opened from history list TODO: check empty _sParamvalue
+- [x] **extension**: add to uses list popup menu sometimes not shown
 - [ ] **extension**: drip icon in menu has no transparent background
 

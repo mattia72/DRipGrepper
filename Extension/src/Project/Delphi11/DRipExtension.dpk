@@ -99,7 +99,8 @@ contains
   RipGrepper.Settings.RipGrepperSettings in '..\..\..\..\src\Settings\RipGrepper.Settings.RipGrepperSettings.pas',
   RipGrepper.Settings.SearchFormSettings in '..\..\..\..\src\Settings\RipGrepper.Settings.SearchFormSettings.pas',
   RipGrepper.Settings.SettingsDictionary in '..\..\..\..\src\Settings\RipGrepper.Settings.SettingsDictionary.pas',
-  RipGrepper.Settings.SettingVariant in '..\..\..\..\src\Settings\RipGrepper.Settings.SettingVariant.pas';
+  RipGrepper.Settings.SettingVariant in '..\..\..\..\src\Settings\RipGrepper.Settings.SettingVariant.pas',
+  RipGrepper.Settings.NodeLook.FilterSettings in '..\..\..\..\src\Settings\RipGrepper.Settings.NodeLook.FilterSettings.pas';
 
 end.
 

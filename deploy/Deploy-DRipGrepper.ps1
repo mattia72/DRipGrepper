@@ -120,9 +120,9 @@ function Build-StandaloneRelease {
     Import-Module -Name PSDelphi -Force
     $projectPath = Get-ProjectPath "src\Project"
     $result = $null
-    Build-DelphiProject -ProjectPath $projectPath\DRipGrepper.dproj -BuildConfig Release -Platform "Win32" -StopOnFirstFailure -CountResult -Result ([ref]$result) | Out-Null
+    Build-DelphiProject -ProjectPath $projectPath\DRipGrepper.dproj -BuildConfig Release -Platform "Win32" -StopOnFirstFailure -CountResult -Result ([ref]$result)
     Test-BuildResult -result $result
-    Build-DelphiProject -ProjectPath $projectPath\DRipGrepper.dproj -BuildConfig Release -Platform "Win64" -StopOnFirstFailure -CountResult -Result ([ref]$result) | Out-Null
+    Build-DelphiProject -ProjectPath $projectPath\DRipGrepper.dproj -BuildConfig Release -Platform "Win64" -StopOnFirstFailure -CountResult -Result ([ref]$result)
     Test-BuildResult -result $result    
 }
 
@@ -132,7 +132,7 @@ function Build-AndRunUnittest {
     $projectPath = Split-Path -Parent $PSScriptRoot 
     $unittestPath = Join-Path $projectPath "UnitTest"
     $result = $null
-    Build-DelphiProject -ProjectPath $unittestPath\DRipGrepperUnittest.dproj -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result) | Out-Null
+    Build-DelphiProject -ProjectPath $unittestPath\DRipGrepperUnittest.dproj -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result)
     Test-BuildResult -result $result    
     $unittestPath = Join-Path $unittestPath "\Win32\Release"
 
@@ -171,7 +171,7 @@ function Add-ToAssetsDir {
         Write-Error "Search FileVersion=$appVersion in *.dproj and change it!`r`nDeploy stopped." -ErrorAction Stop
     }
     New-Item -Path $AssetDir -ItemType Directory -Force -ErrorAction SilentlyContinue
-    Copy-Item -Path $AssetItemPath -Destination $AssetDir -Verbose
+    Copy-Item -Path $AssetItemPath -Destination $AssetDir -Verbose -ErrorAction Stop
 }
 
 function New-StandaloneZips {
