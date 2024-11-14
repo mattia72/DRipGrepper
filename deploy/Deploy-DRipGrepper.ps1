@@ -171,7 +171,7 @@ function Add-ToAssetsDir {
         Write-Error "Search FileVersion=$appVersion in *.dproj and change it!`r`nDeploy stopped." -ErrorAction Stop
     }
     New-Item -Path $AssetDir -ItemType Directory -Force -ErrorAction SilentlyContinue
-    Copy-Item -Path $AssetItemPath -Destination $AssetDir -Verbose
+    Copy-Item -Path $AssetItemPath -Destination $AssetDir -Verbose -ErrorAction Stop
 }
 
 function New-StandaloneZips {
