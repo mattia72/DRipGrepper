@@ -114,9 +114,9 @@
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_MajorVer>3</VerInfo_MajorVer>
     <VerInfo_Locale>1033</VerInfo_Locale>
-    <VerInfo_Keys>FileDescription=DRipExtension;FileVersion=3.8.2.55;ProgramID=com.embarcadero.DRipExtension;ProductName=DRipExtension;ProductVersion=3.8.1.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Keys>FileDescription=DRipExtension;FileVersion=3.8.2.56;ProgramID=com.embarcadero.DRipExtension;ProductName=DRipExtension;ProductVersion=3.8.1.0;Comments=beta</VerInfo_Keys>
     <VerInfo_MinorVer>8</VerInfo_MinorVer>
-    <VerInfo_Build>55</VerInfo_Build>
+    <VerInfo_Build>56</VerInfo_Build>
     <VerInfo_Release>2</VerInfo_Release>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
   </PropertyGroup>
@@ -227,6 +227,9 @@
     <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.SettingsDictionary.pas" />
     <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.SettingVariant.pas" />
     <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.NodeLook.FilterSettings.pas" />
+    <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.EncodedStringList.pas" />
+    <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.Replacer.ExtensionContext.pas" />
+    <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.Replacer.pas" />
     <RcItem Include="..\..\..\Resources\about_icon.bmp">
       <ResourceType>BITMAP</ResourceType>
       <ResourceId>about_icon</ResourceId>
