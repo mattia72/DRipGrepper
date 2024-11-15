@@ -1,4 +1,4 @@
-﻿unit RipGrepper.UI.MiddleFrame;
+unit RipGrepper.UI.MiddleFrame;
 
 interface
 
@@ -958,7 +958,7 @@ begin
 		Result := False;
 	end else begin
 		if EFilterMode.fmFilterFile in _filterModes then begin
-			Result := not IsTextMatch(Data.FilePath, _sFilterText, _filterModes);
+			Result := not IsTextMatch(GetAbsOrRelativePath(Data.FilePath), _sFilterText, _filterModes);
 		end else begin
 			Result := not IsTextMatch(Data.MatchData.LineText, _sFilterText, _filterModes);
 		end;
