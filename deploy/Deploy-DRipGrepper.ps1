@@ -155,7 +155,7 @@ function Build-ExtensionRelease {
     Import-Module -Name PSDelphi -Force
     $projectPath = Get-ProjectPath "Extension\src\Project" 
     $result = $null
-    Build-DelphiProject -ProjectPath $projectPath\DRipExtension.dproj -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result) | Out-Null
+    Build-DelphiProject -ProjectPath $projectPath\DRipExtension.dproj -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result) 
     Test-BuildResult -result $result
 }
 function Add-ToAssetsDir {
