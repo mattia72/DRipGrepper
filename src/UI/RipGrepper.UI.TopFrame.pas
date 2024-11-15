@@ -27,11 +27,11 @@ uses
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.Common.Interfaces,
 	RipGrepper.Common.SimpleTypes,
-	RipGrepper.Tools.FileUtils;
+	RipGrepper.Tools.FileUtils,
+	RipGrepper.UI.FrameBase;
 
 type
-
-	TRipGrepperTopFrame = class(TFrame)
+	TRipGrepperTopFrame = class(TFrameBase)
 		ImageListButtons : TImageList;
 		ActionList : TActionList;
 		ActionSearch : TAction;
@@ -88,7 +88,6 @@ type
 		miFilterModeCaseSensitive : TMenuItem;
 		miFilterModeUseRegex : TMenuItem;
 		procedure ActionAbortSearchExecute(Sender : TObject);
-		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlignToolbarsExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsUpdate(Sender : TObject);
@@ -158,13 +157,15 @@ type
 		public
 			constructor Create(AOwner : TComponent); override;
 			destructor Destroy; override;
-		procedure AfterRgRun;
+		procedure AfterHistObjChange; override;
+			procedure AfterSearch; override;
 			procedure AlignToolBars(iTbResultLeft, iSearchMaxWidth, iResultMinWidth : integer);
+			procedure BeforeSearch; override;
 			function GetNextViewStyleIdx : integer;
-			procedure Init;
+			procedure Init; override;
 			function IsRgReplaceMode : Boolean;
 			procedure SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
-			procedure SetFilter(const _bOn : Boolean = True);
+			procedure SetFilter(const _bOn : Boolean = True; const _bUpdateResult : Boolean = False);
 			procedure SetGuiReplaceMode(const _modes : TGuiReplaceModes; const _sReplaceText : string = '');
 			procedure ReplaceLineInFile(const fileName : string; lineNum : Integer; const replaceLine : string);
 			property IsGuiReplaceMode : Boolean read GetIsGuiReplaceMode;
@@ -225,11 +226,6 @@ begin
 		MainFrame.RipGrepTask.Cancel;
 	end;
 	MainFrame.AbortSearch := True;
-end;
-
-procedure TRipGrepperTopFrame.ActionAbortSearchUpdate(Sender : TObject);
-begin
-	ActionAbortSearch.Enabled := MainFrame.IsSearchRunning;
 end;
 
 procedure TRipGrepperTopFrame.ActionAlignToolbarsExecute(Sender : TObject);
@@ -475,9 +471,14 @@ begin
 	ActionSwitchView.Hint := 'Change View ' + LISTVIEW_TYPE_TEXTS[idx];
 end;
 
-procedure TRipGrepperTopFrame.AfterRgRun;
+procedure TRipGrepperTopFrame.AfterHistObjChange;
 begin
-	// TODO -cGUIUpdate: TRipGrepperTopFrame.AfterRgRun default body inserted
+	// TODO -cMM: TRipGrepperTopFrame.AfterHistObjChange default body inserted
+end;
+
+procedure TRipGrepperTopFrame.AfterSearch;
+begin
+	ActionAbortSearch.Enabled := False;
 end;
 
 procedure TRipGrepperTopFrame.AlignToolBars(iTbResultLeft, iSearchMaxWidth, iResultMinWidth : integer);
@@ -501,6 +502,11 @@ begin
 	end;
 end;
 
+procedure TRipGrepperTopFrame.BeforeSearch;
+begin
+	ActionAbortSearch.Enabled := True;
+end;
+
 procedure TRipGrepperTopFrame.edtFilterChange(Sender : TObject);
 begin
 	if IsFilterOn then begin
@@ -512,8 +518,7 @@ procedure TRipGrepperTopFrame.edtFilterKeyDown(Sender : TObject; var Key : Word;
 begin
 	if Key = VK_RETURN then begin
 		// Enter key was pressed
-		SetFilter();
-		MainFrame.FilterNodes(edtFilter.Text, FFilterMode);
+		SetFilter(True, True);
 	end;
 	Key := 0;
 end;
@@ -522,10 +527,10 @@ procedure TRipGrepperTopFrame.edtFilterRightButtonClick(Sender : TObject);
 begin
 	if IsFilterOn then begin
 		MainFrame.ClearFilter(True);
-		SetFilter(False);
+		SetFilter(False, True);
 	end else begin
 		MainFrame.FilterNodes(edtFilter.Text, FFilterMode);
-		SetFilter();
+		SetFilter(True, True);
 	end;
 end;
 
@@ -708,10 +713,15 @@ begin
 	end;
 end;
 
-procedure TRipGrepperTopFrame.SetFilter(const _bOn : Boolean = True);
+procedure TRipGrepperTopFrame.SetFilter(const _bOn : Boolean = True; const _bUpdateResult : Boolean = False);
 begin
 	edtFilter.RightButton.ImageIndex :=
 	{ } IfThen(_bOn and (edtFilter.Text <> ''), IMG_IDX_FILTER_ON, IMG_IDX_FILTER_OFF);
+
+	if _bUpdateResult then begin
+		MainFrame.FilterNodes(edtFilter.Text, FFilterMode);
+	end;
+
 end;
 
 procedure TRipGrepperTopFrame.SetFilterMode(const _fm : EFilterMode; const _bReset : Boolean = False);

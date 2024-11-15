@@ -16,10 +16,11 @@ uses
 	Vcl.ComCtrls,
 	Vcl.ExtCtrls,
 	System.Actions,
-	Vcl.ActnList;
+	Vcl.ActnList,
+	RipGrepper.UI.FrameBase;
 
 type
-	TRipGrepperBottomFrame = class(TFrame)
+	TRipGrepperBottomFrame = class(TFrameBase)
 		pnlBottom : TPanel;
 		StatusBar1 : TStatusBar;
 		ActivityIndicator1 : TActivityIndicator;
@@ -27,16 +28,24 @@ type
 		ActionStatusBar : TAction;
 		procedure ActionStatusBarUpdate(Sender : TObject);
 		procedure FrameResize(Sender : TObject);
-		procedure Init;
 
-		public
-			{ Public-Deklarationen }
+		private
 			FStatusBarMessage : string;
 			FStatusBarStatistic : string;
 			FStatusBarStatus : string;
+			procedure SetStatusBarMessage;
+
+		public
 			constructor Create(AOwner : TComponent); override;
+			procedure AfterHistObjChange; override;
+			procedure Init; override;
+			procedure AfterSearch; override;
+			procedure BeforeSearch; override;
 			procedure SetRunningStatus;
 			procedure SetReadyStatus;
+			property StatusBarMessage : string read FStatusBarMessage write FStatusBarMessage;
+			property StatusBarStatistic : string read FStatusBarStatistic write FStatusBarStatistic;
+			property StatusBarStatus : string read FStatusBarStatus write FStatusBarStatus;
 	end;
 
 var
@@ -46,7 +55,8 @@ implementation
 
 uses
 	RipGrepper.Common.Constants,
-	RipGrepper.UI.MiddleFrame;
+	RipGrepper.UI.MiddleFrame,
+	System.StrUtils;
 
 {$R *.dfm}
 
@@ -63,6 +73,21 @@ begin
 	StatusBar1.Panels[PNL_STATISTIC_IDX].Text := FStatusBarStatistic;
 end;
 
+procedure TRipGrepperBottomFrame.AfterHistObjChange;
+begin
+	SetStatusBarMessage();
+end;
+
+procedure TRipGrepperBottomFrame.AfterSearch;
+begin
+	SetStatusBarMessage();
+end;
+
+procedure TRipGrepperBottomFrame.BeforeSearch;
+begin
+	StatusBarStatistic := 'Searching...';
+end;
+
 procedure TRipGrepperBottomFrame.FrameResize(Sender : TObject);
 begin
 	var
@@ -73,14 +98,18 @@ end;
 
 procedure TRipGrepperBottomFrame.Init;
 begin
-{$IFDEF STANDALONE}
-var bStandalone := True;
-{$ELSE}
-var bStandalone := False;
-{$ENDIF}
+	{$IFDEF STANDALONE}
+	var
+	bStandalone := True;
+	{$ELSE}
+	var
+	bStandalone := False;
+	{$ENDIF}
 	if not bStandalone then begin
 		Height := Height - 5;
 	end;
+	StatusBarMessage := Format(FORMAT_VERSION_INFO_IN_STATUSBAR, [MainFrame.ExeVersion]);
+	SetReadyStatus;
 end;
 
 procedure TRipGrepperBottomFrame.SetRunningStatus;
@@ -93,6 +122,16 @@ procedure TRipGrepperBottomFrame.SetReadyStatus;
 begin
 	ActivityIndicator1.Animate := False;
 	FStatusBarStatus := 'READY';
+end;
+
+procedure TRipGrepperBottomFrame.SetStatusBarMessage;
+var
+	msg : string;
+begin
+	msg := Format('Search took %s seconds', // with ' + FORMAT_VERSION_INFO_IN_STATUSBAR,
+		[MainFrame.HistItemObject.ElapsedTimeText]); // , MainFrame.ExeVersion]);
+	StatusBarStatus := IfThen(MainFrame.HistItemObject.RipGrepResult = RG_ERROR, 'ERROR', 'SUCCESS');
+	StatusBarMessage := msg;
 end;
 
 end.

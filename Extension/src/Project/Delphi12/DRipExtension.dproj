@@ -5,7 +5,7 @@
         <ProjectVersion>20.1</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Package</AppType>
@@ -243,6 +243,7 @@
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.EncodedStringList.pas"/>
         <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.NodeLook.FilterSettings.pas"/>
         <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.Replacer.ExtensionContext.pas"/>
+        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.FrameBase.pas"/>
         <RcItem Include="..\..\..\Resources\about_icon.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>about_icon</ResourceId>

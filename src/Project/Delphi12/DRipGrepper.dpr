@@ -85,7 +85,8 @@ uses
   RipGrepper.Settings.NodeLook.FilterSettings in '..\..\Settings\RipGrepper.Settings.NodeLook.FilterSettings.pas',
   RipGrepper.Tools.Replacer in '..\..\Tools\RipGrepper.Tools.Replacer.pas',
   RipGrepper.Tools.Replacer.StandaloneContext in '..\..\Tools\RipGrepper.Tools.Replacer.StandaloneContext.pas',
-  RipGrepper.Common.EncodedStringList in '..\..\Common\RipGrepper.Common.EncodedStringList.pas';
+  RipGrepper.Common.EncodedStringList in '..\..\Common\RipGrepper.Common.EncodedStringList.pas',
+  RipGrepper.UI.FrameBase in '..\..\UI\RipGrepper.UI.FrameBase.pas';
 
 {$R *.res}
 

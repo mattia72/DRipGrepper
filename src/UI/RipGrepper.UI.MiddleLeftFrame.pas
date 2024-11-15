@@ -183,17 +183,18 @@ end;
 procedure TMiddleLeftFrame.ActionOpenSearchFormExecute(Sender : TObject);
 begin
 	var
+	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.ActionOpenSearchFormExecute');
+	var
 	formResult := TRipGrepperSearchDialogForm.ShowSearchForm(self, Settings, MainFrame.HistItemObj);
 	if mrOK = formResult then begin
-		TDebugUtils.DebugMessage('TRipGrepperTopFrame.VstHistoryNodeDblClick: after ShowSearchForm cmdline: ' +
-			Settings.RipGrepParameters.GetCommandLine);
+		dbgMsg.Msg('after ShowSearchForm cmdline: ' + Settings.RipGrepParameters.GetCommandLine);
 		MainFrame.PrepareAndDoSearch();
 	end else begin
-		TDebugUtils.DebugMessage('TRipGrepperTopFrame.VstHistoryNodeDblClick: ShowSearchForm cancel');
+		dbgMsg.Msg('ShowSearchForm cancel');
 	end;
 
 	ChangeHistoryNodeText;
-	MainFrame.UpdateHistObjectAndGui;
+	MainFrame.BeforeSearch;
 end;
 
 procedure TMiddleLeftFrame.AddHistoryObject(_ho : IHistoryItemObject);
@@ -247,7 +248,7 @@ end;
 
 procedure TMiddleLeftFrame.AddVstReplaceNode(Node : PVirtualNode);
 var
-	childNode: PVirtualNode;
+	childNode : PVirtualNode;
 	data : PVSHistoryNodeData;
 begin
 	var
@@ -590,7 +591,9 @@ begin
 
 	if (CurrentHistoryItemIndex <> idx) then begin
 		CurrentHistoryItemIndex := idx;
-		MainFrame.UpdateHistObjectAndGui;
+		ParentFrame.AfterHistObjChange();
+
+		//MainFrame.UpdateHistObjectAndGui;
 	end;
 
 	SetReplaceMode();

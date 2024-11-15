@@ -103,7 +103,8 @@ contains
   RipGrepper.Tools.Replacer in '..\..\..\..\src\Tools\RipGrepper.Tools.Replacer.pas',
   RipGrepper.Common.EncodedStringList in '..\..\..\..\src\Common\RipGrepper.Common.EncodedStringList.pas',
   RipGrepper.Settings.NodeLook.FilterSettings in '..\..\..\..\src\Settings\RipGrepper.Settings.NodeLook.FilterSettings.pas',
-  RipGrepper.Tools.Replacer.ExtensionContext in '..\..\..\..\src\Tools\RipGrepper.Tools.Replacer.ExtensionContext.pas';
+  RipGrepper.Tools.Replacer.ExtensionContext in '..\..\..\..\src\Tools\RipGrepper.Tools.Replacer.ExtensionContext.pas',
+  RipGrepper.UI.FrameBase in '..\..\..\..\src\UI\RipGrepper.UI.FrameBase.pas';
 
 end.
 

@@ -1498,7 +1498,6 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       ImageIndex = 18
       ShortCut = 16411
       OnExecute = ActionAbortSearchExecute
-      OnUpdate = ActionAbortSearchUpdate
     end
     object ActionCmdLineCopy: TAction
       Category = 'Search'

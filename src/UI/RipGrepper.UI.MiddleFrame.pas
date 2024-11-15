@@ -1,4 +1,4 @@
-unit RipGrepper.UI.MiddleFrame;
+﻿unit RipGrepper.UI.MiddleFrame;
 
 interface
 
@@ -43,10 +43,11 @@ uses
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.UI.MiddleLeftFrame,
-	RipGrepper.Common.NodeData;
+	RipGrepper.Common.NodeData,
+	RipGrepper.UI.FrameBase;
 
 type
-	TRipGrepperMiddleFrame = class(TFrame, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
+	TRipGrepperMiddleFrame = class(TFrameBase, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
 		ActionList : TActionList;
 		ActionCopyFileName : TAction;
 		ActionCopyPathToClipboard : TAction;
@@ -175,7 +176,10 @@ type
 		public
 			constructor Create(AOwner : TComponent); override;
 			destructor Destroy; override;
+			procedure AfterHistObjChange; override;
+			procedure AfterSearch; override;
 			procedure AlignToolBars;
+			procedure BeforeSearch; override;
 			procedure ClearFilter(const _bForce : Boolean = False);
 			procedure CopyToClipboardFileOfSelected;
 			procedure CopyToClipboardPathOfSelected;
@@ -185,7 +189,7 @@ type
 			function GetFilePathFromNode(_node : PVirtualNode) : string;
 			function GetOpenWithParamsFromSelected : TOpenWithParams;
 			function GetRowColText(_i : Integer; _type : TVSTTextType) : string;
-			procedure Init;
+			procedure Init; override;
 			function IsNodeFiltered(const Data : PVSFileNodeData; const _sFilterText : string; const _filterModes : TFilterModes) : Boolean;
 			function IsSearchRunning : Boolean;
 			// IEOFProcessEventHandler
@@ -433,11 +437,26 @@ end;
 {$ENDIF}
 end;
 
+procedure TRipGrepperMiddleFrame.AfterHistObjChange;
+begin
+	UpdateHistObjectAndGui
+end;
+
+procedure TRipGrepperMiddleFrame.AfterSearch;
+begin
+	// TODO -cMM: TRipGrepperMiddleFrame.AfterSearch default body inserted
+end;
+
 procedure TRipGrepperMiddleFrame.AlignToolBars;
 begin
 	if Assigned(TopFrame) then begin
 		TopFrame.AlignToolBars(PanelResult.Left, PanelHistory.Width, PanelResult.Width);
 	end;
+end;
+
+procedure TRipGrepperMiddleFrame.BeforeSearch;
+begin
+	UpdateHistObjectAndGui;
 end;
 
 procedure TRipGrepperMiddleFrame.ClearFilter(const _bForce : Boolean = False);
@@ -477,7 +496,6 @@ end;
 
 procedure TRipGrepperMiddleFrame.DoSearch;
 begin
-	ParentFrame.SetStatusBarStatistic('Searching...');
 	FAbortSearch := False;
 	UpdateArgumentsAndSettings;
 	// hist object parser type should set before painting begins...
@@ -538,6 +556,8 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.FilterTextMode');
 	bIsFiltered := False;
+	var
+	line := '';
 	if (Node.Parent <> VstResult.RootNode) then begin
 		Data := VstResult.GetNodeData(Node);
 		bIsFiltered := IsNodeFiltered(Data, _sFilterPattern, _filterModes);
@@ -546,8 +566,9 @@ begin
 		if not bIsFiltered and Assigned(Node.Parent) and (Node.Parent <> VstResult.RootNode) then begin
 			VstResult.IsFiltered[Node.Parent] := False;
 		end;
+		line := Data.MatchData.LineText;
 	end;
-	dbgMsg.MsgFmt('IsFiltered: %s %s', [BoolToStr(bIsFiltered, TRUE), Data.MatchData.LineText]);
+	dbgMsg.MsgFmt('IsFiltered: %s %s', [BoolToStr(bIsFiltered, TRUE), line]);
 end;
 
 procedure TRipGrepperMiddleFrame.FilterFileMode(const Node : PVirtualNode; const _sFilterPattern : string;
@@ -755,7 +776,6 @@ begin
 	// ClearData;
 	FswSearchStart := TStopwatch.Create();
 	FMeassureFirstDrawEvent := True;
-	ParentFrame.InitStatusBar;
 	LoadBeforeSearchSettings();
 end;
 
@@ -850,7 +870,7 @@ begin
 		procedure
 		begin
 			MiddleLeftFrame1.VstHistory.Refresh;
-			ParentFrame.SetStatusBarStatistic(GetCounterText(HistItemObject));
+			BottomFrame.StatusBarStatistic := GetCounterText(HistItemObject);
 		end);
 end;
 
@@ -866,6 +886,7 @@ begin
 			if not FileExists(Settings.RipGrepParameters.RipGrepPath) then begin
 				TMsgBox.ShowError(Format(FORMAT_RIPGREP_EXE_NOT_FOUND, [Settings.IniFile.FileName]));
 			end;
+			ParentFrame.BeforeSearch();
 			workDir := TDirectory.GetCurrentDirectory();
 			TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.RunRipGrep: run: ' + Settings.RipGrepParameters.RipGrepPath + ' '
 				{ } + Settings.RipGrepParameters.RipGrepArguments.DelimitedText);
@@ -895,13 +916,11 @@ begin
 				args.Free;
 			end;
 			FHistItemObj.ElapsedTimeText := GetElapsedTime(FswSearchStart);
-			ParentFrame.SetStatusBarMessage(True);
-            // TODO -oMattia -cGUIUpdate:  TopFrame.AfterRgRun
 			FswSearchStart.Stop;
+			ParentFrame.AfterSearch();
 			TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.RunRipGrep: rg.exe ended in %s sec.', [FHistItemObj.ElapsedTimeText]));
 		end);
 	FRipGrepTask.Start;
-	BottomFrame.SetRunningStatus();
 end;
 
 procedure TRipGrepperMiddleFrame.SetColumnWidths;
@@ -1095,9 +1114,8 @@ procedure TRipGrepperMiddleFrame.UpdateGui;
 begin
 	SetResultListViewDataToHistoryObj();
 	ExpandNodes();
-	TopFrame.SetFilter(False);
+	TopFrame.SetFilter(False, False);
 	RefreshCountersInGUI;
-	ParentFrame.SetStatusBarMessage(True);
 end;
 
 procedure TRipGrepperMiddleFrame.UpdateHistObjectAndCopyToSettings;
@@ -1111,14 +1129,15 @@ end;
 
 procedure TRipGrepperMiddleFrame.UpdateHistObjectAndGui;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.UpdateHistObjectAndGui');
+
 	UpdateHistObjectAndCopyToSettings;
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.UpdateHistObjectAndGui History Object: ' +
-		HistItemObject.RipGrepArguments.DelimitedText);
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.UpdateHistObjectAndGui History Matches: ' + HistItemObject.TotalMatchCount.ToString);
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.UpdateHistObjectAndGui History Files: ' + HistItemObject.FileCount.ToString);
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.UpdateHistObjectAndGui History Errors: ' + HistItemObject.ErrorCount.ToString);
-	TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.UpdateHistObjectAndGui History Gui: ' + HistItemObject.GuiSearchTextParams.SearchText +
-		' ' + HistItemObject.GuiSearchTextParams.ToString);
+	dbgMsg.Msg('History Object: ' + HistItemObject.RipGrepArguments.DelimitedText);
+	dbgMsg.Msg('History Matches: ' + HistItemObject.TotalMatchCount.ToString);
+	dbgMsg.Msg('History Files: ' + HistItemObject.FileCount.ToString);
+	dbgMsg.Msg('History Errors: ' + HistItemObject.ErrorCount.ToString);
+	dbgMsg.Msg('History Gui: ' + HistItemObject.GuiSearchTextParams.SearchText + ' ' + HistItemObject.GuiSearchTextParams.ToString);
 	UpdateGui();
 end;
 

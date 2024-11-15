@@ -17,10 +17,11 @@ uses
 	RipGrepper.Settings.RipGrepperSettings,
 	u_dzDpiScaleUtils,
 	RipGrepper.UI.MiddleFrame,
-	VirtualTrees;
+	VirtualTrees,
+	RipGrepper.UI.FrameBase;
 
 type
-	TParentFrame = class(TFrame)
+	TParentFrame = class(TFrameBase)
 		BottomFrame : TRipGrepperBottomFrame;
 		MainFrame : TRipGrepperMiddleFrame;
 		TopFrame : TRipGrepperTopFrame;
@@ -33,12 +34,12 @@ type
 		public
 			constructor Create(AOwner : TComponent); override;
 			destructor Destroy; override;
-			procedure Init;
-			procedure InitStatusBar;
+			procedure AfterHistObjChange; override;
+			procedure AfterSearch; override;
+			procedure BeforeSearch; override;
+			procedure Init; override;
 			procedure OnClose(Sender : TObject; var Action : TCloseAction);
 			procedure FrameOnShow(Sender : TObject);
-			procedure SetStatusBarMessage(const _bWithElapsedTime : Boolean = False);
-			procedure SetStatusBarStatistic(const _s : string);
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 			{ Public-Deklarationen }
 	end;
@@ -71,6 +72,27 @@ begin
 	inherited;
 end;
 
+procedure TParentFrame.AfterHistObjChange;
+begin
+ 	TopFrame.AfterHistObjChange();
+	MainFrame.AfterHistObjChange();
+	BottomFrame.AfterHistObjChange();
+end;
+
+procedure TParentFrame.AfterSearch;
+begin
+	TopFrame.AfterSearch();
+	MainFrame.AfterSearch();
+	BottomFrame.AfterSearch();
+end;
+
+procedure TParentFrame.BeforeSearch;
+begin
+  	TopFrame.BeforeSearch();
+	MainFrame.BeforeSearch();
+	BottomFrame.BeforeSearch();
+end;
+
 procedure TParentFrame.OnClose(Sender : TObject; var Action : TCloseAction);
 begin
 	TDebugUtils.Msg('TParentFrame.OnClose - begin action:' + Integer(Action).ToString);
@@ -82,8 +104,8 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.FrameOnShow');
 	Settings.LoadInitialSettings;
-    TopFrame.Init();
-	SetStatusBarMessage();
+	TopFrame.Init();
+	BottomFrame.Init();
 end;
 
 procedure TParentFrame.FrameOnShowHide(var M : TMessage);
@@ -112,32 +134,6 @@ begin
 	MainFrame.Init();
 	TopFrame.Init();
 	BottomFrame.Init();
-end;
-
-procedure TParentFrame.SetStatusBarMessage(const _bWithElapsedTime : Boolean = False);
-var
-	msg : string;
-begin
-	if _bWithElapsedTime then begin
-		msg := Format('Search took %s seconds', // with ' + FORMAT_VERSION_INFO_IN_STATUSBAR,
-			[MainFrame.HistItemObject.ElapsedTimeText]); // , MainFrame.ExeVersion]);
-		BottomFrame.FStatusBarStatus := IfThen(MainFrame.HistItemObject.RipGrepResult = RG_ERROR, 'ERROR', 'SUCCESS');
-	end else begin
-		msg := Format(FORMAT_VERSION_INFO_IN_STATUSBAR, [MainFrame.ExeVersion]);
-		BottomFrame.FStatusBarStatus := 'READY';
-	end;
-	BottomFrame.FStatusBarMessage := msg;
-end;
-
-procedure TParentFrame.InitStatusBar;
-begin
-	SetStatusBarMessage();
-	SetStatusBarStatistic('Ready.');
-end;
-
-procedure TParentFrame.SetStatusBarStatistic(const _s : string);
-begin
-	BottomFrame.FStatusBarStatistic := _s;
 end;
 
 end.

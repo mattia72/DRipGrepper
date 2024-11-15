@@ -32,7 +32,6 @@ uses
 	u_dzDpiScaleUtils,
 	RipGrepper.OpenWith.Constants,
 	System.IniFiles,
-	RipGrepper.UI.BottomFrame,
 	RipGrepper.UI.TopFrame,
 	RipGrepper.UI.DpiScaler,
 	RipGrepper.UI.ParentFrame;
