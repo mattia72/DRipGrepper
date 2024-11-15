@@ -5,24 +5,30 @@ interface
 uses
 	RipGrepper.Tools.FileUtils,
 	System.Classes,
+	{$IFNDEF STANDALONE}
+	RipGrepper.Common.IOTAUtils,
+	{$ENDIF}
 	System.SysUtils;
 
 type
 	TEncodedStringList = class(TStringList)
 		private
-			FIsBinary: Boolean;
+			FIsBinary : Boolean;
 			FOrigEncoding : TEncoding;
 			function GetFileEncoding(const _sFilePath : string) : TEncoding;
 
 		public
 			// Load a binary/text form file into a TStrings object
 			procedure LoadFormFileToStrings(const _sFileName : string; out _bWasBinary : Boolean); overload;
-			procedure LoadFromFile(const _sFileName: string); override;
+			procedure LoadFromFile(const _sFileName : string); override;
 			procedure SaveToFile(const FileName : string); override;
-			property IsBinary: Boolean read FIsBinary write FIsBinary;
+			property IsBinary : Boolean read FIsBinary write FIsBinary;
 	end;
 
 implementation
+
+uses
+	RipGrepper.Tools.DebugUtils;
 
 function TEncodedStringList.GetFileEncoding(const _sFilePath : string) : TEncoding;
 const
@@ -86,10 +92,23 @@ begin
 	end;
 end;
 
-procedure TEncodedStringList.LoadFromFile(const _sFileName: string);
+procedure TEncodedStringList.LoadFromFile(const _sFileName : string);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TEncodedStringList.LoadFromFile');
+
 	FOrigEncoding := GetFileEncoding(_sFileName);
-	LoadFormFileToStrings(_sFileName, FIsBinary);
+	dbgMsg.MsgFmt('Encoding of %s is %s', [_sFileName, FOrigEncoding.EncodingName]);
+	{$IFDEF STANDALONE}
+	inherited LoadFromFile(_sFileName);
+	{$ELSE}
+	if IOTAUtils.IsForm(_sFileName) then begin
+		dbgMsg.MsgFmt('Form file: %s encoding: %s', [_sFileName, FOrigEncoding.EncodingName]);
+		LoadFormFileToStrings(_sFileName, FIsBinary);
+	end else begin
+		inherited LoadFromFile(_sFileName);
+	end;
+	{$ENDIF}
 end;
 
 procedure TEncodedStringList.SaveToFile(const FileName : string);

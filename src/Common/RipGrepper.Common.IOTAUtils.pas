@@ -309,6 +309,8 @@ var
 begin
 	Result := [];
 	project := GxOtaGetCurrentProject;
+	if not Assigned(project) then
+		Exit;
 	for var i : integer := 0 to project.GetModuleCount - 1 do begin
 		fn := project.GetModule(i).GetFileName;
 		TDebugUtils.DebugMessage('IOTAUTils.GetProjectFiles FileName=' + fn);

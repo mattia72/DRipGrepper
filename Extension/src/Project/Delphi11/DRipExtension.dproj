@@ -5,7 +5,7 @@
     <ProjectVersion>19.5</ProjectVersion>
     <FrameworkType>VCL</FrameworkType>
     <Base>True</Base>
-    <Config Condition="'$(Config)'==''">Release</Config>
+    <Config Condition="'$(Config)'==''">Debug</Config>
     <Platform Condition="'$(Platform)'==''">Win32</Platform>
     <TargetedPlatforms>1</TargetedPlatforms>
     <AppType>Package</AppType>
@@ -114,9 +114,9 @@
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_MajorVer>3</VerInfo_MajorVer>
     <VerInfo_Locale>1033</VerInfo_Locale>
-    <VerInfo_Keys>FileDescription=DRipExtension;FileVersion=3.8.2.56;ProgramID=com.embarcadero.DRipExtension;ProductName=DRipExtension;ProductVersion=3.8.1.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Keys>FileDescription=DRipExtension;FileVersion=3.8.2.62;ProgramID=com.embarcadero.DRipExtension;ProductName=DRipExtension;ProductVersion=3.8.1.0;Comments=beta</VerInfo_Keys>
     <VerInfo_MinorVer>8</VerInfo_MinorVer>
-    <VerInfo_Build>56</VerInfo_Build>
+    <VerInfo_Build>62</VerInfo_Build>
     <VerInfo_Release>2</VerInfo_Release>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
   </PropertyGroup>

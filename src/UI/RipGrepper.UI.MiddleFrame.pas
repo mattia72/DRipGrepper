@@ -244,7 +244,7 @@ uses
 constructor TRipGrepperMiddleFrame.Create(AOwner : TComponent);
 begin
 	inherited;
-    var
+	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.Create');
 	FIconImgList := TIconImageList.Create(Handle, ImageListListView);
 	MainFrame := self;
@@ -259,7 +259,7 @@ begin
 	ActionAddUsingImplementation.Visible := not bStandalone;
 	ActionAddUsingInterface.Visible := not bStandalone;
 
-    TDebugUtils.DebugMessageFormat('TRipGrepperMiddleFrame.Create: AddToUsesList.Visible=%s', [BoolToStr(not bStandalone)]);
+	TDebugUtils.DebugMessageFormat('TRipGrepperMiddleFrame.Create: AddToUsesList.Visible=%s', [BoolToStr(not bStandalone)]);
 end;
 
 destructor TRipGrepperMiddleFrame.Destroy;
@@ -537,7 +537,7 @@ var
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.FilterTextMode');
-
+	bIsFiltered := False;
 	if (Node.Parent <> VstResult.RootNode) then begin
 		Data := VstResult.GetNodeData(Node);
 		bIsFiltered := IsNodeFiltered(Data, _sFilterPattern, _filterModes);
@@ -546,8 +546,8 @@ begin
 		if not bIsFiltered and Assigned(Node.Parent) and (Node.Parent <> VstResult.RootNode) then begin
 			VstResult.IsFiltered[Node.Parent] := False;
 		end;
-		dbgMsg.MsgFmtIf(not bIsFiltered, 'not IsFiltered: %s', [Data.MatchData.LineText]);
 	end;
+	dbgMsg.MsgFmt('IsFiltered: %s %s', [BoolToStr(bIsFiltered, TRUE), Data.MatchData.LineText]);
 end;
 
 procedure TRipGrepperMiddleFrame.FilterFileMode(const Node : PVirtualNode; const _sFilterPattern : string;
@@ -559,14 +559,14 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.FilterFileMode');
 	Data := VstResult.GetNodeData(Node);
-
+	bIsFiltered := False;
 	if (Node.Parent = VstResult.RootNode) then begin
 		bIsFiltered := IsNodeFiltered(Data, _sFilterPattern, _filterModes);
 		VstResult.IsFiltered[Node] := bIsFiltered;
-		dbgMsg.MsgFmtIf(not bIsFiltered, 'not IsFiltered: %s', [Data.MatchData.LineText]);
 	end else begin
 		VstResult.IsFiltered[Node] := VstResult.IsFiltered[Node.Parent];
 	end;
+	dbgMsg.MsgFmt('IsFiltered: %s %s', [BoolToStr(bIsFiltered, TRUE), Data.FilePath]);
 end;
 
 procedure TRipGrepperMiddleFrame.FrameResize(Sender : TObject);
@@ -896,7 +896,7 @@ begin
 			end;
 			FHistItemObj.ElapsedTimeText := GetElapsedTime(FswSearchStart);
 			ParentFrame.SetStatusBarMessage(True);
-            // TODO: TopFrame.AfterRgRun
+            // TODO -oMattia -cGUIUpdate:  TopFrame.AfterRgRun
 			FswSearchStart.Stop;
 			TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.RunRipGrep: rg.exe ended in %s sec.', [FHistItemObj.ElapsedTimeText]));
 		end);

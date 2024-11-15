@@ -1022,10 +1022,18 @@ begin
 		end;
 	end;
 	extSearchSettings.ActiveFile := IOTAUTils.GxOtaGetCurrentSourceFile();
+	dbgMsg.Msg('ActiveFile=' + extSearchSettings.ActiveFile);
 
 	extSearchSettings.ProjectFiles := IOTAUTils.GetProjectFiles();
+	dbgMsg.MsgFmt('ProjectFiles.Count=', [Length(extSearchSettings.ProjectFiles)]);
 	extSearchSettings.OpenFiles := IOTAUTils.GetOpenedEditBuffers();
-	extSearchSettings.ActiveProject := (IOTAUTils.GxOtaGetCurrentProject).FileName;
+	dbgMsg.MsgFmt('OpenFiles.Count=', [Length(extSearchSettings.OpenFiles)]);
+	var
+	ap := (IOTAUTils.GxOtaGetCurrentProject);
+	if Assigned(ap) then begin
+		extSearchSettings.ActiveProject := ap.FileName;
+		dbgMsg.Msg('ActiveProject=' + extSearchSettings.ActiveProject);
+	end;
 
 	dbgMsg.Msg('CurrentIDEContext:' + extSearchSettings.ToLogString);
 	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext := extSearchSettings;

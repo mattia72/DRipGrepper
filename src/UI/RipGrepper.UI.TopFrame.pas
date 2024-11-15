@@ -158,6 +158,7 @@ type
 		public
 			constructor Create(AOwner : TComponent); override;
 			destructor Destroy; override;
+		procedure AfterRgRun;
 			procedure AlignToolBars(iTbResultLeft, iSearchMaxWidth, iResultMinWidth : integer);
 			function GetNextViewStyleIdx : integer;
 			procedure Init;
@@ -472,6 +473,11 @@ begin
 	idx := IfThen(next <= (Length(LISTVIEW_TYPES) - 1), next, 0);
 	// ActionSwitchView.ImageIndex := idx + 2;
 	ActionSwitchView.Hint := 'Change View ' + LISTVIEW_TYPE_TEXTS[idx];
+end;
+
+procedure TRipGrepperTopFrame.AfterRgRun;
+begin
+	// TODO -cGUIUpdate: TRipGrepperTopFrame.AfterRgRun default body inserted
 end;
 
 procedure TRipGrepperTopFrame.AlignToolBars(iTbResultLeft, iSearchMaxWidth, iResultMinWidth : integer);

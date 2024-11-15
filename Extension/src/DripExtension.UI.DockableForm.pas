@@ -246,9 +246,13 @@ begin
 	if not Assigned(Result.HostDockSite) then begin
 		var
 		parent := IOTAUTils.GxOtaGetCurrentIDEEditControl();
-		if not(PtInRect(parent.BoundsRect, Result.BoundsRect.TopLeft)
-			{ } or PtInRect(parent.BoundsRect, Result.BoundsRect.BottomRight)) then begin
-			TDebugUtils.DebugMessage('TRipGrepperDockableForm.ShowDockableFormAndSearch MakeFullyVisible');
+		if Assigned(parent) then begin
+			if not(PtInRect(parent.BoundsRect, Result.BoundsRect.TopLeft)
+				{ } or PtInRect(parent.BoundsRect, Result.BoundsRect.BottomRight)) then begin
+				TDebugUtils.DebugMessage('TRipGrepperDockableForm.ShowDockableFormAndSearch MakeFullyVisible');
+				Result.MakeFullyVisible();
+			end;
+		end else begin
 			Result.MakeFullyVisible();
 		end;
 	end;
