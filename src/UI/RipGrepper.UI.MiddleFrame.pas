@@ -896,6 +896,7 @@ begin
 			end;
 			FHistItemObj.ElapsedTimeText := GetElapsedTime(FswSearchStart);
 			ParentFrame.SetStatusBarMessage(True);
+            // TODO: TopFrame.AfterRgRun
 			FswSearchStart.Stop;
 			TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.RunRipGrep: rg.exe ended in %s sec.', [FHistItemObj.ElapsedTimeText]));
 		end);

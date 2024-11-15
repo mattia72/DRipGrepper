@@ -200,7 +200,8 @@ uses
 	System.SysUtils,
 	RipGrepper.UI.ConfigForm,
 	System.RegularExpressions,
-	RipGrepper.Settings.NodeLook.FilterSettings;
+	RipGrepper.Settings.NodeLook.FilterSettings,
+	RipGrepper.Tools.Replacer;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -641,7 +642,7 @@ begin
 	replaceList := TReplaceList.Create();
 	try
 		GetCheckedReplaceList(replaceList);
-		TEncodedStringList.ReplaceLineInFiles(replaceList);
+		TReplaceHelper.ReplaceLineInFiles(replaceList);
 	finally
 		replaceList.Free;
 	end;

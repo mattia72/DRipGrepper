@@ -3,7 +3,7 @@ unit RipGrepper.Common.SimpleTypes;
 interface
 
 uses
-	System.Classes;
+	System.Classes, System.SysUtils;
 
 type
 	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
@@ -17,6 +17,11 @@ type
 	{$SCOPEDENUMS OFF}
 	TGuiReplaceModes = set of EGuiReplaceMode;
     TFilterModes = set of EFilterMode;
+
+    ESkipFileReplaceException = class(Exception);
+    EFileOpenException = class(Exception);
+
+
 implementation
 
 end.

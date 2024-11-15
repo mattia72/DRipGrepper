@@ -1,9 +1,11 @@
 unit RipGrepper.Common.IOTAUtils;
-{$IFNDEF STANDALONE} 
+{$IFNDEF STANDALONE}
+
 interface
+
 uses
 	Vcl.Menus,
-	ToolsAPI, 
+	ToolsAPI,
 	System.Classes,
 	Vcl.Controls,
 	Vcl.Forms,
@@ -22,7 +24,7 @@ type
 			class function GetSettingFilePath : string;
 			class function FindMenuItem(const Name : string) : TMenuItem;
 			class function FindMenu(const Name : string) : TMenu;
-			class function GetEditPosition: IOTAEditPosition;
+			class function GetEditPosition : IOTAEditPosition;
 			// Get the actual TEditControl embedded in the given IDE editor form
 			class function GetIDEEditControl(Form : TCustomForm) : TWinControl;
 
@@ -30,6 +32,9 @@ type
 			class function GetOpenedEditBuffers : TArray<string>;
 
 			class function GetProjectFiles : TArray<string>;
+			// Raise an exception if the source editor is readonly
+			class procedure GxOtaAssertSourceEditorNotReadOnly(SourceEditor :
+				IOTASourceEditor);
 
 			class function GxOtaConvertColumnCharsToBytes(LineData : UTF8String; CharIndex : Integer; EndByte : Boolean) : Integer;
 			// Determine is a file exists or the file's module is currently loaded in the IDE
@@ -81,6 +86,9 @@ type
 			class function GxOtaGetEditActionsFromModule(Module : IOTAModule) : IOTAEditActions;
 			class function GxOtaGetEditorLine(View : IOTAEditView; LineNo : Integer) : UTF8String;
 			class function GxOtaGetEditorServices : IOTAEditorServices;
+			// Get an edit writer for the current source editor (raise an exception if not availble)
+			// Use the current source editor if none is specified
+			class function GxOtaGetEditWriterForSourceEditor(SourceEditor : IOTASourceEditor = nil) : IOTAEditWriter;
 			// Get the Index-th IOTAEditor for the given module
 			// Works around a BCB 5 bug with simple units
 			class function GxOtaGetFileEditorForModule(Module : IOTAModule; Index : Integer) : IOTAEditor;
@@ -114,12 +122,10 @@ type
 			class function GxOtaGetTopMostEditView : IOTAEditView; overload;
 			class procedure GxOtaGoToFileLineColumn(const FileName : string; Line : Integer; StartColumn : Integer = 0;
 				StopColumn : Integer = 0; ShowInMiddle : Boolean = True);
-			// Returns True if FileName is an open file in the IDE;
-			// returns False otherwise.
-			// FileName must be a fully qualified file name, including
-			// the path name.  UseBase determines whether things like .dfm/.hpp map
+			// Returns True if _sFilePath is an open file in the IDE;
+			// _bUseBase determines whether things like .dfm/.hpp map
 			// to their parent file type.  Otherwise, they will not be located.
-			class function GxOtaIsFileOpen(const AFileName : string; UseBase : Boolean = False) : Boolean;
+			class function IsFileOpen(const _sFilePath : string; const _bUseBase : Boolean = False) : Boolean;
 			class procedure GxOtaLoadSourceEditorToUnicodeStrings(SourceEditor : IOTASourceEditor; Data : TStringList);
 			// Make sure the given filename's source is visible.
 			// This swaps source/form views as necessary
@@ -164,7 +170,7 @@ uses
 	Winapi.Windows,
 	RipGrepper.Tools.DebugUtils;
 
-class function IOTAUTils.AddToImageList(_bmp : Vcl.Graphics.TBitmap; const _identText : string): Integer;
+class function IOTAUTils.AddToImageList(_bmp : Vcl.Graphics.TBitmap; const _identText : string) : Integer;
 var
 	Services : INTAServices;
 begin
@@ -222,7 +228,7 @@ begin
 		Result := nil;
 end;
 
-class function IOTAUTils.GetEditPosition: IOTAEditPosition;
+class function IOTAUTils.GetEditPosition : IOTAEditPosition;
 var
 	aEditorServices : IOTAEditorServices;
 	aEditBuffer : IOTAEditBuffer;
@@ -320,6 +326,15 @@ begin
 		raise Exception.Create('GetSettingsFilePath: path not defined by IDEServices');
 end;
 
+class procedure IOTAUTils.GxOtaAssertSourceEditorNotReadOnly(SourceEditor :
+	IOTASourceEditor);
+begin
+	Assert(Assigned(SourceEditor));
+	if Supports(SourceEditor, IOTAEditBuffer) then
+		if (SourceEditor as IOTAEditBuffer).IsReadOnly then
+			raise Exception.CreateFmt('%s is read only', [ExtractFileName(SourceEditor.FileName)]);
+end;
+
 class function IOTAUTils.GxOtaConvertColumnCharsToBytes(LineData : UTF8String; CharIndex : Integer; EndByte : Boolean) : Integer;
 var
 	UString : string;
@@ -343,7 +358,7 @@ end;
 
 class function IOTAUTils.GxOtaFileOrModuleExists(const AFileName : string; UseBase : Boolean = False) : Boolean;
 begin
-	Result := FileExists(AFileName) or GxOtaIsFileOpen(AFileName, UseBase);
+	Result := FileExists(AFileName) or IsFileOpen(AFileName, UseBase);
 end;
 
 class function IOTAUTils.GxOtaFocusCurrentIDEEditControl : Boolean;
@@ -585,6 +600,19 @@ class function IOTAUTils.GxOtaGetEditorServices : IOTAEditorServices;
 begin
 	Result := (BorlandIDEServices as IOTAEditorServices);
 	Assert(Assigned(Result), 'BorlandIDEServices is not assigned');
+end;
+
+class function IOTAUTils.GxOtaGetEditWriterForSourceEditor(SourceEditor : IOTASourceEditor = nil) : IOTAEditWriter;
+resourcestring
+	SEditWriterNotAvail = 'Edit writer not available';
+begin
+	if not Assigned(SourceEditor) then
+		SourceEditor := GxOtaGetCurrentSourceEditor;
+	if Assigned(SourceEditor) then begin
+		GxOtaAssertSourceEditorNotReadOnly(SourceEditor);
+		Result := SourceEditor.CreateUndoableWriter;
+	end;
+	Assert(Assigned(Result), SEditWriterNotAvail);
 end;
 
 class function IOTAUTils.GxOtaGetFileEditorForModule(Module : IOTAModule; index : Integer) : IOTAEditor;
@@ -831,7 +859,7 @@ begin
 	EditView.Paint;
 end;
 
-class function IOTAUTils.GxOtaIsFileOpen(const AFileName : string; UseBase : Boolean = False) : Boolean;
+class function IOTAUTils.IsFileOpen(const _sFilePath : string; const _bUseBase : Boolean = False) : Boolean;
 var
 	ModuleServices : IOTAModuleServices;
 	Module : IOTAModule;
@@ -846,8 +874,8 @@ begin
 
 	ModuleServices := BorlandIDEServices as IOTAModuleServices;
 	Assert(Assigned(ModuleServices));
-	FileName := AFileName;
-	if UseBase then
+	FileName := _sFilePath;
+	if _bUseBase then
 		FileName := GxOtaGetBaseModuleFileName(FileName);
 
 	Module := ModuleServices.FindModule(FileName);
@@ -940,7 +968,7 @@ begin
 	// D5/BDS 2006 sometimes delay opening the file until messages are processed
 	Application.ProcessMessages;
 
-	if not(GxOtaIsFileOpen(BaseFileName) or GxOtaIsFileOpen(FileName)) then
+	if not(IsFileOpen(BaseFileName) or IsFileOpen(FileName)) then
 		Result := GxOtaOpenFile(FileName)
 	else
 		Result := True;
@@ -1173,7 +1201,11 @@ begin
 	end;
 end;
 {$ELSE}
+
 interface
+
 implementation
+
 {$ENDIF}
+
 end.
