@@ -17,10 +17,10 @@ uses
 	Vcl.ExtCtrls,
 	System.Actions,
 	Vcl.ActnList,
-	RipGrepper.UI.FrameBase;
+	RipGrepper.UI.IFrameEvents;
 
 type
-	TRipGrepperBottomFrame = class(TFrameBase)
+	TRipGrepperBottomFrame = class(TFrame, IFrameEvents)
 		pnlBottom : TPanel;
 		StatusBar1 : TStatusBar;
 		ActivityIndicator1 : TActivityIndicator;
@@ -37,10 +37,10 @@ type
 
 		public
 			constructor Create(AOwner : TComponent); override;
-			procedure AfterHistObjChange; override;
-			procedure Init; override;
-			procedure AfterSearch; override;
-			procedure BeforeSearch; override;
+			procedure AfterHistObjChange;
+			procedure Init;
+			procedure AfterSearch;
+			procedure BeforeSearch;
 			procedure SetRunningStatus;
 			procedure SetReadyStatus;
 			property StatusBarMessage : string read FStatusBarMessage write FStatusBarMessage;

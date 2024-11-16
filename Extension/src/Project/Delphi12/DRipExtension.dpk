@@ -104,7 +104,7 @@ contains
   RipGrepper.Common.EncodedStringList in '..\..\..\..\src\Common\RipGrepper.Common.EncodedStringList.pas',
   RipGrepper.Settings.NodeLook.FilterSettings in '..\..\..\..\src\Settings\RipGrepper.Settings.NodeLook.FilterSettings.pas',
   RipGrepper.Tools.Replacer.ExtensionContext in '..\..\..\..\src\Tools\RipGrepper.Tools.Replacer.ExtensionContext.pas',
-  RipGrepper.UI.FrameBase in '..\..\..\..\src\UI\RipGrepper.UI.FrameBase.pas';
+  RipGrepper.UI.IFrameEvents in '..\..\..\..\src\UI\RipGrepper.UI.IFrameEvents.pas';
 
 end.
 

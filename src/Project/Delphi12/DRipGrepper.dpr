@@ -86,7 +86,7 @@ uses
   RipGrepper.Tools.Replacer in '..\..\Tools\RipGrepper.Tools.Replacer.pas',
   RipGrepper.Tools.Replacer.StandaloneContext in '..\..\Tools\RipGrepper.Tools.Replacer.StandaloneContext.pas',
   RipGrepper.Common.EncodedStringList in '..\..\Common\RipGrepper.Common.EncodedStringList.pas',
-  RipGrepper.UI.FrameBase in '..\..\UI\RipGrepper.UI.FrameBase.pas';
+  RipGrepper.UI.IFrameEvents in '..\..\UI\RipGrepper.UI.IFrameEvents.pas';
 
 {$R *.res}
 

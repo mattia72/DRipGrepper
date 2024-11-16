@@ -28,10 +28,10 @@ uses
 	RipGrepper.Common.Interfaces,
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Tools.FileUtils,
-	RipGrepper.UI.FrameBase;
+	RipGrepper.UI.IFrameEvents;
 
 type
-	TRipGrepperTopFrame = class(TFrameBase)
+	TRipGrepperTopFrame = class(TFrame, IFrameEvents)
 		ImageListButtons : TImageList;
 		ActionList : TActionList;
 		ActionSearch : TAction;
@@ -157,12 +157,12 @@ type
 		public
 			constructor Create(AOwner : TComponent); override;
 			destructor Destroy; override;
-		procedure AfterHistObjChange; override;
-			procedure AfterSearch; override;
+		procedure AfterHistObjChange;
+			procedure AfterSearch;
 			procedure AlignToolBars(iTbResultLeft, iSearchMaxWidth, iResultMinWidth : integer);
-			procedure BeforeSearch; override;
+			procedure BeforeSearch;
 			function GetNextViewStyleIdx : integer;
-			procedure Init; override;
+			procedure Init;
 			function IsRgReplaceMode : Boolean;
 			procedure SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
 			procedure SetFilter(const _bOn : Boolean = True; const _bUpdateResult : Boolean = False);

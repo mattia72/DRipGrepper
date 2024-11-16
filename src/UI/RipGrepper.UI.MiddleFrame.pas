@@ -44,10 +44,10 @@ uses
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.UI.MiddleLeftFrame,
 	RipGrepper.Common.NodeData,
-	RipGrepper.UI.FrameBase;
+	RipGrepper.UI.IFrameEvents;
 
 type
-	TRipGrepperMiddleFrame = class(TFrameBase, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
+	TRipGrepperMiddleFrame = class(TFrame, IFrameEvents, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
 		ActionList : TActionList;
 		ActionCopyFileName : TAction;
 		ActionCopyPathToClipboard : TAction;
@@ -176,10 +176,10 @@ type
 		public
 			constructor Create(AOwner : TComponent); override;
 			destructor Destroy; override;
-			procedure AfterHistObjChange; override;
-			procedure AfterSearch; override;
+			procedure AfterHistObjChange;
+			procedure AfterSearch;
 			procedure AlignToolBars;
-			procedure BeforeSearch; override;
+			procedure BeforeSearch;
 			procedure ClearFilter(const _bForce : Boolean = False);
 			procedure CopyToClipboardFileOfSelected;
 			procedure CopyToClipboardPathOfSelected;
@@ -189,7 +189,7 @@ type
 			function GetFilePathFromNode(_node : PVirtualNode) : string;
 			function GetOpenWithParamsFromSelected : TOpenWithParams;
 			function GetRowColText(_i : Integer; _type : TVSTTextType) : string;
-			procedure Init; override;
+			procedure Init;
 			function IsNodeFiltered(const Data : PVSFileNodeData; const _sFilterText : string; const _filterModes : TFilterModes) : Boolean;
 			function IsSearchRunning : Boolean;
 			// IEOFProcessEventHandler

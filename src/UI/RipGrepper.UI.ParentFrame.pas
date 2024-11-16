@@ -18,10 +18,10 @@ uses
 	u_dzDpiScaleUtils,
 	RipGrepper.UI.MiddleFrame,
 	VirtualTrees,
-	RipGrepper.UI.FrameBase;
+	RipGrepper.UI.IFrameEvents;
 
 type
-	TParentFrame = class(TFrameBase)
+	TParentFrame = class(TFrame, IFrameEvents)
 		BottomFrame : TRipGrepperBottomFrame;
 		MainFrame : TRipGrepperMiddleFrame;
 		TopFrame : TRipGrepperTopFrame;
@@ -34,10 +34,10 @@ type
 		public
 			constructor Create(AOwner : TComponent); override;
 			destructor Destroy; override;
-			procedure AfterHistObjChange; override;
-			procedure AfterSearch; override;
-			procedure BeforeSearch; override;
-			procedure Init; override;
+			procedure AfterHistObjChange;
+			procedure AfterSearch;
+			procedure BeforeSearch;
+			procedure Init;
 			procedure OnClose(Sender : TObject; var Action : TCloseAction);
 			procedure FrameOnShow(Sender : TObject);
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
