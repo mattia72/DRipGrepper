@@ -194,7 +194,6 @@ begin
 	end;
 
 	ChangeHistoryNodeText;
-	MainFrame.BeforeSearch;
 end;
 
 procedure TMiddleLeftFrame.AddHistoryObject(_ho : IHistoryItemObject);
