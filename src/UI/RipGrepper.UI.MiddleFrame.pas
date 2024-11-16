@@ -456,6 +456,9 @@ end;
 
 procedure TRipGrepperMiddleFrame.BeforeSearch;
 begin
+	FAbortSearch := False;
+	UpdateArgumentsAndSettings;
+	// hist object parser type should set before painting begins...
 	UpdateHistObjectAndGui;
 end;
 
@@ -496,10 +499,6 @@ end;
 
 procedure TRipGrepperMiddleFrame.DoSearch;
 begin
-	FAbortSearch := False;
-	UpdateArgumentsAndSettings;
-	// hist object parser type should set before painting begins...
-	UpdateHistObjectAndCopyToSettings;
 	RunRipGrep();
 end;
 

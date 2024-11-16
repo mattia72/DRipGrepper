@@ -41,7 +41,6 @@ type
 			procedure OnClose(Sender : TObject; var Action : TCloseAction);
 			procedure FrameOnShow(Sender : TObject);
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
-			{ Public-Deklarationen }
 	end;
 
 var
