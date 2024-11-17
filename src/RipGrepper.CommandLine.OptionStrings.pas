@@ -42,7 +42,7 @@ type
 			function AsString : string;
 			function GetOptionValue(const _sOptionRegex : string; var _sValue : string) : Boolean;
 			class function GetOptionVariantsAndValue(const _sParamRegex : string; out _opVariants : TOptionVariants) : Boolean; static;
-			function IsOptionSet(_sParamRegex : string; const _sParamValue : string = '') : Boolean; overload;
+			function IsOptionSet(_sParamRegex : string; const _sParamEqualValue : string = '') : Boolean; overload;
 			function IsSetOptionWithValue(const _sOption : string; const _sValue : string = '') : Boolean;
 			class function MaybeQuoteIfNotQuoted(const _s : string; const _delimiter : char = '"') : string; static;
 			class function MaybeDeQuoteIfQuoted(const _s : string; const _delimiter : char = '"') : string; static;
@@ -236,17 +236,17 @@ begin
 	end;
 end;
 
-function TOptionStrings.IsOptionSet(_sParamRegex : string; const _sParamValue : string = '') : Boolean;
+function TOptionStrings.IsOptionSet(_sParamRegex : string; const _sParamEqualValue : string = '') : Boolean;
 var
 	arrOptions : TOptionVariants;
 begin
-	Result := True; // TODO: check empty _sParamvalue
+	Result := True; // eg. in case of switch params like -F _sParamEqualValue is empty
 	if not _sParamRegex.IsEmpty then begin
 		if GetOptionVariantsAndValue(_sParamRegex, arrOptions) then begin
-			Result := IsConcreteOptionSet(arrOptions.Short, _sParamValue) or
-			{ } IsConcreteOptionSet(arrOptions.Long, _sParamValue);
+			Result := IsConcreteOptionSet(arrOptions.Short, _sParamEqualValue) or
+			{ } IsConcreteOptionSet(arrOptions.Long, _sParamEqualValue);
 		end else begin
-			Result := IsConcreteOptionSet(_sParamRegex, _sParamValue);
+			Result := IsConcreteOptionSet(_sParamRegex, _sParamEqualValue);
 		end;
 	end;
 end;
