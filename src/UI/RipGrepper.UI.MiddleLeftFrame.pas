@@ -193,7 +193,8 @@ begin
 		dbgMsg.Msg('ShowSearchForm cancel');
 	end;
 
-	ChangeHistoryNodeText;
+	// ChangeHistoryNodeText;
+	// MainFrame.BeforeSearch;
 end;
 
 procedure TMiddleLeftFrame.AddHistoryObject(_ho : IHistoryItemObject);
@@ -592,7 +593,7 @@ begin
 		CurrentHistoryItemIndex := idx;
 		ParentFrame.AfterHistObjChange();
 
-		//MainFrame.UpdateHistObjectAndGui;
+		// MainFrame.UpdateHistObjectAndGui;
 	end;
 
 	SetReplaceMode();

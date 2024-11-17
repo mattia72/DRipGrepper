@@ -456,6 +456,7 @@ end;
 
 procedure TRipGrepperMiddleFrame.BeforeSearch;
 begin
+	InitSearch();
 	FAbortSearch := False;
 	UpdateArgumentsAndSettings;
 	// hist object parser type should set before painting begins...
@@ -499,6 +500,7 @@ end;
 
 procedure TRipGrepperMiddleFrame.DoSearch;
 begin
+	ParentFrame.BeforeSearch();
 	RunRipGrep();
 end;
 
@@ -885,7 +887,7 @@ begin
 			if not FileExists(Settings.RipGrepParameters.RipGrepPath) then begin
 				TMsgBox.ShowError(Format(FORMAT_RIPGREP_EXE_NOT_FOUND, [Settings.IniFile.FileName]));
 			end;
-			ParentFrame.BeforeSearch();
+
 			workDir := TDirectory.GetCurrentDirectory();
 			TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.RunRipGrep: run: ' + Settings.RipGrepParameters.RipGrepPath + ' '
 				{ } + Settings.RipGrepParameters.RipGrepArguments.DelimitedText);
@@ -1016,17 +1018,17 @@ end;
 procedure TRipGrepperMiddleFrame.PrepareAndDoSearch;
 begin
 	MiddleLeftFrame1.PrepareAndDoSearch();
-	Data.ClearMatchFiles();
-	InitSearch();
+	// Data.ClearMatchFiles();
+	// InitSearch();
 	DoSearch();
 	MiddleLeftFrame1.ChangeHistoryNodeText;
 end;
 
 procedure TRipGrepperMiddleFrame.RefreshSearch;
 begin
-	UpdateHistObjectAndCopyToSettings();
+	// UpdateHistObjectAndCopyToSettings();
 	MiddleLeftFrame1.ClearMatchesInHistoryObject();
-	InitSearch();
+	// InitSearch();
 	DoSearch();
 end;
 
