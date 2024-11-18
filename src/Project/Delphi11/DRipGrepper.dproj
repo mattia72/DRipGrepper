@@ -155,16 +155,16 @@
     <VerInfo_MajorVer>3</VerInfo_MajorVer>
     <VerInfo_MinorVer>8</VerInfo_MinorVer>
     <VerInfo_Release>2</VerInfo_Release>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=3.8.2.14;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=3.8.1.0</VerInfo_Keys>
-    <VerInfo_Build>14</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=3.8.2.18;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=3.8.1.0</VerInfo_Keys>
+    <VerInfo_Build>18</VerInfo_Build>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
     <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
     <VerInfo_MajorVer>3</VerInfo_MajorVer>
     <VerInfo_MinorVer>8</VerInfo_MinorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=3.8.2.14;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=3.8.1.0</VerInfo_Keys>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=3.8.2.18;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=3.8.1.0</VerInfo_Keys>
     <VerInfo_Release>2</VerInfo_Release>
-    <VerInfo_Build>14</VerInfo_Build>
+    <VerInfo_Build>18</VerInfo_Build>
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
   </PropertyGroup>
@@ -287,6 +287,7 @@
     <DCCReference Include="..\..\Common\RipGrepper.Common.EncodedStringList.pas" />
     <DCCReference Include="..\..\Tools\RipGrepper.Tools.Replacer.StandaloneContext.pas" />
     <DCCReference Include="..\..\Tools\RipGrepper.Tools.Replacer.pas" />
+    <DCCReference Include="..\..\UI\RipGrepper.UI.IFrameEvents.pas" />
     <BuildConfiguration Include="Base">
       <Key>Base</Key>
     </BuildConfiguration>

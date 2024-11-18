@@ -114,9 +114,9 @@
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_MajorVer>3</VerInfo_MajorVer>
     <VerInfo_Locale>1033</VerInfo_Locale>
-    <VerInfo_Keys>FileDescription=DRipExtension;FileVersion=3.8.2.62;ProgramID=com.embarcadero.DRipExtension;ProductName=DRipExtension;ProductVersion=3.8.1.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Keys>FileDescription=DRipExtension;FileVersion=3.8.2.66;ProgramID=com.embarcadero.DRipExtension;ProductName=DRipExtension;ProductVersion=3.8.1.0;Comments=beta</VerInfo_Keys>
     <VerInfo_MinorVer>8</VerInfo_MinorVer>
-    <VerInfo_Build>62</VerInfo_Build>
+    <VerInfo_Build>66</VerInfo_Build>
     <VerInfo_Release>2</VerInfo_Release>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
   </PropertyGroup>
@@ -230,6 +230,7 @@
     <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.EncodedStringList.pas" />
     <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.Replacer.ExtensionContext.pas" />
     <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.Replacer.pas" />
+    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.IFrameEvents.pas" />
     <RcItem Include="..\..\..\Resources\about_icon.bmp">
       <ResourceType>BITMAP</ResourceType>
       <ResourceId>about_icon</ResourceId>
@@ -237,6 +238,14 @@
     <RcItem Include="..\..\..\Resources\splash_icon.bmp">
       <ResourceType>BITMAP</ResourceType>
       <ResourceId>splash_icon</ResourceId>
+    </RcItem>
+    <RcItem Include="..\..\..\Resources\dripgrepper_icon.bmp">
+      <ResourceType>BITMAP</ResourceType>
+      <ResourceId>dripgrepper_icon</ResourceId>
+    </RcItem>
+    <RcItem Include="..\..\..\Resources\openwith_icon-96px.bmp">
+      <ResourceType>BITMAP</ResourceType>
+      <ResourceId>openwith_icon</ResourceId>
     </RcItem>
     <BuildConfiguration Include="Base">
       <Key>Base</Key>

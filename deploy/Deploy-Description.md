@@ -33,7 +33,7 @@ Marked with checkmark if ready, else planned ...
 - [ ] copy to clipboard for running in PowerShell or command prompt
 - [x] win64 release
   - [x] sparate zip assets for platforms and extension
-  - [ ] **extension** zip for separate delphi versions?
+  - [x] **extension** zip for separate delphi versions?
 
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.
@@ -42,7 +42,7 @@ Marked with checkmark if fixed, else it is a known bug.
 - [x] **extension**: add to uses list popup menu sometimes not shown
 - [x] --hidden switch is on sometimes if opened from history list TODO: check empty _sParamvalue
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
-- [ ] **extension**: exception if there is no project opened (menu should be disabled)
+- [x] **extension**: exception if there is no project opened (menu should be disabled)
 - [ ] exception if rg.exe not found
 - [ ] **extension**: drip icon in menu has no transparent background
 

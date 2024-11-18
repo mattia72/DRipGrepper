@@ -98,7 +98,6 @@ var
 	Item : TMenuItem;
 	DripMenuItems : TArrayEx<TMenuItem>;
 	iPos : integer;
-	sc : TShortCut;
 	extSettings : TRipGrepperExtensionSettings;
 begin
 	var
