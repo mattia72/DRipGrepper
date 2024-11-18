@@ -1,2 +1,4 @@
 about_icon BITMAP "..\\..\\..\\Resources\\about_icon.bmp"
 splash_icon BITMAP "..\\..\\..\\Resources\\splash_icon.bmp"
+dripgrepper_icon BITMAP "..\\..\\..\\Resources\\dripgrepper_icon.bmp"
+openwith_icon BITMAP "..\\..\\..\\Resources\\openwith_icon-96px.bmp"
