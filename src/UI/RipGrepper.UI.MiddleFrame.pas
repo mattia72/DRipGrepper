@@ -180,7 +180,7 @@ type
 			procedure AfterSearch;
 			procedure AlignToolBars;
 			procedure BeforeSearch;
-			procedure ClearFilter(const _bForce : Boolean = False);
+			procedure ClearFilter;
 			procedure CopyToClipboardFileOfSelected;
 			procedure CopyToClipboardPathOfSelected;
 			function CreateNewHistObject : IHistoryItemObject;
@@ -463,17 +463,15 @@ begin
 	UpdateHistObjectAndGui;
 end;
 
-procedure TRipGrepperMiddleFrame.ClearFilter(const _bForce : Boolean = False);
+procedure TRipGrepperMiddleFrame.ClearFilter;
 begin
-	if _bForce then begin
-		VstResult.BeginUpdate;
-		try
-			for var Node in VstResult.InitializedNodes(True) do begin
+	VstResult.BeginUpdate;
+	try
+			for var Node in VstResult.Nodes(True) do begin
 				VstResult.IsFiltered[Node] := False;
 			end;
-		finally
-			VstResult.EndUpdate;
-		end;
+	finally
+		VstResult.EndUpdate;
 	end;
 end;
 
@@ -1115,7 +1113,7 @@ procedure TRipGrepperMiddleFrame.UpdateGui;
 begin
 	SetResultListViewDataToHistoryObj();
 	ExpandNodes();
-	TopFrame.SetFilter(False, False);
+	TopFrame.SetFilterBtnImage(False);
 	RefreshCountersInGUI;
 end;
 

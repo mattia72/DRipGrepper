@@ -157,7 +157,7 @@ type
 		public
 			constructor Create(AOwner : TComponent); override;
 			destructor Destroy; override;
-		procedure AfterHistObjChange;
+			procedure AfterHistObjChange;
 			procedure AfterSearch;
 			procedure AlignToolBars(iTbResultLeft, iSearchMaxWidth, iResultMinWidth : integer);
 			procedure BeforeSearch;
@@ -165,7 +165,7 @@ type
 			procedure Init;
 			function IsRgReplaceMode : Boolean;
 			procedure SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
-			procedure SetFilter(const _bOn : Boolean = True; const _bUpdateResult : Boolean = False);
+			procedure SetFilterBtnImage(const _bOn: Boolean = True);
 			procedure SetGuiReplaceMode(const _modes : TGuiReplaceModes; const _sReplaceText : string = '');
 			procedure ReplaceLineInFile(const fileName : string; lineNum : Integer; const replaceLine : string);
 			property IsGuiReplaceMode : Boolean read GetIsGuiReplaceMode;
@@ -443,7 +443,7 @@ end;
 procedure TRipGrepperTopFrame.ActionShowSearchFormExecute(Sender : TObject);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperTopFrame.ActionShowSearchFormExecute');
-	SetFilter(False);
+	SetFilterBtnImage(False);
 	StartNewSearch;
 end;
 
@@ -518,7 +518,8 @@ procedure TRipGrepperTopFrame.edtFilterKeyDown(Sender : TObject; var Key : Word;
 begin
 	if Key = VK_RETURN then begin
 		// Enter key was pressed
-		SetFilter(True, True);
+		SetFilterBtnImage(True);
+		MainFrame.FilterNodes(edtFilter.Text, FFilterMode);
 	end;
 	Key := 0;
 end;
@@ -526,11 +527,11 @@ end;
 procedure TRipGrepperTopFrame.edtFilterRightButtonClick(Sender : TObject);
 begin
 	if IsFilterOn then begin
-		MainFrame.ClearFilter(True);
-		SetFilter(False, True);
+		SetFilterBtnImage(False);
+		MainFrame.ClearFilter;
 	end else begin
+		SetFilterBtnImage(True);
 		MainFrame.FilterNodes(edtFilter.Text, FFilterMode);
-		SetFilter(True, True);
 	end;
 end;
 
@@ -713,15 +714,10 @@ begin
 	end;
 end;
 
-procedure TRipGrepperTopFrame.SetFilter(const _bOn : Boolean = True; const _bUpdateResult : Boolean = False);
+procedure TRipGrepperTopFrame.SetFilterBtnImage(const _bOn: Boolean = True);
 begin
 	edtFilter.RightButton.ImageIndex :=
 	{ } IfThen(_bOn and (edtFilter.Text <> ''), IMG_IDX_FILTER_ON, IMG_IDX_FILTER_OFF);
-
-	if _bUpdateResult then begin
-		MainFrame.FilterNodes(edtFilter.Text, FFilterMode);
-	end;
-
 end;
 
 procedure TRipGrepperTopFrame.SetFilterMode(const _fm : EFilterMode; const _bReset : Boolean = False);

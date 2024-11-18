@@ -40,4 +40,4 @@ Marked with checkmark if fixed, else it is a known bug.
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] exception if rg.exe not found
 - [ ] **extension**: drip icon in menu has no transparent background
-- [ ] filter off doesn't show all entries
+- [x] filter off doesn't show all entries
