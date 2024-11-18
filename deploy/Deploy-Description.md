@@ -1,7 +1,7 @@
 <!--
 
-Version:     v3.8.2-beta
-PrevVersion: v3.8.1-beta
+Version:     v3.9.0-beta
+PrevVersion: v3.8.2-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -24,25 +24,20 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 
 ## :boom: Improvements 
 Marked with checkmark if ready, else planned ...
+- [x] config form
+  - [ ] Debug and Expert mode
+  - [ ] install as **extension** in Delphi IDE
+  - [ ] configure **extension** shortcuts
+  - [ ] configure colors
 - [ ] **extension**: save all before search message?
 - [ ] save/load search histories in file
-- [x] config form
-  - [ ] install as **extension** in Delphi IDE
 - [ ] JSON config files
 - [ ] **extension**: search opened project files only
 - [ ] copy to clipboard for running in PowerShell or command prompt
-- [x] win64 release
-  - [x] sparate zip assets for platforms and extension
-  - [x] **extension** zip for separate delphi versions?
 
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.
-- [x] **extension**: replace doesn't replace files opened in buffer
-- [x] filter doesn't work
-- [x] **extension**: add to uses list popup menu sometimes not shown
-- [x] --hidden switch is on sometimes if opened from history list TODO: check empty _sParamvalue
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
-- [x] **extension**: exception if there is no project opened (menu should be disabled)
 - [ ] exception if rg.exe not found
 - [ ] **extension**: drip icon in menu has no transparent background
 
