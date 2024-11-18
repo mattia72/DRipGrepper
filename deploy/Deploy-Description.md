@@ -39,10 +39,10 @@ Marked with checkmark if ready, else planned ...
 Marked with checkmark if fixed, else it is a known bug.
 - [x] **extension**: replace doesn't replace files opened in buffer
 - [x] filter doesn't work
-- [ ] **extension**: if search only in current file, path of the file is not saved in history
-- [ ] **extension**: exception if there is no project opened 
-- [ ] exception if rg.exe not found
-- [ ] --hidden switch is on sometimes if opened from history list TODO: check empty _sParamvalue
 - [x] **extension**: add to uses list popup menu sometimes not shown
+- [x] --hidden switch is on sometimes if opened from history list TODO: check empty _sParamvalue
+- [ ] **extension**: if search only in current file, path of the file is not saved in history
+- [ ] **extension**: exception if there is no project opened (menu should be disabled)
+- [ ] exception if rg.exe not found
 - [ ] **extension**: drip icon in menu has no transparent background
 
