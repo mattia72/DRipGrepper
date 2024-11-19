@@ -73,7 +73,7 @@ class procedure TFileUtils.CreateBackup(const fileName : string);
 var
 	backupFileName : string;
 begin
-	backupFileName := ChangeFileExt(fileName, FormatDateTime('.yyyymmddhhnn', Now) + '.bak');
+	backupFileName := fileName + FormatDateTime('.yyyymmddhhnn', Now) + BAK_FILE_EXTENSION;
 	CopyFile(PWideChar(fileName), PWideChar(backupFileName), true);
 end;
 

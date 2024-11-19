@@ -10,15 +10,17 @@ uses
 	Vcl.Graphics,
 	Vcl.Menus;
 
+{$IFDEF WIN64}
 const
+	APP_PLATFORM = 'x64';
+{$ELSE}
+const
+	APP_PLATFORM = 'x86';
+{$ENDIF}
 	APPNAME = 'DRipGrepper';
 	EXTENSION_NAME = 'DRipExtension';
 
-    {$IFDEF WIN64}
-    const APP_PLATFORM = 'x64';
-    {$ELSE}
-    const APP_PLATFORM = 'x86';
-    {$ENDIF}
+	BAK_FILE_EXTENSION = '.bak';
 
 	CAPTION_EXTENSION_MENU = 'DRipGrepper';
 	HOME_PAGE = 'https://github.com/mattia72/DRipGrepper';
@@ -46,7 +48,6 @@ const
 	ARRAY_SEPARATOR = '|';
 
 	BUFF_LENGTH = 1024; // Todo: put into settings
-
 	MAX_HISTORY_COUNT = 20;
 
 	DRAW_RESULT_ON_EVERY_LINE_COUNT = 100; // Todo: put into settings

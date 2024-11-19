@@ -41,3 +41,4 @@ Marked with checkmark if fixed, else it is a known bug.
 - [ ] exception if rg.exe not found
 - [ ] **extension**: drip icon in menu has no transparent background
 - [x] filter off doesn't show all entries
+- [x] backup doesn't save orig extension

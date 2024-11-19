@@ -528,7 +528,7 @@ procedure TRipGrepperTopFrame.edtFilterRightButtonClick(Sender : TObject);
 begin
 	if IsFilterOn then begin
 		SetFilterBtnImage(False);
-		MainFrame.ClearFilter;
+		MainFrame.ClearFilter();
 	end else begin
 		SetFilterBtnImage(True);
 		MainFrame.FilterNodes(edtFilter.Text, FFilterMode);
