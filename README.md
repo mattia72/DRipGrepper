@@ -123,6 +123,8 @@ scoop install dripgrepper
 
 #### Delphi Integration
 * Open Delphi
+* Open `Tools | GetIt-Package-Manager` 
+* Install `VirtualTree for VCL`
 * Open `Component | Install Packages...` menu item
 * Add `DripExtension.bpl` to Design packages list
 * Ready
