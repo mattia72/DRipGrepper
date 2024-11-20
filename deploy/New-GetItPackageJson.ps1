@@ -607,10 +607,10 @@ function New-GetItPackageJson {
     param (
         [string]$DelphiVersion = "12",
         [string]$Name = "DRipExtension",
-        [string]$Id = "$Name-$DelphiVersion",
         [string]$Version = "v3.8.2-beta",
         [string]$Description = "RipGrep GUI for Delphi",
         [string]$Vendor = "Matasoft Bt.",
+        [string]$Id = "$Name-$DelphiVersion",
         [string]$VendorUrl = "http:\/\/github.com\/mattia72",
         [string]$Image = "https:\/\/github.com\/mattia72\/DRipGrepper\/blob\/master\/Extension\/Resources\/about_icon.bmp",
         [string]$License = "https:\/\/github.com\/mattia72\/DRipGrepper?tab = MIT-1-ov-file#readme",
