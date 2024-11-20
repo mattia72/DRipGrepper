@@ -90,11 +90,11 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.ReadIni');
 	{$IFDEF STANDALONE}
-		Exit;
+	Exit;
 	{$ELSE}
-		if IOTAUTils.IsStandAlone then begin
-			Exit;
-		end;
+	if IOTAUTils.IsStandAlone then begin
+		Exit;
+	end;
 	{$ENDIF}
 	inherited ReadIni();
 end;
@@ -109,11 +109,11 @@ end;
 procedure TRipGrepperExtensionSettings.LoadFromDict;
 begin
 	{$IFDEF STANDALONE}
-		Exit;
+	Exit;
 	{$ELSE}
-		if IOTAUTils.IsStandAlone then begin
-			Exit;
-		end;
+	if IOTAUTils.IsStandAlone then begin
+		Exit;
+	end;
 	{$ENDIF}
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.LoadFromDict');
@@ -123,10 +123,18 @@ begin
 	DripGrepperShortCut := SettingsDict.GetSetting(KEY_SHORTCUT_DRIPGREPPER);
 	if DripGrepperShortCut = '' then begin
 		DripGrepperShortCut := TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH;
+		FIsModified := True;
 	end;
 	OpenWithShortCut := SettingsDict.GetSetting(KEY_SHORTCUT_OPENWITH);
 	if OpenWithShortCut = '' then begin
 		OpenWithShortCut := TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH;
+		FIsModified := True;
+	end;
+
+	if IsModified then begin
+		dbgMsg.Msg('Update ini file with shortcuts');
+		StoreToDict();
+		UpdateIniFile;
 	end;
 
 	dbgMsg.Msg(ToLogString());
@@ -150,14 +158,16 @@ end;
 
 procedure TRipGrepperExtensionSettings.StoreToDict;
 begin
-	{$IFDEF STANDALONE}
-		Exit;
-	{$ELSE}
-		if IOTAUTils.IsStandAlone then begin
-			Exit;
-		end;
-	{$ENDIF}
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.StoreToDict');
 
+	{$IFDEF STANDALONE}
+	Exit;
+	{$ELSE}
+	if IOTAUTils.IsStandAlone then begin
+		Exit;
+	end;
+	{$ENDIF}
 	SettingsDict.StoreSetting(KEY_SHORTCUT_DRIPGREPPER, DripGrepperShortCut);
 	SettingsDict.StoreSetting(KEY_SHORTCUT_OPENWITH, OpenWithShortCut);
 	SettingsDict.StoreSetting(KEY_IDE_CONTEXT, Integer(CurrentIDEContext.IDEContext));
@@ -170,11 +180,11 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.StoreAsDefaultsToDict');
 
 	{$IFDEF STANDALONE}
-		Exit;
+	Exit;
 	{$ELSE}
-		if IOTAUTils.IsStandAlone then begin
-			Exit;
-		end;
+	if IOTAUTils.IsStandAlone then begin
+		Exit;
+	end;
 	{$ENDIF}
 	dbgMsg.MsgFmt('TAppSettings.StoreAsDefaultsToDict: IDEContext=%d',
 		{ } [Integer(CurrentIDEContext.IDEContext)]);

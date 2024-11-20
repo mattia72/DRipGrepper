@@ -108,6 +108,10 @@ begin
 
 	RemoveExtensionMenu();
 	extSettings := GSettings.SearchFormSettings.ExtensionSettings;
+	dbgMsg.Msg('ReadIni');
+	extSettings.ReadIni();
+	dbgMsg.Msg('LoadFromDict');
+	extSettings.LoadFromDict();
 
 	DripMenuItems.Add(CreateSubMenuItem(DRIP_MENUITEM_DRIPGREPPER_NAME,
 		{ } 'DRipGrepper...',

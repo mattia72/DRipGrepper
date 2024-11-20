@@ -34,9 +34,9 @@ type
 			FIniSectionName : string;
 			FIsAlreadyRead : Boolean;
 			procedure CreateIniFile;
-			function GetIniFile: TMemIniFile;
+			function GetIniFile : TMemIniFile;
 			procedure ReadSettings;
-			procedure SetIniFile(const Value: TMemIniFile);
+			procedure SetIniFile(const Value : TMemIniFile);
 			procedure SetIniSectionName(const Value : string);
 			procedure WriteSettings(_bDefault : Boolean = False);
 			procedure WriteToIni(const _sIniSection, _sKey : string; const _setting : ISettingVariant);
@@ -62,8 +62,8 @@ type
 			constructor Create; overload;
 			procedure Copy(const _other : TPersistableSettings); virtual;
 			procedure ReLoad; virtual;
-			procedure UpdateIniFile;
-			property IniFile: TMemIniFile read GetIniFile write SetIniFile;
+
+			property IniFile : TMemIniFile read GetIniFile write SetIniFile;
 			property IniSectionName : string read GetIniSectionName write SetIniSectionName;
 			property IsAlreadyRead : Boolean read GetIsAlreadyRead;
 			property IsModified : Boolean read GetIsModified;
@@ -82,16 +82,19 @@ type
 			procedure LoadDefaultsFromDict; virtual; abstract;
 			class procedure ReCreateMemIni(var _ini : TMemIniFile); overload;
 			procedure ReCreateMemIni; overload; virtual;
-			/// <summary>TPersistableSettings.StoreToDict
+			/// <summary>
 			/// Members.StoreToDict should be called here
 			/// Writes to ini.
 			/// </summary>
 			procedure StoreToDict; virtual;
-			/// <summary>TPersistableSettings.StoreAsDefaultsToDict
+			/// <summary>
 			/// Members.StoreAsDefaultsToDict should be called here
 			/// </summary>
 			procedure StoreAsDefaultsToDict; virtual;
-			// class property SettingsDict: TSettingsDictionary read FSettingsDict;
+			// <summary>
+			// Write Settings to ini file
+			// </summary>
+			procedure UpdateIniFile;
 	end;
 
 implementation
@@ -196,14 +199,14 @@ end;
 
 procedure TPersistableSettings.CreateIniFile;
 begin
-{$IFDEF STANDALONE}
-		FIniFile := TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8);
-{$ELSE}
-		FIniFile := TMemIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'), TEncoding.UTF8);
-{$ENDIF}
+	{$IFDEF STANDALONE}
+	FIniFile := TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8);
+	{$ELSE}
+	FIniFile := TMemIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'), TEncoding.UTF8);
+	{$ENDIF}
 end;
 
-function TPersistableSettings.GetIniFile: TMemIniFile;
+function TPersistableSettings.GetIniFile : TMemIniFile;
 begin
 	Result := FIniFile;
 end;
@@ -355,7 +358,7 @@ begin
 	ReadIni;
 end;
 
-procedure TPersistableSettings.SetIniFile(const Value: TMemIniFile);
+procedure TPersistableSettings.SetIniFile(const Value : TMemIniFile);
 begin
 	FIniFile := Value;
 end;
