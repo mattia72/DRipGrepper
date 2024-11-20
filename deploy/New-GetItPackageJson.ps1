@@ -74,7 +74,7 @@
 
 # {
 #   "Id": "1",
-#   “ActionId": "6",
+#   "ActionId": "6",
 #   "Type": "2",
 #   "RequireElevation": "0",
 #   "Parameter": [
@@ -605,46 +605,70 @@
 
 function New-GetItPackageJson {
     param (
-        [string]$Id = "Abbrevia-11-Local",
-        [string]$Name = "AbbreviaLocal",
-        [string]$Version = "11",
-        [string]$Description = "Abbrevia is a compression toolkit for Delphi...",
-        [string]$Vendor = "TurboPack",
-        [string]$VendorUrl = "http:\/\/www.turbopack.net",
-        [string]$Image = "Abbrevia3.png",
-        [string]$License = "MPL1.0.txt",
-        [string]$Url = "Abbrevia-20200708.zip",
-        [string]$ProjectUrl = "https:\/\/github.com\/TurboPack\/Abbrevia",
-        [string]$Modified = "2021-12-01 00:15:15",
-        [string]$LicenseName = "MOZILLA PUBLIC LICENSE",
+        [string]$DelphiVersion = "12",
+        [string]$Name = "DRipExtension",
+        [string]$Id = "$Name-$DelphiVersion",
+        [string]$Version = "v3.8.2-beta",
+        [string]$Description = "RipGrep GUI for Delphi",
+        [string]$Vendor = "Matasoft Bt.",
+        [string]$VendorUrl = "http:\/\/github.com\/mattia72",
+        [string]$Image = "https:\/\/github.com\/mattia72\/DRipGrepper\/blob\/master\/Extension\/Resources\/about_icon.bmp",
+        [string]$License = "https:\/\/github.com\/mattia72\/DRipGrepper?tab = MIT-1-ov-file#readme",
+        [string]$Url = "assets\\$Name.Delphi$DelphiVersion.$Version.zip",
+        [string]$ProjectUrl = "http:\/\/github.com\/mattia72\/DRipGrepper",
+        [string]$Modified = $(Get-Date -f 'yyyy-MM-dd HH:mm:ss'),
+        [string]$LicenseName = "MIT License",
         [string]$RequireElevation = "0",
-        [string]$AllUsers = "0"
+        [string]$AllUsers = "0",
+        [string]$OutputPath ="$PSScriptRoot\$Name.Delphi$DelphiVersion.$Version.json" 
     )
 
     $jsonContent = @{
-        name        = $PackageName
-        version     = $Version
-        description = $Description
-        author      = $Author
-        email       = $Email
-        homepage    = $Homepage
-        repository  = @{
-            type = "git"
-            url  = $RepositoryUrl
-        }
-        license     = $License
-        platforms   = $Platforms
-        files       = @(
+        Id               = $Id              
+        Name             = $Name            
+        Version          = $Version         
+        Description      = $Description     
+        Vendor           = $Vendor          
+        VendorUrl        = $VendorUrl       
+        Image            = $Image           
+        License          = $License         
+        Url              = $Url             
+        ProjectUrl       = $ProjectUrl      
+        Modified         = $Modified        
+        LicenseName      = $LicenseName     
+        RequireElevation = $RequireElevation
+        AllUsers         = $AllUsers        
+
+        Actions          = (
             @{
-                source      = $ExePath
-                destination = "bin\\DRipGrepper.exe"
+                Id               = "1"
+                ActionId         = "18" # Action: UninstallIDEPackage
+                Type             = "2" # Event: After Download
+                RequireElevation = "0"
+                Parameter        = (
+                    "$Name.bpl"
+                )
+                ActionName       = "UninstallIDEPackage"
+                Description      = "Uninstall $Name.bpl"
             },
             @{
-                source      = $BplPath
-                destination = "bin\\DRipExtension.bpl"
+                Id               = "2"
+                ActionId         = "17" # Action: InstallIDEPackage
+                Type             = "2" # Event: After Download
+                RequireElevation = "0"
+                Parameter        = (
+                    "$Name.bpl" ,
+                    "true" # install in RAD
+                )
+                ActionName       = "InstallIDEPackage"
+                Description      = "Install $Name.bpl"
             }
         )
+
     }
 
     $jsonContent | ConvertTo-Json -Depth 10 | Set-Content -Path $OutputPath
+    Get-Content $OutputPath
 }
+
+New-GetItPackageJson

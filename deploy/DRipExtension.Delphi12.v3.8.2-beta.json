@@ -1,0 +1,39 @@
+{
+  "Modified": "2024-11-20 20:42:30",
+  "Vendor": "Matasoft Bt.",
+  "Id": "DripExtension-12",
+  "Name": "DRipExtension",
+  "VendorUrl": "http:\\/\\/github.com\\/mattia72",
+  "Actions": [
+    {
+      "ActionId": "18",
+      "Parameter": "DRipExtension.bpl",
+      "Type": "2",
+      "Id": "1",
+      "RequireElevation": "0",
+      "Description": "Uninstall DRipExtension.bpl",
+      "ActionName": "UninstallIDEPackage"
+    },
+    {
+      "ActionId": "17",
+      "Parameter": [
+        "DRipExtension.bpl",
+        "true"
+      ],
+      "Type": "2",
+      "Id": "2",
+      "RequireElevation": "0",
+      "Description": "Install DRipExtension.bpl",
+      "ActionName": "InstallIDEPackage"
+    }
+  ],
+  "AllUsers": "0",
+  "Url": "assets\\\\DRipExtension.Delphi12.v3.8.2-beta.zip",
+  "Image": "https:\\/\\/github.com\\/mattia72\\/DRipGrepper\\/blob\\/master\\/Extension\\/Resources\\/about_icon.bmp",
+  "ProjectUrl": "http:\\/\\/github.com\\/mattia72\\/DRipGrepper",
+  "RequireElevation": "0",
+  "Description": "RipGrep GUI for Delphi",
+  "License": "https:\\/\\/github.com\\/mattia72\\/DRipGrepper?tab = MIT-1-ov-file#readme",
+  "Version": "v3.8.2-beta",
+  "LicenseName": "MIT License"
+}
