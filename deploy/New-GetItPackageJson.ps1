@@ -1,3 +1,4 @@
+# https://docs.google.com/document/d/1Jr8AkueNpmNTjDgDUUttgJlRG6wSPvUWIlEDK2ekZVk/edit?tab=t.0
 # 2. The GetIt Local Files Format
 # The local file is a JSON file. It is a simplified format compared to the JSON used to configure a GetIt package on a server, simply because some of the fields make limited sense locally. The key element is that the JSON file allows you to specify, for the actual package content (which must be a ZIP file or a 7z file), for the license file and for the package image:
 # A local file with a relative path to the JSON file
@@ -611,29 +612,42 @@ function New-GetItPackageJson {
         [string]$Version = "v3.8.2-beta",
         [string]$Description = "RipGrep GUI for Delphi",
         [string]$Vendor = "Matasoft Bt.",
-        [string]$VendorUrl = "http:\/\/github.com\/mattia72",
-        [string]$Image = "https:\/\/github.com\/mattia72\/DRipGrepper\/blob\/master\/Extension\/Resources\/about_icon.bmp",
-        [string]$License = "https:\/\/github.com\/mattia72\/DRipGrepper?tab = MIT-1-ov-file#readme",
-        [string]$Url = "assets\\$Name.Delphi$DelphiVersion.$Version.zip",
-        [string]$ProjectUrl = "http:\/\/github.com\/mattia72\/DRipGrepper",
+        [string]$VendorUrl = "http://github.com/mattia72",
+        [string]$Image = "splash_icon.bmp",
+        [string]$License = "LICENSE",
+        [string]$Url = "$Name.Delphi$DelphiVersion.$Version.zip",
+        [string]$ProjectUrl = "http://github.com/mattia72/DRipGrepper",
         [string]$Modified = $(Get-Date -f 'yyyy-MM-dd HH:mm:ss'),
         [string]$LicenseName = "MIT License",
         [string]$RequireElevation = "0",
         [string]$AllUsers = "0",
-        [string]$OutputPath ="$PSScriptRoot\$Name.Delphi$DelphiVersion.$Version.json" 
+        [string]$OutputPath = "$PSScriptRoot\assets\GetItPackage" 
     )
+    $AssetName =  "$Name.Delphi$DelphiVersion.$Version" 
+    Copy-Item -Path "$PSScriptRoot\assets\$AssetName.zip" -Destination "$OutputPath" 
+    Copy-Item -Path "$PSScriptRoot\..\$License" -Destination "$OutputPath\$License" 
+    Copy-Item -Path "$PSScriptRoot\..\Extension\Resources\$Image" -Destination "$OutputPath" 
 
+    $Type = "3" # Before Install
+# 1: Before Download: This action happens before downloading a catalog item and cannot use any elements of the download files. 
+#    It is ignored if the item is already in the cache
+# 2: After Download: This action will be executed after download and extract a catalog item.  
+#    It is ignored if the item is already in the cache
+# 3: Before Install: This action will be executed before the installation of a catalog item.
+# 4: After Install: This action will be executed after the installation of a catalog item.
+# 5: Before Uninstall: This action will be executed before the uninstallation (that is removal from the cache) of a catalog item.
+# 6: After Uninstall:
     $jsonContent = @{
         Id               = $Id              
         Name             = $Name            
         Version          = $Version         
         Description      = $Description     
         Vendor           = $Vendor          
-        VendorUrl        = $VendorUrl       
-        Image            = $Image           
-        License          = $License         
-        Url              = $Url             
-        ProjectUrl       = $ProjectUrl      
+        VendorUrl        = $VendorUrl   #-replace "/", "\/"
+        Image            = $Image       #-replace "/", "\/"
+        License          = $License     #-replace "/", "\/"
+        Url              = $Url         #-replace "/", "\/"
+        ProjectUrl       = $ProjectUrl  #-replace "/", "\/"
         Modified         = $Modified        
         LicenseName      = $LicenseName     
         RequireElevation = $RequireElevation
@@ -643,10 +657,10 @@ function New-GetItPackageJson {
             @{
                 Id               = "1"
                 ActionId         = "18" # Action: UninstallIDEPackage
-                Type             = "2" # Event: After Download
+                Type             = $Type
                 RequireElevation = "0"
                 Parameter        = (
-                    "$Name.bpl"
+                    @{Parameter = "$Name.bpl"}
                 )
                 ActionName       = "UninstallIDEPackage"
                 Description      = "Uninstall $Name.bpl"
@@ -654,21 +668,28 @@ function New-GetItPackageJson {
             @{
                 Id               = "2"
                 ActionId         = "17" # Action: InstallIDEPackage
-                Type             = "2" # Event: After Download
+                Type             = $Type
                 RequireElevation = "0"
                 Parameter        = (
-                    "$Name.bpl" ,
-                    "true" # install in RAD
+                    @{Parameter = "$Name.bpl"}
                 )
                 ActionName       = "InstallIDEPackage"
                 Description      = "Install $Name.bpl"
             }
         )
-
     }
 
-    $jsonContent | ConvertTo-Json -Depth 10 | Set-Content -Path $OutputPath
-    Get-Content $OutputPath
+    $jsonContent | ConvertTo-Json -Depth 10 -EscapeHandling EscapeNonAscii | 
+        ForEach-Object {$_ -replace '/', '\/' } | Set-Content -Path "$OutputPath\$AssetName.json"
+    Get-Content "$OutputPath\$AssetName.json"
+
+    $compress = @{
+            Path             = "$OutputPath\*"
+            CompressionLevel = "Fastest"
+            DestinationPath  = "$OutputPath\$AssetName.GetItPkg.zip"
+            Force            = $true
+    }
+    Compress-Archive @compress
 }
 
-New-GetItPackageJson
+New-GetItPackageJson -DelphiVersion 11 -Version v3.9.0-beta
