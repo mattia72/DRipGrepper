@@ -19,26 +19,34 @@ uses
 
 type
 
+	TErrorCounters = record
+		FSumOfErrors : Integer;
+		FParserErrors : Integer;
+		FIsNoOutputError : Boolean;
+		FIsRGReportedError : Boolean;
+		procedure Reset;
+	end;
+
 	TRipGrepperData = class
 		MatchFiles : TStringList;
 		SortedBy : TSortTypeDirectionList;
 
 		private
-			FErrorCount : Integer;
-			FHistObject: IHistoryItemObject;
+			FErrorCounters : TErrorCounters;
+			FHistObject : IHistoryItemObject;
 			FVst : TCustomVirtualStringTree;
 			function AddVSTStructure(_node : PVirtualNode; _rec : TVSFileNodeData; _asFirst : Boolean) : PVirtualNode;
 			function GetTotalMatchCount : Integer;
 			function GetFileCount : Integer;
 			function GetComparer(const _sbt : TSortByType) : IComparer<IParsedObjectRow>;
 			function GetErrorCount : Integer;
-			function GetHistObject: IHistoryItemObject;
+			function GetHistObject : IHistoryItemObject;
 			function GetListItemCount : Integer;
 			function GetParentNode(const _sNodeText : string; _asFirst : Boolean = False) : PVirtualNode;
 			procedure AddChildNode(const _parentNode : PVirtualNode; _item : IParsedObjectRow);
 			function ErrorHandling(const _sFileColumnText : string; _item : IParsedObjectRow) : PVirtualNode;
 			function GetNoMatchFound : Boolean;
-			procedure SetHistObject(const Value: IHistoryItemObject);
+			procedure SetHistObject(const Value : IHistoryItemObject);
 			procedure SetNoMatchFound(const Value : Boolean);
 			procedure SortMultiColumns(const _st : TSortDirectionType);
 
@@ -53,7 +61,7 @@ type
 			property ErrorCount : Integer read GetErrorCount;
 			property TotalMatchCount : Integer read GetTotalMatchCount;
 			property FileCount : Integer read GetFileCount;
-			property HistObject: IHistoryItemObject read GetHistObject write SetHistObject;
+			property HistObject : IHistoryItemObject read GetHistObject write SetHistObject;
 			property ListItemCount : Integer read GetListItemCount;
 			property NoMatchFound : Boolean read GetNoMatchFound write SetNoMatchFound;
 	end;
@@ -67,13 +75,13 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Helper.Types,
 	RipGrepper.Common.Constants,
-    RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.SimpleTypes;
 
 constructor TRipGrepperData.Create(_vst : TCustomVirtualStringTree);
 begin
 	inherited Create();
 	MatchFiles := TStringList.Create(TDuplicates.dupIgnore, True, True);
-	FErrorCount := 0;
+	FErrorCounters.Reset();
 	FVst := _vst;
 end;
 
@@ -128,7 +136,7 @@ end;
 procedure TRipGrepperData.ClearMatchFiles;
 begin
 	MatchFiles.Clear;
-	FErrorCount := 0;
+	FErrorCounters.Reset();
 end;
 
 procedure TRipGrepperData.DataToGrid(const _index : Integer; _lv : TListView; _item : TListItem);
@@ -230,10 +238,10 @@ end;
 
 function TRipGrepperData.GetErrorCount : Integer;
 begin
-	Result := FErrorCount;
+	Result := FErrorCounters.FSumOfErrors;
 end;
 
-function TRipGrepperData.GetHistObject: IHistoryItemObject;
+function TRipGrepperData.GetHistObject : IHistoryItemObject;
 begin
 	Result := FHistObject;
 end;
@@ -281,7 +289,7 @@ begin
 			{ } StrToIntDef(_item.Columns[Integer(ciCol)].Text, -1), // Col
 			{ } _item.GetColumnText(Integer(ciText)), // TextBefore
 			{ } _item.GetColumnText(Integer(ciMatchText)), // MatchText
-			{ } _item.GetColumnText(Integer(ciTextAfterMatch))// TextAfter
+			{ } _item.GetColumnText(Integer(ciTextAfterMatch)) // TextAfter
 				);
 		end;
 		ptRipGrepError :
@@ -292,7 +300,7 @@ begin
 	end;
 
 	AddVSTStructure(_parentNode, nodeData, bAsFirst);
-	_parentNode.CheckType :=  ctCheckBox;
+	_parentNode.CheckType := ctCheckBox;
 end;
 
 function TRipGrepperData.ErrorHandling(const _sFileColumnText : string; _item : IParsedObjectRow) : PVirtualNode;
@@ -302,12 +310,15 @@ var
 begin
 	Result := nil;
 	if _sFileColumnText.EndsWith(RG_HAS_NO_OUTUT) then begin
+		FErrorCounters.FIsNoOutputError := True;
 		NoMatchFound := True;
 		Exit;
 	end else if TRegEx.IsMatch(_sFileColumnText, RG_ENDED_ERROR) then begin
+		FErrorCounters.FIsRGReportedError := True;
 		NoMatchFound := True;
 		Exit;
 	end else if _item.ErrorText = RG_PARSE_ERROR then begin
+		Inc(FErrorCounters.FParserErrors);
 		if TRegEx.IsMatch(_sFileColumnText, '^' + RG_ERROR_MSG_PREFIX) then begin
 			NoMatchFound := True;
 			node := GetParentNode(RG_ERROR_MSG_PREFIX, True);
@@ -317,7 +328,7 @@ begin
 		end;
 	end;
 
-	Inc(FErrorCount);
+	Inc(FErrorCounters.FSumOfErrors);
 	Result := GetParentNode(_item.ErrorText, True);
 end;
 
@@ -327,7 +338,7 @@ begin
 	Result := HistObject.NoMatchFound;
 end;
 
-procedure TRipGrepperData.SetHistObject(const Value: IHistoryItemObject);
+procedure TRipGrepperData.SetHistObject(const Value : IHistoryItemObject);
 begin
 	FHistObject := Value;
 end;
@@ -372,6 +383,14 @@ begin
 	finally
 		lineComparer.Free;
 	end;
+end;
+
+procedure TErrorCounters.Reset;
+begin
+	FSumOfErrors := 0;
+	FParserErrors := 0;
+	FIsNoOutputError := False;
+	FIsRGReportedError := False;
 end;
 
 end.
