@@ -620,23 +620,23 @@ function New-GetItPackageJson {
         [string]$Modified = $(Get-Date -f 'yyyy-MM-dd HH:mm:ss'),
         [string]$LicenseName = "MIT License",
         [string]$RequireElevation = "0",
-        [string]$AllUsers = "0",
+        [string]$AllUsers = "1",
         [string]$OutputPath = "$PSScriptRoot\assets\GetItPackage" 
     )
-    $AssetName =  "$Name.Delphi$DelphiVersion.$Version" 
+    $AssetName = "$Name.Delphi$DelphiVersion.$Version" 
     Copy-Item -Path "$PSScriptRoot\assets\$AssetName.zip" -Destination "$OutputPath" 
     Copy-Item -Path "$PSScriptRoot\..\$License" -Destination "$OutputPath\$License" 
     Copy-Item -Path "$PSScriptRoot\..\Extension\Resources\$Image" -Destination "$OutputPath" 
 
     $Type = "3" # Before Install
-# 1: Before Download: This action happens before downloading a catalog item and cannot use any elements of the download files. 
-#    It is ignored if the item is already in the cache
-# 2: After Download: This action will be executed after download and extract a catalog item.  
-#    It is ignored if the item is already in the cache
-# 3: Before Install: This action will be executed before the installation of a catalog item.
-# 4: After Install: This action will be executed after the installation of a catalog item.
-# 5: Before Uninstall: This action will be executed before the uninstallation (that is removal from the cache) of a catalog item.
-# 6: After Uninstall:
+    # 1: Before Download: This action happens before downloading a catalog item and cannot use any elements of the download files. 
+    #    It is ignored if the item is already in the cache
+    # 2: After Download: This action will be executed after download and extract a catalog item.  
+    #    It is ignored if the item is already in the cache
+    # 3: Before Install: This action will be executed before the installation of a catalog item.
+    # 4: After Install: This action will be executed after the installation of a catalog item.
+    # 5: Before Uninstall: This action will be executed before the uninstallation (that is removal from the cache) of a catalog item.
+    # 6: After Uninstall:
     $jsonContent = @{
         Id               = $Id              
         Name             = $Name            
@@ -653,41 +653,69 @@ function New-GetItPackageJson {
         RequireElevation = $RequireElevation
         AllUsers         = $AllUsers        
 
-        Actions          = (
+        Actions          = @(
+            # @{
+            #     Id               = "1"
+            #     ActionId         = "18" # Action: UninstallIDEPackage
+            #     Type             = $Type
+            #     RequireElevation = "0"
+            #     Parameter        = @(
+            #         @{Parameter = "$Name.bpl"}
+            #     )
+            #     ActionName       = "UninstallIDEPackage"
+            #     Description      = "Uninstall $Name.bpl"
+            # },
+            # @{
+            #     Id               = "2"
+            #     ActionId         = "7" # Action: InstallIDEPackage
+            #     Type             = $Type
+            #     RequireElevation = "0"
+            #     Parameter        = @(
+            #         @{Parameter = "VirtualTreeView"}
+            #     )
+            #     ActionName       = "InstallPackage"
+            #     Description      = "Install VirtualTreeView"
+            # }
             @{
-                Id               = "1"
-                ActionId         = "18" # Action: UninstallIDEPackage
-                Type             = $Type
-                RequireElevation = "0"
-                Parameter        = (
-                    @{Parameter = "$Name.bpl"}
-                )
-                ActionName       = "UninstallIDEPackage"
-                Description      = "Uninstall $Name.bpl"
-            },
-            @{
-                Id               = "2"
+                Id               = "3"
                 ActionId         = "17" # Action: InstallIDEPackage
                 Type             = $Type
                 RequireElevation = "0"
-                Parameter        = (
-                    @{Parameter = "$Name.bpl"}
+                Parameter        = @(
+                    @{Parameter = "`$(BDSCatalogRepositoryAllUsers)\$Id\$Name.bpl" }
                 )
                 ActionName       = "InstallIDEPackage"
+                Description      = "Install $Name.bpl"
+            },
+            @{	
+                
+                Id               = "4"
+                ActionId         = "18" # Action: InstallIDEPackage
+                Type             = "5" # Before Uninstall
+                RequireElevation = "0"
+                Parameter        = @(
+                    @{Parameter = "`$(BDSCatalogRepositoryAllUsers)\$Id\$Name.bpl" }
+                )
+                ActionName       = "UninstallIDEPackage"
                 Description      = "Install $Name.bpl"
             }
         )
     }
 
-    $jsonContent | ConvertTo-Json -Depth 10 -EscapeHandling EscapeNonAscii | 
-        ForEach-Object {$_ -replace '/', '\/' } | Set-Content -Path "$OutputPath\$AssetName.json"
+    ConvertTo-Json $jsonContent -Depth 10 -EscapeHandling EscapeNonAscii | 
+        ForEach-Object { $_ -replace '/', '\/' } | Set-Content -Path "$OutputPath\$AssetName.json"
     Get-Content "$OutputPath\$AssetName.json"
 
     $compress = @{
-            Path             = "$OutputPath\*"
-            CompressionLevel = "Fastest"
-            DestinationPath  = "$OutputPath\$AssetName.GetItPkg.zip"
-            Force            = $true
+        Path             = @(
+            "$OutputPath\$Url", 
+            "$OutputPath\$License", 
+            "$OutputPath\$Image", 
+            "$OutputPath\$AssetName.json"
+            )
+        CompressionLevel = "Fastest"
+        DestinationPath  = "$OutputPath\$AssetName.GetItPkg.zip"
+        Force            = $true
     }
     Compress-Archive @compress
 }
