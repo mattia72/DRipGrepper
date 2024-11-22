@@ -16,8 +16,19 @@
             "args": [
                 // "-LocalDeploy"
                 // , "-Deploy"
-                 "-BuildStandalone"
-                , "-BuildExtension"
+                //,  "-BuildStandalone"
+                 "-BuildExtension"
+            ]
+        },
+        {
+            "name": "PowerShell: New GetItPackage",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/deploy/New-GetItPackageJson.ps1",
+            "args": [
+                // "-LocalDeploy"
+                // , "-Deploy"
+                //,  "-BuildStandalone"
             ]
         },
         {

@@ -1,3 +1,122 @@
+function New-GetItPackageJson {
+    param (
+        [string]$DelphiVersion = "12",
+        [string]$Name = "DRipExtension",
+        [string]$Id = "$Name-$DelphiVersion",
+        [string]$Version = "v3.8.2-beta",
+        [string]$Description = "RipGrep GUI for Delphi",
+        [string]$Vendor = "Matasoft Bt.",
+        [string]$VendorUrl = "http://github.com/mattia72",
+        [string]$Image = "splash_icon.bmp",
+        [string]$License = "LICENSE",
+        [string]$Url = "$Name.Delphi$DelphiVersion.$Version.zip",
+        [string]$ProjectUrl = "http://github.com/mattia72/DRipGrepper",
+        [string]$Modified = $(Get-Date -f 'yyyy-MM-dd HH:mm:ss'),
+        [string]$LicenseName = "MIT License",
+        [string]$RequireElevation = "0",
+        [string]$AllUsers = "1",
+        [string]$OutputPath = "$PSScriptRoot\assets\GetItPackage" 
+    )
+    $AssetName = "$Name.Delphi$DelphiVersion.$Version" 
+    Copy-Item -Path "$PSScriptRoot\assets\$AssetName.zip" -Destination "$OutputPath" 
+    Copy-Item -Path "$PSScriptRoot\..\$License" -Destination "$OutputPath\$License" 
+    Copy-Item -Path "$PSScriptRoot\..\Extension\Resources\$Image" -Destination "$OutputPath" 
+
+    $Type = "3" # Before Install
+    # 1: Before Download: This action happens before downloading a catalog item and cannot use any elements of the download files. 
+    #    It is ignored if the item is already in the cache
+    # 2: After Download: This action will be executed after download and extract a catalog item.  
+    #    It is ignored if the item is already in the cache
+    # 3: Before Install: This action will be executed before the installation of a catalog item.
+    # 4: After Install: This action will be executed after the installation of a catalog item.
+    # 5: Before Uninstall: This action will be executed before the uninstallation (that is removal from the cache) of a catalog item.
+    # 6: After Uninstall:
+    $jsonContent = @{
+        Id               = $Id              
+        Name             = $Name            
+        Version          = $Version         
+        Description      = $Description     
+        Vendor           = $Vendor          
+        VendorUrl        = $VendorUrl   #-replace "/", "\/"
+        Image            = $Image       #-replace "/", "\/"
+        License          = $License     #-replace "/", "\/"
+        Url              = $Url         #-replace "/", "\/"
+        ProjectUrl       = $ProjectUrl  #-replace "/", "\/"
+        Modified         = $Modified        
+        LicenseName      = $LicenseName     
+        RequireElevation = $RequireElevation
+        AllUsers         = $AllUsers        
+
+        Actions          = @(
+            # @{
+            #     Id               = "1"
+            #     ActionId         = "18" # Action: UninstallIDEPackage
+            #     Type             = $Type
+            #     RequireElevation = "0"
+            #     Parameter        = @(
+            #         @{Parameter = "$Name.bpl"}
+            #     )
+            #     ActionName       = "UninstallIDEPackage"
+            #     Description      = "Uninstall $Name.bpl"
+            # },
+            # @{
+            #     Id               = "2"
+            #     ActionId         = "7" # Action: InstallIDEPackage
+            #     Type             = $Type
+            #     RequireElevation = "0"
+            #     Parameter        = @(
+            #         @{Parameter = "VirtualTreeView"}
+            #     )
+            #     ActionName       = "InstallPackage"
+            #     Description      = "Install VirtualTreeView"
+            # }
+            @{
+                Id               = "3"
+                ActionId         = "17" # Action: InstallIDEPackage
+                Type             = $Type
+                RequireElevation = "0"
+                Parameter        = @(
+                    @{Parameter = "`$(BDSCatalogRepositoryAllUsers)\$Id\$Name.bpl" }
+                )
+                ActionName       = "InstallIDEPackage"
+                Description      = "Install $Name.bpl"
+            },
+            @{	
+                
+                Id               = "4"
+                ActionId         = "18" # Action: InstallIDEPackage
+                Type             = "5" # Before Uninstall
+                RequireElevation = "0"
+                Parameter        = @(
+                    @{Parameter = "`$(BDSCatalogRepositoryAllUsers)\$Id\$Name.bpl" }
+                )
+                ActionName       = "UninstallIDEPackage"
+                Description      = "Install $Name.bpl"
+            }
+        )
+    }
+
+    ConvertTo-Json $jsonContent -Depth 10 -EscapeHandling EscapeNonAscii | 
+        ForEach-Object { $_ -replace '/', '\/' } | Set-Content -Path "$OutputPath\$AssetName.json"
+    Get-Content "$OutputPath\$AssetName.json"
+
+    $compress = @{
+        Path             = @(
+            "$OutputPath\$Url", 
+            "$OutputPath\$License", 
+            "$OutputPath\$Image", 
+            "$OutputPath\$AssetName.json"
+            )
+        CompressionLevel = "Fastest"
+        DestinationPath  = "$OutputPath\$AssetName.GetItPkg.zip"
+        Force            = $true
+    }
+    Compress-Archive @compress
+}
+
+New-GetItPackageJson -DelphiVersion 11 -Version v3.9.0-beta
+
+# https://docs.google.com/document/d/1Jr8AkueNpmNTjDgDUUttgJlRG6wSPvUWIlEDK2ekZVk/edit?tab=t.0
 # 2. The GetIt Local Files Format
 # The local file is a JSON file. It is a simplified format compared to the JSON used to configure a GetIt package on a server, simply because some of the fields make limited sense locally. The key element is that the JSON file allows you to specify, for the actual package content (which must be a ZIP file or a 7z file), for the license file and for the package image:
 # A local file with a relative path to the JSON file
@@ -602,73 +721,3 @@
 # _APPDATA: <user name>\Application Data. See constant "CSIDL_APPDATA" in Winapi.ShlObj.pas for more details.
 # _WINDOWS: GetWindowsDirectory()
 # _SYSTEM: GetSystemDirectory()
-
-function New-GetItPackageJson {
-    param (
-        [string]$DelphiVersion = "12",
-        [string]$Name = "DRipExtension",
-        [string]$Version = "v3.8.2-beta",
-        [string]$Description = "RipGrep GUI for Delphi",
-        [string]$Vendor = "Matasoft Bt.",
-        [string]$Id = "$Name-$DelphiVersion",
-        [string]$VendorUrl = "http:\/\/github.com\/mattia72",
-        [string]$Image = "https:\/\/github.com\/mattia72\/DRipGrepper\/blob\/master\/Extension\/Resources\/about_icon.bmp",
-        [string]$License = "https:\/\/github.com\/mattia72\/DRipGrepper?tab = MIT-1-ov-file#readme",
-        [string]$Url = "assets\\$Name.Delphi$DelphiVersion.$Version.zip",
-        [string]$ProjectUrl = "http:\/\/github.com\/mattia72\/DRipGrepper",
-        [string]$Modified = $(Get-Date -f 'yyyy-MM-dd HH:mm:ss'),
-        [string]$LicenseName = "MIT License",
-        [string]$RequireElevation = "0",
-        [string]$AllUsers = "0",
-        [string]$OutputPath ="$PSScriptRoot\$Name.Delphi$DelphiVersion.$Version.json" 
-    )
-
-    $jsonContent = @{
-        Id               = $Id              
-        Name             = $Name            
-        Version          = $Version         
-        Description      = $Description     
-        Vendor           = $Vendor          
-        VendorUrl        = $VendorUrl       
-        Image            = $Image           
-        License          = $License         
-        Url              = $Url             
-        ProjectUrl       = $ProjectUrl      
-        Modified         = $Modified        
-        LicenseName      = $LicenseName     
-        RequireElevation = $RequireElevation
-        AllUsers         = $AllUsers        
-
-        Actions          = (
-            @{
-                Id               = "1"
-                ActionId         = "18" # Action: UninstallIDEPackage
-                Type             = "2" # Event: After Download
-                RequireElevation = "0"
-                Parameter        = (
-                    "$Name.bpl"
-                )
-                ActionName       = "UninstallIDEPackage"
-                Description      = "Uninstall $Name.bpl"
-            },
-            @{
-                Id               = "2"
-                ActionId         = "17" # Action: InstallIDEPackage
-                Type             = "2" # Event: After Download
-                RequireElevation = "0"
-                Parameter        = (
-                    "$Name.bpl" ,
-                    "true" # install in RAD
-                )
-                ActionName       = "InstallIDEPackage"
-                Description      = "Install $Name.bpl"
-            }
-        )
-
-    }
-
-    $jsonContent | ConvertTo-Json -Depth 10 | Set-Content -Path $OutputPath
-    Get-Content $OutputPath
-}
-
-New-GetItPackageJson

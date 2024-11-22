@@ -5,6 +5,7 @@ param (
     [switch] $RunUnittest,
     [switch] $Deploy,
     [switch] $LocalDeploy,
+    [switch] $Force,
     [switch] $UpdateScoopManifest
 )
     
@@ -96,6 +97,9 @@ function Test-YesAnswer {
         [string] $Message,
         [string] $DefaultAnswer = 'y'
     )
+    if ($Force) {
+        $answer = $DefaultAnswer
+    }
     while ($answer -inotmatch "[yn]") {
         Write-Host "$Message [Yn]" -BackgroundColor Yellow -ForegroundColor Black -NoNewline
         Write-Host " " -NoNewline
@@ -232,7 +236,7 @@ function New-ReleaseWithAsset {
 
     if ($Deploy -or $LocalDeploy) {
         # Remove items recursively from the AssetsDirectory
-        Remove-Item -Path "$global:AssetsDirectory\*" -Recurse -Force -Verbose -Confirm -ErrorAction SilentlyContinue
+        Remove-Item -Path "$global:AssetsDirectory\*" -Recurse -Force -Verbose -Confirm:$(-not $Force) -ErrorAction SilentlyContinue
         New-StandaloneZips 
         New-ExtensionZip 
         Get-Childitem $global:AssetsDirectory
