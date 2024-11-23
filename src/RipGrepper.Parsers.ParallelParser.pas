@@ -76,7 +76,7 @@ begin
 			if _bIsLast then begin
 				OnLastLine(_iLineNr);
 				TDebugUtils.DebugMessage(Format('Before parse last line: %d in %d err: %d', [FHistObject.TotalMatchCount,
-					FHistObject.FileCount, FHistObject.ErrorCount]));
+					FHistObject.FileCount, FHistObject.GetErrorCounters().FSumOfErrors]));
 			end;
 
 			if (not _sLine.IsEmpty) then begin

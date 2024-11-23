@@ -31,12 +31,16 @@ type
 
 			class procedure BuffToLine(const _sBuf : string; const _iCnt : integer; var sLineOut : string;
 				_newLineHandler : INewLineEventHandler);
-			class procedure EncodeBuffer(const byteBuff : TBytes; var sBuff : string; var iBuffLength : integer);
+			class function EncodeBuffer(const byteBuff : TBytes; var sBuff : string; var iBuffLength : integer; var enc : TEncoding)
+				: Boolean;
 			class procedure GoToNextCRLF(var P : PChar; const PEndVal : PChar);
 			class function GoTillCRLF(var P : PChar; const PEndVal : PChar) : Integer;
 
 			class procedure NewLineEventHandler(_obj : INewLineEventHandler; const _s : string; const _bIsLast : Boolean = False);
 			class procedure EOFProcessingEventHandler(_obj : IEOFProcessEventHandler);
+			class function GetDefaultEncodingName : string;
+			class function GetDefaultEncodingCodePage : Integer;
+			class function GetEncodingName(Encoding : TEncoding) : string;
 
 		protected
 			class procedure ProcessLastLine(const sLineOut : string; _newLineHandler : INewLineEventHandler;
@@ -118,17 +122,28 @@ begin
 	end;
 end;
 
-class procedure TProcessUtils.EncodeBuffer(const byteBuff : TBytes; var sBuff : string; var iBuffLength : integer);
-var
-	enc : TEncoding;
+class function TProcessUtils.EncodeBuffer(const byteBuff : TBytes; var sBuff : string; var iBuffLength : integer; var enc : TEncoding)
+	: Boolean;
 begin
+	Result := True;
 	try
-		sBuff := TEncoding.UTF8.GetString(byteBuff, 0, iBuffLength); // unicode conversion
+		if Assigned(enc) then begin
+			if enc = TEncoding.ANSI then begin
+				sBuff := TEncoding.ANSI.GetString(byteBuff, 0, iBuffLength);
+			end else if enc = TEncoding.Default then begin
+				sBuff := TEncoding.GetEncoding(GetDefaultEncodingCodePage()).GetString(byteBuff, 0, iBuffLength);
+			end else begin
+				sBuff := enc.GetString(byteBuff, 0, iBuffLength);
+			end;
+		end else begin
+			sBuff := TEncoding.UTF8.GetString(byteBuff, 0, iBuffLength); // unicode conversion
+		end;
 	except
 		on E : EEncodingError do begin
 			enc := nil;
 			TEncoding.GetBufferEncoding(byteBuff, enc);
 			sBuff := enc.GetString(byteBuff);
+			Result := False;
 		end;
 	end;
 end;
@@ -164,41 +179,79 @@ begin
 	EOFProcessingEventHandler(_eofProcHandler);
 end;
 
-class function TProcessUtils.ProcessOutput(const _s : TStream; 
+class function TProcessUtils.ProcessOutput(const _s : TStream;
 	{ } _newLineHandler : INewLineEventHandler;
-	{ } _terminateEventProducer : ITerminateEventProducer; 
+	{ } _terminateEventProducer : ITerminateEventProducer;
 	{ } _eofProcHandler : IEOFProcessEventHandler) : integer;
 var
 	byteBuff : TBytes;
 	sBuff : string;
 	iBuffLength : integer;
 	sLineOut : string;
+	enc : TEncoding;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TTProcessUtils.ProcessOutput');
+
 	FProcessedLineCount := 0;
 	{ Now process the output }
 	SetLength(byteBuff, BUFF_LENGTH);
 	try
+		enc := nil;
 		repeat
 			if (Assigned(_terminateEventProducer) and _terminateEventProducer.ProcessShouldTerminate()) then begin
-				TDebugUtils.DebugMessage('Process should terminate');
+				dbgMsg.Msg('Process should terminate');
 				break
 			end;
 			iBuffLength := 0;
 			if (_s <> nil) then begin
 				iBuffLength := _s.Read(Pointer(byteBuff)^, Length(byteBuff));
 			end;
-			EncodeBuffer(byteBuff, sBuff, iBuffLength);
+
+			while not EncodeBuffer(byteBuff, sBuff, iBuffLength, enc) do begin
+				dbgMsg.Msg('Encoding not succeded, so we try this ' + GetEncodingName(enc));
+			end;
 			BuffToLine(sBuff, sBuff.Length, sLineOut, _newLineHandler);
 		until iBuffLength = 0;
 
 		ProcessLastLine(sLineOut, _newLineHandler, _eofProcHandler);
 	except
 		on E : Exception do begin
-			TDebugUtils.DebugMessage('TProcessUtils.ProcessOutput Exception: ' + E.Message + CRLF + 'line:' + sLineOut);
+			dbgMsg.Msg('Exception: ' + E.Message + CRLF + 'line:' + sLineOut);
 			raise;
 		end;
 	end;
 	Result := FProcessedLineCount;
+end;
+
+class function TProcessUtils.GetEncodingName(Encoding : TEncoding) : string;
+begin
+	if Encoding = TEncoding.UTF7 then
+		Result := 'UTF-7'
+	else if Encoding = TEncoding.UTF8 then
+		Result := 'UTF-8'
+	else if Encoding = TEncoding.Unicode then
+		Result := 'UTF-16 LE'
+	else if Encoding = TEncoding.BigEndianUnicode then
+		Result := 'UTF-16 BE'
+	else if Encoding = TEncoding.ANSI then
+		Result := 'ANSI'
+	else if Encoding = TEncoding.ASCII then
+		Result := 'ASCII'
+	else if Encoding = TEncoding.Default then begin
+		Result := 'System Default = ' + GetDefaultEncodingName();
+	end else begin
+		Result := 'Unknown Encoding';
+	end;
+end;
+
+class function TProcessUtils.GetDefaultEncodingName : string;
+var CPInfoEx : TCPInfoEx;
+begin
+	if GetCPInfoEx(CP_ACP, 0, CPInfoEx) then
+		Result := CPInfoEx.CodePageName
+	else
+		Result := 'Unknown Encoding';
 end;
 
 class function TProcessUtils.RunProcess(const _exe : string; _args : TStrings;
@@ -206,9 +259,7 @@ class function TProcessUtils.RunProcess(const _exe : string; _args : TStrings;
 	{ } _newLIneHandler : INewLineEventHandler;
 	{ } _terminateEventProducer : ITerminateEventProducer;
 	{ } _eofProcHandler : IEOFProcessEventHandler) : Integer;
-var
-	p : TProcess;
-	cmdLineLength : integer;
+var p : TProcess; cmdLineLength : integer;
 begin
 	p := TProcess.Create(nil);
 	try
@@ -275,11 +326,20 @@ begin
 	Result := MaybeQuoteIfNotQuoted(_exe).Length + 1 + _args.Text.Length;
 end;
 
+class function TProcessUtils.GetDefaultEncodingCodePage : Integer;
+var CPInfoEx : TCPInfoEx;
+begin
+	if GetCPInfoEx(CP_ACP, 0, CPInfoEx) then begin
+		Result := CPInfoEx.CodePage;
+	end else begin
+		Result := -1;
+	end;
+end;
+
 class function TProcessUtils.RunProcessAsync(const _exe : string; const _args : TStrings; const _workDir : string;
 	_newLineHandler : INewLineEventHandler; _terminateEventProducer : ITerminateEventProducer; _eofProcHandler : IEOFProcessEventHandler)
 	: Boolean;
-var
-	task : ITask;
+var task : ITask;
 begin
 	task := TTask.Run(
 		procedure
@@ -317,8 +377,7 @@ end;
 
 class procedure TSimpleProcessOutputStringReader.RunProcess(const _exe : string; _args : TStrings; _workDir : string;
 out _stdOut : TStrings);
-var
-	spor : TSimpleProcessOutputStringReader;
+var spor : TSimpleProcessOutputStringReader;
 begin
 	spor := TSimpleProcessOutputStringReader.Create; // It will be freed... How?
 	TProcessUtils.RunProcess(_exe, _args, _workDir, spor as INewLineEventHandler, nil, nil);

@@ -21,7 +21,23 @@ type
     ESkipFileReplaceException = class(Exception);
     EFileOpenException = class(Exception);
 
+	TErrorCounters = record
+		FSumOfErrors : Integer;
+		FParserErrors : Integer;
+		FIsNoOutputError : Boolean;
+		FIsRGReportedError : Boolean;
+		procedure Reset;
+	end;
+
 
 implementation
+
+procedure TErrorCounters.Reset;
+begin
+	FSumOfErrors := 0;
+	FParserErrors := 0;
+	FIsNoOutputError := False;
+	FIsRGReportedError := False;
+end;
 
 end.

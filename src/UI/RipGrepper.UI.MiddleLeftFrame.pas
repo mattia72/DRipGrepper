@@ -629,7 +629,7 @@ begin
 			end;
 		end
 	end else begin // ttStatic
-		TItemDrawer.SetTextColorErrorStaticText(TargetCanvas, hio.ErrorCount > 0);
+		TItemDrawer.SetTextColorErrorStaticText(TargetCanvas, hio.GetErrorCounters().FSumOfErrors > 0);
 	end;
 end;
 

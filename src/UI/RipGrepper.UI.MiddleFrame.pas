@@ -443,8 +443,20 @@ begin
 end;
 
 procedure TRipGrepperMiddleFrame.AfterSearch;
+var
+	ec : TErrorCounters;
 begin
-	// TODO -cMM: TRipGrepperMiddleFrame.AfterSearch default body inserted
+	ec := HistItemObj.GetErrorCounters();
+	if ec.FParserErrors > 0 then begin
+		TMsgBox.ShowWarning(RG_PARSE_ERROR_MSG);
+	end;
+	if ec.FIsNoOutputError then begin
+		TMsgBox.ShowWarning(SRgExeProducedNothingToStdout);
+	end;
+	if ec.FIsRGReportedError then begin
+		TMsgBox.ShowWarning(SRgExeReportedError);
+	end;
+
 end;
 
 procedure TRipGrepperMiddleFrame.AlignToolBars;
@@ -467,9 +479,9 @@ procedure TRipGrepperMiddleFrame.ClearFilter;
 begin
 	VstResult.BeginUpdate;
 	try
-			for var Node in VstResult.Nodes(True) do begin
-				VstResult.IsFiltered[Node] := False;
-			end;
+		for var Node in VstResult.Nodes(True) do begin
+			VstResult.IsFiltered[Node] := False;
+		end;
 	finally
 		VstResult.EndUpdate;
 	end;
@@ -630,9 +642,11 @@ begin
 	if not Assigned(Data) then begin
 		Exit;
 	end;
-	if Data.ErrorCount > 0 then begin
+	var
+	ec := Data.GetErrorCounters;
+	if ec.FSumOfErrors > 0 then begin
 		Result := Format('%s %d in %d(%d!)', [TREEVIEW_HISTORY_COUNTER_ERROR_PREFIX, Data.TotalMatchCount, Data.FileCount,
-			Data.ErrorCount]);
+			ec.FSumOfErrors]);
 	end else if Data.IsReplaceMode then begin
 		Result := Format('%s %d in %d', [TREEVIEW_HISTORY_REPLACE_PREFIX, Data.TotalMatchCount, Data.FileCount]);
 	end else begin
@@ -805,6 +819,7 @@ begin
 			BottomFrame.ActivityIndicator1.Animate := False;
 			FIsParsingRunning := False;
 			ExpandNodes;
+			ParentFrame.AfterSearch();
 		end);
 end;
 
@@ -858,7 +873,7 @@ begin
 		var
 		beu := TBeginEndUpdater.New(MiddleLeftFrame1.VstHistory);
 		FHistItemObj.FileCount := VstResult.RootNodeCount; // synced
-		FHistItemObj.ErrorCount := Data.ErrorCount; // synced
+		FHistItemObj.SetErrorCounters(Data.FErrorCounters); // synced
 	end;
 	RefreshCountersInGUI;
 end;
@@ -916,7 +931,6 @@ begin
 			end;
 			FHistItemObj.ElapsedTimeText := GetElapsedTime(FswSearchStart);
 			FswSearchStart.Stop;
-			ParentFrame.AfterSearch();
 			TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.RunRipGrep: rg.exe ended in %s sec.', [FHistItemObj.ElapsedTimeText]));
 		end);
 	FRipGrepTask.Start;
@@ -1135,7 +1149,7 @@ begin
 	dbgMsg.Msg('History Object: ' + HistItemObject.RipGrepArguments.DelimitedText);
 	dbgMsg.Msg('History Matches: ' + HistItemObject.TotalMatchCount.ToString);
 	dbgMsg.Msg('History Files: ' + HistItemObject.FileCount.ToString);
-	dbgMsg.Msg('History Errors: ' + HistItemObject.ErrorCount.ToString);
+	dbgMsg.Msg('History Errors: ' + HistItemObject.GetErrorCounters().FSumOfErrors.ToString);
 	dbgMsg.Msg('History Gui: ' + HistItemObject.GuiSearchTextParams.SearchText + ' ' + HistItemObject.GuiSearchTextParams.ToString);
 	UpdateGui();
 end;

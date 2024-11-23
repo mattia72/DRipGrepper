@@ -73,7 +73,7 @@ type
 		procedure ClearMatches;
 		procedure CopyToSettings(const _settings : TRipGrepperSettings);
 		function GetElapsedTimeText : string;
-		function GetErrorCount : Integer;
+		function GetErrorCounters: TErrorCounters;
 		function GetFileCount : integer;
 		function GetGuiSearchTextParams : TGuiSearchTextParams;
 		function GetIsReplaceMode : Boolean;
@@ -91,7 +91,7 @@ type
 		function HasResult : Boolean;
 		procedure LoadFromSettings(const _settings : TRipGrepperSettings);
 		procedure SetElapsedTimeText(const Value : string);
-		procedure SetErrorCount(const Value : Integer);
+		procedure SetErrorCounters(const Value: TErrorCounters);
 		procedure SetFileCount(const Value : integer);
 		procedure SetGuiSearchTextParams(const Value : TGuiSearchTextParams);
 		procedure SetNoMatchFound(const Value : Boolean);
@@ -101,7 +101,6 @@ type
 		function UpdateParserType : TParserType;
 
 		property ElapsedTimeText : string read GetElapsedTimeText write SetElapsedTimeText;
-		property ErrorCount : Integer read GetErrorCount write SetErrorCount;
 		property Matches : TParsedObjectRowCollection read GetMatches write SetMatches;
 		property RipGrepArguments : TRipGrepArguments read GetRipGrepArguments write SetRipGrepArguments;
 		property FileCount : integer read GetFileCount write SetFileCount;

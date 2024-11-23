@@ -22,7 +22,7 @@ type
 
 		private
 			FElapsedTimeText : string;
-			FErrorCount : Integer;
+			FErrorCounters: TErrorCounters;
 			FFileCount : integer;
 			FGuiSearchTextParams : TGuiSearchTextParams;
 			FHasResult : Boolean;
@@ -34,7 +34,7 @@ type
 			FRipGrepResult : Integer;
 			FTotalMatchCount : integer;
 			function GetElapsedTimeText : string;
-			function GetErrorCount : Integer; export;
+			function GetErrorCounters: TErrorCounters; export;
 			function GetFileCount : integer;
 			function GetGuiSearchTextParams : TGuiSearchTextParams;
 			function GetIsReplaceMode : Boolean;
@@ -51,7 +51,6 @@ type
 			procedure SetParserType(const Value : TParserType);
 			function GetSearchText : string;
 			procedure SetElapsedTimeText(const Value : string);
-			procedure SetErrorCount(const Value : Integer);
 			procedure SetGuiSearchTextParams(const Value : TGuiSearchTextParams);
 			procedure SetNoMatchFound(const Value : Boolean);
 			procedure SetSearchFormSettings(const Value : TSearchFormSettings);
@@ -60,6 +59,7 @@ type
 		public
 			constructor Create;
 			destructor Destroy; override;
+			procedure SetErrorCounters(const Value: TErrorCounters);
 			procedure ClearMatches;
 			procedure CopyToSettings(const _settings : TRipGrepperSettings);
 			function GetReplaceText : string;
@@ -71,7 +71,6 @@ type
 			property Matches : TParsedObjectRowCollection read GetMatches write SetMatches;
 			property RipGrepArguments : TRipGrepArguments read GetRipGrepArguments write SetRipGrepArguments;
 			property TotalMatchCount : integer read GetTotalMatchCount;
-			property ErrorCount : Integer read GetErrorCount write SetErrorCount;
 			property ElapsedTimeText : string read GetElapsedTimeText write SetElapsedTimeText;
 			property GuiSearchTextParams : TGuiSearchTextParams read GetGuiSearchTextParams write SetGuiSearchTextParams;
 			property IsReplaceMode : Boolean read GetIsReplaceMode;
@@ -130,7 +129,7 @@ end;
 
 function THistoryItemObject.GetTotalMatchCount : integer;
 begin
-	Result := FMatches.Items.Count - ErrorCount;
+	Result := FMatches.Items.Count - FErrorCounters.FSumOfErrors;
 	{$IFDEF THREADSAFE_LIST}
 	FMatches.Unlock;
 	{$ENDIF}
@@ -176,7 +175,7 @@ procedure THistoryItemObject.ClearMatches;
 begin
 	FFileCount := 0;
 	FTotalMatchCount := 0;
-	FErrorCount := 0;
+	FErrorCounters.Reset;
 	FNoMatchFound := False;
 	FMatches.Items.Clear;
 	{$IFDEF THREADSAFE_LIST}
@@ -196,9 +195,9 @@ begin
 	Result := FElapsedTimeText;
 end;
 
-function THistoryItemObject.GetErrorCount : Integer;
+function THistoryItemObject.GetErrorCounters: TErrorCounters;
 begin
-	Result := FErrorCount;
+	Result := FErrorCounters;
 end;
 
 function THistoryItemObject.GetGuiSearchTextParams : TGuiSearchTextParams;
@@ -254,9 +253,9 @@ begin
 	FElapsedTimeText := Value;
 end;
 
-procedure THistoryItemObject.SetErrorCount(const Value : Integer);
+procedure THistoryItemObject.SetErrorCounters(const Value: TErrorCounters);
 begin
-	FErrorCount := Value;
+	FErrorCounters := Value;
 end;
 
 procedure THistoryItemObject.SetGuiSearchTextParams(const Value : TGuiSearchTextParams);

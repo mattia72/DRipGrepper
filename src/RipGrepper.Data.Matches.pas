@@ -15,24 +15,15 @@ uses
 	RipGrepper.Data.HistoryItemObject,
 	RipGrepper.Common.ParsedObject,
 	VirtualTrees,
-	RipGrepper.Common.NodeData;
+	RipGrepper.Common.NodeData, RipGrepper.Common.SimpleTypes;
 
 type
-
-	TErrorCounters = record
-		FSumOfErrors : Integer;
-		FParserErrors : Integer;
-		FIsNoOutputError : Boolean;
-		FIsRGReportedError : Boolean;
-		procedure Reset;
-	end;
 
 	TRipGrepperData = class
 		MatchFiles : TStringList;
 		SortedBy : TSortTypeDirectionList;
 
 		private
-			FErrorCounters : TErrorCounters;
 			FHistObject : IHistoryItemObject;
 			FVst : TCustomVirtualStringTree;
 			function AddVSTStructure(_node : PVirtualNode; _rec : TVSFileNodeData; _asFirst : Boolean) : PVirtualNode;
@@ -51,6 +42,8 @@ type
 			procedure SortMultiColumns(const _st : TSortDirectionType);
 
 		public
+			FErrorCounters : TErrorCounters;
+
 			constructor Create(_vst : TCustomVirtualStringTree);
 			destructor Destroy; override;
 			procedure Add(_item : IParsedObjectRow);
@@ -74,8 +67,7 @@ uses
 	Vcl.Dialogs,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Helper.Types,
-	RipGrepper.Common.Constants,
-	RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.Constants;
 
 constructor TRipGrepperData.Create(_vst : TCustomVirtualStringTree);
 begin
@@ -383,14 +375,6 @@ begin
 	finally
 		lineComparer.Free;
 	end;
-end;
-
-procedure TErrorCounters.Reset;
-begin
-	FSumOfErrors := 0;
-	FParserErrors := 0;
-	FIsNoOutputError := False;
-	FIsRGReportedError := False;
 end;
 
 end.
