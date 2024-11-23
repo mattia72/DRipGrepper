@@ -187,8 +187,8 @@ const
 	RG_PARSE_ERROR_MSG = 'There are some not parsed output lines.' + CRLF +
 	{ } 'Set encoding parameter and try again.';
 
-	SRgExeProducedNothingToStdout = 'rg.exe produced nothing to stdout.';
-	SRgExeReportedError = 'rg.exe reported error.';
+	RG_PRODUCED_NO_OUTPUT_MSG = 'rg.exe produced nothing to stdout.';
+	RG_REPORTED_ERROR_MSG = 'rg.exe reported error.';
 
 	RG_ENDED_ERROR = ' failed with exit code: ';
 	RG_HAS_NO_OUTUT = ' has no output.';

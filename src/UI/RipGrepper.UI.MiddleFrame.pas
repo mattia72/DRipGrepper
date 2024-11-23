@@ -451,10 +451,10 @@ begin
 		TMsgBox.ShowWarning(RG_PARSE_ERROR_MSG);
 	end;
 	if ec.FIsNoOutputError then begin
-		TMsgBox.ShowWarning(SRgExeProducedNothingToStdout);
+		TMsgBox.ShowWarning(RG_PRODUCED_NO_OUTPUT_MSG);
 	end;
 	if ec.FIsRGReportedError then begin
-		TMsgBox.ShowWarning(SRgExeReportedError);
+		TMsgBox.ShowWarning(RG_REPORTED_ERROR_MSG);
 	end;
 
 end;
