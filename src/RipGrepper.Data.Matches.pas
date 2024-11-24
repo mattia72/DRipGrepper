@@ -15,7 +15,8 @@ uses
 	RipGrepper.Data.HistoryItemObject,
 	RipGrepper.Common.ParsedObject,
 	VirtualTrees,
-	RipGrepper.Common.NodeData, RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.NodeData,
+	RipGrepper.Common.SimpleTypes;
 
 type
 
@@ -301,15 +302,7 @@ var
 	nodeData : TVSFileNodeData;
 begin
 	Result := nil;
-	if _sFileColumnText.EndsWith(RG_HAS_NO_OUTUT) then begin
-		FErrorCounters.FIsNoOutputError := True;
-		NoMatchFound := True;
-		Exit;
-	end else if TRegEx.IsMatch(_sFileColumnText, RG_ENDED_ERROR) then begin
-		FErrorCounters.FIsRGReportedError := True;
-		NoMatchFound := True;
-		Exit;
-	end else if _item.ErrorText = RG_PARSE_ERROR then begin
+	if _item.ErrorText = RG_PARSE_ERROR then begin
 		Inc(FErrorCounters.FParserErrors);
 		if TRegEx.IsMatch(_sFileColumnText, '^' + RG_ERROR_MSG_PREFIX) then begin
 			NoMatchFound := True;
@@ -318,6 +311,14 @@ begin
 			AddVSTStructure(node, nodeData, true);
 			Exit;
 		end;
+	end else if _sFileColumnText.EndsWith(RG_HAS_NO_OUTUT) then begin
+		FErrorCounters.FIsNoOutputError := True;
+		NoMatchFound := True;
+		Exit;
+	end else if TRegEx.IsMatch(_sFileColumnText, RG_ENDED_ERROR) then begin
+		FErrorCounters.FIsRGReportedError := True;
+		NoMatchFound := True;
+		Exit;
 	end;
 
 	Inc(FErrorCounters.FSumOfErrors);

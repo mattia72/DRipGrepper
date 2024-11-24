@@ -448,7 +448,7 @@ var
 begin
 	ec := HistItemObj.GetErrorCounters();
 	if ec.FParserErrors > 0 then begin
-		TMsgBox.ShowWarning(RG_PARSE_ERROR_MSG);
+		TMsgBox.ShowWarning(RG_PARSE_ERROR_MSG);//, false, self);
 	end;
 	if ec.FIsNoOutputError then begin
 		TMsgBox.ShowWarning(RG_PRODUCED_NO_OUTPUT_MSG);
@@ -835,8 +835,7 @@ begin
 	if (_iLineNr >= RG_PROCESSING_LINE_COUNT_LIMIT) then begin
 		OnLastLine(_iLineNr);
 		if _iLineNr = RG_PROCESSING_LINE_COUNT_LIMIT then begin
-			TMsgBox.ShowWarning(Format('Too many results.' + CRLF + 'The first %d will be shown. Try to be more specific.',
-				[_iLineNr, RG_PROCESSING_LINE_COUNT_LIMIT]));
+			TMsgBox.ShowWarning(Format(MSG_FORMAT_TOO_MANY_RESULTS, [_iLineNr, RG_PROCESSING_LINE_COUNT_LIMIT]));
 		end else begin
 			Exit;
 		end;

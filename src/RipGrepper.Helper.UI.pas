@@ -15,20 +15,48 @@ uses
 	System.Generics.Collections,
 	Winapi.Windows,
 	Vcl.Forms,
-	VirtualTrees;
+	VirtualTrees,
+	System.SysUtils;
 // Winapi.Messages;
 
 type
 
-	TMsgBox = class
+	EDlgException = class(Exception);
+
+	TMsgBoxBase = class
 		private
+		protected
+			class function GetButtonsByType(const _type : TMsgDlgType) : TMsgDlgButtons;
 			class procedure SetCaption(_msgDlg : TForm);
+	end;
+
+    // TODO : It Doesn't work :(
+	TMsgBoxThread = class(TMsgBoxBase)
+
+		private
+			class var FMsgDlg : TForm;
+
+			procedure CreateMsgDialog(const _msg : string; const _type : TMsgDlgType; const _bModal : Boolean = True;
+				_parent : TWinControl = nil);
+			class procedure SetModalResultAndClose(const _mr : Integer);
+			class procedure ThreadShowDlg;
+
+		public
+			constructor Create;
+			class procedure OnNoClick(Sender : TObject);
+			class procedure OnOkClick(Sender : TObject);
+			class procedure OnYesClick(Sender : TObject);
+	end;
+
+	TMsgBox = class(TMsgBoxBase)
+		private
+			class procedure CreateMsgDialog(const _msg : string; const _type : TMsgDlgType);
 
 		public
 			class procedure ShowError(const _msg : string);
-			class procedure ShowWarning(const _msg : string);
+			class procedure ShowWarning(const _msg : string; const _bModal : Boolean = True; _parent : TWinControl = nil);
 			class procedure ShowInfo(const _msg : string);
-			class function ShowQuestion(const _msg : string): Integer;
+			class function ShowQuestion(const _msg : string) : Integer;
 	end;
 
 	TCursorSaver = record
@@ -79,7 +107,7 @@ type
 			class procedure DrawItemOnBitmap(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
 			class function GetIconBitmap(const sFileName : string; _img : TImage) : Vcl.Graphics.TBitmap;
 			class procedure SetTextColorMatch(TargetCanvas : TCanvas);
-			class procedure SetTextColorErrorStaticText(TargetCanvas: TCanvas; const _bError: Boolean);
+			class procedure SetTextColorErrorStaticText(TargetCanvas : TCanvas; const _bError : Boolean);
 			class procedure SetTextColorHistorySearchText(TargetCanvas : TCanvas);
 			class procedure SetTextColorHistoryReplaceText(TargetCanvas : TCanvas);
 			class procedure SetTextColorHistoryReplacedText(TargetCanvas : TCanvas);
@@ -119,10 +147,9 @@ uses
 	Winapi.ShellAPI,
 	System.IOUtils,
 	RipGrepper.Common.Constants,
-	System.SysUtils,
+
 	Vcl.Dialogs,
 	System.StrUtils;
-
 
 procedure TCursorSaver.SetHourGlassCursor;
 begin
@@ -309,35 +336,35 @@ begin
 	TargetCanvas.Font.style := TREEVIEW_MATCH_TEXT_STYLE;
 end;
 
-class procedure TItemDrawer.SetTextColorErrorStaticText(TargetCanvas: TCanvas; const _bError: Boolean);
+class procedure TItemDrawer.SetTextColorErrorStaticText(TargetCanvas : TCanvas; const _bError : Boolean);
 begin
-		if _bError then begin
-			TargetCanvas.Font.Color := TREEVIEW_ERROR_COLOR;
-			TargetCanvas.Font.style := [fsBold];
-		end else begin
-			TargetCanvas.Font.Color := TREEVIEW_STAT_COLOR;
-			TargetCanvas.Font.style := [];
-		end;
+	if _bError then begin
+		TargetCanvas.Font.Color := TREEVIEW_ERROR_COLOR;
+		TargetCanvas.Font.style := [fsBold];
+	end else begin
+		TargetCanvas.Font.Color := TREEVIEW_STAT_COLOR;
+		TargetCanvas.Font.style := [];
+	end;
 end;
 
 class procedure TItemDrawer.SetTextColorHistorySearchText(TargetCanvas : TCanvas);
 begin
 	TargetCanvas.Font.Color := HIST_TREEVIEW_SEARCH_TEXT_COLOR;
-	//TargetCanvas.Brush.Color := HIST_TREEVIEW_SEARCH_TEXT_BGCOLOR;
+	// TargetCanvas.Brush.Color := HIST_TREEVIEW_SEARCH_TEXT_BGCOLOR;
 	TargetCanvas.Font.style := HIST_TREEVIEW_SEARCH_TEXT_STYLE;
 end;
 
 class procedure TItemDrawer.SetTextColorHistoryReplaceText(TargetCanvas : TCanvas);
 begin
 	TargetCanvas.Font.Color := HIST_TREEVIEW_REPLACE_TEXT_COLOR;
-	//TargetCanvas.Brush.Color := HIST_TREEVIEW_REPLACE_TEXT_BGCOLOR;
+	// TargetCanvas.Brush.Color := HIST_TREEVIEW_REPLACE_TEXT_BGCOLOR;
 	TargetCanvas.Font.style := TREEVIEW_REPLACE_TEXT_STYLE;
 end;
 
 class procedure TItemDrawer.SetTextColorHistoryReplacedText(TargetCanvas : TCanvas);
 begin
 	TargetCanvas.Font.Color := HIST_TREEVIEW_REPLACED_TEXT_COLOR;
-	//TargetCanvas.Brush.Color := HIST_TREEVIEW_REPLACED_TEXT_BGCOLOR;
+	// TargetCanvas.Brush.Color := HIST_TREEVIEW_REPLACED_TEXT_BGCOLOR;
 	TargetCanvas.Font.style := TREEVIEW_REPLACED_TEXT_STYLE;
 end;
 
@@ -433,57 +460,39 @@ begin
 	end;
 end;
 
-class procedure TMsgBox.SetCaption(_msgDlg : TForm);
+class procedure TMsgBox.CreateMsgDialog(const _msg : string; const _type : TMsgDlgType);
+var
+	btns : TMsgDlgButtons;
 begin
-	_msgDlg.Caption := APPNAME;
+	btns := TMsgBoxBase.GetButtonsByType(_type);
+	var
+	FMsgDlg := CreateMessageDialog(_msg, _type, btns);
+	try
+		TMsgBoxBase.SetCaption(FMsgDlg);
+		FMsgDlg.ShowModal;
+	finally
+		FreeAndNil(FMsgDlg);
+	end;
 end;
 
 class procedure TMsgBox.ShowError(const _msg : string);
 begin
-	var
-		MsgDlg : TForm := CreateMessageDialog(_msg, TMsgDlgType.mtError, [mbOK]);
-	try
-		SetCaption(MsgDlg);
-		MsgDlg.ShowModal;
-	finally
-		MsgDlg.Free;
-	end;
+	CreateMsgDialog(_msg, TMsgDlgType.mtError);
 end;
 
-class procedure TMsgBox.ShowWarning(const _msg : string);
+class procedure TMsgBox.ShowWarning(const _msg : string; const _bModal : Boolean = True; _parent : TWinControl = nil);
 begin
-	var
-		MsgDlg : TForm := CreateMessageDialog(_msg, TMsgDlgType.mtWarning, [mbOK]);
-	try
-		SetCaption(MsgDlg);
-		MsgDlg.ShowModal;
-	finally
-		MsgDlg.Free;
-	end;
+	CreateMsgDialog(_msg, TMsgDlgType.mtWarning);
 end;
 
 class procedure TMsgBox.ShowInfo(const _msg : string);
 begin
-	var
-		MsgDlg : TForm := CreateMessageDialog(_msg, TMsgDlgType.mtInformation, [mbOK]);
-	try
-		SetCaption(MsgDlg);
-		MsgDlg.ShowModal;
-	finally
-		MsgDlg.Free;
-	end;
+	CreateMsgDialog(_msg, TMsgDlgType.mtInformation);
 end;
 
-class function TMsgBox.ShowQuestion(const _msg : string): Integer;
+class function TMsgBox.ShowQuestion(const _msg : string) : Integer;
 begin
-	var
-		MsgDlg : TForm := CreateMessageDialog(_msg, TMsgDlgType.mtConfirmation, mbYesNo);
-	try
-		SetCaption(MsgDlg);
-		Result := MsgDlg.ShowModal;
-	finally
-		MsgDlg.Free;
-	end;
+	CreateMsgDialog(_msg, TMsgDlgType.mtConfirmation);
 end;
 
 class function TDrawParams.Save(const _canvas : TCanvas) : TDrawParams;
@@ -500,6 +509,100 @@ begin
 	_canvas.Brush.Color := BgColor;
 	_canvas.Font.Size := FontSize;
 	_canvas.Font.style := FontStyle;
+end;
+
+constructor TMsgBoxThread.Create;
+begin
+	FMsgDlg := nil;
+end;
+
+procedure TMsgBoxThread.CreateMsgDialog(const _msg : string; const _type : TMsgDlgType; const _bModal : Boolean = True;
+	_parent : TWinControl = nil);
+var
+	btns : TMsgDlgButtons;
+begin
+	btns := GetButtonsByType(_type);
+	FMsgDlg := CreateMessageDialog(_msg, _type, btns);
+	try
+		FMsgDlg.Parent := _parent;
+		SetCaption(FMsgDlg);
+		if _bModal then begin
+			FMsgDlg.ShowModal;
+		end else begin
+			ThreadShowDlg;
+		end;
+	finally
+		if _bModal then begin
+			FreeAndNil(FMsgDlg);
+		end;
+	end;
+end;
+
+class procedure TMsgBoxThread.OnNoClick(Sender : TObject);
+begin
+	SetModalResultAndClose(mrNo);
+end;
+
+class procedure TMsgBoxThread.OnOkClick(Sender : TObject);
+begin
+	SetModalResultAndClose(mrOk);
+end;
+
+class procedure TMsgBoxThread.OnYesClick(Sender : TObject);
+begin
+	SetModalResultAndClose(mrYes);
+end;
+
+class procedure TMsgBoxThread.SetModalResultAndClose(const _mr : Integer);
+begin
+	FMsgDlg.ModalResult := _mr;
+	FMsgDlg.Close;
+	// FreeAndNil(FMsgDlg);
+end;
+
+class procedure TMsgBoxThread.ThreadShowDlg;
+begin
+	TThread.Queue(nil,
+		procedure()
+		begin
+			var
+			btnOk := (FMsgDlg.FindComponent('OK') as TButton);
+			if Assigned(btnOk) then begin
+				btnOk.OnClick := TMsgBoxThread.OnOkClick;
+			end else begin
+				var
+				btnYes := (FMsgDlg.FindComponent('Yes') as TButton);
+				if Assigned(btnYes) then begin
+					btnYes.OnClick := TMsgBoxThread.OnYesClick;
+				end;
+				var
+				btnNo := (FMsgDlg.FindComponent('No') as TButton);
+				if Assigned(btnNo) then begin
+					btnNo.OnClick := TMsgBoxThread.OnNoClick;
+				end;
+			end;
+			FMsgDlg.Visible := True;
+		end);
+end;
+
+class function TMsgBoxBase.GetButtonsByType(const _type : TMsgDlgType) : TMsgDlgButtons;
+begin
+	Result := [];
+	case _type of
+		{ } TMsgDlgType.mtWarning,
+		{ } TMsgDlgType.mtError,
+		{ } TMsgDlgType.mtInformation :
+		Result := [mbOk];
+		TMsgDlgType.mtConfirmation :
+		Result := mbYesNo;
+		TMsgDlgType.mtCustom :
+		{ } raise EDlgException.Create('mtCustom dlg type not supported');
+	end;
+end;
+
+class procedure TMsgBoxBase.SetCaption(_msgDlg : TForm);
+begin
+	_msgDlg.Caption := APPNAME;
 end;
 
 end.
