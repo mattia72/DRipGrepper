@@ -128,9 +128,7 @@ begin
 	Result := True;
 	try
 		if Assigned(enc) then begin
-			if enc = TEncoding.ANSI then begin
-				sBuff := TEncoding.ANSI.GetString(byteBuff, 0, iBuffLength);
-			end else if enc = TEncoding.Default then begin
+			if enc = TEncoding.Default then begin
 				sBuff := TEncoding.GetEncoding(GetDefaultEncodingCodePage()).GetString(byteBuff, 0, iBuffLength);
 			end else begin
 				sBuff := enc.GetString(byteBuff, 0, iBuffLength);
