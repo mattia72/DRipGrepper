@@ -30,7 +30,7 @@ type
 			class procedure SetCaption(_msgDlg : TForm);
 	end;
 
-    // TODO : It Doesn't work :(
+	// TODO : It Doesn't work :(
 	TMsgBoxThread = class(TMsgBoxBase)
 
 		private
@@ -50,7 +50,7 @@ type
 
 	TMsgBox = class(TMsgBoxBase)
 		private
-			class procedure CreateMsgDialog(const _msg : string; const _type : TMsgDlgType);
+			class function CreateMsgDialog(const _msg : string; const _type : TMsgDlgType) : Integer;
 
 		public
 			class procedure ShowError(const _msg : string);
@@ -460,7 +460,7 @@ begin
 	end;
 end;
 
-class procedure TMsgBox.CreateMsgDialog(const _msg : string; const _type : TMsgDlgType);
+class function TMsgBox.CreateMsgDialog(const _msg : string; const _type : TMsgDlgType) : Integer;
 var
 	btns : TMsgDlgButtons;
 begin
@@ -469,7 +469,7 @@ begin
 	FMsgDlg := CreateMessageDialog(_msg, _type, btns);
 	try
 		TMsgBoxBase.SetCaption(FMsgDlg);
-		FMsgDlg.ShowModal;
+		Result := FMsgDlg.ShowModal;
 	finally
 		FreeAndNil(FMsgDlg);
 	end;
@@ -492,7 +492,7 @@ end;
 
 class function TMsgBox.ShowQuestion(const _msg : string) : Integer;
 begin
-	CreateMsgDialog(_msg, TMsgDlgType.mtConfirmation);
+	Result := CreateMsgDialog(_msg, TMsgDlgType.mtConfirmation);
 end;
 
 class function TDrawParams.Save(const _canvas : TCanvas) : TDrawParams;
