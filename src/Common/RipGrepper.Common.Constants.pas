@@ -179,6 +179,7 @@ const
 	ICON_RESOURCE_DLL = 'System32\shell32.dll';
 	ICON_IDX_ERROR = 234;
 	ICON_IDX_PARSE_ERROR = 66;
+    ICON_IDX_STATISTIC = 249;
 
 	RG_ERROR_MSG_PREFIX = 'rg:';
 	RG_PARSE_ERROR = 'not parsed output';

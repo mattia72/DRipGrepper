@@ -126,7 +126,8 @@ type
 		public
 			constructor Create(_handleForm : HWND; _imgList : TImageList);
 			destructor Destroy; override;
-			function GetImgIndex(_sFilePath : string) : integer;
+			function GetIconImgIndex(_sFilePath : string) : integer;
+			function GetImgIndexFromResourceDll(const _sKey : string; const _iconIdxInResourceDll : Integer) : integer;
 			property ImageList : TImageList read FImageList write FImageList;
 	end;
 
@@ -429,35 +430,28 @@ begin
 	inherited;
 end;
 
-function TIconImageList.GetImgIndex(_sFilePath : string) : integer;
+function TIconImageList.GetIconImgIndex(_sFilePath : string) : integer;
 var
 	sExtension : string;
 	bmp : Vcl.Graphics.TBitmap;
 	bErrorLine : boolean;
 	iconIdx : Integer;
 begin
-	bErrorLine := MatchStr(_sFilePath, [RG_ERROR_MSG_PREFIX, RG_PARSE_ERROR]);
-	if bErrorLine or (not TPath.HasValidPathChars(_sFilePath, False)) then begin
-		sExtension := _sFilePath;
-	end else begin
-		sExtension := TPath.GetExtension(_sFilePath);
-	end;
+	sExtension := TPath.GetExtension(_sFilePath);
 
 	if not FExtIndexDict.TryGetValue(sExtension, Result) then begin
-		if bErrorLine then begin
-			if sExtension = RG_ERROR_MSG_PREFIX then begin
-				iconIdx := ICON_IDX_ERROR;
-			end else begin
-				iconIdx := ICON_IDX_PARSE_ERROR;
-			end;
-			Result := ImageList_AddIcon(FImageList.Handle,
-				ExtractIcon(FHandleForm, PWideChar(TPath.Combine(GetEnvironmentVariable('Windir'), ICON_RESOURCE_DLL)), iconIdx));
-
-		end else begin
-			bmp := TItemDrawer.GetIconBitmap(_sFilePath, FImage);
-			Result := FImageList.AddMasked(bmp, bmp.TransparentColor);
-		end;
+		bmp := TItemDrawer.GetIconBitmap(_sFilePath, FImage);
+		Result := FImageList.AddMasked(bmp, bmp.TransparentColor);
 		FExtIndexDict.Add(sExtension, Result);
+	end;
+end;
+
+function TIconImageList.GetImgIndexFromResourceDll(const _sKey : string; const _iconIdxInResourceDll : Integer) : integer;
+begin
+	if not FExtIndexDict.TryGetValue(_sKey, Result) then begin
+		Result := ImageList_AddIcon(FImageList.Handle, ExtractIcon(FHandleForm, PWideChar(TPath.Combine(GetEnvironmentVariable('Windir'),
+			ICON_RESOURCE_DLL)), _iconIdxInResourceDll));
+ 		FExtIndexDict.Add(_sKey, Result);
 	end;
 end;
 

@@ -1327,10 +1327,12 @@ begin
 					text := NodeData^.FilePath;
 					if TRegEx.IsMatch(text, '(^' + RG_ERROR_MSG_PREFIX + '|' + RG_ENDED_ERROR + ')') then begin
 						ImageIndex := LV_IMG_IDX_ERROR;
+						// ImageIndex := FIconImgList.GetImgIndexFromResourceDll('ERROR', ICON_IDX_ERROR);
 					end else if text = RG_STATS_LINE then begin
 						ImageIndex := LV_IMG_IDX_INFO;
+						// ImageIndex := FIconImgList.GetImgIndexFromResourceDll('STATISTIC', ICON_IDX_STATISTIC);
 					end else begin;
-						ImageIndex := FIconImgList.GetImgIndex(NodeData^.FilePath);
+						ImageIndex := FIconImgList.GetIconImgIndex(NodeData^.FilePath);
 					end;
 				end;
 			end;
