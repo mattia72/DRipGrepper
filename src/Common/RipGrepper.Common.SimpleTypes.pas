@@ -6,7 +6,11 @@ uses
 	System.Classes, System.SysUtils;
 
 type
-	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
+	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepStats, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
+	// TODO : use this instead of IsError IsStatus
+    EParsedLineType = (pltErrorLine, pltStatsLine, pltContexLine);
+    TParsedLineType  = set of  EParsedLineType;
+
 	TFileNameType = (ftAbsolute, ftRelative);
 
 	TRipGrepArguments = TStringList;

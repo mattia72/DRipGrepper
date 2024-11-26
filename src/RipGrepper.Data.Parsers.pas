@@ -17,13 +17,16 @@ type
 		private
 			FContextLineParseRegex: TRegex;
 			FLineParseRegex : TRegex;
+			FStatsLineParseRegex: TRegex;
 			FParserType : TParserType;
 			function GetLineParseRegex : TRegex;
 			procedure SetLineParseRegex(const Value : TRegex);
 			function GetContextLineParseRegex: TRegex;
+			function GetStatsLineParseRegex: TRegex;
 			procedure SetContextLineParseRegex(const Value: TRegex);
 
 			function GetParserType : TParserType;
+			procedure SetStatsLineParseRegex(const Value: TRegex);
 			procedure SetParserType(const Value : TParserType);
 
 		public
@@ -31,6 +34,8 @@ type
 			destructor Destroy; override;
 			property LineParseRegex : TRegex read GetLineParseRegex write SetLineParseRegex;
 			property ContextLineParseRegex: TRegex read GetContextLineParseRegex write SetContextLineParseRegex;
+			property StatsLineParseRegex: TRegex read GetStatsLineParseRegex write
+				SetStatsLineParseRegex;
 
 			property ParserType : TParserType read GetParserType write SetParserType;
 	end;
@@ -68,6 +73,7 @@ begin
 	if not _contextLineRegex.IsEmpty then begin
 		FContextLineParseRegex := TRegex.Create(_contextLineRegex);
     end;
+    FStatsLineParseRegex := TRegex.Create('^\d[.\d]* (seconds|bytes|files|match).*');
 end;
 
 destructor TRipGrepLineParserData.Destroy;
@@ -85,6 +91,11 @@ begin
 	Result := FLineParseRegex;
 end;
 
+function TRipGrepLineParserData.GetStatsLineParseRegex: TRegex;
+begin
+	Result := FStatsLineParseRegex;
+end;
+
 function TRipGrepLineParserData.GetParserType : TParserType;
 begin
 	Result := FParserType;
@@ -98,6 +109,11 @@ end;
 procedure TRipGrepLineParserData.SetLineParseRegex(const Value : TRegex);
 begin
 	FLineParseRegex := Value;
+end;
+
+procedure TRipGrepLineParserData.SetStatsLineParseRegex(const Value: TRegex);
+begin
+	FStatsLineParseRegex := Value;
 end;
 
 procedure TRipGrepLineParserData.SetParserType(const Value : TParserType);

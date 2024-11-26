@@ -35,14 +35,17 @@ type
 		function GetErrorText : string;
 		function GetColumnText(const _idx : integer) : string;
 		function GetIsError : Boolean;
+		function GetIsStatsLine: Boolean;
 		function GetParserType : TParserType;
 		function GetRowNr : Integer;
 		procedure SetErrorText(const Value : string);
 		procedure SetIsError(const Value : Boolean);
+		procedure SetIsStatsLine(const Value: Boolean);
 		procedure SetParserType(const Value : TParserType);
 		procedure SetRowNr(const Value : Integer);
 		property ErrorText : string read GetErrorText write SetErrorText;
 		property IsError : Boolean read GetIsError write SetIsError;
+		property IsStatsLine: Boolean read GetIsStatsLine write SetIsStatsLine;
 		property ParserType : TParserType read GetParserType write SetParserType;
 		property RowNr : Integer read GetRowNr write SetRowNr;
 
@@ -83,17 +86,20 @@ type
 			FErrorText : string;
 			FIsError : Boolean;
 			FColumns : TArrayEx<TColumnData>;
+			FIsStatsLine: Boolean;
 			FParserType : TParserType;
 			FRowNr : Integer;
 			function GetColumns : TArrayEx<TColumnData>;
 			procedure SetColumns(const Value : TArrayEx<TColumnData>);
 			function GetErrorText : string;
+			function GetIsStatsLine: Boolean;
 			function GetIsError : Boolean;
 			function GetRowNr : Integer;
 			procedure SetErrorText(const Value : string);
 			procedure SetIsError(const Value : Boolean);
 			procedure SetRowNr(const Value : Integer);
 			function GetParserType : TParserType;
+			procedure SetIsStatsLine(const Value: Boolean);
 			procedure SetParserType(const Value : TParserType);
 
 		public
@@ -103,6 +109,7 @@ type
 			function GetColumnText(const _idx : integer) : string;
 			property Columns : TArrayEx<TColumnData> read GetColumns write SetColumns;
 			property ErrorText : string read GetErrorText write SetErrorText;
+			property IsStatsLine: Boolean read GetIsStatsLine write SetIsStatsLine;
 			property IsError : Boolean read GetIsError write SetIsError;
 			property RowNr : Integer read GetRowNr write SetRowNr;
 			property ParserType : TParserType read GetParserType write SetParserType;
@@ -160,6 +167,7 @@ begin
 	Columns := _por.Columns;
 	RowNr := _por.RowNr;
 	IsError := _por.IsError;
+    IsStatsLine := _por.IsStatsLine;
 	ParserType := _parserType;
 end;
 
@@ -174,6 +182,7 @@ begin
 	_por.FColumns := Columns;
 	_por.RowNr := RowNr;
 	_por.IsError := IsError;
+	_por.IsStatsLine := IsStatsLine;
 end;
 
 function TParsedObjectRow.GetColumns : TArrayEx<TColumnData>;
@@ -192,6 +201,11 @@ end;
 function TParsedObjectRow.GetErrorText : string;
 begin
 	Result := FErrorText;
+end;
+
+function TParsedObjectRow.GetIsStatsLine: Boolean;
+begin
+	Result := FIsStatsLine;
 end;
 
 function TParsedObjectRow.GetIsError : Boolean;
@@ -217,6 +231,11 @@ end;
 procedure TParsedObjectRow.SetErrorText(const Value : string);
 begin
 	FErrorText := Value;
+end;
+
+procedure TParsedObjectRow.SetIsStatsLine(const Value: Boolean);
+begin
+	FIsStatsLine := Value;
 end;
 
 procedure TParsedObjectRow.SetIsError(const Value : Boolean);
