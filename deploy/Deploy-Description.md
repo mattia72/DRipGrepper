@@ -24,6 +24,7 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 
 ## :boom: Improvements 
 Marked with checkmark if ready, else planned ...
+- [x] --stats parameter handling
 - [x] config form
   - [ ] Debug and Expert mode
   - [ ] install as **extension** in Delphi IDE
