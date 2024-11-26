@@ -49,7 +49,6 @@ type
 			destructor Destroy; override;
 			procedure Add(_item : IParsedObjectRow);
 			procedure ClearMatchFiles;
-			procedure DataToGrid(const _index : Integer; _lv : TListView; _item : TListItem); overload;
 			procedure DataToGrid; overload;
 			procedure SortBy(const _sbt : TSortByType; const _st : TSortDirectionType);
 			property ErrorCount : Integer read GetErrorCount;
@@ -129,35 +128,6 @@ begin
 	FErrorCounters.Reset();
 end;
 
-procedure TRipGrepperData.DataToGrid(const _index : Integer; _lv : TListView; _item : TListItem);
-var
-	fn : string;
-begin
-	// (_index, _lv, _item);
-	var
-	matchItems := HistObject.Matches.Items;
-	try
-		fn := matchItems[_index].Columns[Integer(ciFile)].Text;
-		if matchItems[_index].IsError then begin
-			_item.Caption := ' ' + fn;
-			_item.ImageIndex := LV_IMG_IDX_ERROR;
-		end else if matchItems[_index].IsStatsLine then begin
-			_item.Caption := fn;
-			_item.ImageIndex := LV_IMG_IDX_OK;
-		end else begin
-			_item.Caption := fn;
-			_item.ImageIndex := LV_IMG_IDX_OK;
-		end;
-		_item.SubItems.Add(matchItems[_index].Columns[Integer(ciRow)].Text);
-		_item.SubItems.Add(matchItems[_index].Columns[Integer(ciCol)].Text);
-		_item.SubItems.Add(matchItems[_index].Columns[Integer(ciText)].Text);
-	finally
-		{$IFDEF THREADSAFE_LIST}
-		HistObject.Matches.Unlock;
-		{$ENDIF}
-	end;
-end;
-
 procedure TRipGrepperData.DataToGrid;
 var
 	node : PVirtualNode;
@@ -189,8 +159,7 @@ end;
 
 function TRipGrepperData.GetFileCount : Integer;
 begin
-	Result := MatchFiles.Count - IfThen(FErrorCounters.FStatLineCount > 0, 1)
-    - IfThen(FErrorCounters.FSumOfErrors > 0, 1);
+	Result := MatchFiles.Count - IfThen(FErrorCounters.FStatLineCount > 0, 1) - IfThen(FErrorCounters.FSumOfErrors > 0, 1);
 end;
 
 procedure TRipGrepperData.SortBy(const _sbt : TSortByType; const _st : TSortDirectionType);
@@ -312,22 +281,19 @@ begin
 	Result := nil;
 	if _item.IsError then begin
 		if _item.ErrorText = RG_PARSE_ERROR then begin
-			Inc(FErrorCounters.FParserErrors);
-			if TRegEx.IsMatch(_sFileColumnText, '^' + RG_ERROR_MSG_PREFIX) then begin
+			if TRegEx.IsMatch(_sFileColumnText, '(^' + RG_ERROR_MSG_PREFIX + '|' + RG_ENDED_ERROR + ')') then begin
 				NoMatchFound := True;
+				FErrorCounters.FIsRGReportedError := TRegEx.IsMatch(_sFileColumnText, RG_ENDED_ERROR);
 				node := GetParentNode(RG_ERROR_MSG_PREFIX, True);
 				nodeData := TVSFileNodeData.New(_sFileColumnText.Remove(0, RG_ERROR_MSG_PREFIX.Length));
 				AddVSTStructure(node, nodeData, true);
 				Exit;
+			end else if _sFileColumnText.EndsWith(RG_HAS_NO_OUTUT) then begin
+				FErrorCounters.FIsNoOutputError := True;
+				NoMatchFound := True;
+				Exit;
 			end;
-		end else if _sFileColumnText.EndsWith(RG_HAS_NO_OUTUT) then begin
-			FErrorCounters.FIsNoOutputError := True;
-			NoMatchFound := True;
-			Exit;
-		end else if TRegEx.IsMatch(_sFileColumnText, RG_ENDED_ERROR) then begin
-			FErrorCounters.FIsRGReportedError := True;
-			NoMatchFound := True;
-			Exit;
+			Inc(FErrorCounters.FParserErrors);
 		end;
 		Inc(FErrorCounters.FSumOfErrors);
 		Result := GetParentNode(_item.ErrorText, True);

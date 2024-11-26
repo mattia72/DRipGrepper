@@ -117,17 +117,17 @@ type
 	end;
 
 	TIconImageList = class
-		FImageList : TImageList;
-		FExtIndexDict : TDictionary<string, integer>;
-		function GetImgIndex(_sFilePath : string) : integer;
-
 		private
+			FImageList : TImageList;
+			FExtIndexDict : TDictionary<string, integer>;
 			FHandleForm : HWND;
 			FImage : TImage;
 
 		public
 			constructor Create(_handleForm : HWND; _imgList : TImageList);
 			destructor Destroy; override;
+			function GetImgIndex(_sFilePath : string) : integer;
+			property ImageList : TImageList read FImageList write FImageList;
 	end;
 
 	TDrawParams = record

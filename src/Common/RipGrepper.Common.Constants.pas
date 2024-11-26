@@ -190,7 +190,7 @@ const
 
 	RG_ENDED_ERROR = ' failed with exit code: ';
 	RG_HAS_NO_OUTUT = ' has no output.';
-    RG_STATS_LINE = 'stats';
+    RG_STATS_LINE = 'search statistics:';
 
     MSG_FORMAT_TOO_MANY_RESULTS = 'Too many results.' + CRLF + 'The first %d will be shown. Try to be more specific.';
 

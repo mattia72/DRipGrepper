@@ -448,7 +448,7 @@ var
 begin
 	ec := HistItemObj.GetErrorCounters();
 	if ec.FParserErrors > 0 then begin
-		TMsgBox.ShowWarning(RG_PARSE_ERROR_MSG);//, false, self);
+		TMsgBox.ShowWarning(RG_PARSE_ERROR_MSG); // , false, self);
 	end;
 	if ec.FIsNoOutputError then begin
 		TMsgBox.ShowWarning(RG_PRODUCED_NO_OUTPUT_MSG);
@@ -819,6 +819,7 @@ begin
 			BottomFrame.ActivityIndicator1.Animate := False;
 			FIsParsingRunning := False;
 			ExpandNodes;
+			RefreshCounters;
 			ParentFrame.AfterSearch();
 		end);
 end;
@@ -871,8 +872,8 @@ begin
 	if Assigned(FHistItemObj) then begin
 		var
 		beu := TBeginEndUpdater.New(MiddleLeftFrame1.VstHistory);
-		FHistItemObj.FileCount := VstResult.RootNodeCount; // synced
 		FHistItemObj.SetErrorCounters(Data.FErrorCounters); // synced
+		FHistItemObj.FileCount := Data.FileCount; // synced
 	end;
 	RefreshCountersInGUI;
 end;
@@ -1245,6 +1246,10 @@ begin
 				DefaultDraw := False;
 				TargetCanvas.Font.Color := TREEVIEW_ERROR_COLOR;
 				TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, Text);
+			end else if MatchStr(Text, [RG_STATS_LINE]) then begin
+				DefaultDraw := False;
+				TargetCanvas.Font.Color := TREEVIEW_STATS_COLOR;
+				TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, Text);
 			end;
 		end;
 		COL_MATCH_TEXT : begin
@@ -1317,8 +1322,17 @@ begin
 		case Kind of
 			ikNormal, ikSelected :
 			case Column of
-				COL_FILE :
-				ImageIndex := FIconImgList.GetImgIndex(NodeData^.FilePath);
+				COL_FILE : begin
+					var
+					text := NodeData^.FilePath;
+					if TRegEx.IsMatch(text, '(^' + RG_ERROR_MSG_PREFIX + '|' + RG_ENDED_ERROR + ')') then begin
+						ImageIndex := LV_IMG_IDX_ERROR;
+					end else if text = RG_STATS_LINE then begin
+						ImageIndex := LV_IMG_IDX_INFO;
+					end else begin;
+						ImageIndex := FIconImgList.GetImgIndex(NodeData^.FilePath);
+					end;
+				end;
 			end;
 		end;
 	end;
