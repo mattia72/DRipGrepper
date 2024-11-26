@@ -28,6 +28,7 @@ type
 	TErrorCounters = record
 		FSumOfErrors : Integer;
 		FParserErrors : Integer;
+        FStatLineCount : Integer;
 		FIsNoOutputError : Boolean;
 		FIsRGReportedError : Boolean;
 		procedure Reset;
@@ -40,6 +41,7 @@ procedure TErrorCounters.Reset;
 begin
 	FSumOfErrors := 0;
 	FParserErrors := 0;
+    FStatLineCount := 0;
 	FIsNoOutputError := False;
 	FIsRGReportedError := False;
 end;

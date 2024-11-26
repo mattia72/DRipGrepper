@@ -10,15 +10,13 @@ uses
 	Vcl.Graphics,
 	Vcl.Menus;
 
-{$IFDEF WIN64}
-
 const
+	{ }{$IFDEF WIN64}
 	APP_PLATFORM = 'x64';
-{$ELSE}
-
-const
+	{ } {$ELSE}
 	APP_PLATFORM = 'x86';
-	{$ENDIF}
+	{ }	{$ENDIF}
+
 	APPNAME = 'DRipGrepper';
 	EXTENSION_NAME = 'DRipExtension';
 
@@ -192,6 +190,10 @@ const
 
 	RG_ENDED_ERROR = ' failed with exit code: ';
 	RG_HAS_NO_OUTUT = ' has no output.';
+    RG_STATS_LINE = 'stats';
+
+    MSG_FORMAT_TOO_MANY_RESULTS = 'Too many results.' + CRLF + 'The first %d will be shown. Try to be more specific.';
+
 
 	EXT_SEARCH_ACTIVE_FILE = 0;
 	EXT_SEARCH_OPEN_FILES = 1;
@@ -238,6 +240,7 @@ const
 
 	TREEVIEW_STAT_COLOR = clPurple;
 	TREEVIEW_ERROR_COLOR = clRed;
+    TREEVIEW_STATS_COLOR = clTeal;
 
 	// See it in Word Segoe ui
 	TREEVIEW_HISTORY_REPLACE_PREFIX = '⇄';

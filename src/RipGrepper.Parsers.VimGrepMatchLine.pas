@@ -24,6 +24,10 @@ type
 			procedure SetPrettyRegex;
 			procedure SetSearchParams(const Value : ISearchParams);
 
+		protected
+			procedure ParseContextLine(const _m : TMatch; var _cd : TArrayEx<TColumnData>); virtual;
+			procedure ParseStatsLine(const _m : TMatch; var _cd : TArrayEx<TColumnData>);
+
 		public
 			property ParserData : ILineParserData read FParserData write FParserData;
 			property ParseResult : IParsedObjectRow read GetParseResult write SetParseResult;
@@ -35,10 +39,12 @@ type
 
 	TVimGrepPrettyMatchLineParser = class(TVimGrepMatchLineParser)
 		private
-			procedure ParseContextLine(const _m : TMatch; var _cd : TArrayEx<TColumnData>);
 			procedure ParsePrettyLine(const m : TMatch; var cd : TArrayEx<TColumnData>);
 			function Validate(var row : TArrayEx<TColumnData>) : Boolean; override;
 
+		protected
+			procedure ParseContextLine(const _m : TMatch; var _cd : TArrayEx<TColumnData>);
+				override;
 		public
 			constructor Create; override;
 			procedure ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False); override;
@@ -49,7 +55,7 @@ implementation
 uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Common.Constants,
-    RipGrepper.Common.SimpleTypes,
+	RipGrepper.Common.SimpleTypes,
 	System.SysUtils,
 	System.IOUtils,
 	RipGrepper.Data.Parsers;
@@ -78,6 +84,27 @@ begin
 	Result := FSearchParams;
 end;
 
+procedure TVimGrepMatchLineParser.ParseContextLine(const _m : TMatch; var _cd : TArrayEx<TColumnData>);
+var
+	s : string;
+begin
+	s := Format('%s%s', [_m.Groups['drive'].Value, _m.Groups['path'].Value]);
+	_cd.Add(TColumnData.New(ciFile, s));
+	_cd.Add(TColumnData.New(ciRow, _m.Groups['row'].Value));
+	_cd.Add(TColumnData.New(ciCol, ''));
+	_cd.Add(TColumnData.New(ciText, _m.Groups['text'].Value));
+end;
+
+procedure TVimGrepMatchLineParser.ParseStatsLine(const _m : TMatch; var _cd : TArrayEx<TColumnData>);
+begin
+	_cd.Add(TColumnData.New(ciFile, RG_STATS_LINE));
+	_cd.Add(TColumnData.New(ciRow, ''));
+	_cd.Add(TColumnData.New(ciCol, ''));
+	_cd.Add(TColumnData.New(ciText, _m.Groups[0].Value));
+	_cd.Add(TColumnData.New(ciMatchText, ''));
+	_cd.Add(TColumnData.New(ciTextAfterMatch, ''));
+end;
+
 { TVimGrepMatchLineParser }
 
 procedure TVimGrepMatchLineParser.ParseLine(const _iLnNr : integer; const _sLine : string; const _bIsLast : Boolean = False);
@@ -85,7 +112,6 @@ var
 	m : TMatch;
 	matchPretty : TMatch;
 	cd : TArrayEx<TColumnData>;
-	s : string;
 begin
 	if _sLine = RG_CONTEXT_SEPARATOR then
 		Exit;
@@ -96,7 +122,7 @@ begin
 	if m.Success then begin
 		// TDebugUtils.DebugMessage(_sLine);
 		// according FastMM it is leaky :/
-		s := Format('%s%s', [m.Groups['drive'].Value, m.Groups['path'].Value]);
+		var s := Format('%s%s', [m.Groups['drive'].Value, m.Groups['path'].Value]);
 		cd.Add(TColumnData.New(ciFile, s));
 		cd.Add(TColumnData.New(ciRow, m.Groups['row'].Value));
 		cd.Add(TColumnData.New(ciCol, m.Groups['col'].Value));
@@ -104,9 +130,10 @@ begin
 
 		var // not used, but so we have less memory leak!
 		so := SearchParams.GetGuiSearchParams;
-		if so.IsReplaceMode then begin 
-			// TODO: implement replace mode
-		end;
+		Assert(Assigned(so));
+		// if so.IsReplaceMode then begin
+		// // TODO: implement replace mode
+		// end;
 
 		matchPretty := FPrettyRegex.Match(s);
 		if matchPretty.Groups.Count >= 4 then begin
@@ -122,11 +149,13 @@ begin
 	end else begin
 		m := ParserData.ContextLineParseRegex.Match(_sLine);
 		if m.Success then begin
-			s := Format('%s%s', [m.Groups['drive'].Value, m.Groups['path'].Value]);
-			cd.Add(TColumnData.New(ciFile, s));
-			cd.Add(TColumnData.New(ciRow, m.Groups['row'].Value));
-			cd.Add(TColumnData.New(ciCol, ''));
-			cd.Add(TColumnData.New(ciText, m.Groups['text'].Value));
+			ParseContextLine(m, cd);
+		end else begin
+			m := ParserData.StatsLineParseRegex.Match(_sLine);
+			if m.Success then begin
+				ParseStatsLine(m, cd);
+				ParseResult.IsStatsLine := True;
+			end;
 		end;
 	end;
 	if (cd.Count > 0) then
@@ -230,14 +259,10 @@ begin
 	FParseResult := TParsedObjectRow.Create();
 end;
 
-procedure TVimGrepPrettyMatchLineParser.ParseContextLine(const _m : TMatch; var _cd : TArrayEx<TColumnData>);
+procedure TVimGrepPrettyMatchLineParser.ParseContextLine(const _m : TMatch; var
+	_cd : TArrayEx<TColumnData>);
 begin
-	var
-	s := Format('%s%s', [_m.Groups['drive'].Value, _m.Groups['path'].Value]);
-	_cd.Add(TColumnData.New(ciFile, s));
-	_cd.Add(TColumnData.New(ciRow, _m.Groups['row'].Value));
-	_cd.Add(TColumnData.New(ciCol, ''));
-	_cd.Add(TColumnData.New(ciText, _m.Groups['text'].Value));
+    inherited ParseContextLine(_m,_cd);
 	_cd.Add(TColumnData.New(ciMatchText, ''));
 	_cd.Add(TColumnData.New(ciTextAfterMatch, ''));
 end;
@@ -263,8 +288,15 @@ begin
 		m := ParserData.ContextLineParseRegex.Match(_s);
 		if m.Success then begin
 			ParseContextLine(m, cd);
+		end else begin
+			m := ParserData.StatsLineParseRegex.Match(_s);
+			if m.Success then begin
+				ParseStatsLine(m, cd);
+				ParseResult.IsStatsLine := True;
+			end;
 		end;
 	end;
+
 	if (cd.Count > 0) then
 		ParseResult.IsError := not Validate(cd);
 

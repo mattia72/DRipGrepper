@@ -11,7 +11,7 @@ uses
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.Settings.AppSettings,
 	RipGrepper.Common.Constants,
-    RipGrepper.Common.SimpleTypes,
+	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.Settings.SearchFormSettings;
@@ -22,7 +22,7 @@ type
 
 		private
 			FElapsedTimeText : string;
-			FErrorCounters: TErrorCounters;
+			FErrorCounters : TErrorCounters;
 			FFileCount : integer;
 			FGuiSearchTextParams : TGuiSearchTextParams;
 			FHasResult : Boolean;
@@ -34,7 +34,7 @@ type
 			FRipGrepResult : Integer;
 			FTotalMatchCount : integer;
 			function GetElapsedTimeText : string;
-			function GetErrorCounters: TErrorCounters; export;
+			function GetErrorCounters : TErrorCounters; export;
 			function GetFileCount : integer;
 			function GetGuiSearchTextParams : TGuiSearchTextParams;
 			function GetIsReplaceMode : Boolean;
@@ -59,7 +59,7 @@ type
 		public
 			constructor Create;
 			destructor Destroy; override;
-			procedure SetErrorCounters(const Value: TErrorCounters);
+			procedure SetErrorCounters(const Value : TErrorCounters);
 			procedure ClearMatches;
 			procedure CopyToSettings(const _settings : TRipGrepperSettings);
 			function GetReplaceText : string;
@@ -129,7 +129,7 @@ end;
 
 function THistoryItemObject.GetTotalMatchCount : integer;
 begin
-	Result := FMatches.Items.Count - FErrorCounters.FSumOfErrors;
+	Result := FMatches.Items.Count - FErrorCounters.FSumOfErrors - FErrorCounters.FStatLineCount;
 	{$IFDEF THREADSAFE_LIST}
 	FMatches.Unlock;
 	{$ENDIF}
@@ -195,7 +195,7 @@ begin
 	Result := FElapsedTimeText;
 end;
 
-function THistoryItemObject.GetErrorCounters: TErrorCounters;
+function THistoryItemObject.GetErrorCounters : TErrorCounters;
 begin
 	Result := FErrorCounters;
 end;
@@ -253,7 +253,7 @@ begin
 	FElapsedTimeText := Value;
 end;
 
-procedure THistoryItemObject.SetErrorCounters(const Value: TErrorCounters);
+procedure THistoryItemObject.SetErrorCounters(const Value : TErrorCounters);
 begin
 	FErrorCounters := Value;
 end;

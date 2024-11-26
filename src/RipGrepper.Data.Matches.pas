@@ -5,7 +5,6 @@ interface
 uses
 	System.Generics.Collections,
 	System.Classes,
-	// RipGrepper.Common.Constants,
 	RipGrepper.Common.Interfaces,
 	System.RegularExpressions,
 	Vcl.ComCtrls,
@@ -36,8 +35,9 @@ type
 			function GetListItemCount : Integer;
 			function GetParentNode(const _sNodeText : string; _asFirst : Boolean = False) : PVirtualNode;
 			procedure AddChildNode(const _parentNode : PVirtualNode; _item : IParsedObjectRow);
-			function ErrorHandling(const _sFileColumnText : string; _item : IParsedObjectRow) : PVirtualNode;
+			function ErrorOrStatsLinesHandling(const _sFileColumnText : string; _item : IParsedObjectRow) : PVirtualNode;
 			function GetNoMatchFound : Boolean;
+			function GetParentNodeByItemType(const sFileColumnText : string; _item : IParsedObjectRow) : PVirtualNode;
 			procedure SetHistObject(const Value : IHistoryItemObject);
 			procedure SetNoMatchFound(const Value : Boolean);
 			procedure SortMultiColumns(const _st : TSortDirectionType);
@@ -68,7 +68,8 @@ uses
 	Vcl.Dialogs,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Helper.Types,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants,
+	System.Math;
 
 constructor TRipGrepperData.Create(_vst : TCustomVirtualStringTree);
 begin
@@ -96,11 +97,7 @@ begin
 	try
 		HistObject.Matches.Items.Add(_item);
 		sFileColumnText := _item.Columns[Integer(ciFile)].Text;
-		if (_item.IsError) then begin
-			node := ErrorHandling(sFileColumnText, _item);
-		end else begin
-			node := GetParentNode(sFileColumnText);
-		end;
+		node := GetParentNodeByItemType(sFileColumnText, _item);
 		AddChildNode(node, _item);
 	finally
 		FVst.EndUpdate;
@@ -144,6 +141,9 @@ begin
 		if matchItems[_index].IsError then begin
 			_item.Caption := ' ' + fn;
 			_item.ImageIndex := LV_IMG_IDX_ERROR;
+		end else if matchItems[_index].IsStatsLine then begin
+			_item.Caption := fn;
+			_item.ImageIndex := LV_IMG_IDX_OK;
 		end else begin
 			_item.Caption := fn;
 			_item.ImageIndex := LV_IMG_IDX_OK;
@@ -169,11 +169,7 @@ begin
 	try
 		for var item in matchItems do begin
 			sFile := item.Columns[Integer(ciFile)].Text;
-			if item.IsError then begin
-				node := ErrorHandling(sFile, item);
-			end else begin
-				node := GetParentNode(sFile);
-			end;
+			node := GetParentNodeByItemType(sFile, item);
 			AddChildNode(node, item);
 		end;
 	finally
@@ -193,7 +189,8 @@ end;
 
 function TRipGrepperData.GetFileCount : Integer;
 begin
-	Result := MatchFiles.Count;
+	Result := MatchFiles.Count - IfThen(FErrorCounters.FStatLineCount > 0, 1)
+    - IfThen(FErrorCounters.FSumOfErrors > 0, 1);
 end;
 
 procedure TRipGrepperData.SortBy(const _sbt : TSortByType; const _st : TSortDirectionType);
@@ -275,6 +272,10 @@ begin
 		_item.ParserType := ptRipGrepError;
 		bAsFirst := True;
 	end;
+	if _item.IsStatsLine then begin
+		_item.ParserType := ptRipGrepStats;
+		bAsFirst := True;
+	end;
 	case _item.ParserType of
 		ptRipGrepSearch, ptRipGrepPrettySearch : begin
 			nodeData := TVSFileNodeData.New('', // File
@@ -285,50 +286,73 @@ begin
 			{ } _item.GetColumnText(Integer(ciTextAfterMatch)) // TextAfter
 				);
 		end;
-		ptRipGrepError :
-		nodeData := TVSFileNodeData.New(_item.Columns[Integer(ciFile)].Text, // File
-		{ } -1, // Row
-		{ } -1, // Col
-		{ } ''); // LineText
+		ptRipGrepError : begin
+			nodeData := TVSFileNodeData.New(_item.Columns[Integer(ciFile)].Text, // File
+			{ } -1, // Row
+			{ } -1, // Col
+			{ } ''); // LineText
+		end;
+		ptRipGrepStats : begin
+			nodeData := TVSFileNodeData.New('', // File
+			{ } -1, // Row
+			{ } -1, // Col
+			{ } _item.Columns[Integer(ciText)].Text); // LineText
+		end;
 	end;
 
 	AddVSTStructure(_parentNode, nodeData, bAsFirst);
 	_parentNode.CheckType := ctCheckBox;
 end;
 
-function TRipGrepperData.ErrorHandling(const _sFileColumnText : string; _item : IParsedObjectRow) : PVirtualNode;
+function TRipGrepperData.ErrorOrStatsLinesHandling(const _sFileColumnText : string; _item : IParsedObjectRow) : PVirtualNode;
 var
 	node : PVirtualNode;
 	nodeData : TVSFileNodeData;
 begin
 	Result := nil;
-	if _item.ErrorText = RG_PARSE_ERROR then begin
-		Inc(FErrorCounters.FParserErrors);
-		if TRegEx.IsMatch(_sFileColumnText, '^' + RG_ERROR_MSG_PREFIX) then begin
+	if _item.IsError then begin
+		if _item.ErrorText = RG_PARSE_ERROR then begin
+			Inc(FErrorCounters.FParserErrors);
+			if TRegEx.IsMatch(_sFileColumnText, '^' + RG_ERROR_MSG_PREFIX) then begin
+				NoMatchFound := True;
+				node := GetParentNode(RG_ERROR_MSG_PREFIX, True);
+				nodeData := TVSFileNodeData.New(_sFileColumnText.Remove(0, RG_ERROR_MSG_PREFIX.Length));
+				AddVSTStructure(node, nodeData, true);
+				Exit;
+			end;
+		end else if _sFileColumnText.EndsWith(RG_HAS_NO_OUTUT) then begin
+			FErrorCounters.FIsNoOutputError := True;
 			NoMatchFound := True;
-			node := GetParentNode(RG_ERROR_MSG_PREFIX, True);
-			nodeData := TVSFileNodeData.New(_sFileColumnText.Remove(0, RG_ERROR_MSG_PREFIX.Length));
-			AddVSTStructure(node, nodeData, true);
+			Exit;
+		end else if TRegEx.IsMatch(_sFileColumnText, RG_ENDED_ERROR) then begin
+			FErrorCounters.FIsRGReportedError := True;
+			NoMatchFound := True;
 			Exit;
 		end;
-	end else if _sFileColumnText.EndsWith(RG_HAS_NO_OUTUT) then begin
-		FErrorCounters.FIsNoOutputError := True;
-		NoMatchFound := True;
-		Exit;
-	end else if TRegEx.IsMatch(_sFileColumnText, RG_ENDED_ERROR) then begin
-		FErrorCounters.FIsRGReportedError := True;
-		NoMatchFound := True;
-		Exit;
+		Inc(FErrorCounters.FSumOfErrors);
+		Result := GetParentNode(_item.ErrorText, True);
+	end else if _item.IsStatsLine then begin
+		Inc(FErrorCounters.FStatLineCount);
+		Result := GetParentNode(_sFileColumnText, True);
 	end;
 
-	Inc(FErrorCounters.FSumOfErrors);
-	Result := GetParentNode(_item.ErrorText, True);
 end;
 
 function TRipGrepperData.GetNoMatchFound : Boolean;
 begin
 
 	Result := HistObject.NoMatchFound;
+end;
+
+function TRipGrepperData.GetParentNodeByItemType(const sFileColumnText : string; _item : IParsedObjectRow) : PVirtualNode;
+begin
+	if (_item.IsError) then begin
+		Result := ErrorOrStatsLinesHandling(sFileColumnText, _item);
+	end else if (_item.IsStatsLine) then begin
+		Result := ErrorOrStatsLinesHandling(sFileColumnText, _item);
+	end else begin
+		Result := GetParentNode(sFileColumnText);
+	end;
 end;
 
 procedure TRipGrepperData.SetHistObject(const Value : IHistoryItemObject);
