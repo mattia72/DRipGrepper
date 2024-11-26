@@ -36,13 +36,14 @@ type
 		private
 			class var FMsgDlg : TForm;
 
-			procedure CreateMsgDialog(const _msg : string; const _type : TMsgDlgType; const _bModal : Boolean = True;
-				_parent : TWinControl = nil);
 			class procedure SetModalResultAndClose(const _mr : Integer);
 			class procedure ThreadShowDlg;
 
 		public
 			constructor Create;
+			procedure CreateMsgDialog(const _msg : string; const _type : TMsgDlgType; const _bModal : Boolean = True;
+				_parent : TWinControl = nil);
+
 			class procedure OnNoClick(Sender : TObject);
 			class procedure OnOkClick(Sender : TObject);
 			class procedure OnYesClick(Sender : TObject);
