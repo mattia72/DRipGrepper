@@ -95,7 +95,6 @@ begin
 		(f as ISettingsForm).OnOk();
 	end;
 
-	FOpenWithConfigForm.ActionOkExecute(sender);
 	ModalResult := mrOk;
 end;
 
