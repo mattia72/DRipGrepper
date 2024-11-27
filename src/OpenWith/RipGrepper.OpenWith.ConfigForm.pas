@@ -19,11 +19,12 @@ uses
 	RipGrepper.Settings.OpenWithSettings,
 	System.IniFiles,
 	Vcl.ComCtrls,
-	Vcl.ToolWin;
+	Vcl.ToolWin,
+	RipGrepper.UI.SettingsFormBase;
 
 type
 
-	TOpenWithConfigForm = class(TForm)
+	TOpenWithConfigForm = class(TSettingsBaseForm)
 
 		var
 			ActionListConfig : TActionList;
@@ -73,7 +74,7 @@ type
 
 		private
 			FDpiScaler : TRipGrepperDpiScaler;
-			FSettings : TOpenWithSettings;
+			FOpenWithSettings : TOpenWithSettings;
 			function CheckCommand(const _sCmd : string) : Boolean;
 			procedure ClearOpenWithCmd;
 			procedure MoveItem(const idx : Integer);
@@ -85,8 +86,8 @@ type
 			constructor Create(AOwner : TComponent; const ASettings : TOpenWithSettings); reintroduce;
 			destructor Destroy; override;
 			class procedure CreateAndShow(_settings : TOpenWithSettings);
-			procedure ReadSettings;
-			procedure WriteSettings;
+			procedure ReadSettings; override;
+			procedure WriteSettings; override;
 
 	end;
 
@@ -109,9 +110,9 @@ uses
 
 constructor TOpenWithConfigForm.Create(AOwner : TComponent; const ASettings : TOpenWithSettings);
 begin
-	inherited Create(AOwner); // , ImageList1);
-	FSettings := ASettings;
-	FSettings.ReadIni; // we should read ini every time, it can be overwritten by another instance...
+	inherited Create(AOwner, ASettings); // , ImageList1);
+	FOpenWithSettings := ASettings;
+	FOpenWithSettings.ReadIni; // we should read ini every time, it can be overwritten by another instance...
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 end;
 
@@ -141,7 +142,7 @@ end;
 
 procedure TOpenWithConfigForm.ActionCancelExecute(Sender : TObject);
 begin
-	ModalResult := mrCancel;
+	OnCancel();
 end;
 
 procedure TOpenWithConfigForm.ActionModifyExecute(Sender : TObject);
@@ -189,8 +190,7 @@ end;
 
 procedure TOpenWithConfigForm.ActionOkExecute(Sender : TObject);
 begin
-	WriteSettings;
-	ModalResult := mrOk;
+	OnOk();
 end;
 
 procedure TOpenWithConfigForm.ActionRemoveExecute(Sender : TObject);
@@ -210,14 +210,14 @@ var
 	owp : TOpenWithParams;
 begin
 	inherited;
-	owp := FSettings.TestFile; // GxOtaGetCurrentSourceFile;
+	owp := FOpenWithSettings.TestFile; // GxOtaGetCurrentSourceFile;
 	TOpenWithRunner.RunEditorCommand(lbCommands.Items[lbCommands.ItemIndex], owp);
 end;
 
 procedure TOpenWithConfigForm.ActionTestUpdate(Sender : TObject);
 begin
 	inherited;
-	ActionTest.Enabled := (lbCommands.SelCount = 1) and (not FSettings.TestFile.IsEmpty);
+	ActionTest.Enabled := (lbCommands.SelCount = 1) and (not FOpenWithSettings.TestFile.IsEmpty);
 end;
 
 procedure TOpenWithConfigForm.ActionOpenFileDlgExecute(Sender : TObject);
@@ -291,7 +291,7 @@ var
 	listCmdsFromSettings : TStringList;
 	i : integer;
 begin
-	inherited;
+	inherited ReadSettings;
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithConfigForm.ReadSettings');
 
@@ -302,7 +302,7 @@ begin
 		i := 0;
 		repeat
 			var
-			sCmd := FSettings.Command[i];
+			sCmd := FOpenWithSettings.Command[i];
 			dbgMsg.MsgFmt('sCmd:%s ', [sCmd]);
 			if sCmd = '' then
 				break;
@@ -336,11 +336,10 @@ var
 	settings : string;
 	sCmd : string;
 begin
-	inherited;
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithConfigForm.WriteSettings');
 	settings := '';
-	FSettings.ClearCommandList; // so deleted entries will be recognized
+	FOpenWithSettings.ClearCommandList; // so deleted entries will be recognized
 	for var i := 0 to lbCommands.Items.Count - 1 do begin
 		sCmd := lbCommands.Items[i].Replace(SEPARATOR, '', [rfReplaceAll]);
 		dbgMsg.Msg(Format('%s', [sCmd]));
@@ -349,10 +348,11 @@ begin
 		end else begin
 			settings := Format('%s' + SEPARATOR + '%s', [BoolToStr(False, true), sCmd]);
 		end;
-		FSettings.Command[i] := settings;
-		dbgMsg.Msg(Format('%s', [FSettings.Command[i]]));
+		FOpenWithSettings.Command[i] := settings;
+		dbgMsg.Msg(Format('%s', [FOpenWithSettings.Command[i]]));
 	end;
-	FSettings.WriteToIni; // save always
+	FOpenWithSettings.ForceWriteToIni; // save always
+
 end;
 
 procedure TOpenWithConfigForm.lbCommandsClick(Sender : TObject);

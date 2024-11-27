@@ -38,7 +38,7 @@ object ConfigForm: TConfigForm
       50)
     object btn_Save: TButton
       AlignWithMargins = True
-      Left = 341
+      Left = 339
       Top = 16
       Width = 75
       Height = 25
@@ -52,7 +52,7 @@ object ConfigForm: TConfigForm
     end
     object btn_Cancel: TButton
       AlignWithMargins = True
-      Left = 432
+      Left = 430
       Top = 16
       Width = 75
       Height = 25

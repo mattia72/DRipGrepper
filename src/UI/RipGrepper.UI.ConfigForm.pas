@@ -18,7 +18,11 @@ uses
 	System.Actions,
 	Vcl.ActnList,
 	Vcl.StdCtrls,
-	Vcl.ExtCtrls;
+	Vcl.ExtCtrls,
+	RipGrepper.UI.AppSettingsForm,
+	RipGrepper.UI.SettingsFormBase,
+	ArrayEx,
+	System.Generics.Collections;
 
 type
 	TConfigForm = class(TForm)
@@ -29,13 +33,15 @@ type
 		ActionList1 : TActionList;
 		ActionOk : TAction;
 		ActionCancel : TAction;
-		procedure ActionCancelExecute(Sender: TObject);
+		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionOkExecute(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 
 		private
+			FAppSettingsForm : TAppSettingsForm;
 			FOpenWithConfigForm : TOpenWithConfigForm;
 			FSettings : TRipGrepperSettings;
+			FSettingsForms : TObjectList<TForm>;
 
 		public
 			constructor Create(_settings : TRipGrepperSettings); reintroduce;
@@ -56,33 +62,52 @@ begin
 	Settings := _settings;
 	// write ini file content
 	Settings.UpdateIniFile;
+
 	FOpenWithConfigForm := TOpenWithConfigForm.Create(nil, Settings.OpenWithSettings);
+	FAppSettingsForm := TAppSettingsForm.Create(nil, Settings.AppSettings);
+
+	FSettingsForms := TObjectList<TForm>.Create();
+	FSettingsForms.AddRange([FAppSettingsForm, FOpenWithConfigForm]);
+
 end;
 
 destructor TConfigForm.Destroy;
 begin
+	FSettingsForms.Free;
 	Settings.ReCreateMemIni;
 	Settings.ReLoad;
 	inherited;
 end;
 
-procedure TConfigForm.ActionCancelExecute(Sender: TObject);
+procedure TConfigForm.ActionCancelExecute(Sender : TObject);
 begin
+	for var f in FSettingsForms do begin
+		(f as ISettingsForm).OnCancel();
+	end;
+
 	FOpenWithConfigForm.ActionCancelExecute(Sender);
 	ModalResult := mrCancel;
 end;
 
 procedure TConfigForm.ActionOkExecute(Sender : TObject);
 begin
+	for var f in FSettingsForms do begin
+		(f as ISettingsForm).OnOk();
+	end;
+
 	FOpenWithConfigForm.ActionOkExecute(sender);
 	ModalResult := mrOk;
 end;
 
 procedure TConfigForm.FormShow(Sender : TObject);
 begin
-	FOpenWithConfigForm.ManualDock(PageControl1);
+	for var form : TForm in FSettingsForms do begin
+		form.ManualDock(PageControl1);
+		form.Show();
+	end;
+
 	FOpenWithConfigForm.pnlBottom.Visible := False;
-	FOpenWithConfigForm.Show();
+
 	PageControl1.TabIndex := 0;
 end;
 

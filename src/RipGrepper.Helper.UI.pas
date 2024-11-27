@@ -434,8 +434,6 @@ function TIconImageList.GetIconImgIndex(_sFilePath : string) : integer;
 var
 	sExtension : string;
 	bmp : Vcl.Graphics.TBitmap;
-	bErrorLine : boolean;
-	iconIdx : Integer;
 begin
 	sExtension := TPath.GetExtension(_sFilePath);
 
