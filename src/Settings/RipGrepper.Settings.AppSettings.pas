@@ -11,6 +11,7 @@ uses
 	RipGrepper.Common.Constants,
 	RipGrepper.Settings.Persistable,
 	ArrayEx,
+	RipGrepper.Settings.FontColors,
 	RipGrepper.Settings.RipGrepParameterSettings;
 
 type

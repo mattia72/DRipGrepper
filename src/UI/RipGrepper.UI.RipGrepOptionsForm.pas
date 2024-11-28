@@ -116,9 +116,10 @@ uses
 	System.Math,
 	Winapi.ShellAPI,
 	VirtualTrees.Header,
-	System.StrUtils, 
-	RipGrepper.CommandLine.OptionStrings, 
-	System.UITypes;
+	System.StrUtils,
+	RipGrepper.CommandLine.OptionStrings,
+	System.UITypes,
+	RipGrepper.Settings.FontColors;
 
 {$R *.dfm}
 
@@ -284,7 +285,7 @@ procedure TRipGrepOptionsForm.SearchBox1Change(Sender : TObject);
 var
 	foundNode : PVirtualNode;
 begin
-	inherited ;   //SearchBox1Change(Sender)
+	inherited; // SearchBox1Change(Sender)
 	// first param is your starting point. nil starts at top of tree. if you want to implement findnext
 	// functionality you will need to supply the previous found node to continue from that point.
 	// be sure to set the IncrementalSearchTimeout to allow users to type a few characters before starting a search.
@@ -367,12 +368,12 @@ begin
 			0 : begin
 				if Node.ChildCount > 0 then begin
 					TargetCanvas.Font.Style := TargetCanvas.Font.Style + [fsBold];
-					TargetCanvas.Font.Color := TREEVIEW_STAT_COLOR;
+					TargetCanvas.Font.Color := TREEVIEW_STAT_TEXT.Color;
 				end;
 			end;
 		end;
 	end else begin // ttStatic
-		// TargetCanvas.Font.Color := TREEVIEW_STAT_COLOR;
+		// TargetCanvas.Font.Color := TREEVIEW_STAT.Color;
 	end;
 end;
 

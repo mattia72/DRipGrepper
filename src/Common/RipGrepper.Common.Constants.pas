@@ -16,7 +16,6 @@ const
 	{ } {$ELSE}
 	APP_PLATFORM = 'x86';
 	{ }	{$ENDIF}
-
 	APPNAME = 'DRipGrepper';
 	EXTENSION_NAME = 'DRipExtension';
 
@@ -179,7 +178,7 @@ const
 	ICON_RESOURCE_DLL = 'System32\shell32.dll';
 	ICON_IDX_ERROR = 234;
 	ICON_IDX_PARSE_ERROR = 66;
-    ICON_IDX_STATISTIC = 249;
+	ICON_IDX_STATISTIC = 249;
 
 	RG_ERROR_MSG_PREFIX = 'rg:';
 	RG_PARSE_ERROR = 'not parsed output';
@@ -191,10 +190,9 @@ const
 
 	RG_ENDED_ERROR = ' failed with exit code: ';
 	RG_HAS_NO_OUTUT = ' has no output.';
-    RG_STATS_LINE = 'search statistics:';
+	RG_STATS_LINE = 'search statistics:';
 
-    MSG_FORMAT_TOO_MANY_RESULTS = 'Too many results.' + CRLF + 'The first %d will be shown. Try to be more specific.';
-
+	MSG_FORMAT_TOO_MANY_RESULTS = 'Too many results.' + CRLF + 'The first %d will be shown. Try to be more specific.';
 
 	EXT_SEARCH_ACTIVE_FILE = 0;
 	EXT_SEARCH_OPEN_FILES = 1;
@@ -212,36 +210,6 @@ const
 	TREEVIEW_COLUMN_TITLES : TArray<string> = ['File', 'Row', 'Col', 'Text', 'MatchText', 'TextAfterMatch'];
 	TREEVIEW_INDENT_TAB_AS_SPACES = '    ';
 	TREEVIEW_FONTSPACE = 2;
-
-	HIST_TREEVIEW_SEARCH_TEXT_COLOR = clOlive;
-	HIST_TREEVIEW_SEARCH_TEXT_BGCOLOR = clWhite;
-	HIST_TREEVIEW_SEARCH_TEXT_STYLE = [];
-
-	HIST_TREEVIEW_REPLACE_TEXT_COLOR = clGreen;
-	HIST_TREEVIEW_REPLACE_TEXT_BGCOLOR = clWhite;
-	HIST_TREEVIEW_REPLACE_TEXT_STYLE = [fsBold];
-
-	HIST_TREEVIEW_REPLACED_TEXT_COLOR = clMaroon;
-	HIST_TREEVIEW_REPLACED_TEXT_BGCOLOR = clWhite;
-	HIST_TREEVIEW_REPLACED_TEXT_STYLE = []; // [fsStrikeOut];
-
-	TREEVIEW_NORMAL_TEXT_COLOR = clDkGray;
-
-	TREEVIEW_MATCH_TEXT_COLOR = clWhite;
-	TREEVIEW_MATCH_TEXT_BGCOLOR = clOlive;
-	TREEVIEW_MATCH_TEXT_STYLE = [];
-
-	TREEVIEW_REPLACE_TEXT_COLOR = clWhite;
-	TREEVIEW_REPLACE_TEXT_BGCOLOR = clGreen;
-	TREEVIEW_REPLACE_TEXT_STYLE = [fsBold];
-
-	TREEVIEW_REPLACED_TEXT_COLOR = clWhite;
-	TREEVIEW_REPLACED_TEXT_BGCOLOR = clMaroon;
-	TREEVIEW_REPLACED_TEXT_STYLE = [fsBold, fsStrikeOut];
-
-	TREEVIEW_STAT_COLOR = clPurple;
-	TREEVIEW_ERROR_COLOR = clRed;
-    TREEVIEW_STATS_COLOR = clTeal;
 
 	// See it in Word Segoe ui
 	TREEVIEW_HISTORY_REPLACE_PREFIX = '⇄';

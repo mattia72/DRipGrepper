@@ -104,7 +104,10 @@ contains
   RipGrepper.Common.EncodedStringList in '..\..\..\..\src\Common\RipGrepper.Common.EncodedStringList.pas',
   RipGrepper.Tools.Replacer.ExtensionContext in '..\..\..\..\src\Tools\RipGrepper.Tools.Replacer.ExtensionContext.pas',
   RipGrepper.Tools.Replacer in '..\..\..\..\src\Tools\RipGrepper.Tools.Replacer.pas',
-  RipGrepper.UI.IFrameEvents in '..\..\..\..\src\UI\RipGrepper.UI.IFrameEvents.pas';
+  RipGrepper.UI.IFrameEvents in '..\..\..\..\src\UI\RipGrepper.UI.IFrameEvents.pas',
+  RipGrepper.Settings.FontColors in '..\..\..\..\src\Settings\RipGrepper.Settings.FontColors.pas',
+  RipGrepper.UI.AppSettingsForm in '..\..\..\..\src\UI\RipGrepper.UI.AppSettingsForm.pas' {AppSettingsForm},
+  RipGrepper.UI.SettingsFormBase in '..\..\..\..\src\UI\RipGrepper.UI.SettingsFormBase.pas';
 
 end.
 

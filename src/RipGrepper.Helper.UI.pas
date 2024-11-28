@@ -151,7 +151,7 @@ uses
 	RipGrepper.Common.Constants,
 
 	Vcl.Dialogs,
-	System.StrUtils;
+	System.StrUtils, RipGrepper.Settings.FontColors;
 
 procedure TCursorSaver.SetHourGlassCursor;
 begin
@@ -333,55 +333,55 @@ end;
 
 class procedure TItemDrawer.SetTextColorMatch(TargetCanvas : TCanvas);
 begin
-	TargetCanvas.Font.Color := TREEVIEW_MATCH_TEXT_COLOR;
-	TargetCanvas.Brush.Color := TREEVIEW_MATCH_TEXT_BGCOLOR;
-	TargetCanvas.Font.style := TREEVIEW_MATCH_TEXT_STYLE;
+	TargetCanvas.Font.Color := TREEVIEW_MATCH_TEXT.Color;
+	TargetCanvas.Brush.Color := TREEVIEW_MATCH_TEXT.BGCOLOR;
+	TargetCanvas.Font.style := TREEVIEW_MATCH_TEXT.STYLE;
 end;
 
 class procedure TItemDrawer.SetTextColorErrorStaticText(TargetCanvas : TCanvas; const _bError : Boolean);
 begin
 	if _bError then begin
-		TargetCanvas.Font.Color := TREEVIEW_ERROR_COLOR;
+		TargetCanvas.Font.Color := TREEVIEW_ERROR_TEXT.Color;
 		TargetCanvas.Font.style := [fsBold];
 	end else begin
-		TargetCanvas.Font.Color := TREEVIEW_STAT_COLOR;
+		TargetCanvas.Font.Color := TREEVIEW_STAT_TEXT.Color;
 		TargetCanvas.Font.style := [];
 	end;
 end;
 
 class procedure TItemDrawer.SetTextColorHistorySearchText(TargetCanvas : TCanvas);
 begin
-	TargetCanvas.Font.Color := HIST_TREEVIEW_SEARCH_TEXT_COLOR;
-	// TargetCanvas.Brush.Color := HIST_TREEVIEW_SEARCH_TEXT_BGCOLOR;
-	TargetCanvas.Font.style := HIST_TREEVIEW_SEARCH_TEXT_STYLE;
+	TargetCanvas.Font.Color := HIST_TREEVIEW_SEARCH_TEXT.Color;
+	// TargetCanvas.Brush.Color := HIST_TREEVIEW_SEARCH_TEXT.BgColor;
+	TargetCanvas.Font.style := HIST_TREEVIEW_SEARCH_TEXT.STYLE;
 end;
 
 class procedure TItemDrawer.SetTextColorHistoryReplaceText(TargetCanvas : TCanvas);
 begin
-	TargetCanvas.Font.Color := HIST_TREEVIEW_REPLACE_TEXT_COLOR;
-	// TargetCanvas.Brush.Color := HIST_TREEVIEW_REPLACE_TEXT_BGCOLOR;
-	TargetCanvas.Font.style := TREEVIEW_REPLACE_TEXT_STYLE;
+	TargetCanvas.Font.Color := HIST_TREEVIEW_REPLACE_TEXT.Color;
+	// TargetCanvas.Brush.Color := HIST_TREEVIEW_REPLACE_TEXT.BgColor;
+	TargetCanvas.Font.style := TREEVIEW_REPLACE_TEXT.STYLE;
 end;
 
 class procedure TItemDrawer.SetTextColorHistoryReplacedText(TargetCanvas : TCanvas);
 begin
-	TargetCanvas.Font.Color := HIST_TREEVIEW_REPLACED_TEXT_COLOR;
-	// TargetCanvas.Brush.Color := HIST_TREEVIEW_REPLACED_TEXT_BGCOLOR;
-	TargetCanvas.Font.style := TREEVIEW_REPLACED_TEXT_STYLE;
+	TargetCanvas.Font.Color := HIST_TREEVIEW_REPLACED_TEXT.Color;
+	// TargetCanvas.Brush.Color := HIST_TREEVIEW_REPLACED_TEXT.BgColor;
+	TargetCanvas.Font.style := TREEVIEW_REPLACED_TEXT.STYLE;
 end;
 
 class procedure TItemDrawer.SetTextColorReplacedText(TargetCanvas : TCanvas);
 begin
-	TargetCanvas.Font.Color := TREEVIEW_REPLACED_TEXT_COLOR;
-	TargetCanvas.Brush.Color := TREEVIEW_REPLACED_TEXT_BGCOLOR;
-	TargetCanvas.Font.style := TREEVIEW_REPLACED_TEXT_STYLE;
+	TargetCanvas.Font.Color := TREEVIEW_REPLACED_TEXT.Color;
+	TargetCanvas.Brush.Color := TREEVIEW_REPLACED_TEXT.BgColor;
+	TargetCanvas.Font.Style := TREEVIEW_REPLACED_TEXT.Style;
 end;
 
 class procedure TItemDrawer.SetTextColorReplaceText(TargetCanvas : TCanvas);
 begin
-	TargetCanvas.Font.Color := TREEVIEW_REPLACE_TEXT_COLOR;
-	TargetCanvas.Font.style := TREEVIEW_REPLACE_TEXT_STYLE;
-	TargetCanvas.Brush.Color := TREEVIEW_REPLACE_TEXT_BGCOLOR;
+	TargetCanvas.Font.Color := TREEVIEW_REPLACE_TEXT.Color;
+	TargetCanvas.Font.Style := TREEVIEW_REPLACE_TEXT.Style;
+	TargetCanvas.Brush.Color := TREEVIEW_REPLACE_TEXT.BgColor;
 end;
 
 class function TItemDrawer.ShrinkRect(const r : TRect; const X0, X1, Y0, Y1 : integer) : TRect;
