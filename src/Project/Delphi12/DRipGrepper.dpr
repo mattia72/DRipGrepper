@@ -86,7 +86,9 @@ uses
   RipGrepper.Tools.Replacer in '..\..\Tools\RipGrepper.Tools.Replacer.pas',
   RipGrepper.Tools.Replacer.StandaloneContext in '..\..\Tools\RipGrepper.Tools.Replacer.StandaloneContext.pas',
   RipGrepper.Common.EncodedStringList in '..\..\Common\RipGrepper.Common.EncodedStringList.pas',
-  RipGrepper.UI.IFrameEvents in '..\..\UI\RipGrepper.UI.IFrameEvents.pas';
+  RipGrepper.UI.IFrameEvents in '..\..\UI\RipGrepper.UI.IFrameEvents.pas',
+  RipGrepper.UI.AppSettingsForm in '..\..\UI\RipGrepper.UI.AppSettingsForm.pas' {AppSettingsForm},
+  RipGrepper.UI.SettingsFormBase in '..\..\UI\RipGrepper.UI.SettingsFormBase.pas';
 
 {$R *.res}
 
@@ -97,5 +99,6 @@ begin
 	Application.Initialize;
 	Application.MainFormOnTaskbar := True;
 	Application.CreateForm(TRipGrepperForm, RipGrepperForm);
+  Application.CreateForm(TAppSettingsForm, AppSettingsForm);
   Application.Run;
 end.
