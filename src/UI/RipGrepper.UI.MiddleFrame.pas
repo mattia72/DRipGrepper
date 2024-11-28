@@ -241,7 +241,8 @@ uses
 	{$ENDIF}
 	System.Generics.Defaults,
 	RipGrepper.UI.SearchForm,
-	System.RegularExpressions;
+	System.RegularExpressions, 
+	RipGrepper.Settings.FontColors;
 
 {$R *.dfm}
 
@@ -1244,11 +1245,11 @@ begin
 		COL_FILE : begin
 			if MatchStr(Text, [RG_ERROR_MSG_PREFIX, RG_PARSE_ERROR]) then begin
 				DefaultDraw := False;
-				TargetCanvas.Font.Color := TREEVIEW_ERROR_COLOR;
+				TargetCanvas.Font.Color := TREEVIEW_ERROR_TEXT.Color;
 				TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, Text);
 			end else if MatchStr(Text, [RG_STATS_LINE]) then begin
 				DefaultDraw := False;
-				TargetCanvas.Font.Color := TREEVIEW_STATS_COLOR;
+				TargetCanvas.Font.Color := TREEVIEW_STATS_TEXT.Color;
 				TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, Text);
 			end;
 		end;
@@ -1404,11 +1405,11 @@ begin
 		case Column of
 			COL_FILE : begin
 				TargetCanvas.Font.style := [fsBold];
-				TargetCanvas.Font.Color := TREEVIEW_NORMAL_TEXT_COLOR;
+				TargetCanvas.Font.Color := TREEVIEW_NORMAL_TEXT.Color;
 			end;
 		end;
 	end else begin // ttStatic
-		TargetCanvas.Font.Color := TREEVIEW_STAT_COLOR; // Not shown on MultiLine
+		TargetCanvas.Font.Color := TREEVIEW_STAT_TEXT.Color; // Not shown on MultiLine
 	end;
 end;
 

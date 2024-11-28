@@ -121,7 +121,8 @@ uses
 	System.SysUtils,
 	System.StrUtils,
 	RipGrepper.Helper.Types,
-	RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.SimpleTypes,
+	RipGrepper.Settings.FontColors;
 
 {$R *.dfm}
 
@@ -514,13 +515,13 @@ begin
 		case Sender.GetNodeLevel(Node) of
 			0 : begin
 				if (Node.ChildCount = 0) then begin
-					TargetCanvas.Brush.Color := HIST_TREEVIEW_SEARCH_TEXT_BGCOLOR;
+					TargetCanvas.Brush.Color := HIST_TREEVIEW_SEARCH_TEXT.BgColor;
 				end else begin
-					TargetCanvas.Brush.Color := HIST_TREEVIEW_REPLACED_TEXT_BGCOLOR;
+					TargetCanvas.Brush.Color := HIST_TREEVIEW_REPLACED_TEXT.BgColor;
 				end;
 			end;
 			1 :
-			TargetCanvas.Brush.Color := HIST_TREEVIEW_REPLACE_TEXT_BGCOLOR;
+			TargetCanvas.Brush.Color := HIST_TREEVIEW_REPLACE_TEXT.BgColor;
 		end;
 		TargetCanvas.FillRect(R);
 	end;
