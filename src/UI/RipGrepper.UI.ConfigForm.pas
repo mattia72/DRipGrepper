@@ -64,6 +64,7 @@ begin
 	Settings.UpdateIniFile;
 
 	FOpenWithConfigForm := TOpenWithConfigForm.Create(nil, Settings.OpenWithSettings);
+    FOpenWithConfigForm.Caption := 'Open With...'   ;
 	FAppSettingsForm := TAppSettingsForm.Create(nil, Settings.AppSettings);
 
 	FSettingsForms := TObjectList<TForm>.Create();
