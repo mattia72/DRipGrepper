@@ -26,7 +26,7 @@ type
 			procedure ReadIni; override; // TODO: use persistable base
 			procedure LoadFromDict(); override;
 			procedure LoadDefaultsFromDict; override;
-			procedure WriteToIni;
+			procedure ForceWriteToIni;
 			function ToString : string; override;
 			property Command[index : Integer] : string read GetCommand write SetCommand;
 			property TestFile : TOpenWithParams read FTestFile write FTestFile;
@@ -115,12 +115,12 @@ begin
 	end;
 end;
 
-procedure TOpenWithSettings.WriteToIni;
+procedure TOpenWithSettings.ForceWriteToIni;
 var
 	s : string;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.WriteToIni');
+	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.ForceWriteToIni');
 	if { IsAlreadyRead never set :( } IsModified then begin
 		ReCreateMemIni(FOwnIniFile);
 		FOwnIniFile.EraseSection(OPEN_WITH_SETTINGS);
