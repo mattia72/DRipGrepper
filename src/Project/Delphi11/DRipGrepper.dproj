@@ -283,6 +283,11 @@
         <DCCReference Include="..\..\Tools\RipGrepper.Tools.Replacer.pas"/>
         <DCCReference Include="..\..\UI\RipGrepper.UI.IFrameEvents.pas"/>
         <DCCReference Include="..\..\Settings\RipGrepper.Settings.FontColors.pas"/>
+        <DCCReference Include="..\..\UI\RipGrepper.UI.AppSettingsForm.pas">
+            <Form>AppSettingsForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="..\..\UI\RipGrepper.UI.SettingsFormBase.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
