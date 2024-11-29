@@ -59,6 +59,9 @@ begin
 	inherited Create(_Owner, _settings);
 	FAppSettings := FSettings as TAppSettings;
 	ReadSettings;
+
+	ColorSelectorFrame1.LabelText.Caption := 'Match Text:';
+	ColorSelectorFrame1.Assign(Font, TREEVIEW_MATCH_TEXT.BgColor)
 end;
 
 procedure TAppSettingsForm.OnCancel;

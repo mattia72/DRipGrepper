@@ -34,20 +34,18 @@ type
 
 		private
 			FBSkipChangeEvent : Boolean;
-			function GetFGColor : TColor;
-			function GetBGColor : TColor;
-			procedure SetFGColor(const Value : TColor);
-			procedure SetBGColor(const Value : TColor);
-
+			FSelectedBackground: TColor;
+			FSelectedFont : TFont;
 		protected
 			procedure Loaded; override;
 
 		public
 			constructor Create(AOwner : TComponent); reintroduce;
+		procedure Assign(const _font: TFont; const _colorBackground: TColor);
 			procedure Refresh;
-			property FGColor : TColor read GetFGColor write SetFGColor;
-			property BGColor : TColor read GetBGColor write SetBGColor;
-			{ Public-Deklarationen }
+			property SelectedBackground: TColor read FSelectedBackground write FSelectedBackground;
+			property SelectedFont : TFont read FSelectedFont write FSelectedFont;
+
 	end;
 
 implementation
@@ -61,6 +59,13 @@ constructor TColorSelectorFrame.Create(AOwner : TComponent);
 begin
 	inherited Create(AOwner);
 
+end;
+
+procedure TColorSelectorFrame.Assign(const _font: TFont; const _colorBackground: TColor);
+begin
+	SelectedBackground := _colorBackground;
+    SelectedFont := _font;
+    Refresh;
 end;
 
 procedure TColorSelectorFrame.cbBackgroundChange(Sender : TObject);
@@ -82,23 +87,16 @@ end;
 
 procedure TColorSelectorFrame.ExampleTextDblClick(Sender : TObject);
 begin
-	FontDialog1.Font.Assign(ExampleText.Font);
+	FontDialog1.Font.Assign(FSelectedFont);
 	if FontDialog1.Execute(self.Handle) then begin
-		ExampleText.Font.Assign(FontDialog1.Font);
+		FSelectedFont.Assign(FontDialog1.Font);
 		Refresh;
 	end;
-end;
-
-function TColorSelectorFrame.GetFGColor : TColor;
-begin
-	Result := cbForeground.Selected;
 end;
 
 procedure TColorSelectorFrame.Loaded;
 begin
 	inherited;
-	cbBackground.Selected := ExampleText.Color;
-	cbForeground.Selected := ExampleText.Font.Color;
 	ExampleText.Constraints.MaxHeight := ExampleText.Height;
 	ExampleText.Constraints.MaxWidth := ExampleText.Width;
 	ExampleText.Constraints.MinHeight := ExampleText.Height;
@@ -106,18 +104,15 @@ begin
 	ExampleText.Top := cbForeground.Top + Trunc(cbForeground.Height / 2) - Trunc(ExampleText.Height / 2);
 end;
 
-function TColorSelectorFrame.GetBGColor : TColor;
-begin
-	Result := cbBackground.Selected;
-end;
-
 procedure TColorSelectorFrame.Refresh;
 begin
-	ExampleText.Refresh;
+	ExampleText.Font.Assign(FSelectedFont);
+    ExampleText.Color := FSelectedBackground;
+
 	FBSkipChangeEvent := True;
 	try
-		FGColor := ExampleText.Font.Color;
-		BGColor := ExampleText.Color;
+		cbForeground.Selected := ExampleText.Font.Color;
+		cbBackground.Selected := ExampleText.Color;
 
 		cbItalic.Checked := fsItalic in ExampleText.Font.Style;
 		cbBold.Checked := fsBold in ExampleText.Font.Style;
@@ -126,18 +121,6 @@ begin
 	finally
 		FBSkipChangeEvent := False;
 	end;
-end;
-
-procedure TColorSelectorFrame.SetFGColor(const Value : TColor);
-begin
-	cbForeground.Selected := Value;
-	cbForegroundChange(self);
-end;
-
-procedure TColorSelectorFrame.SetBGColor(const Value : TColor);
-begin
-	cbBackground.Selected := Value;
-	cbBackgroundChange(self);
 end;
 
 end.
