@@ -113,6 +113,7 @@ begin
 	inherited Create(AOwner, ASettings); // , ImageList1);
 	FOpenWithSettings := ASettings;
 	FOpenWithSettings.ReadIni; // we should read ini every time, it can be overwritten by another instance...
+
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 end;
 
@@ -351,9 +352,10 @@ begin
 		FOpenWithSettings.Command[i] := settings;
 		dbgMsg.Msg(Format('%s', [FOpenWithSettings.Command[i]]));
 	end;
-	FOpenWithSettings.ForceWriteToIni; // save always
 
-end;
+	FOpenWithSettings.ForceWriteToIni; // save always
+	//inherited WriteSettings; it's not eonugh
+ end;
 
 procedure TOpenWithConfigForm.lbCommandsClick(Sender : TObject);
 begin
