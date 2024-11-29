@@ -30,7 +30,7 @@ const
 	TREEVIEW_STATS_TEXT : TFontAttributes = (Color : clTeal; BgColor : clNone; Style : [];);
 
 type
-	TFontAttributesRecord = record
+	TFontColors = record
 		HistTreeViewSearchText : TFontAttributes;
 		HistTreeViewReplaceText : TFontAttributes;
 		HistTreeViewReplacedText : TFontAttributes;

@@ -16,21 +16,21 @@ uses
 	Vcl.StdCtrls,
 	RipGrepper.Settings.Persistable,
 	RipGrepper.Settings.AppSettings,
-	RipGrepper.UI.SettingsFormBase;
+	RipGrepper.UI.SettingsFormBase,
+	RipGrepper.UI.ColorSelectorFrame,
+	RipGrepper.Settings.FontColors;
 
 type
 
 	TAppSettingsForm = class(TSettingsBaseForm)
 		Panel1 : TPanel;
-		ColorBox1 : TColorBox;
-		Label1 : TLabel;
 		chDebugTrace : TCheckBox;
 		chExpertMode : TCheckBox;
-		Label2 : TLabel;
-		ColorBox2 : TColorBox;
+		ColorSelectorFrame1 : TColorSelectorFrame;
 
 		private
 			FAppSettings : TAppSettings;
+			FColorSettings : TFontColors;
 
 			{ Private declarations }
 		protected
@@ -60,6 +60,9 @@ begin
     Caption := 'General';
 	FAppSettings := FSettings as TAppSettings;
 	ReadSettings;
+
+	ColorSelectorFrame1.LabelText.Caption := 'Match Text:';
+	ColorSelectorFrame1.Assign(Font, TREEVIEW_MATCH_TEXT.BgColor)
 end;
 
 procedure TAppSettingsForm.OnCancel;
