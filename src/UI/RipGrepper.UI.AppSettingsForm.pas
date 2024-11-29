@@ -57,6 +57,7 @@ uses
 constructor TAppSettingsForm.Create(_Owner : TComponent; _settings : TAppSettings);
 begin
 	inherited Create(_Owner, _settings);
+    Caption := 'General';
 	FAppSettings := FSettings as TAppSettings;
 	ReadSettings;
 
@@ -88,7 +89,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TAppSettingsForm.WriteSettings');
 	FAppSettings.DebugTrace := chDebugTrace.Checked;
 	FAppSettings.ExpertMode := chExpertMode.Checked;
-	inherited;
+	inherited WriteSettings;
 end;
 
 end.
