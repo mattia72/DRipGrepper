@@ -134,8 +134,8 @@
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_MajorVer>3</VerInfo_MajorVer>
         <VerInfo_MinorVer>9</VerInfo_MinorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.9.0.58;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.9.0.0</VerInfo_Keys>
-        <VerInfo_Build>58</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.9.0.61;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.9.0.0</VerInfo_Keys>
+        <VerInfo_Build>61</VerInfo_Build>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     </PropertyGroup>
@@ -291,6 +291,12 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="..\..\UI\RipGrepper.UI.SettingsFormBase.pas"/>
+        <DCCReference Include="..\..\Settings\RipGrepper.Settings.FontColors.pas"/>
+        <DCCReference Include="..\..\UI\RipGrepper.UI.ColorSelectorFrame.pas">
+            <Form>ColorSelectorFrame</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

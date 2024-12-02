@@ -1,11 +1,11 @@
 object ColorSelectorFrame: TColorSelectorFrame
   Left = 0
   Top = 0
-  Width = 590
+  Width = 408
   Height = 27
   TabOrder = 0
   object LabelText: TLabel
-    Left = 3
+    Left = 59
     Top = 3
     Width = 49
     Height = 15
@@ -14,9 +14,9 @@ object ColorSelectorFrame: TColorSelectorFrame
   end
   object cbBackground: TColorBox
     AlignWithMargins = True
-    Left = 157
+    Left = 213
     Top = 0
-    Width = 39
+    Width = 40
     Height = 22
     Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbIncludeDefault, cbPrettyNames, cbCustomColors]
     TabOrder = 0
@@ -24,9 +24,9 @@ object ColorSelectorFrame: TColorSelectorFrame
   end
   object cbForeground: TColorBox
     AlignWithMargins = True
-    Left = 112
+    Left = 168
     Top = 0
-    Width = 39
+    Width = 40
     Height = 22
     Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbIncludeDefault, cbPrettyNames, cbCustomColors]
     TabOrder = 1
@@ -34,8 +34,8 @@ object ColorSelectorFrame: TColorSelectorFrame
   end
   object ExampleText: TStaticText
     AlignWithMargins = True
-    Left = 58
-    Top = 4
+    Left = 114
+    Top = 1
     Width = 48
     Height = 19
     Alignment = taCenter
@@ -55,11 +55,11 @@ object ColorSelectorFrame: TColorSelectorFrame
     OnDblClick = ExampleTextDblClick
   end
   object cbBold: TCheckBox
-    Left = 202
+    Left = 258
     Top = 3
-    Width = 46
+    Width = 30
     Height = 17
-    Caption = 'Bold'
+    Caption = 'B'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -12
@@ -67,13 +67,14 @@ object ColorSelectorFrame: TColorSelectorFrame
     Font.Style = [fsBold]
     ParentFont = False
     TabOrder = 3
+    OnClick = cbBoldClick
   end
   object cbItalic: TCheckBox
-    Left = 254
+    Left = 295
     Top = 3
-    Width = 46
+    Width = 30
     Height = 17
-    Caption = 'Italic'
+    Caption = 'I'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -12
@@ -81,13 +82,14 @@ object ColorSelectorFrame: TColorSelectorFrame
     Font.Style = [fsItalic]
     ParentFont = False
     TabOrder = 4
+    OnClick = cbItalicClick
   end
   object cbUnderline: TCheckBox
-    Left = 306
+    Left = 328
     Top = 3
-    Width = 77
+    Width = 30
     Height = 17
-    Caption = 'UnderLine'
+    Caption = 'U'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -12
@@ -95,13 +97,14 @@ object ColorSelectorFrame: TColorSelectorFrame
     Font.Style = [fsUnderline]
     ParentFont = False
     TabOrder = 5
+    OnClick = cbUnderlineClick
   end
   object cbStrikeOut: TCheckBox
-    Left = 389
+    Left = 365
     Top = 3
-    Width = 74
+    Width = 30
     Height = 17
-    Caption = 'StrikeOut'
+    Caption = 'S'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -12
@@ -109,6 +112,7 @@ object ColorSelectorFrame: TColorSelectorFrame
     Font.Style = [fsStrikeOut]
     ParentFont = False
     TabOrder = 6
+    OnClick = cbStrikeOutClick
   end
   object FontDialog1: TFontDialog
     Font.Charset = DEFAULT_CHARSET
@@ -116,7 +120,7 @@ object ColorSelectorFrame: TColorSelectorFrame
     Font.Height = -12
     Font.Name = 'Segoe UI'
     Font.Style = []
-    Left = 493
-    Top = 3
+    Left = 5
+    Top = 65531
   end
 end

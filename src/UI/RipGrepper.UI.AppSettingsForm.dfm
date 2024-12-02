@@ -34,12 +34,21 @@ object AppSettingsForm: TAppSettingsForm
       Caption = 'Expert Mode'
       TabOrder = 1
     end
-    inline ColorSelectorFrame1: TColorSelectorFrame
-      Left = 16
-      Top = 75
-      Width = 556
-      Height = 27
-      TabOrder = 2
+  end
+  inline ColorSelectorFrame1: TColorSelectorFrame
+    Left = 8
+    Top = 96
+    Width = 408
+    Height = 27
+    TabOrder = 1
+    inherited LabelText: TLabel
+      StyleElements = [seFont, seClient, seBorder]
+    end
+    inherited cbBackground: TColorBox
+      StyleElements = [seFont, seClient, seBorder]
+    end
+    inherited cbForeground: TColorBox
+      StyleElements = [seFont, seClient, seBorder]
     end
   end
 end

@@ -88,7 +88,9 @@ uses
   RipGrepper.Common.EncodedStringList in '..\..\Common\RipGrepper.Common.EncodedStringList.pas',
   RipGrepper.UI.IFrameEvents in '..\..\UI\RipGrepper.UI.IFrameEvents.pas',
   RipGrepper.UI.AppSettingsForm in '..\..\UI\RipGrepper.UI.AppSettingsForm.pas' {AppSettingsForm},
-  RipGrepper.UI.SettingsFormBase in '..\..\UI\RipGrepper.UI.SettingsFormBase.pas';
+  RipGrepper.UI.SettingsFormBase in '..\..\UI\RipGrepper.UI.SettingsFormBase.pas',
+  RipGrepper.Settings.FontColors in '..\..\Settings\RipGrepper.Settings.FontColors.pas',
+  RipGrepper.UI.ColorSelectorFrame in '..\..\UI\RipGrepper.UI.ColorSelectorFrame.pas' {ColorSelectorFrame: TFrame};
 
 {$R *.res}
 

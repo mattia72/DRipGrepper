@@ -29,21 +29,28 @@ type
 		FontDialog1 : TFontDialog;
 		cbStrikeOut : TCheckBox;
 		procedure cbBackgroundChange(Sender : TObject);
+		procedure cbBoldClick(Sender : TObject);
 		procedure cbForegroundChange(Sender : TObject);
+		procedure cbItalicClick(Sender : TObject);
+		procedure cbStrikeOutClick(Sender : TObject);
+		procedure cbUnderlineClick(Sender : TObject);
 		procedure ExampleTextDblClick(Sender : TObject);
 
 		private
 			FBSkipChangeEvent : Boolean;
-			FSelectedBackground: TColor;
+			FSelectedBackground : TColor;
 			FSelectedFont : TFont;
+			procedure UpdateFontStyle(_chb : TCheckBox; const _fs : TFontStyle);
+
 		protected
 			procedure Loaded; override;
 
 		public
 			constructor Create(AOwner : TComponent); reintroduce;
-		procedure Assign(const _font: TFont; const _colorBackground: TColor);
+			procedure AssignFont(const _font : TFont; const _colorBackground : TColor);
 			procedure Refresh;
-			property SelectedBackground: TColor read FSelectedBackground write FSelectedBackground;
+			procedure SetFontStylesByCheckBox;
+			property SelectedBackground : TColor read FSelectedBackground write FSelectedBackground;
 			property SelectedFont : TFont read FSelectedFont write FSelectedFont;
 
 	end;
@@ -61,11 +68,12 @@ begin
 
 end;
 
-procedure TColorSelectorFrame.Assign(const _font: TFont; const _colorBackground: TColor);
+procedure TColorSelectorFrame.AssignFont(const _font : TFont; const
+	_colorBackground : TColor);
 begin
 	SelectedBackground := _colorBackground;
-    SelectedFont := _font;
-    Refresh;
+	SelectedFont := _font;
+	Refresh;
 end;
 
 procedure TColorSelectorFrame.cbBackgroundChange(Sender : TObject);
@@ -76,6 +84,11 @@ begin
 	ExampleText.Refresh;
 end;
 
+procedure TColorSelectorFrame.cbBoldClick(Sender : TObject);
+begin
+	SetFontStylesByCheckBox();
+end;
+
 procedure TColorSelectorFrame.cbForegroundChange(Sender : TObject);
 begin
 	if FBSkipChangeEvent then
@@ -83,6 +96,21 @@ begin
 
 	ExampleText.Font.Color := cbForeground.Selected;
 	ExampleText.Refresh;
+end;
+
+procedure TColorSelectorFrame.cbItalicClick(Sender : TObject);
+begin
+	SetFontStylesByCheckBox();
+end;
+
+procedure TColorSelectorFrame.cbStrikeOutClick(Sender : TObject);
+begin
+	SetFontStylesByCheckBox();
+end;
+
+procedure TColorSelectorFrame.cbUnderlineClick(Sender : TObject);
+begin
+	SetFontStylesByCheckBox();
 end;
 
 procedure TColorSelectorFrame.ExampleTextDblClick(Sender : TObject);
@@ -107,7 +135,7 @@ end;
 procedure TColorSelectorFrame.Refresh;
 begin
 	ExampleText.Font.Assign(FSelectedFont);
-    ExampleText.Color := FSelectedBackground;
+	ExampleText.Color := FSelectedBackground;
 
 	FBSkipChangeEvent := True;
 	try
@@ -120,6 +148,24 @@ begin
 		cbStrikeOut.Checked := fsStrikeOut in ExampleText.Font.Style;
 	finally
 		FBSkipChangeEvent := False;
+	end;
+end;
+
+procedure TColorSelectorFrame.SetFontStylesByCheckBox;
+begin
+	UpdateFontStyle(cbItalic, fsItalic);
+	UpdateFontStyle(cbBold, fsBold);
+	UpdateFontStyle(cbUnderline, fsUnderline);
+	UpdateFontStyle(cbStrikeOut, fsStrikeOut);
+    Refresh;
+end;
+
+procedure TColorSelectorFrame.UpdateFontStyle(_chb : TCheckBox; const _fs : TFontStyle);
+begin
+	if _chb.Checked then begin
+		FSelectedFont.Style := FSelectedFont.Style + [_fs];
+	end else begin
+		FSelectedFont.Style := FSelectedFont.Style - [_fs]
 	end;
 end;
 

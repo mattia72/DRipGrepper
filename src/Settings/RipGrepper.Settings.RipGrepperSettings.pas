@@ -12,7 +12,8 @@ uses
 	RipGrepper.Settings.RipGrepParameterSettings,
 	RipGrepper.Settings.SearchFormSettings,
 	RipGrepper.Settings.NodeLookSettings,
-	RipGrepper.Settings.OpenWithSettings;
+	RipGrepper.Settings.OpenWithSettings,
+	RipGrepper.Settings.FontColors;
 
 type
 	TRipGrepperSettings = class(TPersistableSettings)
@@ -23,6 +24,7 @@ type
 			FRipGrepParameters : TRipGrepParameterSettings;
 			FNodeLookSettings : TNodeLookSettings;
 			FOpenWithSettings : TOpenWithSettings;
+			FFontColorSettings : TColorSettings;
 
 			FExpertOptionHistory : TSTrings;
 			FSearchPathsHistory : TStrings;
@@ -85,6 +87,7 @@ type
 			property OpenWithSettings : TOpenWithSettings read FOpenWithSettings;
 			property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings write FSearchFormSettings;
 			property AppSettings : TAppSettings read FAppSettings write FAppSettings;
+			property FontColorSettings : TColorSettings read FFontColorSettings write FFontColorSettings;
 			property IsReplaceMode : Boolean read GetIsReplaceMode;
 			property LastReplaceText : string read FLastReplaceText write FLastReplaceText;
 			property NodeLookSettings : TNodeLookSettings read FNodeLookSettings write FNodeLookSettings;
@@ -167,6 +170,7 @@ begin
 	FOpenWithSettings.Free;
 	FRipGrepParameters.Free;
 	FAppSettings.Free;
+	FFontColorSettings.Free;
 	FSearchFormSettings.Free;
 	FFileMasksHistory.Free;
 	UpdateIniFile;
@@ -181,6 +185,7 @@ begin
 	FSearchFormSettings := TSearchFormSettings.Create(FIniFile);
 
 	FAppSettings := TAppSettings.Create(FIniFile);
+	FFontColorSettings := TColorSettings.Create(FIniFile);
 	FRipGrepParameters := TRipGrepParameterSettings.Create(FIniFile);
 	FNodeLookSettings := TNodeLookSettings.Create(FIniFile);
 	FOpenWithSettings := TOpenWithSettings.Create(FIniFile);
@@ -205,9 +210,10 @@ begin
 		s := _other as TRipGrepperSettings;
 
 		FAppSettings.Copy(s.AppSettings);
-		FNodeLookSettings.Copy(s.NodeLookSettings);;
-		FOpenWithSettings.Copy(s.OpenWithSettings);;
-		FRipGrepParameters.Copy(s.RipGrepParameters);;
+		FFontColorSettings.Copy(s.FontColorSettings);
+		FNodeLookSettings.Copy(s.NodeLookSettings);
+		FOpenWithSettings.Copy(s.OpenWithSettings);
+		FRipGrepParameters.Copy(s.RipGrepParameters);
 		FSearchFormSettings.Copy(s.SearchFormSettings);
 
 		FSearchPathsHistory.Assign(s.SearchPathsHistory);
@@ -241,7 +247,8 @@ function TRipGrepperSettings.GetIsModified : Boolean;
 begin
 	Result := FIsModified or FRipGrepParameters.IsModified or
 	{ } FNodeLookSettings.IsModified or
-	{ } FOpenWithSettings.IsModified;
+	{ } FOpenWithSettings.IsModified or
+	{ } FFontColorSettings.IsModified;
 end;
 
 function TRipGrepperSettings.GetIsReplaceMode : Boolean;
@@ -267,12 +274,13 @@ begin
 	// nothing todo
 end;
 
-procedure TRipGrepperSettings.ReadIni;  // Composit
+procedure TRipGrepperSettings.ReadIni; // Composit
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.ReadIni');
 	try
 		FAppSettings.ReadIni();
+		FFontColorSettings.ReadIni();
 		FNodeLookSettings.ReadIni();
 		FOpenWithSettings.ReadIni();
 		FRipGrepParameters.ReadIni();
@@ -298,6 +306,7 @@ end;
 procedure TRipGrepperSettings.LoadFirstNecessarySettings;
 begin
 	FNodeLookSettings.LoadFromDict();
+
 	LoadHistoryEntries(FSearchPathsHistory, 'SearchPathsHistory');
 	LoadHistoryEntries(FSearchTextsHistory, 'SearchTextsHistory');
 	LoadHistoryEntries(FReplaceTextsHistory, 'ReplaceTextsHistory');
@@ -321,10 +330,11 @@ begin
 	FSearchFormSettings.LoadFromDict;
 end;
 
-procedure TRipGrepperSettings.ReCreateMemIni;  // Composit
+procedure TRipGrepperSettings.ReCreateMemIni; // Composit
 begin
 	inherited;
 	FAppSettings.IniFile := IniFile;
+    FFontColorSettings.IniFile := IniFile;
 	FNodeLookSettings.IniFile := IniFile;
 	FOpenWithSettings.IniFile := IniFile;
 	FRipGrepParameters.IniFile := IniFile;
@@ -334,7 +344,10 @@ end;
 
 procedure TRipGrepperSettings.ReLoad; // Composit
 begin
+	begin
+end;
 	FAppSettings.ReLoad;
+	FFontColorSettings.ReLoad;
 	FNodeLookSettings.ReLoad;
 	FOpenWithSettings.ReLoad;
 	FRipGrepParameters.ReLoad;
@@ -375,6 +388,7 @@ begin
 	if IsModified then begin
 		dbgMsg.Msg('IsModified');
 		FAppSettings.StoreToDict;
+		FFontColorSettings.StoreToDict;
 		FNodeLookSettings.StoreToDict;
 		FOpenWithSettings.StoreToDict;
 		FRipGrepParameters.StoreToDict;

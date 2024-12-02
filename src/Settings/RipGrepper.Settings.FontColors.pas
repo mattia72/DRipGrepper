@@ -4,7 +4,9 @@ interface
 
 uses
 	System.UITypes,
-	Vcl.Graphics;
+	Vcl.Graphics,
+	RipGrepper.Settings.Persistable,
+	System.IniFiles;
 
 type
 	TFontStyleSet = set of TFontStyle;
@@ -13,6 +15,10 @@ type
 		Color : TColor;
 		BgColor : TColor;
 		Style : TFontStyleSet;
+
+		public
+			class function FromString(const _s : string): TFontAttributes; static;
+			function ToString : string;
 	end;
 
 const
@@ -46,23 +52,81 @@ type
 		TreeViewStatisicsText : TFontAttributes;
 	end;
 
-	// TColorSettings = class(TPersistableSettings)
-	// 	const
-	// 		INI_SECTION = 'RipGrepperColorSettings';
+	TColorSettings = class(TPersistableSettings)
+		const
+			INI_SECTION = 'ColorSettings';
 
-	// 	private
-    // 		FFontAttributes: TFontAttributesRecord;
-	// 	protected
-	// 		procedure Init; override;
+		private
+			FFontColors : TFontColors;
 
-	// 	public
-	// 		constructor Create(const _ini : TMemIniFile);
-	// 		destructor Destroy; override;
-	// 		procedure LoadFromDict(); override;
-	// 		procedure LoadDefaultsFromDict; override;
-	// 		procedure StoreToDict; override;
+		protected
+			procedure Init; override;
 
-	// end;
+		public
+			constructor Create(const _ini : TMemIniFile);
+			destructor Destroy; override;
+			procedure LoadFromDict(); override;
+			procedure LoadDefaultsFromDict; override;
+			procedure StoreToDict; override;
+
+			property FontColors : TFontColors read FFontColors write FFontColors;
+
+	end;
+
 implementation
+
+uses
+	RipGrepper.Tools.DebugUtils,
+	System.SysUtils,
+	RipGrepper.Common.Constants;
+
+{ TColorSettings }
+
+constructor TColorSettings.Create(const _ini : TMemIniFile);
+begin
+	IniSectionName := INI_SECTION;
+	inherited;
+	TDebugUtils.DebugMessage('TColorSettings.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
+end;
+
+destructor TColorSettings.Destroy;
+begin
+	inherited Destroy() // ok;
+end;
+
+procedure TColorSettings.Init;
+begin
+	SettingsDict.CreateSetting('TreeViewMatchText', varString, TREEVIEW_MATCH_TEXT.ToString());
+
+end;
+
+procedure TColorSettings.LoadDefaultsFromDict;
+begin
+	inherited;
+end;
+
+procedure TColorSettings.LoadFromDict;
+begin
+	FFontColors.TreeViewMatchText := TFontAttributes.FromString(SettingsDict.GetSetting('TreeViewMatchText'));
+end;
+
+procedure TColorSettings.StoreToDict;
+begin
+	SettingsDict.StoreSetting('TreeViewMatchText', FFontColors.TreeViewMatchText.ToString());
+	inherited StoreToDict();
+end;
+
+class function TFontAttributes.FromString(const _s : string): TFontAttributes;
+begin
+	var
+	arr := _s.Split([ARRAY_SEPARATOR]);
+	Result.Color := StringToColor(arr[0]);
+	Result.BgColor := StringToColor(arr[1]);
+end;
+
+function TFontAttributes.ToString : string;
+begin
+	Result := string.Join(ARRAY_SEPARATOR, [ColorToString(Color), ColorToString(BgColor)]);
+end;
 
 end.

@@ -18,7 +18,8 @@ uses
 	RipGrepper.Settings.AppSettings,
 	RipGrepper.UI.SettingsFormBase,
 	RipGrepper.UI.ColorSelectorFrame,
-	RipGrepper.Settings.FontColors;
+	RipGrepper.Settings.FontColors,
+	RipGrepper.Settings.RipGrepperSettings;
 
 type
 
@@ -30,9 +31,9 @@ type
 
 		private
 			FAppSettings : TAppSettings;
-			FColorSettings : TFontColors;
+            FColorSettings : TColorSettings;
+			FInternFont : TFont;
 
-			{ Private declarations }
 		protected
 			procedure OnCancel; override;
 			procedure OnOk; override;
@@ -40,8 +41,7 @@ type
 			procedure WriteSettings; override;
 
 		public
-			constructor Create(_Owner : TComponent; _settings : TAppSettings);
-			{ Public declarations }
+			constructor Create(_Owner : TComponent; _settings : TRipGrepperSettings);
 	end;
 
 var
@@ -54,15 +54,17 @@ uses
 
 {$R *.dfm}
 
-constructor TAppSettingsForm.Create(_Owner : TComponent; _settings : TAppSettings);
+constructor TAppSettingsForm.Create(_Owner : TComponent; _settings : TRipGrepperSettings);
 begin
 	inherited Create(_Owner, _settings);
-    Caption := 'General';
-	FAppSettings := FSettings as TAppSettings;
+	Caption := 'General';
+    FColorSettings := (FSettings as  TRipGrepperSettings).FontColorSettings;
+	FAppSettings := (FSettings as  TRipGrepperSettings).AppSettings;
+    FInternFont := TFont.Create();
 	ReadSettings;
 
 	ColorSelectorFrame1.LabelText.Caption := 'Match Text:';
-	ColorSelectorFrame1.Assign(Font, TREEVIEW_MATCH_TEXT.BgColor)
+	ColorSelectorFrame1.AssignFont(FInternFont, FColorSettings.FontColors.TreeViewMatchText.BgColor)
 end;
 
 procedure TAppSettingsForm.OnCancel;

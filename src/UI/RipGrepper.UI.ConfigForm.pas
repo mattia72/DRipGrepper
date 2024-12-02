@@ -65,7 +65,7 @@ begin
 
 	FOpenWithConfigForm := TOpenWithConfigForm.Create(nil, Settings.OpenWithSettings);
     FOpenWithConfigForm.Caption := 'Open With...'   ;
-	FAppSettingsForm := TAppSettingsForm.Create(nil, Settings.AppSettings);
+	FAppSettingsForm := TAppSettingsForm.Create(nil, Settings);
 
 	FSettingsForms := TObjectList<TForm>.Create();
 	FSettingsForms.AddRange([FAppSettingsForm, FOpenWithConfigForm]);
