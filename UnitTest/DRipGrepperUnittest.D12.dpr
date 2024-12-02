@@ -1,4 +1,4 @@
-program DRipGrepperUnittest;
+program DRipGrepperUnittest.D12;
 
 {$IFNDEF TESTINSIGHT}
 {$APPTYPE CONSOLE}
