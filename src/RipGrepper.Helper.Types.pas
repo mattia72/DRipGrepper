@@ -58,6 +58,10 @@ type
 			class operator Initialize(out Dest : TBitField);
 	end;
 
+	TConversions<T> = record
+		class function StringToEnumeration(x : string) : T; static;
+		class function EnumerationToString(x : T) : string; static;
+	end;
 
 function GetElapsedTime(const _swStart : TStopwatch) : string;
 
@@ -70,7 +74,7 @@ uses
 	System.RegularExpressions,
 	System.StrUtils,
 	RipGrepper.Common.Constants,
-	Winapi.Windows;
+	Winapi.Windows, System.TypInfo;
 
 function PostInc(var Value : Integer; const n : Integer = 1) : Integer;
 begin
@@ -335,6 +339,30 @@ end;
 function TMultiLineStringHelper.IsMultiLine : Boolean;
 begin
 	Result := string(self).IndexOf(CRLF) <> -1;
+end;
+
+class function TConversions<T>.StringToEnumeration(x : string) : T;
+begin
+	case Sizeof(T) of
+		1 :
+		PByte(@Result)^ := GetEnumValue(TypeInfo(T), x);
+		2 :
+		PWord(@Result)^ := GetEnumValue(TypeInfo(T), x);
+		4 :
+		PCardinal(@Result)^ := GetEnumValue(TypeInfo(T), x);
+	end;
+end;
+
+class function TConversions<T>.EnumerationToString(x : T) : string;
+begin
+	case Sizeof(T) of
+		1 :
+		Result := GetEnumName(TypeInfo(T), PByte(@x)^);
+		2 :
+		Result := GetEnumName(TypeInfo(T), PWord(@x)^);
+		4 :
+		Result := GetEnumName(TypeInfo(T), PCardinal(@x)^);
+	end;
 end;
 
 end.

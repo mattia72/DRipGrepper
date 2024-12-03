@@ -12,12 +12,15 @@ type
 	TFontStyleSet = set of TFontStyle;
 
 	TFontAttributes = record
+		Name : string;
+		Size : integer;
 		Color : TColor;
 		BgColor : TColor;
 		Style : TFontStyleSet;
 
 		public
-			class function FromString(const _s : string): TFontAttributes; static;
+			procedure FromString(const _s : string);
+			function FromFont(const _font : TFont) : TFontAttributes;
 			function ToString : string;
 	end;
 
@@ -78,7 +81,9 @@ implementation
 uses
 	RipGrepper.Tools.DebugUtils,
 	System.SysUtils,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants,
+	RipGrepper.Helper.Types,
+	ArrayEx;
 
 { TColorSettings }
 
@@ -107,7 +112,7 @@ end;
 
 procedure TColorSettings.LoadFromDict;
 begin
-	FFontColors.TreeViewMatchText := TFontAttributes.FromString(SettingsDict.GetSetting('TreeViewMatchText'));
+	FFontColors.TreeViewMatchText.FromString(SettingsDict.GetSetting('TreeViewMatchText'));
 end;
 
 procedure TColorSettings.StoreToDict;
@@ -116,17 +121,47 @@ begin
 	inherited StoreToDict();
 end;
 
-class function TFontAttributes.FromString(const _s : string): TFontAttributes;
+procedure TFontAttributes.FromString(const _s : string);
+var
+	i : integer;
+	arr : TArrayEx<string>;
 begin
-	var
+	i := 0;
 	arr := _s.Split([ARRAY_SEPARATOR]);
-	Result.Color := StringToColor(arr[0]);
-	Result.BgColor := StringToColor(arr[1]);
+	name := arr[PostInc(i)];
+	Size := StrToIntDef(arr[PostInc(i)], 0);
+	Color := StringToColor(arr[PostInc(i)]);
+	BgColor := StringToColor(arr[PostInc(i)]);
+	Style := [];
+
+	while i < arr.Count do begin
+		var
+		s := TConversions<TFontStyle>.StringToEnumeration(arr[PostInc(i)]);
+		Style := Style + [s];
+	end;
+end;
+
+function TFontAttributes.FromFont(const _font : TFont) : TFontAttributes;
+begin
+	name := _font.Name;
+	Style := _font.Style;
+	Size := _font.Size;
 end;
 
 function TFontAttributes.ToString : string;
+var
+	arr : TArrayEx<string>;
 begin
-	Result := string.Join(ARRAY_SEPARATOR, [ColorToString(Color), ColorToString(BgColor)]);
+	for var st : TFontStyle in Style do begin
+		arr.Add(TConversions<TFontStyle>.EnumerationToString(st));
+	end;
+
+	Result := string.Join(ARRAY_SEPARATOR, [
+		{ } name,
+		{ } IntToStr(Size),
+		{ } ColorToString(Color),
+		{ } ColorToString(BgColor),
+		{ } string.Join(ARRAY_SEPARATOR, arr.Items)]);
 end;
 
 end.

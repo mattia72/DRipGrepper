@@ -28,10 +28,11 @@ type
 		chDebugTrace : TCheckBox;
 		chExpertMode : TCheckBox;
 		ColorSelectorFrame1 : TColorSelectorFrame;
+		procedure FormShow(Sender : TObject);
 
 		private
 			FAppSettings : TAppSettings;
-            FColorSettings : TColorSettings;
+			FFontColorSettings : TColorSettings;
 			FInternFont : TFont;
 
 		protected
@@ -58,13 +59,17 @@ constructor TAppSettingsForm.Create(_Owner : TComponent; _settings : TRipGrepper
 begin
 	inherited Create(_Owner, _settings);
 	Caption := 'General';
-    FColorSettings := (FSettings as  TRipGrepperSettings).FontColorSettings;
-	FAppSettings := (FSettings as  TRipGrepperSettings).AppSettings;
-    FInternFont := TFont.Create();
-	ReadSettings;
+	FFontColorSettings := (FSettings as TRipGrepperSettings).FontColorSettings;
+	FAppSettings := (FSettings as TRipGrepperSettings).AppSettings;
+	FInternFont := TFont.Create();
 
+end;
+
+procedure TAppSettingsForm.FormShow(Sender : TObject);
+begin
+	ReadSettings;
 	ColorSelectorFrame1.LabelText.Caption := 'Match Text:';
-	ColorSelectorFrame1.AssignFont(FInternFont, FColorSettings.FontColors.TreeViewMatchText.BgColor)
+
 end;
 
 procedure TAppSettingsForm.OnCancel;
@@ -83,6 +88,8 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TAppSettingsForm.ReadSettings');
 	chDebugTrace.Checked := FAppSettings.DebugTrace;
 	chExpertMode.Checked := FAppSettings.ExpertMode;
+	ColorSelectorFrame1.AssignFontAttributes(FFontColorSettings.FontColors.TreeViewMatchText);
+	FInternFont.Assign(ColorSelectorFrame1.SelectedFont);
 end;
 
 procedure TAppSettingsForm.WriteSettings;
@@ -91,6 +98,10 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TAppSettingsForm.WriteSettings');
 	FAppSettings.DebugTrace := chDebugTrace.Checked;
 	FAppSettings.ExpertMode := chExpertMode.Checked;
+	var
+	fc := FFontColorSettings.FontColors;
+	fc.TreeViewMatchText := ColorSelectorFrame1.SelectedFontAttributes;
+	FFontColorSettings.FontColors := fc;
 	inherited WriteSettings;
 end;
 

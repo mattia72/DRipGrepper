@@ -15,7 +15,8 @@ uses
 	Vcl.ActnMan,
 	Vcl.ActnColorMaps,
 	Vcl.StdCtrls,
-	Vcl.ExtCtrls;
+	Vcl.ExtCtrls,
+	RipGrepper.Settings.FontColors;
 
 type
 	TColorSelectorFrame = class(TFrame)
@@ -38,8 +39,10 @@ type
 
 		private
 			FBSkipChangeEvent : Boolean;
-			FSelectedBackground : TColor;
+			FSelectedFontAttributes : TFontAttributes;
 			FSelectedFont : TFont;
+			function GetSelectedFont : TFont;
+			function GetSelectedFontAttributes : TFontAttributes;
 			procedure UpdateFontStyle(_chb : TCheckBox; const _fs : TFontStyle);
 
 		protected
@@ -47,11 +50,12 @@ type
 
 		public
 			constructor Create(AOwner : TComponent); reintroduce;
-			procedure AssignFont(const _font : TFont; const _colorBackground : TColor);
+			destructor Destroy; override;
+			procedure AssignFontAttributes(const _fa : TFontAttributes);
 			procedure Refresh;
 			procedure SetFontStylesByCheckBox;
-			property SelectedBackground : TColor read FSelectedBackground write FSelectedBackground;
-			property SelectedFont : TFont read FSelectedFont write FSelectedFont;
+			property SelectedFontAttributes : TFontAttributes read GetSelectedFontAttributes write FSelectedFontAttributes;
+			property SelectedFont : TFont read GetSelectedFont write FSelectedFont;
 
 	end;
 
@@ -65,14 +69,17 @@ uses
 constructor TColorSelectorFrame.Create(AOwner : TComponent);
 begin
 	inherited Create(AOwner);
-
 end;
 
-procedure TColorSelectorFrame.AssignFont(const _font : TFont; const
-	_colorBackground : TColor);
+destructor TColorSelectorFrame.Destroy;
 begin
-	SelectedBackground := _colorBackground;
-	SelectedFont := _font;
+	FSelectedFont.Free;
+	inherited;
+end;
+
+procedure TColorSelectorFrame.AssignFontAttributes(const _fa : TFontAttributes);
+begin
+	FSelectedFontAttributes := _fa;
 	Refresh;
 end;
 
@@ -80,8 +87,8 @@ procedure TColorSelectorFrame.cbBackgroundChange(Sender : TObject);
 begin
 	if FBSkipChangeEvent then
 		Exit;
-	ExampleText.Color := cbBackground.Selected;
-	ExampleText.Refresh;
+	FSelectedFontAttributes.BgColor := cbBackground.Selected;
+	Refresh;
 end;
 
 procedure TColorSelectorFrame.cbBoldClick(Sender : TObject);
@@ -94,8 +101,9 @@ begin
 	if FBSkipChangeEvent then
 		Exit;
 
-	ExampleText.Font.Color := cbForeground.Selected;
-	ExampleText.Refresh;
+	FSelectedFont.Color := cbForeground.Selected;
+	FSelectedFontAttributes.Color := FSelectedFont.Color;
+	Refresh;
 end;
 
 procedure TColorSelectorFrame.cbItalicClick(Sender : TObject);
@@ -122,6 +130,20 @@ begin
 	end;
 end;
 
+function TColorSelectorFrame.GetSelectedFont : TFont;
+begin
+	if not Assigned(FSelectedFont) then begin
+		FSelectedFont := TFont.Create();
+	end;
+	Result := FSelectedFont;
+end;
+
+function TColorSelectorFrame.GetSelectedFontAttributes : TFontAttributes;
+begin
+	FSelectedFontAttributes.FromFont(FSelectedFont);
+	Result.FromString(FSelectedFontAttributes.ToString);
+end;
+
 procedure TColorSelectorFrame.Loaded;
 begin
 	inherited;
@@ -134,8 +156,12 @@ end;
 
 procedure TColorSelectorFrame.Refresh;
 begin
+	if not Assigned(FSelectedFont) then begin
+		Exit;
+	end;
+
 	ExampleText.Font.Assign(FSelectedFont);
-	ExampleText.Color := FSelectedBackground;
+	ExampleText.Color := FSelectedFontAttributes.BgColor;
 
 	FBSkipChangeEvent := True;
 	try
@@ -157,7 +183,7 @@ begin
 	UpdateFontStyle(cbBold, fsBold);
 	UpdateFontStyle(cbUnderline, fsUnderline);
 	UpdateFontStyle(cbStrikeOut, fsStrikeOut);
-    Refresh;
+	Refresh;
 end;
 
 procedure TColorSelectorFrame.UpdateFontStyle(_chb : TCheckBox; const _fs : TFontStyle);
@@ -167,6 +193,7 @@ begin
 	end else begin
 		FSelectedFont.Style := FSelectedFont.Style - [_fs]
 	end;
+	FSelectedFontAttributes.Style := FSelectedFont.Style;
 end;
 
 end.

@@ -18,7 +18,9 @@ object ColorSelectorFrame: TColorSelectorFrame
     Top = 0
     Width = 40
     Height = 22
+    AutoDropDownWidth = True
     Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbIncludeDefault, cbPrettyNames, cbCustomColors]
+    DropDownWidth = 100
     TabOrder = 0
     OnChange = cbBackgroundChange
   end
@@ -28,7 +30,9 @@ object ColorSelectorFrame: TColorSelectorFrame
     Top = 0
     Width = 40
     Height = 22
+    AutoDropDownWidth = True
     Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbIncludeDefault, cbPrettyNames, cbCustomColors]
+    DropDownWidth = 100
     TabOrder = 1
     OnChange = cbForegroundChange
   end
