@@ -152,6 +152,11 @@ begin
 	ExampleText.Constraints.MinHeight := ExampleText.Height;
 	ExampleText.Constraints.MinWidth := ExampleText.Width;
 	ExampleText.Top := cbForeground.Top + Trunc(cbForeground.Height / 2) - Trunc(ExampleText.Height / 2);
+
+	//{$IF CompilerVersion > 12.0}
+	cbBackground.AutoDropDownWidth := True;
+	cbForeground.AutoDropDownWidth := True;
+	//{$IFEND}
 end;
 
 procedure TColorSelectorFrame.Refresh;
