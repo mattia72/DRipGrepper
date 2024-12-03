@@ -31,6 +31,7 @@ type
 		public
 			procedure Msg(const _sMsg : string);
 			procedure ErrorMsg(const _sMsg : string);
+			procedure ErrorMsgFmt(const _sMsg: string; const _args: array of const);
 			procedure MsgIf(const _bCondition : Boolean; const _sMsg : string);
 			procedure MsgFmt(const _s : string; const _args : array of const);
 			procedure MsgFmtIf(const _bCondition : Boolean; const _s : string; const _args : array of const);
@@ -101,6 +102,11 @@ end;
 procedure TDebugMsgBeginEnd.ErrorMsg(const _sMsg : string);
 begin
 	TDebugUtils.Msg(FProcName + ' - ERROR -' + _sMsg);
+end;
+
+procedure TDebugMsgBeginEnd.ErrorMsgFmt(const _sMsg: string; const _args: array of const);
+begin
+	TDebugUtils.MsgFmt(FProcName + ' - ERROR -' + _sMsg, _args);
 end;
 
 procedure TDebugMsgBeginEnd.MsgIf(const _bCondition : Boolean; const _sMsg : string);
