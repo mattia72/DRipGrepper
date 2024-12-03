@@ -181,9 +181,9 @@ begin
 		{ } IntToStr(Size),
 		{ } ColorToString(Color),
 		{ } ColorToString(BgColor),
-		{ } sStyles]);
+		{ } sStyles]).TrimRight([ARRAY_SEPARATOR]);
 	dbgMsg.Msg(Result);
-end;
+ end;
 
 procedure TFontColors.SetByName(const _name : string; const _fa : TFontAttributes);
 begin
