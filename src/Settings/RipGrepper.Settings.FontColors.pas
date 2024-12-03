@@ -54,6 +54,7 @@ type
 		TreeViewErrorText : TFontAttributes;
 
 		TreeViewStatisicsText : TFontAttributes;
+		procedure SetByName(const _name: string; const _fa: TFontAttributes);
 	end;
 
 	TColorSettings = class(TPersistableSettings)
@@ -159,18 +160,45 @@ end;
 
 function TFontAttributes.ToString : string;
 var
-	arr : TArrayEx<string>;
+	arrFontStyles : TArrayEx<string>;
 begin
 	for var st : TFontStyle in Style do begin
-		arr.Add(TConversions<TFontStyle>.EnumerationToString(st));
+		arrFontStyles.Add(TConversions<TFontStyle>.EnumerationToString(st));
 	end;
+
+    var sStyles : string := string.Join(ARRAY_SEPARATOR, arrFontStyles.Items);
 
 	Result := string.Join(ARRAY_SEPARATOR, [
 		{ } name,
 		{ } IntToStr(Size),
 		{ } ColorToString(Color),
 		{ } ColorToString(BgColor),
-		{ } string.Join(ARRAY_SEPARATOR, arr.Items)]);
+		{ } sStyles]);
 end;
 
+procedure TFontColors.SetByName(const _name: string; const _fa: TFontAttributes);
+begin
+	if _name = 'TreeViewMatchText' then
+		TreeViewMatchText := _fa
+	else if _name = 'TreeViewReplaceText' then
+		TreeViewReplaceText := _fa
+	else if _name = 'TreeViewReplacedText' then
+		TreeViewReplacedText := _fa
+	else if _name = 'HistTreeViewSearchText' then
+		HistTreeViewSearchText := _fa
+	else if _name = 'HistTreeViewReplaceText' then
+		HistTreeViewReplaceText := _fa
+	else if _name = 'HistTreeViewReplacedText' then
+		HistTreeViewReplacedText := _fa
+	else if _name = 'TreeViewNormalText' then
+		TreeViewNormalText := _fa
+	else if _name = 'TreeViewStatText' then
+		TreeViewStatText := _fa
+	else if _name = 'TreeViewErrorText' then
+		TreeViewErrorText := _fa
+	else if _name = 'TreeViewStatisicsText' then
+		TreeViewStatisicsText := _fa
+	else
+		raise Exception.Create('Unknown font attribute name: ' + _name);
+end;
 end.
