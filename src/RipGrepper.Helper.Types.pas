@@ -58,7 +58,7 @@ type
 			class operator Initialize(out Dest : TBitField);
 	end;
 
-	TConversions<T> = record
+	TConversions<T> = record //depricated: use  TRttiEnumerationType.GetName, GetValue
 		class function StringToEnumeration(x : string) : T; static;
 		class function EnumerationToString(x : T) : string; static;
 	end;
@@ -74,7 +74,7 @@ uses
 	System.RegularExpressions,
 	System.StrUtils,
 	RipGrepper.Common.Constants,
-	Winapi.Windows, System.TypInfo;
+	Winapi.Windows, System.TypInfo, System.Rtti;
 
 function PostInc(var Value : Integer; const n : Integer = 1) : Integer;
 begin
@@ -355,7 +355,7 @@ end;
 
 class function TConversions<T>.EnumerationToString(x : T) : string;
 begin
-	case Sizeof(T) of
+ 	case Sizeof(T) of
 		1 :
 		Result := GetEnumName(TypeInfo(T), PByte(@x)^);
 		2 :

@@ -43,6 +43,7 @@ type
 			FSelectedFont : TFont;
 			function GetSelectedFont : TFont;
 			function GetSelectedFontAttributes : TFontAttributes;
+			procedure SetFontStylesByCheckBox;
 			procedure UpdateFontStyle(_chb : TCheckBox; const _fs : TFontStyle);
 
 		protected
@@ -53,7 +54,6 @@ type
 			destructor Destroy; override;
 			procedure AssignFontAttributes(const _fa : TFontAttributes);
 			procedure Refresh;
-			procedure SetFontStylesByCheckBox;
 			property SelectedFontAttributes : TFontAttributes read GetSelectedFontAttributes write FSelectedFontAttributes;
 			property SelectedFont : TFont read GetSelectedFont write FSelectedFont;
 
@@ -157,7 +157,7 @@ end;
 
 procedure TColorSelectorFrame.Refresh;
 begin
-    GetSelectedFont; // Create FSelectedFont if not exists
+	GetSelectedFont; // Create FSelectedFont if not exists
 	FSelectedFontAttributes.ToFont(FSelectedFont);
 	ExampleText.Font.Assign(FSelectedFont);
 	ExampleText.Color := FSelectedFontAttributes.BgColor;
@@ -178,6 +178,9 @@ end;
 
 procedure TColorSelectorFrame.SetFontStylesByCheckBox;
 begin
+	if FBSkipChangeEvent then
+		Exit;
+
 	UpdateFontStyle(cbItalic, fsItalic);
 	UpdateFontStyle(cbBold, fsBold);
 	UpdateFontStyle(cbUnderline, fsUnderline);
@@ -189,6 +192,7 @@ procedure TColorSelectorFrame.UpdateFontStyle(_chb : TCheckBox; const _fs : TFon
 var
 	styles : TFontStyles;
 begin
+	styles := FSelectedFontAttributes.Style;
 	if _chb.Checked then begin
 		styles := styles + [_fs];
 	end else begin

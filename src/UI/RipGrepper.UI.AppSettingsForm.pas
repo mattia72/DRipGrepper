@@ -55,7 +55,9 @@ implementation
 
 uses
 	RipGrepper.Tools.DebugUtils,
-	System.TypInfo;
+	System.TypInfo,
+	System.RegularExpressions,
+	System.Math;
 
 const
 	COMPONENT_NAME_COLORSELECTOR = '_ColorSelector';
@@ -74,8 +76,8 @@ procedure TAppSettingsForm.FormShow(Sender : TObject);
 begin
 	ReadSettings;
 	var
-	frmCount := AddSelectionFrames;
-	gpFontColors.Height := frmCount * 27;
+	allHeight := AddSelectionFrames;
+	gpFontColors.Height := allHeight + gpFontColors.Margins.Bottom;
 end;
 
 procedure TAppSettingsForm.OnCancel;
@@ -116,8 +118,9 @@ var
 	NewFrame : TColorSelectorFrame;
 	fa : TFontAttributes;
 	colors : ^TFontColors;
-
+	allHeight : integer;
 begin
+	allHeight := 0;
 	Context := TRttiContext.Create;
 	try
 		TypeFontColors := Context.GetType(TypeInfo(TFontColors));
@@ -125,27 +128,26 @@ begin
 			if prop.Visibility = mvPublic then begin
 				colors := @FFontColorSettings.FontColors;
 				fa := prop.GetValue(colors).AsType<TFontAttributes>;
-				// RegisterComponents(prop.Name, [TColorSelectorFrame]);
 				NewFrame := TColorSelectorFrame.Create(Self);
 				NewFrame.Name := prop.Name + COMPONENT_NAME_COLORSELECTOR;
-				InsertComponent(NewFrame);
+				InsertComponent(NewFrame); // !!!
 				NewFrame.Parent := gpFontColors;
 				NewFrame.Align := alTop;
-				NewFrame.LabelText.Caption := prop.Name + ':';
+				NewFrame.LabelText.Caption := TRegex.Replace(prop.Name, '[A-Z]', ' $0') + ':';
 				NewFrame.AssignFontAttributes(fa);
-				Inc(Result);
+				Inc(allHeight, NewFrame.Height +
+					{ } IfThen(NewFrame.AlignWithMargins,
+					{ } NewFrame.Margins.Top + NewFrame.Margins.Bottom, 2));
 			end;
 		end;
+		Result := allHeight;
 	finally
 		Context.Free;
 	end;
 end;
 
 procedure TAppSettingsForm.WriteColorSettings;
-var
-	compName : string;
-	comp : TComponent;
-	csf : TColorSelectorFrame;
+var compName : string; comp : TComponent; csf : TColorSelectorFrame;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TAppSettingsForm.WriteColorSettings');
