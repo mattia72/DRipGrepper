@@ -21,6 +21,7 @@ type
 		public
 			procedure FromString(const _s : string);
 			function FromFont(const _font : TFont) : TFontAttributes;
+			function ToFont(var _font: TFont): TFontAttributes;
 			function ToString : string;
 	end;
 
@@ -40,13 +41,13 @@ const
 
 type
 	TFontColors = record
-		HistTreeViewSearchText : TFontAttributes;
-		HistTreeViewReplaceText : TFontAttributes;
-		HistTreeViewReplacedText : TFontAttributes;
-
 		TreeViewMatchText : TFontAttributes;
 		TreeViewReplaceText : TFontAttributes;
 		TreeViewReplacedText : TFontAttributes;
+
+		HistTreeViewSearchText : TFontAttributes;
+		HistTreeViewReplaceText : TFontAttributes;
+		HistTreeViewReplacedText : TFontAttributes;
 
 		TreeViewNormalText : TFontAttributes;
 		TreeViewStatText : TFontAttributes;
@@ -102,7 +103,6 @@ end;
 procedure TColorSettings.Init;
 begin
 	SettingsDict.CreateSetting('TreeViewMatchText', varString, TREEVIEW_MATCH_TEXT.ToString());
-
 end;
 
 procedure TColorSettings.LoadDefaultsFromDict;
@@ -143,9 +143,18 @@ end;
 
 function TFontAttributes.FromFont(const _font : TFont) : TFontAttributes;
 begin
-	name := _font.Name;
+	Name := _font.Name;
 	Style := _font.Style;
 	Size := _font.Size;
+	Color := _font.Color;
+end;
+
+function TFontAttributes.ToFont(var _font: TFont): TFontAttributes;
+begin
+	_font.Name := Name;
+	_font.Style := Style;
+	_font.Size := Size;
+	_font.Color := Color;
 end;
 
 function TFontAttributes.ToString : string;
