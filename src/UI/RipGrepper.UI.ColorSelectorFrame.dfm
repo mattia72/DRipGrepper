@@ -1,11 +1,11 @@
 object ColorSelectorFrame: TColorSelectorFrame
   Left = 0
   Top = 0
-  Width = 408
-  Height = 27
+  Width = 458
+  Height = 25
   TabOrder = 0
   object LabelText: TLabel
-    Left = 59
+    Left = 119
     Top = 3
     Width = 49
     Height = 15
@@ -14,7 +14,7 @@ object ColorSelectorFrame: TColorSelectorFrame
   end
   object cbBackground: TColorBox
     AlignWithMargins = True
-    Left = 213
+    Left = 273
     Top = 0
     Width = 40
     Height = 22
@@ -24,7 +24,7 @@ object ColorSelectorFrame: TColorSelectorFrame
   end
   object cbForeground: TColorBox
     AlignWithMargins = True
-    Left = 168
+    Left = 228
     Top = 0
     Width = 40
     Height = 22
@@ -34,7 +34,7 @@ object ColorSelectorFrame: TColorSelectorFrame
   end
   object ExampleText: TStaticText
     AlignWithMargins = True
-    Left = 114
+    Left = 174
     Top = 1
     Width = 48
     Height = 19
@@ -55,7 +55,7 @@ object ColorSelectorFrame: TColorSelectorFrame
     OnDblClick = ExampleTextDblClick
   end
   object cbBold: TCheckBox
-    Left = 258
+    Left = 318
     Top = 3
     Width = 30
     Height = 17
@@ -70,7 +70,7 @@ object ColorSelectorFrame: TColorSelectorFrame
     OnClick = cbBoldClick
   end
   object cbItalic: TCheckBox
-    Left = 295
+    Left = 355
     Top = 3
     Width = 30
     Height = 17
@@ -85,7 +85,7 @@ object ColorSelectorFrame: TColorSelectorFrame
     OnClick = cbItalicClick
   end
   object cbUnderline: TCheckBox
-    Left = 328
+    Left = 388
     Top = 3
     Width = 30
     Height = 17
@@ -100,7 +100,7 @@ object ColorSelectorFrame: TColorSelectorFrame
     OnClick = cbUnderlineClick
   end
   object cbStrikeOut: TCheckBox
-    Left = 365
+    Left = 425
     Top = 3
     Width = 30
     Height = 17

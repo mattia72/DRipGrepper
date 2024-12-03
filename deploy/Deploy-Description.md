@@ -29,7 +29,7 @@ Marked with checkmark if ready, else planned ...
   - [ ] Debug and Expert mode
   - [ ] install as **extension** in Delphi IDE
   - [ ] configure **extension** shortcuts
-  - [ ] configure colors
+  - [o] configure colors
 - [ ] **extension**: save all before search message?
 - [ ] save/load search histories in file
 - [ ] JSON config files

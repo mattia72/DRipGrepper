@@ -54,7 +54,7 @@ Most actual working items, you will find in the last [release notes](https://git
   - [x] `--pretty` can be set (not supported by `rg.exe` in VSCode)
   - [x] `--context NUM` (or `-A=NUM -B=NUM`) parser
   - [ ] `--invert-match` parser
-  - [ ] `--stats` parser, e.g., message box on end with search statistics
+  - [x] `--stats` parser, e.g., message box on end with search statistics
 
 ### :rocket: Open with...
 ![Screenshot](./screenshots/OpenWith.png)
@@ -125,7 +125,7 @@ scoop install dripgrepper
 * Open Delphi
 * Open `Tools | GetIt-Package-Manager` 
 * Install `VirtualTree for VCL`
-* Open `Component | Install Packages...` menu item
+* Open `Component | Install Packages...`
 * Add `DripExtension.bpl` to Design packages list
 * Ready
 

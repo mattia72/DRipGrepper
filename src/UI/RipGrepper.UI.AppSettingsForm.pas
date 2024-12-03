@@ -19,7 +19,8 @@ uses
 	RipGrepper.UI.SettingsFormBase,
 	RipGrepper.UI.ColorSelectorFrame,
 	RipGrepper.Settings.FontColors,
-	RipGrepper.Settings.RipGrepperSettings;
+	RipGrepper.Settings.RipGrepperSettings,
+	RTTI;
 
 type
 
@@ -27,13 +28,15 @@ type
 		Panel1 : TPanel;
 		chDebugTrace : TCheckBox;
 		chExpertMode : TCheckBox;
-		ColorSelectorFrame1 : TColorSelectorFrame;
+		gpFontColors : TGroupBox;
+		grpDeveloper : TGroupBox;
 		procedure FormShow(Sender : TObject);
 
 		private
 			FAppSettings : TAppSettings;
 			FFontColorSettings : TColorSettings;
-			FInternFont : TFont;
+			function AddSelectionFrames : integer;
+			procedure WriteColorSettings;
 
 		protected
 			procedure OnCancel; override;
@@ -51,9 +54,13 @@ var
 implementation
 
 uses
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils,
+	System.TypInfo;
 
-{$R *.dfm}
+const
+	COMPONENT_NAME_COLORSELECTOR = '_ColorSelector';
+
+	{$R *.dfm}
 
 constructor TAppSettingsForm.Create(_Owner : TComponent; _settings : TRipGrepperSettings);
 begin
@@ -61,15 +68,14 @@ begin
 	Caption := 'General';
 	FFontColorSettings := (FSettings as TRipGrepperSettings).FontColorSettings;
 	FAppSettings := (FSettings as TRipGrepperSettings).AppSettings;
-	FInternFont := TFont.Create();
-
 end;
 
 procedure TAppSettingsForm.FormShow(Sender : TObject);
 begin
 	ReadSettings;
-	ColorSelectorFrame1.LabelText.Caption := 'Match Text:';
-
+	var
+	frmCount := AddSelectionFrames;
+	gpFontColors.Height := frmCount * 27;
 end;
 
 procedure TAppSettingsForm.OnCancel;
@@ -86,10 +92,10 @@ procedure TAppSettingsForm.ReadSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TAppSettingsForm.ReadSettings');
+	FAppSettings.LoadFromDict;
+	FFontColorSettings.LoadFromDict;
 	chDebugTrace.Checked := FAppSettings.DebugTrace;
 	chExpertMode.Checked := FAppSettings.ExpertMode;
-	ColorSelectorFrame1.AssignFontAttributes(FFontColorSettings.FontColors.TreeViewMatchText);
-	FInternFont.Assign(ColorSelectorFrame1.SelectedFont);
 end;
 
 procedure TAppSettingsForm.WriteSettings;
@@ -98,11 +104,71 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TAppSettingsForm.WriteSettings');
 	FAppSettings.DebugTrace := chDebugTrace.Checked;
 	FAppSettings.ExpertMode := chExpertMode.Checked;
+	WriteColorSettings;
+	inherited WriteSettings;
+end;
+
+function TAppSettingsForm.AddSelectionFrames : integer;
+var
+	Context : TRttiContext;
+	TypeFontColors : TRttiType;
+	prop : TRttiField;
+	NewFrame : TColorSelectorFrame;
+	fa : TFontAttributes;
+	colors : ^TFontColors;
+
+begin
+	Context := TRttiContext.Create;
+	try
+		TypeFontColors := Context.GetType(TypeInfo(TFontColors));
+		for prop in TypeFontColors.GetFields do begin
+			if prop.Visibility = mvPublic then begin
+				colors := @FFontColorSettings.FontColors;
+				fa := prop.GetValue(colors).AsType<TFontAttributes>;
+				// RegisterComponents(prop.Name, [TColorSelectorFrame]);
+				NewFrame := TColorSelectorFrame.Create(Self);
+				NewFrame.Name := prop.Name + COMPONENT_NAME_COLORSELECTOR;
+				InsertComponent(NewFrame);
+				NewFrame.Parent := gpFontColors;
+				NewFrame.Align := alTop;
+				NewFrame.LabelText.Caption := prop.Name + ':';
+				NewFrame.AssignFontAttributes(fa);
+				Inc(Result);
+			end;
+		end;
+	finally
+		Context.Free;
+	end;
+end;
+
+procedure TAppSettingsForm.WriteColorSettings;
+var
+	compName : string;
+	comp : TComponent;
+	csf : TColorSelectorFrame;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TAppSettingsForm.WriteColorSettings');
 	var
 	fc := FFontColorSettings.FontColors;
-	fc.TreeViewMatchText := ColorSelectorFrame1.SelectedFontAttributes;
+	for var i := 0 to ComponentCount - 1 do begin
+		comp := Components[i];
+		if not Assigned(comp) then begin
+			dbgMsg.ErrorMsgFmt('%i Component not exists?', [comp]);
+			continue;
+		end;
+		compName := comp.Name;
+		if compName.EndsWith(COMPONENT_NAME_COLORSELECTOR) then begin
+			csf := comp as TColorSelectorFrame;
+			if Assigned(csf) then begin
+				fc.SetByName(compName.Replace(COMPONENT_NAME_COLORSELECTOR, ''),
+					{ } csf.SelectedFontAttributes);
+			end else begin
+				dbgMsg.ErrorMsgFmt('%s settings not saved.', [compName]);
+			end;
+		end;
+	end;
 	FFontColorSettings.FontColors := fc;
-	inherited WriteSettings;
 end;
 
 end.

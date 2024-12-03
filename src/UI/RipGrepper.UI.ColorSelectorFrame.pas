@@ -100,9 +100,7 @@ procedure TColorSelectorFrame.cbForegroundChange(Sender : TObject);
 begin
 	if FBSkipChangeEvent then
 		Exit;
-
-	FSelectedFont.Color := cbForeground.Selected;
-	FSelectedFontAttributes.Color := FSelectedFont.Color;
+	FSelectedFontAttributes.Color := SelectedFont.Color;
 	Refresh;
 end;
 
@@ -123,9 +121,10 @@ end;
 
 procedure TColorSelectorFrame.ExampleTextDblClick(Sender : TObject);
 begin
-	FontDialog1.Font.Assign(FSelectedFont);
+	FontDialog1.Font.Assign(SelectedFont);
 	if FontDialog1.Execute(self.Handle) then begin
-		FSelectedFont.Assign(FontDialog1.Font);
+		SelectedFont.Assign(FontDialog1.Font);
+		FSelectedFontAttributes.FromFont(SelectedFont);
 		Refresh;
 	end;
 end;
@@ -140,7 +139,7 @@ end;
 
 function TColorSelectorFrame.GetSelectedFontAttributes : TFontAttributes;
 begin
-	FSelectedFontAttributes.FromFont(FSelectedFont);
+	FSelectedFontAttributes.FromFont(SelectedFont);
 	Result.FromString(FSelectedFontAttributes.ToString);
 end;
 
@@ -152,17 +151,14 @@ begin
 	ExampleText.Constraints.MinHeight := ExampleText.Height;
 	ExampleText.Constraints.MinWidth := ExampleText.Width;
 	ExampleText.Top := cbForeground.Top + Trunc(cbForeground.Height / 2) - Trunc(ExampleText.Height / 2);
-
 	cbBackground.AutoDropDownWidth := True;
 	cbForeground.AutoDropDownWidth := True;
 end;
 
 procedure TColorSelectorFrame.Refresh;
 begin
-	if not Assigned(FSelectedFont) then begin
-		Exit;
-	end;
-
+    GetSelectedFont; // Create FSelectedFont if not exists
+	FSelectedFontAttributes.ToFont(FSelectedFont);
 	ExampleText.Font.Assign(FSelectedFont);
 	ExampleText.Color := FSelectedFontAttributes.BgColor;
 
@@ -190,13 +186,15 @@ begin
 end;
 
 procedure TColorSelectorFrame.UpdateFontStyle(_chb : TCheckBox; const _fs : TFontStyle);
+var
+	styles : TFontStyles;
 begin
 	if _chb.Checked then begin
-		FSelectedFont.Style := FSelectedFont.Style + [_fs];
+		styles := styles + [_fs];
 	end else begin
-		FSelectedFont.Style := FSelectedFont.Style - [_fs]
+		styles := styles - [_fs]
 	end;
-	FSelectedFontAttributes.Style := FSelectedFont.Style;
+	FSelectedFontAttributes.Style := styles;
 end;
 
 end.

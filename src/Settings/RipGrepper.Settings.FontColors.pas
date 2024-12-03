@@ -21,7 +21,7 @@ type
 		public
 			procedure FromString(const _s : string);
 			function FromFont(const _font : TFont) : TFontAttributes;
-			function ToFont(var _font: TFont): TFontAttributes;
+			function ToFont(var _font : TFont) : TFontAttributes;
 			function ToString : string;
 	end;
 
@@ -54,7 +54,7 @@ type
 		TreeViewErrorText : TFontAttributes;
 
 		TreeViewStatisicsText : TFontAttributes;
-		procedure SetByName(const _name: string; const _fa: TFontAttributes);
+		procedure SetByName(const _name : string; const _fa : TFontAttributes);
 	end;
 
 	TColorSettings = class(TPersistableSettings)
@@ -127,6 +127,9 @@ var
 	i : integer;
 	arr : TArrayEx<string>;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TFontAttributes.ToString');
+
 	i := 0;
 	arr := _s.Split([ARRAY_SEPARATOR]);
 	name := arr[PostInc(i)];
@@ -140,19 +143,20 @@ begin
 		s := TConversions<TFontStyle>.StringToEnumeration(arr[PostInc(i)]);
 		Style := Style + [s];
 	end;
+    dbgMsg.Msg(self.ToString);
 end;
 
 function TFontAttributes.FromFont(const _font : TFont) : TFontAttributes;
 begin
-	Name := _font.Name;
+	name := _font.Name;
 	Style := _font.Style;
 	Size := _font.Size;
 	Color := _font.Color;
 end;
 
-function TFontAttributes.ToFont(var _font: TFont): TFontAttributes;
+function TFontAttributes.ToFont(var _font : TFont) : TFontAttributes;
 begin
-	_font.Name := Name;
+	_font.Name := name;
 	_font.Style := Style;
 	_font.Size := Size;
 	_font.Color := Color;
@@ -162,11 +166,15 @@ function TFontAttributes.ToString : string;
 var
 	arrFontStyles : TArrayEx<string>;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TFontAttributes.ToString');
+
 	for var st : TFontStyle in Style do begin
 		arrFontStyles.Add(TConversions<TFontStyle>.EnumerationToString(st));
 	end;
 
-    var sStyles : string := string.Join(ARRAY_SEPARATOR, arrFontStyles.Items);
+	var
+		sStyles : string := string.Join(ARRAY_SEPARATOR, arrFontStyles.Items);
 
 	Result := string.Join(ARRAY_SEPARATOR, [
 		{ } name,
@@ -174,9 +182,10 @@ begin
 		{ } ColorToString(Color),
 		{ } ColorToString(BgColor),
 		{ } sStyles]);
+	dbgMsg.Msg(Result);
 end;
 
-procedure TFontColors.SetByName(const _name: string; const _fa: TFontAttributes);
+procedure TFontColors.SetByName(const _name : string; const _fa : TFontAttributes);
 begin
 	if _name = 'TreeViewMatchText' then
 		TreeViewMatchText := _fa
@@ -201,4 +210,5 @@ begin
 	else
 		raise Exception.Create('Unknown font attribute name: ' + _name);
 end;
+
 end.

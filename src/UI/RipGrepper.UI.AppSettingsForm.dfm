@@ -19,37 +19,41 @@ object AppSettingsForm: TAppSettingsForm
     Height = 388
     Align = alClient
     TabOrder = 0
-    object chDebugTrace: TCheckBox
-      Left = 16
-      Top = 16
-      Width = 97
-      Height = 17
-      Caption = 'Debug trace'
+    object gpFontColors: TGroupBox
+      AlignWithMargins = True
+      Left = 4
+      Top = 4
+      Width = 828
+      Height = 55
+      Align = alTop
+      Caption = 'Fonts and Colors'
       TabOrder = 0
     end
-    object chExpertMode: TCheckBox
-      Left = 16
-      Top = 39
-      Width = 97
-      Height = 17
-      Caption = 'Expert Mode'
+    object grpDeveloper: TGroupBox
+      AlignWithMargins = True
+      Left = 4
+      Top = 65
+      Width = 828
+      Height = 64
+      Align = alTop
+      Caption = 'Developer'
       TabOrder = 1
-    end
-  end
-  inline ColorSelectorFrame1: TColorSelectorFrame
-    Left = 8
-    Top = 96
-    Width = 408
-    Height = 27
-    TabOrder = 1
-    inherited LabelText: TLabel
-      StyleElements = [seFont, seClient, seBorder]
-    end
-    inherited cbBackground: TColorBox
-      StyleElements = [seFont, seClient, seBorder]
-    end
-    inherited cbForeground: TColorBox
-      StyleElements = [seFont, seClient, seBorder]
+      object chDebugTrace: TCheckBox
+        Left = 16
+        Top = 16
+        Width = 97
+        Height = 17
+        Caption = 'Debug trace'
+        TabOrder = 0
+      end
+      object chExpertMode: TCheckBox
+        Left = 16
+        Top = 39
+        Width = 97
+        Height = 17
+        Caption = 'Expert Mode'
+        TabOrder = 1
+      end
     end
   end
 end
