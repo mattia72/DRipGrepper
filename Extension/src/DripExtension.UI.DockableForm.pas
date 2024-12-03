@@ -144,6 +144,7 @@ uses
 procedure TRipGrepperDockableForm.CustomizePopupMenu(PopupMenu : TPopupMenu);
 begin
 	PopupMenu := ParentFrame.MainFrame.PopupMenuResult;
+    Assert(Assigned(PopupMenu));
 end;
 
 procedure TRipGrepperDockableForm.CustomizeToolBar(ToolBar : TToolBar);
