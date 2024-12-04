@@ -100,7 +100,7 @@ procedure TColorSelectorFrame.cbForegroundChange(Sender : TObject);
 begin
 	if FBSkipChangeEvent then
 		Exit;
-	FSelectedFontAttributes.Color := SelectedFont.Color;
+	FSelectedFontAttributes.Color := cbForeground.Selected;
 	Refresh;
 end;
 

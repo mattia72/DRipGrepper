@@ -476,6 +476,8 @@ begin
 	// hist object parser type should set before painting begins...
 	UpdateHistObjectAndGui;
 	// load colors
+	Settings.FontColorSettings.ReLoad;
+	Settings.FontColorSettings.LoadFromDict;
 	FColorSettings := Settings.FontColorSettings.FontColors;
 end;
 
@@ -1260,8 +1262,8 @@ begin
 			case FHistItemObj.ParserType of
 				ptRipGrepSearch, ptRipGrepPrettySearch : begin
 					DefaultDraw := False;
+					// First, store the default font size and color number
 					var
-						// First, store the default font size and color number
 					backup := TDrawParams.Save(TargetCanvas);
 
 					Data := VstResult.GetNodeData(Node);
@@ -1272,6 +1274,7 @@ begin
 					ss0 := s.Substring(0, matchBegin).Replace(#9, TREEVIEW_INDENT_TAB_AS_SPACES, [rfReplaceAll]);
 					pos := TargetCanvas.TextWidth(ss0);
 
+					TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.NormalText, false);
 					TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, ss0);
 
 					ss1 := s.Substring(matchBegin, Data.MatchData.MatchLength);
@@ -1297,6 +1300,7 @@ begin
 					end;
 
 					backup.Load(TargetCanvas);
+					TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.NormalText, false);
 					TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss2);
 				end;
 			end;
