@@ -515,13 +515,13 @@ begin
 		case Sender.GetNodeLevel(Node) of
 			0 : begin
 				if (Node.ChildCount = 0) then begin
-					TargetCanvas.Brush.Color := HIST_TREEVIEW_SEARCH_TEXT.BgColor;
+					TargetCanvas.Brush.Color := TDefaultFontColors.HIST_TREEVIEW_SEARCH_TEXT.BgColor;
 				end else begin
-					TargetCanvas.Brush.Color := HIST_TREEVIEW_REPLACED_TEXT.BgColor;
+					TargetCanvas.Brush.Color := TDefaultFontColors.HIST_TREEVIEW_REPLACED_TEXT.BgColor;
 				end;
 			end;
 			1 :
-			TargetCanvas.Brush.Color := HIST_TREEVIEW_REPLACE_TEXT.BgColor;
+			TargetCanvas.Brush.Color := TDefaultFontColors.HIST_TREEVIEW_REPLACE_TEXT.BgColor;
 		end;
 		TargetCanvas.FillRect(R);
 	end;
@@ -620,17 +620,20 @@ begin
 		case Column of
 			COL_SEARCH_TEXT : begin
 				if hio.IsReplaceMode then begin
-					TItemDrawer.SetTextColorHistoryReplacedText(TargetCanvas);
+					TItemDrawer.SetTextColorHistoryReplacedText(TargetCanvas, TDefaultFontColors.HIST_TREEVIEW_REPLACED_TEXT);
 				end else begin
-					TItemDrawer.SetTextColorHistorySearchText(TargetCanvas);
+					TItemDrawer.SetTextColorHistorySearchText(TargetCanvas, TDefaultFontColors.HIST_TREEVIEW_SEARCH_TEXT);
 				end;
 			end;
 			COL_REPLACE_TEXT : begin
-				TItemDrawer.SetTextColorHistoryReplaceText(TargetCanvas);
+				TItemDrawer.SetTextColorHistoryReplaceText(TargetCanvas, TDefaultFontColors.HIST_TREEVIEW_REPLACE_TEXT);
 			end;
 		end
 	end else begin // ttStatic
-		TItemDrawer.SetTextColorErrorStaticText(TargetCanvas, hio.GetErrorCounters().FSumOfErrors > 0);
+		TItemDrawer.SetTextColorErrorStaticText(TargetCanvas,
+        	TDefaultFontColors.TREEVIEW_STAT_TEXT,
+        	TDefaultFontColors.TREEVIEW_ERROR_TEXT,
+            hio.GetErrorCounters().FSumOfErrors > 0);
 	end;
 end;
 

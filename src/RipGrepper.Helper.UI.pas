@@ -16,7 +16,8 @@ uses
 	Winapi.Windows,
 	Vcl.Forms,
 	VirtualTrees,
-	System.SysUtils;
+	System.SysUtils,
+	RipGrepper.Settings.FontColors;
 // Winapi.Messages;
 
 type
@@ -107,13 +108,15 @@ type
 			class function DrawCheckBox(_Canvas : TCanvas; _Rect : TRect; _Item : TListItem; _img : TImage) : TRect;
 			class procedure DrawItemOnBitmap(Sender : TCustomListView; Item : TListItem; Rect : TRect; State : TOwnerDrawState);
 			class function GetIconBitmap(const sFileName : string; _img : TImage) : Vcl.Graphics.TBitmap;
-			class procedure SetTextColorMatch(TargetCanvas : TCanvas);
-			class procedure SetTextColorErrorStaticText(TargetCanvas : TCanvas; const _bError : Boolean);
-			class procedure SetTextColorHistorySearchText(TargetCanvas : TCanvas);
-			class procedure SetTextColorHistoryReplaceText(TargetCanvas : TCanvas);
-			class procedure SetTextColorHistoryReplacedText(TargetCanvas : TCanvas);
-			class procedure SetTextColorReplacedText(TargetCanvas : TCanvas);
-			class procedure SetTextColorReplaceText(TargetCanvas : TCanvas);
+			class procedure SetTextColor(TargetCanvas : TCanvas; _color : TFontAttributes; _bSetBG : Boolean = True);
+			class procedure SetTextColorMatch(TargetCanvas : TCanvas; _matchColor : TFontAttributes);
+			class procedure SetTextColorErrorStaticText(TargetCanvas : TCanvas; _statColor : TFontAttributes; _errorColor : TFontAttributes;
+				const _bError : Boolean);
+			class procedure SetTextColorHistorySearchText(TargetCanvas : TCanvas; _histSearchColor : TFontAttributes);
+			class procedure SetTextColorHistoryReplaceText(TargetCanvas : TCanvas; _histReplColor : TFontAttributes);
+			class procedure SetTextColorHistoryReplacedText(TargetCanvas : TCanvas; _histRepldColor : TFontAttributes);
+			class procedure SetTextColorReplacedText(TargetCanvas : TCanvas; _resRepldColor : TFontAttributes);
+			class procedure SetTextColorReplaceText(TargetCanvas : TCanvas; _resReplColor : TFontAttributes);
 	end;
 
 	TIconImageList = class
@@ -151,7 +154,7 @@ uses
 	RipGrepper.Common.Constants,
 
 	Vcl.Dialogs,
-	System.StrUtils, RipGrepper.Settings.FontColors;
+	System.StrUtils;
 
 procedure TCursorSaver.SetHourGlassCursor;
 begin
@@ -331,57 +334,53 @@ begin
 	end;
 end;
 
-class procedure TItemDrawer.SetTextColorMatch(TargetCanvas : TCanvas);
+class procedure TItemDrawer.SetTextColor(TargetCanvas : TCanvas; _color : TFontAttributes; _bSetBG : Boolean = True);
 begin
-	TargetCanvas.Font.Color := TREEVIEW_MATCH_TEXT.Color;
-	TargetCanvas.Brush.Color := TREEVIEW_MATCH_TEXT.BGCOLOR;
-	TargetCanvas.Font.style := TREEVIEW_MATCH_TEXT.STYLE;
-end;
-
-class procedure TItemDrawer.SetTextColorErrorStaticText(TargetCanvas : TCanvas; const _bError : Boolean);
-begin
-	if _bError then begin
-		TargetCanvas.Font.Color := TREEVIEW_ERROR_TEXT.Color;
-		TargetCanvas.Font.style := [fsBold];
-	end else begin
-		TargetCanvas.Font.Color := TREEVIEW_STAT_TEXT.Color;
-		TargetCanvas.Font.style := [];
+	TargetCanvas.Font.Color := _color.Color;
+	TargetCanvas.Font.style := _color.Style;
+	if _bSetBG then begin
+		TargetCanvas.Brush.Color := _color.BgColor;
 	end;
 end;
 
-class procedure TItemDrawer.SetTextColorHistorySearchText(TargetCanvas : TCanvas);
+class procedure TItemDrawer.SetTextColorMatch(TargetCanvas : TCanvas; _matchColor : TFontAttributes);
 begin
-	TargetCanvas.Font.Color := HIST_TREEVIEW_SEARCH_TEXT.Color;
-	// TargetCanvas.Brush.Color := HIST_TREEVIEW_SEARCH_TEXT.BgColor;
-	TargetCanvas.Font.style := HIST_TREEVIEW_SEARCH_TEXT.STYLE;
+	SetTextColor(TargetCanvas, _matchColor);
 end;
 
-class procedure TItemDrawer.SetTextColorHistoryReplaceText(TargetCanvas : TCanvas);
+class procedure TItemDrawer.SetTextColorErrorStaticText(TargetCanvas : TCanvas; _statColor : TFontAttributes; _errorColor : TFontAttributes;
+	const _bError : Boolean);
 begin
-	TargetCanvas.Font.Color := HIST_TREEVIEW_REPLACE_TEXT.Color;
-	// TargetCanvas.Brush.Color := HIST_TREEVIEW_REPLACE_TEXT.BgColor;
-	TargetCanvas.Font.style := TREEVIEW_REPLACE_TEXT.STYLE;
+	if _bError then begin
+		SetTextColor(TargetCanvas, _errorColor, false);
+	end else begin
+		SetTextColor(TargetCanvas, _statColor, false);
+	end;
 end;
 
-class procedure TItemDrawer.SetTextColorHistoryReplacedText(TargetCanvas : TCanvas);
+class procedure TItemDrawer.SetTextColorHistorySearchText(TargetCanvas : TCanvas; _histSearchColor : TFontAttributes);
 begin
-	TargetCanvas.Font.Color := HIST_TREEVIEW_REPLACED_TEXT.Color;
-	// TargetCanvas.Brush.Color := HIST_TREEVIEW_REPLACED_TEXT.BgColor;
-	TargetCanvas.Font.style := TREEVIEW_REPLACED_TEXT.STYLE;
+	SetTextColor(TargetCanvas, _histSearchColor, false);
 end;
 
-class procedure TItemDrawer.SetTextColorReplacedText(TargetCanvas : TCanvas);
+class procedure TItemDrawer.SetTextColorHistoryReplaceText(TargetCanvas : TCanvas; _histReplColor : TFontAttributes);
 begin
-	TargetCanvas.Font.Color := TREEVIEW_REPLACED_TEXT.Color;
-	TargetCanvas.Brush.Color := TREEVIEW_REPLACED_TEXT.BgColor;
-	TargetCanvas.Font.Style := TREEVIEW_REPLACED_TEXT.Style;
+	SetTextColor(TargetCanvas, _histReplColor, false);
 end;
 
-class procedure TItemDrawer.SetTextColorReplaceText(TargetCanvas : TCanvas);
+class procedure TItemDrawer.SetTextColorHistoryReplacedText(TargetCanvas : TCanvas; _histRepldColor : TFontAttributes);
 begin
-	TargetCanvas.Font.Color := TREEVIEW_REPLACE_TEXT.Color;
-	TargetCanvas.Font.Style := TREEVIEW_REPLACE_TEXT.Style;
-	TargetCanvas.Brush.Color := TREEVIEW_REPLACE_TEXT.BgColor;
+	SetTextColor(TargetCanvas, _histRepldColor, false);
+end;
+
+class procedure TItemDrawer.SetTextColorReplacedText(TargetCanvas : TCanvas; _resRepldColor : TFontAttributes);
+begin
+	SetTextColor(TargetCanvas, _resRepldColor);
+end;
+
+class procedure TItemDrawer.SetTextColorReplaceText(TargetCanvas : TCanvas; _resReplColor : TFontAttributes);
+begin
+	SetTextColor(TargetCanvas, _resReplColor);
 end;
 
 class function TItemDrawer.ShrinkRect(const r : TRect; const X0, X1, Y0, Y1 : integer) : TRect;
@@ -449,7 +448,7 @@ begin
 	if not FExtIndexDict.TryGetValue(_sKey, Result) then begin
 		Result := ImageList_AddIcon(FImageList.Handle, ExtractIcon(FHandleForm, PWideChar(TPath.Combine(GetEnvironmentVariable('Windir'),
 			ICON_RESOURCE_DLL)), _iconIdxInResourceDll));
- 		FExtIndexDict.Add(_sKey, Result);
+		FExtIndexDict.Add(_sKey, Result);
 	end;
 end;
 

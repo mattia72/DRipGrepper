@@ -367,8 +367,7 @@ begin
 		case Column of
 			0 : begin
 				if Node.ChildCount > 0 then begin
-					TargetCanvas.Font.Style := TargetCanvas.Font.Style + [fsBold];
-					TargetCanvas.Font.Color := TREEVIEW_STAT_TEXT.Color;
+					TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.TREEVIEW_STAT_TEXT, false);
 				end;
 			end;
 		end;

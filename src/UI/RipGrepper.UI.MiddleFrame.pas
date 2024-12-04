@@ -241,7 +241,7 @@ uses
 	{$ENDIF}
 	System.Generics.Defaults,
 	RipGrepper.UI.SearchForm,
-	System.RegularExpressions, 
+	System.RegularExpressions,
 	RipGrepper.Settings.FontColors;
 
 {$R *.dfm}
@@ -1245,11 +1245,11 @@ begin
 		COL_FILE : begin
 			if MatchStr(Text, [RG_ERROR_MSG_PREFIX, RG_PARSE_ERROR]) then begin
 				DefaultDraw := False;
-				TargetCanvas.Font.Color := TREEVIEW_ERROR_TEXT.Color;
+				TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.TREEVIEW_ERROR_TEXT, false);
 				TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, Text);
 			end else if MatchStr(Text, [RG_STATS_LINE]) then begin
 				DefaultDraw := False;
-				TargetCanvas.Font.Color := TREEVIEW_STATS_TEXT.Color;
+				TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.TREEVIEW_STATS_TEXT, false);
 				TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, Text);
 			end;
 		end;
@@ -1278,16 +1278,16 @@ begin
 					ss2 := s.Substring(matchBegin + Data.MatchData.MatchLength);
 
 					if IsGuiReplaceMode or IsRgReplaceMode then begin
-						TItemDrawer.SetTextColorReplacedText(TargetCanvas);
+						TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.TREEVIEW_REPLACED_TEXT);
 					end else begin
-						TItemDrawer.SetTextColorMatch(TargetCanvas);
+						TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.TREEVIEW_MATCH_TEXT);
 					end;
 					if not IsRgReplaceMode then begin
 						TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1);
 						pos := pos + TargetCanvas.TextWidth(ss1);
 					end;
 					if IsGuiReplaceMode or IsRgReplaceMode then begin
-						TItemDrawer.SetTextColorReplaceText(TargetCanvas);
+						TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.TREEVIEW_REPLACE_TEXT);
 						TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1_repl);
 
 						pos := pos + TargetCanvas.TextWidth(ss1_repl);
@@ -1404,12 +1404,11 @@ begin
 	if TextType = ttNormal then begin
 		case Column of
 			COL_FILE : begin
-				TargetCanvas.Font.style := [fsBold];
-				TargetCanvas.Font.Color := TREEVIEW_NORMAL_TEXT.Color;
+				TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.TREEVIEW_FILE_TEXT, false);
 			end;
 		end;
 	end else begin // ttStatic
-		TargetCanvas.Font.Color := TREEVIEW_STAT_TEXT.Color; // Not shown on MultiLine
+		TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.TREEVIEW_STAT_TEXT, false); // Not shown on MultiLine
 	end;
 end;
 

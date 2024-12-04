@@ -25,22 +25,25 @@ type
 			function ToString : string;
 	end;
 
-const
-	HIST_TREEVIEW_SEARCH_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clOlive; BgColor : clWhite; Style : []);
-	HIST_TREEVIEW_REPLACE_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clGreen; BgColor : clWhite; Style : [fsBold]);
-	HIST_TREEVIEW_REPLACED_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clMaroon; BgColor : clWhite; Style : [];);
+	TDefaultFontColors = class
+		const
+			HIST_TREEVIEW_SEARCH_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clOlive; BgColor : clWhite; Style : []);
+			HIST_TREEVIEW_REPLACE_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clGreen; BgColor : clWhite;
+				Style : [fsBold]);
+			HIST_TREEVIEW_REPLACED_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clMaroon; BgColor : clWhite; Style : [];);
 
-	TREEVIEW_MATCH_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clWhite; BgColor : clOlive; Style : [];);
-	TREEVIEW_REPLACE_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clWhite; BgColor : clGreen; Style : [fsBold];);
-	TREEVIEW_REPLACED_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clWhite; BgColor : clMaroon;
-		Style : [fsBold, fsStrikeOut];);
+			TREEVIEW_MATCH_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clWhite; BgColor : clOlive; Style : [];);
+			TREEVIEW_REPLACE_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clWhite; BgColor : clGreen; Style : [fsBold];);
+			TREEVIEW_REPLACED_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clWhite; BgColor : clMaroon;
+				Style : [fsBold, fsStrikeOut];);
 
-	TREEVIEW_NORMAL_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clDkGray; BgColor : clNone; Style : [];);
-	TREEVIEW_STAT_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clPurple; BgColor : clNone; Style : [];);
-	TREEVIEW_ERROR_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clRed; BgColor : clNone; Style : [];);
-	TREEVIEW_STATS_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clTeal; BgColor : clNone; Style : [];);
+			TREEVIEW_FILE_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clDkGray; BgColor : clNone; Style : [];);
+			TREEVIEW_NORMAL_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clDkGray; BgColor : clNone; Style : [];);
+			TREEVIEW_STAT_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clPurple; BgColor : clNone; Style : [];);
+			TREEVIEW_ERROR_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clRed; BgColor : clNone; Style : [];);
+			TREEVIEW_STATS_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clTeal; BgColor : clNone; Style : [];);
+	end;
 
-type
 	TFontColors = record
 		TreeViewMatchText : TFontAttributes;
 		TreeViewReplaceText : TFontAttributes;
@@ -48,10 +51,11 @@ type
 		HistTreeViewSearchText : TFontAttributes;
 		HistTreeViewReplaceText : TFontAttributes;
 		HistTreeViewReplacedText : TFontAttributes;
-		TreeViewNormalText : TFontAttributes;
 		TreeViewStatText : TFontAttributes;
 		TreeViewErrorText : TFontAttributes;
 		TreeViewStatisicsText : TFontAttributes;
+		TreeViewNormalText : TFontAttributes;
+		TreeViewFileText : TFontAttributes;
 		procedure SetByName(const _name : string; const _fa : TFontAttributes);
 	end;
 
@@ -102,16 +106,17 @@ end;
 
 procedure TColorSettings.Init;
 begin
-	SettingsDict.CreateSetting('TreeViewMatchText', varString, TREEVIEW_MATCH_TEXT.ToString());
-	SettingsDict.CreateSetting('TreeViewReplaceText', varString, TREEVIEW_REPLACE_TEXT.ToString());
-	SettingsDict.CreateSetting('TreeViewReplacedText', varString, TREEVIEW_REPLACED_TEXT.ToString());
-	SettingsDict.CreateSetting('HistTreeViewSearchText', varString, HIST_TREEVIEW_SEARCH_TEXT.ToString());
-	SettingsDict.CreateSetting('HistTreeViewReplaceText', varString, HIST_TREEVIEW_REPLACE_TEXT.ToString());
-	SettingsDict.CreateSetting('HistTreeViewReplacedText', varString, HIST_TREEVIEW_REPLACED_TEXT.ToString());
-	SettingsDict.CreateSetting('TreeViewNormalText', varString, TREEVIEW_NORMAL_TEXT.ToString());
-	SettingsDict.CreateSetting('TreeViewStatText', varString, TREEVIEW_STAT_TEXT.ToString());
-	SettingsDict.CreateSetting('TreeViewErrorText', varString, TREEVIEW_ERROR_TEXT.ToString());
-	SettingsDict.CreateSetting('TreeViewStatisicsText', varString, TREEVIEW_STATS_TEXT.ToString());
+	SettingsDict.CreateSetting('TreeViewMatchText', varString, TDefaultFontColors.TREEVIEW_MATCH_TEXT.ToString());
+	SettingsDict.CreateSetting('TreeViewReplaceText', varString, TDefaultFontColors.TREEVIEW_REPLACE_TEXT.ToString());
+	SettingsDict.CreateSetting('TreeViewReplacedText', varString, TDefaultFontColors.TREEVIEW_REPLACED_TEXT.ToString());
+	SettingsDict.CreateSetting('HistTreeViewSearchText', varString, TDefaultFontColors.HIST_TREEVIEW_SEARCH_TEXT.ToString());
+	SettingsDict.CreateSetting('HistTreeViewReplaceText', varString, TDefaultFontColors.HIST_TREEVIEW_REPLACE_TEXT.ToString());
+	SettingsDict.CreateSetting('HistTreeViewReplacedText', varString, TDefaultFontColors.HIST_TREEVIEW_REPLACED_TEXT.ToString());
+	SettingsDict.CreateSetting('TreeViewNormalText', varString, TDefaultFontColors.TREEVIEW_NORMAL_TEXT.ToString());
+	SettingsDict.CreateSetting('TreeViewStatText', varString, TDefaultFontColors.TREEVIEW_STAT_TEXT.ToString());
+	SettingsDict.CreateSetting('TreeViewErrorText', varString, TDefaultFontColors.TREEVIEW_ERROR_TEXT.ToString());
+	SettingsDict.CreateSetting('TreeViewStatisicsText', varString, TDefaultFontColors.TREEVIEW_STATS_TEXT.ToString());
+	SettingsDict.CreateSetting('TreeViewFileText', varString, TDefaultFontColors.TREEVIEW_STATS_TEXT.ToString());
 end;
 
 procedure TColorSettings.LoadDefaultsFromDict;
@@ -131,6 +136,7 @@ begin
 	FFontColors.TreeViewStatText.FromString(SettingsDict.GetSetting('TreeViewStatText'));
 	FFontColors.TreeViewErrorText.FromString(SettingsDict.GetSetting('TreeViewErrorText'));
 	FFontColors.TreeViewStatisicsText.FromString(SettingsDict.GetSetting('TreeViewStatisicsText'));
+	FFontColors.TreeViewFileText.FromString(SettingsDict.GetSetting('TreeViewFileText'));
 end;
 
 procedure TColorSettings.StoreToDict;
@@ -145,6 +151,7 @@ begin
 	SettingsDict.StoreSetting('TreeViewStatText', FFontColors.TreeViewStatText.ToString());
 	SettingsDict.StoreSetting('TreeViewErrorText', FFontColors.TreeViewErrorText.ToString());
 	SettingsDict.StoreSetting('TreeViewStatisicsText', FFontColors.TreeViewStatisicsText.ToString());
+	SettingsDict.StoreSetting('TreeViewFileText', FFontColors.TreeViewFileText.ToString());
 	inherited StoreToDict();
 end;
 
@@ -239,6 +246,8 @@ begin
 		TreeViewErrorText := _fa
 	else if _name = 'TreeViewStatisicsText' then
 		TreeViewStatisicsText := _fa
+	else if _name = 'TreeViewFileText' then
+		TreeViewFileText := _fa
 	else
 		raise Exception.Create('Unknown font attribute name: ' + _name);
 end;
