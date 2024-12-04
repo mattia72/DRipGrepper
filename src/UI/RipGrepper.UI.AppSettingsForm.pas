@@ -28,7 +28,7 @@ type
 		Panel1 : TPanel;
 		chDebugTrace : TCheckBox;
 		chExpertMode : TCheckBox;
-		gpFontColors : TGroupBox;
+		grpFontColors : TGroupBox;
 		grpDeveloper : TGroupBox;
 		procedure FormShow(Sender : TObject);
 
@@ -77,7 +77,8 @@ begin
 	ReadSettings;
 	var
 	allHeight := AddSelectionFrames;
-	gpFontColors.Height := allHeight + gpFontColors.Margins.Bottom;
+	grpFontColors.Height := allHeight + grpFontColors.Margins.Bottom;
+	self.Height := grpFontColors.Height + 4* grpFontColors.Margins.Bottom + grpDeveloper.Height;
 end;
 
 procedure TAppSettingsForm.OnCancel;
@@ -131,7 +132,7 @@ begin
 				NewFrame := TColorSelectorFrame.Create(Self);
 				NewFrame.Name := prop.Name + COMPONENT_NAME_COLORSELECTOR;
 				InsertComponent(NewFrame); // !!!
-				NewFrame.Parent := gpFontColors;
+				NewFrame.Parent := grpFontColors;
 				NewFrame.Align := alTop;
 				NewFrame.LabelText.Caption := TRegex.Replace(prop.Name, '[A-Z]', ' $0') + ':';
 				NewFrame.AssignFontAttributes(fa);
@@ -147,7 +148,10 @@ begin
 end;
 
 procedure TAppSettingsForm.WriteColorSettings;
-var compName : string; comp : TComponent; csf : TColorSelectorFrame;
+var
+	compName : string;
+	comp : TComponent;
+	csf : TColorSelectorFrame;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TAppSettingsForm.WriteColorSettings');

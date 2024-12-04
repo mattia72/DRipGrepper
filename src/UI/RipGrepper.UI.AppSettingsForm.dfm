@@ -2,8 +2,8 @@ object AppSettingsForm: TAppSettingsForm
   Left = 0
   Top = 0
   Caption = 'AppSettingsForm'
-  ClientHeight = 173
-  ClientWidth = 822
+  ClientHeight = 139
+  ClientWidth = 537
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,15 +15,15 @@ object AppSettingsForm: TAppSettingsForm
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 822
-    Height = 173
+    Width = 537
+    Height = 139
     Align = alClient
     TabOrder = 0
-    object gpFontColors: TGroupBox
+    object grpFontColors: TGroupBox
       AlignWithMargins = True
       Left = 4
       Top = 4
-      Width = 814
+      Width = 529
       Height = 55
       Align = alTop
       Caption = 'Fonts and Colors'
@@ -33,7 +33,7 @@ object AppSettingsForm: TAppSettingsForm
       AlignWithMargins = True
       Left = 4
       Top = 65
-      Width = 814
+      Width = 529
       Height = 64
       Align = alTop
       Caption = 'Developer'

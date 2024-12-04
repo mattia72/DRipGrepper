@@ -33,6 +33,7 @@ type
 		ActionList1 : TActionList;
 		ActionOk : TAction;
 		ActionCancel : TAction;
+		pnlTop : TPanel;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionOkExecute(Sender : TObject);
 		procedure FormShow(Sender : TObject);
@@ -54,6 +55,9 @@ var
 
 implementation
 
+uses
+	System.Math;
+
 {$R *.dfm}
 
 constructor TConfigForm.Create(_settings : TRipGrepperSettings);
@@ -64,7 +68,7 @@ begin
 	Settings.UpdateIniFile;
 
 	FOpenWithConfigForm := TOpenWithConfigForm.Create(nil, Settings.OpenWithSettings);
-    FOpenWithConfigForm.Caption := 'Open With...'   ;
+	FOpenWithConfigForm.Caption := 'Open With...';
 	FAppSettingsForm := TAppSettingsForm.Create(nil, Settings);
 
 	FSettingsForms := TObjectList<TForm>.Create();
@@ -100,14 +104,19 @@ begin
 end;
 
 procedure TConfigForm.FormShow(Sender : TObject);
+var
+	iMaxHeight : integer;
 begin
+	iMaxHeight := 0;
 	for var form : TForm in FSettingsForms do begin
 		form.ManualDock(PageControl1);
 		form.Show();
+		iMaxHeight := System.Math.Max(iMaxHeight, form.Height);
 	end;
-
 	FOpenWithConfigForm.pnlBottom.Visible := False;
-
+	// self.Height := iMaxHeight;
+	Autoscroll := true;
+	VertScrollBar.Range := iMaxHeight;
 	PageControl1.TabIndex := 0;
 end;
 

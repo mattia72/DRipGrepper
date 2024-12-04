@@ -160,12 +160,19 @@ begin
 	GetSelectedFont; // Create FSelectedFont if not exists
 	FSelectedFontAttributes.ToFont(FSelectedFont);
 	ExampleText.Font.Assign(FSelectedFont);
-	ExampleText.Color := FSelectedFontAttributes.BgColor;
+	if FSelectedFontAttributes.BgColor = clNone then begin
+		ExampleText.Color := Parent.Brush.Color;
+	end else begin
+		ExampleText.Color := FSelectedFontAttributes.BgColor;
+	end;
 
 	FBSkipChangeEvent := True;
 	try
 		cbForeground.Selected := ExampleText.Font.Color;
+		cbForeground.Hint := 'Foreground: ' + ColorToString(cbForeground.Selected);
+
 		cbBackground.Selected := ExampleText.Color;
+		cbBackground.Hint := 'Background: ' + ColorToString(cbBackground.Selected);
 
 		cbItalic.Checked := fsItalic in ExampleText.Font.Style;
 		cbBold.Checked := fsBold in ExampleText.Font.Style;
