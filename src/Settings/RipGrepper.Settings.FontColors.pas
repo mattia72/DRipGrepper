@@ -45,17 +45,17 @@ type
 	end;
 
 	TFontColors = record
-		TreeViewMatchText : TFontAttributes;
-		TreeViewReplaceText : TFontAttributes;
-		TreeViewReplacedText : TFontAttributes;
-		HistTreeViewSearchText : TFontAttributes;
-		HistTreeViewReplaceText : TFontAttributes;
-		HistTreeViewReplacedText : TFontAttributes;
-		TreeViewStatText : TFontAttributes;
-		TreeViewErrorText : TFontAttributes;
-		TreeViewStatisicsText : TFontAttributes;
-		TreeViewNormalText : TFontAttributes;
-		ResultFileText : TFontAttributes;
+		ReplacedTextInHistory : TFontAttributes;
+		ReplaceTextInHistory : TFontAttributes;
+		SearchTextInHistory : TFontAttributes;
+		ReplacedText : TFontAttributes;
+		ReplaceText : TFontAttributes;
+		StatisticsText : TFontAttributes;
+		ErrorText : TFontAttributes;
+		CounterText : TFontAttributes;
+		MatchText : TFontAttributes;
+		NormalText : TFontAttributes;
+		FileText : TFontAttributes;                 //<-- First in config form
 		procedure SetByName(const _name : string; const _fa : TFontAttributes);
 	end;
 
@@ -106,17 +106,17 @@ end;
 
 procedure TColorSettings.Init;
 begin
-	SettingsDict.CreateSetting('TreeViewMatchText', varString, TDefaultFontColors.TREEVIEW_MATCH_TEXT.ToString());
-	SettingsDict.CreateSetting('TreeViewReplaceText', varString, TDefaultFontColors.TREEVIEW_REPLACE_TEXT.ToString());
-	SettingsDict.CreateSetting('TreeViewReplacedText', varString, TDefaultFontColors.TREEVIEW_REPLACED_TEXT.ToString());
-	SettingsDict.CreateSetting('HistTreeViewSearchText', varString, TDefaultFontColors.HIST_TREEVIEW_SEARCH_TEXT.ToString());
-	SettingsDict.CreateSetting('HistTreeViewReplaceText', varString, TDefaultFontColors.HIST_TREEVIEW_REPLACE_TEXT.ToString());
-	SettingsDict.CreateSetting('HistTreeViewReplacedText', varString, TDefaultFontColors.HIST_TREEVIEW_REPLACED_TEXT.ToString());
-	SettingsDict.CreateSetting('TreeViewNormalText', varString, TDefaultFontColors.TREEVIEW_NORMAL_TEXT.ToString());
-	SettingsDict.CreateSetting('TreeViewStatText', varString, TDefaultFontColors.TREEVIEW_STAT_TEXT.ToString());
-	SettingsDict.CreateSetting('TreeViewErrorText', varString, TDefaultFontColors.TREEVIEW_ERROR_TEXT.ToString());
-	SettingsDict.CreateSetting('TreeViewStatisicsText', varString, TDefaultFontColors.TREEVIEW_STATS_TEXT.ToString());
-	SettingsDict.CreateSetting('ResultFileText', varString, TDefaultFontColors.TREEVIEW_FILE_TEXT.ToString());
+	SettingsDict.CreateSetting('MatchText', varString, TDefaultFontColors.TREEVIEW_MATCH_TEXT.ToString());
+	SettingsDict.CreateSetting('ReplaceText', varString, TDefaultFontColors.TREEVIEW_REPLACE_TEXT.ToString());
+	SettingsDict.CreateSetting('ReplacedText', varString, TDefaultFontColors.TREEVIEW_REPLACED_TEXT.ToString());
+	SettingsDict.CreateSetting('SearchTextInHistory', varString, TDefaultFontColors.HIST_TREEVIEW_SEARCH_TEXT.ToString());
+	SettingsDict.CreateSetting('ReplaceTextInHistory', varString, TDefaultFontColors.HIST_TREEVIEW_REPLACE_TEXT.ToString());
+	SettingsDict.CreateSetting('ReplacedTextInHistory', varString, TDefaultFontColors.HIST_TREEVIEW_REPLACED_TEXT.ToString());
+	SettingsDict.CreateSetting('NormalText', varString, TDefaultFontColors.TREEVIEW_NORMAL_TEXT.ToString());
+	SettingsDict.CreateSetting('CounterText', varString, TDefaultFontColors.TREEVIEW_STAT_TEXT.ToString());
+	SettingsDict.CreateSetting('ErrorText', varString, TDefaultFontColors.TREEVIEW_ERROR_TEXT.ToString());
+	SettingsDict.CreateSetting('StatisticsText', varString, TDefaultFontColors.TREEVIEW_STATS_TEXT.ToString());
+	SettingsDict.CreateSetting('FileText', varString, TDefaultFontColors.TREEVIEW_FILE_TEXT.ToString());
 end;
 
 procedure TColorSettings.LoadDefaultsFromDict;
@@ -126,32 +126,32 @@ end;
 
 procedure TColorSettings.LoadFromDict;
 begin
-	FFontColors.TreeViewMatchText.FromString(SettingsDict.GetSetting('TreeViewMatchText'));
-	FFontColors.TreeViewReplaceText.FromString(SettingsDict.GetSetting('TreeViewReplaceText'));
-	FFontColors.TreeViewReplacedText.FromString(SettingsDict.GetSetting('TreeViewReplacedText'));
-	FFontColors.HistTreeViewSearchText.FromString(SettingsDict.GetSetting('HistTreeViewSearchText'));
-	FFontColors.HistTreeViewReplaceText.FromString(SettingsDict.GetSetting('HistTreeViewReplaceText'));
-	FFontColors.HistTreeViewReplacedText.FromString(SettingsDict.GetSetting('HistTreeViewReplacedText'));
-	FFontColors.TreeViewNormalText.FromString(SettingsDict.GetSetting('TreeViewNormalText'));
-	FFontColors.TreeViewStatText.FromString(SettingsDict.GetSetting('TreeViewStatText'));
-	FFontColors.TreeViewErrorText.FromString(SettingsDict.GetSetting('TreeViewErrorText'));
-	FFontColors.TreeViewStatisicsText.FromString(SettingsDict.GetSetting('TreeViewStatisicsText'));
-	FFontColors.ResultFileText.FromString(SettingsDict.GetSetting('ResultFileText'));
+	FFontColors.MatchText.FromString(SettingsDict.GetSetting('MatchText'));
+	FFontColors.ReplaceText.FromString(SettingsDict.GetSetting('ReplaceText'));
+	FFontColors.ReplacedText.FromString(SettingsDict.GetSetting('ReplacedText'));
+	FFontColors.SearchTextInHistory.FromString(SettingsDict.GetSetting('SearchTextInHistory'));
+	FFontColors.ReplaceTextInHistory.FromString(SettingsDict.GetSetting('ReplaceTextInHistory'));
+	FFontColors.ReplacedTextInHistory.FromString(SettingsDict.GetSetting('ReplacedTextInHistory'));
+	FFontColors.NormalText.FromString(SettingsDict.GetSetting('NormalText'));
+	FFontColors.CounterText.FromString(SettingsDict.GetSetting('CounterText'));
+	FFontColors.ErrorText.FromString(SettingsDict.GetSetting('ErrorText'));
+	FFontColors.StatisticsText.FromString(SettingsDict.GetSetting('StatisticsText'));
+	FFontColors.FileText.FromString(SettingsDict.GetSetting('FileText'));
 end;
 
 procedure TColorSettings.StoreToDict;
 begin
-	SettingsDict.StoreSetting('TreeViewMatchText', FFontColors.TreeViewMatchText.ToString());
-	SettingsDict.StoreSetting('TreeViewReplaceText', FFontColors.TreeViewReplaceText.ToString());
-	SettingsDict.StoreSetting('TreeViewReplacedText', FFontColors.TreeViewReplacedText.ToString());
-	SettingsDict.StoreSetting('HistTreeViewSearchText', FFontColors.HistTreeViewSearchText.ToString());
-	SettingsDict.StoreSetting('HistTreeViewReplaceText', FFontColors.HistTreeViewReplaceText.ToString());
-	SettingsDict.StoreSetting('HistTreeViewReplacedText', FFontColors.HistTreeViewReplacedText.ToString());
-	SettingsDict.StoreSetting('TreeViewNormalText', FFontColors.TreeViewNormalText.ToString());
-	SettingsDict.StoreSetting('TreeViewStatText', FFontColors.TreeViewStatText.ToString());
-	SettingsDict.StoreSetting('TreeViewErrorText', FFontColors.TreeViewErrorText.ToString());
-	SettingsDict.StoreSetting('TreeViewStatisicsText', FFontColors.TreeViewStatisicsText.ToString());
-	SettingsDict.StoreSetting('ResultFileText', FFontColors.ResultFileText.ToString());
+	SettingsDict.StoreSetting('MatchText', FFontColors.MatchText.ToString());
+	SettingsDict.StoreSetting('ReplaceText', FFontColors.ReplaceText.ToString());
+	SettingsDict.StoreSetting('ReplacedText', FFontColors.ReplacedText.ToString());
+	SettingsDict.StoreSetting('SearchTextInHistory', FFontColors.SearchTextInHistory.ToString());
+	SettingsDict.StoreSetting('ReplaceTextInHistory', FFontColors.ReplaceTextInHistory.ToString());
+	SettingsDict.StoreSetting('ReplacedTextInHistory', FFontColors.ReplacedTextInHistory.ToString());
+	SettingsDict.StoreSetting('NormalText', FFontColors.NormalText.ToString());
+	SettingsDict.StoreSetting('CounterText', FFontColors.CounterText.ToString());
+	SettingsDict.StoreSetting('ErrorText', FFontColors.ErrorText.ToString());
+	SettingsDict.StoreSetting('StatisticsText', FFontColors.StatisticsText.ToString());
+	SettingsDict.StoreSetting('FileText', FFontColors.FileText.ToString());
 	inherited StoreToDict();
 end;
 
@@ -187,7 +187,7 @@ end;
 
 function TFontAttributes.FromFont(const _font : TFont) : TFontAttributes;
 begin
-	Name := _font.Name;
+	name := _font.Name;
 	Style := _font.Style;
 	Size := _font.Size;
 	Color := _font.Color;
@@ -195,7 +195,7 @@ end;
 
 function TFontAttributes.ToFont(var _font : TFont) : TFontAttributes;
 begin
-	_font.Name := Name;
+	_font.Name := name;
 	_font.Style := Style;
 	_font.Size := Size;
 	_font.Color := Color;
@@ -226,28 +226,28 @@ end;
 
 procedure TFontColors.SetByName(const _name : string; const _fa : TFontAttributes);
 begin
-	if _name = 'TreeViewMatchText' then
-		TreeViewMatchText := _fa
-	else if _name = 'TreeViewReplaceText' then
-		TreeViewReplaceText := _fa
-	else if _name = 'TreeViewReplacedText' then
-		TreeViewReplacedText := _fa
-	else if _name = 'HistTreeViewSearchText' then
-		HistTreeViewSearchText := _fa
-	else if _name = 'HistTreeViewReplaceText' then
-		HistTreeViewReplaceText := _fa
-	else if _name = 'HistTreeViewReplacedText' then
-		HistTreeViewReplacedText := _fa
-	else if _name = 'TreeViewNormalText' then
-		TreeViewNormalText := _fa
-	else if _name = 'TreeViewStatText' then
-		TreeViewStatText := _fa
-	else if _name = 'TreeViewErrorText' then
-		TreeViewErrorText := _fa
-	else if _name = 'TreeViewStatisicsText' then
-		TreeViewStatisicsText := _fa
-	else if _name = 'ResultFileText' then
-		ResultFileText := _fa
+	if _name = 'MatchText' then
+		MatchText := _fa
+	else if _name = 'ReplaceText' then
+		ReplaceText := _fa
+	else if _name = 'ReplacedText' then
+		ReplacedText := _fa
+	else if _name = 'SearchTextInHistory' then
+		SearchTextInHistory := _fa
+	else if _name = 'ReplaceTextInHistory' then
+		ReplaceTextInHistory := _fa
+	else if _name = 'ReplacedTextInHistory' then
+		ReplacedTextInHistory := _fa
+	else if _name = 'NormalText' then
+		NormalText := _fa
+	else if _name = 'CounterText' then
+		CounterText := _fa
+	else if _name = 'ErrorText' then
+		ErrorText := _fa
+	else if _name = 'StatisticsText' then
+		StatisticsText := _fa
+	else if _name = 'FileText' then
+		FileText := _fa
 	else
 		raise Exception.Create('Unknown font attribute name: ' + _name);
 end;
