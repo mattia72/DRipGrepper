@@ -44,7 +44,7 @@ type
 			function GetSelectedFont : TFont;
 			function GetSelectedFontAttributes : TFontAttributes;
 			procedure SetFontStylesByCheckBox;
-			procedure UpdateFontStyle(_chb : TCheckBox; const _fs : TFontStyle);
+			procedure UpdateFontStyle(_cb : TCheckBox; const _fs : TFontStyle);
 
 		protected
 			procedure Loaded; override;
@@ -171,7 +171,7 @@ begin
 		cbForeground.Selected := ExampleText.Font.Color;
 		cbForeground.Hint := 'Foreground: ' + ColorToString(cbForeground.Selected);
 
-		cbBackground.Selected := ExampleText.Color;
+		cbBackground.Selected := FSelectedFontAttributes.BgColor;
 		cbBackground.Hint := 'Background: ' + ColorToString(cbBackground.Selected);
 
 		cbItalic.Checked := fsItalic in ExampleText.Font.Style;
@@ -195,12 +195,12 @@ begin
 	Refresh;
 end;
 
-procedure TColorSelectorFrame.UpdateFontStyle(_chb : TCheckBox; const _fs : TFontStyle);
+procedure TColorSelectorFrame.UpdateFontStyle(_cb : TCheckBox; const _fs : TFontStyle);
 var
 	styles : TFontStyles;
 begin
 	styles := FSelectedFontAttributes.Style;
-	if _chb.Checked then begin
+	if _cb.Checked then begin
 		styles := styles + [_fs];
 	end else begin
 		styles := styles - [_fs]
