@@ -75,10 +75,8 @@ type
 			procedure LoadFromDict(); override;
 			procedure LoadDefaultsFromDict; override;
 			procedure StoreToDict; override;
-
-			property FontColors : TFontColors read FFontColors write FFontColors;
-
-	end;
+ 			property FontColors : TFontColors read FFontColors write FFontColors;
+ 	end;
 
 implementation
 

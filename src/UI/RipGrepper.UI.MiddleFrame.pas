@@ -44,7 +44,8 @@ uses
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.UI.MiddleLeftFrame,
 	RipGrepper.Common.NodeData,
-	RipGrepper.UI.IFrameEvents;
+	RipGrepper.UI.IFrameEvents,
+	RipGrepper.Settings.FontColors;
 
 type
 	TRipGrepperMiddleFrame = class(TFrame, IFrameEvents, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
@@ -126,6 +127,7 @@ type
 
 		var
 			FAbortSearch : Boolean;
+			FColorSettings : TFontColors;
 			FData : TRipGrepperData;
 			FExeVersion : string;
 			FFileNameType : TFileNameType;
@@ -241,8 +243,7 @@ uses
 	{$ENDIF}
 	System.Generics.Defaults,
 	RipGrepper.UI.SearchForm,
-	System.RegularExpressions,
-	RipGrepper.Settings.FontColors;
+	System.RegularExpressions;
 
 {$R *.dfm}
 
@@ -474,6 +475,8 @@ begin
 	UpdateArgumentsAndSettings;
 	// hist object parser type should set before painting begins...
 	UpdateHistObjectAndGui;
+	// load colors
+	FColorSettings := Settings.FontColorSettings.FontColors;
 end;
 
 procedure TRipGrepperMiddleFrame.ClearFilter;
@@ -1245,11 +1248,11 @@ begin
 		COL_FILE : begin
 			if MatchStr(Text, [RG_ERROR_MSG_PREFIX, RG_PARSE_ERROR]) then begin
 				DefaultDraw := False;
-				TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.TREEVIEW_ERROR_TEXT, false);
+				TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.ErrorText, false);
 				TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, Text);
 			end else if MatchStr(Text, [RG_STATS_LINE]) then begin
 				DefaultDraw := False;
-				TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.TREEVIEW_STATS_TEXT, false);
+				TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.StatisticsText, false);
 				TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, Text);
 			end;
 		end;
@@ -1278,16 +1281,16 @@ begin
 					ss2 := s.Substring(matchBegin + Data.MatchData.MatchLength);
 
 					if IsGuiReplaceMode or IsRgReplaceMode then begin
-						TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.TREEVIEW_REPLACED_TEXT);
+						TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.ReplacedText);
 					end else begin
-						TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.TREEVIEW_MATCH_TEXT);
+						TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.MatchText);
 					end;
 					if not IsRgReplaceMode then begin
 						TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1);
 						pos := pos + TargetCanvas.TextWidth(ss1);
 					end;
 					if IsGuiReplaceMode or IsRgReplaceMode then begin
-						TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.TREEVIEW_REPLACE_TEXT);
+						TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.ReplaceText);
 						TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1_repl);
 
 						pos := pos + TargetCanvas.TextWidth(ss1_repl);
@@ -1404,11 +1407,11 @@ begin
 	if TextType = ttNormal then begin
 		case Column of
 			COL_FILE : begin
-				TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.TREEVIEW_FILE_TEXT, false);
+				TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileText, false);
 			end;
 		end;
 	end else begin // ttStatic
-		TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.TREEVIEW_STAT_TEXT, false); // Not shown on MultiLine
+		TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.CounterText, false); // Not shown on MultiLine
 	end;
 end;
 

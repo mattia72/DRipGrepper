@@ -22,7 +22,8 @@ uses
 	RipGrepper.Data.HistoryItemObject,
 	Vcl.Menus,
 	System.ImageList,
-	Vcl.ImgList;
+	Vcl.ImgList, 
+	RipGrepper.Settings.FontColors;
 
 type
 	THistoryObjectArray = TArrayEx<IHistoryItemObject>;
@@ -67,6 +68,7 @@ type
 			COL_REPLACE_TEXT = 1;
 
 		var
+			FColorSettings: TColorSettings;
 			FCurrentHistoryItemIndex : Integer;
 			FData : TRipGrepperData;
 			FHistoryObjectList : THistoryObjectArray;
@@ -121,8 +123,7 @@ uses
 	System.SysUtils,
 	System.StrUtils,
 	RipGrepper.Helper.Types,
-	RipGrepper.Common.SimpleTypes,
-	RipGrepper.Settings.FontColors;
+	RipGrepper.Common.SimpleTypes;
 
 {$R *.dfm}
 
@@ -620,13 +621,13 @@ begin
 		case Column of
 			COL_SEARCH_TEXT : begin
 				if hio.IsReplaceMode then begin
-					TItemDrawer.SetTextColorHistoryReplacedText(TargetCanvas, TDefaultFontColors.HIST_TREEVIEW_REPLACED_TEXT);
+					TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.HIST_TREEVIEW_REPLACED_TEXT);
 				end else begin
-					TItemDrawer.SetTextColorHistorySearchText(TargetCanvas, TDefaultFontColors.HIST_TREEVIEW_SEARCH_TEXT);
+					TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.HIST_TREEVIEW_SEARCH_TEXT);
 				end;
 			end;
 			COL_REPLACE_TEXT : begin
-				TItemDrawer.SetTextColorHistoryReplaceText(TargetCanvas, TDefaultFontColors.HIST_TREEVIEW_REPLACE_TEXT);
+				TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.HIST_TREEVIEW_REPLACE_TEXT);
 			end;
 		end
 	end else begin // ttStatic
