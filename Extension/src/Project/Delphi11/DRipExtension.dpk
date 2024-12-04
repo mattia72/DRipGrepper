@@ -107,7 +107,8 @@ contains
   RipGrepper.UI.IFrameEvents in '..\..\..\..\src\UI\RipGrepper.UI.IFrameEvents.pas',
   RipGrepper.Settings.FontColors in '..\..\..\..\src\Settings\RipGrepper.Settings.FontColors.pas',
   RipGrepper.UI.AppSettingsForm in '..\..\..\..\src\UI\RipGrepper.UI.AppSettingsForm.pas' {AppSettingsForm},
-  RipGrepper.UI.SettingsFormBase in '..\..\..\..\src\UI\RipGrepper.UI.SettingsFormBase.pas';
+  RipGrepper.UI.SettingsFormBase in '..\..\..\..\src\UI\RipGrepper.UI.SettingsFormBase.pas',
+  RipGrepper.UI.ColorSelectorFrame in '..\..\..\..\src\UI\RipGrepper.UI.ColorSelectorFrame.pas';
 
 end.
 
