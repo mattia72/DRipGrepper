@@ -55,7 +55,7 @@ type
 		CounterText : TFontAttributes;
 		MatchText : TFontAttributes;
 		NormalText : TFontAttributes;
-		FileText : TFontAttributes;                 //<-- First in config form
+		FileText : TFontAttributes; // <-- First in config form
 		procedure SetByName(const _name : string; const _fa : TFontAttributes);
 	end;
 
@@ -74,9 +74,10 @@ type
 			destructor Destroy; override;
 			procedure LoadFromDict(); override;
 			procedure LoadDefaultsFromDict; override;
+			procedure ReloadColors;
 			procedure StoreToDict; override;
- 			property FontColors : TFontColors read FFontColors write FFontColors;
- 	end;
+			property FontColors : TFontColors read FFontColors write FFontColors;
+	end;
 
 implementation
 
@@ -135,6 +136,12 @@ begin
 	FFontColors.ErrorText.FromString(SettingsDict.GetSetting('ErrorText'));
 	FFontColors.StatisticsText.FromString(SettingsDict.GetSetting('StatisticsText'));
 	FFontColors.FileText.FromString(SettingsDict.GetSetting('FileText'));
+end;
+
+procedure TColorSettings.ReloadColors;
+begin
+	ReLoad;
+	LoadFromDict;
 end;
 
 procedure TColorSettings.StoreToDict;

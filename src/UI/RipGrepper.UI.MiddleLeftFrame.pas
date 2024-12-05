@@ -22,7 +22,7 @@ uses
 	RipGrepper.Data.HistoryItemObject,
 	Vcl.Menus,
 	System.ImageList,
-	Vcl.ImgList, 
+	Vcl.ImgList,
 	RipGrepper.Settings.FontColors;
 
 type
@@ -68,7 +68,7 @@ type
 			COL_REPLACE_TEXT = 1;
 
 		var
-			FColorSettings: TColorSettings;
+			FColorSettings : TFontColors;
 			FCurrentHistoryItemIndex : Integer;
 			FData : TRipGrepperData;
 			FHistoryObjectList : THistoryObjectArray;
@@ -81,6 +81,7 @@ type
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
 			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
 			function GetSettings : TRipGrepperSettings;
+			procedure ReloadColorSettings;
 			procedure ShowReplaceColumn(const _bShow : Boolean);
 			procedure UpdateReplaceColumnVisible;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
@@ -98,6 +99,7 @@ type
 			function GetCurrentHistoryObject : IHistoryItemObject;
 			procedure Init;
 			procedure PrepareAndDoSearch;
+			procedure RefreshSearch;
 			procedure SetReplaceMode(_hio : IHistoryItemObject = nil);
 			procedure SetSelectedHistoryItem(const _idx : Integer);
 			property CurrentHistoryItemIndex : Integer read FCurrentHistoryItemIndex write FCurrentHistoryItemIndex;
@@ -436,8 +438,22 @@ end;
 
 procedure TMiddleLeftFrame.PrepareAndDoSearch;
 begin
+	ReloadColorSettings;
 	AddOrUpdateHistoryItem;
 	SetSelectedHistoryItem(CurrentHistoryItemIndex);
+end;
+
+procedure TMiddleLeftFrame.RefreshSearch;
+begin
+	ClearMatchesInHistoryObject();
+	ReloadColorSettings;
+end;
+
+procedure TMiddleLeftFrame.ReloadColorSettings;
+begin
+	// load color settings
+	Settings.FontColorSettings.ReloadColors;
+	FColorSettings := Settings.FontColorSettings.FontColors;
 end;
 
 procedure TMiddleLeftFrame.SetReplaceMode(_hio : IHistoryItemObject = nil);
@@ -516,13 +532,13 @@ begin
 		case Sender.GetNodeLevel(Node) of
 			0 : begin
 				if (Node.ChildCount = 0) then begin
-					TargetCanvas.Brush.Color := TDefaultFontColors.HIST_TREEVIEW_SEARCH_TEXT.BgColor;
+					TargetCanvas.Brush.Color := FColorSettings.SearchTextInHistory.BgColor;
 				end else begin
-					TargetCanvas.Brush.Color := TDefaultFontColors.HIST_TREEVIEW_REPLACED_TEXT.BgColor;
+					TargetCanvas.Brush.Color := FColorSettings.ReplacedTextInHistory.BgColor;
 				end;
 			end;
 			1 :
-			TargetCanvas.Brush.Color := TDefaultFontColors.HIST_TREEVIEW_REPLACE_TEXT.BgColor;
+			TargetCanvas.Brush.Color := FColorSettings.ReplaceTextInHistory.BgColor;
 		end;
 		TargetCanvas.FillRect(R);
 	end;
@@ -621,20 +637,18 @@ begin
 		case Column of
 			COL_SEARCH_TEXT : begin
 				if hio.IsReplaceMode then begin
-					TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.HIST_TREEVIEW_REPLACED_TEXT);
+					TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.ReplacedTextInHistory);
 				end else begin
-					TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.HIST_TREEVIEW_SEARCH_TEXT);
+					TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.SearchTextInHistory);
 				end;
 			end;
 			COL_REPLACE_TEXT : begin
-				TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.HIST_TREEVIEW_REPLACE_TEXT);
+				TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.ReplaceTextInHistory);
 			end;
 		end
 	end else begin // ttStatic
-		TItemDrawer.SetTextColorErrorStaticText(TargetCanvas,
-        	TDefaultFontColors.TREEVIEW_STAT_TEXT,
-        	TDefaultFontColors.TREEVIEW_ERROR_TEXT,
-            hio.GetErrorCounters().FSumOfErrors > 0);
+		TItemDrawer.SetTextColorErrorStaticText(TargetCanvas, FColorSettings.CounterText, FColorSettings.ErrorText,
+			hio.GetErrorCounters().FSumOfErrors > 0);
 	end;
 end;
 

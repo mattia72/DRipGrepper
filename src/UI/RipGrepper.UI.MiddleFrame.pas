@@ -475,10 +475,6 @@ begin
 	UpdateArgumentsAndSettings;
 	// hist object parser type should set before painting begins...
 	UpdateHistObjectAndGui;
-	// load colors
-	Settings.FontColorSettings.ReLoad;
-	Settings.FontColorSettings.LoadFromDict;
-	FColorSettings := Settings.FontColorSettings.FontColors;
 end;
 
 procedure TRipGrepperMiddleFrame.ClearFilter;
@@ -805,7 +801,8 @@ end;
 
 procedure TRipGrepperMiddleFrame.LoadBeforeSearchSettings;
 begin
-	//
+	Settings.FontColorSettings.ReloadColors;
+	FColorSettings := Settings.FontColorSettings.FontColors;
 end;
 
 procedure TRipGrepperMiddleFrame.OnEOFProcess;
@@ -1036,17 +1033,13 @@ end;
 procedure TRipGrepperMiddleFrame.PrepareAndDoSearch;
 begin
 	MiddleLeftFrame1.PrepareAndDoSearch();
-	// Data.ClearMatchFiles();
-	// InitSearch();
 	DoSearch();
 	MiddleLeftFrame1.ChangeHistoryNodeText;
 end;
 
 procedure TRipGrepperMiddleFrame.RefreshSearch;
 begin
-	// UpdateHistObjectAndCopyToSettings();
-	MiddleLeftFrame1.ClearMatchesInHistoryObject();
-	// InitSearch();
+	MiddleLeftFrame1.RefreshSearch();
 	DoSearch();
 end;
 
