@@ -98,12 +98,14 @@ var
 begin
 	allHeight := 0;
 	Context := TRttiContext.Create;
+   //	_parentForm.Autosize := False;
 	try
 		TypeFontColors := Context.GetType(TypeInfo(TFontColors));
 		for prop in TypeFontColors.GetFields do begin
 			if prop.Visibility = mvPublic then begin
 				colors := @_fontColors;
 				fa := prop.GetValue(colors).AsType<TFontAttributes>;
+
 				NewFrame := TColorSelectorFrame.Create(_parentForm);
 				NewFrame.Name := prop.Name + COMPONENT_NAME_COLORSELECTOR;
 				_parentForm.InsertComponent(NewFrame); // !!!
@@ -111,14 +113,22 @@ begin
 				NewFrame.Align := alTop;
 				NewFrame.LabelText.Caption := TRegex.Replace(prop.Name, '[A-Z]', ' $0') + ':';
 				NewFrame.AssignFontAttributes(fa);
-				Inc(allHeight, NewFrame.Height +
-					{ } IfThen(NewFrame.AlignWithMargins,
-					{ } NewFrame.Margins.Top + NewFrame.Margins.Bottom, 2));
+
+				var
+				heightInc := NewFrame.Height +
+				{ } IfThen(NewFrame.AlignWithMargins,
+					{ } NewFrame.Margins.Top + NewFrame.Margins.Bottom, 2);
+
+				Inc(allHeight, heightInc);
+
+//				_parentForm.Height := _parentForm.Height + heightInc;
+//				_parentCtrl.Height := _parentCtrl.Height + heightInc;
 			end;
 		end;
 		Result := allHeight;
 	finally
 		Context.Free;
+		_parentForm.Autosize := True;
 	end;
 end;
 

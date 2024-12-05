@@ -2,8 +2,8 @@ object AppSettingsForm: TAppSettingsForm
   Left = 0
   Top = 0
   Caption = 'AppSettingsForm'
-  ClientHeight = 139
-  ClientWidth = 537
+  ClientHeight = 196
+  ClientWidth = 522
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,29 +15,22 @@ object AppSettingsForm: TAppSettingsForm
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 537
-    Height = 139
+    Width = 522
+    Height = 196
     Align = alClient
     TabOrder = 0
-    object grpFontColors: TGroupBox
-      AlignWithMargins = True
-      Left = 4
-      Top = 4
-      Width = 529
-      Height = 55
-      Align = alTop
-      Caption = 'Fonts and Colors'
-      TabOrder = 0
-    end
     object grpDeveloper: TGroupBox
       AlignWithMargins = True
       Left = 4
-      Top = 65
-      Width = 529
-      Height = 64
-      Align = alTop
+      Top = 4
+      Width = 514
+      Height = 188
+      Align = alClient
       Caption = 'Developer'
-      TabOrder = 1
+      TabOrder = 0
+      DesignSize = (
+        514
+        188)
       object chDebugTrace: TCheckBox
         Left = 16
         Top = 16
@@ -53,6 +46,19 @@ object AppSettingsForm: TAppSettingsForm
         Height = 17
         Caption = 'Expert Mode'
         TabOrder = 1
+      end
+      object lbledtIniFilePath: TLabeledEdit
+        Left = 16
+        Top = 80
+        Width = 495
+        Height = 23
+        Anchors = [akLeft, akTop, akRight]
+        EditLabel.Width = 64
+        EditLabel.Height = 15
+        EditLabel.Caption = 'Ini File Path:'
+        Enabled = False
+        TabOrder = 2
+        Text = ''
       end
     end
   end

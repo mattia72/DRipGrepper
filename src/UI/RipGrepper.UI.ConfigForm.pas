@@ -22,7 +22,8 @@ uses
 	RipGrepper.UI.AppSettingsForm,
 	RipGrepper.UI.SettingsFormBase,
 	ArrayEx,
-	System.Generics.Collections;
+	System.Generics.Collections,
+	RipGrepper.UI.Settings.ColorSettingsForm;
 
 type
 	TConfigForm = class(TForm)
@@ -40,6 +41,7 @@ type
 
 		private
 			FAppSettingsForm : TAppSettingsForm;
+			FColorSettingsForm : TColorSettingsForm;
 			FOpenWithConfigForm : TOpenWithConfigForm;
 			FSettings : TRipGrepperSettings;
 			FSettingsForms : TObjectList<TForm>;
@@ -70,10 +72,10 @@ begin
 	FOpenWithConfigForm := TOpenWithConfigForm.Create(nil, Settings.OpenWithSettings);
 	FOpenWithConfigForm.Caption := 'Open With...';
 	FAppSettingsForm := TAppSettingsForm.Create(nil, Settings);
+	FColorSettingsForm := TColorSettingsForm.Create(nil, Settings.FontColorSettings);
 
 	FSettingsForms := TObjectList<TForm>.Create();
-	FSettingsForms.AddRange([FAppSettingsForm, FOpenWithConfigForm]);
-
+	FSettingsForms.AddRange([FColorSettingsForm, FOpenWithConfigForm, FAppSettingsForm]);
 end;
 
 destructor TConfigForm.Destroy;
@@ -106,17 +108,21 @@ end;
 procedure TConfigForm.FormShow(Sender : TObject);
 var
 	iMaxHeight : integer;
+	iMaxWidth : integer;
 begin
 	iMaxHeight := 0;
+	iMaxWidth := 0;
 	for var form : TForm in FSettingsForms do begin
+		iMaxHeight := System.Math.Max(iMaxHeight, form.Height);
+		iMaxWidth := System.Math.Max(iMaxWidth, form.Width);
 		form.ManualDock(PageControl1);
 		form.Show();
-		iMaxHeight := System.Math.Max(iMaxHeight, form.Height);
 	end;
 	FOpenWithConfigForm.pnlBottom.Visible := False;
-	// self.Height := iMaxHeight;
-	Autoscroll := true;
-	VertScrollBar.Range := iMaxHeight;
+	self.Height := iMaxHeight;
+	self.Width := iMaxWidth; // TODO
+//	Autoscroll := true;
+//	VertScrollBar.Range := iMaxHeight;
 	PageControl1.TabIndex := 0;
 end;
 

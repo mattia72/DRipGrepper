@@ -20,7 +20,8 @@ uses
 	RipGrepper.UI.ColorSelectorFrame,
 	RipGrepper.Settings.FontColors,
 	RipGrepper.Settings.RipGrepperSettings,
-	RTTI;
+	RTTI,
+	Vcl.Mask;
 
 type
 
@@ -28,16 +29,13 @@ type
 		Panel1 : TPanel;
 		chDebugTrace : TCheckBox;
 		chExpertMode : TCheckBox;
-		grpFontColors : TGroupBox;
 		grpDeveloper : TGroupBox;
+		lbledtIniFilePath : TLabeledEdit;
 		procedure FormShow(Sender : TObject);
 
 		private
 			FAppSettings : TAppSettings;
-			FFontColorSettings : TColorSettings;
 		protected
-			procedure OnCancel; override;
-			procedure OnOk; override;
 			procedure ReadSettings; override;
 			procedure WriteSettings; override;
 
@@ -59,28 +57,13 @@ uses
 constructor TAppSettingsForm.Create(_Owner : TComponent; _settings : TRipGrepperSettings);
 begin
 	inherited Create(_Owner, _settings);
-	Caption := 'General';
-	FFontColorSettings := (FSettings as TRipGrepperSettings).FontColorSettings;
+	Caption := 'Expert';
 	FAppSettings := (FSettings as TRipGrepperSettings).AppSettings;
 end;
 
 procedure TAppSettingsForm.FormShow(Sender : TObject);
 begin
 	ReadSettings;
-	var
-	allHeight := TColorSelectorFrame.AddSelectionFrames(FFontColorSettings.FontColors, self, grpFontColors);
-	grpFontColors.Height := allHeight + grpFontColors.Margins.Bottom;
-	self.Height := grpFontColors.Height + 4 * grpFontColors.Margins.Bottom + grpDeveloper.Height;
-end;
-
-procedure TAppSettingsForm.OnCancel;
-begin
-	inherited;
-end;
-
-procedure TAppSettingsForm.OnOk;
-begin
-	inherited;
 end;
 
 procedure TAppSettingsForm.ReadSettings;
@@ -88,9 +71,9 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TAppSettingsForm.ReadSettings');
 	FAppSettings.LoadFromDict;
-	FFontColorSettings.LoadFromDict;
 	chDebugTrace.Checked := FAppSettings.DebugTrace;
 	chExpertMode.Checked := FAppSettings.ExpertMode;
+	lbledtIniFilePath.Text := FAppSettings.IniFile.FileName;
 end;
 
 procedure TAppSettingsForm.WriteSettings;
@@ -99,10 +82,6 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TAppSettingsForm.WriteSettings');
 	FAppSettings.DebugTrace := chDebugTrace.Checked;
 	FAppSettings.ExpertMode := chExpertMode.Checked;
-	var
-	fc := FFontColorSettings.FontColors;
-	TColorSelectorFrame.WriteColorSettings(fc, self);
-	FFontColorSettings.FontColors := fc;
 	inherited WriteSettings;
 end;
 

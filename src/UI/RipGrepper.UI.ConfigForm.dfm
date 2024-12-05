@@ -1,11 +1,10 @@
 object ConfigForm: TConfigForm
   Left = 0
   Top = 0
-  Width = 546
-  Height = 478
-  VertScrollBar.Range = 330
   VertScrollBar.Visible = False
   Caption = 'DRipGrepper Config'
+  ClientHeight = 258
+  ClientWidth = 410
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,8 +15,8 @@ object ConfigForm: TConfigForm
   TextHeight = 15
   object pnlBottom: TPanel
     Left = 0
-    Top = 391
-    Width = 530
+    Top = 210
+    Width = 410
     Height = 48
     Margins.Left = 8
     Margins.Top = 8
@@ -28,11 +27,11 @@ object ConfigForm: TConfigForm
     ParentBackground = False
     TabOrder = 0
     DesignSize = (
-      530
+      410
       48)
     object btn_Save: TButton
       AlignWithMargins = True
-      Left = 344
+      Left = 224
       Top = 14
       Width = 75
       Height = 25
@@ -46,7 +45,7 @@ object ConfigForm: TConfigForm
     end
     object btn_Cancel: TButton
       AlignWithMargins = True
-      Left = 435
+      Left = 315
       Top = 14
       Width = 75
       Height = 25
@@ -62,15 +61,15 @@ object ConfigForm: TConfigForm
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 530
-    Height = 391
+    Width = 410
+    Height = 210
     Align = alClient
     TabOrder = 1
     object PageControl1: TPageControl
       Left = 1
       Top = 1
-      Width = 528
-      Height = 389
+      Width = 408
+      Height = 208
       Align = alClient
       MultiLine = True
       TabOrder = 0
