@@ -221,6 +221,8 @@ const
 	DEFAULTS_INI_SECTION = 'RipGrepperSettingsDefaults';
 	ROOT_DUMMY_INI_SECTION = 'Root Dummy Section';
 
+	COMPONENT_NAME_COLORSELECTOR = '_ColorSelector';
+
 type
 
 	EColumnIndex = (ciFile, ciRow, ciCol, ciText, ciMatchText, ciTextAfterMatch);

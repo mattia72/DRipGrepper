@@ -52,8 +52,10 @@ type
 		public
 			constructor Create(AOwner : TComponent); reintroduce;
 			destructor Destroy; override;
+			class function AddSelectionFrames(const _fontColors : TFontColors; _parentForm : TForm; _parentCtrl : TWinControl) : integer;
 			procedure AssignFontAttributes(const _fa : TFontAttributes);
 			procedure Refresh;
+			class procedure WriteColorSettings(var _fontColors : TFontColors; _parentForm : TForm);
 			property SelectedFontAttributes : TFontAttributes read GetSelectedFontAttributes write FSelectedFontAttributes;
 			property SelectedFont : TFont read GetSelectedFont write FSelectedFont;
 
@@ -62,7 +64,13 @@ type
 implementation
 
 uses
-	System.UITypes;
+	System.UITypes,
+	System.Rtti,
+	System.Math,
+	RipGrepper.Common.Constants,
+	System.TypInfo,
+	System.RegularExpressions,
+	RipGrepper.Tools.DebugUtils;
 
 {$R *.dfm}
 
@@ -75,6 +83,43 @@ destructor TColorSelectorFrame.Destroy;
 begin
 	FSelectedFont.Free;
 	inherited;
+end;
+
+class function TColorSelectorFrame.AddSelectionFrames(const _fontColors : TFontColors; _parentForm : TForm; _parentCtrl : TWinControl)
+	: integer;
+var
+	Context : TRttiContext;
+	TypeFontColors : TRttiType;
+	prop : TRttiField;
+	NewFrame : TColorSelectorFrame;
+	fa : TFontAttributes;
+	colors : ^TFontColors;
+	allHeight : integer;
+begin
+	allHeight := 0;
+	Context := TRttiContext.Create;
+	try
+		TypeFontColors := Context.GetType(TypeInfo(TFontColors));
+		for prop in TypeFontColors.GetFields do begin
+			if prop.Visibility = mvPublic then begin
+				colors := @_fontColors;
+				fa := prop.GetValue(colors).AsType<TFontAttributes>;
+				NewFrame := TColorSelectorFrame.Create(_parentForm);
+				NewFrame.Name := prop.Name + COMPONENT_NAME_COLORSELECTOR;
+				_parentForm.InsertComponent(NewFrame); // !!!
+				NewFrame.Parent := _parentCtrl;
+				NewFrame.Align := alTop;
+				NewFrame.LabelText.Caption := TRegex.Replace(prop.Name, '[A-Z]', ' $0') + ':';
+				NewFrame.AssignFontAttributes(fa);
+				Inc(allHeight, NewFrame.Height +
+					{ } IfThen(NewFrame.AlignWithMargins,
+					{ } NewFrame.Margins.Top + NewFrame.Margins.Bottom, 2));
+			end;
+		end;
+		Result := allHeight;
+	finally
+		Context.Free;
+	end;
 end;
 
 procedure TColorSelectorFrame.AssignFontAttributes(const _fa : TFontAttributes);
@@ -206,6 +251,36 @@ begin
 		styles := styles - [_fs]
 	end;
 	FSelectedFontAttributes.Style := styles;
+end;
+
+class procedure TColorSelectorFrame.WriteColorSettings(var _fontColors : TFontColors; _parentForm : TForm);
+var
+	compName : string;
+	comp : TComponent;
+	csf : TColorSelectorFrame;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TColorSelectorFrame.WriteColorSettings');
+	var
+	fc := _fontColors;
+	for var i := 0 to _parentForm.ComponentCount - 1 do begin
+		comp := _parentForm.Components[i];
+		if not Assigned(comp) then begin
+			dbgMsg.ErrorMsgFmt('%i Component not exists?', [comp]);
+			continue;
+		end;
+		compName := comp.Name;
+		if compName.EndsWith(COMPONENT_NAME_COLORSELECTOR) then begin
+			csf := comp as TColorSelectorFrame;
+			if Assigned(csf) then begin
+				fc.SetByName(compName.Replace(COMPONENT_NAME_COLORSELECTOR, ''),
+					{ } csf.SelectedFontAttributes);
+			end else begin
+				dbgMsg.ErrorMsgFmt('%s settings not saved.', [compName]);
+			end;
+		end;
+	end;
+	_fontColors := fc;
 end;
 
 end.
