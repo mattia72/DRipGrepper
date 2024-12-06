@@ -26,10 +26,10 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 Marked with checkmark if ready, else planned ...
 - [x] --stats parameter handling
 - [x] config form
-  - [ ] Debug and Expert mode
+  - [x] Debug and Expert mode
   - [ ] install as **extension** in Delphi IDE
   - [ ] configure **extension** shortcuts
-  - [o] configure colors
+  - [x] configure colors
 - [ ] **extension**: save all before search message?
 - [ ] save/load search histories in file
 - [ ] JSON config files
