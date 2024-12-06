@@ -119,7 +119,7 @@ begin
 		form.Show();
 	end;
 	FOpenWithConfigForm.pnlBottom.Visible := False;
-	self.Height := iMaxHeight;
+	self.Height := iMaxHeight + PageControl1.TabHeight;
 	self.Width := iMaxWidth; // TODO
 //	Autoscroll := true;
 //	VertScrollBar.Range := iMaxHeight;

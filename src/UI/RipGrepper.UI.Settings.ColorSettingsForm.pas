@@ -55,7 +55,7 @@ begin
 	var
 	allHeight := TColorSelectorFrame.AddSelectionFrames(FFontColorSettings.FontColors, self, grpFontColors);
 	grpFontColors.Height := allHeight + grpFontColors.Margins.Bottom;
-	self.Height := grpFontColors.Height + 4 * grpFontColors.Margins.Bottom;
+	self.Height := grpFontColors.Height;
 end;
 
 procedure TColorSettingsForm.ReadSettings;
