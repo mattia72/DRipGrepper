@@ -274,6 +274,10 @@
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.ColorSelectorFrame.pas">
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.LockGuard.pas"/>
+        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas">
+            <FormType>dfm</FormType>
+        </DCCReference>
         <RcItem Include="..\..\..\Resources\about_icon.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>about_icon</ResourceId>
