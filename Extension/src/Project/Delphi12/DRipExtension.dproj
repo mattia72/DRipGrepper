@@ -145,9 +145,9 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_MajorVer>3</VerInfo_MajorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.9.0.55;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.9.0.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.9.0.57;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.9.0.0;Comments=beta</VerInfo_Keys>
         <VerInfo_MinorVer>9</VerInfo_MinorVer>
-        <VerInfo_Build>55</VerInfo_Build>
+        <VerInfo_Build>57</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64x)'!=''">
@@ -199,7 +199,7 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.ConfigForm.pas">
+        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.ConfigForm.pas">
             <Form>ConfigForm</Form>
             <FormType>dfm</FormType>
         </DCCReference>
@@ -268,7 +268,7 @@
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.IFrameEvents.pas"/>
         <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.FontColors.pas"/>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.SettingsFormBase.pas"/>
-        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.AppSettingsForm.pas">
+        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.AppSettingsForm.pas">
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.ColorSelectorFrame.pas">

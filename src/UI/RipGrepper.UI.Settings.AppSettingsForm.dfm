@@ -33,7 +33,7 @@ object AppSettingsForm: TAppSettingsForm
         188)
       object chDebugTrace: TCheckBox
         Left = 16
-        Top = 16
+        Top = 24
         Width = 97
         Height = 17
         Caption = 'Debug trace'
@@ -41,7 +41,7 @@ object AppSettingsForm: TAppSettingsForm
       end
       object chExpertMode: TCheckBox
         Left = 16
-        Top = 39
+        Top = 47
         Width = 97
         Height = 17
         Caption = 'Expert Mode'
@@ -49,7 +49,7 @@ object AppSettingsForm: TAppSettingsForm
       end
       object lbledtIniFilePath: TLabeledEdit
         Left = 16
-        Top = 80
+        Top = 152
         Width = 495
         Height = 23
         Anchors = [akLeft, akTop, akRight]
@@ -58,6 +58,19 @@ object AppSettingsForm: TAppSettingsForm
         EditLabel.Caption = 'Ini File Path:'
         Enabled = False
         TabOrder = 2
+        Text = ''
+      end
+      object lbledtRgExePath: TLabeledEdit
+        Left = 16
+        Top = 107
+        Width = 495
+        Height = 23
+        Anchors = [akLeft, akTop, akRight]
+        EditLabel.Width = 64
+        EditLabel.Height = 15
+        EditLabel.Caption = 'Rg.exe Path:'
+        Enabled = False
+        TabOrder = 3
         Text = ''
       end
     end

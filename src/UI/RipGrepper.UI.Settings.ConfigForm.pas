@@ -1,4 +1,4 @@
-unit RipGrepper.UI.ConfigForm;
+unit RipGrepper.UI.Settings.ConfigForm;
 
 interface
 
@@ -19,7 +19,7 @@ uses
 	Vcl.ActnList,
 	Vcl.StdCtrls,
 	Vcl.ExtCtrls,
-	RipGrepper.UI.AppSettingsForm,
+	RipGrepper.UI.Settings.AppSettingsForm,
 	RipGrepper.UI.SettingsFormBase,
 	ArrayEx,
 	System.Generics.Collections,

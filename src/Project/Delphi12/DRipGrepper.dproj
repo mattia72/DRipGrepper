@@ -134,8 +134,8 @@
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_MajorVer>3</VerInfo_MajorVer>
         <VerInfo_MinorVer>9</VerInfo_MinorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.9.0.63;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.9.0.0</VerInfo_Keys>
-        <VerInfo_Build>63</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.9.0.64;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.9.0.0</VerInfo_Keys>
+        <VerInfo_Build>64</VerInfo_Build>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     </PropertyGroup>
@@ -243,7 +243,7 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="..\..\UI\RipGrepper.UI.ConfigForm.pas">
+        <DCCReference Include="..\..\UI\RipGrepper.UI.Settings.ConfigForm.pas">
             <Form>ConfigForm</Form>
             <FormType>dfm</FormType>
         </DCCReference>
@@ -286,7 +286,7 @@
         <DCCReference Include="..\..\Tools\RipGrepper.Tools.Replacer.StandaloneContext.pas"/>
         <DCCReference Include="..\..\Common\RipGrepper.Common.EncodedStringList.pas"/>
         <DCCReference Include="..\..\UI\RipGrepper.UI.IFrameEvents.pas"/>
-        <DCCReference Include="..\..\UI\RipGrepper.UI.AppSettingsForm.pas">
+        <DCCReference Include="..\..\UI\RipGrepper.UI.Settings.AppSettingsForm.pas">
             <Form>AppSettingsForm</Form>
             <FormType>dfm</FormType>
         </DCCReference>

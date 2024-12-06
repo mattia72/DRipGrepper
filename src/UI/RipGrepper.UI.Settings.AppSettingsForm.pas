@@ -1,4 +1,4 @@
-unit RipGrepper.UI.AppSettingsForm;
+unit RipGrepper.UI.Settings.AppSettingsForm;
 
 interface
 
@@ -21,7 +21,7 @@ uses
 	RipGrepper.Settings.FontColors,
 	RipGrepper.Settings.RipGrepperSettings,
 	RTTI,
-	Vcl.Mask;
+	Vcl.Mask, RipGrepper.Settings.RipGrepParameterSettings;
 
 type
 
@@ -31,10 +31,12 @@ type
 		chExpertMode : TCheckBox;
 		grpDeveloper : TGroupBox;
 		lbledtIniFilePath : TLabeledEdit;
+    lbledtRgExePath: TLabeledEdit;
 		procedure FormShow(Sender : TObject);
 
 		private
 			FAppSettings : TAppSettings;
+		FRipGrepSettings: TRipGrepParameterSettings;
 		protected
 			procedure ReadSettings; override;
 			procedure WriteSettings; override;
@@ -59,6 +61,7 @@ begin
 	inherited Create(_Owner, _settings);
 	Caption := 'Expert';
 	FAppSettings := (FSettings as TRipGrepperSettings).AppSettings;
+    FRipGrepSettings := (FSettings as TRipGrepperSettings).RipGrepParameters;
 end;
 
 procedure TAppSettingsForm.FormShow(Sender : TObject);
@@ -74,6 +77,7 @@ begin
 	chDebugTrace.Checked := FAppSettings.DebugTrace;
 	chExpertMode.Checked := FAppSettings.ExpertMode;
 	lbledtIniFilePath.Text := FAppSettings.IniFile.FileName;
+    lbledtRgExePath.Text := FRipGrepSettings.RipGrepPath;
 end;
 
 procedure TAppSettingsForm.WriteSettings;

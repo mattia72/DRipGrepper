@@ -200,7 +200,7 @@ uses
 	System.IOUtils,
 	RipGrepper.Helper.Types,
 	System.SysUtils,
-	RipGrepper.UI.ConfigForm,
+	RipGrepper.UI.Settings.ConfigForm,
 	System.RegularExpressions,
 	RipGrepper.Settings.NodeLook.FilterSettings,
 	RipGrepper.Tools.Replacer;
