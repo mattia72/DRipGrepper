@@ -172,7 +172,7 @@ begin
 			end;
 			if not FileExists(rgPath) then begin
 				dbgMsg.MsgFmt('rg.exe not found in rgPath=%s', [rgPath]);
-				TMsgBox.ShowError(Format(FORMAT_RIPGREP_EXE_NOT_FOUND, [FIniFile.FileName]));
+				TMsgBox.ShowError(Format(FORMAT_RIPGREP_EXE_NOT_FOUND, [IniFile.FileName]));
 				rgPath := '';
 			end;
 			// raise Exception.Create('RipGrep(rg.exe) not found');

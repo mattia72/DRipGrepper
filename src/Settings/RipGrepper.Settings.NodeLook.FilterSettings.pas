@@ -65,7 +65,7 @@ constructor TFilterSettings.Create(const _ini : TMemIniFile);
 begin
 	IniSectionName := INI_SECTION;
 	inherited;
-	TDebugUtils.DebugMessage('TFilterSettings.Create: ' + FIniFile.FileName + '[' + GetIniSectionName + ']');
+	TDebugUtils.DebugMessage('TFilterSettings.Create: ' + IniFile.FileName + '[' + GetIniSectionName + ']');
 end;
 
 constructor TFilterSettings.Create;

@@ -66,14 +66,14 @@ constructor TRipGrepperExtensionSettings.Create(const _ini : TMemIniFile);
 begin
 	IniSectionName := INI_SECTION;
 	inherited;
-	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
+	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Create: ' + IniFile.FileName + '[' + IniSectionName + ']');
 end;
 
 constructor TRipGrepperExtensionSettings.Create;
 begin
 	IniSectionName := INI_SECTION;
 	inherited;
-	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
+	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Create: ' + IniFile.FileName + '[' + IniSectionName + ']');
 end;
 
 procedure TRipGrepperExtensionSettings.Init;

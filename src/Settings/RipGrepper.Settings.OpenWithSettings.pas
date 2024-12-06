@@ -13,7 +13,6 @@ type
 	TOpenWithSettings = class(TPersistableSettings)
 		private
 			FCommandList : TStringList;
-			FOwnIniFile : TMemIniFile;
 			FTestFile : TOpenWithParams;
 			function GetCommand(Index : Integer) : string;
 			procedure SetCommand(Index : Integer; const Value : string);
@@ -43,14 +42,12 @@ begin
 	IniSectionName := OPEN_WITH_SETTINGS;
 	inherited;
 	FCommandList := TStringList.Create;
-	FOwnIniFile := TMemIniFile.Create(_ini.FileName, TEncoding.UTF8);
-	TDebugUtils.DebugMessage('TOpenWithSettings.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
+	TDebugUtils.DebugMessage('TOpenWithSettings.Create: ' + IniFile.FileName + '[' + IniSectionName + ']');
 end;
 
 destructor TOpenWithSettings.Destroy;
 begin
 	FCommandList.Free;
-	FOwnIniFile.Free;
 	inherited Destroy(); // ok
 end;
 
@@ -78,9 +75,11 @@ procedure TOpenWithSettings.ReadIni;
 var
 	s : string;
 begin
-	ReCreateMemIni(FOwnIniFile);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.ReadIni');
+
 	for var i : integer := 0 to MAX_COMMAND_NUM do begin
-		s := FOwnIniFile.ReadString(OPEN_WITH_SETTINGS, OPENWITH_COMMAND_KEY + i.ToString, '');
+		s := IniFile.ReadString(OPEN_WITH_SETTINGS, OPENWITH_COMMAND_KEY + i.ToString, '');
 		if (not s.IsEmpty) then begin
 			Command[i] := s;
 		end else begin
@@ -122,18 +121,17 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.ForceWriteToIni');
 	if { IsAlreadyRead never set :( } IsModified then begin
-		ReCreateMemIni(FOwnIniFile);
-		FOwnIniFile.EraseSection(OPEN_WITH_SETTINGS);
+		IniFile.EraseSection(OPEN_WITH_SETTINGS);
 		if FCommandList.Count > 0 then begin
 			for var i : integer := 0 to MAX_COMMAND_NUM do begin
 				s := Command[i];
 				if s.IsEmpty then
 					break;
-				FOwnIniFile.WriteString(OPEN_WITH_SETTINGS, OPENWITH_COMMAND_KEY + i.ToString, s);
+				IniFile.WriteString(OPEN_WITH_SETTINGS, OPENWITH_COMMAND_KEY + i.ToString, s);
 				dbgMsg.MsgFmt('[%s] %s%d: %s', [OPEN_WITH_SETTINGS, OPENWITH_COMMAND_KEY, i, s]);
 			end;
 		end;
-		FOwnIniFile.UpdateFile;
+		IniFile.UpdateFile;
 		FIsModified := False;
 	end;
 end;

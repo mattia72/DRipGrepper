@@ -8,7 +8,8 @@ uses
 	System.Generics.Collections,
 	System.SysUtils,
 	RipGrepper.Settings.SettingVariant,
-	RipGrepper.Settings.SettingsDictionary;
+	RipGrepper.Settings.SettingsDictionary,
+	System.SyncObjs;
 
 type
 
@@ -29,10 +30,12 @@ type
 
 	TPersistableSettings = class(TNoRefCountObject, IIniPersistable)
 		private
+			FIniFile : TMemIniFile;
 			FbDefaultLoaded : Boolean;
 			FbOwnIniFile : Boolean;
 			FIniSectionName : string;
 			FIsAlreadyRead : Boolean;
+			FCriticalSection : TCriticalSection;
 			procedure CreateIniFile;
 			function GetIniFile : TMemIniFile;
 			procedure ReadSettings;
@@ -42,7 +45,6 @@ type
 			procedure WriteToIni(const _sIniSection, _sKey : string; const _setting : ISettingVariant);
 
 		protected
-			FIniFile : TMemIniFile;
 			FSettingsDict : TSettingsDictionary;
 
 			FIsModified : Boolean;
@@ -80,6 +82,8 @@ type
 			/// </summary>
 			procedure LoadFromDict(); virtual; abstract;
 			procedure LoadDefaultsFromDict; virtual; abstract;
+
+			/// Re-create memini to re-read ini file content
 			class procedure ReCreateMemIni(var _ini : TMemIniFile); overload;
 			procedure ReCreateMemIni; overload; virtual;
 			/// <summary>
@@ -92,7 +96,7 @@ type
 			/// </summary>
 			procedure StoreAsDefaultsToDict; virtual;
 			// <summary>
-			// Write Settings to ini file
+			// Thread safe write Settings to ini file
 			// </summary>
 			procedure UpdateIniFile;
 	end;
@@ -108,7 +112,8 @@ uses
 	{$IFNDEF STANDALONE} RipGrepper.Common.IOTAUtils, {$ENDIF}
 	System.IOUtils,
 	System.StrUtils,
-	ArrayEx;
+	ArrayEx,
+	RipGrepper.Tools.LockGuard;
 
 constructor TPersistableSettings.Create(const _ini : TMemIniFile);
 begin
@@ -124,6 +129,7 @@ begin
 	FIsModified := False;
 	FIsAlreadyRead := False;
 	FSettingsDict := TSettingsDictionary.Create(IniSectionName);
+	FCriticalSection := TCriticalSection.Create;
 	FbDefaultLoaded := False;
 	if not Assigned(FIniFile) then begin
 		CreateIniFile();
@@ -138,6 +144,7 @@ begin
 		FIniFile.Free;
 	end;
 	FSettingsDict.Free;
+	FCriticalSection.Free;
 	inherited;
 end;
 
@@ -391,7 +398,9 @@ procedure TPersistableSettings.UpdateIniFile;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
-	dbgMsg.Msg('IniFile:' + FIniFile.FileName);
+	var
+	lock := TLockGuard.NewLock(FCriticalSection);
+	dbgMsg.Msg('IniFile update begin ' + FIniFile.FileName);
 	FIniFile.UpdateFile;
 end;
 
@@ -430,6 +439,9 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.WriteToIni');
 
 	if _setting.IsModified or (_sKey.EndsWith(DEFAULT_KEY)) then begin
+		var
+		lock := TLockGuard.NewLock(FCriticalSection);
+
 		case _setting.ValueType of
 			varString, varUString :
 			FIniFile.WriteString(_sIniSection, _sKey, _setting.Value);

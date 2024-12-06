@@ -63,7 +63,7 @@ constructor TAppSettings.Create(const _ini : TMemIniFile);
 begin
 	IniSectionName := INI_SECTION;
 	inherited;
-	TDebugUtils.DebugMessage('TAppSettings.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
+	TDebugUtils.DebugMessage('TAppSettings.Create: ' + IniFile.FileName + '[' + IniSectionName + ']');
 	FEncodingItems := TStringList.Create();
 end;
 

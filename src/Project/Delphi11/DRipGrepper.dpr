@@ -90,7 +90,9 @@ uses
   RipGrepper.Settings.FontColors in '..\..\Settings\RipGrepper.Settings.FontColors.pas',
   RipGrepper.UI.AppSettingsForm in '..\..\UI\RipGrepper.UI.AppSettingsForm.pas' {AppSettingsForm},
   RipGrepper.UI.SettingsFormBase in '..\..\UI\RipGrepper.UI.SettingsFormBase.pas',
-  RipGrepper.UI.ColorSelectorFrame in '..\..\UI\RipGrepper.UI.ColorSelectorFrame.pas' {ColorSelectorFrame: TFrame};
+  RipGrepper.UI.ColorSelectorFrame in '..\..\UI\RipGrepper.UI.ColorSelectorFrame.pas' {ColorSelectorFrame: TFrame},
+  RipGrepper.UI.Settings.ColorSettingsForm in '..\..\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas' {ColorSettingsForm},
+  RipGrepper.Tools.LockGuard in '..\..\Tools\RipGrepper.Tools.LockGuard.pas';
 
 {$R *.res}
 

@@ -309,7 +309,7 @@ constructor TGuiSearchTextParams.Create(const _ini : TMemIniFile; const _iniSect
 begin
 	IniSectionName := _iniSection;
 	inherited Create(_ini);
-	TDebugUtils.DebugMessage('TGuiSearchTextParams.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
+	TDebugUtils.DebugMessage('TGuiSearchTextParams.Create: ' + IniFile.FileName + '[' + IniSectionName + ']');
 	Create();
 end;
 

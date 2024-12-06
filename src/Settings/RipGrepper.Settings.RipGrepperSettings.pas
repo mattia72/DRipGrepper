@@ -152,7 +152,7 @@ procedure TRipGrepperSettings.LoadHistoryEntries(var _list : TStrings; const _se
 begin
 	for var i := 0 to MAX_HISTORY_COUNT do begin
 		var
-		s := FIniFile.ReadString(_section, 'Item_' + i.ToString, '');
+		s := IniFile.ReadString(_section, 'Item_' + i.ToString, '');
 		if -1 = _list.IndexOf(s) then begin
 			_list.Add(s);
 		end;
@@ -182,13 +182,13 @@ begin
 	IniSectionName := ROOT_DUMMY_INI_SECTION;
 	inherited;
 
-	FSearchFormSettings := TSearchFormSettings.Create(FIniFile);
+	FSearchFormSettings := TSearchFormSettings.Create(IniFile);
 
-	FAppSettings := TAppSettings.Create(FIniFile);
-	FFontColorSettings := TColorSettings.Create(FIniFile);
-	FRipGrepParameters := TRipGrepParameterSettings.Create(FIniFile);
-	FNodeLookSettings := TNodeLookSettings.Create(FIniFile);
-	FOpenWithSettings := TOpenWithSettings.Create(FIniFile);
+	FAppSettings := TAppSettings.Create(IniFile);
+	FFontColorSettings := TColorSettings.Create(IniFile);
+	FRipGrepParameters := TRipGrepParameterSettings.Create(IniFile);
+	FNodeLookSettings := TNodeLookSettings.Create(IniFile);
+	FOpenWithSettings := TOpenWithSettings.Create(IniFile);
 	FSearchPathsHistory := TStringList.Create(dupIgnore, False, True);
 	FSearchTextsHistory := TStringList.Create(dupIgnore, False, True);
 	FReplaceTextsHistory := TStringList.Create(dupIgnore, False, True);
@@ -289,7 +289,7 @@ begin
 	except
 		on E : Exception do begin
 			TDebugUtils.DebugMessage(Format('TRipGrepperSettings.ReadIni: Exception %s ', [E.Message]));
-			TMsgBox.ShowError(E.Message + CRLF + 'Settings Read from ' + FIniFile.FileName + ' went wrong.');
+			TMsgBox.ShowError(E.Message + CRLF + 'Settings Read from ' + IniFile.FileName + ' went wrong.');
 		end;
 	end;
 end;
@@ -430,7 +430,7 @@ begin
 	for var i := _list.Count - 1 downto 0 do begin
 		if not _list[i].IsEmpty then begin
 			multiLineVal := _list[i];
-			FIniFile.WriteString(_section, 'Item_' + i.ToString, multiLineVal.GetLine(0));
+			IniFile.WriteString(_section, 'Item_' + i.ToString, multiLineVal.GetLine(0));
 		end;
 	end;
 end;

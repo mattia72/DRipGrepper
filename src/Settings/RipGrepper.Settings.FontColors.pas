@@ -95,7 +95,7 @@ constructor TColorSettings.Create(const _ini : TMemIniFile);
 begin
 	IniSectionName := INI_SECTION;
 	inherited;
-	TDebugUtils.DebugMessage('TColorSettings.Create: ' + FIniFile.FileName + '[' + IniSectionName + ']');
+	TDebugUtils.DebugMessage('TColorSettings.Create: ' + IniFile.FileName + '[' + IniSectionName + ']');
 end;
 
 destructor TColorSettings.Destroy;

@@ -56,7 +56,7 @@ begin
 	IniSectionName := INI_SECTION;
 	FFilterSettings := TFilterSettings.Create(_ini);
 	inherited;
-	TDebugUtils.DebugMessage('TNodeLookSettings.Create: ' + FIniFile.FileName + '[' + GetIniSectionName + ']');
+	TDebugUtils.DebugMessage('TNodeLookSettings.Create: ' + IniFile.FileName + '[' + GetIniSectionName + ']');
 end;
 
 constructor TNodeLookSettings.Create;
@@ -64,7 +64,7 @@ begin
 	IniSectionName := INI_SECTION;
 	inherited;
 	FFilterSettings := TFilterSettings.Create();
-	TDebugUtils.DebugMessage('TNodeLookSettings.Create: ' + FIniFile.FileName + '[' + GetIniSectionName + ']');
+	TDebugUtils.DebugMessage('TNodeLookSettings.Create: ' + IniFile.FileName + '[' + GetIniSectionName + ']');
 end;
 
 destructor TNodeLookSettings.Destroy;
