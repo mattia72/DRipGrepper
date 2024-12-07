@@ -166,7 +166,7 @@ type
 			procedure UpdateCheckBoxesByRgOptions;
 			procedure UpdateCheckBoxesBySettings;
 			function CheckAndCorrectMultiLine(const _str : TMultiLineString) : string;
-			procedure ChecVsCodeRipGrep;
+			procedure CheckVsCodeRipGrep;
 			function GetFullHeights : integer;
 			function HasHistItemObjWithResult : Boolean;
 			function GetInIDESelectedText : string;
@@ -435,7 +435,7 @@ begin
 	WriteInitialSettingsToCtrls;
 	LoadExtensionSearchSettings;
 
-	ChecVsCodeRipGrep;
+	CheckVsCodeRipGrep;
 
 	WriteCtrlsToRipGrepParametersSettings;
 	UpdateCmbOptionsAndMemoCommandLine;
@@ -846,10 +846,10 @@ begin
 	Result := _str.GetLine(0);
 end;
 
-procedure TRipGrepperSearchDialogForm.ChecVsCodeRipGrep;
+procedure TRipGrepperSearchDialogForm.CheckVsCodeRipGrep;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.ChecVsCodeRipGrep');
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.CheckVsCodeRipGrep');
 	var
 		sVsDir : string := TFileUtils.GetVsCodeDir;
 	if not sVsDir.IsEmpty then begin
