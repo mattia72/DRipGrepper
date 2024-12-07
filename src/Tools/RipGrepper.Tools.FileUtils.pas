@@ -16,13 +16,13 @@ type
 
 	TFileUtils = class(TObject)
 		private
-			class function GetAppName(const _exePath : string) : string;
 			class function GetModuleVersion(Instance : THandle; out iMajor, iMinor, iRelease, iBuild : Integer) : Boolean;
 
 		public
 			class procedure CreateBackup(const fileName : string);
 			class function FindExecutable(sFileName : string; out sOutpuPath : string) : Boolean;
 			class function FindFileInSubDirs(const _dir : string; const _file : string) : string;
+			class function GetAppName(const _exePath : string) : string;
 			class function GetAppNameAndVersion(const _exePath : string) : string;
 			class function GetAppVersion(const _exePath : string) : string;
 			class function ParseCommand(const _sCmd : string) : TCommandLineRec;
@@ -151,8 +151,11 @@ var
 	iminor : integer;
 	irelease : integer;
 	ibuild : integer;
+	h : THandle;
 begin
-	GetModuleVersion(0, imajor, iminor, irelease, ibuild);
+	// TODO Exe Path to Handle
+	h := 0;
+	GetModuleVersion(h, imajor, iminor, irelease, ibuild);
 	Result := Format(FORMAT_VERSION_INFO, [imajor, iminor, irelease, ibuild]);
 end;
 

@@ -21,9 +21,19 @@ uses
 	RipGrepper.Settings.FontColors,
 	RipGrepper.Settings.RipGrepperSettings,
 	RTTI,
-	Vcl.Mask, RipGrepper.Settings.RipGrepParameterSettings;
+	Vcl.Mask,
+	RipGrepper.Settings.RipGrepParameterSettings,
+	System.ImageList,
+	Vcl.ImgList,
+	System.Actions,
+	Vcl.ActnList;
+
+const
+	{ User-defined message }
+	UserMessageValidateInput = wm_User + 100;
 
 type
+	EValidateCtrls = (vcRgExePath, vcIniFilePath);
 
 	TAppSettingsForm = class(TSettingsBaseForm)
 		Panel1 : TPanel;
@@ -31,12 +41,26 @@ type
 		chExpertMode : TCheckBox;
 		grpDeveloper : TGroupBox;
 		lbledtIniFilePath : TLabeledEdit;
-    lbledtRgExePath: TLabeledEdit;
+		btnedtRgExePath : TButtonedEdit;
+		ImageListButtons : TImageList;
+		Label1 : TLabel;
+		OpenDialog1 : TOpenDialog;
+		ActionList1 : TActionList;
+		ActionOpenFileDialog : TAction;
+		procedure btnedtRgExePathEnter(Sender : TObject);
+		procedure btnedtRgExePathExit(Sender : TObject);
+		procedure btnedtRgExePathRightButtonClick(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 
 		private
+
+			FRefocusing : TObject;
 			FAppSettings : TAppSettings;
-		FRipGrepSettings: TRipGrepParameterSettings;
+			FRipGrepSettings : TRipGrepParameterSettings;
+			function IsRgExeValid(const filePath : string) : Boolean;
+			{ User-defined message handler }
+			procedure ValidateInput(var M : TMessage); message UserMessageValidateInput;
+
 		protected
 			procedure ReadSettings; override;
 			procedure WriteSettings; override;
@@ -52,7 +76,10 @@ implementation
 
 uses
 	RipGrepper.Tools.DebugUtils,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants,
+	RipGrepper.Tools.FileUtils,
+	RipGrepper.Helper.UI,
+	System.IOUtils;
 
 {$R *.dfm}
 
@@ -61,7 +88,36 @@ begin
 	inherited Create(_Owner, _settings);
 	Caption := 'Expert';
 	FAppSettings := (FSettings as TRipGrepperSettings).AppSettings;
-    FRipGrepSettings := (FSettings as TRipGrepperSettings).RipGrepParameters;
+	FRipGrepSettings := (FSettings as TRipGrepperSettings).RipGrepParameters;
+end;
+
+procedure TAppSettingsForm.btnedtRgExePathEnter(Sender : TObject);
+begin
+	if FRefocusing = btnedtRgExePath then
+		FRefocusing := nil;
+end;
+
+procedure TAppSettingsForm.btnedtRgExePathExit(Sender : TObject);
+begin
+	if FRefocusing = nil then
+		PostMessage(Handle, UserMessageValidateInput, 0, LParam(vcRgExePath));
+end;
+
+procedure TAppSettingsForm.btnedtRgExePathRightButtonClick(Sender : TObject);
+var
+	origFilePath, filePath, name, version : string;
+	bOk : boolean;
+begin
+	bOk := True;
+	OpenDialog1.Filter := 'Executable files (*.exe)|*.exe';
+	origFilePath := btnedtRgExePath.Text;
+	OpenDialog1.FileName := origFilePath;
+
+	if OpenDialog1.Execute(self.Handle) then begin
+		filePath := OpenDialog1.FileName;
+	end;
+	btnedtRgExePath.Text := filePath;
+	PostMessage(Handle, UserMessageValidateInput, 0, LParam(vcRgExePath));
 end;
 
 procedure TAppSettingsForm.FormShow(Sender : TObject);
@@ -69,15 +125,48 @@ begin
 	ReadSettings;
 end;
 
+function TAppSettingsForm.IsRgExeValid(const filePath : string) : Boolean;
+var
+	name : string;
+begin
+	name := TPath.GetFileName(filePath);
+	Result := LowerCase(name) = 'rg.exe';
+end;
+
 procedure TAppSettingsForm.ReadSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TAppSettingsForm.ReadSettings');
+
 	FAppSettings.LoadFromDict;
+    FRipGrepSettings.LoadFromDict;
+
 	chDebugTrace.Checked := FAppSettings.DebugTrace;
 	chExpertMode.Checked := FAppSettings.ExpertMode;
 	lbledtIniFilePath.Text := FAppSettings.IniFile.FileName;
-    lbledtRgExePath.Text := FRipGrepSettings.RipGrepPath;
+	btnedtRgExePath.Text := FRipGrepSettings.RipGrepPath;
+end;
+
+procedure TAppSettingsForm.ValidateInput(var M : TMessage);
+begin
+	case EValidateCtrls(M.LParam) of
+		vcRgExePath : begin
+			if not IsRgExeValid(btnedtRgExePath.Text) then begin
+				FRefocusing := btnedtRgExePath;
+				TMsgBox.ShowError('Path not valid!');
+				btnedtRgExePath.SetFocus;
+			end;
+
+		end;
+		vcIniFilePath : begin
+			if not IsRgExeValid(lbledtIniFilePath.Text) then begin
+				FRefocusing := lbledtIniFilePath;
+				TMsgBox.ShowError('Path not valid!');
+				lbledtIniFilePath.SetFocus;
+			end;
+
+		end;
+	end;
 end;
 
 procedure TAppSettingsForm.WriteSettings;
@@ -86,6 +175,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TAppSettingsForm.WriteSettings');
 	FAppSettings.DebugTrace := chDebugTrace.Checked;
 	FAppSettings.ExpertMode := chExpertMode.Checked;
+	FRipGrepSettings.RipGrepPath := btnedtRgExePath.Text;
 	inherited WriteSettings;
 end;
 

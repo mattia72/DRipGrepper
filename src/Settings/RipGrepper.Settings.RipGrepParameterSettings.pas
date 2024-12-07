@@ -184,6 +184,7 @@ end;
 
 procedure TRipGrepParameterSettings.LoadFromDict();
 begin
+	FRipGrepPath := SettingsDict.GetSetting(RG_INI_KEY_RGPATH);
 	FSearchPath := SettingsDict.GetSetting('SearchPath');
 	FFileMasks := SettingsDict.GetSetting('FileMasks');
 	FGuiSearchTextParams.LoadFromDict();
