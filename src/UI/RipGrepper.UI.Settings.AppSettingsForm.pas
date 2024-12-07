@@ -105,18 +105,15 @@ end;
 
 procedure TAppSettingsForm.btnedtRgExePathRightButtonClick(Sender : TObject);
 var
-	origFilePath, filePath, name, version : string;
-	bOk : boolean;
+	origFilePath, filePath : string;
 begin
-	bOk := True;
 	OpenDialog1.Filter := 'Executable files (*.exe)|*.exe';
 	origFilePath := btnedtRgExePath.Text;
 	OpenDialog1.FileName := origFilePath;
-
 	if OpenDialog1.Execute(self.Handle) then begin
 		filePath := OpenDialog1.FileName;
+		btnedtRgExePath.Text := filePath;
 	end;
-	btnedtRgExePath.Text := filePath;
 	PostMessage(Handle, UserMessageValidateInput, 0, LParam(vcRgExePath));
 end;
 
@@ -139,7 +136,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TAppSettingsForm.ReadSettings');
 
 	FAppSettings.LoadFromDict;
-    FRipGrepSettings.LoadFromDict;
+	FRipGrepSettings.LoadFromDict;
 
 	chDebugTrace.Checked := FAppSettings.DebugTrace;
 	chExpertMode.Checked := FAppSettings.ExpertMode;
@@ -175,7 +172,10 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TAppSettingsForm.WriteSettings');
 	FAppSettings.DebugTrace := chDebugTrace.Checked;
 	FAppSettings.ExpertMode := chExpertMode.Checked;
-	FRipGrepSettings.RipGrepPath := btnedtRgExePath.Text;
+    var rgPath :=  btnedtRgExePath.Text;
+	if IsRgExeValid(rgPath) then begin
+		FRipGrepSettings.RipGrepPath := rgPath;
+	end;
 	inherited WriteSettings;
 end;
 

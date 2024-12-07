@@ -24,18 +24,19 @@ type
 			FbRgPathInitOk : Boolean;
 			FRipGrepArguments : TRipGrepArguments;
 			FRgExeOptions : TOptionStrings;
-			FRipGrepPath : string;
 			FSearchPath : string;
 			FSearchText : string;
 			FReplaceText : string;
 			FFileMasks : string;
 			FGuiSearchTextParams : TGuiSearchTextParams;
+			FRipGrepPath : string;
 			function GetRipGrepPath : string;
 			procedure SetFileMasks(const Value : string);
 			procedure SetGuiSearchTextParams(const Value : TGuiSearchTextParams);
 			procedure SetRgExeOptions(const Value : TOptionStrings);
 			procedure SetSearchPath(const Value : string);
 			procedure SetReplaceText(const Value : string);
+			procedure SetRipGrepPath(const Value : string);
 			procedure SetSearchText(const Value : string);
 
 		protected
@@ -46,7 +47,7 @@ type
 			destructor Destroy; override;
 			procedure CopyDefaultsToValues; override;
 			function GetCommandLine : string;
-			procedure InitRipGrepExePath;
+			function TryFindRipGrepExePath : string;
 			procedure ReadIni; override;
 			procedure LoadDefaultsFromDict; override;
 			procedure LoadFromDict; override;
@@ -58,7 +59,7 @@ type
 			property SearchPath : string read FSearchPath write SetSearchPath;
 			property SearchText : string read FSearchText write SetSearchText;
 			property RipGrepArguments : TRipGrepArguments read FRipGrepArguments write FRipGrepArguments;
-			property RipGrepPath : string read GetRipGrepPath write FRipGrepPath;
+			property RipGrepPath : string read GetRipGrepPath write SetRipGrepPath;
 			property ReplaceText : string read FReplaceText write SetReplaceText;
 	end;
 
@@ -118,7 +119,8 @@ end;
 function TRipGrepParameterSettings.GetRipGrepPath : string;
 begin
 	if not FbRgPathInitOk then begin
-		InitRipGrepExePath();
+		FRipGrepPath := TryFindRipGrepExePath();
+		FbRgPathInitOk := FileExists(FRipGrepPath);
 	end;
 	Result := FRipGrepPath;
 end;
@@ -141,7 +143,7 @@ begin
 	FGuiSearchTextParams.LoadDefaultsFromDict;
 end;
 
-procedure TRipGrepParameterSettings.InitRipGrepExePath;
+function TRipGrepParameterSettings.TryFindRipGrepExePath : string;
 var
 	rgExists : Boolean;
 	rgPath : string;
@@ -149,8 +151,9 @@ var
 	vscodeRgPath : string;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New(' TRipGrepParameterSettings.InitRipGrepExePath');
-	if FRipGrepPath.IsEmpty or (not FileExists(FRipGrepPath)) then begin
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepParameterSettings.TryFindRipGrepExePath');
+	rgPath := FRipGrepPath;
+	if rgPath.IsEmpty or (not FileExists(rgPath)) then begin
 		rgExists := TFileUtils.FindExecutable('rg.exe', rgPath);
 		dbgMsg.MsgFmt('rgExists=%s, rgPath=%s', [BoolToStr(rgExists), rgPath]);
 		if not rgExists then begin
@@ -177,9 +180,8 @@ begin
 			end;
 			// raise Exception.Create('RipGrep(rg.exe) not found');
 		end;
-		FRipGrepPath := rgPath.Trim();
 	end;
-	FbRgPathInitOk := FileExists(FRipGrepPath);
+	Result := rgPath.Trim();
 end;
 
 procedure TRipGrepParameterSettings.LoadFromDict();
@@ -229,6 +231,11 @@ begin
 		FReplaceText := Value;
 		// FIsModified := True;
 	end;
+end;
+
+procedure TRipGrepParameterSettings.SetRipGrepPath(const Value : string);
+begin
+	FRipGrepPath := Value;
 end;
 
 procedure TRipGrepParameterSettings.SetSearchText(const Value : string);
