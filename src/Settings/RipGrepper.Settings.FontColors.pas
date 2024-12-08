@@ -67,6 +67,7 @@ type
 			FFontColors : TFontColors;
 
 		protected
+			function GetIsAlreadyRead: Boolean; override;
 			procedure Init; override;
 
 		public
@@ -101,6 +102,11 @@ end;
 destructor TColorSettings.Destroy;
 begin
 	inherited Destroy() // ok;
+end;
+
+function TColorSettings.GetIsAlreadyRead: Boolean;
+begin
+	Result := inherited;
 end;
 
 procedure TColorSettings.Init;

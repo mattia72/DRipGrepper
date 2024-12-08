@@ -119,7 +119,11 @@ end;
 function TRipGrepParameterSettings.GetRipGrepPath : string;
 begin
 	if not FbRgPathInitOk then begin
-		FRipGrepPath := TryFindRipGrepExePath();
+		ReadIni;
+        LoadFromDict;
+		if FRipGrepPath.IsEmpty or not FileExists(FRipGrepPath) then begin
+			FRipGrepPath := TryFindRipGrepExePath();
+		end;
 		FbRgPathInitOk := FileExists(FRipGrepPath);
 	end;
 	Result := FRipGrepPath;

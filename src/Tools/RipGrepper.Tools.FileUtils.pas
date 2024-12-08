@@ -28,7 +28,8 @@ type
 			class function ParseCommand(const _sCmd : string) : TCommandLineRec;
 			class function GetPackageNameAndVersion(Package : HMODULE) : string;
 			class function GetVsCodeDir : string;
-			class function ShortToLongPath(const ShortPathName : string) : string;
+			class function LongToShortFilePath(const LongPath : string) : string;
+			class function ShortToLongPath(const ShortPath: string): string;
 	end;
 
 	TReplaceData = record
@@ -116,15 +117,25 @@ begin
 	end;
 end;
 
-class function TFileUtils.ShortToLongPath(const ShortPathName : string) : string;
+class function TFileUtils.LongToShortFilePath(const LongPath : string) : string;
 var
-	Retval : DWORD;
-	Buff : array [0 .. MAX_PATH - 1] of Char;
+	ShortPath : array [0 .. MAX_PATH - 1] of Char;
 begin
-	Retval := GetLongPathName(PChar(ShortPathName), Buff, Length(Buff));
-	{$WARN SYMBOL_PLATFORM OFF}
-	Win32Check(Retval <> 0);
-	Result := Buff;
+	if 0 < GetShortPathName(PChar(LongPath), ShortPath, MAX_PATH) then
+		Result := ShortPath
+	else
+		Result := LongPath; // Return the original path if conversion fails
+end;
+
+class function TFileUtils.ShortToLongPath(const ShortPath: string) : string;
+var
+	LongPath : array [0 .. MAX_PATH - 1] of Char;
+begin
+	if 0 < GetLongPathName(PChar(ShortPath), LongPath, Length(LongPath)) then begin
+        Result := LongPath;
+    end else begin
+        Result := ShortPath;
+    end;
 end;
 
 class function TFileUtils.GetAppName(const _exePath : string) : string;

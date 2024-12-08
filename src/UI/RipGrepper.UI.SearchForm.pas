@@ -847,18 +847,18 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.CheckVsCodeRipGrep;
+var
+	sRgPath : string;
+	sVsDir : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.CheckVsCodeRipGrep');
-	var
-		sVsDir : string := TFileUtils.GetVsCodeDir;
+
+	sVsDir := TFileUtils.GetVsCodeDir;
 	if not sVsDir.IsEmpty then begin
 		sVsDir := TFileUtils.ShortToLongPath(sVsDir.Remove(sVsDir.Length - '\bin'.Length));
 
-		var
-			sRgPath : string;
 		TFileUtils.FindExecutable(FSettings.RipGrepParameters.RipGrepPath, sRgPath);
-
 		// Rg in VSCode doesn't support --pretty
 		cbRgParamPretty.Enabled := not TFileUtils.ShortToLongPath(sRgPath).StartsWith(sVsDir, True);
 		if not cbRgParamPretty.Enabled then begin

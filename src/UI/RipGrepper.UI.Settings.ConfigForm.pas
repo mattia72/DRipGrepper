@@ -23,7 +23,8 @@ uses
 	RipGrepper.UI.SettingsFormBase,
 	ArrayEx,
 	System.Generics.Collections,
-	RipGrepper.UI.Settings.ColorSettingsForm;
+	RipGrepper.UI.Settings.ColorSettingsForm,
+	RipGrepper.UI.Settings.ExtensionSettingsForm;
 
 type
 	TConfigForm = class(TForm)
@@ -42,6 +43,7 @@ type
 		private
 			FAppSettingsForm : TAppSettingsForm;
 			FColorSettingsForm : TColorSettingsForm;
+			FExtensionSettingsForm : TExtensionSettingsForm;
 			FOpenWithConfigForm : TOpenWithConfigForm;
 			FSettings : TRipGrepperSettings;
 			FSettingsForms : TObjectList<TForm>;
@@ -58,7 +60,8 @@ var
 implementation
 
 uses
-	System.Math;
+	System.Math,
+	RipGrepper.Common.Constants;
 
 {$R *.dfm}
 
@@ -73,9 +76,14 @@ begin
 	FOpenWithConfigForm.Caption := 'Open With...';
 	FAppSettingsForm := TAppSettingsForm.Create(nil, Settings);
 	FColorSettingsForm := TColorSettingsForm.Create(nil, Settings.FontColorSettings);
+	FExtensionSettingsForm := TExtensionSettingsForm.Create(nil, Settings);
 
 	FSettingsForms := TObjectList<TForm>.Create();
-	FSettingsForms.AddRange([FColorSettingsForm, FOpenWithConfigForm, FAppSettingsForm]);
+	FSettingsForms.AddRange([
+		{ } FAppSettingsForm,
+		{ } FColorSettingsForm,
+		{ } FOpenWithConfigForm,
+		{ } FExtensionSettingsForm]);
 end;
 
 destructor TConfigForm.Destroy;

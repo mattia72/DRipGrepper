@@ -2,8 +2,8 @@ object AppSettingsForm: TAppSettingsForm
   Left = 0
   Top = 0
   Caption = 'AppSettingsForm'
-  ClientHeight = 240
-  ClientWidth = 676
+  ClientHeight = 309
+  ClientWidth = 505
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,28 +15,40 @@ object AppSettingsForm: TAppSettingsForm
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 676
-    Height = 240
+    Width = 505
+    Height = 309
     Align = alClient
+    Anchors = [akLeft, akTop, akRight]
     TabOrder = 0
     DesignSize = (
-      676
-      240)
-    object Label1: TLabel
+      505
+      309)
+    object lblRgExePath: TLabel
       Left = 16
-      Top = 73
+      Top = 9
       Width = 64
       Height = 15
       Caption = 'Rg.exe path:'
     end
+    object lblVersion: TLabel
+      Left = 16
+      Top = 56
+      Width = 41
+      Height = 15
+      Caption = 'Version:'
+    end
     object grpDeveloper: TGroupBox
       AlignWithMargins = True
-      Left = 4
-      Top = 128
-      Width = 668
-      Height = 89
+      Left = 16
+      Top = 143
+      Width = 478
+      Height = 150
+      Anchors = [akLeft, akTop, akRight]
       Caption = 'Developer'
       TabOrder = 0
+      DesignSize = (
+        478
+        150)
       object chDebugTrace: TCheckBox
         Left = 16
         Top = 52
@@ -53,11 +65,24 @@ object AppSettingsForm: TAppSettingsForm
         Caption = 'Expert Mode'
         TabOrder = 1
       end
+      object lbledtIniFilePath: TLabeledEdit
+        Left = 16
+        Top = 95
+        Width = 453
+        Height = 23
+        Anchors = [akLeft, akTop, akRight]
+        EditLabel.Width = 64
+        EditLabel.Height = 15
+        EditLabel.Caption = 'Ini File Path:'
+        ReadOnly = True
+        TabOrder = 2
+        Text = ''
+      end
     end
     object btnedtRgExePath: TButtonedEdit
       Left = 16
-      Top = 91
-      Width = 649
+      Top = 27
+      Width = 478
       Height = 23
       Anchors = [akLeft, akTop, akRight]
       Images = ImageListButtons
@@ -70,23 +95,29 @@ object AppSettingsForm: TAppSettingsForm
       OnExit = btnedtRgExePathExit
       OnRightButtonClick = btnedtRgExePathRightButtonClick
     end
-    object lbledtIniFilePath: TLabeledEdit
+    object Memo1: TMemo
       Left = 16
-      Top = 40
-      Width = 649
-      Height = 23
+      Top = 74
+      Width = 478
+      Height = 63
       Anchors = [akLeft, akTop, akRight]
-      EditLabel.Width = 64
-      EditLabel.Height = 15
-      EditLabel.Caption = 'Ini File Path:'
-      Enabled = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Terminal'
+      Font.Style = []
+      Lines.Strings = (
+        'line 1'
+        'line 2'
+        'line 3'
+        'line 4')
+      ParentFont = False
       TabOrder = 2
-      Text = ''
     end
   end
   object ImageListButtons: TImageList
-    Left = 358
-    Top = 33
+    Left = 238
+    Top = 185
     Bitmap = {
       494C010108003000040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
@@ -492,13 +523,13 @@ object AppSettingsForm: TAppSettingsForm
       000000000000}
   end
   object OpenDialog1: TOpenDialog
-    Left = 248
-    Top = 32
+    Left = 176
+    Top = 184
   end
   object ActionList1: TActionList
     Images = ImageListButtons
-    Left = 468
-    Top = 36
+    Left = 300
+    Top = 180
     object ActionOpenFileDialog: TAction
       Caption = 'ActionOpenFileDialog'
       ImageIndex = 2

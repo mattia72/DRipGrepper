@@ -55,6 +55,8 @@ type
 			procedure LoadFirstNecessarySettings;
 			procedure SetReplaceTextsHistory(const Value : TStrings);
 
+		protected
+			function GetIsAlreadyRead: Boolean; override;
 		public
 			procedure ReadIni; override;
 			procedure StoreToDict; override;
@@ -241,6 +243,11 @@ begin
 		FSearchPathIsDir := TDirectory.Exists(FActualSearchPath);
 	end;
 	Result := FActualSearchPath;
+end;
+
+function TRipGrepperSettings.GetIsAlreadyRead: Boolean;
+begin
+	Result := inherited;
 end;
 
 function TRipGrepperSettings.GetIsModified : Boolean;

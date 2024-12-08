@@ -11,6 +11,7 @@ uses
 	Vcl.Menus;
 
 const
+    FONTS_AND_COLORS_CAPTION = 'Fonts and Colors';
 	{ }{$IFDEF WIN64}
 	APP_PLATFORM = 'x64';
 	{ } {$ELSE}

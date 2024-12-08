@@ -43,10 +43,12 @@ type
 		lbledtIniFilePath : TLabeledEdit;
 		btnedtRgExePath : TButtonedEdit;
 		ImageListButtons : TImageList;
-		Label1 : TLabel;
+		lblRgExePath : TLabel;
 		OpenDialog1 : TOpenDialog;
 		ActionList1 : TActionList;
 		ActionOpenFileDialog : TAction;
+		lblVersion : TLabel;
+		Memo1 : TMemo;
 		procedure btnedtRgExePathEnter(Sender : TObject);
 		procedure btnedtRgExePathExit(Sender : TObject);
 		procedure btnedtRgExePathRightButtonClick(Sender : TObject);
@@ -67,6 +69,7 @@ type
 
 		public
 			constructor Create(_Owner : TComponent; _settings : TRipGrepperSettings);
+			function GetRgVersion(const _rgPath: string): string;
 	end;
 
 var
@@ -79,14 +82,15 @@ uses
 	RipGrepper.Common.Constants,
 	RipGrepper.Tools.FileUtils,
 	RipGrepper.Helper.UI,
-	System.IOUtils;
+	System.IOUtils,
+	RipGrepper.Tools.ProcessUtils;
 
 {$R *.dfm}
 
 constructor TAppSettingsForm.Create(_Owner : TComponent; _settings : TRipGrepperSettings);
 begin
 	inherited Create(_Owner, _settings);
-	Caption := 'Expert';
+	Caption := 'General';
 	FAppSettings := (FSettings as TRipGrepperSettings).AppSettings;
 	FRipGrepSettings := (FSettings as TRipGrepperSettings).RipGrepParameters;
 end;
@@ -122,6 +126,20 @@ begin
 	ReadSettings;
 end;
 
+function TAppSettingsForm.GetRgVersion(const _rgPath: string): string;
+var
+	sl : TStrings;
+begin
+	sl := TStringList.Create();
+	sl.Add('--version');
+	try
+		TSimpleProcessOutputStringReader.RunProcess(_rgPath, sl, '.', sl);
+		Result := sl.Text;
+	finally
+		sl.Free;
+	end;
+end;
+
 function TAppSettingsForm.IsRgExeValid(const filePath : string) : Boolean;
 var
 	name : string;
@@ -142,15 +160,18 @@ begin
 	chExpertMode.Checked := FAppSettings.ExpertMode;
 	lbledtIniFilePath.Text := FAppSettings.IniFile.FileName;
 	btnedtRgExePath.Text := FRipGrepSettings.RipGrepPath;
+	Memo1.Text := GetRgVersion(FRipGrepSettings.RipGrepPath);
 end;
 
 procedure TAppSettingsForm.ValidateInput(var M : TMessage);
 begin
 	case EValidateCtrls(M.LParam) of
 		vcRgExePath : begin
-			if not IsRgExeValid(btnedtRgExePath.Text) then begin
+			if IsRgExeValid(btnedtRgExePath.Text) then begin
+				Memo1.Text := GetRgVersion(btnedtRgExePath.Text);
+			end else begin
 				FRefocusing := btnedtRgExePath;
-				TMsgBox.ShowError('Path not valid!');
+				TMsgBox.ShowError('Rg.exe path is not valid!');
 				btnedtRgExePath.SetFocus;
 			end;
 
@@ -158,7 +179,7 @@ begin
 		vcIniFilePath : begin
 			if not IsRgExeValid(lbledtIniFilePath.Text) then begin
 				FRefocusing := lbledtIniFilePath;
-				TMsgBox.ShowError('Path not valid!');
+				TMsgBox.ShowError('Ini file path not valid!');
 				lbledtIniFilePath.SetFocus;
 			end;
 
@@ -172,7 +193,8 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TAppSettingsForm.WriteSettings');
 	FAppSettings.DebugTrace := chDebugTrace.Checked;
 	FAppSettings.ExpertMode := chExpertMode.Checked;
-    var rgPath :=  btnedtRgExePath.Text;
+	var
+	rgPath := btnedtRgExePath.Text;
 	if IsRgExeValid(rgPath) then begin
 		FRipGrepSettings.RipGrepPath := rgPath;
 	end;

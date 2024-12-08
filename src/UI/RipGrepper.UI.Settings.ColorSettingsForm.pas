@@ -39,23 +39,34 @@ implementation
 
 uses
 	RipGrepper.UI.ColorSelectorFrame,
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils,
+	RipGrepper.Common.Constants;
 
 {$R *.dfm}
 
 constructor TColorSettingsForm.Create(_Owner : TComponent; _settings : TColorSettings);
+var
+	allHeight : Integer;
 begin
-	inherited Create(_Owner, _settings);;
+	inherited Create(_Owner, _settings);
+	Caption := FONTS_AND_COLORS_CAPTION;
 	FFontColorSettings := _settings;
-end;
 
-procedure TColorSettingsForm.FormShow(Sender : TObject);
-begin
 	ReadSettings;
-	var
 	allHeight := TColorSelectorFrame.AddSelectionFrames(FFontColorSettings.FontColors, self, grpFontColors);
 	grpFontColors.Height := allHeight + grpFontColors.Margins.Bottom;
 	self.Height := grpFontColors.Height;
+
+end;
+
+procedure TColorSettingsForm.FormShow(Sender : TObject);
+
+begin
+//  ReadSettings;
+//  allHeight := TColorSelectorFrame.AddSelectionFrames(FFontColorSettings.FontColors, self, grpFontColors);
+//  grpFontColors.Height := allHeight + grpFontColors.Margins.Bottom;
+//  self.Height := grpFontColors.Height;
+	inherited;
 end;
 
 procedure TColorSettingsForm.ReadSettings;
