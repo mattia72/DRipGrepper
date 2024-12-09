@@ -1298,7 +1298,7 @@ begin
 					end;
 
 					backup.Load(TargetCanvas);
-					TItemDrawer.ColoredTextOut(TargetCanvas, CellRect, ss2, FColorSettings.NormalText, pos);
+					TItemDrawer.ColoredTextOut(TargetCanvas, CellRect, ss2, FColorSettings.NormalText, pos + 1);
 				end;
 			end;
 		end;
