@@ -47,19 +47,19 @@ type
 	end;
 
 	TFontColors = record
-		ReplacedTextInHistory : TFontAttributes;
-		ReplaceTextInHistory : TFontAttributes;
-		SearchTextInHistory : TFontAttributes;
-		ReplacedText : TFontAttributes;
-		ReplaceText : TFontAttributes;
-		StatisticsText : TFontAttributes;
-		ErrorText : TFontAttributes;
-		CounterText : TFontAttributes;
-		MatchText : TFontAttributes;
-		NormalText : TFontAttributes;
-		ColNumText : TFontAttributes;
-		LineNumText : TFontAttributes;
 		FileText : TFontAttributes; // <-- First in config form
+		LineNumText : TFontAttributes;
+		ColNumText : TFontAttributes;
+		NormalText : TFontAttributes;
+		MatchText : TFontAttributes;
+		CounterText : TFontAttributes;
+		ErrorText : TFontAttributes;
+		StatisticsText : TFontAttributes;
+		ReplaceText : TFontAttributes;
+		ReplacedText : TFontAttributes;
+		SearchTextInHistory : TFontAttributes;
+		ReplaceTextInHistory : TFontAttributes;
+		ReplacedTextInHistory : TFontAttributes;
 		procedure SetByName(const _name : string; const _fa : TFontAttributes);
 	end;
 
