@@ -79,10 +79,10 @@ Configuration is stored in ini file (`DripGrepper.ini` for standalone and `DripE
   - [x] DebugTrace switch
   - [x] config form
     - [x] Open with...
-    - [o] App settings: rg path, debug trace, expert mode
+    - [x] View settings: colors
+    - [x] App settings: rg path, debug trace, expert mode
       - [ ] configurable length of history
     - [ ] Extension settings
-    - [x] View settings: colors
 
 ### Delphi Extension 
 ![Screenshot](./screenshots/DripExtension.png)

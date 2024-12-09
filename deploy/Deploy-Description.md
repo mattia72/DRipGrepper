@@ -1,7 +1,7 @@
 <!--
 
-Version:     v3.9.0-beta
-PrevVersion: v3.8.2-beta
+Version:     v3.10.0-beta
+PrevVersion: v3.9.0-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -24,9 +24,10 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 
 ## :boom: Improvements 
 Marked with checkmark if ready, else planned ...
-- [x] --stats parameter handling
+- [x] separate color for row and col numbers
 - [x] config form
   - [x] Debug and Expert mode
+  - [x] rg.exe path
   - [ ] install as **extension** in Delphi IDE
   - [ ] configure **extension** shortcuts
   - [x] configure colors
