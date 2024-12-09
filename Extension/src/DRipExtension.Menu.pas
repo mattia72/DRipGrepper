@@ -11,8 +11,8 @@ uses
 type
 	TDripExtensionMenu = class(TObject)
 		const
-			DRIP_MENUITEM_DRIPGREPPER_NAME = 'DRipExpert_DripGrepper_MenuItem';
 			DRIP_MENUITEM_NAME = 'DRipExpertMenuItem';
+			DRIP_MENUITEM_DRIPGREPPER_NAME = 'DRipExpert_DripGrepper_MenuItem';
 			DRIP_MENUITEM_OPENWITH_NAME = 'DRipExpert_OpenWith_MenuItem';
 
 		strict private
@@ -86,7 +86,7 @@ begin
 	extSettings.LoadFromDict();
 
 	DripMenuItems.Add(CreateSubMenuItem(DRIP_MENUITEM_DRIPGREPPER_NAME,
-		{ } 'DRipGrepper...',
+		{ } 'Search with DripGrepper...',
 		{ } 'dripgrepper_icon',
 		{ } extSettings.SearchSelectedShortcut,
 		{ } TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH,
@@ -100,7 +100,7 @@ begin
 		{ } TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH,
 		{ } DoOpenWithMenuClick));
 
-	G_DripMenu := Vcl.Menus.NewSubMenu(_sMenuText + '...', 0, DRIP_MENUITEM_NAME, DripMenuItems.Items);
+	G_DripMenu := Vcl.Menus.NewSubMenu(_sMenuText, 0, DRIP_MENUITEM_NAME, DripMenuItems.Items);
 
 	G_DripMenu.ImageIndex := AddToImageList('splash_icon');
 	dbgMsg.MsgFmt('G_DripMenu.ImageIndex %d', [G_DripMenu.ImageIndex]);

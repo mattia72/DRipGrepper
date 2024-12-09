@@ -111,13 +111,13 @@ end;
 // IOTAWizard
 function TDRipExtension.GetMenuText : string;
 begin
-	Result := '&' + EXTENSION_NAME;
+	Result := EXTENSION_MENU_ROOT_TEXT;
 end;
 
 // IOTAWizard
 function TDRipExtension.GetName : string;
 begin
-	Result := CAPTION_EXTENSION_MENU;
+	Result := DRIPGREPPER_WIZARD_NAME;
 end;
 
 // IOTAWizard

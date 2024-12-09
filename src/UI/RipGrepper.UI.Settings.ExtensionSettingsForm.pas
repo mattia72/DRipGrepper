@@ -46,7 +46,10 @@ implementation
 
 uses
 	RipGrepper.Tools.DebugUtils,
-	Vcl.Menus;
+	{$IFNDEF STANDALONE}
+	DRipExtension.Menu,
+	{$ENDIF}
+	Vcl.Menus, RipGrepper.Common.Constants;
 
 {$R *.dfm}
 
@@ -55,7 +58,9 @@ begin
 	inherited Create(_Owner, _settings);
 	Caption := 'Extension';
 	FExtensionSettings := _settings;
+	{$IFNDEF STANDALONE}
 	ReadSettings;
+	{$ENDIF}
 end;
 
 procedure TExtensionSettingsForm.ReadSettings;
@@ -70,6 +75,7 @@ end;
 
 procedure TExtensionSettingsForm.WriteSettings;
 begin
+	{$IFNDEF STANDALONE}
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TForm1.WriteSettings');
 
@@ -78,6 +84,8 @@ begin
 
 	// FExtensionSettings.
 	inherited WriteSettings;
+	TDripExtensionMenu.CreateMenu(EXTENSION_MENU_ROOT_TEXT, FExtensionSettings);
+	{$ENDIF}
 end;
 
 end.

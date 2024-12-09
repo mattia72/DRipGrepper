@@ -19,10 +19,11 @@ const
 	{ }	{$ENDIF}
 	APPNAME = 'DRipGrepper';
 	EXTENSION_NAME = 'DRipExtension';
+    EXTENSION_MENU_ROOT_TEXT = '&' + EXTENSION_NAME + '...';
 
 	BAK_FILE_EXTENSION = '.bak';
 
-	CAPTION_EXTENSION_MENU = 'DRipGrepper';
+	DRIPGREPPER_WIZARD_NAME = 'DRipGrepper';
 	HOME_PAGE = 'https://github.com/mattia72/DRipGrepper';
 
 	VSCODE_RG_EXE_FIND_PATH = 'resources\app';
