@@ -110,7 +110,9 @@ contains
   RipGrepper.UI.Settings.AppSettingsForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.AppSettingsForm.pas',
   RipGrepper.UI.ColorSelectorFrame in '..\..\..\..\src\UI\RipGrepper.UI.ColorSelectorFrame.pas',
   RipGrepper.Tools.LockGuard in '..\..\..\..\src\Tools\RipGrepper.Tools.LockGuard.pas',
-  RipGrepper.UI.Settings.ColorSettingsForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas';
+  RipGrepper.UI.Settings.ColorSettingsForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas',
+  DRipExtension.Menu in '..\..\DRipExtension.Menu.pas',
+  RipGrepper.UI.Settings.ExtensionSettingsForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ExtensionSettingsForm.pas';
 
 end.
 

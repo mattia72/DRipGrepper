@@ -27,29 +27,24 @@ type
 			FKeyBinding : integer;
 
 			FDockableForm : TRipGrepperDockableForm;
-			FIconBmp : TBitmap;
 			FiPluginIndexAbout : Integer;
-			procedure CreateMenu;
-			procedure DripMenuClick(Sender : TObject);
-			procedure DoDripGrepperMenuClick(Sender : TObject);
-			procedure DoOpenWithMenuClick(Sender : TObject);
-			function GetIconBmp : Vcl.Graphics.TBitmap;
-
+			class procedure CreateMenu(const _sMenuText: string);
+			class procedure DripMenuClick(Sender : TObject);
+			class procedure DoDripGrepperMenuClick(Sender : TObject);
+			class procedure DoOpenWithMenuClick(Sender : TObject);
 			procedure InitPluginInfo;
-			function CreateSubMenuItem(const _MenuName, _Caption, _icoResource, _scText,
-				_defScText : string; _onClick : TNotifyEvent): TMenuItem;
-			procedure RemoveExtensionMenu;
+			class function CreateSubMenuItem(const _MenuName, _Caption, _icoResource,
+				_scText, _defScText : string; _onClick : TNotifyEvent): TMenuItem;
+			class procedure RemoveExtensionMenu;
 			// **********************************************************************************************************************
 			// Plugin-Infos entfernen
 			// **********************************************************************************************************************
 			procedure RemovePluginInfo;
-			procedure ShowDripGrepperForm;
-			property IconBmp : TBitmap read GetIconBmp;
-
+			class procedure ShowDripGrepperForm;
 		public
 			constructor Create; virtual;
 			destructor Destroy; override;
-			function AddToImageList(const _resourceName : string) : Integer;
+			class function AddToImageList(const _resourceName : string): Integer;
 			// IOTAWizard interafce methods(required for all wizards/experts)
 			function GetIDString : string;
 			function GetName : string;
@@ -93,7 +88,7 @@ begin
 	RegisterPackageWizard(TDRipExtension.Create);
 end;
 
-procedure TDRipExtension.CreateMenu;
+class procedure TDRipExtension.CreateMenu(const _sMenuText: string);
 var
 	Item : TMenuItem;
 	DripMenuItems : TArrayEx<TMenuItem>;
@@ -128,7 +123,7 @@ begin
 		{ } TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH,
 		{ } DoOpenWithMenuClick));
 
-	G_DripMenu := Vcl.Menus.NewSubMenu(GetMenuText + '...', 0, DRIP_MENUITEM_NAME, DripMenuItems.Items);
+	G_DripMenu := Vcl.Menus.NewSubMenu(_sMenuText + '...', 0, DRIP_MENUITEM_NAME, DripMenuItems.Items);
 
 	G_DripMenu.ImageIndex := AddToImageList('splash_icon');
 	dbgMsg.MsgFmt('G_DripMenu.ImageIndex %d', [G_DripMenu.ImageIndex]);
@@ -160,7 +155,7 @@ begin
 	InitPluginInfo;
 	TRipGrepperDockableForm.CreateInstance; // saved layout loading ...
 	G_DRipExtension := self;
-	CreateMenu;
+	CreateMenu(GetMenuText);
 end;
 
 destructor TDRipExtension.Destroy;
@@ -173,23 +168,30 @@ begin
 	dbgMsg.Msg('TDRipExtension.Destroy G_DripMenu.Free');
 	G_DripMenu.Free;
 	G_DRipExtension := nil;
-	FIconBmp.Free;
 	inherited;
 end;
 
-function TDRipExtension.AddToImageList(const _resourceName : string) : Integer;
+class function TDRipExtension.AddToImageList(const _resourceName : string):
+	Integer;
+var
+	iconBmp: Vcl.Graphics.TBitmap;
 begin
-	IconBmp.LoadFromResourceName(hInstance, _resourceName);
+    iconBmp := Vcl.Graphics.TBitmap.Create();
+    try
+	iconBmp.LoadFromResourceName(hInstance, _resourceName);
 	// icon resource can be only bmp
-	Result := IOTAUTils.AddToImageList(IconBmp, _resourceName);
+	Result := IOTAUTils.AddToImageList(iconBmp, _resourceName);
+    finally
+        iconBmp.Free;
+    end;
 end;
 
-procedure TDRipExtension.DoDripGrepperMenuClick(Sender : TObject);
+class procedure TDRipExtension.DoDripGrepperMenuClick(Sender : TObject);
 begin
 	ShowDripGrepperForm;
 end;
 
-procedure TDRipExtension.DoOpenWithMenuClick(Sender : TObject);
+class procedure TDRipExtension.DoOpenWithMenuClick(Sender : TObject);
 var
 	owp : TOpenWithParams;
 begin
@@ -202,7 +204,7 @@ begin
 	end;
 end;
 
-procedure TDRipExtension.DripMenuClick(Sender : TObject);
+class procedure TDRipExtension.DripMenuClick(Sender : TObject);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.DripMenuClick');
@@ -220,14 +222,6 @@ end;
 procedure TDRipExtension.Execute;
 begin
 	ShowMessage(EXTENSION_NAME + CRLF + HOME_PAGE);
-end;
-
-function TDRipExtension.GetIconBmp : Vcl.Graphics.TBitmap;
-begin
-	if not Assigned(FIconBmp) then begin
-		FIconBmp := Vcl.Graphics.TBitmap.Create();
-	end;
-	result := FIconBmp;
 end;
 
 // IOTAWizard
@@ -284,7 +278,7 @@ begin
 		bmpHandle, False, aLicenseStatus, sExeVersion);
 end;
 
-function TDRipExtension.CreateSubMenuItem(const _MenuName, _Caption,
+class function TDRipExtension.CreateSubMenuItem(const _MenuName, _Caption,
 	_icoResource, _scText, _defScText : string; _onClick : TNotifyEvent):
 	TMenuItem;
 var
@@ -321,7 +315,7 @@ begin
 	end;
 end;
 
-procedure TDRipExtension.RemoveExtensionMenu();
+class procedure TDRipExtension.RemoveExtensionMenu;
 var
 	toolsMenu : TMenu;
 	dripMenuItem : TMenuItem;
@@ -344,7 +338,7 @@ begin
 		(BorlandIDEServices as IOTAAboutBoxServices).RemovePluginInfo(FiPluginIndexAbout);
 end;
 
-procedure TDRipExtension.ShowDripGrepperForm;
+class procedure TDRipExtension.ShowDripGrepperForm;
 begin
 	TDebugUtils.DebugMessage('TDRipExtension.ShowDripGrepperForm');
 	TRipGrepperDockableForm.ShowDockableFormAndSearch();

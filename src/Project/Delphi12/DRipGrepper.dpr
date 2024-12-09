@@ -92,7 +92,8 @@ uses
   RipGrepper.Settings.FontColors in '..\..\Settings\RipGrepper.Settings.FontColors.pas',
   RipGrepper.UI.ColorSelectorFrame in '..\..\UI\RipGrepper.UI.ColorSelectorFrame.pas' {ColorSelectorFrame: TFrame},
   RipGrepper.Tools.LockGuard in '..\..\Tools\RipGrepper.Tools.LockGuard.pas',
-  RipGrepper.UI.Settings.ColorSettingsForm in '..\..\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas';
+  RipGrepper.UI.Settings.ColorSettingsForm in '..\..\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas',
+  RipGrepper.UI.Settings.ExtensionSettingsForm in '..\..\UI\RipGrepper.UI.Settings.ExtensionSettingsForm.pas' {ExtensionSettingsForm};
 
 {$R *.res}
 
@@ -104,5 +105,6 @@ begin
 	Application.MainFormOnTaskbar := True;
 	Application.CreateForm(TRipGrepperForm, RipGrepperForm);
   Application.CreateForm(TAppSettingsForm, AppSettingsForm);
+  Application.CreateForm(TExtensionSettingsForm, ExtensionSettingsForm);
   Application.Run;
 end.

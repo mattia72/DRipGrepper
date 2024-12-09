@@ -168,7 +168,7 @@ begin
 		Exit;
 	end;
 	{$ENDIF}
-	SettingsDict.StoreSetting(KEY_SHORTCUT_DRIPGREPPER, DripGrepperShortCut);
+	SettingsDict.StoreSetting(KEY_SHORTCUT_SEARCH_SELECTED, SearchSelectedShortcut);
 	SettingsDict.StoreSetting(KEY_SHORTCUT_OPENWITH, OpenWithShortCut);
 	SettingsDict.StoreSetting(KEY_IDE_CONTEXT, Integer(CurrentIDEContext.IDEContext));
 	inherited StoreToDict; // Write to mem ini, after UpdateIniFile will be saved
