@@ -1243,23 +1243,19 @@ begin
 		COL_FILE : begin
 			if MatchStr(Text, [RG_ERROR_MSG_PREFIX, RG_PARSE_ERROR]) then begin
 				DefaultDraw := False;
-				TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.ErrorText, false);
-				TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, Text);
+				TItemDrawer.ColoredTextOut(TargetCanvas, CellRect, Text, FColorSettings.ErrorText);
 			end else if MatchStr(Text, [RG_STATS_LINE]) then begin
 				DefaultDraw := False;
-				TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.StatisticsText, false);
-				TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, Text);
+				TItemDrawer.ColoredTextOut(TargetCanvas, CellRect, Text, FColorSettings.StatisticsText);
 			end;
 		end;
 		COL_ROW_NUM : begin
 			DefaultDraw := False;
-			TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.LineNumText, false);
-			TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, Text);
+			TItemDrawer.AlignedTextOut(TargetCanvas, CellRect, Text, FColorSettings.LineNumText);
 		end;
 		COL_COL_NUM : begin
 			DefaultDraw := False;
-			TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.ColNumText, false);
-			TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, Text);
+			TItemDrawer.AlignedTextOut(TargetCanvas, CellRect, Text, FColorSettings.ColNumText);
 		end;
 		COL_MATCH_TEXT : begin
 			case FHistItemObj.ParserType of
@@ -1277,8 +1273,7 @@ begin
 					ss0 := s.Substring(0, matchBegin).Replace(#9, TREEVIEW_INDENT_TAB_AS_SPACES, [rfReplaceAll]);
 					pos := TargetCanvas.TextWidth(ss0);
 
-					TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.NormalText, false);
-					TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, ss0);
+					TItemDrawer.ColoredTextOut(TargetCanvas, CellRect, ss0, FColorSettings.NormalText);
 
 					ss1 := s.Substring(matchBegin, Data.MatchData.MatchLength);
 					if IsGuiReplaceMode and (not Settings.LastSearchText.IsEmpty) then begin
@@ -1303,8 +1298,7 @@ begin
 					end;
 
 					backup.Load(TargetCanvas);
-					TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.NormalText, false);
-					TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss2);
+					TItemDrawer.ColoredTextOut(TargetCanvas, CellRect, ss2, FColorSettings.NormalText, pos);
 				end;
 			end;
 		end;
