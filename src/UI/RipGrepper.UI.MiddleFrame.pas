@@ -1240,6 +1240,11 @@ var
 	iSpaces, iTabs, matchBegin : Integer;
 begin
 	case Column of
+		COL_ROW_NUM, COL_COL_NUM : begin
+				DefaultDraw := False;
+				TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.CounterText, false);
+				TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, Text);
+		end;
 		COL_FILE : begin
 			if MatchStr(Text, [RG_ERROR_MSG_PREFIX, RG_PARSE_ERROR]) then begin
 				DefaultDraw := False;
