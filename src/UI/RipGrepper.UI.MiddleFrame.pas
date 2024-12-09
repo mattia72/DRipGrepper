@@ -1240,11 +1240,6 @@ var
 	iSpaces, iTabs, matchBegin : Integer;
 begin
 	case Column of
-		COL_ROW_NUM, COL_COL_NUM : begin
-				DefaultDraw := False;
-				TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.CounterText, false);
-				TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, Text);
-		end;
 		COL_FILE : begin
 			if MatchStr(Text, [RG_ERROR_MSG_PREFIX, RG_PARSE_ERROR]) then begin
 				DefaultDraw := False;
@@ -1255,6 +1250,16 @@ begin
 				TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.StatisticsText, false);
 				TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, Text);
 			end;
+		end;
+		COL_ROW_NUM : begin
+			DefaultDraw := False;
+			TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.LineNumText, false);
+			TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, Text);
+		end;
+		COL_COL_NUM : begin
+			DefaultDraw := False;
+			TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.ColNumText, false);
+			TargetCanvas.TextOut(CellRect.Left, TREEVIEW_FONTSPACE, Text);
 		end;
 		COL_MATCH_TEXT : begin
 			case FHistItemObj.ParserType of

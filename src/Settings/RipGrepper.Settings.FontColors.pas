@@ -40,6 +40,8 @@ type
 			TREEVIEW_FILE_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clDkGray; BgColor : clNone; Style : [fsBold];);
 			TREEVIEW_NORMAL_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clDkGray; BgColor : clNone; Style : [];);
 			TREEVIEW_STAT_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clPurple; BgColor : clNone; Style : [];);
+			TREEVIEW_LINE_NUM_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clPurple; BgColor : clNone; Style : [];);
+			TREEVIEW_COL_NUM_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clPurple; BgColor : clNone; Style : [];);
 			TREEVIEW_ERROR_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clRed; BgColor : clNone; Style : [];);
 			TREEVIEW_STATS_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clTeal; BgColor : clNone; Style : [];);
 	end;
@@ -55,6 +57,8 @@ type
 		CounterText : TFontAttributes;
 		MatchText : TFontAttributes;
 		NormalText : TFontAttributes;
+		ColNumText : TFontAttributes;
+		LineNumText : TFontAttributes;
 		FileText : TFontAttributes; // <-- First in config form
 		procedure SetByName(const _name : string; const _fa : TFontAttributes);
 	end;
@@ -67,7 +71,7 @@ type
 			FFontColors : TFontColors;
 
 		protected
-			function GetIsAlreadyRead: Boolean; override;
+			function GetIsAlreadyRead : Boolean; override;
 			procedure Init; override;
 
 		public
@@ -104,7 +108,7 @@ begin
 	inherited Destroy() // ok;
 end;
 
-function TColorSettings.GetIsAlreadyRead: Boolean;
+function TColorSettings.GetIsAlreadyRead : Boolean;
 begin
 	Result := inherited;
 end;
@@ -121,6 +125,8 @@ begin
 	SettingsDict.CreateSetting('CounterText', varString, TDefaultFontColors.TREEVIEW_STAT_TEXT.ToString());
 	SettingsDict.CreateSetting('ErrorText', varString, TDefaultFontColors.TREEVIEW_ERROR_TEXT.ToString());
 	SettingsDict.CreateSetting('StatisticsText', varString, TDefaultFontColors.TREEVIEW_STATS_TEXT.ToString());
+	SettingsDict.CreateSetting('ColNumText', varString, TDefaultFontColors.TREEVIEW_STAT_TEXT.ToString());
+	SettingsDict.CreateSetting('LineNumText', varString, TDefaultFontColors.TREEVIEW_STAT_TEXT.ToString());
 	SettingsDict.CreateSetting('FileText', varString, TDefaultFontColors.TREEVIEW_FILE_TEXT.ToString());
 end;
 
@@ -142,6 +148,8 @@ begin
 	FFontColors.ErrorText.FromString(SettingsDict.GetSetting('ErrorText'));
 	FFontColors.StatisticsText.FromString(SettingsDict.GetSetting('StatisticsText'));
 	FFontColors.FileText.FromString(SettingsDict.GetSetting('FileText'));
+	FFontColors.LineNumText.FromString(SettingsDict.GetSetting('LineNumText'));
+	FFontColors.ColNumText.FromString(SettingsDict.GetSetting('ColNumText'));
 end;
 
 procedure TColorSettings.ReloadColors;
@@ -162,6 +170,8 @@ begin
 	SettingsDict.StoreSetting('CounterText', FFontColors.CounterText.ToString());
 	SettingsDict.StoreSetting('ErrorText', FFontColors.ErrorText.ToString());
 	SettingsDict.StoreSetting('StatisticsText', FFontColors.StatisticsText.ToString());
+	SettingsDict.StoreSetting('LineNumText', FFontColors.LineNumText.ToString());
+	SettingsDict.StoreSetting('ColNumText', FFontColors.ColNumText.ToString());
 	SettingsDict.StoreSetting('FileText', FFontColors.FileText.ToString());
 	inherited StoreToDict();
 end;
@@ -259,6 +269,10 @@ begin
 		StatisticsText := _fa
 	else if _name = 'FileText' then
 		FileText := _fa
+	else if _name = 'LineNumText' then
+		LineNumText := _fa
+	else if _name = 'ColNumText' then
+		ColNumText := _fa
 	else
 		raise Exception.Create('Unknown font attribute name: ' + _name);
 end;
