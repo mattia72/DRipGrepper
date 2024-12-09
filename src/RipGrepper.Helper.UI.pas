@@ -104,6 +104,7 @@ type
 	TItemDrawer = class
 		public
 			class procedure AlignedTextOut(TargetCanvas: TCanvas; const _rect: TRect; const _text: string; _color: TFontAttributes);
+			class procedure ColoredTextOut(TargetCanvas: TCanvas; const _rect: TRect; const _text: string; _color: TFontAttributes; _pos: Integer = 0);
 			class function ShrinkRect(const r : TRect; const X0, X1, Y0, Y1 : integer) : TRect; inline;
 			class function DrawFileIcon(Canvas : TCanvas; Rect : TRect; Item : TListItem; _img : TImage) : Vcl.Graphics.TBitmap;
 			class function DrawCheckBox(_Canvas : TCanvas; _Rect : TRect; _Item : TListItem; _img : TImage) : TRect;
@@ -286,6 +287,13 @@ begin
 	var t := _text;
 	TItemDrawer.SetTextColor(TargetCanvas, _color, false);
 	TargetCanvas.TextRect(r, t, [tfRight]);
+end;
+
+class procedure TItemDrawer.ColoredTextOut(TargetCanvas: TCanvas; const _rect: TRect; const _text: string; _color: TFontAttributes; _pos:
+	Integer = 0);
+begin
+	TItemDrawer.SetTextColor(TargetCanvas, _color, false);
+	TargetCanvas.TextOut(_rect.Left + _pos, TREEVIEW_FONTSPACE, _text);
 end;
 
 class function TItemDrawer.DrawFileIcon(Canvas : TCanvas; Rect : TRect; Item : TListItem; _img : TImage) : Vcl.Graphics.TBitmap;
