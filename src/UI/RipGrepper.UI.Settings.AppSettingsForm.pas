@@ -198,7 +198,10 @@ begin
 	if IsRgExeValid(rgPath) then begin
 		FRipGrepSettings.RipGrepPath := rgPath;
 	end;
+
 	inherited WriteSettings;
+
+    TDebugUtils.UpdateTraceActive;
 end;
 
 end.

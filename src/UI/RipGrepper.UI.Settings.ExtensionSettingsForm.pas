@@ -49,7 +49,8 @@ uses
 	{$IFNDEF STANDALONE}
 	DRipExtension.Menu,
 	{$ENDIF}
-	Vcl.Menus, RipGrepper.Common.Constants;
+	Vcl.Menus,
+	RipGrepper.Common.Constants;
 
 {$R *.dfm}
 

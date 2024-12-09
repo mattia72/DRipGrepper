@@ -21,6 +21,7 @@ type
 			class procedure Msg(const _s : string);
 			class procedure DebugMessageFormat(const _s : string; const _args : array of const);
 			class procedure MsgFmt(const _s : string; const _args : array of const);
+			class procedure UpdateTraceActive;
 	end;
 
 	TDebugMsgBeginEnd = record
@@ -56,9 +57,7 @@ begin
 		GSettings.AppSettings.LoadFromDict();
 	end;
 
-	FDebugTraceActive := { } (Assigned(GSettings) and
-		{ } Assigned(GSettings.AppSettings) and
-		{ } GSettings.AppSettings.DebugTrace)
+	UpdateTraceActive;
 end;
 
 class procedure TDebugUtils.DebugMessage(const _s : string);
@@ -92,6 +91,13 @@ end;
 class procedure TDebugUtils.MsgFmt(const _s : string; const _args : array of const);
 begin
 	DebugMessageFormat(_s, _args);
+end;
+
+class procedure TDebugUtils.UpdateTraceActive;
+begin
+	FDebugTraceActive := { } (Assigned(GSettings) and
+		{ } Assigned(GSettings.AppSettings) and
+		{ } GSettings.AppSettings.DebugTrace);
 end;
 
 procedure TDebugMsgBeginEnd.Msg(const _sMsg : string);
