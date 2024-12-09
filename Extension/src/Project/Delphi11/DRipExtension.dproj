@@ -72,8 +72,8 @@
     <VerInfo_Locale>1033</VerInfo_Locale>
     <DCC_UsePackage>rtl;dbrtl;vcldb;vcl;VirtualTreesDR;VclSmp;$(DCC_UsePackage)</DCC_UsePackage>
     <VerInfo_MajorVer>3</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.9.0.1;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.9.0.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_MinorVer>9</VerInfo_MinorVer>
+    <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.10.0.1;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.10.0.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_MinorVer>10</VerInfo_MinorVer>
     <VerInfo_Build>1</VerInfo_Build>
     <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
   </PropertyGroup>
@@ -97,8 +97,8 @@
     <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\22.0\bin\bds.exe</Debugger_HostApplication>
     <DCC_ShowGeneralMessages>true</DCC_ShowGeneralMessages>
     <VerInfo_MajorVer>3</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.9.0.1;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.9.0.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_MinorVer>9</VerInfo_MinorVer>
+    <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.10.0.1;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.10.0.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_MinorVer>10</VerInfo_MinorVer>
     <VerInfo_Build>1</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
   </PropertyGroup>
@@ -112,9 +112,9 @@
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_MajorVer>3</VerInfo_MajorVer>
     <VerInfo_Locale>1033</VerInfo_Locale>
-    <VerInfo_Keys>FileDescription=DRipExtension;FileVersion=3.9.0.10;ProgramID=com.embarcadero.DRipExtension;ProductName=DRipExtension;ProductVersion=3.9.0.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_MinorVer>9</VerInfo_MinorVer>
-    <VerInfo_Build>10</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipExtension;FileVersion=3.10.0.4;ProgramID=com.embarcadero.DRipExtension;ProductName=DRipExtension;ProductVersion=3.10.0.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_MinorVer>10</VerInfo_MinorVer>
+    <VerInfo_Build>4</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
   </PropertyGroup>
   <ItemGroup>
@@ -160,10 +160,6 @@
       <Form>RipGrepperBottomFrame</Form>
       <FormType>dfm</FormType>
       <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.ConfigForm.pas">
-      <Form>ConfigForm</Form>
-      <FormType>dfm</FormType>
     </DCCReference>
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.DpiScaler.pas" />
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.MainForm.pas">
@@ -229,12 +225,23 @@
     <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.Replacer.pas" />
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.IFrameEvents.pas" />
     <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.FontColors.pas" />
-    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.AppSettingsForm.pas">
+    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.SettingsFormBase.pas" />
+    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.ColorSelectorFrame.pas">
+      <FormType>dfm</FormType>
+    </DCCReference>
+    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas">
+      <FormType>dfm</FormType>
+    </DCCReference>
+    <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.LockGuard.pas" />
+    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.ConfigForm.pas">
+      <Form>ConfigForm</Form>
+      <FormType>dfm</FormType>
+    </DCCReference>
+    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.AppSettingsForm.pas">
       <Form>AppSettingsForm</Form>
       <FormType>dfm</FormType>
     </DCCReference>
-    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.SettingsFormBase.pas" />
-    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.ColorSelectorFrame.pas">
+    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.ExtensionSettingsForm.pas">
       <FormType>dfm</FormType>
     </DCCReference>
     <RcItem Include="..\..\..\Resources\about_icon.bmp">
