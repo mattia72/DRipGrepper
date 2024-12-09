@@ -18,33 +18,21 @@ type
 	// unused IOTANotifer methods
 	TDRipExtension = class(TNotifierObject, IOTAMenuWizard, IOTAWizard)
 		const
-			DRIP_MENUITEM_NAME = 'DRipExpertMenuItem';
-			DRIP_MENUITEM_DRIPGREPPER_NAME = 'DRipExpert_DripGrepper_MenuItem';
-			DRIP_MENUITEM_OPENWITH_NAME = 'DRipExpert_OpenWith_MenuItem';
-
 		private
 			FKeyNotifier : IOTAKeyboardBinding;
 			FKeyBinding : integer;
 
 			FDockableForm : TRipGrepperDockableForm;
 			FiPluginIndexAbout : Integer;
-			class procedure CreateMenu(const _sMenuText: string);
-			class procedure DripMenuClick(Sender : TObject);
-			class procedure DoDripGrepperMenuClick(Sender : TObject);
-			class procedure DoOpenWithMenuClick(Sender : TObject);
 			procedure InitPluginInfo;
-			class function CreateSubMenuItem(const _MenuName, _Caption, _icoResource,
-				_scText, _defScText : string; _onClick : TNotifyEvent): TMenuItem;
-			class procedure RemoveExtensionMenu;
 			// **********************************************************************************************************************
 			// Plugin-Infos entfernen
 			// **********************************************************************************************************************
 			procedure RemovePluginInfo;
-			class procedure ShowDripGrepperForm;
+
 		public
 			constructor Create; virtual;
 			destructor Destroy; override;
-			class function AddToImageList(const _resourceName : string): Integer;
 			// IOTAWizard interafce methods(required for all wizards/experts)
 			function GetIDString : string;
 			function GetName : string;
@@ -68,8 +56,6 @@ uses
 	RipGrepper.Common.IOTAUtils,
 	RipGrepper.Settings.AppSettings,
 	RipGrepper.Settings.RipGrepperSettings,
-	RipGrepper.OpenWith,
-	RipGrepper.OpenWith.Params,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Tools.FileUtils,
 	System.IniFiles,
@@ -77,74 +63,15 @@ uses
 	System.SysUtils,
 	Vcl.Dialogs,
 	Vcl.ImgList,
-	Winapi.Windows;
+	Winapi.Windows,
+	DRipExtension.Menu;
 
 var
-	G_DripMenu : TMenuItem;
 	G_DRipExtension : TDRipExtension;
 
 procedure Register;
 begin
 	RegisterPackageWizard(TDRipExtension.Create);
-end;
-
-class procedure TDRipExtension.CreateMenu(const _sMenuText: string);
-var
-	Item : TMenuItem;
-	DripMenuItems : TArrayEx<TMenuItem>;
-	iPos : integer;
-	extSettings : TRipGrepperExtensionSettings;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.CreateMenu');
-
-	// if Assigned(G_DripMenu) then
-	// exit;
-
-	RemoveExtensionMenu();
-	extSettings := GSettings.SearchFormSettings.ExtensionSettings;
-	dbgMsg.Msg('ReadIni');
-	extSettings.ReadIni();
-	dbgMsg.Msg('LoadFromDict');
-	extSettings.LoadFromDict();
-
-	DripMenuItems.Add(CreateSubMenuItem(DRIP_MENUITEM_DRIPGREPPER_NAME,
-		{ } 'DRipGrepper...',
-		{ } 'dripgrepper_icon',
-		{ } extSettings.SearchSelectedShortcut,
-		{ } TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH,
-		{ } DoDripGrepperMenuClick));
-
-	DripMenuItems.Add(
-		{ } CreateSubMenuItem(DRIP_MENUITEM_DRIPGREPPER_NAME,
-		{ } 'Open With...',
-		{ } 'openwith_icon',
-		{ } extSettings.OpenWithShortCut,
-		{ } TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH,
-		{ } DoOpenWithMenuClick));
-
-	G_DripMenu := Vcl.Menus.NewSubMenu(_sMenuText + '...', 0, DRIP_MENUITEM_NAME, DripMenuItems.Items);
-
-	G_DripMenu.ImageIndex := AddToImageList('splash_icon');
-	dbgMsg.MsgFmt('G_DripMenu.ImageIndex %d', [G_DripMenu.ImageIndex]);
-
-	G_DripMenu.OnClick := DripMenuClick;
-
-	Item := IOTAUTils.FindMenuItem('ToolsMenu');
-	if Item <> nil then begin
-		iPos := Item.IndexOf(IOTAUTils.FindMenuItem('ToolsDebuggerOptionsItem'));
-		dbgMsg.Msg('iPos ' + iPos.ToString);
-		if iPos = -1 then
-			iPos := Item.IndexOf(IOTAUTils.FindMenuItem('ToolsToolsItem')) - 1;
-		if iPos >= 0 then begin
-			dbgMsg.Msg('ToolsToolsItem iPos ' + iPos.ToString);
-			Item.Insert(iPos + 1, G_DripMenu)
-		end else begin
-			dbgMsg.Msg('ToolsToolsItem not found');
-			Item.Insert(1, G_DripMenu);
-		end;
-	end;
-
 end;
 
 constructor TDRipExtension.Create;
@@ -155,7 +82,7 @@ begin
 	InitPluginInfo;
 	TRipGrepperDockableForm.CreateInstance; // saved layout loading ...
 	G_DRipExtension := self;
-	CreateMenu(GetMenuText);
+	TDripExtensionMenu.CreateMenu(GetMenuText, GSettings.SearchFormSettings.ExtensionSettings);
 end;
 
 destructor TDRipExtension.Destroy;
@@ -165,57 +92,8 @@ begin
 	RemovePluginInfo;
 	dbgMsg.Msg('TDRipExtension.Destroy FDockableForm.Free');
 	FDockableForm.Free;
-	dbgMsg.Msg('TDRipExtension.Destroy G_DripMenu.Free');
-	G_DripMenu.Free;
 	G_DRipExtension := nil;
 	inherited;
-end;
-
-class function TDRipExtension.AddToImageList(const _resourceName : string):
-	Integer;
-var
-	iconBmp: Vcl.Graphics.TBitmap;
-begin
-    iconBmp := Vcl.Graphics.TBitmap.Create();
-    try
-	iconBmp.LoadFromResourceName(hInstance, _resourceName);
-	// icon resource can be only bmp
-	Result := IOTAUTils.AddToImageList(iconBmp, _resourceName);
-    finally
-        iconBmp.Free;
-    end;
-end;
-
-class procedure TDRipExtension.DoDripGrepperMenuClick(Sender : TObject);
-begin
-	ShowDripGrepperForm;
-end;
-
-class procedure TDRipExtension.DoOpenWithMenuClick(Sender : TObject);
-var
-	owp : TOpenWithParams;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.DoOpenWithMenuClick');
-	owp := TOpenWithParams.GetParamsOfActiveFileInDelphiIde();
-	dbgMsg.MsgFmt('TDRipExtension.DoOpenWithMenuClick %s', [owp.ToString]);
-	if not owp.IsEmpty then begin
-		TOpenWith.Execute(owp);
-	end;
-end;
-
-class procedure TDRipExtension.DripMenuClick(Sender : TObject);
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.DripMenuClick');
-	var
-	bEnabled := Assigned(IOTAUTils.GxOtaGetCurrentProject());
-	G_DripMenu.Items[0].Enabled := bEnabled;
-	dbgMsg.MsgFmt('%s img=%d enabled=%s', [G_DripMenu.Items[0].Caption, G_DripMenu.Items[0].ImageIndex, BoolToStr(bEnabled, True)]);
-
-	bEnabled := not IOTAUTils.GxOtaGetCurrentSourceFile.IsEmpty;
-	G_DripMenu.Items[1].Enabled := bEnabled;
-	dbgMsg.MsgFmt('%s enabled = %s', [G_DripMenu.Items[1].Caption, BoolToStr(bEnabled, True)]);
 end;
 
 // IOTAWizard
@@ -278,27 +156,6 @@ begin
 		bmpHandle, False, aLicenseStatus, sExeVersion);
 end;
 
-class function TDRipExtension.CreateSubMenuItem(const _MenuName, _Caption,
-	_icoResource, _scText, _defScText : string; _onClick : TNotifyEvent):
-	TMenuItem;
-var
-	sc : TShortCut;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.CreateSubMenuItem');
-	dbgMsg.Msg('shortcut ' + _scText);
-
-	sc := TextToShortCut(_scText);
-	if sc = 0 then begin
-		sc := TextToShortCut(_defScText);
-	end;
-
-	Result := Vcl.Menus.NewItem(_Caption, sc, False, True, _onClick, 0, _MenuName);
-	Result.ImageIndex := AddToImageList(_icoResource);
-	//Result.ImageIndex
-    dbgMsg.MsgFmt('NewItem ''%s 0x%x''', [_MenuName, sc]);
-end;
-
 procedure TDRipExtension.RegisterKeyboardBinding;
 var
 	kbServices : IOTAKeyboardServices;
@@ -315,33 +172,10 @@ begin
 	end;
 end;
 
-class procedure TDRipExtension.RemoveExtensionMenu;
-var
-	toolsMenu : TMenu;
-	dripMenuItem : TMenuItem;
-begin
-	TDebugUtils.DebugMessage('TDRipExtension.RemoveExtensionMenu');
-	toolsMenu := IOTAUTils.FindMenu('ToolsMenu');
-	if toolsMenu <> nil then begin
-		dripMenuItem := IOTAUTils.FindMenuItem(DRIP_MENUITEM_NAME);
-		if dripMenuItem <> nil then begin
-			TDebugUtils.DebugMessage('TDRipExtension.RemoveExtensionMenu - ' + dripMenuItem.Caption);
-			toolsMenu.Items.Remove(dripMenuItem);
-		end;
-	end;
-
-end;
-
 procedure TDRipExtension.RemovePluginInfo;
 begin
 	if FiPluginIndexAbout > 0 then
 		(BorlandIDEServices as IOTAAboutBoxServices).RemovePluginInfo(FiPluginIndexAbout);
-end;
-
-class procedure TDRipExtension.ShowDripGrepperForm;
-begin
-	TDebugUtils.DebugMessage('TDRipExtension.ShowDripGrepperForm');
-	TRipGrepperDockableForm.ShowDockableFormAndSearch();
 end;
 
 procedure TDRipExtension.UnregisterKeyboardBinding;
