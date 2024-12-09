@@ -30,11 +30,11 @@ type
 		const
 			INI_SECTION = 'DelphiExtensionSettings';
 			KEY_IDE_CONTEXT = 'IDEContext';
-			KEY_SHORTCUT_DRIPGREPPER = 'DripGrepperShortCut';
+			KEY_SHORTCUT_SEARCH_SELECTED = 'SearchSelectedShortCut';
 			KEY_SHORTCUT_OPENWITH = 'OpenWithShortCut';
 
 		private
-			FDripGrepperShortCut : string;
+			FSearchSelectedShortcut : string;
 			FCurrentSearchSettings : TRipGrepperExtensionContext;
 			FOpenWithShortCut : string;
 			procedure LoadIdeContextFromDict(const _bDefault : Boolean);
@@ -49,7 +49,7 @@ type
 			procedure StoreToDict; override;
 			procedure StoreAsDefaultsToDict; override;
 			function ToLogString : string; override;
-			property DripGrepperShortCut : string read FDripGrepperShortCut write FDripGrepperShortCut;
+			property SearchSelectedShortcut : string read FSearchSelectedShortcut write FSearchSelectedShortcut;
 			property OpenWithShortCut : string read FOpenWithShortCut write FOpenWithShortCut;
 			property CurrentIDEContext : TRipGrepperExtensionContext read FCurrentSearchSettings write FCurrentSearchSettings;
 	end;
@@ -80,7 +80,7 @@ procedure TRipGrepperExtensionSettings.Init;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.Init');
-	SettingsDict.CreateSetting('DripGrepperShortCut', vtString, TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH);
+	SettingsDict.CreateSetting('SearchSelectedShortcut', vtString, TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH);
 	SettingsDict.CreateSetting('OpenWithShortCut', vtString, TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH);
 	SettingsDict.CreateDefaultRelevantSetting(KEY_IDE_CONTEXT, vtInteger, EXT_SEARCH_GIVEN_PATH);
 end;
@@ -120,9 +120,9 @@ begin
 
 	LoadIdeContextFromDict(False);
 
-	DripGrepperShortCut := SettingsDict.GetSetting(KEY_SHORTCUT_DRIPGREPPER);
-	if DripGrepperShortCut = '' then begin
-		DripGrepperShortCut := TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH;
+	SearchSelectedShortcut := SettingsDict.GetSetting(KEY_SHORTCUT_SEARCH_SELECTED);
+	if SearchSelectedShortcut = '' then begin
+		SearchSelectedShortcut := TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH;
 		FIsModified := True;
 	end;
 	OpenWithShortCut := SettingsDict.GetSetting(KEY_SHORTCUT_OPENWITH);
@@ -196,7 +196,7 @@ end;
 function TRipGrepperExtensionSettings.ToLogString : string;
 begin
 	Result := Format('OpenWithShortCut=%s, ShortCut=%s, CurrentIDEContext=[%s]',
-		[OpenWithShortCut, DripGrepperShortCut, CurrentIDEContext.ToLogString]);
+		[OpenWithShortCut, SearchSelectedShortcut, CurrentIDEContext.ToLogString]);
 end;
 
 function TRipGrepperExtensionContext.ToLogString : string;

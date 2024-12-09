@@ -2,8 +2,8 @@ object ExtensionSettingsForm: TExtensionSettingsForm
   Left = 0
   Top = 0
   Caption = 'ExtensionSettingsForm'
-  ClientHeight = 312
-  ClientWidth = 566
+  ClientHeight = 185
+  ClientWidth = 599
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,15 +14,19 @@ object ExtensionSettingsForm: TExtensionSettingsForm
   object pnlMiddle: TPanel
     Left = 0
     Top = 0
-    Width = 566
-    Height = 312
+    Width = 599
+    Height = 185
     Align = alClient
     TabOrder = 0
+    DesignSize = (
+      599
+      185)
     object grpShortcuts: TGroupBox
-      Left = 24
-      Top = 40
-      Width = 417
-      Height = 105
+      Left = 14
+      Top = 10
+      Width = 575
+      Height = 91
+      Anchors = [akLeft, akTop, akRight]
       Caption = 'Shortcuts'
       TabOrder = 0
       object lblOpenWith: TLabel
@@ -30,7 +34,7 @@ object ExtensionSettingsForm: TExtensionSettingsForm
         Top = 28
         Width = 60
         Height = 15
-        Caption = 'Open With '
+        Caption = 'Open With:'
       end
       object lblSearch: TLabel
         Left = 16
@@ -47,7 +51,7 @@ object ExtensionSettingsForm: TExtensionSettingsForm
         HotKey = 32833
         TabOrder = 0
       end
-      object HotKey1: THotKey
+      object hkedtSearchSelected: THotKey
         Left = 114
         Top = 51
         Width = 121

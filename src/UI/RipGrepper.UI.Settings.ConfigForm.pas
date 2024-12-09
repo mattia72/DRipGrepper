@@ -24,7 +24,8 @@ uses
 	ArrayEx,
 	System.Generics.Collections,
 	RipGrepper.UI.Settings.ColorSettingsForm,
-	RipGrepper.UI.Settings.ExtensionSettingsForm;
+	RipGrepper.UI.Settings.ExtensionSettingsForm,
+	RipGrepper.Settings.ExtensionSettings;
 
 type
 	TConfigForm = class(TForm)
@@ -43,6 +44,7 @@ type
 		private
 			FAppSettingsForm : TAppSettingsForm;
 			FColorSettingsForm : TColorSettingsForm;
+			FExtensionSettings : TRipGrepperExtensionSettings;
 			FExtensionSettingsForm : TExtensionSettingsForm;
 			FOpenWithConfigForm : TOpenWithConfigForm;
 			FSettings : TRipGrepperSettings;
@@ -76,7 +78,11 @@ begin
 	FOpenWithConfigForm.Caption := 'Open With...';
 	FAppSettingsForm := TAppSettingsForm.Create(nil, Settings);
 	FColorSettingsForm := TColorSettingsForm.Create(nil, Settings.FontColorSettings);
-	FExtensionSettingsForm := TExtensionSettingsForm.Create(nil, Settings);
+
+	FExtensionSettings := TRipGrepperExtensionSettings.Create(Settings.IniFile);
+	FExtensionSettings.ReadIni;
+	FExtensionSettings.LoadFromDict;
+	FExtensionSettingsForm := TExtensionSettingsForm.Create(nil, FExtensionSettings);
 
 	FSettingsForms := TObjectList<TForm>.Create();
 	FSettingsForms.AddRange([
@@ -88,6 +94,7 @@ end;
 
 destructor TConfigForm.Destroy;
 begin
+    FExtensionSettings.Free;
 	FSettingsForms.Free;
 	Settings.ReCreateMemIni;
 	Settings.ReLoad;

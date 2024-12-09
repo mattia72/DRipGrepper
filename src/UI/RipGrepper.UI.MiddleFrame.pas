@@ -1293,7 +1293,6 @@ begin
 					if IsGuiReplaceMode or IsRgReplaceMode then begin
 						TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.ReplaceText);
 						TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1_repl);
-
 						pos := pos + TargetCanvas.TextWidth(ss1_repl);
 					end;
 

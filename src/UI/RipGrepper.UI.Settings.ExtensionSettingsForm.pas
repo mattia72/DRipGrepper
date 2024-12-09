@@ -14,24 +14,29 @@ uses
 	Vcl.Dialogs,
 	RipGrepper.UI.SettingsFormBase,
 	RipGrepper.Settings.RipGrepperSettings,
-	RipGrepper.Settings.ExtensionSettings, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls;
+	RipGrepper.Settings.ExtensionSettings,
+	Vcl.StdCtrls,
+	Vcl.ComCtrls,
+	Vcl.ExtCtrls;
 
 type
 	TExtensionSettingsForm = class(TSettingsBaseForm)
-    pnlMiddle: TPanel;
-    hkedtOpenWidth: THotKey;
-    lblOpenWith: TLabel;
-    grpShortcuts: TGroupBox;
-    HotKey1: THotKey;
-    lblSearch: TLabel;
+		pnlMiddle : TPanel;
+		hkedtOpenWidth : THotKey;
+		lblOpenWith : TLabel;
+		grpShortcuts : TGroupBox;
+		hkedtSearchSelected : THotKey;
+		lblSearch : TLabel;
+
 		private
 			FExtensionSettings : TRipGrepperExtensionSettings;
+
 		protected
 			procedure ReadSettings; override;
 			procedure WriteSettings; override;
 
 		public
-			constructor Create(_Owner : TComponent; _settings : TRipGrepperSettings);
+			constructor Create(_Owner : TComponent; _settings : TRipGrepperExtensionSettings);
 	end;
 
 var
@@ -40,35 +45,38 @@ var
 implementation
 
 uses
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils,
+	Vcl.Menus;
 
 {$R *.dfm}
 
-constructor TExtensionSettingsForm.Create(_Owner : TComponent; _settings : TRipGrepperSettings);
+constructor TExtensionSettingsForm.Create(_Owner : TComponent; _settings : TRipGrepperExtensionSettings);
 begin
 	inherited Create(_Owner, _settings);
 	Caption := 'Extension';
-//  FExtensionSettings := (FSettings as TRipGrepperExtensionSettings).;
+	FExtensionSettings := _settings;
+	ReadSettings;
 end;
 
 procedure TExtensionSettingsForm.ReadSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TForm1.ReadSettings');
-
+	FExtensionSettings.ReadIni;
 	FExtensionSettings.LoadFromDict;
-
-	// chDebugTrace.Checked := FAppSettings.DebugTrace;
-	// chExpertMode.Checked := FAppSettings.ExpertMode;
-	// lbledtIniFilePath.Text := FAppSettings.IniFile.FileName;
-	// btnedtRgExePath.Text := FRipGrepSettings.RipGrepPath;
+	hkedtOpenWidth.HotKey := TextToShortCut(FExtensionSettings.OpenWithShortCut);
+	hkedtSearchSelected.HotKey := TextToShortCut(FExtensionSettings.SearchSelectedShortcut);
 end;
 
 procedure TExtensionSettingsForm.WriteSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TForm1.WriteSettings');
-//  FExtensionSettings.
+
+	FExtensionSettings.OpenWithShortCut := ShortCutToText(hkedtOpenWidth.HotKey);
+	FExtensionSettings.SearchSelectedShortcut := ShortCutToText(hkedtSearchSelected.HotKey);
+
+	// FExtensionSettings.
 	inherited WriteSettings;
 end;
 

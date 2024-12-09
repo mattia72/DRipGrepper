@@ -42,5 +42,5 @@ Marked with checkmark if fixed, else it is a known bug.
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] exception if rg.exe not found
 - [ ] **extension**: drip icon in menu has no transparent background
-- [x] filter off doesn't show all entries
-- [x] backup doesn't save orig extension
+- [ ] background color 'nothing' should be handled as transparent.
+- [ ] replace if more match in same line, replaces only the first

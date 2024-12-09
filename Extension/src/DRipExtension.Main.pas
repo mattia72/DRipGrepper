@@ -116,7 +116,7 @@ begin
 	DripMenuItems.Add(CreateSubMenuItem(DRIP_MENUITEM_DRIPGREPPER_NAME,
 		{ } 'DRipGrepper...',
 		{ } 'dripgrepper_icon',
-		{ } extSettings.DripGrepperShortCut,
+		{ } extSettings.SearchSelectedShortcut,
 		{ } TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH,
 		{ } DoDripGrepperMenuClick));
 
