@@ -400,8 +400,13 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
 	var
 	lock := TLockGuard.NewLock(FCriticalSection);
-	dbgMsg.Msg('IniFile update begin ' + FIniFile.FileName);
-	FIniFile.UpdateFile;
+	dbgMsg.Msg('Lock Entered - IniFile update begin ' + FIniFile.FileName);
+	try
+		FIniFile.UpdateFile;
+	except
+		on E : Exception do
+			dbgMsg.ErrorMsgFmt('%s', [E.Message]);
+	end;
 end;
 
 procedure TPersistableSettings.WriteSettings(_bDefault : Boolean = False);
@@ -438,10 +443,14 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.WriteToIni');
 
-	if _setting.IsModified or (_sKey.EndsWith(DEFAULT_KEY)) then begin
-		var
-		lock := TLockGuard.NewLock(FCriticalSection);
+	if (not _setting.IsModified) and (not _sKey.EndsWith(DEFAULT_KEY)) then begin
+		Exit;
+	end;
 
+	var
+	lock := TLockGuard.NewLock(FCriticalSection);
+	dbgMsg.MsgFmt('Lock Entered - Write [%s] %s', [_sIniSection, _sKey]);
+	try
 		case _setting.ValueType of
 			varString, varUString :
 			FIniFile.WriteString(_sIniSection, _sKey, _setting.Value);
@@ -464,8 +473,11 @@ begin
 			else
 			raise ESettingsException.Create('Settings Type not supported:' + VarTypeAsText(_setting.ValueType));
 		end;
-		dbgMsg.Msg(FIniFile.FileName + '[' + _sIniSection + '] ' + _sKey + '=' + VarToStr(_setting.Value) + ' stored');
+	except
+		on E : Exception do
+			dbgMsg.ErrorMsgFmt('%s', [E.Message]);
 	end;
+	dbgMsg.Msg(FIniFile.FileName + '[' + _sIniSection + '] ' + _sKey + '=' + VarToStr(_setting.Value) + ' stored');
 end;
 
 end.
