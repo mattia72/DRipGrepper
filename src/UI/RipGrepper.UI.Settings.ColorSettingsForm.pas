@@ -22,6 +22,7 @@ type
 		procedure FormShow(Sender : TObject);
 
 		private
+			FAllHeight : Integer;
 			FFontColorSettings : TColorSettings;
 
 		protected
@@ -45,28 +46,19 @@ uses
 {$R *.dfm}
 
 constructor TColorSettingsForm.Create(_Owner : TComponent; _settings : TColorSettings);
-var
-	allHeight : Integer;
 begin
 	inherited Create(_Owner, _settings);
 	Caption := FONTS_AND_COLORS_CAPTION;
 	FFontColorSettings := _settings;
-
 	ReadSettings;
-	allHeight := TColorSelectorFrame.AddSelectionFrames(FFontColorSettings.FontColors, self, grpFontColors);
-	grpFontColors.Height := allHeight + grpFontColors.Margins.Bottom;
-	self.Height := grpFontColors.Height;
-
+	FAllHeight := TColorSelectorFrame.AddSelectionFrames(FFontColorSettings.FontColors, self, grpFontColors);
 end;
 
 procedure TColorSettingsForm.FormShow(Sender : TObject);
 
 begin
-//  ReadSettings;
-//  allHeight := TColorSelectorFrame.AddSelectionFrames(FFontColorSettings.FontColors, self, grpFontColors);
-//  grpFontColors.Height := allHeight + grpFontColors.Margins.Bottom;
-//  self.Height := grpFontColors.Height;
 	inherited;
+//	self.Height := FAllHeight + self.Height;
 end;
 
 procedure TColorSettingsForm.ReadSettings;
