@@ -27,6 +27,7 @@ type
 		grpShortcuts : TGroupBox;
 		hkedtSearchSelected : THotKey;
 		lblSearch : TLabel;
+		procedure FormShow(Sender : TObject);
 
 		private
 			FExtensionSettings : TRipGrepperExtensionSettings;
@@ -64,14 +65,25 @@ begin
 	{$ENDIF}
 end;
 
+procedure TExtensionSettingsForm.FormShow(Sender : TObject);
+begin
+	{$IFDEF STANDALONE}
+	grpShortcuts.Visible := False;
+	hkedtOpenWidth.HotKey := TextToShortCut(' ');
+	hkedtSearchSelected.HotKey := TextToShortCut(' ');
+	{$ENDIF}
+end;
+
 procedure TExtensionSettingsForm.ReadSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TForm1.ReadSettings');
 	FExtensionSettings.ReadIni;
 	FExtensionSettings.LoadFromDict;
+	{$IFNDEF STANDALONE}
 	hkedtOpenWidth.HotKey := TextToShortCut(FExtensionSettings.OpenWithShortCut);
 	hkedtSearchSelected.HotKey := TextToShortCut(FExtensionSettings.SearchSelectedShortcut);
+	{$ENDIF}
 end;
 
 procedure TExtensionSettingsForm.WriteSettings;

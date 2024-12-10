@@ -11,7 +11,7 @@ uses
 type
 	TDripExtensionMenu = class(TObject)
 		const
-			DRIP_MENUITEM_NAME = 'DRipExpertMenuItem';
+			DRIP_MENUITEM_NAME = 'DRipExpert_MenuItem';
 			DRIP_MENUITEM_DRIPGREPPER_NAME = 'DRipExpert_DripGrepper_MenuItem';
 			DRIP_MENUITEM_OPENWITH_NAME = 'DRipExpert_OpenWith_MenuItem';
 
@@ -103,7 +103,8 @@ begin
 	G_DripMenu := Vcl.Menus.NewSubMenu(_sMenuText, 0, DRIP_MENUITEM_NAME, DripMenuItems.Items);
 
 	G_DripMenu.ImageIndex := AddToImageList('splash_icon');
-	dbgMsg.MsgFmt('G_DripMenu.ImageIndex %d', [G_DripMenu.ImageIndex]);
+	dbgMsg.MsgFmt('G_DripMenu Name %s ImageIndex %d', [G_DripMenu.Name, G_DripMenu.ImageIndex]);
+	// dbgMsg.MsgFmt('G_DripMenu.ImageIndex %d', [G_DripMenu.ImageIndex]);
 
 	G_DripMenu.OnClick := DripMenuClick;
 
@@ -177,18 +178,29 @@ begin
 end;
 
 class procedure TDripExtensionMenu.RemoveExtensionMenu;
+const
+	IDE_TOOLSMENU = 'ToolsMenu';
 var
 	toolsMenu : TMenu;
 	dripMenuItem : TMenuItem;
 begin
-	TDebugUtils.DebugMessage('TDripExtensionMenu.RemoveExtensionMenu');
-	toolsMenu := IOTAUTils.FindMenu('ToolsMenu');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.RemoveExtensionMenu');
+	// TDebugUtils.DebugMessage('TDripExtensionMenu.RemoveExtensionMenu');
+
+	toolsMenu := IOTAUTils.FindMenu(IDE_TOOLSMENU);
 	if toolsMenu <> nil then begin
 		dripMenuItem := IOTAUTils.FindMenuItem(DRIP_MENUITEM_NAME);
 		if dripMenuItem <> nil then begin
-			TDebugUtils.DebugMessage('TDripExtensionMenu.RemoveExtensionMenu - ' + dripMenuItem.Caption);
+			dbgMsg.Msg('remove - ' + dripMenuItem.Caption);
+			// TDebugUtils.DebugMessage('TDripExtensionMenu.RemoveExtensionMenu - ' + dripMenuItem.Caption);
 			toolsMenu.Items.Remove(dripMenuItem);
+		end else begin
+			// TDebugUtils.DebugMessage('TDripExtensionMenu.RemoveExtensionMenu - Not found: ' + DRIP_MENUITEM_NAME);
+			dbgMsg.ErrorMsg(DRIP_MENUITEM_NAME + ' not found.');
 		end;
+	end else begin
+		dbgMsg.ErrorMsg(IDE_TOOLSMENU + ' not found.');
 	end;
 
 end;

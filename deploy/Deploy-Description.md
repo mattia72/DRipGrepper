@@ -43,4 +43,4 @@ Marked with checkmark if fixed, else it is a known bug.
 - [ ] exception if rg.exe not found
 - [ ] **extension**: drip icon in menu has no transparent background
 - [ ] background color 'nothing' should be handled as transparent.
-- [ ] replace if more match in same line, replaces only the first
+- [ ] replace: if more match in same line, replaces only the first

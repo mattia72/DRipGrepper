@@ -23,9 +23,11 @@ uses
 	RipGrepper.UI.SettingsFormBase,
 	ArrayEx,
 	System.Generics.Collections,
-	RipGrepper.UI.Settings.ColorSettingsForm,
+	// {$IFNDEF STANDALONE}
+	RipGrepper.Settings.ExtensionSettings,
 	RipGrepper.UI.Settings.ExtensionSettingsForm,
-	RipGrepper.Settings.ExtensionSettings;
+	// {$ENDIF}
+	RipGrepper.UI.Settings.ColorSettingsForm;
 
 type
 	TConfigForm = class(TForm)
@@ -44,8 +46,10 @@ type
 		private
 			FAppSettingsForm : TAppSettingsForm;
 			FColorSettingsForm : TColorSettingsForm;
+			// {$IFNDEF STANDALONE}
 			FExtensionSettings : TRipGrepperExtensionSettings;
 			FExtensionSettingsForm : TExtensionSettingsForm;
+			// {$ENDIF}
 			FOpenWithConfigForm : TOpenWithConfigForm;
 			FSettings : TRipGrepperSettings;
 			FSettingsForms : TObjectList<TForm>;
@@ -81,17 +85,22 @@ begin
 		FAppSettingsForm := TAppSettingsForm.Create(nil, Settings);
 		FColorSettingsForm := TColorSettingsForm.Create(nil, Settings.FontColorSettings);
 
+		// {$IFNDEF STANDALONE}
 		FExtensionSettings := TRipGrepperExtensionSettings.Create(Settings.IniFile);
 		FExtensionSettings.ReadIni;
 		FExtensionSettings.LoadFromDict;
 		FExtensionSettingsForm := TExtensionSettingsForm.Create(nil, FExtensionSettings);
+		// {$ENDIF}
 
 		FSettingsForms := TObjectList<TForm>.Create();
 		FSettingsForms.AddRange([
 			{ } FAppSettingsForm,
 			{ } FColorSettingsForm,
 			{ } FOpenWithConfigForm,
-			{ } FExtensionSettingsForm]);
+			// {$IFNDEF STANDALONE}
+			{ } FExtensionSettingsForm
+			// {$ENDIF}
+			]);
 	finally
 		Screen.Cursor := crDefault;
 	end;
@@ -99,7 +108,9 @@ end;
 
 destructor TConfigForm.Destroy;
 begin
+//	{$IFNDEF STANDALONE}
 	FExtensionSettings.Free;
+//	{$ENDIF}
 	FSettingsForms.Free;
 	Settings.ReCreateMemIni;
 	Settings.ReLoad;
@@ -142,9 +153,9 @@ begin
 		end;
 		FOpenWithConfigForm.pnlBottom.Visible := False;
 		self.Height := iMaxHeight + PageControl1.TabHeight + pnlBottom.Height;
-		self.Width := iMaxWidth; // TODO
-//		Autoscroll := true;
-//		VertScrollBar.Range := iMaxHeight;
+		self.Width := iMaxWidth;
+		// Autoscroll := true;
+		// VertScrollBar.Range := iMaxHeight;
 		PageControl1.TabIndex := 0;
 	finally
 		Screen.Cursor := crDefault;
