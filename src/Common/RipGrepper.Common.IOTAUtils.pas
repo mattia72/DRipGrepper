@@ -24,6 +24,8 @@ type
 			class function GetSettingFilePath : string;
 			class function FindMenuItem(const Name : string) : TMenuItem;
 			class function FindMenu(const Name : string) : TMenu;
+			class function FindInMainMenu(const Name : string) : TMenuItem;
+			class function FindInMenu(_menu : TMenuItem; const _menuName : string) : TMenuItem;
 			class function GetEditPosition : IOTAEditPosition;
 			// Get the actual TEditControl embedded in the given IDE editor form
 			class function GetIDEEditControl(Form : TCustomForm) : TWinControl;
@@ -33,8 +35,7 @@ type
 
 			class function GetProjectFiles : TArray<string>;
 			// Raise an exception if the source editor is readonly
-			class procedure GxOtaAssertSourceEditorNotReadOnly(SourceEditor :
-				IOTASourceEditor);
+			class procedure GxOtaAssertSourceEditorNotReadOnly(SourceEditor : IOTASourceEditor);
 
 			class function GxOtaConvertColumnCharsToBytes(LineData : UTF8String; CharIndex : Integer; EndByte : Boolean) : Integer;
 			// Determine is a file exists or the file's module is currently loaded in the IDE
@@ -228,6 +229,37 @@ begin
 		Result := nil;
 end;
 
+class function IOTAUTils.FindInMainMenu(const Name : string) : TMenuItem;
+begin
+	Result := nil;
+	var
+	mainMenu := (BorlandIDEServices as INTAServices).MainMenu;
+	for var i := 0 to mainMenu.Items.Count - 1 do begin
+		var
+		m := mainMenu.Items[i];
+		TDebugUtils.DebugMessage('IOTAUTils.FindInMainMenu - ' + m.Name);
+		if CompareText(m.Name, name) = 0 then begin
+			Result := m;
+			break;
+		end;
+	end;
+end;
+
+class function IOTAUTils.FindInMenu(_menu : TMenuItem; const _menuName : string) : TMenuItem;
+begin
+	Result := nil;
+	for var i := 0 to _menu.Count - 1 do begin
+		var
+		m := _menu.Items[i];
+		TDebugUtils.DebugMessage('IOTAUTils.FindInMenu - check ' + m.Name);
+		if CompareText(m.Name, _menuName) = 0 then begin
+			TDebugUtils.DebugMessage('IOTAUTils.FindInMenu - found ' + m.Name);
+			Result := m;
+			break;
+		end;
+	end;
+end;
+
 class function IOTAUTils.GetEditPosition : IOTAEditPosition;
 var
 	aEditorServices : IOTAEditorServices;
@@ -328,8 +360,7 @@ begin
 		raise Exception.Create('GetSettingsFilePath: path not defined by IDEServices');
 end;
 
-class procedure IOTAUTils.GxOtaAssertSourceEditorNotReadOnly(SourceEditor :
-	IOTASourceEditor);
+class procedure IOTAUTils.GxOtaAssertSourceEditorNotReadOnly(SourceEditor : IOTASourceEditor);
 begin
 	Assert(Assigned(SourceEditor));
 	if Supports(SourceEditor, IOTAEditBuffer) then

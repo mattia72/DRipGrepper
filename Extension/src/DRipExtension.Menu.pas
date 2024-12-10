@@ -181,22 +181,19 @@ class procedure TDripExtensionMenu.RemoveExtensionMenu;
 const
 	IDE_TOOLSMENU = 'ToolsMenu';
 var
-	toolsMenu : TMenu;
+	toolsMenu : TMenuItem;
 	dripMenuItem : TMenuItem;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.RemoveExtensionMenu');
-	// TDebugUtils.DebugMessage('TDripExtensionMenu.RemoveExtensionMenu');
 
-	toolsMenu := IOTAUTils.FindMenu(IDE_TOOLSMENU);
+	toolsMenu := IOTAUTils.FindInMainMenu(IDE_TOOLSMENU);
 	if toolsMenu <> nil then begin
-		dripMenuItem := IOTAUTils.FindMenuItem(DRIP_MENUITEM_NAME);
+		dripMenuItem := IOTAUTils.FindInMenu(toolsMenu, DRIP_MENUITEM_NAME);
 		if dripMenuItem <> nil then begin
 			dbgMsg.Msg('remove - ' + dripMenuItem.Caption);
-			// TDebugUtils.DebugMessage('TDripExtensionMenu.RemoveExtensionMenu - ' + dripMenuItem.Caption);
-			toolsMenu.Items.Remove(dripMenuItem);
+			toolsMenu.Remove(dripMenuItem);
 		end else begin
-			// TDebugUtils.DebugMessage('TDripExtensionMenu.RemoveExtensionMenu - Not found: ' + DRIP_MENUITEM_NAME);
 			dbgMsg.ErrorMsg(DRIP_MENUITEM_NAME + ' not found.');
 		end;
 	end else begin
