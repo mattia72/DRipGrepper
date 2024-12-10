@@ -856,11 +856,9 @@ begin
 
 	sVsDir := TFileUtils.GetVsCodeDir;
 	if not sVsDir.IsEmpty then begin
-		sVsDir := TFileUtils.ShortToLongPath(sVsDir.Remove(sVsDir.Length - '\bin'.Length));
-
 		TFileUtils.FindExecutable(FSettings.RipGrepParameters.RipGrepPath, sRgPath);
 		// Rg in VSCode doesn't support --pretty
-		cbRgParamPretty.Enabled := not TFileUtils.ShortToLongPath(sRgPath).StartsWith(sVsDir, True);
+		cbRgParamPretty.Enabled := not TFileUtils.ShortToLongPath(sRgPath).Contains('@vscode\ripgrep\bin');
 		if not cbRgParamPretty.Enabled then begin
 			lblHintHelper.Caption := '';
 			lblHintHelper.AutoSize := False;
