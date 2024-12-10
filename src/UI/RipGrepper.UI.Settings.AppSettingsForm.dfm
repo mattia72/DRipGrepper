@@ -101,10 +101,11 @@ object AppSettingsForm: TAppSettingsForm
       Width = 478
       Height = 63
       Anchors = [akLeft, akTop, akRight]
+      Color = clBackground
       Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
+      Font.Color = clHighlightText
       Font.Height = -12
-      Font.Name = 'Terminal'
+      Font.Name = 'Consolas'
       Font.Style = []
       Lines.Strings = (
         'line 1'
