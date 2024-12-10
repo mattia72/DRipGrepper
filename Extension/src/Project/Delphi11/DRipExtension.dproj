@@ -112,9 +112,9 @@
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_MajorVer>3</VerInfo_MajorVer>
     <VerInfo_Locale>1033</VerInfo_Locale>
-    <VerInfo_Keys>FileDescription=DRipExtension;FileVersion=3.10.0.4;ProgramID=com.embarcadero.DRipExtension;ProductName=DRipExtension;ProductVersion=3.10.0.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Keys>FileDescription=DRipExtension;FileVersion=3.10.0.10;ProgramID=com.embarcadero.DRipExtension;ProductName=DRipExtension;ProductVersion=3.10.0.0;Comments=beta</VerInfo_Keys>
     <VerInfo_MinorVer>10</VerInfo_MinorVer>
-    <VerInfo_Build>4</VerInfo_Build>
+    <VerInfo_Build>10</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
   </PropertyGroup>
   <ItemGroup>
@@ -244,6 +244,7 @@
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.ExtensionSettingsForm.pas">
       <FormType>dfm</FormType>
     </DCCReference>
+    <DCCReference Include="..\..\DRipExtension.Menu.pas" />
     <RcItem Include="..\..\..\Resources\about_icon.bmp">
       <ResourceType>BITMAP</ResourceType>
       <ResourceId>about_icon</ResourceId>
