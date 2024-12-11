@@ -43,4 +43,8 @@ Marked with checkmark if fixed, else it is a known bug.
 - [ ] exception if rg.exe not found
 - [ ] **extension**: drip icon in menu has no transparent background
 - [ ] background color 'nothing' should be handled as transparent.
-- [ ] replace: if more match in same line, replaces only the first
+- [ ] replace: 
+    - [ ] more match in same line replaces all occurence, even if user selects only one
+        - [x] replace by rg is ok: there will be changed every occurence in every lines 
+    - [ ] replace by toolbar is always ignore case
+- [ ] context line nums are in Col instead of Row column

@@ -41,7 +41,7 @@ var
 begin
 	list := TReplaceList.Create;
 	try
-		list.Add(_fileName, _row, _replaceLine);
+		list.AddUnique(_fileName, _row, _replaceLine);
 		TReplaceHelper.ReplaceLineInFiles(list);
 	finally
 		list.Free;

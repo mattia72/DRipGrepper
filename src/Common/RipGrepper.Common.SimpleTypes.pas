@@ -17,7 +17,7 @@ type
 	TRipGrepArguments = TStringList;
 
 	{$SCOPEDENUMS ON}
-	EGuiReplaceMode = (grmRGReplace, grmEditEnabled, grmActive, grmSaveEnabled);
+	EGuiReplaceMode = (grmRGReplace, grmEditEnabled, grmActive, grmSaveEnabled, grmCaseSensitive, grmUseRegex);
 	EFilterMode = (fmFilterFile, fmFilterText, fmCaseSensitive, fmUseRegex);
 	{$SCOPEDENUMS OFF}
 	TGuiReplaceModes = set of EGuiReplaceMode;

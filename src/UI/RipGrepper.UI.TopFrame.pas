@@ -87,6 +87,11 @@ type
 		N1 : TMenuItem;
 		miFilterModeCaseSensitive : TMenuItem;
 		miFilterModeUseRegex : TMenuItem;
+		PopupMenuReplace : TPopupMenu;
+		mniCaseSensitive : TMenuItem;
+		mniUseRegex : TMenuItem;
+		ActionReplaceCaseSensitive : TAction;
+		ActionReplaceUseRegex : TAction;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAlignToolbarsExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsExecute(Sender : TObject);
@@ -104,6 +109,8 @@ type
 		procedure ActionOpenWithExecute(Sender : TObject);
 		procedure ActionRefreshSearchExecute(Sender : TObject);
 		procedure ActionRefreshSearchUpdate(Sender : TObject);
+		procedure ActionReplaceCaseSensitiveExecute(Sender: TObject);
+		procedure ActionReplaceUseRegexExecute(Sender : TObject);
 		procedure ActionSaveReplacementExecute(Sender : TObject);
 		procedure ActionSaveReplacementUpdate(Sender : TObject);
 		procedure ActionSearchExecute(Sender : TObject);
@@ -151,7 +158,9 @@ type
 			procedure SetReplaceTextInSettings(const _sReplText : string);
 			procedure StartNewSearch;
 			procedure ToggleFilterMode(const _fm : EFilterMode);
+			procedure ToggleGuiReplaceMode(const _grm : EGuiReplaceMode);
 			procedure UpdateFilterMenu;
+			procedure UpdateReplaceMenu;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
 		public
@@ -165,7 +174,7 @@ type
 			procedure Init;
 			function IsRgReplaceMode : Boolean;
 			procedure SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
-			procedure SetFilterBtnImage(const _bOn: Boolean = True);
+			procedure SetFilterBtnImage(const _bOn : Boolean = True);
 			procedure SetGuiReplaceMode(const _modes : TGuiReplaceModes; const _sReplaceText : string = '');
 			procedure ReplaceLineInFile(const fileName : string; lineNum : Integer; const replaceLine : string);
 			property IsGuiReplaceMode : Boolean read GetIsGuiReplaceMode;
@@ -341,6 +350,18 @@ begin
 	ActionRefreshSearch.Enabled := // Settings.IsAlreadyRead and
 	{ } (not MainFrame.IsSearchRunning)
 	{ } and Assigned(MainFrame.HistItemObject);
+end;
+
+procedure TRipGrepperTopFrame.ActionReplaceCaseSensitiveExecute(Sender: TObject);
+begin
+	ToggleGuiReplaceMode(EGuiReplaceMode.grmCaseSensitive);
+	UpdateReplaceMenu;
+end;
+
+procedure TRipGrepperTopFrame.ActionReplaceUseRegexExecute(Sender : TObject);
+begin
+	ToggleGuiReplaceMode(EGuiReplaceMode.grmUseRegex);
+	UpdateReplaceMenu;
 end;
 
 procedure TRipGrepperTopFrame.ActionSaveReplacementExecute(Sender : TObject);
@@ -590,12 +611,18 @@ begin
 			fileName := parentData.FilePath;
 			lineNum := data.MatchData.Row;
 			if IsRgReplaceMode then begin
-				replaceLine := data.MatchData.LineText;
+				replaceLine := data.MatchData.LineText; // ok every replacement is done
 			end else if IsGuiReplaceMode then begin
-				replaceLine := TRegEx.Replace(data.MatchData.LineText, Settings.LastSearchText, Settings.RipGrepParameters.ReplaceText,
-					[roIgnoreCase]);
+				var
+				lineText := data.MatchData.LineText;
+				if replaceList.TryGet(fileName, lineNum, lineText) then begin
+					replaceList.Remove(fileName, lineNum, lineText);
+				end;
+				// we should replace only from data.MatchData.Col?
+				replaceLine := TRegEx.Replace(lineText, Settings.LastSearchText,
+					{ } Settings.RipGrepParameters.ReplaceText, [roIgnoreCase]); // TODO popupmenu ignore case
 			end;
-			replaceList.Add(fileName, lineNum, replaceLine);
+			replaceList.AddUnique(fileName, lineNum, replaceLine);
 		end;
 		node := MainFrame.VstResult.GetNextChecked(Node);
 	end;
@@ -714,7 +741,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepperTopFrame.SetFilterBtnImage(const _bOn: Boolean = True);
+procedure TRipGrepperTopFrame.SetFilterBtnImage(const _bOn : Boolean = True);
 begin
 	edtFilter.RightButton.ImageIndex :=
 	{ } IfThen(_bOn and (edtFilter.Text <> ''), IMG_IDX_FILTER_ON, IMG_IDX_FILTER_OFF);
@@ -808,12 +835,28 @@ begin
 	Settings.NodeLookSettings.FilterSettings.FilterModes := FFilterMode;
 end;
 
+procedure TRipGrepperTopFrame.ToggleGuiReplaceMode(const _grm : EGuiReplaceMode);
+begin
+	if _grm in FGuiReplaceModes then begin
+		Exclude(FGuiReplaceModes, _grm);
+	end else begin
+		Include(FGuiReplaceModes, _grm);
+	end;
+	//Settings.NodeLookSettings. := FFilterMode;
+end;
+
 procedure TRipGrepperTopFrame.UpdateFilterMenu;
 begin
 	ActionSetFileFilterMode.Checked := EFilterMode.fmFilterFile in FFilterMode;
 	ActionSetTextFilterMode.Checked := EFilterMode.fmFilterText in FFilterMode;
 	ActionSetFilterModeCaseSensitive.Checked := EFilterMode.fmCaseSensitive in FFilterMode;
 	ActionSetFilterModeRegex.Checked := EFilterMode.fmUseRegex in FFilterMode;
+end;
+
+procedure TRipGrepperTopFrame.UpdateReplaceMenu;
+begin
+	ActionReplaceCaseSensitive.Checked := EGuiReplaceMode.grmCaseSensitive in FGuiReplaceModes;
+	ActionReplaceUseRegex.Checked := EGuiReplaceMode.grmUseRegex in FGuiReplaceModes;
 end;
 
 end.

@@ -1,4 +1,4 @@
-unit RipGrepper.Tools.FileUtils;
+﻿unit RipGrepper.Tools.FileUtils;
 
 interface
 
@@ -29,7 +29,7 @@ type
 			class function GetPackageNameAndVersion(Package : HMODULE) : string;
 			class function GetVsCodeDir : string;
 			class function LongToShortFilePath(const LongPath : string) : string;
-			class function ShortToLongPath(const ShortPath: string): string;
+			class function ShortToLongPath(const ShortPath : string) : string;
 	end;
 
 	TReplaceData = record
@@ -44,7 +44,11 @@ type
 		public
 			constructor Create;
 			destructor Destroy; override;
-			procedure Add(fileName : string; row : integer; replaceLine : string);
+			procedure AddUnique(const fileName : string; const row : integer; const replaceLine : string);
+			function TryGet(const fileName : string; const row : integer; var replaceLine : string) : boolean;
+			function Contains(fileName : string; row : integer) : Boolean;
+			function Update(const fileName : string; const row : integer; const line : string) : Boolean;
+			function Remove(const fileName : string; const row : integer; const line : string) : Boolean;
 	end;
 
 procedure GetPackageNameInfoProc(const Name : string; NameType : TNameType; Flags : Byte; Param : Pointer);
@@ -61,7 +65,8 @@ uses
 	System.RegularExpressions,
 	System.StrUtils,
 	RipGrepper.Helper.UI,
-	System.UITypes;
+	System.UITypes,
+	System.Generics.Defaults;
 
 procedure GetPackageNameInfoProc(const Name : string; NameType : TNameType; Flags : Byte; Param : Pointer);
 begin
@@ -127,15 +132,15 @@ begin
 		Result := LongPath; // Return the original path if conversion fails
 end;
 
-class function TFileUtils.ShortToLongPath(const ShortPath: string) : string;
+class function TFileUtils.ShortToLongPath(const ShortPath : string) : string;
 var
 	LongPath : array [0 .. MAX_PATH - 1] of Char;
 begin
 	if 0 < GetLongPathName(PChar(ShortPath), LongPath, Length(LongPath)) then begin
-        Result := LongPath;
-    end else begin
-        Result := ShortPath;
-    end;
+		Result := LongPath;
+	end else begin
+		Result := ShortPath;
+	end;
 end;
 
 class function TFileUtils.GetAppName(const _exePath : string) : string;
@@ -267,6 +272,8 @@ begin
 	Result.Line := _line;
 end;
 
+{ TReplaceList }
+
 constructor TReplaceList.Create;
 begin
 	inherited;
@@ -279,18 +286,100 @@ begin
 	inherited;
 end;
 
-{ TReplaceList }
-
-procedure TReplaceList.Add(fileName : string; row : integer; replaceLine : string);
+procedure TReplaceList.AddUnique(const fileName : string; const row : integer; const replaceLine : string);
 var
 	replaceList : TArrayEx<TReplaceData>;
 begin
 	if Items.TryGetValue(fileName, replaceList) then begin
-		replaceList.Add(TReplaceData.New(row, replaceLine));
+		if not replaceList.Contains(TReplaceData.New(row, replaceLine), TComparer<TReplaceData>.Construct(
+			function(const Left, Right : TReplaceData) : Integer
+			begin
+				Result := TComparer<integer>.Default.Compare(Left.Row, Right.Row);
+			end))
+		{ } then begin
+			replaceList.Add(TReplaceData.New(row, replaceLine));
+		end;
 	end else begin
 		replaceList := [TReplaceData.New(row, replaceLine)];
 	end;
 	Items.AddOrSetValue(fileName, replaceList);
+end;
+
+function TReplaceList.TryGet(const fileName : string; const row : integer; var replaceLine : string) : boolean;
+var
+	replaceList : TArrayEx<TReplaceData>;
+begin
+	Result := False;
+	if Items.TryGetValue(fileName, replaceList) then begin
+		var
+		idx := replaceList.IndexOf(TReplaceData.New(row, ''), TComparer<TReplaceData>.Construct(
+			function(const Left, Right : TReplaceData) : Integer
+			begin
+				Result := TComparer<integer>.Default.Compare(Left.Row, Right.Row);
+			end));
+		if idx >= 0 then begin
+			replaceLine := replaceList[idx].Line;
+			Result := True;
+		end;
+	end;
+end;
+
+function TReplaceList.Contains(fileName : string; row : integer) : Boolean;
+var
+	replaceList : TArrayEx<TReplaceData>;
+begin
+	Result := False;
+	if Items.TryGetValue(fileName, replaceList) then begin
+		Result := replaceList.Contains(TReplaceData.New(row, ''), TComparer<TReplaceData>.Construct(
+			function(const Left, Right : TReplaceData) : Integer
+			begin
+				Result := TComparer<integer>.Default.Compare(Left.Row, Right.Row);
+			end));
+	end;
+
+end;
+
+function TReplaceList.Update(const fileName : string; const row : integer; const line : string) : Boolean;
+var
+	replaceList : TArrayEx<TReplaceData>;
+	rd : TReplaceData;
+begin
+	Result := False;
+	if Items.TryGetValue(fileName, replaceList) then begin
+		var
+		idx := replaceList.IndexOf(TReplaceData.New(row, ''), TComparer<TReplaceData>.Construct(
+			function(const Left, Right : TReplaceData) : Integer
+			begin
+				Result := TComparer<integer>.Default.Compare(Left.Row, Right.Row);
+			end));
+		if idx >= 0 then begin
+			rd.Row := row;
+			rd.Line := line;
+			replaceList.Delete(idx);
+			replaceList.Add(rd);
+			Items.AddOrSetValue(fileName, replaceList);
+			Result := True;
+		end;
+	end;
+end;
+
+function TReplaceList.Remove(const fileName : string; const row : integer; const line : string) : Boolean;
+var
+	replaceList : TArrayEx<TReplaceData>;
+begin
+	Result := False;
+	if Items.TryGetValue(fileName, replaceList) then begin
+		var
+		idx := replaceList.IndexOf(TReplaceData.New(row, ''), TComparer<TReplaceData>.Construct(
+			function(const Left, Right : TReplaceData) : Integer
+			begin
+				Result := TComparer<integer>.Default.Compare(Left.Row, Right.Row);
+			end));
+		if idx >= 0 then begin
+			replaceList.Delete(idx);
+			Result := True;
+		end;
+	end;
 end;
 
 end.

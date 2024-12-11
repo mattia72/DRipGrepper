@@ -136,6 +136,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       TabStop = False
       Images = ImageListButtons
       ParentShowHint = False
+      PopupMenu = PopupMenuReplace
       RightButton.ImageIndex = 27
       RightButton.Visible = True
       ShowHint = True
@@ -1586,6 +1587,14 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       OnExecute = ActionSaveReplacementExecute
       OnUpdate = ActionSaveReplacementUpdate
     end
+    object ActionReplaceCaseSensitive: TAction
+      Caption = '&Case Sensitive'
+      OnExecute = ActionReplaceCaseSensitiveExecute
+    end
+    object ActionReplaceUseRegex: TAction
+      Caption = 'Use &Regex'
+      OnExecute = ActionReplaceUseRegexExecute
+    end
   end
   object PopupMenuToolbar: TPopupMenu
     Images = ImageListButtons
@@ -1615,6 +1624,17 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     end
     object miFilterModeUseRegex: TMenuItem
       Action = ActionSetFilterModeRegex
+    end
+  end
+  object PopupMenuReplace: TPopupMenu
+    Images = ImageListButtons
+    Left = 681
+    Top = 65534
+    object mniCaseSensitive: TMenuItem
+      Action = ActionReplaceCaseSensitive
+    end
+    object mniUseRegex: TMenuItem
+      Action = ActionReplaceUseRegex
     end
   end
 end
