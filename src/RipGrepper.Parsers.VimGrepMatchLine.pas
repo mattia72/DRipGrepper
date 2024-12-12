@@ -43,8 +43,8 @@ type
 			function Validate(var row : TArrayEx<TColumnData>) : Boolean; override;
 
 		protected
-			procedure ParseContextLine(const _m : TMatch; var _cd : TArrayEx<TColumnData>);
-				override;
+			procedure ParseContextLine(const _m : TMatch; var _cd : TArrayEx<TColumnData>); override;
+
 		public
 			constructor Create; override;
 			procedure ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False); override;
@@ -122,7 +122,8 @@ begin
 	if m.Success then begin
 		// TDebugUtils.DebugMessage(_sLine);
 		// according FastMM it is leaky :/
-		var s := Format('%s%s', [m.Groups['drive'].Value, m.Groups['path'].Value]);
+		var
+		s := Format('%s%s', [m.Groups['drive'].Value, m.Groups['path'].Value]);
 		cd.Add(TColumnData.New(ciFile, s));
 		cd.Add(TColumnData.New(ciRow, m.Groups['row'].Value));
 		cd.Add(TColumnData.New(ciCol, m.Groups['col'].Value));
@@ -259,10 +260,9 @@ begin
 	FParseResult := TParsedObjectRow.Create();
 end;
 
-procedure TVimGrepPrettyMatchLineParser.ParseContextLine(const _m : TMatch; var
-	_cd : TArrayEx<TColumnData>);
+procedure TVimGrepPrettyMatchLineParser.ParseContextLine(const _m : TMatch; var _cd : TArrayEx<TColumnData>);
 begin
-    inherited ParseContextLine(_m,_cd);
+	inherited ParseContextLine(_m, _cd);
 	_cd.Add(TColumnData.New(ciMatchText, ''));
 	_cd.Add(TColumnData.New(ciTextAfterMatch, ''));
 end;

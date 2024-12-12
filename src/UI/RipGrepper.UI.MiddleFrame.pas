@@ -104,6 +104,7 @@ type
 		procedure VstResultBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
 			CellPaintMode : TVTCellPaintMode; CellRect : TRect; var ContentRect : TRect);
 		procedure VstResultChecked(Sender : TBaseVirtualTree; Node : PVirtualNode);
+		procedure VstResultColumnResize(Sender : TVTHeader; Column : TColumnIndex);
 		procedure VstResultCompareNodes(Sender : TBaseVirtualTree; Node1, Node2 : PVirtualNode; Column : TColumnIndex;
 			var Result : Integer);
 		procedure VstResultDblClick(Sender : TObject);
@@ -131,6 +132,8 @@ type
 			FData : TRipGrepperData;
 			FExeVersion : string;
 			FFileNameType : TFileNameType;
+			FHeaderColRect : TRect;
+			FHeaderRowRect : TRect;
 			FHistItemObj : IHistoryItemObject;
 			FIsParsingRunning : Boolean;
 			FMeassureFirstDrawEvent : Boolean;
@@ -771,6 +774,7 @@ begin
 	Align := alClient;
 	dbgMsg.Msg('TRipGrepperMiddleFrame.Init ' + FExeVersion);
 	FFileNameType := ftAbsolute;
+	VstResult.TreeOptions.AutoOptions := VstResult.TreeOptions.AutoOptions + [toAutoSpanColumns]; // merges empty cells
 	VstResult.TreeOptions.StringOptions := VstResult.TreeOptions.StringOptions + [toShowStaticText];
 	VstResult.TreeOptions.PaintOptions := VstResult.TreeOptions.PaintOptions + [toUseExplorerTheme];
 	VstResult.NodeDataSize := SizeOf(TVSFileNodeData);
@@ -942,6 +946,8 @@ end;
 procedure TRipGrepperMiddleFrame.SetColumnWidths;
 begin
 	VstResult.Header.Columns[COL_FILE].Width := IfThen(toCheckSupport in VstResult.TreeOptions.MiscOptions, 70, 50);
+	FHeaderRowRect := VstResult.Header.Columns[COL_ROW_NUM].GetRect();
+	FHeaderColRect := VstResult.Header.Columns[COL_COL_NUM].GetRect();
 end;
 
 procedure TRipGrepperMiddleFrame.SetHistItemObject(const Value : IHistoryItemObject);
@@ -1177,6 +1183,12 @@ begin
 	end;
 end;
 
+procedure TRipGrepperMiddleFrame.VstResultColumnResize(Sender : TVTHeader; Column : TColumnIndex);
+begin
+	FHeaderRowRect := VstResult.Header.Columns[COL_ROW_NUM].GetRect();
+	FHeaderColRect := VstResult.Header.Columns[COL_COL_NUM].GetRect();
+end;
+
 procedure TRipGrepperMiddleFrame.VstResultCompareNodes(Sender : TBaseVirtualTree; Node1, Node2 : PVirtualNode; Column : TColumnIndex;
 var Result : Integer);
 var
@@ -1251,11 +1263,11 @@ begin
 		end;
 		COL_ROW_NUM : begin
 			DefaultDraw := False;
-			TItemDrawer.AlignedTextOut(TargetCanvas, CellRect, Text, FColorSettings.LineNumText);
+			TItemDrawer.AlignedTextOut(TargetCanvas, CellRect, FHeaderRowRect, Text, FColorSettings.LineNumText);
 		end;
 		COL_COL_NUM : begin
 			DefaultDraw := False;
-			TItemDrawer.AlignedTextOut(TargetCanvas, CellRect, Text, FColorSettings.ColNumText);
+			TItemDrawer.AlignedTextOut(TargetCanvas, CellRect, FHeaderColRect, Text, FColorSettings.ColNumText);
 		end;
 		COL_MATCH_TEXT : begin
 			case FHistItemObj.ParserType of
