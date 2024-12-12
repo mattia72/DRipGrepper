@@ -167,7 +167,7 @@ type
 			procedure RefreshCounters;
 			procedure RefreshCountersInGUI;
 			procedure RunRipGrep;
-			procedure SelectAllSubNode(ANode : PVirtualNode);
+			procedure SetCheckedAllSubNode(ANode : PVirtualNode);
 			procedure SetColumnWidths;
 			procedure SetHistItemObject(const Value : IHistoryItemObject);
 			function SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
@@ -1049,7 +1049,7 @@ begin
 	DoSearch();
 end;
 
-procedure TRipGrepperMiddleFrame.SelectAllSubNode(ANode : PVirtualNode);
+procedure TRipGrepperMiddleFrame.SetCheckedAllSubNode(ANode : PVirtualNode);
 begin
 	var
 	beu := TBeginEndUpdater.New(VstResult);
@@ -1179,7 +1179,7 @@ end;
 procedure TRipGrepperMiddleFrame.VstResultChecked(Sender : TBaseVirtualTree; Node : PVirtualNode);
 begin
 	if Node.Parent = VstResult.RootNode then begin
-		SelectAllSubNode(Node);
+		SetCheckedAllSubNode(Node);
 	end;
 end;
 

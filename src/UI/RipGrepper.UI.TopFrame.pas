@@ -27,7 +27,7 @@ uses
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.Common.Interfaces,
 	RipGrepper.Common.SimpleTypes,
-	RipGrepper.Tools.FileUtils,
+	RipGrepper.Tools.Replacer,
 	RipGrepper.UI.IFrameEvents;
 
 type
@@ -211,8 +211,7 @@ uses
 	System.SysUtils,
 	RipGrepper.UI.Settings.ConfigForm,
 	System.RegularExpressions,
-	RipGrepper.Settings.NodeLook.FilterSettings,
-	RipGrepper.Tools.Replacer;
+	RipGrepper.Settings.NodeLook.FilterSettings;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
