@@ -171,7 +171,7 @@ type
 			procedure AlignToolBars(iTbResultLeft, iSearchMaxWidth, iResultMinWidth : integer);
 			procedure BeforeSearch;
 			function GetNextViewStyleIdx : integer;
-			function GetReplaceMode: TReplaceModes;
+			function GetReplaceMode : TReplaceModes;
 			procedure Init;
 			function IsRgReplaceMode : Boolean;
 			procedure SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
@@ -211,6 +211,9 @@ uses
 	System.SysUtils,
 	RipGrepper.UI.Settings.ConfigForm,
 	System.RegularExpressions,
+	{$IFNDEF STANDALONE}
+	RipGrepper.Common.IOTAUtils,
+	{$ENDIF}
 	RipGrepper.Settings.NodeLook.FilterSettings;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
@@ -640,9 +643,9 @@ begin
 	Result := (Result mod Length(LISTVIEW_TYPES));
 end;
 
-function TRipGrepperTopFrame.GetReplaceMode: TReplaceModes;
+function TRipGrepperTopFrame.GetReplaceMode : TReplaceModes;
 begin
-    Result := [];
+	Result := [];
 	if EGuiReplaceMode.grmUseRegex in FGuiReplaceModes then begin
 		Include(Result, EReplaceMode.rmUseRegex);
 	end;
@@ -694,6 +697,16 @@ begin
 	replaceList := TReplaceList.Create();
 	try
 		GetCheckedReplaceList(replaceList);
+		{$IFNDEF STANDALONE}
+		var
+		arr := IOTAUTils.GetModifiedEditBuffers();
+		for var filePath in arr do begin
+			if replaceList.Items.ContainsKey(filePath) then begin
+				TMsgBox.ShowWarning('There are not saved files in the editor');
+				Exit;
+			end;
+		end;
+		{$ENDIF}
 		TReplaceHelper.ReplaceLineInFiles(replaceList);
 	finally
 		replaceList.Free;

@@ -32,6 +32,7 @@ type
 
 			class function GetOpenedEditorFiles : TArray<string>;
 			class function GetOpenedEditBuffers : TArray<string>;
+			class function GetModifiedEditBuffers : TArray<string>;
 
 			class function GetProjectFiles : TArray<string>;
 			// Raise an exception if the source editor is readonly
@@ -327,6 +328,28 @@ begin
 				TDebugUtils.DebugMessage('IOTAUTils.GetOpenedEditBuffers FileName=' + buffer.FileName + ' ViewCount=' +
 					buffer.EditViewCount.ToString);
 				if buffer.EditViewCount > 0 then begin
+					Result := Result + [buffer.FileName];
+				end;
+			end;
+		end;
+	end;
+end;
+
+class function IOTAUTils.GetModifiedEditBuffers : TArray<string>;
+var
+	service : IOTAEditorServices;
+	it : IOTAEditBufferIterator;
+	buffer : IOTAEditBuffer;
+begin
+	Result := [];
+	service := (BorlandIDEServices as IOTAEditorServices);
+	if Assigned(service) then begin
+		if (service.GetEditBufferIterator(it)) then begin
+			for var i := 0 to it.Count - 1 do begin
+				buffer := it.EditBuffers[i];
+				TDebugUtils.DebugMessage('IOTAUTils.GetModifiedEditBuffers FileName=' + buffer.FileName + ' ViewCount=' +
+					buffer.EditViewCount.ToString);
+				if ((buffer.EditViewCount > 0) and buffer.IsModified) then begin
 					Result := Result + [buffer.FileName];
 				end;
 			end;
