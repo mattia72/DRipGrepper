@@ -1447,7 +1447,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     end
     object ActionSetFilterModeCaseSensitive: TAction
       Category = 'Filter'
-      Caption = 'Case Sensitive'
+      Caption = 'Match &Case'
       OnExecute = ActionSetFilterModeCaseSensitiveExecute
     end
     object ActionSetFilterModeRegex: TAction
@@ -1588,7 +1588,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       OnUpdate = ActionSaveReplacementUpdate
     end
     object ActionReplaceCaseSensitive: TAction
-      Caption = '&Case Sensitive'
+      Caption = 'Match &Case'
       OnExecute = ActionReplaceCaseSensitiveExecute
     end
     object ActionReplaceUseRegex: TAction

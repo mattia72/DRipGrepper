@@ -246,7 +246,8 @@ uses
 	{$ENDIF}
 	System.Generics.Defaults,
 	RipGrepper.UI.SearchForm,
-	System.RegularExpressions;
+	System.RegularExpressions,
+	RipGrepper.Tools.Replacer;
 
 {$R *.dfm}
 
@@ -1289,7 +1290,8 @@ begin
 
 					ss1 := s.Substring(matchBegin, Data.MatchData.MatchLength);
 					if IsGuiReplaceMode and (not Settings.LastSearchText.IsEmpty) then begin
-						ss1_repl := TRegEx.Replace(ss1, Settings.LastSearchText, Settings.RipGrepParameters.ReplaceText, [roIgnoreCase]);
+						ss1_repl := TReplaceHelper.ReplaceString(ss1, Settings.LastSearchText, Settings.RipGrepParameters.ReplaceText,
+							TopFrame.GetReplaceMode());
 					end;
 					ss2 := s.Substring(matchBegin + Data.MatchData.MatchLength);
 
@@ -1371,7 +1373,8 @@ begin
 				end else begin
 					CellText := NodeData^.FilePath;
 				end;
-			end else begin // ttStatic
+			end else begin
+				// ttStatic
 				CellText := '';
 				if Node.Parent = VstResult.RootNode then begin
 					CellText := Format('[%d]', [Node.ChildCount]);

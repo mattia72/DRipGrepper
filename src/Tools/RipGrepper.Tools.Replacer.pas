@@ -8,9 +8,14 @@ uses
 	RipGrepper.Tools.FileUtils,
 	RegExprReplaceUnit,
 	System.SysUtils,
-	ArrayEx, System.Generics.Collections;
+	ArrayEx,
+	System.Generics.Collections;
 
 type
+
+	EReplaceMode = (rmUseRegex, rmIgnoreCase);
+	TReplaceModes = set of EReplaceMode;
+
 	TReplaceData = record
 		Row : integer;
 		Line : string;
@@ -38,6 +43,7 @@ type
 			class procedure ReplaceLineInFile(const _fileName : string; const _row : Integer; const _replaceLine : string;
 				const _createBackup : Boolean = True);
 			class procedure ReplaceLineInFiles(_list : TReplaceList; const _createBackup : Boolean = True);
+			class function ReplaceString(const _input, _pattern, _replacement : string; const _mode : TReplaceModes) : string;
 	end;
 
 implementation
@@ -51,7 +57,9 @@ uses
 	RipGrepper.Tools.Replacer.ExtensionContext,
 	{$ENDIF}
 	RipGrepper.Common.Interfaces,
-	RipGrepper.Common.EncodedStringList, System.Generics.Defaults;
+	RipGrepper.Common.EncodedStringList,
+	System.Generics.Defaults,
+	System.RegularExpressions;
 
 class procedure TReplaceHelper.ReplaceLineInFile(const _fileName : string; const _row : Integer; const _replaceLine : string;
 	const _createBackup : Boolean = True);
@@ -108,6 +116,21 @@ begin
 	end;
 	Result := mrYes = TMsgBox.ShowQuestion(Format('Are you sure to change %d line(s) in %d file(s)?',
 		[replaceCount, _list.Items.Keys.Count]));
+end;
+
+class function TReplaceHelper.ReplaceString(const _input, _pattern, _replacement : string; const _mode : TReplaceModes) : string;
+begin
+	if rmUseRegex in _mode then begin
+		var
+			op : TRegexOptions := [];
+		if rmIgnoreCase in _mode then
+			op := [roIgnoreCase];
+		Result := TRegEx.Replace(_input, _pattern, _replacement, op);
+	end else if rmIgnoreCase in _mode then begin
+		Result := System.SysUtils.StringReplace(_input, _pattern, _replacement, [rfIgnoreCase]);
+	end else begin
+		Result := System.SysUtils.StringReplace(_input, _pattern, _replacement, []);
+	end;
 end;
 
 class function TReplaceData.New(const _row : Integer; const _line : string) : TReplaceData;
