@@ -24,7 +24,6 @@ uses
   u_dzOsUtils in '..\..\..\external\dzlib\u_dzOsUtils.pas',
   u_dzNamedThread in '..\..\..\external\dzlib\u_dzNamedThread.pas',
   u_dzLineBuilder in '..\..\..\external\dzlib\u_dzLineBuilder.pas',
-  u_dzFileUtils in '..\..\..\external\dzlib\u_dzFileUtils.pas',
   u_dzDateUtils in '..\..\..\external\dzlib\u_dzDateUtils.pas',
   u_dzConvertUtils in '..\..\..\external\dzlib\u_dzConvertUtils.pas',
   u_dzClassUtils in '..\..\..\external\dzlib\u_dzClassUtils.pas',

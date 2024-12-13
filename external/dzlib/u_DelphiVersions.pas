@@ -20,7 +20,7 @@ type
 			FBplSuffix : string;
 
 		public
-			property name : string read FName;
+			property Name : string read FName;
 			property BDS : string read FBds;
 			property RegPath : string read FRegPath;
 			property BplSuffix : string read FBplSuffix;
@@ -30,7 +30,7 @@ type
 			procedure AddKnownPackage(const _Package, _Description : string);
 			procedure RemoveKnownPackage(const _Package : string);
 			function IsKnownPackage(const _Package : string; out _Description : string) : Boolean;
-			function TryApplyBplSuffix(var _Package : TFilename) : Boolean;
+			function TryApplyBplSuffix(var _sPackagePath: string): Boolean;
 			procedure CheckInstalled;
 	end;
 
@@ -54,7 +54,7 @@ type
 			// function Compare(const _Key1, _Key2: string): Integer;
 		public
 			constructor Create;
-			function Find(const _sVersion: string; var _dv: TDelphiVersion): Boolean;
+			function Find(const _sVersion : string; var _dv : TDelphiVersion) : Boolean;
 			function FindSuffix(const _Suffix : string; out _Item : TDelphiVersion) : Boolean;
 	end;
 
@@ -307,10 +307,15 @@ begin
 	Items.Add(TDelphiXE6Up.Create('12', '23.0', '290'));
 end;
 
-function TDelphiVersions.Find(const _sVersion: string; var _dv: TDelphiVersion): Boolean;
+function TDelphiVersions.Find(const _sVersion : string; var _dv : TDelphiVersion) : Boolean;
 begin
-	Result := True;
-	// TODO -cMM: TDelphiVersions.Find default body inserted
+	Result := false;
+	for var i in Items do begin
+		if i.BDS = _sVersion then begin
+			_dv := i;
+			break;
+		end;
+	end;
 end;
 
 function TDelphiVersions.FindSuffix(const _Suffix : string; out _Item : TDelphiVersion) : Boolean;
@@ -349,15 +354,16 @@ end;
 // FBplDir := _BplDir;
 // end;
 
-function TDelphiVersion.TryApplyBplSuffix(var _Package : TFilename) : Boolean;
+function TDelphiVersion.TryApplyBplSuffix(var _sPackagePath: string): Boolean;
 var
 	fno : string;
 begin
-	fno := _Package.FilenameOnly;
-	if EndsText(BplSuffix, fno) then begin
+	fno := TPAth.GetFileNameWithoutExtension(_sPackagePath);
+	if string.EndsText(BplSuffix, fno) then begin
 		Result := False;
 	end else begin
-		_Package.ReplaceFilenameOnly(fno + BplSuffix);
+        var sdir := TPAth.GetDirectoryName(_sPackagePath);
+		_sPackagePath := TPAth.Combine(sdir, fno + BplSuffix);
 		Result := True;
 	end;
 end;

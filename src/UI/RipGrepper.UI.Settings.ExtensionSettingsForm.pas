@@ -17,9 +17,18 @@ uses
 	RipGrepper.Settings.ExtensionSettings,
 	Vcl.StdCtrls,
 	Vcl.ComCtrls,
-	Vcl.ExtCtrls;
+	Vcl.ExtCtrls,
+	System.Actions,
+	u_DelphiVersions,
+	Vcl.ActnList;
 
 type
+	TEmptyDelphiVersion = class(TDelphiVersion)
+		public
+			constructor Create();
+			function GetBplDir : string; override;
+	end;
+
 	TExtensionSettingsForm = class(TSettingsBaseForm)
 		pnlMiddle : TPanel;
 		hkedtOpenWidth : THotKey;
@@ -27,6 +36,13 @@ type
 		grpShortcuts : TGroupBox;
 		hkedtSearchSelected : THotKey;
 		lblSearch : TLabel;
+		InstallPackage : TButton;
+		ActionList1 : TActionList;
+		ActionExtensionInstall : TAction;
+		cmbDelphiVersions : TComboBox;
+		grpInstallation : TGroupBox;
+		OpenDialog1 : TOpenDialog;
+		procedure ActionExtensionInstallExecute(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 
 		private
@@ -51,7 +67,10 @@ uses
 	DRipExtension.Menu,
 	{$ENDIF}
 	Vcl.Menus,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants,
+	RipGrepper.Tools.PackageInstall,
+	System.IOUtils,
+	RipGrepper.Helper.UI;
 
 {$R *.dfm}
 
@@ -65,19 +84,75 @@ begin
 	{$ENDIF}
 end;
 
+procedure TExtensionSettingsForm.ActionExtensionInstallExecute(Sender : TObject);
+var
+	installer : TPackageInstallMain;
+	aFileName : array [0 .. MAX_PATH] of char;
+	modulPath : string;
+	sPackPath : string;
+begin
+	installer := TPackageInstallMain.Create;
+	try
+		GetModuleFileName(hInstance, aFileName, MAX_PATH);
+		var
+		idx := cmbDelphiVersions.ItemIndex;
+		var dv : TDelphiVersion := cmbDelphiVersions.Items.Objects[idx] as TDelphiVersion;
+		modulPath := ExtractFilePath(aFileName);
+		sPackPath := TPath.Combine(modulPath, EXTENSION_NAME + '.bpl');
+		if not FileExists(sPackPath) then begin
+			OpenDialog1.InitialDir := modulPath;
+			OpenDialog1.Filter := 'Package files (*.bpl)|*.bpl';
+			if OpenDialog1.Execute(self.Handle) then begin
+				sPackPath := OpenDialog1.FileName;
+			end;
+		end;
+		if FileExists(sPackPath) and string.EndsText(EXTENSION_NAME + '.bpl', sPackPath) then begin
+			installer.Execute(sPackPath, dv);
+		end else begin;
+			TMsgBox.ShowError(EXTENSION_NAME + '.bpl not found!');
+		end;
+	finally
+		installer.Free;
+	end;
+end;
+
 procedure TExtensionSettingsForm.FormShow(Sender : TObject);
+var
+	installer : TPackageInstallMain;
+	versions : TStrings;
+	dvs : TDelphiVersions;
+	dv : TDelphiVersion;
 begin
 	{$IFDEF STANDALONE}
 	grpShortcuts.Visible := False;
-	hkedtOpenWidth.HotKey := TextToShortCut(' ');
-	hkedtSearchSelected.HotKey := TextToShortCut(' ');
+	grpInstallation.Top := grpShortcuts.Top;
 	{$ENDIF}
+	installer := TPackageInstallMain.Create;
+	versions := TStringList.Create;
+	dvs := TDelphiVersions.Create;
+	try
+		cmbDelphiVersions.Items.Clear;
+		if installer.GetInstalledDelphiVersions(versions) then begin
+			for var v in versions do begin
+				dv := TEmptyDelphiVersion.Create;
+				dvs.Find(v, dv);
+				cmbDelphiVersions.Items.AddObject('Delphi ' + dv.name, dv);
+			end;
+		end else begin
+			cmbDelphiVersions.Items.Add('No Delphi installation found');
+		end;
+		cmbDelphiVersions.ItemIndex := 0;
+	finally
+		dvs.Free;
+		versions.Free;
+		installer.Free;
+	end;
 end;
 
 procedure TExtensionSettingsForm.ReadSettings;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TForm1.ReadSettings');
+	dbgMsg := TDebugMsgBeginEnd.New('TExtensionSettingsForm.ReadSettings');
 	FExtensionSettings.ReadIni;
 	FExtensionSettings.LoadFromDict;
 	{$IFNDEF STANDALONE}
@@ -90,7 +165,7 @@ procedure TExtensionSettingsForm.WriteSettings;
 begin
 	{$IFNDEF STANDALONE}
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TForm1.WriteSettings');
+	dbgMsg := TDebugMsgBeginEnd.New('TExtensionSettingsForm.WriteSettings');
 
 	FExtensionSettings.OpenWithShortCut := ShortCutToText(hkedtOpenWidth.HotKey);
 	FExtensionSettings.SearchSelectedShortcut := ShortCutToText(hkedtSearchSelected.HotKey);
@@ -99,6 +174,16 @@ begin
 	inherited WriteSettings;
 	TDripExtensionMenu.CreateMenu(EXTENSION_MENU_ROOT_TEXT, FExtensionSettings);
 	{$ENDIF}
+end;
+
+constructor TEmptyDelphiVersion.Create;
+begin
+	inherited Create;
+end;
+
+function TEmptyDelphiVersion.GetBplDir : string;
+begin
+	Result := inherited GetBplDir;
 end;
 
 end.

@@ -134,8 +134,8 @@
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_MajorVer>3</VerInfo_MajorVer>
         <VerInfo_MinorVer>9</VerInfo_MinorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.9.0.64;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.9.0.0</VerInfo_Keys>
-        <VerInfo_Build>64</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.9.0.86;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.9.0.0</VerInfo_Keys>
+        <VerInfo_Build>86</VerInfo_Build>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     </PropertyGroup>
@@ -189,7 +189,6 @@
         <DCCReference Include="..\..\..\external\dzlib\u_dzOsUtils.pas"/>
         <DCCReference Include="..\..\..\external\dzlib\u_dzNamedThread.pas"/>
         <DCCReference Include="..\..\..\external\dzlib\u_dzLineBuilder.pas"/>
-        <DCCReference Include="..\..\..\external\dzlib\u_dzFileUtils.pas"/>
         <DCCReference Include="..\..\..\external\dzlib\u_dzDateUtils.pas"/>
         <DCCReference Include="..\..\..\external\dzlib\u_dzConvertUtils.pas"/>
         <DCCReference Include="..\..\..\external\dzlib\u_dzClassUtils.pas"/>
@@ -299,6 +298,10 @@
         </DCCReference>
         <DCCReference Include="..\..\Tools\RipGrepper.Tools.LockGuard.pas"/>
         <DCCReference Include="..\..\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas">
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="..\..\UI\RipGrepper.UI.Settings.ExtensionSettingsForm.pas">
+            <Form>ExtensionSettingsForm</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <BuildConfiguration Include="Base">

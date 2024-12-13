@@ -2,7 +2,7 @@ object ExtensionSettingsForm: TExtensionSettingsForm
   Left = 0
   Top = 0
   Caption = 'ExtensionSettingsForm'
-  ClientHeight = 185
+  ClientHeight = 284
   ClientWidth = 599
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,16 +16,16 @@ object ExtensionSettingsForm: TExtensionSettingsForm
     Left = 0
     Top = 0
     Width = 599
-    Height = 185
+    Height = 284
     Align = alClient
     TabOrder = 0
     DesignSize = (
       599
-      185)
+      284)
     object grpShortcuts: TGroupBox
-      Left = 14
+      Left = 8
       Top = 10
-      Width = 575
+      Width = 581
       Height = 91
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Shortcuts'
@@ -61,5 +61,41 @@ object ExtensionSettingsForm: TExtensionSettingsForm
         TabOrder = 1
       end
     end
+    object grpInstallation: TGroupBox
+      Left = 8
+      Top = 107
+      Width = 581
+      Height = 70
+      Caption = 'Install as Delphi IDE Package'
+      TabOrder = 1
+      object cmbDelphiVersions: TComboBox
+        Left = 16
+        Top = 26
+        Width = 145
+        Height = 23
+        TabOrder = 0
+        Text = 'cmbDelphiVersions'
+      end
+      object InstallPackage: TButton
+        Left = 178
+        Top = 28
+        Width = 78
+        Height = 21
+        Action = ActionExtensionInstall
+        TabOrder = 1
+      end
+    end
+  end
+  object ActionList1: TActionList
+    Left = 472
+    Top = 152
+    object ActionExtensionInstall: TAction
+      Caption = 'Install...'
+      OnExecute = ActionExtensionInstallExecute
+    end
+  end
+  object OpenDialog1: TOpenDialog
+    Left = 296
+    Top = 144
   end
 end
