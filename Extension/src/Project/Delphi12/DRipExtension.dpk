@@ -31,6 +31,7 @@ package DRipExtension;
 {$DEFINE UnicodeRE}
 {$DEFINE EnableIdeDockingSupport}
 {$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'RipGrep Search within Delphi'}
 {$IMPLICITBUILD ON}
 
 requires
