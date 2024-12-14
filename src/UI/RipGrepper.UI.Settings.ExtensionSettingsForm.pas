@@ -36,17 +36,22 @@ type
 		grpShortcuts : TGroupBox;
 		hkedtSearchSelected : THotKey;
 		lblSearch : TLabel;
-		InstallPackage : TButton;
+		btnInstallPackage : TButton;
 		ActionList1 : TActionList;
 		ActionExtensionInstall : TAction;
 		cmbDelphiVersions : TComboBox;
 		grpInstallation : TGroupBox;
 		OpenDialog1 : TOpenDialog;
 		procedure ActionExtensionInstallExecute(Sender : TObject);
+		procedure cmbDelphiVersionsChange(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 
 		private
 			FExtensionSettings : TRipGrepperExtensionSettings;
+			FPackagePath : string;
+			function GetPackagePath : string;
+			function GetSelectedDelphiVersion : TDelphiVersion;
+			procedure UpdateBtnCaption;
 
 		protected
 			procedure ReadSettings; override;
@@ -74,6 +79,10 @@ uses
 
 {$R *.dfm}
 
+const
+	UNINSTALL_CAPTION = 'Uninstall...';
+	INSTALL_CAPTTION = 'Install...';
+
 constructor TExtensionSettingsForm.Create(_Owner : TComponent; _settings : TRipGrepperExtensionSettings);
 begin
 	inherited Create(_Owner, _settings);
@@ -87,33 +96,27 @@ end;
 procedure TExtensionSettingsForm.ActionExtensionInstallExecute(Sender : TObject);
 var
 	installer : TPackageInstallMain;
-	aFileName : array [0 .. MAX_PATH] of char;
-	modulPath : string;
-	sPackPath : string;
 begin
 	installer := TPackageInstallMain.Create;
 	try
-		GetModuleFileName(hInstance, aFileName, MAX_PATH);
-		var
-		idx := cmbDelphiVersions.ItemIndex;
-		var dv : TDelphiVersion := cmbDelphiVersions.Items.Objects[idx] as TDelphiVersion;
-		modulPath := ExtractFilePath(aFileName);
-		sPackPath := TPath.Combine(modulPath, EXTENSION_NAME + '.bpl');
-		if not FileExists(sPackPath) then begin
-			OpenDialog1.InitialDir := modulPath;
-			OpenDialog1.Filter := 'Package files (*.bpl)|*.bpl';
-			if OpenDialog1.Execute(self.Handle) then begin
-				sPackPath := OpenDialog1.FileName;
-			end;
+		if FPackagePath.IsEmpty then begin
+            FPackagePath := GetPackagePath;
 		end;
-		if FileExists(sPackPath) and string.EndsText(EXTENSION_NAME + '.bpl', sPackPath) then begin
-			installer.Execute(sPackPath, dv);
+		if FileExists(FPackagePath) and string.EndsText(EXTENSION_NAME + '.bpl', FPackagePath) then begin
+			var dv : TDelphiVersion := GetSelectedDelphiVersion;
+			installer.Execute(FPackagePath, dv, btnInstallPackage.Caption = UNINSTALL_CAPTION);
 		end else begin;
 			TMsgBox.ShowError(EXTENSION_NAME + '.bpl not found!');
 		end;
+		UpdateBtnCaption;
 	finally
 		installer.Free;
 	end;
+end;
+
+procedure TExtensionSettingsForm.cmbDelphiVersionsChange(Sender : TObject);
+begin
+	UpdateBtnCaption;
 end;
 
 procedure TExtensionSettingsForm.FormShow(Sender : TObject);
@@ -149,6 +152,30 @@ begin
 	end;
 end;
 
+function TExtensionSettingsForm.GetPackagePath() : string;
+var
+	aFileName : array [0 .. MAX_PATH] of char;
+	modulPath : string;
+begin
+	GetModuleFileName(hInstance, aFileName, MAX_PATH);
+	modulPath := ExtractFilePath(aFileName);
+	Result := TPath.Combine(modulPath, EXTENSION_NAME + '.bpl');
+	if not FileExists(Result) then begin
+		OpenDialog1.InitialDir := modulPath;
+		OpenDialog1.Filter := 'Package files (*.bpl)|*.bpl';
+		if OpenDialog1.Execute(self.Handle) then begin
+			Result := OpenDialog1.FileName;
+		end;
+	end;
+end;
+
+function TExtensionSettingsForm.GetSelectedDelphiVersion : TDelphiVersion;
+begin
+	var
+	idx := cmbDelphiVersions.ItemIndex;
+	Result := cmbDelphiVersions.Items.Objects[idx] as TDelphiVersion;
+end;
+
 procedure TExtensionSettingsForm.ReadSettings;
 begin
 	var
@@ -159,6 +186,19 @@ begin
 	hkedtOpenWidth.HotKey := TextToShortCut(FExtensionSettings.OpenWithShortCut);
 	hkedtSearchSelected.HotKey := TextToShortCut(FExtensionSettings.SearchSelectedShortcut);
 	{$ENDIF}
+end;
+
+procedure TExtensionSettingsForm.UpdateBtnCaption;
+var
+	desc : string;
+	dv : TDelphiVersion;
+begin
+	dv := GetSelectedDelphiVersion;
+	if FPackagePath.IsEmpty or (not dv.IsKnownPackage(FPackagePath, desc)) then begin
+		btnInstallPackage.Caption := INSTALL_CAPTTION;
+	end else begin
+		btnInstallPackage.Caption := UNINSTALL_CAPTION;
+	end;
 end;
 
 procedure TExtensionSettingsForm.WriteSettings;

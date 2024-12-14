@@ -75,8 +75,9 @@ object ExtensionSettingsForm: TExtensionSettingsForm
         Height = 23
         TabOrder = 0
         Text = 'cmbDelphiVersions'
+        OnChange = cmbDelphiVersionsChange
       end
-      object InstallPackage: TButton
+      object btnInstallPackage: TButton
         Left = 178
         Top = 28
         Width = 78

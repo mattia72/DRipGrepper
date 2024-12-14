@@ -139,7 +139,7 @@ begin
 	if (Flags and pfRunOnly) <> 0 then begin
 		raise Exception.Create('This is a runtime only package that cannot be installed into the Delphi IDE.');
 	end;
-	if _DelphiVer.IsKnownPackage(_pkg, OrigName) then begin
+	if _DelphiVer.IsKnownPackage(_pkg, Description) then begin
 		Result := EInstallResult.irAlreadyInstalled;
 	end else begin
 		_DelphiVer.AddKnownPackage(_pkg, Description);
