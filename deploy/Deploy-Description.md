@@ -1,7 +1,7 @@
 <!--
 
-Version:     v3.10.0-beta
-PrevVersion: v3.9.0-beta
+Version:     v4.0.0-beta
+PrevVersion: v3.10.0-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -28,8 +28,8 @@ Marked with checkmark if ready, else planned ...
 - [x] config form
   - [x] Debug and Expert mode
   - [x] rg.exe path
-  - [ ] install as **extension** in Delphi IDE
-  - [ ] configure **extension** shortcuts
+  - [x] **extension**: install as expert dll into Delphi IDE
+  - [x] configure **extension** shortcuts
   - [x] configure colors
 - [ ] **extension**: save all before search message?
 - [ ] save/load search histories in file

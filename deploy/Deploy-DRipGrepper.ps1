@@ -22,8 +22,10 @@ $global:PrevVersion = ($global:Description | Select-String '^PrevVersion:') -rep
 $global:PreRelease = $true
 $global:StandaloneAppName = "DRipGrepper.exe"
 $global:ExtensionFileName = "DRipExtension.bpl"
+$global:ExpertFileName = "DRipExtensions.dll"
 
 $global:AssetZipName = "DRipGrepper.{0}.{1}.zip"
+$global:AssetExpertZipName = "DRipExtensionsDll.{0}.zip"
 $global:AssetExtensionZipName = "DRipExtension.{0}.{1}.zip"
 $global:AssetsDirectory = "$PSScriptRoot\assets"
 
@@ -162,6 +164,16 @@ function Build-ExtensionRelease {
     Build-DelphiProject -ProjectPath $projectPath\DRipExtension.dproj -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result) 
     Test-BuildResult -result $result
 }
+
+function Build-ExpertDllRelease {
+    # copy scripts
+    Import-Module -Name PSDelphi -Force
+    $projectPath = "Extension\src\Project\Dll\DRipExtensions.dproj " 
+    $result = $null
+    Build-DelphiProject -ProjectPath $projectPath -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result) 
+    Test-BuildResult -result $result
+}
+
 function Add-ToAssetsDir {
     param (
         $AssetDir,
@@ -220,6 +232,21 @@ function New-ExtensionZip {
     }
 }
 
+function New-ExpertDllZip {
+    
+        $AssetDir = $(Join-Path $global:AssetsDirectory "Dll")
+    Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $global:ExtensionFileName) -Win64:$false
+    $dest = "$global:AssetsDirectory\$($global:AssetExpertZipName -f "$global:Version")"
+    Write-Host "$AssetDir\*.* to`n $dest" 
+
+    $compress = @{
+        Path             = "$AssetDir\*.*"
+        CompressionLevel = "Fastest"
+        DestinationPath  = $dest
+        Force            = $true
+    }
+    Compress-Archive @compress
+}
 function New-ReleaseWithAsset {
 
     if ($RunUnittest) {
@@ -232,6 +259,7 @@ function New-ReleaseWithAsset {
   
     if ($BuildExtension) {
         Build-ExtensionRelease
+        Build-ExpertDllRelease
     }
 
     if ($Deploy -or $LocalDeploy) {
@@ -239,6 +267,7 @@ function New-ReleaseWithAsset {
         Remove-Item -Path "$global:AssetsDirectory\*" -Recurse -Force -Verbose -Confirm:$(-not $Force) -ErrorAction SilentlyContinue
         New-StandaloneZips 
         New-ExtensionZip 
+        New-ExpertDllZip 
         Get-Childitem $global:AssetsDirectory
     }
 
