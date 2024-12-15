@@ -114,7 +114,9 @@ begin
 		end;
 		if FileExists(FDllPath) and string.EndsText(EXTENSION_NAME + '.dll', FDllPath) then begin
 			var dv : IDelphiVersion := GetSelectedDelphiVersion;
-			installer.Execute(FDllPath, dv as TDelphiVersion, btnInstallPackage.Caption = UNINSTALL_CAPTION);
+			var
+			sDescr := EXTENSION_NAME;
+			installer.Execute(FDllPath, dv as TDelphiVersion, sDescr, btnInstallPackage.Caption = UNINSTALL_CAPTION);
 		end else begin;
 			TMsgBox.ShowError(EXTENSION_NAME + '.dll not found!');
 		end;
@@ -202,11 +204,12 @@ end;
 
 procedure TExtensionSettingsForm.UpdateBtnCaption;
 var
-	desc : string;
+	sDesc : string;
 	dv : IDelphiVersion;
 begin
 	dv := GetSelectedDelphiVersion;
-	if FDllPath.IsEmpty or (not(dv as TDelphiVersion).IsKnownExpert(FDllPath, desc)) then begin
+	sDesc := EXTENSION_NAME;
+	if FDllPath.IsEmpty or (not(dv as TDelphiVersion).IsKnownExpert(FDllPath, sDesc)) then begin
 		btnInstallPackage.Caption := INSTALL_CAPTTION;
 	end else begin
 		btnInstallPackage.Caption := UNINSTALL_CAPTION;

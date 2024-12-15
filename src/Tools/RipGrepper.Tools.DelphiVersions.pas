@@ -44,7 +44,7 @@ type
 			procedure CheckInstalled;
 			procedure GetKnownExperts(_List : TStringList);
 			function IsKnownExpert(const _sDllPath : string; var _sDescription : string) : Boolean;
-			procedure RemoveExpertDll(const _sDllPath : string);
+			procedure RemoveExpertDll(const _sDllPath : string; var sDescription : string);
 	end;
 
 type
@@ -466,7 +466,14 @@ begin
 	lst := TStringList.Create();
 	try
 		GetKnownExperts(lst);
-		idx := lst.IndexOfValue(_sDllPath, false);
+		idx := -1;
+		if not _sDescription.IsEmpty then begin
+			idx := lst.IndexOf(_sDescription);
+		end;
+		if idx < 0 then begin
+			idx := lst.IndexOfValue(_sDllPath, false);
+		end;
+
 		Result := idx <> -1;
 		if Result then begin
 			_sDescription := lst.KeyNames[idx];
@@ -476,10 +483,9 @@ begin
 	end;
 end;
 
-procedure TDelphiVersion.RemoveExpertDll(const _sDllPath : string);
+procedure TDelphiVersion.RemoveExpertDll(const _sDllPath : string; var sDescription : string);
 var
 	RegKey : string;
-	sDescription : string;
 begin
 	if IsKnownExpert(_sDllPath, sDescription) then begin
 		RegKey := 'Software\' + RegPath + '\Experts';

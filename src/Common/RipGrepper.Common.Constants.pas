@@ -18,7 +18,7 @@ const
 	APP_PLATFORM = 'x86';
 	{ }	{$ENDIF}
 	APPNAME = 'DRipGrepper';
-	EXTENSION_NAME = 'DRipExtension';
+	EXTENSION_NAME = 'DRipExtensions';
     EXTENSION_MENU_ROOT_TEXT = '&' + EXTENSION_NAME + '...';
 
 	BAK_FILE_EXTENSION = '.bak';
