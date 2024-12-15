@@ -35,6 +35,10 @@ type
 			// Simple single Test
 			[Test]
 			procedure TestGetValues1;
+			// Sample Methods
+			// Simple single Test
+			[Test]
+			procedure TestIndexOfValue;
 			// Test with TestCase Attribute to supply parameters.
 			[Test]
 			procedure TestSlice;
@@ -123,9 +127,7 @@ begin
 	end;
 
 	FStrings.DeleteAll(arr);
-
 	Assert.AreEqual(-1, FStrings.IndexOfAny(arr), 'arr shouldn''t contained by the list');
-
 end;
 
 procedure TStringsHelperTest.TestSliceMaxLength;
@@ -167,6 +169,23 @@ begin
 			valIdx := (2 * j) - 2 + i;
 			Assert.IsTrue(values[valIdx].EndsWith(act_vals[i]), Format('%s should end with %s', [values[valIdx], act_vals[i]]));
 		end;
+	end;
+end;
+
+procedure TStringsHelperTest.TestIndexOfValue;
+begin
+	var
+	values := ['key1_val1', 'key1_val2', 'key2_val3', 'key2_val4', 'key3_val5', 'key3_val6'];
+
+	for var s : string in values do begin
+		FStrings.AddPair(s.Remove(s.IndexOf('_')), s.Remove(0, 1 + s.IndexOf('_')));
+	end;
+
+	var
+	act_vals := FStrings.GetValues();
+
+	for var i := 0 to high(values) do begin
+		Assert.AreEqual(i, FStrings.IndexOfValue(act_vals[i]), Format('index of %s should be %d', [act_vals[i], i]));
 	end;
 end;
 

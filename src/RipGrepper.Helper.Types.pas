@@ -21,6 +21,7 @@ type
 			function GetValues(_sName : string = '') : TArray<string>;
 
 			function AddIfNotContains(const _sValue : string) : Boolean;
+			function IndexOfValue(const s : string; const bMatchCase : Boolean = True) : integer;
 			function HasMatch(const _sRegEx : string) : Boolean;
 			function DeleteAll(const _arr : TArray<string>) : Integer;
 			function IndexOfAny(const _arr : TArray<string>) : Integer;
@@ -58,7 +59,7 @@ type
 			class operator Initialize(out Dest : TBitField);
 	end;
 
-	TConversions<T> = record //depricated: use  TRttiEnumerationType.GetName, GetValue
+	TConversions<T> = record // depricated: use  TRttiEnumerationType.GetName, GetValue
 		class function StringToEnumeration(x : string) : T; static;
 		class function EnumerationToString(x : T) : string; static;
 	end;
@@ -74,7 +75,9 @@ uses
 	System.RegularExpressions,
 	System.StrUtils,
 	RipGrepper.Common.Constants,
-	Winapi.Windows, System.TypInfo, System.Rtti;
+	Winapi.Windows,
+	System.TypInfo,
+	System.Rtti;
 
 function PostInc(var Value : Integer; const n : Integer = 1) : Integer;
 begin
@@ -107,6 +110,21 @@ end;
 function TStringsHelper.Contains(const s : string) : Boolean;
 begin
 	Result := self.IndexOf(s) <> -1;
+end;
+
+function TStringsHelper.IndexOfValue(const s : string; const bMatchCase : Boolean = True) : integer;
+var
+	i : Integer;
+begin
+	Result := -1;
+	for i := 0 to self.Count - 1 do begin
+		var
+		val := self.ValueFromIndex[i];
+		if (not bMatchCase and SameText(val, s)) or (val = s) then begin
+			Result := i;
+			break;
+		end;
+	end;
 end;
 
 function TStringsHelper.HasMatch(const _sRegEx : string) : Boolean;
@@ -355,7 +373,7 @@ end;
 
 class function TConversions<T>.EnumerationToString(x : T) : string;
 begin
- 	case Sizeof(T) of
+	case Sizeof(T) of
 		1 :
 		Result := GetEnumName(TypeInfo(T), PByte(@x)^);
 		2 :
