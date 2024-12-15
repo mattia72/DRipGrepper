@@ -19,7 +19,7 @@ uses
 	Vcl.ComCtrls,
 	Vcl.ExtCtrls,
 	System.Actions,
-	u_DelphiVersions,
+	RipGrepper.Tools.DelphiVersions,
 	Vcl.ActnList;
 
 type
@@ -47,10 +47,11 @@ type
 		procedure FormShow(Sender : TObject);
 
 		private
+			FDelphiVersions : TDelphiVersions;
 			FExtensionSettings : TRipGrepperExtensionSettings;
-			FPackagePath : string;
-			function GetPackagePath : string;
-			function GetSelectedDelphiVersion : TDelphiVersion;
+			FDllPath : string;
+			function GetExpertDllPath : string;
+			function GetSelectedDelphiVersion : IDelphiVersion;
 			procedure UpdateBtnCaption;
 
 		protected
@@ -59,6 +60,7 @@ type
 
 		public
 			constructor Create(_Owner : TComponent; _settings : TRipGrepperExtensionSettings);
+			destructor Destroy; override;
 	end;
 
 var
@@ -88,9 +90,17 @@ begin
 	inherited Create(_Owner, _settings);
 	Caption := 'Extension';
 	FExtensionSettings := _settings;
+	FDelphiVersions := TDelphiVersions.Create;
+
 	{$IFNDEF STANDALONE}
 	ReadSettings;
 	{$ENDIF}
+end;
+
+destructor TExtensionSettingsForm.Destroy;
+begin
+	FDelphiVersions.Free;
+	inherited;
 end;
 
 procedure TExtensionSettingsForm.ActionExtensionInstallExecute(Sender : TObject);
@@ -99,14 +109,14 @@ var
 begin
 	installer := TPackageInstallMain.Create;
 	try
-		if FPackagePath.IsEmpty then begin
-            FPackagePath := GetPackagePath;
+		if FDllPath.IsEmpty then begin
+			FDllPath := GetExpertDllPath;
 		end;
-		if FileExists(FPackagePath) and string.EndsText(EXTENSION_NAME + '.bpl', FPackagePath) then begin
-			var dv : TDelphiVersion := GetSelectedDelphiVersion;
-			installer.Execute(FPackagePath, dv, btnInstallPackage.Caption = UNINSTALL_CAPTION);
+		if FileExists(FDllPath) and string.EndsText(EXTENSION_NAME + '.dll', FDllPath) then begin
+			var dv : IDelphiVersion := GetSelectedDelphiVersion;
+			installer.Execute(FDllPath, dv as TDelphiVersion, btnInstallPackage.Caption = UNINSTALL_CAPTION);
 		end else begin;
-			TMsgBox.ShowError(EXTENSION_NAME + '.bpl not found!');
+			TMsgBox.ShowError(EXTENSION_NAME + '.dll not found!');
 		end;
 		UpdateBtnCaption;
 	finally
@@ -123,8 +133,7 @@ procedure TExtensionSettingsForm.FormShow(Sender : TObject);
 var
 	installer : TPackageInstallMain;
 	versions : TStrings;
-	dvs : TDelphiVersions;
-	dv : TDelphiVersion;
+	dv : IDelphiVersion;
 begin
 	{$IFDEF STANDALONE}
 	grpShortcuts.Visible := False;
@@ -132,48 +141,51 @@ begin
 	{$ENDIF}
 	installer := TPackageInstallMain.Create;
 	versions := TStringList.Create;
-	dvs := TDelphiVersions.Create;
 	try
 		cmbDelphiVersions.Items.Clear;
 		if installer.GetInstalledDelphiVersions(versions) then begin
 			for var v in versions do begin
 				dv := TEmptyDelphiVersion.Create;
-				dvs.Find(v, dv);
-				cmbDelphiVersions.Items.AddObject('Delphi ' + dv.name, dv);
+				FDelphiVersions.Find(v, dv);
+				cmbDelphiVersions.Items.AddObject('Delphi ' + (dv as TDelphiVersion).Name, TObject(dv));
 			end;
 		end else begin
 			cmbDelphiVersions.Items.Add('No Delphi installation found');
 		end;
 		cmbDelphiVersions.ItemIndex := 0;
 	finally
-		dvs.Free;
 		versions.Free;
 		installer.Free;
 	end;
 end;
 
-function TExtensionSettingsForm.GetPackagePath() : string;
+function TExtensionSettingsForm.GetExpertDllPath : string;
 var
 	aFileName : array [0 .. MAX_PATH] of char;
 	modulPath : string;
 begin
 	GetModuleFileName(hInstance, aFileName, MAX_PATH);
 	modulPath := ExtractFilePath(aFileName);
-	Result := TPath.Combine(modulPath, EXTENSION_NAME + '.bpl');
+	Result := TPath.Combine(modulPath, EXTENSION_NAME + '.dll');
 	if not FileExists(Result) then begin
 		OpenDialog1.InitialDir := modulPath;
-		OpenDialog1.Filter := 'Package files (*.bpl)|*.bpl';
+		OpenDialog1.Filter := 'Package files (*.dll)|*.dll';
 		if OpenDialog1.Execute(self.Handle) then begin
 			Result := OpenDialog1.FileName;
 		end;
 	end;
 end;
 
-function TExtensionSettingsForm.GetSelectedDelphiVersion : TDelphiVersion;
+function TExtensionSettingsForm.GetSelectedDelphiVersion : IDelphiVersion;
+var
+	idv : IDelphiVersion;
+	dvo : TObject;
 begin
 	var
 	idx := cmbDelphiVersions.ItemIndex;
-	Result := cmbDelphiVersions.Items.Objects[idx] as TDelphiVersion;
+	dvo := cmbDelphiVersions.Items.Objects[idx];
+	if Supports(dvo, IDelphiVersion, idv) then
+		Result := idv;
 end;
 
 procedure TExtensionSettingsForm.ReadSettings;
@@ -191,10 +203,10 @@ end;
 procedure TExtensionSettingsForm.UpdateBtnCaption;
 var
 	desc : string;
-	dv : TDelphiVersion;
+	dv : IDelphiVersion;
 begin
 	dv := GetSelectedDelphiVersion;
-	if FPackagePath.IsEmpty or (not dv.IsKnownPackage(FPackagePath, desc)) then begin
+	if FDllPath.IsEmpty or (not(dv as TDelphiVersion).IsKnownExpert(FDllPath, desc)) then begin
 		btnInstallPackage.Caption := INSTALL_CAPTTION;
 	end else begin
 		btnInstallPackage.Caption := UNINSTALL_CAPTION;

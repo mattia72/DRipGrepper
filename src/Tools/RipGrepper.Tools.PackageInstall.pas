@@ -3,20 +3,29 @@ unit RipGrepper.Tools.PackageInstall;
 interface
 
 uses
-	u_DelphiVersions,
+	Ripgrepper.Tools.DelphiVersions,
 	Winapi.Windows,
 	ArrayEx,
 	System.Classes;
 
 type
-	EInstallResult = (irInstallSuccess, irAlreadyInstalled, irInstallError, irIUnnstallSuccess, irNotInstalled, irUnInstallError);
+	EInstallResult = (
+		{ } irInstallError = -2,
+		{ } irUnInstallError = -1,
+		{ } irNotSet = 0,
+		{ } irInstallSuccess,
+		{ } irAlreadyInstalled,
+		{ } irUninstallSuccess,
+		{ } irNotInstalled);
 
 	TPackageInstallMain = class // (TDefaultMain)
 		private
 			FDelphiVersions : TDelphiVersions;
 			function handlePackage(_DelphiVer : TDelphiVersion; const _Package : string; const _Uninstall : Boolean) : EInstallResult;
 			function installPackage(const _DelphiVer : TDelphiVersion; var _pkg : string) : EInstallResult;
+			function installExpertDll(const _delphiVersion : TDelphiVersion; var _dllPath : string) : EInstallResult;
 			function uninstallPackage(const _DelphiVer : TDelphiVersion; var _pkg : string) : EInstallResult;
+			function uninstallExpertDll(const _DelphiVer : TDelphiVersion; var _pkg : string) : EInstallResult;
 
 		public
 			function Execute(const _sPackagePath : string; const _dVer : TDelphiVersion; const _bUninstall : Boolean = False)
@@ -24,14 +33,55 @@ type
 			constructor Create; // override;
 			destructor Destroy; override;
 			function GetInstalledDelphiVersions(var _list : TStrings) : Boolean;
+			// Returns True if FileName points to a valid expert DLL
+			// (valid wizard / expert entry point). False if not.
+			// Always returns True on Windows 9x, since Windows 9x does not
+			// support the DONT_RESOLVE_DLL_REFERENCES parameter for plain
+			// loading of the DLL as data.
+			class function IsValidExpertDll(const FileName : string) : Boolean;
 	end;
+
+	/// <summary> Same as VCL RaiseLastWin32Error but can specify a format.
+	/// This procedure does the same as the VCL RaiseLastWin32Error but you can
+	/// specify a format string to use. With this string you can provide some
+	/// additional information about where the error occured.
+	/// It calls GetLastError to get the result code of the last Win32 api function.
+	/// If it returns non 0 the function uses SysErrorMessage to retrieve an error
+	/// message for the error code and raises raises an EWin32Error exception
+	/// (to be compatible with the VCL function) with the Error message.
+	/// NOTE: Do not pass a resource string as format parameter, since loading this
+	/// string will reset the error code returned by GetLastError, so
+	/// you always get 0. Use the overloaded Version that takes the error code
+	/// as parameter and get it before using the resource string if you want that.
+	/// @param Format The Format string to use. It must have %d and %s in it, to
+	/// change the order, use %0:d and %1:s, e.g. 'Error %1:s (%0:d)'
+	/// %d is replaced by the error code and %s is replaced by the
+	/// error message string. </summary>
+procedure RaiseLastOsErrorEx(const _Format : string); overload;
+
+/// <summary> Same as VCL RaiseLastWin32Error but can specify a format.
+/// This procedure does the same as the VCL RaiseLastWin32Error but you can
+/// specify a format string to use. With this string you can provide some
+/// additional information about where the error occured.
+/// If ErrorCode <> 0 the function uses SysErrorMessage to retrieve an error
+/// message for the error code and raises raises an EWin32Error exception
+/// (to be compatible with the VCL function) with the Error message.
+/// NOTE: If you pass a resource string as format parameter make sure you
+/// call GetLastError before referencing the resource string, otherwise
+/// loading the string will reset the error code returned by GetLastError, so
+/// you always get 0.
+/// @param ErrorCode is an error code returned from GetLastWin32Error
+/// @param Format The Format string to use. It must have %d and %s in it, to
+/// change the order, use %0:d and %1:s, e.g. 'Error %1:s (%0:d)'
+/// %d is replaced by the error code and %s is replaced by the
+/// error message string. </summary>
+procedure RaiseLastOsErrorEx(_ErrorCode : Integer; const _Format : string); overload;
 
 implementation
 
 uses
 	System.SysUtils,
-	u_dzMiscUtils,
-	u_dzConvertUtils,
+
 	System.Win.Registry,
 	RipGrepper.Helper.UI,
 	System.IOUtils;
@@ -39,6 +89,23 @@ uses
 procedure PackageInfoProc(const _Name : string; _NameType : TNameType; _Flags : Byte; _Param : Pointer);
 begin
 	// do nothing, but we need this empty procedure beause we cannot pass NIL to GetPackageInfo
+end;
+
+procedure RaiseLastOsErrorEx(const _Format : string);
+begin
+	RaiseLastOsErrorEx(GetLastError, _Format);
+end;
+
+procedure RaiseLastOsErrorEx(_ErrorCode : Integer; const _Format : string); overload;
+var
+	Error : EOSError;
+begin
+	if _ErrorCode <> ERROR_SUCCESS then
+		Error := EOSError.CreateFmt(_Format, [_ErrorCode, SysErrorMessage(_ErrorCode)])
+	else
+		Error := EOSError.CreateFmt(_Format, [_ErrorCode, 'unknown OS error']);
+	Error.ErrorCode := _ErrorCode;
+	raise Error;
 end;
 
 { TPackageInstallMain }
@@ -74,9 +141,17 @@ begin
 
 	try
 		if _Uninstall then begin
-			Result := uninstallPackage(_DelphiVer, pkg);
+			if pkg.EndsWith('DLL', True) then begin
+				Result := uninstallExpertDll(_DelphiVer, pkg);
+			end else begin
+				Result := uninstallPackage(_DelphiVer, pkg);
+			end;
 		end else begin
-			Result := installPackage(_DelphiVer, pkg);
+			if pkg.EndsWith('DLL', True) then begin
+				Result := installExpertDll(_DelphiVer, pkg);
+			end else begin
+				Result := installPackage(_DelphiVer, pkg);
+			end;
 		end;
 	except
 		on E : Exception do
@@ -89,19 +164,21 @@ function TPackageInstallMain.Execute(const _sPackagePath : string; const _dVer :
 begin
 	_dVer.CheckInstalled;
 	Result := handlePackage(_dVer, _sPackagePath, _bUninstall);
+	var
+	sFileName := TPath.GetFileName(_sPackagePath);
 	case Result of
 		irInstallSuccess :
-		TMsgBox.ShowInfo('The package has been installed successfully.');
+		TMsgBox.ShowInfo(Format('%s has been installed successfully.',[sFileName]));
 		irAlreadyInstalled :
-		TMsgBox.ShowInfo('Package is already installed.');
+		TMsgBox.ShowInfo(Format('%s is already installed.',[sFileName]));
 		irInstallError :
-		TMsgBox.ShowInfo('Package install failed.');
-		irIUnnstallSuccess :
-		TMsgBox.ShowInfo('The package has been uninstalled successfully.');
+		TMsgBox.ShowInfo(Format('%s install failed.',[sFileName]));
+		irUninstallSuccess :
+		TMsgBox.ShowInfo(Format('%s has been uninstalled successfully.',[sFileName]));
 		irNotInstalled :
-		TMsgBox.ShowInfo('The package is not installed.');
+		TMsgBox.ShowInfo(Format('%s is not installed.',[sFileName]));
 		irUnInstallError :
-		TMsgBox.ShowInfo('Package uninstall failed.');
+		TMsgBox.ShowInfo(Format('%s uninstall failed.',[sFileName]));
 	end;
 end;
 
@@ -153,14 +230,14 @@ var
 begin
 	if _DelphiVer.IsKnownPackage(_pkg, Description) then begin
 		_DelphiVer.RemoveKnownPackage(_pkg);
-		Result := EInstallResult.irIUnnstallSuccess;
+		Result := EInstallResult.irUninstallSuccess;
 		// StdOut.Success.WriteLn(_('The package has been uninstalled successfully.'));
 	end else if not _DelphiVer.TryApplyBplSuffix(_pkg) then begin
 		Result := EInstallResult.irNotInstalled;
 		// StdOut.Hint.WriteLn(_('The package is not installed.'));
 	end else if _DelphiVer.IsKnownPackage(_pkg, Description) then begin
 		_DelphiVer.RemoveKnownPackage(_pkg);
-		Result := EInstallResult.irIUnnstallSuccess;
+		Result := EInstallResult.irUninstallSuccess;
 		// StdOut.Success.WriteLn(_('The package has been uninstalled successfully.'));
 	end else begin
 		Result := EInstallResult.irUnInstallError;
@@ -191,6 +268,63 @@ begin
 	finally
 		tmp.free;
 		reg.Free;
+	end;
+end;
+
+function TPackageInstallMain.installExpertDll(const _delphiVersion : TDelphiVersion; var _dllPath : string) : EInstallResult;
+var
+	sDescription : string;
+begin
+	if not FileExists(_dllPath) then begin
+		raise Exception.Create('Could not find expert dll file.' + #13#10 + _dllPath);
+	end;
+
+	sDescription := GetPackageDescription(PChar(_dllPath));
+	// StdOut.WriteLn(_('Installing "%s"'), [_dllPath.Filename]);
+	// StdOut.WriteLn(_('Description: "%s"'), [Description]);
+
+	if _delphiVersion.IsKnownExpert(_dllPath, sDescription) then begin
+		Result := EInstallResult.irAlreadyInstalled;
+	end else begin
+		_delphiVersion.AddExpert(sDescription, _dllPath);
+		Result := EInstallResult.irInstallSuccess;
+	end;
+end;
+
+class function TPackageInstallMain.IsValidExpertDll(const FileName : string) : Boolean;
+const
+	ExptIntfExpertEntryPoint = 'INITEXPERT0017';
+	WizardEntryPoint = 'INITWIZARD0001';
+
+var
+	DllHandle : THandle;
+begin
+	Result := False;
+	// Check that the DLL *really* is a valid expert or wizard DLL
+	// (supported on Windows NT only).
+	if Win32Platform = VER_PLATFORM_WIN32_NT then begin
+		DllHandle := LoadLibraryEx(PChar(FileName), 0, DONT_RESOLVE_DLL_REFERENCES { NT only! } );
+		if DllHandle <> 0 then begin
+			try
+				Result := (GetProcAddress(DllHandle, ExptIntfExpertEntryPoint) <> nil);
+				if not Result then
+					Result := (GetProcAddress(DllHandle, WizardEntryPoint) <> nil);
+			finally
+				FreeLibrary(DllHandle);
+			end;
+		end;
+	end; { NT Check }
+end;
+
+function TPackageInstallMain.uninstallExpertDll(const _DelphiVer : TDelphiVersion; var _pkg : string) : EInstallResult;
+var
+	sDescription : string;
+begin
+	if _DelphiVer.IsKnownExpert(_pkg, sDescription) then begin
+		_DelphiVer.RemoveExpertDll(_pkg);
+		Result := EInstallResult.irUninstallSuccess;
+	end else begin
+		Result := EInstallResult.irNotInstalled;
 	end;
 end;
 
