@@ -27,7 +27,7 @@ uses
   u_dzDateUtils in '..\..\..\external\dzlib\u_dzDateUtils.pas',
   u_dzConvertUtils in '..\..\..\external\dzlib\u_dzConvertUtils.pas',
   u_dzClassUtils in '..\..\..\external\dzlib\u_dzClassUtils.pas',
-  u_DelphiVersions in '..\..\..\external\dzlib\u_DelphiVersions.pas',
+  RipGrepper.Tools.DelphiVersions in '..\..\Tools\RipGrepper.Tools.DelphiVersions.pas',
   {$IFNDEF STANDALONE}
   RipGrepper.Common.IOTAUtils in '..\..\Common\RipGrepper.Common.IOTAUtils.pas',
   {$ENDIF }

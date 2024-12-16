@@ -1,15 +1,15 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{ECEDC3D1-B68C-4AD6-B073-470409BB57F3}</ProjectGuid>
-        <MainSource>DRipExtension.dpk</MainSource>
+        <ProjectGuid>{61FA8D59-16BA-4F6D-96E6-6AF82C96C442}</ProjectGuid>
         <ProjectVersion>20.1</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <ProjectName Condition="'$(ProjectName)'==''">DRipExtensions</ProjectName>
         <TargetedPlatforms>1</TargetedPlatforms>
-        <AppType>Package</AppType>
-        <ProjectName Condition="'$(ProjectName)'==''">DRipExtension</ProjectName>
+        <AppType>Library</AppType>
+        <MainSource>DRipExtensions.dpr</MainSource>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -24,11 +24,6 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64x' and '$(Base)'=='true') or '$(Base_Win64x)'!=''">
-        <Base_Win64x>true</Base_Win64x>
-        <CfgParent>Base</CfgParent>
-        <Base>true</Base>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
         <Cfg_1>true</Cfg_1>
         <CfgParent>Base</CfgParent>
@@ -36,12 +31,6 @@
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
         <Cfg_1_Win32>true</Cfg_1_Win32>
-        <CfgParent>Cfg_1</CfgParent>
-        <Cfg_1>true</Cfg_1>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64x' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64x)'!=''">
-        <Cfg_1_Win64x>true</Cfg_1_Win64x>
         <CfgParent>Cfg_1</CfgParent>
         <Cfg_1>true</Cfg_1>
         <Base>true</Base>
@@ -57,12 +46,6 @@
         <Cfg_2>true</Cfg_2>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64x' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64x)'!=''">
-        <Cfg_2_Win64x>true</Cfg_2_Win64x>
-        <CfgParent>Cfg_2</CfgParent>
-        <Cfg_2>true</Cfg_2>
-        <Base>true</Base>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
         <DCC_DcuOutput>.\$(Platform)\$(Config)</DCC_DcuOutput>
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
@@ -72,16 +55,16 @@
         <DCC_F>false</DCC_F>
         <DCC_K>false</DCC_K>
         <GenDll>true</GenDll>
-        <GenPackage>true</GenPackage>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
         <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
-        <SanitizedProjectName>DRipExtension</SanitizedProjectName>
+        <SanitizedProjectName>DRipExtensions</SanitizedProjectName>
         <DCC_UnitSearchPath>..\..\..\src;..\..\..\..\external;..\..\..\..\src\OpenWith;..\..\..\..\external\GExpert;..\..\..\..\external\dzlib;..\..\..\..\external\RegExpr;..\..\..\..\external\mwParser;..\..\..\..\external\UniSynEdit;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_Define>NO_TRANSLATION;NO_TRANSLATION_HINT;NO_OPTIMIZE_DZ_GRAPHIC_UTILS_HINT;UnicodeRE;EnableIdeDockingSupport;$(DCC_Define)</DCC_Define>
         <DCC_UnitAlias>GX_IdeDockStandAlone=GX_IdeDock;SynRegExpr=RegExprReplaceUnit;$(DCC_UnitAlias)</DCC_UnitAlias>
         <VerInfo_Locale>1031</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.6.2.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.6.2.0;Comments=</VerInfo_Keys>
         <Icon_MainIcon>..\..\icons\Drip.ico</Icon_MainIcon>
+        <DCC_AdditionalSwitches>-LUDesignIDE</DCC_AdditionalSwitches>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
@@ -90,21 +73,12 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_UsePackage>rtl;dbrtl;vcldb;vcl;VirtualTreesDR;VclSmp;$(DCC_UsePackage)</DCC_UsePackage>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.0.0.64;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>64</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.0.0.66;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>66</VerInfo_Build>
         <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <DCC_UsePackage>rtl;dbrtl;vcldb;vcl;VirtualTreesDR;VclSmp;$(DCC_UsePackage)</DCC_UsePackage>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Base_Win64x)'!=''">
-        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
-        <BT_BuildType>Debug</BT_BuildType>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.0.0.64;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Build>64</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -123,14 +97,11 @@
         <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\23.0\bin\bds.exe</Debugger_HostApplication>
         <DCC_ShowGeneralMessages>true</DCC_ShowGeneralMessages>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.0.0.64;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>64</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.0.0.66;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>66</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_1_Win64x)'!=''">
-        <VerInfo_Build>64</VerInfo_Build>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.0.0.64;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_MajorVer>4</VerInfo_MajorVer>
+        <Manifest_File>..\Delphi12\(None)</Manifest_File>
+        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -142,27 +113,17 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.0.0.65;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>65</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.0.0.69;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>69</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <DCC_Description>RipGrep Search within Delphi</DCC_Description>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_2_Win64x)'!=''">
-        <VerInfo_Build>64</VerInfo_Build>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.0.0.64;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_MajorVer>4</VerInfo_MajorVer>
+        <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="rtl.dcp"/>
-        <DCCReference Include="designide.dcp"/>
-        <DCCReference Include="dbrtl.dcp"/>
-        <DCCReference Include="vcldb.dcp"/>
-        <DCCReference Include="vcl.dcp"/>
-        <DCCReference Include="VirtualTreesDR.dcp"/>
-        <DCCReference Include="VclSmp.dcp"/>
+        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.SettingsFormBase.pas"/>
         <DCCReference Include="..\..\DRipExtension.Main.pas"/>
         <DCCReference Include="..\..\DripExtension.UI.DockableForm.pas"/>
         <DCCReference Include="..\..\..\..\src\RipGrepper.CommandLine.Builder.pas"/>
@@ -177,11 +138,9 @@
         <DCCReference Include="..\..\..\..\src\RipGrepper.Parsers.VimGrepMatchLine.pas"/>
         <DCCReference Include="..\..\..\..\src\OpenWith\RipGrepper.OpenWith.CmdListForm.pas">
             <Form>OpenWithCmdList</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="..\..\..\..\src\OpenWith\RipGrepper.OpenWith.ConfigForm.pas">
             <Form>OpenWithConfigForm</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="..\..\..\..\src\OpenWith\RipGrepper.OpenWith.pas"/>
         <DCCReference Include="..\..\..\..\src\OpenWith\RipGrepper.OpenWith.Runner.pas"/>
@@ -193,44 +152,35 @@
         <DCCReference Include="..\..\..\..\src\RipGrepper.CommandLine.OptionStrings.pas"/>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.BottomFrame.pas">
             <Form>RipGrepperBottomFrame</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.ConfigForm.pas">
             <Form>ConfigForm</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.DpiScaler.pas"/>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.MainForm.pas">
             <Form>RipGrepperForm</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.MiddleFrame.pas">
             <Form>RipGrepperMiddleFrame</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.MiddleLeftFrame.pas">
             <Form>MiddleLeftFrame</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.ParentFrame.pas">
             <Form>ParentFrame</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.RipGrepOptionsForm.pas">
             <Form>RipGrepOptionsForm</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.SearchForm.pas">
             <Form>RipGrepperSearchDialogForm</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.TopFrame.pas">
             <Form>RipGrepperTopFrame</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.Constants.pas"/>
@@ -264,21 +214,12 @@
         <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.Replacer.ExtensionContext.pas"/>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.IFrameEvents.pas"/>
         <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.FontColors.pas"/>
-        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.SettingsFormBase.pas"/>
-        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.AppSettingsForm.pas">
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.ColorSelectorFrame.pas">
-            <FormType>dfm</FormType>
-        </DCCReference>
+        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.AppSettingsForm.pas"/>
+        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.ColorSelectorFrame.pas"/>
         <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.LockGuard.pas"/>
-        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas">
-            <FormType>dfm</FormType>
-        </DCCReference>
+        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas"/>
         <DCCReference Include="..\..\DRipExtension.Menu.pas"/>
-        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.ExtensionSettingsForm.pas">
-            <FormType>dfm</FormType>
-        </DCCReference>
+        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.ExtensionSettingsForm.pas"/>
         <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.DelphiVersions.pas"/>
         <RcItem Include="..\..\..\Resources\about_icon.bmp">
             <ResourceType>BITMAP</ResourceType>
@@ -314,11 +255,17 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">DRipExtension.dpk</Source>
+                    <Source Name="MainSource">DRipExtensions.dpr</Source>
                 </Source>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k290.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp290.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclBindCompFireDAC280.bpl">LiveBinding-Ausdruckskomponenten für FireDac</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclFMXFireDAC280.bpl">Embarcadero FMX-FireDAC-Komponenten</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclVclFireDAC280.bpl">Embarcadero VCL-FireDAC-Komponenten</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp280.bpl">Microsoft Office XP Beispiele für gekapselte Komponenten für Automation Server</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclFMXtee9280.bpl">TeeChart Lite FMX Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclbindcompfmx280.bpl">Embarcadero LiveBindings-Komponenten FireMonkey</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclappanalytics280.bpl">Embarcadero Usertility-Analysekomponente</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclbindcompvcl280.bpl">Embarcadero LiveBindings-Komponenten VCL</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="4">
@@ -337,15 +284,9 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="C:\Users\Public\Documents\Embarcadero\Studio\23.0\Bpl\DRipExtension.bpl" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="Win32\Debug\DRipExtensions.dll" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>DRipExtension.bpl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="C:\Users\Public\Documents\Embarcadero\Studio\23.0\Bpl\DRipExtension.bpl" Configuration="Release" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>DRipExtension.bpl</RemoteName>
+                        <RemoteName>DRipExtensions.dll</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -1210,7 +1151,6 @@
             <Platforms>
                 <Platform value="Win32">True</Platform>
                 <Platform value="Win64">False</Platform>
-                <Platform value="Win64x">False</Platform>
             </Platforms>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>
