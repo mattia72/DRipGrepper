@@ -41,16 +41,16 @@ end;
 
 destructor TRipGrepperSettingsInstance.Destroy;
 begin
- 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettingsInstance.Destroy');
-
+//  var
+//  dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettingsInstance.Destroy');
+// trace causes exception on closing delphi ide
 	FSettings.Free;
 	inherited;
 end;
 
 class destructor TRipGrepperSettingsInstance.Destroy;
 begin
-	FInstance.Free;
+	FInstance.Free;  // very last
 	FLock.Free;
 end;
 

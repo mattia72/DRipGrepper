@@ -24,7 +24,8 @@ uses
 
 class function TLockGuard.NewLock(const _critSec : TCriticalSection = nil) : TLockGuard;
 begin
-	TDebugUtils.Msg('TLockGuard.NewLock');
+//  TDebugUtils.Msg('TLockGuard.NewLock');
+// trace causes exception on closing delphi ide
 	Result.FbOwnCriticalSection := (_critSec = nil);
 	if Result.FbOwnCriticalSection then begin
 		Result.FCriticalSection := TCriticalSection.Create();

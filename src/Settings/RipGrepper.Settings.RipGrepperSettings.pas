@@ -163,8 +163,9 @@ end;
 
 destructor TRipGrepperSettings.Destroy;
 begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.Destroy');
+//  var
+//  dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.Destroy');
+// trace causes exception on closing delphi ide
 	FRipGrepArguments.Free;
 	FExpertOptionHistory.Free;
 	FSearchTextsHistory.Free;
