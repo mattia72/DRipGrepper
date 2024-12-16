@@ -40,7 +40,6 @@ type
 		chDebugTrace : TCheckBox;
 		chExpertMode : TCheckBox;
 		grpDeveloper : TGroupBox;
-		lbledtIniFilePath : TLabeledEdit;
 		btnedtRgExePath : TButtonedEdit;
 		ImageListButtons : TImageList;
 		lblRgExePath : TLabel;
@@ -49,6 +48,10 @@ type
 		ActionOpenFileDialog : TAction;
 		lblVersion : TLabel;
 		Memo1 : TMemo;
+		btnedtIniFilePath : TButtonedEdit;
+		Label1 : TLabel;
+		procedure btnedtIniFilePathLeftButtonClick(Sender : TObject);
+		procedure btnedtIniFilePathRightButtonClick(Sender : TObject);
 		procedure btnedtRgExePathEnter(Sender : TObject);
 		procedure btnedtRgExePathExit(Sender : TObject);
 		procedure btnedtRgExePathRightButtonClick(Sender : TObject);
@@ -69,7 +72,7 @@ type
 
 		public
 			constructor Create(_Owner : TComponent; _settings : TRipGrepperSettings);
-			function GetRgVersion(const _rgPath: string): string;
+			function GetRgVersion(const _rgPath : string) : string;
 	end;
 
 var
@@ -83,7 +86,9 @@ uses
 	RipGrepper.Tools.FileUtils,
 	RipGrepper.Helper.UI,
 	System.IOUtils,
-	RipGrepper.Tools.ProcessUtils;
+	RipGrepper.Tools.ProcessUtils,
+	RipGrepper.OpenWith.Params,
+	RipGrepper.OpenWith;
 
 {$R *.dfm}
 
@@ -93,6 +98,23 @@ begin
 	Caption := 'General';
 	FAppSettings := (FSettings as TRipGrepperSettings).AppSettings;
 	FRipGrepSettings := (FSettings as TRipGrepperSettings).RipGrepParameters;
+end;
+
+procedure TAppSettingsForm.btnedtIniFilePathLeftButtonClick(Sender : TObject);
+begin
+	FSettings.ReLoad;
+	ReadSettings;
+end;
+
+procedure TAppSettingsForm.btnedtIniFilePathRightButtonClick(Sender : TObject);
+var
+	owp : TOpenWithParams;
+begin
+	owp.DirPath := ExtractFileDir(btnedtIniFilePath.Text);
+	owp.FileName := ExtractFileName(btnedtIniFilePath.Text);
+	owp.Row := 0;
+	owp.Column := 0;
+	TOpenWith.Execute(owp);
 end;
 
 procedure TAppSettingsForm.btnedtRgExePathEnter(Sender : TObject);
@@ -126,7 +148,7 @@ begin
 	ReadSettings;
 end;
 
-function TAppSettingsForm.GetRgVersion(const _rgPath: string): string;
+function TAppSettingsForm.GetRgVersion(const _rgPath : string) : string;
 var
 	sl : TStrings;
 begin
@@ -158,7 +180,7 @@ begin
 
 	chDebugTrace.Checked := FAppSettings.DebugTrace;
 	chExpertMode.Checked := FAppSettings.ExpertMode;
-	lbledtIniFilePath.Text := FAppSettings.IniFile.FileName;
+	btnedtIniFilePath.Text := FAppSettings.IniFile.FileName;
 	btnedtRgExePath.Text := FRipGrepSettings.RipGrepPath;
 	Memo1.Text := GetRgVersion(FRipGrepSettings.RipGrepPath);
 end;
@@ -176,11 +198,11 @@ begin
 			end;
 
 		end;
-		vcIniFilePath : begin
-			if not IsRgExeValid(lbledtIniFilePath.Text) then begin
-				FRefocusing := lbledtIniFilePath;
+		vcIniFilePath : begin // not used: ini file location can not be changed
+			if not IsRgExeValid(btnedtIniFilePath.Text) then begin
+				FRefocusing := btnedtIniFilePath;
 				TMsgBox.ShowError('Ini file path not valid!');
-				lbledtIniFilePath.SetFocus;
+				btnedtIniFilePath.SetFocus;
 			end;
 
 		end;
@@ -201,7 +223,7 @@ begin
 
 	inherited WriteSettings;
 
-    TDebugUtils.UpdateTraceActive;
+	TDebugUtils.UpdateTraceActive;
 end;
 
 end.

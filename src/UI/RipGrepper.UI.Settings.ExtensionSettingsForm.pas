@@ -113,7 +113,8 @@ begin
 			FDllPath := GetExpertDllPath;
 		end;
 		if FileExists(FDllPath) and string.EndsText(EXTENSION_NAME + '.dll', FDllPath) then begin
-			var dv : IDelphiVersion := GetSelectedDelphiVersion;
+			var
+				dv : IDelphiVersion := GetSelectedDelphiVersion;
 			var
 			sDescr := EXTENSION_NAME;
 			installer.Execute(FDllPath, dv as TDelphiVersion, sDescr, btnInstallPackage.Caption = UNINSTALL_CAPTION);
@@ -207,6 +208,9 @@ var
 	sDesc : string;
 	dv : IDelphiVersion;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TExtensionSettingsForm.ReadSettings');
+
 	dv := GetSelectedDelphiVersion;
 	sDesc := EXTENSION_NAME;
 	if FDllPath.IsEmpty or (not(dv as TDelphiVersion).IsKnownExpert(FDllPath, sDesc)) then begin
@@ -214,6 +218,7 @@ begin
 	end else begin
 		btnInstallPackage.Caption := UNINSTALL_CAPTION;
 	end;
+	dbgMsg.Msg('Set=' + btnInstallPackage.Caption);
 end;
 
 procedure TExtensionSettingsForm.WriteSettings;

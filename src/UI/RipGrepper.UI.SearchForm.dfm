@@ -409,7 +409,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
           AlignWithMargins = True
           Left = 5
           Top = 49
-          Width = 132
+          Width = 131
           Height = 15
           Hint = 'eg. src/**/include;!dev/*.exclude'
           Margins.Left = 8

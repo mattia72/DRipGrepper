@@ -436,6 +436,7 @@ begin
 	LoadExtensionSearchSettings;
 
 	CheckVsCodeRipGrep;
+	dbgMsg.Msg('RipGrepPath=' + FSettings.RipGrepParameters.RipGrepPath);
 
 	WriteCtrlsToRipGrepParametersSettings;
 	UpdateCmbOptionsAndMemoCommandLine;

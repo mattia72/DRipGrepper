@@ -78,7 +78,8 @@ uses
 	StrUtils,
 	u_dzClassUtils,
 	System.IOUtils,
-	RipGrepper.Helper.Types;
+	RipGrepper.Helper.Types,
+	RipGrepper.Tools.DebugUtils;
 
 type
 	TDelphiBorland = class(TDelphiVersion)
@@ -463,6 +464,9 @@ var
 	lst : TStringList;
 	idx : integer;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TDelphiVersion.IsKnownExpert');
+
 	lst := TStringList.Create();
 	try
 		GetKnownExperts(lst);
@@ -473,10 +477,11 @@ begin
 		if idx < 0 then begin
 			idx := lst.IndexOfValue(_sDllPath, false);
 		end;
-
+		dbgMsg.MsgFmt('Dll:%s, Desc:%s, idx:%d', [_sDllPath, _sDescription, idx]);
 		Result := idx <> -1;
 		if Result then begin
 			_sDescription := lst.KeyNames[idx];
+			dbgMsg.MsgFmt('Resulted Desc:%s, idx:%d', [_sDescription, idx]);
 		end;
 	finally
 		lst.Free;
