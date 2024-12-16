@@ -163,6 +163,8 @@ end;
 
 destructor TRipGrepperSettings.Destroy;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.Destroy');
 	FRipGrepArguments.Free;
 	FExpertOptionHistory.Free;
 	FSearchTextsHistory.Free;

@@ -21,9 +21,9 @@ type
 			class function FileMasksToOptions(const _arrMasks, _arrSkipMasks : TArrayEx<string>) : string; static;
 			class function GetFileMaskParamsArrFromDelimitedText(const _sFileMasksDelimited : string; const _sSeparator : string = ';')
 				: TArray<string>; overload; static;
-			class function GetFileMaskParamsFromDelimitedText(const _sFileMasksDelimited : string; const _sSeparator : string = ';')
+			class function GetFileMaskParamsFromDelimitedText(const _sFileMasksDelimited : string; const _chSeparator : char = ';')
 				: string; overload; static;
-			class function GetFileMaskParamsFromOptions(const _sOptions : string) : TArray<string>; static;
+			class function GetFileMaskParamsFromOptions(const _sOptions : string; const _chSeparator : char = ';') : TArray<string>; static;
 			class function GetFileMasksDelimited(const _sOptions : string) : string; static;
 			class function GetMissingFileMaskOptions(const _sOptions, _sMasks : string) : string; static;
 			class procedure RebuildArguments(var _params : TRipGrepParameterSettings); static;
@@ -89,14 +89,18 @@ begin
 end;
 
 class function TCommandLineBuilder.GetFileMaskParamsFromDelimitedText(const _sFileMasksDelimited : string;
-	const _sSeparator : string = ';') : string;
+	const _chSeparator : char = ';') : string;
 begin
-	Result := string.Join(' ', GetFileMaskParamsArrFromDelimitedText(_sFileMasksDelimited, _sSeparator));
+	var
+	s := _sFileMasksDelimited.Trim([' ', _chSeparator]);
+	Result := string.Join(' ', GetFileMaskParamsArrFromDelimitedText(s, _chSeparator));
 end;
 
-class function TCommandLineBuilder.GetFileMaskParamsFromOptions(const _sOptions : string) : TArray<string>;
+class function TCommandLineBuilder.GetFileMaskParamsFromOptions(const _sOptions : string; const _chSeparator : char = ';') : TArray<string>;
 begin
-	Result := GetFileMasksDelimited(_sOptions).Split([';']);
+	var
+	s := _sOptions.Trim([' ', _chSeparator]);
+	Result := GetFileMasksDelimited(s).Split([_chSeparator]);
 end;
 
 class function TCommandLineBuilder.GetFileMasksDelimited(const _sOptions : string) : string;
@@ -121,11 +125,17 @@ var
 	masksEdited : TArrayEx<string>;
 	newOptions : string;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TCommandLineBuilder.GetMissingFileMaskOptions');
+
 	existingMasks := TCommandLineBuilder.GetFileMaskParamsFromOptions(_sOptions);
 	masksEdited := _sMasks.Split([';']);
 
+	dbgMsg.Msg('masksEdited=' + _sMasks);
+	dbgMsg.Msg('existingMasks=' + string.Join(';', existingMasks.Items));
 	newOptions := FileMasksToOptions(masksEdited, existingMasks);
 	Result := newOptions.Trim;
+	dbgMsg.Msg('Result=' + Result);
 end;
 
 class procedure TCommandLineBuilder.RemoveWordBoundaries(var _s : string);

@@ -24,7 +24,10 @@ type
 	end;
 
 implementation
+uses
+	RipGrepper.Tools.DebugUtils;
 
+{ TRipGrepperSettingsInstance }
 constructor TRipGrepperSettingsInstance.Create;
 begin
 	inherited;
@@ -38,6 +41,9 @@ end;
 
 destructor TRipGrepperSettingsInstance.Destroy;
 begin
+ 	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettingsInstance.Destroy');
+
 	FSettings.Free;
 	inherited;
 end;
