@@ -1,48 +1,28 @@
-package DRipExtension;
+library DRipExtensions;
 
-{$R *.res}
+{ Important note about DLL memory management: ShareMem must be the
+  first unit in your library's USES clause AND your project's (select
+  Project-View Source) USES clause if your DLL exports any procedures or
+  functions that pass strings as parameters or function results. This
+  applies to all strings passed to and from your DLL--even those that
+  are nested in records and classes. ShareMem is the interface unit to
+  the BORLNDMM.DLL shared memory manager, which must be deployed along
+  with your DLL. To avoid using BORLNDMM.DLL, pass string information
+  using PChar or ShortString parameters.
+
+  Important note about VCL usage: when this DLL will be implicitly
+  loaded and this DLL uses TWicImage / TImageCollection created in
+  any unit initialization section, then Vcl.WicImageInit must be
+  included into your library's USES clause. }
+
 {$R *.dres}
-{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
-{$ALIGN 8}
-{$ASSERTIONS ON}
-{$BOOLEVAL OFF}
-{$DEBUGINFO OFF}
-{$EXTENDEDSYNTAX ON}
-{$IMPORTEDDATA ON}
-{$IOCHECKS ON}
-{$LOCALSYMBOLS ON}
-{$LONGSTRINGS ON}
-{$OPENSTRINGS ON}
-{$OPTIMIZATION OFF}
-{$OVERFLOWCHECKS ON}
-{$RANGECHECKS ON}
-{$REFERENCEINFO ON}
-{$SAFEDIVIDE OFF}
-{$STACKFRAMES ON}
-{$TYPEDADDRESS OFF}
-{$VARSTRINGCHECKS ON}
-{$WRITEABLECONST OFF}
-{$MINENUMSIZE 1}
-{$IMAGEBASE $400000}
-{$DEFINE DEBUG}
-{$DEFINE NO_TRANSLATION}
-{$DEFINE NO_TRANSLATION_HINT}
-{$DEFINE NO_OPTIMIZE_DZ_GRAPHIC_UTILS_HINT}
-{$DEFINE UnicodeRE}
-{$DEFINE EnableIdeDockingSupport}
-{$ENDIF IMPLICITBUILDING}
-{$IMPLICITBUILD ON}
 
-requires
-  rtl,
-  designide,
-  dbrtl,
-  vcldb,
-  vcl,
-  VirtualTreesDR,
-  VclSmp;
-
-contains
+uses
+  ShareMem,
+  System.SysUtils,
+  System.Classes,
+  ToolsAPI,
+  RipGrepper.UI.SettingsFormBase in '..\..\..\..\src\UI\RipGrepper.UI.SettingsFormBase.pas',
   DRipExtension.Main in '..\..\DRipExtension.Main.pas',
   DripExtension.UI.DockableForm in '..\..\DripExtension.UI.DockableForm.pas',
   RipGrepper.CommandLine.Builder in '..\..\..\..\src\RipGrepper.CommandLine.Builder.pas',
@@ -66,6 +46,7 @@ contains
   dprocess in '..\..\..\..\external\dprocess.pas',
   RipGrepper.CommandLine.OptionStrings in '..\..\..\..\src\RipGrepper.CommandLine.OptionStrings.pas',
   RipGrepper.UI.BottomFrame in '..\..\..\..\src\UI\RipGrepper.UI.BottomFrame.pas' {RipGrepperBottomFrame: TFrame},
+  RipGrepper.UI.Settings.ConfigForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ConfigForm.pas' {ConfigForm},
   RipGrepper.UI.DpiScaler in '..\..\..\..\src\UI\RipGrepper.UI.DpiScaler.pas',
   RipGrepper.UI.MainForm in '..\..\..\..\src\UI\RipGrepper.UI.MainForm.pas' {RipGrepperForm},
   RipGrepper.UI.MiddleFrame in '..\..\..\..\src\UI\RipGrepper.UI.MiddleFrame.pas' {RipGrepperMiddleFrame: TFrame},
@@ -99,22 +80,25 @@ contains
   RipGrepper.Settings.SearchFormSettings in '..\..\..\..\src\Settings\RipGrepper.Settings.SearchFormSettings.pas',
   RipGrepper.Settings.SettingsDictionary in '..\..\..\..\src\Settings\RipGrepper.Settings.SettingsDictionary.pas',
   RipGrepper.Settings.SettingVariant in '..\..\..\..\src\Settings\RipGrepper.Settings.SettingVariant.pas',
-  RipGrepper.Settings.NodeLook.FilterSettings in '..\..\..\..\src\Settings\RipGrepper.Settings.NodeLook.FilterSettings.pas',
-  RipGrepper.Common.EncodedStringList in '..\..\..\..\src\Common\RipGrepper.Common.EncodedStringList.pas',
-  RipGrepper.Tools.Replacer.ExtensionContext in '..\..\..\..\src\Tools\RipGrepper.Tools.Replacer.ExtensionContext.pas',
   RipGrepper.Tools.Replacer in '..\..\..\..\src\Tools\RipGrepper.Tools.Replacer.pas',
+  RipGrepper.Common.EncodedStringList in '..\..\..\..\src\Common\RipGrepper.Common.EncodedStringList.pas',
+  RipGrepper.Settings.NodeLook.FilterSettings in '..\..\..\..\src\Settings\RipGrepper.Settings.NodeLook.FilterSettings.pas',
+  RipGrepper.Tools.Replacer.ExtensionContext in '..\..\..\..\src\Tools\RipGrepper.Tools.Replacer.ExtensionContext.pas',
   RipGrepper.UI.IFrameEvents in '..\..\..\..\src\UI\RipGrepper.UI.IFrameEvents.pas',
   RipGrepper.Settings.FontColors in '..\..\..\..\src\Settings\RipGrepper.Settings.FontColors.pas',
-  RipGrepper.UI.SettingsFormBase in '..\..\..\..\src\UI\RipGrepper.UI.SettingsFormBase.pas',
+  RipGrepper.UI.Settings.AppSettingsForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.AppSettingsForm.pas',
   RipGrepper.UI.ColorSelectorFrame in '..\..\..\..\src\UI\RipGrepper.UI.ColorSelectorFrame.pas',
-  RipGrepper.UI.Settings.ColorSettingsForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas',
   RipGrepper.Tools.LockGuard in '..\..\..\..\src\Tools\RipGrepper.Tools.LockGuard.pas',
-  RipGrepper.UI.Settings.ConfigForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ConfigForm.pas' {ConfigForm},
-  RipGrepper.UI.Settings.AppSettingsForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.AppSettingsForm.pas' {AppSettingsForm},
+  RipGrepper.UI.Settings.ColorSettingsForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas',
+  DRipExtension.Menu in '..\..\DRipExtension.Menu.pas',
   RipGrepper.UI.Settings.ExtensionSettingsForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ExtensionSettingsForm.pas',
-  DRipExtension.Menu in '..\..\DRipExtension.Menu.pas';
+  RipGrepper.Tools.DelphiVersions in '..\..\..\..\src\Tools\RipGrepper.Tools.DelphiVersions.pas';
+
+{$R *.res}
+
+exports
+	Register name WizardEntryPoint;
+
+begin
 
 end.
-
-
-
