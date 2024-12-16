@@ -102,6 +102,7 @@ end;
 
 procedure TAppSettingsForm.btnedtIniFilePathLeftButtonClick(Sender : TObject);
 begin
+	FSettings.ReCreateMemIni;
 	FSettings.ReLoad;
 	ReadSettings;
 end;
@@ -110,8 +111,7 @@ procedure TAppSettingsForm.btnedtIniFilePathRightButtonClick(Sender : TObject);
 var
 	owp : TOpenWithParams;
 begin
-	owp.DirPath := ExtractFileDir(btnedtIniFilePath.Text);
-	owp.FileName := ExtractFileName(btnedtIniFilePath.Text);
+	owp.FilePath := btnedtIniFilePath.Text;
 	owp.Row := 0;
 	owp.Column := 0;
 	TOpenWith.Execute(owp);

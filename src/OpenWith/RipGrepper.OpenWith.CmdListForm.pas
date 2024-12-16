@@ -270,8 +270,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithCmdList.InitCtrlsTexts');
 	lblHint1.Caption := 'Open';
 	dbgMsg.MsgFmt('FSettings.TestFile: %s', [FSettings.TestFile.ToString]);
-	Memo1.Text := Format('%s(%d:%d)', [ExtractRelativePath(FSettings.TestFile.DirPath + '\', FSettings.TestFile.FileName),
-		FSettings.TestFile.Column, FSettings.TestFile.Row]);
+	Memo1.Text := Format('%s', [FSettings.TestFile.ToString]);
 	Memo1.Hint := Memo1.Text;
 	lblHint2.Caption := 'with...';
 end;

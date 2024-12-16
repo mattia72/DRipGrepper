@@ -712,15 +712,15 @@ begin
 
 	Data := VstResult.GetNodeData(Node);
 	if Node.ChildCount > 0 then begin
-		Result.DirPath := IfThen(Settings.SearchPathIsDir, Settings.ActualSearchPath, ExtractFileDir(Data.FilePath));
-		Result.FileName := Data.FilePath;
+		Result.RelativeBaseDirPath := IfThen(Settings.SearchPathIsDir, Settings.ActualSearchPath, ExtractFileDir(Data.FilePath));
+		Result.FilePath := Data.FilePath;
 		Result.Row := 0;
 		Result.Column := 0;
 		Result.IsEmpty := False;
 	end else begin
 		dataParent := VstResult.GetNodeData(Node.Parent);
-		Result.DirPath := IfThen(Settings.SearchPathIsDir, Settings.ActualSearchPath, ExtractFileDir(dataParent.FilePath));
-		Result.FileName := dataParent.FilePath;
+		Result.RelativeBaseDirPath := IfThen(Settings.SearchPathIsDir, Settings.ActualSearchPath, ExtractFileDir(dataParent.FilePath));
+		Result.FilePath := dataParent.FilePath;
 		Result.Row := Data.MatchData.Row;
 		Result.Column := Data.MatchData.Col;
 		Result.IsEmpty := False;

@@ -29,7 +29,7 @@ uses
 	RipGrepper.OpenWith.CmdListForm,
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.Tools.DebugUtils,
-	RipGrepper.Helper.UI;
+	RipGrepper.Helper.UI, System.IOUtils;
 
 class function TOpenWith.GetSelectedCmd(_owpTestFile : TOpenWithParams) : string;
 begin
@@ -51,7 +51,7 @@ begin
 	var dbgMsg := TDebugMsgBeginEnd.New('TOpenWith.Execute');
 	dbgMsg.MsgFmt('%s ', [_owp.ToString]);
 
-	if FileExists(_owp.FileName) then begin
+	if FileExists(_owp.FilePath) then begin
 		sEditorCmd := GetSelectedCmd(_owp);
 
 		if sEditorCmd.IsEmpty then begin

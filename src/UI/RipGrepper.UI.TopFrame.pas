@@ -279,7 +279,7 @@ begin
 	var
 	owSettings := Settings.OpenWithSettings;
 	owSettings.TestFile := MainFrame.GetOpenWithParamsFromSelected();
-	dbgMsg.Msg('TestFile: ' + owSettings.TestFile.DirPath + '\' + owSettings.TestFile.FileName);
+	dbgMsg.Msg('TestFile: ' + owSettings.TestFile.GetRelativePath());
 
 	// TOpenWithConfigForm.CreateAndShow(Settings);
 	var

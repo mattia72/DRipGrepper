@@ -1,4 +1,4 @@
-unit RipGrepper.OpenWith.Runner;
+﻿unit RipGrepper.OpenWith.Runner;
 
 interface
 
@@ -36,10 +36,10 @@ begin
 	sCmdParams := _sParams;
 
 	sCmdParams := StringReplace(sCmdParams, '<DIR>', '%s', [rfReplaceAll]);
-	sCmdParams := Format(sCmdParams, [_owp.DirPath]);
+	sCmdParams := Format(sCmdParams, [_owp.RelativeBaseDirPath]);
 
 	sCmdParams := StringReplace(sCmdParams, '<FILE>', '%s', [rfReplaceAll]);
-	sCmdParams := Format(sCmdParams, [_owp.FileName]);
+	sCmdParams := Format(sCmdParams, [_owp.FilePath]);
 	// TDebugUtils.DebugMessage((Format('TOpenWithRunner.InternalExecute Params: %s ', [sCmdParams])));
 
 	sCmdParams := StringReplace(sCmdParams, '<LINE>', '%d', [rfReplaceAll]);

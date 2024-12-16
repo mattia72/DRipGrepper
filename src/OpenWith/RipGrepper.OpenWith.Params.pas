@@ -4,8 +4,8 @@ interface
 
 type
 	TOpenWithParams = record
-		DirPath : string;
-		FileName : string;
+		RelativeBaseDirPath : string;
+		FilePath : string;
 		Row : Integer;
 		Column : Integer;
 		IsEmpty : Boolean;
@@ -13,6 +13,7 @@ type
 		private
 		public
 			class function GetParamsOfActiveFileInDelphiIde : TOpenWithParams; static;
+			function GetRelativePath: string;
 			class operator Initialize(out Dest : TOpenWithParams);
 			function ToString : string;
 	end;
@@ -47,15 +48,20 @@ begin
 	{$ENDIF}
 end;
 
+function TOpenWithParams.GetRelativePath: string;
+begin
+	Result := ExtractRelativePath(RelativeBaseDirPath + '\', FilePath);
+end;
+
 function TOpenWithParams.ToString : string;
 begin
-	Result := Format('%s%s(%d:%d)', [DirPath, FileName, Row, Column]);
+	Result := Format('%s(%d:%d)', [GetRelativePath(), Row, Column]);
 end;
 
 class operator TOpenWithParams.Initialize(out Dest : TOpenWithParams);
 begin
-	Dest.DirPath := '';
-	Dest.FileName := '';
+	Dest.RelativeBaseDirPath := '';
+	Dest.FilePath := '';
 	Dest.Row := -1;
 	Dest.Column := -1;
 	Dest.IsEmpty := True;
