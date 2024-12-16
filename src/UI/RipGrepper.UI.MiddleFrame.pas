@@ -1032,8 +1032,8 @@ var
 begin
 	{$IFNDEF STANDALONE}
 	owp := GetOpenWithParamsFromSelected();
-	TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.OpenSelectedInIde: %s(%d:%d)', [owp.FileName, owp.Row, owp.Column]));
-	IOTAUtils.GxOtaGoToFileLineColumn(owp.FileName, owp.Row, owp.Column, owp.Column - 1);
+	TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.OpenSelectedInIde: %s', [owp.ToString]));
+	IOTAUtils.GxOtaGoToFileLineColumn(owp.FilePath, owp.Row, owp.Column, owp.Column - 1);
 	{$ENDIF}
 end;
 

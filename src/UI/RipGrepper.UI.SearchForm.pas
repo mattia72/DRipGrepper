@@ -1210,6 +1210,7 @@ end;
 procedure TRipGrepperSearchDialogForm.UpdateFileMasksInFileMasks;
 begin
 	cmbFileMasks.Text := TCommandLineBuilder.GetFileMasksDelimited(FParamsSetByGui.RgOptions.AsString);
+	TDebugUtils.DebugMessage('UpdateFileMasksInFileMasks cmbFileMasks.Text=' + cmbFileMasks.Text);
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateFileMasksInOptions;

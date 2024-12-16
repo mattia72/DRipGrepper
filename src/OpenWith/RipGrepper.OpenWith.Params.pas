@@ -32,14 +32,14 @@ begin
 	var
 	editPosition := IOTAUTils.GetEditPosition;
 	if Assigned(editPosition) then begin
-		Result.FileName := IOTAUtils.GxOtaGetCurrentSourceFile;;
+		Result.FilePath := IOTAUtils.GxOtaGetCurrentSourceFile;;
 		var
 			sProjName : string := IOTAUtils.GxOtaGetCurrentProjectName;
 		TDebugUtils.DebugMessage((Format('TOpenWithParams.GetParamsOfActiveFileInDelphiIde proj: %s ', [sProjName])));
 		if (sProjName <> '') then begin
-			Result.DirPath := ExtractFileDir(sProjName);
+			Result.RelativeBaseDirPath := ExtractFileDir(sProjName);
 		end else begin
-			Result.DirPath := ExtractFileDir(Result.FileName);
+			Result.RelativeBaseDirPath:= ExtractFileDir(Result.FilePath);
 		end;
 		Result.Row := editPosition.Row;
 		Result.Column := editPosition.Column;

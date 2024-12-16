@@ -103,12 +103,16 @@ class function TCommandLineBuilder.GetFileMasksDelimited(const _sOptions : strin
 var
 	fileMask : string;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TCommandLineBuilder.GetFileMasksDelimited');
+
 	for var sOp in _sOptions.Split([' ']) do begin
 		if TOptionsHelper.IsOptionWithValue(sOp, RG_PARAM_REGEX_GLOB) then begin
 			fileMask := fileMask + ';' + TOptionsHelper.GetOptionValue(sOp);
 		end;
 	end;
 	Result := fileMask.Trim([';', ' ']);
+	dbgMsg.Msg('Result=' + Result);
 end;
 
 class function TCommandLineBuilder.GetMissingFileMaskOptions(const _sOptions, _sMasks : string) : string;
@@ -138,10 +142,12 @@ var
 	paramCount : integer;
 	fileMaskParams : TArrayEx<string>;
 begin
-	TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: start');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TCommandLineBuilder.RebuildArguments');
+
 	_params.RipGrepArguments.Clear();
 
-	TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: add additional ops:' + _params.GuiSearchTextParams.ExpertOptions.AsString);
+	dbgMsg.Msg('add additional ops:' + _params.GuiSearchTextParams.ExpertOptions.AsString);
 	arrRgOptions := _params.GuiSearchTextParams.ExpertOptions.AsArray;
 
 	fileMaskParams := GetFileMaskParamsArrFromDelimitedText(_params.FileMasks);
@@ -149,20 +155,20 @@ begin
 	for var s in _params.GuiSearchTextParams.RgOptions.AsArray do begin
 		if not fileMaskParams.Contains(s) then begin
 			arrRgOptions.InsertIfNotContains(paramCount, s);
-			TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: add search text param: ' + s);
+			dbgMsg.Msg('add search text param: ' + s);
 		end else begin
-			TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: skipp search text param: ' + s);
+			dbgMsg.Msg('skipp search text param: ' + s);
 		end;
 	end;
 
 	paramCount := arrRgOptions.Count;
 	for var s in RG_NECESSARY_PARAMS do begin
 		arrRgOptions.InsertIfNotContains(paramCount, s);
-		TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: add necessary param: ' + s);
+		dbgMsg.Msg('add necessary param: ' + s);
 	end;
 
 	arrRgOptions.AddRange(fileMaskParams);
-	TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: add all mask param: ' + _params.FileMasks);
+	dbgMsg.Msg('add all mask param: ' + _params.FileMasks);
 
 	arrRgOptions.RemoveAll(RG_PARAM_END);
 	// put it in the end
@@ -175,14 +181,12 @@ begin
 	// --- set search path
 	for var s in _params.SearchPath.Split([SEARCH_PATH_SEPARATOR]) do begin
 		arrPaths.Add(s);
-		TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: Path added:' + s);
+		TDebugUtils.DebugMessage('Path added:' + s);
 	end;
 	AddArgs(_params, RG_ARG_SEARCH_PATH, arrPaths, True { Quote if necessary } );
 
-	TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: after AddArgs: ' + string.Join(' ',
-		_params.RipGrepArguments.GetValues()));
-	TDebugUtils.DebugMessage('TCommandLineBuilder.RebuildArguments: GuiSearchTextParams end ' + _params.GuiSearchTextParams.ToString);
+	dbgMsg.Msg('after AddArgs: ' + string.Join(' ', _params.RipGrepArguments.GetValues()));
+	dbgMsg.Msg('GuiSearchTextParams end ' + _params.GuiSearchTextParams.ToString);
 end;
-
 
 end.
