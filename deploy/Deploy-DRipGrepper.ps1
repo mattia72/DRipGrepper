@@ -25,8 +25,8 @@ $global:ExtensionFileName = "DRipExtension.bpl"
 $global:ExpertFileName = "DRipExtensions.dll"
 
 $global:AssetZipName = "DRipGrepper.{0}.{1}.zip"
-$global:AssetExpertZipName = "DRipExtensionsDll.{0}.zip"
-$global:AssetExtensionZipName = "DRipExtension.{0}.{1}.zip"
+$global:AssetExpertZipName = "DRipExtension.Dll.{0}.{1}.{2}.zip"
+$global:AssetExtensionZipName = "DRipExtension.Bpl.{0}.{1}.{2}.zip"
 $global:AssetsDirectory = "$PSScriptRoot\assets"
 
 $global:Owner = "mattia72"
@@ -115,16 +115,17 @@ function Test-YesAnswer {
 }
 function Get-ProjectPath {
     param (
-        $Path
+        $Path,
+        $Leaf
     )
     $latestVersion = Get-LastInstalledDelphiVersion 
-    Join-Path $(Split-Path -Parent $PSScriptRoot) "$Path\$($latestVersion.Data.Dir)"
+    Join-Path $(Split-Path -Parent $PSScriptRoot) "$Path\$Leaf$($latestVersion.Data.Dir)"
 }
 
 function Build-StandaloneRelease {
     # copy scripts
     Import-Module -Name PSDelphi -Force
-    $projectPath = Get-ProjectPath "src\Project"
+    $projectPath = Get-ProjectPath "src\Project" ""
     $result = $null
     Build-DelphiProject -ProjectPath $projectPath\DRipGrepper.dproj -BuildConfig Release -Platform "Win32" -StopOnFirstFailure -CountResult -Result ([ref]$result)
     Test-BuildResult -result $result
@@ -159,7 +160,7 @@ function Build-AndRunUnittest {
 function Build-ExtensionRelease {
     # copy scripts
     Import-Module -Name PSDelphi -Force
-    $projectPath = Get-ProjectPath "Extension\src\Project" 
+    $projectPath = Get-ProjectPath "Extension\src\Project" "Bpl."
     $result = $null
     Build-DelphiProject -ProjectPath $projectPath\DRipExtension.dproj -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result) 
     Test-BuildResult -result $result
@@ -168,9 +169,11 @@ function Build-ExtensionRelease {
 function Build-ExpertDllRelease {
     # copy scripts
     Import-Module -Name PSDelphi -Force
-    $projectPath = "Extension\src\Project\Dll\DRipExtensions.dproj " 
+    $projectPath = Get-ProjectPath "Extension\src\Project" "Dll."
     $result = $null
-    Build-DelphiProject -ProjectPath $projectPath -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result) 
+    # add -LUDesignIde to the msbuild parameters
+    # see https://docwiki.embarcadero.com/Libraries/Athens/en/DesignIntf
+    Build-DelphiProject -ProjectPath $projectPath\DRipExtensions.dproj  -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result)
     Test-BuildResult -result $result
 }
 
@@ -181,9 +184,9 @@ function Add-ToAssetsDir {
         [switch]$Win64
     )
 
-    $cmd = $(Get-Command $AssetItemPath)
-    $appVersion = $($cmd.FileVersionInfo.FileVersion) # BPL is ok too :)
-    if (-not $(Test-YesAnswer "Release version: $global:Version. Version of $($cmd.Name)($($Win64 ? 'Win64': 'Win32')) appName: $appVersion. Ok?")) {
+    $item = $(Get-Item $AssetItemPath)
+    $appVersion = $($item.VersionInfo.FileVersion) # BPL is ok too :)
+    if (-not $(Test-YesAnswer "Release version: $global:Version. Version of $($item.Name)($($Win64 ? 'Win64': 'Win32')) appName: $appVersion. Ok?")) {
         Write-Error "Search FileVersion=$appVersion in *.dproj and change it!`r`nDeploy stopped." -ErrorAction Stop
     }
     New-Item -Path $AssetDir -ItemType Directory -Force -ErrorAction SilentlyContinue
@@ -222,10 +225,13 @@ function New-ExtensionZip {
                 
         Add-ToAssetsDir -AssetDir $AssetDir $extensionPath 
     
+        $dest = "$global:AssetsDirectory\$($global:AssetExtensionZipName  -f $($win64 ? 'x64' : 'x86'), $_.Data.Dir ,$global:Version)"
+        Write-Host "$AssetDir\*.* to`n $dest" 
+
         $compress = @{
             Path             = "$AssetDir\*.*"
             CompressionLevel = "Fastest"
-            DestinationPath  = "$global:AssetsDirectory\$($global:AssetExtensionZipName -f $_.Data.Dir, $global:Version)"
+            DestinationPath  = "$dest"
             Force            = $true
         }
         Compress-Archive @compress
@@ -234,18 +240,25 @@ function New-ExtensionZip {
 
 function New-ExpertDllZip {
     
-        $AssetDir = $(Join-Path $global:AssetsDirectory "Dll")
-    Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $global:ExtensionFileName) -Win64:$false
-    $dest = "$global:AssetsDirectory\$($global:AssetExpertZipName -f "$global:Version")"
-    Write-Host "$AssetDir\*.* to`n $dest" 
+    $projectPath = Split-Path -Parent $PSScriptRoot 
+    $ReleaseType = "Win32"
+    $win64 = $($ReleaseType -eq 'Win64')
+    Get-InstalledDelphiVersions | ForEach-Object {
+        $ZipDir = $(Join-Path $projectPath "Extension\src\Project\Dll.$($_.Data.Dir)\$ReleaseType\Release")
+        $AssetDir = $(Join-Path $global:AssetsDirectory "$($_.Data.Dir).Dll")
+        Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $global:ExpertFileName) -Win64:$false
+        $dest = "$global:AssetsDirectory\$($global:AssetExpertZipName -f $($win64 ? 'x64' : 'x86'), $_.Data.Dir ,$global:Version)"
 
-    $compress = @{
-        Path             = "$AssetDir\*.*"
-        CompressionLevel = "Fastest"
-        DestinationPath  = $dest
-        Force            = $true
+        Write-Host "$AssetDir\*.* to`n $dest" 
+
+        $compress = @{
+            Path             = "$AssetDir\*.*"
+            CompressionLevel = "Fastest"
+            DestinationPath  = $dest
+            Force            = $true
+        }
+        Compress-Archive @compress
     }
-    Compress-Archive @compress
 }
 function New-ReleaseWithAsset {
 

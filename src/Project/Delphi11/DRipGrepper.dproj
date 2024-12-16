@@ -79,14 +79,13 @@
     <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
     <BT_BuildType>Debug</BT_BuildType>
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-    <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.10.0.5;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.10.0.0</VerInfo_Keys>
+    <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.0.0.5;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.0.0.0</VerInfo_Keys>
     <VerInfo_Locale>1033</VerInfo_Locale>
     <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
     <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
-    <VerInfo_MajorVer>3</VerInfo_MajorVer>
+    <VerInfo_MajorVer>4</VerInfo_MajorVer>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <Icon_MainIcon>..\..\..\icons\DripGrepper.ico</Icon_MainIcon>
-    <VerInfo_MinorVer>10</VerInfo_MinorVer>
     <VerInfo_Build>5</VerInfo_Build>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Base_Win64)'!=''">
@@ -94,11 +93,10 @@
     <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
     <BT_BuildType>Debug</BT_BuildType>
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-    <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.10.0.5;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.10.0.0</VerInfo_Keys>
+    <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.0.0.5;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.0.0.0</VerInfo_Keys>
     <VerInfo_Locale>1033</VerInfo_Locale>
     <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-    <VerInfo_MajorVer>3</VerInfo_MajorVer>
-    <VerInfo_MinorVer>10</VerInfo_MinorVer>
+    <VerInfo_MajorVer>4</VerInfo_MajorVer>
     <VerInfo_Build>5</VerInfo_Build>
     <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
@@ -120,18 +118,16 @@
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_Locale>1033</VerInfo_Locale>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-    <VerInfo_MajorVer>3</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.10.0.5;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=3.10.0.0</VerInfo_Keys>
-    <VerInfo_MinorVer>10</VerInfo_MinorVer>
+    <VerInfo_MajorVer>4</VerInfo_MajorVer>
+    <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.0.0.5;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.0.0.0</VerInfo_Keys>
     <DCC_DebugInfoInTds>true</DCC_DebugInfoInTds>
     <Icon_MainIcon>..\..\..\icons\DripGrepper.ico</Icon_MainIcon>
     <VerInfo_Build>5</VerInfo_Build>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
     <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
-    <VerInfo_MajorVer>3</VerInfo_MajorVer>
-    <VerInfo_MinorVer>10</VerInfo_MinorVer>
-    <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.10.0.5;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.10.0.0</VerInfo_Keys>
+    <VerInfo_MajorVer>4</VerInfo_MajorVer>
+    <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.0.0.5;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.0.0.0</VerInfo_Keys>
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_Build>5</VerInfo_Build>
   </PropertyGroup>
@@ -148,17 +144,15 @@
     <VerInfo_Locale>1033</VerInfo_Locale>
     <Icon_MainIcon>..\..\..\icons\icons8-search-folder-windows-11-outline-32.ico</Icon_MainIcon>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-    <VerInfo_MajorVer>3</VerInfo_MajorVer>
-    <VerInfo_MinorVer>10</VerInfo_MinorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=3.10.0.8;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=3.10.0.0</VerInfo_Keys>
-    <VerInfo_Build>8</VerInfo_Build>
+    <VerInfo_MajorVer>4</VerInfo_MajorVer>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.0.0.6;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.0.0.0</VerInfo_Keys>
+    <VerInfo_Build>6</VerInfo_Build>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
     <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
-    <VerInfo_MajorVer>3</VerInfo_MajorVer>
-    <VerInfo_MinorVer>10</VerInfo_MinorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=3.10.0.8;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=3.10.0.0</VerInfo_Keys>
-    <VerInfo_Build>8</VerInfo_Build>
+    <VerInfo_MajorVer>4</VerInfo_MajorVer>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.0.0.6;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.0.0.0</VerInfo_Keys>
+    <VerInfo_Build>6</VerInfo_Build>
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
   </PropertyGroup>
@@ -291,6 +285,7 @@
       <Form>AppSettingsForm</Form>
     </DCCReference>
     <DCCReference Include="..\..\UI\RipGrepper.UI.Settings.ExtensionSettingsForm.pas" />
+    <DCCReference Include="..\..\Tools\RipGrepper.Tools.DelphiVersions.pas" />
     <BuildConfiguration Include="Base">
       <Key>Base</Key>
     </BuildConfiguration>
@@ -366,12 +361,6 @@
         <DeployFile LocalName="Win64\Debug\DRipGrepper.exe" Configuration="Debug" Class="ProjectOutput">
           <Platform Name="Win64">
             <RemoteName>DRipGrepper.exe</RemoteName>
-            <Overwrite>true</Overwrite>
-          </Platform>
-        </DeployFile>
-        <DeployFile LocalName="Win64\Debug\DRipGrepper.rsm" Configuration="Debug" Class="DebugSymbols">
-          <Platform Name="Win64">
-            <RemoteName>DRipGrepper.rsm</RemoteName>
             <Overwrite>true</Overwrite>
           </Platform>
         </DeployFile>
