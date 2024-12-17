@@ -28,7 +28,8 @@ type
 
 	TDefaultFontColors = class
 		const
-			RG_OPTIONS_TREEVIEW_SECTION_TITLE_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clPurple; BgColor : clNone; Style : [fsBold];);
+			RG_OPTIONS_TREEVIEW_SECTION_TITLE_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clPurple; BgColor : clNone;
+				Style : [fsBold];);
 
 			DEFAULT_COLORS : array of string = [
 			{ } 'MatchText=Segoe UI|9|clMaroon|clWindow|fsBold|fsUnderline',
@@ -101,7 +102,7 @@ type
 			constructor Create(const _ini : TMemIniFile);
 			destructor Destroy; override;
 			procedure LoadFromDict(); override;
-			procedure LoadDefaultsFromDict; override;
+			procedure LoadDefaultColors;
 			procedure ReloadColors;
 			procedure StoreToDict; override;
 			property FontColors : TFontColors read FFontColors write FFontColors;
@@ -152,17 +153,35 @@ begin
 		SettingsDict.CreateSetting('CounterText', varString, df.TREEVIEW_STAT_TEXT.ToString());
 		SettingsDict.CreateSetting('ErrorText', varString, df.TREEVIEW_ERROR_TEXT.ToString());
 		SettingsDict.CreateSetting('StatisticsText', varString, df.TREEVIEW_STATS_TEXT.ToString());
-		SettingsDict.CreateSetting('ColNumText', varString, df.TREEVIEW_STAT_TEXT.ToString());
-		SettingsDict.CreateSetting('LineNumText', varString, df.TREEVIEW_STAT_TEXT.ToString());
+		SettingsDict.CreateSetting('ColNumText', varString, df.TREEVIEW_COL_NUM_TEXT.ToString());
+		SettingsDict.CreateSetting('LineNumText', varString, df.TREEVIEW_LINE_NUM_TEXT.ToString());
 		SettingsDict.CreateSetting('FileText', varString, df.TREEVIEW_FILE_TEXT.ToString());
 	finally
 		df.Free;
 	end;
 end;
 
-procedure TColorSettings.LoadDefaultsFromDict;
+procedure TColorSettings.LoadDefaultColors;
 begin
-	inherited;
+	var
+	df := TDefaultFontColors.Create();
+	try
+		FFontColors.MatchText.FromString(df.TREEVIEW_MATCH_TEXT.ToString());
+		FFontColors.ReplaceText.FromString(df.TREEVIEW_REPLACE_TEXT.ToString());
+		FFontColors.ReplacedText.FromString(df.TREEVIEW_REPLACED_TEXT.ToString());
+		FFontColors.SearchTextInHistory.FromString(df.HIST_TREEVIEW_SEARCH_TEXT.ToString());
+		FFontColors.ReplaceTextInHistory.FromString(df.HIST_TREEVIEW_REPLACE_TEXT.ToString());
+		FFontColors.ReplacedTextInHistory.FromString(df.HIST_TREEVIEW_REPLACED_TEXT.ToString());
+		FFontColors.NormalText.FromString(df.TREEVIEW_NORMAL_TEXT.ToString());
+		FFontColors.CounterText.FromString(df.TREEVIEW_STAT_TEXT.ToString());
+		FFontColors.ErrorText.FromString(df.TREEVIEW_ERROR_TEXT.ToString());
+		FFontColors.StatisticsText.FromString(df.TREEVIEW_STATS_TEXT.ToString());
+		FFontColors.FileText.FromString(df.TREEVIEW_FILE_TEXT.ToString());
+		FFontColors.LineNumText.FromString(df.TREEVIEW_LINE_NUM_TEXT.ToString());
+		FFontColors.ColNumText.FromString(df.TREEVIEW_COL_NUM_TEXT.ToString());
+	finally
+		df.Free;
+	end;
 end;
 
 procedure TColorSettings.LoadFromDict;
@@ -320,8 +339,8 @@ begin
 	SetDefault('CounterText', TREEVIEW_STAT_TEXT);
 	SetDefault('ErrorText', TREEVIEW_ERROR_TEXT);
 	SetDefault('StatisticsText', TREEVIEW_STATS_TEXT);
-	SetDefault('ColNumText', TREEVIEW_STAT_TEXT);
-	SetDefault('LineNumText', TREEVIEW_STAT_TEXT);
+	SetDefault('ColNumText', TREEVIEW_COL_NUM_TEXT);
+	SetDefault('LineNumText', TREEVIEW_LINE_NUM_TEXT);
 	SetDefault('FileText', TREEVIEW_FILE_TEXT);
 end;
 

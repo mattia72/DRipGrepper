@@ -14,11 +14,15 @@ uses
 	Vcl.Dialogs,
 	Vcl.StdCtrls,
 	RipGrepper.Settings.FontColors,
-	RipGrepper.UI.SettingsFormBase;
+	RipGrepper.UI.SettingsFormBase,
+	Vcl.ExtCtrls;
 
 type
 	TColorSettingsForm = class(TSettingsBaseForm)
 		grpFontColors : TGroupBox;
+		Button1 : TButton;
+		Panel1 : TPanel;
+		procedure Button1Click(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 
 		private
@@ -41,7 +45,8 @@ implementation
 uses
 	RipGrepper.UI.ColorSelectorFrame,
 	RipGrepper.Tools.DebugUtils,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants,
+	System.RegularExpressions;
 
 {$R *.dfm}
 
@@ -52,13 +57,33 @@ begin
 	FFontColorSettings := _settings;
 	ReadSettings;
 	FAllHeight := TColorSelectorFrame.AddSelectionFrames(FFontColorSettings.FontColors, self, grpFontColors);
+	FAllHeight := FAllHeight + Panel1.Height;
+end;
+
+procedure TColorSettingsForm.Button1Click(Sender : TObject);
+var
+	cf : TColorSelectorFrame;
+	sFontAttribs : string;
+	sSettingsName : string;
+begin
+	FFontColorSettings.LoadDefaultColors;
+	FFontColorSettings.StoreToDict;
+	for var i := 0 to ComponentCount - 1 do begin
+		if Components[i] is TColorSelectorFrame then begin
+			cf := TColorSelectorFrame(Components[i]);
+			sSettingsName := TRegex.Replace(cf.LabelText.Caption, '[ ,:]', '');
+			sFontAttribs := FFontColorSettings.SettingsDict.GetSetting(sSettingsName);
+			cf.SelectedFontAttributes.FromString(sFontAttribs);
+			cf.Refresh;
+		end;
+	end;
 end;
 
 procedure TColorSettingsForm.FormShow(Sender : TObject);
 
 begin
 	inherited;
-//	self.Height := FAllHeight + self.Height;
+	// self.Height := FAllHeight + self.Height;
 end;
 
 procedure TColorSettingsForm.ReadSettings;
