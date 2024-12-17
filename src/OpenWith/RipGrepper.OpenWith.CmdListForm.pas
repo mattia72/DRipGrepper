@@ -240,11 +240,6 @@ begin
 
 		inc(i);
 	until (i = MAX_COMMAND_NUM);
-
-	if Length(Result) = 0 then begin
-		Result := [DEFAULT_EDITOR_IF_NOTHING_CONFIGURED];
-	end;
-
 end;
 
 function TOpenWithCmdList.GetFileNameFromCfg(const _configText : string) : string;

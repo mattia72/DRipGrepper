@@ -40,8 +40,8 @@ uses
 constructor TOpenWithSettings.Create(const _ini : TMemIniFile);
 begin
 	IniSectionName := OPEN_WITH_SETTINGS;
-	inherited;
 	FCommandList := TStringList.Create;
+	inherited;
 	TDebugUtils.DebugMessage('TOpenWithSettings.Create: ' + IniFile.FileName + '[' + IniSectionName + ']');
 end;
 
@@ -68,7 +68,9 @@ end;
 procedure TOpenWithSettings.Init;
 begin
 	inherited;
-	// TODO -cMM: TOpenWithSettings.Init default body inserted
+	for var i : integer := 0 to Length(DEFAULT_EDITORS) - 1 do begin
+		Command[i] := DEFAULT_EDITORS[i];
+	end;
 end;
 
 procedure TOpenWithSettings.ReadIni;
@@ -90,7 +92,7 @@ end;
 
 procedure TOpenWithSettings.LoadFromDict;
 begin
-	// TODO -cMM: TOpenWithSettings.LoadFromDict default body inserted
+	//
 end;
 
 procedure TOpenWithSettings.LoadDefaultsFromDict;
