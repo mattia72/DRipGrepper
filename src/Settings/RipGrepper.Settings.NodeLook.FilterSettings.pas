@@ -59,7 +59,8 @@ uses
 	System.StrUtils,
 	RipGrepper.Helper.Types,
 	System.SysUtils,
-	ArrayEx;
+	ArrayEx, 
+	RipGrepper.Settings.SettingsDictionary;
 
 constructor TFilterSettings.Create(const _ini : TMemIniFile);
 begin

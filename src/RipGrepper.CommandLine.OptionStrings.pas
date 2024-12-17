@@ -108,11 +108,13 @@ var
 begin
 	var
 	arr := _sOptions.Split([' '], TStringSplitOptions.ExcludeEmpty);
+	var
+	regex := RG_PARAM_WORD_IN_OPTION_LIST;
 	for var s in arr do begin
-		var
-		regex := RG_PARAM_WORD_IN_OPTION_LIST;
+//		var
+//		sEsc := EscapeMaskChars(s);
 		if TRegEx.IsMatch(s, regex) then begin
-			Result.Add(s);
+			Result.AddIfNotContains(s);
 		end else begin
 			if Result.Count > 0 then begin
 				sLastAllOptions := Result.Last;

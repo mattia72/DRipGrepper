@@ -183,16 +183,13 @@ type
 			procedure TestRemoveMultipleOptionsWithValue(const _sOptions : string);
 
 			[Test]
-			[Testcase('test1', '--vimgrep  --fixed-strings -g=*.ini -g=!*.bak;' + RG_PARAM_REGEX_GLOB + ';*.bbb;0', ';')]
-			[Testcase('test2', '--vimgrep  -g=*.ini -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
-			[Testcase('test3', '--vimgrep  -C=11 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
-			[Testcase('test4', '--vimgrep  -C=99 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
-			[Testcase('test5', '--vimgrep  --context=11 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
-			[Testcase('test6', '--vimgrep  --context=99 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_CONTEXT + ';99;1', ';')]
-			[Testcase('test7', '--vimgrep  --context=99 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_REPLACE + ';replace;1', ';')]
-			[Testcase('test8', '--vimgrep  --context=99 -g=!*.bak --fixed-strings -i;' + RG_PARAM_REGEX_REPLACE +
-				';replace text more world;1', ';')]
-			procedure TestToArray(const _sOptions, _sRegEx, _sValue : string; const _bUnique : integer);
+			[Testcase('test1', '--vimgrep  --fixed-strings -g=!__*/ -g=![Ee]xternal/ -g=*.pas -g=*.dfm;6;', ';')]
+			[Testcase('test2', '--vimgrep  -g=*.ini -g=!*.bak --fixed-strings -i;5;', ';')]
+			[Testcase('test3', '--vimgrep  -C=11 -g=!*.bak --fixed-strings -i;5;', ';')]
+			[Testcase('test4', '--vimgrep  -C=99 -g=!*.bak --fixed-strings -i;5;', ';')]
+			[Testcase('test5', '--vimgrep  --context=11 -g=!*.bak --fixed-strings -i;5;', ';')]
+			[Testcase('test6', '--vimgrep  --context=99 -g=!*.bak --fixed-strings -i;5;', ';')]
+			procedure TestToArray(const _sOptions : string; const _count : integer);
 			[Test]
 			{ } [Testcase('test1', '--vimgrep  --fixed-strings -g=*.ini -g=!*.bak|' + '*.pas;*.dfm;!ext/', '|')]
 			{ } [Testcase('test2', '--vimgrep  -g=!*.txt -F -g=*.ini -i -g=!*.bak -i|' + '*.pas;*.dfm;!ext/', '|')]
@@ -436,19 +433,25 @@ procedure TOptionStringsTest.TestUpdateOptions(const _sOptions, _sRegEx : string
 begin
 	var
 	op := TOptionStrings.New(_sOptions);
-	var
-		sOps : string := '';
+
 	if _bRemove = 1 then begin
 		op.RemoveOption(_sRegex);
 	end else begin
 		op.AddOption(_sRegex);
 	end;
 
+	var
+		sOps : string := op.AsString;
+
 	for var s : string in op.AsArray do begin
+		var
+		sEsc := TRegEx.Escape(s);
 		if _bRemove = 1 then begin
-			Assert.AreEqual(_bRemove <> 1, TRegEx.IsMatch(s, _sRegex), '''' + s + ''' should''t be in the options array:' + sOps);
+			Assert.AreEqual(_bRemove <> 1, TRegEx.IsMatch(s, _sRegex) or TRegEx.IsMatch(sEsc, _sRegex),
+				'''' + s + ''' shouldn''t be in the options array:' + sOps);
 		end else if (s = _sRegex.Split(['|'])[RG_PARAM_LONG_INDEX]) then begin
-			Assert.AreEqual(_bRemove <> 1, TRegEx.IsMatch(s, _sRegex), '''' + s + ''' should''t be in the options array:' + sOps);
+			Assert.AreEqual(_bRemove <> 1, TRegEx.IsMatch(s, _sRegex) or TRegEx.IsMatch(sEsc, _sRegex),
+				'''' + s + ''' shouldn''t be in the options array:' + sOps);
 		end;
 	end;
 end;
@@ -536,11 +539,11 @@ begin
 	end;
 end;
 
-procedure TOptionStringsTest.TestToArray(const _sOptions, _sRegEx, _sValue : string; const _bUnique : integer);
+procedure TOptionStringsTest.TestToArray(const _sOptions : string; const _count : integer);
 begin
 	var
 	op := TOptionStrings.ToArray(_sOptions);
-	Assert.IsTrue(op.Count > 0, 'count should bee in the options array');
+	Assert.AreEqual(_count, op.Count, Format('count should bee %d in %s', [_count, _sOptions]));
 end;
 
 procedure TOptionStringsTest.TestUpdateFileMasks(const _sOptions, _sNewMasks : string);

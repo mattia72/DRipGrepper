@@ -101,7 +101,7 @@ end;
 
 procedure TNodeLookSettings.LoadDefaultsFromDict;
 begin
-	//
+	// abstract
 end;
 
 procedure TNodeLookSettings.ReadIni;
