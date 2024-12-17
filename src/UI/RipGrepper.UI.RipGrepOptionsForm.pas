@@ -367,7 +367,7 @@ begin
 		case Column of
 			0 : begin
 				if Node.ChildCount > 0 then begin
-					TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.TREEVIEW_STAT_TEXT, false);
+					TItemDrawer.SetTextColor(TargetCanvas, TDefaultFontColors.RG_OPTIONS_TREEVIEW_SECTION_TITLE_TEXT, false);
 				end;
 			end;
 		end;

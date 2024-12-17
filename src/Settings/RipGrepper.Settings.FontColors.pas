@@ -3,6 +3,7 @@ unit RipGrepper.Settings.FontColors;
 interface
 
 uses
+	System.Classes,
 	System.UITypes,
 	Vcl.Graphics,
 	RipGrepper.Settings.Persistable,
@@ -27,23 +28,45 @@ type
 
 	TDefaultFontColors = class
 		const
-			HIST_TREEVIEW_SEARCH_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clOlive; BgColor : clWhite; Style : []);
-			HIST_TREEVIEW_REPLACE_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clGreen; BgColor : clWhite;
-				Style : [fsBold]);
-			HIST_TREEVIEW_REPLACED_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clMaroon; BgColor : clWhite; Style : [];);
+			RG_OPTIONS_TREEVIEW_SECTION_TITLE_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clPurple; BgColor : clNone; Style : [fsBold];);
 
-			TREEVIEW_MATCH_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clWhite; BgColor : clOlive; Style : [];);
-			TREEVIEW_REPLACE_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clWhite; BgColor : clGreen; Style : [fsBold];);
-			TREEVIEW_REPLACED_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clWhite; BgColor : clMaroon;
-				Style : [fsBold, fsStrikeOut];);
+			DEFAULT_COLORS : array of string = [
+			{ } 'MatchText=Segoe UI|9|clMaroon|clWindow|fsBold|fsUnderline',
+			{ } 'SearchTextInHistory=Segoe UI|9|clMaroon|clWindow|fsBold',
+			{ } 'ReplacedTextInHistory=Segoe UI|9|clMaroon|clWhite|fsBold|fsStrikeOut',
+			{ } 'NormalText=Segoe UI|9|clBlack|clNone',
+			{ } 'CounterText=Segoe UI|9|clHotLight|clNone',
+			{ } 'ReplacedText=Segoe UI|9|clWhite|clMaroon|fsBold|fsStrikeOut',
+			{ } 'ErrorText=Segoe UI|9|clRed|clNone',
+			{ } 'StatisticsText=Segoe UI|9|clHotLight|clNone|fsBold',
+			{ } 'ReplaceText=Segoe UI|9|clWhite|clGreen|fsBold',
+			{ } 'FileText=Segoe UI|9|clWindowFrame|clNone|fsBold',
+			{ } 'ReplaceTextInHistory=Segoe UI|9|clGreen|clWhite|fsBold',
+			{ } 'LineNumText=Segoe UI|9|clGrayText|clNone',
+			{ } 'ColNumText=Segoe UI|9|clGrayText|clNone'];
 
-			TREEVIEW_FILE_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clDkGray; BgColor : clNone; Style : [fsBold];);
-			TREEVIEW_NORMAL_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clDkGray; BgColor : clNone; Style : [];);
-			TREEVIEW_STAT_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clPurple; BgColor : clNone; Style : [];);
-			TREEVIEW_LINE_NUM_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clPurple; BgColor : clNone; Style : [];);
-			TREEVIEW_COL_NUM_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clPurple; BgColor : clNone; Style : [];);
-			TREEVIEW_ERROR_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clRed; BgColor : clNone; Style : [];);
-			TREEVIEW_STATS_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clTeal; BgColor : clNone; Style : [];);
+		public
+
+		var
+			HIST_TREEVIEW_SEARCH_TEXT : TFontAttributes;
+			HIST_TREEVIEW_REPLACE_TEXT : TFontAttributes;
+			HIST_TREEVIEW_REPLACED_TEXT : TFontAttributes;
+
+			TREEVIEW_MATCH_TEXT : TFontAttributes;
+			TREEVIEW_REPLACE_TEXT : TFontAttributes;
+			TREEVIEW_REPLACED_TEXT : TFontAttributes;
+
+			TREEVIEW_FILE_TEXT : TFontAttributes;
+			TREEVIEW_NORMAL_TEXT : TFontAttributes;
+
+			TREEVIEW_LINE_NUM_TEXT : TFontAttributes;
+			TREEVIEW_COL_NUM_TEXT : TFontAttributes;
+			TREEVIEW_ERROR_TEXT : TFontAttributes;
+			TREEVIEW_STATS_TEXT : TFontAttributes;
+			TREEVIEW_STAT_TEXT : TFontAttributes; //
+
+			constructor Create;
+			procedure SetDefault(const _name : string; var _color : TFontAttributes);
 	end;
 
 	TFontColors = record
@@ -92,7 +115,8 @@ uses
 	RipGrepper.Common.Constants,
 	RipGrepper.Helper.Types,
 	ArrayEx,
-	System.Rtti;
+	System.Rtti,
+	System.Generics.Defaults;
 
 { TColorSettings }
 
@@ -115,19 +139,25 @@ end;
 
 procedure TColorSettings.Init;
 begin
-	SettingsDict.CreateSetting('MatchText', varString, TDefaultFontColors.TREEVIEW_MATCH_TEXT.ToString());
-	SettingsDict.CreateSetting('ReplaceText', varString, TDefaultFontColors.TREEVIEW_REPLACE_TEXT.ToString());
-	SettingsDict.CreateSetting('ReplacedText', varString, TDefaultFontColors.TREEVIEW_REPLACED_TEXT.ToString());
-	SettingsDict.CreateSetting('SearchTextInHistory', varString, TDefaultFontColors.HIST_TREEVIEW_SEARCH_TEXT.ToString());
-	SettingsDict.CreateSetting('ReplaceTextInHistory', varString, TDefaultFontColors.HIST_TREEVIEW_REPLACE_TEXT.ToString());
-	SettingsDict.CreateSetting('ReplacedTextInHistory', varString, TDefaultFontColors.HIST_TREEVIEW_REPLACED_TEXT.ToString());
-	SettingsDict.CreateSetting('NormalText', varString, TDefaultFontColors.TREEVIEW_NORMAL_TEXT.ToString());
-	SettingsDict.CreateSetting('CounterText', varString, TDefaultFontColors.TREEVIEW_STAT_TEXT.ToString());
-	SettingsDict.CreateSetting('ErrorText', varString, TDefaultFontColors.TREEVIEW_ERROR_TEXT.ToString());
-	SettingsDict.CreateSetting('StatisticsText', varString, TDefaultFontColors.TREEVIEW_STATS_TEXT.ToString());
-	SettingsDict.CreateSetting('ColNumText', varString, TDefaultFontColors.TREEVIEW_STAT_TEXT.ToString());
-	SettingsDict.CreateSetting('LineNumText', varString, TDefaultFontColors.TREEVIEW_STAT_TEXT.ToString());
-	SettingsDict.CreateSetting('FileText', varString, TDefaultFontColors.TREEVIEW_FILE_TEXT.ToString());
+	var
+	df := TDefaultFontColors.Create();
+	try
+		SettingsDict.CreateSetting('MatchText', varString, df.TREEVIEW_MATCH_TEXT.ToString());
+		SettingsDict.CreateSetting('ReplaceText', varString, df.TREEVIEW_REPLACE_TEXT.ToString());
+		SettingsDict.CreateSetting('ReplacedText', varString, df.TREEVIEW_REPLACED_TEXT.ToString());
+		SettingsDict.CreateSetting('SearchTextInHistory', varString, df.HIST_TREEVIEW_SEARCH_TEXT.ToString());
+		SettingsDict.CreateSetting('ReplaceTextInHistory', varString, df.HIST_TREEVIEW_REPLACE_TEXT.ToString());
+		SettingsDict.CreateSetting('ReplacedTextInHistory', varString, df.HIST_TREEVIEW_REPLACED_TEXT.ToString());
+		SettingsDict.CreateSetting('NormalText', varString, df.TREEVIEW_NORMAL_TEXT.ToString());
+		SettingsDict.CreateSetting('CounterText', varString, df.TREEVIEW_STAT_TEXT.ToString());
+		SettingsDict.CreateSetting('ErrorText', varString, df.TREEVIEW_ERROR_TEXT.ToString());
+		SettingsDict.CreateSetting('StatisticsText', varString, df.TREEVIEW_STATS_TEXT.ToString());
+		SettingsDict.CreateSetting('ColNumText', varString, df.TREEVIEW_STAT_TEXT.ToString());
+		SettingsDict.CreateSetting('LineNumText', varString, df.TREEVIEW_STAT_TEXT.ToString());
+		SettingsDict.CreateSetting('FileText', varString, df.TREEVIEW_FILE_TEXT.ToString());
+	finally
+		df.Free;
+	end;
 end;
 
 procedure TColorSettings.LoadDefaultsFromDict;
@@ -275,6 +305,44 @@ begin
 		ColNumText := _fa
 	else
 		raise Exception.Create('Unknown font attribute name: ' + _name);
+end;
+
+constructor TDefaultFontColors.Create;
+begin
+	inherited;
+	SetDefault('MatchText', TREEVIEW_MATCH_TEXT);
+	SetDefault('ReplaceText', TREEVIEW_REPLACE_TEXT);
+	SetDefault('ReplacedText', TREEVIEW_REPLACED_TEXT);
+	SetDefault('SearchTextInHistory', HIST_TREEVIEW_SEARCH_TEXT);
+	SetDefault('ReplaceTextInHistory', HIST_TREEVIEW_REPLACE_TEXT);
+	SetDefault('ReplacedTextInHistory', HIST_TREEVIEW_REPLACED_TEXT);
+	SetDefault('NormalText', TREEVIEW_NORMAL_TEXT);
+	SetDefault('CounterText', TREEVIEW_STAT_TEXT);
+	SetDefault('ErrorText', TREEVIEW_ERROR_TEXT);
+	SetDefault('StatisticsText', TREEVIEW_STATS_TEXT);
+	SetDefault('ColNumText', TREEVIEW_STAT_TEXT);
+	SetDefault('LineNumText', TREEVIEW_STAT_TEXT);
+	SetDefault('FileText', TREEVIEW_FILE_TEXT);
+end;
+
+procedure TDefaultFontColors.SetDefault(const _name : string; var _color : TFontAttributes);
+var
+	dc : TArrayEx<string>;
+begin
+	dc := DEFAULT_COLORS;
+	var
+	idx := dc.IndexOf(_name, TComparer<string>.Construct(
+		function(const Left, Right : string) : Integer
+		begin
+			var
+			al := Left.Split(['=']);
+			var
+			ar := Right.Split(['=']);
+			Result := TComparer<string>.Default.Compare(al[0], ar[0]);
+		end));
+	var
+	ac := dc[idx].Split(['=']);
+	_color.FromString(ac[1]);
 end;
 
 end.
