@@ -24,7 +24,7 @@ type
 			class function GetFileMaskParamsFromDelimitedText(const _sFileMasksDelimited : string; const _chSeparator : char = ';')
 				: string; overload; static;
 			class function GetFileMaskParamsFromOptions(const _sOptions : string; const _chSeparator : char = ';') : TArray<string>; static;
-			class function GetFileMasksDelimited(const _sOptions : string) : string; static;
+			class function GetUniqueFileMasksDelimited(const _sOptions : string) : string; static;
 			class function GetMissingFileMaskOptions(const _sOptions, _sMasks : string) : string; static;
 			class procedure RebuildArguments(var _params : TRipGrepParameterSettings); static;
 			class procedure RemoveWordBoundaries(var _s : string); static;
@@ -74,18 +74,17 @@ end;
 class function TCommandLineBuilder.GetFileMaskParamsArrFromDelimitedText(const _sFileMasksDelimited : string;
 	const _sSeparator : string = ';') : TArray<string>;
 var
-	list : TStringList;
+	fileMasks : TArrayEx<string>;
 begin
-	list := TStringList.Create(dupIgnore, False, True);
-	list.Delimiter := ' ';
-	try
-		for var s : string in _sFileMasksDelimited.Split([_sSeparator]) do begin
-			list.AddIfNotContains('-g=' + s);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TCommandLineBuilder.GetFileMaskParamsArrFromDelimitedText');
+
+	for var s : string in _sFileMasksDelimited.Split([_sSeparator]) do begin
+		if 0 > fileMasks.AddIfNotContains('-g=' + s) then begin
+			dbgMsg.Msg('duplicate file mask skipped:' + s)
 		end;
-		Result := list.ToStringArray;
-	finally
-		list.Free;
 	end;
+	Result := fileMasks.Items;
 end;
 
 class function TCommandLineBuilder.GetFileMaskParamsFromDelimitedText(const _sFileMasksDelimited : string;
@@ -100,22 +99,24 @@ class function TCommandLineBuilder.GetFileMaskParamsFromOptions(const _sOptions 
 begin
 	var
 	s := _sOptions.Trim([' ', _chSeparator]);
-	Result := GetFileMasksDelimited(s).Split([_chSeparator]);
+	Result := GetUniqueFileMasksDelimited(s).Split([_chSeparator]);
 end;
 
-class function TCommandLineBuilder.GetFileMasksDelimited(const _sOptions : string) : string;
+class function TCommandLineBuilder.GetUniqueFileMasksDelimited(const _sOptions : string) : string;
 var
-	fileMask : string;
+	fileMasks : TArrayEx<string>;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TCommandLineBuilder.GetFileMasksDelimited');
+	dbgMsg := TDebugMsgBeginEnd.New('TCommandLineBuilder.GetUniqueFileMasksDelimited');
 
 	for var sOp in _sOptions.Split([' ']) do begin
 		if TOptionsHelper.IsOptionWithValue(sOp, RG_PARAM_REGEX_GLOB) then begin
-			fileMask := fileMask + ';' + TOptionsHelper.GetOptionValue(sOp);
+			if 0 > fileMasks.AddIfNotContains(TOptionsHelper.GetOptionValue(sOp)) then begin
+				dbgMsg.Msg('duplicate skipped:' + sOp)
+			end;
 		end;
 	end;
-	Result := fileMask.Trim([';', ' ']);
+	Result := string.Join(';', fileMasks.Items);
 	dbgMsg.Msg('Result=' + Result);
 end;
 

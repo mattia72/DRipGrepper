@@ -666,12 +666,12 @@ end;
 function TRipGrepperTopFrame.GetToolBarWidth(_tb : TToolBar) : Integer;
 begin
 	Result := 0;
-	TDebugUtils.DebugMessage(Format('TRipGrepperTopFrame.GetToolBarWidth %s Width: %d BtnCnt:%d ', [_tb.Name, _tb.Width, _tb.ButtonCount]));
+//	TDebugUtils.DebugMessage(Format('TRipGrepperTopFrame.GetToolBarWidth %s Width: %d BtnCnt:%d ', [_tb.Name, _tb.Width, _tb.ButtonCount]));
 
 	for var i : integer := 0 to _tb.ButtonCount - 1 do begin
 		Result := Result + _tb.Buttons[i].Width;
 	end;
-	TDebugUtils.DebugMessage(Format('TRipGrepperTopFrame.GetToolBarWidth %s Width: %d', [_tb.Name, Result, _tb.ButtonCount]));
+//	TDebugUtils.DebugMessage(Format('TRipGrepperTopFrame.GetToolBarWidth %s Width: %d', [_tb.Name, Result, _tb.ButtonCount]));
 end;
 
 procedure TRipGrepperTopFrame.Init;

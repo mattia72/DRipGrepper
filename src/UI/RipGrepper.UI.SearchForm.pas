@@ -618,7 +618,7 @@ begin
 	_cmb.Items.Assign(_items);
 	if HasHistItemObjWithResult then begin
 		params := FHistItemObj.RipGrepArguments.GetValues(RG_ARG_OPTIONS);
-		_cmb.Text := TCommandLineBuilder.GetFileMasksDelimited(string.Join(' ', params));
+		_cmb.Text := TCommandLineBuilder.GetUniqueFileMasksDelimited(string.Join(' ', params));
 	end else begin
 		_cmb.Text := _cmb.Items[0];
 	end;
@@ -1209,7 +1209,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.UpdateFileMasksInFileMasks;
 begin
-	cmbFileMasks.Text := TCommandLineBuilder.GetFileMasksDelimited(FParamsSetByGui.RgOptions.AsString);
+	cmbFileMasks.Text := TCommandLineBuilder.GetUniqueFileMasksDelimited(FParamsSetByGui.RgOptions.AsString);
 	TDebugUtils.DebugMessage('UpdateFileMasksInFileMasks cmbFileMasks.Text=' + cmbFileMasks.Text);
 end;
 
