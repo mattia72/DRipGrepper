@@ -166,7 +166,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       50)
     object btn_Save: TButton
       AlignWithMargins = True
-      Left = 339
+      Left = 337
       Top = 16
       Width = 75
       Height = 25
@@ -180,7 +180,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
     end
     object btn_Cancel: TButton
       AlignWithMargins = True
-      Left = 430
+      Left = 428
       Top = 16
       Width = 75
       Height = 25
@@ -212,7 +212,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       AlignWithMargins = True
       Left = 10
       Top = 228
-      Width = 282
+      Width = 280
       Height = 20
       Margins.Left = 50
       Margins.Top = 15
@@ -223,7 +223,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Caption = 'Command:'
     end
     object btnModify: TButton
-      Left = 480
+      Left = 478
       Top = 246
       Width = 25
       Height = 25
@@ -240,7 +240,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 0
     end
     object btnOpenFile: TButton
-      Left = 453
+      Left = 451
       Top = 246
       Width = 25
       Height = 25
@@ -259,7 +259,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
     object edt_OpenWithCmd: TEdit
       Left = 10
       Top = 248
-      Width = 436
+      Width = 434
       Height = 23
       Margins.Left = 50
       Margins.Top = 8
@@ -273,7 +273,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       AlignWithMargins = True
       Left = 10
       Top = 30
-      Width = 501
+      Width = 499
       Height = 186
       Hint = 
         '|Examples:'#13#10'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"'#13#10 +
@@ -286,7 +286,9 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Anchors = [akLeft, akTop, akRight, akBottom]
       AutoComplete = False
       Color = clHighlightText
+      ItemHeight = 15
       Items.Strings = (
+        'notepad.exe "<FILE>"'
         'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"'
         'notepad++.exe "<FILE>" -n<LINE> -c<COL>'
         'explorer.exe /select,"<FILE>"'

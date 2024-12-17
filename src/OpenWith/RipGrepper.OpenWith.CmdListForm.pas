@@ -229,6 +229,7 @@ begin
 
 		if sCmds = '' then begin
 			break
+		end else begin
 		end;
 
 		arrCmd := [''];
@@ -239,6 +240,10 @@ begin
 
 		inc(i);
 	until (i = MAX_COMMAND_NUM);
+
+	if Length(Result) = 0 then begin
+		Result := [DEFAULT_EDITOR_IF_NOTHING_CONFIGURED];
+	end;
 
 end;
 

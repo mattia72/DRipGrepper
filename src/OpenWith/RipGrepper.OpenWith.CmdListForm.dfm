@@ -169,7 +169,7 @@ object OpenWithCmdList: TOpenWithCmdList
       360
       34)
     object btn_Save: TButton
-      Left = 165
+      Left = 163
       Top = 4
       Width = 75
       Height = 25
@@ -184,7 +184,7 @@ object OpenWithCmdList: TOpenWithCmdList
       TabOrder = 0
     end
     object btn_Cancel: TButton
-      Left = 249
+      Left = 247
       Top = 4
       Width = 75
       Height = 25
@@ -305,7 +305,6 @@ object OpenWithCmdList: TOpenWithCmdList
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
-      Margins.Bottom = 0
       Align = alTop
       Caption = 'lblHint'
       WordWrap = True
@@ -319,7 +318,6 @@ object OpenWithCmdList: TOpenWithCmdList
       Margins.Left = 8
       Margins.Top = 0
       Margins.Right = 8
-      Margins.Bottom = 0
       Align = alTop
       Caption = 'lblHint2'
       WordWrap = True
