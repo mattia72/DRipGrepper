@@ -39,7 +39,7 @@ type
 
 		private
 			FBSkipChangeEvent : Boolean;
-			FSelectedFontAttributes : TFontAttributes;
+			FSelectedFontAttributes: TFontAttributes;
 			FSelectedFont : TFont;
 			function GetSelectedFont : TFont;
 			function GetSelectedFontAttributes : TFontAttributes;
@@ -56,7 +56,7 @@ type
 			procedure AssignFontAttributes(const _fa : TFontAttributes);
 			procedure Refresh;
 			class procedure WriteColorSettings(var _fontColors : TFontColors; _parentForm : TForm);
-			property SelectedFontAttributes : TFontAttributes read GetSelectedFontAttributes write FSelectedFontAttributes;
+			property SelectedFontAttributes: TFontAttributes read FSelectedFontAttributes write FSelectedFontAttributes;
 			property SelectedFont : TFont read GetSelectedFont write FSelectedFont;
 
 	end;
@@ -284,7 +284,7 @@ begin
 			csf := comp as TColorSelectorFrame;
 			if Assigned(csf) then begin
 				fc.SetByName(compName.Replace(COMPONENT_NAME_COLORSELECTOR, ''),
-					{ } csf.SelectedFontAttributes);
+					{ } csf.GetSelectedFontAttributes);
 			end else begin
 				dbgMsg.ErrorMsgFmt('%s settings not saved.', [compName]);
 			end;
