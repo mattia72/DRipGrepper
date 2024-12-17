@@ -36,7 +36,7 @@ type
 			{ } 'SearchTextInHistory=Segoe UI|9|clMaroon|clWindow|fsBold',
 			{ } 'ReplacedTextInHistory=Segoe UI|9|clMaroon|clWhite|fsBold|fsStrikeOut',
 			{ } 'NormalText=Segoe UI|9|clBlack|clNone',
-			{ } 'CounterText=Segoe UI|9|clHotLight|clNone',
+			{ } 'CounterText=Segoe UI|9|clPurple|clNone',
 			{ } 'ReplacedText=Segoe UI|9|clWhite|clMaroon|fsBold|fsStrikeOut',
 			{ } 'ErrorText=Segoe UI|9|clRed|clNone',
 			{ } 'StatisticsText=Segoe UI|9|clHotLight|clNone|fsBold',
