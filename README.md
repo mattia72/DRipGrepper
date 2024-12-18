@@ -82,7 +82,7 @@ Configuration is stored in ini file (`DripGrepper.ini` for standalone and `DripE
     - [x] View settings: colors
     - [x] App settings: rg path, debug trace, expert mode
       - [ ] configurable length of history
-    - [ ] Extension settings
+    - [x] Extension settings
 
 ### Delphi Extension 
 ![Screenshot](./screenshots/DripExtension.png)
@@ -122,12 +122,20 @@ scoop install dripgrepper
 * Unzip
 
 #### Delphi Integration
+##### As BPL package
 * Open Delphi
 * Open `Tools | GetIt-Package-Manager` 
 * Install `VirtualTree for VCL`
 * Open `Component | Install Packages...`
 * Add `DripExtension.bpl` to Design packages list
 * Ready
+##### As Expert DLL  
+* Run `DripGrepper.exe`
+* Open Config...
+* Select Extension tab
+* Push Install... 
+  * (If not found in current folder, select `DripExtensions.dll`)
+* Restart Delphi
 
 ## Thanks
 -  [ripgrep](https://github.com/BurntSushi/ripgrep)

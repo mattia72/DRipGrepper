@@ -1,5 +1,6 @@
 [CmdletBinding()]
 param (
+    $BuildConfig = "Release",
     [switch] $BuildStandalone,
     [switch] $BuildExtension,
     [switch] $RunUnittest,
@@ -127,9 +128,9 @@ function Build-StandaloneRelease {
     Import-Module -Name PSDelphi -Force
     $projectPath = Get-ProjectPath "src\Project" ""
     $result = $null
-    Build-DelphiProject -ProjectPath $projectPath\DRipGrepper.dproj -BuildConfig Release -Platform "Win32" -StopOnFirstFailure -CountResult -Result ([ref]$result)
+    Build-DelphiProject -ProjectPath $projectPath\DRipGrepper.dproj -BuildConfig $BuildConfig -Platform "Win32" -StopOnFirstFailure -CountResult -Result ([ref]$result)
     Test-BuildResult -result $result
-    Build-DelphiProject -ProjectPath $projectPath\DRipGrepper.dproj -BuildConfig Release -Platform "Win64" -StopOnFirstFailure -CountResult -Result ([ref]$result)
+    Build-DelphiProject -ProjectPath $projectPath\DRipGrepper.dproj -BuildConfig $BuildConfig -Platform "Win64" -StopOnFirstFailure -CountResult -Result ([ref]$result)
     Test-BuildResult -result $result    
 }
 
@@ -139,9 +140,9 @@ function Build-AndRunUnittest {
     $projectPath = Split-Path -Parent $PSScriptRoot 
     $unittestPath = Join-Path $projectPath "UnitTest"
     $result = $null
-    Build-DelphiProject -ProjectPath $unittestPath\DRipGrepperUnittest.dproj -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result)
+    Build-DelphiProject -ProjectPath $unittestPath\DRipGrepperUnittest.dproj -BuildConfig $BuildConfig -StopOnFirstFailure -CountResult -Result ([ref]$result)
     Test-BuildResult -result $result    
-    $unittestPath = Join-Path $unittestPath "\Win32\Release"
+    $unittestPath = Join-Path $unittestPath "\Win32\$BuildConfig"
 
     & $unittestPath\DRipGrepperUnittest.exe -exitbehavior:Continue
     
@@ -162,7 +163,7 @@ function Build-ExtensionRelease {
     Import-Module -Name PSDelphi -Force
     $projectPath = Get-ProjectPath "Extension\src\Project" "Bpl."
     $result = $null
-    Build-DelphiProject -ProjectPath $projectPath\DRipExtension.dproj -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result) 
+    Build-DelphiProject -ProjectPath $projectPath\DRipExtension.dproj -BuildConfig $BuildConfig -StopOnFirstFailure -CountResult -Result ([ref]$result) 
     Test-BuildResult -result $result
 }
 
@@ -173,7 +174,7 @@ function Build-ExpertDllRelease {
     $result = $null
     # add -LUDesignIde to the msbuild parameters
     # see https://docwiki.embarcadero.com/Libraries/Athens/en/DesignIntf
-    Build-DelphiProject -ProjectPath $projectPath\DRipExtensions.dproj  -BuildConfig Release -StopOnFirstFailure -CountResult -Result ([ref]$result)
+    Build-DelphiProject -ProjectPath $projectPath\DRipExtensions.dproj  -BuildConfig $BuildConfig -StopOnFirstFailure -CountResult -Result ([ref]$result)
     Test-BuildResult -result $result
 }
 
@@ -190,7 +191,7 @@ function Add-ToAssetsDir {
         Write-Error "Search FileVersion=$appVersion in *.dproj and change it!`r`nDeploy stopped." -ErrorAction Stop
     }
     New-Item -Path $AssetDir -ItemType Directory -Force -ErrorAction SilentlyContinue
-    Copy-Item -Path $AssetItemPath -Destination $AssetDir -Verbose -ErrorAction Stop
+    Copy-Item -Path $AssetItemPath -Destination $AssetDir -ErrorAction Stop
 }
 
 function New-StandaloneZips {
@@ -198,7 +199,7 @@ function New-StandaloneZips {
 
     "Win32" , "Win64" | ForEach-Object {
         $lastDelphiVer = Get-LastInstalledDelphiVersion
-        $ZipDir = $(Join-Path $projectPath "src\Project\$($lastDelphiVer.Data.Dir)\$_\Release")
+        $ZipDir = $(Join-Path $projectPath "src\Project\$($lastDelphiVer.Data.Dir)\$_\$BuildConfig")
         $AssetDir = $(Join-Path $global:AssetsDirectory $_)
     
         $win64 = $($_ -eq 'Win64')
@@ -244,7 +245,7 @@ function New-ExpertDllZip {
     $ReleaseType = "Win32"
     $win64 = $($ReleaseType -eq 'Win64')
     Get-InstalledDelphiVersions | ForEach-Object {
-        $ZipDir = $(Join-Path $projectPath "Extension\src\Project\Dll.$($_.Data.Dir)\$ReleaseType\Release")
+        $ZipDir = $(Join-Path $projectPath "Extension\src\Project\Dll.$($_.Data.Dir)\$ReleaseType\$BuildConfig")
         $AssetDir = $(Join-Path $global:AssetsDirectory "$($_.Data.Dir).Dll")
         Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $global:ExpertFileName) -Win64:$false
         $dest = "$global:AssetsDirectory\$($global:AssetExpertZipName -f $($win64 ? 'x64' : 'x86'), $_.Data.Dir ,$global:Version)"
@@ -277,7 +278,7 @@ function New-ReleaseWithAsset {
 
     if ($Deploy -or $LocalDeploy) {
         # Remove items recursively from the AssetsDirectory
-        Remove-Item -Path "$global:AssetsDirectory\*" -Recurse -Force -Verbose -Confirm:$(-not $Force) -ErrorAction SilentlyContinue
+        Remove-Item -Path "$global:AssetsDirectory\*" -Recurse -Force -Confirm:$(-not $Force) -ErrorAction SilentlyContinue
         New-StandaloneZips 
         New-ExtensionZip 
         New-ExpertDllZip 

@@ -30,7 +30,7 @@ Marked with checkmark if ready, else planned ...
   - [x] rg.exe path
   - [x] **extension**: install as expert dll into Delphi IDE
   - [x] configure **extension** shortcuts
-  - [x] configure colors
+  - [x] configure colors, load defaults
 - [ ] **extension**: save all before search message?
 - [ ] save/load search histories in file
 - [ ] JSON config files
@@ -48,5 +48,7 @@ Marked with checkmark if fixed, else it is a known bug.
         - [x] replace by rg is ok: there will be changed every occurence in every lines 
     - [ ] replace by toolbar is always ignore case
 - [x] context line nums are in Col instead of Row column
-- [ ] include/exclude path doubles 
+- [x] include/exclude path doubles 
 - [ ] exception on closing ide
+- [ ] ugly dark mode
+
