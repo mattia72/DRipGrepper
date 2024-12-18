@@ -34,7 +34,7 @@ type
 			FRipGrepResult : Integer;
 			FTotalMatchCount : integer;
 			function GetElapsedTimeText : string;
-			function GetErrorCounters : TErrorCounters; export;
+			function GetErrorCounters : TErrorCounters;
 			function GetFileCount : integer;
 			function GetGuiSearchTextParams : TGuiSearchTextParams;
 			function GetIsReplaceMode : Boolean;

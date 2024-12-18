@@ -21,7 +21,8 @@ type
 	TColorSettingsForm = class(TSettingsBaseForm)
 		grpFontColors : TGroupBox;
 		Button1 : TButton;
-		Panel1 : TPanel;
+		pnlBottom : TPanel;
+		pnlTop : TPanel;
 		procedure Button1Click(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 
@@ -57,7 +58,7 @@ begin
 	FFontColorSettings := _settings;
 	ReadSettings;
 	FAllHeight := TColorSelectorFrame.AddSelectionFrames(FFontColorSettings.FontColors, self, grpFontColors);
-	FAllHeight := FAllHeight + Panel1.Height;
+	FAllHeight := FAllHeight + pnlBottom.Height;
 end;
 
 procedure TColorSettingsForm.Button1Click(Sender : TObject);

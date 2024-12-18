@@ -11,7 +11,6 @@ uses
 	Vcl.Menus;
 
 const
-    FONTS_AND_COLORS_CAPTION = 'Fonts and Colors';
 	{ }{$IFDEF WIN64}
 	APP_PLATFORM = 'x64';
 	{ } {$ELSE}
@@ -19,9 +18,10 @@ const
 	{ }	{$ENDIF}
 	APPNAME = 'DRipGrepper';
 	EXTENSION_NAME = 'DRipExtensions';
-    EXTENSION_MENU_ROOT_TEXT = '&' + EXTENSION_NAME + '...';
+	EXTENSION_MENU_ROOT_TEXT = '&' + EXTENSION_NAME + '...';
 
 	BAK_FILE_EXTENSION = '.bak';
+	FONTS_AND_COLORS_CAPTION = 'Appearance';
 
 	DRIPGREPPER_WIZARD_NAME = 'DRipGrepper';
 	HOME_PAGE = 'https://github.com/mattia72/DRipGrepper';
