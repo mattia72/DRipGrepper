@@ -55,7 +55,7 @@ end;
 
 class destructor TDripExtensionMenu.Destroy;
 begin
-	TDebugUtils.DebugMessage('TDRipExtension.Destroy G_DripMenu.Free');
+	TDebugUtils.DebugMessage('class TDripExtensionMenu.Destroy G_DripMenu.Free');
 	G_DripMenu.Free;
 end;
 

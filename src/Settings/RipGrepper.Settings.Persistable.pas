@@ -29,14 +29,18 @@ type
 	end;
 
 	TPersistableSettings = class(TNoRefCountObject, IIniPersistable)
+		strict private
+			class constructor Create;
+			class destructor Destroy;
+
 		private
 			FIniFile : TMemIniFile;
 			FbDefaultLoaded : Boolean;
 			FbOwnIniFile : Boolean;
 			FIniSectionName : string;
 			FIsAlreadyRead : Boolean;
-			FCriticalSection : TCriticalSection;
 			procedure CreateIniFile;
+			class var FLockObject : TObject;
 			function GetIniFile : TMemIniFile;
 			procedure ReadSettings;
 			procedure SetIniFile(const Value : TMemIniFile);
@@ -129,7 +133,6 @@ begin
 	FIsModified := False;
 	FIsAlreadyRead := False;
 	FSettingsDict := TSettingsDictionary.Create(IniSectionName);
-	FCriticalSection := TCriticalSection.Create;
 	FbDefaultLoaded := False;
 	if not Assigned(FIniFile) then begin
 		CreateIniFile();
@@ -138,13 +141,23 @@ begin
 	Init();
 end;
 
+class constructor TPersistableSettings.Create;
+begin
+	FLockObject := TObject.Create;
+end;
+
 destructor TPersistableSettings.Destroy;
 begin
 	if FbOwnIniFile then begin
 		FIniFile.Free;
 	end;
 	FSettingsDict.Free;
-	FCriticalSection.Free;
+	inherited;
+end;
+
+class destructor TPersistableSettings.Destroy;
+begin
+	FLockObject.Free;
 	inherited;
 end;
 
@@ -396,18 +409,18 @@ end;
 
 procedure TPersistableSettings.UpdateIniFile;
 begin
-//  var
-//  dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
-// trace causes exception on closing delphi ide
+	// var
+	// dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
+	// trace causes exception on closing delphi ide
 	var
-	lock := TLockGuard.NewLock(FCriticalSection);
-//  dbgMsg.Msg('Lock Entered - IniFile update begin ' + FIniFile.FileName);
-//  try
-		FIniFile.UpdateFile;
-//  except
-  //      on E : Exception do
-  //          dbgMsg.ErrorMsgFmt('%s', [E.Message]);
-//  end;
+	lock := TLockGuard.NewLock(FLockObject);
+	// dbgMsg.Msg('Lock Entered - IniFile update begin ' + FIniFile.FileName);
+	// try
+	FIniFile.UpdateFile;
+	// except
+	// on E : Exception do
+	// dbgMsg.ErrorMsgFmt('%s', [E.Message]);
+	// end;
 end;
 
 procedure TPersistableSettings.WriteSettings(_bDefault : Boolean = False);
@@ -449,7 +462,7 @@ begin
 	end;
 
 	var
-	lock := TLockGuard.NewLock(FCriticalSection);
+	lock := TLockGuard.NewLock(FLockObject);
 	dbgMsg.MsgFmt('Lock Entered - Write [%s] %s', [_sIniSection, _sKey]);
 	try
 		case _setting.ValueType of

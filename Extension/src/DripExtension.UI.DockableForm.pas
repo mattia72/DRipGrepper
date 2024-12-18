@@ -144,7 +144,7 @@ uses
 procedure TRipGrepperDockableForm.CustomizePopupMenu(PopupMenu : TPopupMenu);
 begin
 	PopupMenu := ParentFrame.MainFrame.PopupMenuResult;
-    Assert(Assigned(PopupMenu));
+	Assert(Assigned(PopupMenu));
 end;
 
 procedure TRipGrepperDockableForm.CustomizeToolBar(ToolBar : TToolBar);
@@ -218,7 +218,8 @@ end;
 
 class procedure TRipGrepperDockableForm.CreateInstance;
 begin
-	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperDockableForm.CreateInstance');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperDockableForm.CreateInstance');
 
 	FInstance := TRipGrepperDockableForm.Create();
 	var
@@ -235,6 +236,7 @@ class procedure TRipGrepperDockableForm.DestroyInstance;
 begin
 	(BorlandIDEServices as INTAServices).UnregisterDockableForm(FInstance);
 	FInstance.Free;
+	TDebugUtils.DebugMessage('TRipGrepperDockableForm.DestroyInstance ended.');
 end;
 
 class function TRipGrepperDockableForm.ShowDockableFormAndSearch : TCustomForm;

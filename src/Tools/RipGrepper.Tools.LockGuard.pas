@@ -8,11 +8,10 @@ uses
 type
 	TLockGuard = record
 		private
-			FbOwnCriticalSection : Boolean;
-			FCriticalSection : TCriticalSection;
+			FLockObj: TObject;
 
 		public
-			class function NewLock(const _critSec : TCriticalSection = nil) : TLockGuard; static;
+			class function NewLock(const _lockObj: TObject): TLockGuard; static;
 			class operator Finalize(var Dest : TLockGuard);
 			class operator Initialize(out Dest : TLockGuard);
 	end;
@@ -22,32 +21,23 @@ implementation
 uses
 	RipGrepper.Tools.DebugUtils;
 
-class function TLockGuard.NewLock(const _critSec : TCriticalSection = nil) : TLockGuard;
+class function TLockGuard.NewLock(const _lockObj: TObject): TLockGuard;
 begin
-//  TDebugUtils.Msg('TLockGuard.NewLock');
-// trace causes exception on closing delphi ide
-	Result.FbOwnCriticalSection := (_critSec = nil);
-	if Result.FbOwnCriticalSection then begin
-		Result.FCriticalSection := TCriticalSection.Create();
-	end else begin
-		Result.FCriticalSection := _critSec;
-	end;
+	TDebugUtils.Msg('TLockGuard.NewLock');
+	Result.FLockObj := _lockObj;
+	TMonitor.Enter(Result.FLockObj);
 end;
 
 class operator TLockGuard.Finalize(var Dest : TLockGuard);
 begin
 	TDebugUtils.Msg('TLockGuard.Release');
-	Dest.FCriticalSection.Release;
-	if Dest.FbOwnCriticalSection then begin
-		Dest.FCriticalSection.Free;
-	end;
+	TMonitor.Exit(Dest.FLockObj);
 end;
 
 class operator TLockGuard.Initialize(out Dest : TLockGuard);
 begin
 	TDebugUtils.Msg('TLockGuard.Initialize');
-	Dest.FCriticalSection := nil;
-	Dest.FbOwnCriticalSection := True;
+	Dest.FLockObj := nil;
 end;
 
 end.

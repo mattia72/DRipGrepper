@@ -16,14 +16,16 @@ type
 			class var FInstance : TRipGrepperSettingsInstance;
 			class var FLock : TObject;
 			class var FSettings : TRipGrepperSettings;
+
 		public
 			class constructor Create;
 			destructor Destroy; override;
-			class function GetInstance: TRipGrepperSettings; static;
+			class function GetInstance : TRipGrepperSettings; static;
 			class property Instance : TRipGrepperSettings read GetInstance;
 	end;
 
 implementation
+
 uses
 	RipGrepper.Tools.DebugUtils;
 
@@ -41,20 +43,19 @@ end;
 
 destructor TRipGrepperSettingsInstance.Destroy;
 begin
-//  var
-//  dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettingsInstance.Destroy');
-// trace causes exception on closing delphi ide
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettingsInstance.Destroy');
 	FSettings.Free;
 	inherited;
 end;
 
 class destructor TRipGrepperSettingsInstance.Destroy;
 begin
-	FInstance.Free;  // very last
+	FInstance.Free; // very last
 	FLock.Free;
 end;
 
-class function TRipGrepperSettingsInstance.GetInstance: TRipGrepperSettings;
+class function TRipGrepperSettingsInstance.GetInstance : TRipGrepperSettings;
 begin
 	if not Assigned(FInstance) then begin
 		System.TMonitor.Enter(FLock);
@@ -69,13 +70,13 @@ begin
 	Result := FInstance.FSettings;
 end;
 
-//initialization
+// initialization
 
-//TRipGrepperSettingsInstance.FLock := TObject.Create;
+// TRipGrepperSettingsInstance.FLock := TObject.Create;
 
-//finalization
+// finalization
 
-//FreeAndNil(TRipGrepperSettingsInstance.FInstance);
-//FreeAndNil(TRipGrepperSettingsInstance.FLock);
+// FreeAndNil(TRipGrepperSettingsInstance.FInstance);
+// FreeAndNil(TRipGrepperSettingsInstance.FLock);
 
 end.

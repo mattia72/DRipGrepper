@@ -90,7 +90,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.Destroy');
 	RemovePluginInfo;
-	dbgMsg.Msg('TDRipExtension.Destroy FDockableForm.Free');
+	dbgMsg.Msg('FDockableForm.Free');
 	FDockableForm.Free;
 	G_DRipExtension := nil;
 	inherited;
@@ -180,7 +180,7 @@ end;
 
 procedure TDRipExtension.UnregisterKeyboardBinding;
 begin
-	TDebugUtils.DebugMessage('UnregisterKeyboardBinding');
+	TDebugUtils.DebugMessage('TDRipExtension.UnregisterKeyboardBinding');
 	if FKeyBinding > -1 then begin
 		(BorlandIDEServices as IOTAKeyboardServices).RemoveKeyboardBinding(FKeyBinding);
 		FKeyBinding := -1;
