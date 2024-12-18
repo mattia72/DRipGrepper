@@ -6,30 +6,31 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
   TabOrder = 0
   OnResize = FrameResize
   object panelMain: TPanel
-    AlignWithMargins = True
-    Left = 3
-    Top = 3
-    Width = 782
-    Height = 329
+    Left = 0
+    Top = 0
+    Width = 788
+    Height = 335
     Align = alClient
     BevelOuter = bvNone
     Caption = 'panelMain'
     TabOrder = 0
+    StyleElements = [seFont, seClient]
     object SplitView1: TSplitView
       Left = 0
       Top = 0
       Width = 794
-      Height = 329
+      Height = 335
       BevelEdges = [beLeft, beRight, beBottom]
       CompactWidth = 125
       OpenedWidth = 794
+      ParentBackground = True
       Placement = svpLeft
       TabOrder = 0
       OnResize = SplitView1Resize
       object Splitter1: TSplitter
         Left = 191
         Top = 0
-        Height = 329
+        Height = 335
         Margins.Left = 8
         Margins.Top = 8
         Margins.Right = 8
@@ -41,37 +42,41 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
         Left = 0
         Top = 0
         Width = 191
-        Height = 329
-        Margins.Left = 8
-        Margins.Top = 8
-        Margins.Right = 8
-        Margins.Bottom = 8
+        Height = 335
         Align = alClient
         Anchors = [akLeft, akTop, akBottom]
+        BevelOuter = bvNone
+        ShowCaption = False
         TabOrder = 0
+        StyleElements = [seFont, seClient]
         inline MiddleLeftFrame1: TMiddleLeftFrame
-          Left = 1
-          Top = 1
-          Width = 189
-          Height = 327
+          Left = 0
+          Top = 0
+          Width = 191
+          Height = 335
           Align = alClient
           TabOrder = 0
-          inherited VstHistory: TVirtualStringTree
-            Width = 183
-            Height = 321
-            Columns = <
-              item
-                Position = 0
-                Text = 'Search'
-                Width = 179
-              end
-              item
-                Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coSmartResize, coAllowFocus, coEditable, coStyleColor]
-                Position = 1
-                Text = 'Replace'
-                Width = 519
-              end>
-            DefaultText = ''
+          StyleElements = [seFont, seClient]
+          inherited Panel1: TPanel
+            Width = 191
+            Height = 335
+            inherited VstHistory: TVirtualStringTree
+              Width = 185
+              Height = 329
+              Columns = <
+                item
+                  Position = 0
+                  Text = 'Search'
+                  Width = 181
+                end
+                item
+                  Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coSmartResize, coAllowFocus, coEditable, coStyleColor]
+                  Position = 1
+                  Text = 'Replace'
+                  Width = 519
+                end>
+              DefaultText = ''
+            end
           end
         end
       end
@@ -79,16 +84,19 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
         Left = 194
         Top = 0
         Width = 600
-        Height = 329
+        Height = 335
         Align = alRight
         Anchors = [akLeft, akTop, akRight, akBottom]
+        BevelOuter = bvNone
+        ShowCaption = False
         TabOrder = 1
+        StyleElements = [seFont, seClient]
         object VstResult: TVirtualStringTree
           AlignWithMargins = True
-          Left = 4
-          Top = 4
-          Width = 592
-          Height = 321
+          Left = 3
+          Top = 3
+          Width = 594
+          Height = 329
           Align = alClient
           Colors.BorderColor = 15987699
           Colors.DisabledColor = clGray

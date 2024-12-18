@@ -4,62 +4,78 @@ object MiddleLeftFrame: TMiddleLeftFrame
   Width = 609
   Height = 211
   TabOrder = 0
-  object VstHistory: TVirtualStringTree
-    AlignWithMargins = True
-    Left = 3
-    Top = 3
-    Width = 603
-    Height = 205
+  StyleElements = [seFont, seClient]
+  object Panel1: TPanel
+    Left = 0
+    Top = 0
+    Width = 609
+    Height = 211
+    Margins.Left = 0
+    Margins.Top = 0
+    Margins.Right = 0
+    Margins.Bottom = 0
     Align = alClient
-    Colors.BorderColor = 15987699
-    Colors.DisabledColor = clGray
-    Colors.DropMarkColor = 15385233
-    Colors.DropTargetColor = 15385233
-    Colors.DropTargetBorderColor = 15385233
-    Colors.FocusedSelectionColor = 15385233
-    Colors.FocusedSelectionBorderColor = 15385233
-    Colors.GridLineColor = 15987699
-    Colors.HeaderHotColor = clBlack
-    Colors.HotColor = clBlack
-    Colors.SelectionRectangleBlendColor = 15385233
-    Colors.SelectionRectangleBorderColor = 15385233
-    Colors.SelectionTextColor = clBlack
-    Colors.TreeLineColor = 9471874
-    Colors.UnfocusedColor = clGray
-    Colors.UnfocusedSelectionColor = clWhite
-    Colors.UnfocusedSelectionBorderColor = clWhite
-    Header.AutoSizeIndex = 0
-    Header.Options = [hoAutoResize, hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible, hoFullRepaintOnResize, hoHeaderClickAutoSort, hoAutoResizeInclCaption]
-    HintMode = hmHint
-    ParentShowHint = False
-    PopupMenu = PopupMenuHistory
-    ShowHint = True
+    BevelOuter = bvNone
+    ShowCaption = False
     TabOrder = 0
-    TreeOptions.PaintOptions = [toShowBackground, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages]
-    TreeOptions.SelectionOptions = [toFullRowSelect, toSiblingSelectConstraint]
-    OnBeforeCellPaint = VstHistoryBeforeCellPaint
-    OnFreeNode = VstHistoryFreeNode
-    OnGetText = VstHistoryGetText
-    OnPaintText = VstHistoryPaintText
-    OnGetHintKind = VstHistoryGetHintKind
-    OnGetHint = VstHistoryGetHint
-    OnNodeClick = VstHistoryNodeClick
-    OnNodeDblClick = VstHistoryNodeDblClick
-    Touch.InteractiveGestures = [igPan, igPressAndTap]
-    Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
-    Columns = <
-      item
-        Position = 0
-        Text = 'Search'
-        Width = 603
-      end
-      item
-        Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coSmartResize, coAllowFocus, coEditable, coStyleColor]
-        Position = 1
-        Text = 'Replace'
-        Width = 519
-      end>
-    DefaultText = ''
+    StyleElements = [seFont, seClient]
+    object VstHistory: TVirtualStringTree
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 603
+      Height = 205
+      Align = alClient
+      Colors.BorderColor = 15987699
+      Colors.DisabledColor = clGray
+      Colors.DropMarkColor = 15385233
+      Colors.DropTargetColor = 15385233
+      Colors.DropTargetBorderColor = 15385233
+      Colors.FocusedSelectionColor = 15385233
+      Colors.FocusedSelectionBorderColor = 15385233
+      Colors.GridLineColor = 15987699
+      Colors.HeaderHotColor = clBlack
+      Colors.HotColor = clBlack
+      Colors.SelectionRectangleBlendColor = 15385233
+      Colors.SelectionRectangleBorderColor = 15385233
+      Colors.SelectionTextColor = clBlack
+      Colors.TreeLineColor = 9471874
+      Colors.UnfocusedColor = clGray
+      Colors.UnfocusedSelectionColor = clWhite
+      Colors.UnfocusedSelectionBorderColor = clWhite
+      Header.AutoSizeIndex = 0
+      Header.Options = [hoAutoResize, hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible, hoFullRepaintOnResize, hoHeaderClickAutoSort, hoAutoResizeInclCaption]
+      HintMode = hmHint
+      ParentShowHint = False
+      PopupMenu = PopupMenuHistory
+      ShowHint = True
+      TabOrder = 0
+      TreeOptions.PaintOptions = [toShowBackground, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages]
+      TreeOptions.SelectionOptions = [toFullRowSelect, toSiblingSelectConstraint]
+      OnBeforeCellPaint = VstHistoryBeforeCellPaint
+      OnFreeNode = VstHistoryFreeNode
+      OnGetText = VstHistoryGetText
+      OnPaintText = VstHistoryPaintText
+      OnGetHintKind = VstHistoryGetHintKind
+      OnGetHint = VstHistoryGetHint
+      OnNodeClick = VstHistoryNodeClick
+      OnNodeDblClick = VstHistoryNodeDblClick
+      Touch.InteractiveGestures = [igPan, igPressAndTap]
+      Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
+      Columns = <
+        item
+          Position = 0
+          Text = 'Search'
+          Width = 599
+        end
+        item
+          Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coSmartResize, coAllowFocus, coEditable, coStyleColor]
+          Position = 1
+          Text = 'Replace'
+          Width = 519
+        end>
+      DefaultText = ''
+    end
   end
   object ActionList: TActionList
     Images = ImageList1

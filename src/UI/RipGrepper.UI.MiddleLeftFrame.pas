@@ -23,7 +23,7 @@ uses
 	Vcl.Menus,
 	System.ImageList,
 	Vcl.ImgList,
-	RipGrepper.Settings.FontColors;
+	RipGrepper.Settings.FontColors, Vcl.ExtCtrls;
 
 type
 	THistoryObjectArray = TArrayEx<IHistoryItemObject>;
@@ -43,6 +43,7 @@ type
 		pmHistoryDelete : TMenuItem;
 		pmHistoryDeleteAll : TMenuItem;
 		ImageList1 : TImageList;
+    Panel1: TPanel;
 		procedure ActionCopyCmdLineToClipboardExecute(Sender : TObject);
 		procedure ActionHistoryDeleteAllExecute(Sender : TObject);
 		procedure ActionHistoryDeleteAllUpdate(Sender : TObject);
