@@ -54,6 +54,7 @@ type
 		procedure btnedtIniFilePathRightButtonClick(Sender : TObject);
 		procedure btnedtRgExePathEnter(Sender : TObject);
 		procedure btnedtRgExePathExit(Sender : TObject);
+		procedure btnedtRgExePathLeftButtonClick(Sender : TObject);
 		procedure btnedtRgExePathRightButtonClick(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 
@@ -127,6 +128,12 @@ procedure TAppSettingsForm.btnedtRgExePathExit(Sender : TObject);
 begin
 	if FRefocusing = nil then
 		PostMessage(Handle, UserMessageValidateInput, 0, LParam(vcRgExePath));
+end;
+
+procedure TAppSettingsForm.btnedtRgExePathLeftButtonClick(Sender : TObject);
+begin
+	Memo1.Text := 'rg.exe --version';
+	Memo1.Text := GetRgVersion(btnedtRgExePath.Text);
 end;
 
 procedure TAppSettingsForm.btnedtRgExePathRightButtonClick(Sender : TObject);

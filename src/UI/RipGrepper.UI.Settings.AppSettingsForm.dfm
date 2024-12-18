@@ -2,8 +2,8 @@ object AppSettingsForm: TAppSettingsForm
   Left = 0
   Top = 0
   Caption = 'AppSettingsForm'
-  ClientHeight = 309
-  ClientWidth = 505
+  ClientHeight = 358
+  ClientWidth = 521
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,14 +15,14 @@ object AppSettingsForm: TAppSettingsForm
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 505
-    Height = 309
+    Width = 521
+    Height = 358
     Align = alClient
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 0
     DesignSize = (
-      505
-      309)
+      521
+      358)
     object lblRgExePath: TLabel
       Left = 16
       Top = 9
@@ -41,13 +41,13 @@ object AppSettingsForm: TAppSettingsForm
       AlignWithMargins = True
       Left = 16
       Top = 143
-      Width = 478
+      Width = 494
       Height = 150
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Developer'
       TabOrder = 0
       DesignSize = (
-        478
+        494
         150)
       object Label1: TLabel
         Left = 16
@@ -75,7 +75,7 @@ object AppSettingsForm: TAppSettingsForm
       object btnedtIniFilePath: TButtonedEdit
         Left = 16
         Top = 107
-        Width = 453
+        Width = 469
         Height = 23
         Anchors = [akLeft, akTop, akRight]
         Color = clInfoBk
@@ -99,24 +99,30 @@ object AppSettingsForm: TAppSettingsForm
     object btnedtRgExePath: TButtonedEdit
       Left = 16
       Top = 27
-      Width = 478
+      Width = 494
       Height = 23
       Anchors = [akLeft, akTop, akRight]
+      Color = clInfoBk
       Images = ImageListButtons
-      RightButton.DisabledImageIndex = 2
-      RightButton.ImageIndex = 2
+      LeftButton.DisabledImageIndex = 3
+      LeftButton.ImageIndex = 3
+      LeftButton.Visible = True
+      ReadOnly = True
+      RightButton.DisabledImageIndex = 8
+      RightButton.ImageIndex = 8
       RightButton.Visible = True
       TabOrder = 1
       Text = 'Rg.exe path...'
       TextHint = 'Rg.exe path...'
       OnEnter = btnedtRgExePathEnter
       OnExit = btnedtRgExePathExit
+      OnLeftButtonClick = btnedtRgExePathLeftButtonClick
       OnRightButtonClick = btnedtRgExePathRightButtonClick
     end
     object Memo1: TMemo
       Left = 16
       Top = 74
-      Width = 478
+      Width = 494
       Height = 63
       Anchors = [akLeft, akTop, akRight]
       Color = clBackground
