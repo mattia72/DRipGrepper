@@ -52,8 +52,7 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Common.Constants,
 	System.StrUtils,
-	Vcl.StdCtrls,
-	u_dzVclUtils;
+	Vcl.StdCtrls;
 
 {$R *.dfm}
 

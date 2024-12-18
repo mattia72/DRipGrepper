@@ -96,7 +96,6 @@ uses
 	System.Math,
 	RipGrepper.OpenWith.Constants,
 	RipGrepper.Tools.DebugUtils,
-	u_dzVclUtils,
 	RipGrepper.Tools.FileUtils;
 
 {$R *.dfm}

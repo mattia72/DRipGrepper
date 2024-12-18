@@ -90,7 +90,6 @@ uses
 	System.StrUtils,
 	RipGrepper.UI.SearchForm,
 	RipGrepper.Data.Parsers,
-	u_dzVclUtils,
 	RipGrepper.Parsers.VimGrepMatchLine,
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.OpenWith,

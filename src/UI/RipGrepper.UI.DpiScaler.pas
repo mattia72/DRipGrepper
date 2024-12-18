@@ -45,7 +45,6 @@ uses
     System.SysUtils,
 	RipGrepper.Tools.DebugUtils,
 	Vcl.StdCtrls,
-	u_dzVclUtils,
 	Vcl.ComCtrls,
 	Vcl.Forms;
 
@@ -136,7 +135,7 @@ procedure TRipGrepperDpiScaler.InitDpiScaler;
 begin
 	FWinDpiScaler := TFormDpiScaler.Create(TForm(FOwner));
 
-	FActualDPI := TWinControl_GetDesignDPI(FOwner);
+	FActualDPI := FOwner.PixelsPerInch;
 	ApplyDpi(FActualDPI, nil);
 end;
 
