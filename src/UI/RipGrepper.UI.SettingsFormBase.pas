@@ -5,7 +5,8 @@ interface
 uses
 	RipGrepper.Settings.Persistable,
 	System.Classes,
-	Vcl.Forms;
+	Vcl.Forms,
+	RipGrepper.UI.DpiScaler;
 
 type
 	ISettingsForm = interface
@@ -18,6 +19,9 @@ type
 	end;
 
 	TSettingsBaseForm = class(TForm, ISettingsForm)
+		private
+			FDpiScaler : TRipGrepperDpiScaler;
+
 		protected
 			FSettings : TPersistableSettings;
 			procedure OnCancel; virtual;
@@ -27,6 +31,7 @@ type
 
 		public
 			constructor Create(_Owner : TComponent; _settings : TPersistableSettings); reintroduce;
+			destructor Destroy; override;
 	end;
 
 implementation
@@ -39,6 +44,13 @@ constructor TSettingsBaseForm.Create(_Owner : TComponent; _settings : TPersistab
 begin
 	inherited Create(_Owner);
 	FSettings := _settings;
+	FDpiScaler := TRipGrepperDpiScaler.Create(self);
+end;
+
+destructor TSettingsBaseForm.Destroy;
+begin
+	FDpiScaler.Free;
+	inherited;
 end;
 
 procedure TSettingsBaseForm.OnCancel;
@@ -54,7 +66,7 @@ end;
 
 procedure TSettingsBaseForm.ReadSettings;
 begin
-//
+	//
 end;
 
 procedure TSettingsBaseForm.WriteSettings;

@@ -70,7 +70,7 @@ end;
 destructor TAppSettings.Destroy;
 begin
 	FEncodingItems.Free;
-	inherited Destroy() //ok;
+	inherited Destroy() // ok;
 end;
 
 procedure TAppSettings.Init;
@@ -90,7 +90,7 @@ end;
 
 procedure TAppSettings.LoadDefaultsFromDict;
 begin
-// nothing to do
+	// nothing to do
 end;
 
 procedure TAppSettings.StoreToDict;
