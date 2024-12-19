@@ -28,15 +28,16 @@ type
 
 		private
 			FProcName : string;
+			FSilentBeginEnd : Boolean;
 
 		public
 			procedure Msg(const _sMsg : string);
 			procedure ErrorMsg(const _sMsg : string);
-			procedure ErrorMsgFmt(const _sMsg: string; const _args: array of const);
+			procedure ErrorMsgFmt(const _sMsg : string; const _args : array of const);
 			procedure MsgIf(const _bCondition : Boolean; const _sMsg : string);
 			procedure MsgFmt(const _s : string; const _args : array of const);
 			procedure MsgFmtIf(const _bCondition : Boolean; const _s : string; const _args : array of const);
-			class function New(const _sProcName : string) : TDebugMsgBeginEnd; static;
+			class function New(const _sProcName : string; const _bSilent : Boolean = False) : TDebugMsgBeginEnd; static;
 			class operator Finalize(var Dest : TDebugMsgBeginEnd);
 	end;
 
@@ -110,7 +111,7 @@ begin
 	TDebugUtils.Msg(FProcName + ' - ERROR -' + _sMsg);
 end;
 
-procedure TDebugMsgBeginEnd.ErrorMsgFmt(const _sMsg: string; const _args: array of const);
+procedure TDebugMsgBeginEnd.ErrorMsgFmt(const _sMsg : string; const _args : array of const);
 begin
 	TDebugUtils.MsgFmt(FProcName + ' - ERROR -' + _sMsg, _args);
 end;
@@ -132,15 +133,20 @@ begin
 		TDebugUtils.MsgFmt(FProcName + ' - ' + _s, _args);
 end;
 
-class function TDebugMsgBeginEnd.New(const _sProcName : string) : TDebugMsgBeginEnd;
+class function TDebugMsgBeginEnd.New(const _sProcName : string; const _bSilent : Boolean = False) : TDebugMsgBeginEnd;
 begin
 	Result.FProcName := _sProcName;
-	TDebugUtils.DebugMessage(_sProcName + ' - begin');
+	Result.FSilentBeginEnd := _bSilent;
+	if not Result.FSilentBeginEnd then begin
+		TDebugUtils.DebugMessage(_sProcName + ' - begin');
+	end;
 end;
 
 class operator TDebugMsgBeginEnd.Finalize(var Dest : TDebugMsgBeginEnd);
 begin
-	TDebugUtils.DebugMessage(Dest.FProcName + ' - end');
+	if not Dest.FSilentBeginEnd then begin
+		TDebugUtils.DebugMessage(Dest.FProcName + ' - end');
+	end;
 end;
 
 end.
