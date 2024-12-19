@@ -20,7 +20,6 @@ type
 			FMsgHandlerHWND : HWND;
 			FScaleImageList : TImageList;
 
-			function GetActualDPI : Integer;
 			// procedure ApplyDpiForImages(_NewDpi : Integer);
 			procedure ResizeImageListImagesforHighDPI(imgList : TImageList);
 			procedure WndMethod(var Msg : TMessage);
@@ -35,7 +34,7 @@ type
 		public
 			constructor Create(AOwner : TWinControl);
 			destructor Destroy; override;
-			property ActualDPI : Integer read GetActualDPI;
+			class function GetActualDPI: Integer;
 	end;
 
 implementation
@@ -107,7 +106,7 @@ procedure TRipGrepperDpiScaler.ApplyDpiForWindow(_NewDpi : Integer; _NewBounds :
 begin
 	TDebugUtils.DebugMessage('TRipGrepperDpiScaler.ApplyDpiForWindow');
 	if Assigned(FWinDpiScaler) then begin
-		FWinDpiScaler.ApplyDpi(ActualDPI, _NewBounds);
+		FWinDpiScaler.ApplyDpi(GetActualDPI, _NewBounds);
 	end;
 	ArrangeControls;
 end;
@@ -143,7 +142,7 @@ begin
 	end;
 end;
 
-function TRipGrepperDpiScaler.GetActualDPI : Integer;
+class function TRipGrepperDpiScaler.GetActualDPI: Integer;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperDpiScaler.GetActualDPI', True);
@@ -164,7 +163,7 @@ procedure TRipGrepperDpiScaler.InitDpiScaler;
 begin
 	FWinDpiScaler := TFormDpiScaler.Create(TForm(FOwner));
 	TDebugUtils.DebugMessage(Format('TRipGrepperDpiScaler.InitDpiScaler - %s', [FOwner.Name]));
-	ApplyDpi(ActualDPI, nil);
+	ApplyDpi(GetActualDPI, nil);
 end;
 
 procedure TRipGrepperDpiScaler.InitImageListScaler(_imgList : TImageList);
@@ -189,7 +188,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperDpiScaler.ResizeImageListImagesforHighDPI');
 
-	dpi := ActualDPI;
+	dpi := GetActualDPI;
 	if dpi = 96 then begin
 		dbgMsg.Msg('Skip');
 		Exit;

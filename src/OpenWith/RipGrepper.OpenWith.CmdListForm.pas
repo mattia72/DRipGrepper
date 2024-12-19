@@ -193,7 +193,7 @@ begin
 		FImageScaler.Free;
 		FImageScaler := TImageListScaler.Create(Self, ImageListIcons);
 	end;
-	FScaledIcons := FImageScaler.GetScaledList(FDpiScaler.ActualDPI);
+	FScaledIcons := FImageScaler.GetScaledList(TRipGrepperDpiScaler.GetActualDPI);
 	lbCommands.SmallImages := FScaledIcons;
 	lbCommands.LargeImages := FScaledIcons;
 end;
