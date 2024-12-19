@@ -22,7 +22,7 @@ type
 
 			function GetActualDPI : Integer;
 			// procedure ApplyDpiForImages(_NewDpi : Integer);
-			procedure ResizeImageListImagesforHighDPI(const imgList : TImageList);
+			procedure ResizeImageListImagesforHighDPI(imgList : TImageList);
 			procedure WndMethod(var Msg : TMessage);
 			procedure SetButtonImages(_ctrl : TControl; _imgList : TImageList);
 			procedure ApplyDpi(_NewDpi : Integer; _NewBounds : PRect);
@@ -78,7 +78,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperDpiScaler.ApplyDpi', True);
 	dbgMsg.Msg('NewDpi: ' + _NewDpi.ToString);
-	ApplyDpiForWindow(_NewDpi, _NewBounds);
+	// ApplyDpiForWindow(_NewDpi, _NewBounds); // TODO: check it, so doesn't work on highdpi monitor
 	for var i := 0 to -1 + FOwner.ComponentCount do begin
 		if FOwner.Components[i] is TImageList then begin
 			ResizeImageListImagesforHighDPI(TImageList(FOwner.Components[i]));
@@ -148,7 +148,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperDpiScaler.GetActualDPI', True);
 	var
-	monitor := Screen.MonitorFromWindow(FOwner.Handle);
+	monitor := Screen.MonitorFromWindow(GetForegroundWindow());
 	// GetCursorPos(cp);
 	// monitor := Screen.MonitorFromPoint(cp) ;
 	if (Assigned(monitor)) then begin
@@ -178,17 +178,19 @@ begin
 	end;
 end;
 
-procedure TRipGrepperDpiScaler.ResizeImageListImagesforHighDPI(const imgList : TImageList);
+procedure TRipGrepperDpiScaler.ResizeImageListImagesforHighDPI(imgList : TImageList);
 const
 	DevImgSIZE = 16;
 var
 	ii : integer;
 	mb, ib, sib, smb : TBitmap;
+	dpi : Integer;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperDpiScaler.ResizeImageListImagesforHighDPI');
 
-	if ActualDpi = 96 then begin
+	dpi := ActualDPI;
+	if dpi = 96 then begin
 		dbgMsg.Msg('Skip');
 		Exit;
 	end;
@@ -202,7 +204,7 @@ begin
 		end;
 
 		// set size to match DPI size (like 250% of 16px = 40px)
-		imgList.SetSize(MulDiv(DevImgSIZE, Screen.PixelsPerInch, 96), MulDiv(DevImgSIZE, Screen.PixelsPerInch, 96));
+		imgList.SetSize(MulDiv(DevImgSIZE, dpi, 96), MulDiv(DevImgSIZE, dpi, 96));
 
 		// add images back to original ImageList stretched (if DPI scaling > 150%) or centered (if DPI scaling <= 150%)
 		for ii := 0 to -1 + FScaleImageList.Count do begin
@@ -227,17 +229,18 @@ begin
 					mb.Height := DevImgSIZE;
 					mb.Canvas.FillRect(mb.Canvas.ClipRect);
 
-					ImageList_DrawEx(FScaleImageList.Handle, ii, ib.Canvas.Handle, 0, 0, ib.Width, ib.Height, CLR_NONE, CLR_NONE,
-						ILD_NORMAL);
-					ImageList_DrawEx(FScaleImageList.Handle, ii, mb.Canvas.Handle, 0, 0, mb.Width, mb.Height, CLR_NONE, CLR_NONE, ILD_MASK);
+					ImageList_DrawEx(
+						{ } FScaleImageList.Handle, ii, ib.Canvas.Handle, 0, 0, ib.Width, ib.Height, CLR_NONE, CLR_NONE, ILD_NORMAL);
+					ImageList_DrawEx(
+						{ } FScaleImageList.Handle, ii, mb.Canvas.Handle, 0, 0, mb.Width, mb.Height, CLR_NONE, CLR_NONE, ILD_MASK);
 
-					if Screen.PixelsPerInch * 100 / 96 <= 150 then // center if <= 150%
+					if dpi * 100 / 96 <= 150 then // center if <= 150%
 					begin
+						dbgMsg.Msg('Centered');
 						sib.Canvas.Draw((sib.Width - ib.Width) div 2, (sib.Height - ib.Height) div 2, ib);
 						smb.Canvas.Draw((smb.Width - mb.Width) div 2, (smb.Height - mb.Height) div 2, mb);
-					end
-					else // stretch if > 150%
-					begin
+					end else begin // stretch if > 150%
+						dbgMsg.Msg('Stretched');
 						sib.Canvas.StretchDraw(Rect(0, 0, sib.Width, sib.Width), ib);
 						smb.Canvas.StretchDraw(Rect(0, 0, smb.Width, smb.Width), mb);
 					end;
