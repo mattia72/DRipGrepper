@@ -32,7 +32,7 @@ type
 			ExpandNodes : Boolean;
 			procedure SetViewSettingValues(const _s : string = '');
 			constructor Create(const _ini : TMemIniFile); overload;
-			constructor Create; overload;
+//          constructor Create; overload;
 			destructor Destroy; override;
 			function GetIsModified : Boolean; override;
 			procedure Init; override;
@@ -59,13 +59,13 @@ begin
 	TDebugUtils.DebugMessage('TNodeLookSettings.Create: ' + IniFile.FileName + '[' + GetIniSectionName + ']');
 end;
 
-constructor TNodeLookSettings.Create;
-begin
-	IniSectionName := INI_SECTION;
-	inherited;
-	FFilterSettings := TFilterSettings.Create();
-	TDebugUtils.DebugMessage('TNodeLookSettings.Create: ' + IniFile.FileName + '[' + GetIniSectionName + ']');
-end;
+//constructor TNodeLookSettings.Create;
+//begin
+//  IniSectionName := INI_SECTION;
+//  inherited;
+//  FFilterSettings := TFilterSettings.Create();
+//  TDebugUtils.DebugMessage('TNodeLookSettings.Create: ' + IniFile.FileName + '[' + GetIniSectionName + ']');
+//end;
 
 destructor TNodeLookSettings.Destroy;
 begin
