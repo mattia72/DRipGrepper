@@ -87,6 +87,8 @@ type
 			procedure UpdateReplaceColumnVisible;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
+		protected
+			procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;
 			{ Private-Deklarationen }
 		public
 			constructor Create(AOwner : TComponent); override;
@@ -650,6 +652,14 @@ begin
 	end else begin // ttStatic
 		TItemDrawer.SetTextColorErrorStaticText(TargetCanvas, FColorSettings.CounterText, FColorSettings.ErrorText,
 			hio.GetErrorCounters().FSumOfErrors > 0);
+	end;
+end;
+
+procedure TMiddleLeftFrame.ChangeScale(M, D : Integer; isDpiChange : Boolean);
+begin
+	inherited ChangeScale(M, D, isDpiChange);
+	if isDpiChange then begin
+		VstHistory.Header.Font.Height := MulDiv(VstHistory.Header.Font.Height, M, D);
 	end;
 end;
 

@@ -177,6 +177,8 @@ type
 			property IsRgReplaceMode : Boolean read GetIsRgReplaceMode;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
+		protected
+			procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;
 			{ Private-Deklarationen }
 		public
 			constructor Create(AOwner : TComponent); override;
@@ -1430,4 +1432,11 @@ begin
 	end;
 end;
 
+procedure TRipGrepperMiddleFrame.ChangeScale(M, D : Integer; isDpiChange : Boolean);
+begin
+	inherited ChangeScale(M, D, isDpiChange);
+	if isDpiChange then begin
+		VstResult.Header.Font.Height := MulDiv(VstResult.Header.Font.Height, M, D);
+	end;
+end;
 end.

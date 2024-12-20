@@ -530,8 +530,12 @@ end;
 
 procedure TRipGrepperTopFrame.ChangeScale(M, D : Integer; isDpiChange : Boolean);
 begin
-	inherited;
-    edtFilter.ScaleForPPI(TRipGrepperDpiScaler.GetActualDPI);
+	inherited ChangeScale(M, D, isDpiChange);
+	if isDpiChange then begin
+		// edtFilter.ScaleForPPI(TRipGrepperDpiScaler.GetActualDPI);
+ 		edtFilter.Font.Height := MulDiv(edtFilter.Font.Height, M, D);
+ 		edtReplace.Font.Height := MulDiv(edtReplace.Font.Height, M, D);
+	end;
 end;
 
 procedure TRipGrepperTopFrame.edtFilterChange(Sender : TObject);
