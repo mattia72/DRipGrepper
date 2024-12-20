@@ -312,7 +312,7 @@ object OpenWithCmdList: TOpenWithCmdList
     object lblHint2: TLabel
       AlignWithMargins = True
       Left = 8
-      Top = 49
+      Top = 52
       Width = 344
       Height = 14
       Margins.Left = 8
@@ -325,7 +325,7 @@ object OpenWithCmdList: TOpenWithCmdList
     object Memo1: TMemo
       AlignWithMargins = True
       Left = 3
-      Top = 25
+      Top = 28
       Width = 354
       Height = 21
       TabStop = False

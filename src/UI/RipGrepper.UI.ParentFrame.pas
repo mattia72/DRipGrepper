@@ -15,7 +15,6 @@ uses
 	RipGrepper.UI.TopFrame,
 	RipGrepper.UI.BottomFrame,
 	RipGrepper.Settings.RipGrepperSettings,
-	u_dzDpiScaleUtils,
 	RipGrepper.UI.MiddleFrame,
 	VirtualTrees,
 	RipGrepper.UI.IFrameEvents;

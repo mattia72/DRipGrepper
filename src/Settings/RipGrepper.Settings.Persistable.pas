@@ -409,12 +409,12 @@ end;
 
 procedure TPersistableSettings.UpdateIniFile;
 begin
-	// var
-	// dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
+	 var
+	 dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
 	// trace causes exception on closing delphi ide
 	var
 	lock := TLockGuard.NewLock(FLockObject);
-	// dbgMsg.Msg('Lock Entered - IniFile update begin ' + FIniFile.FileName);
+	 dbgMsg.Msg('Lock Entered - IniFile update begin ' + FIniFile.FileName);
 	// try
 	FIniFile.UpdateFile;
 	// except

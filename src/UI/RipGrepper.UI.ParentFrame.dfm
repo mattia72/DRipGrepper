@@ -40,37 +40,28 @@ object ParentFrame: TParentFrame
     Margins.Bottom = 8
     TabOrder = 1
     inherited panelMain: TPanel
-      Width = 845
-      Height = 423
+      Width = 851
+      Height = 429
       inherited SplitView1: TSplitView
-        Height = 423
+        Height = 429
         inherited Splitter1: TSplitter
-          Height = 423
+          Height = 429
         end
         inherited PanelHistory: TPanel
-          Height = 423
+          Height = 429
           inherited MiddleLeftFrame1: TMiddleLeftFrame
-            Height = 421
-            inherited VstHistory: TVirtualStringTree
-              Height = 415
-              Columns = <
-                item
-                  Position = 0
-                  Text = 'Search'
-                  Width = 179
-                end
-                item
-                  Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coSmartResize, coAllowFocus, coEditable, coStyleColor]
-                  Position = 1
-                  Text = 'Replace'
-                  Width = 519
-                end>
-              DefaultText = ''
+            Height = 429
+            inherited Panel1: TPanel
+              Height = 429
+              inherited VstHistory: TVirtualStringTree
+                Height = 415
+                DefaultText = ''
+              end
             end
           end
         end
         inherited PanelResult: TPanel
-          Height = 423
+          Height = 429
           inherited VstResult: TVirtualStringTree
             Height = 415
           end

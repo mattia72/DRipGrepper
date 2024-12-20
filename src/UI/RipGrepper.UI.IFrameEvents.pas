@@ -8,8 +8,7 @@ type
 			procedure Init;
 			procedure BeforeSearch;
 			procedure AfterSearch;
-            procedure AfterHistObjChange;
-
+			procedure AfterHistObjChange;
 	end;
 
 implementation

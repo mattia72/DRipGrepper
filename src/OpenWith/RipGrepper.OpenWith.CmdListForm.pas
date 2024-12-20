@@ -21,7 +21,6 @@ uses
 	Vcl.ImgList,
 	RipGrepper.Settings.AppSettings,
 	RipGrepper.UI.DpiScaler,
-	u_dzDpiScaleUtils,
 	RipGrepper.Settings.OpenWithSettings;
 
 type
@@ -57,8 +56,8 @@ type
 		procedure lbCommandsKeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
 
 		private
+			FScaledIcons : TImageList;
 			FDpiScaler : TRipGrepperDpiScaler;
-			FImageScaler : TImageListScaler;
 			FMemoLineMargin : Integer;
 			FOrigMemoHeight : Integer;
 			FOrigTopPanelHeight : Integer;
@@ -73,9 +72,7 @@ type
 			procedure SetMemoHeightByLineCount;
 			property ViewStyleIndex : Integer read GetViewStyleIndex;
 
-		protected
 		public
-			class var FScaledIcons : TImageList;
 			constructor Create(AOwner : TComponent; const ASettings : TOpenWithSettings); reintroduce;
 			destructor Destroy(); override;
 			class function CreateAndShow(const _settings : TOpenWithSettings) : string;
@@ -128,7 +125,6 @@ end;
 destructor TOpenWithCmdList.Destroy();
 begin
 	FDpiScaler.Free;
-	FImageScaler.Free;
 	inherited Destroy();
 end;
 
@@ -188,12 +184,21 @@ begin
 end;
 
 procedure TOpenWithCmdList.CreateScaledIcons(const bUpdateScaler : Boolean = False);
+// var
+// imgs1, imgs2 : TCustomImageList;
 begin
-	if bUpdateScaler or not Assigned(FImageScaler) then begin
-		FImageScaler.Free;
-		FImageScaler := TImageListScaler.Create(Self, ImageListIcons);
+	// imgs1 := lbCommands.SmallImages;
+	// imgs2 := lbCommands.LargeImages;
+	// lbCommands.SmallImages := nil;
+	// lbCommands.LargeImages := nil;
+
+	if bUpdateScaler or not Assigned(FDpiScaler) then begin
+		FDpiScaler.Free;
+		FDpiScaler := TRipGrepperDpiScaler.Create(Self, false);
+		FScaledIcons := lbCommands.SmallImages as TImageList;
+		FScaledIcons := FDpiScaler.ResizeImageListImagesforHighDPI(FScaledIcons);
 	end;
-	FScaledIcons := FImageScaler.GetScaledList(TRipGrepperDpiScaler.GetActualDPI);
+
 	lbCommands.SmallImages := FScaledIcons;
 	lbCommands.LargeImages := FScaledIcons;
 end;
