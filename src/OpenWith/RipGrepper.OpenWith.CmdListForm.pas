@@ -56,7 +56,7 @@ type
 		procedure lbCommandsKeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
 
 		private
-			FScaledIcons : TImageList;
+			FScaledIcons : TCustomImageList;
 			FDpiScaler : TRipGrepperDpiScaler;
 			FMemoLineMargin : Integer;
 			FOrigMemoHeight : Integer;
@@ -184,23 +184,15 @@ begin
 end;
 
 procedure TOpenWithCmdList.CreateScaledIcons(const bUpdateScaler : Boolean = False);
-// var
-// imgs1, imgs2 : TCustomImageList;
 begin
-	// imgs1 := lbCommands.SmallImages;
-	// imgs2 := lbCommands.LargeImages;
-	// lbCommands.SmallImages := nil;
-	// lbCommands.LargeImages := nil;
-
-	if bUpdateScaler or not Assigned(FDpiScaler) then begin
+	if bUpdateScaler or not Assigned(FScaledIcons) or not Assigned(FDpiScaler) then begin
 		FDpiScaler.Free;
 		FDpiScaler := TRipGrepperDpiScaler.Create(Self, false);
-		FScaledIcons := lbCommands.SmallImages as TImageList;
-		FScaledIcons := FDpiScaler.ResizeImageListImagesforHighDPI(FScaledIcons);
+		FDpiScaler.ScaleImageListToActDpi(ImageListIcons);
 	end;
 
-	lbCommands.SmallImages := FScaledIcons;
-	lbCommands.LargeImages := FScaledIcons;
+	lbCommands.SmallImages := ImageListIcons;
+	lbCommands.LargeImages := ImageListIcons;
 end;
 
 procedure TOpenWithCmdList.FormResize(Sender : TObject);

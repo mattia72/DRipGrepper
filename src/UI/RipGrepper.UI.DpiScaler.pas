@@ -7,10 +7,13 @@ uses
 	Vcl.Controls,
 	System.Types,
 	Winapi.Messages,
-	Winapi.Windows;
+	Winapi.Windows,
+	Vcl.ImgList;
 
 type
 	TRipGrepperDpiScaler = class
+		const
+			DevImgSIZE = 16;
 
 		private
 			FOwner : TWinControl;
@@ -18,13 +21,17 @@ type
 			FScaledImageList : TImageList;
 
 			procedure WndMethod(var Msg : TMessage);
-			procedure ApplyDpiForImageLists(_NewDpi : Integer; _NewBounds : PRect);
+			procedure ApplyDpiForImageListComponents(_NewDpi : Integer; _NewBounds : PRect);
+			procedure CopyImages(_src : TCustomImageList; _dst : TImageList); overload;
+			procedure CopyImages(_src : TImageList; _dst : TCustomImageList); overload;
+			procedure ScaleImageList(_imgList : TImageList; const _dpi : integer);
 
 		public
 			constructor Create(AOwner : TWinControl; _bScaleImgLists : Boolean = True);
 			destructor Destroy; override;
 			class function GetActualDPI : Integer;
-			function ResizeImageListImagesforHighDPI(imgList : TImageList) : TImageList;
+			procedure ScaleImageListToActDpi(_imgList : TImageList); overload;
+			procedure ScaleImageListToActDpi(_imgList : TCustomImageList); overload;
 	end;
 
 implementation
@@ -48,7 +55,7 @@ begin
 	FScaledImageList := TImageList.Create(nil);
 	FMsgHandlerHWND := AllocateHWnd(WndMethod);
 	if _bScaleImgLists then begin
-		ApplyDpiForImageLists(GetActualDPI, nil);
+		ApplyDpiForImageListComponents(GetActualDPI, nil);
 	end;
 end;
 
@@ -59,16 +66,32 @@ begin
 	inherited;
 end;
 
-procedure TRipGrepperDpiScaler.ApplyDpiForImageLists(_NewDpi : Integer; _NewBounds : PRect);
+procedure TRipGrepperDpiScaler.ApplyDpiForImageListComponents(_NewDpi : Integer; _NewBounds : PRect);
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperDpiScaler.ApplyDpiForImageLists', True);
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperDpiScaler.ApplyDpiForImageListComponents', True);
 	dbgMsg.Msg('NewDpi: ' + _NewDpi.ToString);
 
 	for var i := 0 to -1 + FOwner.ComponentCount do begin
 		if FOwner.Components[i] is TImageList then begin
-			ResizeImageListImagesforHighDPI(TImageList(FOwner.Components[i]));
+			ScaleImageListToActDpi(TImageList(FOwner.Components[i]));
 		end;
+	end;
+end;
+
+procedure TRipGrepperDpiScaler.CopyImages(_src : TCustomImageList; _dst : TImageList);
+begin
+	// add from source image list
+	for var ii := 0 to _src.Count - 1 do begin
+		_dst.AddImage(_src, ii);
+	end;
+end;
+
+procedure TRipGrepperDpiScaler.CopyImages(_src : TImageList; _dst : TCustomImageList);
+begin
+	// add from source image list
+	for var ii := 0 to _dst.Count - 1 do begin
+		_src.AddImage(_dst, ii);
 	end;
 end;
 
@@ -89,41 +112,34 @@ begin
 	end;
 end;
 
-function TRipGrepperDpiScaler.ResizeImageListImagesforHighDPI(imgList : TImageList) : TImageList;
-const
-	DevImgSIZE = 16;
+procedure TRipGrepperDpiScaler.ScaleImageList(_imgList : TImageList; const _dpi : integer);
 var
-	ii : integer;
-	mb, ib, sib, smb : TBitmap;
-	dpi : Integer;
+	mb : TBitmap;
+	ib : TBitmap;
+	sib : TBitmap;
+	smb : TBitmap;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperDpiScaler.ResizeImageListImagesforHighDPI');
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperDpiScaler.ScaleImageList', True);
 
-	dpi := GetActualDPI;
-	if dpi = 96 then begin
-		dbgMsg.Msg('Skip');
-		Exit;
-	end;
-
+	FScaledImageList.Clear;
 	// add from source image list
-	for ii := 0 to -1 + imgList.Count do begin
-		FScaledImageList.AddImage(imgList, ii);
+	for var ii := 0 to _imgList.Count - 1 do begin
+		FScaledImageList.AddImage(_imgList, ii);
 	end;
+	// set size to match _dpi size (like 250% of 16px = 40px)
+	_imgList.SetSize(MulDiv(DevImgSIZE, _dpi, 96), MulDiv(DevImgSIZE, _dpi, 96));
 
-	// set size to match DPI size (like 250% of 16px = 40px)
-	imgList.SetSize(MulDiv(DevImgSIZE, dpi, 96), MulDiv(DevImgSIZE, dpi, 96));
-
-	// add images back to original ImageList stretched (if DPI scaling > 150%) or centered (if DPI scaling <= 150%)
-	for ii := 0 to -1 + FScaledImageList.Count do begin
+	// add images back to original ImageList stretched (if _dpi scaling > 150%) or centered (if _dpi scaling <= 150%)
+	for var ii := 0 to -1 + FScaledImageList.Count do begin
 		sib := TBitmap.Create; // stretched (or centered) image
 		smb := TBitmap.Create; // stretched (or centered) mask
 		try
-			sib.Width := imgList.Width;
-			sib.Height := imgList.Height;
+			sib.Width := _imgList.Width;
+			sib.Height := _imgList.Height;
 			sib.Canvas.FillRect(sib.Canvas.ClipRect);
-			smb.Width := imgList.Width;
-			smb.Height := imgList.Height;
+			smb.Width := _imgList.Width;
+			smb.Height := _imgList.Height;
 			smb.Canvas.FillRect(smb.Canvas.ClipRect);
 
 			ib := TBitmap.Create;
@@ -142,7 +158,7 @@ begin
 				ImageList_DrawEx(
 					{ } FScaledImageList.Handle, ii, mb.Canvas.Handle, 0, 0, mb.Width, mb.Height, CLR_NONE, CLR_NONE, ILD_MASK);
 
-				if dpi * 100 / 96 <= 150 then // center if <= 150%
+				if _dpi * 100 / 96 <= 150 then // center if <= 150%
 				begin
 					dbgMsg.Msg('Centered');
 					sib.Canvas.Draw((sib.Width - ib.Width) div 2, (sib.Height - ib.Height) div 2, ib);
@@ -157,11 +173,55 @@ begin
 				mb.Free;
 			end;
 
-			imgList.Add(sib, smb);
+			_imgList.Add(sib, smb);
 		finally
 			sib.Free;
 			smb.Free;
 		end;
+	end;
+end;
+
+procedure TRipGrepperDpiScaler.ScaleImageListToActDpi(_imgList : TImageList);
+var
+	dpi : Integer;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperDpiScaler.ScaleImageListToActDpi');
+
+	dpi := GetActualDPI;
+	if dpi = 96 then begin
+		dbgMsg.Msg('Skip');
+		Exit;
+	end;
+
+	ScaleImageList(_imgList, dpi);
+end;
+
+procedure TRipGrepperDpiScaler.ScaleImageListToActDpi(_imgList : TCustomImageList);
+var
+	dpi : Integer;
+	il : TImageList;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperDpiScaler.ScaleImageListToActDpi');
+
+	dpi := GetActualDPI;
+	if dpi = 96 then begin
+		dbgMsg.Msg('Skip');
+		Exit;
+	end;
+
+	il := TImageList.Create(nil);
+	try
+		CopyImages(_imgList, il); // copy to custom to normal image list
+
+		ScaleImageList(il, dpi);
+
+		_imgList.SetSize(MulDiv(DevImgSIZE, dpi, 96), MulDiv(DevImgSIZE, dpi, 96));
+		CopyImages(il, _imgList); // copy back
+
+	finally
+		il.Free;
 	end;
 end;
 
@@ -170,7 +230,7 @@ begin
 	case Msg.Msg of
 		WM_DPICHANGED : begin
 			TDebugUtils.DebugMessage('TRipGrepperDpiScaler.WndMethod - WM_DPICHANGED');
-			ApplyDpiForImageLists(Msg.WParamHi, PRect(Msg.LParam));
+			ApplyDpiForImageListComponents(Msg.WParamHi, PRect(Msg.LParam));
 			Msg.Result := 0;
 		end;
 		else begin
