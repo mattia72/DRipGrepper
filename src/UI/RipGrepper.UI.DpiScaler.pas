@@ -160,13 +160,13 @@ begin
 
 				if _dpi * 100 / 96 <= 150 then // center if <= 150%
 				begin
-					dbgMsg.Msg('Centered');
 					sib.Canvas.Draw((sib.Width - ib.Width) div 2, (sib.Height - ib.Height) div 2, ib);
 					smb.Canvas.Draw((smb.Width - mb.Width) div 2, (smb.Height - mb.Height) div 2, mb);
+					dbgMsg.MsgIf(ii = 0, 'Images redrawed Centered');
 				end else begin // stretch if > 150%
-					dbgMsg.Msg('Stretched');
 					sib.Canvas.StretchDraw(Rect(0, 0, sib.Width, sib.Width), ib);
 					smb.Canvas.StretchDraw(Rect(0, 0, smb.Width, smb.Width), mb);
+					dbgMsg.MsgIf(ii = 0,'Images redrawed Stretched');
 				end;
 			finally
 				ib.Free;
