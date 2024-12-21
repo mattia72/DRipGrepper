@@ -40,7 +40,7 @@ type
 			procedure LoadIdeContextFromDict(const _bDefault : Boolean);
 
 		public
-			constructor Create(const _ini : TMemIniFile); overload;
+			constructor Create(const _Owner : TPersistableSettings); overload;
 			constructor Create; overload;
 			procedure Init; override;
 			procedure ReadIni; override;
@@ -62,10 +62,10 @@ uses
 	System.SysUtils,
 	System.Variants;
 
-constructor TRipGrepperExtensionSettings.Create(const _ini : TMemIniFile);
+constructor TRipGrepperExtensionSettings.Create(const _Owner : TPersistableSettings);
 begin
 	IniSectionName := INI_SECTION;
-	inherited;
+	inherited Create(_Owner);
 	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Create: ' + IniFile.FileName + '[' + IniSectionName + ']');
 end;
 

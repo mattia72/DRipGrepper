@@ -38,7 +38,7 @@ type
 		protected
 
 		public
-			constructor Create(const _ini : TMemIniFile); overload;
+			constructor Create(const _Owner : TPersistableSettings); overload;
 			constructor Create; overload;
 			destructor Destroy; override;
 			procedure Init; override;
@@ -59,13 +59,13 @@ uses
 	System.StrUtils,
 	RipGrepper.Helper.Types,
 	System.SysUtils,
-	ArrayEx, 
+	ArrayEx,
 	RipGrepper.Settings.SettingsDictionary;
 
-constructor TFilterSettings.Create(const _ini : TMemIniFile);
+constructor TFilterSettings.Create(const _Owner : TPersistableSettings);
 begin
 	IniSectionName := INI_SECTION;
-	inherited;
+	inherited Create(_Owner);
 	TDebugUtils.DebugMessage('TFilterSettings.Create: ' + IniFile.FileName + '[' + GetIniSectionName + ']');
 end;
 

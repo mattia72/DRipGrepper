@@ -40,7 +40,8 @@ type
 		public
 			SearchOptions : TSearchOptionSet;
 
-			constructor Create(const _ini : TMemIniFile; const _iniSection : string); overload;
+			constructor Create(const _Owner : TPersistableSettings; const _iniSection :
+				string); overload;
 			constructor Create(const _sText, _sRepl : string; const _bMC, _bMW, _bUR : Boolean); overload;
 			constructor Create(const _iniSection : string); overload;
 			destructor Destroy; override;
@@ -305,10 +306,10 @@ begin
 	Assert(Length(arr) <= 1, listOptions.DelimitedText + CRLF + 'Option list is corrupt. -- should appear only once!');
 end;
 
-constructor TGuiSearchTextParams.Create(const _ini : TMemIniFile; const _iniSection : string);
+constructor TGuiSearchTextParams.Create(const _Owner : TPersistableSettings; const _iniSection : string);
 begin
 	IniSectionName := _iniSection;
-	inherited Create(_ini);
+	inherited Create(_Owner);
 	TDebugUtils.DebugMessage('TGuiSearchTextParams.Create: ' + IniFile.FileName + '[' + IniSectionName + ']');
 	Create();
 end;
@@ -316,7 +317,7 @@ end;
 constructor TGuiSearchTextParams.Create(const _iniSection : string);
 begin
 	IniSectionName := _iniSection;
-	inherited Create();
+	inherited Create();    // own ini file
 	Clear();
 end;
 

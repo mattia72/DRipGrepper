@@ -43,7 +43,7 @@ type
 			procedure Init; override;
 
 		public
-			constructor Create(const _ini : TMemIniFile);
+			constructor Create(const _Owner : TPersistableSettings);
 			destructor Destroy; override;
 			procedure CopyDefaultsToValues; override;
 			function GetCommandLine : string;
@@ -76,11 +76,11 @@ uses
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.DebugUtils;
 
-constructor TRipGrepParameterSettings.Create(const _ini : TMemIniFile);
+constructor TRipGrepParameterSettings.Create(const _Owner : TPersistableSettings);
 begin
 	IniSectionName := INI_SECTION;
-	inherited Create(_ini);
-	FGuiSearchTextParams := TGuiSearchTextParams.Create(_ini, INI_SECTION);
+	inherited Create(_Owner);
+	FGuiSearchTextParams := TGuiSearchTextParams.Create(_Owner, INI_SECTION);
 	FbRgPathInitOk := False;
 	RipGrepPath := '';
 	FRipGrepArguments := TStringList.Create;

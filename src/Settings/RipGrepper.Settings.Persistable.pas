@@ -39,8 +39,10 @@ type
 			FbOwnIniFile : Boolean;
 			FIniSectionName : string;
 			FIsAlreadyRead : Boolean;
+			FOwner : TPersistableSettings;
 			procedure CreateIniFile;
 			class var FLockObject : TObject;
+			procedure FreeOwnIniFile;
 			function GetIniFile : TMemIniFile;
 			procedure ReadSettings;
 			procedure SetIniFile(const Value : TMemIniFile);
@@ -64,7 +66,7 @@ type
 			function ToLogString : string; virtual;
 
 		public
-			constructor Create(const _ini : TMemIniFile); overload;
+			constructor Create(const _Owner : TPersistableSettings); overload;
 			constructor Create; overload;
 			procedure Copy(const _other : TPersistableSettings); virtual;
 			procedure ReLoad; virtual;
@@ -88,7 +90,7 @@ type
 			procedure LoadDefaultsFromDict; virtual; abstract;
 
 			/// Re-create memini to re-read ini file content
-			class procedure ReCreateMemIni(var _ini : TMemIniFile); overload;
+			class procedure ReCreateMemIni(var _ini : TMemIniFile; const _section : string); overload;
 			procedure ReCreateMemIni; overload; virtual;
 			/// <summary>
 			/// Members.StoreToDict should be called here
@@ -119,12 +121,13 @@ uses
 	ArrayEx,
 	RipGrepper.Tools.LockGuard;
 
-constructor TPersistableSettings.Create(const _ini : TMemIniFile);
+constructor TPersistableSettings.Create(const _Owner : TPersistableSettings);
 begin
 	inherited Create();
-	FIniFile := _ini;
-	Create();
+    FOwner := _Owner;
+	FIniFile := _Owner.FIniFile;
 	FbOwnIniFile := False;
+	Create();
 end;
 
 constructor TPersistableSettings.Create;
@@ -148,9 +151,11 @@ end;
 
 destructor TPersistableSettings.Destroy;
 begin
-	if FbOwnIniFile then begin
-		FIniFile.Free;
-	end;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.Destroy', True);
+
+	FreeOwnIniFile;
+	dbgMsg.Msg('Free FSettingsDict of section:' + GetIniSectionName());
 	FSettingsDict.Free;
 	inherited;
 end;
@@ -219,11 +224,26 @@ end;
 
 procedure TPersistableSettings.CreateIniFile;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.CreateIniFile', True);
 	{$IFDEF STANDALONE}
 	FIniFile := TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8);
 	{$ELSE}
 	FIniFile := TMemIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'), TEncoding.UTF8);
 	{$ENDIF}
+	dbgMsg.MsgFmt('Create FIniFile %p of section: %s', [Pointer(FIniFile), GetIniSectionName()]);
+end;
+
+procedure TPersistableSettings.FreeOwnIniFile;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.FreeOwnIniFile', True);
+
+	if FbOwnIniFile then begin
+		dbgMsg.MsgFmt('Free FIniFile %p of section: %s', [Pointer(FIniFile), GetIniSectionName()]);
+		FIniFile.Free;
+		FIniFile := nil;
+	end;
 end;
 
 function TPersistableSettings.GetIniFile : TMemIniFile;
@@ -359,17 +379,27 @@ begin
 	end;
 end;
 
-class procedure TPersistableSettings.ReCreateMemIni(var _ini : TMemIniFile);
+class procedure TPersistableSettings.ReCreateMemIni(var _ini : TMemIniFile; const _section : string);
 begin
 	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.ReCreateMemIni', True);
+
+	var
 	iniFileName := _ini.FileName;
+	dbgMsg.MsgFmt('Free FIniFile %p of section: %s', [Pointer(_ini), _section]);
+
 	_ini.Free;
 	_ini := TMemIniFile.Create(iniFileName, TEncoding.UTF8);
+
+	dbgMsg.MsgFmt('ReCreate FIniFile %p of section: %s', [Pointer(_ini), _section]);
 end;
 
 procedure TPersistableSettings.ReCreateMemIni;
 begin
-	ReCreateMemIni(FIniFile);
+	ReCreateMemIni(FIniFile, GetIniSectionName());
+	if Assigned(FOwner) then begin
+		FOwner.IniFile := FIniFile;
+	end;
 end;
 
 procedure TPersistableSettings.ReLoad;
@@ -381,6 +411,9 @@ end;
 procedure TPersistableSettings.SetIniFile(const Value : TMemIniFile);
 begin
 	FIniFile := Value;
+	if not FbOwnIniFile and Assigned(FOwner) and (FOwner.IniFile <> FIniFile) then begin
+		FOwner.IniFile := FIniFile;
+	end;
 end;
 
 procedure TPersistableSettings.SetIniSectionName(const Value : string);
@@ -409,14 +442,18 @@ end;
 
 procedure TPersistableSettings.UpdateIniFile;
 begin
-	 var
-	 dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
 	// trace causes exception on closing delphi ide
 	var
 	lock := TLockGuard.NewLock(FLockObject);
-	 dbgMsg.Msg('Lock Entered - IniFile update begin ' + FIniFile.FileName);
-	// try
-	FIniFile.UpdateFile;
+	dbgMsg.Msg('Lock Entered');
+	if Assigned(FIniFile) then begin
+		dbgMsg.MsgFmt('IniFile %p update begin on %s', [Pointer(FIniFile), GetIniSectionName()]);
+		FIniFile.UpdateFile;
+	end else begin
+		dbgMsg.ErrorMsg('IniFile not assigned!' + GetIniSectionName());
+	end;
 	// except
 	// on E : Exception do
 	// dbgMsg.ErrorMsgFmt('%s', [E.Message]);

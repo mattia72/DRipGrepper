@@ -178,7 +178,7 @@ begin
 	FFontColorSettings.Free;
 	FSearchFormSettings.Free;
 	FFileMasksHistory.Free;
-	UpdateIniFile;
+//	UpdateIniFile;
 	inherited Destroy(); // ok;
 end;
 
@@ -187,13 +187,13 @@ begin
 	IniSectionName := ROOT_DUMMY_INI_SECTION;
 	inherited;
 
-	FSearchFormSettings := TSearchFormSettings.Create(IniFile);
+	FSearchFormSettings := TSearchFormSettings.Create(self);
 
-	FAppSettings := TAppSettings.Create(IniFile);
-	FFontColorSettings := TColorSettings.Create(IniFile);
-	FRipGrepParameters := TRipGrepParameterSettings.Create(IniFile);
-	FNodeLookSettings := TNodeLookSettings.Create(IniFile);
-	FOpenWithSettings := TOpenWithSettings.Create(IniFile);
+	FAppSettings := TAppSettings.Create(self);
+	FFontColorSettings := TColorSettings.Create(self);
+	FRipGrepParameters := TRipGrepParameterSettings.Create(self);
+	FNodeLookSettings := TNodeLookSettings.Create(self);
+	FOpenWithSettings := TOpenWithSettings.Create(self);
 	FSearchPathsHistory := TStringList.Create(dupIgnore, False, True);
 	FSearchTextsHistory := TStringList.Create(dupIgnore, False, True);
 	FReplaceTextsHistory := TStringList.Create(dupIgnore, False, True);
@@ -342,7 +342,7 @@ end;
 
 procedure TRipGrepperSettings.ReCreateMemIni; // Composit
 begin
-	inherited;
+	inherited ReCreateMemIni;
 	FAppSettings.IniFile := IniFile;
     FFontColorSettings.IniFile := IniFile;
 	FNodeLookSettings.IniFile := IniFile;

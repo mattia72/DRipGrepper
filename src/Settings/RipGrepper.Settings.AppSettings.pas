@@ -29,7 +29,7 @@ type
 			procedure Init; override;
 
 		public
-			constructor Create(const _ini : TMemIniFile);
+			constructor Create(const _Owner : TPersistableSettings);
 			destructor Destroy; override;
 			procedure LoadFromDict(); override;
 			procedure LoadDefaultsFromDict; override;
@@ -59,7 +59,7 @@ uses
 	RipGrepper.CommandLine.Builder,
 	System.Variants;
 
-constructor TAppSettings.Create(const _ini : TMemIniFile);
+constructor TAppSettings.Create(const _Owner : TPersistableSettings);
 begin
 	IniSectionName := INI_SECTION;
 	inherited;

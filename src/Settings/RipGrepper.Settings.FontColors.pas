@@ -99,7 +99,7 @@ type
 			procedure Init; override;
 
 		public
-			constructor Create(const _ini : TMemIniFile);
+			constructor Create(const _Owner : TPersistableSettings);
 			destructor Destroy; override;
 			procedure LoadFromDict(); override;
 			procedure LoadDefaultsFromDict(); override;
@@ -122,7 +122,7 @@ uses
 
 { TColorSettings }
 
-constructor TColorSettings.Create(const _ini : TMemIniFile);
+constructor TColorSettings.Create(const _Owner : TPersistableSettings);
 begin
 	IniSectionName := INI_SECTION;
 	inherited;

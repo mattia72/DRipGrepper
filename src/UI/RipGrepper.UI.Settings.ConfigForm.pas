@@ -86,7 +86,7 @@ begin
 		FColorSettingsForm := TColorSettingsForm.Create(nil, Settings.FontColorSettings);
 
 		// {$IFNDEF STANDALONE}
-		FExtensionSettings := TRipGrepperExtensionSettings.Create(Settings.IniFile);
+		FExtensionSettings := TRipGrepperExtensionSettings.Create(Settings);
 		FExtensionSettings.ReadIni;
 		FExtensionSettings.LoadFromDict;
 		FExtensionSettingsForm := TExtensionSettingsForm.Create(nil, FExtensionSettings);

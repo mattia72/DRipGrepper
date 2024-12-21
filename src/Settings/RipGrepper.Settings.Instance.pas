@@ -45,6 +45,7 @@ destructor TRipGrepperSettingsInstance.Destroy;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettingsInstance.Destroy');
+    FSettings.UpdateIniFile;
 	FSettings.Free;
 	inherited;
 end;

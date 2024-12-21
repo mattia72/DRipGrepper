@@ -54,7 +54,7 @@ type
 			procedure SetPretty(const Value : Boolean);
 
 		public
-			constructor Create(const _ini : TMemIniFile); overload;
+			constructor Create(const _Owner : TPersistableSettings); overload;
 			constructor Create; overload;
 			destructor Destroy; override;
 
@@ -98,11 +98,11 @@ uses
 	System.RegularExpressions,
 	RipGrepper.CommandLine.Builder;
 
-constructor TSearchFormSettings.Create(const _ini : TMemIniFile);
+constructor TSearchFormSettings.Create(const _Owner : TPersistableSettings);
 begin
 	IniSectionName := INI_SECTION;
-	inherited Create(_ini);
-	FExtensionSettings := TRipGrepperExtensionSettings.Create(_ini);
+	inherited Create(_Owner);
+	FExtensionSettings := TRipGrepperExtensionSettings.Create(_Owner);
 end;
 
 constructor TSearchFormSettings.Create;

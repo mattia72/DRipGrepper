@@ -31,7 +31,7 @@ type
 			ShowRelativePath : Boolean;
 			ExpandNodes : Boolean;
 			procedure SetViewSettingValues(const _s : string = '');
-			constructor Create(const _ini : TMemIniFile); overload;
+			constructor Create(const _Owner : TPersistableSettings); overload;
 //          constructor Create; overload;
 			destructor Destroy; override;
 			function GetIsModified : Boolean; override;
@@ -51,10 +51,10 @@ uses
 	RipGrepper.Helper.Types,
 	System.SysUtils;
 
-constructor TNodeLookSettings.Create(const _ini : TMemIniFile);
+constructor TNodeLookSettings.Create(const _Owner : TPersistableSettings);
 begin
 	IniSectionName := INI_SECTION;
-	FFilterSettings := TFilterSettings.Create(_ini);
+	FFilterSettings := TFilterSettings.Create(_Owner);
 	inherited;
 	TDebugUtils.DebugMessage('TNodeLookSettings.Create: ' + IniFile.FileName + '[' + GetIniSectionName + ']');
 end;

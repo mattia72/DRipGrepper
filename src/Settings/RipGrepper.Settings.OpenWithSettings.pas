@@ -18,7 +18,7 @@ type
 			procedure SetCommand(Index : Integer; const Value : string);
 
 		public
-			constructor Create(const _ini : TMemIniFile);
+			constructor Create(const _Owner : TPersistableSettings);
 			destructor Destroy; override;
 			procedure ClearCommandList;
 			procedure Init; override;
@@ -37,11 +37,11 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	System.SysUtils;
 
-constructor TOpenWithSettings.Create(const _ini : TMemIniFile);
+constructor TOpenWithSettings.Create(const _Owner : TPersistableSettings);
 begin
 	IniSectionName := OPEN_WITH_SETTINGS;
 	FCommandList := TStringList.Create;
-	inherited;
+	inherited Create(_Owner);
 	TDebugUtils.DebugMessage('TOpenWithSettings.Create: ' + IniFile.FileName + '[' + IniSectionName + ']');
 end;
 
