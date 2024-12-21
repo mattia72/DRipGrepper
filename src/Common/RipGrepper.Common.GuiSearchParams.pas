@@ -40,8 +40,7 @@ type
 		public
 			SearchOptions : TSearchOptionSet;
 
-			constructor Create(const _Owner : TPersistableSettings; const _iniSection :
-				string); overload;
+			constructor Create(const _Owner : TPersistableSettings; const _iniSection : string); overload;
 			constructor Create(const _sText, _sRepl : string; const _bMC, _bMW, _bUR : Boolean); overload;
 			constructor Create(const _iniSection : string); overload;
 			destructor Destroy; override;
@@ -294,8 +293,7 @@ begin
 	Result := '[' + string.Join(',', arr.Items) + ']';
 	if not _bGuiOptionsOnly then begin
 		Result := Format('%s %s IsRgOpSet: %s' + CRLF + '%s' + CRLF + 'IsReplMmode:%s - %s',
-		[SearchText, Result, BoolToStr(IsRgExeOptionSet, True),
-			RgOptions.AsString, BoolToStr(IsReplaceMode, True), ReplaceText]);
+			[SearchText, Result, BoolToStr(IsRgExeOptionSet, True), RgOptions.AsString, BoolToStr(IsReplaceMode, True), ReplaceText]);
 	end;
 end;
 
@@ -310,19 +308,24 @@ constructor TGuiSearchTextParams.Create(const _Owner : TPersistableSettings; con
 begin
 	IniSectionName := _iniSection;
 	inherited Create(_Owner);
-	TDebugUtils.DebugMessage('TGuiSearchTextParams.Create: ' + IniFile.FileName + '[' + IniSectionName + ']');
-	Create();
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.Create', True);
+	dbgMsg.MsgFmt('Create %p for section: %s', [Pointer(self), IniSectionName]);
+    Clear();
 end;
 
 constructor TGuiSearchTextParams.Create(const _iniSection : string);
 begin
 	IniSectionName := _iniSection;
-	inherited Create();    // own ini file
+	inherited Create(); // own ini file
 	Clear();
 end;
 
 destructor TGuiSearchTextParams.Destroy;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.Destroy', True);
+	dbgMsg.MsgFmt('Destroy %p for section: %s', [Pointer(self), IniSectionName]);
 	inherited Destroy(); // ok
 end;
 
