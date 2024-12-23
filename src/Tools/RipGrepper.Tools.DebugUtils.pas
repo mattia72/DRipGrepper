@@ -52,12 +52,9 @@ uses
 
 class constructor TDebugUtils.Create;
 begin
-	if not Assigned(GSettings) then begin
-		GSettings := TRipGrepperSettingsInstance.Instance;
-		GSettings.AppSettings.ReadIni;
-		GSettings.AppSettings.LoadFromDict();
-	end;
-
+	{$IFDEF DEBUG}
+	FDebugTraceActive := True;
+	{$ENDIF}
 	UpdateTraceActive;
 end;
 
@@ -96,9 +93,11 @@ end;
 
 class procedure TDebugUtils.UpdateTraceActive;
 begin
-	FDebugTraceActive := { } (Assigned(GSettings) and
+	FDebugTraceActive := { } FDebugTraceActive or
+	    { } (Assigned(GSettings) and
 		{ } Assigned(GSettings.AppSettings) and
 		{ } GSettings.AppSettings.DebugTrace);
+	OutputDebugString(PChar(APPNAME + 'DebugTraceActive ' + BoolToStr(FDebugTraceActive, True)));
 end;
 
 procedure TDebugMsgBeginEnd.Msg(const _sMsg : string);

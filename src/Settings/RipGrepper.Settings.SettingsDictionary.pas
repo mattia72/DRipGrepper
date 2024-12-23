@@ -18,7 +18,8 @@ type
 
 		protected
 		public
-			constructor Create(const _section : string);
+			constructor Create(const _section : string); overload;
+			constructor Create; overload;
 			destructor Destroy; override;
 
 			procedure AddOrChange(const Key : string; const Value : ISettingVariant);
@@ -49,13 +50,29 @@ uses
 
 constructor TSettingsDictionary.Create(const _section : string);
 begin
-	inherited Create;
-	FSectionName := _section
+	Create;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.Create(_section)', True);
+	FSectionName := _section;
+	dbgMsg.MsgFmt('Create %p for section: %s', [Pointer(self), FSectionName]);
+end;
+
+constructor TSettingsDictionary.Create;
+begin
+	inherited;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.Create', True);
+	dbgMsg.MsgFmt('Create %p for section: ???', [Pointer(self)]);
 end;
 
 destructor TSettingsDictionary.Destroy;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.Destroy', True);
+	dbgMsg.MsgFmt('Destroy %p for section: %s', [Pointer(self), FSectionName]);
+
 	for var key in Keys do begin
+//      dbgMsg.MsgFmt('Destroy key: %s', [key]);
 		Self[key] := nil;
 	end;
 	inherited Destroy;

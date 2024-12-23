@@ -133,9 +133,13 @@ end;
 constructor TPersistableSettings.Create;
 begin
 	inherited;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.Create', True);
+
 	FIsModified := False;
 	FIsAlreadyRead := False;
 	FSettingsDict := TSettingsDictionary.Create(IniSectionName);
+    dbgMsg.MsgFmt('Create FSettingsDict %p for section: %s', [Pointer(FSettingsDict), IniSectionName]);
 	FbDefaultLoaded := False;
 	if not Assigned(FIniFile) then begin
 		CreateIniFile();
@@ -153,11 +157,10 @@ destructor TPersistableSettings.Destroy;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.Destroy', True);
-
-	FreeOwnIniFile;
-	dbgMsg.Msg('Free FSettingsDict of section:' + GetIniSectionName());
+ 	FreeOwnIniFile;
+     dbgMsg.MsgFmt('Free FSettingsDict %p for section: %s', [Pointer(FSettingsDict), IniSectionName]);
 	FSettingsDict.Free;
-	inherited;
+ 	inherited;
 end;
 
 class destructor TPersistableSettings.Destroy;

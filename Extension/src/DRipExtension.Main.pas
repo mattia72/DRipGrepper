@@ -21,8 +21,6 @@ type
 		private
 			FKeyNotifier : IOTAKeyboardBinding;
 			FKeyBinding : integer;
-
-			FDockableForm : TRipGrepperDockableForm;
 			FiPluginIndexAbout : Integer;
 			procedure InitPluginInfo;
 			// **********************************************************************************************************************
@@ -79,6 +77,7 @@ begin
 	inherited;
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.Create');
+
 	InitPluginInfo;
 	TRipGrepperDockableForm.CreateInstance; // saved layout loading ...
 	G_DRipExtension := self;
@@ -90,10 +89,9 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.Destroy');
 	RemovePluginInfo;
-	dbgMsg.Msg('FDockableForm.Free');
-	FDockableForm.Free;
+	TRipGrepperDockableForm.DestroyInstance;
 	G_DRipExtension := nil;
-	inherited;
+ 	inherited;
 end;
 
 // IOTAWizard
@@ -143,7 +141,8 @@ var
 	aLicenseStatus : string;
 	sExeVersion : string;
 begin
-	TDebugUtils.DebugMessage('TDRipExtension.InitPluginInfo');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.InitPluginInfo');
 	GetModuleFileName(hInstance, aFileName, MAX_PATH);
 	System.SysUtils.FileAge(aFileName, dFileAge);
 	aLicenseStatus := FormatDateTime('dd.mm.yy - h:nn', dFileAge);
@@ -163,6 +162,9 @@ begin
 	if not Assigned(FKeyNotifier) then
 		exit;
 
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.RegisterKeyboardBinding');
+
 	kbServices := BorlandIDEServices as IOTAKeyboardServices;
 	try
 		if Assigned(kbServices) then
@@ -174,13 +176,17 @@ end;
 
 procedure TDRipExtension.RemovePluginInfo;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.RemovePluginInfo');
+
 	if FiPluginIndexAbout > 0 then
 		(BorlandIDEServices as IOTAAboutBoxServices).RemovePluginInfo(FiPluginIndexAbout);
 end;
 
 procedure TDRipExtension.UnregisterKeyboardBinding;
 begin
-	TDebugUtils.DebugMessage('TDRipExtension.UnregisterKeyboardBinding');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.UnregisterKeyboardBinding');
 	if FKeyBinding > -1 then begin
 		(BorlandIDEServices as IOTAKeyboardServices).RemoveKeyboardBinding(FKeyBinding);
 		FKeyBinding := -1;

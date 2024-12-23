@@ -137,7 +137,8 @@ uses
 	System.TypInfo,
 	RipGrepper.Common.IOTAUtils,
 	Vcl.Controls,
-	RipGrepper.Settings.AppSettings;
+	RipGrepper.Settings.AppSettings, 
+	RipGrepper.Settings.RipGrepperSettings;
 
 { TRipGrepperDockableForm }
 
@@ -221,6 +222,8 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperDockableForm.CreateInstance');
 
+	GSettings := TRipGrepperSettings.Create;
+
 	FInstance := TRipGrepperDockableForm.Create();
 	var
 	services := (BorlandIDEServices as INTAServices);
@@ -234,9 +237,18 @@ end;
 
 class procedure TRipGrepperDockableForm.DestroyInstance;
 begin
-	(BorlandIDEServices as INTAServices).UnregisterDockableForm(FInstance);
-	FInstance.Free;
-	TDebugUtils.DebugMessage('TRipGrepperDockableForm.DestroyInstance ended.');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperDockableForm.CreateInstance');
+
+	try
+		(BorlandIDEServices as INTAServices).UnregisterDockableForm(FInstance);
+		FInstance.Free;
+		GSettings.Free;
+	except
+		on e : Exception do begin
+			dbgMsg.ErrorMsg(e.Message);
+		end;
+	end
 end;
 
 class function TRipGrepperDockableForm.ShowDockableFormAndSearch : TCustomForm;
@@ -268,7 +280,8 @@ end;
 
 class function TRipGrepperDockableForm.GetInstance : TRipGrepperDockableForm;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperDockableForm.GetInstance');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperDockableForm.GetInstance');
 	if not Assigned(FInstance) then begin
 		CreateInstance()
 	end;
