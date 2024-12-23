@@ -2,9 +2,6 @@ unit RipGrepper.Tools.DebugUtils;
 
 interface
 
-uses
-	RipGrepper.Settings.Instance;
-
 type
 
 	TDebugUtils = class(TObject)
