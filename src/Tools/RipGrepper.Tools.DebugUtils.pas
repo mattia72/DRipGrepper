@@ -52,6 +52,12 @@ begin
 	{$IFDEF DEBUG}
 	FDebugTraceActive := True;
 	{$ENDIF}
+	{$IFDEF TESTINSIGHT}
+	FDebugTraceActive := FALSE;
+	{$ENDIF}
+	{$IFDEF CONSOLE}
+	FDebugTraceActive := FALSE;
+	{$ENDIF}
 	UpdateTraceActive;
 end;
 
@@ -91,7 +97,7 @@ end;
 class procedure TDebugUtils.UpdateTraceActive;
 begin
 	FDebugTraceActive := { } FDebugTraceActive or
-	    { } (Assigned(GSettings) and
+	{ } (Assigned(GSettings) and
 		{ } Assigned(GSettings.AppSettings) and
 		{ } GSettings.AppSettings.DebugTrace);
 	OutputDebugString(PChar(APPNAME + 'DebugTraceActive ' + BoolToStr(FDebugTraceActive, True)));

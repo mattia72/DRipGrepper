@@ -7,7 +7,8 @@ uses
 	System.IniFiles,
 	RipGrepper.Settings.Persistable,
 	DUnitX.TestFramework,
-	RipGrepper.Settings.SettingsDictionary;
+	RipGrepper.Settings.SettingsDictionary,
+	RipGrepper.Settings.TestOwnerSettings;
 
 const
 	INITIAL_STR_VALUE = 'str_initial_value';
@@ -20,7 +21,7 @@ type
 			FStrSetting : string;
 
 		public
-			constructor Create(const _ini : TMemIniFile); overload;
+			constructor Create(const _Owner : TPersistableSettings); overload;
 			constructor Create(const _iniSection : string); overload;
 			function GetDict : TSettingsDictionary;
 			procedure Init; override;
@@ -41,6 +42,7 @@ type
 
 		private
 			FIniFile : TMemIniFile;
+			FOwner : TPersistableSettings;
 			FSettings : TTestSettings;
 			procedure CreateDefaultsInIni;
 
@@ -177,20 +179,21 @@ end;
 
 procedure TPersistableSettingsTest.Setup;
 begin
-	FIniFile := TMemIniFile.Create(INIFILE, TEncoding.UTF8);
-	FSettings := TTestSettings.Create(FIniFile);
+	FOwner := TTestOwnerSettings.Create();
+	FIniFile := FOwner.IniFile;
+	FSettings := TTestSettings.Create(FOwner);
 end;
 
 procedure TPersistableSettingsTest.TearDown;
 begin
 	FSettings.Free;
-	FIniFile.Free;
+	FOwner.Free;
 end;
 
-constructor TTestSettings.Create(const _ini : TMemIniFile);
+constructor TTestSettings.Create(const _Owner : TPersistableSettings);
 begin
 	IniSectionName := TPersistableSettingsTest.INI_SECTION; // should be set before create
-	inherited Create(_ini);
+	inherited Create(_Owner);
 end;
 
 constructor TTestSettings.Create(const _iniSection : string);

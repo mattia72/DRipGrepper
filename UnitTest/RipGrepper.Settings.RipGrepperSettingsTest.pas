@@ -42,8 +42,7 @@ implementation
 uses
 	RipGrepper.Common.Constants,
 	System.SysUtils,
-	Vcl.Forms,
-	RipGrepper.Settings.Instance;
+	Vcl.Forms;
 
 constructor TRipGrepperSettingsTest.Create;
 begin
@@ -121,13 +120,12 @@ end;
 
 procedure TRipGrepperSettingsTest.Setup;
 begin
-	FSettings := TRipGrepperSettingsInstance.GetInstance();
-	// FSettings := TRipGrepperSettings.Create();
+	FSettings := TRipGrepperSettings.Create();
 end;
 
 procedure TRipGrepperSettingsTest.TearDown;
 begin
-	// FSettings.Free; //instance will be free
+	FSettings.Free; //instance will be free
 	FIniFile.Free;
 	EmptyFile(Application.ExeName + '.ini');
 end;

@@ -7,7 +7,9 @@ uses
 	System.IniFiles,
 	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Settings.RipGrepParameterSettings,
-	RipGrepper.Settings.SearchFormSettings;
+	RipGrepper.Settings.SearchFormSettings,
+	RipGrepper.Settings.Persistable,
+	RipGrepper.Settings.TestOwnerSettings;
 
 type
 
@@ -18,6 +20,7 @@ type
 
 		private
 			FIniFile : TMemIniFile;
+			FOwner : TPersistableSettings;
 			FSettings : TSearchFormSettings;
 			procedure SetDefaults;
 
@@ -107,7 +110,7 @@ procedure TSearchFormSettingsTest.LoadDefaultsReadsIni;
 begin
 	SetDefaults;
 	Assert.IsFalse(FSettings.IsAlreadyRead);
-    FSettings.ReadIni;
+	FSettings.ReadIni;
 	FSettings.LoadDefaultsFromDict;
 	Assert.IsTrue(FSettings.IsAlreadyRead);
 end;
@@ -125,14 +128,15 @@ end;
 
 procedure TSearchFormSettingsTest.Setup;
 begin
-	FIniFile := TMemIniFile.Create(INIFILE, TEncoding.UTF8);
-	FSettings := TSearchFormSettings.Create(FIniFile);
+	FOwner := TTestOwnerSettings.Create();
+	FIniFile := FOwner.IniFile;
+	FSettings := TSearchFormSettings.Create(FOwner);
 end;
 
 procedure TSearchFormSettingsTest.TearDown;
 begin
 	FSettings.Free;
-	FIniFile.Free;
+	FOwner.Free;
 end;
 
 initialization

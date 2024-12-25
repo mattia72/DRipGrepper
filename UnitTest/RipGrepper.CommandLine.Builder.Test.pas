@@ -9,7 +9,9 @@ uses
 	RipGrepper.CommandLine.Builder,
 	RipGrepper.Settings.RipGrepParameterSettings,
 	System.IniFiles,
-	RipGrepper.Common.GuiSearchParams;
+	RipGrepper.Common.GuiSearchParams,
+	RipGrepper.Settings.Persistable,
+	RipGrepper.Settings.TestOwnerSettings;
 
 type
 
@@ -20,6 +22,7 @@ type
 			FGuiParams : TGuiSearchTextParams;
 			FIniFile : TMemIniFile;
 			FParams : TRipGrepParameterSettings;
+			FOwner : TPersistableSettings;
 
 		public
 			[Setup]
@@ -64,16 +67,17 @@ uses
 
 procedure TCommandLineBuilderTest.Setup;
 begin
-	FIniFile := TMemIniFile.Create('DripGrepperUnittest.ini');
-	FParams := TRipGrepParameterSettings.Create(FIniFile);
+	FOwner := TTestOwnerSettings.Create();
+	FIniFile := FOwner.IniFile;
+	FParams := TRipGrepParameterSettings.Create(FOwner);
 	FGuiParams := TGuiSearchTextParams.Create('');
 end;
 
 procedure TCommandLineBuilderTest.TearDown;
 begin
-//	FGuiParams.Free;
+	// FGuiParams.Free;
 	FParams.Free;
-	FIniFile.Free;
+	FOwner.Free;
 end;
 
 procedure TCommandLineBuilderTest.TestGetMaskParamsFromOptions(const _sOptions, _sMasks : string);

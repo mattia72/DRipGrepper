@@ -9,7 +9,9 @@ uses
 	RipGrepper.CommandLine.Builder,
 	RipGrepper.Settings.RipGrepParameterSettings,
 	System.IniFiles,
-	RipGrepper.Common.GuiSearchParams;
+	RipGrepper.Common.GuiSearchParams,
+	RipGrepper.Settings.Persistable,
+	RipGrepper.Settings.TestOwnerSettings;
 
 type
 
@@ -18,7 +20,8 @@ type
 
 		private
 			FGuiParams : TGuiSearchTextParams;
-			FIniFile : TMemIniFile;
+			// FIniFile : TMemIniFile;
+			FOwner : TPersistableSettings;
 			FParams : TRipGrepParameterSettings;
 			function SetSearchOptions(const _guiOptionsActual : string) : TSearchOptionSet;
 
@@ -111,8 +114,8 @@ end;
 
 procedure TOptionsHelperTest.Setup;
 begin
-	FIniFile := TMemIniFile.Create('DripGrepperUnittest.ini', TEncoding.UTF8);
-	FParams := TRipGrepParameterSettings.Create(FIniFile);
+	FOwner := TTestOwnerSettings.Create();
+	FParams := TRipGrepParameterSettings.Create(FOwner);
 	FGuiParams := FParams.GuiSearchTextParams;
 	FGuiParams.SearchText := 'search text';
 end;
@@ -120,7 +123,7 @@ end;
 procedure TOptionsHelperTest.TearDown;
 begin
 	FParams.Free;
-	FIniFile.Free;
+	FOwner.Free;
 end;
 
 procedure TOptionsHelperTest.TestGetOptionsAndSetFlag(const _guiOption, _bMatch : Integer; const _paramRegex : string);
