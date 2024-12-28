@@ -84,7 +84,7 @@ begin
 	end else begin
 		if not FDebugTraceInactiveMsgShown then begin
 			FDebugTraceInactiveMsgShown := True;
-			OutputDebugString(PChar(APPNAME + 'DebugTrace off'));
+			OutputDebugString(PChar(APPNAME + ' DebugTrace off'));
 		end;
 	end;
 end;
@@ -100,7 +100,7 @@ begin
 	{ } (Assigned(GSettings) and
 		{ } Assigned(GSettings.AppSettings) and
 		{ } GSettings.AppSettings.DebugTrace);
-	OutputDebugString(PChar(APPNAME + 'DebugTraceActive ' + BoolToStr(FDebugTraceActive, True)));
+	OutputDebugString(PChar(APPNAME + ' DebugTraceActive ' + BoolToStr(FDebugTraceActive, True)));
 end;
 
 procedure TDebugMsgBeginEnd.Msg(const _sMsg : string);
