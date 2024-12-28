@@ -47,12 +47,10 @@ uses
 constructor TRipGrepperSettingsTest.Create;
 begin
 	inherited;
-	// FIniFile := TMemIniFile.Create(INIFILE, TEncoding.UTF8);
 end;
 
 destructor TRipGrepperSettingsTest.Destroy;
 begin
-	// FIniFile.Free;
 	inherited;
 end;
 
