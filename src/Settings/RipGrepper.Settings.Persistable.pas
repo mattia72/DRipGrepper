@@ -9,7 +9,8 @@ uses
 	System.SysUtils,
 	RipGrepper.Settings.SettingVariant,
 	RipGrepper.Settings.SettingsDictionary,
-	System.SyncObjs;
+	System.SyncObjs,
+	ArrayEx;
 
 type
 
@@ -52,7 +53,7 @@ type
 
 		protected
 			FSettingsDict : TSettingsDictionary;
-
+			FChildren : TArrayEx<TPersistableSettings>;
 			FIsModified : Boolean;
 
 			function GetIsAlreadyRead : Boolean; virtual;
@@ -77,6 +78,7 @@ type
 			property IsModified : Boolean read GetIsModified;
 			property SettingsDict : TSettingsDictionary read FSettingsDict write FSettingsDict;
 			destructor Destroy; override;
+			function AddChildSettings(_settings : TPersistableSettings) : TPersistableSettings;
 			procedure CopyDefaultsToValues; virtual;
 			procedure CopyValuesToDefaults; virtual;
 			/// <summary>TPersistableSettings.ReadIni
@@ -118,13 +120,13 @@ uses
 	{$IFNDEF STANDALONE} RipGrepper.Common.IOTAUtils, {$ENDIF}
 	System.IOUtils,
 	System.StrUtils,
-	ArrayEx,
+
 	RipGrepper.Tools.LockGuard;
 
 constructor TPersistableSettings.Create(const _Owner : TPersistableSettings);
 begin
 	inherited Create();
-    FOwner := _Owner;
+	FOwner := _Owner;
 	FIniFile := _Owner.FIniFile;
 	FbOwnIniFile := False;
 	Create();
@@ -139,7 +141,7 @@ begin
 	FIsModified := False;
 	FIsAlreadyRead := False;
 	FSettingsDict := TSettingsDictionary.Create(IniSectionName);
-    dbgMsg.MsgFmt('Create FSettingsDict %p for section: %s', [Pointer(FSettingsDict), IniSectionName]);
+	dbgMsg.MsgFmt('Create FSettingsDict %p for section: %s', [Pointer(FSettingsDict), IniSectionName]);
 	FbDefaultLoaded := False;
 	if not Assigned(FIniFile) then begin
 		CreateIniFile();
@@ -157,16 +159,25 @@ destructor TPersistableSettings.Destroy;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.Destroy', True);
- 	FreeOwnIniFile;
-     dbgMsg.MsgFmt('Free FSettingsDict %p for section: %s', [Pointer(FSettingsDict), IniSectionName]);
+	for var s in FChildren do begin
+		s.Free;
+	end;
+	FreeOwnIniFile;
+	dbgMsg.MsgFmt('Free FSettingsDict %p for section: %s', [Pointer(FSettingsDict), IniSectionName]);
 	FSettingsDict.Free;
- 	inherited;
+	inherited;
 end;
 
 class destructor TPersistableSettings.Destroy;
 begin
 	FLockObject.Free;
 	inherited;
+end;
+
+function TPersistableSettings.AddChildSettings(_settings : TPersistableSettings) : TPersistableSettings;
+begin
+	FChildren.Add(_settings);
+	Result := _settings;
 end;
 
 procedure TPersistableSettings.Copy(const _other : TPersistableSettings);
@@ -286,6 +297,11 @@ procedure TPersistableSettings.ReadIni;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.ReadIni');
+
+	for var s in FChildren do begin
+		s.ReadIni();
+	end;
+
 	if not IsAlreadyRead then begin
 		ReadSettings();
 	end else begin
@@ -309,6 +325,9 @@ end;
 
 procedure TPersistableSettings.StoreToDict;
 begin
+	for var s in FChildren do begin
+		s.StoreToDict;
+	end;
 	WriteSettings();
 end;
 
@@ -400,13 +419,22 @@ end;
 procedure TPersistableSettings.ReCreateMemIni;
 begin
 	ReCreateMemIni(FIniFile, GetIniSectionName());
-	if Assigned(FOwner) then begin
-		FOwner.IniFile := FIniFile;
+	var
+	owner := FOwner;
+	while Assigned(owner) do begin
+		owner.IniFile := FIniFile;
+		owner := owner.FOwner;
+	end;
+	for var s in FChildren do begin
+		s.IniFile := IniFile;
 	end;
 end;
 
 procedure TPersistableSettings.ReLoad;
 begin
+	for var s in FChildren do begin
+		s.ReLoad;
+	end;
 	FIsAlreadyRead := False;
 	ReadIni;
 end;
@@ -447,7 +475,12 @@ procedure TPersistableSettings.UpdateIniFile;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
-	// trace causes exception on closing delphi ide
+
+	for var s in FChildren do begin
+		dbgMsg.MsgFmt('Child update begin on section: %s', [GetIniSectionName()]);
+		s.UpdateIniFile;
+	end;
+
 	var
 	lock := TLockGuard.NewLock(FLockObject);
 	dbgMsg.Msg('Lock Entered');
@@ -457,10 +490,7 @@ begin
 	end else begin
 		dbgMsg.ErrorMsg('IniFile not assigned!' + GetIniSectionName());
 	end;
-	// except
-	// on E : Exception do
-	// dbgMsg.ErrorMsgFmt('%s', [E.Message]);
-	// end;
+
 end;
 
 procedure TPersistableSettings.WriteSettings(_bDefault : Boolean = False);

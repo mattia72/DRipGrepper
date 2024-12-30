@@ -56,7 +56,8 @@ type
 			procedure SetReplaceTextsHistory(const Value : TStrings);
 
 		protected
-			function GetIsAlreadyRead: Boolean; override;
+			function GetIsAlreadyRead : Boolean; override;
+
 		public
 			procedure ReadIni; override;
 			procedure StoreToDict; override;
@@ -163,37 +164,39 @@ end;
 
 destructor TRipGrepperSettings.Destroy;
 begin
-//  var
-//  dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.Destroy');
-// trace causes exception on closing delphi ide
+	// var
+	// dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.Destroy');
+	// trace causes exception on closing delphi ide
 	FRipGrepArguments.Free;
 	FExpertOptionHistory.Free;
 	FSearchTextsHistory.Free;
 	FReplaceTextsHistory.Free;
 	FSearchPathsHistory.Free;
-	FNodeLookSettings.Free;
-	FOpenWithSettings.Free;
-	FRipGrepParameters.Free;
-	FAppSettings.Free;
-	FFontColorSettings.Free;
-	FSearchFormSettings.Free;
+
 	FFileMasksHistory.Free;
-//	UpdateIniFile;
 	inherited Destroy(); // ok;
 end;
 
 constructor TRipGrepperSettings.Create;
 begin
 	IniSectionName := ROOT_DUMMY_INI_SECTION;
-	inherited;
 
-	FSearchFormSettings := TSearchFormSettings.Create(self);
+	inherited Create;
 
 	FAppSettings := TAppSettings.Create(self);
 	FFontColorSettings := TColorSettings.Create(self);
 	FRipGrepParameters := TRipGrepParameterSettings.Create(self);
 	FNodeLookSettings := TNodeLookSettings.Create(self);
 	FOpenWithSettings := TOpenWithSettings.Create(self);
+	FSearchFormSettings := TSearchFormSettings.Create(self);
+
+	AddChildSettings(FAppSettings);
+	AddChildSettings(FFontColorSettings);
+	AddChildSettings(FRipGrepParameters);
+	AddChildSettings(FNodeLookSettings);
+	AddChildSettings(FOpenWithSettings);
+	AddChildSettings(FSearchFormSettings);
+
 	FSearchPathsHistory := TStringList.Create(dupIgnore, False, True);
 	FSearchTextsHistory := TStringList.Create(dupIgnore, False, True);
 	FReplaceTextsHistory := TStringList.Create(dupIgnore, False, True);
@@ -248,7 +251,7 @@ begin
 	Result := FActualSearchPath;
 end;
 
-function TRipGrepperSettings.GetIsAlreadyRead: Boolean;
+function TRipGrepperSettings.GetIsAlreadyRead : Boolean;
 begin
 	Result := inherited;
 end;
@@ -289,12 +292,6 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.ReadIni');
 	try
-		FAppSettings.ReadIni();
-		FFontColorSettings.ReadIni();
-		FNodeLookSettings.ReadIni();
-		FOpenWithSettings.ReadIni();
-		FRipGrepParameters.ReadIni();
-		FSearchFormSettings.ReadIni();
 		inherited ReadIni();
 	except
 		on E : Exception do begin
@@ -343,26 +340,12 @@ end;
 procedure TRipGrepperSettings.ReCreateMemIni; // Composit
 begin
 	inherited ReCreateMemIni;
-	FAppSettings.IniFile := IniFile;
-    FFontColorSettings.IniFile := IniFile;
-	FNodeLookSettings.IniFile := IniFile;
-	FOpenWithSettings.IniFile := IniFile;
-	FRipGrepParameters.IniFile := IniFile;
-	FSearchFormSettings.IniFile := IniFile;
 	FSearchFormSettings.ReCreateMemIni();
 end;
 
 procedure TRipGrepperSettings.ReLoad; // Composit
 begin
-	begin
-end;
-	FAppSettings.ReLoad;
-	FFontColorSettings.ReLoad;
-	FNodeLookSettings.ReLoad;
-	FOpenWithSettings.ReLoad;
-	FRipGrepParameters.ReLoad;
-	FSearchFormSettings.ReLoad;
-	inherited;
+	inherited ReLoad;
 end;
 
 procedure TRipGrepperSettings.SetFileMasksHistory(const Value : TStrings);
@@ -394,15 +377,9 @@ procedure TRipGrepperSettings.StoreToDict;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.StoreToDict');
-	inherited;
+	inherited StoreToDict();
 	if IsModified then begin
 		dbgMsg.Msg('IsModified');
-		FAppSettings.StoreToDict;
-		FFontColorSettings.StoreToDict;
-		FNodeLookSettings.StoreToDict;
-		FOpenWithSettings.StoreToDict;
-		FRipGrepParameters.StoreToDict;
-		FSearchFormSettings.StoreToDict;
 
 		if (FRipGrepParameters.IsModified) then begin
 			StoreHistories();
