@@ -481,12 +481,13 @@ begin
 		s.UpdateIniFile;
 	end;
 
-	var
-	lock := TLockGuard.NewLock(FLockObject);
-	dbgMsg.Msg('Lock Entered');
 	if Assigned(FIniFile) then begin
+		var
+		lock := TLockGuard.NewLock(FLockObject);
+		dbgMsg.Msg('Lock Entered');
 		dbgMsg.MsgFmt('IniFile %p update begin on %s', [Pointer(FIniFile), GetIniSectionName()]);
 		FIniFile.UpdateFile;
+		dbgMsg.Msg('Lock Released');
 	end else begin
 		dbgMsg.ErrorMsg('IniFile not assigned!' + GetIniSectionName());
 	end;
