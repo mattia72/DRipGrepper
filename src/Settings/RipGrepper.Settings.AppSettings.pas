@@ -21,7 +21,8 @@ type
 			INI_SECTION = 'RipGrepperSettings';
 
 		private
-			FDebugTrace : Boolean;
+			FDebugTrace : string;
+			FDebugTraceRegexFilter: string;
 			FExpertMode : Boolean;
 			FEncodingItems : TStringList;
 
@@ -34,7 +35,9 @@ type
 			procedure LoadFromDict(); override;
 			procedure LoadDefaultsFromDict; override;
 			procedure StoreToDict; override;
-			property DebugTrace : Boolean read FDebugTrace write FDebugTrace;
+			property DebugTrace : string read FDebugTrace write FDebugTrace;
+			property DebugTraceRegexFilter: string read FDebugTraceRegexFilter write
+				FDebugTraceRegexFilter;
 			property ExpertMode : Boolean read FExpertMode write FExpertMode;
 			property EncodingItems : TStringList read FEncodingItems write FEncodingItems;
 	end;
@@ -75,15 +78,17 @@ end;
 
 procedure TAppSettings.Init;
 begin
-	SettingsDict.CreateSetting('DebugTrace', varBoolean, False);
+	SettingsDict.CreateSetting('DebugTrace', varString, 'tftError');
+	SettingsDict.CreateSetting('DebugTraceRegexFilter', varString, '');
 	SettingsDict.CreateSetting('ExpertMode', varBoolean, False);
 	SettingsDict.CreateSetting('EncodingItems', varString, string.join(ARRAY_SEPARATOR, TDefaults.RG_PARAM_ENCODING_VALUES));
 end;
 
 procedure TAppSettings.LoadFromDict;
 begin
-	FExpertMode := SettingsDict.GetSetting('ExpertMode');
 	FDebugTrace := SettingsDict.GetSetting('DebugTrace');
+	FDebugTraceRegexFilter := SettingsDict.GetSetting('DebugTraceRegexFilter');
+	FExpertMode := SettingsDict.GetSetting('ExpertMode');
 	FEncodingItems.Clear;
 	FEncodingItems.AddStrings(string(SettingsDict.GetSetting('EncodingItems')).Split([ARRAY_SEPARATOR]));
 end;
@@ -96,6 +101,7 @@ end;
 procedure TAppSettings.StoreToDict;
 begin
 	SettingsDict.StoreSetting('DebugTrace', FDebugTrace);
+	SettingsDict.StoreSetting('DebugTraceRegexFilter', FDebugTraceRegexFilter);
 	SettingsDict.StoreSetting('ExpertMode', FExpertMode);
 	inherited StoreToDict();
 end;

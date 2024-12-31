@@ -79,6 +79,7 @@ type
 			property SettingsDict : TSettingsDictionary read FSettingsDict write FSettingsDict;
 			destructor Destroy; override;
 			function AddChildSettings(_settings : TPersistableSettings) : TPersistableSettings;
+			function RemoveChildSettings(_settings : TPersistableSettings) : Boolean;
 			procedure CopyDefaultsToValues; virtual;
 			procedure CopyValuesToDefaults; virtual;
 			/// <summary>TPersistableSettings.ReadIni
@@ -178,6 +179,14 @@ function TPersistableSettings.AddChildSettings(_settings : TPersistableSettings)
 begin
 	FChildren.Add(_settings);
 	Result := _settings;
+end;
+
+function TPersistableSettings.RemoveChildSettings(_settings : TPersistableSettings) : Boolean;
+begin
+	Result := FChildren.Remove(_settings);
+	if not Result then begin
+		raise Exception.Create('Couldn''t remove child settings.');
+	end;
 end;
 
 procedure TPersistableSettings.Copy(const _other : TPersistableSettings);
