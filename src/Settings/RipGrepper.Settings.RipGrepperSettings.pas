@@ -25,6 +25,7 @@ type
 			FNodeLookSettings : TNodeLookSettings;
 			FOpenWithSettings : TOpenWithSettings;
 			FFontColorSettings : TColorSettings;
+			FAppSettings : TAppSettings;
 
 			FExpertOptionHistory : TSTrings;
 			FSearchPathsHistory : TStrings;
@@ -33,10 +34,8 @@ type
 
 			FRipGrepArguments : TRipGrepArguments;
 			FSearchPathIsDir : Boolean;
-			FAppSettings : TAppSettings;
 
 			FActualSearchPath : string;
-
 			FLastSearchText : string;
 			FLastReplaceText : string;
 			FReplaceTextsHistory : TStrings;
