@@ -81,6 +81,7 @@ begin
 	IniSectionName := INI_SECTION;
 	inherited Create(_Owner);
 	FGuiSearchTextParams := TGuiSearchTextParams.Create(_Owner, INI_SECTION);
+	AddChildSettings(FGuiSearchTextParams);
 	FbRgPathInitOk := False;
 	RipGrepPath := '';
 	FRipGrepArguments := TStringList.Create;
@@ -88,7 +89,6 @@ end;
 
 destructor TRipGrepParameterSettings.Destroy;
 begin
-	FGuiSearchTextParams.Free;
 	FRipGrepArguments.Free;
 	inherited Destroy() // ok;
 end;
@@ -96,7 +96,7 @@ end;
 procedure TRipGrepParameterSettings.CopyDefaultsToValues;
 begin
 	FGuiSearchTextParams.CopyDefaultsToValues;
-	inherited CopyDefaultsToValues;
+	inherited CopyDefaultsToValues; // child not supported yet
 end;
 
 function TRipGrepParameterSettings.GetCommandLine : string;
@@ -135,17 +135,18 @@ begin
 	SettingsDict.CreateSetting(RG_INI_KEY_RGPATH, varString, '');
 	SettingsDict.CreateDefaultRelevantSetting('SearchPath', varString, '');
 	SettingsDict.CreateDefaultRelevantSetting('FileMasks', varString, '');
+    //inherited Init(); abstract
 end;
 
 procedure TRipGrepParameterSettings.ReadIni;
 begin
-	FGuiSearchTextParams.ReadIni;
 	inherited ReadIni();
 end;
 
 procedure TRipGrepParameterSettings.LoadDefaultsFromDict;
 begin
 	FGuiSearchTextParams.LoadDefaultsFromDict;
+	// inherited LoadDefaultsFromDict;  abstract
 end;
 
 function TRipGrepParameterSettings.TryFindRipGrepExePath : string;
@@ -195,6 +196,7 @@ begin
 	FSearchPath := SettingsDict.GetSetting('SearchPath');
 	FFileMasks := SettingsDict.GetSetting('FileMasks');
 	FGuiSearchTextParams.LoadFromDict();
+	// inherited abstract
 end;
 
 procedure TRipGrepParameterSettings.SetFileMasks(const Value : string);
@@ -208,7 +210,9 @@ end;
 procedure TRipGrepParameterSettings.SetGuiSearchTextParams(const Value : TGuiSearchTextParams);
 begin
 	FGuiSearchTextParams.Free;
+	RemoveChildSettings(FGuiSearchTextParams);
 	FGuiSearchTextParams := Value;
+	AddChildSettings(FGuiSearchTextParams);
 	FIsModified := True;
 end;
 

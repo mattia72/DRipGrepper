@@ -46,8 +46,10 @@ type
 			procedure FreeOwnIniFile;
 			function GetIniFile : TMemIniFile;
 			procedure ReadSettings;
+			procedure SetChildrenIniFiles;
 			procedure SetIniFile(const Value : TMemIniFile);
 			procedure SetIniSectionName(const Value : string);
+			procedure SetOwnersIniFile;
 			procedure WriteSettings(_bDefault : Boolean = False);
 			procedure WriteToIni(const _sIniSection, _sKey : string; const _setting : ISettingVariant);
 
@@ -357,7 +359,7 @@ begin
 			Exit;
 		end;
 		try
-			dbgMsg.MsgFmt('Read section: %s', [IniSectionName]);
+			dbgMsg.MsgFmt('Read section %s from IniFile %p', [IniSectionName, Pointer(FIniFile)]);
 			FIniFile.ReadSectionValues(IniSectionName, strs);
 			FIsAlreadyRead := strs.Count > 0;
 			dbgMsg.Msg(strs.DelimitedText);
@@ -427,25 +429,36 @@ end;
 
 procedure TPersistableSettings.ReCreateMemIni;
 begin
-	ReCreateMemIni(FIniFile, GetIniSectionName());
 	var
-	owner := FOwner;
-	while Assigned(owner) do begin
-		owner.IniFile := FIniFile;
-		owner := owner.FOwner;
-	end;
-	for var s in FChildren do begin
-		s.IniFile := IniFile;
-	end;
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.ReCreateMemIni');
+
+	ReCreateMemIni(FIniFile, GetIniSectionName());
+	SetOwnersIniFile();
+	SetChildrenIniFiles();
 end;
 
 procedure TPersistableSettings.ReLoad;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.ReCreateMemIni');
+
 	for var s in FChildren do begin
+		dbgMsg.MsgFmt('ReLoad from IniFile %p for section %s', [Pointer(s.IniFile), s.IniSectionName]);
 		s.ReLoad;
 	end;
 	FIsAlreadyRead := False;
 	ReadIni;
+end;
+
+procedure TPersistableSettings.SetChildrenIniFiles;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.SetChildrenIniFiles');
+
+	for var s in FChildren do begin
+		dbgMsg.MsgFmt('Change IniFile %p to %p for %s', [Pointer(s.IniFile), Pointer(FIniFile), s.IniSectionName]);
+		s.IniFile := FIniFile;
+	end;
 end;
 
 procedure TPersistableSettings.SetIniFile(const Value : TMemIniFile);
@@ -454,11 +467,22 @@ begin
 	if not FbOwnIniFile and Assigned(FOwner) and (FOwner.IniFile <> FIniFile) then begin
 		FOwner.IniFile := FIniFile;
 	end;
+    SetChildrenIniFiles();
 end;
 
 procedure TPersistableSettings.SetIniSectionName(const Value : string);
 begin
 	FIniSectionName := Value;
+end;
+
+procedure TPersistableSettings.SetOwnersIniFile;
+begin
+	var
+	owner := FOwner;
+	while Assigned(owner) do begin
+		owner.IniFile := FIniFile;
+		owner := owner.FOwner;
+	end;
 end;
 
 procedure TPersistableSettings.StoreAsDefaultsToDict;
