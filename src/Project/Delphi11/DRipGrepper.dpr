@@ -101,9 +101,20 @@ begin
 	{$IFDEF DEBUG}
 	ReportMemoryLeaksOnShutdown := True;
 	{$ENDIF}
-	Application.Initialize;
-	Application.MainFormOnTaskbar := True;
-	Application.CreateForm(TRipGrepperForm, RipGrepperForm);
-  Application.Run;
+	GSettings := TRipGrepperSettings.Create;
+	try
+		GSettings.AppSettings.ReadIni;
+		GSettings.AppSettings.LoadFromDict();
+		TDebugUtils.UpdateTraceActive;
+
+		Application.Initialize;
+		Application.MainFormOnTaskbar := True;
+		Application.CreateForm(TRipGrepperForm, RipGrepperForm);
+    Application.CreateForm(TAppSettingsForm, AppSettingsForm);
+    Application.CreateForm(TExtensionSettingsForm, ExtensionSettingsForm);
+    Application.Run;
+	finally
+		Gsettings.Free;
+	end;
 
 end.

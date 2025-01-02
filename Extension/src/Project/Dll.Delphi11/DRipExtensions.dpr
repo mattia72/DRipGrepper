@@ -99,5 +99,10 @@ exports
 	Register name WizardEntryPoint;
 
 begin
+	GSettings := TRipGrepperSettings.Create;
 
+	GSettings.AppSettings.ReadIni;
+	GSettings.AppSettings.LoadFromDict();
+	TDebugUtils.UpdateTraceActive;
+	// GSettings.Free in TDripExtensionMenu.Destroy
 end.
