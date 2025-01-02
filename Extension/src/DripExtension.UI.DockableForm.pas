@@ -236,7 +236,7 @@ end;
 class procedure TRipGrepperDockableForm.DestroyInstance;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperDockableForm.CreateInstance');
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperDockableForm.DestroyInstance');
 
 	try
 		(BorlandIDEServices as INTAServices).UnregisterDockableForm(FInstance);
