@@ -119,17 +119,17 @@
     <VerInfo_Locale>1033</VerInfo_Locale>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.0.0.5;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.0.0.0</VerInfo_Keys>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.0.0.21;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.0.0.0</VerInfo_Keys>
     <DCC_DebugInfoInTds>true</DCC_DebugInfoInTds>
     <Icon_MainIcon>..\..\..\icons\DripGrepper.ico</Icon_MainIcon>
-    <VerInfo_Build>5</VerInfo_Build>
+    <VerInfo_Build>21</VerInfo_Build>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
     <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.0.0.5;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.0.0.0</VerInfo_Keys>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.0.0.23;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.0.0.0</VerInfo_Keys>
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-    <VerInfo_Build>5</VerInfo_Build>
+    <VerInfo_Build>23</VerInfo_Build>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_2)'!=''">
     <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -145,14 +145,14 @@
     <Icon_MainIcon>..\..\..\icons\icons8-search-folder-windows-11-outline-32.ico</Icon_MainIcon>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.0.0.6;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.0.0.0</VerInfo_Keys>
-    <VerInfo_Build>6</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.0.0.25;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.0.0.0</VerInfo_Keys>
+    <VerInfo_Build>25</VerInfo_Build>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
     <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.0.0.6;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.0.0.0</VerInfo_Keys>
-    <VerInfo_Build>6</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.0.0.25;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.0.0.0</VerInfo_Keys>
+    <VerInfo_Build>25</VerInfo_Build>
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
   </PropertyGroup>
@@ -254,7 +254,6 @@
     <DCCReference Include="..\..\Tools\RipGrepper.Tools.ProcessUtils.pas" />
     <DCCReference Include="..\..\Settings\RipGrepper.Settings.AppSettings.pas" />
     <DCCReference Include="..\..\Settings\RipGrepper.Settings.ExtensionSettings.pas" />
-    <DCCReference Include="..\..\Settings\RipGrepper.Settings.Instance.pas" />
     <DCCReference Include="..\..\Settings\RipGrepper.Settings.NodeLookSettings.pas" />
     <DCCReference Include="..\..\Settings\RipGrepper.Settings.OpenWithSettings.pas" />
     <DCCReference Include="..\..\Settings\RipGrepper.Settings.Persistable.pas" />
@@ -361,6 +360,12 @@
         <DeployFile LocalName="Win64\Debug\DRipGrepper.exe" Configuration="Debug" Class="ProjectOutput">
           <Platform Name="Win64">
             <RemoteName>DRipGrepper.exe</RemoteName>
+            <Overwrite>true</Overwrite>
+          </Platform>
+        </DeployFile>
+        <DeployFile LocalName="Win64\Debug\DRipGrepper.rsm" Configuration="Debug" Class="DebugSymbols">
+          <Platform Name="Win64">
+            <RemoteName>DRipGrepper.rsm</RemoteName>
             <Overwrite>true</Overwrite>
           </Platform>
         </DeployFile>

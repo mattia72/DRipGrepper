@@ -18,7 +18,7 @@ library DRipExtensions;
 {$R *.dres}
 
 uses
-  ShareMem,
+  //ShareMem,
   System.SysUtils,
   System.Classes,
   ToolsAPI,
@@ -71,7 +71,6 @@ uses
   RipGrepper.Tools.ProcessUtils in '..\..\..\..\src\Tools\RipGrepper.Tools.ProcessUtils.pas',
   RipGrepper.Settings.AppSettings in '..\..\..\..\src\Settings\RipGrepper.Settings.AppSettings.pas',
   RipGrepper.Settings.ExtensionSettings in '..\..\..\..\src\Settings\RipGrepper.Settings.ExtensionSettings.pas',
-  RipGrepper.Settings.Instance in '..\..\..\..\src\Settings\RipGrepper.Settings.Instance.pas',
   RipGrepper.Settings.NodeLookSettings in '..\..\..\..\src\Settings\RipGrepper.Settings.NodeLookSettings.pas',
   RipGrepper.Settings.OpenWithSettings in '..\..\..\..\src\Settings\RipGrepper.Settings.OpenWithSettings.pas',
   RipGrepper.Settings.Persistable in '..\..\..\..\src\Settings\RipGrepper.Settings.Persistable.pas',

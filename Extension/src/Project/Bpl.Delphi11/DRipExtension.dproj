@@ -96,8 +96,8 @@
     <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\22.0\bin\bds.exe</Debugger_HostApplication>
     <DCC_ShowGeneralMessages>true</DCC_ShowGeneralMessages>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.0.0.1;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>1</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipExtension;FileVersion=4.0.0.9;ProgramID=com.embarcadero.DRipExtension;ProductName=DRipExtension;ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>9</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -110,8 +110,8 @@
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
     <VerInfo_Locale>1033</VerInfo_Locale>
-    <VerInfo_Keys>FileDescription=DRipExtension;FileVersion=4.0.0.2;ProgramID=com.embarcadero.DRipExtension;ProductName=DRipExtension;ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>2</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipExtension;FileVersion=4.0.0.20;ProgramID=com.embarcadero.DRipExtension;ProductName=DRipExtension;ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>20</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
   </PropertyGroup>
   <ItemGroup>
@@ -207,7 +207,6 @@
     <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.ProcessUtils.pas" />
     <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.AppSettings.pas" />
     <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.ExtensionSettings.pas" />
-    <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.Instance.pas" />
     <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.NodeLookSettings.pas" />
     <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.OpenWithSettings.pas" />
     <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.Persistable.pas" />
