@@ -26,7 +26,8 @@ uses
 	System.ImageList,
 	Vcl.ImgList,
 	System.Actions,
-	Vcl.ActnList;
+	Vcl.ActnList,
+	RipGrepper.Tools.DebugUtils;
 
 const
 	{ User-defined message }
@@ -37,7 +38,7 @@ type
 
 	TAppSettingsForm = class(TSettingsBaseForm)
 		Panel1 : TPanel;
-		chDebugTrace : TCheckBox;
+		chBegin : TCheckBox;
 		chExpertMode : TCheckBox;
 		grpDeveloper : TGroupBox;
 		btnedtRgExePath : TButtonedEdit;
@@ -50,12 +51,20 @@ type
 		Memo1 : TMemo;
 		btnedtIniFilePath : TButtonedEdit;
 		Label1 : TLabel;
+		chEnd : TCheckBox;
+		gbTrace : TGroupBox;
+		chError : TCheckBox;
+		chWarning : TCheckBox;
+		chInfo : TCheckBox;
+		chRegex : TCheckBox;
+		edtRegex : TEdit;
 		procedure btnedtIniFilePathLeftButtonClick(Sender : TObject);
 		procedure btnedtIniFilePathRightButtonClick(Sender : TObject);
 		procedure btnedtRgExePathEnter(Sender : TObject);
 		procedure btnedtRgExePathExit(Sender : TObject);
 		procedure btnedtRgExePathLeftButtonClick(Sender : TObject);
 		procedure btnedtRgExePathRightButtonClick(Sender : TObject);
+		procedure chRegexClick(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 
 		private
@@ -63,6 +72,7 @@ type
 			FRefocusing : TObject;
 			FAppSettings : TAppSettings;
 			FRipGrepSettings : TRipGrepParameterSettings;
+			function GetTraceTypeFilters : TTraceFilterTypes;
 			function IsRgExeValid(const filePath : string) : Boolean;
 			{ User-defined message handler }
 			procedure ValidateInput(var M : TMessage); message UserMessageValidateInput;
@@ -82,7 +92,6 @@ var
 implementation
 
 uses
-	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Common.Constants,
 	RipGrepper.Tools.FileUtils,
 	RipGrepper.Helper.UI,
@@ -150,6 +159,11 @@ begin
 	PostMessage(Handle, UserMessageValidateInput, 0, LParam(vcRgExePath));
 end;
 
+procedure TAppSettingsForm.chRegexClick(Sender : TObject);
+begin
+	edtRegex.Enabled := chRegex.Checked;
+end;
+
 procedure TAppSettingsForm.FormShow(Sender : TObject);
 begin
 	ReadSettings;
@@ -169,6 +183,31 @@ begin
 	end;
 end;
 
+function TAppSettingsForm.GetTraceTypeFilters : TTraceFilterTypes;
+begin
+	Result := [];
+	if (chInfo.Checked) then begin
+		Result := Result + [tftInfo];
+	end;
+	if (chWarning.Checked) then begin
+		Result := Result + [tftWarning];
+	end;
+	if (chError.Checked) then begin
+		Result := Result + [tftError];
+	end;
+	if (chBegin.Checked) then begin
+		Result := Result + [tftBegin];
+	end;
+	if (chEnd.Checked) then begin
+		Result := Result + [tftEnd];
+	end;
+	if (chRegex.Checked) then begin
+		Result := Result + [tftRegex];
+		FAppSettings.DebugTraceRegexFilter := edtRegex.Text;
+	end else begin
+	end;
+end;
+
 function TAppSettingsForm.IsRgExeValid(const filePath : string) : Boolean;
 var
 	name : string;
@@ -185,7 +224,17 @@ begin
 	FAppSettings.LoadFromDict;
 	FRipGrepSettings.LoadFromDict;
 
-	chDebugTrace.Checked := FAppSettings.DebugTrace;
+	var
+	tts := TDebugUtils.StrToTraceTypes(FAppSettings.DebugTrace);
+	chError.Checked := tftError in tts;
+	chWarning.Checked := tftWarning in tts;
+	chInfo.Checked := tftInfo in tts;
+	chBegin.Checked := tftBegin in tts;
+	chEnd.Checked := tftEnd in tts;
+	chRegex.Checked := tftRegex in tts;
+	edtRegex.Text := FAppSettings.DebugTraceRegexFilter;
+	edtRegex.Enabled := chRegex.Checked;
+
 	chExpertMode.Checked := FAppSettings.ExpertMode;
 	btnedtIniFilePath.Text := FAppSettings.IniFile.FileName;
 	btnedtRgExePath.Text := FRipGrepSettings.RipGrepPath;
@@ -220,7 +269,7 @@ procedure TAppSettingsForm.WriteSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TAppSettingsForm.WriteSettings');
-	FAppSettings.DebugTrace := chDebugTrace.Checked;
+	FAppSettings.DebugTrace := TDebugUtils.TraceTypesToStr(GetTraceTypeFilters());
 	FAppSettings.ExpertMode := chExpertMode.Checked;
 	var
 	rgPath := btnedtRgExePath.Text;

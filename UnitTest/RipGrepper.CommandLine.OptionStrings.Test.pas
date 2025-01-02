@@ -325,8 +325,11 @@ begin
 	rgExeOps := string.Join(' ', RG_NECESSARY_PARAMS) + ' ' + sLongParam;
 	FGuiParams.SearchOptions := SetSearchOptions(_guiOptionsActual);
 	bIsOpOk := TRegex.IsMatch(rgExeOps, TOptionsHelper.GetBoundedParamRegex(sLongParam));
+
 	FGuiParams.ResetOption(EGuiOption.soUseRegex);
+
 	Assert.IsTrue(bIsOpOk, '''' + sLongParam + ''' should contain initially');
+
 	if (EGuiOption.soUseRegex in FGuiParams.SearchOptions) or (EGuiOption.soMatchWord in FGuiParams.SearchOptions) then begin
 		Assert.IsTrue(not FGuiParams.RgOptions.IsOptionSet(RG_PARAM_REGEX_FIXED_STRINGS),
 			{ } '''' + sLongParam + ''' should not be in the options');
@@ -344,6 +347,11 @@ begin
 	end else begin
 		Assert.IsTrue(not TOptionsHelper.IsWordBoundOnBothSide(FGuiParams.SearchText),
 			{ } FGuiParams.SearchText + ' should not be word bounded');
+	end;
+
+	if not(EGuiOption.soMatchCase in FGuiParams.SearchOptions) then begin
+		Assert.IsTrue(FGuiParams.RgOptions.IsOptionSet(RG_PARAM_REGEX_IGNORE_CASE),
+			{ } '--ignore-case should in the options');
 	end;
 end;
 

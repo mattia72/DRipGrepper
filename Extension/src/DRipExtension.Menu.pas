@@ -42,7 +42,8 @@ uses
 	ArrayEx,
 	RipGrepper.OpenWith.Params,
 	RipGrepper.OpenWith,
-	DripExtension.UI.DockableForm;
+	DripExtension.UI.DockableForm, 
+	RipGrepper.Settings.RipGrepperSettings;
 
 var
 	G_DripMenu : TMenuItem;
@@ -57,6 +58,7 @@ class destructor TDripExtensionMenu.Destroy;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('class TDripExtensionMenu.Destroy G_DripMenu.Free');
+	GSettings.Free;
 	G_DripMenu.Free;
 end;
 

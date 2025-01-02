@@ -180,6 +180,7 @@ begin
 	{ } (not(EGuiOption.soUseRegex in SearchOptions)) and
 	{ } (not(EGuiOption.soMatchWord in SearchOptions)) then begin
 		SetRgOption(RG_PARAM_REGEX_FIXED_STRINGS);
+        SetRgOption(RG_PARAM_REGEX_IGNORE_CASE);
 	end;
 
 	case searchOption of
@@ -194,7 +195,8 @@ begin
 			(SearchOptions = [EGuiOption.soNotSet]) or //
 			(SearchOptions = [EGuiOption.soMatchCase]) or //
 			(SearchOptions = [])) then begin
-			SetRgOption(RG_PARAM_REGEX_FIXED_STRINGS, True);
+			ResetRgOption(RG_PARAM_REGEX_FIXED_STRINGS);
+            SetRgOption(RG_PARAM_REGEX_IGNORE_CASE);
 		end;
 	end;
 

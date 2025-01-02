@@ -28,15 +28,15 @@ uses
 	RipGrepper.Common.Interfaces,
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Tools.Replacer,
-	RipGrepper.UI.IFrameEvents;
+	RipGrepper.UI.IFrameEvents,
+	SVGIconImageListBase,
+	SVGIconImageList;
 
 type
 	TRipGrepperTopFrame = class(TFrame, IFrameEvents)
-		ImageListButtons : TImageList;
 		ActionList : TActionList;
 		ActionSearch : TAction;
 		ActionConfig : TAction;
-		ActionSwitchView : TAction;
 		ActionShowRelativePath : TAction;
 		ActionCmdLineCopy : TAction;
 		ActionShowSearchForm : TAction;
@@ -46,7 +46,6 @@ type
 		ActionRefreshSearch : TAction;
 		ActionIndentLine : TAction;
 		tbarSearch : TToolBar;
-		tbView : TToolButton;
 		tbShowSearchForm : TToolButton;
 		tbRefreshSearch : TToolButton;
 		ToolButton3 : TToolButton;
@@ -92,10 +91,12 @@ type
 		mniUseRegex : TMenuItem;
 		ActionReplaceCaseSensitive : TAction;
 		ActionReplaceUseRegex : TAction;
+		SvgImgLstTopFrame : TSVGIconImageList;
 		procedure ActionAbortSearchExecute(Sender : TObject);
+		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlignToolbarsExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsExecute(Sender : TObject);
-		procedure ActionAlternateRowColorsUpdate(Sender : TObject);
+		procedure ActionAlternateRowColorsUpdate;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionCmdLineCopyExecute(Sender : TObject);
 		procedure ActionCmdLineCopyUpdate(Sender : TObject);
@@ -103,9 +104,9 @@ type
 		procedure ActionCopyFileNameExecute(Sender : TObject);
 		procedure ActionCopyPathToClipboardExecute(Sender : TObject);
 		procedure ActionExpandCollapseExecute(Sender : TObject);
-		procedure ActionExpandCollapseUpdate(Sender : TObject);
+		procedure ActionExpandCollapseUpdate;
 		procedure ActionIndentLineExecute(Sender : TObject);
-		procedure ActionIndentLineUpdate(Sender : TObject);
+		procedure ActionIndentLineUpdate;
 		procedure ActionOpenWithExecute(Sender : TObject);
 		procedure ActionRefreshSearchExecute(Sender : TObject);
 		procedure ActionRefreshSearchUpdate(Sender : TObject);
@@ -120,13 +121,11 @@ type
 		procedure ActionSetFilterModeRegexExecute(Sender : TObject);
 		procedure ActionSetTextFilterModeExecute(Sender : TObject);
 		procedure ActionShowFileIconsExecute(Sender : TObject);
-		procedure ActionShowFileIconsUpdate(Sender : TObject);
+		procedure ActionShowFileIconsUpdate;
 		procedure ActionShowRelativePathExecute(Sender : TObject);
-		procedure ActionShowRelativePathUpdate(Sender : TObject);
+		procedure ActionShowRelativePathUpdate;
 		procedure ActionShowSearchFormExecute(Sender : TObject);
 		procedure ActionShowSearchFormUpdate(Sender : TObject);
-		procedure ActionSwitchViewExecute(Sender : TObject);
-		procedure ActionSwitchViewUpdate(Sender : TObject);
 		procedure edtFilterChange(Sender : TObject);
 		procedure edtFilterKeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
 		procedure edtFilterRightButtonClick(Sender : TObject);
@@ -222,7 +221,7 @@ uses
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
 	inherited Create(AOwner);
-	FDpiScaler := TRipGrepperDpiScaler.Create(self);
+	FDpiScaler := TRipGrepperDpiScaler.Create(self, False);
 	TopFrame := self;
 	FGuiReplaceModes := []; // [EGuiReplaceMode.grmEditEnabled];
 	FFilterMode := [EFilterMode.fmFilterFile];
@@ -242,6 +241,11 @@ begin
 	MainFrame.AbortSearch := True;
 end;
 
+procedure TRipGrepperTopFrame.ActionAbortSearchUpdate(Sender : TObject);
+begin
+	ActionAbortSearch.Enabled := MainFrame.IsSearchRunning;
+end;
+
 procedure TRipGrepperTopFrame.ActionAlignToolbarsExecute(Sender : TObject);
 begin
 	MainFrame.AlignToolBars;
@@ -252,9 +256,10 @@ begin
 	Settings.NodeLookSettings.AlternateRowColors := (not Settings.NodeLookSettings.AlternateRowColors);
 	Settings.StoreViewSettings('AlternateRowColors');
 	MainFrame.VstResult.Repaint();
+	ActionAlternateRowColorsUpdate;
 end;
 
-procedure TRipGrepperTopFrame.ActionAlternateRowColorsUpdate(Sender : TObject);
+procedure TRipGrepperTopFrame.ActionAlternateRowColorsUpdate();
 begin
 	tbAlternateRowColors.Down := Settings.NodeLookSettings.AlternateRowColors;
 end;
@@ -317,11 +322,12 @@ begin
 	end else begin
 		MainFrame.VstResult.FullCollapse();
 	end;
+	ActionExpandCollapseUpdate();
 end;
 
-procedure TRipGrepperTopFrame.ActionExpandCollapseUpdate(Sender : TObject);
+procedure TRipGrepperTopFrame.ActionExpandCollapseUpdate;
 begin
-	ActionExpandCollapse.ImageIndex := IfThen(Settings.NodeLookSettings.ExpandNodes, 23, 22);
+	ActionExpandCollapse.ImageIndex := IfThen(Settings.NodeLookSettings.ExpandNodes, IMG_IDX_COLLAPSE, IMG_IDX_EXPAND);
 	ActionExpandCollapse.Hint := IfThen(Settings.NodeLookSettings.ExpandNodes, 'Collapse Nodes', 'Expand Nodes');
 end;
 
@@ -330,11 +336,13 @@ begin
 	Settings.NodeLookSettings.IndentLines := not Settings.NodeLookSettings.IndentLines;
 	Settings.StoreViewSettings('IndentLines');
 	MainFrame.VstResult.Repaint();
+	ActionIndentLineUpdate;
 end;
 
-procedure TRipGrepperTopFrame.ActionIndentLineUpdate(Sender : TObject);
+procedure TRipGrepperTopFrame.ActionIndentLineUpdate();
 begin
-	tbIndentLines.Down := Settings.NodeLookSettings.IndentLines;
+	tbIndentLines.ImageIndex :=
+	{ } IfThen(Settings.NodeLookSettings.IndentLines, IMG_IDX_INDENT_OFF, IMG_IDX_INDENT_ON);
 end;
 
 procedure TRipGrepperTopFrame.ActionOpenWithExecute(Sender : TObject);
@@ -434,12 +442,12 @@ begin
 	Settings.NodeLookSettings.ShowFileIcon := not Settings.NodeLookSettings.ShowFileIcon;
 	Settings.StoreViewSettings('ShowFileIcon');
 	MainFrame.VstResult.Repaint();
+	ActionShowFileIconsUpdate;
 end;
 
-procedure TRipGrepperTopFrame.ActionShowFileIconsUpdate(Sender : TObject);
+procedure TRipGrepperTopFrame.ActionShowFileIconsUpdate();
 begin
 	tbShowFileIcon.Down := Settings.NodeLookSettings.ShowFileIcon;
-	// ActionShowFileIcons.ImageIndex := Ifthen(Settings.ShowFileIcon, IMG_IDX_SHOW_FILE_ICON_TRUE, IMG_IDX_SHOW_FILE_ICON_FALSE);
 end;
 
 procedure TRipGrepperTopFrame.ActionShowRelativePathExecute(Sender : TObject);
@@ -453,12 +461,15 @@ begin
 
 	Settings.StoreViewSettings('ShowRelativePath');
 	MainFrame.VstResult.Repaint;
+
+	ActionShowRelativePathUpdate;
 end;
 
-procedure TRipGrepperTopFrame.ActionShowRelativePathUpdate(Sender : TObject);
+procedure TRipGrepperTopFrame.ActionShowRelativePathUpdate;
 begin
-	tbShowRelativePath.Down := Settings.NodeLookSettings.ShowRelativePath;
-	// ActionShowRelativePath.ImageIndex := Ifthen(Settings.ShowRelativePath, IMG_IDX_SHOW_RELATIVE_PATH, IMG_IDX_SHOW_ABS_PATH);
+	// tbShowRelativePath.Down := Settings.NodeLookSettings.ShowRelativePath;
+	ActionShowRelativePath.ImageIndex := Ifthen(Settings.NodeLookSettings.ShowRelativePath, IMG_IDX_SHOW_ABS_PATH,
+		IMG_IDX_SHOW_RELATIVE_PATH);
 end;
 
 procedure TRipGrepperTopFrame.ActionShowSearchFormExecute(Sender : TObject);
@@ -471,25 +482,6 @@ end;
 procedure TRipGrepperTopFrame.ActionShowSearchFormUpdate(Sender : TObject);
 begin
 	ActionShowSearchForm.Enabled := Settings.IsEmpty or (not MainFrame.IsSearchRunning);
-end;
-
-procedure TRipGrepperTopFrame.ActionSwitchViewExecute(Sender : TObject);
-var
-	idx : integer;
-begin
-	idx := GetNextViewStyleIdx;
-	// MainFrame.VstResult.ViewStyle := LISTVIEW_TYPES[idx];
-	FViewStyleIndex := idx;
-end;
-
-procedure TRipGrepperTopFrame.ActionSwitchViewUpdate(Sender : TObject);
-begin
-	var
-	next := GetNextViewStyleIdx();
-	var
-	idx := IfThen(next <= (Length(LISTVIEW_TYPES) - 1), next, 0);
-	// ActionSwitchView.ImageIndex := idx + 2;
-	ActionSwitchView.Hint := 'Change View ' + LISTVIEW_TYPE_TEXTS[idx];
 end;
 
 procedure TRipGrepperTopFrame.AfterHistObjChange;
@@ -533,8 +525,8 @@ begin
 	inherited ChangeScale(M, D, isDpiChange);
 	if isDpiChange then begin
 		// edtFilter.ScaleForPPI(TRipGrepperDpiScaler.GetActualDPI);
- 		edtFilter.Font.Height := MulDiv(edtFilter.Font.Height, M, D);
- 		edtReplace.Font.Height := MulDiv(edtReplace.Font.Height, M, D);
+		edtFilter.Font.Height := MulDiv(edtFilter.Font.Height, M, D);
+		edtReplace.Font.Height := MulDiv(edtReplace.Font.Height, M, D);
 	end;
 end;
 
@@ -690,7 +682,12 @@ end;
 procedure TRipGrepperTopFrame.Init;
 begin
 	FFilterMode := Settings.NodeLookSettings.FilterSettings.FilterModes;
-	UpdateFilterMenu;
+	UpdateFilterMenu();
+	ActionExpandCollapseUpdate();
+	ActionShowRelativePathUpdate();
+	ActionAlternateRowColorsUpdate();
+	ActionShowFileIconsUpdate();
+	ActionIndentLineUpdate();
 end;
 
 function TRipGrepperTopFrame.IsFilterOn : Boolean;

@@ -2,7 +2,7 @@ object AppSettingsForm: TAppSettingsForm
   Left = 0
   Top = 0
   Caption = 'AppSettingsForm'
-  ClientHeight = 358
+  ClientHeight = 394
   ClientWidth = 521
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,13 +16,13 @@ object AppSettingsForm: TAppSettingsForm
     Left = 0
     Top = 0
     Width = 521
-    Height = 358
+    Height = 394
     Align = alClient
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 0
     DesignSize = (
       521
-      358)
+      394)
     object lblRgExePath: TLabel
       Left = 16
       Top = 9
@@ -42,39 +42,31 @@ object AppSettingsForm: TAppSettingsForm
       Left = 16
       Top = 143
       Width = 494
-      Height = 150
+      Height = 186
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Developer'
       TabOrder = 0
       DesignSize = (
         494
-        150)
+        186)
       object Label1: TLabel
         Left = 16
-        Top = 86
+        Top = 126
         Width = 62
         Height = 15
         Caption = 'Ini file path:'
       end
-      object chDebugTrace: TCheckBox
-        Left = 16
-        Top = 52
-        Width = 97
-        Height = 17
-        Caption = 'Debug trace'
-        TabOrder = 0
-      end
       object chExpertMode: TCheckBox
         Left = 16
-        Top = 33
+        Top = 22
         Width = 97
-        Height = 13
+        Height = 24
         Caption = 'Expert Mode'
-        TabOrder = 1
+        TabOrder = 0
       end
       object btnedtIniFilePath: TButtonedEdit
         Left = 16
-        Top = 107
+        Top = 147
         Width = 469
         Height = 23
         Anchors = [akLeft, akTop, akRight]
@@ -89,11 +81,76 @@ object AppSettingsForm: TAppSettingsForm
         RightButton.Hint = 'Open With...'
         RightButton.ImageIndex = 8
         RightButton.Visible = True
-        TabOrder = 2
+        TabOrder = 1
         Text = 'Ini file path...'
         TextHint = 'Ini file path...'
         OnLeftButtonClick = btnedtIniFilePathLeftButtonClick
         OnRightButtonClick = btnedtIniFilePathRightButtonClick
+      end
+      object gbTrace: TGroupBox
+        Left = 16
+        Top = 52
+        Width = 465
+        Height = 68
+        Caption = 'Debug Trace Filters'
+        TabOrder = 2
+        object chEnd: TCheckBox
+          Left = 327
+          Top = 20
+          Width = 75
+          Height = 17
+          Caption = 'End'
+          TabOrder = 0
+        end
+        object chBegin: TCheckBox
+          Left = 246
+          Top = 20
+          Width = 75
+          Height = 17
+          Caption = 'Begin'
+          TabOrder = 1
+        end
+        object chError: TCheckBox
+          Left = 3
+          Top = 20
+          Width = 75
+          Height = 17
+          Caption = 'Error'
+          TabOrder = 2
+        end
+        object chWarning: TCheckBox
+          Left = 84
+          Top = 20
+          Width = 75
+          Height = 17
+          Caption = 'Warning'
+          TabOrder = 3
+        end
+        object chInfo: TCheckBox
+          Left = 165
+          Top = 20
+          Width = 75
+          Height = 17
+          Caption = 'Info'
+          TabOrder = 4
+        end
+        object chRegex: TCheckBox
+          Left = 3
+          Top = 43
+          Width = 75
+          Height = 17
+          Caption = 'Regex'
+          TabOrder = 5
+          OnClick = chRegexClick
+        end
+        object edtRegex: TEdit
+          Left = 84
+          Top = 42
+          Width = 121
+          Height = 23
+          TabOrder = 6
+          TextHint = 'Regex'
+        end
       end
     end
     object btnedtRgExePath: TButtonedEdit
@@ -142,8 +199,8 @@ object AppSettingsForm: TAppSettingsForm
     end
   end
   object ImageListButtons: TImageList
-    Left = 238
-    Top = 185
+    Left = 422
+    Top = 153
     Bitmap = {
       494C010109003000040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
@@ -549,13 +606,13 @@ object AppSettingsForm: TAppSettingsForm
       000000000000}
   end
   object OpenDialog1: TOpenDialog
-    Left = 176
-    Top = 184
+    Left = 360
+    Top = 152
   end
   object ActionList1: TActionList
     Images = ImageListButtons
-    Left = 300
-    Top = 180
+    Left = 476
+    Top = 156
     object ActionOpenFileDialog: TAction
       Caption = 'ActionOpenFileDialog'
       ImageIndex = 2
