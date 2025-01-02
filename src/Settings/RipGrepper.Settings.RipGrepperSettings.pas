@@ -163,15 +163,13 @@ end;
 
 destructor TRipGrepperSettings.Destroy;
 begin
-	// var
-	// dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.Destroy');
-	// trace causes exception on closing delphi ide
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.Destroy');
 	FRipGrepArguments.Free;
 	FExpertOptionHistory.Free;
 	FSearchTextsHistory.Free;
 	FReplaceTextsHistory.Free;
 	FSearchPathsHistory.Free;
-
 	FFileMasksHistory.Free;
 	inherited Destroy(); // ok;
 end;
@@ -411,7 +409,8 @@ begin
 end;
 
 procedure TRipGrepperSettings.StoreHistoryEntries(const _list : TStrings; const _section : string);
-var multiLineVal : TMultiLineString;
+var
+	multiLineVal : TMultiLineString;
 begin
 	for var i := _list.Count - 1 downto 0 do begin
 		if not _list[i].IsEmpty then begin
