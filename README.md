@@ -147,3 +147,4 @@ scoop install dripgrepper
 -  [regexpr](https://regex.sorokin.engineer/en/latest/)
 -  [UniSynEdit](https://sourceforge.net/projects/synedit)
 -  [VirtualTreeView](https://github.com/TurboPack/VirtualTreeView)
+-  [SVGIconImageList](https://github.com/EtheaDev/SVGIconImageList)
