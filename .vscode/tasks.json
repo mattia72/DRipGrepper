@@ -67,6 +67,22 @@
             }
         },
         {
+            "label": "Debug Build DRipExtensions.dll",
+            "type": "shell",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildExtension -BuildConfig Debug",
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "label": "Debug Build DRipGrepper",
+            "type": "shell",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone -BuildConfig Debug",
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
             "label": "Build DRipGrepper",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone",

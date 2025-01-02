@@ -15,3 +15,4 @@ deploy/SECRET_TOKEN
 DRipGrepper_project.tvsconfig
 deploy/assets/*
 deploy/RipGrepper.npps
+RipGrepper.code-workspace
