@@ -206,7 +206,6 @@ function New-StandaloneZips {
         Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $global:StandaloneAppName) -Win64:$win64
     
         $dest = "$global:AssetsDirectory\$($global:AssetZipName -f $($win64 ? 'x64' : 'x86'), $global:Version)"
-        Write-Host "$AssetDir\*.* to`n $dest" 
 
         $compress = @{
             Path             = "$AssetDir\*.*"
