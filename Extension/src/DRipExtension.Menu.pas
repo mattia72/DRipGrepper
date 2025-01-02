@@ -58,8 +58,8 @@ class destructor TDripExtensionMenu.Destroy;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('class TDripExtensionMenu.Destroy G_DripMenu.Free');
-	GSettings.Free;
 	G_DripMenu.Free;
+	GSettings.Free;
 end;
 
 class function TDripExtensionMenu.AddToImageList(const _resourceName : string) : Integer;
