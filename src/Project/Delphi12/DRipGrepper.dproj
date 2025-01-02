@@ -265,7 +265,6 @@
         <DCCReference Include="..\..\Tools\RipGrepper.Tools.ProcessUtils.pas"/>
         <DCCReference Include="..\..\Settings\RipGrepper.Settings.AppSettings.pas"/>
         <DCCReference Include="..\..\Settings\RipGrepper.Settings.ExtensionSettings.pas"/>
-        <DCCReference Include="..\..\Settings\RipGrepper.Settings.Instance.pas"/>
         <DCCReference Include="..\..\Settings\RipGrepper.Settings.NodeLookSettings.pas"/>
         <DCCReference Include="..\..\Settings\RipGrepper.Settings.OpenWithSettings.pas"/>
         <DCCReference Include="..\..\Settings\RipGrepper.Settings.Persistable.pas"/>

@@ -72,7 +72,6 @@ uses
   RipGrepper.Tools.ProcessUtils in '..\..\Tools\RipGrepper.Tools.ProcessUtils.pas',
   RipGrepper.Settings.AppSettings in '..\..\Settings\RipGrepper.Settings.AppSettings.pas',
   RipGrepper.Settings.ExtensionSettings in '..\..\Settings\RipGrepper.Settings.ExtensionSettings.pas',
-  RipGrepper.Settings.Instance in '..\..\Settings\RipGrepper.Settings.Instance.pas',
   RipGrepper.Settings.NodeLookSettings in '..\..\Settings\RipGrepper.Settings.NodeLookSettings.pas',
   RipGrepper.Settings.OpenWithSettings in '..\..\Settings\RipGrepper.Settings.OpenWithSettings.pas',
   RipGrepper.Settings.Persistable in '..\..\Settings\RipGrepper.Settings.Persistable.pas',
