@@ -65,7 +65,8 @@ end;
 
 destructor TParentFrame.Destroy;
 begin
-	TDebugUtils.Msg('TParentFrame.Destroy - Settings.StoreToDict');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.Destroy');
 	inherited;
 end;
 

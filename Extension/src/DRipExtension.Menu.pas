@@ -57,7 +57,7 @@ end;
 class destructor TDripExtensionMenu.Destroy;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('class TDripExtensionMenu.Destroy G_DripMenu.Free');
+	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.Destroy');
 	G_DripMenu.Free;
 	GSettings.Free;
 end;
