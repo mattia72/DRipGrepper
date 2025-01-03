@@ -96,7 +96,7 @@ const
 		{ } tfCenter);
 	ALL_ALPHANUMERIC_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890';
 
-	RG_PROCESSING_LINE_COUNT_LIMIT = 10000; // Todo: put into settings
+	RG_PROCESSING_LINE_COUNT_LIMIT = 1000; // Todo: put into settings
 
 	RG_MATCH_LINE_REGEX = '^(?<drive>\w:)?(?<path>.+?):(?<row>\d+):(?<col>\d+):(?<text>.+)$';
 	RG_MATCH_LINE_CONTEXT_REGEX = '^(?<drive>\w:)?(?<path>.+?)-(?<row>\d+)-(?<text>.*)$';
