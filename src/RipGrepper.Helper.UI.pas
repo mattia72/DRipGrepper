@@ -155,9 +155,9 @@ uses
 	Winapi.ShellAPI,
 	System.IOUtils,
 	RipGrepper.Common.Constants,
-
 	Vcl.Dialogs,
-	System.StrUtils;
+	System.StrUtils, 
+	Winapi.ActiveX;
 
 procedure TCursorSaver.SetHourGlassCursor;
 begin
@@ -479,6 +479,7 @@ var
 	btns : TMsgDlgButtons;
 begin
 	btns := TMsgBoxBase.GetButtonsByType(_type);
+    CoInitialize(nil);   // avoids EInvalidGraphicOperation: Cannot create instance of class CLSID_WICImagingFactory
 	var
 	FMsgDlg := CreateMessageDialog(_msg, _type, btns);
 	try
@@ -486,6 +487,7 @@ begin
 		Result := FMsgDlg.ShowModal;
 	finally
 		FreeAndNil(FMsgDlg);
+        CoUninitialize;
 	end;
 end;
 
