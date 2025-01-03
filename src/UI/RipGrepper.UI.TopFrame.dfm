@@ -256,7 +256,6 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     object ActionSearch: TAction
       Category = 'Search'
       Caption = 'Search'
-      ImageIndex = 0
       ImageName = 'Search\edit-find'
       OnExecute = ActionSearchExecute
     end
@@ -265,7 +264,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Caption = 'Search...'
       Hint = 'Search...'
       ImageIndex = 0
-      ImageName = 'Search\edit-find'
+      ImageName = 'magnify'
       ShortCut = 16467
       OnExecute = ActionShowSearchFormExecute
       OnUpdate = ActionShowSearchFormUpdate
@@ -292,7 +291,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Caption = 'Abort'
       Hint = 'Abort Running Search'
       ImageIndex = 2
-      ImageName = 'Search\media-playback-stop-symbolic'
+      ImageName = 'stop-circle-outline'
       ShortCut = 16411
       OnExecute = ActionAbortSearchExecute
       OnUpdate = ActionAbortSearchUpdate
@@ -302,7 +301,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Caption = 'ActionCmdLineCopy'
       Hint = 'Copy Command Line to Clipboard'
       ImageIndex = 3
-      ImageName = 'Search\edit-paste-symbolic'
+      ImageName = 'clipboard-outline'
       ShortCut = 16451
       OnExecute = ActionCmdLineCopyExecute
     end
@@ -312,7 +311,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       GroupIndex = 1
       Hint = '[B]Expand [/B]Results'
       ImageIndex = 4
-      ImageName = 'Result\expand-all'
+      ImageName = 'arrow-expand-vertical'
       OnExecute = ActionExpandCollapseExecute
     end
     object ActionConfig: TAction
@@ -321,7 +320,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       GroupIndex = 3
       Hint = 'Open Config...'
       ImageIndex = 18
-      ImageName = 'system-run-symbolic'
+      ImageName = 'cog-outline'
       OnExecute = ActionConfigExecute
     end
     object ActionShowRelativePath: TAction
@@ -347,7 +346,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       GroupIndex = 1
       Hint = 'Alternate Row Colors'
       ImageIndex = 8
-      ImageName = 'Result\format-justify-fill-symbolic'
+      ImageName = 'land-rows-horizontal'
       OnExecute = ActionAlternateRowColorsExecute
     end
     object ActionIndentLine: TAction
@@ -356,7 +355,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       GroupIndex = 1
       Hint = 'Indent Matched Lines'
       ImageIndex = 10
-      ImageName = 'Result\format-justify-left-symbolic'
+      ImageName = 'format-align-left'
       OnExecute = ActionIndentLineExecute
     end
     object ActionOpenWith: TAction
@@ -383,7 +382,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     object ActionSaveReplacement: TAction
       Hint = 'Save Selected Replacement'
       ImageIndex = 16
-      ImageName = 'document-save-all'
+      ImageName = 'content-save-all-outline'
       ShortCut = 16467
       OnExecute = ActionSaveReplacementExecute
       OnUpdate = ActionSaveReplacementUpdate
@@ -438,19 +437,14 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
   object SvgImgLstTopFrame: TSVGIconImageList
     SVGIconItems = <
       item
-        IconName = 'Search\edit-find'
+        IconName = 'magnify'
         SVGText = 
-          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">'#13#10'  ' +
-          '<defs id="defs3051">'#13#10'    <style type="text/css" id="current-col' +
-          'or-scheme">'#13#10'      .ColorScheme-Text {'#13#10'        color:#363636;'#13#10 +
-          '      }'#13#10'      </style>'#13#10'  </defs>'#13#10' <path style="fill:currentCo' +
-          'lor;fill-opacity:1;stroke:none" '#13#10'     d="M 6.5 2 C 4.007 2 2 4.' +
-          '01 2 6.5 C 2 8.993 4.01 11 6.5 11 C 7.5636432 11 8.5263409 10.61' +
-          '8801 9.2949219 10.005859 L 13.292969 14.003906 L 14 13.296875 L ' +
-          '10.001953 9.2988281 C 10.617604 8.529048 11 7.565338 11 6.5 C 11' +
-          ' 4.007 8.99 2 6.5 2 z M 6.5 3 C 8.439 3 10 4.561 10 6.5 C 10 8.4' +
-          '39 8.439 10 6.5 10 C 4.561 10 3 8.439 3 6.5 C 3 4.561 4.561 3 6.' +
-          '5 3 z "'#13#10'     class="ColorScheme-Text"'#13#10'     />'#13#10'</svg>'#13#10
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><pat' +
+          'h d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.7' +
+          '3L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,' +
+          '15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.' +
+          '5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 ' +
+          '9.5,5Z" /></svg>'
         GrayScale = True
       end
       item
@@ -463,91 +457,62 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
           '54,15.03 20,13.57 20,12A8,8 0 0,0 12,4Z" /></svg>'
       end
       item
-        IconName = 'Search\media-playback-stop-symbolic'
+        IconName = 'stop-circle-outline'
         SVGText = 
-          '<svg width="16" height="16" enable-background="new" version="1.1' +
-          '" xmlns="http://www.w3.org/2000/svg">'#13#10' <path d="m8 0a8 8 0 0 0-' +
-          '8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8 8 8 0 0 0-8-8zm-0.095703 1a6.999' +
-          '9 6.9999 0 0 1 0.0019531 0 6.9999 6.9999 0 0 1 0.09375 0 6.9999 ' +
-          '6.9999 0 0 1 7 7 6.9999 6.9999 0 0 1-7 7 6.9999 6.9999 0 0 1-7-7' +
-          ' 6.9999 6.9999 0 0 1 6.9043-7zm-1.9043 4c-0.55399 0-1 0.44601-1 ' +
-          '1v4c0 0.55399 0.44601 1 1 1h4c0.55399 0 1-0.44601 1-1v-4c0-0.553' +
-          '99-0.44601-1-1-1h-4z" fill="#363636" stroke-width=".99998"/>'#13#10'</' +
-          'svg>'#13#10
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><pat' +
+          'h d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A' +
+          '10,10 0 0,0 12,2M12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12' +
+          ',20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4M9,9V15H15V9" /></svg' +
+          '>'
       end
       item
-        IconName = 'Search\edit-paste-symbolic'
+        IconName = 'clipboard-outline'
         SVGText = 
-          '<svg width="16" height="16" enable-background="new" version="1.1' +
-          '" xmlns="http://www.w3.org/2000/svg">'#13#10' <path d="m8 0c-1.1046 0-' +
-          '2 0.89543-2 2h-1-0.93945-0.060547v0.0058594c-1.113 0.032581-2 0.' +
-          '93345-2 2.0547v8.8789c0 1.142 0.91853 2.0605 2.0605 2.0605h7.878' +
-          '9c1.142 0 2.0605-0.91853 2.0605-2.0605v-8.8789c0-1.142-0.91853-2' +
-          '.0605-2.0605-2.0605h-0.93945-1c0-0.138-0.00525-0.27625-0.03125-0' +
-          '.40625-0.19615-0.93036-1.0179-1.5956-1.9688-1.5938zm-0.011719 1c' +
-          '0.0039062-2.289e-5 0.0078126-2.289e-5 0.011719 0 0.414 0 0.75425' +
-          ' 0.266 0.90625 0.625 0.056891 0.11716 0.088816 0.24486 0.09375 0' +
-          '.375-6.1e-5 0.88813-1.0716 1.3352-1.7031 0.71094-0.63157-0.62426' +
-          '-0.19666-1.7005 0.69141-1.7109zm-3.9883 2h1 1v1s-1 0-1 1h6c0-0.7' +
-          '5-0.56275-0.953-0.84375-1h-0.15625v-1h1 1c0.554 0 1 0.446 1 1v9c' +
-          '0 0.554-0.446 1-1 1h-8c-0.554 0-1-0.446-1-1v-9c0-0.554 0.446-1 1' +
-          '-1z" fill="#363636"/>'#13#10'</svg>'#13#10
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><pat' +
+          'h d="M19,3H14.82C14.4,1.84 13.3,1 12,1C10.7,1 9.6,1.84 9.18,3H5A' +
+          '2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 1' +
+          '9,3M12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5A1,1 0 0,1 11,4A1,1 0 0,1 ' +
+          '12,3M7,7H17V5H19V19H5V5H7V7Z" /></svg>'
         GrayScale = True
       end
       item
-        IconName = 'Result\expand-all'
+        IconName = 'arrow-expand-vertical'
         SVGText = 
-          '<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">'#13#10'  ' +
-          '  <style'#13#10'        type="text/css"'#13#10'        id="current-color-sch' +
-          'eme">'#13#10'        .ColorScheme-Text {'#13#10'            color:#363636;'#13#10 +
-          '        }'#13#10'    </style>'#13#10'    <path d="M2 4v1h12V4zm.707 3L2 7.70' +
-          '7l6 6 6-6L13.293 7 8 12.293 2.707 7z" class="ColorScheme-Text" f' +
-          'ill="currentColor"/>'#13#10'</svg>'#13#10
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><pat' +
+          'h d="M13,9V15H16L12,19L8,15H11V9H8L12,5L16,9H13M4,2H20V4H4V2M4,2' +
+          '0H20V22H4V20Z" /></svg>'
       end
       item
-        IconName = 'Result\collapse-all'
+        IconName = 'arrow-collapse-vertical'
         SVGText = 
-          '<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">'#13#10'  ' +
-          '  <style'#13#10'        type="text/css"'#13#10'        id="current-color-sch' +
-          'eme">'#13#10'        .ColorScheme-Text {'#13#10'            color:#363636;'#13#10 +
-          '        }'#13#10'    </style>'#13#10'    <path class="ColorScheme-Text" d="M' +
-          '2 4v1h12V4zm6 2.293l-6 6 .707.707L8 7.707 13.293 13l.707-.707z" ' +
-          'fill="currentColor"/>'#13#10'</svg>'#13#10
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><pat' +
+          'h d="M4,12H20V14H4V12M4,9H20V11H4V9M16,4L12,8L8,4H11V1H13V4H16M8' +
+          ',19L12,15L16,19H13V22H11V19H8Z" /></svg>'
       end
       item
         SVGText = 
           '<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://ww' +
           'w.w3.org/2000/svg">'#13#10'  <g fill="none" stroke="#000" stroke-width' +
-          '="1">'#13#10'    <!-- Relative path ...\... -->'#13#10'    <text x="1" y="10' +
-          '" font-family="Mono" font-size="7">C : \</text>'#13#10'   </g>'#13#10'</svg>'
+          '="1">'#13#10'    <!-- Relative path ...\... -->'#13#10'    <text x="0" y="12' +
+          '" font-family="Mono" font-size="8">C : \</text>'#13#10'   </g>'#13#10'</svg>'
         GrayScale = True
       end
       item
         SVGText = 
           '<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://ww' +
           'w.w3.org/2000/svg">'#13#10'  <g fill="none" stroke="#000" stroke-width' +
-          '="1">'#13#10'    <!-- Relative path ...\... -->'#13#10'    <text x="1" y="8"' +
-          ' font-family="Arial" font-size="7">. . . \</text>'#13#10'   </g>'#13#10'</sv' +
-          'g>'
+          '="1">'#13#10'    <!-- Relative path ...\... -->'#13#10'    <text x="0" y="12' +
+          '" font-family="Arial" font-size="8">. . . \</text>'#13#10'   </g>'#13#10'</s' +
+          'vg>'
         GrayScale = True
       end
       item
-        IconName = 'Result\format-justify-fill-symbolic'
+        IconName = 'land-rows-horizontal'
         SVGText = 
-          '<svg height="16" width="16" xmlns="http://www.w3.org/2000/svg">'#13 +
-          #10'  <g color="#363636" transform="translate(-633 -77)">'#13#10'    <rec' +
-          't fill="#FFFFFF" height="2" overflow="visible" style="marker:non' +
-          'e" width="14" x="634" y="78"/>'#13#10'    <rect fill="#A0A0A0" height=' +
-          '"2" overflow="visible" style="marker:none" width="14" x="634" y=' +
-          '"80"/>'#13#10'    <rect fill="#FFFFFF" height="2" overflow="visible" s' +
-          'tyle="marker:none" width="14" x="634" y="82"/>'#13#10'    <rect fill="' +
-          '#A0A0A0" height="2" overflow="visible" style="marker:none" width' +
-          '="14" x="634" y="84"/>'#13#10'    <rect fill="#FFFFFF" height="2" over' +
-          'flow="visible" style="marker:none" width="14" x="634" y="86"/>'#13#10 +
-          '    <rect fill="#A0A0A0" height="2" overflow="visible" style="ma' +
-          'rker:none" width="14" x="634" y="88"/>'#13#10'    <rect fill="#FFFFFF"' +
-          ' height="2" overflow="visible" style="marker:none" width="14" x=' +
-          '"634" y="90"/>'#13#10'  </g>'#13#10'</svg>'#13#10
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><pat' +
+          'h d="M22 20V4C22 2.9 21.1 2 20 2H4C2.9 2 2 2.9 2 4V20C2 21.1 2.9' +
+          ' 22 4 22H20C21.1 22 22 21.1 22 20M4 6.5V4H20V6.5H4M4 11V8.5H20V1' +
+          '1H4M4 15.5V13H20V15.5H4M4 20V17.5H20V20H4Z" /></svg>'
       end
       item
         IconName = 'format-list-bulleted-type'
@@ -558,34 +523,18 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
           '21V17H9V19M9,13H21V11H9V13Z"/>'#13#10'</svg>'#13#10
       end
       item
-        IconName = 'Result\format-justify-left-symbolic'
+        IconName = 'format-align-left'
         SVGText = 
-          '<svg height='#39'16'#39' width='#39'16'#39' xmlns='#39'http://www.w3.org/2000/svg'#39'>'#13 +
-          #10'    <g color='#39'#363636'#39' transform='#39'translate(-613 -77)'#39'>'#13#10'      ' +
-          '  <rect fill='#39'#363636'#39' height='#39'1'#39' overflow='#39'visible'#39' style='#39'mark' +
-          'er:none'#39' width='#39'14'#39' x='#39'614'#39' y='#39'78'#39'/>'#13#10'        <rect fill='#39'#36363' +
-          '6'#39' height='#39'1'#39' overflow='#39'visible'#39' style='#39'marker:none'#39' width='#39'10'#39' ' +
-          'x='#39'614'#39' y='#39'81'#39'/>'#13#10'        <rect fill='#39'#363636'#39' height='#39'1'#39' overfl' +
-          'ow='#39'visible'#39' style='#39'marker:none'#39' width='#39'10'#39' x='#39'614'#39' y='#39'87'#39'/>'#13#10'  ' +
-          '      <rect fill='#39'#363636'#39' height='#39'1'#39' overflow='#39'visible'#39' style='#39 +
-          'marker:none'#39' width='#39'14'#39' x='#39'614'#39' y='#39'90'#39'/>'#13#10'        <rect fill='#39'#3' +
-          '63636'#39' height='#39'1'#39' overflow='#39'visible'#39' style='#39'marker:none'#39' width='#39 +
-          '14'#39' x='#39'614'#39' y='#39'84'#39'/>'#13#10'        '#13#10'    </g>'#13#10'</svg>'#13#10
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><pat' +
+          'h d="M3,3H21V5H3V3M3,7H15V9H3V7M3,11H21V13H3V11M3,15H15V17H3V15M' +
+          '3,19H21V21H3V19Z" /></svg>'
       end
       item
-        IconName = 'Result\format-justify-right-symbolic'
+        IconName = 'format-align-right'
         SVGText = 
-          '<svg height='#39'16'#39' width='#39'16'#39' xmlns='#39'http://www.w3.org/2000/svg'#39'>'#13 +
-          #10'    <g color='#39'#363636'#39' transform='#39'translate(-593 -77)'#39'>'#13#10'      ' +
-          '  <rect fill='#39'#363636'#39' height='#39'1'#39' overflow='#39'visible'#39' style='#39'mark' +
-          'er:none'#39' width='#39'14'#39' x='#39'594'#39' y='#39'78'#39'/>'#13#10'        <rect fill='#39'#36363' +
-          '6'#39' height='#39'1'#39' overflow='#39'visible'#39' style='#39'marker:none'#39' width='#39'10'#39' ' +
-          'x='#39'598'#39' y='#39'81'#39'/>'#13#10'        <rect fill='#39'#363636'#39' height='#39'1'#39' overfl' +
-          'ow='#39'visible'#39' style='#39'marker:none'#39' width='#39'10'#39' x='#39'598'#39' y='#39'87'#39'/>'#13#10'  ' +
-          '      <rect fill='#39'#363636'#39' height='#39'1'#39' overflow='#39'visible'#39' style='#39 +
-          'marker:none'#39' width='#39'14'#39' x='#39'594'#39' y='#39'90'#39'/>'#13#10'        <rect fill='#39'#3' +
-          '63636'#39' height='#39'1'#39' overflow='#39'visible'#39' style='#39'marker:none'#39' width='#39 +
-          '14'#39' x='#39'594'#39' y='#39'84'#39'/>'#13#10'        '#13#10'    </g>'#13#10'</svg>'#13#10
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><pat' +
+          'h d="M3,3H21V5H3V3M9,7H21V9H9V7M3,11H21V13H3V11M9,15H21V17H9V15M' +
+          '3,19H21V21H3V19Z" /></svg>'
       end
       item
         IconName = 'filter'
@@ -626,22 +575,13 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
           'vg>'
       end
       item
-        IconName = 'document-save-all'
+        IconName = 'content-save-all-outline'
         SVGText = 
-          '<svg version="1.1" viewBox="0 0 16 16" xmlns="http://www.w3.org/' +
-          '2000/svg">'#13#10' <defs>'#13#10'  <style id="current-color-scheme" type="te' +
-          'xt/css">.ColorScheme-Text {'#13#10'        color:#363636;'#13#10'      }</st' +
-          'yle>'#13#10' </defs>'#13#10' <path d="m4 1c-1.108 0-2 0.892-2 2h1c0-0.554 0.' +
-          '446-1 1-1h6.5859l3.4141 3.4141v6.5859c0 0.554-0.446 1-1 1 0 0.34' +
-          '745-0.05617 0.679-0.13867 1h0.13867c1.108 0 2-0.892 2-2v-7l-4-4h' +
-          '-6z" style="fill:currentColor" class="ColorScheme-Text"/>'#13#10' <pat' +
-          'h d="m2 3c-1.108 0-2 0.892-2 2v9c0 1.108 0.892 2 2 2h9c1.108 0 2' +
-          '-0.892 2-2v-7l-4-4h-7zm0 1h1v3c0 1.108 0.892 2 2 2h2c1.108 0 2-0' +
-          '.892 2-2v-2.5859l3 3v6.5859c0 0.554-0.446 1-1 1v-2c0-1.108-0.892' +
-          '-2-2-2h-5c-1.108 0-2 0.892-2 2v2c-0.554 0-1-0.446-1-1v-9c0-0.554' +
-          ' 0.446-1 1-1zm2 0h2v4h-1c-0.554 0-1-0.446-1-1zm0 8h5c0.554 0 1 0' +
-          '.446 1 1v2h-7v-2c0-0.554 0.446-1 1-1z" style="fill:currentColor"' +
-          ' class="ColorScheme-Text"/>'#13#10'</svg>'#13#10
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><pat' +
+          'h d="M1 7H3V21H17V23H3C1.9 23 1 22.11 1 21V7M19 1H7C5.89 1 5 1.9' +
+          ' 5 3V17C5 18.1 5.89 19 7 19H21C22.1 19 23 18.1 23 17V5L19 1M21 1' +
+          '7H7V3H18.17L21 5.83V17M14 10C12.34 10 11 11.34 11 13S12.34 16 14' +
+          ' 16 17 14.66 17 13 15.66 10 14 10M8 4H17V8H8V4Z" /></svg>'
       end
       item
         IconName = 'rocket-launch-outline'
@@ -664,61 +604,29 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
           '19.17Z" /></svg>'
       end
       item
-        IconName = 'system-run-symbolic'
+        IconName = 'cog-outline'
         SVGText = 
-          '<svg width="16" height="16" enable-background="new" version="1.1' +
-          '" xmlns="http://www.w3.org/2000/svg">'#13#10' <g fill="#363636">'#13#10'  <p' +
-          'ath d="M7.903 1.478s-.148.05-.499.283c-.429.287-.67.235-.954.156' +
-          'l-.002.002a2.547 2.547 0 0 0-.16-.087V1.83c-.22-.195-.396-.37-.3' +
-          '9-.886.006-.422-.033-.572-.033-.572a1.107 1.107 0 0 0-.364-.107s' +
-          '-.214-.023-.378.029c0 0-.07.139-.152.553-.101.506-.309.64-.565.7' +
-          '85v.003a2.668 2.668 0 0 0-.175.052l-.002-.002c-.294.018-.541.019' +
-          '-.902-.35C3.033 1.031 2.9.953 2.9.953a1.101 1.101 0 0 0-.333.18s' +
-          '-.167.136-.247.289c0 0 .05.147.283.498.287.43.235.671.156.955l.0' +
-          '02.002c-.03.052-.06.105-.087.16H2.67c-.195.22-.37.395-.886.389-.' +
-          '421-.005-.572.034-.572.034-.085.15-.107.364-.107.364s-.023.214.0' +
-          '29.378c0 0 .139.07.553.152.506.101.64.309.785.565h.002c.015.059.' +
-          '033.117.052.175l-.002.002c.018.294.019.54-.35.901-.303.295-.382.' +
-          '429-.382.429.047.166.182.333.182.333s.135.167.288.247c0 0 .148-.' +
-          '05.498-.284.43-.286.671-.234.955-.155l.002-.002c.053.03.106.06.1' +
-          '6.087v.003c.22.195.395.37.389.885-.005.422.033.573.033.573.15.08' +
-          '5.364.107.364.107s.214.023.379-.03c0 0 .07-.138.152-.552.1-.506.' +
-          '309-.64.565-.785v-.003c.058-.015.116-.033.174-.052l.002.002c.294' +
-          '-.018.541-.019.901.35.295.303.429.381.429.381.166-.046.333-.181.' +
-          '333-.181s.167-.136.247-.289c0 0-.049-.147-.283-.498-.287-.429-.2' +
-          '34-.67-.156-.954l-.002-.002c.031-.053.06-.106.087-.16h.003c.195-' +
-          '.22.37-.396.886-.39.422.006.572-.033.572-.033.085-.15.107-.364.1' +
-          '07-.364s.023-.214-.029-.379c0 0-.139-.07-.553-.152-.506-.1-.64-.' +
-          '308-.785-.565h-.002a2.538 2.538 0 0 0-.052-.174l.002-.002c-.018-' +
-          '.294-.019-.541.35-.902.303-.294.381-.428.381-.428-.046-.166-.181' +
-          '-.333-.181-.333s-.135-.168-.288-.247zM6.26 5.696a1.87 1.87 0 1 1' +
-          '-2.355-2.908A1.87 1.87 0 0 1 6.26 5.696z" enable-background="new' +
-          '"/>'#13#10'  <path d="M12.326 6.472s-.158.113-.492.521c-.409.5-.717.52' +
-          '5-1.085.535l-.002.003a3.202 3.202 0 0 0-.222-.046v-.003c-.336-.1' +
-          '52-.61-.297-.79-.916-.148-.506-.25-.672-.25-.672-.21-.046-.474.0' +
-          '05-.474.005s-.264.052-.441.174c0 0-.033.191.02.716.064.642-.135.' +
-          '878-.388 1.145v.004c-.065.04-.127.082-.19.126l-.002-.002c-.344.1' +
-          '29-.64.22-1.205-.09-.463-.253-.652-.298-.652-.298-.181.115-.331.' +
-          '338-.331.338s-.15.223-.19.435c0 0 .113.158.52.492.5.408.526.716.' +
-          '536 1.084l.003.002a3.36 3.36 0 0 0-.046.223h-.002c-.153.335-.297' +
-          '.609-.916.79-.506.147-.672.25-.672.25-.047.21.004.473.004.473s.0' +
-          '51.264.174.442c0 0 .19.032.716-.02.641-.065.877.135 1.144.388h.0' +
-          '03a3.4 3.4 0 0 0 .126.189l-.002.003c.13.345.22.64-.09 1.206-.253' +
-          '.462-.298.651-.298.651.116.182.339.332.339.332s.223.15.435.19c0 ' +
-          '0 .158-.113.492-.521.408-.5.716-.525 1.084-.535l.002-.003c.074.0' +
-          '18.148.034.223.046v.004c.335.152.609.297.79.916.147.506.249.672.' +
-          '249.672.21.046.474-.005.474-.005s.264-.052.442-.174c0 0 .032-.19' +
-          '1-.02-.716-.064-.642.136-.878.389-1.145l-.001-.003c.064-.04.127-' +
-          '.082.19-.126l.002.002c.345-.129.64-.22 1.206.09.462.253.651.298.' +
-          '651.298.182-.116.332-.338.332-.338s.15-.223.19-.435c0 0-.112-.15' +
-          '9-.52-.492-.5-.409-.526-.717-.536-1.085l-.002-.002c.018-.074.034' +
-          '-.148.046-.222h.003c.153-.336.297-.61.916-.79.506-.148.672-.25.6' +
-          '72-.25.046-.21-.005-.474-.005-.474s-.051-.264-.173-.442c0 0-.192' +
-          '-.032-.717.02-.641.065-.878-.134-1.145-.388h-.003a3.164 3.164 0 ' +
-          '0 0-.126-.188l.002-.003c-.129-.345-.22-.64.09-1.206.253-.462.298' +
-          '-.652.298-.652-.116-.181-.338-.332-.338-.332s-.223-.15-.435-.19z' +
-          'm-.423 5.643A2.338 2.338 0 1 1 8.026 9.5a2.338 2.338 0 0 1 3.877' +
-          ' 2.615z" enable-background="new"/>'#13#10' </g>'#13#10'</svg>'#13#10
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><pat' +
+          'h d="M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 ' +
+          '0,1 12,8M12,10A2,2 0 0,0 10,12A2,2 0 0,0 12,14A2,2 0 0,0 14,12A2' +
+          ',2 0 0,0 12,10M10,22C9.75,22 9.54,21.82 9.5,21.58L9.13,18.93C8.5' +
+          ',18.68 7.96,18.34 7.44,17.94L4.95,18.95C4.73,19.03 4.46,18.95 4.' +
+          '34,18.73L2.34,15.27C2.21,15.05 2.27,14.78 2.46,14.63L4.57,12.97L' +
+          '4.5,12L4.57,11L2.46,9.37C2.27,9.22 2.21,8.95 2.34,8.73L4.34,5.27' +
+          'C4.46,5.05 4.73,4.96 4.95,5.05L7.44,6.05C7.96,5.66 8.5,5.32 9.13' +
+          ',5.07L9.5,2.42C9.54,2.18 9.75,2 10,2H14C14.25,2 14.46,2.18 14.5,' +
+          '2.42L14.87,5.07C15.5,5.32 16.04,5.66 16.56,6.05L19.05,5.05C19.27' +
+          ',4.96 19.54,5.05 19.66,5.27L21.66,8.73C21.79,8.95 21.73,9.22 21.' +
+          '54,9.37L19.43,11L19.5,12L19.43,13L21.54,14.63C21.73,14.78 21.79,' +
+          '15.05 21.66,15.27L19.66,18.73C19.54,18.95 19.27,19.04 19.05,18.9' +
+          '5L16.56,17.95C16.04,18.34 15.5,18.68 14.87,18.93L14.5,21.58C14.4' +
+          '6,21.82 14.25,22 14,22H10M11.25,4L10.88,6.61C9.68,6.86 8.62,7.5 ' +
+          '7.85,8.39L5.44,7.35L4.69,8.65L6.8,10.2C6.4,11.37 6.4,12.64 6.8,1' +
+          '3.8L4.68,15.36L5.43,16.66L7.86,15.62C8.63,16.5 9.68,17.14 10.87,' +
+          '17.38L11.24,20H12.76L13.13,17.39C14.32,17.14 15.37,16.5 16.14,15' +
+          '.62L18.57,16.66L19.32,15.36L17.2,13.81C17.6,12.64 17.6,11.37 17.' +
+          '2,10.2L19.31,8.65L18.56,7.35L16.15,8.39C15.38,7.5 14.32,6.86 13.' +
+          '12,6.62L12.75,4H11.25Z" /></svg>'
       end>
     AntiAliasColor = clBtnShadow
     GrayScale = True
