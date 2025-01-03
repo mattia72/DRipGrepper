@@ -180,7 +180,7 @@ begin
 	{ } (not(EGuiOption.soUseRegex in SearchOptions)) and
 	{ } (not(EGuiOption.soMatchWord in SearchOptions)) then begin
 		SetRgOption(RG_PARAM_REGEX_FIXED_STRINGS);
-        SetRgOption(RG_PARAM_REGEX_IGNORE_CASE);
+		SetRgOption(RG_PARAM_REGEX_IGNORE_CASE);
 	end;
 
 	case searchOption of
@@ -196,7 +196,7 @@ begin
 			(SearchOptions = [EGuiOption.soMatchCase]) or //
 			(SearchOptions = [])) then begin
 			ResetRgOption(RG_PARAM_REGEX_FIXED_STRINGS);
-            SetRgOption(RG_PARAM_REGEX_IGNORE_CASE);
+			SetRgOption(RG_PARAM_REGEX_IGNORE_CASE);
 		end;
 	end;
 
@@ -313,7 +313,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.Create', True);
 	dbgMsg.MsgFmt('Create %p for section: %s', [Pointer(self), IniSectionName]);
-    Clear();
+	Clear();
 end;
 
 constructor TGuiSearchTextParams.Create(const _iniSection : string);
@@ -382,7 +382,8 @@ begin
 end;
 
 procedure TGuiSearchTextParams.LoadSearchOptionsFromDict(const _bDefault : Boolean);
-var sParams : string;
+var
+	sParams : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.LoadSearchOptionsFromDict Default=' + BoolToStr(_bDefault));
