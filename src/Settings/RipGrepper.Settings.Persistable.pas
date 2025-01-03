@@ -130,7 +130,7 @@ constructor TPersistableSettings.Create(const _Owner : TPersistableSettings);
 begin
 	inherited Create();
 	FOwner := _Owner;
-	FIniFile := _Owner.FIniFile;
+	FIniFile := _Owner.IniFile;
 	FbOwnIniFile := False;
 	Create();
 end;
@@ -265,7 +265,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.FreeOwnIniFile', True);
 
 	if FbOwnIniFile then begin
-		dbgMsg.MsgFmt('Free FIniFile %p of section: %s', [Pointer(FIniFile), GetIniSectionName()]);
+		dbgMsg.MsgFmt('Free FIniFile %p of section: %s', [Pointer(IniFile), GetIniSectionName()]);
 		FIniFile.Free;
 		FIniFile := nil;
 	end;
@@ -359,8 +359,8 @@ begin
 			Exit;
 		end;
 		try
-			dbgMsg.MsgFmt('Read section %s from IniFile %p', [IniSectionName, Pointer(FIniFile)]);
-			FIniFile.ReadSectionValues(IniSectionName, strs);
+			dbgMsg.MsgFmt('Read section %s from IniFile %p', [IniSectionName, Pointer(IniFile)]);
+			IniFile.ReadSectionValues(IniSectionName, strs);
 			FIsAlreadyRead := strs.Count > 0;
 			dbgMsg.Msg(strs.DelimitedText);
 
@@ -456,18 +456,18 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.SetChildrenIniFiles');
 
 	for var s in FChildren do begin
-		dbgMsg.MsgFmt('Change IniFile %p to %p for %s', [Pointer(s.IniFile), Pointer(FIniFile), s.IniSectionName]);
-		s.IniFile := FIniFile;
+		dbgMsg.MsgFmt('Change IniFile %p to %p for %s', [Pointer(s.IniFile), Pointer(IniFile), s.IniSectionName]);
+		s.IniFile := IniFile;
 	end;
 end;
 
 procedure TPersistableSettings.SetIniFile(const Value : TMemIniFile);
 begin
 	FIniFile := Value;
-	if not FbOwnIniFile and Assigned(FOwner) and (FOwner.IniFile <> FIniFile) then begin
-		FOwner.IniFile := FIniFile;
+	if not FbOwnIniFile and Assigned(FOwner) and (FOwner.IniFile <> IniFile) then begin
+		FOwner.IniFile := IniFile;
 	end;
-    SetChildrenIniFiles();
+	SetChildrenIniFiles();
 end;
 
 procedure TPersistableSettings.SetIniSectionName(const Value : string);
@@ -480,7 +480,7 @@ begin
 	var
 	owner := FOwner;
 	while Assigned(owner) do begin
-		owner.IniFile := FIniFile;
+		owner.IniFile := IniFile;
 		owner := owner.FOwner;
 	end;
 end;
@@ -497,7 +497,7 @@ var
 begin
 	strs := TStringList.Create();
 	try
-		FIniFile.GetStrings(strs);
+		IniFile.GetStrings(strs);
 		Result := strs.DelimitedText;
 	finally
 		strs.Free;
@@ -514,12 +514,12 @@ begin
 		s.UpdateIniFile;
 	end;
 
-	if Assigned(FIniFile) then begin
+	if Assigned(IniFile) then begin
 		var
 		lock := TLockGuard.NewLock(FLockObject);
 		dbgMsg.Msg('Lock Entered');
-		dbgMsg.MsgFmt('IniFile %p update begin on %s', [Pointer(FIniFile), GetIniSectionName()]);
-		FIniFile.UpdateFile;
+		dbgMsg.MsgFmt('IniFile %p update begin on %s', [Pointer(IniFile), GetIniSectionName()]);
+		IniFile.UpdateFile;
 		dbgMsg.Msg('Lock Released');
 	end else begin
 		dbgMsg.ErrorMsg('IniFile not assigned!' + GetIniSectionName());
@@ -571,11 +571,11 @@ begin
 	try
 		case _setting.ValueType of
 			varString, varUString :
-			FIniFile.WriteString(_sIniSection, _sKey, _setting.Value);
+			IniFile.WriteString(_sIniSection, _sKey, _setting.Value);
 			varBoolean :
-			FIniFile.WriteBool(_sIniSection, _sKey, _setting.Value);
+			IniFile.WriteBool(_sIniSection, _sKey, _setting.Value);
 			varInteger :
-			FIniFile.WriteInteger(_sIniSection, _sKey, _setting.Value);
+			IniFile.WriteInteger(_sIniSection, _sKey, _setting.Value);
 			varArray : begin
 				var
 				i := VarArrayLowBound(_setting.Value, 1);
@@ -584,7 +584,7 @@ begin
 
 				while i <= len do begin
 					v := _setting.Value[i]; // v should be string
-					FIniFile.WriteString(_sIniSection, Format('%s_Item%d', [_sKey, i]), v);
+					IniFile.WriteString(_sIniSection, Format('%s_Item%d', [_sKey, i]), v);
 					Inc(i);
 				end;
 			end
@@ -595,7 +595,7 @@ begin
 		on E : Exception do
 			dbgMsg.ErrorMsgFmt('%s', [E.Message]);
 	end;
-	dbgMsg.Msg(FIniFile.FileName + '[' + _sIniSection + '] ' + _sKey + '=' + VarToStr(_setting.Value) + ' stored');
+	dbgMsg.Msg(IniFile.FileName + '[' + _sIniSection + '] ' + _sKey + '=' + VarToStr(_setting.Value) + ' stored');
 end;
 
 end.
