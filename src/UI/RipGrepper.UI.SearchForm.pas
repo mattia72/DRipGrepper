@@ -346,10 +346,11 @@ end;
 procedure TRipGrepperSearchDialogForm.ActionSetAsDefaultExecute(Sender : TObject);
 begin
 	WriteCtrlsToSettings(True);
-	FSettings.StoreAsDefaultsToDict();
 	FParamsSetByGui.StoreAsDefaultsToDict();
+	FSettings.RipGrepParameters.Copy(FParamsSetByGui);
+	FSettings.CopyValuesToDefaults();
+	FSettings.StoreAsDefaultsToDict();
 	FSettings.UpdateIniFile;
-	FParamsSetByGui.UpdateIniFile;
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionShowFileMaskHelpExecute(Sender : TObject);
@@ -426,7 +427,7 @@ begin
 			FSettings.SearchFormSettings.LoadFromDict();
 		end;
 		FSettings.StoreHistories();
-		FSettings.UpdateIniFile;
+		FSettings.UpdateIniFile();
 	end;
 end;
 
