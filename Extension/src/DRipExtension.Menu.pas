@@ -42,7 +42,7 @@ uses
 	ArrayEx,
 	RipGrepper.OpenWith.Params,
 	RipGrepper.OpenWith,
-	DripExtension.UI.DockableForm, 
+	DripExtension.UI.DockableForm,
 	RipGrepper.Settings.RipGrepperSettings;
 
 var
@@ -58,8 +58,7 @@ class destructor TDripExtensionMenu.Destroy;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.Destroy');
-	G_DripMenu.Free;
-	GSettings.Free;
+	FreeAndNil(G_DripMenu);
 end;
 
 class function TDripExtensionMenu.AddToImageList(const _resourceName : string) : Integer;
@@ -210,5 +209,4 @@ begin
 	TDebugUtils.DebugMessage('TDripExtensionMenu.ShowDripGrepperForm');
 	TRipGrepperDockableForm.ShowDockableFormAndSearch();
 end;
-
 end.

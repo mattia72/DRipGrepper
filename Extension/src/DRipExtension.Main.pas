@@ -45,7 +45,9 @@ type
 
 	end;
 
-procedure Register;
+function InitWizard(const BorlandIDEServices : IBorlandIDEServices; RegisterProc : TWizardRegisterProc;
+	var Terminate : TWizardTerminateProc) : Boolean stdcall;
+procedure FinalizeWizard;
 
 implementation
 
@@ -65,22 +67,35 @@ uses
 	DRipExtension.Menu;
 
 var
-	G_DRipExtension : TDRipExtension;
+	MMOTAExpertIndex : integer;
 
-procedure Register;
+function InitWizard(const BorlandIDEServices : IBorlandIDEServices; RegisterProc : TWizardRegisterProc;
+	var Terminate : TWizardTerminateProc) : Boolean stdcall;
 begin
-	RegisterPackageWizard(TDRipExtension.Create);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('InitWizard');
+
+	Result := True;
+	Terminate := FinalizeWizard;
+	MMOTAExpertIndex := (BorlandIDEServices as IOTAWizardServices).AddWizard(TDRipExtension.Create);
+end;
+
+procedure FinalizeWizard;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('FinalizeWizard');
+	if MMOTAExpertIndex <> -1 then
+		(BorlandIDEServices as IOTAWizardServices).RemoveWizard(MMOTAExpertIndex);
+	MMOTAExpertIndex := -1;
 end;
 
 constructor TDRipExtension.Create;
 begin
-	inherited;
+	inherited Create();
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.Create');
-
 	InitPluginInfo;
 	TRipGrepperDockableForm.CreateInstance; // saved layout loading ...
-	G_DRipExtension := self;
 	TDripExtensionMenu.CreateMenu(GetMenuText, GSettings.SearchFormSettings.ExtensionSettings);
 end;
 
@@ -90,8 +105,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.Destroy');
 	RemovePluginInfo;
 	TRipGrepperDockableForm.DestroyInstance;
-	G_DRipExtension := nil;
- 	inherited;
+	inherited;
 end;
 
 // IOTAWizard
@@ -195,5 +209,19 @@ begin
 		// FKeyNotifier.Free;
 		FKeyNotifier := nil;
 end;
+
+initialization
+
+GSettings := TRipGrepperSettings.Create;
+GSettings.AppSettings.ReadIni;
+GSettings.AppSettings.LoadFromDict();
+TDebugUtils.UpdateTraceActive;
+
+OutputDebugString(PChar('DRipExtension initialized.'));
+
+finalization
+
+FreeAndNil(GSettings);
+OutputDebugString(PChar('DRipExtension finalized.'));
 
 end.
