@@ -49,7 +49,7 @@ Marked with checkmark if fixed, else it is a known bug.
     - [ ] replace by toolbar is always ignore case
 - [x] context line nums are in Col instead of Row column
 - [x] include/exclude path doubles 
-- [ ] exception on closing ide
+- [x] exception on closing ide
 - [x] no memory leaks
 - [ ] ugly dark mode
 - [x] `Set as Default` doesn't store SearchParams_DEFAULT in the ini file

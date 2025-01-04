@@ -4,7 +4,7 @@
         <ProjectVersion>20.1</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <ProjectName Condition="'$(ProjectName)'==''">DRipExtensions</ProjectName>
         <TargetedPlatforms>1</TargetedPlatforms>
@@ -97,8 +97,8 @@
         <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\23.0\bin\bds.exe</Debugger_HostApplication>
         <DCC_ShowGeneralMessages>true</DCC_ShowGeneralMessages>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.0.0.66;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>66</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.0.0.67;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>67</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <Manifest_File>..\Delphi12\(None)</Manifest_File>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
@@ -113,8 +113,8 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.0.0.69;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>69</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.0.0.70;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>70</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <DCC_Description>RipGrep Search within Delphi</DCC_Description>
         <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
@@ -123,9 +123,8 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.DebugUtils.pas"/>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.SettingsFormBase.pas"/>
-        <DCCReference Include="..\..\DRipExtension.Main.pas"/>
-        <DCCReference Include="..\..\DripExtension.UI.DockableForm.pas"/>
         <DCCReference Include="..\..\..\..\src\RipGrepper.CommandLine.Builder.pas"/>
         <DCCReference Include="..\..\..\..\src\RipGrepper.CommandLine.OptionHelper.pas"/>
         <DCCReference Include="..\..\..\..\src\RipGrepper.Data.HistoryItemObject.pas"/>
@@ -193,7 +192,6 @@
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.SimpleTypes.pas"/>
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.Sorter.pas"/>
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.SyncObjLock.pas"/>
-        <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.DebugUtils.pas"/>
         <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.FileUtils.pas"/>
         <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.PackageInstall.pas"/>
         <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.ProcessUtils.pas"/>
@@ -217,9 +215,11 @@
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.ColorSelectorFrame.pas"/>
         <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.LockGuard.pas"/>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas"/>
-        <DCCReference Include="..\..\DRipExtension.Menu.pas"/>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.ExtensionSettingsForm.pas"/>
         <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.DelphiVersions.pas"/>
+        <DCCReference Include="..\..\DRipExtension.Main.pas"/>
+        <DCCReference Include="..\..\DripExtension.UI.DockableForm.pas"/>
+        <DCCReference Include="..\..\DRipExtension.Menu.pas"/>
         <RcItem Include="..\..\..\Resources\about_icon.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>about_icon</ResourceId>

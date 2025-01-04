@@ -221,4 +221,8 @@ begin
 	end;
 end;
 
+initialization
+    OutputDebugString(PChar('DebugTrace initialized.'));
+finalization
+    OutputDebugString(PChar('DebugTrace finalized.'));
 end.

@@ -22,9 +22,9 @@ uses
 	System.SysUtils,
 	System.Classes,
 	ToolsAPI,
+	// This should be the first?
+	RipGrepper.Tools.DebugUtils in '..\..\..\..\src\Tools\RipGrepper.Tools.DebugUtils.pas',
 	RipGrepper.UI.SettingsFormBase in '..\..\..\..\src\UI\RipGrepper.UI.SettingsFormBase.pas',
-	DRipExtension.Main in '..\..\DRipExtension.Main.pas',
-	DripExtension.UI.DockableForm in '..\..\DripExtension.UI.DockableForm.pas',
 	RipGrepper.CommandLine.Builder in '..\..\..\..\src\RipGrepper.CommandLine.Builder.pas',
 	RipGrepper.CommandLine.OptionHelper in '..\..\..\..\src\RipGrepper.CommandLine.OptionHelper.pas',
 	RipGrepper.Data.HistoryItemObject in '..\..\..\..\src\RipGrepper.Data.HistoryItemObject.pas',
@@ -65,7 +65,6 @@ uses
 	RipGrepper.Common.SimpleTypes in '..\..\..\..\src\Common\RipGrepper.Common.SimpleTypes.pas',
 	RipGrepper.Common.Sorter in '..\..\..\..\src\Common\RipGrepper.Common.Sorter.pas',
 	RipGrepper.Common.SyncObjLock in '..\..\..\..\src\Common\RipGrepper.Common.SyncObjLock.pas',
-	RipGrepper.Tools.DebugUtils in '..\..\..\..\src\Tools\RipGrepper.Tools.DebugUtils.pas',
 	RipGrepper.Tools.FileUtils in '..\..\..\..\src\Tools\RipGrepper.Tools.FileUtils.pas',
 	RipGrepper.Tools.PackageInstall in '..\..\..\..\src\Tools\RipGrepper.Tools.PackageInstall.pas',
 	RipGrepper.Tools.ProcessUtils in '..\..\..\..\src\Tools\RipGrepper.Tools.ProcessUtils.pas',
@@ -89,21 +88,17 @@ uses
 	RipGrepper.UI.ColorSelectorFrame in '..\..\..\..\src\UI\RipGrepper.UI.ColorSelectorFrame.pas',
 	RipGrepper.Tools.LockGuard in '..\..\..\..\src\Tools\RipGrepper.Tools.LockGuard.pas',
 	RipGrepper.UI.Settings.ColorSettingsForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas',
-	DRipExtension.Menu in '..\..\DRipExtension.Menu.pas',
 	RipGrepper.UI.Settings.ExtensionSettingsForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ExtensionSettingsForm.pas',
-	RipGrepper.Tools.DelphiVersions in '..\..\..\..\src\Tools\RipGrepper.Tools.DelphiVersions.pas';
+	RipGrepper.Tools.DelphiVersions in '..\..\..\..\src\Tools\RipGrepper.Tools.DelphiVersions.pas',
+	DRipExtension.Main in '..\..\DRipExtension.Main.pas',
+	DripExtension.UI.DockableForm in '..\..\DripExtension.UI.DockableForm.pas',
+	DRipExtension.Menu in '..\..\DRipExtension.Menu.pas';
 
 {$R *.res}
 
 exports
-	Register name WizardEntryPoint;
+	InitWizard name WizardEntryPoint;
 
 begin
-	GSettings := TRipGrepperSettings.Create;
-
-	GSettings.AppSettings.ReadIni;
-	GSettings.AppSettings.LoadFromDict();
-	TDebugUtils.UpdateTraceActive;
-	// GSettings.Free in TDripExtensionMenu.Destroy
 
 end.

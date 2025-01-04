@@ -55,7 +55,6 @@ type
 type
 	{ : List for storing TDelphiVersion items sorted by string }
 	TDelphiVersions = class
-		strict private
 		private
 			Items : TArrayEx<IDelphiVersion>;
 
@@ -497,5 +496,13 @@ begin
 		TRegistry_DeleteValue(RegKey, sDescription, HKEY_CURRENT_USER);
 	end;
 end;
+
+initialization
+
+OutputDebugString(PChar('DelphiVersion initialized.'));
+
+finalization
+
+OutputDebugString(PChar('DelphiVersion finalized.'));
 
 end.
