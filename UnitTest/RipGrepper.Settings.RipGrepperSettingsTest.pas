@@ -47,6 +47,7 @@ uses
 constructor TRipGrepperSettingsTest.Create;
 begin
 	inherited;
+	FIniFile := TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8);
 end;
 
 destructor TRipGrepperSettingsTest.Destroy;
@@ -123,9 +124,8 @@ end;
 
 procedure TRipGrepperSettingsTest.TearDown;
 begin
-	FSettings.Free; //instance will be free
-	FIniFile.Free;
-	EmptyFile(Application.ExeName + '.ini');
+	FSettings.Free; // instance will be free
+	EmptyFile(ChangeFileExt(Application.ExeName, '.ini'));
 end;
 
 procedure TRipGrepperSettingsTest.EmptyFile(const _filePath : string);
@@ -136,5 +136,10 @@ begin
 	Rewrite(txtFile);
 	CloseFile(txtFile);
 end;
+
+
+initialization
+
+TDUnitX.RegisterTestFixture(TRipGrepperSettingsTest);
 
 end.

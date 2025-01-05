@@ -37,10 +37,10 @@ type
 		private
 			FIniFile : TMemIniFile;
 			FbDefaultLoaded : Boolean;
-			FbOwnIniFile : Boolean;
 			FIniSectionName : string;
 			FIsAlreadyRead : Boolean;
 			FOwner : TPersistableSettings;
+			FOwnIniFile: Boolean;
 			procedure CreateIniFile;
 			class var FLockObject : TObject;
 			procedure FreeOwnIniFile;
@@ -78,6 +78,7 @@ type
 			property IniSectionName : string read GetIniSectionName write SetIniSectionName;
 			property IsAlreadyRead : Boolean read GetIsAlreadyRead;
 			property IsModified : Boolean read GetIsModified;
+			property OwnIniFile: Boolean read FOwnIniFile write FOwnIniFile;
 			property SettingsDict : TSettingsDictionary read FSettingsDict write FSettingsDict;
 			destructor Destroy; override;
 			function AddChildSettings(_settings : TPersistableSettings) : TPersistableSettings;
@@ -130,8 +131,10 @@ constructor TPersistableSettings.Create(const _Owner : TPersistableSettings);
 begin
 	inherited Create();
 	FOwner := _Owner;
-	FIniFile := _Owner.IniFile;
-	FbOwnIniFile := False;
+	if Assigned(FOwner) then begin
+		FIniFile := _Owner.IniFile;
+	end;
+	FOwnIniFile := False;
 	Create();
 end;
 
@@ -148,7 +151,7 @@ begin
 	FbDefaultLoaded := False;
 	if not Assigned(FIniFile) then begin
 		CreateIniFile();
-		FbOwnIniFile := True;
+		FOwnIniFile := True;
 	end;
 	Init();
 end;
@@ -264,10 +267,12 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.FreeOwnIniFile', True);
 
-	if FbOwnIniFile then begin
-		dbgMsg.MsgFmt('Free FIniFile %p of section: %s', [Pointer(IniFile), GetIniSectionName()]);
-		FIniFile.Free;
-		FIniFile := nil;
+	if FOwnIniFile then begin
+		if Assigned(FIniFile) then begin
+			dbgMsg.MsgFmt('Free FIniFile %p of section: %s', [Pointer(IniFile), GetIniSectionName()]);
+			FIniFile.Free;
+			FIniFile := nil;
+		end;
 	end;
 end;
 
@@ -308,7 +313,7 @@ procedure TPersistableSettings.ReadIni;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.ReadIni');
-
+	dbgMsg.MsgFmt('Section: %s', [IniSectionName]);
 	for var s in FChildren do begin
 		s.ReadIni();
 	end;
@@ -464,7 +469,7 @@ end;
 procedure TPersistableSettings.SetIniFile(const Value : TMemIniFile);
 begin
 	FIniFile := Value;
-	if not FbOwnIniFile and Assigned(FOwner) and (FOwner.IniFile <> IniFile) then begin
+	if not FOwnIniFile and Assigned(FOwner) and (FOwner.IniFile <> IniFile) then begin
 		FOwner.IniFile := IniFile;
 	end;
 	SetChildrenIniFiles();

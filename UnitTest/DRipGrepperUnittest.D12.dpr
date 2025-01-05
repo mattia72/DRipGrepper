@@ -39,7 +39,10 @@ uses
   RipGrepper.Settings.RipGrepperSettingsTest in 'RipGrepper.Settings.RipGrepperSettingsTest.pas',
   RipGrepper.CommandLine.OptionStrings in '..\src\RipGrepper.CommandLine.OptionStrings.pas',
   RipGrepper.CommandLine.OptionStrings.Test in 'RipGrepper.CommandLine.OptionStrings.Test.pas',
-  RipGrepper.Settings.TestOwnerSettings in 'RipGrepper.Settings.TestOwnerSettings.pas';
+  RipGrepper.Settings.TestOwnerSettings in 'RipGrepper.Settings.TestOwnerSettings.pas',
+  RipGrepper.Settings.RipGrepParameterSettings in '..\src\Settings\RipGrepper.Settings.RipGrepParameterSettings.pas',
+  RipGrepper.Settings.RipGrepSettingsTest in 'RipGrepper.Settings.RipGrepSettingsTest.pas',
+  RipGrepper.Settings.Persistable in '..\src\Settings\RipGrepper.Settings.Persistable.pas';
 
 {$IFNDEF TESTINSIGHT}
 
