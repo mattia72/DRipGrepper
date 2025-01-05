@@ -209,8 +209,8 @@ end;
 
 procedure TRipGrepParameterSettings.SetGuiSearchTextParams(const Value : TGuiSearchTextParams);
 begin
-	FGuiSearchTextParams.Free;
 	RemoveChildSettings(FGuiSearchTextParams);
+	FGuiSearchTextParams.Free;
 	FGuiSearchTextParams := Value;
 	AddChildSettings(FGuiSearchTextParams);
 	FIsModified := True;
