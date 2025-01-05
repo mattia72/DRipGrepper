@@ -254,16 +254,6 @@ type
 			class property ColumnTitle[index : EColumnIndex] : string read GetColumnTitle; default;
 	end;
 
-	{$SCOPEDENUMS ON}
-
-	EGuiOption = (soNotSet = 0, soMatchCase = 1, soMatchWord = 2, soUseRegex = 3);
-	{$SCOPEDENUMS OFF}
-
-const
-	GUI_SEARCH_PARAMS : TArray<EGuiOption> = [
-	{ } EGuiOption.soMatchCase,
-	{ } EGuiOption.soMatchWord,
-	{ } EGuiOption.soUseRegex];
 
 implementation
 

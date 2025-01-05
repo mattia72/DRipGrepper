@@ -63,7 +63,9 @@ uses
 	ArrayEx,
 	System.RegularExpressions,
 	System.Math,
-	RipGrepper.CommandLine.OptionStrings;
+	RipGrepper.CommandLine.OptionStrings,
+	RipGrepper.Common.SearchParams,
+	RipGrepper.Common.SimpleTypes;
 
 procedure TCommandLineBuilderTest.Setup;
 begin
@@ -123,7 +125,7 @@ var
 begin
 	FParams.RgExeOptions := TOptionStrings.New(_sOptions);
 	FParams.FileMasks := _sMasksDelimited;
-	FGuiParams.SearchOptions := TGuiSearchTextParams.GetAsSearchOptionSet(False, _bMatchWord = 1, False);
+	FGuiParams.SearchOptions := TSearchParams.GetAsSearchOptionSet(False, _bMatchWord = 1, False);
 	FParams.GuiSearchTextParams := FGuiParams;
 
 	TCommandLineBuilder.RebuildArguments(FParams);
@@ -148,7 +150,7 @@ begin
 	FParams.RgExeOptions := TOptionStrings.New('');
 	FParams.FileMasks := '';
 	FGuiParams.SearchText := _sSearchText;
-	FGuiParams.SearchOptions := TGuiSearchTextParams.GetAsSearchOptionSet(False, _bMatchWord = 1, False);
+	FGuiParams.SearchOptions := TSearchParams.GetAsSearchOptionSet(False, _bMatchWord = 1, False);
 
 	FParams.GuiSearchTextParams := FGuiParams;
 	if _bMatchWord = 1 then

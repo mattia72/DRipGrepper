@@ -9,7 +9,8 @@ uses
 	System.IniFiles,
 	RipGrepper.Common.Constants,
 	RipGrepper.Settings.Persistable,
-	RipGrepper.Settings.TestOwnerSettings;
+	RipGrepper.Settings.TestOwnerSettings,
+	RipGrepper.Common.SimpleTypes;
 
 type
 
@@ -214,7 +215,8 @@ uses
 	System.RegularExpressions,
 	ArrayEx,
 	System.StrUtils,
-	System.Math;
+	System.Math,
+	RipGrepper.Common.SearchParams;
 
 function TOptionStringsTest.SetSearchOptions(const _guiOptionsActual : string) : TSearchOptionSet;
 begin
@@ -580,7 +582,7 @@ begin
 	FParams.RgExeOptions := TOptionStrings.New(_sOptions);
 	FParams.FileMasks := '';
 	FGuiParams.SearchText := _sSearchText;
-	FGuiParams.SearchOptions := TGuiSearchTextParams.GetAsSearchOptionSet(False, _bMatchWord = 1, _bUseRegex = 1);
+	FGuiParams.SearchOptions := TSearchParams.GetAsSearchOptionSet(False, _bMatchWord = 1, _bUseRegex = 1);
 	FGuiParams.RgOptions := TOptionStrings.New(_sOptions);
 
 	if (_bMatchWord = 1) then

@@ -9,10 +9,10 @@ uses
 	RipGrepper.Settings.Persistable,
 	System.IniFiles,
 	RipGrepper.CommandLine.OptionStrings,
-	RipGrepper.Helper.Types;
+	RipGrepper.Helper.Types,
+	RipGrepper.Common.SimpleTypes;
 
 type
-	TSearchOptionSet = set of EGuiOption;
 
 	TGuiSearchTextParams = class(TPersistableSettings)
 		private
@@ -52,7 +52,6 @@ type
 			function GetNext(const _newOption : EGuiOption) : TGuiSearchTextParams;
 			function IsSet(_options : TArray<EGuiOption>) : Boolean;
 
-			class function GetAsSearchOptionSet(const _bMC, _bMW, _bUR : Boolean) : TSearchOptionSet; static;
 			procedure ResetOption(const _searchOption : EGuiOption);
 			function SearchOptionsAsBitField : TBitField;
 			procedure SetOption(const _searchOption : EGuiOption);
@@ -82,14 +81,15 @@ uses
 	System.SysUtils,
 	System.RegularExpressions,
 	RipGrepper.Tools.DebugUtils,
-	RipGrepper.CommandLine.OptionHelper;
+	RipGrepper.CommandLine.OptionHelper,
+	RipGrepper.Common.SearchParams;
 
 // for UnitTests...
 constructor TGuiSearchTextParams.Create(const _sText, _sRepl : string; const _bMC, _bMW, _bUR : Boolean);
 begin
 	Create();
 	SearchText := _sText;
-	SearchOptions := GetAsSearchOptionSet(_bMC, _bMW, _bUR);
+	SearchOptions := TSearchParams.GetAsSearchOptionSet(_bMC, _bMW, _bUR);
 end;
 
 function TGuiSearchTextParams.GetNext(const _newOption : EGuiOption) : TGuiSearchTextParams;
@@ -132,21 +132,6 @@ end;
 function TGuiSearchTextParams.GetEscapedSearchText : string;
 begin
 	Result := TRegEx.Escape(FSearchText);
-end;
-
-class function TGuiSearchTextParams.GetAsSearchOptionSet(const _bMC, _bMW, _bUR : Boolean) : TSearchOptionSet;
-begin
-	Result := [eGuiOption.soNotSet];
-	if _bMC then
-		Include(Result, EGuiOption.soMatchCase);
-	if _bMW then
-		Include(Result, EGuiOption.soMatchWord);
-	if _bUR then
-		Include(Result, EGuiOption.soUseRegex);
-
-	if Result <> [EGuiOption.soNotSet] then begin
-		Exclude(Result, EGuiOption.soNotSet);
-	end;
 end;
 
 function TGuiSearchTextParams.GetSearchText : string;
@@ -389,10 +374,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.LoadSearchOptionsFromDict Default=' + BoolToStr(_bDefault));
 	sParams := SettingsDict.GetSetting('SearchParams', _bDefault);
 	dbgMsg.Msg(RgOptions.AsString);
-	SearchOptions := GetAsSearchOptionSet(
-		{ } sParams.Contains('MatchCase'),
-		{ } sParams.Contains('MatchWord'),
-		{ } sParams.Contains('UseRegex'));
+	SearchOptions := TSearchParams.StringToSearchParams(sParams);
 	if SearchOptions = [] then begin
 		SetOption(EGuiOption.soNotSet);
 	end else begin

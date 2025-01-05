@@ -11,7 +11,8 @@ uses
 	System.IniFiles,
 	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Settings.Persistable,
-	RipGrepper.Settings.TestOwnerSettings;
+	RipGrepper.Settings.TestOwnerSettings,
+	RipGrepper.Common.SimpleTypes;
 
 type
 

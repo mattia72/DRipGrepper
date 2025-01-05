@@ -23,6 +23,11 @@ type
 	TGuiReplaceModes = set of EGuiReplaceMode;
 	TFilterModes = set of EFilterMode;
 
+	{$SCOPEDENUMS ON}
+	EGuiOption = (soNotSet = 0, soMatchCase = 1, soMatchWord = 2, soUseRegex = 3);
+	{$SCOPEDENUMS OFF}
+	TSearchOptionSet = set of EGuiOption;
+
 	ESkipFileReplaceException = class(Exception);
 	EFileOpenException = class(Exception);
 
@@ -34,6 +39,12 @@ type
 		FIsRGReportedError : Boolean;
 		procedure Reset;
 	end;
+
+const
+	GUI_SEARCH_PARAMS : TArray<EGuiOption> = [
+	{ } EGuiOption.soMatchCase,
+	{ } EGuiOption.soMatchWord,
+	{ } EGuiOption.soUseRegex];
 
 implementation
 

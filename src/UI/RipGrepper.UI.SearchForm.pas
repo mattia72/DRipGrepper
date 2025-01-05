@@ -31,7 +31,8 @@ uses
 	Vcl.Samples.Spin,
 	RipGrepper.Helper.Types,
 	RipGrepper.Settings.SearchFormSettings,
-	RipGrepper.Common.Interfaces;
+	RipGrepper.Common.Interfaces,
+	RipGrepper.Common.SimpleTypes;
 
 type
 	TRipGrepperSearchDialogForm = class(TForm)
@@ -139,7 +140,7 @@ type
 			FHistItemObj : IHistoryItemObject;
 			FDpiScaler : TRipGrepperDpiScaler;
 			FExpertGroupHeight : Integer;
-			FHistItemGuiSearchParams: TGuiSearchTextParams;
+			FHistItemGuiSearchParams : TGuiSearchTextParams;
 			FCbClickEventEnabled : Boolean;
 			FcmbOptionsOldText : string;
 			FOptionsFiltersOrigHeight : Integer;
@@ -170,6 +171,7 @@ type
 			function GetFullHeights : integer;
 			function HasHistItemObjWithResult : Boolean;
 			function GetInIDESelectedText : string;
+			procedure LoadDefaultSettings;
 			procedure LoadExtensionSearchSettings;
 			procedure LoadInitialSettings;
 			procedure SetCmbSearchPathText(const _sPath : string);
@@ -190,8 +192,6 @@ type
 				reintroduce; virtual;
 			destructor Destroy; override;
 			function IsReplaceMode : Boolean;
-			procedure LoadDefaultSettings;
-
 			class function ShowSearchForm(_owner : TComponent; _settings : TRipGrepperSettings; _histObj : IHistoryItemObject) : integer;
 
 			procedure UpdateMemoCommandLine(const _bSkipReadCtrls : Boolean = False);
@@ -715,7 +715,8 @@ begin
 	FSettings.FileMasksHistory := cmbFileMasks.Items;
 
 	WriteCtrlsToRipGrepParametersSettings;
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.WriteCtrlsToSettings: set GuiSearchTextParams=' + FHistItemGuiSearchParams.ToString);
+	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.WriteCtrlsToSettings: set GuiSearchTextParams=' +
+		FHistItemGuiSearchParams.ToString);
 	FSettings.RipGrepParameters.GuiSearchTextParams.Copy(FHistItemGuiSearchParams);
 
 	if _bDefaultOnly then begin
@@ -966,29 +967,27 @@ procedure TRipGrepperSearchDialogForm.LoadDefaultSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadDefaultSettings');
-	// FSettings.LoadDefault;
+	FSettings.ReadIni;
+	FSettings.CopyDefaultsToValues;
 
 	// TODO set only if it was saved before!
 	SetCmbSearchPathText(IfThen(FSettings.RipGrepParameters.SearchPath.IsEmpty, cmbSearchDir.Text, FSettings.RipGrepParameters.SearchPath));
 	dbgMsg.Msg('cmbSearchDir=' + cmbSearchDir.Text);
-	{$IFDEF STANDALONE}
+	{$IFNDEF STANDALONE}
 	var
-	bStandalone := True;
-	{$ELSE}
-	var
-	bStandalone := False;
+	cic := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
+	dbgMsg.Msg('IDEContext=' + cic.ToLogString);
+	rbExtensionOptions.ItemIndex := Integer(cic.IDEContext);
+	UpdateCmbsOnIDEContextChange();
+	dbgMsg.Msg('cmbSearchDir=' + cmbSearchDir.Text);
 	{$ENDIF}
-	if not bStandalone then begin
-		var
-		cic := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
-		dbgMsg.Msg('IDEContext=' + cic.ToLogString);
-		rbExtensionOptions.ItemIndex := Integer(cic.IDEContext);
-		UpdateCmbsOnIDEContextChange();
-		dbgMsg.Msg('cmbSearchDir=' + cmbSearchDir.Text);
-	end;
-
 	cmbFileMasks.Text := IfThen(FSettings.RipGrepParameters.FileMasks.IsEmpty, cmbFileMasks.Text, FSettings.RipGrepParameters.FileMasks);
 	dbgMsg.Msg('cmbFileMasks.Text=' + cmbFileMasks.Text);
+
+	FHistItemGuiSearchParams := TGuiSearchTextParams.Create(TRipGrepParameterSettings.INI_SECTION);
+	// FHistItemGuiSearchParams.ReadIni;
+	// FHistItemGuiSearchParams.LoadDefaultsFromDict;
+
 	FHistItemGuiSearchParams.SearchOptions := FSettings.RipGrepParameters.GuiSearchTextParams.SearchOptions;
 	UpdateCheckBoxesBySettings();
 end;
@@ -1061,14 +1060,8 @@ begin
 			FSettings.LoadFromDict();
 		end;
 	end else begin
-		if (not FSettings.SearchFormSettings.IsAlreadyRead) then begin
-			dbgMsg.ErrorMsg('SearchFormSettings.IsAlreadyRead');
-		end;
-		FSettings.CopyDefaultsToValues;
+		LoadDefaultSettings;
 
-		FHistItemGuiSearchParams := TGuiSearchTextParams.Create(TRipGrepParameterSettings.INI_SECTION);
-		FHistItemGuiSearchParams.ReadIni;
-		FHistItemGuiSearchParams.LoadDefaultsFromDict;
 	end;
 end;
 

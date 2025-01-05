@@ -16,7 +16,7 @@ type
 			INIFILE = 'DripGrepperUnittest.ini';
 
 		private
-			FIniFile : TMemIniFile;
+//          FIniFile : TMemIniFile;
 			FSettings : TRipGrepperSettings;
 			procedure EmptyFile(const _filePath : string);
 			procedure SetDefaults;
@@ -47,12 +47,13 @@ uses
 constructor TRipGrepperSettingsTest.Create;
 begin
 	inherited;
-	FIniFile := TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8);
+//  FIniFile := TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8);
 end;
 
 destructor TRipGrepperSettingsTest.Destroy;
 begin
 	inherited;
+//  FIniFile.Free;
 end;
 
 procedure TRipGrepperSettingsTest.RefreshMembersShouldLoadDefaultsTest;
