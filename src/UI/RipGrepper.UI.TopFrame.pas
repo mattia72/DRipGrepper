@@ -158,7 +158,7 @@ type
 			procedure StartNewSearch;
 			procedure ToggleFilterMode(const _fm : EFilterMode);
 			procedure ToggleGuiReplaceMode(const _grm : EGuiReplaceMode);
-			procedure UpdateFilterMenu;
+			procedure UpdateFilterMenuAndHint;
 			procedure UpdateReplaceMenu;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
@@ -411,7 +411,7 @@ procedure TRipGrepperTopFrame.ActionSetFileFilterModeExecute(Sender : TObject);
 begin
 	SetFilterMode(EFilterMode.fmFilterText, True);
 	SetFilterMode(EFilterMode.fmFilterFile);
-	UpdateFilterMenu;
+	UpdateFilterMenuAndHint;
 	Settings.StoreViewSettings(TFilterSettings.SETTING_FILTERMODE);
 end;
 
@@ -433,7 +433,7 @@ procedure TRipGrepperTopFrame.ActionSetTextFilterModeExecute(Sender : TObject);
 begin
 	SetFilterMode(EFilterMode.fmFilterFile, True);
 	SetFilterMode(EFilterMode.fmFilterText);
-	UpdateFilterMenu;
+	UpdateFilterMenuAndHint;
 	Settings.StoreViewSettings(TFilterSettings.SETTING_FILTERMODE);
 end;
 
@@ -682,7 +682,7 @@ end;
 procedure TRipGrepperTopFrame.Init;
 begin
 	FFilterMode := Settings.NodeLookSettings.FilterSettings.FilterModes;
-	UpdateFilterMenu();
+	UpdateFilterMenuAndHint();
 	ActionExpandCollapseUpdate();
 	ActionShowRelativePathUpdate();
 	ActionAlternateRowColorsUpdate();
@@ -881,12 +881,20 @@ begin
 	// Settings.NodeLookSettings. := FFilterMode;
 end;
 
-procedure TRipGrepperTopFrame.UpdateFilterMenu;
+procedure TRipGrepperTopFrame.UpdateFilterMenuAndHint;
 begin
 	ActionSetFileFilterMode.Checked := EFilterMode.fmFilterFile in FFilterMode;
 	ActionSetTextFilterMode.Checked := EFilterMode.fmFilterText in FFilterMode;
 	ActionSetFilterModeCaseSensitive.Checked := EFilterMode.fmCaseSensitive in FFilterMode;
 	ActionSetFilterModeRegex.Checked := EFilterMode.fmUseRegex in FFilterMode;
+
+	if (ActionSetFileFilterMode.Checked) then begin
+		edtFilter.Hint := 'File Filter';
+	end else if ActionSetTextFilterMode.Checked then begin
+		edtFilter.Hint := 'Text Filter';
+	end;
+
+    edtFilter.Hint := edtFilter.Hint + ' (right-click to change)';
 end;
 
 procedure TRipGrepperTopFrame.UpdateReplaceMenu;

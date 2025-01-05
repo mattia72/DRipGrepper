@@ -133,7 +133,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Top = 0
       Width = 121
       Height = 23
-      Hint = 'Replace Resulted Items'
+      Hint = 'Replace Matches (right-click to change)'
       TabStop = False
       Images = SvgImgLstTopFrame
       ParentShowHint = False
