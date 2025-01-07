@@ -56,7 +56,7 @@ object ColorSelectorFrame: TColorSelectorFrame
     Font.Style = []
     ParentColor = False
     ParentFont = False
-    TabOrder = 2
+    TabOrder = 6
     Transparent = False
     StyleElements = [seClient, seBorder]
     OnDblClick = ExampleTextDblClick
@@ -76,7 +76,7 @@ object ColorSelectorFrame: TColorSelectorFrame
     ParentFont = False
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 3
+    TabOrder = 2
     OnClick = cbBoldClick
   end
   object cbItalic: TCheckBox
@@ -94,7 +94,7 @@ object ColorSelectorFrame: TColorSelectorFrame
     ParentFont = False
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 4
+    TabOrder = 3
     OnClick = cbItalicClick
   end
   object cbUnderline: TCheckBox
@@ -130,7 +130,7 @@ object ColorSelectorFrame: TColorSelectorFrame
     ParentFont = False
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 6
+    TabOrder = 4
     OnClick = cbStrikeOutClick
   end
   object FontDialog1: TFontDialog

@@ -170,7 +170,13 @@ end;
 procedure TAppSettingsForm.FormShow(Sender : TObject);
 begin
 	ReadSettings;
+
 	rgTheme.ItemIndex := Integer(TDarkModeHelper.GetActualThemeMode);
+
+	{$IFNDEF STANDALONE}
+	rgTheme.Enabled := False;
+	rgTheme.Hint := 'Theme can be changed only in IDE';
+	{$ENDIF}
 end;
 
 function TAppSettingsForm.GetRgVersion(const _rgPath : string) : string;

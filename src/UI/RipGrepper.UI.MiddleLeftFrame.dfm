@@ -3,6 +3,7 @@ object MiddleLeftFrame: TMiddleLeftFrame
   Top = 0
   Width = 609
   Height = 211
+  ParentBackground = False
   TabOrder = 0
   StyleElements = [seFont, seClient]
   object Panel1: TPanel
@@ -16,6 +17,8 @@ object MiddleLeftFrame: TMiddleLeftFrame
     Margins.Bottom = 0
     Align = alClient
     BevelOuter = bvNone
+    ParentBackground = False
+    ParentColor = True
     ShowCaption = False
     TabOrder = 0
     StyleElements = [seFont, seClient]

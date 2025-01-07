@@ -150,7 +150,6 @@ object RipGrepperForm: TRipGrepperForm
     FFFFE003FFFFE007FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
   Position = poScreenCenter
   ShowHint = True
-  StyleElements = [seFont, seClient]
   OnClose = FormClose
   OnShow = FormShow
   TextHeight = 15
@@ -175,12 +174,11 @@ object RipGrepperForm: TRipGrepperForm
     TabOrder = 0
     inherited TopFrame: TRipGrepperTopFrame
       Width = 726
-      inherited tbarConfig: TToolBar
-        Left = 690
-        TabOrder = 2
-      end
-      inherited tbarSearch: TToolBar
-        TabOrder = 0
+      inherited pnlTop: TPanel
+        Width = 726
+        inherited tbarConfig: TToolBar
+          Left = 690
+        end
       end
     end
     inherited MainFrame: TRipGrepperMiddleFrame

@@ -194,7 +194,7 @@ object AppSettingsForm: TAppSettingsForm
       Width = 494
       Height = 63
       Anchors = [akLeft, akTop, akRight]
-      Color = clBackground
+      Color = clBlack
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clHighlightText
       Font.Height = -12

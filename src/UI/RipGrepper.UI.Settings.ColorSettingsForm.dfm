@@ -2,7 +2,7 @@ object ColorSettingsForm: TColorSettingsForm
   Left = 0
   Top = 0
   Caption = 'Fonts and Colors'
-  ClientHeight = 155
+  ClientHeight = 72
   ClientWidth = 660
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -14,7 +14,7 @@ object ColorSettingsForm: TColorSettingsForm
   TextHeight = 15
   object pnlBottom: TPanel
     Left = 0
-    Top = 114
+    Top = 31
     Width = 660
     Height = 41
     Align = alBottom
@@ -36,7 +36,7 @@ object ColorSettingsForm: TColorSettingsForm
     Left = 0
     Top = 0
     Width = 660
-    Height = 114
+    Height = 31
     Align = alClient
     BevelOuter = bvNone
     ShowCaption = False
@@ -47,7 +47,7 @@ object ColorSettingsForm: TColorSettingsForm
       Left = 3
       Top = 3
       Width = 654
-      Height = 108
+      Height = 25
       Align = alClient
       Caption = 'Fonts && Colors'
       TabOrder = 0

@@ -4,228 +4,240 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
   Width = 817
   Height = 26
   Align = alTop
+  ParentBackground = False
   TabOrder = 0
-  object tbarConfig: TToolBar
-    AlignWithMargins = True
-    Left = 781
-    Top = 3
-    Width = 33
-    Height = 20
-    Align = alRight
-    AutoSize = True
-    ButtonHeight = 23
-    ButtonWidth = 25
-    Caption = 'tbarConfig'
-    EdgeInner = esNone
-    EdgeOuter = esNone
-    Images = SvgImgLstTopFrame
-    TabOrder = 0
-    object ToolButton5: TToolButton
-      Left = 0
-      Top = 0
-      Width = 8
-      Caption = 'ToolButton5'
-      ImageName = 'Search\view-refresh-symbolic'
-      Style = tbsSeparator
-    end
-    object tbConfigure: TToolButton
-      Left = 8
-      Top = 0
-      Action = ActionConfig
-      ParentShowHint = False
-      ShowHint = True
-    end
-  end
-  object tbarResult: TToolBar
-    AlignWithMargins = True
-    Left = 190
+  object pnlTop: TPanel
+    Left = 0
     Top = 0
-    Width = 457
-    Height = 23
-    Align = alNone
-    AutoSize = True
-    ButtonHeight = 23
-    ButtonWidth = 25
-    Caption = 'tbarResult'
-    EdgeInner = esNone
-    EdgeOuter = esNone
-    Images = SvgImgLstTopFrame
-    TabOrder = 1
-    object ToolButton7: TToolButton
-      Left = 0
-      Top = 0
-      Width = 8
-      Caption = 'ToolButton7'
-      ImageName = 'Search\view-refresh-symbolic'
-      Style = tbsSeparator
-    end
-    object tbExpandCollapse: TToolButton
-      Left = 8
-      Top = 0
-      Action = ActionExpandCollapse
-    end
-    object ToolButton2: TToolButton
-      Left = 33
-      Top = 0
-      Width = 8
-      Caption = 'ToolButton2'
-      ImageName = 'multimedia-equalizer-symbolic'
-      Style = tbsSeparator
-    end
-    object tbShowRelativePath: TToolButton
-      Left = 41
-      Top = 0
-      Action = ActionShowRelativePath
-    end
-    object tbAlternateRowColors: TToolButton
-      Left = 66
-      Top = 0
-      Action = ActionAlternateRowColors
-    end
-    object tbShowFileIcon: TToolButton
-      Left = 91
-      Top = 0
-      Action = ActionShowFileIcons
-    end
-    object tbIndentLines: TToolButton
-      Left = 116
-      Top = 0
-      Action = ActionIndentLine
-    end
-    object ToolButton4: TToolButton
-      Left = 141
-      Top = 0
-      Width = 8
-      Caption = 'ToolButton4'
-      ImageName = 'Search\view-refresh-symbolic'
-      Style = tbsSeparator
-    end
-    object edtFilter: TButtonedEdit
-      Left = 149
-      Top = 0
-      Width = 121
-      Height = 23
-      Hint = 'Filter Results'
-      TabStop = False
-      Images = SvgImgLstTopFrame
-      ParentShowHint = False
-      PopupMenu = PopupMenuFilterMode
-      RightButton.ImageIndex = 13
-      RightButton.ImageName = 'filter-outline'
-      RightButton.Visible = True
-      ShowHint = True
-      TabOrder = 0
-      TextHint = 'Filter...'
-      OnChange = edtFilterChange
-      OnKeyDown = edtFilterKeyDown
-      OnRightButtonClick = edtFilterRightButtonClick
-    end
-    object ToolButton9: TToolButton
-      Left = 270
-      Top = 0
-      Width = 8
-      Caption = 'ToolButton9'
-      ImageName = 'multimedia-equalizer-symbolic'
-      Style = tbsSeparator
-    end
-    object edtReplace: TButtonedEdit
-      Left = 278
-      Top = 0
-      Width = 121
-      Height = 23
-      Hint = 'Replace Matches (right-click to change)'
-      TabStop = False
-      Images = SvgImgLstTopFrame
-      ParentShowHint = False
-      PopupMenu = PopupMenuReplace
-      RightButton.ImageIndex = 14
-      RightButton.ImageName = 'file-replace-outline'
-      RightButton.Visible = True
-      ShowHint = True
-      TabOrder = 1
-      TextHint = 'Replace...'
-      OnChange = edtReplaceChange
-      OnKeyDown = edtReplaceKeyDown
-      OnRightButtonClick = edtReplaceRightButtonClick
-    end
-    object tbSaveReplacement: TToolButton
-      Left = 399
-      Top = 0
-      Action = ActionSaveReplacement
-    end
-    object ToolButton6: TToolButton
-      Left = 424
-      Top = 0
-      Width = 8
-      Caption = 'ToolButton6'
-      ImageName = 'multimedia-equalizer-symbolic'
-      Style = tbsSeparator
-    end
-    object tbOpenWith: TToolButton
-      Left = 432
-      Top = 0
-      Action = ActionOpenWith
-    end
-  end
-  object tbarSearch: TToolBar
-    AlignWithMargins = True
-    Left = 3
-    Top = 3
-    Width = 124
-    Height = 23
-    Align = alNone
-    AutoSize = True
-    ButtonHeight = 23
-    ButtonWidth = 25
-    Caption = 'tbarSearch'
-    EdgeInner = esNone
-    EdgeOuter = esNone
-    Images = SvgImgLstTopFrame
-    TabOrder = 2
-    object ToolButton8: TToolButton
-      Left = 0
-      Top = 0
-      Width = 8
-      Caption = 'ToolButton8'
-      ImageIndex = 25
-      Style = tbsSeparator
-    end
-    object tbShowSearchForm: TToolButton
-      Left = 8
-      Top = 0
-      Action = ActionShowSearchForm
-    end
-    object tbRefreshSearch: TToolButton
-      Left = 33
-      Top = 0
-      Action = ActionRefreshSearch
-    end
-    object ToolButton3: TToolButton
-      Left = 58
-      Top = 0
-      Width = 8
-      Caption = 'ToolButton3'
-      ImageName = 'edit-find-replace-symbolic'
-      Style = tbsSeparator
-    end
-    object tbAbortSearch: TToolButton
-      Left = 66
-      Top = 0
-      Action = ActionAbortSearch
-    end
-    object ToolButton1: TToolButton
-      Left = 91
-      Top = 0
-      Width = 8
-      Caption = 'ToolButton1'
-      ImageName = 'format-justify-right-symbolic'
-      Style = tbsSeparator
-    end
-    object tbCopyCmdLine: TToolButton
+    Width = 817
+    Height = 26
+    Align = alClient
+    BevelOuter = bvNone
+    Caption = 'pnlTop'
+    ParentBackground = False
+    TabOrder = 0
+    object tbarConfig: TToolBar
       AlignWithMargins = True
-      Left = 99
+      Left = 781
+      Top = 3
+      Width = 33
+      Height = 20
+      Align = alRight
+      AutoSize = True
+      ButtonHeight = 23
+      ButtonWidth = 25
+      Caption = 'tbarConfig'
+      EdgeInner = esNone
+      EdgeOuter = esNone
+      Images = SvgImgLstTopFrame
+      TabOrder = 0
+      object ToolButton5: TToolButton
+        Left = 0
+        Top = 0
+        Width = 8
+        Caption = 'ToolButton5'
+        ImageName = 'Search\view-refresh-symbolic'
+        Style = tbsSeparator
+      end
+      object tbConfigure: TToolButton
+        Left = 8
+        Top = 0
+        Action = ActionConfig
+        ParentShowHint = False
+        ShowHint = True
+      end
+    end
+    object tbarResult: TToolBar
+      AlignWithMargins = True
+      Left = 190
       Top = 0
-      Action = ActionCmdLineCopy
+      Width = 457
+      Height = 23
+      Align = alNone
+      AutoSize = True
+      ButtonHeight = 23
+      ButtonWidth = 25
+      Caption = 'tbarResult'
+      EdgeInner = esNone
+      EdgeOuter = esNone
+      Images = SvgImgLstTopFrame
+      TabOrder = 1
+      object ToolButton7: TToolButton
+        Left = 0
+        Top = 0
+        Width = 8
+        Caption = 'ToolButton7'
+        ImageName = 'Search\view-refresh-symbolic'
+        Style = tbsSeparator
+      end
+      object tbExpandCollapse: TToolButton
+        Left = 8
+        Top = 0
+        Action = ActionExpandCollapse
+      end
+      object ToolButton2: TToolButton
+        Left = 33
+        Top = 0
+        Width = 8
+        Caption = 'ToolButton2'
+        ImageName = 'multimedia-equalizer-symbolic'
+        Style = tbsSeparator
+      end
+      object tbShowRelativePath: TToolButton
+        Left = 41
+        Top = 0
+        Action = ActionShowRelativePath
+      end
+      object tbAlternateRowColors: TToolButton
+        Left = 66
+        Top = 0
+        Action = ActionAlternateRowColors
+      end
+      object tbShowFileIcon: TToolButton
+        Left = 91
+        Top = 0
+        Action = ActionShowFileIcons
+      end
+      object tbIndentLines: TToolButton
+        Left = 116
+        Top = 0
+        Action = ActionIndentLine
+      end
+      object ToolButton4: TToolButton
+        Left = 141
+        Top = 0
+        Width = 8
+        Caption = 'ToolButton4'
+        ImageName = 'Search\view-refresh-symbolic'
+        Style = tbsSeparator
+      end
+      object edtFilter: TButtonedEdit
+        Left = 149
+        Top = 0
+        Width = 121
+        Height = 23
+        Hint = 'Filter Results'
+        TabStop = False
+        Images = SvgImgLstTopFrame
+        ParentShowHint = False
+        PopupMenu = PopupMenuFilterMode
+        RightButton.ImageIndex = 13
+        RightButton.ImageName = 'filter-outline'
+        RightButton.Visible = True
+        ShowHint = True
+        TabOrder = 0
+        TextHint = 'Filter...'
+        OnChange = edtFilterChange
+        OnKeyDown = edtFilterKeyDown
+        OnRightButtonClick = edtFilterRightButtonClick
+      end
+      object ToolButton9: TToolButton
+        Left = 270
+        Top = 0
+        Width = 8
+        Caption = 'ToolButton9'
+        ImageName = 'multimedia-equalizer-symbolic'
+        Style = tbsSeparator
+      end
+      object edtReplace: TButtonedEdit
+        Left = 278
+        Top = 0
+        Width = 121
+        Height = 23
+        Hint = 'Replace Matches (right-click to change)'
+        TabStop = False
+        Images = SvgImgLstTopFrame
+        ParentShowHint = False
+        PopupMenu = PopupMenuReplace
+        RightButton.ImageIndex = 14
+        RightButton.ImageName = 'file-replace-outline'
+        RightButton.Visible = True
+        ShowHint = True
+        TabOrder = 1
+        TextHint = 'Replace...'
+        OnChange = edtReplaceChange
+        OnKeyDown = edtReplaceKeyDown
+        OnRightButtonClick = edtReplaceRightButtonClick
+      end
+      object tbSaveReplacement: TToolButton
+        Left = 399
+        Top = 0
+        Action = ActionSaveReplacement
+      end
+      object ToolButton6: TToolButton
+        Left = 424
+        Top = 0
+        Width = 8
+        Caption = 'ToolButton6'
+        ImageName = 'multimedia-equalizer-symbolic'
+        Style = tbsSeparator
+      end
+      object tbOpenWith: TToolButton
+        Left = 432
+        Top = 0
+        Action = ActionOpenWith
+      end
+    end
+    object tbarSearch: TToolBar
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 124
+      Height = 23
+      Align = alNone
+      AutoSize = True
+      ButtonHeight = 23
+      ButtonWidth = 25
+      Caption = 'tbarSearch'
+      EdgeInner = esNone
+      EdgeOuter = esNone
+      Images = SvgImgLstTopFrame
+      TabOrder = 2
+      object ToolButton8: TToolButton
+        Left = 0
+        Top = 0
+        Width = 8
+        Caption = 'ToolButton8'
+        ImageIndex = 25
+        Style = tbsSeparator
+      end
+      object tbShowSearchForm: TToolButton
+        Left = 8
+        Top = 0
+        Action = ActionShowSearchForm
+      end
+      object tbRefreshSearch: TToolButton
+        Left = 33
+        Top = 0
+        Action = ActionRefreshSearch
+      end
+      object ToolButton3: TToolButton
+        Left = 58
+        Top = 0
+        Width = 8
+        Caption = 'ToolButton3'
+        ImageName = 'edit-find-replace-symbolic'
+        Style = tbsSeparator
+      end
+      object tbAbortSearch: TToolButton
+        Left = 66
+        Top = 0
+        Action = ActionAbortSearch
+      end
+      object ToolButton1: TToolButton
+        Left = 91
+        Top = 0
+        Width = 8
+        Caption = 'ToolButton1'
+        ImageName = 'format-justify-right-symbolic'
+        Style = tbsSeparator
+      end
+      object tbCopyCmdLine: TToolButton
+        AlignWithMargins = True
+        Left = 99
+        Top = 0
+        Action = ActionCmdLineCopy
+      end
     end
   end
   object ActionList: TActionList
@@ -397,14 +409,14 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     end
   end
   object PopupMenuToolbar: TPopupMenu
-    Left = 731
+    Left = 721
     Top = 65534
     object AlignToolbar1: TMenuItem
       Action = ActionAlignToolbars
     end
   end
   object PopupMenuFilterMode: TPopupMenu
-    Left = 731
+    Left = 746
     Top = 65534
     object miSetFileFilterMode: TMenuItem
       Action = ActionSetFileFilterMode
@@ -425,7 +437,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     end
   end
   object PopupMenuReplace: TPopupMenu
-    Left = 681
+    Left = 696
     Top = 65534
     object mniCaseSensitive: TMenuItem
       Action = ActionReplaceCaseSensitive
@@ -635,6 +647,6 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     AntiAliasColor = clBtnShadow
     GrayScale = True
     Scaled = True
-    Left = 136
+    Left = 651
   end
 end

@@ -3,6 +3,10 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
   Top = 0
   Width = 788
   Height = 335
+  Margins.Left = 0
+  Margins.Top = 0
+  Margins.Right = 0
+  Margins.Bottom = 0
   TabOrder = 0
   OnResize = FrameResize
   object panelMain: TPanel
@@ -10,6 +14,10 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
     Top = 0
     Width = 788
     Height = 335
+    Margins.Left = 0
+    Margins.Top = 0
+    Margins.Right = 0
+    Margins.Bottom = 0
     Align = alClient
     BevelOuter = bvNone
     Caption = 'panelMain'
@@ -20,6 +28,10 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
       Top = 0
       Width = 794
       Height = 335
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Right = 0
+      Margins.Bottom = 0
       BevelEdges = [beLeft, beRight, beBottom]
       CompactWidth = 125
       OpenedWidth = 794
@@ -55,6 +67,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           Width = 191
           Height = 335
           Align = alClient
+          ParentBackground = False
           TabOrder = 0
           StyleElements = [seFont, seClient]
           inherited Panel1: TPanel

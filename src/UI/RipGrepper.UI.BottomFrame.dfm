@@ -22,6 +22,7 @@ object RipGrepperBottomFrame: TRipGrepperBottomFrame
     Align = alClient
     BevelOuter = bvNone
     ParentBackground = False
+    ParentColor = True
     TabOrder = 0
     DesignSize = (
       800

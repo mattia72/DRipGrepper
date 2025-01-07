@@ -84,7 +84,7 @@ procedure TColorSettingsForm.FormShow(Sender : TObject);
 
 begin
 	inherited;
-	// self.Height := FAllHeight + self.Height;
+	self.Height := FAllHeight + self.Height;
 end;
 
 procedure TColorSettingsForm.ReadSettings;

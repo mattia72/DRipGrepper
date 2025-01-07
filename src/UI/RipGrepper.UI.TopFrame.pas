@@ -92,12 +92,12 @@ type
 		ActionReplaceCaseSensitive : TAction;
 		ActionReplaceUseRegex : TAction;
 		SvgImgLstTopFrame : TSVGIconImageList;
+		pnlTop : TPanel;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlignToolbarsExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsUpdate;
-		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionCmdLineCopyExecute(Sender : TObject);
 		procedure ActionCmdLineCopyUpdate(Sender : TObject);
 		procedure ActionConfigExecute(Sender : TObject);
@@ -216,7 +216,9 @@ uses
 	{$IFNDEF STANDALONE}
 	RipGrepper.Common.IOTAUtils,
 	{$ENDIF}
-	RipGrepper.Settings.NodeLook.FilterSettings;
+	RipGrepper.Settings.NodeLook.FilterSettings,
+	RipGrepper.Helper.UI.DarkMode,
+	Winapi.UxTheme;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -264,12 +266,6 @@ begin
 	tbAlternateRowColors.Down := Settings.NodeLookSettings.AlternateRowColors;
 end;
 
-procedure TRipGrepperTopFrame.ActionCancelExecute(Sender : TObject);
-begin
-	// ModalResult := mrCancel;
-	// Close();
-end;
-
 procedure TRipGrepperTopFrame.ActionCmdLineCopyExecute(Sender : TObject);
 begin
 	ClipBoard.AsText := Settings.RipGrepParameters.GetCommandLine;
@@ -300,6 +296,13 @@ begin
 
 	owSettings.TestFile := default (TOpenWithParams);
 	owSettings.Reload();
+	{$IFDEF STANDALONE}
+	var styleName := TDarkModeHelper.GetActualThemaName();
+	TopFrame.StyleName := styleName;
+	TopFrame.pnlTop.StyleName := styleName;
+	MainFrame.StyleName := styleName;
+	TDarkModeHelper.RefreshThemes;
+	{$ENDIF}
 end;
 
 procedure TRipGrepperTopFrame.ActionCopyFileNameExecute(Sender : TObject);
@@ -894,7 +897,7 @@ begin
 		edtFilter.Hint := 'Text Filter';
 	end;
 
-    edtFilter.Hint := edtFilter.Hint + ' (right-click to change)';
+	edtFilter.Hint := edtFilter.Hint + ' (right-click to change)';
 end;
 
 procedure TRipGrepperTopFrame.UpdateReplaceMenu;

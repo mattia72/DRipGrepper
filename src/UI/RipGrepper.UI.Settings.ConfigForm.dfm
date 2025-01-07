@@ -12,6 +12,7 @@ object ConfigForm: TConfigForm
   Font.Name = 'Segoe UI'
   Font.Style = []
   Position = poOwnerFormCenter
+  ShowHint = True
   OnShow = FormShow
   TextHeight = 15
   object pnlBottom: TPanel

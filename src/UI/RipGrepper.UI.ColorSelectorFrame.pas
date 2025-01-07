@@ -19,6 +19,16 @@ uses
 	RipGrepper.Settings.FontColors;
 
 type
+	TStaticText = class(Vcl.StdCtrls.TStaticText)
+		private
+			FOriginalCaption : string;
+			FMySetCap : Boolean;
+
+		public
+			procedure WMNCPaint(var Message: TWMNCPaint); message WM_NCPAINT;
+			procedure CMTextChanged(var Message : TMessage); message CM_TEXTCHANGED;
+	end;
+
 	TColorSelectorFrame = class(TFrame)
 		cbBackground : TColorBox;
 		cbForeground : TColorBox;
@@ -39,8 +49,8 @@ type
 
 		private
 			FBSkipChangeEvent : Boolean;
-			FSelectedFontAttributes: TFontAttributes;
 			FSelectedFont : TFont;
+			FSelectedFontAttributes : TFontAttributes;
 			function GetSelectedFont : TFont;
 			function GetSelectedFontAttributes : TFontAttributes;
 			procedure SetFontStylesByCheckBox;
@@ -56,7 +66,7 @@ type
 			procedure AssignFontAttributes(const _fa : TFontAttributes);
 			procedure Refresh;
 			class procedure WriteColorSettings(var _fontColors : TFontColors; _parentForm : TForm);
-			property SelectedFontAttributes: TFontAttributes read FSelectedFontAttributes write FSelectedFontAttributes;
+			property SelectedFontAttributes : TFontAttributes read FSelectedFontAttributes write FSelectedFontAttributes;
 			property SelectedFont : TFont read GetSelectedFont write FSelectedFont;
 
 	end;
@@ -77,6 +87,7 @@ uses
 constructor TColorSelectorFrame.Create(AOwner : TComponent);
 begin
 	inherited Create(AOwner);
+	FSelectedFontAttributes.Style := [];
 end;
 
 destructor TColorSelectorFrame.Destroy;
@@ -98,7 +109,7 @@ var
 begin
 	allHeight := 0;
 	Context := TRttiContext.Create;
-   //	_parentForm.Autosize := False;
+	// _parentForm.Autosize := False;
 	try
 		TypeFontColors := Context.GetType(TypeInfo(TFontColors));
 		for prop in TypeFontColors.GetFields do begin
@@ -121,8 +132,8 @@ begin
 
 				Inc(allHeight, heightInc);
 
-//				_parentForm.Height := _parentForm.Height + heightInc;
-//				_parentCtrl.Height := _parentCtrl.Height + heightInc;
+				// _parentForm.Height := _parentForm.Height + heightInc;
+				// _parentCtrl.Height := _parentCtrl.Height + heightInc;
 			end;
 		end;
 		Result := allHeight;
@@ -188,13 +199,14 @@ function TColorSelectorFrame.GetSelectedFont : TFont;
 begin
 	if not Assigned(FSelectedFont) then begin
 		FSelectedFont := TFont.Create();
+		FSelectedFont.Style := [];
 	end;
 	Result := FSelectedFont;
 end;
 
 function TColorSelectorFrame.GetSelectedFontAttributes : TFontAttributes;
 begin
-	FSelectedFontAttributes.FromFont(SelectedFont);
+	FSelectedFontAttributes.FromFont(ExampleText.Font);
 	Result.FromString(FSelectedFontAttributes.ToString);
 end;
 
@@ -213,9 +225,9 @@ end;
 procedure TColorSelectorFrame.Refresh;
 begin
 	GetSelectedFont; // Create FSelectedFont if not exists
-	FSelectedFontAttributes.ToFont(FSelectedFont);
+	SelectedFontAttributes.ToFont(FSelectedFont);
 	ExampleText.Font.Assign(FSelectedFont);
-	if FSelectedFontAttributes.BgColor = clNone then begin
+	if SelectedFontAttributes.BgColor = clNone then begin
 		ExampleText.Color := Parent.Brush.Color;
 	end else begin
 		ExampleText.Color := FSelectedFontAttributes.BgColor;
@@ -291,6 +303,34 @@ begin
 		end;
 	end;
 	_fontColors := fc;
+end;
+
+procedure TStaticText.CMTextChanged(var Message : TMessage);
+begin
+	inherited;
+	if FMySetCap then
+		Exit;
+	FOriginalCaption := Caption;
+end;
+
+procedure TStaticText.WMNCPaint(var Message: TWMNCPaint);
+var
+	canv : TControlCanvas;
+begin
+	FMySetCap := True;
+	if not(csDesigning in ComponentState) then
+		Caption := '';
+	FMySetCap := False;
+	inherited;
+	canv := TControlCanvas.Create;
+	try
+		canv.Control := Self;
+		canv.Font := Font;
+		SetBkMode(canv.Handle, Ord(TRANSPARENT));
+		canv.TextOut(self.Margins.Left + 1, self.Margins.Top, FOriginalCaption);
+	finally
+		canv.Free;
+	end;
 end;
 
 end.

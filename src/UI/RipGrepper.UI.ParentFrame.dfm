@@ -8,14 +8,6 @@ object ParentFrame: TParentFrame
   Margins.Right = 8
   Margins.Bottom = 8
   Align = alClient
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -12
-  Font.Name = 'Segoe UI'
-  Font.Style = []
-  ParentFont = False
-  ParentShowHint = False
-  ShowHint = True
   TabOrder = 0
   inline TopFrame: TRipGrepperTopFrame
     Left = 0
@@ -24,6 +16,7 @@ object ParentFrame: TParentFrame
     Height = 31
     Align = alTop
     TabOrder = 2
+    StyleName = 'Windows'
     inherited tbarConfig: TToolBar
       Left = 815
       Height = 25
@@ -54,7 +47,19 @@ object ParentFrame: TParentFrame
             inherited Panel1: TPanel
               Height = 429
               inherited VstHistory: TVirtualStringTree
-                Height = 415
+                Height = 423
+                Columns = <
+                  item
+                    Position = 0
+                    Text = 'Search'
+                    Width = 181
+                  end
+                  item
+                    Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coSmartResize, coAllowFocus, coEditable, coStyleColor]
+                    Position = 1
+                    Text = 'Replace'
+                    Width = 519
+                  end>
                 DefaultText = ''
               end
             end
@@ -63,7 +68,7 @@ object ParentFrame: TParentFrame
         inherited PanelResult: TPanel
           Height = 429
           inherited VstResult: TVirtualStringTree
-            Height = 415
+            Height = 423
           end
         end
       end

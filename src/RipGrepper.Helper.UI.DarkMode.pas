@@ -15,35 +15,41 @@ type
 	EThemeMode = (tmLight, tmDark);
 
 	TDarkModeHelper = class
-		const DARK_THEME_NAME = 'Carbon';
-		const LIGHT_THEME_NAME = 'Windows10';
+		const
+			DARK_THEME_NAME = 'Carbon';
 
+		const
+			LIGHT_THEME_NAME = 'Windows10';
+
+		private
 		public
-		// Checks the Windows registry to see if Windows Dark Mode is enabled
-		class function DarkModeIsEnabled: boolean;
+			// Checks the Windows registry to see if Windows Dark Mode is enabled
+			class function DarkModeIsEnabled : boolean;
+			class function GetActualThemaName : string;
+			class procedure RefreshThemes;
 
-		// Automatically sets a Dark Mode theme is Windows is running in Dark Mode
-		// To use:
-		// 1. Got to project properties
-		// 2. Select appearance and choose two or more themes.  Note down the names!
-		// 3. In your FormCreate (or wherever) put the following line:
-		// SetAppropriateThemeMode(**name_of_the_dark_theme**, **namme_of_the_non_dark_theme**);
-		//
-		// For example:
-		// SetAppropriateThemeMode('Carbon', 'Windows10');
-		//
-		class procedure SetAppropriateThemeMode(const DarkModeThemeName, LightModeThemeName : string);
+			// Automatically sets a Dark Mode theme is Windows is running in Dark Mode
+			// To use:
+			// 1. Got to project properties
+			// 2. Select appearance and choose two or more themes.  Note down the names!
+			// 3. In your FormCreate (or wherever) put the following line:
+			// SetAppropriateThemeMode(**name_of_the_dark_theme**, **namme_of_the_non_dark_theme**);
+			//
+			// For example:
+			// SetAppropriateThemeMode('Carbon', 'Windows10');
+			//
+			class procedure SetAppropriateThemeMode(const DarkModeThemeName, LightModeThemeName : string);
 
-		// Sets either a Dark Mode or non Dark mode theme based in the "AsDarkMode" boolean
-		// For example:
-		// SetSpecificThemeMode(False, 'TheDarkModeThemeName', 'TheLightModeThemeName');
-		// Would change the application theme to the theme with the name 'TheLightModeThemeName'
-		// if it exists.
-		//
-		class procedure SetSpecificThemeMode(const AsDarkMode : Boolean; const DarkModeThemeName, LightModeThemeName : string);
+			// Sets either a Dark Mode or non Dark mode theme based in the "AsDarkMode" boolean
+			// For example:
+			// SetSpecificThemeMode(False, 'TheDarkModeThemeName', 'TheLightModeThemeName');
+			// Would change the application theme to the theme with the name 'TheLightModeThemeName'
+			// if it exists.
+			//
+			class procedure SetSpecificThemeMode(const AsDarkMode : Boolean; const DarkModeThemeName, LightModeThemeName : string);
 
-		class function GetActualThemeMode: EThemeMode;
-		class procedure SetThemeMode(const _mode: EThemeMode);
+			class function GetActualThemeMode : EThemeMode;
+			class procedure SetThemeMode(const _mode : EThemeMode);
 	end;
 
 implementation
@@ -53,7 +59,13 @@ uses
 	Winapi.Windows, // for the pre-defined registry key constants
 	System.Win.Registry, // for the registry read access
 	{$ENDIF}
-	VCL.themes, System.Classes, System.StrUtils; // Used for access to TStyleManager
+	Vcl.Forms,
+	Vcl.Controls,
+	VCL.themes, // Used for access to TStyleManager
+	System.Classes,
+	Winapi.UxTheme,
+	Winapi.Messages,
+	System.StrUtils;
 
 class procedure TDarkModeHelper.SetAppropriateThemeMode(const DarkModeThemeName, LightModeThemeName : string);
 begin
@@ -64,14 +76,11 @@ class procedure TDarkModeHelper.SetSpecificThemeMode(const AsDarkMode : Boolean;
 var
 	ChosenTheme : string;
 begin
-	if AsDarkMode then
-		ChosenTheme := DarkModeThemeName
-	else
-		ChosenTheme := LightModeThemeName;
+	ChosenTheme := IfThen(AsDarkMode, DarkModeThemeName, LightModeThemeName);
 	TStyleManager.TrySetStyle(ChosenTheme, False);
 end;
 
-class function TDarkModeHelper.DarkModeIsEnabled: boolean;
+class function TDarkModeHelper.DarkModeIsEnabled : boolean;
 {$IFDEF MSWINDOWS}
 const
 	TheKey = 'Software\Microsoft\Windows\CurrentVersion\Themes\Personalize\';
@@ -106,15 +115,30 @@ begin
 	{$ENDIF}
 end;
 
-class function TDarkModeHelper.GetActualThemeMode: EThemeMode;
+class function TDarkModeHelper.GetActualThemaName : string;
+begin
+	Result := '';
+	if Assigned(TStyleManager.ActiveStyle) then begin
+		Result := TStyleManager.ActiveStyle.Name;
+	end;
+end;
+
+class procedure TDarkModeHelper.RefreshThemes;
+begin
+	SetThemeAppProperties(STAP_ALLOW_NONCLIENT or STAP_ALLOW_CONTROLS or STAP_ALLOW_WEBCONTENT);
+	SendMessage(Application.Handle, WM_THEMECHANGED, 0, 0);
+	SendMessage(Application.MainForm.Handle, CM_RECREATEWND, 0, 0);
+end;
+
+class function TDarkModeHelper.GetActualThemeMode : EThemeMode;
 begin
 	Result := tmLight;
-	if TStyleManager.ActiveStyle.Name = DARK_THEME_NAME then begin
+	if (GetActualThemaName = DARK_THEME_NAME) then begin
 		Result := tmDark;
 	end;
 end;
 
-class procedure TDarkModeHelper.SetThemeMode(const _mode: EThemeMode);
+class procedure TDarkModeHelper.SetThemeMode(const _mode : EThemeMode);
 begin
 	SetSpecificThemeMode(_mode = tmDark, DARK_THEME_NAME, LIGHT_THEME_NAME);
 end;
