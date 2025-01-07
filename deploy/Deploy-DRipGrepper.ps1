@@ -271,7 +271,7 @@ function New-ReleaseWithAsset {
     }
   
     if ($BuildExtension) {
-        Build-ExtensionRelease
+        # Build-ExtensionRelease
         Build-ExpertDllRelease
     }
 
@@ -279,7 +279,7 @@ function New-ReleaseWithAsset {
         # Remove items recursively from the AssetsDirectory
         Remove-Item -Path "$global:AssetsDirectory\*" -Recurse -Force -Confirm:$(-not $Force) -ErrorAction SilentlyContinue
         New-StandaloneZips 
-        New-ExtensionZip 
+        # New-ExtensionZip 
         New-ExpertDllZip 
         Get-Childitem $global:AssetsDirectory
     }
