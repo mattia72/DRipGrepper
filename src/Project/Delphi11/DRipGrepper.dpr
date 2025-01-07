@@ -93,7 +93,10 @@ uses
   RipGrepper.UI.Settings.ConfigForm in '..\..\UI\RipGrepper.UI.Settings.ConfigForm.pas' {ConfigForm},
   RipGrepper.UI.Settings.AppSettingsForm in '..\..\UI\RipGrepper.UI.Settings.AppSettingsForm.pas' {AppSettingsForm},
   RipGrepper.UI.Settings.ExtensionSettingsForm in '..\..\UI\RipGrepper.UI.Settings.ExtensionSettingsForm.pas',
-  RipGrepper.Tools.DelphiVersions in '..\..\Tools\RipGrepper.Tools.DelphiVersions.pas';
+  RipGrepper.Tools.DelphiVersions in '..\..\Tools\RipGrepper.Tools.DelphiVersions.pas',
+  Vcl.Themes,
+  Vcl.Styles,
+  RipGrepper.Helper.UI.DarkMode in '..\..\RipGrepper.Helper.UI.DarkMode.pas';
 
 {$R *.res}
 
@@ -109,10 +112,11 @@ begin
 
 		Application.Initialize;
 		Application.MainFormOnTaskbar := True;
-		Application.CreateForm(TRipGrepperForm, RipGrepperForm);
-    Application.CreateForm(TAppSettingsForm, AppSettingsForm);
-    Application.CreateForm(TExtensionSettingsForm, ExtensionSettingsForm);
-    Application.Run;
+		TStyleManager.TrySetStyle('Windows10');
+  Application.CreateForm(TRipGrepperForm, RipGrepperForm);
+  Application.CreateForm(TAppSettingsForm, AppSettingsForm);
+  Application.CreateForm(TExtensionSettingsForm, ExtensionSettingsForm);
+  Application.Run;
 	finally
 		Gsettings.Free;
 	end;

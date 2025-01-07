@@ -58,6 +58,7 @@ type
 		chInfo : TCheckBox;
 		chRegex : TCheckBox;
 		edtRegex : TEdit;
+		rgTheme : TRadioGroup;
 		procedure btnedtIniFilePathLeftButtonClick(Sender : TObject);
 		procedure btnedtIniFilePathRightButtonClick(Sender : TObject);
 		procedure btnedtRgExePathEnter(Sender : TObject);
@@ -66,6 +67,7 @@ type
 		procedure btnedtRgExePathRightButtonClick(Sender : TObject);
 		procedure chRegexClick(Sender : TObject);
 		procedure FormShow(Sender : TObject);
+		procedure rgThemeClick(Sender : TObject);
 
 		private
 
@@ -98,7 +100,8 @@ uses
 	System.IOUtils,
 	RipGrepper.Tools.ProcessUtils,
 	RipGrepper.OpenWith.Params,
-	RipGrepper.OpenWith;
+	RipGrepper.OpenWith,
+	RipGrepper.Helper.UI.DarkMode;
 
 {$R *.dfm}
 
@@ -167,6 +170,7 @@ end;
 procedure TAppSettingsForm.FormShow(Sender : TObject);
 begin
 	ReadSettings;
+	rgTheme.ItemIndex := Integer(TDarkModeHelper.GetActualThemeMode);
 end;
 
 function TAppSettingsForm.GetRgVersion(const _rgPath : string) : string;
@@ -239,6 +243,11 @@ begin
 	btnedtIniFilePath.Text := FAppSettings.IniFile.FileName;
 	btnedtRgExePath.Text := FRipGrepSettings.RipGrepPath;
 	Memo1.Text := GetRgVersion(FRipGrepSettings.RipGrepPath);
+end;
+
+procedure TAppSettingsForm.rgThemeClick(Sender : TObject);
+begin
+	TDarkModeHelper.SetThemeMode(EThemeMode(rgTheme.ItemIndex));
 end;
 
 procedure TAppSettingsForm.ValidateInput(var M : TMessage);

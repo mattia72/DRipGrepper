@@ -2,7 +2,7 @@ object AppSettingsForm: TAppSettingsForm
   Left = 0
   Top = 0
   Caption = 'AppSettingsForm'
-  ClientHeight = 394
+  ClientHeight = 434
   ClientWidth = 521
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,13 +16,13 @@ object AppSettingsForm: TAppSettingsForm
     Left = 0
     Top = 0
     Width = 521
-    Height = 394
+    Height = 434
     Align = alClient
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 0
     DesignSize = (
       521
-      394)
+      434)
     object lblRgExePath: TLabel
       Left = 16
       Top = 9
@@ -42,16 +42,16 @@ object AppSettingsForm: TAppSettingsForm
       Left = 16
       Top = 143
       Width = 494
-      Height = 186
+      Height = 253
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Developer'
       TabOrder = 0
       DesignSize = (
         494
-        186)
+        253)
       object Label1: TLabel
         Left = 16
-        Top = 126
+        Top = 186
         Width = 62
         Height = 15
         Caption = 'Ini file path:'
@@ -66,7 +66,7 @@ object AppSettingsForm: TAppSettingsForm
       end
       object btnedtIniFilePath: TButtonedEdit
         Left = 16
-        Top = 147
+        Top = 207
         Width = 469
         Height = 23
         Anchors = [akLeft, akTop, akRight]
@@ -89,7 +89,7 @@ object AppSettingsForm: TAppSettingsForm
       end
       object gbTrace: TGroupBox
         Left = 16
-        Top = 52
+        Top = 112
         Width = 465
         Height = 68
         Caption = 'Debug Trace Filters'
@@ -151,6 +151,18 @@ object AppSettingsForm: TAppSettingsForm
           TabOrder = 6
           TextHint = 'Regex'
         end
+      end
+      object rgTheme: TRadioGroup
+        Left = 16
+        Top = 52
+        Width = 465
+        Height = 54
+        Caption = 'Theme'
+        Items.Strings = (
+          'Light'
+          'Dark')
+        TabOrder = 3
+        OnClick = rgThemeClick
       end
     end
     object btnedtRgExePath: TButtonedEdit
