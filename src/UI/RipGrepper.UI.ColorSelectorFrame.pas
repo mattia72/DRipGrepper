@@ -19,14 +19,28 @@ uses
 	RipGrepper.Settings.FontColors;
 
 type
-	TStaticText = class(Vcl.StdCtrls.TStaticText)
+	TControlCanvasHelper = class
 		private
-			FOriginalCaption : string;
-			FMySetCap : Boolean;
+			FCtrlCanvas : TControlCanvas;
+			function GetCanvas(AControl : TControl) : TCanvas;
+			procedure SetCanvas(const Value : TControlCanvas);
 
 		public
-			procedure WMNCPaint(var Message: TWMNCPaint); message WM_NCPAINT;
-			procedure CMTextChanged(var Message : TMessage); message CM_TEXTCHANGED;
+			constructor Create;
+			destructor Destroy; override;
+			property Canvas : TControlCanvas read FCtrlCanvas write SetCanvas;
+	end;
+
+	TStaticText = class(Vcl.StdCtrls.TStaticText)
+		strict private
+		private
+			FCtrlCanvas : TControlCanvas;
+			function GetCtrlCanvas : TControlCanvas;
+			property CtrlCanvas : TControlCanvas read GetCtrlCanvas;
+
+		public
+			destructor Destroy; override;
+			procedure WMNCPaint(var Message : TWMNCPaint); message WM_NCPAINT;
 	end;
 
 	TColorSelectorFrame = class(TFrame)
@@ -51,6 +65,8 @@ type
 			FBSkipChangeEvent : Boolean;
 			FSelectedFont : TFont;
 			FSelectedFontAttributes : TFontAttributes;
+			procedure Adjust(_chResize, _chMove : TCheckBox);
+			procedure AdjustCheckBoxWidthToText(CheckBox : TCheckBox);
 			function GetSelectedFont : TFont;
 			function GetSelectedFontAttributes : TFontAttributes;
 			procedure SetFontStylesByCheckBox;
@@ -68,7 +84,6 @@ type
 			class procedure WriteColorSettings(var _fontColors : TFontColors; _parentForm : TForm);
 			property SelectedFontAttributes : TFontAttributes read FSelectedFontAttributes write FSelectedFontAttributes;
 			property SelectedFont : TFont read GetSelectedFont write FSelectedFont;
-
 	end;
 
 implementation
@@ -141,6 +156,12 @@ begin
 		Context.Free;
 		_parentForm.Autosize := True;
 	end;
+end;
+
+procedure TColorSelectorFrame.Adjust(_chResize, _chMove : TCheckBox);
+begin
+	AdjustCheckBoxWidthToText(_chResize);
+	_chMove.Left := _chResize.Left + _chResize.Width + _chResize.Margins.Left;
 end;
 
 procedure TColorSelectorFrame.AssignFontAttributes(const _fa : TFontAttributes);
@@ -220,6 +241,28 @@ begin
 	ExampleText.Top := cbForeground.Top + Trunc(cbForeground.Height / 2) - Trunc(ExampleText.Height / 2);
 	cbBackground.AutoDropDownWidth := True;
 	cbForeground.AutoDropDownWidth := True;
+
+	Adjust(cbBold, cbItalic);
+	Adjust(cbItalic, cbUnderline);
+	Adjust(cbUnderline, cbStrikeOut);
+	AdjustCheckBoxWidthToText(cbStrikeOut);
+end;
+
+procedure TColorSelectorFrame.AdjustCheckBoxWidthToText(CheckBox : TCheckBox);
+var
+	TextWidth : Integer;
+begin
+	var
+	ccch := TControlCanvasHelper.Create();
+	try
+		var
+		canvas := ccch.GetCanvas(CheckBox);
+		canvas.Font := CheckBox.Font;
+		TextWidth := Canvas.TextWidth(CheckBox.Caption);
+		CheckBox.Width := TextWidth + 20;
+	finally
+		ccch.Free;
+	end;
 end;
 
 procedure TColorSelectorFrame.Refresh;
@@ -305,32 +348,55 @@ begin
 	_fontColors := fc;
 end;
 
-procedure TStaticText.CMTextChanged(var Message : TMessage);
+destructor TStaticText.Destroy;
 begin
+	FCtrlCanvas.Free;
 	inherited;
-	if FMySetCap then
-		Exit;
-	FOriginalCaption := Caption;
 end;
 
-procedure TStaticText.WMNCPaint(var Message: TWMNCPaint);
-var
-	canv : TControlCanvas;
+function TStaticText.GetCtrlCanvas : TControlCanvas;
 begin
-	FMySetCap := True;
-	if not(csDesigning in ComponentState) then
-		Caption := '';
-	FMySetCap := False;
-	inherited;
-	canv := TControlCanvas.Create;
-	try
-		canv.Control := Self;
-		canv.Font := Font;
-		SetBkMode(canv.Handle, Ord(TRANSPARENT));
-		canv.TextOut(self.Margins.Left + 1, self.Margins.Top, FOriginalCaption);
-	finally
-		canv.Free;
+	if not Assigned(FCtrlCanvas) then begin
+		FCtrlCanvas := TControlCanvas.Create;
+		FCtrlCanvas.Control := self;
 	end;
+	Result := FCtrlCanvas;
+end;
+
+procedure TStaticText.WMNCPaint(var Message : TWMNCPaint);
+begin
+	inherited;
+	var
+	frame := Parent as TColorSelectorFrame;
+	CtrlCanvas.Font := frame.SelectedFont;
+	CtrlCanvas.Font.Color := frame.SelectedFontAttributes.Color;
+	CtrlCanvas.Brush.Color := frame.SelectedFontAttributes.BgColor;
+	SetBkMode(CtrlCanvas.Handle, Ord(OPAQUE)); // TRANSPARENT or OPAQUE
+	CtrlCanvas.FillRect(Rect(0, 0, Width, Height));
+	CtrlCanvas.TextOut(0, 0, Caption);
+end;
+
+constructor TControlCanvasHelper.Create;
+begin
+	inherited Create();
+	FCtrlCanvas := TControlCanvas.Create;
+end;
+
+destructor TControlCanvasHelper.Destroy;
+begin
+	FCtrlCanvas.Free;
+	inherited;
+end;
+
+function TControlCanvasHelper.GetCanvas(AControl : TControl) : TCanvas;
+begin
+	FCtrlCanvas.Control := AControl;
+	Result := FCtrlCanvas;
+end;
+
+procedure TControlCanvasHelper.SetCanvas(const Value : TControlCanvas);
+begin
+	FCtrlCanvas := Value;
 end;
 
 end.

@@ -1,8 +1,8 @@
 object ColorSelectorFrame: TColorSelectorFrame
   Left = 0
   Top = 0
-  Width = 434
-  Height = 24
+  Width = 524
+  Height = 25
   TabOrder = 0
   object LabelText: TLabel
     Left = 119
@@ -58,7 +58,7 @@ object ColorSelectorFrame: TColorSelectorFrame
     ParentFont = False
     TabOrder = 6
     Transparent = False
-    StyleElements = [seClient, seBorder]
+    StyleElements = []
     OnDblClick = ExampleTextDblClick
   end
   object cbBold: TCheckBox
@@ -118,7 +118,7 @@ object ColorSelectorFrame: TColorSelectorFrame
   object cbStrikeOut: TCheckBox
     Left = 405
     Top = 3
-    Width = 23
+    Width = 41
     Height = 17
     Hint = 'Strikeout'
     Caption = 'S'
