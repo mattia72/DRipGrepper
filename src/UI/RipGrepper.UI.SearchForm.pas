@@ -348,8 +348,10 @@ procedure TRipGrepperSearchDialogForm.ActionSetAsDefaultExecute(Sender : TObject
 begin
 	WriteCtrlsToSettings(True);
 	FHistItemGuiSearchParams.StoreAsDefaultsToDict();
-	FSettings.RipGrepParameters.Copy(FHistItemGuiSearchParams);
-	FSettings.CopyValuesToDefaults();
+	FSettings.RipGrepParameters.GuiSearchTextParams.Copy(FHistItemGuiSearchParams);
+	FSettings.RipGrepParameters.StoreToDict();
+	// FSettings.CopyValuesToDefaults();
+	FSettings.RipGrepParameters.StoreAsDefaultsToDict();
 	FSettings.StoreAsDefaultsToDict();
 	FSettings.UpdateIniFile;
 end;

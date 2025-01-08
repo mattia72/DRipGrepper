@@ -40,7 +40,7 @@ type
 			FIniSectionName : string;
 			FIsAlreadyRead : Boolean;
 			FOwner : TPersistableSettings;
-			FOwnIniFile: Boolean;
+			FOwnIniFile : Boolean;
 			procedure CreateIniFile;
 			class var FLockObject : TObject;
 			procedure FreeOwnIniFile;
@@ -78,7 +78,7 @@ type
 			property IniSectionName : string read GetIniSectionName write SetIniSectionName;
 			property IsAlreadyRead : Boolean read GetIsAlreadyRead;
 			property IsModified : Boolean read GetIsModified;
-			property OwnIniFile: Boolean read FOwnIniFile write FOwnIniFile;
+			property OwnIniFile : Boolean read FOwnIniFile write FOwnIniFile;
 			property SettingsDict : TSettingsDictionary read FSettingsDict write FSettingsDict;
 			destructor Destroy; override;
 			function AddChildSettings(_settings : TPersistableSettings) : TPersistableSettings;
@@ -515,7 +515,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
 
 	for var s in FChildren do begin
-		dbgMsg.MsgFmt('Child update begin on section: %s', [GetIniSectionName()]);
+		dbgMsg.MsgFmt('Child update begin on section: %s', [s.GetIniSectionName()]);
 		s.UpdateIniFile;
 	end;
 
@@ -575,12 +575,16 @@ begin
 	dbgMsg.MsgFmt('Lock Entered - Write [%s] %s', [_sIniSection, _sKey]);
 	try
 		case _setting.ValueType of
-			varString, varUString :
-			IniFile.WriteString(_sIniSection, _sKey, _setting.Value);
-			varBoolean :
-			IniFile.WriteBool(_sIniSection, _sKey, _setting.Value);
-			varInteger :
-			IniFile.WriteInteger(_sIniSection, _sKey, _setting.Value);
+			varString, varUString : begin
+//				dbgMsg.Msg('Type string');
+				IniFile.WriteString(_sIniSection, _sKey, _setting.Value);
+			end;
+			varBoolean : begin
+				IniFile.WriteBool(_sIniSection, _sKey, _setting.Value);
+			end;
+			varInteger : begin
+				IniFile.WriteInteger(_sIniSection, _sKey, _setting.Value);
+			end;
 			varArray : begin
 				var
 				i := VarArrayLowBound(_setting.Value, 1);
@@ -600,7 +604,7 @@ begin
 		on E : Exception do
 			dbgMsg.ErrorMsgFmt('%s', [E.Message]);
 	end;
-	dbgMsg.Msg(IniFile.FileName + '[' + _sIniSection + '] ' + _sKey + '=' + VarToStr(_setting.Value) + ' stored');
+	dbgMsg.MsgFmt('[%s].%s=%s in %s', [_sIniSection, _sKey, VarToStr(_setting.Value), IniFile.FileName ]);
 end;
 
 end.
