@@ -98,7 +98,7 @@ end;
 
 procedure TRipGrepSettingsTest.AfterCopyValuesValuesShouldBeEqual;
 var
-	s1, s2: string;
+	s1, s2 : string;
 begin
 	SetDefaultsAndCurrentValues;
 	FSettings.LoadDefaultsFromDict;
@@ -106,8 +106,8 @@ begin
 	s := TRipGrepParameterSettings.Create(nil);
 	try
 		s.Copy(FSettings);
-
-		s.LoadFromDict;
+//		s.Copy(Fsettings);
+		// s.LoadFromDict;
 		s1 := FSettings.GuiSearchTextParams.GetAsString();
 		s2 := s.GuiSearchTextParams.GetAsString();
 		Assert.AreEqual(s1, s2, 'GuiSearchTextParams should be equal');
@@ -122,7 +122,7 @@ begin
 		s1 := FSettings.GuiSearchTextParams.GetAsString();
 		s2 := s.GuiSearchTextParams.GetAsString();
 
-		Assert.AreEqual(s1, s2, 'GuiSearchTextParams should be true');
+		Assert.AreEqual(s1, s2, 'GuiSearchTextParams should be equal');
 	finally
 		s.Free;
 	end;

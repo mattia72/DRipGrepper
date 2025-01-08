@@ -330,7 +330,7 @@ begin
 	FIsRgExeOptionSet := _other.IsRgExeOptionSet;
 	FExpertOptions := _other.ExpertOptions;
 
-	// inherited Copy(_other as TPersistableSettings);
+	inherited Copy(_other as TPersistableSettings);
 end;
 
 procedure TGuiSearchTextParams.CopyDefaultsToValues;

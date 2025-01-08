@@ -99,7 +99,7 @@ begin
 	var
 	gstp := (_other as TRipGrepParameterSettings).GuiSearchTextParams;
 	FGuiSearchTextParams.Copy(gstp);
-    StoreToDict;
+	StoreToDict;
 	inherited Copy(_other);
 end;
 
