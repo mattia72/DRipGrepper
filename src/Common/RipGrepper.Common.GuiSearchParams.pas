@@ -62,6 +62,7 @@ type
 			function GetAsString(const _bGuiOptionsOnly : Boolean = False) : string;
 			procedure LoadDefaultsFromDict; override;
 			procedure LoadFromDict(); override;
+			procedure StoreToDict; override;
 			function ToLogString : string; override;
 			class procedure ValidateOptions(listOptions : TStringList); static;
 
@@ -400,6 +401,12 @@ begin
 		end;
 	end;
 	{$ENDIF}
+end;
+
+procedure TGuiSearchTextParams.StoreToDict;
+begin
+    SettingsDict.StoreSetting('SearchParams', GetAsString(True));
+	inherited StoreToDict();
 end;
 
 function TGuiSearchTextParams.ToLogString : string;

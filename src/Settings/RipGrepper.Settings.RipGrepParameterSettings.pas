@@ -45,6 +45,7 @@ type
 		public
 			constructor Create(const _Owner : TPersistableSettings);
 			destructor Destroy; override;
+			procedure Copy(const _other : TPersistableSettings); override;
 			procedure CopyDefaultsToValues; override;
 			function GetCommandLine : string;
 			function TryFindRipGrepExePath : string;
@@ -93,6 +94,15 @@ begin
 	inherited Destroy() // ok;
 end;
 
+procedure TRipGrepParameterSettings.Copy(const _other : TPersistableSettings);
+begin
+	var
+	gstp := (_other as TRipGrepParameterSettings).GuiSearchTextParams;
+	FGuiSearchTextParams.Copy(gstp);
+    StoreToDict;
+	inherited Copy(_other);
+end;
+
 procedure TRipGrepParameterSettings.CopyDefaultsToValues;
 begin
 	FGuiSearchTextParams.CopyDefaultsToValues;
@@ -135,7 +145,7 @@ begin
 	SettingsDict.CreateSetting(RG_INI_KEY_RGPATH, varString, '');
 	SettingsDict.CreateDefaultRelevantSetting('SearchPath', varString, '');
 	SettingsDict.CreateDefaultRelevantSetting('FileMasks', varString, '');
-    //inherited Init(); abstract
+	// inherited Init(); abstract
 end;
 
 procedure TRipGrepParameterSettings.ReadIni;
@@ -260,7 +270,6 @@ begin
 	SettingsDict.StoreSetting(RG_INI_KEY_RGPATH, RipGrepPath);
 	SettingsDict.StoreSetting('SearchPath', FSearchPath);
 	SettingsDict.StoreSetting('FileMasks', FFileMasks);
-	GuiSearchTextParams.StoreToDict;
 	inherited StoreToDict; // Write to mem ini, after UpdateIniFile will be saved
 end;
 
