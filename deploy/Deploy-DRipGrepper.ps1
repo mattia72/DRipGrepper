@@ -6,6 +6,7 @@ param (
     [switch] $RunUnittest,
     [switch] $Deploy,
     [switch] $LocalDeploy,
+    [switch] $DeployToTransferDrive,
     [switch] $Force,
     [switch] $UpdateScoopManifest
 )
@@ -15,7 +16,7 @@ param (
 # - Update file and product version in every projects for ALL CONFIGURATION!
 # - Commit and push all changes
 # - Run this script Ctrl+Shift+T Deploy
-
+$global:TransferDrive = Get-Content "$PSScriptRoot\TransferDrive.txt"
 $global:Description = Get-Content "$PSScriptRoot\Deploy-Description.md"
 $global:Version = ($global:Description | Select-String '^Version:') -replace 'Version:\s*'
 $global:PrevVersion = ($global:Description | Select-String '^PrevVersion:') -replace 'PrevVersion:\s*'
@@ -275,13 +276,19 @@ function New-ReleaseWithAsset {
         Build-ExpertDllRelease
     }
 
-    if ($Deploy -or $LocalDeploy) {
+    if ($Deploy -or $LocalDeploy -or $DeployToTransferDrive) {
         # Remove items recursively from the AssetsDirectory
         Remove-Item -Path "$global:AssetsDirectory\*" -Recurse -Force -Confirm:$(-not $Force) -ErrorAction SilentlyContinue
         New-StandaloneZips 
         # New-ExtensionZip 
         New-ExpertDllZip 
         Get-Childitem $global:AssetsDirectory
+
+        if ($Deploy -or $DeployToTransferDrive) {
+            Copy-Item -Path $global:AssetsDirectory\Win64\* -Destination $global:TransferDrive\Latest -Verbose
+            Copy-Item -Path $global:AssetsDirectory\Delphi11.Dll\* -Destination $global:TransferDrive\Latest -Verbose
+            Copy-Item -Path $global:AssetsDirectory\* -Destination $global:TransferDrive -Verbose
+        }
     }
 
     if ($Deploy) {
