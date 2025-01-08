@@ -184,6 +184,7 @@ type
 			procedure UpdateFileMasksInFileMasks;
 			procedure UpdateFileMasksInOptions; overload;
 			procedure UpdateHeight;
+			procedure UpdateRbExtensionItemIndex(const _idx : Integer);
 			procedure WriteOptionCtrlToRipGrepParametersSetting;
 			procedure WriteSearchFormSettingsToCtrls();
 
@@ -701,11 +702,14 @@ begin
 		WriteOptionCtrlToRipGrepParametersSetting;
 	end;
 
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.WriteCtrlsToRipGrepParametersSettings: end ' + FHistItemGuiSearchParams.ToString);
+	dbgMsg.Msg('FHistItemGuiSearchParams = ' + FHistItemGuiSearchParams.ToString);
 end;
 
 procedure TRipGrepperSearchDialogForm.WriteCtrlsToSettings(const _bDefaultOnly : Boolean = False);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.WriteCtrlsToSettings');
+
 	StoreHistoriesAsCmbEntries();
 
 	FSettings.SearchPathsHistory := cmbSearchDir.Items;
@@ -714,7 +718,7 @@ begin
 	FSettings.ExpertOptionHistory := cmbOptions.Items;
 	FSettings.FileMasksHistory := cmbFileMasks.Items;
 
-	WriteCtrlsToRipGrepParametersSettings;
+	WriteCtrlsToRipGrepParametersSettings();
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.WriteCtrlsToSettings: set GuiSearchTextParams=' +
 		FHistItemGuiSearchParams.ToString);
 	FSettings.RipGrepParameters.GuiSearchTextParams.Copy(FHistItemGuiSearchParams);
@@ -924,6 +928,9 @@ end;
 
 procedure TRipGrepperSearchDialogForm.rbExtensionOptionsClick(Sender : TObject);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.rbExtensionOptionsClick');
+
 	{$IFDEF STANDALONE}
 	var
 	bStandalone := True;
@@ -931,6 +938,7 @@ begin
 	var
 	bStandalone := False;
 	{$ENDIF}
+	dbgMsg.MsgFmt('FbExtensionOptionsSkipClick %s', [BoolToStr(FbExtensionOptionsSkipClick, True)]);
 	if bStandalone or FbExtensionOptionsSkipClick then begin
 		Exit;
 	end;
@@ -977,8 +985,7 @@ begin
 	var
 	cic := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
 	dbgMsg.Msg('IDEContext=' + cic.ToLogString);
-	rbExtensionOptions.ItemIndex := Integer(cic.IDEContext);
-	UpdateCmbsOnIDEContextChange();
+	UpdateRbExtensionItemIndex(Integer(cic.IDEContext));
 	dbgMsg.Msg('cmbSearchDir=' + cmbSearchDir.Text);
 	{$ENDIF}
 	cmbFileMasks.Text := IfThen(FSettings.RipGrepParameters.FileMasks.IsEmpty, cmbFileMasks.Text, FSettings.RipGrepParameters.FileMasks);
@@ -1039,10 +1046,7 @@ begin
 	dbgMsg.Msg('CurrentIDEContext:' + extSearchSettings.ToLogString);
 	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext := extSearchSettings;
 	{$ENDIF}
-	FbExtensionOptionsSkipClick := True;
-	rbExtensionOptions.ItemIndex := Integer(extSearchSettings.IDEContext);
-	UpdateCmbsOnIDEContextChange();
-	FbExtensionOptionsSkipClick := False;
+	UpdateRbExtensionItemIndex(Integer(extSearchSettings.IDEContext));
 end;
 
 procedure TRipGrepperSearchDialogForm.LoadInitialSettings;
@@ -1260,6 +1264,14 @@ begin
 	Height := iHeight;
 	dbgMsg.Msg('Height=' + Height.ToString);
 	SetExpertGroupSize();
+end;
+
+procedure TRipGrepperSearchDialogForm.UpdateRbExtensionItemIndex(const _idx : Integer);
+begin
+	FbExtensionOptionsSkipClick := True;
+	rbExtensionOptions.ItemIndex := _idx;
+	UpdateCmbsOnIDEContextChange();
+	FbExtensionOptionsSkipClick := False;
 end;
 
 procedure TRipGrepperSearchDialogForm.WriteOptionCtrlToRipGrepParametersSetting;
