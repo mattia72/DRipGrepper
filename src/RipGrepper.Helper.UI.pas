@@ -360,7 +360,7 @@ class procedure TItemDrawer.SetTextColor(TargetCanvas : TCanvas; _color : TFontA
 begin
 	TargetCanvas.Font.Color := _color.Color;
 	TargetCanvas.Font.style := _color.Style;
-	if _bSetBG then begin
+	if _bSetBG and (not _color.BgColor = clNone) then begin
 		TargetCanvas.Brush.Color := _color.BgColor;
 	end;
 end;
