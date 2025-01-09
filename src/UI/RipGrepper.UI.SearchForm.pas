@@ -32,7 +32,9 @@ uses
 	RipGrepper.Helper.Types,
 	RipGrepper.Settings.SearchFormSettings,
 	RipGrepper.Common.Interfaces,
-	RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.SimpleTypes,
+	SVGIconImageListBase,
+	SVGIconImageList;
 
 type
 	TRipGrepperSearchDialogForm = class(TForm)
@@ -45,7 +47,6 @@ type
 		btnConfig : TButton;
 		btnSearch : TButton;
 		btnCancel : TButton;
-		ImageList1 : TImageList;
 		ActionList : TActionList;
 		ActionSearch : TAction;
 		ActionCancel : TAction;
@@ -66,7 +67,7 @@ type
 		gbOptionsFilters : TGroupBox;
 		lblFileMasks : TLabel;
 		cmbFileMasks : TComboBox;
-		Label1 : TLabel;
+		lblCmdLine : TLabel;
 		memoCommandLine : TMemo;
 		btnCopyToClipBoard : TButton;
 		ActionCopyToClipboard : TAction;
@@ -95,6 +96,9 @@ type
 		cmbReplaceText : TComboBox;
 		btnRGReplaceHelp : TButton;
 		ActionShowRGReplaceOptionHelp : TAction;
+		SVGIconImageList1 : TSVGIconImageList;
+		ToolButton1 : TToolButton;
+		ToolButton2 : TToolButton;
 		procedure ActionAddParamMatchCaseExecute(Sender : TObject);
 		procedure ActionAddParamMatchCaseUpdate(Sender : TObject);
 		procedure ActionAddParamRegexExecute(Sender : TObject);
