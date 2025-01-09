@@ -142,7 +142,7 @@ type
 		private
 			FbExtensionOptionsSkipClick : Boolean;
 			FHistItemObj : IHistoryItemObject;
-			FDpiScaler : TRipGrepperDpiScaler;
+//          FDpiScaler : TRipGrepperDpiScaler;
 			FHistItemGuiSearchParams : TGuiSearchTextParams;
 			FCbClickEventEnabled : Boolean;
 			FcmbOptionsOldText : string;
@@ -250,7 +250,7 @@ begin
 	dbgMsg.Msg(FSettings.SearchFormSettings.ToLogString);
 	dbgMsg.Msg('gui params=' + FHistItemGuiSearchParams.ToLogString);
 
-	FDpiScaler := TRipGrepperDpiScaler.Create(self);
+//  FDpiScaler := TRipGrepperDpiScaler.Create(self);
 
 	FOrigHeight := 0;
 
@@ -264,7 +264,7 @@ begin
 		FHistItemGuiSearchParams.Free;
 	end;
 	FOrigSearchFormSettings.Free;
-	FDpiScaler.Free;
+//  FDpiScaler.Free;
 	inherited Destroy;
 end;
 
@@ -449,7 +449,7 @@ begin
 
 	ShowReplaceCtrls(IsReplaceMode());
 	// Active Monitor
-	ScaleBy(Monitor.PixelsPerInch, self.PixelsPerInch);
+	ScaleBy(TRipGrepperDpiScaler.GetActualDPI, self.PixelsPerInch);
 	UpdateHeight;
 
 	ActiveControl := cmbSearchText;
@@ -859,6 +859,8 @@ begin
 	dbgMsg.MsgFmt('M(%d) / D(%d) = %d', [M, D, MulDiv(1, M, D)]);
 	if isDpiChange or (FOrigHeight = 0) then begin
 		SetOrigHeights;
+		toolbarSearchTextOptions.AutoSize := false;
+ 		toolbarSearchTextOptions.Width := MulDiv(toolbarSearchTextOptions.Width, M, D);
 	end;
 end;
 

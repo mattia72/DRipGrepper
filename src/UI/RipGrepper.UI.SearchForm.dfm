@@ -695,11 +695,10 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       object toolbarSearchTextOptions: TToolBar
         Left = 443
         Top = 31
-        Width = 85
+        Width = 86
         Height = 23
         Align = alNone
         Anchors = [akTop, akRight]
-        AutoSize = True
         ButtonHeight = 23
         Caption = 'toolbarSearchTextOptions'
         EdgeInner = esNone
