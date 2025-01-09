@@ -58,7 +58,7 @@ type
 			FChildren : TArrayEx<TPersistableSettings>;
 			FIsModified : Boolean;
 
-			procedure CopySettingsDictSection(const _other: TPersistableSettings);
+			procedure CopySettingsDictSection(const _other : TPersistableSettings);
 			function GetIsAlreadyRead : Boolean; virtual;
 			function GetIsModified : Boolean; virtual;
 			/// <summary>TPersistableSettings.Init
@@ -229,8 +229,7 @@ begin
 	LoadDefaultsFromDict();
 end;
 
-procedure TPersistableSettings.CopySettingsDictSection(const _other:
-	TPersistableSettings);
+procedure TPersistableSettings.CopySettingsDictSection(const _other : TPersistableSettings);
 begin
 	for var key in _other.SettingsDict.Keys do begin
 		if key.StartsWith(IniSectionName) then begin
@@ -534,7 +533,14 @@ begin
 		lock := TLockGuard.NewLock(FLockObject);
 		dbgMsg.Msg('Lock Entered');
 		dbgMsg.MsgFmt('IniFile %p update begin on %s', [Pointer(IniFile), GetIniSectionName()]);
-		IniFile.UpdateFile;
+		try
+			IniFile.UpdateFile;
+		except
+			on E : Exception do begin
+				dbgMsg.ErrorMsgFmt('%s' + CRLF + '%s', [E.Message, E.StackTrace]);
+				raise;
+			end;
+		end;
 		dbgMsg.Msg('Lock Released');
 	end else begin
 		dbgMsg.ErrorMsg('IniFile not assigned!' + GetIniSectionName());
@@ -586,7 +592,7 @@ begin
 	try
 		case _setting.ValueType of
 			varString, varUString : begin
-//				dbgMsg.Msg('Type string');
+				// dbgMsg.Msg('Type string');
 				IniFile.WriteString(_sIniSection, _sKey, _setting.Value);
 			end;
 			varBoolean : begin
@@ -614,7 +620,7 @@ begin
 		on E : Exception do
 			dbgMsg.ErrorMsgFmt('%s', [E.Message]);
 	end;
-	dbgMsg.MsgFmt('[%s].%s=%s in %s', [_sIniSection, _sKey, VarToStr(_setting.Value), IniFile.FileName ]);
+	dbgMsg.MsgFmt('[%s].%s=%s in %s', [_sIniSection, _sKey, VarToStr(_setting.Value), IniFile.FileName]);
 end;
 
 end.
