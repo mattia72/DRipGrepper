@@ -90,8 +90,10 @@ type
 	end;
 
 	TCanvasHelper = class Helper for Vcl.Graphics.TCanvas
+	public
 		procedure SetAlteringColors(_idx : Integer);
 		procedure SetSelectedColors(State : TOwnerDrawState);
+		procedure SetBgColorIfNotTransparent(const _color : TColor);
 	end;
 
 	TItemInserter = class
@@ -210,10 +212,17 @@ procedure TCanvasHelper.SetAlteringColors(_idx : Integer);
 begin
 	if Odd(_idx) then begin
 		self.Font.Color := clBlack;
-		self.Brush.Color := clWhite;
+		// self.Brush.Color := clWhite;
 	end else begin
 		self.Font.Color := clBlack;
 		self.Brush.Color := cl3DLight; // clGrayText; // clLtGray;
+	end;
+end;
+
+procedure TCanvasHelper.SetBgColorIfNotTransparent(const _color : TColor);
+begin
+	if (_color <> clNone) then begin
+		self.Brush.Color := _color;
 	end;
 end;
 
@@ -360,8 +369,8 @@ class procedure TItemDrawer.SetTextColor(TargetCanvas : TCanvas; _color : TFontA
 begin
 	TargetCanvas.Font.Color := _color.Color;
 	TargetCanvas.Font.style := _color.Style;
-	if _bSetBG and (not _color.BgColor = clNone) then begin
-		TargetCanvas.Brush.Color := _color.BgColor;
+	if _bSetBG then begin
+		TargetCanvas.SetBgColorIfNotTransparent(_color.BgColor);
 	end;
 end;
 
