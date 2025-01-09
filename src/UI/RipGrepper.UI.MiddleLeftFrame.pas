@@ -537,13 +537,13 @@ begin
 		case Sender.GetNodeLevel(Node) of
 			0 : begin
 				if (Node.ChildCount = 0) then begin
-					TargetCanvas.Brush.Color := FColorSettings.SearchTextInHistory.BgColor;
+					TargetCanvas.SetBgColorIfNotTransparent(FColorSettings.SearchTextInHistory.BgColor);
 				end else begin
-					TargetCanvas.Brush.Color := FColorSettings.ReplacedTextInHistory.BgColor;
+					TargetCanvas.SetBgColorIfNotTransparent(FColorSettings.ReplacedTextInHistory.BgColor);
 				end;
 			end;
 			1 :
-			TargetCanvas.Brush.Color := FColorSettings.ReplaceTextInHistory.BgColor;
+			TargetCanvas.SetBgColorIfNotTransparent(FColorSettings.ReplaceTextInHistory.BgColor);
 		end;
 		TargetCanvas.FillRect(R);
 	end;

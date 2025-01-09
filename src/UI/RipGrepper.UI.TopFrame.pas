@@ -297,7 +297,8 @@ begin
 	owSettings.TestFile := default (TOpenWithParams);
 	owSettings.Reload();
 	{$IFDEF STANDALONE}
-	var styleName := TDarkModeHelper.GetActualThemaName();
+	var
+	styleName := TDarkModeHelper.GetActualThemaName();
 	TopFrame.StyleName := styleName;
 	TopFrame.pnlTop.StyleName := styleName;
 	MainFrame.StyleName := styleName;
@@ -525,11 +526,16 @@ end;
 
 procedure TRipGrepperTopFrame.ChangeScale(M, D : Integer; isDpiChange : Boolean);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperTopFrame.ChangeScale');
+
 	inherited ChangeScale(M, D, isDpiChange);
 	if isDpiChange then begin
-		// edtFilter.ScaleForPPI(TRipGrepperDpiScaler.GetActualDPI);
+		dbgMsg.MsgFmt('M(%d) / D(%d) = %d', [M, D, MulDiv(1, M, D)]);
+		dbgMsg.MsgFmt('Orig height edtFilter.Font %d edtReplace.Font %d', [edtFilter.Font.Height, edtReplace.Font.Height]);
 		edtFilter.Font.Height := MulDiv(edtFilter.Font.Height, M, D);
 		edtReplace.Font.Height := MulDiv(edtReplace.Font.Height, M, D);
+		dbgMsg.MsgFmt('Set edtFilter.Font %d and edtReplace.Font %d', [edtFilter.Font.Height, edtReplace.Font.Height]);
 	end;
 end;
 

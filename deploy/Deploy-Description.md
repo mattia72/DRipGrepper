@@ -35,10 +35,19 @@ Marked with checkmark if fixed, else it is a known bug.
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] exception if rg.exe not found
 - [ ] **extension**: drip icon in menu has no transparent background
-- [ ] background color 'nothing' should be handled transparent
-- [x] replace: 
+- [x] background color 'nothing' should be handled transparent
+- [x] set as default doesn't save defaults in ini
+- [o] look on high dpi monitor
+    - [ ] search form switch between search and replace shrinks height
+    - [ ] search form Use Regex button disappear 
+    - [ ] ugly config form 
+- [o] replace: 
     - [ ] more match in same line replaces all occurence, even if user selects only one
         - [x] replace by rg is ok: there will be changed every occurence in every lines 
     - [ ] replace by toolbar is always ignore case
 - [o] ugly dark mode. read this: https://github.com/checkdigits/delphidarkmode
+    - [ ] extension: toolbar not dark after switch 
+        - independent from ParentBackground? https://en.delphipraxis.net/topic/2779-tframe-and-vcl-styles-solved/
+    - [ ] after switch light/dark mode in config, Open With settings disappear
+    - [ ] skin chooser? https://stackoverflow.com/questions/9906312/delphi-vcl-styles-tutorial-how-to-change-the-style-at-runtime
 

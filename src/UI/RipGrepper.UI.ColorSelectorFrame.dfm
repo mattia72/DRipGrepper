@@ -33,7 +33,7 @@ object ColorSelectorFrame: TColorSelectorFrame
     Width = 40
     Height = 22
     Hint = 'Foreground Color'
-    Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbIncludeDefault, cbPrettyNames, cbCustomColors]
+    Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbIncludeDefault, cbCustomColor, cbPrettyNames, cbCustomColors]
     ParentShowHint = False
     ShowHint = True
     TabOrder = 1

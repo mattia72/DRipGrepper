@@ -23,6 +23,7 @@ type
 
 		private
 		public
+			class procedure AllowThemes;
 			// Checks the Windows registry to see if Windows Dark Mode is enabled
 			class function DarkModeIsEnabled : boolean;
 			class function GetActualThemaName : string;
@@ -66,6 +67,11 @@ uses
 	Winapi.UxTheme,
 	Winapi.Messages,
 	System.StrUtils;
+
+class procedure TDarkModeHelper.AllowThemes;
+begin
+	SetThemeAppProperties(STAP_ALLOW_NONCLIENT or STAP_ALLOW_CONTROLS or STAP_ALLOW_WEBCONTENT);
+end;
 
 class procedure TDarkModeHelper.SetAppropriateThemeMode(const DarkModeThemeName, LightModeThemeName : string);
 begin
@@ -125,7 +131,7 @@ end;
 
 class procedure TDarkModeHelper.RefreshThemes;
 begin
-	SetThemeAppProperties(STAP_ALLOW_NONCLIENT or STAP_ALLOW_CONTROLS or STAP_ALLOW_WEBCONTENT);
+	AllowThemes;
 	SendMessage(Application.Handle, WM_THEMECHANGED, 0, 0);
 	SendMessage(Application.MainForm.Handle, CM_RECREATEWND, 0, 0);
 end;

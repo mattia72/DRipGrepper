@@ -4,7 +4,6 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
   Width = 817
   Height = 26
   Align = alTop
-  ParentBackground = False
   TabOrder = 0
   object pnlTop: TPanel
     Left = 0
