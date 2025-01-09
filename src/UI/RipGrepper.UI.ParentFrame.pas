@@ -51,7 +51,8 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Common.Constants,
 	System.StrUtils,
-	Vcl.StdCtrls;
+	Vcl.StdCtrls,
+	RipGrepper.Helper.UI.DarkMode;
 
 {$R *.dfm}
 
@@ -72,7 +73,7 @@ end;
 
 procedure TParentFrame.AfterHistObjChange;
 begin
- 	TopFrame.AfterHistObjChange();
+	TopFrame.AfterHistObjChange();
 	MainFrame.AfterHistObjChange();
 	BottomFrame.AfterHistObjChange();
 end;
@@ -86,7 +87,7 @@ end;
 
 procedure TParentFrame.BeforeSearch;
 begin
-  	TopFrame.BeforeSearch();
+	TopFrame.BeforeSearch();
 	MainFrame.BeforeSearch();
 	BottomFrame.BeforeSearch();
 end;
@@ -129,6 +130,7 @@ procedure TParentFrame.Init;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.InitForm');
+	TDarkModeHelper.AllowThemes();
 	MainFrame.Init();
 	TopFrame.Init();
 	BottomFrame.Init();

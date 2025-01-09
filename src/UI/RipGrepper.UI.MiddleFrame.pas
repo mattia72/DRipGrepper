@@ -179,6 +179,7 @@ type
 
 		protected
 			procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;
+
 			{ Private-Deklarationen }
 		public
 			constructor Create(AOwner : TComponent); override;
@@ -1434,9 +1435,15 @@ end;
 
 procedure TRipGrepperMiddleFrame.ChangeScale(M, D : Integer; isDpiChange : Boolean);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.ChangeScale');
+
 	inherited ChangeScale(M, D, isDpiChange);
 	if isDpiChange then begin
+		dbgMsg.Msg('Set VstResult Fonts');
 		VstResult.Header.Font.Height := MulDiv(VstResult.Header.Font.Height, M, D);
+		VstResult.Font.Height := MulDiv(VstResult.Font.Height, M, D);
 	end;
 end;
+
 end.
