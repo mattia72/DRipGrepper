@@ -347,11 +347,12 @@ end;
 procedure TRipGrepperSearchDialogForm.ActionSetAsDefaultExecute(Sender : TObject);
 begin
 	WriteCtrlsToSettings(True);
-	FHistItemGuiSearchParams.StoreAsDefaultsToDict();
+    // unittested from here
+	// FHistItemGuiSearchParams.StoreAsDefaultsToDict();
 	FSettings.RipGrepParameters.GuiSearchTextParams.Copy(FHistItemGuiSearchParams);
-	FSettings.RipGrepParameters.StoreToDict();
+	// FSettings.RipGrepParameters.StoreToDict();
 	// FSettings.CopyValuesToDefaults();
-	FSettings.RipGrepParameters.StoreAsDefaultsToDict();
+	// FSettings.RipGrepParameters.StoreAsDefaultsToDict();
 	FSettings.StoreAsDefaultsToDict();
 	FSettings.UpdateIniFile;
 end;

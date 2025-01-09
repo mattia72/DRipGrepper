@@ -16,7 +16,7 @@ type
 			INIFILE = 'DripGrepperUnittest.ini';
 
 		private
-//          FIniFile : TMemIniFile;
+			// FIniFile : TMemIniFile;
 			FSettings : TRipGrepperSettings;
 			procedure EmptyFile(const _filePath : string);
 			procedure SetDefaults;
@@ -35,6 +35,8 @@ type
 			procedure LoadDefaultsShouldReadDefaultFromIni;
 			[Test]
 			procedure AfterCopyValuesValuesShouldBeEqual;
+			[Test]
+			procedure ActionSetAsDefaultExecuteShouldSaveInIni;
 	end;
 
 implementation
@@ -42,18 +44,20 @@ implementation
 uses
 	RipGrepper.Common.Constants,
 	System.SysUtils,
-	Vcl.Forms;
+	Vcl.Forms,
+	RipGrepper.Common.GuiSearchParams,
+	RipGrepper.Common.SimpleTypes;
 
 constructor TRipGrepperSettingsTest.Create;
 begin
 	inherited;
-//  FIniFile := TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8);
+	// FIniFile := TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8);
 end;
 
 destructor TRipGrepperSettingsTest.Destroy;
 begin
 	inherited;
-//  FIniFile.Free;
+	// FIniFile.Free;
 end;
 
 procedure TRipGrepperSettingsTest.RefreshMembersShouldLoadDefaultsTest;
@@ -97,8 +101,62 @@ begin
 			{ } FSettings.SearchFormSettings.Hidden, 'Hidden should be true');
 		Assert.AreEqual(s.SearchFormSettings.NoIgnore,
 			{ } FSettings.SearchFormSettings.NoIgnore, 'NoIgnore should be true');
+
+		Assert.AreEqual(s.RipGrepParameters.SearchPath,
+			{ } FSettings.RipGrepParameters.SearchPath, 'SearchPath should be equal');
+		Assert.AreEqual(s.RipGrepParameters.FileMasks,
+			{ } FSettings.RipGrepParameters.FileMasks, 'SearchPath should be equal');
+
+		Assert.AreEqual(
+			{ } s.RipGrepParameters.GuiSearchTextParams.GetAsString(True),
+			{ } FSettings.RipGrepParameters.GuiSearchTextParams.GetAsString(True),
+			{ } 'SearchParameter should be equal');
+
 	finally
 		s.Free;
+	end;
+end;
+
+procedure TRipGrepperSettingsTest.ActionSetAsDefaultExecuteShouldSaveInIni;
+var
+	s1, s2 : string;
+	FHistItemGuiSearchParams : TGuiSearchTextParams;
+begin
+	SetDefaults;
+	FSettings.LoadDefaultsFromDict;
+
+	FHistItemGuiSearchParams :=
+	{ } TGuiSearchTextParams.Create(FSettings.RipGrepParameters.IniSectionName);
+	try
+		FHistItemGuiSearchParams.SearchText := 'search this';
+		FHistItemGuiSearchParams.SetOption(EGuiOption.soMatchWord);
+		FHistItemGuiSearchParams.SetOption(EGuiOption.soMatchCase);
+
+		// -- Act as TRipGrepperSearchDialogForm.ActionSetAsDefaultExecute
+		// FHistItemGuiSearchParams.StoreAsDefaultsToDict();
+		FSettings.RipGrepParameters.GuiSearchTextParams.Copy(FHistItemGuiSearchParams);
+
+		s1 := FHistItemGuiSearchParams.GetAsString();
+		s2 := FSettings.RipGrepParameters.GuiSearchTextParams.GetAsString();
+		Assert.AreEqual(s1, s2, '1. -ok GuiSearchTextParams should be equal');
+
+		// FSettings.RipGrepParameters.StoreToDict();
+		// FSettings.CopyValuesToDefaults();
+		// FSettings.RipGrepParameters.StoreAsDefaultsToDict();
+		FSettings.StoreAsDefaultsToDict();
+
+		s1 := FHistItemGuiSearchParams.GetAsString(True);
+		s2 := FSettings.RipGrepParameters.SettingsDict['RipGrepSettings|SearchParams_DEFAULT'].Value;
+		Assert.AreEqual(s1, s2, '2. - ok GuiSearchTextParams should be equal');
+
+		FSettings.UpdateIniFile;
+
+		s1 := FHistItemGuiSearchParams.GetAsString(True);
+		s2 := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchParams_DEFAULT', '');
+		Assert.AreEqual(s1, s2, 'last. GuiSearchTextParams should be equal');
+
+	finally
+		FHistItemGuiSearchParams.Free;
 	end;
 end;
 
@@ -109,12 +167,18 @@ begin
 	FSettings.SearchFormSettings.Pretty := False;
 	FSettings.SearchFormSettings.Hidden := True;
 	FSettings.SearchFormSettings.NoIgnore := True;
+	FSettings.RipGrepParameters.SearchPath := 'def\search\path';
+	FSettings.RipGrepParameters.FileMasks := '*.def';
+	FSettings.RipGrepParameters.GuiSearchTextParams.SearchOptions := [EGuiOption.soUseRegex];
 	FSettings.StoreAsDefaultsToDict;
 	FSettings.SearchFormSettings.Encoding := 'none';
 	FSettings.SearchFormSettings.Context := 1;
 	FSettings.SearchFormSettings.Pretty := True;
 	FSettings.SearchFormSettings.Hidden := True;
 	FSettings.SearchFormSettings.NoIgnore := True;
+	FSettings.RipGrepParameters.SearchPath := 'act\search\path';
+	FSettings.RipGrepParameters.FileMasks := '*.act';
+	FSettings.RipGrepParameters.GuiSearchTextParams.SearchOptions := [EGuiOption.soNotSet];
 
 end;
 
@@ -137,7 +201,6 @@ begin
 	Rewrite(txtFile);
 	CloseFile(txtFile);
 end;
-
 
 initialization
 

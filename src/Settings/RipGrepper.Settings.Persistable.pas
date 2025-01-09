@@ -58,6 +58,7 @@ type
 			FChildren : TArrayEx<TPersistableSettings>;
 			FIsModified : Boolean;
 
+			procedure CopySettingsDictSection(const _other: TPersistableSettings);
 			function GetIsAlreadyRead : Boolean; virtual;
 			function GetIsModified : Boolean; virtual;
 			/// <summary>TPersistableSettings.Init
@@ -198,13 +199,12 @@ procedure TPersistableSettings.Copy(const _other : TPersistableSettings);
 begin
 	if Assigned(_other) then begin
 		_other.StoreToDict;
+
 		FIsModified := _other.IsModified;
 		FIsAlreadyRead := _other.IsAlreadyRead;
-		for var key in _other.SettingsDict.Keys do begin
-			if key.StartsWith(IniSectionName) then begin
-				FSettingsDict.AddOrChange(key, _other.SettingsDict[key]);
-			end;
-		end;
+
+		CopySettingsDictSection(_other);
+
 		LoadFromDict();
 	end;
 end;
@@ -227,6 +227,16 @@ begin
 		end;
 	end;
 	LoadDefaultsFromDict();
+end;
+
+procedure TPersistableSettings.CopySettingsDictSection(const _other:
+	TPersistableSettings);
+begin
+	for var key in _other.SettingsDict.Keys do begin
+		if key.StartsWith(IniSectionName) then begin
+			FSettingsDict.AddOrChange(key, _other.SettingsDict[key]);
+		end;
+	end;
 end;
 
 procedure TPersistableSettings.CopyValuesToDefaults;
@@ -445,7 +455,7 @@ end;
 procedure TPersistableSettings.ReLoad;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.ReCreateMemIni');
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.ReLoad');
 
 	for var s in FChildren do begin
 		dbgMsg.MsgFmt('ReLoad from IniFile %p for section %s', [Pointer(s.IniFile), s.IniSectionName]);

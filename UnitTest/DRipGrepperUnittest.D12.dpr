@@ -42,7 +42,9 @@ uses
   RipGrepper.Settings.TestOwnerSettings in 'RipGrepper.Settings.TestOwnerSettings.pas',
   RipGrepper.Settings.RipGrepParameterSettings in '..\src\Settings\RipGrepper.Settings.RipGrepParameterSettings.pas',
   RipGrepper.Settings.RipGrepSettingsTest in 'RipGrepper.Settings.RipGrepSettingsTest.pas',
-  RipGrepper.Settings.Persistable in '..\src\Settings\RipGrepper.Settings.Persistable.pas';
+  RipGrepper.Settings.Persistable in '..\src\Settings\RipGrepper.Settings.Persistable.pas',
+  RipGrepper.Common.GuiSearchParams in '..\src\Common\RipGrepper.Common.GuiSearchParams.pas',
+  RipGrepper.Settings.RipGrepperSettings in '..\src\Settings\RipGrepper.Settings.RipGrepperSettings.pas';
 
 {$IFNDEF TESTINSIGHT}
 
