@@ -37,6 +37,8 @@ type
 			procedure AfterCopyValuesValuesShouldBeEqual;
 			[Test]
 			procedure ActionSetAsDefaultExecuteShouldSaveInIni;
+			[Test]
+			procedure AfterUpdateIniValuesShouldBeProperlySaved;
 	end;
 
 implementation
@@ -105,7 +107,7 @@ begin
 		Assert.AreEqual(s.RipGrepParameters.SearchPath,
 			{ } FSettings.RipGrepParameters.SearchPath, 'SearchPath should be equal');
 		Assert.AreEqual(s.RipGrepParameters.FileMasks,
-			{ } FSettings.RipGrepParameters.FileMasks, 'SearchPath should be equal');
+			{ } FSettings.RipGrepParameters.FileMasks, 'FileMasks should be equal');
 
 		Assert.AreEqual(
 			{ } s.RipGrepParameters.GuiSearchTextParams.GetAsString(True),
@@ -133,22 +135,20 @@ begin
 		FHistItemGuiSearchParams.SetOption(EGuiOption.soMatchCase);
 
 		// -- Act as TRipGrepperSearchDialogForm.ActionSetAsDefaultExecute
-		// FHistItemGuiSearchParams.StoreAsDefaultsToDict();
 		FSettings.RipGrepParameters.GuiSearchTextParams.Copy(FHistItemGuiSearchParams);
 
 		s1 := FHistItemGuiSearchParams.GetAsString();
 		s2 := FSettings.RipGrepParameters.GuiSearchTextParams.GetAsString();
 		Assert.AreEqual(s1, s2, '1. -ok GuiSearchTextParams should be equal');
 
-		// FSettings.RipGrepParameters.StoreToDict();
-		// FSettings.CopyValuesToDefaults();
-		// FSettings.RipGrepParameters.StoreAsDefaultsToDict();
+		// -- Act as TRipGrepperSearchDialogForm.ActionSetAsDefaultExecute
 		FSettings.StoreAsDefaultsToDict();
 
 		s1 := FHistItemGuiSearchParams.GetAsString(True);
 		s2 := FSettings.RipGrepParameters.SettingsDict['RipGrepSettings|SearchParams_DEFAULT'].Value;
 		Assert.AreEqual(s1, s2, '2. - ok GuiSearchTextParams should be equal');
 
+		// -- Act as TRipGrepperSearchDialogForm.ActionSetAsDefaultExecute
 		FSettings.UpdateIniFile;
 
 		s1 := FHistItemGuiSearchParams.GetAsString(True);
@@ -158,6 +158,61 @@ begin
 	finally
 		FHistItemGuiSearchParams.Free;
 	end;
+end;
+
+procedure TRipGrepperSettingsTest.AfterUpdateIniValuesShouldBeProperlySaved;
+var
+	iniVal, settingVal : string;
+begin
+	SetDefaults;
+
+	FSettings.UpdateIniFile;
+
+	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchParams', '');
+	settingVal := FSettings.RipGrepParameters.GuiSearchTextParams.GetAsString(True);
+	Assert.AreEqual(settingVal.Trim(['[', ']']), iniVal.Trim(['[', ']']), 'SearchParams should be equal');
+
+	FSettings.LoadDefaultsFromDict;
+	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchParams_DEFAULT', '');
+	settingVal := FSettings.RipGrepParameters.GuiSearchTextParams.GetAsString(True);
+	Assert.AreEqual(settingVal, iniVal, 'SearchParams_DEFAULT should be equal');
+
+//	iniVal := FSettings.IniFile.ReadString(FSettings.SearchFormSettings.IniSectionName, 'Encoding', '');
+//	Assert.AreEqual('', iniVal, 'Encoding should be empty');
+//
+//	iniVal := FSettings.IniFile.ReadString(FSettings.SearchFormSettings.IniSectionName, 'Context', '');
+//	Assert.AreEqual('', iniVal, 'Context should be empty');
+//
+//	iniVal := FSettings.IniFile.ReadString(FSettings.SearchFormSettings.IniSectionName, 'Pretty', '');
+//	Assert.AreEqual('', iniVal, 'Pretty should be empty');
+//
+//	iniVal := FSettings.IniFile.ReadString(FSettings.SearchFormSettings.IniSectionName, 'Hidden', '');
+//	Assert.AreEqual('', iniVal, 'Hidden should be empty');
+//
+//	iniVal := FSettings.IniFile.ReadString(FSettings.SearchFormSettings.IniSectionName, 'NoIgnore', '');
+//	Assert.AreEqual('', iniVal, 'NoIgnore should be empty');
+//
+//	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchPath', '');
+//	Assert.AreEqual('', iniVal, 'SearchPath should be empty');
+//
+//	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'FileMasks', '');
+//	Assert.AreEqual('', iniVal, 'FileMasks should be empty');
+//
+//	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchOptions', '');
+//	Assert.AreEqual('', iniVal, 'SearchOptions should be empty');
+//
+//	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchOptions', '');
+//	Assert.AreEqual('', iniVal, 'SearchOptions should be empty');
+//
+//	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchOptions', '');
+//	Assert.AreEqual('', iniVal, 'SearchOptions should be empty');
+//
+//	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchOptions', '');
+//	Assert.AreEqual('', iniVal, 'SearchOptions should be empty');
+//
+//	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchOptions', '');
+//	Assert.AreEqual('', iniVal, 'SearchOptions should be empty');
+
 end;
 
 procedure TRipGrepperSettingsTest.SetDefaults;

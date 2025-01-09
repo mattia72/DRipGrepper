@@ -69,10 +69,10 @@ end;
 procedure TRipGrepSettingsTest.WithoutIniReadShouldLoadDefaultsTest;
 begin
 	FSettings.LoadDefaultsFromDict;
-	Assert.IsTrue(FSettings.RipGrepPath <> '', 'RipGrepPath should be set');
-	Assert.IsTrue(FSettings.FileMasks = '', 'FileMasks should be empty');
-	Assert.IsTrue(FSettings.SearchPath = '', 'SearchPath should be empty');
-	Assert.IsTrue(FSettings.GuiSearchTextParams.GetAsString(True) = '[]', 'GuiSearchTextParams should be empty');
+	Assert.IsTrue(FileExists(FSettings.RipGrepPath), 'RipGrepPath should be an existing path');
+	Assert.AreEqual('', FSettings.FileMasks, 'FileMasks should be empty');
+	Assert.AreEqual('', FSettings.SearchPath, 'SearchPath should be empty');
+	Assert.AreEqual('[]', FSettings.GuiSearchTextParams.GetAsString(True), 'GuiSearchTextParams should be empty');
 end;
 
 procedure TRipGrepSettingsTest.LoadDefaultsShouldReadDefaultFromIni;
@@ -106,8 +106,7 @@ begin
 	s := TRipGrepParameterSettings.Create(nil);
 	try
 		s.Copy(FSettings);
-//		s.Copy(Fsettings);
-		// s.LoadFromDict;
+
 		s1 := FSettings.GuiSearchTextParams.GetAsString();
 		s2 := s.GuiSearchTextParams.GetAsString();
 		Assert.AreEqual(s1, s2, 'GuiSearchTextParams should be equal');
@@ -122,7 +121,7 @@ begin
 		s1 := FSettings.GuiSearchTextParams.GetAsString();
 		s2 := s.GuiSearchTextParams.GetAsString();
 
-		Assert.AreEqual(s1, s2, 'GuiSearchTextParams should be equal');
+		Assert.AreEqual(s1, s2, 'still GuiSearchTextParams should be equal');
 	finally
 		s.Free;
 	end;
