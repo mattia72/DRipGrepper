@@ -139,7 +139,6 @@ type
 			FbExtensionOptionsSkipClick : Boolean;
 			FHistItemObj : IHistoryItemObject;
 			FDpiScaler : TRipGrepperDpiScaler;
-			FExpertGroupHeight : Integer;
 			FHistItemGuiSearchParams : TGuiSearchTextParams;
 			FCbClickEventEnabled : Boolean;
 			FcmbOptionsOldText : string;
@@ -176,6 +175,7 @@ type
 			procedure LoadInitialSettings;
 			procedure SetCmbSearchPathText(const _sPath : string);
 			procedure SetExpertGroupSize;
+			procedure SetOrigHeights;
 			class procedure SetReplaceText(_settings : TRipGrepperSettings; const _replaceText : string);
 			procedure SetReplaceTextSetting(const _replaceText : string);
 			procedure ShowReplaceCtrls(const _bShow : Boolean);
@@ -187,6 +187,9 @@ type
 			procedure UpdateRbExtensionItemIndex(const _idx : Integer);
 			procedure WriteOptionCtrlToRipGrepParametersSetting;
 			procedure WriteSearchFormSettingsToCtrls();
+
+		protected
+			procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;
 
 		public
 			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettings; const _histObj : IHistoryItemObject);
@@ -245,12 +248,7 @@ begin
 
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 
-	FExpertGroupHeight := gbExpert.Height;
-	FOptionsFiltersOrigHeight := gbOptionsFilters.Height;
-	FOptionsOutputOrigTop := gbOptionsOutput.Top;
-	FpnlMiddleOrigHeight := pnlMiddle.Height;
-	FTopPanelOrigHeight := pnlTop.Height;
-	FOrigHeight := Height;
+	FOrigHeight := 0;
 
 	toolbarSearchTextOptions.AutoSize := False; // else shrinked as extension
 	cmbOptions.AutoComplete := False; // so we know the old value after change
@@ -347,12 +345,8 @@ end;
 procedure TRipGrepperSearchDialogForm.ActionSetAsDefaultExecute(Sender : TObject);
 begin
 	WriteCtrlsToSettings(True);
-    // unittested from here
-	// FHistItemGuiSearchParams.StoreAsDefaultsToDict();
+	// unittested from here
 	FSettings.RipGrepParameters.GuiSearchTextParams.Copy(FHistItemGuiSearchParams);
-	// FSettings.RipGrepParameters.StoreToDict();
-	// FSettings.CopyValuesToDefaults();
-	// FSettings.RipGrepParameters.StoreAsDefaultsToDict();
 	FSettings.StoreAsDefaultsToDict();
 	FSettings.UpdateIniFile;
 end;
@@ -450,7 +444,10 @@ begin
 	UpdateCheckBoxesByRgOptions();
 
 	ShowReplaceCtrls(IsReplaceMode());
-	UpdateHeight();
+	// Active Monitor
+	ScaleBy(Monitor.PixelsPerInch, self.PixelsPerInch);
+	UpdateHeight;
+
 	ActiveControl := cmbSearchText;
 end;
 
@@ -848,6 +845,19 @@ begin
 	UpdateCtrls(cbRgParamEncoding);
 end;
 
+procedure TRipGrepperSearchDialogForm.ChangeScale(M, D : Integer; isDpiChange : Boolean);
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.ChangeScale');
+
+	inherited ChangeScale(M, D, isDpiChange);
+
+	dbgMsg.MsgFmt('M(%d) / D(%d) = %d', [M, D, MulDiv(1, M, D)]);
+	if isDpiChange or (FOrigHeight = 0) then begin
+		SetOrigHeights;
+	end;
+end;
+
 function TRipGrepperSearchDialogForm.CheckAndCorrectMultiLine(const _str : TMultiLineString) : string;
 begin
 	Result := '';
@@ -1087,6 +1097,15 @@ begin
 		gbExpert.Top := gbOptionsOutput.Top + gbOptionsOutput.Height + gbOptionsOutput.Margins.Bottom;
 		gbExpert.Height := iexpertHeight;
 	end;
+end;
+
+procedure TRipGrepperSearchDialogForm.SetOrigHeights;
+begin
+	FOptionsFiltersOrigHeight := gbOptionsFilters.Height;
+	FOptionsOutputOrigTop := gbOptionsOutput.Top;
+	FpnlMiddleOrigHeight := pnlMiddle.Height;
+	FTopPanelOrigHeight := pnlTop.Height;
+	FOrigHeight := Height;
 end;
 
 class procedure TRipGrepperSearchDialogForm.SetReplaceText(_settings : TRipGrepperSettings; const _replaceText : string);
