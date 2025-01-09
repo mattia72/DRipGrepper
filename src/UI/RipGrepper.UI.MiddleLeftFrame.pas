@@ -23,7 +23,8 @@ uses
 	Vcl.Menus,
 	System.ImageList,
 	Vcl.ImgList,
-	RipGrepper.Settings.FontColors, Vcl.ExtCtrls;
+	RipGrepper.Settings.FontColors,
+	Vcl.ExtCtrls;
 
 type
 	THistoryObjectArray = TArrayEx<IHistoryItemObject>;
@@ -43,7 +44,7 @@ type
 		pmHistoryDelete : TMenuItem;
 		pmHistoryDeleteAll : TMenuItem;
 		ImageList1 : TImageList;
-    Panel1: TPanel;
+		Panel1 : TPanel;
 		procedure ActionCopyCmdLineToClipboardExecute(Sender : TObject);
 		procedure ActionHistoryDeleteAllExecute(Sender : TObject);
 		procedure ActionHistoryDeleteAllUpdate(Sender : TObject);
@@ -89,6 +90,7 @@ type
 
 		protected
 			procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;
+
 			{ Private-Deklarationen }
 		public
 			constructor Create(AOwner : TComponent); override;
@@ -635,6 +637,9 @@ var
 begin
 	idx := GetHistNodeIndex(Node);
 	hio := GetHistoryObject(idx);
+
+	if not Assigned(hio) then
+		Exit;
 
 	if TextType = ttNormal then begin
 		case Column of
