@@ -4,7 +4,9 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
   Width = 817
   Height = 26
   Align = alTop
+  ParentBackground = False
   TabOrder = 0
+  StyleElements = [seFont, seBorder]
   object pnlTop: TPanel
     Left = 0
     Top = 0
@@ -13,6 +15,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     Align = alClient
     BevelOuter = bvNone
     Caption = 'pnlTop'
+    Color = clWindow
     ParentBackground = False
     TabOrder = 0
     object tbarConfig: TToolBar
