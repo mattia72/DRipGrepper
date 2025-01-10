@@ -662,9 +662,17 @@ end;
 
 procedure TMiddleLeftFrame.ChangeScale(M, D : Integer; isDpiChange : Boolean);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.ChangeScale');
+
 	inherited ChangeScale(M, D, isDpiChange);
 	if isDpiChange then begin
+		dbgMsg.MsgFmt('M(%d) / D(%d) = %d%%', [M, D, MulDiv(100, M, D)]);
+		dbgMsg.MsgFmt('Orig VstHistory Fonts: %d', [VstHistory.Font.Height]);
+
 		VstHistory.Header.Font.Height := MulDiv(VstHistory.Header.Font.Height, M, D);
+//      VstHistory.Font.Height := MulDiv(VstHistory.Font.Height, M, D); it's too much!
+		dbgMsg.MsgFmt('New VstHistory Fonts: %d', [VstHistory.Font.Height]);
 	end;
 end;
 

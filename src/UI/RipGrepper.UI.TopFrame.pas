@@ -531,11 +531,18 @@ begin
 
 	inherited ChangeScale(M, D, isDpiChange);
 	if isDpiChange then begin
-		dbgMsg.MsgFmt('M(%d) / D(%d) = %d', [M, D, MulDiv(1, M, D)]);
+		dbgMsg.MsgFmt('M(%d) / D(%d) = %d%%', [M, D, MulDiv(100, M, D)]);
 		dbgMsg.MsgFmt('Orig height edtFilter.Font %d edtReplace.Font %d', [edtFilter.Font.Height, edtReplace.Font.Height]);
 		edtFilter.Font.Height := MulDiv(edtFilter.Font.Height, M, D);
 		edtReplace.Font.Height := MulDiv(edtReplace.Font.Height, M, D);
-		dbgMsg.MsgFmt('Set edtFilter.Font %d and edtReplace.Font %d', [edtFilter.Font.Height, edtReplace.Font.Height]);
+		dbgMsg.MsgFmt('New edtFilter.Font %d and edtReplace.Font %d', [edtFilter.Font.Height, edtReplace.Font.Height]);
+
+		dbgMsg.MsgFmt('Orig width tbarSearch.Width %d and tbarResult.Width %d', [tbarSearch.Width, tbarResult.Width]);
+        tbarSearch.Width :=  MulDiv(tbarSearch.Width, M, D);
+        tbarResult.Width :=  MulDiv(tbarResult.Width, M, D);
+        tbarConfig.Width :=  MulDiv(tbarConfig.Width, M, D);
+		dbgMsg.MsgFmt('New tbarSearch.Width %d and tbarResult.Width %d', [tbarSearch.Width, tbarResult.Width]);
+
 	end;
 end;
 

@@ -1440,9 +1440,12 @@ begin
 
 	inherited ChangeScale(M, D, isDpiChange);
 	if isDpiChange then begin
-		dbgMsg.Msg('Set VstResult Fonts');
+		dbgMsg.MsgFmt('M(%d) / D(%d) = %d%%', [M, D, MulDiv(100, M, D)]);
+		dbgMsg.MsgFmt('Orig VstResult Fonts: %d', [VstResult.Font.Height]);
 		VstResult.Header.Font.Height := MulDiv(VstResult.Header.Font.Height, M, D);
-		VstResult.Font.Height := MulDiv(VstResult.Font.Height, M, D);
+//      VstResult.Font.Height := MulDiv(VstResult.Font.Height, M, D); too much
+		dbgMsg.MsgFmt('New VstResult Fonts: %d', [VstResult.Font.Height]);
+
 	end;
 end;
 

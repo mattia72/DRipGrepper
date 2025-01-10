@@ -856,7 +856,7 @@ begin
 
 	inherited ChangeScale(M, D, isDpiChange);
 
-	dbgMsg.MsgFmt('M(%d) / D(%d) = %d', [M, D, MulDiv(1, M, D)]);
+	dbgMsg.MsgFmt('M(%d) / D(%d) = %d%%', [M, D, MulDiv(100, M, D)]);
 	if isDpiChange or (FOrigHeight = 0) then begin
 		SetOrigHeights;
 		toolbarSearchTextOptions.AutoSize := false;
