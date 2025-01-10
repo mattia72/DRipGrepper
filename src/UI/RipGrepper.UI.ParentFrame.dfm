@@ -15,11 +15,17 @@ object ParentFrame: TParentFrame
     Width = 851
     Height = 31
     Align = alTop
+    ParentBackground = False
     TabOrder = 2
+    StyleElements = [seFont, seBorder]
     StyleName = 'Windows'
-    inherited tbarConfig: TToolBar
-      Left = 815
-      Height = 25
+    inherited pnlTop: TPanel
+      Width = 851
+      Height = 31
+      inherited tbarConfig: TToolBar
+        Left = 815
+        Height = 25
+      end
     end
   end
   inline MainFrame: TRipGrepperMiddleFrame
@@ -48,18 +54,6 @@ object ParentFrame: TParentFrame
               Height = 429
               inherited VstHistory: TVirtualStringTree
                 Height = 423
-                Columns = <
-                  item
-                    Position = 0
-                    Text = 'Search'
-                    Width = 181
-                  end
-                  item
-                    Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coSmartResize, coAllowFocus, coEditable, coStyleColor]
-                    Position = 1
-                    Text = 'Replace'
-                    Width = 519
-                  end>
                 DefaultText = ''
               end
             end
