@@ -29,6 +29,7 @@ type
 			FSettings : TRipGrepperSettings;
 			function GetSettings : TRipGrepperSettings;
 			procedure FrameOnShowHide(var M : TMessage); message CM_SHOWINGCHANGED;
+			procedure WMSettingChange(var Message : TWMSettingChange); message WM_SETTINGCHANGE;
 
 		public
 			constructor Create(AOwner : TComponent); override;
@@ -39,6 +40,7 @@ type
 			procedure Init;
 			procedure OnClose(Sender : TObject; var Action : TCloseAction);
 			procedure FrameOnShow(Sender : TObject);
+			procedure UpdateUIStyle(_sNewStyle : string = '');
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 	end;
 
@@ -134,6 +136,32 @@ begin
 	MainFrame.Init();
 	TopFrame.Init();
 	BottomFrame.Init();
+	UpdateUIStyle;
+	TDarkModeHelper.ThemeChanged(Handle);
+end;
+
+procedure TParentFrame.UpdateUIStyle(_sNewStyle : string = '');
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.UpdateUIStyle');
+
+	if _sNewStyle.IsEmpty then begin
+		StyleName := TDarkModeHelper.GetActualThemeName();
+	end else begin
+		StyleName := _sNewStyle;
+	end;
+
+	TopFrame.UpdateUIStyle(StyleName);
+
+	dbgMsg.Msg('Theme: ' + StyleName);
+end;
+
+procedure TParentFrame.WMSettingChange(var Message : TWMSettingChange);
+begin
+	if SameText('ImmersiveColorSet', string(message.Section)) then begin
+		UpdateUIStyle;
+		TDarkModeHelper.ThemeChanged(Handle);
+	end;
 end;
 
 end.

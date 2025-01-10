@@ -43,6 +43,7 @@ type
 			procedure BeforeSearch;
 			procedure SetRunningStatus;
 			procedure SetReadyStatus;
+			procedure UpdateUIStyle(_sNewStyle : string = '');
 			property StatusBarMessage : string read FStatusBarMessage write FStatusBarMessage;
 			property StatusBarStatistic : string read FStatusBarStatistic write FStatusBarStatistic;
 			property StatusBarStatus : string read FStatusBarStatus write FStatusBarStatus;
@@ -56,7 +57,9 @@ implementation
 uses
 	RipGrepper.Common.Constants,
 	RipGrepper.UI.MiddleFrame,
-	System.StrUtils;
+	System.StrUtils,
+	RipGrepper.Tools.DebugUtils,
+	RipGrepper.Helper.UI.DarkMode;
 
 {$R *.dfm}
 
@@ -132,6 +135,19 @@ begin
 		[MainFrame.HistItemObject.ElapsedTimeText]); // , MainFrame.ExeVersion]);
 	StatusBarStatus := IfThen(MainFrame.HistItemObject.RipGrepResult = RG_ERROR, 'ERROR', 'SUCCESS');
 	StatusBarMessage := msg;
+end;
+
+procedure TRipGrepperBottomFrame.UpdateUIStyle(_sNewStyle : string = '');
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperBottomFrame.UpdateUIStyle');
+
+	if _sNewStyle.IsEmpty then begin
+		StyleName := TDarkModeHelper.GetActualThemeName();
+	end else begin
+		StyleName := _sNewStyle;
+	end;
+	dbgMsg.Msg('Theme: ' + StyleName);
 end;
 
 end.

@@ -160,6 +160,7 @@ type
 			procedure ToggleGuiReplaceMode(const _grm : EGuiReplaceMode);
 			procedure UpdateFilterMenuAndHint;
 			procedure UpdateReplaceMenu;
+			procedure WMSettingChange(var Message : TWMSettingChange); message WM_SETTINGCHANGE;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 
 		protected
@@ -179,6 +180,7 @@ type
 			procedure SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
 			procedure SetFilterBtnImage(const _bOn : Boolean = True);
 			procedure SetGuiReplaceMode(const _modes : TGuiReplaceModes; const _sReplaceText : string = '');
+			procedure UpdateUIStyle(_sNewStyle : string = '');
 			property IsGuiReplaceMode : Boolean read GetIsGuiReplaceMode;
 			property HistItemObj : IHistoryItemObject read FHistItemObj;
 
@@ -297,12 +299,8 @@ begin
 	owSettings.TestFile := default (TOpenWithParams);
 	owSettings.Reload();
 	{$IFDEF STANDALONE}
-	var
-	styleName := TDarkModeHelper.GetActualThemaName();
-	TopFrame.StyleName := styleName;
-	TopFrame.pnlTop.StyleName := styleName;
-	MainFrame.StyleName := styleName;
-	TDarkModeHelper.RefreshThemes;
+	UpdateUIStyle;
+	TDarkModeHelper.ThemeChanged(Parent.Handle);
 	{$ENDIF}
 end;
 
@@ -538,9 +536,9 @@ begin
 		dbgMsg.MsgFmt('New edtFilter.Font %d and edtReplace.Font %d', [edtFilter.Font.Height, edtReplace.Font.Height]);
 
 		dbgMsg.MsgFmt('Orig width tbarSearch.Width %d and tbarResult.Width %d', [tbarSearch.Width, tbarResult.Width]);
-        tbarSearch.Width :=  MulDiv(tbarSearch.Width, M, D);
-        tbarResult.Width :=  MulDiv(tbarResult.Width, M, D);
-        tbarConfig.Width :=  MulDiv(tbarConfig.Width, M, D);
+		tbarSearch.Width := MulDiv(tbarSearch.Width, M, D);
+		tbarResult.Width := MulDiv(tbarResult.Width, M, D);
+		tbarConfig.Width := MulDiv(tbarConfig.Width, M, D);
 		dbgMsg.MsgFmt('New tbarSearch.Width %d and tbarResult.Width %d', [tbarSearch.Width, tbarResult.Width]);
 
 	end;
@@ -917,6 +915,30 @@ procedure TRipGrepperTopFrame.UpdateReplaceMenu;
 begin
 	ActionReplaceCaseSensitive.Checked := EGuiReplaceMode.grmCaseSensitive in FGuiReplaceModes;
 	ActionReplaceUseRegex.Checked := EGuiReplaceMode.grmUseRegex in FGuiReplaceModes;
+end;
+
+procedure TRipGrepperTopFrame.UpdateUIStyle(_sNewStyle : string = '');
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperTopFrame.UpdateUIStyle');
+
+	if _sNewStyle.IsEmpty then begin
+		StyleName := TDarkModeHelper.GetActualThemeName();
+	end else begin
+		StyleName := _sNewStyle;
+	end;
+
+	MainFrame.UpdateUIStyle(styleName);
+
+	dbgMsg.MsgFmt('TopFrame.StyleName = %s, MainFrame.StyleName = %s', [TopFrame.StyleName, MainFrame.StyleName])
+end;
+
+procedure TRipGrepperTopFrame.WMSettingChange(var Message : TWMSettingChange);
+begin
+	if SameText('ImmersiveColorSet', string(message.Section)) then begin
+		UpdateUIStyle;
+		TDarkModeHelper.ThemeChanged(Parent.Handle);
+	end;
 end;
 
 end.

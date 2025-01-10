@@ -213,6 +213,7 @@ type
 			procedure UpdateHistObjectAndCopyToSettings;
 			procedure UpdateHistObjectAndGui;
 			procedure UpdateRipGrepArgumentsInHistObj;
+			procedure UpdateUIStyle(_sNewStyle : string = '');
 			property AbortSearch : Boolean read FAbortSearch write FAbortSearch;
 			property Data : TRipGrepperData read GetData write FData;
 			property ExeVersion : string read FExeVersion write FExeVersion;
@@ -1443,10 +1444,23 @@ begin
 		dbgMsg.MsgFmt('M(%d) / D(%d) = %d%%', [M, D, MulDiv(100, M, D)]);
 		dbgMsg.MsgFmt('Orig VstResult Fonts: %d', [VstResult.Font.Height]);
 		VstResult.Header.Font.Height := MulDiv(VstResult.Header.Font.Height, M, D);
-//      VstResult.Font.Height := MulDiv(VstResult.Font.Height, M, D); too much
+		// VstResult.Font.Height := MulDiv(VstResult.Font.Height, M, D); too much
 		dbgMsg.MsgFmt('New VstResult Fonts: %d', [VstResult.Font.Height]);
 
 	end;
+end;
+
+procedure TRipGrepperMiddleFrame.UpdateUIStyle(_sNewStyle : string = '');
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.UpdateUIStyle');
+
+	if not _sNewStyle.IsEmpty then begin
+		StyleName := _sNewStyle;
+		BottomFrame.UpdateUIStyle(styleName);
+	end;
+
+	dbgMsg.MsgFmt('MainFrame.StyleName = %s', [StyleName])
 end;
 
 end.
