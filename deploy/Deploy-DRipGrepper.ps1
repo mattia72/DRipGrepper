@@ -191,7 +191,7 @@ function Add-ToAssetsDir {
     if (-not $(Test-YesAnswer "Release version: $global:Version. Version of $($item.Name)($($Win64 ? 'Win64': 'Win32')) appName: $appVersion. Ok?")) {
         Write-Error "Search FileVersion=$appVersion in *.dproj and change it!`r`nDeploy stopped." -ErrorAction Stop
     }
-    New-Item -Path $AssetDir -ItemType Directory -Force -ErrorAction SilentlyContinue
+    New-Item -Path $AssetDir -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
     Copy-Item -Path $AssetItemPath -Destination $AssetDir -ErrorAction Stop
 }
 
@@ -227,7 +227,7 @@ function New-ExtensionZip {
         Add-ToAssetsDir -AssetDir $AssetDir $extensionPath 
     
         $dest = "$global:AssetsDirectory\$($global:AssetExtensionZipName  -f $($win64 ? 'x64' : 'x86'), $_.Data.Dir ,$global:Version)"
-        Write-Host "$AssetDir\*.* to`n $dest" 
+        # Write-Host "$AssetDir\*.* to`n $dest" 
 
         $compress = @{
             Path             = "$AssetDir\*.*"
@@ -250,7 +250,7 @@ function New-ExpertDllZip {
         Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $global:ExpertFileName) -Win64:$false
         $dest = "$global:AssetsDirectory\$($global:AssetExpertZipName -f $($win64 ? 'x64' : 'x86'), $_.Data.Dir ,$global:Version)"
 
-        Write-Host "$AssetDir\*.* to`n $dest" 
+        # Write-Host "$AssetDir\*.* to`n $dest" 
 
         $compress = @{
             Path             = "$AssetDir\*.*"
