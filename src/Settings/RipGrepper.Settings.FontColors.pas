@@ -7,7 +7,8 @@ uses
 	System.UITypes,
 	Vcl.Graphics,
 	RipGrepper.Settings.Persistable,
-	System.IniFiles;
+	System.IniFiles,
+	RipGrepper.Helper.UI.DarkMode;
 
 type
 	TFontStyleSet = set of TFontStyle;
@@ -32,9 +33,9 @@ type
 				Style : [fsBold];);
 
 			DEFAULT_COLORS : array of string = [
-			{ } 'MatchText=Segoe UI|9|clMaroon|clWindow|fsBold|fsUnderline',
-			{ } 'SearchTextInHistory=Segoe UI|9|clMaroon|clWindow|fsBold',
-			{ } 'ReplacedTextInHistory=Segoe UI|9|clMaroon|clWhite|fsBold|fsStrikeOut',
+			{ } 'MatchText=Segoe UI|9|clMaroon|clNone|fsBold|fsUnderline',
+			{ } 'SearchTextInHistory=Segoe UI|9|clMaroon|clNone|fsBold',
+			{ } 'ReplacedTextInHistory=Segoe UI|9|clMaroon|clNone|fsBold|fsStrikeOut',
 			{ } 'NormalText=Segoe UI|9|clBlack|clNone',
 			{ } 'CounterText=Segoe UI|9|clPurple|clNone',
 			{ } 'ReplacedText=Segoe UI|9|clWhite|clMaroon|fsBold|fsStrikeOut',
@@ -42,9 +43,27 @@ type
 			{ } 'StatisticsText=Segoe UI|9|clHotLight|clNone|fsBold',
 			{ } 'ReplaceText=Segoe UI|9|clWhite|clGreen|fsBold',
 			{ } 'FileText=Segoe UI|9|clWindowFrame|clNone|fsBold',
-			{ } 'ReplaceTextInHistory=Segoe UI|9|clGreen|clWhite|fsBold',
+			{ } 'ReplaceTextInHistory=Segoe UI|9|clGreen|clNone|fsBold',
 			{ } 'LineNumText=Segoe UI|9|clGrayText|clNone',
 			{ } 'ColNumText=Segoe UI|9|clGrayText|clNone'];
+
+			DEFAULT_DARK_COLORS : array of string = [
+			{ } 'MatchText=Segoe UI|9|$00558CFF|clNone|fsBold|fsUnderline',
+			{ } 'SearchTextInHistory=Segoe UI|9|$004080FF|clNone|fsBold',
+			{ } 'ReplacedTextInHistory=Segoe UI|9|clMaroon|clNone|fsBold|fsStrikeOut',
+			{ } 'NormalText=Segoe UI|9|clBtnHighlight|clNone',
+			{ } 'CounterText=Segoe UI|9|clFuchsia|clNone',
+			{ } 'ReplacedText=Segoe UI|9|clWhite|clMaroon|fsBold|fsStrikeOut',
+			{ } 'ErrorText=Segoe UI|9|clRed|clNone',
+			{ } 'StatisticsText=Segoe UI|9|clHotLight|clNone|fsBold',
+			{ } 'ReplaceText=Segoe UI|9|clWhite|clGreen|fsBold',
+			{ } 'FileText=Segoe UI|9|clSkyBlue|clNone|fsBold',
+			{ } 'ReplaceTextInHistory=Segoe UI|9|clGreen|clNone|fsBold',
+			{ } 'LineNumText=Segoe UI|9|clGrayText|clNone',
+			{ } 'ColNumText=Segoe UI|9|clGrayText|clNone'];
+
+		private
+			FTheme : EThemeMode;
 
 		public
 
@@ -66,7 +85,7 @@ type
 			TREEVIEW_STATS_TEXT : TFontAttributes;
 			TREEVIEW_STAT_TEXT : TFontAttributes; //
 
-			constructor Create;
+			constructor Create(const _theme : EThemeMode = EThemeMode.tmLight);
 			procedure SetDefault(const _name : string; var _color : TFontAttributes);
 	end;
 
@@ -165,7 +184,7 @@ end;
 procedure TColorSettings.LoadDefaultColors;
 begin
 	var
-	df := TDefaultFontColors.Create();
+	df := TDefaultFontColors.Create(TDarkModeHelper.GetActualThemeMode);
 	try
 		FFontColors.MatchText.FromString(df.TREEVIEW_MATCH_TEXT.ToString());
 		FFontColors.ReplaceText.FromString(df.TREEVIEW_REPLACE_TEXT.ToString());
@@ -251,7 +270,7 @@ begin
 		Style := [];
 
 		while i < arr.Count do begin
-			sEnumName := arr[PostInc(i)];
+			sEnumName := arr[PostInc(i)].Trim();
 			st := TRttiEnumerationType.GetValue<TFontStyle>(sEnumName);
 			Style := Style + [st];
 		end;
@@ -332,9 +351,10 @@ begin
 		raise Exception.Create('Unknown font attribute name: ' + _name);
 end;
 
-constructor TDefaultFontColors.Create;
+constructor TDefaultFontColors.Create(const _theme : EThemeMode = EThemeMode.tmLight);
 begin
-	inherited;
+	inherited Create();
+	FTheme := _theme;
 	SetDefault('MatchText', TREEVIEW_MATCH_TEXT);
 	SetDefault('ReplaceText', TREEVIEW_REPLACE_TEXT);
 	SetDefault('ReplacedText', TREEVIEW_REPLACED_TEXT);
@@ -354,7 +374,12 @@ procedure TDefaultFontColors.SetDefault(const _name : string; var _color : TFont
 var
 	dc : TArrayEx<string>;
 begin
-	dc := DEFAULT_COLORS;
+	if FTheme = EThemeMode.tmLight then begin
+		dc := DEFAULT_COLORS;
+	end else begin
+		dc := DEFAULT_DARK_COLORS;
+	end;
+
 	var
 	idx := dc.IndexOf(_name, TComparer<string>.Construct(
 		function(const Left, Right : string) : Integer
