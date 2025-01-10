@@ -39,19 +39,19 @@ object AppSettingsForm: TAppSettingsForm
     end
     object grpDeveloper: TGroupBox
       AlignWithMargins = True
-      Left = 16
-      Top = 143
+      Left = 11
+      Top = 212
       Width = 494
-      Height = 253
+      Height = 181
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Developer'
       TabOrder = 0
       DesignSize = (
         494
-        253)
+        181)
       object Label1: TLabel
         Left = 16
-        Top = 186
+        Top = 126
         Width = 62
         Height = 15
         Caption = 'Ini file path:'
@@ -66,7 +66,7 @@ object AppSettingsForm: TAppSettingsForm
       end
       object btnedtIniFilePath: TButtonedEdit
         Left = 16
-        Top = 207
+        Top = 147
         Width = 469
         Height = 23
         Anchors = [akLeft, akTop, akRight]
@@ -89,7 +89,7 @@ object AppSettingsForm: TAppSettingsForm
       end
       object gbTrace: TGroupBox
         Left = 16
-        Top = 112
+        Top = 52
         Width = 465
         Height = 68
         Caption = 'Debug Trace Filters'
@@ -152,18 +152,6 @@ object AppSettingsForm: TAppSettingsForm
           TextHint = 'Regex'
         end
       end
-      object rgTheme: TRadioGroup
-        Left = 16
-        Top = 52
-        Width = 465
-        Height = 54
-        Caption = 'Theme'
-        Items.Strings = (
-          'Light'
-          'Dark')
-        TabOrder = 3
-        OnClick = rgThemeClick
-      end
     end
     object btnedtRgExePath: TButtonedEdit
       Left = 16
@@ -209,10 +197,22 @@ object AppSettingsForm: TAppSettingsForm
       ScrollBars = ssVertical
       TabOrder = 2
     end
+    object rgTheme: TRadioGroup
+      Left = 11
+      Top = 152
+      Width = 494
+      Height = 54
+      Caption = 'Theme'
+      Items.Strings = (
+        'Light'
+        'Dark')
+      TabOrder = 3
+      OnClick = rgThemeClick
+    end
   end
   object ImageListButtons: TImageList
-    Left = 422
-    Top = 153
+    Left = 222
+    Top = 78
     Bitmap = {
       494C010109003000040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
@@ -618,13 +618,13 @@ object AppSettingsForm: TAppSettingsForm
       000000000000}
   end
   object OpenDialog1: TOpenDialog
-    Left = 360
-    Top = 152
+    Left = 115
+    Top = 77
   end
   object ActionList1: TActionList
     Images = ImageListButtons
-    Left = 476
-    Top = 156
+    Left = 306
+    Top = 76
     object ActionOpenFileDialog: TAction
       Caption = 'ActionOpenFileDialog'
       ImageIndex = 2
