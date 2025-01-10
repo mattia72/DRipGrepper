@@ -187,6 +187,17 @@ end;
 
 class procedure TDarkModeHelper.SetThemeMode(const _mode : EThemeMode);
 begin
+	{$IFDEF STANDALONE}
+	var
+	dark := DARK_THEME_NAME;
+	var
+	light := LIGHT_THEME_NAME;
+	{$ELSE}
+	var
+	dark := 'Dark';
+	var
+	light := 'Light';
+	{$ENDIF}
 	SetSpecificThemeMode(_mode = tmDark, DARK_THEME_NAME, LIGHT_THEME_NAME);
 end;
 
