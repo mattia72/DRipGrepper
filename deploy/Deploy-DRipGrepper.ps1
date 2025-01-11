@@ -36,6 +36,7 @@ $global:Repo = "DRipGrepper"
 $global:Url = "https://api.github.com/repos/$global:Owner/$global:Repo/releases"
 $global:Token = $(Get-Content $PSScriptRoot\SECRET_TOKEN)
 
+$global:PadRightValue = 45
 $global:InstalledDelphiVersions = @()
 
 $global:headers = @{
@@ -195,7 +196,7 @@ function Add-ToAssetsDir {
     Copy-Item -Path $AssetItemPath -Destination $AssetDir -ErrorAction Stop
 
     $assetLabel = $($item.FullName -replace "^(.*)($BuildConfig.*$)", "`$2" )
-    $formattedLabel = $assetLabel.PadRight(25)
+    $formattedLabel = $assetLabel.PadRight($global:PadRightValue)
     Write-Host "$formattedLabel  $($appVersion.PadRight(10)) $($item.LastWriteTime) added to $($AssetDir -replace [regex]::Escape("$PSScriptRoot\"), '')." -ForegroundColor Green
 }
 
@@ -292,7 +293,7 @@ function New-ReleaseWithAsset {
                 # Write-Host "$($_.Name)`t$($_.CreationTime)" -ForegroundColor Blue
             }
             else {
-                Write-Host "$($_.Name.PadRight(50))`t$($_.CreationTime)`t$($_.Length)" -ForegroundColor Red 
+                Write-Host "$($_.Name.PadRight($global:PadRightValue))`t$($_.CreationTime)`t$($_.Length)" -ForegroundColor Red 
             }
         }
 
