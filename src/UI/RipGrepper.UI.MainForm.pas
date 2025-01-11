@@ -166,7 +166,7 @@ begin
 	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.CreateParams');
 	inherited CreateParams(Params);
 {$IFDEF STANDALONE}
-		Params.ExStyle := Params.ExStyle or WS_EX_APPWINDOW;
+		Params.ExStyle := Params.ExStyle or WS_EX_APPWINDOW; // force show in taskbar
 		Params.WndParent := GetDesktopwindow;
 {$ENDIF}
 end;
