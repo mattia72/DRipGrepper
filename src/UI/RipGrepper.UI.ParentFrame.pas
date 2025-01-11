@@ -136,8 +136,10 @@ begin
 	MainFrame.Init();
 	TopFrame.Init();
 	BottomFrame.Init();
+ 	{$IFDEF STANDALONE} // UpdateUIStyle doesn't work in dark Delphi.
 	UpdateUIStyle;
 	TDarkModeHelper.ThemeChanged(Handle);
+    {$ENDIF}
 end;
 
 procedure TParentFrame.UpdateUIStyle(_sNewStyle : string = '');

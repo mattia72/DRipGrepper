@@ -7,6 +7,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
   Margins.Top = 0
   Margins.Right = 0
   Margins.Bottom = 0
+  ParentBackground = False
   TabOrder = 0
   OnResize = FrameResize
   object panelMain: TPanel
@@ -73,6 +74,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           inherited Panel1: TPanel
             Width = 191
             Height = 335
+            StyleElements = [seFont, seClient]
             inherited VstHistory: TVirtualStringTree
               Width = 185
               Height = 329
