@@ -95,7 +95,11 @@ uses
 	RipGrepper.Common.Constants,
 	System.TypInfo,
 	System.RegularExpressions,
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils,
+    {$IFNDEF STANDALONE}
+    ToolsAPI,
+    {$ENDIF}
+	Vcl.Themes;
 
 {$R *.dfm}
 
@@ -271,7 +275,17 @@ begin
 	SelectedFontAttributes.ToFont(FSelectedFont);
 	ExampleText.Font.Assign(FSelectedFont);
 	if SelectedFontAttributes.BgColor = clNone then begin
-		ExampleText.Color := Parent.Brush.Color;
+		{$IFDEF STANDALONE}
+		ExampleText.Color := TStyleManager.ActiveStyle.GetSystemColor(clWindow);
+		{$ELSE}
+		var
+			themingServices : IOTAIDEThemingServices;
+
+		if Supports(BorlandIDEServices, IOTAIDEThemingServices, ThemingServices) then begin
+			ExampleText.Color := ThemingServices.StyleServices.GetSystemColor(clWindow);
+		end;
+
+		{$ENDIF}
 	end else begin
 		ExampleText.Color := FSelectedFontAttributes.BgColor;
 	end;
