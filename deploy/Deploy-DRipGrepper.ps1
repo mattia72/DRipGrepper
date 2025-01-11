@@ -16,7 +16,7 @@ param (
 # - Update file and product version in every projects for ALL CONFIGURATION!
 # - Commit and push all changes
 # - Run this script Ctrl+Shift+T Deploy
-$global:TransferDrive = Get-Content "$PSScriptRoot\TransferDrive.txt" -ErrorAction SilentlyContinu0e
+$global:TransferDrive = Get-Content "$PSScriptRoot\TransferDrive.txt" -ErrorAction SilentlyContinue
 $global:Description = Get-Content "$PSScriptRoot\Deploy-Description.md"
 $global:Version = ($global:Description | Select-String '^Version:') -replace 'Version:\s*'
 $global:PrevVersion = ($global:Description | Select-String '^PrevVersion:') -replace 'PrevVersion:\s*'
@@ -196,7 +196,7 @@ function Add-ToAssetsDir {
 
     $assetLabel = $($item.FullName -replace "^(.*)($BuildConfig.*$)", "`$2" )
     $formattedLabel = $assetLabel.PadRight(25)
-    Write-Host "$formattedLabel  $($appVersion.PadRight(10)) $($item.LastWriteTimeString) added to $($AssetDir -replace [regex]::Escape("$PSScriptRoot\"), '')." -ForegroundColor Green
+    Write-Host "$formattedLabel  $($appVersion.PadRight(10)) $($item.LastWriteTime) added to $($AssetDir -replace [regex]::Escape("$PSScriptRoot\"), '')." -ForegroundColor Green
 }
 
 function New-StandaloneZips {
@@ -292,7 +292,7 @@ function New-ReleaseWithAsset {
                 # Write-Host "$($_.Name)`t$($_.CreationTime)" -ForegroundColor Blue
             }
             else {
-                Write-Host "$($_.Name)`t$($_.CreationTime)`t$($_.Length)" -ForegroundColor Red 
+                Write-Host "$($_.Name.PadRight(50))`t$($_.CreationTime)`t$($_.Length)" -ForegroundColor Red 
             }
         }
 
