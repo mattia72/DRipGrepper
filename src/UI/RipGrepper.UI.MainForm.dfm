@@ -188,6 +188,18 @@ object RipGrepperForm: TRipGrepperForm
             inherited MiddleLeftFrame1: TMiddleLeftFrame
               inherited Panel1: TPanel
                 inherited VstHistory: TVirtualStringTree
+                  Columns = <
+                    item
+                      Position = 0
+                      Text = 'Search'
+                      Width = 181
+                    end
+                    item
+                      Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coSmartResize, coAllowFocus, coEditable, coStyleColor]
+                      Position = 1
+                      Text = 'Replace'
+                      Width = 519
+                    end>
                   DefaultText = ''
                 end
               end

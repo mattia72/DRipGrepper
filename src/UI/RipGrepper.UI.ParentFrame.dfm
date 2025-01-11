@@ -37,6 +37,7 @@ object ParentFrame: TParentFrame
     Margins.Top = 8
     Margins.Right = 8
     Margins.Bottom = 8
+    ParentBackground = False
     TabOrder = 1
     inherited panelMain: TPanel
       Width = 851

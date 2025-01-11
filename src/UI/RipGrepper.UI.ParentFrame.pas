@@ -138,7 +138,7 @@ begin
 	BottomFrame.Init();
  	{$IFDEF STANDALONE} // UpdateUIStyle doesn't work in dark Delphi.
 	UpdateUIStyle;
-	TDarkModeHelper.ThemeChanged(Handle);
+	TDarkModeHelper.BroadcastThemeChanged(Handle);
     {$ENDIF}
 end;
 
@@ -162,7 +162,7 @@ procedure TParentFrame.WMSettingChange(var Message : TWMSettingChange);
 begin
 	if SameText('ImmersiveColorSet', string(message.Section)) then begin
 		UpdateUIStyle;
-		TDarkModeHelper.ThemeChanged(Handle);
+		TDarkModeHelper.BroadcastThemeChanged(Handle);
 	end;
 end;
 

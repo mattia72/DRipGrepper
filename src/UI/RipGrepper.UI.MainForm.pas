@@ -34,7 +34,8 @@ uses
 	System.IniFiles,
 	RipGrepper.UI.TopFrame,
 	RipGrepper.UI.DpiScaler,
-	RipGrepper.UI.ParentFrame;
+	RipGrepper.UI.ParentFrame,
+	Winapi.Messages;
 
 type
 	TRipGrepperForm = class(TForm)
@@ -51,8 +52,8 @@ type
 
 		var
 			FSettings : TRipGrepperSettings;
-			//function GetSettings : TRipGrepperSettings;
-			//property Settings : TRipGrepperSettings read GetSettings write FSettings;
+			procedure HandleThemes;
+			procedure WMSettingChange(var Message : TWMSettingChange); message WM_SETTINGCHANGE;
 
 		protected
 			procedure CreateParams(var Params : TCreateParams); override;
@@ -94,7 +95,8 @@ uses
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.OpenWith,
 	RipGrepper.OpenWith.ConfigForm,
-	System.TypInfo;
+	System.TypInfo,
+	RipGrepper.Helper.UI.DarkMode;
 
 {$R *.dfm}
 
@@ -115,8 +117,9 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner');
 	inherited Create(AOwner);
 	{$IFDEF STANDALONE}
-		TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner STANDALONE');
-		Init;
+    HandleThemes();
+	TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner STANDALONE');
+	Init;
 	{$ENDIF}
 end;
 
@@ -152,48 +155,64 @@ end;
 procedure TRipGrepperForm.FormClose(Sender : TObject; var Action : TCloseAction);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.FormClose - begin action: ' + Integer(Action).ToString);
-   //	Settings.StoreToDict; not enough?
+	// Settings.StoreToDict; not enough?
 end;
 
 procedure TRipGrepperForm.FormShow(Sender : TObject);
 begin
-	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.FormShow');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.FormShow');
 	inherited;
 end;
 
 procedure TRipGrepperForm.CreateParams(var Params : TCreateParams);
 begin
-	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.CreateParams');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.CreateParams');
 	inherited CreateParams(Params);
-{$IFDEF STANDALONE}
-		Params.ExStyle := Params.ExStyle or WS_EX_APPWINDOW; // force show in taskbar
-		Params.WndParent := GetDesktopwindow;
-{$ENDIF}
+	{$IFDEF STANDALONE}
+	Params.ExStyle := Params.ExStyle or WS_EX_APPWINDOW; // force show in taskbar
+	Params.WndParent := GetDesktopwindow;
+	{$ENDIF}
 end;
 
 procedure TRipGrepperForm.Init;
 begin
-	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.Init');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.Init');
 	ParentFrame.Init;
 end;
 
 procedure TRipGrepperForm.Loaded;
-var
-	PropInfo : PPropInfo;
-	i : Integer;
-	cmp : TComponent;
+//var
+//  // PropInfo : PPropInfo;
+//  // i : Integer;
+//  // cmp : TComponent;
 begin
-	var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.Loaded');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.Loaded');
 	inherited Loaded;
-	PropInfo := GetPropInfo(Self, 'StyleElements');
-	if Assigned(PropInfo) then
-		SetOrdProp(Self, PropInfo, 0);
-	for I := 0 to ComponentCount - 1 do begin
-		cmp := Components[I];
-		PropInfo := GetPropInfo(cmp, 'StyleElements');
-		if Assigned(PropInfo) then
-			SetOrdProp(cmp, PropInfo, 0);
-	end;
+	// PropInfo := GetPropInfo(Self, 'StyleElements');    why did i need this?
+	// if Assigned(PropInfo) then
+	// SetOrdProp(Self, PropInfo, 0);
+	// for I := 0 to ComponentCount - 1 do begin
+	// cmp := Components[I];
+	// PropInfo := GetPropInfo(cmp, 'StyleElements');
+	// if Assigned(PropInfo) then
+	// SetOrdProp(cmp, PropInfo, 0);
+	// //? SetOrdProp(cmp, PropInfo, Ord([seFont, seClient, seBorder]));
+	// end;
+end;
+
+procedure TRipGrepperForm.HandleThemes;
+begin
+	TDarkModeHelper.SetAppropriateThemeMode();
+end;
+
+procedure TRipGrepperForm.WMSettingChange(var Message : TWMSettingChange);
+begin
+	if SameText('ImmersiveColorSet', string(message.Section)) then
+		HandleThemes;
 end;
 
 end.

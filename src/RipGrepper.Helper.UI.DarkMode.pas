@@ -28,13 +28,21 @@ type
 			DARK_THEME_NAMES : array of string = [DARK_THEME_NAME, 'Dark' { in Delphi IDE!!! } ];
 
 		private
+			// Sets either a Dark Mode or non Dark mode theme based in the "AsDarkMode" boolean
+			// For example:
+			// SetSpecificThemeMode(False, 'TheDarkModeThemeName', 'TheLightModeThemeName');
+			// Would change the application theme to the theme with the name 'TheLightModeThemeName'
+			// if it exists.
+			//
+			class procedure SetSpecificThemeMode(const AsDarkMode: Boolean; const
+				DarkModeThemeName: string; LightModeThemeName: string);
+			// Checks the Windows registry to see if Windows Dark Mode is enabled
+			class function SystemDarkModeIsEnabled: boolean;
 		public
 			class procedure AllowThemes;
 			class procedure ApplyTheme(const _style : string);
-			// Checks the Windows registry to see if Windows Dark Mode is enabled
-			class function SystemDarkModeIsEnabled : boolean;
 			class function GetActualThemeName : string;
-			class procedure ThemeChanged(_handle : HWND);
+			class procedure BroadcastThemeChanged(_handle : HWND);
 
 			// Automatically sets a Dark Mode theme is Windows is running in Dark Mode
 			// To use:
@@ -46,15 +54,8 @@ type
 			// For example:
 			// SetAppropriateThemeMode('Carbon', 'Windows10');
 			//
-			class procedure SetAppropriateThemeMode(const DarkModeThemeName, LightModeThemeName : string);
-
-			// Sets either a Dark Mode or non Dark mode theme based in the "AsDarkMode" boolean
-			// For example:
-			// SetSpecificThemeMode(False, 'TheDarkModeThemeName', 'TheLightModeThemeName');
-			// Would change the application theme to the theme with the name 'TheLightModeThemeName'
-			// if it exists.
-			//
-			class procedure SetSpecificThemeMode(const AsDarkMode : Boolean; const DarkModeThemeName, LightModeThemeName : string);
+			class procedure SetAppropriateThemeMode(const DarkModeThemeName: string =
+				DARK_THEME_NAME; const LightModeThemeName: string = LIGHT_THEME_NAME);
 
 			class function GetActualThemeMode : EThemeMode;
 			class procedure SetThemeMode(const _mode : EThemeMode);
@@ -84,6 +85,8 @@ end;
 
 class procedure TDarkModeHelper.ApplyTheme(const _style : string);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.ApplyTheme');
 	{$IFDEF STANDALONE}
 	TStyleManager.TrySetStyle(_style);
 	{$ELSE}
@@ -91,25 +94,33 @@ begin
 		themingServices : IOTAIDEThemingServices;
 
 	if Supports(BorlandIDEServices, IOTAIDEThemingServices, ThemingServices) then begin
-		themingServices.ApplyTheme(_style);
+	   //	themingServices.ApplyTheme(Application.MainForm);
 	end;
 	{$ENDIF}
 end;
 
-class procedure TDarkModeHelper.SetAppropriateThemeMode(const DarkModeThemeName, LightModeThemeName : string);
+class procedure TDarkModeHelper.SetAppropriateThemeMode(const
+	DarkModeThemeName: string = DARK_THEME_NAME; const LightModeThemeName:
+	string = LIGHT_THEME_NAME);
 begin
 	SetSpecificThemeMode(SystemDarkModeIsEnabled, DarkModeThemeName, LightModeThemeName);
 end;
 
-class procedure TDarkModeHelper.SetSpecificThemeMode(const AsDarkMode : Boolean; const DarkModeThemeName, LightModeThemeName : string);
+class procedure TDarkModeHelper.SetSpecificThemeMode(const AsDarkMode: Boolean;
+	const DarkModeThemeName: string; LightModeThemeName:
+	string);
 var
-	ChosenTheme : string;
+	chosenTheme : string;
 begin
-	ChosenTheme := IfThen(AsDarkMode, DarkModeThemeName, LightModeThemeName);
-	TDarkModeHelper.ApplyTheme(ChosenTheme);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.SetSpecificThemeMode');
+
+	chosenTheme := IfThen(AsDarkMode, DarkModeThemeName, LightModeThemeName);
+    dbgMsg.Msg('Theme name: ' + chosenTheme);
+	TDarkModeHelper.ApplyTheme(chosenTheme);
 end;
 
-class function TDarkModeHelper.SystemDarkModeIsEnabled : boolean;
+class function TDarkModeHelper.SystemDarkModeIsEnabled: boolean;
 {$IFDEF MSWINDOWS}
 const
 	TheKey = 'Software\Microsoft\Windows\CurrentVersion\Themes\Personalize\';
@@ -164,7 +175,7 @@ begin
 	dbgMsg.Msg('Thema: ' + Result);
 end;
 
-class procedure TDarkModeHelper.ThemeChanged(_handle : HWND);
+class procedure TDarkModeHelper.BroadcastThemeChanged(_handle : HWND);
 begin
 	SendMessage(Application.Handle, WM_THEMECHANGED, 0, 0);
 	// SendMessage(Application.MainForm.Handle, CM_RECREATEWND, 0, 0);

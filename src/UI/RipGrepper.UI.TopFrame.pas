@@ -300,7 +300,7 @@ begin
 	owSettings.Reload();
 	{$IFDEF STANDALONE}
 	UpdateUIStyle;
-	TDarkModeHelper.ThemeChanged(Parent.Handle);
+	TDarkModeHelper.BroadcastThemeChanged(Parent.Handle);
 	{$ENDIF}
 end;
 
@@ -529,6 +529,7 @@ begin
 
 	inherited ChangeScale(M, D, isDpiChange);
 	if isDpiChange then begin
+		{$IFDEF STANDALONE}   // scaling is done by ide
 		dbgMsg.MsgFmt('M(%d) / D(%d) = %d%%', [M, D, MulDiv(100, M, D)]);
 		dbgMsg.MsgFmt('Orig height edtFilter.Font %d edtReplace.Font %d', [edtFilter.Font.Height, edtReplace.Font.Height]);
 		edtFilter.Font.Height := MulDiv(edtFilter.Font.Height, M, D);
@@ -540,7 +541,7 @@ begin
 		tbarResult.Width := MulDiv(tbarResult.Width, M, D);
 		tbarConfig.Width := MulDiv(tbarConfig.Width, M, D);
 		dbgMsg.MsgFmt('New tbarSearch.Width %d and tbarResult.Width %d', [tbarSearch.Width, tbarResult.Width]);
-
+		{$ENDIF}
 	end;
 end;
 
@@ -921,7 +922,7 @@ procedure TRipGrepperTopFrame.UpdateUIStyle(_sNewStyle : string = '');
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperTopFrame.UpdateUIStyle');
-
+	{$IFDEF STANDALONE}
 	if _sNewStyle.IsEmpty then begin
 		StyleName := TDarkModeHelper.GetActualThemeName();
 	end else begin
@@ -929,15 +930,17 @@ begin
 	end;
 
 	MainFrame.UpdateUIStyle(styleName);
-
+	{$ENDIF}
 	dbgMsg.MsgFmt('TopFrame.StyleName = %s, MainFrame.StyleName = %s', [TopFrame.StyleName, MainFrame.StyleName])
 end;
 
 procedure TRipGrepperTopFrame.WMSettingChange(var Message : TWMSettingChange);
 begin
 	if SameText('ImmersiveColorSet', string(message.Section)) then begin
+		{$IFDEF STANDALONE}
 		UpdateUIStyle;
-		TDarkModeHelper.ThemeChanged(Parent.Handle);
+		TDarkModeHelper.BroadcastThemeChanged(Parent.Handle);
+		{$ENDIF}
 	end;
 end;
 
