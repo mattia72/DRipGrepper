@@ -7,6 +7,7 @@ uses
 	System.IniFiles,
 	System.Generics.Collections,
 	System.SysUtils,
+	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Settings.SettingVariant,
 	RipGrepper.Settings.SettingsDictionary,
 	System.SyncObjs,
@@ -25,9 +26,9 @@ type
 		procedure StoreAsDefaultsToDict;
 	end;
 
-	ESettingsException = class(Exception)
+	ESettingsException = class(Exception);
 
-	end;
+	EWriteSettingsMode = (wsmActual, wsmDefault, wsmAll);
 
 	TPersistableSettings = class(TNoRefCountObject, IIniPersistable)
 		strict private
@@ -50,7 +51,8 @@ type
 			procedure SetIniFile(const Value : TMemIniFile);
 			procedure SetIniSectionName(const Value : string);
 			procedure SetOwnersIniFile;
-			procedure WriteSettings(_bDefault : Boolean = False);
+			procedure WriteSettings(_wsm : EWriteSettingsMode);
+			// 1 Should be locked by a guard
 			procedure WriteToIni(const _sIniSection, _sKey : string; const _setting : ISettingVariant);
 
 		protected
@@ -353,7 +355,7 @@ begin
 	for var s in FChildren do begin
 		s.StoreToDict;
 	end;
-	WriteSettings();
+	WriteSettings(EWriteSettingsMode.wsmActual);
 end;
 
 procedure TPersistableSettings.ReadSettings;
@@ -502,7 +504,7 @@ end;
 procedure TPersistableSettings.StoreAsDefaultsToDict;
 begin
 	CopyValuesToDefaults;
-	WriteSettings(True); // Write to mem ini, after UpdateIniFile will be saved
+	WriteSettings(EWriteSettingsMode.wsmDefault); // Write to mem ini, after UpdateIniFile will be saved
 end;
 
 function TPersistableSettings.ToLogString : string;
@@ -528,10 +530,16 @@ begin
 		s.UpdateIniFile;
 	end;
 
+	if Assigned(FOwner) then begin
+		FOwner.CopySettingsDictSection(self);
+		FOwner.WriteSettings(EWriteSettingsMode.wsmAll);
+		Exit;
+	end;
+
 	if Assigned(IniFile) then begin
 		var
 		lock := TLockGuard.NewLock(FLockObject);
-		dbgMsg.Msg('Lock Entered');
+		dbgMsg.Msg('Lock Entered to UpdateIniFile');
 		dbgMsg.MsgFmt('IniFile %p update begin on %s', [Pointer(IniFile), GetIniSectionName()]);
 		try
 			IniFile.UpdateFile;
@@ -548,20 +556,29 @@ begin
 
 end;
 
-procedure TPersistableSettings.WriteSettings(_bDefault : Boolean = False);
+procedure TPersistableSettings.WriteSettings(_wsm : EWriteSettingsMode);
 var
 	setting : ISettingVariant;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.WriteSettings');
+
+	var
+	lock := TLockGuard.NewLock(FLockObject);
+	dbgMsg.MsgFmt('Lock Entered - WriteSettings [%s]', [IniSectionName]);
+
 	for var key in FSettingsDict.Keys do begin
 		if ((not IniSectionName.IsEmpty) and (not key.StartsWith(IniSectionName))) then
 			continue;
-		if _bDefault then begin
-			if (not key.EndsWith(DEFAULT_KEY)) then begin
-				continue;
-			end;
-		end else begin
-			if (key.EndsWith(DEFAULT_KEY)) then begin
-				continue;
+		if _wsm <> EWriteSettingsMode.wsmAll then begin
+			if _wsm = EWriteSettingsMode.wsmDefault then begin
+				if (not key.EndsWith(DEFAULT_KEY)) then begin
+					continue;
+				end;
+			end else begin
+				if (key.EndsWith(DEFAULT_KEY)) then begin
+					continue;
+				end;
 			end;
 		end;
 		setting := FSettingsDict[key];
@@ -575,6 +592,7 @@ begin
 	end;
 end;
 
+// 1 Should be locked by a guard
 procedure TPersistableSettings.WriteToIni(const _sIniSection, _sKey : string; const _setting : ISettingVariant);
 var
 	v : Variant;
@@ -582,13 +600,10 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.WriteToIni');
 
-	if (not _setting.IsModified) and (not _sKey.EndsWith(DEFAULT_KEY)) then begin
+	if (not _setting.IsModified) {and (not _sKey.EndsWith(DEFAULT_KEY))} then begin
 		Exit;
 	end;
 
-	var
-	lock := TLockGuard.NewLock(FLockObject);
-	dbgMsg.MsgFmt('Lock Entered - Write [%s] %s', [_sIniSection, _sKey]);
 	try
 		case _setting.ValueType of
 			varString, varUString : begin

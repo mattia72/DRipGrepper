@@ -19,13 +19,12 @@ type
 	{$SCOPEDENUMS ON}
 	EGuiReplaceMode = (grmRGReplace, grmEditEnabled, grmActive, grmSaveEnabled, grmCaseSensitive, grmUseRegex);
 	EFilterMode = (fmFilterFile, fmFilterText, fmCaseSensitive, fmUseRegex);
-	{$SCOPEDENUMS OFF}
+
 	TGuiReplaceModes = set of EGuiReplaceMode;
 	TFilterModes = set of EFilterMode;
 
-	{$SCOPEDENUMS ON}
 	EGuiOption = (soNotSet = 0, soMatchCase = 1, soMatchWord = 2, soUseRegex = 3);
-	{$SCOPEDENUMS OFF}
+
 	TSearchOptionSet = set of EGuiOption;
 
 	ESkipFileReplaceException = class(Exception);
@@ -39,7 +38,7 @@ type
 		FIsRGReportedError : Boolean;
 		procedure Reset;
 	end;
-
+ 	{$SCOPEDENUMS OFF}
 const
 	GUI_SEARCH_PARAMS : TArray<EGuiOption> = [
 	{ } EGuiOption.soMatchCase,

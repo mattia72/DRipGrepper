@@ -19,7 +19,8 @@ type
 			// FIniFile : TMemIniFile;
 			FSettings : TRipGrepperSettings;
 			procedure EmptyFile(const _filePath : string);
-			procedure SetDefaults;
+			function ReadBoolIniAsString(const _section, _key : string) : string;
+			procedure SetTestDefaultAndActualValues;
 
 		public
 			constructor Create;
@@ -39,6 +40,8 @@ type
 			procedure ActionSetAsDefaultExecuteShouldSaveInIni;
 			[Test]
 			procedure AfterUpdateIniValuesShouldBeProperlySaved;
+			[Test]
+			procedure AfterUpdateIniDefaultsShouldBeProperlySaved;
 	end;
 
 implementation
@@ -74,7 +77,7 @@ end;
 
 procedure TRipGrepperSettingsTest.LoadDefaultsShouldReadDefaultFromIni;
 begin
-	SetDefaults;
+	SetTestDefaultAndActualValues;
 	FSettings.LoadDefaultsFromDict;
 	// Assert.IsTrue(FSettings.IsAlreadyRead, 'IsAlreadyRead should read');
 	Assert.AreEqual('utf8', FSettings.SearchFormSettings.Encoding, 'Encoding should be utf8');
@@ -86,7 +89,7 @@ end;
 
 procedure TRipGrepperSettingsTest.AfterCopyValuesValuesShouldBeEqual;
 begin
-	SetDefaults;
+	SetTestDefaultAndActualValues;
 	FSettings.LoadDefaultsFromDict;
 	var
 	s := TRipGrepperSettings.Create();
@@ -124,7 +127,7 @@ var
 	s1, s2 : string;
 	FHistItemGuiSearchParams : TGuiSearchTextParams;
 begin
-	SetDefaults;
+	SetTestDefaultAndActualValues;
 	FSettings.LoadDefaultsFromDict;
 
 	FHistItemGuiSearchParams :=
@@ -164,58 +167,72 @@ procedure TRipGrepperSettingsTest.AfterUpdateIniValuesShouldBeProperlySaved;
 var
 	iniVal, settingVal : string;
 begin
-	SetDefaults;
+	SetTestDefaultAndActualValues;
 
 	FSettings.UpdateIniFile;
+    FSettings.LoadFromDict;
 
 	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchParams', '');
 	settingVal := FSettings.RipGrepParameters.GuiSearchTextParams.GetAsString(True);
 	Assert.AreEqual(settingVal.Trim(['[', ']']), iniVal.Trim(['[', ']']), 'SearchParams should be equal');
 
-	FSettings.LoadDefaultsFromDict;
-	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchParams_DEFAULT', '');
-	settingVal := FSettings.RipGrepParameters.GuiSearchTextParams.GetAsString(True);
-	Assert.AreEqual(settingVal, iniVal, 'SearchParams_DEFAULT should be equal');
+	iniVal := FSettings.IniFile.ReadString(FSettings.SearchFormSettings.IniSectionName, 'Encoding', 'none');
+	settingVal := FSettings.SearchFormSettings.Encoding;
+	Assert.AreEqual(settingVal, iniVal, 'Encoding should be equal');
 
-//	iniVal := FSettings.IniFile.ReadString(FSettings.SearchFormSettings.IniSectionName, 'Encoding', '');
-//	Assert.AreEqual('', iniVal, 'Encoding should be empty');
-//
-//	iniVal := FSettings.IniFile.ReadString(FSettings.SearchFormSettings.IniSectionName, 'Context', '');
-//	Assert.AreEqual('', iniVal, 'Context should be empty');
-//
-//	iniVal := FSettings.IniFile.ReadString(FSettings.SearchFormSettings.IniSectionName, 'Pretty', '');
-//	Assert.AreEqual('', iniVal, 'Pretty should be empty');
-//
-//	iniVal := FSettings.IniFile.ReadString(FSettings.SearchFormSettings.IniSectionName, 'Hidden', '');
-//	Assert.AreEqual('', iniVal, 'Hidden should be empty');
-//
-//	iniVal := FSettings.IniFile.ReadString(FSettings.SearchFormSettings.IniSectionName, 'NoIgnore', '');
-//	Assert.AreEqual('', iniVal, 'NoIgnore should be empty');
-//
-//	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchPath', '');
-//	Assert.AreEqual('', iniVal, 'SearchPath should be empty');
-//
-//	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'FileMasks', '');
-//	Assert.AreEqual('', iniVal, 'FileMasks should be empty');
-//
-//	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchOptions', '');
-//	Assert.AreEqual('', iniVal, 'SearchOptions should be empty');
-//
-//	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchOptions', '');
-//	Assert.AreEqual('', iniVal, 'SearchOptions should be empty');
-//
-//	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchOptions', '');
-//	Assert.AreEqual('', iniVal, 'SearchOptions should be empty');
-//
-//	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchOptions', '');
-//	Assert.AreEqual('', iniVal, 'SearchOptions should be empty');
-//
-//	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchOptions', '');
-//	Assert.AreEqual('', iniVal, 'SearchOptions should be empty');
+	iniVal := FSettings.IniFile.ReadString(FSettings.SearchFormSettings.IniSectionName, 'Context', '');
+	settingVal := FSettings.SearchFormSettings.Context.ToString;
+	Assert.AreEqual(settingVal, iniVal, 'Context should be equal');
+
+	iniVal := ReadBoolIniAsString(FSettings.SearchFormSettings.IniSectionName, 'Pretty');
+	settingVal := BoolToStr(FSettings.SearchFormSettings.Pretty, True);
+	Assert.AreEqual(settingVal, iniVal, 'Pretty should be equal');
+
+	iniVal := ReadBoolIniAsString(FSettings.SearchFormSettings.IniSectionName, 'Hidden');
+	settingVal := BoolToStr(FSettings.SearchFormSettings.Hidden, True);
+	Assert.AreEqual(settingVal, iniVal, 'Hidden should be equal');
+
+	iniVal := ReadBoolIniAsString(FSettings.SearchFormSettings.IniSectionName, 'NoIgnore');
+	settingVal := BoolToStr(FSettings.SearchFormSettings.NoIgnore, True);
+	Assert.AreEqual(settingVal, iniVal, 'NoIgnore should be equal');
 
 end;
 
-procedure TRipGrepperSettingsTest.SetDefaults;
+procedure TRipGrepperSettingsTest.AfterUpdateIniDefaultsShouldBeProperlySaved;
+var
+	iniVal, settingVal : string;
+begin
+	SetTestDefaultAndActualValues;
+
+	FSettings.UpdateIniFile;
+	FSettings.LoadDefaultsFromDict;
+
+	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchParams_DEFAULT', '');
+	settingVal := FSettings.RipGrepParameters.GuiSearchTextParams.GetAsString(True);
+	Assert.AreEqual(settingVal.Trim(['[', ']']), iniVal.Trim(['[', ']']), 'SearchParams should be equal');
+
+	iniVal := FSettings.IniFile.ReadString(FSettings.SearchFormSettings.IniSectionName, 'Encoding_DEFAULT', 'none');
+	settingVal := FSettings.SearchFormSettings.Encoding;
+	Assert.AreEqual(settingVal, iniVal, 'Encoding should be equal');
+
+	iniVal := FSettings.IniFile.ReadString(FSettings.SearchFormSettings.IniSectionName, 'Context_DEFAULT', '');
+	settingVal := FSettings.SearchFormSettings.Context.ToString;
+	Assert.AreEqual(settingVal, iniVal, 'Context should be equal');
+
+	iniVal := ReadBoolIniAsString(FSettings.SearchFormSettings.IniSectionName, 'Pretty_DEFAULT');
+	settingVal := BoolToStr(FSettings.SearchFormSettings.Pretty, True);
+	Assert.AreEqual(settingVal, iniVal, 'Pretty should be equal');
+
+	iniVal := ReadBoolIniAsString(FSettings.SearchFormSettings.IniSectionName, 'Hidden_DEFAULT');
+	settingVal := BoolToStr(FSettings.SearchFormSettings.Hidden, True);
+	Assert.AreEqual(settingVal, iniVal, 'Hidden should be equal');
+
+	iniVal := ReadBoolIniAsString(FSettings.SearchFormSettings.IniSectionName, 'NoIgnore_DEFAULT');
+	settingVal := BoolToStr(FSettings.SearchFormSettings.NoIgnore, True);
+	Assert.AreEqual(settingVal, iniVal, 'NoIgnore should be equal');
+end;
+
+procedure TRipGrepperSettingsTest.SetTestDefaultAndActualValues;
 begin
 	FSettings.SearchFormSettings.Encoding := 'utf8';
 	FSettings.SearchFormSettings.Context := 5;
@@ -234,7 +251,7 @@ begin
 	FSettings.RipGrepParameters.SearchPath := 'act\search\path';
 	FSettings.RipGrepParameters.FileMasks := '*.act';
 	FSettings.RipGrepParameters.GuiSearchTextParams.SearchOptions := [EGuiOption.soNotSet];
-
+	FSettings.StoreToDict;
 end;
 
 procedure TRipGrepperSettingsTest.Setup;
@@ -244,7 +261,7 @@ end;
 
 procedure TRipGrepperSettingsTest.TearDown;
 begin
-	FSettings.Free; // instance will be free
+    FSettings.Free; // instance will be free
 	EmptyFile(ChangeFileExt(Application.ExeName, '.ini'));
 end;
 
@@ -255,6 +272,11 @@ begin
 	AssignFile(txtFile, _filePath);
 	Rewrite(txtFile);
 	CloseFile(txtFile);
+end;
+
+function TRipGrepperSettingsTest.ReadBoolIniAsString(const _section, _key : string) : string;
+begin
+	Result := BoolToStr(FSettings.IniFile.ReadBool(_section, _key, False), True);
 end;
 
 initialization
