@@ -165,6 +165,12 @@ end;
 procedure TAppSettingsForm.chRegexClick(Sender : TObject);
 begin
 	edtRegex.Enabled := chRegex.Checked;
+	for var ch in [chError, chWarning, chInfo, chBegin, chEnd] do begin
+		ch.Enabled := not chRegex.Checked;
+		if chRegex.Checked then begin
+			ch.Checked := False;
+		end;
+	end;
 end;
 
 procedure TAppSettingsForm.FormShow(Sender : TObject);
