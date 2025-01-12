@@ -101,7 +101,8 @@ uses
 	RipGrepper.Tools.ProcessUtils,
 	RipGrepper.OpenWith.Params,
 	RipGrepper.OpenWith,
-	RipGrepper.Helper.UI.DarkMode;
+	RipGrepper.Helper.UI.DarkMode,
+	System.StrUtils;
 
 {$R *.dfm}
 
@@ -181,6 +182,7 @@ begin
 
 	{$IFNDEF STANDALONE}
 	rgTheme.Enabled := False;
+	rgTheme.ItemIndex := Integer(tmSystem);
 	rgTheme.Hint := 'Theme can be changed only in IDE';
 	{$ENDIF}
 end;
@@ -258,8 +260,11 @@ begin
 end;
 
 procedure TAppSettingsForm.rgThemeClick(Sender : TObject);
+var
+	tm : EThemeMode;
 begin
-	TDarkModeHelper.SetThemeMode(EThemeMode(rgTheme.ItemIndex));
+	tm := EThemeMode(rgTheme.ItemIndex);
+	TDarkModeHelper.SetThemeMode(tm);
 end;
 
 procedure TAppSettingsForm.ValidateInput(var M : TMessage);
@@ -292,6 +297,10 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TAppSettingsForm.WriteSettings');
 	FAppSettings.DebugTrace := TDebugUtils.TraceTypesToStr(GetTraceTypeFilters());
 	FAppSettings.ExpertMode := chExpertMode.Checked;
+	var
+	tm := EThemeMode(rgTheme.ItemIndex);
+	FAppSettings.ColorTheme := IfThen(tm in [tmLight, tmDark], TDarkModeHelper.GetThemeNameByMode(tm));
+
 	var
 	rgPath := btnedtRgExePath.Text;
 	if IsRgExeValid(rgPath) then begin

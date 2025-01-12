@@ -2,7 +2,7 @@ object AppSettingsForm: TAppSettingsForm
   Left = 0
   Top = 0
   Caption = 'AppSettingsForm'
-  ClientHeight = 434
+  ClientHeight = 450
   ClientWidth = 521
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,13 +16,13 @@ object AppSettingsForm: TAppSettingsForm
     Left = 0
     Top = 0
     Width = 521
-    Height = 434
+    Height = 450
     Align = alClient
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 0
     DesignSize = (
       521
-      434)
+      450)
     object lblRgExePath: TLabel
       Left = 16
       Top = 9
@@ -40,7 +40,7 @@ object AppSettingsForm: TAppSettingsForm
     object grpDeveloper: TGroupBox
       AlignWithMargins = True
       Left = 11
-      Top = 212
+      Top = 239
       Width = 494
       Height = 181
       Anchors = [akLeft, akTop, akRight]
@@ -201,11 +201,12 @@ object AppSettingsForm: TAppSettingsForm
       Left = 11
       Top = 152
       Width = 494
-      Height = 54
+      Height = 81
       Caption = 'Theme'
       Items.Strings = (
         'Light'
-        'Dark')
+        'Dark'
+        'System')
       TabOrder = 3
       OnClick = rgThemeClick
     end

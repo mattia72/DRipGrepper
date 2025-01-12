@@ -184,10 +184,10 @@ begin
 end;
 
 procedure TRipGrepperForm.Loaded;
-//var
-//  // PropInfo : PPropInfo;
-//  // i : Integer;
-//  // cmp : TComponent;
+// var
+// // PropInfo : PPropInfo;
+// // i : Integer;
+// // cmp : TComponent;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.Loaded');
@@ -206,10 +206,14 @@ end;
 
 procedure TRipGrepperForm.HandleThemes;
 begin
-	TDarkModeHelper.SetAppropriateThemeMode();
+	if GSettings.AppSettings.ColorTheme.IsEmpty then begin
+		TDarkModeHelper.SetAppropriateThemeMode();
+	end else begin
+		TDarkModeHelper.SetThemeMode(GSettings.AppSettings.ColorTheme);
+	end;
 end;
 
-procedure TRipGrepperForm.WMSettingChange(var Message : TWMSettingChange);
+procedure TRipGrepperForm.WMSettingChange(var message : TWMSettingChange);
 begin
 	if SameText('ImmersiveColorSet', string(message.Section)) then
 		HandleThemes;

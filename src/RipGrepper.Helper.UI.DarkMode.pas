@@ -18,14 +18,15 @@ uses
 	Winapi.Windows;
 
 type
-	EThemeMode = (tmLight, tmDark);
+	EThemeMode = (tmLight, tmDark, tmSystem);
 
 	TDarkModeHelper = class
 		const
-			DARK_THEME_NAME = 'Carbon';
+			DARK_THEME_NAME = 'Carbon'; // too dark 'Windows10 Dark';
 			LIGHT_THEME_NAME = 'Windows10';
-
+			SYSTEM_THEME = 'System';
 			DARK_THEME_NAMES : array of string = [DARK_THEME_NAME, 'Dark' { in Delphi IDE!!! } ];
+			LIGHT_THEME_NAMES : array of string = [LIGHT_THEME_NAME, 'Light' { in Delphi IDE!!! } ];
 
 		private
 			// Sets either a Dark Mode or non Dark mode theme based in the "AsDarkMode" boolean
@@ -34,10 +35,10 @@ type
 			// Would change the application theme to the theme with the name 'TheLightModeThemeName'
 			// if it exists.
 			//
-			class procedure SetSpecificThemeMode(const AsDarkMode: Boolean; const
-				DarkModeThemeName: string; LightModeThemeName: string);
+			class procedure SetSpecificThemeMode(const AsDarkMode : Boolean; const DarkModeThemeName : string; LightModeThemeName : string);
 			// Checks the Windows registry to see if Windows Dark Mode is enabled
-			class function SystemDarkModeIsEnabled: boolean;
+			class function SystemDarkModeIsEnabled : boolean;
+
 		public
 			class procedure AllowThemes;
 			class procedure ApplyTheme(const _style : string);
@@ -54,11 +55,13 @@ type
 			// For example:
 			// SetAppropriateThemeMode('Carbon', 'Windows10');
 			//
-			class procedure SetAppropriateThemeMode(const DarkModeThemeName: string =
-				DARK_THEME_NAME; const LightModeThemeName: string = LIGHT_THEME_NAME);
+			class procedure SetAppropriateThemeMode(const _darkThemeName : string = DARK_THEME_NAME;
+				const _lightThemeName : string = LIGHT_THEME_NAME);
 
 			class function GetActualThemeMode : EThemeMode;
-			class procedure SetThemeMode(const _mode : EThemeMode);
+			class function GetThemeNameByMode(const _tm : EThemeMode) : string;
+			class procedure SetThemeMode(const _mode : EThemeMode); overload;
+			class procedure SetThemeMode(const _themeName : string); overload;
 	end;
 
 implementation
@@ -94,21 +97,19 @@ begin
 		themingServices : IOTAIDEThemingServices;
 
 	if Supports(BorlandIDEServices, IOTAIDEThemingServices, ThemingServices) then begin
-	   //	themingServices.ApplyTheme(Application.MainForm);
+		// themingServices.ApplyTheme(Application.MainForm);
 	end;
 	{$ENDIF}
 end;
 
-class procedure TDarkModeHelper.SetAppropriateThemeMode(const
-	DarkModeThemeName: string = DARK_THEME_NAME; const LightModeThemeName:
-	string = LIGHT_THEME_NAME);
+class procedure TDarkModeHelper.SetAppropriateThemeMode(const _darkThemeName : string = DARK_THEME_NAME;
+	const _lightThemeName : string = LIGHT_THEME_NAME);
 begin
-	SetSpecificThemeMode(SystemDarkModeIsEnabled, DarkModeThemeName, LightModeThemeName);
+	SetSpecificThemeMode(SystemDarkModeIsEnabled, _darkThemeName, _lightThemeName);
 end;
 
-class procedure TDarkModeHelper.SetSpecificThemeMode(const AsDarkMode: Boolean;
-	const DarkModeThemeName: string; LightModeThemeName:
-	string);
+class procedure TDarkModeHelper.SetSpecificThemeMode(const AsDarkMode : Boolean; const DarkModeThemeName : string;
+	LightModeThemeName : string);
 var
 	chosenTheme : string;
 begin
@@ -116,11 +117,11 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.SetSpecificThemeMode');
 
 	chosenTheme := IfThen(AsDarkMode, DarkModeThemeName, LightModeThemeName);
-    dbgMsg.Msg('Theme name: ' + chosenTheme);
+	dbgMsg.Msg('Theme name: ' + chosenTheme);
 	TDarkModeHelper.ApplyTheme(chosenTheme);
 end;
 
-class function TDarkModeHelper.SystemDarkModeIsEnabled: boolean;
+class function TDarkModeHelper.SystemDarkModeIsEnabled : boolean;
 {$IFDEF MSWINDOWS}
 const
 	TheKey = 'Software\Microsoft\Windows\CurrentVersion\Themes\Personalize\';
@@ -132,12 +133,6 @@ begin
 
 	Result := False; // There is no dark side - the Jedi are victorious!
 
-	// This relies on a registry setting only available on MS Windows
-	// If the developer has somehow managed to get to this point then tell
-	// them not to do this!
-	{$IFNDEF MSWINDOWS}
-	{$MESSAGE WARN '"SystemDarkModeIsEnabled" will only work on MS Windows targets'}
-	{$ELSE}
 	Reg := TRegistry.Create(KEY_READ);
 	try
 		Reg.RootKey := HKEY_CURRENT_USER;
@@ -152,7 +147,6 @@ begin
 	finally
 		Reg.Free;
 	end;
-	{$ENDIF}
 end;
 
 class function TDarkModeHelper.GetActualThemeName : string;
@@ -187,16 +181,21 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.GetActualThemeMode');
 
-	Result := tmLight;
-	if (MatchStr(GetActualThemeName, DARK_THEME_NAMES)) then begin
+	Result := tmSystem;
+	var
+	themeName := GetActualThemeName;
+	if (MatchStr(themeName, DARK_THEME_NAMES)) then begin
 		Result := tmDark;
 		dbgMsg.Msg('Mode: Dark');
-		Exit;
-	end;
-	dbgMsg.Msg('Mode: Light');
+	end else if (MatchStr(themeName, LIGHT_THEME_NAMES)) then begin
+		Result := tmLight;
+		dbgMsg.Msg('Mode: Light');
+	end else begin
+		dbgMsg.Msg('Mode: System');
+	end;;
 end;
 
-class procedure TDarkModeHelper.SetThemeMode(const _mode : EThemeMode);
+class function TDarkModeHelper.GetThemeNameByMode(const _tm : EThemeMode) : string;
 begin
 	{$IFDEF STANDALONE}
 	var
@@ -208,8 +207,33 @@ begin
 	dark := 'Dark';
 	var
 	light := 'Light';
-	{$ENDIF}
+	{$ENDIF};
+
+	case _tm of
+		tmLight :
+		Result := light;
+		tmDark :
+		Result := dark;
+		else
+		Result := SYSTEM_THEME;
+	end;
+end;
+
+class procedure TDarkModeHelper.SetThemeMode(const _mode : EThemeMode);
+begin
 	SetSpecificThemeMode(_mode = tmDark, DARK_THEME_NAME, LIGHT_THEME_NAME);
+end;
+
+class procedure TDarkModeHelper.SetThemeMode(const _themeName : string);
+begin
+	{$IFDEF STANDALONE}
+	var
+	dark := DARK_THEME_NAME;
+	{$ELSE}
+	var
+	dark := 'Dark';
+	{$ENDIF}
+	SetSpecificThemeMode(_themeName = dark, DARK_THEME_NAME, LIGHT_THEME_NAME);
 end;
 
 end.

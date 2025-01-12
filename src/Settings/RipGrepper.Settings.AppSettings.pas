@@ -21,6 +21,7 @@ type
 			INI_SECTION = 'RipGrepperSettings';
 
 		private
+			FColorTheme: string;
 			FDebugTrace : string;
 			FDebugTraceRegexFilter: string;
 			FExpertMode : Boolean;
@@ -35,6 +36,7 @@ type
 			procedure LoadFromDict(); override;
 			procedure LoadDefaultsFromDict; override;
 			procedure StoreToDict; override;
+			property ColorTheme: string read FColorTheme write FColorTheme;
 			property DebugTrace : string read FDebugTrace write FDebugTrace;
 			property DebugTraceRegexFilter: string read FDebugTraceRegexFilter write
 				FDebugTraceRegexFilter;
@@ -81,6 +83,7 @@ begin
 	SettingsDict.CreateSetting('DebugTrace', varString, 'tftError');
 	SettingsDict.CreateSetting('DebugTraceRegexFilter', varString, '');
 	SettingsDict.CreateSetting('ExpertMode', varBoolean, False);
+	SettingsDict.CreateSetting('ColorTheme', varString, '');
 	SettingsDict.CreateSetting('EncodingItems', varString, string.join(ARRAY_SEPARATOR, TDefaults.RG_PARAM_ENCODING_VALUES));
 end;
 
@@ -89,6 +92,7 @@ begin
 	FDebugTrace := SettingsDict.GetSetting('DebugTrace');
 	FDebugTraceRegexFilter := SettingsDict.GetSetting('DebugTraceRegexFilter');
 	FExpertMode := SettingsDict.GetSetting('ExpertMode');
+    FColorTheme := SettingsDict.GetSetting('ColorTheme');
 	FEncodingItems.Clear;
 	FEncodingItems.AddStrings(string(SettingsDict.GetSetting('EncodingItems')).Split([ARRAY_SEPARATOR]));
 end;
@@ -103,6 +107,7 @@ begin
 	SettingsDict.StoreSetting('DebugTrace', FDebugTrace);
 	SettingsDict.StoreSetting('DebugTraceRegexFilter', FDebugTraceRegexFilter);
 	SettingsDict.StoreSetting('ExpertMode', FExpertMode);
+	SettingsDict.StoreSetting('ColorTheme', FColorTheme);
 	inherited StoreToDict();
 end;
 

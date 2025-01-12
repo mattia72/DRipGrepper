@@ -151,6 +151,7 @@ object RipGrepperForm: TRipGrepperForm
   Position = poScreenCenter
   ShowHint = True
   OnClose = FormClose
+  OnCreate = FormCreate
   OnShow = FormShow
   TextHeight = 15
   inline ParentFrame1: TParentFrame
