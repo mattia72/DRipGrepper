@@ -142,7 +142,7 @@ type
 		private
 			FbExtensionOptionsSkipClick : Boolean;
 			FHistItemObj : IHistoryItemObject;
-//          FDpiScaler : TRipGrepperDpiScaler;
+			// FDpiScaler : TRipGrepperDpiScaler;
 			FHistItemGuiSearchParams : TGuiSearchTextParams;
 			FCbClickEventEnabled : Boolean;
 			FcmbOptionsOldText : string;
@@ -153,7 +153,7 @@ type
 			FSettings : TRipGrepperSettings;
 			FTopPanelOrigHeight : Integer;
 			FOrigHeight : integer;
-			function GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
+			function GetSelectedPaths(const _initialDir : string; const _fdo : TFileDialogOptions) : string;
 			procedure WriteInitialSettingsToCtrls;
 			procedure ButtonDown(const _searchOption : EGuiOption; _tb : TToolButton; const _bNotMatch : Boolean = False); overload;
 			function GetFullHeight(_ctrl : TControl) : integer;
@@ -250,7 +250,7 @@ begin
 	dbgMsg.Msg(FSettings.SearchFormSettings.ToLogString);
 	dbgMsg.Msg('gui params=' + FHistItemGuiSearchParams.ToLogString);
 
-//  FDpiScaler := TRipGrepperDpiScaler.Create(self);
+	// FDpiScaler := TRipGrepperDpiScaler.Create(self);
 
 	FOrigHeight := 0;
 
@@ -264,7 +264,7 @@ begin
 		FHistItemGuiSearchParams.Free;
 	end;
 	FOrigSearchFormSettings.Free;
-//  FDpiScaler.Free;
+	// FDpiScaler.Free;
 	inherited Destroy;
 end;
 
@@ -315,7 +315,7 @@ procedure TRipGrepperSearchDialogForm.ActionSearchFolderExecute(Sender : TObject
 var
 	selectedDirs : string;
 begin
-	selectedDirs := GetSelectedPaths([fdoAllowMultiSelect, fdoPickfolders]);
+	selectedDirs := GetSelectedPaths(cmbSearchDir.Text, [fdoAllowMultiSelect, fdoPickfolders]);
 
 	if selectedDirs <> '' then begin
 		SetCmbSearchPathText(selectedDirs);
@@ -338,7 +338,7 @@ procedure TRipGrepperSearchDialogForm.ActionSearchFileExecute(Sender : TObject);
 var
 	selectedFiles : string;
 begin
-	selectedFiles := GetSelectedPaths([fdoAllowMultiSelect]);
+	selectedFiles := GetSelectedPaths(cmbSearchDir.Text, [fdoAllowMultiSelect]);
 
 	if selectedFiles <> '' then begin
 		SetCmbSearchPathText(selectedFiles);
@@ -455,13 +455,28 @@ begin
 	ActiveControl := cmbSearchText;
 end;
 
-function TRipGrepperSearchDialogForm.GetSelectedPaths(const _fdo : TFileDialogOptions) : string;
+function TRipGrepperSearchDialogForm.GetSelectedPaths(const _initialDir : string; const _fdo : TFileDialogOptions) : string;
 var
 	dlg : TFileOpenDialog;
 begin
 	dlg := TFileOpenDialog.Create(nil);
 	try
-		dlg.DefaultFolder := 'C:\';
+		if DirectoryExists(_initialDir) or FileExists(_initialDir) then begin
+			dlg.DefaultFolder := _initialDir;
+		end else begin
+			var
+			initialDir := _initialDir;
+			// get the valid part of the path...
+			repeat
+				initialDir := ExtractFileDir(initialDir); // cuts the last part of the path
+			until DirectoryExists(initialDir);
+			dlg.DefaultFolder := initialDir;
+		end;
+
+		if dlg.DefaultFolder.IsEmpty then begin
+			dlg.DefaultFolder := 'C:\';
+		end;
+
 		// dlg. := 'All files (*.*)|*.*';
 		dlg.Options := dlg.Options + _fdo;
 		if dlg.Execute(Handle) then begin
@@ -860,7 +875,7 @@ begin
 	if isDpiChange or (FOrigHeight = 0) then begin
 		SetOrigHeights;
 		toolbarSearchTextOptions.AutoSize := false;
- 		toolbarSearchTextOptions.Width := MulDiv(toolbarSearchTextOptions.Width, M, D);
+		toolbarSearchTextOptions.Width := MulDiv(toolbarSearchTextOptions.Width, M, D);
 	end;
 end;
 
