@@ -1,0 +1,10 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"delphiLsp.settingsFile": "file:///c%3A/home/mata/dev/delphi/RipGrepper/src/Project/Delphi11/DRipGrepper.delphilsp.json"
+	}
+}

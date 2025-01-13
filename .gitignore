@@ -16,3 +16,4 @@ DRipGrepper_project.tvsconfig
 deploy/assets/*
 deploy/RipGrepper.npps
 RipGrepper.code-workspace
+deploy/TransferDrive.txt

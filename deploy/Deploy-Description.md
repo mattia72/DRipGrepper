@@ -25,21 +25,21 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 ## :boom: Improvements 
 Marked with checkmark if ready, else planned ...
 - [ ] **extension**: save all before search message?
+- [ ] **extension**: search opened project files only
 - [ ] save/load search histories in file
 - [ ] JSON config files
-- [ ] **extension**: search opened project files only
 - [ ] copy to clipboard for running in PowerShell or command prompt
 
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.
-- [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] exception if rg.exe not found
+- [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: drip icon in menu has no transparent background
 - [x] background color 'nothing' should be handled transparent
 - [x] set as default doesn't save defaults in ini
 - [o] look on high dpi monitor
-    - [ ] search form switch between search and replace shrinks height
-    - [ ] search form Use Regex button disappear 
+    - [x] search form switch between search and replace shrinks height
+    - [ ] search form Use Regex button disappear if drag to another monitor
     - [ ] ugly config form 
 - [o] replace: 
     - [ ] more match in same line replaces all occurence, even if user selects only one
@@ -48,6 +48,6 @@ Marked with checkmark if fixed, else it is a known bug.
 - [o] ugly dark mode. read this: https://github.com/checkdigits/delphidarkmode
     - [ ] extension: toolbar not dark after switch 
         - independent from ParentBackground? https://en.delphipraxis.net/topic/2779-tframe-and-vcl-styles-solved/
-    - [ ] after switch light/dark mode in config, Open With settings disappear
+    - [ ] after switch light/dark mode in config, Open With settings moved to the right bottom corner
     - [ ] skin chooser? https://stackoverflow.com/questions/9906312/delphi-vcl-styles-tutorial-how-to-change-the-style-at-runtime
 
