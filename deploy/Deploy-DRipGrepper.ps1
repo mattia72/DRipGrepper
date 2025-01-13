@@ -283,6 +283,9 @@ function New-ReleaseWithAsset {
 
     if ($Deploy -or $LocalDeploy -or $DeployToTransferDrive) {
         # Remove items recursively from the AssetsDirectory
+        if ($LocalDeploy -or $DeployToTransferDrive) {
+            $Force = $true
+        }
         Remove-Item -Path "$global:AssetsDirectory\*" -Recurse -Force -Confirm:$(-not $Force) -ErrorAction SilentlyContinue
         New-StandaloneZips 
         # New-ExtensionZip 
