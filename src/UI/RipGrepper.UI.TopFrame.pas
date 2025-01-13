@@ -220,7 +220,9 @@ uses
 	{$ENDIF}
 	RipGrepper.Settings.NodeLook.FilterSettings,
 	RipGrepper.Helper.UI.DarkMode,
-	Winapi.UxTheme;
+	Winapi.UxTheme,
+	System.TypInfo,
+	Vcl.Themes;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -298,10 +300,10 @@ begin
 
 	owSettings.TestFile := default (TOpenWithParams);
 	owSettings.Reload();
-	{$IFDEF STANDALONE}
+	// {$IFDEF STANDALONE}
 	UpdateUIStyle;
-	TDarkModeHelper.BroadcastThemeChanged(Parent.Handle);
-	{$ENDIF}
+	// TDarkModeHelper.BroadcastThemeChanged(Parent.Handle);
+	// {$ENDIF}
 end;
 
 procedure TRipGrepperTopFrame.ActionCopyFileNameExecute(Sender : TObject);
@@ -922,24 +924,36 @@ procedure TRipGrepperTopFrame.UpdateUIStyle(_sNewStyle : string = '');
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperTopFrame.UpdateUIStyle');
-	{$IFDEF STANDALONE}
 	if _sNewStyle.IsEmpty then begin
 		StyleName := TDarkModeHelper.GetActualThemeName();
 	end else begin
 		StyleName := _sNewStyle;
 	end;
 
+	{$IFDEF STANDALONE}
 	MainFrame.UpdateUIStyle(styleName);
+	{$ELSE}
+	dbgMsg.MsgFmt('pnlTop.ParentBackground = %s', [BoolToStr(pnlTop.ParentBackground, True)]);
+	pnlTop.Color := TStyleManager.ActiveStyle.GetSystemColor(clBtnFace);
+	pnlTop.StyleName := StyleName;
+	dbgMsg.MsgFmt('pnlTop.ParentBackground = %s', [BoolToStr(pnlTop.ParentBackground, True)]);
 	{$ENDIF}
-	dbgMsg.MsgFmt('TopFrame.StyleName = %s, MainFrame.StyleName = %s', [TopFrame.StyleName, MainFrame.StyleName])
+	var propi : PPropInfo := GetPropInfo(Self, 'StyleElements');
+
+	if Assigned(propi) then begin
+		var
+		v := GetPropValue(Self, propi, true);
+		dbgMsg.MsgFmt('TopFrame.StyleElements = %s', [VarToStrDef(v, 'n/a')]);
+	end;
+	dbgMsg.MsgFmt('StyleName of TopFrame = %s, pnlTop = %s, MainFrame = %s', [TopFrame.StyleName, pnlTop.StyleName, MainFrame.StyleName])
 end;
 
-procedure TRipGrepperTopFrame.WMSettingChange(var Message : TWMSettingChange);
+procedure TRipGrepperTopFrame.WMSettingChange(var message : TWMSettingChange);
 begin
 	if SameText('ImmersiveColorSet', string(message.Section)) then begin
 		{$IFDEF STANDALONE}
 		UpdateUIStyle;
-		TDarkModeHelper.BroadcastThemeChanged(Parent.Handle);
+		// TDarkModeHelper.BroadcastThemeChanged(Parent.Handle);
 		{$ENDIF}
 	end;
 end;

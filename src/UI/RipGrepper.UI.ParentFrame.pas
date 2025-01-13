@@ -162,7 +162,7 @@ procedure TParentFrame.WMSettingChange(var Message : TWMSettingChange);
 begin
 	if SameText('ImmersiveColorSet', string(message.Section)) then begin
 		UpdateUIStyle;
-		TDarkModeHelper.BroadcastThemeChanged(Handle);
+//      TDarkModeHelper.BroadcastThemeChanged(Handle);
 	end;
 end;
 

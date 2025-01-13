@@ -15,7 +15,6 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     Align = alClient
     BevelOuter = bvNone
     Caption = 'pnlTop'
-    Color = clWindow
     ParentBackground = False
     TabOrder = 0
     object tbarConfig: TToolBar
