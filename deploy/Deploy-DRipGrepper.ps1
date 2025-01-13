@@ -266,6 +266,30 @@ function New-ExpertDllZip {
         Compress-Archive @compress
     }
 }
+
+function List-Assets {
+    param (
+        $Path
+    )
+    Write-Host "Assets: $Path" -ForegroundColor Blue
+    Get-Childitem $Path | ForEach-Object { 
+        if ($_.PSIsContainer) { 
+            # Write-Host "$($_.Name)`t$($_.CreationTime)" -ForegroundColor Blue
+        }
+        else {
+            if ($_.Extension -eq '.zip') {
+                $color = 'Red'
+                Write-Host "$($_.Name.PadRight($global:PadRightValue))`t$($_.CreationTime)`t$($_.Length)" -ForegroundColor $color
+            }
+            else {
+                $color = 'Green'
+                $formattedLabel = ($_.Name).PadRight($global:PadRightValue)
+                Write-Host "$formattedLabel  $(' '.PadRight(10)) $($_.LastWriteTime)`t$($_.Length)" -ForegroundColor $color
+            }
+        }
+    }
+
+}
 function New-ReleaseWithAsset {
 
     if ($RunUnittest) {
@@ -283,24 +307,21 @@ function New-ReleaseWithAsset {
 
     if ($Deploy -or $LocalDeploy -or $DeployToTransferDrive) {
         # Remove items recursively from the AssetsDirectory
+        if ($LocalDeploy -or $DeployToTransferDrive) {
+            $Force = $true
+        }
         Remove-Item -Path "$global:AssetsDirectory\*" -Recurse -Force -Confirm:$(-not $Force) -ErrorAction SilentlyContinue
         New-StandaloneZips 
         # New-ExtensionZip 
         New-ExpertDllZip 
-        Write-Host "Assets:" -ForegroundColor Blue
-        Get-Childitem $global:AssetsDirectory | ForEach-Object { 
-            if ($_.PSIsContainer) { 
-                # Write-Host "$($_.Name)`t$($_.CreationTime)" -ForegroundColor Blue
-            }
-            else {
-                Write-Host "$($_.Name.PadRight($global:PadRightValue))`t$($_.CreationTime)`t$($_.Length)" -ForegroundColor Red 
-            }
-        }
+        List-Assets -Path $global:AssetsDirectory
 
         if ($Deploy -or $DeployToTransferDrive) {
-            Copy-Item -Path $global:AssetsDirectory\Win64\* -Destination $global:TransferDrive\Latest -Verbose
-            Copy-Item -Path $global:AssetsDirectory\Delphi11.Dll\* -Destination $global:TransferDrive\Latest -Verbose
-            Copy-Item -Path $global:AssetsDirectory\* -Destination $global:TransferDrive -Verbose
+            Copy-Item -Path $global:AssetsDirectory\* -Destination $global:TransferDrive -Force -Recurse 
+            List-Assets -Path $global:TransferDrive
+            Copy-Item -Path $global:AssetsDirectory\Win64\* -Destination $global:TransferDrive\Latest -Force
+            Copy-Item -Path $global:AssetsDirectory\Delphi11.Dll\* -Destination $global:TransferDrive\Latest -Force
+            List-Assets -Path $global:TransferDrive\Latest
         }
     }
 
@@ -403,7 +424,7 @@ function Update-ScoopManifest {
 }
 
 function New-Deploy {
-    if ($LocalDeploy -or $Deploy -or $BuildStandalone -or $BuildExtension -or $RunUnittest) {
+    if ($LocalDeploy -or $Deploy -or $BuildStandalone -or $BuildExtension -or $RunUnittest -or $DeployToTransferDrive) {
         #New-ReleaseNotes
         New-ReleaseWithAsset
     }

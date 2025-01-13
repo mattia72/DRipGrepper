@@ -88,6 +88,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
         Left = 41
         Top = 0
         Action = ActionShowRelativePath
+        ImageName = 'full_path'
       end
       object tbAlternateRowColors: TToolButton
         Left = 66
@@ -452,22 +453,21 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       item
         IconName = 'magnify'
         SVGText = 
-          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><pat' +
-          'h d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.7' +
-          '3L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,' +
-          '15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.' +
-          '5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 ' +
-          '9.5,5Z" /></svg>'
-        GrayScale = True
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">'#13#10'  ' +
+          '<path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,' +
+          '13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12' +
+          '.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,' +
+          '3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 1' +
+          '2,5 9.5,5Z"/>'#13#10'</svg>'#13#10
       end
       item
         IconName = 'sync'
         SVGText = 
-          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><pat' +
-          'h d="M12,18A6,6 0 0,1 6,12C6,11 6.25,10.03 6.7,9.2L5.24,7.74C4.4' +
-          '6,8.97 4,10.43 4,12A8,8 0 0,0 12,20V23L16,19L12,15M12,4V1L8,5L12' +
-          ',9V6A6,6 0 0,1 18,12C18,13 17.75,13.97 17.3,14.8L18.76,16.26C19.' +
-          '54,15.03 20,13.57 20,12A8,8 0 0,0 12,4Z" /></svg>'
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">'#13#10'  ' +
+          '<path d="M12,18A6,6 0 0,1 6,12C6,11 6.25,10.03 6.7,9.2L5.24,7.74' +
+          'C4.46,8.97 4,10.43 4,12A8,8 0 0,0 12,20V23L16,19L12,15M12,4V1L8,' +
+          '5L12,9V6A6,6 0 0,1 18,12C18,13 17.75,13.97 17.3,14.8L18.76,16.26' +
+          'C19.54,15.03 20,13.57 20,12A8,8 0 0,0 12,4Z"/>'#13#10'</svg>'#13#10
       end
       item
         IconName = 'stop-circle-outline'
@@ -486,7 +486,6 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
           '2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 1' +
           '9,3M12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5A1,1 0 0,1 11,4A1,1 0 0,1 ' +
           '12,3M7,7H17V5H19V19H5V5H7V7Z" /></svg>'
-        GrayScale = True
       end
       item
         IconName = 'arrow-expand-vertical'
@@ -503,31 +502,29 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
           ',19L12,15L16,19H13V22H11V19H8Z" /></svg>'
       end
       item
+        IconName = 'full-path'
         SVGText = 
-          '<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://ww' +
-          'w.w3.org/2000/svg">'#13#10'  <g fill="none" stroke="#000" stroke-width' +
-          '="1">'#13#10'    <!-- Relative path ...\... -->'#13#10'    <text x="0" y="12' +
-          '" font-family="Mono" font-size="8">C : \</text>'#13#10'   </g>'#13#10'</svg>'
-        GrayScale = True
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">'#13#10'  ' +
+          '<g stroke="#000" stroke-width="1">'#13#10'    <text x="0" y="15" font-' +
+          'family="Mono" font-size="13">C : \</text>'#13#10'   </g>'#13#10'</svg>'
       end
       item
+        IconName = 'relative-path'
         SVGText = 
-          '<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://ww' +
-          'w.w3.org/2000/svg">'#13#10'  <g fill="none" stroke="#000" stroke-width' +
-          '="1">'#13#10'    <!-- Relative path ...\... -->'#13#10'    <text x="0" y="12' +
-          '" font-family="Arial" font-size="8">. . . \</text>'#13#10'   </g>'#13#10'</s' +
-          'vg>'
-        GrayScale = True
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">'#13#10'  ' +
+          '<g fill="none" stroke="#000" stroke-width="1">'#13#10'    <text x="0" ' +
+          'y="15" font-family="Arial" font-size="12">. . . \</text>'#13#10'   </g' +
+          '>'#13#10'</svg>'
       end
       item
         IconName = 'texture'
         SVGText = 
-          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><pat' +
-          'h d="M9.29,21H12.12L21,12.12V9.29M19,21C19.55,21 20.05,20.78 20.' +
-          '41,20.41C20.78,20.05 21,19.55 21,19V17L17,21M5,3A2,2 0 0,0 3,5V7' +
-          'L7,3M11.88,3L3,11.88V14.71L14.71,3M19.5,3.08L3.08,19.5C3.17,19.8' +
-          '5 3.35,20.16 3.59,20.41C3.84,20.65 4.15,20.83 4.5,20.92L20.93,4.' +
-          '5C20.74,3.8 20.2,3.26 19.5,3.08Z" /></svg>'
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">'#13#10'  ' +
+          '<path d="M9.29,21H12.12L21,12.12V9.29M19,21C19.55,21 20.05,20.78' +
+          ' 20.41,20.41C20.78,20.05 21,19.55 21,19V17L17,21M5,3A2,2 0 0,0 3' +
+          ',5V7L7,3M11.88,3L3,11.88V14.71L14.71,3M19.5,3.08L3.08,19.5C3.17,' +
+          '19.85 3.35,20.16 3.59,20.41C3.84,20.65 4.15,20.83 4.5,20.92L20.9' +
+          '3,4.5C20.74,3.8 20.2,3.26 19.5,3.08Z"/>'#13#10'</svg>'#13#10
       end
       item
         IconName = 'file-image-outline'
@@ -645,8 +642,8 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
           '.5C9,13.88 10.12,15 11.5,15C12.88,15 14,13.88 14,12.5C14,11.12 1' +
           '2.88,10 11.5,10Z" /></svg>'
       end>
+    FixedColor = clGrayText
     AntiAliasColor = clBtnShadow
-    GrayScale = True
     Scaled = True
     Left = 651
   end

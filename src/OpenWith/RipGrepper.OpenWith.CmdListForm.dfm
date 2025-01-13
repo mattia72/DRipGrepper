@@ -226,7 +226,6 @@ object OpenWithCmdList: TOpenWithCmdList
       Align = alClient
       Color = clHighlightText
       Columns = <>
-      StyleName = 'Windows'
       ReadOnly = True
       ParentShowHint = False
       ShowHint = True

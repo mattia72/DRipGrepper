@@ -97,8 +97,8 @@
     <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\22.0\bin\bds.exe</Debugger_HostApplication>
     <DCC_ShowGeneralMessages>true</DCC_ShowGeneralMessages>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.0.0.82;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>82</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.0.0.131;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>131</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <Manifest_File>..\Delphi12\(None)</Manifest_File>
     <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
@@ -113,8 +113,8 @@
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
     <VerInfo_Locale>1033</VerInfo_Locale>
-    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.0.0.88;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>88</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.0.0.116;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>116</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <DCC_Description>RipGrep Search within Delphi</DCC_Description>
     <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
@@ -220,6 +220,7 @@
     <DCCReference Include="..\..\DRipExtension.Main.pas" />
     <DCCReference Include="..\..\DripExtension.UI.DockableForm.pas" />
     <DCCReference Include="..\..\DRipExtension.Menu.pas" />
+    <DCCReference Include="..\..\..\..\src\RipGrepper.Helper.UI.DarkMode.pas" />
     <RcItem Include="..\..\..\Resources\about_icon.bmp">
       <ResourceType>BITMAP</ResourceType>
       <ResourceId>about_icon</ResourceId>

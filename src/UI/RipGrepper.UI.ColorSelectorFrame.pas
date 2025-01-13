@@ -96,10 +96,11 @@ uses
 	System.TypInfo,
 	System.RegularExpressions,
 	RipGrepper.Tools.DebugUtils,
-    {$IFNDEF STANDALONE}
-    ToolsAPI,
-    {$ENDIF}
-	Vcl.Themes;
+	{$IFNDEF STANDALONE}
+	ToolsAPI,
+	{$ENDIF}
+	Vcl.Themes,
+	RipGrepper.Helper.UI.DarkMode;
 
 {$R *.dfm}
 
@@ -278,13 +279,7 @@ begin
 		{$IFDEF STANDALONE}
 		ExampleText.Color := TStyleManager.ActiveStyle.GetSystemColor(clWindow);
 		{$ELSE}
-		var
-			themingServices : IOTAIDEThemingServices;
-
-		if Supports(BorlandIDEServices, IOTAIDEThemingServices, ThemingServices) then begin
-			ExampleText.Color := ThemingServices.StyleServices.GetSystemColor(clWindow);
-		end;
-
+		ExampleText.Color := TDarkModeHelper.GetIdeSystemColor(clWindow);
 		{$ENDIF}
 	end else begin
 		ExampleText.Color := FSelectedFontAttributes.BgColor;

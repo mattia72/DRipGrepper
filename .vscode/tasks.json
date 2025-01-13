@@ -13,6 +13,15 @@
             }
         },
         {
+            "label": "Deploy to TransferDrive",
+            "type": "shell",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -DeployToTransferDrive",
+            "problemMatcher": [],
+            "group": {
+                "kind": "none"
+            }
+        },
+        {
             "label": "Build All & Deploy to TransferDrive",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone -BuildExtension -DeployToTransferDrive",

@@ -18,7 +18,6 @@ object ParentFrame: TParentFrame
     ParentBackground = False
     TabOrder = 2
     StyleElements = [seFont, seBorder]
-    StyleName = 'Windows'
     inherited pnlTop: TPanel
       Width = 851
       Height = 31

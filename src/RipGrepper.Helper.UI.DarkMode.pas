@@ -15,7 +15,11 @@ uses
 	{$IFNDEF STANDALONE}
 	ToolsAPI,
 	{$ENDIF}
-	Winapi.Windows;
+	Winapi.Windows,
+	System.UITypes,
+	Vcl.Themes,
+	Vcl.Controls,
+	System.Classes;
 
 type
 	EThemeMode = (tmLight, tmDark, tmSystem);
@@ -29,19 +33,21 @@ type
 			LIGHT_THEME_NAMES : array of string = [LIGHT_THEME_NAME, 'Light' { in Delphi IDE!!! } ];
 
 		private
+			class procedure SetFixedColorInSVGImgaLists(_ctrl : TWinControl; const _color : TColor);
 			// Sets either a Dark Mode or non Dark mode theme based in the "AsDarkMode" boolean
 			// For example:
 			// SetSpecificThemeMode(False, 'TheDarkModeThemeName', 'TheLightModeThemeName');
 			// Would change the application theme to the theme with the name 'TheLightModeThemeName'
 			// if it exists.
 			//
-			class procedure SetSpecificThemeMode(const AsDarkMode : Boolean; const DarkModeThemeName : string; LightModeThemeName : string);
+			class procedure SetSpecificThemeMode(const AsDarkMode : Boolean; const DarkModeThemeName : string; LightModeThemeName : string;
+				_component : TComponent = nil);
 			// Checks the Windows registry to see if Windows Dark Mode is enabled
 			class function SystemDarkModeIsEnabled : boolean;
 
 		public
 			class procedure AllowThemes;
-			class procedure ApplyTheme(const _style : string);
+			class procedure ApplyTheme(const _style : string; _component : TComponent = nil);
 			class function GetActualThemeName : string;
 			class procedure BroadcastThemeChanged(_handle : HWND);
 
@@ -50,18 +56,17 @@ type
 			// 1. Got to project properties
 			// 2. Select appearance and choose two or more themes.  Note down the names!
 			// 3. In your FormCreate (or wherever) put the following line:
-			// SetAppropriateThemeMode(**name_of_the_dark_theme**, **namme_of_the_non_dark_theme**);
+			// SetAppropriateThemeMode(...);
 			//
-			// For example:
-			// SetAppropriateThemeMode('Carbon', 'Windows10');
-			//
-			class procedure SetAppropriateThemeMode(const _darkThemeName : string = DARK_THEME_NAME;
-				const _lightThemeName : string = LIGHT_THEME_NAME);
+			class procedure SetAppropriateThemeMode(_component : TComponent = nil);
 
 			class function GetActualThemeMode : EThemeMode;
+			class function GetIdeSystemColor(const _color : TColor) : TColor;
+			class function GetIdeStyleColor(const _styleColor : TStyleColor) : TColor;
 			class function GetThemeNameByMode(const _tm : EThemeMode) : string;
+			class procedure SetIconTheme(_ctrl : TWinControl);
 			class procedure SetThemeMode(const _mode : EThemeMode); overload;
-			class procedure SetThemeMode(const _themeName : string); overload;
+			class procedure SetThemeMode(const _themeName : string; _component : TComponent = nil); overload;
 	end;
 
 implementation
@@ -72,21 +77,22 @@ uses
 	System.Win.Registry, // for the registry read access
 	{$ENDIF}
 	Vcl.Forms,
-	Vcl.Controls,
-	VCL.themes, // Used for access to TStyleManager
-	System.Classes,
+	// Used for access to TStyleManager
+
 	Winapi.UxTheme,
 	Winapi.Messages,
 	System.StrUtils,
 	RipGrepper.Tools.DebugUtils,
-	System.SysUtils;
+	System.SysUtils,
+	Vcl.Graphics,
+	SVGIconImageList;
 
 class procedure TDarkModeHelper.AllowThemes;
 begin
 	SetThemeAppProperties(STAP_ALLOW_NONCLIENT or STAP_ALLOW_CONTROLS or STAP_ALLOW_WEBCONTENT);
 end;
 
-class procedure TDarkModeHelper.ApplyTheme(const _style : string);
+class procedure TDarkModeHelper.ApplyTheme(const _style : string; _component : TComponent = nil);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.ApplyTheme');
@@ -97,19 +103,33 @@ begin
 		themingServices : IOTAIDEThemingServices;
 
 	if Supports(BorlandIDEServices, IOTAIDEThemingServices, ThemingServices) then begin
-		// themingServices.ApplyTheme(Application.MainForm);
+
+		if Assigned(_component) then begin
+			dbgMsg.MsgFmt('Component name: %s', [_component.Name]);
+		end;
+		themingServices.ApplyTheme(_component);
 	end;
 	{$ENDIF}
 end;
 
-class procedure TDarkModeHelper.SetAppropriateThemeMode(const _darkThemeName : string = DARK_THEME_NAME;
-	const _lightThemeName : string = LIGHT_THEME_NAME);
+class procedure TDarkModeHelper.SetAppropriateThemeMode(_component : TComponent = nil);
 begin
-	SetSpecificThemeMode(SystemDarkModeIsEnabled, _darkThemeName, _lightThemeName);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.SetAppropriateThemeMode');
+
+	var
+		darkThemeName : string := DARK_THEME_NAME;
+	var
+		lightThemeName : string := LIGHT_THEME_NAME;
+
+	if Assigned(_component) then begin
+		dbgMsg.MsgFmt('Component name: %s', [_component.Name]);
+	end;
+	SetSpecificThemeMode(SystemDarkModeIsEnabled, darkThemeName, lightThemeName, _component);
 end;
 
 class procedure TDarkModeHelper.SetSpecificThemeMode(const AsDarkMode : Boolean; const DarkModeThemeName : string;
-	LightModeThemeName : string);
+	LightModeThemeName : string; _component : TComponent = nil);
 var
 	chosenTheme : string;
 begin
@@ -117,8 +137,11 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.SetSpecificThemeMode');
 
 	chosenTheme := IfThen(AsDarkMode, DarkModeThemeName, LightModeThemeName);
-	dbgMsg.Msg('Theme name: ' + chosenTheme);
-	TDarkModeHelper.ApplyTheme(chosenTheme);
+	dbgMsg.MsgFmt('Theme name: %s', [chosenTheme]);
+	if Assigned(_component) then begin
+		dbgMsg.MsgFmt('Component name: %s', [_component.Name]);
+	end;
+	TDarkModeHelper.ApplyTheme(chosenTheme, _component);
 end;
 
 class function TDarkModeHelper.SystemDarkModeIsEnabled : boolean;
@@ -195,6 +218,30 @@ begin
 	end;;
 end;
 
+class function TDarkModeHelper.GetIdeSystemColor(const _color : TColor) : TColor;
+begin
+	Result := clNone;
+	{$IFNDEF STANDALONE}
+	var
+		themingServices : IOTAIDEThemingServices;
+	if Supports(BorlandIDEServices, IOTAIDEThemingServices, ThemingServices) then begin
+		Result := ThemingServices.StyleServices.GetSystemColor(_color);
+	end;
+	{$ENDIF}
+end;
+
+class function TDarkModeHelper.GetIdeStyleColor(const _styleColor : TStyleColor) : TColor;
+begin
+	Result := clNone;
+	{$IFNDEF STANDALONE}
+	var
+		themingServices : IOTAIDEThemingServices;
+	if Supports(BorlandIDEServices, IOTAIDEThemingServices, ThemingServices) then begin
+		Result := ThemingServices.StyleServices.GetStyleColor(_styleColor);
+	end;
+	{$ENDIF}
+end;
+
 class function TDarkModeHelper.GetThemeNameByMode(const _tm : EThemeMode) : string;
 begin
 	{$IFDEF STANDALONE}
@@ -219,13 +266,46 @@ begin
 	end;
 end;
 
+class procedure TDarkModeHelper.SetFixedColorInSVGImgaLists(_ctrl : TWinControl; const _color : TColor);
+var
+	subImgList : TSVGIconImageList;
+begin
+	for var i := 0 to _ctrl.ComponentCount - 1 do begin
+		var
+		subCmp := _ctrl.Components[i];
+		if subCmp is TSVGIconImageList then begin
+			subImgList := subCmp as TSVGIconImageList;
+			subImgList.FixedColor := _color;
+			for var j := 0 to subImgList.Count - 1 do begin
+				subImgList.SVGIconItems[j].FixedColor := _color;
+				subImgList.SVGIconItems[j].GrayScale := False;
+			end;
+		end else if subCmp is TWinControl then begin
+			SetFixedColorInSVGImgaLists(TWinControl(subCmp), _color);
+		end;
+	end;
+end;
+
+class procedure TDarkModeHelper.SetIconTheme(_ctrl : TWinControl);
+begin
+	var
+	color := clBlack;
+	if tmDark = TDarkModeHelper.GetActualThemeMode then begin
+		color := clDkGray;
+	end;
+	SetFixedColorInSVGImgaLists(_ctrl, color);
+end;
+
 class procedure TDarkModeHelper.SetThemeMode(const _mode : EThemeMode);
 begin
 	SetSpecificThemeMode(_mode = tmDark, DARK_THEME_NAME, LIGHT_THEME_NAME);
 end;
 
-class procedure TDarkModeHelper.SetThemeMode(const _themeName : string);
+class procedure TDarkModeHelper.SetThemeMode(const _themeName : string; _component : TComponent = nil);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.SetThemeMode');
+
 	{$IFDEF STANDALONE}
 	var
 	dark := DARK_THEME_NAME;
@@ -233,7 +313,7 @@ begin
 	var
 	dark := 'Dark';
 	{$ENDIF}
-	SetSpecificThemeMode(_themeName = dark, DARK_THEME_NAME, LIGHT_THEME_NAME);
+	SetSpecificThemeMode(_themeName = dark, DARK_THEME_NAME, LIGHT_THEME_NAME, _component);
 end;
 
 end.
