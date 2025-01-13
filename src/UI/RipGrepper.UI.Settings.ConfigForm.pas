@@ -53,6 +53,7 @@ type
 			FOpenWithConfigForm : TOpenWithConfigForm;
 			FSettings : TRipGrepperSettings;
 			FSettingsForms : TObjectList<TForm>;
+		procedure HandleThemes;
 
 		public
 			constructor Create(_settings : TRipGrepperSettings); reintroduce;
@@ -67,7 +68,8 @@ implementation
 
 uses
 	System.Math,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants,
+	RipGrepper.Tools.DebugUtils, RipGrepper.Helper.UI.DarkMode;
 
 {$R *.dfm}
 
@@ -143,6 +145,7 @@ var
 begin
 	Screen.Cursor := crHourGlass;
 	try
+		HandleThemes();
 		iMaxHeight := 0;
 		iMaxWidth := 0;
 		for var form : TForm in FSettingsForms do begin
@@ -160,6 +163,20 @@ begin
 	finally
 		Screen.Cursor := crDefault;
 	end;
+end;
+
+procedure TConfigForm.HandleThemes;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TConfigForm.HandleThemes');
+
+	if GSettings.AppSettings.ColorTheme.IsEmpty then begin
+		TDarkModeHelper.SetAppropriateThemeMode(self);
+	end else begin
+		TDarkModeHelper.SetThemeMode(GSettings.AppSettings.ColorTheme, self);
+	end;
+
+	TDarkModeHelper.SetIconTheme(self);
 end;
 
 end.

@@ -214,6 +214,8 @@ begin
 	end else begin
 		TDarkModeHelper.SetThemeMode(GSettings.AppSettings.ColorTheme);
 	end;
+
+	TDarkModeHelper.SetIconTheme(self);
 end;
 
 procedure TRipGrepperForm.WMSettingChange(var message : TWMSettingChange);

@@ -174,6 +174,7 @@ type
 			function GetFullHeights : integer;
 			function HasHistItemObjWithResult : Boolean;
 			function GetInIDESelectedText : string;
+			procedure HandleThemes;
 			procedure LoadDefaultSettings;
 			procedure LoadExtensionSearchSettings;
 			procedure LoadInitialSettings;
@@ -232,7 +233,8 @@ uses
 	Winapi.Windows,
 	RipGrepper.Settings.AppSettings,
 	RipGrepper.Settings.ExtensionSettings,
-	RipGrepper.CommandLine.OptionStrings;
+	RipGrepper.CommandLine.OptionStrings,
+	RipGrepper.Helper.UI.DarkMode;
 
 {$R *.dfm}
 
@@ -437,6 +439,9 @@ procedure TRipGrepperSearchDialogForm.FormShow(Sender : TObject);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.FormShow');
+
+	HandleThemes();
+
 	WriteInitialSettingsToCtrls;
 	LoadExtensionSearchSettings;
 
@@ -998,6 +1003,20 @@ begin
 
 	selectedText := string(selectedText).Trim();
 	Result := CheckAndCorrectMultiLine(selectedText);
+end;
+
+procedure TRipGrepperSearchDialogForm.HandleThemes;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.HandleThemes');
+
+	if GSettings.AppSettings.ColorTheme.IsEmpty then begin
+		TDarkModeHelper.SetAppropriateThemeMode(self);
+	end else begin
+		TDarkModeHelper.SetThemeMode(GSettings.AppSettings.ColorTheme, self);
+	end;
+
+	TDarkModeHelper.SetIconTheme(self);
 end;
 
 function TRipGrepperSearchDialogForm.IsReplaceMode : Boolean;
