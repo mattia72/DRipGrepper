@@ -99,6 +99,7 @@ type
 		SVGIconImageList1 : TSVGIconImageList;
 		ToolButton1 : TToolButton;
 		ToolButton2 : TToolButton;
+		procedure FormCreate(Sender: TObject);
 		procedure ActionAddParamMatchCaseExecute(Sender : TObject);
 		procedure ActionAddParamMatchCaseUpdate(Sender : TObject);
 		procedure ActionAddParamRegexExecute(Sender : TObject);
@@ -227,7 +228,10 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	Winapi.ShellAPI,
 	System.StrUtils,
-	{$IFNDEF STANDALONE} RipGrepper.Common.IOTAUtils, {$ENDIF}
+	{$IFNDEF STANDALONE}
+    RipGrepper.Common.IOTAUtils,
+    ToolsAPI,
+    {$ENDIF}
 	RipGrepper.Tools.FileUtils,
 	System.IOUtils,
 	Winapi.Windows,
@@ -258,6 +262,11 @@ begin
 
 	toolbarSearchTextOptions.AutoSize := False; // else shrinked as extension
 	cmbOptions.AutoComplete := False; // so we know the old value after change
+end;
+
+procedure TRipGrepperSearchDialogForm.FormCreate(Sender: TObject);
+begin
+      HandleThemes;
 end;
 
 destructor TRipGrepperSearchDialogForm.Destroy;
@@ -439,8 +448,6 @@ procedure TRipGrepperSearchDialogForm.FormShow(Sender : TObject);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.FormShow');
-
-	HandleThemes();
 
 	WriteInitialSettingsToCtrls;
 	LoadExtensionSearchSettings;
@@ -1009,7 +1016,15 @@ procedure TRipGrepperSearchDialogForm.HandleThemes;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.HandleThemes');
+ 	{$IFNDEF STANDALONE}
+	var
+		themingServices : IOTAIDEThemingServices;
 
+    if Supports(BorlandIDEServices, IOTAIDEThemingServices, themingServices) then begin
+        themingServices.RegisterFormClass( TRipGrepperSearchDialogForm);
+    end;
+
+    {$ENDIF}
 	if GSettings.AppSettings.ColorTheme.IsEmpty then begin
 		TDarkModeHelper.SetAppropriateThemeMode(self);
 	end else begin
