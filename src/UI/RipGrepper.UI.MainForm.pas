@@ -117,7 +117,7 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner');
 	inherited Create(AOwner);
 	{$IFDEF STANDALONE}
-    HandleThemes();
+	HandleThemes();
 	TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner STANDALONE');
 	Init;
 	{$ENDIF}
@@ -206,6 +206,9 @@ end;
 
 procedure TRipGrepperForm.HandleThemes;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.HandleThemes');
+
 	if GSettings.AppSettings.ColorTheme.IsEmpty then begin
 		TDarkModeHelper.SetAppropriateThemeMode();
 	end else begin
@@ -215,8 +218,9 @@ end;
 
 procedure TRipGrepperForm.WMSettingChange(var message : TWMSettingChange);
 begin
-	if SameText('ImmersiveColorSet', string(message.Section)) then
+	if SameText('ImmersiveColorSet', string(message.Section)) then begin
 		HandleThemes;
+	end;
 end;
 
 end.
