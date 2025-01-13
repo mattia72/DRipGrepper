@@ -295,7 +295,6 @@ object OpenWithConfigForm: TOpenWithConfigForm
         'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"')
       ParentShowHint = False
       ShowHint = True
-      StyleName = 'Windows'
       TabOrder = 3
       OnClick = lbCommandsClick
       OnDblClick = lbCommandsDblClick

@@ -15,7 +15,9 @@ uses
 	{$IFNDEF STANDALONE}
 	ToolsAPI,
 	{$ENDIF}
-	Winapi.Windows;
+	Winapi.Windows,
+	System.UITypes,
+	Vcl.Themes;
 
 type
 	EThemeMode = (tmLight, tmDark, tmSystem);
@@ -59,6 +61,8 @@ type
 				const _lightThemeName : string = LIGHT_THEME_NAME);
 
 			class function GetActualThemeMode : EThemeMode;
+			class function GetIdeSystemColor(const _color : TColor) : TColor;
+			class function GetIdeStyleColor(const _styleColor : TStyleColor) : TColor;
 			class function GetThemeNameByMode(const _tm : EThemeMode) : string;
 			class procedure SetThemeMode(const _mode : EThemeMode); overload;
 			class procedure SetThemeMode(const _themeName : string); overload;
@@ -73,13 +77,14 @@ uses
 	{$ENDIF}
 	Vcl.Forms,
 	Vcl.Controls,
-	VCL.themes, // Used for access to TStyleManager
+	// Used for access to TStyleManager
 	System.Classes,
 	Winapi.UxTheme,
 	Winapi.Messages,
 	System.StrUtils,
 	RipGrepper.Tools.DebugUtils,
-	System.SysUtils;
+	System.SysUtils,
+	Vcl.Graphics;
 
 class procedure TDarkModeHelper.AllowThemes;
 begin
@@ -195,7 +200,31 @@ begin
 	end;;
 end;
 
-class function TDarkModeHelper.GetThemeNameByMode(const _tm : EThemeMode) : string;
+class function TDarkModeHelper.GetIdeSystemColor(const _color : TColor) : TColor;
+begin
+	Result := clNone;
+	{$IFNDEF STANDALONE}
+	var
+		themingServices : IOTAIDEThemingServices;
+	if Supports(BorlandIDEServices, IOTAIDEThemingServices, ThemingServices) then begin
+		Result := ThemingServices.StyleServices.GetSystemColor(_color);
+	end;
+	{$ENDIF}
+end;
+
+class function TDarkModeHelper.GetIdeStyleColor(const _styleColor : TStyleColor): TColor;
+begin
+	Result := clNone;
+	{$IFNDEF STANDALONE}
+	var
+		themingServices : IOTAIDEThemingServices;
+	if Supports(BorlandIDEServices, IOTAIDEThemingServices, ThemingServices) then begin
+		Result := ThemingServices.StyleServices.GetStyleColor(_styleColor);
+	end;
+	{$ENDIF}
+end;
+
+class function TDarkModeHelper.GetThemeNameByMode(const _tm : EThemeMode): string;
 begin
 	{$IFDEF STANDALONE}
 	var
