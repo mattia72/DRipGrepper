@@ -88,7 +88,6 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
         Left = 41
         Top = 0
         Action = ActionShowRelativePath
-        ImageName = 'full_path'
       end
       object tbAlternateRowColors: TToolButton
         Left = 66
@@ -343,6 +342,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       GroupIndex = 1
       Hint = 'Show Full or Relative Path'
       ImageIndex = 6
+      ImageName = 'full-path'
       OnExecute = ActionShowRelativePathExecute
     end
     object ActionShowFileIcons: TAction
