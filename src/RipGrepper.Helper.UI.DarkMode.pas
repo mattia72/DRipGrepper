@@ -19,7 +19,8 @@ uses
 	System.UITypes,
 	Vcl.Themes,
 	Vcl.Controls,
-	System.Classes;
+	System.Classes,
+	Vcl.Forms;
 
 type
 	EThemeMode = (tmLight, tmDark, tmSystem);
@@ -69,6 +70,17 @@ type
 			class procedure SetThemeMode(const _themeName : string; _component : TComponent = nil); overload;
 	end;
 
+	{$IFNDEF STANDALONE}
+
+	TIDEThemeHelper = class // TODO: separate IDE functions in another unit...
+
+		public
+			class procedure AllowThemes(_formClass : TCustomFormClass = nil);
+			class procedure ApplyTheme(_component : TComponent = nil);
+			class procedure RegisterNotifier(const _notifier : INTAIDEThemingServicesNotifier);
+	end;
+	{$ENDIF}
+
 implementation
 
 uses
@@ -76,7 +88,7 @@ uses
 	// for the pre-defined registry key constants
 	System.Win.Registry, // for the registry read access
 	{$ENDIF}
-	Vcl.Forms,
+
 	// Used for access to TStyleManager
 
 	Winapi.UxTheme,
@@ -96,21 +108,7 @@ class procedure TDarkModeHelper.ApplyTheme(const _style : string; _component : T
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.ApplyTheme');
-	{$IFDEF STANDALONE}
 	TStyleManager.TrySetStyle(_style);
-	{$ELSE}
-	var
-		themingServices : IOTAIDEThemingServices;
-
-	if Supports(BorlandIDEServices, IOTAIDEThemingServices, ThemingServices) then begin
-
-		if Assigned(_component) then begin
-			dbgMsg.MsgFmt('Component name: %s', [_component.Name]);
-		end;
-        //themingServices.RegisterFormClass( );
-		themingServices.ApplyTheme(_component);
-	end;
-	{$ENDIF}
 end;
 
 class procedure TDarkModeHelper.SetAppropriateThemeMode(_component : TComponent = nil);
@@ -142,7 +140,11 @@ begin
 	if Assigned(_component) then begin
 		dbgMsg.MsgFmt('Component name: %s', [_component.Name]);
 	end;
-	TDarkModeHelper.ApplyTheme(chosenTheme, _component);
+	{$IFDEF STANDALONE}
+	TDarkModeHelper.ApplyTheme(chosenTheme);
+	{$ELSE}
+	TIDEThemeHelper.ApplyTheme(_component);
+	{$ENDIF}
 end;
 
 class function TDarkModeHelper.SystemDarkModeIsEnabled : boolean;
@@ -292,7 +294,7 @@ begin
 	var
 	color := clBlack;
 	if tmDark = TDarkModeHelper.GetActualThemeMode then begin
-		color := clDkGray;
+		color := clGray;
 	end;
 	SetFixedColorInSVGImgaLists(_ctrl, color);
 end;
@@ -316,5 +318,43 @@ begin
 	{$ENDIF}
 	SetSpecificThemeMode(_themeName = dark, DARK_THEME_NAME, LIGHT_THEME_NAME, _component);
 end;
+
+{$IFNDEF STANDALONE}
+
+class procedure TIDEThemeHelper.AllowThemes(_formClass : TCustomFormClass = nil);
+begin
+	var
+		themingServices : IOTAIDEThemingServices;
+
+	if Supports(BorlandIDEServices, IOTAIDEThemingServices, themingServices) and Assigned(_formClass) then begin
+		themingServices.RegisterFormClass(_formClass);
+	end;
+
+end;
+
+class procedure TIDEThemeHelper.ApplyTheme(_component : TComponent = nil);
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TIDEThemeHelper.ApplyTheme');
+	var
+		themingServices : IOTAIDEThemingServices;
+
+	if Supports(BorlandIDEServices, IOTAIDEThemingServices, ThemingServices) then begin
+		if Assigned(_component) then begin
+			dbgMsg.MsgFmt('Component name: %s', [_component.Name]);
+		end;
+		themingServices.ApplyTheme(_component);
+	end;
+end;
+
+class procedure TIDEThemeHelper.RegisterNotifier(const _notifier : INTAIDEThemingServicesNotifier);
+begin
+	var
+		themingServices : IOTAIDEThemingServices;
+	if Supports(BorlandIDEServices, IOTAIDEThemingServices, ThemingServices) then begin
+		themingServices.AddNotifier(_notifier);
+	end;
+end;
+{$ENDIF}
 
 end.

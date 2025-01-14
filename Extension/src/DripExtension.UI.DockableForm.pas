@@ -15,7 +15,7 @@ uses
 	RipGrepper.UI.MainForm;
 
 type
-	TRipGrepperDockableForm = class(TInterfacedPersistent, INTACustomDockableForm)
+	TRipGrepperDockableForm = class(TInterfacedPersistent, INTACustomDockableForm, INTAIDEThemingServicesNotifier)
 		private
 			FCaption : string;
 			FIdentifier : string;
@@ -114,6 +114,38 @@ type
 			/// Called when the user uses one of the clipboard commands on the IDE's &quot;Edit&quot;
 			/// menu
 			/// </summary>
+			///
+			{ IOTANotifier }
+			/// <summary>
+			/// This procedure is called immediately after the item is successfully saved.
+			/// This is not called for IOTAWizards
+			/// </summary>
+			procedure AfterSave;
+			/// <summary>
+			/// This function is called immediately before the item is saved. This is not
+			/// called for IOTAWizard
+			/// </summary>
+			procedure BeforeSave;
+			/// <summary>
+			/// The associated item is being destroyed so all references should be dropped.
+			/// Exceptions are ignored.
+			/// </summary>
+			procedure Destroyed;
+			/// <summary>
+			/// This associated item was modified in some way. This is not called for
+			/// IOTAWizards
+			/// </summary>
+			procedure Modified;
+			{ INTAIDEThemingServicesNotifier }
+			/// <summary>
+			/// This notifier will be called immediately before the active IDE Theme changes.
+			/// </summary>
+			procedure ChangingTheme;
+			/// <summary>
+			/// This notifier will be called immediately after the active IDE Theme changes.
+			/// </summary>
+			procedure ChangedTheme;
+
 			function EditAction(Action : TEditAction) : Boolean;
 			property Caption : string read GetCaption write FCaption;
 			property Identifier : string read GetIdentifier;
@@ -138,7 +170,32 @@ uses
 	RipGrepper.Common.IOTAUtils,
 	Vcl.Controls,
 	RipGrepper.Settings.AppSettings,
-	RipGrepper.Settings.RipGrepperSettings;
+	RipGrepper.Settings.RipGrepperSettings,
+	RipGrepper.Helper.UI.DarkMode;
+
+procedure TRipGrepperDockableForm.AfterSave;
+begin
+
+end;
+
+procedure TRipGrepperDockableForm.BeforeSave;
+begin
+
+end;
+
+procedure TRipGrepperDockableForm.ChangedTheme;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperDockableForm.ChangedTheme');
+	ParentFrame.UpdateUIStyle();
+	TIDEThemeHelper.ApplyTheme(ParentFrame);
+end;
+
+procedure TRipGrepperDockableForm.ChangingTheme;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperDockableForm.ChangingTheme');
+end;
 
 { TRipGrepperDockableForm }
 
@@ -227,10 +284,16 @@ begin
 	services := (BorlandIDEServices as INTAServices);
 	try
 		services.RegisterDockableForm(FInstance);
+		TIDEThemeHelper.RegisterNotifier(FInstance);
 	except
 		on e : Exception do
 			dbgMsg.Msg(e.Message);
 	end;
+end;
+
+procedure TRipGrepperDockableForm.Destroyed;
+begin
+
 end;
 
 class procedure TRipGrepperDockableForm.DestroyInstance;
@@ -283,6 +346,10 @@ begin
 		CreateInstance()
 	end;
 	Result := FInstance;
+end;
+
+procedure TRipGrepperDockableForm.Modified;
+begin
 end;
 
 end.

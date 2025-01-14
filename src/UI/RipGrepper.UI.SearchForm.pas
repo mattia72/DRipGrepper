@@ -266,6 +266,11 @@ end;
 
 procedure TRipGrepperSearchDialogForm.FormCreate(Sender : TObject);
 begin
+	{$IFNDEF STANDALONE}
+	TIDEThemeHelper.AllowThemes(TRipGrepperSearchDialogForm);
+	{$ELSE}
+	TDarkModeHelper.AllowThemes();
+	{$ENDIF}
 	HandleThemes;
 end;
 
@@ -1016,15 +1021,7 @@ procedure TRipGrepperSearchDialogForm.HandleThemes;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.HandleThemes');
-	{$IFNDEF STANDALONE}
-	var
-		themingServices : IOTAIDEThemingServices;
 
-	if Supports(BorlandIDEServices, IOTAIDEThemingServices, themingServices) then begin
-		themingServices.RegisterFormClass(TRipGrepperSearchDialogForm);
-	end;
-
-	{$ENDIF}
 	if GSettings.AppSettings.ColorTheme.IsEmpty then begin
 		TDarkModeHelper.SetAppropriateThemeMode(self);
 	end else begin
