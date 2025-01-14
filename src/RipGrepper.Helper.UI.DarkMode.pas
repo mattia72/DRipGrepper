@@ -107,6 +107,7 @@ begin
 		if Assigned(_component) then begin
 			dbgMsg.MsgFmt('Component name: %s', [_component.Name]);
 		end;
+        //themingServices.RegisterFormClass( );
 		themingServices.ApplyTheme(_component);
 	end;
 	{$ENDIF}
