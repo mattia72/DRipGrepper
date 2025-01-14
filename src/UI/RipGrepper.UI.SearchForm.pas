@@ -99,7 +99,7 @@ type
 		SVGIconImageList1 : TSVGIconImageList;
 		ToolButton1 : TToolButton;
 		ToolButton2 : TToolButton;
-		procedure FormCreate(Sender: TObject);
+		procedure FormCreate(Sender : TObject);
 		procedure ActionAddParamMatchCaseExecute(Sender : TObject);
 		procedure ActionAddParamMatchCaseUpdate(Sender : TObject);
 		procedure ActionAddParamRegexExecute(Sender : TObject);
@@ -229,9 +229,9 @@ uses
 	Winapi.ShellAPI,
 	System.StrUtils,
 	{$IFNDEF STANDALONE}
-    RipGrepper.Common.IOTAUtils,
-    ToolsAPI,
-    {$ENDIF}
+	RipGrepper.Common.IOTAUtils,
+	ToolsAPI,
+	{$ENDIF}
 	RipGrepper.Tools.FileUtils,
 	System.IOUtils,
 	Winapi.Windows,
@@ -264,9 +264,9 @@ begin
 	cmbOptions.AutoComplete := False; // so we know the old value after change
 end;
 
-procedure TRipGrepperSearchDialogForm.FormCreate(Sender: TObject);
+procedure TRipGrepperSearchDialogForm.FormCreate(Sender : TObject);
 begin
-      HandleThemes;
+	HandleThemes;
 end;
 
 destructor TRipGrepperSearchDialogForm.Destroy;
@@ -1016,15 +1016,15 @@ procedure TRipGrepperSearchDialogForm.HandleThemes;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.HandleThemes');
- 	{$IFNDEF STANDALONE}
+	{$IFNDEF STANDALONE}
 	var
 		themingServices : IOTAIDEThemingServices;
 
-    if Supports(BorlandIDEServices, IOTAIDEThemingServices, themingServices) then begin
-        themingServices.RegisterFormClass( TRipGrepperSearchDialogForm);
-    end;
+	if Supports(BorlandIDEServices, IOTAIDEThemingServices, themingServices) then begin
+		themingServices.RegisterFormClass(TRipGrepperSearchDialogForm);
+	end;
 
-    {$ENDIF}
+	{$ENDIF}
 	if GSettings.AppSettings.ColorTheme.IsEmpty then begin
 		TDarkModeHelper.SetAppropriateThemeMode(self);
 	end else begin
@@ -1324,6 +1324,9 @@ begin
 		dbgMsg.Msg('extensionSpace=' + extensionSpace.ToString);
 
 		gbOptionsFilters.Height := FOptionsFiltersOrigHeight - extensionSpace;
+		if not rbExtensionOptions.Visible then begin
+			gbPath.Align := alTop;
+		end;
 		gbOptionsOutput.Top := FOptionsOutputOrigTop - extensionSpace;
 
 		pnlMiddle.Height := FpnlMiddleOrigHeight - extensionSpace;
