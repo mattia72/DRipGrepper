@@ -60,13 +60,13 @@ const
 	IMG_IDX_EXPAND = 4;
 	IMG_IDX_COLLAPSE = 5;
 
-    IMG_IDX_SHOW_ABS_PATH = 6;
+	IMG_IDX_SHOW_ABS_PATH = 6;
 	IMG_IDX_SHOW_RELATIVE_PATH = 7;
 
-    IMG_IDX_ALTERNATE_BG_ON = 8;
+	IMG_IDX_ALTERNATE_BG_ON = 8;
 
 	IMG_IDX_SHOW_FILE_ICON_TRUE = 9;
-//  IMG_IDX_SHOW_FILE_ICON_FALSE = 9;
+	// IMG_IDX_SHOW_FILE_ICON_FALSE = 9;
 
 	IMG_IDX_INDENT_OFF = 10;
 	IMG_IDX_INDENT_ON = 11;
@@ -74,13 +74,12 @@ const
 	IMG_IDX_FILTER_ON = 12;
 	IMG_IDX_FILTER_OFF = 13;
 
-
 	IMG_IDX_REPLACE_OFF = 14;
 	IMG_IDX_REPLACE_ON = 15;
 
-//  IMG_IDX_UNSORTED = 3;
-//  IMG_IDX_DESCENDING_SORTED = 4;
-//  IMG_IDX_ASCENDING_SORTED = 5;
+	// IMG_IDX_UNSORTED = 3;
+	// IMG_IDX_DESCENDING_SORTED = 4;
+	// IMG_IDX_ASCENDING_SORTED = 5;
 
 	PNL_STATISTIC_IDX = 0;
 	PNL_STATUS_IDX = 1;
@@ -253,7 +252,6 @@ type
 			class constructor Create;
 			class property ColumnTitle[index : EColumnIndex] : string read GetColumnTitle; default;
 	end;
-
 
 implementation
 

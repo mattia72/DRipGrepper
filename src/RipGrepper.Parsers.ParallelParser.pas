@@ -4,7 +4,7 @@ interface
 
 uses
 	System.Classes,
-	RipGrepper.Data.Matches, 
+	RipGrepper.Data.Matches,
 	RipGrepper.Common.Interfaces;
 
 type
@@ -13,7 +13,7 @@ type
 
 	TParallelParser = class // class(TThread)
 		private
-			FHistObject: IHistoryItemObject;
+			FHistObject : IHistoryItemObject;
 			FData : TRipGrepperData;
 			FIsLast : Boolean;
 			FLine : string;
@@ -70,6 +70,9 @@ var
 	ifSearchParam : ISearchParams;
 	oParsed : IParsedObjectRow;
 begin
+	if (_iLineNr > RG_PROCESSING_LINE_COUNT_LIMIT) then
+		Exit;
+
 	TThread.Queue(nil,
 		procedure
 		begin
