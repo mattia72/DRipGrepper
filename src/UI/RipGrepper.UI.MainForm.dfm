@@ -177,6 +177,10 @@ object RipGrepperForm: TRipGrepperForm
       Width = 726
       inherited pnlTop: TPanel
         Width = 726
+        inherited tbarSearch: TToolBar
+        end
+        inherited tbarResult: TToolBar
+        end
         inherited tbarConfig: TToolBar
           Left = 690
         end
