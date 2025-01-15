@@ -69,11 +69,13 @@ implementation
 uses
 
 	RipGrepper.Tools.DebugUtils,
+	RipGrepper.Helper.UI,
 	Winapi.Windows,
 	Winapi.ShellAPI,
 	System.Threading,
 	System.AnsiStrings,
-	System.Math;
+	System.Math,
+	System.UITypes;
 
 class function TProcessUtils.MaybeQuoteIfNotQuoted(const _s : string; const _delimiter : string = '"') : string;
 begin
@@ -189,7 +191,7 @@ var
 	enc : TEncoding;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TTProcessUtils.ProcessOutput');
+	dbgMsg := TDebugMsgBeginEnd.New('TProcessUtils.ProcessOutput');
 
 	FProcessedLineCount := 0;
 	{ Now process the output }
@@ -215,7 +217,10 @@ begin
 		ProcessLastLine(sLineOut, _newLineHandler, _eofProcHandler);
 	except
 		on E : Exception do begin
-			dbgMsg.Msg('Exception: ' + E.Message + CRLF + 'line:' + sLineOut);
+			var
+			msg := Format('%d: %s' + CRLF + 'Exception: %s', [FProcessedLineCount, sLineOut, E.Message]);
+			TAsyncMsgBox.Show(msg, TMsgDlgType.mtError);
+			dbgMsg.Msg(msg);
 			raise;
 		end;
 	end;
@@ -244,7 +249,8 @@ begin
 end;
 
 class function TProcessUtils.GetDefaultEncodingName : string;
-var CPInfoEx : TCPInfoEx;
+var
+	CPInfoEx : TCPInfoEx;
 begin
 	if GetCPInfoEx(CP_ACP, 0, CPInfoEx) then
 		Result := CPInfoEx.CodePageName
@@ -257,7 +263,9 @@ class function TProcessUtils.RunProcess(const _exe : string; _args : TStrings;
 	{ } _newLIneHandler : INewLineEventHandler;
 	{ } _terminateEventProducer : ITerminateEventProducer;
 	{ } _eofProcHandler : IEOFProcessEventHandler) : Integer;
-var p : TProcess; cmdLineLength : integer;
+var
+	p : TProcess;
+	cmdLineLength : integer;
 begin
 	p := TProcess.Create(nil);
 	try
@@ -326,7 +334,8 @@ begin
 end;
 
 class function TProcessUtils.GetDefaultEncodingCodePage : Integer;
-var CPInfoEx : TCPInfoEx;
+var
+	CPInfoEx : TCPInfoEx;
 begin
 	if GetCPInfoEx(CP_ACP, 0, CPInfoEx) then begin
 		Result := CPInfoEx.CodePage;
@@ -338,7 +347,8 @@ end;
 class function TProcessUtils.RunProcessAsync(const _exe : string; const _args : TStrings; const _workDir : string;
 	_newLineHandler : INewLineEventHandler; _terminateEventProducer : ITerminateEventProducer; _eofProcHandler : IEOFProcessEventHandler)
 	: Boolean;
-var task : ITask;
+var
+	task : ITask;
 begin
 	task := TTask.Run(
 		procedure
@@ -376,7 +386,8 @@ end;
 
 class procedure TSimpleProcessOutputStringReader.RunProcess(const _exe : string; _args : TStrings; _workDir : string;
 out _stdOut : TStrings);
-var spor : TSimpleProcessOutputStringReader;
+var
+	spor : TSimpleProcessOutputStringReader;
 begin
 	spor := TSimpleProcessOutputStringReader.Create; // It will be freed... How?
 	TProcessUtils.RunProcess(_exe, _args, _workDir, spor as INewLineEventHandler, nil, nil);
