@@ -412,7 +412,10 @@ procedure TRipGrepperSettings.StoreHistoryEntries(const _list : TStrings; const 
 var
 	multiLineVal : TMultiLineString;
 begin
+    var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.StoreHistoryEntries');
+	dbgMsg.Msg('Section: ' + _section);
 	for var i := _list.Count - 1 downto 0 do begin
+		dbgMsg.MsgIf(i = 0, '0: ' + _list[i]);
 		if not _list[i].IsEmpty then begin
 			multiLineVal := _list[i];
 			IniFile.WriteString(_section, 'Item_' + i.ToString, multiLineVal.GetLine(0));
