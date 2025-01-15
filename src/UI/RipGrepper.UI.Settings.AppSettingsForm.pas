@@ -27,11 +27,8 @@ uses
 	Vcl.ImgList,
 	System.Actions,
 	Vcl.ActnList,
-	RipGrepper.Tools.DebugUtils;
-
-const
-	{ User-defined message }
-	UserMessageValidateInput = wm_User + 100;
+	RipGrepper.Tools.DebugUtils,
+	RipGrepper.Common.Constants;
 
 type
 	EValidateCtrls = (vcRgExePath, vcIniFilePath);
@@ -77,7 +74,7 @@ type
 			function GetTraceTypeFilters : TTraceFilterTypes;
 			function IsRgExeValid(const filePath : string) : Boolean;
 			{ User-defined message handler }
-			procedure ValidateInput(var M : TMessage); message UserMessageValidateInput;
+			procedure ValidateInput(var M : TMessage); message USERMESSAGE_VALIDATE_INPUT;
 
 		protected
 			procedure ReadSettings; override;
@@ -94,7 +91,7 @@ var
 implementation
 
 uses
-	RipGrepper.Common.Constants,
+
 	RipGrepper.Tools.FileUtils,
 	RipGrepper.Helper.UI,
 	System.IOUtils,
@@ -140,7 +137,7 @@ end;
 procedure TAppSettingsForm.btnedtRgExePathExit(Sender : TObject);
 begin
 	if FRefocusing = nil then
-		PostMessage(Handle, UserMessageValidateInput, 0, LParam(vcRgExePath));
+		PostMessage(Handle, USERMESSAGE_VALIDATE_INPUT, 0, LParam(vcRgExePath));
 end;
 
 procedure TAppSettingsForm.btnedtRgExePathLeftButtonClick(Sender : TObject);
@@ -160,7 +157,7 @@ begin
 		filePath := OpenDialog1.FileName;
 		btnedtRgExePath.Text := filePath;
 	end;
-	PostMessage(Handle, UserMessageValidateInput, 0, LParam(vcRgExePath));
+	PostMessage(Handle, USERMESSAGE_VALIDATE_INPUT, 0, LParam(vcRgExePath));
 end;
 
 procedure TAppSettingsForm.chRegexClick(Sender : TObject);

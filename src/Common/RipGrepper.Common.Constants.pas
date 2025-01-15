@@ -8,7 +8,8 @@ uses
 	ArrayEx,
 	System.Generics.Defaults,
 	Vcl.Graphics,
-	Vcl.Menus;
+	Vcl.Menus, 
+	Winapi.Messages;
 
 const
 	{ }{$IFDEF WIN64}
@@ -234,6 +235,7 @@ const
 
 	COMPONENT_NAME_COLORSELECTOR = '_ColorSelector';
 
+	USERMESSAGE_VALIDATE_INPUT = WM_USER + 100;
 type
 
 	EColumnIndex = (ciFile, ciRow, ciCol, ciText, ciMatchText, ciTextAfterMatch);
