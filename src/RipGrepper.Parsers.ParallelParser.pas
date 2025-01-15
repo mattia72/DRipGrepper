@@ -12,11 +12,9 @@ type
 	TProgressEvent = procedure() of object;
 
 	TParseLineThread = class(TThread)
-
 		private
 			FData : TRipGrepperData;
 			FHistObject : IHistoryItemObject;
-
 			FOnLastLine : TLastLineEvent;
 			FOnProgress : TProgressEvent;
 
@@ -38,9 +36,10 @@ type
 			FLineNr : Integer;
 			FOnLastLine : TLastLineEvent;
 			FOnProgress : TProgressEvent;
-			FThread : TParseLineThread;
+			// FThread : TParseLineThread;
 			procedure CallOnProgress(const _iLineNr : Integer; const _bIsLast : Boolean);
 			procedure ParseLine(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean);
+			procedure ParserProc;
 
 		public
 			constructor Create(_data : TRipGrepperData; _histObj : IHistoryItemObject);
@@ -68,13 +67,13 @@ begin
 	inherited Create();
 	FHistObject := _histObj;
 	FData := _data;
-	FThread := TParseLineThread.Create(FData, FHistObject);
+	// FThread := TParseLineThread.Create(FData, FHistObject);
 end;
 
 destructor TParallelParser.Destroy;
 begin
 	inherited;
-	FThread.Free;
+	// FThread.Free;
 end;
 
 procedure TParallelParser.CallOnProgress(const _iLineNr : Integer; const _bIsLast : Boolean);
@@ -95,38 +94,42 @@ procedure TParallelParser.ParseLine(const _iLineNr : Integer; const _sLine : str
 begin
 	if (_iLineNr > RG_PROCESSING_LINE_COUNT_LIMIT) then begin
 		TDebugUtils.DebugMessage('TParallelParser.ParseLine - Remove every Queued Events');
-		TThread.RemoveQueuedEvents(FThread);
+		TThread.RemoveQueuedEvents(ParserProc);
 		Exit;
 	end;
 
-	FThread.Queue(
-		procedure
-		var
-			ifParser : ISearchResultLineParser;
-			ifSearchParam : ISearchParams;
-			oParsed : IParsedObjectRow;
-		begin
-			if _bIsLast then begin
-				OnLastLine(_iLineNr);
-				TDebugUtils.DebugMessage(Format('TParallelParser.ParseLine - Before parse last line: %d in %d err: %d',
-					[FHistObject.TotalMatchCount, FHistObject.FileCount, FHistObject.GetErrorCounters().FSumOfErrors]));
-			end;
+	// TThread.CreateAnonymousThread(ParserProc).
+	TThread.Queue(nil, ParserProc);
+	// FThread.Queue( ParserProc)
 
-			if (not _sLine.IsEmpty) then begin
-				ifParser := TRipGrepperParsersFactory.GetParser(FHistObject.ParserType);
-				ifSearchParam := TSearchParams.Create(FHistObject.GuiSearchTextParams);
-				ifParser.SearchParams := ifSearchParam;
-				ifParser.ParseLine(_iLineNr, _sLine, _bIsLast);
-				oParsed := TParsedObjectRow.Create(ifParser.ParseResult, FHistObject.ParserType);
-				try
-					FData.Add(oParsed);
-				finally
-					ifParser := nil;
-					oParsed := nil;
-				end;
-			end;
-			CallOnProgress(_iLineNr, _bIsLast);
-		end);
+end;
+
+procedure TParallelParser.ParserProc;
+var
+	ifParser : ISearchResultLineParser;
+	ifSearchParam : ISearchParams;
+	oParsed : IParsedObjectRow;
+begin
+	if FIsLast then begin
+		OnLastLine(FLineNr);
+		TDebugUtils.DebugMessage(Format('TParallelParser.ParseLine - Before parse last line: %d in %d err: %d',
+			[FHistObject.TotalMatchCount, FHistObject.FileCount, FHistObject.GetErrorCounters().FSumOfErrors]));
+	end;
+
+	if (not FLine.IsEmpty) then begin
+		ifParser := TRipGrepperParsersFactory.GetParser(FHistObject.ParserType);
+		ifSearchParam := TSearchParams.Create(FHistObject.GuiSearchTextParams);
+		ifParser.SearchParams := ifSearchParam;
+		ifParser.ParseLine(FLineNr, FLine, FIsLast);
+		oParsed := TParsedObjectRow.Create(ifParser.ParseResult, FHistObject.ParserType);
+		try
+			FData.Add(oParsed);
+		finally
+			ifParser := nil;
+			oParsed := nil;
+		end;
+	end;
+	CallOnProgress(FLineNr, FIsLast);
 end;
 
 procedure TParallelParser.SetNewLine(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean);
@@ -141,6 +144,7 @@ begin
 	inherited Create(True);
 	FHistObject := _histObj;
 	FData := _data;
+	FreeOnTerminate := True;
 end;
 
 procedure TParseLineThread.Execute;

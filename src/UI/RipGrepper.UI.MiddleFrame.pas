@@ -154,7 +154,8 @@ type
 			function GetHistItemObject : IHistoryItemObject;
 			function GetIsGuiReplaceMode : Boolean;
 			function GetIsRgReplaceMode : Boolean;
-			function GetNewParallelParser : TParallelParser;
+			function AddParallelParser(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean) : TParallelParser;
+			procedure FreeAndCleanParserList;
 			function GetResultSelectedFilePath : string;
 			function GetSelectedResultFileNodeData : PVSFileNodeData;
 			function GetSettings : TRipGrepperSettings;
@@ -179,6 +180,7 @@ type
 
 		protected
 			procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;
+
 			{ Private-Deklarationen }
 		public
 			constructor Create(AOwner : TComponent); override;
@@ -281,9 +283,8 @@ begin
 	MiddleLeftFrame1.ClearHistoryObjectList;
 	FData.Free;
 	FIconImgList.Free;
-	for var t : TParallelParser in FParsingThreads do begin
-		t.Free;
-	end;
+
+	FreeAndCleanParserList;
 
 	inherited;
 end;
@@ -465,7 +466,7 @@ begin
 	if ec.FIsRGReportedError then begin
 		TMsgBox.ShowWarning(RG_REPORTED_ERROR_MSG);
 	end;
-
+	FreeAndCleanParserList();
 end;
 
 procedure TRipGrepperMiddleFrame.AlignToolBars;
@@ -733,11 +734,13 @@ begin
 
 end;
 
-function TRipGrepperMiddleFrame.GetNewParallelParser : TParallelParser;
+function TRipGrepperMiddleFrame.AddParallelParser(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean)
+	: TParallelParser;
 begin
 	Result := TParallelParser.Create(FData, FHistItemObj);
 	Result.OnLastLine := OnLastLine;
 	Result.OnProgress := OnParsingProgress;
+	Result.SetNewLine(_iLineNr, _sLine, _bIsLast);
 	FParsingThreads.Add(Result);
 end;
 
@@ -853,8 +856,7 @@ begin
 		end;
 	end;
 
-	parser := GetNewParallelParser();
-	parser.SetNewLine(_iLineNr, _sLine, _bIsLast);
+	parser := AddParallelParser(_iLineNr, _sLine, _bIsLast);
 
 	try
 		parser.Parse();
@@ -864,7 +866,6 @@ begin
 			TMsgBox.ShowError(e.Message + CRLF + 'Too many results. Try to be more specific.');
 		end;
 	end;
-
 end;
 
 procedure TRipGrepperMiddleFrame.OnParsingProgress;
@@ -1448,6 +1449,14 @@ begin
 		dbgMsg.MsgFmt('New VstResult Fonts: %d', [VstResult.Font.Height]);
 
 	end;
+end;
+
+procedure TRipGrepperMiddleFrame.FreeAndCleanParserList;
+begin
+	for var t : TParallelParser in FParsingThreads do begin
+		t.Free;
+	end;
+	FParsingThreads.Clear;
 end;
 
 procedure TRipGrepperMiddleFrame.UpdateUIStyle(_sNewStyle : string = '');
