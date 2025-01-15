@@ -210,7 +210,7 @@ begin
 				dbgMsg.Msg('Encoding not succeded, so we try this ' + GetEncodingName(enc));
 			end;
 			BuffToLine(sBuff, sBuff.Length, sLineOut, _newLineHandler);
-		until iBuffLength = 0;
+		until (iBuffLength = 0) or (FProcessedLineCount > RG_PROCESSING_LINE_COUNT_LIMIT);
 
 		ProcessLastLine(sLineOut, _newLineHandler, _eofProcHandler);
 	except
@@ -281,7 +281,8 @@ begin
 
 			ProcessOutput(p.Output, _newLIneHandler, _terminateEventProducer, _eofProcHandler);
 
-			if (Assigned(_terminateEventProducer) and _terminateEventProducer.ProcessShouldTerminate()) then begin
+			if ((FProcessedLineCount > RG_PROCESSING_LINE_COUNT_LIMIT) or (Assigned(_terminateEventProducer) and
+				_terminateEventProducer.ProcessShouldTerminate())) then begin
 				Result := IfThen(p.Terminate(PROCESS_TERMINATE), ERROR_CANCELLED, 1);
 				TDebugUtils.DebugMessage(Format('Process should terminate returned: %s', [Result.ToString, True]));
 			end else begin
