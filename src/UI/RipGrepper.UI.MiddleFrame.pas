@@ -179,7 +179,6 @@ type
 
 		protected
 			procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;
-
 			{ Private-Deklarationen }
 		public
 			constructor Create(AOwner : TComponent); override;
@@ -848,7 +847,7 @@ begin
 	if (_iLineNr >= RG_PROCESSING_LINE_COUNT_LIMIT) then begin
 		OnLastLine(_iLineNr);
 		if _iLineNr = RG_PROCESSING_LINE_COUNT_LIMIT then begin
-			TMsgBox.ShowWarning(Format(MSG_FORMAT_TOO_MANY_RESULTS, [_iLineNr, RG_PROCESSING_LINE_COUNT_LIMIT]));
+			TAsyncMsgBox.Show(Format(MSG_FORMAT_TOO_MANY_RESULTS, [_iLineNr, RG_PROCESSING_LINE_COUNT_LIMIT]), TMsgDlgType.mtWarning);
 		end else begin
 			Exit;
 		end;
@@ -861,7 +860,7 @@ begin
 		parser.Parse();
 	except
 		on e : EOutOfMemory do begin
-			TDebugUtils.DebugMessage(Format('Exception %s ' + CRLF + 'on line %d', [e.Message, _iLineNr]));
+			TAsyncMsgBox.Show(Format('Exception %s ' + CRLF + 'on line %d', [e.Message, _iLineNr]), TMsgDlgType.mtError);
 			TMsgBox.ShowError(e.Message + CRLF + 'Too many results. Try to be more specific.');
 		end;
 	end;
@@ -962,7 +961,8 @@ end;
 
 procedure TRipGrepperMiddleFrame.SetResultListViewDataToHistoryObj;
 begin
-	TThread.Synchronize(nil, // Refresh listview on history click
+	TThread.Synchronize(nil,
+	// Refresh listview on history click
 		procedure
 		begin
 			VstResult.Clear;

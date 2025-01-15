@@ -31,8 +31,7 @@ type
 			class procedure SetCaption(_msgDlg : TForm);
 	end;
 
-	// TODO : It Doesn't work :(
-	TMsgBoxThread = class(TMsgBoxBase)
+	TAsyncMsgBox = class(TMsgBoxBase)
 
 		private
 			class var FMsgDlg : TForm;
@@ -42,8 +41,7 @@ type
 
 		public
 			constructor Create;
-			procedure CreateMsgDialog(const _msg : string; const _type : TMsgDlgType; const _bModal : Boolean = True;
-				_parent : TWinControl = nil);
+			class procedure Show(const _msg : string; const _type : TMsgDlgType; _parent : TWinControl = nil);
 
 			class procedure OnNoClick(Sender : TObject);
 			class procedure OnOkClick(Sender : TObject);
@@ -90,10 +88,10 @@ type
 	end;
 
 	TCanvasHelper = class Helper for Vcl.Graphics.TCanvas
-	public
-		procedure SetAlteringColors(_idx : Integer);
-		procedure SetSelectedColors(State : TOwnerDrawState);
-		procedure SetBgColorIfNotTransparent(const _color : TColor);
+		public
+			procedure SetAlteringColors(_idx : Integer);
+			procedure SetSelectedColors(State : TOwnerDrawState);
+			procedure SetBgColorIfNotTransparent(const _color : TColor);
 	end;
 
 	TItemInserter = class
@@ -105,7 +103,8 @@ type
 
 	TItemDrawer = class
 		public
-			class procedure AlignedTextOut(TargetCanvas: TCanvas; const _rectNode, _rectHeader: TRect; const _text: string; _color: TFontAttributes);
+			class procedure AlignedTextOut(TargetCanvas : TCanvas; const _rectNode, _rectHeader : TRect; const _text : string;
+				_color : TFontAttributes);
 			class procedure ColoredTextOut(TargetCanvas : TCanvas; const _rect : TRect; const _text : string; _color : TFontAttributes;
 				_pos : Integer = 0);
 			class function ShrinkRect(const r : TRect; const X0, X1, Y0, Y1 : integer) : TRect; inline;
@@ -158,7 +157,7 @@ uses
 	System.IOUtils,
 	RipGrepper.Common.Constants,
 	Vcl.Dialogs,
-	System.StrUtils, 
+	System.StrUtils,
 	Winapi.ActiveX;
 
 procedure TCursorSaver.SetHourGlassCursor;
@@ -291,8 +290,8 @@ begin
 	Result := idxval;
 end;
 
-class procedure TItemDrawer.AlignedTextOut(TargetCanvas: TCanvas; const _rectNode, _rectHeader: TRect; const _text: string; _color:
-	TFontAttributes);
+class procedure TItemDrawer.AlignedTextOut(TargetCanvas : TCanvas; const _rectNode, _rectHeader : TRect; const _text : string;
+	_color : TFontAttributes);
 begin
 	var
 	r := _rectNode; // if col and text are empty, then the whole line is considered
@@ -488,7 +487,7 @@ var
 	btns : TMsgDlgButtons;
 begin
 	btns := TMsgBoxBase.GetButtonsByType(_type);
-    CoInitialize(nil);   // avoids EInvalidGraphicOperation: Cannot create instance of class CLSID_WICImagingFactory
+	CoInitialize(nil); // avoids EInvalidGraphicOperation: Cannot create instance of class CLSID_WICImagingFactory
 	var
 	FMsgDlg := CreateMessageDialog(_msg, _type, btns);
 	try
@@ -496,7 +495,7 @@ begin
 		Result := FMsgDlg.ShowModal;
 	finally
 		FreeAndNil(FMsgDlg);
-        CoUninitialize;
+		CoUninitialize;
 	end;
 end;
 
@@ -536,78 +535,71 @@ begin
 	_canvas.Font.style := FontStyle;
 end;
 
-constructor TMsgBoxThread.Create;
+constructor TAsyncMsgBox.Create;
 begin
 	FMsgDlg := nil;
 end;
 
-procedure TMsgBoxThread.CreateMsgDialog(const _msg : string; const _type : TMsgDlgType; const _bModal : Boolean = True;
-	_parent : TWinControl = nil);
+class procedure TAsyncMsgBox.Show(const _msg : string; const _type : TMsgDlgType; _parent : TWinControl = nil);
 var
 	btns : TMsgDlgButtons;
-begin
-	btns := GetButtonsByType(_type);
-	FMsgDlg := CreateMessageDialog(_msg, _type, btns);
-	try
-		FMsgDlg.Parent := _parent;
-		SetCaption(FMsgDlg);
-		if _bModal then begin
-			FMsgDlg.ShowModal;
-		end else begin
-			ThreadShowDlg;
-		end;
-	finally
-		if _bModal then begin
-			FreeAndNil(FMsgDlg);
-		end;
-	end;
-end;
-
-class procedure TMsgBoxThread.OnNoClick(Sender : TObject);
-begin
-	SetModalResultAndClose(mrNo);
-end;
-
-class procedure TMsgBoxThread.OnOkClick(Sender : TObject);
-begin
-	SetModalResultAndClose(mrOk);
-end;
-
-class procedure TMsgBoxThread.OnYesClick(Sender : TObject);
-begin
-	SetModalResultAndClose(mrYes);
-end;
-
-class procedure TMsgBoxThread.SetModalResultAndClose(const _mr : Integer);
-begin
-	FMsgDlg.ModalResult := _mr;
-	FMsgDlg.Close;
-	// FreeAndNil(FMsgDlg);
-end;
-
-class procedure TMsgBoxThread.ThreadShowDlg;
 begin
 	TThread.Queue(nil,
 		procedure()
 		begin
-			var
-			btnOk := (FMsgDlg.FindComponent('OK') as TButton);
-			if Assigned(btnOk) then begin
-				btnOk.OnClick := TMsgBoxThread.OnOkClick;
-			end else begin
-				var
-				btnYes := (FMsgDlg.FindComponent('Yes') as TButton);
-				if Assigned(btnYes) then begin
-					btnYes.OnClick := TMsgBoxThread.OnYesClick;
-				end;
-				var
-				btnNo := (FMsgDlg.FindComponent('No') as TButton);
-				if Assigned(btnNo) then begin
-					btnNo.OnClick := TMsgBoxThread.OnNoClick;
-				end;
+
+			btns := GetButtonsByType(_type);
+			FMsgDlg := CreateMessageDialog(_msg, _type, btns);
+			try
+				FMsgDlg.Parent := _parent;
+				SetCaption(FMsgDlg);
+				ThreadShowDlg;
+			finally
+				FreeAndNil(FMsgDlg);
 			end;
-			FMsgDlg.Visible := True;
 		end);
+end;
+
+class procedure TAsyncMsgBox.OnNoClick(Sender : TObject);
+begin
+	SetModalResultAndClose(mrNo);
+end;
+
+class procedure TAsyncMsgBox.OnOkClick(Sender : TObject);
+begin
+	SetModalResultAndClose(mrOk);
+end;
+
+class procedure TAsyncMsgBox.OnYesClick(Sender : TObject);
+begin
+	SetModalResultAndClose(mrYes);
+end;
+
+class procedure TAsyncMsgBox.SetModalResultAndClose(const _mr : Integer);
+begin
+	FMsgDlg.ModalResult := _mr;
+	FMsgDlg.Close;
+end;
+
+class procedure TAsyncMsgBox.ThreadShowDlg;
+begin
+	var
+	btnOk := (FMsgDlg.FindComponent('OK') as TButton);
+	if Assigned(btnOk) then begin
+		btnOk.OnClick := TAsyncMsgBox.OnOkClick;
+	end else begin
+		var
+		btnYes := (FMsgDlg.FindComponent('Yes') as TButton);
+		if Assigned(btnYes) then begin
+			btnYes.OnClick := TAsyncMsgBox.OnYesClick;
+		end;
+		var
+		btnNo := (FMsgDlg.FindComponent('No') as TButton);
+		if Assigned(btnNo) then begin
+			btnNo.OnClick := TAsyncMsgBox.OnNoClick;
+		end;
+	end;
+	FMsgDlg.ShowModal;
 end;
 
 class function TMsgBoxBase.GetButtonsByType(const _type : TMsgDlgType) : TMsgDlgButtons;
