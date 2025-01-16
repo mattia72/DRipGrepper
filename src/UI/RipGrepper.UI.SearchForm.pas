@@ -433,8 +433,12 @@ end;
 
 procedure TRipGrepperSearchDialogForm.FormClose(Sender : TObject; var Action : TCloseAction);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.FormClose');
+
 	if ModalResult <> mrCancel then begin
 		if HasHistItemObjWithResult then begin
+			dbgMsg.Msg('HasHistItemObjWithResult');
 			FSettings.SearchFormSettings.StoreSearchSettings(False);
 			FHistItemObj.SearchFormSettings.Copy(FSettings.SearchFormSettings);
 			FHistItemObj.SearchFormSettings.LoadFromDict();
@@ -444,8 +448,10 @@ begin
 			FSettings.SearchFormSettings.Copy(FOrigSearchFormSettings);
 			FSettings.SearchFormSettings.LoadFromDict();
 		end;
+		dbgMsg.Msg('Store histories');
 		FSettings.StoreHistories();
 		FSettings.UpdateIniFile();
+		dbgMsg.Msg('[SearchTextsHistory] Item 0:' + FSettings.IniFile.ReadString('SearchTextsHistory', 'Item_0', 'not exists'));
 	end;
 end;
 

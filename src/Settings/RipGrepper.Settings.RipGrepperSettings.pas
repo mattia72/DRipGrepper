@@ -112,7 +112,8 @@ uses
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.CommandLine.Builder,
-	Winapi.Windows;
+	Winapi.Windows,
+	RipGrepper.Tools.LockGuard;
 
 function TRipGrepperSettings.GetLastHistorySearchText : string;
 begin
@@ -395,6 +396,9 @@ end;
 
 procedure TRipGrepperSettings.StoreHistories;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.StoreHistories');
+
 	StoreHistoryEntries(SearchPathsHistory, 'SearchPathsHistory');
 	StoreHistoryEntries(SearchTextsHistory, 'SearchTextsHistory');
 	StoreHistoryEntries(ReplaceTextsHistory, 'ReplaceTextsHistory');
@@ -412,12 +416,15 @@ procedure TRipGrepperSettings.StoreHistoryEntries(const _list : TStrings; const 
 var
 	multiLineVal : TMultiLineString;
 begin
-    var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.StoreHistoryEntries');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.StoreHistoryEntries');
 	dbgMsg.Msg('Section: ' + _section);
+	var
+	lock := TLockGuard.NewLock(FLockObject);
 	for var i := _list.Count - 1 downto 0 do begin
-		dbgMsg.MsgIf(i = 0, '0: ' + _list[i]);
 		if not _list[i].IsEmpty then begin
 			multiLineVal := _list[i];
+			dbgMsg.MsgIf(_section='SearchTextsHistory', Format('SearchTextsHistory Item_%d = %s', [i, multiLineVal.GetLine(0)]));
 			IniFile.WriteString(_section, 'Item_' + i.ToString, multiLineVal.GetLine(0));
 		end;
 	end;

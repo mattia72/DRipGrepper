@@ -43,7 +43,6 @@ type
 			FOwner : TPersistableSettings;
 			FOwnIniFile : Boolean;
 			procedure CreateIniFile;
-			class var FLockObject : TObject;
 			procedure FreeOwnIniFile;
 			function GetIniFile : TMemIniFile;
 			procedure ReadSettings;
@@ -59,6 +58,7 @@ type
 			FSettingsDict : TSettingsDictionary;
 			FChildren : TArrayEx<TPersistableSettings>;
 			FIsModified : Boolean;
+			class var FLockObject : TObject;
 
 			procedure CopySettingsDictSection(const _other : TPersistableSettings);
 			function GetIsAlreadyRead : Boolean; virtual;
@@ -600,14 +600,14 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.WriteToIni');
 
-	if (not _setting.IsModified) {and (not _sKey.EndsWith(DEFAULT_KEY))} then begin
+	if (not _setting.IsModified) { and (not _sKey.EndsWith(DEFAULT_KEY)) } then begin
 		Exit;
 	end;
 
 	try
 		case _setting.ValueType of
 			varString, varUString : begin
-				// dbgMsg.Msg('Type string');
+				dbgMsg.MsgIf(_sIniSection = 'SearchTextsHistory', Format('SearchTextsHistory %s=%s', [_sKey, _setting.Value]));
 				IniFile.WriteString(_sIniSection, _sKey, _setting.Value);
 			end;
 			varBoolean : begin
@@ -621,7 +621,7 @@ begin
 				i := VarArrayLowBound(_setting.Value, 1);
 				var
 				len := VarArrayHighBound(_setting.Value, 1);
-
+				dbgMsg.Msg('Write Array');
 				while i <= len do begin
 					v := _setting.Value[i]; // v should be string
 					IniFile.WriteString(_sIniSection, Format('%s_Item%d', [_sKey, i]), v);
