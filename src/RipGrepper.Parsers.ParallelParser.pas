@@ -9,7 +9,7 @@ uses
 
 type
 	TLastLineEvent = procedure(const _iLineNr : Integer) of object;
-	TProgressEvent = procedure() of object;
+	TProgressEvent = procedure(const _bLastLine : Boolean) of object;
 
 	TParseLineThread = class(TThread)
 		private
@@ -44,6 +44,7 @@ type
 		public
 			constructor Create(_data : TRipGrepperData; _histObj : IHistoryItemObject);
 			destructor Destroy; override;
+			procedure AbortQueuedParses;
 			procedure Parse;
 			procedure SetNewLine(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean);
 			property OnLastLine : TLastLineEvent read FOnLastLine write FOnLastLine;
@@ -76,11 +77,16 @@ begin
 	// FThread.Free;
 end;
 
+procedure TParallelParser.AbortQueuedParses;
+begin
+	TThread.RemoveQueuedEvents(ParserProc);
+end;
+
 procedure TParallelParser.CallOnProgress(const _iLineNr : Integer; const _bIsLast : Boolean);
 begin
 
 	if (_iLineNr < DRAW_RESULT_UNTIL_FIRST_LINE_COUNT) or ((_iLineNr mod DRAW_RESULT_ON_EVERY_LINE_COUNT) = 0) or _bIsLast then begin
-		OnProgress();
+		OnProgress(_bIsLast);
 	end;
 end;
 
@@ -94,7 +100,7 @@ procedure TParallelParser.ParseLine(const _iLineNr : Integer; const _sLine : str
 begin
 	if (_iLineNr > RG_PROCESSING_LINE_COUNT_LIMIT) then begin
 		TDebugUtils.DebugMessage('TParallelParser.ParseLine - Remove every Queued Events');
-		TThread.RemoveQueuedEvents(ParserProc);
+		AbortQueuedParses;
 		Exit;
 	end;
 

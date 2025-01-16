@@ -163,11 +163,12 @@ type
 			function IsTextMatch(_input, _filter : string; const _filterModes : TFilterModes) : Boolean;
 			procedure LoadBeforeSearchSettings;
 			procedure OnLastLine(const _iLineNr : Integer);
-			procedure OnParsingProgress;
+			procedure OnParsingProgress(const _bLastLine : Boolean);
 			procedure OpenSelectedInIde;
 			procedure RefreshCounters;
 			procedure RefreshCountersInGUI;
 			procedure RunRipGrep;
+			procedure SetAbortSearch(const Value : Boolean);
 			procedure SetCheckedAllSubNode(ANode : PVirtualNode);
 			procedure SetColumnWidths;
 			procedure SetHistItemObject(const Value : IHistoryItemObject);
@@ -215,7 +216,7 @@ type
 			procedure UpdateHistObjectAndGui;
 			procedure UpdateRipGrepArgumentsInHistObj;
 			procedure UpdateUIStyle(_sNewStyle : string = '');
-			property AbortSearch : Boolean read FAbortSearch write FAbortSearch;
+			property AbortSearch : Boolean read FAbortSearch write SetAbortSearch;
 			property Data : TRipGrepperData read GetData write FData;
 			property ExeVersion : string read FExeVersion write FExeVersion;
 			property FileNameType : TFileNameType read FFileNameType write FFileNameType;
@@ -824,7 +825,7 @@ end;
 
 procedure TRipGrepperMiddleFrame.OnLastLine(const _iLineNr : Integer);
 begin
-	TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.OnLastLine: Last line (%d.) received in %s sec.',
+	TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.OnLastLine: Last line (%d) received in %s sec.',
 		[_iLineNr, GetElapsedTime(FswSearchStart)]));
 
 	TThread.Synchronize(nil,
@@ -834,7 +835,6 @@ begin
 			FIsParsingRunning := False;
 			ExpandNodes;
 			RefreshCounters;
-			ParentFrame.AfterSearch();
 		end);
 end;
 
@@ -868,10 +868,14 @@ begin
 	end;
 end;
 
-procedure TRipGrepperMiddleFrame.OnParsingProgress;
+procedure TRipGrepperMiddleFrame.OnParsingProgress(const _bLastLine : Boolean);
 begin
+
 	RefreshCounters;
 	VstResult.Repaint;
+	if (_bLastLine) then begin
+		ParentFrame.AfterSearch();
+	end;
 end;
 
 function TRipGrepperMiddleFrame.ProcessShouldTerminate : Boolean;
@@ -1453,10 +1457,18 @@ end;
 
 procedure TRipGrepperMiddleFrame.FreeAndCleanParserList;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.FreeAndCleanParserList');
+
 	for var t : TParallelParser in FParsingThreads do begin
 		t.Free;
 	end;
 	FParsingThreads.Clear;
+end;
+
+procedure TRipGrepperMiddleFrame.SetAbortSearch(const Value : Boolean);
+begin
+	FAbortSearch := Value;
 end;
 
 procedure TRipGrepperMiddleFrame.UpdateUIStyle(_sNewStyle : string = '');

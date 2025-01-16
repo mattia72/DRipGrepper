@@ -82,6 +82,9 @@ end;
 
 procedure TParentFrame.AfterSearch;
 begin
+    var
+	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.AfterSearch');
+
 	TopFrame.AfterSearch();
 	MainFrame.AfterSearch();
 	BottomFrame.AfterSearch();
