@@ -914,7 +914,7 @@ begin
 		procedure()
 		begin
 			if not FileExists(Settings.RipGrepParameters.RipGrepPath) then begin
-				TMsgBox.ShowError(Format(FORMAT_RIPGREP_EXE_NOT_FOUND, [Settings.IniFile.FileName]));
+				TAsyncMsgBox.ShowError(Format(FORMAT_RIPGREP_EXE_NOT_FOUND, [Settings.IniFile.FileName]));
 			end;
 
 			workDir := TDirectory.GetCurrentDirectory();

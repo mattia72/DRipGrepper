@@ -46,6 +46,10 @@ type
 			class procedure OnNoClick(Sender : TObject);
 			class procedure OnOkClick(Sender : TObject);
 			class procedure OnYesClick(Sender : TObject);
+			class procedure ShowError(const _msg : string);
+			class procedure ShowInfo(const _msg : string);
+			class function ShowQuestion(const _msg : string): Integer;
+			class procedure ShowWarning(const _msg : string; const _bModal : Boolean = True; _parent : TWinControl = nil);
 	end;
 
 	TMsgBox = class(TMsgBoxBase)
@@ -579,6 +583,27 @@ class procedure TAsyncMsgBox.SetModalResultAndClose(const _mr : Integer);
 begin
 	FMsgDlg.ModalResult := _mr;
 	FMsgDlg.Close;
+end;
+
+class procedure TAsyncMsgBox.ShowError(const _msg : string);
+begin
+	Show(_msg, TMsgDlgType.mtError);
+end;
+
+class procedure TAsyncMsgBox.ShowInfo(const _msg : string);
+begin
+	Show(_msg, TMsgDlgType.mtInformation);
+end;
+
+class function TAsyncMsgBox.ShowQuestion(const _msg : string): Integer;
+begin
+	//TODO ModalResult
+	//Result := Show(_msg, TMsgDlgType.mtConfirmation);
+end;
+
+class procedure TAsyncMsgBox.ShowWarning(const _msg : string; const _bModal : Boolean = True; _parent : TWinControl = nil);
+begin
+	Show(_msg, TMsgDlgType.mtWarning);
 end;
 
 class procedure TAsyncMsgBox.ThreadShowDlg;
