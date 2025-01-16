@@ -478,16 +478,18 @@ var
 begin
 	dlg := TFileOpenDialog.Create(nil);
 	try
-		if DirectoryExists(_initialDir) or FileExists(_initialDir) then begin
-			dlg.DefaultFolder := _initialDir;
-		end else begin
-			var
-			initialDir := _initialDir;
-			// get the valid part of the path...
-			repeat
-				initialDir := ExtractFileDir(initialDir); // cuts the last part of the path
-			until DirectoryExists(initialDir);
-			dlg.DefaultFolder := initialDir;
+		if not _initialDir.IsEmpty then begin
+			if DirectoryExists(_initialDir) or FileExists(_initialDir) then begin
+				dlg.DefaultFolder := _initialDir;
+			end else begin
+				var
+				initialDir := _initialDir;
+				// get the valid part of the path...
+				repeat
+					initialDir := ExtractFileDir(initialDir); // cuts the last part of the path
+				until DirectoryExists(initialDir);
+				dlg.DefaultFolder := initialDir;
+			end;
 		end;
 
 		if dlg.DefaultFolder.IsEmpty then begin
