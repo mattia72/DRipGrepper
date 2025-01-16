@@ -289,7 +289,7 @@ begin
 	owSettings.TestFile := MainFrame.GetOpenWithParamsFromSelected();
 	dbgMsg.Msg('TestFile: ' + owSettings.TestFile.GetRelativePath());
 
-	// TOpenWithConfigForm.CreateAndShow(Settings);
+	Settings.StoreToDict;
 	var
 	owForm := TConfigForm.Create(Settings);
 	try
@@ -933,12 +933,12 @@ begin
 	MainFrame.UpdateUIStyle(styleName);
 
 	// var
-	// 	propi : PPropInfo := GetPropInfo(Self, 'StyleElements');
+	// propi : PPropInfo := GetPropInfo(Self, 'StyleElements');
 
 	// if Assigned(propi) then begin
-	// 	var
-	// 	v := GetPropValue(Self, propi, true);
-	// 	dbgMsg.MsgFmt('TopFrame.StyleElements = %s', [VarToStrDef(v, 'n/a')]);
+	// var
+	// v := GetPropValue(Self, propi, true);
+	// dbgMsg.MsgFmt('TopFrame.StyleElements = %s', [VarToStrDef(v, 'n/a')]);
 	// end;
 	// dbgMsg.MsgFmt('StyleName of TopFrame = %s, pnlTop = %s, MainFrame = %s', [TopFrame.StyleName, pnlTop.StyleName, MainFrame.StyleName])
 end;
