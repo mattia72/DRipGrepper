@@ -211,6 +211,9 @@ end;
 
 procedure TRipGrepperSettings.Copy(const _other : TPersistableSettings);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.Copy');
+
 	if Assigned(_other) then begin
 		var
 		s := _other as TRipGrepperSettings;
