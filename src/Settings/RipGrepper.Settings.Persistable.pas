@@ -50,7 +50,7 @@ type
 			procedure SetIniFile(const Value : TMemIniFile);
 			procedure SetIniSectionName(const Value : string);
 			procedure SetOwnersIniFile;
-			procedure WriteSettings(_wsm : EWriteSettingsMode);
+			procedure UpdateSection(const _fileName, _section: string);
 			// 1 Should be locked by a guard
 			procedure WriteToIni(const _sIniSection, _sKey : string; const _setting : ISettingVariant);
 
@@ -70,6 +70,7 @@ type
 			function GetIniSectionName : string; virtual;
 			procedure InnerLoadDefaultsFromDict; virtual;
 			function ToLogString : string; virtual;
+			procedure WriteSettingsDictToIni(const _wsm : EWriteSettingsMode; const _section : string = '');
 
 		public
 			constructor Create(const _Owner : TPersistableSettings); overload;
@@ -113,7 +114,7 @@ type
 			// <summary>
 			// Thread safe write Settings to ini file
 			// </summary>
-			procedure UpdateIniFile;
+			procedure UpdateIniFile(const _section : string = '');
 	end;
 
 implementation
@@ -355,7 +356,7 @@ begin
 	for var s in FChildren do begin
 		s.StoreToDict;
 	end;
-	WriteSettings(EWriteSettingsMode.wsmActual);
+	WriteSettingsDictToIni(EWriteSettingsMode.wsmActual);
 end;
 
 procedure TPersistableSettings.ReadSettings;
@@ -504,7 +505,7 @@ end;
 procedure TPersistableSettings.StoreAsDefaultsToDict;
 begin
 	CopyValuesToDefaults;
-	WriteSettings(EWriteSettingsMode.wsmDefault); // Write to mem ini, after UpdateIniFile will be saved
+	WriteSettingsDictToIni(EWriteSettingsMode.wsmDefault); // Write to mem ini, after UpdateIniFile will be saved
 end;
 
 function TPersistableSettings.ToLogString : string;
@@ -520,19 +521,23 @@ begin
 	end
 end;
 
-procedure TPersistableSettings.UpdateIniFile;
+procedure TPersistableSettings.UpdateIniFile(const _section : string = '');
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
 
+
 	for var s in FChildren do begin
-		dbgMsg.MsgFmt('Child update begin on section: %s', [s.GetIniSectionName()]);
-		s.UpdateIniFile;
+		dbgMsg.MsgFmt('Child update begin on section: [%s]', [s.GetIniSectionName()]);
+		s.UpdateIniFile(s.GetIniSectionName());
 	end;
 
-	if Assigned(FOwner) then begin
+	var
+	section := IfThen(_section = '', GetIniSectionName(), _section);
+
+	if Assigned(FOwner) and (_section = '') then begin
 		FOwner.CopySettingsDictSection(self);
-		FOwner.WriteSettings(EWriteSettingsMode.wsmAll);
+		FOwner.WriteSettingsDictToIni(EWriteSettingsMode.wsmAll);
 		Exit;
 	end;
 
@@ -540,9 +545,16 @@ begin
 		var
 		lock := TLockGuard.NewLock(FLockObject);
 		dbgMsg.Msg('Lock Entered to UpdateIniFile');
-		dbgMsg.MsgFmt('IniFile %p update begin on %s', [Pointer(IniFile), GetIniSectionName()]);
+		dbgMsg.MsgFmt('IniFile %p update begin on [%s]', [Pointer(IniFile), section]);
 		try
-			IniFile.UpdateFile;
+
+			if not section.IsEmpty then begin
+				UpdateSection(IniFile.FileName, _section);
+			end else begin
+				IniFile.UpdateFile;
+			end;
+
+			dbgMsg.Msg('[SearchTextsHistory] Item 0:' + IniFile.ReadString('SearchTextsHistory', 'Item_0', 'not exists'));
 		except
 			on E : Exception do begin
 				dbgMsg.ErrorMsgFmt('%s' + CRLF + '%s', [E.Message, E.StackTrace]);
@@ -556,19 +568,38 @@ begin
 
 end;
 
-procedure TPersistableSettings.WriteSettings(_wsm : EWriteSettingsMode);
+procedure TPersistableSettings.UpdateSection(const _fileName, _section: string);
+var
+	sectionList: TStringList;
+begin
+	sectionList := TStringList.Create();
+	try
+		IniFile.ReadSection(_section, sectionList);
+		var
+		tmpIniFile := TMemIniFile.Create(IniFile.FileName);
+		tmpIniFile.Clear;
+		tmpIniFile.SetStrings(sectionList);
+		tmpIniFile.UpdateFile();
+	finally
+		sectionList.Free;
+	end;
+end;
+
+procedure TPersistableSettings.WriteSettingsDictToIni(const _wsm : EWriteSettingsMode; const _section : string = '');
 var
 	setting : ISettingVariant;
+	section : string;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.WriteSettings');
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.WriteSettingsDictToIni');
 
+	section := IfThen(_section = '', IniSectionName, _section);
 	var
 	lock := TLockGuard.NewLock(FLockObject);
-	dbgMsg.MsgFmt('Lock Entered - WriteSettings [%s]', [IniSectionName]);
+	dbgMsg.MsgFmt('Lock Entered - WriteSettingsDictToIni [%s]', [section]);
 
 	for var key in FSettingsDict.Keys do begin
-		if ((not IniSectionName.IsEmpty) and (not key.StartsWith(IniSectionName))) then
+		if ((not section.IsEmpty) and (not key.StartsWith(section))) then
 			continue;
 		if _wsm <> EWriteSettingsMode.wsmAll then begin
 			if _wsm = EWriteSettingsMode.wsmDefault then begin

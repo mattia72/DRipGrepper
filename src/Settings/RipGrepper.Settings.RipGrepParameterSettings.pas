@@ -278,7 +278,7 @@ begin
 	SettingsDict.StoreDefaultSetting('SearchPath', FSearchPath);
 	SettingsDict.StoreDefaultSetting('FileMasks', FFileMasks);
 	GuiSearchTextParams.StoreAsDefaultsToDict();
-    CopySettingsDictSection(GuiSearchTextParams);
+	CopySettingsDictSection(GuiSearchTextParams);
 	inherited StoreAsDefaultsToDict;
 end;
 

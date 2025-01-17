@@ -24,6 +24,7 @@ type
 
 		public
 			function ToLogString : string;
+			class function FromString(const _context, _proj, _file : string): TRipGrepperExtensionContext; static;
 	end;
 
 	TRipGrepperExtensionSettings = class(TPersistableSettings)
@@ -134,7 +135,7 @@ begin
 	if IsModified then begin
 		dbgMsg.Msg('Update ini file with shortcuts');
 		StoreToDict();
-		UpdateIniFile;
+		UpdateIniFile(IniSectionName); // TODO only Shortcuts!
 	end;
 
 	dbgMsg.Msg(ToLogString());
@@ -195,13 +196,20 @@ end;
 
 function TRipGrepperExtensionSettings.ToLogString : string;
 begin
-	Result := Format('OpenWithShortCut=%s, ShortCut=%s, CurrentIDEContext=[%s]',
-		[OpenWithShortCut, SearchSelectedShortcut, CurrentIDEContext.ToLogString]);
+	Result := Format('OpenWithShortCut=%s, ShortCut=%s, CurrentIDEContext=[%s]', [OpenWithShortCut, SearchSelectedShortcut,
+		CurrentIDEContext.ToLogString]);
 end;
 
 function TRipGrepperExtensionContext.ToLogString : string;
 begin
 	Result := Format('IDEContext: %d, ActiveProject: %s, ActiveFile: %s', [Integer(IDEContext), ActiveProject, ActiveFile]);
+end;
+
+class function TRipGrepperExtensionContext.FromString(const _context, _proj, _file : string): TRipGrepperExtensionContext;
+begin
+	Result.IDEContext := ERipGrepperExtensionContext(StrToInt(_context));
+	Result.ActiveProject := _proj;
+	Result.ActiveFile := _file;
 end;
 
 end.

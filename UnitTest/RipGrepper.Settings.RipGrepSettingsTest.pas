@@ -1,5 +1,6 @@
 unit RipGrepper.Settings.RipGrepSettingsTest;
 
+{$UNDEF STANDALONE}
 interface
 
 uses
@@ -38,6 +39,8 @@ type
 			procedure AfterCopyValuesValuesShouldBeEqual;
 			[Test]
 			procedure LoadDefaultsTest;
+			[Test]
+			procedure UpdateIniTest;
 	end;
 
 implementation
@@ -140,6 +143,7 @@ begin
 	FSettings.SearchPath := 'c:\path\to\dir';
 	FSettings.GuiSearchTextParams.SearchOptions := [EGuiOption.soNotSet];
 	FSettings.StoreToDict;
+
 end;
 
 procedure TRipGrepSettingsTest.Setup;
@@ -171,6 +175,17 @@ procedure TRipGrepSettingsTest.LoadDefaultsTest;
 begin
 	SetDefaultsAndCurrentValues;
 	FSettings.LoadDefaultsFromDict;
+	Assert.IsTrue(FSettings.RipGrepPath <> '', 'RipGrepPath should be set');
+	Assert.IsTrue(FSettings.FileMasks <> '', 'FileMasks should be set');
+	Assert.IsTrue(FSettings.SearchPath <> '', 'SearchPath should be set');
+	Assert.IsTrue(FSettings.GuiSearchTextParams.GetAsString(True) <> '', 'GuiSearchTextParams should be set');
+end;
+
+procedure TRipGrepSettingsTest.UpdateIniTest;
+begin
+	SetDefaultsAndCurrentValues;
+	FSettings.UpdateIniFile();
+	FSettings.ReLoad;
 	Assert.IsTrue(FSettings.RipGrepPath <> '', 'RipGrepPath should be set');
 	Assert.IsTrue(FSettings.FileMasks <> '', 'FileMasks should be set');
 	Assert.IsTrue(FSettings.SearchPath <> '', 'SearchPath should be set');

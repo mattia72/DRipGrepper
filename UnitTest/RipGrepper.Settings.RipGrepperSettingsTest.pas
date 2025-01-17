@@ -6,7 +6,13 @@ uses
 	RipGrepper.Settings.SearchFormSettings,
 	System.IniFiles,
 	RipGrepper.Settings.RipGrepperSettings,
-	DUnitX.TestFramework;
+	DUnitX.TestFramework,
+	System.Classes;
+
+const
+	NOTEXISTS = '<not exists>';
+	SC_OPEN_WITH = 'SHIFT + F2';
+	ACT_HIST_VAL = 'hist 2';
 
 type
 
@@ -18,6 +24,7 @@ type
 		private
 			// FIniFile : TMemIniFile;
 			FSettings : TRipGrepperSettings;
+			FTextHist : TStringList;
 			procedure EmptyFile(const _filePath : string);
 			function ReadBoolIniAsString(const _section, _key : string) : string;
 			procedure SetTestDefaultAndActualValues;
@@ -42,6 +49,12 @@ type
 			procedure AfterUpdateIniValuesShouldBeProperlySaved;
 			[Test]
 			procedure AfterUpdateIniDefaultsShouldBeProperlySaved;
+			[Test]
+			procedure UpdateIniTest;
+			[Test]
+			procedure UpdateHistInIniTest;
+			[Test]
+			procedure UpdateShortCutsIniTest;
 	end;
 
 implementation
@@ -51,7 +64,8 @@ uses
 	System.SysUtils,
 	Vcl.Forms,
 	RipGrepper.Common.GuiSearchParams,
-	RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.SimpleTypes,
+	RipGrepper.Settings.ExtensionSettings;
 
 constructor TRipGrepperSettingsTest.Create;
 begin
@@ -170,7 +184,7 @@ begin
 	SetTestDefaultAndActualValues;
 
 	FSettings.UpdateIniFile;
-    FSettings.LoadFromDict;
+	FSettings.LoadFromDict;
 
 	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchParams', '');
 	settingVal := FSettings.RipGrepParameters.GuiSearchTextParams.GetAsString(True);
@@ -251,17 +265,28 @@ begin
 	FSettings.RipGrepParameters.SearchPath := 'act\search\path';
 	FSettings.RipGrepParameters.FileMasks := '*.act';
 	FSettings.RipGrepParameters.GuiSearchTextParams.SearchOptions := [EGuiOption.soNotSet];
+
+	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext :=
+	{ } TRipGrepperExtensionContext.FromString('2', 'active project', 'active file');
+
+	for var s in ['hist 0', 'hist 1', ACT_HIST_VAL] do
+		FTextHist.Add(s);
+
+	FSettings.SearchFormSettings.ExtensionSettings.OpenWithShortCut := SC_OPEN_WITH;
+	FSettings.SearchTextsHistory := FTextHist;
 	FSettings.StoreToDict;
 end;
 
 procedure TRipGrepperSettingsTest.Setup;
 begin
 	FSettings := TRipGrepperSettings.Create();
+	FTextHist := TStringList.Create();
 end;
 
 procedure TRipGrepperSettingsTest.TearDown;
 begin
-    FSettings.Free; // instance will be free
+	FSettings.Free; // instance will be free
+	FTextHist.Free;
 	EmptyFile(ChangeFileExt(Application.ExeName, '.ini'));
 end;
 
@@ -274,9 +299,50 @@ begin
 	CloseFile(txtFile);
 end;
 
+procedure TRipGrepperSettingsTest.UpdateIniTest;
+begin
+	SetTestDefaultAndActualValues;
+	FSettings.UpdateIniFile();
+	FSettings.ReadIni;
+	Assert.AreEqual('none', FSettings.IniFile.ReadString(FSettings.SearchFormSettings.IniSectionName, 'Encoding', NOTEXISTS));
+	Assert.AreEqual(1, FSettings.IniFile.ReadInteger(FSettings.SearchFormSettings.IniSectionName, 'Context', -99999));
+	Assert.AreEqual(True, FSettings.IniFile.ReadBool(FSettings.SearchFormSettings.IniSectionName, 'Pretty', FALSE));
+	Assert.AreEqual(True, FSettings.IniFile.ReadBool(FSettings.SearchFormSettings.IniSectionName, 'Hidden', FALSE));
+	Assert.AreEqual(True, FSettings.IniFile.ReadBool(FSettings.SearchFormSettings.IniSectionName, 'NoIgnore', FALSE));
+end;
+
 function TRipGrepperSettingsTest.ReadBoolIniAsString(const _section, _key : string) : string;
 begin
 	Result := BoolToStr(FSettings.IniFile.ReadBool(_section, _key, False), True);
+end;
+
+procedure TRipGrepperSettingsTest.UpdateHistInIniTest;
+begin
+	SetTestDefaultAndActualValues;
+	// see SearchForm.OnClose.
+	FSettings.StoreHistories();
+	FSettings.UpdateIniFile();
+	FSettings.ReadIni;
+
+	Assert.AreEqual(ACT_HIST_VAL, FSettings.SearchTextsHistory[0], 'SearchTextsHistory[0] should be hist 0');
+	Assert.AreEqual(ACT_HIST_VAL,
+		{ } FSettings.IniFile.ReadString('SearchTextsHistory', 'Item_0', NOTEXISTS));
+end;
+
+procedure TRipGrepperSettingsTest.UpdateShortCutsIniTest;
+begin
+	SetTestDefaultAndActualValues;
+	FSettings.SearchFormSettings.ExtensionSettings.UpdateIniFile(
+		{ } FSettings.SearchFormSettings.ExtensionSettings.INI_SECTION);
+
+	FSettings.UpdateIniFile();
+
+	Assert.AreEqual(SC_OPEN_WITH,
+		{ } FSettings.IniFile.ReadString(FSettings.SearchFormSettings.ExtensionSettings.INI_SECTION,
+		{ } FSettings.SearchFormSettings.ExtensionSettings.KEY_SHORTCUT_OPENWITH, 'not exists'));
+
+	FSettings.ReadIni;
+	Assert.AreEqual(SC_OPEN_WITH, FSettings.SearchFormSettings.ExtensionSettings.OpenWithShortCut, 'OpenWithShortCut should be ok');
 end;
 
 initialization
