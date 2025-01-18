@@ -14,7 +14,6 @@ type
 	TStringsArrayEx = TArrayEx<TArray<string>>;
 
 	TStringsHelper = class Helper for TStrings
-		private
 		public
 			function Contains(const s : string) : Boolean;
 			function TryGetDef(const _index : Integer; out _val : string; const _default : string = '') : Boolean;
