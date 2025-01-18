@@ -599,6 +599,7 @@ class function TAsyncMsgBox.ShowQuestion(const _msg : string): Integer;
 begin
 	//TODO ModalResult
 	//Result := Show(_msg, TMsgDlgType.mtConfirmation);
+    Result := mrNone;
 end;
 
 class procedure TAsyncMsgBox.ShowWarning(const _msg : string; const _bModal : Boolean = True; _parent : TWinControl = nil);
