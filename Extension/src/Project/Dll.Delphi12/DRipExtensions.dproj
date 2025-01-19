@@ -97,8 +97,8 @@
         <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\23.0\bin\bds.exe</Debugger_HostApplication>
         <DCC_ShowGeneralMessages>true</DCC_ShowGeneralMessages>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.0.0.67;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>67</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.0.0.95;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>95</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <Manifest_File>..\Delphi12\(None)</Manifest_File>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
@@ -113,8 +113,8 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.0.0.70;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>70</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.0.0.78;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.0.0.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>78</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <DCC_Description>RipGrep Search within Delphi</DCC_Description>
         <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
@@ -220,6 +220,8 @@
         <DCCReference Include="..\..\DRipExtension.Main.pas"/>
         <DCCReference Include="..\..\DripExtension.UI.DockableForm.pas"/>
         <DCCReference Include="..\..\DRipExtension.Menu.pas"/>
+        <DCCReference Include="..\..\..\..\src\RipGrepper.Helper.UI.DarkMode.pas"/>
+        <DCCReference Include="..\..\..\..\src\Helper\RipGrepper.Helper.MemIniFile.pas"/>
         <RcItem Include="..\..\..\Resources\about_icon.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>about_icon</ResourceId>
@@ -284,6 +286,12 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="Win32\Debug\DRipExtensions.dll" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>DRipExtensions.dll</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Win32\Release\DRipExtensions.dll" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>DRipExtensions.dll</RemoteName>
                         <Overwrite>true</Overwrite>
