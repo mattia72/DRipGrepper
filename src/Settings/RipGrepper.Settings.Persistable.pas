@@ -5,6 +5,7 @@ interface
 uses
 	System.Generics.Defaults,
 	System.IniFiles,
+	RipGrepper.Helper.MemIniFile,
 	System.Generics.Collections,
 	System.SysUtils,
 	RipGrepper.Common.SimpleTypes,
@@ -50,7 +51,6 @@ type
 			procedure SetIniFile(const Value : TMemIniFile);
 			procedure SetIniSectionName(const Value : string);
 			procedure SetOwnersIniFile;
-			procedure UpdateSection(const _fileName, _section: string);
 			// 1 Should be locked by a guard
 			procedure WriteToIni(const _sIniSection, _sKey : string; const _setting : ISettingVariant);
 
@@ -187,6 +187,7 @@ end;
 function TPersistableSettings.AddChildSettings(_settings : TPersistableSettings) : TPersistableSettings;
 begin
 	FChildren.Add(_settings);
+	_settings.FOwner := self;
 	Result := _settings;
 end;
 
@@ -526,14 +527,10 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
 
-
 	for var s in FChildren do begin
 		dbgMsg.MsgFmt('Child update begin on section: [%s]', [s.GetIniSectionName()]);
-		s.UpdateIniFile(s.GetIniSectionName());
+		s.UpdateIniFile(_section);
 	end;
-
-	var
-	section := IfThen(_section = '', GetIniSectionName(), _section);
 
 	if Assigned(FOwner) and (_section = '') then begin
 		FOwner.CopySettingsDictSection(self);
@@ -545,12 +542,17 @@ begin
 		var
 		lock := TLockGuard.NewLock(FLockObject);
 		dbgMsg.Msg('Lock Entered to UpdateIniFile');
-		dbgMsg.MsgFmt('IniFile %p update begin on [%s]', [Pointer(IniFile), section]);
 		try
+			var
+			section := IfThen((_section = ''), GetIniSectionName(), _section);
+			dbgMsg.MsgFmt('IniFile %p update begin on [%s]', [Pointer(IniFile), section]);
 
-			if not section.IsEmpty then begin
-				UpdateSection(IniFile.FileName, _section);
-			end else begin
+			if (not section.IsEmpty) and Assigned(FOwner) then begin
+				if IniFile.Modified then begin
+					IniFile.WriteTempSectionIni(section);
+				end;
+			end else begin // if we don't have Owner, then
+				IniFile.ReadTempSectionFiles();
 				IniFile.UpdateFile;
 			end;
 
@@ -566,23 +568,6 @@ begin
 		dbgMsg.ErrorMsg('IniFile not assigned!' + GetIniSectionName());
 	end;
 
-end;
-
-procedure TPersistableSettings.UpdateSection(const _fileName, _section: string);
-var
-	sectionList: TStringList;
-begin
-	sectionList := TStringList.Create();
-	try
-		IniFile.ReadSection(_section, sectionList);
-		var
-		tmpIniFile := TMemIniFile.Create(IniFile.FileName);
-		tmpIniFile.Clear;
-		tmpIniFile.SetStrings(sectionList);
-		tmpIniFile.UpdateFile();
-	finally
-		sectionList.Free;
-	end;
 end;
 
 procedure TPersistableSettings.WriteSettingsDictToIni(const _wsm : EWriteSettingsMode; const _section : string = '');
@@ -625,8 +610,7 @@ end;
 
 // 1 Should be locked by a guard
 procedure TPersistableSettings.WriteToIni(const _sIniSection, _sKey : string; const _setting : ISettingVariant);
-var
-	v : Variant;
+var v : Variant;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.WriteToIni');

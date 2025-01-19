@@ -133,6 +133,9 @@
         <DCCReference Include="..\src\Common\RipGrepper.Common.GuiSearchParams.pas"/>
         <DCCReference Include="..\src\Settings\RipGrepper.Settings.RipGrepperSettings.pas"/>
         <DCCReference Include="..\src\Common\RipGrepper.Common.SimpleTypes.pas"/>
+        <DCCReference Include="RipGrepper.Settings.MemIniFileHelperTest.pas"/>
+        <DCCReference Include="..\src\Helper\RipGrepper.Helper.MemIniFile.pas"/>
+        <DCCReference Include="..\src\Settings\RipGrepper.Settings.ExtensionSettings.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -154,8 +157,8 @@
                     <Source Name="MainSource">DRipGrepperUnittest.D12.dpr</Source>
                 </Source>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k280.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp280.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k290.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp290.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="4">
@@ -840,6 +843,9 @@
                     <Platform Name="Win64">
                         <Operation>1</Operation>
                     </Platform>
+                    <Platform Name="Win64x">
+                        <Operation>1</Operation>
+                    </Platform>
                 </DeployClass>
                 <DeployClass Name="ProjectiOSDeviceDebug">
                     <Platform Name="iOSDevice32">
@@ -1138,6 +1144,7 @@
                 <Platform value="Win32">True</Platform>
                 <Platform value="Win64">False</Platform>
             </Platforms>
+            <ModelSupport>False</ModelSupport>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>
     </ProjectExtensions>

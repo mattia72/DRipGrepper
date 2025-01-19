@@ -24,7 +24,7 @@ type
 
 		public
 			function ToLogString : string;
-			class function FromString(const _context, _proj, _file : string): TRipGrepperExtensionContext; static;
+			class function FromString(const _context, _proj, _file : string) : TRipGrepperExtensionContext; static;
 	end;
 
 	TRipGrepperExtensionSettings = class(TPersistableSettings)
@@ -43,6 +43,7 @@ type
 		public
 			constructor Create(const _Owner : TPersistableSettings); overload;
 			constructor Create; overload;
+			destructor Destroy; override;
 			procedure Init; override;
 			procedure ReadIni; override;
 			procedure LoadDefaultsFromDict; override;
@@ -77,6 +78,11 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Create: ' + IniFile.FileName + '[' + IniSectionName + ']');
 end;
 
+destructor TRipGrepperExtensionSettings.Destroy;
+begin
+	inherited;
+end;
+
 procedure TRipGrepperExtensionSettings.Init;
 begin
 	var
@@ -90,12 +96,14 @@ procedure TRipGrepperExtensionSettings.ReadIni;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.ReadIni');
-	{$IFDEF STANDALONE}
+	{$IFNDEF TESTINSIGHT} //or ($APPTYPE = CONSOLE))} // skip if unittest
+ 	{$IFDEF STANDALONE}
 	Exit;
 	{$ELSE}
 	if IOTAUTils.IsStandAlone then begin
 		Exit;
 	end;
+	{$ENDIF}
 	{$ENDIF}
 	inherited ReadIni();
 end;
@@ -109,6 +117,10 @@ end;
 
 procedure TRipGrepperExtensionSettings.LoadFromDict;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.LoadFromDict');
+
+	{$IFNDEF TESTINSIGHT} //or ($APPTYPE = CONSOLE))} // skip if unittest
 	{$IFDEF STANDALONE}
 	Exit;
 	{$ELSE}
@@ -116,8 +128,7 @@ begin
 		Exit;
 	end;
 	{$ENDIF}
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.LoadFromDict');
+	{$ENDIF}
 
 	LoadIdeContextFromDict(False);
 
@@ -162,12 +173,14 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.StoreToDict');
 
+	{$IFNDEF TESTINSIGHT} //or ($APPTYPE = CONSOLE))} // skip if unittest
 	{$IFDEF STANDALONE}
 	Exit;
 	{$ELSE}
 	if IOTAUTils.IsStandAlone then begin
 		Exit;
 	end;
+	{$ENDIF}
 	{$ENDIF}
 	SettingsDict.StoreSetting(KEY_SHORTCUT_SEARCH_SELECTED, SearchSelectedShortcut);
 	SettingsDict.StoreSetting(KEY_SHORTCUT_OPENWITH, OpenWithShortCut);
@@ -180,12 +193,14 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.StoreAsDefaultsToDict');
 
+	{$IFNDEF TESTINSIGHT} //or ($APPTYPE = CONSOLE))} // skip if unittest
 	{$IFDEF STANDALONE}
 	Exit;
 	{$ELSE}
 	if IOTAUTils.IsStandAlone then begin
 		Exit;
 	end;
+	{$ENDIF}
 	{$ENDIF}
 	dbgMsg.MsgFmt('TAppSettings.StoreAsDefaultsToDict: IDEContext=%d',
 		{ } [Integer(CurrentIDEContext.IDEContext)]);
@@ -205,7 +220,7 @@ begin
 	Result := Format('IDEContext: %d, ActiveProject: %s, ActiveFile: %s', [Integer(IDEContext), ActiveProject, ActiveFile]);
 end;
 
-class function TRipGrepperExtensionContext.FromString(const _context, _proj, _file : string): TRipGrepperExtensionContext;
+class function TRipGrepperExtensionContext.FromString(const _context, _proj, _file : string) : TRipGrepperExtensionContext;
 begin
 	Result.IDEContext := ERipGrepperExtensionContext(StrToInt(_context));
 	Result.ActiveProject := _proj;

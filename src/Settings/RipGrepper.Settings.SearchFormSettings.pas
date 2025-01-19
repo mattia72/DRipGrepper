@@ -103,6 +103,7 @@ begin
 	IniSectionName := INI_SECTION;
 	inherited Create(_Owner);
 	FExtensionSettings := TRipGrepperExtensionSettings.Create(_Owner);
+	AddChildSettings(FExtensionSettings);
 end;
 
 constructor TSearchFormSettings.Create;
@@ -110,12 +111,12 @@ begin
 	IniSectionName := INI_SECTION;
 	inherited Create;
 	FExtensionSettings := TRipGrepperExtensionSettings.Create();
+    AddChildSettings(FExtensionSettings);
 end;
 
 destructor TSearchFormSettings.Destroy;
 begin
-	FExtensionSettings.Free;
-	inherited Destroy(); // ok;
+	inherited Destroy(); // childs will be freed - ok;
 end;
 
 procedure TSearchFormSettings.Copy(const _other : TSearchFormSettings);

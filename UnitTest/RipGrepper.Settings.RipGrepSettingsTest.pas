@@ -1,6 +1,5 @@
 unit RipGrepper.Settings.RipGrepSettingsTest;
 
-{$UNDEF STANDALONE}
 interface
 
 uses
