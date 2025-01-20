@@ -34,7 +34,8 @@ uses
 	RipGrepper.Common.Interfaces,
 	RipGrepper.Common.SimpleTypes,
 	SVGIconImageListBase,
-	SVGIconImageList;
+	SVGIconImageList,
+	RipGrepper.Helper.UI.DarkMode;
 
 type
 	TRipGrepperSearchDialogForm = class(TForm)
@@ -154,6 +155,7 @@ type
 			FSettings : TRipGrepperSettings;
 			FTopPanelOrigHeight : Integer;
 			FOrigHeight : integer;
+			FThemeHandler : TThemeHandler;
 			function GetSelectedPaths(const _initialDir : string; const _fdo : TFileDialogOptions) : string;
 			procedure WriteInitialSettingsToCtrls;
 			procedure ButtonDown(const _searchOption : EGuiOption; _tb : TToolButton; const _bNotMatch : Boolean = False); overload;
@@ -175,7 +177,6 @@ type
 			function GetFullHeights : integer;
 			function HasHistItemObjWithResult : Boolean;
 			function GetInIDESelectedText : string;
-			procedure HandleThemes;
 			procedure LoadDefaultSettings;
 			procedure LoadExtensionSearchSettings;
 			procedure LoadInitialSettings;
@@ -237,8 +238,7 @@ uses
 	Winapi.Windows,
 	RipGrepper.Settings.AppSettings,
 	RipGrepper.Settings.ExtensionSettings,
-	RipGrepper.CommandLine.OptionStrings,
-	RipGrepper.Helper.UI.DarkMode;
+	RipGrepper.CommandLine.OptionStrings;
 
 {$R *.dfm}
 
@@ -257,6 +257,7 @@ begin
 	dbgMsg.Msg('gui params=' + FHistItemGuiSearchParams.ToLogString);
 
 	// FDpiScaler := TRipGrepperDpiScaler.Create(self);
+	FThemeHandler := TThemeHandler.Create(self);
 
 	FOrigHeight := 0;
 
@@ -271,7 +272,7 @@ begin
 	{$ELSE}
 	TDarkModeHelper.AllowThemes();
 	{$ENDIF}
-	HandleThemes;
+	FThemeHandler.HandleThemes(GSettings.AppSettings.ColorTheme);
 end;
 
 destructor TRipGrepperSearchDialogForm.Destroy;
@@ -280,6 +281,7 @@ begin
 		FHistItemGuiSearchParams.Free;
 	end;
 	FOrigSearchFormSettings.Free;
+	FThemeHandler.Free;
 	// FDpiScaler.Free;
 	inherited Destroy;
 end;
@@ -1023,20 +1025,6 @@ begin
 
 	selectedText := string(selectedText).Trim();
 	Result := CheckAndCorrectMultiLine(selectedText);
-end;
-
-procedure TRipGrepperSearchDialogForm.HandleThemes;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.HandleThemes');
-
-	if GSettings.AppSettings.ColorTheme.IsEmpty then begin
-		TDarkModeHelper.SetAppropriateThemeMode(self);
-	end else begin
-		TDarkModeHelper.SetThemeMode(GSettings.AppSettings.ColorTheme, self);
-	end;
-
-	TDarkModeHelper.SetIconTheme(self);
 end;
 
 function TRipGrepperSearchDialogForm.IsReplaceMode : Boolean;

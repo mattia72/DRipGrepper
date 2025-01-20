@@ -25,6 +25,15 @@ uses
 type
 	EThemeMode = (tmLight, tmDark, tmSystem);
 
+	TThemeHandler = class
+		private
+			FForm: TForm;
+		public
+			constructor Create(_form: TForm = nil);
+			/// Put it in TForm.OnCreate, NOT in OnShow
+			procedure HandleThemes(const _theme: string);
+	end;
+
 	TDarkModeHelper = class
 		const
 			DARK_THEME_NAME = 'Carbon'; // too dark 'Windows10 Dark';
@@ -355,6 +364,26 @@ begin
 		themingServices.AddNotifier(_notifier);
 	end;
 end;
+
 {$ENDIF}
+
+constructor TThemeHandler.Create(_form: TForm = nil);
+begin
+	inherited Create;
+	FForm := _form;
+end;
+
+procedure TThemeHandler.HandleThemes(const _theme: string);
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TThemeHandler.HandleThemes');
+	if _theme.IsEmpty then begin
+		TDarkModeHelper.SetAppropriateThemeMode(FForm);
+	end else begin
+		TDarkModeHelper.SetThemeMode(_theme, FForm);
+	end;
+
+	TDarkModeHelper.SetIconTheme(FForm);
+end;
 
 end.

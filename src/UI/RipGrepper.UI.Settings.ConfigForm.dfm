@@ -13,6 +13,7 @@ object ConfigForm: TConfigForm
   Font.Style = []
   Position = poOwnerFormCenter
   ShowHint = True
+  OnCreate = FormCreate
   OnShow = FormShow
   TextHeight = 15
   object pnlBottom: TPanel

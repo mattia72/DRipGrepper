@@ -35,7 +35,8 @@ uses
 	RipGrepper.UI.TopFrame,
 	RipGrepper.UI.DpiScaler,
 	RipGrepper.UI.ParentFrame,
-	Winapi.Messages;
+	Winapi.Messages,
+	RipGrepper.Helper.UI.DarkMode;
 
 type
 	TRipGrepperForm = class(TForm)
@@ -52,7 +53,7 @@ type
 
 		var
 			FSettings : TRipGrepperSettings;
-			procedure HandleThemes;
+			FThemeHandler : TThemeHandler;
 			procedure WMSettingChange(var Message : TWMSettingChange); message WM_SETTINGCHANGE;
 
 		protected
@@ -95,8 +96,7 @@ uses
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.OpenWith,
 	RipGrepper.OpenWith.ConfigForm,
-	System.TypInfo,
-	RipGrepper.Helper.UI.DarkMode;
+	System.TypInfo;
 
 {$R *.dfm}
 
@@ -116,8 +116,9 @@ constructor TRipGrepperForm.Create(AOwner : TComponent);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner');
 	inherited Create(AOwner);
+	FThemeHandler := TThemeHandler.Create(self);
 	{$IFDEF STANDALONE}
-	HandleThemes();
+	FThemeHandler.HandleThemes(GSettings.AppSettings.ColorTheme);
 	TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner STANDALONE');
 	Init;
 	{$ENDIF}
@@ -126,11 +127,13 @@ end;
 procedure TRipGrepperForm.FormCreate(Sender : TObject);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.FormCreate');
+	// it work only in ctor :/ FThemeHandler.HandleThemes(GSettings.AppSettings.ColorTheme);
 end;
 
 destructor TRipGrepperForm.Destroy;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.Destroy');
+	FThemeHandler.Free;
 	inherited;
 end;
 
@@ -204,24 +207,10 @@ begin
 	// end;
 end;
 
-procedure TRipGrepperForm.HandleThemes;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.HandleThemes');
-
-	if GSettings.AppSettings.ColorTheme.IsEmpty then begin
-		TDarkModeHelper.SetAppropriateThemeMode();
-	end else begin
-		TDarkModeHelper.SetThemeMode(GSettings.AppSettings.ColorTheme);
-	end;
-
-	TDarkModeHelper.SetIconTheme(self);
-end;
-
 procedure TRipGrepperForm.WMSettingChange(var message : TWMSettingChange);
 begin
 	if SameText('ImmersiveColorSet', string(message.Section)) then begin
-		HandleThemes;
+		FThemeHandler.HandleThemes(GSettings.AppSettings.ColorTheme);
 	end;
 end;
 
