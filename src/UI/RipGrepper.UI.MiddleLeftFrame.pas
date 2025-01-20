@@ -430,7 +430,6 @@ begin
 	VstHistory.NodeDataSize := SizeOf(TVSHistoryNodeData);
 
 	VstHistory.Header.Columns[COL_SEARCH_TEXT].MinWidth := 50;
-
 	SetReplaceMode();
 	ShowReplaceColumn(False);
 
@@ -458,6 +457,7 @@ procedure TMiddleLeftFrame.ReloadColorSettings;
 begin
 	// load color settings
 	Settings.FontColorSettings.ReloadColors;
+
 	FColorSettings := Settings.FontColorSettings.FontColors;
 end;
 

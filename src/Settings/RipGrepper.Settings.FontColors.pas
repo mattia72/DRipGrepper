@@ -232,6 +232,10 @@ procedure TColorSettings.ReloadColors;
 begin
 	ReLoad;
 	LoadFromDict;
+
+	if FFontColors.IsEmpty then begin
+		LoadDefaultColors;
+	end;
 end;
 
 procedure TColorSettings.StoreToDict;

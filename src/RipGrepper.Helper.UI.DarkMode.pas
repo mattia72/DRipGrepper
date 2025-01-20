@@ -52,9 +52,6 @@ type
 			//
 			class procedure SetSpecificThemeMode(const AsDarkMode : Boolean; const DarkModeThemeName : string; LightModeThemeName : string;
 				_component : TComponent = nil);
-			// Checks the Windows registry to see if Windows Dark Mode is enabled
-			class function SystemDarkModeIsEnabled : boolean;
-
 		public
 			class procedure AllowThemes;
 			class procedure ApplyTheme(const _style : string; _component : TComponent = nil);
@@ -70,10 +67,12 @@ type
 			//
 			class procedure SetAppropriateThemeMode(_component : TComponent = nil);
 
-			class function GetActualThemeMode : EThemeMode;
+			class function GetActualThemeMode: EThemeMode;
 			class function GetIdeSystemColor(const _color : TColor) : TColor;
 			class function GetIdeStyleColor(const _styleColor : TStyleColor) : TColor;
 			class function GetThemeNameByMode(const _tm : EThemeMode) : string;
+			// Checks the Windows registry to see if Windows Dark Mode is enabled
+			class function IsSystemDark: Boolean;
 			class procedure SetIconTheme(_ctrl : TWinControl);
 			class procedure SetThemeMode(const _mode : EThemeMode); overload;
 			class procedure SetThemeMode(const _themeName : string; _component : TComponent = nil); overload;
@@ -133,7 +132,7 @@ begin
 	if Assigned(_component) then begin
 		dbgMsg.MsgFmt('Component name: %s', [_component.Name]);
 	end;
-	SetSpecificThemeMode(SystemDarkModeIsEnabled, darkThemeName, lightThemeName, _component);
+	SetSpecificThemeMode(IsSystemDark, darkThemeName, lightThemeName, _component);
 end;
 
 class procedure TDarkModeHelper.SetSpecificThemeMode(const AsDarkMode : Boolean; const DarkModeThemeName : string;
@@ -156,7 +155,7 @@ begin
 	{$ENDIF}
 end;
 
-class function TDarkModeHelper.SystemDarkModeIsEnabled : boolean;
+class function TDarkModeHelper.IsSystemDark: Boolean;
 {$IFDEF MSWINDOWS}
 const
 	TheKey = 'Software\Microsoft\Windows\CurrentVersion\Themes\Personalize\';
@@ -211,7 +210,7 @@ begin
 	// InvalidateRect(_handle, nil, True); ??
 end;
 
-class function TDarkModeHelper.GetActualThemeMode : EThemeMode;
+class function TDarkModeHelper.GetActualThemeMode: EThemeMode;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.GetActualThemeMode');

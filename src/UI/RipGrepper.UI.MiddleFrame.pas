@@ -788,6 +788,7 @@ begin
 	VstResult.TreeOptions.PaintOptions := VstResult.TreeOptions.PaintOptions + [toUseExplorerTheme];
 	VstResult.NodeDataSize := SizeOf(TVSFileNodeData);
 
+	ReloadColorSettings;
 	MiddleLeftFrame1.Init;
 
 	miOpenwith1.Default := bStandalone;
@@ -814,8 +815,7 @@ end;
 
 procedure TRipGrepperMiddleFrame.LoadBeforeSearchSettings;
 begin
-	Settings.FontColorSettings.ReloadColors;
-	FColorSettings := Settings.FontColorSettings.FontColors;
+	ReloadColorSettings;
 end;
 
 procedure TRipGrepperMiddleFrame.OnEOFProcess;
