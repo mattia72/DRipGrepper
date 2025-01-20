@@ -195,7 +195,7 @@ function Add-ToAssetsDir {
     New-Item -Path $AssetDir -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
     Copy-Item -Path $AssetItemPath -Destination $AssetDir -ErrorAction Stop
 
-    $assetLabel = $($item.FullName -replace "^(.*)($BuildConfig.*$)", "`$2" )
+    $assetLabel = $($item.FullName -replace "^(.*)(\\.+\\.+\\$BuildConfig.*$)", "`$2" )
     $formattedLabel = $assetLabel.PadRight($global:PadRightValue)
     Write-Host "$formattedLabel  $($appVersion.PadRight(10)) $($item.LastWriteTime) added to $($AssetDir -replace [regex]::Escape("$PSScriptRoot\"), '')." -ForegroundColor Green
 }
