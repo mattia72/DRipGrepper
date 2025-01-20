@@ -103,6 +103,7 @@ begin
 		newFileName := GetTempSectionFileName(_section);
 
 		if TFile.Exists(newFileName) then begin
+        	dbgMsg.Msg('Delete file: ' + newFileName);
 			TFile.Delete(newFileName);
 		end;
 
