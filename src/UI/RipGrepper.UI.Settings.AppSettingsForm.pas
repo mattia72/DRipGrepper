@@ -70,6 +70,7 @@ type
 
 			FRefocusing : TObject;
 			FAppSettings : TAppSettings;
+			FbSkipClickEvent : Boolean;
 			FRipGrepSettings : TRipGrepParameterSettings;
 			function GetTraceTypeFilters : TTraceFilterTypes;
 			function IsRgExeValid(const filePath : string) : Boolean;
@@ -175,13 +176,18 @@ procedure TAppSettingsForm.FormShow(Sender : TObject);
 begin
 	ReadSettings;
 
-	rgTheme.ItemIndex := Integer(TDarkModeHelper.GetActualThemeMode);
+	FbSkipClickEvent := True;
+	try
+		rgTheme.ItemIndex := Integer(TDarkModeHelper.GetActualThemeMode);
 
-	{$IFNDEF STANDALONE}
-	rgTheme.Enabled := False;
-	rgTheme.ItemIndex := Integer(tmSystem);
-	rgTheme.Hint := 'Theme can be changed only in IDE';
-	{$ENDIF}
+		{$IFNDEF STANDALONE}
+		rgTheme.Enabled := False;
+		rgTheme.ItemIndex := Integer(tmSystem);
+		rgTheme.Hint := 'Theme can be changed only in IDE';
+		{$ENDIF}
+	finally
+		FbSkipClickEvent := False;
+	end;
 end;
 
 function TAppSettingsForm.GetRgVersion(const _rgPath : string) : string;
@@ -260,6 +266,9 @@ procedure TAppSettingsForm.rgThemeClick(Sender : TObject);
 var
 	tm : EThemeMode;
 begin
+	if FbSkipClickEvent then begin
+		Exit;
+	end;
 	tm := EThemeMode(rgTheme.ItemIndex);
 	TDarkModeHelper.SetThemeMode(tm);
 end;
