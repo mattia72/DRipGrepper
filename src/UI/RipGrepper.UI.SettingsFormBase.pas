@@ -6,7 +6,8 @@ uses
 	RipGrepper.Settings.Persistable,
 	System.Classes,
 	Vcl.Forms,
-	RipGrepper.UI.DpiScaler;
+	RipGrepper.UI.DpiScaler,
+	RipGrepper.Helper.UI.DarkMode;
 
 type
 	ISettingsForm = interface
@@ -21,6 +22,9 @@ type
 	TSettingsBaseForm = class(TForm, ISettingsForm)
 		private
 			FDpiScaler : TRipGrepperDpiScaler;
+			FThemeHandler : TThemeHandler;
+			function GetThemeHandler : TThemeHandler;
+			property ThemeHandler : TThemeHandler read GetThemeHandler;
 
 		protected
 			FSettings : TPersistableSettings;
@@ -32,30 +36,55 @@ type
 		public
 			constructor Create(_Owner : TComponent; _settings : TPersistableSettings); reintroduce;
 			destructor Destroy; override;
+			procedure OnCreateForm(Sender : TObject);
 	end;
 
 implementation
 
 uses
 	Vcl.Controls,
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils, RipGrepper.Settings.RipGrepperSettings;
 
 constructor TSettingsBaseForm.Create(_Owner : TComponent; _settings : TPersistableSettings);
 begin
 	inherited Create(_Owner);
 	FSettings := _settings;
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
+	OnCreate := OnCreateForm;
 end;
 
 destructor TSettingsBaseForm.Destroy;
 begin
 	FDpiScaler.Free;
+	FThemeHandler.Free;
 	inherited;
+end;
+
+function TSettingsBaseForm.GetThemeHandler : TThemeHandler;
+begin
+	if not Assigned(FThemeHandler) then begin
+		FThemeHandler := TThemeHandler.Create(self);
+	end;
+	Result := FThemeHandler;
 end;
 
 procedure TSettingsBaseForm.OnCancel;
 begin
 	ModalResult := mrCancel;
+end;
+
+procedure TSettingsBaseForm.OnCreateForm(Sender : TObject);
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingsBaseForm.OnCreateForm');
+	{$IFNDEF STANDALONE}
+	var formType : TCustomFormClass := PPointer(Self)^; // see TObject.ClassType implementation
+	dbgMsg.Msg('AllowThemes: ' + formType.ClassName);
+	TIDEThemeHelper.AllowThemes(formType);
+	{$ELSE}
+	TDarkModeHelper.AllowThemes();
+	{$ENDIF}
+	ThemeHandler.HandleThemes(GSettings.AppSettings.ColorTheme);
 end;
 
 procedure TSettingsBaseForm.OnOk;

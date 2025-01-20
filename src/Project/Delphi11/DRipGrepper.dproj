@@ -120,17 +120,17 @@
     <VerInfo_Locale>1033</VerInfo_Locale>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.0.0.70;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.0.0.0</VerInfo_Keys>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.0.0.117;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.0.0.0</VerInfo_Keys>
     <DCC_DebugInfoInTds>true</DCC_DebugInfoInTds>
     <Icon_MainIcon>..\..\..\icons\DripGrepper.ico</Icon_MainIcon>
-    <VerInfo_Build>70</VerInfo_Build>
+    <VerInfo_Build>117</VerInfo_Build>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
     <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.0.0.72;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.0.0.0</VerInfo_Keys>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.0.0.118;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.0.0.0</VerInfo_Keys>
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-    <VerInfo_Build>72</VerInfo_Build>
+    <VerInfo_Build>118</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -288,6 +288,7 @@
     <DCCReference Include="..\..\UI\RipGrepper.UI.Settings.ExtensionSettingsForm.pas" />
     <DCCReference Include="..\..\Tools\RipGrepper.Tools.DelphiVersions.pas" />
     <DCCReference Include="..\..\RipGrepper.Helper.UI.DarkMode.pas" />
+    <DCCReference Include="..\..\Helper\RipGrepper.Helper.MemIniFile.pas" />
     <BuildConfiguration Include="Base">
       <Key>Base</Key>
     </BuildConfiguration>
@@ -363,12 +364,6 @@
         <DeployFile LocalName="Win64\Debug\DRipGrepper.exe" Configuration="Debug" Class="ProjectOutput">
           <Platform Name="Win64">
             <RemoteName>DRipGrepper.exe</RemoteName>
-            <Overwrite>true</Overwrite>
-          </Platform>
-        </DeployFile>
-        <DeployFile LocalName="Win64\Debug\DRipGrepper.rsm" Configuration="Debug" Class="DebugSymbols">
-          <Platform Name="Win64">
-            <RemoteName>DRipGrepper.rsm</RemoteName>
             <Overwrite>true</Overwrite>
           </Platform>
         </DeployFile>

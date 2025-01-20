@@ -96,7 +96,8 @@ uses
   RipGrepper.Tools.DelphiVersions in '..\..\Tools\RipGrepper.Tools.DelphiVersions.pas',
   Vcl.Themes,
   Vcl.Styles,
-  RipGrepper.Helper.UI.DarkMode in '..\..\RipGrepper.Helper.UI.DarkMode.pas';
+  RipGrepper.Helper.UI.DarkMode in '..\..\RipGrepper.Helper.UI.DarkMode.pas',
+  RipGrepper.Helper.MemIniFile in '..\..\Helper\RipGrepper.Helper.MemIniFile.pas';
 
 {$R *.res}
 

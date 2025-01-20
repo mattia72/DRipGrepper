@@ -23,10 +23,8 @@ uses
 	RipGrepper.UI.SettingsFormBase,
 	ArrayEx,
 	System.Generics.Collections,
-	// {$IFNDEF STANDALONE}
 	RipGrepper.Settings.ExtensionSettings,
 	RipGrepper.UI.Settings.ExtensionSettingsForm,
-	// {$ENDIF}
 	RipGrepper.UI.Settings.ColorSettingsForm,
 	RipGrepper.Helper.UI.DarkMode;
 
@@ -48,14 +46,15 @@ type
 		private
 			FAppSettingsForm : TAppSettingsForm;
 			FColorSettingsForm : TColorSettingsForm;
-			// {$IFNDEF STANDALONE}
 			FExtensionSettings : TRipGrepperExtensionSettings;
 			FExtensionSettingsForm : TExtensionSettingsForm;
-			// {$ENDIF}
 			FOpenWithConfigForm : TOpenWithConfigForm;
 			FSettings : TRipGrepperSettings;
 			FSettingsForms : TObjectList<TForm>;
 			FThemeHandler : TThemeHandler;
+			procedure AddSettingTabs;
+			function GetThemeHandler : TThemeHandler;
+			property ThemeHandler : TThemeHandler read GetThemeHandler;
 
 		public
 			constructor Create(_settings : TRipGrepperSettings); reintroduce;
@@ -81,31 +80,22 @@ begin
 	Settings := _settings;
 	Screen.Cursor := crHourGlass;
 	try
-		// write ini file content
-		Settings.UpdateIniFile;
-
 		FOpenWithConfigForm := TOpenWithConfigForm.Create(nil, Settings.OpenWithSettings);
 		FOpenWithConfigForm.Caption := 'Open With...';
 		FAppSettingsForm := TAppSettingsForm.Create(nil, Settings);
 		FColorSettingsForm := TColorSettingsForm.Create(nil, Settings.FontColorSettings);
 
-		// {$IFNDEF STANDALONE}
 		FExtensionSettings := TRipGrepperExtensionSettings.Create(Settings);
 		FExtensionSettings.ReadIni;
 		FExtensionSettings.LoadFromDict;
 		FExtensionSettingsForm := TExtensionSettingsForm.Create(nil, FExtensionSettings);
-		// {$ENDIF}
 
 		FSettingsForms := TObjectList<TForm>.Create();
 		FSettingsForms.AddRange([
 			{ } FAppSettingsForm,
 			{ } FColorSettingsForm,
 			{ } FOpenWithConfigForm,
-			// {$IFNDEF STANDALONE}
-			{ } FExtensionSettingsForm
-			// {$ENDIF}
-			]);
-		FThemeHandler := TThemeHandler.Create(self);
+			{ } FExtensionSettingsForm]);
 	finally
 		Screen.Cursor := crDefault;
 	end;
@@ -113,14 +103,18 @@ end;
 
 procedure TConfigForm.FormCreate(Sender : TObject);
 begin
-	FThemeHandler.HandleThemes(GSettings.AppSettings.ColorTheme);
+	{$IFNDEF STANDALONE}
+	TIDEThemeHelper.AllowThemes(TConfigForm);
+	{$ELSE}
+	TDarkModeHelper.AllowThemes();
+	{$ENDIF}
+	ThemeHandler.HandleThemes(GSettings.AppSettings.ColorTheme);
+	AddSettingTabs;
 end;
 
 destructor TConfigForm.Destroy;
 begin
-	// {$IFNDEF STANDALONE}
 	FExtensionSettings.Free;
-	// {$ENDIF}
 	FSettingsForms.Free;
 	FThemeHandler.Free;
 	Settings.ReCreateMemIni;
@@ -147,11 +141,13 @@ begin
 	ModalResult := mrOk;
 end;
 
-procedure TConfigForm.FormShow(Sender : TObject);
+procedure TConfigForm.AddSettingTabs;
 var
 	iMaxHeight : integer;
 	iMaxWidth : integer;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TConfigForm.AddSettingTabs');
 	Screen.Cursor := crHourGlass;
 	try
 		iMaxHeight := 0;
@@ -160,7 +156,12 @@ begin
 			iMaxHeight := System.Math.Max(iMaxHeight, form.Height);
 			iMaxWidth := System.Math.Max(iMaxWidth, form.Width);
 			form.ManualDock(PageControl1);
-			form.Show();
+			// var tab := PageControl1.Pages. (TTabSheet.Create(PageControl1));
+			// form.Parent := tab;
+			// form.Align := alClient;
+			// form.BorderStyle := bsNone;
+			// form.ParentBackground := True;
+			// form.Show();
 		end;
 		FOpenWithConfigForm.pnlBottom.Visible := False;
 		self.Height := iMaxHeight + PageControl1.TabHeight + pnlBottom.Height;
@@ -171,6 +172,31 @@ begin
 	finally
 		Screen.Cursor := crDefault;
 	end;
+end;
+
+procedure TConfigForm.FormShow(Sender : TObject);
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TConfigForm.FormShow');
+
+	for var form : TForm in FSettingsForms do begin
+		try
+			dbgMsg.Msg('Showing form: ' + form.Caption);
+			form.Show();
+		except
+			on E : Exception do 
+				dbgMsg.Msg('Error showing form: ' + form.Name + ' - ' + E.Message);
+		end;
+	end;
+end;
+
+
+function TConfigForm.GetThemeHandler : TThemeHandler;
+begin
+	if not Assigned(FThemeHandler) then begin
+		FThemeHandler := TThemeHandler.Create(self);
+	end;
+	Result := FThemeHandler;
 end;
 
 end.
