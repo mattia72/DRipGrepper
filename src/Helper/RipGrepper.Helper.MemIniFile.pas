@@ -9,7 +9,6 @@ type
 	TMemIniFileHelper = class Helper for TMemIniFile
 		private
 			function GetTempFileName : string;
-			function CreateTempDirectory: string;
 			procedure WriteTempSectionIni(const _fileName, _section : string); overload;
 
 		public
@@ -29,27 +28,16 @@ uses
 
 function TMemIniFileHelper.GetTempSectionFileName(_section : string) : string;
 begin
-	Result := TPath.Combine(CreateTempDirectory,
+	Result := TPath.Combine(TPath.GetTempPath,
 		{ } TPath.GetFileNameWithoutExtension(self.FileName) + '_' + _section +
 		{ } TPath.GetExtension(self.FileName));
 end;
 
 function TMemIniFileHelper.GetTempFileName : string;
 begin
-	Result := TPath.Combine(CreateTempDirectory,
+	Result := TPath.Combine(TPath.GetTempPath,
 		{ } TPath.GetFileNameWithoutExtension(self.FileName) +
 		{ } TPath.GetExtension(self.FileName));
-end;
-
-function TMemIniFileHelper.CreateTempDirectory: string;
-begin
-	var dbgMsg := TDebugMsgBeginEnd.New('TMemIniFileHelper.CreateTempDirectory');
-	Result := TPath.Combine(TPath.GetAppPath, 'tmp');
-	if not TDirectory.Exists(Result) then begin
-		dbgMsg.Msg('Creating directory: ' + Result);
-		TDirectory.CreateDirectory(Result);
-	end;
-	dbgMsg.Msg('Result: ' + Result);
 end;
 
 procedure TMemIniFileHelper.ReadTempSectionFiles;
@@ -101,22 +89,22 @@ begin
 end;
 
 procedure TMemIniFileHelper.WriteTempSectionIni(const _fileName, _section : string);
-var 
+var
 	sectionList : TStringList;
 	isModified : Boolean;
-	tmpIniFile : TMemIniFile; newFileName : string;
+	tmpIniFile : TMemIniFile;
+	newFileName : string;
 begin
-	var dbgMsg := TDebugMsgBeginEnd.New('TMemIniFileHelper.WriteTempSectionIni');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TMemIniFileHelper.WriteTempSectionIni');
 	sectionList := TStringList.Create();
 	try
 		self.ReadSectionValues(_section, sectionList);
 		newFileName := GetTempSectionFileName(_section);
 
-        if TFile.Exists(newFileName) then begin
+		if TFile.Exists(newFileName) then begin
 			TFile.Delete(newFileName);
-		end else begin
-            CreateTempDirectory();
-        end;
+		end;
 
 		tmpIniFile := TMemIniFile.Create(newFileName);
 		try
