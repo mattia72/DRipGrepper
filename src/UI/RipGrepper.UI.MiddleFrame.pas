@@ -210,6 +210,7 @@ type
 			// ITerminateEventProducer
 			function ProcessShouldTerminate : Boolean;
 			procedure RefreshSearch;
+			procedure ReloadColorSettings;
 			procedure SetReplaceModeOnGrid(const _bOn : Boolean);
 			procedure SetResultListViewDataToHistoryObj;
 			procedure UpdateHistObjectAndCopyToSettings;
@@ -1464,6 +1465,14 @@ begin
 		t.Free;
 	end;
 	FParsingThreads.Clear;
+end;
+
+procedure TRipGrepperMiddleFrame.ReloadColorSettings;
+begin
+	// load color settings
+	Settings.FontColorSettings.ReloadColors;
+	FColorSettings := Settings.FontColorSettings.FontColors;
+	MiddleLeftFrame1.ReloadColorSettings;
 end;
 
 procedure TRipGrepperMiddleFrame.SetAbortSearch(const Value : Boolean);

@@ -290,6 +290,8 @@ begin
 	dbgMsg.Msg('TestFile: ' + owSettings.TestFile.GetRelativePath());
 
 	Settings.StoreToDict;
+	// write ini file content
+	Settings.UpdateIniFile;
 	var
 	owForm := TConfigForm.Create(Settings);
 	try
@@ -300,6 +302,9 @@ begin
 
 	owSettings.TestFile := default (TOpenWithParams);
 	owSettings.Reload();
+
+	MainFrame.ReloadColorSettings;
+
 	{$IFDEF STANDALONE}
 	UpdateUIStyle;
 	// TDarkModeHelper.BroadcastThemeChanged(Parent.Handle);

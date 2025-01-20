@@ -83,7 +83,6 @@ type
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
 			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
 			function GetSettings : TRipGrepperSettings;
-			procedure ReloadColorSettings;
 			procedure ShowReplaceColumn(const _bShow : Boolean);
 			procedure UpdateReplaceColumnVisible;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
@@ -105,6 +104,7 @@ type
 			procedure Init;
 			procedure PrepareAndDoSearch;
 			procedure RefreshSearch;
+			procedure ReloadColorSettings;
 			procedure SetReplaceMode(_hio : IHistoryItemObject = nil);
 			procedure SetSelectedHistoryItem(const _idx : Integer);
 			property CurrentHistoryItemIndex : Integer read FCurrentHistoryItemIndex write FCurrentHistoryItemIndex;

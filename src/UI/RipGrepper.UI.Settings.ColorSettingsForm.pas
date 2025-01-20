@@ -91,6 +91,10 @@ procedure TColorSettingsForm.ReadSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TColorSettingsForm.ReadSettings');
+	if FFontColorSettings.FontColors.IsEmpty then begin
+		FFontColorSettings.LoadDefaultColors;
+		FFontColorSettings.StoreToDict();
+	end;
 	FFontColorSettings.LoadFromDict;
 end;
 

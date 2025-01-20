@@ -104,6 +104,9 @@ type
 		ReplaceTextInHistory : TFontAttributes;
 		ReplacedTextInHistory : TFontAttributes;
 		procedure SetByName(const _name : string; const _fa : TFontAttributes);
+
+		public
+			function IsEmpty : Boolean;
 	end;
 
 	TColorSettings = class(TPersistableSettings)
@@ -111,8 +114,7 @@ type
 			INI_SECTION = 'ColorSettings';
 
 		private
-			FFontColors : TFontColors;
-
+			FFontColors: TFontColors;
 		protected
 			function GetIsAlreadyRead : Boolean; override;
 			procedure Init; override;
@@ -125,7 +127,7 @@ type
 			procedure LoadDefaultColors;
 			procedure ReloadColors;
 			procedure StoreToDict; override;
-			property FontColors : TFontColors read FFontColors write FFontColors;
+			property FontColors: TFontColors read FFontColors write FFontColors;
 	end;
 
 implementation
@@ -317,6 +319,11 @@ begin
 		{ } ColorToString(BgColor),
 		{ } sStyles]).TrimRight([ARRAY_SEPARATOR]);
 	dbgMsg.Msg(Result);
+end;
+
+function TFontColors.IsEmpty : Boolean;
+begin
+	Result := NormalText.Color = NormalText.BgColor;
 end;
 
 procedure TFontColors.SetByName(const _name : string; const _fa : TFontAttributes);
