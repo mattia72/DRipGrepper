@@ -25,7 +25,7 @@ object ExtensionSettingsForm: TExtensionSettingsForm
     object grpShortcuts: TGroupBox
       Left = 8
       Top = 10
-      Width = 581
+      Width = 577
       Height = 91
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Shortcuts'
@@ -66,7 +66,7 @@ object ExtensionSettingsForm: TExtensionSettingsForm
       Top = 107
       Width = 581
       Height = 70
-      Caption = 'Install as Delphi IDE Package'
+      Caption = 'Install as Delphi IDE Extension'
       TabOrder = 1
       object cmbDelphiVersions: TComboBox
         Left = 16

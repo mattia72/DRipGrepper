@@ -42,6 +42,7 @@ type
 			function IsKnownPackage(const _Package : string; out _Description : string) : Boolean;
 			function TryApplyBplSuffix(var _sPackagePath : string) : Boolean;
 			procedure CheckInstalled;
+			function GetKnownExpertPath(const _sDllName : string; var _sDescription : string) : string;
 			procedure GetKnownExperts(_List : TStringList);
 			function IsKnownExpert(const _sDllPath : string; var _sDescription : string) : Boolean;
 			procedure RemoveExpertDll(const _sDllPath : string; var sDescription : string);
@@ -433,6 +434,43 @@ begin
 		raise Exception.CreateFmt('Could not read "HKEY_CURRENT_USER\%s\Experts" from registry.', [RegKey]);
 end;
 
+function TDelphiVersion.GetKnownExpertPath(const _sDllName : string; var _sDescription : string) : string;
+var
+	lst : TStringList;
+	idx : integer;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TDelphiVersion.GetKnownExpertPath');
+
+	Result := '';
+	lst := TStringList.Create();
+	try
+		GetKnownExperts(lst);
+		idx := -1;
+		if not _sDescription.IsEmpty then begin
+			idx := lst.IndexOf(_sDescription);
+		end;
+		if idx < 0 then begin
+			for var s in lst.GetValues do begin
+				if s.EndsWith(_sDllName) then begin
+					Result := s;
+					idx := lst.IndexOfValue(s, false);
+				end;
+			end;
+		end else begin
+			Result := lst.Values[_sDescription];
+		end;
+		dbgMsg.MsgFmt('Dll:%s, Desc:%s, idx:%d', [Result, _sDescription, idx]);
+
+		if not Result.IsEmpty then begin
+			_sDescription := lst.KeyNames[idx];
+			dbgMsg.MsgFmt('Resulted Desc:%s, idx:%d', [_sDescription, idx]);
+		end;
+	finally
+		lst.Free;
+	end;
+end;
+
 function TDelphiVersion.IsKnownPackage(const _Package : string; out _Description : string) : Boolean;
 var
 	RegKey : string;
@@ -459,32 +497,13 @@ begin
 end;
 
 function TDelphiVersion.IsKnownExpert(const _sDllPath : string; var _sDescription : string) : Boolean;
-var
-	lst : TStringList;
-	idx : integer;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDelphiVersion.IsKnownExpert');
+	var
+	realExpertPath := GetKnownExpertPath(TPath.GetFileName(_sDllPath), _sDescription);
 
-	lst := TStringList.Create();
-	try
-		GetKnownExperts(lst);
-		idx := -1;
-		if not _sDescription.IsEmpty then begin
-			idx := lst.IndexOf(_sDescription);
-		end;
-		if idx < 0 then begin
-			idx := lst.IndexOfValue(_sDllPath, false);
-		end;
-		dbgMsg.MsgFmt('Dll:%s, Desc:%s, idx:%d', [_sDllPath, _sDescription, idx]);
-		Result := idx <> -1;
-		if Result then begin
-			_sDescription := lst.KeyNames[idx];
-			dbgMsg.MsgFmt('Resulted Desc:%s, idx:%d', [_sDescription, idx]);
-		end;
-	finally
-		lst.Free;
-	end;
+	Result := UpperCase(realExpertPath) = UpperCase(_sDllPath);
 end;
 
 procedure TDelphiVersion.RemoveExpertDll(const _sDllPath : string; var sDescription : string);

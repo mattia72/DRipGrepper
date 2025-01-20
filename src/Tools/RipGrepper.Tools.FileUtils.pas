@@ -24,7 +24,8 @@ type
 			class function FindFileInSubDirs(const _dir : string; const _file : string) : string;
 			class function GetAppName(const _exePath : string) : string;
 			class function GetAppNameAndVersion(const _exePath : string) : string;
-			class function GetAppPath: string;
+			class function GetAppDirectory : string;
+			class function GetAppFullPath : string;
 			class function GetAppVersion(const _exePath : string) : string;
 			class function ParseCommand(const _sCmd : string) : TCommandLineRec;
 			class function GetPackageNameAndVersion(Package : HMODULE) : string;
@@ -143,13 +144,22 @@ begin
 	Result := Format(FORMAT_NAME_VERSION_INFO, [name, APP_PLATFORM, imajor, iminor, irelease, ibuild]);
 end;
 
-class function TFileUtils.GetAppPath: string;
+class function TFileUtils.GetAppDirectory : string;
 begin
 	{$IF CompilerVersion >= 360}
-	Result := TPath.GetAppPath;
+	Result := TPath.GetAppDirectory;
 	{$ELSE}
-	Result := TPath.GetDirectoryName(TPath.GetFullPath('$(RUN)'));
+	Result := TPath.GetDirectoryName(GetAppFullPath);
 	{$ENDIF}
+end;
+
+class function TFileUtils.GetAppFullPath : string;
+var
+	aFileName : array [0 .. MAX_PATH] of char;
+begin
+	// Result := TPath.GetFullPath('$(RUN)');
+	GetModuleFileName(hInstance, aFileName, MAX_PATH);
+	Result := aFileName;
 end;
 
 class function TFileUtils.GetAppVersion(const _exePath : string) : string;

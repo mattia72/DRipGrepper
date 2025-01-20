@@ -19,6 +19,7 @@ const
 	{ }	{$ENDIF}
 	APPNAME = 'DRipGrepper';
 	EXTENSION_NAME = 'DRipExtensions';
+    EXTENSION_NAME_DLL= EXTENSION_NAME + '.dll';
 	EXTENSION_MENU_ROOT_TEXT = '&' + EXTENSION_NAME + '...';
 
 	BAK_FILE_EXTENSION = '.bak';

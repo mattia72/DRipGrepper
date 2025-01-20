@@ -77,7 +77,8 @@ uses
 	RipGrepper.Common.Constants,
 	RipGrepper.Tools.PackageInstall,
 	System.IOUtils,
-	RipGrepper.Helper.UI;
+	RipGrepper.Helper.UI,
+	RipGrepper.Tools.FileUtils;
 
 {$R *.dfm}
 
@@ -91,7 +92,7 @@ begin
 	Caption := 'Extension';
 	FExtensionSettings := _settings;
 	FDelphiVersions := TDelphiVersions.Create;
-
+	FDllPath := TPath.Combine(TFileUtils.GetAppDirectory(), EXTENSION_NAME_DLL);
 	{$IFNDEF STANDALONE}
 	ReadSettings;
 	{$ENDIF}
@@ -107,19 +108,24 @@ procedure TExtensionSettingsForm.ActionExtensionInstallExecute(Sender : TObject)
 var
 	installer : TPackageInstallMain;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.ActionExtensionInstallExecute');
+
 	installer := TPackageInstallMain.Create;
 	try
-		if FDllPath.IsEmpty then begin
+		if not TFile.Exists(FDllPath) then begin
 			FDllPath := GetExpertDllPath;
 		end;
-		if FileExists(FDllPath) and string.EndsText(EXTENSION_NAME + '.dll', FDllPath) then begin
+		dbgMsg.MsgFmt('Dll path: %s', [FDllPath]);
+		if FileExists(FDllPath) and
+		{ } string.EndsText(EXTENSION_NAME_DLL, FDllPath) then begin
 			var
 				dv : IDelphiVersion := GetSelectedDelphiVersion;
 			var
 			sDescr := EXTENSION_NAME;
 			installer.Execute(FDllPath, dv as TDelphiVersion, sDescr, btnInstallPackage.Caption = UNINSTALL_CAPTION);
 		end else begin;
-			TMsgBox.ShowError(EXTENSION_NAME + '.dll not found!');
+			TMsgBox.ShowError(EXTENSION_NAME_DLL + ' not found!');
 		end;
 		UpdateBtnCaption;
 	finally
@@ -156,6 +162,7 @@ begin
 			cmbDelphiVersions.Items.Add('No Delphi installation found');
 		end;
 		cmbDelphiVersions.ItemIndex := 0;
+        UpdateBtnCaption;
 	finally
 		versions.Free;
 		installer.Free;
@@ -213,10 +220,15 @@ begin
 
 	dv := GetSelectedDelphiVersion;
 	sDesc := EXTENSION_NAME;
-	if FDllPath.IsEmpty or (not(dv as TDelphiVersion).IsKnownExpert(FDllPath, sDesc)) then begin
-		btnInstallPackage.Caption := INSTALL_CAPTTION;
-	end else begin
+	var
+	realExpertPath := (dv as TDelphiVersion).GetKnownExpertPath(TPath.GetFileName(FDllPath), sDesc);
+
+	if ((UpperCase(realExpertPath) = UpperCase(FDllPath)) or (not realExpertPath.IsEmpty))
+    then begin
+        FDllPath := realExpertPath;
 		btnInstallPackage.Caption := UNINSTALL_CAPTION;
+	end else begin
+		btnInstallPackage.Caption := INSTALL_CAPTTION;
 	end;
 	dbgMsg.Msg('Set=' + btnInstallPackage.Caption);
 end;
