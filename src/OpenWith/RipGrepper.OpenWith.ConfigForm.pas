@@ -115,6 +115,7 @@ begin
 	FOpenWithSettings.ReadIni; // we should read ini every time, it can be overwritten by another instance...
 
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
+	lbCommands.MultiSelect := True; // we need this for working SelCount 
 end;
 
 destructor TOpenWithConfigForm.Destroy;
@@ -276,7 +277,7 @@ begin
 	finally
 		form.Free;
 		// re read content
-		_settings.ReCreateMemIni;
+		_settings.ReLoadIniFile;
 	end;
 end;
 
@@ -354,8 +355,8 @@ begin
 	end;
 
 	FOpenWithSettings.ForceWriteToIni; // save always
-	//inherited WriteSettings; it's not eonugh
- end;
+	// inherited WriteSettings; it's not eonugh
+end;
 
 procedure TOpenWithConfigForm.lbCommandsClick(Sender : TObject);
 begin

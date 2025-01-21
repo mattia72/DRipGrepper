@@ -300,9 +300,10 @@ begin
 		owForm.Free;
 	end;
 
-	owSettings.TestFile := default (TOpenWithParams);
-	owSettings.Reload();
+	// write ini file content
+	Settings.UpdateIniFile;
 
+	owSettings.TestFile := default (TOpenWithParams);
 	MainFrame.ReloadColorSettings;
 
 	{$IFDEF STANDALONE}
