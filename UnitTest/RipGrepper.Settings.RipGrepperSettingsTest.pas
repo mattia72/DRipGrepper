@@ -52,6 +52,8 @@ type
 			[Test]
 			procedure UpdateIniTest;
 			[Test]
+			procedure NodeLookSettingsTest;
+			[Test]
 			procedure UpdateHistInIniTest;
 			[Test]
 			procedure UpdateShortCutsIniTest;
@@ -210,6 +212,10 @@ begin
 	settingVal := BoolToStr(FSettings.SearchFormSettings.NoIgnore, True);
 	Assert.AreEqual(settingVal, iniVal, 'NoIgnore should be equal');
 
+	// iniVal := FSettings.IniFile.ReadString(FSettings.SearchFormSettings.ExtensionSettings.INI_SECTION, 'CurrentIDEContext', '');
+	// settingVal := Integer(FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext).ToString;
+	// Assert.AreEqual(settingVal, iniVal, 'CurrentIDEContext should be equal');
+
 end;
 
 procedure TRipGrepperSettingsTest.AfterUpdateIniDefaultsShouldBeProperlySaved;
@@ -266,6 +272,11 @@ begin
 	FSettings.RipGrepParameters.FileMasks := '*.act';
 	FSettings.RipGrepParameters.GuiSearchTextParams.SearchOptions := [EGuiOption.soNotSet];
 
+	FSettings.NodeLookSettings.AlternateRowColors := True;
+	FSettings.NodeLookSettings.IndentLines := True;
+	FSettings.NodeLookSettings.ShowRelativePath := True;
+	FSettings.NodeLookSettings.ExpandNodes := True;
+
 	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext :=
 	{ } TRipGrepperExtensionContext.FromString('2', 'active project', 'active file');
 
@@ -297,6 +308,33 @@ begin
 	AssignFile(txtFile, _filePath);
 	Rewrite(txtFile);
 	CloseFile(txtFile);
+end;
+
+procedure TRipGrepperSettingsTest.NodeLookSettingsTest;
+var
+	iniVal : string;
+	settingVal : Boolean;
+begin
+	SetTestDefaultAndActualValues;
+
+	FSettings.UpdateIniFile;
+	FSettings.LoadFromDict;
+
+	iniVal := FSettings.IniFile.ReadString(FSettings.NodeLookSettings.IniSectionName, 'AlternateRowColors', 'False');
+	settingVal := FSettings.NodeLookSettings.AlternateRowColors;
+	Assert.AreEqual(settingVal, iniVal = '1', 'AlternateRowColors should be equal');
+
+	iniVal := FSettings.IniFile.ReadString(FSettings.NodeLookSettings.IniSectionName, 'IndentLines', 'False');
+	settingVal := FSettings.NodeLookSettings.IndentLines;
+	Assert.AreEqual(settingVal, iniVal = '1', 'IndentLines should be equal');
+
+	iniVal := FSettings.IniFile.ReadString(FSettings.NodeLookSettings.IniSectionName, 'ShowRelativePath', 'False');
+	settingVal := FSettings.NodeLookSettings.ShowRelativePath;
+	Assert.AreEqual(settingVal, iniVal = '1', 'ShowRelativePath should be equal');
+
+	iniVal := FSettings.IniFile.ReadString(FSettings.NodeLookSettings.IniSectionName, 'ExpandNodes', 'False');
+	settingVal := FSettings.NodeLookSettings.ExpandNodes;
+	Assert.AreEqual(settingVal, iniVal = '1', 'ExpandNodes should be equal');
 end;
 
 procedure TRipGrepperSettingsTest.UpdateIniTest;
