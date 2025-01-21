@@ -74,7 +74,6 @@ type
 			procedure RebuildArguments;
 			procedure LoadFromDict(); override;
 			procedure LoadInitialSettings;
-			procedure ReCreateMemIni; override;
 			procedure ReLoad; override;
 			procedure StoreAsDefaultsToDict; override;
 			procedure StoreHistories;
@@ -337,12 +336,6 @@ procedure TRipGrepperSettings.LoadFromDict;
 begin
 	FRipGrepParameters.LoadFromDict;
 	FSearchFormSettings.LoadFromDict;
-end;
-
-procedure TRipGrepperSettings.ReCreateMemIni; // Composit
-begin
-	inherited ReCreateMemIni;
-	FSearchFormSettings.ReCreateMemIni();
 end;
 
 procedure TRipGrepperSettings.ReLoad; // Composit

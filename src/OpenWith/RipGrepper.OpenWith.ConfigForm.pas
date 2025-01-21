@@ -112,10 +112,11 @@ constructor TOpenWithConfigForm.Create(AOwner : TComponent; const ASettings : TO
 begin
 	inherited Create(AOwner, ASettings); // , ImageList1);
 	FOpenWithSettings := ASettings;
-	FOpenWithSettings.ReadIni; // we should read ini every time, it can be overwritten by another instance...
-
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
-	lbCommands.MultiSelect := True; // we need this for working SelCount 
+	lbCommands.MultiSelect := True; // we need this for working SelCount
+
+	FOpenWithSettings.ReadIni; // we should read ini every time, it can be overwritten by another instance...
+	ReadSettings;
 end;
 
 destructor TOpenWithConfigForm.Destroy;
@@ -126,7 +127,7 @@ end;
 
 procedure TOpenWithConfigForm.FormCreate(Sender : TObject);
 begin
-	ReadSettings;
+ // doesn't run in a Tabsheet
 end;
 
 procedure TOpenWithConfigForm.ActionAddExecute(Sender : TObject);
@@ -277,7 +278,7 @@ begin
 	finally
 		form.Free;
 		// re read content
-		_settings.ReLoadIniFile;
+		_settings.ReLoadFromDisk;
 	end;
 end;
 
@@ -296,8 +297,6 @@ begin
 	inherited ReadSettings;
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithConfigForm.ReadSettings');
-
-	lbCommands.MultiSelect := True;
 
 	listCmdsFromSettings := TStringList.Create;
 	try

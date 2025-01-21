@@ -67,7 +67,6 @@ type
 			procedure StoreAsDefaultsToDict; override;
 			procedure LoadDefaultsFromDict; override;
 			procedure LoadFromDict(); override;
-			procedure ReCreateMemIni; override;
 			procedure ReLoad; override;
 			function ToLogString : string; override;
 
@@ -253,12 +252,6 @@ begin
 	NoIgnore := SettingsDict.GetSetting('NoIgnore', _bDefault);
 	Context := SettingsDict.GetSetting('Context', _bDefault);
 	Encoding := SettingsDict.GetSetting('Encoding', _bDefault);
-end;
-
-procedure TSearchFormSettings.ReCreateMemIni; // Composit
-begin
-	// inherited; recreated by parent
-	FExtensionSettings.IniFile := IniFile;
 end;
 
 procedure TSearchFormSettings.ReLoad;

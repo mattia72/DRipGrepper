@@ -117,8 +117,7 @@ begin
 	FExtensionSettings.Free;
 	FSettingsForms.Free;
 	FThemeHandler.Free;
-	Settings.ReCreateMemIni;
-	Settings.ReLoad;
+	Settings.ReLoadFromDisk;
 	inherited;
 end;
 

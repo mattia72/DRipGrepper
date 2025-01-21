@@ -83,8 +83,14 @@ end;
 procedure TMemIniFileHelper.ReloadIniFile;
 begin
 	var
+	dbgMsg := TDebugMsgBeginEnd.New('TMemIniFileHelper.ReloadIniFile');
+
+	var
 	origIniFile := self.FileName;
-	self.Rename(GetTempFileName, false);
+	var tmpFile := GetTempFileName;
+	dbgMsg.MsgFmt('Rename to temp file : %s', [tmpFile]);
+	self.Rename(tmpFile, false);
+	dbgMsg.MsgFmt('Rename to orig file : %s', [origIniFile]);
 	self.Rename(origIniFile, true);
 end;
 
@@ -103,7 +109,7 @@ begin
 		newFileName := GetTempSectionFileName(_section);
 
 		if TFile.Exists(newFileName) then begin
-        	dbgMsg.Msg('Delete file: ' + newFileName);
+			dbgMsg.Msg('Delete file: ' + newFileName);
 			TFile.Delete(newFileName);
 		end;
 

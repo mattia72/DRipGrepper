@@ -50,7 +50,6 @@ type
 			procedure SetChildrenIniFiles;
 			procedure SetIniFile(const Value : TMemIniFile);
 			procedure SetIniSectionName(const Value : string);
-			procedure SetOwnersIniFile;
 			// 1 Should be locked by a guard
 			procedure WriteToIni(const _sIniSection, _sKey : string; const _setting : ISettingVariant);
 
@@ -99,9 +98,8 @@ type
 			procedure LoadFromDict(); virtual; abstract;
 			procedure LoadDefaultsFromDict; virtual; abstract;
 
-			/// Re-create memini to re-read ini file content
-			class procedure ReCreateMemIni(var _ini : TMemIniFile; const _section : string); overload;
-			procedure ReCreateMemIni; overload; virtual;
+			/// ReLoads memini file content
+			procedure ReLoadFromDisk;
 			/// <summary>
 			/// Members.StoreToDict should be called here
 			/// Writes to ini.
@@ -430,29 +428,12 @@ begin
 	end;
 end;
 
-class procedure TPersistableSettings.ReCreateMemIni(var _ini : TMemIniFile; const _section : string);
+procedure TPersistableSettings.ReLoadFromDisk;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.ReCreateMemIni', True);
-
-	var
-	iniFileName := _ini.FileName;
-	dbgMsg.MsgFmt('Free FIniFile %p of section: %s', [Pointer(_ini), _section]);
-
-	_ini.Free;
-	_ini := TMemIniFile.Create(iniFileName, TEncoding.UTF8);
-
-	dbgMsg.MsgFmt('ReCreate FIniFile %p of section: %s', [Pointer(_ini), _section]);
-end;
-
-procedure TPersistableSettings.ReCreateMemIni;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.ReCreateMemIni');
-
-	ReCreateMemIni(FIniFile, GetIniSectionName());
-	SetOwnersIniFile();
-	SetChildrenIniFiles();
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.ReLoadFromDisk');
+	FIniFile.ReLoadIniFile();
+	ReLoad;
 end;
 
 procedure TPersistableSettings.ReLoad;
@@ -491,16 +472,6 @@ end;
 procedure TPersistableSettings.SetIniSectionName(const Value : string);
 begin
 	FIniSectionName := Value;
-end;
-
-procedure TPersistableSettings.SetOwnersIniFile;
-begin
-	var
-	owner := FOwner;
-	while Assigned(owner) do begin
-		owner.IniFile := IniFile;
-		owner := owner.FOwner;
-	end;
 end;
 
 procedure TPersistableSettings.StoreAsDefaultsToDict;

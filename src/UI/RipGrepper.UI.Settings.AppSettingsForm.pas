@@ -114,8 +114,7 @@ end;
 
 procedure TAppSettingsForm.btnedtIniFilePathLeftButtonClick(Sender : TObject);
 begin
-	FSettings.ReCreateMemIni;
-	FSettings.ReLoad;
+	FSettings.ReLoadFromDisk;
 	ReadSettings;
 end;
 
