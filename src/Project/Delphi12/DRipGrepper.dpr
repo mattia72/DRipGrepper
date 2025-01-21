@@ -91,7 +91,11 @@ uses
   RipGrepper.UI.ColorSelectorFrame in '..\..\UI\RipGrepper.UI.ColorSelectorFrame.pas' {ColorSelectorFrame: TFrame},
   RipGrepper.Tools.LockGuard in '..\..\Tools\RipGrepper.Tools.LockGuard.pas',
   RipGrepper.UI.Settings.ColorSettingsForm in '..\..\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas',
-  RipGrepper.UI.Settings.ExtensionSettingsForm in '..\..\UI\RipGrepper.UI.Settings.ExtensionSettingsForm.pas' {ExtensionSettingsForm};
+  RipGrepper.UI.Settings.ExtensionSettingsForm in '..\..\UI\RipGrepper.UI.Settings.ExtensionSettingsForm.pas' {ExtensionSettingsForm},
+  RipGrepper.Helper.MemIniFile in '..\..\Helper\RipGrepper.Helper.MemIniFile.pas',
+  RipGrepper.Helper.UI.DarkMode in '..\..\RipGrepper.Helper.UI.DarkMode.pas',
+  Vcl.Themes,
+  Vcl.Styles;
 
 {$R *.res}
 
@@ -107,12 +111,11 @@ begin
 
 		Application.Initialize;
 		Application.MainFormOnTaskbar := True;
-		Application.CreateForm(TRipGrepperForm, RipGrepperForm);
-  Application.CreateForm(TAppSettingsForm, AppSettingsForm);
-  Application.CreateForm(TExtensionSettingsForm, ExtensionSettingsForm);
+		TStyleManager.TrySetStyle('Windows10');
+  Application.CreateForm(TRipGrepperForm, RipGrepperForm);
   Application.Run;
 	finally
 		Gsettings.Free;
+		GSettings := nil;
 	end;
-
 end.

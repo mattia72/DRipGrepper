@@ -3,13 +3,16 @@
         <ProjectGuid>{CD0CC90D-2645-48D3-AA04-01E0FA41E309}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
-        <Projects Include="DRipGrepper.dproj">
+        <Projects Include="src\Project\Delphi12\DRipGrepper.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="UnitTest\DRipGrepperUnittest.dproj">
+        <Projects Include="UnitTest\DRipGrepperUnittest.D12.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Extension\DRipExtension.dproj">
+        <Projects Include="Extension\src\Project\Bpl.Delphi12\DRipExtension.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Extension\src\Project\Dll.Delphi12\DRipExtensions.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -21,40 +24,49 @@
         </BorlandProject>
     </ProjectExtensions>
     <Target Name="DRipGrepper">
-        <MSBuild Projects="DRipGrepper.dproj"/>
+        <MSBuild Projects="src\Project\Delphi12\DRipGrepper.dproj"/>
     </Target>
     <Target Name="DRipGrepper:Clean">
-        <MSBuild Projects="DRipGrepper.dproj" Targets="Clean"/>
+        <MSBuild Projects="src\Project\Delphi12\DRipGrepper.dproj" Targets="Clean"/>
     </Target>
     <Target Name="DRipGrepper:Make">
-        <MSBuild Projects="DRipGrepper.dproj" Targets="Make"/>
+        <MSBuild Projects="src\Project\Delphi12\DRipGrepper.dproj" Targets="Make"/>
     </Target>
-    <Target Name="DRipGrepperUnittest">
-        <MSBuild Projects="UnitTest\DRipGrepperUnittest.dproj"/>
+    <Target Name="DRipGrepperUnittest_D12">
+        <MSBuild Projects="UnitTest\DRipGrepperUnittest.D12.dproj"/>
     </Target>
-    <Target Name="DRipGrepperUnittest:Clean">
-        <MSBuild Projects="UnitTest\DRipGrepperUnittest.dproj" Targets="Clean"/>
+    <Target Name="DRipGrepperUnittest_D12:Clean">
+        <MSBuild Projects="UnitTest\DRipGrepperUnittest.D12.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="DRipGrepperUnittest:Make">
-        <MSBuild Projects="UnitTest\DRipGrepperUnittest.dproj" Targets="Make"/>
+    <Target Name="DRipGrepperUnittest_D12:Make">
+        <MSBuild Projects="UnitTest\DRipGrepperUnittest.D12.dproj" Targets="Make"/>
     </Target>
     <Target Name="DRipExtension">
-        <MSBuild Projects="Extension\DRipExtension.dproj"/>
+        <MSBuild Projects="Extension\src\Project\Bpl.Delphi12\DRipExtension.dproj"/>
     </Target>
     <Target Name="DRipExtension:Clean">
-        <MSBuild Projects="Extension\DRipExtension.dproj" Targets="Clean"/>
+        <MSBuild Projects="Extension\src\Project\Bpl.Delphi12\DRipExtension.dproj" Targets="Clean"/>
     </Target>
     <Target Name="DRipExtension:Make">
-        <MSBuild Projects="Extension\DRipExtension.dproj" Targets="Make"/>
+        <MSBuild Projects="Extension\src\Project\Bpl.Delphi12\DRipExtension.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DRipExtensions">
+        <MSBuild Projects="Extension\src\Project\Dll.Delphi12\DRipExtensions.dproj"/>
+    </Target>
+    <Target Name="DRipExtensions:Clean">
+        <MSBuild Projects="Extension\src\Project\Dll.Delphi12\DRipExtensions.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DRipExtensions:Make">
+        <MSBuild Projects="Extension\src\Project\Dll.Delphi12\DRipExtensions.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="DRipGrepper;DRipGrepperUnittest;DRipExtension"/>
+        <CallTarget Targets="DRipGrepper;DRipGrepperUnittest_D12;DRipExtension;DRipExtensions"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="DRipGrepper:Clean;DRipGrepperUnittest:Clean;DRipExtension:Clean"/>
+        <CallTarget Targets="DRipGrepper:Clean;DRipGrepperUnittest_D12:Clean;DRipExtension:Clean;DRipExtensions:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="DRipGrepper:Make;DRipGrepperUnittest:Make;DRipExtension:Make"/>
+        <CallTarget Targets="DRipGrepper:Make;DRipGrepperUnittest_D12:Make;DRipExtension:Make;DRipExtensions:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
