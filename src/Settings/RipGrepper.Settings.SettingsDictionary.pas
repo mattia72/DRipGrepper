@@ -5,7 +5,8 @@ interface
 uses
 	RipGrepper.Settings.SettingVariant,
 	System.Generics.Collections,
-	System.Variants;
+	System.Variants,
+	System.Classes;
 
 type
 	TSettingsDictionary = class(TDictionary<string, ISettingVariant>)
@@ -35,6 +36,7 @@ type
 			function GetDefaultDictKeyName(const _key : string) : string;
 			function GetDictKeyName(const _key : string; const _bForDefault : Boolean = False) : string;
 			function GetSetting(const _name : string; const _bDefault : Boolean = False) : Variant; overload;
+			procedure GetSettingsSectionValues(const _sectionName : string; var _sectionValues : TStringList);
 			procedure SetSettingValue(_sKey : string; const _v : Variant);
 			procedure StoreDefaultSetting(const _name : string; const _v : Variant);
 			procedure StoreSetting(const _name : string; const _v : Variant; const _bAsDefault : Boolean = False);
@@ -46,7 +48,9 @@ uses
 	RipGrepper.Common.Constants,
 	RipGrepper.Tools.DebugUtils,
 	System.StrUtils,
-	System.SysUtils;
+	System.SysUtils,
+	System.IniFiles,
+	RipGrepper.Helper.Types;
 
 constructor TSettingsDictionary.Create(const _section : string);
 begin
@@ -72,7 +76,7 @@ begin
 	dbgMsg.MsgFmt('Destroy %p for section: %s', [Pointer(self), FSectionName]);
 
 	for var key in Keys do begin
-//      dbgMsg.MsgFmt('Destroy key: %s', [key]);
+		// dbgMsg.MsgFmt('Destroy key: %s', [key]);
 		Self[key] := nil;
 	end;
 	inherited Destroy;
@@ -205,6 +209,31 @@ begin
 		Result := GetDefaultSetting(_name);
 	end else begin
 		Result := InnerGetSetting(_name, False);
+	end;
+end;
+
+procedure TSettingsDictionary.GetSettingsSectionValues(const _sectionName : string; var _sectionValues : TStringList);
+var
+	setting : ISettingVariant;
+	settingName : string;
+	tmpIni : TMemIniFile;
+	tmpFile : TAutoDeleteTempFile;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.GetSettingsSectionValues');
+
+	_sectionValues.Clear;
+	tmpIni := TMemIniFile.Create(tmpFile.FilePath);
+	try
+		for var key in Keys do begin
+			settingName := key.Split([ARRAY_SEPARATOR])[1];
+			setting := self[key];
+			dbgMsg.MsgFmt('Write [%s] %s', [_sectionName, settingName]);
+			setting.WriteToMemIni(tmpIni, _sectionName, settingName);
+		end;
+		tmpIni.ReadSectionValues(_sectionName, _sectionValues);
+	finally
+		tmpIni.Free;
 	end;
 end;
 

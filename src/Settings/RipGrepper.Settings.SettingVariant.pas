@@ -4,9 +4,14 @@ interface
 
 uses
 	System.Variants,
-	System.Generics.Defaults;
+	System.Generics.Defaults,
+	System.IniFiles,
+	System.SysUtils;
 
 type
+
+	ESettingsException = class(Exception);
+
 	ISettingVariant = interface
 		['{D4A1E2B3-5F6C-4A7D-8B9E-1C2D3E4F5A6B}']
 		function Equals(_other : ISettingVariant) : Boolean;
@@ -29,6 +34,8 @@ type
 		property Value : Variant read GetValue write SetValue;
 		property ValueType : TVarType read GetValueType write SetValueType;
 		property SaveToIni : Boolean read GetSaveToIni write SetSaveToIni;
+
+		procedure WriteToMemIni(_ini : TMemIniFile; const _sIniSection, _sKey : string);
 	end;
 
 	TSettingVariant = class(TInterfacedObject, ISettingVariant)
@@ -57,6 +64,7 @@ type
 			function CompareTo(Value : ISettingVariant) : Integer;
 			function Equals(_other : ISettingVariant) : Boolean; reintroduce;
 			function IsEmpty : Boolean;
+			procedure WriteToMemIni(_ini : TMemIniFile; const _sIniSection, _sKey : string);
 			property Value : Variant read GetValue write SetValue;
 			property IsModified : Boolean read GetIsModified write SetIsModified;
 			property IsDefaultRelevant : Boolean read GetIsDefaultRelevant write SetIsDefaultRelevant;
@@ -65,6 +73,9 @@ type
 	end;
 
 implementation
+
+uses
+	RipGrepper.Tools.DebugUtils;
 
 constructor TSettingVariant.Create(const _type : TVarType; const _value : Variant; const _isDefRelevant : Boolean = False;
 	const _saveToIni : Boolean = True);
@@ -171,6 +182,47 @@ end;
 procedure TSettingVariant.SetSaveToIni(const Value : Boolean);
 begin
 	FSaveToIni := Value;
+end;
+
+procedure TSettingVariant.WriteToMemIni(_ini : TMemIniFile; const _sIniSection, _sKey : string);
+var
+	v : Variant;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingVariant.InnerLoadDefaultsFromDict');
+
+	try
+		case self.ValueType of
+			varString, varUString : begin
+				dbgMsg.MsgIf(_sIniSection = 'SearchTextsHistory', Format('SearchTextsHistory %s=%s', [_sKey, self.Value]));
+				_ini.WriteString(_sIniSection, _sKey, self.Value);
+			end;
+			varBoolean : begin
+				_ini.WriteBool(_sIniSection, _sKey, self.Value);
+			end;
+			varInteger : begin
+				_ini.WriteInteger(_sIniSection, _sKey, self.Value);
+			end;
+			varArray : begin
+				var
+				i := VarArrayLowBound(self.Value, 1);
+				var
+				len := VarArrayHighBound(self.Value, 1);
+				dbgMsg.Msg('Write Array');
+				while i <= len do begin
+					v := self.Value[i]; // v should be string
+					_ini.WriteString(_sIniSection, Format('%s_Item%d', [_sKey, i]), v);
+					Inc(i);
+				end;
+			end
+			else
+			raise ESettingsException.Create('Settings Type not supported:' + VarTypeAsText(self.ValueType));
+		end;
+	except
+		on E : Exception do
+			dbgMsg.ErrorMsgFmt('%s', [E.Message]);
+	end;
+	dbgMsg.MsgFmt('[%s].%s=%s in %s', [_sIniSection, _sKey, VarToStr(self.Value), _ini.FileName]);
 end;
 
 end.

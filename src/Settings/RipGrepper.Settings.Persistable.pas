@@ -27,8 +27,6 @@ type
 		procedure StoreAsDefaultsToDict;
 	end;
 
-	ESettingsException = class(Exception);
-
 	EWriteSettingsMode = (wsmActual, wsmDefault, wsmAll);
 
 	TPersistableSettings = class(TNoRefCountObject, IIniPersistable)
@@ -494,6 +492,8 @@ begin
 end;
 
 procedure TPersistableSettings.UpdateIniFile(const _section : string = '');
+var
+	sectionValues : TStringList;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
@@ -515,12 +515,16 @@ begin
 		dbgMsg.Msg('Lock Entered to UpdateIniFile');
 		try
 			var
-			section := IfThen((_section = ''), GetIniSectionName(), _section);
-			dbgMsg.MsgFmt('IniFile %p update begin on [%s]', [Pointer(IniFile), section]);
+			sectionName := IfThen((_section = ''), GetIniSectionName(), _section);
+			dbgMsg.MsgFmt('IniFile %p update begin on [%s]', [Pointer(IniFile), sectionName]);
 
-			if (not section.IsEmpty) and Assigned(FOwner) then begin
-				if IniFile.Modified then begin
-					IniFile.WriteTempSectionIni(section);
+			if (not sectionName.IsEmpty) and Assigned(FOwner) then begin
+				sectionValues := TStringList.Create;
+				try
+					FSettingsDict.GetSettingsSectionValues(sectionName, sectionValues);
+					IniFile.WriteTempSectionIni(sectionName, sectionValues);
+				finally
+					sectionValues.Free;
 				end;
 			end else begin // if we don't have Owner, then
 				IniFile.ReadTempSectionFiles();
@@ -581,7 +585,6 @@ end;
 
 // 1 Should be locked by a guard
 procedure TPersistableSettings.WriteToIni(const _sIniSection, _sKey : string; const _setting : ISettingVariant);
-var v : Variant;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.WriteToIni');
@@ -590,38 +593,7 @@ begin
 		Exit;
 	end;
 
-	try
-		case _setting.ValueType of
-			varString, varUString : begin
-				dbgMsg.MsgIf(_sIniSection = 'SearchTextsHistory', Format('SearchTextsHistory %s=%s', [_sKey, _setting.Value]));
-				IniFile.WriteString(_sIniSection, _sKey, _setting.Value);
-			end;
-			varBoolean : begin
-				IniFile.WriteBool(_sIniSection, _sKey, _setting.Value);
-			end;
-			varInteger : begin
-				IniFile.WriteInteger(_sIniSection, _sKey, _setting.Value);
-			end;
-			varArray : begin
-				var
-				i := VarArrayLowBound(_setting.Value, 1);
-				var
-				len := VarArrayHighBound(_setting.Value, 1);
-				dbgMsg.Msg('Write Array');
-				while i <= len do begin
-					v := _setting.Value[i]; // v should be string
-					IniFile.WriteString(_sIniSection, Format('%s_Item%d', [_sKey, i]), v);
-					Inc(i);
-				end;
-			end
-			else
-			raise ESettingsException.Create('Settings Type not supported:' + VarTypeAsText(_setting.ValueType));
-		end;
-	except
-		on E : Exception do
-			dbgMsg.ErrorMsgFmt('%s', [E.Message]);
-	end;
-	dbgMsg.MsgFmt('[%s].%s=%s in %s', [_sIniSection, _sKey, VarToStr(_setting.Value), IniFile.FileName]);
+	_setting.WriteToMemIni(IniFile, _sIniSection, _sKey);
 end;
 
 end.

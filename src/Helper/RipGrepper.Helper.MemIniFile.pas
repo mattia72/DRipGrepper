@@ -3,19 +3,19 @@ unit RipGrepper.Helper.MemIniFile;
 interface
 
 uses
-	System.IniFiles;
+	System.IniFiles,
+	System.Classes;
 
 type
 	TMemIniFileHelper = class Helper for TMemIniFile
 		private
 			function GetTempFileName : string;
-			procedure WriteTempSectionIni(const _fileName, _section : string); overload;
 
 		public
 			function GetTempSectionFileName(_section : string) : string;
 			procedure ReadTempSectionFiles;
-			procedure WriteTempSectionIni(const _section : string); overload;
 			procedure ReloadIniFile;
+			procedure WriteTempSectionIni(_sectionName : string; const _sectionValues : TStringList); overload;
 	end;
 
 implementation
@@ -23,7 +23,7 @@ implementation
 uses
 	System.IOUtils,
 	System.SysUtils,
-	System.Classes,
+
 	RipGrepper.Tools.DebugUtils;
 
 function TMemIniFileHelper.GetTempSectionFileName(_section : string) : string;
@@ -87,58 +87,48 @@ begin
 
 	var
 	origIniFile := self.FileName;
-	var tmpFile := GetTempFileName;
+	var
+	tmpFile := GetTempFileName;
 	dbgMsg.MsgFmt('Rename to temp file : %s', [tmpFile]);
 	self.Rename(tmpFile, false);
 	dbgMsg.MsgFmt('Rename to orig file : %s', [origIniFile]);
 	self.Rename(origIniFile, true);
 end;
 
-procedure TMemIniFileHelper.WriteTempSectionIni(const _fileName, _section : string);
+procedure TMemIniFileHelper.WriteTempSectionIni(_sectionName : string; const _sectionValues : TStringList);
 var
-	sectionList : TStringList;
 	isModified : Boolean;
 	tmpIniFile : TMemIniFile;
 	newFileName : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMemIniFileHelper.WriteTempSectionIni');
-	sectionList := TStringList.Create();
+
+	newFileName := GetTempSectionFileName(_sectionName);
+
+	if TFile.Exists(newFileName) then begin
+		dbgMsg.Msg('Delete file: ' + newFileName);
+		TFile.Delete(newFileName);
+	end;
+
+	tmpIniFile := TMemIniFile.Create(newFileName);
 	try
-		self.ReadSectionValues(_section, sectionList);
-		newFileName := GetTempSectionFileName(_section);
-
-		if TFile.Exists(newFileName) then begin
-			dbgMsg.Msg('Delete file: ' + newFileName);
-			TFile.Delete(newFileName);
+		isModified := false;
+		for var i := 0 to _sectionValues.Count - 1 do begin
+			var
+			key := _sectionValues.Names[i];
+			var
+			value := _sectionValues.ValueFromIndex[i];
+			tmpIniFile.WriteString(_sectionName, key, value);
+			isModified := true;
 		end;
-
-		tmpIniFile := TMemIniFile.Create(newFileName);
-		try
-			isModified := false;
-			for var i := 0 to sectionList.Count - 1 do begin
-				var
-				key := sectionList.Names[i];
-				var
-				value := sectionList.ValueFromIndex[i];
-				tmpIniFile.WriteString(_section, key, value);
-				isModified := true;
-			end;
-			if isModified then begin
-				dbgMsg.Msg('Updating file: ' + newFileName);
-				tmpIniFile.UpdateFile();
-			end;
-		finally
-			tmpIniFile.Free;
+		if isModified then begin
+			dbgMsg.Msg('Updating file: ' + newFileName);
+			tmpIniFile.UpdateFile();
 		end;
 	finally
-		sectionList.Free;
+		tmpIniFile.Free;
 	end;
-end;
-
-procedure TMemIniFileHelper.WriteTempSectionIni(const _section : string);
-begin
-	WriteTempSectionIni(self.FileName, _section);
 end;
 
 end.

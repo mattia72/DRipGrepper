@@ -7,7 +7,8 @@ uses
 	System.IniFiles,
 	RipGrepper.Settings.RipGrepperSettings,
 	DUnitX.TestFramework,
-	System.Classes;
+	System.Classes,
+	RipGrepper.Helper.MemIniFile;
 
 const
 	NOTEXISTS = '<not exists>';
@@ -25,7 +26,6 @@ type
 			// FIniFile : TMemIniFile;
 			FSettings : TRipGrepperSettings;
 			FTextHist : TStringList;
-			procedure EmptyFile(const _filePath : string);
 			function ReadBoolIniAsString(const _section, _key : string) : string;
 			procedure SetTestDefaultAndActualValues;
 
@@ -68,7 +68,8 @@ uses
 	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Settings.ExtensionSettings,
-	RipGrepper.Settings.NodeLookSettings;
+	RipGrepper.Settings.NodeLookSettings,
+	RipGrepper.Tools.FileUtils;
 
 constructor TRipGrepperSettingsTest.Create;
 begin
@@ -274,6 +275,7 @@ begin
 	FSettings.RipGrepParameters.GuiSearchTextParams.SearchOptions := [EGuiOption.soNotSet];
 
 	FSettings.NodeLookSettings.AlternateRowColors := True;
+	FSettings.NodeLookSettings.ShowFileIcon := True;
 	FSettings.NodeLookSettings.IndentLines := True;
 	FSettings.NodeLookSettings.ShowRelativePath := True;
 	FSettings.NodeLookSettings.ExpandNodes := True;
@@ -299,16 +301,7 @@ procedure TRipGrepperSettingsTest.TearDown;
 begin
 	FSettings.Free; // instance will be free
 	FTextHist.Free;
-	EmptyFile(ChangeFileExt(Application.ExeName, '.ini'));
-end;
-
-procedure TRipGrepperSettingsTest.EmptyFile(const _filePath : string);
-var
-	txtFile : TextFile;
-begin
-	AssignFile(txtFile, _filePath);
-	Rewrite(txtFile);
-	CloseFile(txtFile);
+	TFileUtils.EmptyFile(ChangeFileExt(Application.ExeName, '.ini'));
 end;
 
 procedure TRipGrepperSettingsTest.NodeLookSettingsTest;
@@ -317,12 +310,20 @@ var
 	settingVal : Boolean;
 begin
 	SetTestDefaultAndActualValues;
-	FSettings.NodeLookSettings.StoreViewSettingToDict();
- 	var b : Boolean;
-	for var s in TNodeLookSettings.VIEW_SETTINGS do begin
+
+	// TRipGrepperSettings.StoreViewSettings tested here
+	{ 1 } FSettings.NodeLookSettings.StoreViewSettingToDict();
+	var
+		b : Boolean;
+	for var s in VIEW_SETTINGS_TYPES do begin
 		b := FSettings.NodeLookSettings.SettingsDict['NodeLookSettings|' + s].Value;
 		Assert.IsTrue(b, 'NodeLookSettings|' + s + ' should be true');
 	end;
+
+	{ 2 } FSettings.NodeLookSettings.UpdateIniFile(FSettings.NodeLookSettings.IniSectionName); // create temp ini
+
+	Assert.IsTrue(FileExists(FSettings.IniFile.GetTempSectionFileName('NodeLookSettings')), 'temp ini should exist.');
+	{ 3 } FSettings.IniFile.ReadTempSectionFiles();
 
 	iniVal := FSettings.IniFile.ReadString(FSettings.NodeLookSettings.IniSectionName, 'AlternateRowColors', 'False');
 	settingVal := FSettings.NodeLookSettings.AlternateRowColors;

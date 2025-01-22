@@ -13,7 +13,8 @@ uses
 	RipGrepper.Settings.SearchFormSettings,
 	RipGrepper.Settings.NodeLookSettings,
 	RipGrepper.Settings.OpenWithSettings,
-	RipGrepper.Settings.FontColors;
+	RipGrepper.Settings.FontColors,
+	RipGrepper.Helper.MemIniFile;
 
 type
 	TRipGrepperSettings = class(TPersistableSettings)
@@ -405,8 +406,10 @@ end;
 
 procedure TRipGrepperSettings.StoreViewSettings(const _s : string = '');
 begin
-	FNodeLookSettings.StoreViewSettingToDict(_s);
-	UpdateIniFile();
+	NodeLookSettings.StoreViewSettingToDict(_s);
+	NodeLookSettings.UpdateIniFile(NodeLookSettings.IniSectionName); // create temp section
+	IniFile.ReadTempSectionFiles(); // read temp section
+	IniFile.UpdateFile;
 end;
 
 procedure TRipGrepperSettings.StoreHistoryEntries(const _list : TStrings; const _section : string);
