@@ -71,6 +71,12 @@ type
 			function FindSuffix(const _Suffix : string; out _Item : IDelphiVersion) : Boolean;
 	end;
 
+	TEmptyDelphiVersion = class(TDelphiVersion)
+		public
+			constructor Create();
+			function GetBplDir : string; override;
+	end;
+
 implementation
 
 uses
@@ -514,6 +520,16 @@ begin
 		RegKey := 'Software\' + RegPath + '\Experts';
 		TRegistry_DeleteValue(RegKey, sDescription, HKEY_CURRENT_USER);
 	end;
+end;
+
+constructor TEmptyDelphiVersion.Create;
+begin
+	inherited Create;
+end;
+
+function TEmptyDelphiVersion.GetBplDir : string;
+begin
+	Result := inherited GetBplDir;
 end;
 
 initialization
