@@ -44,7 +44,7 @@ type
 			procedure Init; override;
 			procedure LoadFromDict(); override;
 			procedure LoadDefaultsFromDict; override;
-			procedure SetViewSettingValues(const _s : string = '');
+			procedure StoreViewSettingToDict(const _s : string = '');
 			procedure StoreToDict; override;
 			property ChosenFilterMode : string read FChosenFilterMode write SetChosenFilterMode;
 			property FilterModes : TFilterModes read GetFilterModes write SetFilterModes;
@@ -159,17 +159,17 @@ begin
 	FIsUseRegex := Value;
 end;
 
-procedure TFilterSettings.SetViewSettingValues(const _s : string = '');
+procedure TFilterSettings.StoreViewSettingToDict(const _s : string = '');
 var
 	i : integer;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TFilterSettings.SetViewSettingValues');
+	dbgMsg := TDebugMsgBeginEnd.New('TFilterSettings.StoreViewSettingToDict');
 	i := 0;
 	if _s.IsEmpty then begin
 		// StoreToDict all
 		for i := 0 to high(VIEW_SETTINGS) do begin
-			SetViewSettingValues(VIEW_SETTINGS[i]);
+			StoreViewSettingToDict(VIEW_SETTINGS[i]);
 		end;
 	end else if MatchStr(_s, VIEW_SETTINGS[i]) then begin
 		SettingsDict.SetSettingValue(VIEW_SETTINGS[i], ChosenFilterMode);

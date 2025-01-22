@@ -30,7 +30,7 @@ type
 			ShowFileIcon : Boolean;
 			ShowRelativePath : Boolean;
 			ExpandNodes : Boolean;
-			procedure SetViewSettingValues(const _s : string = '');
+			procedure StoreViewSettingToDict(const _s : string = '');
 			constructor Create(const _Owner : TPersistableSettings); overload;
 			destructor Destroy; override;
 			function GetIsModified : Boolean; override;
@@ -108,21 +108,21 @@ end;
 
 procedure TNodeLookSettings.StoreToDict;
 begin
-	SetViewSettingValues();
+	StoreViewSettingToDict();
 	FFilterSettings.StoreToDict();
 	inherited StoreToDict();
 end;
 
-procedure TNodeLookSettings.SetViewSettingValues(const _s : string = '');
+procedure TNodeLookSettings.StoreViewSettingToDict(const _s : string = '');
 var
 	i : integer;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.SetViewSettingValues: ' + _s);
+	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.StoreViewSettingToDict: ' + _s);
 	i := 0;
 	if _s.IsEmpty then begin
 		// StoreToDict all
 		for i := 0 to high(VIEW_SETTINGS) do begin
-			SetViewSettingValues(VIEW_SETTINGS[i]);
+			StoreViewSettingToDict(VIEW_SETTINGS[i]);
 		end;
 	end else if MatchStr(_s, VIEW_SETTINGS[i]) then begin
 		SettingsDict.SetSettingValue(VIEW_SETTINGS[i], ShowRelativePath);
@@ -135,7 +135,7 @@ begin
 	end else if MatchStr(_s, VIEW_SETTINGS[PreInc(i)]) then begin
 		SettingsDict.SetSettingValue(VIEW_SETTINGS[i], ExpandNodes);
 	end else begin
-		FilterSettings.SetViewSettingValues(_s);
+		FilterSettings.StoreViewSettingToDict(_s);
 	end;
 end;
 

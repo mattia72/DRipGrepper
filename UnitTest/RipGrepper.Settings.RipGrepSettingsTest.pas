@@ -59,12 +59,11 @@ const
 constructor TRipGrepSettingsTest.Create;
 begin
 	inherited;
-	FIniFile := TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8);
 end;
 
 destructor TRipGrepSettingsTest.Destroy;
 begin
-	FIniFile.Free;
+//  FIniFile.Free;
 	inherited;
 end;
 
@@ -151,6 +150,15 @@ begin
 	FSettings.OwnIniFile := False;
 	FSettings.GuiSearchTextParams.OwnIniFile := False;
 
+	var
+	iniName := ChangeFileExt(Application.ExeName, '.ini');
+
+	if FileExists(iniName) then begin
+		EmptyFile(iniName);
+	end;
+
+	FIniFile := TMemIniFile.Create(iniName, TEncoding.UTF8);
+
 	FSettings.IniFile := FIniFile;
 	Assert.IsTrue(FSettings.IniFile = FSettings.GuiSearchTextParams.IniFile);
 end;
@@ -158,12 +166,12 @@ end;
 procedure TRipGrepSettingsTest.TearDown;
 begin
 	FSettings.Free; // instance will be free
+	FIniFile.Free;
 	EmptyFile(ChangeFileExt(Application.ExeName, '.ini'));
 end;
 
 procedure TRipGrepSettingsTest.EmptyFile(const _filePath : string);
-var
-	txtFile : TextFile;
+var txtFile : TextFile;
 begin
 	AssignFile(txtFile, _filePath);
 	Rewrite(txtFile);

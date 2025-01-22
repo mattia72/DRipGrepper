@@ -405,9 +405,8 @@ end;
 
 procedure TRipGrepperSettings.StoreViewSettings(const _s : string = '');
 begin
-	FNodeLookSettings.SetViewSettingValues(_s);
-	FNodeLookSettings.StoreToDict();
-	FNodeLookSettings.UpdateIniFile(FNodeLookSettings.INI_SECTION);
+	FNodeLookSettings.StoreViewSettingToDict(_s);
+	UpdateIniFile();
 end;
 
 procedure TRipGrepperSettings.StoreHistoryEntries(const _list : TStrings; const _section : string);

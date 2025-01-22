@@ -67,7 +67,8 @@ uses
 	Vcl.Forms,
 	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Common.SimpleTypes,
-	RipGrepper.Settings.ExtensionSettings;
+	RipGrepper.Settings.ExtensionSettings,
+	RipGrepper.Settings.NodeLookSettings;
 
 constructor TRipGrepperSettingsTest.Create;
 begin
@@ -316,9 +317,12 @@ var
 	settingVal : Boolean;
 begin
 	SetTestDefaultAndActualValues;
-
-	FSettings.UpdateIniFile;
-	FSettings.LoadFromDict;
+	FSettings.NodeLookSettings.StoreViewSettingToDict();
+ 	var b : Boolean;
+	for var s in TNodeLookSettings.VIEW_SETTINGS do begin
+		b := FSettings.NodeLookSettings.SettingsDict['NodeLookSettings|' + s].Value;
+		Assert.IsTrue(b, 'NodeLookSettings|' + s + ' should be true');
+	end;
 
 	iniVal := FSettings.IniFile.ReadString(FSettings.NodeLookSettings.IniSectionName, 'AlternateRowColors', 'False');
 	settingVal := FSettings.NodeLookSettings.AlternateRowColors;
