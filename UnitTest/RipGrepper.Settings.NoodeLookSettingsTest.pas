@@ -8,7 +8,8 @@ uses
 	RipGrepper.Settings.NodeLookSettings,
 	DUnitX.TestFramework,
 	System.Classes,
-	RipGrepper.Settings.TestOwnerSettings, RipGrepper.Helper.MemIniFile;
+	RipGrepper.Settings.TestOwnerSettings,
+	RipGrepper.Helper.MemIniFile;
 
 const
 	NOTEXISTS = '<not exists>';
@@ -111,6 +112,7 @@ begin
 	end;
 	FSettings.UpdateIniFile(FSettings.IniSectionName); // create temp ini
 	FSettings.IniFile.ReadTempSectionFiles();
+	Assert.IsTrue(not DirectoryExists(FSettings.IniFile.GetDripGrepperIniTempDir), ' temp dir should not exists');
 
 	iniVal := FSettings.IniFile.ReadString(FSettings.IniSectionName, 'AlternateRowColors', 'False');
 	settingVal := FSettings.AlternateRowColors;

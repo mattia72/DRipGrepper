@@ -159,6 +159,8 @@ begin
 		ini.UpdateFile;
 
 		FIniFile.ReadTempSectionFiles;
+//		Assert.IsTrue(not DirectoryExists(FIniFile.GetDripGrepperIniTempDir), ' temp dir should not exists');
+
 		for var j := 0 to 5 do begin
 			var
 			sj := j.ToString;

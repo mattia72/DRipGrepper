@@ -12,6 +12,7 @@ type
 			function GetTempFileName : string;
 
 		public
+			function GetDripGrepperIniTempDir : string;
 			function GetTempSectionFileName(_section : string) : string;
 			procedure ReadTempSectionFiles;
 			procedure ReloadIniFile;
@@ -26,16 +27,23 @@ uses
 
 	RipGrepper.Tools.DebugUtils;
 
+function TMemIniFileHelper.GetDripGrepperIniTempDir : string;
+begin
+	var
+	dirName := TPath.GetFileNameWithoutExtension(self.FileName) + ' Temp Files';
+	Result := TPath.Combine(TPath.GetTempPath, dirName);
+end;
+
 function TMemIniFileHelper.GetTempSectionFileName(_section : string) : string;
 begin
-	Result := TPath.Combine(TPath.GetTempPath,
+	Result := TPath.Combine(GetDripGrepperIniTempDir,
 		{ } TPath.GetFileNameWithoutExtension(self.FileName) + '_' + _section +
 		{ } TPath.GetExtension(self.FileName));
 end;
 
 function TMemIniFileHelper.GetTempFileName : string;
 begin
-	Result := TPath.Combine(TPath.GetTempPath,
+	Result := TPath.Combine(GetDripGrepperIniTempDir,
 		{ } TPath.GetFileNameWithoutExtension(self.FileName) +
 		{ } TPath.GetExtension(self.FileName));
 end;
@@ -71,6 +79,10 @@ begin
 			finally
 				tmpIniFile.Free;
 				TFile.Delete(tmpFile);
+				var tmpDir := GetDripGrepperIniTempDir;
+				if 0 = Length(TDirectory.GetFiles(tmpDir)) then begin
+					TDirectory.CreateDirectory(tmpDir);
+				end;
 			end;
 		end;
 	finally
@@ -105,6 +117,11 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TMemIniFileHelper.WriteTempSectionIni');
 
 	newFileName := GetTempSectionFileName(_sectionName);
+
+	var tmpDir := GetDripGrepperIniTempDir();
+	if not TDirectory.Exists(tmpDir) then begin
+		TDirectory.CreateDirectory(tmpDir);
+	end;
 
 	if TFile.Exists(newFileName) then begin
 		dbgMsg.Msg('Delete file: ' + newFileName);

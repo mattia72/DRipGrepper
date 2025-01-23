@@ -238,7 +238,8 @@ uses
 	Winapi.Windows,
 	RipGrepper.Settings.AppSettings,
 	RipGrepper.Settings.ExtensionSettings,
-	RipGrepper.CommandLine.OptionStrings;
+	RipGrepper.CommandLine.OptionStrings,
+	RipGrepper.Helper.MemIniFile;
 
 {$R *.dfm}
 
@@ -370,7 +371,7 @@ begin
 	// unittested from here
 	FSettings.RipGrepParameters.GuiSearchTextParams.Copy(FHistItemGuiSearchParams);
 	FSettings.StoreAsDefaultsToDict();
-	FSettings.UpdateIniFile;
+	FSettings.UpdateIniFile();
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionShowFileMaskHelpExecute(Sender : TObject);
@@ -452,7 +453,9 @@ begin
 		end;
 		dbgMsg.Msg('Store histories');
 		FSettings.StoreHistories();
-		FSettings.UpdateIniFile();
+		FSettings.SearchFormSettings.UpdateIniFile(FSettings.SearchFormSettings.IniSectionName); // create temp section
+		Fsettings.IniFile.ReadTempSectionFiles(); // read temp section
+		Fsettings.IniFile.UpdateFile;
 		dbgMsg.Msg('[SearchTextsHistory] Item 0:' + FSettings.IniFile.ReadString('SearchTextsHistory', 'Item_0', 'not exists'));
 	end;
 end;
@@ -1037,7 +1040,9 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadDefaultSettings');
 	FSettings.ReadIni;
-	FSettings.CopyDefaultsToValues;
+	// TODO option to load always defaults: FSettings.CopyDefaultsToValues;
+	// ELSE ...
+	FSettings.LoadFromDict;
 
 	// TODO set only if it was saved before!
 	SetCmbSearchPathText(IfThen(FSettings.RipGrepParameters.SearchPath.IsEmpty, cmbSearchDir.Text, FSettings.RipGrepParameters.SearchPath));
@@ -1126,7 +1131,6 @@ begin
 		end;
 	end else begin
 		LoadDefaultSettings;
-
 	end;
 end;
 
@@ -1313,7 +1317,7 @@ begin
 		rbExtensionOptions.Enabled := False;
 		rbExtensionOptions.Visible := False;
 		var
-		extensionSpace := rbExtensionOptions.Height; //GetFullHeight(rbExtensionOptions);
+		extensionSpace := rbExtensionOptions.Height; // GetFullHeight(rbExtensionOptions);
 		dbgMsg.Msg('extensionSpace=' + extensionSpace.ToString);
 
 		gbOptionsFilters.Height := FOptionsFiltersOrigHeight - extensionSpace;

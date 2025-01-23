@@ -20,6 +20,7 @@ type
 
 		public
 			class procedure CreateBackup(const fileName : string);
+			class procedure DeleteTempDirectory(const _dirNamePrefix : string);
 			class procedure EmptyFile(const _filePath : string);
 			class function FindExecutable(sFileName : string; out sOutpuPath : string) : Boolean;
 			class function FindFileInSubDirs(const _dir : string; const _file : string) : string;
@@ -50,7 +51,8 @@ uses
 	System.StrUtils,
 	RipGrepper.Helper.UI,
 	System.UITypes,
-	System.Generics.Defaults;
+	System.Generics.Defaults,
+	System.Math;
 
 procedure GetPackageNameInfoProc(const Name : string; NameType : TNameType; Flags : Byte; Param : Pointer);
 begin
@@ -65,6 +67,18 @@ var
 begin
 	backupFileName := fileName + FormatDateTime('.yyyymmddhhnn', Now) + BAK_FILE_EXTENSION;
 	CopyFile(PWideChar(fileName), PWideChar(backupFileName), true);
+end;
+
+class procedure TFileUtils.DeleteTempDirectory(const _dirNamePrefix : string);
+begin
+	var
+		tempDirs : TArrayEx<string> := TDirectory.GetDirectories(TPath.GetTempPath);
+	var
+		idxArr : TArrayEx<integer> := tempDirs.AllIndexOf(_dirNamePrefix,
+			TComparer<string>.Construct(
+			{}function(const Left, Right : string) : Integer
+			{}begin Result := IfThen(TRegEx.IsMatch(Left, Right),
+			0, 1); end));
 end;
 
 class procedure TFileUtils.EmptyFile(const _filePath : string);

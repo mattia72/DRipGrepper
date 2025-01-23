@@ -54,6 +54,8 @@ type
 			[Test]
 			procedure NodeLookSettingsTest;
 			[Test]
+			procedure ExtensionSettingsTest;
+			[Test]
 			procedure UpdateHistInIniTest;
 			[Test]
 			procedure UpdateShortCutsIniTest;
@@ -325,6 +327,8 @@ begin
 	Assert.IsTrue(FileExists(FSettings.IniFile.GetTempSectionFileName('NodeLookSettings')), 'temp ini should exist.');
 	{ 3 } FSettings.IniFile.ReadTempSectionFiles();
 
+	Assert.IsTrue(not DirectoryExists(FSettings.IniFile.GetDripGrepperIniTempDir), ' temp dir should not exists');
+
 	iniVal := FSettings.IniFile.ReadString(FSettings.NodeLookSettings.IniSectionName, 'AlternateRowColors', 'False');
 	settingVal := FSettings.NodeLookSettings.AlternateRowColors;
 	Assert.AreEqual(settingVal, iniVal = '1', 'AlternateRowColors should be equal');
@@ -340,6 +344,44 @@ begin
 	iniVal := FSettings.IniFile.ReadString(FSettings.NodeLookSettings.IniSectionName, 'ExpandNodes', 'False');
 	settingVal := FSettings.NodeLookSettings.ExpandNodes;
 	Assert.AreEqual(settingVal, iniVal = '1', 'ExpandNodes should be equal');
+end;
+
+procedure TRipGrepperSettingsTest.ExtensionSettingsTest;
+var
+	iniVal : string;
+	settingVal : Boolean;
+begin
+	SetTestDefaultAndActualValues;
+
+	// TRipGrepperSettings.???? tested here
+	{ 1 } //FSettings.SearchFormSettings.ExtensionSettings;
+	for var s in VIEW_SETTINGS_TYPES do begin
+		var val:string := FSettings.SearchFormSettings.ExtensionSettings.SettingsDict['DelphiExtensionSettings|' + s].Value;
+		Assert.IsTrue(val <> '' , 'DelphiExtensionSettings|' + s + ' should be true');
+	end;
+
+//	{ 2 } FSettings.NodeLookSettings.UpdateIniFile(FSettings.NodeLookSettings.IniSectionName); // create temp ini
+//
+//	Assert.IsTrue(FileExists(FSettings.IniFile.GetTempSectionFileName('NodeLookSettings')), 'temp ini should exist.');
+//	{ 3 } FSettings.IniFile.ReadTempSectionFiles();
+//
+//	Assert.IsTrue(not DirectoryExists(FSettings.IniFile.GetDripGrepperIniTempDir), ' temp dir should not exists');
+//
+//	iniVal := FSettings.IniFile.ReadString(FSettings.NodeLookSettings.IniSectionName, 'AlternateRowColors', 'False');
+//	settingVal := FSettings.NodeLookSettings.AlternateRowColors;
+//	Assert.AreEqual(settingVal, iniVal = '1', 'AlternateRowColors should be equal');
+//
+//	iniVal := FSettings.IniFile.ReadString(FSettings.NodeLookSettings.IniSectionName, 'IndentLines', 'False');
+//	settingVal := FSettings.NodeLookSettings.IndentLines;
+//	Assert.AreEqual(settingVal, iniVal = '1', 'IndentLines should be equal');
+//
+//	iniVal := FSettings.IniFile.ReadString(FSettings.NodeLookSettings.IniSectionName, 'ShowRelativePath', 'False');
+//	settingVal := FSettings.NodeLookSettings.ShowRelativePath;
+//	Assert.AreEqual(settingVal, iniVal = '1', 'ShowRelativePath should be equal');
+//
+//	iniVal := FSettings.IniFile.ReadString(FSettings.NodeLookSettings.IniSectionName, 'ExpandNodes', 'False');
+//	settingVal := FSettings.NodeLookSettings.ExpandNodes;
+//	Assert.AreEqual(settingVal, iniVal = '1', 'ExpandNodes should be equal');
 end;
 
 procedure TRipGrepperSettingsTest.UpdateIniTest;
