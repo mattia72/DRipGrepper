@@ -59,7 +59,7 @@ type
 			FIsModified : Boolean;
 			class var FLockObject : TObject;
 
-			procedure CopySettingsDictSection(const _other : TPersistableSettings);
+			procedure CopySettingsDictSection(const _other : TPersistableSettings; const _copyAllSections : Boolean = False);
 			function GetIsAlreadyRead : Boolean; virtual;
 			function GetIsModified : Boolean; virtual;
 			/// <summary>TPersistableSettings.Init
@@ -231,10 +231,10 @@ begin
 	LoadDefaultsFromDict();
 end;
 
-procedure TPersistableSettings.CopySettingsDictSection(const _other : TPersistableSettings);
+procedure TPersistableSettings.CopySettingsDictSection(const _other : TPersistableSettings; const _copyAllSections : Boolean = False);
 begin
 	for var key in _other.SettingsDict.Keys do begin
-		if key.StartsWith(IniSectionName) then begin
+		if _copyAllSections or key.StartsWith(IniSectionName) then begin
 			FSettingsDict.AddOrChange(key, _other.SettingsDict[key]);
 		end;
 	end;
@@ -504,7 +504,7 @@ begin
 	end;
 
 	if Assigned(FOwner) and (_section = '') then begin
-		FOwner.CopySettingsDictSection(self);
+		FOwner.CopySettingsDictSection(self, True);
 		FOwner.WriteSettingsDictToIni(EWriteSettingsMode.wsmAll);
 		Exit;
 	end;
