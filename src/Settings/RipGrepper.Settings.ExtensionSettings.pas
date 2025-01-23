@@ -146,7 +146,7 @@ begin
 	if IsModified then begin
 		dbgMsg.Msg('Update ini file with shortcuts');
 		StoreToDict();
-		UpdateIniFile(IniSectionName); // TODO only Shortcuts!
+		UpdateIniFile(IniSectionName); // create temp ini
 	end;
 
 	dbgMsg.Msg(ToLogString());
