@@ -20,6 +20,7 @@ type
 
 		public
 			class procedure CreateBackup(const fileName : string);
+			class procedure EmptyFile(const _filePath : string);
 			class function FindExecutable(sFileName : string; out sOutpuPath : string) : Boolean;
 			class function FindFileInSubDirs(const _dir : string; const _file : string) : string;
 			class function GetAppName(const _exePath : string) : string;
@@ -64,6 +65,15 @@ var
 begin
 	backupFileName := fileName + FormatDateTime('.yyyymmddhhnn', Now) + BAK_FILE_EXTENSION;
 	CopyFile(PWideChar(fileName), PWideChar(backupFileName), true);
+end;
+
+class procedure TFileUtils.EmptyFile(const _filePath : string);
+var
+	txtFile : TextFile;
+begin
+	AssignFile(txtFile, _filePath);
+	Rewrite(txtFile);
+	CloseFile(txtFile);
 end;
 
 class function TFileUtils.FindExecutable(sFileName : string; out sOutpuPath : string) : Boolean;

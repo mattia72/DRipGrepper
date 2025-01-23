@@ -5,7 +5,8 @@ interface
 uses
 	System.IniFiles,
 	DUnitX.TestFramework,
-	RipGrepper.Helper.MemIniFile;
+	RipGrepper.Helper.MemIniFile,
+	System.Classes;
 
 const
 	MEMINIFILEHELPERTEST_INI = 'MemIniFileHelperTest.ini';
@@ -21,6 +22,7 @@ type
 
 		private
 			FIniFile : TMemIniFile;
+			FSectionValues : TStringList;
 			procedure AsserIniReads(_ini : TMemIniFile);
 			procedure CreateIniFileWithValues(const sFileName : string);
 
@@ -97,7 +99,8 @@ begin
 
 	var
 	section := 'section2';
-	FIniFile.WriteTempSectionIni(section);
+	FIniFile.ReadSectionValues(section, FSectionValues);
+	FIniFile.WriteTempSectionIni(section, FSectionValues);
 	var
 	newFile := FIniFile.GetTempSectionFileName(section);
 	Assert.IsTrue(TFile.Exists(newFile));
@@ -121,6 +124,8 @@ procedure TMemIniFileHelperTest.Setup;
 begin
 	CreateIniFileWithValues(MEMINIFILEHELPERTEST_INI);
 	FIniFile := TMemIniFile.Create(MEMINIFILEHELPERTEST_INI, TEncoding.UTF8);
+	FSectionValues := TStringList.Create();
+
 end;
 
 procedure TMemIniFileHelperTest.TearDown;
@@ -129,6 +134,7 @@ begin
 	sFileName := FIniFile.FileName;
 	FIniFile.Free;
 	TFile.Delete(sFileName);
+	FSectionValues.Free;
 end;
 
 procedure TMemIniFileHelperTest.ReadTempSectionIniTest;
@@ -138,7 +144,8 @@ begin
 
 	var
 	section := 'section2';
-	FIniFile.WriteTempSectionIni(section);
+	FIniFile.ReadSectionValues(section, FSectionValues);
+	FIniFile.WriteTempSectionIni(section, FSectionValues);
 	var
 	newFile := FIniFile.GetTempSectionFileName(section);
 
@@ -165,7 +172,8 @@ end;
 
 function TMemIniHack.GetPrivateFunction : string;
 begin
-	var Method : TRttiMethod := TRttiContext.Create.GetType(TMemIniFile).GetMethod('GetTempFileName');
+	var
+		Method : TRttiMethod := TRttiContext.Create.GetType(TMemIniFile).GetMethod('GetTempFileName');
 	Result := Method.Invoke(self, []).AsString;
 end;
 

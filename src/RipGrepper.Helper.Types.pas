@@ -63,6 +63,18 @@ type
 		class function EnumerationToString(x : T) : string; static;
 	end;
 
+	TAutoDeleteTempFile = record
+
+		private
+			FFilePath : string;
+			function GetFilePath : string;
+
+		public
+			class operator Finalize(var Dest : TAutoDeleteTempFile);
+			class operator Initialize(out Dest : TAutoDeleteTempFile);
+			property FilePath : string read GetFilePath;
+	end;
+
 function GetElapsedTime(const _swStart : TStopwatch) : string;
 
 function PostInc(var Value : Integer; const n : Integer = 1) : Integer;
@@ -76,7 +88,8 @@ uses
 	RipGrepper.Common.Constants,
 	Winapi.Windows,
 	System.TypInfo,
-	System.Rtti;
+	System.Rtti,
+	System.IOUtils;
 
 function PostInc(var Value : Integer; const n : Integer = 1) : Integer;
 begin
@@ -380,6 +393,26 @@ begin
 		4 :
 		Result := GetEnumName(TypeInfo(T), PCardinal(@x)^);
 	end;
+end;
+
+function TAutoDeleteTempFile.GetFilePath : string;
+begin
+	if FFilePath.IsEmpty then begin
+		FFilePath := TPath.GetTempFileName();
+	end;
+	Result := FFilePath;
+end;
+
+class operator TAutoDeleteTempFile.Finalize(var Dest : TAutoDeleteTempFile);
+begin
+	if TFile.Exists(Dest.FFilePath) then begin
+		TFile.Delete(Dest.FFilePath);
+	end;
+end;
+
+class operator TAutoDeleteTempFile.Initialize(out Dest : TAutoDeleteTempFile);
+begin
+	Dest.FFilePath := '';
 end;
 
 end.

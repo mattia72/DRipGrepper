@@ -5,17 +5,19 @@ interface
 uses
 	RipGrepper.Settings.Persistable,
 	System.IniFiles,
-	RipGrepper.Settings.NodeLook.FilterSettings;
+	RipGrepper.Settings.NodeLook.FilterSettings,
+	System.Generics.Collections;
+
+const
+	VIEW_SETTINGS_TYPES : TArray<string> = [
+	{ } 'ShowRelativePath',
+	{ } 'ShowFileIcon',
+	{ } 'AlternateRowColors',
+	{ } 'IndentLines',
+	{ } 'ExpandNodes'];
 
 type
 	TNodeLookSettings = class(TPersistableSettings)
-		const
-			VIEW_SETTINGS : array [0 .. 4] of string = (
-				{ } 'ShowRelativePath',
-				{ } 'ShowFileIcon',
-				{ } 'AlternateRowColors',
-				{ } 'IndentLines',
-				{ } 'ExpandNodes');
 
 		const
 			INI_SECTION = 'NodeLookSettings';
@@ -109,11 +111,12 @@ end;
 procedure TNodeLookSettings.StoreToDict;
 begin
 	StoreViewSettingToDict();
-	FFilterSettings.StoreToDict();
 	inherited StoreToDict();
 end;
 
 procedure TNodeLookSettings.StoreViewSettingToDict(const _s : string = '');
+const
+	FILTER_SETTINGS = 'FilterSettings';
 var
 	i : integer;
 begin
@@ -121,21 +124,23 @@ begin
 	i := 0;
 	if _s.IsEmpty then begin
 		// StoreToDict all
-		for i := 0 to high(VIEW_SETTINGS) do begin
-			StoreViewSettingToDict(VIEW_SETTINGS[i]);
+		var
+		allSettingTypes := VIEW_SETTINGS_TYPES + [FILTER_SETTINGS];
+		for i := 0 to high(allSettingTypes) do begin
+			StoreViewSettingToDict(allSettingTypes[i]);
 		end;
-	end else if MatchStr(_s, VIEW_SETTINGS[i]) then begin
-		SettingsDict.SetSettingValue(VIEW_SETTINGS[i], ShowRelativePath);
-	end else if MatchStr(_s, VIEW_SETTINGS[PreInc(i)]) then begin
-		SettingsDict.SetSettingValue(VIEW_SETTINGS[i], ShowFileIcon);
-	end else if MatchStr(_s, VIEW_SETTINGS[PreInc(i)]) then begin
-		SettingsDict.SetSettingValue(VIEW_SETTINGS[i], AlternateRowColors);
-	end else if MatchStr(_s, VIEW_SETTINGS[PreInc(i)]) then begin
-		SettingsDict.SetSettingValue(VIEW_SETTINGS[i], IndentLines);
-	end else if MatchStr(_s, VIEW_SETTINGS[PreInc(i)]) then begin
-		SettingsDict.SetSettingValue(VIEW_SETTINGS[i], ExpandNodes);
-	end else begin
-		FilterSettings.StoreViewSettingToDict(_s);
+	end else if MatchStr(_s, VIEW_SETTINGS_TYPES[i]) then begin
+		SettingsDict.SetSettingValue(VIEW_SETTINGS_TYPES[i], ShowRelativePath);
+	end else if MatchStr(_s, VIEW_SETTINGS_TYPES[PreInc(i)]) then begin
+		SettingsDict.SetSettingValue(VIEW_SETTINGS_TYPES[i], ShowFileIcon);
+	end else if MatchStr(_s, VIEW_SETTINGS_TYPES[PreInc(i)]) then begin
+		SettingsDict.SetSettingValue(VIEW_SETTINGS_TYPES[i], AlternateRowColors);
+	end else if MatchStr(_s, VIEW_SETTINGS_TYPES[PreInc(i)]) then begin
+		SettingsDict.SetSettingValue(VIEW_SETTINGS_TYPES[i], IndentLines);
+	end else if MatchStr(_s, VIEW_SETTINGS_TYPES[PreInc(i)]) then begin
+		SettingsDict.SetSettingValue(VIEW_SETTINGS_TYPES[i], ExpandNodes);
+	end else if _s = FILTER_SETTINGS then begin
+		FilterSettings.StoreViewSettingToDict();
 	end;
 end;
 
