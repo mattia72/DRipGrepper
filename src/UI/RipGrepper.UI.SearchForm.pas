@@ -1313,7 +1313,7 @@ begin
 		rbExtensionOptions.Enabled := False;
 		rbExtensionOptions.Visible := False;
 		var
-		extensionSpace := GetFullHeight(rbExtensionOptions);
+		extensionSpace := rbExtensionOptions.Height; //GetFullHeight(rbExtensionOptions);
 		dbgMsg.Msg('extensionSpace=' + extensionSpace.ToString);
 
 		gbOptionsFilters.Height := FOptionsFiltersOrigHeight - extensionSpace;
