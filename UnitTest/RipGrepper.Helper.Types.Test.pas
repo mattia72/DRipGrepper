@@ -57,6 +57,14 @@ type
 	end;
 
 	[TestFixture]
+	TFileUtilsTest = class
+
+		public
+			[Test]
+			procedure DeleteDirTest;
+	end;
+
+	[TestFixture]
 	TMultiLineStringTest = class
 
 		public
@@ -79,7 +87,9 @@ uses
 	System.StrUtils,
 	System.SysUtils,
 	System.Math,
-	ArrayEx;
+	ArrayEx, 
+	System.IOUtils, 
+	RipGrepper.Tools.FileUtils;
 
 procedure TStringsHelperTest.Setup;
 begin
@@ -292,10 +302,28 @@ begin
 	Assert.AreEqual(str.GetLineCount(), _count, '"' + str + '" line count should be ' + _count.ToString);
 end;
 
+procedure TFileUtilsTest.DeleteDirTest;
+begin
+	var tmpDir := TPath.GetTempPath;
+	var tmpDir1 := tmpDir + '\unittest_tmpdir_01';
+	var tmpDir2 := tmpDir + '\unittest_tmpdir_02';
+	var tmpDir3 := tmpDir + '\unittest_tmpdir_03';
+	TDirectory.CreateDirectory(tmpDir1);
+	TDirectory.CreateDirectory(tmpDir2);
+	TDirectory.CreateDirectory(tmpDir3);
+
+	TFileUtils.DeleteTempDirectory('unittest_tmpdir');
+
+	Assert.IsFalse(TDirectory.Exists(tmpDir1), 'Directory shouldn''t exists.');
+	Assert.IsFalse(TDirectory.Exists(tmpDir2), 'Directory shouldn''t exists.');
+	Assert.IsFalse(TDirectory.Exists(tmpDir3), 'Directory shouldn''t exists.');
+end;
+
 initialization
 
 TDUnitX.RegisterTestFixture(TStringsHelperTest);
 TDUnitX.RegisterTestFixture(TBitFieldTest);
+TDUnitX.RegisterTestFixture(TFileUtilsTest);
 TDUnitX.RegisterTestFixture(TMultiLineStringTest);
 
 end.
