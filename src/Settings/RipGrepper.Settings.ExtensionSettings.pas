@@ -211,7 +211,7 @@ end;
 
 function TRipGrepperExtensionSettings.ToLogString : string;
 begin
-	Result := Format('OpenWithShortCut=%s, ShortCut=%s, CurrentIDEContext=[%s]', [OpenWithShortCut, SearchSelectedShortcut,
+	Result := Format('OpenWithShortCut=%s, SearchSelectedShortCut=%s, IDEContext=%s', [OpenWithShortCut, SearchSelectedShortcut,
 		CurrentIDEContext.ToLogString]);
 end;
 

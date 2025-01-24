@@ -81,7 +81,7 @@ begin
 				TFile.Delete(tmpFile);
 				var tmpDir := GetDripGrepperIniTempDir;
 				if 0 = Length(TDirectory.GetFiles(tmpDir)) then begin
-					TDirectory.CreateDirectory(tmpDir);
+					TDirectory.Delete(tmpDir);
 				end;
 			end;
 		end;
