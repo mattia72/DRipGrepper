@@ -215,6 +215,7 @@ end;
 procedure TSettingsDictionary.GetSettingsSectionValues(const _sectionName : string; var _sectionValues : TStringList);
 var
 	setting : ISettingVariant;
+	settingSection : string;
 	settingName : string;
 	tmpIni : TMemIniFile;
 	tmpFile : TAutoDeleteTempFile;
@@ -226,10 +227,12 @@ begin
 	tmpIni := TMemIniFile.Create(tmpFile.FilePath);
 	try
 		for var key in Keys do begin
-			settingName := key.Split([ARRAY_SEPARATOR])[1];
+			var arr := key.Split([ARRAY_SEPARATOR]);
+			settingSection := arr[0];
+			settingName := arr[1];
 			setting := self[key];
-			dbgMsg.MsgFmt('Write [%s] %s', [_sectionName, settingName]);
-			setting.WriteToMemIni(tmpIni, _sectionName, settingName);
+			dbgMsg.MsgFmt('Write [%s] %s', [settingSection, settingName]);
+			setting.WriteToMemIni(tmpIni, settingSection, settingName);
 		end;
 		tmpIni.ReadSectionValues(_sectionName, _sectionValues);
 	finally
