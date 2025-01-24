@@ -114,6 +114,7 @@ begin
 			setting := TSettingVariant.Create(_v); // ISettingVariant
 			self.Add(sKey, setting);
 		end else begin
+        	setting.IsModified := True;
 			self.AddOrChange(sKey, setting);
 		end;
 	end;

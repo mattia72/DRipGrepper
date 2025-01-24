@@ -67,7 +67,6 @@ type
 			function GetIniSectionName : string; virtual;
 			procedure InnerLoadDefaultsFromDict; virtual;
 			function ToLogString : string; virtual;
-			procedure WriteSettingsDictToIni(const _wsm : EWriteSettingsMode; const _section : string = '');
 
 		public
 			constructor Create(const _Owner : TPersistableSettings); overload;
@@ -111,6 +110,7 @@ type
 			// Thread safe write Settings to ini file
 			// </summary>
 			procedure UpdateIniFile(const _section : string = '');
+			procedure WriteSettingsDictToIni(const _wsm : EWriteSettingsMode; const _section : string = '');
 	end;
 
 implementation
@@ -503,7 +503,7 @@ begin
 		s.UpdateIniFile(_section);
 	end;
 
-	if Assigned(FOwner) and (_section = '') then begin
+	if Assigned(FOwner) { and (_section = '') } then begin
 		FOwner.CopySettingsDictSection(self, True);
 		FOwner.WriteSettingsDictToIni(EWriteSettingsMode.wsmAll);
 		Exit;

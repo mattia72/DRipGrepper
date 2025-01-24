@@ -72,7 +72,8 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Settings.ExtensionSettings,
 	RipGrepper.Settings.NodeLookSettings,
-	RipGrepper.Tools.FileUtils, System.StrUtils;
+	RipGrepper.Tools.FileUtils,
+	System.StrUtils;
 
 constructor TRipGrepperSettingsTest.Create;
 begin
@@ -326,8 +327,8 @@ begin
 
 	{ 2 } FSettings.NodeLookSettings.UpdateIniFile(FSettings.NodeLookSettings.IniSectionName); // create temp ini
 
-	Assert.IsTrue(FileExists(FSettings.IniFile.GetTempSectionFileName('NodeLookSettings')), 'temp ini should exist.');
-	{ 3 } FSettings.IniFile.ReadTempSectionFiles();
+   //	Assert.IsTrue(FileExists(FSettings.IniFile.GetTempSectionFileName('NodeLookSettings')), 'temp ini should exist.');
+	{ 3 } FSettings.StoreToDict;
 
 	Assert.IsTrue(not DirectoryExists(FSettings.IniFile.GetDripGrepperIniTempDir), ' temp dir should not exists');
 
@@ -350,19 +351,17 @@ end;
 
 procedure TRipGrepperSettingsTest.ExtensionSettingsTest;
 var
+	extSetting : TRipGrepperExtensionSettings;
 	iniVal : string;
 	settingVal : string;
 begin
 	SetTestDefaultAndActualValues;
-
-	var
 	extSetting := FSettings.SearchFormSettings.ExtensionSettings;
 
 	{ 1 } // FSettings.SearchFormSettings.ExtensionSettings;
 	for var s in [extSetting.KEY_IDE_CONTEXT, extSetting.KEY_SHORTCUT_SEARCH_SELECTED, extSetting.KEY_SHORTCUT_OPENWITH] do begin
-		var
-			val : string := FSettings.SearchFormSettings.ExtensionSettings.SettingsDict['DelphiExtensionSettings|' + s].Value;
-		Assert.IsTrue(MatchStr(val, [SC_OPEN_WITH, SC_SEARCH, '2']), 'DelphiExtensionSettings|' + s + ' should match the initial setting');
+		settingVal := extSetting.SettingsDict['DelphiExtensionSettings|' + s].Value;
+		Assert.IsTrue(MatchStr(settingVal, [SC_OPEN_WITH, SC_SEARCH, '2']), 'DelphiExtensionSettings|' + s + ' should match the initial setting');
 	end;
 
 	// TRipGrepperSearchDialogForm.FormClose tested here

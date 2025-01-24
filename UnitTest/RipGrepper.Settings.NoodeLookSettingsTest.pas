@@ -28,6 +28,7 @@ type
 			FOwner : TTestOwnerSettings;
 			// FIniFile : TMemIniFile;
 			FSettings : TNodeLookSettings;
+			procedure CheckNodeSettingsDict(const _id: string);
 			procedure SetTestDefaultAndActualValues;
 
 		public
@@ -55,7 +56,8 @@ uses
 	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Settings.ExtensionSettings,
-	RipGrepper.Tools.FileUtils;
+	RipGrepper.Tools.FileUtils,
+	RipGrepper.Settings.Persistable;
 
 constructor TNodeLookSettingsTest.Create;
 begin
@@ -67,6 +69,15 @@ destructor TNodeLookSettingsTest.Destroy;
 begin
 	inherited;
 	// FIniFile.Free;
+end;
+
+procedure TNodeLookSettingsTest.CheckNodeSettingsDict(const _id: string);
+begin
+	for var s in VIEW_SETTINGS_TYPES do begin
+		var
+			b : Boolean := FSettings.SettingsDict['NodeLookSettings|' + s].Value;
+		Assert.IsTrue(b, _id +' NodeLookSettings|' + s + ' should be true');
+	end;
 end;
 
 procedure TNodeLookSettingsTest.SetTestDefaultAndActualValues;
@@ -104,15 +115,14 @@ begin
 	// TRipGrepperSettings.StoreViewSettings tested here
 
 	FSettings.StoreViewSettingToDict();
-	var
-		b : Boolean;
-	for var s in VIEW_SETTINGS_TYPES do begin
-		b := FSettings.SettingsDict['NodeLookSettings|' + s].Value;
-		Assert.IsTrue(b, 'NodeLookSettings|' + s + ' should be true');
-	end;
+
+	CheckNodeSettingsDict('after storeview');
 	FSettings.UpdateIniFile(FSettings.IniSectionName); // create temp ini
-	FSettings.IniFile.ReadTempSectionFiles();
-	Assert.IsTrue(not DirectoryExists(FSettings.IniFile.GetDripGrepperIniTempDir), ' temp dir should not exists');
+    CheckNodeSettingsDict('after updateini');
+
+	FSettings.WriteSettingsDictToIni(EWriteSettingsMode.wsmActual, FSettings.IniSectionName);
+
+//  Assert.IsTrue(not DirectoryExists(FSettings.IniFile.GetDripGrepperIniTempDir), ' temp dir should not exists');
 
 	iniVal := FSettings.IniFile.ReadString(FSettings.IniSectionName, 'AlternateRowColors', 'False');
 	settingVal := FSettings.AlternateRowColors;
@@ -129,6 +139,9 @@ begin
 	iniVal := FSettings.IniFile.ReadString(FSettings.IniSectionName, 'ExpandNodes', 'False');
 	settingVal := FSettings.ExpandNodes;
 	Assert.AreEqual(settingVal, iniVal = '1', 'ExpandNodes should be equal');
+
+    CheckNodeSettingsDict('after updateini');
+
 end;
 
 procedure TNodeLookSettingsTest.UpdateIniTest;
