@@ -87,9 +87,9 @@ procedure TRipGrepperExtensionSettings.Init;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.Init');
-	SettingsDict.CreateSetting('SearchSelectedShortcut', vtString, TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH);
-	SettingsDict.CreateSetting('OpenWithShortCut', vtString, TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH);
-	SettingsDict.CreateDefaultRelevantSetting(KEY_IDE_CONTEXT, vtInteger, EXT_SEARCH_GIVEN_PATH);
+	SettingsDict.CreateSetting('SearchSelectedShortcut', varString, TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH);
+	SettingsDict.CreateSetting('OpenWithShortCut', varString, TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH);
+	SettingsDict.CreateDefaultRelevantSetting(KEY_IDE_CONTEXT, varInteger, EXT_SEARCH_GIVEN_PATH);
 end;
 
 procedure TRipGrepperExtensionSettings.ReadIni;

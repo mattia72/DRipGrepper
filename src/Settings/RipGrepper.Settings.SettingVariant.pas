@@ -216,7 +216,9 @@ begin
 				end;
 			end
 			else
-			raise ESettingsException.Create('Settings Type not supported:' + VarTypeAsText(self.ValueType));
+            // var and vtTypes are not the same!!!
+			raise ESettingsException.Create('Settings Type not supported: ' +
+            	{} VarTypeAsText(VarType(self.ValueType)));
 		end;
 	except
 		on E : Exception do

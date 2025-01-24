@@ -121,7 +121,7 @@ end;
 
 procedure TTestSettings.Init;
 begin
-	SettingsDict.CreateDefaultRelevantSetting('StrSetting', vtString, INITIAL_STR_VALUE);
+	SettingsDict.CreateDefaultRelevantSetting('StrSetting', varString, INITIAL_STR_VALUE);
 end;
 
 procedure TTestSettings.ReadIni;
