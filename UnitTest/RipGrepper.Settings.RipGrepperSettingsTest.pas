@@ -13,6 +13,7 @@ uses
 const
 	NOTEXISTS = '<not exists>';
 	SC_OPEN_WITH = 'SHIFT + F2';
+	SC_SEARCH = 'CTRL + F2';
 	ACT_HIST_VAL = 'hist 2';
 
 type
@@ -71,7 +72,7 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Settings.ExtensionSettings,
 	RipGrepper.Settings.NodeLookSettings,
-	RipGrepper.Tools.FileUtils;
+	RipGrepper.Tools.FileUtils, System.StrUtils;
 
 constructor TRipGrepperSettingsTest.Create;
 begin
@@ -282,13 +283,14 @@ begin
 	FSettings.NodeLookSettings.ShowRelativePath := True;
 	FSettings.NodeLookSettings.ExpandNodes := True;
 
+	FSettings.SearchFormSettings.ExtensionSettings.OpenWithShortCut := SC_OPEN_WITH;
+	FSettings.SearchFormSettings.ExtensionSettings.SearchSelectedShortcut := SC_SEARCH;
 	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext :=
 	{ } TRipGrepperExtensionContext.FromString('2', 'active project', 'active file');
 
 	for var s in ['hist 0', 'hist 1', ACT_HIST_VAL] do
 		FTextHist.Add(s);
 
-	FSettings.SearchFormSettings.ExtensionSettings.OpenWithShortCut := SC_OPEN_WITH;
 	FSettings.SearchTextsHistory := FTextHist;
 	FSettings.StoreToDict;
 end;
@@ -355,17 +357,22 @@ begin
 
 	var
 	extSetting := FSettings.SearchFormSettings.ExtensionSettings;
-	// TRipGrepperSettings.???? tested here
+
 	{ 1 } // FSettings.SearchFormSettings.ExtensionSettings;
 	for var s in [extSetting.KEY_IDE_CONTEXT, extSetting.KEY_SHORTCUT_SEARCH_SELECTED, extSetting.KEY_SHORTCUT_OPENWITH] do begin
 		var
 			val : string := FSettings.SearchFormSettings.ExtensionSettings.SettingsDict['DelphiExtensionSettings|' + s].Value;
-		Assert.IsTrue(val <> '', 'DelphiExtensionSettings|' + s + ' should be true');
+		Assert.IsTrue(MatchStr(val, [SC_OPEN_WITH, SC_SEARCH, '2']), 'DelphiExtensionSettings|' + s + ' should match the initial setting');
 	end;
+
+	// TRipGrepperSearchDialogForm.FormClose tested here
+	FSettings.SearchFormSettings.UpdateIniFile(FSettings.SearchFormSettings.IniSectionName); // create temp section
+	Fsettings.IniFile.ReadTempSectionFiles(); // read temp section
+	Fsettings.IniFile.UpdateFile;
 
 	iniVal := FSettings.IniFile.ReadString(extSetting.INI_SECTION, extSetting.KEY_IDE_CONTEXT, '');
 	settingVal := IntToStr(Integer(FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext.IDEContext));
-	Assert.AreEqual(settingVal.Trim(['[', ']']), iniVal.Trim(['[', ']']), 'CurrentIDEContext should be equal');
+	Assert.AreEqual(settingVal.Trim(['[', ']']), iniVal.Trim(['[', ']']), extSetting.KEY_IDE_CONTEXT + ' should be equal');
 
 	iniVal := FSettings.IniFile.ReadString(extSetting.INI_SECTION, extSetting.KEY_SHORTCUT_SEARCH_SELECTED, '');
 	settingVal := FSettings.SearchFormSettings.ExtensionSettings.SearchSelectedShortcut;

@@ -20,7 +20,7 @@ type
 
 		public
 			class procedure CreateBackup(const fileName : string);
-			class procedure DeleteTempDirectory(const _dirNameRegex: string);
+			class procedure DeleteTempDirectory(const _dirNameRegex: string; const _bForce: Boolean = False);
 			class procedure EmptyFile(const _filePath : string);
 			class function FindExecutable(sFileName : string; out sOutpuPath : string) : Boolean;
 			class function FindFileInSubDirs(const _dir : string; const _file : string) : string;
@@ -69,7 +69,7 @@ begin
 	CopyFile(PWideChar(fileName), PWideChar(backupFileName), true);
 end;
 
-class procedure TFileUtils.DeleteTempDirectory(const _dirNameRegex: string);
+class procedure TFileUtils.DeleteTempDirectory(const _dirNameRegex: string; const _bForce: Boolean = False);
 begin
 	var
 		tempDirs : TArrayEx<string> := TDirectory.GetDirectories(TPath.GetTempPath);
@@ -82,7 +82,7 @@ begin
 
 	for var i in idxArr do begin
 		TDebugUtils.DebugMessage('TFileUtils.DeleteTempDirectory: path:' + tempDirs[i]);
-		TDirectory.Delete(tempDirs[i]);
+		TDirectory.Delete(tempDirs[i], _bForce);
 	end;
 end;
 
