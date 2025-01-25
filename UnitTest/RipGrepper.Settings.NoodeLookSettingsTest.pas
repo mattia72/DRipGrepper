@@ -28,7 +28,7 @@ type
 			FOwner : TTestOwnerSettings;
 			// FIniFile : TMemIniFile;
 			FSettings : TNodeLookSettings;
-			procedure CheckNodeSettingsDict(const _id: string);
+			procedure CheckNodeSettingsDict(const _id : string);
 			procedure SetTestDefaultAndActualValues;
 
 		public
@@ -71,12 +71,12 @@ begin
 	// FIniFile.Free;
 end;
 
-procedure TNodeLookSettingsTest.CheckNodeSettingsDict(const _id: string);
+procedure TNodeLookSettingsTest.CheckNodeSettingsDict(const _id : string);
 begin
 	for var s in VIEW_SETTINGS_TYPES do begin
 		var
 			b : Boolean := FSettings.SettingsDict['NodeLookSettings|' + s].Value;
-		Assert.IsTrue(b, _id +' NodeLookSettings|' + s + ' should be true');
+		Assert.IsTrue(b, _id + ' NodeLookSettings|' + s + ' should be true');
 	end;
 end;
 
@@ -114,15 +114,15 @@ begin
 
 	// TRipGrepperSettings.StoreViewSettings tested here
 
-	FSettings.StoreViewSettingToDict();
+	{ 1 } FSettings.StoreViewSettingToDict();
 
 	CheckNodeSettingsDict('after storeview');
-	FSettings.UpdateIniFile(FSettings.IniSectionName); // create temp ini
-    CheckNodeSettingsDict('after updateini');
+	{ 2 } FSettings.UpdateIniFile(FSettings.IniSectionName); // create temp ini
+	CheckNodeSettingsDict('after updateini');
 
-	FSettings.WriteSettingsDictToIni(EWriteSettingsMode.wsmActual, FSettings.IniSectionName);
+	{ 3 } FSettings.WriteSettingsDictToIni(EWriteSettingsMode.wsmActual, FSettings.IniSectionName);
 
-//  Assert.IsTrue(not DirectoryExists(FSettings.IniFile.GetDripGrepperIniTempDir), ' temp dir should not exists');
+	// Assert.IsTrue(not DirectoryExists(FSettings.IniFile.GetDripGrepperIniTempDir), ' temp dir should not exists');
 
 	iniVal := FSettings.IniFile.ReadString(FSettings.IniSectionName, 'AlternateRowColors', 'False');
 	settingVal := FSettings.AlternateRowColors;
@@ -140,7 +140,7 @@ begin
 	settingVal := FSettings.ExpandNodes;
 	Assert.AreEqual(settingVal, iniVal = '1', 'ExpandNodes should be equal');
 
-    CheckNodeSettingsDict('after updateini');
+	CheckNodeSettingsDict('after updateini');
 
 end;
 

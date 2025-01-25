@@ -408,7 +408,7 @@ procedure TRipGrepperSettings.StoreViewSettings(const _s : string = '');
 begin
 	NodeLookSettings.StoreViewSettingToDict(_s);
 	NodeLookSettings.UpdateIniFile(NodeLookSettings.IniSectionName); // create temp section
-	IniFile.ReadTempSectionFiles(); // read temp section
+	NodeLookSettings.WriteSettingsDictToIni(EWriteSettingsMode.wsmActual, NodeLookSettings.IniSectionName);
 	IniFile.UpdateFile;
 end;
 

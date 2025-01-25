@@ -366,7 +366,7 @@ begin
 
 	// TRipGrepperSearchDialogForm.FormClose tested here
 	FSettings.SearchFormSettings.UpdateIniFile(FSettings.SearchFormSettings.IniSectionName); // create temp section
-	Fsettings.IniFile.ReadTempSectionFiles(); // read temp section
+	//Fsettings.IniFile.ReadTempSectionFiles(); // read temp section
 	Fsettings.IniFile.UpdateFile;
 
 	iniVal := FSettings.IniFile.ReadString(extSetting.INI_SECTION, extSetting.KEY_IDE_CONTEXT, '');
