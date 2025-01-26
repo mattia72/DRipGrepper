@@ -20,7 +20,7 @@ type
 
 		public
 			class procedure CreateBackup(const fileName : string);
-			class procedure DeleteTempDirectory(const _dirNameRegex: string; const _bForce: Boolean = False);
+			class procedure DeleteTempDirectory(const _dirPattern : string; const _bForce : Boolean = False);
 			class procedure EmptyFile(const _filePath : string);
 			class function FindExecutable(sFileName : string; out sOutpuPath : string) : Boolean;
 			class function FindFileInSubDirs(const _dir : string; const _file : string) : string;
@@ -69,21 +69,21 @@ begin
 	CopyFile(PWideChar(fileName), PWideChar(backupFileName), true);
 end;
 
-class procedure TFileUtils.DeleteTempDirectory(const _dirNameRegex: string; const _bForce: Boolean = False);
+class procedure TFileUtils.DeleteTempDirectory(const _dirPattern : string; const _bForce : Boolean = False);
 begin
 	var
-		tempDirs : TArrayEx<string> := TDirectory.GetDirectories(TPath.GetTempPath);
-	var
-		idxArr : TArrayEx<integer> := tempDirs.AllIndexOf(_dirNameRegex, TComparer<string>.Construct(
-			{ } function(const Left, Right : string) : Integer
-			{ } begin
-			{ } { } Result := IfThen(TRegEx.IsMatch(Left, Right, [roIgnoreCase]), 0, 1);
-			{ } end));
+	dbgMsg := TDebugMsgBeginEnd.New('TFileUtils.DeleteTempDirectory');
 
-	for var i in idxArr do begin
-		TDebugUtils.DebugMessage('TFileUtils.DeleteTempDirectory: path:' + tempDirs[i]);
-		TDirectory.Delete(tempDirs[i], _bForce);
+	for var d in TDirectory.GetDirectoriesEnumerator(TPath.GetTempPath) do begin
+		var
+		dirName := TPath.GetFileName(d);
+		if TPath.MatchesPattern(dirName, _dirPattern, false) then begin
+			dbgMsg.Msg('Delete ' + d);
+			TDirectory.Delete(d, _bForce);
+		end;
+
 	end;
+
 end;
 
 class procedure TFileUtils.EmptyFile(const _filePath : string);

@@ -312,7 +312,7 @@ begin
 	TDirectory.CreateDirectory(tmpDir2);
 	TDirectory.CreateDirectory(tmpDir3);
 
-	TFileUtils.DeleteTempDirectory('unittest_tmpdir');
+	TFileUtils.DeleteTempDirectory('unittest_tmpdir*');
 
 	Assert.IsFalse(TDirectory.Exists(tmpDir1), 'Directory shouldn''t exists.');
 	Assert.IsFalse(TDirectory.Exists(tmpDir2), 'Directory shouldn''t exists.');
