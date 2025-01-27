@@ -18,7 +18,6 @@ type
 		private
 			FIniFile : TMemIniFile;
 			FSettings : TRipGrepParameterSettings;
-			procedure EmptyFile(const _filePath : string);
 			procedure SetDefaultsAndCurrentValues;
 
 		public
@@ -39,6 +38,12 @@ type
 			[Test]
 			procedure LoadDefaultsTest;
 			[Test]
+			procedure LoadActualTest;
+			[Test]
+			procedure StoreAsDefaultsToDictTest;
+			[Test]
+			procedure DictActualTest;
+			[Test]
 			procedure UpdateIniTest;
 	end;
 
@@ -51,9 +56,17 @@ uses
 	RipGrepper.Common.GuiSearchParams,
 	System.Classes,
 	RipGrepper.Common.SearchParams,
-	RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.SimpleTypes,
+	RipGrepper.Tools.FileUtils,
+	System.Variants;
 
 const
+	SOMATCHWORD_SOUSEREGEX = '[MatchWord,UseRegex]';
+	C_DEF_PATH_TO_DIR = 'c:\def\path\to\dir';
+	DEFPAS_DEFDFM = '*.defpas;*.defdfm';
+	C_PATH_TO_DIR = 'c:\path\to\dir';
+	PAS_DFM = '*.pas;*.dfm';
+	RG_EXE_PATH = 'rg.exe';
 	EGUIOPTION_MATCHCASE = '[MatchCase]';
 
 constructor TRipGrepSettingsTest.Create;
@@ -63,7 +76,7 @@ end;
 
 destructor TRipGrepSettingsTest.Destroy;
 begin
-//  FIniFile.Free;
+	// FIniFile.Free;
 	inherited;
 end;
 
@@ -131,17 +144,17 @@ end;
 procedure TRipGrepSettingsTest.SetDefaultsAndCurrentValues;
 begin
 	FSettings.RipGrepPath := 'not default relevant\rg.exe';
-	FSettings.FileMasks := '*.defpas;*.defdfm';
-	FSettings.SearchPath := 'c:\def\path\to\dir';
+	FSettings.FileMasks := DEFPAS_DEFDFM;
+	FSettings.SearchPath := C_DEF_PATH_TO_DIR;
 	FSettings.GuiSearchTextParams.SearchOptions := TSearchParams.StringToSearchParams(EGUIOPTION_MATCHCASE);
+	// Assert.AreEqual(0, FSettings.SettingsDict.Keys.Count, 'SettingsDict should be empty');
 	FSettings.StoreAsDefaultsToDict;
 
-	FSettings.RipGrepPath := 'rg.exe';
-	FSettings.FileMasks := '*.pas;*.dfm';
-	FSettings.SearchPath := 'c:\path\to\dir';
-	FSettings.GuiSearchTextParams.SearchOptions := [EGuiOption.soNotSet];
+	FSettings.RipGrepPath := RG_EXE_PATH;
+	FSettings.FileMasks := PAS_DFM;
+	FSettings.SearchPath := C_PATH_TO_DIR;
+	FSettings.GuiSearchTextParams.SearchOptions := TSearchParams.StringToSearchParams(SOMATCHWORD_SOUSEREGEX);
 	FSettings.StoreToDict;
-
 end;
 
 procedure TRipGrepSettingsTest.Setup;
@@ -154,7 +167,7 @@ begin
 	iniName := ChangeFileExt(Application.ExeName, '.ini');
 
 	if FileExists(iniName) then begin
-		EmptyFile(iniName);
+		TFileUtils.EmptyFile(iniName);
 	end;
 
 	FIniFile := TMemIniFile.Create(iniName, TEncoding.UTF8);
@@ -167,25 +180,81 @@ procedure TRipGrepSettingsTest.TearDown;
 begin
 	FSettings.Free; // instance will be free
 	FIniFile.Free;
-	EmptyFile(ChangeFileExt(Application.ExeName, '.ini'));
-end;
-
-procedure TRipGrepSettingsTest.EmptyFile(const _filePath : string);
-var txtFile : TextFile;
-begin
-	AssignFile(txtFile, _filePath);
-	Rewrite(txtFile);
-	CloseFile(txtFile);
+	TFileUtils.EmptyFile(ChangeFileExt(Application.ExeName, '.ini'));
 end;
 
 procedure TRipGrepSettingsTest.LoadDefaultsTest;
 begin
 	SetDefaultsAndCurrentValues;
 	FSettings.LoadDefaultsFromDict;
-	Assert.IsTrue(FSettings.RipGrepPath <> '', 'RipGrepPath should be set');
-	Assert.IsTrue(FSettings.FileMasks <> '', 'FileMasks should be set');
-	Assert.IsTrue(FSettings.SearchPath <> '', 'SearchPath should be set');
-	Assert.IsTrue(FSettings.GuiSearchTextParams.GetAsString(True) <> '', 'GuiSearchTextParams should be set');
+	Assert.IsTrue(FSettings.RipGrepPath.Contains(RG_EXE_PATH), 'RipGrepPath should be set');
+
+	Assert.AreEqual(DEFPAS_DEFDFM, FSettings.FileMasks, 'FileMasks should be set');
+	Assert.AreEqual(C_DEF_PATH_TO_DIR, FSettings.SearchPath, 'SearchPath should be set');
+	Assert.AreEqual(EGUIOPTION_MATCHCASE,
+		{ } FSettings.GuiSearchTextParams.GetAsString(true), 'GuiSearchTextParams should be set');
+end;
+
+procedure TRipGrepSettingsTest.LoadActualTest;
+begin
+	SetDefaultsAndCurrentValues;
+
+	for var s in ['FileMasks', 'SearchPath'] do begin
+		Assert.AreNotEqual(VarToStrDef(FSettings.SettingsDict[FSettings.IniSectionName + '|' + s].Value, ''),
+			{ } VarToStrDef(FSettings.SettingsDict[FSettings.IniSectionName + '|' + s + DEFAULT_KEY].Value, ''),
+			{ } 'Default and actual are not equal');
+	end;
+
+	FSettings.LoadFromDict;
+	Assert.IsTrue(FSettings.RipGrepPath.Contains(RG_EXE_PATH), 'RipGrepPath should be set');
+	Assert.AreEqual(PAS_DFM, FSettings.FileMasks, '2. FileMasks shouldn''t be the default');
+	Assert.AreEqual(C_PATH_TO_DIR, FSettings.SearchPath, 'SearchPath should be set');
+	Assert.AreEqual('[soMatchWord, soUseRegex]', FSettings.GuiSearchTextParams.GetAsString(true), 'GuiSearchTextParams should be set');
+end;
+
+procedure TRipGrepSettingsTest.StoreAsDefaultsToDictTest;
+begin
+	FSettings.RipGrepPath := 'not default relevant\rg.exe';
+	FSettings.FileMasks := DEFPAS_DEFDFM;
+	FSettings.SearchPath := C_DEF_PATH_TO_DIR;
+	FSettings.GuiSearchTextParams.SearchOptions := TSearchParams.StringToSearchParams(EGUIOPTION_MATCHCASE);
+
+	FSettings.StoreAsDefaultsToDict;
+
+	var
+	dict := FSettings.SettingsDict;
+	var
+	inisec := FSettings.IniSectionName;
+
+	Assert.AreEqual(DEFPAS_DEFDFM,
+		{ } VarToStrDef(dict[inisec + '|FileMasks' + DEFAULT_KEY].Value, ''),
+		{ } 'Default and actual are not equal');
+	Assert.AreEqual(C_DEF_PATH_TO_DIR,
+		{ } VarToStrDef(dict[inisec + '|SearchPath' + DEFAULT_KEY].Value, ''),
+		{ } 'Default and actual are not equal');
+	Assert.AreEqual(EGUIOPTION_MATCHCASE,
+		{ } VarToStrDef(dict[inisec + '|SearchParams' + DEFAULT_KEY].Value, ''),
+		{ } 'Default and actual are not equal');
+end;
+
+procedure TRipGrepSettingsTest.DictActualTest;
+begin
+	SetDefaultsAndCurrentValues;
+
+	var
+	dict := FSettings.SettingsDict;
+	var
+	inisec := FSettings.IniSectionName;
+
+	Assert.AreEqual(PAS_DFM,
+		{ } VarToStrDef(dict[inisec + '|FileMasks'].Value, ''),
+		{ } 'FileMasks are not equal');
+	Assert.AreEqual(C_PATH_TO_DIR,
+		{ } VarToStrDef(dict[inisec + '|SearchPath'].Value, ''),
+		{ } 'SearchPath are not equal');
+	Assert.AreEqual(SOMATCHWORD_SOUSEREGEX,
+		{ } VarToStrDef(dict[inisec + '|SearchParams'].Value, ''),
+		{ } 'SearchParams are not equal');
 end;
 
 procedure TRipGrepSettingsTest.UpdateIniTest;
@@ -193,10 +262,11 @@ begin
 	SetDefaultsAndCurrentValues;
 	FSettings.UpdateIniFile();
 	FSettings.ReLoad;
-	Assert.IsTrue(FSettings.RipGrepPath <> '', 'RipGrepPath should be set');
-	Assert.IsTrue(FSettings.FileMasks <> '', 'FileMasks should be set');
-	Assert.IsTrue(FSettings.SearchPath <> '', 'SearchPath should be set');
-	Assert.IsTrue(FSettings.GuiSearchTextParams.GetAsString(True) <> '', 'GuiSearchTextParams should be set');
+	Assert.IsTrue(FSettings.RipGrepPath.Contains(RG_EXE_PATH), 'RipGrepPath should be set');
+	Assert.IsTrue(FSettings.FileMasks.Contains('def'), 'FileMasks should be set');
+	Assert.IsTrue(FSettings.SearchPath.Contains('def'), 'SearchPath should be set');
+	Assert.AreEqual<string>(EGUIOPTION_MATCHCASE,
+		{ } FSettings.GuiSearchTextParams.GetAsString(true), 'GuiSearchTextParams should be set');
 end;
 
 initialization

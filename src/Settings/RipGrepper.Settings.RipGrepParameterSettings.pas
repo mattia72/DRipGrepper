@@ -77,6 +77,10 @@ uses
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.DebugUtils;
 
+const
+	FILEMASKS = 'FileMasks';
+	SEARCHPATH = 'SearchPath';
+
 constructor TRipGrepParameterSettings.Create(const _Owner : TPersistableSettings);
 begin
 	IniSectionName := INI_SECTION;
@@ -129,11 +133,13 @@ end;
 function TRipGrepParameterSettings.GetRipGrepPath : string;
 begin
 	if not FbRgPathInitOk then begin
-		ReadIni;
-		LoadFromDict;
-		if FRipGrepPath.IsEmpty or not FileExists(FRipGrepPath) then begin
+		var
+		iniVal := IniFile.ReadString(IniSectionName, RG_INI_KEY_RGPATH, '');
+		if iniVal.IsEmpty or not FileExists(iniVal) then begin
 			FRipGrepPath := TryFindRipGrepExePath();
 			TDebugUtils.DebugMessage('TRipGrepParameterSettings.GetRipGrepPath - Found:' + FRipGrepPath);
+		end else begin
+			FRipGrepPath := iniVal;
 		end;
 		FbRgPathInitOk := FileExists(FRipGrepPath);
 	end;
@@ -143,8 +149,8 @@ end;
 procedure TRipGrepParameterSettings.Init;
 begin
 	SettingsDict.CreateSetting(RG_INI_KEY_RGPATH, varString, '');
-	SettingsDict.CreateDefaultRelevantSetting('SearchPath', varString, '');
-	SettingsDict.CreateDefaultRelevantSetting('FileMasks', varString, '');
+	SettingsDict.CreateDefaultRelevantSetting(SEARCHPATH, varString, '');
+	SettingsDict.CreateDefaultRelevantSetting(FILEMASKS, varString, '');
 	// inherited Init(); abstract
 end;
 
@@ -155,6 +161,8 @@ end;
 
 procedure TRipGrepParameterSettings.LoadDefaultsFromDict;
 begin
+	FSearchPath := SettingsDict.GetSetting(SEARCHPATH, True);
+	FFileMasks := SettingsDict.GetSetting(FILEMASKS, True);
 	FGuiSearchTextParams.LoadDefaultsFromDict;
 	// inherited LoadDefaultsFromDict;  abstract
 end;
@@ -270,7 +278,7 @@ begin
 	SettingsDict.StoreSetting(RG_INI_KEY_RGPATH, RipGrepPath);
 	SettingsDict.StoreSetting('SearchPath', FSearchPath);
 	SettingsDict.StoreSetting('FileMasks', FFileMasks);
-	inherited StoreToDict; // Write to mem ini, after UpdateIniFile will be saved
+	inherited StoreToDict; // Children will be stored and writes to mem ini, after UpdateIniFile will be saved
 end;
 
 procedure TRipGrepParameterSettings.StoreAsDefaultsToDict;
