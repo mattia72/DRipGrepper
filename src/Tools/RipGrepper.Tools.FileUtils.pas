@@ -74,7 +74,11 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TFileUtils.DeleteTempDirectory');
 
+	{$IF CompilerVersion >= 360} // Delphi 12
 	for var d in TDirectory.GetDirectoriesEnumerator(TPath.GetTempPath) do begin
+	{$ELSE}
+	for var d in TDirectory.GetDirectories(TPath.GetTempPath) do begin
+		{$ENDIF}
 		var
 		dirName := TPath.GetFileName(d);
 		if TPath.MatchesPattern(dirName, _dirPattern, false) then begin

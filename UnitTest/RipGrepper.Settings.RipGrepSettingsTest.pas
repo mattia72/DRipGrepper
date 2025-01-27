@@ -61,7 +61,7 @@ uses
 	System.Variants;
 
 const
-	SOMATCHWORD_SOUSEREGEX = '[MatchWord,UseRegex]';
+	MATCHWORD_USEREGEX = '[MatchWord,UseRegex]';
 	C_DEF_PATH_TO_DIR = 'c:\def\path\to\dir';
 	DEFPAS_DEFDFM = '*.defpas;*.defdfm';
 	C_PATH_TO_DIR = 'c:\path\to\dir';
@@ -153,7 +153,7 @@ begin
 	FSettings.RipGrepPath := RG_EXE_PATH;
 	FSettings.FileMasks := PAS_DFM;
 	FSettings.SearchPath := C_PATH_TO_DIR;
-	FSettings.GuiSearchTextParams.SearchOptions := TSearchParams.StringToSearchParams(SOMATCHWORD_SOUSEREGEX);
+	FSettings.GuiSearchTextParams.SearchOptions := TSearchParams.StringToSearchParams(MATCHWORD_USEREGEX);
 	FSettings.StoreToDict;
 end;
 
@@ -209,7 +209,7 @@ begin
 	Assert.IsTrue(FSettings.RipGrepPath.Contains(RG_EXE_PATH), 'RipGrepPath should be set');
 	Assert.AreEqual(PAS_DFM, FSettings.FileMasks, '2. FileMasks shouldn''t be the default');
 	Assert.AreEqual(C_PATH_TO_DIR, FSettings.SearchPath, 'SearchPath should be set');
-	Assert.AreEqual('[soMatchWord, soUseRegex]', FSettings.GuiSearchTextParams.GetAsString(true), 'GuiSearchTextParams should be set');
+	Assert.AreEqual(MATCHWORD_USEREGEX, FSettings.GuiSearchTextParams.GetAsString(true), 'GuiSearchTextParams should be set');
 end;
 
 procedure TRipGrepSettingsTest.StoreAsDefaultsToDictTest;
@@ -252,7 +252,7 @@ begin
 	Assert.AreEqual(C_PATH_TO_DIR,
 		{ } VarToStrDef(dict[inisec + '|SearchPath'].Value, ''),
 		{ } 'SearchPath are not equal');
-	Assert.AreEqual(SOMATCHWORD_SOUSEREGEX,
+	Assert.AreEqual(MATCHWORD_USEREGEX,
 		{ } VarToStrDef(dict[inisec + '|SearchParams'].Value, ''),
 		{ } 'SearchParams are not equal');
 end;
