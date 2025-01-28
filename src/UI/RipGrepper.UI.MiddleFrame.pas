@@ -155,7 +155,6 @@ type
 			function GetIsGuiReplaceMode : Boolean;
 			function GetIsRgReplaceMode : Boolean;
 			function AddParallelParser(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean) : TParallelParser;
-			procedure FreeAndCleanParserList;
 			function GetResultSelectedFilePath : string;
 			function GetSelectedResultFileNodeData : PVSFileNodeData;
 			function GetSettings : TRipGrepperSettings;
@@ -195,6 +194,7 @@ type
 			procedure CopyToClipboardPathOfSelected;
 			function CreateNewHistObject : IHistoryItemObject;
 			procedure FilterNodes(const _sFilterPattern : string; const _filterModes : TFilterModes);
+			procedure FreeAndCleanParserList;
 			function GetCounterText(Data : IHistoryItemObject) : string;
 			function GetFilePathFromNode(_node : PVirtualNode) : string;
 			function GetOpenWithParamsFromSelected : TOpenWithParams;
@@ -285,9 +285,7 @@ begin
 	MiddleLeftFrame1.ClearHistoryObjectList;
 	FData.Free;
 	FIconImgList.Free;
-
 	FreeAndCleanParserList;
-
 	inherited;
 end;
 
@@ -460,15 +458,16 @@ var
 begin
 	ec := HistItemObj.GetErrorCounters();
 	if ec.FParserErrors > 0 then begin
-		TMsgBox.ShowWarning(RG_PARSE_ERROR_MSG); // , false, self);
+		TAsyncMsgBox.ShowWarning(RG_PARSE_ERROR_MSG); // , false, self);
 	end;
 	if ec.FIsNoOutputError then begin
-		TMsgBox.ShowWarning(RG_PRODUCED_NO_OUTPUT_MSG);
+		TAsyncMsgBox.ShowWarning(RG_PRODUCED_NO_OUTPUT_MSG);
 	end;
 	if ec.FIsRGReportedError then begin
-		TMsgBox.ShowWarning(RG_REPORTED_ERROR_MSG);
+		TAsyncMsgBox.ShowWarning(RG_REPORTED_ERROR_MSG);
 	end;
 	FreeAndCleanParserList();
+    ParentFrame.AfterSearch();
 end;
 
 procedure TRipGrepperMiddleFrame.AlignToolBars;
@@ -742,6 +741,9 @@ begin
 	Result := TParallelParser.Create(FData, FHistItemObj);
 	Result.OnLastLine := OnLastLine;
 	Result.OnProgress := OnParsingProgress;
+//  if _bIsLast then begin we need it on MAX_LINE
+		Result.OnAfterAllFinished := AfterSearch;
+//  end;
 	Result.SetNewLine(_iLineNr, _sLine, _bIsLast);
 	FParsingThreads.Add(Result);
 end;
@@ -874,9 +876,6 @@ begin
 
 	RefreshCounters;
 	VstResult.Repaint;
-	if (_bLastLine) then begin
-		ParentFrame.AfterSearch();
-	end;
 end;
 
 function TRipGrepperMiddleFrame.ProcessShouldTerminate : Boolean;
@@ -1461,10 +1460,20 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.FreeAndCleanParserList');
 
-	for var t : TParallelParser in FParsingThreads do begin
-		t.Free;
+	for var i := FParsingThreads.MaxIndex downto 0 do begin
+		var
+		pt := FParsingThreads[i];
+		if pt.IsParsingDone then begin
+			// dbgMsg.MsgFmt('Free parser of line %d', [pt.LineNr]);
+			// FParsingThreads.Delete(i);
+			pt.Free;
+		end else begin
+			dbgMsg.MsgFmt('Parser of line %d is busy.', [pt.LineNr]);
+			raise Exception.Create('Parser of line busy, can''t free.');
+		end;
 	end;
 	FParsingThreads.Clear;
+//  dbgMsg.MsgFmt('FParsingThreads.Count %d.', [FParsingThreads.Count])
 end;
 
 procedure TRipGrepperMiddleFrame.ReloadColorSettings;

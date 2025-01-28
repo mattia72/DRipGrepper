@@ -8,8 +8,10 @@ uses
 	RipGrepper.Common.Interfaces;
 
 type
+
 	TLastLineEvent = procedure(const _iLineNr : Integer) of object;
 	TProgressEvent = procedure(const _bLastLine : Boolean) of object;
+	TAfterAllFinished = procedure() of object;
 
 	TParseLineThread = class(TThread)
 		private
@@ -27,19 +29,27 @@ type
 			property OnProgress : TProgressEvent read FOnProgress write FOnProgress;
 	end;
 
-	TParallelParser = class // class(TThread)
+	TParallelParser = class // (TInterfacedObject, IParallelParser) // class(TThread)
 		private
 			FHistObject : IHistoryItemObject;
 			FData : TRipGrepperData;
 			FIsLast : Boolean;
+			FIsParsingDone : Boolean;
 			FLine : string;
 			FLineNr : Integer;
+			FOnAfterAllFinished : TAfterAllFinished;
 			FOnLastLine : TLastLineEvent;
 			FOnProgress : TProgressEvent;
 			// FThread : TParseLineThread;
 			procedure CallOnProgress(const _iLineNr : Integer; const _bIsLast : Boolean);
-			procedure ParseLine(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean);
+			function GetOnAfterAllFinished : TAfterAllFinished;
+			function GetOnLastLine : TLastLineEvent;
+			function GetOnProgress : TProgressEvent;
+			procedure ParseLine(const _iLineNr : Integer; const _sLine : string);
 			procedure ParserProc;
+			procedure SetOnAfterAllFinished(const Value : TAfterAllFinished);
+			procedure SetOnLastLine(const Value : TLastLineEvent);
+			procedure SetOnProgress(const Value : TProgressEvent);
 
 		public
 			constructor Create(_data : TRipGrepperData; _histObj : IHistoryItemObject);
@@ -47,8 +57,11 @@ type
 			procedure AbortQueuedParses;
 			procedure Parse;
 			procedure SetNewLine(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean);
-			property OnLastLine : TLastLineEvent read FOnLastLine write FOnLastLine;
-			property OnProgress : TProgressEvent read FOnProgress write FOnProgress;
+			property LineNr : Integer read FLineNr;
+			property IsParsingDone : Boolean read FIsParsingDone;
+			property OnAfterAllFinished : TAfterAllFinished read GetOnAfterAllFinished write SetOnAfterAllFinished;
+			property OnLastLine : TLastLineEvent read GetOnLastLine write SetOnLastLine;
+			property OnProgress : TProgressEvent read GetOnProgress write SetOnProgress;
 	end;
 
 implementation
@@ -68,13 +81,14 @@ begin
 	inherited Create();
 	FHistObject := _histObj;
 	FData := _data;
+	FIsParsingDone := False;
 	// FThread := TParseLineThread.Create(FData, FHistObject);
 end;
 
 destructor TParallelParser.Destroy;
 begin
+	AbortQueuedParses;
 	inherited;
-	// FThread.Free;
 end;
 
 procedure TParallelParser.AbortQueuedParses;
@@ -84,30 +98,48 @@ end;
 
 procedure TParallelParser.CallOnProgress(const _iLineNr : Integer; const _bIsLast : Boolean);
 begin
-
-	if (_iLineNr < DRAW_RESULT_UNTIL_FIRST_LINE_COUNT) or ((_iLineNr mod DRAW_RESULT_ON_EVERY_LINE_COUNT) = 0) or _bIsLast then begin
+	if (_iLineNr < DRAW_RESULT_UNTIL_FIRST_LINE_COUNT) or
+	{ } ((_iLineNr mod DRAW_RESULT_ON_EVERY_LINE_COUNT) = 0) or _bIsLast then begin
 		OnProgress(_bIsLast);
 	end;
 end;
 
-procedure TParallelParser.Parse;
+function TParallelParser.GetOnAfterAllFinished : TAfterAllFinished;
 begin
-	ParseLine(FLineNr, FLine, FIsLast);
+	Result := FOnAfterAllFinished;
 end;
 
-procedure TParallelParser.ParseLine(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean);
-
+function TParallelParser.GetOnLastLine : TLastLineEvent;
 begin
-	if (_iLineNr > RG_PROCESSING_LINE_COUNT_LIMIT) then begin
+	Result := FOnLastLine;
+end;
+
+function TParallelParser.GetOnProgress : TProgressEvent;
+begin
+	Result := FOnProgress;
+end;
+
+procedure TParallelParser.Parse;
+begin
+	ParseLine(FLineNr, FLine);
+end;
+
+procedure TParallelParser.ParseLine(const _iLineNr : Integer; const _sLine : string);
+begin
+	if (_iLineNr = RG_PROCESSING_LINE_COUNT_LIMIT) then begin
+		FIsLast := True;
+	end else if (_iLineNr > RG_PROCESSING_LINE_COUNT_LIMIT) then begin
 		TDebugUtils.DebugMessage('TParallelParser.ParseLine - Remove every Queued Events');
-		AbortQueuedParses;
 		Exit;
 	end;
 
-	// TThread.CreateAnonymousThread(ParserProc).
-	TThread.Queue(nil, ParserProc);
-	// FThread.Queue( ParserProc)
-
+	// https://stackoverflow.com/questions/23359546/ensure-all-tthread-queue-methods-complete-before-thread-self-destructs
+	if FIsLast then begin
+		TThread.Synchronize(nil, ParserProc); // waits till everything finished
+		OnAfterAllFinished();
+	end else begin
+		TThread.Queue(nil, ParserProc);
+	end;
 end;
 
 procedure TParallelParser.ParserProc;
@@ -136,6 +168,7 @@ begin
 		end;
 	end;
 	CallOnProgress(FLineNr, FIsLast);
+	FIsParsingDone := True;
 end;
 
 procedure TParallelParser.SetNewLine(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean);
@@ -143,6 +176,21 @@ begin
 	FIsLast := _bIsLast;
 	FLine := _sLine;
 	FLineNr := _iLineNr;
+end;
+
+procedure TParallelParser.SetOnAfterAllFinished(const Value : TAfterAllFinished);
+begin
+	FOnAfterAllFinished := Value;
+end;
+
+procedure TParallelParser.SetOnLastLine(const Value : TLastLineEvent);
+begin
+	FOnLastLine := Value;
+end;
+
+procedure TParallelParser.SetOnProgress(const Value : TProgressEvent);
+begin
+	FOnProgress := Value;
 end;
 
 constructor TParseLineThread.Create(_data : TRipGrepperData; _histObj : IHistoryItemObject);

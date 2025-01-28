@@ -86,7 +86,6 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.AfterSearch');
 
 	TopFrame.AfterSearch();
-	MainFrame.AfterSearch();
 	BottomFrame.AfterSearch();
 end;
 

@@ -12,7 +12,8 @@ uses
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Settings.SearchFormSettings,
-	RipGrepper.Settings.RipGrepperSettings, RipGrepper.Common.EncodedStringList;
+	RipGrepper.Settings.RipGrepperSettings,
+	RipGrepper.Common.EncodedStringList;
 
 type
 
@@ -36,17 +37,16 @@ type
 		['{B33D6808-8A4F-49AD-A711-F226B55DEE5F}']
 		function GetLineParseRegex : TRegex;
 		function GetContextLineParseRegex : TRegex;
-		function GetStatsLineParseRegex: TRegex;
+		function GetStatsLineParseRegex : TRegex;
 		function GetParserType : TParserType;
 		procedure SetLineParseRegex(const Value : TRegex);
 		procedure SetContextLineParseRegex(const Value : TRegex);
-		procedure SetStatsLineParseRegex(const Value: TRegex);
+		procedure SetStatsLineParseRegex(const Value : TRegex);
 		procedure SetParserType(const Value : TParserType);
 
 		property LineParseRegex : TRegex read GetLineParseRegex write SetLineParseRegex;
 		property ContextLineParseRegex : TRegex read GetContextLineParseRegex write SetContextLineParseRegex;
-		property StatsLineParseRegex: TRegex read GetStatsLineParseRegex write
-			SetStatsLineParseRegex;
+		property StatsLineParseRegex : TRegex read GetStatsLineParseRegex write SetStatsLineParseRegex;
 		property ParserType : TParserType read GetParserType write SetParserType;
 	end;
 
@@ -59,6 +59,18 @@ type
 		procedure ParseLine(const _iLnNr : integer; const _s : string; const _bIsLast : Boolean = False);
 
 	end;
+
+//  IParallelParser = interface(IInterface) //It destructs the parser too early, use the class instead'
+//      ['{951E2EB3-F39A-47CB-9DCA-BD15B02B6F94}']
+//      function GetOnLastLine: TLastLineEvent;
+//      function GetOnProgress: TProgressEvent;
+//      procedure SetNewLine(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean);
+//      procedure SetOnLastLine(const Value: TLastLineEvent);
+//      procedure SetOnProgress(const Value: TProgressEvent);
+//      property OnLastLine: TLastLineEvent read GetOnLastLine write SetOnLastLine;
+//      property OnProgress: TProgressEvent read GetOnProgress write SetOnProgress;
+//      procedure Parse;
+//  end;
 
 	ISearchParams = interface
 		['{CF7C5401-4CBE-4B08-8D4D-62C6E2E70983}']
@@ -77,7 +89,7 @@ type
 		procedure ClearMatches;
 		procedure CopyToSettings(const _settings : TRipGrepperSettings);
 		function GetElapsedTimeText : string;
-		function GetErrorCounters: TErrorCounters;
+		function GetErrorCounters : TErrorCounters;
 		function GetFileCount : integer;
 		function GetGuiSearchTextParams : TGuiSearchTextParams;
 		function GetIsReplaceMode : Boolean;
@@ -95,7 +107,7 @@ type
 		function HasResult : Boolean;
 		procedure LoadFromSettings(const _settings : TRipGrepperSettings);
 		procedure SetElapsedTimeText(const Value : string);
-		procedure SetErrorCounters(const Value: TErrorCounters);
+		procedure SetErrorCounters(const Value : TErrorCounters);
 		procedure SetFileCount(const Value : integer);
 		procedure SetGuiSearchTextParams(const Value : TGuiSearchTextParams);
 		procedure SetNoMatchFound(const Value : Boolean);
