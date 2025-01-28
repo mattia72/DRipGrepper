@@ -44,7 +44,7 @@ type
 			[Test]
 			procedure DictActualTest;
 			[Test]
-			procedure UpdateIniTest;
+			procedure UpdateIniReloadTest;
 	end;
 
 implementation
@@ -257,15 +257,18 @@ begin
 		{ } 'SearchParams are not equal');
 end;
 
-procedure TRipGrepSettingsTest.UpdateIniTest;
+procedure TRipGrepSettingsTest.UpdateIniReloadTest;
 begin
 	SetDefaultsAndCurrentValues;
 	FSettings.UpdateIniFile();
-	FSettings.ReLoad;
+    FSettings.FileMasks := '';
+    FSettings.SearchPath := '';
+	FSettings.ReLoad;    // fills only settings dict
+    FSettings.LoadFromDict; //
 	Assert.IsTrue(FSettings.RipGrepPath.Contains(RG_EXE_PATH), 'RipGrepPath should be set');
-	Assert.IsTrue(FSettings.FileMasks.Contains('def'), 'FileMasks should be set');
-	Assert.IsTrue(FSettings.SearchPath.Contains('def'), 'SearchPath should be set');
-	Assert.AreEqual<string>(EGUIOPTION_MATCHCASE,
+	Assert.AreEqual(PAS_DFM, FSettings.FileMasks, 'FileMasks should be set');
+	Assert.AreEqual(C_PATH_TO_DIR, FSettings.SearchPath, 'SearchPath should be set');
+	Assert.AreEqual(MATCHWORD_USEREGEX,
 		{ } FSettings.GuiSearchTextParams.GetAsString(true), 'GuiSearchTextParams should be set');
 end;
 

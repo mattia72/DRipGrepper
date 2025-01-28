@@ -589,10 +589,6 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.WriteToIni');
 
-	if (not _setting.IsModified) { and (not _sKey.EndsWith(DEFAULT_KEY)) } then begin
-		Exit;
-	end;
-
 	_setting.WriteToMemIni(IniFile, _sIniSection, _sKey);
 end;
 

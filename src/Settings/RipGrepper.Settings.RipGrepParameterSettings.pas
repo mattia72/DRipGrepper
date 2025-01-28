@@ -78,8 +78,8 @@ uses
 	RipGrepper.Tools.DebugUtils;
 
 const
-	FILEMASKS = 'FileMasks';
-	SEARCHPATH = 'SearchPath';
+	FILEMASKS_KEY = 'FileMasks';
+	SEARCHPATH_KEY = 'SearchPath';
 
 constructor TRipGrepParameterSettings.Create(const _Owner : TPersistableSettings);
 begin
@@ -149,8 +149,8 @@ end;
 procedure TRipGrepParameterSettings.Init;
 begin
 	SettingsDict.CreateSetting(RG_INI_KEY_RGPATH, varString, '');
-	SettingsDict.CreateDefaultRelevantSetting(SEARCHPATH, varString, '');
-	SettingsDict.CreateDefaultRelevantSetting(FILEMASKS, varString, '');
+	SettingsDict.CreateDefaultRelevantSetting(SEARCHPATH_KEY, varString, '');
+	SettingsDict.CreateDefaultRelevantSetting(FILEMASKS_KEY, varString, '');
 	// inherited Init(); abstract
 end;
 
@@ -161,8 +161,8 @@ end;
 
 procedure TRipGrepParameterSettings.LoadDefaultsFromDict;
 begin
-	FSearchPath := SettingsDict.GetSetting(SEARCHPATH, True);
-	FFileMasks := SettingsDict.GetSetting(FILEMASKS, True);
+	FSearchPath := SettingsDict.GetSetting(SEARCHPATH_KEY, True);
+	FFileMasks := SettingsDict.GetSetting(FILEMASKS_KEY, True);
 	FGuiSearchTextParams.LoadDefaultsFromDict;
 	// inherited LoadDefaultsFromDict;  abstract
 end;
@@ -278,7 +278,7 @@ begin
 	SettingsDict.StoreSetting(RG_INI_KEY_RGPATH, RipGrepPath);
 	SettingsDict.StoreSetting('SearchPath', FSearchPath);
 	SettingsDict.StoreSetting('FileMasks', FFileMasks);
-	inherited StoreToDict; // Children will be stored and writes to mem ini, after UpdateIniFile will be saved
+	inherited StoreToDict; // Children will be stored and it writes into mem ini. after UpdateIniFile will be saved
 end;
 
 procedure TRipGrepParameterSettings.StoreAsDefaultsToDict;
