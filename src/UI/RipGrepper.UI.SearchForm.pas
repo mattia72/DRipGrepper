@@ -289,7 +289,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ActionAddParamMatchCaseExecute(Sender : TObject);
 begin
-	FHistItemGuiSearchParams.SetOrReset(EGuiOption.soMatchCase);
+	FHistItemGuiSearchParams.SwitchOption(EGuiOption.soMatchCase);
 	UpdateCmbOptionsAndMemoCommandLine();
 end;
 
@@ -300,7 +300,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ActionAddParamRegexExecute(Sender : TObject);
 begin
-	FHistItemGuiSearchParams.SetOrReset(EGuiOption.soUseRegex);
+	FHistItemGuiSearchParams.SwitchOption(EGuiOption.soUseRegex);
 	UpdateCmbOptionsAndMemoCommandLine();
 end;
 
@@ -311,7 +311,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ActionAddParamWordExecute(Sender : TObject);
 begin
-	FHistItemGuiSearchParams.SetOrReset(EGuiOption.soMatchWord);
+	FHistItemGuiSearchParams.SwitchOption(EGuiOption.soMatchWord);
 	UpdateCmbOptionsAndMemoCommandLine();
 end;
 
@@ -1040,8 +1040,9 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadDefaultSettings');
 	FSettings.ReadIni;
-	// TODO option to load always defaults: FSettings.CopyDefaultsToValues;
-	// ELSE ...
+	// TODO option to load always defaults:
+    // FSettings.CopyDefaultsToValues;
+	// OR last used  ...
 	FSettings.LoadFromDict;
 
 	// TODO set only if it was saved before!
@@ -1061,7 +1062,8 @@ begin
 	// FHistItemGuiSearchParams.ReadIni;
 	// FHistItemGuiSearchParams.LoadDefaultsFromDict;
 
-	FHistItemGuiSearchParams.SearchOptions := FSettings.RipGrepParameters.GuiSearchTextParams.SearchOptions;
+	FHistItemGuiSearchParams.Copy(FSettings.RipGrepParameters.GuiSearchTextParams);
+    FHistItemGuiSearchParams.UpdateRgParamsByGuiOptions();
 	UpdateCheckBoxesBySettings();
 end;
 

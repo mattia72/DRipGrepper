@@ -416,15 +416,16 @@ begin
 end;
 
 procedure TGuiSearchTextParams.UpdateRgParamsByGuiOptions;
-const
-	SEARCH_OPTIONS : array [0 .. 2] of EGuiOption =
-	{ } (EGuiOption.soMatchCase, EGuiOption.soMatchWord, EGuiOption.soUseRegex);
 begin
-	for var op : EGuiOption in SEARCH_OPTIONS do begin
-		if op in self.SearchOptions then begin
-			self.SetOption(op);
-		end else begin
-			self.ResetOption(op);
+	for var op : TSearchOptionToRgOptions in SEARCH_OPTION_CASES do begin
+		if op.SearchOption = self.SearchOptions then begin
+			var opArr : TArrayEx<string>;
+			for var os in op.RgOptions do begin
+				opArr.Add(TParamRegexHelper.GetLongParam(os));
+			end;
+
+			self.RgOptions := TOptionStrings.New(opArr);
+			break;
 		end;
 	end;
 end;
