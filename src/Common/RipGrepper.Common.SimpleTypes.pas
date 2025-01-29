@@ -27,6 +27,11 @@ type
 
 	TSearchOptionSet = set of EGuiOption;
 
+	TSearchOptionToRgOptions = record
+		SearchOption : TSearchOptionSet;
+		RgOptions : TArray<string>;
+	end;
+
 	ESkipFileReplaceException = class(Exception);
 	EFileOpenException = class(Exception);
 
@@ -38,7 +43,8 @@ type
 		FIsRGReportedError : Boolean;
 		procedure Reset;
 	end;
- 	{$SCOPEDENUMS OFF}
+	{$SCOPEDENUMS OFF}
+
 const
 	GUI_SEARCH_PARAMS : TArray<EGuiOption> = [
 	{ } EGuiOption.soMatchCase,

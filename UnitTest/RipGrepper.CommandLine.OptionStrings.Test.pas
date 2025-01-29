@@ -12,6 +12,17 @@ uses
 	RipGrepper.Settings.TestOwnerSettings,
 	RipGrepper.Common.SimpleTypes;
 
+const
+	SEARCH_OPTION_CASES : array [0 .. 6] of TSearchOptionSet = (
+		{ } ([EGuiOption.soMatchCase]),
+		{ } ([EGuiOption.soMatchWord]),
+		{ } ([EGuiOption.soUseRegex]),
+		{ } ([EGuiOption.soMatchCase, EGuiOption.soMatchWord]),
+		{ } ([EGuiOption.soMatchCase, EGuiOption.soUseRegex]),
+		{ } ([EGuiOption.soMatchWord, EGuiOption.soUseRegex]),
+		{ } ([EGuiOption.soMatchCase, EGuiOption.soMatchWord, EGuiOption.soUseRegex])
+		{ } );
+
 type
 
 	[TestFixture]
@@ -151,6 +162,16 @@ type
 			[Testcase('test9', '--vimgrep  -C=99 -g=!*.bak -F -i;' + RG_PARAM_REGEX_REPLACE + ';replace text more world;1', ';')]
 			[Testcase('test10', '--vimgrep  -C=99 -g=!*.bak -F -i;' + RG_PARAM_REGEX_REPLACE + ';'''';1', ';')]
 			procedure TestAddOptionsWithValue(const _sOptions, _sRegEx, _sValue : string; const _bUnique : integer);
+			[Test]
+			[Testcase('test1 ', '')]
+			[Testcase('test2 soMatchCase', '1')]
+			[Testcase('test3 soMatchWord', '2')]
+			[Testcase('test4 soUseRegex ', '3')]
+			[Testcase('test5 soMatchWord', '1#2')]
+			[Testcase('test6 soUseRegex ', '1#3')]
+			[Testcase('test7 soMatchWord', '2#3')]
+			[Testcase('test8 soMatchWord', '1#2#3')]
+			procedure TestUpdateRgOptionsByGuiOptions(const _guiOptionsActual : string);
 
 			[Test]
 			[Testcase('test1', RG_PARAM_REGEX_IGNORE_CASE)]
@@ -505,6 +526,32 @@ begin
 		Assert.IsTrue(TRegEx.IsMatch(s, '^-+\w+'), '''' + s + ''' invalid param (maybe a glob) should not bee in the options array');
 	end;
 	Assert.IsTrue(bFound, '''' + sOpWithVal + ''' should bee in the options array');
+end;
+
+procedure TOptionStringsTest.TestUpdateRgOptionsByGuiOptions(const _guiOptionsActual : string);
+begin
+	for var ops in SEARCH_OPTION_CASES do begin
+		FGuiParams.SearchOptions := ops;
+		FGuiParams.UpdateRgParamsByGuiOptions();
+
+		if not(EGuiOption.soUseRegex in ops) and not(EGuiOption.soMatchWord in ops) then begin
+			Assert.IsTrue(FGuiParams.RgOptions.IsOptionSet(RG_PARAM_REGEX_FIXED_STRINGS),
+				RG_PARAM_REGEX_FIXED_STRINGS + ' should be there if not (MatchWord or UseRegex)');
+		end;
+
+		if EGuiOption.soMatchCase in ops then begin
+			Assert.IsTrue(FGuiParams.RgOptions.IsOptionSet(RG_PARAM_REGEX_CASE_SENSITIVE),
+				RG_PARAM_REGEX_CASE_SENSITIVE + ' should be there if soMatchCase is set searching');
+			Assert.IsFalse(FGuiParams.RgOptions.IsOptionSet(RG_PARAM_REGEX_IGNORE_CASE),
+				RG_PARAM_REGEX_IGNORE_CASE + ' should not be there if soMatchCase is set searching');
+		end else begin
+			Assert.IsFalse(FGuiParams.RgOptions.IsOptionSet(RG_PARAM_REGEX_CASE_SENSITIVE),
+				RG_PARAM_REGEX_CASE_SENSITIVE + ' should not be there if soMatchCase is set searching');
+			Assert.IsTrue(FGuiParams.RgOptions.IsOptionSet(RG_PARAM_REGEX_IGNORE_CASE),
+				RG_PARAM_REGEX_IGNORE_CASE + ' should be there if soMatchCase is set searching');
+		end;
+
+	end;
 end;
 
 procedure TOptionStringsTest.TestGetOptionVariantsAndValue(const _sParamRegex : string);

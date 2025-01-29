@@ -8,8 +8,9 @@ uses
 	ArrayEx,
 	System.Generics.Defaults,
 	Vcl.Graphics,
-	Vcl.Menus, 
-	Winapi.Messages;
+	Vcl.Menus,
+	Winapi.Messages,
+	RipGrepper.Common.SimpleTypes;
 
 const
 	{ }{$IFDEF WIN64}
@@ -19,7 +20,7 @@ const
 	{ }	{$ENDIF}
 	APPNAME = 'DRipGrepper';
 	EXTENSION_NAME = 'DRipExtensions';
-    EXTENSION_NAME_DLL= EXTENSION_NAME + '.dll';
+	EXTENSION_NAME_DLL = EXTENSION_NAME + '.dll';
 	EXTENSION_MENU_ROOT_TEXT = '&' + EXTENSION_NAME + '...';
 
 	BAK_FILE_EXTENSION = '.bak';
@@ -181,6 +182,16 @@ const
 	{ } '--follow',
 	{ } '--crlf'];
 
+	SEARCH_OPTION_CASES : array [0 .. 6] of TSearchOptionToRgOptions = (
+		{ } (SearchOption : [EGuiOption.soMatchCase]; 							RgOptions : ['--ignore-case']),
+		{ } (SearchOption : [EGuiOption.soMatchWord]; 							RgOptions : ['--word-regexp']),
+		{ } (SearchOption : [EGuiOption.soUseRegex]; 							RgOptions : ['--word-regexp']),
+		{ } (SearchOption : [EGuiOption.soMatchCase, EGuiOption.soMatchWord];	RgOptions : ['']),
+		{ } (SearchOption : [EGuiOption.soMatchCase, EGuiOption.soUseRegex];	RgOptions : ['']),
+		{ } (SearchOption : [EGuiOption.soMatchWord, EGuiOption.soUseRegex];	RgOptions : ['']),
+		{ } (SearchOption : [EGuiOption.soMatchCase, EGuiOption.soMatchWord, EGuiOption.soUseRegex]; RgOptions : [''])
+		{ } );
+
 	RG_PARAM_SHORT_INDEX = 0;
 	RG_PARAM_LONG_INDEX = 1;
 
@@ -237,6 +248,7 @@ const
 	COMPONENT_NAME_COLORSELECTOR = '_ColorSelector';
 
 	USERMESSAGE_VALIDATE_INPUT = WM_USER + 100;
+
 type
 
 	EColumnIndex = (ciFile, ciRow, ciCol, ciText, ciMatchText, ciTextAfterMatch);

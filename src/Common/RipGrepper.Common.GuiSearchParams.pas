@@ -55,7 +55,7 @@ type
 			procedure ResetOption(const _searchOption : EGuiOption);
 			function SearchOptionsAsBitField : TBitField;
 			procedure SetOption(const _searchOption : EGuiOption);
-			procedure SetOrReset(const _newOption : EGuiOption); overload;
+			procedure SwitchOption(const _newOption : EGuiOption); overload;
 			function SetRgOption(const _sParamRegex : string; const _bReset : Boolean = False) : string;
 			function SetRgOptionWithValue(const _sParamRegex, _sValue : string; const _bUnique : Boolean = False) : string;
 			procedure StoreAsDefaultsToDict; override;
@@ -64,6 +64,7 @@ type
 			procedure LoadFromDict(); override;
 			procedure StoreToDict; override;
 			function ToLogString : string; override;
+			procedure UpdateRgParamsByGuiOptions;
 			class procedure ValidateOptions(listOptions : TStringList); static;
 
 			property EscapedSearchText : string read GetEscapedSearchText;
@@ -98,15 +99,15 @@ begin
 	Result := self;
 	case _newOption of
 		EGuiOption.soMatchCase : begin
-			Result.SetOrReset(EGuiOption.soMatchCase);
+			Result.SwitchOption(EGuiOption.soMatchCase);
 		end;
 
 		EGuiOption.soMatchWord : begin
-			Result.SetOrReset(EGuiOption.soMatchWord);
+			Result.SwitchOption(EGuiOption.soMatchWord);
 		end;
 
 		EGuiOption.soUseRegex : begin
-			Result.SetOrReset(EGuiOption.soUseRegex);
+			Result.SwitchOption(EGuiOption.soUseRegex);
 		end;
 	end;
 end;
@@ -241,7 +242,7 @@ begin
 	end;
 end;
 
-procedure TGuiSearchTextParams.SetOrReset(const _newOption : EGuiOption);
+procedure TGuiSearchTextParams.SwitchOption(const _newOption : EGuiOption);
 begin
 	if IsSet([_newOption]) then begin
 		ResetOption(_newOption);
@@ -405,13 +406,27 @@ end;
 
 procedure TGuiSearchTextParams.StoreToDict;
 begin
-    SettingsDict.StoreSetting('SearchParams', GetAsString(True));
+	SettingsDict.StoreSetting('SearchParams', GetAsString(True));
 	inherited StoreToDict();
 end;
 
 function TGuiSearchTextParams.ToLogString : string;
 begin
 	Result := GetAsString();
+end;
+
+procedure TGuiSearchTextParams.UpdateRgParamsByGuiOptions;
+const
+	SEARCH_OPTIONS : array [0 .. 2] of EGuiOption =
+	{ } (EGuiOption.soMatchCase, EGuiOption.soMatchWord, EGuiOption.soUseRegex);
+begin
+	for var op : EGuiOption in SEARCH_OPTIONS do begin
+		if op in self.SearchOptions then begin
+			self.SetOption(op);
+		end else begin
+			self.ResetOption(op);
+		end;
+	end;
 end;
 
 end.
