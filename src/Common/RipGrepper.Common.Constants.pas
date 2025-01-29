@@ -185,7 +185,11 @@ const
 	SEARCH_OPTIONS : array [0 .. 2] of EGuiOption =
 	{ } (EGuiOption.soMatchCase, EGuiOption.soMatchWord, EGuiOption.soUseRegex);
 
-	SEARCH_OPTION_CASES : array [0 .. 6] of TSearchOptionToRgOptions = (
+	SEARCH_OPTION_CASES : array [0 .. 8] of TSearchOptionToRgOptions = (
+		{ } (SearchOption : [];
+		{ }{ } RgOptions : [RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_REGEX_IGNORE_CASE]),
+		{ } (SearchOption : [EGuiOption.soNotSet];
+		{ }{ } RgOptions : [RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_REGEX_IGNORE_CASE]),
 		{ } (SearchOption : [EGuiOption.soMatchCase];
 		{ }{ } RgOptions : [RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_REGEX_CASE_SENSITIVE]),
 		{ } (SearchOption : [EGuiOption.soMatchWord];

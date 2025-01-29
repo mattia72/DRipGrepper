@@ -162,31 +162,7 @@ var
 begin
 	searchOption := _searchOption;
 	Exclude(SearchOptions, searchOption);
-
-	if (SearchOptions = []) or
-	{ } (not(EGuiOption.soUseRegex in SearchOptions)) and
-	{ } (not(EGuiOption.soMatchWord in SearchOptions)) then begin
-		SetRgOption(RG_PARAM_REGEX_FIXED_STRINGS);
-		SetRgOption(RG_PARAM_REGEX_IGNORE_CASE);
-	end;
-
-	case searchOption of
-		EGuiOption.soNotSet :
-		{ };
-		EGuiOption.soMatchCase : begin
-			ResetRgOption(RG_PARAM_REGEX_CASE_SENSITIVE);
-			SetRgOption(RG_PARAM_REGEX_IGNORE_CASE);
-		end;
-		EGuiOption.soMatchWord, EGuiOption.soUseRegex :
-		if not( //
-			(SearchOptions = [EGuiOption.soNotSet]) or //
-			(SearchOptions = [EGuiOption.soMatchCase]) or //
-			(SearchOptions = [])) then begin
-			ResetRgOption(RG_PARAM_REGEX_FIXED_STRINGS);
-			SetRgOption(RG_PARAM_REGEX_IGNORE_CASE);
-		end;
-	end;
-
+	UpdateRgParamsByGuiOptions();
 end;
 
 function TGuiSearchTextParams.SearchOptionsAsBitField : TBitField;
@@ -224,22 +200,7 @@ begin
 		Exclude(SearchOptions, EGuiOption.soNotSet);
 	end;
 
-	case _searchOption of
-		EGuiOption.soNotSet : begin
-			// ignore case by default
-			ResetRgOption(RG_PARAM_REGEX_CASE_SENSITIVE);
-			SetRgOption(RG_PARAM_REGEX_IGNORE_CASE);
-			SetRgOption(RG_PARAM_REGEX_FIXED_STRINGS);
-		end;
-		EGuiOption.soMatchCase : begin
-			ResetRgOption(RG_PARAM_REGEX_IGNORE_CASE);
-			SetRgOption(RG_PARAM_REGEX_CASE_SENSITIVE);
-		end;
-		EGuiOption.soMatchWord :
-		{ } ResetRgOption(RG_PARAM_REGEX_FIXED_STRINGS);
-		EGuiOption.soUseRegex :
-		{ } ResetRgOption(RG_PARAM_REGEX_FIXED_STRINGS);
-	end;
+	UpdateRgParamsByGuiOptions();
 end;
 
 procedure TGuiSearchTextParams.SwitchOption(const _newOption : EGuiOption);
