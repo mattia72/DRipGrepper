@@ -39,8 +39,10 @@ Marked with checkmark if fixed, else it is a known bug.
 - [x] background color 'nothing' should be handled transparent
 - [x] set as default doesn't save defaults in ini
 - [x] Exception if rg.exe get wrong paramters
-- [ ] if search form initialized with case sensitive, --fixed-string not set 
-- [ ] delete additional options clears file masks combo also
+- [x] if search form initialized with case sensitive, --fixed-string not set 
+- [ ] delete additional options clears 
+    - [x] file masks combo
+    - [ ] encoding
 - [o] look on dpi change (drag to another monitor)
     - [x] search form switch between search and replace shrinks height
     - [ ] search form Use Regex button disappear if drag to another monitor
@@ -56,5 +58,4 @@ Marked with checkmark if fixed, else it is a known bug.
     - [x] extension: toolbar not dark after switch 
         - independent from ParentBackground? https://en.delphipraxis.net/topic/2779-tframe-and-vcl-styles-solved/
     - [x] after switch light/dark mode in config, Open With settings moved to the right bottom corner
-- [ ] Fehler in regulärem Ausdruck bei Offset 26: PCRE does not support \L, \l, \N{name}, \U, or \u.
-    - RipGrepper.Parsers.VimGrepMatchLine.Parsers.Vimgrepmatchline.TVimGrepMatchLineParser.SetPrettyRegex (Line 201, "RipGrepper.Parsers.VimGrepMatchLine.pas" + 17) ...
+- [ ] PCRE does not support \L, \l, \N{name}, \U, or \u. TVimGrepMatchLineParser.SetPrettyRegex (Line 201, "RipGrepper.Parsers.VimGrepMatchLine.pas" + 17) ...
