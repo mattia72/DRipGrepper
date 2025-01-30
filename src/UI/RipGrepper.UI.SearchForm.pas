@@ -176,7 +176,7 @@ type
 			function GetFullHeights : integer;
 			function HasHistItemObjWithResult : Boolean;
 			function GetInIDESelectedText : string;
-			procedure LoadDefaultSettings;
+			procedure LoadNewSearchSettings;
 			procedure LoadExtensionSearchSettings;
 			procedure LoadInitialSettings;
 			procedure SetCmbSearchPathText(const _sPath : string);
@@ -471,7 +471,7 @@ begin
 
 	WriteCtrlsToRipGrepParametersSettings;
 	UpdateCmbOptionsAndMemoCommandLine;
-	UpdateCheckBoxesByRgOptions();
+   //	UpdateCheckBoxesByRgOptions(); ???
 
 	ShowReplaceCtrls(IsReplaceMode());
 	// Active Monitor
@@ -1030,10 +1030,10 @@ begin
 	Result := TabControl1.TabIndex = 1;
 end;
 
-procedure TRipGrepperSearchDialogForm.LoadDefaultSettings;
+procedure TRipGrepperSearchDialogForm.LoadNewSearchSettings;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadDefaultSettings');
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadNewSearchSettings');
 	FSettings.ReadIni;
 	// TODO option to load always defaults:
 	// FSettings.CopyDefaultsToValues;
@@ -1127,7 +1127,7 @@ begin
 			FSettings.LoadFromDict();
 		end;
 	end else begin
-		LoadDefaultSettings;
+		LoadNewSearchSettings;
 	end;
 end;
 
