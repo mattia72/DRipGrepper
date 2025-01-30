@@ -24,11 +24,12 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 
 ## :boom: Improvements 
 Marked with checkmark if ready, else planned ...
+- [ ] copy to clipboard for running in PowerShell or command prompt
 - [ ] **extension**: save all before search message?
 - [ ] **extension**: search opened project files only
 - [ ] save/load search histories in file
 - [ ] JSON config files
-- [ ] copy to clipboard for running in PowerShell or command prompt
+- [ ] skin chooser? https://stackoverflow.com/questions/9906312/delphi-vcl-styles-tutorial-how-to-change-the-style-at-runtime
 
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.
@@ -37,8 +38,9 @@ Marked with checkmark if fixed, else it is a known bug.
 - [ ] **extension**: drip icon in menu has no transparent background
 - [x] background color 'nothing' should be handled transparent
 - [x] set as default doesn't save defaults in ini
-- [ ] Exception if rg.exe get wrong paramters
+- [x] Exception if rg.exe get wrong paramters
 - [ ] if search form initialized with case sensitive, --fixed-string not set 
+- [ ] delete additional options clears file masks combo also
 - [o] look on dpi change (drag to another monitor)
     - [x] search form switch between search and replace shrinks height
     - [ ] search form Use Regex button disappear if drag to another monitor
@@ -47,11 +49,12 @@ Marked with checkmark if fixed, else it is a known bug.
     - [ ] more match in same line replaces all occurence, even if user selects only one
         - [x] replace by rg is ok: there will be changed every occurence in every lines 
     - [ ] replace by toolbar is always ignore case
+    - [ ] left arrow in replace edit ctrl doesn't work
 - [o] ugly dark mode. read this: https://github.com/checkdigits/delphidarkmode
     - [ ] ugly icons
     - [ ] alternate colors
     - [x] extension: toolbar not dark after switch 
         - independent from ParentBackground? https://en.delphipraxis.net/topic/2779-tframe-and-vcl-styles-solved/
     - [x] after switch light/dark mode in config, Open With settings moved to the right bottom corner
-    - [ ] skin chooser? https://stackoverflow.com/questions/9906312/delphi-vcl-styles-tutorial-how-to-change-the-style-at-runtime
-
+- [ ] Fehler in regulärem Ausdruck bei Offset 26: PCRE does not support \L, \l, \N{name}, \U, or \u.
+    - RipGrepper.Parsers.VimGrepMatchLine.Parsers.Vimgrepmatchline.TVimGrepMatchLineParser.SetPrettyRegex (Line 201, "RipGrepper.Parsers.VimGrepMatchLine.pas" + 17) ...
