@@ -7,49 +7,49 @@ program DRipGrepperUnittest.D12;
 {$WARN DUPLICATE_CTOR_DTOR OFF}
 
 uses
-	{$IFDEF FASTMM4_OPT}
-	FastMM4,
-	{$ENDIF }
-	System.SysUtils,
-	{$IFDEF TESTINSIGHT}
-	TestInsight.DUnitX,
-	{$ELSE}
-	DUnitX.Loggers.Console,
-	{$ENDIF }
-	DUnitX.TestFramework,
-	RipGrepper.Parser.MatchTest in 'RipGrepper.Parser.MatchTest.pas',
-	RipGrepper.Data.Matches in '..\src\RipGrepper.Data.Matches.pas',
-	RipGrepper.ProcessUtils.Test in 'RipGrepper.ProcessUtils.Test.pas',
-	RipGrepper.Tools.ProcessUtils in '..\src\RipGrepper.Tools.ProcessUtils.pas',
-	RipGrepper.Helper.Types.Test in 'RipGrepper.Helper.Types.Test.pas',
-	RipGrepper.Helper.Types in '..\src\RipGrepper.Helper.Types.pas',
-	RipGrepper.Parsers.VimGrepMatchLine in '..\src\RipGrepper.Parsers.VimGrepMatchLine.pas',
-	ArrayEx in '..\external\ArrayEx.pas',
-	RipGrepper.CommandLine.Builder.Test in 'RipGrepper.CommandLine.Builder.Test.pas',
-	RipGrepper.CommandLine.Builder in '..\src\RipGrepper.CommandLine.Builder.pas',
-	RipGrepper.CommandLine.OptionsHelper.Test in 'RipGrepper.CommandLine.OptionsHelper.Test.pas',
-	RipGrepper.CommandLine.OptionHelper in '..\src\RipGrepper.CommandLine.OptionHelper.pas',
-	RipGrepper.Settings.SearchFormSettingsTest in 'RipGrepper.Settings.SearchFormSettingsTest.pas',
-	RipGrepper.Settings.PersistableSettingsTest in 'RipGrepper.Settings.PersistableSettingsTest.pas',
-	RipGrepper.Settings.JsonTest in 'RipGrepper.Settings.JsonTest.pas',
-	Pkg.Json.DTO in 'Pkg.Json.DTO.pas',
-	RootUnit in 'RootUnit.pas',
-	RipGrepper.Settings.RipGrepperSettingsTest in 'RipGrepper.Settings.RipGrepperSettingsTest.pas',
-	RipGrepper.CommandLine.OptionStrings in '..\src\RipGrepper.CommandLine.OptionStrings.pas',
-	RipGrepper.CommandLine.OptionStrings.Test in 'RipGrepper.CommandLine.OptionStrings.Test.pas',
-	RipGrepper.Settings.TestOwnerSettings in 'RipGrepper.Settings.TestOwnerSettings.pas',
-	RipGrepper.Settings.RipGrepParameterSettings in '..\src\Settings\RipGrepper.Settings.RipGrepParameterSettings.pas',
-	RipGrepper.Settings.RipGrepSettingsTest in 'RipGrepper.Settings.RipGrepSettingsTest.pas',
-	RipGrepper.Settings.Persistable in '..\src\Settings\RipGrepper.Settings.Persistable.pas',
-	RipGrepper.Common.GuiSearchParams in '..\src\Common\RipGrepper.Common.GuiSearchParams.pas',
-	RipGrepper.Settings.RipGrepperSettings in '..\src\Settings\RipGrepper.Settings.RipGrepperSettings.pas',
-	RipGrepper.Common.SimpleTypes in '..\src\Common\RipGrepper.Common.SimpleTypes.pas',
-	RipGrepper.Settings.MemIniFileHelperTest in 'RipGrepper.Settings.MemIniFileHelperTest.pas',
-	RipGrepper.Helper.MemIniFile in '..\src\Helper\RipGrepper.Helper.MemIniFile.pas',
-	RipGrepper.Settings.ExtensionSettings in '..\src\Settings\RipGrepper.Settings.ExtensionSettings.pas',
-	RipGrepper.Settings.NoodeLookSettingsTest in 'RipGrepper.Settings.NoodeLookSettingsTest.pas',
-	RipGrepper.Tools.FileUtils in '..\src\Tools\RipGrepper.Tools.FileUtils.pas';
-
+  {$IFDEF FASTMM4_OPT}
+  FastMM4,
+  {$ENDIF }
+  System.SysUtils,
+  {$IFDEF TESTINSIGHT}
+  TestInsight.DUnitX,
+  {$ELSE}
+  DUnitX.Loggers.Console,
+  {$ENDIF }
+  DUnitX.TestFramework,
+  RipGrepper.Parser.MatchTest in 'RipGrepper.Parser.MatchTest.pas',
+  RipGrepper.Data.Matches in '..\src\RipGrepper.Data.Matches.pas',
+  RipGrepper.ProcessUtils.Test in 'RipGrepper.ProcessUtils.Test.pas',
+  RipGrepper.Tools.ProcessUtils in '..\src\RipGrepper.Tools.ProcessUtils.pas',
+  RipGrepper.Helper.Types.Test in 'RipGrepper.Helper.Types.Test.pas',
+  RipGrepper.Helper.Types in '..\src\RipGrepper.Helper.Types.pas',
+  RipGrepper.Parsers.VimGrepMatchLine in '..\src\RipGrepper.Parsers.VimGrepMatchLine.pas',
+  ArrayEx in '..\external\ArrayEx.pas',
+  RipGrepper.CommandLine.Builder.Test in 'RipGrepper.CommandLine.Builder.Test.pas',
+  RipGrepper.CommandLine.Builder in '..\src\RipGrepper.CommandLine.Builder.pas',
+  RipGrepper.CommandLine.OptionsHelper.Test in 'RipGrepper.CommandLine.OptionsHelper.Test.pas',
+  RipGrepper.CommandLine.OptionHelper in '..\src\RipGrepper.CommandLine.OptionHelper.pas',
+  RipGrepper.Settings.SearchFormSettingsTest in 'RipGrepper.Settings.SearchFormSettingsTest.pas',
+  RipGrepper.Settings.PersistableSettingsTest in 'RipGrepper.Settings.PersistableSettingsTest.pas',
+  RipGrepper.Settings.JsonTest in 'RipGrepper.Settings.JsonTest.pas',
+  Pkg.Json.DTO in 'Pkg.Json.DTO.pas',
+  RootUnit in 'RootUnit.pas',
+  RipGrepper.Settings.RipGrepperSettingsTest in 'RipGrepper.Settings.RipGrepperSettingsTest.pas',
+  RipGrepper.CommandLine.OptionStrings in '..\src\RipGrepper.CommandLine.OptionStrings.pas',
+  RipGrepper.CommandLine.OptionStrings.Test in 'RipGrepper.CommandLine.OptionStrings.Test.pas',
+  RipGrepper.Settings.TestOwnerSettings in 'RipGrepper.Settings.TestOwnerSettings.pas',
+  RipGrepper.Settings.RipGrepParameterSettings in '..\src\Settings\RipGrepper.Settings.RipGrepParameterSettings.pas',
+  RipGrepper.Settings.RipGrepSettingsTest in 'RipGrepper.Settings.RipGrepSettingsTest.pas',
+  RipGrepper.Settings.Persistable in '..\src\Settings\RipGrepper.Settings.Persistable.pas',
+  RipGrepper.Common.GuiSearchParams in '..\src\Common\RipGrepper.Common.GuiSearchParams.pas',
+  RipGrepper.Settings.RipGrepperSettings in '..\src\Settings\RipGrepper.Settings.RipGrepperSettings.pas',
+  RipGrepper.Common.SimpleTypes in '..\src\Common\RipGrepper.Common.SimpleTypes.pas',
+  RipGrepper.Settings.MemIniFileHelperTest in 'RipGrepper.Settings.MemIniFileHelperTest.pas',
+  RipGrepper.Helper.MemIniFile in '..\src\Helper\RipGrepper.Helper.MemIniFile.pas',
+  RipGrepper.Settings.ExtensionSettings in '..\src\Settings\RipGrepper.Settings.ExtensionSettings.pas',
+  RipGrepper.Settings.NoodeLookSettingsTest in 'RipGrepper.Settings.NoodeLookSettingsTest.pas',
+  RipGrepper.Tools.FileUtils in '..\src\Tools\RipGrepper.Tools.FileUtils.pas',
+  RipGrepper.Common.Constants in '..\src\Common\RipGrepper.Common.Constants.pas';
 
 // This comment has to guard the following IFDEF, that may be delted by delphi, if new unit added to the project
 {$IFNDEF TESTINSIGHT}

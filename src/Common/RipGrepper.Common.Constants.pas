@@ -145,8 +145,8 @@ const
 
 	RG_PARAM_REGEX_IGNORE_CASE = '-i|--ignore-case';
 	RG_PARAM_REGEX_CASE_SENSITIVE = '-s|--case-sensitive';
-	RG_PARAM_REGEX_FIXED_STRINGS = '-F|--fixed-strings';
-	RG_PARAM_REGEX_WORD_REGEX = '-w|--word-regexp';
+	RG_PARAM_REGEX_FIXED_STRINGS = '-F|--fixed-strings'; // if not set, then regex
+	RG_PARAM_REGEX_WORD_REGEX = '-w|--word-regexp';  // match word-regex ... not used by us
 	RG_PARAM_REGEX_GLOB = '-g|--glob';
 	RG_PARAM_REGEX_HIDDEN = '-\.|--hidden';
 	RG_PARAM_REGEX_NO_IGNORE = '-u|--no-ignore';
@@ -165,6 +165,7 @@ const
 	{ } RG_PARAM_REGEX_IGNORE_CASE,
 	{ } RG_PARAM_REGEX_CASE_SENSITIVE,
 	{ } RG_PARAM_REGEX_FIXED_STRINGS,
+	{ } //RG_PARAM_REGEX_WORD_REGEX,
 	{ } RG_PARAM_REGEX_GLOB,
 	{ } RG_PARAM_REGEX_HIDDEN,
 	{ } RG_PARAM_REGEX_NO_IGNORE,
@@ -182,14 +183,28 @@ const
 	{ } '--follow',
 	{ } '--crlf'];
 
-	SEARCH_OPTION_CASES : array [0 .. 6] of TSearchOptionToRgOptions = (
-		{ } (SearchOption : [EGuiOption.soMatchCase]; 							RgOptions : ['--ignore-case']),
-		{ } (SearchOption : [EGuiOption.soMatchWord]; 							RgOptions : ['--word-regexp']),
-		{ } (SearchOption : [EGuiOption.soUseRegex]; 							RgOptions : ['--word-regexp']),
-		{ } (SearchOption : [EGuiOption.soMatchCase, EGuiOption.soMatchWord];	RgOptions : ['']),
-		{ } (SearchOption : [EGuiOption.soMatchCase, EGuiOption.soUseRegex];	RgOptions : ['']),
-		{ } (SearchOption : [EGuiOption.soMatchWord, EGuiOption.soUseRegex];	RgOptions : ['']),
-		{ } (SearchOption : [EGuiOption.soMatchCase, EGuiOption.soMatchWord, EGuiOption.soUseRegex]; RgOptions : [''])
+	SEARCH_OPTIONS : array [0 .. 2] of EGuiOption =
+	{ } (EGuiOption.soMatchCase, EGuiOption.soMatchWord, EGuiOption.soUseRegex);
+
+	SEARCH_OPTION_CASES : array [0 .. 8] of TSearchOptionToRgOptions = (
+		{ } (SearchOption : [];
+		{ }{ } RgOptions : [RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_REGEX_IGNORE_CASE]),
+		{ } (SearchOption : [EGuiOption.soNotSet];
+		{ }{ } RgOptions : [RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_REGEX_IGNORE_CASE]),
+		{ } (SearchOption : [EGuiOption.soMatchCase];
+		{ }{ } RgOptions : [RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_REGEX_CASE_SENSITIVE]),
+		{ } (SearchOption : [EGuiOption.soMatchWord];
+		{ }{ } RgOptions : [RG_PARAM_REGEX_IGNORE_CASE{, RG_PARAM_REGEX_WORD_REGEX}]),
+		{ } (SearchOption : [EGuiOption.soUseRegex];
+		{ }{ } RgOptions : [RG_PARAM_REGEX_IGNORE_CASE{, RG_PARAM_REGEX_WORD_REGEX}]),
+		{ } (SearchOption : [EGuiOption.soMatchCase, EGuiOption.soMatchWord];
+		{ }{ } RgOptions : [RG_PARAM_REGEX_CASE_SENSITIVE{, RG_PARAM_REGEX_WORD_REGEX}]),
+		{ } (SearchOption : [EGuiOption.soMatchCase, EGuiOption.soUseRegex];
+		{ }{ } RgOptions : [RG_PARAM_REGEX_CASE_SENSITIVE{, RG_PARAM_REGEX_WORD_REGEX}]),
+		{ } (SearchOption : [EGuiOption.soMatchWord, EGuiOption.soUseRegex];
+		{ }{ } RgOptions : [RG_PARAM_REGEX_IGNORE_CASE{, RG_PARAM_REGEX_WORD_REGEX}]),
+		{ } (SearchOption : [EGuiOption.soMatchCase, EGuiOption.soMatchWord, EGuiOption.soUseRegex];
+		{ }{ } RgOptions : [RG_PARAM_REGEX_CASE_SENSITIVE{, RG_PARAM_REGEX_WORD_REGEX}])
 		{ } );
 
 	RG_PARAM_SHORT_INDEX = 0;

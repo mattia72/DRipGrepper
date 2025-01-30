@@ -162,31 +162,7 @@ var
 begin
 	searchOption := _searchOption;
 	Exclude(SearchOptions, searchOption);
-
-	if (SearchOptions = []) or
-	{ } (not(EGuiOption.soUseRegex in SearchOptions)) and
-	{ } (not(EGuiOption.soMatchWord in SearchOptions)) then begin
-		SetRgOption(RG_PARAM_REGEX_FIXED_STRINGS);
-		SetRgOption(RG_PARAM_REGEX_IGNORE_CASE);
-	end;
-
-	case searchOption of
-		EGuiOption.soNotSet :
-		{ };
-		EGuiOption.soMatchCase : begin
-			ResetRgOption(RG_PARAM_REGEX_CASE_SENSITIVE);
-			SetRgOption(RG_PARAM_REGEX_IGNORE_CASE);
-		end;
-		EGuiOption.soMatchWord, EGuiOption.soUseRegex :
-		if not( //
-			(SearchOptions = [EGuiOption.soNotSet]) or //
-			(SearchOptions = [EGuiOption.soMatchCase]) or //
-			(SearchOptions = [])) then begin
-			ResetRgOption(RG_PARAM_REGEX_FIXED_STRINGS);
-			SetRgOption(RG_PARAM_REGEX_IGNORE_CASE);
-		end;
-	end;
-
+	UpdateRgParamsByGuiOptions();
 end;
 
 function TGuiSearchTextParams.SearchOptionsAsBitField : TBitField;
@@ -224,22 +200,7 @@ begin
 		Exclude(SearchOptions, EGuiOption.soNotSet);
 	end;
 
-	case _searchOption of
-		EGuiOption.soNotSet : begin
-			// ignore case by default
-			ResetRgOption(RG_PARAM_REGEX_CASE_SENSITIVE);
-			SetRgOption(RG_PARAM_REGEX_IGNORE_CASE);
-			SetRgOption(RG_PARAM_REGEX_FIXED_STRINGS);
-		end;
-		EGuiOption.soMatchCase : begin
-			ResetRgOption(RG_PARAM_REGEX_IGNORE_CASE);
-			SetRgOption(RG_PARAM_REGEX_CASE_SENSITIVE);
-		end;
-		EGuiOption.soMatchWord :
-		{ } ResetRgOption(RG_PARAM_REGEX_FIXED_STRINGS);
-		EGuiOption.soUseRegex :
-		{ } ResetRgOption(RG_PARAM_REGEX_FIXED_STRINGS);
-	end;
+	UpdateRgParamsByGuiOptions();
 end;
 
 procedure TGuiSearchTextParams.SwitchOption(const _newOption : EGuiOption);
@@ -416,15 +377,16 @@ begin
 end;
 
 procedure TGuiSearchTextParams.UpdateRgParamsByGuiOptions;
-const
-	SEARCH_OPTIONS : array [0 .. 2] of EGuiOption =
-	{ } (EGuiOption.soMatchCase, EGuiOption.soMatchWord, EGuiOption.soUseRegex);
 begin
-	for var op : EGuiOption in SEARCH_OPTIONS do begin
-		if op in self.SearchOptions then begin
-			self.SetOption(op);
-		end else begin
-			self.ResetOption(op);
+	for var op : TSearchOptionToRgOptions in SEARCH_OPTION_CASES do begin
+		if op.SearchOption = self.SearchOptions then begin
+			var opArr : TArrayEx<string>;
+			for var os in op.RgOptions do begin
+				opArr.Add(TParamRegexHelper.GetLongParam(os));
+			end;
+
+			self.RgOptions := TOptionStrings.New(opArr);
+			break;
 		end;
 	end;
 end;

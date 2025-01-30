@@ -138,6 +138,7 @@
         <DCCReference Include="..\src\Settings\RipGrepper.Settings.ExtensionSettings.pas"/>
         <DCCReference Include="RipGrepper.Settings.NoodeLookSettingsTest.pas"/>
         <DCCReference Include="..\src\Tools\RipGrepper.Tools.FileUtils.pas"/>
+        <DCCReference Include="..\src\Common\RipGrepper.Common.Constants.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -181,7 +182,7 @@
                 </DeployFile>
                 <DeployFile LocalName="Win32\Debug\DRipGrepperUnittest.D12.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>DRipGrepperUnittest_D12.exe</RemoteName>
+                        <RemoteName>DRipGrepperUnittest.D12.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -843,6 +844,9 @@
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="Win64">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Win64x">
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
