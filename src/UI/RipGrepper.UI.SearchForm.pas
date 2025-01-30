@@ -147,7 +147,6 @@ type
 			// FDpiScaler : TRipGrepperDpiScaler;
 			FHistItemGuiSearchParams : TGuiSearchTextParams;
 			FCbClickEventEnabled : Boolean;
-			FcmbOptionsOldText : string;
 			FOptionsFiltersOrigHeight : Integer;
 			FOptionsOutputOrigTop : Integer;
 			FpnlMiddleOrigHeight : Integer;
@@ -188,7 +187,6 @@ type
 			procedure ShowReplaceCtrls(const _bShow : Boolean);
 			procedure UpdateButtonsBySettings;
 			procedure UpdateCmbsOnIDEContextChange;
-			procedure UpdateFileMasksInFileMasks;
 			procedure UpdateFileMasksInOptions; overload;
 			procedure UpdateHeight;
 			procedure UpdateRbExtensionItemIndex(const _idx : Integer);
@@ -454,7 +452,7 @@ begin
 		dbgMsg.Msg('Store histories');
 		FSettings.StoreHistories();
 		FSettings.SearchFormSettings.UpdateIniFile(FSettings.SearchFormSettings.IniSectionName); // create temp section
-//      Fsettings.IniFile.ReadTempSectionFiles(); // read temp section
+		// Fsettings.IniFile.ReadTempSectionFiles(); // read temp section
 		Fsettings.IniFile.UpdateFile;
 		dbgMsg.Msg('[SearchTextsHistory] Item 0:' + FSettings.IniFile.ReadString('SearchTextsHistory', 'Item_0', 'not exists'));
 	end;
@@ -535,8 +533,6 @@ begin
 	UpdateButtonsBySettings;
 	UpdateCheckBoxesBySettings();
 	SetComboItemsAndText(cmbOptions, RG_ARG_OPTIONS, FSettings.ExpertOptionHistory);
-
-	FcmbOptionsOldText := cmbOptions.Text;
 end;
 
 procedure TRipGrepperSearchDialogForm.ButtonDown(const _searchOption : EGuiOption; _tb : TToolButton; const _bNotMatch : Boolean = False);
@@ -879,7 +875,6 @@ begin
 		UpdateMemoCommandLine(); // this should be done first! UpdateCtrls
 	end else if cmbOptions = _ctrlChanged then begin
 		UpdateMemoCommandLine(); // this should be done first! UpdateCtrls
-		UpdateFileMasksInFileMasks();
 		UpdateCheckBoxesByRgOptions(); // UpdateCtrs(cmbControls)
 	end;
 end;
@@ -1041,7 +1036,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadDefaultSettings');
 	FSettings.ReadIni;
 	// TODO option to load always defaults:
-    // FSettings.CopyDefaultsToValues;
+	// FSettings.CopyDefaultsToValues;
 	// OR last used  ...
 	FSettings.LoadFromDict;
 
@@ -1063,7 +1058,7 @@ begin
 	// FHistItemGuiSearchParams.LoadDefaultsFromDict;
 
 	FHistItemGuiSearchParams.Copy(FSettings.RipGrepParameters.GuiSearchTextParams);
-    FHistItemGuiSearchParams.UpdateRgParamsByGuiOptions();
+	FHistItemGuiSearchParams.UpdateRgParamsByGuiOptions();
 	UpdateCheckBoxesBySettings();
 end;
 
@@ -1281,12 +1276,6 @@ begin
 		FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext := rgec;
 		dbgMsg.Msg(rgec.ToLogString);
 	end;
-end;
-
-procedure TRipGrepperSearchDialogForm.UpdateFileMasksInFileMasks;
-begin
-	cmbFileMasks.Text := TCommandLineBuilder.GetUniqueFileMasksDelimited(FHistItemGuiSearchParams.RgOptions.AsString);
-	TDebugUtils.DebugMessage('UpdateFileMasksInFileMasks cmbFileMasks.Text=' + cmbFileMasks.Text);
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateFileMasksInOptions;

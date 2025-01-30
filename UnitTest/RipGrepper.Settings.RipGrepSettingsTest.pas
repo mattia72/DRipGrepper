@@ -264,7 +264,7 @@ begin
     FSettings.FileMasks := '';
     FSettings.SearchPath := '';
 	FSettings.ReLoad;    // fills only settings dict
-    FSettings.LoadFromDict; //
+    FSettings.LoadFromDict; // why loads defaults ?????
 	Assert.IsTrue(FSettings.RipGrepPath.Contains(RG_EXE_PATH), 'RipGrepPath should be set');
 	Assert.AreEqual(PAS_DFM, FSettings.FileMasks, 'FileMasks should be set');
 	Assert.AreEqual(C_PATH_TO_DIR, FSettings.SearchPath, 'SearchPath should be set');

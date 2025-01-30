@@ -37,8 +37,8 @@ Marked with checkmark if fixed, else it is a known bug.
 - [ ] **extension**: drip icon in menu has no transparent background
 - [x] background color 'nothing' should be handled transparent
 - [x] set as default doesn't save defaults in ini
-- [ ] Exception if rg.exe get wrong paramters
-- [ ] if search form initialized with case sensitive, --fixed-string not set 
+- [x] Exception if rg.exe get wrong paramters
+- [x] if search form initialized with case sensitive, --fixed-string not set 
 - [o] look on dpi change (drag to another monitor)
     - [x] search form switch between search and replace shrinks height
     - [ ] search form Use Regex button disappear if drag to another monitor
