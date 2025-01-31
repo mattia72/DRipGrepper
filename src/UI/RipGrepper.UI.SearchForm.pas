@@ -720,7 +720,7 @@ begin
 	FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
 	dbgMsg.Msg('SearchPath=' + cmbSearchDir.Text);
 
--	FSettings.RipGrepParameters.FileMasks := cmbFileMasks.Text;
+	FSettings.RipGrepParameters.FileMasks := cmbFileMasks.Text;
 	dbgMsg.Msg('FileMasks=' + cmbFileMasks.Text);
 
 	FHistItemGuiSearchParams.SetRgOption(RG_PARAM_REGEX_HIDDEN, not cbRgParamHidden.Checked);
@@ -1076,6 +1076,11 @@ end;
 
 function TRipGrepperSearchDialogForm.IsReplaceMode : Boolean;
 begin
+	Result := TabControl1.TabIndex = 1;
+end;
+
+procedure TRipGrepperSearchDialogForm.LoadNewSearchSettings;
+begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadNewSearchSettings');
 	FSettings.ReadIni;
@@ -1175,34 +1180,6 @@ begin
 	end;
 
 	CopySettingsToCtrlValues(FCtrlValues, FHistItemObj, FSettings);
-end;
-
-procedure TRipGrepperSearchDialogForm.LoadNewSearchSettings;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadNewSearchSettings');
-	FSettings.ReadIni;
-	// TODO option to load always defaults: // FSettings.CopyDefaultsToValues; // OR last used  ...
-	FSettings.LoadFromDict;
-
-	// TODO set only if it was saved before!
-	SetCmbSearchPathText(IfThen(FSettings.RipGrepParameters.SearchPath.IsEmpty, cmbSearchDir.Text, FSettings.RipGrepParameters.SearchPath));
-	dbgMsg.Msg('cmbSearchDir=' + cmbSearchDir.Text);
-	{$IFNDEF STANDALONE}
-	var
-	cic := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
-	dbgMsg.Msg('IDEContext=' + cic.ToLogString);
-	UpdateRbExtensionItemIndex(Integer(cic.IDEContext));
-	dbgMsg.Msg('cmbSearchDir=' + cmbSearchDir.Text);
-	{$ENDIF}
-	cmbFileMasks.Text := IfThen(FSettings.RipGrepParameters.FileMasks.IsEmpty, cmbFileMasks.Text, FSettings.RipGrepParameters.FileMasks);
-	dbgMsg.Msg('cmbFileMasks.Text=' + cmbFileMasks.Text);
-
-	FHistItemGuiSearchParams := TGuiSearchTextParams.Create(TRipGrepParameterSettings.INI_SECTION);
-
-	FHistItemGuiSearchParams.Copy(FSettings.RipGrepParameters.GuiSearchTextParams);
-	FHistItemGuiSearchParams.UpdateRgParamsByGuiOptions();
-	UpdateCheckBoxesBySettings();
 end;
 
 procedure TRipGrepperSearchDialogForm.SetCmbSearchPathText(const _sPath : string);
