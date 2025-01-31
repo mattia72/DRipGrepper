@@ -169,7 +169,7 @@ type
 			procedure StoreHistoriesAsCmbEntries;
 			procedure WriteCtrlsToRipGrepParametersSettings;
 			procedure WriteCtrlsToSettings(const _bDefaultOnly : Boolean = False);
-			procedure UpdateCheckBoxesByRgOptions;
+			procedure UpdateCheckBoxesByHistObjRgOptions;
 			procedure UpdateCheckBoxesBySettings;
 			function CheckAndCorrectMultiLine(const _str : TMultiLineString) : string;
 			procedure CheckVsCodeRipGrep;
@@ -471,7 +471,7 @@ begin
 
 	WriteCtrlsToRipGrepParametersSettings;
 	UpdateCmbOptionsAndMemoCommandLine;
-   //	UpdateCheckBoxesByRgOptions(); ???
+   //	UpdateCheckBoxesByHistObjRgOptions(); ???
 
 	ShowReplaceCtrls(IsReplaceMode());
 	// Active Monitor
@@ -777,12 +777,12 @@ begin
 	FSettings.RebuildArguments();
 end;
 
-procedure TRipGrepperSearchDialogForm.UpdateCheckBoxesByRgOptions;
+procedure TRipGrepperSearchDialogForm.UpdateCheckBoxesByHistObjRgOptions;
 var
 	sVal : string;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCheckBoxesByRgOptions');
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCheckBoxesByHistObjRgOptions');
 
 	FCbClickEventEnabled := False;
 	try
@@ -875,7 +875,7 @@ begin
 		UpdateMemoCommandLine(); // this should be done first! UpdateCtrls
 	end else if cmbOptions = _ctrlChanged then begin
 		UpdateMemoCommandLine(); // this should be done first! UpdateCtrls
-		UpdateCheckBoxesByRgOptions(); // UpdateCtrs(cmbControls)
+		UpdateCheckBoxesByHistObjRgOptions(); // UpdateCtrs(cmbControls)
 	end;
 end;
 
