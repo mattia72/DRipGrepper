@@ -5,16 +5,10 @@ interface
 uses
 	RipGrepper.Settings.Persistable,
 	System.IniFiles,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants,
+	RipGrepper.Common.SimpleTypes;
 
 type
-	ERipGrepperExtensionContext = (
-		{ } rgecActiveFile = EXT_SEARCH_ACTIVE_FILE,
-		{ } rgecProjectFiles = EXT_SEARCH_PROJECT_FILES,
-		{ } rgecOpeneFiles = EXT_SEARCH_OPEN_FILES,
-		{ } rgecPath = EXT_SEARCH_GIVEN_PATH
-		{ } );
-
 	TRipGrepperExtensionContext = record
 		IDEContext : ERipGrepperExtensionContext;
 		ActiveFile : string;
