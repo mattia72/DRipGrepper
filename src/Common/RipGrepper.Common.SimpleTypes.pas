@@ -6,6 +6,13 @@ uses
 	System.Classes,
 	System.SysUtils;
 
+const
+	EXT_SEARCH_NOT_SET = -1;
+	EXT_SEARCH_ACTIVE_FILE = 0;
+	EXT_SEARCH_OPEN_FILES = 1;
+	EXT_SEARCH_PROJECT_FILES = 2;
+	EXT_SEARCH_GIVEN_PATH = 3;
+
 type
 	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepStats, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
 	// TODO : use this instead of IsError IsStats
@@ -27,6 +34,14 @@ type
 
 	TSearchOptionSet = set of EGuiOption;
 
+	ERipGrepperExtensionContext = (
+		{ } rgecNotSet = -1,
+		{ } rgecActiveFile = EXT_SEARCH_ACTIVE_FILE,
+		{ } rgecProjectFiles = EXT_SEARCH_PROJECT_FILES,
+		{ } rgecOpeneFiles = EXT_SEARCH_OPEN_FILES,
+		{ } rgecPath = EXT_SEARCH_GIVEN_PATH
+		{ } );
+
 	TSearchOptionToRgOptions = record
 		SearchOption : TSearchOptionSet;
 		RgOptions : TArray<string>;
@@ -34,6 +49,29 @@ type
 
 	ESkipFileReplaceException = class(Exception);
 	EFileOpenException = class(Exception);
+	{$SCOPEDENUMS OFF}
+
+	TSearchFormCtrlValues = record
+		SearchText : string;
+		SearchTextHist : TStrings;
+		SearchOption : TSearchOptionSet;
+		ReplaceText : string;
+		ReplaceTextHist : TStrings;
+		ExtensionContext : ERipGrepperExtensionContext;
+		SearchPath : string;
+		SearchPathHist : TStrings;
+		FileMasks : string;
+		FileMasksHist : TStrings;
+
+		IsHiddenChecked : Boolean;
+		IsNoIgnoreChecked : Boolean;
+		Encoding : string;
+		IsPrettyChecked : Boolean;
+		LineContext : integer;
+
+		AdditionalExpertOptions : string;
+		AdditionalExpertOptionsHist : TStrings;
+	end;
 
 	TErrorCounters = record
 		FSumOfErrors : Integer;
@@ -43,7 +81,6 @@ type
 		FIsRGReportedError : Boolean;
 		procedure Reset;
 	end;
-	{$SCOPEDENUMS OFF}
 
 const
 	GUI_SEARCH_PARAMS : TArray<EGuiOption> = [

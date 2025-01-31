@@ -17,13 +17,6 @@ uses
 
 type
 
-	ERipGrepperExtensionContext = (
-		{ } rgecActiveFile = EXT_SEARCH_ACTIVE_FILE,
-		{ } rgecProjectFiles = EXT_SEARCH_PROJECT_FILES,
-		{ } rgecOpeneFiles = EXT_SEARCH_OPEN_FILES,
-		{ } rgecPath = EXT_SEARCH_GIVEN_PATH
-		{ } );
-
 	TSearchFormSettings = class(TPersistableSettings)
 		const
 			SEARCH_SETTINGS : array [0 .. 4] of string =

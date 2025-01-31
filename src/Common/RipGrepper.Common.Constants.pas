@@ -233,11 +233,6 @@ const
 
 	MSG_FORMAT_TOO_MANY_RESULTS = 'Too many results.' + CRLF + 'The first %d will be shown. Try to be more specific.';
 
-	EXT_SEARCH_ACTIVE_FILE = 0;
-	EXT_SEARCH_OPEN_FILES = 1;
-	EXT_SEARCH_PROJECT_FILES = 2;
-	EXT_SEARCH_GIVEN_PATH = 3;
-
 	SHOW_CMD_IN_ONE_LINE = 'Show command in one line';
 	SHOW_CMD_IN_SEPARATE_LINES = 'Show command in lines';
 	FORMAT_RIPGREP_EXE_NOT_FOUND = 'RipGrep executable (rg.exe) not found.' + CRLF +
