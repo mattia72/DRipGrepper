@@ -170,7 +170,7 @@ type
 			procedure WriteCtrlsToRipGrepParametersSettings;
 			procedure WriteCtrlsToSettings(const _bDefaultOnly : Boolean = False);
 			procedure UpdateCheckBoxesByHistObjRgOptions;
-			procedure UpdateCheckBoxesBySettings;
+			procedure UpdateCheckBoxesByHistObjSettings;
 			function CheckAndCorrectMultiLine(const _str : TMultiLineString) : string;
 			procedure CheckVsCodeRipGrep;
 			function GetFullHeights : integer;
@@ -185,13 +185,13 @@ type
 			class procedure SetReplaceText(_settings : TRipGrepperSettings; const _replaceText : string);
 			procedure SetReplaceTextSetting(const _replaceText : string);
 			procedure ShowReplaceCtrls(const _bShow : Boolean);
-			procedure UpdateButtonsBySettings;
+			procedure UpdateButtonsByHistObjSettings;
 			procedure UpdateCmbsOnIDEContextChange;
-			procedure UpdateFileMasksInOptions; overload;
+			procedure UpdateFileMasksInHistObjRgOptions; overload;
 			procedure UpdateHeight;
 			procedure UpdateRbExtensionItemIndex(const _idx : Integer);
 			procedure WriteOptionCtrlToRipGrepParametersSetting;
-			procedure WriteSearchFormSettingsToCtrls();
+			procedure WriteSearchFormSettingsToCtrls;
 
 		protected
 			procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;
@@ -530,8 +530,8 @@ begin
 	// Set available encodings...
 	SetComboItemsAndText(cmbRgParamEncoding, RG_PARAM_REGEX_ENCODING, FSettings.AppSettings.EncodingItems);
 
-	UpdateButtonsBySettings;
-	UpdateCheckBoxesBySettings();
+	UpdateButtonsByHistObjSettings;
+	UpdateCheckBoxesByHistObjSettings();
 	SetComboItemsAndText(cmbOptions, RG_ARG_OPTIONS, FSettings.ExpertOptionHistory);
 end;
 
@@ -716,7 +716,7 @@ begin
 	FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
 	dbgMsg.Msg('SearchPath=' + cmbSearchDir.Text);
 
-	FSettings.RipGrepParameters.FileMasks := cmbFileMasks.Text;
+-	FSettings.RipGrepParameters.FileMasks := cmbFileMasks.Text;
 	dbgMsg.Msg('FileMasks=' + cmbFileMasks.Text);
 
 	FHistItemGuiSearchParams.SetRgOption(RG_PARAM_REGEX_HIDDEN, not cbRgParamHidden.Checked);
@@ -813,10 +813,10 @@ begin
 		{ } BoolToStr(cbRgParamPretty.Checked)]);
 end;
 
-procedure TRipGrepperSearchDialogForm.UpdateCheckBoxesBySettings;
+procedure TRipGrepperSearchDialogForm.UpdateCheckBoxesByHistObjSettings;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCheckBoxesBySettings');
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCheckBoxesByHistObjSettings');
 
 	FCbClickEventEnabled := False;
 	try
@@ -862,7 +862,7 @@ begin
 	end else if cmbSearchDir = _ctrlChanged then begin
 		UpdateMemoCommandLine(); // UpdateCtrls
 	end else if cmbFileMasks = _ctrlChanged then begin
-		UpdateFileMasksInOptions();
+		UpdateFileMasksInHistObjRgOptions();
 		UpdateMemoCommandLine(); // UpdateCtrls
 	end else if (cbRgParamHidden = _ctrlChanged)
 	{ } or (cbRgParamNoIgnore = _ctrlChanged)
@@ -1059,7 +1059,7 @@ begin
 
 	FHistItemGuiSearchParams.Copy(FSettings.RipGrepParameters.GuiSearchTextParams);
 	FHistItemGuiSearchParams.UpdateRgParamsByGuiOptions();
-	UpdateCheckBoxesBySettings();
+	UpdateCheckBoxesByHistObjSettings();
 end;
 
 procedure TRipGrepperSearchDialogForm.LoadExtensionSearchSettings;
@@ -1220,7 +1220,7 @@ begin
 	UpdateCtrls(TabControl1);
 end;
 
-procedure TRipGrepperSearchDialogForm.UpdateButtonsBySettings;
+procedure TRipGrepperSearchDialogForm.UpdateButtonsByHistObjSettings;
 var
 	s : string;
 begin
@@ -1278,7 +1278,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepperSearchDialogForm.UpdateFileMasksInOptions;
+procedure TRipGrepperSearchDialogForm.UpdateFileMasksInHistObjRgOptions;
 begin
 	FHistItemGuiSearchParams.RgOptions.UpdateFileMasks(cmbFileMasks.Text);
 	FSettings.RipGrepParameters.FileMasks := cmbFileMasks.Text;
