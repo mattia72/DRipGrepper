@@ -51,10 +51,11 @@ type
 	EFileOpenException = class(Exception);
 	{$SCOPEDENUMS OFF}
 
-	TSearchFormCtrlValues = record
+	TSearchFormCtrlValueProxy = record
 		SearchText : string;
 		SearchTextHist : TStrings;
-		SearchOption : TSearchOptionSet;
+		SearchOptions : TSearchOptionSet;
+        IsReplaceMode : Boolean;
 		ReplaceText : string;
 		ReplaceTextHist : TStrings;
 		ExtensionContext : ERipGrepperExtensionContext;
@@ -66,6 +67,7 @@ type
 		IsHiddenChecked : Boolean;
 		IsNoIgnoreChecked : Boolean;
 		Encoding : string;
+		EncodingItems : TStrings;
 		IsPrettyChecked : Boolean;
 		LineContext : integer;
 
