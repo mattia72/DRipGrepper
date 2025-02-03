@@ -28,7 +28,9 @@ uses
 	System.Actions,
 	Vcl.ActnList,
 	RipGrepper.Tools.DebugUtils,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants, 
+	SVGIconImageListBase, 
+	SVGIconImageList;
 
 type
 	EValidateCtrls = (vcRgExePath, vcIniFilePath);
@@ -39,7 +41,6 @@ type
 		chExpertMode : TCheckBox;
 		grpDeveloper : TGroupBox;
 		btnedtRgExePath : TButtonedEdit;
-		ImageListButtons : TImageList;
 		lblRgExePath : TLabel;
 		OpenDialog1 : TOpenDialog;
 		ActionList1 : TActionList;
@@ -56,6 +57,7 @@ type
 		chRegex : TCheckBox;
 		edtRegex : TEdit;
 		rgTheme : TRadioGroup;
+		SVGIconImageList1: TSVGIconImageList;
 		procedure btnedtIniFilePathLeftButtonClick(Sender : TObject);
 		procedure btnedtIniFilePathRightButtonClick(Sender : TObject);
 		procedure btnedtRgExePathEnter(Sender : TObject);
