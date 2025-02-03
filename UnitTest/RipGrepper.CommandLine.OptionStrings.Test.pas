@@ -520,9 +520,14 @@ const
 		{ } [EGuiOption.soMatchWord, EGuiOption.soUseRegex],
 		{ } [EGuiOption.soMatchCase, EGuiOption.soMatchWord, EGuiOption.soUseRegex]
 		{ } );
- begin
+	ENCODING_VAL = '???';
+begin
+	FGuiParams.RgOptions.AddOptionWithValue(RG_PARAM_REGEX_ENCODING, ENCODING_VAL);
+	FGuiParams.RgOptions.AddOption(RG_PARAM_REGEX_HIDDEN);
+
 	for var ops in SEARCH_OPTION_CASES do begin
 		FGuiParams.SearchOptions := ops;
+
 		FGuiParams.UpdateRgParamsByGuiOptions();
 
 		if not(EGuiOption.soUseRegex in ops) and not(EGuiOption.soMatchWord in ops) then begin
@@ -538,9 +543,13 @@ const
 		end else begin
 			Assert.IsFalse(FGuiParams.RgOptions.IsOptionSet(RG_PARAM_REGEX_CASE_SENSITIVE),
 				RG_PARAM_REGEX_CASE_SENSITIVE + ' should not be there if ' + FGuiParams.GetAsString(True));
-			Assert.IsTrue(FGuiParams.RgOptions.IsOptionSet(RG_PARAM_REGEX_IGNORE_CASE),
-				RG_PARAM_REGEX_IGNORE_CASE + ' should be there if ' + FGuiParams.GetAsString(True));
+			Assert.IsTrue(FGuiParams.RgOptions.IsOptionSet(RG_PARAM_REGEX_IGNORE_CASE), RG_PARAM_REGEX_IGNORE_CASE + ' should be there if '
+				+ FGuiParams.GetAsString(True));
 		end;
+
+		Assert.IsTrue(FGuiParams.RgOptions.IsOptionSet(RG_PARAM_REGEX_ENCODING, ENCODING_VAL),
+			RG_PARAM_REGEX_ENCODING + ' should be there');
+		Assert.IsTrue(FGuiParams.RgOptions.IsOptionSet(RG_PARAM_REGEX_HIDDEN), RG_PARAM_REGEX_HIDDEN + ' should be there');
 
 	end;
 end;

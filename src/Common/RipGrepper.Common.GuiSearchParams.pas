@@ -84,7 +84,8 @@ uses
 	System.RegularExpressions,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.CommandLine.OptionHelper,
-	RipGrepper.Common.SearchParams;
+	RipGrepper.Common.SearchParams,
+	System.StrUtils;
 
 // for UnitTests...
 constructor TGuiSearchTextParams.Create(const _sText, _sRepl : string; const _bMC, _bMW, _bUR : Boolean);
@@ -281,6 +282,8 @@ end;
 
 procedure TGuiSearchTextParams.Copy(const _other : TGuiSearchTextParams);
 begin
+	inherited Copy(_other as TPersistableSettings);
+
 	SearchOptions := _other.SearchOptions;
 	FSearchText := _other.SearchText;
 	FReplaceText := _other.ReplaceText;
@@ -292,7 +295,7 @@ begin
 	FIsRgExeOptionSet := _other.IsRgExeOptionSet;
 	FExpertOptions := _other.ExpertOptions;
 
-	inherited Copy(_other as TPersistableSettings);
+	// inherited Copy(_other as TPersistableSettings);
 end;
 
 procedure TGuiSearchTextParams.CopyDefaultsToValues;
@@ -377,10 +380,23 @@ begin
 end;
 
 procedure TGuiSearchTextParams.UpdateRgParamsByGuiOptions;
+var
+	backupOptions : TArrayEx<string>;
 begin
+
+	// backup non option case options
+	for var op in self.RgOptions.AsArray() do begin
+		var
+		guiSearchOpArr := string.Join(ARRAY_SEPARATOR, RG_GUI_SEARCH_OPTIONS).Split([ARRAY_SEPARATOR]);
+		if not MatchStr(op, guiSearchOpArr) then begin
+			backupOptions.Add(op);
+		end;
+	end;
+
 	for var op : TSearchOptionToRgOptions in SEARCH_OPTION_CASES do begin
 		if op.SearchOption = self.SearchOptions then begin
-			var opArr : TArrayEx<string>;
+			var
+				opArr : TArrayEx<string>;
 			for var os in op.RgOptions do begin
 				opArr.Add(TParamRegexHelper.GetLongParam(os));
 			end;
@@ -389,6 +405,8 @@ begin
 			break;
 		end;
 	end;
+
+	self.RgOptions.Copy(backupOptions);
 end;
 
 end.

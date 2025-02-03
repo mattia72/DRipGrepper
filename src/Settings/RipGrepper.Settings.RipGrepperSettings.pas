@@ -216,6 +216,8 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.Copy');
 
 	if Assigned(_other) then begin
+		inherited Copy(_other as TPersistableSettings);
+
 		var
 		s := _other as TRipGrepperSettings;
 
@@ -231,7 +233,7 @@ begin
 		FReplaceTextsHistory.Assign(s.ReplaceTextsHistory);
 		FExpertOptionHistory.Assign(s.ExpertOptionHistory);
 		FRipGrepArguments.Assign(s.FRipGrepArguments);
-		inherited Copy(_other as TPersistableSettings);
+//		inherited Copy(_other as TPersistableSettings);
 	end;
 end;
 

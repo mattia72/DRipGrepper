@@ -142,7 +142,7 @@ type
 		procedure TabControl1Change(Sender : TObject);
 
 		private
-            // proxy between settings and ctrls
+			// proxy between settings and ctrls
 			FCtrlProxy : TSearchFormCtrlValueProxy;
 			FSettings : TRipGrepperSettings;
 			FHistItemObj : IHistoryItemObject;
@@ -445,7 +445,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.FormClose');
 
-   //	CopyProxyToSettings(FCtrlProxy, FHistItemObj, FSettings);
+	// CopyProxyToSettings(FCtrlProxy, FHistItemObj, FSettings);
 
 	if ModalResult <> mrCancel then begin
 		if HasHistItemObjWithResult then begin
@@ -547,9 +547,9 @@ end;
 procedure TRipGrepperSearchDialogForm.ButtonDown(const _searchOption : EGuiOption; _tb : TToolButton; const _bNotMatch : Boolean = False);
 begin
 	if (_bNotMatch) then begin
-		_tb.Down := not(_searchOption in FCtrlProxy.SearchOptions);
+		_tb.Down := not(_searchOption in FGuiSearchParams.SearchOptions);
 	end else begin
-		_tb.Down := _searchOption in FCtrlProxy.SearchOptions;
+		_tb.Down := _searchOption in FGuiSearchParams.SearchOptions;
 	end;
 end;
 
@@ -652,7 +652,7 @@ begin
 
 	WriteOptionCtrlToProxy;
 
-	dbgMsg.Msg('ExpertOptions=' + os.AsString);
+	dbgMsg.Msg('ExpertOptions=' + FGuiSearchParams.ExpertOptions.AsString);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; _txt : string; _lst : TStrings);
@@ -1355,8 +1355,9 @@ begin
 			end;
 			EXT_SEARCH_GIVEN_PATH : begin
 				cmbSearchDir.Enabled := True;
-				SetComboItemsAndText(cmbSearchDir, FCtrlProxy.SearchPath, FCtrlProxy.SearchPathHist);
-			end;
+				dbgMsg.MsgFmt('SearchPath=%s', [FCtrlProxy.SearchPath]);
+				SetComboItemsAndText(cmbSearchDir, FCtrlProxy.SearchPath, FSettings.SearchPathsHistory);
+			end
 			else begin
 				raise Exception.Create('Extension IDE Context not supported');
 			end;
@@ -1436,6 +1437,7 @@ procedure TRipGrepperSearchDialogForm.WriteOptionCtrlToProxy;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.WriteOptionCtrlToProxy');
+	FGuiSearchParams.ExpertOptions := TOptionStrings.New(cmbOptions.Text);
 	FCtrlProxy.AdditionalExpertOptions := cmbOptions.Text;
 	dbgMsg.Msg('FGuiSearchParams.ExpertOptions=' + FGuiSearchParams.ExpertOptions.AsString);
 end;

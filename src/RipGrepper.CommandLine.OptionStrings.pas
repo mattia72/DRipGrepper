@@ -36,6 +36,7 @@ type
 			class function New(const _arrOptions : TArrayEx<string>) : TOptionStrings; overload; static;
 
 			function AddOption(const _sParamRegex : string) : string;
+			function Copy(const _sParamArray: TArray<string>): string;
 			procedure AddOptionWithValue(const _paramRegex : string = ''; const _sValue : string = ''; const _bUnique : Boolean = False);
 			function AsArray : TArrayEx<string>;
 			class function ToArray(const _sOptions : string) : TArrayEx<string>; static;
@@ -65,6 +66,12 @@ function TOptionStrings.AddOption(const _sParamRegex : string) : string;
 begin
 	AddOptionWithValue(_sParamRegex);
 	ValidateOptions();
+	Result := AsString;
+end;
+
+function TOptionStrings.Copy(const _sParamArray: TArray<string>): string;
+begin
+	FOptions.AddRange(_sParamArray);
 	Result := AsString;
 end;
 

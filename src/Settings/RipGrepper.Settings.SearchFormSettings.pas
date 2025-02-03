@@ -114,8 +114,8 @@ end;
 procedure TSearchFormSettings.Copy(const _other : TSearchFormSettings);
 begin
 	if Assigned(_other) then begin
-		FExtensionSettings.Copy(_other.ExtensionSettings);
 		inherited Copy(_other as TPersistableSettings);
+		FExtensionSettings.Copy(_other.ExtensionSettings);
 	end;
 end;
 
