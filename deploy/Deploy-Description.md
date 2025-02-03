@@ -40,9 +40,9 @@ Marked with checkmark if fixed, else it is a known bug.
 - [x] set as default doesn't save defaults in ini
 - [x] Exception if rg.exe get wrong paramters
 - [x] if search form initialized with case sensitive, --fixed-string not set 
-- [ ] delete additional options clears 
+- [x] delete additional options clears 
     - [x] file masks combo
-    - [ ] encoding
+    - [x] encoding
 - [o] look on dpi change (drag to another monitor)
     - [x] search form switch between search and replace shrinks height
     - [ ] search form Use Regex button disappear if drag to another monitor
