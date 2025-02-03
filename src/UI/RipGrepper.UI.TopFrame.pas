@@ -143,6 +143,7 @@ type
 			FSettings : TRipGrepperSettings;
 			FSkipReplaceChange : Boolean;
 			FViewStyleIndex : integer;
+			procedure ChangeEditReplaceTextButSkipChangeEvent(const _txt : string);
 			procedure GetCheckedReplaceList(var replaceList : TReplaceList);
 			function GetIsGuiReplaceMode : Boolean;
 			function GetSettings : TRipGrepperSettings;
@@ -530,6 +531,16 @@ begin
 	ActionAbortSearch.Enabled := True;
 end;
 
+procedure TRipGrepperTopFrame.ChangeEditReplaceTextButSkipChangeEvent(const _txt : string);
+begin
+	FSkipReplaceChange := True;
+	try
+		edtReplace.Text := _txt;
+	finally
+		FSkipReplaceChange := False;
+	end;
+end;
+
 procedure TRipGrepperTopFrame.ChangeScale(M, D : Integer; isDpiChange : Boolean);
 begin
 	var
@@ -845,16 +856,14 @@ procedure TRipGrepperTopFrame.SetReplaceModeOnToolBar;
 begin
 	ActionSaveReplacement.Enabled := EGuiReplaceMode.grmSaveEnabled in FGuiReplaceModes;
 	// ActionSaveAllReplacement.Enabled := EGuiReplaceMode.grmSaveEnabled in FGuiReplaceModes;
-
 	edtReplace.Enabled := EGuiReplaceMode.grmEditEnabled in FGuiReplaceModes;
 	edtReplace.RightButton.ImageIndex := IfThen(
 		{ } (EGuiReplaceMode.grmActive in FGuiReplaceModes), IMG_IDX_REPLACE_ON, IMG_IDX_REPLACE_OFF);
 
 	if (not edtReplace.Enabled) and (edtReplace.Text = '') then begin
-		FSkipReplaceChange := True;
-		edtReplace.Text := edtReplace.TextHint;
-		FSkipReplaceChange := False;
+		ChangeEditReplaceTextButSkipChangeEvent(edtReplace.TextHint);
 	end;
+
 end;
 
 procedure TRipGrepperTopFrame.SetReplaceTextInSettings(const _sReplText : string);
