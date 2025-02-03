@@ -20,7 +20,9 @@ uses
 	System.IniFiles,
 	Vcl.ComCtrls,
 	Vcl.ToolWin,
-	RipGrepper.UI.SettingsFormBase;
+	RipGrepper.UI.SettingsFormBase,
+	SVGIconImageListBase,
+	SVGIconImageList;
 
 type
 
@@ -42,7 +44,6 @@ type
 			ActionModify : TAction;
 			ActionAdd : TAction;
 			ActionRemove : TAction;
-			ImageList1 : TImageList;
 			pnlMain : TPanel;
 			ActionOk : TAction;
 			ActionCancel : TAction;
@@ -52,6 +53,7 @@ type
 			tbUp : TToolButton;
 			tbDown : TToolButton;
 			tbTestRun : TToolButton;
+			SVGIconImageList1 : TSVGIconImageList;
 			procedure FormCreate(Sender : TObject);
 			procedure ActionAddExecute(Sender : TObject);
 			procedure ActionAddUpdate(Sender : TObject);
@@ -127,7 +129,7 @@ end;
 
 procedure TOpenWithConfigForm.FormCreate(Sender : TObject);
 begin
- // doesn't run in a Tabsheet
+	// doesn't run in a Tabsheet
 end;
 
 procedure TOpenWithConfigForm.ActionAddExecute(Sender : TObject);
