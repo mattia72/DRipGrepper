@@ -873,7 +873,6 @@ end;
 
 procedure TRipGrepperMiddleFrame.OnParsingProgress(const _bLastLine : Boolean);
 begin
-
 	RefreshCounters;
 	VstResult.Repaint;
 end;
@@ -1481,6 +1480,7 @@ begin
 	// load color settings
 	Settings.FontColorSettings.ReloadColors;
 	FColorSettings := Settings.FontColorSettings.FontColors;
+    VstResult.Repaint;
 	MiddleLeftFrame1.ReloadColorSettings;
 end;
 

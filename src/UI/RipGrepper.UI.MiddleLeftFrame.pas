@@ -202,8 +202,6 @@ begin
 		dbgMsg.Msg('ShowSearchForm cancel');
 	end;
 
-	// ChangeHistoryNodeText;
-	// MainFrame.BeforeSearch;
 end;
 
 procedure TMiddleLeftFrame.AddHistoryObject(_ho : IHistoryItemObject);
@@ -457,8 +455,8 @@ procedure TMiddleLeftFrame.ReloadColorSettings;
 begin
 	// load color settings
 	Settings.FontColorSettings.ReloadColors;
-
 	FColorSettings := Settings.FontColorSettings.FontColors;
+    VstHistory.Repaint;
 end;
 
 procedure TMiddleLeftFrame.SetReplaceMode(_hio : IHistoryItemObject = nil);
