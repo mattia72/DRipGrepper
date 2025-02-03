@@ -30,7 +30,7 @@ type
 			function GetSearchText : string;
 			function GetWordBoundedSearchText : string;
 			procedure LoadSearchOptionsFromDict(const _bDefault : Boolean);
-			function ResetRgOption(const _sParamRegex : string; const _bReset : Boolean = False) : string;
+			// function ResetRgOption(const _sParamRegex : string; const _bReset : Boolean = False) : string;
 			procedure SetIsReplaceMode(const Value : Boolean);
 			procedure SetRgOptions(const Value : TOptionStrings);
 
@@ -184,14 +184,14 @@ begin
 	end;
 end;
 
-function TGuiSearchTextParams.ResetRgOption(const _sParamRegex : string; const _bReset : Boolean = False) : string;
-begin
-	if _bReset then begin
-		RgOptions.AddOption(_sParamRegex);
-	end else begin
-		RgOptions.RemoveOption(_sParamRegex);
-	end;
-end;
+// function TGuiSearchTextParams.ResetRgOption(const _sParamRegex : string; const _bReset : Boolean = False) : string;
+// begin
+// 	if _bReset then begin
+// 		RgOptions.AddOption(_sParamRegex);
+// 	end else begin
+// 		RgOptions.RemoveOption(_sParamRegex);
+// 	end;
+// end;
 
 procedure TGuiSearchTextParams.SetOption(const _searchOption : EGuiOption);
 begin
