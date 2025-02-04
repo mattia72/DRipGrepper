@@ -80,7 +80,7 @@ begin
 	Settings := _settings;
 	Screen.Cursor := crHourGlass;
 	try
-		FOpenWithConfigForm := TOpenWithConfigForm.Create(nil, Settings.OpenWithSettings);
+		FOpenWithConfigForm := TOpenWithConfigForm.Create(nil, Settings.OpenWithSettings, Settings.AppSettings.ColorTheme);
 		FOpenWithConfigForm.Caption := 'Open With...';
 		FAppSettingsForm := TAppSettingsForm.Create(nil, Settings);
 		FColorSettingsForm := TColorSettingsForm.Create(nil, Settings.FontColorSettings);
@@ -183,12 +183,11 @@ begin
 			dbgMsg.Msg('Showing form: ' + form.Caption);
 			form.Show();
 		except
-			on E : Exception do 
+			on E : Exception do
 				dbgMsg.Msg('Error showing form: ' + form.Name + ' - ' + E.Message);
 		end;
 	end;
 end;
-
 
 function TConfigForm.GetThemeHandler : TThemeHandler;
 begin

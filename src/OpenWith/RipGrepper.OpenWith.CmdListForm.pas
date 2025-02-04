@@ -22,7 +22,9 @@ uses
 	RipGrepper.Settings.AppSettings,
 	RipGrepper.UI.DpiScaler,
 	RipGrepper.Settings.OpenWithSettings,
-	RipGrepper.Helper.UI.DarkMode;
+	RipGrepper.Helper.UI.DarkMode,
+	SVGIconImageListBase,
+	SVGIconImageList;
 
 type
 	TOpenWithCmdList = class(TForm)
@@ -38,13 +40,13 @@ type
 		ActionSwitchView : TAction;
 		btnConfig : TButton;
 		ActionShowConfig : TAction;
-		ImageListButtons : TImageList;
 		pnlMain : TPanel;
 		lblHint2 : TLabel;
 		Memo1 : TMemo;
 		lblHint1 : TLabel;
 		pnl_Right : TPanel;
 		pnl_Top : TPanel;
+		SVGIconImageList1 : TSVGIconImageList;
 		procedure FormCreate(Sender : TObject);
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionShowConfigExecute(Sender : TObject);
@@ -57,6 +59,7 @@ type
 		procedure lbCommandsKeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
 
 		private
+			FColorTheme : string;
 			FScaledIcons : TCustomImageList;
 			FDpiScaler : TRipGrepperDpiScaler;
 			FMemoLineMargin : Integer;
@@ -77,9 +80,9 @@ type
 			property ViewStyleIndex : Integer read GetViewStyleIndex;
 
 		public
-			constructor Create(AOwner : TComponent; const ASettings : TOpenWithSettings); reintroduce;
+			constructor Create(_owner : TComponent; const _settings : TOpenWithSettings; const _colorTheme : string); reintroduce;
 			destructor Destroy(); override;
-			class function CreateAndShow(const _settings : TOpenWithSettings) : string;
+			class function CreateAndShow(const _settings : TOpenWithSettings; const _colorTheme : string) : string;
 			procedure InitCtrlsTexts;
 			procedure LoadEnbledCmds;
 	end;
@@ -101,18 +104,18 @@ uses
 
 {$R *.dfm}
 
-constructor TOpenWithCmdList.Create(AOwner : TComponent; const ASettings : TOpenWithSettings);
+constructor TOpenWithCmdList.Create(_owner : TComponent; const _settings : TOpenWithSettings; const _colorTheme : string);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithCmdList.Create');
-	inherited Create(AOwner);
+	inherited Create(_owner);
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 	lbCommands.items.Clear;
 
 	ImageListIcons.ColorDepth := TColorDepth.cd32Bit;
 	FViewStyleIndex := 0;
-	FSettings := ASettings;
-
+	FSettings := _settings;
+	FColorTheme := _colorTheme;
 	// FSettings.ReLoad; TODO: AlreadyRead shoul be set
 	FSettings.ReadIni; // we should read ini every time, it can be overwritten by another instance...
 	dbgMsg.MsgFmt('FSettings: %s', [FSettings.ToString]);
@@ -128,12 +131,13 @@ begin
 	{$ELSE}
 	TDarkModeHelper.AllowThemes();
 	{$ENDIF}
-	//FThemeHandler.HandleThemes(FSettings.AppSettings.ColorTheme);
+	ThemeHandler.HandleThemes(FColorTheme);
 end;
 
 destructor TOpenWithCmdList.Destroy();
 begin
 	FDpiScaler.Free;
+	FThemeHandler.Free;
 	inherited Destroy();
 end;
 
@@ -144,7 +148,7 @@ end;
 
 procedure TOpenWithCmdList.ActionShowConfigExecute(Sender : TObject);
 begin
-	TOpenWithConfigForm.CreateAndShow(FSettings);
+	TOpenWithConfigForm.CreateAndShow(FSettings, FColorTheme);
 	LoadEnbledCmds();
 	CreateScaledIcons(True);
 end;
@@ -168,13 +172,13 @@ begin
 	ActionSwitchView.Hint := 'Change View ' + LISTVIEW_TYPE_TEXTS[idx];
 end;
 
-class function TOpenWithCmdList.CreateAndShow(const _settings : TOpenWithSettings) : string;
+class function TOpenWithCmdList.CreateAndShow(const _settings : TOpenWithSettings; const _colorTheme : string) : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithCmdList.CreateAndShow');
 
 	var
-	form := TOpenWithCmdList.Create(nil, _settings);
+	form := TOpenWithCmdList.Create(nil, _settings, _colorTheme);
 	try
 		// form.InitCtrlsTexts();
 		form.LoadEnbledCmds();

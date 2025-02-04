@@ -76,6 +76,7 @@ type
 			procedure lbCommandsDblClick(Sender : TObject);
 
 		private
+			FColorTheme : string;
 			FDpiScaler : TRipGrepperDpiScaler;
 			FOpenWithSettings : TOpenWithSettings;
 			FThemeHandler : TThemeHandler;
@@ -89,9 +90,9 @@ type
 		protected
 		public
 			{ Public-Deklarationen }
-			constructor Create(AOwner : TComponent; const ASettings : TOpenWithSettings); reintroduce;
+			constructor Create(AOwner : TComponent; const _settings : TOpenWithSettings; const _colorTheme : string); reintroduce;
 			destructor Destroy; override;
-			class procedure CreateAndShow(_settings : TOpenWithSettings);
+			class procedure CreateAndShow(const _settings : TOpenWithSettings; const _colorTheme : string);
 			procedure ReadSettings; override;
 			procedure WriteSettings; override;
 
@@ -114,10 +115,11 @@ uses
 
 {$R *.dfm}
 
-constructor TOpenWithConfigForm.Create(AOwner : TComponent; const ASettings : TOpenWithSettings);
+constructor TOpenWithConfigForm.Create(AOwner : TComponent; const _settings : TOpenWithSettings; const _colorTheme : string);
 begin
-	inherited Create(AOwner, ASettings); // , ImageList1);
-	FOpenWithSettings := ASettings;
+	inherited Create(AOwner, _settings); // , ImageList1);
+	FOpenWithSettings := _settings;
+	FColorTheme := _colorTheme;
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 	lbCommands.MultiSelect := True; // we need this for working SelCount
 
@@ -128,12 +130,19 @@ end;
 destructor TOpenWithConfigForm.Destroy;
 begin
 	FDpiScaler.Free;
+	FThemeHandler.Free;
 	inherited;
 end;
 
 procedure TOpenWithConfigForm.FormCreate(Sender : TObject);
 begin
 	// doesn't run in a Tabsheet
+	{$IFNDEF STANDALONE}
+	TIDEThemeHelper.AllowThemes(TOpenWithConfigForm);
+	{$ELSE}
+	TDarkModeHelper.AllowThemes();
+	{$ENDIF}
+	ThemeHandler.HandleThemes(FColorTheme);
 end;
 
 procedure TOpenWithConfigForm.ActionAddExecute(Sender : TObject);
@@ -273,12 +282,12 @@ begin
 	edt_OpenWithCmd.Text := '';
 end;
 
-class procedure TOpenWithConfigForm.CreateAndShow(_settings : TOpenWithSettings);
+class procedure TOpenWithConfigForm.CreateAndShow(const _settings : TOpenWithSettings; const _colorTheme : string);
 begin
 	// write ini file content
 	_settings.UpdateIniFile;
 	var
-	form := TOpenWithConfigForm.Create(nil, _settings);
+	form := TOpenWithConfigForm.Create(nil, _settings, _colorTheme);
 	try
 		form.ShowModal;
 	finally

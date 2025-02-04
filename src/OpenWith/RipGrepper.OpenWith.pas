@@ -39,7 +39,7 @@ begin
 	settings := GSettings.OpenWithSettings;
 	settings.TestFile := _owpTestFile;
 	dbgMsg.MsgFmt('TestFile: %s ', [settings.TestFile.ToString]);
-	Result := TOpenWithCmdList.CreateAndShow(settings);
+	Result := TOpenWithCmdList.CreateAndShow(settings, GSettings.AppSettings.ColorTheme);
 	TDebugUtils.DebugMessage((Format('OpenWithFunc.GetSelectedCmd Result: "%s"', [Result])));
 	settings.TestFile := default (TOpenWithParams);
 end;
