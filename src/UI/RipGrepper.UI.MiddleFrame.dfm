@@ -63,6 +63,35 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
         TabOrder = 0
         StyleElements = [seFont, seClient]
         inline MiddleLeftFrame1: TMiddleLeftFrame
+          Left = 0
+          Top = 0
+          Width = 191
+          Height = 335
+          Align = alClient
+          ParentBackground = False
+          TabOrder = 0
+          StyleElements = [seFont, seClient]
+          inherited Panel1: TPanel
+            Width = 191
+            Height = 335
+            inherited VstHistory: TVirtualStringTree
+              Width = 185
+              Height = 329
+              Columns = <
+                item
+                  Position = 0
+                  Text = 'Search'
+                  Width = 181
+                end
+                item
+                  Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coSmartResize, coAllowFocus, coEditable, coStyleColor]
+                  Position = 1
+                  Text = 'Replace'
+                  Width = 519
+                end>
+              DefaultText = ''
+            end
+          end
         end
       end
       object PanelResult: TPanel
