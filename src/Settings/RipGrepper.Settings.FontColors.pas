@@ -45,7 +45,9 @@ type
 			{ } 'FileText=Segoe UI|9|clWindowFrame|clNone|fsBold',
 			{ } 'ReplaceTextInHistory=Segoe UI|9|clGreen|clNone|fsBold',
 			{ } 'LineNumText=Segoe UI|9|clGrayText|clNone',
-			{ } 'ColNumText=Segoe UI|9|clGrayText|clNone'];
+			{ } 'ColNumText=Segoe UI|9|clGrayText|clNone',
+			{ } 'AlternateRow=Segoe UI|9|clNone|cl3DLight'
+			];
 
 			DEFAULT_DARK_COLORS : array of string = [
 			{ } 'MatchText=Segoe UI|9|$00558CFF|clNone|fsBold|fsUnderline',
@@ -59,8 +61,10 @@ type
 			{ } 'ReplaceText=Segoe UI|9|clWhite|clGreen|fsBold',
 			{ } 'FileText=Segoe UI|9|clSkyBlue|clNone|fsBold',
 			{ } 'ReplaceTextInHistory=Segoe UI|9|clGreen|clNone|fsBold',
-			{ } 'LineNumText=Segoe UI|9|clGrayText|clNone',
-			{ } 'ColNumText=Segoe UI|9|clGrayText|clNone'];
+			{ } 'LineNumText=Segoe UI|9|clGray|clNone',
+			{ } 'ColNumText=Segoe UI|9|clGray|clNone',
+			{ } 'AlternateRow=Segoe UI|9|clNone|$002E2E2E'
+			];
 
 		private
 			FTheme : EThemeMode;
@@ -84,6 +88,7 @@ type
 			TREEVIEW_ERROR_TEXT : TFontAttributes;
 			TREEVIEW_STATS_TEXT : TFontAttributes;
 			TREEVIEW_STAT_TEXT : TFontAttributes; //
+			TREEVIEW_ALTERNATE_ROW : TFontAttributes;
 
 			constructor Create(const _theme : EThemeMode = EThemeMode.tmLight);
 			procedure SetDefault(const _name : string; var _color : TFontAttributes);
@@ -103,6 +108,7 @@ type
 		SearchTextInHistory : TFontAttributes;
 		ReplaceTextInHistory : TFontAttributes;
 		ReplacedTextInHistory : TFontAttributes;
+		AlternateRow : TFontAttributes;
 		procedure SetByName(const _name : string; const _fa : TFontAttributes);
 
 		public
@@ -178,6 +184,7 @@ begin
 		SettingsDict.CreateSetting('ColNumText', varString, df.TREEVIEW_COL_NUM_TEXT.ToString());
 		SettingsDict.CreateSetting('LineNumText', varString, df.TREEVIEW_LINE_NUM_TEXT.ToString());
 		SettingsDict.CreateSetting('FileText', varString, df.TREEVIEW_FILE_TEXT.ToString());
+		SettingsDict.CreateSetting('AlternateRow', varString, df.TREEVIEW_ALTERNATE_ROW.ToString());
 	finally
 		df.Free;
 	end;
@@ -201,6 +208,7 @@ begin
 		FFontColors.FileText.FromString(df.TREEVIEW_FILE_TEXT.ToString());
 		FFontColors.LineNumText.FromString(df.TREEVIEW_LINE_NUM_TEXT.ToString());
 		FFontColors.ColNumText.FromString(df.TREEVIEW_COL_NUM_TEXT.ToString());
+		FFontColors.AlternateRow.FromString(df.TREEVIEW_ALTERNATE_ROW.ToString());
 	finally
 		df.Free;
 	end;
@@ -226,6 +234,7 @@ begin
 	FFontColors.FileText.FromString(SettingsDict.GetSetting('FileText'));
 	FFontColors.LineNumText.FromString(SettingsDict.GetSetting('LineNumText'));
 	FFontColors.ColNumText.FromString(SettingsDict.GetSetting('ColNumText'));
+	FFontColors.AlternateRow.FromString(SettingsDict.GetSetting('AlternateRow'));
 end;
 
 procedure TColorSettings.ReloadColors;
@@ -253,6 +262,7 @@ begin
 	SettingsDict.StoreSetting('LineNumText', FFontColors.LineNumText.ToString());
 	SettingsDict.StoreSetting('ColNumText', FFontColors.ColNumText.ToString());
 	SettingsDict.StoreSetting('FileText', FFontColors.FileText.ToString());
+	SettingsDict.StoreSetting('AlternateRow', FFontColors.AlternateRow.ToString());
 	inherited StoreToDict();
 end;
 
@@ -358,6 +368,8 @@ begin
 		LineNumText := _fa
 	else if _name = 'ColNumText' then
 		ColNumText := _fa
+	else if _name = 'AlternateRow' then
+		AlternateRow := _fa
 	else
 		raise Exception.Create('Unknown font attribute name: ' + _name);
 end;
@@ -379,6 +391,7 @@ begin
 	SetDefault('ColNumText', TREEVIEW_COL_NUM_TEXT);
 	SetDefault('LineNumText', TREEVIEW_LINE_NUM_TEXT);
 	SetDefault('FileText', TREEVIEW_FILE_TEXT);
+	SetDefault('AlternateRow', TREEVIEW_ALTERNATE_ROW);
 end;
 
 procedure TDefaultFontColors.SetDefault(const _name : string; var _color : TFontAttributes);

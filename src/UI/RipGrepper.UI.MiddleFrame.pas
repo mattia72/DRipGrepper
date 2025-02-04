@@ -1181,7 +1181,7 @@ procedure TRipGrepperMiddleFrame.VstResultBeforeCellPaint(Sender : TBaseVirtualT
 Column : TColumnIndex; CellPaintMode : TVTCellPaintMode; CellRect : TRect; var ContentRect : TRect);
 begin
 	if Settings.NodeLookSettings.AlternateRowColors and (Node.ChildCount = 0) then begin
-		TargetCanvas.SetAlteringColors(Node.Index);
+		TargetCanvas.SetAlteringColors(Node.Index, FColorSettings.AlternateRow.BgColor);
 	end;
 
 	TargetCanvas.FillRect(CellRect);

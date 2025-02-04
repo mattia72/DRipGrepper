@@ -93,7 +93,7 @@ type
 
 	TCanvasHelper = class Helper for Vcl.Graphics.TCanvas
 		public
-			procedure SetAlteringColors(_idx : Integer);
+			procedure SetAlteringColors(_idx: Integer; const _alternateColor: TColor);
 			procedure SetSelectedColors(State : TOwnerDrawState);
 			procedure SetBgColorIfNotTransparent(const _color : TColor);
 	end;
@@ -211,14 +211,14 @@ begin
 	// vertical border * 2 + 2 extra Pixels
 end;
 
-procedure TCanvasHelper.SetAlteringColors(_idx : Integer);
+procedure TCanvasHelper.SetAlteringColors(_idx: Integer; const _alternateColor: TColor);
 begin
 	if Odd(_idx) then begin
 		self.Font.Color := clBlack;
 		// self.Brush.Color := clWhite;
 	end else begin
 		self.Font.Color := clBlack;
-		self.Brush.Color := cl3DLight; // clGrayText; // clLtGray;
+		self.Brush.Color := _alternateColor; // clGrayText; // clLtGray;
 	end;
 end;
 
