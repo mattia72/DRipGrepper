@@ -63,7 +63,7 @@ type
 			{ } 'ReplaceTextInHistory=Segoe UI|9|clGreen|clNone|fsBold',
 			{ } 'LineNumText=Segoe UI|9|clGray|clNone',
 			{ } 'ColNumText=Segoe UI|9|clGray|clNone',
-			{ } 'AlternateRow=Segoe UI|9|clNone|$002E2E2E'
+			{ } 'AlternateRow=Segoe UI|9|clNone|$002B2B2B'
 			];
 
 		private
