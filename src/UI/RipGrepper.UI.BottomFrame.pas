@@ -33,8 +33,6 @@ type
 			FStatusBarMessage : string;
 			FStatusBarStatistic : string;
 			FStatusBarStatus : string;
-			procedure SetStatusBarMessage;
-
 		public
 			constructor Create(AOwner : TComponent); override;
 			procedure AfterHistObjChange;
@@ -43,6 +41,7 @@ type
 			procedure BeforeSearch;
 			procedure SetRunningStatus;
 			procedure SetReadyStatus;
+			procedure SetStatusBarMessage;
 			procedure UpdateUIStyle(_sNewStyle : string = '');
 			property StatusBarMessage : string read FStatusBarMessage write FStatusBarMessage;
 			property StatusBarStatistic : string read FStatusBarStatistic write FStatusBarStatistic;
@@ -83,7 +82,7 @@ end;
 
 procedure TRipGrepperBottomFrame.AfterSearch;
 begin
-	SetStatusBarMessage();
+	//SetStatusBarMessage();
 end;
 
 procedure TRipGrepperBottomFrame.BeforeSearch;
