@@ -22,7 +22,8 @@ uses
 	Vcl.ToolWin,
 	RipGrepper.UI.SettingsFormBase,
 	SVGIconImageListBase,
-	SVGIconImageList;
+	SVGIconImageList,
+	RipGrepper.Helper.UI.DarkMode;
 
 type
 
@@ -77,10 +78,13 @@ type
 		private
 			FDpiScaler : TRipGrepperDpiScaler;
 			FOpenWithSettings : TOpenWithSettings;
+			FThemeHandler : TThemeHandler;
 			function CheckCommand(const _sCmd : string) : Boolean;
 			procedure ClearOpenWithCmd;
+			function GetThemeHandler : TThemeHandler;
 			procedure MoveItem(const idx : Integer);
 			procedure PutSelectedToEdit;
+			property ThemeHandler : TThemeHandler read GetThemeHandler;
 
 		protected
 		public
@@ -288,6 +292,14 @@ procedure TOpenWithConfigForm.edt_OpenWithCmdKeyPress(Sender : TObject; var Key 
 begin
 	inherited;
 	btnModify.Default := True;
+end;
+
+function TOpenWithConfigForm.GetThemeHandler : TThemeHandler;
+begin
+	if not Assigned(FThemeHandler) then begin
+		FThemeHandler := TThemeHandler.Create(self);
+	end;
+	Result := FThemeHandler;
 end;
 
 procedure TOpenWithConfigForm.ReadSettings;

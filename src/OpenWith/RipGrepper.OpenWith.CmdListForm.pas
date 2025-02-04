@@ -21,7 +21,8 @@ uses
 	Vcl.ImgList,
 	RipGrepper.Settings.AppSettings,
 	RipGrepper.UI.DpiScaler,
-	RipGrepper.Settings.OpenWithSettings;
+	RipGrepper.Settings.OpenWithSettings,
+	RipGrepper.Helper.UI.DarkMode;
 
 type
 	TOpenWithCmdList = class(TForm)
@@ -62,14 +63,17 @@ type
 			FOrigMemoHeight : Integer;
 			FOrigTopPanelHeight : Integer;
 			FSettings : TOpenWithSettings;
+			FThemeHandler : TThemeHandler;
 			FViewStyleIndex : Integer;
 
 			procedure CreateScaledIcons(const bUpdateScaler : Boolean = False);
 			class function GetEnabledCmds(const _settings : TOpenWithSettings) : TArray<string>;
 			function GetFileNameFromCfg(const _configText : string) : string;
+			function GetThemeHandler : TThemeHandler;
 			function GetViewStyleIndex : Integer;
 			procedure SaveOrigHeights;
 			procedure SetMemoHeightByLineCount;
+			property ThemeHandler : TThemeHandler read GetThemeHandler;
 			property ViewStyleIndex : Integer read GetViewStyleIndex;
 
 		public
@@ -119,7 +123,12 @@ end;
 
 procedure TOpenWithCmdList.FormCreate(Sender : TObject);
 begin
-	// KeyPreview := True;
+	{$IFNDEF STANDALONE}
+	TIDEThemeHelper.AllowThemes(TOpenWithCmdList);
+	{$ELSE}
+	TDarkModeHelper.AllowThemes();
+	{$ENDIF}
+	//FThemeHandler.HandleThemes(FSettings.AppSettings.ColorTheme);
 end;
 
 destructor TOpenWithCmdList.Destroy();
@@ -250,6 +259,14 @@ begin
 		sFileName := sPath;
 	end;
 	Result := sFileName;
+end;
+
+function TOpenWithCmdList.GetThemeHandler : TThemeHandler;
+begin
+	if not Assigned(FThemeHandler) then begin
+		FThemeHandler := TThemeHandler.Create(self);
+	end;
+	Result := FThemeHandler;
 end;
 
 function TOpenWithCmdList.GetViewStyleIndex : Integer;

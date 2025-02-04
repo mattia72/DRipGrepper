@@ -234,7 +234,6 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Action = ActionModify
       Anchors = [akRight, akBottom]
       ImageAlignment = iaCenter
-      ImageName = 'reply'
       Images = SVGIconImageList1
       ParentShowHint = False
       ShowHint = True
@@ -252,7 +251,6 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Align = alCustom
       Anchors = [akRight, akBottom]
       ImageAlignment = iaCenter
-      ImageName = 'folder-opened'
       Images = SVGIconImageList1
       ParentShowHint = False
       ShowHint = True
@@ -288,7 +286,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Anchors = [akLeft, akTop, akRight, akBottom]
       AutoComplete = False
       Color = clHighlightText
-      ItemHeight = 17
+      ItemHeight = 15
       Items.Strings = (
         'notepad.exe "<FILE>"'
         'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"'
@@ -317,31 +315,26 @@ object OpenWithConfigForm: TOpenWithConfigForm
         Left = 0
         Top = 0
         Action = ActionAdd
-        ImageName = 'add'
       end
       object tbMinus: TToolButton
         Left = 23
         Top = 0
         Action = ActionRemove
-        ImageName = 'remove'
       end
       object tbUp: TToolButton
         Left = 46
         Top = 0
         Action = ActionMoveUp
-        ImageName = 'arrow-up'
       end
       object tbDown: TToolButton
         Left = 69
         Top = 0
         Action = ActionMoveDown
-        ImageName = 'arrow-down'
       end
       object tbTestRun: TToolButton
         Left = 92
         Top = 0
         Action = ActionTest
-        ImageName = 'rocket'
       end
     end
   end
@@ -352,41 +345,48 @@ object OpenWithConfigForm: TOpenWithConfigForm
     object ActionOpenFileDlg: TAction
       Hint = 'Explore...'
       ImageIndex = 6
+      ImageName = 'folder-opened'
       OnExecute = ActionOpenFileDlgExecute
     end
     object ActionModify: TAction
       Hint = 'Modify Entry'
       ImageIndex = 0
+      ImageName = 'reply'
       OnExecute = ActionModifyExecute
       OnUpdate = ActionModifyUpdate
     end
     object ActionAdd: TAction
       Hint = 'Add Entry'
       ImageIndex = 4
+      ImageName = 'add'
       OnExecute = ActionAddExecute
       OnUpdate = ActionAddUpdate
     end
     object ActionRemove: TAction
       Hint = 'Remove Entry'
       ImageIndex = 5
+      ImageName = 'remove'
       OnExecute = ActionRemoveExecute
       OnUpdate = ActionRemoveUpdate
     end
     object ActionTest: TAction
       Hint = 'Test'
       ImageIndex = 3
+      ImageName = 'rocket'
       OnExecute = ActionTestExecute
       OnUpdate = ActionTestUpdate
     end
     object ActionMoveDown: TAction
       Hint = 'Move Entry Down'
       ImageIndex = 2
+      ImageName = 'arrow-down'
       OnExecute = ActionMoveDownExecute
       OnUpdate = ActionMoveDownUpdate
     end
     object ActionMoveUp: TAction
       Hint = 'Move Entry Up'
       ImageIndex = 1
+      ImageName = 'arrow-up'
       OnExecute = ActionMoveUpExecute
       OnUpdate = ActionMoveUpUpdate
     end
