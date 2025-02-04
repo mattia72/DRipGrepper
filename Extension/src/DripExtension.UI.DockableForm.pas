@@ -250,7 +250,7 @@ end;
 
 function TRipGrepperDockableForm.GetMenuImageList : TCustomImageList;
 begin
-	Result := ParentFrame.MainFrame.ImageList1;
+	Result := ParentFrame.MainFrame.SVGIconImageList1;
 end;
 
 function TRipGrepperDockableForm.GetToolBarActionList : TCustomActionList;
