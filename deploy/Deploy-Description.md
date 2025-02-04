@@ -45,10 +45,10 @@ Marked with checkmark if fixed, else it is a known bug.
         - [x] replace by rg is ok: there will be changed every occurence in every lines 
     - [ ] replace by toolbar is always ignore case
     - [ ] left arrow in replace edit ctrl doesn't work
-- [ ] ugly dark mode. read this: https://github.com/checkdigits/delphidarkmode
+- [x] ugly dark mode. read this: https://github.com/checkdigits/delphidarkmode
     - [x] ugly icons
     - [x] alternate colors
-    - [ ] **extension**: open with dialog not dark
+    - [x] **extension**: open with dialog not dark
     - [x] **extension**: toolbar not dark after switch 
         - independent from ParentBackground? https://en.delphipraxis.net/topic/2779-tframe-and-vcl-styles-solved/
     - [x] after switch light/dark mode in config, Open With settings moved to the right bottom corner
