@@ -45,7 +45,9 @@ uses
 	RipGrepper.UI.MiddleLeftFrame,
 	RipGrepper.Common.NodeData,
 	RipGrepper.UI.IFrameEvents,
-	RipGrepper.Settings.FontColors;
+	RipGrepper.Settings.FontColors,
+	SVGIconImageListBase,
+	SVGIconImageList;
 
 type
 	TRipGrepperMiddleFrame = class(TFrame, IFrameEvents, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
@@ -65,7 +67,6 @@ type
 		PanelHistory : TPanel;
 		PanelResult : TPanel;
 		VstResult : TVirtualStringTree;
-		ImageList1 : TImageList;
 		miResultAddAsUsingInterface : TMenuItem;
 		miAddAsUsingImplementation : TMenuItem;
 		ActionAddUsingImplementation : TAction;
@@ -80,6 +81,7 @@ type
 		miOpenInIde : TMenuItem;
 		ActionCopyCmdLineToClipboard : TAction;
 		MiddleLeftFrame1 : TMiddleLeftFrame;
+		SVGIconImageList1 : TSVGIconImageList;
 		procedure ActionAddUsingImplementationExecute(Sender : TObject);
 		procedure ActionAddUsingImplementationUpdate(Sender : TObject);
 		procedure ActionAddUsingInterfaceExecute(Sender : TObject);
@@ -467,7 +469,7 @@ begin
 		TAsyncMsgBox.ShowWarning(RG_REPORTED_ERROR_MSG);
 	end;
 	FreeAndCleanParserList();
-    ParentFrame.AfterSearch();
+	ParentFrame.AfterSearch();
 end;
 
 procedure TRipGrepperMiddleFrame.AlignToolBars;
@@ -741,9 +743,9 @@ begin
 	Result := TParallelParser.Create(FData, FHistItemObj);
 	Result.OnLastLine := OnLastLine;
 	Result.OnProgress := OnParsingProgress;
-//  if _bIsLast then begin we need it on MAX_LINE
-		Result.OnAfterAllFinished := AfterSearch;
-//  end;
+	// if _bIsLast then begin we need it on MAX_LINE
+	Result.OnAfterAllFinished := AfterSearch;
+	// end;
 	Result.SetNewLine(_iLineNr, _sLine, _bIsLast);
 	FParsingThreads.Add(Result);
 end;
@@ -1472,7 +1474,7 @@ begin
 		end;
 	end;
 	FParsingThreads.Clear;
-//  dbgMsg.MsgFmt('FParsingThreads.Count %d.', [FParsingThreads.Count])
+	// dbgMsg.MsgFmt('FParsingThreads.Count %d.', [FParsingThreads.Count])
 end;
 
 procedure TRipGrepperMiddleFrame.ReloadColorSettings;
@@ -1480,7 +1482,7 @@ begin
 	// load color settings
 	Settings.FontColorSettings.ReloadColors;
 	FColorSettings := Settings.FontColorSettings.FontColors;
-    VstResult.Repaint;
+	VstResult.Repaint;
 	MiddleLeftFrame1.ReloadColorSettings;
 end;
 

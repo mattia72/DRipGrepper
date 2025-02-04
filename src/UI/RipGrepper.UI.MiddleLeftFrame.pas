@@ -24,7 +24,9 @@ uses
 	System.ImageList,
 	Vcl.ImgList,
 	RipGrepper.Settings.FontColors,
-	Vcl.ExtCtrls;
+	Vcl.ExtCtrls,
+	SVGIconImageListBase,
+	SVGIconImageList;
 
 type
 	THistoryObjectArray = TArrayEx<IHistoryItemObject>;
@@ -43,8 +45,8 @@ type
 		N2 : TMenuItem;
 		pmHistoryDelete : TMenuItem;
 		pmHistoryDeleteAll : TMenuItem;
-		ImageList1 : TImageList;
 		Panel1 : TPanel;
+		SVGIconImageList1 : TSVGIconImageList;
 		procedure ActionCopyCmdLineToClipboardExecute(Sender : TObject);
 		procedure ActionHistoryDeleteAllExecute(Sender : TObject);
 		procedure ActionHistoryDeleteAllUpdate(Sender : TObject);
@@ -456,7 +458,7 @@ begin
 	// load color settings
 	Settings.FontColorSettings.ReloadColors;
 	FColorSettings := Settings.FontColorSettings.FontColors;
-    VstHistory.Repaint;
+	VstHistory.Repaint;
 end;
 
 procedure TMiddleLeftFrame.SetReplaceMode(_hio : IHistoryItemObject = nil);
@@ -669,7 +671,7 @@ begin
 		dbgMsg.MsgFmt('Orig VstHistory Fonts: %d', [VstHistory.Font.Height]);
 
 		VstHistory.Header.Font.Height := MulDiv(VstHistory.Header.Font.Height, M, D);
-//      VstHistory.Font.Height := MulDiv(VstHistory.Font.Height, M, D); it's too much!
+		// VstHistory.Font.Height := MulDiv(VstHistory.Font.Height, M, D); it's too much!
 		dbgMsg.MsgFmt('New VstHistory Fonts: %d', [VstHistory.Font.Height]);
 	end;
 end;
