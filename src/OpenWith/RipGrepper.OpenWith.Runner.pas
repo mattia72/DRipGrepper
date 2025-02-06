@@ -11,6 +11,7 @@ type
 
 		private
 			class function BuildParams(const _owp : TOpenWithParams; const _sParams : string) : string;
+
 		public
 			class procedure RunEditorCommand(const _sEditorCmd : string; const _owp : TOpenWithParams);
 	end;
@@ -31,6 +32,9 @@ class function TOpenWithRunner.BuildParams(const _owp : TOpenWithParams; const _
 var
 	sCmdParams : string;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithRunner.BuildParams');
+
 	sCmdParams := _sParams;
 
 	sCmdParams := StringReplace(sCmdParams, '<DIR>', '%s', [rfReplaceAll]);
@@ -38,11 +42,11 @@ begin
 
 	sCmdParams := StringReplace(sCmdParams, '<FILE>', '%s', [rfReplaceAll]);
 	sCmdParams := Format(sCmdParams, [_owp.FilePath]);
-	// TDebugUtils.DebugMessage((Format('TOpenWithRunner.InternalExecute Params: %s ', [sCmdParams])));
+	dbgMsg.MsgFmt('TOpenWithRunner.BuildParams Params: %s ', [sCmdParams]);
 
 	sCmdParams := StringReplace(sCmdParams, '<LINE>', '%d', [rfReplaceAll]);
 	sCmdParams := Format(sCmdParams, [_owp.Row]);
-	// TDebugUtils.DebugMessage((Format('TOpenWithRunner.InternalExecute Params: %s ', [sCmdParams])));
+	dbgMsg.MsgFmt('TOpenWithRunner.BuildParams Params: %s ', [sCmdParams]);
 
 	sCmdParams := StringReplace(sCmdParams, '<COL>', '%d', [rfReplaceAll]);
 	Result := Format(sCmdParams, [_owp.Column]);
@@ -61,7 +65,7 @@ begin
 	sCmd := '"' + cr.ExePath + '"';
 	sParams := BuildParams(_owp, sParams);
 
-	TDebugUtils.DebugMessage((Format('TOpenWithRunner.RunEditorCommand cmd: %s %s ', [_sEditorCmd, sParams])));
+	TDebugUtils.DebugMessage((Format('TOpenWithRunner.RunEditorCommand cmd: %s %s ', [sCmd, sParams])));
 	ShellExecute(0, 'OPEN', PChar(sCmd), PChar(sParams), nil, SW_SHOWNORMAL);
 	err := GetLastError;
 	if err <> 0 then begin

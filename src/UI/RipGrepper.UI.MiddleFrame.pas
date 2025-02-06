@@ -157,6 +157,7 @@ type
 			function GetIsGuiReplaceMode : Boolean;
 			function GetIsRgReplaceMode : Boolean;
 			function AddParallelParser(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean) : TParallelParser;
+			function GetOpenWithRelativeBaseDirPath(const Data : PVSFileNodeData) : string;
 			function GetResultSelectedFilePath : string;
 			function GetSelectedResultFileNodeData : PVSFileNodeData;
 			function GetSettings : TRipGrepperSettings;
@@ -719,14 +720,14 @@ begin
 
 	Data := VstResult.GetNodeData(Node);
 	if Node.ChildCount > 0 then begin
-		Result.RelativeBaseDirPath := IfThen(Settings.SearchPathIsDir, Settings.ActualSearchPath, ExtractFileDir(Data.FilePath));
+		Result.RelativeBaseDirPath := GetOpenWithRelativeBaseDirPath(Data);
 		Result.FilePath := Data.FilePath;
 		Result.Row := 0;
 		Result.Column := 0;
 		Result.IsEmpty := False;
 	end else begin
 		dataParent := VstResult.GetNodeData(Node.Parent);
-		Result.RelativeBaseDirPath := IfThen(Settings.SearchPathIsDir, Settings.ActualSearchPath, ExtractFileDir(dataParent.FilePath));
+		Result.RelativeBaseDirPath := GetOpenWithRelativeBaseDirPath(dataParent);
 		Result.FilePath := dataParent.FilePath;
 		Result.Row := Data.MatchData.Row;
 		Result.Column := Data.MatchData.Col;
@@ -948,7 +949,7 @@ begin
 			end;
 			FHistItemObj.ElapsedTimeText := GetElapsedTime(FswSearchStart);
 			FswSearchStart.Stop;
-            BottomFrame.SetStatusBarMessage;
+			BottomFrame.SetStatusBarMessage;
 			TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.RunRipGrep: rg.exe ended in %s sec.', [FHistItemObj.ElapsedTimeText]));
 		end);
 	FRipGrepTask.Start;
@@ -1476,6 +1477,21 @@ begin
 	end;
 	FParsingThreads.Clear;
 	// dbgMsg.MsgFmt('FParsingThreads.Count %d.', [FParsingThreads.Count])
+end;
+
+function TRipGrepperMiddleFrame.GetOpenWithRelativeBaseDirPath(const Data : PVSFileNodeData) : string;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.GetOpenWithRelativeBaseDirPath');
+
+	{$IFDEF STANDALONE}
+	Result := IfThen(Settings.SearchPathIsDir, Settings.ActualSearchPath, ExtractFileDir(Data.FilePath));
+	{$ELSE}
+	var
+	cp := (IOTAUTils.GxOtaGetCurrentProject);
+	Result := ExtractFileDir(cp);
+	{$ENDIF}
+	dbgMsg.MsgFmt('OpenWith <DIR>=%s', [Result]);
 end;
 
 procedure TRipGrepperMiddleFrame.ReloadColorSettings;
