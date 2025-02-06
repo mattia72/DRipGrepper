@@ -27,6 +27,25 @@ type
 		procedure StoreAsDefaultsToDict;
 	end;
 
+	IFilePersister = interface(IInterface)
+		['{57B16806-F8F5-447E-9AB6-767E553CCB65}']
+		procedure LoadFromFile(_dict: TSettingsDictionary);
+		procedure ReloadFile(_dict : TSettingsDictionary);
+		procedure SaveToFile(_dict : TSettingsDictionary);
+	end;
+
+	TMemIniPersister = class(TInterfacedObject, IFilePersister)
+		procedure LoadFromFile(_dict: TSettingsDictionary);
+		procedure ReloadFile(_dict : TSettingsDictionary);
+		procedure SaveToFile(_dict : TSettingsDictionary);
+
+		private
+			FIniFile : TMemIniFile;
+		public
+			constructor Create;
+		destructor Destroy; override;
+	end;
+
 	EWriteSettingsMode = (wsmActual, wsmDefault, wsmAll);
 
 	TPersistableSettings = class(TNoRefCountObject, IIniPersistable)
@@ -590,6 +609,37 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.WriteToIni');
 
 	_setting.WriteToMemIni(IniFile, _sIniSection, _sKey);
+end;
+
+constructor TMemIniPersister.Create;
+begin
+	inherited Create;
+	{$IFDEF STANDALONE}
+	FIniFile := TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8);
+	{$ELSE}
+	FIniFile := TMemIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'), TEncoding.UTF8);
+	{$ENDIF}
+end;
+
+destructor TMemIniPersister.Destroy;
+begin
+	FIniFile.Free;
+	inherited;
+end;
+
+procedure TMemIniPersister.LoadFromFile(_dict: TSettingsDictionary);
+begin
+
+end;
+
+procedure TMemIniPersister.ReloadFile(_dict : TSettingsDictionary);
+begin
+	FIniFile.ReLoadIniFile();
+end;
+
+procedure TMemIniPersister.SaveToFile(_dict : TSettingsDictionary);
+begin
+
 end;
 
 end.
