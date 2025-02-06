@@ -7,14 +7,7 @@ Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
 https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 
-### :mag: Search Dialog
-# + new feature
-# + new feature
- 
-### :warning: Bug Fixes
-# * bug
-
-# TODO
+# TODO on new release
 # - Update Readme.md 
 # - Update Deploy-Description.md 
 # - Update file and product version in every projects for ALL CONFIGURATION!

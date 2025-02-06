@@ -137,6 +137,16 @@ scoop install dripgrepper
   * (If not found in current folder, select `DripExtensions.dll`)
 * Restart Delphi
 
+## Contribution
+To submit a pull request, follow these steps:
+
+* Fork the project
+* Create a new branch (`git checkout -b 'my-new-feature'`)
+* Make your changes
+* Make the commit (`git commit -am 'Functionality or adjustment message'`)
+* Push the branch (`git push origin Message about functionality or adjustment`)
+* Open a pull request
+
 ## Thanks
 -  [ripgrep](https://github.com/BurntSushi/ripgrep)
 -  [CnPack](https://www.cnpack.org)
