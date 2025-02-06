@@ -54,7 +54,7 @@ type
 			class destructor Destroy;
 
 		private
-			FIniFile : TMemIniFile;
+			FIniFile : TMemIniFile;   // TODO IFilePersister
 			FbDefaultLoaded : Boolean;
 			FIniSectionName : string;
 			FIsAlreadyRead : Boolean;
