@@ -45,4 +45,4 @@ Marked with checkmark if fixed, else it is a known bug.
     - [x] **extension**: toolbar not dark after switch 
         - independent from ParentBackground? https://en.delphipraxis.net/topic/2779-tframe-and-vcl-styles-solved/
     - [x] after switch light/dark mode in config, Open With settings moved to the right bottom corner
-- [ ] PCRE does not support \L, \l, \N{name}, \U, or \u. TVimGrepMatchLineParser.SetPrettyRegex (Line 201, "RipGrepper.Parsers.VimGrepMatchLine.pas")
+- [x] PCRE does not support \L, \l, \N{name}, \U, or \u. TVimGrepMatchLineParser.SetPrettyRegex (Line 201, "RipGrepper.Parsers.VimGrepMatchLine.pas")

@@ -194,6 +194,7 @@ type
 			procedure UpdateFileMasksInHistObjRgOptions; overload;
 			procedure UpdateHeight;
 			procedure UpdateRbExtensionItemIndex(const _idx : Integer);
+			function ValidateRegex : Boolean;
 			procedure WriteOptionCtrlToProxy;
 			procedure WriteProxyToCheckBoxCtrls;
 
@@ -356,7 +357,10 @@ end;
 procedure TRipGrepperSearchDialogForm.ActionSearchExecute(Sender : TObject);
 begin
 	WriteCtrlsToSettings(False);
-	ModalResult := mrOk;
+
+	if ValidateRegex() then begin
+		ModalResult := mrOk;
+	end;
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionSearchFileExecute(Sender : TObject);
@@ -1431,6 +1435,25 @@ begin
 	rbExtensionOptions.ItemIndex := _idx;
 	UpdateCmbsOnIDEContextChange();
 	FbExtensionOptionsSkipClick := False;
+end;
+
+function TRipGrepperSearchDialogForm.ValidateRegex : Boolean;
+var
+	bError : Boolean;
+begin
+	bError := False;
+	if EGuiOption.soUseRegex in FSettingsProxy.SearchOptions then begin
+		try
+			var
+			tryRegex := TRegEx.Create(FSettingsProxy.SearchText, [roCompiled]);
+		except
+			on E : Exception do begin
+				TMsgBox.ShowError(E.Message);
+				bError := True;
+			end;
+		end;
+	end;
+	Result := not bError;
 end;
 
 procedure TRipGrepperSearchDialogForm.WriteOptionCtrlToProxy;
