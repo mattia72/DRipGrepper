@@ -139,6 +139,7 @@
         <DCCReference Include="RipGrepper.Settings.NoodeLookSettingsTest.pas"/>
         <DCCReference Include="..\src\Tools\RipGrepper.Tools.FileUtils.pas"/>
         <DCCReference Include="..\src\Common\RipGrepper.Common.Constants.pas"/>
+        <DCCReference Include="..\src\Common\RipGrepper.Common.SearchTextWithOptions.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

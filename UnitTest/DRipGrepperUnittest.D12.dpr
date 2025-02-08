@@ -49,7 +49,8 @@ uses
   RipGrepper.Settings.ExtensionSettings in '..\src\Settings\RipGrepper.Settings.ExtensionSettings.pas',
   RipGrepper.Settings.NoodeLookSettingsTest in 'RipGrepper.Settings.NoodeLookSettingsTest.pas',
   RipGrepper.Tools.FileUtils in '..\src\Tools\RipGrepper.Tools.FileUtils.pas',
-  RipGrepper.Common.Constants in '..\src\Common\RipGrepper.Common.Constants.pas';
+  RipGrepper.Common.Constants in '..\src\Common\RipGrepper.Common.Constants.pas',
+  RipGrepper.Common.SearchTextWithOptions in '..\src\Common\RipGrepper.Common.SearchTextWithOptions.pas';
 
 // This comment has to guard the following IFDEF, that may be delted by delphi, if new unit added to the project
 {$IFNDEF TESTINSIGHT}
