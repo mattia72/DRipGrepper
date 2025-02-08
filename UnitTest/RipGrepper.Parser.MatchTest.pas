@@ -59,17 +59,15 @@ uses
 	System.Classes,
 	System.SysUtils,
 	RipGrepper.Parsers.VimGrepMatchLine,
-
 	RipGrepper.Common.ParsedObject,
-
 	DUnitX.Utils,
-	RipGrepper.Common.GuiSearchParams;
+	RipGrepper.Common.SearchTextWithOptions;
 
 procedure TRipGrepMatchTest.Setup;
 var
-	guiParams : TGuiSearchTextParams;
+	guiParams : TSearchTextWithOptions;
 begin
-	guiParams := TGuiSearchTextParams.Create('search_text');
+	guiParams := TSearchTextWithOptions.New('search_text', []);
 
 	FifSearchParam := TMock<ISearchParams>.Create();
 	FifSearchParam.Setup.WillReturn(TValue.From(guiParams)).When.GetGuiSearchParams;

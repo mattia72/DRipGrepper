@@ -14,7 +14,8 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Settings.RipGrepperSettings,
-	RipGrepper.Settings.SearchFormSettings;
+	RipGrepper.Settings.SearchFormSettings,
+	RipGrepper.Common.SearchTextWithOptions;
 
 type
 	// THistoryItemObject = class(TNoRefCountObject, IHistoryItemObject)
@@ -33,15 +34,15 @@ type
 			FSearchFormSettings : TSearchFormSettings;
 			FRipGrepResult : Integer;
 			FTotalMatchCount : integer;
-			function GetElapsedTimeText : string;
-			function GetErrorCounters : TErrorCounters;
-			function GetFileCount : integer;
+			function GetElapsedTimeText() : string;
+			function GetErrorCounters() : TErrorCounters;
+			function GetFileCount() : integer;
 			function GetGuiSearchTextParams : TGuiSearchTextParams;
-			function GetIsReplaceMode : Boolean;
-			function GetMatches : TParsedObjectRowCollection;
-			function GetNoMatchFound : Boolean;
-			function GetRipGrepArguments : TRipGrepArguments;
-			function GetTotalMatchCount : integer;
+			function GetIsReplaceMode() : Boolean;
+			function GetMatches() : TParsedObjectRowCollection;
+			function GetNoMatchFound() : Boolean;
+			function GetRipGrepArguments() : TRipGrepArguments;
+			function GetTotalMatchCount() : integer;
 			procedure SetFileCount(const Value : integer);
 			procedure SetMatches(const Value : TParsedObjectRowCollection);
 			procedure SetRipGrepArguments(const Value : TRipGrepArguments);
@@ -63,6 +64,7 @@ type
 			procedure ClearMatches;
 			procedure CopyToSettings(const _settings : TRipGrepperSettings);
 			function GetReplaceText : string;
+			function GetSearchTextWithOptions(): TSearchTextWithOptions;
 			function HasResult : Boolean;
 			procedure LoadFromSettings(const _settings : TRipGrepperSettings);
 			function UpdateParserType : TParserType;
@@ -240,7 +242,12 @@ end;
 
 function THistoryItemObject.GetSearchText : string;
 begin
-	Result := GuiSearchTextParams.SearchText;
+	Result := GuiSearchTextParams.GetSearchText;
+end;
+
+function THistoryItemObject.GetSearchTextWithOptions(): TSearchTextWithOptions;
+begin
+	Result := FGuiSearchTextParams.SearchTextWithOptions;
 end;
 
 function THistoryItemObject.HasResult : Boolean;

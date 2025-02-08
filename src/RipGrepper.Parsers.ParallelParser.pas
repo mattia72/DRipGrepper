@@ -156,7 +156,7 @@ begin
 
 	if (not FLine.IsEmpty) then begin
 		ifParser := TRipGrepperParsersFactory.GetParser(FHistObject.ParserType);
-		ifSearchParam := TSearchParams.Create(FHistObject.GuiSearchTextParams);
+		ifSearchParam := TSearchParams.Create(FHistObject.GetSearchTextWithOptions);
 		ifParser.SearchParams := ifSearchParam;
 		ifParser.ParseLine(FLineNr, FLine, FIsLast);
 		oParsed := TParsedObjectRow.Create(ifParser.ParseResult, FHistObject.ParserType);

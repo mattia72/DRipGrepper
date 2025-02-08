@@ -95,7 +95,8 @@ uses
   RipGrepper.Helper.MemIniFile in '..\..\Helper\RipGrepper.Helper.MemIniFile.pas',
   RipGrepper.Helper.UI.DarkMode in '..\..\RipGrepper.Helper.UI.DarkMode.pas',
   Vcl.Themes,
-  Vcl.Styles;
+  Vcl.Styles,
+  RipGrepper.Common.SearchTextWithOptions in '..\..\Common\RipGrepper.Common.SearchTextWithOptions.pas';
 
 {$R *.res}
 

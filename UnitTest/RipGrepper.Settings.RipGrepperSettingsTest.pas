@@ -155,7 +155,7 @@ begin
 	FHistItemGuiSearchParams :=
 	{ } TGuiSearchTextParams.Create(FSettings.RipGrepParameters.IniSectionName);
 	try
-		FHistItemGuiSearchParams.SearchText := 'search this';
+		FHistItemGuiSearchParams.SetSearchText('search this');
 		FHistItemGuiSearchParams.SetOption(EGuiOption.soMatchWord);
 		FHistItemGuiSearchParams.SetOption(EGuiOption.soMatchCase);
 
@@ -267,7 +267,7 @@ begin
 	FSettings.SearchFormSettings.NoIgnore := True;
 	FSettings.RipGrepParameters.SearchPath := 'def\search\path';
 	FSettings.RipGrepParameters.FileMasks := '*.def';
-	FSettings.RipGrepParameters.GuiSearchTextParams.SearchOptions := [EGuiOption.soUseRegex];
+	FSettings.RipGrepParameters.GuiSearchTextParams.SetSearchOptions([EGuiOption.soUseRegex]);
 	FSettings.StoreAsDefaultsToDict;
 	FSettings.SearchFormSettings.Encoding := 'none';
 	FSettings.SearchFormSettings.Context := 1;
@@ -276,7 +276,7 @@ begin
 	FSettings.SearchFormSettings.NoIgnore := True;
 	FSettings.RipGrepParameters.SearchPath := 'act\search\path';
 	FSettings.RipGrepParameters.FileMasks := '*.act';
-	FSettings.RipGrepParameters.GuiSearchTextParams.SearchOptions := [EGuiOption.soNotSet];
+	FSettings.RipGrepParameters.GuiSearchTextParams.SetSearchOptions([EGuiOption.soNotSet]);
 
 	FSettings.NodeLookSettings.AlternateRowColors := True;
 	FSettings.NodeLookSettings.ShowFileIcon := True;
@@ -327,7 +327,7 @@ begin
 
 	{ 2 } FSettings.NodeLookSettings.UpdateIniFile(FSettings.NodeLookSettings.IniSectionName); // create temp ini
 
-   //	Assert.IsTrue(FileExists(FSettings.IniFile.GetTempSectionFileName('NodeLookSettings')), 'temp ini should exist.');
+	// Assert.IsTrue(FileExists(FSettings.IniFile.GetTempSectionFileName('NodeLookSettings')), 'temp ini should exist.');
 	{ 3 } FSettings.StoreToDict;
 
 	Assert.IsTrue(not DirectoryExists(FSettings.IniFile.GetDripGrepperIniTempDir), ' temp dir should not exists');
@@ -361,12 +361,13 @@ begin
 	{ 1 } // FSettings.SearchFormSettings.ExtensionSettings;
 	for var s in [extSetting.KEY_IDE_CONTEXT, extSetting.KEY_SHORTCUT_SEARCH_SELECTED, extSetting.KEY_SHORTCUT_OPENWITH] do begin
 		settingVal := extSetting.SettingsDict['DelphiExtensionSettings|' + s].Value;
-		Assert.IsTrue(MatchStr(settingVal, [SC_OPEN_WITH, SC_SEARCH, '2']), 'DelphiExtensionSettings|' + s + ' should match the initial setting');
+		Assert.IsTrue(MatchStr(settingVal, [SC_OPEN_WITH, SC_SEARCH, '2']), 'DelphiExtensionSettings|' + s +
+			' should match the initial setting');
 	end;
 
 	// TRipGrepperSearchDialogForm.FormClose tested here
 	FSettings.SearchFormSettings.UpdateIniFile(FSettings.SearchFormSettings.IniSectionName); // create temp section
-	//Fsettings.IniFile.ReadTempSectionFiles(); // read temp section
+	// Fsettings.IniFile.ReadTempSectionFiles(); // read temp section
 	Fsettings.IniFile.UpdateFile;
 
 	iniVal := FSettings.IniFile.ReadString(extSetting.INI_SECTION, extSetting.KEY_IDE_CONTEXT, '');

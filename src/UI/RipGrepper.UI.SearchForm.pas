@@ -549,11 +549,14 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.ButtonDown(const _searchOption : EGuiOption; _tb : TToolButton; const _bNotMatch : Boolean = False);
+var
+	options : TSearchOptionSet;
 begin
+	options := FSettingsProxy.GetSearchOptions;
 	if (_bNotMatch) then begin
-		_tb.Down := not(_searchOption in FSettingsProxy.SearchOptions);
+		_tb.Down := not(_searchOption in options);
 	end else begin
-		_tb.Down := _searchOption in FSettingsProxy.SearchOptions;
+		_tb.Down := _searchOption in options;
 	end;
 end;
 
@@ -710,7 +713,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.WriteCtrlsToRipGrepParametersSettings');
 
 	dbgMsg.Msg('FSettingsProxy=' + FSettingsProxy.ToString);
-	FSettingsProxy.SearchText := cmbSearchText.Text;
+	FSettingsProxy.SetSearchText(cmbSearchText.Text);
 	FSettingsProxy.IsReplaceMode := IsReplaceMode;
 	if IsReplaceMode then begin
 		SetReplaceTextSetting(cmbReplaceText.Text);
@@ -979,7 +982,7 @@ begin
 
 	if HasHistItemObjWithResult then begin
 		_ctrlVals.SearchText := GetValuesFromHistObjRipGrepArguments(RG_ARG_SEARCH_TEXT);
-		_ctrlVals.SearchOptions := FHistItemObj.GuiSearchTextParams.SearchOptions;
+		_ctrlVals.SearchOptions := FHistItemObj.GuiSearchTextParams.GetSearchOptions;
 		_ctrlVals.ReplaceText := GetValuesFromHistObjRipGrepArguments(RG_ARG_REPLACE_TEXT);
 		_ctrlVals.IsReplaceMode := FHistItemObj.GuiSearchTextParams.IsReplaceMode;
 		_ctrlVals.SearchPath := GetValuesFromHistObjRipGrepArguments(RG_ARG_SEARCH_PATH, SEARCH_PATH_SEPARATOR);
@@ -991,7 +994,7 @@ begin
 		_ctrlVals.LineContext := FHistItemObj.SearchFormSettings.Context;
 	end else begin
 		_ctrlVals.SearchText := FSettings.SearchTextsHistory[0];
-		_ctrlVals.SearchOptions := FSettings.RipGrepParameters.GuiSearchTextParams.SearchOptions;
+		_ctrlVals.SearchOptions := FSettings.RipGrepParameters.GuiSearchTextParams.GetSearchOptions;
 		_ctrlVals.ReplaceText := FSettings.ReplaceTextsHistory[0];
 		_ctrlVals.IsReplaceMode := FSettings.IsReplaceMode;
 		_ctrlVals.SearchPath := FSettings.SearchPathsHistory[0];
@@ -1019,7 +1022,7 @@ begin
 
 	if HasHistItemObjWithResult then begin
 		// := _ctrlVals.SearchText;
-		FHistItemObj.GuiSearchTextParams.SearchOptions := _ctrlVals.SearchOptions;
+		FHistItemObj.GuiSearchTextParams.SetSearchOptions(_ctrlVals.SearchOptions);
 		// := _ctrlVals.ReplaceText;
 		// := _ctrlVals.SearchPath;
 		// := _ctrlVals.FileMasks;
@@ -1030,7 +1033,7 @@ begin
 		FHistItemObj.SearchFormSettings.Context := _ctrlVals.LineContext;
 	end else begin
 		FSettings.SearchTextsHistory[0] := _ctrlVals.SearchText;
-		FSettings.RipGrepParameters.GuiSearchTextParams.SearchOptions := _ctrlVals.SearchOptions;
+		FSettings.RipGrepParameters.GuiSearchTextParams.SetSearchOptions(_ctrlVals.SearchOptions);
 		FSettings.ReplaceTextsHistory[0] := _ctrlVals.ReplaceText;
 		// FSettings.IsReplaceMode := FCtrlProxy.IsReplaceMode;
 		FSettings.SearchPathsHistory[0] := _ctrlVals.SearchPath;
@@ -1297,9 +1300,9 @@ begin
 		end else begin
 			_settings.LastSearchText := _histObj.SearchText;
 			TRipGrepperSearchDialogForm.SetReplaceText(_settings, _histObj.ReplaceText);
-			dbgMsg.MsgFmtIf(_histObj.SearchText <> _histObj.GuiSearchTextParams.SearchText,
+			dbgMsg.MsgFmtIf(_histObj.SearchText <> _histObj.GuiSearchTextParams.GetSearchText,
 				{ } 'ERROR? _histObj.SearchText=%s <> GuiSearchTextParams=%s',
-				[_histObj.SearchText, _histObj.GuiSearchTextParams.SearchText]);
+				[_histObj.SearchText, _histObj.GuiSearchTextParams.GetSearchText]);
 		end;
 		dbgMsg.Msg('LastSearchText=' + _settings.LastSearchText);
 	finally
@@ -1442,10 +1445,10 @@ var
 	bError : Boolean;
 begin
 	bError := False;
-	if EGuiOption.soUseRegex in FSettingsProxy.SearchOptions then begin
+	if EGuiOption.soUseRegex in FSettingsProxy.GetSearchOptions then begin
 		try
 			var
-			tryRegex := TRegEx.Create(FSettingsProxy.SearchText, [roCompiled]);
+			tryRegex := TRegEx.Create(FSettingsProxy.GetSearchText, [roCompiled]);
 		except
 			on E : Exception do begin
 				TMsgBox.ShowError(E.Message);

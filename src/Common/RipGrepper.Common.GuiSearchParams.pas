@@ -10,71 +10,62 @@ uses
 	System.IniFiles,
 	RipGrepper.CommandLine.OptionStrings,
 	RipGrepper.Helper.Types,
-	RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.SimpleTypes,
+	RipGrepper.Common.SearchTextWithOptions;
 
 type
-
 	TGuiSearchTextParams = class(TPersistableSettings)
 		private
-			FSearchText : string;
-			FEscapedSearchText : string;
 			FIsReplaceMode : Boolean;
-			FWordBoundedSearchText : string;
 			FRgOptions : TOptionStrings;
 			FIsRgExeOptionSet : Boolean;
 			FReplaceText : string;
 			FExpertOptions : TOptionStrings;
-
-			function GetEscapedSearchText : string;
+			FSearchTextWithOptions: TSearchTextWithOptions;
 			function GetReplaceText : string;
-			function GetSearchText : string;
-			function GetWordBoundedSearchText : string;
 			procedure LoadSearchOptionsFromDict(const _bDefault : Boolean);
 			// function ResetRgOption(const _sParamRegex : string; const _bReset : Boolean = False) : string;
 			procedure SetIsReplaceMode(const Value : Boolean);
 			procedure SetRgOptions(const Value : TOptionStrings);
-
 		protected
 			procedure Init; override;
 
 		public
-			SearchOptions : TSearchOptionSet;
-
 			constructor Create(const _Owner : TPersistableSettings; const _iniSection : string); overload;
 			constructor Create(const _sText, _sRepl : string; const _bMC, _bMW, _bUR : Boolean); overload;
 			constructor Create(const _iniSection : string); overload;
 			destructor Destroy; override;
+			function AreSet(_options : TArray<EGuiOption>) : Boolean;
 			procedure Clear;
 			procedure Copy(const _other : TGuiSearchTextParams); reintroduce;
 
 			procedure CopyDefaultsToValues; override;
 			procedure CopyValuesToDefaults; override;
-			function GetNext(const _newOption : EGuiOption) : TGuiSearchTextParams;
-			function IsSet(_options : TArray<EGuiOption>) : Boolean;
-
 			procedure ResetOption(const _searchOption : EGuiOption);
-			function SearchOptionsAsBitField : TBitField;
 			procedure SetOption(const _searchOption : EGuiOption);
 			procedure SwitchOption(const _newOption : EGuiOption); overload;
 			function SetRgOption(const _sParamRegex : string; const _bReset : Boolean = False) : string;
 			function SetRgOptionWithValue(const _sParamRegex, _sValue : string; const _bUnique : Boolean = False) : string;
 			procedure StoreAsDefaultsToDict; override;
 			function GetAsString(const _bGuiOptionsOnly : Boolean = False) : string;
+			function GetSearchText : string;
 			procedure LoadDefaultsFromDict; override;
 			procedure LoadFromDict(); override;
+			procedure SetSearchOptions(const _options : TSearchOptionSet);
+			function GetSearchOptions : TSearchOptionSet;
+			procedure SetSearchText(const _text : string);
 			procedure StoreToDict; override;
 			function ToLogString : string; override;
 			procedure UpdateRgParamsByGuiOptions;
 			class procedure ValidateOptions(listOptions : TStringList); static;
 
-			property EscapedSearchText : string read GetEscapedSearchText;
 			property IsReplaceMode : Boolean read FIsReplaceMode write SetIsReplaceMode;
 			property IsRgExeOptionSet : Boolean read FIsRgExeOptionSet write FIsRgExeOptionSet;
 			property ReplaceText : string read GetReplaceText write FReplaceText;
 			property ExpertOptions : TOptionStrings read FExpertOptions write FExpertOptions;
 			property RgOptions : TOptionStrings read FRgOptions write SetRgOptions;
-			property SearchText : string read GetSearchText write FSearchText;
-			property WordBoundedSearchText : string read GetWordBoundedSearchText;
+			property SearchTextWithOptions: TSearchTextWithOptions read
+				FSearchTextWithOptions;
 	end;
 
 implementation
@@ -91,88 +82,20 @@ uses
 constructor TGuiSearchTextParams.Create(const _sText, _sRepl : string; const _bMC, _bMW, _bUR : Boolean);
 begin
 	Create();
-	SearchText := _sText;
-	SearchOptions := TSearchParams.GetAsSearchOptionSet(_bMC, _bMW, _bUR);
-end;
-
-function TGuiSearchTextParams.GetNext(const _newOption : EGuiOption) : TGuiSearchTextParams;
-begin
-	Result := self;
-	case _newOption of
-		EGuiOption.soMatchCase : begin
-			Result.SwitchOption(EGuiOption.soMatchCase);
-		end;
-
-		EGuiOption.soMatchWord : begin
-			Result.SwitchOption(EGuiOption.soMatchWord);
-		end;
-
-		EGuiOption.soUseRegex : begin
-			Result.SwitchOption(EGuiOption.soUseRegex);
-		end;
-	end;
-end;
-
-function TGuiSearchTextParams.IsSet(_options : TArray<EGuiOption>) : Boolean;
-begin
-	Result := True;
-	for var o in _options do begin
-		if not(o in SearchOptions) then begin
-			Result := False;
-			break
-		end;
-	end;
+	FSearchTextWithOptions.New(_sText,
+		{ } TSearchTextWithOptions.GetAsSearchOptionSet(_bMC, _bMW, _bUR));
 end;
 
 procedure TGuiSearchTextParams.Clear;
 begin
-	SearchText := '';
-	FEscapedSearchText := '';
 	FIsRgExeOptionSet := False;
-	SearchOptions := [EGuiOption.soNotSet];
-end;
-
-function TGuiSearchTextParams.GetEscapedSearchText : string;
-begin
-	Result := TRegEx.Escape(FSearchText);
-end;
-
-function TGuiSearchTextParams.GetSearchText : string;
-begin
-	Result := FSearchText;
-
-	// if IsSet([EGuiOption.soUseRegex]) then begin
-	// Result := EscapedSearchText;
-	// end;
-
-	if IsSet([EGuiOption.soMatchWord]) then begin
-		Result := WordBoundedSearchText;
-	end;
-end;
-
-function TGuiSearchTextParams.GetWordBoundedSearchText : string;
-begin
-	FWordBoundedSearchText := FSearchText;
-	TOptionsHelper.PutBetweenWordBoundaries(FWordBoundedSearchText);
-	Result := FWordBoundedSearchText;
+	FSearchTextWithOptions.Clear;
 end;
 
 procedure TGuiSearchTextParams.ResetOption(const _searchOption : EGuiOption);
-var
-	searchOption : EGuiOption;
 begin
-	searchOption := _searchOption;
-	Exclude(SearchOptions, searchOption);
+	FSearchTextWithOptions.ResetOption(_searchOption);
 	UpdateRgParamsByGuiOptions();
-end;
-
-function TGuiSearchTextParams.SearchOptionsAsBitField : TBitField;
-begin
-	for var i in GUI_SEARCH_PARAMS do begin
-		if i in SearchOptions then begin
-			Result.SetBit(Integer(i));
-		end;
-	end;
 end;
 
 function TGuiSearchTextParams.SetRgOption(const _sParamRegex : string; const _bReset : Boolean = False) : string;
@@ -184,29 +107,15 @@ begin
 	end;
 end;
 
-// function TGuiSearchTextParams.ResetRgOption(const _sParamRegex : string; const _bReset : Boolean = False) : string;
-// begin
-// 	if _bReset then begin
-// 		RgOptions.AddOption(_sParamRegex);
-// 	end else begin
-// 		RgOptions.RemoveOption(_sParamRegex);
-// 	end;
-// end;
-
 procedure TGuiSearchTextParams.SetOption(const _searchOption : EGuiOption);
 begin
-	Include(SearchOptions, _searchOption);
-
-	if _searchOption <> EGuiOption.soNotSet then begin
-		Exclude(SearchOptions, EGuiOption.soNotSet);
-	end;
-
+	FSearchTextWithOptions.SetOption(_searchOption);
 	UpdateRgParamsByGuiOptions();
 end;
 
 procedure TGuiSearchTextParams.SwitchOption(const _newOption : EGuiOption);
 begin
-	if IsSet([_newOption]) then begin
+	if FSearchTextWithOptions.AreSet([_newOption]) then begin
 		ResetOption(_newOption);
 	end else begin
 		SetOption(_newOption);
@@ -225,26 +134,13 @@ begin
 end;
 
 function TGuiSearchTextParams.GetAsString(const _bGuiOptionsOnly : Boolean = False) : string;
-var
-	arr : TArrayEx<string>;
+var arr : TArrayEx<string>; logSearchText : string;
 begin
-	Result := '';
-	for var i in GUI_SEARCH_PARAMS do begin
-		if i in SearchOptions then begin
-			case i of
-				EGuiOption.soMatchCase :
-				arr.Add('MatchCase');
-				EGuiOption.soMatchWord :
-				arr.Add('MatchWord');
-				EGuiOption.soUseRegex :
-				arr.Add('UseRegex');
-			end;
-		end;
-	end;
-	Result := '[' + string.Join(',', arr.Items) + ']';
+	Result := FSearchTextWithOptions.GetAsString(_bGuiOptionsOnly);
 	if not _bGuiOptionsOnly then begin
-		Result := Format('%s %s IsRgOpSet: %s' + CRLF + '%s' + CRLF + 'IsReplMmode:%s - %s',
-			[SearchText, Result, BoolToStr(IsRgExeOptionSet, True), RgOptions.AsString, BoolToStr(IsReplaceMode, True), ReplaceText]);
+		Result := Format('%s IsRgOpSet: %s' + CRLF + '%s' + CRLF + 'IsReplMode:%s - %s',
+			{ } [Result, BoolToStr(IsRgExeOptionSet, True),
+			{ } RgOptions.AsString, BoolToStr(IsReplaceMode, True), ReplaceText]);
 	end;
 end;
 
@@ -280,17 +176,20 @@ begin
 	inherited Destroy(); // ok
 end;
 
+function TGuiSearchTextParams.AreSet(_options : TArray<EGuiOption>) : Boolean;
+begin
+	Result := FSearchTextWithOptions.AreSet(_options);
+end;
+
 procedure TGuiSearchTextParams.Copy(const _other : TGuiSearchTextParams);
 begin
 	inherited Copy(_other as TPersistableSettings);
 
-	SearchOptions := _other.SearchOptions;
-	FSearchText := _other.SearchText;
+	FSearchTextWithOptions.Copy(_other.FSearchTextWithOptions);
+
 	FReplaceText := _other.ReplaceText;
 	FIsReplaceMode := _other.IsReplaceMode;
 
-	FEscapedSearchText := _other.EscapedSearchText;
-	FWordBoundedSearchText := _other.WordBoundedSearchText;
 	FRgOptions := _other.RgOptions;
 	FIsRgExeOptionSet := _other.IsRgExeOptionSet;
 	FExpertOptions := _other.ExpertOptions;
@@ -313,6 +212,11 @@ begin
 	Result := FReplaceText;
 end;
 
+function TGuiSearchTextParams.GetSearchText : string;
+begin
+	Result := FSearchTextWithOptions.SearchText;
+end;
+
 procedure TGuiSearchTextParams.Init;
 begin
 	SettingsDict.CreateDefaultRelevantSetting('SearchParams', varString, '');
@@ -333,18 +237,17 @@ begin
 end;
 
 procedure TGuiSearchTextParams.LoadSearchOptionsFromDict(const _bDefault : Boolean);
-var
-	sParams : string;
+var sParams : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.LoadSearchOptionsFromDict Default=' + BoolToStr(_bDefault));
 	sParams := SettingsDict.GetSetting('SearchParams', _bDefault);
 	dbgMsg.Msg(RgOptions.AsString);
-	SearchOptions := TSearchParams.StringToSearchParams(sParams);
-	if SearchOptions = [] then begin
+	FSearchTextWithOptions.StringToSearchOptions(sParams);
+	if FSearchTextWithOptions.SearchOptions = [] then begin
 		SetOption(EGuiOption.soNotSet);
 	end else begin
-		for var so in SearchOptions do begin
+		for var so in FSearchTextWithOptions.SearchOptions do begin
 			SetOption(so);
 		end;
 	end;
@@ -354,6 +257,12 @@ end;
 procedure TGuiSearchTextParams.SetIsReplaceMode(const Value : Boolean);
 begin
 	FIsReplaceMode := Value;
+end;
+
+procedure TGuiSearchTextParams.SetSearchOptions(const _options : TSearchOptionSet);
+begin
+	FSearchTextWithOptions.SearchOptions := _options;
+	UpdateRgParamsByGuiOptions();
 end;
 
 procedure TGuiSearchTextParams.SetRgOptions(const Value : TOptionStrings);
@@ -368,6 +277,17 @@ begin
 	{$ENDIF}
 end;
 
+function TGuiSearchTextParams.GetSearchOptions : TSearchOptionSet;
+begin
+	Result := FSearchTextWithOptions.SearchOptions;
+end;
+
+procedure TGuiSearchTextParams.SetSearchText(const _text : string);
+begin
+	FSearchTextWithOptions.SearchText := _text;
+	UpdateRgParamsByGuiOptions();
+end;
+
 procedure TGuiSearchTextParams.StoreToDict;
 begin
 	SettingsDict.StoreSetting('SearchParams', GetAsString(True));
@@ -380,8 +300,7 @@ begin
 end;
 
 procedure TGuiSearchTextParams.UpdateRgParamsByGuiOptions;
-var
-	backupOptions : TArrayEx<string>;
+var backupOptions : TArrayEx<string>;
 begin
 
 	// backup non option case options
@@ -394,9 +313,8 @@ begin
 	end;
 
 	for var op : TSearchOptionToRgOptions in SEARCH_OPTION_CASES do begin
-		if op.SearchOption = self.SearchOptions then begin
-			var
-				opArr : TArrayEx<string>;
+		if op.SearchOption = self.FSearchTextWithOptions.SearchOptions then begin
+			var opArr : TArrayEx<string>;
 			for var os in op.RgOptions do begin
 				opArr.Add(TParamRegexHelper.GetLongParam(os));
 			end;

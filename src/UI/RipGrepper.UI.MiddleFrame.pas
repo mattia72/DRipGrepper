@@ -1116,7 +1116,7 @@ begin
 			strsArr := args.SliceMaxLength(MAX_COMMAND_LINE_LENGTH - (fullCmdLen - args.Text.Length));
 			op_args := _rgp.RipGrepArguments.GetValues(RG_ARG_OPTIONS);
 			for var arrPath in strsArr do begin
-				Result.Add(op_args + [_rgp.GuiSearchTextParams.SearchText] + arrPath);
+				Result.Add(op_args + [_rgp.GuiSearchTextParams.GetSearchText] + arrPath);
 			end;
 		end;
 	finally
@@ -1168,7 +1168,7 @@ begin
 	dbgMsg.Msg('History Matches: ' + HistItemObject.TotalMatchCount.ToString);
 	dbgMsg.Msg('History Files: ' + HistItemObject.FileCount.ToString);
 	dbgMsg.Msg('History Errors: ' + HistItemObject.GetErrorCounters().FSumOfErrors.ToString);
-	dbgMsg.Msg('History Gui: ' + HistItemObject.GuiSearchTextParams.SearchText + ' ' + HistItemObject.GuiSearchTextParams.ToString);
+	dbgMsg.Msg('History Gui: ' + HistItemObject.GuiSearchTextParams.GetSearchText + ' ' + HistItemObject.GuiSearchTextParams.ToString);
 	UpdateGui();
 end;
 

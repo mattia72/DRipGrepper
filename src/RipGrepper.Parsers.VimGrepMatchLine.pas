@@ -58,7 +58,8 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	System.SysUtils,
 	System.IOUtils,
-	RipGrepper.Data.Parsers;
+	RipGrepper.Data.Parsers,
+	RipGrepper.Common.SearchTextWithOptions;
 
 constructor TVimGrepMatchLineParser.Create;
 begin
@@ -130,11 +131,8 @@ begin
 		s := m.Groups['text'].Value;
 
 		var // not used, but so we have less memory leak!
-		so := SearchParams.GetGuiSearchParams;
+		so := SearchParams; // can stwo
 		Assert(Assigned(so));
-		// if so.IsReplaceMode then begin
-		// // TODO: implement replace mode
-		// end;
 
 		matchPretty := FPrettyRegex.Match(s);
 		if matchPretty.Groups.Count >= 4 then begin
@@ -181,17 +179,17 @@ procedure TVimGrepMatchLineParser.SetPrettyRegex;
 var
 	pattern : string;
 	s : string;
+	so: TSearchOptionSet;
+	stwo : TSearchTextWithOptions;
 begin
-	var
-	gp := FSearchParams.GetGuiSearchParams;
-	var
-	so := gp.SearchOptions;
+	stwo := FSearchParams.GetGuiSearchParams; // can stwo
+	so := stwo.SearchOptions;
 
 	if not((EGuiOption.soUseRegex in so) or
 		{ } (EGuiOption.soMatchWord in so)) then begin
-		s := TRegEx.Escape(gp.SearchText);
+		s := stwo.EscapedSearchText;
 	end else begin
-		s := gp.SearchText;
+		s := stwo.SearchText;
 	end;
 
 	pattern := '(?<before>^.*)(?<text>' + s + ')(?<after>.*$)';

@@ -55,7 +55,7 @@ uses
 	Vcl.Forms,
 	RipGrepper.Common.GuiSearchParams,
 	System.Classes,
-	RipGrepper.Common.SearchParams,
+	RipGrepper.Common.SearchTextWithOptions,
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Tools.FileUtils,
 	System.Variants;
@@ -146,14 +146,14 @@ begin
 	FSettings.RipGrepPath := 'not default relevant\rg.exe';
 	FSettings.FileMasks := DEFPAS_DEFDFM;
 	FSettings.SearchPath := C_DEF_PATH_TO_DIR;
-	FSettings.GuiSearchTextParams.SearchOptions := TSearchParams.StringToSearchParams(EGUIOPTION_MATCHCASE);
+	FSettings.GuiSearchTextParams.SetSearchOptions(TSearchTextWithOptions.StringToSearchParams(EGUIOPTION_MATCHCASE));
 	// Assert.AreEqual(0, FSettings.SettingsDict.Keys.Count, 'SettingsDict should be empty');
 	FSettings.StoreAsDefaultsToDict;
 
 	FSettings.RipGrepPath := RG_EXE_PATH;
 	FSettings.FileMasks := PAS_DFM;
 	FSettings.SearchPath := C_PATH_TO_DIR;
-	FSettings.GuiSearchTextParams.SearchOptions := TSearchParams.StringToSearchParams(MATCHWORD_USEREGEX);
+	FSettings.GuiSearchTextParams.SetSearchOptions(TSearchTextWithOptions.StringToSearchParams(MATCHWORD_USEREGEX));
 	FSettings.StoreToDict;
 end;
 
@@ -217,7 +217,7 @@ begin
 	FSettings.RipGrepPath := 'not default relevant\rg.exe';
 	FSettings.FileMasks := DEFPAS_DEFDFM;
 	FSettings.SearchPath := C_DEF_PATH_TO_DIR;
-	FSettings.GuiSearchTextParams.SearchOptions := TSearchParams.StringToSearchParams(EGUIOPTION_MATCHCASE);
+	FSettings.GuiSearchTextParams.SetSearchOptions(TSearchTextWithOptions.StringToSearchParams(EGUIOPTION_MATCHCASE));
 
 	FSettings.StoreAsDefaultsToDict;
 
@@ -261,10 +261,10 @@ procedure TRipGrepSettingsTest.UpdateIniReloadTest;
 begin
 	SetDefaultsAndCurrentValues;
 	FSettings.UpdateIniFile();
-    FSettings.FileMasks := '';
-    FSettings.SearchPath := '';
-	FSettings.ReLoad;    // fills only settings dict
-    FSettings.LoadFromDict; // why loads defaults ?????
+	FSettings.FileMasks := '';
+	FSettings.SearchPath := '';
+	FSettings.ReLoad; // fills only settings dict
+	FSettings.LoadFromDict; // why loads defaults ?????
 	Assert.IsTrue(FSettings.RipGrepPath.Contains(RG_EXE_PATH), 'RipGrepPath should be set');
 	Assert.AreEqual(PAS_DFM, FSettings.FileMasks, 'FileMasks should be set');
 	Assert.AreEqual(C_PATH_TO_DIR, FSettings.SearchPath, 'SearchPath should be set');

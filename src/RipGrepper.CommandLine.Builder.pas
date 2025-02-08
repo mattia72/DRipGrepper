@@ -188,7 +188,7 @@ begin
 	_params.RgExeOptions := TOptionStrings.New(arrRgOptions);
 
 	AddArgs(_params, RG_ARG_OPTIONS, arrRgOptions);
-	AddArgs(_params, RG_ARG_SEARCH_TEXT, [_params.GuiSearchTextParams.SearchText]); // order is important!
+	AddArgs(_params, RG_ARG_SEARCH_TEXT, [_params.GuiSearchTextParams.GetSearchText()]); // order is important!
 	// --- set search path
 	for var s in _params.SearchPath.Split([SEARCH_PATH_SEPARATOR]) do begin
 		arrPaths.Add(s);

@@ -8,7 +8,7 @@ uses
 	ArrayEx,
 	RipGrepper.Common.Constants,
 	RipGrepper.Settings.Persistable,
-	RipGrepper.Common.GuiSearchParams,
+    RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Helper.Types,
 	System.Generics.Collections,
 	RipGrepper.CommandLine.OptionStrings,

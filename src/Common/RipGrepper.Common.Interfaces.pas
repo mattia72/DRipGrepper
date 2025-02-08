@@ -10,10 +10,11 @@ uses
 	System.Generics.Collections,
 	System.Classes,
 	RipGrepper.Common.ParsedObject,
-	RipGrepper.Common.GuiSearchParams,
+	RipGrepper.Common.SearchTextWithOptions,
 	RipGrepper.Settings.SearchFormSettings,
 	RipGrepper.Settings.RipGrepperSettings,
-	RipGrepper.Common.EncodedStringList;
+	RipGrepper.Common.EncodedStringList,
+	RipGrepper.Common.GuiSearchParams;
 
 type
 
@@ -60,21 +61,21 @@ type
 
 	end;
 
-//  IParallelParser = interface(IInterface) //It destructs the parser too early, use the class instead'
-//      ['{951E2EB3-F39A-47CB-9DCA-BD15B02B6F94}']
-//      function GetOnLastLine: TLastLineEvent;
-//      function GetOnProgress: TProgressEvent;
-//      procedure SetNewLine(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean);
-//      procedure SetOnLastLine(const Value: TLastLineEvent);
-//      procedure SetOnProgress(const Value: TProgressEvent);
-//      property OnLastLine: TLastLineEvent read GetOnLastLine write SetOnLastLine;
-//      property OnProgress: TProgressEvent read GetOnProgress write SetOnProgress;
-//      procedure Parse;
-//  end;
+	// IParallelParser = interface(IInterface) //It destructs the parser too early, use the class instead'
+	// ['{951E2EB3-F39A-47CB-9DCA-BD15B02B6F94}']
+	// function GetOnLastLine: TLastLineEvent;
+	// function GetOnProgress: TProgressEvent;
+	// procedure SetNewLine(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean);
+	// procedure SetOnLastLine(const Value: TLastLineEvent);
+	// procedure SetOnProgress(const Value: TProgressEvent);
+	// property OnLastLine: TLastLineEvent read GetOnLastLine write SetOnLastLine;
+	// property OnProgress: TProgressEvent read GetOnProgress write SetOnProgress;
+	// procedure Parse;
+	// end;
 
 	ISearchParams = interface
 		['{CF7C5401-4CBE-4B08-8D4D-62C6E2E70983}']
-		function GetGuiSearchParams : TGuiSearchTextParams;
+		function GetGuiSearchParams : TSearchTextWithOptions;
 	end;
 
 	ISearchResultLineParser = interface(ILineParser)
@@ -93,18 +94,19 @@ type
 		function GetFileCount : integer;
 		function GetGuiSearchTextParams : TGuiSearchTextParams;
 		function GetIsReplaceMode : Boolean;
-		function GetMatches : TParsedObjectRowCollection;
-		function GetNoMatchFound : Boolean;
-		function GetParserType : TParserType;
+		function GetMatches() : TParsedObjectRowCollection;
+		function GetNoMatchFound() : Boolean;
+		function GetParserType() : TParserType;
 		procedure SetMatches(const Value : TParsedObjectRowCollection);
-		function GetRipGrepArguments : TRipGrepArguments;
-		function GetSearchFormSettings : TSearchFormSettings;
-		function GetRipGrepResult : Integer;
-		function GetSearchText : string;
-		function GetReplaceText : string;
+		function GetRipGrepArguments() : TRipGrepArguments;
+		function GetSearchFormSettings() : TSearchFormSettings;
+		function GetRipGrepResult() : Integer;
+		function GetSearchText() : string;
+		function GetReplaceText() : string;
+		function GetSearchTextWithOptions() : TSearchTextWithOptions;
 		procedure SetRipGrepArguments(const Value : TRipGrepArguments);
-		function GetTotalMatchCount : integer;
-		function HasResult : Boolean;
+		function GetTotalMatchCount() : integer;
+		function HasResult() : Boolean;
 		procedure LoadFromSettings(const _settings : TRipGrepperSettings);
 		procedure SetElapsedTimeText(const Value : string);
 		procedure SetErrorCounters(const Value : TErrorCounters);

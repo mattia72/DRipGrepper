@@ -172,12 +172,12 @@ begin
 	Node := GetNodeByIndex(VstHistory, CurrentHistoryItemIndex);
 	Data := VstHistory.GetNodeData(Node);
 	TDebugUtils.DebugMessageFormat('TMiddleLeftFrame.ActionHistoryDeleteExecute: idx:%d Node:%s, ho:%s',
-		[CurrentHistoryItemIndex, Data.SearchText, ho.GuiSearchTextParams.SearchText]);
+		[CurrentHistoryItemIndex, Data.SearchText, ho.GuiSearchTextParams.GetSearchText]);
 
-	Assert((Data.SearchText = ho.GuiSearchTextParams.SearchText) or
-		(WB + Data.SearchText + WB = ho.GuiSearchTextParams.WordBoundedSearchText) or
-		(TRegEx.Escape(Data.SearchText) = ho.GuiSearchTextParams.EscapedSearchText),
-		Data.SearchText + ' != ' + ho.GuiSearchTextParams.SearchText);
+//  Assert((Data.SearchText = ho.GuiSearchTextParams.GetSearchText) or
+//      (WB + Data.SearchText + WB = ho.GuiSearchTextParams.WordBoundedSearchText) or
+//      (TRegEx.Escape(Data.SearchText) = ho.GuiSearchTextParams.EscapedSearchText),
+//      Data.SearchText + ' != ' + ho.GuiSearchTextParams.SearchText);
 
 	VstHistory.DeleteNode(Node);
 	VstHistory.Refresh;

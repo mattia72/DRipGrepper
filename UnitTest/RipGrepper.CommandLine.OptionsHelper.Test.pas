@@ -118,7 +118,7 @@ begin
 	FOwner := TTestOwnerSettings.Create();
 	FParams := TRipGrepParameterSettings.Create(FOwner);
 	FGuiParams := FParams.GuiSearchTextParams;
-	FGuiParams.SearchText := 'search text';
+	FGuiParams.SetSearchText('search text');
 end;
 
 procedure TOptionsHelperTest.TearDown;
@@ -138,7 +138,7 @@ begin
 	newGuiSearchOption := EGuiOption(_guiOption);
 
 	rgExeOps := string.Join(' ', RG_NECESSARY_PARAMS);
-	FguiParams.SearchOptions := [];
+	FguiParams.SetSearchOptions([]);
 	bIsOpOk := TRegex.IsMatch(rgExeOps, TOptionsHelper.GetBoundedParamRegex(_paramRegex.Split(['|'])[1]));
 
 	FguiParams.SetOption(newGuiSearchOption);
@@ -147,7 +147,9 @@ begin
 
 	Assert.IsTrue(not bIsOpOk, '''' + _paramRegex + ''' should not contains initially');
 	Assert.AreEqual(_bMatch = 1, sNewOptions.IsOptionSet(_paramRegex), '''' + _paramRegex + ''' should be in the options');
-	Assert.IsTrue(FguiParams.IsSet([newGuiSearchOption]), Integer(newGuiSearchOption).ToString + ' should be in the options');
+	Assert.IsTrue(
+		{ } FguiParams.AreSet([newGuiSearchOption]),
+		{ } Integer(newGuiSearchOption).ToString + ' should be in the options');
 
 end;
 
@@ -163,7 +165,7 @@ begin
 	sLongParam := _paramRegex.Split(['|'])[1];
 
 	rgExeOps := string.Join(' ', RG_NECESSARY_PARAMS) + ' ' + sLongParam;
-	FguiParams.SearchOptions := [_resetGuiSearchOption];
+	FguiParams.SetSearchOptions([_resetGuiSearchOption]);
 
 	bIsOpOk := TRegex.IsMatch(rgExeOps, TOptionsHelper.GetBoundedParamRegex(sLongParam));
 
@@ -173,7 +175,8 @@ begin
 
 	Assert.IsTrue(bIsOpOk, '''' + _paramRegex + ''' should contain initially');
 	Assert.AreEqual(bMatch = 1, sNewOptions.IsOptionSet(_paramRegex), '''' + _paramRegex + ''' should not be in the options');
-	Assert.IsTrue(not FGuiParams.IsSet([_resetGuiSearchOption]), Integer(_resetGuiSearchOption).ToString + ' should not be in the options');
+	Assert.IsTrue(not FGuiParams.AreSet([_resetGuiSearchOption]), Integer(_resetGuiSearchOption).ToString +
+		' should not be in the options');
 end;
 
 procedure TOptionsHelperTest.TestGetOptionsAndSetFlagsoUseRegex(const _guiOptionsActual : string);
@@ -186,7 +189,7 @@ begin
 
 	rgExeOps := string.Join(' ', RG_NECESSARY_PARAMS) + ' ' + sLongParam;
 
-	FGuiParams.SearchOptions := SetSearchOptions(_guiOptionsActual);
+	FGuiParams.SetSearchOptions(SetSearchOptions(_guiOptionsActual));
 
 	bIsOpOk := TRegex.IsMatch(rgExeOps, TOptionsHelper.GetBoundedParamRegex(sLongParam));
 
@@ -197,7 +200,7 @@ begin
 	Assert.IsTrue(bIsOpOk, '''' + sLongParam + ''' should contain initially');
 	Assert.IsTrue(not sNewOptions.IsOptionSet(RG_PARAM_REGEX_FIXED_STRINGS),
 		{ } '''' + sLongParam + ''' should not be in the options');
-	Assert.IsTrue(FGuiParams.IsSet([EGuiOption.soUseRegex]),
+	Assert.IsTrue(FGuiParams.AreSet([EGuiOption.soUseRegex]),
 		{ } Integer(EGuiOption.soUseRegex).ToString + ' should not be in the options');
 end;
 
@@ -211,7 +214,7 @@ begin
 
 	rgExeOps := string.Join(' ', RG_NECESSARY_PARAMS) + ' ' + sLongParam;
 
-	FGuiParams.SearchOptions := SetSearchOptions(_guiOptionsActual);
+	FGuiParams.SetSearchOptions(SetSearchOptions(_guiOptionsActual));
 
 	bIsOpOk := TRegex.IsMatch(rgExeOps, TOptionsHelper.GetBoundedParamRegex(sLongParam));
 
@@ -220,7 +223,7 @@ begin
 	sNewOptions := FGuiParams.RgOptions;
 
 	Assert.IsTrue(bIsOpOk, '''' + sLongParam + ''' should contain initially');
-	if (EGuiOption.soUseRegex in FGuiParams.SearchOptions) or (EGuiOption.soMatchWord in FGuiParams.SearchOptions) then begin
+	if (EGuiOption.soUseRegex in FGuiParams.GetSearchOptions) or (EGuiOption.soMatchWord in FGuiParams.GetSearchOptions) then begin
 		Assert.IsTrue(not sNewOptions.IsOptionSet(RG_PARAM_REGEX_FIXED_STRINGS),
 			{ } '''' + sLongParam + ''' should not be in the options');
 	end else begin
@@ -228,15 +231,15 @@ begin
 			{ } '''' + sLongParam + ''' should be in the options');
 
 	end;
-	Assert.IsTrue(not FGuiParams.IsSet([EGuiOption.soUseRegex]),
+	Assert.IsTrue(not FGuiParams.AreSet([EGuiOption.soUseRegex]),
 		{ } Integer(EGuiOption.soUseRegex).ToString + ' should not be in the options');
 
-	if EGuiOption.soMatchWord in FGuiParams.SearchOptions then begin
-		Assert.IsTrue(TOptionsHelper.IsWordBoundOnBothSide(FGuiParams.SearchText),
-			{ } FGuiParams.SearchText + ' should be word bounded');
+	if EGuiOption.soMatchWord in FGuiParams.GetSearchOptions then begin
+		Assert.IsTrue(TOptionsHelper.IsWordBoundOnBothSide(FGuiParams.GetSearchText),
+			{ } FGuiParams.GetSearchText + ' should be word bounded');
 	end else begin
-		Assert.IsTrue(not TOptionsHelper.IsWordBoundOnBothSide(FGuiParams.SearchText),
-			{ } FGuiParams.SearchText + ' should not be word bounded');
+		Assert.IsTrue(not TOptionsHelper.IsWordBoundOnBothSide(FGuiParams.GetSearchText),
+			{ } FGuiParams.GetSearchText + ' should not be word bounded');
 	end;
 end;
 
@@ -250,7 +253,7 @@ begin
 
 	rgExeOps := string.Join(' ', RG_NECESSARY_PARAMS) + ' ' + sLongParam;
 
-	FGuiParams.SearchOptions := SetSearchOptions(_guiOptionsActual);
+	FGuiParams.SetSearchOptions(SetSearchOptions(_guiOptionsActual));
 
 	bIsOpOk := TRegex.IsMatch(rgExeOps, TOptionsHelper.GetBoundedParamRegex(sLongParam));
 	FGuiParams.ResetOption(EGuiOption.soMatchWord);
@@ -259,7 +262,7 @@ begin
 
 	Assert.IsTrue(bIsOpOk, '''' + sLongParam + ''' should contain initially');
 
-	if EGuiOption.soUseRegex in FGuiParams.SearchOptions then begin
+	if EGuiOption.soUseRegex in FGuiParams.GetSearchOptions then begin
 		Assert.IsTrue(not sNewOptions.IsOptionSet(RG_PARAM_REGEX_FIXED_STRINGS),
 			{ } '''' + sLongParam + ''' should not be in the options')
 	end else begin
@@ -267,11 +270,11 @@ begin
 			{ } '''' + sLongParam + ''' should be in the options')
 
 	end;
-	Assert.IsTrue(not FGuiParams.IsSet([EGuiOption.soMatchWord]),
+	Assert.IsTrue(not FGuiParams.AreSet([EGuiOption.soMatchWord]),
 		{ } Integer(EGuiOption.soMatchWord).ToString + ' should not be in the options');
 
-	Assert.IsTrue(not TOptionsHelper.IsWordBoundOnBothSide(FGuiParams.SearchText),
-		{ } FGuiParams.SearchText + ' should not be bounded');
+	Assert.IsTrue(not TOptionsHelper.IsWordBoundOnBothSide(FGuiParams.GetSearchText),
+		{ } FGuiParams.GetSearchText + ' should not be bounded');
 
 end;
 
@@ -285,7 +288,7 @@ begin
 
 	rgExeOps := string.Join(' ', RG_NECESSARY_PARAMS) + ' ' + sLongParam;
 
-	FGuiParams.SearchOptions := SetSearchOptions(_guiOptionsActual);
+	FGuiParams.SetSearchOptions(SetSearchOptions(_guiOptionsActual));
 
 	bIsOpOk := TRegex.IsMatch(rgExeOps, TOptionsHelper.GetBoundedParamRegex(sLongParam));
 
@@ -294,7 +297,7 @@ begin
 	sNewOptions := FGuiParams.RgOptions;
 
 	Assert.IsTrue(bIsOpOk, '''' + sLongParam + ''' should contain initially');
-	if (EGuiOption.soUseRegex in FGuiParams.SearchOptions) or (EGuiOption.soMatchWord in FGuiParams.SearchOptions) then begin
+	if (EGuiOption.soUseRegex in FGuiParams.GetSearchOptions) or (EGuiOption.soMatchWord in FGuiParams.GetSearchOptions) then begin
 		Assert.IsTrue(not sNewOptions.IsOptionSet(RG_PARAM_REGEX_FIXED_STRINGS),
 			{ } '''' + sLongParam + ''' should not be in the options');
 	end else begin
@@ -302,15 +305,15 @@ begin
 			{ } '''' + sLongParam + ''' should be in the options');
 
 	end;
-	Assert.IsTrue(not FGuiParams.IsSet([EGuiOption.soMatchWord]),
+	Assert.IsTrue(not FGuiParams.AreSet([EGuiOption.soMatchWord]),
 		{ } Integer(EGuiOption.soMatchWord).ToString + ' should not be in the options');
 
-	if EGuiOption.soMatchWord in FGuiParams.SearchOptions then begin
-		Assert.IsTrue(TOptionsHelper.IsWordBoundOnBothSide(FGuiParams.SearchText),
-			{ } FGuiParams.SearchText + ' should be word bounded');
+	if EGuiOption.soMatchWord in FGuiParams.GetSearchOptions then begin
+		Assert.IsTrue(TOptionsHelper.IsWordBoundOnBothSide(FGuiParams.GetSearchText),
+			{ } FGuiParams.GetSearchText + ' should be word bounded');
 	end else begin
-		Assert.IsTrue(not TOptionsHelper.IsWordBoundOnBothSide(FGuiParams.SearchText),
-			{ } FGuiParams.SearchText + ' should not be word bounded');
+		Assert.IsTrue(not TOptionsHelper.IsWordBoundOnBothSide(FGuiParams.GetSearchText),
+			{ } FGuiParams.GetSearchText + ' should not be word bounded');
 	end;
 
 end;
