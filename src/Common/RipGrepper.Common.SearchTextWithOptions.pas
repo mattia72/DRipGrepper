@@ -33,6 +33,7 @@ type
 			procedure SetOption(const _searchOption : EGuiOption);
 			procedure UpdateSearchOptions(const _sOptions : string);
 			class function StringToSearchOptionSet(const s : string) : TSearchOptionSet; static;
+			property EscapedSearchText : string read FEscapedSearchText;
 			property SearchText : string read GetSearchText write SetSearchText;
 	end;
 
@@ -89,7 +90,7 @@ begin
 end;
 
 function TSearchTextWithOptions.GetAsString(const _bGuiOptionsOnly : Boolean = False) : string;
-var arr : TArrayEx<string>; logSearchText : string;
+var arr : TArrayEx<string>;
 begin
 	Result := '';
 	for var i in GUI_SEARCH_PARAMS do begin

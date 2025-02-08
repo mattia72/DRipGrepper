@@ -35,6 +35,8 @@ type
 			class function GetModifiedEditBuffers : TArray<string>;
 
 			class function GetProjectFiles : TArray<string>;
+			class function GetActiveProjectFilePath() : string;
+			class function GetActiveProjectDirectory() : string;
 			// Raise an exception if the source editor is readonly
 			class procedure GxOtaAssertSourceEditorNotReadOnly(SourceEditor : IOTASourceEditor);
 
@@ -371,6 +373,22 @@ begin
 		TDebugUtils.DebugMessage('IOTAUTils.GetProjectFiles FileName=' + fn);
 		Result := Result + [fn]
 	end;
+end;
+
+class function IOTAUTils.GetActiveProjectFilePath() : string;
+var
+	project : IOTAProject;
+begin
+	Result := '';
+	project := GxOtaGetCurrentProject;
+	if Assigned(project) then begin
+		Result := project.FileName;
+	end;
+end;
+
+class function IOTAUTils.GetActiveProjectDirectory() : string;
+begin
+	Result := ExtractFileDir(GetActiveProjectFilePath());
 end;
 
 class function IOTAUTils.GetSettingFilePath : string;

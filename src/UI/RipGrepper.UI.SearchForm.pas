@@ -1195,7 +1195,7 @@ begin
 	extSearchSettings.OpenFiles := IOTAUTils.GetOpenedEditBuffers();
 	dbgMsg.MsgFmt('OpenFiles.Count=', [Length(extSearchSettings.OpenFiles)]);
 	var
-	ap := (IOTAUTils.GxOtaGetCurrentProject);
+	ap := IOTAUTils.GxOtaGetCurrentProject;
 	if Assigned(ap) then begin
 		extSearchSettings.ActiveProject := ap.FileName;
 		dbgMsg.Msg('ActiveProject=' + extSearchSettings.ActiveProject);

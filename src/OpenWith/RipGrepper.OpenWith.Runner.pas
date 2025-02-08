@@ -39,17 +39,19 @@ begin
 
 	sCmdParams := StringReplace(sCmdParams, '<DIR>', '%s', [rfReplaceAll]);
 	sCmdParams := Format(sCmdParams, [_owp.RelativeBaseDirPath]);
+	dbgMsg.MsgFmt('DIR: %s ', [sCmdParams]);
 
 	sCmdParams := StringReplace(sCmdParams, '<FILE>', '%s', [rfReplaceAll]);
 	sCmdParams := Format(sCmdParams, [_owp.FilePath]);
-	dbgMsg.MsgFmt('TOpenWithRunner.BuildParams Params: %s ', [sCmdParams]);
+	dbgMsg.MsgFmt('FILE: %s ', [sCmdParams]);
 
 	sCmdParams := StringReplace(sCmdParams, '<LINE>', '%d', [rfReplaceAll]);
 	sCmdParams := Format(sCmdParams, [_owp.Row]);
-	dbgMsg.MsgFmt('TOpenWithRunner.BuildParams Params: %s ', [sCmdParams]);
+	dbgMsg.MsgFmt('LINE: %s ', [sCmdParams]);
 
 	sCmdParams := StringReplace(sCmdParams, '<COL>', '%d', [rfReplaceAll]);
 	Result := Format(sCmdParams, [_owp.Column]);
+	dbgMsg.MsgFmt('COL: %s ', [sCmdParams]);
 
 end;
 

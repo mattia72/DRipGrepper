@@ -21,12 +21,13 @@ type
 			FIsRgExeOptionSet : Boolean;
 			FReplaceText : string;
 			FExpertOptions : TOptionStrings;
-			FSearchTextWithOptions: TSearchTextWithOptions;
+			FSearchTextWithOptions : TSearchTextWithOptions;
 			function GetReplaceText : string;
 			procedure LoadSearchOptionsFromDict(const _bDefault : Boolean);
 			// function ResetRgOption(const _sParamRegex : string; const _bReset : Boolean = False) : string;
 			procedure SetIsReplaceMode(const Value : Boolean);
 			procedure SetRgOptions(const Value : TOptionStrings);
+
 		protected
 			procedure Init; override;
 
@@ -64,8 +65,7 @@ type
 			property ReplaceText : string read GetReplaceText write FReplaceText;
 			property ExpertOptions : TOptionStrings read FExpertOptions write FExpertOptions;
 			property RgOptions : TOptionStrings read FRgOptions write SetRgOptions;
-			property SearchTextWithOptions: TSearchTextWithOptions read
-				FSearchTextWithOptions;
+			property SearchTextWithOptions : TSearchTextWithOptions read FSearchTextWithOptions;
 	end;
 
 implementation
@@ -134,7 +134,6 @@ begin
 end;
 
 function TGuiSearchTextParams.GetAsString(const _bGuiOptionsOnly : Boolean = False) : string;
-var arr : TArrayEx<string>; logSearchText : string;
 begin
 	Result := FSearchTextWithOptions.GetAsString(_bGuiOptionsOnly);
 	if not _bGuiOptionsOnly then begin

@@ -177,8 +177,7 @@ end;
 
 procedure TVimGrepMatchLineParser.SetPrettyRegex;
 var
-	pattern : string;
-	s : string;
+	pattern, s : string;
 	so: TSearchOptionSet;
 	stwo : TSearchTextWithOptions;
 begin
