@@ -243,7 +243,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.LoadSearchOptionsFromDict Default=' + BoolToStr(_bDefault));
 	sParams := SettingsDict.GetSetting('SearchParams', _bDefault);
 	dbgMsg.Msg(RgOptions.AsString);
-	FSearchTextWithOptions.StringToSearchOptions(sParams);
+	FSearchTextWithOptions.UpdateSearchOptions(sParams);
 	if FSearchTextWithOptions.SearchOptions = [] then begin
 		SetOption(EGuiOption.soNotSet);
 	end else begin

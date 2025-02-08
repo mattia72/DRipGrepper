@@ -20,9 +20,6 @@ type
 
 implementation
 
-uses
-	System.SysUtils;
-
 constructor TSearchParams.Create(const _gstParams : TSearchTextWithOptions);
 begin
 	inherited Create();

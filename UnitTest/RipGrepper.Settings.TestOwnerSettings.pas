@@ -37,7 +37,7 @@ type
 	TTestSettings = class(TPersistableSettings)
 		private
 			FStrSetting1 : string;
-			FStrSetting2 : string;
+//          FStrSetting2 : string;
 
 		public
 			constructor Create(const _Owner : TPersistableSettings); overload;

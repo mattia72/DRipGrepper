@@ -32,7 +32,7 @@ type
 			class function IsSetOptionWithValue(const _sOptions, _sOption : string; const _sValue : string = '') : Boolean; static;
 			class function IsWordBoundOnBothSide(const _s : string) : Boolean; static;
 			class function IsWordBoundOnOneSide(const _s : string) : Boolean; static;
-			class procedure PutBetweenWordBoundaries(var _s : string); static;
+			class function PutBetweenWordBoundaries(var _s : string): string; static;
 			class procedure RemoveParamFromList(list : TStringList; const _paramRegex : string = ''); static;
 	end;
 
@@ -129,11 +129,12 @@ begin
 	end;
 end;
 
-class procedure TOptionsHelper.PutBetweenWordBoundaries(var _s : string);
+class function TOptionsHelper.PutBetweenWordBoundaries(var _s : string): string;
 begin
 	if not(_s.StartsWith(WB, True) or _s.EndsWith(WB, True)) then begin
 		_s := WB + _s + WB;
 	end;
+    Result := _s;
 end;
 
 class procedure TOptionsHelper.RemoveParamFromList(list : TStringList; const _paramRegex : string = '');
