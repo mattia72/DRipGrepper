@@ -1452,6 +1452,7 @@ begin
 		except
 			on E : Exception do begin
 				TMsgBox.ShowError(E.Message);
+                ActiveControl := cmbSearchText;
 				bError := True;
 			end;
 		end;
