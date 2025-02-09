@@ -36,7 +36,7 @@ type
 			destructor Destroy; override;
 			procedure AfterHistObjChange;
 			procedure AfterSearch;
-			procedure BeforeSearch;
+			procedure BeforeSearch(var _bAbort : Boolean);
 			procedure Init;
 			procedure OnClose(Sender : TObject; var Action : TCloseAction);
 			procedure FrameOnShow(Sender : TObject);
@@ -82,18 +82,21 @@ end;
 
 procedure TParentFrame.AfterSearch;
 begin
-    var
+	var
 	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.AfterSearch');
 
 	TopFrame.AfterSearch();
 	BottomFrame.AfterSearch();
 end;
 
-procedure TParentFrame.BeforeSearch;
+procedure TParentFrame.BeforeSearch(var _bAbort : Boolean);
 begin
-	TopFrame.BeforeSearch();
-	MainFrame.BeforeSearch();
-	BottomFrame.BeforeSearch();
+	if _bAbort then begin
+		Exit;
+	end;
+	TopFrame.BeforeSearch(_bAbort);
+	MainFrame.BeforeSearch(_bAbort);
+	BottomFrame.BeforeSearch(_bAbort);
 end;
 
 procedure TParentFrame.OnClose(Sender : TObject; var Action : TCloseAction);

@@ -191,7 +191,7 @@ type
 			procedure AfterHistObjChange;
 			procedure AfterSearch;
 			procedure AlignToolBars;
-			procedure BeforeSearch;
+			procedure BeforeSearch(var _bAbort : Boolean);
 			procedure ClearFilter;
 			procedure CopyToClipboardFileOfSelected;
 			procedure CopyToClipboardPathOfSelected;
@@ -480,8 +480,12 @@ begin
 	end;
 end;
 
-procedure TRipGrepperMiddleFrame.BeforeSearch;
+procedure TRipGrepperMiddleFrame.BeforeSearch(var _bAbort : Boolean);
 begin
+	if _bAbort then begin
+		Exit;
+	end;
+
 	InitSearch();
 	FAbortSearch := False;
 	UpdateArgumentsAndSettings;
@@ -524,8 +528,11 @@ end;
 
 procedure TRipGrepperMiddleFrame.DoSearch;
 begin
-	ParentFrame.BeforeSearch();
-	RunRipGrep();
+	var bAbort := not Settings.RipGrepParameters.IsRgPathInitOk;
+	ParentFrame.BeforeSearch(bAbort);
+	if not bAbort then begin
+		RunRipGrep();
+	end;
 end;
 
 procedure TRipGrepperMiddleFrame.EnableActionIfResultSelected(_act : TAction);
@@ -911,7 +918,7 @@ var
 	workDir : string;
 	args : TStrings;
 	argsArrs : TStringsArrayEx;
-	rgPath: string;
+	rgPath : string;
 begin
 	rgPath := Settings.RipGrepParameters.RipGrepPath;
 	if not FileExists(rgPath) then begin
@@ -929,11 +936,11 @@ begin
 			args := TStringList.Create;
 			try
 				argsArrs := SliceArgs(Settings.RipGrepParameters);
- 				for var i := 0 to argsArrs.MaxIndex do begin
+				for var i := 0 to argsArrs.MaxIndex do begin
 					args.Clear;
 					args.AddStrings(argsArrs[i]);
 					if i < argsArrs.MaxIndex then begin
-                        // if cmd line is too long, we slice it and run in separate processes...
+						// if cmd line is too long, we slice it and run in separate processes...
 						FHistItemObj.RipGrepResult := TProcessUtils.RunProcess(
 							{ } rgPath,
 							{ } args,

@@ -66,7 +66,6 @@ const
 	DEFPAS_DEFDFM = '*.defpas;*.defdfm';
 	C_PATH_TO_DIR = 'c:\path\to\dir';
 	PAS_DFM = '*.pas;*.dfm';
-	RG_EXE_PATH = 'rg.exe';
 	EGUIOPTION_MATCHCASE = '[MatchCase]';
 
 constructor TRipGrepSettingsTest.Create;
@@ -152,7 +151,7 @@ begin
 	// Assert.AreEqual(0, FSettings.SettingsDict.Keys.Count, 'SettingsDict should be empty');
 	FSettings.StoreAsDefaultsToDict;
 
-	FSettings.RipGrepPath := RG_EXE_PATH;
+	FSettings.RipGrepPath := RG_EXE;
 	FSettings.FileMasks := PAS_DFM;
 	FSettings.SearchPath := C_PATH_TO_DIR;
 	FSettings.GuiSearchTextParams.SetSearchOptions(
@@ -190,7 +189,7 @@ procedure TRipGrepSettingsTest.LoadDefaultsTest;
 begin
 	SetDefaultsAndCurrentValues;
 	FSettings.LoadDefaultsFromDict;
-	Assert.IsTrue(FSettings.RipGrepPath.Contains(RG_EXE_PATH), 'RipGrepPath should be set');
+	Assert.IsTrue(FSettings.RipGrepPath.Contains(RG_EXE), 'RipGrepPath should be set');
 
 	Assert.AreEqual(DEFPAS_DEFDFM, FSettings.FileMasks, 'FileMasks should be set');
 	Assert.AreEqual(C_DEF_PATH_TO_DIR, FSettings.SearchPath, 'SearchPath should be set');
@@ -209,7 +208,7 @@ begin
 	end;
 
 	FSettings.LoadFromDict;
-	Assert.IsTrue(FSettings.RipGrepPath.Contains(RG_EXE_PATH), 'RipGrepPath should be set');
+	Assert.IsTrue(FSettings.RipGrepPath.Contains(RG_EXE), 'RipGrepPath should be set');
 	Assert.AreEqual(PAS_DFM, FSettings.FileMasks, '2. FileMasks shouldn''t be the default');
 	Assert.AreEqual(C_PATH_TO_DIR, FSettings.SearchPath, 'SearchPath should be set');
 	Assert.AreEqual(MATCHWORD_USEREGEX, FSettings.GuiSearchTextParams.GetAsString(true), 'GuiSearchTextParams should be set');
@@ -268,7 +267,7 @@ begin
 	FSettings.SearchPath := '';
 	FSettings.ReLoad; // fills only settings dict
 	FSettings.LoadFromDict; // why loads defaults ?????
-	Assert.IsTrue(FSettings.RipGrepPath.Contains(RG_EXE_PATH), 'RipGrepPath should be set');
+	Assert.IsTrue(FSettings.RipGrepPath.Contains(RG_EXE), 'RipGrepPath should be set');
 	Assert.AreEqual(PAS_DFM, FSettings.FileMasks, 'FileMasks should be set');
 	Assert.AreEqual(C_PATH_TO_DIR, FSettings.SearchPath, 'SearchPath should be set');
 	Assert.AreEqual(MATCHWORD_USEREGEX,

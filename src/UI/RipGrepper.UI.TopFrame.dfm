@@ -281,7 +281,6 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       ImageName = 'magnify'
       ShortCut = 16467
       OnExecute = ActionShowSearchFormExecute
-      OnUpdate = ActionShowSearchFormUpdate
     end
     object ActionSaveAllReplacement: TAction
       Enabled = False
@@ -308,7 +307,6 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       ImageName = 'stop-circle-outline'
       ShortCut = 16411
       OnExecute = ActionAbortSearchExecute
-      OnUpdate = ActionAbortSearchUpdate
     end
     object ActionCmdLineCopy: TAction
       Category = 'Search'

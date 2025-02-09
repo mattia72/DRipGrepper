@@ -94,7 +94,6 @@ type
 		SvgImgLstTopFrame : TSVGIconImageList;
 		pnlTop : TPanel;
 		procedure ActionAbortSearchExecute(Sender : TObject);
-		procedure ActionAbortSearchUpdate(Sender : TObject);
 		procedure ActionAlignToolbarsExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsUpdate;
@@ -125,7 +124,6 @@ type
 		procedure ActionShowRelativePathExecute(Sender : TObject);
 		procedure ActionShowRelativePathUpdate;
 		procedure ActionShowSearchFormExecute(Sender : TObject);
-		procedure ActionShowSearchFormUpdate(Sender : TObject);
 		procedure edtFilterChange(Sender : TObject);
 		procedure edtFilterKeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
 		procedure edtFilterRightButtonClick(Sender : TObject);
@@ -173,7 +171,7 @@ type
 			procedure AfterHistObjChange;
 			procedure AfterSearch;
 			procedure AlignToolBars(iTbResultLeft, iSearchMaxWidth, iResultMinWidth : integer);
-			procedure BeforeSearch;
+			procedure BeforeSearch(var _bAbort : Boolean);
 			function GetNextViewStyleIdx : integer;
 			function GetReplaceMode : TReplaceModes;
 			procedure Init;
@@ -246,11 +244,6 @@ begin
 		MainFrame.RipGrepTask.Cancel;
 	end;
 	MainFrame.AbortSearch := True;
-end;
-
-procedure TRipGrepperTopFrame.ActionAbortSearchUpdate(Sender : TObject);
-begin
-	ActionAbortSearch.Enabled := MainFrame.IsSearchRunning;
 end;
 
 procedure TRipGrepperTopFrame.ActionAlignToolbarsExecute(Sender : TObject);
@@ -485,14 +478,16 @@ end;
 
 procedure TRipGrepperTopFrame.ActionShowSearchFormExecute(Sender : TObject);
 begin
+	// try rg.exe
+	if not Settings.RipGrepParameters.IsRgPathInitOk then begin
+		TAsyncMsgBox.ShowError(Format(FORMAT_RIPGREP_EXE_NOT_FOUND, [Settings.IniFile.FileName]));
+		ActionConfigExecute(self);
+		Exit;
+	end;
+
 	TDebugUtils.DebugMessage('TRipGrepperTopFrame.ActionShowSearchFormExecute');
 	SetFilterBtnImage(False);
 	StartNewSearch;
-end;
-
-procedure TRipGrepperTopFrame.ActionShowSearchFormUpdate(Sender : TObject);
-begin
-	ActionShowSearchForm.Enabled := Settings.IsEmpty or (not MainFrame.IsSearchRunning);
 end;
 
 procedure TRipGrepperTopFrame.AfterHistObjChange;
@@ -503,6 +498,7 @@ end;
 procedure TRipGrepperTopFrame.AfterSearch;
 begin
 	ActionAbortSearch.Enabled := False;
+	ActionShowSearchForm.Enabled := True;
 end;
 
 procedure TRipGrepperTopFrame.AlignToolBars(iTbResultLeft, iSearchMaxWidth, iResultMinWidth : integer);
@@ -526,9 +522,10 @@ begin
 	end;
 end;
 
-procedure TRipGrepperTopFrame.BeforeSearch;
+procedure TRipGrepperTopFrame.BeforeSearch(var _bAbort : Boolean);
 begin
 	ActionAbortSearch.Enabled := True;
+	ActionShowSearchForm.Enabled := False;
 end;
 
 procedure TRipGrepperTopFrame.ChangeEditReplaceTextButSkipChangeEvent(const _txt : string);

@@ -33,12 +33,13 @@ type
 			FStatusBarMessage : string;
 			FStatusBarStatistic : string;
 			FStatusBarStatus : string;
+
 		public
 			constructor Create(AOwner : TComponent); override;
 			procedure AfterHistObjChange;
 			procedure Init;
 			procedure AfterSearch;
-			procedure BeforeSearch;
+			procedure BeforeSearch(var _bAbort : Boolean);
 			procedure SetRunningStatus;
 			procedure SetReadyStatus;
 			procedure SetStatusBarMessage;
@@ -82,12 +83,16 @@ end;
 
 procedure TRipGrepperBottomFrame.AfterSearch;
 begin
-	//SetStatusBarMessage();
+	// SetStatusBarMessage();
 end;
 
-procedure TRipGrepperBottomFrame.BeforeSearch;
+procedure TRipGrepperBottomFrame.BeforeSearch(var _bAbort : Boolean);
 begin
-	StatusBarStatistic := 'Searching...';
+	if _bAbort then begin
+//      StatusBarStatistic := 'ERROR';
+	end else begin;
+		StatusBarStatistic := 'Searching...';
+	end;
 end;
 
 procedure TRipGrepperBottomFrame.FrameResize(Sender : TObject);

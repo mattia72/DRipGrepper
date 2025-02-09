@@ -18,6 +18,7 @@ const
 	{ } {$ELSE}
 	APP_PLATFORM = 'x86';
 	{ }	{$ENDIF}
+	RG_EXE = 'rg.exe';
 	APPNAME = 'DRipGrepper';
 	EXTENSION_NAME = 'DRipExtensions';
 	EXTENSION_NAME_DLL = EXTENSION_NAME + '.dll';
@@ -242,8 +243,8 @@ const
 
 	SHOW_CMD_IN_ONE_LINE = 'Show command in one line';
 	SHOW_CMD_IN_SEPARATE_LINES = 'Show command in lines';
-	FORMAT_RIPGREP_EXE_NOT_FOUND = 'RipGrep executable (rg.exe) not found.' + CRLF +
-	{ } 'Check your PATH or in settings file: ' + CRLF +
+	FORMAT_RIPGREP_EXE_NOT_FOUND = 'RipGrep executable (' + RG_EXE + ') not found.' + CRLF +
+	{ } 'Please provide a valid path in the settings, or in' + CRLF +
 	{ } '%s';
 
 	MAX_COMMAND_LINE_LENGTH = 32767;

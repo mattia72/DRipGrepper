@@ -28,8 +28,8 @@ uses
 	System.Actions,
 	Vcl.ActnList,
 	RipGrepper.Tools.DebugUtils,
-	RipGrepper.Common.Constants, 
-	SVGIconImageListBase, 
+	RipGrepper.Common.Constants,
+	SVGIconImageListBase,
 	SVGIconImageList;
 
 type
@@ -57,7 +57,7 @@ type
 		chRegex : TCheckBox;
 		edtRegex : TEdit;
 		rgTheme : TRadioGroup;
-		SVGIconImageList1: TSVGIconImageList;
+		SVGIconImageList1 : TSVGIconImageList;
 		procedure btnedtIniFilePathLeftButtonClick(Sender : TObject);
 		procedure btnedtIniFilePathRightButtonClick(Sender : TObject);
 		procedure btnedtRgExePathEnter(Sender : TObject);
@@ -195,6 +195,11 @@ function TAppSettingsForm.GetRgVersion(const _rgPath : string) : string;
 var
 	sl : TStrings;
 begin
+	if _rgPath.IsEmpty then begin
+		Result := RG_EXE + ' not found.';
+		Exit;
+	end;
+
 	sl := TStringList.Create();
 	sl.Add('--version');
 	try
@@ -235,7 +240,7 @@ var
 	name : string;
 begin
 	name := TPath.GetFileName(filePath);
-	Result := LowerCase(name) = 'rg.exe';
+	Result := LowerCase(name) = LowerCase(RG_EXE);
 end;
 
 procedure TAppSettingsForm.ReadSettings;

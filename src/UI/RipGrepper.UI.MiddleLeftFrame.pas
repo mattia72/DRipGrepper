@@ -568,7 +568,7 @@ begin
 	LineBreakStyle := TVTTooltipLineBreakStyle.hlbForceMultiLine;
 	var
 	lineBreakTab := CRLF + '  ';
-	HintText := 'rg.exe' + lineBreakTab + string.Join(lineBreakTab, ho.RipGrepArguments.GetValues);
+	HintText := RG_EXE + lineBreakTab + string.Join(lineBreakTab, ho.RipGrepArguments.GetValues);
 end;
 
 procedure TMiddleLeftFrame.VstHistoryGetHintKind(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
