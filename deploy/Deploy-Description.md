@@ -18,7 +18,7 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 ## :boom: Improvements 
 Marked with checkmark if ready, else planned ...
 - [ ] copy to clipboard for running in PowerShell or command prompt
-  - [ ] ps needs & prefix rg path and search text surrounded by ''
+  - [ ] ps needs & prefix and nrg path and search text surrounded by ''
   - [ ] bat needs rg path and search text surrounded by ""
 - [ ] **extension**: save all before search message?
 - [ ] **extension**: search opened project files only
