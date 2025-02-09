@@ -8,7 +8,7 @@ uses
 	ArrayEx,
 	RipGrepper.Common.Constants,
 	RipGrepper.Settings.Persistable,
-    RipGrepper.Common.GuiSearchParams,
+	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Helper.Types,
 	System.Generics.Collections,
 	RipGrepper.CommandLine.OptionStrings,
@@ -132,7 +132,8 @@ end;
 
 function TRipGrepParameterSettings.GetRipGrepPath : string;
 begin
-	if not FbRgPathInitOk then begin
+	if (not FbRgPathInitOk) or (not FileExists(FRipGrepPath)) then begin
+		FbRgPathInitOk := False;
 		var
 		iniVal := IniFile.ReadString(IniSectionName, RG_INI_KEY_RGPATH, '');
 		if iniVal.IsEmpty or not FileExists(iniVal) then begin
