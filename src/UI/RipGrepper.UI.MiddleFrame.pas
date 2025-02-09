@@ -911,32 +911,40 @@ var
 	workDir : string;
 	args : TStrings;
 	argsArrs : TStringsArrayEx;
+	rgPath: string;
 begin
+	rgPath := Settings.RipGrepParameters.RipGrepPath;
+	if not FileExists(rgPath) then begin
+		TAsyncMsgBox.ShowError(Format(FORMAT_RIPGREP_EXE_NOT_FOUND, [Settings.IniFile.FileName]));
+		Exit;
+	end;
+
 	FRipGrepTask := TTask.Create(
 		procedure()
 		begin
-			if not FileExists(Settings.RipGrepParameters.RipGrepPath) then begin
-				TAsyncMsgBox.ShowError(Format(FORMAT_RIPGREP_EXE_NOT_FOUND, [Settings.IniFile.FileName]));
-			end;
-
 			workDir := TDirectory.GetCurrentDirectory();
-			TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.RunRipGrep: run: ' + Settings.RipGrepParameters.RipGrepPath + ' '
+			TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.RunRipGrep: run: ' + rgPath + ' '
 				{ } + Settings.RipGrepParameters.RipGrepArguments.DelimitedText);
 			FswSearchStart := TStopwatch.StartNew;
 			args := TStringList.Create;
 			try
 				argsArrs := SliceArgs(Settings.RipGrepParameters);
-				for var i := 0 to argsArrs.MaxIndex do begin
+ 				for var i := 0 to argsArrs.MaxIndex do begin
 					args.Clear;
 					args.AddStrings(argsArrs[i]);
 					if i < argsArrs.MaxIndex then begin
-						FHistItemObj.RipGrepResult := TProcessUtils.RunProcess(Settings.RipGrepParameters.RipGrepPath, args,
+                        // if cmd line is too long, we slice it and run in separate processes...
+						FHistItemObj.RipGrepResult := TProcessUtils.RunProcess(
+							{ } rgPath,
+							{ } args,
 							{ } workDir,
 							{ } self as INewLineEventHandler,
 							{ } self as ITerminateEventProducer,
 							{ } nil);
 					end else begin
-						FHistItemObj.RipGrepResult := TProcessUtils.RunProcess(Settings.RipGrepParameters.RipGrepPath, args,
+						FHistItemObj.RipGrepResult := TProcessUtils.RunProcess(
+							{ } rgPath,
+							{ } args,
 							{ } workDir,
 							{ } self as INewLineEventHandler,
 							{ } self as ITerminateEventProducer,
