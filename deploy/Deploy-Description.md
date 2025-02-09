@@ -18,6 +18,8 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 ## :boom: Improvements 
 Marked with checkmark if ready, else planned ...
 - [ ] copy to clipboard for running in PowerShell or command prompt
+  - [ ] ps needs & prefix rg path and search text surrounded by ''
+  - [ ] bat needs rg path and search text surrounded by ""
 - [ ] **extension**: save all before search message?
 - [ ] **extension**: search opened project files only
 - [ ] save/load search histories in file
@@ -46,3 +48,5 @@ Marked with checkmark if fixed, else it is a known bug.
         - independent from ParentBackground? https://en.delphipraxis.net/topic/2779-tframe-and-vcl-styles-solved/
     - [x] after switch light/dark mode in config, Open With settings moved to the right bottom corner
 - [x] PCRE does not support \L, \l, \N{name}, \U, or \u. TVimGrepMatchLineParser.SetPrettyRegex (Line 201, "RipGrepper.Parsers.VimGrepMatchLine.pas")
+- [x] **extension** open with DIR is the derectory of the current project
+- [x] if search text contains \u and MatchWord is set param search text not escaped
