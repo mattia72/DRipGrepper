@@ -11,9 +11,12 @@ type
 			FEscapedSearchText : string;
 			// FSearchText : string;
 			FInnerSearchText : string;
+			FSearchOptions : TSearchOptionSet;
 			FWordBoundedSearchText : string;
+			function GetSearchOptions() : TSearchOptionSet;
 			function GetSearchText : string;
 			function GetSearchTextByOptions() : string;
+			procedure SetSearchOptions(const Value : TSearchOptionSet);
 			procedure UpdateEscapedSearchText();
 			procedure SetSearchText(const Value : string);
 			procedure UpdateWordBoundedSearchText();
@@ -22,7 +25,6 @@ type
 			// property WordBoundedSearchText: string read FWordBoundedSearchText;
 
 		public
-			SearchOptions : TSearchOptionSet;
 			function AreSet(_options : TArray<EGuiOption>) : Boolean;
 			procedure Clear;
 			procedure Copy(const _other : TSearchTextWithOptions);
@@ -34,6 +36,7 @@ type
 			procedure UpdateSearchOptions(const _sOptions : string);
 			class function StringToSearchOptionSet(const s : string) : TSearchOptionSet; static;
 			property EscapedSearchText : string read FEscapedSearchText;
+			property SearchOptions : TSearchOptionSet read GetSearchOptions write SetSearchOptions;
 			property SearchText : string read GetSearchText write SetSearchText;
 	end;
 
@@ -114,6 +117,11 @@ begin
 	end;
 end;
 
+function TSearchTextWithOptions.GetSearchOptions() : TSearchOptionSet;
+begin
+	Result := FSearchOptions;
+end;
+
 function TSearchTextWithOptions.GetSearchText : string;
 begin
 	Result := GetSearchTextByOptions();
@@ -122,7 +130,7 @@ end;
 function TSearchTextWithOptions.GetSearchTextByOptions() : string;
 begin
 	Result := FInnerSearchText;
-	if EGuiOption.soMatchWord in SearchOptions then begin
+	if EGuiOption.soMatchWord in FSearchOptions then begin
 		Result := FWordBoundedSearchText;
 	end;
 end;
@@ -137,7 +145,7 @@ procedure TSearchTextWithOptions.ResetOption(const _searchOption : EGuiOption);
 var searchOption : EGuiOption;
 begin
 	searchOption := _searchOption;
-	Exclude(SearchOptions, searchOption);
+	Exclude(FSearchOptions, searchOption);
 	UpdateWordBoundedSearchText;
 end;
 
@@ -148,12 +156,20 @@ end;
 
 procedure TSearchTextWithOptions.SetOption(const _searchOption : EGuiOption);
 begin
-	Include(SearchOptions, _searchOption);
+	Include(FSearchOptions, _searchOption);
 
 	if _searchOption <> EGuiOption.soNotSet then begin
-		Exclude(SearchOptions, EGuiOption.soNotSet);
+		Exclude(FSearchOptions, EGuiOption.soNotSet);
 	end;
 	UpdateWordBoundedSearchText;
+end;
+
+procedure TSearchTextWithOptions.SetSearchOptions(const Value : TSearchOptionSet);
+begin
+	if FSearchOptions <> Value then begin
+		FSearchOptions := Value;
+		UpdateWordBoundedSearchText();
+	end;
 end;
 
 procedure TSearchTextWithOptions.SetSearchText(const Value : string);
@@ -169,11 +185,19 @@ procedure TSearchTextWithOptions.UpdateWordBoundedSearchText();
 begin
 	var
 	s := FInnerSearchText;
-	if not((EGuiOption.soUseRegex in SearchOptions)
-		{ } or (EGuiOption.soMatchWord in SearchOptions)) then begin
-		s := FEscapedSearchText;
+	try
+		if (FSearchOptions = []) or (FSearchOptions = [EGuiOption.soNotSet]) then begin
+			Exit;
+		end;
+
+		if FSearchOptions = [EGuiOption.soMatchWord] then begin
+			s := FEscapedSearchText;
+		end else if not(EGuiOption.soUseRegex in FSearchOptions) then begin
+			s := FEscapedSearchText;
+		end;
+	finally
+		FWordBoundedSearchText := TOptionsHelper.PutBetweenWordBoundaries(s);
 	end;
-	FWordBoundedSearchText := TOptionsHelper.PutBetweenWordBoundaries(s);
 end;
 
 procedure TSearchTextWithOptions.UpdateSearchOptions(const _sOptions : string);

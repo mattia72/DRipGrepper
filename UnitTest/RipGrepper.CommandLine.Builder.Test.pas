@@ -44,9 +44,9 @@ type
 			[Testcase('Options ends with one --', '--vimgrep --param2 --|*.txt;*.ini;*.bak|1', '|')]
 			procedure TestReBuildArgumentsOptions(const _sOptions, _sMasksDelimited : string; const _bMatchWord : Integer);
 			[Test]
-			// [Testcase('Single word              ', 'aaa      |1|1', '|')]
-			// [Testcase('Double word              ', 'aaa bbb  |1|1', '|')]
-			// [Testcase('Double word              ', 'aaa bbb  |1|1', '|')]
+			[Testcase('Single word              ', 'aaa      |1|1', '|')]
+			[Testcase('Double word              ', 'aaa bbb  |1|1', '|')]
+			[Testcase('Double word              ', 'aaa bbb  |1|1', '|')]
 			[Testcase('Start Bounded word       ', '\baaa    |0|0', '|')]
 			[Testcase('End Bounded word         ', 'aaa\b    |0|0', '|')]
 			[Testcase('Start Bounded double word', '\Baaa bbb|0|0', '|')]

@@ -20,11 +20,11 @@ type
 	TOptionsHelper = record
 
 		private
-			class procedure DeleteAllParam(list: TStringList; const _sParam: string); static;
+			class procedure DeleteAllParam(list : TStringList; const _sParam : string); static;
 
 		public
 			class function GetBoundedParamRegex(const _sOption : string) : string; static;
-			class function GetBoundedParamWithValueRegex(const _sOption : string; const _sParamValue : string = ''): string; static;
+			class function GetBoundedParamWithValueRegex(const _sOption : string; const _sParamValue : string = '') : string; static;
 			class function GetOptionValue(const _sOption : string) : string; overload; static;
 			class function GetOptionValue(const _sOption : string; var _sOptionName : string) : string; overload; static;
 			class function GetOptionValueFromOptions(const _sOptions, _sOptionRegex : string; var _sValue : string) : Boolean; static;
@@ -32,7 +32,7 @@ type
 			class function IsSetOptionWithValue(const _sOptions, _sOption : string; const _sValue : string = '') : Boolean; static;
 			class function IsWordBoundOnBothSide(const _s : string) : Boolean; static;
 			class function IsWordBoundOnOneSide(const _s : string) : Boolean; static;
-			class function PutBetweenWordBoundaries(var _s : string): string; static;
+			class function PutBetweenWordBoundaries(var _s : string) : string; static;
 			class procedure RemoveParamFromList(list : TStringList; const _paramRegex : string = ''); static;
 	end;
 
@@ -55,7 +55,7 @@ begin
 	end;
 end;
 
-class function TOptionsHelper.GetBoundedParamWithValueRegex(const _sOption : string; const _sParamValue : string = ''): string;
+class function TOptionsHelper.GetBoundedParamWithValueRegex(const _sOption : string; const _sParamValue : string = '') : string;
 begin
 	Result := '-+' + WB + _sOption.TrimLeft(['-']) + '=' + TRegEx.Escape(_sParamValue);
 end;
@@ -117,7 +117,7 @@ begin
 	{ } or (not _s.StartsWith(WB, True) and _s.EndsWith(WB, True));
 end;
 
-class procedure TOptionsHelper.DeleteAllParam(list: TStringList; const _sParam: string);
+class procedure TOptionsHelper.DeleteAllParam(list : TStringList; const _sParam : string);
 begin
 	if (_sParam = RG_PARAM_END) or (_sParam = '-') then begin
 		list.DeleteAll([_sParam]);
@@ -129,12 +129,13 @@ begin
 	end;
 end;
 
-class function TOptionsHelper.PutBetweenWordBoundaries(var _s : string): string;
+class function TOptionsHelper.PutBetweenWordBoundaries(var _s : string) : string;
 begin
-	if not(_s.StartsWith(WB, True) or _s.EndsWith(WB, True)) then begin
+	if not(_s.StartsWith(WB, True) or _s.EndsWith(WB, True))
+	{ } or _s.EndsWith('\' + WB, True) then begin
 		_s := WB + _s + WB;
 	end;
-    Result := _s;
+	Result := _s;
 end;
 
 class procedure TOptionsHelper.RemoveParamFromList(list : TStringList; const _paramRegex : string = '');
