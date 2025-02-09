@@ -1487,9 +1487,7 @@ begin
 	{$IFDEF STANDALONE}
 	Result := IfThen(Settings.SearchPathIsDir, Settings.ActualSearchPath, ExtractFileDir(Data.FilePath));
 	{$ELSE}
-	var
-	cp := (IOTAUTils.GxOtaGetCurrentProject);
-	Result := ExtractFileDir(cp);
+	Result := TPath.GetDirectoryName(Settings.SearchFormSettings.ExtensionSettings.CurrentIDEContext.ActiveProject);
 	{$ENDIF}
 	dbgMsg.MsgFmt('OpenWith <DIR>=%s', [Result]);
 end;

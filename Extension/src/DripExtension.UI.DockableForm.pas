@@ -220,8 +220,9 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperDockableForm.FrameCreated');
 	ParentFrame.Init;
 	if (ParentFrame.Settings.RipGrepParameters.SearchPath.IsEmpty) then begin
-		ParentFrame.Settings.RipGrepParameters.SearchPath := IOTAUtils.GxOtaGetCurrentProjectFileName();
-		TDebugUtils.DebugMessage('TRipGrepperDockableForm.FrameCreated SearchPath:' + ParentFrame.Settings.RipGrepParameters.SearchPath);
+		ParentFrame.Settings.RipGrepParameters.SearchPath := IOTAUtils.GetActiveProjectDirectory;
+		TDebugUtils.DebugMessage('TRipGrepperDockableForm.FrameCreated SearchPath:' +
+			{ } ParentFrame.Settings.RipGrepParameters.SearchPath);
 	end;
 
 end;
