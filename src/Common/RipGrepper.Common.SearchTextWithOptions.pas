@@ -65,12 +65,12 @@ begin
 	SearchText := '';
 	FEscapedSearchText := '';
 	FWordBoundedSearchText := '';
-	SearchOptions := [EGuiOption.soNotSet];
+	FSearchOptions := [EGuiOption.soNotSet];
 end;
 
 procedure TSearchTextWithOptions.Copy(const _other : TSearchTextWithOptions);
 begin
-	SearchOptions := _other.SearchOptions;
+	FSearchOptions := _other.SearchOptions;
 	// FSearchText := _other.SearchText;
 	FInnerSearchText := _other.FInnerSearchText;
 	FEscapedSearchText := _other.FEscapedSearchText;
@@ -97,7 +97,7 @@ var arr : TArrayEx<string>;
 begin
 	Result := '';
 	for var i in GUI_SEARCH_PARAMS do begin
-		if i in SearchOptions then begin
+		if i in FSearchOptions then begin
 			case i of
 				EGuiOption.soMatchCase : begin
 					arr.Add('MatchCase');
@@ -137,8 +137,8 @@ end;
 
 class function TSearchTextWithOptions.New(const _searchText : string; const _options : TSearchOptionSet) : TSearchTextWithOptions;
 begin
-	Result.SearchOptions := _options;
 	Result.SearchText := _searchText;
+	Result.SearchOptions := _options;
 end;
 
 procedure TSearchTextWithOptions.ResetOption(const _searchOption : EGuiOption);
@@ -204,8 +204,8 @@ procedure TSearchTextWithOptions.UpdateSearchOptions(const _sOptions : string);
 begin
 	var
 	op := TSearchTextWithOptions.StringToSearchOptionSet(_sOptions);
-	if op <> SearchOptions then begin
-		SearchOptions := op;
+	if op <> FSearchOptions then begin
+		FSearchOptions := op;
 		UpdateWordBoundedSearchText;
 	end;
 end;
