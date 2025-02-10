@@ -138,7 +138,10 @@ end;
 function TRipGrepParameterSettings.GetIsRgPathInitOk() : Boolean;
 begin
 	if rgpiFound <> FRipGrepPathInitResult then begin
-		FRipGrepPathInitResult := TryGetRipGrepPath(FRipGrepPath);
+		var
+			tmp : string;
+		FRipGrepPathInitResult := TryGetRipGrepPath(tmp);
+		RipGrepPath := tmp; // Settings store should be called
 	end;
 	Result := FRipGrepPathInitResult = rgpiFound;
 end;
@@ -265,9 +268,12 @@ end;
 
 procedure TRipGrepParameterSettings.SetRipGrepPath(const Value : string);
 begin
-	FRipGrepPath := Value;
-	if FileExists(FRipGrepPath) then begin
-		FRipGrepPathInitResult := rgpiFound;
+	if FRipGrepPath <> Value then begin
+		FRipGrepPath := Value;
+		if FileExists(FRipGrepPath) then begin
+			FRipGrepPathInitResult := rgpiFound;
+			SettingsDict.StoreSetting(RG_INI_KEY_RGPATH, FRipGrepPath);
+		end;
 	end;
 end;
 
