@@ -264,8 +264,13 @@ begin
 
 	chExpertMode.Checked := FAppSettings.ExpertMode;
 	btnedtIniFilePath.Text := FAppSettings.IniFile.FileName;
-	btnedtRgExePath.Text := FRipGrepSettings.RipGrepPath;
-	Memo1.Text := GetRgVersion(FRipGrepSettings.RipGrepPath);
+	var
+	path := FRipGrepSettings.RipGrepPath;
+	if path.IsEmpty then begin
+		FRipGrepSettings.TryGetRipGrepPath(path);
+	end;
+	btnedtRgExePath.Text := path;
+	Memo1.Text := GetRgVersion(path);
 end;
 
 procedure TAppSettingsForm.rgThemeClick(Sender : TObject);
