@@ -123,9 +123,9 @@ class function TFileUtils.FindFileInSubDirs(const _dir : string; const _file : s
 begin
 	Result := '';
 	var
-	rgPath := TPath.Combine(_dir, _file);
-	if FileExists(rgPath) then begin
-		Result := rgPath;
+	filePath := TPath.Combine(_dir, _file);
+	if FileExists(filePath) then begin
+		Result := filePath;
 	end else begin
 		var
 		dirs := TDirectory.GetDirectories(_dir);
