@@ -1,7 +1,7 @@
 <!--
 
-Version:     v4.2.0-beta
-PrevVersion: v4.1.0-beta
+Version:     v4.3.0-beta
+PrevVersion: v4.2.0-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -28,7 +28,6 @@ Marked with checkmark if ready, else planned ...
 
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.
-- [x] exception if rg.exe not found
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: drip icon in menu has no transparent background
 - [ ] look on dpi change (drag to another monitor)
@@ -40,13 +39,3 @@ Marked with checkmark if fixed, else it is a known bug.
         - [x] replace by rg is ok: there will be changed every occurence in every lines 
     - [ ] replace by toolbar is always ignore case
     - [ ] left arrow in replace edit ctrl doesn't work
-- [x] ugly dark mode. read this: https://github.com/checkdigits/delphidarkmode
-    - [x] ugly icons
-    - [x] alternate colors
-    - [x] **extension**: open with dialog not dark
-    - [x] **extension**: toolbar not dark after switch 
-        - independent from ParentBackground? https://en.delphipraxis.net/topic/2779-tframe-and-vcl-styles-solved/
-    - [x] after switch light/dark mode in config, Open With settings moved to the right bottom corner
-- [x] PCRE does not support \L, \l, \N{name}, \U, or \u. TVimGrepMatchLineParser.SetPrettyRegex (Line 201, "RipGrepper.Parsers.VimGrepMatchLine.pas")
-- [x] **extension** open with DIR is the derectory of the current project
-- [x] if search text contains \u and MatchWord is set param search text not escaped
