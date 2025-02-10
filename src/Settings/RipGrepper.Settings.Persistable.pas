@@ -29,21 +29,22 @@ type
 
 	IFilePersister = interface(IInterface)
 		['{57B16806-F8F5-447E-9AB6-767E553CCB65}']
-		procedure LoadFromFile(_dict: TSettingsDictionary);
+		procedure LoadFromFile(_dict : TSettingsDictionary);
 		procedure ReloadFile(_dict : TSettingsDictionary);
 		procedure SaveToFile(_dict : TSettingsDictionary);
 	end;
 
 	TMemIniPersister = class(TInterfacedObject, IFilePersister)
-		procedure LoadFromFile(_dict: TSettingsDictionary);
+		procedure LoadFromFile(_dict : TSettingsDictionary);
 		procedure ReloadFile(_dict : TSettingsDictionary);
 		procedure SaveToFile(_dict : TSettingsDictionary);
 
 		private
 			FIniFile : TMemIniFile;
+
 		public
 			constructor Create;
-		destructor Destroy; override;
+			destructor Destroy; override;
 	end;
 
 	EWriteSettingsMode = (wsmActual, wsmDefault, wsmAll);
@@ -54,13 +55,14 @@ type
 			class destructor Destroy;
 
 		private
-			FIniFile : TMemIniFile;   // TODO IFilePersister
+			FIniFile : TMemIniFile; // TODO IFilePersister
 			FbDefaultLoaded : Boolean;
 			FIniSectionName : string;
 			FIsAlreadyRead : Boolean;
 			FOwner : TPersistableSettings;
 			FOwnIniFile : Boolean;
 			procedure CreateIniFile;
+			procedure DictToLog(_dict: TSettingsDictionary);
 			procedure FreeOwnIniFile;
 			function GetIniFile : TMemIniFile;
 			procedure ReadSettings;
@@ -288,6 +290,18 @@ begin
 	FIniFile := TMemIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'), TEncoding.UTF8);
 	{$ENDIF}
 	dbgMsg.MsgFmt('Create FIniFile %p of section: %s', [Pointer(FIniFile), GetIniSectionName()]);
+end;
+
+procedure TPersistableSettings.DictToLog(_dict: TSettingsDictionary);
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.DictToLog');
+	var a : TArray<TArray<string>>;
+	for var p in _dict do begin
+		var sVal : string := VarToStr(p.Value.Value);
+		a := a + [[p.Key, sVal]];
+		dbgMsg.MsgFmt('%s=%s', [p.Key, sVal], tftVerbose);
+	end;
 end;
 
 procedure TPersistableSettings.FreeOwnIniFile;
@@ -524,6 +538,7 @@ begin
 
 	if Assigned(FOwner) { and (_section = '') } then begin
 		FOwner.CopySettingsDictSection(self, True);
+		DictToLog(FOwner.SettingsDict);
 		FOwner.WriteSettingsDictToIni(EWriteSettingsMode.wsmAll);
 		Exit;
 	end;
@@ -627,7 +642,7 @@ begin
 	inherited;
 end;
 
-procedure TMemIniPersister.LoadFromFile(_dict: TSettingsDictionary);
+procedure TMemIniPersister.LoadFromFile(_dict : TSettingsDictionary);
 begin
 
 end;

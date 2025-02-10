@@ -58,6 +58,7 @@ type
 		edtRegex : TEdit;
 		rgTheme : TRadioGroup;
 		SVGIconImageList1 : TSVGIconImageList;
+		chVerbose : TCheckBox;
 		procedure btnedtIniFilePathLeftButtonClick(Sender : TObject);
 		procedure btnedtIniFilePathRightButtonClick(Sender : TObject);
 		procedure btnedtRgExePathEnter(Sender : TObject);
@@ -165,7 +166,7 @@ end;
 procedure TAppSettingsForm.chRegexClick(Sender : TObject);
 begin
 	edtRegex.Enabled := chRegex.Checked;
-	for var ch in [chError, chWarning, chInfo, chBegin, chEnd] do begin
+	for var ch in [chError, chWarning, chInfo, chVerbose, chBegin, chEnd] do begin
 		ch.Enabled := not chRegex.Checked;
 		if chRegex.Checked then begin
 			ch.Checked := False;
@@ -216,6 +217,9 @@ begin
 	if (chInfo.Checked) then begin
 		Result := Result + [tftInfo];
 	end;
+	if (chVerbose.Checked) then begin
+		Result := Result + [tftVerbose];
+	end;
 	if (chWarning.Checked) then begin
 		Result := Result + [tftWarning];
 	end;
@@ -256,6 +260,7 @@ begin
 	chError.Checked := tftError in tts;
 	chWarning.Checked := tftWarning in tts;
 	chInfo.Checked := tftInfo in tts;
+	chVerbose.Checked := tftVerbose in tts;
 	chBegin.Checked := tftBegin in tts;
 	chEnd.Checked := tftEnd in tts;
 	chRegex.Checked := tftRegex in tts;

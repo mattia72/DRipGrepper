@@ -2,8 +2,8 @@ object AppSettingsForm: TAppSettingsForm
   Left = 0
   Top = 0
   Caption = 'AppSettingsForm'
-  ClientHeight = 434
-  ClientWidth = 517
+  ClientHeight = 426
+  ClientWidth = 515
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,14 +15,14 @@ object AppSettingsForm: TAppSettingsForm
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 517
-    Height = 434
+    Width = 515
+    Height = 426
     Align = alClient
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 0
     DesignSize = (
-      517
-      434)
+      515
+      426)
     object lblRgExePath: TLabel
       Left = 16
       Top = 9
@@ -41,13 +41,13 @@ object AppSettingsForm: TAppSettingsForm
       AlignWithMargins = True
       Left = 11
       Top = 239
-      Width = 493
+      Width = 491
       Height = 181
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Developer'
       TabOrder = 0
       DesignSize = (
-        493
+        491
         181)
       object Label1: TLabel
         Left = 16
@@ -67,7 +67,7 @@ object AppSettingsForm: TAppSettingsForm
       object btnedtIniFilePath: TButtonedEdit
         Left = 16
         Top = 147
-        Width = 468
+        Width = 466
         Height = 23
         Anchors = [akLeft, akTop, akRight]
         Color = clInfoBk
@@ -94,13 +94,13 @@ object AppSettingsForm: TAppSettingsForm
       object gbTrace: TGroupBox
         Left = 16
         Top = 52
-        Width = 465
+        Width = 463
         Height = 68
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Debug Trace Filters'
         TabOrder = 2
         object chEnd: TCheckBox
-          Left = 327
+          Left = 385
           Top = 20
           Width = 75
           Height = 17
@@ -108,7 +108,7 @@ object AppSettingsForm: TAppSettingsForm
           TabOrder = 0
         end
         object chBegin: TCheckBox
-          Left = 246
+          Left = 308
           Top = 20
           Width = 75
           Height = 17
@@ -124,7 +124,7 @@ object AppSettingsForm: TAppSettingsForm
           TabOrder = 2
         end
         object chWarning: TCheckBox
-          Left = 84
+          Left = 79
           Top = 20
           Width = 75
           Height = 17
@@ -132,7 +132,7 @@ object AppSettingsForm: TAppSettingsForm
           TabOrder = 3
         end
         object chInfo: TCheckBox
-          Left = 165
+          Left = 155
           Top = 20
           Width = 75
           Height = 17
@@ -156,12 +156,20 @@ object AppSettingsForm: TAppSettingsForm
           TabOrder = 6
           TextHint = 'Regex'
         end
+        object chVerbose: TCheckBox
+          Left = 232
+          Top = 20
+          Width = 75
+          Height = 17
+          Caption = 'Verbose'
+          TabOrder = 7
+        end
       end
     end
     object btnedtRgExePath: TButtonedEdit
       Left = 16
       Top = 27
-      Width = 488
+      Width = 486
       Height = 23
       Anchors = [akLeft, akTop, akRight]
       Color = clInfoBk
@@ -188,7 +196,7 @@ object AppSettingsForm: TAppSettingsForm
     object Memo1: TMemo
       Left = 16
       Top = 74
-      Width = 488
+      Width = 486
       Height = 63
       Anchors = [akLeft, akTop, akRight]
       Color = clBlack
@@ -209,7 +217,7 @@ object AppSettingsForm: TAppSettingsForm
     object rgTheme: TRadioGroup
       Left = 11
       Top = 152
-      Width = 493
+      Width = 491
       Height = 81
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Theme'

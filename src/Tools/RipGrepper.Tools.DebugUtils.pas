@@ -4,7 +4,7 @@ interface
 
 type
 
-	ETraceFilterType = (tftError, tftWarning, tftInfo, tftBegin, tftEnd, tftRegex, tftNone);
+	ETraceFilterType = (tftError, tftWarning, tftInfo, tftBegin, tftEnd, tftVerbose, tftRegex, tftNone);
 	TTraceFilterTypes = set of ETraceFilterType;
 
 	TTraceFilterTypeRec = record
@@ -13,12 +13,13 @@ type
 	end;
 
 const
-	TRACE_TYPES : array [0 .. 6] of TTraceFilterTypeRec = (
+	TRACE_TYPES : array [0 .. 7] of TTraceFilterTypeRec = (
 		{ } (name : 'tftError'; Value : tftError),
 		{ } (name : 'tftWarning'; Value : tftWarning),
 		{ } (name : 'tftInfo'; Value : tftInfo),
 		{ } (name : 'tftBegin'; Value : tftBegin),
 		{ } (name : 'tftEnd'; Value : tftEnd),
+		{ } (name : 'tftVerbose'; Value : tftVerbose),
 		{ } (name : 'tftRegex'; Value : tftRegex),
 		{ } (name : 'tftNone'; Value : tftNone)
 		{ } );
@@ -54,12 +55,13 @@ type
 			FSilentBeginEnd : Boolean;
 
 		public
-			procedure Msg(const _sMsg : string);
+			procedure Msg(const _sMsg : string; const _type : ETraceFilterType = tftInfo);
 			procedure ErrorMsg(const _sMsg : string);
 			procedure ErrorMsgFmt(const _sMsg : string; const _args : array of const);
-			procedure MsgIf(const _bCondition : Boolean; const _sMsg : string);
-			procedure MsgFmt(const _s : string; const _args : array of const);
-			procedure MsgFmtIf(const _bCondition : Boolean; const _s : string; const _args : array of const);
+			procedure MsgIf(const _bCondition : Boolean; const _sMsg : string; const _type : ETraceFilterType = tftInfo);
+			procedure MsgFmt(const _s : string; const _args : array of const; const _type : ETraceFilterType = tftInfo);
+			procedure MsgFmtIf(const _bCondition : Boolean; const _s : string; const _args : array of const;
+				const _type : ETraceFilterType = tftInfo);
 			class function New(const _sProcName : string; const _bSilent : Boolean = False) : TDebugMsgBeginEnd; static;
 			class operator Finalize(var Dest : TDebugMsgBeginEnd);
 	end;
@@ -76,7 +78,7 @@ uses
 class constructor TDebugUtils.Create;
 begin
 	{$IFDEF DEBUG}
-	FTraceFilerTypes := [tftBegin, tftEnd, tftError, tftWarning, tftInfo];
+	FTraceFilerTypes := [tftBegin, tftEnd, tftError, tftWarning, tftInfo, tftVerbose];
 	{$ENDIF}
 	{$IFDEF TESTINSIGHT}
 	FTraceFilerTypes := [tftError];
@@ -173,9 +175,9 @@ begin
 		{ } TraceTypesToStr(FTraceFilerTypes) + '] RegEx: "' + FTraceFilterRegex + '"'));
 end;
 
-procedure TDebugMsgBeginEnd.Msg(const _sMsg : string);
+procedure TDebugMsgBeginEnd.Msg(const _sMsg : string; const _type : ETraceFilterType = tftInfo);
 begin
-	TDebugUtils.Msg(FProcName + ' - ' + _sMsg, tftInfo);
+	TDebugUtils.Msg(FProcName + ' - ' + _sMsg, _type);
 end;
 
 procedure TDebugMsgBeginEnd.ErrorMsg(const _sMsg : string);
@@ -188,21 +190,22 @@ begin
 	TDebugUtils.MsgFmt(FProcName + ' - ERROR -' + _sMsg, _args, tftError);
 end;
 
-procedure TDebugMsgBeginEnd.MsgIf(const _bCondition : Boolean; const _sMsg : string);
+procedure TDebugMsgBeginEnd.MsgIf(const _bCondition : Boolean; const _sMsg : string; const _type : ETraceFilterType = tftInfo);
 begin
 	if _bCondition then
-		TDebugUtils.Msg(FProcName + ' - ' + _sMsg);
+		TDebugUtils.Msg(FProcName + ' - ' + _sMsg, _type);
 end;
 
-procedure TDebugMsgBeginEnd.MsgFmt(const _s : string; const _args : array of const);
+procedure TDebugMsgBeginEnd.MsgFmt(const _s : string; const _args : array of const; const _type : ETraceFilterType = tftInfo);
 begin
-	TDebugUtils.MsgFmt(FProcName + ' - ' + _s, _args);
+	TDebugUtils.MsgFmt(FProcName + ' - ' + _s, _args, _type);
 end;
 
-procedure TDebugMsgBeginEnd.MsgFmtIf(const _bCondition : Boolean; const _s : string; const _args : array of const);
+procedure TDebugMsgBeginEnd.MsgFmtIf(const _bCondition : Boolean; const _s : string; const _args : array of const;
+	const _type : ETraceFilterType = tftInfo);
 begin
 	if _bCondition then
-		TDebugUtils.MsgFmt(FProcName + ' - ' + _s, _args);
+		TDebugUtils.MsgFmt(FProcName + ' - ' + _s, _args, _type);
 end;
 
 class function TDebugMsgBeginEnd.New(const _sProcName : string; const _bSilent : Boolean = False) : TDebugMsgBeginEnd;
@@ -222,7 +225,11 @@ begin
 end;
 
 initialization
-    OutputDebugString(PChar('DebugTrace initialized.'));
+
+OutputDebugString(PChar('DebugTrace initialized.'));
+
 finalization
-    OutputDebugString(PChar('DebugTrace finalized.'));
+
+OutputDebugString(PChar('DebugTrace finalized.'));
+
 end.
