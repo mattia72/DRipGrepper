@@ -2,8 +2,8 @@ object OpenWithCmdList: TOpenWithCmdList
   Left = 738
   Top = 170
   Caption = 'Open With...'
-  ClientHeight = 292
-  ClientWidth = 360
+  ClientHeight = 293
+  ClientWidth = 364
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -152,8 +152,8 @@ object OpenWithCmdList: TOpenWithCmdList
   TextHeight = 14
   object pnl_Bottom: TPanel
     Left = 0
-    Top = 258
-    Width = 360
+    Top = 259
+    Width = 364
     Height = 34
     Margins.Left = 8
     Margins.Top = 8
@@ -166,10 +166,10 @@ object OpenWithCmdList: TOpenWithCmdList
     ShowCaption = False
     TabOrder = 2
     DesignSize = (
-      360
+      364
       34)
     object btn_Save: TButton
-      Left = 163
+      Left = 167
       Top = 4
       Width = 75
       Height = 25
@@ -184,10 +184,10 @@ object OpenWithCmdList: TOpenWithCmdList
       TabOrder = 0
     end
     object btn_Cancel: TButton
-      Left = 247
-      Top = 4
+      Left = 259
+      Top = 3
       Width = 75
-      Height = 25
+      Height = 26
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
@@ -203,11 +203,11 @@ object OpenWithCmdList: TOpenWithCmdList
   object pnlMain: TPanel
     Left = 0
     Top = 71
-    Width = 332
-    Height = 187
+    Width = 334
+    Height = 188
     Margins.Left = 8
     Margins.Top = 8
-    Margins.Right = 8
+    Margins.Right = 0
     Margins.Bottom = 8
     Align = alClient
     BevelOuter = bvNone
@@ -217,11 +217,11 @@ object OpenWithCmdList: TOpenWithCmdList
       AlignWithMargins = True
       Left = 8
       Top = 8
-      Width = 316
-      Height = 171
+      Width = 326
+      Height = 172
       Margins.Left = 8
       Margins.Top = 8
-      Margins.Right = 8
+      Margins.Right = 0
       Margins.Bottom = 8
       Align = alClient
       Color = clHighlightText
@@ -236,21 +236,21 @@ object OpenWithCmdList: TOpenWithCmdList
     end
   end
   object pnl_Right: TPanel
-    Left = 332
+    Left = 334
     Top = 71
-    Width = 28
-    Height = 187
+    Width = 30
+    Height = 188
     Margins.Left = 0
     Align = alRight
     BevelOuter = bvNone
     ShowCaption = False
     TabOrder = 3
     DesignSize = (
-      28
-      187)
+      30
+      188)
     object btnConfig: TButton
       AlignWithMargins = True
-      Left = -1
+      Left = 1
       Top = 7
       Width = 25
       Height = 25
@@ -269,7 +269,7 @@ object OpenWithCmdList: TOpenWithCmdList
     end
     object btnView: TButton
       AlignWithMargins = True
-      Left = -1
+      Left = 1
       Top = 33
       Width = 25
       Height = 25
@@ -290,7 +290,7 @@ object OpenWithCmdList: TOpenWithCmdList
   object pnl_Top: TPanel
     Left = 0
     Top = 0
-    Width = 360
+    Width = 364
     Height = 71
     Align = alTop
     BevelOuter = bvNone
@@ -301,7 +301,7 @@ object OpenWithCmdList: TOpenWithCmdList
       AlignWithMargins = True
       Left = 8
       Top = 8
-      Width = 344
+      Width = 348
       Height = 14
       Margins.Left = 8
       Margins.Top = 8
@@ -313,8 +313,8 @@ object OpenWithCmdList: TOpenWithCmdList
     object lblHint2: TLabel
       AlignWithMargins = True
       Left = 8
-      Top = 49
-      Width = 344
+      Top = 52
+      Width = 348
       Height = 14
       Margins.Left = 8
       Margins.Top = 0
@@ -326,8 +326,8 @@ object OpenWithCmdList: TOpenWithCmdList
     object Memo1: TMemo
       AlignWithMargins = True
       Left = 3
-      Top = 25
-      Width = 354
+      Top = 28
+      Width = 358
       Height = 21
       TabStop = False
       Align = alTop
