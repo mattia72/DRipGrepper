@@ -62,7 +62,7 @@ type
 			FOwner : TPersistableSettings;
 			FOwnIniFile : Boolean;
 			procedure CreateIniFile;
-			procedure DictToLog(_dict: TSettingsDictionary);
+			procedure DictToLog(_dict : TSettingsDictionary);
 			procedure FreeOwnIniFile;
 			function GetIniFile : TMemIniFile;
 			procedure ReadSettings;
@@ -70,7 +70,7 @@ type
 			procedure SetIniFile(const Value : TMemIniFile);
 			procedure SetIniSectionName(const Value : string);
 			// 1 Should be locked by a guard
-			procedure WriteToIni(const _sIniSection, _sKey : string; const _setting : ISettingVariant);
+			procedure WriteToIni(const _sIniSection, _sKey : string; _setting : ISettingVariant);
 
 		protected
 			FSettingsDict : TSettingsDictionary;
@@ -78,7 +78,6 @@ type
 			FIsModified : Boolean;
 			class var FLockObject : TObject;
 
-			procedure CopySettingsDictSection(const _other : TPersistableSettings; const _copyAllSections : Boolean = False);
 			function GetIsAlreadyRead : Boolean; virtual;
 			function GetIsModified : Boolean; virtual;
 			/// <summary>TPersistableSettings.Init
@@ -105,6 +104,8 @@ type
 			function AddChildSettings(_settings : TPersistableSettings) : TPersistableSettings;
 			function RemoveChildSettings(_settings : TPersistableSettings) : Boolean;
 			procedure CopyDefaultsToValues; virtual;
+			procedure CopySettingsDictSection(const _other : TPersistableSettings; const
+				_copyAllSections : Boolean = False);
 			procedure CopyValuesToDefaults; virtual;
 			/// <summary>TPersistableSettings.ReadIni
 			/// Members.RedIni- should be called here
@@ -250,11 +251,17 @@ begin
 	LoadDefaultsFromDict();
 end;
 
-procedure TPersistableSettings.CopySettingsDictSection(const _other : TPersistableSettings; const _copyAllSections : Boolean = False);
+procedure TPersistableSettings.CopySettingsDictSection(const _other :
+	TPersistableSettings; const _copyAllSections : Boolean = False);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepParameterSettings.TryFindRipGrepExePath');
+
 	for var key in _other.SettingsDict.Keys do begin
 		if _copyAllSections or key.StartsWith(IniSectionName) then begin
-			FSettingsDict.AddOrChange(key, _other.SettingsDict[key]);
+			var
+			setting := _other.SettingsDict[key];
+			FSettingsDict.AddOrChange(key, setting);
 		end;
 	end;
 end;
@@ -292,10 +299,11 @@ begin
 	dbgMsg.MsgFmt('Create FIniFile %p of section: %s', [Pointer(FIniFile), GetIniSectionName()]);
 end;
 
-procedure TPersistableSettings.DictToLog(_dict: TSettingsDictionary);
+procedure TPersistableSettings.DictToLog(_dict : TSettingsDictionary);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.DictToLog');
+	dbgMsg.MsgFmt('----------List of %s-------------', [FIniSectionName], tftVerbose);
 	var a : TArray<TArray<string>>;
 	for var p in _dict do begin
 		var sVal : string := VarToStr(p.Value.Value);
@@ -533,15 +541,18 @@ begin
 
 	for var s in FChildren do begin
 		dbgMsg.MsgFmt('Child update begin on section: [%s]', [s.GetIniSectionName()]);
-		s.UpdateIniFile(_section);
+		// s.UpdateIniFile(_section);
+		s.UpdateIniFile(s.GetIniSectionName());
 	end;
 
 	if Assigned(FOwner) { and (_section = '') } then begin
 		FOwner.CopySettingsDictSection(self, True);
-		DictToLog(FOwner.SettingsDict);
+		DictToLog(SettingsDict);
 		FOwner.WriteSettingsDictToIni(EWriteSettingsMode.wsmAll);
 		Exit;
 	end;
+
+	DictToLog(SettingsDict);
 
 	if Assigned(IniFile) then begin
 		var
@@ -618,7 +629,8 @@ begin
 end;
 
 // 1 Should be locked by a guard
-procedure TPersistableSettings.WriteToIni(const _sIniSection, _sKey : string; const _setting : ISettingVariant);
+procedure TPersistableSettings.WriteToIni(const _sIniSection, _sKey : string;
+	_setting : ISettingVariant);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.WriteToIni');

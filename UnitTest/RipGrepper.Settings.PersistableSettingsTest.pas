@@ -10,7 +10,6 @@ uses
 	RipGrepper.Settings.SettingsDictionary,
 	RipGrepper.Settings.TestOwnerSettings;
 
-
 type
 
 	[TestFixture]
@@ -19,7 +18,7 @@ type
 		private
 			FIniFile : TMemIniFile;
 			FOwner : TPersistableSettings;
-			FSettings1: TTestSettings;
+			FSettings1 : TTestSettings;
 			FSettings2 : TTestSettings;
 			procedure CreateDefaultsInIni;
 
@@ -45,6 +44,8 @@ type
 			procedure LoadDefaultsReadsIni;
 			[Test]
 			procedure InitCreatesKeysInDict;
+			[Test]
+			procedure CopySettingsDictSectionShouldCopyCorrectly;
 
 	end;
 
@@ -113,7 +114,8 @@ begin
 
 	FSettings1.CopyDefaultsToValues;
 	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings1.SettingsDict.GetSetting('StrSetting')), 'StrSetting.Value should be equal');
-	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings1.SettingsDict.GetSetting('StrSetting', True)), 'StrSetting.Default should be equal');
+	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings1.SettingsDict.GetSetting('StrSetting', True)),
+		'StrSetting.Default should be equal');
 	// it is in fact StrSetting_DEFAULT.Value;
 	Assert.AreEqual(VarToStr(FSettings1.SettingsDict.GetSetting('StrSetting' + DEFAULT_KEY)),
 		VarToStr(FSettings1.SettingsDict.GetSetting('StrSetting', True)), 'StrSetting.Default should be equal StrSetting_DEFAULT.Value');
@@ -139,6 +141,12 @@ begin
 	FSettings1.ReadIni;
 	FSettings1.LoadDefaultsFromDict;
 	Assert.IsTrue(FSettings1.IsAlreadyRead);
+
+    Assert.IsFalse(FSettings2.IsAlreadyRead);
+	FSettings2.ReadIni;
+	FSettings2.LoadDefaultsFromDict;
+	Assert.IsTrue(FSettings2.IsAlreadyRead);
+
 end;
 
 procedure TPersistableSettingsTest.InitCreatesKeysInDict;
@@ -159,14 +167,29 @@ begin
 	FOwner := TTestOwnerSettings.Create();
 	FIniFile := FOwner.IniFile;
 	FSettings1 := TTestSettings.Create(FOwner);
-	FSettings2 := TTestSettings.Create(FOwner);
+	FSettings2 := TTestSettings.Create(FSettings1);
 end;
 
 procedure TPersistableSettingsTest.TearDown;
 begin
 	FSettings1.Free;
-    FSettings2.Free;
+	FSettings2.Free;
 	FOwner.Free;
+end;
+
+procedure TPersistableSettingsTest.CopySettingsDictSectionShouldCopyCorrectly;
+var
+	SourceSection, TargetSection : string;
+begin
+	// Arrange
+	CreateDefaultsInIni;
+	FSettings1.LoadFromDict;
+
+	// Act
+	FSettings1.CopySettingsDictSection(FSettings2);
+
+	// Assert
+	Assert.AreEqual('TestValue', FIniFile.ReadString(TargetSection, 'StrSetting', ''), 'StrSetting should be copied correctly');
 end;
 
 initialization
