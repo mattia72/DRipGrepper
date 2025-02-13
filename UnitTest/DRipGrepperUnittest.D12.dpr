@@ -52,7 +52,9 @@ uses
   RipGrepper.Common.Constants in '..\src\Common\RipGrepper.Common.Constants.pas',
   RipGrepper.Common.SearchTextWithOptions in '..\src\Common\RipGrepper.Common.SearchTextWithOptions.pas',
   RipGrepper.Common.SearchParamsWithOptionsTest in 'RipGrepper.Common.SearchParamsWithOptionsTest.pas',
-  RipGrepper.Common.Interfaces in '..\src\Common\RipGrepper.Common.Interfaces.pas';
+  RipGrepper.Common.Interfaces in '..\src\Common\RipGrepper.Common.Interfaces.pas',
+  RipGrepper.Settings.SettingVariantTest in 'RipGrepper.Settings.SettingVariantTest.pas',
+  RipGrepper.Settings.SettingsDictionaryTest in 'RipGrepper.Settings.SettingsDictionaryTest.pas';
 
 // This comment has to guard the following IFDEF, that may be delted by delphi, if new unit added to the project
 {$IFNDEF TESTINSIGHT}

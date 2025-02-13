@@ -62,7 +62,7 @@ type
 			FOwner : TPersistableSettings;
 			FOwnIniFile : Boolean;
 			procedure CreateIniFile;
-			procedure DictToLog(_dict: TSettingsDictionary);
+			procedure DictToLog(_dict : TSettingsDictionary);
 			procedure FreeOwnIniFile;
 			function GetIniFile : TMemIniFile;
 			procedure ReadSettings;
@@ -252,8 +252,12 @@ end;
 
 procedure TPersistableSettings.CopySettingsDictSection(const _other : TPersistableSettings; const _copyAllSections : Boolean = False);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.CopySettingsDictSection');
+	dbgMsg.MsgFmt('Copy TO [%s]', [IniSectionName]);
 	for var key in _other.SettingsDict.Keys do begin
 		if _copyAllSections or key.StartsWith(IniSectionName) then begin
+			dbgMsg.MsgFmt('Copy FROM [%s] %s=%s', [_other.IniSectionName, key, _other.SettingsDict[key].Value]);
 			FSettingsDict.AddOrChange(key, _other.SettingsDict[key]);
 		end;
 	end;
@@ -292,16 +296,20 @@ begin
 	dbgMsg.MsgFmt('Create FIniFile %p of section: %s', [Pointer(FIniFile), GetIniSectionName()]);
 end;
 
-procedure TPersistableSettings.DictToLog(_dict: TSettingsDictionary);
+procedure TPersistableSettings.DictToLog(_dict : TSettingsDictionary);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.DictToLog');
-	var a : TArray<TArray<string>>;
+	{$IFDEF DEBUG}
+	var
+		a : TArray<TArray<string>>;
 	for var p in _dict do begin
-		var sVal : string := VarToStr(p.Value.Value);
+		var
+			sVal : string := VarToStr(p.Value.Value);
 		a := a + [[p.Key, sVal]];
 		dbgMsg.MsgFmt('%s=%s', [p.Key, sVal], tftVerbose);
 	end;
+	{$ENDIF}
 end;
 
 procedure TPersistableSettings.FreeOwnIniFile;
