@@ -142,6 +142,9 @@
         <DCCReference Include="..\src\Common\RipGrepper.Common.SearchTextWithOptions.pas"/>
         <DCCReference Include="RipGrepper.Common.SearchParamsWithOptionsTest.pas"/>
         <DCCReference Include="..\src\Common\RipGrepper.Common.Interfaces.pas"/>
+        <DCCReference Include="RipGrepper.Settings.SettingVariantTest.pas"/>
+        <DCCReference Include="..\src\Settings\RipGrepper.Settings.SettingVariant.pas"/>
+        <DCCReference Include="RipGrepper.Settings.SettingsDictionaryTest.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
