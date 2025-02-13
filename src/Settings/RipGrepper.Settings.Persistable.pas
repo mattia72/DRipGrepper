@@ -255,13 +255,12 @@ procedure TPersistableSettings.CopySettingsDictSection(const _other :
 	TPersistableSettings; const _copyAllSections : Boolean = False);
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepParameterSettings.TryFindRipGrepExePath');
-
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.CopySettingsDictSection');
+	dbgMsg.MsgFmt('Copy TO [%s]', [IniSectionName]);
 	for var key in _other.SettingsDict.Keys do begin
 		if _copyAllSections or key.StartsWith(IniSectionName) then begin
-			var
-			setting := _other.SettingsDict[key];
-			FSettingsDict.AddOrChange(key, setting);
+			dbgMsg.MsgFmt('Copy FROM [%s] %s=%s', [_other.IniSectionName, key, _other.SettingsDict[key].Value]);
+			FSettingsDict.AddOrChange(key, _other.SettingsDict[key]);
 		end;
 	end;
 end;
@@ -303,13 +302,16 @@ procedure TPersistableSettings.DictToLog(_dict : TSettingsDictionary);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.DictToLog');
-	dbgMsg.MsgFmt('----------List of %s-------------', [FIniSectionName], tftVerbose);
-	var a : TArray<TArray<string>>;
+	{$IFDEF DEBUG}
+	var
+		a : TArray<TArray<string>>;
 	for var p in _dict do begin
-		var sVal : string := VarToStr(p.Value.Value);
+		var
+			sVal : string := VarToStr(p.Value.Value);
 		a := a + [[p.Key, sVal]];
 		dbgMsg.MsgFmt('%s=%s', [p.Key, sVal], tftVerbose);
 	end;
+	{$ENDIF}
 end;
 
 procedure TPersistableSettings.FreeOwnIniFile;

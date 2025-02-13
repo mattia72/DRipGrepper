@@ -29,8 +29,7 @@ type
 			procedure AddOrSetDefault(const _key : string; const _value : Variant; const _bSaveToIni : Boolean);
 
 			procedure CreateDefaultRelevantSetting(const _sName : string; const _type : TVarType; const _value : Variant); overload;
-			procedure CreateSetting(const _sName : string; _setting : ISettingVariant);
-				overload;
+			procedure CreateSetting(const _sName : string; _setting : ISettingVariant); overload;
 			procedure CreateSetting(const _sName : string; const _type : TVarType; const _value : Variant;
 				const _isDefRelevant : Boolean = False); overload;
 
@@ -89,13 +88,12 @@ var
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.AddOrChange');
-	if self.TryGetValue(Key, setting) {and Assigned(setting) and (not setting.Equals(Value)) } then begin
+	if self.TryGetValue(GetDictKeyname(Key), setting) { and Assigned(setting) and (not setting.Equals(Value)) } then begin
 		self[Key] := nil;
-//      self.Remove(Key);
-		dbgMsg.MsgFmt('Remove %s', [Key]);
+		dbgMsg.MsgFmt('Remove %s', [GetDictKeyname(Key)]);
 	end;
-	dbgMsg.MsgFmt('AddOrSetValue %s=%s', [Key, VarToStr(Value.Value)]);
-	AddOrSetValue(Key, Value);
+	dbgMsg.MsgFmt('AddOrSetValue %s=%s', [GetDictKeyname(Key), VarToStr(Value.Value)]);
+	AddOrSetValue(GetDictKeyname(Key), Value);
 end;
 
 procedure TSettingsDictionary.AddOrSet(const _name : string; const _v : Variant);
@@ -124,7 +122,7 @@ begin
 			self.Add(sKey, setting);
 			dbgMsg.MsgFmt('Add %s=%s', [sKey, VarToStr(setting.Value)]);
 		end else begin
-        	setting.IsModified := True;
+			setting.IsModified := True;
 			self.AddOrChange(sKey, setting);
 			dbgMsg.MsgFmt('AddOrChange %s=%s', [sKey, VarToStr(setting.Value)]);
 		end;
@@ -132,8 +130,7 @@ begin
 	dbgMsg.MsgFmt('sKey = %s, Value = %s', [sKey, VarToStr(setting.Value)]);
 end;
 
-procedure TSettingsDictionary.AddOrSet(const _name : string; _sv :
-	ISettingVariant);
+procedure TSettingsDictionary.AddOrSet(const _name : string; _sv : ISettingVariant);
 var
 	setting : ISettingVariant;
 	sKey : string;
