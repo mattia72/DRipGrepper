@@ -85,7 +85,8 @@ begin
 		FAppSettingsForm := TAppSettingsForm.Create(nil, Settings);
 		FColorSettingsForm := TColorSettingsForm.Create(nil, Settings.FontColorSettings);
 
-		FExtensionSettings := TRipGrepperExtensionSettings.Create(Settings);
+//      FExtensionSettings := TRipGrepperExtensionSettings.Create(Settings);
+		FExtensionSettings := Settings.SearchFormSettings.ExtensionSettings;
 		FExtensionSettings.ReadIni;
 		FExtensionSettings.LoadFromDict;
 		FExtensionSettingsForm := TExtensionSettingsForm.Create(nil, FExtensionSettings);
@@ -114,7 +115,7 @@ end;
 
 destructor TConfigForm.Destroy;
 begin
-	FExtensionSettings.Free;
+//  FExtensionSettings.Free;
 	FSettingsForms.Free;
 	FThemeHandler.Free;
 	Settings.ReLoadFromDisk;
