@@ -23,13 +23,14 @@ type
 			constructor Create; overload;
 			destructor Destroy; override;
 
-			procedure AddOrChange(const Key : string; const Value : ISettingVariant);
+			procedure AddOrChange(const Key : string; Value : ISettingVariant);
 			procedure AddOrSet(const _name : string; const _v : Variant); overload;
-			procedure AddOrSet(const _name : string; const _sv : ISettingVariant); overload;
+			procedure AddOrSet(const _name : string; _sv : ISettingVariant); overload;
 			procedure AddOrSetDefault(const _key : string; const _value : Variant; const _bSaveToIni : Boolean);
 
 			procedure CreateDefaultRelevantSetting(const _sName : string; const _type : TVarType; const _value : Variant); overload;
-			procedure CreateSetting(const _sName : string; const _setting : ISettingVariant); overload;
+			procedure CreateSetting(const _sName : string; _setting : ISettingVariant);
+				overload;
 			procedure CreateSetting(const _sName : string; const _type : TVarType; const _value : Variant;
 				const _isDefRelevant : Boolean = False); overload;
 
@@ -82,13 +83,18 @@ begin
 	inherited Destroy;
 end;
 
-procedure TSettingsDictionary.AddOrChange(const Key : string; const Value : ISettingVariant);
+procedure TSettingsDictionary.AddOrChange(const Key : string; Value : ISettingVariant);
 var
 	setting : ISettingVariant;
 begin
-	if self.TryGetValue(Key, setting) and Assigned(setting) and (not setting.Equals(Value)) then begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.AddOrChange');
+	if self.TryGetValue(Key, setting) {and Assigned(setting) and (not setting.Equals(Value)) } then begin
 		self[Key] := nil;
+//      self.Remove(Key);
+		dbgMsg.MsgFmt('Remove %s', [Key]);
 	end;
+	dbgMsg.MsgFmt('AddOrSetValue %s=%s', [Key, VarToStr(Value.Value)]);
 	AddOrSetValue(Key, Value);
 end;
 
@@ -98,29 +104,36 @@ var
 	setting : ISettingVariant;
 	sKey : string;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.AddOrSet');
+
 	sKey := GetDictKeyName(_name);
 	bExists := self.TryGetValue(sKey, setting);
 	if bExists and (setting.IsEmpty or (setting.ValueType <> VarType(_v)) or
 		{ } (setting.Value <> _v)) then begin
 		setting.Value := _v;
-		setting.ValueType := VarType(_v);
 		setting.IsModified := True;
 		if not bExists then begin
 			setting.IsDefaultRelevant := False;
 		end;
 		self.AddOrChange(sKey, setting);
+		dbgMsg.MsgFmt('AddOrChange %s=%s', [sKey, VarToStr(setting.Value)]);
 	end else begin
 		if not bExists then begin
 			setting := TSettingVariant.Create(_v); // ISettingVariant
 			self.Add(sKey, setting);
+			dbgMsg.MsgFmt('Add %s=%s', [sKey, VarToStr(setting.Value)]);
 		end else begin
         	setting.IsModified := True;
 			self.AddOrChange(sKey, setting);
+			dbgMsg.MsgFmt('AddOrChange %s=%s', [sKey, VarToStr(setting.Value)]);
 		end;
 	end;
+	dbgMsg.MsgFmt('sKey = %s, Value = %s', [sKey, VarToStr(setting.Value)]);
 end;
 
-procedure TSettingsDictionary.AddOrSet(const _name : string; const _sv : ISettingVariant);
+procedure TSettingsDictionary.AddOrSet(const _name : string; _sv :
+	ISettingVariant);
 var
 	setting : ISettingVariant;
 	sKey : string;
@@ -162,7 +175,7 @@ begin
 	CreateSetting(_sName, setting);
 end;
 
-procedure TSettingsDictionary.CreateSetting(const _sName : string; const _setting : ISettingVariant);
+procedure TSettingsDictionary.CreateSetting(const _sName : string; _setting : ISettingVariant);
 begin
 	if _setting.IsDefaultRelevant then begin
 		self.AddOrChange(GetDefaultDictKeyName(_sName), _setting);
@@ -228,7 +241,8 @@ begin
 	tmpIni := TMemIniFile.Create(tmpFile.FilePath);
 	try
 		for var key in Keys do begin
-			var arr := key.Split([ARRAY_SEPARATOR]);
+			var
+			arr := key.Split([ARRAY_SEPARATOR]);
 			settingSection := arr[0];
 			settingName := arr[1];
 			setting := self[key];
@@ -276,7 +290,7 @@ end;
 
 procedure TSettingsDictionary.StoreSetting(const _name : string; const _v : Variant; const _bAsDefault : Boolean = False);
 begin
-	TDebugUtils.DebugMessageFormat('TSettingsDictionary.StoreSetting: in memory %s=%s as default=',
+	TDebugUtils.DebugMessageFormat('TSettingsDictionary.StoreSetting: in memory %s=%s as default=%s',
 		[_name, VarToStr(_v), BoolToStr(_bAsDefault, True)]);
 	if _bAsDefault then begin
 		StoreDefaultSetting(_name, _v);

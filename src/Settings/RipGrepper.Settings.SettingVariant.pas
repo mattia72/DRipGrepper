@@ -26,13 +26,12 @@ type
 		procedure SetIsDefaultRelevant(const Value : Boolean);
 		procedure SetIsModified(const Value : Boolean);
 		procedure SetValue(const Value : Variant);
-		procedure SetValueType(const Value : TVarType);
 		procedure SetSaveToIni(const Value : Boolean);
 
 		property IsDefaultRelevant : Boolean read GetIsDefaultRelevant write SetIsDefaultRelevant;
 		property IsModified : Boolean read GetIsModified write SetIsModified;
 		property Value : Variant read GetValue write SetValue;
-		property ValueType : TVarType read GetValueType write SetValueType;
+		property ValueType : TVarType read GetValueType;
 		property SaveToIni : Boolean read GetSaveToIni write SetSaveToIni;
 
 		procedure WriteToMemIni(_ini : TMemIniFile; const _sIniSection, _sKey : string);
@@ -45,15 +44,15 @@ type
 			FIsModified : Boolean;
 			FIsDefaultRelevant : Boolean;
 			FSaveToIni : Boolean; // New field
+			function CompareTo(Value : ISettingVariant) : Integer;
 			function GetValue : Variant;
 			function GetIsModified : Boolean;
 			function GetIsDefaultRelevant : Boolean;
-			function GetValueType : TVarType;
+			function GetValueType() : TVarType;
 			function GetSaveToIni : Boolean;
 			procedure SetValue(const Value : Variant);
 			procedure SetIsModified(const Value : Boolean);
 			procedure SetIsDefaultRelevant(const Value : Boolean);
-			procedure SetValueType(const Value : TVarType);
 			procedure SetSaveToIni(const Value : Boolean);
 
 		public
@@ -61,14 +60,13 @@ type
 				const _saveToIni : Boolean = True); overload;
 			constructor Create(const _value : Variant); overload;
 			destructor Destroy; override;
-			function CompareTo(Value : ISettingVariant) : Integer;
 			function Equals(_other : ISettingVariant) : Boolean; reintroduce;
 			function IsEmpty : Boolean;
 			procedure WriteToMemIni(_ini : TMemIniFile; const _sIniSection, _sKey : string);
 			property Value : Variant read GetValue write SetValue;
 			property IsModified : Boolean read GetIsModified write SetIsModified;
 			property IsDefaultRelevant : Boolean read GetIsDefaultRelevant write SetIsDefaultRelevant;
-			property ValueType : TVarType read GetValueType write SetValueType;
+			property ValueType : TVarType read GetValueType;
 			property SaveToIni : Boolean read GetSaveToIni write SetSaveToIni;
 	end;
 
@@ -107,7 +105,9 @@ var
 begin
 	res := VarCompareValue(self.FValue, Value.Value);
 	if res = vrEqual then begin
-		if FIsModified <> Value.IsModified then
+		if FValueType <> Value.ValueType then
+			Result := Ord(FValueType) - Ord(Value.ValueType)
+		else if FIsModified <> Value.IsModified then
 			Result := Ord(FIsModified) - Ord(Value.IsModified)
 		else if FIsDefaultRelevant <> Value.IsDefaultRelevant then
 			Result := Ord(FIsDefaultRelevant) - Ord(Value.IsDefaultRelevant)
@@ -124,6 +124,7 @@ end;
 function TSettingVariant.Equals(_other : ISettingVariant) : Boolean;
 begin
 	Result := (VarCompareValue(FValue, _other.Value) = vrEqual) and
+	{ } (FValueType = _other.ValueType) and
 	{ } (FIsModified = _other.IsModified) and
 	{ } (FIsDefaultRelevant = _other.IsDefaultRelevant) and
 	{ } (FSaveToIni = _other.SaveToIni);
@@ -149,7 +150,7 @@ begin
 	Result := FIsDefaultRelevant;
 end;
 
-function TSettingVariant.GetValueType : TVarType;
+function TSettingVariant.GetValueType() : TVarType;
 begin
 	Result := FValueType;
 end;
@@ -162,6 +163,7 @@ end;
 procedure TSettingVariant.SetValue(const Value : Variant);
 begin
 	FValue := Value;
+	FValueType := VarType(Value);
 end;
 
 procedure TSettingVariant.SetIsModified(const Value : Boolean);
@@ -172,11 +174,6 @@ end;
 procedure TSettingVariant.SetIsDefaultRelevant(const Value : Boolean);
 begin
 	FIsDefaultRelevant := Value;
-end;
-
-procedure TSettingVariant.SetValueType(const Value : TVarType);
-begin
-	FValueType := Value;
 end;
 
 procedure TSettingVariant.SetSaveToIni(const Value : Boolean);
@@ -203,7 +200,7 @@ begin
 			varInteger : begin
 				_ini.WriteInteger(_sIniSection, _sKey, self.Value);
 			end;
-			varArray : begin
+			$200C, varArray : begin // varTypeMask   ??
 				var
 				i := VarArrayLowBound(self.Value, 1);
 				var
@@ -216,15 +213,16 @@ begin
 				end;
 			end
 			else
-            // var and vtTypes are not the same!!!
-			raise ESettingsException.Create('Settings Type not supported: ' +
-            	{} VarTypeAsText(VarType(self.ValueType)));
+			// var and vtTypes are not the same!!!
+			raise ESettingsException.Create('Settings Type not supported: ' + { } VarTypeAsText(VarType(self.ValueType)));
 		end;
 	except
 		on E : Exception do
 			dbgMsg.ErrorMsgFmt('%s', [E.Message]);
 	end;
-	dbgMsg.MsgFmt('[%s].%s=%s in %s', [_sIniSection, _sKey, VarToStr(self.Value), _ini.FileName]);
+	if self.ValueType <> $200C then begin
+		dbgMsg.MsgFmt('[%s].%s=%s in %s', [_sIniSection, _sKey, VarToStr(self.Value), _ini.FileName]);
+	end;
 end;
 
 end.
