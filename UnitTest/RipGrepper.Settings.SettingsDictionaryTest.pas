@@ -13,10 +13,10 @@ type
 	TSettingsDictionaryTest = class
 		public
 			[Test]
-			procedure TestEquals();
+			procedure AddOrSetTest();
 
 			[Test]
-			procedure TestAddOrChange();
+			procedure AddOrChangeTest();
 	end;
 
 implementation
@@ -29,19 +29,26 @@ uses
 const
 	TESTSECTION = 'TestSection';
 
-procedure TSettingsDictionaryTest.TestEquals();
+procedure TSettingsDictionaryTest.AddOrSetTest();
 var
 	dict : TSettingsDictionary;
+	setting : ISettingVariant;
 begin
-	dict := TSettingsDictionary.Create();
+	dict := TSettingsDictionary.Create(TESTSECTION);
 	try
-		// Testlogik für TestEquals
+		var key := 'TestKey';
+		setting := TSettingVariant.Create('TestValue');
+		dict.AddOrSet(key, setting);
+		var expected := setting.Value;
+		var actual := dict[TESTSECTION + '|' + key].Value;
+
+		Assert.AreEqual(expected, actual, '');
 	finally
 		dict.Free();
 	end;
 end;
 
-procedure TSettingsDictionaryTest.TestAddOrChange();
+procedure TSettingsDictionaryTest.AddOrChangeTest();
 var
 	dict : TSettingsDictionary;
 	key, expected, actual : string;

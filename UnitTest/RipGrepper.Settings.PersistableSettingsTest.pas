@@ -56,6 +56,10 @@ uses
 	RipGrepper.Common.Constants,
 	System.Variants;
 
+const
+	STRSETTING = 'StrSetting';
+	STRSETTING2 = 'StrSetting2';
+
 constructor TPersistableSettingsTest.Create;
 begin
 	inherited;
@@ -142,10 +146,11 @@ begin
 	FSettings1.LoadDefaultsFromDict;
 	Assert.IsTrue(FSettings1.IsAlreadyRead);
 
-    Assert.IsFalse(FSettings2.IsAlreadyRead);
+	Assert.IsFalse(FSettings2.IsAlreadyRead);
 	FSettings2.ReadIni;
-	FSettings2.LoadDefaultsFromDict;
 	Assert.IsTrue(FSettings2.IsAlreadyRead);
+	FSettings2.StrSetting := STRSETTING2;
+    FSettings2.StoreToDict;
 
 end;
 
@@ -159,7 +164,7 @@ begin
 	var
 	sec := FSettings1.IniSectionName;
 	FIniFile.WriteString(sec, 'StrSetting' + DEFAULT_KEY, DEFAULT_STR_VAL);
-	Assert.AreEqual('empty', FIniFile.ReadString(sec, 'StrSetting', 'empty'), 'StrSetting should not exist in the ini file');
+	Assert.AreEqual('empty', FIniFile.ReadString(sec, STRSETTING, 'empty'), 'StrSetting should not exist in the ini file');
 end;
 
 procedure TPersistableSettingsTest.Setup;
@@ -178,18 +183,19 @@ begin
 end;
 
 procedure TPersistableSettingsTest.CopySettingsDictSectionShouldCopyCorrectly;
-var
-	SourceSection, TargetSection : string;
 begin
-	// Arrange
-	CreateDefaultsInIni;
-	FSettings1.LoadFromDict;
+	LoadDefaultsReadsIni;
+    FSettings1.StrSetting := STRSETTING;
+ 	FSettings1.StoreToDict;
 
-	// Act
+	Assert.AreEqual(STRSETTING,
+		{ } FSettings1.StrSetting, 'StrSetting should be equal to initial value');
+
 	FSettings1.CopySettingsDictSection(FSettings2);
 
-	// Assert
-	Assert.AreEqual('TestValue', FIniFile.ReadString(TargetSection, 'StrSetting', ''), 'StrSetting should be copied correctly');
+    FSettings1.LoadFromDict();
+	Assert.AreEqual(STRSETTING2,
+		{ } FSettings1.StrSetting, 'StrSetting should be copied correctly');
 end;
 
 initialization

@@ -294,7 +294,7 @@ begin
 		owForm.Free;
 	end;
 
-	// write ini file content
+	// write ini file content after close config form
 	Settings.UpdateIniFile;
 
 	owSettings.TestFile := default (TOpenWithParams);

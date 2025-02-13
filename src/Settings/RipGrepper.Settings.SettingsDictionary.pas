@@ -23,9 +23,9 @@ type
 			constructor Create; overload;
 			destructor Destroy; override;
 
-			procedure AddOrChange(const Key : string; Value : ISettingVariant);
+			procedure AddOrChange(const _key : string; _setting : ISettingVariant);
 			procedure AddOrSet(const _name : string; const _v : Variant); overload;
-			procedure AddOrSet(const _name : string; _sv : ISettingVariant); overload;
+			procedure AddOrSet(const _key : string; _sv : ISettingVariant); overload;
 			procedure AddOrSetDefault(const _key : string; const _value : Variant; const _bSaveToIni : Boolean);
 
 			procedure CreateDefaultRelevantSetting(const _sName : string; const _type : TVarType; const _value : Variant); overload;
@@ -82,18 +82,20 @@ begin
 	inherited Destroy;
 end;
 
-procedure TSettingsDictionary.AddOrChange(const Key : string; Value : ISettingVariant);
+procedure TSettingsDictionary.AddOrChange(const _key : string; _setting : ISettingVariant);
 var
 	setting : ISettingVariant;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.AddOrChange');
-	if self.TryGetValue(GetDictKeyname(Key), setting) { and Assigned(setting) and (not setting.Equals(Value)) } then begin
-		self[Key] := nil;
-		dbgMsg.MsgFmt('Remove %s', [GetDictKeyname(Key)]);
+	var
+	dictKey := GetDictKeyname(_key);
+	if self.TryGetValue(dictKey, setting) { and Assigned(setting) and (not setting.Equals(_setting)) } then begin
+		self[dictKey] := nil;
+		dbgMsg.MsgFmt('Remove %s', [dictKey]);
 	end;
-	dbgMsg.MsgFmt('AddOrSetValue %s=%s', [GetDictKeyname(Key), VarToStr(Value.Value)]);
-	AddOrSetValue(GetDictKeyname(Key), Value);
+	dbgMsg.MsgFmt('AddOrSetValue %s=%s', [dictKey, VarToStr(_setting.Value)]);
+	AddOrSetValue(dictKey, _setting);
 end;
 
 procedure TSettingsDictionary.AddOrSet(const _name : string; const _v : Variant);
@@ -130,12 +132,12 @@ begin
 	dbgMsg.MsgFmt('sKey = %s, Value = %s', [sKey, VarToStr(setting.Value)]);
 end;
 
-procedure TSettingsDictionary.AddOrSet(const _name : string; _sv : ISettingVariant);
+procedure TSettingsDictionary.AddOrSet(const _key : string; _sv : ISettingVariant);
 var
 	setting : ISettingVariant;
 	sKey : string;
 begin
-	sKey := GetDictKeyName(_name);
+	sKey := GetDictKeyName(_key);
 	setting := nil;
 	if self.TryGetValue(sKey, setting) and Assigned(setting) then begin
 		if not setting.Equals(_sv) then begin

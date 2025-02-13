@@ -91,16 +91,24 @@ begin
 	SetDefaults;
 	FSettings.LoadDefaultsFromDict;
 	FSettings.LoadFromDict();
+
+	FSettings.ExtensionSettings.SearchSelectedShortcut := 'CTRL-X';
+	FSettings.StoreToDict;
+
 	var
 	s := TSearchFormSettings.Create();
 	try
 		s.Copy(FSettings);
 		s.LoadFromDict();
-		Assert.AreEqual(s.Encoding, FSettings.Encoding, 'Encoding should be utf8');
-		Assert.AreEqual(s.Context, FSettings.Context, 'Context should be 5');
-		Assert.AreEqual(s.Pretty, FSettings.Pretty, 'Pretty should be false');
-		Assert.AreEqual(s.Hidden, FSettings.Hidden, 'Hidden should be true');
-		Assert.AreEqual(s.NoIgnore, FSettings.NoIgnore, 'NoIgnore should be true');
+		Assert.AreEqual(s.Encoding, FSettings.Encoding, 'Encoding should be equal');
+		Assert.AreEqual(s.Context, FSettings.Context, 'Context should be equal');
+		Assert.AreEqual(s.Pretty, FSettings.Pretty, 'Pretty should be equal');
+		Assert.AreEqual(s.Hidden, FSettings.Hidden, 'Hidden should be equal');
+		Assert.AreEqual(s.NoIgnore, FSettings.NoIgnore, 'NoIgnore should be equal');
+
+		Assert.AreEqual(s.ExtensionSettings.SearchSelectedShortcut, FSettings.ExtensionSettings.SearchSelectedShortcut,
+			'SearchSelectedSC should be equal')
+
 	finally
 		s.Free;
 	end;

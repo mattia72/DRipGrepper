@@ -51,7 +51,7 @@ type
 			[Test]
 			procedure AfterUpdateIniDefaultsShouldBeProperlySaved;
 			[Test]
-			procedure UpdateIniTest;
+			procedure UpdateIniFileTest();
 			[Test]
 			procedure NodeLookSettingsTest;
 			[Test]
@@ -383,16 +383,27 @@ begin
 	Assert.AreEqual(settingVal.Trim(['[', ']']), iniVal.Trim(['[', ']']), extSetting.KEY_SHORTCUT_OPENWITH + ' should be equal');
 end;
 
-procedure TRipGrepperSettingsTest.UpdateIniTest;
+procedure TRipGrepperSettingsTest.UpdateIniFileTest();
 begin
 	SetTestDefaultAndActualValues;
-	FSettings.UpdateIniFile();
+	FSettings.UpdateIniFile(); // config form close is tested here?
 	FSettings.ReadIni;
-	Assert.AreEqual('none', FSettings.IniFile.ReadString(FSettings.SearchFormSettings.IniSectionName, 'Encoding', NOTEXISTS));
-	Assert.AreEqual(1, FSettings.IniFile.ReadInteger(FSettings.SearchFormSettings.IniSectionName, 'Context', -99999));
-	Assert.AreEqual(True, FSettings.IniFile.ReadBool(FSettings.SearchFormSettings.IniSectionName, 'Pretty', FALSE));
-	Assert.AreEqual(True, FSettings.IniFile.ReadBool(FSettings.SearchFormSettings.IniSectionName, 'Hidden', FALSE));
-	Assert.AreEqual(True, FSettings.IniFile.ReadBool(FSettings.SearchFormSettings.IniSectionName, 'NoIgnore', FALSE));
+	var
+	iniSection := FSettings.SearchFormSettings.IniSectionName;
+	Assert.AreEqual('none', FSettings.IniFile.ReadString(iniSection, 'Encoding', NOTEXISTS));
+	Assert.AreEqual(1, FSettings.IniFile.ReadInteger(iniSection, 'Context', -99999));
+	Assert.AreEqual(True, FSettings.IniFile.ReadBool(iniSection, 'Pretty', FALSE));
+	Assert.AreEqual(True, FSettings.IniFile.ReadBool(iniSection, 'Hidden', FALSE));
+	Assert.AreEqual(True, FSettings.IniFile.ReadBool(iniSection, 'NoIgnore', FALSE));
+
+	var
+	extSection := FSettings.SearchFormSettings.ExtensionSettings.IniSectionName;
+	var
+	scIniVal := FSettings.IniFile.ReadString(extSection, 'OpenWithShortCut', NOTEXISTS);
+	Assert.AreEqual(SC_OPEN_WITH, scIniVal);
+	scIniVal := FSettings.IniFile.ReadString(extSection, 'SearchSelectedShortcut', NOTEXISTS);
+	Assert.AreEqual(SC_SEARCH, scIniVal);
+
 end;
 
 function TRipGrepperSettingsTest.ReadBoolIniAsString(const _section, _key : string) : string;
@@ -415,7 +426,7 @@ end;
 
 procedure TRipGrepperSettingsTest.UpdateShortCutsIniTest;
 begin
-	SetTestDefaultAndActualValues;
+	SetTestDefaultAndActualValues; // after config form close is tested here
 	FSettings.SearchFormSettings.ExtensionSettings.UpdateIniFile(
 		{ } FSettings.SearchFormSettings.ExtensionSettings.INI_SECTION);
 
