@@ -28,6 +28,7 @@ Marked with checkmark if ready, else planned ...
 
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.
+- [x] **extension**: shortcuts changed in config form, didn't changed in ini
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: drip icon in menu has no transparent background
 - [ ] look on dpi change (drag to another monitor)
