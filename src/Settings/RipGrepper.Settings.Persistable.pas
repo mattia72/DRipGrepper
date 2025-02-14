@@ -104,8 +104,7 @@ type
 			function AddChildSettings(_settings : TPersistableSettings) : TPersistableSettings;
 			function RemoveChildSettings(_settings : TPersistableSettings) : Boolean;
 			procedure CopyDefaultsToValues; virtual;
-			procedure CopySettingsDictSection(const _other : TPersistableSettings; const
-				_copyAllSections : Boolean = False);
+			procedure CopySettingsDictSection(const _other : TPersistableSettings; const _copyAllSections : Boolean = False);
 			procedure CopyValuesToDefaults; virtual;
 			/// <summary>TPersistableSettings.ReadIni
 			/// Members.RedIni- should be called here
@@ -251,14 +250,13 @@ begin
 	LoadDefaultsFromDict();
 end;
 
-procedure TPersistableSettings.CopySettingsDictSection(const _other :
-	TPersistableSettings; const _copyAllSections : Boolean = False);
+procedure TPersistableSettings.CopySettingsDictSection(const _other : TPersistableSettings; const _copyAllSections : Boolean = False);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.CopySettingsDictSection');
 	dbgMsg.MsgFmt('Copy TO [%s]', [IniSectionName]);
 	for var key in _other.SettingsDict.Keys do begin
-		if _copyAllSections or key.StartsWith(IniSectionName) then begin
+		if (_copyAllSections or key.StartsWith(IniSectionName)) then begin
 			dbgMsg.MsgFmt('Copy FROM [%s] %s=%s', [_other.IniSectionName, key, _other.SettingsDict[key].Value]);
 			FSettingsDict.AddOrChange(key, _other.SettingsDict[key]);
 		end;
@@ -543,7 +541,6 @@ begin
 
 	for var s in FChildren do begin
 		dbgMsg.MsgFmt('Child update begin on section: [%s]', [s.GetIniSectionName()]);
-		// s.UpdateIniFile(_section);
 		s.UpdateIniFile(s.GetIniSectionName());
 	end;
 
@@ -562,7 +559,7 @@ begin
 		dbgMsg.Msg('Lock Entered to UpdateIniFile');
 		try
 			var
-			sectionName := IfThen((_section = ''), GetIniSectionName(), _section);
+			sectionName := IfThen((_section = ''), IniSectionName, _section);
 			dbgMsg.MsgFmt('IniFile %p update begin on [%s]', [Pointer(IniFile), sectionName]);
 
 			if (not sectionName.IsEmpty) and Assigned(FOwner) then begin
@@ -631,8 +628,7 @@ begin
 end;
 
 // 1 Should be locked by a guard
-procedure TPersistableSettings.WriteToIni(const _sIniSection, _sKey : string;
-	_setting : ISettingVariant);
+procedure TPersistableSettings.WriteToIni(const _sIniSection, _sKey : string; _setting : ISettingVariant);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.WriteToIni');

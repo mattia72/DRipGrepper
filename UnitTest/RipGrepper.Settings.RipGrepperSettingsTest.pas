@@ -284,7 +284,7 @@ begin
 	FSettings.NodeLookSettings.ShowRelativePath := True;
 	FSettings.NodeLookSettings.ExpandNodes := True;
 
-	FSettings.SearchFormSettings.ExtensionSettings.OpenWithShortCut := SC_OPEN_WITH;
+	FSettings.SearchFormSettings.ExtensionSettings.OpenWithShortcut := SC_OPEN_WITH;
 	FSettings.SearchFormSettings.ExtensionSettings.SearchSelectedShortcut := SC_SEARCH;
 	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext :=
 	{ } TRipGrepperExtensionContext.FromString('2', 'active project', 'active file');
@@ -379,7 +379,7 @@ begin
 	Assert.AreEqual(settingVal.Trim(['[', ']']), iniVal.Trim(['[', ']']), extSetting.KEY_SHORTCUT_SEARCH_SELECTED + ' should be equal');
 
 	iniVal := FSettings.IniFile.ReadString(extSetting.INI_SECTION, extSetting.KEY_SHORTCUT_OPENWITH, '');
-	settingVal := FSettings.SearchFormSettings.ExtensionSettings.OpenWithShortCut;
+	settingVal := FSettings.SearchFormSettings.ExtensionSettings.OpenWithShortcut;
 	Assert.AreEqual(settingVal.Trim(['[', ']']), iniVal.Trim(['[', ']']), extSetting.KEY_SHORTCUT_OPENWITH + ' should be equal');
 end;
 
@@ -399,7 +399,7 @@ begin
 	var
 	extSection := FSettings.SearchFormSettings.ExtensionSettings.IniSectionName;
 	var
-	scIniVal := FSettings.IniFile.ReadString(extSection, 'OpenWithShortCut', NOTEXISTS);
+	scIniVal := FSettings.IniFile.ReadString(extSection, 'OpenWithShortcut', NOTEXISTS);
 	Assert.AreEqual(SC_OPEN_WITH, scIniVal);
 	scIniVal := FSettings.IniFile.ReadString(extSection, 'SearchSelectedShortcut', NOTEXISTS);
 	Assert.AreEqual(SC_SEARCH, scIniVal);
@@ -437,7 +437,7 @@ begin
 		{ } FSettings.SearchFormSettings.ExtensionSettings.KEY_SHORTCUT_OPENWITH, 'not exists'));
 
 	FSettings.ReadIni;
-	Assert.AreEqual(SC_OPEN_WITH, FSettings.SearchFormSettings.ExtensionSettings.OpenWithShortCut, 'OpenWithShortCut should be ok');
+	Assert.AreEqual(SC_OPEN_WITH, FSettings.SearchFormSettings.ExtensionSettings.OpenWithShortcut, 'OpenWithShortcut should be ok');
 end;
 
 initialization

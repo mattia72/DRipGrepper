@@ -229,7 +229,7 @@ begin
 	FExtensionSettings.ReadIni;
 	FExtensionSettings.LoadFromDict;
 	{$IFNDEF STANDALONE}
-	hkedtOpenWidth.HotKey := TextToShortCut(FExtensionSettings.OpenWithShortCut);
+	hkedtOpenWidth.HotKey := TextToShortCut(FExtensionSettings.OpenWithShortcut);
 	hkedtSearchSelected.HotKey := TextToShortCut(FExtensionSettings.SearchSelectedShortcut);
 	{$ENDIF}
 end;
@@ -294,7 +294,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TExtensionSettingsForm.WriteSettings');
 
-	FExtensionSettings.OpenWithShortCut := ShortCutToText(hkedtOpenWidth.HotKey);
+	FExtensionSettings.OpenWithShortcut := ShortCutToText(hkedtOpenWidth.HotKey);
 	FExtensionSettings.SearchSelectedShortcut := ShortCutToText(hkedtSearchSelected.HotKey);
 
 	// FExtensionSettings.

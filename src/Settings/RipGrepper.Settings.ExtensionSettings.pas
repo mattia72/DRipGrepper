@@ -25,8 +25,8 @@ type
 		const
 			INI_SECTION = 'DelphiExtensionSettings';
 			KEY_IDE_CONTEXT = 'IDEContext';
-			KEY_SHORTCUT_SEARCH_SELECTED = 'SearchSelectedShortCut';
-			KEY_SHORTCUT_OPENWITH = 'OpenWithShortCut';
+			KEY_SHORTCUT_SEARCH_SELECTED = 'SearchSelectedShortcut';
+			KEY_SHORTCUT_OPENWITH = 'OpenWithShortcut';
 
 		private
 			FSearchSelectedShortcut : string;
@@ -46,7 +46,7 @@ type
 			procedure StoreAsDefaultsToDict; override;
 			function ToLogString : string; override;
 			property SearchSelectedShortcut : string read FSearchSelectedShortcut write FSearchSelectedShortcut;
-			property OpenWithShortCut : string read FOpenWithShortCut write FOpenWithShortCut;
+			property OpenWithShortcut : string read FOpenWithShortCut write FOpenWithShortCut;
 			property CurrentIDEContext : TRipGrepperExtensionContext read FCurrentSearchSettings write FCurrentSearchSettings;
 	end;
 
@@ -81,8 +81,8 @@ procedure TRipGrepperExtensionSettings.Init;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.Init');
-	SettingsDict.CreateSetting('SearchSelectedShortcut', varString, TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH);
-	SettingsDict.CreateSetting('OpenWithShortCut', varString, TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH);
+	SettingsDict.CreateSetting(KEY_SHORTCUT_SEARCH_SELECTED, varString, TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH);
+	SettingsDict.CreateSetting(KEY_SHORTCUT_OPENWITH, varString, TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH);
 	SettingsDict.CreateDefaultRelevantSetting(KEY_IDE_CONTEXT, varInteger, EXT_SEARCH_GIVEN_PATH);
 end;
 
@@ -131,9 +131,9 @@ begin
 		SearchSelectedShortcut := TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH;
 		FIsModified := True;
 	end;
-	OpenWithShortCut := SettingsDict.GetSetting(KEY_SHORTCUT_OPENWITH);
-	if OpenWithShortCut = '' then begin
-		OpenWithShortCut := TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH;
+	OpenWithShortcut := SettingsDict.GetSetting(KEY_SHORTCUT_OPENWITH);
+	if OpenWithShortcut = '' then begin
+		OpenWithShortcut := TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH;
 		FIsModified := True;
 	end;
 
@@ -177,7 +177,7 @@ begin
 	{$ENDIF}
 	{$ENDIF}
 	SettingsDict.StoreSetting(KEY_SHORTCUT_SEARCH_SELECTED, SearchSelectedShortcut);
-	SettingsDict.StoreSetting(KEY_SHORTCUT_OPENWITH, OpenWithShortCut);
+	SettingsDict.StoreSetting(KEY_SHORTCUT_OPENWITH, OpenWithShortcut);
 	SettingsDict.StoreSetting(KEY_IDE_CONTEXT, Integer(CurrentIDEContext.IDEContext));
 	inherited StoreToDict; // Write to mem ini, after UpdateIniFile will be saved
 end;
@@ -205,7 +205,7 @@ end;
 
 function TRipGrepperExtensionSettings.ToLogString : string;
 begin
-	Result := Format('OpenWithShortCut=%s, SearchSelectedShortCut=%s, IDEContext=%s', [OpenWithShortCut, SearchSelectedShortcut,
+	Result := Format('OpenWithShortcut=%s, SearchSelectedShortcut=%s, IDEContext=%s', [OpenWithShortcut, SearchSelectedShortcut,
 		CurrentIDEContext.ToLogString]);
 end;
 

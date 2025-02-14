@@ -98,7 +98,7 @@ begin
 		{ } CreateSubMenuItem(DRIP_MENUITEM_DRIPGREPPER_NAME,
 		{ } 'Open With...',
 		{ } 'openwith_icon',
-		{ } extSettings.OpenWithShortCut,
+		{ } extSettings.OpenWithShortcut,
 		{ } TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH,
 		{ } DoOpenWithMenuClick));
 
