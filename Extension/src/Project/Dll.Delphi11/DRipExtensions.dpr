@@ -93,7 +93,8 @@ uses
   DripExtension.UI.DockableForm in '..\..\DripExtension.UI.DockableForm.pas',
   DRipExtension.Menu in '..\..\DRipExtension.Menu.pas',
   RipGrepper.Helper.UI.DarkMode in '..\..\..\..\src\RipGrepper.Helper.UI.DarkMode.pas',
-  RipGrepper.Helper.MemIniFile in '..\..\..\..\src\Helper\RipGrepper.Helper.MemIniFile.pas';
+  RipGrepper.Helper.MemIniFile in '..\..\..\..\src\Helper\RipGrepper.Helper.MemIniFile.pas',
+  RipGrepper.Common.SearchTextWithOptions in '..\..\..\..\src\Common\RipGrepper.Common.SearchTextWithOptions.pas';
 
 {$R *.res}
 

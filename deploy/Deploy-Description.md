@@ -16,18 +16,23 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 -->
 
 ## :boom: Improvements 
-Marked with checkmark if ready, else planned ...
+Marked with a checkmark if ready; otherwise, it is planned.
 - [ ] copy to clipboard for running in PowerShell or command prompt
-  - [ ] ps needs & prefix and nrg path and search text surrounded by ''
-  - [ ] bat needs rg path and search text surrounded by ""
-- [ ] **extension**: save all before search message?
-- [ ] **extension**: search opened project files only
-- [ ] save/load search histories in file
+  - [ ] PS needs & prefix and rg path and search text surrounded by ''
+  - [ ] BAT needs rg path and search text surrounded by ""
+- [ ] **extension**: display save all files message before search?
+- [ ] **extension**: dearch only in opened project files
+- [ ] save/load search histories to/from a file
 - [ ] JSON config files
-- [ ] skin chooser? https://stackoverflow.com/questions/9906312/delphi-vcl-styles-tutorial-how-to-change-the-style-at-runtime
+- [ ] Add a skin chooser feature? https://stackoverflow.com/questions/9906312/delphi-vcl-styles-tutorial-how-to-change-the-style-at-runtime
 
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.
+- [ ] replace: 
+    - [ ] more match in same line replaces all occurrence, even if user selects only one
+        - [x] replace by rg is ok: there will be changed every occurrence in every lines 
+    - [ ] replace by toolbar always ignores case
+    - [ ] the left arrow key in the replace edit control doesn't work
 - [x] **extension**: shortcuts changed in config form, didn't changed in ini
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: drip icon in menu has no transparent background
@@ -35,8 +40,3 @@ Marked with checkmark if fixed, else it is a known bug.
     - [x] search form switch between search and replace shrinks height
     - [ ] search form Use Regex button disappear if drag to another monitor
     - [ ] ugly config form 
-- [ ] replace: 
-    - [ ] more match in same line replaces all occurence, even if user selects only one
-        - [x] replace by rg is ok: there will be changed every occurence in every lines 
-    - [ ] replace by toolbar is always ignore case
-    - [ ] left arrow in replace edit ctrl doesn't work
