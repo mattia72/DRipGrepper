@@ -28,6 +28,7 @@ Marked with a checkmark if ready; otherwise, it is planned.
 
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.
+- [ ] del key deletes hist item, even if it pushed in edit boxes
 - [ ] replace: 
     - [ ] more match in same line replaces all occurrence, even if user selects only one
         - [x] replace by rg is ok: there will be changed every occurrence in every lines 
