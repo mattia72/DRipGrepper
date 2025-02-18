@@ -528,7 +528,8 @@ end;
 
 procedure TRipGrepperMiddleFrame.DoSearch;
 begin
-	var bAbort := not Settings.RipGrepParameters.IsRgPathInitOk;
+	var
+	bAbort := not Settings.RipGrepParameters.IsRgPathInitOk;
 	ParentFrame.BeforeSearch(bAbort);
 	if not bAbort then begin
 		RunRipGrep();
@@ -1317,8 +1318,8 @@ begin
 
 					ss1 := s.Substring(matchBegin, Data.MatchData.MatchLength);
 					if IsGuiReplaceMode and (not Settings.LastSearchText.IsEmpty) then begin
-						ss1_repl := TReplaceHelper.ReplaceString(ss1, Settings.LastSearchText, Settings.RipGrepParameters.ReplaceText,
-							TopFrame.GetReplaceMode());
+						ss1_repl := TReplaceHelper.ReplaceString(ss1, Settings.LastSearchText,
+						{ } Settings.RipGrepParameters.ReplaceText, 1, TopFrame.GetReplaceMode());
 					end;
 					ss2 := s.Substring(matchBegin + Data.MatchData.MatchLength);
 

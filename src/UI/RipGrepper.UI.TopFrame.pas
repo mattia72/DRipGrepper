@@ -634,6 +634,7 @@ var
 	replaceLine : string;
 	fileName : string;
 	lineNum : integer;
+	rowNum : integer;
 	rm : TReplaceModes;
 begin
 	node := MainFrame.VstResult.GetFirstChecked();
@@ -648,20 +649,21 @@ begin
 				continue;
 			end;
 			lineNum := data.MatchData.Row;
+			rowNum := data.MatchData.Col;
 			if IsRgReplaceMode then begin
 				replaceLine := data.MatchData.LineText; // ok every replacement is done by rg.exe
 			end else if IsGuiReplaceMode then begin
 				var
 				lineText := data.MatchData.LineText;
-				if replaceList.TryGet(fileName, lineNum, lineText) then begin
-					replaceList.Remove(fileName, lineNum, lineText);
+				if replaceList.TryGet(fileName, lineNum, rowNum, lineText) then begin
+					replaceList.Remove(fileName, lineNum, rowNum, lineText);
 				end;
 				// we should replace only from data.MatchData.Col?
 
 				replaceLine := TReplaceHelper.ReplaceString(lineText, Settings.LastSearchText,
-					{ } Settings.RipGrepParameters.ReplaceText, rm);
+					{ } Settings.RipGrepParameters.ReplaceText, rowNum, rm);
 			end;
-			replaceList.AddUnique(fileName, lineNum, replaceLine);
+			replaceList.AddUnique(fileName, lineNum, rowNum, replaceLine);
 		end;
 		node := MainFrame.VstResult.GetNextChecked(Node);
 	end;
@@ -742,7 +744,7 @@ begin
 		arr := IOTAUTils.GetModifiedEditBuffers();
 		for var filePath in arr do begin
 			if replaceList.Items.ContainsKey(filePath) then begin
-				TMsgBox.ShowWarning('There are not saved files in the editor');
+				TMsgBox.ShowWarning('There are not saved files in the editor.');
 				Exit;
 			end;
 		end;

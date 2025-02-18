@@ -44,7 +44,6 @@ type
 			FIsModified : Boolean;
 			FIsDefaultRelevant : Boolean;
 			FSaveToIni : Boolean; // New field
-			function CompareTo(Value : ISettingVariant) : Integer;
 			function GetValue : Variant;
 			function GetIsModified : Boolean;
 			function GetIsDefaultRelevant : Boolean;
@@ -60,6 +59,7 @@ type
 				const _saveToIni : Boolean = True); overload;
 			constructor Create(const _value : Variant); overload;
 			destructor Destroy; override;
+			function CompareTo(Value : ISettingVariant): Integer;
 			function Equals(_other : ISettingVariant) : Boolean; reintroduce;
 			function IsEmpty : Boolean;
 			procedure WriteToMemIni(_ini : TMemIniFile; const _sIniSection, _sKey : string);
@@ -99,7 +99,7 @@ begin
 	inherited;
 end;
 
-function TSettingVariant.CompareTo(Value : ISettingVariant) : Integer;
+function TSettingVariant.CompareTo(Value : ISettingVariant): Integer;
 var
 	res : TVariantRelationship;
 begin
