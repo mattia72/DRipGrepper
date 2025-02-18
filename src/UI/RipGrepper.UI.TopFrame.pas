@@ -610,9 +610,8 @@ begin
 			SetGuiReplaceModes(True);
 		end;
 		SetReplaceTextInSettings(edtReplace.Text);
-		SetReplaceModeOnGui()
+		SetReplaceModeOnGui();
 	end;
-	Key := 0;
 end;
 
 procedure TRipGrepperTopFrame.edtReplaceRightButtonClick(Sender : TObject);

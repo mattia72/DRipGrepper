@@ -158,7 +158,7 @@ end;
 
 procedure TMiddleLeftFrame.ActionHistoryDeleteAllUpdate(Sender : TObject);
 begin
-	ActionHistoryDeleteAll.Enabled := VstHistory.RootNodeCount <> 0;
+	ActionHistoryDeleteAll.Enabled := VstHistory.Focused and (VstHistory.RootNodeCount <> 0);
 end;
 
 procedure TMiddleLeftFrame.ActionHistoryDeleteExecute(Sender : TObject);
@@ -167,7 +167,15 @@ var
 	Node : PVirtualNode;
 	Data : PVSHistoryNodeData;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.ActionHistoryDeleteExecute');
+
 	if not VstHistory.Focused then begin
+		var
+		origFocus := Screen.ActiveControl;
+		var
+		origFocusedName := IfThen(Assigned(origFocus), origFocus.Name);
+		dbgMsg.MsgFmt('Del key pressed somewhere on %s', [origFocusedName]);
 		Exit;
 	end;
 
@@ -175,8 +183,7 @@ begin
 
 	Node := GetNodeByIndex(VstHistory, CurrentHistoryItemIndex);
 	Data := VstHistory.GetNodeData(Node);
-	TDebugUtils.DebugMessageFormat('TMiddleLeftFrame.ActionHistoryDeleteExecute: idx:%d Node:%s, ho:%s',
-		[CurrentHistoryItemIndex, Data.SearchText, ho.GuiSearchTextParams.GetSearchText]);
+	dbgMsg.MsgFmt('idx:%d Node:%s, ho:%s', [CurrentHistoryItemIndex, Data.SearchText, ho.GuiSearchTextParams.GetSearchText]);
 
 	// Assert((Data.SearchText = ho.GuiSearchTextParams.GetSearchText) or
 	// (WB + Data.SearchText + WB = ho.GuiSearchTextParams.WordBoundedSearchText) or
@@ -192,7 +199,7 @@ end;
 
 procedure TMiddleLeftFrame.ActionHistoryDeleteUpdate(Sender : TObject);
 begin
-	ActionHistoryDelete.Enabled := CurrentHistoryItemIndex <> -1;
+	ActionHistoryDelete.Enabled := VstHistory.Focused and (CurrentHistoryItemIndex <> -1);
 end;
 
 procedure TMiddleLeftFrame.ActionOpenSearchFormExecute(Sender : TObject);
