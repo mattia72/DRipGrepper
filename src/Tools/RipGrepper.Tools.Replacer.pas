@@ -6,10 +6,11 @@ uses
 	System.Classes,
 	System.IniFiles,
 	RipGrepper.Tools.FileUtils,
-	RegExprReplaceUnit,
+	// RegExprReplaceUnit,
 	System.SysUtils,
 	ArrayEx,
-	System.Generics.Collections;
+	System.Generics.Collections,
+	System.Generics.Defaults;
 
 type
 
@@ -18,21 +19,25 @@ type
 
 	TReplaceData = record
 		Row : integer;
+		Col : integer;
 		Line : string;
-		class function New(const _row : Integer; const _line : string) : TReplaceData; static;
+		class function New(const _row : Integer; const _col : Integer; const _line : string) : TReplaceData; static;
 	end;
 
 	TReplaceList = class
 		Items : TDictionary<string, TArrayEx<TReplaceData>>;
 
+		private
+			FComparer : IComparer<TReplaceData>;
+
 		public
 			constructor Create;
 			destructor Destroy; override;
-			procedure AddUnique(const fileName : string; const row : integer; const replaceLine : string);
-			function TryGet(const fileName : string; const row : integer; var replaceLine : string) : boolean;
-			function Contains(fileName : string; row : integer) : Boolean;
-			function Update(const fileName : string; const row : integer; const line : string) : Boolean;
-			function Remove(const fileName : string; const row : integer; const line : string) : Boolean;
+			procedure AddUnique(const fileName : string; const row : integer; const col : integer; const replaceLine : string);
+			function TryGet(const fileName : string; const row : integer; const col : integer; var replaceLine : string) : boolean;
+			function Contains(fileName : string; row, col : integer) : Boolean;
+			function Update(const fileName : string; const row, col : integer; const line : string) : Boolean;
+			function Remove(const fileName : string; const row, col : integer; const line : string) : Boolean;
 	end;
 
 	TReplaceHelper = class
@@ -40,10 +45,11 @@ type
 			class function ShowWarningBeforeSave(_list : TReplaceList) : Boolean;
 
 		public
-			class procedure ReplaceLineInFile(const _fileName : string; const _row : Integer; const _replaceLine : string;
-				const _createBackup : Boolean = True);
+			class procedure ReplaceLineInFile(const _fileName : string; const _row : Integer; const _col : Integer;
+				const _replaceLine : string; const _createBackup : Boolean = True);
 			class procedure ReplaceLineInFiles(_list : TReplaceList; const _createBackup : Boolean = True);
-			class function ReplaceString(const _input, _pattern, _replacement : string; const _mode : TReplaceModes) : string;
+			class function ReplaceString(const _input, _pattern, _replacement : string; const _fromCol : Integer;
+				const _mode : TReplaceModes) : string;
 	end;
 
 implementation
@@ -58,17 +64,17 @@ uses
 	{$ENDIF}
 	RipGrepper.Common.Interfaces,
 	RipGrepper.Common.EncodedStringList,
-	System.Generics.Defaults,
+
 	System.RegularExpressions;
 
-class procedure TReplaceHelper.ReplaceLineInFile(const _fileName : string; const _row : Integer; const _replaceLine : string;
-	const _createBackup : Boolean = True);
+class procedure TReplaceHelper.ReplaceLineInFile(const _fileName : string; const _row : Integer; const _col : Integer;
+	const _replaceLine : string; const _createBackup : Boolean = True);
 var
 	list : TReplaceList;
 begin
 	list := TReplaceList.Create;
 	try
-		list.AddUnique(_fileName, _row, _replaceLine);
+		list.AddUnique(_fileName, _row, _col, _replaceLine);
 		TReplaceHelper.ReplaceLineInFiles(list);
 	finally
 		list.Free;
@@ -118,24 +124,33 @@ begin
 		[replaceCount, _list.Items.Keys.Count]));
 end;
 
-class function TReplaceHelper.ReplaceString(const _input, _pattern, _replacement : string; const _mode : TReplaceModes) : string;
+class function TReplaceHelper.ReplaceString(const _input, _pattern, _replacement : string; const _fromCol : Integer;
+	const _mode : TReplaceModes) : string;
+var
+	postfixStr : string;
+	prefixStr : string;
+	op : TRegexOptions;
 begin
+	prefixStr := _input.Substring(0, _fromCol - 1);
+	postfixStr := _input.Substring(_fromCol - 1);
+
 	if rmUseRegex in _mode then begin
-		var
-			op : TRegexOptions := [];
-		if rmIgnoreCase in _mode then
+		op := [];
+		if rmIgnoreCase in _mode then begin
 			op := [roIgnoreCase];
-		Result := TRegEx.Replace(_input, _pattern, _replacement, op);
+		end;
+ 		Result := prefixStr + TRegEx.Replace(postfixStr, _pattern, _replacement, op);
 	end else if rmIgnoreCase in _mode then begin
-		Result := System.SysUtils.StringReplace(_input, _pattern, _replacement, [rfIgnoreCase]);
+		Result := prefixStr + System.SysUtils.StringReplace(postfixStr, _pattern, _replacement, [rfIgnoreCase]);
 	end else begin
-		Result := System.SysUtils.StringReplace(_input, _pattern, _replacement, []);
+		Result := prefixStr + System.SysUtils.StringReplace(postfixStr, _pattern, _replacement, []);
 	end;
 end;
 
-class function TReplaceData.New(const _row : Integer; const _line : string) : TReplaceData;
+class function TReplaceData.New(const _row : Integer; const _col : Integer; const _line : string) : TReplaceData;
 begin
 	Result.Row := _row;
+	Result.Col := _col;
 	Result.Line := _line;
 end;
 
@@ -145,6 +160,12 @@ constructor TReplaceList.Create;
 begin
 	inherited;
 	Items := TDictionary < string, TArrayEx < TReplaceData >>.Create;
+	FComparer := TComparer<TReplaceData>.Construct(
+		function(const Left, Right : TReplaceData) : Integer
+		begin
+			Result := Abs(TComparer<integer>.Default.Compare(Left.Row, Right.Row)) + Abs(TComparer<integer>.Default.Compare(Left.Col,
+				Right.Col));
+		end);
 end;
 
 destructor TReplaceList.Destroy;
@@ -153,37 +174,29 @@ begin
 	inherited;
 end;
 
-procedure TReplaceList.AddUnique(const fileName : string; const row : integer; const replaceLine : string);
+procedure TReplaceList.AddUnique(const fileName : string; const row : integer; const col : integer; const replaceLine : string);
 var
 	replaceList : TArrayEx<TReplaceData>;
 begin
 	if Items.TryGetValue(fileName, replaceList) then begin
-		if not replaceList.Contains(TReplaceData.New(row, replaceLine), TComparer<TReplaceData>.Construct(
-			function(const Left, Right : TReplaceData) : Integer
-			begin
-				Result := TComparer<integer>.Default.Compare(Left.Row, Right.Row);
-			end))
+		if not replaceList.Contains(TReplaceData.New(row, col, replaceLine), FComparer)
 		{ } then begin
-			replaceList.Add(TReplaceData.New(row, replaceLine));
+			replaceList.Add(TReplaceData.New(row, col, replaceLine));
 		end;
 	end else begin
-		replaceList := [TReplaceData.New(row, replaceLine)];
+		replaceList := [TReplaceData.New(row, col, replaceLine)];
 	end;
 	Items.AddOrSetValue(fileName, replaceList);
 end;
 
-function TReplaceList.TryGet(const fileName : string; const row : integer; var replaceLine : string) : boolean;
+function TReplaceList.TryGet(const fileName : string; const row : integer; const col : integer; var replaceLine : string) : boolean;
 var
 	replaceList : TArrayEx<TReplaceData>;
 begin
 	Result := False;
 	if Items.TryGetValue(fileName, replaceList) then begin
 		var
-		idx := replaceList.IndexOf(TReplaceData.New(row, ''), TComparer<TReplaceData>.Construct(
-			function(const Left, Right : TReplaceData) : Integer
-			begin
-				Result := TComparer<integer>.Default.Compare(Left.Row, Right.Row);
-			end));
+		idx := replaceList.IndexOf(TReplaceData.New(row, col, ''), FComparer);
 		if idx >= 0 then begin
 			replaceLine := replaceList[idx].Line;
 			Result := True;
@@ -191,22 +204,18 @@ begin
 	end;
 end;
 
-function TReplaceList.Contains(fileName : string; row : integer) : Boolean;
+function TReplaceList.Contains(fileName : string; row, col : integer) : Boolean;
 var
 	replaceList : TArrayEx<TReplaceData>;
 begin
 	Result := False;
 	if Items.TryGetValue(fileName, replaceList) then begin
-		Result := replaceList.Contains(TReplaceData.New(row, ''), TComparer<TReplaceData>.Construct(
-			function(const Left, Right : TReplaceData) : Integer
-			begin
-				Result := TComparer<integer>.Default.Compare(Left.Row, Right.Row);
-			end));
+		Result := replaceList.Contains(TReplaceData.New(row, col, ''), FComparer);
 	end;
 
 end;
 
-function TReplaceList.Update(const fileName : string; const row : integer; const line : string) : Boolean;
+function TReplaceList.Update(const fileName : string; const row, col : integer; const line : string) : Boolean;
 var
 	replaceList : TArrayEx<TReplaceData>;
 	rd : TReplaceData;
@@ -214,11 +223,7 @@ begin
 	Result := False;
 	if Items.TryGetValue(fileName, replaceList) then begin
 		var
-		idx := replaceList.IndexOf(TReplaceData.New(row, ''), TComparer<TReplaceData>.Construct(
-			function(const Left, Right : TReplaceData) : Integer
-			begin
-				Result := TComparer<integer>.Default.Compare(Left.Row, Right.Row);
-			end));
+		idx := replaceList.IndexOf(TReplaceData.New(row, col, ''), FComparer);
 		if idx >= 0 then begin
 			rd.Row := row;
 			rd.Line := line;
@@ -230,18 +235,14 @@ begin
 	end;
 end;
 
-function TReplaceList.Remove(const fileName : string; const row : integer; const line : string) : Boolean;
+function TReplaceList.Remove(const fileName : string; const row, col : integer; const line : string) : Boolean;
 var
 	replaceList : TArrayEx<TReplaceData>;
 begin
 	Result := False;
 	if Items.TryGetValue(fileName, replaceList) then begin
 		var
-		idx := replaceList.IndexOf(TReplaceData.New(row, ''), TComparer<TReplaceData>.Construct(
-			function(const Left, Right : TReplaceData) : Integer
-			begin
-				Result := TComparer<integer>.Default.Compare(Left.Row, Right.Row);
-			end));
+		idx := replaceList.IndexOf(TReplaceData.New(row, col, ''), FComparer);
 		if idx >= 0 then begin
 			replaceList.Delete(idx);
 			Result := True;

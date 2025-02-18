@@ -145,6 +145,7 @@
         <DCCReference Include="RipGrepper.Settings.SettingVariantTest.pas"/>
         <DCCReference Include="..\src\Settings\RipGrepper.Settings.SettingVariant.pas"/>
         <DCCReference Include="RipGrepper.Settings.SettingsDictionaryTest.pas"/>
+        <DCCReference Include="RipGrepper.Tools.Replacer.Test.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

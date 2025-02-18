@@ -175,7 +175,7 @@ type
 			[Testcase('2_test2', RG_PARAM_REGEX_CONTEXT + '=value')]
 			[Testcase('2_test3', RG_PARAM_REGEX_ENCODING + '=value')]
 			[Testcase('2_test4', RG_PARAM_REGEX_REPLACE + '=value')]
-			[Testcase('2_test4', RG_PARAM_REGEX_REPLACE + '=more world value')]
+			[Testcase('2_test4', RG_PARAM_REGEX_REPLACE + '=more word value')]
 			procedure TestGetOptionVariantsAndValue(const _sParamRegex : string);
 
 			[Test]
