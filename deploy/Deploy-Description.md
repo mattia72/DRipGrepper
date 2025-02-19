@@ -1,7 +1,7 @@
 <!--
 
-Version:     v4.3.0-beta
-PrevVersion: v4.2.0-beta
+Version:     v4.4.0-beta
+PrevVersion: v4.3.0-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -17,6 +17,7 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 
 ## :boom: Improvements 
 Marked with a checkmark if ready; otherwise, it is planned.
+- [ ] open with... labels for commands
 - [ ] copy to clipboard for running in PowerShell or command prompt
   - [ ] PS needs & prefix and rg path and search text surrounded by ''
   - [ ] BAT needs rg path and search text surrounded by ""
@@ -28,9 +29,10 @@ Marked with a checkmark if ready; otherwise, it is planned.
 
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.
+- [x] del key in filter edit
 - [x] del key deletes hist item, even if it pushed in edit boxes
-- [ ] replace: 
-    - [ ] more match in same line replaces all occurrence, even if user selects only one
+- [x] replace: 
+    - [x] more match in same line replaces all occurrence, even if user selects only one
         - [x] replace by rg is ok: there will be changed every occurrence in every lines 
     - [x] replace by toolbar always ignores case
     - [x] the left arrow key in the replace edit control doesn't work

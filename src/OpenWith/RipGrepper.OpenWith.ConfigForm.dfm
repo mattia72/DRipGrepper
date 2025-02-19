@@ -2,8 +2,8 @@ object OpenWithConfigForm: TOpenWithConfigForm
   Left = 756
   Top = 291
   Caption = 'Configure Open With... '
-  ClientHeight = 329
-  ClientWidth = 523
+  ClientHeight = 314
+  ClientWidth = 554
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -150,8 +150,8 @@ object OpenWithConfigForm: TOpenWithConfigForm
   TextHeight = 15
   object pnlBottom: TPanel
     Left = 0
-    Top = 279
-    Width = 523
+    Top = 264
+    Width = 554
     Height = 50
     Margins.Left = 8
     Margins.Top = 8
@@ -162,11 +162,11 @@ object OpenWithConfigForm: TOpenWithConfigForm
     ParentBackground = False
     TabOrder = 0
     DesignSize = (
-      523
+      554
       50)
     object btn_Save: TButton
       AlignWithMargins = True
-      Left = 335
+      Left = 366
       Top = 16
       Width = 75
       Height = 25
@@ -180,7 +180,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
     end
     object btn_Cancel: TButton
       AlignWithMargins = True
-      Left = 426
+      Left = 457
       Top = 16
       Width = 75
       Height = 25
@@ -196,8 +196,8 @@ object OpenWithConfigForm: TOpenWithConfigForm
   object pnlMain: TPanel
     Left = 0
     Top = 0
-    Width = 523
-    Height = 279
+    Width = 554
+    Height = 264
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -206,13 +206,13 @@ object OpenWithConfigForm: TOpenWithConfigForm
     BevelOuter = bvNone
     TabOrder = 1
     DesignSize = (
-      523
-      279)
+      554
+      264)
     object Label1: TLabel
       AlignWithMargins = True
       Left = 10
-      Top = 228
-      Width = 278
+      Top = 213
+      Width = 309
       Height = 20
       Margins.Left = 50
       Margins.Top = 15
@@ -223,8 +223,8 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Caption = 'Command:'
     end
     object btnModify: TButton
-      Left = 476
-      Top = 246
+      Left = 507
+      Top = 231
       Width = 25
       Height = 25
       Margins.Left = 8
@@ -240,8 +240,8 @@ object OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 0
     end
     object btnOpenFile: TButton
-      Left = 449
-      Top = 246
+      Left = 480
+      Top = 231
       Width = 25
       Height = 25
       Margins.Top = 8
@@ -258,8 +258,8 @@ object OpenWithConfigForm: TOpenWithConfigForm
     end
     object edt_OpenWithCmd: TEdit
       Left = 10
-      Top = 248
-      Width = 432
+      Top = 233
+      Width = 463
       Height = 23
       Margins.Left = 50
       Margins.Top = 8
@@ -273,8 +273,8 @@ object OpenWithConfigForm: TOpenWithConfigForm
       AlignWithMargins = True
       Left = 10
       Top = 30
-      Width = 497
-      Height = 186
+      Width = 287
+      Height = 171
       Hint = 
         '|Examples:'#13#10'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"'#13#10 +
         'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"'#13#10'no' +
@@ -286,16 +286,20 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Anchors = [akLeft, akTop, akRight, akBottom]
       AutoComplete = False
       Color = clHighlightText
-      ItemHeight = 17
+      Columns = 2
+      ItemHeight = 15
       Items.Strings = (
-        'notepad.exe "<FILE>"'
-        'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"'
-        'notepad++.exe "<FILE>" -n<LINE> -c<COL>'
-        'explorer.exe /select,"<FILE>"'
-        'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"')
+        'Notepad'#9'notepad.exe "<FILE>"'
+        
+          'VsCode'#9'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<CO' +
+          'L>"'
+        'Notepad++'#9'notepad++.exe "<FILE>" -n<LINE> -c<COL>'
+        'Explorer'#9'explorer.exe /select,"<FILE>"'
+        'NVim'#9'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"')
       ParentShowHint = False
       ShowHint = True
       TabOrder = 3
+      TabWidth = 100
       OnClick = lbCommandsClick
       OnDblClick = lbCommandsDblClick
     end
@@ -303,7 +307,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
       AlignWithMargins = True
       Left = 8
       Top = 3
-      Width = 507
+      Width = 538
       Height = 22
       Margins.Left = 8
       Margins.Right = 8
@@ -336,6 +340,18 @@ object OpenWithConfigForm: TOpenWithConfigForm
         Top = 0
         Action = ActionTest
       end
+    end
+    object lvCommands: TListView
+      AlignWithMargins = True
+      Left = 277
+      Top = 31
+      Width = 265
+      Height = 170
+      Anchors = [akLeft, akTop, akRight, akBottom]
+      Checkboxes = True
+      Columns = <>
+      TabOrder = 5
+      ViewStyle = vsReport
     end
   end
   object ActionListConfig: TActionList

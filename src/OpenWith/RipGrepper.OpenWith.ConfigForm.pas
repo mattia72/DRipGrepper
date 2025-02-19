@@ -26,6 +26,7 @@ uses
 	RipGrepper.Helper.UI.DarkMode;
 
 type
+	TCheckBoxState = (csbNone, csbTrue, csbFalse);
 
 	TOpenWithConfigForm = class(TSettingsBaseForm)
 
@@ -55,6 +56,7 @@ type
 			tbDown : TToolButton;
 			tbTestRun : TToolButton;
 			SVGIconImageList1 : TSVGIconImageList;
+			lvCommands : TListView;
 			procedure FormCreate(Sender : TObject);
 			procedure ActionAddExecute(Sender : TObject);
 			procedure ActionAddUpdate(Sender : TObject);
@@ -80,6 +82,7 @@ type
 			FDpiScaler : TRipGrepperDpiScaler;
 			FOpenWithSettings : TOpenWithSettings;
 			FThemeHandler : TThemeHandler;
+			procedure AddCommandItem(const _caption, _cmd : string; const _checked : TCheckBoxState = csbNone);
 			function CheckCommand(const _sCmd : string) : Boolean;
 			procedure ClearOpenWithCmd;
 			function GetThemeHandler : TThemeHandler;
@@ -122,6 +125,10 @@ begin
 	FColorTheme := _colorTheme;
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 	lbCommands.MultiSelect := True; // we need this for working SelCount
+	lvCommands.MultiSelect := True;
+
+	lvCommands.Columns.Add.Caption := 'Label';
+	lvCommands.Columns.Add.Caption := 'Command Line';
 
 	FOpenWithSettings.ReadIni; // we should read ini every time, it can be overwritten by another instance...
 	ReadSettings;
@@ -149,6 +156,7 @@ procedure TOpenWithConfigForm.ActionAddExecute(Sender : TObject);
 begin
 	inherited;
 	lbCommands.Items.Add(edt_OpenWithCmd.Text);
+	AddCommandItem('', edt_OpenWithCmd.Text);
 	ClearOpenWithCmd;
 end;
 
@@ -167,6 +175,11 @@ procedure TOpenWithConfigForm.ActionModifyExecute(Sender : TObject);
 begin
 	inherited;
 	lbCommands.Items[lbCommands.ItemIndex] := edt_OpenWithCmd.Text;
+	var
+	item := lvCommands.Items[lvCommands.ItemIndex];
+	item.Caption := '';
+	item.SubItems.Add(edt_OpenWithCmd.Text);
+
 	ClearOpenWithCmd;
 end;
 
@@ -244,6 +257,17 @@ begin
 	OpenDialog1.Filter := 'Executable files (*.exe)|*.exe';
 	if OpenDialog1.Execute(self.Handle) then begin
 		edt_OpenWithCmd.Text := OpenDialog1.FileName;
+	end;
+end;
+
+procedure TOpenWithConfigForm.AddCommandItem(const _caption, _cmd : string; const _checked : TCheckBoxState = csbNone);
+begin
+	var
+	item := lvCommands.Items.Add;
+	item.Caption := _caption;
+	item.SubItems.Add(_cmd);
+	if not(_checked = csbNone) then begin
+		item.Checked := _checked = csbTrue;
 	end;
 end;
 
@@ -342,10 +366,18 @@ begin
 			dbgMsg.MsgFmt('%s ', [sCmd]);
 			arr := sCmd.Split([SEPARATOR]); // TAB
 			if Length(arr) > 0 then begin
-				lbCommands.Items.Add(arr[1]);
+				lbCommands.Items.Add('label' + SEPARATOR + arr[1]);
+
 				var
 				bEnable := (arr[0].ToUpper() = 'TRUE');
 				lbCommands.Checked[lbCommands.Count - 1] := bEnable;
+
+				var
+					csb : TCheckBoxState := csbTrue;
+				if not bEnable then
+					csb := csbFalse;
+
+				AddCommandItem('label', arr[1], csb);
 
 				dbgMsg.MsgFmt('%s "%s" "%s"', [BoolToStr(bEnable, True), arr[0], arr[1]]);
 			end;
