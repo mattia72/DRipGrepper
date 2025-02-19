@@ -139,9 +139,9 @@ type
 			FHistItemObj : IHistoryItemObject;
 			FPrevFoundNode : PVirtualNode;
 			FSettings : TRipGrepperSettings;
-			FSkipReplaceChange : Boolean;
+			FSkipButtonEditChange: Boolean;
 			FViewStyleIndex : integer;
-			procedure ChangeEditReplaceTextButSkipChangeEvent(const _txt : string);
+			procedure ChangeButtonedEditTextButSkipChangeEvent(_edt: TButtonedEdit; const _txt: string);
 			procedure GetCheckedReplaceList(var replaceList : TReplaceList);
 			function GetIsGuiReplaceMode : Boolean;
 			function GetSettings : TRipGrepperSettings;
@@ -157,7 +157,7 @@ type
 			procedure StartNewSearch;
 			procedure ToggleFilterMode(const _fm : EFilterMode);
 			procedure ToggleGuiReplaceMode(const _grm : EGuiReplaceMode);
-			procedure UpdateFilterMenuAndHint;
+			procedure UpdateFilterEditMenuAndHint;
 			procedure UpdateReplaceMenu;
 			procedure WMSettingChange(var Message : TWMSettingChange); message WM_SETTINGCHANGE;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
@@ -181,7 +181,6 @@ type
 			procedure SetGuiReplaceMode(const _modes : TGuiReplaceModes; const _sReplaceText : string = '');
 			procedure UpdateUIStyle(_sNewStyle : string = '');
 			property IsGuiReplaceMode : Boolean read GetIsGuiReplaceMode;
-			property HistItemObj : IHistoryItemObject read FHistItemObj;
 
 	end;
 
@@ -415,7 +414,7 @@ procedure TRipGrepperTopFrame.ActionSetFileFilterModeExecute(Sender : TObject);
 begin
 	SetFilterMode(EFilterMode.fmFilterText, True);
 	SetFilterMode(EFilterMode.fmFilterFile);
-	UpdateFilterMenuAndHint;
+	UpdateFilterEditMenuAndHint;
 	Settings.StoreViewSettings(TFilterSettings.SETTING_FILTERMODE);
 end;
 
@@ -437,7 +436,7 @@ procedure TRipGrepperTopFrame.ActionSetTextFilterModeExecute(Sender : TObject);
 begin
 	SetFilterMode(EFilterMode.fmFilterFile, True);
 	SetFilterMode(EFilterMode.fmFilterText);
-	UpdateFilterMenuAndHint;
+	UpdateFilterEditMenuAndHint;
 	Settings.StoreViewSettings(TFilterSettings.SETTING_FILTERMODE);
 end;
 
@@ -492,7 +491,7 @@ end;
 
 procedure TRipGrepperTopFrame.AfterHistObjChange;
 begin
-	// TODO -cMM: TRipGrepperTopFrame.AfterHistObjChange default body inserted
+	UpdateFilterEditMenuAndHint;
 end;
 
 procedure TRipGrepperTopFrame.AfterSearch;
@@ -528,13 +527,13 @@ begin
 	ActionShowSearchForm.Enabled := False;
 end;
 
-procedure TRipGrepperTopFrame.ChangeEditReplaceTextButSkipChangeEvent(const _txt : string);
+procedure TRipGrepperTopFrame.ChangeButtonedEditTextButSkipChangeEvent(_edt: TButtonedEdit; const _txt: string);
 begin
-	FSkipReplaceChange := True;
+	FSkipButtonEditChange := True;
 	try
-		edtReplace.Text := _txt;
+		_edt.Text := _txt;
 	finally
-		FSkipReplaceChange := False;
+		FSkipButtonEditChange := False;
 	end;
 end;
 
@@ -563,6 +562,10 @@ end;
 
 procedure TRipGrepperTopFrame.edtFilterChange(Sender : TObject);
 begin
+	if FSkipButtonEditChange then begin
+		Exit;
+	end;
+
 	if IsFilterOn then begin
 		MainFrame.FilterNodes(edtFilter.Text, FFilterMode);
 	end;
@@ -575,7 +578,6 @@ begin
 		SetFilterBtnImage(True);
 		MainFrame.FilterNodes(edtFilter.Text, FFilterMode);
 	end;
-	Key := 0;
 end;
 
 procedure TRipGrepperTopFrame.edtFilterRightButtonClick(Sender : TObject);
@@ -591,9 +593,10 @@ end;
 
 procedure TRipGrepperTopFrame.edtReplaceChange(Sender : TObject);
 begin
-	if FSkipReplaceChange then begin
+	if FSkipButtonEditChange then begin
 		Exit;
 	end;
+
 	if IsGuiReplaceMode then begin
 		SetReplaceTextInSettings(edtReplace.Text);
 	end else begin
@@ -714,7 +717,7 @@ end;
 procedure TRipGrepperTopFrame.Init;
 begin
 	FFilterMode := Settings.NodeLookSettings.FilterSettings.FilterModes;
-	UpdateFilterMenuAndHint();
+	UpdateFilterEditMenuAndHint();
 	ActionExpandCollapseUpdate();
 	ActionShowRelativePathUpdate();
 	ActionAlternateRowColorsUpdate();
@@ -859,7 +862,7 @@ begin
 		{ } (EGuiReplaceMode.grmActive in FGuiReplaceModes), IMG_IDX_REPLACE_ON, IMG_IDX_REPLACE_OFF);
 
 	if (not edtReplace.Enabled) and (edtReplace.Text = '') then begin
-		ChangeEditReplaceTextButSkipChangeEvent(edtReplace.TextHint);
+		ChangeButtonedEditTextButSkipChangeEvent(edtReplace, edtReplace.TextHint);
 	end;
 
 end;
@@ -911,8 +914,15 @@ begin
 	// Settings.NodeLookSettings. := FFilterMode;
 end;
 
-procedure TRipGrepperTopFrame.UpdateFilterMenuAndHint;
+procedure TRipGrepperTopFrame.UpdateFilterEditMenuAndHint;
 begin
+	edtFilter.Enabled := Assigned(MainFrame.HistItemObject) and MainFrame.HistItemObject.HasResult;
+	if (not edtFilter.Enabled) and (edtFilter.Text = '') then begin
+		ChangeButtonedEditTextButSkipChangeEvent(edtFilter, edtFilter.TextHint);
+	end else if edtFilter.Enabled and (edtFilter.Text = edtFilter.TextHint) then begin
+		ChangeButtonedEditTextButSkipChangeEvent(edtFilter,'');
+	end;
+
 	ActionSetFileFilterMode.Checked := EFilterMode.fmFilterFile in FFilterMode;
 	ActionSetTextFilterMode.Checked := EFilterMode.fmFilterText in FFilterMode;
 	ActionSetFilterModeCaseSensitive.Checked := EFilterMode.fmCaseSensitive in FFilterMode;

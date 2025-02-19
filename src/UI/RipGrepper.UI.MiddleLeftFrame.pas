@@ -207,7 +207,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.ActionOpenSearchFormExecute');
 	var
-	formResult := TRipGrepperSearchDialogForm.ShowSearchForm(self, Settings, MainFrame.HistItemObj);
+	formResult := TRipGrepperSearchDialogForm.ShowSearchForm(self, Settings, MainFrame.HistItemObject);
 	if mrOK = formResult then begin
 		dbgMsg.Msg('after ShowSearchForm cmdline: ' + Settings.RipGrepParameters.GetCommandLine);
 		MainFrame.PrepareAndDoSearch();
@@ -232,7 +232,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.AddOrUpdateHistoryItem');
 	dbgMsg.Msg('CurrentHistoryItemIndex ' + CurrentHistoryItemIndex.ToString);
-	if not MainFrame.HistItemObj.HasResult then begin
+	if not MainFrame.HistItemObject.HasResult then begin
 		AddVstHistItem;
 	end else begin
 		ChangeHistoryNodeText;
@@ -240,7 +240,7 @@ begin
 
 	UpdateReplaceColumnVisible;
 
-	if MainFrame.HistItemObj.HasResult then begin
+	if MainFrame.HistItemObject.HasResult then begin
 		MainFrame.UpdateHistObjectAndCopyToSettings;
 	end;
 	MainFrame.UpdateRipGrepArgumentsInHistObj;

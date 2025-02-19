@@ -224,7 +224,6 @@ type
 			property Data : TRipGrepperData read GetData write FData;
 			property ExeVersion : string read FExeVersion write FExeVersion;
 			property FileNameType : TFileNameType read FFileNameType write FFileNameType;
-			property HistItemObj : IHistoryItemObject read FHistItemObj write FHistItemObj;
 			property HistItemObject : IHistoryItemObject read GetHistItemObject write SetHistItemObject;
 			property RipGrepTask : ITask read FRipGrepTask write FRipGrepTask;
 			{ Public-Deklarationen }
@@ -459,7 +458,7 @@ procedure TRipGrepperMiddleFrame.AfterSearch;
 var
 	ec : TErrorCounters;
 begin
-	ec := HistItemObj.GetErrorCounters();
+	ec := HistItemObject.GetErrorCounters();
 	if ec.FParserErrors > 0 then begin
 		TAsyncMsgBox.ShowWarning(RG_PARSE_ERROR_MSG); // , false, self);
 	end;
@@ -965,7 +964,11 @@ begin
 			end;
 			FHistItemObj.ElapsedTimeText := GetElapsedTime(FswSearchStart);
 			FswSearchStart.Stop;
-			BottomFrame.SetStatusBarMessage;
+
+			// MainFrame not needed here...
+			TopFrame.AfterHistObjChange;
+			BottomFrame.AfterHistObjChange;
+
 			TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.RunRipGrep: rg.exe ended in %s sec.', [FHistItemObj.ElapsedTimeText]));
 		end);
 	FRipGrepTask.Start;
