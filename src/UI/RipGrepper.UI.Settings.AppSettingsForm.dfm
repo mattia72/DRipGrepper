@@ -2,7 +2,7 @@ object AppSettingsForm: TAppSettingsForm
   Left = 0
   Top = 0
   Caption = 'AppSettingsForm'
-  ClientHeight = 426
+  ClientHeight = 455
   ClientWidth = 515
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -12,17 +12,16 @@ object AppSettingsForm: TAppSettingsForm
   Font.Style = []
   OnShow = FormShow
   TextHeight = 15
-  object Panel1: TPanel
+  object ScrollBox1: TScrollBox
     Left = 0
     Top = 0
     Width = 515
-    Height = 426
+    Height = 455
     Align = alClient
-    Anchors = [akLeft, akTop, akRight]
     TabOrder = 0
     DesignSize = (
-      515
-      426)
+      511
+      451)
     object lblRgExePath: TLabel
       Left = 16
       Top = 9
@@ -37,6 +36,33 @@ object AppSettingsForm: TAppSettingsForm
       Height = 15
       Caption = 'Version:'
     end
+    object btnedtRgExePath: TButtonedEdit
+      Left = 16
+      Top = 27
+      Width = 486
+      Height = 23
+      Anchors = [akLeft, akTop, akRight]
+      Color = clInfoBk
+      Images = SVGIconImageList1
+      LeftButton.DisabledImageIndex = 1
+      LeftButton.DisabledImageName = 'sync'
+      LeftButton.ImageIndex = 1
+      LeftButton.ImageName = 'sync'
+      LeftButton.Visible = True
+      ReadOnly = True
+      RightButton.DisabledImageIndex = 0
+      RightButton.DisabledImageName = 'folder-opened'
+      RightButton.ImageIndex = 0
+      RightButton.ImageName = 'folder-opened'
+      RightButton.Visible = True
+      TabOrder = 0
+      Text = 'Rg.exe path...'
+      TextHint = 'Rg.exe path...'
+      OnEnter = btnedtRgExePathEnter
+      OnExit = btnedtRgExePathExit
+      OnLeftButtonClick = btnedtRgExePathLeftButtonClick
+      OnRightButtonClick = btnedtRgExePathRightButtonClick
+    end
     object grpDeveloper: TGroupBox
       AlignWithMargins = True
       Left = 11
@@ -45,7 +71,7 @@ object AppSettingsForm: TAppSettingsForm
       Height = 181
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Developer'
-      TabOrder = 0
+      TabOrder = 1
       DesignSize = (
         491
         181)
@@ -165,33 +191,6 @@ object AppSettingsForm: TAppSettingsForm
           TabOrder = 7
         end
       end
-    end
-    object btnedtRgExePath: TButtonedEdit
-      Left = 16
-      Top = 27
-      Width = 486
-      Height = 23
-      Anchors = [akLeft, akTop, akRight]
-      Color = clInfoBk
-      Images = SVGIconImageList1
-      LeftButton.DisabledImageIndex = 1
-      LeftButton.DisabledImageName = 'sync'
-      LeftButton.ImageIndex = 1
-      LeftButton.ImageName = 'sync'
-      LeftButton.Visible = True
-      ReadOnly = True
-      RightButton.DisabledImageIndex = 0
-      RightButton.DisabledImageName = 'folder-opened'
-      RightButton.ImageIndex = 0
-      RightButton.ImageName = 'folder-opened'
-      RightButton.Visible = True
-      TabOrder = 1
-      Text = 'Rg.exe path...'
-      TextHint = 'Rg.exe path...'
-      OnEnter = btnedtRgExePathEnter
-      OnExit = btnedtRgExePathExit
-      OnLeftButtonClick = btnedtRgExePathLeftButtonClick
-      OnRightButtonClick = btnedtRgExePathRightButtonClick
     end
     object Memo1: TMemo
       Left = 16

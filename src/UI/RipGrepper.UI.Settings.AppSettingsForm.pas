@@ -36,7 +36,6 @@ type
 	EValidateCtrls = (vcRgExePath, vcIniFilePath);
 
 	TAppSettingsForm = class(TSettingsBaseForm)
-		Panel1 : TPanel;
 		chBegin : TCheckBox;
 		chExpertMode : TCheckBox;
 		grpDeveloper : TGroupBox;
@@ -59,6 +58,7 @@ type
 		rgTheme : TRadioGroup;
 		SVGIconImageList1 : TSVGIconImageList;
 		chVerbose : TCheckBox;
+    	ScrollBox1: TScrollBox;
 		procedure btnedtIniFilePathLeftButtonClick(Sender : TObject);
 		procedure btnedtIniFilePathRightButtonClick(Sender : TObject);
 		procedure btnedtRgExePathEnter(Sender : TObject);
