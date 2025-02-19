@@ -22,6 +22,13 @@ uses
 	Vcl.ActnList;
 
 type
+
+	TCommandItem = record
+		Caption : string;
+		CommandLine : string;
+		Description : string;
+	end;
+
 	TOpenWithCommandEditor = class(TForm)
 		SVGIconImageList1 : TSVGIconImageList;
 		Panel1 : TPanel;
@@ -40,11 +47,17 @@ type
 		ActionOpenFileDialog : TAction;
 		Label4 : TLabel;
 		edtDescr : TEdit;
+		procedure ActionCancelExecute(Sender : TObject);
+		procedure ActionOkExecute(Sender : TObject);
+		procedure FormShow(Sender: TObject);
 
 		private
-			{ Private-Deklarationen }
+			FCommandItem : TCommandItem;
+
 		public
-			{ Public-Deklarationen }
+			class function CreateAndShow(_Owner : TComponent; const ci : TCommandItem) : TCommandItem;
+			property CommandItem : TCommandItem read FCommandItem write FCommandItem;
+
 	end;
 
 var
@@ -53,5 +66,41 @@ var
 implementation
 
 {$R *.dfm}
+
+procedure TOpenWithCommandEditor.ActionCancelExecute(Sender : TObject);
+begin
+	ModalResult := mrCancel;
+end;
+
+procedure TOpenWithCommandEditor.ActionOkExecute(Sender : TObject);
+begin
+	FCommandItem.Caption := edtLabel.Text;
+	FCommandItem.CommandLine := edtLabel.Text;
+	FCommandItem.Description := edtDescr.Text;
+	ModalResult := mrOk;
+end;
+
+class function TOpenWithCommandEditor.CreateAndShow(_Owner : TComponent; const ci : TCommandItem) : TCommandItem;
+begin
+	Result := default (TCommandItem);
+	var
+	form := TOpenWithCommandEditor.Create(_Owner);
+	try
+		form.CommandItem := ci;
+		if mrOk = form.ShowModal() then begin
+			Result := form.CommandItem;
+		end;
+	finally
+		form.Free;
+	end;
+end;
+
+procedure TOpenWithCommandEditor.FormShow(Sender: TObject);
+begin
+	edtLabel.Text := FCommandItem.Caption;
+	edtLabel.Text := FCommandItem.CommandLine;
+	edtDescr.Text := FCommandItem.Description;
+
+end;
 
 end.

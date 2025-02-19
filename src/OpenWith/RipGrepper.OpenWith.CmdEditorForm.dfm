@@ -10,6 +10,7 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
+  OnShow = FormShow
   TextHeight = 15
   object Panel1: TPanel
     Left = 0
@@ -274,9 +275,11 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
     Top = 135
     object ActionOk: TAction
       Caption = 'Ok'
+      OnExecute = ActionOkExecute
     end
     object ActionCancel: TAction
       Caption = 'Cancel'
+      OnExecute = ActionCancelExecute
     end
     object ActionOpenFileDialog: TAction
       Hint = 'Explore File...'
