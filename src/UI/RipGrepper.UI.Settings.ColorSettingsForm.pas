@@ -23,6 +23,7 @@ type
 		Button1 : TButton;
 		pnlBottom : TPanel;
 		pnlTop : TPanel;
+		ScrollBox1: TScrollBox;
 		procedure Button1Click(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 
@@ -57,7 +58,7 @@ begin
 	Caption := FONTS_AND_COLORS_CAPTION;
 	FFontColorSettings := _settings;
 	ReadSettings;
-	FAllHeight := TColorSelectorFrame.AddSelectionFrames(FFontColorSettings.FontColors, self, grpFontColors);
+	FAllHeight := TColorSelectorFrame.AddSelectionFrames(FFontColorSettings.FontColors, self, ScrollBox1);
 	FAllHeight := FAllHeight + pnlBottom.Height;
 end;
 
