@@ -160,16 +160,17 @@ type
 			function GetFirst : T;
 			procedure SetCount(const Value : integer);
 			function GetItemAt(Index : integer) : T;
+			function GetSafeItemAt(index : Integer): T;
 			function GetLast : T;
 			function GetMaxIndex : Integer;
 			procedure SetItemAt(Index : integer; Value : T);
-
 		public
 			Items : TArray<T>;
 			property Count : integer read GetCount write SetCount;
 			property IsEmpty : Boolean read GetIsEmpty;
 			property First : T read GetFirst;
 			property ItemAt[index : Integer] : T read GetItemAt write SetItemAt; default;
+			property SafeItemAt[index : Integer]: T read GetSafeItemAt;
 			property Last : T read GetLast;
 			property MaxIndex : Integer read GetMaxIndex;
 
@@ -181,7 +182,7 @@ type
 			procedure Delete(Index : integer); overload;
 			procedure Insert(Index : integer; Value : T);
 			function Remove(const AItem : T) : boolean;
-			function AddIfNotContains(const AItem : T): Integer;
+			function AddIfNotContains(const AItem : T) : Integer;
 			function InsertIfNotContains(const Index : Integer; const AItem : T) : boolean;
 
 			procedure AddRange(const ValuesToInsert : array of T); overload;
@@ -547,10 +548,10 @@ begin
 	end;
 end;
 
-function TArrayEx<T>.AddIfNotContains(const AItem : T): Integer;
+function TArrayEx<T>.AddIfNotContains(const AItem : T) : Integer;
 begin
 	Result := -1;
-	if not Contains(AItem) then
+	if not contains(AItem) then
 		Result := Add(AItem);
 end;
 
@@ -753,6 +754,15 @@ end;
 function TArrayEx<T>.GetFirst : T;
 begin
 	Result := Items[0];
+end;
+
+function TArrayEx<T>.GetSafeItemAt(index : Integer): T;
+begin
+	if index <= MaxIndex then begin
+		Result := Items[index];
+	end else begin
+		Result := default(T);
+	end;
 end;
 
 function TArrayEx<T>.GetLast : T;
