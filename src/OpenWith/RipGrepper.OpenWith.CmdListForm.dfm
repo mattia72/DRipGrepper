@@ -217,21 +217,33 @@ object OpenWithCmdList: TOpenWithCmdList
       AlignWithMargins = True
       Left = 8
       Top = 8
-      Width = 326
-      Height = 172
+      Width = 324
+      Height = 164
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 0
       Margins.Bottom = 8
       Align = alClient
       Color = clHighlightText
-      Columns = <>
-      Items.ItemData = {050000000000000000}
+      Columns = <
+        item
+          AutoSize = True
+          Caption = 'Caption'
+        end
+        item
+          Caption = 'Command Line'
+          Width = 0
+        end
+        item
+          AutoSize = True
+          Caption = 'Description'
+        end>
       ReadOnly = True
+      RowSelect = True
       ParentShowHint = False
       ShowHint = True
       TabOrder = 0
-      ViewStyle = vsList
+      ViewStyle = vsReport
       OnDblClick = lbCommandsDblClick
       OnKeyDown = lbCommandsKeyDown
     end
@@ -280,12 +292,14 @@ object OpenWithCmdList: TOpenWithCmdList
       Margins.Bottom = 8
       Action = ActionSwitchView
       Anchors = [akTop, akRight]
+      Enabled = False
       ImageAlignment = iaCenter
       ImageName = 'eye'
       Images = SVGIconImageList1
       ParentShowHint = False
       ShowHint = True
       TabOrder = 1
+      Visible = False
     end
   end
   object pnl_Top: TPanel
@@ -302,7 +316,7 @@ object OpenWithCmdList: TOpenWithCmdList
       AlignWithMargins = True
       Left = 8
       Top = 8
-      Width = 348
+      Width = 346
       Height = 14
       Margins.Left = 8
       Margins.Top = 8
@@ -314,8 +328,8 @@ object OpenWithCmdList: TOpenWithCmdList
     object lblHint2: TLabel
       AlignWithMargins = True
       Left = 8
-      Top = 49
-      Width = 348
+      Top = 52
+      Width = 346
       Height = 14
       Margins.Left = 8
       Margins.Top = 0
@@ -327,8 +341,8 @@ object OpenWithCmdList: TOpenWithCmdList
     object Memo1: TMemo
       AlignWithMargins = True
       Left = 3
-      Top = 25
-      Width = 358
+      Top = 28
+      Width = 356
       Height = 21
       TabStop = False
       Align = alTop

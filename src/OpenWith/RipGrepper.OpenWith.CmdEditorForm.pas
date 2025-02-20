@@ -36,13 +36,14 @@ type
 		edtLabel : TEdit;
 		ActionList1 : TActionList;
 		ListBox1 : TListBox;
-		Label3 : TLabel;
 		ActionOk : TAction;
 		ActionCancel : TAction;
 		ActionOpenFileDialog : TAction;
 		Label4 : TLabel;
 		edtDescr : TEdit;
 		OpenDialog1 : TOpenDialog;
+    GroupBox1: TGroupBox;
+    GroupBox2: TGroupBox;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionOkExecute(Sender : TObject);
 		procedure ActionOpenFileDialogExecute(Sender : TObject);
@@ -83,9 +84,7 @@ begin
 		TMsgBox.ShowError('Caption shouldn''t be empty!');
 		Exit;
 	end;
-	if not CheckCommand(FCommandItem.CommandLine.AsString()) then begin
-		FCommandItem.IsActive := False;
-	end;
+	FCommandItem.IsActive := CheckCommand(FCommandItem.CommandLine.AsString());
 	ModalResult := mrOk;
 end;
 

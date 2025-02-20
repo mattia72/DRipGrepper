@@ -24,7 +24,8 @@ uses
 	RipGrepper.Settings.OpenWithSettings,
 	RipGrepper.Helper.UI.DarkMode,
 	SVGIconImageListBase,
-	SVGIconImageList;
+	SVGIconImageList,
+	RipGrepper.Tools.FileUtils;
 
 type
 	TOpenWithCmdList = class(TForm)
@@ -70,8 +71,8 @@ type
 			FViewStyleIndex : Integer;
 
 			procedure CreateScaledIcons(const bUpdateScaler : Boolean = False);
-			class function GetEnabledCmds(const _settings : TOpenWithSettings) : TArray<string>;
-			function GetFileNameFromCfg(const _configText : string) : string;
+			class function GetEnabledCmds(const _settings : TOpenWithSettings) : TArray<TCommandItem>;
+			function GetFileNameFromCfg(const _ci : TCommandItem): string;
 			function GetThemeHandler : TThemeHandler;
 			function GetViewStyleIndex : Integer;
 			procedure SaveOrigHeights;
@@ -99,8 +100,7 @@ uses
 	RipGrepper.OpenWith.ConfigForm,
 	System.Math,
 	RipGrepper.OpenWith.Constants,
-	RipGrepper.Tools.DebugUtils,
-	RipGrepper.Tools.FileUtils;
+	RipGrepper.Tools.DebugUtils;
 
 {$R *.dfm}
 
@@ -116,7 +116,7 @@ begin
 	FViewStyleIndex := 0;
 	FSettings := _settings;
 	FColorTheme := _colorTheme;
-	// FSettings.ReLoad; TODO: AlreadyRead shoul be set
+	// FSettings.ReLoad; TODO: AlreadyRead should be set
 	FSettings.ReadIni; // we should read ini every time, it can be overwritten by another instance...
 	dbgMsg.MsgFmt('FSettings: %s', [FSettings.ToString]);
 
@@ -223,9 +223,10 @@ begin
 	ActiveControl := lbCommands;
 end;
 
-class function TOpenWithCmdList.GetEnabledCmds(const _settings : TOpenWithSettings) : TArray<string>;
+class function TOpenWithCmdList.GetEnabledCmds(const _settings : TOpenWithSettings) : TArray<TCommandItem>;
 var
 	arrCmd : TArray<string>;
+	ci : TCommandItem;
 	i : Integer;
 	sCmds : string;
 begin
@@ -243,20 +244,22 @@ begin
 
 		arrCmd := [''];
 		arrCmd := sCmds.Split([SEPARATOR]);
-		if (arrCmd[0].ToUpper() = 'TRUE') then begin
-			Result := Result + [arrCmd[1]];
+		ci := TCommandItem.New(arrCmd);
+
+		if ci.IsActive then begin
+			Result := Result + [ci];
 		end;
 
 		inc(i);
 	until (i = MAX_COMMAND_NUM);
 end;
 
-function TOpenWithCmdList.GetFileNameFromCfg(const _configText : string) : string;
+function TOpenWithCmdList.GetFileNameFromCfg(const _ci : TCommandItem) : string;
 var
 	sFileName : string;
 	sPath : string;
 begin
-	sFileName := TCommandLineRec.ParseCommand(_configText).ExePath;
+	sFileName := _ci.CommandLine.ExePath;
 	sPath := ExtractFileDir(sFileName);
 	if sPath.IsEmpty then begin
 		TFileUtils.FindExecutable(sFileName, sPath);
@@ -315,21 +318,21 @@ begin
 	icon := TIcon.Create;
 	try
 		lbCommands.Items.Clear();
-		for var configText in GetEnabledCmds(FSettings) do begin
-			sFileName := GetFileNameFromCfg(configText);
+		for var ci in GetEnabledCmds(FSettings) do begin
+			sFileName := GetFileNameFromCfg(ci);
 			if sFileName.IsEmpty then
 				continue;
 
 			item := lbCommands.Items.Add();
 
-			SHGetFileInfo(PChar(sFileName), 0, sfi, SizeOf(sfi), SHGFI_DISPLAYNAME);
-			item.Caption := sfi.szDisplayName;
+			item.Caption := ci.Caption;
 
 			SHGetFileInfo(PChar(sFileName), 0, sfi, SizeOf(TSHFileInfo), SHGFI_LARGEICON or SHGFI_ICON);
 			icon.Handle := sfi.hIcon;
 
 			item.ImageIndex := ImageListIcons.AddIcon(icon);
-			item.Subitems.Add(configText);
+			item.Subitems.Add(ci.CommandLine.AsString);
+			item.Subitems.Add(ci.Description);
 
 			TDebugUtils.DebugMessage((Format('TOpenWithCmdList.LoadEnbledCmds cmd: %d %s ', [item.ImageIndex, sFileName])));
 			DestroyIcon(sfi.hIcon);

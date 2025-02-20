@@ -27,7 +27,7 @@ type
 		public
 			class function New(const _caption, _cmd : string; const _descr : string = ''; const _isActive : Boolean = True) : TCommandItem;
 				overload; static;
-			class function New(const _arr : TArray<string>; const _isActive : Boolean = True) : TCommandItem; overload; static;
+			class function New(const _arr: TArray<string>): TCommandItem; overload; static;
 	end;
 
 	TFileUtils = class(TObject)
@@ -328,7 +328,7 @@ begin
 	Result.IsActive := _isActive;
 end;
 
-class function TCommandItem.New(const _arr : TArray<string>; const _isActive : Boolean = True) : TCommandItem;
+class function TCommandItem.New(const _arr: TArray<string>): TCommandItem;
 var
 	arrEx : TArrayEx<string>;
 begin

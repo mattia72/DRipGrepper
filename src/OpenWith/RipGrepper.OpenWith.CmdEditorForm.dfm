@@ -2,7 +2,7 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
   Left = 0
   Top = 0
   Caption = 'OpenWithCommandEditor'
-  ClientHeight = 354
+  ClientHeight = 361
   ClientWidth = 472
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,103 +16,18 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
     Left = 0
     Top = 0
     Width = 472
-    Height = 354
+    Height = 361
     Align = alClient
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 0
     DesignSize = (
       472
-      354)
-    object Label1: TLabel
-      AlignWithMargins = True
-      Left = 10
-      Top = 72
-      Width = 334
-      Height = 20
-      Margins.Left = 50
-      Margins.Top = 15
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Anchors = [akLeft, akTop, akRight]
-      AutoSize = False
-      Caption = 'Command:'
-    end
-    object Label2: TLabel
-      AlignWithMargins = True
-      Left = 10
-      Top = 22
-      Width = 334
-      Height = 20
-      Margins.Left = 50
-      Margins.Top = 15
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Anchors = [akLeft, akTop, akRight]
-      AutoSize = False
-      Caption = 'Label:'
-    end
-    object Label3: TLabel
-      AlignWithMargins = True
-      Left = 10
-      Top = 187
-      Width = 334
-      Height = 20
-      Margins.Left = 50
-      Margins.Top = 15
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Anchors = [akLeft, akTop, akRight]
-      AutoSize = False
-      Caption = 'Examples:'
-    end
-    object Label4: TLabel
-      AlignWithMargins = True
-      Left = 10
-      Top = 122
-      Width = 334
-      Height = 20
-      Margins.Left = 50
-      Margins.Top = 15
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Anchors = [akLeft, akTop, akRight]
-      AutoSize = False
-      Caption = 'Label:'
-    end
-    object edtCmdLine: TEdit
-      Left = 10
-      Top = 92
-      Width = 425
-      Height = 23
-      Margins.Left = 50
-      Margins.Top = 8
-      Margins.Right = 125
-      Margins.Bottom = 0
-      Anchors = [akLeft, akTop, akRight]
-      TabOrder = 0
-    end
-    object btnOpenFile: TButton
-      Left = 438
-      Top = 91
-      Width = 25
-      Height = 25
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Action = ActionOpenFileDialog
-      Align = alCustom
-      Anchors = [akTop, akRight]
-      ImageAlignment = iaCenter
-      Images = SVGIconImageList1
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 1
-    end
+      361)
     object btn_Save: TButton
       AlignWithMargins = True
       Left = 297
-      Top = 319
+      Top = 326
       Width = 75
       Height = 25
       Margins.Left = 8
@@ -121,12 +36,12 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
       Margins.Bottom = 8
       Action = ActionOk
       Anchors = [akRight, akBottom]
-      TabOrder = 2
+      TabOrder = 0
     end
     object btn_Cancel: TButton
       AlignWithMargins = True
       Left = 388
-      Top = 319
+      Top = 326
       Width = 75
       Height = 25
       Margins.Left = 8
@@ -135,48 +50,143 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
       Margins.Bottom = 8
       Action = ActionCancel
       Anchors = [akRight, akBottom]
-      TabOrder = 3
+      TabOrder = 1
     end
-    object edtLabel: TEdit
-      Left = 10
-      Top = 42
-      Width = 425
-      Height = 23
-      Margins.Left = 50
-      Margins.Top = 8
-      Margins.Right = 125
-      Margins.Bottom = 0
-      Anchors = [akLeft, akTop, akRight]
-      TabOrder = 4
-    end
-    object ListBox1: TListBox
+    object GroupBox1: TGroupBox
       AlignWithMargins = True
-      Left = 10
-      Top = 210
-      Width = 453
-      Height = 94
-      Anchors = [akLeft, akTop, akRight, akBottom]
-      Enabled = False
-      ItemHeight = 15
-      Items.Strings = (
-        'notepad.exe "<FILE>"'
-        'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"'
-        'notepad++.exe "<FILE>" -n<LINE> -c<COL>'
-        'explorer.exe /select,"<FILE>"'
-        'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"')
-      TabOrder = 5
+      Left = 4
+      Top = 4
+      Width = 464
+      Height = 195
+      Align = alTop
+      Caption = 'Settings'
+      TabOrder = 2
+      DesignSize = (
+        464
+        195)
+      object Label1: TLabel
+        AlignWithMargins = True
+        Left = 10
+        Top = 72
+        Width = 326
+        Height = 20
+        Margins.Left = 50
+        Margins.Top = 15
+        Margins.Right = 8
+        Margins.Bottom = 8
+        Anchors = [akLeft, akTop, akRight]
+        AutoSize = False
+        Caption = 'Command:'
+      end
+      object Label2: TLabel
+        AlignWithMargins = True
+        Left = 10
+        Top = 22
+        Width = 326
+        Height = 20
+        Margins.Left = 50
+        Margins.Top = 15
+        Margins.Right = 8
+        Margins.Bottom = 8
+        Anchors = [akLeft, akTop, akRight]
+        AutoSize = False
+        Caption = 'Caption:'
+      end
+      object Label4: TLabel
+        AlignWithMargins = True
+        Left = 10
+        Top = 122
+        Width = 326
+        Height = 20
+        Margins.Left = 50
+        Margins.Top = 15
+        Margins.Right = 8
+        Margins.Bottom = 8
+        Anchors = [akLeft, akTop, akRight]
+        AutoSize = False
+        Caption = 'Description:'
+      end
+      object btnOpenFile: TButton
+        Left = 432
+        Top = 91
+        Width = 25
+        Height = 25
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
+        Action = ActionOpenFileDialog
+        Align = alCustom
+        Anchors = [akTop, akRight]
+        ImageAlignment = iaCenter
+        Images = SVGIconImageList1
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+      end
+      object edtCmdLine: TEdit
+        Left = 10
+        Top = 92
+        Width = 419
+        Height = 23
+        Margins.Left = 50
+        Margins.Top = 8
+        Margins.Right = 125
+        Margins.Bottom = 0
+        Anchors = [akLeft, akTop, akRight]
+        TabOrder = 1
+      end
+      object edtDescr: TEdit
+        Left = 10
+        Top = 142
+        Width = 419
+        Height = 23
+        Margins.Left = 50
+        Margins.Top = 8
+        Margins.Right = 125
+        Margins.Bottom = 0
+        Anchors = [akLeft, akTop, akRight]
+        TabOrder = 2
+      end
+      object edtLabel: TEdit
+        Left = 10
+        Top = 42
+        Width = 419
+        Height = 23
+        Margins.Left = 50
+        Margins.Top = 8
+        Margins.Right = 125
+        Margins.Bottom = 0
+        Anchors = [akLeft, akTop, akRight]
+        TabOrder = 3
+      end
     end
-    object edtDescr: TEdit
-      Left = 10
-      Top = 142
-      Width = 425
-      Height = 23
-      Margins.Left = 50
-      Margins.Top = 8
-      Margins.Right = 125
-      Margins.Bottom = 0
-      Anchors = [akLeft, akTop, akRight]
-      TabOrder = 6
+    object GroupBox2: TGroupBox
+      AlignWithMargins = True
+      Left = 4
+      Top = 203
+      Width = 464
+      Height = 117
+      Margins.Bottom = 40
+      Align = alBottom
+      Anchors = [akLeft, akTop, akRight, akBottom]
+      Caption = 'Help'
+      TabOrder = 3
+      object ListBox1: TListBox
+        AlignWithMargins = True
+        Left = 5
+        Top = 20
+        Width = 454
+        Height = 92
+        Align = alClient
+        ItemHeight = 15
+        Items.Strings = (
+          'notepad.exe "<FILE>"'
+          'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"'
+          'notepad++.exe "<FILE>" -n<LINE> -c<COL>'
+          'explorer.exe /select,"<FILE>"'
+          'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"')
+        TabOrder = 0
+      end
     end
   end
   object SVGIconImageList1: TSVGIconImageList
@@ -266,13 +276,13 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
           '71021 7H14.5002L12.1302 13Z" fill="#424242"/>'#13#10'</svg>'#13#10
       end>
     Scaled = True
-    Left = 381
-    Top = 133
+    Left = 391
+    Top = 128
   end
   object ActionList1: TActionList
     Images = SVGIconImageList1
-    Left = 335
-    Top = 135
+    Left = 430
+    Top = 125
     object ActionOk: TAction
       Caption = 'Ok'
       OnExecute = ActionOkExecute
@@ -289,7 +299,7 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
     end
   end
   object OpenDialog1: TOpenDialog
-    Left = 232
-    Top = 184
+    Left = 437
+    Top = 44
   end
 end

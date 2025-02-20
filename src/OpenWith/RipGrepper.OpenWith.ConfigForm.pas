@@ -75,9 +75,10 @@ type
 			FDpiScaler : TRipGrepperDpiScaler;
 			FOpenWithSettings : TOpenWithSettings;
 			FThemeHandler : TThemeHandler;
-			procedure AddCommandItem(const _ci : TCommandItem; _li : TListItem = nil);
+			procedure AddOrSetCommandItem(const _ci : TCommandItem; _li : TListItem = nil);
 			procedure ExchangeItems(_lv : TListView; const i, j : Integer);
 			function GetThemeHandler : TThemeHandler;
+			procedure SetSelectedItem(const _idx : integer);
 			property ThemeHandler : TThemeHandler read GetThemeHandler;
 
 		protected
@@ -104,9 +105,14 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Helper.UI,
 	System.RegularExpressions,
-	RipGrepper.OpenWith.CmdEditorForm, ArrayEx;
+	RipGrepper.OpenWith.CmdEditorForm,
+	ArrayEx;
 
-{$R *.dfm}
+const
+	IDX_DESCRIPTION = 1;
+	IDX_COMMAND_LINE = 0;
+
+	{$R *.dfm}
 
 constructor TOpenWithConfigForm.Create(AOwner : TComponent; const _settings : TOpenWithSettings; const _colorTheme : string);
 begin
@@ -142,10 +148,19 @@ end;
 procedure TOpenWithConfigForm.ActionAddExecute(Sender : TObject);
 var
 	ci : TCommandItem;
+	li : TListItem;
+	arrEx : TArrayEx<string>;
 begin
 	inherited;
+	li := lvCommands.Selected;
+	if Assigned(li) then begin
+		ci.Caption := li.Caption;
+		arrEx := li.SubItems.ToStringArray;
+		ci.CommandLine := TCommandLineRec.ParseCommand(arrEx.SafeItemAt[0]);
+		ci.Description := arrEx.SafeItemAt[1];
+	end;
 	ci := TOpenWithCommandEditor.CreateAndShow(self, ci);
-	AddCommandItem(ci);
+	AddOrSetCommandItem(ci);
 end;
 
 procedure TOpenWithConfigForm.ActionCancelExecute(Sender : TObject);
@@ -158,8 +173,9 @@ begin
 	inherited;
 	var
 	item := lvCommands.Items[lvCommands.ItemIndex];
-	var ci : TCommandItem := TCommandItem.New(item.Caption, item.SubItems[0]);
-	AddCommandItem(ci, item);
+	var
+		ci : TCommandItem := TCommandItem.New(item.Caption, item.SubItems[IDX_COMMAND_LINE]);
+	AddOrSetCommandItem(ci, item);
 end;
 
 procedure TOpenWithConfigForm.ActionMoveDownExecute(Sender : TObject);
@@ -168,7 +184,7 @@ begin
 	var
 	idx := lvCommands.ItemIndex;
 	ExchangeItems(lvCommands, idx, idx + 1);
-	lvCommands.ItemIndex := idx + 1;
+	SetSelectedItem(idx + 1);
 end;
 
 procedure TOpenWithConfigForm.ActionMoveDownUpdate(Sender : TObject);
@@ -183,8 +199,7 @@ begin
 	var
 	idx := lvCommands.ItemIndex;
 	ExchangeItems(lvCommands, idx, idx - 1);
-	lvCommands.ItemIndex := idx - 1;
-
+	SetSelectedItem(idx - 1);
 end;
 
 procedure TOpenWithConfigForm.ActionMoveUpUpdate(Sender : TObject);
@@ -216,7 +231,7 @@ var
 begin
 	inherited;
 	owp := FOpenWithSettings.TestFile; // GxOtaGetCurrentSourceFile;
-	TOpenWithRunner.RunEditorCommand(lvCommands.Items[lvCommands.ItemIndex].SubItems[0], owp);
+	TOpenWithRunner.RunEditorCommand(lvCommands.Items[lvCommands.ItemIndex].SubItems[IDX_COMMAND_LINE], owp);
 end;
 
 procedure TOpenWithConfigForm.ActionTestUpdate(Sender : TObject);
@@ -225,18 +240,29 @@ begin
 	ActionTest.Enabled := (lvCommands.SelCount = 1) and (not FOpenWithSettings.TestFile.IsEmpty);
 end;
 
-procedure TOpenWithConfigForm.AddCommandItem(const _ci : TCommandItem; _li : TListItem = nil);
+procedure TOpenWithConfigForm.AddOrSetCommandItem(const _ci : TCommandItem; _li : TListItem = nil);
 var
 	item : TListItem;
 begin
-	if Assigned(_li) then begin
-		item := _li;
-	end else begin
-		item := lvCommands.Items.Add;
+	if _ci.Caption.IsEmpty then begin
+		Exit;
 	end;
-	item.Caption := _ci.Caption;
-	item.SubItems.Add(_ci.CommandLine.AsString());
-	item.Checked := _ci.IsActive;
+
+	lvCommands.Items.BeginUpdate;
+	try
+		if Assigned(_li) then begin
+			item := _li;
+		end else begin
+			item := lvCommands.Items.Add;
+		end;
+		item.Caption := _ci.Caption;
+		item.SubItems.Clear;
+		item.SubItems.Add(_ci.CommandLine.AsString);
+		item.SubItems.Add(_ci.Description);
+		item.Checked := _ci.IsActive;
+	finally
+		lvCommands.Items.EndUpdate;
+	end;
 end;
 
 class procedure TOpenWithConfigForm.CreateAndShow(const _settings : TOpenWithSettings; const _colorTheme : string);
@@ -296,7 +322,7 @@ begin
 			arr := sCmd.Split([SEPARATOR]); // TAB
 			if Length(arr) > 1 then begin
 				ci := TCommandItem.New(arr);
-				AddCommandItem(ci);
+				AddOrSetCommandItem(ci);
 				dbgMsg.MsgFmt('"%s" "%s"', [arr[0], arr[1]]);
 			end;
 		end;
@@ -317,13 +343,13 @@ begin
 	FOpenWithSettings.ClearCommandList; // so deleted entries will be recognized
 	for var i := 0 to lvCommands.Items.Count - 1 do begin
 		item := lvCommands.Items[i];
- 		sCmd := item.Subitems[0].Replace(SEPARATOR, '', [rfReplaceAll]);
- 		dbgMsg.Msg(Format('%s', [sCmd]));
+		sCmd := item.Subitems[IDX_COMMAND_LINE].Replace(SEPARATOR, '', [rfReplaceAll]);
+		dbgMsg.Msg(Format('%s', [sCmd]));
 		settings := Format('%s' + SEPARATOR + '%s' + SEPARATOR + '%s' + SEPARATOR + '%s',
 			{ } [BoolToStr(item.Checked and TOpenWithCommandEditor.CheckCommand(sCmd), true),
 			{ } item.Caption, // caption
 			{ } sCmd, // command line
-			{ } item.SubItems[1]]); // descr
+			{ } item.SubItems[IDX_DESCRIPTION]]); // descr
 		FOpenWithSettings.Command[i] := settings;
 		dbgMsg.Msg(Format('%s', [FOpenWithSettings.Command[i]]));
 	end;
@@ -336,16 +362,16 @@ procedure TOpenWithConfigForm.lvCommandsDblClick(Sender : TObject);
 var
 	ci : TCommandItem;
 	item : TListItem;
-    arrEx : TArrayEx<string>;
+	arrEx : TArrayEx<string>;
 begin
 	inherited;
 	item := lvCommands.Items[lvCommands.ItemIndex];
 	ci.Caption := item.Caption;
-    arrEx := item.SubItems.ToStringArray;
+	arrEx := item.SubItems.ToStringArray;
 	ci.CommandLine := TCommandLineRec.ParseCommand(arrEx.SafeItemAt[0]);
 	ci.Description := arrEx.SafeItemAt[1];
-    ci := TOpenWithCommandEditor.CreateAndShow(self, ci);
-	AddCommandItem(ci, item);
+	ci := TOpenWithCommandEditor.CreateAndShow(self, ci);
+	AddOrSetCommandItem(ci, item);
 	TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.lvCommandsDblClick SelectCount %d', [lvCommands.SelCount])));
 end;
 
@@ -363,6 +389,13 @@ begin
 	finally
 		_lv.Items.EndUpdate
 	end;
+end;
+
+procedure TOpenWithConfigForm.SetSelectedItem(const _idx : integer);
+begin
+	lvCommands.Selected := nil;
+	lvCommands.ItemIndex := _idx;
+	// lvCommands.Items[_idx].Focused := True;
 end;
 
 end.
