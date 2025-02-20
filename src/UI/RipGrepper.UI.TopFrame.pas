@@ -742,6 +742,7 @@ begin
 	replaceList := TReplaceList.Create();
 	try
 		GetCheckedReplaceList(replaceList);
+		replaceList.Sort();
 		{$IFNDEF STANDALONE}
 		var
 		arr := IOTAUTils.GetModifiedEditBuffers();

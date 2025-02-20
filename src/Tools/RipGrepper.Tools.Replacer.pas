@@ -38,6 +38,7 @@ type
 			function Contains(fileName : string; row, col : integer) : Boolean;
 			function Update(const fileName : string; const row, col : integer; const line : string) : Boolean;
 			function Remove(const fileName : string; const row, col : integer; const line : string) : Boolean;
+			procedure Sort;
 	end;
 
 	TReplaceHelper = class
@@ -139,7 +140,7 @@ begin
 		if rmIgnoreCase in _mode then begin
 			op := [roIgnoreCase];
 		end;
- 		Result := prefixStr + TRegEx.Replace(postfixStr, _pattern, _replacement, op);
+		Result := prefixStr + TRegEx.Replace(postfixStr, _pattern, _replacement, op);
 	end else if rmIgnoreCase in _mode then begin
 		Result := prefixStr + System.SysUtils.StringReplace(postfixStr, _pattern, _replacement, [rfIgnoreCase]);
 	end else begin
@@ -247,6 +248,13 @@ begin
 			replaceList.Delete(idx);
 			Result := True;
 		end;
+	end;
+end;
+
+procedure TReplaceList.Sort;
+begin
+	for var pair in Items do begin
+		pair.Value.Sort(FComparer);
 	end;
 end;
 
