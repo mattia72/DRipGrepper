@@ -2,8 +2,8 @@ object OpenWithConfigForm: TOpenWithConfigForm
   Left = 756
   Top = 291
   Caption = 'Configure Open With... '
-  ClientHeight = 314
-  ClientWidth = 554
+  ClientHeight = 277
+  ClientWidth = 355
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -150,8 +150,8 @@ object OpenWithConfigForm: TOpenWithConfigForm
   TextHeight = 15
   object pnlBottom: TPanel
     Left = 0
-    Top = 264
-    Width = 554
+    Top = 227
+    Width = 355
     Height = 50
     Margins.Left = 8
     Margins.Top = 8
@@ -162,11 +162,11 @@ object OpenWithConfigForm: TOpenWithConfigForm
     ParentBackground = False
     TabOrder = 0
     DesignSize = (
-      554
+      355
       50)
     object btn_Save: TButton
       AlignWithMargins = True
-      Left = 366
+      Left = 181
       Top = 16
       Width = 75
       Height = 25
@@ -180,7 +180,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
     end
     object btn_Cancel: TButton
       AlignWithMargins = True
-      Left = 457
+      Left = 272
       Top = 16
       Width = 75
       Height = 25
@@ -196,8 +196,8 @@ object OpenWithConfigForm: TOpenWithConfigForm
   object pnlMain: TPanel
     Left = 0
     Top = 0
-    Width = 554
-    Height = 264
+    Width = 355
+    Height = 227
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -205,116 +205,18 @@ object OpenWithConfigForm: TOpenWithConfigForm
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    DesignSize = (
-      554
-      264)
-    object Label1: TLabel
-      AlignWithMargins = True
-      Left = 10
-      Top = 213
-      Width = 309
-      Height = 20
-      Margins.Left = 50
-      Margins.Top = 15
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Anchors = [akLeft, akRight, akBottom]
-      AutoSize = False
-      Caption = 'Command:'
-    end
-    object btnModify: TButton
-      Left = 507
-      Top = 231
-      Width = 25
-      Height = 25
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Action = ActionModify
-      Anchors = [akRight, akBottom]
-      ImageAlignment = iaCenter
-      Images = SVGIconImageList1
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 0
-    end
-    object btnOpenFile: TButton
-      Left = 480
-      Top = 231
-      Width = 25
-      Height = 25
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Action = ActionOpenFileDlg
-      Align = alCustom
-      Anchors = [akRight, akBottom]
-      ImageAlignment = iaCenter
-      Images = SVGIconImageList1
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 1
-    end
-    object edt_OpenWithCmd: TEdit
-      Left = 10
-      Top = 233
-      Width = 463
-      Height = 23
-      Margins.Left = 50
-      Margins.Top = 8
-      Margins.Right = 125
-      Margins.Bottom = 0
-      Anchors = [akLeft, akRight, akBottom]
-      TabOrder = 2
-      OnKeyPress = edt_OpenWithCmdKeyPress
-    end
-    object lbCommands: TCheckListBox
-      AlignWithMargins = True
-      Left = 10
-      Top = 30
-      Width = 287
-      Height = 171
-      Hint = 
-        '|Examples:'#13#10'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"'#13#10 +
-        'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"'#13#10'no' +
-        'tepad++.exe "<FILE>" -n<LINE> -c<COL>'
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Anchors = [akLeft, akTop, akRight, akBottom]
-      AutoComplete = False
-      Color = clHighlightText
-      Columns = 2
-      ItemHeight = 15
-      Items.Strings = (
-        'Notepad'#9'notepad.exe "<FILE>"'
-        
-          'VsCode'#9'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<CO' +
-          'L>"'
-        'Notepad++'#9'notepad++.exe "<FILE>" -n<LINE> -c<COL>'
-        'Explorer'#9'explorer.exe /select,"<FILE>"'
-        'NVim'#9'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"')
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 3
-      TabWidth = 100
-      OnClick = lbCommandsClick
-      OnDblClick = lbCommandsDblClick
-    end
     object ToolBar1: TToolBar
       AlignWithMargins = True
       Left = 8
       Top = 3
-      Width = 538
+      Width = 339
       Height = 22
       Margins.Left = 8
       Margins.Right = 8
       AutoSize = True
       Caption = 'ToolBar1'
       Images = SVGIconImageList1
-      TabOrder = 4
+      TabOrder = 0
       object tbPlus: TToolButton
         Left = 0
         Top = 0
@@ -343,15 +245,30 @@ object OpenWithConfigForm: TOpenWithConfigForm
     end
     object lvCommands: TListView
       AlignWithMargins = True
-      Left = 277
+      Left = 3
       Top = 31
-      Width = 265
-      Height = 170
-      Anchors = [akLeft, akTop, akRight, akBottom]
+      Width = 349
+      Height = 193
+      Align = alClient
       Checkboxes = True
-      Columns = <>
-      TabOrder = 5
+      Columns = <
+        item
+          AutoSize = True
+          Caption = 'Caption'
+        end
+        item
+          AutoSize = True
+          Caption = 'Command LIne'
+        end
+        item
+          AutoSize = True
+          Caption = 'Description'
+        end>
+      ColumnClick = False
+      RowSelect = True
+      TabOrder = 1
       ViewStyle = vsReport
+      OnDblClick = lvCommandsDblClick
     end
   end
   object ActionListConfig: TActionList
@@ -362,21 +279,18 @@ object OpenWithConfigForm: TOpenWithConfigForm
       Hint = 'Explore...'
       ImageIndex = 6
       ImageName = 'folder-opened'
-      OnExecute = ActionOpenFileDlgExecute
     end
     object ActionModify: TAction
       Hint = 'Modify Entry'
       ImageIndex = 0
       ImageName = 'reply'
       OnExecute = ActionModifyExecute
-      OnUpdate = ActionModifyUpdate
     end
     object ActionAdd: TAction
       Hint = 'Add Entry'
       ImageIndex = 4
       ImageName = 'add'
       OnExecute = ActionAddExecute
-      OnUpdate = ActionAddUpdate
     end
     object ActionRemove: TAction
       Hint = 'Remove Entry'
@@ -506,7 +420,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
           '71021 7H14.5002L12.1302 13Z" fill="#424242"/>'#13#10'</svg>'#13#10
       end>
     Scaled = True
-    Left = 256
-    Top = 168
+    Left = 192
+    Top = 112
   end
 end

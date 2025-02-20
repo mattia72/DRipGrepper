@@ -256,7 +256,7 @@ var
 	sFileName : string;
 	sPath : string;
 begin
-	sFileName := TFileUtils.ParseCommand(_configText).ExePath;
+	sFileName := TCommandLineRec.ParseCommand(_configText).ExePath;
 	sPath := ExtractFileDir(sFileName);
 	if sPath.IsEmpty then begin
 		TFileUtils.FindExecutable(sFileName, sPath);

@@ -23,7 +23,8 @@ uses
 	RipGrepper.UI.SettingsFormBase,
 	SVGIconImageListBase,
 	SVGIconImageList,
-	RipGrepper.Helper.UI.DarkMode;
+	RipGrepper.Helper.UI.DarkMode,
+	RipGrepper.Tools.FileUtils;
 
 type
 	TCheckBoxState = (csbNone, csbTrue, csbFalse);
@@ -36,13 +37,8 @@ type
 			ActionMoveUp : TAction;
 			ActionMoveDown : TAction;
 			ActionTest : TAction;
-			edt_OpenWithCmd : TEdit;
 			OpenDialog1 : TOpenDialog;
-			btnOpenFile : TButton;
 			ActionOpenFileDlg : TAction;
-			Label1 : TLabel;
-			lbCommands : TCheckListBox;
-			btnModify : TButton;
 			ActionModify : TAction;
 			ActionAdd : TAction;
 			ActionRemove : TAction;
@@ -57,12 +53,12 @@ type
 			tbTestRun : TToolButton;
 			SVGIconImageList1 : TSVGIconImageList;
 			lvCommands : TListView;
+			btn_Save : TButton;
+			btn_Cancel : TButton;
 			procedure FormCreate(Sender : TObject);
 			procedure ActionAddExecute(Sender : TObject);
-			procedure ActionAddUpdate(Sender : TObject);
 			procedure ActionCancelExecute(Sender : TObject);
 			procedure ActionModifyExecute(Sender : TObject);
-			procedure ActionModifyUpdate(Sender : TObject);
 			procedure ActionMoveDownExecute(Sender : TObject);
 			procedure ActionMoveDownUpdate(Sender : TObject);
 			procedure ActionMoveUpExecute(Sender : TObject);
@@ -72,22 +68,16 @@ type
 			procedure ActionRemoveUpdate(Sender : TObject);
 			procedure ActionTestExecute(Sender : TObject);
 			procedure ActionTestUpdate(Sender : TObject);
-			procedure ActionOpenFileDlgExecute(Sender : TObject);
-			procedure edt_OpenWithCmdKeyPress(Sender : TObject; var Key : Char);
-			procedure lbCommandsClick(Sender : TObject);
-			procedure lbCommandsDblClick(Sender : TObject);
+			procedure lvCommandsDblClick(Sender : TObject);
 
 		private
 			FColorTheme : string;
 			FDpiScaler : TRipGrepperDpiScaler;
 			FOpenWithSettings : TOpenWithSettings;
 			FThemeHandler : TThemeHandler;
-			procedure AddCommandItem(const _caption, _cmd : string; const _checked : TCheckBoxState = csbNone);
-			function CheckCommand(const _sCmd : string) : Boolean;
-			procedure ClearOpenWithCmd;
+			procedure AddCommandItem(const _ci : TCommandItem; _li : TListItem = nil);
+			procedure ExchangeItems(_lv : TListView; const i, j : Integer);
 			function GetThemeHandler : TThemeHandler;
-			procedure MoveItem(const idx : Integer);
-			procedure PutSelectedToEdit;
 			property ThemeHandler : TThemeHandler read GetThemeHandler;
 
 		protected
@@ -114,21 +104,18 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Helper.UI,
 	System.RegularExpressions,
-	RipGrepper.Tools.FileUtils;
+	RipGrepper.OpenWith.CmdEditorForm, ArrayEx;
 
 {$R *.dfm}
 
 constructor TOpenWithConfigForm.Create(AOwner : TComponent; const _settings : TOpenWithSettings; const _colorTheme : string);
 begin
-	inherited Create(AOwner, _settings); // , ImageList1);
+	inherited Create(AOwner, _settings);
 	FOpenWithSettings := _settings;
 	FColorTheme := _colorTheme;
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
-	lbCommands.MultiSelect := True; // we need this for working SelCount
-	lvCommands.MultiSelect := True;
 
-	lvCommands.Columns.Add.Caption := 'Label';
-	lvCommands.Columns.Add.Caption := 'Command Line';
+	lvCommands.MultiSelect := True; // we need this for working SelCount
 
 	FOpenWithSettings.ReadIni; // we should read ini every time, it can be overwritten by another instance...
 	ReadSettings;
@@ -153,17 +140,12 @@ begin
 end;
 
 procedure TOpenWithConfigForm.ActionAddExecute(Sender : TObject);
+var
+	ci : TCommandItem;
 begin
 	inherited;
-	lbCommands.Items.Add(edt_OpenWithCmd.Text);
-	AddCommandItem('', edt_OpenWithCmd.Text);
-	ClearOpenWithCmd;
-end;
-
-procedure TOpenWithConfigForm.ActionAddUpdate(Sender : TObject);
-begin
-	inherited;
-	ActionAdd.Enabled := edt_OpenWithCmd.Text <> '';
+	ci := TOpenWithCommandEditor.CreateAndShow(self, ci);
+	AddCommandItem(ci);
 end;
 
 procedure TOpenWithConfigForm.ActionCancelExecute(Sender : TObject);
@@ -174,49 +156,41 @@ end;
 procedure TOpenWithConfigForm.ActionModifyExecute(Sender : TObject);
 begin
 	inherited;
-	lbCommands.Items[lbCommands.ItemIndex] := edt_OpenWithCmd.Text;
 	var
 	item := lvCommands.Items[lvCommands.ItemIndex];
-	item.Caption := '';
-	item.SubItems.Add(edt_OpenWithCmd.Text);
-
-	ClearOpenWithCmd;
-end;
-
-procedure TOpenWithConfigForm.ActionModifyUpdate(Sender : TObject);
-begin
-	inherited;
-	btnModify.Enabled := (lbCommands.SelCount = 1) and (edt_OpenWithCmd.Text <> '');
+	var ci : TCommandItem := TCommandItem.New(item.Caption, item.SubItems[0]);
+	AddCommandItem(ci, item);
 end;
 
 procedure TOpenWithConfigForm.ActionMoveDownExecute(Sender : TObject);
 begin
 	inherited;
 	var
-	idx := lbCommands.ItemIndex;
-	inc(idx);
-	MoveItem(idx);
+	idx := lvCommands.ItemIndex;
+	ExchangeItems(lvCommands, idx, idx + 1);
+	lvCommands.ItemIndex := idx + 1;
 end;
 
 procedure TOpenWithConfigForm.ActionMoveDownUpdate(Sender : TObject);
 begin
 	inherited;
-	ActionMoveDown.Enabled := (lbCommands.SelCount = 1) and (lbCommands.ItemIndex < lbCommands.Count - 1);
+	ActionMoveDown.Enabled := (lvCommands.SelCount = 1) and (lvCommands.ItemIndex < lvCommands.GetCount - 1);
 end;
 
 procedure TOpenWithConfigForm.ActionMoveUpExecute(Sender : TObject);
 begin
 	inherited;
 	var
-	idx := lbCommands.ItemIndex;
-	dec(idx);
-	MoveItem(idx);
+	idx := lvCommands.ItemIndex;
+	ExchangeItems(lvCommands, idx, idx - 1);
+	lvCommands.ItemIndex := idx - 1;
+
 end;
 
 procedure TOpenWithConfigForm.ActionMoveUpUpdate(Sender : TObject);
 begin
 	inherited;
-	ActionMoveUp.Enabled := (lbCommands.SelCount = 1) and (lbCommands.ItemIndex > 0);
+	ActionMoveUp.Enabled := (lvCommands.SelCount = 1) and (lvCommands.ItemIndex > 0);
 end;
 
 procedure TOpenWithConfigForm.ActionOkExecute(Sender : TObject);
@@ -227,13 +201,13 @@ end;
 procedure TOpenWithConfigForm.ActionRemoveExecute(Sender : TObject);
 begin
 	inherited;
-	lbCommands.DeleteSelected;
+	lvCommands.DeleteSelected;
 end;
 
 procedure TOpenWithConfigForm.ActionRemoveUpdate(Sender : TObject);
 begin
 	inherited;
-	ActionRemove.Enabled := (lbCommands.SelCount = 1);
+	ActionRemove.Enabled := (lvCommands.SelCount = 1);
 end;
 
 procedure TOpenWithConfigForm.ActionTestExecute(Sender : TObject);
@@ -242,68 +216,27 @@ var
 begin
 	inherited;
 	owp := FOpenWithSettings.TestFile; // GxOtaGetCurrentSourceFile;
-	TOpenWithRunner.RunEditorCommand(lbCommands.Items[lbCommands.ItemIndex], owp);
+	TOpenWithRunner.RunEditorCommand(lvCommands.Items[lvCommands.ItemIndex].SubItems[0], owp);
 end;
 
 procedure TOpenWithConfigForm.ActionTestUpdate(Sender : TObject);
 begin
 	inherited;
-	ActionTest.Enabled := (lbCommands.SelCount = 1) and (not FOpenWithSettings.TestFile.IsEmpty);
+	ActionTest.Enabled := (lvCommands.SelCount = 1) and (not FOpenWithSettings.TestFile.IsEmpty);
 end;
 
-procedure TOpenWithConfigForm.ActionOpenFileDlgExecute(Sender : TObject);
-begin
-	inherited;
-	OpenDialog1.Filter := 'Executable files (*.exe)|*.exe';
-	if OpenDialog1.Execute(self.Handle) then begin
-		edt_OpenWithCmd.Text := OpenDialog1.FileName;
-	end;
-end;
-
-procedure TOpenWithConfigForm.AddCommandItem(const _caption, _cmd : string; const _checked : TCheckBoxState = csbNone);
-begin
-	var
-	item := lvCommands.Items.Add;
-	item.Caption := _caption;
-	item.SubItems.Add(_cmd);
-	if not(_checked = csbNone) then begin
-		item.Checked := _checked = csbTrue;
-	end;
-end;
-
-function TOpenWithConfigForm.CheckCommand(const _sCmd : string) : Boolean;
+procedure TOpenWithConfigForm.AddCommandItem(const _ci : TCommandItem; _li : TListItem = nil);
 var
-	bFound : Boolean;
-	sFileName : string;
-	sPath : string;
+	item : TListItem;
 begin
-	Result := False;
-	if _sCmd <> '' then begin
-		sFileName := TFileUtils.ParseCommand(_sCmd).ExePath;
-		if sFileName.IsEmpty then begin
-			sFileName := _sCmd;
-		end;
-		TDebugUtils.DebugMessage(Format('TOpenWithConfigForm.CheckCommand Exe: %s ', [sFileName]));
-		if not FileExists(sFileName) then begin
-			bFound := False;
-			sPath := ExtractFileDir(sFileName);
-			TFileUtils.FindExecutable(sFileName, sPath);
-			if (not sPath.IsEmpty) then begin
-				bFound := True;
-			end;
-			if not bFound then begin
-				TMsgBox.ShowError(Format('Executable "%s" not found!', [sFileName]));
-				Exit;
-			end;
-
-		end;
-		Result := True;
+	if Assigned(_li) then begin
+		item := _li;
+	end else begin
+		item := lvCommands.Items.Add;
 	end;
-end;
-
-procedure TOpenWithConfigForm.ClearOpenWithCmd;
-begin
-	edt_OpenWithCmd.Text := '';
+	item.Caption := _ci.Caption;
+	item.SubItems.Add(_ci.CommandLine.AsString());
+	item.Checked := _ci.IsActive;
 end;
 
 class procedure TOpenWithConfigForm.CreateAndShow(const _settings : TOpenWithSettings; const _colorTheme : string);
@@ -321,12 +254,6 @@ begin
 	end;
 end;
 
-procedure TOpenWithConfigForm.edt_OpenWithCmdKeyPress(Sender : TObject; var Key : Char);
-begin
-	inherited;
-	btnModify.Default := True;
-end;
-
 function TOpenWithConfigForm.GetThemeHandler : TThemeHandler;
 begin
 	if not Assigned(FThemeHandler) then begin
@@ -338,6 +265,7 @@ end;
 procedure TOpenWithConfigForm.ReadSettings;
 var
 	arr : TArray<string>;
+	ci : TCommandItem;
 	listCmdsFromSettings : TStringList;
 	i : integer;
 begin
@@ -352,34 +280,24 @@ begin
 			var
 			sCmd := FOpenWithSettings.Command[i];
 			dbgMsg.MsgFmt('sCmd:%s ', [sCmd]);
-			if sCmd = '' then
+			if sCmd = '' then begin
 				break;
+			end;
 			listCmdsFromSettings.Add(sCmd);
 			inc(i);
 		until (i = MAX_COMMAND_NUM);
 
 		if listCmdsFromSettings.Count <> 0 then begin
-			lbCommands.Items.Clear;
+			lvCommands.Items.Clear;
 		end;
 
 		for var sCmd : string in listCmdsFromSettings do begin
 			dbgMsg.MsgFmt('%s ', [sCmd]);
 			arr := sCmd.Split([SEPARATOR]); // TAB
-			if Length(arr) > 0 then begin
-				lbCommands.Items.Add('label' + SEPARATOR + arr[1]);
-
-				var
-				bEnable := (arr[0].ToUpper() = 'TRUE');
-				lbCommands.Checked[lbCommands.Count - 1] := bEnable;
-
-				var
-					csb : TCheckBoxState := csbTrue;
-				if not bEnable then
-					csb := csbFalse;
-
-				AddCommandItem('label', arr[1], csb);
-
-				dbgMsg.MsgFmt('%s "%s" "%s"', [BoolToStr(bEnable, True), arr[0], arr[1]]);
+			if Length(arr) > 1 then begin
+				ci := TCommandItem.New(arr);
+				AddCommandItem(ci);
+				dbgMsg.MsgFmt('"%s" "%s"', [arr[0], arr[1]]);
 			end;
 		end;
 	finally
@@ -389,6 +307,7 @@ end;
 
 procedure TOpenWithConfigForm.WriteSettings;
 var
+	item : TListItem;
 	settings : string;
 	sCmd : string;
 begin
@@ -396,14 +315,15 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithConfigForm.WriteSettings');
 	settings := '';
 	FOpenWithSettings.ClearCommandList; // so deleted entries will be recognized
-	for var i := 0 to lbCommands.Items.Count - 1 do begin
-		sCmd := lbCommands.Items[i].Replace(SEPARATOR, '', [rfReplaceAll]);
-		dbgMsg.Msg(Format('%s', [sCmd]));
-		if (lbCommands.Checked[i] and CheckCommand(sCmd)) then begin
-			settings := Format('%s' + SEPARATOR + '%s', [BoolToStr(lbCommands.Checked[i], true), sCmd]);
-		end else begin
-			settings := Format('%s' + SEPARATOR + '%s', [BoolToStr(False, true), sCmd]);
-		end;
+	for var i := 0 to lvCommands.Items.Count - 1 do begin
+		item := lvCommands.Items[i];
+ 		sCmd := item.Subitems[0].Replace(SEPARATOR, '', [rfReplaceAll]);
+ 		dbgMsg.Msg(Format('%s', [sCmd]));
+		settings := Format('%s' + SEPARATOR + '%s' + SEPARATOR + '%s' + SEPARATOR + '%s',
+			{ } [BoolToStr(item.Checked and TOpenWithCommandEditor.CheckCommand(sCmd), true),
+			{ } item.Caption, // caption
+			{ } sCmd, // command line
+			{ } item.SubItems[1]]); // descr
 		FOpenWithSettings.Command[i] := settings;
 		dbgMsg.Msg(Format('%s', [FOpenWithSettings.Command[i]]));
 	end;
@@ -412,33 +332,37 @@ begin
 	// inherited WriteSettings; it's not eonugh
 end;
 
-procedure TOpenWithConfigForm.lbCommandsClick(Sender : TObject);
+procedure TOpenWithConfigForm.lvCommandsDblClick(Sender : TObject);
+var
+	ci : TCommandItem;
+	item : TListItem;
+    arrEx : TArrayEx<string>;
 begin
 	inherited;
-	if edt_OpenWithCmd.Text = '' then begin
-		PutSelectedToEdit;
+	item := lvCommands.Items[lvCommands.ItemIndex];
+	ci.Caption := item.Caption;
+    arrEx := item.SubItems.ToStringArray;
+	ci.CommandLine := TCommandLineRec.ParseCommand(arrEx.SafeItemAt[0]);
+	ci.Description := arrEx.SafeItemAt[1];
+    ci := TOpenWithCommandEditor.CreateAndShow(self, ci);
+	AddCommandItem(ci, item);
+	TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.lvCommandsDblClick SelectCount %d', [lvCommands.SelCount])));
+end;
+
+procedure TOpenWithConfigForm.ExchangeItems(_lv : TListView; const i, j : Integer);
+var
+	li : TListItem;
+begin
+	_lv.Items.BeginUpdate;
+	try
+		li := TListItem.Create(_lv.Items);
+		li.Assign(_lv.Items.Item[i]);
+		_lv.Items.Item[i].Assign(_lv.Items.Item[j]);
+		_lv.Items.Item[j].Assign(li);
+		li.Free;
+	finally
+		_lv.Items.EndUpdate
 	end;
-end;
-
-procedure TOpenWithConfigForm.lbCommandsDblClick(Sender : TObject);
-begin
-	inherited;
-	PutSelectedToEdit;
-	TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.lbCommandsDblClick SelectCount %d', [lbCommands.SelCount])));
-end;
-
-procedure TOpenWithConfigForm.MoveItem(const idx : Integer);
-begin
-	if (idx >= 0) and (idx < lbCommands.Count) then begin
-		lbCommands.Items.Move(lbCommands.ItemIndex, idx);
-		lbCommands.Selected[idx] := True;
-	end;
-end;
-
-procedure TOpenWithConfigForm.PutSelectedToEdit;
-begin
-	edt_OpenWithCmd.Text := lbCommands.Items[lbCommands.ItemIndex];
-	TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.lbCommandsDblClick %s ', [edt_OpenWithCmd.Text])));
 end;
 
 end.

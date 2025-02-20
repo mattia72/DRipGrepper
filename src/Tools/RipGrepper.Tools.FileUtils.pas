@@ -12,6 +12,22 @@ type
 	TCommandLineRec = record
 		ExePath : string;
 		Arguments : TArray<string>;
+
+		public
+			function AsString(): string;
+			class function ParseCommand(const _sCmd : string) : TCommandLineRec; static;
+	end;
+
+	TCommandItem = record
+		Caption : string;
+		CommandLine : TCommandLineRec;
+		Description : string;
+		IsActive : Boolean;
+
+		public
+			class function New(const _caption, _cmd : string; const _descr : string = ''; const _isActive : Boolean = True) : TCommandItem;
+				overload; static;
+			class function New(const _arr : TArray<string>; const _isActive : Boolean = True) : TCommandItem; overload; static;
 	end;
 
 	TFileUtils = class(TObject)
@@ -29,7 +45,6 @@ type
 			class function GetAppDirectory : string;
 			class function GetAppFullPath : string;
 			class function GetAppVersion(const _exePath : string) : string;
-			class function ParseCommand(const _sCmd : string) : TCommandLineRec;
 			class function GetPackageNameAndVersion(Package : HMODULE) : string;
 			class function GetVsCodeDir : string;
 			class function LongToShortFilePath(const LongPath : string) : string;
@@ -209,22 +224,6 @@ begin
 	Result := Format(FORMAT_VERSION_INFO, [imajor, iminor, irelease, ibuild]);
 end;
 
-class function TFileUtils.ParseCommand(const _sCmd : string) : TCommandLineRec;
-var
-	m : TMatch;
-	r : TRegEx;
-begin
-	r := TRegex.Create('[''"]?(.*.(exe|com|bat))["'']? (.*)', [roIgnoreCase]);
-	m := r.Match(_sCmd);
-
-	if not m.Success then begin
-		Exit;
-	end;
-
-	Result.ExePath := m.Groups[1].Value;
-	Result.Arguments := m.Groups[3].Value.Split([' ']);
-end;
-
 class function TFileUtils.GetModuleVersion(Instance : THandle; out iMajor, iMinor, iRelease, iBuild : Integer) : Boolean;
 var
 	fileInformation : PVSFIXEDFILEINFO;
@@ -297,6 +296,53 @@ begin
 		sCodePath : string;
 	if TFileUtils.FindExecutable('code', sCodePath) then begin
 		Result := TPath.GetDirectoryName(sCodePath);
+	end;
+end;
+
+function TCommandLineRec.AsString(): string;
+begin
+	Result := ExePath + ' ' + string.Join(' ', Arguments);;
+end;
+
+class function TCommandLineRec.ParseCommand(const _sCmd : string) : TCommandLineRec;
+var
+	m : TMatch;
+	r : TRegEx;
+begin
+	r := TRegex.Create('[''"]?(.*.(exe|com|bat))["'']? (.*)', [roIgnoreCase]);
+	m := r.Match(_sCmd);
+
+	if not m.Success then begin
+		Exit;
+	end;
+
+	Result.ExePath := m.Groups[1].Value;
+	Result.Arguments := m.Groups[3].Value.Split([' ']);
+end;
+
+class function TCommandItem.New(const _caption, _cmd : string; const _descr : string = ''; const _isActive : Boolean = True) : TCommandItem;
+begin
+	Result.Caption := _caption;
+	Result.CommandLine := TCommandLineRec.ParseCommand(_cmd);
+	Result.Description := _descr;
+	Result.IsActive := _isActive;
+end;
+
+class function TCommandItem.New(const _arr : TArray<string>; const _isActive : Boolean = True) : TCommandItem;
+var
+	arrEx : TArrayEx<string>;
+begin
+	arrEx := _arr;
+	if arrEx.MaxIndex = 1 then begin
+		Result.IsActive := (arrEx[0].ToUpper() = 'TRUE');
+		Result.CommandLine := TCommandLineRec.ParseCommand(arrEx.SafeItemAt[1]);
+		Result.Caption := TPath.GetFileNameWithoutExtension(Result.CommandLine.ExePath);
+		Result.Description := '';
+	end else begin
+		Result.IsActive := (arrEx.SafeItemAt[0].ToUpper() = 'TRUE');
+		Result.Caption := arrEx.SafeItemAt[1];
+		Result.CommandLine := TCommandLineRec.ParseCommand(arrEx.SafeItemAt[2]);
+		Result.Description := arrEx.SafeItemAt[3];
 	end;
 end;
 

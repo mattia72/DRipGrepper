@@ -19,15 +19,10 @@ uses
 	SVGIconImageList,
 	Vcl.StdCtrls,
 	System.Actions,
-	Vcl.ActnList;
+	Vcl.ActnList,
+	RipGrepper.Tools.FileUtils;
 
 type
-
-	TCommandItem = record
-		Caption : string;
-		CommandLine : string;
-		Description : string;
-	end;
 
 	TOpenWithCommandEditor = class(TForm)
 		SVGIconImageList1 : TSVGIconImageList;
@@ -47,14 +42,17 @@ type
 		ActionOpenFileDialog : TAction;
 		Label4 : TLabel;
 		edtDescr : TEdit;
+		OpenDialog1 : TOpenDialog;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionOkExecute(Sender : TObject);
-		procedure FormShow(Sender: TObject);
+		procedure ActionOpenFileDialogExecute(Sender : TObject);
+		procedure FormShow(Sender : TObject);
 
 		private
 			FCommandItem : TCommandItem;
 
 		public
+			class function CheckCommand(const _sCmd : string) : Boolean;
 			class function CreateAndShow(_Owner : TComponent; const ci : TCommandItem) : TCommandItem;
 			property CommandItem : TCommandItem read FCommandItem write FCommandItem;
 
@@ -64,6 +62,10 @@ var
 	OpenWithCommandEditor : TOpenWithCommandEditor;
 
 implementation
+
+uses
+	RipGrepper.Helper.UI,
+	RipGrepper.Tools.DebugUtils;
 
 {$R *.dfm}
 
@@ -75,9 +77,55 @@ end;
 procedure TOpenWithCommandEditor.ActionOkExecute(Sender : TObject);
 begin
 	FCommandItem.Caption := edtLabel.Text;
-	FCommandItem.CommandLine := edtLabel.Text;
+	FCommandItem.CommandLine := TCommandLineRec.ParseCommand(edtCmdLine.Text);
 	FCommandItem.Description := edtDescr.Text;
+	if FCommandItem.Caption.IsEmpty then begin
+		TMsgBox.ShowError('Caption shouldn''t be empty!');
+		Exit;
+	end;
+	if not CheckCommand(FCommandItem.CommandLine.AsString()) then begin
+		FCommandItem.IsActive := False;
+	end;
 	ModalResult := mrOk;
+end;
+
+procedure TOpenWithCommandEditor.ActionOpenFileDialogExecute(Sender : TObject);
+begin
+	inherited;
+	OpenDialog1.Filter := 'Executable files (*.exe)|*.exe';
+	if OpenDialog1.Execute(self.Handle) then begin
+		edtCmdLine.Text := OpenDialog1.FileName;
+	end;
+end;
+
+class function TOpenWithCommandEditor.CheckCommand(const _sCmd : string) : Boolean;
+var
+	bFound : Boolean;
+	sFileName : string;
+	sPath : string;
+begin
+	Result := False;
+	if _sCmd <> '' then begin
+		sFileName := TCommandLineRec.ParseCommand(_sCmd).ExePath;
+		if sFileName.IsEmpty then begin
+			sFileName := _sCmd;
+		end;
+		TDebugUtils.DebugMessage(Format('TOpenWithCommandEditor.CheckCommand Exe: %s ', [sFileName]));
+		if not FileExists(sFileName) then begin
+			bFound := False;
+			sPath := ExtractFileDir(sFileName);
+			TFileUtils.FindExecutable(sFileName, sPath);
+			if (not sPath.IsEmpty) then begin
+				bFound := True;
+			end;
+			if not bFound then begin
+				TMsgBox.ShowError(Format('Executable "%s" not found!', [sFileName]));
+				Exit;
+			end;
+
+		end;
+		Result := True;
+	end;
 end;
 
 class function TOpenWithCommandEditor.CreateAndShow(_Owner : TComponent; const ci : TCommandItem) : TCommandItem;
@@ -89,16 +137,18 @@ begin
 		form.CommandItem := ci;
 		if mrOk = form.ShowModal() then begin
 			Result := form.CommandItem;
+		end else begin
+			Result := ci;
 		end;
 	finally
 		form.Free;
 	end;
 end;
 
-procedure TOpenWithCommandEditor.FormShow(Sender: TObject);
+procedure TOpenWithCommandEditor.FormShow(Sender : TObject);
 begin
 	edtLabel.Text := FCommandItem.Caption;
-	edtLabel.Text := FCommandItem.CommandLine;
+	edtCmdLine.Text := FCommandItem.CommandLine.AsString();
 	edtDescr.Text := FCommandItem.Description;
 
 end;

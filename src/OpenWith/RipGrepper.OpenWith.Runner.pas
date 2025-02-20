@@ -62,7 +62,7 @@ var
 	cr : TCommandLineRec;
 	sCmd : string;
 begin
-	cr := TFileUtils.ParseCommand(_sEditorCmd);
+	cr := TCommandLineRec.ParseCommand(_sEditorCmd);
 	sParams := string.Join(' ', cr.Arguments);
 	sCmd := '"' + cr.ExePath + '"';
 	sParams := BuildParams(_owp, sParams);

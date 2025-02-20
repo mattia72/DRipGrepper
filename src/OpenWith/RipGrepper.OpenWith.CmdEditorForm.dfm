@@ -285,6 +285,11 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
       Hint = 'Explore File...'
       ImageIndex = 6
       ImageName = 'folder-opened'
+      OnExecute = ActionOpenFileDialogExecute
     end
+  end
+  object OpenDialog1: TOpenDialog
+    Left = 232
+    Top = 184
   end
 end
