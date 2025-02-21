@@ -139,9 +139,9 @@ type
 			FHistItemObj : IHistoryItemObject;
 			FPrevFoundNode : PVirtualNode;
 			FSettings : TRipGrepperSettings;
-			FSkipButtonEditChange: Boolean;
+			FSkipButtonEditChange : Boolean;
 			FViewStyleIndex : integer;
-			procedure ChangeButtonedEditTextButSkipChangeEvent(_edt: TButtonedEdit; const _txt: string);
+			procedure ChangeButtonedEditTextButSkipChangeEvent(_edt : TButtonedEdit; const _txt : string);
 			procedure GetCheckedReplaceList(var replaceList : TReplaceList);
 			function GetIsGuiReplaceMode : Boolean;
 			function GetSettings : TRipGrepperSettings;
@@ -154,6 +154,7 @@ type
 			procedure SetReplaceModeOnGui;
 			procedure SetReplaceModeOnToolBar;
 			procedure SetReplaceTextInSettings(const _sReplText : string);
+			class function ShowWarningBeforeSave(_list : TReplaceList) : Boolean;
 			procedure StartNewSearch;
 			procedure ToggleFilterMode(const _fm : EFilterMode);
 			procedure ToggleGuiReplaceMode(const _grm : EGuiReplaceMode);
@@ -527,7 +528,7 @@ begin
 	ActionShowSearchForm.Enabled := False;
 end;
 
-procedure TRipGrepperTopFrame.ChangeButtonedEditTextButSkipChangeEvent(_edt: TButtonedEdit; const _txt: string);
+procedure TRipGrepperTopFrame.ChangeButtonedEditTextButSkipChangeEvent(_edt : TButtonedEdit; const _txt : string);
 begin
 	FSkipButtonEditChange := True;
 	try
@@ -742,7 +743,6 @@ begin
 	replaceList := TReplaceList.Create();
 	try
 		GetCheckedReplaceList(replaceList);
-		replaceList.Sort();
 		{$IFNDEF STANDALONE}
 		var
 		arr := IOTAUTils.GetModifiedEditBuffers();
@@ -753,7 +753,9 @@ begin
 			end;
 		end;
 		{$ENDIF}
-		TReplaceHelper.ReplaceLineInFiles(replaceList);
+		if ShowWarningBeforeSave(replaceList) then begin
+			TReplaceHelper.ReplaceLineInFiles(replaceList);
+		end;
 	finally
 		replaceList.Free;
 	end;
@@ -876,6 +878,15 @@ begin
 	end;
 end;
 
+class function TRipGrepperTopFrame.ShowWarningBeforeSave(_list : TReplaceList) : Boolean;
+begin
+	var
+	cnt := _list.GetCounters();
+	Result := mrYes =
+	{ } TMsgBox.ShowQuestion(Format('Are you sure to change %d line(s) in %d file(s)?',
+		{ } [cnt.LineCount, cnt.FileCount]));
+end;
+
 procedure TRipGrepperTopFrame.StartNewSearch;
 var
 	formResult : Integer;
@@ -921,7 +932,7 @@ begin
 	if (not edtFilter.Enabled) and (edtFilter.Text = '') then begin
 		ChangeButtonedEditTextButSkipChangeEvent(edtFilter, edtFilter.TextHint);
 	end else if edtFilter.Enabled and (edtFilter.Text = edtFilter.TextHint) then begin
-		ChangeButtonedEditTextButSkipChangeEvent(edtFilter,'');
+		ChangeButtonedEditTextButSkipChangeEvent(edtFilter, '');
 	end;
 
 	ActionSetFileFilterMode.Checked := EFilterMode.fmFilterFile in FFilterMode;

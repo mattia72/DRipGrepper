@@ -22,10 +22,19 @@ type
 		Col : integer;
 		Line : string;
 		class function New(const _row : Integer; const _col : Integer; const _line : string) : TReplaceData; static;
+		class operator Initialize(out Dest : TReplaceData);
+	end;
+
+	TFilePathReplaceData = TDictionary<string, TArrayEx<TReplaceData>>;
+
+	TFileReplaceCounters = record
+		FileCount : integer;
+		LineCount : Integer;
+		ReplaceCount : integer;
 	end;
 
 	TReplaceList = class
-		Items : TDictionary<string, TArrayEx<TReplaceData>>;
+		Items : TFilePathReplaceData;
 
 		private
 			FComparer : IComparer<TReplaceData>;
@@ -36,15 +45,13 @@ type
 			procedure AddUnique(const fileName : string; const row : integer; const col : integer; const replaceLine : string);
 			function TryGet(const fileName : string; const row : integer; const col : integer; var replaceLine : string) : boolean;
 			function Contains(fileName : string; row, col : integer) : Boolean;
+			function GetCounters() : TFileReplaceCounters;
 			function Update(const fileName : string; const row, col : integer; const line : string) : Boolean;
 			function Remove(const fileName : string; const row, col : integer; const line : string) : Boolean;
 			procedure Sort;
 	end;
 
 	TReplaceHelper = class
-		private
-			class function ShowWarningBeforeSave(_list : TReplaceList) : Boolean;
-
 		public
 			class procedure ReplaceLineInFile(const _fileName : string; const _row : Integer; const _col : Integer;
 				const _replaceLine : string; const _createBackup : Boolean = True);
@@ -86,9 +93,11 @@ class procedure TReplaceHelper.ReplaceLineInFiles(_list : TReplaceList; const _c
 var
 	fileLines : TEncodedStringList;
 	context : IReplaceContext;
+	linePostFix : string;
+	linePrefix : string;
+	prevRow : Integer;
 begin
-	if not ShowWarningBeforeSave(_list) then
-		Exit;
+	_list.Sort(); // sort rows and cols
 
 	context := TReplaceContext.Create();
 	for var fileName in _list.Items.Keys do begin
@@ -98,31 +107,24 @@ begin
 		fileLines := TEncodedStringList.Create;
 		try
 			context.GetFileLines(fileName, fileLines);
+            prevRow := -1;
 			for var rd : TReplaceData in _list.Items[fileName] do begin
 				if (rd.Row >= 0) and (rd.Row < fileLines.Count) then begin
-					fileLines[rd.Row - 1] := rd.Line;
+					if prevRow = rd.Row then begin
+						linePrefix := fileLines[rd.Row - 1].Substring(0, rd.Col - 1);
+						linePostFix := rd.Line.Substring(rd.Col - 1);
+						fileLines[rd.Row - 1] := linePrefix + linePostFix;
+					end else begin
+						fileLines[rd.Row - 1] := rd.Line;
+					end;
 				end;
+				prevRow := rd.Row;
 			end;
 			context.WriteFileLines(fileName, fileLines);
 		finally
 			fileLines.Free;
 		end;
 	end;
-end;
-
-class function TReplaceHelper.ShowWarningBeforeSave(_list : TReplaceList) : Boolean;
-var
-	replaceCount : Integer;
-begin
-	replaceCount := 0;
-
-	for var fileName in _list.Items.Keys do begin
-		for var rd : TReplaceData in _list.Items[fileName] do begin
-			Inc(replaceCount);
-		end;
-	end;
-	Result := mrYes = TMsgBox.ShowQuestion(Format('Are you sure to change %d line(s) in %d file(s)?',
-		[replaceCount, _list.Items.Keys.Count]));
 end;
 
 class function TReplaceHelper.ReplaceString(const _input, _pattern, _replacement : string; const _fromCol : Integer;
@@ -155,6 +157,13 @@ begin
 	Result.Line := _line;
 end;
 
+class operator TReplaceData.Initialize(out Dest : TReplaceData);
+begin
+	Dest.Row := -1;
+	Dest.Col := -1;
+	Dest.Line := '';
+end;
+
 { TReplaceList }
 
 constructor TReplaceList.Create;
@@ -164,8 +173,10 @@ begin
 	FComparer := TComparer<TReplaceData>.Construct(
 		function(const Left, Right : TReplaceData) : Integer
 		begin
-			Result := Abs(TComparer<integer>.Default.Compare(Left.Row, Right.Row)) + Abs(TComparer<integer>.Default.Compare(Left.Col,
-				Right.Col));
+			Result := TComparer<integer>.Default.Compare(Left.Row, Right.Row);
+			if (0 = Result) then begin
+				Result := TComparer<integer>.Default.Compare(Left.Col, Right.Col);
+			end;
 		end);
 end;
 
@@ -214,6 +225,25 @@ begin
 		Result := replaceList.Contains(TReplaceData.New(row, col, ''), FComparer);
 	end;
 
+end;
+
+function TReplaceList.GetCounters() : TFileReplaceCounters;
+var
+	prevRow : Integer;
+begin
+	Result.FileCount := Items.Keys.Count;
+	Result.ReplaceCount := 0;
+
+	for var fileName in Items.Keys do begin
+		prevRow := -1;
+		for var rd : TReplaceData in Items[fileName] do begin
+			Inc(Result.ReplaceCount);
+			if prevRow <> rd.Row then begin
+				Inc(Result.LineCount);
+			end;
+			prevRow := rd.Row;
+		end;
+	end;
 end;
 
 function TReplaceList.Update(const fileName : string; const row, col : integer; const line : string) : Boolean;
