@@ -22,12 +22,16 @@ type
 			procedure TestReplaceString_SimpleReplace;
 			[Test]
 			procedure TestSort;
+			[Test]
+			procedure TestReplaceInFile();
 	end;
 
 implementation
 
 uses
-  ArrayEx;
+	ArrayEx,
+	System.Classes,
+	System.IOUtils;
 
 procedure TTestReplaceHelper.TestReplaceString_UseRegex;
 var
@@ -83,25 +87,78 @@ end;
 
 procedure TTestReplaceHelper.TestSort;
 var
-	ReplaceList : TReplaceList;
-	ReplaceData1, ReplaceData2, ReplaceData3 : TReplaceData;
+	rl : TReplaceList;
+	rd : TReplaceData;
 	SortedList : TArrayEx<TReplaceData>;
 begin
-	ReplaceList := TReplaceList.Create;
+	rl := TReplaceList.Create;
 	try
-		var arr := 
-		for ReplaceData in [TReplaceData.New(3, 1, 'Line 3'), TReplaceData.New(1, 1, 'Line 1'), TReplaceData.New(2, 1, 'Line 2')] do
-			ReplaceList.AddUnique('testfile', ReplaceData.Row, ReplaceData.Col, ReplaceData.Line);
+		var
+		arr := [TReplaceData.New(3, 1, 'Line 3'),
+		{ } TReplaceData.New(1, 1, 'Line 1'),
+		{ } TReplaceData.New(2, 1, 'Line 2')
+		{ } ];
 
-		ReplaceList.Sort;
+		for rd in arr do begin
+			rl.AddUnique('testfile', rd.Row, rd.Col, rd.Line);
+		end;
 
-		SortedList := ReplaceList.Items['testfile'];
+		rl.Sort;
+
+		SortedList := rl.Items['testfile'];
 
 		Assert.AreEqual(1, SortedList[0].Row);
 		Assert.AreEqual(2, SortedList[1].Row);
 		Assert.AreEqual(3, SortedList[2].Row);
 	finally
-		ReplaceList.Free;
+		rl.Free;
+	end;
+end;
+
+procedure TTestReplaceHelper.TestReplaceInFile();
+var
+	rl : TReplaceList;
+	rd : TReplaceData;
+	SortedList : TArrayEx<TReplaceData>;
+	arr : TArrayEx<TReplaceData>;
+	sl : TStringList;
+	sTempFile : string;
+begin
+	for var i : integer := 1 to 5 do begin
+		sl.Add(Format('Line %d with word1_%d word2_%d word3_%d', [i, i, i, i]));
+	end;
+	sTempFile := TPath.GetTempFileName();
+	sl.SaveToFile(sTempFile);
+	var
+	i := 2;
+	arr := [
+	{ } TReplaceData.New(5, 13, sl[4]),
+	{ } TReplaceData.New(1, 13, sl[0]),
+
+	{ } TReplaceData.New(3, 21, Format('Line %d with cccc1_%d word2_%d word3_%d', [i, i, i, i])),
+	{ } TReplaceData.New(3, 13, Format('Line %d with word1_%d aaaa2_%d word3_%d', [i, i, i, i])),
+	{ } TReplaceData.New(3, 29, Format('Line %d with word1_%d word2_%d bbbb3_%d', [i, i, i, i])),
+
+	{ } TReplaceData.New(4, 13, sl[3]),
+	{ } TReplaceData.New(2, 13, sl[1])
+	{ } ];
+
+	rl := TReplaceList.Create;
+	try
+		for rd in arr do begin
+			rl.AddUnique(sTempFile, rd.Row, rd.Col, rd.Line);
+		end;
+
+		rl.Sort;
+		TReplaceHelper.ReplaceLineInFiles(rl, False);
+		sl.Clear;
+		sl.LoadFromFile(sTempFile);
+
+		Assert.AreEqual(Format('Line %d with cccc1_%d aaaa2_%d bbbb3_%d', [i, i, i, i]), sl[3]);
+
+	finally
+		rl.Free;
+		TFile.Delete(sTempFile);
 	end;
 end;
 
