@@ -278,7 +278,7 @@ begin
 		FSettingsProxy.Free;
 	end;
 	FOrigSearchFormSettings.Free;
-	FThemeHandler.Free;
+
 	// FDpiScaler.Free;
 	inherited Destroy;
 end;

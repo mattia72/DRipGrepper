@@ -60,7 +60,6 @@ type
 
 		public
 			constructor Create(AOwner : TComponent; const _themeName : string); reintroduce;
-		destructor Destroy(); override;
 			class function CheckCommand(const _sCmd : string) : Boolean;
 			class function CreateAndShow(_Owner : TComponent; const ci : TCommandItem;
 				const _themeName : string): TCommandItem;
@@ -83,12 +82,6 @@ constructor TOpenWithCommandEditor.Create(AOwner : TComponent; const _themeName 
 begin
 	inherited Create(AOwner);
 	ThemeHandler.Init(_themeName);
-end;
-
-destructor TOpenWithCommandEditor.Destroy();
-begin
-    FThemeHandler.Free;
-	inherited;
 end;
 
 procedure TOpenWithCommandEditor.ActionCancelExecute(Sender : TObject);

@@ -50,14 +50,12 @@ begin
 	inherited Create(_Owner);
 	FSettings := _settings;
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
-	OnCreate := OnCreateForm;
     ThemeHandler.Init(_themeName);
 end;
 
 destructor TSettingsBaseForm.Destroy;
 begin
 	FDpiScaler.Free;
-	FThemeHandler.Free;
 	inherited;
 end;
 

@@ -128,7 +128,6 @@ end;
 destructor TOpenWithCmdList.Destroy();
 begin
 	FDpiScaler.Free;
-	FThemeHandler.Free;
 	inherited Destroy();
 end;
 

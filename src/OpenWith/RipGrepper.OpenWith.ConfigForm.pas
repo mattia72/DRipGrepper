@@ -130,7 +130,6 @@ end;
 destructor TOpenWithConfigForm.Destroy;
 begin
 	FDpiScaler.Free;
-	FThemeHandler.Free;
 	inherited;
 end;
 

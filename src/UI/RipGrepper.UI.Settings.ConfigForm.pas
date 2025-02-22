@@ -114,7 +114,6 @@ destructor TConfigForm.Destroy;
 begin
 //  FExtensionSettings.Free;
 	FSettingsForms.Free;
-	FThemeHandler.Free;
 	Settings.ReLoadFromDisk;
 	inherited;
 end;

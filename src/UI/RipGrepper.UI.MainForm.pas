@@ -149,7 +149,6 @@ end;
 destructor TRipGrepperForm.Destroy;
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.Destroy');
-	FThemeHandler.Free;
 	inherited;
 end;
 

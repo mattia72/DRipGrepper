@@ -17,7 +17,7 @@ uses
 type
 	EThemeMode = (tmLight, tmDark, tmSystem);
 
-	TThemeHandler = class
+	TThemeHandler = class(TComponent) // base is TComponent it will be freed by the Owner
 		private
 			FThemeName : string;
 			FForm : TForm;
@@ -27,7 +27,7 @@ type
 			procedure FormCreate(Sender : TObject);
 
 		public
-			constructor Create(_form : TForm; _theme : string = '');
+			constructor Create(_form : TForm; _theme : string = ''); reintroduce;
 			/// Put it in TForm.OnCreate, NOT in OnShow
 			procedure HandleThemes(const _theme : string);
 			procedure Init(_themeName : string);
@@ -381,7 +381,7 @@ end;
 
 constructor TThemeHandler.Create(_form : TForm; _theme : string = '');
 begin
-	inherited Create;
+	inherited Create(_form);
 	FForm := _form;
 	FOnFormCreate := FForm.OnCreate;
 	FForm.OnCreate := self.FormCreate;
