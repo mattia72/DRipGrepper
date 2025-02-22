@@ -15,6 +15,7 @@ type
 
 		public
 			function AsString(): string;
+		function ParametersAsString(): string;
 			class function ParseCommand(const _sCmd : string) : TCommandLineRec; static;
 	end;
 
@@ -302,6 +303,11 @@ end;
 function TCommandLineRec.AsString(): string;
 begin
 	Result := ExePath + ' ' + string.Join(' ', Arguments);;
+end;
+
+function TCommandLineRec.ParametersAsString(): string;
+begin
+	Result := string.Join(' ', Arguments);;
 end;
 
 class function TCommandLineRec.ParseCommand(const _sCmd : string) : TCommandLineRec;

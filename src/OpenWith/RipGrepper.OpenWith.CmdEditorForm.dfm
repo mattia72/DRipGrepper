@@ -2,8 +2,8 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
   Left = 0
   Top = 0
   Caption = 'OpenWithCommandEditor'
-  ClientHeight = 361
-  ClientWidth = 472
+  ClientHeight = 429
+  ClientWidth = 468
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,19 +15,19 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 472
-    Height = 361
+    Width = 468
+    Height = 429
     Align = alClient
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 0
     DesignSize = (
-      472
-      361)
+      468
+      429)
     object btn_Save: TButton
       AlignWithMargins = True
-      Left = 297
-      Top = 326
+      Left = 293
+      Top = 394
       Width = 75
       Height = 25
       Margins.Left = 8
@@ -40,8 +40,8 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
     end
     object btn_Cancel: TButton
       AlignWithMargins = True
-      Left = 388
-      Top = 326
+      Left = 384
+      Top = 394
       Width = 75
       Height = 25
       Margins.Left = 8
@@ -56,19 +56,19 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
       AlignWithMargins = True
       Left = 4
       Top = 4
-      Width = 464
-      Height = 195
+      Width = 460
+      Height = 237
       Align = alTop
       Caption = 'Settings'
       TabOrder = 2
       DesignSize = (
-        464
-        195)
+        460
+        237)
       object Label1: TLabel
         AlignWithMargins = True
         Left = 10
         Top = 72
-        Width = 326
+        Width = 322
         Height = 20
         Margins.Left = 50
         Margins.Top = 15
@@ -82,7 +82,7 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
         AlignWithMargins = True
         Left = 10
         Top = 22
-        Width = 326
+        Width = 322
         Height = 20
         Margins.Left = 50
         Margins.Top = 15
@@ -95,8 +95,8 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
       object Label4: TLabel
         AlignWithMargins = True
         Left = 10
-        Top = 122
-        Width = 326
+        Top = 173
+        Width = 322
         Height = 20
         Margins.Left = 50
         Margins.Top = 15
@@ -106,8 +106,22 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
         AutoSize = False
         Caption = 'Description:'
       end
+      object Label3: TLabel
+        AlignWithMargins = True
+        Left = 10
+        Top = 120
+        Width = 322
+        Height = 20
+        Margins.Left = 50
+        Margins.Top = 15
+        Margins.Right = 8
+        Margins.Bottom = 8
+        Anchors = [akLeft, akTop, akRight]
+        AutoSize = False
+        Caption = 'Parameters:'
+      end
       object btnOpenFile: TButton
-        Left = 432
+        Left = 428
         Top = 91
         Width = 25
         Height = 25
@@ -123,10 +137,10 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
         ShowHint = True
         TabOrder = 0
       end
-      object edtCmdLine: TEdit
+      object edtCmdPath: TEdit
         Left = 10
         Top = 92
-        Width = 419
+        Width = 415
         Height = 23
         Margins.Left = 50
         Margins.Top = 8
@@ -137,8 +151,8 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
       end
       object edtDescr: TEdit
         Left = 10
-        Top = 142
-        Width = 419
+        Top = 193
+        Width = 415
         Height = 23
         Margins.Left = 50
         Margins.Top = 8
@@ -150,7 +164,7 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
       object edtLabel: TEdit
         Left = 10
         Top = 42
-        Width = 419
+        Width = 415
         Height = 23
         Margins.Left = 50
         Margins.Top = 8
@@ -159,13 +173,25 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 3
       end
+      object edtParameters: TEdit
+        Left = 10
+        Top = 140
+        Width = 415
+        Height = 23
+        Margins.Left = 50
+        Margins.Top = 8
+        Margins.Right = 125
+        Margins.Bottom = 0
+        Anchors = [akLeft, akTop, akRight]
+        TabOrder = 4
+      end
     end
     object GroupBox2: TGroupBox
       AlignWithMargins = True
       Left = 4
-      Top = 203
-      Width = 464
-      Height = 117
+      Top = 247
+      Width = 460
+      Height = 141
       Margins.Bottom = 40
       Align = alBottom
       Anchors = [akLeft, akTop, akRight, akBottom]
@@ -175,8 +201,8 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
         AlignWithMargins = True
         Left = 5
         Top = 20
-        Width = 454
-        Height = 92
+        Width = 450
+        Height = 116
         Align = alClient
         ItemHeight = 15
         Items.Strings = (
@@ -276,13 +302,13 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
           '71021 7H14.5002L12.1302 13Z" fill="#424242"/>'#13#10'</svg>'#13#10
       end>
     Scaled = True
-    Left = 391
-    Top = 128
+    Left = 343
+    Top = 288
   end
   object ActionList1: TActionList
     Images = SVGIconImageList1
-    Left = 430
-    Top = 125
+    Left = 406
+    Top = 285
     object ActionOk: TAction
       Caption = 'Ok'
       OnExecute = ActionOkExecute
@@ -299,7 +325,7 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
     end
   end
   object OpenDialog1: TOpenDialog
-    Left = 437
-    Top = 44
+    Left = 381
+    Top = 324
   end
 end

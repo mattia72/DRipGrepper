@@ -28,7 +28,7 @@ type
 		SVGIconImageList1 : TSVGIconImageList;
 		Panel1 : TPanel;
 		Label1 : TLabel;
-		edtCmdLine : TEdit;
+		edtCmdPath : TEdit;
 		btnOpenFile : TButton;
 		btn_Save : TButton;
 		btn_Cancel : TButton;
@@ -42,8 +42,10 @@ type
 		Label4 : TLabel;
 		edtDescr : TEdit;
 		OpenDialog1 : TOpenDialog;
-    GroupBox1: TGroupBox;
-    GroupBox2: TGroupBox;
+		GroupBox1 : TGroupBox;
+		GroupBox2 : TGroupBox;
+		Label3 : TLabel;
+		edtParameters : TEdit;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionOkExecute(Sender : TObject);
 		procedure ActionOpenFileDialogExecute(Sender : TObject);
@@ -78,7 +80,7 @@ end;
 procedure TOpenWithCommandEditor.ActionOkExecute(Sender : TObject);
 begin
 	FCommandItem.Caption := edtLabel.Text;
-	FCommandItem.CommandLine := TCommandLineRec.ParseCommand(edtCmdLine.Text);
+	FCommandItem.CommandLine := TCommandLineRec.ParseCommand(edtCmdPath.Text + ' ' + edtParameters.Text);
 	FCommandItem.Description := edtDescr.Text;
 	if FCommandItem.Caption.IsEmpty then begin
 		TMsgBox.ShowError('Caption shouldn''t be empty!');
@@ -93,7 +95,7 @@ begin
 	inherited;
 	OpenDialog1.Filter := 'Executable files (*.exe)|*.exe';
 	if OpenDialog1.Execute(self.Handle) then begin
-		edtCmdLine.Text := OpenDialog1.FileName;
+		edtCmdPath.Text := OpenDialog1.FileName;
 	end;
 end;
 
@@ -147,9 +149,10 @@ end;
 procedure TOpenWithCommandEditor.FormShow(Sender : TObject);
 begin
 	edtLabel.Text := FCommandItem.Caption;
-	edtCmdLine.Text := FCommandItem.CommandLine.AsString();
+	edtCmdPath.Text := FCommandItem.CommandLine.ExePath;
+	edtParameters.Text := FCommandItem.CommandLine.ParametersAsString;
 	edtDescr.Text := FCommandItem.Description;
-
 end;
 
 end.
+
