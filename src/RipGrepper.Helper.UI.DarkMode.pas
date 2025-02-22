@@ -1,14 +1,5 @@
 unit RipGrepper.Helper.UI.DarkMode;
 
-//
-// Originally written by Ian Barker
-// https://github.com/checkdigits/delphidarkmode
-// https://about.me/IanBarker
-// ian.barker@gmail.com
-//
-// Free software - use for any purpose including commercial use.
-//
-
 interface
 
 uses
@@ -20,18 +11,27 @@ uses
 	Vcl.Themes,
 	Vcl.Controls,
 	System.Classes,
-	Vcl.Forms;
+	Vcl.Forms,
+	Spring;
 
 type
 	EThemeMode = (tmLight, tmDark, tmSystem);
 
 	TThemeHandler = class
 		private
-			FForm: TForm;
+			FThemeName : string;
+			FForm : TForm;
+			FOnFormCreate : TNotifyEvent;
+
+		protected
+			procedure FormCreate(Sender : TObject);
+
 		public
-			constructor Create(_form: TForm = nil);
+			constructor Create(_form : TForm; _theme : string = '');
 			/// Put it in TForm.OnCreate, NOT in OnShow
-			procedure HandleThemes(const _theme: string);
+			procedure HandleThemes(const _theme : string);
+			procedure Init(_themeName : string);
+			property OnFormCreate : TNotifyEvent read FOnFormCreate write FOnFormCreate;
 	end;
 
 	TDarkModeHelper = class
@@ -52,6 +52,7 @@ type
 			//
 			class procedure SetSpecificThemeMode(const AsDarkMode : Boolean; const DarkModeThemeName : string; LightModeThemeName : string;
 				_component : TComponent = nil);
+
 		public
 			class procedure AllowThemes;
 			class procedure ApplyTheme(const _style : string; _component : TComponent = nil);
@@ -67,15 +68,29 @@ type
 			//
 			class procedure SetAppropriateThemeMode(_component : TComponent = nil);
 
-			class function GetActualThemeMode: EThemeMode;
+			class function GetActualThemeMode : EThemeMode;
 			class function GetIdeSystemColor(const _color : TColor) : TColor;
 			class function GetIdeStyleColor(const _styleColor : TStyleColor) : TColor;
 			class function GetThemeNameByMode(const _tm : EThemeMode) : string;
 			// Checks the Windows registry to see if Windows Dark Mode is enabled
-			class function IsSystemDark: Boolean;
+			class function IsSystemDark : Boolean;
 			class procedure SetIconTheme(_ctrl : TWinControl);
 			class procedure SetThemeMode(const _mode : EThemeMode); overload;
 			class procedure SetThemeMode(const _themeName : string; _component : TComponent = nil); overload;
+	end;
+
+type
+	TThemeChangeEventSubscriber = class(TComponent)
+
+		private
+			FOnThemeChanged : Event<TNotifyEvent>;
+			function GetOnThemeChanged() : IEvent<TNotifyEvent>;
+
+		protected
+			procedure HandleThemeChangedEvent(Sender : TObject);
+
+		published
+			property OnThemeChanged : IEvent<TNotifyEvent> read GetOnThemeChanged;
 	end;
 
 	{$IFNDEF STANDALONE}
@@ -87,6 +102,7 @@ type
 			class procedure ApplyTheme(_component : TComponent = nil);
 			class procedure RegisterNotifier(const _notifier : INTAIDEThemingServicesNotifier);
 	end;
+
 	{$ENDIF}
 
 implementation
@@ -116,7 +132,9 @@ class procedure TDarkModeHelper.ApplyTheme(const _style : string; _component : T
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.ApplyTheme');
-	TStyleManager.TrySetStyle(_style);
+	if TStyleManager.TrySetStyle(_style) then begin
+		TStyleManager.FormBorderStyle := fbsCurrentStyle;
+	end;
 end;
 
 class procedure TDarkModeHelper.SetAppropriateThemeMode(_component : TComponent = nil);
@@ -124,15 +142,10 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.SetAppropriateThemeMode');
 
-	var
-		darkThemeName : string := DARK_THEME_NAME;
-	var
-		lightThemeName : string := LIGHT_THEME_NAME;
-
 	if Assigned(_component) then begin
 		dbgMsg.MsgFmt('Component name: %s', [_component.Name]);
 	end;
-	SetSpecificThemeMode(IsSystemDark, darkThemeName, lightThemeName, _component);
+	SetSpecificThemeMode(IsSystemDark, DARK_THEME_NAME, LIGHT_THEME_NAME, _component);
 end;
 
 class procedure TDarkModeHelper.SetSpecificThemeMode(const AsDarkMode : Boolean; const DarkModeThemeName : string;
@@ -155,7 +168,7 @@ begin
 	{$ENDIF}
 end;
 
-class function TDarkModeHelper.IsSystemDark: Boolean;
+class function TDarkModeHelper.IsSystemDark : Boolean;
 {$IFDEF MSWINDOWS}
 const
 	TheKey = 'Software\Microsoft\Windows\CurrentVersion\Themes\Personalize\';
@@ -210,7 +223,7 @@ begin
 	// InvalidateRect(_handle, nil, True); ??
 end;
 
-class function TDarkModeHelper.GetActualThemeMode: EThemeMode;
+class function TDarkModeHelper.GetActualThemeMode : EThemeMode;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.GetActualThemeMode');
@@ -341,11 +354,11 @@ begin
 end;
 
 class procedure TIDEThemeHelper.ApplyTheme(_component : TComponent = nil);
+var
+	themingServices : IOTAIDEThemingServices;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TIDEThemeHelper.ApplyTheme');
-	var
-		themingServices : IOTAIDEThemingServices;
 
 	if Supports(BorlandIDEServices, IOTAIDEThemingServices, ThemingServices) then begin
 		if Assigned(_component) then begin
@@ -356,9 +369,9 @@ begin
 end;
 
 class procedure TIDEThemeHelper.RegisterNotifier(const _notifier : INTAIDEThemingServicesNotifier);
+var
+	themingServices : IOTAIDEThemingServices;
 begin
-	var
-		themingServices : IOTAIDEThemingServices;
 	if Supports(BorlandIDEServices, IOTAIDEThemingServices, ThemingServices) then begin
 		themingServices.AddNotifier(_notifier);
 	end;
@@ -366,16 +379,37 @@ end;
 
 {$ENDIF}
 
-constructor TThemeHandler.Create(_form: TForm = nil);
+constructor TThemeHandler.Create(_form : TForm; _theme : string = '');
 begin
 	inherited Create;
 	FForm := _form;
+	FOnFormCreate := FForm.OnCreate;
+	FForm.OnCreate := self.FormCreate;
+	FThemeName := _theme;
 end;
 
-procedure TThemeHandler.HandleThemes(const _theme: string);
+procedure TThemeHandler.FormCreate(Sender : TObject);
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TThemeHandler.FormCreate');
+	if Assigned(FOnFormCreate) then begin
+		FOnFormCreate(Self);
+	end;
+	{$IFNDEF STANDALONE}
+	var formType : TCustomFormClass := PPointer(FForm)^; // see TObject.ClassType implementation
+	dbgMsg.Msg('AllowThemes: ' + formType.ClassName);
+	TIDEThemeHelper.AllowThemes(formType);
+	{$ELSE}
+	TDarkModeHelper.AllowThemes();
+	{$ENDIF}
+	HandleThemes(FThemeName);
+end;
+
+procedure TThemeHandler.HandleThemes(const _theme : string);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TThemeHandler.HandleThemes');
+	dbgMsg.Msg(_theme);
 	if _theme.IsEmpty then begin
 		TDarkModeHelper.SetAppropriateThemeMode(FForm);
 	end else begin
@@ -383,6 +417,21 @@ begin
 	end;
 
 	TDarkModeHelper.SetIconTheme(FForm);
+end;
+
+procedure TThemeHandler.Init(_themeName : string);
+begin
+	FThemeName := _themeName;
+end;
+
+procedure TThemeChangeEventSubscriber.HandleThemeChangedEvent(Sender : TObject);
+begin
+	FOnThemeChanged.Invoke(self);
+end;
+
+function TThemeChangeEventSubscriber.GetOnThemeChanged() : IEvent<TNotifyEvent>;
+begin
+	Result := FOnThemeChanged;
 end;
 
 end.

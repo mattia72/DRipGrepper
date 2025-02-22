@@ -148,7 +148,6 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     FFFFE003FFFFE007FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
   Position = poOwnerFormCenter
   OnClose = FormClose
-  OnCreate = FormCreate
   OnResize = FormResize
   OnShow = FormShow
   TextHeight = 15

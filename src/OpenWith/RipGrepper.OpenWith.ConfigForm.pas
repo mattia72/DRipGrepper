@@ -55,7 +55,6 @@ type
 			lvCommands : TListView;
 			btn_Save : TButton;
 			btn_Cancel : TButton;
-			procedure FormCreate(Sender : TObject);
 			procedure ActionAddExecute(Sender : TObject);
 			procedure ActionCancelExecute(Sender : TObject);
 			procedure ActionModifyExecute(Sender : TObject);
@@ -71,7 +70,7 @@ type
 			procedure lvCommandsDblClick(Sender : TObject);
 
 		private
-			FColorTheme : string;
+			FColorTheme: string;
 			FDpiScaler : TRipGrepperDpiScaler;
 			FOpenWithSettings : TOpenWithSettings;
 			FThemeHandler : TThemeHandler;
@@ -116,15 +115,16 @@ const
 
 constructor TOpenWithConfigForm.Create(AOwner : TComponent; const _settings : TOpenWithSettings; const _colorTheme : string);
 begin
-	inherited Create(AOwner, _settings);
+	inherited Create(AOwner, _settings, _colorTheme);
 	FOpenWithSettings := _settings;
-	FColorTheme := _colorTheme;
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 
 	lvCommands.MultiSelect := True; // we need this for working SelCount
 
 	FOpenWithSettings.ReadIni; // we should read ini every time, it can be overwritten by another instance...
 	ReadSettings;
+    FColorTheme := _colorTheme;
+    ThemeHandler.Init(_colorTheme);
 end;
 
 destructor TOpenWithConfigForm.Destroy;
@@ -132,17 +132,6 @@ begin
 	FDpiScaler.Free;
 	FThemeHandler.Free;
 	inherited;
-end;
-
-procedure TOpenWithConfigForm.FormCreate(Sender : TObject);
-begin
-	// doesn't run in a Tabsheet
-	{$IFNDEF STANDALONE}
-	TIDEThemeHelper.AllowThemes(TOpenWithConfigForm);
-	{$ELSE}
-	TDarkModeHelper.AllowThemes();
-	{$ENDIF}
-	ThemeHandler.HandleThemes(FColorTheme);
 end;
 
 procedure TOpenWithConfigForm.ActionAddExecute(Sender : TObject);
@@ -159,7 +148,7 @@ begin
 		ci.CommandLine := TCommandLineRec.ParseCommand(arrEx.SafeItemAt[0]);
 		ci.Description := arrEx.SafeItemAt[1];
 	end;
-	ci := TOpenWithCommandEditor.CreateAndShow(self, ci);
+	ci := TOpenWithCommandEditor.CreateAndShow(self, ci, FColorTheme);
 	AddOrSetCommandItem(ci);
 end;
 
@@ -370,7 +359,7 @@ begin
 	arrEx := item.SubItems.ToStringArray;
 	ci.CommandLine := TCommandLineRec.ParseCommand(arrEx.SafeItemAt[0]);
 	ci.Description := arrEx.SafeItemAt[1];
-	ci := TOpenWithCommandEditor.CreateAndShow(self, ci);
+	ci := TOpenWithCommandEditor.CreateAndShow(self, ci, FColorTheme);
 	AddOrSetCommandItem(ci, item);
 	TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.lvCommandsDblClick SelectCount %d', [lvCommands.SelCount])));
 end;

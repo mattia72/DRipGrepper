@@ -20,7 +20,8 @@ uses
 	Vcl.StdCtrls,
 	System.Actions,
 	Vcl.ActnList,
-	RipGrepper.Tools.FileUtils;
+	RipGrepper.Tools.FileUtils,
+	RipGrepper.Helper.UI.DarkMode;
 
 type
 
@@ -53,10 +54,16 @@ type
 
 		private
 			FCommandItem : TCommandItem;
+			FThemeHandler : TThemeHandler;
+			function GetThemeHandler() : TThemeHandler;
+			property ThemeHandler : TThemeHandler read GetThemeHandler;
 
 		public
+			constructor Create(AOwner : TComponent; const _themeName : string); reintroduce;
+		destructor Destroy(); override;
 			class function CheckCommand(const _sCmd : string) : Boolean;
-			class function CreateAndShow(_Owner : TComponent; const ci : TCommandItem) : TCommandItem;
+			class function CreateAndShow(_Owner : TComponent; const ci : TCommandItem;
+				const _themeName : string): TCommandItem;
 			property CommandItem : TCommandItem read FCommandItem write FCommandItem;
 
 	end;
@@ -71,6 +78,18 @@ uses
 	RipGrepper.Tools.DebugUtils;
 
 {$R *.dfm}
+
+constructor TOpenWithCommandEditor.Create(AOwner : TComponent; const _themeName : string);
+begin
+	inherited Create(AOwner);
+	ThemeHandler.Init(_themeName);
+end;
+
+destructor TOpenWithCommandEditor.Destroy();
+begin
+    FThemeHandler.Free;
+	inherited;
+end;
 
 procedure TOpenWithCommandEditor.ActionCancelExecute(Sender : TObject);
 begin
@@ -129,11 +148,11 @@ begin
 	end;
 end;
 
-class function TOpenWithCommandEditor.CreateAndShow(_Owner : TComponent; const ci : TCommandItem) : TCommandItem;
+class function TOpenWithCommandEditor.CreateAndShow(_Owner : TComponent; const ci : TCommandItem; const _themeName : string) : TCommandItem;
 begin
 	Result := default (TCommandItem);
 	var
-	form := TOpenWithCommandEditor.Create(_Owner);
+	form := TOpenWithCommandEditor.Create(_Owner, _themeName);
 	try
 		form.CommandItem := ci;
 		if mrOk = form.ShowModal() then begin
@@ -154,5 +173,12 @@ begin
 	edtDescr.Text := FCommandItem.Description;
 end;
 
-end.
+function TOpenWithCommandEditor.GetThemeHandler() : TThemeHandler;
+begin
+	if not Assigned(FThemeHandler) then begin
+		FThemeHandler := TThemeHandler.Create(self);
+	end;
+	Result := FThemeHandler;
+end;
 
+end.

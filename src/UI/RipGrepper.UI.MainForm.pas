@@ -54,7 +54,10 @@ type
 		var
 			FSettings : TRipGrepperSettings;
 			FThemeHandler : TThemeHandler;
+			FThemeChengedEventSubscriber: TThemeChangeEventSubscriber;
+			function GetThemeHandler() : TThemeHandler;
 			procedure WMSettingChange(var Message : TWMSettingChange); message WM_SETTINGCHANGE;
+			property ThemeHandler : TThemeHandler read GetThemeHandler;
 
 		protected
 			procedure CreateParams(var Params : TCreateParams); override;
@@ -67,6 +70,12 @@ type
 
 			procedure Init;
 			procedure Loaded; override;
+			procedure OnThemeChanged(Sender: TObject);
+
+
+            // TODO this should be get in config form...
+			property ThemeChengedEventSubscriber: TThemeChangeEventSubscriber read
+				FThemeChengedEventSubscriber;
 	end;
 
 var
@@ -100,6 +109,25 @@ uses
 
 {$R *.dfm}
 
+constructor TRipGrepperForm.Create(AOwner : TComponent);
+begin
+	TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner');
+	inherited Create(AOwner);
+	// component owner is self, so it will be destroyed as we close this form
+    FThemeChengedEventSubscriber := TThemeChangeEventSubscriber.Create(self);
+    FThemeChengedEventSubscriber.OnThemeChanged.Add(OnThemeChanged);
+
+	ThemeHandler.Init(GSettings.AppSettings.ColorTheme);
+
+	// FThemeHandler := TThemeHandler.Create(self, GSettings.AppSettings.ColorTheme);
+	{$IFDEF STANDALONE}
+	// it works only in ctor :/ FThemeHandler.HandleThemes(GSettings.AppSettings.ColorTheme);
+	ThemeHandler.HandleThemes(GSettings.AppSettings.ColorTheme);
+	TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner STANDALONE');
+	Init;
+	{$ENDIF}
+end;
+
 constructor TRipGrepperForm.Create(_settings : TRipGrepperSettings);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.Create _settings');
@@ -112,22 +140,10 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.Create: ' + TPath.GetFileName(FSettings.IniFile.FileName));
 end;
 
-constructor TRipGrepperForm.Create(AOwner : TComponent);
-begin
-	TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner');
-	inherited Create(AOwner);
-	FThemeHandler := TThemeHandler.Create(self);
-	{$IFDEF STANDALONE}
-	FThemeHandler.HandleThemes(GSettings.AppSettings.ColorTheme);
-	TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner STANDALONE');
-	Init;
-	{$ENDIF}
-end;
-
 procedure TRipGrepperForm.FormCreate(Sender : TObject);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.FormCreate');
-	// it work only in ctor :/ FThemeHandler.HandleThemes(GSettings.AppSettings.ColorTheme);
+	// it works only in ctor :/ FThemeHandler.HandleThemes(GSettings.AppSettings.ColorTheme);
 end;
 
 destructor TRipGrepperForm.Destroy;
@@ -179,6 +195,14 @@ begin
 	{$ENDIF}
 end;
 
+function TRipGrepperForm.GetThemeHandler() : TThemeHandler;
+begin
+	if not Assigned(FThemeHandler) then begin
+		FThemeHandler := TThemeHandler.Create(self);
+	end;
+	Result := FThemeHandler;
+end;
+
 procedure TRipGrepperForm.Init;
 begin
 	var
@@ -205,6 +229,11 @@ begin
 	// SetOrdProp(cmp, PropInfo, 0);
 	// //? SetOrdProp(cmp, PropInfo, Ord([seFont, seClient, seBorder]));
 	// end;
+end;
+
+procedure TRipGrepperForm.OnThemeChanged(Sender: TObject);
+begin
+    TDarkModeHelper.SetIconTheme(self);
 end;
 
 procedure TRipGrepperForm.WMSettingChange(var message : TWMSettingChange);

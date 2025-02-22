@@ -100,7 +100,6 @@ type
 		SVGIconImageList1 : TSVGIconImageList;
 		ToolButton1 : TToolButton;
 		ToolButton2 : TToolButton;
-		procedure FormCreate(Sender : TObject);
 		procedure ActionAddParamMatchCaseExecute(Sender : TObject);
 		procedure ActionAddParamMatchCaseUpdate(Sender : TObject);
 		procedure ActionAddParamRegexExecute(Sender : TObject);
@@ -265,22 +264,12 @@ begin
 	dbgMsg.Msg('gui params=' + FSettingsProxy.ToLogString);
 
 	// FDpiScaler := TRipGrepperDpiScaler.Create(self);
-	FThemeHandler := TThemeHandler.Create(self);
+	FThemeHandler := TThemeHandler.Create(self, GSettings.AppSettings.ColorTheme);
 
 	FOrigHeight := 0;
 
 	toolbarSearchTextOptions.AutoSize := False; // else shrinked as extension
 	cmbOptions.AutoComplete := False; // so we know the old value after change
-end;
-
-procedure TRipGrepperSearchDialogForm.FormCreate(Sender : TObject);
-begin
-	{$IFNDEF STANDALONE}
-	TIDEThemeHelper.AllowThemes(TRipGrepperSearchDialogForm);
-	{$ELSE}
-	TDarkModeHelper.AllowThemes();
-	{$ENDIF}
-	FThemeHandler.HandleThemes(GSettings.AppSettings.ColorTheme);
 end;
 
 destructor TRipGrepperSearchDialogForm.Destroy;

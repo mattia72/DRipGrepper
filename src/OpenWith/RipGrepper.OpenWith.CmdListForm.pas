@@ -48,7 +48,6 @@ type
 		pnl_Right : TPanel;
 		pnl_Top : TPanel;
 		SVGIconImageList1 : TSVGIconImageList;
-		procedure FormCreate(Sender : TObject);
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionShowConfigExecute(Sender : TObject);
 		procedure ActionOkExecute(Sender : TObject);
@@ -122,16 +121,8 @@ begin
 
 	SaveOrigHeights;
 	InitCtrlsTexts;
-end;
 
-procedure TOpenWithCmdList.FormCreate(Sender : TObject);
-begin
-	{$IFNDEF STANDALONE}
-	TIDEThemeHelper.AllowThemes(TOpenWithCmdList);
-	{$ELSE}
-	TDarkModeHelper.AllowThemes();
-	{$ENDIF}
-	ThemeHandler.HandleThemes(FColorTheme);
+    ThemeHandler.Init(_colorTheme);
 end;
 
 destructor TOpenWithCmdList.Destroy();

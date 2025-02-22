@@ -30,7 +30,8 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Common.Constants,
 	SVGIconImageListBase,
-	SVGIconImageList;
+	SVGIconImageList,
+	Spring;
 
 type
 	EValidateCtrls = (vcRgExePath, vcIniFilePath);
@@ -58,7 +59,7 @@ type
 		rgTheme : TRadioGroup;
 		SVGIconImageList1 : TSVGIconImageList;
 		chVerbose : TCheckBox;
-    	ScrollBox1: TScrollBox;
+		ScrollBox1 : TScrollBox;
 		procedure btnedtIniFilePathLeftButtonClick(Sender : TObject);
 		procedure btnedtIniFilePathRightButtonClick(Sender : TObject);
 		procedure btnedtRgExePathEnter(Sender : TObject);
@@ -74,6 +75,7 @@ type
 			FRefocusing : TObject;
 			FAppSettings : TAppSettings;
 			FbSkipClickEvent : Boolean;
+			FOnThemeChanged : Event<TNotifyEvent>;
 			FRipGrepSettings : TRipGrepParameterSettings;
 			function GetTraceTypeFilters : TTraceFilterTypes;
 			function IsRgExeValid(const filePath : string) : Boolean;
@@ -82,11 +84,15 @@ type
 
 		protected
 			procedure ReadSettings; override;
+			procedure ThemeChanged();
 			procedure WriteSettings; override;
 
 		public
 			constructor Create(_Owner : TComponent; _settings : TRipGrepperSettings);
 			function GetRgVersion(const _rgPath : string) : string;
+
+		published
+			property OnThemeChanged : Event<TNotifyEvent> read FOnThemeChanged write FOnThemeChanged;
 	end;
 
 var
@@ -113,6 +119,8 @@ begin
 	Caption := 'General';
 	FAppSettings := (FSettings as TRipGrepperSettings).AppSettings;
 	FRipGrepSettings := (FSettings as TRipGrepperSettings).RipGrepParameters;
+
+    FOnThemeChanged.Add(nil {TThemeChangeEventSubscriber});
 end;
 
 procedure TAppSettingsForm.btnedtIniFilePathLeftButtonClick(Sender : TObject);
@@ -287,6 +295,13 @@ begin
 	end;
 	tm := EThemeMode(rgTheme.ItemIndex);
 	TDarkModeHelper.SetThemeMode(tm);
+	ThemeChanged();
+end;
+
+procedure TAppSettingsForm.ThemeChanged();
+begin
+	if FOnThemeChanged.CanInvoke then
+		FOnThemeChanged.Invoke(Self);
 end;
 
 procedure TAppSettingsForm.ValidateInput(var M : TMessage);

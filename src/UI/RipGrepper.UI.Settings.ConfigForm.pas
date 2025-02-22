@@ -52,6 +52,7 @@ type
 			FSettings : TRipGrepperSettings;
 			FSettingsForms : TObjectList<TForm>;
 			FThemeHandler : TThemeHandler;
+			FThemeName: string;
 			procedure AddSettingTabs;
 			function GetThemeHandler : TThemeHandler;
 			property ThemeHandler : TThemeHandler read GetThemeHandler;
@@ -100,16 +101,12 @@ begin
 	finally
 		Screen.Cursor := crDefault;
 	end;
+
+    ThemeHandler.Init(Settings.AppSettings.ColorTheme);
 end;
 
 procedure TConfigForm.FormCreate(Sender : TObject);
 begin
-	{$IFNDEF STANDALONE}
-	TIDEThemeHelper.AllowThemes(TConfigForm);
-	{$ELSE}
-	TDarkModeHelper.AllowThemes();
-	{$ENDIF}
-	ThemeHandler.HandleThemes(GSettings.AppSettings.ColorTheme);
 	AddSettingTabs;
 end;
 
@@ -193,7 +190,7 @@ end;
 function TConfigForm.GetThemeHandler : TThemeHandler;
 begin
 	if not Assigned(FThemeHandler) then begin
-		FThemeHandler := TThemeHandler.Create(self);
+		FThemeHandler := TThemeHandler.Create(self, FThemeName);
 	end;
 	Result := FThemeHandler;
 end;
