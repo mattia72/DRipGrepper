@@ -118,22 +118,22 @@ end;
 
 procedure TOpenWithSettings.ForceWriteToIni;
 var
-	s : string;
+	cmdListItem : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.ForceWriteToIni');
 	if { IsAlreadyRead never set :( } IsModified then begin
-		IniFile.EraseSection(OPEN_WITH_SETTINGS);
 		if FCommandList.Count > 0 then begin
 			for var i : integer := 0 to MAX_COMMAND_NUM do begin
-				s := Command[i];
-				if s.IsEmpty then
+				cmdListItem := Command[i];
+				if cmdListItem.IsEmpty then
 					break;
-				IniFile.WriteString(OPEN_WITH_SETTINGS, OPENWITH_COMMAND_KEY + i.ToString, s);
-				dbgMsg.MsgFmt('[%s] %s%d: %s', [OPEN_WITH_SETTINGS, OPENWITH_COMMAND_KEY, i, s]);
+				SettingsDict.SetSettingValue(
+					{ } Format('%s|%s', [OPEN_WITH_SETTINGS, OPENWITH_COMMAND_KEY + i.ToString]), cmdListItem);
+				dbgMsg.MsgFmt('[%s] %s%d: %s', [OPEN_WITH_SETTINGS, OPENWITH_COMMAND_KEY, i, cmdListItem]);
 			end;
+			UpdateIniFile(OPEN_WITH_SETTINGS, True);
 		end;
-		IniFile.UpdateFile;
 		FIsModified := False;
 	end;
 end;

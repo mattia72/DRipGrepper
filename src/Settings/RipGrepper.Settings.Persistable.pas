@@ -62,7 +62,7 @@ type
 			FOwner : TPersistableSettings;
 			FOwnIniFile : Boolean;
 			procedure CreateIniFile;
-			procedure DictToLog(_dict : TSettingsDictionary);
+			function DictToLog(_dict : TSettingsDictionary) : TArray<TArray<string>>;
 			procedure FreeOwnIniFile;
 			function GetIniFile : TMemIniFile;
 			procedure ReadSettings;
@@ -130,7 +130,7 @@ type
 			// <summary>
 			// Thread safe write Settings to ini file
 			// </summary>
-			procedure UpdateIniFile(const _section : string = '');
+			procedure UpdateIniFile(const _section : string = ''; const bForceWriteIni : Boolean = False);
 			procedure WriteSettingsDictToIni(const _wsm : EWriteSettingsMode; const _section : string = '');
 	end;
 
@@ -296,17 +296,15 @@ begin
 	dbgMsg.MsgFmt('Create FIniFile %p of section: %s', [Pointer(FIniFile), GetIniSectionName()]);
 end;
 
-procedure TPersistableSettings.DictToLog(_dict : TSettingsDictionary);
+function TPersistableSettings.DictToLog(_dict : TSettingsDictionary) : TArray<TArray<string>>;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.DictToLog');
 	{$IFDEF DEBUG}
-	var
-		a : TArray<TArray<string>>;
 	for var p in _dict do begin
 		var
 			sVal : string := VarToStr(p.Value.Value);
-		a := a + [[p.Key, sVal]];
+		Result := Result + [[p.Key, sVal]];
 		dbgMsg.MsgFmt('%s=%s', [p.Key, sVal], tftVerbose);
 	end;
 	{$ENDIF}
@@ -532,9 +530,9 @@ begin
 	end
 end;
 
-procedure TPersistableSettings.UpdateIniFile(const _section : string = '');
+procedure TPersistableSettings.UpdateIniFile(const _section : string = ''; const bForceWriteIni : Boolean = False);
 var
-	sectionValues : TStringList;
+	dbgArr: TArray<TArray<string>>;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
@@ -546,12 +544,14 @@ begin
 
 	if Assigned(FOwner) { and (_section = '') } then begin
 		FOwner.CopySettingsDictSection(self, True);
-		DictToLog(SettingsDict);
-		FOwner.WriteSettingsDictToIni(EWriteSettingsMode.wsmAll);
-		Exit;
+		dbgArr := DictToLog(SettingsDict);
+		FOwner.WriteSettingsDictToIni(EWriteSettingsMode.wsmAll, IfThen(bForceWriteIni, _section));
+		if not bForceWriteIni then begin
+			Exit;
+        end;
 	end;
 
-	DictToLog(SettingsDict);
+//  var arr := DictToLog(SettingsDict);
 
 	if Assigned(IniFile) then begin
 		var
@@ -562,20 +562,8 @@ begin
 			sectionName := IfThen((_section = ''), IniSectionName, _section);
 			dbgMsg.MsgFmt('IniFile %p update begin on [%s]', [Pointer(IniFile), sectionName]);
 
-			if (not sectionName.IsEmpty) and Assigned(FOwner) then begin
-				sectionValues := TStringList.Create;
-				try
-					FSettingsDict.GetSettingsSectionValues(sectionName, sectionValues);
-					IniFile.WriteTempSectionIni(sectionName, sectionValues);
-				finally
-					sectionValues.Free;
-				end;
-			end else begin // if we don't have Owner, then
-				IniFile.ReadTempSectionFiles();
-				IniFile.UpdateFile;
-			end;
-
-			dbgMsg.Msg('[SearchTextsHistory] Item 0:' + IniFile.ReadString('SearchTextsHistory', 'Item_0', 'not exists'));
+			IniFile.UpdateFile;
+			// dbgMsg.Msg('[SearchTextsHistory] Item 0:' + IniFile.ReadString('SearchTextsHistory', 'Item_0', 'not exists'));
 		except
 			on E : Exception do begin
 				dbgMsg.ErrorMsgFmt('%s' + CRLF + '%s', [E.Message, E.StackTrace]);
@@ -589,7 +577,8 @@ begin
 
 end;
 
-procedure TPersistableSettings.WriteSettingsDictToIni(const _wsm : EWriteSettingsMode; const _section : string = '');
+procedure TPersistableSettings.WriteSettingsDictToIni(const _wsm : EWriteSettingsMode;
+{ } const _section : string = '');
 var
 	setting : ISettingVariant;
 	section : string;

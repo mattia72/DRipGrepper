@@ -70,7 +70,7 @@ type
 			procedure lvCommandsDblClick(Sender : TObject);
 
 		private
-			FColorTheme: string;
+			FColorTheme : string;
 			FDpiScaler : TRipGrepperDpiScaler;
 			FOpenWithSettings : TOpenWithSettings;
 			FThemeHandler : TThemeHandler;
@@ -123,8 +123,8 @@ begin
 
 	FOpenWithSettings.ReadIni; // we should read ini every time, it can be overwritten by another instance...
 	ReadSettings;
-    FColorTheme := _colorTheme;
-    ThemeHandler.Init(_colorTheme);
+	FColorTheme := _colorTheme;
+	ThemeHandler.Init(_colorTheme);
 end;
 
 destructor TOpenWithConfigForm.Destroy;
@@ -342,8 +342,8 @@ begin
 		dbgMsg.Msg(Format('%s', [FOpenWithSettings.Command[i]]));
 	end;
 
-	FOpenWithSettings.ForceWriteToIni; // save always
 	// inherited WriteSettings; it's not eonugh
+	FOpenWithSettings.ForceWriteToIni; // save always
 end;
 
 procedure TOpenWithConfigForm.lvCommandsDblClick(Sender : TObject);
