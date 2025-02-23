@@ -197,21 +197,39 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
       Anchors = [akLeft, akTop, akRight, akBottom]
       Caption = 'Help'
       TabOrder = 3
-      object ListBox1: TListBox
-        AlignWithMargins = True
-        Left = 5
-        Top = 20
-        Width = 450
-        Height = 116
+      object RichEdit1: TRichEdit
+        Left = 2
+        Top = 17
+        Width = 456
+        Height = 122
         Align = alClient
-        ItemHeight = 15
-        Items.Strings = (
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        Lines.Strings = (
+          'File Path and Location Placeholders:'
+          ''
+          '<DIR>: Directory (search path)'
+          '<FILE>: File path'
+          '<ROW>: Line number'
+          '<COL>: Column number'
+          ''
+          'Example Program Parameters:'
+          ''
           'notepad.exe "<FILE>"'
           'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"'
           'notepad++.exe "<FILE>" -n<LINE> -c<COL>'
           'explorer.exe /select,"<FILE>"'
-          'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"')
+          'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"'
+          '')
+        ParentFont = False
+        ReadOnly = True
+        ScrollBars = ssVertical
         TabOrder = 0
+        WantTabs = True
+        WordWrap = False
       end
     end
   end

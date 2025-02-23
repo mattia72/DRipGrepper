@@ -9,10 +9,9 @@ uses
 type
 	TOpenWithRunner = class
 
-		private
-			class function BuildParams(const _owp : TOpenWithParams; const _sParams : string) : string;
-
 		public
+			class function BuildParams(const _owp : TOpenWithParams; const _sParams :
+				string): string;
 			class procedure RunEditorCommand(const _sEditorCmd : string; const _owp : TOpenWithParams);
 	end;
 
@@ -26,31 +25,35 @@ uses
 	RipGrepper.Common.Constants,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Helper.UI,
-	RipGrepper.Tools.FileUtils;
+	RipGrepper.Tools.FileUtils,
+	System.Generics.Collections;
 
-class function TOpenWithRunner.BuildParams(const _owp : TOpenWithParams; const _sParams : string) : string;
+class function TOpenWithRunner.BuildParams(const _owp : TOpenWithParams; const
+	_sParams : string): string;
 var
 	sCmdParams : string;
+	pPlaceholder : TPair<string, Variant>;
+	arrPlaceHolders : TArray<TPair<string, Variant>>;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithRunner.BuildParams');
 
 	sCmdParams := _sParams;
 
-	sCmdParams := StringReplace(sCmdParams, '<DIR>', '%s', [rfReplaceAll]);
-	sCmdParams := Format(sCmdParams, [_owp.RelativeBaseDirPath]);
-	dbgMsg.MsgFmt('DIR: %s ', [sCmdParams]);
+	arrPlaceHolders := [
+		{ } TPair<string, Variant>.Create('<DIR>', _owp.RelativeBaseDirPath),
+		{ } TPair<string, Variant>.Create('<FILE>', _owp.FilePath),
+		{ } TPair<string, Variant>.Create('<LINE>', _owp.Row),
+		{ } TPair<string, Variant>.Create('<ROW>', _owp.Row),
+		{ } TPair<string, Variant>.Create('<COL>', _owp.Column)];
 
-	sCmdParams := StringReplace(sCmdParams, '<FILE>', '%s', [rfReplaceAll]);
-	sCmdParams := Format(sCmdParams, [_owp.FilePath]);
-	dbgMsg.MsgFmt('FILE: %s ', [sCmdParams]);
+	for pPlaceholder in arrPlaceHolders do begin
+		sCmdParams := StringReplace(sCmdParams, pPlaceholder.Key, '%s', [rfReplaceAll]);
+		sCmdParams := Format(sCmdParams, [pPlaceholder.Value]);
+		dbgMsg.MsgFmt('%s: %s ', [pPlaceholder.Key, sCmdParams]);
+	end;
 
-	sCmdParams := StringReplace(sCmdParams, '<LINE>', '%d', [rfReplaceAll]);
-	sCmdParams := Format(sCmdParams, [_owp.Row]);
-	dbgMsg.MsgFmt('LINE: %s ', [sCmdParams]);
-
-	sCmdParams := StringReplace(sCmdParams, '<COL>', '%d', [rfReplaceAll]);
-	Result := Format(sCmdParams, [_owp.Column]);
+	Result := sCmdParams;
 	dbgMsg.MsgFmt('COL: %s ', [sCmdParams]);
 
 end;

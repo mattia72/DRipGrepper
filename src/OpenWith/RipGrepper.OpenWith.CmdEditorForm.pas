@@ -21,7 +21,8 @@ uses
 	System.Actions,
 	Vcl.ActnList,
 	RipGrepper.Tools.FileUtils,
-	RipGrepper.Helper.UI.DarkMode;
+	RipGrepper.Helper.UI.DarkMode, 
+	Vcl.ComCtrls;
 
 type
 
@@ -36,7 +37,6 @@ type
 		Label2 : TLabel;
 		edtLabel : TEdit;
 		ActionList1 : TActionList;
-		ListBox1 : TListBox;
 		ActionOk : TAction;
 		ActionCancel : TAction;
 		ActionOpenFileDialog : TAction;
@@ -47,6 +47,7 @@ type
 		GroupBox2 : TGroupBox;
 		Label3 : TLabel;
 		edtParameters : TEdit;
+    RichEdit1: TRichEdit;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionOkExecute(Sender : TObject);
 		procedure ActionOpenFileDialogExecute(Sender : TObject);

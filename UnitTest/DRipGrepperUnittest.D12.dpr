@@ -57,7 +57,10 @@ uses
   RipGrepper.Settings.SettingVariant in '..\src\Settings\RipGrepper.Settings.SettingVariant.pas',
   RipGrepper.Settings.SettingsDictionaryTest in 'RipGrepper.Settings.SettingsDictionaryTest.pas',
   RipGrepper.Tools.Replacer.Test in 'RipGrepper.Tools.Replacer.Test.pas',
-  RipGrepper.Tools.Replacer in '..\src\Tools\RipGrepper.Tools.Replacer.pas';
+  RipGrepper.Tools.Replacer in '..\src\Tools\RipGrepper.Tools.Replacer.pas',
+  RipGrepper.OpenWith.RunnerTest in 'RipGrepper.OpenWith.RunnerTest.pas',
+  RipGrepper.OpenWith.Params in '..\src\OpenWith\RipGrepper.OpenWith.Params.pas',
+  RipGrepper.OpenWith.Runner in '..\src\OpenWith\RipGrepper.OpenWith.Runner.pas';
 
 // This comment has to guard the following IFDEF, that may be delted by delphi, if new unit added to the project
 {$IFNDEF TESTINSIGHT}

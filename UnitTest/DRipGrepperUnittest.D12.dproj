@@ -147,6 +147,9 @@
         <DCCReference Include="RipGrepper.Settings.SettingsDictionaryTest.pas"/>
         <DCCReference Include="RipGrepper.Tools.Replacer.Test.pas"/>
         <DCCReference Include="..\src\Tools\RipGrepper.Tools.Replacer.pas"/>
+        <DCCReference Include="RipGrepper.OpenWith.RunnerTest.pas"/>
+        <DCCReference Include="..\src\OpenWith\RipGrepper.OpenWith.Params.pas"/>
+        <DCCReference Include="..\src\OpenWith\RipGrepper.OpenWith.Runner.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -189,6 +192,12 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="Win32\Debug\DRipGrepperUnittest.D12.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>DRipGrepperUnittest.D12.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Win32\Release\DRipGrepperUnittest.D12.exe" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>DRipGrepperUnittest.D12.exe</RemoteName>
                         <Overwrite>true</Overwrite>
