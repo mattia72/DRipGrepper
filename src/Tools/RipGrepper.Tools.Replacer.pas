@@ -233,6 +233,7 @@ var
 begin
 	Result.FileCount := Items.Keys.Count;
 	Result.ReplaceCount := 0;
+    Result.LineCount := 0;
 
 	for var fileName in Items.Keys do begin
 		prevRow := -1;
