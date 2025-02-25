@@ -10,7 +10,7 @@ uses
 	RipGrepper.Common.Constants,
 	RipGrepper.Settings.Persistable,
 	RipGrepper.Settings.TestOwnerSettings,
-	RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.SimpleTypes, Spring;
 
 type
 
@@ -18,7 +18,7 @@ type
 	TOptionStringsTest = class
 
 		private
-			FGuiParams : TGuiSearchTextParams;
+			FGuiParams : IShared<TGuiSearchTextParams>;
 			// FIniFile : TMemIniFile;
 			FOwner : TPersistableSettings;
 			FParams : TRipGrepParameterSettings;

@@ -14,7 +14,7 @@ uses
 	RipGrepper.Settings.SearchFormSettings,
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.Common.EncodedStringList,
-	RipGrepper.Common.GuiSearchParams;
+	RipGrepper.Common.GuiSearchParams, Spring;
 
 type
 
@@ -92,7 +92,7 @@ type
 		function GetElapsedTimeText : string;
 		function GetErrorCounters : TErrorCounters;
 		function GetFileCount : integer;
-		function GetGuiSearchTextParams : TGuiSearchTextParams;
+		function GetGuiSearchTextParams: IShared<TGuiSearchTextParams>;
 		function GetIsReplaceMode : Boolean;
 		function GetMatches() : TParsedObjectRowCollection;
 		function GetNoMatchFound() : Boolean;
@@ -111,7 +111,7 @@ type
 		procedure SetElapsedTimeText(const Value : string);
 		procedure SetErrorCounters(const Value : TErrorCounters);
 		procedure SetFileCount(const Value : integer);
-		procedure SetGuiSearchTextParams(const Value : TGuiSearchTextParams);
+		procedure SetGuiSearchTextParams(const Value: IShared<TGuiSearchTextParams>);
 		procedure SetNoMatchFound(const Value : Boolean);
 		procedure SetParserType(const Value : TParserType);
 		procedure SetSearchFormSettings(const Value : TSearchFormSettings);
@@ -122,7 +122,7 @@ type
 		property Matches : TParsedObjectRowCollection read GetMatches write SetMatches;
 		property RipGrepArguments : TRipGrepArguments read GetRipGrepArguments write SetRipGrepArguments;
 		property FileCount : integer read GetFileCount write SetFileCount;
-		property GuiSearchTextParams : TGuiSearchTextParams read GetGuiSearchTextParams write SetGuiSearchTextParams;
+		property GuiSearchTextParams: IShared<TGuiSearchTextParams> read GetGuiSearchTextParams write SetGuiSearchTextParams;
 		property NoMatchFound : Boolean read GetNoMatchFound write SetNoMatchFound;
 		property ParserType : TParserType read GetParserType write SetParserType;
 		property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings write SetSearchFormSettings;

@@ -11,7 +11,7 @@ uses
 	System.IniFiles,
 	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Settings.Persistable,
-	RipGrepper.Settings.TestOwnerSettings;
+	RipGrepper.Settings.TestOwnerSettings, Spring;
 
 type
 
@@ -19,7 +19,7 @@ type
 	TCommandLineBuilderTest = class
 
 		private
-			FGuiParams : TGuiSearchTextParams;
+			FGuiParams : IShared<TGuiSearchTextParams>;
 			FIniFile : TMemIniFile;
 			FParams : TRipGrepParameterSettings;
 			FOwner : TPersistableSettings;
@@ -72,7 +72,7 @@ begin
 	FOwner := TTestOwnerSettings.Create();
 	FIniFile := FOwner.IniFile;
 	FParams := TRipGrepParameterSettings.Create(FOwner);
-	FGuiParams := TGuiSearchTextParams.Create('');
+	FGuiParams := Shared.Make<TGuiSearchTextParams>(TGuiSearchTextParams.Create(''));
 end;
 
 procedure TCommandLineBuilderTest.TearDown;

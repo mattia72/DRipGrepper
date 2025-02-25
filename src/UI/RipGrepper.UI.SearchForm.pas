@@ -35,7 +35,7 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	SVGIconImageListBase,
 	SVGIconImageList,
-	RipGrepper.Helper.UI.DarkMode;
+	RipGrepper.Helper.UI.DarkMode, Spring;
 
 type
 	TRipGrepperSearchDialogForm = class(TForm)
@@ -147,7 +147,7 @@ type
 			FHistItemObj : IHistoryItemObject;
 			// FDpiScaler : TRipGrepperDpiScaler;
 
-			FSettingsProxy : TGuiSearchTextParams;
+			FSettingsProxy : IShared<TGuiSearchTextParams>;
 
 			FbExtensionOptionsSkipClick : Boolean;
 			FCbClickEventEnabled : Boolean;
@@ -345,11 +345,12 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ActionSearchExecute(Sender : TObject);
 begin
-    var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.ActionSearchExecute');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.ActionSearchExecute');
 	WriteCtrlsToSettings(False);
 
 	if ValidateRegex() then begin
-        dbgMsg.Msg(memoCommandLine.Text);
+		dbgMsg.Msg(memoCommandLine.Text);
 		ModalResult := mrOk;
 	end;
 end;
@@ -832,6 +833,9 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateMemoCommandLine(const _bSkipReadCtrls : Boolean = False);
+var
+	gstp : TGuiSearchTextParams;
+	igstp : IShared<TGuiSearchTextParams>;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateMemoCommandLine');
@@ -845,7 +849,9 @@ begin
 	FSettings.RipGrepParameters.GuiSearchTextParams.Copy(FSettingsProxy);
 	FSettings.RebuildArguments();
 	memoCommandLine.Text := FSettings.RipGrepParameters.GetCommandLine(FSettings.AppSettings.CopyToClipBoardShell);
-	FSettingsProxy.Copy(FSettings.RipGrepParameters.GuiSearchTextParams);
+	igstp := FSettings.RipGrepParameters.GuiSearchTextParams;
+	gstp := igstp;
+	FSettingsProxy.Copy(gstp);
 	dbgMsg.Msg('FSettingsProxy= ' + FSettingsProxy.ToLogString);
 end;
 
@@ -1117,6 +1123,9 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.LoadNewSearchSettings;
+var
+	gstp : TGuiSearchTextParams;
+	igstp : IShared<TGuiSearchTextParams>;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadNewSearchSettings');
@@ -1139,11 +1148,13 @@ begin
 	cmbFileMasks.Text := IfThen(FSettings.RipGrepParameters.FileMasks.IsEmpty, cmbFileMasks.Text, FSettings.RipGrepParameters.FileMasks);
 	dbgMsg.Msg('cmbFileMasks.Text=' + cmbFileMasks.Text);
 
-	FSettingsProxy := TGuiSearchTextParams.Create(TRipGrepParameterSettings.INI_SECTION);
+	FSettingsProxy := Shared.Make<TGuiSearchTextParams>(TGuiSearchTextParams.Create(TRipGrepParameterSettings.INI_SECTION));
 	// FSettingsProxy.ReadIni;
 	// FSettingsProxy.LoadDefaultsFromDict;
 
-	FSettingsProxy.Copy(FSettings.RipGrepParameters.GuiSearchTextParams);
+	igstp := FSettings.RipGrepParameters.GuiSearchTextParams;
+	gstp := igstp;
+	FSettingsProxy.Copy(gstp);
 	FSettingsProxy.UpdateRgParamsByGuiOptions();
 	UpdateCheckBoxes();
 end;
@@ -1443,7 +1454,7 @@ begin
 		except
 			on E : Exception do begin
 				TMsgBox.ShowError(E.Message);
-                ActiveControl := cmbSearchText;
+				ActiveControl := cmbSearchText;
 				bError := True;
 			end;
 		end;

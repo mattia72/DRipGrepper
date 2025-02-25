@@ -12,7 +12,7 @@ uses
 	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Settings.Persistable,
 	RipGrepper.Settings.TestOwnerSettings,
-	RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.SimpleTypes, Spring;
 
 type
 
@@ -114,10 +114,15 @@ begin
 end;
 
 procedure TOptionsHelperTest.Setup;
+var
+	gstp : TGuiSearchTextParams;
+	igstp: IShared<TGuiSearchTextParams>;
 begin
 	FOwner := TTestOwnerSettings.Create();
 	FParams := TRipGrepParameterSettings.Create(FOwner);
-	FGuiParams := FParams.GuiSearchTextParams;
+	igstp :=   FParams.GuiSearchTextParams;
+	gstp := igstp;
+	FGuiParams := gstp;
 	FGuiParams.SetSearchText('search text');
 end;
 
