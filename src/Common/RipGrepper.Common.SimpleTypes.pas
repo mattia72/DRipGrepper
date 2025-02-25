@@ -42,6 +42,10 @@ type
 		{ } rgecPath = EXT_SEARCH_GIVEN_PATH
 		{ } );
 
+	TShellType = (stPowershell = 0, stCmd = 1);
+
+	{$SCOPEDENUMS OFF}
+
 	TSearchOptionToRgOptions = record
 		SearchOption : TSearchOptionSet;
 		RgOptions : TArray<string>;
@@ -49,13 +53,12 @@ type
 
 	ESkipFileReplaceException = class(Exception);
 	EFileOpenException = class(Exception);
-	{$SCOPEDENUMS OFF}
 
 	TSearchFormCtrlValueProxy = record
 		SearchText : string;
 		SearchTextHist : TStrings;
 		SearchOptions : TSearchOptionSet;
-        IsReplaceMode : Boolean;
+		IsReplaceMode : Boolean;
 		ReplaceText : string;
 		ReplaceTextHist : TStrings;
 		ExtensionContext : ERipGrepperExtensionContext;

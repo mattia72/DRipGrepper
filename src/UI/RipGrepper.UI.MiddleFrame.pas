@@ -322,7 +322,7 @@ begin
 	formResult := TRipGrepperSearchDialogForm.ShowSearchForm(self, Settings, FHistItemObj);
 	if mrOK = formResult then begin
 		TDebugUtils.DebugMessage('TRipGrepperTopFrame.VstHistoryNodeDblClick: after ShowSearchForm cmdline: ' +
-			Settings.RipGrepParameters.GetCommandLine);
+			Settings.RipGrepParameters.GetCommandLine(Settings.AppSettings.CopyToClipBoardShell));
 		PrepareAndDoSearch();
 	end else begin
 		TDebugUtils.DebugMessage('TRipGrepperTopFrame.VstHistoryNodeDblClick: ShowSearchForm cancel');

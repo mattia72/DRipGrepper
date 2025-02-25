@@ -209,7 +209,7 @@ begin
 	var
 	formResult := TRipGrepperSearchDialogForm.ShowSearchForm(self, Settings, MainFrame.HistItemObject);
 	if mrOK = formResult then begin
-		dbgMsg.Msg('after ShowSearchForm cmdline: ' + Settings.RipGrepParameters.GetCommandLine);
+		dbgMsg.Msg('after ShowSearchForm cmdline: ' + Settings.RipGrepParameters.GetCommandLine(Settings.AppSettings.CopyToClipBoardShell));
 		MainFrame.PrepareAndDoSearch();
 	end else begin
 		dbgMsg.Msg('ShowSearchForm cancel');

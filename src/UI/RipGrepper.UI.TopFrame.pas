@@ -98,7 +98,6 @@ type
 		procedure ActionAlternateRowColorsExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsUpdate;
 		procedure ActionCmdLineCopyExecute(Sender : TObject);
-		procedure ActionCmdLineCopyUpdate(Sender : TObject);
 		procedure ActionConfigExecute(Sender : TObject);
 		procedure ActionCopyFileNameExecute(Sender : TObject);
 		procedure ActionCopyPathToClipboardExecute(Sender : TObject);
@@ -266,12 +265,7 @@ end;
 
 procedure TRipGrepperTopFrame.ActionCmdLineCopyExecute(Sender : TObject);
 begin
-	ClipBoard.AsText := Settings.RipGrepParameters.GetCommandLine;
-end;
-
-procedure TRipGrepperTopFrame.ActionCmdLineCopyUpdate(Sender : TObject);
-begin
-	ActionCmdLineCopy.Hint := 'Copy Command Line:' + CRLF + Settings.RipGrepParameters.GetCommandLine;
+	ClipBoard.AsText := Settings.RipGrepParameters.GetCommandLine(Settings.AppSettings.CopyToClipBoardShell);
 end;
 
 procedure TRipGrepperTopFrame.ActionConfigExecute(Sender : TObject);
@@ -897,7 +891,6 @@ begin
 	formResult := TRipGrepperSearchDialogForm.ShowSearchForm(self, Settings, FHistItemObj);
 	if (mrOk = formResult) then begin
 		dbgMsg.Msg('after showmodal gui params: ' + Settings.RipGrepParameters.GuiSearchTextParams.ToLogString);
-		dbgMsg.Msg('after showmodal cmdline: ' + Settings.RipGrepParameters.GetCommandLine);
 		ActionSearchExecute(self);
 	end else begin
 		ParentFrame.MainFrame.MiddleLeftFrame1.DeleteCurrentHistoryItemFromList;

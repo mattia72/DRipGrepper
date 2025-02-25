@@ -12,18 +12,26 @@ uses
 	RipGrepper.Settings.Persistable,
 	ArrayEx,
 	RipGrepper.Settings.FontColors,
-	RipGrepper.Settings.RipGrepParameterSettings;
+	RipGrepper.Settings.RipGrepParameterSettings,
+    RipGrepper.Common.SimpleTypes;
 
 type
 
 	TAppSettings = class(TPersistableSettings)
 		const
 			INI_SECTION = 'RipGrepperSettings';
+			KEY_ENCODING_ITEMS = 'EncodingItems';
+			KEY_COLORTHEME = 'ColorTheme';
+			KEY_EXPERTMODE = 'ExpertMode';
+			KEY_DEBUGTRACEREGEXFILTER = 'DebugTraceRegexFilter';
+			KEY_DEBUGTRACE = 'DebugTrace';
+			KEY_COPYTOCLIPBOARDSHELL = 'CopyToClipBoardShell';
 
 		private
-			FColorTheme: string;
+			FColorTheme : string;
 			FDebugTrace : string;
-			FDebugTraceRegexFilter: string;
+			FCopyToClipBoardShell : TShellType;
+			FDebugTraceRegexFilter : string;
 			FExpertMode : Boolean;
 			FEncodingItems : TStringList;
 
@@ -36,10 +44,10 @@ type
 			procedure LoadFromDict(); override;
 			procedure LoadDefaultsFromDict; override;
 			procedure StoreToDict; override;
-			property ColorTheme: string read FColorTheme write FColorTheme;
+			property ColorTheme : string read FColorTheme write FColorTheme;
+			property CopyToClipBoardShell : TShellType read FCopyToClipBoardShell write FCopyToClipBoardShell;
 			property DebugTrace : string read FDebugTrace write FDebugTrace;
-			property DebugTraceRegexFilter: string read FDebugTraceRegexFilter write
-				FDebugTraceRegexFilter;
+			property DebugTraceRegexFilter : string read FDebugTraceRegexFilter write FDebugTraceRegexFilter;
 			property ExpertMode : Boolean read FExpertMode write FExpertMode;
 			property EncodingItems : TStringList read FEncodingItems write FEncodingItems;
 	end;
@@ -80,21 +88,24 @@ end;
 
 procedure TAppSettings.Init;
 begin
-	SettingsDict.CreateSetting('DebugTrace', varString, 'tftError');
-	SettingsDict.CreateSetting('DebugTraceRegexFilter', varString, '');
-	SettingsDict.CreateSetting('ExpertMode', varBoolean, False);
-	SettingsDict.CreateSetting('ColorTheme', varString, '');
-	SettingsDict.CreateSetting('EncodingItems', varString, string.join(ARRAY_SEPARATOR, TDefaults.RG_PARAM_ENCODING_VALUES));
+	SettingsDict.CreateSetting(KEY_DEBUGTRACE, varString, 'tftError');
+	SettingsDict.CreateSetting(KEY_DEBUGTRACEREGEXFILTER, varString, '');
+	SettingsDict.CreateSetting(KEY_EXPERTMODE, varBoolean, False);
+	SettingsDict.CreateSetting(KEY_COLORTHEME, varString, '');
+	SettingsDict.CreateSetting(KEY_ENCODING_ITEMS, varString, string.join(ARRAY_SEPARATOR, TDefaults.RG_PARAM_ENCODING_VALUES));
+	SettingsDict.CreateSetting(KEY_COPYTOCLIPBOARDSHELL, varInteger, Integer(TShellType.stPowershell));
 end;
 
 procedure TAppSettings.LoadFromDict;
 begin
-	FDebugTrace := SettingsDict.GetSetting('DebugTrace');
-	FDebugTraceRegexFilter := SettingsDict.GetSetting('DebugTraceRegexFilter');
-	FExpertMode := SettingsDict.GetSetting('ExpertMode');
-    FColorTheme := SettingsDict.GetSetting('ColorTheme');
+	FDebugTrace := SettingsDict.GetSetting(KEY_DEBUGTRACE);
+	FDebugTraceRegexFilter := SettingsDict.GetSetting(KEY_DEBUGTRACEREGEXFILTER);
+	FExpertMode := SettingsDict.GetSetting(KEY_EXPERTMODE);
+	FColorTheme := SettingsDict.GetSetting(KEY_COLORTHEME);
 	FEncodingItems.Clear;
-	FEncodingItems.AddStrings(string(SettingsDict.GetSetting('EncodingItems')).Split([ARRAY_SEPARATOR]));
+	FEncodingItems.AddStrings(string(SettingsDict.GetSetting(KEY_ENCODING_ITEMS)).Split([ARRAY_SEPARATOR]));
+
+	FCopyToClipBoardShell := TShellType(SettingsDict.GetSetting(KEY_COPYTOCLIPBOARDSHELL));
 end;
 
 procedure TAppSettings.LoadDefaultsFromDict;
@@ -104,10 +115,11 @@ end;
 
 procedure TAppSettings.StoreToDict;
 begin
-	SettingsDict.StoreSetting('DebugTrace', FDebugTrace);
-	SettingsDict.StoreSetting('DebugTraceRegexFilter', FDebugTraceRegexFilter);
-	SettingsDict.StoreSetting('ExpertMode', FExpertMode);
-	SettingsDict.StoreSetting('ColorTheme', FColorTheme);
+	SettingsDict.StoreSetting(KEY_DEBUGTRACE, FDebugTrace);
+	SettingsDict.StoreSetting(KEY_DEBUGTRACEREGEXFILTER, FDebugTraceRegexFilter);
+	SettingsDict.StoreSetting(KEY_EXPERTMODE, FExpertMode);
+	SettingsDict.StoreSetting(KEY_COLORTHEME, FColorTheme);
+	SettingsDict.StoreSetting(KEY_COPYTOCLIPBOARDSHELL, Integer(FCopyToClipBoardShell));
 	inherited StoreToDict();
 end;
 

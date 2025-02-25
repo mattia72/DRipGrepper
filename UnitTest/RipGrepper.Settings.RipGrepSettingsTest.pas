@@ -45,6 +45,8 @@ type
 			procedure DictActualTest;
 			[Test]
 			procedure UpdateIniReloadTest;
+			[Test]
+			procedure TestGetCommandLine();
 	end;
 
 implementation
@@ -274,6 +276,33 @@ begin
 		{ } FSettings.GuiSearchTextParams.GetAsString(true), 'GuiSearchTextParams should be set');
 end;
 
+
+procedure TRipGrepSettingsTest.TestGetCommandLine();
+var
+	Settings: TRipGrepParameterSettings;
+	cmdLine: string;
+begin
+	Settings := TRipGrepParameterSettings.Create(nil);
+	try
+		Settings.RipGrepPath := 'C:\Path\To\rg.exe';
+        Settings.RipGrepPathInitResult := rgpiFound;
+		Settings.RipGrepArguments := TStringList.Create;
+		Settings.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '--vimgrep');
+		Settings.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '-g=*.txt');
+//      Settings.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '--replace=replace text');
+		Settings.RipGrepArguments.AddPair(RG_ARG_OPTIONS, RG_PARAM_END);
+		Settings.RipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, 'search text');
+		Settings.RipGrepArguments.AddPair(RG_ARG_REPLACE_TEXT, 'replace text');
+ 		Settings.RipGrepArguments.AddPair(RG_ARG_SEARCH_PATH ,'C:\Path\Search\Files');
+
+		cmdLine := Settings.GetCommandLine(TShellType.stCmd);
+
+		Assert.AreEqual(
+        '"C:\Path\To\rg.exe" --vimgrep -g=*.txt -- "search text" C:\Path\Search\Files', cmdLine);
+ 	finally
+		Settings.Free;
+	end;
+end;
 initialization
 
 TDUnitX.RegisterTestFixture(TRipGrepSettingsTest);

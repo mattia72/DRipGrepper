@@ -40,7 +40,8 @@ type
 			procedure SetReplaceText(const Value : string);
 			procedure SetRipGrepPath(const Value : string);
 			procedure SetSearchText(const Value : string);
-			function TryFindRipGrepExePath: string;
+			function TryFindRipGrepExePath : string;
+
 		protected
 			procedure Init; override;
 
@@ -49,13 +50,13 @@ type
 			destructor Destroy; override;
 			procedure Copy(const _other : TPersistableSettings); override;
 			procedure CopyDefaultsToValues; override;
-			function GetCommandLine : string;
+			function GetCommandLine(const _shell : TShellType) : string;
 			procedure ReadIni; override;
 			procedure LoadDefaultsFromDict; override;
 			procedure LoadFromDict; override;
 			procedure StoreToDict; override;
 			procedure StoreAsDefaultsToDict; override;
-			function TryGetRipGrepPath(out _rgPath : string): ERipGrepPathInitResult;
+			function TryGetRipGrepPath(out _rgPath : string) : ERipGrepPathInitResult;
 			property FileMasks : string read FFileMasks write SetFileMasks;
 			property GuiSearchTextParams : TGuiSearchTextParams read FGuiSearchTextParams write SetGuiSearchTextParams;
 			property IsRgPathInitOk : Boolean read GetIsRgPathInitOk;
@@ -79,7 +80,8 @@ uses
 	RipGrepper.Tools.ProcessUtils,
 	System.RegularExpressions,
 	RipGrepper.Helper.UI,
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils,
+	System.StrUtils;
 
 const
 	FILEMASKS_KEY = 'FileMasks';
@@ -117,17 +119,47 @@ begin
 	inherited CopyDefaultsToValues; // child not supported yet
 end;
 
-function TRipGrepParameterSettings.GetCommandLine : string;
+function TRipGrepParameterSettings.GetCommandLine(const _shell : TShellType) : string;
 var
 	cmdLine : TStringList;
+	arrParamValue : TArrayEx<string>;
+	key : string;
+	quote : char;
+	sParam : string;
+	argName : string;
+	argValue : string;
 begin
 	cmdLine := TStringList.Create();
 	try
-		cmdLine.Add(RipGrepPath);
-		cmdLine.AddStrings(RipGrepArguments.GetValues());
+		quote := IfThen(_shell = TShellType.stPowershell, '''', '"')[1];
+		cmdLine.Add(RipGrepPath.QuotedString(quote));
+
+		for var argKeyValue in RipGrepArguments do begin
+			arrParamValue := argKeyValue.Split(['=']);
+			key := arrParamValue[0];
+			if key = RG_ARG_REPLACE_TEXT then begin
+				continue;
+			end;
+
+			argName := arrParamValue.SafeItemAt[1];
+			argVAlue := arrParamValue.SafeItemAt[2];
+
+			sParam := IfThen(argVAlue.IsEmpty, argName, argName + '=' + argValue);
+			if (key = RG_ARG_OPTIONS) then begin
+				if (_shell = TShellType.stPowershell) then begin
+					if TRegEx.IsMatch(argName, RG_PARAM_REGEX_GLOB) then begin
+						sParam := argName + '=' + argValue.QuotedString(quote);
+					end;
+				end;
+			end else if MatchStr(key,[RG_ARG_SEARCH_PATH, RG_ARG_SEARCH_TEXT]) then begin
+				sParam := argName.QuotedString(quote);
+			end;
+			cmdLine.Add(sParam);
+		end;
+
 		// DelimitedText puts unnecessary quotes so we build it
 		for var s in cmdLine do begin
-			Result := Result + ' ' + s;
+			Result := Result.Trim() + ' ' + s;
 		end;
 	finally
 		cmdLine.Free;
@@ -174,7 +206,7 @@ begin
 	// inherited LoadDefaultsFromDict;  abstract
 end;
 
-function TRipGrepParameterSettings.TryFindRipGrepExePath: string;
+function TRipGrepParameterSettings.TryFindRipGrepExePath : string;
 var
 	rgExists : Boolean;
 	rgPath : string;
@@ -302,7 +334,7 @@ begin
 	inherited StoreAsDefaultsToDict;
 end;
 
-function TRipGrepParameterSettings.TryGetRipGrepPath(out _rgPath : string): ERipGrepPathInitResult;
+function TRipGrepParameterSettings.TryGetRipGrepPath(out _rgPath : string) : ERipGrepPathInitResult;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepParameterSettings.TryGetRipGrepPath');

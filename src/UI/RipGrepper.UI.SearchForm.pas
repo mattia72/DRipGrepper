@@ -345,9 +345,11 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ActionSearchExecute(Sender : TObject);
 begin
+    var dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.ActionSearchExecute');
 	WriteCtrlsToSettings(False);
 
 	if ValidateRegex() then begin
+        dbgMsg.Msg(memoCommandLine.Text);
 		ModalResult := mrOk;
 	end;
 end;
@@ -842,7 +844,7 @@ begin
 
 	FSettings.RipGrepParameters.GuiSearchTextParams.Copy(FSettingsProxy);
 	FSettings.RebuildArguments();
-	memoCommandLine.Text := FSettings.RipGrepParameters.GetCommandLine();
+	memoCommandLine.Text := FSettings.RipGrepParameters.GetCommandLine(FSettings.AppSettings.CopyToClipBoardShell);
 	FSettingsProxy.Copy(FSettings.RipGrepParameters.GuiSearchTextParams);
 	dbgMsg.Msg('FSettingsProxy= ' + FSettingsProxy.ToLogString);
 end;
