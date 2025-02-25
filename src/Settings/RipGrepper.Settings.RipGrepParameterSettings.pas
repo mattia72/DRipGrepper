@@ -101,6 +101,7 @@ end;
 
 destructor TRipGrepParameterSettings.Destroy;
 begin
+    RemoveChildSettings(FGuiSearchTextParams);
 	FRipGrepArguments.Free;
 	inherited Destroy() // ok;
 end;

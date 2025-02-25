@@ -161,7 +161,6 @@ end;
 destructor THistoryItemObject.Destroy;
 begin
 	(FMatches as TParsedObjectRowCollection).Free;
-	FGuiSearchTextParams.Free;
 	FSearchFormSettings.Free;
 	FRipGrepArguments.Free;
 	inherited;

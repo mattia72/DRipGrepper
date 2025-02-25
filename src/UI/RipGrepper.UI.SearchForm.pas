@@ -274,9 +274,6 @@ end;
 
 destructor TRipGrepperSearchDialogForm.Destroy;
 begin
-	if not HasHistItemObjWithResult then begin
-		FSettingsProxy.Free;
-	end;
 	FOrigSearchFormSettings.Free;
 
 	// FDpiScaler.Free;

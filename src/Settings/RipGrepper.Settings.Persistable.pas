@@ -145,8 +145,8 @@ uses
 	{$IFNDEF STANDALONE} RipGrepper.Common.IOTAUtils, {$ENDIF}
 	System.IOUtils,
 	System.StrUtils,
-
-	RipGrepper.Tools.LockGuard;
+	RipGrepper.Tools.LockGuard,
+	Spring;
 
 constructor TPersistableSettings.Create(const _Owner : TPersistableSettings);
 begin
@@ -532,7 +532,7 @@ end;
 
 procedure TPersistableSettings.UpdateIniFile(const _section : string = ''; const bForceWriteIni : Boolean = False);
 var
-	dbgArr: TArray<TArray<string>>;
+	dbgArr : TArray<TArray<string>>;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
@@ -548,10 +548,10 @@ begin
 		FOwner.WriteSettingsDictToIni(EWriteSettingsMode.wsmAll, IfThen(bForceWriteIni, _section));
 		if not bForceWriteIni then begin
 			Exit;
-        end;
+		end;
 	end;
 
-//  var arr := DictToLog(SettingsDict);
+	// var arr := DictToLog(SettingsDict);
 
 	if Assigned(IniFile) then begin
 		var
