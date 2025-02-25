@@ -298,7 +298,7 @@ begin
 		cmdLine := Settings.GetCommandLine(TShellType.stCmd);
 
 		Assert.AreEqual(
-        '"C:\Path\To\rg.exe" --vimgrep -g=*.txt -- "search text" C:\Path\Search\Files', cmdLine);
+        '"C:\Path\To\rg.exe" --vimgrep -g=*.txt -- "search text" "C:\Path\Search\Files"', cmdLine);
  	finally
 		Settings.Free;
 	end;
