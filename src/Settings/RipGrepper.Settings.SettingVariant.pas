@@ -186,7 +186,7 @@ var
 	v : Variant;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TSettingVariant.InnerLoadDefaultsFromDict');
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingVariant.WriteToMemIni');
 
 	try
 		case self.ValueType of
