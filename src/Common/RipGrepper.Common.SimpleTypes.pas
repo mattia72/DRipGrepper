@@ -42,7 +42,7 @@ type
 		{ } rgecPath = EXT_SEARCH_GIVEN_PATH
 		{ } );
 
-	TShellType = (stPowershell = 0, stCmd = 1);
+	TShellType = (stNone = -1, stPowershell = 0, stCmd = 1);
 
 	{$SCOPEDENUMS OFF}
 

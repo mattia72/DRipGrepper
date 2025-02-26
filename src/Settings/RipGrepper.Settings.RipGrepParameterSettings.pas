@@ -32,6 +32,7 @@ type
 			FGuiSearchTextParams : IShared<TGuiSearchTextParams>;
 			FRipGrepPathInitResult : ERipGrepPathInitResult;
 			FRipGrepPath : string;
+			procedure AddRgArgs(var _cmdLine : IShared<TStringList>; const _quoteChar : Char; const _shell : TShellType);
 			function GetIsRgPathInitOk() : Boolean;
 			function GetRipGrepPath : string;
 			procedure SetFileMasks(const Value : string);
@@ -82,7 +83,8 @@ uses
 	System.RegularExpressions,
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.DebugUtils,
-	System.StrUtils;
+	System.StrUtils,
+	Spring.Collections;
 
 const
 	FILEMASKS_KEY = 'FileMasks';
@@ -106,6 +108,38 @@ begin
 	inherited Destroy() // ok;
 end;
 
+procedure TRipGrepParameterSettings.AddRgArgs(var _cmdLine : IShared<TStringList>; const _quoteChar : Char; const _shell : TShellType);
+var
+	arrParamValue : TArrayEx<string>;
+	key : string;
+	sParam : string;
+	argName : string;
+	argValue : string;
+begin
+	for var argKeyValue in RipGrepArguments do begin
+		arrParamValue := argKeyValue.Split(['=']);
+		key := arrParamValue[0];
+		if key = RG_ARG_REPLACE_TEXT then begin
+			continue;
+		end;
+
+		argName := arrParamValue.SafeItemAt[1];
+		argVAlue := arrParamValue.SafeItemAt[2];
+
+		sParam := IfThen(argVAlue.IsEmpty, argName, argName + '=' + argValue);
+		if (key = RG_ARG_OPTIONS) then begin
+			if (_shell = TShellType.stPowershell) then begin
+				if TRegEx.IsMatch(argName, RG_PARAM_REGEX_GLOB) then begin
+					sParam := argName + '=' + argValue.QuotedString(_quoteChar);
+				end;
+			end;
+		end else if MatchStr(key, [RG_ARG_SEARCH_PATH, RG_ARG_SEARCH_TEXT]) then begin
+			sParam := argName.QuotedString(_quoteChar);
+		end;
+		_cmdLine.Add(sParam);
+	end;
+end;
+
 procedure TRipGrepParameterSettings.Copy(const _other : TPersistableSettings);
 var
 	gstp : TGuiSearchTextParams;
@@ -126,56 +160,43 @@ end;
 
 function TRipGrepParameterSettings.GetCommandLine(const _shell : TShellType) : string;
 var
-	cmdLine : TStringList;
-	arrParamValue : TArrayEx<string>;
-	key : string;
-	quote : char;
-	sParam : string;
-	argName : string;
-	argValue : string;
+	cmdLine : IShared<TStringList>;
+	quote : Nullable<char>;
 begin
-	cmdLine := TStringList.Create();
-	try
-		quote := IfThen(_shell = TShellType.stPowershell, '''', '"')[1];
-		cmdLine.Add(RipGrepPath.QuotedString(quote));
+	cmdLine := Shared.Make<TStringList>();
 
-		for var argKeyValue in RipGrepArguments do begin
-			arrParamValue := argKeyValue.Split(['=']);
-			key := arrParamValue[0];
-			if key = RG_ARG_REPLACE_TEXT then begin
-				continue;
-			end;
-
-			argName := arrParamValue.SafeItemAt[1];
-			argVAlue := arrParamValue.SafeItemAt[2];
-
-			sParam := IfThen(argVAlue.IsEmpty, argName, argName + '=' + argValue);
-			if (key = RG_ARG_OPTIONS) then begin
-				if (_shell = TShellType.stPowershell) then begin
-					if TRegEx.IsMatch(argName, RG_PARAM_REGEX_GLOB) then begin
-						sParam := argName + '=' + argValue.QuotedString(quote);
-					end;
-				end;
-			end else if MatchStr(key, [RG_ARG_SEARCH_PATH, RG_ARG_SEARCH_TEXT]) then begin
-				sParam := argName.QuotedString(quote);
-			end;
-			cmdLine.Add(sParam);
+	case _shell of
+		TShellType.stPowershell : begin
+			quote := '''';
+			cmdLine.Add('&' + RipGrepPath.QuotedString(quote));
 		end;
-
-		// DelimitedText puts unnecessary quotes so we build it
-		for var s in cmdLine do begin
-			Result := Result.Trim() + ' ' + s;
+		TShellType.stCmd : begin
+			quote := '"';
+			cmdLine.Add(RipGrepPath.QuotedString(quote));
 		end;
-	finally
-		cmdLine.Free;
+		TShellType.stNone : begin
+			cmdLine.Add(RipGrepPath);
+		end;
+	end;
+
+	if quote.HasValue then begin
+		AddRgArgs(cmdLine, quote, _shell);
+	end else begin
+    	cmdLine.AddStrings(RipGrepArguments.GetValues(RG_ARG_OPTIONS));
+    	cmdLine.AddStrings(RipGrepArguments.GetValues(RG_ARG_SEARCH_TEXT));
+    	cmdLine.AddStrings(RipGrepArguments.GetValues(RG_ARG_SEARCH_PATH));
+	end;
+
+	// DelimitedText puts unnecessary quotes so we build it
+	for var s in cmdLine do begin
+		Result := Result.Trim() + ' ' + s;
 	end;
 end;
 
 function TRipGrepParameterSettings.GetIsRgPathInitOk() : Boolean;
 begin
 	if rgpiFound <> FRipGrepPathInitResult then begin
-		var
-			tmp : string;
+		var tmp : string;
 		FRipGrepPathInitResult := TryGetRipGrepPath(tmp);
 		RipGrepPath := tmp; // Settings store should be called
 	end;
@@ -212,10 +233,7 @@ begin
 end;
 
 function TRipGrepParameterSettings.TryFindRipGrepExePath : string;
-var
-	rgExists : Boolean;
-	rgPath : string;
-	scoopRgPath : string;
+var rgExists : Boolean; rgPath : string; scoopRgPath : string;
 	vscodeRgPath : string;
 begin
 	var
@@ -230,8 +248,7 @@ begin
 				rgPath := scoopRgPath;
 				dbgMsg.MsgFmt('%s found in scoopRgPath=%s', [RG_EXE, scoopRgPath]);
 			end else begin
-				var
-					sVsDir : string := TFileUtils.GetVsCodeDir;
+				var sVsDir : string := TFileUtils.GetVsCodeDir;
 				if not sVsDir.IsEmpty then begin
 					sVsDir := TFileUtils.ShortToLongPath(sVsDir.Remove(sVsDir.Length - '\bin'.Length));
 					vscodeRgPath := TFileUtils.FindFileInSubDirs(TPath.Combine(sVsDir, VSCODE_RG_EXE_FIND_PATH), RG_EXE);
@@ -327,7 +344,8 @@ begin
 	SettingsDict.StoreSetting(RG_INI_KEY_RGPATH, RipGrepPath);
 	SettingsDict.StoreSetting('SearchPath', FSearchPath);
 	SettingsDict.StoreSetting('FileMasks', FFileMasks);
-	inherited StoreToDict; // Children will be stored and it writes into mem ini. after UpdateIniFile will be saved
+	inherited StoreToDict;
+	// Children will be stored and it writes into mem ini. after UpdateIniFile will be saved
 end;
 
 procedure TRipGrepParameterSettings.StoreAsDefaultsToDict;
@@ -358,3 +376,4 @@ begin
 end;
 
 end.
+
