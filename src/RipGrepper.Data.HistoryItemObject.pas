@@ -31,7 +31,7 @@ type
 			FMatches : TParsedObjectRowCollection;
 			FNoMatchFound : Boolean;
 			FParserType : TParserType;
-			FRipGrepArguments : TRipGrepArguments;
+			FRipGrepArguments: IShared<TRipGrepArguments>;
 			FSearchFormSettings : TSearchFormSettings;
 			FRipGrepResult : Integer;
 			FTotalMatchCount : integer;
@@ -42,11 +42,11 @@ type
 			function GetIsReplaceMode() : Boolean;
 			function GetMatches() : TParsedObjectRowCollection;
 			function GetNoMatchFound() : Boolean;
-			function GetRipGrepArguments() : TRipGrepArguments;
+			function GetRipGrepArguments: IShared<TRipGrepArguments>;
 			function GetTotalMatchCount() : integer;
 			procedure SetFileCount(const Value : integer);
 			procedure SetMatches(const Value : TParsedObjectRowCollection);
-			procedure SetRipGrepArguments(const Value : TRipGrepArguments);
+			procedure SetRipGrepArguments(const Value: IShared<TRipGrepArguments>);
 			function GetParserType : TParserType;
 			function GetSearchFormSettings : TSearchFormSettings;
 			function GetRipGrepResult : Integer;
@@ -72,7 +72,7 @@ type
 
 			property FileCount : integer read GetFileCount write SetFileCount;
 			property Matches : TParsedObjectRowCollection read GetMatches write SetMatches;
-			property RipGrepArguments : TRipGrepArguments read GetRipGrepArguments write SetRipGrepArguments;
+			property RipGrepArguments: IShared<TRipGrepArguments> read GetRipGrepArguments write SetRipGrepArguments;
 			property TotalMatchCount : integer read GetTotalMatchCount;
 			property ElapsedTimeText : string read GetElapsedTimeText write SetElapsedTimeText;
 			property GuiSearchTextParams: IShared<TGuiSearchTextParams> read GetGuiSearchTextParams write SetGuiSearchTextParams;
@@ -108,14 +108,10 @@ uses
 	RipGrepper.Settings.RipGrepParameterSettings;
 
 procedure THistoryItemObject.LoadFromSettings(const _settings : TRipGrepperSettings);
-var
-	gstp : TGuiSearchTextParams;
-	igstp : IShared<TGuiSearchTextParams>;
 begin
-	RipGrepArguments.Assign(_settings.GetRipGrepArguments);
-	igstp := _settings.RipGrepParameters.GuiSearchTextParams;
-	gstp :=  igstp;
-	GuiSearchTextParams.Copy(gstp);
+	var args := _settings.GetRipGrepArguments();
+	RipGrepArguments.Assign(args());
+	GuiSearchTextParams.Copy(_settings.RipGrepParameters.GuiSearchTextParams());
 	SearchFormSettings.Copy(_settings.SearchFormSettings);
 	_settings.LastReplaceText := ReplaceText;
 end;
@@ -130,7 +126,7 @@ begin
 	Result := FMatches;
 end;
 
-function THistoryItemObject.GetRipGrepArguments : TRipGrepArguments;
+function THistoryItemObject.GetRipGrepArguments: IShared<TRipGrepArguments>;
 begin
 	Result := FRipGrepArguments;
 end;
@@ -153,7 +149,7 @@ begin
 	FMatches := Value;
 end;
 
-procedure THistoryItemObject.SetRipGrepArguments(const Value : TStringList);
+procedure THistoryItemObject.SetRipGrepArguments(const Value: IShared<TRipGrepArguments>);
 begin
 	FRipGrepArguments := Value;
 end;
@@ -162,7 +158,7 @@ destructor THistoryItemObject.Destroy;
 begin
 	(FMatches as TParsedObjectRowCollection).Free;
 	FSearchFormSettings.Free;
-	FRipGrepArguments.Free;
+	// FRipGrepArguments.Free;
 	inherited;
 end;
 
@@ -172,7 +168,7 @@ begin
 	FMatches := TParsedObjectRowCollection.Create();
 	FSearchFormSettings := TSearchFormSettings.Create();
 	FGuiSearchTextParams := Shared.Make<TGuiSearchTextParams>(TGuiSearchTextParams.Create(TRipGrepParameterSettings.INI_SECTION));
-	FRipGrepArguments := TStringList.Create;
+	FRipGrepArguments := Shared.Make<TStringList>();
 	FParserType := ptEmpty;
 	ClearMatches;
 	FHasResult := False;
@@ -191,14 +187,9 @@ begin
 end;
 
 procedure THistoryItemObject.CopyToSettings(const _settings : TRipGrepperSettings);
-var
-	gstp : TGuiSearchTextParams;
-	igstp: IShared<TGuiSearchTextParams>;
 begin
-	_settings.RipGrepParameters.RipGrepArguments.Assign(RipGrepArguments);
-	igstp := GuiSearchTextParams;
-	gstp := igstp;
-	_settings.RipGrepParameters.GuiSearchTextParams.Copy(gstp);
+	_settings.RipGrepParameters.RipGrepArguments.Assign(RipGrepArguments());
+	_settings.RipGrepParameters.GuiSearchTextParams.Copy(GuiSearchTextParams());
 	_settings.SearchFormSettings.Copy(SearchFormSettings);
 end;
 

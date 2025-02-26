@@ -6,7 +6,8 @@ uses
 	RipGrepper.Settings.SearchFormSettings,
 	System.IniFiles,
 	RipGrepper.Settings.RipGrepParameterSettings,
-	DUnitX.TestFramework;
+	DUnitX.TestFramework,
+	Spring;
 
 type
 
@@ -16,7 +17,7 @@ type
 			INIFILE = 'DripGrepperUnittest.ini';
 
 		private
-			FIniFile : TMemIniFile;
+			FIniFile : IShared<TMemIniFile>;
 			FSettings : TRipGrepParameterSettings;
 			procedure SetDefaultsAndCurrentValues;
 			procedure SetRipGrepArguments(const Settings : TRipGrepParameterSettings);
@@ -179,7 +180,7 @@ begin
 		TFileUtils.EmptyFile(iniName);
 	end;
 
-	FIniFile := TMemIniFile.Create(iniName, TEncoding.UTF8);
+	FIniFile := Shared.Make<TMemIniFile>(TMemIniFile.Create(iniName, TEncoding.UTF8));
 
 	FSettings.IniFile := FIniFile;
 	Assert.IsTrue(FSettings.IniFile = FSettings.GuiSearchTextParams.IniFile);
@@ -188,7 +189,7 @@ end;
 procedure TRipGrepSettingsTest.TearDown;
 begin
 	FSettings.Free; // instance will be free
-	FIniFile.Free;
+
 	TFileUtils.EmptyFile(ChangeFileExt(Application.ExeName, '.ini'));
 end;
 
@@ -270,7 +271,7 @@ procedure TRipGrepSettingsTest.SetRipGrepArguments(const Settings : TRipGrepPara
 begin
 	Settings.RipGrepPath := 'C:\Path\To\rg.exe';
 	Settings.RipGrepPathInitResult := rgpiFound;
-	Settings.RipGrepArguments := TStringList.Create;
+	Settings.RipGrepArguments := Shared.Make<TStringList>();
 	Settings.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '--vimgrep');
 	Settings.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '-g=*.txt');
 	// Settings.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '--replace=replace text');

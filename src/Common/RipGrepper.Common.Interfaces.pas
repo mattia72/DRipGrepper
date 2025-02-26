@@ -98,13 +98,13 @@ type
 		function GetNoMatchFound() : Boolean;
 		function GetParserType() : TParserType;
 		procedure SetMatches(const Value : TParsedObjectRowCollection);
-		function GetRipGrepArguments() : TRipGrepArguments;
+		function GetRipGrepArguments: IShared<TRipGrepArguments>;
 		function GetSearchFormSettings() : TSearchFormSettings;
 		function GetRipGrepResult() : Integer;
 		function GetSearchText() : string;
 		function GetReplaceText() : string;
 		function GetSearchTextWithOptions() : TSearchTextWithOptions;
-		procedure SetRipGrepArguments(const Value : TRipGrepArguments);
+		procedure SetRipGrepArguments(const Value: IShared<TRipGrepArguments>);
 		function GetTotalMatchCount() : integer;
 		function HasResult() : Boolean;
 		procedure LoadFromSettings(const _settings : TRipGrepperSettings);
@@ -120,7 +120,7 @@ type
 
 		property ElapsedTimeText : string read GetElapsedTimeText write SetElapsedTimeText;
 		property Matches : TParsedObjectRowCollection read GetMatches write SetMatches;
-		property RipGrepArguments : TRipGrepArguments read GetRipGrepArguments write SetRipGrepArguments;
+		property RipGrepArguments: IShared<TRipGrepArguments> read GetRipGrepArguments write SetRipGrepArguments;
 		property FileCount : integer read GetFileCount write SetFileCount;
 		property GuiSearchTextParams: IShared<TGuiSearchTextParams> read GetGuiSearchTextParams write SetGuiSearchTextParams;
 		property NoMatchFound : Boolean read GetNoMatchFound write SetNoMatchFound;

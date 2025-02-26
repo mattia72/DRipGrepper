@@ -114,15 +114,10 @@ begin
 end;
 
 procedure TOptionsHelperTest.Setup;
-var
-	gstp : TGuiSearchTextParams;
-	igstp: IShared<TGuiSearchTextParams>;
 begin
 	FOwner := TTestOwnerSettings.Create();
 	FParams := TRipGrepParameterSettings.Create(FOwner);
-	igstp :=   FParams.GuiSearchTextParams;
-	gstp := igstp;
-	FGuiParams := gstp;
+	FGuiParams := FParams.GuiSearchTextParams();
 	FGuiParams.SetSearchText('search text');
 end;
 

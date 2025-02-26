@@ -12,7 +12,8 @@ uses
 	RipGrepper.Settings.SettingVariant,
 	RipGrepper.Settings.SettingsDictionary,
 	System.SyncObjs,
-	ArrayEx;
+	ArrayEx,
+	Spring;
 
 type
 
@@ -40,7 +41,7 @@ type
 		procedure SaveToFile(_dict : TSettingsDictionary);
 
 		private
-			FIniFile : TMemIniFile;
+			FIniFile : IShared<TMemIniFile>;
 
 		public
 			constructor Create;
@@ -55,7 +56,7 @@ type
 			class destructor Destroy;
 
 		private
-			FIniFile : TMemIniFile; // TODO IFilePersister
+			FIniFile : IShared<TMemIniFile>; // TODO IFilePersister
 			FbDefaultLoaded : Boolean;
 			FIniSectionName : string;
 			FIsAlreadyRead : Boolean;
@@ -64,10 +65,10 @@ type
 			procedure CreateIniFile;
 			function DictToLog(_dict : TSettingsDictionary) : TArray<TArray<string>>;
 			procedure FreeOwnIniFile;
-			function GetIniFile : TMemIniFile;
+			function GetIniFile: IShared<TMemIniFile>;
 			procedure ReadSettings;
 			procedure SetChildrenIniFiles;
-			procedure SetIniFile(const Value : TMemIniFile);
+			procedure SetIniFile(const Value: IShared<TMemIniFile>);
 			procedure SetIniSectionName(const Value : string);
 			// 1 Should be locked by a guard
 			procedure WriteToIni(const _sIniSection, _sKey : string; _setting : ISettingVariant);
@@ -94,7 +95,7 @@ type
 			procedure Copy(const _other : TPersistableSettings); virtual;
 			procedure ReLoad; virtual;
 
-			property IniFile : TMemIniFile read GetIniFile write SetIniFile;
+			property IniFile: IShared<TMemIniFile> read GetIniFile write SetIniFile;
 			property IniSectionName : string read GetIniSectionName write SetIniSectionName;
 			property IsAlreadyRead : Boolean read GetIsAlreadyRead;
 			property IsModified : Boolean read GetIsModified;
@@ -145,8 +146,7 @@ uses
 	{$IFNDEF STANDALONE} RipGrepper.Common.IOTAUtils, {$ENDIF}
 	System.IOUtils,
 	System.StrUtils,
-	RipGrepper.Tools.LockGuard,
-	Spring;
+	RipGrepper.Tools.LockGuard;
 
 constructor TPersistableSettings.Create(const _Owner : TPersistableSettings);
 begin
@@ -289,9 +289,11 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.CreateIniFile', True);
 	{$IFDEF STANDALONE}
-	FIniFile := TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8);
+	FIniFile := Shared.Make<TMemIniFile>(
+		{ } TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8));
 	{$ELSE}
-	FIniFile := TMemIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'), TEncoding.UTF8);
+	FIniFile := Shared.Make<TMemIniFile>(
+		{ } TMemIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'), TEncoding.UTF8));
 	{$ENDIF}
 	dbgMsg.MsgFmt('Create FIniFile %p of section: %s', [Pointer(FIniFile), GetIniSectionName()]);
 end;
@@ -318,13 +320,13 @@ begin
 	if FOwnIniFile then begin
 		if Assigned(FIniFile) then begin
 			dbgMsg.MsgFmt('Free FIniFile %p of section: %s', [Pointer(IniFile), GetIniSectionName()]);
-			FIniFile.Free;
+			// FIniFile.Free;
 			FIniFile := nil;
 		end;
 	end;
 end;
 
-function TPersistableSettings.GetIniFile : TMemIniFile;
+function TPersistableSettings.GetIniFile: IShared<TMemIniFile>;
 begin
 	Result := FIniFile;
 end;
@@ -497,7 +499,7 @@ begin
 	end;
 end;
 
-procedure TPersistableSettings.SetIniFile(const Value : TMemIniFile);
+procedure TPersistableSettings.SetIniFile(const Value: IShared<TMemIniFile>);
 begin
 	FIniFile := Value;
 	if not FOwnIniFile and Assigned(FOwner) and (FOwner.IniFile <> IniFile) then begin
@@ -622,16 +624,18 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.WriteToIni');
 
-	_setting.WriteToMemIni(IniFile, _sIniSection, _sKey);
+	_setting.WriteToMemIni(FIniFile, _sIniSection, _sKey);
 end;
 
 constructor TMemIniPersister.Create;
 begin
 	inherited Create;
 	{$IFDEF STANDALONE}
-	FIniFile := TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8);
+	FIniFile := Shared.Make<TMemIniFile>(
+		{ } TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8));
 	{$ELSE}
-	FIniFile := TMemIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'), TEncoding.UTF8);
+	FIniFile := Shared.Make<TMemIniFile>(
+		{ } TMemIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'), TEncoding.UTF8));
 	{$ENDIF}
 end;
 

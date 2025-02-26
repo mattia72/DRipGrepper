@@ -94,7 +94,7 @@ end;
 procedure TNodeLookSettingsTest.Setup;
 begin
 	FOwner := TTestOwnerSettings.Create();
-	FIniFile := FOwner.IniFile;
+	FIniFile := FOwner.IniFile();
 	FSettings := TNodeLookSettings.Create(FOwner);
 end;
 

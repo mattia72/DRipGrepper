@@ -137,7 +137,7 @@ end;
 procedure TSearchFormSettingsTest.Setup;
 begin
 	FOwner := TTestOwnerSettings.Create();
-	FIniFile := FOwner.IniFile;
+	FIniFile := FOwner.IniFile();
 	FSettings := TSearchFormSettings.Create(FOwner);
 end;
 

@@ -14,7 +14,8 @@ uses
 	RipGrepper.Settings.NodeLookSettings,
 	RipGrepper.Settings.OpenWithSettings,
 	RipGrepper.Settings.FontColors,
-	RipGrepper.Helper.MemIniFile;
+	RipGrepper.Helper.MemIniFile, 
+	Spring;
 
 type
 	TRipGrepperSettings = class(TPersistableSettings)
@@ -33,7 +34,7 @@ type
 			FSearchTextsHistory : TStrings;
 			FFileMasksHistory : TStrings;
 
-			FRipGrepArguments : TRipGrepArguments;
+			FRipGrepArguments : IShared<TRipGrepArguments>;
 			FSearchPathIsDir : Boolean;
 
 			FActualSearchPath : string;
@@ -69,7 +70,7 @@ type
 			procedure CopyDefaultsToValues; override;
 			function GetIsModified : Boolean; override;
 			function GetLastHistorySearchText : string;
-			function GetRipGrepArguments : TRipGrepArguments;
+			function GetRipGrepArguments: IShared<TRipGrepArguments>;
 			procedure Init; override;
 			procedure LoadDefaultsFromDict; override;
 			procedure RebuildArguments;
@@ -126,7 +127,7 @@ begin
 	Result := FRipGrepParameters.RipGrepPath.IsEmpty;
 end;
 
-function TRipGrepperSettings.GetRipGrepArguments : TRipGrepArguments;
+function TRipGrepperSettings.GetRipGrepArguments: IShared<TRipGrepArguments>;
 begin
 	Result := FRipGrepParameters.RipGrepArguments;
 end;
@@ -167,7 +168,6 @@ destructor TRipGrepperSettings.Destroy;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.Destroy');
-	FRipGrepArguments.Free;
 	FExpertOptionHistory.Free;
 	FSearchTextsHistory.Free;
 	FReplaceTextsHistory.Free;
@@ -200,7 +200,7 @@ begin
 	FSearchTextsHistory := TStringList.Create(dupIgnore, False, True);
 	FReplaceTextsHistory := TStringList.Create(dupIgnore, False, True);
 	FExpertOptionHistory := TStringList.Create(dupIgnore, False, True);
-	FRipGrepArguments := TStringList.Create();
+	FRipGrepArguments := Shared.Make<TStringList>();
 	FRipGrepArguments.Delimiter := ' ';
 	FFileMasksHistory := TStringList.Create(dupIgnore, False, True);
 end;
@@ -232,7 +232,7 @@ begin
 		FSearchTextsHistory.Assign(s.SearchTextsHistory);
 		FReplaceTextsHistory.Assign(s.ReplaceTextsHistory);
 		FExpertOptionHistory.Assign(s.ExpertOptionHistory);
-		FRipGrepArguments.Assign(s.FRipGrepArguments);
+		FRipGrepArguments.Assign(s.FRipGrepArguments());
 //		inherited Copy(_other as TPersistableSettings);
 	end;
 end;

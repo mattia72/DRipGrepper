@@ -170,7 +170,7 @@ end;
 procedure TPersistableSettingsTest.Setup;
 begin
 	FOwner := TTestOwnerSettings.Create();
-	FIniFile := FOwner.IniFile;
+	FIniFile := FOwner.IniFile();
 	FSettings1 := TTestSettings.Create(FOwner);
 	FSettings2 := TTestSettings.Create(FSettings1);
 end;

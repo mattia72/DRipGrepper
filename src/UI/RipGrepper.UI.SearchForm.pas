@@ -35,7 +35,8 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	SVGIconImageListBase,
 	SVGIconImageList,
-	RipGrepper.Helper.UI.DarkMode, Spring;
+	RipGrepper.Helper.UI.DarkMode,
+	Spring;
 
 type
 	TRipGrepperSearchDialogForm = class(TForm)
@@ -447,7 +448,9 @@ begin
 			FHistItemObj.SearchFormSettings.Copy(FSettings.SearchFormSettings);
 			FHistItemObj.SearchFormSettings.LoadFromDict();
 			FHistItemObj.RipGrepArguments.Clear;
-			FHistItemObj.RipGrepArguments.Assign(FSettings.GetRipGrepArguments());
+			var
+			args := FSettings.GetRipGrepArguments();
+			FHistItemObj.RipGrepArguments.Assign(args());
 			FHistItemObj.GuiSearchTextParams.Copy(FSettingsProxy);
 			FSettings.SearchFormSettings.Copy(FOrigSearchFormSettings);
 			FSettings.SearchFormSettings.LoadFromDict();
@@ -830,9 +833,6 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateMemoCommandLine(const _bSkipReadCtrls : Boolean = False);
-var
-	gstp : TGuiSearchTextParams;
-	igstp : IShared<TGuiSearchTextParams>;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateMemoCommandLine');
@@ -846,9 +846,7 @@ begin
 	FSettings.RipGrepParameters.GuiSearchTextParams.Copy(FSettingsProxy);
 	FSettings.RebuildArguments();
 	memoCommandLine.Text := FSettings.RipGrepParameters.GetCommandLine(FSettings.AppSettings.CopyToClipBoardShell);
-	igstp := FSettings.RipGrepParameters.GuiSearchTextParams;
-	gstp := igstp;
-	FSettingsProxy.Copy(gstp);
+	FSettingsProxy.Copy(FSettings.RipGrepParameters.GuiSearchTextParams());
 	dbgMsg.Msg('FSettingsProxy= ' + FSettingsProxy.ToLogString);
 end;
 
@@ -1120,9 +1118,6 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.LoadNewSearchSettings;
-var
-	gstp : TGuiSearchTextParams;
-	igstp : IShared<TGuiSearchTextParams>;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadNewSearchSettings');
@@ -1149,9 +1144,7 @@ begin
 	// FSettingsProxy.ReadIni;
 	// FSettingsProxy.LoadDefaultsFromDict;
 
-	igstp := FSettings.RipGrepParameters.GuiSearchTextParams;
-	gstp := igstp;
-	FSettingsProxy.Copy(gstp);
+	FSettingsProxy.Copy(FSettings.RipGrepParameters.GuiSearchTextParams());
 	FSettingsProxy.UpdateRgParamsByGuiOptions();
 	UpdateCheckBoxes();
 end;
