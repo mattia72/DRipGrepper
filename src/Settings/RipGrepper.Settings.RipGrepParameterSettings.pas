@@ -157,12 +157,7 @@ end;
 function TRipGrepParameterSettings.GetCommandLine(const _shell : TShellType) : string;
 var
 	cmdLine : IShared<TStringList>;
-	arrParamValue : TArrayEx<string>;
-	key : string;
 	quote : Nullable<char>;
-	sParam : string;
-	argName : string;
-	argValue : string;
 begin
 	cmdLine := Shared.Make<TStringList>();
 
