@@ -96,7 +96,8 @@ uses
   RipGrepper.Helper.UI.DarkMode in '..\..\RipGrepper.Helper.UI.DarkMode.pas',
   Vcl.Themes,
   Vcl.Styles,
-  RipGrepper.Common.SearchTextWithOptions in '..\..\Common\RipGrepper.Common.SearchTextWithOptions.pas';
+  RipGrepper.Common.SearchTextWithOptions in '..\..\Common\RipGrepper.Common.SearchTextWithOptions.pas',
+  RipGrepper.OpenWith.CmdEditorForm in '..\..\OpenWith\RipGrepper.OpenWith.CmdEditorForm.pas' {OpenWithCommandEditor};
 
 {$R *.res}
 
@@ -113,10 +114,12 @@ begin
 		Application.Initialize;
 		Application.MainFormOnTaskbar := True;
 		TStyleManager.TrySetStyle('Windows10');
-  Application.CreateForm(TRipGrepperForm, RipGrepperForm);
+		Application.CreateForm(TRipGrepperForm, RipGrepperForm);
+  Application.CreateForm(TOpenWithCommandEditor, OpenWithCommandEditor);
   Application.Run;
 	finally
 		Gsettings.Free;
 		GSettings := nil;
 	end;
+
 end.
