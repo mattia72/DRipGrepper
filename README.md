@@ -10,6 +10,7 @@
   - [Scoop](#scoop)
   - [Manual](#manual)
   - [Delphi Integration](#delphi-integration)
+- [Contribution](#contribution)
 - [Thanks](#thanks)
 
 ## :droplet: DRipGrepper
