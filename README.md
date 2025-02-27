@@ -32,7 +32,7 @@ Most actual working items, you will find in the last [release notes](https://git
   - [x] Full/relative path
   - [x] Alternate row colors
 - [x] Copy `rg` command line into clipboard
-- [ ] Sorting result groups by row/col/text
+- [x] Sorting result groups by row/col/text
 - [x] Filtering results
   - [x] Filter by file path/matching lines
 - [x] File handling (e.g., open in explorer or in another tool)
@@ -45,11 +45,7 @@ Most actual working items, you will find in the last [release notes](https://git
 - [x] Helps parametrizing `rg.exe` 
   - [x] Expert mode set in `DripGrepper.ini` makes `rg` options visible
     - [x] Option helper form generated from `rg` help ![Screenshot](./screenshots/OptionsHelpForm.png)
-  - [x] Quick buttons for:
-    - [x] `--ignore-case`
-    - [x] `--case-sensitive`
-    - [x] `--word-regexp`
-    - [x] `--fixed-strings`
+  - [x] Quick buttons for: `--ignore-case`, `--case-sensitive`, `--word-regexp`, `--fixed-strings`
   - [x] `--glob` filter settings can be set in a separate edit box
   - [x] `--hidden`, `--no-ignore` can be set
   - [x] `--pretty` can be set (not supported by `rg.exe` in VSCode)
@@ -78,26 +74,24 @@ Most actual working items, you will find in the last [release notes](https://git
 Configuration is stored in ini file (`DripGrepper.ini` for standalone and `DripExtension.ini` for the extension)
   - [x] *Open with...* settings saved
   - [x] DebugTrace switch
-  - [x] config form
-    - [x] Open with...
-    - [x] View settings: colors
-    - [x] App settings: rg path, debug trace, expert mode
+  - [x] Config form for
+    - [x] General: rg path, debug trace, expert mode
       - [ ] configurable length of history
-    - [x] Extension settings
+    - [x] Open With...
+    - [x] Appearance
+    - [x] Extension
 
 ### Delphi Extension 
 ![Screenshot](./screenshots/DripExtension.png)
 
-- [x] Dockable window
-- [x] High DPI scaling
-- [x] Menu item in Tools (shortcut configurable in `DripExtension*.ini`)
+- [x] Menu item in Tools 
 - [x] Default shortcut Shift+Alt+R (:warning: conflict with GExpert/MMX Reverse Statement)
 - [x] Click on matching file opens file in the editor at the position
   - [ ] Expand collapsed code in {$REGION}-s
 - [x] Popup menu
   - [x] Delete history entries
   - [x] Copy path, etc.
-  - [x] Insert file as `uses` to interface/implementation section
+  - [x] Add file to `uses` list in interface/implementation section
 - [x] Save window position
   - [x] Save in layout
   - [x] Load saved layout
@@ -159,3 +153,4 @@ To submit a pull request, follow these steps:
 -  [UniSynEdit](https://sourceforge.net/projects/synedit)
 -  [VirtualTreeView](https://github.com/TurboPack/VirtualTreeView)
 -  [SVGIconImageList](https://github.com/EtheaDev/SVGIconImageList)
+-  [spring4d](https://bitbucket.org/sglienke/spring4d)
