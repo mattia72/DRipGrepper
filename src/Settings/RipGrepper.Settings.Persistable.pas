@@ -65,11 +65,13 @@ type
 			procedure CreateIniFile;
 			function DictToLog(_dict : TSettingsDictionary) : TArray<TArray<string>>;
 			procedure FreeOwnIniFile;
-			function GetIniFile: IShared<TMemIniFile>;
+			function GetIniFile : IShared<TMemIniFile>;
 			procedure ReadSettings;
 			procedure SetChildrenIniFiles;
-			procedure SetIniFile(const Value: IShared<TMemIniFile>);
+			procedure SetIniFile(const Value : IShared<TMemIniFile>);
 			procedure SetIniSectionName(const Value : string);
+			procedure SetOwnerSetings(const _section : string = ''; const _bForceWriteIni : Boolean = False;
+				const _bClearSection : Boolean = False);
 			// 1 Should be locked by a guard
 			procedure WriteToIni(const _sIniSection, _sKey : string; _setting : ISettingVariant);
 
@@ -95,7 +97,7 @@ type
 			procedure Copy(const _other : TPersistableSettings); virtual;
 			procedure ReLoad; virtual;
 
-			property IniFile: IShared<TMemIniFile> read GetIniFile write SetIniFile;
+			property IniFile : IShared<TMemIniFile> read GetIniFile write SetIniFile;
 			property IniSectionName : string read GetIniSectionName write SetIniSectionName;
 			property IsAlreadyRead : Boolean read GetIsAlreadyRead;
 			property IsModified : Boolean read GetIsModified;
@@ -131,8 +133,10 @@ type
 			// <summary>
 			// Thread safe write Settings to ini file
 			// </summary>
-			procedure UpdateIniFile(const _section : string = ''; const bForceWriteIni : Boolean = False);
-			procedure WriteSettingsDictToIni(const _wsm : EWriteSettingsMode; const _section : string = '');
+			procedure UpdateIniFile(const _section : string = ''; const _bForceWriteIni : Boolean = False;
+				const _bClearSection : Boolean = False);
+			procedure WriteSettingsDictToIni(const _wsm : EWriteSettingsMode; const _section : string = '';
+				const _bClearSection : Boolean = False);
 	end;
 
 implementation
@@ -326,7 +330,7 @@ begin
 	end;
 end;
 
-function TPersistableSettings.GetIniFile: IShared<TMemIniFile>;
+function TPersistableSettings.GetIniFile : IShared<TMemIniFile>;
 begin
 	Result := FIniFile;
 end;
@@ -499,7 +503,7 @@ begin
 	end;
 end;
 
-procedure TPersistableSettings.SetIniFile(const Value: IShared<TMemIniFile>);
+procedure TPersistableSettings.SetIniFile(const Value : IShared<TMemIniFile>);
 begin
 	FIniFile := Value;
 	if not FOwnIniFile and Assigned(FOwner) and (FOwner.IniFile <> IniFile) then begin
@@ -511,6 +515,18 @@ end;
 procedure TPersistableSettings.SetIniSectionName(const Value : string);
 begin
 	FIniSectionName := Value;
+end;
+
+procedure TPersistableSettings.SetOwnerSetings(const _section : string = ''; const _bForceWriteIni : Boolean = False;
+const _bClearSection : Boolean = False);
+var
+	dbgArr : TArray<TArray<string>>;
+begin
+	if Assigned(FOwner) { and (_section = '') } then begin
+		FOwner.CopySettingsDictSection(self, True);
+		dbgArr := DictToLog(SettingsDict);
+		FOwner.WriteSettingsDictToIni(EWriteSettingsMode.wsmAll, IfThen(_bForceWriteIni, _section), _bClearSection);
+	end;
 end;
 
 procedure TPersistableSettings.StoreAsDefaultsToDict;
@@ -532,9 +548,8 @@ begin
 	end
 end;
 
-procedure TPersistableSettings.UpdateIniFile(const _section : string = ''; const bForceWriteIni : Boolean = False);
-var
-	dbgArr : TArray<TArray<string>>;
+procedure TPersistableSettings.UpdateIniFile(const _section : string = ''; const _bForceWriteIni : Boolean = False;
+const _bClearSection : Boolean = False);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
@@ -544,17 +559,17 @@ begin
 		s.UpdateIniFile(s.GetIniSectionName());
 	end;
 
-	if Assigned(FOwner) { and (_section = '') } then begin
-		FOwner.CopySettingsDictSection(self, True);
-		dbgArr := DictToLog(SettingsDict);
-		FOwner.WriteSettingsDictToIni(EWriteSettingsMode.wsmAll, IfThen(bForceWriteIni, _section));
-		if not bForceWriteIni then begin
-			Exit;
-		end;
+	SetOwnerSetings(_section, _bForceWriteIni, _bClearSection);
+
+	if Assigned(FOwner) { and (_section = '') } and not _bForceWriteIni then begin
+		Exit;
+	end;
+
+	if _bForceWriteIni then begin
+		WriteSettingsDictToIni(EWriteSettingsMode.wsmAll, IfThen(_bForceWriteIni, _section), _bClearSection)
 	end;
 
 	// var arr := DictToLog(SettingsDict);
-
 	if Assigned(IniFile) then begin
 		var
 		lock := TLockGuard.NewLock(FLockObject);
@@ -579,8 +594,8 @@ begin
 
 end;
 
-procedure TPersistableSettings.WriteSettingsDictToIni(const _wsm : EWriteSettingsMode;
-{ } const _section : string = '');
+procedure TPersistableSettings.WriteSettingsDictToIni(const _wsm : EWriteSettingsMode; const _section : string = '';
+{ } const _bClearSection : Boolean = False);
 var
 	setting : ISettingVariant;
 	section : string;
@@ -592,6 +607,11 @@ begin
 	var
 	lock := TLockGuard.NewLock(FLockObject);
 	dbgMsg.MsgFmt('Lock Entered - WriteSettingsDictToIni [%s]', [section]);
+
+	if _bClearSection then begin
+		dbgMsg.MsgFmt('Clear section [%s]', [section]);
+		IniFile.EraseSection(section);
+	end;
 
 	for var key in FSettingsDict.Keys do begin
 		if ((not section.IsEmpty) and (not key.StartsWith(section))) then
@@ -632,10 +652,10 @@ begin
 	inherited Create;
 	{$IFDEF STANDALONE}
 	FIniFile := Shared.Make<TMemIniFile>(
-		{ } TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8));
+	{ } TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8));
 	{$ELSE}
 	FIniFile := Shared.Make<TMemIniFile>(
-		{ } TMemIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'), TEncoding.UTF8));
+	{ } TMemIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'), TEncoding.UTF8));
 	{$ENDIF}
 end;
 

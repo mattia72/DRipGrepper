@@ -18,10 +18,11 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 ## :boom: Improvements 
 Marked with a checkmark if ready; otherwise, it is planned.
 - [x] open with... labels for commands
-- [ ] search for file names eg. rg.exe -g='*pattern*' --files <DIR>
-- [ ] copy to clipboard for running in PowerShell or command prompt
-  - [ ] PS needs & prefix and rg path and search text surrounded by ''
-  - [ ] BAT needs rg path and search text surrounded by ""
+- [ ] search for file names eg. `rg.exe -g='*pattern*' --files <DIR>`
+- [x] copy to clipboard for running in PowerShell or command prompt
+  - [x] PS needs & prefix and rg path and search text surrounded by ''
+  - [x] BAT needs rg path and search text surrounded by ""
+  - [ ] settings should be settable in config form 
 - [ ] **extension**: display save all files message before search?
 - [ ] **extension**: dearch only in opened project files
 - [ ] save/load search histories to/from a file
@@ -39,6 +40,7 @@ Marked with checkmark if fixed, else it is a known bug.
     - [x] replace by toolbar always ignores case
     - [x] the left arrow key in the replace edit control doesn't work
 - [x] **extension**: shortcuts changed in config form, didn't changed in ini
+- [x] **extension**: Open With... app can't be deleted
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: drip icon in menu has no transparent background
 - [ ] look on dpi change (drag to another monitor)

@@ -54,6 +54,7 @@ end;
 procedure TOpenWithSettings.ClearCommandList;
 begin
 	FCommandList.Clear;
+	FSettingsDict.Clear;
 	FIsModified := True;
 end;
 
@@ -132,7 +133,7 @@ begin
 					{ } Format('%s|%s', [OPEN_WITH_SETTINGS, OPENWITH_COMMAND_KEY + i.ToString]), cmdListItem);
 				dbgMsg.MsgFmt('[%s] %s%d: %s', [OPEN_WITH_SETTINGS, OPENWITH_COMMAND_KEY, i, cmdListItem]);
 			end;
-			UpdateIniFile(OPEN_WITH_SETTINGS, True);
+			UpdateIniFile(OPEN_WITH_SETTINGS, True, True);
 		end;
 		FIsModified := False;
 	end;
