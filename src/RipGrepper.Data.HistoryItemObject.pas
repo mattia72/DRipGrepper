@@ -191,6 +191,7 @@ begin
 	_settings.RipGrepParameters.RipGrepArguments.Assign(RipGrepArguments());
 	_settings.RipGrepParameters.GuiSearchTextParams.Copy(GuiSearchTextParams());
 	_settings.SearchFormSettings.Copy(SearchFormSettings);
+	_settings.LastSearchText := SearchText;
 end;
 
 function THistoryItemObject.GetElapsedTimeText : string;

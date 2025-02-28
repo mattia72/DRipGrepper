@@ -42,7 +42,7 @@ Most actual working items, you will find in the last [release notes](https://git
 ### :mag: Search Dialog
 ![Screenshot](./screenshots/SearchForm.png)
 
-- [x] Helps parametrizing `rg.exe` 
+- [x] Helps parametrizing [ripgrep](https://github.com/BurntSushi/ripgrep) (`rg.exe`)
   - [x] Expert mode set in `DripGrepper.ini` makes `rg` options visible
     - [x] Option helper form generated from `rg` help ![Screenshot](./screenshots/OptionsHelpForm.png)
   - [x] Quick buttons for: `--ignore-case`, `--case-sensitive`, `--word-regexp`, `--fixed-strings`
@@ -55,11 +55,7 @@ Most actual working items, you will find in the last [release notes](https://git
 
 ### :rocket: Open with...
 ![Screenshot](./screenshots/OpenWith.png)
-
-- [x] Show configured editors to open matching files at the matching position
-  - [x] On double-click
-  - [x] Via menu/toolbar
-- [ ] Separate editors for distinct file extensions
+- [x] Shortcut Shift+Alt+O 
 
 ### Configure Open with...
 ![Screenshot](./screenshots/ConfigureOpenWith.png)
@@ -85,20 +81,12 @@ Configuration is stored in ini file (`DripGrepper.ini` for standalone and `DripE
 ![Screenshot](./screenshots/DripExtension.png)
 
 - [x] Menu item in Tools 
-- [x] Default shortcut Shift+Alt+R (:warning: conflict with GExpert/MMX Reverse Statement)
+- [x] Shortcut Shift+Alt+R (:warning: conflict with GExpert/MMX Reverse Statement)
 - [x] Click on matching file opens file in the editor at the position
-  - [ ] Expand collapsed code in {$REGION}-s
 - [x] Popup menu
   - [x] Delete history entries
   - [x] Copy path, etc.
   - [x] Add file to `uses` list in interface/implementation section
-- [x] Save window position
-  - [x] Save in layout
-  - [x] Load saved layout
-- [x] Search selected text
-  - [ ] Multi-line selection handling (in ini?)
-- [ ] Search only in opened files/project files/project group
-  - [ ] Search type, variable declaration, function definition
 
 ## Installation
 

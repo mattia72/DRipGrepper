@@ -73,7 +73,8 @@ uses
 	RipGrepper.Common.Interfaces,
 	RipGrepper.Common.EncodedStringList,
 
-	System.RegularExpressions;
+	System.RegularExpressions, RipGrepper.Tools.DebugUtils,
+  RipGrepper.Common.Constants;
 
 class procedure TReplaceHelper.ReplaceLineInFile(const _fileName : string; const _row : Integer; const _col : Integer;
 	const _replaceLine : string; const _createBackup : Boolean = True);
@@ -107,7 +108,7 @@ begin
 		fileLines := TEncodedStringList.Create;
 		try
 			context.GetFileLines(fileName, fileLines);
-            prevRow := -1;
+			prevRow := -1;
 			for var rd : TReplaceData in _list.Items[fileName] do begin
 				if (rd.Row >= 0) and (rd.Row < fileLines.Count) then begin
 					if prevRow = rd.Row then begin
@@ -134,19 +135,26 @@ var
 	prefixStr : string;
 	op : TRegexOptions;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TReplaceHelper.ReplaceString');
+
 	prefixStr := _input.Substring(0, _fromCol - 1);
 	postfixStr := _input.Substring(_fromCol - 1);
 
-	if rmUseRegex in _mode then begin
-		op := [];
-		if rmIgnoreCase in _mode then begin
-			op := [roIgnoreCase];
+	try
+		if rmUseRegex in _mode then begin
+			op := [];
+			if rmIgnoreCase in _mode then begin
+				op := [roIgnoreCase];
+			end;
+			Result := prefixStr + TRegEx.Replace(postfixStr, _pattern, _replacement, op);
+		end else if rmIgnoreCase in _mode then begin
+			Result := prefixStr + System.SysUtils.StringReplace(postfixStr, _pattern, _replacement, [rfIgnoreCase]);
+		end else begin
+			Result := prefixStr + System.SysUtils.StringReplace(postfixStr, _pattern, _replacement, []);
 		end;
-		Result := prefixStr + TRegEx.Replace(postfixStr, _pattern, _replacement, op);
-	end else if rmIgnoreCase in _mode then begin
-		Result := prefixStr + System.SysUtils.StringReplace(postfixStr, _pattern, _replacement, [rfIgnoreCase]);
-	end else begin
-		Result := prefixStr + System.SysUtils.StringReplace(postfixStr, _pattern, _replacement, []);
+	except on E : Exception do
+		dbgMsg.ErrorMsgFmt(E.Message + CRLF+ 'in:%s, pattern:%s, repl: %s', [postfixStr, _pattern, _replacement]);
 	end;
 end;
 
@@ -233,7 +241,7 @@ var
 begin
 	Result.FileCount := Items.Keys.Count;
 	Result.ReplaceCount := 0;
-    Result.LineCount := 0;
+	Result.LineCount := 0;
 
 	for var fileName in Items.Keys do begin
 		prevRow := -1;
