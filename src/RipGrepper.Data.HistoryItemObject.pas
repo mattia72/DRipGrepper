@@ -26,15 +26,18 @@ type
 			FElapsedTimeText : string;
 			FErrorCounters : TErrorCounters;
 			FFileCount : integer;
-			FGuiSearchTextParams: IShared<TGuiSearchTextParams>;
 			FHasResult : Boolean;
 			FMatches : TParsedObjectRowCollection;
 			FNoMatchFound : Boolean;
 			FParserType : TParserType;
-			FRipGrepArguments: IShared<TRipGrepArguments>;
-			FSearchFormSettings : TSearchFormSettings;
 			FRipGrepResult : Integer;
 			FTotalMatchCount : integer;
+
+			// saved setting items
+			FGuiSearchTextParams: IShared<TGuiSearchTextParams>;
+			FRipGrepArguments: IShared<TRipGrepArguments>;
+			FSearchFormSettings : TSearchFormSettings;
+
 			function GetElapsedTimeText() : string;
 			function GetErrorCounters() : TErrorCounters;
 			function GetFileCount() : integer;
