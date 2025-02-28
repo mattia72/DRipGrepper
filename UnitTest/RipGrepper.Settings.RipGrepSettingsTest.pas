@@ -89,7 +89,7 @@ end;
 
 procedure TRipGrepSettingsTest.WithoutIniReadShouldLoadDefaultsTest;
 begin
-	FSettings.LoadDefaultsFromDict;
+	FSettings.LoadFromDict; //FSettings.LoadDefaultsFromDict;
 	Assert.IsTrue(FileExists(FSettings.RipGrepPath), 'RipGrepPath should be an existing path');
 	Assert.AreEqual('', FSettings.FileMasks, 'FileMasks should be empty');
 	Assert.AreEqual('', FSettings.SearchPath, 'SearchPath should be empty');
@@ -110,7 +110,7 @@ begin
 	finally
 		strs.Free;
 	end;
-	FSettings.LoadDefaultsFromDict;
+	FSettings.LoadFromDict; //FSettings.LoadDefaultsFromDict;
 	Assert.IsTrue(FileExists(FSettings.RipGrepPath), 'RipGrepPath should be set');
 	Assert.IsTrue(FSettings.FileMasks.Contains('def'), 'FileMasks should be set');
 	Assert.IsTrue(FSettings.SearchPath.Contains('def'), 'SearchPath should be set');
@@ -123,7 +123,7 @@ var
 	s1, s2 : string;
 begin
 	SetDefaultsAndCurrentValues;
-	FSettings.LoadDefaultsFromDict;
+	FSettings.LoadFromDict; //FSettings.LoadDefaultsFromDict;
 	var
 	s := TRipGrepParameterSettings.Create(nil);
 	try
@@ -157,7 +157,7 @@ begin
 	FSettings.GuiSearchTextParams.SetSearchOptions(
 		{ } TSearchTextWithOptions.StringToSearchOptionSet(EGUIOPTION_MATCHCASE));
 	// Assert.AreEqual(0, FSettings.SettingsDict.Keys.Count, 'SettingsDict should be empty');
-	FSettings.StoreAsDefaultsToDict;
+	FSettings.StoreToDict; //FSettings.StoreAsDefaultsToDict;
 
 	FSettings.RipGrepPath := RG_EXE;
 	FSettings.FileMasks := PAS_DFM;
@@ -196,7 +196,7 @@ end;
 procedure TRipGrepSettingsTest.LoadDefaultsTest;
 begin
 	SetDefaultsAndCurrentValues;
-	FSettings.LoadDefaultsFromDict;
+	FSettings.LoadFromDict; //FSettings.LoadDefaultsFromDict;
 	Assert.IsTrue(FSettings.RipGrepPath.Contains(RG_EXE), 'RipGrepPath should be set');
 
 	Assert.AreEqual(DEFPAS_DEFDFM, FSettings.FileMasks, 'FileMasks should be set');
@@ -211,7 +211,7 @@ begin
 
 	for var s in ['FileMasks', 'SearchPath'] do begin
 		Assert.AreNotEqual(VarToStrDef(FSettings.SettingsDict[FSettings.IniSectionName + '|' + s].Value, ''),
-			{ } VarToStrDef(FSettings.SettingsDict[FSettings.IniSectionName + '|' + s + DEFAULT_KEY].Value, ''),
+			{ } VarToStrDef(FSettings.SettingsDict[FSettings.IniSectionName + '|' + s {+DEFAULT_KEY}].Value, ''),
 			{ } 'Default and actual are not equal');
 	end;
 
@@ -229,7 +229,7 @@ begin
 	FSettings.SearchPath := C_DEF_PATH_TO_DIR;
 	FSettings.GuiSearchTextParams.SetSearchOptions(TSearchTextWithOptions.StringToSearchOptionSet(EGUIOPTION_MATCHCASE));
 
-	FSettings.StoreAsDefaultsToDict;
+	FSettings.StoreToDict; //FSettings.StoreAsDefaultsToDict;
 
 	var
 	dict := FSettings.SettingsDict;
@@ -237,13 +237,13 @@ begin
 	inisec := FSettings.IniSectionName;
 
 	Assert.AreEqual(DEFPAS_DEFDFM,
-		{ } VarToStrDef(dict[inisec + '|FileMasks' + DEFAULT_KEY].Value, ''),
+		{ } VarToStrDef(dict[inisec + '|FileMasks' {+DEFAULT_KEY}].Value, ''),
 		{ } 'Default and actual are not equal');
 	Assert.AreEqual(C_DEF_PATH_TO_DIR,
-		{ } VarToStrDef(dict[inisec + '|SearchPath' + DEFAULT_KEY].Value, ''),
+		{ } VarToStrDef(dict[inisec + '|SearchPath' {+DEFAULT_KEY}].Value, ''),
 		{ } 'Default and actual are not equal');
 	Assert.AreEqual(EGUIOPTION_MATCHCASE,
-		{ } VarToStrDef(dict[inisec + '|SearchParams' + DEFAULT_KEY].Value, ''),
+		{ } VarToStrDef(dict[inisec + '|SearchParams' {+DEFAULT_KEY}].Value, ''),
 		{ } 'Default and actual are not equal');
 end;
 

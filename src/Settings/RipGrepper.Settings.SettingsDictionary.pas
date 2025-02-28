@@ -195,7 +195,7 @@ end;
 
 function TSettingsDictionary.GetDefaultDictKeyName(const _key : string) : string;
 begin
-	Result := GetDictKeyName(_key) + DEFAULT_KEY;
+	Result := GetDictKeyName(_key) {+DEFAULT_KEY};
 end;
 
 function TSettingsDictionary.GetDefaultSetting(const _name : string) : Variant;

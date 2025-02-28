@@ -38,7 +38,6 @@ type
 			function GetIsModified : Boolean; override;
 			procedure Init; override;
 			procedure LoadFromDict(); override;
-			procedure LoadDefaultsFromDict; override;
 			procedure ReadIni; override;
 			procedure StoreToDict; override;
 			property FilterSettings : TFilterSettings read FFilterSettings write SetFilterSettings;
@@ -90,11 +89,6 @@ begin
 	IndentLines := SettingsDict.GetSetting('IndentLines');
 	ExpandNodes := SettingsDict.GetSetting('ExpandNodes');
 	FilterSettings.LoadFromDict();
-end;
-
-procedure TNodeLookSettings.LoadDefaultsFromDict;
-begin
-	// abstract
 end;
 
 procedure TNodeLookSettings.ReadIni;

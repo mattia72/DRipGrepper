@@ -24,7 +24,6 @@ type
 			procedure Init; override;
 			procedure ReadIni; override; // TODO: use persistable base
 			procedure LoadFromDict(); override;
-			procedure LoadDefaultsFromDict; override;
 			procedure ForceWriteToIni;
 			function ToString : string; override;
 			property Command[index : Integer] : string read GetCommand write SetCommand;
@@ -94,11 +93,6 @@ end;
 procedure TOpenWithSettings.LoadFromDict;
 begin
 	//
-end;
-
-procedure TOpenWithSettings.LoadDefaultsFromDict;
-begin
-	// it has no defaults yet
 end;
 
 procedure TOpenWithSettings.SetCommand(Index : Integer; const Value : string);

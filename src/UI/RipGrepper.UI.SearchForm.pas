@@ -91,8 +91,6 @@ type
 		lblHintHelper : TLabel;
 		cbRgParamEncoding : TCheckBox;
 		cmbRgParamEncoding : TComboBox;
-		btnSetAsDefault : TButton;
-		ActionSetAsDefault : TAction;
 		pnlTop : TPanel;
 		TabControl1 : TTabControl;
 		cmbReplaceText : TComboBox;
@@ -113,7 +111,6 @@ type
 		procedure ActionShowRipGrepOptionsFormExecute(Sender : TObject);
 		procedure ActionSearchExecute(Sender : TObject);
 		procedure ActionSearchFileExecute(Sender : TObject);
-		procedure ActionSetAsDefaultExecute(Sender : TObject);
 		procedure ActionShowFileMaskHelpExecute(Sender : TObject);
 		procedure ActionShowInLinesExecute(Sender : TObject);
 		procedure ActionShowRGOptionsHelpExecute(Sender : TObject);
@@ -171,7 +168,7 @@ type
 			procedure UpdateCmbOptionsAndMemoCommandLine;
 			procedure StoreHistoriesAsCmbEntries;
 			procedure WriteCtrlsToRipGrepParametersSettings;
-			procedure WriteCtrlsToSettings(const _bDefaultOnly : Boolean = False);
+			procedure WriteCtrlsToSettings();
 			procedure UpdateCheckBoxesByGuiSearchParams;
 			procedure UpdateCheckBoxes;
 			function CheckAndCorrectMultiLine(const _str : TMultiLineString) : string;
@@ -345,7 +342,7 @@ procedure TRipGrepperSearchDialogForm.ActionSearchExecute(Sender : TObject);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.ActionSearchExecute');
-	WriteCtrlsToSettings(False);
+	WriteCtrlsToSettings();
 
 	if ValidateRegex() then begin
 		dbgMsg.Msg(memoCommandLine.Text);
@@ -363,15 +360,6 @@ begin
 		SetCmbSearchPathText(selectedFiles);
 		UpdateCtrls(cmbSearchDir);
 	end;
-end;
-
-procedure TRipGrepperSearchDialogForm.ActionSetAsDefaultExecute(Sender : TObject);
-begin
-	WriteCtrlsToSettings(True);
-	// unittested from here
-	FSettings.RipGrepParameters.GuiSearchTextParams.Copy(FSettingsProxy);
-	FSettings.StoreAsDefaultsToDict();
-	FSettings.UpdateIniFile();
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionShowFileMaskHelpExecute(Sender : TObject);
@@ -753,7 +741,7 @@ begin
 	dbgMsg.Msg('FSettingsProxy = ' + FSettingsProxy.ToString);
 end;
 
-procedure TRipGrepperSearchDialogForm.WriteCtrlsToSettings(const _bDefaultOnly : Boolean = False);
+procedure TRipGrepperSearchDialogForm.WriteCtrlsToSettings();
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.WriteCtrlsToSettings');
@@ -769,12 +757,6 @@ begin
 	WriteCtrlsToRipGrepParametersSettings();
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.WriteCtrlsToSettings: set GuiSearchTextParams=' + FSettingsProxy.ToString);
 	FSettings.RipGrepParameters.GuiSearchTextParams.Copy(FSettingsProxy);
-
-	if _bDefaultOnly then begin
-		FSettings.RipGrepParameters.GuiSearchTextParams.StoreAsDefaultsToDict;
-		FSettings.SearchFormSettings.StoreAsDefaultsToDict;
-		FSettings.CopyDefaultsToValues();
-	end;
 
 	FSettings.RebuildArguments();
 end;

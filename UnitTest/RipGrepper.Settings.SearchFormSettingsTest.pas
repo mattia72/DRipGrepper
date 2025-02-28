@@ -65,7 +65,7 @@ end;
 
 procedure TSearchFormSettingsTest.RefreshMembersShouldLoadDefaultsTest;
 begin
-	FSettings.LoadDefaultsFromDict;
+//  FSettings.LoadDefaultsFromDict;
 	Assert.AreEqual(True, FSettings.Pretty, 'Pretty should be true');
 	Assert.AreEqual(False, FSettings.Hidden, 'Hidden should be true');
 	Assert.AreEqual(False, FSettings.NoIgnore, 'NoIgnore should be true');
@@ -77,7 +77,7 @@ procedure TSearchFormSettingsTest.LoadDefaultsShouldReadDefaultFromIni;
 begin
 	SetDefaults;
 	FSettings.ReadIni;
-	FSettings.LoadDefaultsFromDict;
+//  FSettings.LoadDefaultsFromDict;
 	Assert.IsTrue(FSettings.IsAlreadyRead, 'IsAlreadyRead should be true');
 	Assert.AreEqual('utf8', FSettings.Encoding, 'Encoding should be utf8');
 	Assert.AreEqual(5, FSettings.Context, 'Context should be 5');
@@ -89,7 +89,7 @@ end;
 procedure TSearchFormSettingsTest.AfterCopyValuesValuesShouldBeEqual;
 begin
 	SetDefaults;
-	FSettings.LoadDefaultsFromDict;
+//  FSettings.LoadDefaultsFromDict;
 	FSettings.LoadFromDict();
 
 	FSettings.ExtensionSettings.SearchSelectedShortcut := 'CTRL-X';
@@ -119,7 +119,7 @@ begin
 	SetDefaults;
 	Assert.IsFalse(FSettings.IsAlreadyRead);
 	FSettings.ReadIni;
-	FSettings.LoadDefaultsFromDict;
+//  FSettings.LoadDefaultsFromDict;
 	Assert.IsTrue(FSettings.IsAlreadyRead);
 end;
 
@@ -127,11 +127,11 @@ procedure TSearchFormSettingsTest.SetDefaults;
 begin
 	var
 	sec := FSettings.IniSectionName;
-	FIniFile.WriteString(sec, 'Encoding' + DEFAULT_KEY, 'utf8');
-	FIniFile.WriteInteger(sec, 'Context' + DEFAULT_KEY, 5);
-	FIniFile.WriteBool(sec, 'Pretty' + DEFAULT_KEY, False);
-	FIniFile.WriteBool(sec, 'Hidden' + DEFAULT_KEY, True);
-	FIniFile.WriteBool(sec, 'NoIgnore' + DEFAULT_KEY, True);
+	FIniFile.WriteString(sec, 'Encoding' {+DEFAULT_KEY}, 'utf8');
+	FIniFile.WriteInteger(sec, 'Context' {+DEFAULT_KEY}, 5);
+	FIniFile.WriteBool(sec, 'Pretty' {+DEFAULT_KEY}, False);
+	FIniFile.WriteBool(sec, 'Hidden' {+DEFAULT_KEY}, True);
+	FIniFile.WriteBool(sec, 'NoIgnore' {+DEFAULT_KEY}, True);
 end;
 
 procedure TSearchFormSettingsTest.Setup;

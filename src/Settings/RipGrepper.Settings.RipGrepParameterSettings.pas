@@ -51,13 +51,10 @@ type
 			constructor Create(const _Owner : TPersistableSettings);
 			destructor Destroy; override;
 			procedure Copy(const _other : TPersistableSettings); override;
-			procedure CopyDefaultsToValues; override;
 			function GetCommandLine(const _shell : TShellType) : string;
 			procedure ReadIni; override;
-			procedure LoadDefaultsFromDict; override;
 			procedure LoadFromDict; override;
 			procedure StoreToDict; override;
-			procedure StoreAsDefaultsToDict; override;
 			function TryGetRipGrepPath(out _rgPath : string) : ERipGrepPathInitResult;
 			property FileMasks : string read FFileMasks write SetFileMasks;
 			property GuiSearchTextParams: IShared<TGuiSearchTextParams> read FGuiSearchTextParams write SetGuiSearchTextParams;
@@ -148,12 +145,6 @@ begin
 	inherited Copy(_other);
 end;
 
-procedure TRipGrepParameterSettings.CopyDefaultsToValues;
-begin
-	FGuiSearchTextParams.CopyDefaultsToValues;
-	inherited CopyDefaultsToValues; // child not supported yet
-end;
-
 function TRipGrepParameterSettings.GetCommandLine(const _shell : TShellType) : string;
 var
 	cmdLine : IShared<TStringList>;
@@ -219,14 +210,6 @@ end;
 procedure TRipGrepParameterSettings.ReadIni;
 begin
 	inherited ReadIni();
-end;
-
-procedure TRipGrepParameterSettings.LoadDefaultsFromDict;
-begin
-	FSearchPath := SettingsDict.GetSetting(SEARCHPATH_KEY, True);
-	FFileMasks := SettingsDict.GetSetting(FILEMASKS_KEY, True);
-	FGuiSearchTextParams.LoadDefaultsFromDict;
-	// inherited LoadDefaultsFromDict;  abstract
 end;
 
 function TRipGrepParameterSettings.TryFindRipGrepExePath : string;
@@ -347,15 +330,6 @@ begin
 	SettingsDict.StoreSetting('FileMasks', FFileMasks);
 	inherited StoreToDict;
 	// Children will be stored and it writes into mem ini. after UpdateIniFile will be saved
-end;
-
-procedure TRipGrepParameterSettings.StoreAsDefaultsToDict;
-begin
-	SettingsDict.StoreDefaultSetting('SearchPath', FSearchPath);
-	SettingsDict.StoreDefaultSetting('FileMasks', FFileMasks);
-	GuiSearchTextParams.StoreAsDefaultsToDict();
-	CopySettingsDictSection(GuiSearchTextParams);
-	inherited StoreAsDefaultsToDict;
 end;
 
 function TRipGrepParameterSettings.TryGetRipGrepPath(out _rgPath : string) : ERipGrepPathInitResult;

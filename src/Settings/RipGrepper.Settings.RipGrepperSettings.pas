@@ -67,17 +67,14 @@ type
 			destructor Destroy; override;
 			procedure AddIfNotContains(_to, _from : TStrings);
 			procedure Copy(const _other : TPersistableSettings); override;
-			procedure CopyDefaultsToValues; override;
 			function GetIsModified : Boolean; override;
 			function GetLastHistorySearchText : string;
 			function GetRipGrepArguments: IShared<TRipGrepArguments>;
 			procedure Init; override;
-			procedure LoadDefaultsFromDict; override;
 			procedure RebuildArguments;
 			procedure LoadFromDict(); override;
 			procedure LoadInitialSettings;
 			procedure ReLoad; override;
-			procedure StoreAsDefaultsToDict; override;
 			procedure StoreHistories;
 			property LastSearchText : string read FLastSearchText write FLastSearchText;
 			property FileMasksHistory : TStrings read FFileMasksHistory write SetFileMasksHistory;
@@ -237,13 +234,6 @@ begin
 	end;
 end;
 
-procedure TRipGrepperSettings.CopyDefaultsToValues;
-begin
-	FSearchFormSettings.CopyDefaultsToValues;
-	FRipGrepParameters.CopyDefaultsToValues;
-	inherited CopyDefaultsToValues;
-end;
-
 function TRipGrepperSettings.GetActualSearchPath : string;
 var
 	s : string;
@@ -303,15 +293,6 @@ begin
 			TMsgBox.ShowError(E.Message + CRLF + 'Settings Read from ' + IniFile.FileName + ' went wrong.');
 		end;
 	end;
-end;
-
-procedure TRipGrepperSettings.LoadDefaultsFromDict;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.LoadDefaultsFromDict');
-
-	FRipGrepParameters.LoadDefaultsFromDict;
-	FSearchFormSettings.LoadDefaultsFromDict;
 end;
 
 procedure TRipGrepperSettings.LoadFirstNecessarySettings;
@@ -385,15 +366,6 @@ begin
 	end;
 end;
 
-procedure TRipGrepperSettings.StoreAsDefaultsToDict;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.StoreAsDefaultsToDict');
-	FSearchFormSettings.StoreAsDefaultsToDict;
-	FRipGrepParameters.StoreAsDefaultsToDict;
-	inherited StoreAsDefaultsToDict;
-end;
-
 procedure TRipGrepperSettings.StoreHistories;
 begin
 	var
@@ -410,7 +382,7 @@ procedure TRipGrepperSettings.StoreViewSettings(const _s : string = '');
 begin
 	NodeLookSettings.StoreViewSettingToDict(_s);
 	NodeLookSettings.UpdateIniFile(NodeLookSettings.IniSectionName); // create temp section
-	NodeLookSettings.WriteSettingsDictToIni(EWriteSettingsMode.wsmActual, NodeLookSettings.IniSectionName);
+	NodeLookSettings.WriteSettingsDictToIni(NodeLookSettings.IniSectionName);
 	IniFile.UpdateFile;
 end;
 
@@ -437,7 +409,7 @@ begin
 			FSettingsDict.AddOrChange(_section + ARRAY_SEPARATOR + sItemIdx, setting);
 		end;
 	end;
-	WriteSettingsDictToIni(EWriteSettingsMode.wsmAll, _section);
+	WriteSettingsDictToIni(_section);
 end;
 
 end.

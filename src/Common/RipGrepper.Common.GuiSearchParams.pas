@@ -40,17 +40,13 @@ type
 			procedure Clear;
 			procedure Copy(const _other : TGuiSearchTextParams); reintroduce;
 
-			procedure CopyDefaultsToValues; override;
-			procedure CopyValuesToDefaults; override;
 			procedure ResetOption(const _searchOption : EGuiOption);
 			procedure SetOption(const _searchOption : EGuiOption);
 			procedure SwitchOption(const _newOption : EGuiOption); overload;
 			function SetRgOption(const _sParamRegex : string; const _bReset : Boolean = False) : string;
 			function SetRgOptionWithValue(const _sParamRegex, _sValue : string; const _bUnique : Boolean = False) : string;
-			procedure StoreAsDefaultsToDict; override;
 			function GetAsString(const _bGuiOptionsOnly : Boolean = False) : string;
 			function GetSearchText : string;
-			procedure LoadDefaultsFromDict; override;
 			procedure LoadFromDict(); override;
 			procedure SetSearchOptions(const _options : TSearchOptionSet);
 			function GetSearchOptions : TSearchOptionSet;
@@ -127,12 +123,6 @@ begin
 	RgOptions.AddOptionWithValue(_sParamRegex, _sValue, _bUnique);
 end;
 
-procedure TGuiSearchTextParams.StoreAsDefaultsToDict;
-begin
-	SettingsDict.StoreDefaultSetting('SearchParams', GetAsString(True));
-	inherited StoreAsDefaultsToDict;
-end;
-
 function TGuiSearchTextParams.GetAsString(const _bGuiOptionsOnly : Boolean = False) : string;
 begin
 	Result := FSearchTextWithOptions.GetAsString(_bGuiOptionsOnly);
@@ -196,16 +186,6 @@ begin
 	// inherited Copy(_other as TPersistableSettings);
 end;
 
-procedure TGuiSearchTextParams.CopyDefaultsToValues;
-begin
-	inherited CopyDefaultsToValues;
-end;
-
-procedure TGuiSearchTextParams.CopyValuesToDefaults;
-begin
-	inherited CopyValuesToDefaults;
-end;
-
 function TGuiSearchTextParams.GetReplaceText : string;
 begin
 	Result := FReplaceText;
@@ -219,13 +199,6 @@ end;
 procedure TGuiSearchTextParams.Init;
 begin
 	SettingsDict.CreateDefaultRelevantSetting('SearchParams', varString, '');
-end;
-
-procedure TGuiSearchTextParams.LoadDefaultsFromDict;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.LoadDefaultsFromDict');
-	LoadSearchOptionsFromDict(True);
 end;
 
 procedure TGuiSearchTextParams.LoadFromDict();

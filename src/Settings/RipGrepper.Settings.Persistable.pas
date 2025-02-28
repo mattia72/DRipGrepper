@@ -23,9 +23,7 @@ type
 		procedure Init;
 		procedure ReadIni;
 		procedure LoadFromDict();
-		procedure LoadDefaultsFromDict();
 		procedure StoreToDict;
-		procedure StoreAsDefaultsToDict;
 	end;
 
 	IFilePersister = interface(IInterface)
@@ -88,7 +86,6 @@ type
 			/// </summary>
 			procedure Init; virtual; abstract;
 			function GetIniSectionName : string; virtual;
-			procedure InnerLoadDefaultsFromDict; virtual;
 			function ToLogString : string; virtual;
 
 		public
@@ -106,9 +103,7 @@ type
 			destructor Destroy; override;
 			function AddChildSettings(_settings : TPersistableSettings) : TPersistableSettings;
 			function RemoveChildSettings(_settings : TPersistableSettings) : Boolean;
-			procedure CopyDefaultsToValues; virtual;
 			procedure CopySettingsDictSection(const _other : TPersistableSettings; const _copyAllSections : Boolean = False);
-			procedure CopyValuesToDefaults; virtual;
 			/// <summary>TPersistableSettings.ReadIni
 			/// Members.RedIni- should be called here
 			/// </summary>
@@ -117,8 +112,6 @@ type
 			/// Refresh member variables by read settings value or default value
 			/// </summary>
 			procedure LoadFromDict(); virtual; abstract;
-			procedure LoadDefaultsFromDict; virtual; abstract;
-
 			/// ReLoads memini file content
 			procedure ReLoadFromDisk;
 			/// <summary>
@@ -126,17 +119,12 @@ type
 			/// Writes to ini.
 			/// </summary>
 			procedure StoreToDict; virtual;
-			/// <summary>
-			/// Members.StoreAsDefaultsToDict should be called here
-			/// </summary>
-			procedure StoreAsDefaultsToDict; virtual;
 			// <summary>
 			// Thread safe write Settings to ini file
 			// </summary>
 			procedure UpdateIniFile(const _section : string = ''; const _bForceWriteIni : Boolean = False;
 				const _bClearSection : Boolean = False);
-			procedure WriteSettingsDictToIni(const _wsm : EWriteSettingsMode; const _section : string = '';
-				const _bClearSection : Boolean = False);
+			procedure WriteSettingsDictToIni(const _section : string = ''; const _bClearSection : Boolean = False);
 	end;
 
 implementation
@@ -234,26 +222,6 @@ begin
 	end;
 end;
 
-procedure TPersistableSettings.CopyDefaultsToValues;
-var
-	setting, defaultSetting : ISettingVariant;
-begin
-	for var key in FSettingsDict.Keys do begin
-		if not key.StartsWith(IniSectionName) then
-			continue;
-		if key.EndsWith(DEFAULT_KEY) then
-			continue;
-		setting := FSettingsDict[key];
-		if setting.IsDefaultRelevant then begin
-			if FSettingsDict.TryGetValue(key + DEFAULT_KEY, defaultSetting) then begin
-				setting.Value := defaultSetting.Value;
-			end;
-			FSettingsDict.AddOrChange(key, setting);
-		end;
-	end;
-	LoadDefaultsFromDict();
-end;
-
 procedure TPersistableSettings.CopySettingsDictSection(const _other : TPersistableSettings; const _copyAllSections : Boolean = False);
 begin
 	var
@@ -265,27 +233,6 @@ begin
 			FSettingsDict.AddOrChange(key, _other.SettingsDict[key]);
 		end;
 	end;
-end;
-
-procedure TPersistableSettings.CopyValuesToDefaults;
-var
-	setting, defaultSetting : ISettingVariant;
-begin
-	LoadFromDict();
-	for var key in FSettingsDict.Keys do begin
-		if not key.StartsWith(IniSectionName) then
-			continue;
-		if key.EndsWith(DEFAULT_KEY) then
-			continue;
-		setting := FSettingsDict[key];
-		if setting.IsDefaultRelevant then begin
-			if not FSettingsDict.TryGetValue(key + DEFAULT_KEY, defaultSetting) then begin
-				defaultSetting.Value := setting.Value;
-				FSettingsDict.AddOrChange(key, defaultSetting);
-			end;
-		end;
-	end;
-	LoadDefaultsFromDict;
 end;
 
 procedure TPersistableSettings.CreateIniFile;
@@ -379,31 +326,16 @@ begin
 	end;
 end;
 
-procedure TPersistableSettings.InnerLoadDefaultsFromDict;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.InnerLoadDefaultsFromDict');
-
-	if not IsAlreadyRead then begin
-		dbgMsg.Msg('ReadIni');
-		ReadIni;
-	end;
-
-	CopyDefaultsToValues;
-	LoadDefaultsFromDict();
-end;
-
 procedure TPersistableSettings.StoreToDict;
 begin
 	for var s in FChildren do begin
 		s.StoreToDict;
 	end;
-	WriteSettingsDictToIni(EWriteSettingsMode.wsmActual);
+	WriteSettingsDictToIni();
 end;
 
 procedure TPersistableSettings.ReadSettings;
 var
-	baseName : string;
 	strs : TStringList;
 	name : string;
 	setting : ISettingVariant;
@@ -427,10 +359,6 @@ begin
 			// create base settings
 			for var i : integer := 0 to strs.Count - 1 do begin
 				name := strs.Names[i];
-				if name.EndsWith(DEFAULT_KEY) then begin
-					dbgMsg.MsgFmt('skip %s', [name]);
-					continue;
-				end;
 				value := strs.Values[name];
 				setting := TSettingVariant.Create(value); // ISettingVariant
 				dbgMsg.MsgFmt('[%s] %s = %s', [IniSectionName, name, value]);
@@ -438,30 +366,6 @@ begin
 			end;
 
 			dbgMsg.Msg('set default settings');
-			// set default settings
-			for var i : integer := 0 to strs.Count - 1 do begin
-				name := strs.Names[i];
-				if name.EndsWith(DEFAULT_KEY) then begin
-					value := strs.Values[name];
-					baseName := name.Replace(DEFAULT_KEY, '');
-					var
-					dictKeyName := SettingsDict.GetDictKeyName(baseName);
-					if SettingsDict.TryGetValue(dictKeyName, setting) then begin
-						setting.IsDefaultRelevant := True;
-						setting.Value := value;
-						SettingsDict.AddOrSet(baseName, setting);
-						SettingsDict.AddOrSetDefault(baseName, value, True);
-						dbgMsg.MsgFmt('[%s] %s.Value = %s',
-						{ } [IniSectionName, baseName, VartoStr(SettingsDict[dictKeyName].Value)]);
-						dbgMsg.MsgFmt('[%s] %s.Value = %s',
-						{ } [IniSectionName, name, VartoStr(SettingsDict[SettingsDict.GetDefaultDictKeyName(baseName)].Value)]);
-					end else begin
-						// We didn't write it in INI before...
-						SettingsDict.AddOrSetDefault(baseName, value, False);
-						// raise ESettingsException.CreateFmt('Key not found in ini: %s', [baseName]);
-					end;
-				end;
-			end;
 		except
 			on E : Exception do
 				raise;
@@ -525,14 +429,8 @@ begin
 	if Assigned(FOwner) { and (_section = '') } then begin
 		FOwner.CopySettingsDictSection(self, True);
 		dbgArr := DictToLog(SettingsDict);
-		FOwner.WriteSettingsDictToIni(EWriteSettingsMode.wsmAll, IfThen(_bForceWriteIni, _section), _bClearSection);
+		FOwner.WriteSettingsDictToIni(IfThen(_bForceWriteIni, _section), _bClearSection);
 	end;
-end;
-
-procedure TPersistableSettings.StoreAsDefaultsToDict;
-begin
-	CopyValuesToDefaults;
-	WriteSettingsDictToIni(EWriteSettingsMode.wsmDefault); // Write to mem ini, after UpdateIniFile will be saved
 end;
 
 function TPersistableSettings.ToLogString : string;
@@ -566,7 +464,7 @@ begin
 	end;
 
 	if _bForceWriteIni then begin
-		WriteSettingsDictToIni(EWriteSettingsMode.wsmAll, IfThen(_bForceWriteIni, _section), _bClearSection)
+		WriteSettingsDictToIni(IfThen(_bForceWriteIni, _section), _bClearSection)
 	end;
 
 	// var arr := DictToLog(SettingsDict);
@@ -594,8 +492,8 @@ begin
 
 end;
 
-procedure TPersistableSettings.WriteSettingsDictToIni(const _wsm : EWriteSettingsMode; const _section : string = '';
-{ } const _bClearSection : Boolean = False);
+procedure TPersistableSettings.WriteSettingsDictToIni(const _section : string =
+	''; const _bClearSection : Boolean = False);
 var
 	setting : ISettingVariant;
 	section : string;
@@ -616,17 +514,6 @@ begin
 	for var key in FSettingsDict.Keys do begin
 		if ((not section.IsEmpty) and (not key.StartsWith(section))) then
 			continue;
-		if _wsm <> EWriteSettingsMode.wsmAll then begin
-			if _wsm = EWriteSettingsMode.wsmDefault then begin
-				if (not key.EndsWith(DEFAULT_KEY)) then begin
-					continue;
-				end;
-			end else begin
-				if (key.EndsWith(DEFAULT_KEY)) then begin
-					continue;
-				end;
-			end;
-		end;
 		setting := FSettingsDict[key];
 		var
 		arr := key.Split([ARRAY_SEPARATOR]);

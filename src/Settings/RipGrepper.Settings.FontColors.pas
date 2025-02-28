@@ -129,7 +129,6 @@ type
 			constructor Create(const _Owner : TPersistableSettings);
 			destructor Destroy; override;
 			procedure LoadFromDict(); override;
-			procedure LoadDefaultsFromDict(); override;
 			procedure LoadDefaultColors;
 			procedure ReloadColors;
 			procedure StoreToDict; override;
@@ -212,11 +211,6 @@ begin
 	finally
 		df.Free;
 	end;
-end;
-
-procedure TColorSettings.LoadDefaultsFromDict;
-begin
-	// abstract func should be defined, settings are not `default relevant` so we can ignore this
 end;
 
 procedure TColorSettings.LoadFromDict;

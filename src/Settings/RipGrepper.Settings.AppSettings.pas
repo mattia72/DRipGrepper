@@ -42,7 +42,6 @@ type
 			constructor Create(const _Owner : TPersistableSettings);
 			destructor Destroy; override;
 			procedure LoadFromDict(); override;
-			procedure LoadDefaultsFromDict; override;
 			procedure StoreToDict; override;
 			property ColorTheme : string read FColorTheme write FColorTheme;
 			property CopyToClipBoardShell : TShellType read FCopyToClipBoardShell write FCopyToClipBoardShell;
@@ -106,11 +105,6 @@ begin
 	FEncodingItems.AddStrings(string(SettingsDict.GetSetting(KEY_ENCODING_ITEMS)).Split([ARRAY_SEPARATOR]));
 
 	FCopyToClipBoardShell := TShellType(SettingsDict.GetSetting(KEY_COPYTOCLIPBOARDSHELL));
-end;
-
-procedure TAppSettings.LoadDefaultsFromDict;
-begin
-	// nothing to do
 end;
 
 procedure TAppSettings.StoreToDict;

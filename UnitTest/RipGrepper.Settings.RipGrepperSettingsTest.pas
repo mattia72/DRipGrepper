@@ -89,7 +89,7 @@ end;
 
 procedure TRipGrepperSettingsTest.RefreshMembersShouldLoadDefaultsTest;
 begin
-	FSettings.LoadDefaultsFromDict;
+	FSettings.LoadFromDict; //	FSettings.LoadDefaultsFromDict;
 	Assert.AreEqual(True, FSettings.SearchFormSettings.Pretty, 'Pretty should be true');
 	Assert.AreEqual(False, FSettings.SearchFormSettings.Hidden, 'Hidden should be true');
 	Assert.AreEqual(False, FSettings.SearchFormSettings.NoIgnore, 'NoIgnore should be true');
@@ -100,7 +100,7 @@ end;
 procedure TRipGrepperSettingsTest.LoadDefaultsShouldReadDefaultFromIni;
 begin
 	SetTestDefaultAndActualValues;
-	FSettings.LoadDefaultsFromDict;
+	FSettings.LoadFromDict; //	FSettings.LoadDefaultsFromDict;
 	// Assert.IsTrue(FSettings.IsAlreadyRead, 'IsAlreadyRead should read');
 	Assert.AreEqual('utf8', FSettings.SearchFormSettings.Encoding, 'Encoding should be utf8');
 	Assert.AreEqual(5, FSettings.SearchFormSettings.Context, 'Context should be 5');
@@ -112,7 +112,7 @@ end;
 procedure TRipGrepperSettingsTest.AfterCopyValuesValuesShouldBeEqual;
 begin
 	SetTestDefaultAndActualValues;
-	FSettings.LoadDefaultsFromDict;
+	FSettings.LoadFromDict; //	FSettings.LoadDefaultsFromDict;
 	var
 	s := TRipGrepperSettings.Create();
 	try
@@ -150,7 +150,7 @@ var
 	FHistItemGuiSearchParams : TGuiSearchTextParams;
 begin
 	SetTestDefaultAndActualValues;
-	FSettings.LoadDefaultsFromDict;
+	FSettings.LoadFromDict; //FSettings.LoadDefaultsFromDict;
 
 	FHistItemGuiSearchParams :=
 	{ } TGuiSearchTextParams.Create(FSettings.RipGrepParameters.IniSectionName);
@@ -167,7 +167,7 @@ begin
 		Assert.AreEqual(s1, s2, '1. -ok GuiSearchTextParams should be equal');
 
 		// -- Act as TRipGrepperSearchDialogForm.ActionSetAsDefaultExecute
-		FSettings.StoreAsDefaultsToDict();
+		FSettings.StoreToDict(); //		FSettings.StoreAsDefaultsToDict();
 
 		s1 := FHistItemGuiSearchParams.GetAsString(True);
 		s2 := FSettings.RipGrepParameters.SettingsDict['RipGrepSettings|SearchParams_DEFAULT'].Value;
@@ -231,7 +231,7 @@ begin
 	SetTestDefaultAndActualValues;
 
 	FSettings.UpdateIniFile;
-	FSettings.LoadDefaultsFromDict;
+	FSettings.LoadFromDict; // FSettings.LoadDefaultsFromDict;
 
 	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchParams_DEFAULT', '');
 	settingVal := FSettings.RipGrepParameters.GuiSearchTextParams.GetAsString(True);
@@ -268,7 +268,7 @@ begin
 	FSettings.RipGrepParameters.SearchPath := 'def\search\path';
 	FSettings.RipGrepParameters.FileMasks := '*.def';
 	FSettings.RipGrepParameters.GuiSearchTextParams.SetSearchOptions([EGuiOption.soUseRegex]);
-	FSettings.StoreAsDefaultsToDict;
+	FSettings.StoreToDict;    //	FSettings.StoreAsDefaultsToDict;
 	FSettings.SearchFormSettings.Encoding := 'none';
 	FSettings.SearchFormSettings.Context := 1;
 	FSettings.SearchFormSettings.Pretty := True;

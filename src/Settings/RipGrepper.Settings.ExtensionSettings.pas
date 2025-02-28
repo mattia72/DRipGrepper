@@ -40,10 +40,8 @@ type
 			destructor Destroy; override;
 			procedure Init; override;
 			procedure ReadIni; override;
-			procedure LoadDefaultsFromDict; override;
 			procedure LoadFromDict(); override;
 			procedure StoreToDict; override;
-			procedure StoreAsDefaultsToDict; override;
 			function ToLogString : string; override;
 			property SearchSelectedShortcut : string read FSearchSelectedShortcut write FSearchSelectedShortcut;
 			property OpenWithShortcut : string read FOpenWithShortCut write FOpenWithShortCut;
@@ -100,13 +98,6 @@ begin
 	{$ENDIF}
 	{$ENDIF}
 	inherited ReadIni();
-end;
-
-procedure TRipGrepperExtensionSettings.LoadDefaultsFromDict;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.LoadDefaultsFromDict');
-	LoadIdeContextFromDict(True);
 end;
 
 procedure TRipGrepperExtensionSettings.LoadFromDict;
@@ -180,27 +171,6 @@ begin
 	SettingsDict.StoreSetting(KEY_SHORTCUT_OPENWITH, OpenWithShortcut);
 	SettingsDict.StoreSetting(KEY_IDE_CONTEXT, Integer(CurrentIDEContext.IDEContext));
 	inherited StoreToDict; // Write to mem ini, after UpdateIniFile will be saved
-end;
-
-procedure TRipGrepperExtensionSettings.StoreAsDefaultsToDict;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.StoreAsDefaultsToDict');
-
-	{$IFNDEF TESTINSIGHT} //or ($APPTYPE = CONSOLE))} // skip if unittest
-	{$IFDEF STANDALONE}
-	Exit;
-	{$ELSE}
-	if IOTAUTils.IsStandAlone then begin
-		Exit;
-	end;
-	{$ENDIF}
-	{$ENDIF}
-	dbgMsg.MsgFmt('TAppSettings.StoreAsDefaultsToDict: IDEContext=%d',
-		{ } [Integer(CurrentIDEContext.IDEContext)]);
-
-	SettingsDict.StoreDefaultSetting(KEY_IDE_CONTEXT, Integer(CurrentIDEContext.IDEContext));
-	inherited StoreAsDefaultsToDict;
 end;
 
 function TRipGrepperExtensionSettings.ToLogString : string;

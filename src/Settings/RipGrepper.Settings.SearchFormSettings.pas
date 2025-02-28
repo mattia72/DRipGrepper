@@ -56,9 +56,6 @@ type
 			procedure ReadIni; override;
 			procedure StoreToDict; override;
 			procedure Copy(const _other : TSearchFormSettings); reintroduce;
-			procedure CopyDefaultsToValues; override;
-			procedure StoreAsDefaultsToDict; override;
-			procedure LoadDefaultsFromDict; override;
 			procedure LoadFromDict(); override;
 			procedure ReLoad; override;
 			function ToLogString : string; override;
@@ -119,12 +116,6 @@ begin
 	end;
 end;
 
-procedure TSearchFormSettings.CopyDefaultsToValues;
-begin
-	FExtensionSettings.CopyDefaultsToValues;
-	inherited CopyDefaultsToValues;
-end;
-
 function TSearchFormSettings.GetContext : Integer;
 begin
 	Result := FContext;
@@ -142,7 +133,6 @@ begin
 		dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.GetExtensionSettings');
 
 		FExtensionSettings.ReadIni;
-		FExtensionSettings.LoadDefaultsFromDict;
 	end;
 	Result := FExtensionSettings;
 end;
@@ -209,24 +199,6 @@ begin
 	StoreSearchSettings(False);
 	FExtensionSettings.StoreToDict;
 	inherited StoreToDict();
-end;
-
-procedure TSearchFormSettings.StoreAsDefaultsToDict;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.StoreAsDefaultsToDict');
-
-	StoreSearchSettings(True);
-	FExtensionSettings.StoreAsDefaultsToDict;
-	inherited StoreAsDefaultsToDict();
-end;
-
-procedure TSearchFormSettings.LoadDefaultsFromDict;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.LoadDefaultsFromDict');
-	LoadMembers(True);
-	FExtensionSettings.LoadDefaultsFromDict;
 end;
 
 procedure TSearchFormSettings.LoadFromDict;

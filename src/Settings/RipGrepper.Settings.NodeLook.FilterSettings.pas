@@ -43,7 +43,6 @@ type
 			destructor Destroy; override;
 			procedure Init; override;
 			procedure LoadFromDict(); override;
-			procedure LoadDefaultsFromDict; override;
 			procedure StoreViewSettingToDict(const _s : string = '');
 			procedure StoreToDict; override;
 			property ChosenFilterMode : string read FChosenFilterMode write SetChosenFilterMode;
@@ -124,11 +123,6 @@ begin
 	IsCaseSensitive := SettingsDict.GetSetting('FilterMode.CaseSensitive');
 	IsUseRegex := SettingsDict.GetSetting('FilterMode.UseRegex');
 	GetFilterModes();
-end;
-
-procedure TFilterSettings.LoadDefaultsFromDict;
-begin
-	//
 end;
 
 procedure TFilterSettings.SetChosenFilterMode(const Value : string);
