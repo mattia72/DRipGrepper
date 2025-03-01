@@ -24,7 +24,6 @@ implementation
 uses
 	System.IOUtils,
 	System.SysUtils,
-
 	RipGrepper.Tools.DebugUtils;
 
 function TMemIniFileHelper.GetDripGrepperIniTempDir : string;
@@ -79,7 +78,8 @@ begin
 			finally
 				tmpIniFile.Free;
 				TFile.Delete(tmpFile);
-				var tmpDir := GetDripGrepperIniTempDir;
+				var
+				tmpDir := GetDripGrepperIniTempDir;
 				if 0 = Length(TDirectory.GetFiles(tmpDir)) then begin
 					TDirectory.Delete(tmpDir);
 				end;
@@ -118,7 +118,8 @@ begin
 
 	newFileName := GetTempSectionFileName(_sectionName);
 
-	var tmpDir := GetDripGrepperIniTempDir();
+	var
+	tmpDir := GetDripGrepperIniTempDir();
 	if not TDirectory.Exists(tmpDir) then begin
 		TDirectory.CreateDirectory(tmpDir);
 	end;
