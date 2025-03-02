@@ -13,7 +13,8 @@ uses
 	RipGrepper.Settings.Persistable,
 	RipGrepper.Settings.RipGrepParameterSettings,
 	RipGrepper.Settings.AppSettings,
-	RipGrepper.Settings.ExtensionSettings;
+	RipGrepper.Settings.ExtensionSettings,
+	RipGrepper.Settings.SettingVariant;
 
 type
 
@@ -27,19 +28,18 @@ type
 
 		private
 
-			FContext : Integer;
-			FEncoding : string;
+			FContext : TIntegerSetting;
+			FEncoding : TStringSetting;
 			FExtensionSettings : TRipGrepperExtensionSettings;
-			FHidden : Boolean;
-			FNoIgnore : Boolean;
-			FPretty : Boolean;
+			FHidden : TBoolSetting;
+			FNoIgnore : TBoolSetting;
+			FPretty : TBoolSetting;
 			function GetContext : Integer;
 			function GetEncoding : string;
 			function GetExtensionSettings : TRipGrepperExtensionSettings;
 			function GetHidden : Boolean;
 			function GetNoIgnore : Boolean;
 			function GetPretty : Boolean;
-			procedure LoadMembers(const _bDefault : Boolean);
 			procedure SetContext(const Value : Integer);
 			procedure SetEncoding(const Value : string);
 			procedure SetHidden(const Value : Boolean);
@@ -51,7 +51,6 @@ type
 			constructor Create; overload;
 			destructor Destroy; override;
 
-			procedure StoreSearchSettings(_bAsDefault : Boolean; const _s : string = '');
 			procedure Init; override;
 			procedure ReadIni; override;
 			procedure StoreToDict; override;
@@ -100,7 +99,7 @@ begin
 	IniSectionName := INI_SECTION;
 	inherited Create;
 	FExtensionSettings := TRipGrepperExtensionSettings.Create();
-    AddChildSettings(FExtensionSettings);
+	AddChildSettings(FExtensionSettings);
 end;
 
 destructor TSearchFormSettings.Destroy;
@@ -118,12 +117,12 @@ end;
 
 function TSearchFormSettings.GetContext : Integer;
 begin
-	Result := FContext;
+	Result := FContext.Value;
 end;
 
 function TSearchFormSettings.GetEncoding : string;
 begin
-	Result := FEncoding;
+	Result := FEncoding.Value;
 end;
 
 function TSearchFormSettings.GetExtensionSettings : TRipGrepperExtensionSettings;
@@ -139,28 +138,35 @@ end;
 
 function TSearchFormSettings.GetHidden : Boolean;
 begin
-	Result := FHidden;
+	Result := FHidden.Value;
 end;
 
 function TSearchFormSettings.GetNoIgnore : Boolean;
 begin
-	Result := FNoIgnore;
+	Result := FNoIgnore.Value;
 end;
 
 function TSearchFormSettings.GetPretty : Boolean;
 begin
-	Result := FPretty;
+	Result := FPretty.Value;
 end;
 
 procedure TSearchFormSettings.Init;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.Init');
-	SettingsDict.CreateDefaultRelevantSetting('Pretty', varBoolean, True);
-	SettingsDict.CreateDefaultRelevantSetting('Hidden', varBoolean, False);
-	SettingsDict.CreateDefaultRelevantSetting('NoIgnore', varBoolean, False);
-	SettingsDict.CreateDefaultRelevantSetting('Context', varInteger, 0);
-	SettingsDict.CreateDefaultRelevantSetting('Encoding', varString, '');
+
+	FPretty := TBoolSetting.Create(False);
+	FHidden := TBoolSetting.Create(False);
+	FNoIgnore := TBoolSetting.Create(False);
+	FContext := TIntegerSetting.Create(0);
+	FEncoding := TStringSetting.Create('');
+
+	SettingsDict.CreateSetting('Pretty', FPretty);
+	SettingsDict.CreateSetting('Hidden', FHidden);
+	SettingsDict.CreateSetting('NoIgnore', FNoIgnore);
+	SettingsDict.CreateSetting('Context', FContext);
+	SettingsDict.CreateSetting('Encoding', FEncoding);
 end;
 
 procedure TSearchFormSettings.ReadIni;
@@ -171,32 +177,31 @@ end;
 
 procedure TSearchFormSettings.SetContext(const Value : Integer);
 begin
-	FContext := Value;
+	FContext.Value := Value;
 end;
 
 procedure TSearchFormSettings.SetEncoding(const Value : string);
 begin
-	FEncoding := Value;
+	FEncoding.Value := Value;
 end;
 
 procedure TSearchFormSettings.SetHidden(const Value : Boolean);
 begin
-	FHidden := Value;
+	FHidden.Value := Value;
 end;
 
 procedure TSearchFormSettings.SetNoIgnore(const Value : Boolean);
 begin
-	FNoIgnore := Value;
+	FNoIgnore.Value := Value;
 end;
 
 procedure TSearchFormSettings.SetPretty(const Value : Boolean);
 begin
-	FPretty := Value;
+	FPretty.Value := Value;
 end;
 
 procedure TSearchFormSettings.StoreToDict;
 begin
-	StoreSearchSettings(False);
 	FExtensionSettings.StoreToDict;
 	inherited StoreToDict();
 end;
@@ -205,51 +210,13 @@ procedure TSearchFormSettings.LoadFromDict;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.LoadFromDict');
-
-	LoadMembers(False);
 	FExtensionSettings.LoadFromDict();
-end;
-
-procedure TSearchFormSettings.LoadMembers(const _bDefault : Boolean);
-begin
-	Pretty := SettingsDict.GetSetting('Pretty', _bDefault);
-	Hidden := SettingsDict.GetSetting('Hidden', _bDefault);
-	NoIgnore := SettingsDict.GetSetting('NoIgnore', _bDefault);
-	Context := SettingsDict.GetSetting('Context', _bDefault);
-	Encoding := SettingsDict.GetSetting('Encoding', _bDefault);
 end;
 
 procedure TSearchFormSettings.ReLoad;
 begin
 	FExtensionSettings.ReLoad;
 	inherited;
-end;
-
-procedure TSearchFormSettings.StoreSearchSettings(_bAsDefault : Boolean; const _s : string = '');
-var
-	i : integer;
-begin
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.StoreSearchSettings: ' + _s);
-
-	i := 0;
-	if _s.IsEmpty then begin
-		// StoreToDict all
-		for i := 0 to high(SEARCH_SETTINGS) do begin
-			StoreSearchSettings(_bAsDefault, SEARCH_SETTINGS[i]);
-		end;
-	end else if MatchStr(_s, SEARCH_SETTINGS[i]) then begin
-		SettingsDict.StoreSetting(SEARCH_SETTINGS[i], Pretty, _bAsDefault);
-	end else if MatchStr(_s, SEARCH_SETTINGS[PreInc(i)]) then begin
-		SettingsDict.StoreSetting(SEARCH_SETTINGS[i], Hidden, _bAsDefault);
-	end else if MatchStr(_s, SEARCH_SETTINGS[PreInc(i)]) then begin
-		SettingsDict.StoreSetting(SEARCH_SETTINGS[i], NoIgnore, _bAsDefault);
-	end else if MatchStr(_s, SEARCH_SETTINGS[PreInc(i)]) then begin
-		SettingsDict.StoreSetting(SEARCH_SETTINGS[i], Context, _bAsDefault);
-	end else if MatchStr(_s, SEARCH_SETTINGS[PreInc(i)]) then begin
-		SettingsDict.StoreSetting(SEARCH_SETTINGS[i], Encoding, _bAsDefault);
-	end else begin
-		raise Exception.Create('Settings: ' + _s + ' not stored!');
-	end;
 end;
 
 function TSearchFormSettings.ToLogString : string;

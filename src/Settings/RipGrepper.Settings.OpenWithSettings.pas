@@ -7,12 +7,13 @@ uses
 	System.Classes,
 	System.IniFiles,
 	RipGrepper.OpenWith.Constants,
-	RipGrepper.OpenWith.Params;
+	RipGrepper.OpenWith.Params,
+	RipGrepper.Settings.SettingVariant;
 
 type
 	TOpenWithSettings = class(TPersistableSettings)
 		private
-			FCommandList : TStringList;
+			FCommandList : TArraySetting;
 			FTestFile : TOpenWithParams;
 			function GetCommand(Index : Integer) : string;
 			procedure SetCommand(Index : Integer; const Value : string);
@@ -34,12 +35,13 @@ implementation
 
 uses
 	RipGrepper.Tools.DebugUtils,
-	System.SysUtils;
+	System.SysUtils,
+	ArrayEx;
 
 constructor TOpenWithSettings.Create(const _Owner : TPersistableSettings);
 begin
 	IniSectionName := OPEN_WITH_SETTINGS;
-	FCommandList := TStringList.Create;
+	FCommandList := TArraySetting.Create();
 	inherited Create(_Owner);
 	TDebugUtils.DebugMessage('TOpenWithSettings.Create: ' + IniFile.FileName + '[' + IniSectionName + ']');
 end;
@@ -52,8 +54,8 @@ end;
 
 procedure TOpenWithSettings.ClearCommandList;
 begin
-	FCommandList.Clear;
-	FSettingsDict.Clear;
+	FCommandList.Value.Clear;
+	FSettingsDict.InnerDictionary.Clear;
 	FIsModified := True;
 end;
 
@@ -71,23 +73,14 @@ begin
 	for var i : integer := 0 to Length(DEFAULT_EDITORS) - 1 do begin
 		Command[i] := DEFAULT_EDITORS[i];
 	end;
+	SettingsDict.CreateSetting(OPENWITH_COMMAND_KEY, FCommandList);
 end;
 
 procedure TOpenWithSettings.ReadIni;
-var
-	s : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.ReadIni');
-
-	for var i : integer := 0 to MAX_COMMAND_NUM do begin
-		s := IniFile.ReadString(OPEN_WITH_SETTINGS, OPENWITH_COMMAND_KEY + i.ToString, '');
-		if (not s.IsEmpty) then begin
-			Command[i] := s;
-		end else begin
-			break
-		end;
-	end;
+	FCommandList.LoadFromFile();
 end;
 
 procedure TOpenWithSettings.LoadFromDict;
@@ -100,37 +93,23 @@ begin
 	if Value.IsEmpty then
 		Exit;
 
-	if FCommandList.Count > index then begin
-		if (FCommandList[index] <> Value) then begin
-			FCommandList[index] := Value;
+	if FCommandList.Value.Count > index then begin
+		if (FCommandList.Value[index] <> Value) then begin
+			FCommandList.Value[index] := Value;
 			FIsModified := True;
 		end;
 	end else begin
-		FCommandList.Add(Value);
+		FCommandList.Value.Add(Value);
 		FIsModified := True;
 	end;
 end;
 
 procedure TOpenWithSettings.ForceWriteToIni;
-var
-	cmdListItem : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.ForceWriteToIni');
-	if { IsAlreadyRead never set :( } IsModified then begin
-		if FCommandList.Count > 0 then begin
-			for var i : integer := 0 to MAX_COMMAND_NUM do begin
-				cmdListItem := Command[i];
-				if cmdListItem.IsEmpty then
-					break;
-				SettingsDict.SetSettingValue(
-					{ } Format('%s|%s', [OPEN_WITH_SETTINGS, OPENWITH_COMMAND_KEY + i.ToString]), cmdListItem);
-				dbgMsg.MsgFmt('[%s] %s%d: %s', [OPEN_WITH_SETTINGS, OPENWITH_COMMAND_KEY, i, cmdListItem]);
-			end;
-			UpdateIniFile(OPEN_WITH_SETTINGS, True, True);
-		end;
-		FIsModified := False;
-	end;
+	SettingsDict.SaveToFile(IniFile());
+	UpdateIniFile(OPEN_WITH_SETTINGS, True, True);
 end;
 
 function TOpenWithSettings.ToString : string;

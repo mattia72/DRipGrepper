@@ -201,7 +201,7 @@ end;
 
 procedure TRipGrepParameterSettings.Init;
 begin
-	SettingsDict.CreateSetting(RG_INI_KEY_RGPATH, varString, '');
+	SettingsDict.CreateSetting(RG_INI_KEY_RGPATH, TStringSetting.Create( ''));
 	SettingsDict.CreateDefaultRelevantSetting(SEARCHPATH_KEY, varString, '');
 	SettingsDict.CreateDefaultRelevantSetting(FILEMASKS_KEY, varString, '');
 	// inherited Init(); abstract

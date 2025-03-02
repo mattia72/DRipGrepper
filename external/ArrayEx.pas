@@ -160,17 +160,18 @@ type
 			function GetFirst : T;
 			procedure SetCount(const Value : integer);
 			function GetItemAt(Index : integer) : T;
-			function GetSafeItemAt(index : Integer): T;
+			function GetSafeItemAt(index : Integer) : T;
 			function GetLast : T;
 			function GetMaxIndex : Integer;
 			procedure SetItemAt(Index : integer; Value : T);
+
 		public
 			Items : TArray<T>;
 			property Count : integer read GetCount write SetCount;
 			property IsEmpty : Boolean read GetIsEmpty;
 			property First : T read GetFirst;
 			property ItemAt[index : Integer] : T read GetItemAt write SetItemAt; default;
-			property SafeItemAt[index : Integer]: T read GetSafeItemAt;
+			property SafeItemAt[index : Integer] : T read GetSafeItemAt;
 			property Last : T read GetLast;
 			property MaxIndex : Integer read GetMaxIndex;
 
@@ -230,7 +231,6 @@ type
 			function CountOf(Item : T) : integer; overload;
 			function CountOf(Item : T; const Comparer : IComparer<T>) : integer; overload;
 			function RemoveAll(const AItem : T) : boolean;
-
 			// operator overloads
 			class operator Equal(const L, R : TArrayEx<T>) : boolean;
 			class operator Implicit(const Values : array of T) : TArrayEx<T>;
@@ -756,12 +756,12 @@ begin
 	Result := Items[0];
 end;
 
-function TArrayEx<T>.GetSafeItemAt(index : Integer): T;
+function TArrayEx<T>.GetSafeItemAt(index : Integer) : T;
 begin
 	if index <= MaxIndex then begin
 		Result := Items[index];
 	end else begin
-		Result := default(T);
+		Result := default (T);
 	end;
 end;
 

@@ -74,7 +74,8 @@ implementation
 uses
 	RipGrepper.Tools.DebugUtils,
 	System.SysUtils,
-	RipGrepper.Helper.MemIniFile;
+	RipGrepper.Helper.MemIniFile,
+	RipGrepper.Helper.Types;
 
 function TMemIniStringPersister.LoadFromFile() : string;
 begin
@@ -128,7 +129,7 @@ end;
 
 function TMemIniBoolPersister.LoadFromFile() : Boolean;
 begin
- 	Result := FIniFile.ReadBool(FIniSection, FIniKey, False);
+	Result := FIniFile.ReadBool(FIniSection, FIniKey, False);
 end;
 
 procedure TMemIniBoolPersister.ReloadFile();
@@ -156,9 +157,9 @@ begin
 end;
 
 function TMemIniStrArrayPersister.LoadFromFile() : TArray<string>;
-var	
+var
 	i : Integer;
-	s: string;
+	s : string;
 begin
 	Result := [];
 	i := 1;
@@ -173,6 +174,7 @@ end;
 
 procedure TMemIniStrArrayPersister.SaveToFile(const _value : TArray<string>);
 var
+	multiLineVal : TMultiLineString;
 	i : Integer;
 	len : Integer;
 begin
@@ -182,9 +184,8 @@ begin
 	len := Length(_value);
 	dbgMsg.Msg('Write Array');
 	while i <= len do begin
-		var
-		s := _value[i];
-		FIniFile.WriteString(FIniSection, Format('%s_Item%d', [FIniKey, i]), s);
+		multiLineVal := _value[i];
+		FIniFile.WriteString(FIniSection, Format('%s_Item%d', [FIniKey, i]), multiLineVal.GetLine(0));
 		Inc(i);
 	end;
 end;

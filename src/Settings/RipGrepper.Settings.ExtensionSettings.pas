@@ -6,11 +6,12 @@ uses
 	RipGrepper.Settings.Persistable,
 	System.IniFiles,
 	RipGrepper.Common.Constants,
-	RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.SimpleTypes,
+	RipGrepper.Settings.SettingVariant;
 
 type
 	TRipGrepperExtensionContext = record
-		IDEContext : ERipGrepperExtensionContext;
+		IDEContext : TIntegerSetting;
 		ActiveFile : string;
 		OpenFiles : TArray<string>;
 		ProjectFiles : TArray<string>;
@@ -19,6 +20,7 @@ type
 		public
 			function ToLogString : string;
 			class function FromString(const _context, _proj, _file : string) : TRipGrepperExtensionContext; static;
+		class operator Initialize(out Dest: TRipGrepperExtensionContext);
 	end;
 
 	TRipGrepperExtensionSettings = class(TPersistableSettings)
@@ -29,10 +31,14 @@ type
 			KEY_SHORTCUT_OPENWITH = 'OpenWithShortcut';
 
 		private
-			FSearchSelectedShortcut : string;
-			FCurrentSearchSettings : TRipGrepperExtensionContext;
-			FOpenWithShortCut : string;
-			procedure LoadIdeContextFromDict(const _bDefault : Boolean);
+			FSearchSelectedShortcut : TStringSetting;
+			FCurrentIDEContext: TRipGrepperExtensionContext;
+			FOpenWithShortCut : TStringSetting;
+			function GetOpenWithShortcut(): string;
+			function GetSearchSelectedShortcut() : string;
+			procedure LoadIdeContextFromDict();
+			procedure SetOpenWithShortcut(const Value: string);
+			procedure SetSearchSelectedShortcut(const Value : string);
 
 		public
 			constructor Create(const _Owner : TPersistableSettings); overload;
@@ -43,9 +49,11 @@ type
 			procedure LoadFromDict(); override;
 			procedure StoreToDict; override;
 			function ToLogString : string; override;
-			property SearchSelectedShortcut : string read FSearchSelectedShortcut write FSearchSelectedShortcut;
-			property OpenWithShortcut : string read FOpenWithShortCut write FOpenWithShortCut;
-			property CurrentIDEContext : TRipGrepperExtensionContext read FCurrentSearchSettings write FCurrentSearchSettings;
+			property SearchSelectedShortcut : string read GetSearchSelectedShortcut write SetSearchSelectedShortcut;
+			property OpenWithShortcut: string read GetOpenWithShortcut write
+				SetOpenWithShortcut;
+			property CurrentIDEContext: TRipGrepperExtensionContext read FCurrentIDEContext
+				write FCurrentIDEContext;
 	end;
 
 implementation
@@ -68,28 +76,40 @@ begin
 	IniSectionName := INI_SECTION;
 	inherited;
 	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Create: ' + IniFile.FileName + '[' + IniSectionName + ']');
-end;
+	FSearchSelectedShortcut := TStringSetting.Create(TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH);
+	FOpenWithShortCut := TStringSetting.Create(TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH);
+ end;
 
 destructor TRipGrepperExtensionSettings.Destroy;
 begin
 	inherited;
 end;
 
+function TRipGrepperExtensionSettings.GetOpenWithShortcut(): string;
+begin
+	Result := FOpenWithShortcut.Value;
+end;
+
+function TRipGrepperExtensionSettings.GetSearchSelectedShortcut() : string;
+begin
+	Result := FSearchSelectedShortcut.Value;
+end;
+
 procedure TRipGrepperExtensionSettings.Init;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.Init');
-	SettingsDict.CreateSetting(KEY_SHORTCUT_SEARCH_SELECTED, varString, TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH);
-	SettingsDict.CreateSetting(KEY_SHORTCUT_OPENWITH, varString, TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH);
-	SettingsDict.CreateDefaultRelevantSetting(KEY_IDE_CONTEXT, varInteger, EXT_SEARCH_GIVEN_PATH);
+	SettingsDict.CreateSetting(KEY_SHORTCUT_SEARCH_SELECTED, FSearchSelectedShortcut);
+	SettingsDict.CreateSetting(KEY_SHORTCUT_OPENWITH, FOpenWithShortCut);
+	SettingsDict.CreateSetting(KEY_IDE_CONTEXT, FCurrentIDEContext.IDEContext);
 end;
 
 procedure TRipGrepperExtensionSettings.ReadIni;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.ReadIni');
-	{$IFNDEF TESTINSIGHT} //or ($APPTYPE = CONSOLE))} // skip if unittest
- 	{$IFDEF STANDALONE}
+	{$IFNDEF TESTINSIGHT} // or ($APPTYPE = CONSOLE))} // skip if unittest
+	{$IFDEF STANDALONE}
 	Exit;
 	{$ELSE}
 	if IOTAUTils.IsStandAlone then begin
@@ -105,7 +125,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.LoadFromDict');
 
-	{$IFNDEF TESTINSIGHT} //or ($APPTYPE = CONSOLE))} // skip if unittest
+	{$IFNDEF TESTINSIGHT} // or ($APPTYPE = CONSOLE))} // skip if unittest
 	{$IFDEF STANDALONE}
 	Exit;
 	{$ELSE}
@@ -114,15 +134,14 @@ begin
 	end;
 	{$ENDIF}
 	{$ENDIF}
+	LoadIdeContextFromDict();
 
-	LoadIdeContextFromDict(False);
-
-	SearchSelectedShortcut := SettingsDict.GetSetting(KEY_SHORTCUT_SEARCH_SELECTED);
+	SearchSelectedShortcut := TStringSetting(SettingsDict.GetSetting(KEY_SHORTCUT_SEARCH_SELECTED)).Value;
 	if SearchSelectedShortcut = '' then begin
 		SearchSelectedShortcut := TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH;
 		FIsModified := True;
 	end;
-	OpenWithShortcut := SettingsDict.GetSetting(KEY_SHORTCUT_OPENWITH);
+	OpenWithShortcut := TStringSetting(SettingsDict.GetSetting(KEY_SHORTCUT_OPENWITH)).Value;
 	if OpenWithShortcut = '' then begin
 		OpenWithShortcut := TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH;
 		FIsModified := True;
@@ -137,20 +156,30 @@ begin
 	dbgMsg.Msg(ToLogString());
 end;
 
-procedure TRipGrepperExtensionSettings.LoadIdeContextFromDict(const _bDefault : Boolean);
+procedure TRipGrepperExtensionSettings.LoadIdeContextFromDict();
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.LoadIdeContextFromDict Default=' + BoolToStr(_bDefault));
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.LoadIdeContextFromDict');
 
 	var
-	val := SettingsDict.GetSetting(KEY_IDE_CONTEXT, _bDefault);
+	val := TIntegerSetting(SettingsDict.GetSetting(KEY_IDE_CONTEXT)).Value;;
 	dbgMsg.MsgFmt('IDEContext %s', [VarToStrDef(val, '')]);
 
 	var
 	css := CurrentIDEContext;
-	css.IDEContext := ERipGrepperExtensionContext(val);
-	CurrentIDEContext := css;
+	css.IDEContext.Value := val;
+ 	CurrentIDEContext := css;
 	dbgMsg.MsgFmt('after copy IDEContext %d', [Integer(CurrentIDEContext.IDEContext)]);
+end;
+
+procedure TRipGrepperExtensionSettings.SetOpenWithShortcut(const Value: string);
+begin
+	FOpenWithShortcut.Value := Value;
+end;
+
+procedure TRipGrepperExtensionSettings.SetSearchSelectedShortcut(const Value : string);
+begin
+	FSearchSelectedShortcut.Value := Value;
 end;
 
 procedure TRipGrepperExtensionSettings.StoreToDict;
@@ -158,7 +187,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.StoreToDict');
 
-	{$IFNDEF TESTINSIGHT} //or ($APPTYPE = CONSOLE))} // skip if unittest
+	{$IFNDEF TESTINSIGHT} // or ($APPTYPE = CONSOLE))} // skip if unittest
 	{$IFDEF STANDALONE}
 	Exit;
 	{$ELSE}
@@ -167,16 +196,13 @@ begin
 	end;
 	{$ENDIF}
 	{$ENDIF}
-	SettingsDict.StoreSetting(KEY_SHORTCUT_SEARCH_SELECTED, SearchSelectedShortcut);
-	SettingsDict.StoreSetting(KEY_SHORTCUT_OPENWITH, OpenWithShortcut);
-	SettingsDict.StoreSetting(KEY_IDE_CONTEXT, Integer(CurrentIDEContext.IDEContext));
 	inherited StoreToDict; // Write to mem ini, after UpdateIniFile will be saved
 end;
 
 function TRipGrepperExtensionSettings.ToLogString : string;
 begin
-	Result := Format('OpenWithShortcut=%s, SearchSelectedShortcut=%s, IDEContext=%s', [OpenWithShortcut, SearchSelectedShortcut,
-		CurrentIDEContext.ToLogString]);
+	Result := Format('OpenWithShortcut=%s, SearchSelectedShortcut=%s, IDEContext=%s',
+		[OpenWithShortcut, SearchSelectedShortcut, CurrentIDEContext.ToLogString]);
 end;
 
 function TRipGrepperExtensionContext.ToLogString : string;
@@ -186,9 +212,16 @@ end;
 
 class function TRipGrepperExtensionContext.FromString(const _context, _proj, _file : string) : TRipGrepperExtensionContext;
 begin
-	Result.IDEContext := ERipGrepperExtensionContext(StrToInt(_context));
+	Result.IDEContext.Value := StrToInt(_context);
 	Result.ActiveProject := _proj;
 	Result.ActiveFile := _file;
+end;
+
+class operator TRipGrepperExtensionContext.Initialize(out Dest:
+	TRipGrepperExtensionContext);
+begin
+    Dest := default(TRipGrepperExtensionContext);
+	Dest.IDEContext := TIntegerSetting.Create(EXT_SEARCH_GIVEN_PATH);
 end;
 
 end.

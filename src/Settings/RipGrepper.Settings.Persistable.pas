@@ -6,7 +6,6 @@ uses
 	System.Generics.Defaults,
 	System.IniFiles,
 	RipGrepper.Helper.MemIniFile,
-	System.Generics.Collections,
 	System.SysUtils,
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Settings.SettingVariant,
@@ -17,6 +16,8 @@ uses
 
 type
 
+	EWriteSettingsMode = (wsmActual, wsmDefault, wsmAll);
+
 	IIniPersistable = interface
 		['{A841C46D-56AF-4391-AB88-4C9496589FF4}']
 		function GetIniSectionName() : string;
@@ -25,28 +26,6 @@ type
 		procedure LoadFromDict();
 		procedure StoreToDict;
 	end;
-
-	IFilePersister = interface(IInterface)
-		['{57B16806-F8F5-447E-9AB6-767E553CCB65}']
-		procedure LoadFromFile(_dict : TSettingsDictionary);
-		procedure ReloadFile(_dict : TSettingsDictionary);
-		procedure SaveToFile(_dict : TSettingsDictionary);
-	end;
-
-	TMemIniPersister = class(TInterfacedObject, IFilePersister)
-		procedure LoadFromFile(_dict : TSettingsDictionary);
-		procedure ReloadFile(_dict : TSettingsDictionary);
-		procedure SaveToFile(_dict : TSettingsDictionary);
-
-		private
-			FIniFile : IShared<TMemIniFile>;
-
-		public
-			constructor Create;
-			destructor Destroy; override;
-	end;
-
-	EWriteSettingsMode = (wsmActual, wsmDefault, wsmAll);
 
 	TPersistableSettings = class(TNoRefCountObject, IIniPersistable)
 		strict private
@@ -70,9 +49,6 @@ type
 			procedure SetIniSectionName(const Value : string);
 			procedure SetOwnerSetings(const _section : string = ''; const _bForceWriteIni : Boolean = False;
 				const _bClearSection : Boolean = False);
-			// 1 Should be locked by a guard
-			procedure WriteToIni(const _sIniSection, _sKey : string; _setting : ISettingVariant);
-
 		protected
 			FSettingsDict : TSettingsDictionary;
 			FChildren : TArrayEx<TPersistableSettings>;
@@ -138,7 +114,8 @@ uses
 	{$IFNDEF STANDALONE} RipGrepper.Common.IOTAUtils, {$ENDIF}
 	System.IOUtils,
 	System.StrUtils,
-	RipGrepper.Tools.LockGuard;
+	RipGrepper.Tools.LockGuard,
+	Spring.Collections;
 
 constructor TPersistableSettings.Create(const _Owner : TPersistableSettings);
 begin
@@ -227,12 +204,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.CopySettingsDictSection');
 	dbgMsg.MsgFmt('Copy TO [%s]', [IniSectionName]);
-	for var key in _other.SettingsDict.Keys do begin
-		if (_copyAllSections or key.StartsWith(IniSectionName)) then begin
-			dbgMsg.MsgFmt('Copy FROM [%s] %s=%s', [_other.IniSectionName, key, _other.SettingsDict[key].Value]);
-			FSettingsDict.AddOrChange(key, _other.SettingsDict[key]);
-		end;
-	end;
+	SettingsDict.CopySection(IniSectionName, _other.SettingsDict);
 end;
 
 procedure TPersistableSettings.CreateIniFile;
@@ -254,9 +226,9 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.DictToLog');
 	{$IFDEF DEBUG}
-	for var p in _dict do begin
+	for var p in _dict.InnerDictionary do begin
 		var
-			sVal : string := VarToStr(p.Value.Value);
+			sVal : string := TStringSetting(p.Value).Value;
 		Result := Result + [[p.Key, sVal]];
 		dbgMsg.MsgFmt('%s=%s', [p.Key, sVal], tftVerbose);
 	end;
@@ -293,20 +265,13 @@ begin
 end;
 
 function TPersistableSettings.GetIsModified : Boolean;
-var
-	setting : ISettingVariant;
-	arr : TArrayEx<ISettingVariant>;
 begin
-	if not FIsModified then begin
-		arr := FSettingsDict.Values.ToArray;
-		setting := TSettingVariant.Create(); // ISettingVariant
-		setting.IsModified := True;
-		FIsModified := 0 < arr.CountOf(setting, TComparer<ISettingVariant>.Construct(
-			function(const Left, Right : ISettingVariant) : Integer
-			begin
-				Result := TComparer<Boolean>.Default.Compare(Left.IsModified, Right.IsModified);
-			end));
-	end;
+	FIsModified := not FSettingsDict.InnerDictionary[IniSectionName].Where(
+		function(const p : TPair<string, ISetting>) : Boolean
+		begin
+			Result := ssModified = p.Value.State;
+		end).IsEmpty;
+
 	Result := FIsModified;
 end;
 
@@ -335,44 +300,18 @@ begin
 end;
 
 procedure TPersistableSettings.ReadSettings;
-var
-	strs : TStringList;
-	name : string;
-	setting : ISettingVariant;
-	value : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.ReadSettings');
-	strs := TStringList.Create();
-	try
-		if FIsAlreadyRead or (IniSectionName = ROOT_DUMMY_INI_SECTION) then begin
-			dbgMsg.MsgFmt('FIsAlreadyRead %s Section: %s', [BoolToStr(FIsAlreadyRead, True), IniSectionName]);
-			Exit;
-		end;
-		try
-			dbgMsg.MsgFmt('Read section %s from IniFile %p', [IniSectionName, Pointer(IniFile)]);
-			IniFile.ReadSectionValues(IniSectionName, strs);
-			FIsAlreadyRead := strs.Count > 0;
-			dbgMsg.Msg(strs.DelimitedText);
 
-			dbgMsg.Msg('create base settings');
-			// create base settings
-			for var i : integer := 0 to strs.Count - 1 do begin
-				name := strs.Names[i];
-				value := strs.Values[name];
-				setting := TSettingVariant.Create(value); // ISettingVariant
-				dbgMsg.MsgFmt('[%s] %s = %s', [IniSectionName, name, value]);
-				SettingsDict.AddOrSet(name, setting);
-			end;
-
-			dbgMsg.Msg('set default settings');
-		except
-			on E : Exception do
-				raise;
-		end;
-	finally
-		strs.Free;
+	if FIsAlreadyRead or (IniSectionName = ROOT_DUMMY_INI_SECTION) then begin
+		dbgMsg.MsgFmt('FIsAlreadyRead %s Section: %s', [BoolToStr(FIsAlreadyRead, True), IniSectionName]);
+		Exit;
 	end;
+
+	dbgMsg.MsgFmt('Read section %s from IniFile %p', [IniSectionName, Pointer(IniFile)]);
+	SettingsDict.LoadFromFile(IniFile());
+    FIsAlreadyRead := True;
 end;
 
 procedure TPersistableSettings.ReLoadFromDisk;
@@ -492,10 +431,8 @@ begin
 
 end;
 
-procedure TPersistableSettings.WriteSettingsDictToIni(const _section : string =
-	''; const _bClearSection : Boolean = False);
+procedure TPersistableSettings.WriteSettingsDictToIni(const _section : string = ''; const _bClearSection : Boolean = False);
 var
-	setting : ISettingVariant;
 	section : string;
 begin
 	var
@@ -511,60 +448,7 @@ begin
 		IniFile.EraseSection(section);
 	end;
 
-	for var key in FSettingsDict.Keys do begin
-		if ((not section.IsEmpty) and (not key.StartsWith(section))) then
-			continue;
-		setting := FSettingsDict[key];
-		var
-		arr := key.Split([ARRAY_SEPARATOR]);
-
-		WriteToIni(arr[0], arr[1], setting);
-		setting.IsModified := False;
-
-		SettingsDict[key] := setting;
-	end;
-end;
-
-// 1 Should be locked by a guard
-procedure TPersistableSettings.WriteToIni(const _sIniSection, _sKey : string; _setting : ISettingVariant);
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.WriteToIni');
-
-	_setting.WriteToMemIni(FIniFile, _sIniSection, _sKey);
-end;
-
-constructor TMemIniPersister.Create;
-begin
-	inherited Create;
-	{$IFDEF STANDALONE}
-	FIniFile := Shared.Make<TMemIniFile>(
-	{ } TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8));
-	{$ELSE}
-	FIniFile := Shared.Make<TMemIniFile>(
-	{ } TMemIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'), TEncoding.UTF8));
-	{$ENDIF}
-end;
-
-destructor TMemIniPersister.Destroy;
-begin
-	FIniFile.Free;
-	inherited;
-end;
-
-procedure TMemIniPersister.LoadFromFile(_dict : TSettingsDictionary);
-begin
-
-end;
-
-procedure TMemIniPersister.ReloadFile(_dict : TSettingsDictionary);
-begin
-	FIniFile.ReLoadIniFile();
-end;
-
-procedure TMemIniPersister.SaveToFile(_dict : TSettingsDictionary);
-begin
-
+    SettingsDict.SaveToFile(IniFile());
 end;
 
 end.
