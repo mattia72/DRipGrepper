@@ -11,7 +11,7 @@ uses
 	RipGrepper.CommandLine.OptionStrings,
 	RipGrepper.Helper.Types,
 	RipGrepper.Common.SimpleTypes,
-	RipGrepper.Common.SearchTextWithOptions;
+	RipGrepper.Common.SearchTextWithOptions, RipGrepper.Settings.SettingVariant;
 
 type
 	TGuiSearchTextParams = class(TPersistableSettings)
@@ -21,6 +21,7 @@ type
 			FIsRgExeOptionSet : Boolean;
 			FReplaceText : string;
 			FExpertOptions : TOptionStrings;
+			FSearchParams: TStringSetting;
 			FSearchTextWithOptions : TSearchTextWithOptions;
 			function GetReplaceText : string;
 			procedure LoadSearchOptionsFromDict(const _bDefault : Boolean);
@@ -198,7 +199,8 @@ end;
 
 procedure TGuiSearchTextParams.Init;
 begin
-	SettingsDict.CreateDefaultRelevantSetting('SearchParams', varString, '');
+    FSearchParams := TStringSetting.Create('');
+	SettingsDict.CreateSetting('SearchParams', FSearchParams);
 end;
 
 procedure TGuiSearchTextParams.LoadFromDict();
@@ -213,7 +215,7 @@ var sParams : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.LoadSearchOptionsFromDict Default=' + BoolToStr(_bDefault));
-	sParams := SettingsDict.GetSetting('SearchParams', _bDefault);
+	sParams := FSearchParams.Value;
 	dbgMsg.Msg(RgOptions.AsString);
 	FSearchTextWithOptions.UpdateSearchOptions(sParams);
 	if FSearchTextWithOptions.SearchOptions = [] then begin
@@ -262,7 +264,6 @@ end;
 
 procedure TGuiSearchTextParams.StoreToDict;
 begin
-	SettingsDict.StoreSetting('SearchParams', GetAsString(True));
 	inherited StoreToDict();
 end;
 
