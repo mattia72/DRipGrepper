@@ -5,7 +5,8 @@ interface
 uses
 	DUnitX.TestFramework,
 	System.Classes,
-	RipGrepper.Settings.SettingsDictionary;
+	RipGrepper.Settings.SettingsDictionary,
+	RipGrepper.Settings.SettingVariant;
 
 type
 
@@ -13,10 +14,7 @@ type
 	TSettingsDictionaryTest = class
 		public
 			[Test]
-			procedure AddOrSetTest();
-
-			[Test]
-			procedure AddOrChangeTest();
+			procedure CopySectionTest();
 	end;
 
 implementation
@@ -24,56 +22,40 @@ implementation
 uses
 	System.SysUtils,
 	System.IniFiles,
-	RipGrepper.Settings.SettingVariant;
+	Spring,
+	System.TypInfo,
+	Spring.Collections;
 
 const
 	TESTSECTION = 'TestSection';
 
-procedure TSettingsDictionaryTest.AddOrSetTest();
+procedure TSettingsDictionaryTest.CopySectionTest();
 var
-	dict : TSettingsDictionary;
-	setting : ISettingVariant;
-begin
-	dict := TSettingsDictionary.Create(TESTSECTION);
-	try
-		var key := 'TestKey';
-		setting := TSettingVariant.Create('TestValue');
-		dict.AddOrSet(key, setting);
-		var expected := setting.Value;
-		var actual := dict[TESTSECTION + '|' + key].Value;
-
-		Assert.AreEqual(expected, actual, '');
-	finally
-		dict.Free();
-	end;
-end;
-
-procedure TSettingsDictionaryTest.AddOrChangeTest();
-var
-	dict : TSettingsDictionary;
+	dict : IShared<TSettingsDictionary>;
+	sourceDict : IShared<TSettingsDictionary>;
+	keyDict : ISettingsKeyCollection;
 	key, expected, actual : string;
-	setting : ISettingVariant;
+	setting : IShared<TStringSetting>;
 begin
-	dict := TSettingsDictionary.Create(TESTSECTION);
-	try
-		key := 'TestKey';
-		setting := TSettingVariant.Create('TestValue');
+	dict := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create(TESTSECTION));
+	sourceDict := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create('SourceSection'));
 
-		dict.CreateSetting(key, setting);
+	key := 'TestKey';
+	setting := Shared.Make<TStringSetting>(TStringSetting.Create('TestValue'));
 
-		expected := setting.Value;
-		actual := dict[TESTSECTION + '|' + key].Value;
-		Assert.AreEqual(expected, actual, 'The value should match the added value.');
+	keyDict := TCollections.CreateSortedDictionary<string, ISetting>;
+	keyDict.Add(key, setting);
+	sourceDict.InnerDictionary.Add('SourceSection', keyDict);
 
-		setting.Value := 'NewValue';
-		dict.AddOrChange(key, setting);
-		expected := setting.Value;
-		actual := dict[TESTSECTION + '|' + key].Value;
-		Assert.AreEqual(expected, actual, 'The value should match the changed value.');
-		Assert.AreEqual(1, dict.Count, 'Dict should have only one item.');
-	finally
-		dict.Free();
-	end;
+	expected := setting.Value;
+    actual := ISettingVariant<string>(sourceDict['SourceSection'][key]).Value;
+
+	Assert.AreEqual(expected, actual, 'The value should match the added value in source dictionary.');
+
+	dict.CopySection(TESTSECTION, sourceDict);
+
+	actual := ISettingVariant<string>(dict[TESTSECTION ][key]).Value;
+	Assert.AreEqual(expected, actual, 'The value should match the copied value.');
 end;
 
 initialization

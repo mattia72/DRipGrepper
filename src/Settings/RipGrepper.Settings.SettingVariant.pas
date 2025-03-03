@@ -16,12 +16,33 @@ type
 
 	TSettingState = (ssNotSet, ssModified);
 
+	TSettingVariant<T> = class; // forward declaration
+
+	TStringSetting = TSettingVariant<string>;
+	TBoolSetting = TSettingVariant<Boolean>;
+	TIntegerSetting = TSettingVariant<integer>;
+	TArraySetting = class;
+
 	ISetting = interface
 		['{289A58E3-A490-4015-9AFE-52EB303B9B89}']
+		function Equals(_other : ISetting) : Boolean;
+
 		function GetState() : TSettingState;
+		procedure SetState(const Value : TSettingState);
+
 		procedure LoadFromFile();
 		procedure SaveToFile();
-		procedure SetState(const Value : TSettingState);
+
+		function AsStringSetting() : TStringSetting;
+		function AsIntegerSetting() : TIntegerSetting;
+		function AsBoolSetting() : TBoolSetting;
+		function AsArraySetting() : TArraySetting;
+
+		function AsString() : string;
+		function AsInteger() : Integer;
+		function AsBool() : Boolean;
+		function AsArray() : TArrayEx<string>;
+
 		property State : TSettingState read GetState write SetState;
 	end;
 
@@ -49,6 +70,19 @@ type
 		public
 			procedure LoadFromFile(); virtual; abstract;
 			procedure SaveToFile(); virtual; abstract;
+
+			function AsStringSetting() : TStringSetting;
+			function AsIntegerSetting() : TIntegerSetting;
+			function AsBoolSetting() : TBoolSetting;
+			function AsArraySetting() : TArraySetting;
+
+			function AsString() : string;
+			function AsInteger() : Integer;
+			function AsBool() : Boolean;
+			function AsArray() : TArrayEx<string>;
+
+			function Equals(_other : ISetting): Boolean;
+
 			property State : TSettingState read GetState write SetState;
 	end;
 
@@ -73,19 +107,14 @@ type
 			property Value : T read GetValue write SetValue;
 	end;
 
-	TStringSetting = TSettingVariant<string>;
-	TBoolSetting = TSettingVariant<Boolean>;
-	TIntegerSetting = TSettingVariant<integer>;
-
 	TArraySetting = class(TSettingVariant < TArrayEx < string >> )
-
 		private
 			function GetCount() : Integer;
 			function GetItem(Index : Integer) : string;
 			procedure SetItem(Index : Integer; const Value : string);
 
 		public
-			function AddIfNotContains(const AItem : string): Integer;
+			function AddIfNotContains(const AItem : string) : Integer;
 			property Count : Integer read GetCount;
 			property Item[index : Integer] : string read GetItem write SetItem; default;
 	end;
@@ -119,8 +148,8 @@ end;
 
 function TSettingVariant<T>.Equals(_other : ISettingVariant<T>) : Boolean;
 begin
-	Result := (TComparer<T>.Default.Compare(FValue, _other.Value) = 0) and
-	{ } (FState = _other.State);
+	Result := inherited Equals(_other);
+	Result := Result and (TComparer<T>.Default.Compare(FValue, _other.Value) = 0);
 end;
 
 function TSettingVariant<T>.GetPersister() : IFilePersister<T>;
@@ -161,6 +190,51 @@ begin
 	FPersister := Value;
 end;
 
+function TSetting.AsArray() : TArrayEx<string>;
+begin
+	Result := AsArraySetting.Value;
+end;
+
+function TSetting.AsArraySetting() : TArraySetting;
+begin
+	Result := TArraySetting(self);
+end;
+
+function TSetting.AsBool() : Boolean;
+begin
+	Result := AsBoolSetting.Value;
+end;
+
+function TSetting.AsBoolSetting() : TBoolSetting;
+begin
+	Result := TBoolSetting(self);
+end;
+
+function TSetting.AsInteger() : Integer;
+begin
+	Result := AsIntegerSetting.Value;
+end;
+
+function TSetting.AsIntegerSetting() : TIntegerSetting;
+begin
+	Result := TIntegerSetting(self);
+end;
+
+function TSetting.AsString() : string;
+begin
+	Result := AsStringSetting.Value;
+end;
+
+function TSetting.AsStringSetting() : TStringSetting;
+begin
+	Result := TStringSetting(self);
+end;
+
+function TSetting.Equals(_other : ISetting): Boolean;
+begin
+	Result := (FState = _other.State);
+end;
+
 function TSetting.GetState() : TSettingState;
 begin
 	Result := FState;
@@ -171,11 +245,12 @@ begin
 	FState := Value;
 end;
 
-function TArraySetting.AddIfNotContains(const AItem : string): Integer;
+function TArraySetting.AddIfNotContains(const AItem : string) : Integer;
 begin
 	Result := -1;
-	if not self.Value.Contains(AItem) then
+	if not self.Value.Contains(AItem) then begin
 		Result := self.Value.Add(AItem);
+    end;
 end;
 
 function TArraySetting.GetCount() : Integer;

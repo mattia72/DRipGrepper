@@ -75,7 +75,7 @@ procedure TNodeLookSettingsTest.CheckNodeSettingsDict(const _id : string);
 begin
 	for var s in VIEW_SETTINGS_TYPES do begin
 		var
-			b : Boolean := FSettings.SettingsDict['NodeLookSettings|' + s].Value;
+			b : Boolean := FSettings.SettingsDict()['NodeLookSettings'][s].AsBool;
 		Assert.IsTrue(b, _id + ' NodeLookSettings|' + s + ' should be true');
 	end;
 end;
@@ -114,8 +114,6 @@ begin
 
 	// TRipGrepperSettings.StoreViewSettings tested here
 
-	{ 1 } FSettings.StoreViewSettingToDict();
-
 	CheckNodeSettingsDict('after storeview');
 	{ 2 } FSettings.UpdateIniFile(FSettings.IniSectionName); // create temp ini
 	CheckNodeSettingsDict('after updateini');
@@ -151,7 +149,7 @@ begin
 	FSettings.ReadIni;
 	for var s in VIEW_SETTINGS_TYPES do begin
 		var
-		b := FSettings.SettingsDict['NodeLookSettings|' + s].Value;
+		b := FSettings.SettingsDict()['NodeLookSettings'][s].AsBool;
 		Assert.IsTrue(b, 'NodeLookSettings|' + s + ' should be true');
 	end;
 end;
@@ -160,9 +158,8 @@ procedure TNodeLookSettingsTest.SetViewSettingsToDictTest;
 begin
 	SetTestDefaultAndActualValues;
 	for var s in VIEW_SETTINGS_TYPES do begin
-		FSettings.StoreViewSettingToDict(s);
 		var
-		b := FSettings.SettingsDict['NodeLookSettings|' + s].Value;
+		b := FSettings.SettingsDict()['NodeLookSettings'][s].AsBool;
 		Assert.IsTrue(b, 'NodeLookSettings|' + s + ' should be true');
 	end;
 end;

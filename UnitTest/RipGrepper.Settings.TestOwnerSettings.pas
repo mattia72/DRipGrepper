@@ -4,7 +4,8 @@ interface
 
 uses
 	RipGrepper.Settings.Persistable,
-	RipGrepper.Settings.SettingsDictionary;
+	RipGrepper.Settings.SettingsDictionary,
+	RipGrepper.Settings.SettingVariant;
 
 const
 
@@ -33,8 +34,10 @@ type
 type
 	TTestSettings = class(TPersistableSettings)
 		private
-			FStrSetting1 : string;
-//          FStrSetting2 : string;
+			FStrSetting1 : TStringSetting;
+			function GetStrSetting() : string;
+			procedure SetStrSetting(const Value : string);
+			// FStrSetting2 : string;
 
 		public
 			constructor Create(const _Owner : TPersistableSettings); overload;
@@ -42,9 +45,7 @@ type
 			function GetDict : TSettingsDictionary;
 			procedure Init; override;
 			procedure ReadIni; override;
-			procedure LoadFromDict(); override;
-			procedure StoreToDict; override;
-			property StrSetting : string read FStrSetting1 write FStrSetting1;
+			property StrSetting : string read GetStrSetting write SetStrSetting;
 	end;
 
 implementation
@@ -103,9 +104,15 @@ begin
 	Result := FSettingsDict;
 end;
 
+function TTestSettings.GetStrSetting() : string;
+begin
+	Result := FStrSetting1.Value;
+end;
+
 procedure TTestSettings.Init;
 begin
-	SettingsDict.CreateDefaultRelevantSetting('StrSetting', varString, INITIAL_STR_VALUE);
+	FStrSetting1 := TStringSetting.Create(INITIAL_STR_VALUE);
+	SettingsDict.CreateSetting('StrSetting', FStrSetting1);
 end;
 
 procedure TTestSettings.ReadIni;
@@ -113,14 +120,9 @@ begin
 	inherited ReadIni;
 end;
 
-procedure TTestSettings.LoadFromDict;
+procedure TTestSettings.SetStrSetting(const Value : string);
 begin
-	StrSetting := SettingsDict.GetSetting('StrSetting');
-end;
-
-procedure TTestSettings.StoreToDict;
-begin
-	SettingsDict.StoreSetting('StrSetting', StrSetting);
+	FStrSetting1.Value := Value;
 end;
 
 end.

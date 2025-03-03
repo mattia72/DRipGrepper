@@ -41,15 +41,9 @@ type
 			[Test]
 			procedure RefreshMembersShouldLoadDefaultsTest;
 			[Test]
-			procedure LoadDefaultsShouldReadDefaultFromIni;
-			[Test]
 			procedure AfterCopyValuesValuesShouldBeEqual;
 			[Test]
-			procedure ActionSetAsDefaultExecuteShouldSaveInIni;
-			[Test]
 			procedure AfterUpdateIniValuesShouldBeProperlySaved;
-			[Test]
-			procedure AfterUpdateIniDefaultsShouldBeProperlySaved;
 			[Test]
 			procedure UpdateIniFileTest();
 			[Test]
@@ -97,18 +91,6 @@ begin
 	Assert.AreEqual('', FSettings.SearchFormSettings.Encoding, 'Encoding should be ''''');
 end;
 
-procedure TRipGrepperSettingsTest.LoadDefaultsShouldReadDefaultFromIni;
-begin
-	SetTestDefaultAndActualValues;
-	FSettings.LoadFromDict; //	FSettings.LoadDefaultsFromDict;
-	// Assert.IsTrue(FSettings.IsAlreadyRead, 'IsAlreadyRead should read');
-	Assert.AreEqual('utf8', FSettings.SearchFormSettings.Encoding, 'Encoding should be utf8');
-	Assert.AreEqual(5, FSettings.SearchFormSettings.Context, 'Context should be 5');
-	Assert.AreEqual(False, FSettings.SearchFormSettings.Pretty, 'Pretty should be false');
-	Assert.AreEqual(True, FSettings.SearchFormSettings.Hidden, 'Hidden should be true');
-	Assert.AreEqual(True, FSettings.SearchFormSettings.NoIgnore, 'NoIgnore should be true');
-end;
-
 procedure TRipGrepperSettingsTest.AfterCopyValuesValuesShouldBeEqual;
 begin
 	SetTestDefaultAndActualValues;
@@ -141,47 +123,6 @@ begin
 
 	finally
 		s.Free;
-	end;
-end;
-
-procedure TRipGrepperSettingsTest.ActionSetAsDefaultExecuteShouldSaveInIni;
-var
-	s1, s2 : string;
-	FHistItemGuiSearchParams : TGuiSearchTextParams;
-begin
-	SetTestDefaultAndActualValues;
-	FSettings.LoadFromDict; //FSettings.LoadDefaultsFromDict;
-
-	FHistItemGuiSearchParams :=
-	{ } TGuiSearchTextParams.Create(FSettings.RipGrepParameters.IniSectionName);
-	try
-		FHistItemGuiSearchParams.SetSearchText('search this');
-		FHistItemGuiSearchParams.SetOption(EGuiOption.soMatchWord);
-		FHistItemGuiSearchParams.SetOption(EGuiOption.soMatchCase);
-
-		// -- Act as TRipGrepperSearchDialogForm.ActionSetAsDefaultExecute
-		FSettings.RipGrepParameters.GuiSearchTextParams.Copy(FHistItemGuiSearchParams);
-
-		s1 := FHistItemGuiSearchParams.GetAsString();
-		s2 := FSettings.RipGrepParameters.GuiSearchTextParams.GetAsString();
-		Assert.AreEqual(s1, s2, '1. -ok GuiSearchTextParams should be equal');
-
-		// -- Act as TRipGrepperSearchDialogForm.ActionSetAsDefaultExecute
-		FSettings.StoreToDict(); //		FSettings.StoreAsDefaultsToDict();
-
-		s1 := FHistItemGuiSearchParams.GetAsString(True);
-		s2 := FSettings.RipGrepParameters.SettingsDict['RipGrepSettings|SearchParams_DEFAULT'].Value;
-		Assert.AreEqual(s1, s2, '2. - ok GuiSearchTextParams should be equal');
-
-		// -- Act as TRipGrepperSearchDialogForm.ActionSetAsDefaultExecute
-		FSettings.UpdateIniFile;
-
-		s1 := FHistItemGuiSearchParams.GetAsString(True);
-		s2 := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchParams_DEFAULT', '');
-		Assert.AreEqual(s1, s2, 'last. GuiSearchTextParams should be equal');
-
-	finally
-		FHistItemGuiSearchParams.Free;
 	end;
 end;
 
@@ -224,40 +165,6 @@ begin
 
 end;
 
-procedure TRipGrepperSettingsTest.AfterUpdateIniDefaultsShouldBeProperlySaved;
-var
-	iniVal, settingVal : string;
-begin
-	SetTestDefaultAndActualValues;
-
-	FSettings.UpdateIniFile;
-	FSettings.LoadFromDict; // FSettings.LoadDefaultsFromDict;
-
-	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchParams_DEFAULT', '');
-	settingVal := FSettings.RipGrepParameters.GuiSearchTextParams.GetAsString(True);
-	Assert.AreEqual(settingVal.Trim(['[', ']']), iniVal.Trim(['[', ']']), 'SearchParams should be equal');
-
-	iniVal := FSettings.IniFile.ReadString(FSettings.SearchFormSettings.IniSectionName, 'Encoding_DEFAULT', 'none');
-	settingVal := FSettings.SearchFormSettings.Encoding;
-	Assert.AreEqual(settingVal, iniVal, 'Encoding should be equal');
-
-	iniVal := FSettings.IniFile.ReadString(FSettings.SearchFormSettings.IniSectionName, 'Context_DEFAULT', '');
-	settingVal := FSettings.SearchFormSettings.Context.ToString;
-	Assert.AreEqual(settingVal, iniVal, 'Context should be equal');
-
-	iniVal := ReadBoolIniAsString(FSettings.SearchFormSettings.IniSectionName, 'Pretty_DEFAULT');
-	settingVal := BoolToStr(FSettings.SearchFormSettings.Pretty, True);
-	Assert.AreEqual(settingVal, iniVal, 'Pretty should be equal');
-
-	iniVal := ReadBoolIniAsString(FSettings.SearchFormSettings.IniSectionName, 'Hidden_DEFAULT');
-	settingVal := BoolToStr(FSettings.SearchFormSettings.Hidden, True);
-	Assert.AreEqual(settingVal, iniVal, 'Hidden should be equal');
-
-	iniVal := ReadBoolIniAsString(FSettings.SearchFormSettings.IniSectionName, 'NoIgnore_DEFAULT');
-	settingVal := BoolToStr(FSettings.SearchFormSettings.NoIgnore, True);
-	Assert.AreEqual(settingVal, iniVal, 'NoIgnore should be equal');
-end;
-
 procedure TRipGrepperSettingsTest.SetTestDefaultAndActualValues;
 begin
 	FSettings.SearchFormSettings.Encoding := 'utf8';
@@ -292,7 +199,7 @@ begin
 	for var s in ['hist 0', 'hist 1', ACT_HIST_VAL] do
 		FTextHist.Add(s);
 
-	FSettings.SearchTextsHistory := FTextHist;
+	FSettings.SearchTextsHistory.Value := FTextHist.ToStringArray;
 	FSettings.StoreToDict;
 end;
 
@@ -317,11 +224,10 @@ begin
 	SetTestDefaultAndActualValues;
 
 	// TRipGrepperSettings.StoreViewSettings tested here
-	{ 1 } FSettings.NodeLookSettings.StoreViewSettingToDict();
 	var
 		b : Boolean;
 	for var s in VIEW_SETTINGS_TYPES do begin
-		b := FSettings.NodeLookSettings.SettingsDict['NodeLookSettings|' + s].Value;
+		b := FSettings.NodeLookSettings.SettingsDict.InnerDictionary['NodeLookSettings'][s].AsBoolSetting.Value;
 		Assert.IsTrue(b, 'NodeLookSettings|' + s + ' should be true');
 	end;
 
@@ -360,7 +266,8 @@ begin
 
 	{ 1 } // FSettings.SearchFormSettings.ExtensionSettings;
 	for var s in [extSetting.KEY_IDE_CONTEXT, extSetting.KEY_SHORTCUT_SEARCH_SELECTED, extSetting.KEY_SHORTCUT_OPENWITH] do begin
-		settingVal := extSetting.SettingsDict['DelphiExtensionSettings|' + s].Value;
+        var d := extSetting.SettingsDict()['DelphiExtensionSettings'];
+		settingVal := d[s].AsString;
 		Assert.IsTrue(MatchStr(settingVal, [SC_OPEN_WITH, SC_SEARCH, '2']), 'DelphiExtensionSettings|' + s +
 			' should match the initial setting');
 	end;

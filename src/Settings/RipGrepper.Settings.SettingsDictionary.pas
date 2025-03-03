@@ -16,11 +16,11 @@ type
 	ISettingsCollection = IDictionary<TSettingSection, ISettingsKeyCollection>;
 
 	TSettingsDictionary = class
-
-		private
+ 		private
 			FInnerDictionary : ISettingsCollection;
 			FSectionName : string;
 			procedure AddNewSectionAndKey(const _key : string; _setting : ISetting);
+			function GetCount(): Integer;
 			function GetSections(Index : string) : ISettingsKeyCollection; overload;
 			property SectionName : string read FSectionName;
 
@@ -34,6 +34,7 @@ type
 			function GetSections() : IReadOnlyCollection<string>; overload;
 			procedure LoadFromFile(_ini : TMemIniFile);
 			procedure SaveToFile(_ini : TMemIniFile);
+			property Count: Integer read GetCount;
 			property InnerDictionary : ISettingsCollection read FInnerDictionary;
 			property Sections[index : string] : ISettingsKeyCollection read GetSections; default;
 	end;
@@ -103,6 +104,11 @@ procedure TSettingsDictionary.CreateSetting(const _key : string; _setting : ISet
 begin
 	AddOrChange(_key, _setting);
 	TDebugUtils.MsgFmt('TSettingsDictionary.CreateSetting - [%s] %s', [SectionName, _key]);
+end;
+
+function TSettingsDictionary.GetCount(): Integer;
+begin
+	Result := InnerDictionary.Count;
 end;
 
 function TSettingsDictionary.GetSections(Index : string) : ISettingsKeyCollection;

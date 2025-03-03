@@ -42,6 +42,7 @@ type
 			procedure CreateIniFile;
 			function DictToLog(_dict : TSettingsDictionary) : TArray<TArray<string>>;
 			procedure FreeOwnIniFile;
+			function GetCount(): Integer;
 			function GetIniFile : IShared<TMemIniFile>;
 			procedure ReadSettings;
 			procedure SetChildrenIniFiles;
@@ -50,7 +51,7 @@ type
 			procedure SetOwnerSetings(const _section : string = ''; const _bForceWriteIni : Boolean = False;
 				const _bClearSection : Boolean = False);
 		protected
-			FSettingsDict : TSettingsDictionary;
+			FSettingsDict : IShared<TSettingsDictionary>;
 			FChildren : TArrayEx<TPersistableSettings>;
 			FIsModified : Boolean;
 			class var FLockObject : TObject;
@@ -63,19 +64,19 @@ type
 			procedure Init; virtual; abstract;
 			function GetIniSectionName : string; virtual;
 			function ToLogString : string; virtual;
-
 		public
 			constructor Create(const _Owner : TPersistableSettings); overload;
 			constructor Create; overload;
 			procedure Copy(const _other : TPersistableSettings); virtual;
 			procedure ReLoad; virtual;
 
+			property Count: Integer read GetCount;
 			property IniFile : IShared<TMemIniFile> read GetIniFile write SetIniFile;
 			property IniSectionName : string read GetIniSectionName write SetIniSectionName;
 			property IsAlreadyRead : Boolean read GetIsAlreadyRead;
 			property IsModified : Boolean read GetIsModified;
 			property OwnIniFile : Boolean read FOwnIniFile write FOwnIniFile;
-			property SettingsDict : TSettingsDictionary read FSettingsDict write FSettingsDict;
+			property SettingsDict : IShared<TSettingsDictionary> read FSettingsDict write FSettingsDict;
 			destructor Destroy; override;
 			function AddChildSettings(_settings : TPersistableSettings) : TPersistableSettings;
 			function RemoveChildSettings(_settings : TPersistableSettings) : Boolean;
@@ -136,7 +137,7 @@ begin
 
 	FIsModified := False;
 	FIsAlreadyRead := False;
-	FSettingsDict := TSettingsDictionary.Create(IniSectionName);
+	FSettingsDict := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create(IniSectionName));
 	dbgMsg.MsgFmt('Create FSettingsDict %p for section: %s', [Pointer(FSettingsDict), IniSectionName]);
 	FbDefaultLoaded := False;
 	if not Assigned(FIniFile) then begin
@@ -160,7 +161,6 @@ begin
 	end;
 	FreeOwnIniFile;
 	dbgMsg.MsgFmt('Free FSettingsDict %p for section: %s', [Pointer(FSettingsDict), IniSectionName]);
-	FSettingsDict.Free;
 	inherited;
 end;
 
@@ -204,7 +204,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.CopySettingsDictSection');
 	dbgMsg.MsgFmt('Copy TO [%s]', [IniSectionName]);
-	SettingsDict.CopySection(IniSectionName, _other.SettingsDict);
+	SettingsDict.CopySection(IniSectionName, _other.SettingsDict());
 end;
 
 procedure TPersistableSettings.CreateIniFile;
@@ -247,6 +247,11 @@ begin
 			FIniFile := nil;
 		end;
 	end;
+end;
+
+function TPersistableSettings.GetCount(): Integer;
+begin
+	Result := SettingsDict.Count;
 end;
 
 function TPersistableSettings.GetIniFile : IShared<TMemIniFile>;

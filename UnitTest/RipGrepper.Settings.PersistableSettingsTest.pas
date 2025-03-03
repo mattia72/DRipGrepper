@@ -31,7 +31,7 @@ type
 			procedure TearDown;
 
 			[Test]
-			procedure FirstRefreshMembersShouldLoadInitialValue;
+			procedure LoadFromDictShouldLoadInitialValue();
 			[Test]
 			procedure LoadDefaultsShouldReadDefaultFromIni;
 			[Test]
@@ -72,9 +72,9 @@ begin
 	inherited;
 end;
 
-procedure TPersistableSettingsTest.FirstRefreshMembersShouldLoadInitialValue;
+procedure TPersistableSettingsTest.LoadFromDictShouldLoadInitialValue();
 begin
-//  FSettings1.LoadDefaultsFromDict;
+	FSettings1.LoadFromDict;
 	Assert.AreEqual(INITIAL_STR_VALUE, FSettings1.StrSetting);
 end;
 
@@ -94,8 +94,6 @@ end;
 procedure TPersistableSettingsTest.AfterCopyValuesValuesShouldBeEqual;
 begin
 	CreateDefaultsInIni;
-//  FSettings1.LoadDefaultsFromDict;
-	FSettings1.LoadFromDict;
 	var
 	s := TTestSettings.Create(INI_SECTION);
 	try
@@ -119,11 +117,11 @@ begin
 
 	//	FSettings1.CopyDefaultsToValues;
 	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings1.SettingsDict.GetSetting('StrSetting')), 'StrSetting.Value should be equal');
-	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings1.SettingsDict.GetSetting('StrSetting', True)),
+	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings1.SettingsDict.GetSetting('StrSetting')),
 		'StrSetting.Default should be equal');
 	// it is in fact StrSetting_DEFAULT.Value;
 	Assert.AreEqual(VarToStr(FSettings1.SettingsDict.GetSetting('StrSetting' {+DEFAULT_KEY})),
-		VarToStr(FSettings1.SettingsDict.GetSetting('StrSetting', True)), 'StrSetting.Default should be equal StrSetting_DEFAULT.Value');
+		VarToStr(FSettings1.SettingsDict.GetSetting('StrSetting')), 'StrSetting.Default should be equal StrSetting_DEFAULT.Value');
 
 end;
 

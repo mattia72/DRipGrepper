@@ -3,7 +3,8 @@ unit RipGrepper.Settings.FilePersister;
 interface
 
 uses
-	System.IniFiles;
+	System.IniFiles,
+	ArrayEx;
 
 type
 	IFilePersister<T> = interface(IInterface)
@@ -55,7 +56,7 @@ type
 			procedure SaveToFile(const _value : Boolean);
 	end;
 
-	TMemIniStrArrayPersister = class(TInterfacedObject, IFilePersister < TArray < string >> )
+	TMemIniStrArrayPersister = class(TInterfacedObject, IFilePersister < TArrayEx < string >> )
 		private
 			FIniFile : TMemIniFile;
 			FIniKey : string;
@@ -64,9 +65,9 @@ type
 		public
 			constructor Create(_ini : TMemIniFile; _sIniSection, _sKey : string);
 
-			function LoadFromFile() : TArray<string>;
+			function LoadFromFile() : TArrayEx<string>;
 			procedure ReloadFile();
-			procedure SaveToFile(const _value : TArray<string>);
+			procedure SaveToFile(const _value : TArrayEx<string>);
 	end;
 
 implementation
@@ -156,7 +157,7 @@ begin
 	FIniFile.ReLoadIniFile();
 end;
 
-function TMemIniStrArrayPersister.LoadFromFile() : TArray<string>;
+function TMemIniStrArrayPersister.LoadFromFile(): TArrayEx<string>;
 var
 	i : Integer;
 	s : string;
@@ -167,23 +168,21 @@ begin
 		s := FIniFile.ReadString(FIniSection, Format('%s_Item%d', [FIniKey, i]), '');
 		if s = '' then
 			Break;
-		Result := Result + [s];
+		Result.Add(s);
 		Inc(i);
 	end;
 end;
 
-procedure TMemIniStrArrayPersister.SaveToFile(const _value : TArray<string>);
+procedure TMemIniStrArrayPersister.SaveToFile(const _value : TArrayEx<string>);
 var
 	multiLineVal : TMultiLineString;
 	i : Integer;
-	len : Integer;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMemIniStrArrayPersister.SaveToFile');
-	i := low(_value);
-	len := Length(_value);
+	i := 0;
 	dbgMsg.Msg('Write Array');
-	while i <= len do begin
+	while i <= _value.count do begin
 		multiLineVal := _value[i];
 		FIniFile.WriteString(FIniSection, Format('%s_Item%d', [FIniKey, i]), multiLineVal.GetLine(0));
 		Inc(i);
