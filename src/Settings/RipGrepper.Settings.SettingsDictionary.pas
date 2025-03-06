@@ -7,7 +7,7 @@ uses
 	Spring.Collections,
 	System.Variants,
 	System.Classes,
-	System.IniFiles;
+	System.IniFiles, RipGrepper.Settings.FilePersister;
 
 type
 	TSettingSection = string;
@@ -16,11 +16,11 @@ type
 	ISettingsCollection = IDictionary<TSettingSection, ISettingsKeyCollection>;
 
 	TSettingsDictionary = class
- 		private
+		private
 			FInnerDictionary : ISettingsCollection;
 			FSectionName : string;
 			procedure AddNewSectionAndKey(const _key : string; _setting : ISetting);
-			function GetCount(): Integer;
+			function GetCount() : Integer;
 			function GetSections(Index : string) : ISettingsKeyCollection; overload;
 			property SectionName : string read FSectionName;
 
@@ -29,12 +29,13 @@ type
 			constructor Create; overload;
 			procedure AddOrChange(const _key : string; _setting : ISetting);
 			procedure CopySection(const _section : string; _from : TSettingsDictionary);
-			procedure CreateSetting(const _key : string; _setting : ISetting);
+			procedure CreateSetting(const _key : string; _setting : ISetting; _factory:
+				IPersisterFactory);
 			function GetSetting(const _key : string) : ISetting; overload;
 			function GetSections() : IReadOnlyCollection<string>; overload;
-			procedure LoadFromFile(_ini : TMemIniFile);
-			procedure SaveToFile(_ini : TMemIniFile);
-			property Count: Integer read GetCount;
+			procedure LoadFromFile();
+			procedure SaveToFile();
+			property Count : Integer read GetCount;
 			property InnerDictionary : ISettingsCollection read FInnerDictionary;
 			property Sections[index : string] : ISettingsKeyCollection read GetSections; default;
 	end;
@@ -100,13 +101,24 @@ begin
 	FInnerDictionary.Add(_section, _from[_section]);
 end;
 
-procedure TSettingsDictionary.CreateSetting(const _key : string; _setting : ISetting);
+procedure TSettingsDictionary.CreateSetting(const _key : string; _setting : ISetting; _factory: IPersisterFactory);
 begin
+
+	if Supports(_setting, IFilePersister<string>) then begin
+		TStringSetting(_setting).Persister :=_factory.GetStringPersister(SectionName, _key);
+	end else if Supports(_setting, IFilePersister<Integer>) then begin
+		TIntegerSetting(_setting).Persister := _factory.GetIntegerPersister(SectionName, _key);
+	end else if Supports(_setting, IFilePersister<Boolean>) then begin
+		TBoolSetting(_setting).Persister := _factory.GetBoolPersister(SectionName, _key);
+	end else if Supports(_setting, IFilePersister < TArray < string >> ) then begin
+ 		TArraySetting(_setting).Persister := _factory.GetStrArrayPersister(SectionName, _key);
+	end;
+
 	AddOrChange(_key, _setting);
 	TDebugUtils.MsgFmt('TSettingsDictionary.CreateSetting - [%s] %s', [SectionName, _key]);
 end;
 
-function TSettingsDictionary.GetCount(): Integer;
+function TSettingsDictionary.GetCount() : Integer;
 begin
 	Result := InnerDictionary.Count;
 end;
@@ -131,29 +143,21 @@ begin
 	Result := FInnerDictionary.Keys;
 end;
 
-procedure TSettingsDictionary.LoadFromFile(_ini : TMemIniFile);
+procedure TSettingsDictionary.LoadFromFile();
 var
-	strs : IShared<TStringList>;
 	key : string;
 	value : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.LoadFromFile');
 
-	strs := Shared.Make<TStringList>();
-	_ini.ReadSectionValues(SectionName, strs);
-	dbgMsg.Msg(strs.DelimitedText);
-
-	// create base settings
-	for var i : integer := 0 to strs.Count - 1 do begin
-		key := strs.Names[i];
-		value := strs.Values[key];
-        InnerDictionary[SectionName][key].LoadFromFile();
+	for key in InnerDictionary[SectionName].Keys do begin
+		InnerDictionary[SectionName][key].LoadFromFile();
 		dbgMsg.MsgFmt('LoadFromFile [%s] %s = %s', [SectionName, key, value]);
 	end;
 end;
 
-procedure TSettingsDictionary.SaveToFile(_ini : TMemIniFile);
+procedure TSettingsDictionary.SaveToFile();
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.SaveToFile');

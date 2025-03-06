@@ -200,7 +200,7 @@ end;
 procedure TGuiSearchTextParams.Init;
 begin
     FSearchParams := TStringSetting.Create('');
-	SettingsDict.CreateSetting('SearchParams', FSearchParams);
+	CreateSetting('SearchParams', FSearchParams);
 end;
 
 procedure TGuiSearchTextParams.LoadFromDict();

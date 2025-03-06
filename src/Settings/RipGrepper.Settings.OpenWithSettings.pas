@@ -43,7 +43,7 @@ begin
 	IniSectionName := OPEN_WITH_SETTINGS;
 	FCommandList := TArraySetting.Create();
 	inherited Create(_Owner);
-	TDebugUtils.DebugMessage('TOpenWithSettings.Create: ' + IniFile.FileName + '[' + IniSectionName + ']');
+	TDebugUtils.DebugMessage('TOpenWithSettings.Create: ' + '[' + IniSectionName + ']');
 end;
 
 destructor TOpenWithSettings.Destroy;
@@ -73,7 +73,7 @@ begin
 	for var i : integer := 0 to Length(DEFAULT_EDITORS) - 1 do begin
 		Command[i] := DEFAULT_EDITORS[i];
 	end;
-	SettingsDict.CreateSetting(OPENWITH_COMMAND_KEY, FCommandList);
+	CreateSetting(OPENWITH_COMMAND_KEY, FCommandList);
 end;
 
 procedure TOpenWithSettings.ReadIni;
@@ -108,7 +108,7 @@ procedure TOpenWithSettings.ForceWriteToIni;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.ForceWriteToIni');
-	SettingsDict.SaveToFile(IniFile());
+	SettingsDict.SaveToFile();
 	UpdateIniFile(OPEN_WITH_SETTINGS, True, True);
 end;
 

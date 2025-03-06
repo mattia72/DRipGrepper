@@ -12,7 +12,8 @@ uses
 	RipGrepper.Settings.SettingsDictionary,
 	System.SyncObjs,
 	ArrayEx,
-	Spring;
+	Spring,
+	RipGrepper.Settings.FilePersister;
 
 type
 
@@ -33,29 +34,30 @@ type
 			class destructor Destroy;
 
 		private
-			FIniFile : IShared<TMemIniFile>; // TODO IFilePersister
+			FPersisterFactory : IPersisterFactory;
 			FbDefaultLoaded : Boolean;
 			FIniSectionName : string;
 			FIsAlreadyRead : Boolean;
 			FOwner : TPersistableSettings;
-			FOwnIniFile : Boolean;
-			procedure CreateIniFile;
+			FIsOwnerOfPersisterFactory : Boolean;
 			function DictToLog(_dict : TSettingsDictionary) : TArray<TArray<string>>;
 			procedure FreeOwnIniFile;
-			function GetCount(): Integer;
-			function GetIniFile : IShared<TMemIniFile>;
+			function GetCount() : Integer;
+			function GetPersisterFactory() : IPersisterFactory;
 			procedure ReadSettings;
 			procedure SetChildrenIniFiles;
-			procedure SetIniFile(const Value : IShared<TMemIniFile>);
+			procedure SetPersisterFactory(const Value : IPersisterFactory);
 			procedure SetIniSectionName(const Value : string);
 			procedure SetOwnerSetings(const _section : string = ''; const _bForceWriteIni : Boolean = False;
 				const _bClearSection : Boolean = False);
+
 		protected
 			FSettingsDict : IShared<TSettingsDictionary>;
 			FChildren : TArrayEx<TPersistableSettings>;
 			FIsModified : Boolean;
 			class var FLockObject : TObject;
 
+			procedure CreateSetting(const _key : string; _setting : ISetting);
 			function GetIsAlreadyRead : Boolean; virtual;
 			function GetIsModified : Boolean; virtual;
 			/// <summary>TPersistableSettings.Init
@@ -64,18 +66,18 @@ type
 			procedure Init; virtual; abstract;
 			function GetIniSectionName : string; virtual;
 			function ToLogString : string; virtual;
+
 		public
 			constructor Create(const _Owner : TPersistableSettings); overload;
 			constructor Create; overload;
 			procedure Copy(const _other : TPersistableSettings); virtual;
 			procedure ReLoad; virtual;
 
-			property Count: Integer read GetCount;
-			property IniFile : IShared<TMemIniFile> read GetIniFile write SetIniFile;
+			property Count : Integer read GetCount;
+			property PersisterFactory : IPersisterFactory read GetPersisterFactory write SetPersisterFactory;
 			property IniSectionName : string read GetIniSectionName write SetIniSectionName;
 			property IsAlreadyRead : Boolean read GetIsAlreadyRead;
 			property IsModified : Boolean read GetIsModified;
-			property OwnIniFile : Boolean read FOwnIniFile write FOwnIniFile;
 			property SettingsDict : IShared<TSettingsDictionary> read FSettingsDict write FSettingsDict;
 			destructor Destroy; override;
 			function AddChildSettings(_settings : TPersistableSettings) : TPersistableSettings;
@@ -123,9 +125,9 @@ begin
 	inherited Create();
 	FOwner := _Owner;
 	if Assigned(FOwner) then begin
-		FIniFile := _Owner.IniFile;
+		FPersisterFactory := _Owner.PersisterFactory;
 	end;
-	FOwnIniFile := False;
+	FIsOwnerOfPersisterFactory := False;
 	Create();
 end;
 
@@ -140,9 +142,9 @@ begin
 	FSettingsDict := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create(IniSectionName));
 	dbgMsg.MsgFmt('Create FSettingsDict %p for section: %s', [Pointer(FSettingsDict), IniSectionName]);
 	FbDefaultLoaded := False;
-	if not Assigned(FIniFile) then begin
-		CreateIniFile();
-		FOwnIniFile := True;
+	if not Assigned(FPersisterFactory) then begin
+		FPersisterFactory := TIniPersister.Create();
+		FIsOwnerOfPersisterFactory := True;
 	end;
 	Init();
 end;
@@ -160,7 +162,7 @@ begin
 		s.Free;
 	end;
 	FreeOwnIniFile;
-	dbgMsg.MsgFmt('Free FSettingsDict %p for section: %s', [Pointer(FSettingsDict), IniSectionName]);
+	dbgMsg.MsgFmt('Free FSettingsDict %p for section: %s', [Pointer(FSettingsDict()), IniSectionName]);
 	inherited;
 end;
 
@@ -207,18 +209,9 @@ begin
 	SettingsDict.CopySection(IniSectionName, _other.SettingsDict());
 end;
 
-procedure TPersistableSettings.CreateIniFile;
+procedure TPersistableSettings.CreateSetting(const _key : string; _setting : ISetting);
 begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.CreateIniFile', True);
-	{$IFDEF STANDALONE}
-	FIniFile := Shared.Make<TMemIniFile>(
-		{ } TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8));
-	{$ELSE}
-	FIniFile := Shared.Make<TMemIniFile>(
-		{ } TMemIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'), TEncoding.UTF8));
-	{$ENDIF}
-	dbgMsg.MsgFmt('Create FIniFile %p of section: %s', [Pointer(FIniFile), GetIniSectionName()]);
+	SettingsDict.CreateSetting(_key, _setting, PersisterFactory);
 end;
 
 function TPersistableSettings.DictToLog(_dict : TSettingsDictionary) : TArray<TArray<string>>;
@@ -240,23 +233,23 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.FreeOwnIniFile', True);
 
-	if FOwnIniFile then begin
-		if Assigned(FIniFile) then begin
-			dbgMsg.MsgFmt('Free FIniFile %p of section: %s', [Pointer(IniFile), GetIniSectionName()]);
-			// FIniFile.Free;
-			FIniFile := nil;
+	if FIsOwnerOfPersisterFactory then begin
+		if Assigned(FPersisterFactory) then begin
+			dbgMsg.MsgFmt('Free FPersisterFactory %p of section: %s', [Pointer(PersisterFactory), GetIniSectionName()]);
+			// FPersisterFactory.Free;
+			FPersisterFactory := nil;
 		end;
 	end;
 end;
 
-function TPersistableSettings.GetCount(): Integer;
+function TPersistableSettings.GetCount() : Integer;
 begin
 	Result := SettingsDict.Count;
 end;
 
-function TPersistableSettings.GetIniFile : IShared<TMemIniFile>;
+function TPersistableSettings.GetPersisterFactory() : IPersisterFactory;
 begin
-	Result := FIniFile;
+	Result := FPersisterFactory;
 end;
 
 function TPersistableSettings.GetIniSectionName : string;
@@ -314,16 +307,20 @@ begin
 		Exit;
 	end;
 
-	dbgMsg.MsgFmt('Read section %s from IniFile %p', [IniSectionName, Pointer(IniFile)]);
-	SettingsDict.LoadFromFile(IniFile());
-    FIsAlreadyRead := True;
+	dbgMsg.MsgFmt('Read section %s from PersisterFactory %p', [IniSectionName, Pointer(PersisterFactory)]);
+	SettingsDict.LoadFromFile();
+	FIsAlreadyRead := True;
 end;
 
 procedure TPersistableSettings.ReLoadFromDisk;
+var
+	fh : IFileHandler;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.ReLoadFromDisk');
-	FIniFile.ReLoadIniFile();
+	if Supports(FPersisterFactory, IFileHandler, fh) then begin
+		fh.ReLoadFile();
+	end;
 	ReLoad;
 end;
 
@@ -333,7 +330,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.ReLoad');
 
 	for var s in FChildren do begin
-		dbgMsg.MsgFmt('ReLoad from IniFile %p for section %s', [Pointer(s.IniFile), s.IniSectionName]);
+		dbgMsg.MsgFmt('ReLoad from PersisterFactory %p for section %s', [Pointer(s.PersisterFactory), s.IniSectionName]);
 		s.ReLoad;
 	end;
 	FIsAlreadyRead := False;
@@ -346,16 +343,17 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.SetChildrenIniFiles');
 
 	for var s in FChildren do begin
-		dbgMsg.MsgFmt('Change IniFile %p to %p for %s', [Pointer(s.IniFile), Pointer(IniFile), s.IniSectionName]);
-		s.IniFile := IniFile;
+		dbgMsg.MsgFmt('Change PersisterFactory %p to %p for %s', [Pointer(s.PersisterFactory), Pointer(PersisterFactory),
+			s.IniSectionName]);
+		s.PersisterFactory := PersisterFactory;
 	end;
 end;
 
-procedure TPersistableSettings.SetIniFile(const Value : IShared<TMemIniFile>);
+procedure TPersistableSettings.SetPersisterFactory(const Value : IPersisterFactory);
 begin
-	FIniFile := Value;
-	if not FOwnIniFile and Assigned(FOwner) and (FOwner.IniFile <> IniFile) then begin
-		FOwner.IniFile := IniFile;
+	FPersisterFactory := Value;
+	if not FIsOwnerOfPersisterFactory and Assigned(FOwner) and (FOwner.PersisterFactory <> PersisterFactory) then begin
+		FOwner.PersisterFactory := PersisterFactory;
 	end;
 	SetChildrenIniFiles();
 end;
@@ -378,20 +376,14 @@ begin
 end;
 
 function TPersistableSettings.ToLogString : string;
-var
-	strs : TStrings;
 begin
-	strs := TStringList.Create();
-	try
-		IniFile.GetStrings(strs);
-		Result := strs.DelimitedText;
-	finally
-		strs.Free;
-	end
+	Result := PersisterFactory.ToLogString();
 end;
 
 procedure TPersistableSettings.UpdateIniFile(const _section : string = ''; const _bForceWriteIni : Boolean = False;
 const _bClearSection : Boolean = False);
+var
+	fh : IFileHandler;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
@@ -412,17 +404,20 @@ begin
 	end;
 
 	// var arr := DictToLog(SettingsDict);
-	if Assigned(IniFile) then begin
+	if Assigned(PersisterFactory) then begin
 		var
 		lock := TLockGuard.NewLock(FLockObject);
 		dbgMsg.Msg('Lock Entered to UpdateIniFile');
 		try
 			var
 			sectionName := IfThen((_section = ''), IniSectionName, _section);
-			dbgMsg.MsgFmt('IniFile %p update begin on [%s]', [Pointer(IniFile), sectionName]);
+			dbgMsg.MsgFmt('PersisterFactory %p update begin on [%s]', [Pointer(PersisterFactory), sectionName]);
 
-			IniFile.UpdateFile;
-			// dbgMsg.Msg('[SearchTextsHistory] Item 0:' + IniFile.ReadString('SearchTextsHistory', 'Item_0', 'not exists'));
+			if Supports(FPersisterFactory, IFileHandler, fh) then begin
+				fh.WriteFile();
+			end;
+
+			// dbgMsg.Msg('[SearchTextsHistory] Item 0:' + PersisterFactory.ReadString('SearchTextsHistory', 'Item_0', 'not exists'));
 		except
 			on E : Exception do begin
 				dbgMsg.ErrorMsgFmt('%s' + CRLF + '%s', [E.Message, E.StackTrace]);
@@ -431,13 +426,14 @@ begin
 		end;
 		dbgMsg.Msg('Lock Released');
 	end else begin
-		dbgMsg.ErrorMsg('IniFile not assigned!' + GetIniSectionName());
+		dbgMsg.ErrorMsg('PersisterFactory not assigned!' + GetIniSectionName());
 	end;
 
 end;
 
 procedure TPersistableSettings.WriteSettingsDictToIni(const _section : string = ''; const _bClearSection : Boolean = False);
 var
+	fh : IFileHandler;
 	section : string;
 begin
 	var
@@ -450,10 +446,13 @@ begin
 
 	if _bClearSection then begin
 		dbgMsg.MsgFmt('Clear section [%s]', [section]);
-		IniFile.EraseSection(section);
+
+		if Supports(FPersisterFactory, IFileHandler, fh) then begin
+			fh.EraseSection(section);
+		end
 	end;
 
-    SettingsDict.SaveToFile(IniFile());
+	SettingsDict.SaveToFile();
 end;
 
 end.

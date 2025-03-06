@@ -5,7 +5,8 @@ interface
 uses
 	RipGrepper.Settings.Persistable,
 	System.IniFiles,
-	RipGrepper.Common.SimpleTypes, RipGrepper.Settings.SettingVariant;
+	RipGrepper.Common.SimpleTypes,
+	RipGrepper.Settings.SettingVariant;
 
 type
 	TFilterSettings = class(TPersistableSettings)
@@ -25,18 +26,18 @@ type
 				{ } TFilterSettings.SETTING_USE_REGEX);
 
 		private
-			FChosenFilterMode: TStringSetting;
+			FChosenFilterMode : TStringSetting;
 			FFilterModes : TFilterModes;
 			FIsCaseSensitive : TBoolSetting;
 			FIsUseRegex : TBoolSetting;
-			function GetChosenFilterMode(): string;
+			function GetChosenFilterMode() : string;
 			function GetFilterModes : TFilterModes;
-			function GetIsCaseSensitive(): Boolean;
-			function GetIsUseRegex(): Boolean;
-			procedure SetChosenFilterMode(const Value: string);
+			function GetIsCaseSensitive() : Boolean;
+			function GetIsUseRegex() : Boolean;
+			procedure SetChosenFilterMode(const Value : string);
 			procedure SetFilterModes(const Value : TFilterModes);
-			procedure SetIsCaseSensitive(const Value: Boolean);
-			procedure SetIsUseRegex(const Value: Boolean);
+			procedure SetIsCaseSensitive(const Value : Boolean);
+			procedure SetIsUseRegex(const Value : Boolean);
 
 		protected
 
@@ -47,12 +48,10 @@ type
 			procedure Init; override;
 			procedure LoadFromDict(); override;
 			procedure StoreToDict; override;
-			property ChosenFilterMode: string read GetChosenFilterMode write
-				SetChosenFilterMode;
+			property ChosenFilterMode : string read GetChosenFilterMode write SetChosenFilterMode;
 			property FilterModes : TFilterModes read GetFilterModes write SetFilterModes;
-			property IsCaseSensitive: Boolean read GetIsCaseSensitive write
-				SetIsCaseSensitive;
-			property IsUseRegex: Boolean read GetIsUseRegex write SetIsUseRegex;
+			property IsCaseSensitive : Boolean read GetIsCaseSensitive write SetIsCaseSensitive;
+			property IsUseRegex : Boolean read GetIsUseRegex write SetIsUseRegex;
 	end;
 
 implementation
@@ -69,16 +68,16 @@ constructor TFilterSettings.Create(const _Owner : TPersistableSettings);
 begin
 	IniSectionName := INI_SECTION;
 	inherited Create(_Owner);
-	TDebugUtils.DebugMessage('TFilterSettings.Create: ' + IniFile.FileName + '[' + GetIniSectionName + ']');
+	TDebugUtils.DebugMessage('TFilterSettings.Create: ' + '[' + GetIniSectionName + ']');
 end;
 
 constructor TFilterSettings.Create;
 begin
 	IniSectionName := INI_SECTION;
 	inherited Create;
-    FChosenFilterMode := TStringSetting.Create(FILE_FILTER_MODE);
-    FIsCaseSensitive := TBoolSetting.Create(False);
-    FIsUseRegex := TBoolSetting.Create(False);
+	FChosenFilterMode := TStringSetting.Create(FILE_FILTER_MODE);
+	FIsCaseSensitive := TBoolSetting.Create(False);
+	FIsUseRegex := TBoolSetting.Create(False);
 end;
 
 destructor TFilterSettings.Destroy;
@@ -86,7 +85,7 @@ begin
 	inherited Destroy(); // ok;
 end;
 
-function TFilterSettings.GetChosenFilterMode(): string;
+function TFilterSettings.GetChosenFilterMode() : string;
 begin
 	Result := FChosenFilterMode.Value;
 end;
@@ -122,21 +121,21 @@ begin
 	Result := FFilterModes;
 end;
 
-function TFilterSettings.GetIsCaseSensitive(): Boolean;
+function TFilterSettings.GetIsCaseSensitive() : Boolean;
 begin
 	Result := FIsCaseSensitive.Value;
 end;
 
-function TFilterSettings.GetIsUseRegex(): Boolean;
+function TFilterSettings.GetIsUseRegex() : Boolean;
 begin
 	Result := FIsUseRegex.Value;
 end;
 
 procedure TFilterSettings.Init;
 begin
-	SettingsDict.CreateSetting('FilterMode', FChosenFilterMode);
-	SettingsDict.CreateSetting('FilterMode.CaseSensitive', FIsCaseSensitive);
-	SettingsDict.CreateSetting('FilterMode.UseRegex', FIsUseRegex);
+	CreateSetting('FilterMode', FChosenFilterMode);
+	CreateSetting('FilterMode.CaseSensitive', FIsCaseSensitive);
+	CreateSetting('FilterMode.UseRegex', FIsUseRegex);
 end;
 
 procedure TFilterSettings.LoadFromDict;
@@ -144,7 +143,7 @@ begin
 	GetFilterModes();
 end;
 
-procedure TFilterSettings.SetChosenFilterMode(const Value: string);
+procedure TFilterSettings.SetChosenFilterMode(const Value : string);
 begin
 	FChosenFilterMode.Value := Value;
 end;
@@ -162,12 +161,12 @@ begin
 	FIsModified := True;
 end;
 
-procedure TFilterSettings.SetIsCaseSensitive(const Value: Boolean);
+procedure TFilterSettings.SetIsCaseSensitive(const Value : Boolean);
 begin
 	FIsCaseSensitive.Value := Value;
 end;
 
-procedure TFilterSettings.SetIsUseRegex(const Value: Boolean);
+procedure TFilterSettings.SetIsUseRegex(const Value : Boolean);
 begin
 	FIsUseRegex.Value := Value;
 end;

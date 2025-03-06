@@ -13,7 +13,8 @@ uses
 	System.Generics.Collections,
 	RipGrepper.CommandLine.OptionStrings,
 	RipGrepper.Common.SimpleTypes,
-	Spring, RipGrepper.Settings.SettingVariant;
+	Spring,
+	RipGrepper.Settings.SettingVariant;
 
 type
 	ERipGrepPathInitResult = (rgpiNotSet, rgpiFound, rgpiNotFound);
@@ -29,18 +30,18 @@ type
 			FSearchText : string;
 			FReplaceText : string;
 			FFileMasks : TStringSetting;
-			FGuiSearchTextParams: IShared<TGuiSearchTextParams>;
+			FGuiSearchTextParams : IShared<TGuiSearchTextParams>;
 			FRipGrepPathInitResult : ERipGrepPathInitResult;
 			FRipGrepPath : TStringSetting;
 			procedure AddQuotedRgArgs(var _cmdLine : IShared<TStringList>; const _quoteChar : Char; const _shell : TShellType);
-			function GetFileMasks(): string;
+			function GetFileMasks() : string;
 			function GetIsRgPathInitOk() : Boolean;
 			function GetRipGrepPath : string;
-			function GetSearchPath(): string;
-			procedure SetFileMasks(const Value: string);
-			procedure SetGuiSearchTextParams(const Value: IShared<TGuiSearchTextParams>);
+			function GetSearchPath() : string;
+			procedure SetFileMasks(const Value : string);
+			procedure SetGuiSearchTextParams(const Value : IShared<TGuiSearchTextParams>);
 			procedure SetRgExeOptions(const Value : TOptionStrings);
-			procedure SetSearchPath(const Value: string);
+			procedure SetSearchPath(const Value : string);
 			procedure SetReplaceText(const Value : string);
 			procedure SetRipGrepPath(const Value : string);
 			procedure SetSearchText(const Value : string);
@@ -57,11 +58,11 @@ type
 			procedure ReadIni; override;
 			procedure LoadFromDict; override;
 			function TryGetRipGrepPath(out _rgPath : string) : ERipGrepPathInitResult;
-			property FileMasks: string read GetFileMasks write SetFileMasks;
-			property GuiSearchTextParams: IShared<TGuiSearchTextParams> read FGuiSearchTextParams write SetGuiSearchTextParams;
+			property FileMasks : string read GetFileMasks write SetFileMasks;
+			property GuiSearchTextParams : IShared<TGuiSearchTextParams> read FGuiSearchTextParams write SetGuiSearchTextParams;
 			property IsRgPathInitOk : Boolean read GetIsRgPathInitOk;
 			property RgExeOptions : TOptionStrings read FRgExeOptions write SetRgExeOptions;
-			property SearchPath: string read GetSearchPath write SetSearchPath;
+			property SearchPath : string read GetSearchPath write SetSearchPath;
 			property SearchText : string read FSearchText write SetSearchText;
 			property RipGrepArguments : IShared<TRipGrepArguments> read FRipGrepArguments write FRipGrepArguments;
 			property RipGrepPath : string read GetRipGrepPath write SetRipGrepPath;
@@ -106,8 +107,8 @@ begin
 	inherited Destroy() // ok;
 end;
 
-procedure TRipGrepParameterSettings.AddQuotedRgArgs(var _cmdLine : IShared<TStringList>; const _quoteChar : Char; const _shell :
-	TShellType);
+procedure TRipGrepParameterSettings.AddQuotedRgArgs(var _cmdLine : IShared<TStringList>; const _quoteChar : Char;
+	const _shell : TShellType);
 var
 	arrParamValue : TArrayEx<string>;
 	key : string;
@@ -181,7 +182,7 @@ begin
 	end;
 end;
 
-function TRipGrepParameterSettings.GetFileMasks(): string;
+function TRipGrepParameterSettings.GetFileMasks() : string;
 begin
 	Result := FFileMasks.Value;
 end;
@@ -199,28 +200,28 @@ end;
 
 function TRipGrepParameterSettings.GetRipGrepPath : string;
 var
-    path : string;
+	path : string;
 begin
 	if (rgpiNotSet = FRipGrepPathInitResult) then begin
 		FRipGrepPathInitResult := TryGetRipGrepPath(path);
-        FRipGrepPath.Value := path;
+		FRipGrepPath.Value := path;
 	end;
 	Result := FRipGrepPath.Value;
 end;
 
-function TRipGrepParameterSettings.GetSearchPath(): string;
+function TRipGrepParameterSettings.GetSearchPath() : string;
 begin
 	Result := FSearchPath.Value;
 end;
 
 procedure TRipGrepParameterSettings.Init;
 begin
-    FSearchPath := TStringSetting.Create('');
+	FSearchPath := TStringSetting.Create('');
 	FRipGrepPath := TStringSetting.Create('');
 	FFileMasks := TStringSetting.Create('');
-	SettingsDict.CreateSetting(RG_INI_KEY_RGPATH, FSearchPath);
-	SettingsDict.CreateSetting(SEARCHPATH_KEY, FSearchPath);
-	SettingsDict.CreateSetting(FILEMASKS_KEY, FFileMasks);
+	CreateSetting(RG_INI_KEY_RGPATH, FSearchPath);
+	CreateSetting(SEARCHPATH_KEY, FSearchPath);
+	CreateSetting(FILEMASKS_KEY, FFileMasks);
 	// inherited Init(); abstract
 end;
 
@@ -275,12 +276,12 @@ begin
 	// inherited abstract
 end;
 
-procedure TRipGrepParameterSettings.SetFileMasks(const Value: string);
+procedure TRipGrepParameterSettings.SetFileMasks(const Value : string);
 begin
 	FFileMasks.Value := Value;
 end;
 
-procedure TRipGrepParameterSettings.SetGuiSearchTextParams(const Value: IShared<TGuiSearchTextParams>);
+procedure TRipGrepParameterSettings.SetGuiSearchTextParams(const Value : IShared<TGuiSearchTextParams>);
 begin
 	RemoveChildSettings(FGuiSearchTextParams);
 	FGuiSearchTextParams.Clear;
@@ -297,7 +298,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepParameterSettings.SetSearchPath(const Value: string);
+procedure TRipGrepParameterSettings.SetSearchPath(const Value : string);
 begin
 	if FSearchPath.Value <> Value then begin
 		TDebugUtils.Msg('SetSearchPath=' + Value);
@@ -340,7 +341,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepParameterSettings.TryGetRipGrepPath');
 	Result := rgpiNotFound;
 	var
-	iniVal := IniFile.ReadString(IniSectionName, RG_INI_KEY_RGPATH, '');
+	iniVal := SettingsDict[IniSectionName][RG_INI_KEY_RGPATH].AsString;
 	if iniVal.IsEmpty or not FileExists(iniVal) then begin
 		_rgPath := TryFindRipGrepExePath();
 		dbgMsg.Msg('Found:' + FRipGrepPath.Value);

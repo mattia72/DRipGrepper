@@ -123,6 +123,7 @@ type
 		private
 			FFontColors : TFontColors;
 			FColorSettings : ISettingsKeyCollection;
+
 		protected
 			function GetIsAlreadyRead : Boolean; override;
 			procedure Init; override;
@@ -154,7 +155,7 @@ constructor TColorSettings.Create(const _Owner : TPersistableSettings);
 begin
 	IniSectionName := INI_SECTION;
 	inherited;
-	TDebugUtils.DebugMessage('TColorSettings.Create: ' + IniFile.FileName + '[' + IniSectionName + ']');
+	TDebugUtils.DebugMessage('TColorSettings.Create: ' + '[' + IniSectionName + ']');
 	FColorSettings := TCollections.CreateSortedDictionary<TSettingKey, ISetting>();
 end;
 
@@ -175,20 +176,20 @@ begin
 
 	df := Shared.Make<TDefaultFontColors>();
 
-	SettingsDict.CreateSetting('MatchText', TStringSetting.Create(df.TREEVIEW_MATCH_TEXT.ToString));
-	SettingsDict.CreateSetting('ReplaceText', TStringSetting.Create(df.TREEVIEW_REPLACE_TEXT.ToString));
-	SettingsDict.CreateSetting('ReplacedText', TStringSetting.Create( df.TREEVIEW_REPLACED_TEXT.ToString));
-	SettingsDict.CreateSetting('SearchTextInHistory', TStringSetting.Create( df.HIST_TREEVIEW_SEARCH_TEXT.ToString));
-	SettingsDict.CreateSetting('ReplaceTextInHistory', TStringSetting.Create( df.HIST_TREEVIEW_REPLACE_TEXT.ToString));
-	SettingsDict.CreateSetting('ReplacedTextInHistory', TStringSetting.Create( df.HIST_TREEVIEW_REPLACED_TEXT.ToString));
-	SettingsDict.CreateSetting('NormalText', TStringSetting.Create( df.TREEVIEW_NORMAL_TEXT.ToString));
-	SettingsDict.CreateSetting('CounterText', TStringSetting.Create( df.TREEVIEW_STAT_TEXT.ToString));
-	SettingsDict.CreateSetting('ErrorText', TStringSetting.Create( df.TREEVIEW_ERROR_TEXT.ToString));
-	SettingsDict.CreateSetting('StatisticsText', TStringSetting.Create( df.TREEVIEW_STATS_TEXT.ToString));
-	SettingsDict.CreateSetting('ColNumText', TStringSetting.Create( df.TREEVIEW_COL_NUM_TEXT.ToString));
-	SettingsDict.CreateSetting('LineNumText', TStringSetting.Create( df.TREEVIEW_LINE_NUM_TEXT.ToString));
-	SettingsDict.CreateSetting('FileText', TStringSetting.Create( df.TREEVIEW_FILE_TEXT.ToString));
-	SettingsDict.CreateSetting('AlternateRow', TStringSetting.Create( df.TREEVIEW_ALTERNATE_ROW.ToString));
+	CreateSetting('MatchText', TStringSetting.Create(df.TREEVIEW_MATCH_TEXT.ToString));
+	CreateSetting('ReplaceText', TStringSetting.Create(df.TREEVIEW_REPLACE_TEXT.ToString));
+	CreateSetting('ReplacedText', TStringSetting.Create(df.TREEVIEW_REPLACED_TEXT.ToString));
+	CreateSetting('SearchTextInHistory', TStringSetting.Create(df.HIST_TREEVIEW_SEARCH_TEXT.ToString));
+	CreateSetting('ReplaceTextInHistory', TStringSetting.Create(df.HIST_TREEVIEW_REPLACE_TEXT.ToString));
+	CreateSetting('ReplacedTextInHistory', TStringSetting.Create(df.HIST_TREEVIEW_REPLACED_TEXT.ToString));
+	CreateSetting('NormalText', TStringSetting.Create(df.TREEVIEW_NORMAL_TEXT.ToString));
+	CreateSetting('CounterText', TStringSetting.Create(df.TREEVIEW_STAT_TEXT.ToString));
+	CreateSetting('ErrorText', TStringSetting.Create(df.TREEVIEW_ERROR_TEXT.ToString));
+	CreateSetting('StatisticsText', TStringSetting.Create(df.TREEVIEW_STATS_TEXT.ToString));
+	CreateSetting('ColNumText', TStringSetting.Create(df.TREEVIEW_COL_NUM_TEXT.ToString));
+	CreateSetting('LineNumText', TStringSetting.Create(df.TREEVIEW_LINE_NUM_TEXT.ToString));
+	CreateSetting('FileText', TStringSetting.Create(df.TREEVIEW_FILE_TEXT.ToString));
+	CreateSetting('AlternateRow', TStringSetting.Create(df.TREEVIEW_ALTERNATE_ROW.ToString));
 end;
 
 procedure TColorSettings.LoadDefaultColors;

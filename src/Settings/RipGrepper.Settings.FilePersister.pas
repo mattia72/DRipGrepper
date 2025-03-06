@@ -4,70 +4,88 @@ interface
 
 uses
 	System.IniFiles,
-	ArrayEx;
+	ArrayEx,
+	Spring;
 
 type
-	IFilePersister<T> = interface(IInterface)
+
+	IPersister = interface(IInterface)
+		['{76ED2AA3-9E4D-4B54-B061-185BF880C508}']
+	end;
+
+	IFilePersister<T> = interface(IPersister)
 		['{57B16806-F8F5-447E-9AB6-767E553CCB65}']
 		function LoadFromFile() : T;
-		procedure ReloadFile();
 		procedure SaveToFile(const _value : T);
 	end;
 
-	TMemIniStringPersister = class(TInterfacedObject, IFilePersister<string>)
-		private
+	IPersisterFactory = interface
+		['{86CA585C-A4D5-44E4-A778-9C011291F623}']
+		function GetStringPersister(const _sIniSection, _sKey : string) : IFilePersister<string>;
+		function GetIntegerPersister(const _sIniSection, _sKey : string) : IFilePersister<Integer>;
+		function GetBoolPersister(const _sIniSection, _sKey : string) : IFilePersister<Boolean>;
+		function GetStrArrayPersister(const _sIniSection, _sKey : string) : IFilePersister<TArrayEx<string>>;
+		function ToLogString() : string;
+	end;
+
+	IFileHandler = interface(IInterface)
+		['{500D0067-F8F2-488B-B3B7-5649DF5879E4}']
+		procedure ReloadFile();
+		procedure WriteFile();
+		procedure EraseSection(const _section : string);
+	end;
+
+	TMemIniPersister = class(TInterfacedObject)
+		protected
 			FIniFile : TMemIniFile;
 			FIniKey : string;
 			FIniSection : string;
+	end;
 
+	TMemIniStringPersister = class(TMemIniPersister, IFilePersister<string>)
 		public
-			constructor Create(_ini : TMemIniFile; _sIniSection, _sKey : string);
-
+			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
 			function LoadFromFile() : string;
-			procedure ReloadFile();
 			procedure SaveToFile(const _value : string);
 	end;
 
-	TMemIniIntegerPersister = class(TInterfacedObject, IFilePersister<integer>)
-		private
-			FIniFile : TMemIniFile;
-			FIniKey : string;
-			FIniSection : string;
-
+	TMemIniIntegerPersister = class(TMemIniPersister, IFilePersister<integer>)
 		public
-			constructor Create(_ini : TMemIniFile; _sIniSection, _sKey : string);
-
-			function LoadFromFile() : integer;
-			procedure ReloadFile();
+			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
+ 			function LoadFromFile() : integer;
 			procedure SaveToFile(const _value : integer);
 	end;
 
-	TMemIniBoolPersister = class(TInterfacedObject, IFilePersister<Boolean>)
-		private
-			FIniFile : TMemIniFile;
-			FIniKey : string;
-			FIniSection : string;
-
+	TMemIniBoolPersister = class(TMemIniPersister, IFilePersister<Boolean>)
 		public
-			constructor Create(_ini : TMemIniFile; _sIniSection, _sKey : string);
-
-			function LoadFromFile() : Boolean;
-			procedure ReloadFile();
+			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
+ 			function LoadFromFile() : Boolean;
 			procedure SaveToFile(const _value : Boolean);
 	end;
 
-	TMemIniStrArrayPersister = class(TInterfacedObject, IFilePersister < TArrayEx < string >> )
-		private
-			FIniFile : TMemIniFile;
-			FIniKey : string;
-			FIniSection : string;
+	TMemIniStrArrayPersister = class(TMemIniPersister, IFilePersister < TArrayEx < string >> )
+		public
+			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
+ 			function LoadFromFile() : TArrayEx<string>;
+			procedure SaveToFile(const _value : TArrayEx<string>);
+	end;
+
+	TIniPersister = class(TInterfacedObject, IPersisterFactory, IFileHandler)
+ 		private
+			FIniFile : IShared<TMemIniFile>;
 
 		public
-			constructor Create(_ini : TMemIniFile; _sIniSection, _sKey : string);
+			constructor Create();
+			function GetStringPersister(const _sIniSection, _sKey : string) : IFilePersister<string>;
+			function GetIntegerPersister(const _sIniSection, _sKey : string) : IFilePersister<Integer>;
+			function GetBoolPersister(const _sIniSection, _sKey : string) : IFilePersister<Boolean>;
+			function GetStrArrayPersister(const _sIniSection, _sKey : string) : IFilePersister<TArrayEx<string>>;
+			function ToLogString() : string;
 
-			function LoadFromFile() : TArrayEx<string>;
+			{ IFileHandler }
 			procedure ReloadFile();
-			procedure SaveToFile(const _value : TArrayEx<string>);
+			procedure WriteFile();
+			procedure EraseSection(const _section : string);
 	end;
 
 implementation
@@ -76,16 +94,16 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	System.SysUtils,
 	RipGrepper.Helper.MemIniFile,
-	RipGrepper.Helper.Types;
+	RipGrepper.Helper.Types,
+	{$IFNDEF STANDALONE}
+	RipGrepper.Common.IOTAUtils,
+	{$ENDIF}
+	Vcl.Forms,
+	System.Classes;
 
 function TMemIniStringPersister.LoadFromFile() : string;
 begin
-
-end;
-
-procedure TMemIniStringPersister.ReloadFile();
-begin
-	FIniFile.ReLoadIniFile();
+	Result := FIniFile.ReadString(FIniSection, FIniKey, '');
 end;
 
 procedure TMemIniStringPersister.SaveToFile(const _value : string);
@@ -94,24 +112,23 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TMemIniStringPersister.SaveToFile');
 
 	FIniFile.WriteString(FIniSection, FIniKey, _value);
-
 end;
 
-constructor TMemIniStringPersister.Create(_ini : TMemIniFile; _sIniSection, _sKey : string);
+constructor TMemIniStringPersister.Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
 begin
 	FIniFile := _ini;
 	FIniSection := _sIniSection;
 	FIniKey := _sKey;
 end;
 
+// function TMemIniStringPersister.Make(): IPersister;
+// begin
+// Result := ;
+// end;
+
 function TMemIniIntegerPersister.LoadFromFile() : integer;
 begin
 	Result := FIniFile.ReadInteger(FIniSection, FIniKey, -1);
-end;
-
-procedure TMemIniIntegerPersister.ReloadFile();
-begin
-	FIniFile.ReLoadIniFile();
 end;
 
 procedure TMemIniIntegerPersister.SaveToFile(const _value : integer);
@@ -121,7 +138,7 @@ begin
 	FIniFile.WriteInteger(FIniSection, FIniKey, _value);
 end;
 
-constructor TMemIniIntegerPersister.Create(_ini : TMemIniFile; _sIniSection, _sKey : string);
+constructor TMemIniIntegerPersister.Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
 begin
 	FIniFile := _ini;
 	FIniSection := _sIniSection;
@@ -133,11 +150,6 @@ begin
 	Result := FIniFile.ReadBool(FIniSection, FIniKey, False);
 end;
 
-procedure TMemIniBoolPersister.ReloadFile();
-begin
-	FIniFile.ReLoadIniFile();
-end;
-
 procedure TMemIniBoolPersister.SaveToFile(const _value : Boolean);
 begin
 	var
@@ -145,19 +157,14 @@ begin
 	FIniFile.WriteBool(FIniSection, FIniKey, _value);
 end;
 
-constructor TMemIniBoolPersister.Create(_ini : TMemIniFile; _sIniSection, _sKey : string);
+constructor TMemIniBoolPersister.Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
 begin
 	FIniFile := _ini;
 	FIniSection := _sIniSection;
 	FIniKey := _sKey;
 end;
 
-procedure TMemIniStrArrayPersister.ReloadFile();
-begin
-	FIniFile.ReLoadIniFile();
-end;
-
-function TMemIniStrArrayPersister.LoadFromFile(): TArrayEx<string>;
+function TMemIniStrArrayPersister.LoadFromFile() : TArrayEx<string>;
 var
 	i : Integer;
 	s : string;
@@ -189,11 +196,68 @@ begin
 	end;
 end;
 
-constructor TMemIniStrArrayPersister.Create(_ini : TMemIniFile; _sIniSection, _sKey : string);
+constructor TMemIniStrArrayPersister.Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
 begin
 	FIniFile := _ini;
 	FIniSection := _sIniSection;
 	FIniKey := _sKey;
+end;
+
+constructor TIniPersister.Create();
+begin
+	inherited;
+	{$IFDEF STANDALONE}
+	FIniFile := Shared.Make<TMemIniFile>(
+		{ } TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8));
+	{$ELSE}
+	FIniFile := Shared.Make<TMemIniFile>(
+		{ } TMemIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'), TEncoding.UTF8));
+	{$ENDIF}
+end;
+
+procedure TIniPersister.EraseSection(const _section : string);
+begin
+	FIniFile.EraseSection(_section);
+end;
+
+function TIniPersister.GetBoolPersister(const _sIniSection, _sKey : string) : IFilePersister<Boolean>;
+begin
+	Result := TMemIniBoolPersister.Create(FIniFile, _sIniSection, _sKey);
+end;
+
+function TIniPersister.GetIntegerPersister(const _sIniSection, _sKey : string) : IFilePersister<Integer>;
+begin
+	Result := TMemIniIntegerPersister.Create(FIniFile, _sIniSection, _sKey);
+end;
+
+function TIniPersister.GetStrArrayPersister(const _sIniSection, _sKey : string) : IFilePersister<TArrayEx<string>>;
+begin
+	Result := TMemIniStrArrayPersister.Create(FIniFile, _sIniSection, _sKey);
+
+end;
+
+function TIniPersister.GetStringPersister(const _sIniSection, _sKey : string) : IFilePersister<string>;
+begin
+	Result := TMemIniStringPersister.Create(FIniFile, _sIniSection, _sKey);
+end;
+
+procedure TIniPersister.ReloadFile();
+begin
+	FIniFile.ReloadIniFile;
+end;
+
+function TIniPersister.ToLogString() : string;
+var
+	strs : IShared<TStringList>;
+begin
+	strs := Shared.Make<TStringList>();
+	FIniFile.GetStrings(strs);
+	Result := strs.DelimitedText;
+end;
+
+procedure TIniPersister.WriteFile();
+begin
+	FIniFile.UpdateFile;
 end;
 
 end.

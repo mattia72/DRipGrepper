@@ -18,7 +18,7 @@ uses
 
 type
 
-	TAppSettings = class(TPersistableSettings)
+	TAppSettings = class(TPersistableSettings, IIniPersistable)
 		const
 			INI_SECTION = 'RipGrepperSettings';
 			KEY_ENCODING_ITEMS = 'EncodingItems';
@@ -54,6 +54,7 @@ type
 		public
 			constructor Create(const _Owner : TPersistableSettings);
 			destructor Destroy; override;
+			procedure LoadFromDict(); override;
 			property ColorTheme : string read GetColorTheme write SetColorTheme;
 			property CopyToClipBoardShell : TShellType read GetCopyToClipBoardShell write SetCopyToClipBoardShell;
 			property DebugTrace : string read GetDebugTrace write SetDebugTrace;
@@ -88,7 +89,7 @@ constructor TAppSettings.Create(const _Owner : TPersistableSettings);
 begin
 	IniSectionName := INI_SECTION;
 	inherited;
-	TDebugUtils.DebugMessage('TAppSettings.Create: ' + IniFile.FileName + '[' + IniSectionName + ']');
+	TDebugUtils.DebugMessage('TAppSettings.Create: ' +   '[' + IniSectionName + ']');
 end;
 
 destructor TAppSettings.Destroy;
@@ -136,12 +137,17 @@ begin
 	FExpertMode := TBoolSetting.Create(False);
     FEncodingItems := TStringSetting.Create(string.join(ARRAY_SEPARATOR , TDefaults.RG_PARAM_ENCODING_VALUES));
 
-	SettingsDict.CreateSetting(KEY_COLORTHEME, FColorTheme);
-	SettingsDict.CreateSetting(KEY_COPYTOCLIPBOARDSHELL, FCopyToClipBoardShell);
-	SettingsDict.CreateSetting(KEY_DEBUGTRACE, FDebugTrace);
-	SettingsDict.CreateSetting(KEY_DEBUGTRACEREGEXFILTER, FDebugTraceRegexFilter);
-	SettingsDict.CreateSetting(KEY_ENCODING_ITEMS, FEncodingItems);
-	SettingsDict.CreateSetting(KEY_EXPERTMODE, FExpertMode);
+	CreateSetting(KEY_COLORTHEME, FColorTheme);
+	CreateSetting(KEY_COPYTOCLIPBOARDSHELL, FCopyToClipBoardShell);
+	CreateSetting(KEY_DEBUGTRACE, FDebugTrace);
+	CreateSetting(KEY_DEBUGTRACEREGEXFILTER, FDebugTraceRegexFilter);
+	CreateSetting(KEY_ENCODING_ITEMS, FEncodingItems);
+	CreateSetting(KEY_EXPERTMODE, FExpertMode);
+end;
+
+procedure TAppSettings.LoadFromDict();
+begin
+	// TODO -cMM: TAppSettings.LoadFromDict default body inserted
 end;
 
 procedure TAppSettings.SetColorTheme(const Value : string);

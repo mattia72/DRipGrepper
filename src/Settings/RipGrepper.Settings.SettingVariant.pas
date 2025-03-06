@@ -16,11 +16,11 @@ type
 
 	TSettingState = (ssNotSet, ssModified);
 
-	TSettingVariant<T> = class; // forward declaration
+	TSettingVariant<T> = class; // forward declarations
 
-	TStringSetting = TSettingVariant<string>;
-	TBoolSetting = TSettingVariant<Boolean>;
-	TIntegerSetting = TSettingVariant<integer>;
+	TStringSetting = class;
+	TBoolSetting = class;
+	TIntegerSetting = class;
 	TArraySetting = class;
 
 	ISetting = interface
@@ -29,6 +29,9 @@ type
 
 		function GetState() : TSettingState;
 		procedure SetState(const Value : TSettingState);
+
+		// function GetPersister() : IPersister;
+		// procedure SetPersister(const Value : IPersister);
 
 		procedure LoadFromFile();
 		procedure SaveToFile();
@@ -43,6 +46,7 @@ type
 		function AsBool() : Boolean;
 		function AsArray() : TArrayEx<string>;
 
+		// property Persister : IPersister read GetPersister write SetPersister;
 		property State : TSettingState read GetState write SetState;
 	end;
 
@@ -53,10 +57,7 @@ type
 
 		function GetValue : T;
 		procedure SetValue(const Value : T);
-		function GetPersister() : IFilePersister<T>;
-		procedure SetPersister(const Value : IFilePersister<T>);
 
-		property Persister : IFilePersister<T> read GetPersister write SetPersister;
 		property Value : T read GetValue write SetValue;
 	end;
 
@@ -81,20 +82,22 @@ type
 			function AsBool() : Boolean;
 			function AsArray() : TArrayEx<string>;
 
-			function Equals(_other : ISetting): Boolean;
+			function Equals(_other : ISetting) : Boolean; reintroduce;
 
 			property State : TSettingState read GetState write SetState;
 	end;
 
 	TSettingVariant<T> = class(TSetting, ISettingVariant<T>)
 		private
-			FPersister : IFilePersister<T>;
 			FValue : T;
+			FPersister: IFilePersister<T>;
 
-			function GetPersister() : IFilePersister<T>;
 			function GetValue() : T;
-			procedure SetPersister(const Value : IFilePersister<T>);
 			procedure SetValue(const Value : T);
+
+		protected
+			function GetPersister(): IFilePersister<T>;
+			procedure SetPersister(const Value: IFilePersister<T>);
 
 		public
 			constructor Create(const _value : T); overload;
@@ -103,13 +106,23 @@ type
 			function IsEmpty : Boolean;
 			procedure LoadFromFile(); override;
 			procedure SaveToFile(); override;
-			property Persister : IFilePersister<T> read GetPersister write SetPersister;
+			property Persister: IFilePersister<T> read GetPersister write SetPersister;
 			property Value : T read GetValue write SetValue;
+	end;
+
+	TStringSetting = class(TSettingVariant<string>)
+	end;
+
+	TBoolSetting = class(TSettingVariant<Boolean>)
+	end;
+
+	TIntegerSetting = class(TSettingVariant<integer>)
 	end;
 
 	TArraySetting = class(TSettingVariant < TArrayEx < string >> )
 		private
 			function GetCount() : Integer;
+
 			function GetItem(Index : Integer) : string;
 			procedure SetItem(Index : Integer; const Value : string);
 
@@ -152,7 +165,7 @@ begin
 	Result := Result and (TComparer<T>.Default.Compare(FValue, _other.Value) = 0);
 end;
 
-function TSettingVariant<T>.GetPersister() : IFilePersister<T>;
+function TSettingVariant<T>.GetPersister(): IFilePersister<T>;
 begin
 	Result := FPersister;
 end;
@@ -182,10 +195,14 @@ end;
 
 procedure TSettingVariant<T>.SaveToFile();
 begin
+	if not Assigned(Persister) then begin
+		raise ESettingsException.Create('Persister is not assigned.');
+	end;
+
 	Persister.SaveToFile(Value);
 end;
 
-procedure TSettingVariant<T>.SetPersister(const Value : IFilePersister<T>);
+procedure TSettingVariant<T>.SetPersister(const Value: IFilePersister<T>);
 begin
 	FPersister := Value;
 end;
@@ -230,7 +247,7 @@ begin
 	Result := TStringSetting(self);
 end;
 
-function TSetting.Equals(_other : ISetting): Boolean;
+function TSetting.Equals(_other : ISetting) : Boolean;
 begin
 	Result := (FState = _other.State);
 end;
@@ -250,7 +267,7 @@ begin
 	Result := -1;
 	if not self.Value.Contains(AItem) then begin
 		Result := self.Value.Add(AItem);
-    end;
+	end;
 end;
 
 function TArraySetting.GetCount() : Integer;

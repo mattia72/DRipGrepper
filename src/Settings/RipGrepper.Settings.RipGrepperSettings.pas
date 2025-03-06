@@ -110,7 +110,8 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.CommandLine.Builder,
 	Winapi.Windows,
-	RipGrepper.Tools.LockGuard;
+	RipGrepper.Tools.LockGuard,
+	RipGrepper.Settings.FilePersister;
 
 function TRipGrepperSettings.GetLastHistorySearchText : string;
 begin
@@ -223,7 +224,7 @@ function TRipGrepperSettings.GetActualSearchPath : string;
 var
 	s : string;
 begin
-    s :=  SearchPathsHistory.Value.SafeItemAt[0];
+	s := SearchPathsHistory.Value.SafeItemAt[0];
 	if not SearchPathsHistory.Value.IsEmpty and (s <> FActualSearchPath) then begin
 		FActualSearchPath := s;
 		FSearchPathIsDir := TDirectory.Exists(FActualSearchPath);
@@ -276,7 +277,7 @@ begin
 	except
 		on E : Exception do begin
 			TDebugUtils.DebugMessage(Format('TRipGrepperSettings.ReadIni: Exception %s ', [E.Message]));
-			TMsgBox.ShowError(E.Message + CRLF + 'Settings Read from ' + IniFile.FileName + ' went wrong.');
+			TMsgBox.ShowError(E.Message + CRLF + 'Settings Read from ' + ' went wrong.');
 		end;
 	end;
 end;
@@ -365,11 +366,16 @@ begin
 end;
 
 procedure TRipGrepperSettings.StoreViewSettings(const _s : string = '');
+var
+	fh : IFileHandler;
 begin
-	NodeLookSettings.SettingsDict.SaveToFile(IniFile());
+	NodeLookSettings.SettingsDict.SaveToFile();
 	NodeLookSettings.UpdateIniFile(NodeLookSettings.IniSectionName);
 	NodeLookSettings.WriteSettingsDictToIni(NodeLookSettings.IniSectionName);
-	IniFile.UpdateFile;
+	if Supports(PersisterFactory, IFileHandler, fh) then begin
+		fh.ReLoadFile();
+		fh.WriteFile();
+	end;
 end;
 
 end.

@@ -68,14 +68,14 @@ constructor TRipGrepperExtensionSettings.Create(const _Owner : TPersistableSetti
 begin
 	IniSectionName := INI_SECTION;
 	inherited Create(_Owner);
-	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Create: ' + IniFile.FileName + '[' + IniSectionName + ']');
+	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Create: ' + '[' + IniSectionName + ']');
 end;
 
 constructor TRipGrepperExtensionSettings.Create;
 begin
 	IniSectionName := INI_SECTION;
 	inherited;
-	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Create: ' + IniFile.FileName + '[' + IniSectionName + ']');
+	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Create: ' + '[' + IniSectionName + ']');
 	FSearchSelectedShortcut := TStringSetting.Create(TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH);
 	FOpenWithShortCut := TStringSetting.Create(TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH);
  end;
@@ -99,9 +99,9 @@ procedure TRipGrepperExtensionSettings.Init;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.Init');
-	SettingsDict.CreateSetting(KEY_SHORTCUT_SEARCH_SELECTED, FSearchSelectedShortcut);
-	SettingsDict.CreateSetting(KEY_SHORTCUT_OPENWITH, FOpenWithShortCut);
-	SettingsDict.CreateSetting(KEY_IDE_CONTEXT, FCurrentIDEContext.IDEContext);
+	CreateSetting(KEY_SHORTCUT_SEARCH_SELECTED, FSearchSelectedShortcut);
+	CreateSetting(KEY_SHORTCUT_OPENWITH, FOpenWithShortCut);
+	CreateSetting(KEY_IDE_CONTEXT, FCurrentIDEContext.IDEContext);
 end;
 
 procedure TRipGrepperExtensionSettings.ReadIni;

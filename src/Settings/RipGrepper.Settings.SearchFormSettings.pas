@@ -162,11 +162,11 @@ begin
 	FContext := TIntegerSetting.Create(0);
 	FEncoding := TStringSetting.Create('');
 
-	SettingsDict.CreateSetting('Pretty', FPretty);
-	SettingsDict.CreateSetting('Hidden', FHidden);
-	SettingsDict.CreateSetting('NoIgnore', FNoIgnore);
-	SettingsDict.CreateSetting('Context', FContext);
-	SettingsDict.CreateSetting('Encoding', FEncoding);
+	CreateSetting('Pretty', FPretty);
+	CreateSetting('Hidden', FHidden);
+	CreateSetting('NoIgnore', FNoIgnore);
+	CreateSetting('Context', FContext);
+	CreateSetting('Encoding', FEncoding);
 end;
 
 procedure TSearchFormSettings.ReadIni;
