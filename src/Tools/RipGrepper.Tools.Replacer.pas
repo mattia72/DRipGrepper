@@ -42,7 +42,7 @@ type
 		public
 			constructor Create;
 			destructor Destroy; override;
-			procedure AddUnique(const fileName : string; const row : integer; const col : integer; const replaceLine : string);
+			procedure AddUnique(const fileName : string; const row, col : integer; const replaceLine : string);
 			function TryGet(const fileName : string; const row : integer; const col : integer; var replaceLine : string) : boolean;
 			function Contains(fileName : string; row, col : integer) : Boolean;
 			function GetCounters() : TFileReplaceCounters;
@@ -194,7 +194,7 @@ begin
 	inherited;
 end;
 
-procedure TReplaceList.AddUnique(const fileName : string; const row : integer; const col : integer; const replaceLine : string);
+procedure TReplaceList.AddUnique(const fileName : string; const row, col : integer; const replaceLine : string);
 var
 	replaceList : TArrayEx<TReplaceData>;
 begin

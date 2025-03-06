@@ -31,6 +31,7 @@ Marked with a checkmark if ready; otherwise, it is planned.
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.
 - [ ] replace doesn't work properly if history changed
+- [ ] replace doesn't work properly if there are more text to replace in same line 
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: drip icon in menu has no transparent background
 - [ ] look on dpi change (drag to another monitor)

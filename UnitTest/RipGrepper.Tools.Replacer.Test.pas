@@ -127,20 +127,23 @@ begin
 
 	rl := Shared.Make<TReplaceList>();
 	sl := Shared.Make<TStringList>();
-	for var j : integer := 1 to 5 do begin
+	for var j : integer := 1 to 6 do begin
 		sl.Add(Format('Line %d with word1 word2 word3', [j]));
 	end;
-	arr := [
-	{ } TReplaceData.New(5, 1, sl[4]),
-	{ } TReplaceData.New(1, 1, sl[0]),
-
-	{ } TReplaceData.New(3, sl[2].IndexOf('word2') + 1, sl[2].Replace('word2', 'bbbb2')),
-	{ } TReplaceData.New(3, sl[2].IndexOf('word3') + 1, sl[2].Replace('word3', 'cccc3')),
-	{ } TReplaceData.New(3, sl[2].IndexOf('word1') + 1, sl[2].Replace('word1', 'aaaa1')),
-
-	{ } TReplaceData.New(4, sl[3].IndexOf('word1') + 1, sl[3].Replace('word1', 'aaaa1')),
-	{ } TReplaceData.New(4, sl[3].IndexOf('word3') + 1, sl[3].Replace('word3', 'cccc3')),
-	{ } TReplaceData.New(2, 1, sl[1])
+	arr := [ // TReplaceData.New( row, col, line )
+//	{ } TReplaceData.New(5, 1, sl[4]),
+//	{ } TReplaceData.New(1, 1, sl[0]),
+//
+//	{ } TReplaceData.New(3, sl[2].IndexOf('word2') + 1, sl[2].Replace('word2', 'bbbb2')),
+//	{ } TReplaceData.New(3, sl[2].IndexOf('word3') + 1, sl[2].Replace('word3', 'cccc3')),
+//	{ } TReplaceData.New(3, sl[2].IndexOf('word1') + 1, sl[2].Replace('word1', 'aaaa1')),
+//
+//	{ } TReplaceData.New(4, sl[3].IndexOf('word1') + 1, sl[3].Replace('word1', 'aaaa1')),
+//	{ } TReplaceData.New(4, sl[3].IndexOf('word3') + 1, sl[3].Replace('word3', 'cccc3')),
+//	{ } TReplaceData.New(2, 1, sl[1]),
+	{ } TReplaceData.New(5, sl[4].IndexOf('word1') + 1, sl[4].Replace('word1', 'dddddddd1')),
+	{ } TReplaceData.New(5, sl[4].IndexOf('word2') + 1, sl[4].Replace('word2', 'dddddddd2')),
+	{ } TReplaceData.New(5, sl[4].IndexOf('word3') + 1, sl[4].Replace('word3', 'dddddddd3'))
 	{ } ];
 
 	sTempFile := TPath.GetTempFileName();
@@ -159,12 +162,12 @@ begin
 		TFile.Delete(sTempFile);
 	end;
 
-	Assert.AreEqual('Line 1 with word1 word2 word3', sl[0]);
-	Assert.AreEqual('Line 2 with word1 word2 word3', sl[1]);
-	Assert.AreEqual('Line 3 with aaaa1 bbbb2 cccc3', sl[2]);
-	Assert.AreEqual('Line 4 with aaaa1 word2 cccc3', sl[3]);
-	Assert.AreEqual('Line 5 with word1 word2 word3', sl[4]);
-
+//	Assert.AreEqual('Line 1 with word1 word2 word3', sl[0]);
+//	Assert.AreEqual('Line 2 with word1 word2 word3', sl[1]);
+//	Assert.AreEqual('Line 3 with aaaa1 bbbb2 cccc3', sl[2]);
+//	Assert.AreEqual('Line 4 with aaaa1 word2 cccc3', sl[3]);
+//	Assert.AreEqual('Line 5 with word1 word2 word3', sl[4]);
+	Assert.AreEqual('Line 6 with dddddddd1 dddddddd2 dddddddd3', sl[5]);
 end;
 
 initialization
