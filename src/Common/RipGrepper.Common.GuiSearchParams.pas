@@ -82,7 +82,7 @@ uses
 constructor TGuiSearchTextParams.Create(const _sText, _sRepl : string; const _bMC, _bMW, _bUR : Boolean);
 begin
 	Create();
-	FSearchTextWithOptions.New(_sText,
+	TSearchTextWithOptions.New(_sText,
 		{ } TSearchTextWithOptions.GetAsSearchOptionSet(_bMC, _bMW, _bUR));
 end;
 
@@ -213,7 +213,7 @@ end;
 
 function TGuiSearchTextParams.GetSearchText : string;
 begin
-	Result := FSearchTextWithOptions.SearchText;
+	Result := FSearchTextWithOptions.SearchTextAsRgParam;
 end;
 
 procedure TGuiSearchTextParams.Init;
@@ -283,7 +283,7 @@ end;
 
 procedure TGuiSearchTextParams.SetSearchText(const _text : string);
 begin
-	FSearchTextWithOptions.SearchText := _text;
+	FSearchTextWithOptions.SearchTextOfUser := _text;
 	UpdateRgParamsByGuiOptions();
 end;
 
