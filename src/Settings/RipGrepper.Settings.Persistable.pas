@@ -78,6 +78,8 @@ type
 			property IniSectionName : string read GetIniSectionName write SetIniSectionName;
 			property IsAlreadyRead : Boolean read GetIsAlreadyRead;
 			property IsModified : Boolean read GetIsModified;
+			property IsOwnerOfPersisterFactory : Boolean read FIsOwnerOfPersisterFactory write FIsOwnerOfPersisterFactory;
+
 			property SettingsDict : IShared<TSettingsDictionary> read FSettingsDict write FSettingsDict;
 			destructor Destroy; override;
 			function AddChildSettings(_settings : TPersistableSettings) : TPersistableSettings;
@@ -190,14 +192,9 @@ end;
 procedure TPersistableSettings.Copy(const _other : TPersistableSettings);
 begin
 	if Assigned(_other) then begin
-		_other.StoreToDict;
-
 		FIsModified := _other.IsModified;
 		FIsAlreadyRead := _other.IsAlreadyRead;
-
-		CopySettingsDictSection(_other);
-
-		LoadFromDict();
+ 		CopySettingsDictSection(_other);
 	end;
 end;
 
@@ -206,7 +203,25 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.CopySettingsDictSection');
 	dbgMsg.MsgFmt('Copy TO [%s]', [IniSectionName]);
-	SettingsDict.CopySection(IniSectionName, _other.SettingsDict());
+	var
+	sd := _other.SettingsDict.Sections[IniSectionName];
+	for var key in sd.Keys do begin
+		var
+		s := sd[key];
+		case s.SettingType of
+			stString :
+			SettingsDict[IniSectionName][key].AsStringSetting.Copy(sd[key] as ISettingVariant<string>);
+			stInteger :
+			SettingsDict[IniSectionName][key].Copy(sd[key].AsIntegerSetting);
+			stBool :
+			SettingsDict[IniSectionName][key].Copy(sd[key].AsBoolSetting);
+			stStrArray :
+			SettingsDict[IniSectionName][key].Copy(sd[key].AsArraySetting);
+			else
+			raise ESettingsException.Create('Can''t copy unknown setting type');
+		end;
+	end;
+
 end;
 
 procedure TPersistableSettings.CreateSetting(const _key : string; _setting : ISetting);

@@ -15,6 +15,7 @@ type
 	ESettingsException = class(Exception);
 
 	TSettingState = (ssNotSet, ssModified);
+	TSettingType = (stNotSet, stString, stInteger, stBool, stStrArray);
 
 	TSettingVariant<T> = class; // forward declarations
 
@@ -25,13 +26,13 @@ type
 
 	ISetting = interface
 		['{289A58E3-A490-4015-9AFE-52EB303B9B89}']
+		procedure Copy(_other : ISetting);
 		function Equals(_other : ISetting) : Boolean;
 
 		function GetState() : TSettingState;
 		procedure SetState(const Value : TSettingState);
 
-		// function GetPersister() : IPersister;
-		// procedure SetPersister(const Value : IPersister);
+		function GetType() : TSettingType;
 
 		procedure LoadFromFile();
 		procedure SaveToFile();
@@ -48,6 +49,8 @@ type
 
 		// property Persister : IPersister read GetPersister write SetPersister;
 		property State : TSettingState read GetState write SetState;
+		property SettingType : TSettingType read GetType;
+
 	end;
 
 	ISettingVariant<T> = interface(ISetting)
@@ -58,15 +61,22 @@ type
 		function GetValue : T;
 		procedure SetValue(const Value : T);
 
+		procedure SetPersister(const Value : IFilePersister<T>);
+		function GetPersister() : IFilePersister<T>;
+
+		property Persister : IFilePersister<T> read GetPersister write SetPersister;
 		property Value : T read GetValue write SetValue;
 	end;
 
 	TSetting = class(TInterfacedObject, ISetting)
-
 		private
 			FState : TSettingState;
+
 			function GetState() : TSettingState;
 			procedure SetState(const Value : TSettingState);
+
+		protected
+			function GetType() : TSettingType; virtual; abstract;
 
 		public
 			procedure LoadFromFile(); virtual; abstract;
@@ -81,53 +91,64 @@ type
 			function AsInteger() : Integer;
 			function AsBool() : Boolean;
 			function AsArray() : TArrayEx<string>;
+			function CompareTo(Value : ISetting) : Integer;
+			procedure Copy(_other : ISetting);
 
 			function Equals(_other : ISetting) : Boolean; reintroduce;
 
 			property State : TSettingState read GetState write SetState;
+			property SettingType : TSettingType read GetType;
 	end;
 
-	TSettingVariant<T> = class(TSetting, ISettingVariant<T>)
+	TSettingVariant<T> = class(TSetting, ISettingVariant<T>, ISetting)
 		private
 			FValue : T;
-			FPersister: IFilePersister<T>;
+			FPersister : IFilePersister<T>;
 
 			function GetValue() : T;
 			procedure SetValue(const Value : T);
 
 		protected
-			function GetPersister(): IFilePersister<T>;
-			procedure SetPersister(const Value: IFilePersister<T>);
+			function GetPersister() : IFilePersister<T>;
+			function GetType() : TSettingType; override;
+			procedure SetPersister(const Value : IFilePersister<T>);
 
 		public
 			constructor Create(const _value : T); overload;
 			function CompareTo(Value : ISettingVariant<T>) : Integer;
+			procedure Copy(_other : ISettingVariant<T>); reintroduce;
 			function Equals(_other : ISettingVariant<T>) : Boolean; reintroduce;
 			function IsEmpty : Boolean;
 			procedure LoadFromFile(); override;
 			procedure SaveToFile(); override;
-			property Persister: IFilePersister<T> read GetPersister write SetPersister;
+			property Persister : IFilePersister<T> read GetPersister write SetPersister;
 			property Value : T read GetValue write SetValue;
 	end;
 
 	TStringSetting = class(TSettingVariant<string>)
+		public
+			function GetType() : TSettingType; override;
 	end;
 
 	TBoolSetting = class(TSettingVariant<Boolean>)
+		public
+			function GetType() : TSettingType; override;
 	end;
 
 	TIntegerSetting = class(TSettingVariant<integer>)
+		public
+			function GetType() : TSettingType; override;
 	end;
 
 	TArraySetting = class(TSettingVariant < TArrayEx < string >> )
 		private
 			function GetCount() : Integer;
-
 			function GetItem(Index : Integer) : string;
 			procedure SetItem(Index : Integer; const Value : string);
 
 		public
 			function AddIfNotContains(const AItem : string) : Integer;
+			function GetType() : TSettingType; override;
 			property Count : Integer read GetCount;
 			property Item[index : Integer] : string read GetItem write SetItem; default;
 	end;
@@ -149,15 +170,17 @@ var
 begin
 	res := TComparer<T>.Default.Compare(self.FValue, Value.Value);
 	if res = 0 then begin
-		if FState <> Value.State then
-			Result := Ord(FState) - Ord(Value.State)
-		else
-			Result := 0;
-		Exit;
+		res := TComparer<integer>.Default.Compare(integer(FState), integer(Value.State));
 	end;
-
-	Result := Integer(res);
+	Result := res;
 end;
+
+procedure TSettingVariant<T>.Copy(_other : ISettingVariant<T>);
+begin
+    inherited Copy(_other);
+	FValue := _other.Value;
+    FPersister := _other.Persister;
+ end;
 
 function TSettingVariant<T>.Equals(_other : ISettingVariant<T>) : Boolean;
 begin
@@ -165,9 +188,14 @@ begin
 	Result := Result and (TComparer<T>.Default.Compare(FValue, _other.Value) = 0);
 end;
 
-function TSettingVariant<T>.GetPersister(): IFilePersister<T>;
+function TSettingVariant<T>.GetPersister() : IFilePersister<T>;
 begin
 	Result := FPersister;
+end;
+
+function TSettingVariant<T>.GetType() : TSettingType;
+begin
+	Result := stNotSet;
 end;
 
 function TSettingVariant<T>.IsEmpty : Boolean;
@@ -202,7 +230,7 @@ begin
 	Persister.SaveToFile(Value);
 end;
 
-procedure TSettingVariant<T>.SetPersister(const Value: IFilePersister<T>);
+procedure TSettingVariant<T>.SetPersister(const Value : IFilePersister<T>);
 begin
 	FPersister := Value;
 end;
@@ -247,6 +275,20 @@ begin
 	Result := TStringSetting(self);
 end;
 
+function TSetting.CompareTo(Value : ISetting) : Integer;
+begin
+	if SettingType = Value.SettingType then begin
+		Result := Ord(State) - Ord(Value.State);
+	end else begin
+		Result := Ord(SettingType) - Ord(Value.SettingType);
+	end;
+end;
+
+procedure TSetting.Copy(_other : ISetting);
+begin
+    FState := _other.State;
+end;
+
 function TSetting.Equals(_other : ISetting) : Boolean;
 begin
 	Result := (FState = _other.State);
@@ -280,9 +322,29 @@ begin
 	Result := self.Value[index];
 end;
 
+function TArraySetting.GetType() : TSettingType;
+begin
+	Result := stStrArray;
+end;
+
 procedure TArraySetting.SetItem(Index : Integer; const Value : string);
 begin
 	self.Value[index] := Value;
+end;
+
+function TStringSetting.GetType() : TSettingType;
+begin
+	Result := stString;
+end;
+
+function TBoolSetting.GetType() : TSettingType;
+begin
+	Result := stBool;
+end;
+
+function TIntegerSetting.GetType() : TSettingType;
+begin
+	Result := stInteger;
 end;
 
 end.

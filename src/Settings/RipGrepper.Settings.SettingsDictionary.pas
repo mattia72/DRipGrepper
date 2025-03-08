@@ -7,7 +7,8 @@ uses
 	Spring.Collections,
 	System.Variants,
 	System.Classes,
-	System.IniFiles, RipGrepper.Settings.FilePersister;
+	System.IniFiles,
+	RipGrepper.Settings.FilePersister;
 
 type
 	TSettingSection = string;
@@ -29,8 +30,7 @@ type
 			constructor Create; overload;
 			procedure AddOrChange(const _key : string; _setting : ISetting);
 			procedure CopySection(const _section : string; _from : TSettingsDictionary);
-			procedure CreateSetting(const _key : string; _setting : ISetting; _factory:
-				IPersisterFactory);
+			procedure CreateSetting(const _key : string; _setting : ISetting; _factory : IPersisterFactory);
 			function GetSetting(const _key : string) : ISetting; overload;
 			function GetSections() : IReadOnlyCollection<string>; overload;
 			procedure LoadFromFile();
@@ -98,22 +98,29 @@ end;
 procedure TSettingsDictionary.CopySection(const _section : string; _from : TSettingsDictionary);
 begin
 	FInnerDictionary[_section].Clear;
+    FInnerDictionary.Remove(_section);
 	FInnerDictionary.Add(_section, _from[_section]);
 end;
 
-procedure TSettingsDictionary.CreateSetting(const _key : string; _setting : ISetting; _factory: IPersisterFactory);
+procedure TSettingsDictionary.CreateSetting(const _key : string; _setting : ISetting; _factory : IPersisterFactory);
 begin
 
-	if Supports(_setting, IFilePersister<string>) then begin
-		TStringSetting(_setting).Persister :=_factory.GetStringPersister(SectionName, _key);
-	end else if Supports(_setting, IFilePersister<Integer>) then begin
-		TIntegerSetting(_setting).Persister := _factory.GetIntegerPersister(SectionName, _key);
-	end else if Supports(_setting, IFilePersister<Boolean>) then begin
-		TBoolSetting(_setting).Persister := _factory.GetBoolPersister(SectionName, _key);
-	end else if Supports(_setting, IFilePersister < TArray < string >> ) then begin
- 		TArraySetting(_setting).Persister := _factory.GetStrArrayPersister(SectionName, _key);
+	case _setting.SettingType of
+		stString : begin
+			TStringSetting(_setting).Persister := _factory.GetStringPersister(SectionName, _key);
+		end;
+		stInteger : begin
+			TIntegerSetting(_setting).Persister := _factory.GetIntegerPersister(SectionName, _key);
+		end;
+		stBool : begin
+			TBoolSetting(_setting).Persister := _factory.GetBoolPersister(SectionName, _key);
+		end;
+		stStrArray : begin
+			TArraySetting(_setting).Persister := _factory.GetStrArrayPersister(SectionName, _key);
+		end;
+		else
+		raise ESettingsException.Create('Setting Type not supported.');
 	end;
-
 	AddOrChange(_key, _setting);
 	TDebugUtils.MsgFmt('TSettingsDictionary.CreateSetting - [%s] %s', [SectionName, _key]);
 end;

@@ -75,7 +75,8 @@ type
 			FIniFile : IShared<TMemIniFile>;
 
 		public
-			constructor Create();
+			constructor Create(); overload;
+			constructor Create(_ini: IShared<TMemIniFile>); overload;
 			function GetStringPersister(const _sIniSection, _sKey : string) : IFilePersister<string>;
 			function GetIntegerPersister(const _sIniSection, _sKey : string) : IFilePersister<Integer>;
 			function GetBoolPersister(const _sIniSection, _sKey : string) : IFilePersister<Boolean>;
@@ -213,6 +214,11 @@ begin
 	FIniFile := Shared.Make<TMemIniFile>(
 		{ } TMemIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'), TEncoding.UTF8));
 	{$ENDIF}
+end;
+
+constructor TIniPersister.Create(_ini: IShared<TMemIniFile>);
+begin
+    FIniFile := _ini;
 end;
 
 procedure TIniPersister.EraseSection(const _section : string);

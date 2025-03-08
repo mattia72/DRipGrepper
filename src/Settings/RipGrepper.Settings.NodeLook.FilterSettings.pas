@@ -75,9 +75,6 @@ constructor TFilterSettings.Create;
 begin
 	IniSectionName := INI_SECTION;
 	inherited Create;
-	FChosenFilterMode := TStringSetting.Create(FILE_FILTER_MODE);
-	FIsCaseSensitive := TBoolSetting.Create(False);
-	FIsUseRegex := TBoolSetting.Create(False);
 end;
 
 destructor TFilterSettings.Destroy;
@@ -133,6 +130,10 @@ end;
 
 procedure TFilterSettings.Init;
 begin
+	FChosenFilterMode := TStringSetting.Create(FILE_FILTER_MODE);
+	FIsCaseSensitive := TBoolSetting.Create(False);
+	FIsUseRegex := TBoolSetting.Create(False);
+
 	CreateSetting('FilterMode', FChosenFilterMode);
 	CreateSetting('FilterMode.CaseSensitive', FIsCaseSensitive);
 	CreateSetting('FilterMode.UseRegex', FIsUseRegex);
