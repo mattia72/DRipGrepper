@@ -48,7 +48,6 @@ end;
 
 destructor TOpenWithSettings.Destroy;
 begin
-	FCommandList.Free;
 	inherited Destroy(); // ok
 end;
 

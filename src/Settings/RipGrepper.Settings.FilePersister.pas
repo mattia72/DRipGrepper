@@ -190,7 +190,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TMemIniStrArrayPersister.SaveToFile');
 	i := 0;
 	dbgMsg.Msg('Write Array');
-	while i <= _value.count do begin
+	while i < _value.count do begin
 		multiLineVal := _value[i];
 		FIniFile.WriteString(FIniSection, Format('%s_Item%d', [FIniKey, i]), multiLineVal.GetLine(0));
 		Inc(i);

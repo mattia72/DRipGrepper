@@ -94,7 +94,6 @@ end;
 
 destructor TAppSettings.Destroy;
 begin
-	FEncodingItems.Free;
 	inherited Destroy() // ok;
 end;
 
