@@ -8,7 +8,8 @@ uses
 	RipGrepper.Settings.RipGrepperSettings,
 	DUnitX.TestFramework,
 	System.Classes,
-	RipGrepper.Helper.MemIniFile;
+	RipGrepper.Helper.MemIniFile,
+	RipGrepper.Settings.FilePersister;
 
 const
 	NOTEXISTS = '<not exists>';
@@ -24,6 +25,7 @@ type
 			INIFILE = 'DripGrepperUnittest.ini';
 
 		private
+			FFactory : IPersisterFactory;
 			// FIniFile : TMemIniFile;
 			FSettings : TRipGrepperSettings;
 			FTextHist : TStringList;
@@ -83,7 +85,7 @@ end;
 
 procedure TRipGrepperSettingsTest.RefreshMembersShouldLoadDefaultsTest;
 begin
-	FSettings.LoadFromDict; //	FSettings.LoadDefaultsFromDict;
+	FSettings.LoadFromDict; // FSettings.LoadDefaultsFromDict;
 	Assert.AreEqual(True, FSettings.SearchFormSettings.Pretty, 'Pretty should be true');
 	Assert.AreEqual(False, FSettings.SearchFormSettings.Hidden, 'Hidden should be true');
 	Assert.AreEqual(False, FSettings.SearchFormSettings.NoIgnore, 'NoIgnore should be true');
@@ -94,7 +96,7 @@ end;
 procedure TRipGrepperSettingsTest.AfterCopyValuesValuesShouldBeEqual;
 begin
 	SetTestDefaultAndActualValues;
-	FSettings.LoadFromDict; //	FSettings.LoadDefaultsFromDict;
+	FSettings.LoadFromDict; // FSettings.LoadDefaultsFromDict;
 	var
 	s := TRipGrepperSettings.Create();
 	try
@@ -135,15 +137,15 @@ begin
 	FSettings.UpdateIniFile;
 	FSettings.LoadFromDict;
 
-	iniVal := FSettings.IniFile.ReadString(FSettings.RipGrepParameters.IniSectionName, 'SearchParams', '');
+	iniVal := FFactory.GetStringPersister(FSettings.RipGrepParameters.IniSectionName, 'SearchParams').LoadFromFile;
 	settingVal := FSettings.RipGrepParameters.GuiSearchTextParams.GetAsString(True);
 	Assert.AreEqual(settingVal.Trim(['[', ']']), iniVal.Trim(['[', ']']), 'SearchParams should be equal');
 
-	iniVal := FSettings.IniFile.ReadString(FSettings.SearchFormSettings.IniSectionName, 'Encoding', 'none');
+	iniVal := FFactory.GetStringPersister(FSettings.SearchFormSettings.IniSectionName, 'Encoding').LoadFromFile;
 	settingVal := FSettings.SearchFormSettings.Encoding;
 	Assert.AreEqual(settingVal, iniVal, 'Encoding should be equal');
 
-	iniVal := FSettings.IniFile.ReadString(FSettings.SearchFormSettings.IniSectionName, 'Context', '');
+	iniVal := FFactory.GetStringPersister(FSettings.SearchFormSettings.IniSectionName, 'Context').LoadFromFile;
 	settingVal := FSettings.SearchFormSettings.Context.ToString;
 	Assert.AreEqual(settingVal, iniVal, 'Context should be equal');
 
@@ -167,15 +169,6 @@ end;
 
 procedure TRipGrepperSettingsTest.SetTestDefaultAndActualValues;
 begin
-	FSettings.SearchFormSettings.Encoding := 'utf8';
-	FSettings.SearchFormSettings.Context := 5;
-	FSettings.SearchFormSettings.Pretty := False;
-	FSettings.SearchFormSettings.Hidden := True;
-	FSettings.SearchFormSettings.NoIgnore := True;
-	FSettings.RipGrepParameters.SearchPath := 'def\search\path';
-	FSettings.RipGrepParameters.FileMasks := '*.def';
-	FSettings.RipGrepParameters.GuiSearchTextParams.SetSearchOptions([EGuiOption.soUseRegex]);
-	FSettings.StoreToDict;    //	FSettings.StoreAsDefaultsToDict;
 	FSettings.SearchFormSettings.Encoding := 'none';
 	FSettings.SearchFormSettings.Context := 1;
 	FSettings.SearchFormSettings.Pretty := True;
@@ -207,6 +200,7 @@ procedure TRipGrepperSettingsTest.Setup;
 begin
 	FSettings := TRipGrepperSettings.Create();
 	FTextHist := TStringList.Create();
+	FFactory := FSettings.PersisterFactory;
 end;
 
 procedure TRipGrepperSettingsTest.TearDown;
@@ -236,21 +230,19 @@ begin
 	// Assert.IsTrue(FileExists(FSettings.IniFile.GetTempSectionFileName('NodeLookSettings')), 'temp ini should exist.');
 	{ 3 } FSettings.StoreToDict;
 
-	Assert.IsTrue(not DirectoryExists(FSettings.IniFile.GetDripGrepperIniTempDir), ' temp dir should not exists');
-
-	iniVal := FSettings.IniFile.ReadString(FSettings.NodeLookSettings.IniSectionName, 'AlternateRowColors', 'False');
+	iniVal := FFactory.GetStringPersister(FSettings.NodeLookSettings.IniSectionName, 'AlternateRowColors').LoadFromFile;
 	settingVal := FSettings.NodeLookSettings.AlternateRowColors;
 	Assert.AreEqual(settingVal, iniVal = '1', 'AlternateRowColors should be equal');
 
-	iniVal := FSettings.IniFile.ReadString(FSettings.NodeLookSettings.IniSectionName, 'IndentLines', 'False');
+	iniVal := FFactory.GetStringPersister(FSettings.NodeLookSettings.IniSectionName, 'IndentLines').LoadFromFile;
 	settingVal := FSettings.NodeLookSettings.IndentLines;
 	Assert.AreEqual(settingVal, iniVal = '1', 'IndentLines should be equal');
 
-	iniVal := FSettings.IniFile.ReadString(FSettings.NodeLookSettings.IniSectionName, 'ShowRelativePath', 'False');
+	iniVal := FFactory.GetStringPersister(FSettings.NodeLookSettings.IniSectionName, 'ShowRelativePath').LoadFromFile;
 	settingVal := FSettings.NodeLookSettings.ShowRelativePath;
 	Assert.AreEqual(settingVal, iniVal = '1', 'ShowRelativePath should be equal');
 
-	iniVal := FSettings.IniFile.ReadString(FSettings.NodeLookSettings.IniSectionName, 'ExpandNodes', 'False');
+	iniVal := FFactory.GetStringPersister(FSettings.NodeLookSettings.IniSectionName, 'ExpandNodes').LoadFromFile;
 	settingVal := FSettings.NodeLookSettings.ExpandNodes;
 	Assert.AreEqual(settingVal, iniVal = '1', 'ExpandNodes should be equal');
 end;
@@ -258,6 +250,7 @@ end;
 procedure TRipGrepperSettingsTest.ExtensionSettingsTest;
 var
 	extSetting : TRipGrepperExtensionSettings;
+	fh : IFileHandler;
 	iniVal : string;
 	settingVal : string;
 begin
@@ -266,7 +259,8 @@ begin
 
 	{ 1 } // FSettings.SearchFormSettings.ExtensionSettings;
 	for var s in [extSetting.KEY_IDE_CONTEXT, extSetting.KEY_SHORTCUT_SEARCH_SELECTED, extSetting.KEY_SHORTCUT_OPENWITH] do begin
-        var d := extSetting.SettingsDict()['DelphiExtensionSettings'];
+		var
+		d := extSetting.SettingsDict()['DelphiExtensionSettings'];
 		settingVal := d[s].AsString;
 		Assert.IsTrue(MatchStr(settingVal, [SC_OPEN_WITH, SC_SEARCH, '2']), 'DelphiExtensionSettings|' + s +
 			' should match the initial setting');
@@ -275,17 +269,20 @@ begin
 	// TRipGrepperSearchDialogForm.FormClose tested here
 	FSettings.SearchFormSettings.UpdateIniFile(FSettings.SearchFormSettings.IniSectionName); // create temp section
 	// Fsettings.IniFile.ReadTempSectionFiles(); // read temp section
-	Fsettings.IniFile.UpdateFile;
 
-	iniVal := FSettings.IniFile.ReadString(extSetting.INI_SECTION, extSetting.KEY_IDE_CONTEXT, '');
+	if Supports(FFactory, IFileHandler, fh) then begin
+		fh.WriteFile();
+	end;
+
+	iniVal := FFactory.GetStringPersister(extSetting.INI_SECTION, extSetting.KEY_IDE_CONTEXT).LoadFromFile;
 	settingVal := IntToStr(Integer(FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext.IDEContext));
 	Assert.AreEqual(settingVal.Trim(['[', ']']), iniVal.Trim(['[', ']']), extSetting.KEY_IDE_CONTEXT + ' should be equal');
 
-	iniVal := FSettings.IniFile.ReadString(extSetting.INI_SECTION, extSetting.KEY_SHORTCUT_SEARCH_SELECTED, '');
+	iniVal := FFactory.GetStringPersister(extSetting.INI_SECTION, extSetting.KEY_SHORTCUT_SEARCH_SELECTED).LoadFromFile;
 	settingVal := FSettings.SearchFormSettings.ExtensionSettings.SearchSelectedShortcut;
 	Assert.AreEqual(settingVal.Trim(['[', ']']), iniVal.Trim(['[', ']']), extSetting.KEY_SHORTCUT_SEARCH_SELECTED + ' should be equal');
 
-	iniVal := FSettings.IniFile.ReadString(extSetting.INI_SECTION, extSetting.KEY_SHORTCUT_OPENWITH, '');
+	iniVal := FFactory.GetStringPersister(extSetting.INI_SECTION, extSetting.KEY_SHORTCUT_OPENWITH).LoadFromFile;
 	settingVal := FSettings.SearchFormSettings.ExtensionSettings.OpenWithShortcut;
 	Assert.AreEqual(settingVal.Trim(['[', ']']), iniVal.Trim(['[', ']']), extSetting.KEY_SHORTCUT_OPENWITH + ' should be equal');
 end;
@@ -297,25 +294,25 @@ begin
 	FSettings.ReadIni;
 	var
 	iniSection := FSettings.SearchFormSettings.IniSectionName;
-	Assert.AreEqual('none', FSettings.IniFile.ReadString(iniSection, 'Encoding', NOTEXISTS));
-	Assert.AreEqual(1, FSettings.IniFile.ReadInteger(iniSection, 'Context', -99999));
-	Assert.AreEqual(True, FSettings.IniFile.ReadBool(iniSection, 'Pretty', FALSE));
-	Assert.AreEqual(True, FSettings.IniFile.ReadBool(iniSection, 'Hidden', FALSE));
-	Assert.AreEqual(True, FSettings.IniFile.ReadBool(iniSection, 'NoIgnore', FALSE));
+	Assert.AreEqual('none', FFactory.GetStringPersister(iniSection, 'Encoding').LoadFromFile);
+	Assert.AreEqual(1, FFactory.GetIntegerPersister(iniSection, 'Context').LoadFromFile);
+	Assert.AreEqual(True, FFactory.GetBoolPersister(iniSection, 'Pretty').LoadFromFile);
+	Assert.AreEqual(True, FFactory.GetBoolPersister(iniSection, 'Hidden').LoadFromFile);
+	Assert.AreEqual(True, FFactory.GetBoolPersister(iniSection, 'NoIgnore').LoadFromFile);
 
 	var
 	extSection := FSettings.SearchFormSettings.ExtensionSettings.IniSectionName;
 	var
-	scIniVal := FSettings.IniFile.ReadString(extSection, 'OpenWithShortcut', NOTEXISTS);
+	scIniVal := FFactory.GetStringPersister(extSection, 'OpenWithShortcut').LoadFromFile;
 	Assert.AreEqual(SC_OPEN_WITH, scIniVal);
-	scIniVal := FSettings.IniFile.ReadString(extSection, 'SearchSelectedShortcut', NOTEXISTS);
+	scIniVal := FFactory.GetStringPersister(extSection, 'SearchSelectedShortcut').LoadFromFile;
 	Assert.AreEqual(SC_SEARCH, scIniVal);
 
 end;
 
 function TRipGrepperSettingsTest.ReadBoolIniAsString(const _section, _key : string) : string;
 begin
-	Result := BoolToStr(FSettings.IniFile.ReadBool(_section, _key, False), True);
+	Result := BoolToStr(FFactory.GetBoolPersister(_section, _key).LoadFromFile, True);
 end;
 
 procedure TRipGrepperSettingsTest.UpdateHistInIniTest;
@@ -328,7 +325,7 @@ begin
 
 	Assert.AreEqual(ACT_HIST_VAL, FSettings.SearchTextsHistory[0], 'SearchTextsHistory[0] should be hist 0');
 	Assert.AreEqual(ACT_HIST_VAL,
-		{ } FSettings.IniFile.ReadString('SearchTextsHistory', 'Item_0', NOTEXISTS));
+		{ } FFactory.GetStringPersister('SearchTextsHistory', 'Item_0').LoadFromFile);
 end;
 
 procedure TRipGrepperSettingsTest.UpdateShortCutsIniTest;
@@ -340,8 +337,9 @@ begin
 	FSettings.UpdateIniFile();
 
 	Assert.AreEqual(SC_OPEN_WITH,
-		{ } FSettings.IniFile.ReadString(FSettings.SearchFormSettings.ExtensionSettings.INI_SECTION,
-		{ } FSettings.SearchFormSettings.ExtensionSettings.KEY_SHORTCUT_OPENWITH, 'not exists'));
+		{ } FFactory.GetStringPersister(
+		{ } FSettings.SearchFormSettings.ExtensionSettings.INI_SECTION,
+		{ } FSettings.SearchFormSettings.ExtensionSettings.KEY_SHORTCUT_OPENWITH).LoadFromFile);
 
 	FSettings.ReadIni;
 	Assert.AreEqual(SC_OPEN_WITH, FSettings.SearchFormSettings.ExtensionSettings.OpenWithShortcut, 'OpenWithShortcut should be ok');

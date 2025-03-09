@@ -6,9 +6,9 @@ uses
 	System.Variants,
 	System.Generics.Defaults,
 	System.IniFiles,
-	System.SysUtils,
 	RipGrepper.Settings.FilePersister,
-	ArrayEx;
+	ArrayEx,
+	System.SysUtils;
 
 type
 
@@ -177,10 +177,10 @@ end;
 
 procedure TSettingVariant<T>.Copy(_other : ISettingVariant<T>);
 begin
-    inherited Copy(_other);
+	inherited Copy(_other);
 	FValue := _other.Value;
-    FPersister := _other.Persister;
- end;
+	FPersister := _other.Persister;
+end;
 
 function TSettingVariant<T>.Equals(_other : ISettingVariant<T>) : Boolean;
 begin
@@ -267,7 +267,23 @@ end;
 
 function TSetting.AsString() : string;
 begin
-	Result := AsStringSetting.Value;
+	case SettingType of
+		stString : begin
+			Result := AsStringSetting.Value;
+		end;
+		stInteger : begin
+			Result := IntToStr(AsIntegerSetting.Value);
+		end;
+		stBool : begin
+			Result := BoolToStr(AsBoolSetting.Value);
+		end;
+		stStrArray : begin
+			Result := '[' + string.Join(',', AsArraySetting.Value.Items) + ']';
+		end;
+		else
+		raise ESettingsException.Create('Setting Type not supported.');
+	end;
+
 end;
 
 function TSetting.AsStringSetting() : TStringSetting;
@@ -286,7 +302,7 @@ end;
 
 procedure TSetting.Copy(_other : ISetting);
 begin
-    FState := _other.State;
+	FState := _other.State;
 end;
 
 function TSetting.Equals(_other : ISetting) : Boolean;

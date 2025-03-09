@@ -90,7 +90,8 @@ constructor TSearchFormSettings.Create(const _Owner : TPersistableSettings);
 begin
 	IniSectionName := INI_SECTION;
 	inherited Create(_Owner);
-	FExtensionSettings := TRipGrepperExtensionSettings.Create(_Owner);
+
+	FExtensionSettings := TRipGrepperExtensionSettings.Create(self);
 	AddChildSettings(FExtensionSettings);
 end;
 
@@ -98,6 +99,7 @@ constructor TSearchFormSettings.Create;
 begin
 	IniSectionName := INI_SECTION;
 	inherited Create;
+
 	FExtensionSettings := TRipGrepperExtensionSettings.Create();
 	AddChildSettings(FExtensionSettings);
 end;

@@ -96,14 +96,36 @@ begin
 end;
 
 procedure TSettingsDictionary.CopySection(const _section : string; _from : TSettingsDictionary);
+var
+	sdSelf : IDictionary<string, ISetting>;
+	sdFrom : IDictionary<string, ISetting>;
 begin
-	FInnerDictionary[_section].Clear;
-    FInnerDictionary.Remove(_section);
-	FInnerDictionary.Add(_section, _from[_section]);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.CopySection');
+
+	if FInnerDictionary.TryGetValue(_section, sdSelf) then begin
+		if _from.InnerDictionary.TryGetValue(_section, sdFrom) then begin
+			for var key in sdFrom.Keys do begin
+				if sdSelf.ContainsKey(key) then begin
+					sdSelf[key].Copy(sdFrom[key]);
+				end else begin
+					sdSelf[key] := sdFrom[key];
+				end;
+			end;
+		end else begin
+			dbgMsg.ErrorMsgFmt('Copy from non existent section [%s]', [_section]);
+			raise ESettingsException.CreateFmt('Copy from non existent section [%s]', [_section]);
+		end;
+	end else begin
+		dbgMsg.ErrorMsgFmt('Section not exists, add [%s]', [_section]);
+		FInnerDictionary.Add(_section, _from[_section]);
+	end;
 end;
 
 procedure TSettingsDictionary.CreateSetting(const _key : string; _setting : ISetting; _factory : IPersisterFactory);
 begin
+ 	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.CreateSetting');
 
 	case _setting.SettingType of
 		stString : begin
@@ -122,7 +144,7 @@ begin
 		raise ESettingsException.Create('Setting Type not supported.');
 	end;
 	AddOrChange(_key, _setting);
-	TDebugUtils.MsgFmt('TSettingsDictionary.CreateSetting - [%s] %s', [SectionName, _key]);
+	dbgMsg.MsgFmt('TSettingsDictionary.CreateSetting [%s] %s', [SectionName, _key]);
 end;
 
 function TSettingsDictionary.GetCount() : Integer;
@@ -168,6 +190,10 @@ procedure TSettingsDictionary.SaveToFile();
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.SaveToFile');
+	if ROOT_DUMMY_INI_SECTION = SectionName then begin
+		Exit;
+	end;
+
 	for var keys in InnerDictionary[SectionName] do begin
 		keys.Value.SaveToFile();
 		dbgMsg.MsgFmt('SaveToFile [%s] %s', [SectionName, keys.Key]);

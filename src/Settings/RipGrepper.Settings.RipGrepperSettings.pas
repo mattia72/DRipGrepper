@@ -176,12 +176,6 @@ begin
 	AddChildSettings(FOpenWithSettings);
 	AddChildSettings(FSearchFormSettings);
 
-	FSearchPathsHistory := TArraySetting.Create();
-	FSearchTextsHistory := TArraySetting.Create();
-	FReplaceTextsHistory := TArraySetting.Create();
-	FExpertOptionHistory := TArraySetting.Create();
-	FFileMasksHistory := TArraySetting.Create();
-
 	FRipGrepArguments := Shared.Make<TStringList>();
 	FRipGrepArguments.Delimiter := ' ';
 end;
@@ -265,7 +259,18 @@ end;
 
 procedure TRipGrepperSettings.Init;
 begin
-	// nothing todo
+	FSearchPathsHistory := TArraySetting.Create();
+	FSearchTextsHistory := TArraySetting.Create();
+	FReplaceTextsHistory := TArraySetting.Create();
+	FExpertOptionHistory := TArraySetting.Create();
+	FFileMasksHistory := TArraySetting.Create();
+
+	CreateSetting('SearchPathsHistory', FSearchPathsHistory);
+	CreateSetting('SearchTextsHistory', FSearchTextsHistory);
+	CreateSetting('ReplaceTextsHistory', FReplaceTextsHistory);
+	CreateSetting('ExpertOptionHistory', FExpertOptionHistory);
+	CreateSetting('FileMasksHistory', FFileMasksHistory);
+
 end;
 
 procedure TRipGrepperSettings.ReadIni; // Composit

@@ -38,17 +38,17 @@ var
 	setting : IShared<TStringSetting>;
 begin
 	dict := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create(TESTSECTION));
-	sourceDict := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create('SourceSection'));
+	sourceDict := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create(TESTSECTION));
 
 	key := 'TestKey';
 	setting := Shared.Make<TStringSetting>(TStringSetting.Create('TestValue'));
 
 	keyDict := TCollections.CreateSortedDictionary<string, ISetting>;
 	keyDict.Add(key, setting);
-	sourceDict.InnerDictionary.Add('SourceSection', keyDict);
+	sourceDict.InnerDictionary.Add(TESTSECTION, keyDict);
 
 	expected := setting.Value;
-    actual := ISettingVariant<string>(sourceDict['SourceSection'][key]).Value;
+    actual := ISettingVariant<string>(sourceDict[TESTSECTION][key]).Value;
 
 	Assert.AreEqual(expected, actual, 'The value should match the added value in source dictionary.');
 

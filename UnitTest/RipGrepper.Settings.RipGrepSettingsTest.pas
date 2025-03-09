@@ -7,7 +7,8 @@ uses
 	System.IniFiles,
 	RipGrepper.Settings.RipGrepParameterSettings,
 	DUnitX.TestFramework,
-	Spring;
+	Spring,
+	RipGrepper.Settings.FilePersister;
 
 type
 
@@ -18,6 +19,7 @@ type
 
 		private
 			FIniFile : IShared<TMemIniFile>;
+			FPersisterFactory : IPersisterFactory;
 			FSettings : TRipGrepParameterSettings;
 			procedure SetDefaultsAndCurrentValues;
 			procedure SetRipGrepArguments(const Settings : TRipGrepParameterSettings);
@@ -122,8 +124,8 @@ end;
 procedure TRipGrepSettingsTest.Setup;
 begin
 	FSettings := TRipGrepParameterSettings.Create(nil);
-	FSettings.OwnIniFile := False;
-	FSettings.GuiSearchTextParams.OwnIniFile := False;
+	FSettings.IsOwnerOfPersisterFactory := False;
+	FSettings.GuiSearchTextParams.IsOwnerOfPersisterFactory := False;
 
 	var
 	iniName := ChangeFileExt(Application.ExeName, '.ini');
@@ -133,9 +135,9 @@ begin
 	end;
 
 	FIniFile := Shared.Make<TMemIniFile>(TMemIniFile.Create(iniName, TEncoding.UTF8));
+	FPersisterFactory := TIniPersister.Create(FIniFile);
 
-	FSettings.IniFile := FIniFile;
-	Assert.IsTrue(FSettings.IniFile = FSettings.GuiSearchTextParams.IniFile);
+	Assert.IsTrue(FSettings.PersisterFactory = FSettings.GuiSearchTextParams.PersisterFactory);
 end;
 
 procedure TRipGrepSettingsTest.TearDown;

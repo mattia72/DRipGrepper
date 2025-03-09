@@ -9,7 +9,8 @@ uses
 	DUnitX.TestFramework,
 	System.Classes,
 	RipGrepper.Settings.TestOwnerSettings,
-	RipGrepper.Helper.MemIniFile;
+	RipGrepper.Helper.MemIniFile,
+	Spring;
 
 const
 	NOTEXISTS = '<not exists>';
@@ -24,16 +25,14 @@ type
 			INIFILE = 'DripGrepperUnittest.ini';
 
 		private
-			FIniFile : TMemIniFile;
 			FOwner : TTestOwnerSettings;
-			// FIniFile : TMemIniFile;
+			FIniFile : IShared<TMemIniFile>;
 			FSettings : TNodeLookSettings;
 			procedure CheckNodeSettingsDict(const _id : string);
 			procedure SetTestDefaultAndActualValues;
 
 		public
 			constructor Create;
-			destructor Destroy; override;
 			[Setup]
 			procedure Setup;
 			[TearDown]
@@ -57,18 +56,11 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Settings.ExtensionSettings,
 	RipGrepper.Tools.FileUtils,
-	RipGrepper.Settings.Persistable;
+	RipGrepper.Settings.Persistable, RipGrepper.Settings.FilePersister;
 
 constructor TNodeLookSettingsTest.Create;
 begin
 	inherited;
-	// FIniFile := TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8);
-end;
-
-destructor TNodeLookSettingsTest.Destroy;
-begin
-	inherited;
-	// FIniFile.Free;
 end;
 
 procedure TNodeLookSettingsTest.CheckNodeSettingsDict(const _id : string);
@@ -93,8 +85,12 @@ end;
 
 procedure TNodeLookSettingsTest.Setup;
 begin
+	FIniFile := Shared.Make<TMemIniFile>(
+		{ } TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8));
+
 	FOwner := TTestOwnerSettings.Create();
-	FIniFile := FOwner.IniFile();
+    FOwner.PersisterFactory := TIniPersister.Create(FIniFile);
+
 	FSettings := TNodeLookSettings.Create(FOwner);
 end;
 
@@ -122,19 +118,22 @@ begin
 
 	// Assert.IsTrue(not DirectoryExists(FSettings.IniFile.GetDripGrepperIniTempDir), ' temp dir should not exists');
 
-	iniVal := FSettings.IniFile.ReadString(FSettings.IniSectionName, 'AlternateRowColors', 'False');
+	var
+	fact := FSettings.PersisterFactory;
+
+	iniVal := fact.GetStringPersister(FSettings.IniSectionName, 'AlternateRowColors').LoadFromFile();
 	settingVal := FSettings.AlternateRowColors;
 	Assert.AreEqual(settingVal, iniVal = '1', 'AlternateRowColors should be equal');
 
-	iniVal := FSettings.IniFile.ReadString(FSettings.IniSectionName, 'IndentLines', 'False');
+	iniVal := fact.GetStringPersister(FSettings.IniSectionName, 'IndentLines').LoadFromFile();
 	settingVal := FSettings.IndentLines;
 	Assert.AreEqual(settingVal, iniVal = '1', 'IndentLines should be equal');
 
-	iniVal := FSettings.IniFile.ReadString(FSettings.IniSectionName, 'ShowRelativePath', 'False');
+	iniVal := fact.GetStringPersister(FSettings.IniSectionName, 'ShowRelativePath').LoadFromFile();
 	settingVal := FSettings.ShowRelativePath;
 	Assert.AreEqual(settingVal, iniVal = '1', 'ShowRelativePath should be equal');
 
-	iniVal := FSettings.IniFile.ReadString(FSettings.IniSectionName, 'ExpandNodes', 'False');
+	iniVal := fact.GetStringPersister(FSettings.IniSectionName, 'ExpandNodes').LoadFromFile();
 	settingVal := FSettings.ExpandNodes;
 	Assert.AreEqual(settingVal, iniVal = '1', 'ExpandNodes should be equal');
 

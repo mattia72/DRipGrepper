@@ -42,12 +42,12 @@ begin
 	v := TSettingVariant<integer>.Create(42);
 	v2 := TSettingVariant<integer>.Create(42);
 
-	Assert.IsTrue(v.Equals(v2), Format('Expected %s should be equal to %s', [v.Value, v2.Value]));
+	Assert.IsTrue(v.Equals(v2), Format('Expected %d should be equal to %d', [v.Value, v2.Value]));
 
 	v2.Value := 41;
-	Assert.IsTrue(not v.Equals(v2), Format('Expected %s not to be equal to %s', [v.Value, v2.Value]));
+	Assert.IsTrue(not v.Equals(v2), Format('Expected %d not to be equal to %d', [v.Value, v2.Value]));
 	v2.Value := 42;
-	Assert.IsTrue(not v.Equals(v2), Format('Expected %s not to be equal to %s', [v.Value, v2.Value]));
+	Assert.IsTrue(not v.Equals(v2), Format('Expected %d not to be equal to %d', [v.Value, v2.Value]));
 end;
 
 procedure TSettingVariantTest.TestEqualsStr();
@@ -77,7 +77,7 @@ begin
 		Section := 'TestSection';
 		Ident := 'TestIdent';
 		ExpectedValue := v.Value;
-		v.Persister := TMemIniStringPersister.Create(IniFile, Section, Ident);
+		v.Persister:= TMemIniStringPersister.Create(IniFile, Section, Ident);
 
 		v.SaveToFile();
 		ActualValue := IniFile.ReadString(Section, Ident, '');
@@ -131,7 +131,8 @@ begin
 		// ini file stores 0 or 1
 		ActualValue := IniFile.ReadBool(Section, Ident, False);
 
-		Assert.AreEqual(ExpectedValue, ActualValue, Format('Expected %s should be equal to %s', [ExpectedValue, ActualValue]));
+		Assert.AreEqual(ExpectedValue, ActualValue,
+        Format('Expected %s should be equal to %s', [BoolToStr(ExpectedValue), BoolToStr(ActualValue)]));
 	finally
 		IniFile.Free;
 	end;

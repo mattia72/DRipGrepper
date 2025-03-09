@@ -48,7 +48,7 @@ type
 			procedure SetChildrenIniFiles;
 			procedure SetPersisterFactory(const Value : IPersisterFactory);
 			procedure SetIniSectionName(const Value : string);
-			procedure SetOwnerSetings(const _section : string = ''; const _bForceWriteIni : Boolean = False;
+			procedure SetOwnerSettings(const _section : string = ''; const _bForceWriteIni : Boolean = False;
 				const _bClearSection : Boolean = False);
 
 		protected
@@ -163,7 +163,7 @@ begin
 	for var s in FChildren do begin
 		s.Free;
 	end;
-	FreeOwnIniFile;
+	// FreeOwnIniFile;
 	dbgMsg.MsgFmt('Free FSettingsDict %p for section: %s', [Pointer(FSettingsDict()), IniSectionName]);
 	inherited;
 end;
@@ -194,29 +194,43 @@ begin
 	if Assigned(_other) then begin
 		FIsModified := _other.IsModified;
 		FIsAlreadyRead := _other.IsAlreadyRead;
- 		CopySettingsDictSection(_other);
+		CopySettingsDictSection(_other);
 	end;
 end;
 
 procedure TPersistableSettings.CopySettingsDictSection(const _other : TPersistableSettings; const _copyAllSections : Boolean = False);
+var
+	settingOther : ISetting;
+	settingSelf : ISetting;
+	sdOther : IDictionary<string, ISetting>;
+	sdSelf : IDictionary<string, ISetting>;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.CopySettingsDictSection');
 	dbgMsg.MsgFmt('Copy TO [%s]', [IniSectionName]);
-	var
-	sd := _other.SettingsDict.Sections[IniSectionName];
-	for var key in sd.Keys do begin
-		var
-		s := sd[key];
-		case s.SettingType of
+	if not _other.SettingsDict.InnerDictionary.TryGetValue(IniSectionName, sdOther) then begin
+		dbgMsg.MsgFmt('There is no [%s] in source', [IniSectionName]);
+  		Exit;
+	end;
+	for var key in sdOther.Keys do begin
+		settingOther := sdOther[key];
+		sdSelf := SettingsDict[IniSectionName];
+
+		if not sdSelf.TryGetValue(key, settingSelf) then begin
+			dbgMsg.MsgFmt('There is no [%s] %s in destination', [IniSectionName, key]);
+			sdSelf[key] := settingOther;
+			continue;
+		end;
+
+		case settingOther.SettingType of
 			stString :
-			SettingsDict[IniSectionName][key].AsStringSetting.Copy(sd[key] as ISettingVariant<string>);
+			settingSelf.Copy(settingOther.AsStringSetting);
 			stInteger :
-			SettingsDict[IniSectionName][key].Copy(sd[key].AsIntegerSetting);
+			settingSelf.Copy(settingOther.AsIntegerSetting);
 			stBool :
-			SettingsDict[IniSectionName][key].Copy(sd[key].AsBoolSetting);
+			settingSelf.Copy(settingOther.AsBoolSetting);
 			stStrArray :
-			SettingsDict[IniSectionName][key].Copy(sd[key].AsArraySetting);
+			settingSelf.Copy(settingOther.AsArraySetting);
 			else
 			raise ESettingsException.Create('Can''t copy unknown setting type');
 		end;
@@ -230,15 +244,23 @@ begin
 end;
 
 function TPersistableSettings.DictToLog(_dict : TSettingsDictionary) : TArray<TArray<string>>;
+var
+	setting : ISetting;
+	sVal : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.DictToLog');
 	{$IFDEF DEBUG}
-	for var p in _dict.InnerDictionary do begin
-		var
-			sVal : string := TStringSetting(p.Value).Value;
-		Result := Result + [[p.Key, sVal]];
-		dbgMsg.MsgFmt('%s=%s', [p.Key, sVal], tftVerbose);
+	for var section in _dict.InnerDictionary.Keys do begin
+		Result := Result + [['Section', section]];
+		dbgMsg.MsgFmt('[%s]', [section], tftVerbose);
+
+		for var pair in _dict.InnerDictionary[section] do begin
+			setting := pair.Value;
+			sVal := setting.AsString;
+			Result := Result + [[pair.Key, sVal]];
+			dbgMsg.MsgFmt('%s=%s', [pair.Key, sVal], tftVerbose);
+		end;
 	end;
 	{$ENDIF}
 end;
@@ -251,7 +273,6 @@ begin
 	if FIsOwnerOfPersisterFactory then begin
 		if Assigned(FPersisterFactory) then begin
 			dbgMsg.MsgFmt('Free FPersisterFactory %p of section: %s', [Pointer(PersisterFactory), GetIniSectionName()]);
-			// FPersisterFactory.Free;
 			FPersisterFactory := nil;
 		end;
 	end;
@@ -378,7 +399,7 @@ begin
 	FIniSectionName := Value;
 end;
 
-procedure TPersistableSettings.SetOwnerSetings(const _section : string = ''; const _bForceWriteIni : Boolean = False;
+procedure TPersistableSettings.SetOwnerSettings(const _section : string = ''; const _bForceWriteIni : Boolean = False;
 const _bClearSection : Boolean = False);
 var
 	dbgArr : TArray<TArray<string>>;
@@ -408,7 +429,7 @@ begin
 		s.UpdateIniFile(s.GetIniSectionName());
 	end;
 
-	SetOwnerSetings(_section, _bForceWriteIni, _bClearSection);
+	SetOwnerSettings(_section, _bForceWriteIni, _bClearSection);
 
 	if Assigned(FOwner) { and (_section = '') } and not _bForceWriteIni then begin
 		Exit;

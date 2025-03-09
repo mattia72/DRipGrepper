@@ -54,12 +54,12 @@ uses
 constructor TSearchFormSettingsTest.Create;
 begin
 	inherited;
-	// FIniFile := TMemIniFile.Create(INIFILE, TEncoding.UTF8);
+	FIniFile := TMemIniFile.Create(INIFILE, TEncoding.UTF8);
 end;
 
 destructor TSearchFormSettingsTest.Destroy;
 begin
-	// FIniFile.Free;
+	FIniFile.Free;
 	inherited;
 end;
 
@@ -137,7 +137,7 @@ end;
 procedure TSearchFormSettingsTest.Setup;
 begin
 	FOwner := TTestOwnerSettings.Create();
-	FIniFile := FOwner.IniFile();
+//  FIniFile := FOwner.IniFile();
 	FSettings := TSearchFormSettings.Create(FOwner);
 end;
 
