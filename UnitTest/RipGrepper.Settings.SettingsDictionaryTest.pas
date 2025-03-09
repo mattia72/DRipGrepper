@@ -31,30 +31,30 @@ const
 
 procedure TSettingsDictionaryTest.CopySectionTest();
 var
-	dict : IShared<TSettingsDictionary>;
-	sourceDict : IShared<TSettingsDictionary>;
-	keyDict : ISettingsKeyCollection;
+	dictTo : IShared<TSettingsDictionary>;
+	dictFrom : IShared<TSettingsDictionary>;
+	keyDict : ISettingKeys;
 	key, expected, actual : string;
-	setting : IShared<TStringSetting>;
+	setting : TStringSetting;
 begin
-	dict := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create(TESTSECTION));
-	sourceDict := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create(TESTSECTION));
+	dictTo := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create(TESTSECTION));
+	dictFrom := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create(TESTSECTION));
 
 	key := 'TestKey';
-	setting := Shared.Make<TStringSetting>(TStringSetting.Create('TestValue'));
+	setting := TStringSetting.Create('TestValue');
 
 	keyDict := TCollections.CreateSortedDictionary<string, ISetting>;
 	keyDict.Add(key, setting);
-	sourceDict.InnerDictionary.Add(TESTSECTION, keyDict);
+	dictFrom.InnerDictionary.Add(TESTSECTION, keyDict);
 
 	expected := setting.Value;
-    actual := ISettingVariant<string>(sourceDict[TESTSECTION][key]).Value;
+    actual := ISettingVariant<string>(dictFrom[TESTSECTION][key]).Value;
 
 	Assert.AreEqual(expected, actual, 'The value should match the added value in source dictionary.');
 
-	dict.CopySection(TESTSECTION, sourceDict);
+	dictTo.CopySection(TESTSECTION, dictFrom);
 
-	actual := ISettingVariant<string>(dict[TESTSECTION ][key]).Value;
+	actual := ISettingVariant<string>(dictTo[TESTSECTION ][key]).Value;
 	Assert.AreEqual(expected, actual, 'The value should match the copied value.');
 end;
 
