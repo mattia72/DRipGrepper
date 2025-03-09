@@ -13,16 +13,16 @@ uses
 type
 	TSettingSection = string;
 	TSettingKey = string;
-	ISettingsKeyCollection = IDictionary<TSettingKey, ISetting>;
-	ISettingsCollection = IDictionary<TSettingSection, ISettingsKeyCollection>;
+	ISettingKeys = IDictionary<TSettingKey, ISetting>;
+	ISettingSections = IDictionary<TSettingSection, ISettingKeys>;
 
 	TSettingsDictionary = class
 		private
-			FInnerDictionary : ISettingsCollection;
+			FInnerDictionary : ISettingSections;
 			FSectionName : string;
 			procedure AddNewSectionAndKey(const _key : string; _setting : ISetting);
 			function GetCount() : Integer;
-			function GetSections(Index : string) : ISettingsKeyCollection; overload;
+			function GetSections(Index : string) : ISettingKeys; overload;
 			property SectionName : string read FSectionName;
 
 		public
@@ -37,8 +37,8 @@ type
 			procedure LoadFromFile();
 			procedure SaveToFile();
 			property Count : Integer read GetCount;
-			property InnerDictionary : ISettingsCollection read FInnerDictionary;
-			property Sections[index : string] : ISettingsKeyCollection read GetSections; default;
+			property InnerDictionary : ISettingSections read FInnerDictionary;
+			property Sections[index : string] : ISettingKeys read GetSections; default;
 	end;
 
 implementation
@@ -67,7 +67,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.Create', True);
 	dbgMsg.MsgFmt('Create %p for section: ???', [Pointer(self)]);
-	FInnerDictionary := TCollections.CreateSortedDictionary<TSettingSection, ISettingsKeyCollection>();
+	FInnerDictionary := TCollections.CreateSortedDictionary<TSettingSection, ISettingKeys>();
 end;
 
 procedure TSettingsDictionary.AddNewSectionAndKey(const _key : string; _setting : ISetting);
@@ -83,7 +83,7 @@ end;
 
 procedure TSettingsDictionary.AddOrChange(const _key : string; _setting : ISetting);
 var
-	keys : ISettingsKeyCollection;
+	keys : ISettingKeys;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.AddOrChange');
@@ -98,8 +98,8 @@ end;
 
 procedure TSettingsDictionary.CopySection(const _section : string; _from : TSettingsDictionary);
 var
-	sdSelf : IDictionary<string, ISetting>;
-	sdFrom : IDictionary<string, ISetting>;
+	sdSelf : ISettingKeys;
+	sdFrom : ISettingKeys;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.CopySection');
@@ -176,14 +176,14 @@ begin
 	Result := InnerDictionary.Count;
 end;
 
-function TSettingsDictionary.GetSections(Index : string) : ISettingsKeyCollection;
+function TSettingsDictionary.GetSections(Index : string) : ISettingKeys;
 begin
 	Result := FInnerDictionary[index];
 end;
 
 function TSettingsDictionary.GetSetting(const _key : string) : ISetting;
 var
-	keys : ISettingsKeyCollection;
+	keys : ISettingKeys;
 begin
 	Result := nil;
 	if FInnerDictionary.TryGetValue(SectionName, keys) then begin

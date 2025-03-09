@@ -122,7 +122,7 @@ type
 
 		private
 			FFontColors : TFontColors;
-			FColorSettings : ISettingsKeyCollection;
+			FColorSettings : ISettingKeys;
 
 		protected
 			function GetIsAlreadyRead : Boolean; override;
