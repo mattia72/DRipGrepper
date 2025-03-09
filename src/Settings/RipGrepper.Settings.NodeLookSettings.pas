@@ -120,10 +120,10 @@ begin
 	FShowFileIcon := TBoolSetting.Create(False);
 
 	CreateSetting('ShowRelativePath', FShowRelativePath);
-	CreateSetting('ShowFileIcon', TBoolSetting.Create(False));
+	CreateSetting('ShowFileIcon', FShowFileIcon);
 	CreateSetting('AlternateRowColors', FAlternateRowColors);
-	CreateSetting('IndentLines', TBoolSetting.Create(False));
-	CreateSetting('ExpandNodes', TBoolSetting.Create(True));
+	CreateSetting('IndentLines', FIndentLines);
+	CreateSetting('ExpandNodes', FExpandNodes);
 	FFilterSettings.Init();
 end;
 

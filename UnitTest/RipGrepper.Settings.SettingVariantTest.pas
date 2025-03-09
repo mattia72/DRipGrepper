@@ -155,6 +155,7 @@ begin
 		Section := 'TestSection';
 		Ident := 'TestIdent';
 		v.Persister := TMemIniStrArrayPersister.Create(IniFile, Section, Ident);
+        v.SaveToFile;
 
 		for var i := 0 to 2 do begin
 			ActualValue := IniFile.ReadString(Section, Format('%s_Item%d', [Ident, i]), '');

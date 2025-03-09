@@ -40,7 +40,6 @@ type
 			FIsAlreadyRead : Boolean;
 			FOwner : TPersistableSettings;
 			FIsOwnerOfPersisterFactory : Boolean;
-			function DictToLog(_dict : TSettingsDictionary) : TArray<TArray<string>>;
 			procedure FreeOwnIniFile;
 			function GetCount() : Integer;
 			function GetPersisterFactory() : IPersisterFactory;
@@ -243,28 +242,6 @@ begin
 	SettingsDict.CreateSetting(_key, _setting, PersisterFactory);
 end;
 
-function TPersistableSettings.DictToLog(_dict : TSettingsDictionary) : TArray<TArray<string>>;
-var
-	setting : ISetting;
-	sVal : string;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.DictToLog');
-	{$IFDEF DEBUG}
-	for var section in _dict.InnerDictionary.Keys do begin
-		Result := Result + [['Section', section]];
-		dbgMsg.MsgFmt('[%s]', [section], tftVerbose);
-
-		for var pair in _dict.InnerDictionary[section] do begin
-			setting := pair.Value;
-			sVal := setting.AsString;
-			Result := Result + [[pair.Key, sVal]];
-			dbgMsg.MsgFmt('%s=%s', [pair.Key, sVal], tftVerbose);
-		end;
-	end;
-	{$ENDIF}
-end;
-
 procedure TPersistableSettings.FreeOwnIniFile;
 begin
 	var
@@ -406,7 +383,7 @@ var
 begin
 	if Assigned(FOwner) { and (_section = '') } then begin
 		FOwner.CopySettingsDictSection(self, True);
-		dbgArr := DictToLog(SettingsDict);
+		dbgArr := TSettingsDictionary.DictToStringArray(SettingsDict);
 		FOwner.WriteSettingsDictToIni(IfThen(_bForceWriteIni, _section), _bClearSection);
 	end;
 end;

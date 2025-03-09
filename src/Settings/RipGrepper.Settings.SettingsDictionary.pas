@@ -31,6 +31,7 @@ type
 			procedure AddOrChange(const _key : string; _setting : ISetting);
 			procedure CopySection(const _section : string; _from : TSettingsDictionary);
 			procedure CreateSetting(const _key : string; _setting : ISetting; _factory : IPersisterFactory);
+			class function DictToStringArray(_dict : TSettingsDictionary) : TArray<TArray<string>>;
 			function GetSetting(const _key : string) : ISetting; overload;
 			function GetSections() : IReadOnlyCollection<string>; overload;
 			procedure LoadFromFile();
@@ -124,7 +125,7 @@ end;
 
 procedure TSettingsDictionary.CreateSetting(const _key : string; _setting : ISetting; _factory : IPersisterFactory);
 begin
- 	var
+	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.CreateSetting');
 
 	case _setting.SettingType of
@@ -145,6 +146,29 @@ begin
 	end;
 	AddOrChange(_key, _setting);
 	dbgMsg.MsgFmt('TSettingsDictionary.CreateSetting [%s] %s', [SectionName, _key]);
+end;
+
+class function TSettingsDictionary.DictToStringArray(_dict : TSettingsDictionary) : TArray<TArray<string>>;
+var
+	setting : ISetting;
+	sVal : string;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.DictToStringArray');
+
+	{$IFDEF DEBUG}
+	for var section in _dict.InnerDictionary.Keys do begin
+		Result := Result + [['Section', section]];
+		dbgMsg.MsgFmt('[%s]', [section], tftVerbose);
+
+		for var pair in _dict.InnerDictionary[section] do begin
+			setting := pair.Value;
+			sVal := setting.AsString;
+			Result := Result + [[pair.Key, sVal]];
+			dbgMsg.MsgFmt('%s=%s', [pair.Key, sVal], tftVerbose);
+		end;
+	end;
+	{$ENDIF}
 end;
 
 function TSettingsDictionary.GetCount() : Integer;

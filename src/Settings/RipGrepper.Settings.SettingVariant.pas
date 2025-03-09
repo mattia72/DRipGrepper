@@ -275,7 +275,7 @@ begin
 			Result := IntToStr(AsIntegerSetting.Value);
 		end;
 		stBool : begin
-			Result := BoolToStr(AsBoolSetting.Value);
+			Result := BoolToStr(AsBoolSetting.Value, True);
 		end;
 		stStrArray : begin
 			Result := '[' + string.Join(',', AsArraySetting.Value.Items) + ']';
