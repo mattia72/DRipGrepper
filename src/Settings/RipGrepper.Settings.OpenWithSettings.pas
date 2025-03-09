@@ -13,7 +13,7 @@ uses
 type
 	TOpenWithSettings = class(TPersistableSettings)
 		private
-			FCommandList : TArraySetting;
+			FCommandList : IArraySetting;
 			FTestFile : TOpenWithParams;
 			function GetCommand(Index : Integer) : string;
 			procedure SetCommand(Index : Integer; const Value : string);
@@ -61,8 +61,8 @@ end;
 function TOpenWithSettings.GetCommand(Index : Integer) : string;
 begin
 	Result := '';
-	if FCommandList.Count > index then begin
-		Result := FCommandList[index];
+	if TArraySetting(FCommandList).Count > index then begin
+		Result := TArraySetting(FCommandList)[index];
 	end;
 end;
 

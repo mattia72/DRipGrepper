@@ -28,12 +28,12 @@ type
 
 		private
 
-			FContext : TIntegerSetting;
-			FEncoding : TStringSetting;
+			FContext : IIntegerSetting;
+			FEncoding : IStringSetting;
 			FExtensionSettings : TRipGrepperExtensionSettings;
-			FHidden : TBoolSetting;
-			FNoIgnore : TBoolSetting;
-			FPretty : TBoolSetting;
+			FHidden : IBoolSetting;
+			FNoIgnore : IBoolSetting;
+			FPretty : IBoolSetting;
 			function GetContext : Integer;
 			function GetEncoding : string;
 			function GetExtensionSettings : TRipGrepperExtensionSettings;

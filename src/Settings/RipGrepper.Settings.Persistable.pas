@@ -40,6 +40,7 @@ type
 			FIsAlreadyRead : Boolean;
 			FOwner : TPersistableSettings;
 			FIsOwnerOfPersisterFactory : Boolean;
+			procedure CopySettingsDictSection(const _section : string; _sdFrom : ISettingKeys); overload;
 			procedure FreeOwnIniFile;
 			function GetCount() : Integer;
 			function GetPersisterFactory() : IPersisterFactory;
@@ -83,7 +84,7 @@ type
 			destructor Destroy; override;
 			function AddChildSettings(_settings : TPersistableSettings) : TPersistableSettings;
 			function RemoveChildSettings(_settings : TPersistableSettings) : Boolean;
-			procedure CopySettingsDictSection(const _other : TPersistableSettings; const _copyAllSections : Boolean = False);
+			procedure CopySettingsDictSection(const _from : TPersistableSettings; const _copyAllSections : Boolean = False); overload;
 			/// <summary>TPersistableSettings.ReadIni
 			/// Members.RedIni- should be called here
 			/// </summary>
@@ -197,44 +198,70 @@ begin
 	end;
 end;
 
-procedure TPersistableSettings.CopySettingsDictSection(const _other : TPersistableSettings; const _copyAllSections : Boolean = False);
+procedure TPersistableSettings.CopySettingsDictSection(const _from : TPersistableSettings; const _copyAllSections : Boolean = False);
 var
 	settingOther : ISetting;
 	settingSelf : ISetting;
-	sdOther : IDictionary<string, ISetting>;
-	sdSelf : IDictionary<string, ISetting>;
+	sdFrom : ISettingKeys;
+	sdSelf : ISettingKeys;
+	section : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.CopySettingsDictSection');
 	dbgMsg.MsgFmt('Copy TO [%s]', [IniSectionName]);
-	if not _other.SettingsDict.InnerDictionary.TryGetValue(IniSectionName, sdOther) then begin
+
+	if not _from.SettingsDict.InnerDictionary.TryGetValue(IniSectionName, sdFrom) and not _copyAllSections then begin
 		dbgMsg.MsgFmt('There is no [%s] in source', [IniSectionName]);
-  		Exit;
+		Exit;
 	end;
-	for var key in sdOther.Keys do begin
-		settingOther := sdOther[key];
-		sdSelf := SettingsDict[IniSectionName];
+
+	if _copyAllSections then begin
+		for var sd in _from.SettingsDict() do begin
+			section := sd.Key;
+			if SettingsDict.ContainsSection(section) then begin
+				CopySettingsDictSection(section, sdFrom);
+			end else begin
+				SettingsDict[section] := sd.Value;
+			end;
+		end;
+	end else begin
+		CopySettingsDictSection(IniSectionName, sdFrom);
+	end;
+
+end;
+
+procedure TPersistableSettings.CopySettingsDictSection(const _section : string; _sdFrom : ISettingKeys);
+var
+	settingOther : ISetting;
+	settingSelf : ISetting;
+	sdSelf : ISettingKeys;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.CopySettingsDictSection');
+
+	for var key in _sdFrom.Keys do begin
+		settingOther := _sdFrom[key];
+		sdSelf := SettingsDict[_section];
 
 		if not sdSelf.TryGetValue(key, settingSelf) then begin
-			dbgMsg.MsgFmt('There is no [%s] %s in destination', [IniSectionName, key]);
+			dbgMsg.MsgFmt('There is no [%s] %s in destination', [_section, key]);
 			sdSelf[key] := settingOther;
 			continue;
 		end;
 
 		case settingOther.SettingType of
 			stString :
-			settingSelf.Copy(settingOther.AsStringSetting);
+			TStringSetting(settingSelf).Copy(settingOther.AsStringSetting);
 			stInteger :
-			settingSelf.Copy(settingOther.AsIntegerSetting);
+			TIntegerSetting(settingSelf).Copy(settingOther.AsIntegerSetting);
 			stBool :
-			settingSelf.Copy(settingOther.AsBoolSetting);
+			TBoolSetting(settingSelf).Copy(settingOther.AsBoolSetting);
 			stStrArray :
-			settingSelf.Copy(settingOther.AsArraySetting);
+			TArraySetting(settingSelf).Copy(settingOther.AsArraySetting);
 			else
 			raise ESettingsException.Create('Can''t copy unknown setting type');
 		end;
 	end;
-
 end;
 
 procedure TPersistableSettings.CreateSetting(const _key : string; _setting : ISetting);

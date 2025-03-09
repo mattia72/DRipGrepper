@@ -35,7 +35,7 @@ var
 	dictFrom : IShared<TSettingsDictionary>;
 	keyDict : ISettingKeys;
 	key, expected, actual : string;
-	setting : TStringSetting;
+	setting : IStringSetting;
 begin
 	dictTo := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create(TESTSECTION));
 	dictFrom := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create(TESTSECTION));

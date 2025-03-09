@@ -30,10 +30,10 @@ type
 			FFontColorSettings : TColorSettings;
 			FAppSettings : TAppSettings;
 
-			FExpertOptionHistory : TArraySetting;
-			FSearchPathsHistory : TArraySetting;
-			FSearchTextsHistory : TArraySetting;
-			FFileMasksHistory : TArraySetting;
+			FExpertOptionHistory : IArraySetting;
+			FSearchPathsHistory : IArraySetting;
+			FSearchTextsHistory : IArraySetting;
+			FFileMasksHistory : IArraySetting;
 
 			FRipGrepArguments : IShared<TRipGrepArguments>;
 			FSearchPathIsDir : Boolean;
@@ -41,19 +41,19 @@ type
 			FActualSearchPath : string;
 			FLastSearchText : string;
 			FLastReplaceText : string;
-			FReplaceTextsHistory : TArraySetting;
+			FReplaceTextsHistory : IArraySetting;
 
 			function GetIsEmpty : Boolean;
 			function GetSearchPathIsDir : Boolean;
-			procedure SetFileMasksHistory(const Value : TArraySetting);
-			procedure SetExpertOptionHistory(const Value : TArraySetting);
-			procedure SetSearchPathsHistory(const Value : TArraySetting);
-			procedure SetSearchTextsHistory(const Value : TArraySetting);
+			procedure SetFileMasksHistory(const Value : IArraySetting);
+			procedure SetExpertOptionHistory(const Value : IArraySetting);
+			procedure SetSearchPathsHistory(const Value : IArraySetting);
+			procedure SetSearchTextsHistory(const Value : IArraySetting);
 			function GetActualSearchPath : string;
 			function GetIsReplaceMode : Boolean;
 			function GetSearchFormSettings : TSearchFormSettings;
 			procedure LoadFirstNecessarySettings;
-			procedure SetReplaceTextsHistory(const Value : TArraySetting);
+			procedure SetReplaceTextsHistory(const Value : IArraySetting);
 
 		protected
 			function GetIsAlreadyRead : Boolean; override;
@@ -64,7 +64,7 @@ type
 			procedure StoreViewSettings(const _s : string = '');
 			constructor Create;
 			destructor Destroy; override;
-			procedure AddIfNotContains(_to, _from : TArraySetting);
+			procedure AddIfNotContains(_to, _from : IArraySetting);
 			procedure Copy(const _other : TPersistableSettings); override;
 			function GetIsModified : Boolean; override;
 			function GetLastHistorySearchText : string;
@@ -76,12 +76,12 @@ type
 			procedure ReLoad; override;
 			procedure StoreHistories;
 			property LastSearchText : string read FLastSearchText write FLastSearchText;
-			property FileMasksHistory : TArraySetting read FFileMasksHistory write SetFileMasksHistory;
+			property FileMasksHistory : IArraySetting read FFileMasksHistory write SetFileMasksHistory;
 			property IsEmpty : Boolean read GetIsEmpty;
 
 			property ActualSearchPath : string read GetActualSearchPath;
-			property SearchPathsHistory : TArraySetting read FSearchPathsHistory write SetSearchPathsHistory;
-			property ExpertOptionHistory : TArraySetting read FExpertOptionHistory write SetExpertOptionHistory;
+			property SearchPathsHistory : IArraySetting read FSearchPathsHistory write SetSearchPathsHistory;
+			property ExpertOptionHistory : IArraySetting read FExpertOptionHistory write SetExpertOptionHistory;
 			property RipGrepParameters : TRipGrepParameterSettings read FRipGrepParameters write FRipGrepParameters;
 			property OpenWithSettings : TOpenWithSettings read FOpenWithSettings;
 			property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings write FSearchFormSettings;
@@ -91,8 +91,8 @@ type
 			property LastReplaceText : string read FLastReplaceText write FLastReplaceText;
 			property NodeLookSettings : TNodeLookSettings read FNodeLookSettings write FNodeLookSettings;
 			property SearchPathIsDir : Boolean read GetSearchPathIsDir;
-			property SearchTextsHistory : TArraySetting read FSearchTextsHistory write SetSearchTextsHistory;
-			property ReplaceTextsHistory : TArraySetting read FReplaceTextsHistory write SetReplaceTextsHistory;
+			property SearchTextsHistory : IArraySetting read FSearchTextsHistory write SetSearchTextsHistory;
+			property ReplaceTextsHistory : IArraySetting read FReplaceTextsHistory write SetReplaceTextsHistory;
 	end;
 
 var
@@ -132,19 +132,19 @@ procedure TRipGrepperSettings.LoadInitialSettings;
 begin
 	LoadFirstNecessarySettings;
 
-	if SearchPathsHistory.Count = 0 then begin
+	if TArraySetting(SearchPathsHistory).Count = 0 then begin
 		SearchPathsHistory.Value.Add(TDirectory.GetCurrentDirectory());
 	end;
 
-	if SearchTextsHistory.Count = 0 then begin
+	if TArraySetting(SearchTextsHistory).Count = 0 then begin
 		SearchTextsHistory.Value.Add('search text');
 	end;
 
-	if ExpertOptionHistory.Count = 0 then begin
+	if TArraySetting(ExpertOptionHistory).Count = 0 then begin
 		ExpertOptionHistory.Value.Add('');
 	end;
 
-	if FileMasksHistory.Count = 0 then begin
+	if TArraySetting(FileMasksHistory).Count = 0 then begin
 		FileMasksHistory.Value.Add('');
 	end;
 end;
@@ -180,7 +180,7 @@ begin
 	FRipGrepArguments.Delimiter := ' ';
 end;
 
-procedure TRipGrepperSettings.AddIfNotContains(_to, _from : TArraySetting);
+procedure TRipGrepperSettings.AddIfNotContains(_to, _from : IArraySetting);
 begin
 	for var s in _from.Value do begin
 		FIsModified := (_to.Value.AddIfNotContains(s) <> -1) or FIsModified;
@@ -319,27 +319,27 @@ begin
 	inherited ReLoad;
 end;
 
-procedure TRipGrepperSettings.SetFileMasksHistory(const Value : TArraySetting);
+procedure TRipGrepperSettings.SetFileMasksHistory(const Value : IArraySetting);
 begin
 	AddIfNotContains(FFileMasksHistory, Value);
 end;
 
-procedure TRipGrepperSettings.SetReplaceTextsHistory(const Value : TArraySetting);
+procedure TRipGrepperSettings.SetReplaceTextsHistory(const Value : IArraySetting);
 begin
 	AddIfNotContains(FReplaceTextsHistory, Value);
 end;
 
-procedure TRipGrepperSettings.SetExpertOptionHistory(const Value : TArraySetting);
+procedure TRipGrepperSettings.SetExpertOptionHistory(const Value : IArraySetting);
 begin
 	AddIfNotContains(FExpertOptionHistory, Value);
 end;
 
-procedure TRipGrepperSettings.SetSearchPathsHistory(const Value : TArraySetting);
+procedure TRipGrepperSettings.SetSearchPathsHistory(const Value : IArraySetting);
 begin
 	AddIfNotContains(FSearchPathsHistory, Value);
 end;
 
-procedure TRipGrepperSettings.SetSearchTextsHistory(const Value : TArraySetting);
+procedure TRipGrepperSettings.SetSearchTextsHistory(const Value : IArraySetting);
 begin
 	AddIfNotContains(FSearchTextsHistory, Value);
 end;

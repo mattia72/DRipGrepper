@@ -26,10 +26,10 @@ type
 				{ } TFilterSettings.SETTING_USE_REGEX);
 
 		private
-			FChosenFilterMode : TStringSetting;
+			FChosenFilterMode : IStringSetting;
 			FFilterModes : TFilterModes;
-			FIsCaseSensitive : TBoolSetting;
-			FIsUseRegex : TBoolSetting;
+			FIsCaseSensitive : IBoolSetting;
+			FIsUseRegex : IBoolSetting;
 			function GetChosenFilterMode() : string;
 			function GetFilterModes : TFilterModes;
 			function GetIsCaseSensitive() : Boolean;

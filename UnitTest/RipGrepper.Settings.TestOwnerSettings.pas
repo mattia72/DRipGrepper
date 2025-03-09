@@ -34,7 +34,7 @@ type
 type
 	TTestSettings = class(TPersistableSettings)
 		private
-			FStrSetting1 : TStringSetting;
+			FStrSetting1 : IStringSetting;
 			function GetStrSetting() : string;
 			procedure SetStrSetting(const Value : string);
 			// FStrSetting2 : string;

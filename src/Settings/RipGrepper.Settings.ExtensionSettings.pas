@@ -11,7 +11,7 @@ uses
 
 type
 	TRipGrepperExtensionContext = record
-		IDEContext : TIntegerSetting;
+		IDEContext : IIntegerSetting;
 		ActiveFile : string;
 		OpenFiles : TArray<string>;
 		ProjectFiles : TArray<string>;
@@ -31,9 +31,9 @@ type
 			KEY_SHORTCUT_OPENWITH = 'OpenWithShortcut';
 
 		private
-			FSearchSelectedShortcut : TStringSetting;
+			FSearchSelectedShortcut : IStringSetting;
 			FCurrentIDEContext : TRipGrepperExtensionContext;
-			FOpenWithShortCut : TStringSetting;
+			FOpenWithShortCut : IStringSetting;
 			function GetOpenWithShortcut() : string;
 			function GetSearchSelectedShortcut() : string;
 			procedure LoadIdeContextFromDict();

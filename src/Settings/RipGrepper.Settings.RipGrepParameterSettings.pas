@@ -26,13 +26,13 @@ type
 		private
 			FRipGrepArguments : IShared<TRipGrepArguments>;
 			FRgExeOptions : TOptionStrings;
-			FSearchPath : TStringSetting;
+			FSearchPath : IStringSetting;
 			FSearchText : string;
 			FReplaceText : string;
-			FFileMasks : TStringSetting;
+			FFileMasks : IStringSetting;
 			FGuiSearchTextParams : IShared<TGuiSearchTextParams>;
 			FRipGrepPathInitResult : ERipGrepPathInitResult;
-			FRipGrepPath : TStringSetting;
+			FRipGrepPath : IStringSetting;
 			procedure AddQuotedRgArgs(var _cmdLine : IShared<TStringList>; const _quoteChar : Char; const _shell : TShellType);
 			function GetFileMasks() : string;
 			function GetIsRgPathInitOk() : Boolean;
@@ -103,7 +103,6 @@ end;
 destructor TRipGrepParameterSettings.Destroy;
 begin
 	RemoveChildSettings(FGuiSearchTextParams);
-	// FRipGrepArguments.Free;
 	inherited Destroy() // ok;
 end;
 

@@ -5,8 +5,6 @@ interface
 uses
 	RipGrepper.Settings.SettingVariant,
 	Spring.Collections,
-	System.Variants,
-	System.Classes,
 	System.IniFiles,
 	RipGrepper.Settings.FilePersister;
 
@@ -17,28 +15,33 @@ type
 	ISettingSections = IDictionary<TSettingSection, ISettingKeys>;
 
 	TSettingsDictionary = class
+
 		private
 			FInnerDictionary : ISettingSections;
 			FSectionName : string;
 			procedure AddNewSectionAndKey(const _key : string; _setting : ISetting);
 			function GetCount() : Integer;
-			function GetSections(Index : string) : ISettingKeys; overload;
+			function GetSections(index : string) : ISettingKeys; overload;
+			procedure SetSections(index : string; const Value : ISettingKeys);
 			property SectionName : string read FSectionName;
 
 		public
 			constructor Create(const _section : string); overload;
 			constructor Create; overload;
 			procedure AddOrChange(const _key : string; _setting : ISetting);
+			function ContainsSection(const _section : string) : Boolean;
 			procedure CopySection(const _section : string; _from : TSettingsDictionary);
 			procedure CreateSetting(const _key : string; _setting : ISetting; _factory : IPersisterFactory);
+			function GetEnumerator() : IEnumerator<Spring.Collections.TPair<TSettingSection, ISettingKeys>>;
 			class function DictToStringArray(_dict : TSettingsDictionary) : TArray<TArray<string>>;
 			function GetSetting(const _key : string) : ISetting; overload;
 			function GetSections() : IReadOnlyCollection<string>; overload;
 			procedure LoadFromFile();
 			procedure SaveToFile();
+
 			property Count : Integer read GetCount;
 			property InnerDictionary : ISettingSections read FInnerDictionary;
-			property Sections[index : string] : ISettingKeys read GetSections; default;
+			property Sections[index : string] : ISettingKeys read GetSections write SetSections; default;
 	end;
 
 implementation
@@ -94,6 +97,11 @@ begin
 	end else begin
 		AddNewSectionAndKey(_key, _setting);
 	end;
+end;
+
+function TSettingsDictionary.ContainsSection(const _section : string) : Boolean;
+begin
+	Result := FInnerDictionary.ContainsKey(_section);
 end;
 
 procedure TSettingsDictionary.CopySection(const _section : string; _from : TSettingsDictionary);
@@ -176,7 +184,12 @@ begin
 	Result := InnerDictionary.Count;
 end;
 
-function TSettingsDictionary.GetSections(Index : string) : ISettingKeys;
+function TSettingsDictionary.GetEnumerator() : IEnumerator<Spring.Collections.TPair<TSettingSection, ISettingKeys>>;
+begin
+	Result := FInnerDictionary.GetEnumerator();
+end;
+
+function TSettingsDictionary.GetSections(index : string) : ISettingKeys;
 begin
 	Result := FInnerDictionary[index];
 end;
@@ -222,6 +235,11 @@ begin
 		keys.Value.SaveToFile();
 		dbgMsg.MsgFmt('SaveToFile [%s] %s', [SectionName, keys.Key]);
 	end;
+end;
+
+procedure TSettingsDictionary.SetSections(index : string; const Value : ISettingKeys);
+begin
+	FInnerDictionary[index] := Value;
 end;
 
 end.

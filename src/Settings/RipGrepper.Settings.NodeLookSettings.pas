@@ -24,12 +24,12 @@ type
 			INI_SECTION = 'NodeLookSettings';
 
 		private
-			FAlternateRowColors : TBoolSetting;
-			FExpandNodes : TBoolSetting;
+			FAlternateRowColors : IBoolSetting;
+			FExpandNodes : IBoolSetting;
 			FFilterSettings : TFilterSettings;
-			FIndentLines : TBoolSetting;
-			FShowFileIcon : TBoolSetting;
-			FShowRelativePath : TBoolSetting;
+			FIndentLines : IBoolSetting;
+			FShowFileIcon : IBoolSetting;
+			FShowRelativePath : IBoolSetting;
 			function GetAlternateRowColors() : Boolean;
 			function GetExpandNodes() : Boolean;
 			function GetIndentLines() : Boolean;

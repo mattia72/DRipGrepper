@@ -29,12 +29,12 @@ type
 			KEY_COPYTOCLIPBOARDSHELL = 'CopyToClipBoardShell';
 
 		private
-			FColorTheme : TStringSetting;
-			FCopyToClipBoardShell : TIntegerSetting;
-			FDebugTrace : TStringSetting;
-			FDebugTraceRegexFilter : TStringSetting;
-			FExpertMode : TBoolSetting;
-			FEncodingItems: TStringSetting;
+			FColorTheme : IStringSetting;
+			FCopyToClipBoardShell : IIntegerSetting;
+			FDebugTrace : IStringSetting;
+			FDebugTraceRegexFilter : IStringSetting;
+			FExpertMode : IBoolSetting;
+			FEncodingItems: IStringSetting;
 			function GetColorTheme() : string;
 			function GetCopyToClipBoardShell() : TShellType;
 			function GetDebugTrace() : string;

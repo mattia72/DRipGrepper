@@ -32,13 +32,13 @@ type
 			[Test]
 			procedure LoadFromDictShouldLoadInitialValue();
 			[Test]
-			procedure LoadDefaultsShouldReadDefaultFromIni;
-			[Test]
 			procedure AfterCopyValuesValuesShouldBeEqual;
 			[Test]
-			procedure AfterCopyDefaultsToValuesSetsDefaultValueAndCreatesNewKey;
+			procedure CopyCreatesNewKey();
 			[Test]
-			procedure AfterCopyDefaultValuesShouldBeEqual;
+			procedure AfterCopyValuesShouldBeEqual();
+			[Test]
+			procedure DontCopyValueIfSectionNotExists();
 			[Test]
 			procedure LoadDefaultsReadsIni;
 			[Test]
@@ -66,19 +66,6 @@ begin
 	Assert.AreEqual(INITIAL_STR_VALUE, FSettings1.StrSetting);
 end;
 
-procedure TPersistableSettingsTest.LoadDefaultsShouldReadDefaultFromIni;
-begin
-	CreateDefaultsInIni;
-	FSettings1.ReadIni;
-	Assert.AreEqual('', FSettings1.StrSetting, 'StrSetting should be empty');
-	FSettings1.LoadFromDict();
-	Assert.AreEqual(DEFAULT_STR_VAL, FSettings1.StrSetting, 'If only default value is in the ini file, then StrSetting should be ' +
-		DEFAULT_STR_VAL);
-
-	// FSettings1.LoadDefaultsFromDict;
-	// Assert.AreEqual(DEFAULT_STR_VAL, FSettings1.StrSetting, 'StrSetting should be default ' + DEFAULT_STR_VAL);
-end;
-
 procedure TPersistableSettingsTest.AfterCopyValuesValuesShouldBeEqual;
 begin
 	CreateDefaultsInIni;
@@ -92,36 +79,41 @@ begin
 	end;
 end;
 
-procedure TPersistableSettingsTest.AfterCopyDefaultsToValuesSetsDefaultValueAndCreatesNewKey;
+procedure TPersistableSettingsTest.CopyCreatesNewKey();
 begin
 	CreateDefaultsInIni;
 	FSettings1.ReadIni;
-	FSettings1.LoadFromDict; // FSettings1.LoadDefaultsFromDict;
 
-	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings1.SettingsDict.GetSetting('StrSetting' { +DEFAULT_KEY } )),
-		'StrSetting_DEFAULT.Value should be equal');
-	// Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings1.GetSetting('StrSetting' {+DEFAULT_KEY}, True)),
-	// 'StrSetting_DEFAULT.DefaultValue should be equal');
+	Assert.AreEqual(DEFAULT_STR_VAL, FSettings1.SettingsDict.GetSetting(STRSETTING).AsString,
+		'StrSetting should be equal to value written in the ini file');
 
-	// FSettings1.CopyDefaultsToValues;
-	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings1.SettingsDict.GetSetting('StrSetting')), 'StrSetting.Value should be equal');
-	Assert.AreEqual(DEFAULT_STR_VAL, VarToStr(FSettings1.SettingsDict.GetSetting('StrSetting')), 'StrSetting.Default should be equal');
-	// it is in fact StrSetting_DEFAULT.Value;
-	Assert.AreEqual(VarToStr(FSettings1.SettingsDict.GetSetting('StrSetting' { +DEFAULT_KEY } )),
-		VarToStr(FSettings1.SettingsDict.GetSetting('StrSetting')), 'StrSetting.Default should be equal StrSetting_DEFAULT.Value');
+	Assert.AreEqual(INITIAL_STR_VALUE, FSettings2.SettingsDict.GetSetting(STRSETTING).AsString,
+		'StrSetting should be equal to value written FSetting2');
 
+	FSettings1.Copy(FSettings2);
+
+	Assert.AreEqual(INITIAL_STR_VALUE, FSettings1.SettingsDict.GetSetting(STRSETTING).AsString,
+		'StrSetting should be equal to value in FSetting2');
 end;
 
-procedure TPersistableSettingsTest.AfterCopyDefaultValuesShouldBeEqual;
+procedure TPersistableSettingsTest.AfterCopyValuesShouldBeEqual();
+var
+	settings : IShared<TTestSettings>;
 begin
-	var
-	s := TTestSettings.Create(INI_SECTION);
-	try
-		s.Copy(FSettings1);
-		Assert.AreEqual(s.StrSetting, FSettings1.StrSetting, 'StrSetting should be equal');
-	finally
-		s.Free;
-	end;
+	settings := Shared.Make<TTestSettings>(TTestSettings.Create(INI_SECTION));
+	settings.Copy(FSettings1);
+	Assert.AreEqual(settings.StrSetting, FSettings1.StrSetting, 'StrSetting should be equal');
+end;
+
+procedure TPersistableSettingsTest.DontCopyValueIfSectionNotExists();
+var
+	settings : IShared<TTestSettings>;
+begin
+	settings := Shared.Make<TTestSettings>(TTestSettings.Create('SomeOTherSection'));
+    settings.StrSetting := 'some other value';
+	settings.Copy(FSettings1);
+	Assert.AreEqual('some other value', settings.StrSetting, 'StrSetting should be equal');
+	Assert.AreNotEqual(settings.StrSetting, FSettings1.StrSetting, 'StrSetting should be equal');
 end;
 
 procedure TPersistableSettingsTest.LoadDefaultsReadsIni;
@@ -144,16 +136,12 @@ end;
 
 procedure TPersistableSettingsTest.CreateDefaultsInIni;
 begin
-	var
-	sec := FSettings1.IniSectionName;
-	FIniFile.WriteString(sec, 'StrSetting' { +DEFAULT_KEY } , DEFAULT_STR_VAL);
-	Assert.AreEqual('empty', FIniFile.ReadString(sec, STRSETTING, 'empty'), 'StrSetting should not exist in the ini file');
+	FIniFile.WriteString(FSettings1.IniSectionName, STRSETTING, DEFAULT_STR_VAL);
 end;
 
 procedure TPersistableSettingsTest.Setup;
 begin
-	FIniFile := Shared.Make<TMemIniFile>(
-    	TMemIniFile.Create(INIFILE, TEncoding.UTF8));
+	FIniFile := Shared.Make<TMemIniFile>(TMemIniFile.Create(INIFILE, TEncoding.UTF8));
 
 	FOwner := TTestOwnerSettings.Create();
 	FOwner.PersisterFactory := TIniPersister.Create(FIniFile);

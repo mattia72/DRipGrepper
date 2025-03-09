@@ -18,11 +18,22 @@ type
 	TSettingType = (stNotSet, stString, stInteger, stBool, stStrArray);
 
 	TSettingVariant<T> = class; // forward declarations
+	ISettingVariant<T> = interface;
 
 	TStringSetting = class;
 	TBoolSetting = class;
 	TIntegerSetting = class;
 	TArraySetting = class;
+
+	IStringSetting = ISettingVariant<string>;
+	IBoolSetting = ISettingVariant<Boolean>;
+	IIntegerSetting = ISettingVariant<Integer>;
+	IArraySetting = ISettingVariant<TArrayEx<string>>;
+
+	// IStringSetting = interface;
+	// IBoolSetting = interface;
+	// IIntegerSetting = interface;
+	// IArraySetting = interface;
 
 	ISetting = interface
 		['{289A58E3-A490-4015-9AFE-52EB303B9B89}']
@@ -37,10 +48,10 @@ type
 		procedure LoadFromFile();
 		procedure SaveToFile();
 
-		function AsStringSetting() : TStringSetting;
-		function AsIntegerSetting() : TIntegerSetting;
-		function AsBoolSetting() : TBoolSetting;
-		function AsArraySetting() : TArraySetting;
+		function AsStringSetting() : IStringSetting;
+		function AsIntegerSetting() : IIntegerSetting;
+		function AsBoolSetting() : IBoolSetting;
+		function AsArraySetting() : IArraySetting;
 
 		function AsString() : string;
 		function AsInteger() : Integer;
@@ -82,10 +93,10 @@ type
 			procedure LoadFromFile(); virtual; abstract;
 			procedure SaveToFile(); virtual; abstract;
 
-			function AsStringSetting() : TStringSetting;
-			function AsIntegerSetting() : TIntegerSetting;
-			function AsBoolSetting() : TBoolSetting;
-			function AsArraySetting() : TArraySetting;
+			function AsStringSetting() : IStringSetting;
+			function AsIntegerSetting() : IIntegerSetting;
+			function AsBoolSetting() : IBoolSetting;
+			function AsArraySetting() : IArraySetting;
 
 			function AsString() : string;
 			function AsInteger() : Integer;
@@ -240,7 +251,7 @@ begin
 	Result := AsArraySetting.Value;
 end;
 
-function TSetting.AsArraySetting() : TArraySetting;
+function TSetting.AsArraySetting() : IArraySetting;
 begin
 	Result := TArraySetting(self);
 end;
@@ -250,7 +261,7 @@ begin
 	Result := AsBoolSetting.Value;
 end;
 
-function TSetting.AsBoolSetting() : TBoolSetting;
+function TSetting.AsBoolSetting() : IBoolSetting;
 begin
 	Result := TBoolSetting(self);
 end;
@@ -260,7 +271,7 @@ begin
 	Result := AsIntegerSetting.Value;
 end;
 
-function TSetting.AsIntegerSetting() : TIntegerSetting;
+function TSetting.AsIntegerSetting() : IIntegerSetting;
 begin
 	Result := TIntegerSetting(self);
 end;
@@ -286,7 +297,7 @@ begin
 
 end;
 
-function TSetting.AsStringSetting() : TStringSetting;
+function TSetting.AsStringSetting() : IStringSetting;
 begin
 	Result := TStringSetting(self);
 end;

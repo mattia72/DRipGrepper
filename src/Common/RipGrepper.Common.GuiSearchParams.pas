@@ -21,7 +21,7 @@ type
 			FIsRgExeOptionSet : Boolean;
 			FReplaceText : string;
 			FExpertOptions : TOptionStrings;
-			FSearchParams: TStringSetting;
+			FSearchParams: IStringSetting;
 			FSearchTextWithOptions : TSearchTextWithOptions;
 			function GetReplaceText : string;
 			procedure LoadSearchOptionsFromDict(const _bDefault : Boolean);
