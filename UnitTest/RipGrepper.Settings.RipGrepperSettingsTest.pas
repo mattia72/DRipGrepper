@@ -30,11 +30,9 @@ type
 			FSettings : TRipGrepperSettings;
 			FTextHist : TStringList;
 			function ReadBoolIniAsString(const _section, _key : string) : string;
-			procedure SetTestDefaultAndActualValues;
+			procedure SetSettingValues();
 
 		public
-			constructor Create;
-			destructor Destroy; override;
 			[Setup]
 			procedure Setup;
 			[TearDown]
@@ -69,19 +67,8 @@ uses
 	RipGrepper.Settings.ExtensionSettings,
 	RipGrepper.Settings.NodeLookSettings,
 	RipGrepper.Tools.FileUtils,
-	System.StrUtils;
-
-constructor TRipGrepperSettingsTest.Create;
-begin
-	inherited;
-	// FIniFile := TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8);
-end;
-
-destructor TRipGrepperSettingsTest.Destroy;
-begin
-	inherited;
-	// FIniFile.Free;
-end;
+	System.StrUtils,
+	RipGrepper.Settings.SettingsDictionary;
 
 procedure TRipGrepperSettingsTest.RefreshMembersShouldLoadDefaultsTest;
 begin
@@ -95,7 +82,7 @@ end;
 
 procedure TRipGrepperSettingsTest.AfterCopyValuesValuesShouldBeEqual;
 begin
-	SetTestDefaultAndActualValues;
+	SetSettingValues;
 	FSettings.LoadFromDict; // FSettings.LoadDefaultsFromDict;
 	var
 	s := TRipGrepperSettings.Create();
@@ -132,10 +119,10 @@ procedure TRipGrepperSettingsTest.AfterUpdateIniValuesShouldBeProperlySaved;
 var
 	iniVal, settingVal : string;
 begin
-	SetTestDefaultAndActualValues;
+	SetSettingValues;
 
 	FSettings.UpdateIniFile;
-	FSettings.LoadFromDict;
+	// FSettings.LoadFromDict;
 
 	iniVal := FFactory.GetStringPersister(FSettings.RipGrepParameters.IniSectionName, 'SearchParams').LoadFromFile;
 	settingVal := FSettings.RipGrepParameters.GuiSearchTextParams.GetAsString(True);
@@ -167,7 +154,7 @@ begin
 
 end;
 
-procedure TRipGrepperSettingsTest.SetTestDefaultAndActualValues;
+procedure TRipGrepperSettingsTest.SetSettingValues();
 begin
 	FSettings.SearchFormSettings.Encoding := 'none';
 	FSettings.SearchFormSettings.Context := 1;
@@ -215,7 +202,7 @@ var
 	iniVal : string;
 	settingVal : Boolean;
 begin
-	SetTestDefaultAndActualValues;
+	SetSettingValues;
 
 	// TRipGrepperSettings.StoreViewSettings tested here
 	var
@@ -254,13 +241,15 @@ var
 	iniVal : string;
 	settingVal : string;
 begin
-	SetTestDefaultAndActualValues;
+	SetSettingValues;
 	extSetting := FSettings.SearchFormSettings.ExtensionSettings;
 
 	{ 1 } // FSettings.SearchFormSettings.ExtensionSettings;
 	for var s in [extSetting.KEY_IDE_CONTEXT, extSetting.KEY_SHORTCUT_SEARCH_SELECTED, extSetting.KEY_SHORTCUT_OPENWITH] do begin
 		var
 		d := extSetting.SettingsDict()['DelphiExtensionSettings'];
+		var
+		dbgArr := TSettingsDictionary.DictToStringArray(extSetting.SettingsDict());
 		settingVal := d[s].AsString;
 		Assert.IsTrue(MatchStr(settingVal, [SC_OPEN_WITH, SC_SEARCH, '2']), 'DelphiExtensionSettings|' + s +
 			' should match the initial setting');
@@ -289,7 +278,7 @@ end;
 
 procedure TRipGrepperSettingsTest.UpdateIniFileTest();
 begin
-	SetTestDefaultAndActualValues;
+	SetSettingValues;
 	FSettings.UpdateIniFile(); // config form close is tested here?
 	FSettings.ReadIni;
 	var
@@ -317,20 +306,20 @@ end;
 
 procedure TRipGrepperSettingsTest.UpdateHistInIniTest;
 begin
-	SetTestDefaultAndActualValues;
+	SetSettingValues;
 	// see SearchForm.OnClose.
 	FSettings.StoreHistories();
 	FSettings.UpdateIniFile();
 	FSettings.ReadIni;
 
-	Assert.AreEqual(ACT_HIST_VAL, FSettings.SearchTextsHistory[0], 'SearchTextsHistory[0] should be hist 0');
+	Assert.AreEqual(ACT_HIST_VAL, FSettings.SearchTextsHistory.AsArray[0], 'SearchTextsHistory[0] should be hist 0');
 	Assert.AreEqual(ACT_HIST_VAL,
 		{ } FFactory.GetStringPersister('SearchTextsHistory', 'Item_0').LoadFromFile);
 end;
 
 procedure TRipGrepperSettingsTest.UpdateShortCutsIniTest;
 begin
-	SetTestDefaultAndActualValues; // after config form close is tested here
+	SetSettingValues; // after config form close is tested here
 	FSettings.SearchFormSettings.ExtensionSettings.UpdateIniFile(
 		{ } FSettings.SearchFormSettings.ExtensionSettings.INI_SECTION);
 

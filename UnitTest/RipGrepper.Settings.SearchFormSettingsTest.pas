@@ -9,7 +9,7 @@ uses
 	RipGrepper.Settings.RipGrepParameterSettings,
 	RipGrepper.Settings.SearchFormSettings,
 	RipGrepper.Settings.Persistable,
-	RipGrepper.Settings.TestOwnerSettings;
+	RipGrepper.Settings.TestOwnerSettings, Spring;
 
 type
 
@@ -19,14 +19,12 @@ type
 			INIFILE = 'DripGrepperUnittest.ini';
 
 		private
-			FIniFile : TMemIniFile;
+			FIniFile : IShared<TMemIniFile>;
 			FOwner : TPersistableSettings;
 			FSettings : TSearchFormSettings;
-			procedure SetDefaults;
+			procedure WriteDefaultsToIni();
 
 		public
-			constructor Create;
-			destructor Destroy; override;
 			[Setup]
 			procedure Setup;
 			[TearDown]
@@ -49,19 +47,7 @@ uses
 	System.SysUtils,
 	System.Classes,
 	System.Variants,
-	RipGrepper.Common.Constants;
-
-constructor TSearchFormSettingsTest.Create;
-begin
-	inherited;
-	FIniFile := TMemIniFile.Create(INIFILE, TEncoding.UTF8);
-end;
-
-destructor TSearchFormSettingsTest.Destroy;
-begin
-	FIniFile.Free;
-	inherited;
-end;
+	RipGrepper.Common.Constants, RipGrepper.Settings.FilePersister;
 
 procedure TSearchFormSettingsTest.RefreshMembersShouldLoadDefaultsTest;
 begin
@@ -75,9 +61,9 @@ end;
 
 procedure TSearchFormSettingsTest.LoadDefaultsShouldReadDefaultFromIni;
 begin
-	SetDefaults;
+	WriteDefaultsToIni;
 	FSettings.ReadIni;
-//  FSettings.LoadDefaultsFromDict;
+
 	Assert.IsTrue(FSettings.IsAlreadyRead, 'IsAlreadyRead should be true');
 	Assert.AreEqual('utf8', FSettings.Encoding, 'Encoding should be utf8');
 	Assert.AreEqual(5, FSettings.Context, 'Context should be 5');
@@ -88,7 +74,7 @@ end;
 
 procedure TSearchFormSettingsTest.AfterCopyValuesValuesShouldBeEqual;
 begin
-	SetDefaults;
+	WriteDefaultsToIni;
 //  FSettings.LoadDefaultsFromDict;
 	FSettings.LoadFromDict();
 
@@ -116,14 +102,14 @@ end;
 
 procedure TSearchFormSettingsTest.LoadDefaultsReadsIni;
 begin
-	SetDefaults;
+	WriteDefaultsToIni;
 	Assert.IsFalse(FSettings.IsAlreadyRead);
 	FSettings.ReadIni;
 //  FSettings.LoadDefaultsFromDict;
 	Assert.IsTrue(FSettings.IsAlreadyRead);
 end;
 
-procedure TSearchFormSettingsTest.SetDefaults;
+procedure TSearchFormSettingsTest.WriteDefaultsToIni();
 begin
 	var
 	sec := FSettings.IniSectionName;
@@ -136,7 +122,12 @@ end;
 
 procedure TSearchFormSettingsTest.Setup;
 begin
+	FIniFile := Shared.Make<TMemIniFile>(
+		{ } TMemIniFile.Create(INIFILE, TEncoding.UTF8));
+
 	FOwner := TTestOwnerSettings.Create();
+	FOwner.PersisterFactory := TIniPersister.Create(FIniFile);
+
 //  FIniFile := FOwner.IniFile();
 	FSettings := TSearchFormSettings.Create(FOwner);
 end;

@@ -32,7 +32,6 @@ type
 			procedure SetTestDefaultAndActualValues;
 
 		public
-			constructor Create;
 			[Setup]
 			procedure Setup;
 			[TearDown]
@@ -56,12 +55,10 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Settings.ExtensionSettings,
 	RipGrepper.Tools.FileUtils,
-	RipGrepper.Settings.Persistable, RipGrepper.Settings.FilePersister;
-
-constructor TNodeLookSettingsTest.Create;
-begin
-	inherited;
-end;
+	RipGrepper.Settings.Persistable,
+	RipGrepper.Settings.FilePersister,
+	RipGrepper.Settings.SettingVariant, 
+	RipGrepper.Settings.SettingsDictionary;
 
 procedure TNodeLookSettingsTest.CheckNodeSettingsDict(const _id : string);
 begin
@@ -80,7 +77,7 @@ begin
 	FSettings.ShowRelativePath := True;
 	FSettings.ExpandNodes := True;
 
-	FSettings.StoreToDict;
+//  FSettings.StoreToDict;
 end;
 
 procedure TNodeLookSettingsTest.Setup;
@@ -89,7 +86,7 @@ begin
 		{ } TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8));
 
 	FOwner := TTestOwnerSettings.Create();
-    FOwner.PersisterFactory := TIniPersister.Create(FIniFile);
+	FOwner.PersisterFactory := TIniPersister.Create(FIniFile);
 
 	FSettings := TNodeLookSettings.Create(FOwner);
 end;
@@ -154,11 +151,15 @@ begin
 end;
 
 procedure TNodeLookSettingsTest.SetViewSettingsToDictTest;
+// var
+// arr : TArray<TArray<string>>;
 begin
 	SetTestDefaultAndActualValues;
+	var sectionDict := FSettings.SettingsDict()['NodeLookSettings'];
+    //arr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 	for var s in VIEW_SETTINGS_TYPES do begin
 		var
-		b := FSettings.SettingsDict()['NodeLookSettings'][s].AsBool;
+		b := sectionDict[s].AsBool;
 		Assert.IsTrue(b, 'NodeLookSettings|' + s + ' should be true');
 	end;
 end;
