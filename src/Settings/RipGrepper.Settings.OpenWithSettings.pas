@@ -107,7 +107,7 @@ procedure TOpenWithSettings.ForceWriteToIni;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.ForceWriteToIni');
-	SettingsDict.SaveToFile();
+	SettingsDict.SaveToFile(OPEN_WITH_SETTINGS);
 	UpdateIniFile(OPEN_WITH_SETTINGS, True, True);
 end;
 

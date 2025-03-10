@@ -219,7 +219,7 @@ begin
 		for var sd in _from.SettingsDict() do begin
 			section := sd.Key;
 			if SettingsDict.ContainsSection(section) then begin
-				CopySettingsDictSection(section, sdFrom);
+				CopySettingsDictSection(section, sd.Value);
 			end else begin
 				SettingsDict[section] := sd.Value;
 			end;
@@ -479,9 +479,10 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.WriteSettingsDictToIni');
 
-	section := IfThen(_section = '', IniSectionName, _section);
 	var
 	lock := TLockGuard.NewLock(FLockObject);
+
+ 	section := IfThen(_section = '', IniSectionName, _section);
 	dbgMsg.MsgFmt('Lock Entered - WriteSettingsDictToIni [%s]', [section]);
 
 	if _bClearSection then begin
@@ -492,7 +493,7 @@ begin
 		end
 	end;
 
-	SettingsDict.SaveToFile();
+	SettingsDict.SaveToFile(section);
 end;
 
 end.

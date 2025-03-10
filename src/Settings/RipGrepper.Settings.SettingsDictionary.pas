@@ -37,7 +37,7 @@ type
 			function GetSetting(const _key : string) : ISetting; overload;
 			function GetSections() : IReadOnlyCollection<string>; overload;
 			procedure LoadFromFile();
-			procedure SaveToFile();
+			procedure SaveToFile(const _section: string = '');
 
 			property Count : Integer read GetCount;
 			property InnerDictionary : ISettingSections read FInnerDictionary;
@@ -223,17 +223,23 @@ begin
 	end;
 end;
 
-procedure TSettingsDictionary.SaveToFile();
+procedure TSettingsDictionary.SaveToFile(const _section: string = '');
+var
+	section: string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.SaveToFile');
-	if ROOT_DUMMY_INI_SECTION = SectionName then begin
+
+   	section := IfThen(_section = '', SectionName, _section);
+
+	if section.IsEmpty or (ROOT_DUMMY_INI_SECTION = section) then begin
+        dbgMsg.MsgFmt('invalid section: %s', [section]);
 		Exit;
 	end;
 
-	for var keys in InnerDictionary[SectionName] do begin
+	for var keys in InnerDictionary[section] do begin
 		keys.Value.SaveToFile();
-		dbgMsg.MsgFmt('SaveToFile [%s] %s', [SectionName, keys.Key]);
+		dbgMsg.MsgFmt('SaveToFile [%s] %s', [section, keys.Key]);
 	end;
 end;
 
