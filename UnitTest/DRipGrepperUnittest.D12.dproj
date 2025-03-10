@@ -89,6 +89,7 @@
         <Manifest_File>(Ohne)</Manifest_File>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
         <UsePackages>true</UsePackages>
+        <Debugger_DebugSourcePath>C:\home\mata\dev\delphi\spring4d\Source\Base\Collections\;C:\home\mata\dev\delphi\spring4d\Source\Base\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -118,33 +119,23 @@
         <DCCReference Include="..\src\RipGrepper.CommandLine.Builder.pas"/>
         <DCCReference Include="RipGrepper.CommandLine.OptionsHelper.Test.pas"/>
         <DCCReference Include="..\src\RipGrepper.CommandLine.OptionHelper.pas"/>
-        <DCCReference Include="RipGrepper.Settings.SearchFormSettingsTest.pas"/>
-        <DCCReference Include="RipGrepper.Settings.PersistableSettingsTest.pas"/>
-        <DCCReference Include="RipGrepper.Settings.JsonTest.pas"/>
         <DCCReference Include="Pkg.Json.DTO.pas"/>
         <DCCReference Include="RootUnit.pas"/>
-        <DCCReference Include="RipGrepper.Settings.RipGrepperSettingsTest.pas"/>
         <DCCReference Include="..\src\RipGrepper.CommandLine.OptionStrings.pas"/>
         <DCCReference Include="RipGrepper.CommandLine.OptionStrings.Test.pas"/>
-        <DCCReference Include="RipGrepper.Settings.TestOwnerSettings.pas"/>
         <DCCReference Include="..\src\Settings\RipGrepper.Settings.RipGrepParameterSettings.pas"/>
-        <DCCReference Include="RipGrepper.Settings.RipGrepSettingsTest.pas"/>
         <DCCReference Include="..\src\Settings\RipGrepper.Settings.Persistable.pas"/>
         <DCCReference Include="..\src\Common\RipGrepper.Common.GuiSearchParams.pas"/>
         <DCCReference Include="..\src\Settings\RipGrepper.Settings.RipGrepperSettings.pas"/>
         <DCCReference Include="..\src\Common\RipGrepper.Common.SimpleTypes.pas"/>
-        <DCCReference Include="RipGrepper.Settings.MemIniFileHelperTest.pas"/>
         <DCCReference Include="..\src\Helper\RipGrepper.Helper.MemIniFile.pas"/>
         <DCCReference Include="..\src\Settings\RipGrepper.Settings.ExtensionSettings.pas"/>
-        <DCCReference Include="RipGrepper.Settings.NoodeLookSettingsTest.pas"/>
         <DCCReference Include="..\src\Tools\RipGrepper.Tools.FileUtils.pas"/>
         <DCCReference Include="..\src\Common\RipGrepper.Common.Constants.pas"/>
         <DCCReference Include="..\src\Common\RipGrepper.Common.SearchTextWithOptions.pas"/>
         <DCCReference Include="RipGrepper.Common.SearchParamsWithOptionsTest.pas"/>
         <DCCReference Include="..\src\Common\RipGrepper.Common.Interfaces.pas"/>
-        <DCCReference Include="RipGrepper.Settings.SettingVariantTest.pas"/>
         <DCCReference Include="..\src\Settings\RipGrepper.Settings.SettingVariant.pas"/>
-        <DCCReference Include="RipGrepper.Settings.SettingsDictionaryTest.pas"/>
         <DCCReference Include="RipGrepper.Tools.Replacer.Test.pas"/>
         <DCCReference Include="..\src\Tools\RipGrepper.Tools.Replacer.pas"/>
         <DCCReference Include="RipGrepper.OpenWith.RunnerTest.pas"/>
@@ -152,6 +143,17 @@
         <DCCReference Include="..\src\OpenWith\RipGrepper.OpenWith.Runner.pas"/>
         <DCCReference Include="..\src\RipGrepper.Helper.UI.DarkMode.pas"/>
         <DCCReference Include="..\src\Settings\RipGrepper.Settings.FilePersister.pas"/>
+        <DCCReference Include="..\src\Settings\RipGrepper.Settings.SettingsDictionary.pas"/>
+        <DCCReference Include="RipGrepper.Settings.PersistableSettingsTest.pas"/>
+        <DCCReference Include="RipGrepper.Settings.SettingsDictionaryTest.pas"/>
+        <DCCReference Include="RipGrepper.Settings.TestOwnerSettings.pas"/>
+        <DCCReference Include="RipGrepper.Settings.SettingVariantTest.pas"/>
+        <DCCReference Include="RipGrepper.Settings.NoodeLookSettingsTest.pas"/>
+        <DCCReference Include="RipGrepper.Settings.RipGrepperSettingsTest.pas"/>
+        <DCCReference Include="RipGrepper.Settings.RipGrepSettingsTest.pas"/>
+        <DCCReference Include="RipGrepper.Settings.SearchFormSettingsTest.pas"/>
+        <DCCReference Include="RipGrepper.Settings.JsonTest.pas"/>
+        <DCCReference Include="RipGrepper.Settings.MemIniFileHelperTest.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

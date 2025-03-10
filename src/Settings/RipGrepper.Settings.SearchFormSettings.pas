@@ -212,7 +212,7 @@ procedure TSearchFormSettings.LoadFromDict;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.LoadFromDict');
-	FExtensionSettings.LoadFromDict();
+//  FExtensionSettings.LoadFromDict();
 end;
 
 procedure TSearchFormSettings.ReLoad;

@@ -21,13 +21,10 @@ type
 			FIniFile : IShared<TMemIniFile>;
 			FPersisterFactory : IPersisterFactory;
 			FSettings : TRipGrepParameterSettings;
-			procedure SetDefaultsAndCurrentValues;
+			procedure SetSettingValues();
 			procedure SetRipGrepArguments(const Settings : TRipGrepParameterSettings);
 
 		public
-			constructor Create;
-			destructor Destroy; override;
-
 			[Setup]
 			procedure Setup;
 			[TearDown]
@@ -70,23 +67,12 @@ const
 	PAS_DFM = '*.pas;*.dfm';
 	EGUIOPTION_MATCHCASE = '[MatchCase]';
 
-constructor TRipGrepSettingsTest.Create;
-begin
-	inherited;
-end;
-
-destructor TRipGrepSettingsTest.Destroy;
-begin
-	// FIniFile.Free;
-	inherited;
-end;
-
 procedure TRipGrepSettingsTest.AfterCopyValuesValuesShouldBeEqual;
 var
 	s1, s2 : string;
 begin
-	SetDefaultsAndCurrentValues;
-	FSettings.LoadFromDict; // FSettings.LoadDefaultsFromDict;
+	SetSettingValues;
+//  FSettings.LoadFromDict; // FSettings.LoadDefaultsFromDict;
 	var
 	s := TRipGrepParameterSettings.Create(nil);
 	try
@@ -112,7 +98,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepSettingsTest.SetDefaultsAndCurrentValues;
+procedure TRipGrepSettingsTest.SetSettingValues();
 begin
 	FSettings.RipGrepPath := RG_EXE;
 	FSettings.FileMasks := PAS_DFM;
@@ -149,7 +135,7 @@ end;
 
 procedure TRipGrepSettingsTest.LoadActualTest;
 begin
-	SetDefaultsAndCurrentValues;
+	SetSettingValues;
 
 	FSettings.LoadFromDict;
 	Assert.IsTrue(FSettings.RipGrepPath.Contains(RG_EXE), 'RipGrepPath should be set');
@@ -160,7 +146,7 @@ end;
 
 procedure TRipGrepSettingsTest.DictActualTest;
 begin
-	SetDefaultsAndCurrentValues;
+	SetSettingValues;
 
 	var
 	dict := FSettings.SettingsDict;
@@ -191,7 +177,7 @@ end;
 
 procedure TRipGrepSettingsTest.UpdateIniReloadTest;
 begin
-	SetDefaultsAndCurrentValues;
+	SetSettingValues;
 	FSettings.UpdateIniFile();
 	FSettings.FileMasks := '';
 	FSettings.SearchPath := '';
