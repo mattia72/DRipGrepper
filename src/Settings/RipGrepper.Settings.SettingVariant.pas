@@ -335,7 +335,8 @@ function TArraySetting.AddIfNotContains(const AItem : string) : Integer;
 begin
 	Result := -1;
 	if not self.Value.Contains(AItem) then begin
-		Result := self.Value.Add(AItem);
+		self.Value.Insert(0, AItem);
+        Result := self.Value.Count;
 	end;
 end;
 

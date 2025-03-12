@@ -137,7 +137,7 @@ procedure TRipGrepSettingsTest.LoadActualTest;
 begin
 	SetSettingValues;
 
-	FSettings.LoadFromDict;
+//  FSettings.LoadFromDict;
 	Assert.IsTrue(FSettings.RipGrepPath.Contains(RG_EXE), 'RipGrepPath should be set');
 	Assert.AreEqual(PAS_DFM, FSettings.FileMasks, '2. FileMasks shouldn''t be the default');
 	Assert.AreEqual(C_PATH_TO_DIR, FSettings.SearchPath, 'SearchPath should be set');

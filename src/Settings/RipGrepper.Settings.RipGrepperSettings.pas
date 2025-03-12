@@ -182,8 +182,10 @@ end;
 
 procedure TRipGrepperSettings.AddIfNotContains(_to, _from : IArraySetting);
 begin
+    var origCount := _to.Value.Count;
 	for var s in _from.Value do begin
-		FIsModified := (_to.Value.AddIfNotContains(s) <> -1) or FIsModified;
+        _to.Value.InsertIfNotContains(0, s);
+		FIsModified := (origCount <> _to.Value.Count) or FIsModified;
 	end;
 end;
 

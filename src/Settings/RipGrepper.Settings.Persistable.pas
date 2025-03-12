@@ -200,10 +200,7 @@ end;
 
 procedure TPersistableSettings.CopySettingsDictSection(const _from : TPersistableSettings; const _copyAllSections : Boolean = False);
 var
-	settingOther : ISetting;
-	settingSelf : ISetting;
 	sdFrom : ISettingKeys;
-	sdSelf : ISettingKeys;
 	section : string;
 begin
 	var

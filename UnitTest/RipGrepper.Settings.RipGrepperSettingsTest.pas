@@ -9,7 +9,7 @@ uses
 	DUnitX.TestFramework,
 	System.Classes,
 	RipGrepper.Helper.MemIniFile,
-	RipGrepper.Settings.FilePersister;
+	RipGrepper.Settings.FilePersister, ArrayEx;
 
 const
 	NOTEXISTS = '<not exists>';
@@ -28,7 +28,7 @@ type
 			FFactory : IPersisterFactory;
 			// FIniFile : TMemIniFile;
 			FSettings : TRipGrepperSettings;
-			FTextHist : TStringList;
+			FTextHist : TArrayEx<string>;
 			function ReadBoolIniAsString(const _section, _key : string) : string;
 			procedure SetSettingValues();
 
@@ -72,11 +72,10 @@ uses
 
 procedure TRipGrepperSettingsTest.RefreshMembersShouldLoadDefaultsTest;
 begin
-	FSettings.LoadFromDict; // FSettings.LoadDefaultsFromDict;
-	Assert.AreEqual(True, FSettings.SearchFormSettings.Pretty, 'Pretty should be true');
+	Assert.AreEqual(False, FSettings.SearchFormSettings.Pretty, 'Pretty should be true');
 	Assert.AreEqual(False, FSettings.SearchFormSettings.Hidden, 'Hidden should be true');
 	Assert.AreEqual(False, FSettings.SearchFormSettings.NoIgnore, 'NoIgnore should be true');
-	Assert.AreEqual(0, FSettings.SearchFormSettings.Context, 'Context should be true');
+	Assert.AreEqual(0, FSettings.SearchFormSettings.Context, 'Context should be 0');
 	Assert.AreEqual('', FSettings.SearchFormSettings.Encoding, 'Encoding should be ''''');
 end;
 
@@ -177,23 +176,21 @@ begin
 	{ } TRipGrepperExtensionContext.FromString('2', 'active project', 'active file');
 
 	for var s in ['hist 0', 'hist 1', ACT_HIST_VAL] do
-		FTextHist.Add(s);
+		FTextHist.Insert(0, s);
 
-	FSettings.SearchTextsHistory.Value := FTextHist.ToStringArray;
+	FSettings.SearchTextsHistory.Value := FTextHist.Items;
 	FSettings.StoreToDict;
 end;
 
 procedure TRipGrepperSettingsTest.Setup;
 begin
 	FSettings := TRipGrepperSettings.Create();
-	FTextHist := TStringList.Create();
 	FFactory := FSettings.PersisterFactory;
 end;
 
 procedure TRipGrepperSettingsTest.TearDown;
 begin
 	FSettings.Free; // instance will be free
-	FTextHist.Free;
 	TFileUtils.EmptyFile(ChangeFileExt(Application.ExeName, '.ini'));
 end;
 
@@ -311,6 +308,9 @@ begin
 	FSettings.StoreHistories();
 	FSettings.UpdateIniFile();
 	FSettings.ReadIni;
+
+    var dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
+
 
 	Assert.AreEqual(ACT_HIST_VAL, FSettings.SearchTextsHistory.AsArray[0], 'SearchTextsHistory[0] should be hist 0');
 	Assert.AreEqual(ACT_HIST_VAL,

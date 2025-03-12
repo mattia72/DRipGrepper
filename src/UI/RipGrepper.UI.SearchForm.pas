@@ -36,7 +36,8 @@ uses
 	SVGIconImageListBase,
 	SVGIconImageList,
 	RipGrepper.Helper.UI.DarkMode,
-	Spring;
+	Spring,
+	ArrayEx;
 
 type
 	TRipGrepperSearchDialogForm = class(TForm)
@@ -163,8 +164,9 @@ type
 			function IsOptionSet(const _sParamRegex : string; const _sParamValue : string = '') : Boolean;
 			procedure ProcessControl(_ctrl : TControl; _imgList : TImageList);
 			procedure RemoveNecessaryOptionsFromCmbOptionsText;
-			procedure SetComboItemsAndText(_cmb : TComboBox; _txt : string; _lst : TStrings);
-			procedure SetComboItemsFromOptions(_cmb : TComboBox; const _argMaskRegex : string; const _items : TStrings);
+			procedure SetComboItemsAndText(_cmb : TComboBox; _txt : string; const _lst :
+				TArrayEx<string>);
+			procedure SetComboItemsFromOptions(_cmb : TComboBox; const _argMaskRegex : string; const _items : TArrayEx<string>);
 			procedure UpdateCmbOptionsAndMemoCommandLine;
 			procedure StoreHistoriesAsCmbEntries;
 			procedure WriteCtrlsToRipGrepParametersSettings;
@@ -226,7 +228,7 @@ uses
 	System.SysUtils,
 	System.RegularExpressions,
 	System.Math,
-	ArrayEx,
+
 	RipGrepper.CommandLine.Builder,
 	Vcl.Clipbrd,
 	RipGrepper.CommandLine.OptionHelper,
@@ -432,7 +434,7 @@ begin
 	if ModalResult <> mrCancel then begin
 		if HasHistItemObjWithResult then begin
 			dbgMsg.Msg('HasHistItemObjWithResult');
-			FSettings.SearchFormSettings.StoreSearchSettings(False);
+			// FSettings.SearchFormSettings.StoreSearchSettings(False);
 			FHistItemObj.SearchFormSettings.Copy(FSettings.SearchFormSettings);
 			FHistItemObj.SearchFormSettings.LoadFromDict();
 			FHistItemObj.RipGrepArguments.Clear;
@@ -446,8 +448,8 @@ begin
 		dbgMsg.Msg('Store histories');
 		FSettings.StoreHistories();
 		FSettings.SearchFormSettings.UpdateIniFile(FSettings.SearchFormSettings.IniSectionName);
-		Fsettings.IniFile.UpdateFile;
-		dbgMsg.Msg('[SearchTextsHistory] Item 0:' + FSettings.IniFile.ReadString('SearchTextsHistory', 'Item_0', 'not exists'));
+		FSettings.UpdateIniFile();
+		// dbgMsg.Msg('[SearchTextsHistory] Item 0:' + FSettings.IniFile.ReadString('SearchTextsHistory', 'Item_0', 'not exists'));
 	end;
 end;
 
@@ -642,20 +644,23 @@ begin
 	dbgMsg.Msg('ExpertOptions=' + FSettingsProxy.ExpertOptions.AsString);
 end;
 
-procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; _txt : string; _lst : TStrings);
+procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; _txt : string; const _lst : TArrayEx<string>);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetComboItemsAndText');
-	_cmb.Items.Assign(_lst);
+	_cmb.Items.Clear;
+	_cmb.Items.AddStrings(_lst.Items);
 	_cmb.Text := _txt;
 	dbgMsg.MsgFmt('idx:%d, %s=%s', [_cmb.ItemIndex, _cmb.Name, _cmb.Text]);
 end;
 
-procedure TRipGrepperSearchDialogForm.SetComboItemsFromOptions(_cmb : TComboBox; const _argMaskRegex : string; const _items : TStrings);
+procedure TRipGrepperSearchDialogForm.SetComboItemsFromOptions(_cmb : TComboBox; const _argMaskRegex : string;
+	const _items : TArrayEx<string>);
 var
 	params : TArray<string>;
 begin
-	_cmb.Items.Assign(_items);
+	_cmb.Items.Clear;
+	_cmb.Items.AddStrings(_items.Items);
 	if HasHistItemObjWithResult then begin
 		params := FHistItemObj.RipGrepArguments.GetValues(RG_ARG_OPTIONS);
 		_cmb.Text := TCommandLineBuilder.GetUniqueFileMasksDelimited(string.Join(' ', params));
@@ -748,11 +753,11 @@ begin
 
 	StoreHistoriesAsCmbEntries();
 
-	FSettings.SearchPathsHistory := cmbSearchDir.Items;
-	FSettings.SearchTextsHistory := cmbSearchText.Items;
-	FSettings.ReplaceTextsHistory := cmbReplaceText.Items;
-	FSettings.ExpertOptionHistory := cmbOptions.Items;
-	FSettings.FileMasksHistory := cmbFileMasks.Items;
+	FSettings.SearchPathsHistory.Value := cmbSearchDir.Items.ToStringArray;
+	FSettings.SearchTextsHistory.Value := cmbSearchText.Items.ToStringArray;
+	FSettings.ReplaceTextsHistory.Value := cmbReplaceText.Items.ToStringArray;
+	FSettings.ExpertOptionHistory.Value := cmbOptions.Items.ToStringArray;
+	FSettings.FileMasksHistory.Value := cmbFileMasks.Items.ToStringArray;
 
 	WriteCtrlsToRipGrepParametersSettings();
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.WriteCtrlsToSettings: set GuiSearchTextParams=' + FSettingsProxy.ToString);
@@ -945,14 +950,14 @@ end;
 procedure TRipGrepperSearchDialogForm.CopySettingsToProxy(var _ctrlVals : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;
 	_settings : TRipGrepperSettings);
 begin
-	_ctrlVals.SearchTextHist := FSettings.SearchTextsHistory;
-	_ctrlVals.ReplaceTextHist := FSettings.ReplaceTextsHistory;
-	_ctrlVals.SearchPathHist := FSettings.SearchPathsHistory;
-	_ctrlVals.FileMasksHist := FSettings.FileMasksHistory;
-	_ctrlVals.AdditionalExpertOptionsHist := FSettings.ExpertOptionHistory;
+	_ctrlVals.SearchTextHist := FSettings.SearchTextsHistory.Value;
+	_ctrlVals.ReplaceTextHist := FSettings.ReplaceTextsHistory.Value;
+	_ctrlVals.SearchPathHist := FSettings.SearchPathsHistory.Value;
+	_ctrlVals.FileMasksHist := FSettings.FileMasksHistory.Value;
+	_ctrlVals.AdditionalExpertOptionsHist := FSettings.ExpertOptionHistory.Value;
 
 	_ctrlVals.EncodingItems := FSettings.AppSettings.EncodingItems;
-	_ctrlVals.ExtensionContext := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext.IDEContext;
+	_ctrlVals.ExtensionContext := ERipGrepperExtensionContext(FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext.IDEContext);
 
 	if HasHistItemObjWithResult then begin
 		_ctrlVals.SearchText := GetValuesFromHistObjRipGrepArguments(RG_ARG_SEARCH_TEXT);
@@ -967,12 +972,12 @@ begin
 		_ctrlVals.IsPrettyChecked := FHistItemObj.SearchFormSettings.Pretty;
 		_ctrlVals.LineContext := FHistItemObj.SearchFormSettings.Context;
 	end else begin
-		_ctrlVals.SearchText := FSettings.SearchTextsHistory[0];
+		_ctrlVals.SearchText := FSettings.SearchTextsHistory.Value[0];
 		_ctrlVals.SearchOptions := FSettings.RipGrepParameters.GuiSearchTextParams.GetSearchOptions;
-		_ctrlVals.ReplaceText := FSettings.ReplaceTextsHistory[0];
+		_ctrlVals.ReplaceText := FSettings.ReplaceTextsHistory.Value[0];
 		_ctrlVals.IsReplaceMode := FSettings.IsReplaceMode;
-		_ctrlVals.SearchPath := FSettings.SearchPathsHistory[0];
-		_ctrlVals.FileMasks := FSettings.FileMasksHistory[0];
+		_ctrlVals.SearchPath := FSettings.SearchPathsHistory.Value[0];
+		_ctrlVals.FileMasks := FSettings.FileMasksHistory.Value[0];
 		_ctrlVals.IsHiddenChecked := FSettings.SearchFormSettings.Hidden;
 		_ctrlVals.IsNoIgnoreChecked := FSettings.SearchFormSettings.NoIgnore;
 		_ctrlVals.Encoding := FSettings.SearchFormSettings.Encoding;
@@ -984,14 +989,14 @@ end;
 procedure TRipGrepperSearchDialogForm.CopyProxyToSettings(var _ctrlVals : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;
 	_settings : TRipGrepperSettings);
 begin
-	FSettings.SearchTextsHistory := _ctrlVals.SearchTextHist;
-	FSettings.ReplaceTextsHistory := _ctrlVals.ReplaceTextHist;
-	FSettings.SearchPathsHistory := _ctrlVals.SearchPathHist;
-	FSettings.FileMasksHistory := _ctrlVals.FileMasksHist;
-	FSettings.ExpertOptionHistory := _ctrlVals.AdditionalExpertOptionsHist;
+	FSettings.SearchTextsHistory.Value := _ctrlVals.SearchTextHist;
+	FSettings.ReplaceTextsHistory.Value := _ctrlVals.ReplaceTextHist;
+	FSettings.SearchPathsHistory.Value := _ctrlVals.SearchPathHist;
+	FSettings.FileMasksHistory.Value := _ctrlVals.FileMasksHist;
+	FSettings.ExpertOptionHistory.Value := _ctrlVals.AdditionalExpertOptionsHist;
 	var
 	rgec := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
-	rgec.IDEContext := _ctrlVals.ExtensionContext;
+	rgec.IDEContext := integer(_ctrlVals.ExtensionContext);
 	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext := rgec;
 
 	if HasHistItemObjWithResult then begin
@@ -1006,12 +1011,12 @@ begin
 		FHistItemObj.SearchFormSettings.Pretty := _ctrlVals.IsPrettyChecked;
 		FHistItemObj.SearchFormSettings.Context := _ctrlVals.LineContext;
 	end else begin
-		FSettings.SearchTextsHistory[0] := _ctrlVals.SearchText;
+		FSettings.SearchTextsHistory.Value[0] := _ctrlVals.SearchText;
 		FSettings.RipGrepParameters.GuiSearchTextParams.SetSearchOptions(_ctrlVals.SearchOptions);
-		FSettings.ReplaceTextsHistory[0] := _ctrlVals.ReplaceText;
+		FSettings.ReplaceTextsHistory.Value[0] := _ctrlVals.ReplaceText;
 		// FSettings.IsReplaceMode := FCtrlProxy.IsReplaceMode;
-		FSettings.SearchPathsHistory[0] := _ctrlVals.SearchPath;
-		FSettings.FileMasksHistory[0] := _ctrlVals.FileMasks;
+		FSettings.SearchPathsHistory.Value[0] := _ctrlVals.SearchPath;
+		FSettings.FileMasksHistory.Value[0] := _ctrlVals.FileMasks;
 		FSettings.SearchFormSettings.Hidden := _ctrlVals.IsHiddenChecked;
 		FSettings.SearchFormSettings.NoIgnore := _ctrlVals.IsNoIgnoreChecked;
 		FSettings.SearchFormSettings.Encoding := _ctrlVals.Encoding;
@@ -1337,14 +1342,14 @@ begin
 			EXT_SEARCH_GIVEN_PATH : begin
 				cmbSearchDir.Enabled := True;
 				dbgMsg.MsgFmt('SearchPath=%s', [FCtrlProxy.SearchPath]);
-				SetComboItemsAndText(cmbSearchDir, FCtrlProxy.SearchPath, FSettings.SearchPathsHistory);
+				SetComboItemsAndText(cmbSearchDir, FCtrlProxy.SearchPath, FSettings.SearchPathsHistory.Value);
 			end
 			else begin
 				raise Exception.Create('Extension IDE Context not supported');
 			end;
 		end;
 		FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
-		rgec.IDEContext := ERipGrepperExtensionContext(rbExtensionOptions.ItemIndex);
+		rgec.IDEContext := rbExtensionOptions.ItemIndex;
 		FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext := rgec;
 		dbgMsg.Msg(rgec.ToLogString);
 	end;

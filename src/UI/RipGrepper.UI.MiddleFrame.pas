@@ -922,7 +922,7 @@ var
 begin
 	rgPath := Settings.RipGrepParameters.RipGrepPath;
 	if not FileExists(rgPath) then begin
-		TAsyncMsgBox.ShowError(Format(FORMAT_RIPGREP_EXE_NOT_FOUND, [Settings.IniFile.FileName]));
+		TAsyncMsgBox.ShowError(Format(FORMAT_RIPGREP_EXE_NOT_FOUND, [Settings.PersisterFactory.FilePath]));
 		Exit;
 	end;
 

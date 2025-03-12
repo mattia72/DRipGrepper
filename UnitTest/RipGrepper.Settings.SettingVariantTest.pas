@@ -153,12 +153,12 @@ begin
 	IniFile := TMemIniFile.Create('');
 	try
 		Section := 'TestSection';
-		Ident := 'TestIdent';
-		v.Persister := TMemIniStrArrayPersister.Create(IniFile, Section, Ident);
+
+		v.Persister := TMemIniStrArrayPersister.Create(IniFile, Section);
         v.SaveToFile;
 
 		for var i := 0 to 2 do begin
-			ActualValue := IniFile.ReadString(Section, Format('%s_Item%d', [Ident, i]), '');
+			ActualValue := IniFile.ReadString(Section, Format('Item_%d', [i]), '');
 			ExpectedValue := varr[i];
 			Assert.AreEqual(ExpectedValue, ActualValue, Format('Expected %s should be equal to %s', [ExpectedValue, ActualValue]));
 		end;

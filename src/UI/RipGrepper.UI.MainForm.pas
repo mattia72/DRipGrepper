@@ -137,7 +137,7 @@ begin
 		FSettings := _settings;
 	end;
 
-	TDebugUtils.DebugMessage('TRipGrepperForm.Create: ' + TPath.GetFileName(FSettings.IniFile.FileName));
+//  TDebugUtils.DebugMessage('TRipGrepperForm.Create: ' + TPath.GetFileName(FSettings.IniFile.FileName));
 end;
 
 procedure TRipGrepperForm.FormCreate(Sender : TObject);
@@ -160,7 +160,7 @@ end;
 
 class function TRipGrepperForm.CreateAndShow(const _settings : TRipGrepperSettings) : TRipGrepperForm;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperForm.CreateAndShow: ' + TPath.GetFileName(_settings.IniFile.FileName));
+//  TDebugUtils.DebugMessage('TRipGrepperForm.CreateAndShow: ' + TPath.GetFileName(_settings.IniFile.FileName));
 	Result := TRipGrepperForm.Create(_settings);
 
 	try

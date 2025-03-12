@@ -37,7 +37,7 @@ type
 			function GetSetting(const _key : string) : ISetting; overload;
 			function GetSections() : IReadOnlyCollection<string>; overload;
 			procedure LoadFromFile();
-			procedure SaveToFile(const _section: string = '');
+			procedure SaveToFile(const _section : string = '');
 
 			property Count : Integer read GetCount;
 			property InnerDictionary : ISettingSections read FInnerDictionary;
@@ -157,20 +157,18 @@ begin
 end;
 
 class function TSettingsDictionary.DictToStringArray(_dict : TSettingsDictionary) : TArray<TArray<string>>;
-var
-	setting : ISetting;
-	sVal : string;
 begin
+	{$IFDEF DEBUG}
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.DictToStringArray');
-
-	{$IFDEF DEBUG}
 	for var section in _dict.InnerDictionary.Keys do begin
 		Result := Result + [['Section', section]];
 		dbgMsg.MsgFmt('[%s]', [section], tftVerbose);
 
 		for var pair in _dict.InnerDictionary[section] do begin
+			var
 			setting := pair.Value;
+			var
 			sVal := setting.AsString;
 			Result := Result + [[pair.Key, sVal]];
 			dbgMsg.MsgFmt('%s=%s', [pair.Key, sVal], tftVerbose);
@@ -223,17 +221,17 @@ begin
 	end;
 end;
 
-procedure TSettingsDictionary.SaveToFile(const _section: string = '');
+procedure TSettingsDictionary.SaveToFile(const _section : string = '');
 var
-	section: string;
+	section : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.SaveToFile');
 
-   	section := IfThen(_section = '', SectionName, _section);
+	section := IfThen(_section = '', SectionName, _section);
 
 	if section.IsEmpty or (ROOT_DUMMY_INI_SECTION = section) then begin
-        dbgMsg.MsgFmt('invalid section: %s', [section]);
+		dbgMsg.MsgFmt('invalid section: %s', [section]);
 		Exit;
 	end;
 

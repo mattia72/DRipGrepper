@@ -17,6 +17,10 @@ type
 		['{57B16806-F8F5-447E-9AB6-767E553CCB65}']
 		function LoadFromFile() : T;
 		procedure SaveToFile(const _value : T);
+
+		function GetFilePath() : string;
+		procedure SetFilePath(const Value : string);
+		property FilePath : string read GetFilePath write SetFilePath;
 	end;
 
 	IPersisterFactory = interface
@@ -26,6 +30,11 @@ type
 		function GetBoolPersister(const _sIniSection, _sKey : string) : IFilePersister<Boolean>;
 		function GetStrArrayPersister(const _sIniSection, _sKey : string) : IFilePersister<TArrayEx<string>>;
 		function ToLogString() : string;
+
+		function GetFilePath() : string;
+		procedure SetFilePath(const Value : string);
+		property FilePath : string read GetFilePath write SetFilePath;
+
 	end;
 
 	IFileHandler = interface(IInterface)
@@ -33,13 +42,23 @@ type
 		procedure ReloadFile();
 		procedure WriteFile();
 		procedure EraseSection(const _section : string);
+		function GetFilePath() : string;
+		procedure SetFilePath(const Value : string);
+		property FilePath : string read GetFilePath write SetFilePath;
 	end;
 
 	TMemIniPersister = class(TInterfacedObject)
+		private
+			function GetFilePath() : string;
+			procedure SetFilePath(const Value : string);
+
 		protected
 			FIniFile : TMemIniFile;
 			FIniKey : string;
 			FIniSection : string;
+
+		public
+			property FilePath : string read GetFilePath write SetFilePath;
 	end;
 
 	TMemIniStringPersister = class(TMemIniPersister, IFilePersister<string>)
@@ -52,31 +71,33 @@ type
 	TMemIniIntegerPersister = class(TMemIniPersister, IFilePersister<integer>)
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
- 			function LoadFromFile() : integer;
+			function LoadFromFile() : integer;
 			procedure SaveToFile(const _value : integer);
 	end;
 
 	TMemIniBoolPersister = class(TMemIniPersister, IFilePersister<Boolean>)
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
- 			function LoadFromFile() : Boolean;
+			function LoadFromFile() : Boolean;
 			procedure SaveToFile(const _value : Boolean);
 	end;
 
 	TMemIniStrArrayPersister = class(TMemIniPersister, IFilePersister < TArrayEx < string >> )
 		public
-			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
- 			function LoadFromFile() : TArrayEx<string>;
+			constructor Create(_ini : TMemIniFile; const _sIniSection : string);
+			function LoadFromFile() : TArrayEx<string>;
 			procedure SaveToFile(const _value : TArrayEx<string>);
 	end;
 
 	TIniPersister = class(TInterfacedObject, IPersisterFactory, IFileHandler)
- 		private
+		private
 			FIniFile : IShared<TMemIniFile>;
+			function GetFilePath() : string;
+			procedure SetFilePath(const Value : string);
 
 		public
 			constructor Create(); overload;
-			constructor Create(_ini: IShared<TMemIniFile>); overload;
+			constructor Create(_ini : IShared<TMemIniFile>); overload;
 			function GetStringPersister(const _sIniSection, _sKey : string) : IFilePersister<string>;
 			function GetIntegerPersister(const _sIniSection, _sKey : string) : IFilePersister<Integer>;
 			function GetBoolPersister(const _sIniSection, _sKey : string) : IFilePersister<Boolean>;
@@ -87,6 +108,7 @@ type
 			procedure ReloadFile();
 			procedure WriteFile();
 			procedure EraseSection(const _section : string);
+			property FilePath : string read GetFilePath write SetFilePath;
 	end;
 
 implementation
@@ -173,10 +195,10 @@ begin
 	Result := [];
 	i := 1;
 	while True do begin
-		s := FIniFile.ReadString(FIniSection, Format('%s_Item%d', [FIniKey, i]), '');
+		s := FIniFile.ReadString(FIniSection, Format('%s%d', [FIniKey, i]), '');
 		if s = '' then
 			Break;
-		Result.Add(s);
+		Result.Insert(0, s);
 		Inc(i);
 	end;
 end;
@@ -188,20 +210,20 @@ var
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMemIniStrArrayPersister.SaveToFile');
-	i := 0;
+	i := _value.MaxIndex;
 	dbgMsg.Msg('Write Array');
-	while i < _value.count do begin
+	while i >= 0 do begin
 		multiLineVal := _value[i];
-		FIniFile.WriteString(FIniSection, Format('%s_Item%d', [FIniKey, i]), multiLineVal.GetLine(0));
-		Inc(i);
+		FIniFile.WriteString(FIniSection, Format('%s%d', [FIniKey, i]), multiLineVal.GetLine(0));
+		Dec(i);
 	end;
 end;
 
-constructor TMemIniStrArrayPersister.Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
+constructor TMemIniStrArrayPersister.Create(_ini : TMemIniFile; const _sIniSection : string);
 begin
 	FIniFile := _ini;
 	FIniSection := _sIniSection;
-	FIniKey := _sKey;
+	FIniKey := 'Item_';
 end;
 
 constructor TIniPersister.Create();
@@ -216,9 +238,9 @@ begin
 	{$ENDIF}
 end;
 
-constructor TIniPersister.Create(_ini: IShared<TMemIniFile>);
+constructor TIniPersister.Create(_ini : IShared<TMemIniFile>);
 begin
-    FIniFile := _ini;
+	FIniFile := _ini;
 end;
 
 procedure TIniPersister.EraseSection(const _section : string);
@@ -231,6 +253,11 @@ begin
 	Result := TMemIniBoolPersister.Create(FIniFile, _sIniSection, _sKey);
 end;
 
+function TIniPersister.GetFilePath() : string;
+begin
+	Result := FIniFile.FileName;
+end;
+
 function TIniPersister.GetIntegerPersister(const _sIniSection, _sKey : string) : IFilePersister<Integer>;
 begin
 	Result := TMemIniIntegerPersister.Create(FIniFile, _sIniSection, _sKey);
@@ -238,7 +265,7 @@ end;
 
 function TIniPersister.GetStrArrayPersister(const _sIniSection, _sKey : string) : IFilePersister<TArrayEx<string>>;
 begin
-	Result := TMemIniStrArrayPersister.Create(FIniFile, _sIniSection, _sKey);
+	Result := TMemIniStrArrayPersister.Create(FIniFile, _sKey); // _sSection is ROOT_DUMMY, key will be section
 
 end;
 
@@ -250,6 +277,11 @@ end;
 procedure TIniPersister.ReloadFile();
 begin
 	FIniFile.ReloadIniFile;
+end;
+
+procedure TIniPersister.SetFilePath(const Value : string);
+begin
+	FIniFile.Rename(Value, False);
 end;
 
 function TIniPersister.ToLogString() : string;
@@ -264,6 +296,16 @@ end;
 procedure TIniPersister.WriteFile();
 begin
 	FIniFile.UpdateFile;
+end;
+
+function TMemIniPersister.GetFilePath() : string;
+begin
+	Result := FIniFile.FileName;
+end;
+
+procedure TMemIniPersister.SetFilePath(const Value : string);
+begin
+	FIniFile.Rename(Value, False);
 end;
 
 end.

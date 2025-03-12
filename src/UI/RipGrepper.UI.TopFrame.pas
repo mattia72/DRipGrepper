@@ -474,7 +474,7 @@ procedure TRipGrepperTopFrame.ActionShowSearchFormExecute(Sender : TObject);
 begin
 	// try rg.exe
 	if not Settings.RipGrepParameters.IsRgPathInitOk then begin
-		TAsyncMsgBox.ShowError(Format(FORMAT_RIPGREP_EXE_NOT_FOUND, [Settings.IniFile.FileName]));
+		TAsyncMsgBox.ShowError(Format(FORMAT_RIPGREP_EXE_NOT_FOUND, [Settings.PersisterFactory.FilePath]));
 		ActionConfigExecute(self);
 		Exit;
 	end;

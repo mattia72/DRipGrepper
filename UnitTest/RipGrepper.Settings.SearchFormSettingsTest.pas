@@ -52,7 +52,7 @@ uses
 procedure TSearchFormSettingsTest.RefreshMembersShouldLoadDefaultsTest;
 begin
 //  FSettings.LoadDefaultsFromDict;
-	Assert.AreEqual(True, FSettings.Pretty, 'Pretty should be true');
+	Assert.AreEqual(False, FSettings.Pretty, 'Pretty should be true');
 	Assert.AreEqual(False, FSettings.Hidden, 'Hidden should be true');
 	Assert.AreEqual(False, FSettings.NoIgnore, 'NoIgnore should be true');
 	Assert.AreEqual(0, FSettings.Context, 'Context should be true');

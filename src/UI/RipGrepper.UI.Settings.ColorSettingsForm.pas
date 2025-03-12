@@ -74,7 +74,7 @@ begin
 		if Components[i] is TColorSelectorFrame then begin
 			cf := TColorSelectorFrame(Components[i]);
 			sSettingsName := TRegex.Replace(cf.LabelText.Caption, '[ ,:]', '');
-			sFontAttribs := FFontColorSettings.SettingsDict.GetSetting(sSettingsName);
+			sFontAttribs := FFontColorSettings.SettingsDict.GetSetting(sSettingsName).AsString;
 			cf.SelectedFontAttributes.FromString(sFontAttribs);
 			cf.Refresh;
 		end;

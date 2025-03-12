@@ -46,6 +46,7 @@ type
 			constructor Create(const _Owner : TPersistableSettings); overload;
 			constructor Create; overload;
 			procedure Init; override;
+			procedure LoadFromDict(); override;
 			procedure ReadIni; override;
 			procedure StoreToDict; override;
 			function ToLogString : string; override;
@@ -99,11 +100,18 @@ begin
 
 	FSearchSelectedShortcut := TStringSetting.Create(TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH);
 	FOpenWithShortCut := TStringSetting.Create(TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH);
+
 	FIDEContext := TIntegerSetting.Create();
-	// FCurrentIDEContext record is ready
+    FCurrentIDEContext.IDEContext := EXT_SEARCH_GIVEN_PATH;
+
 	CreateSetting(KEY_SHORTCUT_SEARCH_SELECTED, FSearchSelectedShortcut);
 	CreateSetting(KEY_SHORTCUT_OPENWITH, FOpenWithShortCut);
 	CreateSetting(KEY_IDE_CONTEXT, FIDEContext);
+end;
+
+procedure TRipGrepperExtensionSettings.LoadFromDict();
+begin
+	// TODO -cMM: TRipGrepperExtensionSettings.LoadFromDict default body inserted
 end;
 
 procedure TRipGrepperExtensionSettings.ReadIni;
@@ -179,7 +187,7 @@ begin
 	Dest.ActiveProject := '';
 	Dest.OpenFiles := [];
 	Dest.ProjectFiles := [];
-	Dest.IDEContext := -1;
+	Dest.IDEContext := Integer(ERipGrepperExtensionContext.rgecNotSet);
 end;
 
 end.
