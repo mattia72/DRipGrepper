@@ -1,4 +1,4 @@
-﻿unit RipGrepper.Settings.SettingsDictionaryTest;
+unit RipGrepper.Settings.SettingsDictionaryTest;
 
 interface
 
@@ -48,13 +48,13 @@ begin
 	dictFrom.InnerDictionary.Add(TESTSECTION, keyDict);
 
 	expected := setting.Value;
-    actual := ISettingVariant<string>(dictFrom[TESTSECTION][key]).Value;
+	actual := ISettingVariant<string>(dictFrom[TESTSECTION][key]).Value;
 
 	Assert.AreEqual(expected, actual, 'The value should match the added value in source dictionary.');
 
 	dictTo.CopySection(TESTSECTION, dictFrom);
 
-	actual := ISettingVariant<string>(dictTo[TESTSECTION ][key]).Value;
+	actual := ISettingVariant<string>(dictTo[TESTSECTION][key]).Value;
 	Assert.AreEqual(expected, actual, 'The value should match the copied value.');
 end;
 

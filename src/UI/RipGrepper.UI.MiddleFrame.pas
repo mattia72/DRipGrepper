@@ -1,4 +1,4 @@
-﻿unit RipGrepper.UI.MiddleFrame;
+unit RipGrepper.UI.MiddleFrame;
 
 interface
 

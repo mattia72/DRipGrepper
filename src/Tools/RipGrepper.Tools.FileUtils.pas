@@ -1,4 +1,4 @@
-﻿unit RipGrepper.Tools.FileUtils;
+unit RipGrepper.Tools.FileUtils;
 
 interface
 
@@ -14,8 +14,8 @@ type
 		Arguments : TArray<string>;
 
 		public
-			function AsString(): string;
-		function ParametersAsString(): string;
+			function AsString() : string;
+			function ParametersAsString() : string;
 			class function ParseCommand(const _sCmd : string) : TCommandLineRec; static;
 	end;
 
@@ -28,7 +28,7 @@ type
 		public
 			class function New(const _caption, _cmd : string; const _descr : string = ''; const _isActive : Boolean = True) : TCommandItem;
 				overload; static;
-			class function New(const _arr: TArray<string>): TCommandItem; overload; static;
+			class function New(const _arr : TArray<string>) : TCommandItem; overload; static;
 	end;
 
 	TFileUtils = class(TObject)
@@ -300,12 +300,12 @@ begin
 	end;
 end;
 
-function TCommandLineRec.AsString(): string;
+function TCommandLineRec.AsString() : string;
 begin
 	Result := ExePath + ' ' + string.Join(' ', Arguments);;
 end;
 
-function TCommandLineRec.ParametersAsString(): string;
+function TCommandLineRec.ParametersAsString() : string;
 begin
 	Result := string.Join(' ', Arguments);;
 end;
@@ -334,7 +334,7 @@ begin
 	Result.IsActive := _isActive;
 end;
 
-class function TCommandItem.New(const _arr: TArray<string>): TCommandItem;
+class function TCommandItem.New(const _arr : TArray<string>) : TCommandItem;
 var
 	arrEx : TArrayEx<string>;
 begin
