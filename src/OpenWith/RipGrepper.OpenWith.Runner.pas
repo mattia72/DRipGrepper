@@ -1,4 +1,4 @@
-﻿unit RipGrepper.OpenWith.Runner;
+unit RipGrepper.OpenWith.Runner;
 
 interface
 
@@ -10,8 +10,7 @@ type
 	TOpenWithRunner = class
 
 		public
-			class function BuildParams(const _owp : TOpenWithParams; const _sParams :
-				string): string;
+			class function BuildParams(const _owp : TOpenWithParams; const _sParams : string) : string;
 			class procedure RunEditorCommand(const _sEditorCmd : string; const _owp : TOpenWithParams);
 	end;
 
@@ -28,8 +27,7 @@ uses
 	RipGrepper.Tools.FileUtils,
 	System.Generics.Collections;
 
-class function TOpenWithRunner.BuildParams(const _owp : TOpenWithParams; const
-	_sParams : string): string;
+class function TOpenWithRunner.BuildParams(const _owp : TOpenWithParams; const _sParams : string) : string;
 var
 	sCmdParams : string;
 	pPlaceholder : TPair<string, Variant>;
@@ -41,11 +39,11 @@ begin
 	sCmdParams := _sParams;
 
 	arrPlaceHolders := [
-		{ } TPair<string, Variant>.Create('<DIR>', _owp.RelativeBaseDirPath),
-		{ } TPair<string, Variant>.Create('<FILE>', _owp.FilePath),
-		{ } TPair<string, Variant>.Create('<LINE>', _owp.Row),
-		{ } TPair<string, Variant>.Create('<ROW>', _owp.Row),
-		{ } TPair<string, Variant>.Create('<COL>', _owp.Column)];
+	{ } TPair<string, Variant>.Create('<DIR>', _owp.RelativeBaseDirPath),
+	{ } TPair<string, Variant>.Create('<FILE>', _owp.FilePath),
+	{ } TPair<string, Variant>.Create('<LINE>', _owp.Row),
+	{ } TPair<string, Variant>.Create('<ROW>', _owp.Row),
+	{ } TPair<string, Variant>.Create('<COL>', _owp.Column)];
 
 	for pPlaceholder in arrPlaceHolders do begin
 		sCmdParams := StringReplace(sCmdParams, pPlaceholder.Key, '%s', [rfReplaceAll]);

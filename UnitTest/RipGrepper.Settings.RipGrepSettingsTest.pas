@@ -225,3 +225,4 @@ initialization
 TDUnitX.RegisterTestFixture(TRipGrepSettingsTest);
 
 end.
+

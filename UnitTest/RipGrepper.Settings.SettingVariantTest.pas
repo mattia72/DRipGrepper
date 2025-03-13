@@ -77,7 +77,7 @@ begin
 		Section := 'TestSection';
 		Ident := 'TestIdent';
 		ExpectedValue := v.Value;
-		v.Persister:= TMemIniStringPersister.Create(IniFile, Section, Ident);
+		v.Persister := TMemIniStringPersister.Create(IniFile, Section, Ident);
 
 		v.SaveToFile();
 		ActualValue := IniFile.ReadString(Section, Ident, '');
@@ -131,8 +131,8 @@ begin
 		// ini file stores 0 or 1
 		ActualValue := IniFile.ReadBool(Section, Ident, False);
 
-		Assert.AreEqual(ExpectedValue, ActualValue,
-        Format('Expected %s should be equal to %s', [BoolToStr(ExpectedValue), BoolToStr(ActualValue)]));
+		Assert.AreEqual(ExpectedValue, ActualValue, Format('Expected %s should be equal to %s',
+			[BoolToStr(ExpectedValue), BoolToStr(ActualValue)]));
 	finally
 		IniFile.Free;
 	end;
@@ -142,7 +142,7 @@ procedure TSettingVariantTest.TestWriteToMemIniArray();
 var
 	v : ISettingVariant<TArrayEx<string>>;
 	IniFile : TMemIniFile;
-	Section, Ident : string;
+	Section : string;
 	ExpectedValue, ActualValue : string;
 begin
 	var
@@ -155,7 +155,7 @@ begin
 		Section := 'TestSection';
 
 		v.Persister := TMemIniStrArrayPersister.Create(IniFile, Section);
-        v.SaveToFile;
+		v.SaveToFile;
 
 		for var i := 0 to 2 do begin
 			ActualValue := IniFile.ReadString(Section, Format('Item_%d', [i]), '');
