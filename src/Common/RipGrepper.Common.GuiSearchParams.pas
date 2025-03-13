@@ -11,7 +11,8 @@ uses
 	RipGrepper.CommandLine.OptionStrings,
 	RipGrepper.Helper.Types,
 	RipGrepper.Common.SimpleTypes,
-	RipGrepper.Common.SearchTextWithOptions, RipGrepper.Settings.SettingVariant;
+	RipGrepper.Common.SearchTextWithOptions,
+	RipGrepper.Settings.SettingVariant;
 
 type
 	TGuiSearchTextParams = class(TPersistableSettings)
@@ -21,13 +22,14 @@ type
 			FIsRgExeOptionSet : Boolean;
 			FReplaceText : string;
 			FExpertOptions : TOptionStrings;
-			FSearchParams: IStringSetting;
+			FSearchParams : IStringSetting;
 			FSearchTextWithOptions : TSearchTextWithOptions;
 			function GetReplaceText : string;
 			procedure LoadSearchOptionsFromDict(const _bDefault : Boolean);
 			// function ResetRgOption(const _sParamRegex : string; const _bReset : Boolean = False) : string;
 			procedure SetIsReplaceMode(const Value : Boolean);
 			procedure SetRgOptions(const Value : TOptionStrings);
+			procedure UpdateSearchParamsSetting(const _options: TSearchOptionSet);
 
 		protected
 			procedure Init; override;
@@ -199,7 +201,7 @@ end;
 
 procedure TGuiSearchTextParams.Init;
 begin
-    FSearchParams := TStringSetting.Create('');
+	FSearchParams := TStringSetting.Create('');
 	CreateSetting('SearchParams', FSearchParams);
 end;
 
@@ -211,7 +213,8 @@ begin
 end;
 
 procedure TGuiSearchTextParams.LoadSearchOptionsFromDict(const _bDefault : Boolean);
-var sParams : string;
+var
+	sParams : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.LoadSearchOptionsFromDict Default=' + BoolToStr(_bDefault));
@@ -237,6 +240,7 @@ procedure TGuiSearchTextParams.SetSearchOptions(const _options : TSearchOptionSe
 begin
 	FSearchTextWithOptions.SearchOptions := _options;
 	UpdateRgParamsByGuiOptions();
+	UpdateSearchParamsSetting(_options);
 end;
 
 procedure TGuiSearchTextParams.SetRgOptions(const Value : TOptionStrings);
@@ -273,7 +277,8 @@ begin
 end;
 
 procedure TGuiSearchTextParams.UpdateRgParamsByGuiOptions;
-var backupOptions : TArrayEx<string>;
+var
+	backupOptions : TArrayEx<string>;
 begin
 
 	// backup non option case options
@@ -287,7 +292,8 @@ begin
 
 	for var op : TSearchOptionToRgOptions in SEARCH_OPTION_CASES do begin
 		if op.SearchOption = self.FSearchTextWithOptions.SearchOptions then begin
-			var opArr : TArrayEx<string>;
+			var
+				opArr : TArrayEx<string>;
 			for var os in op.RgOptions do begin
 				opArr.Add(TParamRegexHelper.GetLongParam(os));
 			end;
@@ -298,6 +304,11 @@ begin
 	end;
 
 	self.RgOptions.Copy(backupOptions);
+end;
+
+procedure TGuiSearchTextParams.UpdateSearchParamsSetting(const _options: TSearchOptionSet);
+begin
+	FSearchParams.Value := TSearchTextWithOptions.SearchOptionSetToString(_options);
 end;
 
 end.

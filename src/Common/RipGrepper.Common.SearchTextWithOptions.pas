@@ -29,9 +29,10 @@ type
 			procedure Clear;
 			procedure Copy(const _other : TSearchTextWithOptions);
 			class function GetAsSearchOptionSet(const _bMC, _bMW, _bUR : Boolean) : TSearchOptionSet; static;
-			function GetAsString(const _bGuiOptionsOnly : Boolean = False) : string;
+			function GetAsString(const _bGuiOptionsOnly: Boolean = False): string;
 			class function New(const _searchText : string; const _options : TSearchOptionSet) : TSearchTextWithOptions; static;
 			procedure ResetOption(const _searchOption : EGuiOption);
+			class function SearchOptionSetToString(const _so : TSearchOptionSet) : string; static;
 			procedure SetOption(const _searchOption : EGuiOption);
 			procedure UpdateSearchOptions(const _sOptions : string);
 			class function StringToSearchOptionSet(const s : string) : TSearchOptionSet; static;
@@ -92,26 +93,10 @@ begin
 	end;
 end;
 
-function TSearchTextWithOptions.GetAsString(const _bGuiOptionsOnly : Boolean = False) : string;
-var arr : TArrayEx<string>;
+function TSearchTextWithOptions.GetAsString(const _bGuiOptionsOnly: Boolean = False): string;
 begin
-	Result := '';
-	for var i in GUI_SEARCH_PARAMS do begin
-		if i in FSearchOptions then begin
-			case i of
-				EGuiOption.soMatchCase : begin
-					arr.Add('MatchCase');
-				end;
-				EGuiOption.soMatchWord : begin
-					arr.Add('MatchWord');
-				end;
-				EGuiOption.soUseRegex : begin
-					arr.Add('UseRegex');
-				end;
-			end;
-		end;
-	end;
-	Result := '[' + string.Join(',', arr.Items) + ']';
+	Result := TSearchTextWithOptions.SearchOptionSetToString(FSearchOptions);
+
 	if not _bGuiOptionsOnly then begin
 		Result := Format('%s', [SearchText]);
 	end;
@@ -142,11 +127,35 @@ begin
 end;
 
 procedure TSearchTextWithOptions.ResetOption(const _searchOption : EGuiOption);
-var searchOption : EGuiOption;
+var
+	searchOption : EGuiOption;
 begin
 	searchOption := _searchOption;
 	Exclude(FSearchOptions, searchOption);
 	UpdateWordBoundedSearchText;
+end;
+
+class function TSearchTextWithOptions.SearchOptionSetToString(const _so : TSearchOptionSet) : string;
+var
+	arr : TArrayEx<string>;
+begin
+	Result := '';
+	for var i in GUI_SEARCH_PARAMS do begin
+		if i in _so then begin
+			case i of
+				EGuiOption.soMatchCase : begin
+					arr.Add('MatchCase');
+				end;
+				EGuiOption.soMatchWord : begin
+					arr.Add('MatchWord');
+				end;
+				EGuiOption.soUseRegex : begin
+					arr.Add('UseRegex');
+				end;
+			end;
+		end;
+	end;
+	Result := '[' + string.Join(',', arr.Items) + ']';
 end;
 
 procedure TSearchTextWithOptions.UpdateEscapedSearchText();
