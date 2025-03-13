@@ -178,6 +178,7 @@ function TPersistableSettings.AddChildSettings(_settings : TPersistableSettings)
 begin
 	FChildren.Add(_settings);
 	_settings.FOwner := self;
+	_settings.SetOwnerSettings();
 	Result := _settings;
 end;
 
@@ -479,7 +480,7 @@ begin
 	var
 	lock := TLockGuard.NewLock(FLockObject);
 
- 	section := IfThen(_section = '', IniSectionName, _section);
+	section := IfThen(_section = '', IniSectionName, _section);
 	dbgMsg.MsgFmt('Lock Entered - WriteSettingsDictToIni [%s]', [section]);
 
 	if _bClearSection then begin

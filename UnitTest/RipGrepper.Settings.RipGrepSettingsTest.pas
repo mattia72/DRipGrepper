@@ -144,8 +144,8 @@ end;
 procedure TRipGrepSettingsTest.DictActualTest;
 begin
 	SetSettingValues;
-	FSettings.StoreToDict;
-	FSettings.UpdateIniFile(); // this copies the cild dictionaries!
+//	FSettings.StoreToDict;
+//	FSettings.UpdateIniFile(); // this copies the child dictionaries!
 
 	var
 	dict := FSettings.SettingsDict;
@@ -180,7 +180,7 @@ end;
 procedure TRipGrepSettingsTest.UpdateIniReloadTest;
 begin
 	SetSettingValues;
-	FSettings.UpdateIniFile();
+	FSettings.UpdateIniFile(); // this copies the child dictionaries!
 	FSettings.FileMasks := '';
 	FSettings.SearchPath := '';
 	FSettings.ReLoad; // fills only settings dict

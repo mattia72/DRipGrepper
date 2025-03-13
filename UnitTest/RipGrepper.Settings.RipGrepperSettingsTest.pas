@@ -72,6 +72,7 @@ uses
 
 procedure TRipGrepperSettingsTest.RefreshMembersShouldLoadDefaultsTest;
 begin
+//	FSettings.UpdateIniFile(); // this copies the child dictionaries!
 	Assert.AreEqual(False, FSettings.SearchFormSettings.Pretty, 'Pretty should be true');
 	Assert.AreEqual(False, FSettings.SearchFormSettings.Hidden, 'Hidden should be true');
 	Assert.AreEqual(False, FSettings.SearchFormSettings.NoIgnore, 'NoIgnore should be true');
