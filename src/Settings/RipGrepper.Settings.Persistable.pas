@@ -255,6 +255,7 @@ begin
 				continue;
 			end;
 		end;
+		// settingSelf.Copy(settingOther); doesn't work here
 		TSetting.CopySettingValues(settingOther, settingSelf);
 	end;
 end;

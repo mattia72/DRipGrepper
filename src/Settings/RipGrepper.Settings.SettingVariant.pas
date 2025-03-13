@@ -37,8 +37,10 @@ type
 
 	ISetting = interface
 		['{289A58E3-A490-4015-9AFE-52EB303B9B89}']
-		procedure Copy(_other : ISetting);
 		function Equals(_other : ISetting) : Boolean;
+
+		procedure Copy(_other : ISetting);
+		function CompareTo(Value : ISetting): Integer;
 
 		function GetState() : TSettingState;
 		procedure SetState(const Value : TSettingState);
@@ -68,6 +70,9 @@ type
 		['{D4A1E2B3-5F6C-4A7D-8B9E-1C2D3E4F5A6B}']
 		function Equals(_other : ISettingVariant<T>) : Boolean;
 		function IsEmpty : Boolean;
+
+		function CompareTo(Value : ISettingVariant<T>): Integer;
+		procedure Copy(_other : ISettingVariant<T>);
 
 		function GetValue : T;
 		procedure SetValue(const Value : T);
