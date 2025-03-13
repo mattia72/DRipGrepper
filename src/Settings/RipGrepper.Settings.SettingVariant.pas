@@ -104,6 +104,7 @@ type
 			function AsArray() : TArrayEx<string>;
 			function CompareTo(Value : ISetting) : Integer;
 			procedure Copy(_other : ISetting);
+			class procedure CopySettingValues(_from, _to: ISetting);
 
 			function Equals(_other : ISetting) : Boolean; reintroduce;
 
@@ -316,6 +317,22 @@ begin
 	FState := _other.State;
 end;
 
+class procedure TSetting.CopySettingValues(_from, _to: ISetting);
+begin
+	case _from.SettingType of
+		stString :
+		TStringSetting(_to).Copy(_from.AsStringSetting);
+		stInteger :
+		TIntegerSetting(_to).Copy(_from.AsIntegerSetting);
+		stBool :
+		TBoolSetting(_to).Copy(_from.AsBoolSetting);
+		stStrArray :
+		TArraySetting(_to).Copy(_from.AsArraySetting);
+		else
+		raise ESettingsException.Create('Can''t copy unknown setting type');
+	end;
+end;
+
 function TSetting.Equals(_other : ISetting) : Boolean;
 begin
 	Result := (FState = _other.State);
@@ -336,7 +353,7 @@ begin
 	Result := -1;
 	if not self.Value.Contains(AItem) then begin
 		self.Value.Insert(0, AItem);
-        Result := self.Value.Count;
+		Result := self.Value.Count;
 	end;
 end;
 

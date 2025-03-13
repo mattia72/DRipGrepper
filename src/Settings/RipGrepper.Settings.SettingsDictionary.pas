@@ -229,8 +229,10 @@ begin
 
 	section := IfThen(_section = '', SectionName, _section);
 
-	if section.IsEmpty or (ROOT_DUMMY_INI_SECTION = section) then begin
-		dbgMsg.MsgFmt('invalid section: %s', [section]);
+	if section.IsEmpty
+	{ } or (ROOT_DUMMY_INI_SECTION = section)
+	{ } or (not InnerDictionary.ContainsKey(section)) then begin
+		dbgMsg.MsgFmt('invalid section: ''%s''', [section]);
 		Exit;
 	end;
 

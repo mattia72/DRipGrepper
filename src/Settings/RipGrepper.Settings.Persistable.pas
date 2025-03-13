@@ -40,7 +40,8 @@ type
 			FIsAlreadyRead : Boolean;
 			FOwner : TPersistableSettings;
 			FIsOwnerOfPersisterFactory : Boolean;
-			procedure CopySettingsDictSection(const _section : string; _sdFrom : ISettingKeys); overload;
+			procedure CopySettingsDictSectionSettingValues(const _section : string; _sdFrom : ISettingKeys;
+				const _bForceCopySettingObj : Boolean = False);
 			procedure FreeOwnIniFile;
 			function GetCount() : Integer;
 			function GetPersisterFactory() : IPersisterFactory;
@@ -48,7 +49,7 @@ type
 			procedure SetChildrenIniFiles;
 			procedure SetPersisterFactory(const Value : IPersisterFactory);
 			procedure SetIniSectionName(const Value : string);
-			procedure SetOwnerSettings(const _section : string = ''; const _bForceWriteIni : Boolean = False;
+			procedure AddToOwnerSettings(const _section : string = ''; const _bForceWriteIni : Boolean = False;
 				const _bClearSection : Boolean = False);
 
 		protected
@@ -84,7 +85,8 @@ type
 			destructor Destroy; override;
 			function AddChildSettings(_settings : TPersistableSettings) : TPersistableSettings;
 			function RemoveChildSettings(_settings : TPersistableSettings) : Boolean;
-			procedure CopySettingsDictSection(const _from : TPersistableSettings; const _copyAllSections : Boolean = False); overload;
+			procedure CopySettingsDictSection(const _from : TPersistableSettings; const _copyAllSections : Boolean = False;
+				const _bForceCopySettingObj : Boolean = False); overload;
 			/// <summary>TPersistableSettings.ReadIni
 			/// Members.RedIni- should be called here
 			/// </summary>
@@ -178,7 +180,7 @@ function TPersistableSettings.AddChildSettings(_settings : TPersistableSettings)
 begin
 	FChildren.Add(_settings);
 	_settings.FOwner := self;
-	_settings.SetOwnerSettings();
+	_settings.AddToOwnerSettings();
 	Result := _settings;
 end;
 
@@ -199,7 +201,8 @@ begin
 	end;
 end;
 
-procedure TPersistableSettings.CopySettingsDictSection(const _from : TPersistableSettings; const _copyAllSections : Boolean = False);
+procedure TPersistableSettings.CopySettingsDictSection(const _from : TPersistableSettings; const _copyAllSections : Boolean = False;
+	const _bForceCopySettingObj : Boolean = False);
 var
 	sdFrom : ISettingKeys;
 	section : string;
@@ -208,7 +211,8 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.CopySettingsDictSection');
 	dbgMsg.MsgFmt('Copy TO [%s]', [IniSectionName]);
 
-	if not _from.SettingsDict.InnerDictionary.TryGetValue(IniSectionName, sdFrom) and not _copyAllSections then begin
+	if not _from.SettingsDict.InnerDictionary.TryGetValue(IniSectionName, sdFrom)
+	{ } and not _copyAllSections then begin
 		dbgMsg.MsgFmt('There is no [%s] in source', [IniSectionName]);
 		Exit;
 	end;
@@ -217,25 +221,25 @@ begin
 		for var sd in _from.SettingsDict() do begin
 			section := sd.Key;
 			if SettingsDict.ContainsSection(section) then begin
-				CopySettingsDictSection(section, sd.Value);
+				CopySettingsDictSectionSettingValues(section, sd.Value, _bForceCopySettingObj);
 			end else begin
 				SettingsDict[section] := sd.Value;
 			end;
 		end;
 	end else begin
-		CopySettingsDictSection(IniSectionName, sdFrom);
+		CopySettingsDictSectionSettingValues(IniSectionName, sdFrom, _bForceCopySettingObj);
 	end;
-
 end;
 
-procedure TPersistableSettings.CopySettingsDictSection(const _section : string; _sdFrom : ISettingKeys);
+procedure TPersistableSettings.CopySettingsDictSectionSettingValues(const _section : string; _sdFrom : ISettingKeys;
+	const _bForceCopySettingObj : Boolean = False);
 var
 	settingOther : ISetting;
 	settingSelf : ISetting;
 	sdSelf : ISettingKeys;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.CopySettingsDictSection');
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.CopySettingsDictSectionSettingValues');
 
 	for var key in _sdFrom.Keys do begin
 		settingOther := _sdFrom[key];
@@ -245,20 +249,13 @@ begin
 			dbgMsg.MsgFmt('There is no [%s] %s in destination', [_section, key]);
 			sdSelf[key] := settingOther;
 			continue;
+		end else begin
+			if (_bForceCopySettingObj) then begin
+				sdSelf[key] := settingOther;
+				continue;
+			end;
 		end;
-
-		case settingOther.SettingType of
-			stString :
-			TStringSetting(settingSelf).Copy(settingOther.AsStringSetting);
-			stInteger :
-			TIntegerSetting(settingSelf).Copy(settingOther.AsIntegerSetting);
-			stBool :
-			TBoolSetting(settingSelf).Copy(settingOther.AsBoolSetting);
-			stStrArray :
-			TArraySetting(settingSelf).Copy(settingOther.AsArraySetting);
-			else
-			raise ESettingsException.Create('Can''t copy unknown setting type');
-		end;
+		TSetting.CopySettingValues(settingOther, settingSelf);
 	end;
 end;
 
@@ -401,13 +398,12 @@ begin
 	FIniSectionName := Value;
 end;
 
-procedure TPersistableSettings.SetOwnerSettings(const _section : string = ''; const _bForceWriteIni : Boolean = False;
+procedure TPersistableSettings.AddToOwnerSettings(const _section : string = ''; const _bForceWriteIni : Boolean = False;
 const _bClearSection : Boolean = False);
-var
-	dbgArr : TArray<TArray<string>>;
 begin
 	if Assigned(FOwner) { and (_section = '') } then begin
-		FOwner.CopySettingsDictSection(self, True);
+		FOwner.CopySettingsDictSection(self, True, True);
+		var
 		dbgArr := TSettingsDictionary.DictToStringArray(SettingsDict);
 		FOwner.WriteSettingsDictToIni(IfThen(_bForceWriteIni, _section), _bClearSection);
 	end;
@@ -431,7 +427,7 @@ begin
 		s.UpdateIniFile(s.GetIniSectionName());
 	end;
 
-	//SetOwnerSettings(_section, _bForceWriteIni, _bClearSection);
+	// AddToOwnerSettings(_section, _bForceWriteIni, _bClearSection);
 
 	if Assigned(FOwner) { and (_section = '') } and not _bForceWriteIni then begin
 		Exit;
