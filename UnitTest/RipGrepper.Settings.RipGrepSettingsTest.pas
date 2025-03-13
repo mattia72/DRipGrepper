@@ -15,7 +15,10 @@ type
 	[TestFixture]
 	TRipGrepSettingsTest = class
 		const
-			INIFILE = 'DripGrepperUnittest.ini';
+			C_PATH_TO_DIR = 'c:\path\to\dir';
+			PAS_DFM = '*.pas;*.dfm';
+			EGUIOPTION_MATCHCASE = '[MatchCase]';
+			MATCHWORD_USEREGEX = '[MatchWord,UseRegex]';
 
 		private
 			FIniFile : IShared<TMemIniFile>;
@@ -57,22 +60,15 @@ uses
 	RipGrepper.Common.SearchTextWithOptions,
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Tools.FileUtils,
-	System.Variants;
-
-const
-	MATCHWORD_USEREGEX = '[MatchWord,UseRegex]';
-	C_DEF_PATH_TO_DIR = 'c:\def\path\to\dir';
-	DEFPAS_DEFDFM = '*.defpas;*.defdfm';
-	C_PATH_TO_DIR = 'c:\path\to\dir';
-	PAS_DFM = '*.pas;*.dfm';
-	EGUIOPTION_MATCHCASE = '[MatchCase]';
+	System.Variants,
+	RipGrepper.Settings.SettingsDictionary;
 
 procedure TRipGrepSettingsTest.AfterCopyValuesValuesShouldBeEqual;
 var
 	s1, s2 : string;
 begin
 	SetSettingValues;
-//  FSettings.LoadFromDict; // FSettings.LoadDefaultsFromDict;
+	// FSettings.LoadFromDict; // FSettings.LoadDefaultsFromDict;
 	var
 	s := TRipGrepParameterSettings.Create(nil);
 	try
@@ -123,7 +119,8 @@ begin
 	FIniFile := Shared.Make<TMemIniFile>(TMemIniFile.Create(iniName, TEncoding.UTF8));
 	FPersisterFactory := TIniPersister.Create(FIniFile);
 
-	Assert.IsTrue(FSettings.PersisterFactory = FSettings.GuiSearchTextParams.PersisterFactory);
+	Assert.IsTrue(FSettings.PersisterFactory.FilePath = FSettings.GuiSearchTextParams.PersisterFactory.FilePath,
+		'File Path should be equal.');
 end;
 
 procedure TRipGrepSettingsTest.TearDown;
@@ -137,7 +134,7 @@ procedure TRipGrepSettingsTest.LoadActualTest;
 begin
 	SetSettingValues;
 
-//  FSettings.LoadFromDict;
+	// FSettings.LoadFromDict;
 	Assert.IsTrue(FSettings.RipGrepPath.Contains(RG_EXE), 'RipGrepPath should be set');
 	Assert.AreEqual(PAS_DFM, FSettings.FileMasks, '2. FileMasks shouldn''t be the default');
 	Assert.AreEqual(C_PATH_TO_DIR, FSettings.SearchPath, 'SearchPath should be set');
@@ -147,11 +144,16 @@ end;
 procedure TRipGrepSettingsTest.DictActualTest;
 begin
 	SetSettingValues;
+	FSettings.StoreToDict;
+	FSettings.UpdateIniFile(); // this copies the cild dictionaries!
 
 	var
 	dict := FSettings.SettingsDict;
 	var
 	inisec := FSettings.IniSectionName;
+
+	var
+	dbgArr := TSettingsDictionary.DictToStringArray(dict());
 
 	Assert.AreEqual(PAS_DFM,
 		{ } dict()[inisec]['FileMasks'].AsString, 'FileMasks are not equal');
@@ -182,7 +184,7 @@ begin
 	FSettings.FileMasks := '';
 	FSettings.SearchPath := '';
 	FSettings.ReLoad; // fills only settings dict
-	FSettings.LoadFromDict; // why loads defaults ?????
+	// FSettings.LoadFromDict; // why loads defaults ?????
 	Assert.IsTrue(FSettings.RipGrepPath.Contains(RG_EXE), 'RipGrepPath should be set');
 	Assert.AreEqual(PAS_DFM, FSettings.FileMasks, 'FileMasks should be set');
 	Assert.AreEqual(C_PATH_TO_DIR, FSettings.SearchPath, 'SearchPath should be set');
@@ -225,4 +227,3 @@ initialization
 TDUnitX.RegisterTestFixture(TRipGrepSettingsTest);
 
 end.
-
