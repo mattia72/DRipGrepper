@@ -488,7 +488,7 @@ begin
 				dlg.DefaultFolder := _initialDir;
 			end else begin
 				var
-				initialDir := _initialDir;
+				initialDir := _initialDir.Split([';'])[0];
 				// get the valid part of the path...
 				repeat
 					initialDir := ExtractFileDir(initialDir); // cuts the last part of the path
