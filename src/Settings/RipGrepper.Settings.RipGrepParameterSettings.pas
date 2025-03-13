@@ -142,7 +142,7 @@ end;
 procedure TRipGrepParameterSettings.Copy(const _other : TPersistableSettings);
 begin
 	FGuiSearchTextParams.Copy((_other as TRipGrepParameterSettings).GuiSearchTextParams());
-	StoreToDict;
+	StoreToPersister;
 	inherited Copy(_other);
 end;
 
@@ -320,7 +320,7 @@ begin
 		FRipGrepPath.Value := Value;
 		if FileExists(FRipGrepPath.Value) then begin
 			FRipGrepPathInitResult := rgpiFound;
-			StoreToDict;
+			StoreToPersister;
 			UpdateIniFile();
 		end;
 	end;

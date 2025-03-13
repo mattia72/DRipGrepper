@@ -53,7 +53,7 @@ type
 
 			procedure Init; override;
 			procedure ReadIni; override;
-			procedure StoreToDict; override;
+			procedure StoreToPersister; override;
 			procedure Copy(const _other : TSearchFormSettings); reintroduce;
 			procedure LoadFromDict(); override;
 			procedure ReLoad; override;
@@ -202,17 +202,16 @@ begin
 	FPretty.Value := Value;
 end;
 
-procedure TSearchFormSettings.StoreToDict;
+procedure TSearchFormSettings.StoreToPersister; // extension switch off if TESTINSIGHT
 begin
-	FExtensionSettings.StoreToDict;
-	inherited StoreToDict();
+	FExtensionSettings.StoreToPersister;
+	inherited StoreToPersister();
 end;
 
 procedure TSearchFormSettings.LoadFromDict;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.LoadFromDict');
-//  FExtensionSettings.LoadFromDict();
 end;
 
 procedure TSearchFormSettings.ReLoad;

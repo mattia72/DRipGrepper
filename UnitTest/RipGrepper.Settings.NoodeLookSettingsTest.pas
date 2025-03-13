@@ -76,8 +76,6 @@ begin
 	FSettings.IndentLines := True;
 	FSettings.ShowRelativePath := True;
 	FSettings.ExpandNodes := True;
-
-//  FSettings.StoreToDict;
 end;
 
 procedure TNodeLookSettingsTest.Setup;
@@ -111,7 +109,7 @@ begin
 	{ 2 } FSettings.UpdateIniFile(FSettings.IniSectionName); // create temp ini
 	CheckNodeSettingsDict('after updateini');
 
-	{ 3 } FSettings.WriteSettingsDictToIni(FSettings.IniSectionName);
+	{ 3 } FSettings.WriteSettingsDictToPersister(FSettings.IniSectionName);
 
 	// Assert.IsTrue(not DirectoryExists(FSettings.IniFile.GetDripGrepperIniTempDir), ' temp dir should not exists');
 

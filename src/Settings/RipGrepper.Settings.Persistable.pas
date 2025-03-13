@@ -25,7 +25,7 @@ type
 		procedure Init;
 		procedure ReadIni;
 		procedure LoadFromDict();
-		procedure StoreToDict;
+		procedure StoreToPersister;
 	end;
 
 	TPersistableSettings = class(TNoRefCountObject, IIniPersistable)
@@ -98,16 +98,16 @@ type
 			/// ReLoads memini file content
 			procedure ReLoadFromDisk;
 			/// <summary>
-			/// Members.StoreToDict should be called here
+			/// Members.StoreToPersister should be called here
 			/// Writes to ini.
 			/// </summary>
-			procedure StoreToDict; virtual;
+			procedure StoreToPersister; virtual;
 			// <summary>
 			// Thread safe write Settings to ini file
 			// </summary>
 			procedure UpdateIniFile(const _section : string = ''; const _bForceWriteIni : Boolean = False;
 				const _bClearSection : Boolean = False);
-			procedure WriteSettingsDictToIni(const _section : string = ''; const _bClearSection : Boolean = False);
+			procedure WriteSettingsDictToPersister(const _section : string = ''; const _bClearSection : Boolean = False);
 	end;
 
 implementation
@@ -325,12 +325,12 @@ begin
 	end;
 end;
 
-procedure TPersistableSettings.StoreToDict;
+procedure TPersistableSettings.StoreToPersister; // new name StoreInPersister
 begin
 	for var s in FChildren do begin
-		s.StoreToDict;
+		s.StoreToPersister;
 	end;
-	WriteSettingsDictToIni();
+	WriteSettingsDictToPersister();
 end;
 
 procedure TPersistableSettings.ReadSettings;
@@ -406,7 +406,7 @@ begin
 		FOwner.CopySettingsDictSection(self, True, True);
 		var
 		dbgArr := TSettingsDictionary.DictToStringArray(SettingsDict);
-		FOwner.WriteSettingsDictToIni(IfThen(_bForceWriteIni, _section), _bClearSection);
+		FOwner.WriteSettingsDictToPersister(IfThen(_bForceWriteIni, _section), _bClearSection);
 	end;
 end;
 
@@ -428,14 +428,12 @@ begin
 		s.UpdateIniFile(s.GetIniSectionName());
 	end;
 
-	// AddToOwnerSettings(_section, _bForceWriteIni, _bClearSection);
-
 	if Assigned(FOwner) { and (_section = '') } and not _bForceWriteIni then begin
 		Exit;
 	end;
 
 	if _bForceWriteIni then begin
-		WriteSettingsDictToIni(IfThen(_bForceWriteIni, _section), _bClearSection)
+		WriteSettingsDictToPersister(IfThen(_bForceWriteIni, _section), _bClearSection)
 	end;
 
 	// var arr := DictToLog(SettingsDict);
@@ -466,19 +464,19 @@ begin
 
 end;
 
-procedure TPersistableSettings.WriteSettingsDictToIni(const _section : string = ''; const _bClearSection : Boolean = False);
+procedure TPersistableSettings.WriteSettingsDictToPersister(const _section : string = ''; const _bClearSection : Boolean = False);
 var
 	fh : IFileHandler;
 	section : string;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.WriteSettingsDictToIni');
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.WriteSettingsDictToPersister');
 
 	var
 	lock := TLockGuard.NewLock(FLockObject);
 
 	section := IfThen(_section = '', IniSectionName, _section);
-	dbgMsg.MsgFmt('Lock Entered - WriteSettingsDictToIni [%s]', [section]);
+	dbgMsg.MsgFmt('Lock Entered - WriteSettingsDictToPersister [%s]', [section]);
 
 	if _bClearSection then begin
 		dbgMsg.MsgFmt('Clear section [%s]', [section]);

@@ -161,7 +161,7 @@ procedure TPersistableSettingsTest.CopySettingsDictSectionShouldCopyCorrectly;
 begin
 	LoadDefaultsReadsIni;
 	FSettings1.StrSetting := STRSETTING;
-	FSettings1.StoreToDict;
+	FSettings1.StoreToPersister;
 
 	Assert.AreEqual(STRSETTING,
 		{ } FSettings1.StrSetting, 'StrSetting should be equal to initial value');

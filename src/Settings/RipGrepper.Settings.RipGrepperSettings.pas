@@ -60,7 +60,7 @@ type
 
 		public
 			procedure ReadIni; override;
-			procedure StoreToDict; override;
+			procedure StoreToPersister; override;
 			procedure StoreViewSettings(const _s : string = '');
 			constructor Create;
 			destructor Destroy; override;
@@ -346,11 +346,11 @@ begin
 	AddIfNotContains(FSearchTextsHistory, Value);
 end;
 
-procedure TRipGrepperSettings.StoreToDict;
+procedure TRipGrepperSettings.StoreToPersister; // histories save to file
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.StoreToDict');
-	inherited StoreToDict();
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.StoreToPersister');
+	inherited StoreToPersister();
 	if IsModified then begin
 		dbgMsg.Msg('IsModified');
 
@@ -378,7 +378,7 @@ var
 begin
 	NodeLookSettings.SettingsDict.SaveToFile();
 	NodeLookSettings.UpdateIniFile(NodeLookSettings.IniSectionName);
-	NodeLookSettings.WriteSettingsDictToIni(NodeLookSettings.IniSectionName);
+	NodeLookSettings.WriteSettingsDictToPersister(NodeLookSettings.IniSectionName);
 	if Supports(PersisterFactory, IFileHandler, fh) then begin
 		fh.ReLoadFile();
 		fh.WriteFile();

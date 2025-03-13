@@ -122,7 +122,9 @@ uses
 	RipGrepper.Common.IOTAUtils,
 	{$ENDIF}
 	Vcl.Forms,
-	System.Classes;
+	System.Classes,
+	System.IOUtils,
+	RipGrepper.Common.Constants;
 
 function TMemIniStringPersister.LoadFromFile() : string;
 begin
@@ -231,7 +233,7 @@ begin
 	inherited;
 	{$IFDEF STANDALONE}
 	FIniFile := Shared.Make<TMemIniFile>(
-		{ } TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8));
+		{ } TMemIniFile.Create(TPath.ChangeExtension(Application.ExeName, '.ini'), TEncoding.UTF8));
 	{$ELSE}
 	FIniFile := Shared.Make<TMemIniFile>(
 		{ } TMemIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'), TEncoding.UTF8));

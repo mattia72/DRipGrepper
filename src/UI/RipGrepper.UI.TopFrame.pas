@@ -277,7 +277,7 @@ begin
 	owSettings.TestFile := MainFrame.GetOpenWithParamsFromSelected();
 	dbgMsg.Msg('TestFile: ' + owSettings.TestFile.GetRelativePath());
 
-	Settings.StoreToDict;
+	Settings.StoreToPersister;
 	// write ini file content
 	Settings.UpdateIniFile;
 	var

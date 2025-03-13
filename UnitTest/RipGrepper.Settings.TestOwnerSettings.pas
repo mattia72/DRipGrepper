@@ -27,7 +27,6 @@ type
 			procedure Init; override;
 			procedure ReadIni; override;
 			procedure LoadFromDict(); override;
-			procedure StoreToDict; override;
 			property StrSetting : string read FStrSetting write FStrSetting;
 	end;
 
@@ -46,8 +45,6 @@ type
 			procedure Init; override;
 			procedure ReadIni; override;
 			procedure LoadFromDict(); override;
-			procedure StoreToDict(); override;
-
 			property StrSetting : string read GetStrSetting write SetStrSetting;
 	end;
 
@@ -80,12 +77,7 @@ begin
 	inherited ReadIni;
 end;
 
-procedure TTestOwnerSettings.LoadFromDict();
-begin
-	//
-end;
-
-procedure TTestOwnerSettings.StoreToDict;
+procedure TTestOwnerSettings.LoadFromDict(); // nothing to do
 begin
 	//
 end;
@@ -118,7 +110,7 @@ begin
 	CreateSetting('StrSetting', FStrSetting1);
 end;
 
-procedure TTestSettings.LoadFromDict();
+procedure TTestSettings.LoadFromDict(); // nothing to do
 begin
     //
 end;
@@ -131,11 +123,6 @@ end;
 procedure TTestSettings.SetStrSetting(const Value : string);
 begin
 	FStrSetting1.Value := Value;
-end;
-
-procedure TTestSettings.StoreToDict();
-begin
-	//
 end;
 
 end.

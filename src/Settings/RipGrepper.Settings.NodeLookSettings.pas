@@ -49,7 +49,6 @@ type
 			procedure Init; override;
 			procedure LoadFromDict(); override;
 			procedure ReadIni; override;
-			procedure StoreToDict; override;
 			property AlternateRowColors : Boolean read GetAlternateRowColors write SetAlternateRowColors;
 			property ExpandNodes : Boolean read GetExpandNodes write SetExpandNodes;
 			property FilterSettings : TFilterSettings read FFilterSettings write SetFilterSettings;
@@ -166,11 +165,6 @@ end;
 procedure TNodeLookSettings.SetShowRelativePath(const Value : Boolean);
 begin
 	FShowRelativePath.Value := Value;
-end;
-
-procedure TNodeLookSettings.StoreToDict;
-begin
-	inherited StoreToDict();
 end;
 
 end.

@@ -48,7 +48,7 @@ type
 			procedure Init; override;
 			procedure LoadFromDict(); override;
 			procedure ReadIni; override;
-			procedure StoreToDict; override;
+			procedure StoreToPersister; override;
 			function ToLogString : string; override;
 			property SearchSelectedShortcut : string read GetSearchSelectedShortcut write SetSearchSelectedShortcut;
 			property OpenWithShortcut : string read GetOpenWithShortcut write SetOpenWithShortcut;
@@ -146,10 +146,10 @@ begin
 	FSearchSelectedShortcut.Value := Value;
 end;
 
-procedure TRipGrepperExtensionSettings.StoreToDict;
+procedure TRipGrepperExtensionSettings.StoreToPersister;  // switch of if TESTINSIGHT
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.StoreToDict');
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.StoreToPersister');
 
 	{$IFNDEF TESTINSIGHT} // or ($APPTYPE = CONSOLE))} // skip if unittest
 	{$IFDEF STANDALONE}
@@ -160,7 +160,7 @@ begin
 	end;
 	{$ENDIF}
 	{$ENDIF}
-	inherited StoreToDict; // Write to mem ini, after UpdateIniFile will be saved
+	inherited StoreToPersister; // Write to mem ini, after UpdateIniFile will be saved
 end;
 
 function TRipGrepperExtensionSettings.ToLogString : string;

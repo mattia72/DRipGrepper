@@ -180,7 +180,7 @@ begin
 		FTextHist.Insert(0, s);
 
 	FSettings.SearchTextsHistory.Value := FTextHist.Items;
-	FSettings.StoreToDict;
+	FSettings.StoreToPersister;
 end;
 
 procedure TRipGrepperSettingsTest.Setup;
@@ -213,7 +213,7 @@ begin
 	{ 2 } FSettings.NodeLookSettings.UpdateIniFile(FSettings.NodeLookSettings.IniSectionName); // create temp ini
 
 	// Assert.IsTrue(FileExists(FSettings.IniFile.GetTempSectionFileName('NodeLookSettings')), 'temp ini should exist.');
-	{ 3 } FSettings.StoreToDict;
+	{ 3 } FSettings.StoreToPersister;
 
 	iniVal := FFactory.GetStringPersister(FSettings.NodeLookSettings.IniSectionName, 'AlternateRowColors').LoadFromFile;
 	settingVal := FSettings.NodeLookSettings.AlternateRowColors;

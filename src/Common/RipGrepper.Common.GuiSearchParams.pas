@@ -54,7 +54,6 @@ type
 			procedure SetSearchOptions(const _options : TSearchOptionSet);
 			function GetSearchOptions : TSearchOptionSet;
 			procedure SetSearchText(const _text : string);
-			procedure StoreToDict; override;
 			function ToLogString : string; override;
 			procedure UpdateRgParamsByGuiOptions;
 			class procedure ValidateOptions(listOptions : TStringList); static;
@@ -264,11 +263,6 @@ procedure TGuiSearchTextParams.SetSearchText(const _text : string);
 begin
 	FSearchTextWithOptions.SearchText := _text;
 	UpdateRgParamsByGuiOptions();
-end;
-
-procedure TGuiSearchTextParams.StoreToDict;
-begin
-	inherited StoreToDict();
 end;
 
 function TGuiSearchTextParams.ToLogString : string;

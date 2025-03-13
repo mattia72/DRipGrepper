@@ -79,7 +79,7 @@ begin
 	FSettings.LoadFromDict();
 
 	FSettings.ExtensionSettings.SearchSelectedShortcut := 'CTRL-X';
-	FSettings.StoreToDict;
+	FSettings.StoreToPersister;
 
 	var
 	s := TSearchFormSettings.Create();

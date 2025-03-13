@@ -47,7 +47,6 @@ type
 			destructor Destroy; override;
 			procedure Init; override;
 			procedure LoadFromDict(); override;
-			procedure StoreToDict; override;
 			property ChosenFilterMode : string read GetChosenFilterMode write SetChosenFilterMode;
 			property FilterModes : TFilterModes read GetFilterModes write SetFilterModes;
 			property IsCaseSensitive : Boolean read GetIsCaseSensitive write SetIsCaseSensitive;
@@ -170,11 +169,6 @@ end;
 procedure TFilterSettings.SetIsUseRegex(const Value : Boolean);
 begin
 	FIsUseRegex.Value := Value;
-end;
-
-procedure TFilterSettings.StoreToDict;
-begin
-	inherited StoreToDict();
 end;
 
 end.
