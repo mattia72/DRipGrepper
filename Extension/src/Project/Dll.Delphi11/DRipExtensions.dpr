@@ -94,7 +94,8 @@ uses
   DRipExtension.Menu in '..\..\DRipExtension.Menu.pas',
   RipGrepper.Helper.UI.DarkMode in '..\..\..\..\src\RipGrepper.Helper.UI.DarkMode.pas',
   RipGrepper.Helper.MemIniFile in '..\..\..\..\src\Helper\RipGrepper.Helper.MemIniFile.pas',
-  RipGrepper.Common.SearchTextWithOptions in '..\..\..\..\src\Common\RipGrepper.Common.SearchTextWithOptions.pas';
+  RipGrepper.Common.SearchTextWithOptions in '..\..\..\..\src\Common\RipGrepper.Common.SearchTextWithOptions.pas',
+  RipGrepper.Settings.FilePersister in '..\..\..\..\src\Settings\RipGrepper.Settings.FilePersister.pas';
 
 {$R *.res}
 

@@ -221,8 +221,6 @@ OutputDebugString(PChar('DRipExtension initialized.'));
 
 finalization
 
-TFileUtils.DeleteTempDirectory(
-	{ } TPath.GetFileNameWithoutExtension(GSettings.IniFile.FileName) + '*', True);
 FreeAndNil(GSettings);
 OutputDebugString(PChar('DRipExtension finalized.'));
 
