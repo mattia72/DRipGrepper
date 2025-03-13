@@ -178,9 +178,9 @@ begin
 end;
 
 procedure TRipGrepSettingsTest.UpdateIniReloadTest;
-begin
+ begin
 	SetSettingValues;
-	FSettings.UpdateIniFile(); // this copies the child dictionaries!
+	FSettings.UpdateIniFile('', True{_bForceWriteIni});
 	FSettings.FileMasks := '';
 	FSettings.SearchPath := '';
 	FSettings.ReLoad; // fills only settings dict

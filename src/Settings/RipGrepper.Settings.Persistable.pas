@@ -431,7 +431,7 @@ begin
 		s.UpdateIniFile(s.GetIniSectionName());
 	end;
 
-	SetOwnerSettings(_section, _bForceWriteIni, _bClearSection);
+	//SetOwnerSettings(_section, _bForceWriteIni, _bClearSection);
 
 	if Assigned(FOwner) { and (_section = '') } and not _bForceWriteIni then begin
 		Exit;

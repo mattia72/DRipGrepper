@@ -208,15 +208,14 @@ begin
 end;
 
 procedure TSettingsDictionary.LoadFromFile();
-var
-	key : string;
-	value : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.LoadFromFile');
 
-	for key in InnerDictionary[SectionName].Keys do begin
+	for var key in InnerDictionary[SectionName].Keys do begin
 		InnerDictionary[SectionName][key].LoadFromFile();
+		var
+		value := InnerDictionary[SectionName][key].AsString;
 		dbgMsg.MsgFmt('LoadFromFile [%s] %s = %s', [SectionName, key, value]);
 	end;
 end;
@@ -237,7 +236,9 @@ begin
 
 	for var keys in InnerDictionary[section] do begin
 		keys.Value.SaveToFile();
-		dbgMsg.MsgFmt('SaveToFile [%s] %s', [section, keys.Key]);
+		var
+		value := InnerDictionary[SectionName][keys.Key].AsString;
+		dbgMsg.MsgFmt('SaveToFile [%s] %s = %s', [section, keys.Key, value]);
 	end;
 end;
 
