@@ -54,7 +54,6 @@ type
 		public
 			constructor Create(const _Owner : TPersistableSettings);
 			destructor Destroy; override;
-			procedure LoadFromDict(); override;
 			property ColorTheme : string read GetColorTheme write SetColorTheme;
 			property CopyToClipBoardShell : TShellType read GetCopyToClipBoardShell write SetCopyToClipBoardShell;
 			property DebugTrace : string read GetDebugTrace write SetDebugTrace;
@@ -142,11 +141,6 @@ begin
 	CreateSetting(KEY_DEBUGTRACEREGEXFILTER, FDebugTraceRegexFilter);
 	CreateSetting(KEY_ENCODING_ITEMS, FEncodingItems);
 	CreateSetting(KEY_EXPERTMODE, FExpertMode);
-end;
-
-procedure TAppSettings.LoadFromDict();
-begin
-	// TODO -cMM: TAppSettings.LoadFromDict default body inserted
 end;
 
 procedure TAppSettings.SetColorTheme(const Value : string);

@@ -272,7 +272,6 @@ end;
 procedure TRipGrepParameterSettings.LoadFromDict();
 begin
 	FGuiSearchTextParams.LoadFromDict();
-	// inherited abstract
 end;
 
 procedure TRipGrepParameterSettings.SetFileMasks(const Value : string);

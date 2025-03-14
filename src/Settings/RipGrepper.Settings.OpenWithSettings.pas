@@ -24,7 +24,6 @@ type
 			procedure ClearCommandList;
 			procedure Init; override;
 			procedure ReadIni; override; // TODO: use persistable base
-			procedure LoadFromDict(); override;
 			procedure ForceWriteToIni;
 			function ToString : string; override;
 			property Command[index : Integer] : string read GetCommand write SetCommand;
@@ -80,11 +79,6 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.ReadIni');
 	FCommandList.LoadFromFile();
-end;
-
-procedure TOpenWithSettings.LoadFromDict;
-begin
-	//
 end;
 
 procedure TOpenWithSettings.SetCommand(Index : Integer; const Value : string);

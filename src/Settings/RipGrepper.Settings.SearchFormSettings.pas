@@ -55,7 +55,6 @@ type
 			procedure ReadIni; override;
 			procedure StoreToPersister; override;
 			procedure Copy(const _other : TSearchFormSettings); reintroduce;
-			procedure LoadFromDict(); override;
 			procedure ReLoad; override;
 			function ToLogString : string; override;
 
@@ -206,12 +205,6 @@ procedure TSearchFormSettings.StoreToPersister; // extension switch off if TESTI
 begin
 	FExtensionSettings.StoreToPersister;
 	inherited StoreToPersister();
-end;
-
-procedure TSearchFormSettings.LoadFromDict;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.LoadFromDict');
 end;
 
 procedure TSearchFormSettings.ReLoad;

@@ -46,7 +46,6 @@ type
 			constructor Create(const _Owner : TPersistableSettings); overload;
 			constructor Create; overload;
 			procedure Init; override;
-			procedure LoadFromDict(); override;
 			procedure ReadIni; override;
 			procedure StoreToPersister; override;
 			function ToLogString : string; override;
@@ -107,11 +106,6 @@ begin
 	CreateSetting(KEY_SHORTCUT_SEARCH_SELECTED, FSearchSelectedShortcut);
 	CreateSetting(KEY_SHORTCUT_OPENWITH, FOpenWithShortCut);
 	CreateSetting(KEY_IDE_CONTEXT, FIDEContext);
-end;
-
-procedure TRipGrepperExtensionSettings.LoadFromDict();
-begin
-	// TODO -cMM: TRipGrepperExtensionSettings.LoadFromDict default body inserted
 end;
 
 procedure TRipGrepperExtensionSettings.ReadIni;

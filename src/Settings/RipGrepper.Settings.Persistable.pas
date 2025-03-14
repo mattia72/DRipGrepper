@@ -94,7 +94,7 @@ type
 			/// <summary>TPersistableSettings.LoadFromDict
 			/// Refresh member variables by read settings value or default value
 			/// </summary>
-			procedure LoadFromDict(); virtual; abstract;
+			procedure LoadFromDict(); virtual;
 			/// ReLoads memini file content
 			procedure ReLoadFromDisk;
 			/// <summary>
@@ -408,6 +408,11 @@ begin
 		dbgArr := TSettingsDictionary.DictToStringArray(SettingsDict);
 		FOwner.WriteSettingsDictToPersister(IfThen(_bForceWriteIni, _section), _bClearSection);
 	end;
+end;
+
+procedure TPersistableSettings.LoadFromDict();
+begin
+	// overwrite this to convert settings to other types
 end;
 
 function TPersistableSettings.ToLogString : string;

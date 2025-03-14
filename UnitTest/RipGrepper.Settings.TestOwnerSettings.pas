@@ -26,7 +26,6 @@ type
 			function GetDict : TSettingsDictionary;
 			procedure Init; override;
 			procedure ReadIni; override;
-			procedure LoadFromDict(); override;
 			property StrSetting : string read FStrSetting write FStrSetting;
 	end;
 
@@ -44,7 +43,6 @@ type
 			function GetDict : TSettingsDictionary;
 			procedure Init; override;
 			procedure ReadIni; override;
-			procedure LoadFromDict(); override;
 			property StrSetting : string read GetStrSetting write SetStrSetting;
 	end;
 
@@ -77,11 +75,6 @@ begin
 	inherited ReadIni;
 end;
 
-procedure TTestOwnerSettings.LoadFromDict(); // nothing to do
-begin
-	//
-end;
-
 constructor TTestSettings.Create(const _Owner : TPersistableSettings);
 begin
 	IniSectionName := INI_SECTION; // should be set before create
@@ -108,11 +101,6 @@ procedure TTestSettings.Init;
 begin
 	FStrSetting1 := TStringSetting.Create(INITIAL_STR_VALUE);
 	CreateSetting('StrSetting', FStrSetting1);
-end;
-
-procedure TTestSettings.LoadFromDict(); // nothing to do
-begin
-    //
 end;
 
 procedure TTestSettings.ReadIni;
