@@ -378,7 +378,7 @@ var
 begin
 	NodeLookSettings.SettingsDict.SaveToFile();
 	NodeLookSettings.UpdateIniFile(NodeLookSettings.IniSectionName);
-	NodeLookSettings.WriteSettingsDictToPersister(NodeLookSettings.IniSectionName);
+	NodeLookSettings.StoreDictToPersister(NodeLookSettings.IniSectionName);
 	if Supports(PersisterFactory, IFileHandler, fh) then begin
 		fh.ReLoadFile();
 		fh.WriteFile();

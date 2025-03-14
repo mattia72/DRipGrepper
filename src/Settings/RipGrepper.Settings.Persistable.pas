@@ -42,11 +42,10 @@ type
 			FIsOwnerOfPersisterFactory : Boolean;
 			procedure CopySettingsDictSectionSettingValues(const _section : string; _sdFrom : ISettingKeys;
 				const _bForceCopySettingObj : Boolean = False);
-			procedure FreeOwnIniFile;
 			function GetCount() : Integer;
 			function GetPersisterFactory() : IPersisterFactory;
 			procedure ReadSettings;
-			procedure SetChildrenIniFiles;
+			procedure SetChildrenPersister;
 			procedure SetPersisterFactory(const Value : IPersisterFactory);
 			procedure SetIniSectionName(const Value : string);
 			procedure AddToOwnerSettings(const _section : string = ''; const _bForceWriteIni : Boolean = False;
@@ -107,7 +106,7 @@ type
 			// </summary>
 			procedure UpdateIniFile(const _section : string = ''; const _bForceWriteIni : Boolean = False;
 				const _bClearSection : Boolean = False);
-			procedure WriteSettingsDictToPersister(const _section : string = ''; const _bClearSection : Boolean = False);
+			procedure StoreDictToPersister(const _section : string = ''; const _bClearSection : Boolean = False);
 	end;
 
 implementation
@@ -265,19 +264,6 @@ begin
 	SettingsDict.CreateSetting(_key, _setting, PersisterFactory);
 end;
 
-procedure TPersistableSettings.FreeOwnIniFile;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.FreeOwnIniFile', True);
-
-	if FIsOwnerOfPersisterFactory then begin
-		if Assigned(FPersisterFactory) then begin
-			dbgMsg.MsgFmt('Free FPersisterFactory %p of section: %s', [Pointer(PersisterFactory), GetIniSectionName()]);
-			FPersisterFactory := nil;
-		end;
-	end;
-end;
-
 function TPersistableSettings.GetCount() : Integer;
 begin
 	Result := SettingsDict.Count;
@@ -330,7 +316,7 @@ begin
 	for var s in FChildren do begin
 		s.StoreToPersister;
 	end;
-	WriteSettingsDictToPersister();
+	StoreDictToPersister();
 end;
 
 procedure TPersistableSettings.ReadSettings;
@@ -373,10 +359,10 @@ begin
 	ReadIni;
 end;
 
-procedure TPersistableSettings.SetChildrenIniFiles;
+procedure TPersistableSettings.SetChildrenPersister;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.SetChildrenIniFiles');
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.SetChildrenPersister');
 
 	for var s in FChildren do begin
 		dbgMsg.MsgFmt('Change PersisterFactory %p to %p for %s', [Pointer(s.PersisterFactory), Pointer(PersisterFactory),
@@ -391,7 +377,7 @@ begin
 	if not FIsOwnerOfPersisterFactory and Assigned(FOwner) and (FOwner.PersisterFactory <> PersisterFactory) then begin
 		FOwner.PersisterFactory := PersisterFactory;
 	end;
-	SetChildrenIniFiles();
+	SetChildrenPersister();
 end;
 
 procedure TPersistableSettings.SetIniSectionName(const Value : string);
@@ -406,13 +392,13 @@ begin
 		FOwner.CopySettingsDictSection(self, True, True);
 		var
 		dbgArr := TSettingsDictionary.DictToStringArray(SettingsDict);
-		FOwner.WriteSettingsDictToPersister(IfThen(_bForceWriteIni, _section), _bClearSection);
+		FOwner.StoreDictToPersister(IfThen(_bForceWriteIni, _section), _bClearSection);
 	end;
 end;
 
 procedure TPersistableSettings.LoadFromDict();
 begin
-	// overwrite this to convert settings to other types
+	// overwrite this to convert setting values to other types
 end;
 
 function TPersistableSettings.ToLogString : string;
@@ -438,7 +424,7 @@ begin
 	end;
 
 	if _bForceWriteIni then begin
-		WriteSettingsDictToPersister(IfThen(_bForceWriteIni, _section), _bClearSection)
+		StoreDictToPersister(IfThen(_bForceWriteIni, _section), _bClearSection)
 	end;
 
 	// var arr := DictToLog(SettingsDict);
@@ -469,19 +455,19 @@ begin
 
 end;
 
-procedure TPersistableSettings.WriteSettingsDictToPersister(const _section : string = ''; const _bClearSection : Boolean = False);
+procedure TPersistableSettings.StoreDictToPersister(const _section : string = ''; const _bClearSection : Boolean = False);
 var
 	fh : IFileHandler;
 	section : string;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.WriteSettingsDictToPersister');
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.StoreDictToPersister');
 
 	var
 	lock := TLockGuard.NewLock(FLockObject);
 
 	section := IfThen(_section = '', IniSectionName, _section);
-	dbgMsg.MsgFmt('Lock Entered - WriteSettingsDictToPersister [%s]', [section]);
+	dbgMsg.MsgFmt('Lock Entered - StoreDictToPersister [%s]', [section]);
 
 	if _bClearSection then begin
 		dbgMsg.MsgFmt('Clear section [%s]', [section]);

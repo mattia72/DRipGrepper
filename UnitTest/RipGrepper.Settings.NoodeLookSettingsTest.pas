@@ -109,7 +109,7 @@ begin
 	{ 2 } FSettings.UpdateIniFile(FSettings.IniSectionName); // create temp ini
 	CheckNodeSettingsDict('after updateini');
 
-	{ 3 } FSettings.WriteSettingsDictToPersister(FSettings.IniSectionName);
+	{ 3 } FSettings.StoreDictToPersister(FSettings.IniSectionName);
 
 	// Assert.IsTrue(not DirectoryExists(FSettings.IniFile.GetDripGrepperIniTempDir), ' temp dir should not exists');
 
