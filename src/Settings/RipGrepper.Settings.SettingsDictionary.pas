@@ -22,6 +22,7 @@ type
 			procedure AddNewSectionAndKey(const _key : string; _setting : ISetting);
 			function GetCount() : Integer;
 			function GetSections(index : string) : ISettingKeys; overload;
+			procedure SaveSectionToFile(const _section : string);
 			procedure SetSections(index : string; const Value : ISettingKeys);
 			property SectionName : string read FSectionName;
 
@@ -220,6 +221,21 @@ begin
 	end;
 end;
 
+procedure TSettingsDictionary.SaveSectionToFile(const _section : string);
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.SaveSectionToFile');
+
+	for var keys in InnerDictionary[_section] do begin
+		keys.Value.SaveToFile();
+		{$IFDEF DEBUG}
+		var
+		value := InnerDictionary[_section][keys.Key].AsString;
+		dbgMsg.MsgFmt('SaveToFile [%s] %s = %s', [_section, keys.Key, value]);
+		{$ENDIF}
+	end;
+end;
+
 procedure TSettingsDictionary.SaveToFile(const _section : string = '');
 var
 	section : string;
@@ -230,17 +246,17 @@ begin
 	section := IfThen(_section = '', SectionName, _section);
 
 	if section.IsEmpty
-	{ } or (ROOT_DUMMY_INI_SECTION = section)
 	{ } or (not InnerDictionary.ContainsKey(section)) then begin
 		dbgMsg.MsgFmt('invalid section: ''%s''', [section]);
 		Exit;
 	end;
 
-	for var keys in InnerDictionary[section] do begin
-		keys.Value.SaveToFile();
-		var
-		value := InnerDictionary[SectionName][keys.Key].AsString;
-		dbgMsg.MsgFmt('SaveToFile [%s] %s = %s', [section, keys.Key, value]);
+	if (ROOT_DUMMY_INI_SECTION = section) then begin
+		for section in InnerDictionary.Keys do begin
+			SaveSectionToFile(section);
+		end;
+	end else begin
+		SaveSectionToFile(section);
 	end;
 end;
 

@@ -9,7 +9,8 @@ uses
 	DUnitX.TestFramework,
 	System.Classes,
 	RipGrepper.Helper.MemIniFile,
-	RipGrepper.Settings.FilePersister, ArrayEx;
+	RipGrepper.Settings.FilePersister,
+	ArrayEx;
 
 const
 	NOTEXISTS = '<not exists>';
@@ -39,9 +40,11 @@ type
 			procedure TearDown;
 
 			[Test]
-			procedure RefreshMembersShouldLoadDefaultsTest;
+			procedure InitialSettingsShouldLoadDefaults;
 			[Test]
 			procedure AfterCopyValuesValuesShouldBeEqual;
+			[Test]
+			procedure SettingChangeChangesDictionary;
 			[Test]
 			procedure AfterUpdateIniValuesShouldBeProperlySaved;
 			[Test]
@@ -50,6 +53,8 @@ type
 			procedure NodeLookSettingsTest;
 			[Test]
 			procedure ExtensionSettingsTest;
+			[Test]
+			procedure SettingChangeAndUpdateFile;
 			[Test]
 			procedure UpdateHistInIniTest;
 			[Test]
@@ -70,12 +75,11 @@ uses
 	System.StrUtils,
 	RipGrepper.Settings.SettingsDictionary;
 
-procedure TRipGrepperSettingsTest.RefreshMembersShouldLoadDefaultsTest;
+procedure TRipGrepperSettingsTest.InitialSettingsShouldLoadDefaults;
 begin
-//	FSettings.UpdateIniFile(); // this copies the child dictionaries!
-	Assert.AreEqual(False, FSettings.SearchFormSettings.Pretty, 'Pretty should be true');
-	Assert.AreEqual(False, FSettings.SearchFormSettings.Hidden, 'Hidden should be true');
-	Assert.AreEqual(False, FSettings.SearchFormSettings.NoIgnore, 'NoIgnore should be true');
+	Assert.AreEqual(False, FSettings.SearchFormSettings.Pretty, 'Pretty should be False');
+	Assert.AreEqual(False, FSettings.SearchFormSettings.Hidden, 'Hidden should be False');
+	Assert.AreEqual(False, FSettings.SearchFormSettings.NoIgnore, 'NoIgnore should be False');
 	Assert.AreEqual(0, FSettings.SearchFormSettings.Context, 'Context should be 0');
 	Assert.AreEqual('', FSettings.SearchFormSettings.Encoding, 'Encoding should be ''''');
 end;
@@ -115,11 +119,29 @@ begin
 	end;
 end;
 
+procedure TRipGrepperSettingsTest.SettingChangeChangesDictionary;
+var
+	settingVal, dictVal: string;
+begin
+	FSettings.SearchFormSettings.Encoding := 'utf8';
+
+	var
+	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
+
+	settingVal := FSettings.SearchFormSettings.Encoding;
+	dictVal := FSettings.SettingsDict()['RipGrepperSearchSettings']['Encoding'].AsString;
+
+	Assert.AreEqual(settingVal, dictVal, 'Encoding should be equal');
+end;
+
 procedure TRipGrepperSettingsTest.AfterUpdateIniValuesShouldBeProperlySaved;
 var
 	iniVal, settingVal : string;
 begin
 	SetSettingValues;
+
+	var
+	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 
 	FSettings.UpdateIniFile;
 	// FSettings.LoadFromDict;
@@ -302,6 +324,20 @@ begin
 	Result := BoolToStr(FFactory.GetBoolPersister(_section, _key).LoadFromFile, True);
 end;
 
+procedure TRipGrepperSettingsTest.SettingChangeAndUpdateFile;
+var
+	settingVal, iniVal: string;
+begin
+	FSettings.SearchFormSettings.Encoding := 'utf8';
+	FSettings.StoreToPersister();
+	FSettings.UpdateIniFile();
+
+	iniVal := FFactory.GetStringPersister(FSettings.SearchFormSettings.IniSectionName, 'Encoding').LoadFromFile;
+	settingVal := FSettings.SearchFormSettings.Encoding;
+
+	Assert.AreEqual(settingVal, iniVal, 'Encoding should be equal');
+end;
+
 procedure TRipGrepperSettingsTest.UpdateHistInIniTest;
 begin
 	SetSettingValues;
@@ -310,8 +346,8 @@ begin
 	FSettings.UpdateIniFile();
 	FSettings.ReadIni;
 
-    var dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
-
+	var
+	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 
 	Assert.AreEqual(ACT_HIST_VAL, FSettings.SearchTextsHistory.AsArray[0], 'SearchTextsHistory[0] should be hist 0');
 	Assert.AreEqual(ACT_HIST_VAL,

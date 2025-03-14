@@ -313,9 +313,9 @@ end;
 
 procedure TPersistableSettings.StoreToPersister; // new name StoreInPersister
 begin
-	for var s in FChildren do begin
-		s.StoreToPersister;
-	end;
+//	for var s in FChildren do begin
+//		s.StoreToPersister;
+//	end;
 	StoreDictToPersister();
 end;
 
@@ -388,10 +388,8 @@ end;
 procedure TPersistableSettings.AddToOwnerSettings(const _section : string = ''; const _bForceWriteIni : Boolean = False;
 const _bClearSection : Boolean = False);
 begin
-	if Assigned(FOwner) { and (_section = '') } then begin
+	if Assigned(FOwner) then begin
 		FOwner.CopySettingsDictSection(self, True, True);
-		var
-		dbgArr := TSettingsDictionary.DictToStringArray(SettingsDict);
 		FOwner.StoreDictToPersister(IfThen(_bForceWriteIni, _section), _bClearSection);
 	end;
 end;
@@ -414,10 +412,10 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
 
-	for var s in FChildren do begin
-		dbgMsg.MsgFmt('Child update begin on section: [%s]', [s.GetIniSectionName()]);
-		s.UpdateIniFile(s.GetIniSectionName());
-	end;
+//	for var s in FChildren do begin
+//		dbgMsg.MsgFmt('Child update begin on section: [%s]', [s.GetIniSectionName()]);
+//		s.UpdateIniFile(s.GetIniSectionName());
+//	end;
 
 	if Assigned(FOwner) { and (_section = '') } and not _bForceWriteIni then begin
 		Exit;
