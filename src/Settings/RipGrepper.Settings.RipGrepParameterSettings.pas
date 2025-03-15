@@ -122,8 +122,8 @@ begin
 			continue;
 		end;
 
-		argName := arrParamValue.SafeItemAt[1];
-		argVAlue := arrParamValue.SafeItemAt[2];
+		argName := arrParamValue.SafeItem[1];
+		argVAlue := arrParamValue.SafeItem[2];
 
 		sParam := IfThen(argVAlue.IsEmpty, argName, argName + '=' + argValue);
 		if (key = RG_ARG_OPTIONS) then begin

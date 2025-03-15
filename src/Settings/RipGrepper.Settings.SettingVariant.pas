@@ -17,7 +17,8 @@ type
 	TSettingState = (ssNotSet, ssModified);
 	TSettingType = (stNotSet, stString, stInteger, stBool, stStrArray);
 
-	TSettingVariant<T> = class; // forward declarations
+    // forward declarations...
+	TSettingVariant<T> = class;
 	ISettingVariant<T> = interface;
 
 	TStringSetting = class;
@@ -29,11 +30,6 @@ type
 	IBoolSetting = ISettingVariant<Boolean>;
 	IIntegerSetting = ISettingVariant<Integer>;
 	IArraySetting = ISettingVariant<TArrayEx<string>>;
-
-	// IStringSetting = interface;
-	// IBoolSetting = interface;
-	// IIntegerSetting = interface;
-	// IArraySetting = interface;
 
 	ISetting = interface
 		['{289A58E3-A490-4015-9AFE-52EB303B9B89}']
@@ -161,13 +157,16 @@ type
 		private
 			function GetCount() : Integer;
 			function GetItem(Index : Integer) : string;
+			function GetSafeItem(index : Integer): string;
 			procedure SetItem(Index : Integer; const Value : string);
+			procedure SetSafeItem(index : Integer; const Value: string);
 
 		public
 			function AddIfNotContains(const AItem : string) : Integer;
 			function GetType() : TSettingType; override;
 			property Count : Integer read GetCount;
 			property Item[index : Integer] : string read GetItem write SetItem; default;
+			property SafeItem[index : Integer]: string read GetSafeItem write SetSafeItem;
 	end;
 
 implementation
@@ -372,6 +371,11 @@ begin
 	Result := self.Value[index];
 end;
 
+function TArraySetting.GetSafeItem(index : Integer): string;
+begin
+	Result := self.SafeItem[index];
+end;
+
 function TArraySetting.GetType() : TSettingType;
 begin
 	Result := stStrArray;
@@ -380,6 +384,11 @@ end;
 procedure TArraySetting.SetItem(Index : Integer; const Value : string);
 begin
 	self.Value[index] := Value;
+end;
+
+procedure TArraySetting.SetSafeItem(index : Integer; const Value: string);
+begin
+	self.Value.SafeItem[index] := Value;
 end;
 
 function TStringSetting.GetType() : TSettingType;

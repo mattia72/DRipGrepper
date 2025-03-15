@@ -115,7 +115,7 @@ uses
 
 function TRipGrepperSettings.GetLastHistorySearchText : string;
 begin
-	Result := SearchTextsHistory.Value.SafeItemAt[0];
+	Result := SearchTextsHistory.Value.SafeItem[0];
 end;
 
 function TRipGrepperSettings.GetIsEmpty : Boolean;
@@ -220,7 +220,7 @@ function TRipGrepperSettings.GetActualSearchPath : string;
 var
 	s : string;
 begin
-	s := SearchPathsHistory.Value.SafeItemAt[0];
+	s := SearchPathsHistory.Value.SafeItem[0];
 	if not SearchPathsHistory.Value.IsEmpty and (s <> FActualSearchPath) then begin
 		FActualSearchPath := s;
 		FSearchPathIsDir := TDirectory.Exists(FActualSearchPath);

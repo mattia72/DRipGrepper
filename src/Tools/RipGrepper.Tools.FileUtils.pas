@@ -341,14 +341,14 @@ begin
 	arrEx := _arr;
 	if arrEx.MaxIndex = 1 then begin
 		Result.IsActive := (arrEx[0].ToUpper() = 'TRUE');
-		Result.CommandLine := TCommandLineRec.ParseCommand(arrEx.SafeItemAt[1]);
+		Result.CommandLine := TCommandLineRec.ParseCommand(arrEx.SafeItem[1]);
 		Result.Caption := TPath.GetFileNameWithoutExtension(Result.CommandLine.ExePath);
 		Result.Description := '';
 	end else begin
-		Result.IsActive := (arrEx.SafeItemAt[0].ToUpper() = 'TRUE');
-		Result.Caption := arrEx.SafeItemAt[1];
-		Result.CommandLine := TCommandLineRec.ParseCommand(arrEx.SafeItemAt[2]);
-		Result.Description := arrEx.SafeItemAt[3];
+		Result.IsActive := (arrEx.SafeItem[0].ToUpper() = 'TRUE');
+		Result.Caption := arrEx.SafeItem[1];
+		Result.CommandLine := TCommandLineRec.ParseCommand(arrEx.SafeItem[2]);
+		Result.Description := arrEx.SafeItem[3];
 	end;
 end;
 
