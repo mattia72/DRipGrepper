@@ -160,10 +160,11 @@ type
 			function GetFirst : T;
 			procedure SetCount(const Value : integer);
 			function GetItemAt(Index : integer) : T;
-			function GetSafeItemAt(index : Integer) : T;
+			function GetSafeItem(index : Integer) : T;
 			function GetLast : T;
 			function GetMaxIndex : Integer;
 			procedure SetItemAt(Index : integer; Value : T);
+			procedure SetSafeItem(index : Integer; const Value : T);
 
 		public
 			Items : TArray<T>;
@@ -171,7 +172,7 @@ type
 			property IsEmpty : Boolean read GetIsEmpty;
 			property First : T read GetFirst;
 			property ItemAt[index : Integer] : T read GetItemAt write SetItemAt; default;
-			property SafeItemAt[index : Integer] : T read GetSafeItemAt;
+			property SafeItem[index : Integer] : T read GetSafeItem write SetSafeItem;
 			property Last : T read GetLast;
 			property MaxIndex : Integer read GetMaxIndex;
 
@@ -756,7 +757,7 @@ begin
 	Result := Items[0];
 end;
 
-function TArrayEx<T>.GetSafeItemAt(index : Integer) : T;
+function TArrayEx<T>.GetSafeItem(index : Integer) : T;
 begin
 	if index <= MaxIndex then begin
 		Result := Items[index];
@@ -780,6 +781,23 @@ begin
 		Delete(I);
 		I := IndexOf(AItem);
 		Result := TRUE;
+	end;
+end;
+
+procedure TArrayEx<T>.SetSafeItem(index : Integer; const Value : T);
+begin
+	if index <= MaxIndex then begin
+		Items[index] := Value;
+	end else begin
+		var
+		newIdx := MaxIndex + 1;
+		var arr : TArray<T> := [default (T)];
+		while newIdx < index do begin
+			arr := arr + [default (T)];
+			Inc(newIdx);
+		end;
+
+		AddRange(arr);
 	end;
 end;
 
