@@ -20,6 +20,7 @@ type
 			FInnerDictionary : ISettingSections;
 			FSectionName : string;
 			procedure AddNewSectionAndKey(const _key : string; _setting : ISetting);
+			procedure AddOrChangeStrArrSettings(const _key : string; _setting : ISetting; _factory : IPersisterFactory);
 			function GetCount() : Integer;
 			function GetSections(index : string) : ISettingKeys; overload;
 			procedure SaveSectionToFile(const _section : string);
@@ -100,6 +101,21 @@ begin
 	end;
 end;
 
+procedure TSettingsDictionary.AddOrChangeStrArrSettings(const _key : string; _setting : ISetting; _factory : IPersisterFactory);
+var
+	i: Integer;
+begin
+	i := 0;
+	for var cmd in TArraySetting(_setting).AsArray do begin
+		var s : ISetting := TStringSetting.Create(cmd);
+		var
+		key := Format('%s%d', [_key, i]);
+		TStringSetting(s).Persister := _factory.GetStringPersister(SectionName, key);
+		AddOrChange(key, s);
+		Inc(i);
+	end;
+end;
+
 function TSettingsDictionary.ContainsSection(const _section : string) : Boolean;
 begin
 	Result := FInnerDictionary.ContainsKey(_section);
@@ -153,7 +169,13 @@ begin
 		else
 		raise ESettingsException.Create('Setting Type not supported.');
 	end;
-	AddOrChange(_key, _setting);
+
+	if _setting.SettingType = stStrArray then begin
+		AddOrChangeStrArrSettings(_key, _setting, _factory);
+	end else begin
+		AddOrChange(_key, _setting);
+	end;
+
 	dbgMsg.MsgFmt('TSettingsDictionary.CreateSetting [%s] %s', [SectionName, _key]);
 end;
 
@@ -245,18 +267,17 @@ begin
 
 	section := IfThen(_section = '', SectionName, _section);
 
-	if section.IsEmpty
-	{ } or (not InnerDictionary.ContainsKey(section)) then begin
-		dbgMsg.MsgFmt('invalid section: ''%s''', [section]);
-		Exit;
-	end;
-
 	if (ROOT_DUMMY_INI_SECTION = section) then begin
 		for section in InnerDictionary.Keys do begin
 			SaveSectionToFile(section);
 		end;
 	end else begin
-		SaveSectionToFile(section);
+		if not section.IsEmpty and InnerDictionary.ContainsKey(section) then begin
+			SaveSectionToFile(section);
+		end else begin
+			dbgMsg.MsgFmt('invalid section: ''%s''', [section]);
+			raise ESettingsException.CreateFmt('invalid section: ''%s''', [section]);
+		end;
 	end;
 end;
 
