@@ -972,12 +972,12 @@ begin
 		_ctrlVals.IsPrettyChecked := FHistItemObj.SearchFormSettings.Pretty;
 		_ctrlVals.LineContext := FHistItemObj.SearchFormSettings.Context;
 	end else begin
-		_ctrlVals.SearchText := FSettings.SearchTextsHistory.Value[0];
+		_ctrlVals.SearchText := FSettings.SearchTextsHistory.Value.SafeItem[0];
 		_ctrlVals.SearchOptions := FSettings.RipGrepParameters.GuiSearchTextParams.GetSearchOptions;
-		_ctrlVals.ReplaceText := FSettings.ReplaceTextsHistory.Value[0];
+		_ctrlVals.ReplaceText := FSettings.ReplaceTextsHistory.Value.SafeItem[0];
 		_ctrlVals.IsReplaceMode := FSettings.IsReplaceMode;
-		_ctrlVals.SearchPath := FSettings.SearchPathsHistory.Value[0];
-		_ctrlVals.FileMasks := FSettings.FileMasksHistory.Value[0];
+		_ctrlVals.SearchPath := FSettings.SearchPathsHistory.Value.SafeItem[0];
+		_ctrlVals.FileMasks := FSettings.FileMasksHistory.Value.SafeItem[0];
 		_ctrlVals.IsHiddenChecked := FSettings.SearchFormSettings.Hidden;
 		_ctrlVals.IsNoIgnoreChecked := FSettings.SearchFormSettings.NoIgnore;
 		_ctrlVals.Encoding := FSettings.SearchFormSettings.Encoding;
