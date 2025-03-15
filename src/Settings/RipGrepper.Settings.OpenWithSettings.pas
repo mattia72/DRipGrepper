@@ -35,7 +35,8 @@ implementation
 uses
 	RipGrepper.Tools.DebugUtils,
 	System.SysUtils,
-	ArrayEx;
+	ArrayEx,
+	RipGrepper.Settings.SettingsDictionary;
 
 constructor TOpenWithSettings.Create(const _Owner : TPersistableSettings);
 begin
@@ -75,10 +76,19 @@ begin
 end;
 
 procedure TOpenWithSettings.ReadIni;
+var
+	iarr : IArraySetting;
+    arr : TArray<string>;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.ReadIni');
-	FCommandList.LoadFromFile();
+
+	iarr := TArraySetting.Create(arr);
+    iarr.Copy(FCommandList);
+	iarr.LoadFromFile();
+    if not iarr.Value.IsEmpty then begin
+        FCommandList.Copy(iarr);
+    end;
 end;
 
 procedure TOpenWithSettings.SetCommand(Index : Integer; const Value : string);
@@ -107,6 +117,9 @@ procedure TOpenWithSettings.ForceWriteToIni;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.ForceWriteToIni');
+	var
+	dbgArr := TSettingsDictionary.DictToStringArray(SettingsDict());
+
 	SettingsDict.SaveToFile(OPEN_WITH_SETTINGS);
 	UpdateIniFile(OPEN_WITH_SETTINGS, True, True);
 end;
