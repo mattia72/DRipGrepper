@@ -20,8 +20,8 @@ type
 
 		public
 			constructor Create(const _Owner : TPersistableSettings);
-			destructor Destroy; override;
 			procedure ClearCommandList;
+			function GetCommands() : TArray<string>;
 			procedure Init; override;
 			procedure ReadIni; override; // TODO: use persistable base
 			procedure ForceWriteToIni;
@@ -40,14 +40,8 @@ uses
 constructor TOpenWithSettings.Create(const _Owner : TPersistableSettings);
 begin
 	IniSectionName := OPEN_WITH_SETTINGS;
-	FCommandList := TArraySetting.Create();
 	inherited Create(_Owner);
 	TDebugUtils.DebugMessage('TOpenWithSettings.Create: ' + '[' + IniSectionName + ']');
-end;
-
-destructor TOpenWithSettings.Destroy;
-begin
-	inherited Destroy(); // ok
 end;
 
 procedure TOpenWithSettings.ClearCommandList;
@@ -55,6 +49,11 @@ begin
 	FCommandList.Value.Clear;
 	FSettingsDict.InnerDictionary.Clear;
 	FIsModified := True;
+end;
+
+function TOpenWithSettings.GetCommands() : TArray<string>;
+begin
+	Result := FCommandList.Value;
 end;
 
 function TOpenWithSettings.GetCommand(Index : Integer) : string;
@@ -67,7 +66,8 @@ end;
 
 procedure TOpenWithSettings.Init;
 begin
-	inherited;
+	FCommandList := TArraySetting.Create();
+
 	for var i : integer := 0 to Length(DEFAULT_EDITORS) - 1 do begin
 		Command[i] := DEFAULT_EDITORS[i];
 	end;
@@ -82,6 +82,8 @@ begin
 end;
 
 procedure TOpenWithSettings.SetCommand(Index : Integer; const Value : string);
+var
+	arrCmds : TArrayEx<string>;
 begin
 	if Value.IsEmpty then
 		Exit;
@@ -92,7 +94,11 @@ begin
 			FIsModified := True;
 		end;
 	end else begin
-		FCommandList.Value.Add(Value);
+		arrCmds := FCommandList.Value;
+		arrCmds.Add(Value);
+
+		FCommandList.Value := arrCmds;
+
 		FIsModified := True;
 	end;
 end;

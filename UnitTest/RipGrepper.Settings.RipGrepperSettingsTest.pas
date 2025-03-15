@@ -20,31 +20,51 @@ const
 
 type
 
-	[TestFixture]
-	TRipGrepperSettingsTest = class
+	TRipGrepperSettingsTestBase = class
 		const
 			INIFILE = 'DripGrepperUnittest.ini';
 
 		private
+			procedure SetSettingValues();
+
+		protected
+
 			FFactory : IPersisterFactory;
-			// FIniFile : TMemIniFile;
 			FSettings : TRipGrepperSettings;
 			FTextHist : TArrayEx<string>;
-			function ReadBoolIniAsString(const _section, _key : string) : string;
-			procedure SetSettingValues();
 
 		public
 			[Setup]
-			procedure Setup;
+			procedure Setup();
 			[TearDown]
-			procedure TearDown;
+			procedure TearDown();
+	end;
 
+	[TestFixture]
+	TInnerSearchFormSettingsTest = class(TRipGrepperSettingsTestBase)
+		public
+			[Test]
+			procedure EncodingChangeAndUpdateFile();
+			[Test]
+			procedure EncodingChangeChangesDictionary();
+			[Test]
+			procedure ContextChangeChangesDictionary();
+			[Test]
+			procedure UpdateShortCutsIniTest();
+	end;
+
+	[TestFixture]
+	TRipGrepperSettingsTest = class(TRipGrepperSettingsTestBase)
+
+		const
+		private
+			function ReadBoolIniAsString(const _section, _key : string) : string;
+
+		public
 			[Test]
 			procedure InitialSettingsShouldLoadDefaults;
 			[Test]
 			procedure AfterCopyValuesValuesShouldBeEqual;
-			[Test]
-			procedure SettingChangeChangesDictionary;
 			[Test]
 			procedure AfterUpdateIniValuesShouldBeProperlySaved;
 			[Test]
@@ -54,11 +74,7 @@ type
 			[Test]
 			procedure ExtensionSettingsTest;
 			[Test]
-			procedure SettingChangeAndUpdateFile;
-			[Test]
 			procedure UpdateHistInIniTest;
-			[Test]
-			procedure UpdateShortCutsIniTest;
 	end;
 
 implementation
@@ -119,21 +135,6 @@ begin
 	end;
 end;
 
-procedure TRipGrepperSettingsTest.SettingChangeChangesDictionary;
-var
-	settingVal, dictVal: string;
-begin
-	FSettings.SearchFormSettings.Encoding := 'utf8';
-
-	var
-	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
-
-	settingVal := FSettings.SearchFormSettings.Encoding;
-	dictVal := FSettings.SettingsDict()['RipGrepperSearchSettings']['Encoding'].AsString;
-
-	Assert.AreEqual(settingVal, dictVal, 'Encoding should be equal');
-end;
-
 procedure TRipGrepperSettingsTest.AfterUpdateIniValuesShouldBeProperlySaved;
 var
 	iniVal, settingVal : string;
@@ -174,47 +175,6 @@ begin
 	// settingVal := Integer(FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext).ToString;
 	// Assert.AreEqual(settingVal, iniVal, 'CurrentIDEContext should be equal');
 
-end;
-
-procedure TRipGrepperSettingsTest.SetSettingValues();
-begin
-	FSettings.SearchFormSettings.Encoding := 'none';
-	FSettings.SearchFormSettings.Context := 1;
-	FSettings.SearchFormSettings.Pretty := True;
-	FSettings.SearchFormSettings.Hidden := True;
-	FSettings.SearchFormSettings.NoIgnore := True;
-	FSettings.RipGrepParameters.SearchPath := 'act\search\path';
-	FSettings.RipGrepParameters.FileMasks := '*.act';
-	FSettings.RipGrepParameters.GuiSearchTextParams.SetSearchOptions([EGuiOption.soNotSet]);
-
-	FSettings.NodeLookSettings.AlternateRowColors := True;
-	FSettings.NodeLookSettings.ShowFileIcon := True;
-	FSettings.NodeLookSettings.IndentLines := True;
-	FSettings.NodeLookSettings.ShowRelativePath := True;
-	FSettings.NodeLookSettings.ExpandNodes := True;
-
-	FSettings.SearchFormSettings.ExtensionSettings.OpenWithShortcut := SC_OPEN_WITH;
-	FSettings.SearchFormSettings.ExtensionSettings.SearchSelectedShortcut := SC_SEARCH;
-	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext :=
-	{ } TRipGrepperExtensionContext.FromString('2', 'active project', 'active file');
-
-	for var s in ['hist 0', 'hist 1', ACT_HIST_VAL] do
-		FTextHist.Insert(0, s);
-
-	FSettings.SearchTextsHistory.Value := FTextHist.Items;
-	FSettings.StoreToPersister;
-end;
-
-procedure TRipGrepperSettingsTest.Setup;
-begin
-	FSettings := TRipGrepperSettings.Create();
-	FFactory := FSettings.PersisterFactory;
-end;
-
-procedure TRipGrepperSettingsTest.TearDown;
-begin
-	FSettings.Free; // instance will be free
-	TFileUtils.EmptyFile(ChangeFileExt(Application.ExeName, '.ini'));
 end;
 
 procedure TRipGrepperSettingsTest.NodeLookSettingsTest;
@@ -324,20 +284,6 @@ begin
 	Result := BoolToStr(FFactory.GetBoolPersister(_section, _key).LoadFromFile, True);
 end;
 
-procedure TRipGrepperSettingsTest.SettingChangeAndUpdateFile;
-var
-	settingVal, iniVal: string;
-begin
-	FSettings.SearchFormSettings.Encoding := 'utf8';
-	FSettings.StoreToPersister();
-	FSettings.UpdateIniFile();
-
-	iniVal := FFactory.GetStringPersister(FSettings.SearchFormSettings.IniSectionName, 'Encoding').LoadFromFile;
-	settingVal := FSettings.SearchFormSettings.Encoding;
-
-	Assert.AreEqual(settingVal, iniVal, 'Encoding should be equal');
-end;
-
 procedure TRipGrepperSettingsTest.UpdateHistInIniTest;
 begin
 	SetSettingValues;
@@ -354,11 +300,99 @@ begin
 		{ } FFactory.GetStringPersister('SearchTextsHistory', 'Item_0').LoadFromFile);
 end;
 
-procedure TRipGrepperSettingsTest.UpdateShortCutsIniTest;
+procedure TRipGrepperSettingsTestBase.SetSettingValues();
+begin
+	FSettings.SearchFormSettings.Encoding := 'none';
+	FSettings.SearchFormSettings.Context := 1;
+	FSettings.SearchFormSettings.Pretty := True;
+	FSettings.SearchFormSettings.Hidden := True;
+	FSettings.SearchFormSettings.NoIgnore := True;
+	FSettings.RipGrepParameters.SearchPath := 'act\search\path';
+	FSettings.RipGrepParameters.FileMasks := '*.act';
+	FSettings.RipGrepParameters.GuiSearchTextParams.SetSearchOptions([EGuiOption.soNotSet]);
+
+	FSettings.NodeLookSettings.AlternateRowColors := True;
+	FSettings.NodeLookSettings.ShowFileIcon := True;
+	FSettings.NodeLookSettings.IndentLines := True;
+	FSettings.NodeLookSettings.ShowRelativePath := True;
+	FSettings.NodeLookSettings.ExpandNodes := True;
+
+	FSettings.SearchFormSettings.ExtensionSettings.OpenWithShortcut := SC_OPEN_WITH;
+	FSettings.SearchFormSettings.ExtensionSettings.SearchSelectedShortcut := SC_SEARCH;
+	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext :=
+	{ } TRipGrepperExtensionContext.FromString('2', 'active project', 'active file');
+
+	for var s in ['hist 0', 'hist 1', ACT_HIST_VAL] do
+		FTextHist.Insert(0, s);
+
+	FSettings.SearchTextsHistory.Value := FTextHist.Items;
+	FSettings.StoreToPersister;
+end;
+
+procedure TRipGrepperSettingsTestBase.Setup();
+begin
+	FSettings := TRipGrepperSettings.Create();
+	FFactory := FSettings.PersisterFactory;
+end;
+
+procedure TRipGrepperSettingsTestBase.TearDown();
+begin
+	FSettings.Free; // instance will be free
+	TFileUtils.EmptyFile(ChangeFileExt(Application.ExeName, '.ini'));
+end;
+
+procedure
+	TInnerSearchFormSettingsTest.EncodingChangeAndUpdateFile();
+var
+	settingVal, iniVal : string;
+begin
+	FSettings.SearchFormSettings.Encoding := 'utf8';
+	FSettings.StoreToPersister();
+	FSettings.UpdateIniFile();
+
+	iniVal := FFactory.GetStringPersister(FSettings.SearchFormSettings.IniSectionName, 'Encoding').LoadFromFile;
+	settingVal := FSettings.SearchFormSettings.Encoding;
+
+	Assert.AreEqual(settingVal, iniVal, 'Encoding should be equal');
+end;
+
+procedure
+	TInnerSearchFormSettingsTest.EncodingChangeChangesDictionary();
+var
+	settingVal, dictVal : string;
+begin
+	FSettings.SearchFormSettings.Encoding := 'utf8';
+
+	var
+	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
+
+	settingVal := FSettings.SearchFormSettings.Encoding;
+	dictVal := FSettings.SettingsDict()['RipGrepperSearchSettings']['Encoding'].AsString;
+
+	Assert.AreEqual(settingVal, dictVal, 'Encoding should be equal');
+end;
+
+procedure
+	TInnerSearchFormSettingsTest.ContextChangeChangesDictionary();
+var
+	settingVal, dictVal : string;
+begin
+	FSettings.SearchFormSettings.Context := 1;
+
+	var
+	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
+
+	settingVal := FSettings.SearchFormSettings.Context.ToString;
+	dictVal := FSettings.SettingsDict()['RipGrepperSearchSettings']['Context'].AsString;
+
+	Assert.AreEqual(settingVal, dictVal, 'Encoding should be equal');
+end;
+
+procedure TInnerSearchFormSettingsTest.UpdateShortCutsIniTest();
 begin
 	SetSettingValues; // after config form close is tested here
-	FSettings.SearchFormSettings.ExtensionSettings.UpdateIniFile(
-		{ } FSettings.SearchFormSettings.ExtensionSettings.INI_SECTION);
+//  FSettings.SearchFormSettings.ExtensionSettings.UpdateIniFile(
+//      { } FSettings.SearchFormSettings.ExtensionSettings.INI_SECTION);
 
 	FSettings.UpdateIniFile();
 
@@ -373,6 +407,7 @@ end;
 
 initialization
 
+TDUnitX.RegisterTestFixture(TInnerSearchFormSettingsTest);
 TDUnitX.RegisterTestFixture(TRipGrepperSettingsTest);
 
 end.

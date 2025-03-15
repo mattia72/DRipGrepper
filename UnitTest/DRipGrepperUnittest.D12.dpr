@@ -60,10 +60,18 @@ uses
   RipGrepper.Settings.SettingVariantTest in 'RipGrepper.Settings.SettingVariantTest.pas',
   RipGrepper.Settings.NoodeLookSettingsTest in 'RipGrepper.Settings.NoodeLookSettingsTest.pas',
   RipGrepper.Settings.RipGrepperSettingsTest in 'RipGrepper.Settings.RipGrepperSettingsTest.pas',
-  RipGrepper.Settings.RipGrepSettingsTest in 'RipGrepper.Settings.RipGrepSettingsTest.pas',
   RipGrepper.Settings.SearchFormSettingsTest in 'RipGrepper.Settings.SearchFormSettingsTest.pas',
   RipGrepper.Settings.JsonTest in 'RipGrepper.Settings.JsonTest.pas',
-  RipGrepper.Settings.MemIniFileHelperTest in 'RipGrepper.Settings.MemIniFileHelperTest.pas';
+  RipGrepper.Settings.MemIniFileHelperTest in 'RipGrepper.Settings.MemIniFileHelperTest.pas',
+  RipGrepper.Common.ParsedObject in '..\src\Common\RipGrepper.Common.ParsedObject.pas',
+  RipGrepper.Tools.DebugUtils in '..\src\Tools\RipGrepper.Tools.DebugUtils.pas',
+  RipGrepper.Settings.AppSettings in '..\src\Settings\RipGrepper.Settings.AppSettings.pas',
+  RipGrepper.OpenWith.Constants in '..\src\OpenWith\RipGrepper.OpenWith.Constants.pas',
+  RipGrepper.Common.IOTAUtils in '..\src\Common\RipGrepper.Common.IOTAUtils.pas',
+  RipGrepper.Tools.LockGuard in '..\src\Tools\RipGrepper.Tools.LockGuard.pas',
+  RipGrepper.Settings.FontColors in '..\src\Settings\RipGrepper.Settings.FontColors.pas',
+  RipGrepper.Settings.RipGrepSettingsTest in 'RipGrepper.Settings.RipGrepSettingsTest.pas',
+  RipGrepper.Settings.OpenWithSettingsTest in 'RipGrepper.Settings.OpenWithSettingsTest.pas';
 
 // This comment has to guard the following IFDEF, that may be delted by delphi, if new unit added to the project
 {$IFNDEF TESTINSIGHT}
