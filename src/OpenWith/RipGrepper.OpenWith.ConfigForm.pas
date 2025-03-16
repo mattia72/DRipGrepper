@@ -256,7 +256,7 @@ end;
 class procedure TOpenWithConfigForm.CreateAndShow(const _settings : TOpenWithSettings; const _colorTheme : string);
 begin
 	// write ini file content
-	_settings.UpdateIniFile;
+	_settings.UpdateFile;
 	var
 	form := TOpenWithConfigForm.Create(nil, _settings, _colorTheme);
 	try
