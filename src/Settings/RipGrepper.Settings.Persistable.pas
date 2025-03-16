@@ -327,7 +327,7 @@ begin
 	end;
 
 	dbgMsg.MsgFmt('Read section %s from PersisterFactory %p', [IniSectionName, Pointer(PersisterFactory)]);
-	SettingsDict.LoadFromFile();
+	SettingsDict.LoadFromPersister();
 	FIsAlreadyRead := True;
 end;
 
@@ -459,7 +459,7 @@ begin
 		end
 	end;
 
-	SettingsDict.SaveToFile(section);
+	SettingsDict.StoreToPersister(section);
 end;
 
 end.

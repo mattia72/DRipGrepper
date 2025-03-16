@@ -293,11 +293,11 @@ procedure TRipGrepperSettings.LoadFirstNecessarySettings;
 begin
 	FNodeLookSettings.LoadFromDict();
 
-	FSearchPathsHistory.LoadFromFile;
-	FSearchTextsHistory.LoadFromFile;
-	FReplaceTextsHistory.LoadFromFile;
-	FExpertOptionHistory.LoadFromFile;
-	FFileMasksHistory.LoadFromFile;
+	FSearchPathsHistory.LoadFromPersister;
+	FSearchTextsHistory.LoadFromPersister;
+	FReplaceTextsHistory.LoadFromPersister;
+	FExpertOptionHistory.LoadFromPersister;
+	FFileMasksHistory.LoadFromPersister;
 end;
 
 procedure TRipGrepperSettings.RebuildArguments;
@@ -365,18 +365,18 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.StoreHistories');
 
-	SearchPathsHistory.SaveToFile;
-	SearchTextsHistory.SaveToFile;
-	ReplaceTextsHistory.SaveToFile;
-	ExpertOptionHistory.SaveToFile;
-	FileMasksHistory.SaveToFile;
+	SearchPathsHistory.StoreToPersister;
+	SearchTextsHistory.StoreToPersister;
+	ReplaceTextsHistory.StoreToPersister;
+	ExpertOptionHistory.StoreToPersister;
+	FileMasksHistory.StoreToPersister;
 end;
 
 procedure TRipGrepperSettings.StoreViewSettings(const _s : string = '');
 var
 	fh : IFileHandler;
 begin
-	NodeLookSettings.SettingsDict.SaveToFile();
+	NodeLookSettings.SettingsDict.StoreToPersister();
 	NodeLookSettings.UpdateFile(NodeLookSettings.IniSectionName);
 	NodeLookSettings.StoreDictToPersister(NodeLookSettings.IniSectionName);
 	if Supports(PersisterFactory, IFileHandler, fh) then begin

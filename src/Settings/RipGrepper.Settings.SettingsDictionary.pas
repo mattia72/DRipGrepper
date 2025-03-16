@@ -38,8 +38,8 @@ type
 			class function DictToStringArray(_dict : TSettingsDictionary) : TArray<TArray<string>>;
 			function GetSetting(const _key : string) : ISetting; overload;
 			function GetSections() : IReadOnlyCollection<string>; overload;
-			procedure LoadFromFile();
-			procedure SaveToFile(const _section : string = '');
+			procedure LoadFromPersister();
+			procedure StoreToPersister(const _section : string = '');
 
 			property Count : Integer read GetCount;
 			property InnerDictionary : ISettingSections read FInnerDictionary;
@@ -230,16 +230,16 @@ begin
 	Result := FInnerDictionary.Keys;
 end;
 
-procedure TSettingsDictionary.LoadFromFile();
+procedure TSettingsDictionary.LoadFromPersister();
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.LoadFromFile');
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.LoadFromPersister');
 
 	for var key in InnerDictionary[SectionName].Keys do begin
-		InnerDictionary[SectionName][key].LoadFromFile();
+		InnerDictionary[SectionName][key].LoadFromPersister();
 		var
 		value := InnerDictionary[SectionName][key].AsString;
-		dbgMsg.MsgFmt('LoadFromFile [%s] %s = %s', [SectionName, key, value]);
+		dbgMsg.MsgFmt('LoadFromPersister [%s] %s = %s', [SectionName, key, value]);
 	end;
 end;
 
@@ -249,21 +249,21 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.SaveSectionToFile');
 
 	for var keys in InnerDictionary[_section] do begin
-		keys.Value.SaveToFile();
+		keys.Value.StoreToPersister();
 		{$IFDEF DEBUG}
 		var
 		value := InnerDictionary[_section][keys.Key].AsString;
-		dbgMsg.MsgFmt('SaveToFile [%s] %s = %s', [_section, keys.Key, value]);
+		dbgMsg.MsgFmt('StoreToPersister [%s] %s = %s', [_section, keys.Key, value]);
 		{$ENDIF}
 	end;
 end;
 
-procedure TSettingsDictionary.SaveToFile(const _section : string = '');
+procedure TSettingsDictionary.StoreToPersister(const _section : string = '');
 var
 	section : string;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.SaveToFile');
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.StoreToPersister');
 
 	section := IfThen(_section = '', SectionName, _section);
 

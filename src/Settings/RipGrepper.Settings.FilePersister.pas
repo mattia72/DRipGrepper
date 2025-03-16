@@ -15,8 +15,8 @@ type
 
 	IFilePersister<T> = interface(IPersister)
 		['{57B16806-F8F5-447E-9AB6-767E553CCB65}']
-		function LoadFromFile() : T;
-		procedure SaveToFile(const _value : T);
+		function LoadFromPersister() : T;
+		procedure StoreToPersister(const _value : T);
 
 		function GetFilePath() : string;
 		procedure SetFilePath(const Value : string);
@@ -64,29 +64,29 @@ type
 	TMemIniStringPersister = class(TMemIniPersister, IFilePersister<string>)
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
-			function LoadFromFile() : string;
-			procedure SaveToFile(const _value : string);
+			function LoadFromPersister() : string;
+			procedure StoreToPersister(const _value : string);
 	end;
 
 	TMemIniIntegerPersister = class(TMemIniPersister, IFilePersister<integer>)
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
-			function LoadFromFile() : integer;
-			procedure SaveToFile(const _value : integer);
+			function LoadFromPersister() : integer;
+			procedure StoreToPersister(const _value : integer);
 	end;
 
 	TMemIniBoolPersister = class(TMemIniPersister, IFilePersister<Boolean>)
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
-			function LoadFromFile() : Boolean;
-			procedure SaveToFile(const _value : Boolean);
+			function LoadFromPersister() : Boolean;
+			procedure StoreToPersister(const _value : Boolean);
 	end;
 
 	TMemIniStrArrayPersister = class(TMemIniPersister, IFilePersister < TArrayEx < string >> )
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection : string);
-			function LoadFromFile() : TArrayEx<string>;
-			procedure SaveToFile(const _value : TArrayEx<string>);
+			function LoadFromPersister() : TArrayEx<string>;
+			procedure StoreToPersister(const _value : TArrayEx<string>);
 	end;
 
 	TIniPersister = class(TInterfacedObject, IPersisterFactory, IFileHandler)
@@ -126,15 +126,15 @@ uses
 	System.IOUtils,
 	RipGrepper.Common.Constants;
 
-function TMemIniStringPersister.LoadFromFile() : string;
+function TMemIniStringPersister.LoadFromPersister() : string;
 begin
 	Result := FIniFile.ReadString(FIniSection, FIniKey, '');
 end;
 
-procedure TMemIniStringPersister.SaveToFile(const _value : string);
+procedure TMemIniStringPersister.StoreToPersister(const _value : string);
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TMemIniStringPersister.SaveToFile');
+	dbgMsg := TDebugMsgBeginEnd.New('TMemIniStringPersister.StoreToPersister');
 
 	FIniFile.WriteString(FIniSection, FIniKey, _value);
 end;
@@ -151,15 +151,15 @@ end;
 // Result := ;
 // end;
 
-function TMemIniIntegerPersister.LoadFromFile() : integer;
+function TMemIniIntegerPersister.LoadFromPersister() : integer;
 begin
 	Result := FIniFile.ReadInteger(FIniSection, FIniKey, -1);
 end;
 
-procedure TMemIniIntegerPersister.SaveToFile(const _value : integer);
+procedure TMemIniIntegerPersister.StoreToPersister(const _value : integer);
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TMemIniIntegerPersister.SaveToFile');
+	dbgMsg := TDebugMsgBeginEnd.New('TMemIniIntegerPersister.StoreToPersister');
 	FIniFile.WriteInteger(FIniSection, FIniKey, _value);
 end;
 
@@ -170,15 +170,15 @@ begin
 	FIniKey := _sKey;
 end;
 
-function TMemIniBoolPersister.LoadFromFile() : Boolean;
+function TMemIniBoolPersister.LoadFromPersister() : Boolean;
 begin
 	Result := FIniFile.ReadBool(FIniSection, FIniKey, False);
 end;
 
-procedure TMemIniBoolPersister.SaveToFile(const _value : Boolean);
+procedure TMemIniBoolPersister.StoreToPersister(const _value : Boolean);
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TMemIniBoolPersister.SaveToFile');
+	dbgMsg := TDebugMsgBeginEnd.New('TMemIniBoolPersister.StoreToPersister');
 	FIniFile.WriteBool(FIniSection, FIniKey, _value);
 end;
 
@@ -189,7 +189,7 @@ begin
 	FIniKey := _sKey;
 end;
 
-function TMemIniStrArrayPersister.LoadFromFile() : TArrayEx<string>;
+function TMemIniStrArrayPersister.LoadFromPersister() : TArrayEx<string>;
 var
 	i : Integer;
 	s : string;
@@ -205,13 +205,13 @@ begin
 	end;
 end;
 
-procedure TMemIniStrArrayPersister.SaveToFile(const _value : TArrayEx<string>);
+procedure TMemIniStrArrayPersister.StoreToPersister(const _value : TArrayEx<string>);
 var
 	multiLineVal : TMultiLineString;
 	i : Integer;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TMemIniStrArrayPersister.SaveToFile');
+	dbgMsg := TDebugMsgBeginEnd.New('TMemIniStrArrayPersister.StoreToPersister');
 	i := _value.MaxIndex;
 	dbgMsg.Msg('Write Array');
 	while i >= 0 do begin

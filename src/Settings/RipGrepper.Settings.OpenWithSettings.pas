@@ -86,7 +86,7 @@ begin
 
 	iarr := TArraySetting.Create(arr);
     iarr.Copy(FCommandListSetting);
-	iarr.LoadFromFile();
+	iarr.LoadFromPersister();
     if not iarr.Value.IsEmpty then begin
         FCommandListSetting.Copy(iarr);
     end;

@@ -95,7 +95,7 @@ begin
 		ExpectedValue := v.Value;
 		v.Persister := TMemIniStringPersister.Create(IniFile, Section, Ident);
 
-		v.SaveToFile();
+		v.StoreToPersister();
 		ActualValue := IniFile.ReadString(Section, Ident, '');
 
 		Assert.AreEqual(ExpectedValue, ActualValue, Format('Expected %s should be equal to %s', [ExpectedValue, ActualValue]));
@@ -119,7 +119,7 @@ begin
 		ExpectedValue := v.Value;
 		v.Persister := TMemIniIntegerPersister.Create(IniFile, Section, Ident);
 
-		v.SaveToFile();
+		v.StoreToPersister();
 		ActualValue := IniFile.ReadInteger(Section, Ident, -1);
 
 		Assert.AreEqual(ExpectedValue, ActualValue, Format('Expected %d should be equal to %d', [ExpectedValue, ActualValue]));
@@ -143,7 +143,7 @@ begin
 		ExpectedValue := v.Value;
 		v.Persister := TMemIniBoolPersister.Create(IniFile, Section, Ident);
 
-		v.SaveToFile();
+		v.StoreToPersister();
 		// ini file stores 0 or 1
 		ActualValue := IniFile.ReadBool(Section, Ident, False);
 
@@ -171,7 +171,7 @@ begin
 		Section := 'TestSection';
 
 		v.Persister := TMemIniStrArrayPersister.Create(IniFile, Section);
-		v.SaveToFile;
+		v.StoreToPersister;
 
 		for var i := 0 to 2 do begin
 			ActualValue := IniFile.ReadString(Section, Format('Item_%d', [i]), '');

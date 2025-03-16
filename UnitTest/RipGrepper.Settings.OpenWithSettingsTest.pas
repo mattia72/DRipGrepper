@@ -64,7 +64,7 @@ begin
 	for settingVal in FSettings.OpenWithSettings.GetCommands do begin
 		var
 		key := Format('%s%d', [OPENWITH_COMMAND_KEY, i]);
-		iniVal := FFactory.GetStringPersister(FSettings.OpenWithSettings.IniSectionName, key).LoadFromFile;
+		iniVal := FFactory.GetStringPersister(FSettings.OpenWithSettings.IniSectionName, key).LoadFromPersister;
 		Assert.AreEqual(settingVal, iniVal, key + ' should be persisted.');
 		Inc(i);
 	end;

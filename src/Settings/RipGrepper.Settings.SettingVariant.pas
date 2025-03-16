@@ -43,8 +43,8 @@ type
 
 		function GetType() : TSettingType;
 
-		procedure LoadFromFile();
-		procedure SaveToFile();
+		procedure LoadFromPersister();
+		procedure StoreToPersister();
 
 		function AsStringSetting() : IStringSetting;
 		function AsIntegerSetting() : IIntegerSetting;
@@ -91,8 +91,8 @@ type
 			function GetType() : TSettingType; virtual; abstract;
 
 		public
-			procedure LoadFromFile(); virtual; abstract;
-			procedure SaveToFile(); virtual; abstract;
+			procedure LoadFromPersister(); virtual; abstract;
+			procedure StoreToPersister(); virtual; abstract;
 
 			function AsStringSetting() : IStringSetting;
 			function AsIntegerSetting() : IIntegerSetting;
@@ -132,8 +132,8 @@ type
 			procedure Copy(_other : ISettingVariant<T>); reintroduce;
 			function Equals(_other : ISettingVariant<T>) : Boolean; reintroduce;
 			function IsEmpty : Boolean;
-			procedure LoadFromFile(); override;
-			procedure SaveToFile(); override;
+			procedure LoadFromPersister(); override;
+			procedure StoreToPersister(); override;
 			property Persister : IFilePersister<T> read GetPersister write SetPersister;
 			property Value : T read GetValue write SetValue;
 	end;
@@ -232,18 +232,18 @@ begin
 	Result := FValue;
 end;
 
-procedure TSettingVariant<T>.LoadFromFile();
+procedure TSettingVariant<T>.LoadFromPersister();
 begin
-	Value := Persister.LoadFromFile();
+	Value := Persister.LoadFromPersister();
 end;
 
-procedure TSettingVariant<T>.SaveToFile();
+procedure TSettingVariant<T>.StoreToPersister();
 begin
 	if not Assigned(Persister) then begin
 		raise ESettingsException.Create('Persister is not assigned.');
 	end;
 
-	Persister.SaveToFile(Value);
+	Persister.StoreToPersister(Value);
 end;
 
 procedure TSettingVariant<T>.SetPersister(const Value : IFilePersister<T>);

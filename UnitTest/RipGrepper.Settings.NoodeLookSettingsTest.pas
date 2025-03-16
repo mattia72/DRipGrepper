@@ -116,19 +116,19 @@ begin
 	var
 	fact := FSettings.PersisterFactory;
 
-	iniVal := fact.GetStringPersister(FSettings.IniSectionName, 'AlternateRowColors').LoadFromFile();
+	iniVal := fact.GetStringPersister(FSettings.IniSectionName, 'AlternateRowColors').LoadFromPersister();
 	settingVal := FSettings.AlternateRowColors;
 	Assert.AreEqual(settingVal, iniVal = '1', 'AlternateRowColors should be equal');
 
-	iniVal := fact.GetStringPersister(FSettings.IniSectionName, 'IndentLines').LoadFromFile();
+	iniVal := fact.GetStringPersister(FSettings.IniSectionName, 'IndentLines').LoadFromPersister();
 	settingVal := FSettings.IndentLines;
 	Assert.AreEqual(settingVal, iniVal = '1', 'IndentLines should be equal');
 
-	iniVal := fact.GetStringPersister(FSettings.IniSectionName, 'ShowRelativePath').LoadFromFile();
+	iniVal := fact.GetStringPersister(FSettings.IniSectionName, 'ShowRelativePath').LoadFromPersister();
 	settingVal := FSettings.ShowRelativePath;
 	Assert.AreEqual(settingVal, iniVal = '1', 'ShowRelativePath should be equal');
 
-	iniVal := fact.GetStringPersister(FSettings.IniSectionName, 'ExpandNodes').LoadFromFile();
+	iniVal := fact.GetStringPersister(FSettings.IniSectionName, 'ExpandNodes').LoadFromPersister();
 	settingVal := FSettings.ExpandNodes;
 	Assert.AreEqual(settingVal, iniVal = '1', 'ExpandNodes should be equal');
 
