@@ -29,7 +29,7 @@ uses
 type
 	TCheckBoxState = (csbNone, csbTrue, csbFalse);
 
-	TOpenWithConfigForm = class(TSettingsBaseForm)
+	TOpenWithConfigForm = class(TSettingsBaseForm, ISettingsForm)
 
 		var
 			ActionListConfig : TActionList;
@@ -105,7 +105,9 @@ uses
 	RipGrepper.Helper.UI,
 	System.RegularExpressions,
 	RipGrepper.OpenWith.CmdEditorForm,
-	ArrayEx;
+	ArrayEx,
+	RipGrepper.Settings.SettingsDictionary,
+	RipGrepper.Settings.SettingVariant;
 
 const
 	IDX_DESCRIPTION = 1;
@@ -116,11 +118,9 @@ const
 constructor TOpenWithConfigForm.Create(AOwner : TComponent; const _settings : TOpenWithSettings; const _colorTheme : string);
 begin
 	inherited Create(AOwner, _settings, _colorTheme);
-	FOpenWithSettings := _settings;
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
-
 	lvCommands.MultiSelect := True; // we need this for working SelCount
-
+	FOpenWithSettings := _settings;
 	FOpenWithSettings.ReadIni; // we should read ini every time, it can be overwritten by another instance...
 	ReadSettings;
 	FColorTheme := _colorTheme;
@@ -144,8 +144,8 @@ begin
 	if Assigned(li) then begin
 		ci.Caption := li.Caption;
 		arrEx := li.SubItems.ToStringArray;
-		ci.CommandLine := TCommandLineRec.ParseCommand(arrEx.SafeItemAt[0]);
-		ci.Description := arrEx.SafeItemAt[1];
+		ci.CommandLine := TCommandLineRec.ParseCommand(arrEx.SafeItem[0]);
+		ci.Description := arrEx.SafeItem[1];
 	end;
 	ci := TOpenWithCommandEditor.CreateAndShow(self, ci, FColorTheme);
 	AddOrSetCommandItem(ci);
@@ -339,8 +339,13 @@ begin
 			{ } sCmd, // command line
 			{ } item.SubItems[IDX_DESCRIPTION]]); // descr
 		FOpenWithSettings.Command[i] := settings;
+
 		dbgMsg.Msg(Format('%s', [FOpenWithSettings.Command[i]]));
 	end;
+	// after ClearCommandList recreate settings...
+	FOpenWithSettings.SettingsDict.CreateSetting(OPENWITH_COMMAND_KEY,
+		{ } FOpenWithSettings.CommandListSetting,
+		{ } FOpenWithSettings.PersisterFactory);
 
 	// inherited WriteSettings; it's not eonugh
 	FOpenWithSettings.ForceWriteToIni; // save always
@@ -356,8 +361,8 @@ begin
 	item := lvCommands.Items[lvCommands.ItemIndex];
 	ci.Caption := item.Caption;
 	arrEx := item.SubItems.ToStringArray;
-	ci.CommandLine := TCommandLineRec.ParseCommand(arrEx.SafeItemAt[0]);
-	ci.Description := arrEx.SafeItemAt[1];
+	ci.CommandLine := TCommandLineRec.ParseCommand(arrEx.SafeItem[0]);
+	ci.Description := arrEx.SafeItem[1];
 	ci := TOpenWithCommandEditor.CreateAndShow(self, ci, FColorTheme);
 	AddOrSetCommandItem(ci, item);
 	TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.lvCommandsDblClick SelectCount %d', [lvCommands.SelCount])));

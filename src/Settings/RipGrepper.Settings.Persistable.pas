@@ -313,9 +313,9 @@ end;
 
 procedure TPersistableSettings.StoreToPersister; // new name StoreInPersister
 begin
-//	for var s in FChildren do begin
-//		s.StoreToPersister;
-//	end;
+	// for var s in FChildren do begin
+	// s.StoreToPersister;
+	// end;
 	StoreDictToPersister();
 end;
 
@@ -412,12 +412,11 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
 
-//	for var s in FChildren do begin
-//		dbgMsg.MsgFmt('Child update begin on section: [%s]', [s.GetIniSectionName()]);
-//		s.UpdateIniFile(s.GetIniSectionName());
-//	end;
+	// for var s in FChildren do begin
+	// s.UpdateIniFile(s.GetIniSectionName());
+	// end;
 
-	if Assigned(FOwner) { and (_section = '') } and not _bForceWriteIni then begin
+	if Assigned(FOwner) and not _bForceWriteIni then begin
 		Exit;
 	end;
 
@@ -425,27 +424,19 @@ begin
 		StoreDictToPersister(IfThen(_bForceWriteIni, _section), _bClearSection)
 	end;
 
-	// var arr := DictToLog(SettingsDict);
 	if Assigned(PersisterFactory) then begin
 		var
 		lock := TLockGuard.NewLock(FLockObject);
 		dbgMsg.Msg('Lock Entered to UpdateIniFile');
-		try
-			var
-			sectionName := IfThen((_section = ''), IniSectionName, _section);
-			dbgMsg.MsgFmt('PersisterFactory %p update begin on [%s]', [Pointer(PersisterFactory), sectionName]);
 
-			if Supports(FPersisterFactory, IFileHandler, fh) then begin
-				fh.WriteFile();
-			end;
+		var
+		sectionName := IfThen((_section = ''), IniSectionName, _section);
+		dbgMsg.MsgFmt('PersisterFactory %p update begin on [%s]', [Pointer(PersisterFactory), sectionName]);
 
-			// dbgMsg.Msg('[SearchTextsHistory] Item 0:' + PersisterFactory.ReadString('SearchTextsHistory', 'Item_0', 'not exists'));
-		except
-			on E : Exception do begin
-				dbgMsg.ErrorMsgFmt('%s' + CRLF + '%s', [E.Message, E.StackTrace]);
-				raise;
-			end;
+		if Supports(FPersisterFactory, IFileHandler, fh) then begin
+			fh.WriteFile();
 		end;
+
 		dbgMsg.Msg('Lock Released');
 	end else begin
 		dbgMsg.ErrorMsg('PersisterFactory not assigned!' + GetIniSectionName());

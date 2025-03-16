@@ -13,7 +13,7 @@ uses
 type
 	TOpenWithSettings = class(TPersistableSettings)
 		private
-			FCommandList : IArraySetting;
+			FCommandListSetting: IArraySetting;
 			FTestFile : TOpenWithParams;
 			function GetCommand(Index : Integer) : string;
 			procedure SetCommand(Index : Integer; const Value : string);
@@ -27,6 +27,7 @@ type
 			procedure ForceWriteToIni;
 			function ToString : string; override;
 			property Command[index : Integer] : string read GetCommand write SetCommand;
+			property CommandListSetting: IArraySetting read FCommandListSetting;
 			property TestFile : TOpenWithParams read FTestFile write FTestFile;
 	end;
 
@@ -47,32 +48,32 @@ end;
 
 procedure TOpenWithSettings.ClearCommandList;
 begin
-	FCommandList.Value.Clear;
+	FCommandListSetting.Value.Clear;
 	FSettingsDict.InnerDictionary.Clear;
 	FIsModified := True;
 end;
 
 function TOpenWithSettings.GetCommands() : TArray<string>;
 begin
-	Result := FCommandList.Value;
+	Result := FCommandListSetting.Value;
 end;
 
 function TOpenWithSettings.GetCommand(Index : Integer) : string;
 begin
 	Result := '';
-	if TArraySetting(FCommandList).Count > index then begin
-		Result := TArraySetting(FCommandList)[index];
+	if TArraySetting(FCommandListSetting).Count > index then begin
+		Result := TArraySetting(FCommandListSetting)[index];
 	end;
 end;
 
 procedure TOpenWithSettings.Init;
 begin
-	FCommandList := TArraySetting.Create();
+	FCommandListSetting := TArraySetting.Create();
 
 	for var i : integer := 0 to Length(DEFAULT_EDITORS) - 1 do begin
 		Command[i] := DEFAULT_EDITORS[i];
 	end;
-	CreateSetting(OPENWITH_COMMAND_KEY, FCommandList);
+	CreateSetting(OPENWITH_COMMAND_KEY, FCommandListSetting);
 end;
 
 procedure TOpenWithSettings.ReadIni;
@@ -84,10 +85,10 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.ReadIni');
 
 	iarr := TArraySetting.Create(arr);
-    iarr.Copy(FCommandList);
+    iarr.Copy(FCommandListSetting);
 	iarr.LoadFromFile();
     if not iarr.Value.IsEmpty then begin
-        FCommandList.Copy(iarr);
+        FCommandListSetting.Copy(iarr);
     end;
 end;
 
@@ -98,16 +99,16 @@ begin
 	if Value.IsEmpty then
 		Exit;
 
-	if FCommandList.Value.Count > index then begin
-		if (FCommandList.Value[index] <> Value) then begin
-			FCommandList.Value[index] := Value;
+	if FCommandListSetting.Value.Count > index then begin
+		if (FCommandListSetting.Value[index] <> Value) then begin
+			FCommandListSetting.Value[index] := Value;
 			FIsModified := True;
 		end;
 	end else begin
-		arrCmds := FCommandList.Value;
+		arrCmds := FCommandListSetting.Value;
 		arrCmds.Add(Value);
 
-		FCommandList.Value := arrCmds;
+		FCommandListSetting.Value := arrCmds;
 
 		FIsModified := True;
 	end;
@@ -120,7 +121,7 @@ begin
 	var
 	dbgArr := TSettingsDictionary.DictToStringArray(SettingsDict());
 
-	SettingsDict.SaveToFile(OPEN_WITH_SETTINGS);
+//  SettingsDict.SaveToFile(OPEN_WITH_SETTINGS);
 	UpdateIniFile(OPEN_WITH_SETTINGS, True, True);
 end;
 
