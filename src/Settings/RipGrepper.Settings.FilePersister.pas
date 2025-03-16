@@ -40,7 +40,7 @@ type
 	IFileHandler = interface(IInterface)
 		['{500D0067-F8F2-488B-B3B7-5649DF5879E4}']
 		procedure ReloadFile();
-		procedure WriteFile();
+		procedure UpdateFile();
 		procedure EraseSection(const _section : string);
 		function GetFilePath() : string;
 		procedure SetFilePath(const Value : string);
@@ -106,7 +106,7 @@ type
 
 			{ IFileHandler }
 			procedure ReloadFile();
-			procedure WriteFile();
+			procedure UpdateFile();
 			procedure EraseSection(const _section : string);
 			property FilePath : string read GetFilePath write SetFilePath;
 	end;
@@ -295,7 +295,7 @@ begin
 	Result := strs.DelimitedText;
 end;
 
-procedure TIniPersister.WriteFile();
+procedure TIniPersister.UpdateFile();
 begin
 	FIniFile.UpdateFile;
 end;

@@ -240,7 +240,7 @@ begin
 	// Fsettings.IniFile.ReadTempSectionFiles(); // read temp section
 
 	if Supports(FFactory, IFileHandler, fh) then begin
-		fh.WriteFile();
+		fh.UpdateFile();
 	end;
 
 	iniVal := FFactory.GetStringPersister(extSetting.INI_SECTION, extSetting.KEY_IDE_CONTEXT).LoadFromPersister;

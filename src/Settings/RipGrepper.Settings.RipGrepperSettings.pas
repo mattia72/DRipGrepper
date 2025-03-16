@@ -381,7 +381,7 @@ begin
 	NodeLookSettings.StoreDictToPersister(NodeLookSettings.IniSectionName);
 	if Supports(PersisterFactory, IFileHandler, fh) then begin
 		fh.ReLoadFile();
-		fh.WriteFile();
+		fh.UpdateFile();
 	end;
 end;
 

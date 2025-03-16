@@ -427,7 +427,7 @@ begin
 		dbgMsg.MsgFmt('PersisterFactory %p update begin on [%s]', [Pointer(PersisterFactory), sectionName]);
 
 		if Supports(FPersisterFactory, IFileHandler, fh) then begin
-			fh.WriteFile();
+			fh.UpdateFile();
 		end;
 
 		dbgMsg.Msg('Lock Released');
