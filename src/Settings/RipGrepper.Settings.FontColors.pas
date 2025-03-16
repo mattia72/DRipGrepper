@@ -65,7 +65,11 @@ type
 			{ } 'ReplaceTextInHistory=Segoe UI|9|clGreen|clNone|fsBold',
 			{ } 'LineNumText=Segoe UI|9|clGray|clNone',
 			{ } 'ColNumText=Segoe UI|9|clGray|clNone',
+			{$IFDEF STANDALONE}
 			{ } 'AlternateRow=Segoe UI|9|clNone|$002B2B2B'];
+			{$ELSE}
+			{ } 'AlternateRow=Segoe UI|9|clNone|$00404040'];
+            {$ENDIF}
 
 		private
 			FTheme : EThemeMode;
