@@ -121,8 +121,7 @@ begin
 	var
 	dbgArr := TSettingsDictionary.DictToStringArray(SettingsDict());
 
-//  SettingsDict.SaveToFile(OPEN_WITH_SETTINGS);
-	UpdateIniFile(OPEN_WITH_SETTINGS, True, True);
+	UpdateFile(OPEN_WITH_SETTINGS, True, True);
 end;
 
 function TOpenWithSettings.ToString : string;

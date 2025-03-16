@@ -59,7 +59,7 @@ var
 	settingVal : string;
 	i : integer;
 begin
-	FSettings.UpdateIniFile();
+	FSettings.UpdateFile();
 	i := 0;
 	for settingVal in FSettings.OpenWithSettings.GetCommands do begin
 		var

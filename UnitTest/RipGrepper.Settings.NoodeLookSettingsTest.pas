@@ -106,7 +106,7 @@ begin
 	// TRipGrepperSettings.StoreViewSettings tested here
 
 	CheckNodeSettingsDict('after storeview');
-	{ 2 } FSettings.UpdateIniFile(FSettings.IniSectionName); // create temp ini
+	{ 2 } FSettings.UpdateFile(FSettings.IniSectionName); // create temp ini
 	CheckNodeSettingsDict('after updateini');
 
 	{ 3 } FSettings.StoreDictToPersister(FSettings.IniSectionName);
@@ -139,7 +139,7 @@ end;
 procedure TNodeLookSettingsTest.UpdateIniTest;
 begin
 	SetTestDefaultAndActualValues;
-	FSettings.UpdateIniFile();
+	FSettings.UpdateFile();
 	FSettings.ReadIni;
 	for var s in VIEW_SETTINGS_TYPES do begin
 		var

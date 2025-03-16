@@ -279,7 +279,7 @@ begin
 
 	Settings.StoreToPersister;
 	// write ini file content
-	Settings.UpdateIniFile;
+	Settings.UpdateFile;
 	var
 	owForm := TConfigForm.Create(Settings);
 	try
@@ -289,7 +289,7 @@ begin
 	end;
 
 	// write ini file content after close config form
-	Settings.UpdateIniFile;
+	Settings.UpdateFile;
 
 	owSettings.TestFile := default (TOpenWithParams);
 	MainFrame.ReloadColorSettings;

@@ -104,7 +104,7 @@ type
 			// <summary>
 			// Thread safe write Settings to ini file
 			// </summary>
-			procedure UpdateIniFile(const _section : string = ''; const _bForceWriteIni : Boolean = False;
+			procedure UpdateFile(const _section : string = ''; const _bForceStoreToPersister : Boolean = False;
 				const _bClearSection : Boolean = False);
 			procedure StoreDictToPersister(const _section : string = ''; const _bClearSection : Boolean = False);
 	end;
@@ -313,9 +313,6 @@ end;
 
 procedure TPersistableSettings.StoreToPersister; // new name StoreInPersister
 begin
-	// for var s in FChildren do begin
-	// s.StoreToPersister;
-	// end;
 	StoreDictToPersister();
 end;
 
@@ -404,30 +401,26 @@ begin
 	Result := PersisterFactory.ToLogString();
 end;
 
-procedure TPersistableSettings.UpdateIniFile(const _section : string = ''; const _bForceWriteIni : Boolean = False;
+procedure TPersistableSettings.UpdateFile(const _section : string = ''; const _bForceStoreToPersister : Boolean = False;
 const _bClearSection : Boolean = False);
 var
 	fh : IFileHandler;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateIniFile');
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateFile');
 
-	// for var s in FChildren do begin
-	// s.UpdateIniFile(s.GetIniSectionName());
-	// end;
-
-	if Assigned(FOwner) and not _bForceWriteIni then begin
+	if Assigned(FOwner) and not _bForceStoreToPersister then begin
 		Exit;
 	end;
 
-	if _bForceWriteIni then begin
-		StoreDictToPersister(IfThen(_bForceWriteIni, _section), _bClearSection)
+	if _bForceStoreToPersister then begin
+		StoreDictToPersister(IfThen(_bForceStoreToPersister, _section), _bClearSection)
 	end;
 
 	if Assigned(PersisterFactory) then begin
 		var
 		lock := TLockGuard.NewLock(FLockObject);
-		dbgMsg.Msg('Lock Entered to UpdateIniFile');
+		dbgMsg.Msg('Lock Entered to UpdateFile');
 
 		var
 		sectionName := IfThen((_section = ''), IniSectionName, _section);

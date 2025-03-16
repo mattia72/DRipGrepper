@@ -447,8 +447,8 @@ begin
 		end;
 		dbgMsg.Msg('Store histories');
 		FSettings.StoreHistories();
-		FSettings.SearchFormSettings.UpdateIniFile(FSettings.SearchFormSettings.IniSectionName);
-		FSettings.UpdateIniFile();
+		FSettings.SearchFormSettings.UpdateFile(FSettings.SearchFormSettings.IniSectionName);
+		FSettings.UpdateFile();
 		// dbgMsg.Msg('[SearchTextsHistory] Item 0:' + FSettings.IniFile.ReadString('SearchTextsHistory', 'Item_0', 'not exists'));
 	end;
 end;

@@ -68,7 +68,7 @@ type
 			[Test]
 			procedure AfterUpdateIniValuesShouldBeProperlySaved;
 			[Test]
-			procedure UpdateIniFileTest();
+			procedure UpdateFileTest();
 			[Test]
 			procedure NodeLookSettingsTest;
 			[Test]
@@ -144,7 +144,7 @@ begin
 	var
 	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 
-	FSettings.UpdateIniFile;
+	FSettings.UpdateFile;
 	// FSettings.LoadFromDict;
 
 	iniVal := FFactory.GetStringPersister(FSettings.RipGrepParameters.IniSectionName, 'SearchParams').LoadFromFile;
@@ -192,7 +192,7 @@ begin
 		Assert.IsTrue(b, 'NodeLookSettings|' + s + ' should be true');
 	end;
 
-	{ 2 } FSettings.NodeLookSettings.UpdateIniFile(FSettings.NodeLookSettings.IniSectionName); // create temp ini
+	{ 2 } FSettings.NodeLookSettings.UpdateFile(FSettings.NodeLookSettings.IniSectionName); // create temp ini
 
 	// Assert.IsTrue(FileExists(FSettings.IniFile.GetTempSectionFileName('NodeLookSettings')), 'temp ini should exist.');
 	{ 3 } FSettings.StoreToPersister;
@@ -236,7 +236,7 @@ begin
 	end;
 
 	// TRipGrepperSearchDialogForm.FormClose tested here
-	FSettings.SearchFormSettings.UpdateIniFile(FSettings.SearchFormSettings.IniSectionName); // create temp section
+	FSettings.SearchFormSettings.UpdateFile(FSettings.SearchFormSettings.IniSectionName); // create temp section
 	// Fsettings.IniFile.ReadTempSectionFiles(); // read temp section
 
 	if Supports(FFactory, IFileHandler, fh) then begin
@@ -256,10 +256,10 @@ begin
 	Assert.AreEqual(settingVal.Trim(['[', ']']), iniVal.Trim(['[', ']']), extSetting.KEY_SHORTCUT_OPENWITH + ' should be equal');
 end;
 
-procedure TRipGrepperSettingsTest.UpdateIniFileTest();
+procedure TRipGrepperSettingsTest.UpdateFileTest();
 begin
 	SetSettingValues;
-	FSettings.UpdateIniFile(); // config form close is tested here?
+	FSettings.UpdateFile(); // config form close is tested here?
 	FSettings.ReadIni;
 	var
 	iniSection := FSettings.SearchFormSettings.IniSectionName;
@@ -289,7 +289,7 @@ begin
 	SetSettingValues;
 	// see SearchForm.OnClose.
 	FSettings.StoreHistories();
-	FSettings.UpdateIniFile();
+	FSettings.UpdateFile();
 	FSettings.ReadIni;
 
 	var
@@ -348,7 +348,7 @@ var
 begin
 	FSettings.SearchFormSettings.Encoding := 'utf8';
 	FSettings.StoreToPersister();
-	FSettings.UpdateIniFile();
+	FSettings.UpdateFile();
 
 	iniVal := FFactory.GetStringPersister(FSettings.SearchFormSettings.IniSectionName, 'Encoding').LoadFromFile;
 	settingVal := FSettings.SearchFormSettings.Encoding;
@@ -391,10 +391,10 @@ end;
 procedure TInnerSearchFormSettingsTest.UpdateShortCutsIniTest();
 begin
 	SetSettingValues; // after config form close is tested here
-//  FSettings.SearchFormSettings.ExtensionSettings.UpdateIniFile(
+//  FSettings.SearchFormSettings.ExtensionSettings.UpdateFile(
 //      { } FSettings.SearchFormSettings.ExtensionSettings.INI_SECTION);
 
-	FSettings.UpdateIniFile();
+	FSettings.UpdateFile();
 
 	Assert.AreEqual(SC_OPEN_WITH,
 		{ } FFactory.GetStringPersister(

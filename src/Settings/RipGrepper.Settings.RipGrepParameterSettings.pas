@@ -320,7 +320,7 @@ begin
 		if FileExists(FRipGrepPath.Value) then begin
 			FRipGrepPathInitResult := rgpiFound;
 			StoreToPersister;
-			UpdateIniFile();
+			UpdateFile();
 		end;
 	end;
 end;
