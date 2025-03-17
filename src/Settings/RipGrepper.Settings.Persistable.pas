@@ -61,7 +61,7 @@ type
 			function GetIsAlreadyRead : Boolean; virtual;
 			function GetIsModified : Boolean; virtual;
 			/// <summary>TPersistableSettings.Init
-			/// CreateSetting and CreateDefaultRelevantSetting should be called here
+			/// CreateSetting  should be called here
 			/// </summary>
 			procedure Init; virtual; abstract;
 			function GetIniSectionName : string; virtual;
@@ -83,6 +83,7 @@ type
 			property SettingsDict : IShared<TSettingsDictionary> read FSettingsDict write FSettingsDict;
 			destructor Destroy; override;
 			function AddChildSettings(_settings : TPersistableSettings) : TPersistableSettings;
+			class procedure CallUpdateFileOnFactory(const _factory : IPersisterFactory; const _dict : TSettingsDictionary);
 			function RemoveChildSettings(_settings : TPersistableSettings) : Boolean;
 			procedure CopySettingsDictSection(const _from : TPersistableSettings; const _copyAllSections : Boolean = False;
 				const _bForceCopySettingObj : Boolean = False); overload;
@@ -286,11 +287,11 @@ end;
 
 function TPersistableSettings.GetIsModified : Boolean;
 begin
-	FIsModified := not FSettingsDict.InnerDictionary[IniSectionName].Where(
+	FIsModified := not FSettingsDict.InnerDictionary[IniSectionName].Any(
 		function(const p : TPair<string, ISetting>) : Boolean
 		begin
 			Result := ssModified = p.Value.State;
-		end).IsEmpty;
+		end);
 
 	Result := FIsModified;
 end;
@@ -391,6 +392,18 @@ begin
 	end;
 end;
 
+class procedure TPersistableSettings.CallUpdateFileOnFactory(const _factory : IPersisterFactory; const _dict : TSettingsDictionary);
+var
+	fh : IFileHandler;
+begin
+	if Supports(_factory, IFileHandler, fh) then begin
+		if _dict.HasState(ssStored) then begin
+			fh.UpdateFile();
+			_dict.SetState(ssStored, ssSaved);
+		end;
+	end;
+end;
+
 procedure TPersistableSettings.LoadFromDict();
 begin
 	// overwrite this to convert setting values to other types
@@ -403,8 +416,6 @@ end;
 
 procedure TPersistableSettings.UpdateFile(const _section : string = ''; const _bForceStoreToPersister : Boolean = False;
 const _bClearSection : Boolean = False);
-var
-	fh : IFileHandler;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateFile');
@@ -421,15 +432,7 @@ begin
 		var
 		lock := TLockGuard.NewLock(FLockObject);
 		dbgMsg.Msg('Lock Entered to UpdateFile');
-
-		var
-		sectionName := IfThen((_section = ''), IniSectionName, _section);
-		dbgMsg.MsgFmt('PersisterFactory %p update begin on [%s]', [Pointer(PersisterFactory), sectionName]);
-
-		if Supports(FPersisterFactory, IFileHandler, fh) then begin
-			fh.UpdateFile();
-		end;
-
+		TPersistableSettings.CallUpdateFileOnFactory(FPersisterFactory, SettingsDict);
 		dbgMsg.Msg('Lock Released');
 	end else begin
 		dbgMsg.ErrorMsg('PersisterFactory not assigned!' + GetIniSectionName());

@@ -23,7 +23,7 @@ type
 			procedure AddOrChangeStrArrSettings(const _key : string; _setting : ISetting; _factory : IPersisterFactory);
 			function GetCount() : Integer;
 			function GetSections(index : string) : ISettingKeys; overload;
-			procedure SaveSectionToFile(const _section : string);
+			procedure StoreSectionToPersister(const _section : string);
 			procedure SetSections(index : string; const Value : ISettingKeys);
 			property SectionName : string read FSectionName;
 
@@ -39,6 +39,8 @@ type
 			function GetSetting(const _key : string) : ISetting; overload;
 			function GetSections() : IReadOnlyCollection<string>; overload;
 			procedure LoadFromPersister();
+			procedure SetState(const _from, _to : TSettingState; const _section : string = '');
+			function HasState(const _state : TSettingState; const _section : string = '') : Boolean;
 			procedure StoreToPersister(const _section : string = '');
 
 			property Count : Integer read GetCount;
@@ -103,11 +105,13 @@ end;
 
 procedure TSettingsDictionary.AddOrChangeStrArrSettings(const _key : string; _setting : ISetting; _factory : IPersisterFactory);
 var
-	i: Integer;
+	i : Integer;
 begin
 	i := 0;
 	for var cmd in TArraySetting(_setting).AsArray do begin
 		var s : ISetting := TStringSetting.Create(cmd);
+        s.SaveBehaviour := _setting.SaveBehaviour;
+        s.State := _setting.State;
 		var
 		key := Format('%s%d', [_key, i]);
 		TStringSetting(s).Persister := _factory.GetStringPersister(SectionName, key);
@@ -243,13 +247,18 @@ begin
 	end;
 end;
 
-procedure TSettingsDictionary.SaveSectionToFile(const _section : string);
+procedure TSettingsDictionary.StoreSectionToPersister(const _section : string);
+var
+	setting : ISetting;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.SaveSectionToFile');
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.StoreSectionToPersister');
 
 	for var keys in InnerDictionary[_section] do begin
-		keys.Value.StoreToPersister();
+		setting := keys.Value;
+		if (setting.State = ssModified) or (setting.SaveBehaviour = ssbSaveEvenIfNotModified) then begin
+			setting.StoreToPersister();
+		end;
 		{$IFDEF DEBUG}
 		var
 		value := InnerDictionary[_section][keys.Key].AsString;
@@ -269,11 +278,11 @@ begin
 
 	if (ROOT_DUMMY_INI_SECTION = section) then begin
 		for section in InnerDictionary.Keys do begin
-			SaveSectionToFile(section);
+			StoreSectionToPersister(section);
 		end;
 	end else begin
 		if not section.IsEmpty and InnerDictionary.ContainsKey(section) then begin
-			SaveSectionToFile(section);
+			StoreSectionToPersister(section);
 		end else begin
 			dbgMsg.MsgFmt('invalid section: ''%s''', [section]);
 			raise ESettingsException.CreateFmt('invalid section: ''%s''', [section]);
@@ -284,6 +293,63 @@ end;
 procedure TSettingsDictionary.SetSections(index : string; const Value : ISettingKeys);
 begin
 	FInnerDictionary[index] := Value;
+end;
+
+procedure TSettingsDictionary.SetState(const _from, _to : TSettingState; const _section : string = '');
+begin
+	if _section.IsEmpty then begin
+		InnerDictionary.Where(
+			function(const p : TPair<string, ISettingKeys>) : Boolean
+			begin
+				Result := p.Value.Values.Any(
+					function(const s : ISetting) : Boolean
+					begin
+						Result := s.State = _from;
+					end);
+			end).ForEach(
+			procedure(const p : TPair<string, ISettingKeys>)
+			begin
+				p.Value.Values.ForEach(
+					procedure(const s : ISetting)
+					begin
+						if s.State = _from then begin
+							s.State := _to;
+						end;
+					end);
+			end);
+	end else begin
+		InnerDictionary[_section].ForEach(
+			procedure(const p : TPair<string, ISetting>)
+			begin
+				var
+					s : ISetting := p.Value;
+				if s.State = _from then begin
+					s.State := _to;
+				end;
+			end);
+
+	end;
+end;
+
+function TSettingsDictionary.HasState(const _state : TSettingState; const _section : string = '') : Boolean;
+begin
+	if _section.IsEmpty then begin
+		Result := InnerDictionary.Any(
+			function(const p : TPair<string, ISettingKeys>) : Boolean
+			begin
+				Result := p.Value.Values.Any(
+					function(const s : ISetting) : Boolean
+					begin
+						Result := s.State = _state;
+					end);
+			end);
+	end else begin
+		Result := InnerDictionary[_section].Any(
+			function(const p : TPair<string, ISetting>) : Boolean
+			begin
+				Result := p.Value.State = _state;
+			end);
+	end;
 end;
 
 end.

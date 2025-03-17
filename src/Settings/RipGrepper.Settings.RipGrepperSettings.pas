@@ -153,6 +153,7 @@ destructor TRipGrepperSettings.Destroy;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.Destroy');
+    UpdateFile('', True);
 	inherited Destroy(); // ok;
 end;
 
@@ -380,7 +381,6 @@ begin
 	NodeLookSettings.UpdateFile(NodeLookSettings.IniSectionName);
 	NodeLookSettings.StoreDictToPersister(NodeLookSettings.IniSectionName);
 	if Supports(PersisterFactory, IFileHandler, fh) then begin
-		fh.ReLoadFile();
 		fh.UpdateFile();
 	end;
 end;

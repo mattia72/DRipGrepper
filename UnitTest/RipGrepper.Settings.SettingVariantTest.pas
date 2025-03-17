@@ -5,13 +5,21 @@ interface
 uses
 	DUnitX.TestFramework,
 	System.Classes,
-	RipGrepper.Settings.SettingVariant;
+	RipGrepper.Settings.SettingVariant,
+	System.IniFiles;
 
 type
 
 	[TestFixture]
 	TSettingVariantTest = class
+		private
+			IniFile : TMemIniFile;
+
 		public
+			[Setup]
+			procedure Setup();
+			[TearDown]
+			procedure TearDown();
 			[Test]
 			procedure TestEquals();
 			[Test]
@@ -39,17 +47,27 @@ type
 			[Test]
 			procedure TestCopyStrArraySetting;
 			[Test]
-			procedure TestIsEmpty();
+			procedure TestStatus();
 	end;
 
 implementation
 
 uses
 	System.SysUtils,
-	System.IniFiles,
 	System.Variants,
 	RipGrepper.Settings.FilePersister,
 	ArrayEx;
+
+procedure TSettingVariantTest.Setup();
+begin
+	IniFile := TMemIniFile.Create('');
+
+end;
+
+procedure TSettingVariantTest.TearDown();
+begin
+	IniFile.Free;
+end;
 
 procedure TSettingVariantTest.TestEquals();
 var
@@ -84,80 +102,67 @@ end;
 procedure TSettingVariantTest.TestWriteToMemIniStr();
 var
 	v : ISettingVariant<string>;
-	IniFile : TMemIniFile;
 	Section, Ident, ExpectedValue, ActualValue : string;
 begin
 	v := TSettingVariant<string>.Create('TestValue');
-	IniFile := TMemIniFile.Create('');
-	try
-		Section := 'TestSection';
-		Ident := 'TestIdent';
-		ExpectedValue := v.Value;
-		v.Persister := TMemIniStringPersister.Create(IniFile, Section, Ident);
 
-		v.StoreToPersister();
-		ActualValue := IniFile.ReadString(Section, Ident, '');
+	Section := 'TestSection';
+	Ident := 'TestIdent';
+	ExpectedValue := v.Value;
+	v.Persister := TMemIniStringPersister.Create(IniFile, Section, Ident);
 
-		Assert.AreEqual(ExpectedValue, ActualValue, Format('Expected %s should be equal to %s', [ExpectedValue, ActualValue]));
-	finally
-		IniFile.Free;
-	end;
+	v.StoreToPersister();
+	ActualValue := IniFile.ReadString(Section, Ident, '');
+
+	Assert.AreEqual(ExpectedValue, ActualValue, Format('Expected %s should be equal to %s', [ExpectedValue, ActualValue]));
+
 end;
 
 procedure TSettingVariantTest.TestWriteToMemIniInt();
 var
 	v : ISettingVariant<integer>;
-	IniFile : TMemIniFile;
+
 	Section, Ident : string;
 	ExpectedValue, ActualValue : integer;
 begin
 	v := TIntegerSetting.Create(42);
-	IniFile := TMemIniFile.Create('');
-	try
-		Section := 'TestSection';
-		Ident := 'TestIdent';
-		ExpectedValue := v.Value;
-		v.Persister := TMemIniIntegerPersister.Create(IniFile, Section, Ident);
 
-		v.StoreToPersister();
-		ActualValue := IniFile.ReadInteger(Section, Ident, -1);
+	Section := 'TestSection';
+	Ident := 'TestIdent';
+	ExpectedValue := v.Value;
+	v.Persister := TMemIniIntegerPersister.Create(IniFile, Section, Ident);
 
-		Assert.AreEqual(ExpectedValue, ActualValue, Format('Expected %d should be equal to %d', [ExpectedValue, ActualValue]));
-	finally
-		IniFile.Free;
-	end;
+	v.StoreToPersister();
+	ActualValue := IniFile.ReadInteger(Section, Ident, -1);
+
+	Assert.AreEqual(ExpectedValue, ActualValue, Format('Expected %d should be equal to %d', [ExpectedValue, ActualValue]));
+
 end;
 
 procedure TSettingVariantTest.TestWriteToMemIniBool();
 var
 	v : ISettingVariant<boolean>;
-	IniFile : TMemIniFile;
 	Section, Ident : string;
 	ExpectedValue, ActualValue : Boolean;
 begin
 	v := TBoolSetting.Create(True);
-	IniFile := TMemIniFile.Create('');
-	try
-		Section := 'TestSection';
-		Ident := 'TestIdent';
-		ExpectedValue := v.Value;
-		v.Persister := TMemIniBoolPersister.Create(IniFile, Section, Ident);
+	Section := 'TestSection';
+	Ident := 'TestIdent';
+	ExpectedValue := v.Value;
+	v.Persister := TMemIniBoolPersister.Create(IniFile, Section, Ident);
 
-		v.StoreToPersister();
-		// ini file stores 0 or 1
-		ActualValue := IniFile.ReadBool(Section, Ident, False);
+	v.StoreToPersister();
+	// ini file stores 0 or 1
+	ActualValue := IniFile.ReadBool(Section, Ident, False);
 
-		Assert.AreEqual(ExpectedValue, ActualValue, Format('Expected %s should be equal to %s',
-			[BoolToStr(ExpectedValue), BoolToStr(ActualValue)]));
-	finally
-		IniFile.Free;
-	end;
+	Assert.AreEqual(ExpectedValue, ActualValue, Format('Expected %s should be equal to %s',
+		[BoolToStr(ExpectedValue), BoolToStr(ActualValue)]));
+
 end;
 
 procedure TSettingVariantTest.TestWriteToMemIniArray();
 var
 	v : ISettingVariant<TArrayEx<string>>;
-	IniFile : TMemIniFile;
 	Section : string;
 	ExpectedValue, ActualValue : string;
 begin
@@ -166,8 +171,6 @@ begin
 	var
 	varr := TArrayEx<string>.Create(arr);
 	v := TArraySetting.Create(varr);
-	IniFile := TMemIniFile.Create('');
-	try
 		Section := 'TestSection';
 
 		v.Persister := TMemIniStrArrayPersister.Create(IniFile, Section);
@@ -179,9 +182,6 @@ begin
 			Assert.AreEqual(ExpectedValue, ActualValue, Format('Expected %s should be equal to %s', [ExpectedValue, ActualValue]));
 		end;
 
-	finally
-		IniFile.Free;
-	end;
 end;
 
 procedure TSettingVariantTest.TestCopy();
@@ -263,7 +263,8 @@ procedure TSettingVariantTest.TestCopyStrArraySetting;
 var
 	v, v2 : IArraySetting;
 begin
-	var a := ['one', 'two', 'three'];
+	var
+	a := ['one', 'two', 'three'];
 	v := TArraySetting.Create(a);
 	v2 := TArraySetting.Create();
 
@@ -272,15 +273,19 @@ begin
 	Assert.IsTrue(v.Equals(v2), 'Settings should be equal after copy');
 end;
 
-procedure TSettingVariantTest.TestIsEmpty();
+procedure TSettingVariantTest.TestStatus();
 var
 	v : ISettingVariant<integer>;
 begin
 	v := TSettingVariant<integer>.Create(0);
-	Assert.IsTrue(v.IsEmpty, 'Expected setting to be empty');
+	Assert.IsTrue(v.State = ssInitialized, 'Expected setting state ssInitialized');
 
 	v.Value := 42;
-	Assert.IsFalse(v.IsEmpty, 'Expected setting to be not empty');
+	Assert.IsTrue(v.State = ssModified, 'Expected setting state ssModified');
+
+	v.Persister := TMemIniIntegerPersister.Create(IniFile, 'TestSection', 'TestKey');
+	v.StoreToPersister();
+	Assert.IsTrue(v.State = ssStored, 'Expected setting state ssStored');
 end;
 
 initialization

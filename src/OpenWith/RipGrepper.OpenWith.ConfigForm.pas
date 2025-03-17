@@ -338,6 +338,7 @@ begin
 			{ } item.Caption, // caption
 			{ } sCmd, // command line
 			{ } item.SubItems[IDX_DESCRIPTION]]); // descr
+
 		FOpenWithSettings.Command[i] := settings;
 
 		dbgMsg.Msg(Format('%s', [FOpenWithSettings.Command[i]]));
@@ -348,7 +349,7 @@ begin
 		{ } FOpenWithSettings.PersisterFactory);
 
 	// inherited WriteSettings; it's not eonugh
-	FOpenWithSettings.ForceWriteToIni; // save always
+	FOpenWithSettings.ForceUpdateFile; // save always
 end;
 
 procedure TOpenWithConfigForm.lvCommandsDblClick(Sender : TObject);

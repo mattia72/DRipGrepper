@@ -24,7 +24,7 @@ type
 			function GetCommands() : TArray<string>;
 			procedure Init; override;
 			procedure ReadIni; override; // TODO: use persistable base
-			procedure ForceWriteToIni;
+			procedure ForceUpdateFile();
 			function ToString : string; override;
 			property Command[index : Integer] : string read GetCommand write SetCommand;
 			property CommandListSetting: IArraySetting read FCommandListSetting;
@@ -69,6 +69,7 @@ end;
 procedure TOpenWithSettings.Init;
 begin
 	FCommandListSetting := TArraySetting.Create();
+    FCommandListSetting.SaveBehaviour := ssbSaveEvenIfNotModified;
 
 	for var i : integer := 0 to Length(DEFAULT_EDITORS) - 1 do begin
 		Command[i] := DEFAULT_EDITORS[i];
@@ -107,21 +108,18 @@ begin
 	end else begin
 		arrCmds := FCommandListSetting.Value;
 		arrCmds.Add(Value);
-
 		FCommandListSetting.Value := arrCmds;
-
-		FIsModified := True;
+ 		FIsModified := True;
 	end;
 end;
 
-procedure TOpenWithSettings.ForceWriteToIni;
+procedure TOpenWithSettings.ForceUpdateFile();
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.ForceWriteToIni');
-	var
-	dbgArr := TSettingsDictionary.DictToStringArray(SettingsDict());
-
-	UpdateFile(OPEN_WITH_SETTINGS, True, True);
+	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.ForceUpdateFile');
+//  var
+//  dbgArr := TSettingsDictionary.DictToStringArray(SettingsDict());
+ 	UpdateFile(OPEN_WITH_SETTINGS, True, True);
 end;
 
 function TOpenWithSettings.ToString : string;

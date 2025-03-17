@@ -31,7 +31,7 @@ type
 		function GetStrArrayPersister(const _sIniSection, _sKey : string) : IFilePersister<TArrayEx<string>>;
 		function ToLogString() : string;
 
-		function GetFilePath() : string;
+ 		function GetFilePath() : string;
 		procedure SetFilePath(const Value : string);
 		property FilePath : string read GetFilePath write SetFilePath;
 

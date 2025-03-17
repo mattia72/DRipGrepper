@@ -59,9 +59,11 @@ var
 	settingVal : string;
 	i : integer;
 begin
-	FSettings.UpdateFile();
+	FSettings.OpenWithSettings.ForceUpdateFile;
 	i := 0;
-	for settingVal in FSettings.OpenWithSettings.GetCommands do begin
+	var
+	arr := FSettings.OpenWithSettings.GetCommands;
+	for settingVal in arr do begin
 		var
 		key := Format('%s%d', [OPENWITH_COMMAND_KEY, i]);
 		iniVal := FFactory.GetStringPersister(FSettings.OpenWithSettings.IniSectionName, key).LoadFromPersister;

@@ -14,10 +14,11 @@ type
 
 	ESettingsException = class(Exception);
 
-	TSettingState = (ssNotSet, ssModified);
+	TSettingState = (ssNotSet, ssInitialized, ssModified, ssStored, ssSaved);
+	TSettingSaveBehaviour = (ssbNotSet, ssbSaveIfModified, ssbSaveEvenIfNotModified);
 	TSettingType = (stNotSet, stString, stInteger, stBool, stStrArray);
 
-    // forward declarations...
+	// forward declarations...
 	TSettingVariant<T> = class;
 	ISettingVariant<T> = interface;
 
@@ -36,7 +37,7 @@ type
 		function Equals(_other : ISetting) : Boolean;
 
 		procedure Copy(_other : ISetting);
-		function CompareTo(Value : ISetting): Integer;
+		function CompareTo(Value : ISetting) : Integer;
 
 		function GetState() : TSettingState;
 		procedure SetState(const Value : TSettingState);
@@ -55,10 +56,12 @@ type
 		function AsInteger() : Integer;
 		function AsBool() : Boolean;
 		function AsArray() : TArrayEx<string>;
+		function GetSaveBehaviour() : TSettingSaveBehaviour;
+		procedure SetSaveBehaviour(const Value : TSettingSaveBehaviour);
 
-		// property Persister : IPersister read GetPersister write SetPersister;
 		property State : TSettingState read GetState write SetState;
 		property SettingType : TSettingType read GetType;
+		property SaveBehaviour : TSettingSaveBehaviour read GetSaveBehaviour write SetSaveBehaviour;
 
 	end;
 
@@ -67,7 +70,7 @@ type
 		function Equals(_other : ISettingVariant<T>) : Boolean;
 		function IsEmpty : Boolean;
 
-		function CompareTo(Value : ISettingVariant<T>): Integer;
+		function CompareTo(Value : ISettingVariant<T>) : Integer;
 		procedure Copy(_other : ISettingVariant<T>);
 
 		function GetValue : T;
@@ -82,6 +85,7 @@ type
 
 	TSetting = class(TInterfacedObject, ISetting)
 		private
+			FSaveBehaviour : TSettingSaveBehaviour;
 			FState : TSettingState;
 
 			function GetState() : TSettingState;
@@ -91,6 +95,7 @@ type
 			function GetType() : TSettingType; virtual; abstract;
 
 		public
+			constructor Create(); overload;
 			procedure LoadFromPersister(); virtual; abstract;
 			procedure StoreToPersister(); virtual; abstract;
 
@@ -105,11 +110,15 @@ type
 			function AsArray() : TArrayEx<string>;
 			function CompareTo(Value : ISetting) : Integer;
 			procedure Copy(_other : ISetting);
-			class procedure CopySettingValues(_from, _to: ISetting);
+			class procedure CopySettingValues(_from, _to : ISetting);
 
 			function Equals(_other : ISetting) : Boolean; reintroduce;
+			function GetSaveBehaviour() : TSettingSaveBehaviour;
+			procedure SetSaveBehaviour(const Value : TSettingSaveBehaviour);
 
 			property State : TSettingState read GetState write SetState;
+			property SaveBehaviour : TSettingSaveBehaviour read GetSaveBehaviour write SetSaveBehaviour;
+
 			property SettingType : TSettingType read GetType;
 	end;
 
@@ -157,16 +166,16 @@ type
 		private
 			function GetCount() : Integer;
 			function GetItem(Index : Integer) : string;
-			function GetSafeItem(index : Integer): string;
+			function GetSafeItem(index : Integer) : string;
 			procedure SetItem(Index : Integer; const Value : string);
-			procedure SetSafeItem(index : Integer; const Value: string);
+			procedure SetSafeItem(index : Integer; const Value : string);
 
 		public
 			function AddIfNotContains(const AItem : string) : Integer;
 			function GetType() : TSettingType; override;
 			property Count : Integer read GetCount;
 			property Item[index : Integer] : string read GetItem write SetItem; default;
-			property SafeItem[index : Integer]: string read GetSafeItem write SetSafeItem;
+			property SafeItem[index : Integer] : string read GetSafeItem write SetSafeItem;
 	end;
 
 implementation
@@ -176,8 +185,9 @@ uses
 
 constructor TSettingVariant<T>.Create(const _value : T);
 begin
+    inherited Create();
 	FValue := _value;
-	FState := ssNotSet;
+	FState := ssInitialized;
 end;
 
 function TSettingVariant<T>.CompareTo(Value : ISettingVariant<T>) : Integer;
@@ -244,11 +254,17 @@ begin
 	end;
 
 	Persister.StoreToPersister(Value);
+	State := ssStored;
 end;
 
 procedure TSettingVariant<T>.SetPersister(const Value : IFilePersister<T>);
 begin
 	FPersister := Value;
+end;
+
+constructor TSetting.Create();
+begin
+     FSaveBehaviour := ssbSaveIfModified;
 end;
 
 function TSetting.AsArray() : TArrayEx<string>;
@@ -321,7 +337,7 @@ begin
 	FState := _other.State;
 end;
 
-class procedure TSetting.CopySettingValues(_from, _to: ISetting);
+class procedure TSetting.CopySettingValues(_from, _to : ISetting);
 begin
 	case _from.SettingType of
 		stString :
@@ -342,9 +358,19 @@ begin
 	Result := (FState = _other.State);
 end;
 
+function TSetting.GetSaveBehaviour() : TSettingSaveBehaviour;
+begin
+	Result := FSaveBehaviour;
+end;
+
 function TSetting.GetState() : TSettingState;
 begin
 	Result := FState;
+end;
+
+procedure TSetting.SetSaveBehaviour(const Value : TSettingSaveBehaviour);
+begin
+	FSaveBehaviour := Value;
 end;
 
 procedure TSetting.SetState(const Value : TSettingState);
@@ -371,7 +397,7 @@ begin
 	Result := self.Value[index];
 end;
 
-function TArraySetting.GetSafeItem(index : Integer): string;
+function TArraySetting.GetSafeItem(index : Integer) : string;
 begin
 	Result := self.SafeItem[index];
 end;
@@ -386,7 +412,7 @@ begin
 	self.Value[index] := Value;
 end;
 
-procedure TArraySetting.SetSafeItem(index : Integer; const Value: string);
+procedure TArraySetting.SetSafeItem(index : Integer; const Value : string);
 begin
 	self.Value.SafeItem[index] := Value;
 end;
