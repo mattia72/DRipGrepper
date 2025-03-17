@@ -82,9 +82,9 @@ type
 
 			property SettingsDict : IShared<TSettingsDictionary> read FSettingsDict write FSettingsDict;
 			destructor Destroy; override;
-			function AddChildSettings(_settings : TPersistableSettings) : TPersistableSettings;
+			function AddChildSettings(const _settings : TPersistableSettings) : TPersistableSettings;
 			class procedure CallUpdateFileOnFactory(const _factory : IPersisterFactory; const _dict : TSettingsDictionary);
-			function RemoveChildSettings(_settings : TPersistableSettings) : Boolean;
+			function RemoveChildSettings(const _settings : TPersistableSettings) : Boolean;
 			procedure CopySettingsDictSection(const _from : TPersistableSettings; const _copyAllSections : Boolean = False;
 				const _bForceCopySettingObj : Boolean = False); overload;
 			/// <summary>TPersistableSettings.ReadIni
@@ -176,7 +176,7 @@ begin
 	inherited;
 end;
 
-function TPersistableSettings.AddChildSettings(_settings : TPersistableSettings) : TPersistableSettings;
+function TPersistableSettings.AddChildSettings(const _settings : TPersistableSettings): TPersistableSettings;
 begin
 	FChildren.Add(_settings);
 	_settings.FOwner := self;
@@ -184,7 +184,7 @@ begin
 	Result := _settings;
 end;
 
-function TPersistableSettings.RemoveChildSettings(_settings : TPersistableSettings) : Boolean;
+function TPersistableSettings.RemoveChildSettings(const _settings : TPersistableSettings): Boolean;
 begin
 	Result := FChildren.Remove(_settings);
 	if not Result then begin

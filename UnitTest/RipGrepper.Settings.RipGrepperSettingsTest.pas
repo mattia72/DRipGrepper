@@ -10,7 +10,8 @@ uses
 	System.Classes,
 	RipGrepper.Helper.MemIniFile,
 	RipGrepper.Settings.FilePersister,
-	ArrayEx;
+	ArrayEx,
+	Spring;
 
 const
 	NOTEXISTS = '<not exists>';
@@ -30,7 +31,7 @@ type
 		protected
 
 			FFactory : IPersisterFactory;
-			FSettings : TRipGrepperSettings;
+			FSettings : IShared<TRipGrepperSettings>;
 			FTextHist : TArrayEx<string>;
 
 		public
@@ -74,6 +75,8 @@ type
 			[Test]
 			procedure ExtensionSettingsTest;
 			[Test]
+			procedure InitialSettingsShouldLoadDefaultNoodeLooks;
+			[Test]
 			procedure UpdateHistInIniTest;
 	end;
 
@@ -92,12 +95,17 @@ uses
 	RipGrepper.Settings.SettingsDictionary;
 
 procedure TRipGrepperSettingsTest.InitialSettingsShouldLoadDefaults;
+var
+	s : IShared<TRipGrepperSettings>;
+	sfs : TSearchFormSettings;
 begin
-	Assert.AreEqual(False, FSettings.SearchFormSettings.Pretty, 'Pretty should be False');
-	Assert.AreEqual(False, FSettings.SearchFormSettings.Hidden, 'Hidden should be False');
-	Assert.AreEqual(False, FSettings.SearchFormSettings.NoIgnore, 'NoIgnore should be False');
-	Assert.AreEqual(0, FSettings.SearchFormSettings.Context, 'Context should be 0');
-	Assert.AreEqual('', FSettings.SearchFormSettings.Encoding, 'Encoding should be ''''');
+	s := Shared.Make<TRipGrepperSettings>(TRipGrepperSettings.Create());
+	sfs := s().SearchFormSettings;
+	Assert.AreEqual(False, sfs.Pretty, 'Pretty should be False');
+	Assert.AreEqual(False, sfs.Hidden, 'Hidden should be False');
+	Assert.AreEqual(False, sfs.NoIgnore, 'NoIgnore should be False');
+	Assert.AreEqual(0, sfs.Context, 'Context should be 0');
+	Assert.AreEqual('', sfs.Encoding, 'Encoding should be ''''');
 end;
 
 procedure TRipGrepperSettingsTest.AfterCopyValuesValuesShouldBeEqual;
@@ -256,6 +264,20 @@ begin
 	Assert.AreEqual(settingVal.Trim(['[', ']']), iniVal.Trim(['[', ']']), extSetting.KEY_SHORTCUT_OPENWITH + ' should be equal');
 end;
 
+procedure TRipGrepperSettingsTest.InitialSettingsShouldLoadDefaultNoodeLooks;
+var
+	s : IShared<TRipGrepperSettings>;
+	nls : TNodeLookSettings;
+begin
+	s := Shared.Make<TRipGrepperSettings>(TRipGrepperSettings.Create());
+	nls := s().NodeLookSettings;
+	Assert.AreEqual(nls.AlternateRowColors, False, 'AlternateRowColors should be False');
+	Assert.AreEqual(nls.ShowFileIcon, False, 'ShowFileIcon should be False');
+	Assert.AreEqual(nls.IndentLines, False, 'NoIgnore should be False');
+	Assert.AreEqual(nls.ShowRelativePath, False, 'IndentLines should be False');
+	Assert.AreEqual(nls.ExpandNodes, False, 'ExpandNodes should be False');
+end;
+
 procedure TRipGrepperSettingsTest.UpdateFileTest();
 begin
 	SetSettingValues;
@@ -331,18 +353,17 @@ end;
 
 procedure TRipGrepperSettingsTestBase.Setup();
 begin
-	FSettings := TRipGrepperSettings.Create();
+	FSettings := Shared.Make<TRipGrepperSettings>(TRipGrepperSettings.Create());
 	FFactory := FSettings.PersisterFactory;
 end;
 
 procedure TRipGrepperSettingsTestBase.TearDown();
 begin
-	FSettings.Free; // instance will be free
+	FSettings := nil;
 	TFileUtils.EmptyFile(ChangeFileExt(Application.ExeName, '.ini'));
 end;
 
-procedure
-	TInnerSearchFormSettingsTest.EncodingChangeAndUpdateFile();
+procedure TInnerSearchFormSettingsTest.EncodingChangeAndUpdateFile();
 var
 	settingVal, iniVal : string;
 begin
@@ -356,8 +377,7 @@ begin
 	Assert.AreEqual(settingVal, iniVal, 'Encoding should be equal');
 end;
 
-procedure
-	TInnerSearchFormSettingsTest.EncodingChangeChangesDictionary();
+procedure TInnerSearchFormSettingsTest.EncodingChangeChangesDictionary();
 var
 	settingVal, dictVal : string;
 begin
@@ -372,8 +392,7 @@ begin
 	Assert.AreEqual(settingVal, dictVal, 'Encoding should be equal');
 end;
 
-procedure
-	TInnerSearchFormSettingsTest.ContextChangeChangesDictionary();
+procedure TInnerSearchFormSettingsTest.ContextChangeChangesDictionary();
 var
 	settingVal, dictVal : string;
 begin
@@ -391,8 +410,8 @@ end;
 procedure TInnerSearchFormSettingsTest.UpdateShortCutsIniTest();
 begin
 	SetSettingValues; // after config form close is tested here
-//  FSettings.SearchFormSettings.ExtensionSettings.UpdateFile(
-//      { } FSettings.SearchFormSettings.ExtensionSettings.INI_SECTION);
+	// FSettings.SearchFormSettings.ExtensionSettings.UpdateFile(
+	// { } FSettings.SearchFormSettings.ExtensionSettings.INI_SECTION);
 
 	FSettings.UpdateFile();
 
