@@ -277,9 +277,8 @@ begin
 	owSettings.TestFile := MainFrame.GetOpenWithParamsFromSelected();
 	dbgMsg.Msg('TestFile: ' + owSettings.TestFile.GetRelativePath());
 
-	Settings.StoreToPersister;
 	// write ini file content
-	Settings.UpdateFile;
+	Settings.UpdateFile('', True);
 	var
 	owForm := TConfigForm.Create(Settings);
 	try
@@ -289,7 +288,7 @@ begin
 	end;
 
 	// write ini file content after close config form
-	Settings.UpdateFile;
+	Settings.UpdateFile('', True);
 
 	owSettings.TestFile := default (TOpenWithParams);
 	MainFrame.ReloadColorSettings;

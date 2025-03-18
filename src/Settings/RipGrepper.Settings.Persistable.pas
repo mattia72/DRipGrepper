@@ -22,10 +22,10 @@ type
 	IIniPersistable = interface
 		['{A841C46D-56AF-4391-AB88-4C9496589FF4}']
 		function GetIniSectionName() : string;
-		procedure Init;
-		procedure ReadIni;
+		procedure Init();
+		procedure ReadIni();
 		procedure LoadFromDict();
-		procedure StoreToPersister;
+		procedure StoreToPersister();
 	end;
 
 	TPersistableSettings = class(TNoRefCountObject, IIniPersistable)
@@ -50,6 +50,7 @@ type
 			procedure SetIniSectionName(const Value : string);
 			procedure AddToOwnerSettings(const _section : string = ''; const _bForceWriteIni : Boolean = False;
 				const _bClearSection : Boolean = False);
+			function GetRootOwner: TPersistableSettings;
 
 		protected
 			FSettingsDict : IShared<TSettingsDictionary>;
@@ -402,6 +403,22 @@ begin
 			_dict.SetState(ssStored, ssSaved);
 		end;
 	end;
+end;
+
+function TPersistableSettings.GetRootOwner: TPersistableSettings;
+var
+	rootOwner: TPersistableSettings;
+begin
+	rootOwner := FOwner;
+
+	while True do begin
+		if Assigned(rootOwner.FOwner) then begin
+			rootOwner := rootOwner.FOwner;
+		end else begin
+			break;
+		end;
+	end;
+	Result := rootOwner;
 end;
 
 procedure TPersistableSettings.LoadFromDict();

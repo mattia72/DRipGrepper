@@ -63,7 +63,7 @@ type
 
 		public
 			[Test]
-			procedure InitialSettingsShouldLoadDefaults;
+			procedure InitialSettingsShouldLoadSearchFormSettingsDefaults;
 			[Test]
 			procedure AfterCopyValuesValuesShouldBeEqual;
 			[Test]
@@ -94,7 +94,7 @@ uses
 	System.StrUtils,
 	RipGrepper.Settings.SettingsDictionary;
 
-procedure TRipGrepperSettingsTest.InitialSettingsShouldLoadDefaults;
+procedure TRipGrepperSettingsTest.InitialSettingsShouldLoadSearchFormSettingsDefaults;
 var
 	s : IShared<TRipGrepperSettings>;
 	sfs : TSearchFormSettings;
