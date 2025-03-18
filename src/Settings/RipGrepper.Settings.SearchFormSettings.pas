@@ -128,12 +128,12 @@ end;
 
 function TSearchFormSettings.GetExtensionSettings : TRipGrepperExtensionSettings;
 begin
-	if not FExtensionSettings.IsAlreadyRead then begin
-		var
-		dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.GetExtensionSettings');
-
-		FExtensionSettings.ReadIni;
-	end;
+//  if not FExtensionSettings.IsAlreadyRead then begin
+//      var
+//      dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.GetExtensionSettings');
+//
+//      FExtensionSettings.ReadIni;
+//  end;
 	Result := FExtensionSettings;
 end;
 

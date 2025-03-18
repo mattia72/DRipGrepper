@@ -249,9 +249,9 @@ end;
 
 function TRipGrepperSettings.GetSearchFormSettings : TSearchFormSettings;
 begin
-	if not FSearchFormSettings.IsAlreadyRead then begin
-		FSearchFormSettings.ReadIni;
-	end;
+	// if not FSearchFormSettings.IsAlreadyRead then begin
+	// 	FSearchFormSettings.ReadIni;
+	// end;
 	Result := FSearchFormSettings;
 end;
 

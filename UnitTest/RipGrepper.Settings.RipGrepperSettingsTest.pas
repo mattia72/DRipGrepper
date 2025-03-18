@@ -77,6 +77,8 @@ type
 			[Test]
 			procedure InitialSettingsShouldLoadDefaultNoodeLooks;
 			[Test]
+			procedure InitialSettingsShouldLoadDefaultFontColors();
+			[Test]
 			procedure UpdateHistInIniTest;
 	end;
 
@@ -92,7 +94,9 @@ uses
 	RipGrepper.Settings.NodeLookSettings,
 	RipGrepper.Tools.FileUtils,
 	System.StrUtils,
-	RipGrepper.Settings.SettingsDictionary;
+	RipGrepper.Settings.SettingsDictionary,
+	RipGrepper.Settings.FontColors,
+	RipGrepper.Helper.UI.DarkMode;
 
 procedure TRipGrepperSettingsTest.InitialSettingsShouldLoadSearchFormSettingsDefaults;
 var
@@ -101,6 +105,7 @@ var
 begin
 	s := Shared.Make<TRipGrepperSettings>(TRipGrepperSettings.Create());
 	sfs := s().SearchFormSettings;
+//  sfs.Init;
 	Assert.AreEqual(False, sfs.Pretty, 'Pretty should be False');
 	Assert.AreEqual(False, sfs.Hidden, 'Hidden should be False');
 	Assert.AreEqual(False, sfs.NoIgnore, 'NoIgnore should be False');
@@ -276,6 +281,33 @@ begin
 	Assert.AreEqual(nls.IndentLines, False, 'NoIgnore should be False');
 	Assert.AreEqual(nls.ShowRelativePath, False, 'IndentLines should be False');
 	Assert.AreEqual(nls.ExpandNodes, False, 'ExpandNodes should be False');
+end;
+
+procedure TRipGrepperSettingsTest.InitialSettingsShouldLoadDefaultFontColors();
+var
+	s : IShared<TRipGrepperSettings>;
+	cs : TColorSettings;
+	df : IShared<TDefaultFontColors>;
+begin
+	s := Shared.Make<TRipGrepperSettings>(TRipGrepperSettings.Create());
+	cs := s.FontColorSettings;
+
+	df := Shared.Make<TDefaultFontColors>(TDefaultFontColors.Create(
+		{ } TDarkModeHelper.GetActualThemeMode));
+
+	Assert.AreEqual(cs.FontColors.AlternateRow.ToString, df.TREEVIEW_ALTERNATE_ROW.ToString, 'AlternateRowColors should be equal');
+	Assert.AreEqual(cs.FontColors.ColNumText.ToString, df.TREEVIEW_COL_NUM_TEXT.ToString, 'ColNumTextColor should be equal');
+	Assert.AreEqual(cs.FontColors.CounterText.ToString, df.TREEVIEW_STAT_TEXT.ToString, 'CounterTextColor should be equal');
+	Assert.AreEqual(cs.FontColors.ErrorText.ToString, df.TREEVIEW_ERROR_TEXT.ToString, 'ErrorTextColor should be equal');
+	Assert.AreEqual(cs.FontColors.FileText.ToString, df.TREEVIEW_FILE_TEXT.ToString, 'FileTextColor should be equal');
+	Assert.AreEqual(cs.FontColors.LineNumText.ToString, df.TREEVIEW_LINE_NUM_TEXT.ToString, 'LineNumTextColor should be equal');
+	Assert.AreEqual(cs.FontColors.MatchText.ToString, df.TREEVIEW_MATCH_TEXT.ToString, 'MatchTextColor should be equal');
+	Assert.AreEqual(cs.FontColors.NormalText.ToString, df.TREEVIEW_NORMAL_TEXT.ToString, 'NormalTextColor should be equal');
+	Assert.AreEqual(cs.FontColors.ReplaceText.ToString, df.TREEVIEW_REPLACE_TEXT.ToString, 'ReplaceTextColor should be equal');
+	Assert.AreEqual(cs.FontColors.ReplaceTextInHistory.ToString, df.HIST_TREEVIEW_REPLACE_TEXT.ToString, 'ReplaceTextInHistoryColor should be equal');
+	Assert.AreEqual(cs.FontColors.ReplacedText.ToString, df.TREEVIEW_REPLACED_TEXT.ToString, 'ReplacedTextColor should be equal');
+	Assert.AreEqual(cs.FontColors.SearchTextInHistory.ToString, df.HIST_TREEVIEW_SEARCH_TEXT.ToString, 'SearchTextColor should be equal');
+	Assert.AreEqual(cs.FontColors.StatisticsText.ToString, df.TREEVIEW_STATS_TEXT.ToString, 'StatisticsTextColor should be equal');
 end;
 
 procedure TRipGrepperSettingsTest.UpdateFileTest();

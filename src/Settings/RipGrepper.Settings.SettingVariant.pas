@@ -15,7 +15,10 @@ type
 	ESettingsException = class(Exception);
 
 	TSettingState = (ssNotSet, ssInitialized, ssModified, ssStored, ssSaved);
-	TSettingSaveBehaviour = (ssbNotSet, ssbSaveIfModified, ssbSaveEvenIfNotModified);
+	TSettingSaveBehaviour = (ssbNotSet,
+		{ } ssbSaveIfModified,
+		{ } ssbSaveAfterChangeImmediately,
+        { } ssbSaveEvenIfNotModified);
 	TSettingType = (stNotSet, stString, stInteger, stBool, stStrArray);
 
 	// forward declarations...
@@ -185,7 +188,7 @@ uses
 
 constructor TSettingVariant<T>.Create(const _value : T);
 begin
-    inherited Create();
+	inherited Create();
 	FValue := _value;
 	FState := ssInitialized;
 end;
@@ -264,7 +267,7 @@ end;
 
 constructor TSetting.Create();
 begin
-     FSaveBehaviour := ssbSaveIfModified;
+	FSaveBehaviour := ssbSaveIfModified;
 end;
 
 function TSetting.AsArray() : TArrayEx<string>;

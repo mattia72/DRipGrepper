@@ -201,20 +201,20 @@ begin
 	var
 	df := TDefaultFontColors.Create(TDarkModeHelper.GetActualThemeMode);
 	try
-		FFontColors.MatchText.FromString(df.TREEVIEW_MATCH_TEXT.ToString());
-		FFontColors.ReplaceText.FromString(df.TREEVIEW_REPLACE_TEXT.ToString());
-		FFontColors.ReplacedText.FromString(df.TREEVIEW_REPLACED_TEXT.ToString());
-		FFontColors.SearchTextInHistory.FromString(df.HIST_TREEVIEW_SEARCH_TEXT.ToString());
-		FFontColors.ReplaceTextInHistory.FromString(df.HIST_TREEVIEW_REPLACE_TEXT.ToString());
-		FFontColors.ReplacedTextInHistory.FromString(df.HIST_TREEVIEW_REPLACED_TEXT.ToString());
-		FFontColors.NormalText.FromString(df.TREEVIEW_NORMAL_TEXT.ToString());
+		FFontColors.AlternateRow.FromString(df.TREEVIEW_ALTERNATE_ROW.ToString());
+		FFontColors.ColNumText.FromString(df.TREEVIEW_COL_NUM_TEXT.ToString());
 		FFontColors.CounterText.FromString(df.TREEVIEW_STAT_TEXT.ToString());
 		FFontColors.ErrorText.FromString(df.TREEVIEW_ERROR_TEXT.ToString());
-		FFontColors.StatisticsText.FromString(df.TREEVIEW_STATS_TEXT.ToString());
 		FFontColors.FileText.FromString(df.TREEVIEW_FILE_TEXT.ToString());
 		FFontColors.LineNumText.FromString(df.TREEVIEW_LINE_NUM_TEXT.ToString());
-		FFontColors.ColNumText.FromString(df.TREEVIEW_COL_NUM_TEXT.ToString());
-		FFontColors.AlternateRow.FromString(df.TREEVIEW_ALTERNATE_ROW.ToString());
+		FFontColors.MatchText.FromString(df.TREEVIEW_MATCH_TEXT.ToString());
+		FFontColors.NormalText.FromString(df.TREEVIEW_NORMAL_TEXT.ToString());
+		FFontColors.ReplaceText.FromString(df.TREEVIEW_REPLACE_TEXT.ToString());
+		FFontColors.ReplaceTextInHistory.FromString(df.HIST_TREEVIEW_REPLACE_TEXT.ToString());
+		FFontColors.ReplacedText.FromString(df.TREEVIEW_REPLACED_TEXT.ToString());
+		FFontColors.ReplacedTextInHistory.FromString(df.HIST_TREEVIEW_REPLACED_TEXT.ToString());
+		FFontColors.SearchTextInHistory.FromString(df.HIST_TREEVIEW_SEARCH_TEXT.ToString());
+		FFontColors.StatisticsText.FromString(df.TREEVIEW_STATS_TEXT.ToString());
 	finally
 		df.Free;
 	end;
