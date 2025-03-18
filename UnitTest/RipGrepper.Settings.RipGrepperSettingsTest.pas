@@ -29,6 +29,9 @@ type
 			procedure SetSettingValues();
 
 		protected
+			FboolPers : IFilePersister<Boolean>;
+			FintPers : IFilePersister<integer>;
+			FstrPers : IFilePersister<string>;
 
 			FFactory : IPersisterFactory;
 			FSettings : IShared<TRipGrepperSettings>;
@@ -56,9 +59,8 @@ type
 
 	[TestFixture]
 	TRipGrepperSettingsTest = class(TRipGrepperSettingsTestBase)
-
-		const
 		private
+
 			function ReadBoolIniAsString(const _section, _key : string) : string;
 
 		public
@@ -78,6 +80,8 @@ type
 			procedure InitialSettingsShouldLoadDefaultNoodeLooks;
 			[Test]
 			procedure InitialSettingsShouldLoadDefaultFontColors();
+			[Test]
+			procedure UpdateFileAfterConfigTest;
 			[Test]
 			procedure UpdateHistInIniTest;
 	end;
@@ -105,7 +109,7 @@ var
 begin
 	s := Shared.Make<TRipGrepperSettings>(TRipGrepperSettings.Create());
 	sfs := s().SearchFormSettings;
-//  sfs.Init;
+	// sfs.Init;
 	Assert.AreEqual(False, sfs.Pretty, 'Pretty should be False');
 	Assert.AreEqual(False, sfs.Hidden, 'Hidden should be False');
 	Assert.AreEqual(False, sfs.NoIgnore, 'NoIgnore should be False');
@@ -304,7 +308,8 @@ begin
 	Assert.AreEqual(cs.FontColors.MatchText.ToString, df.TREEVIEW_MATCH_TEXT.ToString, 'MatchTextColor should be equal');
 	Assert.AreEqual(cs.FontColors.NormalText.ToString, df.TREEVIEW_NORMAL_TEXT.ToString, 'NormalTextColor should be equal');
 	Assert.AreEqual(cs.FontColors.ReplaceText.ToString, df.TREEVIEW_REPLACE_TEXT.ToString, 'ReplaceTextColor should be equal');
-	Assert.AreEqual(cs.FontColors.ReplaceTextInHistory.ToString, df.HIST_TREEVIEW_REPLACE_TEXT.ToString, 'ReplaceTextInHistoryColor should be equal');
+	Assert.AreEqual(cs.FontColors.ReplaceTextInHistory.ToString, df.HIST_TREEVIEW_REPLACE_TEXT.ToString,
+		'ReplaceTextInHistoryColor should be equal');
 	Assert.AreEqual(cs.FontColors.ReplacedText.ToString, df.TREEVIEW_REPLACED_TEXT.ToString, 'ReplacedTextColor should be equal');
 	Assert.AreEqual(cs.FontColors.SearchTextInHistory.ToString, df.HIST_TREEVIEW_SEARCH_TEXT.ToString, 'SearchTextColor should be equal');
 	Assert.AreEqual(cs.FontColors.StatisticsText.ToString, df.TREEVIEW_STATS_TEXT.ToString, 'StatisticsTextColor should be equal');
@@ -338,6 +343,29 @@ begin
 	Result := BoolToStr(FFactory.GetBoolPersister(_section, _key).LoadFromPersister, True);
 end;
 
+procedure TRipGrepperSettingsTest.UpdateFileAfterConfigTest;
+begin
+	SetSettingValues;
+	FSettings.UpdateFile(); // config form close is tested here?
+	FSettings.ReadIni;
+	var
+	iniSection := FSettings.SearchFormSettings.IniSectionName;
+
+	Assert.AreEqual('none', FStrPers.LoadSectionKey(iniSection, 'Encoding'));
+	Assert.AreEqual(1, FIntPers.LoadSectionKey(iniSection, 'Context'));
+	Assert.AreEqual(True, FBoolPers.LoadSectionKey(iniSection, 'Pretty'));
+	Assert.AreEqual(True, FBoolPers.LoadSectionKey(iniSection, 'Hidden'));
+	Assert.AreEqual(True, FBoolPers.LoadSectionKey(iniSection, 'NoIgnore'));
+
+	var
+	extSection := FSettings.SearchFormSettings.ExtensionSettings.IniSectionName;
+	var
+	scIniVal := FFactory.GetStringPersister(extSection, 'OpenWithShortcut').LoadFromPersister;
+	Assert.AreEqual(SC_OPEN_WITH, scIniVal);
+	scIniVal := FFactory.GetStringPersister(extSection, 'SearchSelectedShortcut').LoadFromPersister;
+	Assert.AreEqual(SC_SEARCH, scIniVal);
+end;
+
 procedure TRipGrepperSettingsTest.UpdateHistInIniTest;
 begin
 	SetSettingValues;
@@ -356,6 +384,13 @@ end;
 
 procedure TRipGrepperSettingsTestBase.SetSettingValues();
 begin
+
+	FSettings.AppSettings.ExpertMode := True;
+	FSettings.AppSettings.CopyToClipBoardShell := TShellType.stPowershell;
+	FSettings.AppSettings.ColorTheme := 'Carbon';
+
+	FSettings.FontColorSettings.LoadDefaultColors(EThemeMode.tmLight);
+
 	FSettings.SearchFormSettings.Encoding := 'none';
 	FSettings.SearchFormSettings.Context := 1;
 	FSettings.SearchFormSettings.Pretty := True;
@@ -381,6 +416,10 @@ begin
 
 	FSettings.SearchTextsHistory.Value := FTextHist.Items;
 	FSettings.StoreToPersister;
+
+	FstrPers := FFactory.GetStringPersister();
+	FintPers := FFactory.GetIntegerPersister();
+	FboolPers := FFactory.GetBoolPersister();
 end;
 
 procedure TRipGrepperSettingsTestBase.Setup();

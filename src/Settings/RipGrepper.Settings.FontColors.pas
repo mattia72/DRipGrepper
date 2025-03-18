@@ -136,7 +136,7 @@ type
 			constructor Create(const _Owner : TPersistableSettings);
 			destructor Destroy; override;
 			procedure LoadFromDict(); override;
-			procedure LoadDefaultColors;
+			procedure LoadDefaultColors(const _theme : EThemeMode);
 			procedure ReloadColors;
 			property FontColors : TFontColors read FFontColors write FFontColors;
 	end;
@@ -174,7 +174,7 @@ end;
 
 procedure TColorSettings.Init;
 begin
-	LoadDefaultColors;
+	LoadDefaultColors(TDarkModeHelper.GetActualThemeMode);
 	FFontColorsSettings := TCollections.CreateSortedDictionary<string, ISetting>();
 	FFontColorsSettings.Add('AlternateRow', TStringSetting.Create(FFontColors.AlternateRow.ToString));
 	FFontColorsSettings.Add('ColNumText', TStringSetting.Create(FFontColors.ColNumText.ToString));
@@ -196,10 +196,10 @@ begin
 	end;
 end;
 
-procedure TColorSettings.LoadDefaultColors;
+procedure TColorSettings.LoadDefaultColors(const _theme : EThemeMode);
 begin
 	var
-	df := TDefaultFontColors.Create(TDarkModeHelper.GetActualThemeMode);
+	df := TDefaultFontColors.Create(_theme);
 	try
 		FFontColors.AlternateRow.FromString(df.TREEVIEW_ALTERNATE_ROW.ToString());
 		FFontColors.ColNumText.FromString(df.TREEVIEW_COL_NUM_TEXT.ToString());
@@ -244,7 +244,7 @@ begin
 	// LoadFromDict;
 
 	if FFontColors.IsEmpty then begin
-		LoadDefaultColors;
+		LoadDefaultColors(TDarkModeHelper.GetActualThemeMode);
 	end;
 end;
 

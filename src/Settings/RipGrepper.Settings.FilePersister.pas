@@ -16,6 +16,7 @@ type
 	IFilePersister<T> = interface(IPersister)
 		['{57B16806-F8F5-447E-9AB6-767E553CCB65}']
 		function LoadFromPersister() : T;
+		function LoadSectionKey(const _section, _key : string) : T;
 		procedure StoreToPersister(const _value : T);
 
 		function GetFilePath() : string;
@@ -25,13 +26,14 @@ type
 
 	IPersisterFactory = interface
 		['{86CA585C-A4D5-44E4-A778-9C011291F623}']
-		function GetStringPersister(const _sIniSection, _sKey : string) : IFilePersister<string>;
-		function GetIntegerPersister(const _sIniSection, _sKey : string) : IFilePersister<Integer>;
-		function GetBoolPersister(const _sIniSection, _sKey : string) : IFilePersister<Boolean>;
-		function GetStrArrayPersister(const _sIniSection, _sKey : string) : IFilePersister<TArrayEx<string>>;
+		function GetStringPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<string>;
+		function GetIntegerPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<Integer>;
+		function GetBoolPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<Boolean>;
+		function GetStrArrayPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<TArrayEx<string>>;
+
 		function ToLogString() : string;
 
- 		function GetFilePath() : string;
+		function GetFilePath() : string;
 		procedure SetFilePath(const Value : string);
 		property FilePath : string read GetFilePath write SetFilePath;
 
@@ -58,13 +60,16 @@ type
 			FIniSection : string;
 
 		public
+			constructor Create(_ini : TMemIniFile); overload;
 			property FilePath : string read GetFilePath write SetFilePath;
 	end;
 
 	TMemIniStringPersister = class(TMemIniPersister, IFilePersister<string>)
+		strict private
 		public
-			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
+			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string); overload;
 			function LoadFromPersister() : string;
+			function LoadSectionKey(const _section, _key : string) : string;
 			procedure StoreToPersister(const _value : string);
 	end;
 
@@ -72,6 +77,7 @@ type
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
 			function LoadFromPersister() : integer;
+			function LoadSectionKey(const _section, _key : string) : integer;
 			procedure StoreToPersister(const _value : integer);
 	end;
 
@@ -79,13 +85,18 @@ type
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
 			function LoadFromPersister() : Boolean;
+			function LoadSectionKey(const _section, _key : string) : Boolean;
 			procedure StoreToPersister(const _value : Boolean);
 	end;
 
 	TMemIniStrArrayPersister = class(TMemIniPersister, IFilePersister < TArrayEx < string >> )
+		private
+			function LoadArrayFromSection(const _section, _key : string) : TArrayEx<string>;
+
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection : string);
 			function LoadFromPersister() : TArrayEx<string>;
+			function LoadSectionKey(const _section, _key : string) : TArrayEx<string>;
 			procedure StoreToPersister(const _value : TArrayEx<string>);
 	end;
 
@@ -98,10 +109,19 @@ type
 		public
 			constructor Create(); overload;
 			constructor Create(_ini : IShared<TMemIniFile>); overload;
-			function GetStringPersister(const _sIniSection, _sKey : string) : IFilePersister<string>;
-			function GetIntegerPersister(const _sIniSection, _sKey : string) : IFilePersister<Integer>;
-			function GetBoolPersister(const _sIniSection, _sKey : string) : IFilePersister<Boolean>;
-			function GetStrArrayPersister(const _sIniSection, _sKey : string) : IFilePersister<TArrayEx<string>>;
+
+			function GetStringPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<string>;
+			function GetIntegerPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<Integer>;
+			function GetBoolPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<Boolean>;
+			function GetStrArrayPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<TArrayEx<string>>;
+
+//					function GetStringPersister(const _sIniSection : string) : IFilePersister<string>;
+//		function GetIntegerPersister(const _sIniSection: string) : IFilePersister<Integer>;
+//		function GetBoolPersister(const _sIniSection: string) : IFilePersister<Boolean>;
+//
+
+
+
 			function ToLogString() : string;
 
 			{ IFileHandler }
@@ -146,6 +166,11 @@ begin
 	FIniKey := _sKey;
 end;
 
+function TMemIniStringPersister.LoadSectionKey(const _section, _key : string) : string;
+begin
+	Result := FIniFile.ReadString(_section, _key, '');
+end;
+
 // function TMemIniStringPersister.Make(): IPersister;
 // begin
 // Result := ;
@@ -170,6 +195,11 @@ begin
 	FIniKey := _sKey;
 end;
 
+function TMemIniIntegerPersister.LoadSectionKey(const _section, _key : string) : integer;
+begin
+	Result := FIniFile.ReadInteger(_section, _key, -1);
+end;
+
 function TMemIniBoolPersister.LoadFromPersister() : Boolean;
 begin
 	Result := FIniFile.ReadBool(FIniSection, FIniKey, False);
@@ -189,20 +219,14 @@ begin
 	FIniKey := _sKey;
 end;
 
-function TMemIniStrArrayPersister.LoadFromPersister() : TArrayEx<string>;
-var
-	i : Integer;
-	s : string;
+function TMemIniBoolPersister.LoadSectionKey(const _section, _key : string) : Boolean;
 begin
-	Result := [];
-	i := 1;
-	while True do begin
-		s := FIniFile.ReadString(FIniSection, Format('%s%d', [FIniKey, i]), '');
-		if s = '' then
-			Break;
-		Result.Insert(0, s);
-		Inc(i);
-	end;
+	Result := FIniFile.ReadBool(_section, _key, False);
+end;
+
+function TMemIniStrArrayPersister.LoadFromPersister() : TArrayEx<string>;
+begin
+	Result := LoadArrayFromSection(FIniSection, FIniKey);
 end;
 
 procedure TMemIniStrArrayPersister.StoreToPersister(const _value : TArrayEx<string>);
@@ -228,6 +252,27 @@ begin
 	FIniKey := 'Item_';
 end;
 
+function TMemIniStrArrayPersister.LoadArrayFromSection(const _section, _key : string) : TArrayEx<string>;
+var
+	i : Integer;
+	s : string;
+begin
+	Result := [];
+	i := 1;
+	while True do begin
+		s := FIniFile.ReadString(FIniSection, Format('%s%d', [_key, i]), '');
+		if s = '' then
+			Break;
+		Result.Insert(0, s);
+		Inc(i);
+	end;
+end;
+
+function TMemIniStrArrayPersister.LoadSectionKey(const _section, _key : string) : TArrayEx<string>;
+begin
+	Result := LoadArrayFromSection(_section, _key);
+end;
+
 constructor TIniPersister.Create();
 begin
 	inherited;
@@ -250,7 +295,7 @@ begin
 	FIniFile.EraseSection(_section);
 end;
 
-function TIniPersister.GetBoolPersister(const _sIniSection, _sKey : string) : IFilePersister<Boolean>;
+function TIniPersister.GetBoolPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<Boolean>;
 begin
 	Result := TMemIniBoolPersister.Create(FIniFile, _sIniSection, _sKey);
 end;
@@ -260,18 +305,17 @@ begin
 	Result := FIniFile.FileName;
 end;
 
-function TIniPersister.GetIntegerPersister(const _sIniSection, _sKey : string) : IFilePersister<Integer>;
+function TIniPersister.GetIntegerPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<Integer>;
 begin
 	Result := TMemIniIntegerPersister.Create(FIniFile, _sIniSection, _sKey);
 end;
 
-function TIniPersister.GetStrArrayPersister(const _sIniSection, _sKey : string) : IFilePersister<TArrayEx<string>>;
+function TIniPersister.GetStrArrayPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<TArrayEx<string>>;
 begin
 	Result := TMemIniStrArrayPersister.Create(FIniFile, _sKey); // _sSection is ROOT_DUMMY, key will be section
-
 end;
 
-function TIniPersister.GetStringPersister(const _sIniSection, _sKey : string) : IFilePersister<string>;
+function TIniPersister.GetStringPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<string>;
 begin
 	Result := TMemIniStringPersister.Create(FIniFile, _sIniSection, _sKey);
 end;
@@ -298,6 +342,11 @@ end;
 procedure TIniPersister.UpdateFile();
 begin
 	FIniFile.UpdateFile;
+end;
+
+constructor TMemIniPersister.Create(_ini : TMemIniFile);
+begin
+	FIniFile := _ini;
 end;
 
 function TMemIniPersister.GetFilePath() : string;

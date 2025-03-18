@@ -68,7 +68,7 @@ var
 	sFontAttribs : string;
 	sSettingsName : string;
 begin
-	FFontColorSettings.LoadDefaultColors;
+	FFontColorSettings.LoadDefaultColors(TDarkModeHelper.GetActualThemeMode);
 	FFontColorSettings.StoreToPersister;
 	for var i := 0 to ComponentCount - 1 do begin
 		if Components[i] is TColorSelectorFrame then begin
@@ -93,7 +93,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TColorSettingsForm.ReadSettings');
 	if FFontColorSettings.FontColors.IsEmpty then begin
-		FFontColorSettings.LoadDefaultColors;
+		FFontColorSettings.LoadDefaultColors(TDarkModeHelper.GetActualThemeMode);
 		FFontColorSettings.StoreToPersister();
 	end;
 	FFontColorSettings.LoadFromDict;
