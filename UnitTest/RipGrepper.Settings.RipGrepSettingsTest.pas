@@ -178,7 +178,7 @@ end;
 procedure TRipGrepSettingsTest.UpdateIniReloadTest;
  begin
 	SetSettingValues;
-	FSettings.UpdateFile('', True{_bForceWriteIni});
+	FSettings.UpdateFile(True{_bForceWritePersister});
 	FSettings.FileMasks := '';
 	FSettings.SearchPath := '';
 	FSettings.ReLoad; // fills only settings dict

@@ -48,9 +48,11 @@ type
 			procedure SetChildrenPersister;
 			procedure SetPersisterFactory(const Value : IPersisterFactory);
 			procedure SetIniSectionName(const Value : string);
-			procedure AddToOwnerSettings(const _section : string = ''; const _bForceWriteIni : Boolean = False;
+			procedure AddToOwnerSettings( { } const _bForceWriteIni : Boolean = False; { }
 				const _bClearSection : Boolean = False);
-			function GetRootOwner: TPersistableSettings;
+			function CopySettingsDictToRoot() : TPersistableSettings;
+			function GetRootOwner : TPersistableSettings;
+			procedure StoreDictToPersister(const _section : string = ''; const _bClearSection : Boolean = False);
 
 		protected
 			FSettingsDict : IShared<TSettingsDictionary>;
@@ -106,9 +108,7 @@ type
 			// <summary>
 			// Thread safe write Settings to ini file
 			// </summary>
-			procedure UpdateFile(const _section : string = ''; const _bForceStoreToPersister : Boolean = False;
-				const _bClearSection : Boolean = False);
-			procedure StoreDictToPersister(const _section : string = ''; const _bClearSection : Boolean = False);
+			procedure UpdateFile(const _bForceStoreToPersister : Boolean = False; const _bClearSection : Boolean = False);
 	end;
 
 implementation
@@ -177,7 +177,7 @@ begin
 	inherited;
 end;
 
-function TPersistableSettings.AddChildSettings(const _settings : TPersistableSettings): TPersistableSettings;
+function TPersistableSettings.AddChildSettings(const _settings : TPersistableSettings) : TPersistableSettings;
 begin
 	FChildren.Add(_settings);
 	_settings.FOwner := self;
@@ -185,7 +185,7 @@ begin
 	Result := _settings;
 end;
 
-function TPersistableSettings.RemoveChildSettings(const _settings : TPersistableSettings): Boolean;
+function TPersistableSettings.RemoveChildSettings(const _settings : TPersistableSettings) : Boolean;
 begin
 	Result := FChildren.Remove(_settings);
 	if not Result then begin
@@ -268,7 +268,7 @@ end;
 
 function TPersistableSettings.GetCount() : Integer;
 begin
-	Result := SettingsDict.Count;
+	Result := FOwner.SettingsDict()[IniSectionName].Count;
 end;
 
 function TPersistableSettings.GetPersisterFactory() : IPersisterFactory;
@@ -384,13 +384,16 @@ begin
 	FIniSectionName := Value;
 end;
 
-procedure TPersistableSettings.AddToOwnerSettings(const _section : string = ''; const _bForceWriteIni : Boolean = False;
-const _bClearSection : Boolean = False);
+procedure TPersistableSettings.AddToOwnerSettings(
+{ } const _bForceWriteIni : Boolean = False;
+{ } const _bClearSection : Boolean = False);
 begin
-	if Assigned(FOwner) then begin
-		FOwner.CopySettingsDictSection(self, True, True);
-		FOwner.StoreDictToPersister(IfThen(_bForceWriteIni, _section), _bClearSection);
-	end;
+	CopySettingsDictToRoot();
+
+	// if Assigned(FOwner) then begin
+	// FOwner.CopySettingsDictSection(self, True, True);
+	// FOwner.StoreDictToPersister(IfThen(_bForceWriteIni, _section), _bClearSection);
+	// end;
 end;
 
 class procedure TPersistableSettings.CallUpdateFileOnFactory(const _factory : IPersisterFactory; const _dict : TSettingsDictionary);
@@ -405,18 +408,33 @@ begin
 	end;
 end;
 
-function TPersistableSettings.GetRootOwner: TPersistableSettings;
+function TPersistableSettings.GetRootOwner : TPersistableSettings;
 var
-	rootOwner: TPersistableSettings;
+	rootOwner : TPersistableSettings;
 begin
 	rootOwner := FOwner;
-
-	while True do begin
-		if Assigned(rootOwner.FOwner) then begin
-			rootOwner := rootOwner.FOwner;
-		end else begin
+	while Assigned(rootOwner) do begin
+		if not Assigned(rootOwner.FOwner) then
 			break;
-		end;
+		rootOwner := rootOwner.FOwner;
+	end;
+	Result := rootOwner;
+end;
+
+function TPersistableSettings.CopySettingsDictToRoot() : TPersistableSettings;
+var
+	childSetting : TPersistableSettings;
+	rootOwner : TPersistableSettings;
+begin
+	rootOwner := FOwner;
+	childSetting := self;
+	while Assigned(rootOwner) do begin
+		rootOwner.CopySettingsDictSection(childSetting, True, True);
+		rootOwner.StoreDictToPersister(childSetting.IniSectionName);
+		if not Assigned(rootOwner.FOwner) then
+			break;
+		rootOwner := rootOwner.FOwner;
+		childSetting := rootOwner;
 	end;
 	Result := rootOwner;
 end;
@@ -431,8 +449,7 @@ begin
 	Result := PersisterFactory.ToLogString();
 end;
 
-procedure TPersistableSettings.UpdateFile(const _section : string = ''; const _bForceStoreToPersister : Boolean = False;
-const _bClearSection : Boolean = False);
+procedure TPersistableSettings.UpdateFile(const _bForceStoreToPersister : Boolean = False; const _bClearSection : Boolean = False);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateFile');
@@ -442,7 +459,7 @@ begin
 	end;
 
 	if _bForceStoreToPersister then begin
-		StoreDictToPersister(IfThen(_bForceStoreToPersister, _section), _bClearSection)
+		StoreDictToPersister('', _bClearSection);
 	end;
 
 	if Assigned(PersisterFactory) then begin
@@ -460,7 +477,6 @@ end;
 procedure TPersistableSettings.StoreDictToPersister(const _section : string = ''; const _bClearSection : Boolean = False);
 var
 	fh : IFileHandler;
-	section : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.StoreDictToPersister');
@@ -468,7 +484,8 @@ begin
 	var
 	lock := TLockGuard.NewLock(FLockObject);
 
-	section := IfThen(_section = '', IniSectionName, _section);
+	var
+	section := IfThen(_section.IsEmpty, IniSectionName);
 	dbgMsg.MsgFmt('Lock Entered - StoreDictToPersister [%s]', [section]);
 
 	if _bClearSection then begin

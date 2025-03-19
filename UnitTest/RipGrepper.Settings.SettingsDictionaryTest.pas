@@ -117,7 +117,7 @@ var
 begin
 	setting := FDictFrom[TESTSECTION][TESTKEY + '_2'].AsStringSetting;
 	setting.Value := 'modified value';
-	FDictFrom.StoreToPersister();
+	FDictFrom.StoreToPersister(TESTSECTION);
 	actual := FDictFrom.HasState(ssStored);
 	Assert.IsTrue(actual, 'There should be stored settings');
 end;
@@ -129,7 +129,7 @@ var
 begin
 	setting := FDictFrom[TESTSECTION][TESTKEY + '_2'].AsStringSetting;
 	setting.Value := 'modified value';
-	FDictFrom.StoreToPersister();
+	FDictFrom.StoreToPersister(TESTSECTION);
 
 	TPersistableSettings.CallUpdateFileOnFactory(FPersisterFactory, FDictFrom);
 

@@ -119,7 +119,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.ForceUpdateFile');
 //  var
 //  dbgArr := TSettingsDictionary.DictToStringArray(SettingsDict());
- 	UpdateFile(OPEN_WITH_SETTINGS, True, True);
+ 	UpdateFile(True, True);
 end;
 
 function TOpenWithSettings.ToString : string;

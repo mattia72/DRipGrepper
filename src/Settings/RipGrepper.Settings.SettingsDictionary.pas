@@ -41,7 +41,7 @@ type
 			procedure LoadFromPersister();
 			procedure SetState(const _from, _to : TSettingState; const _section : string = '');
 			function HasState(const _state : TSettingState; const _section : string = '') : Boolean;
-			procedure StoreToPersister(const _section : string = '');
+			procedure StoreToPersister(const _section: string);
 
 			property Count : Integer read GetCount;
 			property InnerDictionary : ISettingSections read FInnerDictionary;
@@ -110,8 +110,8 @@ begin
 	i := 0;
 	for var cmd in TArraySetting(_setting).AsArray do begin
 		var s : ISetting := TStringSetting.Create(cmd);
-        s.SaveBehaviour := _setting.SaveBehaviour;
-        s.State := _setting.State;
+		s.SaveBehaviour := _setting.SaveBehaviour;
+		s.State := _setting.State;
 		var
 		key := Format('%s%d', [_key, i]);
 		TStringSetting(s).Persister := _factory.GetStringPersister(SectionName, key);
@@ -256,8 +256,9 @@ begin
 
 	for var keys in InnerDictionary[_section] do begin
 		setting := keys.Value;
-		if (setting.State = ssModified) or (setting.SaveBehaviour = ssbSaveEvenIfNotModified) then begin
-			setting.StoreToPersister();
+		if (setting.State = ssModified)
+		{ } or (setting.SaveBehaviour = ssbSaveEvenIfNotModified) then begin
+			setting.StoreToPersister(_section);
 		end;
 		{$IFDEF DEBUG}
 		var
@@ -267,7 +268,7 @@ begin
 	end;
 end;
 
-procedure TSettingsDictionary.StoreToPersister(const _section : string = '');
+procedure TSettingsDictionary.StoreToPersister(const _section: string);
 var
 	section : string;
 begin
@@ -285,7 +286,7 @@ begin
 			StoreSectionToPersister(section);
 		end else begin
 			dbgMsg.MsgFmt('invalid section: ''%s''', [section]);
-			raise ESettingsException.CreateFmt('invalid section: ''%s''', [section]);
+//          raise ESettingsException.CreateFmt('invalid section: ''%s''', [section]);
 		end;
 	end;
 end;

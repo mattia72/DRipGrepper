@@ -23,7 +23,7 @@ type
 		Button1 : TButton;
 		pnlBottom : TPanel;
 		pnlTop : TPanel;
-		ScrollBox1: TScrollBox;
+		ScrollBox1 : TScrollBox;
 		procedure Button1Click(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 
@@ -48,7 +48,8 @@ uses
 	RipGrepper.UI.ColorSelectorFrame,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Common.Constants,
-	System.RegularExpressions;
+	System.RegularExpressions,
+	RipGrepper.Helper.UI.DarkMode;
 
 {$R *.dfm}
 

@@ -39,15 +39,21 @@ end;
 
 procedure TInnerOpenWithSettingsTest.CommandListShouldBeFilledInDict();
 var
+	count: Integer;
 	dictVal : string;
+	section : string;
 	settingVal : string;
 begin
-	for var i := 0 to FSettings.OpenWithSettings.Count do begin
+	var
+	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
+	section := FSettings.OpenWithSettings.IniSectionName;
+	count := FSettings.OpenWithSettings.Count;
+	for var i := 0 to count - 1 do begin
 		var
 		key := Format('%s%d', [OPENWITH_COMMAND_KEY, i]);
 
 		settingVal := FSettings.OpenWithSettings.Command[i];
-		dictVal := FSettings.SettingsDict()[FSettings.OpenWithSettings.IniSectionName][key].AsString;
+		dictVal := FSettings.SettingsDict()[section][key].AsString;
 
 		Assert.AreEqual(settingVal, dictVal, 'Command 0 should be equal');
 	end;

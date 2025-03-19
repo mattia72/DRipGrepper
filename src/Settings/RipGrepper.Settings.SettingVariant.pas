@@ -17,8 +17,8 @@ type
 	TSettingState = (ssNotSet, ssInitialized, ssModified, ssStored, ssSaved);
 	TSettingSaveBehaviour = (ssbNotSet,
 		{ } ssbSaveIfModified,
-		{ } ssbSaveAfterChangeImmediately,
-        { } ssbSaveEvenIfNotModified);
+		{ } ssbSaveAfterChangeImmediately, //TODO
+		{ } ssbSaveEvenIfNotModified);
 	TSettingType = (stNotSet, stString, stInteger, stBool, stStrArray);
 
 	// forward declarations...
@@ -48,7 +48,7 @@ type
 		function GetType() : TSettingType;
 
 		procedure LoadFromPersister();
-		procedure StoreToPersister();
+		procedure StoreToPersister(const _section : string = '');
 
 		function AsStringSetting() : IStringSetting;
 		function AsIntegerSetting() : IIntegerSetting;
@@ -100,7 +100,7 @@ type
 		public
 			constructor Create(); overload;
 			procedure LoadFromPersister(); virtual; abstract;
-			procedure StoreToPersister(); virtual; abstract;
+			procedure StoreToPersister(const _section : string = ''); virtual; abstract;
 
 			function AsStringSetting() : IStringSetting;
 			function AsIntegerSetting() : IIntegerSetting;
@@ -145,7 +145,7 @@ type
 			function Equals(_other : ISettingVariant<T>) : Boolean; reintroduce;
 			function IsEmpty : Boolean;
 			procedure LoadFromPersister(); override;
-			procedure StoreToPersister(); override;
+			procedure StoreToPersister(const _section : string = ''); override;
 			property Persister : IFilePersister<T> read GetPersister write SetPersister;
 			property Value : T read GetValue write SetValue;
 	end;
@@ -250,7 +250,7 @@ begin
 	Value := Persister.LoadFromPersister();
 end;
 
-procedure TSettingVariant<T>.StoreToPersister();
+procedure TSettingVariant<T>.StoreToPersister(const _section : string = '');
 begin
 	if not Assigned(Persister) then begin
 		raise ESettingsException.Create('Persister is not assigned.');

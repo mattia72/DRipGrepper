@@ -209,7 +209,7 @@ begin
 		Assert.IsTrue(b, 'NodeLookSettings|' + s + ' should be true');
 	end;
 
-	{ 2 } FSettings.NodeLookSettings.UpdateFile(FSettings.NodeLookSettings.IniSectionName); // create temp ini
+	{ 2 } FSettings.NodeLookSettings.UpdateFile();
 
 	// Assert.IsTrue(FileExists(FSettings.IniFile.GetTempSectionFileName('NodeLookSettings')), 'temp ini should exist.');
 	{ 3 } FSettings.StoreToPersister;
@@ -253,7 +253,7 @@ begin
 	end;
 
 	// TRipGrepperSearchDialogForm.FormClose tested here
-	FSettings.SearchFormSettings.UpdateFile(FSettings.SearchFormSettings.IniSectionName); // create temp section
+	FSettings.SearchFormSettings.UpdateFile(); // create temp section
 	// Fsettings.IniFile.ReadTempSectionFiles(); // read temp section
 
 	if Supports(FFactory, IFileHandler, fh) then begin
@@ -349,21 +349,16 @@ begin
 	FSettings.UpdateFile(); // config form close is tested here?
 	FSettings.ReadIni;
 	var
-	iniSection := FSettings.SearchFormSettings.IniSectionName;
+	appSection := FSettings.AppSettings.IniSectionName;
 
-	Assert.AreEqual('none', FStrPers.LoadSectionKey(iniSection, 'Encoding'));
-	Assert.AreEqual(1, FIntPers.LoadSectionKey(iniSection, 'Context'));
-	Assert.AreEqual(True, FBoolPers.LoadSectionKey(iniSection, 'Pretty'));
-	Assert.AreEqual(True, FBoolPers.LoadSectionKey(iniSection, 'Hidden'));
-	Assert.AreEqual(True, FBoolPers.LoadSectionKey(iniSection, 'NoIgnore'));
+	Assert.AreEqual(True, FBoolPers.LoadSectionKey(appSection, 'ExpertMode'), 'ExpertMode should be True');
+	Assert.AreEqual('Carbon', FStrPers.LoadSectionKey(appSection, 'ColorTheme'), 'ColorTheme should be Carbon');
+	Assert.AreEqual(0, FIntPers.LoadSectionKey(appSection, 'CopyToClipBoardShell'), 'CopyToClipBoardShell should be 1');
 
 	var
 	extSection := FSettings.SearchFormSettings.ExtensionSettings.IniSectionName;
-	var
-	scIniVal := FFactory.GetStringPersister(extSection, 'OpenWithShortcut').LoadFromPersister;
-	Assert.AreEqual(SC_OPEN_WITH, scIniVal);
-	scIniVal := FFactory.GetStringPersister(extSection, 'SearchSelectedShortcut').LoadFromPersister;
-	Assert.AreEqual(SC_SEARCH, scIniVal);
+	Assert.AreEqual(SC_OPEN_WITH, FStrPers.LoadSectionKey(extSection, 'OpenWithShortcut'), 'OpenWithShortcut should be SC_OPEN_WITH');
+	Assert.AreEqual(SC_SEARCH, FStrPers.LoadSectionKey(extSection, 'SearchSelectedShortcut'), 'SearchSelectedShortcut should be SC_SEARCH');
 end;
 
 procedure TRipGrepperSettingsTest.UpdateHistInIniTest;

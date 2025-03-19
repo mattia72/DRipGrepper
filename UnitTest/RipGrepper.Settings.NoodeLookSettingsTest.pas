@@ -106,10 +106,10 @@ begin
 	// TRipGrepperSettings.StoreViewSettings tested here
 
 	CheckNodeSettingsDict('after storeview');
-	{ 2 } FSettings.UpdateFile(FSettings.IniSectionName); // create temp ini
+	{ 2 } FSettings.UpdateFile(True); // create temp ini
 	CheckNodeSettingsDict('after updateini');
 
-	{ 3 } FSettings.StoreDictToPersister(FSettings.IniSectionName);
+//  { 3 } FSettings.StoreDictToPersister();
 
 	// Assert.IsTrue(not DirectoryExists(FSettings.IniFile.GetDripGrepperIniTempDir), ' temp dir should not exists');
 

@@ -69,7 +69,7 @@ uses
 
 procedure TCommandLineBuilderTest.Setup;
 begin
-	FOwner := TTestOwnerSettings.Create();
+	FOwner := TTestOwnerSettings.Create(OWNER_INI_SECTION);
 //  FIniFile := FOwner.PersisterFactory;
 	FParams := TRipGrepParameterSettings.Create(FOwner);
 	FGuiParams := Shared.Make<TGuiSearchTextParams>(TGuiSearchTextParams.Create(''));

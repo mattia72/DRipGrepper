@@ -11,6 +11,7 @@ const
 
 	INIFILE = 'PersistableSettingsTest.ini';
 	INI_SECTION = 'TestSettings';
+	OWNER_INI_SECTION = 'TestOwnerSettings';
 
 	INITIAL_STR_VALUE = 'str_initial_value';
 	DEFAULT_STR_VAL = 'default_str_val';
