@@ -15,8 +15,8 @@ type
 
 	IFilePersister<T> = interface(IPersister)
 		['{57B16806-F8F5-447E-9AB6-767E553CCB65}']
-		function LoadFromPersister() : T;
-		function LoadSectionKey(const _section, _key : string) : T;
+		function LoadFromPersister(var _value : T) : Boolean;
+		function LoadSectionKey(const _section, _key : string) : T; // TODO: Exception if not exists
 		procedure StoreToPersister(const _value : T);
 
 		function GetFilePath() : string;
@@ -26,10 +26,10 @@ type
 
 	IPersisterFactory = interface
 		['{86CA585C-A4D5-44E4-A778-9C011291F623}']
-		function GetStringPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<string>;
-		function GetIntegerPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<Integer>;
-		function GetBoolPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<Boolean>;
-		function GetStrArrayPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<TArrayEx<string>>;
+		function GetStringPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<string>;
+		function GetIntegerPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<Integer>;
+		function GetBoolPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<Boolean>;
+		function GetStrArrayPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<TArrayEx<string>>;
 
 		function ToLogString() : string;
 
@@ -68,7 +68,7 @@ type
 		strict private
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string); overload;
-			function LoadFromPersister() : string;
+			function LoadFromPersister(var _value : string) : Boolean;
 			function LoadSectionKey(const _section, _key : string) : string;
 			procedure StoreToPersister(const _value : string);
 	end;
@@ -76,7 +76,7 @@ type
 	TMemIniIntegerPersister = class(TMemIniPersister, IFilePersister<integer>)
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
-			function LoadFromPersister() : integer;
+			function LoadFromPersister(var _value : integer) : Boolean;
 			function LoadSectionKey(const _section, _key : string) : integer;
 			procedure StoreToPersister(const _value : integer);
 	end;
@@ -84,7 +84,7 @@ type
 	TMemIniBoolPersister = class(TMemIniPersister, IFilePersister<Boolean>)
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
-			function LoadFromPersister() : Boolean;
+			function LoadFromPersister(var _value : Boolean) : Boolean;
 			function LoadSectionKey(const _section, _key : string) : Boolean;
 			procedure StoreToPersister(const _value : Boolean);
 	end;
@@ -95,7 +95,7 @@ type
 
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection : string);
-			function LoadFromPersister() : TArrayEx<string>;
+			function LoadFromPersister(var _value : TArrayEx<string>) : Boolean;
 			function LoadSectionKey(const _section, _key : string) : TArrayEx<string>;
 			procedure StoreToPersister(const _value : TArrayEx<string>);
 	end;
@@ -110,17 +110,15 @@ type
 			constructor Create(); overload;
 			constructor Create(_ini : IShared<TMemIniFile>); overload;
 
-			function GetStringPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<string>;
-			function GetIntegerPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<Integer>;
-			function GetBoolPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<Boolean>;
-			function GetStrArrayPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<TArrayEx<string>>;
+			function GetStringPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<string>;
+			function GetIntegerPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<Integer>;
+			function GetBoolPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<Boolean>;
+			function GetStrArrayPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<TArrayEx<string>>;
 
-//					function GetStringPersister(const _sIniSection : string) : IFilePersister<string>;
-//		function GetIntegerPersister(const _sIniSection: string) : IFilePersister<Integer>;
-//		function GetBoolPersister(const _sIniSection: string) : IFilePersister<Boolean>;
-//
-
-
+			// function GetStringPersister(const _sIniSection : string) : IFilePersister<string>;
+			// function GetIntegerPersister(const _sIniSection: string) : IFilePersister<Integer>;
+			// function GetBoolPersister(const _sIniSection: string) : IFilePersister<Boolean>;
+			//
 
 			function ToLogString() : string;
 
@@ -146,9 +144,12 @@ uses
 	System.IOUtils,
 	RipGrepper.Common.Constants;
 
-function TMemIniStringPersister.LoadFromPersister() : string;
+function TMemIniStringPersister.LoadFromPersister(var _value : string) : Boolean;
 begin
-	Result := FIniFile.ReadString(FIniSection, FIniKey, '');
+	Result := FIniFile.KeyExists(FIniSection, FIniKey);
+	if Result then begin
+		_value := FIniFile.ReadString(FIniSection, FIniKey, '');
+	end;
 end;
 
 procedure TMemIniStringPersister.StoreToPersister(const _value : string);
@@ -176,9 +177,13 @@ end;
 // Result := ;
 // end;
 
-function TMemIniIntegerPersister.LoadFromPersister() : integer;
+function TMemIniIntegerPersister.LoadFromPersister(var _value : integer) : Boolean;
 begin
-	Result := FIniFile.ReadInteger(FIniSection, FIniKey, -1);
+	Result := FIniFile.KeyExists(FIniSection, FIniKey);
+
+	if Result then begin
+		_value := FIniFile.ReadInteger(FIniSection, FIniKey, -1);
+	end;
 end;
 
 procedure TMemIniIntegerPersister.StoreToPersister(const _value : integer);
@@ -200,9 +205,12 @@ begin
 	Result := FIniFile.ReadInteger(_section, _key, -1);
 end;
 
-function TMemIniBoolPersister.LoadFromPersister() : Boolean;
+function TMemIniBoolPersister.LoadFromPersister(var _value : Boolean) : Boolean;
 begin
-	Result := FIniFile.ReadBool(FIniSection, FIniKey, False);
+	Result := FIniFile.KeyExists(FIniSection, FIniKey);
+	if Result then begin
+		_value := FIniFile.ReadBool(FIniSection, FIniKey, False);
+	end;
 end;
 
 procedure TMemIniBoolPersister.StoreToPersister(const _value : Boolean);
@@ -224,9 +232,13 @@ begin
 	Result := FIniFile.ReadBool(_section, _key, False);
 end;
 
-function TMemIniStrArrayPersister.LoadFromPersister() : TArrayEx<string>;
+function TMemIniStrArrayPersister.LoadFromPersister(var _value : TArrayEx<string>) : Boolean;
 begin
-	Result := LoadArrayFromSection(FIniSection, FIniKey);
+	Result := FIniFile.KeyExists(FIniSection, FIniKey);
+
+	if Result then begin
+		_value := LoadArrayFromSection(FIniSection, FIniKey);
+	end;
 end;
 
 procedure TMemIniStrArrayPersister.StoreToPersister(const _value : TArrayEx<string>);
@@ -295,7 +307,7 @@ begin
 	FIniFile.EraseSection(_section);
 end;
 
-function TIniPersister.GetBoolPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<Boolean>;
+function TIniPersister.GetBoolPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<Boolean>;
 begin
 	Result := TMemIniBoolPersister.Create(FIniFile, _sIniSection, _sKey);
 end;
@@ -305,17 +317,17 @@ begin
 	Result := FIniFile.FileName;
 end;
 
-function TIniPersister.GetIntegerPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<Integer>;
+function TIniPersister.GetIntegerPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<Integer>;
 begin
 	Result := TMemIniIntegerPersister.Create(FIniFile, _sIniSection, _sKey);
 end;
 
-function TIniPersister.GetStrArrayPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<TArrayEx<string>>;
+function TIniPersister.GetStrArrayPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<TArrayEx<string>>;
 begin
 	Result := TMemIniStrArrayPersister.Create(FIniFile, _sKey); // _sSection is ROOT_DUMMY, key will be section
 end;
 
-function TIniPersister.GetStringPersister(const _sIniSection: string = ''; const _sKey: string = ''): IFilePersister<string>;
+function TIniPersister.GetStringPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<string>;
 begin
 	Result := TMemIniStringPersister.Create(FIniFile, _sIniSection, _sKey);
 end;

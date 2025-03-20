@@ -17,7 +17,7 @@ type
 	TSettingState = (ssNotSet, ssInitialized, ssModified, ssStored, ssSaved);
 	TSettingSaveBehaviour = (ssbNotSet,
 		{ } ssbSaveIfModified,
-		{ } ssbSaveAfterChangeImmediately, //TODO
+		{ } ssbSaveAfterChangeImmediately, // TODO
 		{ } ssbSaveEvenIfNotModified);
 	TSettingType = (stNotSet, stString, stInteger, stBool, stStrArray);
 
@@ -246,8 +246,12 @@ begin
 end;
 
 procedure TSettingVariant<T>.LoadFromPersister();
+var
+	val : T;
 begin
-	Value := Persister.LoadFromPersister();
+	if Persister.LoadFromPersister(val) then begin
+		Value := val;
+	end;
 end;
 
 procedure TSettingVariant<T>.StoreToPersister(const _section : string = '');

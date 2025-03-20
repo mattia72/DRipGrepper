@@ -72,7 +72,7 @@ begin
 	for settingVal in arr do begin
 		var
 		key := Format('%s%d', [OPENWITH_COMMAND_KEY, i]);
-		iniVal := FFactory.GetStringPersister(FSettings.OpenWithSettings.IniSectionName, key).LoadFromPersister;
+		iniVal := FFactory.GetStringPersister().LoadSectionKey(FSettings.OpenWithSettings.IniSectionName, key);
 		Assert.AreEqual(settingVal, iniVal, key + ' should be persisted.');
 		Inc(i);
 	end;

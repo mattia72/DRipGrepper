@@ -14,6 +14,7 @@ type
 		public
 			function GetDripGrepperIniTempDir : string;
 			function GetTempSectionFileName(_section : string) : string;
+			function KeyExists(const _section, _key : string) : Boolean;
 			procedure ReadTempSectionFiles;
 			procedure ReloadIniFile;
 			procedure WriteTempSectionIni(_sectionName : string; const _sectionValues : TStringList); overload;
@@ -24,7 +25,8 @@ implementation
 uses
 	System.IOUtils,
 	System.SysUtils,
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils,
+	Spring;
 
 function TMemIniFileHelper.GetDripGrepperIniTempDir : string;
 begin
@@ -45,6 +47,15 @@ begin
 	Result := TPath.Combine(GetDripGrepperIniTempDir,
 		{ } TPath.GetFileNameWithoutExtension(self.FileName) +
 		{ } TPath.GetExtension(self.FileName));
+end;
+
+function TMemIniFileHelper.KeyExists(const _section, _key : string) : Boolean;
+var
+	keyList : IShared<TStringList>;
+begin
+	keyList := Shared.Make<TStringList>();
+	self.ReadSection(_section, keyList);
+    Result := keyList.Contains(_key);
 end;
 
 procedure TMemIniFileHelper.ReadTempSectionFiles;

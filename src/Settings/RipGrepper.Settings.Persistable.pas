@@ -48,8 +48,7 @@ type
 			procedure SetChildrenPersister;
 			procedure SetPersisterFactory(const Value : IPersisterFactory);
 			procedure SetIniSectionName(const Value : string);
-			procedure AddToOwnerSettings( { } const _bForceWriteIni : Boolean = False; { }
-				const _bClearSection : Boolean = False);
+			procedure AddToOwnerSettings();
 			function CopySettingsDictToRoot() : TPersistableSettings;
 			function GetRootOwner : TPersistableSettings;
 			procedure StoreDictToPersister(const _section : string = ''; const _bClearSection : Boolean = False);
@@ -384,16 +383,9 @@ begin
 	FIniSectionName := Value;
 end;
 
-procedure TPersistableSettings.AddToOwnerSettings(
-{ } const _bForceWriteIni : Boolean = False;
-{ } const _bClearSection : Boolean = False);
+procedure TPersistableSettings.AddToOwnerSettings();
 begin
 	CopySettingsDictToRoot();
-
-	// if Assigned(FOwner) then begin
-	// FOwner.CopySettingsDictSection(self, True, True);
-	// FOwner.StoreDictToPersister(IfThen(_bForceWriteIni, _section), _bClearSection);
-	// end;
 end;
 
 class procedure TPersistableSettings.CallUpdateFileOnFactory(const _factory : IPersisterFactory; const _dict : TSettingsDictionary);
@@ -425,12 +417,20 @@ function TPersistableSettings.CopySettingsDictToRoot() : TPersistableSettings;
 var
 	childSetting : TPersistableSettings;
 	rootOwner : TPersistableSettings;
+	section : string;
 begin
 	rootOwner := FOwner;
 	childSetting := self;
+	section := IniSectionName;
 	while Assigned(rootOwner) do begin
+//      var
+//      dbgArrChild := TSettingsDictionary.DictToStringArray(childSetting.SettingsDict());
+
 		rootOwner.CopySettingsDictSection(childSetting, True, True);
-		rootOwner.StoreDictToPersister(childSetting.IniSectionName);
+//      var
+//      dbgArrRoot := TSettingsDictionary.DictToStringArray(rootOwner.SettingsDict());
+
+		rootOwner.StoreDictToPersister(section);
 		if not Assigned(rootOwner.FOwner) then
 			break;
 		rootOwner := rootOwner.FOwner;
@@ -485,7 +485,7 @@ begin
 	lock := TLockGuard.NewLock(FLockObject);
 
 	var
-	section := IfThen(_section.IsEmpty, IniSectionName);
+	section := IfThen(_section.IsEmpty, IniSectionName, _section);
 	dbgMsg.MsgFmt('Lock Entered - StoreDictToPersister [%s]', [section]);
 
 	if _bClearSection then begin
