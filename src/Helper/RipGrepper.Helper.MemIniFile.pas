@@ -50,12 +50,8 @@ begin
 end;
 
 function TMemIniFileHelper.KeyExists(const _section, _key : string) : Boolean;
-var
-	keyList : IShared<TStringList>;
 begin
-	keyList := Shared.Make<TStringList>();
-	self.ReadSection(_section, keyList);
-    Result := keyList.Contains(_key);
+    Result := self.ValueExists(_section, _key);
 end;
 
 procedure TMemIniFileHelper.ReadTempSectionFiles;

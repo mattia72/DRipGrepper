@@ -322,25 +322,25 @@ begin
 	FSettings.ReadIni;
 	var
 	iniSection := FSettings.SearchFormSettings.IniSectionName;
-	Assert.AreEqual('none', FFactory.GetStringPersister().LoadSectionKey(iniSection, 'Encoding'));
-	Assert.AreEqual(1, FFactory.GetIntegerPersister.LoadSectionKey(iniSection, 'Context'));
-	Assert.AreEqual(True, FFactory.GetBoolPersister.LoadSectionKey(iniSection, 'Pretty'));
-	Assert.AreEqual(True, FFactory.GetBoolPersister.LoadSectionKey(iniSection, 'Hidden'));
-	Assert.AreEqual(True, FFactory.GetBoolPersister.LoadSectionKey(iniSection, 'NoIgnore'));
+	Assert.AreEqual('none', FFactory.GetStringPersister().LoadValue(iniSection, 'Encoding'));
+	Assert.AreEqual(1, FFactory.GetIntegerPersister.LoadValue(iniSection, 'Context'));
+	Assert.AreEqual(True, FFactory.GetBoolPersister.LoadValue(iniSection, 'Pretty'));
+	Assert.AreEqual(True, FFactory.GetBoolPersister.LoadValue(iniSection, 'Hidden'));
+	Assert.AreEqual(True, FFactory.GetBoolPersister.LoadValue(iniSection, 'NoIgnore'));
 
 	var
 	extSection := FSettings.SearchFormSettings.ExtensionSettings.IniSectionName;
 	var
-	scIniVal := FFactory.GetStringPersister.LoadSectionKey(extSection, 'OpenWithShortcut');
+	scIniVal := FFactory.GetStringPersister.LoadValue(extSection, 'OpenWithShortcut');
 	Assert.AreEqual(SC_OPEN_WITH, scIniVal);
-	scIniVal := FFactory.GetStringPersister.LoadSectionKey(extSection, 'SearchSelectedShortcut');
+	scIniVal := FFactory.GetStringPersister.LoadValue(extSection, 'SearchSelectedShortcut');
 	Assert.AreEqual(SC_SEARCH, scIniVal);
 
 end;
 
 function TRipGrepperSettingsTest.ReadBoolIniAsString(const _section, _key : string) : string;
 begin
-	Result := BoolToStr(FFactory.GetBoolPersister.LoadSectionKey(_section, _key), True);
+	Result := BoolToStr(FFactory.GetBoolPersister.LoadValue(_section, _key), True);
 end;
 
 procedure TRipGrepperSettingsTest.UpdateFileAfterConfigTest;
@@ -360,17 +360,18 @@ begin
 	var
 	cbsh := FSettings.SettingsDict()[appSection]['CopyToClipBoardShell'].AsString;
 
-	Assert.AreEqual(True, FBoolPers.LoadSectionKey(appSection, 'ExpertMode'), 'ExpertMode should be True');
+	Assert.AreEqual(True, FBoolPers.LoadValue(appSection, 'ExpertMode'), 'ExpertMode should be True');
 	cbsh := FSettings.SettingsDict()[appSection]['CopyToClipBoardShell'].AsString;
-	Assert.AreEqual('Carbon', FStrPers.LoadSectionKey(appSection, 'ColorTheme'), 'ColorTheme should be Carbon');
+	Assert.AreEqual('Carbon', FStrPers.LoadValue(appSection, 'ColorTheme'), 'ColorTheme should be Carbon');
+
     var iniVal := Integer(FSettings.AppSettings.CopyToClipBoardShell);
     FFactory.GetIntegerPersister(appSection, 'CopyToClipBoardShell').TryLoadValue(iniVal);
 	Assert.AreEqual(0, iniVal, 'CopyToClipBoardShell should be 1');
 
 	var
 	extSection := FSettings.SearchFormSettings.ExtensionSettings.IniSectionName;
-	Assert.AreEqual(SC_OPEN_WITH, FStrPers.LoadSectionKey(extSection, 'OpenWithShortcut'), 'OpenWithShortcut should be SC_OPEN_WITH');
-	Assert.AreEqual(SC_SEARCH, FStrPers.LoadSectionKey(extSection, 'SearchSelectedShortcut'), 'SearchSelectedShortcut should be SC_SEARCH');
+	Assert.AreEqual(SC_OPEN_WITH, FStrPers.LoadValue(extSection, 'OpenWithShortcut'), 'OpenWithShortcut should be SC_OPEN_WITH');
+	Assert.AreEqual(SC_SEARCH, FStrPers.LoadValue(extSection, 'SearchSelectedShortcut'), 'SearchSelectedShortcut should be SC_SEARCH');
 end;
 
 procedure TRipGrepperSettingsTest.UpdateHistInIniTest;
@@ -386,7 +387,7 @@ begin
 
 	Assert.AreEqual(ACT_HIST_VAL, FSettings.SearchTextsHistory.AsArray[0], 'SearchTextsHistory[0] should be hist 0');
 	Assert.AreEqual(ACT_HIST_VAL,
-		{ } FFactory.GetStringPersister.LoadSectionKey('SearchTextsHistory', 'Item_0'));
+		{ } FFactory.GetStringPersister.LoadValue('SearchTextsHistory', 'Item_0'));
 end;
 
 procedure TRipGrepperSettingsTestBase.SetSettingValues();
@@ -448,8 +449,7 @@ begin
 	FSettings.SearchFormSettings.Encoding := 'utf8';
 	FSettings.StoreToPersister();
 	FSettings.UpdateFile();
-
-	iniVal := FFactory.GetStringPersister().LoadSectionKey(FSettings.SearchFormSettings.IniSectionName, 'Encoding');
+	iniVal := FFactory.GetStringPersister().LoadValue(FSettings.SearchFormSettings.IniSectionName, 'Encoding');
 	settingVal := FSettings.SearchFormSettings.Encoding;
 
 	Assert.AreEqual(settingVal, iniVal, 'Encoding should be equal');
@@ -494,7 +494,7 @@ begin
 	FSettings.UpdateFile();
 
 	Assert.AreEqual(SC_OPEN_WITH,
-		{ } FFactory.GetStringPersister().LoadSectionKey(
+		{ } FFactory.GetStringPersister().LoadValue(
 		{ } FSettings.SearchFormSettings.ExtensionSettings.INI_SECTION,
 		{ } FSettings.SearchFormSettings.ExtensionSettings.KEY_SHORTCUT_OPENWITH));
 

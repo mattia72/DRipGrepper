@@ -16,7 +16,7 @@ type
 	IFilePersister<T> = interface(IPersister)
 		['{57B16806-F8F5-447E-9AB6-767E553CCB65}']
 		function TryLoadValue(var _value : T) : Boolean;
-		function LoadSectionKey(const _section, _key : string) : T; // TODO: Exception if not exists
+		function LoadValue(const _section, _key : string) : T; // TODO: Exception if not exists
 		procedure StoreToPersister(const _value : T);
 
 		function GetFilePath() : string;
@@ -69,7 +69,7 @@ type
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string); overload;
 			function TryLoadValue(var _value : string) : Boolean;
-			function LoadSectionKey(const _section, _key : string) : string;
+			function LoadValue(const _section, _key : string) : string;
 			procedure StoreToPersister(const _value : string);
 	end;
 
@@ -77,7 +77,7 @@ type
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
 			function TryLoadValue(var _value : integer) : Boolean;
-			function LoadSectionKey(const _section, _key : string) : integer;
+			function LoadValue(const _section, _key : string) : integer;
 			procedure StoreToPersister(const _value : integer);
 	end;
 
@@ -85,7 +85,7 @@ type
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
 			function TryLoadValue(var _value : Boolean) : Boolean;
-			function LoadSectionKey(const _section, _key : string) : Boolean;
+			function LoadValue(const _section, _key : string) : Boolean;
 			procedure StoreToPersister(const _value : Boolean);
 	end;
 
@@ -96,7 +96,7 @@ type
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection : string);
 			function TryLoadValue(var _value : TArrayEx<string>) : Boolean;
-			function LoadSectionKey(const _section, _key : string) : TArrayEx<string>;
+			function LoadValue(const _section, _key : string) : TArrayEx<string>;
 			procedure StoreToPersister(const _value : TArrayEx<string>);
 	end;
 
@@ -167,7 +167,7 @@ begin
 	FIniKey := _sKey;
 end;
 
-function TMemIniStringPersister.LoadSectionKey(const _section, _key : string) : string;
+function TMemIniStringPersister.LoadValue(const _section, _key : string) : string;
 begin
 	Result := FIniFile.ReadString(_section, _key, '');
 end;
@@ -200,7 +200,7 @@ begin
 	FIniKey := _sKey;
 end;
 
-function TMemIniIntegerPersister.LoadSectionKey(const _section, _key : string) : integer;
+function TMemIniIntegerPersister.LoadValue(const _section, _key : string) : integer;
 begin
 	Result := FIniFile.ReadInteger(_section, _key, -1);
 end;
@@ -227,7 +227,7 @@ begin
 	FIniKey := _sKey;
 end;
 
-function TMemIniBoolPersister.LoadSectionKey(const _section, _key : string) : Boolean;
+function TMemIniBoolPersister.LoadValue(const _section, _key : string) : Boolean;
 begin
 	Result := FIniFile.ReadBool(_section, _key, False);
 end;
@@ -280,7 +280,7 @@ begin
 	end;
 end;
 
-function TMemIniStrArrayPersister.LoadSectionKey(const _section, _key : string) : TArrayEx<string>;
+function TMemIniStrArrayPersister.LoadValue(const _section, _key : string) : TArrayEx<string>;
 begin
 	Result := LoadArrayFromSection(_section, _key);
 end;
