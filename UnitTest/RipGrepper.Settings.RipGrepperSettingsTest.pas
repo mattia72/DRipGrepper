@@ -363,7 +363,9 @@ begin
 	Assert.AreEqual(True, FBoolPers.LoadSectionKey(appSection, 'ExpertMode'), 'ExpertMode should be True');
 	cbsh := FSettings.SettingsDict()[appSection]['CopyToClipBoardShell'].AsString;
 	Assert.AreEqual('Carbon', FStrPers.LoadSectionKey(appSection, 'ColorTheme'), 'ColorTheme should be Carbon');
-	Assert.AreEqual(0, FIntPers.LoadSectionKey(appSection, 'CopyToClipBoardShell'), 'CopyToClipBoardShell should be 1');
+    var iniVal := Integer(FSettings.AppSettings.CopyToClipBoardShell);
+    FFactory.GetIntegerPersister(appSection, 'CopyToClipBoardShell').TryLoadValue(iniVal);
+	Assert.AreEqual(0, iniVal, 'CopyToClipBoardShell should be 1');
 
 	var
 	extSection := FSettings.SearchFormSettings.ExtensionSettings.IniSectionName;
