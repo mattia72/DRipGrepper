@@ -164,15 +164,15 @@ begin
 	FSettings.UpdateFile;
 	// FSettings.LoadFromDict;
 
-	FFactory.GetStringPersister(FSettings.RipGrepParameters.IniSectionName, 'SearchParams').LoadFromPersister(iniVal);
+	FFactory.GetStringPersister(FSettings.RipGrepParameters.IniSectionName, 'SearchParams').TryLoadValue(iniVal);
 	settingVal := FSettings.RipGrepParameters.GuiSearchTextParams.GetAsString(True);
 	Assert.AreEqual(settingVal.Trim(['[', ']']), iniVal.Trim(['[', ']']), 'SearchParams should be equal');
 
-	FFactory.GetStringPersister(FSettings.SearchFormSettings.IniSectionName, 'Encoding').LoadFromPersister(iniVal);
+	FFactory.GetStringPersister(FSettings.SearchFormSettings.IniSectionName, 'Encoding').TryLoadValue(iniVal);
 	settingVal := FSettings.SearchFormSettings.Encoding;
 	Assert.AreEqual(settingVal, iniVal, 'Encoding should be equal');
 
-	FFactory.GetStringPersister(FSettings.SearchFormSettings.IniSectionName, 'Context').LoadFromPersister(iniVal);
+	FFactory.GetStringPersister(FSettings.SearchFormSettings.IniSectionName, 'Context').TryLoadValue(iniVal);
 	settingVal := FSettings.SearchFormSettings.Context.ToString;
 	Assert.AreEqual(settingVal, iniVal, 'Context should be equal');
 
@@ -214,19 +214,19 @@ begin
 	// Assert.IsTrue(FileExists(FSettings.IniFile.GetTempSectionFileName('NodeLookSettings')), 'temp ini should exist.');
 	{ 3 } FSettings.StoreToPersister;
 
-	FFactory.GetStringPersister(FSettings.NodeLookSettings.IniSectionName, 'AlternateRowColors').LoadFromPersister(iniVal);
+	FFactory.GetStringPersister(FSettings.NodeLookSettings.IniSectionName, 'AlternateRowColors').TryLoadValue(iniVal);
 	settingVal := FSettings.NodeLookSettings.AlternateRowColors;
 	Assert.AreEqual(settingVal, iniVal = '1', 'AlternateRowColors should be equal');
 
-	FFactory.GetStringPersister(FSettings.NodeLookSettings.IniSectionName, 'IndentLines').LoadFromPersister(iniVal);
+	FFactory.GetStringPersister(FSettings.NodeLookSettings.IniSectionName, 'IndentLines').TryLoadValue(iniVal);
 	settingVal := FSettings.NodeLookSettings.IndentLines;
 	Assert.AreEqual(settingVal, iniVal = '1', 'IndentLines should be equal');
 
-	FFactory.GetStringPersister(FSettings.NodeLookSettings.IniSectionName, 'ShowRelativePath').LoadFromPersister(iniVal);
+	FFactory.GetStringPersister(FSettings.NodeLookSettings.IniSectionName, 'ShowRelativePath').TryLoadValue(iniVal);
 	settingVal := FSettings.NodeLookSettings.ShowRelativePath;
 	Assert.AreEqual(settingVal, iniVal = '1', 'ShowRelativePath should be equal');
 
-	FFactory.GetStringPersister(FSettings.NodeLookSettings.IniSectionName, 'ExpandNodes').LoadFromPersister(iniVal);
+	FFactory.GetStringPersister(FSettings.NodeLookSettings.IniSectionName, 'ExpandNodes').TryLoadValue(iniVal);
 	settingVal := FSettings.NodeLookSettings.ExpandNodes;
 	Assert.AreEqual(settingVal, iniVal = '1', 'ExpandNodes should be equal');
 end;
@@ -260,15 +260,15 @@ begin
 		fh.UpdateFile();
 	end;
 
-	FFactory.GetStringPersister(extSetting.INI_SECTION, extSetting.KEY_IDE_CONTEXT).LoadFromPersister(iniVal);
+	FFactory.GetStringPersister(extSetting.INI_SECTION, extSetting.KEY_IDE_CONTEXT).TryLoadValue(iniVal);
 	settingVal := IntToStr(Integer(FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext.IDEContext));
 	Assert.AreEqual(settingVal.Trim(['[', ']']), iniVal.Trim(['[', ']']), extSetting.KEY_IDE_CONTEXT + ' should be equal');
 
-	FFactory.GetStringPersister(extSetting.INI_SECTION, extSetting.KEY_SHORTCUT_SEARCH_SELECTED).LoadFromPersister(iniVal);
+	FFactory.GetStringPersister(extSetting.INI_SECTION, extSetting.KEY_SHORTCUT_SEARCH_SELECTED).TryLoadValue(iniVal);
 	settingVal := FSettings.SearchFormSettings.ExtensionSettings.SearchSelectedShortcut;
 	Assert.AreEqual(settingVal.Trim(['[', ']']), iniVal.Trim(['[', ']']), extSetting.KEY_SHORTCUT_SEARCH_SELECTED + ' should be equal');
 
-	FFactory.GetStringPersister(extSetting.INI_SECTION, extSetting.KEY_SHORTCUT_OPENWITH).LoadFromPersister(iniVal);
+	FFactory.GetStringPersister(extSetting.INI_SECTION, extSetting.KEY_SHORTCUT_OPENWITH).TryLoadValue(iniVal);
 	settingVal := FSettings.SearchFormSettings.ExtensionSettings.OpenWithShortcut;
 	Assert.AreEqual(settingVal.Trim(['[', ']']), iniVal.Trim(['[', ']']), extSetting.KEY_SHORTCUT_OPENWITH + ' should be equal');
 end;

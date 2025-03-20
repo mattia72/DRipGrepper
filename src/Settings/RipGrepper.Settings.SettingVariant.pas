@@ -249,7 +249,7 @@ procedure TSettingVariant<T>.LoadFromPersister();
 var
 	val : T;
 begin
-	if Persister.LoadFromPersister(val) then begin
+	if Persister.TryLoadValue(val) then begin
 		Value := val;
 	end;
 end;

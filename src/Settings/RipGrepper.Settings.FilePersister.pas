@@ -15,7 +15,7 @@ type
 
 	IFilePersister<T> = interface(IPersister)
 		['{57B16806-F8F5-447E-9AB6-767E553CCB65}']
-		function LoadFromPersister(var _value : T) : Boolean;
+		function TryLoadValue(var _value : T) : Boolean;
 		function LoadSectionKey(const _section, _key : string) : T; // TODO: Exception if not exists
 		procedure StoreToPersister(const _value : T);
 
@@ -68,7 +68,7 @@ type
 		strict private
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string); overload;
-			function LoadFromPersister(var _value : string) : Boolean;
+			function TryLoadValue(var _value : string) : Boolean;
 			function LoadSectionKey(const _section, _key : string) : string;
 			procedure StoreToPersister(const _value : string);
 	end;
@@ -76,7 +76,7 @@ type
 	TMemIniIntegerPersister = class(TMemIniPersister, IFilePersister<integer>)
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
-			function LoadFromPersister(var _value : integer) : Boolean;
+			function TryLoadValue(var _value : integer) : Boolean;
 			function LoadSectionKey(const _section, _key : string) : integer;
 			procedure StoreToPersister(const _value : integer);
 	end;
@@ -84,7 +84,7 @@ type
 	TMemIniBoolPersister = class(TMemIniPersister, IFilePersister<Boolean>)
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
-			function LoadFromPersister(var _value : Boolean) : Boolean;
+			function TryLoadValue(var _value : Boolean) : Boolean;
 			function LoadSectionKey(const _section, _key : string) : Boolean;
 			procedure StoreToPersister(const _value : Boolean);
 	end;
@@ -95,7 +95,7 @@ type
 
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection : string);
-			function LoadFromPersister(var _value : TArrayEx<string>) : Boolean;
+			function TryLoadValue(var _value : TArrayEx<string>) : Boolean;
 			function LoadSectionKey(const _section, _key : string) : TArrayEx<string>;
 			procedure StoreToPersister(const _value : TArrayEx<string>);
 	end;
@@ -144,7 +144,7 @@ uses
 	System.IOUtils,
 	RipGrepper.Common.Constants;
 
-function TMemIniStringPersister.LoadFromPersister(var _value : string) : Boolean;
+function TMemIniStringPersister.TryLoadValue(var _value : string) : Boolean;
 begin
 	Result := FIniFile.KeyExists(FIniSection, FIniKey);
 	if Result then begin
@@ -177,7 +177,7 @@ end;
 // Result := ;
 // end;
 
-function TMemIniIntegerPersister.LoadFromPersister(var _value : integer) : Boolean;
+function TMemIniIntegerPersister.TryLoadValue(var _value : integer) : Boolean;
 begin
 	Result := FIniFile.KeyExists(FIniSection, FIniKey);
 
@@ -205,7 +205,7 @@ begin
 	Result := FIniFile.ReadInteger(_section, _key, -1);
 end;
 
-function TMemIniBoolPersister.LoadFromPersister(var _value : Boolean) : Boolean;
+function TMemIniBoolPersister.TryLoadValue(var _value : Boolean) : Boolean;
 begin
 	Result := FIniFile.KeyExists(FIniSection, FIniKey);
 	if Result then begin
@@ -232,7 +232,7 @@ begin
 	Result := FIniFile.ReadBool(_section, _key, False);
 end;
 
-function TMemIniStrArrayPersister.LoadFromPersister(var _value : TArrayEx<string>) : Boolean;
+function TMemIniStrArrayPersister.TryLoadValue(var _value : TArrayEx<string>) : Boolean;
 begin
 	Result := FIniFile.KeyExists(FIniSection, FIniKey);
 
