@@ -260,7 +260,7 @@ begin
 		raise ESettingsException.Create('Persister is not assigned.');
 	end;
 
-	Persister.StoreToPersister(Value);
+	Persister.StoreValue(Value);
 	State := ssStored;
 end;
 
