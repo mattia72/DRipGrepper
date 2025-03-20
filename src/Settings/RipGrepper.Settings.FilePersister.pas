@@ -16,7 +16,7 @@ type
 	IFilePersister<T> = interface(IPersister)
 		['{57B16806-F8F5-447E-9AB6-767E553CCB65}']
 		function TryLoadValue(var _value : T) : Boolean;
-		function LoadValue(const _section, _key : string) : T; // TODO: Exception if not exists
+		function LoadValue(const _section, _key : string) : T; // raises Exception if not exists
 		procedure StoreValue(const _value : T);
 
 		function GetFilePath() : string;
@@ -52,16 +52,18 @@ type
 	TMemIniPersister = class(TInterfacedObject)
 		private
 			function GetFilePath() : string;
+			function GetIniFile(): TMemIniFile;
 			procedure SetFilePath(const Value : string);
 
 		protected
-			FIniFile : TMemIniFile;
+			FIniFile: TMemIniFile;
 			FIniKey : string;
 			FIniSection : string;
 
 		public
 			constructor Create(_ini : TMemIniFile); overload;
 			property FilePath : string read GetFilePath write SetFilePath;
+			property IniFile: TMemIniFile read GetIniFile;
 	end;
 
 	TMemIniStringPersister = class(TMemIniPersister, IFilePersister<string>)
@@ -364,6 +366,11 @@ end;
 function TMemIniPersister.GetFilePath() : string;
 begin
 	Result := FIniFile.FileName;
+end;
+
+function TMemIniPersister.GetIniFile(): TMemIniFile;
+begin
+	Result := FIniFile;
 end;
 
 procedure TMemIniPersister.SetFilePath(const Value : string);

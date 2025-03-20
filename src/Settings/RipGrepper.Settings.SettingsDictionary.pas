@@ -41,7 +41,7 @@ type
 			procedure LoadFromPersister();
 			procedure SetState(const _from, _to : TSettingState; const _section : string = '');
 			function HasState(const _state : TSettingState; const _section : string = '') : Boolean;
-			procedure StoreToPersister(const _section: string);
+			procedure StoreToPersister(const _section : string);
 
 			property Count : Integer read GetCount;
 			property InnerDictionary : ISettingSections read FInnerDictionary;
@@ -268,7 +268,7 @@ begin
 	end;
 end;
 
-procedure TSettingsDictionary.StoreToPersister(const _section: string);
+procedure TSettingsDictionary.StoreToPersister(const _section : string);
 var
 	section : string;
 begin
@@ -285,8 +285,10 @@ begin
 		if not section.IsEmpty and InnerDictionary.ContainsKey(section) then begin
 			StoreSectionToPersister(section);
 		end else begin
+			//var
+			//dbgArr := TSettingsDictionary.DictToStringArray(self);
 			dbgMsg.MsgFmt('invalid section: ''%s''', [section]);
-//          raise ESettingsException.CreateFmt('invalid section: ''%s''', [section]);
+			// raise ESettingsException.CreateFmt('invalid section: ''%s''', [section]);
 		end;
 	end;
 end;

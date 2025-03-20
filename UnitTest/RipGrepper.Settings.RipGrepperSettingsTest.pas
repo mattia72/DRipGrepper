@@ -81,7 +81,9 @@ type
 			[Test]
 			procedure InitialSettingsShouldLoadDefaultFontColors();
 			[Test]
-			procedure UpdateFileAfterConfigTest;
+			procedure UpdateFileAfterConfigSavesAppConfigTest();
+			[Test]
+			procedure UpdateFileAfterConfigSavesColorTest();
 			[Test]
 			procedure UpdateHistInIniTest;
 	end;
@@ -343,30 +345,58 @@ begin
 	Result := BoolToStr(FFactory.GetBoolPersister.LoadValue(_section, _key), True);
 end;
 
-procedure TRipGrepperSettingsTest.UpdateFileAfterConfigTest;
+procedure TRipGrepperSettingsTest.UpdateFileAfterConfigSavesAppConfigTest();
+var
+	appSection : string;
+	dbgArr : TArray<TArray<string>>;
 begin
 	SetSettingValues;
 
-	var
-	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
-	var
 	appSection := FSettings.AppSettings.IniSectionName;
 
 	FSettings.UpdateFile(); // config form close is tested here?
 	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 
 	FSettings.ReadIni;
-	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
-	var
-	cbsh := FSettings.SettingsDict()[appSection]['CopyToClipBoardShell'].AsString;
-
 	Assert.AreEqual(True, FBoolPers.LoadValue(appSection, 'ExpertMode'), 'ExpertMode should be True');
-	cbsh := FSettings.SettingsDict()[appSection]['CopyToClipBoardShell'].AsString;
 	Assert.AreEqual('Carbon', FStrPers.LoadValue(appSection, 'ColorTheme'), 'ColorTheme should be Carbon');
 
-    var iniVal := Integer(FSettings.AppSettings.CopyToClipBoardShell);
-    FFactory.GetIntegerPersister(appSection, 'CopyToClipBoardShell').TryLoadValue(iniVal);
-	Assert.AreEqual(0, iniVal, 'CopyToClipBoardShell should be 1');
+	// default values are not stored in persister
+	var
+	iniVal := Integer(FSettings.AppSettings.CopyToClipBoardShell);
+	FFactory.GetIntegerPersister(appSection, 'CopyToClipBoardShell').TryLoadValue(iniVal); // change only if exists
+	Assert.AreEqual(0, iniVal, 'CopyToClipBoardShell should be 0');
+
+	var
+	extSection := FSettings.SearchFormSettings.ExtensionSettings.IniSectionName;
+	Assert.AreEqual(SC_OPEN_WITH, FStrPers.LoadValue(extSection, 'OpenWithShortcut'), 'OpenWithShortcut should be SC_OPEN_WITH');
+	Assert.AreEqual(SC_SEARCH, FStrPers.LoadValue(extSection, 'SearchSelectedShortcut'), 'SearchSelectedShortcut should be SC_SEARCH');
+end;
+
+procedure TRipGrepperSettingsTest.UpdateFileAfterConfigSavesColorTest();
+var
+	appSection : string;
+	dbgArr : TArray<TArray<string>>;
+begin
+	SetSettingValues;
+
+	FSettings.UpdateFile(True); // config form close is tested here?
+	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
+
+	FSettings.ReadIni;
+
+	var
+	section := FSettings.FontColorSettings.IniSectionName;
+	var
+	colorKeys := FSettings.FontColorSettings.SettingsDict.Sections[section];
+	for var key in colorKeys do begin
+		var
+		memIni := TMemIniPersister(FFactory.GetStringPersister());
+		Assert.IsTrue(memIni.IniFile.KeyExists(section, key.Key), key.key + ' should exist');
+		var
+		colorIniVal := FFactory.GetStringPersister().LoadValue(section, key.Key);
+		Assert.AreEqual(key.Value.AsString, colorIniVal, Format('[%s] %s should be equal',[section, key.Key]));
+	end;
 
 	var
 	extSection := FSettings.SearchFormSettings.ExtensionSettings.IniSectionName;
@@ -443,8 +473,7 @@ begin
 end;
 
 procedure TInnerSearchFormSettingsTest.EncodingChangeAndUpdateFile();
-var
-	settingVal, iniVal : string;
+var settingVal, iniVal : string;
 begin
 	FSettings.SearchFormSettings.Encoding := 'utf8';
 	FSettings.StoreToPersister();
@@ -456,8 +485,7 @@ begin
 end;
 
 procedure TInnerSearchFormSettingsTest.EncodingChangeChangesDictionary();
-var
-	settingVal, dictVal : string;
+var settingVal, dictVal : string;
 begin
 	FSettings.SearchFormSettings.Encoding := 'utf8';
 
@@ -471,8 +499,7 @@ begin
 end;
 
 procedure TInnerSearchFormSettingsTest.ContextChangeChangesDictionary();
-var
-	settingVal, dictVal : string;
+var settingVal, dictVal : string;
 begin
 	FSettings.SearchFormSettings.Context := 1;
 

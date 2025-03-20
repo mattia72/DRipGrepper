@@ -69,7 +69,7 @@ type
 			{ } 'AlternateRow=Segoe UI|9|clNone|$002B2B2B'];
 			{$ELSE}
 			{ } 'AlternateRow=Segoe UI|9|clNone|$00404040'];
-            {$ENDIF}
+		{$ENDIF}
 
 		private
 			FTheme : EThemeMode;
@@ -176,20 +176,22 @@ procedure TColorSettings.Init;
 begin
 	LoadDefaultColors(TDarkModeHelper.GetActualThemeMode);
 	FFontColorsSettings := TCollections.CreateSortedDictionary<string, ISetting>();
-	FFontColorsSettings.Add('AlternateRow', TStringSetting.Create(FFontColors.AlternateRow.ToString));
-	FFontColorsSettings.Add('ColNumText', TStringSetting.Create(FFontColors.ColNumText.ToString));
-	FFontColorsSettings.Add('CounterText', TStringSetting.Create(FFontColors.CounterText.ToString));
-	FFontColorsSettings.Add('ErrorText', TStringSetting.Create(FFontColors.ErrorText.ToString));
-	FFontColorsSettings.Add('FileText', TStringSetting.Create(FFontColors.FileText.ToString));
-	FFontColorsSettings.Add('LineNumText', TStringSetting.Create(FFontColors.LineNumText.ToString));
-	FFontColorsSettings.Add('MatchText', TStringSetting.Create(FFontColors.MatchText.ToString));
-	FFontColorsSettings.Add('NormalText', TStringSetting.Create(FFontColors.NormalText.ToString));
-	FFontColorsSettings.Add('ReplaceText', TStringSetting.Create(FFontColors.ReplaceText.ToString));
-	FFontColorsSettings.Add('ReplaceTextInHistory', TStringSetting.Create(FFontColors.ReplaceTextInHistory.ToString));
-	FFontColorsSettings.Add('ReplacedText', TStringSetting.Create(FFontColors.ReplacedText.ToString));
-	FFontColorsSettings.Add('ReplacedTextInHistory', TStringSetting.Create(FFontColors.ReplacedTextInHistory.ToString));
-	FFontColorsSettings.Add('SearchTextInHistory', TStringSetting.Create(FFontColors.SearchTextInHistory.ToString));
-	FFontColorsSettings.Add('StatisticsText', TStringSetting.Create(FFontColors.StatisticsText.ToString));
+
+    var ss : TSettingState := ssModified;
+	FFontColorsSettings.Add('AlternateRow', TStringSetting.Create(FFontColors.AlternateRow.ToString, ss));
+	FFontColorsSettings.Add('ColNumText', TStringSetting.Create(FFontColors.ColNumText.ToString, ss));
+	FFontColorsSettings.Add('CounterText', TStringSetting.Create(FFontColors.CounterText.ToString, ss));
+	FFontColorsSettings.Add('ErrorText', TStringSetting.Create(FFontColors.ErrorText.ToString, ss));
+	FFontColorsSettings.Add('FileText', TStringSetting.Create(FFontColors.FileText.ToString, ss));
+	FFontColorsSettings.Add('LineNumText', TStringSetting.Create(FFontColors.LineNumText.ToString, ss));
+	FFontColorsSettings.Add('MatchText', TStringSetting.Create(FFontColors.MatchText.ToString, ss));
+	FFontColorsSettings.Add('NormalText', TStringSetting.Create(FFontColors.NormalText.ToString, ss));
+	FFontColorsSettings.Add('ReplaceText', TStringSetting.Create(FFontColors.ReplaceText.ToString, ss));
+	FFontColorsSettings.Add('ReplaceTextInHistory', TStringSetting.Create(FFontColors.ReplaceTextInHistory.ToString, ss));
+	FFontColorsSettings.Add('ReplacedText', TStringSetting.Create(FFontColors.ReplacedText.ToString, ss));
+	FFontColorsSettings.Add('ReplacedTextInHistory', TStringSetting.Create(FFontColors.ReplacedTextInHistory.ToString, ss));
+	FFontColorsSettings.Add('SearchTextInHistory', TStringSetting.Create(FFontColors.SearchTextInHistory.ToString, ss));
+	FFontColorsSettings.Add('StatisticsText', TStringSetting.Create(FFontColors.StatisticsText.ToString, ss));
 
 	for var pair in FFontColorsSettings do begin
 		CreateSetting(pair.key, pair.Value);

@@ -98,7 +98,9 @@ type
 			function GetType() : TSettingType; virtual; abstract;
 
 		public
-			constructor Create(); overload;
+			constructor Create(
+				{ } _state : TSettingState = ssInitialized;
+				{ } _saveBehaviour : TSettingSaveBehaviour = ssbSaveIfModified); overload;
 			procedure LoadFromPersister(); virtual; abstract;
 			procedure StoreToPersister(const _section : string = ''); virtual; abstract;
 
@@ -139,7 +141,9 @@ type
 			procedure SetPersister(const Value : IFilePersister<T>);
 
 		public
-			constructor Create(const _value : T); overload;
+			constructor Create(const _value : T;
+				{ } _state : TSettingState = ssInitialized;
+				{ } _saveBehaviour : TSettingSaveBehaviour = ssbSaveIfModified); overload;
 			function CompareTo(Value : ISettingVariant<T>) : Integer;
 			procedure Copy(_other : ISettingVariant<T>); reintroduce;
 			function Equals(_other : ISettingVariant<T>) : Boolean; reintroduce;
@@ -186,11 +190,13 @@ implementation
 uses
 	RipGrepper.Tools.DebugUtils;
 
-constructor TSettingVariant<T>.Create(const _value : T);
+constructor TSettingVariant<T>.Create(const _value : T;
+	{ } _state : TSettingState = ssInitialized;
+	{ } _saveBehaviour : TSettingSaveBehaviour = ssbSaveIfModified);
 begin
-	inherited Create();
+	inherited Create(_state, _saveBehaviour);
 	FValue := _value;
-	FState := ssInitialized;
+
 end;
 
 function TSettingVariant<T>.CompareTo(Value : ISettingVariant<T>) : Integer;
@@ -269,9 +275,12 @@ begin
 	FPersister := Value;
 end;
 
-constructor TSetting.Create();
+constructor TSetting.Create(
+	{ } _state : TSettingState = ssInitialized;
+	{ } _saveBehaviour : TSettingSaveBehaviour = ssbSaveIfModified);
 begin
-	FSaveBehaviour := ssbSaveIfModified;
+	FState := _state;
+	FSaveBehaviour := _saveBehaviour;
 end;
 
 function TSetting.AsArray() : TArrayEx<string>;
