@@ -278,7 +278,7 @@ begin
 	dbgMsg.Msg('TestFile: ' + owSettings.TestFile.GetRelativePath());
 
 	// write ini file content
-	Settings.UpdateFile('', True);
+	Settings.UpdateFile(True);
 	var
 	owForm := TConfigForm.Create(Settings);
 	try
@@ -288,7 +288,7 @@ begin
 	end;
 
 	// write ini file content after close config form
-	Settings.UpdateFile('', True);
+	Settings.UpdateFile(True);
 
 	owSettings.TestFile := default (TOpenWithParams);
 	MainFrame.ReloadColorSettings;
