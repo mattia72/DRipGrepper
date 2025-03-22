@@ -112,11 +112,13 @@ end;
 
 procedure TNodeLookSettings.Init;
 begin
-	FShowRelativePath := TBoolSetting.Create(False);
-	FAlternateRowColors := TBoolSetting.Create(False);
-	FExpandNodes := TBoolSetting.Create(False);
-	FIndentLines := TBoolSetting.Create(False);
-	FShowFileIcon := TBoolSetting.Create(False);
+	var
+	ssb : TSettingStoreBehaviours := [ssbStoreIfModified,ssbStoreAfterChangeImmediately];
+	FShowRelativePath := TBoolSetting.Create(False, ssInitialized, ssb);
+	FAlternateRowColors := TBoolSetting.Create(False, ssInitialized, ssb);
+	FExpandNodes := TBoolSetting.Create(False, ssInitialized, ssb);
+	FIndentLines := TBoolSetting.Create(False, ssInitialized, ssb);
+	FShowFileIcon := TBoolSetting.Create(False, ssInitialized, ssb);
 
 	CreateSetting('ShowRelativePath', FShowRelativePath);
 	CreateSetting('ShowFileIcon', FShowFileIcon);

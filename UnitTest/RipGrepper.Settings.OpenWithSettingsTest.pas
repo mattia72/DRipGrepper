@@ -39,7 +39,7 @@ end;
 
 procedure TInnerOpenWithSettingsTest.CommandListShouldBeFilledInDict();
 var
-	count: Integer;
+	count : Integer;
 	dictVal : string;
 	section : string;
 	settingVal : string;
@@ -65,14 +65,23 @@ var
 	settingVal : string;
 	i : integer;
 begin
-	FSettings.OpenWithSettings.ForceUpdateFile;
+	var
+	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
+
+  FSettings.OpenWithSettings.ForceUpdateFile;
+	FSettings.StoreToPersister;
+
+	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
+
+	var
+	section := FSettings.OpenWithSettings.IniSectionName;
 	i := 0;
 	var
 	arr := FSettings.OpenWithSettings.GetCommands;
 	for settingVal in arr do begin
 		var
 		key := Format('%s%d', [OPENWITH_COMMAND_KEY, i]);
-		iniVal := FFactory.GetStringPersister().LoadValue(FSettings.OpenWithSettings.IniSectionName, key);
+		iniVal := FFactory.GetStringPersister().LoadValue(section, key);
 		Assert.AreEqual(settingVal, iniVal, key + ' should be persisted.');
 		Inc(i);
 	end;

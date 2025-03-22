@@ -108,13 +108,22 @@ begin
 
 	Section := 'TestSection';
 	Ident := 'TestIdent';
-	ExpectedValue := v.Value;
 	v.Persister := TMemIniStringPersister.Create(IniFile, Section, Ident);
 
 	v.StoreToPersister();
 	ActualValue := IniFile.ReadString(Section, Ident, '');
+	ExpectedValue := '';
 
-	Assert.AreEqual(ExpectedValue, ActualValue, Format('Expected %s should be equal to %s', [ExpectedValue, ActualValue]));
+	Assert.AreEqual(ExpectedValue, ActualValue, Format('Initialized is not stored. Expected %s should be equal to %s',
+		[ExpectedValue, ActualValue]));
+
+	v.Value := 'ChangedValue';
+	v.StoreToPersister();
+	ActualValue := IniFile.ReadString(Section, Ident, '');
+	ExpectedValue := v.Value;
+
+	Assert.AreEqual(ExpectedValue, ActualValue, Format('Modified should stored. Expected %s should be equal to %s',
+		[ExpectedValue, ActualValue]));
 
 end;
 
@@ -129,13 +138,22 @@ begin
 
 	Section := 'TestSection';
 	Ident := 'TestIdent';
-	ExpectedValue := v.Value;
 	v.Persister := TMemIniIntegerPersister.Create(IniFile, Section, Ident);
 
 	v.StoreToPersister();
 	ActualValue := IniFile.ReadInteger(Section, Ident, -1);
+	ExpectedValue := -1;
 
-	Assert.AreEqual(ExpectedValue, ActualValue, Format('Expected %d should be equal to %d', [ExpectedValue, ActualValue]));
+	Assert.AreEqual(ExpectedValue, ActualValue, Format('Initialized is not stored. Expected %d should be equal to %d',
+		[ExpectedValue, ActualValue]));
+
+	v.Value := 43;
+	v.StoreToPersister();
+	ActualValue := IniFile.ReadInteger(Section, Ident, -1);
+	ExpectedValue := 43;
+
+	Assert.AreEqual(ExpectedValue, ActualValue, Format('Modified should be stored. Expected %d should be equal to %d',
+		[ExpectedValue, ActualValue]));
 
 end;
 
@@ -148,12 +166,22 @@ begin
 	v := TBoolSetting.Create(True);
 	Section := 'TestSection';
 	Ident := 'TestIdent';
-	ExpectedValue := v.Value;
 	v.Persister := TMemIniBoolPersister.Create(IniFile, Section, Ident);
 
 	v.StoreToPersister();
 	// ini file stores 0 or 1
 	ActualValue := IniFile.ReadBool(Section, Ident, False);
+	ExpectedValue := v.Value;
+
+	Assert.AreNotEqual(ExpectedValue, ActualValue, Format('Initialized is not stored. Expected %s should be equal to %s',
+		[BoolToStr(ExpectedValue), BoolToStr(ActualValue)]));
+
+	v.Value := False;
+	v.Value := True;
+	v.StoreToPersister();
+	// ini file stores 0 or 1
+	ActualValue := IniFile.ReadBool(Section, Ident, False);
+	ExpectedValue := v.Value;
 
 	Assert.AreEqual(ExpectedValue, ActualValue, Format('Expected %s should be equal to %s',
 		[BoolToStr(ExpectedValue), BoolToStr(ActualValue)]));
@@ -171,16 +199,28 @@ begin
 	var
 	varr := TArrayEx<string>.Create(arr);
 	v := TArraySetting.Create(varr);
-		Section := 'TestSection';
+	Section := 'TestSection';
 
-		v.Persister := TMemIniStrArrayPersister.Create(IniFile, Section);
-		v.StoreToPersister;
+	v.Persister := TMemIniStrArrayPersister.Create(IniFile, Section);
+	v.StoreToPersister;
 
-		for var i := 0 to 2 do begin
-			ActualValue := IniFile.ReadString(Section, Format('Item_%d', [i]), '');
-			ExpectedValue := varr[i];
-			Assert.AreEqual(ExpectedValue, ActualValue, Format('Expected %s should be equal to %s', [ExpectedValue, ActualValue]));
-		end;
+	for var i := 0 to 2 do begin
+		ActualValue := IniFile.ReadString(Section, Format('Item_%d', [i]), '');
+		ExpectedValue := varr[i];
+		Assert.AreNotEqual(ExpectedValue, ActualValue, Format('Initialized not saved. Expected %s should be equal to %s',
+			[ExpectedValue, ActualValue]));
+	end;
+
+	varr := ['1', '2', '3'];
+	v.Value := varr;
+	v.StoreToPersister;
+
+	for var i := 0 to 2 do begin
+		ActualValue := IniFile.ReadString(Section, Format('Item_%d', [i]), '');
+		ExpectedValue := varr[i];
+		Assert.AreEqual(ExpectedValue, ActualValue, Format('Modified should stored. Expected %s should be equal to %s',
+			[ExpectedValue, ActualValue]));
+	end;
 
 end;
 

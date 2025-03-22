@@ -31,6 +31,7 @@ type
 			constructor Create(const _section : string); overload;
 			constructor Create; overload;
 			procedure AddOrChange(const _key : string; _setting : ISetting);
+			procedure ClearSection(const _section : string);
 			function ContainsSection(const _section : string) : Boolean;
 			procedure CopySection(const _section : string; _from : TSettingsDictionary);
 			procedure CreateSetting(const _key : string; _setting : ISetting; _factory : IPersisterFactory);
@@ -117,6 +118,18 @@ begin
 		TStringSetting(s).Persister := _factory.GetStringPersister(SectionName, key);
 		AddOrChange(key, s);
 		Inc(i);
+	end;
+end;
+
+procedure TSettingsDictionary.ClearSection(const _section : string);
+var
+	sd : IDictionary<TSettingKey, ISetting>;
+begin
+	if InnerDictionary.TryGetValue(_section, sd) then begin
+		for var key in sd.Keys do begin
+			sd[key].Clear();
+            sd[key].State := ssModified;
+		end;
 	end;
 end;
 
@@ -256,10 +269,8 @@ begin
 
 	for var keys in InnerDictionary[_section] do begin
 		setting := keys.Value;
-		if (setting.State = ssModified)
-		{ } or (setting.SaveBehaviour = ssbSaveEvenIfNotModified) then begin
-			setting.StoreToPersister(_section);
-		end;
+		setting.StoreToPersister(_section);
+
 		{$IFDEF DEBUG}
 		var
 		value := InnerDictionary[_section][keys.Key].AsString;
@@ -285,8 +296,8 @@ begin
 		if not section.IsEmpty and InnerDictionary.ContainsKey(section) then begin
 			StoreSectionToPersister(section);
 		end else begin
-			//var
-			//dbgArr := TSettingsDictionary.DictToStringArray(self);
+			// var
+			// dbgArr := TSettingsDictionary.DictToStringArray(self);
 			dbgMsg.MsgFmt('invalid section: ''%s''', [section]);
 			// raise ESettingsException.CreateFmt('invalid section: ''%s''', [section]);
 		end;

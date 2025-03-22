@@ -69,7 +69,7 @@ end;
 procedure TOpenWithSettings.Init;
 begin
 	FCommandListSetting := TArraySetting.Create();
-    FCommandListSetting.SaveBehaviour := ssbSaveEvenIfNotModified;
+    FCommandListSetting.SaveBehaviour := [ssbStoreIfModified,ssbStoreOnceEvenIfNotModified];
 
 	for var i : integer := 0 to Length(DEFAULT_EDITORS) - 1 do begin
 		Command[i] := DEFAULT_EDITORS[i];
@@ -119,7 +119,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.ForceUpdateFile');
 //  var
 //  dbgArr := TSettingsDictionary.DictToStringArray(SettingsDict());
- 	UpdateFile(True, True);
+ 	GetRootOwner().UpdateFile(True, True);
 end;
 
 function TOpenWithSettings.ToString : string;

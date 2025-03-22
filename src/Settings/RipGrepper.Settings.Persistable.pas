@@ -49,8 +49,8 @@ type
 			procedure SetPersisterFactory(const Value : IPersisterFactory);
 			procedure SetIniSectionName(const Value : string);
 			procedure AddToOwnerSettings();
+			procedure ClearSection(const _section : string);
 			function CopySettingsDictToRoot() : TPersistableSettings;
-			function GetRootOwner : TPersistableSettings;
 			procedure StoreDictToPersister(const _section : string = ''; const _bClearSection : Boolean = False);
 
 		protected
@@ -67,6 +67,7 @@ type
 			/// </summary>
 			procedure Init; virtual; abstract;
 			function GetIniSectionName : string; virtual;
+			function GetRootOwner(): TPersistableSettings;
 			function ToLogString : string; virtual;
 
 		public
@@ -400,7 +401,17 @@ begin
 	end;
 end;
 
-function TPersistableSettings.GetRootOwner : TPersistableSettings;
+procedure TPersistableSettings.ClearSection(const _section : string);
+var
+	fh : IFileHandler;
+begin
+	if Supports(FPersisterFactory, IFileHandler, fh) then begin
+		fh.EraseSection(_section);
+//      SettingsDict.ClearSection(_section);
+	end;
+end;
+
+function TPersistableSettings.GetRootOwner(): TPersistableSettings;
 var
 	rootOwner : TPersistableSettings;
 begin
@@ -423,12 +434,12 @@ begin
 	childSetting := self;
 	section := IniSectionName;
 	while Assigned(rootOwner) do begin
-//      var
-//      dbgArrChild := TSettingsDictionary.DictToStringArray(childSetting.SettingsDict());
+		// var
+		// dbgArrChild := TSettingsDictionary.DictToStringArray(childSetting.SettingsDict());
 
 		rootOwner.CopySettingsDictSection(childSetting, True, True);
-//      var
-//      dbgArrRoot := TSettingsDictionary.DictToStringArray(rootOwner.SettingsDict());
+		// var
+		// dbgArrRoot := TSettingsDictionary.DictToStringArray(rootOwner.SettingsDict());
 
 		rootOwner.StoreDictToPersister(section);
 		if not Assigned(rootOwner.FOwner) then
@@ -477,23 +488,19 @@ end;
 procedure TPersistableSettings.StoreDictToPersister(const _section : string = ''; const _bClearSection : Boolean = False);
 var
 	fh : IFileHandler;
+	section : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.StoreDictToPersister');
 
 	var
 	lock := TLockGuard.NewLock(FLockObject);
-
-	var
 	section := IfThen(_section.IsEmpty, IniSectionName, _section);
 	dbgMsg.MsgFmt('Lock Entered - StoreDictToPersister [%s]', [section]);
 
 	if _bClearSection then begin
 		dbgMsg.MsgFmt('Clear section [%s]', [section]);
-
-		if Supports(FPersisterFactory, IFileHandler, fh) then begin
-			fh.EraseSection(section);
-		end
+		ClearSection(section);
 	end;
 
 	SettingsDict.StoreToPersister(section);

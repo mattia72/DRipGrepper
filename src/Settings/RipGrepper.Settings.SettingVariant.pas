@@ -15,10 +15,12 @@ type
 	ESettingsException = class(Exception);
 
 	TSettingState = (ssNotSet, ssInitialized, ssModified, ssStored, ssSaved);
-	TSettingSaveBehaviour = (ssbNotSet,
-		{ } ssbSaveIfModified,
-		{ } ssbSaveAfterChangeImmediately, // TODO
-		{ } ssbSaveEvenIfNotModified);
+	TSettingStoreBehaviour = (ssbNotSet,
+		{ } ssbStoreIfModified,
+		{ } ssbStoreAfterChangeImmediately,
+		{ } ssbStoreOnceEvenIfNotModified);
+
+	TSettingStoreBehaviours = set of TSettingStoreBehaviour;
 	TSettingType = (stNotSet, stString, stInteger, stBool, stStrArray);
 
 	// forward declarations...
@@ -34,12 +36,15 @@ type
 	IBoolSetting = ISettingVariant<Boolean>;
 	IIntegerSetting = ISettingVariant<Integer>;
 	IArraySetting = ISettingVariant<TArrayEx<string>>;
+	TSettingChangedEvent = procedure(Sender : TObject) of object;
 
 	ISetting = interface
 		['{289A58E3-A490-4015-9AFE-52EB303B9B89}']
 		function Equals(_other : ISetting) : Boolean;
 
 		procedure Copy(_other : ISetting);
+		procedure Clear();
+
 		function CompareTo(Value : ISetting) : Integer;
 
 		function GetState() : TSettingState;
@@ -59,12 +64,12 @@ type
 		function AsInteger() : Integer;
 		function AsBool() : Boolean;
 		function AsArray() : TArrayEx<string>;
-		function GetSaveBehaviour() : TSettingSaveBehaviour;
-		procedure SetSaveBehaviour(const Value : TSettingSaveBehaviour);
+		function GetSaveBehaviour() : TSettingStoreBehaviours;
+		procedure SetSaveBehaviour(const Value : TSettingStoreBehaviours);
 
 		property State : TSettingState read GetState write SetState;
 		property SettingType : TSettingType read GetType;
-		property SaveBehaviour : TSettingSaveBehaviour read GetSaveBehaviour write SetSaveBehaviour;
+		property SaveBehaviour : TSettingStoreBehaviours read GetSaveBehaviour write SetSaveBehaviour;
 
 	end;
 
@@ -88,7 +93,7 @@ type
 
 	TSetting = class(TInterfacedObject, ISetting)
 		private
-			FSaveBehaviour : TSettingSaveBehaviour;
+			FSaveBehaviour : TSettingStoreBehaviours;
 			FState : TSettingState;
 
 			function GetState() : TSettingState;
@@ -100,7 +105,7 @@ type
 		public
 			constructor Create(
 				{ } _state : TSettingState = ssInitialized;
-				{ } _saveBehaviour : TSettingSaveBehaviour = ssbSaveIfModified); overload;
+				{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]); overload;
 			procedure LoadFromPersister(); virtual; abstract;
 			procedure StoreToPersister(const _section : string = ''); virtual; abstract;
 
@@ -113,16 +118,17 @@ type
 			function AsInteger() : Integer;
 			function AsBool() : Boolean;
 			function AsArray() : TArrayEx<string>;
+			procedure Clear(); virtual;
 			function CompareTo(Value : ISetting) : Integer;
 			procedure Copy(_other : ISetting);
 			class procedure CopySettingValues(_from, _to : ISetting);
 
 			function Equals(_other : ISetting) : Boolean; reintroduce;
-			function GetSaveBehaviour() : TSettingSaveBehaviour;
-			procedure SetSaveBehaviour(const Value : TSettingSaveBehaviour);
+			function GetSaveBehaviour() : TSettingStoreBehaviours;
+			procedure SetSaveBehaviour(const Value : TSettingStoreBehaviours);
 
 			property State : TSettingState read GetState write SetState;
-			property SaveBehaviour : TSettingSaveBehaviour read GetSaveBehaviour write SetSaveBehaviour;
+			property SaveBehaviour : TSettingStoreBehaviours read GetSaveBehaviour write SetSaveBehaviour;
 
 			property SettingType : TSettingType read GetType;
 	end;
@@ -143,7 +149,8 @@ type
 		public
 			constructor Create(const _value : T;
 				{ } _state : TSettingState = ssInitialized;
-				{ } _saveBehaviour : TSettingSaveBehaviour = ssbSaveIfModified); overload;
+				{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]); overload;
+			procedure Clear(); override;
 			function CompareTo(Value : ISettingVariant<T>) : Integer;
 			procedure Copy(_other : ISettingVariant<T>); reintroduce;
 			function Equals(_other : ISettingVariant<T>) : Boolean; reintroduce;
@@ -192,11 +199,16 @@ uses
 
 constructor TSettingVariant<T>.Create(const _value : T;
 	{ } _state : TSettingState = ssInitialized;
-	{ } _saveBehaviour : TSettingSaveBehaviour = ssbSaveIfModified);
+	{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]);
 begin
 	inherited Create(_state, _saveBehaviour);
 	FValue := _value;
+end;
 
+procedure TSettingVariant<T>.Clear();
+begin
+	inherited;
+    FValue := default(T);
 end;
 
 function TSettingVariant<T>.CompareTo(Value : ISettingVariant<T>) : Integer;
@@ -242,7 +254,11 @@ procedure TSettingVariant<T>.SetValue(const Value : T);
 begin
 	if FValue <> Value then begin
 		FValue := Value;
-		FState := ssModified
+		FState := ssModified;
+		if ssbStoreAfterChangeImmediately in FSaveBehaviour then begin
+			FPersister.StoreValue(FValue);
+		end;
+
 	end;
 end;
 
@@ -266,8 +282,12 @@ begin
 		raise ESettingsException.Create('Persister is not assigned.');
 	end;
 
-	Persister.StoreValue(Value);
-	State := ssStored;
+	if (State = ssModified)
+	{ } or (ssbStoreOnceEvenIfNotModified in SaveBehaviour) then begin
+		Persister.StoreValue(Value);
+		State := ssStored;
+		Exclude(FSaveBehaviour, ssbStoreOnceEvenIfNotModified);
+	end;
 end;
 
 procedure TSettingVariant<T>.SetPersister(const Value : IFilePersister<T>);
@@ -277,7 +297,7 @@ end;
 
 constructor TSetting.Create(
 	{ } _state : TSettingState = ssInitialized;
-	{ } _saveBehaviour : TSettingSaveBehaviour = ssbSaveIfModified);
+	{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]);
 begin
 	FState := _state;
 	FSaveBehaviour := _saveBehaviour;
@@ -339,6 +359,12 @@ begin
 	Result := TStringSetting(self);
 end;
 
+procedure TSetting.Clear();
+begin
+	FState := ssInitialized;
+	FSaveBehaviour := [ssbStoreIfModified];
+end;
+
 function TSetting.CompareTo(Value : ISetting) : Integer;
 begin
 	if SettingType = Value.SettingType then begin
@@ -374,7 +400,7 @@ begin
 	Result := (FState = _other.State);
 end;
 
-function TSetting.GetSaveBehaviour() : TSettingSaveBehaviour;
+function TSetting.GetSaveBehaviour() : TSettingStoreBehaviours;
 begin
 	Result := FSaveBehaviour;
 end;
@@ -384,7 +410,7 @@ begin
 	Result := FState;
 end;
 
-procedure TSetting.SetSaveBehaviour(const Value : TSettingSaveBehaviour);
+procedure TSetting.SetSaveBehaviour(const Value : TSettingStoreBehaviours);
 begin
 	FSaveBehaviour := Value;
 end;

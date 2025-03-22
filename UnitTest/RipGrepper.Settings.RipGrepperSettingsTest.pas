@@ -85,6 +85,8 @@ type
 			[Test]
 			procedure UpdateFileAfterConfigSavesColorTest();
 			[Test]
+			procedure UpdateFileAfterConfigSavesExtensionTest();
+			[Test]
 			procedure UpdateHistInIniTest;
 	end;
 
@@ -211,24 +213,32 @@ begin
 		Assert.IsTrue(b, 'NodeLookSettings|' + s + ' should be true');
 	end;
 
-	{ 2 } FSettings.NodeLookSettings.UpdateFile();
+	// { 2 } FSettings.NodeLookSettings.UpdateFile();
+	//
+	// // Assert.IsTrue(FileExists(FSettings.IniFile.GetTempSectionFileName('NodeLookSettings')), 'temp ini should exist.');
+	// { 3 } FSettings.StoreToPersister;
 
-	// Assert.IsTrue(FileExists(FSettings.IniFile.GetTempSectionFileName('NodeLookSettings')), 'temp ini should exist.');
-	{ 3 } FSettings.StoreToPersister;
-
-	FFactory.GetStringPersister(FSettings.NodeLookSettings.IniSectionName, 'AlternateRowColors').TryLoadValue(iniVal);
+	var
+	section := FSettings.NodeLookSettings.IniSectionName;
+	iniVal := FFactory.GetStringPersister().LoadValue(section, 'AlternateRowColors');
 	settingVal := FSettings.NodeLookSettings.AlternateRowColors;
 	Assert.AreEqual(settingVal, iniVal = '1', 'AlternateRowColors should be equal');
 
-	FFactory.GetStringPersister(FSettings.NodeLookSettings.IniSectionName, 'IndentLines').TryLoadValue(iniVal);
+    // it should be saved immediatelly
+    FSettings.NodeLookSettings.AlternateRowColors := False;
+ 	iniVal := FFactory.GetStringPersister().LoadValue(section, 'AlternateRowColors');
+	Assert.IsFalse(iniVal = '1', 'AlternateRowColors should be False');
+
+
+	iniVal := FFactory.GetStringPersister().LoadValue(section, 'IndentLines');
 	settingVal := FSettings.NodeLookSettings.IndentLines;
 	Assert.AreEqual(settingVal, iniVal = '1', 'IndentLines should be equal');
 
-	FFactory.GetStringPersister(FSettings.NodeLookSettings.IniSectionName, 'ShowRelativePath').TryLoadValue(iniVal);
+	iniVal := FFactory.GetStringPersister().LoadValue(section, 'ShowRelativePath');
 	settingVal := FSettings.NodeLookSettings.ShowRelativePath;
 	Assert.AreEqual(settingVal, iniVal = '1', 'ShowRelativePath should be equal');
 
-	FFactory.GetStringPersister(FSettings.NodeLookSettings.IniSectionName, 'ExpandNodes').TryLoadValue(iniVal);
+	iniVal := FFactory.GetStringPersister().LoadValue(section, 'ExpandNodes');
 	settingVal := FSettings.NodeLookSettings.ExpandNodes;
 	Assert.AreEqual(settingVal, iniVal = '1', 'ExpandNodes should be equal');
 end;
@@ -367,15 +377,10 @@ begin
 	FFactory.GetIntegerPersister(appSection, 'CopyToClipBoardShell').TryLoadValue(iniVal); // change only if exists
 	Assert.AreEqual(0, iniVal, 'CopyToClipBoardShell should be 0');
 
-	var
-	extSection := FSettings.SearchFormSettings.ExtensionSettings.IniSectionName;
-	Assert.AreEqual(SC_OPEN_WITH, FStrPers.LoadValue(extSection, 'OpenWithShortcut'), 'OpenWithShortcut should be SC_OPEN_WITH');
-	Assert.AreEqual(SC_SEARCH, FStrPers.LoadValue(extSection, 'SearchSelectedShortcut'), 'SearchSelectedShortcut should be SC_SEARCH');
 end;
 
 procedure TRipGrepperSettingsTest.UpdateFileAfterConfigSavesColorTest();
 var
-	appSection : string;
 	dbgArr : TArray<TArray<string>>;
 begin
 	SetSettingValues;
@@ -395,8 +400,21 @@ begin
 		Assert.IsTrue(memIni.IniFile.KeyExists(section, key.Key), key.key + ' should exist');
 		var
 		colorIniVal := FFactory.GetStringPersister().LoadValue(section, key.Key);
-		Assert.AreEqual(key.Value.AsString, colorIniVal, Format('[%s] %s should be equal',[section, key.Key]));
+		Assert.AreEqual(key.Value.AsString, colorIniVal, Format('[%s] %s should be equal', [section, key.Key]));
 	end;
+
+end;
+
+procedure TRipGrepperSettingsTest.UpdateFileAfterConfigSavesExtensionTest();
+var
+	dbgArr : TArray<TArray<string>>;
+begin
+	SetSettingValues;
+
+	FSettings.UpdateFile(True); // config form close is tested here?
+	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
+
+	FSettings.ReadIni;
 
 	var
 	extSection := FSettings.SearchFormSettings.ExtensionSettings.IniSectionName;
