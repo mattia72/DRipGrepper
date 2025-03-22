@@ -49,6 +49,8 @@ const
 	SPACE = #32;
 	EOS = #0;
 
+	ITEM_KEY_PREFIX = 'Item_';
+
 	SEARCH_PATH_SEPARATOR = ';';
 	ARRAY_SEPARATOR = '|';
 

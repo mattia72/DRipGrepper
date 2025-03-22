@@ -17,7 +17,7 @@ const
 	NOTEXISTS = '<not exists>';
 	SC_OPEN_WITH = 'SHIFT + F2';
 	SC_SEARCH = 'CTRL + F2';
-	ACT_HIST_VAL = 'hist 2';
+	TEXT_HIST = 'text hist item ';
 
 type
 
@@ -26,6 +26,8 @@ type
 			INIFILE = 'DripGrepperUnittest.ini';
 
 		private
+			FActualTextHistValue : string;
+
 			procedure SetSettingValues();
 
 		protected
@@ -224,11 +226,10 @@ begin
 	settingVal := FSettings.NodeLookSettings.AlternateRowColors;
 	Assert.AreEqual(settingVal, iniVal = '1', 'AlternateRowColors should be equal');
 
-    // it should be saved immediatelly
-    FSettings.NodeLookSettings.AlternateRowColors := False;
- 	iniVal := FFactory.GetStringPersister().LoadValue(section, 'AlternateRowColors');
+	// it should be saved immediatelly
+	FSettings.NodeLookSettings.AlternateRowColors := False;
+	iniVal := FFactory.GetStringPersister().LoadValue(section, 'AlternateRowColors');
 	Assert.IsFalse(iniVal = '1', 'AlternateRowColors should be False');
-
 
 	iniVal := FFactory.GetStringPersister().LoadValue(section, 'IndentLines');
 	settingVal := FSettings.NodeLookSettings.IndentLines;
@@ -426,16 +427,29 @@ procedure TRipGrepperSettingsTest.UpdateHistInIniTest;
 begin
 	SetSettingValues;
 	// see SearchForm.OnClose.
-	FSettings.StoreHistories();
+	// FSettings.StoreHistories(); already done by FSettings.StoreToPersister
 	FSettings.UpdateFile();
 	FSettings.ReadIni;
 
 	var
 	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 
-	Assert.AreEqual(ACT_HIST_VAL, FSettings.SearchTextsHistory.AsArray[0], 'SearchTextsHistory[0] should be hist 0');
-	Assert.AreEqual(ACT_HIST_VAL,
+	Assert.AreEqual(FActualTextHistValue, FSettings.SearchTextsHistory.AsArray[0], 'SearchTextsHistory[0] should be hist 0');
+	Assert.AreEqual(FActualTextHistValue,
 		{ } FFactory.GetStringPersister.LoadValue('SearchTextsHistory', 'Item_0'));
+
+    var j := 2;
+	for var i := 0 to 2 do begin
+		var
+		val := Format('%s%d', [TEXT_HIST, i]);
+		Assert.AreEqual(val, FSettings.SearchTextsHistory.AsArray[j],
+			{ } Format('SearchTextsHistory[%d] should %s', [i, val]));
+		Assert.AreEqual(val,
+			{ } FFactory.GetStringPersister.LoadValue('SearchTextsHistory',
+			{ } Format('Item_%d', [j])));
+        Dec(j);
+	end;
+
 end;
 
 procedure TRipGrepperSettingsTestBase.SetSettingValues();
@@ -467,8 +481,10 @@ begin
 	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext :=
 	{ } TRipGrepperExtensionContext.FromString('2', 'active project', 'active file');
 
-	for var s in ['hist 0', 'hist 1', ACT_HIST_VAL] do
-		FTextHist.Insert(0, s);
+	for var i := 0 to 2 do begin
+		FActualTextHistValue := Format('%s%d', [TEXT_HIST, i]);
+		FTextHist.Insert(0, FActualTextHistValue);
+	end;
 
 	FSettings.SearchTextsHistory.Value := FTextHist.Items;
 	FSettings.StoreToPersister;

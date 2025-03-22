@@ -52,18 +52,18 @@ type
 	TMemIniPersister = class(TInterfacedObject)
 		private
 			function GetFilePath() : string;
-			function GetIniFile(): TMemIniFile;
+			function GetIniFile() : TMemIniFile;
 			procedure SetFilePath(const Value : string);
 
 		protected
-			FIniFile: TMemIniFile;
+			FIniFile : TMemIniFile;
 			FIniKey : string;
 			FIniSection : string;
 
 		public
 			constructor Create(_ini : TMemIniFile); overload;
 			property FilePath : string read GetFilePath write SetFilePath;
-			property IniFile: TMemIniFile read GetIniFile;
+			property IniFile : TMemIniFile read GetIniFile;
 	end;
 
 	TMemIniStringPersister = class(TMemIniPersister, IFilePersister<string>)
@@ -92,11 +92,12 @@ type
 	end;
 
 	TMemIniStrArrayPersister = class(TMemIniPersister, IFilePersister < TArrayEx < string >> )
+
 		private
 			function LoadArrayFromSection(const _section, _key : string) : TArrayEx<string>;
 
 		public
-			constructor Create(_ini : TMemIniFile; const _sIniSection : string);
+			constructor Create(_ini : TMemIniFile; const _sIniSection : string; const _sKeyPrefix : string = '');
 			function TryLoadValue(var _value : TArrayEx<string>) : Boolean;
 			function LoadValue(const _section, _key : string) : TArrayEx<string>;
 			procedure StoreValue(const _value : TArrayEx<string>);
@@ -144,7 +145,8 @@ uses
 	Vcl.Forms,
 	System.Classes,
 	System.IOUtils,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants,
+	System.StrUtils;
 
 function TMemIniStringPersister.TryLoadValue(var _value : string) : Boolean;
 begin
@@ -236,10 +238,12 @@ end;
 
 function TMemIniStrArrayPersister.TryLoadValue(var _value : TArrayEx<string>) : Boolean;
 begin
+	var
+	key := IfThen(FIniKey = ITEM_KEY_PREFIX, FIniKey + '0', FIniKey);
 	Result := FIniFile.KeyExists(FIniSection, FIniKey);
 
 	if Result then begin
-		_value := LoadArrayFromSection(FIniSection, FIniKey);
+		_value := LoadArrayFromSection(FIniSection, key);
 	end;
 end;
 
@@ -259,11 +263,11 @@ begin
 	end;
 end;
 
-constructor TMemIniStrArrayPersister.Create(_ini : TMemIniFile; const _sIniSection : string);
+constructor TMemIniStrArrayPersister.Create(_ini : TMemIniFile; const _sIniSection : string; const _sKeyPrefix : string = '');
 begin
 	FIniFile := _ini;
 	FIniSection := _sIniSection;
-	FIniKey := 'Item_';
+	FIniKey := IfThen(_sKeyPrefix.IsEmpty, ITEM_KEY_PREFIX, _sKeyPrefix);
 end;
 
 function TMemIniStrArrayPersister.LoadArrayFromSection(const _section, _key : string) : TArrayEx<string>;
@@ -272,7 +276,10 @@ var
 	s : string;
 begin
 	Result := [];
-	i := 1;
+	if not FIniFile.SectionExists(FIniSection) then
+		Exit;
+
+	i := 0;
 	while True do begin
 		s := FIniFile.ReadString(FIniSection, Format('%s%d', [_key, i]), '');
 		if s = '' then
@@ -326,7 +333,7 @@ end;
 
 function TIniPersister.GetStrArrayPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<TArrayEx<string>>;
 begin
-	Result := TMemIniStrArrayPersister.Create(FIniFile, _sKey); // _sSection is ROOT_DUMMY, key will be section
+	Result := TMemIniStrArrayPersister.Create(FIniFile, _sIniSection, _sKey);
 end;
 
 function TIniPersister.GetStringPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<string>;
@@ -368,7 +375,7 @@ begin
 	Result := FIniFile.FileName;
 end;
 
-function TMemIniPersister.GetIniFile(): TMemIniFile;
+function TMemIniPersister.GetIniFile() : TMemIniFile;
 begin
 	Result := FIniFile;
 end;

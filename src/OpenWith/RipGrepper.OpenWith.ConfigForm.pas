@@ -107,7 +107,8 @@ uses
 	RipGrepper.OpenWith.CmdEditorForm,
 	ArrayEx,
 	RipGrepper.Settings.SettingsDictionary,
-	RipGrepper.Settings.SettingVariant;
+	RipGrepper.Settings.SettingVariant,
+	RipGrepper.Common.Constants;
 
 const
 	IDX_DESCRIPTION = 1;
@@ -344,7 +345,7 @@ begin
 		dbgMsg.Msg(Format('%s', [FOpenWithSettings.Command[i]]));
 	end;
 	// after ClearCommandList recreate settings...
-	FOpenWithSettings.SettingsDict.CreateSetting(OPENWITH_COMMAND_KEY,
+	FOpenWithSettings.SettingsDict.CreateSetting(OPEN_WITH_SETTINGS, ITEM_KEY_PREFIX,
 		{ } FOpenWithSettings.CommandListSetting,
 		{ } FOpenWithSettings.PersisterFactory);
 

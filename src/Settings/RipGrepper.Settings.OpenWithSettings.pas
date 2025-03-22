@@ -37,7 +37,7 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	System.SysUtils,
 	ArrayEx,
-	RipGrepper.Settings.SettingsDictionary;
+	RipGrepper.Settings.SettingsDictionary, RipGrepper.Common.Constants;
 
 constructor TOpenWithSettings.Create(const _Owner : TPersistableSettings);
 begin
@@ -74,7 +74,7 @@ begin
 	for var i : integer := 0 to Length(DEFAULT_EDITORS) - 1 do begin
 		Command[i] := DEFAULT_EDITORS[i];
 	end;
-	CreateSetting(OPENWITH_COMMAND_KEY, FCommandListSetting);
+	CreateSetting(OPEN_WITH_SETTINGS, ITEM_KEY_PREFIX, FCommandListSetting);
 end;
 
 procedure TOpenWithSettings.ReadIni;

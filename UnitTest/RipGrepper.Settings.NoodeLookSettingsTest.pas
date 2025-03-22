@@ -15,7 +15,6 @@ uses
 const
 	NOTEXISTS = '<not exists>';
 	SC_OPEN_WITH = 'SHIFT + F2';
-	ACT_HIST_VAL = 'hist 2';
 
 type
 

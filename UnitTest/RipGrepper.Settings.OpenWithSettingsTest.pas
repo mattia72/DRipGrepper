@@ -25,7 +25,8 @@ implementation
 uses
 	RipGrepper.Settings.SettingsDictionary,
 	RipGrepper.OpenWith.Constants,
-	System.SysUtils;
+	System.SysUtils,
+	RipGrepper.Common.Constants;
 
 procedure TInnerOpenWithSettingsTest.CommandListShouldBeFilledWithDefaults();
 begin
@@ -50,7 +51,7 @@ begin
 	count := FSettings.OpenWithSettings.Count;
 	for var i := 0 to count - 1 do begin
 		var
-		key := Format('%s%d', [OPENWITH_COMMAND_KEY, i]);
+		key := Format('%s%d', [ITEM_KEY_PREFIX, i]);
 
 		settingVal := FSettings.OpenWithSettings.Command[i];
 		dictVal := FSettings.SettingsDict()[section][key].AsString;
@@ -68,7 +69,7 @@ begin
 	var
 	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 
-  FSettings.OpenWithSettings.ForceUpdateFile;
+	FSettings.OpenWithSettings.ForceUpdateFile;
 	FSettings.StoreToPersister;
 
 	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
@@ -80,7 +81,7 @@ begin
 	arr := FSettings.OpenWithSettings.GetCommands;
 	for settingVal in arr do begin
 		var
-		key := Format('%s%d', [OPENWITH_COMMAND_KEY, i]);
+		key := Format('%s%d', [ITEM_KEY_PREFIX, i]);
 		iniVal := FFactory.GetStringPersister().LoadValue(section, key);
 		Assert.AreEqual(settingVal, iniVal, key + ' should be persisted.');
 		Inc(i);

@@ -59,7 +59,8 @@ type
 			FIsModified : Boolean;
 			class var FLockObject : TObject;
 
-			procedure CreateSetting(const _key : string; _setting : ISetting);
+			procedure CreateSetting(const _key : string; _setting : ISetting); overload;
+			procedure CreateSetting(const _section, _key : string; _setting : ISetting); overload;
 			function GetIsAlreadyRead : Boolean; virtual;
 			function GetIsModified : Boolean; virtual;
 			/// <summary>TPersistableSettings.Init
@@ -67,7 +68,7 @@ type
 			/// </summary>
 			procedure Init; virtual; abstract;
 			function GetIniSectionName : string; virtual;
-			function GetRootOwner(): TPersistableSettings;
+			function GetRootOwner() : TPersistableSettings;
 			function ToLogString : string; virtual;
 
 		public
@@ -329,6 +330,10 @@ begin
 	end;
 
 	dbgMsg.MsgFmt('Read section %s from PersisterFactory %p', [IniSectionName, Pointer(PersisterFactory)]);
+
+	var
+	dbgArr := TSettingsDictionary.DictToStringArray(SettingsDict());
+
 	SettingsDict.LoadFromPersister();
 	FIsAlreadyRead := True;
 end;
@@ -407,11 +412,11 @@ var
 begin
 	if Supports(FPersisterFactory, IFileHandler, fh) then begin
 		fh.EraseSection(_section);
-//      SettingsDict.ClearSection(_section);
+		// SettingsDict.ClearSection(_section);
 	end;
 end;
 
-function TPersistableSettings.GetRootOwner(): TPersistableSettings;
+function TPersistableSettings.GetRootOwner() : TPersistableSettings;
 var
 	rootOwner : TPersistableSettings;
 begin
@@ -448,6 +453,11 @@ begin
 		childSetting := rootOwner;
 	end;
 	Result := rootOwner;
+end;
+
+procedure TPersistableSettings.CreateSetting(const _section, _key : string; _setting : ISetting);
+begin
+	SettingsDict.CreateSetting(_section, _key, _setting, PersisterFactory);
 end;
 
 procedure TPersistableSettings.LoadFromDict();
@@ -487,7 +497,6 @@ end;
 
 procedure TPersistableSettings.StoreDictToPersister(const _section : string = ''; const _bClearSection : Boolean = False);
 var
-	fh : IFileHandler;
 	section : string;
 begin
 	var

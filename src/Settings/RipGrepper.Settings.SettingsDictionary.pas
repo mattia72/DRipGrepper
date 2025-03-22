@@ -34,7 +34,8 @@ type
 			procedure ClearSection(const _section : string);
 			function ContainsSection(const _section : string) : Boolean;
 			procedure CopySection(const _section : string; _from : TSettingsDictionary);
-			procedure CreateSetting(const _key : string; _setting : ISetting; _factory : IPersisterFactory);
+			procedure CreateSetting(const _key : string; _setting : ISetting; _factory : IPersisterFactory); overload;
+			procedure CreateSetting(const _section, _key : string; _setting : ISetting; _factory : IPersisterFactory); overload;
 			function GetEnumerator() : IEnumerator<Spring.Collections.TPair<TSettingSection, ISettingKeys>>;
 			class function DictToStringArray(_dict : TSettingsDictionary) : TArray<TArray<string>>;
 			function GetSetting(const _key : string) : ISetting; overload;
@@ -128,7 +129,7 @@ begin
 	if InnerDictionary.TryGetValue(_section, sd) then begin
 		for var key in sd.Keys do begin
 			sd[key].Clear();
-            sd[key].State := ssModified;
+			sd[key].State := ssModified;
 		end;
 	end;
 end;
@@ -167,21 +168,26 @@ end;
 
 procedure TSettingsDictionary.CreateSetting(const _key : string; _setting : ISetting; _factory : IPersisterFactory);
 begin
+	CreateSetting(SectionName, _key, _setting, _factory);
+end;
+
+procedure TSettingsDictionary.CreateSetting(const _section, _key : string; _setting : ISetting; _factory : IPersisterFactory);
+begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.CreateSetting');
 
 	case _setting.SettingType of
 		stString : begin
-			TStringSetting(_setting).Persister := _factory.GetStringPersister(SectionName, _key);
+			TStringSetting(_setting).Persister := _factory.GetStringPersister(_section, _key);
 		end;
 		stInteger : begin
-			TIntegerSetting(_setting).Persister := _factory.GetIntegerPersister(SectionName, _key);
+			TIntegerSetting(_setting).Persister := _factory.GetIntegerPersister(_section, _key);
 		end;
 		stBool : begin
-			TBoolSetting(_setting).Persister := _factory.GetBoolPersister(SectionName, _key);
+			TBoolSetting(_setting).Persister := _factory.GetBoolPersister(_section, _key);
 		end;
 		stStrArray : begin
-			TArraySetting(_setting).Persister := _factory.GetStrArrayPersister(SectionName, _key);
+			TArraySetting(_setting).Persister := _factory.GetStrArrayPersister(_section, _key);
 		end;
 		else
 		raise ESettingsException.Create('Setting Type not supported.');
@@ -193,7 +199,7 @@ begin
 		AddOrChange(_key, _setting);
 	end;
 
-	dbgMsg.MsgFmt('TSettingsDictionary.CreateSetting [%s] %s', [SectionName, _key]);
+	dbgMsg.MsgFmt('TSettingsDictionary.CreateSetting [%s] %s', [_section, _key]);
 end;
 
 class function TSettingsDictionary.DictToStringArray(_dict : TSettingsDictionary) : TArray<TArray<string>>;
