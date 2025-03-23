@@ -697,7 +697,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         ShowHint = True
         TabOrder = 1
         TabStop = True
-        object tbIgnoreCase: TToolButton
+        object tbMatchCase: TToolButton
           Left = 0
           Top = 0
           Action = ActionAddParamMatchCase

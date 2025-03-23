@@ -5,7 +5,8 @@ interface
 uses
 	System.IniFiles,
 	ArrayEx,
-	Spring;
+	Spring,
+	RipGrepper.Common.Constants;
 
 type
 
@@ -94,7 +95,7 @@ type
 	TMemIniStrArrayPersister = class(TMemIniPersister, IFilePersister < TArrayEx < string >> )
 
 		private
-			function LoadArrayFromSection(const _section, _key : string) : TArrayEx<string>;
+			function LoadArrayFromSection(const _section : string; const _keyPrefix : string = ITEM_KEY_PREFIX) : TArrayEx<string>;
 
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection : string; const _sKeyPrefix : string = '');
@@ -145,7 +146,7 @@ uses
 	Vcl.Forms,
 	System.Classes,
 	System.IOUtils,
-	RipGrepper.Common.Constants,
+
 	System.StrUtils;
 
 function TMemIniStringPersister.TryLoadValue(var _value : string) : Boolean;
@@ -240,10 +241,10 @@ function TMemIniStrArrayPersister.TryLoadValue(var _value : TArrayEx<string>) : 
 begin
 	var
 	key := IfThen(FIniKey = ITEM_KEY_PREFIX, FIniKey + '0', FIniKey);
-	Result := FIniFile.KeyExists(FIniSection, FIniKey);
+	Result := FIniFile.KeyExists(FIniSection, key);
 
 	if Result then begin
-		_value := LoadArrayFromSection(FIniSection, key);
+		_value := LoadArrayFromSection(FIniSection);
 	end;
 end;
 
@@ -270,7 +271,8 @@ begin
 	FIniKey := IfThen(_sKeyPrefix.IsEmpty, ITEM_KEY_PREFIX, _sKeyPrefix);
 end;
 
-function TMemIniStrArrayPersister.LoadArrayFromSection(const _section, _key : string) : TArrayEx<string>;
+function TMemIniStrArrayPersister.LoadArrayFromSection(const _section : string; const _keyPrefix : string = ITEM_KEY_PREFIX)
+	: TArrayEx<string>;
 var
 	i : Integer;
 	s : string;
@@ -281,7 +283,7 @@ begin
 
 	i := 0;
 	while True do begin
-		s := FIniFile.ReadString(FIniSection, Format('%s%d', [_key, i]), '');
+		s := FIniFile.ReadString(FIniSection, Format('%s%d', [_keyPrefix, i]), '');
 		if s = '' then
 			Break;
 		Result.Insert(0, s);
@@ -291,7 +293,7 @@ end;
 
 function TMemIniStrArrayPersister.LoadValue(const _section, _key : string) : TArrayEx<string>;
 begin
-	Result := LoadArrayFromSection(_section, _key);
+	Result := LoadArrayFromSection(_section { , ITEM_KEY_PREFIX } );
 end;
 
 constructor TIniPersister.Create();
