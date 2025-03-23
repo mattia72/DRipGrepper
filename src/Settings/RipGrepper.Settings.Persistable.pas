@@ -48,7 +48,6 @@ type
 			procedure SetChildrenPersister;
 			procedure SetPersisterFactory(const Value : IPersisterFactory);
 			procedure SetIniSectionName(const Value : string);
-			procedure AddToOwnerSettings();
 			procedure ClearSection(const _section : string);
 			function CopySettingsDictToRoot() : TPersistableSettings;
 			procedure StoreDictToPersister(const _section : string = ''; const _bClearSection : Boolean = False);
@@ -87,6 +86,7 @@ type
 			property SettingsDict : IShared<TSettingsDictionary> read FSettingsDict write FSettingsDict;
 			destructor Destroy; override;
 			function AddChildSettings(const _settings : TPersistableSettings) : TPersistableSettings;
+			procedure AddToOwnerSettings();
 			class procedure CallUpdateFileOnFactory(const _factory : IPersisterFactory; const _dict : TSettingsDictionary);
 			function RemoveChildSettings(const _settings : TPersistableSettings) : Boolean;
 			procedure CopySettingsDictSection(const _from : TPersistableSettings; const _copyAllSections : Boolean = False;

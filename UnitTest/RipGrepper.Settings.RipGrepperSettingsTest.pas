@@ -386,7 +386,7 @@ var
 begin
 	SetSettingValues;
 
-	FSettings.UpdateFile(True); // config form close is tested here?
+	FSettings.UpdateFile(); // color config form close is tested here?
 	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 
 	FSettings.ReadIni;
@@ -412,7 +412,7 @@ var
 begin
 	SetSettingValues;
 
-	FSettings.UpdateFile(True); // config form close is tested here?
+	FSettings.UpdateFile(); // extension config form close is tested here?
 	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 
 	FSettings.ReadIni;

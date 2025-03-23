@@ -149,13 +149,12 @@ begin
 
 	if FInnerDictionary.TryGetValue(_section, sdSelf) then begin
 		if _from.InnerDictionary.TryGetValue(_section, sdFrom) then begin
-			for var key in sdFrom.Keys do begin
-				if sdSelf.ContainsKey(key) then begin
-					sdSelf[key].Copy(sdFrom[key]);
-				end else begin
-					sdSelf[key] := sdFrom[key];
-				end;
-			end;
+			var
+			dbgFrom := TSettingsDictionary.DictToStringArray(_from);
+			FInnerDictionary[_section] := sdFrom;
+			var
+			dbgTo := TSettingsDictionary.DictToStringArray(self);
+			dbgMsg.MsgFmt('Copy from existent section [%s]', [_section]);
 		end else begin
 			dbgMsg.ErrorMsgFmt('Copy from non existent section [%s]', [_section]);
 			raise ESettingsException.CreateFmt('Copy from non existent section [%s]', [_section]);

@@ -24,7 +24,8 @@ uses
 	SVGIconImageListBase,
 	SVGIconImageList,
 	RipGrepper.Helper.UI.DarkMode,
-	RipGrepper.Tools.FileUtils;
+	RipGrepper.Tools.FileUtils,
+	ArrayEx;
 
 type
 	TCheckBoxState = (csbNone, csbTrue, csbFalse);
@@ -87,7 +88,7 @@ type
 			destructor Destroy; override;
 			class procedure CreateAndShow(const _settings : TOpenWithSettings; const _colorTheme : string);
 			procedure ReadSettings; override;
-			procedure WriteSettings; override;
+			procedure WriteSettings(); override;
 
 	end;
 
@@ -105,7 +106,7 @@ uses
 	RipGrepper.Helper.UI,
 	System.RegularExpressions,
 	RipGrepper.OpenWith.CmdEditorForm,
-	ArrayEx,
+
 	RipGrepper.Settings.SettingsDictionary,
 	RipGrepper.Settings.SettingVariant,
 	RipGrepper.Common.Constants;
@@ -320,16 +321,16 @@ begin
 	end;
 end;
 
-procedure TOpenWithConfigForm.WriteSettings;
+procedure TOpenWithConfigForm.WriteSettings();
 var
 	item : TListItem;
 	settings : string;
 	sCmd : string;
+    cmds : TArrayEx<string>;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithConfigForm.WriteSettings');
 	settings := '';
-	FOpenWithSettings.ClearCommandList; // so deleted entries will be recognized
 	for var i := 0 to lvCommands.Items.Count - 1 do begin
 		item := lvCommands.Items[i];
 		sCmd := item.Subitems[IDX_COMMAND_LINE].Replace(SEPARATOR, '', [rfReplaceAll]);
@@ -340,16 +341,15 @@ begin
 			{ } sCmd, // command line
 			{ } item.SubItems[IDX_DESCRIPTION]]); // descr
 
-		FOpenWithSettings.Command[i] := settings;
+		cmds.Add(settings);
 
 		dbgMsg.Msg(Format('%s', [FOpenWithSettings.Command[i]]));
 	end;
-	// after ClearCommandList recreate settings...
-	FOpenWithSettings.SettingsDict.CreateSetting(OPEN_WITH_SETTINGS, ITEM_KEY_PREFIX,
-		{ } FOpenWithSettings.CommandListSetting,
-		{ } FOpenWithSettings.PersisterFactory);
 
-	// inherited WriteSettings; it's not eonugh
+	FOpenWithSettings.RecreateCommandList(cmds);
+
+    FSettings.StoreToPersister;
+	// inherited WriteSettings; // it's not eonugh
 	FOpenWithSettings.ForceUpdateFile; // save always
 end;
 

@@ -8,12 +8,13 @@ uses
 	System.IniFiles,
 	RipGrepper.OpenWith.Constants,
 	RipGrepper.OpenWith.Params,
-	RipGrepper.Settings.SettingVariant;
+	RipGrepper.Settings.SettingVariant,
+	ArrayEx;
 
 type
 	TOpenWithSettings = class(TPersistableSettings)
 		private
-			FCommandListSetting: IArraySetting;
+			FCommandListSetting : IArraySetting;
 			FTestFile : TOpenWithParams;
 			function GetCommand(Index : Integer) : string;
 			procedure SetCommand(Index : Integer; const Value : string);
@@ -25,9 +26,10 @@ type
 			procedure Init; override;
 			procedure ReadIni; override; // TODO: use persistable base
 			procedure ForceUpdateFile();
+			procedure RecreateCommandList(_cmdListItems : TArrayEx<string>);
 			function ToString : string; override;
 			property Command[index : Integer] : string read GetCommand write SetCommand;
-			property CommandListSetting: IArraySetting read FCommandListSetting;
+			property CommandListSetting : IArraySetting read FCommandListSetting;
 			property TestFile : TOpenWithParams read FTestFile write FTestFile;
 	end;
 
@@ -36,8 +38,9 @@ implementation
 uses
 	RipGrepper.Tools.DebugUtils,
 	System.SysUtils,
-	ArrayEx,
-	RipGrepper.Settings.SettingsDictionary, RipGrepper.Common.Constants;
+
+	RipGrepper.Settings.SettingsDictionary,
+	RipGrepper.Common.Constants;
 
 constructor TOpenWithSettings.Create(const _Owner : TPersistableSettings);
 begin
@@ -69,7 +72,7 @@ end;
 procedure TOpenWithSettings.Init;
 begin
 	FCommandListSetting := TArraySetting.Create();
-    FCommandListSetting.SaveBehaviour := [ssbStoreIfModified,ssbStoreOnceEvenIfNotModified];
+	FCommandListSetting.SaveBehaviour := [ssbStoreIfModified, ssbStoreOnceEvenIfNotModified];
 
 	for var i : integer := 0 to Length(DEFAULT_EDITORS) - 1 do begin
 		Command[i] := DEFAULT_EDITORS[i];
@@ -80,17 +83,17 @@ end;
 procedure TOpenWithSettings.ReadIni;
 var
 	iarr : IArraySetting;
-    arr : TArray<string>;
+	arr : TArray<string>;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.ReadIni');
 
 	iarr := TArraySetting.Create(arr);
-    iarr.Copy(FCommandListSetting);
+	iarr.Copy(FCommandListSetting);
 	iarr.LoadFromPersister();
-    if not iarr.Value.IsEmpty then begin
-        FCommandListSetting.Copy(iarr);
-    end;
+	if not iarr.Value.IsEmpty then begin
+		FCommandListSetting.Copy(iarr);
+	end;
 end;
 
 procedure TOpenWithSettings.SetCommand(Index : Integer; const Value : string);
@@ -109,7 +112,7 @@ begin
 		arrCmds := FCommandListSetting.Value;
 		arrCmds.Add(Value);
 		FCommandListSetting.Value := arrCmds;
- 		FIsModified := True;
+		FIsModified := True;
 	end;
 end;
 
@@ -117,9 +120,30 @@ procedure TOpenWithSettings.ForceUpdateFile();
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.ForceUpdateFile');
-//  var
-//  dbgArr := TSettingsDictionary.DictToStringArray(SettingsDict());
- 	GetRootOwner().UpdateFile(True, True);
+
+	GetRootOwner().UpdateFile(True, True);
+end;
+
+procedure TOpenWithSettings.RecreateCommandList(_cmdListItems : TArrayEx<string>);
+var
+	settings : string;
+	sCmd : string;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.RecreateCommandList');
+
+	settings := '';
+	self.ClearCommandList; // so deleted entries will be recognized
+	for var i := 0 to _cmdListItems.Count - 1 do begin
+		sCmd := _cmdListItems[i];
+		Command[i] := sCmd;
+		dbgMsg.Msg(Format('%s', [Command[i]]));
+	end;
+	// after ClearCommandList recreate settings...
+	SettingsDict.CreateSetting(OPEN_WITH_SETTINGS, ITEM_KEY_PREFIX,
+		{ } CommandListSetting,
+		{ } PersisterFactory);
+	GetRootOwner().SettingsDict().CopySection(IniSectionName, SettingsDict);
 end;
 
 function TOpenWithSettings.ToString : string;
