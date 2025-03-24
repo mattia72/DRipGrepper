@@ -38,7 +38,6 @@ implementation
 uses
 	RipGrepper.Tools.DebugUtils,
 	System.SysUtils,
-
 	RipGrepper.Settings.SettingsDictionary,
 	RipGrepper.Common.Constants;
 
@@ -73,10 +72,6 @@ procedure TOpenWithSettings.Init;
 begin
 	FCommandListSetting := TArraySetting.Create();
 	FCommandListSetting.SaveBehaviour := [ssbStoreIfModified, ssbStoreOnceEvenIfNotModified];
-
-	for var i : integer := 0 to Length(DEFAULT_EDITORS) - 1 do begin
-		Command[i] := DEFAULT_EDITORS[i];
-	end;
 	CreateSetting(OPEN_WITH_SETTINGS, ITEM_KEY_PREFIX, FCommandListSetting);
 end;
 
@@ -94,6 +89,13 @@ begin
 	if not iarr.Value.IsEmpty then begin
 		FCommandListSetting.Copy(iarr);
 	end;
+
+	if FCommandListSetting.AsArray().IsEmpty then begin
+		for var i : integer := 0 to Length(DEFAULT_EDITORS) - 1 do begin
+			Command[i] := DEFAULT_EDITORS[i];
+		end;
+	end;
+
 end;
 
 procedure TOpenWithSettings.SetCommand(Index : Integer; const Value : string);

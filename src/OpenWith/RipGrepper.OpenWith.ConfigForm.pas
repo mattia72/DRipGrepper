@@ -106,7 +106,6 @@ uses
 	RipGrepper.Helper.UI,
 	System.RegularExpressions,
 	RipGrepper.OpenWith.CmdEditorForm,
-
 	RipGrepper.Settings.SettingsDictionary,
 	RipGrepper.Settings.SettingVariant,
 	RipGrepper.Common.Constants;

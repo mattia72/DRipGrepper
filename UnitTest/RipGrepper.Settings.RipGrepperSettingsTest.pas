@@ -434,24 +434,26 @@ begin
 	var
 	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 
-	Assert.AreEqual(FActualTextHistValue, FSettings.SearchTextsHistory.AsArray[2],
-		{ } 'SearchTextsHistory[2] item should be the actual');
+	Assert.AreEqual(FActualTextHistValue, FSettings.SearchTextsHistory.AsArray[0],
+		{ } 'SearchTextsHistory[0] item should be the actual');
 	Assert.AreEqual(FActualTextHistValue,
 		{ } FFactory.GetStringPersister.LoadValue('SearchTextsHistory', 'Item_0'),
 		{ } 'first persisted SearchTextsHistory item should be the actual');
 
 	var
-	j := 2;
+    j := 2;
+//  j := 0;
 	for var i := 0 to 2 do begin
 		var
 		val := Format('%s%d', [TEXT_HIST, i]);
-		Assert.AreEqual(val, FSettings.SearchTextsHistory.AsArray[i],
-			{ } Format('same index of SearchTextsHistory[%d] should %s', [i, val]));
+		Assert.AreEqual(val, FSettings.SearchTextsHistory.AsArray[j],
+			{ } Format('same index of SearchTextsHistory[%d] should %s', [j, val]));
 		Assert.AreEqual(val,
 			{ } FFactory.GetStringPersister.LoadValue('SearchTextsHistory',
 			{ } Format('Item_%d', [j])),
 			{ } Format('reversed index of Item_%d should %s', [j, val]));
 		Dec(j);
+//      Inc(j);
 	end;
 
 end;

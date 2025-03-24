@@ -286,7 +286,7 @@ begin
 		s := FIniFile.ReadString(FIniSection, Format('%s%d', [_keyPrefix, i]), '');
 		if s = '' then
 			Break;
-		Result.Insert(0, s);
+		Result.Add(s);
 		Inc(i);
 	end;
 end;
