@@ -229,9 +229,10 @@ type
 			procedure Delete(Indexes : TArray<integer>); overload;
 			function AllIndexOf(Item : T; const Comparer : IComparer<T>) : TArray<integer>; overload;
 			function AllIndexOf(Item : T) : TArray<integer>; overload;
+			function GetReversed(): TArrayEx<T>;
 			function CountOf(Item : T) : integer; overload;
 			function CountOf(Item : T; const Comparer : IComparer<T>) : integer; overload;
-			function InsertUnique(const Index : Integer; const AItem : T): boolean;
+			function InsertUnique(const Index : Integer; const AItem : T) : boolean;
 			function RemoveAll(const AItem : T) : boolean;
 			// operator overloads
 			class operator Equal(const L, R : TArrayEx<T>) : boolean;
@@ -749,6 +750,14 @@ begin
 	Result := TArray.AllIndexOf<T>(Items, Item, TComparer<T>.Default);
 end;
 
+function TArrayEx<T>.GetReversed(): TArrayEx<T>;
+begin
+	Result.Clear;
+	SetLength(Result.Items, Count);
+	for var i := 0 to MaxIndex do
+		Result.Items[i] := Items[MaxIndex - i];
+end;
+
 function TArrayEx<T>.GetIsEmpty : Boolean;
 begin
 	Result := length(Items) = 0;
@@ -773,8 +782,7 @@ begin
 	Result := Items[MaxIndex];
 end;
 
-function TArrayEx<T>.InsertUnique(const Index : Integer; const AItem : T):
-	boolean;
+function TArrayEx<T>.InsertUnique(const Index : Integer; const AItem : T) : boolean;
 begin
 	Result := not contains(AItem);
 	if Result then begin
