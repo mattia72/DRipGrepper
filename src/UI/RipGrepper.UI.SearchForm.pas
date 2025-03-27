@@ -1032,11 +1032,11 @@ end;
 procedure TRipGrepperSearchDialogForm.CopyProxyToSettings(const _ctrlProxy : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;
 	_settings : TRipGrepperSettings);
 begin
-	FSettings.SearchTextsHistory.Value := _ctrlProxy.SearchTextHist;
-	FSettings.ReplaceTextsHistory.Value := _ctrlProxy.ReplaceTextHist;
-	FSettings.SearchPathsHistory.Value := _ctrlProxy.SearchPathHist;
-	FSettings.FileMasksHistory.Value := _ctrlProxy.FileMasksHist;
-	FSettings.ExpertOptionHistory.Value := _ctrlProxy.AdditionalExpertOptionsHist;
+	FSettings.SearchTextsHistory.Value := _ctrlProxy.SearchTextHist.GetReversed;
+	FSettings.ReplaceTextsHistory.Value := _ctrlProxy.ReplaceTextHist.GetReversed;
+	FSettings.SearchPathsHistory.Value := _ctrlProxy.SearchPathHist.GetReversed;
+	FSettings.FileMasksHistory.Value := _ctrlProxy.FileMasksHist.GetReversed;
+	FSettings.ExpertOptionHistory.Value := _ctrlProxy.AdditionalExpertOptionsHist.GetReversed;
 	var
 	rgec := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
 	rgec.IDEContext := integer(_ctrlProxy.ExtensionContext);
