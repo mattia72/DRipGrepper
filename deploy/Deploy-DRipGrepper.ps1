@@ -34,7 +34,7 @@ $global:AssetsDirectory = "$PSScriptRoot\assets"
 $global:Owner = "mattia72"
 $global:Repo = "DRipGrepper"
 $global:Url = "https://api.github.com/repos/$global:Owner/$global:Repo/releases"
-$global:Token = $(Get-Content $PSScriptRoot\SECRET_TOKEN)
+$global:Token = $(Get-Content $PSScriptRoot\SECRET_TOKEN)[0]
 
 $global:PadRightValue = 45
 $global:InstalledDelphiVersions = @()
