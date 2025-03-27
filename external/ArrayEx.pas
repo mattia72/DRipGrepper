@@ -231,6 +231,7 @@ type
 			function AllIndexOf(Item : T) : TArray<integer>; overload;
 			function CountOf(Item : T) : integer; overload;
 			function CountOf(Item : T; const Comparer : IComparer<T>) : integer; overload;
+			function InsertUnique(const Index : Integer; const AItem : T): boolean;
 			function RemoveAll(const AItem : T) : boolean;
 			// operator overloads
 			class operator Equal(const L, R : TArrayEx<T>) : boolean;
@@ -704,8 +705,9 @@ end;
 function TArrayEx<T>.InsertIfNotContains(const Index : Integer; const AItem : T) : boolean;
 begin
 	Result := not contains(AItem);
-	if Result then
+	if Result then begin
 		Insert(index, AItem);
+	end;
 end;
 
 procedure TArrayEx<T>.Delete(Indexes : TArrayEx<integer>);
@@ -769,6 +771,18 @@ end;
 function TArrayEx<T>.GetLast : T;
 begin
 	Result := Items[MaxIndex];
+end;
+
+function TArrayEx<T>.InsertUnique(const Index : Integer; const AItem : T):
+	boolean;
+begin
+	Result := not contains(AItem);
+	if Result then begin
+		Insert(index, AItem);
+	end else begin
+		Remove(AItem);
+		Insert(index, AItem);
+	end;
 end;
 
 function TArrayEx<T>.RemoveAll(const AItem : T) : boolean;

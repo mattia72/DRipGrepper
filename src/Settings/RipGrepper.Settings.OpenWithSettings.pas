@@ -17,6 +17,8 @@ type
 			FCommandListSetting : IArraySetting;
 			FTestFile : TOpenWithParams;
 			function GetCommand(Index : Integer) : string;
+			function GetCommandListSetting(): IArraySetting;
+			procedure SetDefaultsIfEmpty();
 			procedure SetCommand(Index : Integer; const Value : string);
 
 		public
@@ -26,10 +28,11 @@ type
 			procedure Init; override;
 			procedure ReadIni; override; // TODO: use persistable base
 			procedure ForceUpdateFile();
+			procedure LoadFromDict(); override;
 			procedure RecreateCommandList(_cmdListItems : TArrayEx<string>);
 			function ToString : string; override;
 			property Command[index : Integer] : string read GetCommand write SetCommand;
-			property CommandListSetting : IArraySetting read FCommandListSetting;
+			property CommandListSetting: IArraySetting read GetCommandListSetting;
 			property TestFile : TOpenWithParams read FTestFile write FTestFile;
 	end;
 
@@ -57,13 +60,13 @@ end;
 
 function TOpenWithSettings.GetCommands() : TArray<string>;
 begin
-	Result := FCommandListSetting.Value;
+	Result := CommandListSetting.Value;
 end;
 
 function TOpenWithSettings.GetCommand(Index : Integer) : string;
 begin
 	Result := '';
-	if TArraySetting(FCommandListSetting).Count > index then begin
+	if TArraySetting(CommandListSetting).Count > index then begin
 		Result := TArraySetting(FCommandListSetting)[index];
 	end;
 end;
@@ -71,7 +74,7 @@ end;
 procedure TOpenWithSettings.Init;
 begin
 	FCommandListSetting := TArraySetting.Create();
-	FCommandListSetting.SaveBehaviour := [ssbStoreIfModified, ssbStoreOnceEvenIfNotModified];
+//  FCommandListSetting.SaveBehaviour := [ssbStoreIfModified, ssbStoreOnceEvenIfNotModified];
 	CreateSetting(OPEN_WITH_SETTINGS, ITEM_KEY_PREFIX, FCommandListSetting);
 end;
 
@@ -88,12 +91,6 @@ begin
 	iarr.LoadFromPersister();
 	if not iarr.Value.IsEmpty then begin
 		FCommandListSetting.Copy(iarr);
-	end;
-
-	if FCommandListSetting.AsArray().IsEmpty then begin
-		for var i : integer := 0 to Length(DEFAULT_EDITORS) - 1 do begin
-			Command[i] := DEFAULT_EDITORS[i];
-		end;
 	end;
 
 end;
@@ -126,6 +123,25 @@ begin
 	GetRootOwner().UpdateFile(True, True);
 end;
 
+function TOpenWithSettings.GetCommandListSetting(): IArraySetting;
+begin
+	SetDefaultsIfEmpty();
+	Result := FCommandListSetting;
+end;
+
+procedure TOpenWithSettings.LoadFromDict();
+begin
+     inherited;
+end;
+
+procedure TOpenWithSettings.SetDefaultsIfEmpty();
+begin
+	if FCommandListSetting.Value.IsEmpty then begin
+        RecreateCommandList(DEFAULT_EDITORS);
+        StoreToPersister;
+	end;
+end;
+
 procedure TOpenWithSettings.RecreateCommandList(_cmdListItems : TArrayEx<string>);
 var
 	settings : string;
@@ -143,7 +159,7 @@ begin
 	end;
 	// after ClearCommandList recreate settings...
 	SettingsDict.CreateSetting(OPEN_WITH_SETTINGS, ITEM_KEY_PREFIX,
-		{ } CommandListSetting,
+		{ } FCommandListSetting,
 		{ } PersisterFactory);
 	GetRootOwner().SettingsDict().CopySection(IniSectionName, SettingsDict);
 end;

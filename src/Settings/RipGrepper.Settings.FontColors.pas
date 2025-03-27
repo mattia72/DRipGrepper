@@ -11,7 +11,8 @@ uses
 	RipGrepper.Helper.UI.DarkMode,
 	Spring.Collections,
 	RipGrepper.Settings.SettingsDictionary,
-	RipGrepper.Settings.SettingVariant;
+	RipGrepper.Settings.SettingVariant,
+	ArrayEx;
 
 type
 	TFontStyleSet = set of TFontStyle;
@@ -30,45 +31,51 @@ type
 			function ToString : string;
 	end;
 
+	TNameColorDef = record
+		Name : string;
+		ColorDef : string;
+	end;
+
 	TDefaultFontColors = class
+
 		const
 			RG_OPTIONS_TREEVIEW_SECTION_TITLE_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clPurple; BgColor : clNone;
 				Style : [fsBold];);
 
-			DEFAULT_COLORS : array of string = [
-			{ } 'MatchText=Segoe UI|9|clMaroon|clNone|fsBold|fsUnderline',
-			{ } 'SearchTextInHistory=Segoe UI|9|clMaroon|clNone|fsBold',
-			{ } 'ReplacedTextInHistory=Segoe UI|9|clMaroon|clNone|fsBold|fsStrikeOut',
-			{ } 'NormalText=Segoe UI|9|clBlack|clNone',
-			{ } 'CounterText=Segoe UI|9|clPurple|clNone',
-			{ } 'ReplacedText=Segoe UI|9|clWhite|clMaroon|fsBold|fsStrikeOut',
-			{ } 'ErrorText=Segoe UI|9|clRed|clNone',
-			{ } 'StatisticsText=Segoe UI|9|clHotLight|clNone|fsBold',
-			{ } 'ReplaceText=Segoe UI|9|clWhite|clGreen|fsBold',
-			{ } 'FileText=Segoe UI|9|clWindowFrame|clNone|fsBold',
-			{ } 'ReplaceTextInHistory=Segoe UI|9|clGreen|clNone|fsBold',
-			{ } 'LineNumText=Segoe UI|9|clGrayText|clNone',
-			{ } 'ColNumText=Segoe UI|9|clGrayText|clNone',
-			{ } 'AlternateRow=Segoe UI|9|clNone|cl3DLight'];
+			DEFAULT_COLORS : array [0 .. 13] of TNameColorDef = (
+				{ } (name : 'MatchText'; ColorDef : 'Segoe UI|9|clMaroon|clNone|fsBold|fsUnderline'),
+				{ } (name : 'SearchTextInHistory'; ColorDef : 'Segoe UI|9|clMaroon|clNone|fsBold'),
+				{ } (name : 'ReplacedTextInHistory'; ColorDef : 'Segoe UI|9|clMaroon|clNone|fsBold|fsStrikeOut'),
+				{ } (name : 'NormalText'; ColorDef : 'Segoe UI|9|clBlack|clNone'),
+				{ } (name : 'CounterText'; ColorDef : 'Segoe UI|9|clPurple|clNone'),
+				{ } (name : 'ReplacedText'; ColorDef : 'Segoe UI|9|clWhite|clMaroon|fsBold|fsStrikeOut'),
+				{ } (name : 'ErrorText'; ColorDef : 'Segoe UI|9|clRed|clNone'),
+				{ } (name : 'StatisticsText'; ColorDef : 'Segoe UI|9|clHotLight|clNone|fsBold'),
+				{ } (name : 'ReplaceText'; ColorDef : 'Segoe UI|9|clWhite|clGreen|fsBold'),
+				{ } (name : 'FileText'; ColorDef : 'Segoe UI|9|clWindowFrame|clNone|fsBold'),
+				{ } (name : 'ReplaceTextInHistory'; ColorDef : 'Segoe UI|9|clGreen|clNone|fsBold'),
+				{ } (name : 'LineNumText'; ColorDef : 'Segoe UI|9|clGrayText|clNone'),
+				{ } (name : 'ColNumText'; ColorDef : 'Segoe UI|9|clGrayText|clNone'),
+				{ } (name : 'AlternateRow'; ColorDef : 'Segoe UI|9|clNone|cl3DLight'));
 
-			DEFAULT_DARK_COLORS : array of string = [
-			{ } 'MatchText=Segoe UI|9|$00558CFF|clNone|fsBold|fsUnderline',
-			{ } 'SearchTextInHistory=Segoe UI|9|$004080FF|clNone|fsBold',
-			{ } 'ReplacedTextInHistory=Segoe UI|9|clMaroon|clNone|fsBold|fsStrikeOut',
-			{ } 'NormalText=Segoe UI|9|clBtnHighlight|clNone',
-			{ } 'CounterText=Segoe UI|9|clFuchsia|clNone',
-			{ } 'ReplacedText=Segoe UI|9|clWhite|clMaroon|fsBold|fsStrikeOut',
-			{ } 'ErrorText=Segoe UI|9|clRed|clNone',
-			{ } 'StatisticsText=Segoe UI|9|clHotLight|clNone|fsBold',
-			{ } 'ReplaceText=Segoe UI|9|clWhite|clGreen|fsBold',
-			{ } 'FileText=Segoe UI|9|clSkyBlue|clNone|fsBold',
-			{ } 'ReplaceTextInHistory=Segoe UI|9|clGreen|clNone|fsBold',
-			{ } 'LineNumText=Segoe UI|9|clGray|clNone',
-			{ } 'ColNumText=Segoe UI|9|clGray|clNone',
-			{$IFDEF STANDALONE}
-			{ } 'AlternateRow=Segoe UI|9|clNone|$002B2B2B'];
+			DEFAULT_DARK_COLORS : array [0 .. 13] of TNameColorDef = (
+				{ } (name : 'MatchText'; ColorDef : 'Segoe UI|9|$00558CFF|clNone|fsBold|fsUnderline'),
+				{ } (name : 'SearchTextInHistory'; ColorDef : 'Segoe UI|9|$004080FF|clNone|fsBold'),
+				{ } (name : 'ReplacedTextInHistory'; ColorDef : 'Segoe UI|9|clMaroon|clNone|fsBold|fsStrikeOut'),
+				{ } (name : 'NormalText'; ColorDef : 'Segoe UI|9|clBtnHighlight|clNone'),
+				{ } (name : 'CounterText'; ColorDef : 'Segoe UI|9|clFuchsia|clNone'),
+				{ } (name : 'ReplacedText'; ColorDef : 'Segoe UI|9|clWhite|clMaroon|fsBold|fsStrikeOut'),
+				{ } (name : 'ErrorText'; ColorDef : 'Segoe UI|9|clRed|clNone'),
+				{ } (name : 'StatisticsText'; ColorDef : 'Segoe UI|9|clHotLight|clNone|fsBold'),
+				{ } (name : 'ReplaceText'; ColorDef : 'Segoe UI|9|clWhite|clGreen|fsBold'),
+				{ } (name : 'FileText'; ColorDef : 'Segoe UI|9|clSkyBlue|clNone|fsBold'),
+				{ } (name : 'ReplaceTextInHistory'; ColorDef : 'Segoe UI|9|clGreen|clNone|fsBold'),
+				{ } (name : 'LineNumText'; ColorDef : 'Segoe UI|9|clGray|clNone'),
+				{ } (name : 'ColNumText'; ColorDef : 'Segoe UI|9|clGray|clNone'),
+				{$IFDEF STANDALONE}
+				{ } (name : 'AlternateRow'; ColorDef : 'Segoe UI|9|clNone|$002B2B2B'));
 			{$ELSE}
-			{ } 'AlternateRow=Segoe UI|9|clNone|$00404040'];
+				{ } (name : 'AlternateRow'; ColorDef : 'Segoe UI|9|clNone|$00404040'));
 		{$ENDIF}
 
 		private
@@ -95,49 +102,70 @@ type
 			TREEVIEW_STAT_TEXT : TFontAttributes; //
 			TREEVIEW_ALTERNATE_ROW : TFontAttributes;
 
-			constructor Create(const _theme : EThemeMode = EThemeMode.tmLight);
-			procedure SetDefault(const _name : string; var _color : TFontAttributes);
+			constructor Create(
+
+				const _theme : EThemeMode = EThemeMode.tmLight);
+			procedure SetDefault(
+
+				const _name : string;
+
+				var _color : TFontAttributes);
 	end;
 
 	TFontColors = record
-		FileText : TFontAttributes; // <-- First in config form
-		LineNumText : TFontAttributes;
-		ColNumText : TFontAttributes;
-		NormalText : TFontAttributes;
-		MatchText : TFontAttributes;
-		CounterText : TFontAttributes;
-		ErrorText : TFontAttributes;
-		StatisticsText : TFontAttributes;
-		ReplaceText : TFontAttributes;
-		ReplacedText : TFontAttributes;
-		SearchTextInHistory : TFontAttributes;
-		ReplaceTextInHistory : TFontAttributes;
-		ReplacedTextInHistory : TFontAttributes;
-		AlternateRow : TFontAttributes;
-		procedure SetByName(const _name : string; const _fa : TFontAttributes);
-
+		private
 		public
+			FileText : TFontAttributes; // <-- First in config form
+			LineNumText : TFontAttributes;
+			ColNumText : TFontAttributes;
+			NormalText : TFontAttributes;
+			MatchText : TFontAttributes;
+			CounterText : TFontAttributes;
+			ErrorText : TFontAttributes;
+			StatisticsText : TFontAttributes;
+			ReplaceText : TFontAttributes;
+			ReplacedText : TFontAttributes;
+			SearchTextInHistory : TFontAttributes;
+			ReplaceTextInHistory : TFontAttributes;
+			ReplacedTextInHistory : TFontAttributes;
+			AlternateRow : TFontAttributes;
+			procedure SetByName(const _name : string;
+
+				const _fa : TFontAttributes);
+			function GetByName(
+
+				const _name : string) : TFontAttributes;
 			function IsEmpty : Boolean;
+			procedure SetDefaultColors(
+
+				const _df : TDefaultFontColors);
 	end;
 
 	TColorSettings = class(TPersistableSettings)
-		const
-			INI_SECTION = 'ColorSettings';
+		const INI_SECTION = 'ColorSettings';
 
 		private
 			FFontColors : TFontColors;
 			FFontColorsSettings : ISettingKeys;
+			procedure CopyFontColorsToSettings();
+			procedure CopySettingsToFontColors();
 
 		protected
 			function GetIsAlreadyRead : Boolean; override;
 			procedure Init; override;
 
 		public
-			constructor Create(const _Owner : TPersistableSettings);
+			constructor Create(
+
+				const _Owner : TPersistableSettings);
 			destructor Destroy; override;
 			procedure LoadFromDict(); override;
-			procedure LoadDefaultColors(const _theme : EThemeMode);
+			procedure LoadDefaultColors(
+
+				const _theme : EThemeMode);
+			procedure ReadIni(); override;
 			procedure ReloadColors;
+			procedure StoreToPersister(); override;
 			property FontColors : TFontColors read FFontColors write FFontColors;
 	end;
 
@@ -148,14 +176,16 @@ uses
 	System.SysUtils,
 	RipGrepper.Common.Constants,
 	RipGrepper.Helper.Types,
-	ArrayEx,
+
 	System.Rtti,
 	System.Generics.Defaults,
 	Spring;
 
 { TColorSettings }
 
-constructor TColorSettings.Create(const _Owner : TPersistableSettings);
+constructor TColorSettings.Create(
+
+	const _Owner : TPersistableSettings);
 begin
 	IniSectionName := INI_SECTION;
 	inherited;
@@ -167,6 +197,25 @@ begin
 	inherited Destroy() // ok;
 end;
 
+procedure TColorSettings.CopyFontColorsToSettings();
+begin
+	for var s in TDefaultFontColors.DEFAULT_COLORS do begin
+		var
+		setting := TStringSetting.Create(FontColors.GetByName(s.Name).ToString);
+		TStringSetting.CopySettingValue(setting, FFontColorsSettings[s.Name]);
+		FFontColorsSettings[s.Name].StoreToPersister();
+	end;
+end;
+
+procedure TColorSettings.CopySettingsToFontColors();
+begin
+	for var s in TDefaultFontColors.DEFAULT_COLORS do begin
+		var fc : TFontAttributes;
+		fc.FromString(FFontColorsSettings[s.Name].AsString);
+		FontColors.SetByName(s.Name, fc);
+	end;
+end;
+
 function TColorSettings.GetIsAlreadyRead : Boolean;
 begin
 	Result := inherited;
@@ -174,49 +223,30 @@ end;
 
 procedure TColorSettings.Init;
 begin
-	LoadDefaultColors(TDarkModeHelper.GetActualThemeMode);
 	FFontColorsSettings := TCollections.CreateSortedDictionary<string, ISetting>();
 
-    var ss : TSettingState := ssModified;
-	FFontColorsSettings.Add('AlternateRow', TStringSetting.Create(FFontColors.AlternateRow.ToString, ss));
-	FFontColorsSettings.Add('ColNumText', TStringSetting.Create(FFontColors.ColNumText.ToString, ss));
-	FFontColorsSettings.Add('CounterText', TStringSetting.Create(FFontColors.CounterText.ToString, ss));
-	FFontColorsSettings.Add('ErrorText', TStringSetting.Create(FFontColors.ErrorText.ToString, ss));
-	FFontColorsSettings.Add('FileText', TStringSetting.Create(FFontColors.FileText.ToString, ss));
-	FFontColorsSettings.Add('LineNumText', TStringSetting.Create(FFontColors.LineNumText.ToString, ss));
-	FFontColorsSettings.Add('MatchText', TStringSetting.Create(FFontColors.MatchText.ToString, ss));
-	FFontColorsSettings.Add('NormalText', TStringSetting.Create(FFontColors.NormalText.ToString, ss));
-	FFontColorsSettings.Add('ReplaceText', TStringSetting.Create(FFontColors.ReplaceText.ToString, ss));
-	FFontColorsSettings.Add('ReplaceTextInHistory', TStringSetting.Create(FFontColors.ReplaceTextInHistory.ToString, ss));
-	FFontColorsSettings.Add('ReplacedText', TStringSetting.Create(FFontColors.ReplacedText.ToString, ss));
-	FFontColorsSettings.Add('ReplacedTextInHistory', TStringSetting.Create(FFontColors.ReplacedTextInHistory.ToString, ss));
-	FFontColorsSettings.Add('SearchTextInHistory', TStringSetting.Create(FFontColors.SearchTextInHistory.ToString, ss));
-	FFontColorsSettings.Add('StatisticsText', TStringSetting.Create(FFontColors.StatisticsText.ToString, ss));
+	for var s in TDefaultFontColors.DEFAULT_COLORS do begin
+		FFontColorsSettings.Add(s.Name, TStringSetting.Create(''));
+	end;
 
 	for var pair in FFontColorsSettings do begin
 		CreateSetting(pair.key, pair.Value);
 	end;
+
+	LoadDefaultColors(TDarkModeHelper.GetActualThemeMode);
+	CopyFontColorsToSettings;
 end;
 
-procedure TColorSettings.LoadDefaultColors(const _theme : EThemeMode);
+procedure TColorSettings.LoadDefaultColors(
+
+	const _theme : EThemeMode);
 begin
 	var
 	df := TDefaultFontColors.Create(_theme);
 	try
-		FFontColors.AlternateRow.FromString(df.TREEVIEW_ALTERNATE_ROW.ToString());
-		FFontColors.ColNumText.FromString(df.TREEVIEW_COL_NUM_TEXT.ToString());
-		FFontColors.CounterText.FromString(df.TREEVIEW_STAT_TEXT.ToString());
-		FFontColors.ErrorText.FromString(df.TREEVIEW_ERROR_TEXT.ToString());
-		FFontColors.FileText.FromString(df.TREEVIEW_FILE_TEXT.ToString());
-		FFontColors.LineNumText.FromString(df.TREEVIEW_LINE_NUM_TEXT.ToString());
-		FFontColors.MatchText.FromString(df.TREEVIEW_MATCH_TEXT.ToString());
-		FFontColors.NormalText.FromString(df.TREEVIEW_NORMAL_TEXT.ToString());
-		FFontColors.ReplaceText.FromString(df.TREEVIEW_REPLACE_TEXT.ToString());
-		FFontColors.ReplaceTextInHistory.FromString(df.HIST_TREEVIEW_REPLACE_TEXT.ToString());
-		FFontColors.ReplacedText.FromString(df.TREEVIEW_REPLACED_TEXT.ToString());
-		FFontColors.ReplacedTextInHistory.FromString(df.HIST_TREEVIEW_REPLACED_TEXT.ToString());
-		FFontColors.SearchTextInHistory.FromString(df.HIST_TREEVIEW_SEARCH_TEXT.ToString());
-		FFontColors.StatisticsText.FromString(df.TREEVIEW_STATS_TEXT.ToString());
+		FFontColors.SetDefaultColors(df);
+
+		CopyFontColorsToSettings;
 	finally
 		df.Free;
 	end;
@@ -224,20 +254,31 @@ end;
 
 procedure TColorSettings.LoadFromDict;
 begin
-	// FFontColors.MatchText.FromString(TStringSetting(SettingsDict.GetSetting('MatchText')).Value);
-	// FFontColors.ReplaceText.FromString(TStringSetting(SettingsDict.GetSetting('ReplaceText')).Value);
-	// FFontColors.ReplacedText.FromString(TStringSetting(SettingsDict.GetSetting('ReplacedText')).Value);
-	// FFontColors.SearchTextInHistory.FromString(TStringSetting(SettingsDict.GetSetting('SearchTextInHistory')).Value);
-	// FFontColors.ReplaceTextInHistory.FromString(TStringSetting(SettingsDict.GetSetting('ReplaceTextInHistory')).Value);
-	// FFontColors.ReplacedTextInHistory.FromString(TStringSetting(SettingsDict.GetSetting('ReplacedTextInHistory')).Value);
-	// FFontColors.NormalText.FromString(TStringSetting(SettingsDict.GetSetting('NormalText')).Value);
-	// FFontColors.CounterText.FromString(TStringSetting(SettingsDict.GetSetting('CounterText')).Value);
-	// FFontColors.ErrorText.FromString(TStringSetting(SettingsDict.GetSetting('ErrorText')).Value);
-	// FFontColors.StatisticsText.FromString(TStringSetting(SettingsDict.GetSetting('StatisticsText')).Value);
-	// FFontColors.FileText.FromString(TStringSetting(SettingsDict.GetSetting('FileText')).Value);
-	// FFontColors.LineNumText.FromString(TStringSetting(SettingsDict.GetSetting('LineNumText')).Value);
-	// FFontColors.ColNumText.FromString(TStringSetting(SettingsDict.GetSetting('ColNumText')).Value);
-	// FFontColors.AlternateRow.FromString(TStringSetting(SettingsDict.GetSetting('AlternateRow')).Value);
+	CopySettingsToFontColors;
+end;
+
+procedure TColorSettings.ReadIni();
+var bLoaded : Boolean;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TColorSettings.ReadIni');
+	bLoaded := True;
+
+	for var pair in FFontColorsSettings do begin
+		pair.Value.LoadFromPersister;
+		if pair.Value.AsString.IsEmpty then begin
+			bLoaded := False;
+			break;
+		end;
+	end;
+
+	if not bLoaded then begin
+		if FFontColors.IsEmpty then begin
+			LoadDefaultColors(TDarkModeHelper.GetActualThemeMode);
+		end;
+
+		CopyFontColorsToSettings();
+	end;
 end;
 
 procedure TColorSettings.ReloadColors;
@@ -250,12 +291,16 @@ begin
 	end;
 end;
 
-procedure TFontAttributes.FromString(const _s : string);
-var
-	i : integer;
-	arr : TArrayEx<string>;
-	sEnumName : string;
-	st : TFontStyle;
+procedure TColorSettings.StoreToPersister();
+begin
+	CopyFontColorsToSettings;
+
+end;
+
+procedure TFontAttributes.FromString(
+
+	const _s : string);
+var i : integer; arr : TArrayEx<string>; sEnumName : string; st : TFontStyle;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TFontAttributes.FromString');
@@ -280,7 +325,9 @@ begin
 	dbgMsg.Msg(self.ToString);
 end;
 
-function TFontAttributes.FromFont(const _font : TFont) : TFontAttributes;
+function TFontAttributes.FromFont(
+
+	const _font : TFont) : TFontAttributes;
 begin
 	name := _font.Name;
 	Style := _font.Style;
@@ -288,7 +335,9 @@ begin
 	Color := _font.Color;
 end;
 
-function TFontAttributes.ToFont(var _font : TFont) : TFontAttributes;
+function TFontAttributes.ToFont(
+
+	var _font : TFont) : TFontAttributes;
 begin
 	_font.Name := name;
 	_font.Style := Style;
@@ -297,8 +346,7 @@ begin
 end;
 
 function TFontAttributes.ToString : string;
-var
-	arrFontStyles : TArrayEx<string>;
+var arrFontStyles : TArrayEx<string>;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TFontAttributes.ToString');
@@ -307,8 +355,7 @@ begin
 		arrFontStyles.Add(TRttiEnumerationType.GetName(st));
 	end;
 
-	var
-		sStyles : string := string.Join(ARRAY_SEPARATOR, arrFontStyles.Items);
+	var sStyles : string := string.Join(ARRAY_SEPARATOR, arrFontStyles.Items);
 
 	Result := string.Join(ARRAY_SEPARATOR, [
 		{ } name,
@@ -324,7 +371,9 @@ begin
 	Result := NormalText.Color = NormalText.BgColor;
 end;
 
-procedure TFontColors.SetByName(const _name : string; const _fa : TFontAttributes);
+procedure TFontColors.SetByName(const _name : string;
+
+	const _fa : TFontAttributes);
 begin
 	if _name = 'MatchText' then
 		MatchText := _fa
@@ -358,7 +407,65 @@ begin
 		raise Exception.Create('Unknown font attribute name: ' + _name);
 end;
 
-constructor TDefaultFontColors.Create(const _theme : EThemeMode = EThemeMode.tmLight);
+function TFontColors.GetByName(
+
+	const _name : string) : TFontAttributes;
+begin
+	if _name = 'MatchText' then
+		Result := MatchText
+	else if _name = 'ReplaceText' then
+		Result := ReplaceText
+	else if _name = 'ReplacedText' then
+		Result := ReplacedText
+	else if _name = 'SearchTextInHistory' then
+		Result := SearchTextInHistory
+	else if _name = 'ReplaceTextInHistory' then
+		Result := ReplaceTextInHistory
+	else if _name = 'ReplacedTextInHistory' then
+		Result := ReplacedTextInHistory
+	else if _name = 'NormalText' then
+		Result := NormalText
+	else if _name = 'CounterText' then
+		Result := CounterText
+	else if _name = 'ErrorText' then
+		Result := ErrorText
+	else if _name = 'StatisticsText' then
+		Result := StatisticsText
+	else if _name = 'FileText' then
+		Result := FileText
+	else if _name = 'LineNumText' then
+		Result := LineNumText
+	else if _name = 'ColNumText' then
+		Result := ColNumText
+	else if _name = 'AlternateRow' then
+		Result := AlternateRow
+	else
+		raise Exception.Create('Unknown font attribute name: ' + _name);
+end;
+
+procedure TFontColors.SetDefaultColors(
+
+	const _df : TDefaultFontColors);
+begin
+	self.AlternateRow.FromString(_df.TREEVIEW_ALTERNATE_ROW.ToString());
+	self.ColNumText.FromString(_df.TREEVIEW_COL_NUM_TEXT.ToString());
+	self.CounterText.FromString(_df.TREEVIEW_STAT_TEXT.ToString());
+	self.ErrorText.FromString(_df.TREEVIEW_ERROR_TEXT.ToString());
+	self.FileText.FromString(_df.TREEVIEW_FILE_TEXT.ToString());
+	self.LineNumText.FromString(_df.TREEVIEW_LINE_NUM_TEXT.ToString());
+	self.MatchText.FromString(_df.TREEVIEW_MATCH_TEXT.ToString());
+	self.NormalText.FromString(_df.TREEVIEW_NORMAL_TEXT.ToString());
+	self.ReplaceText.FromString(_df.TREEVIEW_REPLACE_TEXT.ToString());
+	self.ReplaceTextInHistory.FromString(_df.HIST_TREEVIEW_REPLACE_TEXT.ToString());
+	self.ReplacedText.FromString(_df.TREEVIEW_REPLACED_TEXT.ToString());
+	self.ReplacedTextInHistory.FromString(_df.HIST_TREEVIEW_REPLACED_TEXT.ToString());
+	self.SearchTextInHistory.FromString(_df.HIST_TREEVIEW_SEARCH_TEXT.ToString());
+	self.StatisticsText.FromString(_df.TREEVIEW_STATS_TEXT.ToString());
+end;
+
+constructor TDefaultFontColors.Create(
+
+	const _theme : EThemeMode = EThemeMode.tmLight);
 begin
 	inherited Create();
 	FTheme := _theme;
@@ -380,7 +487,8 @@ end;
 
 procedure TDefaultFontColors.SetDefault(const _name : string; var _color : TFontAttributes);
 var
-	dc : TArrayEx<string>;
+	dc : TArrayEx<TNameColorDef>;
+	idx : Integer;
 begin
 	if FTheme = EThemeMode.tmLight then begin
 		dc := DEFAULT_COLORS;
@@ -388,19 +496,14 @@ begin
 		dc := DEFAULT_DARK_COLORS;
 	end;
 
+	for idx := 0 to dc.MaxIndex do begin
+		if dc[idx].Name = _name then begin
+			break;
+		end;
+	end;
 	var
-	idx := dc.IndexOf(_name, TComparer<string>.Construct(
-		function(const Left, Right : string) : Integer
-		begin
-			var
-			al := Left.Split(['=']);
-			var
-			ar := Right.Split(['=']);
-			Result := TComparer<string>.Default.Compare(al[0], ar[0]);
-		end));
-	var
-	ac := dc[idx].Split(['=']);
-	_color.FromString(ac[1]);
+	ac := dc[idx].ColorDef;
+	_color.FromString(ac);
 end;
 
 end.
