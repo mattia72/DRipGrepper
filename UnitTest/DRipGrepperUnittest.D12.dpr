@@ -73,7 +73,8 @@ uses
   RipGrepper.Settings.RipGrepSettingsTest in 'RipGrepper.Settings.RipGrepSettingsTest.pas',
   RipGrepper.Settings.OpenWithSettingsTest in 'RipGrepper.Settings.OpenWithSettingsTest.pas',
   RipGrepper.Settings.OpenWithSettings in '..\src\Settings\RipGrepper.Settings.OpenWithSettings.pas',
-  RipGrepper.Settings.FontColorsTest in 'RipGrepper.Settings.FontColorsTest.pas';
+  RipGrepper.Settings.FontColorsTest in 'RipGrepper.Settings.FontColorsTest.pas',
+  RipGrepper.Common.ArrayExTest in 'RipGrepper.Common.ArrayExTest.pas';
 
 // This comment has to guard the following IFDEF, that may be delted by delphi, if new unit added to the project
 {$IFNDEF TESTINSIGHT}

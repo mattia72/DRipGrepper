@@ -164,6 +164,7 @@
         <DCCReference Include="RipGrepper.Settings.OpenWithSettingsTest.pas"/>
         <DCCReference Include="..\src\Settings\RipGrepper.Settings.OpenWithSettings.pas"/>
         <DCCReference Include="RipGrepper.Settings.FontColorsTest.pas"/>
+        <DCCReference Include="RipGrepper.Common.ArrayExTest.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
