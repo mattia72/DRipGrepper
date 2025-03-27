@@ -48,14 +48,17 @@ var
 	settingVal : string;
 begin
 	var
+	ows := FSettings.OpenWithSettings;
+	section := ows.IniSectionName;
+	count := Length(FSettings.OpenWithSettings.GetCommands);
+
+	var
 	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
-	section := FSettings.OpenWithSettings.IniSectionName;
-	count := FSettings.OpenWithSettings.Count;
+
 	for var i := 0 to count - 1 do begin
 		var
 		key := Format('%s%d', [ITEM_KEY_PREFIX, i]);
-
-		settingVal := FSettings.OpenWithSettings.Command[i];
+		settingVal := ows.Command[i];
 		dictVal := FSettings.SettingsDict()[section][key].AsString;
 
 		Assert.AreEqual(settingVal, dictVal, 'Command 0 should be equal');
@@ -71,8 +74,8 @@ begin
 	var
 	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 
-	FSettings.OpenWithSettings.ForceUpdateFile;
 	FSettings.StoreToPersister;
+	FSettings.OpenWithSettings.ForceUpdateFile;
 
 	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 
@@ -108,9 +111,9 @@ begin
 	ows.Command[0] := NEW_COMMAND;
 	var
 	arr := ows.GetCommands;
- 	ows.RecreateCommandList(arr);
+	ows.RecreateCommandList(arr);
 
-	FSettings.StoreToPersister;   // TOpenWithConfigForm.WriteSettings() tested here
+	FSettings.StoreToPersister; // TOpenWithConfigForm.WriteSettings() tested here
 	ows.ForceUpdateFile;
 
 	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());

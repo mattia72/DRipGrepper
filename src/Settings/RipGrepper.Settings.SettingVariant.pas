@@ -121,8 +121,8 @@ type
 			procedure Clear(); virtual;
 			function CompareTo(Value : ISetting) : Integer;
 			procedure Copy(_other : ISetting);
-			class procedure CopySettingValues(_from, _to : ISetting);
-
+			class procedure CopySettingFields(_from, _to : ISetting);
+			class procedure CopySettingValue(_from, _to : ISetting);
 			function Equals(_other : ISetting) : Boolean; reintroduce;
 			function GetSaveBehaviour() : TSettingStoreBehaviours;
 			procedure SetSaveBehaviour(const Value : TSettingStoreBehaviours);
@@ -379,7 +379,7 @@ begin
 	FState := _other.State;
 end;
 
-class procedure TSetting.CopySettingValues(_from, _to : ISetting);
+class procedure TSetting.CopySettingFields(_from, _to : ISetting);
 begin
 	case _from.SettingType of
 		stString :
@@ -390,6 +390,22 @@ begin
 		TBoolSetting(_to).Copy(_from.AsBoolSetting);
 		stStrArray :
 		TArraySetting(_to).Copy(_from.AsArraySetting);
+		else
+		raise ESettingsException.Create('Can''t copy unknown setting type');
+	end;
+end;
+
+class procedure TSetting.CopySettingValue(_from, _to : ISetting);
+begin
+	case _from.SettingType of
+		stString :
+		TStringSetting(_to).Value := (_from.AsStringSetting).Value;
+		stInteger :
+		TIntegerSetting(_to).Value := (_from.AsIntegerSetting).Value;
+		stBool :
+		TBoolSetting(_to).Value := (_from.AsBoolSetting).Value;
+		stStrArray :
+		TArraySetting(_to).Value := (_from.AsArraySetting).Value;
 		else
 		raise ESettingsException.Create('Can''t copy unknown setting type');
 	end;

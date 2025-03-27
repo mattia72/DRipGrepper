@@ -71,7 +71,9 @@ uses
   RipGrepper.Tools.LockGuard in '..\src\Tools\RipGrepper.Tools.LockGuard.pas',
   RipGrepper.Settings.FontColors in '..\src\Settings\RipGrepper.Settings.FontColors.pas',
   RipGrepper.Settings.RipGrepSettingsTest in 'RipGrepper.Settings.RipGrepSettingsTest.pas',
-  RipGrepper.Settings.OpenWithSettingsTest in 'RipGrepper.Settings.OpenWithSettingsTest.pas';
+  RipGrepper.Settings.OpenWithSettingsTest in 'RipGrepper.Settings.OpenWithSettingsTest.pas',
+  RipGrepper.Settings.OpenWithSettings in '..\src\Settings\RipGrepper.Settings.OpenWithSettings.pas',
+  RipGrepper.Settings.FontColorsTest in 'RipGrepper.Settings.FontColorsTest.pas';
 
 // This comment has to guard the following IFDEF, that may be delted by delphi, if new unit added to the project
 {$IFNDEF TESTINSIGHT}

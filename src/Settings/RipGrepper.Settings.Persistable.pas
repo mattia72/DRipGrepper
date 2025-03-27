@@ -258,7 +258,7 @@ begin
 			end;
 		end;
 		// settingSelf.Copy(settingOther); doesn't work here
-		TSetting.CopySettingValues(settingOther, settingSelf);
+		TSetting.CopySettingFields(settingOther, settingSelf);
 	end;
 end;
 
@@ -269,7 +269,12 @@ end;
 
 function TPersistableSettings.GetCount() : Integer;
 begin
-	Result := FOwner.SettingsDict()[IniSectionName].Count;
+	Result := 0;
+	var
+	rootOwner := GetRootOwner();
+	if rootOwner.SettingsDict.ContainsSection(IniSectionName) then begin
+		Result := rootOwner.SettingsDict()[IniSectionName].Count;
+	end;
 end;
 
 function TPersistableSettings.GetPersisterFactory() : IPersisterFactory;
@@ -289,13 +294,15 @@ end;
 
 function TPersistableSettings.GetIsModified : Boolean;
 begin
-	FIsModified := not FSettingsDict.InnerDictionary[IniSectionName].Any(
-		function(const p : TPair<string, ISetting>) : Boolean
-		begin
-			Result := ssModified = p.Value.State;
-		end);
-
-	Result := FIsModified;
+    FIsModified := False;
+	if FSettingsDict.ContainsSection(IniSectionName) then begin
+		FIsModified := not FSettingsDict.InnerDictionary[IniSectionName].Any(
+			function(const p : TPair<string, ISetting>) : Boolean
+			begin
+				Result := ssModified = p.Value.State;
+			end);
+	end;
+ 	Result := FIsModified;
 end;
 
 procedure TPersistableSettings.ReadIni;

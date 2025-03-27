@@ -258,7 +258,7 @@ begin
 	v2.Copy(v);
 	Assert.AreNotEqual(v.AsString, v2.AsString, 'is not equal after copy :( ');
 
-	TSetting.CopySettingValues(v, v2);
+	TSetting.CopySettingFields(v, v2);
 	Assert.AreEqual(v.AsString, v2.AsString, 'Values should be equal after copy :)');
 end;
 
