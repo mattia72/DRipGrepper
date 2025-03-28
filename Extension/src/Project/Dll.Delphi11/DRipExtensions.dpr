@@ -105,7 +105,7 @@ exports
 begin
 	GSettings := TRipGrepperSettings.Create;
 
-	GSettings.AppSettings.ReadIni;
+	GSettings.AppSettings.ReadFile;
 	GSettings.AppSettings.LoadFromDict();
 	TDebugUtils.UpdateTraceActive;
 	// GSettings.Free in TDripExtensionMenu.Destroy
