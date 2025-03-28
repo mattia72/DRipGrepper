@@ -43,6 +43,10 @@ type
 			procedure GetReversedRangeCountTest();
 			[Test]
 			procedure GetReversedRangeMaxCountTest();
+			[Test]
+			procedure GetReversedRangeMaxCountTest1();
+			[Test]
+			procedure GetRangeAndReversedRange();
 	end;
 
 implementation
@@ -61,10 +65,8 @@ var
 	ai : TArrayEx<integer>;
 begin
 	ai := [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-
 	var
 	revArr := ai.GetReversedRange();
-
 	Assert.AreEqual<integer>([9, 8, 7, 6, 5, 4, 3, 2, 1, 0], revArr, 'reversed array should be equal')
 end;
 
@@ -103,6 +105,30 @@ begin
 
 	var
 	revArr := ai.GetReversedRange(-1, 10);
+
+	Assert.AreEqual<integer>([4, 3, 2, 1, 0], revArr, 'reversed array count should be equal')
+end;
+
+procedure TArrayExTest.GetReversedRangeMaxCountTest1();
+var
+	ai : TArrayEx<integer>;
+begin
+	ai := [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+	var
+	revArr := ai.GetReversedRange(-1, 5);
+
+	Assert.AreEqual<integer>([10, 9, 8, 7, 6], revArr, 'reversed array count should be equal')
+end;
+
+procedure TArrayExTest.GetRangeAndReversedRange();
+var
+	ai : TArrayEx<integer>;
+begin
+	ai := [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+	var
+	revArr := ai.GetRange(0, 5).GetReversedRange();
 
 	Assert.AreEqual<integer>([4, 3, 2, 1, 0], revArr, 'reversed array count should be equal')
 end;
@@ -149,19 +175,19 @@ begin
 	AI.Delete(1);
 	Assert.IsTrue(AI.Contains(2) = FALSE);
 	Assert.IsTrue(AI.Count = 2);
-//  try
-//      AI.Delete(2);
-//  except
-//  end; // exception expected
+	// try
+	// AI.Delete(2);
+	// except
+	// end; // exception expected
 	AI.Delete(0);
 	Assert.IsTrue(AI.Count = 1);
 	AI.Delete(0);
 	Assert.IsTrue(AI.Count = 0);
-//  try
-//      AI.Delete(0);
-//      Assert.IsTrue(TRUE);
-//  except
-//  end; // exception expected
+	// try
+	// AI.Delete(0);
+	// Assert.IsTrue(TRUE);
+	// except
+	// end; // exception expected
 
 	// Insert
 	AStr.Clear;
@@ -196,8 +222,8 @@ begin
 	Assert.IsTrue(AI = AI2);
 	AI.AddRange(AI2);
 	Assert.IsTrue((AI.Count = 12) and (AI <> AI2));
-// TODO AI2.InsertRange(AI2.Count, AI2);
-//  Assert.IsTrue((AI.Count = AI2.Count) and (AI = AI2));
+	// TODO AI2.InsertRange(AI2.Count, AI2);
+	// Assert.IsTrue((AI.Count = AI2.Count) and (AI = AI2));
 
 	// InsertRange
 	AI.Clear;
@@ -279,9 +305,9 @@ begin
 	Assert.IsTrue(AI.Compare([3, 4, 5, 6]));
 
 	// GetRange
- //	TODO Assert.IsTrue(AI.GetRange(2).Compare([5, 6]));
+	// TODO Assert.IsTrue(AI.GetRange(2).Compare([5, 6]));
 	Assert.IsTrue(AI.GetRange(0, 2).Compare([3, 4]));
- // TODO Assert.IsTrue(AI.GetRange(1, 2).Compare([4, 5]));
+	// TODO Assert.IsTrue(AI.GetRange(1, 2).Compare([4, 5]));
 
 end;
 
@@ -315,20 +341,20 @@ begin
 	TArray.Delete<integer>(AI, 1);
 	Assert.IsTrue(TArray.Contains<integer>(AI, 2) = FALSE);
 	Assert.IsTrue(length(AI) = 2);
-//  try
-//      TArray.Delete<integer>(AI, 2);
-//      Assert.IsTrue(TRUE);
-//  except
-//  end; // exception expected
+	// try
+	// TArray.Delete<integer>(AI, 2);
+	// Assert.IsTrue(TRUE);
+	// except
+	// end; // exception expected
 	TArray.Delete<integer>(AI, 0);
 	Assert.IsTrue(length(AI) = 1);
 	TArray.Delete<integer>(AI, 0);
 	Assert.IsTrue(length(AI) = 0);
-//  try
-//      TArray.Delete<integer>(AI, 0);
-//      Assert.IsTrue(TRUE);
-//  except
-//  end; // exception expected
+	// try
+	// TArray.Delete<integer>(AI, 0);
+	// Assert.IsTrue(TRUE);
+	// except
+	// end; // exception expected
 
 	// Insert
 	AStr := nil;

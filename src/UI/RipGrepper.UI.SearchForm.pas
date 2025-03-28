@@ -200,6 +200,7 @@ type
 			function ValidateRegex : Boolean;
 			procedure WriteOptionCtrlToProxy;
 			procedure CopyProxyToCtrls();
+			function GetReversedHistoryItems(const _arr : TArrayEx<string>) : TArrayEx<string>;
 
 		protected
 			procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;
@@ -1032,11 +1033,11 @@ end;
 procedure TRipGrepperSearchDialogForm.CopyProxyToSettings(const _ctrlProxy : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;
 	_settings : TRipGrepperSettings);
 begin
-	FSettings.SearchTextsHistory.Value := _ctrlProxy.SearchTextHist.GetReversed;
-	FSettings.ReplaceTextsHistory.Value := _ctrlProxy.ReplaceTextHist.GetReversed;
-	FSettings.SearchPathsHistory.Value := _ctrlProxy.SearchPathHist.GetReversed;
-	FSettings.FileMasksHistory.Value := _ctrlProxy.FileMasksHist.GetReversed;
-	FSettings.ExpertOptionHistory.Value := _ctrlProxy.AdditionalExpertOptionsHist.GetReversed;
+	FSettings.SearchTextsHistory.Value := GetReversedHistoryItems(_ctrlProxy.SearchTextHist);
+	FSettings.ReplaceTextsHistory.Value := GetReversedHistoryItems(_ctrlProxy.ReplaceTextHist);
+	FSettings.SearchPathsHistory.Value := GetReversedHistoryItems(_ctrlProxy.SearchPathHist);
+	FSettings.FileMasksHistory.Value := GetReversedHistoryItems(_ctrlProxy.FileMasksHist);
+	FSettings.ExpertOptionHistory.Value := GetReversedHistoryItems(_ctrlProxy.AdditionalExpertOptionsHist);
 	var
 	rgec := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
 	rgec.IDEContext := integer(_ctrlProxy.ExtensionContext);
@@ -1514,6 +1515,11 @@ begin
 	cmbRgParamEncoding.Text := FCtrlProxy.Encoding;
 	dbgMsg.Msg('cmbRgParamEncoding.Text=' + cmbRgParamEncoding.Text);
 
+end;
+
+function TRipGrepperSearchDialogForm.GetReversedHistoryItems(const _arr : TArrayEx<string>) : TArrayEx<string>;
+begin
+	Result := _arr.GetRange(0, MAX_HISTORY_COUNT).GetReversedRange();
 end;
 
 end.
