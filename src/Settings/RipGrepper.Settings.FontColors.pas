@@ -102,19 +102,12 @@ type
 			TREEVIEW_STAT_TEXT : TFontAttributes; //
 			TREEVIEW_ALTERNATE_ROW : TFontAttributes;
 
-			constructor Create(
-
-				const _theme : EThemeMode = EThemeMode.tmLight);
-			procedure SetDefault(
-
-				const _name : string;
-
-				var _color : TFontAttributes);
+			constructor Create(const _theme : EThemeMode = EThemeMode.tmLight);
+			procedure SetDefault(const _name : string; var _color : TFontAttributes);
 	end;
 
 	TFontColors = record
-		private
-		public
+        public
 			FileText : TFontAttributes; // <-- First in config form
 			LineNumText : TFontAttributes;
 			ColNumText : TFontAttributes;
@@ -129,16 +122,10 @@ type
 			ReplaceTextInHistory : TFontAttributes;
 			ReplacedTextInHistory : TFontAttributes;
 			AlternateRow : TFontAttributes;
-			procedure SetByName(const _name : string;
-
-				const _fa : TFontAttributes);
-			function GetByName(
-
-				const _name : string) : TFontAttributes;
+			procedure SetByName(const _name : string; const _fa : TFontAttributes);
+			function GetByName(const _name : string) : TFontAttributes;
 			function IsEmpty : Boolean;
-			procedure SetDefaultColors(
-
-				const _df : TDefaultFontColors);
+			procedure SetDefaultColors(const _df : TDefaultFontColors);
 	end;
 
 	TColorSettings = class(TPersistableSettings)
@@ -147,6 +134,7 @@ type
 		private
 			FFontColors : TFontColors;
 			FFontColorsSettings : ISettingKeys;
+			FIsReadFromFile : Boolean;
 			procedure CopyFontColorsToSettings();
 			procedure CopySettingsToFontColors();
 
@@ -160,9 +148,7 @@ type
 				const _Owner : TPersistableSettings);
 			destructor Destroy; override;
 			procedure LoadFromDict(); override;
-			procedure LoadDefaultColors(
-
-				const _theme : EThemeMode);
+			procedure LoadDefaultColors(const _theme : EThemeMode; const _bForce : Boolean = False);
 			procedure ReadFile(); override;
 			procedure ReloadColors;
 			procedure StoreToPersister(); override;
@@ -183,12 +169,11 @@ uses
 
 { TColorSettings }
 
-constructor TColorSettings.Create(
-
-	const _Owner : TPersistableSettings);
+constructor TColorSettings.Create(const _Owner : TPersistableSettings);
 begin
 	IniSectionName := INI_SECTION;
 	inherited;
+	FIsReadFromFile := False;
 	TDebugUtils.DebugMessage('TColorSettings.Create: ' + '[' + IniSectionName + ']');
 end;
 
@@ -232,22 +217,19 @@ begin
 	for var pair in FFontColorsSettings do begin
 		CreateSetting(pair.key, pair.Value);
 	end;
-
-	LoadDefaultColors(TDarkModeHelper.GetActualThemeMode);
-	CopyFontColorsToSettings;
+    ReadFile();
 end;
 
-procedure TColorSettings.LoadDefaultColors(
-
-	const _theme : EThemeMode);
+procedure TColorSettings.LoadDefaultColors(const _theme : EThemeMode; const _bForce : Boolean = False);
 begin
 	var
 	df := TDefaultFontColors.Create(_theme);
 	try
-		FFontColors.SetDefaultColors(df);
-
-		CopyFontColorsToSettings;
+		if FFontColors.IsEmpty or _bForce then begin
+			FFontColors.SetDefaultColors(df);
+		end;
 	finally
+		FIsReadFromFile := False;
 		df.Free;
 	end;
 end;
@@ -258,34 +240,30 @@ begin
 end;
 
 procedure TColorSettings.ReadFile();
-var bLoaded : Boolean;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TColorSettings.ReadFile');
-	bLoaded := True;
+	FIsReadFromFile := True;
 
 	for var pair in FFontColorsSettings do begin
 		pair.Value.LoadFromPersister;
 		if pair.Value.AsString.IsEmpty then begin
-			bLoaded := False;
+			FIsReadFromFile := False;
 			break;
 		end;
 	end;
 
-	if not bLoaded then begin
-		if FFontColors.IsEmpty then begin
-			LoadDefaultColors(TDarkModeHelper.GetActualThemeMode);
-		end;
-
-		CopyFontColorsToSettings();
+	if not FIsReadFromFile then begin
+		LoadDefaultColors(TDarkModeHelper.GetActualThemeMode);
+		StoreToPersister();
 	end;
+    CopySettingsToFontColors();
 end;
 
 procedure TColorSettings.ReloadColors;
 begin
 	ReLoad;
 	// LoadFromDict;
-
 	if FFontColors.IsEmpty then begin
 		LoadDefaultColors(TDarkModeHelper.GetActualThemeMode);
 	end;
@@ -294,13 +272,14 @@ end;
 procedure TColorSettings.StoreToPersister();
 begin
 	CopyFontColorsToSettings;
-
 end;
 
-procedure TFontAttributes.FromString(
-
-	const _s : string);
-var i : integer; arr : TArrayEx<string>; sEnumName : string; st : TFontStyle;
+procedure TFontAttributes.FromString(const _s : string);
+var
+	i : integer;
+	arr : TArrayEx<string>;
+	sEnumName : string;
+	st : TFontStyle;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TFontAttributes.FromString');
@@ -325,9 +304,7 @@ begin
 	dbgMsg.Msg(self.ToString);
 end;
 
-function TFontAttributes.FromFont(
-
-	const _font : TFont) : TFontAttributes;
+function TFontAttributes.FromFont(const _font : TFont) : TFontAttributes;
 begin
 	name := _font.Name;
 	Style := _font.Style;
@@ -335,9 +312,7 @@ begin
 	Color := _font.Color;
 end;
 
-function TFontAttributes.ToFont(
-
-	var _font : TFont) : TFontAttributes;
+function TFontAttributes.ToFont(var _font : TFont) : TFontAttributes;
 begin
 	_font.Name := name;
 	_font.Style := Style;
@@ -346,7 +321,8 @@ begin
 end;
 
 function TFontAttributes.ToString : string;
-var arrFontStyles : TArrayEx<string>;
+var
+	arrFontStyles : TArrayEx<string>;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TFontAttributes.ToString');
@@ -443,9 +419,7 @@ begin
 		raise Exception.Create('Unknown font attribute name: ' + _name);
 end;
 
-procedure TFontColors.SetDefaultColors(
-
-	const _df : TDefaultFontColors);
+procedure TFontColors.SetDefaultColors(const _df : TDefaultFontColors);
 begin
 	self.AlternateRow.FromString(_df.TREEVIEW_ALTERNATE_ROW.ToString());
 	self.ColNumText.FromString(_df.TREEVIEW_COL_NUM_TEXT.ToString());
@@ -463,9 +437,7 @@ begin
 	self.StatisticsText.FromString(_df.TREEVIEW_STATS_TEXT.ToString());
 end;
 
-constructor TDefaultFontColors.Create(
-
-	const _theme : EThemeMode = EThemeMode.tmLight);
+constructor TDefaultFontColors.Create(const _theme : EThemeMode = EThemeMode.tmLight);
 begin
 	inherited Create();
 	FTheme := _theme;

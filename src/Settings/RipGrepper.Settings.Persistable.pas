@@ -108,7 +108,7 @@ type
 			/// </summary>
 			procedure StoreToPersister; virtual;
 			// <summary>
-			// Thread safe write Settings to ini file
+			// Thread safe write Settings to file
 			// </summary>
 			procedure UpdateFile(const _bForceStoreToPersister : Boolean = False; const _bClearSection : Boolean = False);
 	end;
@@ -295,7 +295,7 @@ end;
 
 function TPersistableSettings.GetIsModified : Boolean;
 begin
-    FIsModified := False;
+	FIsModified := False;
 	if FSettingsDict.ContainsSection(IniSectionName) then begin
 		FIsModified := not FSettingsDict.InnerDictionary[IniSectionName].Any(
 			function(const p : TPair<string, ISetting>) : Boolean
@@ -303,7 +303,7 @@ begin
 				Result := ssModified = p.Value.State;
 			end);
 	end;
- 	Result := FIsModified;
+	Result := FIsModified;
 end;
 
 procedure TPersistableSettings.ReadFile();
@@ -406,10 +406,16 @@ class procedure TPersistableSettings.CallUpdateFileOnFactory(const _factory : IP
 var
 	fh : IFileHandler;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.CallUpdateFileOnFactory');
 	if Supports(_factory, IFileHandler, fh) then begin
 		if _dict.HasState(ssStored) then begin
+			var
+			lock := TLockGuard.NewLock(FLockObject);
+			dbgMsg.Msg('Lock Entered to UpdateFile');
 			fh.UpdateFile();
 			_dict.SetState(ssStored, ssSaved);
+			dbgMsg.Msg('Lock Released after UpdateFile');
 		end;
 	end;
 end;
@@ -492,11 +498,7 @@ begin
 	end;
 
 	if Assigned(PersisterFactory) then begin
-		var
-		lock := TLockGuard.NewLock(FLockObject);
-		dbgMsg.Msg('Lock Entered to UpdateFile');
 		TPersistableSettings.CallUpdateFileOnFactory(FPersisterFactory, SettingsDict);
-		dbgMsg.Msg('Lock Released');
 	end else begin
 		dbgMsg.ErrorMsg('PersisterFactory not assigned!' + GetIniSectionName());
 	end;

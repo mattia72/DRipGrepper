@@ -69,7 +69,7 @@ var
 	sFontAttribs : string;
 	sSettingsName : string;
 begin
-	FFontColorSettings.LoadDefaultColors(TDarkModeHelper.GetActualThemeMode);
+	FFontColorSettings.LoadDefaultColors(TDarkModeHelper.GetActualThemeMode, True);
 	FFontColorSettings.StoreToPersister;
 	for var i := 0 to ComponentCount - 1 do begin
 		if Components[i] is TColorSelectorFrame then begin
@@ -108,6 +108,7 @@ begin
 	fc := FFontColorSettings.FontColors;
 	TColorSelectorFrame.WriteColorSettings(fc, self);
 	FFontColorSettings.FontColors := fc;
+	FFontColorSettings.StoreToPersister();
 	inherited WriteSettings;
 end;
 
