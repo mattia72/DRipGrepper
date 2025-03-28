@@ -46,7 +46,7 @@ type
 			constructor Create(const _Owner : TPersistableSettings); overload;
 			constructor Create; overload;
 			procedure Init; override;
-			procedure ReadIni; override;
+			procedure ReadFile(); override;
 			procedure StoreToPersister; override;
 			function ToLogString : string; override;
 			property SearchSelectedShortcut : string read GetSearchSelectedShortcut write SetSearchSelectedShortcut;
@@ -108,10 +108,10 @@ begin
 	CreateSetting(KEY_IDE_CONTEXT, FIDEContext);
 end;
 
-procedure TRipGrepperExtensionSettings.ReadIni;
+procedure TRipGrepperExtensionSettings.ReadFile();
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.ReadIni');
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.ReadFile');
 	{$IFNDEF TESTINSIGHT} // or ($APPTYPE = CONSOLE))} // skip if unittest
 	{$IFDEF STANDALONE}
 	Exit;
@@ -121,7 +121,7 @@ begin
 	end;
 	{$ENDIF}
 	{$ENDIF}
-	inherited ReadIni();
+	inherited ReadFile();
 end;
 
 procedure TRipGrepperExtensionSettings.SetCurrentIDEContext(const Value : TRipGrepperExtensionContext);

@@ -1151,7 +1151,7 @@ procedure TRipGrepperSearchDialogForm.LoadNewSearchSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadNewSearchSettings');
-	FSettings.ReadIni;
+	FSettings.ReadFile;
 	// TODO option to load always defaults:
 	// FSettings.CopyDefaultsToValues;
 	// OR last used  ...

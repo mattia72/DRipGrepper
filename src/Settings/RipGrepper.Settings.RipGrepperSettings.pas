@@ -59,7 +59,7 @@ type
 			function GetIsAlreadyRead : Boolean; override;
 
 		public
-			procedure ReadIni; override;
+			procedure ReadFile(); override;
 			procedure StoreToPersister; override;
 			procedure StoreViewSettings(const _s : string = '');
 			constructor Create;
@@ -255,7 +255,7 @@ end;
 function TRipGrepperSettings.GetSearchFormSettings : TSearchFormSettings;
 begin
 	// if not FSearchFormSettings.IsAlreadyRead then begin
-	// FSearchFormSettings.ReadIni;
+	// FSearchFormSettings.ReadFile;
 	// end;
 	Result := FSearchFormSettings;
 end;
@@ -281,12 +281,12 @@ begin
 
 end;
 
-procedure TRipGrepperSettings.ReadIni; // Composit
+procedure TRipGrepperSettings.ReadFile();
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.ReadIni');
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.ReadFile');
 	try
-		inherited ReadIni();
+		inherited ReadFile();
 
 		FSearchPathsHistory.LoadFromPersister;
 		FSearchTextsHistory.LoadFromPersister;
@@ -296,7 +296,7 @@ begin
 
 	except
 		on E : Exception do begin
-			TDebugUtils.DebugMessage(Format('TRipGrepperSettings.ReadIni: Exception %s ', [E.Message]));
+			TDebugUtils.DebugMessage(Format('TRipGrepperSettings.ReadFile: Exception %s ', [E.Message]));
 			TMsgBox.ShowError(E.Message + CRLF + 'Settings Read from ' + ' went wrong.');
 		end;
 	end;
@@ -311,6 +311,8 @@ begin
 	FReplaceTextsHistory.LoadFromPersister;
 	FExpertOptionHistory.LoadFromPersister;
 	FFileMasksHistory.LoadFromPersister;
+
+    FFontColorSettings.ReadFile;
 end;
 
 procedure TRipGrepperSettings.RebuildArguments;

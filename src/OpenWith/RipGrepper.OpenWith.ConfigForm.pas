@@ -122,7 +122,7 @@ begin
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 	lvCommands.MultiSelect := True; // we need this for working SelCount
 	FOpenWithSettings := _settings;
-	FOpenWithSettings.ReadIni; // we should read ini every time, it can be overwritten by another instance...
+	FOpenWithSettings.ReadFile; // we should read ini every time, it can be overwritten by another instance...
 	ReadSettings;
 	FColorTheme := _colorTheme;
 	ThemeHandler.Init(_colorTheme);

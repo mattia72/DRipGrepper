@@ -26,7 +26,7 @@ type
 			procedure ClearCommandList;
 			function GetCommands() : TArray<string>;
 			procedure Init; override;
-			procedure ReadIni; override; // TODO: use persistable base
+			procedure ReadFile(); override;
 			procedure ForceUpdateFile();
 			procedure LoadFromDict(); override;
 			procedure RecreateCommandList(_cmdListItems : TArrayEx<string>);
@@ -78,13 +78,13 @@ begin
 	CreateSetting(OPEN_WITH_SETTINGS, ITEM_KEY_PREFIX, FCommandListSetting);
 end;
 
-procedure TOpenWithSettings.ReadIni;
+procedure TOpenWithSettings.ReadFile();
 var
 	iarr : IArraySetting;
 	arr : TArray<string>;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.ReadIni');
+	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.ReadFile');
 
 	iarr := TArraySetting.Create(arr);
 	iarr.Copy(FCommandListSetting);

@@ -128,7 +128,7 @@ function TParentFrame.GetSettings : TRipGrepperSettings;
 begin
 	if not Assigned(FSettings) then begin
 		FSettings := GSettings;
-		FSettings.ReadIni;
+		FSettings.ReadFile;
 	end;
 	Result := FSettings;
 end;

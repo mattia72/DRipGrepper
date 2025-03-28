@@ -48,7 +48,7 @@ type
 			function GetIsModified : Boolean; override;
 			procedure Init; override;
 			procedure LoadFromDict(); override;
-			procedure ReadIni; override;
+			procedure ReadFile(); override;
 			property AlternateRowColors : Boolean read GetAlternateRowColors write SetAlternateRowColors;
 			property ExpandNodes : Boolean read GetExpandNodes write SetExpandNodes;
 			property FilterSettings : TFilterSettings read FFilterSettings write SetFilterSettings;
@@ -133,10 +133,10 @@ begin
 	FilterSettings.LoadFromDict();
 end;
 
-procedure TNodeLookSettings.ReadIni;
+procedure TNodeLookSettings.ReadFile();
 begin
-	FilterSettings.ReadIni;
-	inherited ReadIni();
+	FilterSettings.ReadFile;
+	inherited ReadFile();
 end;
 
 procedure TNodeLookSettings.SetAlternateRowColors(const Value : Boolean);

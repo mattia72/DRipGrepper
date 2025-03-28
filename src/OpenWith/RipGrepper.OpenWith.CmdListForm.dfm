@@ -2,8 +2,8 @@ object OpenWithCmdList: TOpenWithCmdList
   Left = 738
   Top = 170
   Caption = 'Open With...'
-  ClientHeight = 285
-  ClientWidth = 362
+  ClientHeight = 277
+  ClientWidth = 360
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -151,8 +151,8 @@ object OpenWithCmdList: TOpenWithCmdList
   TextHeight = 14
   object pnl_Bottom: TPanel
     Left = 0
-    Top = 251
-    Width = 362
+    Top = 243
+    Width = 360
     Height = 34
     Margins.Left = 8
     Margins.Top = 8
@@ -165,10 +165,10 @@ object OpenWithCmdList: TOpenWithCmdList
     ShowCaption = False
     TabOrder = 2
     DesignSize = (
-      362
+      360
       34)
     object btn_Save: TButton
-      Left = 163
+      Left = 161
       Top = 4
       Width = 75
       Height = 25
@@ -183,7 +183,7 @@ object OpenWithCmdList: TOpenWithCmdList
       TabOrder = 0
     end
     object btn_Cancel: TButton
-      Left = 255
+      Left = 253
       Top = 3
       Width = 75
       Height = 26
@@ -202,8 +202,8 @@ object OpenWithCmdList: TOpenWithCmdList
   object pnlMain: TPanel
     Left = 0
     Top = 71
-    Width = 332
-    Height = 180
+    Width = 330
+    Height = 172
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 0
@@ -237,6 +237,7 @@ object OpenWithCmdList: TOpenWithCmdList
           AutoSize = True
           Caption = 'Description'
         end>
+      Items.ItemData = {050000000000000000}
       ReadOnly = True
       RowSelect = True
       ParentShowHint = False
@@ -248,10 +249,10 @@ object OpenWithCmdList: TOpenWithCmdList
     end
   end
   object pnl_Right: TPanel
-    Left = 332
+    Left = 330
     Top = 71
     Width = 30
-    Height = 180
+    Height = 172
     Margins.Left = 0
     Align = alRight
     BevelOuter = bvNone
@@ -259,7 +260,7 @@ object OpenWithCmdList: TOpenWithCmdList
     TabOrder = 3
     DesignSize = (
       30
-      180)
+      172)
     object btnConfig: TButton
       AlignWithMargins = True
       Left = 1
@@ -304,7 +305,7 @@ object OpenWithCmdList: TOpenWithCmdList
   object pnl_Top: TPanel
     Left = 0
     Top = 0
-    Width = 362
+    Width = 360
     Height = 71
     Align = alTop
     BevelOuter = bvNone

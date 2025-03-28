@@ -52,7 +52,7 @@ type
 			destructor Destroy; override;
 
 			procedure Init; override;
-			procedure ReadIni; override;
+			procedure ReadFile(); override;
 			procedure StoreToPersister; override;
 			procedure Copy(const _other : TSearchFormSettings); reintroduce;
 			procedure ReLoad; override;
@@ -132,7 +132,7 @@ begin
 //      var
 //      dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.GetExtensionSettings');
 //
-//      FExtensionSettings.ReadIni;
+//      FExtensionSettings.ReadFile;
 //  end;
 	Result := FExtensionSettings;
 end;
@@ -170,10 +170,10 @@ begin
 	CreateSetting('Encoding', FEncoding);
 end;
 
-procedure TSearchFormSettings.ReadIni;
+procedure TSearchFormSettings.ReadFile();
 begin
-	FExtensionSettings.ReadIni;
-	inherited ReadIni();
+	FExtensionSettings.ReadFile;
+	inherited ReadFile();
 end;
 
 procedure TSearchFormSettings.SetContext(const Value : Integer);

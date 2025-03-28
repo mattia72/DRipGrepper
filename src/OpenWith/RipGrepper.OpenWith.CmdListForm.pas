@@ -116,7 +116,7 @@ begin
 	FSettings := _settings;
 	FColorTheme := _colorTheme;
 	// FSettings.ReLoad; TODO: AlreadyRead should be set
-	FSettings.ReadIni; // we should read ini every time, it can be overwritten by another instance...
+	FSettings.ReadFile; // we should read ini every time, it can be overwritten by another instance...
 	dbgMsg.MsgFmt('FSettings: %s', [FSettings.ToString]);
 
 	SaveOrigHeights;

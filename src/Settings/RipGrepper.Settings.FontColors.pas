@@ -163,7 +163,7 @@ type
 			procedure LoadDefaultColors(
 
 				const _theme : EThemeMode);
-			procedure ReadIni(); override;
+			procedure ReadFile(); override;
 			procedure ReloadColors;
 			procedure StoreToPersister(); override;
 			property FontColors : TFontColors read FFontColors write FFontColors;
@@ -257,11 +257,11 @@ begin
 	CopySettingsToFontColors;
 end;
 
-procedure TColorSettings.ReadIni();
+procedure TColorSettings.ReadFile();
 var bLoaded : Boolean;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TColorSettings.ReadIni');
+	dbgMsg := TDebugMsgBeginEnd.New('TColorSettings.ReadFile');
 	bLoaded := True;
 
 	for var pair in FFontColorsSettings do begin

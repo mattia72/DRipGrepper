@@ -55,7 +55,7 @@ type
 			destructor Destroy; override;
 			procedure Copy(const _other : TPersistableSettings); override;
 			function GetCommandLine(const _shell : TShellType) : string;
-			procedure ReadIni; override;
+			procedure ReadFile(); override;
 			procedure LoadFromDict; override;
 			function TryGetRipGrepPath(out _rgPath : string) : ERipGrepPathInitResult;
 			property FileMasks : string read GetFileMasks write SetFileMasks;
@@ -224,9 +224,9 @@ begin
 	// inherited Init(); abstract
 end;
 
-procedure TRipGrepParameterSettings.ReadIni;
+procedure TRipGrepParameterSettings.ReadFile();
 begin
-	inherited ReadIni();
+	inherited ReadFile();
 end;
 
 function TRipGrepParameterSettings.TryFindRipGrepExePath : string;

@@ -89,7 +89,7 @@ begin
 
 		// FExtensionSettings := TRipGrepperExtensionSettings.Create(Settings);
 		FExtensionSettings := Settings.SearchFormSettings.ExtensionSettings;
-		FExtensionSettings.ReadIni;
+		FExtensionSettings.ReadFile;
 		FExtensionSettings.LoadFromDict;
 		FExtensionSettingsForm := TExtensionSettingsForm.Create(nil, FExtensionSettings);
 

@@ -23,7 +23,7 @@ type
 		['{A841C46D-56AF-4391-AB88-4C9496589FF4}']
 		function GetIniSectionName() : string;
 		procedure Init();
-		procedure ReadIni();
+		procedure ReadFile();
 		procedure LoadFromDict();
 		procedure StoreToPersister();
 	end;
@@ -63,7 +63,7 @@ type
 			function GetIsAlreadyRead : Boolean; virtual;
 			function GetIsModified : Boolean; virtual;
 			/// <summary>TPersistableSettings.Init
-			/// CreateSetting  should be called here
+			/// CreateSetting should be called here
 			/// </summary>
 			procedure Init; virtual; abstract;
 			function GetIniSectionName : string; virtual;
@@ -91,12 +91,13 @@ type
 			function RemoveChildSettings(const _settings : TPersistableSettings) : Boolean;
 			procedure CopySettingsDictSection(const _from : TPersistableSettings; const _copyAllSections : Boolean = False;
 				const _bForceCopySettingObj : Boolean = False); overload;
-			/// <summary>TPersistableSettings.ReadIni
+			/// <summary>TPersistableSettings.ReadFile
 			/// Members.RedIni- should be called here
 			/// </summary>
-			procedure ReadIni; virtual;
-			/// <summary>TPersistableSettings.LoadFromDict
-			/// Refresh member variables by read settings value or default value
+			procedure ReadFile(); virtual;
+			/// <summary>
+			/// LoadFromDict Refresh member variables by read settings value
+			/// or default value from SettingsDict
 			/// </summary>
 			procedure LoadFromDict(); virtual;
 			/// ReLoads memini file content
@@ -305,13 +306,13 @@ begin
  	Result := FIsModified;
 end;
 
-procedure TPersistableSettings.ReadIni;
+procedure TPersistableSettings.ReadFile();
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.ReadIni');
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.ReadFile');
 	dbgMsg.MsgFmt('Section: %s', [IniSectionName]);
 	for var s in FChildren do begin
-		s.ReadIni();
+		s.ReadFile();
 	end;
 
 	if not IsAlreadyRead then begin
@@ -367,7 +368,7 @@ begin
 		s.ReLoad;
 	end;
 	FIsAlreadyRead := False;
-	ReadIni;
+	ReadFile;
 end;
 
 procedure TPersistableSettings.SetChildrenPersister;
