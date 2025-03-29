@@ -12,11 +12,11 @@ uses
 	RipGrepper.Settings.AppSettings,
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.SimpleTypes,
-
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.Settings.SearchFormSettings,
 	RipGrepper.Common.SearchTextWithOptions,
-	Spring, RipGrepper.Common.GuiSearchParams;
+	Spring,
+	RipGrepper.Common.GuiSearchParams;
 
 type
 	// THistoryItemObject = class(TNoRefCountObject, IHistoryItemObject)
@@ -34,29 +34,29 @@ type
 			FTotalMatchCount : integer;
 
 			// saved setting items
-			FGuiSearchTextParams: IShared<TGuiSearchTextParams>;
-			FRipGrepArguments: IShared<TRipGrepArguments>;
+			FGuiSearchTextParams : IShared<TGuiSearchTextParams>;
+			FRipGrepArguments : IShared<TRipGrepArguments>;
 			FSearchFormSettings : TSearchFormSettings;
 
 			function GetElapsedTimeText() : string;
 			function GetErrorCounters() : TErrorCounters;
 			function GetFileCount() : integer;
-			function GetGuiSearchTextParams: IShared<TGuiSearchTextParams>;
+			function GetGuiSearchTextParams : IShared<TGuiSearchTextParams>;
 			function GetIsReplaceMode() : Boolean;
 			function GetMatches() : TParsedObjectRowCollection;
 			function GetNoMatchFound() : Boolean;
-			function GetRipGrepArguments: IShared<TRipGrepArguments>;
+			function GetRipGrepArguments : IShared<TRipGrepArguments>;
 			function GetTotalMatchCount() : integer;
 			procedure SetFileCount(const Value : integer);
 			procedure SetMatches(const Value : TParsedObjectRowCollection);
-			procedure SetRipGrepArguments(const Value: IShared<TRipGrepArguments>);
+			procedure SetRipGrepArguments(const Value : IShared<TRipGrepArguments>);
 			function GetParserType : TParserType;
 			function GetSearchFormSettings : TSearchFormSettings;
 			function GetRipGrepResult : Integer;
 			procedure SetParserType(const Value : TParserType);
 			function GetSearchText : string;
 			procedure SetElapsedTimeText(const Value : string);
-			procedure SetGuiSearchTextParams(const Value: IShared<TGuiSearchTextParams>);
+			procedure SetGuiSearchTextParams(const Value : IShared<TGuiSearchTextParams>);
 			procedure SetNoMatchFound(const Value : Boolean);
 			procedure SetSearchFormSettings(const Value : TSearchFormSettings);
 			procedure SetRipGrepResult(const Value : Integer);
@@ -75,10 +75,10 @@ type
 
 			property FileCount : integer read GetFileCount write SetFileCount;
 			property Matches : TParsedObjectRowCollection read GetMatches write SetMatches;
-			property RipGrepArguments: IShared<TRipGrepArguments> read GetRipGrepArguments write SetRipGrepArguments;
+			property RipGrepArguments : IShared<TRipGrepArguments> read GetRipGrepArguments write SetRipGrepArguments;
 			property TotalMatchCount : integer read GetTotalMatchCount;
 			property ElapsedTimeText : string read GetElapsedTimeText write SetElapsedTimeText;
-			property GuiSearchTextParams: IShared<TGuiSearchTextParams> read GetGuiSearchTextParams write SetGuiSearchTextParams;
+			property GuiSearchTextParams : IShared<TGuiSearchTextParams> read GetGuiSearchTextParams write SetGuiSearchTextParams;
 			property IsReplaceMode : Boolean read GetIsReplaceMode;
 			property NoMatchFound : Boolean read GetNoMatchFound write SetNoMatchFound;
 			property RipGrepResult : Integer read GetRipGrepResult write SetRipGrepResult;
@@ -112,7 +112,8 @@ uses
 
 procedure THistoryItemObject.LoadFromSettings(const _settings : TRipGrepperSettings);
 begin
-	var args := _settings.GetRipGrepArguments();
+	var
+	args := _settings.GetRipGrepArguments();
 	RipGrepArguments.Assign(args());
 	GuiSearchTextParams.Copy(_settings.RipGrepParameters.GuiSearchTextParams());
 	SearchFormSettings.Copy(_settings.SearchFormSettings);
@@ -129,7 +130,7 @@ begin
 	Result := FMatches;
 end;
 
-function THistoryItemObject.GetRipGrepArguments: IShared<TRipGrepArguments>;
+function THistoryItemObject.GetRipGrepArguments : IShared<TRipGrepArguments>;
 begin
 	Result := FRipGrepArguments;
 end;
@@ -152,7 +153,7 @@ begin
 	FMatches := Value;
 end;
 
-procedure THistoryItemObject.SetRipGrepArguments(const Value: IShared<TRipGrepArguments>);
+procedure THistoryItemObject.SetRipGrepArguments(const Value : IShared<TRipGrepArguments>);
 begin
 	FRipGrepArguments := Value;
 end;
@@ -194,7 +195,7 @@ begin
 	_settings.RipGrepParameters.RipGrepArguments.Assign(RipGrepArguments());
 	_settings.RipGrepParameters.GuiSearchTextParams.Copy(GuiSearchTextParams());
 	_settings.SearchFormSettings.Copy(SearchFormSettings);
-	_settings.LastSearchText := SearchText;
+	_settings.LastSearchText := GuiSearchTextParams().SearchTextWithOptions.SearchTextOfUser; {GetSearchTextForUser}
 end;
 
 function THistoryItemObject.GetElapsedTimeText : string;
@@ -207,7 +208,7 @@ begin
 	Result := FErrorCounters;
 end;
 
-function THistoryItemObject.GetGuiSearchTextParams: IShared<TGuiSearchTextParams>;
+function THistoryItemObject.GetGuiSearchTextParams : IShared<TGuiSearchTextParams>;
 begin
 	Result := FGuiSearchTextParams;
 end;
@@ -270,7 +271,7 @@ begin
 	FErrorCounters := Value;
 end;
 
-procedure THistoryItemObject.SetGuiSearchTextParams(const Value: IShared<TGuiSearchTextParams>);
+procedure THistoryItemObject.SetGuiSearchTextParams(const Value : IShared<TGuiSearchTextParams>);
 begin
 	FGuiSearchTextParams := Value;
 end;
