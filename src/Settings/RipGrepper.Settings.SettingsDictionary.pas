@@ -188,6 +188,10 @@ begin
 		stStrArray : begin
 			TArraySetting(_setting).Persister := _factory.GetStrArrayPersister(_section, _key);
 		end;
+		stReversedStrArray : begin
+			TArraySetting(_setting).Persister := _factory.GetReversedStrArrayPersister(_section, _key);
+		end;
+
 		else
 		raise ESettingsException.Create('Setting Type not supported.');
 	end;

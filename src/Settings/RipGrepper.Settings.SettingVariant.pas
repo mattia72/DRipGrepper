@@ -21,7 +21,7 @@ type
 		{ } ssbStoreOnceEvenIfNotModified);
 
 	TSettingStoreBehaviours = set of TSettingStoreBehaviour;
-	TSettingType = (stNotSet, stString, stInteger, stBool, stStrArray);
+	TSettingType = (stNotSet, stString, stInteger, stBool, stStrArray, stReversedStrArray);
 
 	// forward declarations...
 	TSettingVariant<T> = class;

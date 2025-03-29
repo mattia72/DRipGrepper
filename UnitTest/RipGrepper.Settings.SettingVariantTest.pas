@@ -48,6 +48,8 @@ type
 			procedure TestCopyStrArraySetting;
 			[Test]
 			procedure TestStatus();
+			[Test]
+			procedure TestWriteToMemIniArrayReversed();
 	end;
 
 implementation
@@ -326,6 +328,42 @@ begin
 	v.Persister := TMemIniIntegerPersister.Create(IniFile, 'TestSection', 'TestKey');
 	v.StoreToPersister();
 	Assert.IsTrue(v.State = ssStored, 'Expected setting state ssStored');
+end;
+
+procedure TSettingVariantTest.TestWriteToMemIniArrayReversed();
+var
+	v : ISettingVariant<TArrayEx<string>>;
+	Section : string;
+	ExpectedValue, ActualValue : string;
+begin
+	var
+	arr := ['item1', 'item2', 'item3'];
+	var
+	varr := TArrayEx<string>.Create(arr);
+	v := TArraySetting.Create(varr);
+	Section := 'TestSection';
+
+	v.Persister := TMemIniStrArrayPersister.Create(IniFile, Section, '', True);
+	v.StoreToPersister;
+
+	for var i := 0 to 2 do begin
+		ActualValue := IniFile.ReadString(Section, Format('Item_%d', [i]), '');
+		ExpectedValue := varr[i];
+		Assert.AreNotEqual(ExpectedValue, ActualValue, Format('Initialized not saved. Expected %s should be equal to %s',
+			[ExpectedValue, ActualValue]));
+	end;
+
+	varr := ['1', '2', '3'];
+	v.Value := varr;
+	v.StoreToPersister;
+
+	for var i := 0 to 2 do begin
+		ActualValue := IniFile.ReadString(Section, Format('Item_%d', [i]), '');
+		ExpectedValue := varr[2 - i];
+		Assert.AreEqual(ExpectedValue, ActualValue, Format('Modified should stored reversed. Expected %s should be equal to %s',
+			[ExpectedValue, ActualValue]));
+	end;
+
 end;
 
 initialization
