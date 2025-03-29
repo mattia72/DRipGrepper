@@ -139,7 +139,7 @@ procedure TNodeLookSettingsTest.UpdateIniTest;
 begin
 	SetTestDefaultAndActualValues;
 	FSettings.UpdateFile();
-	FSettings.ReadIni;
+	FSettings.ReadFile;
 	for var s in VIEW_SETTINGS_TYPES do begin
 		var
 		b := FSettings.SettingsDict()['NodeLookSettings'][s].AsBool;

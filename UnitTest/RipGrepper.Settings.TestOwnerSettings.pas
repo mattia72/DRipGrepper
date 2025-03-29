@@ -27,7 +27,7 @@ type
 			constructor Create(const _iniSection : string); overload;
 			function GetDict : TSettingsDictionary;
 			procedure Init; override;
-			procedure ReadIni; override;
+			procedure ReadFile; override;
 			property StrSetting : string read FStrSetting write FStrSetting;
 	end;
 
@@ -44,7 +44,7 @@ type
 			constructor Create(const _iniSection : string); overload;
 			function GetDict : TSettingsDictionary;
 			procedure Init; override;
-			procedure ReadIni; override;
+			procedure ReadFile; override;
 			property StrSetting : string read GetStrSetting write SetStrSetting;
 	end;
 
@@ -72,9 +72,9 @@ begin
 	//
 end;
 
-procedure TTestOwnerSettings.ReadIni;
+procedure TTestOwnerSettings.ReadFile;
 begin
-	inherited ReadIni;
+	inherited ReadFile;
 end;
 
 constructor TTestSettings.Create(const _Owner : TPersistableSettings);
@@ -105,9 +105,9 @@ begin
 	CreateSetting('StrSetting', FStrSetting1);
 end;
 
-procedure TTestSettings.ReadIni;
+procedure TTestSettings.ReadFile;
 begin
-	inherited ReadIni;
+	inherited ReadFile;
 end;
 
 procedure TTestSettings.SetStrSetting(const Value : string);

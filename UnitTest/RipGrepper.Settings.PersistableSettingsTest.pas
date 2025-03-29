@@ -82,7 +82,7 @@ end;
 procedure TPersistableSettingsTest.CopyCreatesNewKey();
 begin
 	CreateDefaultsInIni;
-	FSettings1.ReadIni;
+	FSettings1.ReadFile;
 
 	Assert.AreEqual(DEFAULT_STR_VAL, FSettings1.SettingsDict.GetSetting(STRSETTING).AsString,
 		'StrSetting should be equal to value written in the ini file');
@@ -120,11 +120,11 @@ procedure TPersistableSettingsTest.LoadDefaultsReadsIni;
 begin
 	CreateDefaultsInIni;
 	Assert.IsFalse(FSettings1.IsAlreadyRead);
-	FSettings1.ReadIni;
+	FSettings1.ReadFile;
 	Assert.IsTrue(FSettings1.IsAlreadyRead);
 
 	Assert.IsFalse(FSettings2.IsAlreadyRead);
-	FSettings2.ReadIni;
+	FSettings2.ReadFile;
 	Assert.IsTrue(FSettings2.IsAlreadyRead);
 	FSettings2.StrSetting := STRSETTING2;
 end;

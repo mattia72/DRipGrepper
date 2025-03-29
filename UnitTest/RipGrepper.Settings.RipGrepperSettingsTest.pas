@@ -332,7 +332,7 @@ procedure TRipGrepperSettingsTest.UpdateFileTest();
 begin
 	SetSettingValues;
 	FSettings.UpdateFile(); // config form close is tested here?
-	FSettings.ReadIni;
+	FSettings.ReadFile;
 	var
 	iniSection := FSettings.SearchFormSettings.IniSectionName;
 	Assert.AreEqual('none', FFactory.GetStringPersister().LoadValue(iniSection, 'Encoding'));
@@ -368,7 +368,7 @@ begin
 	FSettings.UpdateFile(); // config form close is tested here?
 	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 
-	FSettings.ReadIni;
+	FSettings.ReadFile;
 	Assert.AreEqual(True, FBoolPers.LoadValue(appSection, 'ExpertMode'), 'ExpertMode should be True');
 	Assert.AreEqual('Carbon', FStrPers.LoadValue(appSection, 'ColorTheme'), 'ColorTheme should be Carbon');
 
@@ -389,7 +389,7 @@ begin
 	FSettings.UpdateFile(); // color config form close is tested here?
 	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 
-	FSettings.ReadIni;
+	FSettings.ReadFile;
 
 	var
 	section := FSettings.FontColorSettings.IniSectionName;
@@ -415,7 +415,7 @@ begin
 	FSettings.UpdateFile(); // extension config form close is tested here?
 	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 
-	FSettings.ReadIni;
+	FSettings.ReadFile;
 
 	var
 	extSection := FSettings.SearchFormSettings.ExtensionSettings.IniSectionName;
@@ -429,7 +429,7 @@ begin
 	// see SearchForm.OnClose.
 	// FSettings.StoreHistories(); already done by FSettings.StoreToPersister
 	FSettings.UpdateFile();
-	FSettings.ReadIni;
+	FSettings.ReadFile;
 
 	var
 	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
@@ -565,7 +565,7 @@ begin
 		{ } FSettings.SearchFormSettings.ExtensionSettings.INI_SECTION,
 		{ } FSettings.SearchFormSettings.ExtensionSettings.KEY_SHORTCUT_OPENWITH));
 
-	FSettings.ReadIni;
+	FSettings.ReadFile;
 	Assert.AreEqual(SC_OPEN_WITH, FSettings.SearchFormSettings.ExtensionSettings.OpenWithShortcut, 'OpenWithShortcut should be ok');
 end;
 

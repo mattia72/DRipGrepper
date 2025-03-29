@@ -62,7 +62,7 @@ end;
 procedure TSearchFormSettingsTest.LoadDefaultsShouldReadDefaultFromIni;
 begin
 	WriteDefaultsToIni;
-	FSettings.ReadIni;
+	FSettings.ReadFile;
 
 	Assert.IsTrue(FSettings.IsAlreadyRead, 'IsAlreadyRead should be true');
 	Assert.AreEqual('utf8', FSettings.Encoding, 'Encoding should be utf8');
@@ -104,7 +104,7 @@ procedure TSearchFormSettingsTest.LoadDefaultsReadsIni;
 begin
 	WriteDefaultsToIni;
 	Assert.IsFalse(FSettings.IsAlreadyRead);
-	FSettings.ReadIni;
+	FSettings.ReadFile;
 //  FSettings.LoadDefaultsFromDict;
 	Assert.IsTrue(FSettings.IsAlreadyRead);
 end;
