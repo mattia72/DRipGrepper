@@ -157,7 +157,7 @@ type
 			FOrigSearchFormSettings : TSearchFormSettings;
 			FTopPanelOrigHeight : Integer;
 			FOrigHeight : integer;
-		FShowing: Boolean;
+			FShowing : Boolean;
 			FThemeHandler : TThemeHandler;
 			function GetSelectedPaths(const _initialDir : string; const _fdo : TFileDialogOptions) : string;
 			procedure WriteProxyToCtrls;
@@ -178,7 +178,7 @@ type
 			function CheckAndCorrectMultiLine(const _str : TMultiLineString) : string;
 			procedure CheckVsCodeRipGrep;
 			procedure CopyCtrlsToProxy(var _ctrlProxy : TSearchFormCtrlValueProxy);
-			procedure CopyItemsReverseToProxy(var _arr : TArrayEx<string>; _setting : IArraySetting);
+			procedure CopyItemsToProxy(var _arr : TArrayEx<string>; _setting : IArraySetting);
 			function GetFullHeights : integer;
 			function HasHistItemObjWithResult : Boolean;
 			function GetInIDESelectedText : string;
@@ -200,7 +200,6 @@ type
 			function ValidateRegex : Boolean;
 			procedure WriteOptionCtrlToProxy;
 			procedure CopyProxyToCtrls();
-			function GetReversedHistoryItems(const _arr : TArrayEx<string>) : TArrayEx<string>;
 
 		protected
 			procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;
@@ -213,6 +212,7 @@ type
 				_settings : TRipGrepperSettings);
 			procedure CopyProxyToSettings(const _ctrlProxy : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;
 				_settings : TRipGrepperSettings);
+			function GetMaxCountHistoryItems(const _arr : TArrayEx<string>) : TArrayEx<string>;
 			function IsReplaceMode : Boolean;
 			class function ShowSearchForm(_owner : TComponent; _settings : TRipGrepperSettings; _histObj : IHistoryItemObject) : integer;
 
@@ -537,7 +537,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.WriteProxyToCtrls');
 
-	SetComboItemsAndText(cmbSearchText, FCtrlProxy.SearchText, FCtrlProxy.SearchTextHist);;
+	SetComboItemsAndText(cmbSearchText, FCtrlProxy.SearchText, FCtrlProxy.SearchTextHist);
 	SetComboItemsAndText(cmbSearchDir, FCtrlProxy.SearchPath, FCtrlProxy.SearchPathHist);
 	SetComboItemsAndText(cmbReplaceText, FCtrlProxy.ReplaceText, FCtrlProxy.ReplaceTextHist);
 
@@ -980,10 +980,10 @@ begin
 		{ } tbUseRegex.Down);
 end;
 
-procedure TRipGrepperSearchDialogForm.CopyItemsReverseToProxy(var _arr : TArrayEx<string>; _setting : IArraySetting);
+procedure TRipGrepperSearchDialogForm.CopyItemsToProxy(var _arr : TArrayEx<string>; _setting : IArraySetting);
 begin
 	_arr.Clear;
-	for var i := _setting.Value.MaxIndex downto 0 do begin
+	for var i := 0 to _setting.Value.MaxIndex do begin
 		_arr.Add(_setting.Value[i]);
 	end;
 end;
@@ -991,11 +991,11 @@ end;
 procedure TRipGrepperSearchDialogForm.CopySettingsToProxy(var _ctrlProxy : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;
 	_settings : TRipGrepperSettings);
 begin
-	CopyItemsReverseToProxy(_ctrlProxy.SearchTextHist, FSettings.SearchTextsHistory);
-	CopyItemsReverseToProxy(_ctrlProxy.ReplaceTextHist, FSettings.ReplaceTextsHistory);
-	CopyItemsReverseToProxy(_ctrlProxy.SearchPathHist, FSettings.SearchPathsHistory);
-	CopyItemsReverseToProxy(_ctrlProxy.FileMasksHist, FSettings.FileMasksHistory);
-	CopyItemsReverseToProxy(_ctrlProxy.AdditionalExpertOptionsHist, FSettings.ExpertOptionHistory);
+	CopyItemsToProxy(_ctrlProxy.SearchTextHist, FSettings.SearchTextsHistory);
+	CopyItemsToProxy(_ctrlProxy.ReplaceTextHist, FSettings.ReplaceTextsHistory);
+	CopyItemsToProxy(_ctrlProxy.SearchPathHist, FSettings.SearchPathsHistory);
+	CopyItemsToProxy(_ctrlProxy.FileMasksHist, FSettings.FileMasksHistory);
+	CopyItemsToProxy(_ctrlProxy.AdditionalExpertOptionsHist, FSettings.ExpertOptionHistory);
 
 	_ctrlProxy.EncodingItems := FSettings.AppSettings.EncodingItems;
 	_ctrlProxy.ExtensionContext := ERipGrepperExtensionContext(FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext.IDEContext);
@@ -1033,11 +1033,11 @@ end;
 procedure TRipGrepperSearchDialogForm.CopyProxyToSettings(const _ctrlProxy : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;
 	_settings : TRipGrepperSettings);
 begin
-	FSettings.SearchTextsHistory.Value := GetReversedHistoryItems(_ctrlProxy.SearchTextHist);
-	FSettings.ReplaceTextsHistory.Value := GetReversedHistoryItems(_ctrlProxy.ReplaceTextHist);
-	FSettings.SearchPathsHistory.Value := GetReversedHistoryItems(_ctrlProxy.SearchPathHist);
-	FSettings.FileMasksHistory.Value := GetReversedHistoryItems(_ctrlProxy.FileMasksHist);
-	FSettings.ExpertOptionHistory.Value := GetReversedHistoryItems(_ctrlProxy.AdditionalExpertOptionsHist);
+	FSettings.SearchTextsHistory.Value := GetMaxCountHistoryItems(_ctrlProxy.SearchTextHist);
+	FSettings.ReplaceTextsHistory.Value := GetMaxCountHistoryItems(_ctrlProxy.ReplaceTextHist);
+	FSettings.SearchPathsHistory.Value := GetMaxCountHistoryItems(_ctrlProxy.SearchPathHist);
+	FSettings.FileMasksHistory.Value := GetMaxCountHistoryItems(_ctrlProxy.FileMasksHist);
+	FSettings.ExpertOptionHistory.Value := GetMaxCountHistoryItems(_ctrlProxy.AdditionalExpertOptionsHist);
 	var
 	rgec := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
 	rgec.IDEContext := integer(_ctrlProxy.ExtensionContext);
@@ -1116,8 +1116,8 @@ end;
 
 procedure TRipGrepperSearchDialogForm.seContextLineNumChange(Sender : TObject);
 begin
-    if FShowing then
-        Exit;
+	if FShowing then
+		Exit;
 
 	FSettings.SearchFormSettings.Context := IfThen(seContextLineNum.Enabled, seContextLineNum.Value);
 	UpdateCtrls(seContextLineNum);
@@ -1517,9 +1517,9 @@ begin
 
 end;
 
-function TRipGrepperSearchDialogForm.GetReversedHistoryItems(const _arr : TArrayEx<string>) : TArrayEx<string>;
+function TRipGrepperSearchDialogForm.GetMaxCountHistoryItems(const _arr : TArrayEx<string>) : TArrayEx<string>;
 begin
-	Result := _arr.GetRange(0, MAX_HISTORY_COUNT).GetReversedRange();
+	Result := _arr.GetRange(0, MAX_HISTORY_COUNT); // .GetReversedRange();
 end;
 
 end.

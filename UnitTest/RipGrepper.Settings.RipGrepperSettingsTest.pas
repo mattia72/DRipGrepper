@@ -37,7 +37,7 @@ type
 
 			FFactory : IPersisterFactory;
 			FSettings : IShared<TRipGrepperSettings>;
-			FTextHist : TArrayEx<string>;
+			FSearchTextHist : TArrayEx<string>;
 
 		public
 			[Setup]
@@ -426,6 +426,15 @@ end;
 procedure TRipGrepperSettingsTest.UpdateHistInIniTest;
 begin
 	SetSettingValues;
+
+	for var i := 0 to 2 do begin
+		FActualTextHistValue := Format('%s%d', [TEXT_HIST, i]);
+		FSearchTextHist.InsertUnique(0, FActualTextHistValue);
+	end;
+
+	FSettings.SearchTextsHistory.Value := FSearchTextHist.GetRange(0, MAX_HISTORY_COUNT);
+    FSettings.StoreToPersister;
+
 	// see SearchForm.OnClose.
 	// FSettings.StoreHistories(); already done by FSettings.StoreToPersister
 	FSettings.UpdateFile();
@@ -441,8 +450,8 @@ begin
 		{ } 'first persisted SearchTextsHistory item should be the actual');
 
 	var
-    j := 2;
-//  j := 0;
+	j := 2;
+	// j := 0;
 	for var i := 0 to 2 do begin
 		var
 		val := Format('%s%d', [TEXT_HIST, i]);
@@ -453,7 +462,7 @@ begin
 			{ } Format('Item_%d', [j])),
 			{ } Format('reversed index of Item_%d should %s', [j, val]));
 		Dec(j);
-//      Inc(j);
+		// Inc(j);
 	end;
 
 end;
@@ -487,13 +496,7 @@ begin
 	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext :=
 	{ } TRipGrepperExtensionContext.FromString('2', 'active project', 'active file');
 
-	for var i := 0 to 2 do begin
-		FActualTextHistValue := Format('%s%d', [TEXT_HIST, i]);
-		FTextHist.Insert(0, FActualTextHistValue);
-	end;
-
-	FSettings.SearchTextsHistory.Value := FTextHist.Items;
-	FSettings.StoreToPersister;
+    FSettings.StoreToPersister;
 
 	FstrPers := FFactory.GetStringPersister();
 	FintPers := FFactory.GetIntegerPersister();

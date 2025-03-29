@@ -31,9 +31,6 @@ type
 		function GetIntegerPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<Integer>;
 		function GetBoolPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<Boolean>;
 		function GetStrArrayPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<TArrayEx<string>>;
-		function GetReversedStrArrayPersister(const _sIniSection : string = ''; const _sKey : string = '')
-			: IFilePersister<TArrayEx<string>>;
-
 		function ToLogString() : string;
 
 		function GetFilePath() : string;
@@ -97,15 +94,13 @@ type
 	TMemIniStrArrayPersister = class(TMemIniPersister, IFilePersister < TArrayEx < string >> )
 
 		private
-			FIsReversed : Boolean;
 			function LoadArrayFromSection(const _section : string; const _keyPrefix : string = ITEM_KEY_PREFIX) : TArrayEx<string>;
 
 		public
-			constructor Create(_ini : TMemIniFile; const _sIniSection : string; const _sKeyPrefix : string = '';
-				const _isReversed : Boolean = False);
+			constructor Create(_ini : TMemIniFile; const _sIniSection : string; const _sKeyPrefix : string = '');
 			function TryLoadValue(var _value : TArrayEx<string>) : Boolean;
-			function LoadValue(const _section, _key : string) : TArrayEx<string>;
-			procedure StoreValue(const _value : TArrayEx<string>);
+			function LoadValue(const _section, _key : string) : TArrayEx<string>; virtual;
+			procedure StoreValue(const _value : TArrayEx<string>); virtual;
 	end;
 
 	TIniPersister = class(TInterfacedObject, IPersisterFactory, IFileHandler)
@@ -134,8 +129,6 @@ type
 			procedure ReloadFile();
 			procedure UpdateFile();
 			procedure EraseSection(const _section : string);
-			function GetReversedStrArrayPersister(const _sIniSection : string = ''; const _sKey : string = '')
-				: IFilePersister<TArrayEx<string>>;
 			property FilePath : string read GetFilePath write SetFilePath;
 	end;
 
@@ -257,36 +250,27 @@ end;
 procedure TMemIniStrArrayPersister.StoreValue(const _value : TArrayEx<string>);
 var
 	multiLineVal : TMultiLineString;
-	value : TArrayEx<string>;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMemIniStrArrayPersister.StoreValue');
 	dbgMsg.Msg('Write Array');
 
-	if FIsReversed then begin
-		value := _value.GetReversedRange();
-	end else begin
-		value := _value;
-	end;
-
-	for var i := 0 to value.MaxIndex do begin
-		multiLineVal := value[i];
+	for var i := 0 to _value.MaxIndex do begin
+		multiLineVal := _value[i];
 		FIniFile.WriteString(FIniSection, Format('%s%d', [FIniKey, i]), multiLineVal.GetLine(0));
 	end;
 
 end;
 
-constructor TMemIniStrArrayPersister.Create(_ini : TMemIniFile; const _sIniSection : string; const _sKeyPrefix : string = '';
-	const _isReversed : Boolean = False);
+constructor TMemIniStrArrayPersister.Create(_ini : TMemIniFile; const _sIniSection : string; const _sKeyPrefix : string = '');
 begin
 	FIniFile := _ini;
 	FIniSection := _sIniSection;
 	FIniKey := IfThen(_sKeyPrefix.IsEmpty, ITEM_KEY_PREFIX, _sKeyPrefix);
-	FIsReversed := _isReversed;
 end;
 
-function TMemIniStrArrayPersister.LoadArrayFromSection(const _section : string; const _keyPrefix : string = ITEM_KEY_PREFIX)
-	: TArrayEx<string>;
+function TMemIniStrArrayPersister.LoadArrayFromSection(const _section : string;
+	{ } const _keyPrefix : string = ITEM_KEY_PREFIX) : TArrayEx<string>;
 var
 	i : Integer;
 	s : string;
@@ -308,9 +292,6 @@ end;
 function TMemIniStrArrayPersister.LoadValue(const _section, _key : string) : TArrayEx<string>;
 begin
 	Result := LoadArrayFromSection(_section { , ITEM_KEY_PREFIX } );
-	if FIsReversed then begin
-		Result := Result.GetReversedRange();
-	end;
 end;
 
 constructor TIniPersister.Create();
@@ -353,12 +334,6 @@ end;
 function TIniPersister.GetStrArrayPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<TArrayEx<string>>;
 begin
 	Result := TMemIniStrArrayPersister.Create(FIniFile, _sIniSection, _sKey);
-end;
-
-function TIniPersister.GetReversedStrArrayPersister(const _sIniSection : string = ''; const _sKey : string = '')
-	: IFilePersister<TArrayEx<string>>;
-begin
-	Result := TMemIniStrArrayPersister.Create(FIniFile, _sIniSection, _sKey, True);
 end;
 
 function TIniPersister.GetStringPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<string>;

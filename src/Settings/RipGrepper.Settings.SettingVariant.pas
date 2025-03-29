@@ -21,7 +21,7 @@ type
 		{ } ssbStoreOnceEvenIfNotModified);
 
 	TSettingStoreBehaviours = set of TSettingStoreBehaviour;
-	TSettingType = (stNotSet, stString, stInteger, stBool, stStrArray, stReversedStrArray);
+	TSettingType = (stNotSet, stString, stInteger, stBool, stStrArray);
 
 	// forward declarations...
 	TSettingVariant<T> = class;
@@ -118,6 +118,7 @@ type
 			function AsInteger() : Integer;
 			function AsBool() : Boolean;
 			function AsArray() : TArrayEx<string>;
+			function AsReversedArray(): TArrayEx<string>;
 			procedure Clear(); virtual;
 			function CompareTo(Value : ISetting) : Integer;
 			procedure Copy(_other : ISetting);
@@ -208,7 +209,7 @@ end;
 procedure TSettingVariant<T>.Clear();
 begin
 	inherited;
-    FValue := default(T);
+	FValue := default (T);
 end;
 
 function TSettingVariant<T>.CompareTo(Value : ISettingVariant<T>) : Integer;
@@ -306,6 +307,11 @@ end;
 function TSetting.AsArray() : TArrayEx<string>;
 begin
 	Result := AsArraySetting.Value;
+end;
+
+function TSetting.AsReversedArray(): TArrayEx<string>;
+begin
+	Result := AsArraySetting.Value.GetReversedRange();
 end;
 
 function TSetting.AsArraySetting() : IArraySetting;

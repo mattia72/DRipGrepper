@@ -237,14 +237,14 @@ end;
 procedure TPersistableSettings.CopySettingsDictSectionSettingValues(const _section : string; _sdFrom : ISettingKeys;
 	const _bForceCopySettingObj : Boolean = False);
 var
+	key: string;
 	settingOther : ISetting;
 	settingSelf : ISetting;
 	sdSelf : ISettingKeys;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.CopySettingsDictSectionSettingValues');
-
-	for var key in _sdFrom.Keys do begin
+	for key in _sdFrom.Keys do begin
 		settingOther := _sdFrom[key];
 		sdSelf := SettingsDict[_section];
 

@@ -343,7 +343,7 @@ begin
 	v := TArraySetting.Create(varr);
 	Section := 'TestSection';
 
-	v.Persister := TMemIniStrArrayPersister.Create(IniFile, Section, '', True);
+	v.Persister := TMemIniStrArrayPersister.Create(IniFile, Section);
 	v.StoreToPersister;
 
 	for var i := 0 to 2 do begin
@@ -359,8 +359,8 @@ begin
 
 	for var i := 0 to 2 do begin
 		ActualValue := IniFile.ReadString(Section, Format('Item_%d', [i]), '');
-		ExpectedValue := varr[2 - i];
-		Assert.AreEqual(ExpectedValue, ActualValue, Format('Modified should stored reversed. Expected %s should be equal to %s',
+		ExpectedValue := varr[i];
+		Assert.AreEqual(ExpectedValue, ActualValue, Format('Modified should stored. Expected %s should be equal to %s',
 			[ExpectedValue, ActualValue]));
 	end;
 
