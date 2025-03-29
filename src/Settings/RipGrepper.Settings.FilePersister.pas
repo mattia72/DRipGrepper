@@ -99,8 +99,8 @@ type
 		public
 			constructor Create(_ini : TMemIniFile; const _sIniSection : string; const _sKeyPrefix : string = '');
 			function TryLoadValue(var _value : TArrayEx<string>) : Boolean;
-			function LoadValue(const _section, _key : string) : TArrayEx<string>; virtual;
-			procedure StoreValue(const _value : TArrayEx<string>); virtual;
+			function LoadValue(const _section, _key : string) : TArrayEx<string>;
+			procedure StoreValue(const _value : TArrayEx<string>);
 	end;
 
 	TIniPersister = class(TInterfacedObject, IPersisterFactory, IFileHandler)
@@ -274,6 +274,7 @@ function TMemIniStrArrayPersister.LoadArrayFromSection(const _section : string;
 var
 	i : Integer;
 	s : string;
+	sNext : string;
 begin
 	Result := [];
 	if not FIniFile.SectionExists(FIniSection) then
@@ -282,8 +283,10 @@ begin
 	i := 0;
 	while True do begin
 		s := FIniFile.ReadString(FIniSection, Format('%s%d', [_keyPrefix, i]), '');
-		if s = '' then
+		sNext := FIniFile.ReadString(FIniSection, Format('%s%d', [_keyPrefix, i + 1]), '');
+		if s.IsEmpty and sNext.IsEmpty then begin
 			Break;
+		end;
 		Result.Add(s);
 		Inc(i);
 	end;
