@@ -14,6 +14,7 @@ type
 		public
 			function GetDripGrepperIniTempDir : string;
 			function GetTempSectionFileName(_section : string) : string;
+			function KeyExists(const _section, _key : string) : Boolean;
 			procedure ReadTempSectionFiles;
 			procedure ReloadIniFile;
 			procedure WriteTempSectionIni(_sectionName : string; const _sectionValues : TStringList); overload;
@@ -24,8 +25,8 @@ implementation
 uses
 	System.IOUtils,
 	System.SysUtils,
-
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils,
+	Spring;
 
 function TMemIniFileHelper.GetDripGrepperIniTempDir : string;
 begin
@@ -46,6 +47,11 @@ begin
 	Result := TPath.Combine(GetDripGrepperIniTempDir,
 		{ } TPath.GetFileNameWithoutExtension(self.FileName) +
 		{ } TPath.GetExtension(self.FileName));
+end;
+
+function TMemIniFileHelper.KeyExists(const _section, _key : string) : Boolean;
+begin
+    Result := self.ValueExists(_section, _key);
 end;
 
 procedure TMemIniFileHelper.ReadTempSectionFiles;
@@ -79,7 +85,8 @@ begin
 			finally
 				tmpIniFile.Free;
 				TFile.Delete(tmpFile);
-				var tmpDir := GetDripGrepperIniTempDir;
+				var
+				tmpDir := GetDripGrepperIniTempDir;
 				if 0 = Length(TDirectory.GetFiles(tmpDir)) then begin
 					TDirectory.Delete(tmpDir);
 				end;
@@ -118,7 +125,8 @@ begin
 
 	newFileName := GetTempSectionFileName(_sectionName);
 
-	var tmpDir := GetDripGrepperIniTempDir();
+	var
+	tmpDir := GetDripGrepperIniTempDir();
 	if not TDirectory.Exists(tmpDir) then begin
 		TDirectory.CreateDirectory(tmpDir);
 	end;

@@ -82,8 +82,8 @@ begin
 
 	RemoveExtensionMenu();
 
-	dbgMsg.Msg('ReadIni');
-	extSettings.ReadIni();
+	dbgMsg.Msg('ReadFile');
+	extSettings.ReadFile();
 	dbgMsg.Msg('LoadFromDict');
 	extSettings.LoadFromDict();
 

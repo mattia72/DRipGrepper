@@ -276,7 +276,7 @@ begin
 	edtRegex.Enabled := chRegex.Checked;
 
 	chExpertMode.Checked := FAppSettings.ExpertMode;
-	btnedtIniFilePath.Text := FAppSettings.IniFile.FileName;
+	btnedtIniFilePath.Text := FAppSettings.PersisterFactory.FilePath;
 	var
 	path := FRipGrepSettings.RipGrepPath;
 	if path.IsEmpty then begin

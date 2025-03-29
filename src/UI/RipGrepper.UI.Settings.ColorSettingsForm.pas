@@ -23,7 +23,7 @@ type
 		Button1 : TButton;
 		pnlBottom : TPanel;
 		pnlTop : TPanel;
-		ScrollBox1: TScrollBox;
+		ScrollBox1 : TScrollBox;
 		procedure Button1Click(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 
@@ -48,7 +48,8 @@ uses
 	RipGrepper.UI.ColorSelectorFrame,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Common.Constants,
-	System.RegularExpressions;
+	System.RegularExpressions,
+	RipGrepper.Helper.UI.DarkMode;
 
 {$R *.dfm}
 
@@ -68,13 +69,13 @@ var
 	sFontAttribs : string;
 	sSettingsName : string;
 begin
-	FFontColorSettings.LoadDefaultColors;
-	FFontColorSettings.StoreToDict;
+	FFontColorSettings.LoadDefaultColors(TDarkModeHelper.GetActualThemeMode, True);
+	FFontColorSettings.StoreToPersister;
 	for var i := 0 to ComponentCount - 1 do begin
 		if Components[i] is TColorSelectorFrame then begin
 			cf := TColorSelectorFrame(Components[i]);
 			sSettingsName := TRegex.Replace(cf.LabelText.Caption, '[ ,:]', '');
-			sFontAttribs := FFontColorSettings.SettingsDict.GetSetting(sSettingsName);
+			sFontAttribs := FFontColorSettings.SettingsDict.GetSetting(sSettingsName).AsString;
 			cf.SelectedFontAttributes.FromString(sFontAttribs);
 			cf.Refresh;
 		end;
@@ -93,8 +94,8 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TColorSettingsForm.ReadSettings');
 	if FFontColorSettings.FontColors.IsEmpty then begin
-		FFontColorSettings.LoadDefaultColors;
-		FFontColorSettings.StoreToDict();
+		FFontColorSettings.LoadDefaultColors(TDarkModeHelper.GetActualThemeMode);
+		FFontColorSettings.StoreToPersister();
 	end;
 	FFontColorSettings.LoadFromDict;
 end;
@@ -107,6 +108,7 @@ begin
 	fc := FFontColorSettings.FontColors;
 	TColorSelectorFrame.WriteColorSettings(fc, self);
 	FFontColorSettings.FontColors := fc;
+	FFontColorSettings.StoreToPersister();
 	inherited WriteSettings;
 end;
 

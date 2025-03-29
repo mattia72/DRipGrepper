@@ -160,17 +160,19 @@ type
 			function GetFirst : T;
 			procedure SetCount(const Value : integer);
 			function GetItemAt(Index : integer) : T;
-			function GetSafeItemAt(index : Integer): T;
+			function GetSafeItem(index : Integer) : T;
 			function GetLast : T;
 			function GetMaxIndex : Integer;
 			procedure SetItemAt(Index : integer; Value : T);
+			procedure SetSafeItem(index : Integer; const Value : T);
+
 		public
 			Items : TArray<T>;
 			property Count : integer read GetCount write SetCount;
 			property IsEmpty : Boolean read GetIsEmpty;
 			property First : T read GetFirst;
 			property ItemAt[index : Integer] : T read GetItemAt write SetItemAt; default;
-			property SafeItemAt[index : Integer]: T read GetSafeItemAt;
+			property SafeItem[index : Integer] : T read GetSafeItem write SetSafeItem;
 			property Last : T read GetLast;
 			property MaxIndex : Integer read GetMaxIndex;
 
@@ -222,15 +224,16 @@ type
 			function HasMatch(const Values : TArray<T>) : boolean; overload;
 
 			procedure Unique; // remove duplicates
-			function CopyArray(FromIndex : integer; Count : integer = -1) : TArrayEx<T>; // return array slice
+			function GetRange(const _idx : integer; const _count : integer = -1) : TArrayEx<T>;
 			procedure Delete(Indexes : TArrayEx<integer>); overload;
 			procedure Delete(Indexes : TArray<integer>); overload;
 			function AllIndexOf(Item : T; const Comparer : IComparer<T>) : TArray<integer>; overload;
 			function AllIndexOf(Item : T) : TArray<integer>; overload;
+			function GetReversedRange(const _idx : integer = -1; const _count : integer = -1) : TArrayEx<T>;
 			function CountOf(Item : T) : integer; overload;
 			function CountOf(Item : T; const Comparer : IComparer<T>) : integer; overload;
+			function InsertUnique(const Index : Integer; const AItem : T) : boolean;
 			function RemoveAll(const AItem : T) : boolean;
-
 			// operator overloads
 			class operator Equal(const L, R : TArrayEx<T>) : boolean;
 			class operator Implicit(const Values : array of T) : TArrayEx<T>;
@@ -240,6 +243,9 @@ type
 	end;
 
 implementation
+
+uses
+	System.Math;
 
 { TArrayHelper }
 
@@ -654,19 +660,21 @@ begin
 		Result.Add(Callback(Items[I]));
 end;
 
-function TArrayEx<T>.CopyArray(FromIndex : integer; Count : integer) : TArrayEx<T>;
+function TArrayEx<T>.GetRange(const _idx : integer; const _count : integer = -1) : TArrayEx<T>;
 var
-	I : Integer;
+	copyCount : integer;
 begin
 	Result.Clear;
-	if Count < 0 then
-		Count := length(Items);
-	if length(Items) < (FromIndex + Count) then
-		Count := length(Items) - FromIndex;
-	if Count > 0 then begin
-		SetLength(Result.Items, Count);
-		for I := 0 to Count - 1 do
-			Result.Items[I] := Items[I + FromIndex];
+	copyCount := _count;
+	if _count < 0 then
+		copyCount := Count;
+	if Count < (_idx + _count) then
+		copyCount := Count - _idx;
+	if copyCount > 0 then begin
+		SetLength(Result.Items, copyCount);
+		for var i := _idx to copyCount - 1 do begin
+			Result.Items[i] := Items[i];
+		end;
 	end;
 end;
 
@@ -703,8 +711,9 @@ end;
 function TArrayEx<T>.InsertIfNotContains(const Index : Integer; const AItem : T) : boolean;
 begin
 	Result := not contains(AItem);
-	if Result then
+	if Result then begin
 		Insert(index, AItem);
+	end;
 end;
 
 procedure TArrayEx<T>.Delete(Indexes : TArrayEx<integer>);
@@ -746,6 +755,32 @@ begin
 	Result := TArray.AllIndexOf<T>(Items, Item, TComparer<T>.Default);
 end;
 
+function TArrayEx<T>.GetReversedRange(const _idx : integer = -1; const _count : integer = -1) : TArrayEx<T>;
+var
+	copyCount : integer;
+	idx : Integer;
+begin
+	Result.Clear;
+	idx := IfThen(_idx < 0, MaxIndex, _idx);
+
+	copyCount := _count;
+	if _count < 0 then
+		copyCount := Count;
+	if _count > idx + 1 then
+		copyCount := idx + 1;
+
+	SetLength(Result.Items, copyCount);
+	var
+	j := 0;
+	for var i := idx downto 0 do begin
+		Result.Items[j] := Items[i];
+		if copyCount = (j + 1) then begin
+			break;
+		end;
+		Inc(j);
+	end;
+end;
+
 function TArrayEx<T>.GetIsEmpty : Boolean;
 begin
 	Result := length(Items) = 0;
@@ -756,18 +791,29 @@ begin
 	Result := Items[0];
 end;
 
-function TArrayEx<T>.GetSafeItemAt(index : Integer): T;
+function TArrayEx<T>.GetSafeItem(index : Integer) : T;
 begin
 	if index <= MaxIndex then begin
 		Result := Items[index];
 	end else begin
-		Result := default(T);
+		Result := default (T);
 	end;
 end;
 
 function TArrayEx<T>.GetLast : T;
 begin
 	Result := Items[MaxIndex];
+end;
+
+function TArrayEx<T>.InsertUnique(const Index : Integer; const AItem : T) : boolean;
+begin
+	Result := not contains(AItem);
+	if Result then begin
+		Insert(index, AItem);
+	end else begin
+		Remove(AItem);
+		Insert(index, AItem);
+	end;
 end;
 
 function TArrayEx<T>.RemoveAll(const AItem : T) : boolean;
@@ -780,6 +826,23 @@ begin
 		Delete(I);
 		I := IndexOf(AItem);
 		Result := TRUE;
+	end;
+end;
+
+procedure TArrayEx<T>.SetSafeItem(index : Integer; const Value : T);
+begin
+	if index <= MaxIndex then begin
+		Items[index] := Value;
+	end else begin
+		var
+		newIdx := MaxIndex + 1;
+		var arr : TArray<T> := [default (T)];
+		while newIdx < index do begin
+			arr := arr + [default (T)];
+			Inc(newIdx);
+		end;
+
+		AddRange(arr);
 	end;
 end;
 

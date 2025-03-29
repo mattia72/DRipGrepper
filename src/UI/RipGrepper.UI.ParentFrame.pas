@@ -102,7 +102,7 @@ end;
 procedure TParentFrame.OnClose(Sender : TObject; var Action : TCloseAction);
 begin
 	TDebugUtils.Msg('TParentFrame.OnClose - begin action:' + Integer(Action).ToString);
-	Settings.StoreToDict; // combo box histories can be StoreToDictd here
+	Settings.StoreToPersister; // combo box histories can be StoreToPersisterd here
 end;
 
 procedure TParentFrame.FrameOnShow(Sender : TObject);
@@ -128,7 +128,7 @@ function TParentFrame.GetSettings : TRipGrepperSettings;
 begin
 	if not Assigned(FSettings) then begin
 		FSettings := GSettings;
-		FSettings.ReadIni;
+		FSettings.ReadFile;
 	end;
 	Result := FSettings;
 end;

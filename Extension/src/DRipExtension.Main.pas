@@ -213,7 +213,7 @@ end;
 initialization
 
 GSettings := TRipGrepperSettings.Create;
-GSettings.AppSettings.ReadIni;
+GSettings.AppSettings.ReadFile;
 GSettings.AppSettings.LoadFromDict();
 TDebugUtils.UpdateTraceActive;
 
@@ -221,8 +221,6 @@ OutputDebugString(PChar('DRipExtension initialized.'));
 
 finalization
 
-TFileUtils.DeleteTempDirectory(
-	{ } TPath.GetFileNameWithoutExtension(GSettings.IniFile.FileName) + '*', True);
 FreeAndNil(GSettings);
 OutputDebugString(PChar('DRipExtension finalized.'));
 

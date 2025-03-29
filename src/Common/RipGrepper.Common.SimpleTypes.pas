@@ -4,7 +4,7 @@ interface
 
 uses
 	System.Classes,
-	System.SysUtils;
+	System.SysUtils, ArrayEx;
 
 const
 	EXT_SEARCH_NOT_SET = -1;
@@ -56,26 +56,26 @@ type
 
 	TSearchFormCtrlValueProxy = record
 		SearchText : string;
-		SearchTextHist : TStrings;
+		SearchTextHist : TArrayEx<string>;
 		SearchOptions : TSearchOptionSet;
 		IsReplaceMode : Boolean;
 		ReplaceText : string;
-		ReplaceTextHist : TStrings;
+		ReplaceTextHist : TArrayEx<string>;
 		ExtensionContext : ERipGrepperExtensionContext;
 		SearchPath : string;
-		SearchPathHist : TStrings;
+		SearchPathHist : TArrayEx<string>;
 		FileMasks : string;
-		FileMasksHist : TStrings;
+		FileMasksHist : TArrayEx<string>;
 
 		IsHiddenChecked : Boolean;
 		IsNoIgnoreChecked : Boolean;
 		Encoding : string;
-		EncodingItems : TStrings;
+		EncodingItems : TArrayEx<string>;
 		IsPrettyChecked : Boolean;
 		LineContext : integer;
 
 		AdditionalExpertOptions : string;
-		AdditionalExpertOptionsHist : TStrings;
+		AdditionalExpertOptionsHist : TArrayEx<string>;
 	end;
 
 	TErrorCounters = record

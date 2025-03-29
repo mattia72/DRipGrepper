@@ -1,79 +1,172 @@
-﻿unit RipGrepper.Settings.SettingsDictionaryTest;
+unit RipGrepper.Settings.SettingsDictionaryTest;
 
 interface
 
 uses
 	DUnitX.TestFramework,
 	System.Classes,
-	RipGrepper.Settings.SettingsDictionary;
+	RipGrepper.Settings.SettingsDictionary,
+	RipGrepper.Settings.SettingVariant,
+	Spring,
+	System.IniFiles,
+	RipGrepper.Settings.FilePersister;
 
 type
 
 	[TestFixture]
 	TSettingsDictionaryTest = class
+		FDictTo : IShared<TSettingsDictionary>;
+		FDictFrom : IShared<TSettingsDictionary>;
+		FIniFile : IShared<TMemIniFile>;
+		FPersisterFactory : IPersisterFactory;
+
+		private
 		public
 			[Test]
-			procedure AddOrSetTest();
-
+			procedure CopySectionShouldCopySettingValues();
 			[Test]
-			procedure AddOrChangeTest();
+			procedure SectionShouldContainAddedSettings();
+			[Test]
+			procedure SectionShouldNotContainModifiedSettings();
+			[Test]
+			procedure SectionSholudContainModifiedSettings();
+			[Test]
+			procedure SectionSholudContainStoredSetting();
+			[Test]
+			procedure SectionSholudContainSavedSetting();
+			[Setup]
+			procedure Setup();
+			[TearDown]
+			procedure TearDown();
 	end;
 
 implementation
 
 uses
 	System.SysUtils,
-	System.IniFiles,
-	RipGrepper.Settings.SettingVariant;
+
+	System.TypInfo,
+	Spring.Collections,
+
+	RipGrepper.Helper.MemIniFile,
+	RipGrepper.Tools.FileUtils,
+	Vcl.Forms,
+	RipGrepper.Settings.Persistable;
 
 const
+	TESTVALUE = 'TestValue';
+	TESTKEY = 'TestKey';
 	TESTSECTION = 'TestSection';
+	MAX_COUNT = 5;
 
-procedure TSettingsDictionaryTest.AddOrSetTest();
+procedure TSettingsDictionaryTest.CopySectionShouldCopySettingValues();
 var
-	dict : TSettingsDictionary;
-	setting : ISettingVariant;
+	key, expected, actual : string;
 begin
-	dict := TSettingsDictionary.Create(TESTSECTION);
-	try
-		var key := 'TestKey';
-		setting := TSettingVariant.Create('TestValue');
-		dict.AddOrSet(key, setting);
-		var expected := setting.Value;
-		var actual := dict[TESTSECTION + '|' + key].Value;
+	FDictTo.CopySection(TESTSECTION, FDictFrom);
 
-		Assert.AreEqual(expected, actual, '');
-	finally
-		dict.Free();
+	for var i := 0 to MAX_COUNT do begin
+		key := Format('%s_%d', [TESTKEY, i]);
+		expected := Format('%s_%d', [TESTVALUE, i]);
+
+		actual := ISettingVariant<string>(FDictTo[TESTSECTION][key]).Value;
+		Assert.AreEqual(expected, actual, 'The value should match the copied value.');
 	end;
 end;
 
-procedure TSettingsDictionaryTest.AddOrChangeTest();
+procedure TSettingsDictionaryTest.SectionShouldContainAddedSettings();
 var
-	dict : TSettingsDictionary;
-	key, expected, actual : string;
-	setting : ISettingVariant;
+	key, value, expected, actual : string;
 begin
-	dict := TSettingsDictionary.Create(TESTSECTION);
-	try
-		key := 'TestKey';
-		setting := TSettingVariant.Create('TestValue');
-
-		dict.CreateSetting(key, setting);
-
-		expected := setting.Value;
-		actual := dict[TESTSECTION + '|' + key].Value;
-		Assert.AreEqual(expected, actual, 'The value should match the added value.');
-
-		setting.Value := 'NewValue';
-		dict.AddOrChange(key, setting);
-		expected := setting.Value;
-		actual := dict[TESTSECTION + '|' + key].Value;
-		Assert.AreEqual(expected, actual, 'The value should match the changed value.');
-		Assert.AreEqual(1, dict.Count, 'Dict should have only one item.');
-	finally
-		dict.Free();
+	for var i := 0 to MAX_COUNT do begin
+		key := Format('%s_%d', [TESTKEY, i]);
+		value := Format('%s_%d', [TESTVALUE, i]);
+		expected := value;
+		actual := ISettingVariant<string>(FDictFrom[TESTSECTION][key]).Value;
+		Assert.AreEqual(expected, actual, 'The value should match the added value in source dictionary.');
 	end;
+end;
+
+procedure TSettingsDictionaryTest.SectionShouldNotContainModifiedSettings();
+var
+	actual : Boolean;
+begin
+	actual := FDictFrom.HasState(ssInitialized);
+	Assert.IsTrue(actual, 'There should be initialised settings');
+	actual := FDictFrom.HasState(ssModified);
+	Assert.IsFalse(actual, 'There shouldn''t be modified settings');
+end;
+
+procedure TSettingsDictionaryTest.SectionSholudContainModifiedSettings();
+var
+	actual : Boolean;
+	setting : IStringSetting;
+begin
+	setting := FDictFrom[TESTSECTION][TESTKEY + '_2'].AsStringSetting;
+	setting.Value := 'modified value';
+	actual := FDictFrom.HasState(ssInitialized);
+	Assert.IsTrue(actual, 'There should be initialised settings');
+	actual := FDictFrom.HasState(ssModified);
+	Assert.IsTrue(actual, 'There shouldn''t be modified settings');
+end;
+
+procedure TSettingsDictionaryTest.SectionSholudContainStoredSetting();
+var
+	actual : Boolean;
+	setting : IStringSetting;
+begin
+	setting := FDictFrom[TESTSECTION][TESTKEY + '_2'].AsStringSetting;
+	setting.Value := 'modified value';
+	FDictFrom.StoreToPersister(TESTSECTION);
+	actual := FDictFrom.HasState(ssStored);
+	Assert.IsTrue(actual, 'There should be stored settings');
+end;
+
+procedure TSettingsDictionaryTest.SectionSholudContainSavedSetting();
+var
+	actual : Boolean;
+	setting : IStringSetting;
+begin
+	setting := FDictFrom[TESTSECTION][TESTKEY + '_2'].AsStringSetting;
+	setting.Value := 'modified value';
+	FDictFrom.StoreToPersister(TESTSECTION);
+
+	TPersistableSettings.CallUpdateFileOnFactory(FPersisterFactory, FDictFrom);
+
+	actual := FDictFrom.HasState(ssSaved);
+	Assert.IsTrue(actual, 'There should be saved settings');
+end;
+
+procedure TSettingsDictionaryTest.Setup();
+var
+	keyDict : ISettingKeys;
+	setting : IStringSetting;
+	key : string;
+	value : string;
+begin
+	FPersisterFactory := TIniPersister.Create();
+
+	FDictTo := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create(TESTSECTION));
+	FDictFrom := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create(TESTSECTION));
+	var
+	tmpFile := ChangeFileExt(Application.ExeName, '.ini');
+	FIniFile := Shared.Make<TMemIniFile>(
+		{ } TMemIniFile.Create(tmpFile, TEncoding.UTF8));
+
+	keyDict := TCollections.CreateSortedDictionary<string, ISetting>;
+	for var i := 0 to MAX_COUNT do begin
+		key := Format('%s_%d', [TESTKEY, i]);
+		value := Format('%s_%d', [TESTVALUE, i]);
+		setting := TStringSetting.Create(value);
+		setting.Persister := TMemIniStringPersister.Create(FIniFile, 'TestSection', key);
+		keyDict.Add(key, setting);
+	end;
+	FDictFrom.InnerDictionary.Add(TESTSECTION, keyDict);
+end;
+
+procedure TSettingsDictionaryTest.TearDown();
+begin
+	TFileUtils.EmptyFile(ChangeFileExt(Application.ExeName, '.ini'));
 end;
 
 initialization

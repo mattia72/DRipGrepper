@@ -4,12 +4,15 @@ interface
 
 uses
 	RipGrepper.Settings.Persistable,
-	RipGrepper.Settings.SettingsDictionary;
+	RipGrepper.Settings.SettingsDictionary,
+	RipGrepper.Settings.SettingVariant,
+	RipGrepper.Common.Constants;
 
 const
 
 	INIFILE = 'PersistableSettingsTest.ini';
 	INI_SECTION = 'TestSettings';
+	OWNER_INI_SECTION = ROOT_DUMMY_INI_SECTION;
 
 	INITIAL_STR_VALUE = 'str_initial_value';
 	DEFAULT_STR_VAL = 'default_str_val';
@@ -24,33 +27,25 @@ type
 			constructor Create(const _iniSection : string); overload;
 			function GetDict : TSettingsDictionary;
 			procedure Init; override;
-			procedure ReadIni; override;
-			procedure LoadFromDict(); override;
-			procedure LoadDefaultsFromDict; override;
-			procedure StoreToDict; override;
-			procedure StoreAsDefaultsToDict; override;
-
+			procedure ReadFile; override;
 			property StrSetting : string read FStrSetting write FStrSetting;
 	end;
 
 type
 	TTestSettings = class(TPersistableSettings)
 		private
-			FStrSetting1 : string;
-//          FStrSetting2 : string;
+			FStrSetting1 : IStringSetting;
+			function GetStrSetting() : string;
+			procedure SetStrSetting(const Value : string);
+			// FStrSetting2 : string;
 
 		public
 			constructor Create(const _Owner : TPersistableSettings); overload;
 			constructor Create(const _iniSection : string); overload;
 			function GetDict : TSettingsDictionary;
 			procedure Init; override;
-			procedure ReadIni; override;
-			procedure LoadFromDict(); override;
-			procedure LoadDefaultsFromDict; override;
-			procedure StoreToDict; override;
-			procedure StoreAsDefaultsToDict; override;
-
-			property StrSetting : string read FStrSetting1 write FStrSetting1;
+			procedure ReadFile; override;
+			property StrSetting : string read GetStrSetting write SetStrSetting;
 	end;
 
 implementation
@@ -77,29 +72,9 @@ begin
 	//
 end;
 
-procedure TTestOwnerSettings.ReadIni;
+procedure TTestOwnerSettings.ReadFile;
 begin
-	inherited ReadIni;
-end;
-
-procedure TTestOwnerSettings.LoadFromDict;
-begin
-	//
-end;
-
-procedure TTestOwnerSettings.LoadDefaultsFromDict;
-begin
-	//
-end;
-
-procedure TTestOwnerSettings.StoreToDict;
-begin
-	//
-end;
-
-procedure TTestOwnerSettings.StoreAsDefaultsToDict;
-begin
-	//
+	inherited ReadFile;
 end;
 
 constructor TTestSettings.Create(const _Owner : TPersistableSettings);
@@ -119,34 +94,25 @@ begin
 	Result := FSettingsDict;
 end;
 
+function TTestSettings.GetStrSetting() : string;
+begin
+	Result := FStrSetting1.Value;
+end;
+
 procedure TTestSettings.Init;
 begin
-	SettingsDict.CreateDefaultRelevantSetting('StrSetting', varString, INITIAL_STR_VALUE);
+	FStrSetting1 := TStringSetting.Create(INITIAL_STR_VALUE);
+	CreateSetting('StrSetting', FStrSetting1);
 end;
 
-procedure TTestSettings.ReadIni;
+procedure TTestSettings.ReadFile;
 begin
-	inherited ReadIni;
+	inherited ReadFile;
 end;
 
-procedure TTestSettings.LoadFromDict;
+procedure TTestSettings.SetStrSetting(const Value : string);
 begin
-	StrSetting := SettingsDict.GetSetting('StrSetting');
-end;
-
-procedure TTestSettings.LoadDefaultsFromDict;
-begin
-	StrSetting := SettingsDict.GetSetting('StrSetting', True);
-end;
-
-procedure TTestSettings.StoreToDict;
-begin
-	SettingsDict.StoreSetting('StrSetting', StrSetting);
-end;
-
-procedure TTestSettings.StoreAsDefaultsToDict;
-begin
-	SettingsDict.StoreDefaultSetting('StrSetting', StrSetting);
+	FStrSetting1.Value := Value;
 end;
 
 end.

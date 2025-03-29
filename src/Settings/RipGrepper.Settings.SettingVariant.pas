@@ -6,68 +6,191 @@ uses
 	System.Variants,
 	System.Generics.Defaults,
 	System.IniFiles,
+	RipGrepper.Settings.FilePersister,
+	ArrayEx,
 	System.SysUtils;
 
 type
 
 	ESettingsException = class(Exception);
 
-	ISettingVariant = interface
-		['{D4A1E2B3-5F6C-4A7D-8B9E-1C2D3E4F5A6B}']
-		function Equals(_other : ISettingVariant) : Boolean;
-		function IsEmpty : Boolean;
+	TSettingState = (ssNotSet, ssInitialized, ssModified, ssStored, ssSaved);
+	TSettingStoreBehaviour = (ssbNotSet,
+		{ } ssbStoreIfModified,
+		{ } ssbStoreAfterChangeImmediately,
+		{ } ssbStoreOnceEvenIfNotModified);
 
-		function GetIsDefaultRelevant : Boolean;
-		function GetIsModified : Boolean;
-		function GetSaveToIni : Boolean;
-		function GetValue : Variant;
-		function GetValueType : TVarType;
+	TSettingStoreBehaviours = set of TSettingStoreBehaviour;
+	TSettingType = (stNotSet, stString, stInteger, stBool, stStrArray);
 
-		procedure SetIsDefaultRelevant(const Value : Boolean);
-		procedure SetIsModified(const Value : Boolean);
-		procedure SetValue(const Value : Variant);
-		procedure SetSaveToIni(const Value : Boolean);
+	// forward declarations...
+	TSettingVariant<T> = class;
+	ISettingVariant<T> = interface;
 
-		property IsDefaultRelevant : Boolean read GetIsDefaultRelevant write SetIsDefaultRelevant;
-		property IsModified : Boolean read GetIsModified write SetIsModified;
-		property Value : Variant read GetValue write SetValue;
-		property ValueType : TVarType read GetValueType;
-		property SaveToIni : Boolean read GetSaveToIni write SetSaveToIni;
+	TStringSetting = class;
+	TBoolSetting = class;
+	TIntegerSetting = class;
+	TArraySetting = class;
 
-		procedure WriteToMemIni(_ini : TMemIniFile; const _sIniSection, _sKey : string);
+	IStringSetting = ISettingVariant<string>;
+	IBoolSetting = ISettingVariant<Boolean>;
+	IIntegerSetting = ISettingVariant<Integer>;
+	IArraySetting = ISettingVariant<TArrayEx<string>>;
+	TSettingChangedEvent = procedure(Sender : TObject) of object;
+
+	ISetting = interface
+		['{289A58E3-A490-4015-9AFE-52EB303B9B89}']
+		function Equals(_other : ISetting) : Boolean;
+
+		procedure Copy(_other : ISetting);
+		procedure Clear();
+
+		function CompareTo(Value : ISetting) : Integer;
+
+		function GetState() : TSettingState;
+		procedure SetState(const Value : TSettingState);
+
+		function GetType() : TSettingType;
+
+		procedure LoadFromPersister();
+		procedure StoreToPersister(const _section : string = '');
+
+		function AsStringSetting() : IStringSetting;
+		function AsIntegerSetting() : IIntegerSetting;
+		function AsBoolSetting() : IBoolSetting;
+		function AsArraySetting() : IArraySetting;
+
+		function AsString() : string;
+		function AsInteger() : Integer;
+		function AsBool() : Boolean;
+		function AsArray() : TArrayEx<string>;
+		function GetSaveBehaviour() : TSettingStoreBehaviours;
+		procedure SetSaveBehaviour(const Value : TSettingStoreBehaviours);
+
+		property State : TSettingState read GetState write SetState;
+		property SettingType : TSettingType read GetType;
+		property SaveBehaviour : TSettingStoreBehaviours read GetSaveBehaviour write SetSaveBehaviour;
+
 	end;
 
-	TSettingVariant = class(TInterfacedObject, ISettingVariant)
+	ISettingVariant<T> = interface(ISetting)
+		['{D4A1E2B3-5F6C-4A7D-8B9E-1C2D3E4F5A6B}']
+		function Equals(_other : ISettingVariant<T>) : Boolean;
+		function IsEmpty : Boolean;
+
+		function CompareTo(Value : ISettingVariant<T>) : Integer;
+		procedure Copy(_other : ISettingVariant<T>);
+
+		function GetValue : T;
+		procedure SetValue(const Value : T);
+
+		procedure SetPersister(const Value : IFilePersister<T>);
+		function GetPersister() : IFilePersister<T>;
+
+		property Persister : IFilePersister<T> read GetPersister write SetPersister;
+		property Value : T read GetValue write SetValue;
+	end;
+
+	TSetting = class(TInterfacedObject, ISetting)
 		private
-			FValue : Variant;
-			FValueType : TVarType;
-			FIsModified : Boolean;
-			FIsDefaultRelevant : Boolean;
-			FSaveToIni : Boolean; // New field
-			function GetValue : Variant;
-			function GetIsModified : Boolean;
-			function GetIsDefaultRelevant : Boolean;
-			function GetValueType() : TVarType;
-			function GetSaveToIni : Boolean;
-			procedure SetValue(const Value : Variant);
-			procedure SetIsModified(const Value : Boolean);
-			procedure SetIsDefaultRelevant(const Value : Boolean);
-			procedure SetSaveToIni(const Value : Boolean);
+			FSaveBehaviour : TSettingStoreBehaviours;
+			FState : TSettingState;
+
+			function GetState() : TSettingState;
+			procedure SetState(const Value : TSettingState);
+
+		protected
+			function GetType() : TSettingType; virtual; abstract;
 
 		public
-			constructor Create(const _type : TVarType; const _value : Variant; const _isDefRelevant : Boolean = False;
-				const _saveToIni : Boolean = True); overload;
-			constructor Create(const _value : Variant); overload;
-			destructor Destroy; override;
-			function CompareTo(Value : ISettingVariant): Integer;
-			function Equals(_other : ISettingVariant) : Boolean; reintroduce;
+			constructor Create(
+				{ } _state : TSettingState = ssInitialized;
+				{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]); overload;
+			procedure LoadFromPersister(); virtual; abstract;
+			procedure StoreToPersister(const _section : string = ''); virtual; abstract;
+
+			function AsStringSetting() : IStringSetting;
+			function AsIntegerSetting() : IIntegerSetting;
+			function AsBoolSetting() : IBoolSetting;
+			function AsArraySetting() : IArraySetting;
+
+			function AsString() : string;
+			function AsInteger() : Integer;
+			function AsBool() : Boolean;
+			function AsArray() : TArrayEx<string>;
+			function AsReversedArray(): TArrayEx<string>;
+			procedure Clear(); virtual;
+			function CompareTo(Value : ISetting) : Integer;
+			procedure Copy(_other : ISetting);
+			class procedure CopySettingFields(_from, _to : ISetting);
+			class procedure CopySettingValue(_from, _to : ISetting);
+			function Equals(_other : ISetting) : Boolean; reintroduce;
+			function GetSaveBehaviour() : TSettingStoreBehaviours;
+			procedure SetSaveBehaviour(const Value : TSettingStoreBehaviours);
+
+			property State : TSettingState read GetState write SetState;
+			property SaveBehaviour : TSettingStoreBehaviours read GetSaveBehaviour write SetSaveBehaviour;
+
+			property SettingType : TSettingType read GetType;
+	end;
+
+	TSettingVariant<T> = class(TSetting, ISettingVariant<T>, ISetting)
+		private
+			FValue : T;
+			FPersister : IFilePersister<T>;
+
+			function GetValue() : T;
+			procedure SetValue(const Value : T);
+
+		protected
+			function GetPersister() : IFilePersister<T>;
+			function GetType() : TSettingType; override;
+			procedure SetPersister(const Value : IFilePersister<T>);
+
+		public
+			constructor Create(const _value : T;
+				{ } _state : TSettingState = ssInitialized;
+				{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]); overload;
+			procedure Clear(); override;
+			function CompareTo(Value : ISettingVariant<T>) : Integer;
+			procedure Copy(_other : ISettingVariant<T>); reintroduce;
+			function Equals(_other : ISettingVariant<T>) : Boolean; reintroduce;
 			function IsEmpty : Boolean;
-			procedure WriteToMemIni(_ini : TMemIniFile; const _sIniSection, _sKey : string);
-			property Value : Variant read GetValue write SetValue;
-			property IsModified : Boolean read GetIsModified write SetIsModified;
-			property IsDefaultRelevant : Boolean read GetIsDefaultRelevant write SetIsDefaultRelevant;
-			property ValueType : TVarType read GetValueType;
-			property SaveToIni : Boolean read GetSaveToIni write SetSaveToIni;
+			procedure LoadFromPersister(); override;
+			procedure StoreToPersister(const _section : string = ''); override;
+			property Persister : IFilePersister<T> read GetPersister write SetPersister;
+			property Value : T read GetValue write SetValue;
+	end;
+
+	TStringSetting = class(TSettingVariant<string>)
+		public
+			function GetType() : TSettingType; override;
+	end;
+
+	TBoolSetting = class(TSettingVariant<Boolean>)
+		public
+			function GetType() : TSettingType; override;
+	end;
+
+	TIntegerSetting = class(TSettingVariant<integer>)
+		public
+			function GetType() : TSettingType; override;
+	end;
+
+	TArraySetting = class(TSettingVariant < TArrayEx < string >> )
+		private
+			function GetCount() : Integer;
+			function GetItem(Index : Integer) : string;
+			function GetSafeItem(index : Integer) : string;
+			procedure SetItem(Index : Integer; const Value : string);
+			procedure SetSafeItem(index : Integer; const Value : string);
+
+		public
+			function AddIfNotContains(const AItem : string) : Integer;
+			function GetType() : TSettingType; override;
+			property Count : Integer read GetCount;
+			property Item[index : Integer] : string read GetItem write SetItem; default;
+			property SafeItem[index : Integer] : string read GetSafeItem write SetSafeItem;
 	end;
 
 implementation
@@ -75,154 +198,302 @@ implementation
 uses
 	RipGrepper.Tools.DebugUtils;
 
-constructor TSettingVariant.Create(const _type : TVarType; const _value : Variant; const _isDefRelevant : Boolean = False;
-	const _saveToIni : Boolean = True);
+constructor TSettingVariant<T>.Create(const _value : T;
+	{ } _state : TSettingState = ssInitialized;
+	{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]);
 begin
-	FValueType := _type;
+	inherited Create(_state, _saveBehaviour);
 	FValue := _value;
-	FIsModified := False;
-	FIsDefaultRelevant := _isDefRelevant;
-	FSaveToIni := _saveToIni;
 end;
 
-constructor TSettingVariant.Create(const _value : Variant);
-begin
-	FValueType := VarType(_value);
-	FValue := _value;
-	FIsModified := False;
-	FIsDefaultRelevant := False;
-	FSaveToIni := True;
-end;
-
-destructor TSettingVariant.Destroy;
+procedure TSettingVariant<T>.Clear();
 begin
 	inherited;
+	FValue := default (T);
 end;
 
-function TSettingVariant.CompareTo(Value : ISettingVariant): Integer;
+function TSettingVariant<T>.CompareTo(Value : ISettingVariant<T>) : Integer;
 var
-	res : TVariantRelationship;
+	res : integer;
 begin
-	res := VarCompareValue(self.FValue, Value.Value);
-	if res = vrEqual then begin
-		if FValueType <> Value.ValueType then
-			Result := Ord(FValueType) - Ord(Value.ValueType)
-		else if FIsModified <> Value.IsModified then
-			Result := Ord(FIsModified) - Ord(Value.IsModified)
-		else if FIsDefaultRelevant <> Value.IsDefaultRelevant then
-			Result := Ord(FIsDefaultRelevant) - Ord(Value.IsDefaultRelevant)
-		else if FSaveToIni <> Value.SaveToIni then
-			Result := Ord(FSaveToIni) - Ord(Value.SaveToIni)
-		else
-			Result := 0;
-		Exit;
+	res := TComparer<T>.Default.Compare(self.FValue, Value.Value);
+	if res = 0 then begin
+		res := TComparer<integer>.Default.Compare(integer(FState), integer(Value.State));
 	end;
-
-	Result := Integer(res);
+	Result := res;
 end;
 
-function TSettingVariant.Equals(_other : ISettingVariant) : Boolean;
+procedure TSettingVariant<T>.Copy(_other : ISettingVariant<T>);
 begin
-	Result := (VarCompareValue(FValue, _other.Value) = vrEqual) and
-	{ } (FValueType = _other.ValueType) and
-	{ } (FIsModified = _other.IsModified) and
-	{ } (FIsDefaultRelevant = _other.IsDefaultRelevant) and
-	{ } (FSaveToIni = _other.SaveToIni);
+	inherited Copy(_other);
+	FValue := _other.Value;
+	FPersister := _other.Persister;
 end;
 
-function TSettingVariant.IsEmpty : Boolean;
+function TSettingVariant<T>.Equals(_other : ISettingVariant<T>) : Boolean;
 begin
-	Result := VarIsEmpty(Value) or VarIsNull(Value);
+	Result := inherited Equals(_other);
+	Result := Result and (TComparer<T>.Default.Compare(FValue, _other.Value) = 0);
 end;
 
-function TSettingVariant.GetValue : Variant;
+function TSettingVariant<T>.GetPersister() : IFilePersister<T>;
+begin
+	Result := FPersister;
+end;
+
+function TSettingVariant<T>.GetType() : TSettingType;
+begin
+	Result := stNotSet;
+end;
+
+function TSettingVariant<T>.IsEmpty : Boolean;
+begin
+	Result := (FState = ssNotSet);
+end;
+
+procedure TSettingVariant<T>.SetValue(const Value : T);
+begin
+	if FValue <> Value then begin
+		FValue := Value;
+		FState := ssModified;
+		if ssbStoreAfterChangeImmediately in FSaveBehaviour then begin
+			FPersister.StoreValue(FValue);
+		end;
+
+	end;
+end;
+
+function TSettingVariant<T>.GetValue() : T;
 begin
 	Result := FValue;
 end;
 
-function TSettingVariant.GetIsModified : Boolean;
-begin
-	Result := FIsModified;
-end;
-
-function TSettingVariant.GetIsDefaultRelevant : Boolean;
-begin
-	Result := FIsDefaultRelevant;
-end;
-
-function TSettingVariant.GetValueType() : TVarType;
-begin
-	Result := FValueType;
-end;
-
-function TSettingVariant.GetSaveToIni : Boolean;
-begin
-	Result := FSaveToIni;
-end;
-
-procedure TSettingVariant.SetValue(const Value : Variant);
-begin
-	FValue := Value;
-	FValueType := VarType(Value);
-end;
-
-procedure TSettingVariant.SetIsModified(const Value : Boolean);
-begin
-	FIsModified := Value;
-end;
-
-procedure TSettingVariant.SetIsDefaultRelevant(const Value : Boolean);
-begin
-	FIsDefaultRelevant := Value;
-end;
-
-procedure TSettingVariant.SetSaveToIni(const Value : Boolean);
-begin
-	FSaveToIni := Value;
-end;
-
-procedure TSettingVariant.WriteToMemIni(_ini : TMemIniFile; const _sIniSection, _sKey : string);
+procedure TSettingVariant<T>.LoadFromPersister();
 var
-	v : Variant;
+	val : T;
 begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TSettingVariant.WriteToMemIni');
+	if Persister.TryLoadValue(val) then begin
+		Value := val;
+	end;
+end;
 
-	try
-		case self.ValueType of
-			varString, varUString : begin
-				dbgMsg.MsgIf(_sIniSection = 'SearchTextsHistory', Format('SearchTextsHistory %s=%s', [_sKey, self.Value]));
-				_ini.WriteString(_sIniSection, _sKey, self.Value);
-			end;
-			varBoolean : begin
-				_ini.WriteBool(_sIniSection, _sKey, self.Value);
-			end;
-			varInteger : begin
-				_ini.WriteInteger(_sIniSection, _sKey, self.Value);
-			end;
-			$200C, varArray : begin // varTypeMask   ??
-				var
-				i := VarArrayLowBound(self.Value, 1);
-				var
-				len := VarArrayHighBound(self.Value, 1);
-				dbgMsg.Msg('Write Array');
-				while i <= len do begin
-					v := self.Value[i]; // v should be string
-					_ini.WriteString(_sIniSection, Format('%s_Item%d', [_sKey, i]), v);
-					Inc(i);
-				end;
-			end
-			else
-			// var and vtTypes are not the same!!!
-			raise ESettingsException.Create('Settings Type not supported: ' + { } VarTypeAsText(VarType(self.ValueType)));
+procedure TSettingVariant<T>.StoreToPersister(const _section : string = '');
+begin
+	if not Assigned(Persister) then begin
+		raise ESettingsException.Create('Persister is not assigned.');
+	end;
+
+	if (State = ssModified)
+	{ } or (ssbStoreOnceEvenIfNotModified in SaveBehaviour) then begin
+		Persister.StoreValue(Value);
+		State := ssStored;
+		Exclude(FSaveBehaviour, ssbStoreOnceEvenIfNotModified);
+	end;
+end;
+
+procedure TSettingVariant<T>.SetPersister(const Value : IFilePersister<T>);
+begin
+	FPersister := Value;
+end;
+
+constructor TSetting.Create(
+	{ } _state : TSettingState = ssInitialized;
+	{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]);
+begin
+	FState := _state;
+	FSaveBehaviour := _saveBehaviour;
+end;
+
+function TSetting.AsArray() : TArrayEx<string>;
+begin
+	Result := AsArraySetting.Value;
+end;
+
+function TSetting.AsReversedArray(): TArrayEx<string>;
+begin
+	Result := AsArraySetting.Value.GetReversedRange();
+end;
+
+function TSetting.AsArraySetting() : IArraySetting;
+begin
+	Result := TArraySetting(self);
+end;
+
+function TSetting.AsBool() : Boolean;
+begin
+	Result := AsBoolSetting.Value;
+end;
+
+function TSetting.AsBoolSetting() : IBoolSetting;
+begin
+	Result := TBoolSetting(self);
+end;
+
+function TSetting.AsInteger() : Integer;
+begin
+	Result := AsIntegerSetting.Value;
+end;
+
+function TSetting.AsIntegerSetting() : IIntegerSetting;
+begin
+	Result := TIntegerSetting(self);
+end;
+
+function TSetting.AsString() : string;
+begin
+	case SettingType of
+		stString : begin
+			Result := AsStringSetting.Value;
 		end;
-	except
-		on E : Exception do
-			dbgMsg.ErrorMsgFmt('%s', [E.Message]);
+		stInteger : begin
+			Result := IntToStr(AsIntegerSetting.Value);
+		end;
+		stBool : begin
+			Result := BoolToStr(AsBoolSetting.Value, True);
+		end;
+		stStrArray : begin
+			Result := '[' + string.Join(',', AsArraySetting.Value.Items) + ']';
+		end;
+		else
+		raise ESettingsException.Create('Setting Type not supported.');
 	end;
-	if self.ValueType <> $200C then begin
-		dbgMsg.MsgFmt('[%s].%s=%s in %s', [_sIniSection, _sKey, VarToStr(self.Value), _ini.FileName]);
+
+end;
+
+function TSetting.AsStringSetting() : IStringSetting;
+begin
+	Result := TStringSetting(self);
+end;
+
+procedure TSetting.Clear();
+begin
+	FState := ssInitialized;
+	FSaveBehaviour := [ssbStoreIfModified];
+end;
+
+function TSetting.CompareTo(Value : ISetting) : Integer;
+begin
+	if SettingType = Value.SettingType then begin
+		Result := Ord(State) - Ord(Value.State);
+	end else begin
+		Result := Ord(SettingType) - Ord(Value.SettingType);
 	end;
+end;
+
+procedure TSetting.Copy(_other : ISetting);
+begin
+	FState := _other.State;
+end;
+
+class procedure TSetting.CopySettingFields(_from, _to : ISetting);
+begin
+	case _from.SettingType of
+		stString :
+		TStringSetting(_to).Copy(_from.AsStringSetting);
+		stInteger :
+		TIntegerSetting(_to).Copy(_from.AsIntegerSetting);
+		stBool :
+		TBoolSetting(_to).Copy(_from.AsBoolSetting);
+		stStrArray :
+		TArraySetting(_to).Copy(_from.AsArraySetting);
+		else
+		raise ESettingsException.Create('Can''t copy unknown setting type');
+	end;
+end;
+
+class procedure TSetting.CopySettingValue(_from, _to : ISetting);
+begin
+	case _from.SettingType of
+		stString :
+		TStringSetting(_to).Value := (_from.AsStringSetting).Value;
+		stInteger :
+		TIntegerSetting(_to).Value := (_from.AsIntegerSetting).Value;
+		stBool :
+		TBoolSetting(_to).Value := (_from.AsBoolSetting).Value;
+		stStrArray :
+		TArraySetting(_to).Value := (_from.AsArraySetting).Value;
+		else
+		raise ESettingsException.Create('Can''t copy unknown setting type');
+	end;
+end;
+
+function TSetting.Equals(_other : ISetting) : Boolean;
+begin
+	Result := (FState = _other.State);
+end;
+
+function TSetting.GetSaveBehaviour() : TSettingStoreBehaviours;
+begin
+	Result := FSaveBehaviour;
+end;
+
+function TSetting.GetState() : TSettingState;
+begin
+	Result := FState;
+end;
+
+procedure TSetting.SetSaveBehaviour(const Value : TSettingStoreBehaviours);
+begin
+	FSaveBehaviour := Value;
+end;
+
+procedure TSetting.SetState(const Value : TSettingState);
+begin
+	FState := Value;
+end;
+
+function TArraySetting.AddIfNotContains(const AItem : string) : Integer;
+begin
+	Result := -1;
+	if not self.Value.Contains(AItem) then begin
+		self.Value.Insert(0, AItem);
+		Result := self.Value.Count;
+	end;
+end;
+
+function TArraySetting.GetCount() : Integer;
+begin
+	Result := self.Value.Count;
+end;
+
+function TArraySetting.GetItem(Index : Integer) : string;
+begin
+	Result := self.Value[index];
+end;
+
+function TArraySetting.GetSafeItem(index : Integer) : string;
+begin
+	Result := self.SafeItem[index];
+end;
+
+function TArraySetting.GetType() : TSettingType;
+begin
+	Result := stStrArray;
+end;
+
+procedure TArraySetting.SetItem(Index : Integer; const Value : string);
+begin
+	self.Value[index] := Value;
+end;
+
+procedure TArraySetting.SetSafeItem(index : Integer; const Value : string);
+begin
+	self.Value.SafeItem[index] := Value;
+end;
+
+function TStringSetting.GetType() : TSettingType;
+begin
+	Result := stString;
+end;
+
+function TBoolSetting.GetType() : TSettingType;
+begin
+	Result := stBool;
+end;
+
+function TIntegerSetting.GetType() : TSettingType;
+begin
+	Result := stInteger;
 end;
 
 end.

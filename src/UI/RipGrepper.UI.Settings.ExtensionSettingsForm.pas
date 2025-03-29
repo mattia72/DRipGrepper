@@ -226,7 +226,7 @@ procedure TExtensionSettingsForm.ReadSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TExtensionSettingsForm.ReadSettings');
-	FExtensionSettings.ReadIni;
+	FExtensionSettings.ReadFile;
 	FExtensionSettings.LoadFromDict;
 	{$IFNDEF STANDALONE}
 	hkedtOpenWidth.HotKey := TextToShortCut(FExtensionSettings.OpenWithShortcut);

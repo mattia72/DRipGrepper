@@ -48,7 +48,7 @@ type
 			class procedure OnYesClick(Sender : TObject);
 			class procedure ShowError(const _msg : string);
 			class procedure ShowInfo(const _msg : string);
-			class function ShowQuestion(const _msg : string): Integer;
+			class function ShowQuestion(const _msg : string) : Integer;
 			class procedure ShowWarning(const _msg : string; const _bModal : Boolean = True; _parent : TWinControl = nil);
 	end;
 
@@ -93,7 +93,7 @@ type
 
 	TCanvasHelper = class Helper for Vcl.Graphics.TCanvas
 		public
-			procedure SetAlteringColors(_idx: Integer; const _alternateColor: TColor);
+			procedure SetAlteringColors(_idx : Integer; const _alternateColor : TColor);
 			procedure SetSelectedColors(State : TOwnerDrawState);
 			procedure SetBgColorIfNotTransparent(const _color : TColor);
 	end;
@@ -149,6 +149,13 @@ type
 		FontStyle : TFontStyles;
 		class function Save(const _canvas : TCanvas) : TDrawParams; static;
 		procedure Load(const _canvas : TCanvas);
+	end;
+
+type
+	TComboBoxHelper = class
+		private
+		public
+			class procedure ChangeItems(_cmb : TComboBox; const _items : TArray<string>);
 	end;
 
 implementation
@@ -211,7 +218,7 @@ begin
 	// vertical border * 2 + 2 extra Pixels
 end;
 
-procedure TCanvasHelper.SetAlteringColors(_idx: Integer; const _alternateColor: TColor);
+procedure TCanvasHelper.SetAlteringColors(_idx : Integer; const _alternateColor : TColor);
 begin
 	if Odd(_idx) then begin
 		self.Font.Color := clBlack;
@@ -595,11 +602,11 @@ begin
 	Show(_msg, TMsgDlgType.mtInformation);
 end;
 
-class function TAsyncMsgBox.ShowQuestion(const _msg : string): Integer;
+class function TAsyncMsgBox.ShowQuestion(const _msg : string) : Integer;
 begin
-	//TODO ModalResult
-	//Result := Show(_msg, TMsgDlgType.mtConfirmation);
-    Result := mrNone;
+	// TODO ModalResult
+	// Result := Show(_msg, TMsgDlgType.mtConfirmation);
+	Result := mrNone;
 end;
 
 class procedure TAsyncMsgBox.ShowWarning(const _msg : string; const _bModal : Boolean = True; _parent : TWinControl = nil);
@@ -646,6 +653,12 @@ end;
 class procedure TMsgBoxBase.SetCaption(_msgDlg : TForm);
 begin
 	_msgDlg.Caption := APPNAME;
+end;
+
+class procedure TComboBoxHelper.ChangeItems(_cmb : TComboBox; const _items : TArray<string>);
+begin
+	_cmb.Items.Clear;
+	_cmb.Items.AddStrings(_items);
 end;
 
 end.

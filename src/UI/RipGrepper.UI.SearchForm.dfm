@@ -209,7 +209,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object btnConfig: TButton
         AlignWithMargins = True
-        Left = 491
+        Left = 489
         Top = 41
         Width = 23
         Height = 23
@@ -224,7 +224,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       object cmbOptions: TComboBox
         Left = 8
         Top = 41
-        Width = 477
+        Width = 475
         Height = 23
         Margins.Left = 8
         Margins.Top = 8
@@ -241,7 +241,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       object memoCommandLine: TMemo
         Left = 8
         Top = 85
-        Width = 477
+        Width = 475
         Height = 105
         Anchors = [akLeft, akTop, akRight, akBottom]
         Color = clInfoBk
@@ -253,7 +253,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object btnCopyToClipBoard: TButton
         AlignWithMargins = True
-        Left = 491
+        Left = 489
         Top = 82
         Width = 23
         Height = 23
@@ -267,7 +267,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object btnRGOptionsHelp: TButton
         AlignWithMargins = True
-        Left = 516
+        Left = 514
         Top = 41
         Width = 23
         Height = 23
@@ -281,7 +281,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object btnShowInLines: TButton
         AlignWithMargins = True
-        Left = 491
+        Left = 489
         Top = 111
         Width = 23
         Height = 23
@@ -522,7 +522,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       AlignWithMargins = True
       Left = 8
       Top = 245
-      Width = 544
+      Width = 542
       Height = 71
       Margins.Left = 8
       Margins.Right = 8
@@ -600,7 +600,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       34)
     object btnSearch: TButton
       AlignWithMargins = True
-      Left = 396
+      Left = 394
       Top = 3
       Width = 75
       Height = 26
@@ -608,11 +608,11 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       Anchors = [akRight, akBottom]
       Default = True
       Images = SVGIconImageList1
-      TabOrder = 1
+      TabOrder = 0
     end
     object btnCancel: TButton
       AlignWithMargins = True
-      Left = 477
+      Left = 475
       Top = 3
       Width = 75
       Height = 26
@@ -620,19 +620,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       Anchors = [akRight, akBottom]
       Cancel = True
       Images = SVGIconImageList1
-      TabOrder = 2
-    end
-    object btnSetAsDefault: TButton
-      AlignWithMargins = True
-      Left = 10
-      Top = 3
-      Width = 103
-      Height = 26
-      Action = ActionSetAsDefault
-      Images = SVGIconImageList1
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 0
+      TabOrder = 1
     end
   end
   object pnlTop: TPanel
@@ -664,7 +652,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       object cmbReplaceText: TComboBox
         Left = 14
         Top = 59
-        Width = 422
+        Width = 420
         Height = 23
         Hint = 'Replace Text or Pattern'
         Margins.Left = 8
@@ -680,7 +668,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       object cmbSearchText: TComboBox
         Left = 14
         Top = 31
-        Width = 422
+        Width = 420
         Height = 23
         Hint = 'Search Text or Pattern'
         Margins.Left = 8
@@ -694,7 +682,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         OnChange = cmbSearchTextChange
       end
       object toolbarSearchTextOptions: TToolBar
-        Left = 443
+        Left = 441
         Top = 31
         Width = 86
         Height = 23
@@ -709,7 +697,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         ShowHint = True
         TabOrder = 1
         TabStop = True
-        object tbIgnoreCase: TToolButton
+        object tbMatchCase: TToolButton
           Left = 0
           Top = 0
           Action = ActionAddParamMatchCase
@@ -745,7 +733,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object btnRGReplaceHelp: TButton
         AlignWithMargins = True
-        Left = 443
+        Left = 441
         Top = 60
         Width = 23
         Height = 23
@@ -855,13 +843,6 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       ImageIndex = 15
       ImageName = 'format-text-wrapping-wrap'
       OnExecute = ActionShowInLinesExecute
-    end
-    object ActionSetAsDefault: TAction
-      Caption = 'Set as Default'
-      Hint = 'Set Parameters as Default'
-      ImageIndex = 5
-      ImageName = 'wrench-outline'
-      OnExecute = ActionSetAsDefaultExecute
     end
   end
   object SVGIconImageList1: TSVGIconImageList

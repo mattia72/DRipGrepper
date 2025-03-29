@@ -87,8 +87,7 @@ procedure TSettingsBaseForm.WriteSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsBaseForm.WriteSettings');
-	FSettings.StoreToDict;
-	FSettings.UpdateIniFile; // save
+    FSettings.UpdateFile();
 end;
 
 end.

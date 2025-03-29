@@ -1,4 +1,4 @@
-﻿unit RipGrepper.UI.MainForm;
+unit RipGrepper.UI.MainForm;
 
 interface
 
@@ -54,7 +54,7 @@ type
 		var
 			FSettings : TRipGrepperSettings;
 			FThemeHandler : TThemeHandler;
-			FThemeChengedEventSubscriber: TThemeChangeEventSubscriber;
+			FThemeChengedEventSubscriber : TThemeChangeEventSubscriber;
 			function GetThemeHandler() : TThemeHandler;
 			procedure WMSettingChange(var Message : TWMSettingChange); message WM_SETTINGCHANGE;
 			property ThemeHandler : TThemeHandler read GetThemeHandler;
@@ -70,12 +70,10 @@ type
 
 			procedure Init;
 			procedure Loaded; override;
-			procedure OnThemeChanged(Sender: TObject);
+			procedure OnThemeChanged(Sender : TObject);
 
-
-            // TODO this should be get in config form...
-			property ThemeChengedEventSubscriber: TThemeChangeEventSubscriber read
-				FThemeChengedEventSubscriber;
+			// TODO this should be get in config form...
+			property ThemeChengedEventSubscriber : TThemeChangeEventSubscriber read FThemeChengedEventSubscriber;
 	end;
 
 var
@@ -114,8 +112,8 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner');
 	inherited Create(AOwner);
 	// component owner is self, so it will be destroyed as we close this form
-    FThemeChengedEventSubscriber := TThemeChangeEventSubscriber.Create(self);
-    FThemeChengedEventSubscriber.OnThemeChanged.Add(OnThemeChanged);
+	FThemeChengedEventSubscriber := TThemeChangeEventSubscriber.Create(self);
+	FThemeChengedEventSubscriber.OnThemeChanged.Add(OnThemeChanged);
 
 	ThemeHandler.Init(GSettings.AppSettings.ColorTheme);
 
@@ -137,7 +135,7 @@ begin
 		FSettings := _settings;
 	end;
 
-	TDebugUtils.DebugMessage('TRipGrepperForm.Create: ' + TPath.GetFileName(FSettings.IniFile.FileName));
+	// TDebugUtils.DebugMessage('TRipGrepperForm.Create: ' + TPath.GetFileName(FSettings.IniFile.FileName));
 end;
 
 procedure TRipGrepperForm.FormCreate(Sender : TObject);
@@ -160,7 +158,7 @@ end;
 
 class function TRipGrepperForm.CreateAndShow(const _settings : TRipGrepperSettings) : TRipGrepperForm;
 begin
-	TDebugUtils.DebugMessage('TRipGrepperForm.CreateAndShow: ' + TPath.GetFileName(_settings.IniFile.FileName));
+	// TDebugUtils.DebugMessage('TRipGrepperForm.CreateAndShow: ' + TPath.GetFileName(_settings.IniFile.FileName));
 	Result := TRipGrepperForm.Create(_settings);
 
 	try
@@ -173,7 +171,6 @@ end;
 procedure TRipGrepperForm.FormClose(Sender : TObject; var Action : TCloseAction);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.FormClose - begin action: ' + Integer(Action).ToString);
-	// Settings.StoreToDict; not enough?
 end;
 
 procedure TRipGrepperForm.FormShow(Sender : TObject);
@@ -230,9 +227,9 @@ begin
 	// end;
 end;
 
-procedure TRipGrepperForm.OnThemeChanged(Sender: TObject);
+procedure TRipGrepperForm.OnThemeChanged(Sender : TObject);
 begin
-    TDarkModeHelper.SetIconTheme(self);
+	TDarkModeHelper.SetIconTheme(self);
 end;
 
 procedure TRipGrepperForm.WMSettingChange(var message : TWMSettingChange);

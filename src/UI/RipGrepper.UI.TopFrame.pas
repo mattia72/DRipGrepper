@@ -277,9 +277,8 @@ begin
 	owSettings.TestFile := MainFrame.GetOpenWithParamsFromSelected();
 	dbgMsg.Msg('TestFile: ' + owSettings.TestFile.GetRelativePath());
 
-	Settings.StoreToDict;
 	// write ini file content
-	Settings.UpdateIniFile;
+	Settings.UpdateFile(True);
 	var
 	owForm := TConfigForm.Create(Settings);
 	try
@@ -289,7 +288,7 @@ begin
 	end;
 
 	// write ini file content after close config form
-	Settings.UpdateIniFile;
+	Settings.UpdateFile(True);
 
 	owSettings.TestFile := default (TOpenWithParams);
 	MainFrame.ReloadColorSettings;
@@ -474,7 +473,7 @@ procedure TRipGrepperTopFrame.ActionShowSearchFormExecute(Sender : TObject);
 begin
 	// try rg.exe
 	if not Settings.RipGrepParameters.IsRgPathInitOk then begin
-		TAsyncMsgBox.ShowError(Format(FORMAT_RIPGREP_EXE_NOT_FOUND, [Settings.IniFile.FileName]));
+		TAsyncMsgBox.ShowError(Format(FORMAT_RIPGREP_EXE_NOT_FOUND, [Settings.PersisterFactory.FilePath]));
 		ActionConfigExecute(self);
 		Exit;
 	end;
