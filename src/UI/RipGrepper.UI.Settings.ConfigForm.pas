@@ -91,7 +91,7 @@ begin
 		FExtensionSettings := Settings.SearchFormSettings.ExtensionSettings;
 		FExtensionSettings.ReadFile;
 		FExtensionSettings.LoadFromDict;
-		FExtensionSettingsForm := TExtensionSettingsForm.Create(nil, FExtensionSettings);
+		FExtensionSettingsForm := TExtensionSettingsForm.Create(nil, Settings);
 
 		FSettingsForms := TCollections.CreateList<TForm>();
 		FSettingsForms.AddRange([

@@ -80,7 +80,7 @@ end;
 
 procedure TSettingsBaseForm.ReadSettings;
 begin
-	//
+	// here you can transform/copy persisted types to settings types
 end;
 
 procedure TSettingsBaseForm.WriteSettings;

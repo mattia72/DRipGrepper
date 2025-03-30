@@ -347,8 +347,8 @@ begin
 
 	FOpenWithSettings.RecreateCommandList(cmds);
 
-    FSettings.StoreToPersister;
-	// inherited WriteSettings; // it's not eonugh
+    FSettings.StoreToPersister;   //
+	// inherited WriteSettings; // it's not enough
 	FOpenWithSettings.ForceUpdateFile; // save always
 end;
 

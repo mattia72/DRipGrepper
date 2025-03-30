@@ -9,6 +9,9 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Settings.SettingVariant;
 
+
+const GUITEST = {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
+
 type
 	TRipGrepperExtensionContext = record
 		IDEContext : integer;
@@ -113,12 +116,8 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.ReadFile');
 	{$IFNDEF TESTINSIGHT} // or ($APPTYPE = CONSOLE))} // skip if unittest
-	{$IFDEF STANDALONE}
+	{$IF NOT GUITEST AND DEFINED(STANDALONE)}
 	Exit;
-	{$ELSE}
-	if IOTAUTils.IsStandAlone then begin
-		Exit;
-	end;
 	{$ENDIF}
 	{$ENDIF}
 	inherited ReadFile();
@@ -147,7 +146,7 @@ begin
 
 	{$IFNDEF TESTINSIGHT} // or ($APPTYPE = CONSOLE))} // skip if unittest
 	{$IFDEF STANDALONE}
-	Exit;
+	//Exit;
 	{$ELSE}
 	if IOTAUTils.IsStandAlone then begin
 		Exit;
