@@ -69,6 +69,7 @@ type
 			property EditedDllPath : string read FEditedDllPath write SetEditedDllPath;
 
 		protected
+			procedure OnSettingsUpdated(); override;
 			procedure ReadSettings; override;
 			procedure WriteSettings; override;
 
@@ -222,6 +223,14 @@ begin
 		Result := idv;
 end;
 
+procedure TExtensionSettingsForm.OnSettingsUpdated();
+begin
+	// here you can update things depending on changed settings
+	{$IFNDEF STANDALONE}
+	TDripExtensionMenu.CreateMenu(EXTENSION_MENU_ROOT_TEXT, FExtensionSettings);
+	{$ENDIF}
+end;
+
 procedure TExtensionSettingsForm.ReadSettings;
 begin
 	var
@@ -296,12 +305,6 @@ begin
 
 	FExtensionSettings.OpenWithShortcut := ShortCutToText(hkedtOpenWidth.HotKey);
 	FExtensionSettings.SearchSelectedShortcut := ShortCutToText(hkedtSearchSelected.HotKey);
-
-    FExtensionSettings.StoreToPersister;
-	inherited WriteSettings;
-	{$ENDIF}
-	{$IFNDEF STANDALONE}
-	TDripExtensionMenu.CreateMenu(EXTENSION_MENU_ROOT_TEXT, FExtensionSettings);
 	{$ENDIF}
 end;
 

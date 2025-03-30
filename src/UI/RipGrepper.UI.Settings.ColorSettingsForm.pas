@@ -108,8 +108,8 @@ begin
 	fc := FFontColorSettings.FontColors;
 	TColorSelectorFrame.WriteColorSettings(fc, self);
 	FFontColorSettings.FontColors := fc;
-	FFontColorSettings.StoreToPersister();
-	inherited WriteSettings;
+    // it is needed to store FontColorToSettings
+    FFontColorSettings.StoreToPersister;
 end;
 
 end.

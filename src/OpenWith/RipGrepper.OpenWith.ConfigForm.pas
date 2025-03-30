@@ -86,7 +86,7 @@ type
 			{ Public-Deklarationen }
 			constructor Create(AOwner : TComponent; const _settings : TOpenWithSettings; const _colorTheme : string); reintroduce;
 			destructor Destroy; override;
-			class procedure CreateAndShow(const _settings : TOpenWithSettings; const _colorTheme : string);
+			class procedure CreateAndShow(_owner : TComponent; const _settings : TOpenWithSettings; const _colorTheme : string);
 			procedure ReadSettings; override;
 			procedure WriteSettings(); override;
 
@@ -254,12 +254,12 @@ begin
 	end;
 end;
 
-class procedure TOpenWithConfigForm.CreateAndShow(const _settings : TOpenWithSettings; const _colorTheme : string);
+class procedure TOpenWithConfigForm.CreateAndShow(_owner : TComponent; const _settings : TOpenWithSettings; const _colorTheme : string);
 begin
 	// write ini file content
 	_settings.UpdateFile;
 	var
-	form := TOpenWithConfigForm.Create(nil, _settings, _colorTheme);
+	form := TOpenWithConfigForm.Create(_owner, _settings, _colorTheme);
 	try
 		form.ShowModal;
 	finally
@@ -284,7 +284,6 @@ var
 	listCmdsFromSettings : TStringList;
 	i : integer;
 begin
-	inherited ReadSettings;
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithConfigForm.ReadSettings');
 
@@ -325,7 +324,7 @@ var
 	item : TListItem;
 	settings : string;
 	sCmd : string;
-    cmds : TArrayEx<string>;
+	cmds : TArrayEx<string>;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithConfigForm.WriteSettings');
@@ -347,9 +346,10 @@ begin
 
 	FOpenWithSettings.RecreateCommandList(cmds);
 
-    FSettings.StoreToPersister;   //
-	// inherited WriteSettings; // it's not enough
-	FOpenWithSettings.ForceUpdateFile; // save always
+	if Assigned(Owner) and (Owner.Name = 'OpenWithCmdList') then begin
+		FSettings.StoreToPersister;
+		FOpenWithSettings.ForceUpdateFile; // save always
+	end;
 end;
 
 procedure TOpenWithConfigForm.lvCommandsDblClick(Sender : TObject);

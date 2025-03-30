@@ -55,6 +55,8 @@ type
 			FThemeHandler : TThemeHandler;
 			FThemeName : string;
 			procedure AddSettingTabs;
+			procedure CallFormsOnOk();
+			procedure CallFormsOnSettingsUpdated();
 			function GetThemeHandler : TThemeHandler;
 			property ThemeHandler : TThemeHandler read GetThemeHandler;
 
@@ -142,14 +144,13 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TConfigForm.ActionOkExecute');
 
-	for var f in FSettingsForms do begin
-		if Supports(f, ISettingsForm, iif) then begin
-			iif.OnOk();
-		end else begin
-			dbgMsg.ErrorMsg(f.Caption + ' not a SettingsForm');
-			raise Exception.Create(f.Caption + ' not a SettingsForm');
-		end;
-	end;
+	CallFormsOnOk;
+
+	FSettings.StoreToPersister();
+	FSettings.UpdateFile();
+
+	CallFormsOnSettingsUpdated();
+
 	ModalResult := mrOk;
 end;
 
@@ -183,6 +184,38 @@ begin
 		PageControl1.TabIndex := 0;
 	finally
 		Screen.Cursor := crDefault;
+	end;
+end;
+
+procedure TConfigForm.CallFormsOnOk();
+var
+	iif : ISettingsForm;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TConfigForm.CallFormsOnOk');
+	for var f in FSettingsForms do begin
+		if Supports(f, ISettingsForm, iif) then begin
+			iif.OnOk();
+		end else begin
+			dbgMsg.ErrorMsg(f.Caption + ' not a SettingsForm');
+			raise Exception.Create(f.Caption + ' not a SettingsForm');
+		end;
+	end;
+end;
+
+procedure TConfigForm.CallFormsOnSettingsUpdated();
+var
+	iif : ISettingsForm;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TConfigForm.CallFormsOnSettingsUpdated');
+	for var f in FSettingsForms do begin
+		if Supports(f, ISettingsForm, iif) then begin
+			iif.OnSettingsUpdated();
+		end else begin
+			dbgMsg.ErrorMsg(f.Caption + ' not a SettingsForm');
+			raise Exception.Create(f.Caption + ' not a SettingsForm');
+		end;
 	end;
 end;
 

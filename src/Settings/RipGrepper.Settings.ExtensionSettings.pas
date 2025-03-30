@@ -49,8 +49,6 @@ type
 			constructor Create(const _Owner : TPersistableSettings); overload;
 			constructor Create; overload;
 			procedure Init; override;
-			procedure ReadFile(); override;
-			procedure StoreToPersister; override;
 			function ToLogString : string; override;
 			property SearchSelectedShortcut : string read GetSearchSelectedShortcut write SetSearchSelectedShortcut;
 			property OpenWithShortcut : string read GetOpenWithShortcut write SetOpenWithShortcut;
@@ -111,18 +109,6 @@ begin
 	CreateSetting(KEY_IDE_CONTEXT, FIDEContext);
 end;
 
-procedure TRipGrepperExtensionSettings.ReadFile();
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.ReadFile');
-	{$IFNDEF TESTINSIGHT} // or ($APPTYPE = CONSOLE))} // skip if unittest
-	{$IF NOT GUITEST AND DEFINED(STANDALONE)}
-	Exit;
-	{$ENDIF}
-	{$ENDIF}
-	inherited ReadFile();
-end;
-
 procedure TRipGrepperExtensionSettings.SetCurrentIDEContext(const Value : TRipGrepperExtensionContext);
 begin
 	FCurrentIDEContext := Value;
@@ -137,23 +123,6 @@ end;
 procedure TRipGrepperExtensionSettings.SetSearchSelectedShortcut(const Value : string);
 begin
 	FSearchSelectedShortcut.Value := Value;
-end;
-
-procedure TRipGrepperExtensionSettings.StoreToPersister;  // switch of if TESTINSIGHT
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.StoreToPersister');
-
-	{$IFNDEF TESTINSIGHT} // or ($APPTYPE = CONSOLE))} // skip if unittest
-	{$IFDEF STANDALONE}
-	//Exit;
-	{$ELSE}
-	if IOTAUTils.IsStandAlone then begin
-		Exit;
-	end;
-	{$ENDIF}
-	{$ENDIF}
-	inherited StoreToPersister; // Write to mem ini, after UpdateIniFile will be saved
 end;
 
 function TRipGrepperExtensionSettings.ToLogString : string;

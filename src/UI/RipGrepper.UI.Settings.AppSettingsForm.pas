@@ -83,6 +83,7 @@ type
 			procedure ValidateInput(var M : TMessage); message USERMESSAGE_VALIDATE_INPUT;
 
 		protected
+			procedure OnSettingsUpdated(); override;
 			procedure ReadSettings; override;
 			procedure ThemeChanged();
 			procedure WriteSettings; override;
@@ -120,7 +121,7 @@ begin
 	FAppSettings := (FSettings as TRipGrepperSettings).AppSettings;
 	FRipGrepSettings := (FSettings as TRipGrepperSettings).RipGrepParameters;
 
-    FOnThemeChanged.Add(nil {TThemeChangeEventSubscriber});
+	FOnThemeChanged.Add(nil { TThemeChangeEventSubscriber } );
 end;
 
 procedure TAppSettingsForm.btnedtIniFilePathLeftButtonClick(Sender : TObject);
@@ -255,6 +256,12 @@ begin
 	Result := LowerCase(name) = LowerCase(RG_EXE);
 end;
 
+procedure TAppSettingsForm.OnSettingsUpdated();
+begin
+	// here you can update things depending on changed settings
+	TDebugUtils.UpdateTraceActive;
+end;
+
 procedure TAppSettingsForm.ReadSettings;
 begin
 	var
@@ -343,10 +350,6 @@ begin
 	if IsRgExeValid(rgPath) then begin
 		FRipGrepSettings.RipGrepPath := rgPath;
 	end;
-
-	inherited WriteSettings;
-
-	TDebugUtils.UpdateTraceActive;
 end;
 
 end.

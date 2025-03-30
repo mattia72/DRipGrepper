@@ -138,7 +138,7 @@ end;
 
 procedure TOpenWithCmdList.ActionShowConfigExecute(Sender : TObject);
 begin
-	TOpenWithConfigForm.CreateAndShow(FSettings, FColorTheme);
+	TOpenWithConfigForm.CreateAndShow(self, FSettings, FColorTheme);
 	LoadEnbledCmds();
 	CreateScaledIcons(True);
 end;
