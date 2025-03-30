@@ -59,12 +59,12 @@ procedure TSearchParamsWithOptionsTest.TestSearchText(const _sSearchText : strin
 var
 	FGuiParams : TSearchTextWithOptions;
 begin
-	FGuiParams.SearchText := _sSearchText;
+	FGuiParams.SearchTextOfUser := _sSearchText;
 	var
 	os := TSearchTextWithOptions.GetAsSearchOptionSet(False, _bMatchWord = 1, _bUseRegex = 1);
 	FGuiParams.SearchOptions := os;
 
-	Assert.AreEqual(_expected, FGuiParams.SearchText, 'search text should equal' + _expected);
+	Assert.AreEqual(_expected, FGuiParams.SearchTextAsRgParam, 'search text should equal' + _expected);
 end;
 
 initialization

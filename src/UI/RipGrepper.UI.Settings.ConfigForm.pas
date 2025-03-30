@@ -138,8 +138,6 @@ begin
 end;
 
 procedure TConfigForm.ActionOkExecute(Sender : TObject);
-var
-	iif : ISettingsForm;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TConfigForm.ActionOkExecute');
