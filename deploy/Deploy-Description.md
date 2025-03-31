@@ -17,6 +17,9 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 
 ## :boom: Improvements 
 Marked with a checkmark if ready; otherwise, it is planned.
+- [x] settings refactored, now other persister can be added eg. json
+> [!IMPORTANT]
+> Breaking change: OpenWithSettings Command_x replaced by Item_x in the ini file.
 - [ ] search for file names eg. `rg.exe -g='*pattern*' --files <DIR>`
 - [x] copy to clipboard for running in PowerShell or command prompt
   - [x] PS needs & prefix and rg path and search text surrounded by ''
@@ -30,7 +33,7 @@ Marked with a checkmark if ready; otherwise, it is planned.
 
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.
-- [ ] replace doesn't work properly if history changed
+- [ ] replace doesn't work properly if history changed ( I clouldn't reproduce it yet )
 - [x] replace doesn't work properly if there are more text to replace in same line 
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: drip icon in menu has no transparent background
