@@ -218,7 +218,7 @@ begin
 	FSearchPath := TStringSetting.Create('');
 	FRipGrepPath := TStringSetting.Create('');
 	FFileMasks := TStringSetting.Create('');
-	CreateSetting(RG_INI_KEY_RGPATH, FSearchPath);
+	CreateSetting(RG_INI_KEY_RGPATH, FRipGrepPath);
 	CreateSetting(SEARCHPATH_KEY, FSearchPath);
 	CreateSetting(FILEMASKS_KEY, FFileMasks);
 	// inherited Init(); abstract
