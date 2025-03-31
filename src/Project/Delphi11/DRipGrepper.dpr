@@ -110,7 +110,7 @@ begin
 	{$ENDIF}
 	GSettings := TRipGrepperSettings.Create;
 	try
-		GSettings.AppSettings.ReadIni;
+		GSettings.AppSettings.ReadFile;
 		GSettings.AppSettings.LoadFromDict();
 		TDebugUtils.UpdateTraceActive;
 
