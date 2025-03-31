@@ -227,6 +227,7 @@
         <DCCReference Include="..\..\..\..\src\RipGrepper.Helper.UI.DarkMode.pas"/>
         <DCCReference Include="..\..\..\..\src\Helper\RipGrepper.Helper.MemIniFile.pas"/>
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.SearchTextWithOptions.pas"/>
+        <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.FilePersister.pas"/>
         <RcItem Include="..\..\..\Resources\about_icon.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>about_icon</ResourceId>
@@ -291,6 +292,12 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="Win32\Debug\DRipExtensions.dll" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>DRipExtensions.dll</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Win32\Release\DRipExtensions.dll" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>DRipExtensions.dll</RemoteName>
                         <Overwrite>true</Overwrite>

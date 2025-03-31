@@ -51,6 +51,7 @@ type
 	EWriteSettingsMode = (wsmActual, wsmDefault, wsmAll);
 
 	TPersistableSettings = class(TNoRefCountObject, IIniPersistable)
+		// TPersistableSettings = class(TInterfacedObject, IIniPersistable)
 		strict private
 			class constructor Create;
 			class destructor Destroy;
@@ -70,7 +71,7 @@ type
 			procedure SetChildrenIniFiles;
 			procedure SetIniFile(const Value : IShared<TMemIniFile>);
 			procedure SetIniSectionName(const Value : string);
-			procedure SetOwnerSetings(const _section : string = ''; const _bForceWriteIni : Boolean = False;
+			procedure AddToRootOwnerSettings(const _section : string = ''; const _bForceWriteIni : Boolean = False;
 				const _bClearSection : Boolean = False);
 			// 1 Should be locked by a guard
 			procedure WriteToIni(const _sIniSection, _sKey : string; _setting : ISettingVariant);
@@ -193,9 +194,9 @@ begin
 	for var s in FChildren do begin
 		s.Free;
 	end;
-	FreeOwnIniFile;
-	dbgMsg.MsgFmt('Free FSettingsDict %p for section: %s', [Pointer(FSettingsDict), IniSectionName]);
-	FSettingsDict.Free;
+	FChildren.Clear;
+	// FreeOwnIniFile;
+	dbgMsg.MsgFmt('Free FSettingsDict %p for section: %s', [Pointer(FSettingsDict()), IniSectionName]);
 	inherited;
 end;
 
@@ -205,14 +206,15 @@ begin
 	inherited;
 end;
 
-function TPersistableSettings.AddChildSettings(_settings : TPersistableSettings) : TPersistableSettings;
+function TPersistableSettings.AddChildSettings(const _settings : TPersistableSettings) : TPersistableSettings;
 begin
 	FChildren.Add(_settings);
 	_settings.FOwner := self;
+	_settings.AddToRootOwnerSettings();
 	Result := _settings;
 end;
 
-function TPersistableSettings.RemoveChildSettings(_settings : TPersistableSettings) : Boolean;
+function TPersistableSettings.RemoveChildSettings(const _settings : TPersistableSettings) : Boolean;
 begin
 	Result := FChildren.Remove(_settings);
 	if not Result then begin
@@ -517,10 +519,23 @@ begin
 	FIniSectionName := Value;
 end;
 
-procedure TPersistableSettings.SetOwnerSetings(const _section : string = ''; const _bForceWriteIni : Boolean = False;
+procedure TPersistableSettings.AddToRootOwnerSettings(const _section : string = ''; const _bForceWriteIni : Boolean = False;
 const _bClearSection : Boolean = False);
 var
-	dbgArr : TArray<TArray<string>>;
+	rootOwner : TPersistableSettings;
+begin
+
+	rootOwner := FOwner; //GetRootOwner();
+
+	if Assigned(rootOwner) then begin
+		rootOwner.CopySettingsDictSection(self, True, True);
+		rootOwner.StoreDictToPersister(IfThen(_bForceWriteIni, _section), _bClearSection);
+	end;
+end;
+
+class procedure TPersistableSettings.CallUpdateFileOnFactory(const _factory : IPersisterFactory; const _dict : TSettingsDictionary);
+var
+	fh : IFileHandler;
 begin
 	if Assigned(FOwner) { and (_section = '') } then begin
 		FOwner.CopySettingsDictSection(self, True);
