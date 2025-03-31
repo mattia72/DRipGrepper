@@ -1,7 +1,7 @@
 <!--
 
-Version:     v4.5.0-beta
-PrevVersion: v4.4.0-beta
+Version:     v4.5.1-beta
+PrevVersion: v4.5.0-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -17,9 +17,6 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 
 ## :boom: Improvements 
 Marked with a checkmark if ready; otherwise, it is planned.
-- [x] settings refactored, now other persister can be added eg. json
-> [!IMPORTANT]
-> Breaking change: OpenWithSettings Command_x replaced by Item_x in the ini file.
 - [ ] search for file names eg. `rg.exe -g='*pattern*' --files <DIR>`
 - [x] copy to clipboard for running in PowerShell or command prompt
   - [x] PS needs & prefix and rg path and search text surrounded by ''
@@ -33,6 +30,7 @@ Marked with a checkmark if ready; otherwise, it is planned.
 
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.
+- [ ] The ripgreppath value is incorrectly updated to the last used search path after performing a search operation
 - [ ] replace doesn't work properly if history changed ( I clouldn't reproduce it yet )
 - [x] replace doesn't work properly if there are more text to replace in same line 
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
