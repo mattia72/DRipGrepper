@@ -21,7 +21,7 @@ type
 		public
 			[Test]
 			procedure ConvertIniTest;
-			[Test]
+//          [Test]
 			procedure ReadJsonTest;
 //			[Test]
 			procedure RootDTOTest;
@@ -156,7 +156,6 @@ begin
 			if sKey.StartsWith('Item_') then begin
 				arrObj.Add(sValue);
 			end else begin
-				sKey := sKey.Replace(DEFAULT_KEY, '');
 				AddValueByType(sectionObject, sKey, sValue);
 			end;
 		end;

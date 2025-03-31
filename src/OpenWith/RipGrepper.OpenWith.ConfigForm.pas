@@ -24,12 +24,13 @@ uses
 	SVGIconImageListBase,
 	SVGIconImageList,
 	RipGrepper.Helper.UI.DarkMode,
-	RipGrepper.Tools.FileUtils;
+	RipGrepper.Tools.FileUtils,
+	ArrayEx;
 
 type
 	TCheckBoxState = (csbNone, csbTrue, csbFalse);
 
-	TOpenWithConfigForm = class(TSettingsBaseForm)
+	TOpenWithConfigForm = class(TSettingsBaseForm, ISettingsForm)
 
 		var
 			ActionListConfig : TActionList;
@@ -85,9 +86,9 @@ type
 			{ Public-Deklarationen }
 			constructor Create(AOwner : TComponent; const _settings : TOpenWithSettings; const _colorTheme : string); reintroduce;
 			destructor Destroy; override;
-			class procedure CreateAndShow(const _settings : TOpenWithSettings; const _colorTheme : string);
+			class procedure CreateAndShow(_owner : TComponent; const _settings : TOpenWithSettings; const _colorTheme : string);
 			procedure ReadSettings; override;
-			procedure WriteSettings; override;
+			procedure WriteSettings(); override;
 
 	end;
 
@@ -105,7 +106,9 @@ uses
 	RipGrepper.Helper.UI,
 	System.RegularExpressions,
 	RipGrepper.OpenWith.CmdEditorForm,
-	ArrayEx;
+	RipGrepper.Settings.SettingsDictionary,
+	RipGrepper.Settings.SettingVariant,
+	RipGrepper.Common.Constants;
 
 const
 	IDX_DESCRIPTION = 1;
@@ -116,12 +119,10 @@ const
 constructor TOpenWithConfigForm.Create(AOwner : TComponent; const _settings : TOpenWithSettings; const _colorTheme : string);
 begin
 	inherited Create(AOwner, _settings, _colorTheme);
-	FOpenWithSettings := _settings;
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
-
 	lvCommands.MultiSelect := True; // we need this for working SelCount
-
-	FOpenWithSettings.ReadIni; // we should read ini every time, it can be overwritten by another instance...
+	FOpenWithSettings := _settings;
+	FOpenWithSettings.ReadFile; // we should read ini every time, it can be overwritten by another instance...
 	ReadSettings;
 	FColorTheme := _colorTheme;
 	ThemeHandler.Init(_colorTheme);
@@ -144,8 +145,8 @@ begin
 	if Assigned(li) then begin
 		ci.Caption := li.Caption;
 		arrEx := li.SubItems.ToStringArray;
-		ci.CommandLine := TCommandLineRec.ParseCommand(arrEx.SafeItemAt[0]);
-		ci.Description := arrEx.SafeItemAt[1];
+		ci.CommandLine := TCommandLineRec.ParseCommand(arrEx.SafeItem[0]);
+		ci.Description := arrEx.SafeItem[1];
 	end;
 	ci := TOpenWithCommandEditor.CreateAndShow(self, ci, FColorTheme);
 	AddOrSetCommandItem(ci);
@@ -253,12 +254,12 @@ begin
 	end;
 end;
 
-class procedure TOpenWithConfigForm.CreateAndShow(const _settings : TOpenWithSettings; const _colorTheme : string);
+class procedure TOpenWithConfigForm.CreateAndShow(_owner : TComponent; const _settings : TOpenWithSettings; const _colorTheme : string);
 begin
 	// write ini file content
-	_settings.UpdateIniFile;
+	_settings.UpdateFile;
 	var
-	form := TOpenWithConfigForm.Create(nil, _settings, _colorTheme);
+	form := TOpenWithConfigForm.Create(_owner, _settings, _colorTheme);
 	try
 		form.ShowModal;
 	finally
@@ -283,7 +284,6 @@ var
 	listCmdsFromSettings : TStringList;
 	i : integer;
 begin
-	inherited ReadSettings;
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithConfigForm.ReadSettings');
 
@@ -319,16 +319,16 @@ begin
 	end;
 end;
 
-procedure TOpenWithConfigForm.WriteSettings;
+procedure TOpenWithConfigForm.WriteSettings();
 var
 	item : TListItem;
 	settings : string;
 	sCmd : string;
+	cmds : TArrayEx<string>;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithConfigForm.WriteSettings');
 	settings := '';
-	FOpenWithSettings.ClearCommandList; // so deleted entries will be recognized
 	for var i := 0 to lvCommands.Items.Count - 1 do begin
 		item := lvCommands.Items[i];
 		sCmd := item.Subitems[IDX_COMMAND_LINE].Replace(SEPARATOR, '', [rfReplaceAll]);
@@ -338,12 +338,18 @@ begin
 			{ } item.Caption, // caption
 			{ } sCmd, // command line
 			{ } item.SubItems[IDX_DESCRIPTION]]); // descr
-		FOpenWithSettings.Command[i] := settings;
+
+		cmds.Add(settings);
+
 		dbgMsg.Msg(Format('%s', [FOpenWithSettings.Command[i]]));
 	end;
 
-	// inherited WriteSettings; it's not eonugh
-	FOpenWithSettings.ForceWriteToIni; // save always
+	FOpenWithSettings.RecreateCommandList(cmds);
+
+	if Assigned(Owner) and (Owner.Name = 'OpenWithCmdList') then begin
+		FSettings.StoreToPersister;
+		FOpenWithSettings.ForceUpdateFile; // save always
+	end;
 end;
 
 procedure TOpenWithConfigForm.lvCommandsDblClick(Sender : TObject);
@@ -356,8 +362,8 @@ begin
 	item := lvCommands.Items[lvCommands.ItemIndex];
 	ci.Caption := item.Caption;
 	arrEx := item.SubItems.ToStringArray;
-	ci.CommandLine := TCommandLineRec.ParseCommand(arrEx.SafeItemAt[0]);
-	ci.Description := arrEx.SafeItemAt[1];
+	ci.CommandLine := TCommandLineRec.ParseCommand(arrEx.SafeItem[0]);
+	ci.Description := arrEx.SafeItem[1];
 	ci := TOpenWithCommandEditor.CreateAndShow(self, ci, FColorTheme);
 	AddOrSetCommandItem(ci, item);
 	TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.lvCommandsDblClick SelectCount %d', [lvCommands.SelCount])));

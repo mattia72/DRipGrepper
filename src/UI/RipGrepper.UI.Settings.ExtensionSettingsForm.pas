@@ -50,7 +50,7 @@ type
 
 		private const
 			EXTENSION_NAME_DLL_NOT_FOUND = EXTENSION_NAME_DLL + ' not found!';
-			REGISTERED_DLL_NOT_FOUND = 'No registered '+ EXTENSION_NAME_DLL + ' found!';
+			REGISTERED_DLL_NOT_FOUND = 'No registered ' + EXTENSION_NAME_DLL + ' found!';
 			UNINSTALL_CAPTION = 'Uninstall...';
 			INSTALL_CAPTTION = 'Install...';
 
@@ -69,11 +69,12 @@ type
 			property EditedDllPath : string read FEditedDllPath write SetEditedDllPath;
 
 		protected
+			procedure OnSettingsUpdated(); override;
 			procedure ReadSettings; override;
 			procedure WriteSettings; override;
 
 		public
-			constructor Create(_Owner : TComponent; _settings : TRipGrepperExtensionSettings);
+			constructor Create(_Owner : TComponent; _settings : TRipGrepperSettings);
 			destructor Destroy; override;
 	end;
 
@@ -96,15 +97,15 @@ uses
 
 {$R *.dfm}
 
-constructor TExtensionSettingsForm.Create(_Owner : TComponent; _settings : TRipGrepperExtensionSettings);
+constructor TExtensionSettingsForm.Create(_Owner : TComponent; _settings : TRipGrepperSettings);
 begin
 	inherited Create(_Owner, _settings);
 	Caption := 'Extension';
-	FExtensionSettings := _settings;
+	FExtensionSettings := (FSettings as TRipGrepperSettings).SearchFormSettings.ExtensionSettings;
 	FDelphiVersions := TDelphiVersions.Create;
 
 	// UpdateRegisteredDllPath;
-	{$IFNDEF STANDALONE}
+	{$IF GUITEST OR NOT DEFINED(STANDALONE)}
 	ReadSettings;
 	{$ENDIF}
 end;
@@ -161,7 +162,7 @@ var
 	versions : TStrings;
 	dv : IDelphiVersion;
 begin
-	{$IFDEF STANDALONE}
+	{$IF NOT GUITEST AND DEFINED(STANDALONE)}
 	grpShortcuts.Visible := False;
 	grpInstallation.Top := grpShortcuts.Top;
 	{$ENDIF}
@@ -222,13 +223,21 @@ begin
 		Result := idv;
 end;
 
+procedure TExtensionSettingsForm.OnSettingsUpdated();
+begin
+	// here you can update things depending on changed settings
+	{$IFNDEF STANDALONE}
+	TDripExtensionMenu.CreateMenu(EXTENSION_MENU_ROOT_TEXT, FExtensionSettings);
+	{$ENDIF}
+end;
+
 procedure TExtensionSettingsForm.ReadSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TExtensionSettingsForm.ReadSettings');
-	FExtensionSettings.ReadIni;
+
 	FExtensionSettings.LoadFromDict;
-	{$IFNDEF STANDALONE}
+	{$IF GUITEST OR NOT DEFINED(STANDALONE)}
 	hkedtOpenWidth.HotKey := TextToShortCut(FExtensionSettings.OpenWithShortcut);
 	hkedtSearchSelected.HotKey := TextToShortCut(FExtensionSettings.SearchSelectedShortcut);
 	{$ENDIF}
@@ -283,23 +292,19 @@ end;
 procedure TExtensionSettingsForm.UpdateRegisteredDllPath;
 begin
 	var
-	dv : IDelphiVersion := GetSelectedDelphiVersion;
+		dv : IDelphiVersion := GetSelectedDelphiVersion;
 	FRegisteredDllPath := GetRegisteredExpertPath(dv);
 	EditedDllPath := FRegisteredDllPath;
 end;
 
 procedure TExtensionSettingsForm.WriteSettings;
 begin
-	{$IFNDEF STANDALONE}
+	{$IF GUITEST OR NOT DEFINED(STANDALONE)}
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TExtensionSettingsForm.WriteSettings');
 
 	FExtensionSettings.OpenWithShortcut := ShortCutToText(hkedtOpenWidth.HotKey);
 	FExtensionSettings.SearchSelectedShortcut := ShortCutToText(hkedtSearchSelected.HotKey);
-
-	// FExtensionSettings.
-	inherited WriteSettings;
-	TDripExtensionMenu.CreateMenu(EXTENSION_MENU_ROOT_TEXT, FExtensionSettings);
 	{$ENDIF}
 end;
 

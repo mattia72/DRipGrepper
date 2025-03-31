@@ -15,6 +15,9 @@
         <Projects Include="Extension\src\Project\Dll.Delphi12\DRipExtensions.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="..\spring4d\Tests\Spring.Tests.Delphi12.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -59,14 +62,23 @@
     <Target Name="DRipExtensions:Make">
         <MSBuild Projects="Extension\src\Project\Dll.Delphi12\DRipExtensions.dproj" Targets="Make"/>
     </Target>
+    <Target Name="Spring_Tests_Delphi12">
+        <MSBuild Projects="..\spring4d\Tests\Spring.Tests.Delphi12.dproj"/>
+    </Target>
+    <Target Name="Spring_Tests_Delphi12:Clean">
+        <MSBuild Projects="..\spring4d\Tests\Spring.Tests.Delphi12.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Spring_Tests_Delphi12:Make">
+        <MSBuild Projects="..\spring4d\Tests\Spring.Tests.Delphi12.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="DRipGrepper;DRipGrepperUnittest_D12;DRipExtension;DRipExtensions"/>
+        <CallTarget Targets="DRipGrepper;DRipGrepperUnittest_D12;DRipExtension;DRipExtensions;Spring_Tests_Delphi12"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="DRipGrepper:Clean;DRipGrepperUnittest_D12:Clean;DRipExtension:Clean;DRipExtensions:Clean"/>
+        <CallTarget Targets="DRipGrepper:Clean;DRipGrepperUnittest_D12:Clean;DRipExtension:Clean;DRipExtensions:Clean;Spring_Tests_Delphi12:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="DRipGrepper:Make;DRipGrepperUnittest_D12:Make;DRipExtension:Make;DRipExtensions:Make"/>
+        <CallTarget Targets="DRipGrepper:Make;DRipGrepperUnittest_D12:Make;DRipExtension:Make;DRipExtensions:Make;Spring_Tests_Delphi12:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

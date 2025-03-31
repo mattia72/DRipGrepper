@@ -188,7 +188,7 @@ begin
 		{ } (EGuiOption.soMatchWord in so)) then begin
 		s := stwo.EscapedSearchText;
 	end else begin
-		s := stwo.SearchText;
+		s := stwo.SearchTextAsRgParam;
 	end;
 
 	pattern := '(?<before>^.*)(?<text>' + s + ')(?<after>.*$)';

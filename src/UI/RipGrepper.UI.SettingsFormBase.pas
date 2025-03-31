@@ -16,6 +16,7 @@ type
 		procedure OnOk;
 		procedure ReadSettings;
 		procedure WriteSettings;
+		procedure OnSettingsUpdated;
 
 	end;
 
@@ -30,12 +31,13 @@ type
 			FSettings : TPersistableSettings;
 			procedure OnCancel; virtual;
 			procedure OnOk; virtual;
-			procedure ReadSettings; virtual;
-			procedure WriteSettings; virtual;
+			/// here you can transform persisted settings to your needs
+			procedure ReadSettings(); virtual; abstract;
+			procedure WriteSettings(); virtual; abstract;
+			procedure OnSettingsUpdated(); virtual;
 
 		public
-			constructor Create(_Owner : TComponent; _settings : TPersistableSettings;
-				_themeName : string = ''); reintroduce;
+			constructor Create(_Owner : TComponent; _settings : TPersistableSettings; _themeName : string = ''); reintroduce;
 			destructor Destroy; override;
 	end;
 
@@ -43,14 +45,15 @@ implementation
 
 uses
 	Vcl.Controls,
-	RipGrepper.Tools.DebugUtils, RipGrepper.Settings.RipGrepperSettings;
+	RipGrepper.Tools.DebugUtils,
+	RipGrepper.Settings.RipGrepperSettings;
 
 constructor TSettingsBaseForm.Create(_Owner : TComponent; _settings : TPersistableSettings; _themeName : string = '');
 begin
 	inherited Create(_Owner);
 	FSettings := _settings;
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
-    ThemeHandler.Init(_themeName);
+	ThemeHandler.Init(_themeName);
 end;
 
 destructor TSettingsBaseForm.Destroy;
@@ -78,17 +81,9 @@ begin
 	ModalResult := mrOk;
 end;
 
-procedure TSettingsBaseForm.ReadSettings;
+procedure TSettingsBaseForm.OnSettingsUpdated();
 begin
-	//
-end;
-
-procedure TSettingsBaseForm.WriteSettings;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TSettingsBaseForm.WriteSettings');
-	FSettings.StoreToDict;
-	FSettings.UpdateIniFile; // save
+    // here you can update things depending on changed settings
 end;
 
 end.

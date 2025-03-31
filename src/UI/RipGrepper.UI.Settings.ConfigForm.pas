@@ -26,7 +26,8 @@ uses
 	RipGrepper.Settings.ExtensionSettings,
 	RipGrepper.UI.Settings.ExtensionSettingsForm,
 	RipGrepper.UI.Settings.ColorSettingsForm,
-	RipGrepper.Helper.UI.DarkMode;
+	RipGrepper.Helper.UI.DarkMode,
+	Spring.Collections;
 
 type
 	TConfigForm = class(TForm)
@@ -50,10 +51,12 @@ type
 			FExtensionSettingsForm : TExtensionSettingsForm;
 			FOpenWithConfigForm : TOpenWithConfigForm;
 			FSettings : TRipGrepperSettings;
-			FSettingsForms : TObjectList<TForm>;
+			FSettingsForms : IList<TForm>;
 			FThemeHandler : TThemeHandler;
-			FThemeName: string;
+			FThemeName : string;
 			procedure AddSettingTabs;
+			procedure CallFormsOnOk();
+			procedure CallFormsOnSettingsUpdated();
 			function GetThemeHandler : TThemeHandler;
 			property ThemeHandler : TThemeHandler read GetThemeHandler;
 
@@ -86,13 +89,13 @@ begin
 		FAppSettingsForm := TAppSettingsForm.Create(nil, Settings);
 		FColorSettingsForm := TColorSettingsForm.Create(nil, Settings.FontColorSettings);
 
-//      FExtensionSettings := TRipGrepperExtensionSettings.Create(Settings);
+		// FExtensionSettings := TRipGrepperExtensionSettings.Create(Settings);
 		FExtensionSettings := Settings.SearchFormSettings.ExtensionSettings;
-		FExtensionSettings.ReadIni;
+		FExtensionSettings.ReadFile;
 		FExtensionSettings.LoadFromDict;
-		FExtensionSettingsForm := TExtensionSettingsForm.Create(nil, FExtensionSettings);
+		FExtensionSettingsForm := TExtensionSettingsForm.Create(nil, Settings);
 
-		FSettingsForms := TObjectList<TForm>.Create();
+		FSettingsForms := TCollections.CreateList<TForm>();
 		FSettingsForms.AddRange([
 			{ } FAppSettingsForm,
 			{ } FColorSettingsForm,
@@ -102,7 +105,7 @@ begin
 		Screen.Cursor := crDefault;
 	end;
 
-    ThemeHandler.Init(Settings.AppSettings.ColorTheme);
+	ThemeHandler.Init(Settings.AppSettings.ColorTheme);
 end;
 
 procedure TConfigForm.FormCreate(Sender : TObject);
@@ -112,27 +115,39 @@ end;
 
 destructor TConfigForm.Destroy;
 begin
-//  FExtensionSettings.Free;
-	FSettingsForms.Free;
 	Settings.ReLoadFromDisk;
 	inherited;
 end;
 
 procedure TConfigForm.ActionCancelExecute(Sender : TObject);
+var
+	iif : ISettingsForm;
 begin
-	for var f in FSettingsForms do begin
-		(f as ISettingsForm).OnCancel();
-	end;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TConfigForm.ActionCancelExecute');
 
-	FOpenWithConfigForm.ActionCancelExecute(Sender);
+	for var f in FSettingsForms do begin
+		if Supports(f, ISettingsForm, iif) then begin
+			iif.OnCancel();
+		end else begin
+			dbgMsg.ErrorMsg(f.Caption + ' not a SettingsForm');
+			raise Exception.Create(f.Caption + ' not a SettingsForm');
+		end;
+	end;
 	ModalResult := mrCancel;
 end;
 
 procedure TConfigForm.ActionOkExecute(Sender : TObject);
 begin
-	for var f in FSettingsForms do begin
-		(f as ISettingsForm).OnOk();
-	end;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TConfigForm.ActionOkExecute');
+
+	CallFormsOnOk;
+
+	FSettings.StoreToPersister();
+	FSettings.UpdateFile();
+
+	CallFormsOnSettingsUpdated();
 
 	ModalResult := mrOk;
 end;
@@ -167,6 +182,38 @@ begin
 		PageControl1.TabIndex := 0;
 	finally
 		Screen.Cursor := crDefault;
+	end;
+end;
+
+procedure TConfigForm.CallFormsOnOk();
+var
+	iif : ISettingsForm;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TConfigForm.CallFormsOnOk');
+	for var f in FSettingsForms do begin
+		if Supports(f, ISettingsForm, iif) then begin
+			iif.OnOk();
+		end else begin
+			dbgMsg.ErrorMsg(f.Caption + ' not a SettingsForm');
+			raise Exception.Create(f.Caption + ' not a SettingsForm');
+		end;
+	end;
+end;
+
+procedure TConfigForm.CallFormsOnSettingsUpdated();
+var
+	iif : ISettingsForm;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TConfigForm.CallFormsOnSettingsUpdated');
+	for var f in FSettingsForms do begin
+		if Supports(f, ISettingsForm, iif) then begin
+			iif.OnSettingsUpdated();
+		end else begin
+			dbgMsg.ErrorMsg(f.Caption + ' not a SettingsForm');
+			raise Exception.Create(f.Caption + ' not a SettingsForm');
+		end;
 	end;
 end;
 

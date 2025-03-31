@@ -9,12 +9,12 @@ uses
 	DUnitX.TestFramework,
 	System.Classes,
 	RipGrepper.Settings.TestOwnerSettings,
-	RipGrepper.Helper.MemIniFile;
+	RipGrepper.Helper.MemIniFile,
+	Spring;
 
 const
 	NOTEXISTS = '<not exists>';
 	SC_OPEN_WITH = 'SHIFT + F2';
-	ACT_HIST_VAL = 'hist 2';
 
 type
 
@@ -24,16 +24,13 @@ type
 			INIFILE = 'DripGrepperUnittest.ini';
 
 		private
-			FIniFile : TMemIniFile;
 			FOwner : TTestOwnerSettings;
-			// FIniFile : TMemIniFile;
+			FIniFile : IShared<TMemIniFile>;
 			FSettings : TNodeLookSettings;
 			procedure CheckNodeSettingsDict(const _id : string);
 			procedure SetTestDefaultAndActualValues;
 
 		public
-			constructor Create;
-			destructor Destroy; override;
 			[Setup]
 			procedure Setup;
 			[TearDown]
@@ -57,25 +54,16 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Settings.ExtensionSettings,
 	RipGrepper.Tools.FileUtils,
-	RipGrepper.Settings.Persistable;
-
-constructor TNodeLookSettingsTest.Create;
-begin
-	inherited;
-	// FIniFile := TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8);
-end;
-
-destructor TNodeLookSettingsTest.Destroy;
-begin
-	inherited;
-	// FIniFile.Free;
-end;
+	RipGrepper.Settings.Persistable,
+	RipGrepper.Settings.FilePersister,
+	RipGrepper.Settings.SettingVariant, 
+	RipGrepper.Settings.SettingsDictionary;
 
 procedure TNodeLookSettingsTest.CheckNodeSettingsDict(const _id : string);
 begin
 	for var s in VIEW_SETTINGS_TYPES do begin
 		var
-			b : Boolean := FSettings.SettingsDict['NodeLookSettings|' + s].Value;
+			b : Boolean := FSettings.SettingsDict()['NodeLookSettings'][s].AsBool;
 		Assert.IsTrue(b, _id + ' NodeLookSettings|' + s + ' should be true');
 	end;
 end;
@@ -87,14 +75,16 @@ begin
 	FSettings.IndentLines := True;
 	FSettings.ShowRelativePath := True;
 	FSettings.ExpandNodes := True;
-
-	FSettings.StoreToDict;
 end;
 
 procedure TNodeLookSettingsTest.Setup;
 begin
+	FIniFile := Shared.Make<TMemIniFile>(
+		{ } TMemIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'), TEncoding.UTF8));
+
 	FOwner := TTestOwnerSettings.Create();
-	FIniFile := FOwner.IniFile();
+	FOwner.PersisterFactory := TIniPersister.Create(FIniFile);
+
 	FSettings := TNodeLookSettings.Create(FOwner);
 end;
 
@@ -114,29 +104,30 @@ begin
 
 	// TRipGrepperSettings.StoreViewSettings tested here
 
-	{ 1 } FSettings.StoreViewSettingToDict();
-
 	CheckNodeSettingsDict('after storeview');
-	{ 2 } FSettings.UpdateIniFile(FSettings.IniSectionName); // create temp ini
+	{ 2 } FSettings.UpdateFile(True); // create temp ini
 	CheckNodeSettingsDict('after updateini');
 
-	{ 3 } FSettings.WriteSettingsDictToIni(EWriteSettingsMode.wsmActual, FSettings.IniSectionName);
+//  { 3 } FSettings.StoreDictToPersister();
 
 	// Assert.IsTrue(not DirectoryExists(FSettings.IniFile.GetDripGrepperIniTempDir), ' temp dir should not exists');
 
-	iniVal := FSettings.IniFile.ReadString(FSettings.IniSectionName, 'AlternateRowColors', 'False');
+	var
+	fact := FSettings.PersisterFactory;
+
+	fact.GetStringPersister(FSettings.IniSectionName, 'AlternateRowColors').TryLoadValue(iniVal);
 	settingVal := FSettings.AlternateRowColors;
 	Assert.AreEqual(settingVal, iniVal = '1', 'AlternateRowColors should be equal');
 
-	iniVal := FSettings.IniFile.ReadString(FSettings.IniSectionName, 'IndentLines', 'False');
+	fact.GetStringPersister(FSettings.IniSectionName, 'IndentLines').TryLoadValue(iniVal);
 	settingVal := FSettings.IndentLines;
 	Assert.AreEqual(settingVal, iniVal = '1', 'IndentLines should be equal');
 
-	iniVal := FSettings.IniFile.ReadString(FSettings.IniSectionName, 'ShowRelativePath', 'False');
+	fact.GetStringPersister(FSettings.IniSectionName, 'ShowRelativePath').TryLoadValue(iniVal);
 	settingVal := FSettings.ShowRelativePath;
 	Assert.AreEqual(settingVal, iniVal = '1', 'ShowRelativePath should be equal');
 
-	iniVal := FSettings.IniFile.ReadString(FSettings.IniSectionName, 'ExpandNodes', 'False');
+	fact.GetStringPersister(FSettings.IniSectionName, 'ExpandNodes').TryLoadValue(iniVal);
 	settingVal := FSettings.ExpandNodes;
 	Assert.AreEqual(settingVal, iniVal = '1', 'ExpandNodes should be equal');
 
@@ -147,22 +138,25 @@ end;
 procedure TNodeLookSettingsTest.UpdateIniTest;
 begin
 	SetTestDefaultAndActualValues;
-	FSettings.UpdateIniFile();
-	FSettings.ReadIni;
+	FSettings.UpdateFile();
+	FSettings.ReadFile;
 	for var s in VIEW_SETTINGS_TYPES do begin
 		var
-		b := FSettings.SettingsDict['NodeLookSettings|' + s].Value;
+		b := FSettings.SettingsDict()['NodeLookSettings'][s].AsBool;
 		Assert.IsTrue(b, 'NodeLookSettings|' + s + ' should be true');
 	end;
 end;
 
 procedure TNodeLookSettingsTest.SetViewSettingsToDictTest;
+// var
+// arr : TArray<TArray<string>>;
 begin
 	SetTestDefaultAndActualValues;
+	var sectionDict := FSettings.SettingsDict()['NodeLookSettings'];
+    //arr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 	for var s in VIEW_SETTINGS_TYPES do begin
-		FSettings.StoreViewSettingToDict(s);
 		var
-		b := FSettings.SettingsDict['NodeLookSettings|' + s].Value;
+		b := sectionDict[s].AsBool;
 		Assert.IsTrue(b, 'NodeLookSettings|' + s + ' should be true');
 	end;
 end;

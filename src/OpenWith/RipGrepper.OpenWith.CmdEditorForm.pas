@@ -21,7 +21,7 @@ uses
 	System.Actions,
 	Vcl.ActnList,
 	RipGrepper.Tools.FileUtils,
-	RipGrepper.Helper.UI.DarkMode, 
+	RipGrepper.Helper.UI.DarkMode,
 	Vcl.ComCtrls;
 
 type
@@ -47,7 +47,7 @@ type
 		GroupBox2 : TGroupBox;
 		Label3 : TLabel;
 		edtParameters : TEdit;
-    RichEdit1: TRichEdit;
+		RichEdit1 : TRichEdit;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionOkExecute(Sender : TObject);
 		procedure ActionOpenFileDialogExecute(Sender : TObject);
@@ -62,8 +62,7 @@ type
 		public
 			constructor Create(AOwner : TComponent; const _themeName : string); reintroduce;
 			class function CheckCommand(const _sCmd : string) : Boolean;
-			class function CreateAndShow(_Owner : TComponent; const ci : TCommandItem;
-				const _themeName : string): TCommandItem;
+			class function CreateAndShow(_Owner : TComponent; const ci : TCommandItem; const _themeName : string) : TCommandItem;
 			property CommandItem : TCommandItem read FCommandItem write FCommandItem;
 
 	end;

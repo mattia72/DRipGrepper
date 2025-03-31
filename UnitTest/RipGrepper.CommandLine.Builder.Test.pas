@@ -20,7 +20,7 @@ type
 
 		private
 			FGuiParams : IShared<TGuiSearchTextParams>;
-			FIniFile : TMemIniFile;
+//          FIniFile : TMemIniFile;
 			FParams : TRipGrepParameterSettings;
 			FOwner : TPersistableSettings;
 
@@ -69,8 +69,8 @@ uses
 
 procedure TCommandLineBuilderTest.Setup;
 begin
-	FOwner := TTestOwnerSettings.Create();
-	FIniFile := FOwner.IniFile();
+	FOwner := TTestOwnerSettings.Create(OWNER_INI_SECTION);
+//  FIniFile := FOwner.PersisterFactory;
 	FParams := TRipGrepParameterSettings.Create(FOwner);
 	FGuiParams := Shared.Make<TGuiSearchTextParams>(TGuiSearchTextParams.Create(''));
 end;

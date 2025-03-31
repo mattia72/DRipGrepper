@@ -6,7 +6,8 @@ uses
 	RipGrepper.Settings.Persistable,
 	System.IniFiles,
 	RipGrepper.Settings.NodeLook.FilterSettings,
-	System.Generics.Collections;
+	System.Generics.Collections,
+	RipGrepper.Settings.SettingVariant;
 
 const
 	VIEW_SETTINGS_TYPES : TArray<string> = [
@@ -23,25 +24,37 @@ type
 			INI_SECTION = 'NodeLookSettings';
 
 		private
+			FAlternateRowColors : IBoolSetting;
+			FExpandNodes : IBoolSetting;
 			FFilterSettings : TFilterSettings;
+			FIndentLines : IBoolSetting;
+			FShowFileIcon : IBoolSetting;
+			FShowRelativePath : IBoolSetting;
+			function GetAlternateRowColors() : Boolean;
+			function GetExpandNodes() : Boolean;
+			function GetIndentLines() : Boolean;
+			function GetShowFileIcon() : Boolean;
+			function GetShowRelativePath() : Boolean;
+			procedure SetAlternateRowColors(const Value : Boolean);
+			procedure SetExpandNodes(const Value : Boolean);
 			procedure SetFilterSettings(const Value : TFilterSettings);
+			procedure SetIndentLines(const Value : Boolean);
+			procedure SetShowFileIcon(const Value : Boolean);
+			procedure SetShowRelativePath(const Value : Boolean);
 
 		public
-			AlternateRowColors : Boolean;
-			IndentLines : Boolean;
-			ShowFileIcon : Boolean;
-			ShowRelativePath : Boolean;
-			ExpandNodes : Boolean;
-			procedure StoreViewSettingToDict(const _s : string = '');
 			constructor Create(const _Owner : TPersistableSettings); overload;
 			destructor Destroy; override;
 			function GetIsModified : Boolean; override;
 			procedure Init; override;
 			procedure LoadFromDict(); override;
-			procedure LoadDefaultsFromDict; override;
-			procedure ReadIni; override;
-			procedure StoreToDict; override;
+			procedure ReadFile(); override;
+			property AlternateRowColors : Boolean read GetAlternateRowColors write SetAlternateRowColors;
+			property ExpandNodes : Boolean read GetExpandNodes write SetExpandNodes;
 			property FilterSettings : TFilterSettings read FFilterSettings write SetFilterSettings;
+			property IndentLines : Boolean read GetIndentLines write SetIndentLines;
+			property ShowFileIcon : Boolean read GetShowFileIcon write SetShowFileIcon;
+			property ShowRelativePath : Boolean read GetShowRelativePath write SetShowRelativePath;
 	end;
 
 implementation
@@ -57,7 +70,7 @@ begin
 	IniSectionName := INI_SECTION;
 	FFilterSettings := TFilterSettings.Create(_Owner);
 	inherited;
-	TDebugUtils.DebugMessage('TNodeLookSettings.Create: ' + IniFile.FileName + '[' + GetIniSectionName + ']');
+	TDebugUtils.DebugMessage('TNodeLookSettings.Create: ' + '[' + GetIniSectionName + ']');
 end;
 
 destructor TNodeLookSettings.Destroy;
@@ -66,41 +79,74 @@ begin
 	inherited Destroy(); // ok;
 end;
 
+function TNodeLookSettings.GetAlternateRowColors() : Boolean;
+begin
+	Result := FAlternateRowColors.Value;
+end;
+
+function TNodeLookSettings.GetExpandNodes() : Boolean;
+begin
+	Result := FExpandNodes.Value;
+end;
+
+function TNodeLookSettings.GetIndentLines() : Boolean;
+begin
+	Result := FIndentLines.Value;
+end;
+
 function TNodeLookSettings.GetIsModified : Boolean;
 begin
 	Result := FIsModified or
 	{ } FFilterSettings.IsModified;
 end;
 
+function TNodeLookSettings.GetShowFileIcon() : Boolean;
+begin
+	Result := FShowFileIcon.Value;
+end;
+
+function TNodeLookSettings.GetShowRelativePath() : Boolean;
+begin
+	Result := FShowRelativePath.Value;
+end;
+
 procedure TNodeLookSettings.Init;
 begin
-	SettingsDict.CreateSetting('ShowRelativePath', varBoolean, False);
-	SettingsDict.CreateSetting('ShowFileIcon', varBoolean, False);
-	SettingsDict.CreateSetting('AlternateRowColors', varBoolean, False);
-	SettingsDict.CreateSetting('IndentLines', varBoolean, False);
-	SettingsDict.CreateSetting('ExpandNodes', varBoolean, True);
+	var
+	ssb : TSettingStoreBehaviours := [ssbStoreIfModified,ssbStoreAfterChangeImmediately];
+	FShowRelativePath := TBoolSetting.Create(False, ssInitialized, ssb);
+	FAlternateRowColors := TBoolSetting.Create(False, ssInitialized, ssb);
+	FExpandNodes := TBoolSetting.Create(False, ssInitialized, ssb);
+	FIndentLines := TBoolSetting.Create(False, ssInitialized, ssb);
+	FShowFileIcon := TBoolSetting.Create(False, ssInitialized, ssb);
+
+	CreateSetting('ShowRelativePath', FShowRelativePath);
+	CreateSetting('ShowFileIcon', FShowFileIcon);
+	CreateSetting('AlternateRowColors', FAlternateRowColors);
+	CreateSetting('IndentLines', FIndentLines);
+	CreateSetting('ExpandNodes', FExpandNodes);
 	FFilterSettings.Init();
 end;
 
 procedure TNodeLookSettings.LoadFromDict;
 begin
-	ShowRelativePath := SettingsDict.GetSetting('ShowRelativePath');
-	ShowFileIcon := SettingsDict.GetSetting('ShowFileIcon');
-	AlternateRowColors := SettingsDict.GetSetting('AlternateRowColors');
-	IndentLines := SettingsDict.GetSetting('IndentLines');
-	ExpandNodes := SettingsDict.GetSetting('ExpandNodes');
 	FilterSettings.LoadFromDict();
 end;
 
-procedure TNodeLookSettings.LoadDefaultsFromDict;
+procedure TNodeLookSettings.ReadFile();
 begin
-	// abstract
+	FilterSettings.ReadFile;
+	inherited ReadFile();
 end;
 
-procedure TNodeLookSettings.ReadIni;
+procedure TNodeLookSettings.SetAlternateRowColors(const Value : Boolean);
 begin
-	FilterSettings.ReadIni;
-	inherited ReadIni();
+	FAlternateRowColors.Value := Value;
+end;
+
+procedure TNodeLookSettings.SetExpandNodes(const Value : Boolean);
+begin
+	FExpandNodes.Value := Value;
 end;
 
 procedure TNodeLookSettings.SetFilterSettings(const Value : TFilterSettings);
@@ -108,40 +154,19 @@ begin
 	FFilterSettings := Value;
 end;
 
-procedure TNodeLookSettings.StoreToDict;
+procedure TNodeLookSettings.SetIndentLines(const Value : Boolean);
 begin
-	StoreViewSettingToDict();
-	inherited StoreToDict();
+	FIndentLines.Value := Value;
 end;
 
-procedure TNodeLookSettings.StoreViewSettingToDict(const _s : string = '');
-const
-	FILTER_SETTINGS = 'FilterSettings';
-var
-	i : integer;
+procedure TNodeLookSettings.SetShowFileIcon(const Value : Boolean);
 begin
-	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.StoreViewSettingToDict: ' + _s);
-	i := 0;
-	if _s.IsEmpty then begin
-		// StoreToDict all
-		var
-		allSettingTypes := VIEW_SETTINGS_TYPES + [FILTER_SETTINGS];
-		for i := 0 to high(allSettingTypes) do begin
-			StoreViewSettingToDict(allSettingTypes[i]);
-		end;
-	end else if MatchStr(_s, VIEW_SETTINGS_TYPES[i]) then begin
-		SettingsDict.SetSettingValue(VIEW_SETTINGS_TYPES[i], ShowRelativePath);
-	end else if MatchStr(_s, VIEW_SETTINGS_TYPES[PreInc(i)]) then begin
-		SettingsDict.SetSettingValue(VIEW_SETTINGS_TYPES[i], ShowFileIcon);
-	end else if MatchStr(_s, VIEW_SETTINGS_TYPES[PreInc(i)]) then begin
-		SettingsDict.SetSettingValue(VIEW_SETTINGS_TYPES[i], AlternateRowColors);
-	end else if MatchStr(_s, VIEW_SETTINGS_TYPES[PreInc(i)]) then begin
-		SettingsDict.SetSettingValue(VIEW_SETTINGS_TYPES[i], IndentLines);
-	end else if MatchStr(_s, VIEW_SETTINGS_TYPES[PreInc(i)]) then begin
-		SettingsDict.SetSettingValue(VIEW_SETTINGS_TYPES[i], ExpandNodes);
-	end else if _s = FILTER_SETTINGS then begin
-		FilterSettings.StoreViewSettingToDict();
-	end;
+	FShowFileIcon.Value := Value;
+end;
+
+procedure TNodeLookSettings.SetShowRelativePath(const Value : Boolean);
+begin
+	FShowRelativePath.Value := Value;
 end;
 
 end.

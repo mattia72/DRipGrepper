@@ -4,42 +4,50 @@ interface
 
 uses
 	RipGrepper.Settings.SettingVariant,
-	System.Generics.Collections,
-	System.Variants,
-	System.Classes;
+	Spring.Collections,
+	System.IniFiles,
+	RipGrepper.Settings.FilePersister;
 
 type
-	TSettingsDictionary = class(TDictionary<string, ISettingVariant>)
+	TSettingSection = string;
+	TSettingKey = string;
+	ISettingKeys = IDictionary<TSettingKey, ISetting>;
+	ISettingSections = IDictionary<TSettingSection, ISettingKeys>;
+
+	TSettingsDictionary = class
 
 		private
+			FInnerDictionary : ISettingSections;
 			FSectionName : string;
-			function GetDefaultSetting(const _name : string) : Variant;
-			function InnerGetSetting(const _name : string; const _bDefaultValue : Boolean) : Variant; overload;
+			procedure AddNewSectionAndKey(const _key : string; _setting : ISetting);
+			procedure AddOrChangeStrArrSettings(const _key : string; _setting : ISetting; _factory : IPersisterFactory);
+			function GetCount() : Integer;
+			function GetSections(index : string) : ISettingKeys; overload;
+			procedure StoreSectionToPersister(const _section : string);
+			procedure SetSections(index : string; const Value : ISettingKeys);
 			property SectionName : string read FSectionName;
 
-		protected
 		public
 			constructor Create(const _section : string); overload;
 			constructor Create; overload;
-			destructor Destroy; override;
+			procedure AddOrChange(const _key : string; _setting : ISetting);
+			procedure ClearSection(const _section : string);
+			function ContainsSection(const _section : string) : Boolean;
+			procedure CopySection(const _section : string; _from : TSettingsDictionary);
+			procedure CreateSetting(const _key : string; _setting : ISetting; _factory : IPersisterFactory); overload;
+			procedure CreateSetting(const _section, _key : string; _setting : ISetting; _factory : IPersisterFactory); overload;
+			function GetEnumerator() : IEnumerator<Spring.Collections.TPair<TSettingSection, ISettingKeys>>;
+			class function DictToStringArray(_dict : TSettingsDictionary) : TArray<TArray<string>>;
+			function GetSetting(const _key : string) : ISetting; overload;
+			function GetSections() : IReadOnlyCollection<string>; overload;
+			procedure LoadFromPersister();
+			procedure SetState(const _from, _to : TSettingState; const _section : string = '');
+			function HasState(const _state : TSettingState; const _section : string = '') : Boolean;
+			procedure StoreToPersister(const _section : string);
 
-			procedure AddOrChange(const _key : string; _setting : ISettingVariant);
-			procedure AddOrSet(const _name : string; const _v : Variant); overload;
-			procedure AddOrSet(const _key : string; _sv : ISettingVariant); overload;
-			procedure AddOrSetDefault(const _key : string; const _value : Variant; const _bSaveToIni : Boolean);
-
-			procedure CreateDefaultRelevantSetting(const _sName : string; const _type : TVarType; const _value : Variant); overload;
-			procedure CreateSetting(const _sName : string; _setting : ISettingVariant); overload;
-			procedure CreateSetting(const _sName : string; const _type : TVarType; const _value : Variant;
-				const _isDefRelevant : Boolean = False); overload;
-
-			function GetDefaultDictKeyName(const _key : string) : string;
-			function GetDictKeyName(const _key : string; const _bForDefault : Boolean = False) : string;
-			function GetSetting(const _name : string; const _bDefault : Boolean = False) : Variant; overload;
-			procedure GetSettingsSectionValues(const _sectionName : string; var _sectionValues : TStringList);
-			procedure SetSettingValue(_sKey : string; const _v : Variant);
-			procedure StoreDefaultSetting(const _name : string; const _v : Variant);
-			procedure StoreSetting(const _name : string; const _v : Variant; const _bAsDefault : Boolean = False);
+			property Count : Integer read GetCount;
+			property InnerDictionary : ISettingSections read FInnerDictionary;
+			property Sections[index : string] : ISettingKeys read GetSections write SetSections; default;
 	end;
 
 implementation
@@ -49,8 +57,9 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	System.StrUtils,
 	System.SysUtils,
-	System.IniFiles,
-	RipGrepper.Helper.Types;
+	RipGrepper.Helper.Types,
+	Spring,
+	System.RegularExpressions;
 
 constructor TSettingsDictionary.Create(const _section : string);
 begin
@@ -67,234 +76,299 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.Create', True);
 	dbgMsg.MsgFmt('Create %p for section: ???', [Pointer(self)]);
+	FInnerDictionary := TCollections.CreateSortedDictionary<TSettingSection, ISettingKeys>();
 end;
 
-destructor TSettingsDictionary.Destroy;
+procedure TSettingsDictionary.AddNewSectionAndKey(const _key : string; _setting : ISetting);
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.Destroy', True);
-	dbgMsg.MsgFmt('Destroy %p for section: %s', [Pointer(self), FSectionName]);
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.AddNewSectionAndKey', True);
 
-	for var key in Keys do begin
-		// dbgMsg.MsgFmt('Destroy key: %s', [key]);
-		Self[key] := nil;
-	end;
-	inherited Destroy;
+	FInnerDictionary.Add(SectionName,
+		{ } TCollections.CreateSortedDictionary<TSettingKey, ISetting>());
+	FInnerDictionary[SectionName].Add(_key, _setting);
+	dbgMsg.MsgFmt('Add %s', [_key]);
 end;
 
-procedure TSettingsDictionary.AddOrChange(const _key : string; _setting : ISettingVariant);
+procedure TSettingsDictionary.AddOrChange(const _key : string; _setting : ISetting);
 var
-	setting : ISettingVariant;
+	keys : ISettingKeys;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.AddOrChange');
-	var
-	dictKey := GetDictKeyname(_key);
-	if self.TryGetValue(dictKey, setting) { and Assigned(setting) and (not setting.Equals(_setting)) } then begin
-		self[dictKey] := nil;
-		dbgMsg.MsgFmt('Remove %s', [dictKey]);
-	end;
-	dbgMsg.MsgFmt('AddOrSetValue %s=%s', [dictKey, VarToStr(_setting.Value)]);
-	AddOrSetValue(dictKey, _setting);
-end;
 
-procedure TSettingsDictionary.AddOrSet(const _name : string; const _v : Variant);
-var
-	bExists : Boolean;
-	setting : ISettingVariant;
-	sKey : string;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.AddOrSet');
-
-	sKey := GetDictKeyName(_name);
-	bExists := self.TryGetValue(sKey, setting);
-	if bExists and (setting.IsEmpty or (setting.ValueType <> VarType(_v)) or
-		{ } (setting.Value <> _v)) then begin
-		setting.Value := _v;
-		setting.IsModified := True;
-		if not bExists then begin
-			setting.IsDefaultRelevant := False;
-		end;
-		self.AddOrChange(sKey, setting);
-		dbgMsg.MsgFmt('AddOrChange %s=%s', [sKey, VarToStr(setting.Value)]);
+	if FInnerDictionary.TryGetValue(SectionName, keys) then begin
+		keys[_key] := _setting;
+		dbgMsg.MsgFmt('Update %s', [_key]);
 	end else begin
-		if not bExists then begin
-			setting := TSettingVariant.Create(_v); // ISettingVariant
-			self.Add(sKey, setting);
-			dbgMsg.MsgFmt('Add %s=%s', [sKey, VarToStr(setting.Value)]);
-		end else begin
-			setting.IsModified := True;
-			self.AddOrChange(sKey, setting);
-			dbgMsg.MsgFmt('AddOrChange %s=%s', [sKey, VarToStr(setting.Value)]);
-		end;
+		AddNewSectionAndKey(_key, _setting);
 	end;
-	dbgMsg.MsgFmt('sKey = %s, Value = %s', [sKey, VarToStr(setting.Value)]);
 end;
 
-procedure TSettingsDictionary.AddOrSet(const _key : string; _sv : ISettingVariant);
+procedure TSettingsDictionary.AddOrChangeStrArrSettings(const _key : string; _setting : ISetting; _factory : IPersisterFactory);
 var
-	setting : ISettingVariant;
-	sKey : string;
+	i : Integer;
 begin
-	sKey := GetDictKeyName(_key);
-	setting := nil;
-	if self.TryGetValue(sKey, setting) and Assigned(setting) then begin
-		if not setting.Equals(_sv) then begin
-			setting := _sv;
-			setting.IsModified := True;
-			self.AddOrChange(sKey, setting);
-		end;
-	end else begin
-		self.AddOrChange(sKey, _sv);
-	end;
-end;
-
-procedure TSettingsDictionary.AddOrSetDefault(const _key : string; const _value : Variant; const _bSaveToIni : Boolean);
-var
-	dictKeyName : string;
-	setting : ISettingVariant;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.AddOrSetDefault');
-	setting := TSettingVariant.Create(_value); // ISettingVariant
-	setting.SaveToIni := _bSaveToIni;
-	dictKeyName := GetDefaultDictKeyName(_key);
-	AddOrSet(dictKeyName, setting);
-	dbgMsg.MsgFmt('[%s] %s_DEFAULT.Value = %s', [SectionName, _key, VartoStr(self[dictKeyName].Value)]);
-end;
-
-procedure TSettingsDictionary.CreateDefaultRelevantSetting(const _sName : string; const _type : TVarType; const _value : Variant);
-var
-	setting : ISettingVariant;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.CreateDefaultRelevantSetting');
-	setting := TSettingVariant.Create(_type, _value, True); // ISettingVariant
-	CreateSetting(_sName, setting);
-end;
-
-procedure TSettingsDictionary.CreateSetting(const _sName : string; _setting : ISettingVariant);
-begin
-	if _setting.IsDefaultRelevant then begin
-		self.AddOrChange(GetDefaultDictKeyName(_sName), _setting);
-		TDebugUtils.MsgFmt('TSettingsDictionary.CreateSetting - %s', [GetDefaultDictKeyName(_sName)]);
-	end;
-	self.AddOrChange(GetDictKeyName(_sName), _setting);
-	TDebugUtils.MsgFmt('TSettingsDictionary.CreateSetting - %s', [GetDictKeyName(_sName)]);
-end;
-
-procedure TSettingsDictionary.CreateSetting(const _sName : string; const _type : TVarType; const _value : Variant;
-	const _isDefRelevant : Boolean = False);
-var
-	setting : ISettingVariant;
-begin
-	setting := TSettingVariant.Create(_type, _value, _isDefRelevant); // ISettingVariant
-	CreateSetting(_sName, setting);
-end;
-
-function TSettingsDictionary.GetDefaultDictKeyName(const _key : string) : string;
-begin
-	Result := GetDictKeyName(_key) + DEFAULT_KEY;
-end;
-
-function TSettingsDictionary.GetDefaultSetting(const _name : string) : Variant;
-begin
-	Result := InnerGetSetting(GetDefaultDictKeyName(_name), False);
-end;
-
-function TSettingsDictionary.GetDictKeyName(const _key : string; const _bForDefault : Boolean = False) : string;
-begin
-	if _bForDefault then begin
-		Result := GetDefaultDictKeyName(_key);
-	end else begin
-		if _key.Contains(ARRAY_SEPARATOR) then begin
-			Result := _key;
-		end else begin
-			Result := SectionName + ARRAY_SEPARATOR + _key;
-		end;
-	end;
-end;
-
-function TSettingsDictionary.GetSetting(const _name : string; const _bDefault : Boolean = False) : Variant;
-begin
-	if _bDefault then begin
-		Result := GetDefaultSetting(_name);
-	end else begin
-		Result := InnerGetSetting(_name, False);
-	end;
-end;
-
-procedure TSettingsDictionary.GetSettingsSectionValues(const _sectionName : string; var _sectionValues : TStringList);
-var
-	setting : ISettingVariant;
-	settingSection : string;
-	settingName : string;
-	tmpIni : TMemIniFile;
-	tmpFile : TAutoDeleteTempFile;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.GetSettingsSectionValues');
-
-	_sectionValues.Clear;
-	tmpIni := TMemIniFile.Create(tmpFile.FilePath);
-	try
-		for var key in Keys do begin
-			var
-			arr := key.Split([ARRAY_SEPARATOR]);
-			settingSection := arr[0];
-			settingName := arr[1];
-			setting := self[key];
-			dbgMsg.MsgFmt('Write [%s] %s', [settingSection, settingName]);
-			setting.WriteToMemIni(tmpIni, settingSection, settingName);
-		end;
-		tmpIni.ReadSectionValues(_sectionName, _sectionValues);
-	finally
-		tmpIni.Free;
-	end;
-end;
-
-function TSettingsDictionary.InnerGetSetting(const _name : string; const _bDefaultValue : Boolean) : Variant;
-var
-	setting : ISettingVariant;
-	keyName : string;
-begin
-	if _bDefaultValue then begin
-		keyName := GetDefaultDictKeyName(_name);
-	end else begin
-		keyName := GetDictKeyName(_name);
-	end;
-	if self.TryGetValue(keyName, setting) then begin
-		if (not setting.IsEmpty) then begin
-			Result := setting.Value;
-		end;
-	end else begin
+	i := 0;
+	for var cmd in TArraySetting(_setting).AsArray do begin
+		var s : ISetting := TStringSetting.Create(cmd);
+		s.SaveBehaviour := _setting.SaveBehaviour;
+		s.State := _setting.State;
 		var
-		dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.InnerGetSetting');
-		dbgMsg.Msg(keyName + ' not found!');
+		key := Format('%s%d', [_key, i]);
+		TStringSetting(s).Persister := _factory.GetStringPersister(SectionName, key);
+		AddOrChange(key, s);
+		Inc(i);
 	end;
 end;
 
-procedure TSettingsDictionary.SetSettingValue(_sKey : string; const _v : Variant);
+procedure TSettingsDictionary.ClearSection(const _section : string);
+var
+	sd : IDictionary<TSettingKey, ISetting>;
 begin
-	AddOrSet(_sKey, _v);
+	if InnerDictionary.TryGetValue(_section, sd) then begin
+		for var key in sd.Keys do begin
+			sd[key].Clear();
+			sd[key].State := ssModified;
+		end;
+	end;
 end;
 
-procedure TSettingsDictionary.StoreDefaultSetting(const _name : string; const _v : Variant);
+function TSettingsDictionary.ContainsSection(const _section : string) : Boolean;
 begin
-	TDebugUtils.Msg('TSettingsDictionary.StoreToDictDefaultSetting: ' + _name + '=' + VarToStr(_v) + ' StoreToDict in memory...');
-	AddOrSet(GetDefaultDictKeyName(_name), _v);
-	AddOrSetDefault(_name, _v, True);
+	Result := FInnerDictionary.ContainsKey(_section);
 end;
 
-procedure TSettingsDictionary.StoreSetting(const _name : string; const _v : Variant; const _bAsDefault : Boolean = False);
+procedure TSettingsDictionary.CopySection(const _section : string; _from : TSettingsDictionary);
+var
+	sdSelf : ISettingKeys;
+	sdFrom : ISettingKeys;
 begin
-	TDebugUtils.DebugMessageFormat('TSettingsDictionary.StoreSetting: in memory %s=%s as default=%s',
-		[_name, VarToStr(_v), BoolToStr(_bAsDefault, True)]);
-	if _bAsDefault then begin
-		StoreDefaultSetting(_name, _v);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.CopySection');
+
+	if FInnerDictionary.TryGetValue(_section, sdSelf) then begin
+		if _from.InnerDictionary.TryGetValue(_section, sdFrom) then begin
+			var
+			dbgFrom := TSettingsDictionary.DictToStringArray(_from);
+			FInnerDictionary[_section] := sdFrom;
+			var
+			dbgTo := TSettingsDictionary.DictToStringArray(self);
+			dbgMsg.MsgFmt('Copy from existent section [%s]', [_section]);
+		end else begin
+			dbgMsg.ErrorMsgFmt('Copy from non existent section [%s]', [_section]);
+			raise ESettingsException.CreateFmt('Copy from non existent section [%s]', [_section]);
+		end;
 	end else begin
-		AddOrSet(_name, _v);
+		dbgMsg.ErrorMsgFmt('Section not exists, add [%s]', [_section]);
+		FInnerDictionary.Add(_section, _from[_section]);
+	end;
+end;
+
+procedure TSettingsDictionary.CreateSetting(const _key : string; _setting : ISetting; _factory : IPersisterFactory);
+begin
+	CreateSetting(SectionName, _key, _setting, _factory);
+end;
+
+procedure TSettingsDictionary.CreateSetting(const _section, _key : string; _setting : ISetting; _factory : IPersisterFactory);
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.CreateSetting');
+
+	case _setting.SettingType of
+		stString : begin
+			TStringSetting(_setting).Persister := _factory.GetStringPersister(_section, _key);
+		end;
+		stInteger : begin
+			TIntegerSetting(_setting).Persister := _factory.GetIntegerPersister(_section, _key);
+		end;
+		stBool : begin
+			TBoolSetting(_setting).Persister := _factory.GetBoolPersister(_section, _key);
+		end;
+		stStrArray : begin
+			TArraySetting(_setting).Persister := _factory.GetStrArrayPersister(_section, _key);
+		end;
+
+		else
+		raise ESettingsException.Create('Setting Type not supported.');
+	end;
+
+	if _setting.SettingType = stStrArray then begin
+		AddOrChangeStrArrSettings(_key, _setting, _factory);
+	end else begin
+		AddOrChange(_key, _setting);
+	end;
+
+	dbgMsg.MsgFmt('TSettingsDictionary.CreateSetting [%s] %s', [_section, _key]);
+end;
+
+class function TSettingsDictionary.DictToStringArray(_dict : TSettingsDictionary) : TArray<TArray<string>>;
+begin
+	{$IFDEF DEBUG}
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.DictToStringArray');
+	for var section in _dict.InnerDictionary.Keys do begin
+		Result := Result + [['Section', section]];
+		dbgMsg.MsgFmt('[%s]', [section], tftVerbose);
+
+		for var pair in _dict.InnerDictionary[section] do begin
+			var
+			setting := pair.Value;
+			var
+			sVal := setting.AsString;
+			Result := Result + [[pair.Key, sVal]];
+			dbgMsg.MsgFmt('%s=%s', [pair.Key, sVal], tftVerbose);
+		end;
+	end;
+	{$ENDIF}
+end;
+
+function TSettingsDictionary.GetCount() : Integer;
+begin
+	Result := InnerDictionary.Count;
+end;
+
+function TSettingsDictionary.GetEnumerator() : IEnumerator<Spring.Collections.TPair<TSettingSection, ISettingKeys>>;
+begin
+	Result := FInnerDictionary.GetEnumerator();
+end;
+
+function TSettingsDictionary.GetSections(index : string) : ISettingKeys;
+begin
+	Result := FInnerDictionary[index];
+end;
+
+function TSettingsDictionary.GetSetting(const _key : string) : ISetting;
+var
+	keys : ISettingKeys;
+begin
+	Result := nil;
+	if FInnerDictionary.TryGetValue(SectionName, keys) then begin
+		Result := keys[_key];
+	end;
+end;
+
+function TSettingsDictionary.GetSections() : IReadOnlyCollection<string>;
+begin
+	Result := FInnerDictionary.Keys;
+end;
+
+procedure TSettingsDictionary.LoadFromPersister();
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.LoadFromPersister');
+
+	for var key in InnerDictionary[SectionName].Keys do begin
+		InnerDictionary[SectionName][key].LoadFromPersister();
+		var
+		value := InnerDictionary[SectionName][key].AsString;
+		dbgMsg.MsgFmt('LoadFromPersister [%s] %s = %s', [SectionName, key, value]);
+	end;
+end;
+
+procedure TSettingsDictionary.StoreSectionToPersister(const _section : string);
+var
+	setting : ISetting;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.StoreSectionToPersister');
+
+	for var keys in InnerDictionary[_section] do begin
+		setting := keys.Value;
+		setting.StoreToPersister(_section);
+
+		{$IFDEF DEBUG}
+		var
+		value := InnerDictionary[_section][keys.Key].AsString;
+		dbgMsg.MsgFmt('StoreToPersister [%s] %s = %s', [_section, keys.Key, value]);
+		{$ENDIF}
+	end;
+end;
+
+procedure TSettingsDictionary.StoreToPersister(const _section : string);
+var
+	section : string;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.StoreToPersister');
+
+	section := IfThen(_section = '', SectionName, _section);
+
+	if (ROOT_DUMMY_INI_SECTION = section) then begin
+		for section in InnerDictionary.Keys do begin
+			StoreSectionToPersister(section);
+		end;
+	end else begin
+		if not section.IsEmpty and InnerDictionary.ContainsKey(section) then begin
+			StoreSectionToPersister(section);
+		end else begin
+			// var
+			// dbgArr := TSettingsDictionary.DictToStringArray(self);
+			dbgMsg.MsgFmt('invalid section: ''%s''', [section]);
+			// raise ESettingsException.CreateFmt('invalid section: ''%s''', [section]);
+		end;
+	end;
+end;
+
+procedure TSettingsDictionary.SetSections(index : string; const Value : ISettingKeys);
+begin
+	FInnerDictionary[index] := Value;
+end;
+
+procedure TSettingsDictionary.SetState(const _from, _to : TSettingState; const _section : string = '');
+begin
+	if _section.IsEmpty then begin
+		InnerDictionary.Where(
+			function(const p : TPair<string, ISettingKeys>) : Boolean
+			begin
+				Result := p.Value.Values.Any(
+					function(const s : ISetting) : Boolean
+					begin
+						Result := s.State = _from;
+					end);
+			end).ForEach(
+			procedure(const p : TPair<string, ISettingKeys>)
+			begin
+				p.Value.Values.ForEach(
+					procedure(const s : ISetting)
+					begin
+						if s.State = _from then begin
+							s.State := _to;
+						end;
+					end);
+			end);
+	end else begin
+		InnerDictionary[_section].ForEach(
+			procedure(const p : TPair<string, ISetting>)
+			begin
+				var
+					s : ISetting := p.Value;
+				if s.State = _from then begin
+					s.State := _to;
+				end;
+			end);
+
+	end;
+end;
+
+function TSettingsDictionary.HasState(const _state : TSettingState; const _section : string = '') : Boolean;
+begin
+	if _section.IsEmpty then begin
+		Result := InnerDictionary.Any(
+			function(const p : TPair<string, ISettingKeys>) : Boolean
+			begin
+				Result := p.Value.Values.Any(
+					function(const s : ISetting) : Boolean
+					begin
+						Result := s.State = _state;
+					end);
+			end);
+	end else begin
+		Result := InnerDictionary[_section].Any(
+			function(const p : TPair<string, ISetting>) : Boolean
+			begin
+				Result := p.Value.State = _state;
+			end);
 	end;
 end;
 

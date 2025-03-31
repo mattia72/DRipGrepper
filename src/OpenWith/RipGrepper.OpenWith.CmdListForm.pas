@@ -116,7 +116,7 @@ begin
 	FSettings := _settings;
 	FColorTheme := _colorTheme;
 	// FSettings.ReLoad; TODO: AlreadyRead should be set
-	FSettings.ReadIni; // we should read ini every time, it can be overwritten by another instance...
+	FSettings.ReadFile; // we should read ini every time, it can be overwritten by another instance...
 	dbgMsg.MsgFmt('FSettings: %s', [FSettings.ToString]);
 
 	SaveOrigHeights;
@@ -138,14 +138,14 @@ end;
 
 procedure TOpenWithCmdList.ActionShowConfigExecute(Sender : TObject);
 begin
-	TOpenWithConfigForm.CreateAndShow(FSettings, FColorTheme);
+	TOpenWithConfigForm.CreateAndShow(self, FSettings, FColorTheme);
 	LoadEnbledCmds();
 	CreateScaledIcons(True);
 end;
 
 procedure TOpenWithCmdList.ActionOkExecute(Sender : TObject);
 begin
-	FSettings.StoreToDict;
+	FSettings.StoreToPersister;
 	ModalResult := mrOk;
 end;
 
