@@ -4,7 +4,7 @@ param (
     [switch] $BuildStandalone,
     [switch] $BuildExtension,
     [switch] $RunUnittest,
-    [switch] $Deploy,
+    [switch] $DeployToGitHub,
     [switch] $LocalDeploy,
     [switch] $DeployToTransferDrive,
     [switch] $Force,
@@ -223,6 +223,17 @@ function New-StandaloneZips {
     }
 }
 function New-ExtensionZip {
+    # find bds.exe in running processes
+    # if exists then ask user if he wants to close it, if yes then close it
+    Get-Process | Where-Object { $_.Path -like "*bds.exe" } | ForEach-Object {
+        $process = $_
+        if ($process) {
+            Write-Host "Found running process: $($process.Name) with id: $($process.Id)"
+            if (Test-YesAnswer "Do you want to close it?") {
+                Stop-Process -Id $process.Id -Force
+            }
+        }
+    }
     Get-InstalledDelphiVersions | ForEach-Object {
         $delphiBplRoot = $("$env:PUBLIC\Documents\Embarcadero\Studio\$($_.Version)") 
         $extensionPath = Join-Path "$delphiBplRoot" "Bpl\$global:ExtensionFileName"
@@ -305,7 +316,7 @@ function New-ReleaseWithAsset {
         Build-ExpertDllRelease
     }
 
-    if ($Deploy -or $LocalDeploy -or $DeployToTransferDrive) {
+    if ($DeployToGitHub -or $LocalDeploy -or $DeployToTransferDrive) {
         # Remove items recursively from the AssetsDirectory
         if ($LocalDeploy -or $DeployToTransferDrive) {
             $Force = $true
@@ -315,17 +326,17 @@ function New-ReleaseWithAsset {
         # New-ExtensionZip 
         New-ExpertDllZip 
         List-Assets -Path $global:AssetsDirectory
-
-        if ($Deploy -or $DeployToTransferDrive) {
-            Copy-Item -Path $global:AssetsDirectory\* -Destination $global:TransferDrive -Force -Recurse 
-            List-Assets -Path $global:TransferDrive
-            Copy-Item -Path $global:AssetsDirectory\Win64\* -Destination $global:TransferDrive\Latest -Force
-            Copy-Item -Path $global:AssetsDirectory\Delphi11.Dll\* -Destination $global:TransferDrive\Latest -Force
-            List-Assets -Path $global:TransferDrive\Latest
-        }
     }
 
-    if ($Deploy) {
+    if ($DeployToTransferDrive) {
+        Write-Host "Copying files to $global:TransferDrive" -ForegroundColor Green
+        Copy-Item -Path $global:AssetsDirectory\* -Destination $global:TransferDrive -Force -Recurse 
+        List-Assets -Path $global:TransferDrive
+        Copy-Item -Path $global:AssetsDirectory\Win64\* -Destination $global:TransferDrive\Latest -Force
+        Copy-Item -Path $global:AssetsDirectory\Delphi11.Dll\* -Destination $global:TransferDrive\Latest -Force
+        List-Assets -Path $global:TransferDrive\Latest
+    }
+    if ($DeployToGitHub) {
         New-Release
         New-ReleaseNotes
 
@@ -424,7 +435,7 @@ function Update-ScoopManifest {
 }
 
 function New-Deploy {
-    if ($LocalDeploy -or $Deploy -or $BuildStandalone -or $BuildExtension -or $RunUnittest -or $DeployToTransferDrive) {
+    if ($LocalDeploy -or $DeployToGitHub -or $BuildStandalone -or $BuildExtension -or $RunUnittest -or $DeployToTransferDrive) {
         #New-ReleaseNotes
         New-ReleaseWithAsset
     }
