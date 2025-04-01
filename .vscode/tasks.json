@@ -4,9 +4,9 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build All & Deploy",
+            "label": "Build All & Deploy to TransferDrive and GitHub",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone -BuildExtension -Deploy",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone -BuildExtension -DeployToGitHub",
             "problemMatcher": [],
             "group": {
                 "kind": "none"
@@ -49,9 +49,9 @@
             }
         },
         {
-            "label": "Deploy",
+            "label": "Deploy to GitHub",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -Deploy",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -DeployToGitHub",
             "problemMatcher": [],
             "group": {
                 "kind": "none"
