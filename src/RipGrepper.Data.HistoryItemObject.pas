@@ -108,16 +108,21 @@ uses
 	System.SysUtils,
 	RipGrepper.Parsers.Factory,
 	RipGrepper.Helper.Types,
-	RipGrepper.Settings.RipGrepParameterSettings;
+	RipGrepper.Settings.RipGrepParameterSettings,
+	RipGrepper.Tools.DebugUtils;
 
 procedure THistoryItemObject.LoadFromSettings(const _settings : TRipGrepperSettings);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('THistoryItemObject.LoadFromSettings');
+
 	var
 	args := _settings.GetRipGrepArguments();
 	RipGrepArguments.Assign(args());
 	GuiSearchTextParams.Copy(_settings.RipGrepParameters.GuiSearchTextParams());
 	SearchFormSettings.Copy(_settings.SearchFormSettings);
 	_settings.LastReplaceText := ReplaceText;
+    dbgMsg.MsgFmt('LastReplaceText = %s', [ReplaceText])
 end;
 
 function THistoryItemObject.GetFileCount : integer;
@@ -195,7 +200,7 @@ begin
 	_settings.RipGrepParameters.RipGrepArguments.Assign(RipGrepArguments());
 	_settings.RipGrepParameters.GuiSearchTextParams.Copy(GuiSearchTextParams());
 	_settings.SearchFormSettings.Copy(SearchFormSettings);
-	_settings.LastSearchText := GuiSearchTextParams().SearchTextWithOptions.SearchTextOfUser; {GetSearchTextForUser}
+	_settings.LastSearchText := GuiSearchTextParams().SearchTextWithOptions.SearchTextOfUser; { GetSearchTextForUser }
 end;
 
 function THistoryItemObject.GetElapsedTimeText : string;
