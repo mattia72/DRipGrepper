@@ -118,9 +118,9 @@ begin
 	for var argKeyValue in RipGrepArguments do begin
 		arrParamValue := argKeyValue.Split(['=']);
 		key := arrParamValue[0];
-		if key = RG_ARG_REPLACE_TEXT then begin
-			continue;
-		end;
+//      if key = RG_ARG_REPLACE_TEXT then begin
+//          continue;
+//      end;
 
 		argName := arrParamValue.SafeItem[1];
 		argVAlue := arrParamValue.SafeItem[2];

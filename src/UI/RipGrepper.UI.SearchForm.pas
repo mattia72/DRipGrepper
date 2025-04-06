@@ -1003,8 +1003,10 @@ begin
 	if HasHistItemObjWithResult then begin
 		_ctrlProxy.SearchText := GetValuesFromHistObjRipGrepArguments(RG_ARG_SEARCH_TEXT);
 		_ctrlProxy.SearchOptions := FHistItemObj.GuiSearchTextParams.GetSearchOptions;
-		_ctrlProxy.ReplaceText := GetValuesFromHistObjRipGrepArguments(RG_ARG_REPLACE_TEXT);
-		_ctrlProxy.IsReplaceMode := FHistItemObj.GuiSearchTextParams.IsReplaceMode;
+
+		_ctrlProxy.ReplaceText :=  FHistItemObj.ReplaceText;
+		_ctrlProxy.IsReplaceMode := FHistItemObj.IsReplaceMode;
+
 		_ctrlProxy.SearchPath := GetValuesFromHistObjRipGrepArguments(RG_ARG_SEARCH_PATH, SEARCH_PATH_SEPARATOR);
 		_ctrlProxy.FileMasks := GetValuesFromHistObjRipGrepArguments(RG_PARAM_REGEX_GLOB);
 		_ctrlProxy.IsHiddenChecked := FHistItemObj.SearchFormSettings.Hidden;
