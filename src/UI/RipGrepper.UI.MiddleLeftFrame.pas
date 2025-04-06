@@ -47,12 +47,19 @@ type
 		pmHistoryDeleteAll : TMenuItem;
 		Panel1 : TPanel;
 		SVGIconImageList1 : TSVGIconImageList;
+		pmSave : TMenuItem;
+		N1 : TMenuItem;
+		ActionSave : TAction;
+		pmLoad : TMenuItem;
+		ActionLoad : TAction;
+		SaveDialog1 : TSaveDialog;
 		procedure ActionCopyCmdLineToClipboardExecute(Sender : TObject);
 		procedure ActionHistoryDeleteAllExecute(Sender : TObject);
 		procedure ActionHistoryDeleteAllUpdate(Sender : TObject);
 		procedure ActionHistoryDeleteExecute(Sender : TObject);
 		procedure ActionHistoryDeleteUpdate(Sender : TObject);
 		procedure ActionOpenSearchFormExecute(Sender : TObject);
+		procedure ActionSaveExecute(Sender : TObject);
 		procedure PopupMenuHistoryPopup(Sender : TObject);
 		procedure VstHistoryBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
 			CellPaintMode : TVTCellPaintMode; CellRect : TRect; var ContentRect : TRect);
@@ -62,10 +69,12 @@ type
 		procedure VstHistoryGetHintKind(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; var Kind : TVTHintKind);
 		procedure VstHistoryGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType;
 			var CellText : string);
+		procedure VstHistoryLoadTree(Sender : TBaseVirtualTree; Stream : TStream);
 		procedure VstHistoryNodeClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
 		procedure VstHistoryNodeDblClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
 		procedure VstHistoryPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
 			TextType : TVSTTextType);
+		procedure VstHistorySaveTree(Sender : TBaseVirtualTree; Stream : TStream);
 
 		private const
 			COL_SEARCH_TEXT = 0;
@@ -132,7 +141,8 @@ uses
 	System.SysUtils,
 	System.StrUtils,
 	RipGrepper.Helper.Types,
-	RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.SimpleTypes,
+	RipGrepper.Helper.HistorySaverLoader;
 
 {$R *.dfm}
 
@@ -213,6 +223,19 @@ begin
 		MainFrame.PrepareAndDoSearch();
 	end else begin
 		dbgMsg.Msg('ShowSearchForm cancel');
+	end;
+
+end;
+
+procedure TMiddleLeftFrame.ActionSaveExecute(Sender : TObject);
+var
+	filePath : string;
+begin
+	SaveDialog1.InitialDir := ExtractFilePath(Application.ExeName);
+	SaveDialog1.Filter := 'DRipGrepper History File (*.drh)|*.drh|All Files (*.*)|*.*';
+	SaveDialog1.DefaultExt := 'rgh';
+	if SaveDialog1.Execute then begin
+		VstHistory.SaveToFile(filePath);
 	end;
 
 end;
@@ -684,6 +707,34 @@ begin
 		VstHistory.Header.Font.Height := MulDiv(VstHistory.Header.Font.Height, M, D);
 		// VstHistory.Font.Height := MulDiv(VstHistory.Font.Height, M, D); it's too much!
 		dbgMsg.MsgFmt('New VstHistory Fonts: %d', [VstHistory.Font.Height]);
+	end;
+end;
+
+procedure TMiddleLeftFrame.VstHistoryLoadTree(Sender : TBaseVirtualTree; Stream : TStream);
+begin
+	var
+		nodeData : TVSHistoryNodeData;
+	nodeData.SearchText := '';
+	nodeData.ReplaceData.IsReplaceMode := False;
+	nodeData.ReplaceData.ReplaceText := '';
+
+	AddVstHistItem(@nodeData);
+end;
+
+procedure TMiddleLeftFrame.VstHistorySaveTree(Sender : TBaseVirtualTree; Stream : TStream);
+var
+	node : PVirtualNode;
+	data : PVSHistoryNodeData;
+	hio : IHistoryItemObject;
+	idx : integer;
+begin
+	for node in VstHistory.Nodes() do begin
+		data := VstHistory.GetNodeData(node);
+		idx := GetHistNodeIndex(node);
+		hio := GetHistoryObject(idx);
+		var
+		hsl := THistorySaverLoader.Create(hio);
+		hsl.SaveToStream(Stream);
 	end;
 end;
 

@@ -61,8 +61,10 @@ object MiddleLeftFrame: TMiddleLeftFrame
       OnPaintText = VstHistoryPaintText
       OnGetHintKind = VstHistoryGetHintKind
       OnGetHint = VstHistoryGetHint
+      OnLoadTree = VstHistoryLoadTree
       OnNodeClick = VstHistoryNodeClick
       OnNodeDblClick = VstHistoryNodeDblClick
+      OnSaveTree = VstHistorySaveTree
       Touch.InteractiveGestures = [igPan, igPressAndTap]
       Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
       Columns = <
@@ -111,6 +113,15 @@ object MiddleLeftFrame: TMiddleLeftFrame
       ImageName = 'search'
       OnExecute = ActionOpenSearchFormExecute
     end
+    object ActionSave: TAction
+      Caption = 'Save...'
+      OnExecute = ActionSaveExecute
+      Visible = False
+    end
+    object ActionLoad: TAction
+      Caption = 'Load...'
+      Visible = False
+    end
   end
   object PopupMenuHistory: TPopupMenu
     Images = SVGIconImageList1
@@ -120,11 +131,20 @@ object MiddleLeftFrame: TMiddleLeftFrame
       Action = ActionOpenSearchForm
       Default = True
     end
-    object N3: TMenuItem
+    object N1: TMenuItem
       Caption = '-'
     end
     object pmCopyCommandLine: TMenuItem
       Action = ActionCopyCmdLineToClipboard
+    end
+    object N3: TMenuItem
+      Caption = '-'
+    end
+    object pmSave: TMenuItem
+      Action = ActionSave
+    end
+    object pmLoad: TMenuItem
+      Action = ActionLoad
     end
     object N2: TMenuItem
       Caption = '-'
@@ -229,5 +249,9 @@ object MiddleLeftFrame: TMiddleLeftFrame
     Scaled = True
     Left = 400
     Top = 96
+  end
+  object SaveDialog1: TSaveDialog
+    Left = 344
+    Top = 40
   end
 end
