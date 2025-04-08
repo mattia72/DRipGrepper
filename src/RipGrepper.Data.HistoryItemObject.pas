@@ -90,8 +90,14 @@ type
 	end;
 
 	TVSHistoryReplaceNodeData = record
-		IsReplaceMode : Boolean;
-		ReplaceText : string;
+		private
+			FReplaceText : string;
+			function GetReplaceText() : string;
+			procedure SetReplaceText(const Value : string);
+
+		public
+			IsReplaceMode : Boolean;
+			property ReplaceText : string read GetReplaceText write SetReplaceText;
 	end;
 
 	TVSHistoryNodeData = record
@@ -122,7 +128,7 @@ begin
 	GuiSearchTextParams.Copy(_settings.RipGrepParameters.GuiSearchTextParams());
 	SearchFormSettings.Copy(_settings.SearchFormSettings);
 	_settings.LastReplaceText := ReplaceText;
-    dbgMsg.MsgFmt('LastReplaceText = %s', [ReplaceText])
+	dbgMsg.MsgFmt('LastReplaceText = %s', [ReplaceText])
 end;
 
 function THistoryItemObject.GetFileCount : integer;
@@ -306,6 +312,20 @@ function THistoryItemObject.UpdateParserType : TParserType;
 begin
 	FParserType := TRipGrepperParsersFactory.TryGetParserType(TArrayEx<string>.Create(RipGrepArguments.GetValues()));
 	Result := FParserType;
+end;
+
+function TVSHistoryReplaceNodeData.GetReplaceText() : string;
+begin
+	if IsReplaceMode then begin
+		Result := FReplaceText;
+	end else begin
+		Result := '';
+	end;
+end;
+
+procedure TVSHistoryReplaceNodeData.SetReplaceText(const Value : string);
+begin
+	FReplaceText := Value;
 end;
 
 end.
