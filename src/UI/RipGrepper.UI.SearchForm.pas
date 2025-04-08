@@ -1001,7 +1001,8 @@ begin
 	_ctrlProxy.ExtensionContext := ERipGrepperExtensionContext(FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext.IDEContext);
 
 	if HasHistItemObjWithResult then begin
-		_ctrlProxy.SearchText := GetValuesFromHistObjRipGrepArguments(RG_ARG_SEARCH_TEXT);
+		_ctrlProxy.SearchText := FHistItemObj.GuiSearchTextParams.SearchTextWithOptions.SearchTextOfUser;
+		// GetValuesFromHistObjRipGrepArguments(RG_ARG_SEARCH_TEXT);
 		_ctrlProxy.SearchOptions := FHistItemObj.GuiSearchTextParams.GetSearchOptions;
 
 		_ctrlProxy.ReplaceText :=  FHistItemObj.ReplaceText;
