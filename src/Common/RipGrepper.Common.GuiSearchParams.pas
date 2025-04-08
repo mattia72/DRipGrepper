@@ -20,14 +20,15 @@ type
 			FIsReplaceMode : Boolean;
 			FRgOptions : TOptionStrings;
 			FIsRgExeOptionSet : Boolean;
-			FReplaceText : string;
+			FReplaceText: string;
 			FExpertOptions : TOptionStrings;
 			FSearchParams : IStringSetting;
 			FSearchTextWithOptions : TSearchTextWithOptions;
-			function GetReplaceText : string;
+			function GetReplaceText(): string;
 			procedure LoadSearchOptionsFromDict(const _bDefault : Boolean);
 			// function ResetRgOption(const _sParamRegex : string; const _bReset : Boolean = False) : string;
 			procedure SetIsReplaceMode(const Value : Boolean);
+			procedure SetReplaceText(const Value: string);
 			procedure SetRgOptions(const Value : TOptionStrings);
 			procedure UpdateSearchParamsSetting(const _options: TSearchOptionSet);
 
@@ -60,7 +61,7 @@ type
 
 			property IsReplaceMode : Boolean read FIsReplaceMode write SetIsReplaceMode;
 			property IsRgExeOptionSet : Boolean read FIsRgExeOptionSet write FIsRgExeOptionSet;
-			property ReplaceText : string read GetReplaceText write FReplaceText;
+			property ReplaceText: string read GetReplaceText write SetReplaceText;
 			property ExpertOptions : TOptionStrings read FExpertOptions write FExpertOptions;
 			property RgOptions : TOptionStrings read FRgOptions write SetRgOptions;
 			property SearchTextWithOptions : TSearchTextWithOptions read FSearchTextWithOptions;
@@ -174,12 +175,15 @@ end;
 
 procedure TGuiSearchTextParams.Copy(const _other : TGuiSearchTextParams);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.Copy');
 	inherited Copy(_other as TPersistableSettings);
 
 	FSearchTextWithOptions.Copy(_other.FSearchTextWithOptions);
 
 	FReplaceText := _other.ReplaceText;
 	FIsReplaceMode := _other.IsReplaceMode;
+	dbgMsg.MsgFmt('FReplaceText: %s', [FReplaceText, BoolToStr(FIsReplaceMode, True)]);
 
 	FRgOptions := _other.RgOptions;
 	FIsRgExeOptionSet := _other.IsRgExeOptionSet;
@@ -188,7 +192,7 @@ begin
 	// inherited Copy(_other as TPersistableSettings);
 end;
 
-function TGuiSearchTextParams.GetReplaceText : string;
+function TGuiSearchTextParams.GetReplaceText(): string;
 begin
 	Result := FReplaceText;
 end;
@@ -257,6 +261,11 @@ end;
 function TGuiSearchTextParams.GetSearchOptions : TSearchOptionSet;
 begin
 	Result := FSearchTextWithOptions.SearchOptions;
+end;
+
+procedure TGuiSearchTextParams.SetReplaceText(const Value: string);
+begin
+	FReplaceText := Value;
 end;
 
 procedure TGuiSearchTextParams.SetSearchText(const _text : string);
