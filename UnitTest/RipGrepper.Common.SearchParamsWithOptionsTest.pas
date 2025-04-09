@@ -83,6 +83,52 @@ type
 			[Testcase('Invalid PCRE in word mc,ur', 'aaa\u bbb|1|1|' + '\baaa\u bbb\b', '|')]
 			procedure TestResetOption(const _sSearchText : string; const _bMatchWord,
 				_bUseRegex : Integer; _expected : string);
+			[Test]
+			[Testcase('Single word ur           ', 'aaa      |0|1|' + 'aaa      ', '|')]
+			[Testcase('Single word mc           ', 'aaa      |1|0|' + '\baaa      \b', '|')]
+			[Testcase('Single word mc,ur        ', 'aaa      |1|1|' + '\baaa      \b', '|')]
+
+			[Testcase('Double word ur           ', 'aaa bbb  |0|1|' + 'aaa bbb  ', '|')]
+			[Testcase('Double word mc           ', 'aaa bbb  |1|0|' + '\baaa bbb  \b', '|')]
+			[Testcase('Double word mc,ur        ', 'aaa bbb  |1|1|' + '\baaa bbb  \b', '|')]
+
+			[Testcase('Start Bounded word ur    ', '\baaa|0|1|' + '\baaa', '|')]
+			[Testcase('Start Bounded word mc    ', '\baaa|1|0|' + '\b\\baaa\b', '|')]
+			[Testcase('Start Bounded word mc,ur ', '\baaa|1|1|' + '\baaa', '|')]
+
+			[Testcase('End Bounded word ur      ', 'aaa\b|0|1|' + 'aaa\b', '|')]
+			[Testcase('End Bounded word mc      ', 'aaa\b|1|0|' + '\baaa\\b\b', '|')]
+			[Testcase('End Bounded word mc      ', 'bbb.aaa\b|1|0|' + '\bbbb\.aaa\\b\b', '|')]
+			[Testcase('End Bounded word mc,ur   ', 'aaa\b|1|1|' + 'aaa\b', '|')]
+
+			[Testcase('Invalid PCRE in word ur   ', 'aaa\u bbb|0|1|' + 'aaa\u bbb', '|')]
+			[Testcase('Invalid PCRE in word mc   ', 'aaa\u bbb|1|0|' + '\baaa\\u bbb\b', '|')]
+			[Testcase('Invalid PCRE in word mc,ur', 'aaa\u bbb|1|1|' + '\baaa\u bbb\b', '|')]
+			procedure TestSwitchOptionDef(const _sSearchText : string; const _bMatchWord,
+				_bUseRegex : Integer; _expected : string);
+			[Test]
+			[Testcase('Single word ur           ', 'aaa      |0|1|' + 'aaa      ', '|')]
+			[Testcase('Single word mc           ', 'aaa      |1|0|' + '\baaa      \b', '|')]
+			[Testcase('Single word mc,ur        ', 'aaa      |1|1|' + '\baaa      \b', '|')]
+
+			[Testcase('Double word ur           ', 'aaa bbb  |0|1|' + 'aaa bbb  ', '|')]
+			[Testcase('Double word mc           ', 'aaa bbb  |1|0|' + '\baaa bbb  \b', '|')]
+			[Testcase('Double word mc,ur        ', 'aaa bbb  |1|1|' + '\baaa bbb  \b', '|')]
+
+			[Testcase('Start Bounded word ur    ', '\baaa|0|1|' + '\baaa', '|')]
+			[Testcase('Start Bounded word mc    ', '\baaa|1|0|' + '\b\\baaa\b', '|')]
+			[Testcase('Start Bounded word mc,ur ', '\baaa|1|1|' + '\baaa', '|')]
+
+			[Testcase('End Bounded word ur      ', 'aaa\b|0|1|' + 'aaa\b', '|')]
+			[Testcase('End Bounded word mc      ', 'aaa\b|1|0|' + '\baaa\\b\b', '|')]
+			[Testcase('End Bounded word mc      ', 'bbb.aaa\b|1|0|' + '\bbbb\.aaa\\b\b', '|')]
+			[Testcase('End Bounded word mc,ur   ', 'aaa\b|1|1|' + 'aaa\b', '|')]
+
+			[Testcase('Invalid PCRE in word ur   ', 'aaa\u bbb|0|1|' + 'aaa\u bbb', '|')]
+			[Testcase('Invalid PCRE in word mc   ', 'aaa\u bbb|1|0|' + '\baaa\\u bbb\b', '|')]
+			[Testcase('Invalid PCRE in word mc,ur', 'aaa\u bbb|1|1|' + '\baaa\u bbb\b', '|')]
+			procedure TestSwitchOptionOrig(const _sSearchText : string; const _bMatchWord,
+				_bUseRegex : Integer; _expected : string);
 	end;
 
 implementation
@@ -145,6 +191,41 @@ begin
 	end;
 	if (_bMatchWord = 0) then begin
 		FGuiParams.ReSetOption(EGuiOption.soMatchWord);
+	end;
+
+	Assert.AreEqual(_expected, FGuiParams.SearchTextAsRgParam, 'search text should equal' + _expected);
+end;
+
+procedure TSearchParamsWithOptionsTest.TestSwitchOptionDef(const _sSearchText :
+	string; const _bMatchWord, _bUseRegex : Integer; _expected : string);
+var
+	FGuiParams : TSearchTextWithOptions;
+begin
+	FGuiParams.SearchTextOfUser := _sSearchText;
+
+	if (_bUseRegex = 1) then begin
+		FGuiParams.SwitchOption(EGuiOption.soUseRegex);
+	end;
+	if (_bMatchWord = 1) then begin
+		FGuiParams.SetOption(EGuiOption.soMatchWord);
+	end;
+
+	Assert.AreEqual(_expected, FGuiParams.SearchTextAsRgParam, 'search text should equal' + _expected);
+end;
+
+procedure TSearchParamsWithOptionsTest.TestSwitchOptionOrig(const _sSearchText
+	: string; const _bMatchWord, _bUseRegex : Integer; _expected : string);
+var
+	FGuiParams : TSearchTextWithOptions;
+begin
+	FGuiParams.SearchTextOfUser := _sSearchText;
+    FGuiParams.SearchOptions := FGuiParams.GetAsSearchOptionSet((_bMatchWord = 1),(_bMatchWord = 1), False);
+
+	if (_bUseRegex = 1) then begin
+		FGuiParams.SwitchOption(EGuiOption.soUseRegex);
+	end;
+	if (_bMatchWord = 1) then begin
+		FGuiParams.SetOption(EGuiOption.soMatchWord);
 	end;
 
 	Assert.AreEqual(_expected, FGuiParams.SearchTextAsRgParam, 'search text should equal' + _expected);
