@@ -171,7 +171,7 @@ begin
 	// Settings.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '--replace=replace text');
 	Settings.RipGrepArguments.AddPair(RG_ARG_OPTIONS, RG_PARAM_END);
 	Settings.RipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, 'search text');
-	Settings.RipGrepArguments.AddPair(RG_ARG_REPLACE_TEXT, 'replace text');
+//  Settings.RipGrepArguments.AddPair(RG_ARG_REPLACE_TEXT, 'replace text');
 	Settings.RipGrepArguments.AddPair(RG_ARG_SEARCH_PATH, 'C:\Path\Search\Files');
 end;
 
