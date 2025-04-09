@@ -34,6 +34,7 @@ type
 			procedure SetOption(const _searchOption : EGuiOption);
 			procedure UpdateSearchOptions(const _sOptions : string);
 			class function StringToSearchOptionSet(const s : string) : TSearchOptionSet; static;
+			procedure SwitchOption(const _newOption : EGuiOption); overload;
 			property EscapedSearchText : string read FEscapedSearchText;
 			property SearchOptions : TSearchOptionSet read GetSearchOptions write SetSearchOptions;
 			property SearchTextAsRgParam: string read GetSearchTextAsRgParam;
@@ -229,6 +230,15 @@ begin
 		{ } s.Contains('MatchCase'),
 		{ } s.Contains('MatchWord'),
 		{ } s.Contains('UseRegex'));
+end;
+
+procedure TSearchTextWithOptions.SwitchOption(const _newOption : EGuiOption);
+begin
+	if AreSet([_newOption]) then begin
+		ResetOption(_newOption);
+	end else begin
+		SetOption(_newOption);
+	end;
 end;
 
 end.

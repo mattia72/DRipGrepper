@@ -46,7 +46,6 @@ type
 
 			procedure ResetOption(const _searchOption : EGuiOption);
 			procedure SetOption(const _searchOption : EGuiOption);
-			procedure SwitchOption(const _newOption : EGuiOption); overload;
 			function SetRgOption(const _sParamRegex : string; const _bReset : Boolean = False) : string;
 			function SetRgOptionWithValue(const _sParamRegex, _sValue : string; const _bUnique : Boolean = False) : string;
 			function GetAsString(const _bGuiOptionsOnly : Boolean = False) : string;
@@ -55,6 +54,7 @@ type
 			procedure SetSearchOptions(const _options : TSearchOptionSet);
 			function GetSearchOptions : TSearchOptionSet;
 			procedure SetSearchText(const _text : string);
+			procedure SwitchOption(const _newOption : EGuiOption); overload;
 			function ToLogString : string; override;
 			procedure UpdateRgParamsByGuiOptions;
 			class procedure ValidateOptions(listOptions : TStringList); static;
@@ -110,15 +110,6 @@ procedure TGuiSearchTextParams.SetOption(const _searchOption : EGuiOption);
 begin
 	FSearchTextWithOptions.SetOption(_searchOption);
 	UpdateRgParamsByGuiOptions();
-end;
-
-procedure TGuiSearchTextParams.SwitchOption(const _newOption : EGuiOption);
-begin
-	if FSearchTextWithOptions.AreSet([_newOption]) then begin
-		ResetOption(_newOption);
-	end else begin
-		SetOption(_newOption);
-	end;
 end;
 
 function TGuiSearchTextParams.SetRgOptionWithValue(const _sParamRegex, _sValue : string; const _bUnique : Boolean = False) : string;
@@ -272,6 +263,11 @@ procedure TGuiSearchTextParams.SetSearchText(const _text : string);
 begin
 	FSearchTextWithOptions.SearchTextOfUser := _text;
 	UpdateRgParamsByGuiOptions();
+end;
+
+procedure TGuiSearchTextParams.SwitchOption(const _newOption : EGuiOption);
+begin
+    FSearchTextWithOptions.SwitchOption(_newOption);
 end;
 
 function TGuiSearchTextParams.ToLogString : string;
