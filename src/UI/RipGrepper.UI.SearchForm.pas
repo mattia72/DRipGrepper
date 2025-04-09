@@ -160,7 +160,7 @@ type
 			FShowing : Boolean;
 			FThemeHandler : TThemeHandler;
 			function GetSelectedPaths(const _initialDir : string; const _fdo : TFileDialogOptions) : string;
-			procedure WriteProxyToCtrls;
+			procedure WriteCtrlProxyToCtrls();
 			procedure ButtonDown(const _searchOption : EGuiOption; _tb : TToolButton; const _bNotMatch : Boolean = False); overload;
 			procedure ChangeHistoryItems(_cmb : TComboBox; var _items : TArrayEx<string>);
 			function GetFullHeight(_ctrl : TControl) : integer;
@@ -208,7 +208,7 @@ type
 			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettings; const _histObj : IHistoryItemObject);
 				reintroduce; virtual;
 			destructor Destroy; override;
-			procedure CopySettingsToProxy(var _ctrlProxy : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;
+			procedure CopySettingsToCtrlProxy(var _ctrlProxy : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;
 				_settings : TRipGrepperSettings);
 			procedure CopyProxyToSettings(const _ctrlProxy : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;
 				_settings : TRipGrepperSettings);
@@ -440,7 +440,7 @@ begin
 		Exit;
 	end;
 
-	CopyCtrlsToProxy(FCtrlProxy);
+	CopyCtrlsToProxy(FCtrlProxy); // FormClose
 	CopyProxyToSettings(FCtrlProxy, FHistItemObj, FSettings);
 
 	if HasHistItemObjWithResult then begin
@@ -461,11 +461,6 @@ begin
 	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 
 	FSettings.StoreToPersister();
-
-	// var
-	// dbgArrSf := TSettingsDictionary.DictToStringArray(FSettings.SearchFormSettings.SettingsDict());
-	// FSettings.SearchFormSettings.StoreToPersister();
-
 	FSettings.UpdateFile();
 end;
 
@@ -475,17 +470,14 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.FormShow');
 	FShowing := True;
 	try
-		WriteProxyToCtrls;
+		WriteCtrlProxyToCtrls;
 		LoadExtensionSearchSettings;
 
-		CheckVsCodeRipGrep;
+		CheckVsCodeRipGrep; // vscode rg doesn't support --pretty
 		dbgMsg.Msg('RipGrepPath=' + FSettings.RipGrepParameters.RipGrepPath);
 
-		WriteCtrlsToRipGrepParametersSettings;
+		WriteCtrlsToRipGrepParametersSettings; // FormShow
 		UpdateCmbOptionsAndMemoCommandLine;
-		// UpdateCheckBoxesByGuiSearchParams(); ???
-
-		ShowReplaceCtrls(IsReplaceMode());
 
 		// Active Monitor
 		ScaleBy(TRipGrepperDpiScaler.GetActualDPI, self.PixelsPerInch);
@@ -532,13 +524,14 @@ begin
 	end;
 end;
 
-procedure TRipGrepperSearchDialogForm.WriteProxyToCtrls;
+procedure TRipGrepperSearchDialogForm.WriteCtrlProxyToCtrls();
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.WriteProxyToCtrls');
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.WriteCtrlProxyToCtrls');
 
 	SetComboItemsAndText(cmbSearchText, FCtrlProxy.SearchText, FCtrlProxy.SearchTextHist);
 	SetComboItemsAndText(cmbSearchDir, FCtrlProxy.SearchPath, FCtrlProxy.SearchPathHist);
+
 	SetComboItemsAndText(cmbReplaceText, FCtrlProxy.ReplaceText, FCtrlProxy.ReplaceTextHist);
 
 	SetComboItemsFromOptions(cmbFileMasks, FCtrlProxy.FileMasks, FCtrlProxy.FileMasksHist);
@@ -719,13 +712,17 @@ begin
 	FSettingsProxy.SetSearchText(cmbSearchText.Text);
 	FSettingsProxy.IsReplaceMode := IsReplaceMode;
 	if IsReplaceMode then begin
-		SetReplaceTextSetting(cmbReplaceText.Text);
+		if not FShowing then begin
+			SetReplaceTextSetting(cmbReplaceText.Text);
+		end;
 		FSettingsProxy.SetRgOptionWithValue(RG_PARAM_REGEX_REPLACE, FSettingsProxy.ReplaceText, True);
 	end else begin
 		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_REPLACE, True);
 		FSettingsProxy.ReplaceText := '';
 	end;
 	dbgMsg.Msg('ReplaceText=' + FSettingsProxy.ReplaceText);
+
+	ShowReplaceCtrls(IsReplaceMode());
 
 	FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
 	dbgMsg.Msg('SearchPath=' + cmbSearchDir.Text);
@@ -771,7 +768,7 @@ begin
 
 	StoreCmbHistorieItems();
 
-	WriteCtrlsToRipGrepParametersSettings();
+	WriteCtrlsToRipGrepParametersSettings(); // WriteCtrlsToSettings
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.WriteCtrlsToSettings: set GuiSearchTextParams=' + FSettingsProxy.ToString);
 	FSettings.RipGrepParameters.GuiSearchTextParams.Copy(FSettingsProxy);
 
@@ -839,10 +836,12 @@ begin
 
 	if not _bSkipReadCtrls then begin
 		dbgMsg.Msg('not SkipReadCtrls');
-		WriteCtrlsToRipGrepParametersSettings;
+		WriteCtrlsToRipGrepParametersSettings(); // UpdateMemoCommandLine
 	end;
 
+    //it can be changed by btns tbMatchCase, tbMatchWord etc.
 	FSettings.RipGrepParameters.GuiSearchTextParams.Copy(FSettingsProxy);
+
 	FSettings.RebuildArguments();
 	memoCommandLine.Text := FSettings.RipGrepParameters.GetCommandLine(FSettings.AppSettings.CopyToClipBoardShell);
 	FSettingsProxy.Copy(FSettings.RipGrepParameters.GuiSearchTextParams());
@@ -955,6 +954,9 @@ end;
 
 procedure TRipGrepperSearchDialogForm.cmbReplaceTextChange(Sender : TObject);
 begin
+	if FShowing then
+		Exit;
+
 	cmbReplaceText.Text := CheckAndCorrectMultiLine(cmbReplaceText.Text);
 	UpdateCtrls(cmbReplaceText);
 end;
@@ -988,7 +990,7 @@ begin
 	end;
 end;
 
-procedure TRipGrepperSearchDialogForm.CopySettingsToProxy(var _ctrlProxy : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;
+procedure TRipGrepperSearchDialogForm.CopySettingsToCtrlProxy(var _ctrlProxy : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;
 	_settings : TRipGrepperSettings);
 begin
 	CopyItemsToProxy(_ctrlProxy.SearchTextHist, FSettings.SearchTextsHistory);
@@ -1004,8 +1006,8 @@ begin
 		_ctrlProxy.SearchText := FHistItemObj.GuiSearchTextParams.SearchTextWithOptions.SearchTextOfUser;
 		// GetValuesFromHistObjRipGrepArguments(RG_ARG_SEARCH_TEXT);
 		_ctrlProxy.SearchOptions := FHistItemObj.GuiSearchTextParams.GetSearchOptions;
-
-		_ctrlProxy.ReplaceText :=  FHistItemObj.ReplaceText;
+		// _ctrlProxy.ReplaceText := GetValuesFromHistObjRipGrepArguments(RG_ARG_REPLACE_TEXT);
+		_ctrlProxy.ReplaceText := FHistItemObj.ReplaceText;
 		_ctrlProxy.IsReplaceMode := FHistItemObj.IsReplaceMode;
 
 		_ctrlProxy.SearchPath := GetValuesFromHistObjRipGrepArguments(RG_ARG_SEARCH_PATH, SEARCH_PATH_SEPARATOR);
@@ -1113,7 +1115,7 @@ begin
 		Exit;
 	end;
 	UpdateCmbsOnIDEContextChange();
-	WriteCtrlsToRipGrepParametersSettings();
+	WriteCtrlsToRipGrepParametersSettings(); // rbExtensionOptionsClick
 	UpdateCmbOptionsAndMemoCommandLine();
 end;
 
@@ -1250,7 +1252,7 @@ begin
 		LoadNewSearchSettings;
 	end;
 
-	CopySettingsToProxy(FCtrlProxy, FHistItemObj, FSettings);
+	CopySettingsToCtrlProxy(FCtrlProxy, FHistItemObj, FSettings);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetCmbSearchPathText(const _sPath : string);
@@ -1501,6 +1503,7 @@ begin
 
 	TabControl1.TabIndex := IfThen(FCtrlProxy.IsReplaceMode, 1, 0);
 	cmbReplaceText.Text := FCtrlProxy.ReplaceText;
+	dbgMsg.MsgFmt('cmbReplaceText.Text %s', [cmbReplaceText.Text]);
 	cbRgParamHidden.Checked := FCtrlProxy.IsHiddenChecked;
 	dbgMsg.MsgFmt('cbRgParamHidden.Checked %s', [BoolToStr(cbRgParamHidden.Checked)]);
 	cbRgParamNoIgnore.Checked := FCtrlProxy.IsNoIgnoreChecked;
