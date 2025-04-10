@@ -23,8 +23,10 @@ $global:PrevVersion = ($global:Description | Select-String '^PrevVersion:') -rep
 
 $global:PreRelease = $true
 $global:StandaloneAppName = "DRipGrepper.exe"
-$global:ExtensionFileName = "DRipExtension.bpl"
-$global:ExpertFileName = "DRipExtensions.dll"
+$global:DllNameWithoutExt = "DRipExtensions"
+$global:ExtensionFileName = "$global:DllNameWithoutExt.bpl"
+$global:ExpertFileName = "$global:DllNameWithoutExt.dll"
+$global:ExpertMapFileName = "$global:DllNameWithoutExt.map"
 
 $global:AssetZipName = "DRipGrepper.{0}.{1}.zip"
 $global:AssetExpertZipName = "DRipExtension.Dll.{0}.{1}.{2}.zip"
@@ -160,12 +162,12 @@ function Build-AndRunUnittest {
     }
 }
 
-function Build-ExtensionRelease {
+function Build-BplExtensionRelease {
     # copy scripts
     Import-Module -Name PSDelphi -Force
     $projectPath = Get-ProjectPath "Extension\src\Project" "Bpl."
     $result = $null
-    Build-DelphiProject -ProjectPath $projectPath\DRipExtension.dproj -BuildConfig $BuildConfig -StopOnFirstFailure -CountResult -Result ([ref]$result) 
+    Build-DelphiProject -ProjectPath $projectPath\DRipExtension.dproj -BuildConfig $BuildConfig -StopOnFirstFailure -CountResult -Result ([ref]$result) `
     Test-BuildResult -result $result
 }
 
@@ -176,7 +178,8 @@ function Build-ExpertDllRelease {
     $result = $null
     # add -LUDesignIde to the msbuild parameters
     # see https://docwiki.embarcadero.com/Libraries/Athens/en/DesignIntf
-    Build-DelphiProject -ProjectPath $projectPath\DRipExtensions.dproj  -BuildConfig $BuildConfig -StopOnFirstFailure -CountResult -Result ([ref]$result)
+    Build-DelphiProject -ProjectPath $projectPath\DRipExtensions.dproj -BuildConfig $BuildConfig `
+        -AddMsBuildParameters "/p:mapfile=Detailed;DCC_MapFile=3" -StopOnFirstFailure -CountResult -Result ([ref]$result)
     Test-BuildResult -result $result
 }
 
@@ -193,11 +196,17 @@ function Add-ToAssetsDir {
         Write-Error "Search FileVersion=$appVersion in *.dproj and change it!`r`nDeploy stopped." -ErrorAction Stop
     }
     New-Item -Path $AssetDir -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
+    
     Copy-Item -Path $AssetItemPath -Destination $AssetDir -ErrorAction Stop
 
     $assetLabel = $($item.FullName -replace "^(.*)(\\.+\\.+\\$BuildConfig.*$)", "`$2" )
     $formattedLabel = $assetLabel.PadRight($global:PadRightValue)
-    Write-Host "$formattedLabel  $($appVersion.PadRight(10)) $($item.LastWriteTime) added to $($AssetDir -replace [regex]::Escape("$PSScriptRoot\"), '')." -ForegroundColor Green
+
+    if ($item.Extension -eq '.map') {
+        Write-Host "$formattedLabel  $(" ".PadRight(10)) $($item.LastWriteTime) added to $($AssetDir -replace [regex]::Escape("$PSScriptRoot\"), '')." -ForegroundColor Green
+    } else {
+        Write-Host "$formattedLabel  $($appVersion.PadRight(10)) $($item.LastWriteTime) added to $($AssetDir -replace [regex]::Escape("$PSScriptRoot\"), '')." -ForegroundColor Green
+    }
 }
 
 function New-StandaloneZips {
@@ -264,6 +273,7 @@ function New-ExpertDllZip {
         $ZipDir = $(Join-Path $projectPath "Extension\src\Project\Dll.$($_.Data.Dir)\$ReleaseType\$BuildConfig")
         $AssetDir = $(Join-Path $global:AssetsDirectory "$($_.Data.Dir).Dll")
         Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $global:ExpertFileName) -Win64:$false
+        Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $global:ExpertMapFileName) -Win64:$false
         $dest = "$global:AssetsDirectory\$($global:AssetExpertZipName -f $($win64 ? 'x64' : 'x86'), $_.Data.Dir ,$global:Version)"
 
         # Write-Host "$AssetDir\*.* to`n $dest" 
