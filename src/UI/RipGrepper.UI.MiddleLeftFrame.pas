@@ -86,9 +86,10 @@ type
 			FData : TRipGrepperData;
 			FHistoryObjectList : THistoryObjectArray;
 			FSettings : TRipGrepperSettings;
-			procedure AddVstHistItem(_nodeData : PVSHistoryNodeData);
+			function AddVstHistItem(_nodeData : PVSHistoryNodeData) : PVirtualNode;
 			procedure AddVstReplaceNode(Node : PVirtualNode; NodeData : PVSHistoryNodeData);
 			procedure ChangeVstReplaceNode(Node : PVirtualNode; const _Data : PVSHistoryNodeData = nil);
+			procedure ExpandIfHasChild(const Node : PVirtualNode);
 			function GetData : TRipGrepperData;
 			function GetHistNodeIndex(Node : PVirtualNode) : integer;
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
@@ -107,7 +108,7 @@ type
 			procedure AddHistoryObject(_ho : IHistoryItemObject);
 			procedure AddOrUpdateHistoryItem;
 			procedure ChangeDataHistItemObject(_ho : IHistoryItemObject);
-			procedure ChangeHistoryNodeText;
+			function ChangeHistoryNodeText() : PVirtualNode;
 			procedure ClearMatchesInHistoryObject;
 			procedure ClearHistoryObjectList;
 			procedure DeleteCurrentHistoryItemFromList;
@@ -251,7 +252,6 @@ begin
 end;
 
 procedure TMiddleLeftFrame.AddOrUpdateHistoryItem;
-
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.AddOrUpdateHistoryItem');
@@ -280,7 +280,7 @@ begin
 	dbgMsg.Msg('Update HistoryObject LastSearchText=' + Settings.LastSearchText);
 end;
 
-procedure TMiddleLeftFrame.AddVstHistItem(_nodeData : PVSHistoryNodeData);
+function TMiddleLeftFrame.AddVstHistItem(_nodeData : PVSHistoryNodeData) : PVirtualNode;
 var
 	Node : PVirtualNode;
 	Data : PVSHistoryNodeData;
@@ -297,6 +297,7 @@ begin
 		// VstHistory.MultiLine[Node] := True;
 		AddVstReplaceNode(Node, Data);
 	end;
+	Result := Node;
 end;
 
 procedure TMiddleLeftFrame.AddVstReplaceNode(Node : PVirtualNode; NodeData : PVSHistoryNodeData);
@@ -324,7 +325,7 @@ begin
 	SetReplaceMode(_ho);
 end;
 
-procedure TMiddleLeftFrame.ChangeHistoryNodeText;
+function TMiddleLeftFrame.ChangeHistoryNodeText() : PVirtualNode;
 var
 	Node : PVirtualNode;
 	Data : PVSHistoryNodeData;
@@ -339,9 +340,11 @@ begin
 		Data^.SearchText := Settings.LastSearchText;
 		if Data^.ReplaceData.IsReplaceMode then begin
 			ChangeVstReplaceNode(Node, Data);
+            ExpandIfHasChild(Node);
 		end;
 	end;
 	VstHistory.Repaint;
+	Result := Node;
 end;
 
 procedure TMiddleLeftFrame.ChangeVstReplaceNode(Node : PVirtualNode; const _Data : PVSHistoryNodeData = nil);
@@ -553,6 +556,7 @@ begin
 	Node := GetNodeByIndex(VstHistory, _idx);
 	if Assigned(Node) then begin
 		VstHistory.Selected[Node] := true;
+//      ExpandIfHasChild(Node); //automatic through toAutoExpand
 	end;
 end;
 
@@ -729,6 +733,13 @@ begin
 		VstHistory.Header.Font.Height := MulDiv(VstHistory.Header.Font.Height, M, D);
 		// VstHistory.Font.Height := MulDiv(VstHistory.Font.Height, M, D); it's too much!
 		dbgMsg.MsgFmt('New VstHistory Fonts: %d', [VstHistory.Font.Height]);
+	end;
+end;
+
+procedure TMiddleLeftFrame.ExpandIfHasChild(const Node : PVirtualNode);
+begin
+	if Node.ChildCount > 0 then begin // if replace node is the first it is closed
+		VstHistory.Expanded[Node] := True;
 	end;
 end;
 

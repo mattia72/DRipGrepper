@@ -54,7 +54,7 @@ object MiddleLeftFrame: TMiddleLeftFrame
       ShowHint = True
       TabOrder = 0
       TreeOptions.PaintOptions = [toShowBackground, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages]
-      TreeOptions.SelectionOptions = [toFullRowSelect, toSiblingSelectConstraint]
+      TreeOptions.SelectionOptions = [toFullRowSelect, toSiblingSelectConstraint, toAlwaysSelectNode]
       OnBeforeCellPaint = VstHistoryBeforeCellPaint
       OnFreeNode = VstHistoryFreeNode
       OnGetText = VstHistoryGetText
@@ -115,8 +115,8 @@ object MiddleLeftFrame: TMiddleLeftFrame
     end
     object ActionSave: TAction
       Caption = 'Save...'
-      OnExecute = ActionSaveExecute
       Visible = False
+      OnExecute = ActionSaveExecute
     end
     object ActionLoad: TAction
       Caption = 'Load...'
