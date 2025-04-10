@@ -53,11 +53,13 @@ type
 		pmLoad : TMenuItem;
 		ActionLoad : TAction;
 		SaveDialog1 : TSaveDialog;
+		OpenDialog1 : TOpenDialog;
 		procedure ActionCopyCmdLineToClipboardExecute(Sender : TObject);
 		procedure ActionHistoryDeleteAllExecute(Sender : TObject);
 		procedure ActionHistoryDeleteAllUpdate(Sender : TObject);
 		procedure ActionHistoryDeleteExecute(Sender : TObject);
 		procedure ActionHistoryDeleteUpdate(Sender : TObject);
+		procedure ActionLoadExecute(Sender : TObject);
 		procedure ActionOpenSearchFormExecute(Sender : TObject);
 		procedure ActionSaveExecute(Sender : TObject);
 		procedure PopupMenuHistoryPopup(Sender : TObject);
@@ -143,7 +145,8 @@ uses
 	System.StrUtils,
 	RipGrepper.Helper.Types,
 	RipGrepper.Common.SimpleTypes,
-	RipGrepper.Helper.HistorySaverLoader;
+	RipGrepper.Helper.HistorySaverLoader,
+	Spring;
 
 {$R *.dfm}
 
@@ -213,6 +216,16 @@ begin
 	ActionHistoryDelete.Enabled := VstHistory.Focused and (CurrentHistoryItemIndex <> -1);
 end;
 
+procedure TMiddleLeftFrame.ActionLoadExecute(Sender : TObject);
+begin
+	OpenDialog1.InitialDir := ExtractFilePath(Application.ExeName);
+	OpenDialog1.Filter := 'DRipGrepper History File (*.drh)|*.drh|All Files (*.*)|*.*';
+	OpenDialog1.DefaultExt := 'rgh';
+	if OpenDialog1.Execute then begin
+		VstHistory.LoadFromFile(OpenDialog1.FileName);
+	end;
+end;
+
 procedure TMiddleLeftFrame.ActionOpenSearchFormExecute(Sender : TObject);
 begin
 	var
@@ -229,14 +242,12 @@ begin
 end;
 
 procedure TMiddleLeftFrame.ActionSaveExecute(Sender : TObject);
-var
-	filePath : string;
 begin
 	SaveDialog1.InitialDir := ExtractFilePath(Application.ExeName);
 	SaveDialog1.Filter := 'DRipGrepper History File (*.drh)|*.drh|All Files (*.*)|*.*';
 	SaveDialog1.DefaultExt := 'rgh';
 	if SaveDialog1.Execute then begin
-		VstHistory.SaveToFile(filePath);
+		VstHistory.SaveToFile(SaveDialog1.FileName);
 	end;
 
 end;
@@ -340,7 +351,7 @@ begin
 		Data^.SearchText := Settings.LastSearchText;
 		if Data^.ReplaceData.IsReplaceMode then begin
 			ChangeVstReplaceNode(Node, Data);
-            ExpandIfHasChild(Node);
+			ExpandIfHasChild(Node);
 		end;
 	end;
 	VstHistory.Repaint;
@@ -556,7 +567,7 @@ begin
 	Node := GetNodeByIndex(VstHistory, _idx);
 	if Assigned(Node) then begin
 		VstHistory.Selected[Node] := true;
-//      ExpandIfHasChild(Node); //automatic through toAutoExpand
+		// ExpandIfHasChild(Node); //automatic through toAutoExpand
 	end;
 end;
 
@@ -744,10 +755,17 @@ begin
 end;
 
 procedure TMiddleLeftFrame.VstHistoryLoadTree(Sender : TBaseVirtualTree; Stream : TStream);
+var
+	hio : IHistoryItemObject;
+	hsl : IShared<THistorySaverLoader>;
 begin
+	hio := THistoryItemObject.Create;
+	hsl := Shared.Make<THistorySaverLoader>(THistorySaverLoader.Create(hio));
+	hsl.LoadFromStream(Stream);
+
 	var
 		nodeData : TVSHistoryNodeData;
-	nodeData.SearchText := '';
+	nodeData.SearchText := hio.SearchText;
 	nodeData.ReplaceData.IsReplaceMode := False;
 	nodeData.ReplaceData.ReplaceText := '';
 
@@ -756,17 +774,16 @@ end;
 
 procedure TMiddleLeftFrame.VstHistorySaveTree(Sender : TBaseVirtualTree; Stream : TStream);
 var
-	node : PVirtualNode;
 	data : PVSHistoryNodeData;
 	hio : IHistoryItemObject;
 	idx : integer;
+	hsl : IShared<THistorySaverLoader>;
 begin
-	for node in VstHistory.Nodes() do begin
+	for var node : PVirtualNode in VstHistory.Nodes() do begin
 		data := VstHistory.GetNodeData(node);
 		idx := GetHistNodeIndex(node);
 		hio := GetHistoryObject(idx);
-		var
-		hsl := THistorySaverLoader.Create(hio);
+		hsl := Shared.Make<THistorySaverLoader>(THistorySaverLoader.Create(hio));
 		hsl.SaveToStream(Stream);
 	end;
 end;

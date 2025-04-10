@@ -115,12 +115,11 @@ object MiddleLeftFrame: TMiddleLeftFrame
     end
     object ActionSave: TAction
       Caption = 'Save...'
-      Visible = False
       OnExecute = ActionSaveExecute
     end
     object ActionLoad: TAction
       Caption = 'Load...'
-      Visible = False
+      OnExecute = ActionLoadExecute
     end
   end
   object PopupMenuHistory: TPopupMenu
@@ -253,5 +252,9 @@ object MiddleLeftFrame: TMiddleLeftFrame
   object SaveDialog1: TSaveDialog
     Left = 344
     Top = 40
+  end
+  object OpenDialog1: TOpenDialog
+    Left = 485
+    Top = 55
   end
 end
