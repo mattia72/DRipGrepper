@@ -9,11 +9,11 @@ uses
 type
 	THistorySaverLoader = class(TObject)
 		private
-			FHistObj: IHistoryItemObject;
+			FHistObj : IHistoryItemObject;
 
 		public
 			constructor Create(_histObj : IHistoryItemObject);
-            procedure SaveToStream(_stream : TStream);
+			procedure SaveToStream(_stream : TStream);
 			procedure LoadFromStream(_stream : TStream);
 	end;
 
@@ -26,12 +26,12 @@ end;
 
 procedure THistorySaverLoader.SaveToStream(_stream : TStream);
 begin
-    FHistObj.RipGrepArguments.SaveToStream(_stream);
+	FHistObj.RipGrepArguments.SaveToStream(_stream);
 end;
 
 procedure THistorySaverLoader.LoadFromStream(_stream : TStream);
 begin
-    FHistObj.RipGrepArguments.LoadFromStream(_stream);
+	FHistObj.RipGrepArguments.LoadFromStream(_stream);
 end;
 
 end.
