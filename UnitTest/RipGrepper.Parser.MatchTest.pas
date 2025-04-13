@@ -5,14 +5,17 @@ interface
 uses
 	DUnitX.TestFramework,
 	RipGrepper.Common.Interfaces,
-	Delphi.Mocks;
+	Delphi.Mocks,
+	RipGrepper.Common.SearchTextWithOptions,
+	Spring;
 
 type
 
 	[TestFixture]
 	TRipGrepMatchTest = class
 		private
-			FifSearchParam : TMock<ISearchParams>;
+			FSearchParamMock : TMock<ISearchParams>;
+			FguiParams : IShared<TSearchTextWithOptions>;
 
 		public
 			[Setup]
@@ -60,17 +63,13 @@ uses
 	System.SysUtils,
 	RipGrepper.Parsers.VimGrepMatchLine,
 	RipGrepper.Common.ParsedObject,
-	DUnitX.Utils,
-	RipGrepper.Common.SearchTextWithOptions;
+	DUnitX.Utils;
 
 procedure TRipGrepMatchTest.Setup;
-var
-	guiParams : TSearchTextWithOptions;
 begin
-	guiParams := TSearchTextWithOptions.New('search_text', []);
-
-	FifSearchParam := TMock<ISearchParams>.Create();
-	FifSearchParam.Setup.WillReturn(TValue.From(guiParams)).When.GetGuiSearchParams;
+	FguiParams := Shared.Make<TSearchTextWithOptions>(TSearchTextWithOptions.Create('search_text', []));
+	FSearchParamMock := TMock<ISearchParams>.Create();
+	FSearchParamMock.Setup.WillReturn(TValue.From<IShared<TSearchTextWithOptions>>(FguiParams)).When.GetGuiSearchParams;
 end;
 
 procedure TRipGrepMatchTest.TearDown;
@@ -83,7 +82,7 @@ var
 begin
 	parser := TVimGrepMatchLineParser.Create();
 
-	parser.SearchParams := FifSearchParam; // TODO Mock!
+	parser.SearchParams := FSearchParamMock;
 	parser.ParseLine(0, _s);
 	var
 	pr := parser.ParseResult;
@@ -126,7 +125,7 @@ var
 	parseRes : IParsedObjectRow;
 begin
 	m := TVimGrepPrettyMatchLineParser.Create();
-	m.SearchParams := FifSearchParam; // TODO Mock!
+	m.SearchParams := FSearchParamMock;
 
 	m.ParseLine(0, _s);
 	parseRes := (m as TVimGrepMatchLineParser).ParseResult;
@@ -152,7 +151,7 @@ var
 	m : ISearchResultLineParser;
 begin
 	m := TVimGrepMatchLineParser.Create();
-	m.SearchParams := FifSearchParam; // TODO Mock!
+	m.SearchParams := FSearchParamMock;
 	m.ParseLine(0, _s);
 	Assert.IsTrue(not(m as TVimGrepMatchLineParser).ParseResult.IsError,
 		{ } 'Line:' + CRLF +
