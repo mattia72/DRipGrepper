@@ -756,7 +756,6 @@ end;
 procedure TMiddleLeftFrame.VstHistoryLoadTree(Sender : TBaseVirtualTree; Stream : TStream);
 var
 	hio : IHistoryItemObject;
-//  hsl : IShared<THistorySaverLoader>;
 	sr : IShared<TStreamReader>;
 	count : integer;
 	nodeData : TVSHistoryNodeData;
@@ -764,11 +763,13 @@ begin
 	sr := Shared.Make<TStreamReader>(TStreamReader.Create(Stream));
 	count := StrToInt(sr.ReadLine());
 
+    VstHistory.Clear;
 	for var i := 0 to count - 1 do begin
 		hio := THistoryItemObject.Create;
 		hio.LoadFromStreamReader(sr);
+        AddHistoryObject(hio);
 
-		nodeData.SearchText := hio.SearchText;
+		nodeData.SearchText := hio.GetSearchTextWithOptions().SearchTextOfUser;
 		nodeData.ReplaceData.IsReplaceMode := False;
 		nodeData.ReplaceData.ReplaceText := '';
 
