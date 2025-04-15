@@ -12,7 +12,8 @@ uses
 	RipGrepper.Helper.Types,
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Common.SearchTextWithOptions,
-	RipGrepper.Settings.SettingVariant;
+	RipGrepper.Settings.SettingVariant,
+	Spring;
 
 type
 	TGuiSearchTextParams = class(TPersistableSettings)
@@ -20,17 +21,18 @@ type
 			FIsReplaceMode : Boolean;
 			FRgOptions : TOptionStrings;
 			FIsRgExeOptionSet : Boolean;
-			FReplaceText: string;
+			FReplaceText : string;
 			FExpertOptions : TOptionStrings;
 			FSearchParams : IStringSetting;
-			FSearchTextWithOptions : TSearchTextWithOptions;
-			function GetReplaceText(): string;
+			FSearchTextWithOptions : IShared<TSearchTextWithOptions>;
+			function GetReplaceText() : string;
+			function GetSearchTextWithOptions() : IShared<TSearchTextWithOptions>;
 			procedure LoadSearchOptionsFromDict(const _bDefault : Boolean);
 			// function ResetRgOption(const _sParamRegex : string; const _bReset : Boolean = False) : string;
 			procedure SetIsReplaceMode(const Value : Boolean);
-			procedure SetReplaceText(const Value: string);
+			procedure SetReplaceText(const Value : string);
 			procedure SetRgOptions(const Value : TOptionStrings);
-			procedure UpdateSearchParamsSetting(const _options: TSearchOptionSet);
+			procedure UpdateSearchParamsSetting(const _options : TSearchOptionSet);
 
 		protected
 			procedure Init; override;
@@ -61,10 +63,10 @@ type
 
 			property IsReplaceMode : Boolean read FIsReplaceMode write SetIsReplaceMode;
 			property IsRgExeOptionSet : Boolean read FIsRgExeOptionSet write FIsRgExeOptionSet;
-			property ReplaceText: string read GetReplaceText write SetReplaceText;
+			property ReplaceText : string read GetReplaceText write SetReplaceText;
 			property ExpertOptions : TOptionStrings read FExpertOptions write FExpertOptions;
 			property RgOptions : TOptionStrings read FRgOptions write SetRgOptions;
-			property SearchTextWithOptions : TSearchTextWithOptions read FSearchTextWithOptions;
+			property SearchTextWithOptions : IShared<TSearchTextWithOptions> read GetSearchTextWithOptions;
 	end;
 
 implementation
@@ -81,19 +83,19 @@ uses
 constructor TGuiSearchTextParams.Create(const _sText, _sRepl : string; const _bMC, _bMW, _bUR : Boolean);
 begin
 	Create();
-	TSearchTextWithOptions.New(_sText,
-		{ } TSearchTextWithOptions.GetAsSearchOptionSet(_bMC, _bMW, _bUR));
+	FSearchTextWithOptions := Shared.Make<TSearchTextWithOptions>(TSearchTextWithOptions.Create(_sText,
+		{ } TSearchTextWithOptions.GetAsSearchOptionSet(_bMC, _bMW, _bUR)));
 end;
 
 procedure TGuiSearchTextParams.Clear;
 begin
 	FIsRgExeOptionSet := False;
-	FSearchTextWithOptions.Clear;
+	SearchTextWithOptions.Clear;
 end;
 
 procedure TGuiSearchTextParams.ResetOption(const _searchOption : EGuiOption);
 begin
-	FSearchTextWithOptions.ResetOption(_searchOption);
+	SearchTextWithOptions.ResetOption(_searchOption);
 	UpdateRgParamsByGuiOptions();
 end;
 
@@ -108,7 +110,7 @@ end;
 
 procedure TGuiSearchTextParams.SetOption(const _searchOption : EGuiOption);
 begin
-	FSearchTextWithOptions.SetOption(_searchOption);
+	SearchTextWithOptions.SetOption(_searchOption);
 	UpdateRgParamsByGuiOptions();
 end;
 
@@ -119,7 +121,7 @@ end;
 
 function TGuiSearchTextParams.GetAsString(const _bGuiOptionsOnly : Boolean = False) : string;
 begin
-	Result := FSearchTextWithOptions.GetAsString(_bGuiOptionsOnly);
+	Result := SearchTextWithOptions.GetAsString(_bGuiOptionsOnly);
 	if not _bGuiOptionsOnly then begin
 		Result := Format('%s IsRgOpSet: %s' + CRLF + '%s' + CRLF + 'IsReplMode:%s - %s',
 			{ } [Result, BoolToStr(IsRgExeOptionSet, True),
@@ -141,6 +143,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.Create', True);
 	dbgMsg.MsgFmt('Create %p for section: %s', [Pointer(self), IniSectionName]);
+	FSearchTextWithOptions := nil;
 	Clear();
 end;
 
@@ -148,6 +151,7 @@ constructor TGuiSearchTextParams.Create(const _iniSection : string);
 begin
 	IniSectionName := _iniSection;
 	inherited Create(); // own ini file
+	FSearchTextWithOptions := nil;
 	Clear();
 end;
 
@@ -161,7 +165,7 @@ end;
 
 function TGuiSearchTextParams.AreSet(_options : TArray<EGuiOption>) : Boolean;
 begin
-	Result := FSearchTextWithOptions.AreSet(_options);
+	Result := SearchTextWithOptions.AreSet(_options);
 end;
 
 procedure TGuiSearchTextParams.Copy(const _other : TGuiSearchTextParams);
@@ -170,7 +174,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.Copy');
 	inherited Copy(_other as TPersistableSettings);
 
-	FSearchTextWithOptions.Copy(_other.FSearchTextWithOptions);
+	SearchTextWithOptions.Copy(_other.SearchTextWithOptions());
 
 	FReplaceText := _other.ReplaceText;
 	FIsReplaceMode := _other.IsReplaceMode;
@@ -183,14 +187,14 @@ begin
 	// inherited Copy(_other as TPersistableSettings);
 end;
 
-function TGuiSearchTextParams.GetReplaceText(): string;
+function TGuiSearchTextParams.GetReplaceText() : string;
 begin
 	Result := FReplaceText;
 end;
 
 function TGuiSearchTextParams.GetSearchText : string;
 begin
-	Result := FSearchTextWithOptions.SearchTextAsRgParam;
+	Result := SearchTextWithOptions.SearchTextAsRgParam;
 end;
 
 procedure TGuiSearchTextParams.Init;
@@ -199,7 +203,7 @@ begin
 	CreateSetting('SearchParams', FSearchParams);
 end;
 
-procedure TGuiSearchTextParams.LoadFromDict();   // ok
+procedure TGuiSearchTextParams.LoadFromDict(); // ok
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.LoadFromDict');
@@ -214,11 +218,11 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.LoadSearchOptionsFromDict Default=' + BoolToStr(_bDefault));
 	sParams := FSearchParams.Value;
 	dbgMsg.Msg(RgOptions.AsString);
-	FSearchTextWithOptions.UpdateSearchOptions(sParams);
-	if FSearchTextWithOptions.SearchOptions = [] then begin
+	SearchTextWithOptions.UpdateSearchOptions(sParams);
+	if SearchTextWithOptions.SearchOptions = [] then begin
 		SetOption(EGuiOption.soNotSet);
 	end else begin
-		for var so in FSearchTextWithOptions.SearchOptions do begin
+		for var so in SearchTextWithOptions.SearchOptions do begin
 			SetOption(so);
 		end;
 	end;
@@ -232,7 +236,7 @@ end;
 
 procedure TGuiSearchTextParams.SetSearchOptions(const _options : TSearchOptionSet);
 begin
-	FSearchTextWithOptions.SearchOptions := _options;
+	SearchTextWithOptions.SearchOptions := _options;
 	UpdateRgParamsByGuiOptions();
 	UpdateSearchParamsSetting(_options);
 end;
@@ -251,23 +255,31 @@ end;
 
 function TGuiSearchTextParams.GetSearchOptions : TSearchOptionSet;
 begin
-	Result := FSearchTextWithOptions.SearchOptions;
+	Result := SearchTextWithOptions.SearchOptions;
 end;
 
-procedure TGuiSearchTextParams.SetReplaceText(const Value: string);
+function TGuiSearchTextParams.GetSearchTextWithOptions() : IShared<TSearchTextWithOptions>;
+begin
+	if not Assigned(FSearchTextWithOptions) then begin
+		FSearchTextWithOptions := Shared.Make<TSearchTextWithOptions>();;
+	end;
+	Result := FSearchTextWithOptions;
+end;
+
+procedure TGuiSearchTextParams.SetReplaceText(const Value : string);
 begin
 	FReplaceText := Value;
 end;
 
 procedure TGuiSearchTextParams.SetSearchText(const _text : string);
 begin
-	FSearchTextWithOptions.SearchTextOfUser := _text;
+	SearchTextWithOptions.SearchTextOfUser := _text;
 	UpdateRgParamsByGuiOptions();
 end;
 
 procedure TGuiSearchTextParams.SwitchOption(const _newOption : EGuiOption);
 begin
-    FSearchTextWithOptions.SwitchOption(_newOption);
+	SearchTextWithOptions.SwitchOption(_newOption);
 end;
 
 function TGuiSearchTextParams.ToLogString : string;
@@ -290,7 +302,7 @@ begin
 	end;
 
 	for var op : TSearchOptionToRgOptions in SEARCH_OPTION_CASES do begin
-		if op.SearchOption = self.FSearchTextWithOptions.SearchOptions then begin
+		if op.SearchOption = self.SearchTextWithOptions.SearchOptions then begin
 			var
 				opArr : TArrayEx<string>;
 			for var os in op.RgOptions do begin
@@ -305,7 +317,7 @@ begin
 	self.RgOptions.Copy(backupOptions);
 end;
 
-procedure TGuiSearchTextParams.UpdateSearchParamsSetting(const _options: TSearchOptionSet);
+procedure TGuiSearchTextParams.UpdateSearchParamsSetting(const _options : TSearchOptionSet);
 begin
 	FSearchParams.Value := TSearchTextWithOptions.SearchOptionSetToString(_options);
 end;

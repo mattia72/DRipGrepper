@@ -33,8 +33,10 @@ type
 			procedure LoadFromStream(_stream : TStream);
 			constructor Create(const _searchText : string; const _options : TSearchOptionSet); overload;
 			constructor Create(); overload;
+			procedure LoadFromStreamReader(_sr : TStreamReader);
 			procedure ResetOption(const _searchOption : EGuiOption);
 			procedure SaveToStream(_stream : TStream);
+			procedure SaveToStreamWriter(_sw : TStreamWriter);
 			class function SearchOptionSetToString(const _so : TSearchOptionSet) : string; static;
 			procedure SetOption(const _searchOption : EGuiOption);
 			procedure UpdateSearchOptions(const _sOptions : string);
@@ -157,8 +159,13 @@ var
 	sr : IShared<TStreamReader>;
 begin
 	sr := Shared.Make<TStreamReader>(TStreamReader.Create(_stream, TEncoding.UTF8));
-	SearchTextOfUser := sr.ReadLine;
-	SearchOptions := StringToSearchOptionSet(sr.ReadLine);
+    LoadFromStreamReader(sr);
+end;
+
+procedure TSearchTextWithOptions.LoadFromStreamReader(_sr : TStreamReader);
+begin
+	SearchTextOfUser := _sr.ReadLine;
+	SearchOptions := StringToSearchOptionSet(_sr.ReadLine);
 end;
 
 procedure TSearchTextWithOptions.SaveToStream(_stream : TStream);
@@ -166,8 +173,13 @@ var
 	sw : IShared<TStreamWriter>;
 begin
 	sw := Shared.Make<TStreamWriter>(TStreamWriter.Create(_stream));
-	sw.WriteLine(SearchTextOfUser);
-	sw.WriteLine(SearchOptionSetToString(SearchOptions));
+    SaveToStreamWriter(sw)
+end;
+
+procedure TSearchTextWithOptions.SaveToStreamWriter(_sw : TStreamWriter);
+begin
+	_sw.WriteLine(SearchTextOfUser);
+	_sw.WriteLine(SearchOptionSetToString(SearchOptions));
 end;
 
 class function TSearchTextWithOptions.SearchOptionSetToString(const _so : TSearchOptionSet) : string;

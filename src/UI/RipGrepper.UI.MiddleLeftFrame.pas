@@ -29,7 +29,6 @@ uses
 	SVGIconImageList;
 
 type
-	THistoryObjectArray = TArrayEx<IHistoryItemObject>;
 
 	TMiddleLeftFrame = class(TFrame)
 		VstHistory : TVirtualStringTree;
@@ -257,7 +256,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.AddHistoryObject');
 
-	dbgMsg.Msg('Add HistoryObject ' + Settings.LastSearchText);
+	dbgMsg.Msg('Add HistoryObject: ' + _ho.SearchText + ' Setting:' + Settings.LastSearchText);
 	CurrentHistoryItemIndex := FHistoryObjectList.Add(_ho);
 	dbgMsg.Msg('CurrentHistoryItemIndex=' + CurrentHistoryItemIndex.ToString);
 end;
@@ -757,34 +756,41 @@ end;
 procedure TMiddleLeftFrame.VstHistoryLoadTree(Sender : TBaseVirtualTree; Stream : TStream);
 var
 	hio : IHistoryItemObject;
-	hsl : IShared<THistorySaverLoader>;
+//  hsl : IShared<THistorySaverLoader>;
+	sr : IShared<TStreamReader>;
+	count : integer;
+	nodeData : TVSHistoryNodeData;
 begin
-	hio := THistoryItemObject.Create;
-	hsl := Shared.Make<THistorySaverLoader>(THistorySaverLoader.Create(hio));
-	hsl.LoadFromStream(Stream);
+	sr := Shared.Make<TStreamReader>(TStreamReader.Create(Stream));
+	count := StrToInt(sr.ReadLine());
 
-	var
-		nodeData : TVSHistoryNodeData;
-	nodeData.SearchText := hio.SearchText;
-	nodeData.ReplaceData.IsReplaceMode := False;
-	nodeData.ReplaceData.ReplaceText := '';
+	for var i := 0 to count - 1 do begin
+		hio := THistoryItemObject.Create;
+		hio.LoadFromStreamReader(sr);
 
-	AddVstHistItem(@nodeData);
+		nodeData.SearchText := hio.SearchText;
+		nodeData.ReplaceData.IsReplaceMode := False;
+		nodeData.ReplaceData.ReplaceText := '';
+
+		AddVstHistItem(@nodeData);
+	end;
 end;
 
 procedure TMiddleLeftFrame.VstHistorySaveTree(Sender : TBaseVirtualTree; Stream : TStream);
 var
-	data : PVSHistoryNodeData;
+//  data : PVSHistoryNodeData;
 	hio : IHistoryItemObject;
 	idx : integer;
-	hsl : IShared<THistorySaverLoader>;
+//  hsl : IShared<THistorySaverLoader>;
+	sw : IShared<TStreamWriter>;
 begin
+	sw := Shared.Make<TStreamWriter>(TStreamWriter.Create(Stream));
+	sw.WriteLine(VstHistory.RootNodeCount);
 	for var node : PVirtualNode in VstHistory.Nodes() do begin
-		data := VstHistory.GetNodeData(node);
+//      data := VstHistory.GetNodeData(node);
 		idx := GetHistNodeIndex(node);
 		hio := GetHistoryObject(idx);
-		hsl := Shared.Make<THistorySaverLoader>(THistorySaverLoader.Create(hio));
-		hsl.SaveToStream(Stream);
+		hio.SaveToStreamWriter(sw);
 	end;
 end;
 

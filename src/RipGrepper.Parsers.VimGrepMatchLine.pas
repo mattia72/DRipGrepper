@@ -59,13 +59,15 @@ uses
 	System.SysUtils,
 	System.IOUtils,
 	RipGrepper.Data.Parsers,
-	RipGrepper.Common.SearchTextWithOptions;
+	RipGrepper.Common.SearchTextWithOptions, 
+	Spring;
 
 constructor TVimGrepMatchLineParser.Create;
 begin
 	inherited;
 	FParserData := TRipGrepLineParserData.Create(TParserType.ptRipGrepSearch, RG_MATCH_LINE_REGEX, RG_MATCH_LINE_CONTEXT_REGEX);
 	FParseResult := TParsedObjectRow.Create();
+//  FSearchParams :=
 end;
 
 destructor TVimGrepMatchLineParser.Destroy;
@@ -179,7 +181,7 @@ procedure TVimGrepMatchLineParser.SetPrettyRegex;
 var
 	pattern, s : string;
 	so: TSearchOptionSet;
-	stwo : TSearchTextWithOptions;
+	stwo : IShared<TSearchTextWithOptions>;
 begin
 	stwo := FSearchParams.GetGuiSearchParams; // can stwo
 	so := stwo.SearchOptions;
