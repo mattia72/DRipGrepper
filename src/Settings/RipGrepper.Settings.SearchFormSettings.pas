@@ -14,7 +14,8 @@ uses
 	RipGrepper.Settings.RipGrepParameterSettings,
 	RipGrepper.Settings.AppSettings,
 	RipGrepper.Settings.ExtensionSettings,
-	RipGrepper.Settings.SettingVariant;
+	RipGrepper.Settings.SettingVariant,
+	RipGrepper.Common.Interfaces.StreamStorable;
 
 type
 
@@ -128,12 +129,12 @@ end;
 
 function TSearchFormSettings.GetExtensionSettings : TRipGrepperExtensionSettings;
 begin
-//  if not FExtensionSettings.IsAlreadyRead then begin
-//      var
-//      dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.GetExtensionSettings');
-//
-//      FExtensionSettings.ReadFile;
-//  end;
+	// if not FExtensionSettings.IsAlreadyRead then begin
+	// var
+	// dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.GetExtensionSettings');
+	//
+	// FExtensionSettings.ReadFile;
+	// end;
 	Result := FExtensionSettings;
 end;
 

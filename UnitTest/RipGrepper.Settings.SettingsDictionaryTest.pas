@@ -9,7 +9,7 @@ uses
 	RipGrepper.Settings.SettingVariant,
 	Spring,
 	System.IniFiles,
-	RipGrepper.Settings.FilePersister;
+	RipGrepper.Settings.FilePersister, RipGrepper.Settings.Persister.Interfaces;
 
 type
 

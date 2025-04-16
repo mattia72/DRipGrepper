@@ -99,7 +99,10 @@ uses
   RipGrepper.Common.SearchTextWithOptions in '..\..\Common\RipGrepper.Common.SearchTextWithOptions.pas',
   RipGrepper.OpenWith.CmdEditorForm in '..\..\OpenWith\RipGrepper.OpenWith.CmdEditorForm.pas' {OpenWithCommandEditor},
   RipGrepper.Settings.FilePersister in '..\..\Settings\RipGrepper.Settings.FilePersister.pas',
-  RipGrepper.Helper.HistorySaverLoader in '..\..\RipGrepper.Helper.HistorySaverLoader.pas';
+  RipGrepper.Helper.HistorySaverLoader in '..\..\RipGrepper.Helper.HistorySaverLoader.pas',
+  RipGrepper.Common.Interfaces.StreamStorable in '..\..\Common\RipGrepper.Common.Interfaces.StreamStorable.pas',
+  RipGrepper.Settings.StreamPersister in '..\..\Settings\RipGrepper.Settings.StreamPersister.pas',
+  RipGrepper.Settings.Persister.Interfaces in '..\..\Settings\RipGrepper.Settings.Persister.Interfaces.pas';
 
 {$R *.res}
 

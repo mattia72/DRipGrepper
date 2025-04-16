@@ -6,7 +6,10 @@ uses
 	RipGrepper.Settings.SettingVariant,
 	Spring.Collections,
 	System.IniFiles,
-	RipGrepper.Settings.FilePersister;
+	RipGrepper.Settings.FilePersister,
+	RipGrepper.Common.Interfaces.StreamStorable,
+	System.Classes,
+	RipGrepper.Settings.Persister.Interfaces;
 
 type
 	TSettingSection = string;
@@ -14,7 +17,7 @@ type
 	ISettingKeys = IDictionary<TSettingKey, ISetting>;
 	ISettingSections = IDictionary<TSettingSection, ISettingKeys>;
 
-	TSettingsDictionary = class
+	TSettingsDictionary = class(TNoRefCountObject, IStreamStorable)
 
 		private
 			FInnerDictionary : ISettingSections;
@@ -43,6 +46,10 @@ type
 			procedure LoadFromPersister();
 			procedure SetState(const _from, _to : TSettingState; const _section : string = '');
 			function HasState(const _state : TSettingState; const _section : string = '') : Boolean;
+			procedure LoadFromStream(_stream : TStream);
+			procedure LoadFromStreamReader(_sr : TStreamReader);
+			procedure SaveToStream(_stream : TStream);
+			procedure SaveToStreamWriter(_sw : TStreamWriter);
 			procedure StoreToPersister(const _section : string);
 
 			property Count : Integer read GetCount;
@@ -370,6 +377,49 @@ begin
 				Result := p.Value.State = _state;
 			end);
 	end;
+end;
+
+procedure TSettingsDictionary.LoadFromStream(_stream : TStream);
+var
+	sr : IShared<TStreamReader>;
+begin
+	sr := Shared.Make<TStreamReader>(TStreamReader.Create(_stream, TEncoding.UTF8));
+	LoadFromStreamReader(sr);
+end;
+
+procedure TSettingsDictionary.LoadFromStreamReader(_sr : TStreamReader);
+var
+	key: string;
+	keyCount: Integer;
+	section: string;
+	sectionCount : integer;
+	setting : ISetting;
+begin
+	InnerDictionary.Clear;
+	sectionCount := _sr.ReadLine.ToInteger;
+	for var i := 0 to sectionCount - 1 do begin
+		section := _sr.ReadLine();
+		FInnerDictionary.Add(section,
+		{ } TCollections.CreateSortedDictionary<TSettingKey, ISetting>());
+
+		keyCount := _sr.ReadLine().ToInteger;
+		for var j := 0 to keyCount - 1 do begin
+			key := _sr.ReadLine;
+			setting := TSetting.Create();
+			setting.LoadFromPersister();
+			FInnerDictionary[section].Add(key, setting);
+		end;
+	end;
+end;
+
+procedure TSettingsDictionary.SaveToStream(_stream : TStream);
+begin
+
+end;
+
+procedure TSettingsDictionary.SaveToStreamWriter(_sw : TStreamWriter);
+begin
+
 end;
 
 end.

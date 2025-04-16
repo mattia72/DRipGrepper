@@ -13,7 +13,9 @@ uses
 	System.SyncObjs,
 	ArrayEx,
 	Spring,
-	RipGrepper.Settings.FilePersister;
+	RipGrepper.Settings.FilePersister,
+  RipGrepper.Common.Interfaces.StreamStorable, System.Classes,
+  RipGrepper.Settings.Persister.Interfaces;
 
 type
 
@@ -28,7 +30,7 @@ type
 		procedure StoreToPersister();
 	end;
 
-	TPersistableSettings = class(TNoRefCountObject, IIniPersistable)
+	TPersistableSettings = class(TNoRefCountObject, IIniPersistable, IStreamStorable)
 		// TPersistableSettings = class(TInterfacedObject, IIniPersistable)
 		strict private
 			class constructor Create;
@@ -112,12 +114,18 @@ type
 			// Thread safe write Settings to file
 			// </summary>
 			procedure UpdateFile(const _bForceStoreToPersister : Boolean = False; const _bClearSection : Boolean = False);
+
+			procedure LoadFromStream(_stream : TStream);
+			procedure SaveToStream(_stream : TStream);
+			procedure LoadFromStreamReader(_sr : TStreamReader);
+			procedure SaveToStreamWriter(_sw : TStreamWriter);
+
 	end;
 
 implementation
 
 uses
-	System.Classes,
+
 	RipGrepper.Tools.DebugUtils,
 	System.Variants,
 	RipGrepper.Common.Constants,
@@ -478,6 +486,26 @@ end;
 procedure TPersistableSettings.LoadFromDict();
 begin
 	// overwrite this to convert setting values to other types
+end;
+
+procedure TPersistableSettings.LoadFromStream(_stream : TStream);
+begin
+
+end;
+
+procedure TPersistableSettings.LoadFromStreamReader(_sr : TStreamReader);
+begin
+
+end;
+
+procedure TPersistableSettings.SaveToStream(_stream : TStream);
+begin
+
+end;
+
+procedure TPersistableSettings.SaveToStreamWriter(_sw : TStreamWriter);
+begin
+
 end;
 
 function TPersistableSettings.ToLogString : string;

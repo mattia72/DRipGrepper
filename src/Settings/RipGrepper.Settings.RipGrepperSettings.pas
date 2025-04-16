@@ -112,7 +112,8 @@ uses
 	Winapi.Windows,
 	RipGrepper.Tools.LockGuard,
 	RipGrepper.Settings.FilePersister,
-	RipGrepper.Settings.SettingsDictionary;
+	RipGrepper.Settings.SettingsDictionary,
+	RipGrepper.Settings.Persister.Interfaces;
 
 function TRipGrepperSettings.GetLastHistorySearchText : string;
 begin
@@ -312,7 +313,7 @@ begin
 	FExpertOptionHistory.LoadFromPersister;
 	FFileMasksHistory.LoadFromPersister;
 
-    FFontColorSettings.ReadFile;
+	FFontColorSettings.ReadFile;
 end;
 
 procedure TRipGrepperSettings.RebuildArguments;
