@@ -4,7 +4,7 @@
         <ProjectVersion>20.1</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <ProjectName Condition="'$(ProjectName)'==''">DRipExtensions</ProjectName>
         <TargetedPlatforms>1</TargetedPlatforms>
@@ -99,8 +99,8 @@
         <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\23.0\bin\bds.exe</Debugger_HostApplication>
         <DCC_ShowGeneralMessages>true</DCC_ShowGeneralMessages>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.5.1.120;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.5.1.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>120</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.5.1.124;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.5.1.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>124</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <Manifest_File>..\Delphi12\(None)</Manifest_File>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
@@ -117,8 +117,8 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.5.1.120;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.5.1.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>120</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.5.1.126;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.5.1.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>126</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <DCC_Description>RipGrep Search within Delphi</DCC_Description>
         <VerInfo_MinorVer>5</VerInfo_MinorVer>
@@ -231,6 +231,9 @@
         <DCCReference Include="..\..\..\..\src\Helper\RipGrepper.Helper.MemIniFile.pas"/>
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.SearchTextWithOptions.pas"/>
         <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.FilePersister.pas"/>
+        <DCCReference Include="..\..\..\..\src\RipGrepper.Helper.HistorySaverLoader.pas"/>
+        <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.Persister.Interfaces.pas"/>
+        <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.Interfaces.StreamStorable.pas"/>
         <RcItem Include="..\..\..\Resources\about_icon.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>about_icon</ResourceId>

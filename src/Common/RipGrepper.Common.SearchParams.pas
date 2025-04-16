@@ -5,28 +5,28 @@ interface
 uses
 	RipGrepper.Common.Interfaces,
 	RipGrepper.Common.SimpleTypes,
-	RipGrepper.Common.SearchTextWithOptions;
+	RipGrepper.Common.SearchTextWithOptions, Spring;
 
 type
 
 	TSearchParams = class(TInterfacedObject, ISearchParams)
 		private
-			FGuiSearchTextParams : TSearchTextWithOptions;
+			FGuiSearchTextParams : IShared<TSearchTextWithOptions>;
 
 		public
-			constructor Create(const _gstParams : TSearchTextWithOptions);
-			function GetGuiSearchParams : TSearchTextWithOptions;
+			constructor Create(_gstParams : IShared<TSearchTextWithOptions>);
+			function GetGuiSearchParams() : IShared<TSearchTextWithOptions>;
 	end;
 
 implementation
 
-constructor TSearchParams.Create(const _gstParams : TSearchTextWithOptions);
+constructor TSearchParams.Create(_gstParams : IShared<TSearchTextWithOptions>);
 begin
 	inherited Create();
 	FGuiSearchTextParams := _gstParams;
 end;
 
-function TSearchParams.GetGuiSearchParams : TSearchTextWithOptions;
+function TSearchParams.GetGuiSearchParams : IShared<TSearchTextWithOptions>;
 begin
 	Result := FGuiSearchTextParams;
 end;

@@ -3,10 +3,12 @@ unit RipGrepper.Common.SearchTextWithOptions;
 interface
 
 uses
-	RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.SimpleTypes,
+	RipGrepper.Common.Interfaces.StreamStorable,
+	System.Classes;
 
 type
-	TSearchTextWithOptions = record
+	TSearchTextWithOptions = class(TInterfacedObject, IStreamStorable)
 		private
 			FEscapedSearchText : string;
 			// FSearchText : string;
@@ -14,7 +16,7 @@ type
 			FSearchOptions : TSearchOptionSet;
 			FWordBoundedSearchText : string;
 			function GetSearchOptions() : TSearchOptionSet;
-			function GetSearchTextAsRgParam: string;
+			function GetSearchTextAsRgParam : string;
 			function GetSearchTextByOptions() : string;
 			function GetSearchTextOfUser : string;
 			procedure SetSearchOptions(const Value : TSearchOptionSet);
@@ -27,9 +29,14 @@ type
 			procedure Clear;
 			procedure Copy(const _other : TSearchTextWithOptions);
 			class function GetAsSearchOptionSet(const _bMC, _bMW, _bUR : Boolean) : TSearchOptionSet; static;
-			function GetAsString(const _bGuiOptionsOnly: Boolean = False): string;
-			class function New(const _searchText : string; const _options : TSearchOptionSet) : TSearchTextWithOptions; static;
+			function GetAsString(const _bGuiOptionsOnly : Boolean = False) : string;
+			procedure LoadFromStream(_stream : TStream);
+			constructor Create(const _searchText : string; const _options : TSearchOptionSet); overload;
+			constructor Create(); overload;
+			procedure LoadFromStreamReader(_sr : TStreamReader);
 			procedure ResetOption(const _searchOption : EGuiOption);
+			procedure SaveToStream(_stream : TStream);
+			procedure SaveToStreamWriter(_sw : TStreamWriter);
 			class function SearchOptionSetToString(const _so : TSearchOptionSet) : string; static;
 			procedure SetOption(const _searchOption : EGuiOption);
 			procedure UpdateSearchOptions(const _sOptions : string);
@@ -37,7 +44,7 @@ type
 			procedure SwitchOption(const _newOption : EGuiOption); overload;
 			property EscapedSearchText : string read FEscapedSearchText;
 			property SearchOptions : TSearchOptionSet read GetSearchOptions write SetSearchOptions;
-			property SearchTextAsRgParam: string read GetSearchTextAsRgParam;
+			property SearchTextAsRgParam : string read GetSearchTextAsRgParam;
 			property SearchTextOfUser : string read GetSearchTextOfUser write SetSearchTextOfUser;
 	end;
 
@@ -48,7 +55,8 @@ uses
 	System.SysUtils,
 	System.StrUtils,
 	RipGrepper.CommandLine.OptionHelper,
-	System.RegularExpressions;
+	System.RegularExpressions,
+	Spring;
 
 function TSearchTextWithOptions.AreSet(_options : TArray<EGuiOption>) : Boolean;
 begin
@@ -93,7 +101,7 @@ begin
 	end;
 end;
 
-function TSearchTextWithOptions.GetAsString(const _bGuiOptionsOnly: Boolean = False): string;
+function TSearchTextWithOptions.GetAsString(const _bGuiOptionsOnly : Boolean = False) : string;
 begin
 	Result := TSearchTextWithOptions.SearchOptionSetToString(FSearchOptions);
 
@@ -107,7 +115,7 @@ begin
 	Result := FSearchOptions;
 end;
 
-function TSearchTextWithOptions.GetSearchTextAsRgParam: string;
+function TSearchTextWithOptions.GetSearchTextAsRgParam : string;
 begin
 	Result := GetSearchTextByOptions();
 end;
@@ -125,10 +133,16 @@ begin
 	Result := FInnerSearchText;
 end;
 
-class function TSearchTextWithOptions.New(const _searchText : string; const _options : TSearchOptionSet) : TSearchTextWithOptions;
+constructor TSearchTextWithOptions.Create(const _searchText : string; const _options : TSearchOptionSet);
 begin
-	Result.SearchTextOfUser := _searchText;
-	Result.SearchOptions := _options;
+	SearchTextOfUser := _searchText;
+	SearchOptions := _options;
+end;
+
+constructor TSearchTextWithOptions.Create();
+begin
+	SearchTextOfUser := '';
+	SearchOptions := [];
 end;
 
 procedure TSearchTextWithOptions.ResetOption(const _searchOption : EGuiOption);
@@ -138,6 +152,34 @@ begin
 	searchOption := _searchOption;
 	Exclude(FSearchOptions, searchOption);
 	UpdateWordBoundedSearchText;
+end;
+
+procedure TSearchTextWithOptions.LoadFromStream(_stream : TStream);
+var
+	sr : IShared<TStreamReader>;
+begin
+	sr := Shared.Make<TStreamReader>(TStreamReader.Create(_stream, TEncoding.UTF8));
+    LoadFromStreamReader(sr);
+end;
+
+procedure TSearchTextWithOptions.LoadFromStreamReader(_sr : TStreamReader);
+begin
+	SearchTextOfUser := _sr.ReadLine;
+	SearchOptions := StringToSearchOptionSet(_sr.ReadLine);
+end;
+
+procedure TSearchTextWithOptions.SaveToStream(_stream : TStream);
+var
+	sw : IShared<TStreamWriter>;
+begin
+	sw := Shared.Make<TStreamWriter>(TStreamWriter.Create(_stream));
+    SaveToStreamWriter(sw)
+end;
+
+procedure TSearchTextWithOptions.SaveToStreamWriter(_sw : TStreamWriter);
+begin
+	_sw.WriteLine(SearchTextOfUser);
+	_sw.WriteLine(SearchOptionSetToString(SearchOptions));
 end;
 
 class function TSearchTextWithOptions.SearchOptionSetToString(const _so : TSearchOptionSet) : string;

@@ -8,7 +8,7 @@ uses
 	RipGrepper.Settings.RipGrepParameterSettings,
 	DUnitX.TestFramework,
 	Spring,
-	RipGrepper.Settings.FilePersister;
+	RipGrepper.Settings.FilePersister, RipGrepper.Settings.Persister.Interfaces;
 
 type
 

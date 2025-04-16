@@ -6,6 +6,7 @@ uses
 	System.Variants,
 	System.Generics.Defaults,
 	System.IniFiles,
+    RipGrepper.Settings.Persister.Interfaces,
 	RipGrepper.Settings.FilePersister,
 	ArrayEx,
 	System.SysUtils;

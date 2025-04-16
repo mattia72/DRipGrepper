@@ -11,7 +11,7 @@ uses
 	RipGrepper.Helper.MemIniFile,
 	RipGrepper.Settings.FilePersister,
 	ArrayEx,
-	Spring;
+	Spring, RipGrepper.Settings.Persister.Interfaces;
 
 const
 	NOTEXISTS = '<not exists>';

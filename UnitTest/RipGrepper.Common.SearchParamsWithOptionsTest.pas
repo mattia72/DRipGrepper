@@ -4,7 +4,8 @@ interface
 
 uses
 	DUnitX.TestFramework,
-	RipGrepper.Common.SearchTextWithOptions;
+	RipGrepper.Common.SearchTextWithOptions,
+	Spring;
 
 type
 
@@ -81,8 +82,13 @@ type
 			[Testcase('Invalid PCRE in word ur   ', 'aaa\u bbb|0|1|' + 'aaa\u bbb', '|')]
 			[Testcase('Invalid PCRE in word mc   ', 'aaa\u bbb|1|0|' + '\baaa\\u bbb\b', '|')]
 			[Testcase('Invalid PCRE in word mc,ur', 'aaa\u bbb|1|1|' + '\baaa\u bbb\b', '|')]
-			procedure TestResetOption(const _sSearchText : string; const _bMatchWord,
-				_bUseRegex : Integer; _expected : string);
+			procedure TestResetOption(const _sSearchText : string; const _bMatchWord, _bUseRegex : Integer; _expected : string);
+
+			[Test]
+			procedure TestSaveToStream();
+			[Test]
+			procedure TestLoadFromStream();
+
 			[Test]
 			[Testcase('Single word ur           ', 'aaa      |0|1|' + 'aaa      ', '|')]
 			[Testcase('Single word mc           ', 'aaa      |1|0|' + '\baaa      \b', '|')]
@@ -104,8 +110,7 @@ type
 			[Testcase('Invalid PCRE in word ur   ', 'aaa\u bbb|0|1|' + 'aaa\u bbb', '|')]
 			[Testcase('Invalid PCRE in word mc   ', 'aaa\u bbb|1|0|' + '\baaa\\u bbb\b', '|')]
 			[Testcase('Invalid PCRE in word mc,ur', 'aaa\u bbb|1|1|' + '\baaa\u bbb\b', '|')]
-			procedure TestSwitchOptionDef(const _sSearchText : string; const _bMatchWord,
-				_bUseRegex : Integer; _expected : string);
+			procedure TestSwitchOptionDef(const _sSearchText : string; const _bMatchWord, _bUseRegex : Integer; _expected : string);
 			[Test]
 			[Testcase('Single word ur           ', 'aaa      |0|1|' + 'aaa      ', '|')]
 			[Testcase('Single word mc           ', 'aaa      |1|0|' + '\baaa      \b', '|')]
@@ -127,14 +132,18 @@ type
 			[Testcase('Invalid PCRE in word ur   ', 'aaa\u bbb|0|1|' + 'aaa\u bbb', '|')]
 			[Testcase('Invalid PCRE in word mc   ', 'aaa\u bbb|1|0|' + '\baaa\\u bbb\b', '|')]
 			[Testcase('Invalid PCRE in word mc,ur', 'aaa\u bbb|1|1|' + '\baaa\u bbb\b', '|')]
-			procedure TestSwitchOptionOrig(const _sSearchText : string; const _bMatchWord,
-				_bUseRegex : Integer; _expected : string);
+			procedure TestSwitchOptionOrig(const _sSearchText : string; const _bMatchWord, _bUseRegex : Integer; _expected : string);
 	end;
 
 implementation
 
 uses
-	RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.SimpleTypes,
+	System.Classes,
+	System.SysUtils;
+
+const
+	TEST_SEARCH_TEXT = 'test search text';
 
 procedure TSearchParamsWithOptionsTest.Setup;
 begin
@@ -149,8 +158,9 @@ end;
 procedure TSearchParamsWithOptionsTest.TestSearchText(const _sSearchText : string; const _bMatchWord, _bUseRegex : Integer;
 	_expected : string);
 var
-	FGuiParams : TSearchTextWithOptions;
+	FGuiParams : IShared<TSearchTextWithOptions>;
 begin
+	FGuiParams := Shared.Make<TSearchTextWithOptions>(TSearchTextWithOptions.Create);
 	FGuiParams.SearchTextOfUser := _sSearchText;
 	var
 	os := TSearchTextWithOptions.GetAsSearchOptionSet(False, _bMatchWord = 1, _bUseRegex = 1);
@@ -162,8 +172,9 @@ end;
 procedure TSearchParamsWithOptionsTest.TestSetOption(const _sSearchText : string; const _bMatchWord, _bUseRegex : Integer;
 	_expected : string);
 var
-	FGuiParams : TSearchTextWithOptions;
+	FGuiParams : IShared<TSearchTextWithOptions>;
 begin
+	FGuiParams := Shared.Make<TSearchTextWithOptions>(TSearchTextWithOptions.Create);
 	FGuiParams.SearchTextOfUser := _sSearchText;
 
 	if (_bUseRegex = 1) then begin
@@ -176,13 +187,14 @@ begin
 	Assert.AreEqual(_expected, FGuiParams.SearchTextAsRgParam, 'search text should equal' + _expected);
 end;
 
-procedure TSearchParamsWithOptionsTest.TestResetOption(const _sSearchText :
-	string; const _bMatchWord, _bUseRegex : Integer; _expected : string);
+procedure TSearchParamsWithOptionsTest.TestResetOption(const _sSearchText : string; const _bMatchWord, _bUseRegex : Integer;
+	_expected : string);
 var
-	FGuiParams : TSearchTextWithOptions;
+	FGuiParams : IShared<TSearchTextWithOptions>;
 begin
+	FGuiParams := Shared.Make<TSearchTextWithOptions>(TSearchTextWithOptions.Create);
 	FGuiParams.SearchTextOfUser := _sSearchText;
-    	var
+	var
 	os := TSearchTextWithOptions.GetAsSearchOptionSet(True, True, True);
 	FGuiParams.SearchOptions := os;
 
@@ -196,11 +208,71 @@ begin
 	Assert.AreEqual(_expected, FGuiParams.SearchTextAsRgParam, 'search text should equal' + _expected);
 end;
 
-procedure TSearchParamsWithOptionsTest.TestSwitchOptionDef(const _sSearchText :
-	string; const _bMatchWord, _bUseRegex : Integer; _expected : string);
+procedure TSearchParamsWithOptionsTest.TestSaveToStream();
 var
-	FGuiParams : TSearchTextWithOptions;
+	actualOptions : TSearchOptionSet;
+	FGuiParams : IShared<TSearchTextWithOptions>;
+	ms : IShared<TMemoryStream>;
+	sr : IShared<TStreamReader>;
+	actualSearchText : string;
 begin
+	FGuiParams := Shared.Make<TSearchTextWithOptions>(TSearchTextWithOptions.Create);
+	FGuiParams.SearchTextOfUser := TEST_SEARCH_TEXT;
+	FGuiParams.SetOption(EGuiOption.soUseRegex);
+	FGuiParams.SetOption(EGuiOption.soMatchWord);
+
+	ms := Shared.Make<TMemoryStream>();
+	FGuiParams.SaveToStream(ms);
+	ms.Position := 0;
+
+	sr := Shared.Make<TStreamReader>(TStreamReader.Create(ms, TEncoding.UTF8));
+	actualSearchText := sr.ReadLine;
+	actualOptions := TSearchTextWithOptions.StringToSearchOptionSet(sr.ReadLine);
+
+	var other : IShared<TSearchTextWithOptions>;
+	other := Shared.Make<TSearchTextWithOptions>(TSearchTextWithOptions.Create(actualSearchText, actualOptions));
+
+	Assert.AreEqual(TEST_SEARCH_TEXT, actualSearchText, 'Stream content should match the expected serialized data');
+	Assert.AreEqual(FGuiParams.GetAsString(), other.GetAsString(), 'Stream content should match the expected serialized data');
+end;
+
+procedure TSearchParamsWithOptionsTest.TestLoadFromStream();
+var
+	actualOptions : TSearchOptionSet;
+	FGuiParams : IShared<TSearchTextWithOptions>;
+	ms : IShared<TMemoryStream>;
+	sr : IShared<TStreamReader>;
+	actualSearchText : string;
+begin
+	FGuiParams := Shared.Make<TSearchTextWithOptions>(TSearchTextWithOptions.Create);
+	FGuiParams.SearchTextOfUser := TEST_SEARCH_TEXT;
+	FGuiParams.SetOption(EGuiOption.soMatchCase);
+	FGuiParams.SetOption(EGuiOption.soUseRegex);
+	FGuiParams.SetOption(EGuiOption.soMatchWord);
+
+	ms := Shared.Make<TMemoryStream>();
+	FGuiParams.SaveToStream(ms);
+	ms.Position := 0;
+
+	sr := Shared.Make<TStreamReader>(TStreamReader.Create(ms, TEncoding.UTF8));
+	actualSearchText := sr.ReadLine;
+	actualOptions := TSearchTextWithOptions.StringToSearchOptionSet(sr.ReadLine);
+
+	var other : IShared<TSearchTextWithOptions>;
+	other := Shared.Make<TSearchTextWithOptions>(TSearchTextWithOptions.Create());
+	ms.Position := 0;
+	other.LoadFromStream(ms);
+
+	Assert.AreEqual(TEST_SEARCH_TEXT, other.SearchTextOfUser, 'SearchText content should match the expected serialized data');
+	Assert.AreEqual(FGuiParams.GetAsString(), other.GetAsString(), 'Stream content should match the expected serialized data');
+end;
+
+procedure TSearchParamsWithOptionsTest.TestSwitchOptionDef(const _sSearchText : string; const _bMatchWord, _bUseRegex : Integer;
+	_expected : string);
+var
+	FGuiParams : IShared<TSearchTextWithOptions>;
+begin
+	FGuiParams := Shared.Make<TSearchTextWithOptions>(TSearchTextWithOptions.Create);
 	FGuiParams.SearchTextOfUser := _sSearchText;
 
 	if (_bUseRegex = 1) then begin
@@ -213,13 +285,14 @@ begin
 	Assert.AreEqual(_expected, FGuiParams.SearchTextAsRgParam, 'search text should equal' + _expected);
 end;
 
-procedure TSearchParamsWithOptionsTest.TestSwitchOptionOrig(const _sSearchText
-	: string; const _bMatchWord, _bUseRegex : Integer; _expected : string);
+procedure TSearchParamsWithOptionsTest.TestSwitchOptionOrig(const _sSearchText : string; const _bMatchWord, _bUseRegex : Integer;
+	_expected : string);
 var
-	FGuiParams : TSearchTextWithOptions;
+	FGuiParams : IShared<TSearchTextWithOptions>;
 begin
+	FGuiParams := Shared.Make<TSearchTextWithOptions>(TSearchTextWithOptions.Create);
 	FGuiParams.SearchTextOfUser := _sSearchText;
-    FGuiParams.SearchOptions := FGuiParams.GetAsSearchOptionSet((_bMatchWord = 1),(_bMatchWord = 1), False);
+	FGuiParams.SearchOptions := FGuiParams.GetAsSearchOptionSet((_bMatchWord = 1), (_bMatchWord = 1), False);
 
 	if (_bUseRegex = 1) then begin
 		FGuiParams.SwitchOption(EGuiOption.soUseRegex);
