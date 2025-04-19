@@ -14,7 +14,8 @@ uses
 	ArrayEx,
 	Spring,
 	RipGrepper.Settings.FilePersister,
-  RipGrepper.Common.Interfaces.StreamStorable, System.Classes,
+  RipGrepper.Common.Interfaces.StreamPersistable,
+  System.Classes,
   RipGrepper.Settings.Persister.Interfaces;
 
 type
@@ -30,7 +31,7 @@ type
 		procedure StoreToPersister();
 	end;
 
-	TPersistableSettings = class(TNoRefCountObject, IIniPersistable, IStreamStorable)
+	TPersistableSettings = class(TNoRefCountObject, IIniPersistable, IStreamPersistable)
 		// TPersistableSettings = class(TInterfacedObject, IIniPersistable)
 		strict private
 			class constructor Create;
