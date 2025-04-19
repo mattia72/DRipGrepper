@@ -17,11 +17,11 @@ uses
 	RipGrepper.Common.SearchTextWithOptions,
 	Spring,
 	RipGrepper.Common.GuiSearchParams,
-	RipGrepper.Common.Interfaces.StreamStorable;
+	RipGrepper.Common.Interfaces.StreamPersistable;
 
 type
 	// THistoryItemObject = class(TNoRefCountObject, IHistoryItemObject)
-	THistoryItemObject = class(TInterfacedObject, IHistoryItemObject, IStreamStorable)
+	THistoryItemObject = class(TInterfacedObject, IHistoryItemObject, IStreamPersistable)
 
 		private
 			FElapsedTimeText : string;
