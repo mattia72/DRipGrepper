@@ -144,7 +144,6 @@ uses
 	System.StrUtils,
 	RipGrepper.Helper.Types,
 	RipGrepper.Common.SimpleTypes,
-	RipGrepper.Helper.HistorySaverLoader,
 	Spring;
 
 {$R *.dfm}

@@ -63,7 +63,8 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	System.StrUtils,
 	RipGrepper.Helper.Types,
-	System.SysUtils;
+	System.SysUtils, 
+	RipGrepper.Helper.SettingStoreBehaviours;
 
 constructor TNodeLookSettings.Create(const _Owner : TPersistableSettings);
 begin
