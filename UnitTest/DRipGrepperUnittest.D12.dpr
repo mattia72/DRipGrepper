@@ -75,7 +75,8 @@ uses
   RipGrepper.Settings.OpenWithSettings in '..\src\Settings\RipGrepper.Settings.OpenWithSettings.pas',
   RipGrepper.Settings.FontColorsTest in 'RipGrepper.Settings.FontColorsTest.pas',
   RipGrepper.Common.ArrayExTest in 'RipGrepper.Common.ArrayExTest.pas',
-  RipGrepper.Data.HistoryItemObjectTest in 'RipGrepper.Data.HistoryItemObjectTest.pas';
+  RipGrepper.Data.HistoryItemObjectTest in 'RipGrepper.Data.HistoryItemObjectTest.pas',
+  RipGrepper.Helper.SettingStoreBehaviours in '..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas';
 
 // This comment has to guard the following IFDEF, that may be delted by delphi, if new unit added to the project
 {$IFNDEF TESTINSIGHT}

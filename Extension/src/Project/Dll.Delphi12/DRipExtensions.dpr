@@ -96,9 +96,8 @@ uses
   RipGrepper.Helper.MemIniFile in '..\..\..\..\src\Helper\RipGrepper.Helper.MemIniFile.pas',
   RipGrepper.Common.SearchTextWithOptions in '..\..\..\..\src\Common\RipGrepper.Common.SearchTextWithOptions.pas',
   RipGrepper.Settings.FilePersister in '..\..\..\..\src\Settings\RipGrepper.Settings.FilePersister.pas',
-  RipGrepper.Helper.HistorySaverLoader in '..\..\..\..\src\RipGrepper.Helper.HistorySaverLoader.pas',
   RipGrepper.Settings.Persister.Interfaces in '..\..\..\..\src\Settings\RipGrepper.Settings.Persister.Interfaces.pas',
-  RipGrepper.Common.Interfaces.StreamStorable in '..\..\..\..\src\Common\RipGrepper.Common.Interfaces.StreamStorable.pas';
+  RipGrepper.Common.Interfaces.StreamPersistable in '..\..\..\..\src\Common\RipGrepper.Common.Interfaces.StreamPersistable.pas';
 
 {$R *.res}
 

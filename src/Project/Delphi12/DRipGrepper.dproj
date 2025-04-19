@@ -137,8 +137,8 @@
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.5.1.169;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.5.1.0</VerInfo_Keys>
-        <VerInfo_Build>169</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.5.1.176;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.5.1.0</VerInfo_Keys>
+        <VerInfo_Build>176</VerInfo_Build>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_MinorVer>5</VerInfo_MinorVer>
@@ -320,10 +320,10 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="..\..\Settings\RipGrepper.Settings.FilePersister.pas"/>
-        <DCCReference Include="..\..\RipGrepper.Helper.HistorySaverLoader.pas"/>
-        <DCCReference Include="..\..\Common\RipGrepper.Common.Interfaces.StreamStorable.pas"/>
+        <DCCReference Include="..\..\Common\RipGrepper.Common.Interfaces.StreamPersistable.pas"/>
         <DCCReference Include="..\..\Settings\RipGrepper.Settings.StreamPersister.pas"/>
         <DCCReference Include="..\..\Settings\RipGrepper.Settings.Persister.Interfaces.pas"/>
+        <DCCReference Include="..\..\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
