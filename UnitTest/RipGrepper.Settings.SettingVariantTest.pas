@@ -60,6 +60,8 @@ uses
 	RipGrepper.Settings.FilePersister,
 	ArrayEx;
 
+{$WARN CONSTRUCTING_ABSTRACT OFF}
+
 procedure TSettingVariantTest.Setup();
 begin
 	IniFile := TMemIniFile.Create('');
@@ -365,6 +367,7 @@ begin
 	end;
 
 end;
+{$WARN CONSTRUCTING_ABSTRACT ON}
 
 initialization
 
