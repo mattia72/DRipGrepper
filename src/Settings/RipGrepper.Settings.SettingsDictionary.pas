@@ -7,7 +7,7 @@ uses
 	Spring.Collections,
 	System.IniFiles,
 	RipGrepper.Settings.FilePersister,
-	RipGrepper.Common.Interfaces.StreamStorable,
+	RipGrepper.Common.Interfaces.StreamPersistable,
 	System.Classes,
 	RipGrepper.Settings.Persister.Interfaces;
 
@@ -17,7 +17,7 @@ type
 	ISettingKeys = IDictionary<TSettingKey, ISetting>;
 	ISettingSections = IDictionary<TSettingSection, ISettingKeys>;
 
-	TSettingsDictionary = class(TNoRefCountObject, IStreamStorable)
+	TSettingsDictionary = class(TNoRefCountObject, IStreamReaderWriterPersistable)
 
 		private
 			FInnerDictionary : ISettingSections;
@@ -46,9 +46,7 @@ type
 			procedure LoadFromPersister();
 			procedure SetState(const _from, _to : TSettingState; const _section : string = '');
 			function HasState(const _state : TSettingState; const _section : string = '') : Boolean;
-			procedure LoadFromStream(_stream : TStream);
 			procedure LoadFromStreamReader(_sr : TStreamReader);
-			procedure SaveToStream(_stream : TStream);
 			procedure SaveToStreamWriter(_sw : TStreamWriter);
 			procedure StoreToPersister(const _section : string);
 
@@ -379,21 +377,14 @@ begin
 	end;
 end;
 
-procedure TSettingsDictionary.LoadFromStream(_stream : TStream);
-var
-	sr : IShared<TStreamReader>;
-begin
-	sr := Shared.Make<TStreamReader>(TStreamReader.Create(_stream, TEncoding.UTF8));
-	LoadFromStreamReader(sr);
-end;
-
 procedure TSettingsDictionary.LoadFromStreamReader(_sr : TStreamReader);
 var
 	key: string;
 	keyCount: Integer;
 	section: string;
 	sectionCount : integer;
-	setting : ISetting;
+	setting : IStreamReaderWriterPersistable;
+	settingType: TSettingType;
 begin
 	InnerDictionary.Clear;
 	sectionCount := _sr.ReadLine.ToInteger;
@@ -405,21 +396,32 @@ begin
 		keyCount := _sr.ReadLine().ToInteger;
 		for var j := 0 to keyCount - 1 do begin
 			key := _sr.ReadLine;
-			setting := TSetting.Create();
-			setting.LoadFromPersister();
-			FInnerDictionary[section].Add(key, setting);
+            settingType := TSettingType(_sr.ReadLine.ToInteger);
+            case settingType of
+            	stNotSet: raise ESettingsException.Create('Setting Type not set');
+                stString: setting := TStringSetting.Create();
+                stInteger: setting := TIntegerSetting.Create();
+                stBool : setting :=  TBoolSetting.Create();
+                stStrArray: setting := TArraySetting.Create();
+            end;
+			setting.LoadFromStreamReader(_sr);
+			FInnerDictionary[section].Add(key, setting as ISetting);
 		end;
 	end;
 end;
 
-procedure TSettingsDictionary.SaveToStream(_stream : TStream);
-begin
-
-end;
-
 procedure TSettingsDictionary.SaveToStreamWriter(_sw : TStreamWriter);
 begin
-
+	_sw.WriteLine(FInnerDictionary.Count);
+	for var section in FInnerDictionary.Keys do begin
+		_sw.WriteLine(section);
+		_sw.WriteLine(FInnerDictionary[section].Count);
+		for var key in FInnerDictionary[section].Keys do begin
+			_sw.WriteLine(key);
+			_sw.WriteLine(Integer(FInnerDictionary[section][key].SettingType));
+			(FInnerDictionary[section][key] as IStreamReaderWriterPersistable).SaveToStreamWriter(_sw);
+		end;
+	end;
 end;
 
 end.

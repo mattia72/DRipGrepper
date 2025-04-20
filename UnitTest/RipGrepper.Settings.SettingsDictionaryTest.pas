@@ -9,18 +9,23 @@ uses
 	RipGrepper.Settings.SettingVariant,
 	Spring,
 	System.IniFiles,
-	RipGrepper.Settings.FilePersister, RipGrepper.Settings.Persister.Interfaces;
+	RipGrepper.Settings.FilePersister,
+	RipGrepper.Settings.Persister.Interfaces;
 
 type
 
 	[TestFixture]
 	TSettingsDictionaryTest = class
-		FDictTo : IShared<TSettingsDictionary>;
-		FDictFrom : IShared<TSettingsDictionary>;
-		FIniFile : IShared<TMemIniFile>;
-		FPersisterFactory : IPersisterFactory;
-
 		private
+			FDictTo : IShared<TSettingsDictionary>;
+			FDictFrom : IShared<TSettingsDictionary>;
+			FIniFile : IShared<TMemIniFile>;
+			FPersisterFactory : IPersisterFactory;
+			FSettingsDict : TSettingsDictionary;
+			FStream : TStringStream;
+			FStreamReader : TStreamReader;
+			FStreamWriter : TStreamWriter;
+
 		public
 			[Test]
 			procedure CopySectionShouldCopySettingValues();
@@ -34,6 +39,10 @@ type
 			procedure SectionSholudContainStoredSetting();
 			[Test]
 			procedure SectionSholudContainSavedSetting();
+			[Test]
+			procedure TestSaveToStreamWriter();
+			[Test]
+			procedure TestLoadFromStreamReader();
 			[Setup]
 			procedure Setup();
 			[TearDown]
@@ -44,14 +53,13 @@ implementation
 
 uses
 	System.SysUtils,
-
 	System.TypInfo,
 	Spring.Collections,
-
 	RipGrepper.Helper.MemIniFile,
 	RipGrepper.Tools.FileUtils,
 	Vcl.Forms,
-	RipGrepper.Settings.Persistable;
+	RipGrepper.Settings.Persistable,
+	RipGrepper.Helper.SettingStoreBehaviours;
 
 const
 	TESTVALUE = 'TestValue';
@@ -65,7 +73,7 @@ var
 begin
 	FDictTo.CopySection(TESTSECTION, FDictFrom);
 
-	for var i := 0 to MAX_COUNT do begin
+	for var i : Integer := 0 to MAX_COUNT do begin
 		key := Format('%s_%d', [TESTKEY, i]);
 		expected := Format('%s_%d', [TESTVALUE, i]);
 
@@ -78,7 +86,7 @@ procedure TSettingsDictionaryTest.SectionShouldContainAddedSettings();
 var
 	key, value, expected, actual : string;
 begin
-	for var i := 0 to MAX_COUNT do begin
+	for var i : Integer := 0 to MAX_COUNT do begin
 		key := Format('%s_%d', [TESTKEY, i]);
 		value := Format('%s_%d', [TESTVALUE, i]);
 		expected := value;
@@ -137,12 +145,59 @@ begin
 	Assert.IsTrue(actual, 'There should be saved settings');
 end;
 
+procedure TSettingsDictionaryTest.TestSaveToStreamWriter();
+var
+	setting : ISetting;
+begin
+	// Arrange
+	setting := TStringSetting.Create('TestValue');
+	FSettingsDict.AddOrChange('TestKey', setting);
+
+	// Act
+	FSettingsDict.SaveToStreamWriter(FStreamWriter);
+	FStream.Position := 0;
+
+	// Assert
+	Assert.AreEqual('1', FStreamReader.ReadLine, 'Section count mismatch');
+	Assert.AreEqual('TestSection', FStreamReader.ReadLine, 'Section name mismatch');
+	Assert.AreEqual('1', FStreamReader.ReadLine, 'Key count mismatch');
+	Assert.AreEqual('TestKey', FStreamReader.ReadLine, 'Key name mismatch');
+	Assert.AreEqual(IntToStr(Integer(stString)), FStreamReader.ReadLine, 'Setting type mismatch');
+	Assert.AreEqual(TSettingStoreBehavioursHelper.ToString(setting.SaveBehaviour), FStreamReader.ReadLine, 'Setting type mismatch');
+	Assert.AreEqual(Ord(setting.State).ToString, FStreamReader.ReadLine, 'Setting type mismatch');
+	Assert.AreEqual('TestValue', FStreamReader.ReadLine, 'Setting value mismatch');
+end;
+
+procedure TSettingsDictionaryTest.TestLoadFromStreamReader();
+var
+	setting : ISetting;
+begin
+	// Arrange
+	TestSaveToStreamWriter();
+	FStream.Position := 0;
+
+	// Act
+	FSettingsDict.LoadFromStreamReader(FStreamReader);
+
+	// Assert
+	Assert.AreEqual(1, FSettingsDict.Count, 'Section count mismatch');
+	Assert.IsTrue(FSettingsDict.ContainsSection('TestSection'), 'Section not found');
+	setting := FSettingsDict['TestSection']['TestKey'];
+	Assert.IsNotNull(setting, 'Setting not found');
+
+	Assert.AreEqual(Ord(stString), Ord(setting.SettingType), 'SettingType mismatch');
+	Assert.AreEqual(TSettingStoreBehavioursHelper.ToString([TSettingStoreBehaviour.ssbStoreIfModified]), TSettingStoreBehavioursHelper.ToString(setting.SaveBehaviour),
+		'Setting SaveBehaviour mismatch');
+	Assert.AreEqual(Ord(TSettingState.ssModified), Ord(setting.State), 'Setting State mismatch');
+
+	Assert.AreEqual('TestValue', setting.AsString, 'Setting value mismatch');
+end;
+
 procedure TSettingsDictionaryTest.Setup();
 var
 	keyDict : ISettingKeys;
 	setting : IStringSetting;
-	key : string;
-	value : string;
+	key, value : string;
 begin
 	FPersisterFactory := TIniPersister.Create();
 
@@ -154,7 +209,7 @@ begin
 		{ } TMemIniFile.Create(tmpFile, TEncoding.UTF8));
 
 	keyDict := TCollections.CreateSortedDictionary<string, ISetting>;
-	for var i := 0 to MAX_COUNT do begin
+	for var i : Integer := 0 to MAX_COUNT do begin
 		key := Format('%s_%d', [TESTKEY, i]);
 		value := Format('%s_%d', [TESTVALUE, i]);
 		setting := TStringSetting.Create(value);
@@ -162,11 +217,20 @@ begin
 		keyDict.Add(key, setting);
 	end;
 	FDictFrom.InnerDictionary.Add(TESTSECTION, keyDict);
+
+	FSettingsDict := TSettingsDictionary.Create('TestSection');
+	FStream := TStringStream.Create('', TEncoding.UTF8);
+	FStreamReader := TStreamReader.Create(FStream);
+	FStreamWriter := TStreamWriter.Create(FStream);
 end;
 
 procedure TSettingsDictionaryTest.TearDown();
 begin
 	TFileUtils.EmptyFile(ChangeFileExt(Application.ExeName, '.ini'));
+	FStream.Free;
+	FSettingsDict.Free;
+	FStreamReader.Free;
+	FStreamWriter.Free;
 end;
 
 initialization

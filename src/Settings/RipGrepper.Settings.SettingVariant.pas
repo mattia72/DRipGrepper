@@ -6,22 +6,20 @@ uses
 	System.Variants,
 	System.Generics.Defaults,
 	System.IniFiles,
-    RipGrepper.Settings.Persister.Interfaces,
+	RipGrepper.Settings.Persister.Interfaces,
 	RipGrepper.Settings.FilePersister,
 	ArrayEx,
-	System.SysUtils;
+	System.SysUtils,
+	RipGrepper.Common.Interfaces.StreamPersistable,
+	RipGrepper.Helper.SettingStoreBehaviours,
+	System.Classes;
 
 type
 
 	ESettingsException = class(Exception);
 
 	TSettingState = (ssNotSet, ssInitialized, ssModified, ssStored, ssSaved);
-	TSettingStoreBehaviour = (ssbNotSet,
-		{ } ssbStoreIfModified,
-		{ } ssbStoreAfterChangeImmediately,
-		{ } ssbStoreOnceEvenIfNotModified);
 
-	TSettingStoreBehaviours = set of TSettingStoreBehaviour;
 	TSettingType = (stNotSet, stString, stInteger, stBool, stStrArray);
 
 	// forward declarations...
@@ -51,7 +49,7 @@ type
 		function GetState() : TSettingState;
 		procedure SetState(const Value : TSettingState);
 
-		function GetType() : TSettingType;
+		function GetSettingType() : TSettingType;
 
 		procedure LoadFromPersister();
 		procedure StoreToPersister(const _section : string = '');
@@ -69,7 +67,7 @@ type
 		procedure SetSaveBehaviour(const Value : TSettingStoreBehaviours);
 
 		property State : TSettingState read GetState write SetState;
-		property SettingType : TSettingType read GetType;
+		property SettingType : TSettingType read GetSettingType;
 		property SaveBehaviour : TSettingStoreBehaviours read GetSaveBehaviour write SetSaveBehaviour;
 
 	end;
@@ -94,14 +92,16 @@ type
 
 	TSetting = class(TInterfacedObject, ISetting)
 		private
+			FSettingType : TSettingType;
 			FSaveBehaviour : TSettingStoreBehaviours;
 			FState : TSettingState;
 
 			function GetState() : TSettingState;
+			procedure SetSettingType(const Value : TSettingType);
 			procedure SetState(const Value : TSettingState);
 
 		protected
-			function GetType() : TSettingType; virtual; abstract;
+			function GetSettingType() : TSettingType; virtual;
 
 		public
 			constructor Create(
@@ -119,7 +119,7 @@ type
 			function AsInteger() : Integer;
 			function AsBool() : Boolean;
 			function AsArray() : TArrayEx<string>;
-			function AsReversedArray(): TArrayEx<string>;
+			function AsReversedArray() : TArrayEx<string>;
 			procedure Clear(); virtual;
 			function CompareTo(Value : ISetting) : Integer;
 			procedure Copy(_other : ISetting);
@@ -132,10 +132,10 @@ type
 			property State : TSettingState read GetState write SetState;
 			property SaveBehaviour : TSettingStoreBehaviours read GetSaveBehaviour write SetSaveBehaviour;
 
-			property SettingType : TSettingType read GetType;
+			property SettingType : TSettingType read GetSettingType write SetSettingType;
 	end;
 
-	TSettingVariant<T> = class(TSetting, ISettingVariant<T>, ISetting)
+	TSettingVariant<T> = class(TSetting, ISettingVariant<T>, ISetting, IStreamReaderWriterPersistable)
 		private
 			FValue : T;
 			FPersister : IFilePersister<T>;
@@ -145,7 +145,6 @@ type
 
 		protected
 			function GetPersister() : IFilePersister<T>;
-			function GetType() : TSettingType; override;
 			procedure SetPersister(const Value : IFilePersister<T>);
 
 		public
@@ -156,8 +155,11 @@ type
 			function CompareTo(Value : ISettingVariant<T>) : Integer;
 			procedure Copy(_other : ISettingVariant<T>); reintroduce;
 			function Equals(_other : ISettingVariant<T>) : Boolean; reintroduce;
+			function GetValueFromString(const _strValue : string) : T; virtual; abstract;
 			function IsEmpty : Boolean;
 			procedure LoadFromPersister(); override;
+			procedure LoadFromStreamReader(_sr : TStreamReader);
+			procedure SaveToStreamWriter(_sw : TStreamWriter);
 			procedure StoreToPersister(const _section : string = ''); override;
 			property Persister : IFilePersister<T> read GetPersister write SetPersister;
 			property Value : T read GetValue write SetValue;
@@ -165,17 +167,20 @@ type
 
 	TStringSetting = class(TSettingVariant<string>)
 		public
-			function GetType() : TSettingType; override;
+			function GetSettingType() : TSettingType; override;
+			function GetValueFromString(const _strValue : string) : string; override;
 	end;
 
 	TBoolSetting = class(TSettingVariant<Boolean>)
 		public
-			function GetType() : TSettingType; override;
+			function GetSettingType() : TSettingType; override;
+			function GetValueFromString(const _strValue : string) : Boolean; override;
 	end;
 
 	TIntegerSetting = class(TSettingVariant<integer>)
 		public
-			function GetType() : TSettingType; override;
+			function GetSettingType() : TSettingType; override;
+			function GetValueFromString(const _strValue : string) : integer; override;
 	end;
 
 	TArraySetting = class(TSettingVariant < TArrayEx < string >> )
@@ -188,7 +193,10 @@ type
 
 		public
 			function AddIfNotContains(const AItem : string) : Integer;
-			function GetType() : TSettingType; override;
+			function GetValueFromString(const _strValue : string): TArrayEx<string>;
+				override;
+
+			function GetSettingType() : TSettingType; override;
 			property Count : Integer read GetCount;
 			property Item[index : Integer] : string read GetItem write SetItem; default;
 			property SafeItem[index : Integer] : string read GetSafeItem write SetSafeItem;
@@ -197,7 +205,7 @@ type
 implementation
 
 uses
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils, RipGrepper.Common.Constants, System.StrUtils;
 
 constructor TSettingVariant<T>.Create(const _value : T;
 	{ } _state : TSettingState = ssInitialized;
@@ -242,11 +250,6 @@ begin
 	Result := FPersister;
 end;
 
-function TSettingVariant<T>.GetType() : TSettingType;
-begin
-	Result := stNotSet;
-end;
-
 function TSettingVariant<T>.IsEmpty : Boolean;
 begin
 	Result := (FState = ssNotSet);
@@ -278,6 +281,22 @@ begin
 	end;
 end;
 
+procedure TSettingVariant<T>.LoadFromStreamReader(_sr : TStreamReader);
+begin
+	// FSettingType := TSettingType(_sr.ReadLine().ToInteger);
+	FSaveBehaviour := TSettingStoreBehavioursHelper.FromString(_sr.ReadLine());
+	FState := TSettingState(_sr.ReadLine().ToInteger());
+	Value := GetValueFromString(_sr.ReadLine());
+end;
+
+procedure TSettingVariant<T>.SaveToStreamWriter(_sw : TStreamWriter);
+begin
+	// _sw.WriteLine(Integer(SettingType).ToString);
+	_sw.WriteLine(TSettingStoreBehavioursHelper.ToString(SaveBehaviour));
+	_sw.WriteLine(Integer(State).ToString);
+	_sw.WriteLine(AsString);
+end;
+
 procedure TSettingVariant<T>.StoreToPersister(const _section : string = '');
 begin
 	if not Assigned(Persister) then begin
@@ -303,6 +322,7 @@ constructor TSetting.Create(
 begin
 	FState := _state;
 	FSaveBehaviour := _saveBehaviour;
+	FSettingType := stNotSet;
 end;
 
 function TSetting.AsArray() : TArrayEx<string>;
@@ -310,7 +330,7 @@ begin
 	Result := AsArraySetting.Value;
 end;
 
-function TSetting.AsReversedArray(): TArrayEx<string>;
+function TSetting.AsReversedArray() : TArrayEx<string>;
 begin
 	Result := AsArraySetting.Value.GetReversedRange();
 end;
@@ -433,9 +453,21 @@ begin
 	Result := FState;
 end;
 
+function TSetting.GetSettingType() : TSettingType;
+begin
+	Result := FSettingType;
+end;
+
 procedure TSetting.SetSaveBehaviour(const Value : TSettingStoreBehaviours);
 begin
 	FSaveBehaviour := Value;
+end;
+
+procedure TSetting.SetSettingType(const Value : TSettingType);
+begin
+	if Value <> stNotSet then begin
+		FSettingType := Value;
+	end;
 end;
 
 procedure TSetting.SetState(const Value : TSettingState);
@@ -467,9 +499,15 @@ begin
 	Result := self.SafeItem[index];
 end;
 
-function TArraySetting.GetType() : TSettingType;
+function TArraySetting.GetSettingType() : TSettingType;
 begin
 	Result := stStrArray;
+end;
+
+function TArraySetting.GetValueFromString(const _strValue : string):
+	TArrayEx<string>;
+begin
+	Result := _strValue.Split([ARRAY_SEPARATOR]);
 end;
 
 procedure TArraySetting.SetItem(Index : Integer; const Value : string);
@@ -482,19 +520,34 @@ begin
 	self.Value.SafeItem[index] := Value;
 end;
 
-function TStringSetting.GetType() : TSettingType;
+function TStringSetting.GetSettingType() : TSettingType;
 begin
 	Result := stString;
 end;
 
-function TBoolSetting.GetType() : TSettingType;
+function TStringSetting.GetValueFromString(const _strValue : string) : string;
+begin
+	Result := _strValue;
+end;
+
+function TBoolSetting.GetSettingType() : TSettingType;
 begin
 	Result := stBool;
 end;
 
-function TIntegerSetting.GetType() : TSettingType;
+function TBoolSetting.GetValueFromString(const _strValue : string) : Boolean;
+begin
+	Result := StrToBool(_strValue);
+end;
+
+function TIntegerSetting.GetSettingType() : TSettingType;
 begin
 	Result := stInteger;
+end;
+
+function TIntegerSetting.GetValueFromString(const _strValue : string) : integer;
+begin
+	Result := _strValue.ToInteger;
 end;
 
 end.
