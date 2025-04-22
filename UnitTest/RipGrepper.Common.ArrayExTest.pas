@@ -33,14 +33,14 @@ type
 		public
 			[Test]
 			procedure GetReversedRangeTest();
-            // old tests:...
+			// old tests:...
 			[Test]
 			procedure RecordTest();
 			[Test]
 			procedure ArrayHelperTest();
 			[Test]
 			procedure ArrayContainerTest();
-            // new tests:
+			// new tests:
 			[Test]
 			procedure GetReversedRangeCountTest();
 			[Test]
@@ -49,9 +49,10 @@ type
 			procedure GetReversedRangeMaxCountTest1();
 			[Test]
 			procedure GetRangeAndReversedRange();
-			// old tests:...
 			[Test]
 			procedure MultiDimContainTest();
+			[Test]
+			procedure MultiDimStrContainTest();
 	end;
 
 implementation
@@ -140,12 +141,29 @@ end;
 
 procedure TArrayExTest.MultiDimContainTest();
 begin
-    var a := TArrayEx<TArray<integer>>.Create([[1,2],[3,4]]);
+	var
+	a := TArrayEx < TArray < integer >>.Create([[0, 1], [1, 2], [3, 4]]);
 
-    Assert.IsTrue(a.Contains([1,2]), 'array should contain [1,2]');
-    Assert.IsFalse(a.Contains([4,2]), 'array shouldn''t contain [4,2]');
-    Assert.IsFalse(a.Contains([1,4]), 'array shouldn''t contain [1,4]');
-    Assert.IsTrue(a.Contains([3,4]), 'array should contain [3,4]');
+	Assert.IsTrue(a.Contains([1, 2]), 'array should contain [1,2]');
+	Assert.IsFalse(a.Contains([4, 2]), 'array shouldn''t contain [4,2]');
+	Assert.IsFalse(a.Contains([1, 4]), 'array shouldn''t contain [1,4]');
+	Assert.IsTrue(a.Contains([3, 4]), 'array should contain [3,4]');
+end;
+
+procedure TArrayExTest.MultiDimStrContainTest();
+begin
+	var
+	a := TArrayEx < TArray < string >>.Create([['0', '1'], ['1', '2'], ['3', '4']]);
+	var
+	comp := TComparer < TArray < string >>.Construct(
+		function(const Left, Right : TArray<string>) : Integer
+		begin
+			Result := TComparer<string>.Default.Compare(string.Join('', Left), string.Join('', Right));
+		end);
+	Assert.IsTrue(a.Contains(['1', '2'], comp), 'array should contain [1,2]');
+	Assert.IsFalse(a.Contains(['4', '2'], comp), 'array shouldn''t contain [4,2]');
+	Assert.IsFalse(a.Contains(['1', '4'], comp), 'array shouldn''t contain [1,4]');
+	Assert.IsTrue(a.Contains(['3', '4'], comp), 'array should contain [3,4]');
 end;
 
 procedure TArrayExTest.TestArrayContainer();
