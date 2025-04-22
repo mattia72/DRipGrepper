@@ -153,13 +153,15 @@ begin
 
 	FIsModified := False;
 	FIsAlreadyRead := False;
-	FSettingsDict := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create(IniSectionName));
-	dbgMsg.MsgFmt('Create FSettingsDict %p for section: %s', [Pointer(FSettingsDict), IniSectionName]);
 	FbDefaultLoaded := False;
 	if not Assigned(FPersisterFactory) then begin
 		FPersisterFactory := TIniPersister.Create();
 		FIsOwnerOfPersisterFactory := True;
 	end;
+
+	FSettingsDict := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create(IniSectionName, FPersisterFactory));
+	dbgMsg.MsgFmt('Create FSettingsDict %p for section: %s', [Pointer(FSettingsDict), IniSectionName]);
+
 	Init();
 end;
 
@@ -489,7 +491,7 @@ end;
 procedure TPersistableSettings.LoadFromStreamReader(_sr : TStreamReader);
 begin
 	SettingsDict.LoadFromStreamReader(_sr);
-    LoadFromDict;
+	LoadFromDict;
 end;
 
 procedure TPersistableSettings.SaveToStreamWriter(_sw : TStreamWriter);

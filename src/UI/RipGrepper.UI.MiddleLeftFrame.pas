@@ -266,7 +266,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.AddOrUpdateHistoryItem');
 	dbgMsg.Msg('CurrentHistoryItemIndex ' + CurrentHistoryItemIndex.ToString);
 
-	if not MainFrame.HistItemObject.HasResult then begin
+	if not (MainFrame.HistItemObject.HasResult or MainFrame.HistItemObject.IsLoadedFromStream) then begin
 		var
 			nodeData : TVSHistoryNodeData;
 		nodeData.SearchText := Settings.LastSearchText;

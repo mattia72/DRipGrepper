@@ -1002,7 +1002,7 @@ begin
 	_ctrlProxy.EncodingItems := FSettings.AppSettings.EncodingItems;
 	_ctrlProxy.ExtensionContext := ERipGrepperExtensionContext(FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext.IDEContext);
 
-	if HasHistItemObjWithResult then begin
+	if HasHistItemObjWithResult or FHistItemObj.IsLoadedFromStream then begin
 		_ctrlProxy.SearchText := FHistItemObj.GuiSearchTextParams.SearchTextWithOptions.SearchTextOfUser;
 		// GetValuesFromHistObjRipGrepArguments(RG_ARG_SEARCH_TEXT);
 		_ctrlProxy.SearchOptions := FHistItemObj.GuiSearchTextParams.GetSearchOptions;
@@ -1238,7 +1238,7 @@ procedure TRipGrepperSearchDialogForm.LoadInitialSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadInitialSettings');
-	if HasHistItemObjWithResult then begin
+	if HasHistItemObjWithResult or FHistItemObj.IsLoadedFromStream then begin
 		FSettingsProxy := FHistItemObj.GuiSearchTextParams;
 		if Assigned(FHistItemObj.SearchFormSettings) then begin
 			FOrigSearchFormSettings := TSearchFormSettings.Create;

@@ -193,8 +193,7 @@ type
 
 		public
 			function AddIfNotContains(const AItem : string) : Integer;
-			function GetValueFromString(const _strValue : string): TArrayEx<string>;
-				override;
+			function GetValueFromString(const _strValue : string) : TArrayEx<string>; override;
 
 			function GetSettingType() : TSettingType; override;
 			property Count : Integer read GetCount;
@@ -202,10 +201,18 @@ type
 			property SafeItem[index : Integer] : string read GetSafeItem write SetSafeItem;
 	end;
 
+	TSettingFactory = class(TObject)
+		private
+		public
+			class function CreateSetting(const settingType : TSettingType) : ISetting;
+	end;
+
 implementation
 
 uses
-	RipGrepper.Tools.DebugUtils, RipGrepper.Common.Constants, System.StrUtils;
+	RipGrepper.Tools.DebugUtils,
+	RipGrepper.Common.Constants,
+	System.StrUtils;
 
 constructor TSettingVariant<T>.Create(const _value : T;
 	{ } _state : TSettingState = ssInitialized;
@@ -504,8 +511,7 @@ begin
 	Result := stStrArray;
 end;
 
-function TArraySetting.GetValueFromString(const _strValue : string):
-	TArrayEx<string>;
+function TArraySetting.GetValueFromString(const _strValue : string) : TArrayEx<string>;
 begin
 	Result := _strValue.Split([ARRAY_SEPARATOR]);
 end;
@@ -548,6 +554,22 @@ end;
 function TIntegerSetting.GetValueFromString(const _strValue : string) : integer;
 begin
 	Result := _strValue.ToInteger;
+end;
+
+class function TSettingFactory.CreateSetting(const settingType : TSettingType) : ISetting;
+begin
+	case settingType of
+		stNotSet :
+		raise ESettingsException.Create('Setting Type not set');
+		stString :
+		Result := TStringSetting.Create();
+		stInteger :
+		Result := TIntegerSetting.Create();
+		stBool :
+		Result := TBoolSetting.Create();
+		stStrArray :
+		Result := TArraySetting.Create();
+	end;
 end;
 
 end.
