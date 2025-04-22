@@ -33,12 +33,14 @@ type
 		public
 			[Test]
 			procedure GetReversedRangeTest();
+            // old tests:...
 			[Test]
 			procedure RecordTest();
 			[Test]
 			procedure ArrayHelperTest();
 			[Test]
 			procedure ArrayContainerTest();
+            // new tests:
 			[Test]
 			procedure GetReversedRangeCountTest();
 			[Test]
@@ -47,6 +49,9 @@ type
 			procedure GetReversedRangeMaxCountTest1();
 			[Test]
 			procedure GetRangeAndReversedRange();
+			// old tests:...
+			[Test]
+			procedure MultiDimContainTest();
 	end;
 
 implementation
@@ -131,6 +136,16 @@ begin
 	revArr := ai.GetRange(0, 5).GetReversedRange();
 
 	Assert.AreEqual<integer>([4, 3, 2, 1, 0], revArr, 'reversed array count should be equal')
+end;
+
+procedure TArrayExTest.MultiDimContainTest();
+begin
+    var a := TArrayEx<TArray<integer>>.Create([[1,2],[3,4]]);
+
+    Assert.IsTrue(a.Contains([1,2]), 'array should contain [1,2]');
+    Assert.IsFalse(a.Contains([4,2]), 'array shouldn''t contain [4,2]');
+    Assert.IsFalse(a.Contains([1,4]), 'array shouldn''t contain [1,4]');
+    Assert.IsTrue(a.Contains([3,4]), 'array should contain [3,4]');
 end;
 
 procedure TArrayExTest.TestArrayContainer();
