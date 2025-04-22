@@ -96,6 +96,7 @@ type
 		function GetFileCount : integer;
 		function GetGuiSearchTextParams : IShared<TGuiSearchTextParams>;
 		function GetIsReplaceMode : Boolean;
+		function GetIsLoadedFromStream : Boolean;
 		function GetMatches() : TParsedObjectRowCollection;
 		function GetNoMatchFound() : Boolean;
 		function GetParserType() : TParserType;
@@ -131,6 +132,7 @@ type
 		property RipGrepResult : Integer read GetRipGrepResult write SetRipGrepResult;
 		property SearchText : string read GetSearchText;
 		property IsReplaceMode : Boolean read GetIsReplaceMode;
+		property IsLoadedFromStream : Boolean read GetIsLoadedFromStream;
 		property ReplaceText : string read GetReplaceText;
 		property TotalMatchCount : integer read GetTotalMatchCount;
 	end;
