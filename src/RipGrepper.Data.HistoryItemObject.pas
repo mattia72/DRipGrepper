@@ -284,7 +284,7 @@ var
 	sr : IShared<TStreamReader>;
 begin
 	sr := Shared.Make<TStreamReader>(TStreamReader.Create(_stream, TEncoding.UTF8));
-    LoadFromStreamReader(sr);
+	LoadFromStreamReader(sr);
 end;
 
 procedure THistoryItemObject.LoadFromStreamReader(_sr : TStreamReader);
@@ -296,7 +296,7 @@ begin
 	for var i := 0 to count - 1 do begin
 		RipGrepArguments.Add(_sr.ReadLine);
 	end;
-
+	SearchFormSettings.LoadFromStreamReader(_sr);
 end;
 
 procedure THistoryItemObject.SaveToStream(_stream : TStream);
@@ -314,6 +314,7 @@ begin
 	for var s in RipGrepArguments() do begin
 		_sw.WriteLine(s);
 	end;
+	SearchFormSettings.SaveToStreamWriter(_sw);
 
 end;
 
