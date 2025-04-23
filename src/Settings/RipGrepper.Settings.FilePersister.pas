@@ -83,7 +83,6 @@ type
 			// function GetStringPersister(const _sIniSection : string) : IFilePersister<string>;
 			// function GetIntegerPersister(const _sIniSection: string) : IFilePersister<Integer>;
 			// function GetBoolPersister(const _sIniSection: string) : IFilePersister<Boolean>;
-			//
 
 			function ToLogString() : string;
 

@@ -17,11 +17,11 @@ uses
 	RipGrepper.Common.SearchTextWithOptions,
 	Spring,
 	RipGrepper.Common.GuiSearchParams,
-	RipGrepper.Common.Interfaces.StreamStorable;
+	RipGrepper.Common.Interfaces.StreamPersistable;
 
 type
 	// THistoryItemObject = class(TNoRefCountObject, IHistoryItemObject)
-	THistoryItemObject = class(TInterfacedObject, IHistoryItemObject, IStreamStorable)
+	THistoryItemObject = class(TInterfacedObject, IHistoryItemObject, IStreamPersistable)
 
 		private
 			FElapsedTimeText : string;
@@ -36,6 +36,7 @@ type
 
 			// saved setting items
 			FGuiSearchTextParams : IShared<TGuiSearchTextParams>;
+			FIsLoadedFromStream: Boolean;
 			FRipGrepArguments : IShared<TRipGrepArguments>;
 			FSearchFormSettings : TSearchFormSettings;
 
@@ -68,6 +69,7 @@ type
 			procedure SetErrorCounters(const Value : TErrorCounters);
 			procedure ClearMatches;
 			procedure CopyToSettings(const _settings : TRipGrepperSettings);
+			function GetIsLoadedFromStream(): Boolean;
 			function GetReplaceText : string;
 			function GetSearchTextWithOptions() : IShared<TSearchTextWithOptions>;
 			function HasResult : Boolean;
@@ -84,6 +86,7 @@ type
 			property TotalMatchCount : integer read GetTotalMatchCount;
 			property ElapsedTimeText : string read GetElapsedTimeText write SetElapsedTimeText;
 			property GuiSearchTextParams : IShared<TGuiSearchTextParams> read GetGuiSearchTextParams write SetGuiSearchTextParams;
+			property IsLoadedFromStream: Boolean read GetIsLoadedFromStream;
 			property IsReplaceMode : Boolean read GetIsReplaceMode;
 			property NoMatchFound : Boolean read GetNoMatchFound write SetNoMatchFound;
 			property RipGrepResult : Integer read GetRipGrepResult write SetRipGrepResult;
@@ -194,6 +197,7 @@ begin
 	FParserType := ptEmpty;
 	ClearMatches;
 	FHasResult := False;
+	FIsLoadedFromStream := False;
 end;
 
 procedure THistoryItemObject.ClearMatches;
@@ -229,6 +233,11 @@ end;
 function THistoryItemObject.GetGuiSearchTextParams : IShared<TGuiSearchTextParams>;
 begin
 	Result := FGuiSearchTextParams;
+end;
+
+function THistoryItemObject.GetIsLoadedFromStream(): Boolean;
+begin
+    Result := FIsLoadedFromStream;
 end;
 
 function THistoryItemObject.GetIsReplaceMode : Boolean;
@@ -284,7 +293,7 @@ var
 	sr : IShared<TStreamReader>;
 begin
 	sr := Shared.Make<TStreamReader>(TStreamReader.Create(_stream, TEncoding.UTF8));
-    LoadFromStreamReader(sr);
+	LoadFromStreamReader(sr);
 end;
 
 procedure THistoryItemObject.LoadFromStreamReader(_sr : TStreamReader);
@@ -296,7 +305,8 @@ begin
 	for var i := 0 to count - 1 do begin
 		RipGrepArguments.Add(_sr.ReadLine);
 	end;
-
+	SearchFormSettings.LoadFromStreamReader(_sr);
+	FIsLoadedFromStream := True;
 end;
 
 procedure THistoryItemObject.SaveToStream(_stream : TStream);
@@ -314,7 +324,7 @@ begin
 	for var s in RipGrepArguments() do begin
 		_sw.WriteLine(s);
 	end;
-
+	SearchFormSettings.SaveToStreamWriter(_sw);
 end;
 
 procedure THistoryItemObject.SetElapsedTimeText(const Value : string);

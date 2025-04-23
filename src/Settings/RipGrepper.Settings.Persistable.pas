@@ -14,8 +14,9 @@ uses
 	ArrayEx,
 	Spring,
 	RipGrepper.Settings.FilePersister,
-  RipGrepper.Common.Interfaces.StreamStorable, System.Classes,
-  RipGrepper.Settings.Persister.Interfaces;
+	RipGrepper.Common.Interfaces.StreamPersistable,
+	System.Classes,
+	RipGrepper.Settings.Persister.Interfaces;
 
 type
 
@@ -30,7 +31,7 @@ type
 		procedure StoreToPersister();
 	end;
 
-	TPersistableSettings = class(TNoRefCountObject, IIniPersistable, IStreamStorable)
+	TPersistableSettings = class(TNoRefCountObject, IIniPersistable, IStreamReaderWriterPersistable)
 		// TPersistableSettings = class(TInterfacedObject, IIniPersistable)
 		strict private
 			class constructor Create;
@@ -115,11 +116,8 @@ type
 			// </summary>
 			procedure UpdateFile(const _bForceStoreToPersister : Boolean = False; const _bClearSection : Boolean = False);
 
-			procedure LoadFromStream(_stream : TStream);
-			procedure SaveToStream(_stream : TStream);
-			procedure LoadFromStreamReader(_sr : TStreamReader);
 			procedure SaveToStreamWriter(_sw : TStreamWriter);
-
+			procedure LoadFromStreamReader(_sr : TStreamReader);
 	end;
 
 implementation
@@ -155,13 +153,15 @@ begin
 
 	FIsModified := False;
 	FIsAlreadyRead := False;
-	FSettingsDict := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create(IniSectionName));
-	dbgMsg.MsgFmt('Create FSettingsDict %p for section: %s', [Pointer(FSettingsDict), IniSectionName]);
 	FbDefaultLoaded := False;
 	if not Assigned(FPersisterFactory) then begin
 		FPersisterFactory := TIniPersister.Create();
 		FIsOwnerOfPersisterFactory := True;
 	end;
+
+	FSettingsDict := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create(IniSectionName, FPersisterFactory));
+	dbgMsg.MsgFmt('Create FSettingsDict %p for section: %s', [Pointer(FSettingsDict), IniSectionName]);
+
 	Init();
 end;
 
@@ -246,7 +246,7 @@ end;
 procedure TPersistableSettings.CopySettingsDictSectionSettingValues(const _section : string; _sdFrom : ISettingKeys;
 	const _bForceCopySettingObj : Boolean = False);
 var
-	key: string;
+	key : string;
 	settingOther : ISetting;
 	settingSelf : ISetting;
 	sdSelf : ISettingKeys;
@@ -488,24 +488,15 @@ begin
 	// overwrite this to convert setting values to other types
 end;
 
-procedure TPersistableSettings.LoadFromStream(_stream : TStream);
-begin
-
-end;
-
 procedure TPersistableSettings.LoadFromStreamReader(_sr : TStreamReader);
 begin
-
-end;
-
-procedure TPersistableSettings.SaveToStream(_stream : TStream);
-begin
-
+	SettingsDict.LoadFromStreamReader(_sr);
+	LoadFromDict;
 end;
 
 procedure TPersistableSettings.SaveToStreamWriter(_sw : TStreamWriter);
 begin
-
+	SettingsDict.SaveToStreamWriter(_sw)
 end;
 
 function TPersistableSettings.ToLogString : string;

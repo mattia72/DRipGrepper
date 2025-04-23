@@ -15,7 +15,7 @@ uses
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.Common.EncodedStringList,
 	RipGrepper.Common.GuiSearchParams,
-	RipGrepper.Common.Interfaces.StreamStorable,
+	RipGrepper.Common.Interfaces.StreamPersistable,
 	Spring;
 
 type
@@ -87,7 +87,7 @@ type
 		property SearchParams : ISearchParams read GetSearchParams write SetSearchParams;
 	end;
 
-	IHistoryItemObject = interface(IStreamStorable)
+	IHistoryItemObject = interface(IStreamReaderWriterPersistable)
 		['{C95F78AF-4011-460F-8721-5C3D7FC682D7}']
 		procedure ClearMatches;
 		procedure CopyToSettings(const _settings : TRipGrepperSettings);
@@ -96,6 +96,7 @@ type
 		function GetFileCount : integer;
 		function GetGuiSearchTextParams : IShared<TGuiSearchTextParams>;
 		function GetIsReplaceMode : Boolean;
+		function GetIsLoadedFromStream : Boolean;
 		function GetMatches() : TParsedObjectRowCollection;
 		function GetNoMatchFound() : Boolean;
 		function GetParserType() : TParserType;
@@ -131,6 +132,7 @@ type
 		property RipGrepResult : Integer read GetRipGrepResult write SetRipGrepResult;
 		property SearchText : string read GetSearchText;
 		property IsReplaceMode : Boolean read GetIsReplaceMode;
+		property IsLoadedFromStream : Boolean read GetIsLoadedFromStream;
 		property ReplaceText : string read GetReplaceText;
 		property TotalMatchCount : integer read GetTotalMatchCount;
 	end;

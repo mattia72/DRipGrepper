@@ -15,7 +15,7 @@ uses
 	RipGrepper.Settings.AppSettings,
 	RipGrepper.Settings.ExtensionSettings,
 	RipGrepper.Settings.SettingVariant,
-	RipGrepper.Common.Interfaces.StreamStorable;
+	RipGrepper.Common.Interfaces.StreamPersistable;
 
 type
 

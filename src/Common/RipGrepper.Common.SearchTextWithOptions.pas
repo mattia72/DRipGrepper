@@ -4,11 +4,11 @@ interface
 
 uses
 	RipGrepper.Common.SimpleTypes,
-	RipGrepper.Common.Interfaces.StreamStorable,
+	RipGrepper.Common.Interfaces.StreamPersistable,
 	System.Classes;
 
 type
-	TSearchTextWithOptions = class(TInterfacedObject, IStreamStorable)
+	TSearchTextWithOptions = class(TInterfacedObject, IStreamPersistable)
 		private
 			FEscapedSearchText : string;
 			// FSearchText : string;
