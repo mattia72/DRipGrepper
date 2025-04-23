@@ -152,6 +152,8 @@
         <DCCReference Include="..\src\OpenWith\RipGrepper.OpenWith.Runner.pas"/>
         <DCCReference Include="..\src\RipGrepper.Helper.UI.DarkMode.pas"/>
         <DCCReference Include="..\src\Settings\RipGrepper.Settings.SearchFormSettings.pas"/>
+        <DCCReference Include="..\src\Common\RipGrepper.Common.Interfaces.StreamPersistable.pas"/>
+        <DCCReference Include="..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

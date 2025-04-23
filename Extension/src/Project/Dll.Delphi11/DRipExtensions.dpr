@@ -95,7 +95,11 @@ uses
   RipGrepper.Helper.UI.DarkMode in '..\..\..\..\src\RipGrepper.Helper.UI.DarkMode.pas',
   RipGrepper.Helper.MemIniFile in '..\..\..\..\src\Helper\RipGrepper.Helper.MemIniFile.pas',
   RipGrepper.Common.SearchTextWithOptions in '..\..\..\..\src\Common\RipGrepper.Common.SearchTextWithOptions.pas',
-  RipGrepper.Settings.FilePersister in '..\..\..\..\src\Settings\RipGrepper.Settings.FilePersister.pas';
+  RipGrepper.Settings.FilePersister in '..\..\..\..\src\Settings\RipGrepper.Settings.FilePersister.pas',
+  RipGrepper.Settings.StreamPersister in '..\..\..\..\src\Settings\RipGrepper.Settings.StreamPersister.pas',
+  RipGrepper.Settings.Persister.Interfaces in '..\..\..\..\src\Settings\RipGrepper.Settings.Persister.Interfaces.pas',
+  RipGrepper.Helper.SettingStoreBehaviours in '..\..\..\..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas',
+  RipGrepper.Common.Interfaces.StreamPersistable in '..\..\..\..\src\Common\RipGrepper.Common.Interfaces.StreamPersistable.pas';
 
 {$R *.res}
 

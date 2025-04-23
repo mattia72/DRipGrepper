@@ -100,7 +100,11 @@ uses
   RipGrepper.Helper.MemIniFile in '..\..\Helper\RipGrepper.Helper.MemIniFile.pas',
   RipGrepper.Common.SearchTextWithOptions in '..\..\Common\RipGrepper.Common.SearchTextWithOptions.pas',
   RipGrepper.OpenWith.CmdEditorForm in '..\..\OpenWith\RipGrepper.OpenWith.CmdEditorForm.pas' {OpenWithCommandEditor},
-  RipGrepper.Settings.FilePersister in '..\..\Settings\RipGrepper.Settings.FilePersister.pas';
+  RipGrepper.Settings.FilePersister in '..\..\Settings\RipGrepper.Settings.FilePersister.pas',
+  RipGrepper.Settings.StreamPersister in '..\..\Settings\RipGrepper.Settings.StreamPersister.pas',
+  RipGrepper.Settings.Persister.Interfaces in '..\..\Settings\RipGrepper.Settings.Persister.Interfaces.pas',
+  RipGrepper.Common.Interfaces.StreamPersistable in '..\..\Common\RipGrepper.Common.Interfaces.StreamPersistable.pas',
+  RipGrepper.Helper.SettingStoreBehaviours in '..\..\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas';
 
 {$R *.res}
 

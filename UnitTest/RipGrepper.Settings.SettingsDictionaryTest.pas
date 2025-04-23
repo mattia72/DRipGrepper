@@ -201,8 +201,8 @@ var
 begin
 	FPersisterFactory := TIniPersister.Create();
 
-	FDictTo := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create(TESTSECTION));
-	FDictFrom := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create(TESTSECTION));
+	FDictTo := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create(TESTSECTION, FPersisterFactory));
+	FDictFrom := Shared.Make<TSettingsDictionary>(TSettingsDictionary.Create(TESTSECTION, FPersisterFactory));
 	var
 	tmpFile := ChangeFileExt(Application.ExeName, '.ini');
 	FIniFile := Shared.Make<TMemIniFile>(
@@ -218,7 +218,7 @@ begin
 	end;
 	FDictFrom.InnerDictionary.Add(TESTSECTION, keyDict);
 
-	FSettingsDict := TSettingsDictionary.Create('TestSection');
+	FSettingsDict := TSettingsDictionary.Create('TestSection', FPersisterFactory);
 	FStream := TStringStream.Create('', TEncoding.UTF8);
 	FStreamReader := TStreamReader.Create(FStream);
 	FStreamWriter := TStreamWriter.Create(FStream);
