@@ -361,6 +361,7 @@ procedure THistoryItemObject.SetRipGrepResult(const Value : Integer);
 begin
 	FRipGrepResult := Value;
 	FHasResult := True;
+	FIsLoadedFromStream := False;
 end;
 
 function THistoryItemObject.UpdateParserType : TParserType;
