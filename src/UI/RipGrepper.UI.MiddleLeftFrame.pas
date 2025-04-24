@@ -5,7 +5,6 @@ interface
 uses
 	Winapi.Windows,
 	Winapi.Messages,
-	// System.SysUtils,
 	System.Variants,
 	System.Classes,
 	Vcl.Graphics,
@@ -90,6 +89,7 @@ type
 			function AddVstHistItem(_nodeData : PVSHistoryNodeData) : PVirtualNode;
 			procedure AddVstReplaceNode(Node : PVirtualNode; NodeData : PVSHistoryNodeData);
 			procedure ChangeVstReplaceNode(Node : PVirtualNode; const _Data : PVSHistoryNodeData = nil);
+			procedure DeleteAllHistoryItems();
 			procedure ExpandIfHasChild(const Node : PVirtualNode);
 			function GetData : TRipGrepperData;
 			function GetHistNodeIndex(Node : PVirtualNode) : integer;
@@ -162,10 +162,7 @@ end;
 
 procedure TMiddleLeftFrame.ActionHistoryDeleteAllExecute(Sender : TObject);
 begin
-	MainFrame.VstResult.Clear;
-	VstHistory.Clear;
-	ClearHistoryObjectList;
-	MainFrame.HistItemObject := nil;
+	DeleteAllHistoryItems();
 end;
 
 procedure TMiddleLeftFrame.ActionHistoryDeleteAllUpdate(Sender : TObject);
@@ -220,6 +217,14 @@ begin
 	OpenDialog1.Filter := 'DRipGrepper History File (*.drh)|*.drh|All Files (*.*)|*.*';
 	OpenDialog1.DefaultExt := 'rgh';
 	if OpenDialog1.Execute then begin
+		if VstHistory.RootNodeCount > 0 then begin
+			if mrYes = TMsgBox.ShowWarning('Existing history will be deleted! Do you want to continue?') then begin
+				DeleteAllHistoryItems();
+			end else begin
+				Exit;
+			end;
+			DeleteAllHistoryItems();
+		end;
 		VstHistory.LoadFromFile(OpenDialog1.FileName);
 	end;
 end;
@@ -266,7 +271,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.AddOrUpdateHistoryItem');
 	dbgMsg.Msg('CurrentHistoryItemIndex ' + CurrentHistoryItemIndex.ToString);
 
-	if not (MainFrame.HistItemObject.HasResult or MainFrame.HistItemObject.IsLoadedFromStream) then begin
+	if not(MainFrame.HistItemObject.HasResult or MainFrame.HistItemObject.IsLoadedFromStream) then begin
 		var
 			nodeData : TVSHistoryNodeData;
 		nodeData.SearchText := Settings.LastSearchText;
@@ -633,6 +638,9 @@ var
 	ho : IHistoryItemObject;
 begin
 	ho := GetHistoryObject(Node.Index);
+	if not Assigned(ho) then begin
+		Exit;
+	end;
 	LineBreakStyle := TVTTooltipLineBreakStyle.hlbForceMultiLine;
 	var
 	lineBreakTab := CRLF + '  ';
@@ -745,6 +753,14 @@ begin
 	end;
 end;
 
+procedure TMiddleLeftFrame.DeleteAllHistoryItems();
+begin
+	MainFrame.VstResult.Clear;
+	VstHistory.Clear;
+	ClearHistoryObjectList;
+	MainFrame.HistItemObject := nil;
+end;
+
 procedure TMiddleLeftFrame.ExpandIfHasChild(const Node : PVirtualNode);
 begin
 	if Node.ChildCount > 0 then begin // if replace node is the first it is closed
@@ -762,11 +778,10 @@ begin
 	sr := Shared.Make<TStreamReader>(TStreamReader.Create(Stream));
 	count := StrToInt(sr.ReadLine());
 
-    VstHistory.Clear;
 	for var i := 0 to count - 1 do begin
 		hio := THistoryItemObject.Create;
 		hio.LoadFromStreamReader(sr);
-        AddHistoryObject(hio);
+		AddHistoryObject(hio);
 
 		nodeData.SearchText := hio.GetSearchTextWithOptions().SearchTextOfUser;
 		nodeData.ReplaceData.IsReplaceMode := False;
@@ -778,16 +793,13 @@ end;
 
 procedure TMiddleLeftFrame.VstHistorySaveTree(Sender : TBaseVirtualTree; Stream : TStream);
 var
-//  data : PVSHistoryNodeData;
 	hio : IHistoryItemObject;
 	idx : integer;
-//  hsl : IShared<THistorySaverLoader>;
 	sw : IShared<TStreamWriter>;
 begin
 	sw := Shared.Make<TStreamWriter>(TStreamWriter.Create(Stream));
 	sw.WriteLine(VstHistory.RootNodeCount);
 	for var node : PVirtualNode in VstHistory.Nodes() do begin
-//      data := VstHistory.GetNodeData(node);
 		idx := GetHistNodeIndex(node);
 		hio := GetHistoryObject(idx);
 		hio.SaveToStreamWriter(sw);
