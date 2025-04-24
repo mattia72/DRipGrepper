@@ -96,6 +96,7 @@ type
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
 			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
 			function GetSettings : TRipGrepperSettings;
+			function NodeDataFromStream(const sr : TStreamReader) : TVSHistoryNodeData;
 			procedure ShowReplaceColumn(const _bShow : Boolean);
 			procedure UpdateReplaceColumnVisible;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
@@ -296,22 +297,22 @@ end;
 
 function TMiddleLeftFrame.AddVstHistItem(_nodeData : PVSHistoryNodeData) : PVirtualNode;
 var
-	Node : PVirtualNode;
-	Data : PVSHistoryNodeData;
+	node : PVirtualNode;
+	nodeData : PVSHistoryNodeData;
 begin
-	Node := VstHistory.AddChild(nil);
-	Data := VstHistory.GetNodeData(Node);
+	node := VstHistory.AddChild(nil);
+	nodeData := VstHistory.GetNodeData(node);
 
-	Data^.SearchText := _nodeData.SearchText;
-	Data^.ReplaceData.IsReplaceMode := _nodeData^.ReplaceData.IsReplaceMode;
+	nodeData^.SearchText := _nodeData.SearchText;
+	nodeData^.ReplaceData.IsReplaceMode := _nodeData^.ReplaceData.IsReplaceMode;
 	// only child should be filled, if replace node added, it will be deleted
-	Data^.ReplaceData.ReplaceText := _nodeData^.ReplaceData.ReplaceText;
+	nodeData^.ReplaceData.ReplaceText := _nodeData^.ReplaceData.ReplaceText;
 
 	if _nodeData.ReplaceData.IsReplaceMode then begin
-		// VstHistory.MultiLine[Node] := True;
-		AddVstReplaceNode(Node, Data);
+		// VstHistory.MultiLine[node] := True;
+		AddVstReplaceNode(node, nodeData);
 	end;
-	Result := Node;
+	Result := node;
 end;
 
 procedure TMiddleLeftFrame.AddVstReplaceNode(Node : PVirtualNode; NodeData : PVSHistoryNodeData);
@@ -768,6 +769,19 @@ begin
 	end;
 end;
 
+function TMiddleLeftFrame.NodeDataFromStream(const sr : TStreamReader) : TVSHistoryNodeData;
+var
+	hio : IHistoryItemObject;
+begin
+	hio := THistoryItemObject.Create;
+	hio.LoadFromStreamReader(sr);
+	AddHistoryObject(hio);
+
+	Result.SearchText := hio.GetSearchTextWithOptions().SearchTextOfUser;
+	Result.ReplaceData.IsReplaceMode := False;
+	Result.ReplaceData.ReplaceText := '';
+end;
+
 procedure TMiddleLeftFrame.VstHistoryLoadTree(Sender : TBaseVirtualTree; Stream : TStream);
 var
 	hio : IHistoryItemObject;
@@ -778,15 +792,9 @@ begin
 	sr := Shared.Make<TStreamReader>(TStreamReader.Create(Stream));
 	count := StrToInt(sr.ReadLine());
 
+	VstHistory.Clear; // LoadFile creates the nodes
 	for var i := 0 to count - 1 do begin
-		hio := THistoryItemObject.Create;
-		hio.LoadFromStreamReader(sr);
-		AddHistoryObject(hio);
-
-		nodeData.SearchText := hio.GetSearchTextWithOptions().SearchTextOfUser;
-		nodeData.ReplaceData.IsReplaceMode := False;
-		nodeData.ReplaceData.ReplaceText := '';
-
+		nodeData := NodeDataFromStream(sr);
 		AddVstHistItem(@nodeData);
 	end;
 end;
