@@ -111,6 +111,7 @@ type
 		function GetTotalMatchCount() : integer;
 		function HasResult() : Boolean;
 		procedure LoadFromSettings(const _settings : TRipGrepperSettings);
+		procedure RefreshCounters(_errorCounters :TErrorCounters; _fileCount : Integer);
 		procedure SetElapsedTimeText(const Value : string);
 		procedure SetErrorCounters(const Value : TErrorCounters);
 		procedure SetFileCount(const Value : integer);

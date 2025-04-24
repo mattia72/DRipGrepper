@@ -903,8 +903,7 @@ begin
 	if Assigned(FHistItemObj) then begin
 		var
 		beu := TBeginEndUpdater.New(MiddleLeftFrame1.VstHistory);
-		FHistItemObj.SetErrorCounters(Data.FErrorCounters); // synced
-		FHistItemObj.FileCount := Data.FileCount; // synced
+		FHistItemObj.RefreshCounters(Data.FErrorCounters, Data.FileCount); // synced
 	end;
 	RefreshCountersInGUI;
 end;

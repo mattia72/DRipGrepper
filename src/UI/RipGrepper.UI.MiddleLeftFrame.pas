@@ -218,7 +218,7 @@ begin
 	OpenDialog1.DefaultExt := 'rgh';
 	if OpenDialog1.Execute then begin
 		if VstHistory.RootNodeCount > 0 then begin
-			if mrYes = TMsgBox.ShowWarning('Existing history will be deleted! Do you want to continue?') then begin
+			if mrYes = TMsgBox.ShowQuestion('Existing history will be deleted! Do you want to continue?') then begin
 				DeleteAllHistoryItems();
 			end else begin
 				Exit;

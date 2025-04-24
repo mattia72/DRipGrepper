@@ -23,6 +23,7 @@ type
 	// THistoryItemObject = class(TNoRefCountObject, IHistoryItemObject)
 	THistoryItemObject = class(TInterfacedObject, IHistoryItemObject, IStreamPersistable)
 
+		strict private
 		private
 			FElapsedTimeText : string;
 			FErrorCounters : TErrorCounters;
@@ -36,7 +37,7 @@ type
 
 			// saved setting items
 			FGuiSearchTextParams : IShared<TGuiSearchTextParams>;
-			FIsLoadedFromStream: Boolean;
+			FIsLoadedFromStream : Boolean;
 			FRipGrepArguments : IShared<TRipGrepArguments>;
 			FSearchFormSettings : TSearchFormSettings;
 
@@ -69,13 +70,14 @@ type
 			procedure SetErrorCounters(const Value : TErrorCounters);
 			procedure ClearMatches;
 			procedure CopyToSettings(const _settings : TRipGrepperSettings);
-			function GetIsLoadedFromStream(): Boolean;
+			function GetIsLoadedFromStream() : Boolean;
 			function GetReplaceText : string;
 			function GetSearchTextWithOptions() : IShared<TSearchTextWithOptions>;
 			function HasResult : Boolean;
 			procedure LoadFromSettings(const _settings : TRipGrepperSettings);
 			procedure LoadFromStream(_stream : TStream);
 			procedure LoadFromStreamReader(_sr : TStreamReader);
+			procedure RefreshCounters(_errorCounters : TErrorCounters; _fileCount : Integer);
 			procedure SaveToStream(_stream : TStream);
 			procedure SaveToStreamWriter(_sw : TStreamWriter);
 			function UpdateParserType : TParserType;
@@ -86,7 +88,7 @@ type
 			property TotalMatchCount : integer read GetTotalMatchCount;
 			property ElapsedTimeText : string read GetElapsedTimeText write SetElapsedTimeText;
 			property GuiSearchTextParams : IShared<TGuiSearchTextParams> read GetGuiSearchTextParams write SetGuiSearchTextParams;
-			property IsLoadedFromStream: Boolean read GetIsLoadedFromStream;
+			property IsLoadedFromStream : Boolean read GetIsLoadedFromStream;
 			property IsReplaceMode : Boolean read GetIsReplaceMode;
 			property NoMatchFound : Boolean read GetNoMatchFound write SetNoMatchFound;
 			property RipGrepResult : Integer read GetRipGrepResult write SetRipGrepResult;
@@ -235,9 +237,9 @@ begin
 	Result := FGuiSearchTextParams;
 end;
 
-function THistoryItemObject.GetIsLoadedFromStream(): Boolean;
+function THistoryItemObject.GetIsLoadedFromStream() : Boolean;
 begin
-    Result := FIsLoadedFromStream;
+	Result := FIsLoadedFromStream;
 end;
 
 function THistoryItemObject.GetIsReplaceMode : Boolean;
@@ -309,6 +311,13 @@ begin
 	FIsLoadedFromStream := True;
 end;
 
+procedure THistoryItemObject.RefreshCounters(_errorCounters : TErrorCounters; _fileCount : Integer);
+begin
+	SetErrorCounters(_errorCounters);
+	FileCount := _fileCount;
+	// FIsLoadedFromStream := False; // so counters are updated on gui
+end;
+
 procedure THistoryItemObject.SaveToStream(_stream : TStream);
 var
 	sw : IShared<TStreamWriter>;
@@ -361,7 +370,7 @@ procedure THistoryItemObject.SetRipGrepResult(const Value : Integer);
 begin
 	FRipGrepResult := Value;
 	FHasResult := True;
-	FIsLoadedFromStream := False;
+	FIsLoadedFromStream := False; // so counters are updated on gui
 end;
 
 function THistoryItemObject.UpdateParserType : TParserType;
