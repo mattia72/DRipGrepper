@@ -29,14 +29,19 @@ uses
 type
 
 	THelpOptions = record
-		Short : string;
-		Long : string;
-		Value : string;
-		Description : string;
+		private
+			function GetIsValid : Boolean;
 
-		class function New(const _short : string; const _long : string = ''; const _value : string = ''; const _description : string = '')
-			: THelpOptions; static;
-		function ToString : string;
+		public
+			Short : string;
+			Long : string;
+			Value : string;
+			Description : string;
+
+			class function New(const _short : string; const _long : string = ''; const _value : string = '';
+				const _description : string = '') : THelpOptions; static;
+			function ToString : string;
+			property IsValid : Boolean read GetIsValid;
 	end;
 
 	PHelpOptions = ^THelpOptions;
@@ -72,7 +77,12 @@ type
 		procedure llblHelpLinkClick(Sender : TObject; const Link : string; LinkType : TSysLinkType);
 		procedure LoadRipGrepHelp();
 		procedure SearchBox1Change(Sender : TObject);
+		procedure SearchBox1Enter(Sender : TObject);
+		procedure SearchBox1InvokeSearch(Sender : TObject);
+		procedure SearchBox1KeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
 		procedure VstResultChecked(Sender : TBaseVirtualTree; Node : PVirtualNode);
+		procedure VstResultDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
+			const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
 		procedure VstResultFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
 		procedure VstResultGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType;
 			var CellText : string);
@@ -81,6 +91,7 @@ type
 
 		private
 			FDpiScaler : TRipGrepperDpiScaler;
+			FFoundNode : PVirtualNode;
 			FGroupNode : PVirtualNode;
 			FGroupIngLineRegex : TRegex;
 			FOptionList : TStringList;
@@ -92,6 +103,7 @@ type
 			function AddVSTStructure(AVST : TCustomVirtualStringTree; ANode : PVirtualNode; ARecord : THelpOptionsGroup) : PVirtualNode;
 			procedure InitVirtualTree;
 			function ParseLine(const _s : string) : THelpOptions;
+			procedure SearchNode;
 			procedure SetGroup(const _groupHeader : string);
 
 			{ Private-Deklarationen }
@@ -161,6 +173,7 @@ var
 	vtc : TVirtualTreeColumn;
 begin
 	vtc := VstResult.Header.Columns.Add;
+	vtc.MinWidth := 100;
 	vtc.Text := _caption;
 end;
 
@@ -204,7 +217,11 @@ var
 	ho : THelpOptionsGroup;
 	group : string;
 	node : PVirtualNode;
+	prevData : PHelpOptionsGroup;
 begin
+	if _s.IsEmpty then
+		Exit;
+
 	groupingMatch := FGroupIngLineRegex.Match(_s);
 	if groupingMatch.Success then begin
 		group := groupingMatch.Groups[1].Value;
@@ -224,8 +241,13 @@ begin
 		node.CheckType := ctCheckBox;
 
 	end else begin
-		ho := THelpOptionsGroup.New('', '', '', _s);
-		AddVSTStructure(VstResult, FGroupNode, ho);
+		prevData := VstResult.GetNodeData(VstResult.GetLastInitialized());
+		if prevData.Option.IsValid then begin
+			prevData.Option.Description := _s.Trim;
+		end else begin
+			ho := THelpOptionsGroup.New('', '', '', _s);
+			AddVSTStructure(VstResult, FGroupNode, ho);
+		end;
 	end;
 
 end;
@@ -240,10 +262,10 @@ end;
 
 procedure TRipGrepOptionsForm.AddColumns;
 begin
-	AddColumn('Description');
 	AddColumn('Short');
 	AddColumn('Long');
 	AddColumn('Value');
+	AddColumn('Description');
 	VstResult.Header.AutoSizeIndex := VstResult.Header.Columns.GetLastVisibleColumn();
 	VstResult.Header.Options := VstResult.Header.Options + [hoAutoResize, hoColumnResize, hoDblClickResize];
 end;
@@ -269,7 +291,7 @@ procedure TRipGrepOptionsForm.InitVirtualTree;
 begin
 	VstResult.TreeOptions.StringOptions := VstResult.TreeOptions.StringOptions + [toShowStaticText];
 	VstResult.TreeOptions.PaintOptions := VstResult.TreeOptions.PaintOptions + [toUseExplorerTheme];
-	VstResult.Header.Options := VstResult.Header.Options + [hoVisible, hoDblClickResize, hoAutoResize, hoAutoResizeInclCaption];
+	VstResult.Header.Options := VstResult.Header.Options + [hoVisible, hoDblClickResize { , hoAutoResize, hoAutoResizeInclCaption } ];
 	VstResult.TreeOptions.AutoOptions := VstResult.TreeOptions.AutoOptions + [toAutoSpanColumns];
 	VstResult.TreeOptions.SelectionOptions := VstResult.TreeOptions.SelectionOptions + [toFullRowSelect];
 
@@ -282,18 +304,28 @@ begin
 end;
 
 procedure TRipGrepOptionsForm.SearchBox1Change(Sender : TObject);
-var
-	foundNode : PVirtualNode;
 begin
 	inherited; // SearchBox1Change(Sender)
 	// first param is your starting point. nil starts at top of tree. if you want to implement findnext
 	// functionality you will need to supply the previous found node to continue from that point.
 	// be sure to set the IncrementalSearchTimeout to allow users to type a few characters before starting a search.
-	foundNode := VstResult.IterateSubtree(nil, SearchForText, pointer(SearchBox1.text));
+	// SearchNode;
+end;
 
-	if Assigned(foundNode) then begin
-		VstResult.FocusedNode := foundNode;
-		VstResult.Selected[foundNode] := True;
+procedure TRipGrepOptionsForm.SearchBox1Enter(Sender : TObject);
+begin
+	FFoundNode := nil;
+end;
+
+procedure TRipGrepOptionsForm.SearchBox1InvokeSearch(Sender : TObject);
+begin
+	SearchNode;
+end;
+
+procedure TRipGrepOptionsForm.SearchBox1KeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
+begin
+	if Key = vkF3 then begin
+		SearchNode;
 	end;
 end;
 
@@ -306,7 +338,24 @@ begin
 		NodeData := Sender.GetNodeData(Node);
 		dataStr := NodeData.Option.ToString;
 		Abort := ContainsText(dataStr, string(data)); // abort the search if a node with the text is found.
-		TDebugUtils.DebugMessage(Format('%s in %s', [string(data), dataStr]));
+		var sAbort := 'SEARCH: ';
+		if Abort then begin
+			sAbort := 'ABORT: ';
+		end;
+		TDebugUtils.DebugMessage(Format('%s''%s'' in %s', [sAbort, string(data), dataStr]));
+	end;
+end;
+
+procedure TRipGrepOptionsForm.SearchNode;
+begin
+	if Assigned(FFoundNode) then begin
+		FFoundNode := VstResult.GetNext(FFoundNode, True);
+	end;
+	FFoundNode := VstResult.IterateSubtree(FFoundNode, SearchForText, Pointer(SearchBox1.text), [], False, False);
+
+	if Assigned(FFoundNode) then begin
+		VstResult.FocusedNode := FFoundNode;
+		VstResult.Selected[FFoundNode] := True;
 	end;
 end;
 
@@ -319,6 +368,36 @@ begin
 	option := NodeData.Option.Long + NodeData.Option.Value;
 	if (FOptionList.IndexOf(option) < 0) then begin
 		FOptionList.Add(option);
+	end;
+end;
+
+procedure TRipGrepOptionsForm.VstResultDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
+	Column : TColumnIndex; const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
+const
+	SELECTED_BG = clYellow;
+	SELECTED_FG = clBlack;
+var
+	bkMode, position : Integer;
+	fgColor : TColor;
+begin
+	position := Pos(AnsiLowerCase(SearchBox1.Text), AnsiLowerCase(Text));
+	if position > 0 then begin
+		// store the current background mode; we need to use Windows API here because the
+		// VT internally uses it (so the TCanvas object gets out of sync with the DC)
+		bkMode := GetBkMode(TargetCanvas.Handle);
+		fgColor := TargetCanvas.Font.Color;
+
+		// setup the color and draw the rectangle in a width of the matching text
+		TargetCanvas.Brush.Color := SELECTED_BG;
+		TargetCanvas.Font.Color := SELECTED_FG;
+		TargetCanvas.FillRect(Rect(CellRect.Left + TargetCanvas.TextWidth(Copy(Text, 1, position - 1)), CellRect.Top + 3,
+			CellRect.Left + TargetCanvas.TextWidth(Copy(Text, 1, position - 1)) + TargetCanvas.TextWidth(Copy(Text, position,
+			Length(SearchBox1.Text))), CellRect.Bottom - 3));
+		// restore the original background mode (as it likely was modified by setting the
+		// brush color)
+
+		SetBkMode(TargetCanvas.Handle, bkMode);
+		TargetCanvas.Font.Color := fgColor;
 	end;
 end;
 
@@ -340,15 +419,24 @@ begin
 	CellText := '';
 	// return the the identifier of the node
 	if (TextType = ttNormal) and (NodeData^.Option.description <> '') then begin
+
 		case Column of
 			- 1, 0 : // main column, -1 if columns are hidden, 0 if they are shown
-			CellText := NodeData^.Option.description;
+			if NodeData.Option.IsValid then begin
+				CellText := NodeData^.Option.short;
+			end else begin
+				CellText := NodeData^.Option.description
+			end;
 			1 :
-			CellText := NodeData^.Option.short;
-			2 :
 			CellText := NodeData^.Option.long;
-			3 :
+			2 :
 			CellText := NodeData^.Option.value;
+			3 :
+			if NodeData.Option.IsValid then begin
+				CellText := NodeData^.Option.description;
+			end else begin
+				CellText := '';
+			end;
 		end;
 	end else begin
 		if TextType = ttNormal then begin
@@ -374,6 +462,12 @@ begin
 	end else begin // ttStatic
 		// TargetCanvas.Font.Color := TREEVIEW_STAT.Color;
 	end;
+end;
+
+function THelpOptions.GetIsValid : Boolean;
+begin
+	Result := ((not Short.IsEmpty) and (Short.StartsWith('-'))
+		{ } or ((not Long.IsEmpty) and (Long.StartsWith('--'))));
 end;
 
 class function THelpOptions.New(const _short : string; const _long : string = ''; const _value : string = '';

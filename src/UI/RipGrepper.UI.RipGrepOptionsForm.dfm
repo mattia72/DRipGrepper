@@ -176,6 +176,7 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
       TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
       TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowRoot, toShowTreeLines, toThemeAware, toUseBlendedImages, toUseExplorerTheme]
       OnChecked = VstResultChecked
+      OnDrawText = VstResultDrawText
       OnFreeNode = VstResultFreeNode
       OnGetText = VstResultGetText
       OnPaintText = VstResultPaintText
@@ -283,6 +284,9 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
       TabOrder = 1
       TextHint = 'Search...'
       OnChange = SearchBox1Change
+      OnEnter = SearchBox1Enter
+      OnKeyDown = SearchBox1KeyDown
+      OnInvokeSearch = SearchBox1InvokeSearch
     end
   end
   object ActionList1: TActionList

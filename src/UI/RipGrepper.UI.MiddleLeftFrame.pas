@@ -784,7 +784,6 @@ end;
 
 procedure TMiddleLeftFrame.VstHistoryLoadTree(Sender : TBaseVirtualTree; Stream : TStream);
 var
-	hio : IHistoryItemObject;
 	sr : IShared<TStreamReader>;
 	count : integer;
 	nodeData : TVSHistoryNodeData;
