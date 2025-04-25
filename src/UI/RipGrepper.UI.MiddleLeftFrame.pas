@@ -791,7 +791,7 @@ begin
 	sr := Shared.Make<TStreamReader>(TStreamReader.Create(Stream));
 	count := StrToInt(sr.ReadLine());
 
-	VstHistory.Clear; // LoadFile creates the nodes
+	VstHistory.Clear; // LoadFile creates the nodes, we should clear it
 	for var i := 0 to count - 1 do begin
 		nodeData := NodeDataFromStream(sr);
 		AddVstHistItem(@nodeData);

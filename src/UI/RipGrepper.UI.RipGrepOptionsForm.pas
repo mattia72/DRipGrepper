@@ -103,6 +103,7 @@ type
 			function AddVSTStructure(AVST : TCustomVirtualStringTree; ANode : PVirtualNode; ARecord : THelpOptionsGroup) : PVirtualNode;
 			procedure InitVirtualTree;
 			function ParseLine(const _s : string) : THelpOptions;
+			function SearchTextByIterateNodes(const _searchText : string; _startNode : PVirtualNode) : PVirtualNode;
 			procedure SearchNode;
 			procedure SetGroup(const _groupHeader : string);
 
@@ -329,16 +330,33 @@ begin
 	end;
 end;
 
+function TRipGrepOptionsForm.SearchTextByIterateNodes(const _searchText : string; _startNode : PVirtualNode) : PVirtualNode;
+var
+	abort : Boolean;
+	node : PVirtualNode;
+begin
+	node := _startNode;
+	repeat
+		SearchForText(VstResult, node, Pointer(_searchText), abort);
+		if abort then begin
+			break;
+		end;
+		node := VstResult.GetNext(node, True);
+	until (node = nil);
+	Result := node;
+end;
+
 procedure TRipGrepOptionsForm.SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
 var
 	dataStr : string;
-	NodeData : PHelpOptionsGroup; // replace by your record structure
+	nodeData : PHelpOptionsGroup; // replace by your record structure
 begin
-	if not string(data).IsEmpty then begin
-		NodeData := Sender.GetNodeData(Node);
-		dataStr := NodeData.Option.ToString;
+	if Assigned(node) and not string(data).IsEmpty then begin
+		nodeData := Sender.GetNodeData(Node);
+		dataStr := nodeData.Option.ToString;
 		Abort := ContainsText(dataStr, string(data)); // abort the search if a node with the text is found.
-		var sAbort := 'SEARCH: ';
+		var
+		sAbort := 'SEARCH: ';
 		if Abort then begin
 			sAbort := 'ABORT: ';
 		end;
@@ -347,11 +365,17 @@ begin
 end;
 
 procedure TRipGrepOptionsForm.SearchNode;
+var
+	abort : Boolean;
 begin
 	if Assigned(FFoundNode) then begin
 		FFoundNode := VstResult.GetNext(FFoundNode, True);
+	end else begin
+		FFoundNode := VstResult.GetFirstInitialized();
 	end;
-	FFoundNode := VstResult.IterateSubtree(FFoundNode, SearchForText, Pointer(SearchBox1.text), [], False, False);
+
+	// FFoundNode := VstResult.IterateSubtree(FFoundNode, SearchForText, Pointer(searchText), [], False, False);
+	FFoundNode := SearchTextByIterateNodes(SearchBox1.Text, FFoundNode);
 
 	if Assigned(FFoundNode) then begin
 		VstResult.FocusedNode := FFoundNode;
@@ -374,7 +398,7 @@ end;
 procedure TRipGrepOptionsForm.VstResultDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
 	Column : TColumnIndex; const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
 const
-	SELECTED_BG = clYellow;
+	SELECTED_BG = clSkyBlue;
 	SELECTED_FG = clBlack;
 var
 	bkMode, position : Integer;
@@ -390,6 +414,7 @@ begin
 		// setup the color and draw the rectangle in a width of the matching text
 		TargetCanvas.Brush.Color := SELECTED_BG;
 		TargetCanvas.Font.Color := SELECTED_FG;
+
 		TargetCanvas.FillRect(Rect(CellRect.Left + TargetCanvas.TextWidth(Copy(Text, 1, position - 1)), CellRect.Top + 3,
 			CellRect.Left + TargetCanvas.TextWidth(Copy(Text, 1, position - 1)) + TargetCanvas.TextWidth(Copy(Text, position,
 			Length(SearchBox1.Text))), CellRect.Bottom - 3));
