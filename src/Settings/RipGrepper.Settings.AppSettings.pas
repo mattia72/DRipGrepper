@@ -27,26 +27,30 @@ type
 			KEY_DEBUGTRACEREGEXFILTER = 'DebugTraceRegexFilter';
 			KEY_DEBUGTRACE = 'DebugTrace';
 			KEY_COPYTOCLIPBOARDSHELL = 'CopyToClipBoardShell';
+			KEY_CMBHISTORYCOUNT = 'ComboHistoryCount';
 
 		private
 			FColorTheme : IStringSetting;
 			FCopyToClipBoardShell : IIntegerSetting;
+			FComboHistoryCount : IIntegerSetting;
 			FDebugTrace : IStringSetting;
 			FDebugTraceRegexFilter : IStringSetting;
 			FExpertMode : IBoolSetting;
-			FEncodingItems: IStringSetting;
+			FEncodingItems : IStringSetting;
 			function GetColorTheme() : string;
+			function GetComboHistoryCount() : Integer;
 			function GetCopyToClipBoardShell() : TShellType;
 			function GetDebugTrace() : string;
-			function GetDebugTraceRegexFilter(): string;
-			function GetEncodingItems(): TArray<string>;
-			function GetExpertMode(): Boolean;
+			function GetDebugTraceRegexFilter() : string;
+			function GetEncodingItems() : TArray<string>;
+			function GetExpertMode() : Boolean;
 			procedure SetColorTheme(const Value : string);
+			procedure SetComboHistoryCount(const Value : Integer);
 			procedure SetCopyToClipBoardShell(const Value : TShellType);
 			procedure SetDebugTrace(const Value : string);
-			procedure SetDebugTraceRegexFilter(const Value: string);
-			procedure SetEncodingItems(const Value: TArray<string>);
-			procedure SetExpertMode(const Value: Boolean);
+			procedure SetDebugTraceRegexFilter(const Value : string);
+			procedure SetEncodingItems(const Value : TArray<string>);
+			procedure SetExpertMode(const Value : Boolean);
 
 		protected
 			procedure Init; override;
@@ -55,13 +59,12 @@ type
 			constructor Create(const _Owner : TPersistableSettings);
 			destructor Destroy; override;
 			property ColorTheme : string read GetColorTheme write SetColorTheme;
+			property ComboHistoryCount : Integer read GetComboHistoryCount write SetComboHistoryCount;
 			property CopyToClipBoardShell : TShellType read GetCopyToClipBoardShell write SetCopyToClipBoardShell;
 			property DebugTrace : string read GetDebugTrace write SetDebugTrace;
-			property DebugTraceRegexFilter: string read GetDebugTraceRegexFilter write
-				SetDebugTraceRegexFilter;
-			property ExpertMode: Boolean read GetExpertMode write SetExpertMode;
-			property EncodingItems: TArray<string> read GetEncodingItems write
-				SetEncodingItems;
+			property DebugTraceRegexFilter : string read GetDebugTraceRegexFilter write SetDebugTraceRegexFilter;
+			property ExpertMode : Boolean read GetExpertMode write SetExpertMode;
+			property EncodingItems : TArray<string> read GetEncodingItems write SetEncodingItems;
 	end;
 
 implementation
@@ -88,7 +91,7 @@ constructor TAppSettings.Create(const _Owner : TPersistableSettings);
 begin
 	IniSectionName := INI_SECTION;
 	inherited;
-	TDebugUtils.DebugMessage('TAppSettings.Create: ' +   '[' + IniSectionName + ']');
+	TDebugUtils.DebugMessage('TAppSettings.Create: ' + '[' + IniSectionName + ']');
 end;
 
 destructor TAppSettings.Destroy;
@@ -101,6 +104,11 @@ begin
 	Result := FColorTheme.Value;
 end;
 
+function TAppSettings.GetComboHistoryCount() : Integer;
+begin
+	Result := FComboHistoryCount.Value;
+end;
+
 function TAppSettings.GetCopyToClipBoardShell() : TShellType;
 begin
 	Result := TShellType(FCopyToClipBoardShell.Value);
@@ -111,17 +119,17 @@ begin
 	Result := FDebugTrace.Value;
 end;
 
-function TAppSettings.GetDebugTraceRegexFilter(): string;
+function TAppSettings.GetDebugTraceRegexFilter() : string;
 begin
 	Result := FDebugTraceRegexFilter.Value;
 end;
 
-function TAppSettings.GetEncodingItems(): TArray<string>;
+function TAppSettings.GetEncodingItems() : TArray<string>;
 begin
 	Result := FEncodingItems.Value.Split([ARRAY_SEPARATOR]);
 end;
 
-function TAppSettings.GetExpertMode(): Boolean;
+function TAppSettings.GetExpertMode() : Boolean;
 begin
 	Result := FExpertMode.Value;
 end;
@@ -130,13 +138,15 @@ procedure TAppSettings.Init;
 begin
 	FColorTheme := TStringSetting.Create('');
 	FCopyToClipBoardShell := TIntegerSetting.Create(Integer(TShellType.stPowershell));
+	FComboHistoryCount := TIntegerSetting.Create(MAX_HISTORY_COUNT);
 	FDebugTrace := TStringSetting.Create('');
 	FDebugTraceRegexFilter := TStringSetting.Create('');
 	FExpertMode := TBoolSetting.Create(False);
-    FEncodingItems := TStringSetting.Create(string.join(ARRAY_SEPARATOR , TDefaults.RG_PARAM_ENCODING_VALUES));
+	FEncodingItems := TStringSetting.Create(string.join(ARRAY_SEPARATOR, TDefaults.RG_PARAM_ENCODING_VALUES));
 
 	CreateSetting(KEY_COLORTHEME, FColorTheme);
 	CreateSetting(KEY_COPYTOCLIPBOARDSHELL, FCopyToClipBoardShell);
+	CreateSetting(KEY_CMBHISTORYCOUNT, FComboHistoryCount);
 	CreateSetting(KEY_DEBUGTRACE, FDebugTrace);
 	CreateSetting(KEY_DEBUGTRACEREGEXFILTER, FDebugTraceRegexFilter);
 	CreateSetting(KEY_ENCODING_ITEMS, FEncodingItems);
@@ -146,6 +156,11 @@ end;
 procedure TAppSettings.SetColorTheme(const Value : string);
 begin
 	FColorTheme.Value := Value;
+end;
+
+procedure TAppSettings.SetComboHistoryCount(const Value : Integer);
+begin
+	FComboHistoryCount.Value := Value;
 end;
 
 procedure TAppSettings.SetCopyToClipBoardShell(const Value : TShellType);
@@ -158,17 +173,17 @@ begin
 	FDebugTrace.Value := Value;
 end;
 
-procedure TAppSettings.SetDebugTraceRegexFilter(const Value: string);
+procedure TAppSettings.SetDebugTraceRegexFilter(const Value : string);
 begin
 	FDebugTraceRegexFilter.Value := Value;
 end;
 
-procedure TAppSettings.SetEncodingItems(const Value: TArray<string>);
+procedure TAppSettings.SetEncodingItems(const Value : TArray<string>);
 begin
 	FEncodingItems.Value := string.join(ARRAY_SEPARATOR, Value);
 end;
 
-procedure TAppSettings.SetExpertMode(const Value: Boolean);
+procedure TAppSettings.SetExpertMode(const Value : Boolean);
 begin
 	FExpertMode.Value := Value;
 end;

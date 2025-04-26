@@ -2,8 +2,8 @@ object ExtensionSettingsForm: TExtensionSettingsForm
   Left = 0
   Top = 0
   Caption = 'ExtensionSettingsForm'
-  ClientHeight = 281
-  ClientWidth = 638
+  ClientHeight = 273
+  ClientWidth = 636
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,17 +15,17 @@ object ExtensionSettingsForm: TExtensionSettingsForm
   object pnlMiddle: TPanel
     Left = 0
     Top = 0
-    Width = 638
-    Height = 281
+    Width = 636
+    Height = 273
     Align = alClient
     TabOrder = 0
     DesignSize = (
-      638
-      281)
+      636
+      273)
     object grpShortcuts: TGroupBox
       Left = 17
       Top = 8
-      Width = 608
+      Width = 602
       Height = 100
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Shortcuts'
@@ -33,16 +33,16 @@ object ExtensionSettingsForm: TExtensionSettingsForm
       object lblOpenWith: TLabel
         Left = 36
         Top = 28
-        Width = 60
+        Width = 67
         Height = 15
-        Caption = 'Open With:'
+        Caption = 'Open with...:'
       end
       object lblSearch: TLabel
         Left = 16
         Top = 53
-        Width = 85
+        Width = 84
         Height = 15
-        Caption = 'Search Selected:'
+        Caption = 'Search selected:'
       end
       object hkedtOpenWidth: THotKey
         Left = 114
@@ -64,13 +64,13 @@ object ExtensionSettingsForm: TExtensionSettingsForm
     object grpInstallation: TGroupBox
       Left = 17
       Top = 114
-      Width = 608
+      Width = 602
       Height = 118
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Install as Delphi IDE Extension'
       TabOrder = 1
       DesignSize = (
-        608
+        602
         118)
       object cmbDelphiVersions: TComboBox
         Left = 16
@@ -82,7 +82,7 @@ object ExtensionSettingsForm: TExtensionSettingsForm
         OnChange = cmbDelphiVersionsChange
       end
       object btnInstallPackage: TButton
-        Left = 516
+        Left = 510
         Top = 55
         Width = 78
         Height = 21
@@ -93,7 +93,7 @@ object ExtensionSettingsForm: TExtensionSettingsForm
       object btnedtDllPath: TButtonedEdit
         Left = 16
         Top = 55
-        Width = 494
+        Width = 488
         Height = 23
         Anchors = [akLeft, akTop, akRight]
         Color = clInfoBk

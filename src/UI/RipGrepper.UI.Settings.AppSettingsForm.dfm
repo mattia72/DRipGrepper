@@ -2,7 +2,7 @@ object AppSettingsForm: TAppSettingsForm
   Left = 0
   Top = 0
   Caption = 'AppSettingsForm'
-  ClientHeight = 455
+  ClientHeight = 436
   ClientWidth = 515
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,12 +16,12 @@ object AppSettingsForm: TAppSettingsForm
     Left = 0
     Top = 0
     Width = 515
-    Height = 455
+    Height = 436
     Align = alClient
     TabOrder = 0
     DesignSize = (
       511
-      451)
+      432)
     object lblRgExePath: TLabel
       Left = 16
       Top = 9
@@ -66,7 +66,7 @@ object AppSettingsForm: TAppSettingsForm
     object grpAdvanced: TGroupBox
       AlignWithMargins = True
       Left = 11
-      Top = 239
+      Top = 231
       Width = 487
       Height = 181
       Anchors = [akLeft, akTop, akRight]
@@ -87,7 +87,7 @@ object AppSettingsForm: TAppSettingsForm
         Top = 22
         Width = 97
         Height = 24
-        Caption = 'Expert Mode'
+        Caption = 'Expert mode'
         TabOrder = 0
       end
       object btnedtIniFilePath: TButtonedEdit
@@ -123,7 +123,7 @@ object AppSettingsForm: TAppSettingsForm
         Width = 459
         Height = 68
         Anchors = [akLeft, akTop, akRight]
-        Caption = 'Debug Trace Filters'
+        Caption = 'Debug trace filters'
         TabOrder = 2
         object chEnd: TCheckBox
           Left = 385
@@ -217,21 +217,28 @@ object AppSettingsForm: TAppSettingsForm
       Left = 11
       Top = 143
       Width = 487
-      Height = 90
+      Height = 82
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Settings'
       TabOrder = 3
       object Label2: TLabel
-        Left = 3
+        Left = 19
         Top = 24
         Width = 116
         Height = 15
-        Caption = 'Copy Command Shell'
+        Caption = 'Copy command shell:'
+      end
+      object Label3: TLabel
+        Left = 19
+        Top = 52
+        Width = 116
+        Height = 15
+        Caption = 'Combo history count:'
       end
       object cmbCopyCmdShell: TComboBox
-        Left = 125
+        Left = 141
         Top = 20
-        Width = 145
+        Width = 100
         Height = 23
         Hint = 'Select shell format to copy the RipGrep command to the clipboard'
         ItemIndex = 0
@@ -240,6 +247,16 @@ object AppSettingsForm: TAppSettingsForm
         Items.Strings = (
           'PowerShell '
           'DOS')
+      end
+      object seCmbHistoryCount: TSpinEdit
+        Left = 142
+        Top = 49
+        Width = 99
+        Height = 24
+        MaxValue = 100
+        MinValue = 10
+        TabOrder = 1
+        Value = 0
       end
     end
   end
@@ -314,7 +331,7 @@ object AppSettingsForm: TAppSettingsForm
           '67 10.5832 7.57941 10.7478 7.33284Z" fill="#424242"/>'#13#10'</svg>'#13#10
       end>
     Scaled = True
-    Left = 392
-    Top = 168
+    Left = 384
+    Top = 328
   end
 end

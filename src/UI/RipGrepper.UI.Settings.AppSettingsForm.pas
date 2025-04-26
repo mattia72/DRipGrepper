@@ -31,7 +31,8 @@ uses
 	RipGrepper.Common.Constants,
 	SVGIconImageListBase,
 	SVGIconImageList,
-	Spring;
+	Spring,
+	Vcl.Samples.Spin;
 
 type
 	EValidateCtrls = (vcRgExePath, vcIniFilePath);
@@ -62,6 +63,8 @@ type
 		grpSettings : TGroupBox;
 		Label2 : TLabel;
 		cmbCopyCmdShell : TComboBox;
+		Label3 : TLabel;
+		seCmbHistoryCount : TSpinEdit;
 		procedure btnedtIniFilePathLeftButtonClick(Sender : TObject);
 		procedure btnedtIniFilePathRightButtonClick(Sender : TObject);
 		procedure btnedtRgExePathEnter(Sender : TObject);
@@ -268,6 +271,7 @@ begin
 	chExpertMode.Checked := FAppSettings.ExpertMode;
 	btnedtIniFilePath.Text := FAppSettings.PersisterFactory.FilePath;
 	cmbCopyCmdShell.ItemIndex := Integer(FAppSettings.CopyToClipBoardShell);
+	seCmbHistoryCount.Value := FAppSettings.ComboHistoryCount;
 
 	var
 	path := FRipGrepSettings.RipGrepPath;
@@ -309,6 +313,7 @@ begin
 	FAppSettings.DebugTrace := TDebugUtils.TraceTypesToStr(GetTraceTypeFilters());
 	FAppSettings.ExpertMode := chExpertMode.Checked;
 	FAppSettings.CopyToClipBoardShell := TShellType(cmbCopyCmdShell.ItemIndex);
+    FAppSettings.ComboHistoryCount := seCmbHistoryCount.Value;
 	var
 	rgPath := btnedtRgExePath.Text;
 	if IsRgExeValid(rgPath) then begin
