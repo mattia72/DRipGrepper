@@ -37,18 +37,19 @@ type
 			class var FMsgDlg : TForm;
 
 			class procedure SetModalResultAndClose(const _mr : Integer);
-			class procedure ThreadShowDlg;
+			class function ThreadShowDlg() : TModalResult;
 
 		public
 			constructor Create;
-			class procedure Show(const _msg : string; const _type : TMsgDlgType; _parent : TWinControl = nil);
+			class procedure Show(const _msg : string; const _type : TMsgDlgType; _parent : TWinControl = nil;
+				_yesProc : TThreadProcedure = nil; _noProc : TThreadProcedure = nil);
 
 			class procedure OnNoClick(Sender : TObject);
 			class procedure OnOkClick(Sender : TObject);
 			class procedure OnYesClick(Sender : TObject);
 			class procedure ShowError(const _msg : string);
 			class procedure ShowInfo(const _msg : string);
-			class function ShowQuestion(const _msg : string) : Integer;
+			class procedure ShowQuestion(const _msg : string; _yesProc : TThreadProcedure; _noProc : TThreadProcedure = nil);
 			class procedure ShowWarning(const _msg : string; const _bModal : Boolean = True; _parent : TWinControl = nil);
 	end;
 
@@ -551,9 +552,11 @@ begin
 	FMsgDlg := nil;
 end;
 
-class procedure TAsyncMsgBox.Show(const _msg : string; const _type : TMsgDlgType; _parent : TWinControl = nil);
+class procedure TAsyncMsgBox.Show(const _msg : string; const _type : TMsgDlgType; _parent : TWinControl = nil;
+	_yesProc : TThreadProcedure = nil; _noProc : TThreadProcedure = nil);
 var
 	btns : TMsgDlgButtons;
+	modalResult : TModalResult;
 begin
 	TThread.Queue(nil,
 		procedure()
@@ -564,8 +567,16 @@ begin
 			try
 				FMsgDlg.Parent := _parent;
 				SetCaption(FMsgDlg);
-				ThreadShowDlg;
+				modalResult := ThreadShowDlg;
 			finally
+				case modalResult of
+					mrYes :
+					if Assigned(_yesProc) then
+						_yesProc();
+					mrNo :
+					if Assigned(_noProc) then
+						_noProc();
+				end;
 				FreeAndNil(FMsgDlg);
 			end;
 		end);
@@ -602,11 +613,10 @@ begin
 	Show(_msg, TMsgDlgType.mtInformation);
 end;
 
-class function TAsyncMsgBox.ShowQuestion(const _msg : string) : Integer;
+class procedure TAsyncMsgBox.ShowQuestion(const _msg : string; _yesProc : TThreadProcedure; _noProc : TThreadProcedure = nil);
 begin
-	// TODO ModalResult
-	// Result := Show(_msg, TMsgDlgType.mtConfirmation);
-	Result := mrNone;
+    // TODO : this function is not tested
+	Show(_msg, TMsgDlgType.mtConfirmation, nil, _yesProc, _noProc);
 end;
 
 class procedure TAsyncMsgBox.ShowWarning(const _msg : string; const _bModal : Boolean = True; _parent : TWinControl = nil);
@@ -614,7 +624,7 @@ begin
 	Show(_msg, TMsgDlgType.mtWarning);
 end;
 
-class procedure TAsyncMsgBox.ThreadShowDlg;
+class function TAsyncMsgBox.ThreadShowDlg() : TModalResult;
 begin
 	var
 	btnOk := (FMsgDlg.FindComponent('OK') as TButton);
@@ -632,7 +642,7 @@ begin
 			btnNo.OnClick := TAsyncMsgBox.OnNoClick;
 		end;
 	end;
-	FMsgDlg.ShowModal;
+	Result := FMsgDlg.ShowModal;
 end;
 
 class function TMsgBoxBase.GetButtonsByType(const _type : TMsgDlgType) : TMsgDlgButtons;
