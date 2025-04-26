@@ -87,7 +87,7 @@ begin
 		FOpenWithConfigForm := TOpenWithConfigForm.Create(nil, Settings.OpenWithSettings, Settings.AppSettings.ColorTheme);
 		FOpenWithConfigForm.Caption := 'Open With...';
 		FAppSettingsForm := TAppSettingsForm.Create(nil, Settings);
-		FColorSettingsForm := TColorSettingsForm.Create(nil, Settings.FontColorSettings);
+		FColorSettingsForm := TColorSettingsForm.Create(nil, Settings);
 
 		// FExtensionSettings := TRipGrepperExtensionSettings.Create(Settings);
 		FExtensionSettings := Settings.SearchFormSettings.ExtensionSettings;

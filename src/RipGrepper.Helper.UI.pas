@@ -642,7 +642,7 @@ begin
 			btnNo.OnClick := TAsyncMsgBox.OnNoClick;
 		end;
 	end;
-	Result := FMsgDlg.ShowModal;
+	Result := FMsgDlg.ShowModal;   // TODO : test appropriate result
 end;
 
 class function TMsgBoxBase.GetButtonsByType(const _type : TMsgDlgType) : TMsgDlgButtons;

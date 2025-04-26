@@ -15,28 +15,41 @@ uses
 	Vcl.StdCtrls,
 	RipGrepper.Settings.FontColors,
 	RipGrepper.UI.SettingsFormBase,
-	Vcl.ExtCtrls;
+	Vcl.ExtCtrls,
+	Spring,
+	RipGrepper.Settings.RipGrepperSettings,
+	RipGrepper.Settings.AppSettings;
 
 type
 	TColorSettingsForm = class(TSettingsBaseForm)
 		grpFontColors : TGroupBox;
-		Button1 : TButton;
+		btnLoadDefaults : TButton;
 		pnlBottom : TPanel;
 		pnlTop : TPanel;
 		ScrollBox1 : TScrollBox;
-		procedure Button1Click(Sender : TObject);
+		rgTheme : TRadioGroup;
+		procedure btnLoadDefaultsClick(Sender : TObject);
 		procedure FormShow(Sender : TObject);
+		procedure rgThemeClick(Sender : TObject);
 
 		private
 			FAllHeight : Integer;
+			FAppSettings : TAppSettings;
+			FbSkipClickEvent : Boolean;
 			FFontColorSettings : TColorSettings;
+			FOnThemeChanged : Event<TNotifyEvent>;
 
 		protected
 			procedure ReadSettings; override;
+			procedure ThemeChanged();
 			procedure WriteSettings; override;
 
 		public
-			constructor Create(_Owner : TComponent; _settings : TColorSettings);
+			constructor Create(_Owner : TComponent; _settings : TRipGrepperSettings);
+			procedure LoadDefaultColorsForTheme(Sender : TObject);
+
+		published
+			property OnThemeChanged : Event<TNotifyEvent> read FOnThemeChanged write FOnThemeChanged;
 	end;
 
 var
@@ -49,21 +62,26 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Common.Constants,
 	System.RegularExpressions,
-	RipGrepper.Helper.UI.DarkMode;
+	RipGrepper.Helper.UI.DarkMode,
+	System.StrUtils,
+	RipGrepper.Helper.UI;
 
 {$R *.dfm}
 
-constructor TColorSettingsForm.Create(_Owner : TComponent; _settings : TColorSettings);
+constructor TColorSettingsForm.Create(_Owner : TComponent; _settings : TRipGrepperSettings);
 begin
 	inherited Create(_Owner, _settings);
 	Caption := FONTS_AND_COLORS_CAPTION;
-	FFontColorSettings := _settings;
+	FFontColorSettings := _settings.FontColorSettings;
+	FAppSettings := _settings.AppSettings;
 	ReadSettings;
 	FAllHeight := TColorSelectorFrame.AddSelectionFrames(FFontColorSettings.FontColors, self, ScrollBox1);
 	FAllHeight := FAllHeight + pnlBottom.Height;
+
+	// FOnThemeChanged.Add(LoadDefaultColorsForTheme); doesn't work :/ exception from rgTheme.SetChecked ???
 end;
 
-procedure TColorSettingsForm.Button1Click(Sender : TObject);
+procedure TColorSettingsForm.btnLoadDefaultsClick(Sender : TObject);
 var
 	cf : TColorSelectorFrame;
 	sFontAttribs : string;
@@ -87,17 +105,65 @@ procedure TColorSettingsForm.FormShow(Sender : TObject);
 begin
 	inherited;
 	self.Height := FAllHeight + self.Height;
+	FbSkipClickEvent := True;
+	try
+		rgTheme.ItemIndex := Integer(TDarkModeHelper.GetActualThemeMode);
+
+		{$IFNDEF STANDALONE}
+		rgTheme.Enabled := False;
+		rgTheme.ItemIndex := Integer(tmSystem);
+		rgTheme.Hint := 'Theme can be changed only in IDE';
+		{$ENDIF}
+	finally
+		FbSkipClickEvent := False;
+	end;
+
+end;
+
+procedure TColorSettingsForm.LoadDefaultColorsForTheme(Sender : TObject);
+var
+	themeName : string;
+	tm : EThemeMode;
+begin
+	tm := EThemeMode(rgTheme.ItemIndex);
+	themeName := TDarkModeHelper.GetThemeNameByMode(tm);
+	TAsyncMsgBox.ShowQuestion(
+		{ } Format('Would you like to load default fonts and color settings for ''%s'' theme?', [themeName]),
+		procedure()
+		begin
+			btnLoadDefaultsClick(Sender);
+		end);
 end;
 
 procedure TColorSettingsForm.ReadSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TColorSettingsForm.ReadSettings');
+	FAppSettings.LoadFromDict;
+
 	if FFontColorSettings.FontColors.IsEmpty then begin
 		FFontColorSettings.LoadDefaultColors(TDarkModeHelper.GetActualThemeMode);
 		FFontColorSettings.StoreToPersister();
 	end;
 	FFontColorSettings.LoadFromDict;
+end;
+
+procedure TColorSettingsForm.rgThemeClick(Sender : TObject);
+var
+	tm : EThemeMode;
+begin
+	if FbSkipClickEvent then begin
+		Exit;
+	end;
+	tm := EThemeMode(rgTheme.ItemIndex);
+	TDarkModeHelper.SetThemeMode(tm);
+	ThemeChanged();
+end;
+
+procedure TColorSettingsForm.ThemeChanged();
+begin
+	if FOnThemeChanged.CanInvoke then
+		FOnThemeChanged.Invoke(Self);
 end;
 
 procedure TColorSettingsForm.WriteSettings;
@@ -108,8 +174,12 @@ begin
 	fc := FFontColorSettings.FontColors;
 	TColorSelectorFrame.WriteColorSettings(fc, self);
 	FFontColorSettings.FontColors := fc;
-    // it is needed to store FontColorToSettings
-    FFontColorSettings.StoreToPersister;
+	// it is needed to store FontColorToSettings
+	FFontColorSettings.StoreToPersister;
+
+	var
+	tm := EThemeMode(rgTheme.ItemIndex);
+	FAppSettings.ColorTheme := IfThen(tm in [tmLight, tmDark], TDarkModeHelper.GetThemeNameByMode(tm));
 end;
 
 end.

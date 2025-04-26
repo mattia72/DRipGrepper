@@ -39,7 +39,7 @@ object AppSettingsForm: TAppSettingsForm
     object btnedtRgExePath: TButtonedEdit
       Left = 16
       Top = 27
-      Width = 486
+      Width = 482
       Height = 23
       Anchors = [akLeft, akTop, akRight]
       Color = clInfoBk
@@ -63,17 +63,17 @@ object AppSettingsForm: TAppSettingsForm
       OnLeftButtonClick = btnedtRgExePathLeftButtonClick
       OnRightButtonClick = btnedtRgExePathRightButtonClick
     end
-    object grpDeveloper: TGroupBox
+    object grpAdvanced: TGroupBox
       AlignWithMargins = True
       Left = 11
       Top = 239
-      Width = 491
+      Width = 487
       Height = 181
       Anchors = [akLeft, akTop, akRight]
-      Caption = 'Developer'
+      Caption = 'Advanced'
       TabOrder = 1
       DesignSize = (
-        491
+        487
         181)
       object Label1: TLabel
         Left = 16
@@ -93,7 +93,7 @@ object AppSettingsForm: TAppSettingsForm
       object btnedtIniFilePath: TButtonedEdit
         Left = 16
         Top = 147
-        Width = 466
+        Width = 462
         Height = 23
         Anchors = [akLeft, akTop, akRight]
         Color = clInfoBk
@@ -120,7 +120,7 @@ object AppSettingsForm: TAppSettingsForm
       object gbTrace: TGroupBox
         Left = 16
         Top = 52
-        Width = 463
+        Width = 459
         Height = 68
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Debug Trace Filters'
@@ -195,7 +195,7 @@ object AppSettingsForm: TAppSettingsForm
     object Memo1: TMemo
       Left = 16
       Top = 74
-      Width = 486
+      Width = 482
       Height = 63
       Anchors = [akLeft, akTop, akRight]
       Color = clBlack
@@ -213,19 +213,35 @@ object AppSettingsForm: TAppSettingsForm
       ScrollBars = ssVertical
       TabOrder = 2
     end
-    object rgTheme: TRadioGroup
+    object grpSettings: TGroupBox
       Left = 11
-      Top = 152
-      Width = 491
-      Height = 81
+      Top = 143
+      Width = 487
+      Height = 90
       Anchors = [akLeft, akTop, akRight]
-      Caption = 'Theme'
-      Items.Strings = (
-        'Light'
-        'Dark'
-        'System')
+      Caption = 'Settings'
       TabOrder = 3
-      OnClick = rgThemeClick
+      object Label2: TLabel
+        Left = 3
+        Top = 24
+        Width = 116
+        Height = 15
+        Caption = 'Copy Command Shell'
+      end
+      object cmbCopyCmdShell: TComboBox
+        Left = 125
+        Top = 20
+        Width = 145
+        Height = 23
+        Hint = 'Select shell format to copy the RipGrep command to the clipboard'
+        ItemIndex = 0
+        TabOrder = 0
+        Text = 'PowerShell '
+        OnChange = cmbCopyCmdShellChange
+        Items.Strings = (
+          'PowerShell '
+          'DOS')
+      end
     end
   end
   object OpenDialog1: TOpenDialog

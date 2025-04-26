@@ -365,8 +365,6 @@ begin
 end;
 
 procedure TRipGrepOptionsForm.SearchNode;
-var
-	abort : Boolean;
 begin
 	if Assigned(FFoundNode) then begin
 		FFoundNode := VstResult.GetNext(FFoundNode, True);

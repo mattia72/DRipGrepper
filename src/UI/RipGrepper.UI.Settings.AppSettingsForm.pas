@@ -39,7 +39,7 @@ type
 	TAppSettingsForm = class(TSettingsBaseForm)
 		chBegin : TCheckBox;
 		chExpertMode : TCheckBox;
-		grpDeveloper : TGroupBox;
+		grpAdvanced : TGroupBox;
 		btnedtRgExePath : TButtonedEdit;
 		lblRgExePath : TLabel;
 		OpenDialog1 : TOpenDialog;
@@ -56,10 +56,12 @@ type
 		chInfo : TCheckBox;
 		chRegex : TCheckBox;
 		edtRegex : TEdit;
-		rgTheme : TRadioGroup;
 		SVGIconImageList1 : TSVGIconImageList;
 		chVerbose : TCheckBox;
 		ScrollBox1 : TScrollBox;
+		grpSettings : TGroupBox;
+		Label2 : TLabel;
+		cmbCopyCmdShell : TComboBox;
 		procedure btnedtIniFilePathLeftButtonClick(Sender : TObject);
 		procedure btnedtIniFilePathRightButtonClick(Sender : TObject);
 		procedure btnedtRgExePathEnter(Sender : TObject);
@@ -67,15 +69,13 @@ type
 		procedure btnedtRgExePathLeftButtonClick(Sender : TObject);
 		procedure btnedtRgExePathRightButtonClick(Sender : TObject);
 		procedure chRegexClick(Sender : TObject);
+		procedure cmbCopyCmdShellChange(Sender : TObject);
 		procedure FormShow(Sender : TObject);
-		procedure rgThemeClick(Sender : TObject);
 
 		private
 
 			FRefocusing : TObject;
 			FAppSettings : TAppSettings;
-			FbSkipClickEvent : Boolean;
-			FOnThemeChanged : Event<TNotifyEvent>;
 			FRipGrepSettings : TRipGrepParameterSettings;
 			function GetTraceTypeFilters : TTraceFilterTypes;
 			function IsRgExeValid(const filePath : string) : Boolean;
@@ -85,7 +85,6 @@ type
 		protected
 			procedure OnSettingsUpdated(); override;
 			procedure ReadSettings; override;
-			procedure ThemeChanged();
 			procedure WriteSettings; override;
 
 		public
@@ -93,7 +92,6 @@ type
 			function GetRgVersion(const _rgPath : string) : string;
 
 		published
-			property OnThemeChanged : Event<TNotifyEvent> read FOnThemeChanged write FOnThemeChanged;
 	end;
 
 var
@@ -110,7 +108,8 @@ uses
 	RipGrepper.OpenWith.Params,
 	RipGrepper.OpenWith,
 	RipGrepper.Helper.UI.DarkMode,
-	System.StrUtils;
+	System.StrUtils,
+	RipGrepper.Common.SimpleTypes;
 
 {$R *.dfm}
 
@@ -120,8 +119,6 @@ begin
 	Caption := 'General';
 	FAppSettings := (FSettings as TRipGrepperSettings).AppSettings;
 	FRipGrepSettings := (FSettings as TRipGrepperSettings).RipGrepParameters;
-
-	FOnThemeChanged.Add(nil { TThemeChangeEventSubscriber } );
 end;
 
 procedure TAppSettingsForm.btnedtIniFilePathLeftButtonClick(Sender : TObject);
@@ -183,22 +180,14 @@ begin
 	end;
 end;
 
+procedure TAppSettingsForm.cmbCopyCmdShellChange(Sender : TObject);
+begin
+	FAppSettings.CopyToClipBoardShell := TShellType(cmbCopyCmdShell.ItemIndex);
+end;
+
 procedure TAppSettingsForm.FormShow(Sender : TObject);
 begin
 	ReadSettings;
-
-	FbSkipClickEvent := True;
-	try
-		rgTheme.ItemIndex := Integer(TDarkModeHelper.GetActualThemeMode);
-
-		{$IFNDEF STANDALONE}
-		rgTheme.Enabled := False;
-		rgTheme.ItemIndex := Integer(tmSystem);
-		rgTheme.Hint := 'Theme can be changed only in IDE';
-		{$ENDIF}
-	finally
-		FbSkipClickEvent := False;
-	end;
 end;
 
 function TAppSettingsForm.GetRgVersion(const _rgPath : string) : string;
@@ -293,24 +282,6 @@ begin
 	Memo1.Text := GetRgVersion(path);
 end;
 
-procedure TAppSettingsForm.rgThemeClick(Sender : TObject);
-var
-	tm : EThemeMode;
-begin
-	if FbSkipClickEvent then begin
-		Exit;
-	end;
-	tm := EThemeMode(rgTheme.ItemIndex);
-	TDarkModeHelper.SetThemeMode(tm);
-	ThemeChanged();
-end;
-
-procedure TAppSettingsForm.ThemeChanged();
-begin
-	if FOnThemeChanged.CanInvoke then
-		FOnThemeChanged.Invoke(Self);
-end;
-
 procedure TAppSettingsForm.ValidateInput(var M : TMessage);
 begin
 	case EValidateCtrls(M.LParam) of
@@ -341,9 +312,6 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TAppSettingsForm.WriteSettings');
 	FAppSettings.DebugTrace := TDebugUtils.TraceTypesToStr(GetTraceTypeFilters());
 	FAppSettings.ExpertMode := chExpertMode.Checked;
-	var
-	tm := EThemeMode(rgTheme.ItemIndex);
-	FAppSettings.ColorTheme := IfThen(tm in [tmLight, tmDark], TDarkModeHelper.GetThemeNameByMode(tm));
 
 	var
 	rgPath := btnedtRgExePath.Text;
