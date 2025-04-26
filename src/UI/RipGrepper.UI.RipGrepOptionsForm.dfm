@@ -277,7 +277,7 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
       Top = 11
       Width = 121
       Height = 23
-      Hint = 'Search Text in Result List'
+      Hint = 'Search Text in Result List '#13#10'(press F3 to find next)'
       Anchors = [akTop, akRight]
       ParentShowHint = False
       ShowHint = True
