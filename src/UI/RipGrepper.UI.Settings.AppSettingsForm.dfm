@@ -237,7 +237,6 @@ object AppSettingsForm: TAppSettingsForm
         ItemIndex = 0
         TabOrder = 0
         Text = 'PowerShell '
-        OnChange = cmbCopyCmdShellChange
         Items.Strings = (
           'PowerShell '
           'DOS')

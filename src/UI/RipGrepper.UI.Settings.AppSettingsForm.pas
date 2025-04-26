@@ -69,7 +69,6 @@ type
 		procedure btnedtRgExePathLeftButtonClick(Sender : TObject);
 		procedure btnedtRgExePathRightButtonClick(Sender : TObject);
 		procedure chRegexClick(Sender : TObject);
-		procedure cmbCopyCmdShellChange(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 
 		private
@@ -180,11 +179,6 @@ begin
 	end;
 end;
 
-procedure TAppSettingsForm.cmbCopyCmdShellChange(Sender : TObject);
-begin
-	FAppSettings.CopyToClipBoardShell := TShellType(cmbCopyCmdShell.ItemIndex);
-end;
-
 procedure TAppSettingsForm.FormShow(Sender : TObject);
 begin
 	ReadSettings;
@@ -273,6 +267,8 @@ begin
 
 	chExpertMode.Checked := FAppSettings.ExpertMode;
 	btnedtIniFilePath.Text := FAppSettings.PersisterFactory.FilePath;
+	cmbCopyCmdShell.ItemIndex := Integer(FAppSettings.CopyToClipBoardShell);
+
 	var
 	path := FRipGrepSettings.RipGrepPath;
 	if path.IsEmpty then begin
@@ -312,7 +308,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TAppSettingsForm.WriteSettings');
 	FAppSettings.DebugTrace := TDebugUtils.TraceTypesToStr(GetTraceTypeFilters());
 	FAppSettings.ExpertMode := chExpertMode.Checked;
-
+	FAppSettings.CopyToClipBoardShell := TShellType(cmbCopyCmdShell.ItemIndex);
 	var
 	rgPath := btnedtRgExePath.Text;
 	if IsRgExeValid(rgPath) then begin
