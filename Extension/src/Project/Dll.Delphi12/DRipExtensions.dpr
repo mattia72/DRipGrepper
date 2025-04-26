@@ -97,7 +97,8 @@ uses
   RipGrepper.Common.SearchTextWithOptions in '..\..\..\..\src\Common\RipGrepper.Common.SearchTextWithOptions.pas',
   RipGrepper.Settings.FilePersister in '..\..\..\..\src\Settings\RipGrepper.Settings.FilePersister.pas',
   RipGrepper.Settings.Persister.Interfaces in '..\..\..\..\src\Settings\RipGrepper.Settings.Persister.Interfaces.pas',
-  RipGrepper.Common.Interfaces.StreamPersistable in '..\..\..\..\src\Common\RipGrepper.Common.Interfaces.StreamPersistable.pas';
+  RipGrepper.Common.Interfaces.StreamPersistable in '..\..\..\..\src\Common\RipGrepper.Common.Interfaces.StreamPersistable.pas',
+  RipGrepper.Helper.SettingStoreBehaviours in '..\..\..\..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas';
 
 {$R *.res}
 
