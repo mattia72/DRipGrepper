@@ -103,7 +103,8 @@ uses
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.OpenWith,
 	RipGrepper.OpenWith.ConfigForm,
-	System.TypInfo;
+	System.TypInfo,
+	RipGrepper.UI.MiddleLeftFrame;
 
 {$R *.dfm}
 
@@ -171,6 +172,9 @@ end;
 procedure TRipGrepperForm.FormClose(Sender : TObject; var Action : TCloseAction);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperForm.FormClose - begin action: ' + Integer(Action).ToString);
+	if ParentFrame.Settings.AppSettings.LoadLastSearchHistory then begin
+		MiddleLeftFrame.VstHistory.SaveToFile(SEARCH_HISTORY_DRH);
+	end;
 end;
 
 procedure TRipGrepperForm.FormShow(Sender : TObject);
@@ -204,27 +208,17 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.Init');
 	ParentFrame.Init;
+	if ParentFrame.Settings.AppSettings.LoadLastSearchHistory and TFile.Exists(SEARCH_HISTORY_DRH) then begin
+		MiddleLeftFrame.VstHistory.LoadFromFile(SEARCH_HISTORY_DRH);
+	end;
 end;
 
 procedure TRipGrepperForm.Loaded;
-// var
-// // PropInfo : PPropInfo;
-// // i : Integer;
-// // cmp : TComponent;
+
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.Loaded');
 	inherited Loaded;
-	// PropInfo := GetPropInfo(Self, 'StyleElements');    why did i need this?
-	// if Assigned(PropInfo) then
-	// SetOrdProp(Self, PropInfo, 0);
-	// for I := 0 to ComponentCount - 1 do begin
-	// cmp := Components[I];
-	// PropInfo := GetPropInfo(cmp, 'StyleElements');
-	// if Assigned(PropInfo) then
-	// SetOrdProp(cmp, PropInfo, 0);
-	// //? SetOrdProp(cmp, PropInfo, Ord([seFont, seClient, seBorder]));
-	// end;
 end;
 
 procedure TRipGrepperForm.OnThemeChanged(Sender : TObject);

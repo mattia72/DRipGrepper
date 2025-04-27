@@ -28,11 +28,13 @@ type
 			KEY_DEBUGTRACE = 'DebugTrace';
 			KEY_COPYTOCLIPBOARDSHELL = 'CopyToClipBoardShell';
 			KEY_CMBHISTORYCOUNT = 'ComboHistoryCount';
+			KEY_LOADLASTHISTORIESONSTARTUP = 'LoadLastSearchesOnStartup';
 
 		private
 			FColorTheme : IStringSetting;
 			FCopyToClipBoardShell : IIntegerSetting;
 			FComboHistoryCount : IIntegerSetting;
+			FLoadLastSearchHistory : IBoolSetting;
 			FDebugTrace : IStringSetting;
 			FDebugTraceRegexFilter : IStringSetting;
 			FExpertMode : IBoolSetting;
@@ -44,6 +46,7 @@ type
 			function GetDebugTraceRegexFilter() : string;
 			function GetEncodingItems() : TArray<string>;
 			function GetExpertMode() : Boolean;
+			function GetLoadLastSearchHistory() : Boolean;
 			procedure SetColorTheme(const Value : string);
 			procedure SetComboHistoryCount(const Value : Integer);
 			procedure SetCopyToClipBoardShell(const Value : TShellType);
@@ -51,6 +54,7 @@ type
 			procedure SetDebugTraceRegexFilter(const Value : string);
 			procedure SetEncodingItems(const Value : TArray<string>);
 			procedure SetExpertMode(const Value : Boolean);
+			procedure SetLoadLastSearchHistory(const Value : Boolean);
 
 		protected
 			procedure Init; override;
@@ -65,6 +69,7 @@ type
 			property DebugTraceRegexFilter : string read GetDebugTraceRegexFilter write SetDebugTraceRegexFilter;
 			property ExpertMode : Boolean read GetExpertMode write SetExpertMode;
 			property EncodingItems : TArray<string> read GetEncodingItems write SetEncodingItems;
+			property LoadLastSearchHistory : Boolean read GetLoadLastSearchHistory write SetLoadLastSearchHistory;
 	end;
 
 implementation
@@ -134,11 +139,17 @@ begin
 	Result := FExpertMode.Value;
 end;
 
+function TAppSettings.GetLoadLastSearchHistory() : Boolean;
+begin
+	Result := FLoadLastSearchHistory.Value;
+end;
+
 procedure TAppSettings.Init;
 begin
 	FColorTheme := TStringSetting.Create('');
 	FCopyToClipBoardShell := TIntegerSetting.Create(Integer(TShellType.stPowershell));
 	FComboHistoryCount := TIntegerSetting.Create(MAX_HISTORY_COUNT);
+	FLoadLastSearchHistory := TBoolSetting.Create(True);
 	FDebugTrace := TStringSetting.Create('');
 	FDebugTraceRegexFilter := TStringSetting.Create('');
 	FExpertMode := TBoolSetting.Create(False);
@@ -147,6 +158,7 @@ begin
 	CreateSetting(KEY_COLORTHEME, FColorTheme);
 	CreateSetting(KEY_COPYTOCLIPBOARDSHELL, FCopyToClipBoardShell);
 	CreateSetting(KEY_CMBHISTORYCOUNT, FComboHistoryCount);
+	CreateSetting(KEY_LOADLASTHISTORIESONSTARTUP, FLoadLastSearchHistory);
 	CreateSetting(KEY_DEBUGTRACE, FDebugTrace);
 	CreateSetting(KEY_DEBUGTRACEREGEXFILTER, FDebugTraceRegexFilter);
 	CreateSetting(KEY_ENCODING_ITEMS, FEncodingItems);
@@ -186,6 +198,11 @@ end;
 procedure TAppSettings.SetExpertMode(const Value : Boolean);
 begin
 	FExpertMode.Value := Value;
+end;
+
+procedure TAppSettings.SetLoadLastSearchHistory(const Value : Boolean);
+begin
+	FLoadLastSearchHistory.Value := Value;
 end;
 
 end.

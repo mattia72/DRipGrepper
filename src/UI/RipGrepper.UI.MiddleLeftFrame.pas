@@ -224,7 +224,6 @@ begin
 			end else begin
 				Exit;
 			end;
-			DeleteAllHistoryItems();
 		end;
 		VstHistory.LoadFromFile(OpenDialog1.FileName);
 	end;
@@ -253,7 +252,6 @@ begin
 	if SaveDialog1.Execute then begin
 		VstHistory.SaveToFile(SaveDialog1.FileName);
 	end;
-
 end;
 
 procedure TMiddleLeftFrame.AddHistoryObject(_ho : IHistoryItemObject);

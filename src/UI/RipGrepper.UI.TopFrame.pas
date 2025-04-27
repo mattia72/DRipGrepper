@@ -692,7 +692,7 @@ end;
 function TRipGrepperTopFrame.GetSettings : TRipGrepperSettings;
 begin
 	if not Assigned(FSettings) then begin
-		FSettings := ParentFrame.Settings;;
+		FSettings := ParentFrame.Settings;
 	end;
 	Result := FSettings;
 end;
