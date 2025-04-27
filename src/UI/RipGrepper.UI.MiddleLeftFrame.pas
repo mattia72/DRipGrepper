@@ -776,8 +776,8 @@ begin
 	AddHistoryObject(hio);
 
 	Result.SearchText := hio.GetSearchTextWithOptions().SearchTextOfUser;
-	Result.ReplaceData.IsReplaceMode := False;
-	Result.ReplaceData.ReplaceText := '';
+	Result.ReplaceData.IsReplaceMode := hio.IsReplaceMode;
+	Result.ReplaceData.ReplaceText := hio.ReplaceText;
 end;
 
 procedure TMiddleLeftFrame.VstHistoryLoadTree(Sender : TBaseVirtualTree; Stream : TStream);

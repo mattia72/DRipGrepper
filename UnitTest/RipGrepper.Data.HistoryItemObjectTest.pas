@@ -25,6 +25,7 @@ type
 			INT_SETTING_VAL = 11;
 			STR_SETTING_KEY = 'SettingKey';
 			STR_SETTING_VAL = 'str setting value';
+			REPLACE_TEXT = 'replace text';
 
 		private
 		var
@@ -70,6 +71,8 @@ begin
 	FGuiSearchTextParams := Shared.Make<TGuiSearchTextParams>();
 	FGuiSearchTextParams.SetSearchOptions(FGuiParams.SearchOptions);
 	FGuiSearchTextParams.SetSearchText(FGuiParams.SearchTextOfUser);
+	FGuiSearchTextParams.IsReplaceMode := True;
+	FGuiSearchTextParams.ReplaceText := REPLACE_TEXT;
 
 	FRipGrepArguments := Shared.Make<TStringList>();
 
@@ -108,6 +111,13 @@ begin
 	Assert.AreEqual(TEST_SEARCH_TEXT,
 		{ } other.GuiSearchTextParams.SearchTextWithOptions.SearchTextOfUser,
 		{ } 'SearchText content should match the expected serialized data');
+	Assert.AreEqual(REPLACE_TEXT,
+		{ } other.GuiSearchTextParams.ReplaceText,
+		{ } 'ReplaceText content should match the expected serialized data');
+	Assert.IsTrue(
+		{ } other.GuiSearchTextParams.IsReplaceMode,
+		{ } 'IsReplaceMode content should match the expected serialized data');
+
 	Assert.AreEqual(hio.RipGrepArguments.ToStringArray,
 		{ } other.RipGrepArguments.ToStringArray,
 		{ } 'RipGrepArguments content should match the expected serialized data');

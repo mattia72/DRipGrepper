@@ -13,10 +13,11 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Common.SearchTextWithOptions,
 	RipGrepper.Settings.SettingVariant,
-	Spring;
+	Spring,
+	RipGrepper.Common.Interfaces.StreamPersistable;
 
 type
-	TGuiSearchTextParams = class(TPersistableSettings)
+	TGuiSearchTextParams = class(TPersistableSettings, IStreamReaderWriterPersistable)
 		private
 			FIsReplaceMode : Boolean;
 			FRgOptions : TOptionStrings;
@@ -55,6 +56,8 @@ type
 			procedure LoadFromDict(); override;
 			procedure SetSearchOptions(const _options : TSearchOptionSet);
 			function GetSearchOptions : TSearchOptionSet;
+			procedure LoadFromStreamReader(_sr : TStreamReader);
+			procedure SaveToStreamWriter(_sw : TStreamWriter);
 			procedure SetSearchText(const _text : string);
 			procedure SwitchOption(const _newOption : EGuiOption); overload;
 			function ToLogString : string; override;
@@ -264,6 +267,20 @@ begin
 		FSearchTextWithOptions := Shared.Make<TSearchTextWithOptions>();;
 	end;
 	Result := FSearchTextWithOptions;
+end;
+
+procedure TGuiSearchTextParams.LoadFromStreamReader(_sr : TStreamReader);
+begin
+	FSearchTextWithOptions.LoadFromStreamReader(_sr);
+	IsReplaceMode := _sr.ReadLine() <> '0';
+	ReplaceText := _sr.ReadLine();
+end;
+
+procedure TGuiSearchTextParams.SaveToStreamWriter(_sw : TStreamWriter);
+begin
+	FSearchTextWithOptions.SaveToStreamWriter(_sw);
+	_sw.WriteLine(BoolToStr(IsReplaceMode));
+	_sw.WriteLine(ReplaceText);
 end;
 
 procedure TGuiSearchTextParams.SetReplaceText(const Value : string);
