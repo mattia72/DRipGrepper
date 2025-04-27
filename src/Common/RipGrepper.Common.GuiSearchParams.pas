@@ -297,6 +297,7 @@ end;
 procedure TGuiSearchTextParams.SwitchOption(const _newOption : EGuiOption);
 begin
 	SearchTextWithOptions.SwitchOption(_newOption);
+	UpdateRgParamsByGuiOptions();
 end;
 
 function TGuiSearchTextParams.ToLogString : string;

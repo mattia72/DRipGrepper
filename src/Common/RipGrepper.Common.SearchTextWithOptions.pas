@@ -217,7 +217,7 @@ begin
 	if _searchOption <> EGuiOption.soNotSet then begin
 		Exclude(FSearchOptions, EGuiOption.soNotSet);
 	end;
-	UpdateWordBoundedSearchText;
+	UpdateWordBoundedSearchText();
 end;
 
 procedure TSearchTextWithOptions.SetSearchOptions(const Value : TSearchOptionSet);
@@ -262,7 +262,7 @@ begin
 	op := TSearchTextWithOptions.StringToSearchOptionSet(_sOptions);
 	if op <> FSearchOptions then begin
 		FSearchOptions := op;
-		UpdateWordBoundedSearchText;
+		UpdateWordBoundedSearchText();
 	end;
 end;
 
