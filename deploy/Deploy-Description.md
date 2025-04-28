@@ -1,7 +1,7 @@
 <!--
 
-Version:     v4.5.1-beta
-PrevVersion: v4.5.0-beta
+Version:     v4.6.0-beta
+PrevVersion: v4.5.1-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -21,10 +21,12 @@ Marked with a checkmark if ready; otherwise, it is planned.
 - [x] copy to clipboard for running in PowerShell or command prompt
   - [x] PS needs & prefix and rg path and search text surrounded by ''
   - [x] BAT needs rg path and search text surrounded by ""
-  - [ ] settings should be settable in config form 
+  - [x] settings should be settable in config form 
 - [ ] **extension**: display save all files message before search?
 - [ ] **extension**: dearch only in opened project files
-- [ ] save/load search histories to/from a file
+- [x] save/load search histories to/from a file
+  - [ ] load histories at startup
+- [x] combo box history item count settings
 - [ ] JSON config files
 - [ ] Add a skin chooser feature? https://stackoverflow.com/questions/9906312/delphi-vcl-styles-tutorial-how-to-change-the-style-at-runtime
 
@@ -35,7 +37,7 @@ Marked with checkmark if fixed, else it is a known bug.
 - [x] replace doesn't work properly if there are more text to replace in same line 
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: drip icon in menu has no transparent background
-- [ ] look on dpi change (drag to another monitor)
+- [ ] look on dpi change (drag window to another monitor)
     - [x] search form switch between search and replace shrinks height
     - [ ] search form Use Regex button disappear if drag to another monitor
     - [ ] ugly config form 
