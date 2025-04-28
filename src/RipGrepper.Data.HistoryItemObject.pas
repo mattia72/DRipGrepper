@@ -114,7 +114,11 @@ type
 
 	TVSHistoryNodeData = record
 		SearchText : string;
+		IsFromStream : Boolean;
 		ReplaceData : TVSHistoryReplaceNodeData;
+
+		public
+			class operator Initialize(out Dest : TVSHistoryNodeData);
 	end;
 
 	PVSHistoryNodeData = ^TVSHistoryNodeData;
@@ -391,6 +395,14 @@ end;
 procedure TVSHistoryReplaceNodeData.SetReplaceText(const Value : string);
 begin
 	FReplaceText := Value;
+end;
+
+class operator TVSHistoryNodeData.Initialize(out Dest : TVSHistoryNodeData);
+begin
+	Dest.SearchText := '';
+	Dest.IsFromStream := False;
+	Dest.ReplaceData.ReplaceText := '';
+	Dest.ReplaceData.IsReplaceMode := False;
 end;
 
 end.
