@@ -469,7 +469,6 @@ begin
 		TAsyncMsgBox.ShowWarning(RG_REPORTED_ERROR_MSG);
 	end;
 	FreeAndCleanParserList();
-	ParentFrame.AfterSearch();
 end;
 
 procedure TRipGrepperMiddleFrame.AlignToolBars;
@@ -758,7 +757,7 @@ begin
 	Result.OnLastLine := OnLastLine;
 	Result.OnProgress := OnParsingProgress;
 	// if _bIsLast then begin we need it on MAX_LINE
-	Result.OnAfterAllFinished := AfterSearch;
+	Result.OnAfterAllFinished := ParentFrame.AfterSearch;
 	// end;
 	Result.SetNewLine(_iLineNr, _sLine, _bIsLast);
 	FParsingThreads.Add(Result);
@@ -1077,7 +1076,6 @@ procedure TRipGrepperMiddleFrame.PrepareAndDoSearch;
 begin
 	MiddleLeftFrame1.PrepareAndDoSearch();
 	DoSearch();
-	MiddleLeftFrame1.ChangeHistoryNodeText;
 end;
 
 procedure TRipGrepperMiddleFrame.RefreshSearch;

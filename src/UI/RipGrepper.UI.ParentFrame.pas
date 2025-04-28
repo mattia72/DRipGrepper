@@ -74,29 +74,50 @@ begin
 end;
 
 procedure TParentFrame.AfterHistObjChange;
+var
+	frame : IFrameEvents;
 begin
-	TopFrame.AfterHistObjChange();
-	MainFrame.AfterHistObjChange();
-	BottomFrame.AfterHistObjChange();
+	for var i := 0 to ComponentCount - 1 do begin
+		var
+		comp := Components[i];
+		if Supports(comp, IFrameEvents, frame) then
+			frame.AfterHistObjChange();
+	end;
 end;
 
 procedure TParentFrame.AfterSearch;
+var
+	frame : IFrameEvents;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.AfterSearch');
 
-	TopFrame.AfterSearch();
-	BottomFrame.AfterSearch();
+	for var i := 0 to ComponentCount - 1 do begin
+		var
+		comp := Components[i];
+		if Supports(comp, IFrameEvents, frame) then begin
+			frame.AfterSearch();
+		end;
+	end;
 end;
 
 procedure TParentFrame.BeforeSearch(var _bAbort : Boolean);
+var
+	frame : IFrameEvents;
 begin
 	if _bAbort then begin
 		Exit;
 	end;
-	TopFrame.BeforeSearch(_bAbort);
-	MainFrame.BeforeSearch(_bAbort);
-	BottomFrame.BeforeSearch(_bAbort);
+
+	for var i := 0 to ComponentCount - 1 do begin
+		var
+		comp := Components[i];
+		if Supports(comp, IFrameEvents, frame) then begin
+			frame.BeforeSearch(_bAbort);
+		end;
+		if _bAbort then
+			break;
+	end;
 end;
 
 procedure TParentFrame.OnClose(Sender : TObject; var Action : TCloseAction);

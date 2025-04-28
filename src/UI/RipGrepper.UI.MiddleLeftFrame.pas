@@ -25,11 +25,12 @@ uses
 	RipGrepper.Settings.FontColors,
 	Vcl.ExtCtrls,
 	SVGIconImageListBase,
-	SVGIconImageList;
+	SVGIconImageList, 
+	RipGrepper.UI.IFrameEvents;
 
 type
 
-	TMiddleLeftFrame = class(TFrame)
+	TMiddleLeftFrame = class(TFrame, IFrameEvents)
 		VstHistory : TVirtualStringTree;
 		ActionList : TActionList;
 		ActionHistoryDelete : TAction;
@@ -108,7 +109,10 @@ type
 		public
 			constructor Create(AOwner : TComponent); override;
 			procedure AddHistoryObject(_ho : IHistoryItemObject);
-			procedure AddOrUpdateHistoryItem;
+			function AddOrUpdateHistoryItem() : IHistoryItemObject;
+			procedure AfterHistObjChange();
+			procedure AfterSearch();
+			procedure BeforeSearch(var _bAbort : Boolean);
 			procedure ChangeDataHistItemObject(_ho : IHistoryItemObject);
 			function ChangeHistoryNodeText() : PVirtualNode;
 			procedure ClearMatchesInHistoryObject;
@@ -121,6 +125,7 @@ type
 			procedure ReloadColorSettings;
 			procedure SetReplaceMode(_hio : IHistoryItemObject = nil);
 			procedure SetSelectedHistoryItem(const _idx : Integer);
+			procedure UpdateUIStyle(_sNewStyle : string = '');
 			property CurrentHistoryItemIndex : Integer read FCurrentHistoryItemIndex write FCurrentHistoryItemIndex;
 			property Data : TRipGrepperData read GetData write FData;
 			{ Public-Deklarationen }
@@ -264,13 +269,15 @@ begin
 	dbgMsg.Msg('CurrentHistoryItemIndex=' + CurrentHistoryItemIndex.ToString);
 end;
 
-procedure TMiddleLeftFrame.AddOrUpdateHistoryItem;
+function TMiddleLeftFrame.AddOrUpdateHistoryItem() : IHistoryItemObject;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.AddOrUpdateHistoryItem');
 	dbgMsg.Msg('CurrentHistoryItemIndex ' + CurrentHistoryItemIndex.ToString);
 
-	if not(MainFrame.HistItemObject.HasResult or MainFrame.HistItemObject.IsLoadedFromStream) then begin
+	Result := GetCurrentValidHistoryObject();
+
+	if not(Result.HasResult or Result.IsLoadedFromStream) then begin
 		var
 			nodeData : TVSHistoryNodeData;
 		nodeData.SearchText := Settings.LastSearchText;
@@ -284,7 +291,7 @@ begin
 
 	UpdateReplaceColumnVisible;
 
-	if MainFrame.HistItemObject.HasResult then begin
+	if Result.HasResult then begin
 		MainFrame.UpdateHistObjectAndCopyToSettings;
 	end;
 	MainFrame.UpdateRipGrepArgumentsInHistObj;
@@ -327,6 +334,21 @@ begin
 	data^.ReplaceData.ReplaceText := Settings.LastReplaceText;
 	dbgMsg.MsgFmt('ReplaceText: %s', [data^.ReplaceData.ReplaceText]);
 	NodeData^.ReplaceData.ReplaceText := ''; // only child should be filled
+end;
+
+procedure TMiddleLeftFrame.AfterHistObjChange();
+begin
+	// TODO -cMM: TMiddleLeftFrame.AfterHistObjChange default body inserted
+end;
+
+procedure TMiddleLeftFrame.AfterSearch();
+begin
+	ChangeHistoryNodeText;
+end;
+
+procedure TMiddleLeftFrame.BeforeSearch(var _bAbort : Boolean);
+begin
+	// TODO -cMM: TMiddleLeftFrame.BeforeSearch default body inserted
 end;
 
 procedure TMiddleLeftFrame.ChangeDataHistItemObject(_ho : IHistoryItemObject);
@@ -628,7 +650,6 @@ begin
 	Data := VstHistory.GetNodeData(Node);
 	Data.SearchText := '';
 	Data.ReplaceData.ReplaceText := '';
-	// Data.hio.Free;
 end;
 
 procedure TMiddleLeftFrame.VstHistoryGetHint(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
