@@ -30,7 +30,7 @@ type
 implementation
 
 uses
-	RipGrepper.Settings.SettingVariant;
+	RipGrepper.Settings.SettingVariant, RipGrepper.Tools.DebugUtils;
 
 { TDictionaryStreamPersister }
 
@@ -50,17 +50,25 @@ var
 	settingType : TSettingType;
 	settingValue : string;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TDictionaryStreamPersister.LoadFromStreamReader');
 	FDictionary.Clear();
 	sectionCount := _sr.ReadLine().ToInteger;
+	dbgMsg.MsgFmt('SectionCount: %d', [sectionCount]);
 	for var i : integer := 0 to sectionCount - 1 do begin
 		section := _sr.ReadLine();
+		dbgMsg.MsgFmt('Section: %s', [section]);
 		keyDict := TCollections.CreateSortedDictionary<TSettingKey, ISetting>();
 		FDictionary.Add(section, keyDict);
 		keyCount := _sr.ReadLine().ToInteger;
+		dbgMsg.MsgFmt('KeyCount: %d', [keyCount]);
 		for var j : integer := 0 to keyCount - 1 do begin
 			key := _sr.ReadLine();
+			dbgMsg.MsgFmt('Key: %s', [key]);
 			settingType := TSettingType(_sr.ReadLine().ToInteger());
+			dbgMsg.MsgFmt('KeyType: %d', [Integer(settingType)]);
 			settingValue := _sr.ReadLine();
+			dbgMsg.MsgFmt('KeyValue: %s', [settingValue]);
 			case settingType of
 				stString :
 				setting := TStringSetting.Create(settingValue);
@@ -77,15 +85,24 @@ end;
 
 procedure TDictionaryStreamPersister.SaveToStreamWriter(_sw : TStreamWriter);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TDictionaryStreamPersister.SaveToStreamWriter');
+
+	dbgMsg.MsgFmt('Count: %d', [FDictionary.Count]);
 	_sw.WriteLine(FDictionary.Count);
 	for var section in FDictionary.Keys do begin
+		dbgMsg.MsgFmt('Section: %s', [section]);
 		_sw.WriteLine(section);
+		dbgMsg.MsgFmt('Count: %d', [FDictionary[section].Count]);
 		_sw.WriteLine(FDictionary[section].Count);
 		for var key in FDictionary[section].Keys do begin
 			var
 			setting := FDictionary[section][key];
+			dbgMsg.MsgFmt('Key: %s', [key]);
 			_sw.WriteLine(key);
+			dbgMsg.MsgFmt('Type: %d', [Integer(setting.SettingType)]);
 			_sw.WriteLine(Integer(setting.SettingType));
+			dbgMsg.MsgFmt('Value: %s', [setting.AsString]);
 			_sw.WriteLine(setting.AsString);
 		end;
 	end;
