@@ -265,6 +265,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.LoadFromPersister');
 
 	for var key in InnerDictionary[SectionName].Keys do begin
+		dbgMsg.MsgFmt('InnerDictionary[%s][%s].LoadFromPersister', [SectionName, key]);
 		InnerDictionary[SectionName][key].LoadFromPersister();
 		var
 		value := InnerDictionary[SectionName][key].AsString;

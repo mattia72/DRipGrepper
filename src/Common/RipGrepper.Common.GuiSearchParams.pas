@@ -271,15 +271,29 @@ end;
 
 procedure TGuiSearchTextParams.LoadFromStreamReader(_sr : TStreamReader);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.LoadFromStreamReader');
 	FSearchTextWithOptions.LoadFromStreamReader(_sr);
 	IsReplaceMode := _sr.ReadLine() <> '0';
+	dbgMsg.MsgFmt('IsReplaceMode %s', [BoolToStr(IsReplaceMode)]);
 	ReplaceText := _sr.ReadLine();
+	dbgMsg.MsgFmt('ReplaceText %s', [ReplaceText]);
 end;
 
 procedure TGuiSearchTextParams.SaveToStreamWriter(_sw : TStreamWriter);
+var
+	s : string;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.SaveToStreamWriter');
+
 	FSearchTextWithOptions.SaveToStreamWriter(_sw);
+	s := BoolToStr(IsReplaceMode);
+
+	dbgMsg.MsgFmt('IsReplaceMode %s', [s]);
 	_sw.WriteLine(BoolToStr(IsReplaceMode));
+
+	dbgMsg.MsgFmt('ReplaceText %s', [ReplaceText]);
 	_sw.WriteLine(ReplaceText);
 end;
 

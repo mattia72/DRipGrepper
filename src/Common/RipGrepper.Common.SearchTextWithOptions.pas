@@ -56,7 +56,8 @@ uses
 	System.StrUtils,
 	RipGrepper.CommandLine.OptionHelper,
 	System.RegularExpressions,
-	Spring;
+	Spring,
+	RipGrepper.Tools.DebugUtils;
 
 function TSearchTextWithOptions.AreSet(_options : TArray<EGuiOption>) : Boolean;
 begin
@@ -159,7 +160,7 @@ var
 	sr : IShared<TStreamReader>;
 begin
 	sr := Shared.Make<TStreamReader>(TStreamReader.Create(_stream, TEncoding.UTF8));
-    LoadFromStreamReader(sr);
+	LoadFromStreamReader(sr);
 end;
 
 procedure TSearchTextWithOptions.LoadFromStreamReader(_sr : TStreamReader);
@@ -173,13 +174,21 @@ var
 	sw : IShared<TStreamWriter>;
 begin
 	sw := Shared.Make<TStreamWriter>(TStreamWriter.Create(_stream));
-    SaveToStreamWriter(sw)
+	SaveToStreamWriter(sw)
 end;
 
 procedure TSearchTextWithOptions.SaveToStreamWriter(_sw : TStreamWriter);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSearchTextWithOptions.SaveToStreamWriter');
+
+	dbgMsg.Msg('SearchTextOfUser: ' + SearchTextOfUser);
 	_sw.WriteLine(SearchTextOfUser);
-	_sw.WriteLine(SearchOptionSetToString(SearchOptions));
+
+	var
+	s := SearchOptionSetToString(SearchOptions);
+	dbgMsg.Msg('SearchOptions: ' + s);
+ 	_sw.WriteLine(s);
 end;
 
 class function TSearchTextWithOptions.SearchOptionSetToString(const _so : TSearchOptionSet) : string;

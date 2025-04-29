@@ -306,11 +306,16 @@ procedure THistoryItemObject.LoadFromStreamReader(_sr : TStreamReader);
 var
 	count : integer;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('THistoryItemObject.LoadFromStreamReader');
 	GuiSearchTextParams.LoadFromStreamReader(_sr);
 	count := StrToInt(_sr.ReadLine());
+	dbgMsg.MsgFmt('RipGrepArguments.Count = %d', [count]);
 	for var i := 0 to count - 1 do begin
 		RipGrepArguments.Add(_sr.ReadLine);
 	end;
+	dbgMsg.MsgFmt('RipGrepArguments = %s', [RipGrepArguments.Text]);
+
 	SearchFormSettings.LoadFromStreamReader(_sr);
 	FIsLoadedFromStream := True;
 end;
@@ -332,9 +337,14 @@ end;
 
 procedure THistoryItemObject.SaveToStreamWriter(_sw : TStreamWriter);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('THistoryItemObject.SaveToStreamWriter');
+
 	GuiSearchTextParams.SaveToStreamWriter(_sw);
+	dbgmsg.MsgFmt('RipGrepArguments.Count = %d', [RipGrepArguments.Count]);
 	_sw.WriteLine(RipgrepArguments.Count);
 	for var s in RipGrepArguments() do begin
+		dbgMsg.MsgFmt('RipGrepArguments = %s', [s]);
 		_sw.WriteLine(s);
 	end;
 	SearchFormSettings.SaveToStreamWriter(_sw);
