@@ -92,11 +92,13 @@ type
 			procedure ChangeVstReplaceNode(Node : PVirtualNode; const _Data : PVSHistoryNodeData = nil);
 			procedure DeleteAllHistoryItems();
 			procedure ExpandIfHasChild(const Node : PVirtualNode);
+			function GetCurrentValidHistoryObject() : IHistoryItemObject;
 			function GetData : TRipGrepperData;
 			function GetHistNodeIndex(Node : PVirtualNode) : integer;
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
 			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
 			function GetSettings : TRipGrepperSettings;
+			procedure SetReplaceText(_childData, _parentData : PVSHistoryNodeData);
 			function NodeDataFromStream(const sr : TStreamReader) : TVSHistoryNodeData;
 			procedure ShowReplaceColumn(const _bShow : Boolean);
 			procedure UpdateReplaceColumnVisible;
@@ -788,6 +790,23 @@ begin
 	end;
 end;
 
+function TMiddleLeftFrame.GetCurrentValidHistoryObject() : IHistoryItemObject;
+begin
+	Result := MainFrame.HistItemObject;
+	if not Assigned(Result) then begin
+		Result := GetCurrentHistoryObject();
+	end;
+end;
+
+procedure TMiddleLeftFrame.SetReplaceText(_childData, _parentData : PVSHistoryNodeData);
+begin
+	if _parentData.IsFromStream then begin
+		_childData^.ReplaceData.ReplaceText := _parentData.ReplaceData.ReplaceText;
+	end else begin
+		_childData^.ReplaceData.ReplaceText := Settings.LastReplaceText;
+	end;
+end;
+
 function TMiddleLeftFrame.NodeDataFromStream(const sr : TStreamReader) : TVSHistoryNodeData;
 var
 	hio : IHistoryItemObject;
@@ -799,6 +818,14 @@ begin
 	Result.SearchText := hio.GetSearchTextWithOptions().SearchTextOfUser;
 	Result.ReplaceData.IsReplaceMode := hio.IsReplaceMode;
 	Result.ReplaceData.ReplaceText := hio.ReplaceText;
+
+	Settings.LastReplaceText := hio.ReplaceText;
+	Settings.LastSearchText := Result.SearchText;
+end;
+
+procedure TMiddleLeftFrame.UpdateUIStyle(_sNewStyle : string = '');
+begin
+	// TODO -cMM: TMiddleLeftFrame.UpdateUIStyle default body inserted
 end;
 
 procedure TMiddleLeftFrame.VstHistoryLoadTree(Sender : TBaseVirtualTree; Stream : TStream);
