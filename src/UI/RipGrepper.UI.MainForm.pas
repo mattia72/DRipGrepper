@@ -171,10 +171,9 @@ end;
 
 procedure TRipGrepperForm.FormClose(Sender : TObject; var Action : TCloseAction);
 begin
-	TDebugUtils.DebugMessage('TRipGrepperForm.FormClose - begin action: ' + Integer(Action).ToString);
-	if ParentFrame.Settings.AppSettings.LoadLastSearchHistory then begin
-		MiddleLeftFrame.VstHistory.SaveToFile(SEARCH_HISTORY_DRH);
-	end;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.FormClose');
+	dbgMsg.Msg('TRipGrepperForm.FormClose - begin action: ' + Integer(Action).ToString);
 end;
 
 procedure TRipGrepperForm.FormShow(Sender : TObject);
@@ -208,9 +207,6 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.Init');
 	ParentFrame.Init;
-	if ParentFrame.Settings.AppSettings.LoadLastSearchHistory and TFile.Exists(SEARCH_HISTORY_DRH) then begin
-		MiddleLeftFrame.VstHistory.LoadFromFile(SEARCH_HISTORY_DRH);
-	end;
 end;
 
 procedure TRipGrepperForm.Loaded;
