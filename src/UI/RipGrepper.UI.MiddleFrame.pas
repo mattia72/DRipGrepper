@@ -143,6 +143,7 @@ type
 			FSettings : TRipGrepperSettings;
 			FswSearchStart : TStopwatch;
 			FIconImgList : TIconImageList;
+			FIsInitialized : Boolean;
 			FParsingThreads : TArrayEx<TParallelParser>;
 			procedure AddAsUsing(_bToImpl : Boolean);
 			procedure DoSearch;
@@ -157,6 +158,7 @@ type
 			function GetIsGuiReplaceMode : Boolean;
 			function GetIsRgReplaceMode : Boolean;
 			function AddParallelParser(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean) : TParallelParser;
+			function GetIsInitialized() : Boolean;
 			function GetOpenWithRelativeBaseDirPath(const Data : PVSFileNodeData) : string;
 			function GetResultSelectedFilePath : string;
 			function GetSelectedResultFileNodeData : PVSFileNodeData;
@@ -202,7 +204,7 @@ type
 			function GetFilePathFromNode(_node : PVirtualNode) : string;
 			function GetOpenWithParamsFromSelected : TOpenWithParams;
 			function GetRowColText(_i : Integer; _type : TVSTTextType) : string;
-			procedure Init;
+			procedure Initialize();
 			function IsNodeFiltered(const Data : PVSFileNodeData; const _sFilterText : string; const _filterModes : TFilterModes) : Boolean;
 			function IsSearchRunning : Boolean;
 			// IEOFProcessEventHandler
@@ -225,6 +227,7 @@ type
 			property ExeVersion : string read FExeVersion write FExeVersion;
 			property FileNameType : TFileNameType read FFileNameType write FFileNameType;
 			property HistItemObject : IHistoryItemObject read GetHistItemObject write SetHistItemObject;
+			property IsInitialized : Boolean read GetIsInitialized;
 			property RipGrepTask : ITask read FRipGrepTask write FRipGrepTask;
 			{ Public-Deklarationen }
 	end;
@@ -278,6 +281,7 @@ begin
 	ActionAddUsingImplementation.Visible := not bStandalone;
 	ActionAddUsingInterface.Visible := not bStandalone;
 
+	FIsInitialized := False;
 	TDebugUtils.DebugMessageFormat('TRipGrepperMiddleFrame.Create: AddToUsesList.Visible=%s', [BoolToStr(not bStandalone)]);
 end;
 
@@ -783,10 +787,16 @@ begin
 	Result := FSettings;
 end;
 
-procedure TRipGrepperMiddleFrame.Init;
+procedure TRipGrepperMiddleFrame.Initialize();
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.Init');
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.Initialize');
+
+	if IsInitialized then begin
+		dbgMsg.Msg('Already initialized');
+		Exit;
+	end;
+
 	{$IFDEF STANDALONE}
 	var
 	bStandalone := True;
@@ -802,7 +812,7 @@ begin
 		PanelResult.BevelOuter := bvNone;
 	end;
 	Align := alClient;
-	dbgMsg.Msg('TRipGrepperMiddleFrame.Init ' + FExeVersion);
+	dbgMsg.Msg('TRipGrepperMiddleFrame.Initialize ' + FExeVersion);
 	FFileNameType := ftAbsolute;
 	VstResult.TreeOptions.AutoOptions := VstResult.TreeOptions.AutoOptions + [toAutoSpanColumns]; // merges empty cells
 	VstResult.TreeOptions.StringOptions := VstResult.TreeOptions.StringOptions + [toShowStaticText];
@@ -810,13 +820,14 @@ begin
 	VstResult.NodeDataSize := SizeOf(TVSFileNodeData);
 
 	ReloadColorSettings;
-	MiddleLeftFrame1.Init;
+	MiddleLeftFrame1.Initialize;
 
 	miOpenwith1.Default := bStandalone;
 	miOpenInIde.Default := not bStandalone;
 	if not miOpenInIde.Default then begin
 		PopupMenuResult.Items[0].Visible := False;
 	end;
+	FIsInitialized := True;
 end;
 
 procedure TRipGrepperMiddleFrame.InitSearch;
@@ -1503,6 +1514,11 @@ begin
 	end;
 	FParsingThreads.Clear;
 	// dbgMsg.MsgFmt('FParsingThreads.Count %d.', [FParsingThreads.Count])
+end;
+
+function TRipGrepperMiddleFrame.GetIsInitialized() : Boolean;
+begin
+	Result := FIsInitialized;
 end;
 
 function TRipGrepperMiddleFrame.GetOpenWithRelativeBaseDirPath(const Data : PVSFileNodeData) : string;

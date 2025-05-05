@@ -104,7 +104,7 @@ type
 	TVSHistoryReplaceNodeData = record
 		private
 			FReplaceText : string;
-			function GetReplaceText() : string;
+			function GetReplaceText(): string;
 			procedure SetReplaceText(const Value : string);
 
 		public

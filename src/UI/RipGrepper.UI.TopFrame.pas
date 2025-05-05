@@ -136,6 +136,7 @@ type
 			FFilterMode : TFilterModes;
 			FGuiReplaceModes : TGuiReplaceModes;
 			FHistItemObj : IHistoryItemObject;
+			FIsInitialized : Boolean;
 			FPrevFoundNode : PVirtualNode;
 			FSettings : TRipGrepperSettings;
 			FSkipButtonEditChange : Boolean;
@@ -143,6 +144,7 @@ type
 			procedure ChangeButtonedEditTextButSkipChangeEvent(_edt : TButtonedEdit; const _txt : string);
 			procedure GetCheckedReplaceList(var replaceList : TReplaceList);
 			function GetIsGuiReplaceMode : Boolean;
+			function GetIsInitialized() : Boolean;
 			function GetSettings : TRipGrepperSettings;
 			function GetToolBarWidth(_tb : TToolBar) : Integer;
 			function IsFilterOn : Boolean;
@@ -174,13 +176,14 @@ type
 			procedure BeforeSearch(var _bAbort : Boolean);
 			function GetNextViewStyleIdx : integer;
 			function GetReplaceMode : TReplaceModes;
-			procedure Init;
+			procedure Initialize();
 			function IsRgReplaceMode : Boolean;
 			procedure SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
 			procedure SetFilterBtnImage(const _bOn : Boolean = True);
 			procedure SetGuiReplaceMode(const _modes : TGuiReplaceModes; const _sReplaceText : string = '');
 			procedure UpdateUIStyle(_sNewStyle : string = '');
 			property IsGuiReplaceMode : Boolean read GetIsGuiReplaceMode;
+			property IsInitialized : Boolean read GetIsInitialized;
 
 	end;
 
@@ -229,6 +232,7 @@ begin
 	TopFrame := self;
 	FGuiReplaceModes := []; // [EGuiReplaceMode.grmEditEnabled];
 	FFilterMode := [EFilterMode.fmFilterFile];
+	FIsInitialized := False;
 end;
 
 destructor TRipGrepperTopFrame.Destroy;
@@ -671,6 +675,11 @@ begin
 	Result := EGuiReplaceMode.grmActive in FGuiReplaceModes;
 end;
 
+function TRipGrepperTopFrame.GetIsInitialized() : Boolean;
+begin
+	Result := FIsInitialized;
+end;
+
 function TRipGrepperTopFrame.GetNextViewStyleIdx : integer;
 begin
 	Result := IfThen(FViewStyleIndex < Length(LISTVIEW_TYPES) - 1, FViewStyleIndex + 1, 0);
@@ -708,8 +717,15 @@ begin
 	// TDebugUtils.DebugMessage(Format('TRipGrepperTopFrame.GetToolBarWidth %s Width: %d', [_tb.Name, Result, _tb.ButtonCount]));
 end;
 
-procedure TRipGrepperTopFrame.Init;
+procedure TRipGrepperTopFrame.Initialize();
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperTopFrame.Initialize');
+
+	if IsInitialized then begin
+		dbgMsg.Msg('Already initialized');
+		Exit;
+	end;
 	FFilterMode := Settings.NodeLookSettings.FilterSettings.FilterModes;
 	UpdateFilterEditMenuAndHint();
 	ActionExpandCollapseUpdate();
@@ -717,6 +733,7 @@ begin
 	ActionAlternateRowColorsUpdate();
 	ActionShowFileIconsUpdate();
 	ActionIndentLineUpdate();
+	FIsInitialized := True;
 end;
 
 function TRipGrepperTopFrame.IsFilterOn : Boolean;

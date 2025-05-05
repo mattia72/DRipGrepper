@@ -218,13 +218,12 @@ end;
 procedure TRipGrepperDockableForm.FrameCreated(AFrame : TCustomFrame);
 begin
 	TDebugUtils.DebugMessage('TRipGrepperDockableForm.FrameCreated');
-	ParentFrame.Init;
+	ParentFrame.Initialize();
 	if (ParentFrame.Settings.RipGrepParameters.SearchPath.IsEmpty) then begin
 		ParentFrame.Settings.RipGrepParameters.SearchPath := IOTAUtils.GetActiveProjectDirectory;
 		TDebugUtils.DebugMessage('TRipGrepperDockableForm.FrameCreated SearchPath:' +
 			{ } ParentFrame.Settings.RipGrepParameters.SearchPath);
 	end;
-
 end;
 
 function TRipGrepperDockableForm.GetCaption : string;
