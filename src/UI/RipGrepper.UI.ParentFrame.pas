@@ -40,7 +40,6 @@ type
 			procedure BeforeDestruction; override;
 			procedure AfterHistObjChange;
 			procedure AfterSearch;
-			procedure BeforeDestruction(); override;
 			procedure BeforeSearch(var _bAbort : Boolean);
 			procedure Init;
 			procedure OnClose(Sender : TObject; var Action : TCloseAction);

@@ -339,7 +339,7 @@ begin
 	childData := VstHistory.GetNodeData(childNode);
 	childData^.SearchText := '';
 	childData^.ReplaceData.IsReplaceMode := True;
-	SetReplaceText(childData, NodeData);
+	childData^.ReplaceData.ReplaceText := Settings.LastReplaceText;
 	dbgMsg.MsgFmt('ReplaceText: %s', [childData^.ReplaceData.ReplaceText]);
 	NodeData^.ReplaceData.ReplaceText := ''; // only child should be filled
 end;
@@ -813,15 +813,6 @@ begin
 	Result := MainFrame.HistItemObject;
 	if not Assigned(Result) then begin
 		Result := GetCurrentHistoryObject();
-	end;
-end;
-
-procedure TMiddleLeftFrame.SetReplaceText(_childData, _parentData : PVSHistoryNodeData);
-begin
-	if _parentData.IsFromStream then begin
-		_childData^.ReplaceData.ReplaceText := _parentData.ReplaceData.ReplaceText;
-	end else begin
-		_childData^.ReplaceData.ReplaceText := Settings.LastReplaceText;
 	end;
 end;
 
