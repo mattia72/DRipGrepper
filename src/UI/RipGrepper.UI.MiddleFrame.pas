@@ -707,6 +707,10 @@ end;
 
 function TRipGrepperMiddleFrame.GetHistItemObject : IHistoryItemObject;
 begin
+	if not Assigned(FHistItemObj) then begin
+		FHistItemObj := MiddleLeftFrame1.GetCurrentHistoryObject();
+	end;
+
 	Result := FHistItemObj;
 end;
 
@@ -1173,10 +1177,10 @@ end;
 
 procedure TRipGrepperMiddleFrame.UpdateHistObjectAndCopyToSettings;
 begin
-	FHistItemObj := MiddleLeftFrame1.GetCurrentHistoryObject();
-	if Assigned(FHistItemObj) then begin
-		FHistItemObj.UpdateParserType();
-		FHistItemObj.CopyToSettings(Settings);
+	HistItemObject := MiddleLeftFrame1.GetCurrentHistoryObject();
+	if Assigned(HistItemObject) then begin
+		HistItemObject.UpdateParserType();
+		HistItemObject.CopyToSettings(Settings);
 	end;
 end;
 
@@ -1196,9 +1200,9 @@ end;
 
 procedure TRipGrepperMiddleFrame.UpdateRipGrepArgumentsInHistObj;
 begin
-	FHistItemObj.RipGrepArguments.Clear;
+	HistItemObject.RipGrepArguments.Clear;
 	Settings.RebuildArguments();
-	FHistItemObj.LoadFromSettings(Settings);
+	HistItemObject.LoadFromSettings(Settings);
 end;
 
 procedure TRipGrepperMiddleFrame.VstResultBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode;
