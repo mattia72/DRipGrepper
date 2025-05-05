@@ -396,7 +396,7 @@ end;
 initialization
 
 OutputDebugString(PChar('RipGrepperSettings initialization.'));
-GSettings := Shared.Make<TRipGrepperSettings>();
+GSettings := Shared.Make<TRipGrepperSettings>(TRipGrepperSettings.Create());
 GSettings.AppSettings.ReadFile;
 GSettings.AppSettings.LoadFromDict();
 TDebugUtils.UpdateTraceActive;

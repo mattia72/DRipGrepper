@@ -30,6 +30,7 @@ type
 			function GetSettings : TRipGrepperSettings;
 			procedure FrameOnShowHide(var M : TMessage); message CM_SHOWINGCHANGED;
 			procedure LoadLastSearchHistory;
+			function GetSearchHistoryPath : string;
 			procedure SaveLastSearchHistory;
 			procedure WMSettingChange(var Message : TWMSettingChange); message WM_SETTINGCHANGE;
 		public
@@ -59,6 +60,9 @@ uses
 	Vcl.StdCtrls,
 	RipGrepper.Helper.UI.DarkMode,
 	System.IOUtils,
+	{$IFNDEF STANDALONE}
+	RipGrepper.Common.IOTAUtils,
+	{$ENDIF}
 	RipGrepper.UI.MiddleLeftFrame;
 
 {$R *.dfm}
@@ -191,10 +195,10 @@ procedure TParentFrame.LoadLastSearchHistory;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.LoadLastSearchHistory');
-	dbgMsg.Msg('from: ' + TPath.GetFullPath(SEARCH_HISTORY_DRH));
-	if Settings.AppSettings.LoadLastSearchHistory and TFile.Exists(SEARCH_HISTORY_DRH) then begin
+	dbgMsg.Msg('from: ' + TPath.GetFullPath(GetSearchHistoryPath()));
+	if Settings.AppSettings.LoadLastSearchHistory and TFile.Exists(GetSearchHistoryPath()) then begin
 		dbgMsg.Msg('LoadLastSearchHistory = True, FileExists');
-		MiddleLeftFrame.VstHistory.LoadFromFile(SEARCH_HISTORY_DRH);
+		MiddleLeftFrame.VstHistory.LoadFromFile(GetSearchHistoryPath());
 	end;
 end;
 
@@ -203,10 +207,10 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.SaveLastSearchHistory');
 
-	dbgMsg.Msg('SaveToFile to: ' + TPath.GetFullPath(SEARCH_HISTORY_DRH));
+	dbgMsg.Msg('SaveToFile to: ' + TPath.GetFullPath(GetSearchHistoryPath()));
 	if Settings.AppSettings.LoadLastSearchHistory then begin
 		dbgMsg.Msg('LoadLastSearchHistory = TRUE');
-		MiddleLeftFrame.VstHistory.SaveToFile(SEARCH_HISTORY_DRH);
+		MiddleLeftFrame.VstHistory.SaveToFile(GetSearchHistoryPath());
 	end;
 end;
 
@@ -232,6 +236,17 @@ begin
 		UpdateUIStyle;
 		// TDarkModeHelper.BroadcastThemeChanged(Handle);
 	end;
+end;
+
+function TParentFrame.GetSearchHistoryPath: string;
+begin
+	var dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.GetSearchHistoryPath');
+	{$IFDEF STANDALONE}
+	Result :=  TPath.Combine(TPath.GetDirectoryName(Application.ExeName), SEARCH_HISTORY_DRH);
+	{$ELSE}
+	Result :=  TPath.Combine(IOTAUTils.GetSettingFilePath, SEARCH_HISTORY_DRH);
+	{$ENDIF}
+	dbgMsg.Msg('Result: ' + Result);
 end;
 
 end.

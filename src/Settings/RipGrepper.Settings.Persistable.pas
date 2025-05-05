@@ -33,11 +33,7 @@ type
 
 	TPersistableSettings = class(TNoRefCountObject, IIniPersistable, IStreamReaderWriterPersistable)
 		// TPersistableSettings = class(TInterfacedObject, IIniPersistable)
-		strict private
-			class constructor Create;
-			class destructor Destroy;
-
-		private
+		var
 			FPersisterFactory : IPersisterFactory;
 			FbDefaultLoaded : Boolean;
 			FIniSectionName : string;
@@ -60,7 +56,6 @@ type
 			FSettingsDict : IShared<TSettingsDictionary>;
 			FChildren : TArrayEx<TPersistableSettings>;
 			FIsModified : Boolean;
-			class var FLockObject : TObject;
 
 			procedure CreateSetting(const _key : string; _setting : ISetting); overload;
 			procedure CreateSetting(const _section, _key : string; _setting : ISetting); overload;
@@ -86,7 +81,6 @@ type
 			property IsAlreadyRead : Boolean read GetIsAlreadyRead;
 			property IsModified : Boolean read GetIsModified;
 			property IsOwnerOfPersisterFactory : Boolean read FIsOwnerOfPersisterFactory write FIsOwnerOfPersisterFactory;
-
 			property SettingsDict : IShared<TSettingsDictionary> read FSettingsDict write FSettingsDict;
 			destructor Destroy; override;
 			function AddChildSettings(const _settings : TPersistableSettings) : TPersistableSettings;
@@ -134,6 +128,9 @@ uses
 	RipGrepper.Tools.LockGuard,
 	Spring.Collections;
 
+var
+	FLockObject : IShared<TObject>;
+
 constructor TPersistableSettings.Create(const _Owner : TPersistableSettings);
 begin
 	inherited Create();
@@ -165,11 +162,6 @@ begin
 	Init();
 end;
 
-class constructor TPersistableSettings.Create;
-begin
-	FLockObject := TObject.Create;
-end;
-
 destructor TPersistableSettings.Destroy;
 begin
 	var
@@ -179,12 +171,6 @@ begin
 	end;
 	// FreeOwnIniFile;
 	dbgMsg.MsgFmt('Free FSettingsDict %p for section: %s', [Pointer(FSettingsDict()), IniSectionName]);
-	inherited;
-end;
-
-class destructor TPersistableSettings.Destroy;
-begin
-	FLockObject.Free;
 	inherited;
 end;
 
@@ -544,5 +530,13 @@ begin
 
 	SettingsDict.StoreToPersister(section);
 end;
+
+initialization
+
+FLockObject := Shared.Make<TObject>();
+
+finalization
+
+FLockObject := nil;
 
 end.
