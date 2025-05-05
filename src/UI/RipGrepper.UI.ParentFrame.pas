@@ -32,10 +32,11 @@ type
 			procedure LoadLastSearchHistory;
 			procedure SaveLastSearchHistory;
 			procedure WMSettingChange(var Message : TWMSettingChange); message WM_SETTINGCHANGE;
-
 		public
 			constructor Create(AOwner : TComponent); override;
 			destructor Destroy; override;
+			procedure AfterConstruction; override;
+			procedure BeforeDestruction; override;
 			procedure AfterHistObjChange;
 			procedure AfterSearch;
 			procedure BeforeSearch(var _bAbort : Boolean);
@@ -77,6 +78,12 @@ begin
 	inherited;
 end;
 
+procedure TParentFrame.AfterConstruction;
+begin
+	inherited;
+	LoadLastSearchHistory;
+end;
+
 procedure TParentFrame.AfterHistObjChange;
 var
 	frame : IFrameEvents;
@@ -103,6 +110,12 @@ begin
 			frame.AfterSearch();
 		end;
 	end;
+end;
+
+procedure TParentFrame.BeforeDestruction;
+begin
+	inherited;
+	SaveLastSearchHistory();
 end;
 
 procedure TParentFrame.BeforeSearch(var _bAbort : Boolean);
@@ -172,7 +185,6 @@ begin
 	UpdateUIStyle;
 	TDarkModeHelper.BroadcastThemeChanged(Handle);
 	{$ENDIF}
-	LoadLastSearchHistory();
 end;
 
 procedure TParentFrame.LoadLastSearchHistory;
