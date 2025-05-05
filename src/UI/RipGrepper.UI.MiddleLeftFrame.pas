@@ -98,7 +98,6 @@ type
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
 			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
 			function GetSettings : TRipGrepperSettings;
-			procedure SetReplaceText(_childData, _parentData : PVSHistoryNodeData);
 			function NodeDataFromStream(const sr : TStreamReader) : TVSHistoryNodeData;
 			procedure ShowReplaceColumn(const _bShow : Boolean);
 			procedure UpdateReplaceColumnVisible;
@@ -819,11 +818,11 @@ end;
 
 procedure TMiddleLeftFrame.SetReplaceText(_childData, _parentData : PVSHistoryNodeData);
 begin
-	// if _parentData.IsFromStream then begin
-	// _childData^.ReplaceData.ReplaceText := _parentData.ReplaceData.ReplaceText;
-	// end else begin
-	_childData^.ReplaceData.ReplaceText := Settings.LastReplaceText;
-	// end;
+	if _parentData.IsFromStream then begin
+		_childData^.ReplaceData.ReplaceText := _parentData.ReplaceData.ReplaceText;
+	end else begin
+		_childData^.ReplaceData.ReplaceText := Settings.LastReplaceText;
+	end;
 end;
 
 function TMiddleLeftFrame.NodeDataFromStream(const sr : TStreamReader) : TVSHistoryNodeData;
