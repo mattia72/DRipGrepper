@@ -25,7 +25,7 @@ uses
 	RipGrepper.Settings.FontColors,
 	Vcl.ExtCtrls,
 	SVGIconImageListBase,
-	SVGIconImageList, 
+	SVGIconImageList,
 	RipGrepper.UI.IFrameEvents;
 
 type
@@ -236,11 +236,15 @@ begin
 end;
 
 procedure TMiddleLeftFrame.ActionOpenSearchFormExecute(Sender : TObject);
+var
+	formResult : TModalResult;
+	hio : IHistoryItemObject;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.ActionOpenSearchFormExecute');
-	var
-	formResult := TRipGrepperSearchDialogForm.ShowSearchForm(self, Settings, MainFrame.HistItemObject);
+
+	hio := GetCurrentValidHistoryObject();
+	formResult := TRipGrepperSearchDialogForm.ShowSearchForm(self, Settings, hio);
 	if mrOK = formResult then begin
 		dbgMsg.Msg('after ShowSearchForm cmdline: ' + Settings.RipGrepParameters.GetCommandLine(Settings.AppSettings.CopyToClipBoardShell));
 		MainFrame.PrepareAndDoSearch();
@@ -295,9 +299,11 @@ begin
 	if Result.HasResult then begin
 		MainFrame.UpdateHistObjectAndCopyToSettings;
 	end;
-	MainFrame.UpdateRipGrepArgumentsInHistObj;
+	if not Result.IsLoadedFromStream then begin
+		MainFrame.UpdateRipGrepArgumentsInHistObj;
+		ClearMatchesInHistoryObject();
+	end;
 
-	ClearMatchesInHistoryObject();
 	dbgMsg.Msg('Update HistoryObject LastSearchText=' + Settings.LastSearchText);
 end;
 
@@ -309,6 +315,7 @@ begin
 	node := VstHistory.AddChild(nil);
 	nodeData := VstHistory.GetNodeData(node);
 
+	nodeData^.IsFromStream := _nodeData.IsFromStream;
 	nodeData^.SearchText := _nodeData.SearchText;
 	nodeData^.ReplaceData.IsReplaceMode := _nodeData^.ReplaceData.IsReplaceMode;
 	// only child should be filled, if replace node added, it will be deleted
@@ -324,16 +331,16 @@ end;
 procedure TMiddleLeftFrame.AddVstReplaceNode(Node : PVirtualNode; NodeData : PVSHistoryNodeData);
 var
 	childNode : PVirtualNode;
-	data : PVSHistoryNodeData;
+	childData : PVSHistoryNodeData;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.AddVstReplaceNode');
 	childNode := VstHistory.AddChild(Node);
-	data := VstHistory.GetNodeData(childNode);
-	data^.SearchText := '';
-	data^.ReplaceData.IsReplaceMode := True;
-	data^.ReplaceData.ReplaceText := Settings.LastReplaceText;
-	dbgMsg.MsgFmt('ReplaceText: %s', [data^.ReplaceData.ReplaceText]);
+	childData := VstHistory.GetNodeData(childNode);
+	childData^.SearchText := '';
+	childData^.ReplaceData.IsReplaceMode := True;
+	SetReplaceText(childData, NodeData);
+	dbgMsg.MsgFmt('ReplaceText: %s', [childData^.ReplaceData.ReplaceText]);
 	NodeData^.ReplaceData.ReplaceText := ''; // only child should be filled
 end;
 
@@ -530,9 +537,11 @@ begin
 end;
 
 procedure TMiddleLeftFrame.PrepareAndDoSearch;
+var
+	hio : IHistoryItemObject;
 begin
 	ReloadColorSettings;
-	AddOrUpdateHistoryItem;
+	hio := AddOrUpdateHistoryItem;
 	SetSelectedHistoryItem(CurrentHistoryItemIndex);
 end;
 
@@ -706,10 +715,12 @@ end;
 procedure TMiddleLeftFrame.VstHistoryNodeClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
 var
 	idx : integer;
+    node : PVirtualNode;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.VstHistoryNodeClick');
-	idx := GetHistNodeIndex(HitInfo.HitNode);
+    node := HitInfo.HitNode;
+	idx := GetHistNodeIndex(node);
 
 	if (CurrentHistoryItemIndex <> idx) then begin
 		CurrentHistoryItemIndex := idx;
@@ -717,6 +728,14 @@ begin
 		// MainFrame.UpdateHistObjectAndGui;
 	end;
 
+	{$IFDEF debug}
+	var data : PVSHistoryNodeData := VstHistory.GetNodeData(HitInfo.HitNode);
+	if data.ReplaceData.IsReplaceMode then begin
+		VstHistory.Expanded[node] := node.ChildCount > 0;
+        var childData : PVSHistoryNodeData := VstHistory.GetNodeData(node.FirstChild);
+        dbgMsg.MsgFmt('%s -> %s', [data.SearchText, childData.ReplaceData.ReplaceText]);
+ 	end;
+	{$ENDIF}
 	SetReplaceMode();
 end;
 
@@ -797,6 +816,15 @@ begin
 	end;
 end;
 
+procedure TMiddleLeftFrame.SetReplaceText(_childData, _parentData : PVSHistoryNodeData);
+begin
+	if _parentData.IsFromStream then begin
+		_childData^.ReplaceData.ReplaceText := _parentData.ReplaceData.ReplaceText;
+	end else begin
+		_childData^.ReplaceData.ReplaceText := Settings.LastReplaceText;
+	end;
+end;
+
 function TMiddleLeftFrame.NodeDataFromStream(const sr : TStreamReader) : TVSHistoryNodeData;
 var
 	hio : IHistoryItemObject;
@@ -830,6 +858,7 @@ begin
 	VstHistory.Clear; // LoadFile creates the nodes, we should clear it
 	for var i := 0 to count - 1 do begin
 		nodeData := NodeDataFromStream(sr);
+		nodeData.IsFromStream := True;
 		AddVstHistItem(@nodeData);
 	end;
 end;
