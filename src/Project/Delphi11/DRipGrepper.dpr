@@ -112,21 +112,11 @@ begin
 	{$IFDEF DEBUG}
 	ReportMemoryLeaksOnShutdown := True;
 	{$ENDIF}
-	GSettings := TRipGrepperSettings.Create;
-	try
-		GSettings.AppSettings.ReadFile;
-		GSettings.AppSettings.LoadFromDict();
-		TDebugUtils.UpdateTraceActive;
-
 		Application.Initialize;
 		Application.MainFormOnTaskbar := True;
 		TStyleManager.TrySetStyle('Windows10');
 		Application.CreateForm(TRipGrepperForm, RipGrepperForm);
-  Application.CreateForm(TAppSettingsForm, AppSettingsForm);
-  Application.CreateForm(TExtensionSettingsForm, ExtensionSettingsForm);
-  Application.Run;
-	finally
-		Gsettings.Free;
-	end;
+		Application.CreateForm(TOpenWithCommandEditor, OpenWithCommandEditor);
+    Application.Run;
 
 end.

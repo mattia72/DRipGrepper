@@ -107,10 +107,5 @@ exports
 	InitWizard name WizardEntryPoint;
 
 begin
-	GSettings := TRipGrepperSettings.Create;
 
-	GSettings.AppSettings.ReadFile;
-	GSettings.AppSettings.LoadFromDict();
-	TDebugUtils.UpdateTraceActive;
-	// GSettings.Free in TDripExtensionMenu.Destroy
 end.
