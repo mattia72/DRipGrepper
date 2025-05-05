@@ -38,6 +38,7 @@ type
 			destructor Destroy; override;
 			procedure AfterHistObjChange;
 			procedure AfterSearch;
+			procedure BeforeDestruction(); override;
 			procedure BeforeSearch(var _bAbort : Boolean);
 			procedure Init;
 			procedure OnClose(Sender : TObject; var Action : TCloseAction);
@@ -105,6 +106,16 @@ begin
 	end;
 end;
 
+{ TParentFrame }
+
+procedure TParentFrame.BeforeDestruction();
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.BeforeDestruction');
+
+	SaveLastSearchHistory();
+end;
+
 procedure TParentFrame.BeforeSearch(var _bAbort : Boolean);
 var
 	frame : IFrameEvents;
@@ -137,7 +148,6 @@ begin
 	Settings.LoadInitialSettings;
 	TopFrame.Init();
 	BottomFrame.Init();
-	//SaveLastSearchHistory();
 end;
 
 procedure TParentFrame.FrameOnShowHide(var M : TMessage);
@@ -190,11 +200,15 @@ procedure TParentFrame.SaveLastSearchHistory;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.SaveLastSearchHistory');
-
-	dbgMsg.Msg('SaveToFile to: ' + TPath.GetFullPath(SEARCH_HISTORY_DRH));
-	if Settings.AppSettings.LoadLastSearchHistory then begin
-		dbgMsg.Msg('LoadLastSearchHistory = TRUE');
-		MiddleLeftFrame.VstHistory.SaveToFile(SEARCH_HISTORY_DRH);
+	try
+		dbgMsg.Msg('SaveToFile to: ' + TPath.GetFullPath(SEARCH_HISTORY_DRH));
+		if Settings.AppSettings.LoadLastSearchHistory then begin
+			dbgMsg.Msg('LoadLastSearchHistory = TRUE');
+			MiddleLeftFrame.VstHistory.SaveToFile(SEARCH_HISTORY_DRH);
+		end;
+	except
+		on E : Exception do
+			dbgMsg.ErrorMsg(E.Message);
 	end;
 end;
 
