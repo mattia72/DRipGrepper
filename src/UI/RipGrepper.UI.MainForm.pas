@@ -206,7 +206,8 @@ procedure TRipGrepperForm.Init;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.Init');
-	ParentFrame.Init;
+	// ParentFrame.Init has been called while creation of componenets
+	ParentFrame.UpdateUIStyle;
 end;
 
 procedure TRipGrepperForm.Loaded;

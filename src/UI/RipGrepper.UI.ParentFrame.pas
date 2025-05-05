@@ -70,7 +70,6 @@ uses
 constructor TParentFrame.Create(AOwner : TComponent);
 begin
 	inherited;
-	// OnShow := FrameOnShow;
 	ParentFrame := self;
 	Init();
 end;
@@ -188,6 +187,7 @@ begin
 	MainFrame.Init();
 	TopFrame.Init();
 	BottomFrame.Init();
+
 	{$IFDEF STANDALONE} // UpdateUIStyle doesn't work in dark Delphi.
 	UpdateUIStyle;
 	TDarkModeHelper.BroadcastThemeChanged(Handle);
