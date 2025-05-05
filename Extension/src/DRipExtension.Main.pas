@@ -64,7 +64,7 @@ uses
 	Vcl.Dialogs,
 	Vcl.ImgList,
 	Winapi.Windows,
-	DRipExtension.Menu;
+	DRipExtension.Menu, Spring;
 
 var
 	MMOTAExpertIndex : integer;
@@ -212,16 +212,10 @@ end;
 
 initialization
 
-GSettings := TRipGrepperSettings.Create;
-GSettings.AppSettings.ReadFile;
-GSettings.AppSettings.LoadFromDict();
-TDebugUtils.UpdateTraceActive;
-
 OutputDebugString(PChar('DRipExtension initialized.'));
 
 finalization
 
-FreeAndNil(GSettings);
 OutputDebugString(PChar('DRipExtension finalized.'));
 
 end.

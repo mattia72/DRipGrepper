@@ -96,7 +96,7 @@ type
 	end;
 
 var
-	GSettings : TRipGrepperSettings;
+	GSettings : IShared<TRipGrepperSettings>;
 
 implementation
 
@@ -391,5 +391,19 @@ begin
 		fh.UpdateFile();
 	end;
 end;
+
+
+initialization
+
+OutputDebugString(PChar('RipGrepperSettings initialization.'));
+GSettings := Shared.Make<TRipGrepperSettings>();
+GSettings.AppSettings.ReadFile;
+GSettings.AppSettings.LoadFromDict();
+TDebugUtils.UpdateTraceActive;
+
+
+finalization
+
+OutputDebugString(PChar('RipGrepperSettings finalization.'));
 
 end.
