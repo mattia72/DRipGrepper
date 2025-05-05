@@ -7,7 +7,7 @@ uses
 	ArrayEx,
 	Spring,
 	RipGrepper.Common.Constants,
-    RipGrepper.Settings.Persister.Interfaces;
+	RipGrepper.Settings.Persister.Interfaces;
 
 type
 
@@ -24,6 +24,7 @@ type
 
 		public
 			constructor Create(_ini : TMemIniFile); overload;
+			destructor Destroy(); override;
 			property FilePath : string read GetFilePath write SetFilePath;
 			property IniFile : TMemIniFile read GetIniFile;
 	end;
@@ -111,9 +112,9 @@ uses
 
 function TMemIniStringPersister.TryLoadValue(var _value : string) : Boolean;
 begin
-	Result := FIniFile.KeyExists(FIniSection, FIniKey);
+	Result := IniFile.KeyExists(FIniSection, FIniKey);
 	if Result then begin
-		_value := FIniFile.ReadString(FIniSection, FIniKey, '');
+		_value := IniFile.ReadString(FIniSection, FIniKey, '');
 	end;
 end;
 
@@ -122,7 +123,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMemIniStringPersister.StoreValue');
 
-	FIniFile.WriteString(FIniSection, FIniKey, _value);
+	IniFile.WriteString(FIniSection, FIniKey, _value);
 end;
 
 constructor TMemIniStringPersister.Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
@@ -134,7 +135,7 @@ end;
 
 function TMemIniStringPersister.LoadValue(const _section, _key : string) : string;
 begin
-	Result := FIniFile.ReadString(_section, _key, '');
+	Result := IniFile.ReadString(_section, _key, '');
 end;
 
 // function TMemIniStringPersister.Make(): IPersister;
@@ -144,10 +145,10 @@ end;
 
 function TMemIniIntegerPersister.TryLoadValue(var _value : integer) : Boolean;
 begin
-	Result := FIniFile.KeyExists(FIniSection, FIniKey);
+	Result := IniFile.KeyExists(FIniSection, FIniKey);
 
 	if Result then begin
-		_value := FIniFile.ReadInteger(FIniSection, FIniKey, -1);
+		_value := IniFile.ReadInteger(FIniSection, FIniKey, -1);
 	end;
 end;
 
@@ -155,7 +156,7 @@ procedure TMemIniIntegerPersister.StoreValue(const _value : integer);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMemIniIntegerPersister.StoreValue');
-	FIniFile.WriteInteger(FIniSection, FIniKey, _value);
+	IniFile.WriteInteger(FIniSection, FIniKey, _value);
 end;
 
 constructor TMemIniIntegerPersister.Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
@@ -167,14 +168,14 @@ end;
 
 function TMemIniIntegerPersister.LoadValue(const _section, _key : string) : integer;
 begin
-	Result := FIniFile.ReadInteger(_section, _key, -1);
+	Result := IniFile.ReadInteger(_section, _key, -1);
 end;
 
 function TMemIniBoolPersister.TryLoadValue(var _value : Boolean) : Boolean;
 begin
-	Result := FIniFile.KeyExists(FIniSection, FIniKey);
+	Result := IniFile.KeyExists(FIniSection, FIniKey);
 	if Result then begin
-		_value := FIniFile.ReadBool(FIniSection, FIniKey, False);
+		_value := IniFile.ReadBool(FIniSection, FIniKey, False);
 	end;
 end;
 
@@ -182,7 +183,7 @@ procedure TMemIniBoolPersister.StoreValue(const _value : Boolean);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMemIniBoolPersister.StoreValue');
-	FIniFile.WriteBool(FIniSection, FIniKey, _value);
+	IniFile.WriteBool(FIniSection, FIniKey, _value);
 end;
 
 constructor TMemIniBoolPersister.Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
@@ -194,14 +195,14 @@ end;
 
 function TMemIniBoolPersister.LoadValue(const _section, _key : string) : Boolean;
 begin
-	Result := FIniFile.ReadBool(_section, _key, False);
+	Result := IniFile.ReadBool(_section, _key, False);
 end;
 
 function TMemIniStrArrayPersister.TryLoadValue(var _value : TArrayEx<string>) : Boolean;
 begin
 	var
 	key := IfThen(FIniKey = ITEM_KEY_PREFIX, FIniKey + '0', FIniKey);
-	Result := FIniFile.KeyExists(FIniSection, key);
+	Result := IniFile.KeyExists(FIniSection, key);
 
 	if Result then begin
 		_value := LoadArrayFromSection(FIniSection);
@@ -218,7 +219,7 @@ begin
 
 	for var i := 0 to _value.MaxIndex do begin
 		multiLineVal := _value[i];
-		FIniFile.WriteString(FIniSection, Format('%s%d', [FIniKey, i]), multiLineVal.GetLine(0));
+		IniFile.WriteString(FIniSection, Format('%s%d', [FIniKey, i]), multiLineVal.GetLine(0));
 	end;
 
 end;
@@ -238,13 +239,13 @@ var
 	sNext : string;
 begin
 	Result := [];
-	if not FIniFile.SectionExists(FIniSection) then
+	if not IniFile.SectionExists(FIniSection) then
 		Exit;
 
 	i := 0;
 	while True do begin
-		s := FIniFile.ReadString(FIniSection, Format('%s%d', [_keyPrefix, i]), '');
-		sNext := FIniFile.ReadString(FIniSection, Format('%s%d', [_keyPrefix, i + 1]), '');
+		s := IniFile.ReadString(FIniSection, Format('%s%d', [_keyPrefix, i]), '');
+		sNext := IniFile.ReadString(FIniSection, Format('%s%d', [_keyPrefix, i + 1]), '');
 		if s.IsEmpty and sNext.IsEmpty then begin
 			Break;
 		end;
@@ -259,15 +260,20 @@ begin
 end;
 
 constructor TIniPersister.Create();
+var
+	fileName : string;
 begin
 	inherited;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TIniPersister.Create');
+
 	{$IFDEF STANDALONE}
-	FIniFile := Shared.Make<TMemIniFile>(
-		{ } TMemIniFile.Create(TPath.ChangeExtension(Application.ExeName, '.ini'), TEncoding.UTF8));
+	fileName := TPath.ChangeExtension(Application.ExeName, '.ini');
 	{$ELSE}
-	FIniFile := Shared.Make<TMemIniFile>(
-		{ } TMemIniFile.Create(TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini'), TEncoding.UTF8));
+	fileName := TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini');
 	{$ENDIF}
+	dbgMsg.Msg('file name:' + fileName);
+	FIniFile := Shared.Make<TMemIniFile>(TMemIniFile.Create(fileName, TEncoding.UTF8));
 end;
 
 constructor TIniPersister.Create(_ini : IShared<TMemIniFile>);
@@ -334,6 +340,14 @@ begin
 	FIniFile := _ini;
 end;
 
+destructor TMemIniPersister.Destroy();
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TMemIniPersister.Destroy');
+	dbgMsg.MsgFmt('[%s] %s', [FIniSection, FIniKey]);
+	inherited;
+end;
+
 function TMemIniPersister.GetFilePath() : string;
 begin
 	Result := FIniFile.FileName;
@@ -341,6 +355,7 @@ end;
 
 function TMemIniPersister.GetIniFile() : TMemIniFile;
 begin
+	Assert(FIniFile <> nil, 'FIniFile is nil');
 	Result := FIniFile;
 end;
 
