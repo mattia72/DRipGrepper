@@ -44,7 +44,7 @@ Most actual working items, you will find in the last [release notes](https://git
 
 - [x] Helps parametrizing [ripgrep](https://github.com/BurntSushi/ripgrep) (`rg.exe`)
   - [x] Expert mode set in `DripGrepper.ini` makes `rg` options visible
-    - [x] Option helper form generated from `rg` help ![Screenshot](./screenshots/OptionsHelpForm.png)
+    - [x] Option helper form generated from `rg` help: [Screenshot](./screenshots/OptionsHelpForm.png)
   - [x] Quick buttons for: `--ignore-case`, `--case-sensitive`, `--word-regexp`, `--fixed-strings`
   - [x] `--glob` filter settings can be set in a separate edit box
   - [x] `--hidden`, `--no-ignore` can be set
