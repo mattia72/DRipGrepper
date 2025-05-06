@@ -53,7 +53,7 @@ type
 				{ } _terminateEventProducer : ITerminateEventProducer;
 				{ } _eofProcHandler : IEOFProcessEventHandler) : integer;
 			class function RunProcess(const _exe : string; _args : TStrings; _workDir : string;
-				{ } _newLIneHandler : INewLineEventHandler;
+				{ } _newLineHandler : INewLineEventHandler;
 				{ } _terminateEventProducer : ITerminateEventProducer;
 				{ } _eofProcHandler : IEOFProcessEventHandler) : Integer; overload;
 			class procedure RunProcess(const _exe : string; _args : TStrings; _workDir : string; out _stdOut : TStrings); overload;
@@ -260,7 +260,7 @@ end;
 
 class function TProcessUtils.RunProcess(const _exe : string; _args : TStrings;
 	{ } _workDir : string;
-	{ } _newLIneHandler : INewLineEventHandler;
+	{ } _newLineHandler : INewLineEventHandler;
 	{ } _terminateEventProducer : ITerminateEventProducer;
 	{ } _eofProcHandler : IEOFProcessEventHandler) : Integer;
 var
@@ -287,7 +287,7 @@ begin
 		try
 			p.Execute;
 
-			ProcessOutput(p.Output, _newLIneHandler, _terminateEventProducer, _eofProcHandler);
+			ProcessOutput(p.Output, _newLineHandler, _terminateEventProducer, _eofProcHandler);
 
 			if ((FProcessedLineCount > RG_PROCESSING_LINE_COUNT_LIMIT) or (Assigned(_terminateEventProducer) and
 				_terminateEventProducer.ProcessShouldTerminate())) then begin
@@ -301,9 +301,9 @@ begin
 				RG_SUCCESS :
 				;
 				RG_NO_MATCH :
-				NewLineEventHandler(_newLIneHandler, p.Executable + RG_HAS_NO_OUTUT);
+				NewLineEventHandler(_newLineHandler, p.Executable + RG_HAS_NO_OUTUT);
 				RG_ERROR :
-				NewLineEventHandler(_newLIneHandler, p.Executable + RG_ENDED_ERROR + p.ExitStatus.ToString);
+				NewLineEventHandler(_newLineHandler, p.Executable + RG_ENDED_ERROR + p.ExitStatus.ToString);
 			end;
 		except
 			on E : Exception do begin
