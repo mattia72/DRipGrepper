@@ -481,10 +481,13 @@ end;
 
 function TMiddleLeftFrame.GetHistoryObject(const _index : Integer) : THistoryItemObject;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.GetHistoryObject');
+	dbgMsg.MsgFmt('at index %d', [_index]);
 	Result := nil;
-	if (_index > -1) and (_index < FHistoryObjectList.Count { _lb.Items.Count } ) then begin
+	if (_index > -1) and (_index < FHistoryObjectList.Count) then begin
 		Result := THistoryItemObject(FHistoryObjectList[_index]);
-		// Result := THistoryItemObject(_lb.Items.Objects[_index]);
+		dbgMsg.MsgFmt('Result hio: %s', [Result.SearchText]);
 	end;
 end;
 
@@ -715,11 +718,11 @@ end;
 procedure TMiddleLeftFrame.VstHistoryNodeClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
 var
 	idx : integer;
-    node : PVirtualNode;
+	node : PVirtualNode;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.VstHistoryNodeClick');
-    node := HitInfo.HitNode;
+	node := HitInfo.HitNode;
 	idx := GetHistNodeIndex(node);
 
 	if (CurrentHistoryItemIndex <> idx) then begin
@@ -729,12 +732,14 @@ begin
 	end;
 
 	{$IFDEF debug}
-	var data : PVSHistoryNodeData := VstHistory.GetNodeData(HitInfo.HitNode);
+	var
+		data : PVSHistoryNodeData := VstHistory.GetNodeData(HitInfo.HitNode);
 	if data.ReplaceData.IsReplaceMode then begin
 		VstHistory.Expanded[node] := node.ChildCount > 0;
-        var childData : PVSHistoryNodeData := VstHistory.GetNodeData(node.FirstChild);
-        dbgMsg.MsgFmt('%s -> %s', [data.SearchText, childData.ReplaceData.ReplaceText]);
- 	end;
+		var
+			childData : PVSHistoryNodeData := VstHistory.GetNodeData(node.FirstChild);
+		dbgMsg.MsgFmt('%s -> %s', [data.SearchText, childData.ReplaceData.ReplaceText]);
+	end;
 	{$ENDIF}
 	SetReplaceMode();
 end;

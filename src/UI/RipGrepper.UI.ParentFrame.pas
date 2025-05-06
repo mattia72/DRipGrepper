@@ -181,7 +181,7 @@ end;
 procedure TParentFrame.Init;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.InitForm');
+	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.Init');
 	TDarkModeHelper.AllowThemes();
 
 	MainFrame.Init();
