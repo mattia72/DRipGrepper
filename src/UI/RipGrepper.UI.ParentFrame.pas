@@ -26,13 +26,16 @@ type
 		TopFrame : TRipGrepperTopFrame;
 
 		private
+			FIsInitialized : Boolean;
 			FSettings : TRipGrepperSettings;
 			function GetSettings : TRipGrepperSettings;
 			procedure FrameOnShowHide(var M : TMessage); message CM_SHOWINGCHANGED;
+			function GetIsInitialized() : Boolean;
 			procedure LoadLastSearchHistory;
 			function GetSearchHistoryPath : string;
 			procedure SaveLastSearchHistory;
 			procedure WMSettingChange(var Message : TWMSettingChange); message WM_SETTINGCHANGE;
+
 		public
 			constructor Create(AOwner : TComponent); override;
 			destructor Destroy; override;
@@ -41,10 +44,11 @@ type
 			procedure AfterHistObjChange;
 			procedure AfterSearch;
 			procedure BeforeSearch(var _bAbort : Boolean);
-			procedure Init;
+			procedure Initialize();
 			procedure OnClose(Sender : TObject; var Action : TCloseAction);
 			procedure FrameOnShow(Sender : TObject);
 			procedure UpdateUIStyle(_sNewStyle : string = '');
+			property IsInitialized : Boolean read GetIsInitialized;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
 	end;
 
@@ -71,7 +75,8 @@ constructor TParentFrame.Create(AOwner : TComponent);
 begin
 	inherited;
 	ParentFrame := self;
-	Init();
+	FIsInitialized := False;
+	Initialize();
 end;
 
 destructor TParentFrame.Destroy;
@@ -155,8 +160,8 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.FrameOnShow');
 	Settings.LoadInitialSettings;
-	TopFrame.Init();
-	BottomFrame.Init();
+	TopFrame.Initialize();
+	BottomFrame.Initialize();
 end;
 
 procedure TParentFrame.FrameOnShowHide(var M : TMessage);
@@ -169,6 +174,11 @@ begin
 	end;
 end;
 
+function TParentFrame.GetIsInitialized() : Boolean;
+begin
+	Result := FIsInitialized;
+end;
+
 function TParentFrame.GetSettings : TRipGrepperSettings;
 begin
 	if not Assigned(FSettings) then begin
@@ -178,20 +188,27 @@ begin
 	Result := FSettings;
 end;
 
-procedure TParentFrame.Init;
+procedure TParentFrame.Initialize();
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.Init');
+	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.Initialize');
+
+	if IsInitialized then begin
+		dbgMsg.Msg('Already initialized');
+		Exit;
+	end;
+
 	TDarkModeHelper.AllowThemes();
 
-	MainFrame.Init();
-	TopFrame.Init();
-	BottomFrame.Init();
+	MainFrame.Initialize();
+	TopFrame.Initialize();
+	BottomFrame.Initialize();
 
 	{$IFDEF STANDALONE} // UpdateUIStyle doesn't work in dark Delphi.
 	UpdateUIStyle;
 	TDarkModeHelper.BroadcastThemeChanged(Handle);
 	{$ENDIF}
+	FIsInitialized := True;
 end;
 
 procedure TParentFrame.LoadLastSearchHistory;
@@ -245,13 +262,14 @@ begin
 	end;
 end;
 
-function TParentFrame.GetSearchHistoryPath: string;
+function TParentFrame.GetSearchHistoryPath : string;
 begin
-	var dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.GetSearchHistoryPath');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.GetSearchHistoryPath');
 	{$IFDEF STANDALONE}
-	Result :=  TPath.Combine(TPath.GetDirectoryName(Application.ExeName), SEARCH_HISTORY_DRH);
+	Result := TPath.Combine(TPath.GetDirectoryName(Application.ExeName), SEARCH_HISTORY_DRH);
 	{$ELSE}
-	Result :=  TPath.Combine(IOTAUTils.GetSettingFilePath, SEARCH_HISTORY_DRH);
+	Result := TPath.Combine(IOTAUTils.GetSettingFilePath, SEARCH_HISTORY_DRH);
 	{$ENDIF}
 	dbgMsg.Msg('Result: ' + Result);
 end;

@@ -34,11 +34,12 @@ Marked with a checkmark if ready; otherwise, it is planned.
 Marked with checkmark if fixed, else it is a known bug.
 - [ ] The ripgreppath value is incorrectly updated to the last used search path after performing a search operation
 - [ ] load histories at startup
- - [ ] load replace histories not working properly
+  - [ ] load replace historie items not working properly
+  - [ ] when a loaded history item is modified (e.g., adding --stats), the change is not recognized during the first search attempt but works on the second attempt. 
 - [x] replace doesn't work properly if there are more text to replace in same line 
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: drip icon in menu has no transparent background
 - [ ] look on dpi change (drag window to another monitor)
-    - [x] search form switch between search and replace shrinks height
-    - [ ] search form Use Regex button disappear if drag to another monitor
-    - [ ] ugly config form 
+  - [x] search form switch between search and replace shrinks height
+  - [ ] search form Use Regex button disappear if drag to another monitor
+  - [ ] ugly config form 

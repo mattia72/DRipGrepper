@@ -110,11 +110,10 @@ begin
 	{$IFDEF DEBUG}
 	ReportMemoryLeaksOnShutdown := True;
 	{$ENDIF}
-		Application.Initialize;
-		Application.MainFormOnTaskbar := True;
-		TStyleManager.TrySetStyle('Windows10');
-		Application.CreateForm(TRipGrepperForm, RipGrepperForm);
-		Application.CreateForm(TOpenWithCommandEditor, OpenWithCommandEditor);
-		Application.Run;
-
+	Application.Initialize;
+	Application.MainFormOnTaskbar := True;
+	TStyleManager.TrySetStyle('Windows10');
+	Application.CreateForm(TRipGrepperForm, RipGrepperForm);
+	Application.CreateForm(TOpenWithCommandEditor, OpenWithCommandEditor);
+	Application.Run;
 end.

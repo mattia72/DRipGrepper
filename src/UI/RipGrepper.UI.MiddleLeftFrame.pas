@@ -86,6 +86,7 @@ type
 			FCurrentHistoryItemIndex : Integer;
 			FData : TRipGrepperData;
 			FHistoryObjectList : THistoryObjectArray;
+			FIsInitialized : Boolean;
 			FSettings : TRipGrepperSettings;
 			function AddVstHistItem(_nodeData : PVSHistoryNodeData) : PVirtualNode;
 			procedure AddVstReplaceNode(Node : PVirtualNode; NodeData : PVSHistoryNodeData);
@@ -96,6 +97,7 @@ type
 			function GetData : TRipGrepperData;
 			function GetHistNodeIndex(Node : PVirtualNode) : integer;
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
+			function GetIsInitialized() : Boolean;
 			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
 			function GetSettings : TRipGrepperSettings;
 			function NodeDataFromStream(const sr : TStreamReader) : TVSHistoryNodeData;
@@ -120,7 +122,7 @@ type
 			procedure ClearHistoryObjectList;
 			procedure DeleteCurrentHistoryItemFromList;
 			function GetCurrentHistoryObject : IHistoryItemObject;
-			procedure Init;
+			procedure Initialize();
 			procedure PrepareAndDoSearch;
 			procedure RefreshSearch;
 			procedure ReloadColorSettings;
@@ -129,6 +131,7 @@ type
 			procedure UpdateUIStyle(_sNewStyle : string = '');
 			property CurrentHistoryItemIndex : Integer read FCurrentHistoryItemIndex write FCurrentHistoryItemIndex;
 			property Data : TRipGrepperData read GetData write FData;
+			property IsInitialized : Boolean read GetIsInitialized;
 			{ Public-Deklarationen }
 	end;
 
@@ -160,6 +163,7 @@ begin
 	inherited;
 	TDebugUtils.DebugMessage('TMiddleLeftFrame.Create ' + AOwner.Name);
 	MiddleLeftFrame := self;
+    FIsInitialized := False;
 end;
 
 procedure TMiddleLeftFrame.ActionCopyCmdLineToClipboardExecute(Sender : TObject);
@@ -514,10 +518,16 @@ begin
 	Result := FSettings;
 end;
 
-procedure TMiddleLeftFrame.Init;
+procedure TMiddleLeftFrame.Initialize();
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.Init');
+	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.Initialize');
+
+	if IsInitialized then begin
+		dbgMsg.Msg('Already initialized');
+		Exit;
+	end;
+
 	FCurrentHistoryItemIndex := -1;
 	FHistoryObjectList.Clear();
 
@@ -531,7 +541,7 @@ begin
 	VstHistory.Header.Columns[COL_SEARCH_TEXT].MinWidth := 50;
 	SetReplaceMode();
 	ShowReplaceColumn(False);
-
+	FIsInitialized := True;
 end;
 
 procedure TMiddleLeftFrame.PopupMenuHistoryPopup(Sender : TObject);
@@ -819,6 +829,11 @@ begin
 	if not Assigned(Result) then begin
 		Result := GetCurrentHistoryObject();
 	end;
+end;
+
+function TMiddleLeftFrame.GetIsInitialized() : Boolean;
+begin
+	Result := FIsInitialized;
 end;
 
 function TMiddleLeftFrame.NodeDataFromStream(const sr : TStreamReader) : TVSHistoryNodeData;

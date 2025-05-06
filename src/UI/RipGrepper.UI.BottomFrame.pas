@@ -30,20 +30,23 @@ type
 		procedure FrameResize(Sender : TObject);
 
 		private
+			FIsInitialized : Boolean;
 			FStatusBarMessage : string;
 			FStatusBarStatistic : string;
 			FStatusBarStatus : string;
+			function GetIsInitialized() : Boolean;
 
 		public
 			constructor Create(AOwner : TComponent); override;
 			procedure AfterHistObjChange;
-			procedure Init;
+			procedure Initialize();
 			procedure AfterSearch;
 			procedure BeforeSearch(var _bAbort : Boolean);
 			procedure SetRunningStatus;
 			procedure SetReadyStatus;
 			procedure SetStatusBarMessage;
 			procedure UpdateUIStyle(_sNewStyle : string = '');
+			property IsInitialized : Boolean read GetIsInitialized;
 			property StatusBarMessage : string read FStatusBarMessage write FStatusBarMessage;
 			property StatusBarStatistic : string read FStatusBarStatistic write FStatusBarStatistic;
 			property StatusBarStatus : string read FStatusBarStatus write FStatusBarStatus;
@@ -67,6 +70,7 @@ constructor TRipGrepperBottomFrame.Create(AOwner : TComponent);
 begin
 	inherited;
 	BottomFrame := self;
+	FIsInitialized := False;
 end;
 
 procedure TRipGrepperBottomFrame.ActionStatusBarUpdate(Sender : TObject);
@@ -89,7 +93,7 @@ end;
 procedure TRipGrepperBottomFrame.BeforeSearch(var _bAbort : Boolean);
 begin
 	if _bAbort then begin
-//      StatusBarStatistic := 'ERROR';
+		// StatusBarStatistic := 'ERROR';
 	end else begin;
 		StatusBarStatistic := 'Searching...';
 	end;
@@ -103,8 +107,24 @@ begin
 	ActivityIndicator1.Left := width + 5
 end;
 
-procedure TRipGrepperBottomFrame.Init;
+function TRipGrepperBottomFrame.GetIsInitialized() : Boolean;
 begin
+	Result := FIsInitialized;
+end;
+
+procedure TRipGrepperBottomFrame.Initialize();
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperBottomFrame.Initialize');
+
+	if IsInitialized then begin
+		dbgMsg.Msg('Already initialized');
+		Exit;
+	end;
+	if IsInitialized then begin
+		Exit;
+	end;
+
 	{$IFDEF STANDALONE}
 	var
 	bStandalone := True;
@@ -117,6 +137,7 @@ begin
 	end;
 	StatusBarMessage := Format(FORMAT_VERSION_INFO_IN_STATUSBAR, [MainFrame.ExeVersion]);
 	SetReadyStatus;
+	FIsInitialized := True;
 end;
 
 procedure TRipGrepperBottomFrame.SetRunningStatus;
