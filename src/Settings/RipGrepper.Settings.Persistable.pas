@@ -33,6 +33,8 @@ type
 
 	TPersistableSettings = class(TNoRefCountObject, IIniPersistable, IStreamReaderWriterPersistable)
 		// TPersistableSettings = class(TInterfacedObject, IIniPersistable)
+		private
+			class var FLockObject : IShared<TObject>;
 		var
 			FPersisterFactory : IPersisterFactory;
 			FbDefaultLoaded : Boolean;
@@ -89,6 +91,7 @@ type
 			function RemoveChildSettings(const _settings : TPersistableSettings) : Boolean;
 			procedure CopySettingsDictSection(const _from : TPersistableSettings; const _copyAllSections : Boolean = False;
 				const _bForceCopySettingObj : Boolean = False); overload;
+			class function GetLockObject : TObject;
 			/// <summary>TPersistableSettings.ReadFile
 			/// Members.RedIni- should be called here
 			/// </summary>
@@ -127,9 +130,6 @@ uses
 	System.StrUtils,
 	RipGrepper.Tools.LockGuard,
 	Spring.Collections;
-
-var
-	FLockObject : IShared<TObject>;
 
 constructor TPersistableSettings.Create(const _Owner : TPersistableSettings);
 begin
@@ -406,7 +406,7 @@ begin
 	if Supports(_factory, IFileHandler, fh) then begin
 		if _dict.HasState(ssStored) then begin
 			var
-			lock := TLockGuard.NewLock(FLockObject);
+			lock := TLockGuard.NewLock(GetLockObject());
 			dbgMsg.Msg('Lock Entered to UpdateFile');
 			fh.UpdateFile();
 			_dict.SetState(ssStored, ssSaved);
@@ -469,6 +469,14 @@ begin
 	SettingsDict.CreateSetting(_section, _key, _setting, PersisterFactory);
 end;
 
+class function TPersistableSettings.GetLockObject : TObject;
+begin
+	if not Assigned(FLockObject) then begin
+		FLockObject := Shared.Make<TObject>();
+	end;
+	Result := FLockObject;
+end;
+
 procedure TPersistableSettings.LoadFromDict();
 begin
 	// overwrite this to convert setting values to other types
@@ -519,7 +527,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.StoreDictToPersister');
 
 	var
-	lock := TLockGuard.NewLock(FLockObject);
+	lock := TLockGuard.NewLock(GetLockObject());
 	section := IfThen(_section.IsEmpty, IniSectionName, _section);
 	dbgMsg.MsgFmt('Lock Entered - StoreDictToPersister [%s]', [section]);
 
@@ -531,12 +539,8 @@ begin
 	SettingsDict.StoreToPersister(section);
 end;
 
-initialization
-
-FLockObject := Shared.Make<TObject>();
-
-finalization
-
-FLockObject := nil;
+//initialization
+//
+//finalization
 
 end.
