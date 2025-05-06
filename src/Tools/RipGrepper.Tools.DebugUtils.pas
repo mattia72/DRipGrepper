@@ -73,7 +73,8 @@ uses
 	System.SysUtils,
 	RipGrepper.Settings.RipGrepperSettings,
 	System.RegularExpressions,
-	RipGrepper.Common.Constants, Spring.DesignPatterns;
+	RipGrepper.Common.Constants,
+	Spring.DesignPatterns;
 
 class constructor TDebugUtils.Create;
 begin
@@ -167,9 +168,10 @@ class procedure TDebugUtils.UpdateTraceActive;
 begin
 	FTraceFilerTypes := [];
 
-	var appSettings := TSingleton.GetInstance<TRipGrepperSettings>().AppSettings;
+	var
+	appSettings := TSingleton.GetInstance<TRipGrepperSettings>().AppSettings;
 
-	if ({Assigned(GSettings) and }Assigned(appSettings)) then begin
+	if ( { Assigned(GSettings) and } Assigned(appSettings)) then begin
 		FTraceFilerTypes := StrToTraceTypes(appSettings.DebugTrace);
 		FTraceFilterRegex := appSettings.DebugTraceRegexFilter;
 	end;
