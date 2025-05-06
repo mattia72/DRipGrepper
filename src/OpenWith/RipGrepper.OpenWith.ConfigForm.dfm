@@ -257,11 +257,11 @@ object OpenWithConfigForm: TOpenWithConfigForm
         end
         item
           AutoSize = True
-          Caption = 'Command Line'
+          Caption = 'Description'
         end
         item
           AutoSize = True
-          Caption = 'Description'
+          Caption = 'Command Line'
         end>
       ColumnClick = False
       RowSelect = True

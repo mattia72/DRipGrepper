@@ -31,6 +31,9 @@ type
 	TCheckBoxState = (csbNone, csbTrue, csbFalse);
 
 	TOpenWithConfigForm = class(TSettingsBaseForm, ISettingsForm)
+		const
+			SUBITEM_IDX_DESCRIPTION = 0;
+			SUBITEM_IDX_COMMAND_LINE = 1;
 
 		var
 			ActionListConfig : TActionList;
@@ -110,11 +113,7 @@ uses
 	RipGrepper.Settings.SettingVariant,
 	RipGrepper.Common.Constants;
 
-const
-	IDX_DESCRIPTION = 1;
-	IDX_COMMAND_LINE = 0;
-
-	{$R *.dfm}
+{$R *.dfm}
 
 constructor TOpenWithConfigForm.Create(AOwner : TComponent; const _settings : TOpenWithSettings; const _colorTheme : string);
 begin
@@ -163,7 +162,7 @@ begin
 	var
 	item := lvCommands.Items[lvCommands.ItemIndex];
 	var
-		ci : TCommandItem := TCommandItem.New(item.Caption, item.SubItems[IDX_COMMAND_LINE]);
+		ci : TCommandItem := TCommandItem.New(item.Caption, item.SubItems[SUBITEM_IDX_COMMAND_LINE]);
 	AddOrSetCommandItem(ci, item);
 end;
 
@@ -220,7 +219,7 @@ var
 begin
 	inherited;
 	owp := FOpenWithSettings.TestFile; // GxOtaGetCurrentSourceFile;
-	TOpenWithRunner.RunEditorCommand(lvCommands.Items[lvCommands.ItemIndex].SubItems[IDX_COMMAND_LINE], owp);
+	TOpenWithRunner.RunEditorCommand(lvCommands.Items[lvCommands.ItemIndex].SubItems[SUBITEM_IDX_COMMAND_LINE], owp);
 end;
 
 procedure TOpenWithConfigForm.ActionTestUpdate(Sender : TObject);
@@ -246,8 +245,8 @@ begin
 		end;
 		item.Caption := _ci.Caption;
 		item.SubItems.Clear;
-		item.SubItems.Add(_ci.CommandLine.AsString);
 		item.SubItems.Add(_ci.Description);
+		item.SubItems.Add(_ci.CommandLine.AsString);
 		item.Checked := _ci.IsActive;
 	finally
 		lvCommands.Items.EndUpdate;
@@ -331,13 +330,13 @@ begin
 	settings := '';
 	for var i := 0 to lvCommands.Items.Count - 1 do begin
 		item := lvCommands.Items[i];
-		sCmd := item.Subitems[IDX_COMMAND_LINE].Replace(SEPARATOR, '', [rfReplaceAll]);
+		sCmd := item.Subitems[SUBITEM_IDX_COMMAND_LINE].Replace(SEPARATOR, '', [rfReplaceAll]);
 		dbgMsg.Msg(Format('%s', [sCmd]));
 		settings := Format('%s' + SEPARATOR + '%s' + SEPARATOR + '%s' + SEPARATOR + '%s',
 			{ } [BoolToStr(item.Checked and TOpenWithCommandEditor.CheckCommand(sCmd), true),
 			{ } item.Caption, // caption
 			{ } sCmd, // command line
-			{ } item.SubItems[IDX_DESCRIPTION]]); // descr
+			{ } item.SubItems[SUBITEM_IDX_DESCRIPTION]]); // descr
 
 		cmds.Add(settings);
 
@@ -362,8 +361,8 @@ begin
 	item := lvCommands.Items[lvCommands.ItemIndex];
 	ci.Caption := item.Caption;
 	arrEx := item.SubItems.ToStringArray;
-	ci.CommandLine := TCommandLineRec.ParseCommand(arrEx.SafeItem[0]);
-	ci.Description := arrEx.SafeItem[1];
+	ci.Description := arrEx.SafeItem[SUBITEM_IDX_DESCRIPTION];
+	ci.CommandLine := TCommandLineRec.ParseCommand(arrEx.SafeItem[SUBITEM_IDX_COMMAND_LINE]);
 	ci := TOpenWithCommandEditor.CreateAndShow(self, ci, FColorTheme);
 	AddOrSetCommandItem(ci, item);
 	TDebugUtils.DebugMessage((Format('TOpenWithConfigForm.lvCommandsDblClick SelectCount %d', [lvCommands.SelCount])));
