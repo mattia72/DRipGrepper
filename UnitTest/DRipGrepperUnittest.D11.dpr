@@ -42,7 +42,6 @@ uses
   RipGrepper.Settings.RipGrepSettingsTest in 'RipGrepper.Settings.RipGrepSettingsTest.pas',
   RipGrepper.Settings.Persistable in '..\src\Settings\RipGrepper.Settings.Persistable.pas',
   RipGrepper.Common.GuiSearchParams in '..\src\Common\RipGrepper.Common.GuiSearchParams.pas',
-  RipGrepper.Settings.RipGrepperSettings in '..\src\Settings\RipGrepper.Settings.RipGrepperSettings.pas',
   RipGrepper.Common.SimpleTypes in '..\src\Common\RipGrepper.Common.SimpleTypes.pas',
   RipGrepper.Settings.MemIniFileHelperTest in 'RipGrepper.Settings.MemIniFileHelperTest.pas',
   RipGrepper.Helper.MemIniFile in '..\src\Helper\RipGrepper.Helper.MemIniFile.pas',
@@ -64,7 +63,8 @@ uses
   RipGrepper.Helper.UI.DarkMode in '..\src\RipGrepper.Helper.UI.DarkMode.pas',
   RipGrepper.Settings.SearchFormSettings in '..\src\Settings\RipGrepper.Settings.SearchFormSettings.pas',
   RipGrepper.Common.Interfaces.StreamPersistable in '..\src\Common\RipGrepper.Common.Interfaces.StreamPersistable.pas',
-  RipGrepper.Helper.SettingStoreBehaviours in '..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas';
+  RipGrepper.Helper.SettingStoreBehaviours in '..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas',
+  RipGrepper.Settings.RipGrepperSettings in '..\src\Settings\RipGrepper.Settings.RipGrepperSettings.pas';
 
 // This comment has to guard the following IFDEF, that may be delted by delphi, if new unit added to the project
 {$IFNDEF TESTINSIGHT}

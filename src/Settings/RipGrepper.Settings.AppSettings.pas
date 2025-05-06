@@ -149,7 +149,7 @@ begin
 	FColorTheme := TStringSetting.Create('');
 	FCopyToClipBoardShell := TIntegerSetting.Create(Integer(TShellType.stPowershell));
 	FComboHistoryCount := TIntegerSetting.Create(MAX_HISTORY_COUNT);
-	FLoadLastSearchHistory := TBoolSetting.Create(True);
+	FLoadLastSearchHistory := TBoolSetting.Create(False);
 	FDebugTrace := TStringSetting.Create('');
 	FDebugTraceRegexFilter := TStringSetting.Create('');
 	FExpertMode := TBoolSetting.Create(False);
