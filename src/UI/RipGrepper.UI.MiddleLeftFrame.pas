@@ -485,13 +485,14 @@ end;
 
 function TMiddleLeftFrame.GetHistoryObject(const _index : Integer) : THistoryItemObject;
 begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.GetHistoryObject');
-	dbgMsg.MsgFmt('at index %d', [_index]);
+	// VsHistroyGetHint produces a lot of calls to this function
+	// var
+	// dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.GetHistoryObject',True);
+	// dbgMsg.MsgFmt('at index %d', [_index]);
 	Result := nil;
 	if (_index > -1) and (_index < FHistoryObjectList.Count) then begin
 		Result := THistoryItemObject(FHistoryObjectList[_index]);
-		dbgMsg.MsgFmt('Result hio: %s', [Result.SearchText]);
+		// dbgMsg.MsgFmt('Result hio: %s', [Result.SearchText]);
 	end;
 end;
 
