@@ -264,12 +264,29 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.LoadFromPersister');
 
-	for var key in InnerDictionary[SectionName].Keys do begin
-		dbgMsg.MsgFmt('InnerDictionary[%s][%s].LoadFromPersister', [SectionName, key]);
-		InnerDictionary[SectionName][key].LoadFromPersister();
-		var
-		value := InnerDictionary[SectionName][key].AsString;
-		dbgMsg.MsgFmt('LoadFromPersister [%s] %s = %s', [SectionName, key, value]);
+	try
+		for var key in InnerDictionary[SectionName].Keys do begin
+			dbgMsg.MsgFmt('Get InnerDictionary[%s][%s]', [SectionName, key]);
+			var section := InnerDictionary[SectionName];
+			if InnerDictionary.TryGetValue(SectionName, section) then begin
+				var setting : ISetting;
+				if section.TryGetValue(key, setting) then begin
+					dbgMsg.MsgFmt('InnerDictionary[%s][%s] found', [SectionName, key]);
+					setting.LoadFromPersister();
+					var
+					value := setting.AsString;
+					dbgMsg.MsgFmt('LoadFromPersister [%s] %s = %s', [SectionName, key, value]);
+				end else begin
+					dbgMsg.MsgFmt('InnerDictionary[%s][%s] not found', [SectionName, key]);
+					raise Exception.CreateFmt('InnerDictionary[%s][%s] not found', [SectionName, key]);
+				end;
+			end;
+		end;
+	except
+	  on E: Exception do
+	  begin
+		dbgMsg.ErrorMsgFmt('Error loading from persister: %s', [E.Message]);
+	  end;
 	end;
 end;
 
