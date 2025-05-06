@@ -64,7 +64,8 @@ uses
 	Vcl.Dialogs,
 	Vcl.ImgList,
 	Winapi.Windows,
-	DRipExtension.Menu, Spring;
+	DRipExtension.Menu, 
+	Spring.DesignPatterns;
 
 var
 	MMOTAExpertIndex : integer;
@@ -96,7 +97,10 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.Create');
 	InitPluginInfo;
 	TRipGrepperDockableForm.CreateInstance; // saved layout loading ...
-	TDripExtensionMenu.CreateMenu(GetMenuText, GSettings.SearchFormSettings.ExtensionSettings);
+	
+	var
+	searchFormSetting := TSingleton.GetInstance<TRipGrepperSettings>().SearchFormSettings;
+	TDripExtensionMenu.CreateMenu(GetMenuText, searchFormSetting.ExtensionSettings);
 end;
 
 destructor TDRipExtension.Destroy;
