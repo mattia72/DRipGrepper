@@ -67,7 +67,8 @@ uses
 	{$IFNDEF STANDALONE}
 	RipGrepper.Common.IOTAUtils,
 	{$ENDIF}
-	RipGrepper.UI.MiddleLeftFrame;
+	RipGrepper.UI.MiddleLeftFrame,
+	Spring.DesignPatterns;
 
 {$R *.dfm}
 
@@ -182,7 +183,7 @@ end;
 function TParentFrame.GetSettings : TRipGrepperSettings;
 begin
 	if not Assigned(FSettings) then begin
-		FSettings := GSettings;
+		FSettings := TSingleton.GetInstance<TRipGrepperSettings>();
 		FSettings.ReadFile;
 	end;
 	Result := FSettings;
