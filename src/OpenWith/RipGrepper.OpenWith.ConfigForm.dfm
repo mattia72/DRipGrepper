@@ -257,7 +257,7 @@ object OpenWithConfigForm: TOpenWithConfigForm
         end
         item
           AutoSize = True
-          Caption = 'Command LIne'
+          Caption = 'Command Line'
         end
         item
           AutoSize = True
