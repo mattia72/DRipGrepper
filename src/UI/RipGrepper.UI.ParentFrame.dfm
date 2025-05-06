@@ -67,6 +67,9 @@ object ParentFrame: TParentFrame
         end
       end
     end
+    inherited PopupMenuHistory: TPopupMenu
+      Images = MainFrame.MiddleLeftFrame1.SVGIconImageList1
+    end
   end
   inline BottomFrame: TRipGrepperBottomFrame
     Left = 0
