@@ -252,7 +252,8 @@ uses
 	RipGrepper.CommandLine.OptionStrings,
 	RipGrepper.Helper.MemIniFile,
 	RipGrepper.Settings.SettingsDictionary,
-	RipGrepper.Common.SearchTextWithOptions;
+	RipGrepper.Common.SearchTextWithOptions,
+	Spring.DesignPatterns;
 
 {$R *.dfm}
 
@@ -271,7 +272,9 @@ begin
 	dbgMsg.Msg('gui params=' + FSettingsProxy.ToLogString);
 
 	// FDpiScaler := TRipGrepperDpiScaler.Create(self);
-	FThemeHandler := TThemeHandler.Create(self, GSettings.AppSettings.ColorTheme);
+	var
+	mainSettingInstance := TSingleton.GetInstance<TRipGrepperSettings>();
+	FThemeHandler := TThemeHandler.Create(self, mainSettingInstance.AppSettings.ColorTheme);
 
 	FOrigHeight := 0;
 
@@ -839,7 +842,7 @@ begin
 		WriteCtrlsToRipGrepParametersSettings(); // UpdateMemoCommandLine
 	end;
 
-    //it can be changed by btns tbMatchCase, tbMatchWord etc.
+	// it can be changed by btns tbMatchCase, tbMatchWord etc.
 	FSettings.RipGrepParameters.GuiSearchTextParams.Copy(FSettingsProxy);
 
 	FSettings.RebuildArguments();
