@@ -1,7 +1,7 @@
 <!--
 
-Version:     v4.6.0-beta
-PrevVersion: v4.5.1-beta
+Version:     v4.6.1-beta
+PrevVersion: v4.6.0-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -18,30 +18,19 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 ## :boom: Improvements 
 Marked with a checkmark if ready; otherwise, it is planned.
 - [ ] search for file names eg. `rg.exe -g='*pattern*' --files <DIR>`
-- [x] copy to clipboard for running in PowerShell or command prompt
-  - [x] PS needs & prefix and rg path and search text surrounded by ''
-  - [x] BAT needs rg path and search text surrounded by ""
-  - [x] settings should be settable in config form 
 - [ ] **extension**: display save all files message before search?
 - [ ] **extension**: search only in opened project files
-- [x] save/load search histories to/from a file (experimental)
-  - [x] load histories at startup
-  - [x] checkbox in config form 
-- [x] combo box history item count settings, settable in config form
 - [ ] JSON config files
 - [ ] Add a skin chooser feature? https://stackoverflow.com/questions/9906312/delphi-vcl-styles-tutorial-how-to-change-the-style-at-runtime
 
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.
-- [x] The ripgreppath value is incorrectly updated to the last used search path after performing a search operation
 - [ ] load histories at startup
   - [ ] load replace historie items not working properly
   - [ ] when a loaded history item is modified (e.g., adding --stats), the change is not recognized during the first search attempt but works on the second attempt. 
   - [ ] saved history item doesn't contain additional options (e.g., --stats). 
-- [x] replace doesn't work properly if there are more text to replace in same line 
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: drip icon in menu has no transparent background
 - [ ] look on dpi change (drag window to another monitor)
-  - [x] search form switch between search and replace shrinks height
   - [ ] search form Use Regex button disappear if drag to another monitor
   - [ ] ugly config form 
