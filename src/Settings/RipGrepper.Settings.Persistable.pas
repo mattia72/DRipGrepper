@@ -171,7 +171,9 @@ begin
 	end;
 	// FreeOwnIniFile;
 	dbgMsg.MsgFmt('Free FSettingsDict %p for section: %s', [Pointer(FSettingsDict()), IniSectionName]);
-	FSettingsDict[IniSectionName].Clear;
+    if FSettingsDict.ContainsSection(IniSectionName) then begin
+		FSettingsDict[IniSectionName].Clear;
+    end;
 
 	inherited;
 end;
