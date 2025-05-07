@@ -42,7 +42,7 @@ Most actual working items, you will find in the last [release notes](https://git
   - [x] `--pretty` can be set (not supported by `rg.exe` in VSCode)
   - [x] `--context NUM` (or `-A=NUM -B=NUM`) parser
   - [ ] `--invert-match` parser
-  - [x] `--stats` parser, e.g., message box on end with search statistics
+  - [x] `--stats` parser (can be set in *Additional Options*)
   - [x] Setting Expert mode in config form or in `DripGrepper.ini` makes `rg` options visible
     - [x] Option helper form generated from `rg` help: [Screenshot](./screenshots/OptionsHelpForm.png)
   - [x] Generated command line can be examined in edit box
