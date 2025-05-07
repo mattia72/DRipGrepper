@@ -36,8 +36,6 @@ Most actual working items, you will find in the last [release notes](https://git
 ![Screenshot](./screenshots/SearchForm.png)
 
 - [x] Helps parametrizing [ripgrep](https://github.com/BurntSushi/ripgrep) (`rg.exe`)
-  - [x] Setting Expert mode in config form or in `DripGrepper.ini` makes `rg` options visible
-    - [x] Option helper form generated from `rg` help: [Screenshot](./screenshots/OptionsHelpForm.png)
   - [x] Quick buttons for: `--ignore-case`, `--case-sensitive`, `--word-regexp`, `--fixed-strings`
   - [x] `--glob` filter settings can be set in a separate edit box
   - [x] `--hidden`, `--no-ignore` can be set
@@ -45,6 +43,9 @@ Most actual working items, you will find in the last [release notes](https://git
   - [x] `--context NUM` (or `-A=NUM -B=NUM`) parser
   - [ ] `--invert-match` parser
   - [x] `--stats` parser, e.g., message box on end with search statistics
+  - [x] Setting Expert mode in config form or in `DripGrepper.ini` makes `rg` options visible
+    - [x] Option helper form generated from `rg` help: [Screenshot](./screenshots/OptionsHelpForm.png)
+  - [x] Generated command line can be examined in edit box
 
 ### :rocket: Open with...
 ![Screenshot](./screenshots/OpenWith.png)
@@ -69,7 +70,7 @@ Many settings can be set in the config form, but some are only available in the 
 - [x] Menu item in Tools 
 - [x] Shortcut Shift+Alt+R (:warning: conflict with GExpert/MMX Reverse Statement)
 - [x] Click on matching file opens file in the editor at the position
-- [x] Popup menu
+- [x] Popup menu for
   - [x] Delete history entries
   - [x] Copy path, etc.
   - [x] Add file to `uses` list in interface/implementation section
