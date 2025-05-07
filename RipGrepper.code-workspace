@@ -5,6 +5,7 @@
 		}
 	],
 	"settings": {
-		"delphiLsp.settingsFile": "file:///c%3A/home/mata/dev/delphi/RipGrepper/DRipGrepper.delphilsp.json"
+		"delphiLsp.settingsFile": "file:///c%3A/home/mata/dev/delphi/RipGrepper/DRipGrepper.delphilsp.json",
+		"svn.ignoreMissingSvnWarning": true
 	}
 }
