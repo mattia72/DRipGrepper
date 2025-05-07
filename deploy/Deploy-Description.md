@@ -23,10 +23,11 @@ Marked with a checkmark if ready; otherwise, it is planned.
   - [x] BAT needs rg path and search text surrounded by ""
   - [x] settings should be settable in config form 
 - [ ] **extension**: display save all files message before search?
-- [ ] **extension**: dearch only in opened project files
-- [x] save/load search histories to/from a file
+- [ ] **extension**: search only in opened project files
+- [x] save/load search histories to/from a file (experimental)
   - [x] load histories at startup
-- [x] combo box history item count settings
+  - [x] checkbox in config form 
+- [x] combo box history item count settings, settable in config form
 - [ ] JSON config files
 - [ ] Add a skin chooser feature? https://stackoverflow.com/questions/9906312/delphi-vcl-styles-tutorial-how-to-change-the-style-at-runtime
 

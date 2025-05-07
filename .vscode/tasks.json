@@ -128,7 +128,7 @@
         {
             "label": "Run DRipGrepper.exe (x86)",
             "type": "shell",
-            "command": "& .\\deploy\\assets\\Win32\\Release\\DripGrepper.exe",
+            "command": "& .\\deploy\\assets\\Win32\\DripGrepper.exe",
             "group": {
                 "kind": "test"
             }
@@ -136,7 +136,7 @@
         {
             "label": "Run DRipGrepper.exe (x64)",
             "type": "shell",
-            "command": "& .\\deploy\\assets\\Win64\\Release\\DripGrepper.exe",
+            "command": "& .\\deploy\\assets\\Win64\\DripGrepper.exe",
             "group": {
                 "kind": "test"
             }
