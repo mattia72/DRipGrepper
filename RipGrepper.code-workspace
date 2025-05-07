@@ -5,7 +5,12 @@
 		}
 	],
 	"settings": {
-		"delphiLsp.settingsFile": "file:///c%3A/home/mata/dev/delphi/RipGrepper/DRipGrepper.delphilsp.json",
-		"svn.ignoreMissingSvnWarning": true
+		"delphiLsp.settingsFile": "file:///c%3A/home/mata/dev/delphi/RipGrepper/src/Project/Delphi11/DRipGrepper.delphilsp.json",
+		"files.autoGuessEncoding": true,
+		"files.candidateGuessEncodings": [
+			"windows1252",
+			"windows1250",
+			"utf8"
+		]
 	}
 }

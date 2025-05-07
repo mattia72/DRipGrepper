@@ -65,6 +65,7 @@ type
 		cmbCopyCmdShell : TComboBox;
 		Label3 : TLabel;
 		seCmbHistoryCount : TSpinEdit;
+		cbLoadLastSearchHistories : TCheckBox;
 		procedure btnedtIniFilePathLeftButtonClick(Sender : TObject);
 		procedure btnedtIniFilePathRightButtonClick(Sender : TObject);
 		procedure btnedtRgExePathEnter(Sender : TObject);
@@ -272,6 +273,7 @@ begin
 	btnedtIniFilePath.Text := FAppSettings.PersisterFactory.FilePath;
 	cmbCopyCmdShell.ItemIndex := Integer(FAppSettings.CopyToClipBoardShell);
 	seCmbHistoryCount.Value := FAppSettings.ComboHistoryCount;
+	cbLoadLastSearchHistories.Checked := FAppSettings.LoadLastSearchHistory;
 
 	var
 	path := FRipGrepSettings.RipGrepPath;
@@ -313,7 +315,9 @@ begin
 	FAppSettings.DebugTrace := TDebugUtils.TraceTypesToStr(GetTraceTypeFilters());
 	FAppSettings.ExpertMode := chExpertMode.Checked;
 	FAppSettings.CopyToClipBoardShell := TShellType(cmbCopyCmdShell.ItemIndex);
-    FAppSettings.ComboHistoryCount := seCmbHistoryCount.Value;
+	FAppSettings.ComboHistoryCount := seCmbHistoryCount.Value;
+	FAppSettings.LoadLastSearchHistory := cbLoadLastSearchHistories.Checked;
+
 	var
 	rgPath := btnedtRgExePath.Text;
 	if IsRgExeValid(rgPath) then begin

@@ -104,7 +104,8 @@ uses
 	RipGrepper.OpenWith,
 	RipGrepper.OpenWith.ConfigForm,
 	System.TypInfo,
-	RipGrepper.UI.MiddleLeftFrame;
+	RipGrepper.UI.MiddleLeftFrame,
+	Spring.DesignPatterns;
 
 {$R *.dfm}
 
@@ -116,12 +117,14 @@ begin
 	FThemeChengedEventSubscriber := TThemeChangeEventSubscriber.Create(self);
 	FThemeChengedEventSubscriber.OnThemeChanged.Add(OnThemeChanged);
 
-	ThemeHandler.Init(GSettings.AppSettings.ColorTheme);
+	var
+	mainSettingInstance := TSingleton.GetInstance<TRipGrepperSettings>();
+	ThemeHandler.Init(mainSettingInstance.AppSettings.ColorTheme);
 
 	// FThemeHandler := TThemeHandler.Create(self, GSettings.AppSettings.ColorTheme);
 	{$IFDEF STANDALONE}
 	// it works only in ctor :/ FThemeHandler.HandleThemes(GSettings.AppSettings.ColorTheme);
-	ThemeHandler.HandleThemes(GSettings.AppSettings.ColorTheme);
+	ThemeHandler.HandleThemes(mainSettingInstance.AppSettings.ColorTheme);
 	TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner STANDALONE');
 	Init;
 	{$ENDIF}
@@ -226,7 +229,9 @@ end;
 procedure TRipGrepperForm.WMSettingChange(var message : TWMSettingChange);
 begin
 	if SameText('ImmersiveColorSet', string(message.Section)) then begin
-		FThemeHandler.HandleThemes(GSettings.AppSettings.ColorTheme);
+		var
+		mainSettingInstance := TSingleton.GetInstance<TRipGrepperSettings>();
+		FThemeHandler.HandleThemes(mainSettingInstance.AppSettings.ColorTheme);
 	end;
 end;
 

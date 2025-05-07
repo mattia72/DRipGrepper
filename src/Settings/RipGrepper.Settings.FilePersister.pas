@@ -107,7 +107,6 @@ uses
 	Vcl.Forms,
 	System.Classes,
 	System.IOUtils,
-
 	System.StrUtils;
 
 function TMemIniStringPersister.TryLoadValue(var _value : string) : Boolean;
@@ -122,7 +121,7 @@ procedure TMemIniStringPersister.StoreValue(const _value : string);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMemIniStringPersister.StoreValue');
-
+	dbgMsg.MsgFmt('[%s] %s = %s', [FIniSection, FIniKey, _value]);
 	IniFile.WriteString(FIniSection, FIniKey, _value);
 end;
 
@@ -156,6 +155,7 @@ procedure TMemIniIntegerPersister.StoreValue(const _value : integer);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMemIniIntegerPersister.StoreValue');
+	dbgMsg.MsgFmt('[%s] %s = %d', [FIniSection, FIniKey, _value]);
 	IniFile.WriteInteger(FIniSection, FIniKey, _value);
 end;
 
@@ -183,6 +183,7 @@ procedure TMemIniBoolPersister.StoreValue(const _value : Boolean);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMemIniBoolPersister.StoreValue');
+	dbgMsg.MsgFmt('[%s] %s = %s', [FIniSection, FIniKey, BoolToStr(_value, True)]);
 	IniFile.WriteBool(FIniSection, FIniKey, _value);
 end;
 

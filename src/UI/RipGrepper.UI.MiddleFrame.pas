@@ -820,6 +820,7 @@ begin
 	VstResult.NodeDataSize := SizeOf(TVSFileNodeData);
 
 	ReloadColorSettings;
+	dbgMsg.Msg('MiddleLeftFrame1.Initialize');
 	MiddleLeftFrame1.Initialize;
 
 	miOpenwith1.Default := bStandalone;

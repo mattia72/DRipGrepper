@@ -51,7 +51,7 @@ end;
 
 function TMemIniFileHelper.KeyExists(const _section, _key : string) : Boolean;
 begin
-    Result := self.ValueExists(_section, _key);
+	Result := self.ValueExists(_section, _key);
 end;
 
 procedure TMemIniFileHelper.ReadTempSectionFiles;

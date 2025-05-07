@@ -177,10 +177,6 @@ object RipGrepperForm: TRipGrepperForm
       Width = 726
       inherited pnlTop: TPanel
         Width = 726
-        inherited tbarSearch: TToolBar
-        end
-        inherited tbarResult: TToolBar
-        end
         inherited tbarConfig: TToolBar
           Left = 690
         end
@@ -199,6 +195,9 @@ object RipGrepperForm: TRipGrepperForm
             end
           end
         end
+      end
+      inherited PopupMenuHistory: TPopupMenu
+        Images = ParentFrame1.MainFrame.MiddleLeftFrame1.SVGIconImageList1
       end
     end
     inherited BottomFrame: TRipGrepperBottomFrame

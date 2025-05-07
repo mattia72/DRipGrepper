@@ -131,7 +131,6 @@
         <DCCReference Include="RipGrepper.Settings.RipGrepSettingsTest.pas"/>
         <DCCReference Include="..\src\Settings\RipGrepper.Settings.Persistable.pas"/>
         <DCCReference Include="..\src\Common\RipGrepper.Common.GuiSearchParams.pas"/>
-        <DCCReference Include="..\src\Settings\RipGrepper.Settings.RipGrepperSettings.pas"/>
         <DCCReference Include="..\src\Common\RipGrepper.Common.SimpleTypes.pas"/>
         <DCCReference Include="RipGrepper.Settings.MemIniFileHelperTest.pas"/>
         <DCCReference Include="..\src\Helper\RipGrepper.Helper.MemIniFile.pas"/>
@@ -154,6 +153,7 @@
         <DCCReference Include="..\src\Settings\RipGrepper.Settings.SearchFormSettings.pas"/>
         <DCCReference Include="..\src\Common\RipGrepper.Common.Interfaces.StreamPersistable.pas"/>
         <DCCReference Include="..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas"/>
+        <DCCReference Include="..\src\Settings\RipGrepper.Settings.RipGrepperSettings.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

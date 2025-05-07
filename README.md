@@ -44,7 +44,7 @@ Most actual working items, you will find in the last [release notes](https://git
 
 - [x] Helps parametrizing [ripgrep](https://github.com/BurntSushi/ripgrep) (`rg.exe`)
   - [x] Expert mode set in `DripGrepper.ini` makes `rg` options visible
-    - [x] Option helper form generated from `rg` help ![Screenshot](./screenshots/OptionsHelpForm.png)
+    - [x] Option helper form generated from `rg` help: [Screenshot](./screenshots/OptionsHelpForm.png)
   - [x] Quick buttons for: `--ignore-case`, `--case-sensitive`, `--word-regexp`, `--fixed-strings`
   - [x] `--glob` filter settings can be set in a separate edit box
   - [x] `--hidden`, `--no-ignore` can be set
@@ -57,25 +57,18 @@ Most actual working items, you will find in the last [release notes](https://git
 ![Screenshot](./screenshots/OpenWith.png)
 - [x] Shortcut Shift+Alt+O 
 
-### Configure Open with...
+#### Configure
 ![Screenshot](./screenshots/ConfigureOpenWith.png)
 
-### Examples:
-* `C:\Program Files\Notepad++\notepad++.exe "<FILE>" -n<LINE> -c<COL>`
-* `C:\Program Files\Microsoft VS Code\Code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"`
-* `C:\Program Files\Git\usr\bin\vim.exe -u "C:\Program Files\Git\etc\vimrc"  -c "+normal <LINE>G<COL>l" "<FILE>" `
-* `nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"`
+Examples can be found in the [wiki](https://github.com/mattia72/DRipGrepper/wiki/Open-With...-help-and-samples)
 
 ### Configuration
 Configuration is stored in ini file (`DripGrepper.ini` for standalone and `DripExtension.ini` for the extension)
-  - [x] *Open with...* settings saved
-  - [x] DebugTrace switch
-  - [x] Config form for
-    - [x] General: rg path, debug trace, expert mode
-      - [ ] configurable length of history
-    - [x] Open With...
-    - [x] Appearance
-    - [x] Extension
+Many settings can be set in the config form, but some are only available in the ini file.
+
+![Screenshot](./screenshots/Config_General.png)
+![Screenshot](./screenshots/Config_Appearance.png)
+![Screenshot](./screenshots/Config_Extension.png)
 
 ### Delphi Extension 
 ![Screenshot](./screenshots/DripExtension.png)
@@ -105,13 +98,6 @@ scoop install dripgrepper
 * Unzip
 
 #### Delphi Integration
-##### As BPL package
-* Open Delphi
-* Open `Tools | GetIt-Package-Manager` 
-* Install `VirtualTree for VCL`
-* Open `Component | Install Packages...`
-* Add `DripExtension.bpl` to Design packages list
-* Ready
 ##### As Expert DLL  
 * Run `DripGrepper.exe`
 * Open Config...
@@ -119,6 +105,13 @@ scoop install dripgrepper
 * Push Install... 
   * (If not found in current folder, select `DripExtensions.dll`)
 * Restart Delphi
+##### As BPL package (deprecated)
+* Open Delphi
+* Open `Tools | GetIt-Package-Manager` 
+* Install `VirtualTree for VCL`
+* Open `Component | Install Packages...`
+* Add `DripExtension.bpl` to Design packages list
+* Ready
 
 ## Contribution
 To submit a pull request, follow these steps:

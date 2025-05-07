@@ -95,9 +95,6 @@ type
 			property ReplaceTextsHistory : IArraySetting read FReplaceTextsHistory write SetReplaceTextsHistory;
 	end;
 
-var
-	GSettings : IShared<TRipGrepperSettings>;
-
 implementation
 
 uses
@@ -113,7 +110,8 @@ uses
 	RipGrepper.Tools.LockGuard,
 	RipGrepper.Settings.FilePersister,
 	RipGrepper.Settings.SettingsDictionary,
-	RipGrepper.Settings.Persister.Interfaces;
+	RipGrepper.Settings.Persister.Interfaces,
+	Spring.DesignPatterns;
 
 function TRipGrepperSettings.GetLastHistorySearchText : string;
 begin
@@ -392,15 +390,15 @@ begin
 	end;
 end;
 
-
 initialization
 
 OutputDebugString(PChar('RipGrepperSettings initialization.'));
-GSettings := Shared.Make<TRipGrepperSettings>(TRipGrepperSettings.Create());
-GSettings.AppSettings.ReadFile;
-GSettings.AppSettings.LoadFromDict();
-TDebugUtils.UpdateTraceActive;
 
+var
+mainSettingInstance := TSingleton.GetInstance<TRipGrepperSettings>();
+mainSettingInstance.AppSettings.ReadFile;
+mainSettingInstance.AppSettings.LoadFromDict();
+TDebugUtils.UpdateTraceActive;
 
 finalization
 

@@ -67,7 +67,8 @@ uses
 	{$IFNDEF STANDALONE}
 	RipGrepper.Common.IOTAUtils,
 	{$ENDIF}
-	RipGrepper.UI.MiddleLeftFrame;
+	RipGrepper.UI.MiddleLeftFrame,
+	Spring.DesignPatterns;
 
 {$R *.dfm}
 
@@ -182,7 +183,7 @@ end;
 function TParentFrame.GetSettings : TRipGrepperSettings;
 begin
 	if not Assigned(FSettings) then begin
-		FSettings := GSettings;
+		FSettings := TSingleton.GetInstance<TRipGrepperSettings>();
 		FSettings.ReadFile;
 	end;
 	Result := FSettings;
@@ -191,7 +192,7 @@ end;
 procedure TParentFrame.Initialize();
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.InitForm');
+	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.Initialize');
 
 	if IsInitialized then begin
 		dbgMsg.Msg('Already initialized');

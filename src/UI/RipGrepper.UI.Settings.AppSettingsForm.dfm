@@ -2,7 +2,7 @@ object AppSettingsForm: TAppSettingsForm
   Left = 0
   Top = 0
   Caption = 'AppSettingsForm'
-  ClientHeight = 436
+  ClientHeight = 487
   ClientWidth = 515
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,12 +16,12 @@ object AppSettingsForm: TAppSettingsForm
     Left = 0
     Top = 0
     Width = 515
-    Height = 436
+    Height = 487
     Align = alClient
     TabOrder = 0
     DesignSize = (
       511
-      432)
+      483)
     object lblRgExePath: TLabel
       Left = 16
       Top = 9
@@ -66,7 +66,7 @@ object AppSettingsForm: TAppSettingsForm
     object grpAdvanced: TGroupBox
       AlignWithMargins = True
       Left = 11
-      Top = 231
+      Top = 258
       Width = 487
       Height = 181
       Anchors = [akLeft, akTop, akRight]
@@ -217,7 +217,7 @@ object AppSettingsForm: TAppSettingsForm
       Left = 11
       Top = 143
       Width = 487
-      Height = 82
+      Height = 109
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Settings'
       TabOrder = 3
@@ -256,7 +256,15 @@ object AppSettingsForm: TAppSettingsForm
         MaxValue = 100
         MinValue = 10
         TabOrder = 1
-        Value = 0
+        Value = 10
+      end
+      object cbLoadLastSearchHistories: TCheckBox
+        Left = 19
+        Top = 79
+        Width = 257
+        Height = 17
+        Caption = 'Load last searches on startup (experimental)'
+        TabOrder = 2
       end
     end
   end

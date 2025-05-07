@@ -29,17 +29,21 @@ uses
 	RipGrepper.OpenWith.CmdListForm,
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.Tools.DebugUtils,
-	RipGrepper.Helper.UI, 
-	System.IOUtils;
+	RipGrepper.Helper.UI,
+	System.IOUtils,
+	Spring.DesignPatterns;
 
 class function TOpenWith.GetSelectedCmd(_owpTestFile : TOpenWithParams) : string;
 begin
-	var dbgMsg := TDebugMsgBeginEnd.New('OpenWithFunc.GetSelectedCmd');
 	var
-	settings := GSettings.OpenWithSettings;
+	dbgMsg := TDebugMsgBeginEnd.New('OpenWithFunc.GetSelectedCmd');
+	var
+	mainSettingInstance := TSingleton.GetInstance<TRipGrepperSettings>();
+	var
+	settings := mainSettingInstance.OpenWithSettings;
 	settings.TestFile := _owpTestFile;
 	dbgMsg.MsgFmt('TestFile: %s ', [settings.TestFile.ToString]);
-	Result := TOpenWithCmdList.CreateAndShow(settings, GSettings.AppSettings.ColorTheme);
+	Result := TOpenWithCmdList.CreateAndShow(settings, mainSettingInstance.AppSettings.ColorTheme);
 	TDebugUtils.DebugMessage((Format('OpenWithFunc.GetSelectedCmd Result: "%s"', [Result])));
 	settings.TestFile := default (TOpenWithParams);
 end;
@@ -49,7 +53,8 @@ var
 	iPos : Integer;
 	sEditorCmd : string;
 begin
-	var dbgMsg := TDebugMsgBeginEnd.New('TOpenWith.Execute');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TOpenWith.Execute');
 	dbgMsg.MsgFmt('%s ', [_owp.ToString]);
 
 	if FileExists(_owp.FilePath) then begin
