@@ -25,33 +25,27 @@ Marked with checkmark if ready, else planned.
 Most actual working items, you will find in the last [release notes](https://github.com/mattia72/DRipGrepper/releases) 
 
 - [x] Searches text, parses output of `rg --vimgrep` 
-  - [x] Error parser: if a line couldn't be parsed, it is placed in the first column (it may be an encoding problem)
-- [x] Toolbar buttons to:
-  - [x] Expand/collapse tree
-  - [x] Show/hide icons
-  - [x] Full/relative path
-  - [x] Alternate row colors
-- [x] Copy `rg` command line into clipboard
 - [x] Sorting result groups by row/col/text
-- [x] Filtering results
-  - [x] Filter by file path/matching lines
+- [x] Filtering results by file path/matching lines
+- [x] Copy `rg` command line into clipboard
 - [x] File handling (e.g., open in explorer or in another tool)
 - [x] Replace text in files with `--replace=TEXT`
-- [x] Unicode support
+- [x] Storing search history between sessions (experimental)
 
 ### :mag: Search Dialog
 ![Screenshot](./screenshots/SearchForm.png)
 
 - [x] Helps parametrizing [ripgrep](https://github.com/BurntSushi/ripgrep) (`rg.exe`)
-  - [x] Expert mode set in `DripGrepper.ini` makes `rg` options visible
-    - [x] Option helper form generated from `rg` help: [Screenshot](./screenshots/OptionsHelpForm.png)
   - [x] Quick buttons for: `--ignore-case`, `--case-sensitive`, `--word-regexp`, `--fixed-strings`
   - [x] `--glob` filter settings can be set in a separate edit box
   - [x] `--hidden`, `--no-ignore` can be set
   - [x] `--pretty` can be set (not supported by `rg.exe` in VSCode)
   - [x] `--context NUM` (or `-A=NUM -B=NUM`) parser
   - [ ] `--invert-match` parser
-  - [x] `--stats` parser, e.g., message box on end with search statistics
+  - [x] `--stats` parser (can be set in *Additional Options*)
+  - [x] Setting Expert mode in config form or in `DripGrepper.ini` makes `rg` options visible
+    - [x] Option helper form generated from `rg` help: [Screenshot](./screenshots/OptionsHelpForm.png)
+  - [x] Generated command line can be examined in edit box
 
 ### :rocket: Open with...
 ![Screenshot](./screenshots/OpenWith.png)
@@ -76,7 +70,7 @@ Many settings can be set in the config form, but some are only available in the 
 - [x] Menu item in Tools 
 - [x] Shortcut Shift+Alt+R (:warning: conflict with GExpert/MMX Reverse Statement)
 - [x] Click on matching file opens file in the editor at the position
-- [x] Popup menu
+- [x] Popup menu for
   - [x] Delete history entries
   - [x] Copy path, etc.
   - [x] Add file to `uses` list in interface/implementation section
