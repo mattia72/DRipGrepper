@@ -16,6 +16,7 @@ uses
 	RipGrepper.Common.EncodedStringList,
 	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Common.Interfaces.StreamPersistable,
+    RipGrepper.Settings.RipGrepArguments,
 	Spring;
 
 type

@@ -8,7 +8,8 @@ uses
 	RipGrepper.Settings.RipGrepParameterSettings,
 	DUnitX.TestFramework,
 	Spring,
-	RipGrepper.Settings.FilePersister, RipGrepper.Settings.Persister.Interfaces;
+	RipGrepper.Settings.FilePersister,
+	RipGrepper.Settings.Persister.Interfaces;
 
 type
 
@@ -61,7 +62,8 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Tools.FileUtils,
 	System.Variants,
-	RipGrepper.Settings.SettingsDictionary;
+	RipGrepper.Settings.SettingsDictionary,
+	RipGrepper.Settings.RipGrepArguments;
 
 procedure TRipGrepSettingsTest.AfterCopyValuesValuesShouldBeEqual;
 var
@@ -165,20 +167,20 @@ procedure TRipGrepSettingsTest.SetRipGrepArguments(const Settings : TRipGrepPara
 begin
 	Settings.RipGrepPath := 'C:\Path\To\rg.exe';
 	Settings.RipGrepPathInitResult := rgpiFound;
-	Settings.RipGrepArguments := Shared.Make<TStringList>();
+	Settings.RipGrepArguments := Shared.Make<TRipGrepArguments>();
 	Settings.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '--vimgrep');
 	Settings.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '-g=*.txt');
 	// Settings.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '--replace=replace text');
 	Settings.RipGrepArguments.AddPair(RG_ARG_OPTIONS, RG_PARAM_END);
 	Settings.RipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, 'search text');
-//  Settings.RipGrepArguments.AddPair(RG_ARG_REPLACE_TEXT, 'replace text');
+	// Settings.RipGrepArguments.AddPair(RG_ARG_REPLACE_TEXT, 'replace text');
 	Settings.RipGrepArguments.AddPair(RG_ARG_SEARCH_PATH, 'C:\Path\Search\Files');
 end;
 
 procedure TRipGrepSettingsTest.UpdateIniReloadTest;
- begin
+begin
 	SetSettingValues;
-	FSettings.UpdateFile(True{_bForceWritePersister});
+	FSettings.UpdateFile(True { _bForceWritePersister } );
 	FSettings.FileMasks := '';
 	FSettings.SearchPath := '';
 	FSettings.ReLoad; // fills only settings dict

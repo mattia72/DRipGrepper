@@ -16,7 +16,8 @@ uses
 	RipGrepper.Settings.FontColors,
 	RipGrepper.Helper.MemIniFile,
 	Spring,
-	RipGrepper.Settings.SettingVariant;
+	RipGrepper.Settings.SettingVariant,
+    RipGrepper.Settings.RipGrepArguments;
 
 type
 	TRipGrepperSettings = class(TPersistableSettings)
@@ -180,7 +181,7 @@ begin
 	AddChildSettings(FOpenWithSettings);
 	AddChildSettings(FSearchFormSettings);
 
-	FRipGrepArguments := Shared.Make<TStringList>();
+	FRipGrepArguments := Shared.Make<TRipGrepArguments>();
 	FRipGrepArguments.Delimiter := ' ';
 end;
 

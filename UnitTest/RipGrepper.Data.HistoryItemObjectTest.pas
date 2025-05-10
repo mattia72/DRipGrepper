@@ -11,7 +11,8 @@ uses
 	System.Classes,
 	RipGrepper.Settings.SearchFormSettings,
 	RipGrepper.Settings.SettingVariant,
-	System.Generics.Defaults;
+	System.Generics.Defaults,
+    RipGrepper.Settings.RipGrepArguments;
 
 type
 
@@ -32,7 +33,7 @@ type
 			FGuiParams : IShared<TSearchTextWithOptions>;
 			FGuiSearchTextParams : IShared<TGuiSearchTextParams>;
 			FHistoryObjectList : THistoryObjectArray;
-			FRipGrepArguments : IShared<TStringList>;
+			FRipGrepArguments : IShared<TRipGrepArguments>;
 			FIntSetting : ISetting;
 			FStrSetting : ISetting;
 
@@ -74,7 +75,7 @@ begin
 	FGuiSearchTextParams.IsReplaceMode := True;
 	FGuiSearchTextParams.ReplaceText := REPLACE_TEXT;
 
-	FRipGrepArguments := Shared.Make<TStringList>();
+	FRipGrepArguments := Shared.Make<TRipGrepArguments>();
 
 	FRipGrepArguments.AddPair(RG_ARG_OPTIONS, '--vimgrep');
 	FRipGrepArguments.AddPair(RG_ARG_OPTIONS, '-g=*.txt');

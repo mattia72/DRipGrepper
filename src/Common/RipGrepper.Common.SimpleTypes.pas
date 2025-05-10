@@ -4,7 +4,8 @@ interface
 
 uses
 	System.Classes,
-	System.SysUtils, ArrayEx;
+	System.SysUtils,
+	ArrayEx;
 
 const
 	EXT_SEARCH_NOT_SET = -1;
@@ -21,9 +22,8 @@ type
 
 	TFileNameType = (ftAbsolute, ftRelative);
 
-	TRipGrepArguments = TStringList;
-
 	{$SCOPEDENUMS ON}
+
 	EGuiReplaceMode = (grmRGReplace, grmEditEnabled, grmActive, grmSaveEnabled, grmCaseSensitive, grmUseRegex);
 	EFilterMode = (fmFilterFile, fmFilterText, fmCaseSensitive, fmUseRegex);
 

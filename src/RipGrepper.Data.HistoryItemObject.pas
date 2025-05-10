@@ -17,7 +17,8 @@ uses
 	RipGrepper.Common.SearchTextWithOptions,
 	Spring,
 	RipGrepper.Common.GuiSearchParams,
-	RipGrepper.Common.Interfaces.StreamPersistable;
+	RipGrepper.Common.Interfaces.StreamPersistable,
+    RipGrepper.Settings.RipGrepArguments;
 
 type
 	// THistoryItemObject = class(TNoRefCountObject, IHistoryItemObject)
@@ -58,6 +59,7 @@ type
 			function GetRipGrepResult : Integer;
 			procedure SetParserType(const Value : TParserType);
 			function GetSearchText : string;
+			procedure Initialize();
 			procedure SetElapsedTimeText(const Value : string);
 			procedure SetGuiSearchTextParams(const Value : IShared<TGuiSearchTextParams>);
 			procedure SetNoMatchFound(const Value : Boolean);
@@ -104,7 +106,7 @@ type
 	TVSHistoryReplaceNodeData = record
 		private
 			FReplaceText : string;
-			function GetReplaceText(): string;
+			function GetReplaceText() : string;
 			procedure SetReplaceText(const Value : string);
 
 		public
@@ -131,7 +133,7 @@ uses
 	RipGrepper.Parsers.Factory,
 	RipGrepper.Helper.Types,
 	RipGrepper.Settings.RipGrepParameterSettings,
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils, RipGrepper.Helper.UI;
 
 procedure THistoryItemObject.LoadFromSettings(const _settings : TRipGrepperSettings);
 begin
@@ -196,14 +198,7 @@ end;
 constructor THistoryItemObject.Create;
 begin
 	inherited;
-	FMatches := TParsedObjectRowCollection.Create();
-	FSearchFormSettings := TSearchFormSettings.Create();
-	FGuiSearchTextParams := Shared.Make<TGuiSearchTextParams>(TGuiSearchTextParams.Create(TRipGrepParameterSettings.INI_SECTION));
-	FRipGrepArguments := Shared.Make<TStringList>();
-	FParserType := ptEmpty;
-	ClearMatches;
-	FHasResult := False;
-	FIsLoadedFromStream := False;
+	Initialize;
 end;
 
 procedure THistoryItemObject.ClearMatches;
@@ -294,6 +289,24 @@ begin
 	Result := FHasResult;
 end;
 
+procedure THistoryItemObject.Initialize();
+begin
+	if not Assigned(FMatches) then begin
+		FMatches := TParsedObjectRowCollection.Create();
+	end;
+	if not Assigned(FSearchFormSettings) then begin
+		FSearchFormSettings := TSearchFormSettings.Create();
+	end else begin
+		FSearchFormSettings.Init;
+	end;
+	FGuiSearchTextParams := Shared.Make<TGuiSearchTextParams>(TGuiSearchTextParams.Create(TRipGrepParameterSettings.INI_SECTION));
+	FRipGrepArguments := Shared.Make<TRipGrepArguments>();
+	FParserType := ptEmpty;
+	ClearMatches;
+	FHasResult := False;
+	FIsLoadedFromStream := False;
+end;
+
 procedure THistoryItemObject.LoadFromStream(_stream : TStream);
 var
 	sr : IShared<TStreamReader>;
@@ -308,16 +321,24 @@ var
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('THistoryItemObject.LoadFromStreamReader');
-	GuiSearchTextParams.LoadFromStreamReader(_sr);
-	count := StrToInt(_sr.ReadLine());
-	dbgMsg.MsgFmt('RipGrepArguments.Count = %d', [count]);
-	for var i := 0 to count - 1 do begin
-		RipGrepArguments.Add(_sr.ReadLine);
-	end;
-	dbgMsg.MsgFmt('RipGrepArguments = %s', [RipGrepArguments.Text]);
+	try
+		GuiSearchTextParams.LoadFromStreamReader(_sr);
+		count := StrToInt(_sr.ReadLine());
+		dbgMsg.MsgFmt('RipGrepArguments.Count = %d', [count]);
+		for var i := 0 to count - 1 do begin
+			RipGrepArguments.Add(_sr.ReadLine);
+		end;
+		dbgMsg.MsgFmt('RipGrepArguments = %s', [RipGrepArguments.Text]);
 
-	SearchFormSettings.LoadFromStreamReader(_sr);
-	FIsLoadedFromStream := True;
+		SearchFormSettings.LoadFromStreamReader(_sr);
+		FIsLoadedFromStream := True;
+	except
+		on E : Exception do begin
+			dbgMsg.ErrorMsg('Error loading from file stream');
+            TMsgBox.ShowError('Error occurred while loading saved searches.');
+			Initialize;
+		end;
+	end;
 end;
 
 procedure THistoryItemObject.RefreshCounters(_errorCounters : TErrorCounters; _fileCount : Integer);

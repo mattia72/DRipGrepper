@@ -14,7 +14,8 @@ uses
 	RipGrepper.CommandLine.OptionStrings,
 	RipGrepper.Common.SimpleTypes,
 	Spring,
-	RipGrepper.Settings.SettingVariant;
+	RipGrepper.Settings.SettingVariant,
+    RipGrepper.Settings.RipGrepArguments;
 
 type
 	ERipGrepPathInitResult = (rgpiNotSet, rgpiFound, rgpiNotFound);
@@ -97,7 +98,7 @@ begin
 	AddChildSettings(FGuiSearchTextParams);
 	FRipGrepPathInitResult := rgpiNotSet;
 	RipGrepPath := '';
-	FRipGrepArguments := Shared.Make<TStringList>();
+	FRipGrepArguments := Shared.Make<TRipGrepArguments>();
 end;
 
 destructor TRipGrepParameterSettings.Destroy;
