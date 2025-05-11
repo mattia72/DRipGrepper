@@ -171,9 +171,9 @@ begin
 	if quote.HasValue then begin
 		AddQuotedRgArgs(cmdLine, quote, _shell);
 	end else begin
-		cmdLine.AddStrings(RipGrepArguments.GetValues(RG_ARG_OPTIONS));
-		cmdLine.AddStrings(RipGrepArguments.GetValues(RG_ARG_SEARCH_TEXT));
-		cmdLine.AddStrings(RipGrepArguments.GetValues(RG_ARG_SEARCH_PATH));
+		cmdLine.AddStrings(RipGrepArguments.GetOptions());
+		cmdLine.AddStrings(RipGrepArguments.GetSearchText());
+		cmdLine.AddStrings(RipGrepArguments.GetSearchPath());
 	end;
 
 	// DelimitedText puts unnecessary quotes so we build it

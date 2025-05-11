@@ -3,15 +3,14 @@ unit RipGrepper.Settings.RipGrepArguments;
 interface
 
 uses
-	System.Classes,
-	ArrayEx;
+	System.Classes;
 
 type
 	TRipGrepArguments = class(TStringList)
 		public
-			function GetOptions() : TArrayEx<string>;
+			function GetOptions() : TArray<string>;
 			function GetSearchText(): string;
-			function GetSearchPath(): TArrayEx<string>;
+			function GetSearchPath(): TArray<string>;
 	end;
 
 implementation
@@ -20,7 +19,7 @@ uses
 	RipGrepper.Helper.Types,
 	RipGrepper.Common.Constants;
 
-function TRipGrepArguments.GetOptions() : TArrayEx<string>;
+function TRipGrepArguments.GetOptions(): TArray<string>;
 begin
 	Result := self.GetValues(RG_ARG_OPTIONS);
 end;
@@ -30,7 +29,7 @@ begin
 	Result := self.GetValues(RG_ARG_SEARCH_TEXT)[0];
 end;
 
-function TRipGrepArguments.GetSearchPath(): TArrayEx<string>;
+function TRipGrepArguments.GetSearchPath(): TArray<string>;
 begin
 	Result := self.GetValues(RG_ARG_SEARCH_Path);
 end;

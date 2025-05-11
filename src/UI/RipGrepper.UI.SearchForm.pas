@@ -678,7 +678,7 @@ begin
 	_cmb.Items.Clear;
 	_cmb.Items.AddStrings(_items.Items);
 	if HasHistItemObjWithResult then begin
-		params := FHistItemObj.RipGrepArguments.GetValues(RG_ARG_OPTIONS);
+		params := FHistItemObj.RipGrepArguments.GetOptions();
 		_cmb.Text := TCommandLineBuilder.GetUniqueFileMasksDelimited(string.Join(' ', params));
 	end else begin
 		_cmb.Text := _cmb.Items[0];

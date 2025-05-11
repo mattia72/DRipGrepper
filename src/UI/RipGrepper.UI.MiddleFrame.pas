@@ -1152,7 +1152,7 @@ begin
 			path_args := _rgp.SearchPath.Split([SEARCH_PATH_SEPARATOR]);
 			args.AddStrings(path_args);
 			strsArr := args.SliceMaxLength(MAX_COMMAND_LINE_LENGTH - (fullCmdLen - args.Text.Length));
-			op_args := _rgp.RipGrepArguments.GetValues(RG_ARG_OPTIONS);
+			op_args := _rgp.RipGrepArguments.GetOptions();
 			for var arrPath in strsArr do begin
 				Result.Add(op_args + [_rgp.GuiSearchTextParams.GetSearchText] + arrPath);
 			end;

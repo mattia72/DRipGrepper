@@ -129,7 +129,7 @@ begin
 	FParams.GuiSearchTextParams := FGuiParams;
 
 	TCommandLineBuilder.RebuildArguments(FParams);
-	v := FParams.RipGrepArguments.GetValues(RG_ARG_OPTIONS);
+	v := FParams.RipGrepArguments.GetOptions();
 	for var s in RG_NECESSARY_PARAMS do begin
 		Assert.IsTrue(v.Contains(s), s + ' necessary option should be contained.');
 		a := v.AllIndexOf(s);
