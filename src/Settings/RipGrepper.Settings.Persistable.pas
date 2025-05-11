@@ -31,10 +31,14 @@ type
 		procedure StoreToPersister();
 	end;
 
-	TPersistableSettings = class(TNoRefCountObject, IIniPersistable, IStreamReaderWriterPersistable)
-		// TPersistableSettings = class(TInterfacedObject, IIniPersistable)
+	ISettings = interface(IInterface)
+	['{372EC376-745A-459B-B946-A90EFA0A3FDE}']
+	end;
+
+	TPersistableSettings = class({TInterfacedObject}TNoRefCountObject, ISettings, IIniPersistable, IStreamReaderWriterPersistable)
 		private
 			class var FLockObject : IShared<TObject>;
+
 		var
 			FPersisterFactory : IPersisterFactory;
 			FbDefaultLoaded : Boolean;
@@ -97,8 +101,7 @@ type
 			/// </summary>
 			procedure ReadFile(); virtual;
 			/// <summary>
-			/// LoadFromDict Refresh member variables by read settings value
-			/// or default value from SettingsDict
+			/// TODO: Rename to ConvertSettingValues
 			/// </summary>
 			procedure LoadFromDict(); virtual;
 			/// ReLoads memini file content
@@ -171,9 +174,9 @@ begin
 	end;
 	// FreeOwnIniFile;
 	dbgMsg.MsgFmt('Free FSettingsDict %p for section: %s', [Pointer(FSettingsDict()), IniSectionName]);
-    if FSettingsDict.ContainsSection(IniSectionName) then begin
+	if FSettingsDict.ContainsSection(IniSectionName) then begin
 		FSettingsDict[IniSectionName].Clear;
-    end;
+	end;
 
 	inherited;
 end;
@@ -543,8 +546,10 @@ begin
 	SettingsDict.StoreToPersister(section);
 end;
 
-//initialization
-//
-//finalization
+initialization
+
+finalization
+// MemLeak in unittests: TSingleton and class var FLockObject not working properly
+//TPersistableSettings.FLockObject := nil;
 
 end.
