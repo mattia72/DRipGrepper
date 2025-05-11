@@ -6,14 +6,15 @@ uses
 	DUnitX.TestFramework,
 	System.Classes,
 	RipGrepper.Settings.SettingVariant,
-	System.IniFiles;
+	System.IniFiles,
+	Spring;
 
 type
 
 	[TestFixture]
 	TSettingVariantTest = class
 		private
-			IniFile : TMemIniFile;
+			IniFile : IShared<TMemIniFile>;
 
 		public
 			[Setup]
@@ -64,13 +65,12 @@ uses
 
 procedure TSettingVariantTest.Setup();
 begin
-	IniFile := TMemIniFile.Create('');
-
+	IniFile := Shared.Make<TMemIniFile>(TMemIniFile.Create(''));
 end;
 
 procedure TSettingVariantTest.TearDown();
 begin
-	IniFile.Free;
+	IniFile := nil;
 end;
 
 procedure TSettingVariantTest.TestEquals();
