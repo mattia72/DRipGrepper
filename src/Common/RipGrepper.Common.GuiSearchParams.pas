@@ -218,7 +218,8 @@ var
 	sParams : string;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.LoadSearchOptionsFromDict Default=' + BoolToStr(_bDefault));
+	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.LoadSearchOptionsFromDict Default=' +
+		{ } BoolToStr(_bDefault));
 	sParams := FSearchParams.Value;
 	dbgMsg.Msg(RgOptions.AsString);
 	SearchTextWithOptions.UpdateSearchOptions(sParams);
