@@ -80,7 +80,8 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.CommandLine.OptionHelper,
 	RipGrepper.Common.SearchParams,
-	System.StrUtils;
+	System.StrUtils,
+    RipGrepper.Helper.StreamReaderWriter;
 
 // for UnitTests...
 constructor TGuiSearchTextParams.Create(const _sText, _sRepl : string; const _bMC, _bMW, _bUR : Boolean);
@@ -275,7 +276,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.LoadFromStreamReader');
 	FSearchTextWithOptions.LoadFromStreamReader(_sr);
-	IsReplaceMode := _sr.ReadLine() <> '0';
+	IsReplaceMode := _sr.ReadLineAsBool;
 	dbgMsg.MsgFmt('IsReplaceMode %s', [BoolToStr(IsReplaceMode)]);
 	ReplaceText := _sr.ReadLine();
 	dbgMsg.MsgFmt('ReplaceText %s', [ReplaceText]);

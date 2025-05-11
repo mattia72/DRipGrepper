@@ -19,7 +19,7 @@ uses
 
 type
 
-	TSearchFormSettings = class(TPersistableSettings)
+	TSearchFormSettings = class(TPersistableSettings, IStreamReaderWriterPersistable)
 		const
 			SEARCH_SETTINGS : array [0 .. 4] of string =
 			{ } ('Pretty', 'Hidden', 'NoIgnore', 'Context', 'Encoding');
@@ -56,7 +56,9 @@ type
 			procedure ReadFile(); override;
 			procedure StoreToPersister; override;
 			procedure Copy(const _other : TSearchFormSettings); reintroduce;
+			procedure LoadFromStreamReader(_sr : TStreamReader);
 			procedure ReLoad; override;
+			procedure SaveToStreamWriter(_sw : TStreamWriter);
 			function ToLogString : string; override;
 
 			property Context : Integer read GetContext write SetContext;
@@ -84,7 +86,8 @@ uses
 	RipGrepper.Helper.UI,
 	Vcl.Menus,
 	System.RegularExpressions,
-	RipGrepper.CommandLine.Builder;
+	RipGrepper.CommandLine.Builder,
+    RipGrepper.Helper.StreamReaderWriter;
 
 constructor TSearchFormSettings.Create(const _Owner : TPersistableSettings);
 begin
@@ -171,6 +174,26 @@ begin
 	CreateSetting('Encoding', FEncoding);
 end;
 
+procedure TSearchFormSettings.LoadFromStreamReader(_sr : TStreamReader);
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.LoadFromStreamReader');
+	inherited;
+	try
+		Hidden := _sr.ReadLineAsBool();
+		NoIgnore := _sr.ReadLineAsBool();
+		Pretty := _sr.ReadLineAsBool();
+		Context := _sr.ReadLineAsInteger();
+		Encoding := _sr.ReadLine();
+		ExtensionSettings.LoadFromStreamReader(_sr);
+	except
+		on E : Exception do begin
+			dbgMsg.ErrorMsg('Error loading from file stream');
+			TMsgBox.ShowError('Error occurred while loading SearchFormSettings.');
+		end;
+	end;
+end;
+
 procedure TSearchFormSettings.ReadFile();
 begin
 	FExtensionSettings.ReadFile;
@@ -214,14 +237,35 @@ begin
 	inherited;
 end;
 
+procedure TSearchFormSettings.SaveToStreamWriter(_sw : TStreamWriter);
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.SaveToStreamWriter');
+	inherited;
+
+	for var s : string in [
+	{ } BoolToStr(Hidden),
+	{ } BoolToStr(NoIgnore),
+	{ } BoolToStr(Pretty),
+	{ } Context.ToString,
+	{ } Encoding]
+	{ } do begin
+		_sw.WriteLine(s);
+	end;
+
+	ExtensionSettings.SaveToStreamWriter(_sw);
+end;
+
 function TSearchFormSettings.ToLogString : string;
 begin
-	Result := Format('Hidden=%s NoIgnore=%s Pretty=%s Context=%d Encoding=%s Extension:[%s]',
-		{ } [BoolToStr(Hidden, True),
-		{ } BoolToStr(NoIgnore, True),
-		{ } BoolToStr(Pretty, True),
-		{ } Context,
-		{ } Encoding, FExtensionSettings.ToLogString]);
+	Result := Format('Hidden=%s NoIgnore=%s Pretty=%s Context=%s Encoding=%s Extension:[%s]',
+		{ } [
+		{ } BoolToStr(Hidden),
+		{ } BoolToStr(NoIgnore),
+		{ } BoolToStr(Pretty),
+		{ } Context.ToString,
+		{ } Encoding,
+		{ } FExtensionSettings.ToLogString]);
 end;
 
 end.

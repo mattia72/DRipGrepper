@@ -18,7 +18,7 @@ uses
 	Spring,
 	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Common.Interfaces.StreamPersistable,
-    RipGrepper.Settings.RipGrepArguments;
+	RipGrepper.Settings.RipGrepArguments;
 
 type
 	// THistoryItemObject = class(TNoRefCountObject, IHistoryItemObject)
@@ -133,7 +133,9 @@ uses
 	RipGrepper.Parsers.Factory,
 	RipGrepper.Helper.Types,
 	RipGrepper.Settings.RipGrepParameterSettings,
-	RipGrepper.Tools.DebugUtils, RipGrepper.Helper.UI;
+	RipGrepper.Tools.DebugUtils,
+	RipGrepper.Helper.UI,
+	RipGrepper.Helper.StreamReaderWriter;
 
 procedure THistoryItemObject.LoadFromSettings(const _settings : TRipGrepperSettings);
 begin
@@ -323,7 +325,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('THistoryItemObject.LoadFromStreamReader');
 	try
 		GuiSearchTextParams.LoadFromStreamReader(_sr);
-		count := StrToInt(_sr.ReadLine());
+		count := _sr.ReadLineAsInteger;
 		dbgMsg.MsgFmt('RipGrepArguments.Count = %d', [count]);
 		for var i := 0 to count - 1 do begin
 			RipGrepArguments.Add(_sr.ReadLine);
@@ -336,7 +338,7 @@ begin
 	except
 		on E : Exception do begin
 			dbgMsg.ErrorMsg('Error loading from file stream');
-            TMsgBox.ShowError('Error occurred while loading saved searches.');
+			TMsgBox.ShowError('Error occurred while loading saved searches.');
 			Initialize;
 		end;
 	end;
