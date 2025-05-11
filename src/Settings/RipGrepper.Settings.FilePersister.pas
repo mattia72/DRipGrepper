@@ -11,19 +11,19 @@ uses
 
 type
 
-	TMemIniPersister = class(TInterfacedObject)
+	TMemIniPersister = class(TInterfacedObject, IPersister)
 		private
 			function GetFilePath() : string;
 			function GetIniFile() : TMemIniFile;
 			procedure SetFilePath(const Value : string);
 
 		protected
-			FIniFile : TMemIniFile;
+			FIniFile : IShared<TMemIniFile>;
 			FIniKey : string;
 			FIniSection : string;
 
 		public
-			constructor Create(_ini : TMemIniFile); overload;
+			constructor Create(_ini : IShared<TMemIniFile>); overload;
 			destructor Destroy(); override;
 			property FilePath : string read GetFilePath write SetFilePath;
 			property IniFile : TMemIniFile read GetIniFile;
@@ -32,7 +32,7 @@ type
 	TMemIniStringPersister = class(TMemIniPersister, IFilePersister<string>)
 		strict private
 		public
-			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string); overload;
+			constructor Create(_ini : IShared<TMemIniFile>; const _sIniSection, _sKey : string); overload;
 			function TryLoadValue(var _value : string) : Boolean;
 			function LoadValue(const _section, _key : string) : string;
 			procedure StoreValue(const _value : string);
@@ -40,7 +40,7 @@ type
 
 	TMemIniIntegerPersister = class(TMemIniPersister, IFilePersister<integer>)
 		public
-			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
+			constructor Create(_ini : IShared<TMemIniFile>; const _sIniSection, _sKey : string);
 			function TryLoadValue(var _value : integer) : Boolean;
 			function LoadValue(const _section, _key : string) : integer;
 			procedure StoreValue(const _value : integer);
@@ -48,7 +48,7 @@ type
 
 	TMemIniBoolPersister = class(TMemIniPersister, IFilePersister<Boolean>)
 		public
-			constructor Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
+			constructor Create(_ini : IShared<TMemIniFile>; const _sIniSection, _sKey : string);
 			function TryLoadValue(var _value : Boolean) : Boolean;
 			function LoadValue(const _section, _key : string) : Boolean;
 			procedure StoreValue(const _value : Boolean);
@@ -60,7 +60,7 @@ type
 			function LoadArrayFromSection(const _section : string; const _keyPrefix : string = ITEM_KEY_PREFIX) : TArrayEx<string>;
 
 		public
-			constructor Create(_ini : TMemIniFile; const _sIniSection : string; const _sKeyPrefix : string = '');
+			constructor Create(_ini : IShared<TMemIniFile>; const _sIniSection : string; const _sKeyPrefix : string = '');
 			function TryLoadValue(var _value : TArrayEx<string>) : Boolean;
 			function LoadValue(const _section, _key : string) : TArrayEx<string>;
 			procedure StoreValue(const _value : TArrayEx<string>);
@@ -125,7 +125,7 @@ begin
 	IniFile.WriteString(FIniSection, FIniKey, _value);
 end;
 
-constructor TMemIniStringPersister.Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
+constructor TMemIniStringPersister.Create(_ini : IShared<TMemIniFile>; const _sIniSection, _sKey : string);
 begin
 	FIniFile := _ini;
 	FIniSection := _sIniSection;
@@ -159,7 +159,7 @@ begin
 	IniFile.WriteInteger(FIniSection, FIniKey, _value);
 end;
 
-constructor TMemIniIntegerPersister.Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
+constructor TMemIniIntegerPersister.Create(_ini : IShared<TMemIniFile>; const _sIniSection, _sKey : string);
 begin
 	FIniFile := _ini;
 	FIniSection := _sIniSection;
@@ -187,7 +187,7 @@ begin
 	IniFile.WriteBool(FIniSection, FIniKey, _value);
 end;
 
-constructor TMemIniBoolPersister.Create(_ini : TMemIniFile; const _sIniSection, _sKey : string);
+constructor TMemIniBoolPersister.Create(_ini : IShared<TMemIniFile>; const _sIniSection, _sKey : string);
 begin
 	FIniFile := _ini;
 	FIniSection := _sIniSection;
@@ -225,7 +225,7 @@ begin
 
 end;
 
-constructor TMemIniStrArrayPersister.Create(_ini : TMemIniFile; const _sIniSection : string; const _sKeyPrefix : string = '');
+constructor TMemIniStrArrayPersister.Create(_ini : IShared<TMemIniFile>; const _sIniSection : string; const _sKeyPrefix : string = '');
 begin
 	FIniFile := _ini;
 	FIniSection := _sIniSection;
@@ -336,7 +336,7 @@ begin
 	FIniFile.UpdateFile;
 end;
 
-constructor TMemIniPersister.Create(_ini : TMemIniFile);
+constructor TMemIniPersister.Create(_ini : IShared<TMemIniFile>);
 begin
 	FIniFile := _ini;
 end;
@@ -346,6 +346,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMemIniPersister.Destroy');
 	dbgMsg.MsgFmt('[%s] %s', [FIniSection, FIniKey]);
+	FIniFile := nil;
 	inherited;
 end;
 
@@ -356,7 +357,6 @@ end;
 
 function TMemIniPersister.GetIniFile() : TMemIniFile;
 begin
-	Assert(FIniFile <> nil, 'FIniFile is nil');
 	Result := FIniFile;
 end;
 
