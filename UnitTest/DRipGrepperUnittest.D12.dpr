@@ -76,7 +76,8 @@ uses
   RipGrepper.Settings.FontColorsTest in 'RipGrepper.Settings.FontColorsTest.pas',
   RipGrepper.Common.ArrayExTest in 'RipGrepper.Common.ArrayExTest.pas',
   RipGrepper.Data.HistoryItemObjectTest in 'RipGrepper.Data.HistoryItemObjectTest.pas',
-  RipGrepper.Helper.SettingStoreBehaviours in '..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas';
+  RipGrepper.Helper.SettingStoreBehaviours in '..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas',
+  RipGrepper.Helper.StreamReaderWriter in '..\src\Helper\RipGrepper.Helper.StreamReaderWriter.pas';
 
 // This comment has to guard the following IFDEF, that may be delted by delphi, if new unit added to the project
 {$IFNDEF TESTINSIGHT}
@@ -134,5 +135,4 @@ begin
 	{$ENDIF}
 
 	TFileUtils.DeleteTempDirectory('DRipGrepperUnittest.D12.*', True);
-
 end.

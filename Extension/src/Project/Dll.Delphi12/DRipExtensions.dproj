@@ -4,7 +4,7 @@
         <ProjectVersion>20.1</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <ProjectName Condition="'$(ProjectName)'==''">DRipExtensions</ProjectName>
         <TargetedPlatforms>1</TargetedPlatforms>
@@ -73,10 +73,10 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_UsePackage>rtl;dbrtl;vcldb;vcl;VirtualTreesDR;VclSmp;$(DCC_UsePackage)</DCC_UsePackage>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.5.1.120;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.5.1.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>120</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.6.1.137;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.6.1;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>137</VerInfo_Build>
         <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
-        <VerInfo_MinorVer>5</VerInfo_MinorVer>
+        <VerInfo_MinorVer>6</VerInfo_MinorVer>
         <VerInfo_Release>1</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
@@ -99,12 +99,12 @@
         <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\23.0\bin\bds.exe</Debugger_HostApplication>
         <DCC_ShowGeneralMessages>true</DCC_ShowGeneralMessages>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.5.1.130;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.5.1.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>130</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.6.1.137;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.6.1;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>137</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <Manifest_File>..\Delphi12\(None)</Manifest_File>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
-        <VerInfo_MinorVer>5</VerInfo_MinorVer>
+        <VerInfo_MinorVer>6</VerInfo_MinorVer>
         <VerInfo_Release>1</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -117,13 +117,14 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.5.1.126;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.5.1.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>126</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.6.1.137;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.6.1;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>137</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <DCC_Description>RipGrep Search within Delphi</DCC_Description>
-        <VerInfo_MinorVer>5</VerInfo_MinorVer>
+        <VerInfo_MinorVer>6</VerInfo_MinorVer>
         <Manifest_File>(None)</Manifest_File>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <DCC_MapFile>3</DCC_MapFile>
         <VerInfo_Release>1</VerInfo_Release>
     </PropertyGroup>
     <ItemGroup>
@@ -234,6 +235,8 @@
         <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.Persister.Interfaces.pas"/>
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.Interfaces.StreamPersistable.pas"/>
         <DCCReference Include="..\..\..\..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas"/>
+        <DCCReference Include="..\..\..\..\src\Helper\RipGrepper.Helper.StreamReaderWriter.pas"/>
+        <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.RipGrepArguments.pas"/>
         <RcItem Include="..\..\..\Resources\about_icon.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>about_icon</ResourceId>
