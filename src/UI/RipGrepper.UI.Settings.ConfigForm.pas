@@ -89,7 +89,6 @@ begin
 		FAppSettingsForm := TAppSettingsForm.Create(nil, Settings);
 		FColorSettingsForm := TColorSettingsForm.Create(nil, Settings);
 
-		// FExtensionSettings := TRipGrepperExtensionSettings.Create(Settings);
 		FExtensionSettings := Settings.SearchFormSettings.ExtensionSettings;
 		FExtensionSettings.ReadFile;
 		FExtensionSettings.LoadFromDict;

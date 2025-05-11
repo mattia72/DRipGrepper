@@ -22,7 +22,7 @@ uses
 
 type
 	// THistoryItemObject = class(TNoRefCountObject, IHistoryItemObject)
-	THistoryItemObject = class(TInterfacedObject, IHistoryItemObject, IStreamPersistable)
+	THistoryItemObject = class(TInterfacedObject, IHistoryItemObject, IStreamPersistable, IStreamReaderWriterPersistable)
 
 		strict private
 		private
@@ -331,6 +331,7 @@ begin
 		dbgMsg.MsgFmt('RipGrepArguments = %s', [RipGrepArguments.Text]);
 
 		SearchFormSettings.LoadFromStreamReader(_sr);
+
 		FIsLoadedFromStream := True;
 	except
 		on E : Exception do begin

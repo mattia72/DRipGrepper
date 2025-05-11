@@ -12,7 +12,8 @@ uses
 	RipGrepper.Settings.SearchFormSettings,
 	RipGrepper.Settings.SettingVariant,
 	System.Generics.Defaults,
-    RipGrepper.Settings.RipGrepArguments;
+	RipGrepper.Settings.RipGrepArguments,
+	RipGrepper.Common.Interfaces;
 
 type
 
@@ -30,6 +31,7 @@ type
 
 		private
 		var
+			FArrayComparer : IComparer<TArray<string>>;
 			FGuiParams : IShared<TSearchTextWithOptions>;
 			FGuiSearchTextParams : IShared<TGuiSearchTextParams>;
 			FHistoryObjectList : THistoryObjectArray;
@@ -37,9 +39,12 @@ type
 			FIntSetting : ISetting;
 			FStrSetting : ISetting;
 
+			procedure AssertContainsIntAndStrSetting(hio: IHistoryItemObject);
+			function GetSettingsDictAsArray(const hio : IHistoryItemObject) : TArray<TArray<string>>;
 			procedure WriteHistObjsToStream(const ms : IShared<TMemoryStream>);
 
 		public
+			constructor Create();
 			[Setup]
 			procedure Setup();
 			[TearDown]
@@ -56,10 +61,47 @@ uses
 
 	RipGrepper.Common.SimpleTypes,
 	System.SysUtils,
-	RipGrepper.Common.Interfaces,
+
 	RipGrepper.Common.Constants,
 	RipGrepper.Settings.SettingsDictionary,
 	ArrayEx;
+
+constructor THistoryItemObjectTest.Create();
+begin
+	inherited;
+	FArrayComparer := TComparer < TArray < string >>.Construct(
+		function(const Left, Right : TArray<string>) : Integer
+		begin
+			Result := TComparer<string>.Default.Compare(string.Join('', Left), string.Join('', Right));
+		end);
+
+end;
+
+procedure THistoryItemObjectTest.AssertContainsIntAndStrSetting(hio:
+	IHistoryItemObject);
+var
+	arr : TArray<TArray<string>>;
+	arrEx : TArrayEx<TArray<string>>;
+	cont : Boolean;
+begin
+	arr := GetSettingsDictAsArray(hio);
+	arrEx := arr;
+	var inta : TArray<string> := [INT_SETTING_KEY, INT_SETTING_VAL.ToString];
+	cont := arrEx.Contains(inta, FArrayComparer);
+	Assert.IsTrue(cont, 'Dict should contain Int Setting');
+
+	inta := [STR_SETTING_KEY, STR_SETTING_VAL];
+	cont := arrEx.Contains(inta, FArrayComparer);
+	Assert.IsTrue(cont, 'Dict should contain Str Setting');
+end;
+
+function THistoryItemObjectTest.GetSettingsDictAsArray(const hio : IHistoryItemObject) : TArray<TArray<string>>;
+var
+	dict : TSettingsDictionary;
+begin
+	dict := hio.SearchFormSettings.SettingsDict();
+	Result := TSettingsDictionary.DictToStringArray(dict);
+end;
 
 procedure THistoryItemObjectTest.Setup();
 begin
@@ -110,25 +152,23 @@ begin
 	other.LoadFromStream(ms);
 
 	Assert.AreEqual(TEST_SEARCH_TEXT,
-		{ } other.GuiSearchTextParams.SearchTextWithOptions.SearchTextOfUser,
-		{ } 'SearchText content should match the expected serialized data');
+	{ } other.GuiSearchTextParams.SearchTextWithOptions.SearchTextOfUser,
+	{ } 'SearchText content should match the expected serialized data');
 	Assert.AreEqual(REPLACE_TEXT,
-		{ } other.GuiSearchTextParams.ReplaceText,
-		{ } 'ReplaceText content should match the expected serialized data');
+	{ } other.GuiSearchTextParams.ReplaceText,
+	{ } 'ReplaceText content should match the expected serialized data');
 	Assert.IsTrue(
-		{ } other.GuiSearchTextParams.IsReplaceMode,
-		{ } 'IsReplaceMode content should match the expected serialized data');
+	{ } other.GuiSearchTextParams.IsReplaceMode,
+	{ } 'IsReplaceMode content should match the expected serialized data');
 
 	Assert.AreEqual(hio.RipGrepArguments.ToStringArray,
-		{ } other.RipGrepArguments.ToStringArray,
-		{ } 'RipGrepArguments content should match the expected serialized data');
+	{ } other.RipGrepArguments.ToStringArray,
+	{ } 'RipGrepArguments content should match the expected serialized data');
 end;
 
 procedure THistoryItemObjectTest.TestSaveLoadListFromStream();
 var
 	arr : TArray<TArray<string>>;
-	arrEx : TArrayEx<TArray<string>>;
-	cont : Boolean;
 	hio : IHistoryItemObject;
 	ms : IShared<TMemoryStream>;
 	sr : IShared<TStreamReader>;
@@ -147,13 +187,7 @@ begin
 		hio.LoadFromStreamReader(sr);
 		hioList.Add(hio);
 	end;
-
-	var
-	comp := TComparer < TArray < string >>.Construct(
-		function(const Left, Right : TArray<string>) : Integer
-		begin
-			Result := TComparer<string>.Default.Compare(string.Join('', Left), string.Join('', Right));
-		end);
+	arr := GetSettingsDictAsArray(hio);
 
 	for var i := 0 to count do begin
 		hio := hioList[i];
@@ -164,23 +198,16 @@ begin
 		{ } hio.RipGrepArguments.ToStringArray,
 		{ } 'RipGrepArguments content should match the expected serialized data');
 
-		var
-		dict := hio.SearchFormSettings.SettingsDict();
-		arr := TSettingsDictionary.DictToStringArray(dict);
-		arrEx := arr;
-		var inta : TArray<string> := [INT_SETTING_KEY, INT_SETTING_VAL.ToString];
-		cont := arrEx.Contains(inta, comp);
-		Assert.IsTrue(cont, 'Dict should contain Int Setting');
+		AssertContainsIntAndStrSetting(hio);
 
-		inta := [STR_SETTING_KEY, STR_SETTING_VAL];
-		cont := arrEx.Contains(inta, comp);
-		Assert.IsTrue(cont, 'Dict should contain Str Setting');
+
 	end;
 
 end;
 
 procedure THistoryItemObjectTest.WriteHistObjsToStream(const ms : IShared<TMemoryStream>);
-var hio : IHistoryItemObject;
+var
+	hio : IHistoryItemObject;
 	sw : IShared<TStreamWriter>;
 begin
 	sw := Shared.Make<TStreamWriter>(TStreamWriter.Create(ms));
@@ -201,6 +228,7 @@ begin
 		hio.SaveToStreamWriter(sw);
 		FHistoryObjectList.Add(hio);
 	end;
+	AssertContainsIntAndStrSetting(hio);
 end;
 
 end.
