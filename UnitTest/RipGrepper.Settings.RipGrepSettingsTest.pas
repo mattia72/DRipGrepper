@@ -70,7 +70,6 @@ var
 	s1, s2 : string;
 begin
 	SetSettingValues;
-	// FSettings.LoadFromDict; // FSettings.LoadDefaultsFromDict;
 	var
 	s := TRipGrepParameterSettings.Create(nil);
 	try
@@ -136,7 +135,6 @@ procedure TRipGrepSettingsTest.LoadActualTest;
 begin
 	SetSettingValues;
 
-	// FSettings.LoadFromDict;
 	Assert.IsTrue(FSettings.RipGrepPath.Contains(RG_EXE), 'RipGrepPath should be set');
 	Assert.AreEqual(PAS_DFM, FSettings.FileMasks, '2. FileMasks shouldn''t be the default');
 	Assert.AreEqual(C_PATH_TO_DIR, FSettings.SearchPath, 'SearchPath should be set');
@@ -184,8 +182,8 @@ begin
 	FSettings.FileMasks := '';
 	FSettings.SearchPath := '';
 	FSettings.ReLoad; // fills only settings dict
-	// FSettings.LoadFromDict; // why loads defaults ?????
-	Assert.IsTrue(FSettings.RipGrepPath.Contains(RG_EXE), 'RipGrepPath should be set');
+
+ 	Assert.IsTrue(FSettings.RipGrepPath.Contains(RG_EXE), 'RipGrepPath should be set');
 	Assert.AreEqual(PAS_DFM, FSettings.FileMasks, 'FileMasks should be set');
 	Assert.AreEqual(C_PATH_TO_DIR, FSettings.SearchPath, 'SearchPath should be set');
 	Assert.AreEqual(MATCHWORD_USEREGEX,

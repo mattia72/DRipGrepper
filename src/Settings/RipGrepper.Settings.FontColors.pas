@@ -263,7 +263,6 @@ end;
 procedure TColorSettings.ReloadColors;
 begin
 	ReLoad;
-	// LoadFromDict;
 	if FFontColors.IsEmpty then begin
 		LoadDefaultColors(TDarkModeHelper.GetActualThemeMode);
 	end;
