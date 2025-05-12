@@ -424,8 +424,8 @@ begin
 	frm := TRipGrepOptionsForm.Create(self, FSettings.RipGrepParameters);
 	try
 		if (mrOk = frm.ShowModal) then begin
-			FSettings.RipGrepParameters.RgExeOptions.RemoveOption(
-				{ } string.Join('|', RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS));
+			FSettings.RipGrepParameters.RgExeOptions.RemoveOptions(
+				{ } RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS);
 			cmbOptions.Text := FSettings.RipGrepParameters.RgExeOptions.AsString;
 			UpdateCtrls(cmbOptions);
 		end;

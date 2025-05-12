@@ -54,6 +54,18 @@ object ParentFrame: TParentFrame
               Height = 429
               inherited VstHistory: TVirtualStringTree
                 Height = 423
+                Columns = <
+                  item
+                    Position = 0
+                    Text = 'Search'
+                    Width = 181
+                  end
+                  item
+                    Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coSmartResize, coAllowFocus, coEditable, coStyleColor]
+                    Position = 1
+                    Text = 'Replace'
+                    Width = 519
+                  end>
                 DefaultText = ''
               end
             end
