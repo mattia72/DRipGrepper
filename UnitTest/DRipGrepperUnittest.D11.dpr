@@ -64,7 +64,9 @@ uses
   RipGrepper.Settings.SearchFormSettings in '..\src\Settings\RipGrepper.Settings.SearchFormSettings.pas',
   RipGrepper.Common.Interfaces.StreamPersistable in '..\src\Common\RipGrepper.Common.Interfaces.StreamPersistable.pas',
   RipGrepper.Helper.SettingStoreBehaviours in '..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas',
-  RipGrepper.Settings.RipGrepperSettings in '..\src\Settings\RipGrepper.Settings.RipGrepperSettings.pas';
+  RipGrepper.Settings.RipGrepperSettings in '..\src\Settings\RipGrepper.Settings.RipGrepperSettings.pas',
+  RipGrepper.Helper.StreamReaderWriter in '..\src\Helper\RipGrepper.Helper.StreamReaderWriter.pas',
+  RipGrepper.Settings.RipGrepArguments in '..\src\Settings\RipGrepper.Settings.RipGrepArguments.pas';
 
 // This comment has to guard the following IFDEF, that may be delted by delphi, if new unit added to the project
 {$IFNDEF TESTINSIGHT}

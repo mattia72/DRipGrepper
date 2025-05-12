@@ -99,7 +99,9 @@ uses
   RipGrepper.Settings.StreamPersister in '..\..\..\..\src\Settings\RipGrepper.Settings.StreamPersister.pas',
   RipGrepper.Settings.Persister.Interfaces in '..\..\..\..\src\Settings\RipGrepper.Settings.Persister.Interfaces.pas',
   RipGrepper.Helper.SettingStoreBehaviours in '..\..\..\..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas',
-  RipGrepper.Common.Interfaces.StreamPersistable in '..\..\..\..\src\Common\RipGrepper.Common.Interfaces.StreamPersistable.pas';
+  RipGrepper.Common.Interfaces.StreamPersistable in '..\..\..\..\src\Common\RipGrepper.Common.Interfaces.StreamPersistable.pas',
+  RipGrepper.Helper.StreamReaderWriter in '..\..\..\..\src\Helper\RipGrepper.Helper.StreamReaderWriter.pas',
+  RipGrepper.Settings.RipGrepArguments in '..\..\..\..\src\Settings\RipGrepper.Settings.RipGrepArguments.pas';
 
 {$R *.res}
 

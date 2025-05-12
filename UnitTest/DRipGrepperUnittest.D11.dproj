@@ -154,6 +154,8 @@
         <DCCReference Include="..\src\Common\RipGrepper.Common.Interfaces.StreamPersistable.pas"/>
         <DCCReference Include="..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas"/>
         <DCCReference Include="..\src\Settings\RipGrepper.Settings.RipGrepperSettings.pas"/>
+        <DCCReference Include="..\src\Helper\RipGrepper.Helper.StreamReaderWriter.pas"/>
+        <DCCReference Include="..\src\Settings\RipGrepper.Settings.RipGrepArguments.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
