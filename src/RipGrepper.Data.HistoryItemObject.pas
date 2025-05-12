@@ -334,12 +334,13 @@ begin
 
 		SearchFormSettings.LoadFromStreamReader(_sr);
 
+
 		FIsLoadedFromStream := True;
 	except
 		on E : Exception do begin
-			dbgMsg.ErrorMsg('Error loading from file stream');
-			TMsgBox.ShowError('Error occurred while loading saved searches.');
+			dbgMsg.ErrorMsg('Error loading saved searches from file stream');
 			Initialize;
+			raise;
 		end;
 	end;
 end;

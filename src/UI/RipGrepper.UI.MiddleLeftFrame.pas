@@ -163,7 +163,7 @@ begin
 	inherited;
 	TDebugUtils.DebugMessage('TMiddleLeftFrame.Create ' + AOwner.Name);
 	MiddleLeftFrame := self;
-    FIsInitialized := False;
+	FIsInitialized := False;
 end;
 
 procedure TMiddleLeftFrame.ActionCopyCmdLineToClipboardExecute(Sender : TObject);
@@ -235,7 +235,12 @@ begin
 				Exit;
 			end;
 		end;
-		VstHistory.LoadFromFile(OpenDialog1.FileName);
+		try
+			VstHistory.LoadFromFile(OpenDialog1.FileName);
+		except
+			on E : Exception do
+				TMsgBox.ShowError('Error occurred while loading saved searches.');
+		end;
 	end;
 end;
 

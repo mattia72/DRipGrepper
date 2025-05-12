@@ -68,7 +68,8 @@ uses
 	RipGrepper.Common.IOTAUtils,
 	{$ENDIF}
 	RipGrepper.UI.MiddleLeftFrame,
-	Spring.DesignPatterns;
+	Spring.DesignPatterns,
+	RipGrepper.Helper.UI;
 
 {$R *.dfm}
 
@@ -219,7 +220,12 @@ begin
 	dbgMsg.Msg('from: ' + TPath.GetFullPath(GetSearchHistoryPath()));
 	if Settings.AppSettings.LoadLastSearchHistory and TFile.Exists(GetSearchHistoryPath()) then begin
 		dbgMsg.Msg('LoadLastSearchHistory = True, FileExists');
-		MiddleLeftFrame.VstHistory.LoadFromFile(GetSearchHistoryPath());
+		try
+			MiddleLeftFrame.VstHistory.LoadFromFile(GetSearchHistoryPath());
+		except
+			on E : Exception do
+				TMsgBox.ShowError('Error occurred while loading saved searches.');
+		end;
 	end;
 end;
 
