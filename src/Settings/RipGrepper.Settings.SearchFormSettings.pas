@@ -87,7 +87,7 @@ uses
 	Vcl.Menus,
 	System.RegularExpressions,
 	RipGrepper.CommandLine.Builder,
-    RipGrepper.Helper.StreamReaderWriter;
+	RipGrepper.Helper.StreamReaderWriter;
 
 constructor TSearchFormSettings.Create(const _Owner : TPersistableSettings);
 begin
@@ -179,19 +179,12 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.LoadFromStreamReader');
 	inherited;
-	try
-		Hidden := _sr.ReadLineAsBool();
-		NoIgnore := _sr.ReadLineAsBool();
-		Pretty := _sr.ReadLineAsBool();
-		Context := _sr.ReadLineAsInteger();
-		Encoding := _sr.ReadLine();
-		ExtensionSettings.LoadFromStreamReader(_sr);
-	except
-		on E : Exception do begin
-			dbgMsg.ErrorMsg('Error loading from file stream');
-			TMsgBox.ShowError('Error occurred while loading SearchFormSettings.');
-		end;
-	end;
+	Hidden := _sr.ReadLineAsBool();
+	NoIgnore := _sr.ReadLineAsBool();
+	Pretty := _sr.ReadLineAsBool();
+	Context := _sr.ReadLineAsInteger();
+	Encoding := _sr.ReadLine();
+	ExtensionSettings.LoadFromStreamReader(_sr);
 end;
 
 procedure TSearchFormSettings.ReadFile();

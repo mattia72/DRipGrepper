@@ -3,23 +3,21 @@ unit RipGrepper.Helper.StreamReaderWriter;
 interface
 
 uses
-  System.Classes;
+	System.Classes;
 
 type
-	TStreamReaderHelper = class helper for TStreamReader
-
-	private
-	public
-		function ReadLineAsBool(): Boolean;
-		function ReadLineAsInteger(): Integer;
+	TStreamReaderHelper = class Helper for TStreamReader
+		public
+			function ReadLineAsBool() : Boolean;
+			function ReadLineAsInteger() : Integer;
 	end;
 
 implementation
 
 uses
-  System.SysUtils;
+	System.SysUtils;
 
-function TStreamReaderHelper.ReadLineAsBool(): Boolean;
+function TStreamReaderHelper.ReadLineAsBool() : Boolean;
 var
 	s : string;
 begin
@@ -27,7 +25,7 @@ begin
 	Result := s <> '0';
 end;
 
-function TStreamReaderHelper.ReadLineAsInteger(): Integer;
+function TStreamReaderHelper.ReadLineAsInteger() : Integer;
 var
 	s : string;
 begin
