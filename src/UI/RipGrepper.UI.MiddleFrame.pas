@@ -677,7 +677,7 @@ begin
 		if Data.TotalMatchCount = 0 then begin
 			Result := Format('%s ? in ?', [TREEVIEW_HISTORY_LOADED_PREFIX]);
 		end else begin
-			Result := Format('%s %d in %d', [TREEVIEW_HISTORY_LOADED_PREFIX, Data.TotalMatchCount, Data.FileCount]);
+			Result := Format('%s %d in %d', [TREEVIEW_HISTORY_COUNTER_OK_PREFIX, Data.TotalMatchCount, Data.FileCount]);
 		end;
 	end else begin
 		if Data.NoMatchFound then begin

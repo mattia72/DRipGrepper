@@ -349,7 +349,6 @@ procedure THistoryItemObject.RefreshCounters(_errorCounters : TErrorCounters; _f
 begin
 	SetErrorCounters(_errorCounters);
 	FileCount := _fileCount;
-	// FIsLoadedFromStream := False; // so counters are updated on gui
 end;
 
 procedure THistoryItemObject.SaveToStream(_stream : TStream);
