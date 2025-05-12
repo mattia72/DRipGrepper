@@ -26,7 +26,8 @@ uses
 	Vcl.ExtCtrls,
 	SVGIconImageListBase,
 	SVGIconImageList,
-	RipGrepper.UI.IFrameEvents;
+	RipGrepper.UI.IFrameEvents,
+	System.UITypes;
 
 type
 
@@ -68,6 +69,8 @@ type
 		procedure VstHistoryGetHint(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
 			var LineBreakStyle : TVTTooltipLineBreakStyle; var HintText : string);
 		procedure VstHistoryGetHintKind(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; var Kind : TVTHintKind);
+		procedure VstHistoryGetImageIndex(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind; Column : TColumnIndex;
+			var Ghosted : Boolean; var ImageIndex : TImageIndex);
 		procedure VstHistoryGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType;
 			var CellText : string);
 		procedure VstHistoryLoadTree(Sender : TBaseVirtualTree; Stream : TStream);
@@ -92,6 +95,8 @@ type
 			procedure AddVstReplaceNode(Node : PVirtualNode; NodeData : PVSHistoryNodeData);
 			procedure ChangeVstReplaceNode(Node : PVirtualNode; const _Data : PVSHistoryNodeData = nil);
 			procedure DeleteAllHistoryItems();
+			procedure DeleteCurrentNode;
+			procedure DeleteHistItemNode(const node : PVirtualNode);
 			procedure ExpandIfHasChild(const Node : PVirtualNode);
 			function GetCurrentValidHistoryObject() : IHistoryItemObject;
 			function GetData : TRipGrepperData;
@@ -182,10 +187,6 @@ begin
 end;
 
 procedure TMiddleLeftFrame.ActionHistoryDeleteExecute(Sender : TObject);
-var
-	ho : IHistoryItemObject;
-	Node : PVirtualNode;
-	Data : PVSHistoryNodeData;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.ActionHistoryDeleteExecute');
@@ -199,22 +200,7 @@ begin
 		Exit;
 	end;
 
-	ho := GetCurrentHistoryObject;
-
-	Node := GetNodeByIndex(VstHistory, CurrentHistoryItemIndex);
-	Data := VstHistory.GetNodeData(Node);
-	dbgMsg.MsgFmt('idx:%d Node:%s, ho:%s', [CurrentHistoryItemIndex, Data.SearchText, ho.GuiSearchTextParams.GetSearchText]);
-
-	// Assert((Data.SearchText = ho.GuiSearchTextParams.GetSearchText) or
-	// (WB + Data.SearchText + WB = ho.GuiSearchTextParams.WordBoundedSearchText) or
-	// (TRegEx.Escape(Data.SearchText) = ho.GuiSearchTextParams.EscapedSearchText),
-	// Data.SearchText + ' != ' + ho.GuiSearchTextParams.SearchText);
-
-	VstHistory.DeleteNode(Node);
-	VstHistory.Refresh;
-	DeleteCurrentHistoryItemFromList;
-	// FreeAndNil(ho);
-	ho := nil;
+	DeleteCurrentNode;
 end;
 
 procedure TMiddleLeftFrame.ActionHistoryDeleteUpdate(Sender : TObject);
@@ -741,6 +727,11 @@ begin
 	node := HitInfo.HitNode;
 	idx := GetHistNodeIndex(node);
 
+	if hiOnNormalIcon in HitInfo.HitPositions then begin
+		DeleteHistItemNode(node);
+		Exit;
+	end;
+
 	if (CurrentHistoryItemIndex <> idx) then begin
 		CurrentHistoryItemIndex := idx;
 		ParentFrame.AfterHistObjChange();
@@ -822,6 +813,43 @@ begin
 	MainFrame.HistItemObject := nil;
 end;
 
+procedure TMiddleLeftFrame.DeleteCurrentNode;
+var
+	ho : IHistoryItemObject;
+	node : PVirtualNode;
+	data : PVSHistoryNodeData;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.DeleteCurrentNode');
+
+	ho := GetCurrentHistoryObject;
+
+	node := GetNodeByIndex(VstHistory, CurrentHistoryItemIndex);
+	data := VstHistory.GetNodeData(node);
+	dbgMsg.MsgFmt('idx:%d node:%s, ho:%s', [CurrentHistoryItemIndex, data.SearchText, ho.GuiSearchTextParams.GetSearchText]);
+
+	VstHistory.DeleteNode(node);
+	VstHistory.Refresh;
+	DeleteCurrentHistoryItemFromList;
+
+	ho := nil;
+end;
+
+procedure TMiddleLeftFrame.DeleteHistItemNode(const node : PVirtualNode);
+var
+	idx : integer;
+begin
+	idx := GetHistNodeIndex(node);
+
+	VstHistory.DeleteNode(node);
+	VstHistory.Refresh;
+	if idx = CurrentHistoryItemIndex then begin
+		DeleteCurrentHistoryItemFromList;
+	end else begin
+		FHistoryObjectList.Delete(idx);
+	end;
+end;
+
 procedure TMiddleLeftFrame.ExpandIfHasChild(const Node : PVirtualNode);
 begin
 	if Node.ChildCount > 0 then begin // if replace node is the first it is closed
@@ -861,6 +889,23 @@ end;
 procedure TMiddleLeftFrame.UpdateUIStyle(_sNewStyle : string = '');
 begin
 	// TODO -cMM: TMiddleLeftFrame.UpdateUIStyle default body inserted
+end;
+
+procedure TMiddleLeftFrame.VstHistoryGetImageIndex(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind;
+	Column : TColumnIndex; var Ghosted : Boolean; var ImageIndex : TImageIndex);
+begin
+	case Kind of
+		ikNormal, ikSelected :
+		case Column of
+			COL_SEARCH_TEXT : begin
+				if (VstHistory.HotNode = Node) then begin
+					ImageIndex := 2
+				end else begin
+					ImageIndex := -1;
+				end;
+			end;
+		end;
+	end;
 end;
 
 procedure TMiddleLeftFrame.VstHistoryLoadTree(Sender : TBaseVirtualTree; Stream : TStream);

@@ -49,6 +49,7 @@ object MiddleLeftFrame: TMiddleLeftFrame
       Header.AutoSizeIndex = 0
       Header.Options = [hoAutoResize, hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible, hoFullRepaintOnResize, hoHeaderClickAutoSort, hoAutoResizeInclCaption]
       HintMode = hmHint
+      Images = SVGIconImageList1
       ParentShowHint = False
       PopupMenu = PopupMenuHistory
       ShowHint = True
@@ -60,6 +61,7 @@ object MiddleLeftFrame: TMiddleLeftFrame
       OnGetText = VstHistoryGetText
       OnPaintText = VstHistoryPaintText
       OnGetHintKind = VstHistoryGetHintKind
+      OnGetImageIndex = VstHistoryGetImageIndex
       OnGetHint = VstHistoryGetHint
       OnLoadTree = VstHistoryLoadTree
       OnNodeClick = VstHistoryNodeClick
