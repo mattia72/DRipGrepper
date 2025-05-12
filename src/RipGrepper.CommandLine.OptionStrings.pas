@@ -36,7 +36,7 @@ type
 			class function New(const _arrOptions : TArrayEx<string>) : TOptionStrings; overload; static;
 
 			function AddOption(const _sParamRegex : string) : string;
-			function Copy(const _sParamArray: TArray<string>): string;
+			function Copy(const _sParamArray : TArray<string>) : string;
 			procedure AddOptionWithValue(const _paramRegex : string = ''; const _sValue : string = ''; const _bUnique : Boolean = False);
 			function AsArray : TArrayEx<string>;
 			class function ToArray(const _sOptions : string) : TArrayEx<string>; static;
@@ -45,10 +45,12 @@ type
 			class function GetOptionVariantsAndValue(const _sParamRegex : string; out _opVariants : TOptionVariants) : Boolean; static;
 			function IsOptionSet(_sParamRegex : string; const _sParamEqualValue : string = '') : Boolean; overload;
 			function IsSetOptionWithValue(const _sOption : string; const _sValue : string = '') : Boolean;
+			procedure LoadFromStreamReader(_sr : TStreamReader);
 			class function MaybeQuoteIfNotQuoted(const _s : string; const _delimiter : char = '"') : string; static;
 			class function MaybeDeQuoteIfQuoted(const _s : string; const _delimiter : char = '"') : string; static;
 			procedure RemoveOption(const _paramRegex : string);
 			procedure RemoveOptions(const _paramRegexes : TArrayEx<string>);
+			procedure SaveToStreamWriter(_sw : TStreamWriter);
 			procedure UpdateFileMasks(_sNewMasks : string); overload;
 	end;
 
@@ -60,7 +62,8 @@ uses
 	RipGrepper.Common.Constants,
 	RipGrepper.CommandLine.OptionHelper,
 	RipGrepper.CommandLine.Builder,
-	System.StrUtils;
+	System.StrUtils,
+	RipGrepper.Helper.StreamReaderWriter;
 
 function TOptionStrings.AddOption(const _sParamRegex : string) : string;
 begin
@@ -69,7 +72,7 @@ begin
 	Result := AsString;
 end;
 
-function TOptionStrings.Copy(const _sParamArray: TArray<string>): string;
+function TOptionStrings.Copy(const _sParamArray : TArray<string>) : string;
 begin
 	FOptions.AddRange(_sParamArray);
 	Result := AsString;
@@ -118,8 +121,8 @@ begin
 	var
 	regex := RG_PARAM_WORD_IN_OPTION_LIST;
 	for var s in arr do begin
-//		var
-//		sEsc := EscapeMaskChars(s);
+		// var
+		// sEsc := EscapeMaskChars(s);
 		if TRegEx.IsMatch(s, regex) then begin
 			Result.AddIfNotContains(s);
 		end else begin
@@ -295,6 +298,16 @@ begin
 	end;
 end;
 
+procedure TOptionStrings.LoadFromStreamReader(_sr : TStreamReader);
+var
+	count : Integer;
+begin
+	count := _sr.ReadLineAsInteger();
+	for var i := 0 to count - 1 do begin
+		FOptions.Add(_sr.ReadLine());
+	end;
+end;
+
 class function TOptionStrings.MaybeDeQuoteIfQuoted(const _s : string; const _delimiter : char = '"') : string;
 begin
 	if (Pos(' ', _s) <> 0) and TRegEx.IsMatch(_s, '^' + _delimiter + '.*' + _delimiter + '$') then begin
@@ -345,6 +358,14 @@ procedure TOptionStrings.RemoveOptions(const _paramRegexes : TArrayEx<string>);
 begin
 	for var s in _paramRegexes do begin
 		RemoveOption(s);
+	end;
+end;
+
+procedure TOptionStrings.SaveToStreamWriter(_sw : TStreamWriter);
+begin
+	_sw.WriteLine(FOptions.Count);
+	for var i := 0 to FOptions.Count - 1 do begin
+		_sw.WriteLine(FOptions[i]);
 	end;
 end;
 

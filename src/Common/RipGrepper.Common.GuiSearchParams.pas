@@ -81,7 +81,7 @@ uses
 	RipGrepper.CommandLine.OptionHelper,
 	RipGrepper.Common.SearchParams,
 	System.StrUtils,
-    RipGrepper.Helper.StreamReaderWriter;
+	RipGrepper.Helper.StreamReaderWriter;
 
 // for UnitTests...
 constructor TGuiSearchTextParams.Create(const _sText, _sRepl : string; const _bMC, _bMW, _bUR : Boolean);
@@ -276,7 +276,8 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.LoadFromStreamReader');
 	FSearchTextWithOptions.LoadFromStreamReader(_sr);
-	IsReplaceMode := _sr.ReadLineAsBool;
+	FExpertOptions.LoadFromStreamReader(_sr);
+	IsReplaceMode := _sr.ReadLineAsBool();
 	dbgMsg.MsgFmt('IsReplaceMode %s', [BoolToStr(IsReplaceMode)]);
 	ReplaceText := _sr.ReadLine();
 	dbgMsg.MsgFmt('ReplaceText %s', [ReplaceText]);
@@ -290,10 +291,10 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.SaveToStreamWriter');
 
 	FSearchTextWithOptions.SaveToStreamWriter(_sw);
-	s := BoolToStr(IsReplaceMode);
+	FExpertOptions.SaveToStreamWriter(_sw);
 
-	dbgMsg.MsgFmt('IsReplaceMode %s', [s]);
-	_sw.WriteLine(BoolToStr(IsReplaceMode));
+	dbgMsg.MsgFmt('IsReplaceMode %s', [BoolToStr(IsReplaceMode, True)]);
+	_sw.WriteLineAsBool(IsReplaceMode);
 
 	dbgMsg.MsgFmt('ReplaceText %s', [ReplaceText]);
 	_sw.WriteLine(ReplaceText);

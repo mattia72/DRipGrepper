@@ -12,6 +12,13 @@ type
 			function ReadLineAsInteger() : Integer;
 	end;
 
+type
+	TStreamWriterHelper = class Helper for TStreamWriter
+		public
+			procedure WriteLineAsBool(const _b : Boolean);
+			procedure WriteLineAsInteger(const _i: Integer);
+	end;
+
 implementation
 
 uses
@@ -31,6 +38,16 @@ var
 begin
 	s := self.ReadLine();
 	Result := StrToInt(s);
+end;
+
+procedure TStreamWriterHelper.WriteLineAsBool(const _b : Boolean);
+begin
+	self.WriteLine(BoolToStr(_b));
+end;
+
+procedure TStreamWriterHelper.WriteLineAsInteger(const _i: Integer);
+begin
+	self.WriteLine(_i.ToString);
 end;
 
 end.

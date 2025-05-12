@@ -28,7 +28,7 @@ Marked with checkmark if fixed, else it is a known bug.
 - [ ] load histories at startup
   - [ ] load replace historie items not working properly
   - [ ] when a loaded history item is modified (e.g., adding --stats), the change is not recognized during the first search attempt but works on the second attempt. 
-  - [ ] saved history item doesn't contain additional options (e.g., --stats). 
+  - [x] saved history item doesn't contain additional options (e.g., --stats). 
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: drip icon in menu has no transparent background
 - [ ] look on dpi change (drag window to another monitor)
