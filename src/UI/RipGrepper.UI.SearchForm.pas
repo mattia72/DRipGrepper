@@ -200,6 +200,7 @@ type
 			function ValidateRegex : Boolean;
 			procedure WriteOptionCtrlToProxy;
 			procedure CopyProxyToCtrls();
+			procedure CopySettingsToHistObj;
 
 		protected
 			procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;
@@ -446,16 +447,9 @@ begin
 	CopyCtrlsToProxy(FCtrlProxy); // FormClose
 	CopyProxyToSettings(FCtrlProxy, FHistItemObj, FSettings);
 
-	if HasHistItemObjWithResult then begin
+	if HasHistItemObjWithResult or FHistItemObj.IsLoadedFromStream then begin
 		dbgMsg.Msg('HasHistItemObjWithResult');
-		// FSettings.SearchFormSettings.StoreSearchSettings(False);
-		FHistItemObj.SearchFormSettings.Copy(FSettings.SearchFormSettings);
-		FHistItemObj.SearchFormSettings.LoadFromDict();
-		FHistItemObj.RipGrepArguments.Clear;
-		var
-		args := FSettings.GetRipGrepArguments();
-		FHistItemObj.RipGrepArguments.Assign(args());
-		FHistItemObj.GuiSearchTextParams.Copy(FSettingsProxy);
+		// Reload orig settings...
 		FSettings.SearchFormSettings.Copy(FOrigSearchFormSettings);
 		FSettings.SearchFormSettings.LoadFromDict();
 	end;
@@ -1051,20 +1045,19 @@ begin
 	rgec.IDEContext := integer(_ctrlProxy.ExtensionContext);
 	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext := rgec;
 
-	if HasHistItemObjWithResult then begin
-		// := _ctrlProxy.SearchText;
-		FHistItemObj.GuiSearchTextParams.SetSearchOptions(_ctrlProxy.SearchOptions);
-		// := _ctrlProxy.ReplaceText;
-		// := _ctrlProxy.SearchPath;
-		// := _ctrlProxy.FileMasks;
-		FHistItemObj.SearchFormSettings.Hidden := _ctrlProxy.IsHiddenChecked;
-		FHistItemObj.SearchFormSettings.NoIgnore := _ctrlProxy.IsNoIgnoreChecked;
-		FHistItemObj.SearchFormSettings.Encoding := _ctrlProxy.Encoding;
-		FHistItemObj.SearchFormSettings.Pretty := _ctrlProxy.IsPrettyChecked;
-		FHistItemObj.SearchFormSettings.Context := _ctrlProxy.LineContext;
+	if HasHistItemObjWithResult or _histObj.IsLoadedFromStream then begin
+		_histObj.GuiSearchTextParams.SetSearchOptions(_ctrlProxy.SearchOptions);
+		_histObj.SearchFormSettings.Hidden := _ctrlProxy.IsHiddenChecked;
+		_histObj.SearchFormSettings.NoIgnore := _ctrlProxy.IsNoIgnoreChecked;
+		_histObj.SearchFormSettings.Encoding := _ctrlProxy.Encoding;
+		_histObj.SearchFormSettings.Pretty := _ctrlProxy.IsPrettyChecked;
+		_histObj.SearchFormSettings.Context := _ctrlProxy.LineContext;
+
+		// copy every other setting...
+		CopySettingsToHistObj;
+
 	end else begin
 		FSettings.RipGrepParameters.GuiSearchTextParams.SetSearchOptions(_ctrlProxy.SearchOptions);
-		// FSettings.IsReplaceMode := FCtrlProxy.IsReplaceMode;
 		FSettings.SearchFormSettings.Hidden := _ctrlProxy.IsHiddenChecked;
 		FSettings.SearchFormSettings.NoIgnore := _ctrlProxy.IsNoIgnoreChecked;
 		FSettings.SearchFormSettings.Encoding := _ctrlProxy.Encoding;
@@ -1524,6 +1517,18 @@ begin
 	cmbRgParamEncoding.Text := FCtrlProxy.Encoding;
 	dbgMsg.Msg('cmbRgParamEncoding.Text=' + cmbRgParamEncoding.Text);
 
+end;
+
+procedure TRipGrepperSearchDialogForm.CopySettingsToHistObj;
+begin
+	// FSettings.SearchFormSettings.StoreSearchSettings(False);
+	FHistItemObj.SearchFormSettings.Copy(FSettings.SearchFormSettings);
+	FHistItemObj.SearchFormSettings.LoadFromDict();
+	FHistItemObj.RipGrepArguments.Clear;
+	var
+	args := FSettings.GetRipGrepArguments();
+	FHistItemObj.RipGrepArguments.Assign(args());
+	FHistItemObj.GuiSearchTextParams.Copy(FSettingsProxy);
 end;
 
 function TRipGrepperSearchDialogForm.GetMaxCountHistoryItems(const _arr : TArrayEx<string>) : TArrayEx<string>;
