@@ -284,8 +284,6 @@ begin
 end;
 
 procedure TGuiSearchTextParams.SaveToStreamWriter(_sw : TStreamWriter);
-var
-	s : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.SaveToStreamWriter');
