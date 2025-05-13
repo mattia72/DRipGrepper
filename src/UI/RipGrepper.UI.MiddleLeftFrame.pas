@@ -100,7 +100,7 @@ type
 			procedure ExpandIfHasChild(const Node : PVirtualNode);
 			function GetCurrentValidHistoryObject() : IHistoryItemObject;
 			function GetData : TRipGrepperData;
-			function GetHistNodeIndex(Node : PVirtualNode) : integer;
+			function GetHistoryItemNodeIndex(Node : PVirtualNode) : integer;
 			function GetHistoryObject(const _index : Integer) : THistoryItemObject;
 			function GetIsInitialized() : Boolean;
 			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
@@ -465,7 +465,7 @@ begin
 	Result := FData;
 end;
 
-function TMiddleLeftFrame.GetHistNodeIndex(Node : PVirtualNode) : integer;
+function TMiddleLeftFrame.GetHistoryItemNodeIndex(Node : PVirtualNode) : integer;
 begin
 	if (Node.Parent = VstHistory.RootNode) then begin
 		Result := Node.Index;
@@ -725,9 +725,9 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.VstHistoryNodeClick');
 	node := HitInfo.HitNode;
-	idx := GetHistNodeIndex(node);
+	idx := GetHistoryItemNodeIndex(node);
 
-	if hiOnNormalIcon in HitInfo.HitPositions then begin
+	if (node.Parent = Sender.RootNode) and (hiOnNormalIcon in HitInfo.HitPositions) then begin
 		DeleteHistItemNode(node);
 		Exit;
 	end;
@@ -764,7 +764,7 @@ var
 	hio : IHistoryItemObject;
 	idx : integer;
 begin
-	idx := GetHistNodeIndex(Node);
+	idx := GetHistoryItemNodeIndex(Node);
 	hio := GetHistoryObject(idx);
 
 	if not Assigned(hio) then
@@ -839,7 +839,7 @@ procedure TMiddleLeftFrame.DeleteHistItemNode(const node : PVirtualNode);
 var
 	idx : integer;
 begin
-	idx := GetHistNodeIndex(node);
+	idx := GetHistoryItemNodeIndex(node);
 
 	VstHistory.DeleteNode(node);
 	VstHistory.Refresh;
@@ -898,8 +898,9 @@ begin
 		ikNormal, ikSelected :
 		case Column of
 			COL_SEARCH_TEXT : begin
-				if (VstHistory.HotNode = Node) then begin
-					ImageIndex := 2
+				if (Sender.HotNode = Node) and (Node.Parent = Sender.RootNode) then begin
+					ImageIndex := 2;
+					Ghosted := True;
 				end else begin
 					ImageIndex := -1;
 				end;
@@ -923,6 +924,7 @@ begin
 		nodeData.IsFromStream := True;
 		AddVstHistItem(@nodeData);
 	end;
+	UpdateReplaceColumnVisible;
 end;
 
 procedure TMiddleLeftFrame.VstHistorySaveTree(Sender : TBaseVirtualTree; Stream : TStream);
@@ -931,10 +933,16 @@ var
 	idx : integer;
 	sw : IShared<TStreamWriter>;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.VstHistorySaveTree');
 	sw := Shared.Make<TStreamWriter>(TStreamWriter.Create(Stream));
 	sw.WriteLine(VstHistory.RootNodeCount);
 	for var node : PVirtualNode in VstHistory.Nodes() do begin
-		idx := GetHistNodeIndex(node);
+		if node.Parent <> VstHistory.RootNode then begin
+			dbgMsg.Msg('Child node skipped');
+			continue;
+		end;
+		idx := GetHistoryItemNodeIndex(node);
 		hio := GetHistoryObject(idx);
 		hio.SaveToStreamWriter(sw);
 	end;
