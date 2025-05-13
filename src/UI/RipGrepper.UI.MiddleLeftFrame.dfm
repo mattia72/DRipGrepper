@@ -91,14 +91,16 @@ object MiddleLeftFrame: TMiddleLeftFrame
     object ActionHistoryDelete: TAction
       Caption = 'Delete'
       Hint = 'Delete Selected Item'
-      ImageIndex = 2
-      ImageName = 'trash'
+      ImageIndex = 4
+      ImageName = 'close'
       ShortCut = 46
       OnExecute = ActionHistoryDeleteExecute
       OnUpdate = ActionHistoryDeleteUpdate
     end
     object ActionHistoryDeleteAll: TAction
       Caption = 'Delete All'
+      ImageIndex = 5
+      ImageName = 'close-all'
       ShortCut = 8238
       OnExecute = ActionHistoryDeleteAllExecute
       OnUpdate = ActionHistoryDeleteAllUpdate
@@ -246,6 +248,31 @@ object MiddleLeftFrame: TMiddleLeftFrame
           '4.49988C21.6044 5.60991 22.0002 6.91498 22.0002 8.25C22.0002 10.' +
           '0402 21.2891 11.7571 20.0232 13.023C18.7573 14.2888 17.0405 15 1' +
           '5.2502 15Z" fill="#424242"/>'#13#10'</svg>'#13#10
+      end
+      item
+        IconName = 'close'
+        SVGText = 
+          '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmln' +
+          's="http://www.w3.org/2000/svg">'#10'<path fill-rule="evenodd" clip-r' +
+          'ule="evenodd" d="M8.00028 8.70711L11.6467 12.3536L12.3538 11.646' +
+          '5L8.70739 8.00001L12.3538 4.35356L11.6467 3.64645L8.00028 7.2929' +
+          'L4.35384 3.64645L3.64673 4.35356L7.29317 8.00001L3.64673 11.6465' +
+          'L4.35384 12.3536L8.00028 8.70711Z" fill="#424242"/>'#10'</svg>'#10
+      end
+      item
+        IconName = 'close-all'
+        SVGText = 
+          '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmln' +
+          's="http://www.w3.org/2000/svg">'#10'<path fill-rule="evenodd" clip-r' +
+          'ule="evenodd" d="M8.62156 8.0858L7.91446 7.37869L6.50024 8.7929L' +
+          '5.08603 7.37869L4.37892 8.0858L5.79314 9.50001L4.37892 10.9142L5' +
+          '.08603 11.6213L6.50024 10.2071L7.91446 11.6213L8.62156 10.9142L7' +
+          '.20735 9.50001L8.62156 8.0858Z" fill="#424242"/>'#10'<path fill-rule' +
+          '="evenodd" clip-rule="evenodd" d="M5.00024 3L6.00024 2H13.0002L1' +
+          '4.0002 3V10L13.0002 11H11.0002V13L10.0002 14H3.00024L2.00024 13V' +
+          '6L3.00024 5H5.00024V3ZM6.00024 5H10.0002L11.0002 6V10H13.0002V3H' +
+          '6.00024V5ZM10.0002 6H3.00024V13H10.0002V6Z" fill="#424242"/>'#10'</s' +
+          'vg>'#10
       end>
     Scaled = True
     Left = 400

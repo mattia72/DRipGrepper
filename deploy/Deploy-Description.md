@@ -17,6 +17,10 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 
 ## :boom: Improvements 
 Marked with a checkmark if ready; otherwise, it is planned.
+- [x] history item can be deleted with one click on trash hover icon
+  - [x] hover icon is not shown when the mouse is not over the history item
+  - [ ] introduce standard icon for history items, so hover icon appear should not move the text
+  - [x] x instead of trahs icon?
 - [ ] search for file names eg. `rg.exe -g='*pattern*' --files <DIR>`
 - [ ] **extension**: display save all files message before search?
 - [ ] **extension**: search only in opened project files
@@ -25,8 +29,8 @@ Marked with a checkmark if ready; otherwise, it is planned.
 
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.
-- [ ] load histories at startup
-  - [ ] load replace historie items not working properly
+- [x] load histories at startup
+  - [x] load replace historie items not working properly
   - [x] when a loaded history item is modified (e.g., adding --stats), the change is not recognized during the first search attempt but works on the second attempt. 
   - [x] saved history item doesn't contain additional options (e.g., --stats). 
 - [ ] **extension**: if search only in current file, path of the file is not saved in history

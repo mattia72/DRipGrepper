@@ -83,6 +83,7 @@ type
 		private const
 			COL_SEARCH_TEXT = 0;
 			COL_REPLACE_TEXT = 1;
+			IMAGE_IDX_X = 4;
 
 		var
 			FColorSettings : TFontColors;
@@ -825,9 +826,10 @@ begin
 	ho := GetCurrentHistoryObject;
 
 	node := GetNodeByIndex(VstHistory, CurrentHistoryItemIndex);
+	{$IFDEF DEBUG}
 	data := VstHistory.GetNodeData(node);
 	dbgMsg.MsgFmt('idx:%d node:%s, ho:%s', [CurrentHistoryItemIndex, data.SearchText, ho.GuiSearchTextParams.GetSearchText]);
-
+	{$ENDIF}
 	VstHistory.DeleteNode(node);
 	VstHistory.Refresh;
 	DeleteCurrentHistoryItemFromList;
@@ -898,11 +900,13 @@ begin
 		ikNormal, ikSelected :
 		case Column of
 			COL_SEARCH_TEXT : begin
-				if (Sender.HotNode = Node) and (Node.Parent = Sender.RootNode) then begin
-					ImageIndex := 2;
+				var
+				showNodeIcon := (Node.Parent = Sender.RootNode);
+				ImageIndex := -1;
+				Ghosted := False;
+				if (Sender.HotNode = Node) and showNodeIcon then begin
+					ImageIndex := IMAGE_IDX_X;
 					Ghosted := True;
-				end else begin
-					ImageIndex := -1;
 				end;
 			end;
 		end;
