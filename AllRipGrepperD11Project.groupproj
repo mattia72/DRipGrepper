@@ -1,0 +1,72 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{CD0CC90D-2645-48D3-AA04-01E0FA41E309}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="..\spring4d\Tests\Spring.Tests.Delphi12.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="UnitTest\DRipGrepperUnittest.D11.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="src\Project\Delphi11\DRipGrepper.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Extension\src\Project\Dll.Delphi11\DRipExtensions.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="Spring_Tests_Delphi12">
+        <MSBuild Projects="..\spring4d\Tests\Spring.Tests.Delphi12.dproj"/>
+    </Target>
+    <Target Name="Spring_Tests_Delphi12:Clean">
+        <MSBuild Projects="..\spring4d\Tests\Spring.Tests.Delphi12.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Spring_Tests_Delphi12:Make">
+        <MSBuild Projects="..\spring4d\Tests\Spring.Tests.Delphi12.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DRipGrepperUnittest_D11">
+        <MSBuild Projects="UnitTest\DRipGrepperUnittest.D11.dproj"/>
+    </Target>
+    <Target Name="DRipGrepperUnittest_D11:Clean">
+        <MSBuild Projects="UnitTest\DRipGrepperUnittest.D11.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DRipGrepperUnittest_D11:Make">
+        <MSBuild Projects="UnitTest\DRipGrepperUnittest.D11.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DRipGrepper">
+        <MSBuild Projects="src\Project\Delphi11\DRipGrepper.dproj"/>
+    </Target>
+    <Target Name="DRipGrepper:Clean">
+        <MSBuild Projects="src\Project\Delphi11\DRipGrepper.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DRipGrepper:Make">
+        <MSBuild Projects="src\Project\Delphi11\DRipGrepper.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DRipExtensions">
+        <MSBuild Projects="Extension\src\Project\Dll.Delphi11\DRipExtensions.dproj"/>
+    </Target>
+    <Target Name="DRipExtensions:Clean">
+        <MSBuild Projects="Extension\src\Project\Dll.Delphi11\DRipExtensions.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DRipExtensions:Make">
+        <MSBuild Projects="Extension\src\Project\Dll.Delphi11\DRipExtensions.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="Spring_Tests_Delphi12;DRipGrepperUnittest_D11;DRipGrepper;DRipExtensions"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="Spring_Tests_Delphi12:Clean;DRipGrepperUnittest_D11:Clean;DRipGrepper:Clean;DRipExtensions:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="Spring_Tests_Delphi12:Make;DRipGrepperUnittest_D11:Make;DRipGrepper:Make;DRipExtensions:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
