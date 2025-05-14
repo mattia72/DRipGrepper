@@ -10,6 +10,10 @@
   - [Scoop](#scoop)
   - [Manual](#manual)
   - [Delphi Integration](#delphi-integration)
+- [Update](#update)
+  - [Scoop](#scoop-1)
+  - [Manual](#manual-1)
+- [Compile](#compile)
 - [Contribution](#contribution)
 - [Thanks](#thanks)
 
@@ -75,7 +79,7 @@ Many settings can be set in the config form, but some are only available in the 
   - [x] Copy path, etc.
   - [x] Add file to `uses` list in interface/implementation section
 
-## Installation
+## Installation 
 
 ### Scoop
 If you want to be up to date with the latest versions.
@@ -99,18 +103,32 @@ scoop install dripgrepper
 * Push Install... 
   * (If not found in current folder, select `DripExtensions.dll`)
 * Restart Delphi
-##### As BPL package (deprecated)
-* Open Delphi
+
+## Update
+Before you begin updating, ensure that both DripGrepper.exe and Delphi are closed, especially if you have the extension installed. 
+### Scoop
+```
+scoop update dripgrepper
+```
+### Manual
+* Delete all files in the folder of DripGrepper, except the settings ini file.
+* Unzip the downloaded [release](https://github.com/mattia72/DRipGrepper/releases).
+  
+## Compile
+
+* Fork the project
+* Open the AllRripGrepperProjectXX.groupproj in Delphi
+  
+### Dependencies
 * Open `Tools | GetIt-Package-Manager` 
-* Install `VirtualTree for VCL`
-* Open `Component | Install Packages...`
-* Add `DripExtension.bpl` to Design packages list
-* Ready
+  * Install `VirtualTree for VCL`
+* Clone [spring4d](https://bitbucket.org/sglienke/spring4d) into a folder next to DripGrepper
 
 ## Contribution
 To submit a pull request, follow these steps:
 
-* Fork the project
+* Fork the project 
+* [Compile](#compile)
 * Create a new branch (`git checkout -b 'my-new-feature'`)
 * Make your changes
 * Make the commit (`git commit -am 'Functionality or adjustment message'`)
