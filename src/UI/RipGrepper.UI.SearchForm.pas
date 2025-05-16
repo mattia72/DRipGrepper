@@ -990,6 +990,9 @@ end;
 procedure TRipGrepperSearchDialogForm.CopySettingsToCtrlProxy(var _ctrlProxy : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;
 	_settings : TRipGrepperSettings);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.CopySettingsToCtrlProxy');
+
 	CopyItemsToProxy(_ctrlProxy.SearchTextHist, FSettings.SearchTextsHistory);
 	CopyItemsToProxy(_ctrlProxy.ReplaceTextHist, FSettings.ReplaceTextsHistory);
 	CopyItemsToProxy(_ctrlProxy.SearchPathHist, FSettings.SearchPathsHistory);
@@ -997,7 +1000,10 @@ begin
 	CopyItemsToProxy(_ctrlProxy.AdditionalExpertOptionsHist, FSettings.ExpertOptionHistory);
 
 	_ctrlProxy.EncodingItems := FSettings.AppSettings.EncodingItems;
-	_ctrlProxy.ExtensionContext := ERipGrepperExtensionContext(FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext.IDEContext);
+	var
+	iIDEContext := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext.IDEContext;
+	_ctrlProxy.ExtensionContext := ERipGrepperExtensionContext(iIDECOntext);
+	dbgMsg.MsgFmt('IDEContext = %d', [Integer(_ctrlProxy.ExtensionContext)]);
 
 	if HasHistItemObjWithResult or FHistItemObj.IsLoadedFromStream then begin
 		_ctrlProxy.SearchText := FHistItemObj.GuiSearchTextParams.SearchTextWithOptions.SearchTextOfUser;
@@ -1035,6 +1041,9 @@ end;
 procedure TRipGrepperSearchDialogForm.CopyProxyToSettings(const _ctrlProxy : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;
 	_settings : TRipGrepperSettings);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.CopyProxyToSettings');
+
 	FSettings.SearchTextsHistory.Value := GetMaxCountHistoryItems(_ctrlProxy.SearchTextHist);
 	FSettings.ReplaceTextsHistory.Value := GetMaxCountHistoryItems(_ctrlProxy.ReplaceTextHist);
 	FSettings.SearchPathsHistory.Value := GetMaxCountHistoryItems(_ctrlProxy.SearchPathHist);
@@ -1043,6 +1052,8 @@ begin
 	var
 	rgec := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
 	rgec.IDEContext := integer(_ctrlProxy.ExtensionContext);
+	dbgMsg.MsgFmt('IDEContext = %d', [rgec.IDEContext]);
+
 	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext := rgec;
 
 	if HasHistItemObjWithResult or _histObj.IsLoadedFromStream then begin
@@ -1457,10 +1468,17 @@ end;
 
 procedure TRipGrepperSearchDialogForm.UpdateRbExtensionItemIndex(const _idx : Integer);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateRbExtensionItemIndex');
+
 	FbExtensionOptionsSkipClick := True;
+	try
 	rbExtensionOptions.ItemIndex := _idx;
+		dbgMsg.MsgFmt('rbExtensionOptions.ItemIndex = %d', [_idx]);
 	UpdateCmbsOnIDEContextChange();
+	finally
 	FbExtensionOptionsSkipClick := False;
+	end;
 end;
 
 function TRipGrepperSearchDialogForm.ValidateRegex : Boolean;
