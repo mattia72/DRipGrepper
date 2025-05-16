@@ -74,11 +74,11 @@
     <VerInfo_Locale>1033</VerInfo_Locale>
     <DCC_UsePackage>rtl;dbrtl;vcldb;vcl;VirtualTreesDR;VclSmp;$(DCC_UsePackage)</DCC_UsePackage>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.6.1.239;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.6.1.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>239</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.6.2.244;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.6.2;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>244</VerInfo_Build>
     <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
     <VerInfo_MinorVer>6</VerInfo_MinorVer>
-    <VerInfo_Release>1</VerInfo_Release>
+    <VerInfo_Release>2</VerInfo_Release>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Base_Win64)'!=''">
     <DCC_UsePackage>rtl;dbrtl;vcldb;vcl;VirtualTreesDR;VclSmp;$(DCC_UsePackage)</DCC_UsePackage>
@@ -100,13 +100,13 @@
     <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\22.0\bin\bds.exe</Debugger_HostApplication>
     <DCC_ShowGeneralMessages>true</DCC_ShowGeneralMessages>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.6.1.239;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.6.1.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>239</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.6.2.244;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.6.2;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>244</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <Manifest_File>..\Delphi12\(None)</Manifest_File>
     <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
     <VerInfo_MinorVer>6</VerInfo_MinorVer>
-    <VerInfo_Release>1</VerInfo_Release>
+    <VerInfo_Release>2</VerInfo_Release>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_2)'!=''">
     <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -118,15 +118,15 @@
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
     <VerInfo_Locale>1033</VerInfo_Locale>
-    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.6.1.240;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.6.1.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>240</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.6.2.247;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.6.2;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>247</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <DCC_Description>RipGrep Search within Delphi</DCC_Description>
     <VerInfo_MinorVer>6</VerInfo_MinorVer>
     <Manifest_File>(Ohne)</Manifest_File>
     <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
     <DCC_MapFile>3</DCC_MapFile>
-    <VerInfo_Release>1</VerInfo_Release>
+    <VerInfo_Release>2</VerInfo_Release>
   </PropertyGroup>
   <ItemGroup>
     <DelphiCompile Include="$(MainSource)">

@@ -1,7 +1,7 @@
 <!--
 
-Version:     v4.6.1-beta
-PrevVersion: v4.6.0-beta
+Version:     v4.6.2-beta
+PrevVersion: v4.6.1-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -17,10 +17,6 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 
 ## :boom: Improvements 
 Marked with a checkmark if ready; otherwise, it is planned.
-- [x] history item can be deleted with one click on trash hover icon
-  - [x] hover icon is not shown when the mouse is not over the history item
-  - [ ] introduce standard icon for history items, so hover icon appear should not move the text
-  - [x] x instead of trahs icon?
 - [ ] search for file names eg. `rg.exe -g='*pattern*' --files <DIR>`
 - [ ] **extension**: display save all files message before search?
 - [ ] **extension**: search only in opened project files
@@ -29,12 +25,10 @@ Marked with a checkmark if ready; otherwise, it is planned.
 
 ## :exclamation: Bugs
 Marked with checkmark if fixed, else it is a known bug.
-- [x] load histories at startup
-  - [x] load replace historie items not working properly
-  - [x] when a loaded history item is modified (e.g., adding --stats), the change is not recognized during the first search attempt but works on the second attempt. 
-  - [x] saved history item doesn't contain additional options (e.g., --stats). 
+ - [x] **extension**: radio button group value of extension context is not saved between searches
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: drip icon in menu has no transparent background
 - [ ] look on dpi change (drag window to another monitor)
   - [ ] search form Use Regex button disappear if drag to another monitor
   - [ ] ugly config form 
+- [ ] **extension**: change theme if only start page is open causes exception
