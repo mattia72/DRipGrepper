@@ -818,7 +818,9 @@ procedure TMiddleLeftFrame.DeleteCurrentNode;
 var
 	ho : IHistoryItemObject;
 	node : PVirtualNode;
+	{$IFDEF DEBUG}
 	data : PVSHistoryNodeData;
+	{$ENDIF}
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.DeleteCurrentNode');

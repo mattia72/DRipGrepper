@@ -10,9 +10,9 @@ uses
 	RipGrepper.Settings.SettingVariant;
 
 const
-	GUITEST = {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
-	EXTENSION = {$IFNDEF STANDALONE} TRUE; {$ELSE} FALSE; {$ENDIF}
-
+	IS_GUITEST =  FALSE; //{$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
+	IS_EXTENSION = {$IFNDEF STANDALONE} TRUE; {$ELSE} FALSE; {$ENDIF}
+	IS_STANDALONE = {$IFDEF STANDALONE} TRUE; {$ELSE} FALSE; {$ENDIF}
 type
 	TRipGrepperExtensionContext = record
 		IDEContext : integer;

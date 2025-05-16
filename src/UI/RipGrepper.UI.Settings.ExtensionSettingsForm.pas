@@ -105,7 +105,7 @@ begin
 	FDelphiVersions := TDelphiVersions.Create;
 
 	// UpdateRegisteredDllPath;
-	{$IF GUITEST OR NOT DEFINED(STANDALONE)}
+	{$IF IS_GUITEST OR IS_EXTENSION}
 	ReadSettings;
 	{$ENDIF}
 end;
@@ -162,7 +162,7 @@ var
 	versions : TStrings;
 	dv : IDelphiVersion;
 begin
-	{$IF NOT GUITEST AND DEFINED(STANDALONE)}
+	{$IF NOT IS_GUITEST AND IS_STANDALONE}
 	grpShortcuts.Visible := False;
 	grpInstallation.Top := grpShortcuts.Top;
 	{$ENDIF}
@@ -237,7 +237,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TExtensionSettingsForm.ReadSettings');
 
 	FExtensionSettings.LoadFromDict;
-	{$IF GUITEST OR NOT DEFINED(STANDALONE)}
+	{$IF IS_GUITEST OR IS_EXTENSION}
 	hkedtOpenWidth.HotKey := TextToShortCut(FExtensionSettings.OpenWithShortcut);
 	hkedtSearchSelected.HotKey := TextToShortCut(FExtensionSettings.SearchSelectedShortcut);
 	{$ENDIF}
@@ -299,10 +299,9 @@ end;
 
 procedure TExtensionSettingsForm.WriteSettings;
 begin
-	{$IF GUITEST OR NOT DEFINED(STANDALONE)}
+	{$IF IS_GUITEST OR IS_EXTENSION}
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TExtensionSettingsForm.WriteSettings');
-
 	FExtensionSettings.OpenWithShortcut := ShortCutToText(hkedtOpenWidth.HotKey);
 	FExtensionSettings.SearchSelectedShortcut := ShortCutToText(hkedtSearchSelected.HotKey);
 	{$ENDIF}

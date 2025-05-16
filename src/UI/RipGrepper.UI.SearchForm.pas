@@ -1109,16 +1109,10 @@ procedure TRipGrepperSearchDialogForm.rbExtensionOptionsClick(Sender : TObject);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.rbExtensionOptionsClick');
-
-	{$IFDEF STANDALONE}
 	var
-	bStandalone := True;
-	{$ELSE}
-	var
-	bStandalone := False;
-	{$ENDIF}
+	bSkipp := {$IF IS_GUITEST OR IS_EXTENSION} False; {$ELSE} True; {$ENDIF}
 	dbgMsg.MsgFmt('FbExtensionOptionsSkipClick %s', [BoolToStr(FbExtensionOptionsSkipClick, True)]);
-	if bStandalone or FbExtensionOptionsSkipClick then begin
+	if bSkipp or FbExtensionOptionsSkipClick then begin
 		Exit;
 	end;
 	UpdateCmbsOnIDEContextChange();
@@ -1139,8 +1133,12 @@ function TRipGrepperSearchDialogForm.GetInIDESelectedText : string;
 var
 	selectedText : TMultiLineString;
 begin
-	{$IFNDEF STANDALONE}
+	{$IF IS_EXTENSION}
 	IOTAUtils.GxOtaGetActiveEditorTextAsMultilineString(selectedText, True);
+	{$ELSE}
+	{$IF IS_GUITEST}
+	selectedText := 'guitest selected test';
+	{$ENDIF}
 	{$ENDIF}
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.GetInIDESelectedText: ' + selectedText);
 
@@ -1172,13 +1170,13 @@ begin
 	// TODO set only if it was saved before!
 	SetCmbSearchPathText(IfThen(FSettings.RipGrepParameters.SearchPath.IsEmpty, cmbSearchDir.Text, FSettings.RipGrepParameters.SearchPath));
 	dbgMsg.Msg('cmbSearchDir=' + cmbSearchDir.Text);
-	{$IFNDEF STANDALONE}
+	// {$IFNDEF STANDALONE}
 	var
 	cic := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
 	dbgMsg.Msg('IDEContext=' + cic.ToLogString);
 	UpdateRbExtensionItemIndex(Integer(cic.IDEContext));
 	dbgMsg.Msg('cmbSearchDir=' + cmbSearchDir.Text);
-	{$ENDIF}
+	// {$ENDIF}
 	cmbFileMasks.Text := IfThen(FSettings.RipGrepParameters.FileMasks.IsEmpty, cmbFileMasks.Text, FSettings.RipGrepParameters.FileMasks);
 	dbgMsg.Msg('cmbFileMasks.Text=' + cmbFileMasks.Text);
 
@@ -1193,52 +1191,45 @@ end;
 
 procedure TRipGrepperSearchDialogForm.LoadExtensionSearchSettings;
 var
-	extSearchSettings : TRipGrepperExtensionContext;
+	rgec : TRipGrepperExtensionContext;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadExtensionSearchSettings');
-	{$IFDEF STANDALONE}
-	var
-	bStandalone := True;
-	{$ELSE}
-	var
-	bStandalone := False;
-	{$ENDIF}
-	if bStandalone then begin
-		Exit;
-	end;
-
 	dbgMsg.MsgFmt('ExtensionSettings.IsAlreadyRead=%s', [
 		{ } BoolToStr(FSettings.SearchFormSettings.ExtensionSettings.IsAlreadyRead)]);
 	var
 	selectedText := GetInIDESelectedText;
-
-	{$IFNDEF STANDALONE}
-	extSearchSettings := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
+	rgec := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
 	if not HasHistItemObjWithResult then begin
 		if not selectedText.IsEmpty then begin
 			cmbSearchText.Text := selectedText;
 			dbgMsg.Msg('SelectedText=' + selectedText);
 		end;
 	end;
-	extSearchSettings.ActiveFile := IOTAUTils.GxOtaGetCurrentSourceFile();
-	dbgMsg.Msg('ActiveFile=' + extSearchSettings.ActiveFile);
-
-	extSearchSettings.ProjectFiles := IOTAUTils.GetProjectFiles();
-	dbgMsg.MsgFmt('ProjectFiles.Count=', [Length(extSearchSettings.ProjectFiles)]);
-	extSearchSettings.OpenFiles := IOTAUTils.GetOpenedEditBuffers();
-	dbgMsg.MsgFmt('OpenFiles.Count=', [Length(extSearchSettings.OpenFiles)]);
+	{$IF IS_EXTENSION}
+	rgec.ActiveFile := IOTAUTils.GxOtaGetCurrentSourceFile();
+	rgec.ProjectFiles := IOTAUTils.GetProjectFiles();
+	rgec.OpenFiles := IOTAUTils.GetOpenedEditBuffers();
 	var
 	ap := IOTAUTils.GxOtaGetCurrentProject;
 	if Assigned(ap) then begin
-		extSearchSettings.ActiveProject := ap.FileName;
-		dbgMsg.Msg('ActiveProject=' + extSearchSettings.ActiveProject);
+		rgec.ActiveProject := ap.FileName;
 	end;
-
-	dbgMsg.Msg('CurrentIDEContext:' + extSearchSettings.ToLogString);
-	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext := extSearchSettings;
+	{$ELSE}
+	{$IF IS_GUITEST}
+	rgec.ActiveFile := 'guitest\active file';
+	rgec.ProjectFiles := ['guitest\project\files'];
+	rgec.OpenFiles := ['guitest\open\files'];
+	rgec.ActiveProject := 'guitest active project';
 	{$ENDIF}
-	UpdateRbExtensionItemIndex(Integer(extSearchSettings.IDEContext));
+	{$ENDIF}
+	dbgMsg.Msg('ActiveFile=' + rgec.ActiveFile);
+	dbgMsg.MsgFmt('ProjectFiles.Count=', [Length(rgec.ProjectFiles)]);
+	dbgMsg.MsgFmt('OpenFiles.Count=', [Length(rgec.OpenFiles)]);
+	dbgMsg.Msg('ActiveProject=' + rgec.ActiveProject);
+	dbgMsg.Msg('CurrentIDEContext:' + rgec.ToLogString);
+	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext := rgec;
+	UpdateRbExtensionItemIndex(Integer(rgec.IDEContext));
 end;
 
 procedure TRipGrepperSearchDialogForm.LoadInitialSettings;
@@ -1369,14 +1360,10 @@ procedure TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange;
 var
 	rgec : TRipGrepperExtensionContext;
 begin
-	{$IFDEF STANDALONE}
+
 	var
-	bStandalone := True;
-	{$ELSE}
-	var
-	bStandalone := False;
-	{$ENDIF}
-	if not bStandalone then begin
+	bSkipp := {$IF IS_GUITEST OR IS_EXTENSION} False; {$ELSE} True; {$ENDIF}
+	if not bSkipp then begin
 		var
 		dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange');
 
@@ -1430,14 +1417,9 @@ begin
 	end;
 	dbgMsg.Msg('pnlTop.Height=' + pnlTop.Height.ToString);
 	pnlMiddle.Top := pnlTop.Height;
-	{$IFDEF STANDALONE}
 	var
-	bStandalone := True;
-	{$ELSE}
-	var
-	bStandalone := False;
-	{$ENDIF}
-	if bStandalone then begin
+	bStandalone := {$IF IS_GUITEST OR IS_STANDALONE} True; {$ELSE} False; {$ENDIF}
+ 	if bStandalone then begin
 		rbExtensionOptions.Enabled := False;
 		rbExtensionOptions.Visible := False;
 		var
@@ -1474,11 +1456,11 @@ begin
 
 	FbExtensionOptionsSkipClick := True;
 	try
-	rbExtensionOptions.ItemIndex := _idx;
+		rbExtensionOptions.ItemIndex := _idx;
 		dbgMsg.MsgFmt('rbExtensionOptions.ItemIndex = %d', [_idx]);
-	UpdateCmbsOnIDEContextChange();
+		UpdateCmbsOnIDEContextChange();
 	finally
-	FbExtensionOptionsSkipClick := False;
+		FbExtensionOptionsSkipClick := False;
 	end;
 end;
 
