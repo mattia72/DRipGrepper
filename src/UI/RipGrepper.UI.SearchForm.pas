@@ -1384,17 +1384,18 @@ begin
 		dbgMsg.Msg(rgec.ToLogString);
 
 		cmbSearchDir.Enabled := False;
-		case rbExtensionOptions.ItemIndex of
-			EXT_SEARCH_ACTIVE_FILE : begin
+		FCtrlProxy.ExtensionContext := ERipGrepperExtensionContext(rbExtensionOptions.ItemIndex);
+		case FCtrlProxy.ExtensionContext of
+			ERipGrepperExtensionContext.rgecActiveFile : begin
 				SetCmbSearchPathText(rgec.ActiveFile);
 			end;
-			EXT_SEARCH_PROJECT_FILES : begin
+			ERipGrepperExtensionContext.rgecProjectFiles : begin
 				SetCmbSearchPathText(string.Join(SEARCH_PATH_SEPARATOR, rgec.ProjectFiles).Trim([SEARCH_PATH_SEPARATOR]));
 			end;
-			EXT_SEARCH_OPEN_FILES : begin
+			ERipGrepperExtensionContext.rgecOpeneFiles : begin
 				SetCmbSearchPathText(string.Join(SEARCH_PATH_SEPARATOR, rgec.OpenFiles).Trim([SEARCH_PATH_SEPARATOR]));
 			end;
-			EXT_SEARCH_GIVEN_PATH : begin
+			ERipGrepperExtensionContext.rgecPath : begin
 				cmbSearchDir.Enabled := True;
 				dbgMsg.MsgFmt('SearchPath=%s', [FCtrlProxy.SearchPath]);
 				SetComboItemsAndText(cmbSearchDir, FCtrlProxy.SearchPath, FSettings.SearchPathsHistory.Value);
