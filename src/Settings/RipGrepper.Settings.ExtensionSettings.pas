@@ -9,8 +9,9 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Settings.SettingVariant;
 
-
-const GUITEST = {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
+const
+	GUITEST = {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
+	EXTENSION = {$IFNDEF STANDALONE} TRUE; {$ELSE} FALSE; {$ENDIF}
 
 type
 	TRipGrepperExtensionContext = record
@@ -102,7 +103,7 @@ begin
 	FOpenWithShortCut := TStringSetting.Create(TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH);
 
 	FIDEContext := TIntegerSetting.Create();
-    FCurrentIDEContext.IDEContext := EXT_SEARCH_GIVEN_PATH;
+	FCurrentIDEContext.IDEContext := EXT_SEARCH_GIVEN_PATH;
 
 	CreateSetting(KEY_SHORTCUT_SEARCH_SELECTED, FSearchSelectedShortcut);
 	CreateSetting(KEY_SHORTCUT_OPENWITH, FOpenWithShortCut);
@@ -112,7 +113,7 @@ end;
 procedure TRipGrepperExtensionSettings.SetCurrentIDEContext(const Value : TRipGrepperExtensionContext);
 begin
 	FCurrentIDEContext := Value;
-    FIDEContext.Value := FCurrentIDEContext.IDEContext;
+	FIDEContext.Value := FCurrentIDEContext.IDEContext;
 end;
 
 procedure TRipGrepperExtensionSettings.SetOpenWithShortcut(const Value : string);
