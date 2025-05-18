@@ -10,18 +10,18 @@ uses
 	System.SysUtils,
 	ArrayEx,
 	System.Generics.Collections,
-	System.Generics.Defaults;
+	System.Generics.Defaults,
+	Spring,
+	RipGrepper.Common.SimpleTypes;
 
 type
-
-	EReplaceMode = (rmUseRegex, rmIgnoreCase);
-	TReplaceModes = set of EReplaceMode;
 
 	TReplaceData = record
 		Row : integer;
 		Col : integer;
 		ReplacedLine : string;
-		class function New(const _row : Integer; const _col : Integer; const _replacedLine : string) : TReplaceData; static;
+		OrigLine : TNullableString;
+		class function New(const _row, _col : Integer; const _origLine, _replacedLine : string) : TReplaceData; static;
 		class operator Initialize(out Dest : TReplaceData);
 	end;
 
@@ -42,7 +42,7 @@ type
 		public
 			constructor Create;
 			destructor Destroy; override;
-			procedure AddUnique(const fileName : string; const row, col : integer; const replaceLine : string);
+			procedure AddUnique(const fileName : string; const row, col : integer; const origLine, replaceLine : string);
 			function TryGet(const fileName : string; const row : integer; const col : integer; var replaceLine : string) : boolean;
 			function Contains(fileName : string; row, col : integer) : Boolean;
 			function GetCounters() : TFileReplaceCounters;
@@ -56,8 +56,8 @@ type
 			class function GetLengthDiffOfOrigAndChanged(var actLine, origLine : string) : Integer;
 
 		public
-			class procedure ReplaceLineInFile(const _fileName : string; const _row : Integer; const _col : Integer;
-				const _replaceLine : string; const _createBackup : Boolean = True);
+			class procedure ReplaceLineInFile(const _fileName : string; const _row, _col : Integer; const _origLine, _replaceLine : string;
+				const _createBackup : Boolean = True);
 			class procedure ReplaceLineInFiles(_list : TReplaceList; const _createBackup : Boolean = True);
 			class function ReplaceString(const _input, _pattern, _replacement : string; const _fromCol : Integer;
 				const _mode : TReplaceModes) : string;
@@ -105,14 +105,14 @@ begin
 	Result := actLength - origLength;
 end;
 
-class procedure TReplaceHelper.ReplaceLineInFile(const _fileName : string; const _row : Integer; const _col : Integer;
-	const _replaceLine : string; const _createBackup : Boolean = True);
+class procedure TReplaceHelper.ReplaceLineInFile(const _fileName : string; const _row, _col : Integer;
+	const _origLine, _replaceLine : string; const _createBackup : Boolean = True);
 var
 	list : TReplaceList;
 begin
 	list := TReplaceList.Create;
 	try
-		list.AddUnique(_fileName, _row, _col, _replaceLine);
+		list.AddUnique(_fileName, _row, _col, _origLine, _replaceLine);
 		TReplaceHelper.ReplaceLineInFiles(list);
 	finally
 		list.Free;
@@ -122,9 +122,12 @@ end;
 class procedure TReplaceHelper.ReplaceLineInFiles(_list : TReplaceList; const _createBackup : Boolean = True);
 var
 	actLine, origLine : string;
+	bFileMismatch : Boolean;
 	fileLines : TEncodedStringList;
 	context : IReplaceContext;
 	diff : Integer;
+	fileLine : string;
+	iCheckedRow: Integer;
 	lineEnd : string;
 	lineStart : string;
 	prevRow : TReplaceData;
@@ -134,33 +137,49 @@ begin
 
 	context := TReplaceContext.Create();
 	for var fileName in _list.Items.Keys do begin
-		if _createBackup then begin
-			TFileUtils.CreateBackup(fileName);
-		end;
 		fileLines := TEncodedStringList.Create;
 		try
 			context.GetFileLines(fileName, fileLines);
 			prevRow := default (TReplaceData);
-
+			bFileMismatch := False;
+            iCheckedRow := -1;
 			for var rd : TReplaceData in _list.Items[fileName] do begin
 				if (rd.Row >= 0) and (rd.Row <= fileLines.Count) then begin
+
+					fileLine := fileLines[rd.Row - 1];
+					if (iCheckedRow <> rd.Row) and (rd.OrigLine <> fileLine) then begin
+						TMsgBox.ShowWarning(Format(
+							{ } 'Current line does not match the line which was replaced in ' + CRLF +
+							{ } '%s(%d)' + CRLF2 + 'Please save the file, refresh search results, then try replacing again.',
+							[fileName, rd.Row]));
+						bFileMismatch := True;
+						break;
+					end else begin
+                        iCheckedRow := rd.Row;
+                    end;
+
 					if prevRow.Row = rd.Row then begin
-						actLine := fileLines[rd.Row - 1];
+						actLine := fileLine;
 						// Get difference of orig and changed text length
 						diff := GetLengthDiffOfOrigAndChanged(actLine, origLine);
 						lineStart := actLine.Substring(0, rd.Col - 1 + diff);
 						lineEnd := rd.ReplacedLine.Substring(rd.Col - 1);
 						replacedLine := lineStart + lineEnd;
 					end else begin
-						origLine := fileLines[rd.Row - 1];
+						origLine := fileLine;
 						replacedLine := rd.ReplacedLine;
 					end;
 					fileLines[rd.Row - 1] := replacedLine;
 				end;
 				prevRow := rd;
 			end;
+			if not bFileMismatch then begin
+				if _createBackup then begin
+					TFileUtils.CreateBackup(fileName);
+				end;
 
-			context.WriteFileLines(fileName, fileLines);
+				context.WriteFileLines(fileName, fileLines);
+			end;
 		finally
 			fileLines.Free;
 		end;
@@ -198,10 +217,11 @@ begin
 	end;
 end;
 
-class function TReplaceData.New(const _row : Integer; const _col : Integer; const _replacedLine : string) : TReplaceData;
+class function TReplaceData.New(const _row, _col : Integer; const _origLine, _replacedLine : string) : TReplaceData;
 begin
 	Result.Row := _row;
 	Result.Col := _col;
+	Result.OrigLine := _origLine;
 	Result.ReplacedLine := _replacedLine;
 end;
 
@@ -209,6 +229,7 @@ class operator TReplaceData.Initialize(out Dest : TReplaceData);
 begin
 	Dest.Row := -1;
 	Dest.Col := -1;
+	Dest.OrigLine := nil;
 	Dest.ReplacedLine := '';
 end;
 
@@ -234,17 +255,17 @@ begin
 	inherited;
 end;
 
-procedure TReplaceList.AddUnique(const fileName : string; const row, col : integer; const replaceLine : string);
+procedure TReplaceList.AddUnique(const fileName : string; const row, col : integer; const origLine, replaceLine : string);
 var
 	replaceList : TArrayEx<TReplaceData>;
 begin
 	if Items.TryGetValue(fileName, replaceList) then begin
-		if not replaceList.Contains(TReplaceData.New(row, col, replaceLine), FComparer)
+		if not replaceList.Contains(TReplaceData.New(row, col, origLine, replaceLine), FComparer)
 		{ } then begin
-			replaceList.Add(TReplaceData.New(row, col, replaceLine));
+			replaceList.Add(TReplaceData.New(row, col, origLine, replaceLine));
 		end;
 	end else begin
-		replaceList := [TReplaceData.New(row, col, replaceLine)];
+		replaceList := [TReplaceData.New(row, col, origLine, replaceLine)];
 	end;
 	Items.AddOrSetValue(fileName, replaceList);
 end;
@@ -256,7 +277,7 @@ begin
 	Result := False;
 	if Items.TryGetValue(fileName, replaceList) then begin
 		var
-		idx := replaceList.IndexOf(TReplaceData.New(row, col, ''), FComparer);
+		idx := replaceList.IndexOf(TReplaceData.New(row, col, '', ''), FComparer);
 		if idx >= 0 then begin
 			replaceLine := replaceList[idx].ReplacedLine;
 			Result := True;
@@ -270,7 +291,7 @@ var
 begin
 	Result := False;
 	if Items.TryGetValue(fileName, replaceList) then begin
-		Result := replaceList.Contains(TReplaceData.New(row, col, ''), FComparer);
+		Result := replaceList.Contains(TReplaceData.New(row, col, '', ''), FComparer);
 	end;
 
 end;
@@ -303,7 +324,7 @@ begin
 	Result := False;
 	if Items.TryGetValue(fileName, replaceList) then begin
 		var
-		idx := replaceList.IndexOf(TReplaceData.New(row, col, ''), FComparer);
+		idx := replaceList.IndexOf(TReplaceData.New(row, col, '', ''), FComparer);
 		if idx >= 0 then begin
 			rd.Row := row;
 			rd.ReplacedLine := line;
@@ -322,7 +343,7 @@ begin
 	Result := False;
 	if Items.TryGetValue(fileName, replaceList) then begin
 		var
-		idx := replaceList.IndexOf(TReplaceData.New(row, col, ''), FComparer);
+		idx := replaceList.IndexOf(TReplaceData.New(row, col, '', ''), FComparer);
 		if idx >= 0 then begin
 			replaceList.Delete(idx);
 			Result := True;

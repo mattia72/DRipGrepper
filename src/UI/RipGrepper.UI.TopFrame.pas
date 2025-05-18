@@ -651,11 +651,12 @@ begin
 			end;
 			lineNum := data.MatchData.Row;
 			rowNum := data.MatchData.Col;
+			var
+			lineText := data.MatchData.LineText;
+
 			if IsRgReplaceMode then begin
 				replaceLine := data.MatchData.LineText; // ok every replacement is done by rg.exe
 			end else if IsGuiReplaceMode then begin
-				var
-				lineText := data.MatchData.LineText;
 				if replaceList.TryGet(fileName, lineNum, rowNum, lineText) then begin
 					replaceList.Remove(fileName, lineNum, rowNum, lineText);
 				end;
@@ -664,7 +665,7 @@ begin
 				replaceLine := TReplaceHelper.ReplaceString(lineText, Settings.LastSearchText,
 					{ } Settings.RipGrepParameters.ReplaceText, rowNum, rm);
 			end;
-			replaceList.AddUnique(fileName, lineNum, rowNum, replaceLine);
+			replaceList.AddUnique(fileName, lineNum, rowNum, lineText, replaceLine);
 		end;
 		node := MainFrame.VstResult.GetNextChecked(Node);
 	end;

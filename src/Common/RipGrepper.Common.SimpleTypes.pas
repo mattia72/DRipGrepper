@@ -5,7 +5,8 @@ interface
 uses
 	System.Classes,
 	System.SysUtils,
-	ArrayEx;
+	ArrayEx,
+	Spring;
 
 const
 	EXT_SEARCH_NOT_SET = -1;
@@ -23,7 +24,6 @@ type
 	TFileNameType = (ftAbsolute, ftRelative);
 
 	{$SCOPEDENUMS ON}
-
 	EGuiReplaceMode = (grmRGReplace, grmEditEnabled, grmActive, grmSaveEnabled, grmCaseSensitive, grmUseRegex);
 	EFilterMode = (fmFilterFile, fmFilterText, fmCaseSensitive, fmUseRegex);
 
@@ -86,6 +86,11 @@ type
 		FIsRGReportedError : Boolean;
 		procedure Reset;
 	end;
+
+	EReplaceMode = (rmUseRegex, rmIgnoreCase);
+	TReplaceModes = set of EReplaceMode;
+
+	TNullableString = Nullable<string>;
 
 const
 	GUI_SEARCH_PARAMS : TArray<EGuiOption> = [

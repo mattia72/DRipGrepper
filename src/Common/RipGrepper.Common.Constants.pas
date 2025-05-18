@@ -45,6 +45,7 @@ const
 	CR = #13;
 	LF = #10;
 	CRLF = sLineBreak;
+	CRLF2 = CRLF + CRLF;
 	TAB = #9;
 	SPACE = #32;
 	EOS = #0;
