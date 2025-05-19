@@ -26,6 +26,7 @@ const
 	SEARCH_HISTORY_DRH = 'SearchHistory.drh';
 	BAK_FILE_EXTENSION = '.bak';
 	FONTS_AND_COLORS_CAPTION = 'Appearance';
+	ABOUT_CAPTION = 'About';
 
 	DRIPGREPPER_WIZARD_NAME = 'DRipGrepper';
 	HOME_PAGE = 'https://github.com/mattia72/DRipGrepper';
