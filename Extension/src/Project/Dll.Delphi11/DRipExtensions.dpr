@@ -86,7 +86,7 @@ uses
   RipGrepper.UI.Settings.AppSettingsForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.AppSettingsForm.pas',
   RipGrepper.UI.ColorSelectorFrame in '..\..\..\..\src\UI\RipGrepper.UI.ColorSelectorFrame.pas',
   RipGrepper.Tools.LockGuard in '..\..\..\..\src\Tools\RipGrepper.Tools.LockGuard.pas',
-  RipGrepper.UI.Settings.ColorSettingsForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas',
+  RipGrepper.UI.Settings.AboutFom in '..\..\..\..\src\UI\RipGrepper.UI.Settings.AboutFom.pas' {AboutForm},
   RipGrepper.UI.Settings.ExtensionSettingsForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ExtensionSettingsForm.pas',
   RipGrepper.Tools.DelphiVersions in '..\..\..\..\src\Tools\RipGrepper.Tools.DelphiVersions.pas',
   DRipExtension.Main in '..\..\DRipExtension.Main.pas',
@@ -101,7 +101,8 @@ uses
   RipGrepper.Helper.SettingStoreBehaviours in '..\..\..\..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas',
   RipGrepper.Common.Interfaces.StreamPersistable in '..\..\..\..\src\Common\RipGrepper.Common.Interfaces.StreamPersistable.pas',
   RipGrepper.Helper.StreamReaderWriter in '..\..\..\..\src\Helper\RipGrepper.Helper.StreamReaderWriter.pas',
-  RipGrepper.Settings.RipGrepArguments in '..\..\..\..\src\Settings\RipGrepper.Settings.RipGrepArguments.pas';
+  RipGrepper.Settings.RipGrepArguments in '..\..\..\..\src\Settings\RipGrepper.Settings.RipGrepArguments.pas',
+  RipGrepper.UI.Settings.ColorSettingsForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas';
 
 {$R *.res}
 

@@ -118,8 +118,8 @@
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
     <VerInfo_Locale>1033</VerInfo_Locale>
-    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.6.2.247;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.6.2;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>247</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.6.2.250;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.6.2;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>250</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <DCC_Description>RipGrep Search within Delphi</DCC_Description>
     <VerInfo_MinorVer>6</VerInfo_MinorVer>
@@ -223,7 +223,9 @@
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.AppSettingsForm.pas" />
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.ColorSelectorFrame.pas" />
     <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.LockGuard.pas" />
-    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas" />
+    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.AboutFom.pas">
+      <Form>AboutForm</Form>
+    </DCCReference>
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.ExtensionSettingsForm.pas" />
     <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.DelphiVersions.pas" />
     <DCCReference Include="..\..\DRipExtension.Main.pas" />
@@ -239,6 +241,9 @@
     <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.Interfaces.StreamPersistable.pas" />
     <DCCReference Include="..\..\..\..\src\Helper\RipGrepper.Helper.StreamReaderWriter.pas" />
     <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.RipGrepArguments.pas" />
+    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas">
+      <FormType>dfm</FormType>
+    </DCCReference>
     <RcItem Include="..\..\..\Resources\about_icon.bmp">
       <ResourceType>BITMAP</ResourceType>
       <ResourceId>about_icon</ResourceId>

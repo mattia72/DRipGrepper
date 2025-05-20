@@ -27,7 +27,8 @@ uses
 	RipGrepper.UI.Settings.ExtensionSettingsForm,
 	RipGrepper.UI.Settings.ColorSettingsForm,
 	RipGrepper.Helper.UI.DarkMode,
-	Spring.Collections;
+	Spring.Collections,
+	RipGrepper.UI.Settings.AboutFom;
 
 type
 	TConfigForm = class(TForm)
@@ -45,6 +46,7 @@ type
 		procedure FormShow(Sender : TObject);
 
 		private
+			FAboutForm : TAboutForm;
 			FAppSettingsForm : TAppSettingsForm;
 			FColorSettingsForm : TColorSettingsForm;
 			FExtensionSettings : TRipGrepperExtensionSettings;
@@ -94,12 +96,15 @@ begin
 		FExtensionSettings.LoadFromDict;
 		FExtensionSettingsForm := TExtensionSettingsForm.Create(nil, Settings);
 
+		FAboutForm := TAboutForm.Create(nil, Settings);
+
 		FSettingsForms := TCollections.CreateList<TForm>();
 		FSettingsForms.AddRange([
 			{ } FAppSettingsForm,
 			{ } FColorSettingsForm,
 			{ } FOpenWithConfigForm,
-			{ } FExtensionSettingsForm]);
+			{ } FExtensionSettingsForm,
+			{ } FAboutForm]);
 	finally
 		Screen.Cursor := crDefault;
 	end;

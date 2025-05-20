@@ -90,7 +90,7 @@ uses
   RipGrepper.Settings.FontColors in '..\..\Settings\RipGrepper.Settings.FontColors.pas',
   RipGrepper.UI.ColorSelectorFrame in '..\..\UI\RipGrepper.UI.ColorSelectorFrame.pas' {ColorSelectorFrame: TFrame},
   RipGrepper.Tools.LockGuard in '..\..\Tools\RipGrepper.Tools.LockGuard.pas',
-  RipGrepper.UI.Settings.ColorSettingsForm in '..\..\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas' {ColorSettingsForm},
+  RipGrepper.UI.Settings.AboutFom in '..\..\UI\RipGrepper.UI.Settings.AboutFom.pas' {AboutForm},
   RipGrepper.UI.Settings.ExtensionSettingsForm in '..\..\UI\RipGrepper.UI.Settings.ExtensionSettingsForm.pas' {ExtensionSettingsForm},
   RipGrepper.Helper.MemIniFile in '..\..\Helper\RipGrepper.Helper.MemIniFile.pas',
   RipGrepper.Helper.UI.DarkMode in '..\..\RipGrepper.Helper.UI.DarkMode.pas',
@@ -104,7 +104,8 @@ uses
   RipGrepper.Settings.Persister.Interfaces in '..\..\Settings\RipGrepper.Settings.Persister.Interfaces.pas',
   RipGrepper.Helper.SettingStoreBehaviours in '..\..\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas',
   RipGrepper.Helper.StreamReaderWriter in '..\..\Helper\RipGrepper.Helper.StreamReaderWriter.pas',
-  RipGrepper.Settings.RipGrepArguments in '..\..\Settings\RipGrepper.Settings.RipGrepArguments.pas';
+  RipGrepper.Settings.RipGrepArguments in '..\..\Settings\RipGrepper.Settings.RipGrepArguments.pas',
+  RipGrepper.UI.Settings.ColorSettingsForm in '..\..\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas';
 
 {$R *.res}
 
