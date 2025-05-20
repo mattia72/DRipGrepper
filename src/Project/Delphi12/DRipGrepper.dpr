@@ -104,7 +104,8 @@ uses
   RipGrepper.Settings.Persister.Interfaces in '..\..\Settings\RipGrepper.Settings.Persister.Interfaces.pas',
   RipGrepper.Helper.SettingStoreBehaviours in '..\..\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas',
   RipGrepper.Settings.RipGrepArguments in '..\..\Settings\RipGrepper.Settings.RipGrepArguments.pas',
-  RipGrepper.Helper.StreamReaderWriter in '..\..\Helper\RipGrepper.Helper.StreamReaderWriter.pas';
+  RipGrepper.Helper.StreamReaderWriter in '..\..\Helper\RipGrepper.Helper.StreamReaderWriter.pas',
+  RipGrepper.UI.Settings.AboutFom in '..\..\UI\RipGrepper.UI.Settings.AboutFom.pas';
 
 {$R *.res}
 
