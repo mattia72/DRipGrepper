@@ -15,7 +15,6 @@ uses
 	RipGrepper.Common.SimpleTypes;
 
 type
-
 	TReplaceData = record
 		Row : integer;
 		Col : integer;
@@ -24,6 +23,9 @@ type
 		class function New(const _row, _col : Integer; const _origLine, _replacedLine : string) : TReplaceData; static;
 		class operator Initialize(out Dest : TReplaceData);
 	end;
+
+	TFailedReplaceDataItem = TPair<string, TReplaceData>;
+	TFailedReplaceData = TArrayEx<TFailedReplaceDataItem>;
 
 	TFilePathReplaceData = TDictionary<string, TArrayEx<TReplaceData>>;
 
@@ -56,9 +58,10 @@ type
 			class function GetLengthDiffOfOrigAndChanged(var actLine, origLine : string) : Integer;
 
 		public
-			class procedure ReplaceLineInFile(const _fileName : string; const _row, _col : Integer; const _origLine, _replaceLine : string;
-				const _createBackup : Boolean = True);
-			class procedure ReplaceLineInFiles(_list : TReplaceList; const _createBackup : Boolean = True);
+			class function ReplaceLineInFile(const _fileName : string; const _row, _col : Integer; const _origLine, _replaceLine : string;
+				const _createBackup : Boolean = True) : Boolean;
+			class procedure ReplaceLineInFiles(_list : TReplaceList; { } var _failed : TFailedReplaceData;
+				{ } const _createBackup : Boolean = True);
 			class function ReplaceString(const _input, _pattern, _replacement : string; const _fromCol : Integer;
 				const _mode : TReplaceModes) : string;
 	end;
@@ -105,29 +108,34 @@ begin
 	Result := actLength - origLength;
 end;
 
-class procedure TReplaceHelper.ReplaceLineInFile(const _fileName : string; const _row, _col : Integer;
-	const _origLine, _replaceLine : string; const _createBackup : Boolean = True);
+class function TReplaceHelper.ReplaceLineInFile(const _fileName : string; const _row, _col : Integer;
+	const _origLine, _replaceLine : string; const _createBackup : Boolean = True) : Boolean;
 var
+	failedReplace : TFailedReplaceData;
 	list : TReplaceList;
 begin
 	list := TReplaceList.Create;
 	try
 		list.AddUnique(_fileName, _row, _col, _origLine, _replaceLine);
-		TReplaceHelper.ReplaceLineInFiles(list);
+		TReplaceHelper.ReplaceLineInFiles(list, failedReplace);
 	finally
 		list.Free;
+		Result := (failedReplace.Count = 0);
 	end;
 end;
 
-class procedure TReplaceHelper.ReplaceLineInFiles(_list : TReplaceList; const _createBackup : Boolean = True);
+class procedure TReplaceHelper.ReplaceLineInFiles(_list : TReplaceList;
+	{ } var _failed : TFailedReplaceData;
+	{ } const _createBackup : Boolean = True);
 var
 	actLine, origLine : string;
 	bFileMismatch : Boolean;
 	fileLines : TEncodedStringList;
 	context : IReplaceContext;
 	diff : Integer;
+	failedItem : TPair<string, TReplaceData>;
 	fileLine : string;
-	iCheckedRow: Integer;
+	iCheckedRow : Integer;
 	lineEnd : string;
 	lineStart : string;
 	prevRow : TReplaceData;
@@ -142,21 +150,19 @@ begin
 			context.GetFileLines(fileName, fileLines);
 			prevRow := default (TReplaceData);
 			bFileMismatch := False;
-            iCheckedRow := -1;
+			iCheckedRow := -1;
 			for var rd : TReplaceData in _list.Items[fileName] do begin
 				if (rd.Row >= 0) and (rd.Row <= fileLines.Count) then begin
 
 					fileLine := fileLines[rd.Row - 1];
 					if (iCheckedRow <> rd.Row) and (rd.OrigLine <> fileLine) then begin
-						TMsgBox.ShowWarning(Format(
-							{ } 'Current line does not match the line which was replaced in ' + CRLF +
-							{ } '%s(%d)' + CRLF2 + 'Please save the file, refresh search results, then try replacing again.',
-							[fileName, rd.Row]));
+						failedItem := TPair<string, TReplaceData>.Create(fileName, rd);
+						_failed.Add(failedItem);
 						bFileMismatch := True;
 						break;
 					end else begin
-                        iCheckedRow := rd.Row;
-                    end;
+						iCheckedRow := rd.Row;
+					end;
 
 					if prevRow.Row = rd.Row then begin
 						actLine := fileLine;
@@ -173,6 +179,7 @@ begin
 				end;
 				prevRow := rd;
 			end;
+
 			if not bFileMismatch then begin
 				if _createBackup then begin
 					TFileUtils.CreateBackup(fileName);

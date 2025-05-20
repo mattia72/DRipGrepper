@@ -147,6 +147,7 @@ type
 			function GetIsInitialized() : Boolean;
 			function GetSettings : TRipGrepperSettings;
 			function GetToolBarWidth(_tb : TToolBar) : Integer;
+			procedure HandleReplaceErrors(const failedReplace : TFailedReplaceData);
 			function IsFilterOn : Boolean;
 			procedure SaveSelectedReplacements;
 			procedure SelectNextFoundNode(const _prevFoundNode : PVirtualNode; const _searchPattern : string);
@@ -223,7 +224,8 @@ uses
 	RipGrepper.Helper.UI.DarkMode,
 	Winapi.UxTheme,
 	System.TypInfo,
-	Vcl.Themes;
+	Vcl.Themes,
+	ArrayEx;
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -718,6 +720,21 @@ begin
 	// TDebugUtils.DebugMessage(Format('TRipGrepperTopFrame.GetToolBarWidth %s Width: %d', [_tb.Name, Result, _tb.ButtonCount]));
 end;
 
+procedure TRipGrepperTopFrame.HandleReplaceErrors(const failedReplace : TFailedReplaceData);
+var
+	errMsg : TArrayEx<string>;
+begin
+	if failedReplace.Count > 0 then begin
+		errMsg.Add('Current line(s) in file(s) doesn''t match the line which was replaced:');
+		for var p in failedReplace do begin
+			errMsg.Add(Format('%s(%d)', [p.Key, p.Value.Row]));
+		end;
+
+		TMsgBox.ShowWarning(string.Join(CRLF, errMsg.Items) + CRLF2 +
+			{ } 'Please save the file, refresh search results, then try replacing again.');
+	end;
+end;
+
 procedure TRipGrepperTopFrame.Initialize();
 begin
 	var
@@ -750,6 +767,7 @@ end;
 procedure TRipGrepperTopFrame.SaveSelectedReplacements;
 var
 	replaceList : TReplaceList;
+	failedReplace : TFailedReplaceData;
 begin
 	replaceList := TReplaceList.Create();
 	try
@@ -765,7 +783,8 @@ begin
 		end;
 		{$ENDIF}
 		if ShowWarningBeforeSave(replaceList) then begin
-			TReplaceHelper.ReplaceLineInFiles(replaceList);
+			TReplaceHelper.ReplaceLineInFiles(replaceList, failedReplace);
+			HandleReplaceErrors(failedReplace);
 		end;
 	finally
 		replaceList.Free;
@@ -781,9 +800,7 @@ begin
 end;
 
 procedure TRipGrepperTopFrame.SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
-var
-	dataStr : string;
-	NodeData : PVSFileNodeData;
+var dataStr : string; NodeData : PVSFileNodeData;
 begin
 	NodeData := Sender.GetNodeData(Node);
 	dataStr := NodeData.FilePath + ' ' + NodeData.MatchData.LineText;
@@ -793,9 +810,7 @@ begin
 end;
 
 procedure TRipGrepperTopFrame.SelectNextFoundNode(const _prevFoundNode : PVirtualNode; const _searchPattern : string);
-var
-	bLast : Boolean;
-	nextNode, lastNode, foundNode : PVirtualNode;
+var bLast : Boolean; nextNode, lastNode, foundNode : PVirtualNode;
 begin
 	if _searchPattern.IsEmpty then begin
 		Exit;
@@ -899,8 +914,7 @@ begin
 end;
 
 procedure TRipGrepperTopFrame.StartNewSearch;
-var
-	formResult : Integer;
+var formResult : Integer;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperTopFrame.StartNewSearch');

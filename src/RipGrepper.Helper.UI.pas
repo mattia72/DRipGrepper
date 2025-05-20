@@ -18,14 +18,12 @@ uses
 	VirtualTrees,
 	System.SysUtils,
 	RipGrepper.Settings.FontColors;
-// Winapi.Messages;
 
 type
 
 	EDlgException = class(Exception);
 
 	TMsgBoxBase = class
-		private
 		protected
 			class function GetButtonsByType(const _type : TMsgDlgType) : TMsgDlgButtons;
 			class procedure SetCaption(_msgDlg : TForm);

@@ -7,15 +7,18 @@ uses
 	RipGrepper.Tools.Replacer,
 	System.SysUtils,
 	System.Classes,
-	Spring;
+	Spring,
+	ArrayEx;
 
 type
 
 	[TestFixture]
 	TTestReplaceHelper = class
 		private
-			procedure PreapreFileContent(_replaceList : IShared<TReplaceList>; _fileContent : IShared<TStringList>;
-				var _idxWord_1, _idxWord_2, _idxWord_3 : Integer);
+			function PreapreNewFileContent(_replaceList : IShared<TReplaceList>; _fileContent : IShared<TStringList>;
+				var _wordIdx : TArrayEx<Integer>) : string;
+			procedure PrepareReplaceDataList(rl : IShared<TReplaceList>; slFileContent : IShared<TStringList>; const sOrigFileName : string;
+				const wordIdx : TArrayEx<Integer>);
 
 		public
 			[Test]
@@ -30,27 +33,71 @@ type
 			procedure TestSort;
 			[Test]
 			procedure TestReplaceInFile();
+			[Test]
+			procedure TestReplaceInModifiedFile();
 	end;
 
 implementation
 
 uses
-	ArrayEx,
 
 	System.IOUtils,
 
 	RipGrepper.Common.SimpleTypes;
 
-procedure TTestReplaceHelper.PreapreFileContent(_replaceList : IShared<TReplaceList>; _fileContent : IShared<TStringList>;
-	var _idxWord_1, _idxWord_2, _idxWord_3 : Integer);
+function TTestReplaceHelper.PreapreNewFileContent(_replaceList : IShared<TReplaceList>; _fileContent : IShared<TStringList>;
+	var _wordIdx : TArrayEx<Integer>) : string;
 begin
 	for var j : integer := 1 to 7 do begin
 		_fileContent.Add(Format('Line %d with word1 word2 word3', [j]));
 	end;
 
-	_idxWord_1 := _fileContent[0].IndexOf('word1') + 1;
-	_idxWord_2 := _fileContent[0].IndexOf('word2') + 1;
-	_idxWord_3 := _fileContent[0].IndexOf('word3') + 1;
+	_wordIdx.Add(_fileContent[0].IndexOf('word1') + 1);
+	_wordIdx.Add(_fileContent[0].IndexOf('word2') + 1);
+	_wordIdx.Add(_fileContent[0].IndexOf('word3') + 1);
+
+	Result := TPath.GetTempFileName();
+end;
+
+procedure TTestReplaceHelper.PrepareReplaceDataList(rl : IShared<TReplaceList>; slFileContent : IShared<TStringList>;
+	const sOrigFileName : string; const wordIdx : TArrayEx<Integer>);
+var
+	rd : TReplaceData;
+	arr : TArrayEx<TReplaceData>;
+	idxWord_2, idxWord_3, idxWord_1 : integer;
+begin
+	idxWord_1 := wordIdx[0];
+	idxWord_2 := wordIdx[1];
+	idxWord_3 := wordIdx[2];
+
+	arr := [ // TReplaceData.New( row, col, line )
+	{ } TReplaceData.New(1, 1, slFileContent[0], slFileContent[0].Replace('Line 1', 'First')),
+
+	{ } TReplaceData.New(3, idxWord_2, slFileContent[2], slFileContent[2].Replace('word2', 'bbbb2')),
+	{ } TReplaceData.New(3, idxWord_3, slFileContent[2], slFileContent[2].Replace('word3', 'cccc3')),
+	{ } TReplaceData.New(3, idxWord_1, slFileContent[2], slFileContent[2].Replace('word1', 'aaaa1')),
+
+	{ } TReplaceData.New(4, idxWord_1, slFileContent[3], slFileContent[3].Replace('word1', 'aaaa1')),
+	{ } TReplaceData.New(4, idxWord_3, slFileContent[3], slFileContent[3].Replace('word3', 'cccc3')),
+
+	{ } TReplaceData.New(2, 1, slFileContent[1], slFileContent[1]), // unchanged
+
+	// shorter than orig
+	{ } TReplaceData.New(5, idxWord_2, slFileContent[4], slFileContent[4].Replace('word2', 'cc2')),
+	{ } TReplaceData.New(5, idxWord_3, slFileContent[4], slFileContent[4].Replace('word3', 'bb3')),
+	{ } TReplaceData.New(5, idxWord_1, slFileContent[4], slFileContent[4].Replace('word1', 'bb1')),
+	// longer than orig
+	{ } TReplaceData.New(6, idxWord_1, slFileContent[5], slFileContent[5].Replace('word1', 'dddddddd1')),
+	{ } TReplaceData.New(6, idxWord_2, slFileContent[5], slFileContent[5].Replace('word2', 'dddddddd2')),
+	{ } TReplaceData.New(6, idxWord_3, slFileContent[5], slFileContent[5].Replace('word3', 'dddddddd3')),
+
+	{ } TReplaceData.New(7, 1, slFileContent[6], slFileContent[6].Replace('Line 7', 'Last')),
+	{ } TReplaceData.New(7, idxWord_3, slFileContent[6], slFileContent[6].Replace('word3', 'and last word'))
+	{ } ];
+
+	for rd in arr do begin
+		rl.AddUnique(sOrigFileName, rd.Row, rd.Col, rd.OrigLine, rd.ReplacedLine);
+	end;
 end;
 
 procedure TTestReplaceHelper.TestReplaceString_UseRegex;
@@ -137,52 +184,25 @@ end;
 
 procedure TTestReplaceHelper.TestReplaceInFile();
 var
+	failedReplace : TFailedReplaceData;
 	rl : IShared<TReplaceList>;
 	rd : TReplaceData;
-	arr : TArrayEx<TReplaceData>;
-	idxWord_1, idxWord_2, idxWord_3 : Integer;
+	wordIdx : TArrayEx<Integer>;
 	slFileContent : IShared<TStringList>;
 	sOrigFileName : string;
 begin
 	rl := Shared.Make<TReplaceList>();
 	slFileContent := Shared.Make<TStringList>();
 
-	PreapreFileContent(rl, slFileContent, idxWord_1, idxWord_2, idxWord_3);
- 	sOrigFileName := TPath.GetTempFileName();
+	sOrigFileName := PreapreNewFileContent(rl, slFileContent, wordIdx);
+
 	slFileContent.SaveToFile(sOrigFileName);
 
-	arr := [ // TReplaceData.New( row, col, line )
-	{ } TReplaceData.New(1, 1, slFileContent[0], slFileContent[0].Replace('Line 1', 'First')),
-
-	{ } TReplaceData.New(3, idxWord_2, slFileContent[2], slFileContent[2].Replace('word2', 'bbbb2')),
-	{ } TReplaceData.New(3, idxWord_3, slFileContent[2], slFileContent[2].Replace('word3', 'cccc3')),
-	{ } TReplaceData.New(3, idxWord_1, slFileContent[2], slFileContent[2].Replace('word1', 'aaaa1')),
-
-	{ } TReplaceData.New(4, idxWord_1, slFileContent[3], slFileContent[3].Replace('word1', 'aaaa1')),
-	{ } TReplaceData.New(4, idxWord_3, slFileContent[3], slFileContent[3].Replace('word3', 'cccc3')),
-
-	{ } TReplaceData.New(2, 1, slFileContent[1], slFileContent[1]), // unchanged
-
-	// shorter than orig
-	{ } TReplaceData.New(5, idxWord_2, slFileContent[4], slFileContent[4].Replace('word2', 'cc2')),
-	{ } TReplaceData.New(5, idxWord_3, slFileContent[4], slFileContent[4].Replace('word3', 'bb3')),
-	{ } TReplaceData.New(5, idxWord_1, slFileContent[4], slFileContent[4].Replace('word1', 'bb1')),
-	// longer than orig
-	{ } TReplaceData.New(6, idxWord_1, slFileContent[5], slFileContent[5].Replace('word1', 'dddddddd1')),
-	{ } TReplaceData.New(6, idxWord_2, slFileContent[5], slFileContent[5].Replace('word2', 'dddddddd2')),
-	{ } TReplaceData.New(6, idxWord_3, slFileContent[5], slFileContent[5].Replace('word3', 'dddddddd3')),
-
-	{ } TReplaceData.New(7, 1, slFileContent[6], slFileContent[6].Replace('Line 7', 'Last')),
-	{ } TReplaceData.New(7, idxWord_3, slFileContent[6], slFileContent[6].Replace('word3', 'and last word'))
-	{ } ];
-
-	for rd in arr do begin
-		rl.AddUnique(sOrigFileName, rd.Row, rd.Col, rd.OrigLine, rd.ReplacedLine);
-	end;
+	PrepareReplaceDataList(rl, slFileContent, sOrigFileName, wordIdx);
 
 	rl.Sort;
 	try
-		TReplaceHelper.ReplaceLineInFiles(rl, False);
+		TReplaceHelper.ReplaceLineInFiles(rl, failedReplace, False);
 		slFileContent.Clear;
 		slFileContent.LoadFromFile(sOrigFileName);
 	finally
@@ -196,6 +216,39 @@ begin
 	Assert.AreEqual('Line 5 with bb1 cc2 bb3', slFileContent[4]);
 	Assert.AreEqual('Line 6 with dddddddd1 dddddddd2 dddddddd3', slFileContent[5]);
 	Assert.AreEqual('Last with word1 word2 and last word', slFileContent[6]);
+end;
+
+procedure TTestReplaceHelper.TestReplaceInModifiedFile();
+var
+	failedReplace : TFailedReplaceData;
+	rl : IShared<TReplaceList>;
+	rd : TReplaceData;
+	wordIdx : TArrayEx<Integer>;
+	slFileContent : IShared<TStringList>;
+	sOrigFileName : string;
+begin
+	rl := Shared.Make<TReplaceList>();
+	slFileContent := Shared.Make<TStringList>();
+
+	sOrigFileName := PreapreNewFileContent(rl, slFileContent, wordIdx);
+
+	slFileContent.SaveToFile(sOrigFileName);
+
+	PrepareReplaceDataList(rl, slFileContent, sOrigFileName, wordIdx);
+
+	rd := rl.Items[sOrigFileName][3];
+	rd.OrigLine := 'modified';
+	rl.Items[sOrigFileName][3] := rd;
+	rl.Sort;
+	try
+		TReplaceHelper.ReplaceLineInFiles(rl, failedReplace, False);
+		slFileContent.Clear;
+		slFileContent.LoadFromFile(sOrigFileName);
+	finally
+		TFile.Delete(sOrigFileName);
+	end;
+
+	Assert.IsTrue(failedReplace.Count > 0, 'failedReplace count shouldn''t be empty.');
 end;
 
 initialization
