@@ -1,4 +1,4 @@
-unit RipGrepper.UI.Settings.AboutFom;
+unit RipGrepper.UI.Settings.AboutForm;
 
 interface
 

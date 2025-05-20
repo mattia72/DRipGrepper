@@ -289,7 +289,7 @@
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="..\..\Tools\RipGrepper.Tools.LockGuard.pas" />
-    <DCCReference Include="..\..\UI\RipGrepper.UI.Settings.AboutFom.pas">
+    <DCCReference Include="..\..\UI\RipGrepper.UI.Settings.AboutForm.pas">
       <Form>AboutForm</Form>
     </DCCReference>
     <DCCReference Include="..\..\UI\RipGrepper.UI.Settings.ExtensionSettingsForm.pas">

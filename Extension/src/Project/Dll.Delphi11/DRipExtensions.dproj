@@ -223,7 +223,7 @@
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.AppSettingsForm.pas" />
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.ColorSelectorFrame.pas" />
     <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.LockGuard.pas" />
-    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.AboutFom.pas">
+    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.AboutForm.pas">
       <Form>AboutForm</Form>
     </DCCReference>
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.ExtensionSettingsForm.pas" />

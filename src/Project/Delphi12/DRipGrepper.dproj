@@ -311,7 +311,7 @@
         <DCCReference Include="..\..\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas"/>
         <DCCReference Include="..\..\Settings\RipGrepper.Settings.RipGrepArguments.pas"/>
         <DCCReference Include="..\..\Helper\RipGrepper.Helper.StreamReaderWriter.pas"/>
-        <DCCReference Include="..\..\UI\RipGrepper.UI.Settings.AboutFom.pas">
+        <DCCReference Include="..\..\UI\RipGrepper.UI.Settings.AboutForm.pas">
             <FormType>dfm</FormType>
         </DCCReference>
         <BuildConfiguration Include="Base">

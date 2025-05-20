@@ -237,7 +237,7 @@
         <DCCReference Include="..\..\..\..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas"/>
         <DCCReference Include="..\..\..\..\src\Helper\RipGrepper.Helper.StreamReaderWriter.pas"/>
         <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.RipGrepArguments.pas"/>
-        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.AboutFom.pas">
+        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.AboutForm.pas">
             <FormType>dfm</FormType>
         </DCCReference>
         <RcItem Include="..\..\..\Resources\about_icon.bmp">

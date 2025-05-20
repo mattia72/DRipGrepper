@@ -86,7 +86,7 @@ uses
   RipGrepper.UI.Settings.AppSettingsForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.AppSettingsForm.pas',
   RipGrepper.UI.ColorSelectorFrame in '..\..\..\..\src\UI\RipGrepper.UI.ColorSelectorFrame.pas',
   RipGrepper.Tools.LockGuard in '..\..\..\..\src\Tools\RipGrepper.Tools.LockGuard.pas',
-  RipGrepper.UI.Settings.AboutFom in '..\..\..\..\src\UI\RipGrepper.UI.Settings.AboutFom.pas' {AboutForm},
+  RipGrepper.UI.Settings.AboutForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.AboutForm.pas' {AboutForm},
   RipGrepper.UI.Settings.ExtensionSettingsForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ExtensionSettingsForm.pas',
   RipGrepper.Tools.DelphiVersions in '..\..\..\..\src\Tools\RipGrepper.Tools.DelphiVersions.pas',
   DRipExtension.Main in '..\..\DRipExtension.Main.pas',

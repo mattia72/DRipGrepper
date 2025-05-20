@@ -101,7 +101,7 @@ uses
   RipGrepper.Helper.SettingStoreBehaviours in '..\..\..\..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas',
   RipGrepper.Helper.StreamReaderWriter in '..\..\..\..\src\Helper\RipGrepper.Helper.StreamReaderWriter.pas',
   RipGrepper.Settings.RipGrepArguments in '..\..\..\..\src\Settings\RipGrepper.Settings.RipGrepArguments.pas',
-  RipGrepper.UI.Settings.AboutFom in '..\..\..\..\src\UI\RipGrepper.UI.Settings.AboutFom.pas';
+  RipGrepper.UI.Settings.AboutForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.AboutForm.pas';
 
 {$R *.res}
 
