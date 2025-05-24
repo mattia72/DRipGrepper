@@ -3,7 +3,7 @@ unit RipGrepper.Tools.PackageInstall;
 interface
 
 uses
-	Ripgrepper.Tools.DelphiVersions,
+	RipGrepper.Tools.DelphiVersions,
 	Winapi.Windows,
 	ArrayEx,
 	System.Classes;
@@ -21,18 +21,16 @@ type
 	TPackageInstallMain = class // (TDefaultMain)
 		private
 			FDelphiVersions : TDelphiVersions;
-			function handleExtension(const _delphiVersion : TDelphiVersion; const _sPath : string; var _sExpertDesc : string;
+			function handleExtension(const _delphiVersion : TDelphiVersion; const _sFullPath : string; var _sExpertDesc : string;
 				const _bUninstall : Boolean) : EInstallResult;
-			function installPackage(const _DelphiVer : TDelphiVersion; var _pkg : string) : EInstallResult;
-			function installExpertDll(const _delphiVersion : TDelphiVersion; var _dllPath, _sExpertDesc : string) : EInstallResult;
-			function uninstallPackage(const _DelphiVer : TDelphiVersion; var _pkg : string) : EInstallResult;
+			function installExpertDll(const _delphiVersion : TDelphiVersion; const _dllPath : string; var _sExpertDesc : string)
+				: EInstallResult;
 			function uninstallExpertDll(const _DelphiVer : TDelphiVersion; const _sPath : string; var _sExpertDesc : string)
 				: EInstallResult;
 
 		public
-			function Execute(const _sPath : string; const _delphiVersion : TDelphiVersion;
-				var _sExpertDesc : string; const _bUninstall : Boolean = False):
-				EInstallResult;
+			function Execute(const _sPath : string; const _delphiVersion : TDelphiVersion; var _sExpertDesc : string;
+				const _bUninstall : Boolean = False) : EInstallResult;
 			constructor Create; // override;
 			destructor Destroy; override;
 			function GetInstalledDelphiVersions(var _list : TStrings) : Boolean;
@@ -125,36 +123,20 @@ begin
 	inherited;
 end;
 
-function TPackageInstallMain.handleExtension(const _delphiVersion : TDelphiVersion; const _sPath : string; var _sExpertDesc : string;
+function TPackageInstallMain.handleExtension(const _delphiVersion : TDelphiVersion; const _sFullPath : string; var _sExpertDesc : string;
 	const _bUninstall : Boolean) : EInstallResult;
-var
-	pkg : string;
 begin
 	if _bUninstall then begin
 		Result := EInstallResult.irUnInstallError;
 	end else begin
 		Result := EInstallResult.irInstallError;
 	end;
-	pkg := _sPath;
-	if ExtractFileDir(pkg) = '' then begin
-		var
-		fname := TPath.GetFileName(pkg);
-		pkg := TPath.Combine(_delphiVersion.GetBplDir, fname);
-	end;
 
 	try
 		if _bUninstall then begin
-			if pkg.EndsWith('DLL', True) then begin
-				Result := uninstallExpertDll(_delphiVersion, pkg, _sExpertDesc);
-			end else begin
-				Result := uninstallPackage(_delphiVersion, pkg);
-			end;
+			Result := uninstallExpertDll(_delphiVersion, _sFullPath, _sExpertDesc);
 		end else begin
-			if pkg.EndsWith('DLL', True) then begin
-				Result := installExpertDll(_delphiVersion, pkg, _sExpertDesc);
-			end else begin
-				Result := installPackage(_delphiVersion, pkg);
-			end;
+			Result := installExpertDll(_delphiVersion, _sFullPath, _sExpertDesc);
 		end;
 	except
 		on E : Exception do
@@ -166,7 +148,7 @@ function TPackageInstallMain.Execute(const _sPath : string; const _delphiVersion
 	const _bUninstall : Boolean = False) : EInstallResult;
 begin
 	_delphiVersion.CheckInstalled;
-	Result := handleExtension(_delphiVersion, _sPath, _sExpertDesc, _bUninstall);
+	Result := handleExtension(_delphiVersion, TPath.GetFullPath(_sPath), _sExpertDesc, _bUninstall);
 	var
 	sFileName := TPath.GetFileName(_sPath);
 	case Result of
@@ -182,69 +164,6 @@ begin
 		TMsgBox.ShowInfo(Format('%s is not installed.', [sFileName]));
 		irUnInstallError :
 		TMsgBox.ShowInfo(Format('%s uninstall failed.', [sFileName]));
-	end;
-end;
-
-function TPackageInstallMain.installPackage(const _DelphiVer : TDelphiVersion; var _pkg : string) : EInstallResult;
-var
-	Description : string;
-	Handle : THandle;
-	LastError : Cardinal;
-	Flags : Integer;
-	OrigName : string;
-begin
-	if not FileExists(_pkg) then begin
-		OrigName := _pkg;
-		if not _DelphiVer.TryApplyBplSuffix(_pkg) then
-			raise Exception.Create('Could not find package file.' + #13#10 + _pkg);
-		if not FileExists(_pkg) then
-			raise Exception.Create('Could not find package file.' + #13#10 + _pkg + #13#10 + OrigName);
-	end;
-
-	Description := GetPackageDescription(PChar(_pkg));
-	// StdOut.WriteLn(_('Installing "%s"'), [_pkg.Filename]);
-	// StdOut.WriteLn(_('Description: "%s"'), [Description]);
-
-	Handle := LoadLibraryEx(PChar(_pkg), 0, LOAD_LIBRARY_AS_DATAFILE);
-	if Handle = 0 then begin
-		LastError := GetLastError;
-		RaiseLastOSErrorEx(LastError, Format('LoadLibrary failed for package "%s". (Error %%1:s (%%0:d))', [_pkg]));
-	end;
-	try
-		GetPackageInfo(Handle, nil, Flags, PackageInfoProc);
-	finally
-		FreeLibrary(Handle);
-	end;
-
-	if (Flags and pfRunOnly) <> 0 then begin
-		raise Exception.Create('This is a runtime only package that cannot be installed into the Delphi IDE.');
-	end;
-	if _DelphiVer.IsKnownPackage(_pkg, Description) then begin
-		Result := EInstallResult.irAlreadyInstalled;
-	end else begin
-		_DelphiVer.AddKnownPackage(_pkg, Description);
-		Result := EInstallResult.irInstallSuccess;
-	end;
-end;
-
-function TPackageInstallMain.uninstallPackage(const _DelphiVer : TDelphiVersion; var _pkg : string) : EInstallResult;
-var
-	Description : string;
-begin
-	if _DelphiVer.IsKnownPackage(_pkg, Description) then begin
-		_DelphiVer.RemoveKnownPackage(_pkg);
-		Result := EInstallResult.irUninstallSuccess;
-		// StdOut.Success.WriteLn(_('The package has been uninstalled successfully.'));
-	end else if not _DelphiVer.TryApplyBplSuffix(_pkg) then begin
-		Result := EInstallResult.irNotInstalled;
-		// StdOut.Hint.WriteLn(_('The package is not installed.'));
-	end else if _DelphiVer.IsKnownPackage(_pkg, Description) then begin
-		_DelphiVer.RemoveKnownPackage(_pkg);
-		Result := EInstallResult.irUninstallSuccess;
-		// StdOut.Success.WriteLn(_('The package has been uninstalled successfully.'));
-	end else begin
-		Result := EInstallResult.irUnInstallError;
-		// StdOut.Hint.WriteLn(_('The package is not installed.'));
 	end;
 end;
 
@@ -270,23 +189,24 @@ begin
 		Result := _list.Count > 0;
 	finally
 		tmp.free;
-		reg.Free;
+		reg.free;
 	end;
 end;
 
-function TPackageInstallMain.installExpertDll(const _delphiVersion : TDelphiVersion; var _dllPath, _sExpertDesc : string) : EInstallResult;
+function TPackageInstallMain.installExpertDll(const _delphiVersion : TDelphiVersion; const _dllPath : string; var _sExpertDesc : string)
+	: EInstallResult;
 var
-	sDescription: string;
+	sDescription : string;
 begin
 	if not FileExists(_dllPath) then begin
 		raise Exception.Create('Could not find expert dll file.' + #13#10 + _dllPath);
 	end;
 
-    sDescription := _sExpertDesc;
-    if sDescription.IsEmpty then  begin
-    	sDescription := GetPackageDescription(PChar(_dllPath));
-        _sExpertDesc := sDescription;
-    end;
+	sDescription := _sExpertDesc;
+	if sDescription.IsEmpty then begin
+		sDescription := GetPackageDescription(PChar(_dllPath));
+		_sExpertDesc := sDescription;
+	end;
 
 	// StdOut.WriteLn(_('Installing "%s"'), [_dllPath.Filename]);
 	// StdOut.WriteLn(_('Description: "%s"'), [Description]);
