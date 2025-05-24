@@ -1,4 +1,4 @@
-unit RipGrepper.Tools.PackageInstall;
+﻿unit RipGrepper.Tools.PackageInstall;
 
 interface
 
@@ -34,12 +34,6 @@ type
 			constructor Create; // override;
 			destructor Destroy; override;
 			function GetInstalledDelphiVersions(var _list : TStrings) : Boolean;
-			// Returns True if FileName points to a valid expert DLL
-			// (valid wizard / expert entry point). False if not.
-			// Always returns True on Windows 9x, since Windows 9x does not
-			// support the DONT_RESOLVE_DLL_REFERENCES parameter for plain
-			// loading of the DLL as data.
-			class function IsValidExpertDll(const FileName : string) : Boolean;
 	end;
 
 	/// <summary> Same as VCL RaiseLastWin32Error but can specify a format.
@@ -85,7 +79,8 @@ uses
 
 	System.Win.Registry,
 	RipGrepper.Helper.UI,
-	System.IOUtils;
+	System.IOUtils,
+	RipGrepper.Common.Constants;
 
 procedure PackageInfoProc(const _Name : string; _NameType : TNameType; _Flags : Byte; _Param : Pointer);
 begin
@@ -217,30 +212,6 @@ begin
 		_delphiVersion.AddExpert(sDescription, _dllPath);
 		Result := EInstallResult.irInstallSuccess;
 	end;
-end;
-
-class function TPackageInstallMain.IsValidExpertDll(const FileName : string) : Boolean;
-const
-	ExptIntfExpertEntryPoint = 'INITEXPERT0017';
-	WizardEntryPoint = 'INITWIZARD0001';
-var
-	DllHandle : THandle;
-begin
-	Result := False;
-	// Check that the DLL *really* is a valid expert or wizard DLL
-	// (supported on Windows NT only).
-	if Win32Platform = VER_PLATFORM_WIN32_NT then begin
-		DllHandle := LoadLibraryEx(PChar(FileName), 0, DONT_RESOLVE_DLL_REFERENCES { NT only! } );
-		if DllHandle <> 0 then begin
-			try
-				Result := (GetProcAddress(DllHandle, ExptIntfExpertEntryPoint) <> nil);
-				if not Result then
-					Result := (GetProcAddress(DllHandle, WizardEntryPoint) <> nil);
-			finally
-				FreeLibrary(DllHandle);
-			end;
-		end;
-	end; { NT Check }
 end;
 
 function TPackageInstallMain.uninstallExpertDll(const _DelphiVer : TDelphiVersion; const _sPath : string; var _sExpertDesc : string)
