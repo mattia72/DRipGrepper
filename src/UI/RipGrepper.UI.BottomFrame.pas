@@ -135,7 +135,7 @@ begin
 	if not bStandalone then begin
 		Height := Height - 5;
 	end;
-	StatusBarMessage := Format(FORMAT_VERSION_INFO_IN_STATUSBAR, [MainFrame.ExeVersion]);
+	StatusBarMessage := Format(FORMAT_VERSION_INFO_IN_STATUSBAR, [MainFrame.ModuleNameAndVersion]);
 	SetReadyStatus;
 	FIsInitialized := True;
 end;

@@ -64,8 +64,9 @@ uses
 	Vcl.Dialogs,
 	Vcl.ImgList,
 	Winapi.Windows,
-	DRipExtension.Menu, 
-	Spring.DesignPatterns;
+	DRipExtension.Menu,
+	Spring.DesignPatterns,
+	RipGrepper.Tools.ReleaseUtils;
 
 var
 	MMOTAExpertIndex : integer;
@@ -97,7 +98,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.Create');
 	InitPluginInfo;
 	TRipGrepperDockableForm.CreateInstance; // saved layout loading ...
-	
+
 	var
 	searchFormSetting := TSingleton.GetInstance<TRipGrepperSettings>().SearchFormSettings;
 	TDripExtensionMenu.CreateMenu(GetMenuText, searchFormSetting.ExtensionSettings);
@@ -154,17 +155,17 @@ end;
 procedure TDRipExtension.InitPluginInfo;
 var
 	bmpHandle : HBITMAP;
-	aFileName : array [0 .. MAX_PATH] of char;
+	sFullPath : string;
 	dFileAge : TDateTime;
 	aLicenseStatus : string;
 	sExeVersion : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.InitPluginInfo');
-	GetModuleFileName(hInstance, aFileName, MAX_PATH);
-	System.SysUtils.FileAge(aFileName, dFileAge);
+	sFullPath := TReleaseUtils.GetRunningModulePath();
+	System.SysUtils.FileAge(sFullPath, dFileAge);
 	aLicenseStatus := FormatDateTime('dd.mm.yy - h:nn', dFileAge);
-	sExeVersion := TFileUtils.GetAppVersion(aFileName);
+	sExeVersion := TReleaseUtils.GetRunningModuleVersion(sFullPath);
 	bmpHandle := LoadBitmap(hInstance, 'splash_icon');
 	(SplashScreenServices as IOTASplashScreenServices).AddPluginBitmap(EXTENSION_NAME, bmpHandle, False, '', sExeVersion);
 

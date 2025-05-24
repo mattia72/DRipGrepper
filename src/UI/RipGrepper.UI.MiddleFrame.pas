@@ -132,7 +132,7 @@ type
 			FAbortSearch : Boolean;
 			FColorSettings : TFontColors;
 			FData : TRipGrepperData;
-			FExeVersion : string;
+			FModuleNameAndVersion : string;
 			FFileNameType : TFileNameType;
 			FHeaderColRect : TRect;
 			FHeaderRowRect : TRect;
@@ -224,7 +224,7 @@ type
 			procedure UpdateUIStyle(_sNewStyle : string = '');
 			property AbortSearch : Boolean read FAbortSearch write SetAbortSearch;
 			property Data : TRipGrepperData read GetData write FData;
-			property ExeVersion : string read FExeVersion write FExeVersion;
+			property ModuleNameAndVersion : string read FModuleNameAndVersion write FModuleNameAndVersion;
 			property FileNameType : TFileNameType read FFileNameType write FFileNameType;
 			property HistItemObject : IHistoryItemObject read GetHistItemObject write SetHistItemObject;
 			property IsInitialized : Boolean read GetIsInitialized;
@@ -259,7 +259,8 @@ uses
 	System.Generics.Defaults,
 	RipGrepper.UI.SearchForm,
 	System.RegularExpressions,
-	RipGrepper.Tools.Replacer;
+	RipGrepper.Tools.Replacer,
+	RipGrepper.Tools.ReleaseUtils;
 
 {$R *.dfm}
 
@@ -806,14 +807,14 @@ begin
 	bStandalone := False;
 	{$ENDIF}
 	if bStandalone then begin
-		FExeVersion := TFileUtils.GetAppNameAndVersion(Application.ExeName);
+		FModuleNameAndVersion := TReleaseUtils.GetAppNameAndVersion(Application.ExeName);
 	end else begin
-		FExeVersion := TFileUtils.GetPackageNameAndVersion(HInstance);
+		FModuleNameAndVersion := TReleaseUtils.GetModuleNameAndVersion();
 		PanelHistory.BevelOuter := bvNone;
 		PanelResult.BevelOuter := bvNone;
 	end;
 	Align := alClient;
-	dbgMsg.Msg('TRipGrepperMiddleFrame.Initialize ' + FExeVersion);
+	dbgMsg.Msg('TRipGrepperMiddleFrame.Initialize ' + FModuleNameAndVersion);
 	FFileNameType := ftAbsolute;
 	VstResult.TreeOptions.AutoOptions := VstResult.TreeOptions.AutoOptions + [toAutoSpanColumns]; // merges empty cells
 	VstResult.TreeOptions.StringOptions := VstResult.TreeOptions.StringOptions + [toShowStaticText];

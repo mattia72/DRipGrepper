@@ -19,17 +19,20 @@ object ExtensionSettingsForm: TExtensionSettingsForm
     Height = 273
     Align = alClient
     TabOrder = 0
+    ExplicitWidth = 634
+    ExplicitHeight = 265
     DesignSize = (
       636
       273)
     object grpShortcuts: TGroupBox
       Left = 17
       Top = 8
-      Width = 602
+      Width = 598
       Height = 100
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Shortcuts'
       TabOrder = 0
+      ExplicitWidth = 596
       object lblOpenWith: TLabel
         Left = 36
         Top = 28
@@ -64,14 +67,22 @@ object ExtensionSettingsForm: TExtensionSettingsForm
     object grpInstallation: TGroupBox
       Left = 17
       Top = 114
-      Width = 602
+      Width = 598
       Height = 118
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Install as Delphi IDE Extension'
       TabOrder = 1
+      ExplicitWidth = 596
       DesignSize = (
-        602
+        598
         118)
+      object lblVersionInfo: TLabel
+        Left = 16
+        Top = 84
+        Width = 72
+        Height = 15
+        Caption = 'lblVersionInfo'
+      end
       object cmbDelphiVersions: TComboBox
         Left = 16
         Top = 26
@@ -82,18 +93,19 @@ object ExtensionSettingsForm: TExtensionSettingsForm
         OnChange = cmbDelphiVersionsChange
       end
       object btnInstallPackage: TButton
-        Left = 510
+        Left = 506
         Top = 55
         Width = 78
         Height = 21
         Action = ActionExtensionInstall
         Anchors = [akRight, akBottom]
         TabOrder = 1
+        ExplicitLeft = 504
       end
       object btnedtDllPath: TButtonedEdit
         Left = 16
         Top = 55
-        Width = 488
+        Width = 484
         Height = 23
         Anchors = [akLeft, akTop, akRight]
         Color = clInfoBk
@@ -111,6 +123,7 @@ object ExtensionSettingsForm: TExtensionSettingsForm
         Text = 'Dll path...'
         TextHint = 'Rg.exe path...'
         OnRightButtonClick = btnedtDllPathRightButtonClick
+        ExplicitWidth = 482
       end
     end
   end
