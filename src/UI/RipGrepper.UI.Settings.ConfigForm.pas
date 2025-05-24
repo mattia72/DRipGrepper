@@ -26,9 +26,9 @@ uses
 	RipGrepper.Settings.ExtensionSettings,
 	RipGrepper.UI.Settings.ExtensionSettingsForm,
 	RipGrepper.UI.Settings.ColorSettingsForm,
+	RipGrepper.UI.Settings.AboutForm,
 	RipGrepper.Helper.UI.DarkMode,
-	Spring.Collections,
-	RipGrepper.UI.Settings.AboutForm;
+	Spring.Collections;
 
 type
 	TConfigForm = class(TForm)
