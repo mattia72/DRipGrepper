@@ -10,8 +10,7 @@ uses
 type
 	TReleaseInfo = record
 		private
-			FCurrentNameWithVersion : string;
-			class procedure InitRestClient(_restClient : TRESTClient; _restRequest : TRESTRequest; _restResponse : TRESTResponse); static;
+			procedure GetDescription(const _body : string);
 
 		public
 			Description : string;
@@ -19,23 +18,28 @@ type
 			HtmlURL : string;
 			PublishedAt : TDateTime;
 			LoadOk : Boolean;
-			class function DownloadReleaseInfoFromGithub() : TArray<TReleaseInfo>; static;
 			procedure FromJson(_json : TJSONValue; const _idx : Integer);
-			function GetCurrentNameWithVersion() : string;
-			property CurrentNameWithVersion : string read GetCurrentNameWithVersion;
 	end;
 
 	TReleaseUtils = record
 		private
+			FCurrentRelease : TReleaseInfo;
+			FCurrentNameWithVersion : string;
+			function GetCurrentRelease() : TReleaseInfo;
 			class function GetModuleVersion(Instance : THandle; out iMajor, iMinor, iRelease, iBuild : Integer) : Boolean; static;
+			class procedure InitRestClient(_restClient : TRESTClient; _restRequest : TRESTRequest; _restResponse : TRESTResponse); static;
 
 		public
+			class function DownloadReleaseInfoFromGithub() : TArray<TReleaseInfo>; static;
 			class function GetAppDirectory() : string; static;
 			class function GetAppNameAndVersion(const _exePath : string) : string; static;
-			class function GetFileVersion(const _fullPath: string): string; static;
-			class function GetRunningModuleVersion(const _exePath : string): string; static;
+			function GetCurrentNameWithVersion() : string;
+			class function GetFileVersion(const _fullPath : string) : string; static;
+			class function GetRunningModuleVersion() : string; static;
 			class function GetModuleNameAndVersion() : string; static;
 			class function GetRunningModulePath() : string; static;
+			property CurrentNameWithVersion : string read GetCurrentNameWithVersion;
+			property CurrentRelease : TReleaseInfo read GetCurrentRelease;
 	end;
 
 implementation
@@ -48,9 +52,45 @@ uses
 	RipGrepper.Common.Constants,
 	Winapi.Windows,
 	System.Classes,
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils,
+	System.RegularExpressions,
+	ArrayEx;
 
-class function TReleaseInfo.DownloadReleaseInfoFromGithub() : TArray<TReleaseInfo>;
+procedure TReleaseInfo.FromJson(_json : TJSONValue; const _idx : Integer);
+begin
+	LoadOk := False;
+	var
+	item := _json.A[_idx];
+	HtmlURL := item.GetValue<string>('html_url');
+	Version := item.GetValue<string>('name');
+	PublishedAt := item.GetValue<TDateTime>('published_at');
+	GetDescription(item.GetValue<string>('body'));
+	LoadOk := True;
+end;
+
+procedure TReleaseInfo.GetDescription(const _body : string);
+var
+	bIsComment : Boolean;
+	lines : TArrayEx<string>;
+begin
+	bIsComment := False;
+	for var l : string in _body.Split([CRLF]) do begin
+		if bIsComment or TRegEx.IsMatch(l, '^\s*<!--') then begin
+			bIsComment := True;
+		end;
+		if TRegEx.IsMatch(l, '-->\s*$') then begin
+			bIsComment := False;
+			continue
+		end;
+		if not bIsComment then begin
+			lines.Add(l);
+		end;
+	end;
+
+	Description := string.Join(CRLF, lines.Items);
+end;
+
+class function TReleaseUtils.DownloadReleaseInfoFromGithub() : TArray<TReleaseInfo>;
 var
 	jValue : TJSONValue;
 	restClient : TRESTClient;
@@ -79,42 +119,6 @@ begin
 	end;
 end;
 
-procedure TReleaseInfo.FromJson(_json : TJSONValue; const _idx : Integer);
-begin
-	LoadOk := False;
-	var
-	item := _json.A[_idx];
-	HtmlURL := item.GetValue<string>('html_url');
-	Version := item.GetValue<string>('name');
-	PublishedAt := item.GetValue<TDateTime>('published_at');
-	Description := item.GetValue<string>('body');
-	LoadOk := True;
-end;
-
-function TReleaseInfo.GetCurrentNameWithVersion() : string;
-begin
-	if FCurrentNameWithVersion.IsEmpty then begin
-		{$IFDEF STANDALONE}
-		FCurrentNameWithVersion := TReleaseUtils.GetAppNameAndVersion(Application.ExeName);
-		{$ELSE}
-		FCurrentNameWithVersion := TReleaseUtils.GetModuleNameAndVersion();
-		{$ENDIF}
-	end;
-	Result := FCurrentNameWithVersion;
-end;
-
-class procedure TReleaseInfo.InitRestClient(_restClient : TRESTClient; _restRequest : TRESTRequest; _restResponse : TRESTResponse);
-begin
-	_restClient.Accept := 'application/json, text/plain; q=0.9, text/html;q=0.8,';
-	_restClient.AcceptCharset := 'utf-8, *;q=0.8';
-	_restClient.BaseURL := 'https://api.github.com/repos/mattia72/DripGrepper/releases';
-	// SynchronizedEvents := False;
-	_restRequest.Client := _restClient;
-	_restRequest.Response := _restResponse;
-	// SynchronizedEvents := False;
-	_restResponse.ContentType := 'application/json';
-end;
-
 class function TReleaseUtils.GetAppDirectory() : string;
 begin
 	{$IF CompilerVersion >= 360}
@@ -126,19 +130,35 @@ end;
 
 class function TReleaseUtils.GetAppNameAndVersion(const _exePath : string) : string;
 var
-	imajor : integer;
-	iminor : integer;
-	irelease : integer;
-	ibuild : integer;
 	name : string;
+	sVersion : string;
 begin
 	name := TPath.GetFileNameWithoutExtension(_exePath);
-	GetModuleVersion(0, imajor, iminor, irelease, ibuild);
-	Result := Format(FORMAT_NAME_VERSION_INFO, [name, APP_PLATFORM, imajor, iminor, irelease, ibuild]);
+	sVersion := GetRunningModuleVersion();
+	Result := Format(FORMAT_NAME_VERSION_INFO, [name, APP_PLATFORM, sVersion]);
 end;
 
-class function TReleaseUtils.GetRunningModuleVersion(const _exePath : string):
-	string;
+function TReleaseUtils.GetCurrentNameWithVersion() : string;
+begin
+	if FCurrentNameWithVersion.IsEmpty then begin
+		{$IFDEF STANDALONE}
+		FCurrentNameWithVersion := TReleaseUtils.GetAppNameAndVersion(Application.ExeName);
+		{$ELSE}
+		FCurrentNameWithVersion := TReleaseUtils.GetModuleNameAndVersion();
+		{$ENDIF}
+	end;
+	Result := FCurrentNameWithVersion;
+end;
+
+function TReleaseUtils.GetCurrentRelease() : TReleaseInfo;
+begin
+	if FCurrentRelease.Version.IsEmpty then begin
+		FCurrentRelease.Version := GetRunningModuleVersion()
+	end;
+	Result := FCurrentRelease;
+end;
+
+class function TReleaseUtils.GetRunningModuleVersion() : string;
 var
 	imajor : integer;
 	iminor : integer;
@@ -213,7 +233,7 @@ begin
 	Result := True;
 end;
 
-class function TReleaseUtils.GetFileVersion(const _fullPath: string): string;
+class function TReleaseUtils.GetFileVersion(const _fullPath : string) : string;
 var
 	infoSize : DWORD;
 	verBuf : pointer;
@@ -251,6 +271,16 @@ begin
 	GetModuleFileName(hInstance, szFileName, MAX_PATH);
 	Result := szFileName;
 	dbgMsg.Msg(Result);
+end;
+
+class procedure TReleaseUtils.InitRestClient(_restClient : TRESTClient; _restRequest : TRESTRequest; _restResponse : TRESTResponse);
+begin
+	_restClient.Accept := 'application/json, text/plain; q=0.9, text/html;q=0.8,';
+	_restClient.AcceptCharset := 'utf-8, *;q=0.8';
+	_restClient.BaseURL := 'https://api.github.com/repos/mattia72/DripGrepper/releases';
+	_restRequest.Client := _restClient;
+	_restRequest.Response := _restResponse;
+	_restResponse.ContentType := 'application/json';
 end;
 
 end.

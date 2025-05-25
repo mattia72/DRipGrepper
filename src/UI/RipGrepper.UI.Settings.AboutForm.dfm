@@ -30,7 +30,6 @@ object AboutForm: TAboutForm
     ShowCaption = False
     TabOrder = 0
     StyleElements = [seFont, seClient]
-    ExplicitWidth = 552
   end
   object pnlTop: TPanel
     Left = 0
@@ -42,8 +41,6 @@ object AboutForm: TAboutForm
     ShowCaption = False
     TabOrder = 1
     StyleElements = [seFont, seClient]
-    ExplicitWidth = 552
-    ExplicitHeight = 282
     object ScrollBox1: TScrollBox
       Left = 0
       Top = 0
@@ -54,8 +51,6 @@ object AboutForm: TAboutForm
       BevelOuter = bvNone
       BorderStyle = bsNone
       TabOrder = 0
-      ExplicitWidth = 552
-      ExplicitHeight = 282
       DesignSize = (
         554
         290)
@@ -77,8 +72,6 @@ object AboutForm: TAboutForm
           'Memo1')
         ScrollBars = ssBoth
         TabOrder = 0
-        ExplicitWidth = 549
-        ExplicitHeight = 199
       end
       object lnkLatestUrl: TLinkLabel
         Left = 212
@@ -104,7 +97,6 @@ object AboutForm: TAboutForm
         Font.Style = [fsBold]
         ParentFont = False
         TabOrder = 2
-        ExplicitWidth = 552
       end
     end
     object btnCheckUpdate: TButton

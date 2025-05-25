@@ -165,7 +165,7 @@ begin
 	sFullPath := TReleaseUtils.GetRunningModulePath();
 	System.SysUtils.FileAge(sFullPath, dFileAge);
 	aLicenseStatus := FormatDateTime('dd.mm.yy - h:nn', dFileAge);
-	sExeVersion := TReleaseUtils.GetRunningModuleVersion(sFullPath);
+	sExeVersion := TReleaseUtils.GetRunningModuleVersion();
 	bmpHandle := LoadBitmap(hInstance, 'splash_icon');
 	(SplashScreenServices as IOTASplashScreenServices).AddPluginBitmap(EXTENSION_NAME, bmpHandle, False, '', sExeVersion);
 

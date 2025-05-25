@@ -40,7 +40,7 @@ const
 	WWW_LINK_GLOBBING_HELP = 'https://www.w3schools.com/git/git_ignore.asp'; // https://www.mankier.com/5/gitignore
 
 	FORMAT_VERSION_INFO = 'v%d.%d.%d.%d-beta';
-	FORMAT_NAME_VERSION_INFO = '%s (%s) ' + FORMAT_VERSION_INFO;
+	FORMAT_NAME_VERSION_INFO = '%s (%s) %s';
 	FORMAT_VERSION_INFO_IN_STATUSBAR = '%s   ';
 
 	CR = #13;
