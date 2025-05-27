@@ -120,9 +120,11 @@ scoop update dripgrepper
 * Open the AllRripGrepperProjectXX.groupproj in Delphi
   
 ### Dependencies
+* Clone [spring4d](https://bitbucket.org/sglienke/spring4d) into a folder next to DripGrepper
+* Clone [FastMM4](https://github.com/pleriche/FastMM4) into a folder next to DripGrepper
 * Open `Tools | GetIt-Package-Manager` 
   * Install `VirtualTree for VCL`
-* Clone [spring4d](https://bitbucket.org/sglienke/spring4d) into a folder next to DripGrepper
+  * Install `SVGIconImageList VCL and FMX`
 
 ## Contribution
 To submit a pull request, follow these steps:
@@ -147,3 +149,4 @@ To submit a pull request, follow these steps:
 -  [VirtualTreeView](https://github.com/TurboPack/VirtualTreeView)
 -  [SVGIconImageList](https://github.com/EtheaDev/SVGIconImageList)
 -  [spring4d](https://bitbucket.org/sglienke/spring4d)
+-  [FastMM4](https://github.com/pleriche/FastMM4) 
