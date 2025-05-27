@@ -95,6 +95,7 @@ type
 			function AddVstHistItem(_nodeData : PVSHistoryNodeData) : PVirtualNode;
 			procedure AddVstReplaceNode(Node : PVirtualNode; NodeData : PVSHistoryNodeData);
 			procedure ChangeVstReplaceNode(Node : PVirtualNode; const _Data : PVSHistoryNodeData = nil);
+			function CountSaveNodes() : integer;
 			procedure DeleteAllHistoryItems();
 			procedure DeleteCurrentNode;
 			procedure DeleteHistItemNode(const node : PVirtualNode);
@@ -106,6 +107,7 @@ type
 			function GetIsInitialized() : Boolean;
 			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
 			function GetSettings : TRipGrepperSettings;
+			function IsIndexGTHistoryCount(const _idx : Integer) : Boolean;
 			function NodeDataFromStream(const sr : TStreamReader) : TVSHistoryNodeData;
 			procedure ShowReplaceColumn(const _bShow : Boolean);
 			procedure UpdateReplaceColumnVisible;
@@ -160,7 +162,8 @@ uses
 	System.StrUtils,
 	RipGrepper.Helper.Types,
 	RipGrepper.Common.SimpleTypes,
-	Spring;
+	Spring,
+	RipGrepper.Settings.AppSettings;
 
 {$R *.dfm}
 
@@ -806,6 +809,51 @@ begin
 	end;
 end;
 
+function TMiddleLeftFrame.CountSaveNodes() : integer;
+var
+	hio : THistoryItemObject;
+	appSettings : TAppSettings;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.CountSaveNodes');
+
+	appSettings := Settings.AppSettings;
+	if llsmAll = appSettings.LoadLastSearchHistoryMode then begin
+		Result := VstHistory.RootNodeCount;
+		exit
+	end;
+	Result := 0;
+	for var node : PVirtualNode in VstHistory.Nodes() do begin
+		if node.Parent <> VstHistory.RootNode then begin
+			dbgMsg.Msg('Child node skipped');
+			continue;
+		end;
+		var
+		idx := GetHistoryItemNodeIndex(node);
+		hio := GetHistoryObject(idx);
+
+		dbgMsg.MsgFmt('check : %s', [hio.SearchText]);
+
+		case appSettings.LoadLastSearchHistoryMode of
+			llsmHasResultOnly : begin
+				if hio.HasResult then begin
+					Inc(Result);
+					dbgMsg.MsgFmt('has result : %d', [Result]);
+				end
+			end;
+			llsmMaxCount : begin
+				if IsIndexGTHistoryCount(idx) then begin
+					Inc(Result);
+					dbgMsg.MsgFmt('idx %d >= %d', [idx, Result]);
+				end
+			end;
+			else begin
+				dbgMsg.Msg('skip');
+			end;
+		end;
+	end;
+end;
+
 procedure TMiddleLeftFrame.DeleteAllHistoryItems();
 begin
 	MainFrame.VstResult.Clear;
@@ -874,9 +922,13 @@ begin
 	Result := FIsInitialized;
 end;
 
+function TMiddleLeftFrame.IsIndexGTHistoryCount(const _idx : Integer) : Boolean;
+begin
+	Result := _idx >= (Integer(VstHistory.RootNodeCount) - Settings.AppSettings.SearchHistoryCount);
+end;
+
 function TMiddleLeftFrame.NodeDataFromStream(const sr : TStreamReader) : TVSHistoryNodeData;
-var
-	hio : IHistoryItemObject;
+var hio : IHistoryItemObject;
 begin
 	hio := THistoryItemObject.Create;
 	hio.LoadFromStreamReader(sr);
@@ -916,13 +968,11 @@ begin
 end;
 
 procedure TMiddleLeftFrame.VstHistoryLoadTree(Sender : TBaseVirtualTree; Stream : TStream);
-var
-	sr : IShared<TStreamReader>;
-	count : integer;
-	nodeData : TVSHistoryNodeData;
+var sr : IShared<TStreamReader>;
+	count : integer; nodeData : TVSHistoryNodeData;
 begin
 	sr := Shared.Make<TStreamReader>(TStreamReader.Create(Stream));
-	count := StrToInt(sr.ReadLine());
+	count := StrToIntDef(sr.ReadLine(), 0);
 
 	VstHistory.Clear; // LoadFile creates the nodes, we should clear it
 	for var i := 0 to count - 1 do begin
@@ -934,23 +984,43 @@ begin
 end;
 
 procedure TMiddleLeftFrame.VstHistorySaveTree(Sender : TBaseVirtualTree; Stream : TStream);
-var
-	hio : IHistoryItemObject;
-	idx : integer;
+var hio : IHistoryItemObject; idx : integer;
 	sw : IShared<TStreamWriter>;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.VstHistorySaveTree');
 	sw := Shared.Make<TStreamWriter>(TStreamWriter.Create(Stream));
-	sw.WriteLine(VstHistory.RootNodeCount);
+	sw.WriteLine(CountSaveNodes);
+
 	for var node : PVirtualNode in VstHistory.Nodes() do begin
 		if node.Parent <> VstHistory.RootNode then begin
 			dbgMsg.Msg('Child node skipped');
 			continue;
 		end;
+
 		idx := GetHistoryItemNodeIndex(node);
 		hio := GetHistoryObject(idx);
-		hio.SaveToStreamWriter(sw);
+		var appSettings : TAppSettings;
+		appSettings := Settings.AppSettings;
+		case appSettings.LoadLastSearchHistoryMode of
+			llsmAll : begin
+				dbgMsg.MsgFmt('Save idx: %d - %s', [idx, hio.SearchText]);
+				hio.SaveToStreamWriter(sw);
+			end;
+			llsmHasResultOnly : begin
+				if hio.HasResult then begin
+					dbgMsg.MsgFmt('Save idx: %d - %s', [idx, hio.SearchText]);
+					hio.SaveToStreamWriter(sw);
+				end
+			end;
+			llsmMaxCount : begin
+				if IsIndexGTHistoryCount(idx) then begin
+					dbgMsg.MsgFmt('Save idx: %d - %s', [idx, hio.SearchText]);
+					hio.SaveToStreamWriter(sw);
+				end
+			end;
+
+		end;
 	end;
 end;
 

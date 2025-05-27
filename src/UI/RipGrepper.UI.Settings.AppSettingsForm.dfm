@@ -2,7 +2,7 @@ object AppSettingsForm: TAppSettingsForm
   Left = 0
   Top = 0
   Caption = 'AppSettingsForm'
-  ClientHeight = 487
+  ClientHeight = 562
   ClientWidth = 515
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -10,18 +10,19 @@ object AppSettingsForm: TAppSettingsForm
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
+  ShowHint = True
   OnShow = FormShow
   TextHeight = 15
   object ScrollBox1: TScrollBox
     Left = 0
     Top = 0
     Width = 515
-    Height = 487
+    Height = 562
     Align = alClient
     TabOrder = 0
     DesignSize = (
       511
-      483)
+      558)
     object lblRgExePath: TLabel
       Left = 16
       Top = 9
@@ -39,8 +40,9 @@ object AppSettingsForm: TAppSettingsForm
     object btnedtRgExePath: TButtonedEdit
       Left = 16
       Top = 27
-      Width = 482
+      Width = 480
       Height = 23
+      Hint = 'Full path of rg.exe.'
       Anchors = [akLeft, akTop, akRight]
       Color = clInfoBk
       Images = SVGIconImageList1
@@ -65,15 +67,15 @@ object AppSettingsForm: TAppSettingsForm
     end
     object grpAdvanced: TGroupBox
       AlignWithMargins = True
-      Left = 11
-      Top = 258
-      Width = 487
+      Left = 3
+      Top = 330
+      Width = 485
       Height = 181
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Advanced'
       TabOrder = 1
       DesignSize = (
-        487
+        485
         181)
       object Label1: TLabel
         Left = 16
@@ -87,14 +89,18 @@ object AppSettingsForm: TAppSettingsForm
         Top = 22
         Width = 97
         Height = 24
+        Hint = 'In expert mode, rg.exe can be freely parameterized.'
         Caption = 'Expert mode'
         TabOrder = 0
       end
       object btnedtIniFilePath: TButtonedEdit
         Left = 16
         Top = 147
-        Width = 462
+        Width = 460
         Height = 23
+        Hint = 
+          'Full path to the settings file. It can be opened using the launc' +
+          'h icon.'
         Anchors = [akLeft, akTop, akRight]
         Color = clInfoBk
         Images = SVGIconImageList1
@@ -120,8 +126,9 @@ object AppSettingsForm: TAppSettingsForm
       object gbTrace: TGroupBox
         Left = 16
         Top = 52
-        Width = 459
+        Width = 457
         Height = 68
+        Hint = 'Debug trace can be viewed in a debug viewer eg. DebugView++.'
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Debug trace filters'
         TabOrder = 2
@@ -175,7 +182,7 @@ object AppSettingsForm: TAppSettingsForm
           OnClick = chRegexClick
         end
         object edtRegex: TEdit
-          Left = 84
+          Left = 79
           Top = 42
           Width = 121
           Height = 23
@@ -195,8 +202,9 @@ object AppSettingsForm: TAppSettingsForm
     object Memo1: TMemo
       Left = 16
       Top = 74
-      Width = 482
+      Width = 480
       Height = 63
+      Hint = 'Output of "rg.exe --version".'
       Anchors = [akLeft, akTop, akRight]
       Color = clBlack
       Font.Charset = DEFAULT_CHARSET
@@ -216,8 +224,8 @@ object AppSettingsForm: TAppSettingsForm
     object grpSettings: TGroupBox
       Left = 11
       Top = 143
-      Width = 487
-      Height = 109
+      Width = 485
+      Height = 181
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Settings'
       TabOrder = 3
@@ -235,12 +243,21 @@ object AppSettingsForm: TAppSettingsForm
         Height = 15
         Caption = 'Combo history count:'
       end
+      object lblSearches: TLabel
+        Left = 247
+        Top = 144
+        Width = 45
+        Height = 15
+        Caption = 'searches'
+      end
       object cmbCopyCmdShell: TComboBox
-        Left = 141
+        Left = 142
         Top = 20
-        Width = 100
+        Width = 99
         Height = 23
-        Hint = 'Select shell format to copy the RipGrep command to the clipboard'
+        Hint = 
+          'Select shell format to copy the RipGrep command to the clipboard' +
+          '.'
         ItemIndex = 0
         TabOrder = 0
         Text = 'PowerShell '
@@ -253,18 +270,49 @@ object AppSettingsForm: TAppSettingsForm
         Top = 49
         Width = 99
         Height = 24
+        Hint = 'Number of history length in combo boxes.'
         MaxValue = 100
         MinValue = 10
         TabOrder = 1
         Value = 10
       end
-      object cbLoadLastSearchHistories: TCheckBox
-        Left = 19
+      object rgModeLoadSeraches: TRadioGroup
+        AlignWithMargins = True
+        Left = 16
         Top = 79
-        Width = 257
+        Width = 448
+        Height = 88
+        Hint = 
+          'All searches '#8211' Loads all previously saved searches.'#10#10#13#10'Only exec' +
+          'uted searches '#8211' Loads only searches you'#8217've actually executed.'#10#10#13 +
+          #10'Last NUM searches '#8211' Loads the latest NUM saved searches.'
+        Items.Strings = (
+          'All searches'
+          'Only executed searches'
+          'Last')
+        TabOrder = 3
+        StyleElements = [seFont, seClient]
+      end
+      object cbLoadLastSearchHistories: TCheckBox
+        Left = 16
+        Top = 79
+        Width = 222
         Height = 17
-        Caption = 'Load last searches on startup (experimental)'
+        Hint = 'Automatically load saved search history items on startup.'
+        Caption = 'Load last searches on startup'
         TabOrder = 2
+        OnClick = cbLoadLastSearchHistoriesClick
+      end
+      object seSearchHistoryCount: TSpinEdit
+        Left = 142
+        Top = 137
+        Width = 99
+        Height = 24
+        Hint = 'Number of history length in search history panel.'
+        MaxValue = 100
+        MinValue = 10
+        TabOrder = 4
+        Value = 10
       end
     end
   end

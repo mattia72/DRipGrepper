@@ -32,7 +32,8 @@ uses
 	SVGIconImageListBase,
 	SVGIconImageList,
 	Spring,
-	Vcl.Samples.Spin;
+	Vcl.Samples.Spin,
+	Vcl.ControlList;
 
 type
 	EValidateCtrls = (vcRgExePath, vcIniFilePath);
@@ -66,12 +67,16 @@ type
 		Label3 : TLabel;
 		seCmbHistoryCount : TSpinEdit;
 		cbLoadLastSearchHistories : TCheckBox;
+		rgModeLoadSeraches : TRadioGroup;
+		seSearchHistoryCount : TSpinEdit;
+		lblSearches : TLabel;
 		procedure btnedtIniFilePathLeftButtonClick(Sender : TObject);
 		procedure btnedtIniFilePathRightButtonClick(Sender : TObject);
 		procedure btnedtRgExePathEnter(Sender : TObject);
 		procedure btnedtRgExePathExit(Sender : TObject);
 		procedure btnedtRgExePathLeftButtonClick(Sender : TObject);
 		procedure btnedtRgExePathRightButtonClick(Sender : TObject);
+		procedure cbLoadLastSearchHistoriesClick(Sender : TObject);
 		procedure chRegexClick(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 
@@ -170,6 +175,11 @@ begin
 		btnedtRgExePath.Text := filePath;
 	end;
 	PostMessage(Handle, USERMESSAGE_VALIDATE_INPUT, 0, LParam(vcRgExePath));
+end;
+
+procedure TAppSettingsForm.cbLoadLastSearchHistoriesClick(Sender : TObject);
+begin
+	rgModeLoadSeraches.Enabled := cbLoadLastSearchHistories.Checked;
 end;
 
 procedure TAppSettingsForm.chRegexClick(Sender : TObject);
@@ -273,7 +283,9 @@ begin
 	btnedtIniFilePath.Text := FAppSettings.PersisterFactory.FilePath;
 	cmbCopyCmdShell.ItemIndex := Integer(FAppSettings.CopyToClipBoardShell);
 	seCmbHistoryCount.Value := FAppSettings.ComboHistoryCount;
+	seSearchHistoryCount.Value := FAppSettings.SearchHistoryCount;
 	cbLoadLastSearchHistories.Checked := FAppSettings.LoadLastSearchHistory;
+	rgModeLoadSeraches.ItemIndex := Integer(FAppSettings.LoadLastSearchHistoryMode);
 
 	var
 	path := FRipGrepSettings.RipGrepPath;
@@ -316,7 +328,9 @@ begin
 	FAppSettings.ExpertMode := chExpertMode.Checked;
 	FAppSettings.CopyToClipBoardShell := TShellType(cmbCopyCmdShell.ItemIndex);
 	FAppSettings.ComboHistoryCount := seCmbHistoryCount.Value;
+	FAppSettings.SearchHistoryCount := seSearchHistoryCount.Value;
 	FAppSettings.LoadLastSearchHistory := cbLoadLastSearchHistories.Checked;
+	FAppSettings.LoadLastSearchHistoryMode := ELoadLastHistoryMode(rgModeLoadSeraches.ItemIndex);
 
 	var
 	rgPath := btnedtRgExePath.Text;

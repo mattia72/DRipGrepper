@@ -91,6 +91,7 @@ type
 	TReplaceModes = set of EReplaceMode;
 
 	TNullableString = Nullable<string>;
+	ELoadLastHistoryMode = (llsmAll, llsmHasResultOnly, llsmMaxCount);
 
 const
 	GUI_SEARCH_PARAMS : TArray<EGuiOption> = [
