@@ -174,11 +174,14 @@ function Build-BplExtensionRelease {
 function Build-ExpertDllRelease {
     # copy scripts
     Import-Module -Name PSDelphi -Force
+
     $projectPath = Get-ProjectPath "Extension\src\Project" "Dll."
+    $latestVersion = Get-LastInstalledDelphiVersion 
+    $dllProjName = "$global:DllNameWithoutExt.$($latestVersion.Data.Dir -replace "Delphi", "D").dproj"
     $result = $null
     # add -LUDesignIde to the msbuild parameters
     # see https://docwiki.embarcadero.com/Libraries/Athens/en/DesignIntf
-    Build-DelphiProject -ProjectPath $projectPath\DRipExtensions.dproj -BuildConfig $BuildConfig `
+    Build-DelphiProject -ProjectPath $projectPath\$dllProjName -BuildConfig $BuildConfig `
         -AddMsBuildParameters "/p:mapfile=Detailed;DCC_MapFile=3" -StopOnFirstFailure -CountResult -Result ([ref]$result)
     Test-BuildResult -result $result
 }

@@ -9,7 +9,7 @@
     <ProjectName Condition="'$(ProjectName)'==''">DRipExtensions</ProjectName>
     <TargetedPlatforms>1</TargetedPlatforms>
     <AppType>Library</AppType>
-    <MainSource>DRipExtensions.dpr</MainSource>
+    <MainSource>DRipExtensions.D11.dpr</MainSource>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
     <Base>true</Base>
@@ -57,7 +57,7 @@
     <GenDll>true</GenDll>
     <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
     <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
-    <SanitizedProjectName>DRipExtensions</SanitizedProjectName>
+    <SanitizedProjectName>DRipExtensions_D11</SanitizedProjectName>
     <DCC_UnitSearchPath>..\..\..\src;..\..\..\..\external;..\..\..\..\src\OpenWith;..\..\..\..\external\GExpert;..\..\..\..\external\dzlib;..\..\..\..\external\RegExpr;..\..\..\..\external\mwParser;..\..\..\..\external\UniSynEdit;..\..\..\..\..\spring4d\Library\Delphi11\$(Platform)\$(Config);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     <DCC_Define>NO_TRANSLATION;NO_TRANSLATION_HINT;NO_OPTIMIZE_DZ_GRAPHIC_UTILS_HINT;UnicodeRE;EnableIdeDockingSupport;$(DCC_Define)</DCC_Define>
     <DCC_UnitAlias>GX_IdeDockStandAlone=GX_IdeDock;SynRegExpr=RegExprReplaceUnit;$(DCC_UnitAlias)</DCC_UnitAlias>
@@ -74,11 +74,10 @@
     <VerInfo_Locale>1033</VerInfo_Locale>
     <DCC_UsePackage>rtl;dbrtl;vcldb;vcl;VirtualTreesDR;VclSmp;$(DCC_UsePackage)</DCC_UsePackage>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.6.2.244;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.6.2;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>244</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.7.0.250;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.7.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>250</VerInfo_Build>
     <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
-    <VerInfo_MinorVer>6</VerInfo_MinorVer>
-    <VerInfo_Release>2</VerInfo_Release>
+    <VerInfo_MinorVer>7</VerInfo_MinorVer>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Base_Win64)'!=''">
     <DCC_UsePackage>rtl;dbrtl;vcldb;vcl;VirtualTreesDR;VclSmp;$(DCC_UsePackage)</DCC_UsePackage>
@@ -100,13 +99,13 @@
     <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\22.0\bin\bds.exe</Debugger_HostApplication>
     <DCC_ShowGeneralMessages>true</DCC_ShowGeneralMessages>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.6.2.244;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.6.2;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>244</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.7.0.250;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.7.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>250</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <Manifest_File>..\Delphi12\(None)</Manifest_File>
     <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
-    <VerInfo_MinorVer>6</VerInfo_MinorVer>
-    <VerInfo_Release>2</VerInfo_Release>
+    <VerInfo_MinorVer>7</VerInfo_MinorVer>
+    <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_2)'!=''">
     <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -118,15 +117,15 @@
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
     <VerInfo_Locale>1033</VerInfo_Locale>
-    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.6.2.250;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.6.2;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>250</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.7.0.251;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.7.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>251</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <DCC_Description>RipGrep Search within Delphi</DCC_Description>
-    <VerInfo_MinorVer>6</VerInfo_MinorVer>
+    <VerInfo_MinorVer>7</VerInfo_MinorVer>
     <Manifest_File>(Ohne)</Manifest_File>
     <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
     <DCC_MapFile>3</DCC_MapFile>
-    <VerInfo_Release>2</VerInfo_Release>
+    <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
   </PropertyGroup>
   <ItemGroup>
     <DelphiCompile Include="$(MainSource)">
@@ -244,6 +243,7 @@
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas">
       <FormType>dfm</FormType>
     </DCCReference>
+    <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.ReleaseUtils.pas" />
     <RcItem Include="..\..\..\Resources\about_icon.bmp">
       <ResourceType>BITMAP</ResourceType>
       <ResourceId>about_icon</ResourceId>
@@ -278,7 +278,7 @@
     <BorlandProject>
       <Delphi.Personality>
         <Source>
-          <Source Name="MainSource">DRipExtensions.dpr</Source>
+          <Source Name="MainSource">DRipExtensions.D11.dpr</Source>
         </Source>
         <Excluded_Packages>
           <Excluded_Packages Name="$(BDSBIN)\dclBindCompFireDAC280.bpl">LiveBinding-Ausdruckskomponenten für FireDac</Excluded_Packages>
@@ -307,15 +307,15 @@
             <Overwrite>true</Overwrite>
           </Platform>
         </DeployFile>
-        <DeployFile LocalName="Win32\Debug\DRipExtensions.dll" Configuration="Debug" Class="ProjectOutput">
+        <DeployFile LocalName="Win32\Debug\DRipExtensions_D11.dll" Configuration="Debug" Class="ProjectOutput">
           <Platform Name="Win32">
-            <RemoteName>DRipExtensions.dll</RemoteName>
+            <RemoteName>DRipExtensions_D11.dll</RemoteName>
             <Overwrite>true</Overwrite>
           </Platform>
         </DeployFile>
-        <DeployFile LocalName="Win32\Release\DRipExtensions.dll" Configuration="Release" Class="ProjectOutput">
+        <DeployFile LocalName="Win32\Release\DRipExtensions.D11.dll" Configuration="Release" Class="ProjectOutput">
           <Platform Name="Win32">
-            <RemoteName>DRipExtensions.dll</RemoteName>
+            <RemoteName>DRipExtensions_D11.dll</RemoteName>
             <Overwrite>true</Overwrite>
           </Platform>
         </DeployFile>

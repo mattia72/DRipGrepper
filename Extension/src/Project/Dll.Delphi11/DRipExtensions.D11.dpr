@@ -1,4 +1,4 @@
-library DRipExtensions;
+library DRipExtensions.D11;
 
 { Important note about DLL memory management: ShareMem must be the
   first unit in your library's USES clause AND your project's (select
@@ -102,7 +102,8 @@ uses
   RipGrepper.Common.Interfaces.StreamPersistable in '..\..\..\..\src\Common\RipGrepper.Common.Interfaces.StreamPersistable.pas',
   RipGrepper.Helper.StreamReaderWriter in '..\..\..\..\src\Helper\RipGrepper.Helper.StreamReaderWriter.pas',
   RipGrepper.Settings.RipGrepArguments in '..\..\..\..\src\Settings\RipGrepper.Settings.RipGrepArguments.pas',
-  RipGrepper.UI.Settings.ColorSettingsForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas';
+  RipGrepper.UI.Settings.ColorSettingsForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas',
+  RipGrepper.Tools.ReleaseUtils in '..\..\..\..\src\Tools\RipGrepper.Tools.ReleaseUtils.pas';
 
 {$R *.res}
 
