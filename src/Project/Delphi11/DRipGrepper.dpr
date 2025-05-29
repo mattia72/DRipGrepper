@@ -105,7 +105,8 @@ uses
   RipGrepper.Helper.SettingStoreBehaviours in '..\..\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas',
   RipGrepper.Helper.StreamReaderWriter in '..\..\Helper\RipGrepper.Helper.StreamReaderWriter.pas',
   RipGrepper.Settings.RipGrepArguments in '..\..\Settings\RipGrepper.Settings.RipGrepArguments.pas',
-  RipGrepper.UI.Settings.ColorSettingsForm in '..\..\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas';
+  RipGrepper.UI.Settings.ColorSettingsForm in '..\..\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas',
+  RipGrepper.Tools.ReleaseUtils in '..\..\Tools\RipGrepper.Tools.ReleaseUtils.pas';
 
 {$R *.res}
 
