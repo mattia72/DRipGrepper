@@ -29,7 +29,7 @@ type
 			function GetBplSuffix : string;
 
 		public
-			property name : string read FName;
+			property Name : string read FName;
 			property BDS : string read GetBDS;
 			property RegPath : string read FRegPath;
 			property BplSuffix : string read GetBplSuffix;

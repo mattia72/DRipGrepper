@@ -50,8 +50,8 @@ type
 		procedure FormShow(Sender : TObject);
 
 		private const
-			EXTENSION_NAME_DLL_NOT_FOUND = EXTENSION_NAME_DLL + ' not found!';
-			REGISTERED_DLL_NOT_FOUND = 'No registered ' + EXTENSION_NAME_DLL + ' found!';
+			EXTENSION_NAME_DLL_NOT_FOUND = '%s not found!';
+			REGISTERED_DLL_NOT_FOUND = 'No registered %s found!';
 			UNINSTALL_CAPTION = 'Uninstall...';
 			INSTALL_CAPTION = 'Install...';
 
@@ -63,6 +63,8 @@ type
 			function OpenDlgToGetExpertDllPath(const _initPath : string) : string;
 			function GetRegisteredExpertPath(dv : IDelphiVersion) : string;
 			function GetSelectedDelphiVersion : IDelphiVersion;
+			function GetValidDllName() : string;
+			function IsValidDllPath(const _sDllPath : string) : Boolean;
 			procedure SetEditedDllPath(const Value : string);
 			function TryGetDllPath(var _dllPath : string; _dv : IDelphiVersion) : Boolean;
 			procedure UpdateGui();
@@ -96,7 +98,8 @@ uses
 	System.IOUtils,
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.FileUtils,
-	System.StrUtils, RipGrepper.Tools.ReleaseUtils;
+	System.StrUtils,
+	RipGrepper.Tools.ReleaseUtils;
 
 {$R *.dfm}
 
@@ -121,23 +124,23 @@ end;
 procedure TExtensionSettingsForm.ActionExtensionInstallExecute(Sender : TObject);
 var
 	installer : TPackageInstallMain;
+	dv : IDelphiVersion;
+	sExtensionName : string;
+
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.ActionExtensionInstallExecute');
 
 	installer := TPackageInstallMain.Create;
 	try
-
 		dbgMsg.MsgFmt('Dll path: %s', [FEditedDllPath]);
-		if FileExists(FEditedDllPath) and
-		{ } string.EndsText(EXTENSION_NAME_DLL, FEditedDllPath) then begin
-			var
-				dv : IDelphiVersion := GetSelectedDelphiVersion;
-			var
-			sDescr := EXTENSION_NAME;
-			installer.Execute(FEditedDllPath, dv as TDelphiVersion, sDescr, btnInstallPackage.Caption = UNINSTALL_CAPTION);
+
+		if IsValidDllPath(FEditedDllPath) then begin
+			dv := GetSelectedDelphiVersion;
+			sExtensionName := EXTENSION_NAME;
+			installer.Execute(FEditedDllPath, dv as TDelphiVersion, sExtensionName, btnInstallPackage.Caption = UNINSTALL_CAPTION);
 		end else begin;
-			TMsgBox.ShowError(EXTENSION_NAME_DLL_NOT_FOUND);
+			TMsgBox.ShowError(Format(EXTENSION_NAME_DLL_NOT_FOUND,[GetValidDllName()]));
 		end;
 		UpdateGui();
 	finally
@@ -182,7 +185,7 @@ begin
 		cmbDelphiVersions.ItemIndex := 0;
 		dv := GetSelectedDelphiVersion;
 		if not TryGetDllPath(dllPath, dv) then begin
-			dllPath := TPath.Combine(TReleaseUtils.GetAppDirectory(), EXTENSION_NAME_DLL);
+			dllPath := TPath.Combine(TReleaseUtils.GetAppDirectory(), GetValidDllName());
 		end;
 		EditedDllPath := dllPath;
 		UpdateRegisteredDllVersionInfo();
@@ -208,7 +211,7 @@ var
 	sDesc : string;
 begin
 	sDesc := EXTENSION_NAME;
-	Result := (dv as TDelphiVersion).GetKnownExpertPath(EXTENSION_NAME_DLL, sDesc);
+	Result := (dv as TDelphiVersion).GetKnownExpertPath(GetValidDllName(), sDesc);
 end;
 
 function TExtensionSettingsForm.GetSelectedDelphiVersion : IDelphiVersion;
@@ -221,6 +224,23 @@ begin
 	dvo := cmbDelphiVersions.Items.Objects[idx];
 	if Supports(dvo, IDelphiVersion, idv) then
 		Result := idv;
+end;
+
+function TExtensionSettingsForm.GetValidDllName() : string;
+var
+	dv : IDelphiVersion;
+begin
+	dv := GetSelectedDelphiVersion;
+	Result := EXTENSION_NAME + '.D' + (dv as TDelphiVersion).Name + '.dll';
+end;
+
+function TExtensionSettingsForm.IsValidDllPath(const _sDllPath : string) : Boolean;
+var
+	sValidDllName : string;
+begin
+	sValidDllName := GetValidDllName();
+	Result := FileExists(_sDllPath) and
+	{ } string.EndsText(sValidDllName, _sDllPath);
 end;
 
 procedure TExtensionSettingsForm.OnSettingsUpdated();
@@ -244,12 +264,13 @@ begin
 end;
 
 procedure TExtensionSettingsForm.SetEditedDllPath(const Value : string);
+var
+	sErrorMsg: string;
 begin
-	FEditedDllPath := IfThen(
-		{ } Value.EndsWith(EXTENSION_NAME_DLL, True) and TFile.Exists(Value),
-		{ } Value, REGISTERED_DLL_NOT_FOUND);
+	sErrorMsg :=Format(REGISTERED_DLL_NOT_FOUND, [GetValidDllName()]);
+	FEditedDllPath := IfThen( IsValidDllPath(Value), Value, sErrorMsg);
 	btnedtDllPath.Text := FEditedDllPath;
-	btnInstallPackage.Enabled := (FEditedDllPath <> EXTENSION_NAME_DLL_NOT_FOUND);
+	btnInstallPackage.Enabled := (FEditedDllPath <> sErrorMsg);
 end;
 
 function TExtensionSettingsForm.TryGetDllPath(var _dllPath : string; _dv : IDelphiVersion) : Boolean;
@@ -269,7 +290,7 @@ begin
 		fullPath := TReleaseUtils.GetRunningModulePath();
 		modulPath := ExtractFilePath(fullPath);
 		dbgMsg.MsgFmt('modulPath = %s', [modulPath]);
-		_dllPath := TPath.Combine(modulPath, EXTENSION_NAME + '.dll');
+		_dllPath := TPath.Combine(modulPath, GetValidDllName());
 	end;
 	Result := FileExists(_dllPath);
 	dbgMsg.MsgFmt('_dllPath = %s %s', [_dllPath, BoolToStr(Result, True)]);

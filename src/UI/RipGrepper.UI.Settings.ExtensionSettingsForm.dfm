@@ -19,8 +19,6 @@ object ExtensionSettingsForm: TExtensionSettingsForm
     Height = 273
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 634
-    ExplicitHeight = 265
     DesignSize = (
       636
       273)
@@ -32,7 +30,6 @@ object ExtensionSettingsForm: TExtensionSettingsForm
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Shortcuts'
       TabOrder = 0
-      ExplicitWidth = 596
       object lblOpenWith: TLabel
         Left = 36
         Top = 28
@@ -72,7 +69,6 @@ object ExtensionSettingsForm: TExtensionSettingsForm
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Install as Delphi IDE Extension'
       TabOrder = 1
-      ExplicitWidth = 596
       DesignSize = (
         598
         118)
@@ -100,7 +96,6 @@ object ExtensionSettingsForm: TExtensionSettingsForm
         Action = ActionExtensionInstall
         Anchors = [akRight, akBottom]
         TabOrder = 1
-        ExplicitLeft = 504
       end
       object btnedtDllPath: TButtonedEdit
         Left = 16
@@ -123,7 +118,6 @@ object ExtensionSettingsForm: TExtensionSettingsForm
         Text = 'Dll path...'
         TextHint = 'Rg.exe path...'
         OnRightButtonClick = btnedtDllPathRightButtonClick
-        ExplicitWidth = 482
       end
     end
   end

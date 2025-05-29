@@ -21,7 +21,6 @@ const
 	RG_EXE = 'rg.exe';
 	APPNAME = 'DRipGrepper';
 	EXTENSION_NAME = 'DRipExtensions';
-	EXTENSION_NAME_DLL = EXTENSION_NAME + '.dll';
 	EXTENSION_MENU_ROOT_TEXT = '&' + EXTENSION_NAME + '...';
 	SEARCH_HISTORY_DRH = 'SearchHistory.drh';
 	BAK_FILE_EXTENSION = '.bak';
