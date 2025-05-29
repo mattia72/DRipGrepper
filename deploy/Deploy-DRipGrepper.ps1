@@ -272,8 +272,12 @@ function New-ExpertDllZip {
     Get-InstalledDelphiVersions | ForEach-Object {
         $ZipDir = $(Join-Path $projectPath "Extension\src\Project\Dll.$($_.Data.Dir)\$ReleaseType\$BuildConfig")
         $AssetDir = $(Join-Path $global:AssetsDirectory "$($_.Data.Dir).Dll")
-        Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $global:ExpertFileName) -Win64:$false
-        Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $global:ExpertMapFileName) -Win64:$false
+
+        $dllName = "$global:DllNameWithoutExt.$($_.Data.Dir -replace "Delphi", "D").dll"
+        $mapName = "$global:DllNameWithoutExt.$($_.Data.Dir -replace "Delphi", "D").map"
+        Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $dllName) -Win64:$false
+        Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $mapName) -Win64:$false
+
         $dest = "$global:AssetsDirectory\$($global:AssetExpertZipName -f $($win64 ? 'x64' : 'x86'), $_.Data.Dir ,$global:Version)"
 
         # Write-Host "$AssetDir\*.* to`n $dest" 
