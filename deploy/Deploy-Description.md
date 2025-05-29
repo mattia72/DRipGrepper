@@ -1,7 +1,7 @@
 <!--
 
-Version:     v4.7.0-beta
-PrevVersion: v4.6.2-beta
+Version:     v4.7.1-beta
+PrevVersion: v4.7.0-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -16,9 +16,6 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 -->
 ## 💥 Improvements
 Marked with a checkmark if ready; otherwise, it is planned.
-- [x] file content checked before replace, so the content won't be corrupted if the file is changed after searching
-- [x] about form with version update check
-- [x] new settings for search history loading behaviour
 - [ ] search for file names eg. `rg.exe -g='*pattern*' --files <DIR>`
 - [ ] **extension**: display save all files message before search?
 - [ ] **extension**: search only in opened project files
@@ -26,6 +23,7 @@ Marked with a checkmark if ready; otherwise, it is planned.
 
 ## 🐞 Bugs
 Marked with checkmark if fixed, else it is a known bug.
+- [x] extension settings form doesn't support renamed dll names
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: drip icon in menu has no transparent background
 - [ ] look on dpi change (drag window to another monitor)
