@@ -1,0 +1,124 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{CD0CC90D-2645-48D3-AA04-01E0FA41E309}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="src\Project\Delphi12\DRipGrepper.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="UnitTest\DRipGrepperUnittest.D12.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Extension\src\Project\Dll.Delphi12\DRipExtensions.D12.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\spring4d\Tests\Spring.Tests.Delphi12.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="DRipGrepper">
+        <MSBuild Projects="src\Project\Delphi12\DRipGrepper.dproj"/>
+    </Target>
+    <Target Name="DRipGrepper:Clean">
+        <MSBuild Projects="src\Project\Delphi12\DRipGrepper.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DRipGrepper:Make">
+        <MSBuild Projects="src\Project\Delphi12\DRipGrepper.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DRipGrepperUnittest_D12">
+        <MSBuild Projects="UnitTest\DRipGrepperUnittest.D12.dproj"/>
+    </Target>
+    <Target Name="DRipGrepperUnittest_D12:Clean">
+        <MSBuild Projects="UnitTest\DRipGrepperUnittest.D12.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DRipGrepperUnittest_D12:Make">
+        <MSBuild Projects="UnitTest\DRipGrepperUnittest.D12.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DRipExtensions_D12">
+        <MSBuild Projects="Extension\src\Project\Dll.Delphi12\DRipExtensions.D12.dproj"/>
+    </Target>
+    <Target Name="DRipExtensions_D12:Clean">
+        <MSBuild Projects="Extension\src\Project\Dll.Delphi12\DRipExtensions.D12.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DRipExtensions_D12:Make">
+        <MSBuild Projects="Extension\src\Project\Dll.Delphi12\DRipExtensions.D12.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Spring_Tests_Delphi12">
+        <MSBuild Projects="..\spring4d\Tests\Spring.Tests.Delphi12.dproj"/>
+    </Target>
+    <Target Name="Spring_Tests_Delphi12:Clean">
+        <MSBuild Projects="..\spring4d\Tests\Spring.Tests.Delphi12.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Spring_Tests_Delphi12:Make">
+        <MSBuild Projects="..\spring4d\Tests\Spring.Tests.Delphi12.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="DRipGrepper;DRipGrepperUnittest_D12;DRipExtensions_D12;Spring_Tests_Delphi12"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="DRipGrepper:Clean;DRipGrepperUnittest_D12:Clean;DRipExtensions_D12:Clean;Spring_Tests_Delphi12:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="DRipGrepper:Make;DRipGrepperUnittest_D12:Make;DRipExtensions_D12:Make;Spring_Tests_Delphi12:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+    <ItemGroup Condition="'$(BuildGroup)'=='Release'">
+        <BuildGroupProject Include="Extension\src\Project\Dll.Delphi12\DRipExtensions.D12.dproj">
+            <ProjectGuid>{61FA8D59-16BA-4F6D-96E6-6AF82C96C442}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="..\spring4d\Tests\Spring.Tests.Delphi12.dproj">
+            <ProjectGuid>{83F94C88-615C-458E-9455-6593952E7EA0}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="src\Project\Delphi12\DRipGrepper.dproj">
+            <ProjectGuid>{690C375C-03A1-4C11-8B81-E628EF382F2C}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="UnitTest\DRipGrepperUnittest.D12.dproj">
+            <ProjectGuid>{04615F54-46E4-466F-BD6A-656F9935C01F}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+    </ItemGroup>
+    <ItemGroup Condition="'$(BuildGroup)'=='Release x64'">
+        <BuildGroupProject Include="Extension\src\Project\Dll.Delphi12\DRipExtensions.D12.dproj">
+            <ProjectGuid>{61FA8D59-16BA-4F6D-96E6-6AF82C96C442}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="..\spring4d\Tests\Spring.Tests.Delphi12.dproj">
+            <ProjectGuid>{83F94C88-615C-458E-9455-6593952E7EA0}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win64</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="src\Project\Delphi12\DRipGrepper.dproj">
+            <ProjectGuid>{690C375C-03A1-4C11-8B81-E628EF382F2C}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="UnitTest\DRipGrepperUnittest.D12.dproj">
+            <ProjectGuid>{04615F54-46E4-466F-BD6A-656F9935C01F}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+    </ItemGroup>
+</Project>
