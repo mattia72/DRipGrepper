@@ -64,6 +64,7 @@ type
 			function GetRegisteredExpertPath(dv : IDelphiVersion) : string;
 			function GetSelectedDelphiVersion : IDelphiVersion;
 			function GetValidDllName() : string;
+			function IsPathInstalled() : Boolean;
 			function IsValidDllPath(const _sDllPath : string) : Boolean;
 			procedure SetEditedDllPath(const Value : string);
 			function TryGetDllPath(var _dllPath : string; _dv : IDelphiVersion) : Boolean;
@@ -140,7 +141,7 @@ begin
 			sExtensionName := EXTENSION_NAME;
 			installer.Execute(FEditedDllPath, dv as TDelphiVersion, sExtensionName, btnInstallPackage.Caption = UNINSTALL_CAPTION);
 		end else begin;
-			TMsgBox.ShowError(Format(EXTENSION_NAME_DLL_NOT_FOUND,[GetValidDllName()]));
+			TMsgBox.ShowError(Format(EXTENSION_NAME_DLL_NOT_FOUND, [GetValidDllName()]));
 		end;
 		UpdateGui();
 	finally
@@ -234,6 +235,11 @@ begin
 	Result := EXTENSION_NAME + '.D' + (dv as TDelphiVersion).Name + '.dll';
 end;
 
+function TExtensionSettingsForm.IsPathInstalled() : Boolean;
+begin
+	Result := (UpperCase(FRegisteredDllPath) = UpperCase(FEditedDllPath)) or (not FRegisteredDllPath.IsEmpty);
+end;
+
 function TExtensionSettingsForm.IsValidDllPath(const _sDllPath : string) : Boolean;
 var
 	sValidDllName : string;
@@ -265,10 +271,10 @@ end;
 
 procedure TExtensionSettingsForm.SetEditedDllPath(const Value : string);
 var
-	sErrorMsg: string;
+	sErrorMsg : string;
 begin
-	sErrorMsg :=Format(REGISTERED_DLL_NOT_FOUND, [GetValidDllName()]);
-	FEditedDllPath := IfThen( IsValidDllPath(Value), Value, sErrorMsg);
+	sErrorMsg := Format(REGISTERED_DLL_NOT_FOUND, [GetValidDllName()]);
+	FEditedDllPath := IfThen(IsValidDllPath(Value), Value, sErrorMsg);
 	btnedtDllPath.Text := FEditedDllPath;
 	btnInstallPackage.Enabled := (FEditedDllPath <> sErrorMsg);
 end;
@@ -309,7 +315,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TExtensionSettingsForm.ReadSettings');
 
 	btnInstallPackage.Enabled := TFile.Exists(EditedDllPath);
-	if ((UpperCase(FRegisteredDllPath) = UpperCase(FEditedDllPath)) or (not FRegisteredDllPath.IsEmpty)) then begin
+	if IsPathInstalled then begin
 		btnInstallPackage.Caption := UNINSTALL_CAPTION;
 	end else begin
 		btnInstallPackage.Caption := INSTALL_CAPTION;
@@ -329,7 +335,12 @@ procedure TExtensionSettingsForm.UpdateRegisteredDllVersionInfo();
 begin
 	lblVersionInfo.Caption := '';
 	if FileExists(EditedDllPath) then begin
-		lblVersionInfo.Caption := 'Installed version: ' +
+		if IsPathInstalled() then begin
+			lblVersionInfo.Caption := 'Installed dll version: ';
+		end else begin
+			lblVersionInfo.Caption := 'Found dll version: ';
+		end;
+		lblVersionInfo.Caption := lblVersionInfo.Caption +
 		{ } TReleaseUtils.GetFileVersion(EditedDllPath);
 	end;
 end;
