@@ -14,14 +14,14 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 # - Commit and push all changes
 # - Run deploy script by pushing Ctrl+Shift+T in VSCode
 -->
-## 💥 Improvements
+## 💥 Improvements:
 Marked with a checkmark if ready; otherwise, it is planned.
 - [ ] search for file names eg. `rg.exe -g='*pattern*' --files <DIR>`
 - [ ] **extension**: display save all files message before search?
 - [ ] **extension**: search only in opened project files
 - [ ] JSON config files
 
-## 🐞 Bugs
+## 🐞 Bugs:
 Marked with checkmark if fixed, else it is a known bug.
 - [x] extension settings form doesn't support renamed dll names
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
@@ -30,3 +30,7 @@ Marked with checkmark if fixed, else it is a known bug.
   - [ ] search form Use Regex button disappear if drag to another monitor
   - [ ] ugly config form 
 - [ ] **extension**: change theme if only start page is open causes exception
+
+## Tested with:
+- Delphi 11.3
+- Delphi 12.1 CE
