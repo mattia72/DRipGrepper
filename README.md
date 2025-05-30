@@ -126,6 +126,8 @@ scoop update dripgrepper
   * Install `VirtualTree for VCL`
   * Install `SVGIconImageList VCL and FMX`
 
+The build should now be completed without any errors.
+
 ## Contribution
 To submit a pull request, follow these steps:
 
