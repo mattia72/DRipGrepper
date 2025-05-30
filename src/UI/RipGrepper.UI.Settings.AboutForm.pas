@@ -55,12 +55,13 @@ type
 			FAppSettings : TAppSettings;
 			FbSkipClickEvent : Boolean;
 			FCurrentRelease : TReleaseUtils;
-			FLatestRelease : TReleaseInfo;
+            FDownloadedReleaseInfos: TArrayEx<TReleaseInfo>;
 			procedure AddLatestReleaseToMemo();
 			procedure DownloadReleaseInfos(var _relInfos : TArrayEx<TReleaseInfo>);
+			function GetLatestRelease(): TReleaseInfo;
 			procedure ShowNewVersionMsgBox(const _relInfo : TReleaseInfo);
 			procedure InitMemoWithCurrentRelInfo(_curVer : TReleaseInfo);
-			function IsSameVersion(_checkVersion : TReleaseInfo) : Boolean;
+			function IsSameVersion(_vi1, _vi2: TReleaseInfo): Boolean;
 			function MakeLinkCaption(const _label, _href, _text : string) : string;
 			procedure OpenLink(const _link : string);
 			function TryGetCurrentRelInfo(const _relInfos : TArrayEx<TReleaseInfo>; var _curInfo : TReleaseInfo) : Boolean;
@@ -71,6 +72,7 @@ type
 
 		public
 			constructor Create(_Owner : TComponent; _settings : TRipGrepperSettings);
+			property LatestRelease: TReleaseInfo read GetLatestRelease;
 
 		published
 	end;
@@ -107,27 +109,25 @@ end;
 procedure TAboutForm.ActionCheckUpdateExecute(Sender : TObject);
 var
 	curInfo : TReleaseInfo;
-	relInfos : TArrayEx<TReleaseInfo>;
 begin
-	DownloadReleaseInfos(relInfos);
+	DownloadReleaseInfos(FDownloadedReleaseInfos);
 
 	curInfo := FCurrentRelease.CurrentRelease;
-	FLatestRelease := relInfos[0];
-	if IsSameVersion(FLatestRelease) then begin
-		if TryGetCurrentRelInfo(relInfos, curInfo) then begin
-			InitMemoWithCurrentRelInfo(curInfo);
-		end;
+
+	if TryGetCurrentRelInfo(FDownloadedReleaseInfos, curInfo) then begin
+		InitMemoWithCurrentRelInfo(curInfo);
+	end;
+	AddLatestReleaseToMemo;
+
+	if IsSameVersion(LatestRelease, curInfo) then begin
 		TMsgBox.ShowInfo('You are using the latest version.');
 	end else begin
-		if TryGetCurrentRelInfo(relInfos, curInfo) then begin
-			InitMemoWithCurrentRelInfo(curInfo);
-		end;
-		AddLatestReleaseToMemo;
-		ShowNewVersionMsgBox(FLatestRelease);
+		ShowNewVersionMsgBox(LatestRelease);
 	end;
-	if FLatestRelease.LoadOk then begin
+
+	if LatestRelease.LoadOk then begin
 		lnkLatestUrl.Visible := True;
-		lnkLatestUrl.Caption := MakeLinkCaption('Latest: ', FLatestRelease.HtmlURL, FLatestRelease.Version);
+		lnkLatestUrl.Caption := MakeLinkCaption('Latest: ', LatestRelease.HtmlURL, LatestRelease.Version);
 	end;
 end;
 
@@ -135,7 +135,7 @@ procedure TAboutForm.AddLatestReleaseToMemo();
 var
 	descr : TArrayEx<string>;
 begin
-	descr := FLatestRelease.Description.Split([CRLF]);
+	descr := LatestRelease.Description.Split([CRLF]);
 	var
 	sPrev := '';
 	for var s in descr.GetReversedRange() do begin
@@ -145,16 +145,17 @@ begin
 		Memo1.Lines.Insert(0, s);
 		sPrev := s;
 	end;
-	Memo1.Lines.Insert(0, 'Description' + TAB + ': ');
-	Memo1.Lines.Insert(0, 'Release url' + TAB + ': ' + FLatestRelease.HtmlURL);
-	Memo1.Lines.Insert(0, 'Published at' + TAB + ': ' + DateTimeToStr(FLatestRelease.PublishedAt));
-	Memo1.Lines.Insert(0, 'Latest version' + TAB + ': ' + FLatestRelease.Version);
+	Memo1.Lines.Insert(0, '');
+	Memo1.Lines.Insert(0, 'Release url' + TAB + ': ' + LatestRelease.HtmlURL);
+	Memo1.Lines.Insert(0, 'Published at' + TAB + ': ' + DateTimeToStr(LatestRelease.PublishedAt));
+	Memo1.Lines.Insert(0, 'Latest version' + TAB + ': ' + LatestRelease.Version);
 end;
 
 procedure TAboutForm.DownloadReleaseInfos(var _relInfos : TArrayEx<TReleaseInfo>);
 var cursor : TCursorSaver;
 begin
 	cursor.SetHourGlassCursor();
+    _relInfos.Clear;
 	_relInfos := TReleaseUtils.DownloadReleaseInfoFromGithub();
 end;
 
@@ -173,7 +174,11 @@ begin
 	finally
 		FbSkipClickEvent := False;
 	end;
+end;
 
+function TAboutForm.GetLatestRelease(): TReleaseInfo;
+begin
+	Result := FDownloadedReleaseInfos[0];
 end;
 
 procedure TAboutForm.imgAboutDblClick(Sender : TObject);
@@ -183,7 +188,7 @@ end;
 
 procedure TAboutForm.lnkLatestUrlLinkClick(Sender : TObject; const Link : string; LinkType : TSysLinkType);
 begin
-	OpenLink(FLatestRelease.HtmlURL);
+	OpenLink(LatestRelease.HtmlURL);
 end;
 
 procedure TAboutForm.ReadSettings;
@@ -207,16 +212,6 @@ begin
 		{ } DateTimeToStr(_relInfo.PublishedAt)])) then begin
 		OpenLink(_relInfo.HtmlURL);
 	end;
-	// TAsyncMsgBox.ShowInfo('hallo');
-	// TAsyncMsgBox.ShowQuestion(Format(
-	// { } 'New version %s published at %s' + CRLF2 +
-	// { } 'Do you wan''t to go to the release page?', [_relInfo.Version,
-	// { } DateTimeToStr(_relInfo.PublishedAt)]),
-	// procedure
-	// begin
-	// OpenLink(_relInfo.HtmlURL);
-	// end);
-
 end;
 
 procedure TAboutForm.InitMemoWithCurrentRelInfo(_curVer : TReleaseInfo);
@@ -228,21 +223,21 @@ begin
 	if 0 <> _curVer.PublishedAt then begin
 		Memo1.Lines.Add('Published at' + TAB + ': ' + DateTimeToStr(_curVer.PublishedAt));
 		Memo1.Lines.Add('Release url' + TAB + ': ' + _curVer.HtmlURL);
-		Memo1.Lines.Add('Description' + TAB + ': ');
+		Memo1.Lines.Add(''); // Description
 	end else begin
 		Memo1.Lines.Add('');
 		Memo1.Lines.Add('Press the button below to check for updates and access more information.');
 	end;
 end;
 
-function TAboutForm.IsSameVersion(_checkVersion : TReleaseInfo) : Boolean;
+function TAboutForm.IsSameVersion(_vi1, _vi2: TReleaseInfo): Boolean;
 var mainVersion : string;
 begin
 	Result := False;
-	if _checkVersion.LoadOk then begin
-		mainVersion := _checkVersion.Version; // v4.1.2-beta
+	if _vi1.LoadOk then begin
+		mainVersion := _vi1.Version; // v4.1.2-beta
 		mainVersion := mainVersion.Substring(0, mainVersion.IndexOf('-')); // v4.1.2
-		Result := FCurrentRelease.CurrentRelease.Version.StartsWith(mainVersion);
+		Result := _vi2.Version.StartsWith(mainVersion);
 	end;
 end;
 
@@ -266,7 +261,7 @@ var relInfo : TReleaseInfo;
 begin
 	Result := False;
 	for relInfo in _relInfos do begin
-		if IsSameVersion(relInfo) then begin
+		if IsSameVersion(relInfo, FCurrentRelease.CurrentRelease) then begin
 			_curInfo := relInfo;
 			Result := True;
 			break;
