@@ -13,7 +13,7 @@
 - [Update](#update)
   - [Scoop](#scoop-1)
   - [Manual](#manual-1)
-- [Compile](#compile)
+- [Build](#build)
 - [Contribution](#contribution)
 - [Thanks](#thanks)
 
@@ -114,25 +114,26 @@ scoop update dripgrepper
 * Delete all files in the folder of DripGrepper, except the settings ini file.
 * Unzip the downloaded [release](https://github.com/mattia72/DRipGrepper/releases).
   
-## Compile
-
+## Build
 * Fork the project
-* Open the AllRripGrepperProjectXX.groupproj in Delphi
-  
+* Download / install [dependencies](#dependencies)
+* Open the AllRripGrepperDXXProject.groupproj
+
 ### Dependencies
 * Clone [spring4d](https://bitbucket.org/sglienke/spring4d) into a folder next to DripGrepper
 * Clone [FastMM4](https://github.com/pleriche/FastMM4) into a folder next to DripGrepper
 * Open `Tools | GetIt-Package-Manager` 
   * Install `VirtualTree for VCL`
   * Install `SVGIconImageList VCL and FMX`
-
+* Install [TestInsight](https://files.spring4d.com/TestInsight/latest/TestInsightSetup.zip)  (Optional)
+  
 The build should now be completed without any errors.
 
 ## Contribution
 To submit a pull request, follow these steps:
 
 * Fork the project 
-* [Compile](#compile)
+* [Build](#build)
 * Create a new branch (`git checkout -b 'my-new-feature'`)
 * Make your changes
 * Make the commit (`git commit -am 'Functionality or adjustment message'`)
