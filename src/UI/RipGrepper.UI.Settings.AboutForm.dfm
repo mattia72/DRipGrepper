@@ -2,7 +2,7 @@ object AboutForm: TAboutForm
   Left = 0
   Top = 0
   Caption = 'Fonts and Colors'
-  ClientHeight = 325
+  ClientHeight = 373
   ClientWidth = 534
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -23,9 +23,9 @@ object AboutForm: TAboutForm
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 312
+    Top = 366
     Width = 534
-    Height = 13
+    Height = 7
     Align = alBottom
     BevelOuter = bvNone
     ShowCaption = False
@@ -36,7 +36,7 @@ object AboutForm: TAboutForm
     Left = 0
     Top = 0
     Width = 534
-    Height = 312
+    Height = 366
     HorzScrollBar.Visible = False
     Align = alClient
     BevelInner = bvNone
@@ -48,7 +48,7 @@ object AboutForm: TAboutForm
       Left = 262
       Top = 3
       Width = 281
-      Height = 306
+      Height = 360
       Align = alRight
       Anchors = [akLeft, akTop, akRight, akBottom]
       Font.Charset = DEFAULT_CHARSET
@@ -61,11 +61,12 @@ object AboutForm: TAboutForm
       object Memo1: TMemo
         AlignWithMargins = True
         Left = 11
-        Top = 88
+        Top = 104
         Width = 249
-        Height = 214
+        Height = 245
         Margins.Left = 10
         Margins.Right = 20
+        Margins.Bottom = 10
         Align = alBottom
         Anchors = [akLeft, akTop, akRight, akBottom]
         Font.Charset = DEFAULT_CHARSET
@@ -83,7 +84,7 @@ object AboutForm: TAboutForm
         Left = 1
         Top = 1
         Width = 279
-        Height = 68
+        Height = 88
         Align = alTop
         TabOrder = 1
         object lblTitle: TLabel
@@ -103,11 +104,30 @@ object AboutForm: TAboutForm
           Font.Name = 'Segoe UI'
           Font.Style = [fsBold]
           ParentFont = False
+          WordWrap = True
+        end
+        object lblVersion: TLabel
+          Left = 1
+          Top = 37
+          Width = 277
+          Height = 19
+          Margins.Top = 10
+          Margins.Bottom = 3
+          Align = alTop
+          Alignment = taCenter
+          Caption = 'v1.0.0-beta'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -14
+          Font.Name = 'Segoe UI'
+          Font.Style = [fsBold]
+          ParentFont = False
+          WordWrap = True
         end
         object lnkHomeURL: TLinkLabel
           AlignWithMargins = True
-          Left = 8
-          Top = 40
+          Left = 56
+          Top = 62
           Width = 283
           Height = 19
           Cursor = crHandPoint
@@ -129,7 +149,7 @@ object AboutForm: TAboutForm
       Left = 0
       Top = 0
       Width = 265
-      Height = 312
+      Height = 366
       Align = alLeft
       BevelOuter = bvNone
       ShowCaption = False
@@ -139,8 +159,8 @@ object AboutForm: TAboutForm
         AlignWithMargins = True
         Left = 15
         Top = 28
-        Width = 226
-        Height = 217
+        Width = 220
+        Height = 220
         Center = True
         Picture.Data = {
           0954506E67496D61676589504E470D0A1A0A0000000D494844520000027B0000
@@ -13713,8 +13733,8 @@ object AboutForm: TAboutForm
     end
   end
   object ActionList1: TActionList
-    Left = 32
-    Top = 368
+    Left = 16
+    Top = 264
     object ActionCheckUpdate: TAction
       Caption = 'Check for Update...'
       OnExecute = ActionCheckUpdateExecute

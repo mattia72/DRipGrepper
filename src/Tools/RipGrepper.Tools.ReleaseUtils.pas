@@ -25,7 +25,10 @@ type
 		private
 			FCurrentRelease : TReleaseInfo;
 			FCurrentNameWithVersion : string;
+			FCurrentName : string;
+			FCurrentVersion: string;
 			function GetCurrentRelease() : TReleaseInfo;
+			function GetCurrentVersion(): string;
 			class function GetModuleVersion(Instance : THandle; out iMajor, iMinor, iRelease, iBuild : Integer) : Boolean; static;
 			class procedure InitRestClient(_restClient : TRESTClient; _restRequest : TRESTRequest; _restResponse : TRESTResponse); static;
 
@@ -34,12 +37,15 @@ type
 			class function GetAppDirectory() : string; static;
 			class function GetAppNameAndVersion(const _exePath : string) : string; static;
 			function GetCurrentNameWithVersion() : string;
+			function GetCurrentName() : string;
 			class function GetFileVersion(const _fullPath : string) : string; static;
 			class function GetRunningModuleVersion() : string; static;
 			class function GetModuleNameAndVersion() : string; static;
 			class function GetRunningModulePath() : string; static;
 			property CurrentNameWithVersion : string read GetCurrentNameWithVersion;
+			property CurrentName : string read GetCurrentName;
 			property CurrentRelease : TReleaseInfo read GetCurrentRelease;
+			property CurrentVersion: string read GetCurrentVersion;
 	end;
 
 implementation
@@ -150,12 +156,35 @@ begin
 	Result := FCurrentNameWithVersion;
 end;
 
+function TReleaseUtils.GetCurrentName() : string;
+begin
+	if FCurrentName.IsEmpty then begin
+		{$IFDEF STANDALONE}
+		FCurrentName := TPath.GetFileNameWithoutExtension(Application.ExeName);
+		{$ELSE}
+		var
+			modulePath : string;
+		modulePath := GetRunningModulePath();
+		FCurrentName := TPath.GetFileNameWithoutExtension(modulePath);
+		{$ENDIF}
+	end;
+	Result := FCurrentName;
+end;
+
 function TReleaseUtils.GetCurrentRelease() : TReleaseInfo;
 begin
 	if FCurrentRelease.Version.IsEmpty then begin
-		FCurrentRelease.Version := GetRunningModuleVersion()
+		FCurrentRelease.Version := CurrentVersion;
 	end;
 	Result := FCurrentRelease;
+end;
+
+function TReleaseUtils.GetCurrentVersion(): string;
+begin
+	if FCurrentVersion.IsEmpty then begin
+		FCurrentVersion := GetRunningModuleVersion()
+	end;
+	Result := FCurrentVersion;
 end;
 
 class function TReleaseUtils.GetRunningModuleVersion() : string;
