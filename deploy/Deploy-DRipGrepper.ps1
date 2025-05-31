@@ -8,7 +8,8 @@ param (
     [switch] $LocalDeploy,
     [switch] $DeployToTransferDrive,
     [switch] $Force,
-    [switch] $UpdateScoopManifest
+    [switch] $UpdateScoopManifest,
+    [switch] $AddMissingAsset
 )
     
 # - Update Readme.md 
@@ -168,7 +169,7 @@ function Build-BplExtensionRelease {
     $projectPath = Get-ProjectPath "Extension\src\Project" "Bpl."
     $result = $null
     Build-DelphiProject -ProjectPath $projectPath\DRipExtension.dproj -BuildConfig $BuildConfig -StopOnFirstFailure -CountResult -Result ([ref]$result) `
-    Test-BuildResult -result $result
+        Test-BuildResult -result $result
 }
 
 function Build-ExpertDllRelease {
@@ -207,7 +208,8 @@ function Add-ToAssetsDir {
 
     if ($item.Extension -eq '.map') {
         Write-Host "$formattedLabel  $(" ".PadRight(10)) $($item.LastWriteTime) added to $($AssetDir -replace [regex]::Escape("$PSScriptRoot\"), '')." -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "$formattedLabel  $($appVersion.PadRight(10)) $($item.LastWriteTime) added to $($AssetDir -replace [regex]::Escape("$PSScriptRoot\"), '')." -ForegroundColor Green
     }
 }
@@ -361,24 +363,23 @@ function New-ReleaseWithAsset {
         #$ReleaseID = $( Get-Releases -Latest | Select-Object -Property id).id
 
         Get-ChildItem $global:AssetsDirectory -Filter "*.zip" | ForEach-Object {
-            New-Asset -ReleaseID $ReleaseID -ZipFilePath "$_" }
+            Add-AssetToRelease -ReleaseID $ReleaseID -ZipFilePath "$_" }
     }
 }
 function Get-Releases {
     param (
-        [switch] $Latest,
-        $Tag
+        [switch] $Latest, # only for real releases, not for pre-releases
+        [string]$Tag
     )
     $params = @{
-        Uri     = "$global:Url$( $Latest ? "/latest" : '' )$($Tag -ne '' ? "/tags/$Tag" : '' )"
+        Uri     = "$global:Url$( $Latest ? "/latest" : '' )$(($Tag -eq '' -or $null -eq $Tag) ? '' : "/tags/$Tag" )"
         Method  = "GET"
         Headers = $global:headers
         Body    = ''
     }
     $content = $(Invoke-RestMethod @params)
-    $content | Select-Object -Property id, tag_name, html_url
+    $content | Select-Object -Property id, tag_name, html_url, assets
 }
-
 function New-Release {
     $params = @{
         Uri     = $global:Url
@@ -416,7 +417,7 @@ function New-ReleaseNotes {
     $response | Select-Object -Property name, body
 }
 
-function New-Asset {
+function Add-AssetToRelease {
     param (
         $ReleaseID,
         $ZipFilePath
@@ -455,6 +456,21 @@ function New-Deploy {
     if ($LocalDeploy -or $DeployToGitHub -or $BuildStandalone -or $BuildExtension -or $RunUnittest -or $DeployToTransferDrive) {
         #New-ReleaseNotes
         New-ReleaseWithAsset
+    }
+    if ($AddMissingAsset) {
+        # Add assets to latest release
+        $latest = Get-Releases -Tag $global:Version 
+        $ReleaseID = $( $latest | Select-Object -Property id).id
+        $assets = $( $latest | Select-Object -ExpandProperty assets | Select-Object -ExpandProperty name )
+        Get-ChildItem $global:AssetsDirectory -Filter "*.zip" | ForEach-Object {
+            if ($assets -notcontains $_.Name) {
+                Write-Host "Adding asset $($_.Name) to latest release $global:Version" -ForegroundColor Green
+                Add-AssetToRelease -ReleaseID $ReleaseID -ZipFilePath "$_" 
+            }
+            else {
+                Write-Host "Asset $($_.Name) already exists in latest release $global:Version" -ForegroundColor Yellow
+            }
+        }
     }
     if ($UpdateScoopManifest) {
         #Update scoop with latest version from github
