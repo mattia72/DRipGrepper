@@ -29,19 +29,16 @@ type
 			class procedure SetCaption(_msgDlg : TForm);
 	end;
 
+    // Show MsgBox from a separate thread
 	TAsyncMsgBox = class(TMsgBoxBase)
-
 		private
 			class var FMsgDlg : TForm;
-
 			class procedure SetModalResultAndClose(const _mr : Integer);
 			class function ThreadShowDlg() : TModalResult;
-
 		public
 			constructor Create;
 			class procedure Show(const _msg : string; const _type : TMsgDlgType; _parent : TWinControl = nil;
 				_yesProc : TThreadProcedure = nil; _noProc : TThreadProcedure = nil);
-
 			class procedure OnNoClick(Sender : TObject);
 			class procedure OnOkClick(Sender : TObject);
 			class procedure OnYesClick(Sender : TObject);
