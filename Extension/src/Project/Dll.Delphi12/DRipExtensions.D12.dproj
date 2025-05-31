@@ -63,7 +63,7 @@
         <DCC_UnitAlias>GX_IdeDockStandAlone=GX_IdeDock;SynRegExpr=RegExprReplaceUnit;$(DCC_UnitAlias)</DCC_UnitAlias>
         <VerInfo_Locale>1031</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.6.2.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.6.2.0;Comments=</VerInfo_Keys>
-        <Icon_MainIcon>..\..\Extension\icons\Drip.ico</Icon_MainIcon>
+        <Icon_MainIcon>..\..\..\images\icons\DripGrepper.ico</Icon_MainIcon>
         <DCC_AdditionalSwitches>-LUDesignIDE</DCC_AdditionalSwitches>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
@@ -118,15 +118,14 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.7.1.163;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.7.1;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>163</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.7.1.167;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.7.1;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>167</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <DCC_Description>RipGrep Search within Delphi</DCC_Description>
         <VerInfo_MinorVer>7</VerInfo_MinorVer>
         <Manifest_File>(None)</Manifest_File>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
         <DCC_MapFile>3</DCC_MapFile>
-        <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
         <VerInfo_Release>1</VerInfo_Release>
     </PropertyGroup>
     <ItemGroup>
