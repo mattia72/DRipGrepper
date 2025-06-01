@@ -5,13 +5,12 @@ interface
 uses
 	System.JSON,
 	REST.Types,
-	REST.Client;
+	REST.Client,
+	Spring, 
+	ArrayEx;
 
 type
-	TReleaseInfo = record
-		private
-			procedure GetDescription(const _body : string);
-
+	TReleaseInfo = class
 		public
 			Description : string;
 			Version : string;
@@ -19,21 +18,25 @@ type
 			PublishedAt : TDateTime;
 			LoadOk : Boolean;
 			procedure FromJson(_json : TJSONValue; const _idx : Integer);
+			procedure SetDescription(const _body : string);
 	end;
+
+    IReleaseInfo =  IShared<TReleaseInfo>;
+	TReleaseInfoArray = TArrayEx<IReleaseInfo>;
 
 	TReleaseUtils = record
 		private
-			FCurrentRelease : TReleaseInfo;
+			FCurrentRelease : IReleaseInfo;
 			FCurrentNameWithVersion : string;
 			FCurrentName : string;
-			FCurrentVersion: string;
-			function GetCurrentRelease() : TReleaseInfo;
-			function GetCurrentVersion(): string;
+			FCurrentVersion : string;
+			function GetCurrentRelease() : IReleaseInfo;
+			function GetCurrentVersion() : string;
 			class function GetModuleVersion(Instance : THandle; out iMajor, iMinor, iRelease, iBuild : Integer) : Boolean; static;
 			class procedure InitRestClient(_restClient : TRESTClient; _restRequest : TRESTRequest; _restResponse : TRESTResponse); static;
 
 		public
-			class function DownloadReleaseInfoFromGithub() : TArray<TReleaseInfo>; static;
+			class function DownloadReleaseInfoFromGithub(): TReleaseInfoArray; static;
 			class function GetAppDirectory() : string; static;
 			class function GetAppNameAndVersion(const _exePath : string) : string; static;
 			function GetCurrentNameWithVersion() : string;
@@ -44,8 +47,8 @@ type
 			class function GetRunningModulePath() : string; static;
 			property CurrentNameWithVersion : string read GetCurrentNameWithVersion;
 			property CurrentName : string read GetCurrentName;
-			property CurrentRelease : TReleaseInfo read GetCurrentRelease;
-			property CurrentVersion: string read GetCurrentVersion;
+			property CurrentRelease : IReleaseInfo read GetCurrentRelease;
+			property CurrentVersion : string read GetCurrentVersion;
 	end;
 
 implementation
@@ -59,8 +62,7 @@ uses
 	Winapi.Windows,
 	System.Classes,
 	RipGrepper.Tools.DebugUtils,
-	System.RegularExpressions,
-	ArrayEx;
+	System.RegularExpressions;
 
 procedure TReleaseInfo.FromJson(_json : TJSONValue; const _idx : Integer);
 begin
@@ -70,11 +72,11 @@ begin
 	HtmlURL := item.GetValue<string>('html_url');
 	Version := item.GetValue<string>('name');
 	PublishedAt := item.GetValue<TDateTime>('published_at');
-	GetDescription(item.GetValue<string>('body'));
+	SetDescription(item.GetValue<string>('body'));
 	LoadOk := True;
 end;
 
-procedure TReleaseInfo.GetDescription(const _body : string);
+procedure TReleaseInfo.SetDescription(const _body : string);
 var
 	bIsComment : Boolean;
 	lines : TArrayEx<string>;
@@ -96,7 +98,7 @@ begin
 	Description := string.Join(CRLF, lines.Items);
 end;
 
-class function TReleaseUtils.DownloadReleaseInfoFromGithub() : TArray<TReleaseInfo>;
+class function TReleaseUtils.DownloadReleaseInfoFromGithub() : TReleaseInfoArray;
 var
 	jValue : TJSONValue;
 	restClient : TRESTClient;
@@ -113,9 +115,10 @@ begin
 		jValue := restResponse.JSONValue;
 
 		for var idx := 0 to (jValue as TJSONArray).Count - 1 do begin
-			var ri : TReleaseInfo;
+			var
+			ri := Shared.Make<TReleaseInfo>();
 			ri.FromJson(jValue, idx);
-			Result := Result + [ri];
+			Result.Add(ri);
 		end;
 
 	finally
@@ -171,15 +174,16 @@ begin
 	Result := FCurrentName;
 end;
 
-function TReleaseUtils.GetCurrentRelease() : TReleaseInfo;
+function TReleaseUtils.GetCurrentRelease() : IReleaseInfo;
 begin
-	if FCurrentRelease.Version.IsEmpty then begin
+	if not Assigned(FCurrentRelease) then begin
+		FCurrentRelease := Shared.Make<TReleaseInfo>();
 		FCurrentRelease.Version := CurrentVersion;
 	end;
 	Result := FCurrentRelease;
 end;
 
-function TReleaseUtils.GetCurrentVersion(): string;
+function TReleaseUtils.GetCurrentVersion() : string;
 begin
 	if FCurrentVersion.IsEmpty then begin
 		FCurrentVersion := GetRunningModuleVersion()

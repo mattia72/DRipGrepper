@@ -2,8 +2,8 @@ object AboutForm: TAboutForm
   Left = 0
   Top = 0
   Caption = 'Fonts and Colors'
-  ClientHeight = 373
-  ClientWidth = 534
+  ClientHeight = 428
+  ClientWidth = 711
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -23,8 +23,8 @@ object AboutForm: TAboutForm
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 366
-    Width = 534
+    Top = 421
+    Width = 711
     Height = 7
     Align = alBottom
     BevelOuter = bvNone
@@ -35,8 +35,8 @@ object AboutForm: TAboutForm
   object ScrollBox1: TScrollBox
     Left = 0
     Top = 0
-    Width = 534
-    Height = 366
+    Width = 711
+    Height = 421
     HorzScrollBar.Visible = False
     Align = alClient
     BevelInner = bvNone
@@ -47,8 +47,8 @@ object AboutForm: TAboutForm
       AlignWithMargins = True
       Left = 262
       Top = 3
-      Width = 281
-      Height = 360
+      Width = 458
+      Height = 415
       Align = alRight
       Anchors = [akLeft, akTop, akRight, akBottom]
       Font.Charset = DEFAULT_CHARSET
@@ -61,9 +61,9 @@ object AboutForm: TAboutForm
       object Memo1: TMemo
         AlignWithMargins = True
         Left = 11
-        Top = 104
-        Width = 249
-        Height = 245
+        Top = 80
+        Width = 426
+        Height = 324
         Margins.Left = 10
         Margins.Right = 20
         Margins.Bottom = 10
@@ -83,15 +83,15 @@ object AboutForm: TAboutForm
       object pnlTopRight: TPanel
         Left = 1
         Top = 1
-        Width = 279
-        Height = 88
+        Width = 456
+        Height = 65
         Align = alTop
         TabOrder = 1
         object lblTitle: TLabel
           AlignWithMargins = True
           Left = 4
           Top = 11
-          Width = 271
+          Width = 448
           Height = 23
           Margins.Top = 10
           Margins.Bottom = 3
@@ -109,7 +109,7 @@ object AboutForm: TAboutForm
         object lblVersion: TLabel
           Left = 1
           Top = 37
-          Width = 277
+          Width = 454
           Height = 19
           Margins.Top = 10
           Margins.Bottom = 3
@@ -124,32 +124,13 @@ object AboutForm: TAboutForm
           ParentFont = False
           WordWrap = True
         end
-        object lnkHomeURL: TLinkLabel
-          AlignWithMargins = True
-          Left = 56
-          Top = 62
-          Width = 283
-          Height = 19
-          Cursor = crHandPoint
-          Caption = 
-            'Home: <a href="https://github.com/mattia72/DRipGrepper">https://' +
-            'github.com/mattia72/DRipGrepper</a>'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -12
-          Font.Name = 'Segoe UI'
-          Font.Style = [fsBold]
-          ParentFont = False
-          TabOrder = 0
-          OnLinkClick = lnkHomeURLLinkClick
-        end
       end
     end
     object pnlLeft: TPanel
       Left = 0
       Top = 0
       Width = 265
-      Height = 366
+      Height = 421
       Align = alLeft
       BevelOuter = bvNone
       ShowCaption = False
@@ -13714,21 +13695,44 @@ object AboutForm: TAboutForm
       end
       object btnCheckUpdate: TButton
         Left = 72
-        Top = 262
+        Top = 312
         Width = 126
         Height = 26
         Action = ActionCheckUpdate
         TabOrder = 0
       end
       object lnkLatestUrl: TLinkLabel
-        Left = 83
-        Top = 294
-        Width = 99
+        Left = 85
+        Top = 344
+        Width = 108
         Height = 19
         Caption = 'Latest: v4.6.2-beta'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentFont = False
         TabOrder = 1
         Visible = False
         OnLinkClick = lnkLatestUrlLinkClick
+      end
+      object lnkHomeURL: TLinkLabel
+        AlignWithMargins = True
+        Left = 116
+        Top = 270
+        Width = 38
+        Height = 19
+        Cursor = crHandPoint
+        Caption = '<a href="https://github.com/mattia72/DRipGrepper">Home</a>'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 2
+        OnLinkClick = lnkHomeURLLinkClick
       end
     end
   end
