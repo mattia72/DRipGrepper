@@ -231,7 +231,8 @@ begin
 	if SameText('ImmersiveColorSet', string(message.Section)) then begin
 		var
 		mainSettingInstance := TSingleton.GetInstance<TRipGrepperSettings>();
-		FThemeHandler.HandleThemes(mainSettingInstance.AppSettings.ColorTheme);
+		ThemeHandler.HandleThemes(mainSettingInstance.AppSettings.ColorTheme);
+
 	end;
 end;
 
