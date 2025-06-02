@@ -38,6 +38,7 @@ type
 			FbSkipClickEvent : Boolean;
 			FFontColorSettings : TColorSettings;
 			FOnThemeChanged : Event<TNotifyEvent>;
+			function GetOnThemeChanged() : IInvokableEvent<TNotifyEvent>;
 
 		protected
 			procedure ReadSettings; override;
@@ -49,7 +50,7 @@ type
 			procedure LoadDefaultColorsForTheme(Sender : TObject);
 
 		published
-			property OnThemeChanged : Event<TNotifyEvent> read FOnThemeChanged write FOnThemeChanged;
+			property OnThemeChanged : IInvokableEvent<TNotifyEvent> read GetOnThemeChanged;
 	end;
 
 var
@@ -64,7 +65,9 @@ uses
 	System.RegularExpressions,
 	RipGrepper.Helper.UI.DarkMode,
 	System.StrUtils,
-	RipGrepper.Helper.UI;
+	Vcl.Themes,
+	RipGrepper.Helper.UI,
+	RipGrepper.UI.MainForm;
 
 {$R *.dfm}
 
@@ -75,6 +78,10 @@ begin
 	FFontColorSettings := _settings.FontColorSettings;
 	FAppSettings := _settings.AppSettings;
 	ReadSettings;
+	if TStyleManager.TrySetStyle(FAppSettings.ColorTheme) then begin
+		TStyleManager.FormBorderStyle := fbsCurrentStyle;
+	end;
+
 	FAllHeight := TColorSelectorFrame.AddSelectionFrames(FFontColorSettings.FontColors, self, ScrollBox1);
 	FAllHeight := FAllHeight + pnlBottom.Height;
 
@@ -120,6 +127,11 @@ begin
 
 end;
 
+function TColorSettingsForm.GetOnThemeChanged() : IInvokableEvent<TNotifyEvent>;
+begin
+	Result := FOnThemeChanged;
+end;
+
 procedure TColorSettingsForm.LoadDefaultColorsForTheme(Sender : TObject);
 var
 	themeName : string;
@@ -162,8 +174,10 @@ end;
 
 procedure TColorSettingsForm.ThemeChanged();
 begin
-	if FOnThemeChanged.CanInvoke then
+	if FOnThemeChanged.CanInvoke then begin
 		FOnThemeChanged.Invoke(Self);
+	end;
+	RipGrepperForm.ThemeChengedEventSubscriber.HandleThemeChangedEvent(self);
 end;
 
 procedure TColorSettingsForm.WriteSettings;
