@@ -43,7 +43,8 @@ type
 			LIGHT_THEME_NAMES : array of string = [LIGHT_THEME_NAME, 'Light' { in Delphi IDE!!! } ];
 
 		private
-			class procedure SetFixedColorInSVGImgaLists(_ctrl : TWinControl; const _color : TColor);
+			class procedure SetFixedColorInSVGImgLists(_ctrl : TWinControl; const _color :
+				TColor);
 			// Sets either a Dark Mode or non Dark mode theme based in the "AsDarkMode" boolean
 			// For example:
 			// SetSpecificThemeMode(False, 'TheDarkModeThemeName', 'TheLightModeThemeName');
@@ -83,14 +84,13 @@ type
 	TThemeChangeEventSubscriber = class(TComponent)
 
 		private
-			FOnThemeChanged : Event<TNotifyEvent>;
-			function GetOnThemeChanged() : IEvent<TNotifyEvent>;
+			FOnThemeChanged: Event<TNotifyEvent>; // Event record
+			function GetOnThemeChanged(): IInvokableEvent<TNotifyEvent>;
 
-		protected
+		public
+			constructor Create(AOwner : TComponent); override;
 			procedure HandleThemeChangedEvent(Sender : TObject);
-
-		published
-			property OnThemeChanged : IEvent<TNotifyEvent> read GetOnThemeChanged;
+			property OnThemeChanged: IInvokableEvent<TNotifyEvent> read GetOnThemeChanged;
 	end;
 
 	{$IFNDEF STANDALONE}
@@ -290,7 +290,8 @@ begin
 	end;
 end;
 
-class procedure TDarkModeHelper.SetFixedColorInSVGImgaLists(_ctrl : TWinControl; const _color : TColor);
+class procedure TDarkModeHelper.SetFixedColorInSVGImgLists(_ctrl : TWinControl;
+	const _color : TColor);
 var
 	subImgList : TSVGIconImageList;
 begin
@@ -305,7 +306,7 @@ begin
 				subImgList.SVGIconItems[j].GrayScale := False;
 			end;
 		end else if subCmp is TWinControl then begin
-			SetFixedColorInSVGImgaLists(TWinControl(subCmp), _color);
+			SetFixedColorInSVGImgLists(TWinControl(subCmp), _color);
 		end;
 	end;
 end;
@@ -317,7 +318,7 @@ begin
 	if tmDark = TDarkModeHelper.GetActualThemeMode then begin
 		color := clGray;
 	end;
-	SetFixedColorInSVGImgaLists(_ctrl, color);
+	SetFixedColorInSVGImgLists(_ctrl, color);
 end;
 
 class procedure TDarkModeHelper.SetThemeMode(const _mode : EThemeMode);
@@ -424,12 +425,18 @@ begin
 	FThemeName := _themeName;
 end;
 
+constructor TThemeChangeEventSubscriber.Create(AOwner : TComponent);
+begin
+	inherited Create(AOwner);
+end;
+
 procedure TThemeChangeEventSubscriber.HandleThemeChangedEvent(Sender : TObject);
 begin
 	FOnThemeChanged.Invoke(self);
 end;
 
-function TThemeChangeEventSubscriber.GetOnThemeChanged() : IEvent<TNotifyEvent>;
+function TThemeChangeEventSubscriber.GetOnThemeChanged():
+	IInvokableEvent<TNotifyEvent>;
 begin
 	Result := FOnThemeChanged;
 end;
