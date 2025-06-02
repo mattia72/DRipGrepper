@@ -76,7 +76,7 @@ implementation
 uses
 	System.Math,
 	RipGrepper.Common.Constants,
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils, Vcl.Themes;
 
 {$R *.dfm}
 
@@ -115,6 +115,9 @@ end;
 procedure TConfigForm.FormCreate(Sender : TObject);
 begin
 	AddSettingTabs;
+	if TStyleManager.TrySetStyle(Settings.AppSettings.ColorTheme) then begin
+		TStyleManager.FormBorderStyle := fbsCurrentStyle;
+	end;
 end;
 
 destructor TConfigForm.Destroy;
@@ -171,12 +174,6 @@ begin
 			iMaxHeight := System.Math.Max(iMaxHeight, form.Height);
 			iMaxWidth := System.Math.Max(iMaxWidth, form.Width);
 			form.ManualDock(PageControl1);
-			// var tab := PageControl1.Pages. (TTabSheet.Create(PageControl1));
-			// form.Parent := tab;
-			// form.Align := alClient;
-			// form.BorderStyle := bsNone;
-			// form.ParentBackground := True;
-			// form.Show();
 		end;
 		FOpenWithConfigForm.pnlBottom.Visible := False;
 		self.Height := iMaxHeight + PageControl1.TabHeight + pnlBottom.Height;
