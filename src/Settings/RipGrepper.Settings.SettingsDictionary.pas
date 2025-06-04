@@ -209,8 +209,10 @@ begin
 end;
 
 class function TSettingsDictionary.DictToStringArray(_dict : TSettingsDictionary) : TArray<TArray<string>>;
+const UNITTEST = {$IFDEF TESTINSIGHT} TRUE; {$ELSE} FALSE; {$ENDIF}
+const IS_DEBUG = {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
 begin
-	{$IFDEF DEBUG}
+	{$IF IS_DEBUG OR UNITTEST}
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.DictToStringArray');
 	for var section in _dict.InnerDictionary.Keys do begin
@@ -267,7 +269,8 @@ begin
 	try
 		for var key in InnerDictionary[SectionName].Keys do begin
 			dbgMsg.MsgFmt('Get InnerDictionary[%s][%s]', [SectionName, key]);
-			var section := InnerDictionary[SectionName];
+			var
+			section := InnerDictionary[SectionName];
 			if InnerDictionary.TryGetValue(SectionName, section) then begin
 				var setting : ISetting;
 				if section.TryGetValue(key, setting) then begin
@@ -283,10 +286,9 @@ begin
 			end;
 		end;
 	except
-	  on E: Exception do
-	  begin
-		dbgMsg.ErrorMsgFmt('Error loading from persister: %s', [E.Message]);
-	  end;
+		on E : Exception do begin
+			dbgMsg.ErrorMsgFmt('Error loading from persister: %s', [E.Message]);
+		end;
 	end;
 end;
 

@@ -20,13 +20,13 @@ type
 	[TestFixture]
 	THistoryItemObjectTest = class(TObject)
 		const
-			TEST_SEARCH_TEXT = 'TEST_SEARCH_TEXT';
+			TEST_SEARCH_TEXT = 'TestText';
 			HIST_OBJ_COUNT = 10;
 			ENCODING_VALUE = 'EncodingValue';
 			INT_SETTING_KEY = 'IntSettingKey';
 			INT_SETTING_VAL = 11;
 			STR_SETTING_KEY = 'SettingKey';
-			STR_SETTING_VAL = 'str setting value';
+			STR_SETTING_VAL = 'str value';
 			REPLACE_TEXT = 'replace text';
 
 		private
@@ -39,7 +39,7 @@ type
 			FIntSetting : ISetting;
 			FStrSetting : ISetting;
 
-			procedure AssertContainsIntAndStrSetting(hio: IHistoryItemObject);
+			procedure AssertContainsIntAndStrSetting(hio : IHistoryItemObject);
 			function GetSettingsDictAsArray(const hio : IHistoryItemObject) : TArray<TArray<string>>;
 			procedure WriteHistObjsToStream(const ms : IShared<TMemoryStream>);
 
@@ -77,8 +77,7 @@ begin
 
 end;
 
-procedure THistoryItemObjectTest.AssertContainsIntAndStrSetting(hio:
-	IHistoryItemObject);
+procedure THistoryItemObjectTest.AssertContainsIntAndStrSetting(hio : IHistoryItemObject);
 var
 	arr : TArray<TArray<string>>;
 	arrEx : TArrayEx<TArray<string>>;
@@ -88,11 +87,12 @@ begin
 	arrEx := arr;
 	var inta : TArray<string> := [INT_SETTING_KEY, INT_SETTING_VAL.ToString];
 	cont := arrEx.Contains(inta, FArrayComparer);
-	Assert.IsTrue(cont, 'Dict should contain Int Setting');
+	Assert.IsTrue(cont,
+	{ } Format(hio.SearchText + ' [%s]%s Dict should contain Int Setting', [INT_SETTING_KEY, INT_SETTING_VAL.ToString]));
 
 	inta := [STR_SETTING_KEY, STR_SETTING_VAL];
 	cont := arrEx.Contains(inta, FArrayComparer);
-	Assert.IsTrue(cont, 'Dict should contain Str Setting');
+	Assert.IsTrue(cont, hio.SearchText + ' Dict should contain Str Setting');
 end;
 
 function THistoryItemObjectTest.GetSettingsDictAsArray(const hio : IHistoryItemObject) : TArray<TArray<string>>;
@@ -182,14 +182,14 @@ begin
 	var
 	count := StrToInt(sr.ReadLine());
 
-	for var i := 0 to count do begin
+	for var i := 0 to count - 1 do begin
 		hio := THistoryItemObject.Create();
 		hio.LoadFromStreamReader(sr);
 		hioList.Add(hio);
 	end;
 	arr := GetSettingsDictAsArray(hio);
 
-	for var i := 0 to count do begin
+	for var i := 0 to count - 1 do begin
 		hio := hioList[i];
 		Assert.AreEqual(TEST_SEARCH_TEXT + i.ToString,
 		{ } hio.GuiSearchTextParams.SearchTextWithOptions.SearchTextOfUser,
@@ -197,12 +197,8 @@ begin
 		Assert.AreEqual(hio.RipGrepArguments.ToStringArray,
 		{ } hio.RipGrepArguments.ToStringArray,
 		{ } 'RipGrepArguments content should match the expected serialized data');
-
 		AssertContainsIntAndStrSetting(hio);
-
-
 	end;
-
 end;
 
 procedure THistoryItemObjectTest.WriteHistObjsToStream(const ms : IShared<TMemoryStream>);
@@ -212,7 +208,7 @@ var
 begin
 	sw := Shared.Make<TStreamWriter>(TStreamWriter.Create(ms));
 	sw.WriteLine(HIST_OBJ_COUNT.ToString);
-	for var i := 0 to HIST_OBJ_COUNT do begin
+	for var i := 0 to (HIST_OBJ_COUNT - 1) do begin
 		hio := THistoryItemObject.Create();
 		hio.GuiSearchTextParams := FGuiSearchTextParams;
 		var
@@ -222,8 +218,14 @@ begin
 		hio.RipGrepArguments := FRipGrepArguments;
 		hio.RipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, searchText);
 
-		hio.SearchFormSettings.SettingsDict.AddOrChange(STR_SETTING_KEY, FStrSetting);
-		hio.SearchFormSettings.SettingsDict.AddOrChange(INT_SETTING_KEY, FIntSetting);
+		var
+		dict := hio.SearchFormSettings.SettingsDict;
+		dict.AddOrChange(STR_SETTING_KEY, FStrSetting);
+		dict.AddOrChange(INT_SETTING_KEY, FIntSetting);
+		var
+		sec := hio.SearchFormSettings.IniSectionName;
+		Assert.AreEqual(dict()[sec][STR_SETTING_KEY], FStrSetting, Format('AddOrChange %d failed', [i]));
+		Assert.AreEqual(dict()[sec][INT_SETTING_KEY], FIntSetting, Format('AddOrChange %d failed', [i]));
 
 		hio.SaveToStreamWriter(sw);
 		FHistoryObjectList.Add(hio);
