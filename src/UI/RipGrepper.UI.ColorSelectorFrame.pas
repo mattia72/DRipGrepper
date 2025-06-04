@@ -81,6 +81,7 @@ type
 			class function AddSelectionFrames(const _fontColors : TFontColors; _parentForm : TForm; _parentCtrl : TWinControl) : integer;
 			procedure AssignFontAttributes(const _fa : TFontAttributes);
 			procedure Refresh;
+			function GetSystemBgColor() : TColor;
 			class procedure WriteColorSettings(var _fontColors : TFontColors; _parentForm : TForm);
 			property SelectedFontAttributes : TFontAttributes read FSelectedFontAttributes write FSelectedFontAttributes;
 			property SelectedFont : TFont read GetSelectedFont write FSelectedFont;
@@ -276,11 +277,7 @@ begin
 	SelectedFontAttributes.ToFont(FSelectedFont);
 	ExampleText.Font.Assign(FSelectedFont);
 	if SelectedFontAttributes.BgColor = clNone then begin
-		{$IFDEF STANDALONE}
-		ExampleText.Color := TStyleManager.ActiveStyle.GetSystemColor(clWindow);
-		{$ELSE}
-		ExampleText.Color := TDarkModeHelper.GetIdeSystemColor(clWindow);
-		{$ENDIF}
+		ExampleText.Color := GetSystemBgColor;
 	end else begin
 		ExampleText.Color := FSelectedFontAttributes.BgColor;
 	end;
@@ -290,7 +287,11 @@ begin
 		cbForeground.Selected := ExampleText.Font.Color;
 		cbForeground.Hint := 'Foreground: ' + ColorToString(cbForeground.Selected);
 
-		cbBackground.Selected := FSelectedFontAttributes.BgColor;
+		if SelectedFontAttributes.BgColor = clNone then begin
+			cbBackground.Selected := GetSystemBgColor();
+		end else begin
+			cbBackground.Selected := FSelectedFontAttributes.BgColor;
+		end;
 		cbBackground.Hint := 'Background: ' + ColorToString(cbBackground.Selected);
 
 		cbItalic.Checked := fsItalic in ExampleText.Font.Style;
@@ -312,6 +313,15 @@ begin
 	UpdateFontStyle(cbUnderline, fsUnderline);
 	UpdateFontStyle(cbStrikeOut, fsStrikeOut);
 	Refresh;
+end;
+
+function TColorSelectorFrame.GetSystemBgColor() : TColor;
+begin
+	{$IFDEF STANDALONE}
+	Result := TStyleManager.ActiveStyle.GetSystemColor(clWindow);
+	{$ELSE}
+	Result := TDarkModeHelper.GetIdeSystemColor(clWindow);
+	{$ENDIF};
 end;
 
 procedure TColorSelectorFrame.UpdateFontStyle(_cb : TCheckBox; const _fs : TFontStyle);

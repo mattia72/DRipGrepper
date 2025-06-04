@@ -39,6 +39,8 @@ type
 			FFontColorSettings : TColorSettings;
 			FOnThemeChanged : Event<TNotifyEvent>;
 			function GetOnThemeChanged() : IInvokableEvent<TNotifyEvent>;
+			procedure SetFontAttribsForFrames();
+			procedure RefreshColorSelectorFrames();
 
 		protected
 			procedure ReadSettings; override;
@@ -89,22 +91,11 @@ begin
 end;
 
 procedure TColorSettingsForm.btnLoadDefaultsClick(Sender : TObject);
-var
-	cf : TColorSelectorFrame;
-	sFontAttribs : string;
-	sSettingsName : string;
 begin
 	FFontColorSettings.LoadDefaultColors(TDarkModeHelper.GetActualThemeMode, True);
 	FFontColorSettings.StoreToPersister;
-	for var i := 0 to ComponentCount - 1 do begin
-		if Components[i] is TColorSelectorFrame then begin
-			cf := TColorSelectorFrame(Components[i]);
-			sSettingsName := TRegex.Replace(cf.LabelText.Caption, '[ ,:]', '');
-			sFontAttribs := FFontColorSettings.SettingsDict.GetSetting(sSettingsName).AsString;
-			cf.SelectedFontAttributes.FromString(sFontAttribs);
-			cf.Refresh;
-		end;
-	end;
+
+	SetFontAttribsForFrames;
 end;
 
 procedure TColorSettingsForm.FormShow(Sender : TObject);
@@ -160,6 +151,23 @@ begin
 	FFontColorSettings.LoadFromDict;
 end;
 
+procedure TColorSettingsForm.SetFontAttribsForFrames();
+var
+	cf : TColorSelectorFrame;
+	sFontAttribs : string;
+	sSettingsName : string;
+begin
+	for var i := 0 to ComponentCount - 1 do begin
+		if Components[i] is TColorSelectorFrame then begin
+			cf := TColorSelectorFrame(Components[i]);
+			sSettingsName := TRegex.Replace(cf.LabelText.Caption, '[ ,:]', '');
+			sFontAttribs := FFontColorSettings.SettingsDict.GetSetting(sSettingsName).AsString;
+			cf.SelectedFontAttributes.FromString(sFontAttribs);
+			cf.Refresh;
+		end;
+	end;
+end;
+
 procedure TColorSettingsForm.rgThemeClick(Sender : TObject);
 var
 	tm : EThemeMode;
@@ -172,12 +180,25 @@ begin
 	ThemeChanged();
 end;
 
+procedure TColorSettingsForm.RefreshColorSelectorFrames();
+var
+	cf : TColorSelectorFrame;
+begin
+	for var i := 0 to ComponentCount - 1 do begin
+		if Components[i] is TColorSelectorFrame then begin
+			cf := TColorSelectorFrame(Components[i]);
+			cf.Refresh;
+		end;
+	end;
+end;
+
 procedure TColorSettingsForm.ThemeChanged();
 begin
 	if FOnThemeChanged.CanInvoke then begin
 		FOnThemeChanged.Invoke(Self);
 	end;
 	RipGrepperForm.ThemeChengedEventSubscriber.HandleThemeChangedEvent(self);
+	RefreshColorSelectorFrames();
 end;
 
 procedure TColorSettingsForm.WriteSettings;

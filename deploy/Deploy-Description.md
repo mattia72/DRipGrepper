@@ -23,7 +23,10 @@ Marked with a checkmark if ready; otherwise, it is planned.
 
 ## 🐞 Bugs:
 Marked with checkmark if fixed, else it is a known bug.
-- [x] extension settings form doesn't support renamed dll names
+- [x] about form should show release notes of current release 
+- [x] color setting form doesn't load the used colors
+- [x] none background doesn't refresh on changed theme
+- [ ] after theme change icons won't repainted 
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: drip icon in menu has no transparent background
 - [ ] look on dpi change (drag window to another monitor)
