@@ -8,11 +8,11 @@ uses
 	System.Generics.Defaults,
 	System.Classes,
 	RipGrepper.Common.Constants,
-	RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.SimpleTypes,
+	Spring.Collections;
 
 type
 
-	// ---------
 	TColumnData = record
 		Title : string;
 		Text : string;
@@ -35,17 +35,17 @@ type
 		function GetErrorText : string;
 		function GetColumnText(const _idx : integer) : string;
 		function GetIsError : Boolean;
-		function GetIsStatsLine: Boolean;
+		function GetIsStatsLine : Boolean;
 		function GetParserType : TParserType;
 		function GetRowNr : Integer;
 		procedure SetErrorText(const Value : string);
 		procedure SetIsError(const Value : Boolean);
-		procedure SetIsStatsLine(const Value: Boolean);
+		procedure SetIsStatsLine(const Value : Boolean);
 		procedure SetParserType(const Value : TParserType);
 		procedure SetRowNr(const Value : Integer);
 		property ErrorText : string read GetErrorText write SetErrorText;
 		property IsError : Boolean read GetIsError write SetIsError;
-		property IsStatsLine: Boolean read GetIsStatsLine write SetIsStatsLine;
+		property IsStatsLine : Boolean read GetIsStatsLine write SetIsStatsLine;
 		property ParserType : TParserType read GetParserType write SetParserType;
 		property RowNr : Integer read GetRowNr write SetRowNr;
 
@@ -59,7 +59,7 @@ type
 	TListType = TList<IParsedObjectRow>;
 	{$ELSE}
 	TParsedObjectRow = class;
-	TListType = TList<IParsedObjectRow>;
+	TListType = IList<IParsedObjectRow>;
 	{$ENDIF}
 
 	IParsedObjectRowCollection = interface
@@ -86,20 +86,20 @@ type
 			FErrorText : string;
 			FIsError : Boolean;
 			FColumns : TArrayEx<TColumnData>;
-			FIsStatsLine: Boolean;
+			FIsStatsLine : Boolean;
 			FParserType : TParserType;
 			FRowNr : Integer;
 			function GetColumns : TArrayEx<TColumnData>;
 			procedure SetColumns(const Value : TArrayEx<TColumnData>);
 			function GetErrorText : string;
-			function GetIsStatsLine: Boolean;
+			function GetIsStatsLine : Boolean;
 			function GetIsError : Boolean;
 			function GetRowNr : Integer;
 			procedure SetErrorText(const Value : string);
 			procedure SetIsError(const Value : Boolean);
 			procedure SetRowNr(const Value : Integer);
 			function GetParserType : TParserType;
-			procedure SetIsStatsLine(const Value: Boolean);
+			procedure SetIsStatsLine(const Value : Boolean);
 			procedure SetParserType(const Value : TParserType);
 
 		public
@@ -109,7 +109,7 @@ type
 			function GetColumnText(const _idx : integer) : string;
 			property Columns : TArrayEx<TColumnData> read GetColumns write SetColumns;
 			property ErrorText : string read GetErrorText write SetErrorText;
-			property IsStatsLine: Boolean read GetIsStatsLine write SetIsStatsLine;
+			property IsStatsLine : Boolean read GetIsStatsLine write SetIsStatsLine;
 			property IsError : Boolean read GetIsError write SetIsError;
 			property RowNr : Integer read GetRowNr write SetRowNr;
 			property ParserType : TParserType read GetParserType write SetParserType;
@@ -167,7 +167,7 @@ begin
 	Columns := _por.Columns;
 	RowNr := _por.RowNr;
 	IsError := _por.IsError;
-    IsStatsLine := _por.IsStatsLine;
+	IsStatsLine := _por.IsStatsLine;
 	ParserType := _parserType;
 end;
 
@@ -203,7 +203,7 @@ begin
 	Result := FErrorText;
 end;
 
-function TParsedObjectRow.GetIsStatsLine: Boolean;
+function TParsedObjectRow.GetIsStatsLine : Boolean;
 begin
 	Result := FIsStatsLine;
 end;
@@ -233,7 +233,7 @@ begin
 	FErrorText := Value;
 end;
 
-procedure TParsedObjectRow.SetIsStatsLine(const Value: Boolean);
+procedure TParsedObjectRow.SetIsStatsLine(const Value : Boolean);
 begin
 	FIsStatsLine := Value;
 end;
@@ -259,13 +259,14 @@ begin
 	{$IFDEF THREADSAFE_LIST}
 	FItems := TThreadListType.Create();
 	{$ELSE}
-	FItems := TListType.Create();
+	// FItems := TListType.Create();
+	FItems := TCollections.CreateList<IParsedObjectRow>();
 	{$ENDIF}
 end;
 
 destructor TParsedObjectRowCollection.Destroy;
 begin
-	FItems.Free;
+	// FItems.Free;
 	inherited;
 end;
 
