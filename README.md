@@ -1,9 +1,5 @@
-
-
-<table>
-    <tr>  
-      <td>
-          
+![banner](./images/banner.PNG)
+         
 ## Table of Contents
 - [DRipGrepper](#droplet-dripgrepper)
 - [Features and Todos](#features-and-todos)
@@ -21,12 +17,6 @@
 - [Build](#build)
 - [Contribution](#contribution)
 - [Thanks](#thanks)
-    </td>
-      <td>
-         <img src="./images/dripgrepper-gemini.png"  alt="1" width = 360px height = 360px >
-      </td>
-    </tr>
-</table>
 
 ## :droplet: DRipGrepper
 Yet another [ripgrep](https://github.com/BurntSushi/ripgrep) GUI, written in Delphi Pascal.
