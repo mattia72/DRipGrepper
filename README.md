@@ -1,4 +1,4 @@
-![banner](./images/banner.PNG)
+![banner](./images/dark-banner.png)
          
 ## Table of Contents
 - [DRipGrepper](#droplet-dripgrepper)
