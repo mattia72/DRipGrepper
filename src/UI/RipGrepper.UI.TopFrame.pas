@@ -751,6 +751,9 @@ begin
 	ActionAlternateRowColorsUpdate();
 	ActionShowFileIconsUpdate();
 	ActionIndentLineUpdate();
+
+	ActionAbortSearch.Enabled := False;
+
 	FIsInitialized := True;
 end;
 
