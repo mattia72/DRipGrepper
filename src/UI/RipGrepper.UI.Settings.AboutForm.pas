@@ -25,7 +25,8 @@ uses
 	System.JSON,
 	ArrayEx,
 	Vcl.Imaging.jpeg,
-	Vcl.Imaging.pngimage;
+	Vcl.Imaging.pngimage,
+	Vcl.ComCtrls;
 
 type
 
@@ -45,18 +46,21 @@ type
 		pnlTopRight : TPanel;
 		lnkHomeURL : TLinkLabel;
 		lblVersion : TLabel;
+		tbcLicenceReleaseNotes : TTabControl;
 		procedure ActionCheckUpdateExecute(Sender : TObject);
 		procedure FormResize(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 		procedure imgAboutDblClick(Sender : TObject);
 		procedure lnkHomeURLLinkClick(Sender : TObject; const Link : string; LinkType : TSysLinkType);
 		procedure lnkLatestUrlLinkClick(Sender : TObject; const Link : string; LinkType : TSysLinkType);
+		procedure tbcLicenceReleaseNotesChange(Sender : TObject);
 
 		private
 			FAppSettings : TAppSettings;
 			FbSkipClickEvent : Boolean;
 			FCurrentRelease : TReleaseUtils;
 			FDownloadedReleaseInfos : TReleaseInfoArray;
+			FsLicence : string;
 			procedure AddDescriptionLinesToMemo(const _relInfo : IReleaseInfo);
 			procedure AddReleaseToMemo(_relInfo : IReleaseInfo);
 			procedure DownloadReleaseInfos(var _relInfos : TReleaseInfoArray);
@@ -66,6 +70,7 @@ type
 			function IsSameVersion(_vi1, _vi2 : TReleaseInfo) : Boolean;
 			function MakeLinkCaption(const _label, _href, _text : string) : string;
 			procedure OpenLink(const _link : string);
+			procedure SetMemoText();
 			function TryGetCurrentRelInfo(const _relInfos : TReleaseInfoArray; var _curInfo : IReleaseInfo) : Boolean;
 
 		protected
@@ -74,7 +79,7 @@ type
 
 		public
 			constructor Create(_Owner : TComponent; _settings : TRipGrepperSettings);
-			function GetDescriptionFromResource() : string;
+			function GetDescriptionFromResource(const _resource : string) : string;
 			property LatestRelease : IReleaseInfo read GetLatestRelease;
 
 		published
@@ -99,11 +104,12 @@ begin
 	inherited Create(_Owner, _settings);
 	Caption := ABOUT_CAPTION;
 
+	FsLicence := GetDescriptionFromResource('LICENSE');
+
 	var
-	s := GetDescriptionFromResource();
+	s := GetDescriptionFromResource('DeployDescription');
 	FCurrentRelease.CurrentRelease.SetDescription(s);
 
-	InitMemoWithCurrentRelInfo(FCurrentRelease.CurrentRelease);
 	lnkLatestUrl.Visible := False;
 
 	FAppSettings := _settings.AppSettings;
@@ -112,6 +118,7 @@ begin
 	lblTitle.Caption := FCurrentRelease.CurrentName;
 	lblVersion.Caption := FCurrentRelease.CurrentVersion;
 	lnkHomeURL.Caption := MakeLinkCaption('Home: ', HOME_PAGE, 'mattia72/DripGrepper');
+	SetMemoText();
 end;
 
 procedure TAboutForm.ActionCheckUpdateExecute(Sender : TObject);
@@ -126,6 +133,7 @@ begin
 	end else begin
 		AddReleaseToMemo(LatestRelease);
 	end;
+	tbcLicenceReleaseNotes.TabIndex := 1;
 
 	if IsSameVersion(LatestRelease(), curInfo) then begin
 		TMsgBox.ShowInfo('You are using the latest version.');
@@ -191,12 +199,12 @@ begin
 	end;
 end;
 
-function TAboutForm.GetDescriptionFromResource() : string;
+function TAboutForm.GetDescriptionFromResource(const _resource : string) : string;
 var
 	stream : TResourceStream;
 	list : TStringList;
 begin
-	stream := TResourceStream.Create(HInstance, 'DeployDescription', RT_RCDATA);
+	stream := TResourceStream.Create(HInstance, _resource, RT_RCDATA);
 	list := TStringList.Create;
 	try
 		list.DefaultEncoding := TEncoding.UTF8;
@@ -283,6 +291,23 @@ end;
 procedure TAboutForm.OpenLink(const _link : string);
 begin
 	ShellExecute(0, 'OPEN', PChar(_link), '', '', SW_SHOWNORMAL);
+end;
+
+procedure TAboutForm.SetMemoText();
+begin
+	case tbcLicenceReleaseNotes.TabIndex of
+		0 : begin
+			Memo1.Text := FsLicence;
+		end;
+		1 : begin
+			InitMemoWithCurrentRelInfo(FCurrentRelease.CurrentRelease);
+		end;
+	end;
+end;
+
+procedure TAboutForm.tbcLicenceReleaseNotesChange(Sender : TObject);
+begin
+	SetMemoText();
 end;
 
 function TAboutForm.TryGetCurrentRelInfo(const _relInfos : TReleaseInfoArray; var _curInfo : IReleaseInfo) : Boolean;

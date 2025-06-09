@@ -58,35 +58,13 @@ object AboutForm: TAboutForm
       Font.Style = []
       ParentFont = False
       TabOrder = 0
-      object Memo1: TMemo
-        AlignWithMargins = True
-        Left = 11
-        Top = 80
-        Width = 426
-        Height = 324
-        Margins.Left = 10
-        Margins.Right = 20
-        Margins.Bottom = 10
-        Align = alBottom
-        Anchors = [akLeft, akTop, akRight, akBottom]
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        Lines.Strings = (
-          'Memo1')
-        ParentFont = False
-        ScrollBars = ssBoth
-        TabOrder = 0
-      end
       object pnlTopRight: TPanel
         Left = 1
         Top = 1
         Width = 456
         Height = 65
         Align = alTop
-        TabOrder = 1
+        TabOrder = 0
         object lblTitle: TLabel
           AlignWithMargins = True
           Left = 4
@@ -123,6 +101,40 @@ object AboutForm: TAboutForm
           Font.Style = [fsBold]
           ParentFont = False
           WordWrap = True
+        end
+      end
+      object tbcLicenceReleaseNotes: TTabControl
+        Left = 1
+        Top = 66
+        Width = 456
+        Height = 348
+        Align = alClient
+        TabOrder = 1
+        Tabs.Strings = (
+          'License'
+          'Release Notes')
+        TabIndex = 0
+        OnChange = tbcLicenceReleaseNotesChange
+        object Memo1: TMemo
+          AlignWithMargins = True
+          Left = 14
+          Top = 29
+          Width = 418
+          Height = 305
+          Margins.Left = 10
+          Margins.Right = 20
+          Margins.Bottom = 10
+          Align = alClient
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          Lines.Strings = (
+            'Memo1')
+          ParentFont = False
+          ScrollBars = ssBoth
+          TabOrder = 0
         end
       end
     end
