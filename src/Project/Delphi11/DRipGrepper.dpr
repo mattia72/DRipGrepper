@@ -1,5 +1,7 @@
 program DRipGrepper;
 
+{$R *.dres}
+
 uses
   {$IFDEF FASTMM4_OPT}
   FastMM4,

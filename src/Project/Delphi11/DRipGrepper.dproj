@@ -66,7 +66,7 @@
     <DCC_F>false</DCC_F>
     <DCC_K>false</DCC_K>
     <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-    <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
+    <Icon_MainIcon>..\..\..\images\icons\DripGrepper.ico</Icon_MainIcon>
     <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
     <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
     <SanitizedProjectName>DRipGrepper</SanitizedProjectName>
@@ -136,6 +136,7 @@
     <VerInfo_Build>142</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <VerInfo_MinorVer>7</VerInfo_MinorVer>
+    <BRCC_CompilerToUse>rc</BRCC_CompilerToUse>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_2)'!=''">
     <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -148,18 +149,18 @@
   <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_Locale>1033</VerInfo_Locale>
-    <Icon_MainIcon>..\..\..\icons\icons8-search-folder-windows-11-outline-32.ico</Icon_MainIcon>
+    <Icon_MainIcon>..\..\..\images\icons\DripGrepper.ico</Icon_MainIcon>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.7.0.145;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.7.0</VerInfo_Keys>
-    <VerInfo_Build>145</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.7.0.157;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.7.0</VerInfo_Keys>
+    <VerInfo_Build>157</VerInfo_Build>
     <VerInfo_MinorVer>7</VerInfo_MinorVer>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
     <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.7.0.145;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.7.0</VerInfo_Keys>
-    <VerInfo_Build>145</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.7.0.158;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.7.0</VerInfo_Keys>
+    <VerInfo_Build>158</VerInfo_Build>
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <VerInfo_MinorVer>7</VerInfo_MinorVer>
@@ -305,6 +306,16 @@
     <DCCReference Include="..\..\Settings\RipGrepper.Settings.RipGrepArguments.pas" />
     <DCCReference Include="..\..\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas" />
     <DCCReference Include="..\..\Tools\RipGrepper.Tools.ReleaseUtils.pas" />
+    <RcItem Include="..\..\..\deploy\Deploy-Description.md">
+      <ContainerId>ResourceItem</ContainerId>
+      <ResourceType>RCDATA</ResourceType>
+      <ResourceId>DeployDescription</ResourceId>
+    </RcItem>
+    <RcItem Include="..\..\..\LICENSE">
+      <ContainerId>ResourceItem</ContainerId>
+      <ResourceType>RCDATA</ResourceType>
+      <ResourceId>LICENSE</ResourceId>
+    </RcItem>
     <BuildConfiguration Include="Base">
       <Key>Base</Key>
     </BuildConfiguration>
@@ -362,6 +373,18 @@
           <Platform Name="Win32">
             <RemoteDir>Assets\</RemoteDir>
             <RemoteName>Logo44x44.png</RemoteName>
+            <Overwrite>true</Overwrite>
+          </Platform>
+        </DeployFile>
+        <DeployFile LocalName="..\..\..\LICENSE" Configuration="Debug" Class="ProjectFile">
+          <Platform Name="Win64">
+            <RemoteDir>.\</RemoteDir>
+            <Overwrite>true</Overwrite>
+          </Platform>
+        </DeployFile>
+        <DeployFile LocalName="..\..\..\deploy\Deploy-Description.md" Configuration="Debug" Class="ProjectFile">
+          <Platform Name="Win64">
+            <RemoteDir>.\</RemoteDir>
             <Overwrite>true</Overwrite>
           </Platform>
         </DeployFile>
