@@ -76,7 +76,8 @@ implementation
 uses
 	System.Math,
 	RipGrepper.Common.Constants,
-	RipGrepper.Tools.DebugUtils, Vcl.Themes;
+	RipGrepper.Tools.DebugUtils,
+	Vcl.Themes;
 
 {$R *.dfm}
 
@@ -117,7 +118,8 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TConfigForm.FormCreate');
 	AddSettingTabs;
-	var theme := Settings.AppSettings.ColorTheme;
+	var
+	theme := Settings.AppSettings.ColorTheme;
 	dbgMsg.Msg('Applying theme: ' + theme);
 	if TStyleManager.TrySetStyle(theme) then begin
 		TStyleManager.FormBorderStyle := fbsCurrentStyle;

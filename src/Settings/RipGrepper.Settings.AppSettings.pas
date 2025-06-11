@@ -45,7 +45,7 @@ type
 			FLoadLastSearchHistoryMode : IIntegerSetting;
 			function GetColorTheme() : string;
 			function GetComboHistoryCount() : Integer;
-			function GetSearchHistoryCount(): Integer;
+			function GetSearchHistoryCount() : Integer;
 			function GetCopyToClipBoardShell() : TShellType;
 			function GetDebugTrace() : string;
 			function GetDebugTraceRegexFilter() : string;
@@ -55,7 +55,7 @@ type
 			function GetLoadLastSearchHistoryMode() : ELoadLastHistoryMode;
 			procedure SetColorTheme(const Value : string);
 			procedure SetComboHistoryCount(const Value : Integer);
-			procedure SetSearchHistoryCount(const Value: Integer);
+			procedure SetSearchHistoryCount(const Value : Integer);
 			procedure SetCopyToClipBoardShell(const Value : TShellType);
 			procedure SetDebugTrace(const Value : string);
 			procedure SetDebugTraceRegexFilter(const Value : string);
@@ -72,8 +72,7 @@ type
 			destructor Destroy; override;
 			property ColorTheme : string read GetColorTheme write SetColorTheme;
 			property ComboHistoryCount : Integer read GetComboHistoryCount write SetComboHistoryCount;
-			property SearchHistoryCount: Integer read GetSearchHistoryCount write
-				SetSearchHistoryCount;
+			property SearchHistoryCount : Integer read GetSearchHistoryCount write SetSearchHistoryCount;
 			property CopyToClipBoardShell : TShellType read GetCopyToClipBoardShell write SetCopyToClipBoardShell;
 			property DebugTrace : string read GetDebugTrace write SetDebugTrace;
 			property DebugTraceRegexFilter : string read GetDebugTraceRegexFilter write SetDebugTraceRegexFilter;
@@ -101,7 +100,8 @@ uses
 	Vcl.Menus,
 	System.RegularExpressions,
 	RipGrepper.CommandLine.Builder,
-	System.Variants;
+	System.Variants,
+	RipGrepper.Helper.UI.DarkMode;
 
 constructor TAppSettings.Create(const _Owner : TPersistableSettings);
 begin
@@ -125,7 +125,7 @@ begin
 	Result := FComboHistoryCount.Value;
 end;
 
-function TAppSettings.GetSearchHistoryCount(): Integer;
+function TAppSettings.GetSearchHistoryCount() : Integer;
 begin
 	Result := FSearchHistoryCount.Value;
 end;
@@ -167,7 +167,7 @@ end;
 
 procedure TAppSettings.Init;
 begin
-	FColorTheme := TStringSetting.Create('');
+	FColorTheme := TStringSetting.Create(TDarkModeHelper.GetActualThemeName);
 	FCopyToClipBoardShell := TIntegerSetting.Create(Integer(TShellType.stPowershell));
 	FComboHistoryCount := TIntegerSetting.Create(MAX_HISTORY_COUNT);
 	FSearchHistoryCount := TIntegerSetting.Create(MAX_HISTORY_COUNT);
@@ -199,7 +199,7 @@ begin
 	FComboHistoryCount.Value := Value;
 end;
 
-procedure TAppSettings.SetSearchHistoryCount(const Value: Integer);
+procedure TAppSettings.SetSearchHistoryCount(const Value : Integer);
 begin
 	FSearchHistoryCount.Value := Value;
 end;
