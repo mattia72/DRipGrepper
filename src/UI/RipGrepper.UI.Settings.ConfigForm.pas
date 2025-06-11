@@ -114,8 +114,12 @@ end;
 
 procedure TConfigForm.FormCreate(Sender : TObject);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TConfigForm.FormCreate');
 	AddSettingTabs;
-	if TStyleManager.TrySetStyle(Settings.AppSettings.ColorTheme) then begin
+	var theme := Settings.AppSettings.ColorTheme;
+	dbgMsg.Msg('Applying theme: ' + theme);
+	if TStyleManager.TrySetStyle(theme) then begin
 		TStyleManager.FormBorderStyle := fbsCurrentStyle;
 	end;
 end;
