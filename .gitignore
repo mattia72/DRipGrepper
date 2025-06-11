@@ -14,8 +14,7 @@
 **/*.$manifest
 **/*.tvsconfig
 **/.vscode/settings.json
-**/icons/bmps/*
-**/icons/convert/*
+**/.icons/*
 deploy/SECRET_TOKEN
 DRipGrepper_project.tvsconfig
 deploy/assets/*
