@@ -29,7 +29,7 @@ object AboutForm: TAboutForm
     Align = alBottom
     BevelOuter = bvNone
     ShowCaption = False
-    TabOrder = 0
+    TabOrder = 1
     StyleElements = [seFont, seClient]
   end
   object ScrollBox1: TScrollBox
@@ -42,7 +42,7 @@ object AboutForm: TAboutForm
     BevelInner = bvNone
     BevelOuter = bvNone
     BorderStyle = bsNone
-    TabOrder = 1
+    TabOrder = 0
     object pnlRight: TPanel
       AlignWithMargins = True
       Left = 262
@@ -57,7 +57,7 @@ object AboutForm: TAboutForm
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
-      TabOrder = 0
+      TabOrder = 1
       object pnlTopRight: TPanel
         Left = 1
         Top = 1
@@ -69,10 +69,9 @@ object AboutForm: TAboutForm
           AlignWithMargins = True
           Left = 4
           Top = 11
-          Width = 448
+          Width = 102
           Height = 23
           Margins.Top = 10
-          Margins.Bottom = 3
           Align = alTop
           Alignment = taCenter
           Caption = 'DripGrepper'
@@ -87,10 +86,9 @@ object AboutForm: TAboutForm
         object lblVersion: TLabel
           Left = 1
           Top = 37
-          Width = 454
+          Width = 76
           Height = 19
           Margins.Top = 10
-          Margins.Bottom = 3
           Align = alTop
           Alignment = taCenter
           Caption = 'v1.0.0-beta'
@@ -146,7 +144,7 @@ object AboutForm: TAboutForm
       Align = alLeft
       BevelOuter = bvNone
       ShowCaption = False
-      TabOrder = 1
+      TabOrder = 0
       StyleElements = [seFont, seClient]
       object imgAbout: TImage
         AlignWithMargins = True
