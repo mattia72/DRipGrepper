@@ -69,4 +69,56 @@
         <CallTarget Targets="Spring_Tests_Delphi12:Make;DRipGrepperUnittest_D11:Make;DRipGrepper:Make;DRipExtensions_D11:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+    <ItemGroup Condition="'$(BuildGroup)'=='Release'">
+        <BuildGroupProject Include="Extension\src\Project\Dll.Delphi11\DRipExtensions.D11.dproj">
+            <ProjectGuid>{61FA8D59-16BA-4F6D-96E6-6AF82C96C442}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="..\spring4d\Tests\Spring.Tests.Delphi12.dproj">
+            <ProjectGuid>{83F94C88-615C-458E-9455-6593952E7EA0}</ProjectGuid>
+            <Configurations>Debug</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="UnitTest\DRipGrepperUnittest.D11.dproj">
+            <ProjectGuid>{DEF48A6C-8547-4DA4-981B-3EB3A1D44775}</ProjectGuid>
+            <Configurations>Debug</Configurations>
+            <Platforms>Win32;Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="src\Project\Delphi11\DRipGrepper.dproj">
+            <ProjectGuid>{690C375C-03A1-4C11-8B81-E628EF382F2C}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32;Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+    </ItemGroup>
+    <ItemGroup Condition="'$(BuildGroup)'=='Debug'">
+        <BuildGroupProject Include="Extension\src\Project\Dll.Delphi11\DRipExtensions.D11.dproj">
+            <ProjectGuid>{61FA8D59-16BA-4F6D-96E6-6AF82C96C442}</ProjectGuid>
+            <Configurations>Debug</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="..\spring4d\Tests\Spring.Tests.Delphi12.dproj">
+            <ProjectGuid>{83F94C88-615C-458E-9455-6593952E7EA0}</ProjectGuid>
+            <Configurations>Debug</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="UnitTest\DRipGrepperUnittest.D11.dproj">
+            <ProjectGuid>{DEF48A6C-8547-4DA4-981B-3EB3A1D44775}</ProjectGuid>
+            <Configurations>Debug</Configurations>
+            <Platforms>Win32;Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="src\Project\Delphi11\DRipGrepper.dproj">
+            <ProjectGuid>{690C375C-03A1-4C11-8B81-E628EF382F2C}</ProjectGuid>
+            <Configurations>Debug</Configurations>
+            <Platforms>Win32;Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+    </ItemGroup>
 </Project>
