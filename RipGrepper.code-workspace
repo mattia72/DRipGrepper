@@ -11,6 +11,7 @@
 			"windows1252",
 			"windows1250",
 			"utf8"
-		]
+		],
+		"svn.ignoreMissingSvnWarning": true
 	}
 }
