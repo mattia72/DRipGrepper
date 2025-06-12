@@ -169,9 +169,6 @@ end;
 function THistoryItemObject.GetTotalMatchCount : integer;
 begin
 	Result := FMatches.Items.Count - FErrorCounters.FSumOfErrors - FErrorCounters.FStatLineCount;
-	{$IFDEF THREADSAFE_LIST}
-	FMatches.Unlock;
-	{$ENDIF}
 end;
 
 procedure THistoryItemObject.SetFileCount(const Value : integer);
@@ -210,9 +207,6 @@ begin
 	FErrorCounters.Reset;
 	FNoMatchFound := False;
 	FMatches.Items.Clear;
-	{$IFDEF THREADSAFE_LIST}
-	FMatches.Unlock;
-	{$ENDIF}
 end;
 
 procedure THistoryItemObject.CopyToSettings(const _settings : TRipGrepperSettings);
@@ -333,7 +327,7 @@ begin
 		dbgMsg.MsgFmt('RipGrepArguments = %s', [RipGrepArguments.Text]);
 
 		SearchFormSettings.LoadFromStreamReader(_sr);
-
+		Matches.LoadFromStreamReader(_sr);
 
 		FIsLoadedFromStream := True;
 	except
@@ -372,6 +366,8 @@ begin
 		_sw.WriteLine(s);
 	end;
 	SearchFormSettings.SaveToStreamWriter(_sw);
+
+	Matches.SaveToStreamWriter(_sw);
 end;
 
 procedure THistoryItemObject.SetElapsedTimeText(const Value : string);

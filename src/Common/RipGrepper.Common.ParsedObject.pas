@@ -9,7 +9,8 @@ uses
 	System.Classes,
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.SimpleTypes,
-	Spring.Collections;
+	Spring.Collections,
+	RipGrepper.Common.Interfaces.StreamPersistable;
 
 type
 
@@ -52,23 +53,14 @@ type
 	end;
 
 type
-	// {$DEFINE THREADSAFE_LIST} We don't need it
 
-	{$IFDEF THREADSAFE_LIST}
-	TThreadListType = TThreadList<IParsedObjectRow>;
-	TListType = TList<IParsedObjectRow>;
-	{$ELSE}
 	TParsedObjectRow = class;
 	TListType = IList<IParsedObjectRow>;
-	{$ENDIF}
 
 	IParsedObjectRowCollection = interface
 		['{03AA4D67-689A-43A0-8D07-FAB44124E032}']
 		function GetItems : TListType;
 		property Items : TListType read GetItems;
-		{$IFDEF THREADSAFE_LIST}
-		procedure Unlock;
-		{$ENDIF}
 	end;
 
 	IParsedObjectGroupRowCollection = interface(IParsedObjectRowCollection)
@@ -115,23 +107,18 @@ type
 			property ParserType : TParserType read GetParserType write SetParserType;
 	end;
 
-	TParsedObjectRowCollection = class(TNoRefCountObject, IParsedObjectRowCollection)
+	TParsedObjectRowCollection = class(TNoRefCountObject, IParsedObjectRowCollection, IStreamReaderWriterPersistable)
 		private
-			{$IFDEF THREADSAFE_LIST}
-			FItems : TThreadListType;
-			{$ELSE}
 			FItems : TListType;
-			{$ENDIF}
 			function GetItems : TListType;
 			// procedure SetItems(const Value : TListType);
 
 		public
 			constructor Create;
 			destructor Destroy; override;
+			procedure LoadFromStreamReader(_sr : TStreamReader);
+			procedure SaveToStreamWriter(_sw : TStreamWriter);
 			property Items : TListType read GetItems; // write SetItems;
-			{$IFDEF THREADSAFE_LIST}
-			procedure Unlock;
-			{$ENDIF}
 	end;
 
 	TParsedObjectGroupedRowCollection = class(TParsedObjectRowCollection, IParsedObjectGroupRowCollection)
@@ -256,12 +243,8 @@ end;
 constructor TParsedObjectRowCollection.Create;
 begin
 	inherited;
-	{$IFDEF THREADSAFE_LIST}
-	FItems := TThreadListType.Create();
-	{$ELSE}
 	// FItems := TListType.Create();
 	FItems := TCollections.CreateList<IParsedObjectRow>();
-	{$ENDIF}
 end;
 
 destructor TParsedObjectRowCollection.Destroy;
@@ -272,24 +255,18 @@ end;
 
 function TParsedObjectRowCollection.GetItems : TListType;
 begin
-	{$IFDEF THREADSAFE_LIST}
-	Result := FItems.LockList;
-	{$ELSE}
 	Result := FItems;
-	{$ENDIF}
 end;
 
-{$IFDEF THREADSAFE_LIST}
-
-procedure TParsedObjectRowCollection.Unlock;
+procedure TParsedObjectRowCollection.LoadFromStreamReader(_sr : TStreamReader);
 begin
-	FItems.UnlockList;
+ // TODO: Implement loading from stream
 end;
-{$ENDIF}
-// procedure TParsedObjectRowCollection.SetItems(const Value : TListType);
-// begin
-// FItems.LockList := Value;
-// end;
+
+procedure TParsedObjectRowCollection.SaveToStreamWriter(_sw : TStreamWriter);
+begin
+// TODO: Implement saving to stream
+end;
 
 function TParsedObjectGroupedRowCollection.GetGroupId : Integer;
 begin
