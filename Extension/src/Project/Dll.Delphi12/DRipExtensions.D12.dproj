@@ -63,7 +63,7 @@
         <DCC_UnitAlias>GX_IdeDockStandAlone=GX_IdeDock;SynRegExpr=RegExprReplaceUnit;$(DCC_UnitAlias)</DCC_UnitAlias>
         <VerInfo_Locale>1031</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.6.2.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.6.2.0;Comments=</VerInfo_Keys>
-        <Icon_MainIcon>..\..\..\images\icons\DripGrepper.ico</Icon_MainIcon>
+        <Icon_MainIcon>..\..\..\..\images\icons\DripGrepper.ico</Icon_MainIcon>
         <DCC_AdditionalSwitches>-LUDesignIDE</DCC_AdditionalSwitches>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
@@ -75,9 +75,11 @@
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
         <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.7.1.161;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.7.1;Comments=beta</VerInfo_Keys>
         <VerInfo_Build>161</VerInfo_Build>
-        <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
         <VerInfo_MinorVer>7</VerInfo_MinorVer>
         <VerInfo_Release>1</VerInfo_Release>
+        <UsePackages>true</UsePackages>
+        <Manifest_File>(None)</Manifest_File>
+        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <DCC_UsePackage>rtl;dbrtl;vcldb;vcl;VirtualTreesDR;VclSmp;$(DCC_UsePackage)</DCC_UsePackage>
@@ -91,6 +93,7 @@
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
         <DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
         <DCC_RangeChecking>true</DCC_RangeChecking>
+        <UsePackages>true</UsePackages>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
@@ -103,10 +106,9 @@
         <VerInfo_Build>163</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <Manifest_File>..\Delphi12\(None)</Manifest_File>
-        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
         <VerInfo_MinorVer>7</VerInfo_MinorVer>
-        <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
         <VerInfo_Release>1</VerInfo_Release>
+        <UsePackages>true</UsePackages>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -118,16 +120,16 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.7.1.170;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.7.1;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>170</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.7.1.175;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.7.1;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>175</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <DCC_Description>RipGrep Search within Delphi</DCC_Description>
         <VerInfo_MinorVer>7</VerInfo_MinorVer>
-        <Manifest_File>(None)</Manifest_File>
-        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
         <DCC_MapFile>3</DCC_MapFile>
         <VerInfo_Release>1</VerInfo_Release>
         <BRCC_CompilerToUse>rc</BRCC_CompilerToUse>
+        <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\23.0\bin\bds.exe</Debugger_HostApplication>
+        <UsePackages>true</UsePackages>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
