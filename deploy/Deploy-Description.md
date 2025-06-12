@@ -1,7 +1,7 @@
 <!--
 
-Version:     v4.7.1-beta
-PrevVersion: v4.7.0-beta
+Version:     v4.7.2-beta
+PrevVersion: v4.7.1-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -23,9 +23,7 @@ Marked with a checkmark if ready; otherwise, it is planned.
 
 ## 🐞 Bugs:
 Marked with checkmark if fixed, else it is a known bug.
-- [x] about form should show release notes of current release 
-- [x] color setting form doesn't load the used colors
-- [x] none background doesn't refresh on changed theme
+- [x] **extension**: avoid error when starting delphi: "Can't load package... scope class TBindComponentScope not registered"
 - [ ] after theme change icons won't repainted 
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: drip icon in menu has no transparent background
