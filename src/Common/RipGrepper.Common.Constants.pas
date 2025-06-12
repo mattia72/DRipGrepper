@@ -20,8 +20,12 @@ const
 	{ }	{$ENDIF}
 	RG_EXE = 'rg.exe';
 	APPNAME = 'DRipGrepper';
+
 	EXTENSION_NAME = 'DRipExtensions';
 	EXTENSION_MENU_ROOT_TEXT = '&' + EXTENSION_NAME + '...';
+	MENU_ITEM_OPEN_WITH = 'Open With...';
+	MENU_ITEM_SEARCH_WITH_DRIPGREPPER = 'Search with DripGrepper...';
+
 	SEARCH_HISTORY_DRH = 'SearchHistory.drh';
 	BAK_FILE_EXTENSION = '.bak';
 	FONTS_AND_COLORS_CAPTION = 'Appearance';
