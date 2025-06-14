@@ -30,7 +30,7 @@ type
 			KEY_CMBHISTORYCOUNT = 'ComboHistoryCount';
 			KEY_SEARCH_HISTORYCOUNT = 'SearchHistoryCount';
 			KEY_LOADLASTHISTORIESONSTARTUP = 'LoadLastSearchesOnStartup';
-			KEY_LOADLASTHISTORIESONSTARTUP_REUSEDONLY = 'LoadLastSearchesOnStartup_ReusedOnly';
+			KEY_LOADLASTHISTORIESONSTARTUP_WITHRESULTSONLY = 'LoadLastSearchesOnStartup_WithResultsOnly';
 
 		private
 			FColorTheme : IStringSetting;
@@ -45,7 +45,7 @@ type
 			FLoadLastSearchHistoryMode : IIntegerSetting;
 			function GetColorTheme() : string;
 			function GetComboHistoryCount() : Integer;
-			function GetSearchHistoryCount(): Integer;
+			function GetSearchHistoryCount() : Integer;
 			function GetCopyToClipBoardShell() : TShellType;
 			function GetDebugTrace() : string;
 			function GetDebugTraceRegexFilter() : string;
@@ -55,7 +55,7 @@ type
 			function GetLoadLastSearchHistoryMode() : ELoadLastHistoryMode;
 			procedure SetColorTheme(const Value : string);
 			procedure SetComboHistoryCount(const Value : Integer);
-			procedure SetSearchHistoryCount(const Value: Integer);
+			procedure SetSearchHistoryCount(const Value : Integer);
 			procedure SetCopyToClipBoardShell(const Value : TShellType);
 			procedure SetDebugTrace(const Value : string);
 			procedure SetDebugTraceRegexFilter(const Value : string);
@@ -72,8 +72,7 @@ type
 			destructor Destroy; override;
 			property ColorTheme : string read GetColorTheme write SetColorTheme;
 			property ComboHistoryCount : Integer read GetComboHistoryCount write SetComboHistoryCount;
-			property SearchHistoryCount: Integer read GetSearchHistoryCount write
-				SetSearchHistoryCount;
+			property SearchHistoryCount : Integer read GetSearchHistoryCount write SetSearchHistoryCount;
 			property CopyToClipBoardShell : TShellType read GetCopyToClipBoardShell write SetCopyToClipBoardShell;
 			property DebugTrace : string read GetDebugTrace write SetDebugTrace;
 			property DebugTraceRegexFilter : string read GetDebugTraceRegexFilter write SetDebugTraceRegexFilter;
@@ -125,7 +124,7 @@ begin
 	Result := FComboHistoryCount.Value;
 end;
 
-function TAppSettings.GetSearchHistoryCount(): Integer;
+function TAppSettings.GetSearchHistoryCount() : Integer;
 begin
 	Result := FSearchHistoryCount.Value;
 end;
@@ -182,7 +181,7 @@ begin
 	CreateSetting(KEY_COPYTOCLIPBOARDSHELL, FCopyToClipBoardShell);
 	CreateSetting(KEY_CMBHISTORYCOUNT, FComboHistoryCount);
 	CreateSetting(KEY_LOADLASTHISTORIESONSTARTUP, FLoadLastSearchHistory);
-	CreateSetting(KEY_LOADLASTHISTORIESONSTARTUP_REUSEDONLY, FLoadLastSearchHistoryMode);
+	CreateSetting(KEY_LOADLASTHISTORIESONSTARTUP_WITHRESULTSONLY, FLoadLastSearchHistoryMode);
 	CreateSetting(KEY_DEBUGTRACE, FDebugTrace);
 	CreateSetting(KEY_DEBUGTRACEREGEXFILTER, FDebugTraceRegexFilter);
 	CreateSetting(KEY_ENCODING_ITEMS, FEncodingItems);
@@ -199,7 +198,7 @@ begin
 	FComboHistoryCount.Value := Value;
 end;
 
-procedure TAppSettings.SetSearchHistoryCount(const Value: Integer);
+procedure TAppSettings.SetSearchHistoryCount(const Value : Integer);
 begin
 	FSearchHistoryCount.Value := Value;
 end;
