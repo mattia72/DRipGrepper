@@ -24,6 +24,7 @@ Marked with a checkmark if ready; otherwise, it is planned.
 ## 🐞 Bugs:
 Marked with checkmark if fixed, else it is a known bug.
 - [x] about form should show release notes of current release 
+- [x] setting form is dark, if main form is light
 - [x] color setting form doesn't load the used colors
 - [x] none background doesn't refresh on changed theme
 - [ ] after theme change icons won't repainted 

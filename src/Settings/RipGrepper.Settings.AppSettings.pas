@@ -100,7 +100,9 @@ uses
 	Vcl.Menus,
 	System.RegularExpressions,
 	RipGrepper.CommandLine.Builder,
-	System.Variants;
+	System.Variants,
+	Vcl.Themes,
+	RipGrepper.Helper.UI.DarkMode;
 
 constructor TAppSettings.Create(const _Owner : TPersistableSettings);
 begin
@@ -166,7 +168,10 @@ end;
 
 procedure TAppSettings.Init;
 begin
-	FColorTheme := TStringSetting.Create('');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TAppSettings.Init');
+
+	FColorTheme := TStringSetting.Create(''); //TDarkModeHelper.GetActualThemeName);
 	FCopyToClipBoardShell := TIntegerSetting.Create(Integer(TShellType.stPowershell));
 	FComboHistoryCount := TIntegerSetting.Create(MAX_HISTORY_COUNT);
 	FSearchHistoryCount := TIntegerSetting.Create(MAX_HISTORY_COUNT);

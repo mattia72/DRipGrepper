@@ -37,7 +37,7 @@ type
 	TDarkModeHelper = class
 		const
 			DARK_THEME_NAME = 'Carbon'; // too dark 'Windows10 Dark';
-			LIGHT_THEME_NAME = 'Windows10';
+			LIGHT_THEME_NAME = 'Windows';
 			SYSTEM_THEME = 'System';
 			DARK_THEME_NAMES : array of string = [DARK_THEME_NAME, 'Dark' { in Delphi IDE!!! } ];
 			LIGHT_THEME_NAMES : array of string = [LIGHT_THEME_NAME, 'Light' { in Delphi IDE!!! } ];
@@ -131,7 +131,8 @@ class procedure TDarkModeHelper.ApplyTheme(const _style : string; _component : T
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.ApplyTheme');
-	if TStyleManager.TrySetStyle(_style) then begin
+	dbgMsg.Msg('Applying theme: ' + _style);
+	if (not _style.IsEmpty) and TStyleManager.TrySetStyle(_style) then begin
 		TStyleManager.FormBorderStyle := fbsCurrentStyle;
 	end;
 end;
@@ -408,7 +409,7 @@ procedure TThemeHandler.HandleThemes(const _theme : string);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TThemeHandler.HandleThemes');
-	dbgMsg.Msg(_theme);
+	dbgMsg.Msg('Theme: ' + _theme);
 	if _theme.IsEmpty then begin
 		TDarkModeHelper.SetAppropriateThemeMode(FForm);
 	end else begin
@@ -420,6 +421,9 @@ end;
 
 procedure TThemeHandler.Init(_themeName : string);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TThemeHandler.Init');
+	dbgMsg.MsgFmt('themeName: %s', [_themeName]);
 	FThemeName := _themeName;
 end;
 
