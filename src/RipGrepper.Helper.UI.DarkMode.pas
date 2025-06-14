@@ -43,8 +43,7 @@ type
 			LIGHT_THEME_NAMES : array of string = [LIGHT_THEME_NAME, 'Light' { in Delphi IDE!!! } ];
 
 		private
-			class procedure SetFixedColorInSVGImgLists(_ctrl : TWinControl; const _color :
-				TColor);
+			class procedure SetFixedColorInSVGImgLists(_ctrl : TWinControl; const _color : TColor);
 			// Sets either a Dark Mode or non Dark mode theme based in the "AsDarkMode" boolean
 			// For example:
 			// SetSpecificThemeMode(False, 'TheDarkModeThemeName', 'TheLightModeThemeName');
@@ -84,13 +83,13 @@ type
 	TThemeChangeEventSubscriber = class(TComponent)
 
 		private
-			FOnThemeChanged: Event<TNotifyEvent>; // Event record
-			function GetOnThemeChanged(): IInvokableEvent<TNotifyEvent>;
+			FOnThemeChanged : Event<TNotifyEvent>; // Event record
+			function GetOnThemeChanged() : IInvokableEvent<TNotifyEvent>;
 
 		public
 			constructor Create(AOwner : TComponent); override;
 			procedure HandleThemeChangedEvent(Sender : TObject);
-			property OnThemeChanged: IInvokableEvent<TNotifyEvent> read GetOnThemeChanged;
+			property OnThemeChanged : IInvokableEvent<TNotifyEvent> read GetOnThemeChanged;
 	end;
 
 	{$IFNDEF STANDALONE}
@@ -290,8 +289,7 @@ begin
 	end;
 end;
 
-class procedure TDarkModeHelper.SetFixedColorInSVGImgLists(_ctrl : TWinControl;
-	const _color : TColor);
+class procedure TDarkModeHelper.SetFixedColorInSVGImgLists(_ctrl : TWinControl; const _color : TColor);
 var
 	subImgList : TSVGIconImageList;
 begin
@@ -435,8 +433,7 @@ begin
 	FOnThemeChanged.Invoke(self);
 end;
 
-function TThemeChangeEventSubscriber.GetOnThemeChanged():
-	IInvokableEvent<TNotifyEvent>;
+function TThemeChangeEventSubscriber.GetOnThemeChanged() : IInvokableEvent<TNotifyEvent>;
 begin
 	Result := FOnThemeChanged;
 end;
