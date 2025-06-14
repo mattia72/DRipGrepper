@@ -206,12 +206,22 @@ function Add-ToAssetsDir {
     $assetLabel = $($item.FullName -replace "^(.*)(\\.+\\.+\\$BuildConfig.*$)", "`$2" )
     $formattedLabel = $assetLabel.PadRight($global:PadRightValue)
 
-    if ($item.Extension -eq '.map') {
-        Write-Host "$formattedLabel  $(" ".PadRight(10)) $($item.LastWriteTime) added to $($AssetDir -replace [regex]::Escape("$PSScriptRoot\"), '')." -ForegroundColor Green
+    # if ($item.Extension -eq '.map') {
+    #     Write-Host "$formattedLabel  $(" ".PadRight(10)) $($item.LastWriteTime) added to $($AssetDir -replace [regex]::Escape("$PSScriptRoot\"), '')." -ForegroundColor Green
+    # }
+    # else {
+    #     Write-Host "$formattedLabel  $($appVersion.PadRight(10)) $($item.LastWriteTime) added to $($AssetDir -replace [regex]::Escape("$PSScriptRoot\"), '')." -ForegroundColor Green
+    # }
+
+    $assetObj = [PSCustomObject]@{
+        File          = $formattedLabel
+        Version       = $appVersion
+        LastWriteTime = $($item.LastWriteTime.ToString("dd/MM/yyyy HH:mm:ss"))
+        Length        = $item.Length
+        Dir           = $($AssetDir -replace [regex]::Escape("$PSScriptRoot\"), '')
     }
-    else {
-        Write-Host "$formattedLabel  $($appVersion.PadRight(10)) $($item.LastWriteTime) added to $($AssetDir -replace [regex]::Escape("$PSScriptRoot\"), '')." -ForegroundColor Green
-    }
+
+    $assetObj
 }
 
 function New-StandaloneZips {
@@ -234,7 +244,7 @@ function New-StandaloneZips {
             Force            = $true
         }
         Compress-Archive @compress
-    }
+    } #| Format-Table -AutoSize -Property File, Version, LastWriteTime, Length, Dir
 }
 function New-ExtensionZip {
     # find bds.exe in running processes
@@ -280,8 +290,9 @@ function New-ExpertDllZip {
 
         $dllName = "$global:DllNameWithoutExt.$($_.Data.Dir -replace "Delphi", "D").dll"
         $mapName = "$global:DllNameWithoutExt.$($_.Data.Dir -replace "Delphi", "D").map"
-        Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $dllName) -Win64:$false
-        Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $mapName) -Win64:$false
+        $returnArr = @()
+        $returnArr += Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $dllName) -Win64:$false
+        $returnArr += Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $mapName) -Win64:$false
 
         $dest = "$global:AssetsDirectory\$($global:AssetExpertZipName -f $($win64 ? 'x64' : 'x86'), $_.Data.Dir ,$global:Version)"
 
@@ -294,7 +305,9 @@ function New-ExpertDllZip {
             Force            = $true
         }
         Compress-Archive @compress
-    }
+    } #| Format-Table -AutoSize -Property File, Version, LastWriteTime, Length, Dir
+
+    $returnArr
 }
 
 function List-Assets {
@@ -302,6 +315,7 @@ function List-Assets {
         $Path
     )
     Write-Host "Assets: $Path" -ForegroundColor Blue
+    $returnArr = @()
     Get-Childitem $Path | ForEach-Object { 
         if ($_.PSIsContainer) { 
             # Write-Host "$($_.Name)`t$($_.CreationTime)" -ForegroundColor Blue
@@ -309,7 +323,14 @@ function List-Assets {
         else {
             if ($_.Extension -eq '.zip') {
                 $color = 'Red'
-                Write-Host "$($_.Name.PadRight($global:PadRightValue))`t$($_.CreationTime)`t$($_.Length)" -ForegroundColor $color
+                # Write-Host "$($_.Name.PadRight($global:PadRightValue))`t$($_.CreationTime)`t$($_.Length)" -ForegroundColor $color
+                $returnArr += [PSCustomObject]@{
+                    File          = $($_.Name.PadRight($global:PadRightValue))
+                    # Version        = $($_.VersionInfo.FileVersion)
+                    LastWriteTime = $($_.LastWriteTime.ToString("dd/MM/yyyy HH:mm:ss"))
+                    Length        = $_.Length
+                    # Dir            = $Path -replace [regex]::Escape("$PSScriptRoot\")
+                }
             }
             else {
                 $color = 'Green'
@@ -318,8 +339,9 @@ function List-Assets {
             }
         }
     }
-
+    $returnArr
 }
+
 function New-ReleaseWithAsset {
 
     if ($RunUnittest) {
@@ -341,19 +363,22 @@ function New-ReleaseWithAsset {
             $Force = $true
         }
         Remove-Item -Path "$global:AssetsDirectory\*" -Recurse -Force -Confirm:$(-not $Force) -ErrorAction SilentlyContinue
-        New-StandaloneZips 
+        $assetArr = New-StandaloneZips 
         # New-ExtensionZip 
-        New-ExpertDllZip 
-        List-Assets -Path $global:AssetsDirectory
+        $assetArr += New-ExpertDllZip 
+        $assetArr | Format-Table -AutoSize -Property File, Version, LastWriteTime, Length, Dir
+        $zipArr = List-Assets -Path $global:AssetsDirectory
+        $zipArr | Format-Table -AutoSize -Property File, LastWriteTime, Length
     }
 
     if ($DeployToTransferDrive) {
         Write-Host "Copying files to $global:TransferDrive" -ForegroundColor Green
         Copy-Item -Path $global:AssetsDirectory\* -Destination $global:TransferDrive -Force -Recurse 
-        List-Assets -Path $global:TransferDrive
+        $zipArr = List-Assets -Path $global:TransferDrive
         Copy-Item -Path $global:AssetsDirectory\Win64\* -Destination $global:TransferDrive\Latest -Force
         Copy-Item -Path $global:AssetsDirectory\Delphi11.Dll\* -Destination $global:TransferDrive\Latest -Force
-        List-Assets -Path $global:TransferDrive\Latest
+        $zipArr += List-Assets -Path $global:TransferDrive\Latest
+        $zipArr | Format-Table -AutoSize -Property File, LastWriteTime, Length
     }
     if ($DeployToGitHub) {
         New-Release
