@@ -217,13 +217,24 @@ function Add-ToAssetsDir {
         File          = $formattedLabel
         Version       = $appVersion
         LastWriteTime = $($item.LastWriteTime.ToString("dd/MM/yyyy HH:mm:ss"))
-        Length        = $item.Length
+        Length       = Format-FileSize -Length $item.Length
         Dir           = $($AssetDir -replace [regex]::Escape("$PSScriptRoot\"), '')
     }
 
     $assetObj
 }
 
+function Format-FileSize  {
+    param (
+        $Length
+    )
+            if ($Length -gt 1MB) {
+                "{0:N2} MB" -f ($Length / 1MB)
+            }
+            else {
+                "{0:N2} KB" -f ($Length / 1KB)
+            }
+}
 function New-StandaloneZips {
     $projectPath = Split-Path -Parent $PSScriptRoot 
 
@@ -328,7 +339,8 @@ function List-Assets {
                     File          = $($_.Name.PadRight($global:PadRightValue))
                     # Version        = $($_.VersionInfo.FileVersion)
                     LastWriteTime = $($_.LastWriteTime.ToString("dd/MM/yyyy HH:mm:ss"))
-                    Length        = $_.Length
+                    # format length in KB or MB
+                    Length       = Format-FileSize -Length $_.Length
                     # Dir            = $Path -replace [regex]::Escape("$PSScriptRoot\")
                 }
             }
