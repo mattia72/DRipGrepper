@@ -148,27 +148,30 @@ var
 	ifSearchParam : ISearchParams;
 	oParsed : IParsedObjectRow;
 begin
-	if FIsLast then begin
-		OnLastLine(FLineNr);
-		TDebugUtils.DebugMessage(Format('TParallelParser.ParseLine - Before parse last line: %d in %d err: %d',
-			[FHistObject.TotalMatchCount, FHistObject.FileCount, FHistObject.GetErrorCounters().FSumOfErrors]));
-	end;
-
-	if (not FLine.IsEmpty) then begin
-		ifParser := TRipGrepperParsersFactory.GetParser(FHistObject.ParserType);
-		ifSearchParam := TSearchParams.Create(FHistObject.GetSearchTextWithOptions);
-		ifParser.SearchParams := ifSearchParam;
-		ifParser.ParseLine(FLineNr, FLine, FIsLast);
-		oParsed := TParsedObjectRow.Create(ifParser.ParseResult, FHistObject.ParserType);
-		try
-			FData.Add(oParsed);
-		finally
-			ifParser := nil;
-			oParsed := nil;
+	try
+		if FIsLast then begin
+			OnLastLine(FLineNr);
+			TDebugUtils.DebugMessage(Format('TParallelParser.ParseLine - Before parse last line: %d in %d err: %d',
+				[FHistObject.TotalMatchCount, FHistObject.FileCount, FHistObject.GetErrorCounters().FSumOfErrors]));
 		end;
+
+		if (not FLine.IsEmpty) then begin
+			ifParser := TRipGrepperParsersFactory.GetParser(FHistObject.ParserType);
+			ifSearchParam := TSearchParams.Create(FHistObject.GetSearchTextWithOptions);
+			ifParser.SearchParams := ifSearchParam;
+			ifParser.ParseLine(FLineNr, FLine, FIsLast);
+			oParsed := TParsedObjectRow.Create(ifParser.ParseResult, FHistObject.ParserType);
+			try
+				FData.Add(oParsed);
+			finally
+				ifParser := nil;
+				oParsed := nil;
+			end;
+		end;
+		CallOnProgress(FLineNr, FIsLast);
+	finally
+		FIsParsingDone := True;
 	end;
-	CallOnProgress(FLineNr, FIsLast);
-	FIsParsingDone := True;
 end;
 
 procedure TParallelParser.SetNewLine(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean);
