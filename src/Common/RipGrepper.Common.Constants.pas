@@ -267,7 +267,6 @@ const
 	TREEVIEW_HISTORY_LOADED_PREFIX = ' ↻'; // 🔄; ↻
 	TREEVIEW_HISTORY_COUNTER_NOTHING_FOUND_PREFIX = '⛒';
 
-	DEFAULT_KEY_ = '_DEFAULT';
 	DEFAULTS_INI_SECTION = 'RipGrepperSettingsDefaults';
 	ROOT_DUMMY_INI_SECTION = 'Root Dummy Section';
 

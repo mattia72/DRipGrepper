@@ -8,13 +8,6 @@ uses
 	ArrayEx,
 	Spring;
 
-const
-	EXT_SEARCH_NOT_SET = -1;
-	EXT_SEARCH_ACTIVE_FILE = 0;
-	EXT_SEARCH_OPEN_FILES = 1;
-	EXT_SEARCH_PROJECT_FILES = 2;
-	EXT_SEARCH_GIVEN_PATH = 3;
-
 type
 	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepStats, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
 	// TODO : use this instead of IsError IsStats
@@ -34,12 +27,12 @@ type
 
 	TSearchOptionSet = set of EGuiOption;
 
-	ERipGrepperExtensionContext = (
-		{ } rgecNotSet = -1,
-		{ } rgecActiveFile = EXT_SEARCH_ACTIVE_FILE,
-		{ } rgecOpeneFiles = EXT_SEARCH_OPEN_FILES,
-		{ } rgecProjectFiles = EXT_SEARCH_PROJECT_FILES,
-		{ } rgecPath = EXT_SEARCH_GIVEN_PATH
+	EDelphiIDEContext = (
+		{ } dicNotSet = -1,
+		{ } dicActiveFile = 0,
+		{ } dicOpeneFiles = 1,
+		{ } dicProjectFiles = 2,
+		{ } dicPath = 3
 		{ } );
 
 	TShellType = (stNone = -1, stPowershell = 0, stCmd = 1);
@@ -61,7 +54,7 @@ type
 		IsReplaceMode : Boolean;
 		ReplaceText : string;
 		ReplaceTextHist : TArrayEx<string>;
-		ExtensionContext : ERipGrepperExtensionContext;
+		ExtensionContext : EDelphiIDEContext;
 		SearchPath : string;
 		SearchPathHist : TArrayEx<string>;
 		FileMasks : string;
