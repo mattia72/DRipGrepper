@@ -27,7 +27,7 @@ type
 
 	TSearchOptionSet = set of EGuiOption;
 
-	EDelphiIDEContext = (
+	EDelphiIDESearchContext = (
 		{ } dicNotSet = -1,
 		{ } dicActiveFile = 0,
 		{ } dicOpeneFiles = 1,
@@ -54,7 +54,7 @@ type
 		IsReplaceMode : Boolean;
 		ReplaceText : string;
 		ReplaceTextHist : TArrayEx<string>;
-		ExtensionContext : EDelphiIDEContext;
+		ExtensionContext : EDelphiIDESearchContext;
 		SearchPath : string;
 		SearchPathHist : TArrayEx<string>;
 		FileMasks : string;

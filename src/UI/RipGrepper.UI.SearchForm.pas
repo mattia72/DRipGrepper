@@ -1001,9 +1001,9 @@ begin
 
 	_ctrlProxy.EncodingItems := FSettings.AppSettings.EncodingItems;
 	var
-	iIDEContext := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext.IDEContext;
-	_ctrlProxy.ExtensionContext := ERipGrepperExtensionContext(iIDECOntext);
-	dbgMsg.MsgFmt('IDEContext = %d', [Integer(_ctrlProxy.ExtensionContext)]);
+	iIDEContext := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext.IDESearchContext;
+	_ctrlProxy.ExtensionContext := EDelphiIDESearchContext(iIDECOntext);
+	dbgMsg.MsgFmt('IDESearchContext = %d', [Integer(_ctrlProxy.ExtensionContext)]);
 
 	if HasHistItemObjWithResult or FHistItemObj.IsLoadedFromStream then begin
 		_ctrlProxy.SearchText := FHistItemObj.GuiSearchTextParams.SearchTextWithOptions.SearchTextOfUser;
@@ -1051,8 +1051,8 @@ begin
 	FSettings.ExpertOptionHistory.Value := GetMaxCountHistoryItems(_ctrlProxy.AdditionalExpertOptionsHist);
 	var
 	rgec := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
-	rgec.IDEContext := integer(_ctrlProxy.ExtensionContext);
-	dbgMsg.MsgFmt('IDEContext = %d', [rgec.IDEContext]);
+	rgec.IDESearchContext := _ctrlProxy.ExtensionContext;
+	dbgMsg.MsgFmt('IDESearchContext = %d', [Integer(rgec.IDESearchContext)]);
 
 	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext := rgec;
 
@@ -1173,8 +1173,8 @@ begin
 	// {$IFNDEF STANDALONE}
 	var
 	cic := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
-	dbgMsg.Msg('IDEContext=' + cic.ToLogString);
-	UpdateRbExtensionItemIndex(Integer(cic.IDEContext));
+	dbgMsg.Msg('IDESearchContext=' + cic.ToLogString);
+	UpdateRbExtensionItemIndex(Integer(cic.IDESearchContext));
 	dbgMsg.Msg('cmbSearchDir=' + cmbSearchDir.Text);
 	// {$ENDIF}
 	cmbFileMasks.Text := IfThen(FSettings.RipGrepParameters.FileMasks.IsEmpty, cmbFileMasks.Text, FSettings.RipGrepParameters.FileMasks);
@@ -1191,7 +1191,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.LoadExtensionSearchSettings;
 var
-	rgec : TRipGrepperExtensionContext;
+	dic : TDelphiIDEContext;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadExtensionSearchSettings');
@@ -1199,37 +1199,27 @@ begin
 		{ } BoolToStr(FSettings.SearchFormSettings.ExtensionSettings.IsAlreadyRead)]);
 	var
 	selectedText := GetInIDESelectedText;
-	rgec := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
 	if not HasHistItemObjWithResult then begin
 		if not selectedText.IsEmpty then begin
 			cmbSearchText.Text := selectedText;
 			dbgMsg.Msg('SelectedText=' + selectedText);
 		end;
 	end;
-	{$IF IS_EXTENSION}
-	rgec.ActiveFile := IOTAUTils.GxOtaGetCurrentSourceFile();
-	rgec.ProjectFiles := IOTAUTils.GetProjectFiles();
-	rgec.OpenFiles := IOTAUTils.GetOpenedEditBuffers();
-	var
-	ap := IOTAUTils.GxOtaGetCurrentProject;
-	if Assigned(ap) then begin
-		rgec.ActiveProject := ap.FileName;
-	end;
-	{$ELSE}
+
+	dic := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
 	{$IF IS_GUITEST}
-	rgec.ActiveFile := 'guitest\active file';
-	rgec.ProjectFiles := ['guitest\project\files'];
-	rgec.OpenFiles := ['guitest\open\files'];
-	rgec.ActiveProject := 'guitest active project';
+	dic.ActiveFile := 'guitest\active file';
+	dic.ProjectFiles := ['guitest\project\files'];
+	dic.OpenFiles := ['guitest\open\files'];
+	dic.ActiveProject := 'guitest active project';
 	{$ENDIF}
-	{$ENDIF}
-	dbgMsg.Msg('ActiveFile=' + rgec.ActiveFile);
-	dbgMsg.MsgFmt('ProjectFiles.Count=', [Length(rgec.ProjectFiles)]);
-	dbgMsg.MsgFmt('OpenFiles.Count=', [Length(rgec.OpenFiles)]);
-	dbgMsg.Msg('ActiveProject=' + rgec.ActiveProject);
-	dbgMsg.Msg('CurrentIDEContext:' + rgec.ToLogString);
-	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext := rgec;
-	UpdateRbExtensionItemIndex(Integer(rgec.IDEContext));
+	dbgMsg.Msg('ActiveFile=' + dic.ActiveFile);
+	dbgMsg.MsgFmt('ProjectFiles.Count=', [Length(dic.ProjectFiles)]);
+	dbgMsg.MsgFmt('OpenFiles.Count=', [Length(dic.OpenFiles)]);
+	dbgMsg.Msg('ActiveProject=' + dic.ActiveProject);
+	dbgMsg.Msg('CurrentIDEContext:' + dic.ToLogString);
+	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext := dic;
+	UpdateRbExtensionItemIndex(Integer(dic.IDESearchContext));
 end;
 
 procedure TRipGrepperSearchDialogForm.LoadInitialSettings;
@@ -1358,31 +1348,30 @@ end;
 
 procedure TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange;
 var
-	rgec : TRipGrepperExtensionContext;
+	dic : TDelphiIDEContext;
 begin
-
 	var
 	bSkipp := {$IF IS_GUITEST OR IS_EXTENSION} False; {$ELSE} True; {$ENDIF}
 	if not bSkipp then begin
 		var
 		dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange');
 
-		rgec := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
-		dbgMsg.Msg(rgec.ToLogString);
+		dic := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
+		dbgMsg.Msg(dic.ToLogString);
 
 		cmbSearchDir.Enabled := False;
-		FCtrlProxy.ExtensionContext := ERipGrepperExtensionContext(rbExtensionOptions.ItemIndex);
+		FCtrlProxy.ExtensionContext := EDelphiIDESearchContext(rbExtensionOptions.ItemIndex);
 		case FCtrlProxy.ExtensionContext of
-			ERipGrepperExtensionContext.rgecActiveFile : begin
-				SetCmbSearchPathText(rgec.ActiveFile);
+			EDelphiIDESearchContext.dicActiveFile : begin
+				SetCmbSearchPathText(dic.ActiveFile);
 			end;
-			ERipGrepperExtensionContext.rgecProjectFiles : begin
-				SetCmbSearchPathText(string.Join(SEARCH_PATH_SEPARATOR, rgec.ProjectFiles).Trim([SEARCH_PATH_SEPARATOR]));
+			EDelphiIDESearchContext.dicProjectFiles : begin
+				SetCmbSearchPathText(string.Join(SEARCH_PATH_SEPARATOR, dic.ProjectFiles).Trim([SEARCH_PATH_SEPARATOR]));
 			end;
-			ERipGrepperExtensionContext.rgecOpeneFiles : begin
-				SetCmbSearchPathText(string.Join(SEARCH_PATH_SEPARATOR, rgec.OpenFiles).Trim([SEARCH_PATH_SEPARATOR]));
+			EDelphiIDESearchContext.dicOpeneFiles : begin
+				SetCmbSearchPathText(string.Join(SEARCH_PATH_SEPARATOR, dic.OpenFiles).Trim([SEARCH_PATH_SEPARATOR]));
 			end;
-			ERipGrepperExtensionContext.rgecPath : begin
+			EDelphiIDESearchContext.dicPath : begin
 				cmbSearchDir.Enabled := True;
 				dbgMsg.MsgFmt('SearchPath=%s', [FCtrlProxy.SearchPath]);
 				SetComboItemsAndText(cmbSearchDir, FCtrlProxy.SearchPath, FSettings.SearchPathsHistory.Value);
@@ -1392,9 +1381,9 @@ begin
 			end;
 		end;
 		FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
-		rgec.IDEContext := rbExtensionOptions.ItemIndex;
-		FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext := rgec;
-		dbgMsg.Msg(rgec.ToLogString);
+		dic.IDESearchContext := EDelphiIDESearchContext(rbExtensionOptions.ItemIndex);
+		FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext := dic;
+		dbgMsg.Msg(dic.ToLogString);
 	end;
 end;
 
@@ -1419,7 +1408,7 @@ begin
 	pnlMiddle.Top := pnlTop.Height;
 	var
 	bStandalone := {$IF IS_GUITEST OR IS_STANDALONE} True; {$ELSE} False; {$ENDIF}
- 	if bStandalone then begin
+	if bStandalone then begin
 		rbExtensionOptions.Enabled := False;
 		rbExtensionOptions.Visible := False;
 		var

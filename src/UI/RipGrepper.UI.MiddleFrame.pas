@@ -158,6 +158,7 @@ type
 			function GetIsGuiReplaceMode : Boolean;
 			function GetIsRgReplaceMode : Boolean;
 			function AddParallelParser(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean) : TParallelParser;
+			function GetActiveProject() : string;
 			function GetIsInitialized() : Boolean;
 			function GetOpenWithRelativeBaseDirPath(const Data : PVSFileNodeData) : string;
 			function GetResultSelectedFilePath : string;
@@ -655,7 +656,9 @@ begin
 				Exit;
 			end;
 		end else begin
-			actPath := TPath.GetDirectoryName(Settings.SearchFormSettings.ExtensionSettings.CurrentIDEContext.ActiveProject);
+			var
+			activeProject := GetActiveProject();
+			Result := TPath.GetDirectoryName(activeProject);
 		end;
 		Result := ExtractRelativePath(actPath + '\', _sFullPath);
 	end;
@@ -1442,10 +1445,8 @@ begin
 					dummy1, dummy2 : Integer;
 				CellText := NodeData.GetLineText(Settings.NodeLookSettings.IndentLines, dummy1, dummy2);
 			end;
-
 		end;
 	end;
-
 end;
 
 procedure TRipGrepperMiddleFrame.VstResultHeaderClick(Sender : TVTHeader; HitInfo : TVTHeaderHitInfo);
@@ -1516,6 +1517,15 @@ begin
 	// dbgMsg.MsgFmt('FParsingThreads.Count %d.', [FParsingThreads.Count])
 end;
 
+function TRipGrepperMiddleFrame.GetActiveProject() : string;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.GetActiveProject');
+	var
+	extSettings := Settings.SearchFormSettings.ExtensionSettings;
+	Result := extSettings.CurrentIDEContext.ActiveProject;
+end;
+
 function TRipGrepperMiddleFrame.GetIsInitialized() : Boolean;
 begin
 	Result := FIsInitialized;
@@ -1525,11 +1535,13 @@ function TRipGrepperMiddleFrame.GetOpenWithRelativeBaseDirPath(const Data : PVSF
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.GetOpenWithRelativeBaseDirPath');
-
+	Result := '';
 	{$IFDEF STANDALONE}
 	Result := IfThen(Settings.SearchPathIsDir, Settings.ActualSearchPath, ExtractFileDir(Data.FilePath));
 	{$ELSE}
-	Result := TPath.GetDirectoryName(Settings.SearchFormSettings.ExtensionSettings.CurrentIDEContext.ActiveProject);
+	var
+	activeProject := GetActiveProject();
+	Result := TPath.GetDirectoryName(activeProject);
 	{$ENDIF}
 	dbgMsg.MsgFmt('OpenWith <DIR>=%s', [Result]);
 end;

@@ -274,7 +274,7 @@ begin
 	end;
 
 	FFactory.GetStringPersister(extSetting.INI_SECTION, extSetting.KEY_IDE_CONTEXT).TryLoadValue(iniVal);
-	settingVal := IntToStr(Integer(FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext.IDEContext));
+	settingVal := IntToStr(Integer(FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext.IDESearchContext));
 	Assert.AreEqual(settingVal.Trim(['[', ']']), iniVal.Trim(['[', ']']), extSetting.KEY_IDE_CONTEXT + ' should be equal');
 
 	FFactory.GetStringPersister(extSetting.INI_SECTION, extSetting.KEY_SHORTCUT_SEARCH_SELECTED).TryLoadValue(iniVal);
@@ -494,7 +494,7 @@ begin
 	FSettings.SearchFormSettings.ExtensionSettings.OpenWithShortcut := SC_OPEN_WITH;
 	FSettings.SearchFormSettings.ExtensionSettings.SearchSelectedShortcut := SC_SEARCH;
 	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext :=
-	{ } TRipGrepperExtensionContext.FromString('2', 'active project', 'active file');
+	{ } TDelphiIDEContext.FromString('2', 'active project', 'active file');
 
     FSettings.StoreToPersister;
 
