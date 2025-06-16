@@ -32,10 +32,10 @@ type
 	end;
 
 	ISettings = interface(IInterface)
-	['{372EC376-745A-459B-B946-A90EFA0A3FDE}']
+		['{372EC376-745A-459B-B946-A90EFA0A3FDE}']
 	end;
 
-	TPersistableSettings = class({TInterfacedObject}TNoRefCountObject, ISettings, IIniPersistable, IStreamReaderWriterPersistable)
+	TPersistableSettings = class( { TInterfacedObject } TNoRefCountObject, ISettings, IIniPersistable, IStreamReaderWriterPersistable)
 		private
 			class var FLockObject : IShared<TObject>;
 
@@ -251,11 +251,12 @@ begin
 		sdSelf := SettingsDict[_section];
 
 		if not sdSelf.TryGetValue(key, settingSelf) then begin
-			dbgMsg.MsgFmt('There is no [%s] %s in destination', [_section, key]);
+			dbgMsg.MsgFmt('Copy non existing: [%s]%s=%s', [_section, key, settingOther.AsString], ETraceFilterType.tftVerbose);
 			sdSelf[key] := settingOther;
 			continue;
 		end else begin
 			if (_bForceCopySettingObj) then begin
+				dbgMsg.MsgFmt('Force copy: [%s] %s=%s', [_section, key, settingOther.AsString], ETraceFilterType.tftVerbose);
 				sdSelf[key] := settingOther;
 				continue;
 			end;
@@ -549,7 +550,8 @@ end;
 initialization
 
 finalization
+
 // MemLeak in unittests: TSingleton and class var FLockObject not working properly
-//TPersistableSettings.FLockObject := nil;
+// TPersistableSettings.FLockObject := nil;
 
 end.
