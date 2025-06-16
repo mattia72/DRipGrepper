@@ -30,7 +30,7 @@ type
 			KEY_CMBHISTORYCOUNT = 'ComboHistoryCount';
 			KEY_SEARCH_HISTORYCOUNT = 'SearchHistoryCount';
 			KEY_LOADLASTHISTORIESONSTARTUP = 'LoadLastSearchesOnStartup';
-			KEY_LOADLASTHISTORIESONSTARTUP_REUSEDONLY = 'LoadLastSearchesOnStartup_ReusedOnly';
+			KEY_LOADLASTHISTORIESONSTARTUP_WITHRESULTSONLY = 'LoadLastSearchesOnStartup_WithResultsOnly';
 
 		private
 			FColorTheme : IStringSetting;
@@ -101,6 +101,7 @@ uses
 	System.RegularExpressions,
 	RipGrepper.CommandLine.Builder,
 	System.Variants,
+	Vcl.Themes,
 	RipGrepper.Helper.UI.DarkMode;
 
 constructor TAppSettings.Create(const _Owner : TPersistableSettings);
@@ -167,7 +168,10 @@ end;
 
 procedure TAppSettings.Init;
 begin
-	FColorTheme := TStringSetting.Create(TDarkModeHelper.GetActualThemeName);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TAppSettings.Init');
+
+	FColorTheme := TStringSetting.Create(''); //TDarkModeHelper.GetActualThemeName);
 	FCopyToClipBoardShell := TIntegerSetting.Create(Integer(TShellType.stPowershell));
 	FComboHistoryCount := TIntegerSetting.Create(MAX_HISTORY_COUNT);
 	FSearchHistoryCount := TIntegerSetting.Create(MAX_HISTORY_COUNT);
@@ -182,7 +186,7 @@ begin
 	CreateSetting(KEY_COPYTOCLIPBOARDSHELL, FCopyToClipBoardShell);
 	CreateSetting(KEY_CMBHISTORYCOUNT, FComboHistoryCount);
 	CreateSetting(KEY_LOADLASTHISTORIESONSTARTUP, FLoadLastSearchHistory);
-	CreateSetting(KEY_LOADLASTHISTORIESONSTARTUP_REUSEDONLY, FLoadLastSearchHistoryMode);
+	CreateSetting(KEY_LOADLASTHISTORIESONSTARTUP_WITHRESULTSONLY, FLoadLastSearchHistoryMode);
 	CreateSetting(KEY_DEBUGTRACE, FDebugTrace);
 	CreateSetting(KEY_DEBUGTRACEREGEXFILTER, FDebugTraceRegexFilter);
 	CreateSetting(KEY_ENCODING_ITEMS, FEncodingItems);

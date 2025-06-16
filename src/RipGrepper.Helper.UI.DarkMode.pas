@@ -37,14 +37,13 @@ type
 	TDarkModeHelper = class
 		const
 			DARK_THEME_NAME = 'Carbon'; // too dark 'Windows10 Dark';
-			LIGHT_THEME_NAME = 'Windows10';
+			LIGHT_THEME_NAME = 'Windows';
 			SYSTEM_THEME = 'System';
 			DARK_THEME_NAMES : array of string = [DARK_THEME_NAME, 'Dark' { in Delphi IDE!!! } ];
 			LIGHT_THEME_NAMES : array of string = [LIGHT_THEME_NAME, 'Light' { in Delphi IDE!!! } ];
 
 		private
-			class procedure SetFixedColorInSVGImgLists(_ctrl : TWinControl; const _color :
-				TColor);
+			class procedure SetFixedColorInSVGImgLists(_ctrl : TWinControl; const _color : TColor);
 			// Sets either a Dark Mode or non Dark mode theme based in the "AsDarkMode" boolean
 			// For example:
 			// SetSpecificThemeMode(False, 'TheDarkModeThemeName', 'TheLightModeThemeName');
@@ -84,13 +83,13 @@ type
 	TThemeChangeEventSubscriber = class(TComponent)
 
 		private
-			FOnThemeChanged: Event<TNotifyEvent>; // Event record
-			function GetOnThemeChanged(): IInvokableEvent<TNotifyEvent>;
+			FOnThemeChanged : Event<TNotifyEvent>; // Event record
+			function GetOnThemeChanged() : IInvokableEvent<TNotifyEvent>;
 
 		public
 			constructor Create(AOwner : TComponent); override;
 			procedure HandleThemeChangedEvent(Sender : TObject);
-			property OnThemeChanged: IInvokableEvent<TNotifyEvent> read GetOnThemeChanged;
+			property OnThemeChanged : IInvokableEvent<TNotifyEvent> read GetOnThemeChanged;
 	end;
 
 	{$IFNDEF STANDALONE}
@@ -132,7 +131,8 @@ class procedure TDarkModeHelper.ApplyTheme(const _style : string; _component : T
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.ApplyTheme');
-	if TStyleManager.TrySetStyle(_style) then begin
+	dbgMsg.Msg('Applying theme: ' + _style);
+	if (not _style.IsEmpty) and TStyleManager.TrySetStyle(_style) then begin
 		TStyleManager.FormBorderStyle := fbsCurrentStyle;
 	end;
 end;
@@ -290,8 +290,7 @@ begin
 	end;
 end;
 
-class procedure TDarkModeHelper.SetFixedColorInSVGImgLists(_ctrl : TWinControl;
-	const _color : TColor);
+class procedure TDarkModeHelper.SetFixedColorInSVGImgLists(_ctrl : TWinControl; const _color : TColor);
 var
 	subImgList : TSVGIconImageList;
 begin
@@ -410,7 +409,7 @@ procedure TThemeHandler.HandleThemes(const _theme : string);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TThemeHandler.HandleThemes');
-	dbgMsg.Msg(_theme);
+	dbgMsg.Msg('Theme: ' + _theme);
 	if _theme.IsEmpty then begin
 		TDarkModeHelper.SetAppropriateThemeMode(FForm);
 	end else begin
@@ -422,6 +421,9 @@ end;
 
 procedure TThemeHandler.Init(_themeName : string);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TThemeHandler.Init');
+	dbgMsg.MsgFmt('themeName: %s', [_themeName]);
 	FThemeName := _themeName;
 end;
 
@@ -435,8 +437,7 @@ begin
 	FOnThemeChanged.Invoke(self);
 end;
 
-function TThemeChangeEventSubscriber.GetOnThemeChanged():
-	IInvokableEvent<TNotifyEvent>;
+function TThemeChangeEventSubscriber.GetOnThemeChanged() : IInvokableEvent<TNotifyEvent>;
 begin
 	Result := FOnThemeChanged;
 end;

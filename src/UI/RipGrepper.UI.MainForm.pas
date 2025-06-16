@@ -111,7 +111,9 @@ uses
 
 constructor TRipGrepperForm.Create(AOwner : TComponent);
 begin
-	TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner');
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.Create AOwner');
+
 	inherited Create(AOwner);
 	// component owner is self, so it will be destroyed as we close this form
 	FThemeChengedEventSubscriber := TThemeChangeEventSubscriber.Create(self);
@@ -119,12 +121,13 @@ begin
 
 	var
 	mainSettingInstance := TSingleton.GetInstance<TRipGrepperSettings>();
-	ThemeHandler.Init(mainSettingInstance.AppSettings.ColorTheme);
-
-	// FThemeHandler := TThemeHandler.Create(self, GSettings.AppSettings.ColorTheme);
+	var
+	colorTheme := mainSettingInstance.AppSettings.ColorTheme;
+	ThemeHandler.Init(colorTheme);
 	{$IFDEF STANDALONE}
-	// it works only in ctor :/ FThemeHandler.HandleThemes(GSettings.AppSettings.ColorTheme);
-	ThemeHandler.HandleThemes(mainSettingInstance.AppSettings.ColorTheme);
+	// it works only in ctor :/ 
+	dbgMsg.MsgFmt('ColorTheme: %s', [colorTheme]);
+	ThemeHandler.HandleThemes(colorTheme);
 	TDebugUtils.DebugMessage('TRipGrepperForm.Create AOwner STANDALONE');
 	Init;
 	{$ENDIF}
@@ -228,10 +231,18 @@ end;
 
 procedure TRipGrepperForm.WMSettingChange(var message : TWMSettingChange);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperForm.WMSettingChange');
+
 	if SameText('ImmersiveColorSet', string(message.Section)) then begin
+		dbgMsg.Msg('ImmersiveColorSet');
 		var
 		mainSettingInstance := TSingleton.GetInstance<TRipGrepperSettings>();
-		ThemeHandler.HandleThemes(mainSettingInstance.AppSettings.ColorTheme);
+		var
+		colorTheme := mainSettingInstance.AppSettings.ColorTheme;
+		dbgMsg.MsgFmt('ColorTheme:', [colorTheme]);
+
+		ThemeHandler.HandleThemes(colorTheme);
 
 	end;
 end;

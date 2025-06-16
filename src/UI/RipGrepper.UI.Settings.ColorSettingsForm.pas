@@ -75,14 +75,23 @@ uses
 
 constructor TColorSettingsForm.Create(_Owner : TComponent; _settings : TRipGrepperSettings);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TColorSettingsForm.Create');
+
 	inherited Create(_Owner, _settings);
 	Caption := FONTS_AND_COLORS_CAPTION;
 	FFontColorSettings := _settings.FontColorSettings;
 	FAppSettings := _settings.AppSettings;
 	ReadSettings;
-	if TStyleManager.TrySetStyle(FAppSettings.ColorTheme) then begin
-		TStyleManager.FormBorderStyle := fbsCurrentStyle;
-	end;
+
+    // setting theme is necessary here, if you don't want to get exception on close 
+	var
+	colorTheme := FAppSettings.ColorTheme;
+	dbgMsg.Msg('colorTheme = ' + colorTheme);
+	// if colorTheme.IsEmpty then begin
+	// 	colorTheme := TDarkModeHelper.GetThemeNameByMode(TDarkModeHelper.GetActualThemeMode);
+	// end;
+	TDarkModeHelper.ApplyTheme(colorTheme);
 
 	FAllHeight := TColorSelectorFrame.AddSelectionFrames(FFontColorSettings.FontColors, self, ScrollBox1);
 	FAllHeight := FAllHeight + pnlBottom.Height;
@@ -214,7 +223,12 @@ begin
 
 	var
 	tm := EThemeMode(rgTheme.ItemIndex);
-	FAppSettings.ColorTheme := IfThen(tm in [tmLight, tmDark], TDarkModeHelper.GetThemeNameByMode(tm));
+	var
+	theme := TDarkModeHelper.GetThemeNameByMode(tm);
+	dbgMsg.Msg('GetThemeNameByMode: ' + theme);
+
+	FAppSettings.ColorTheme := IfThen(tm in [tmLight, tmDark], theme);
+	dbgMsg.Msg('set FAppSettings.ColorTheme: ' + FAppSettings.ColorTheme);
 end;
 
 end.

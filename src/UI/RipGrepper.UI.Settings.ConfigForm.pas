@@ -120,10 +120,8 @@ begin
 	AddSettingTabs;
 	var
 	theme := Settings.AppSettings.ColorTheme;
-	dbgMsg.Msg('Applying theme: ' + theme);
-	if TStyleManager.TrySetStyle(theme) then begin
-		TStyleManager.FormBorderStyle := fbsCurrentStyle;
-	end;
+	dbgMsg.Msg('Applying theme from appsettings: ' + theme);
+	TDarkModeHelper.ApplyTheme(theme);
 end;
 
 destructor TConfigForm.Destroy;

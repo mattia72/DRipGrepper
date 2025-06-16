@@ -1018,9 +1018,6 @@ begin
 			MiddleLeftFrame1.ChangeDataHistItemObject(FHistItemObj);
 			Data.DataToGrid;
 			// ListViewResult.Items.Count := matchItems.Count + FHistItemObj.ErrorCount;
-			{$IFDEF THREADSAFE_LIST}
-			FHistItemObj.Matches.Unlock;
-			{$ENDIF}
 		end);
 end;
 

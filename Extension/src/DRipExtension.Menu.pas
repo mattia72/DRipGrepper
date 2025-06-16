@@ -87,21 +87,24 @@ begin
 	dbgMsg.Msg('LoadFromDict');
 	extSettings.LoadFromDict();
 
+	dbgMsg.MsgFmt('DripMenuItems.Add %s', [MENU_ITEM_SEARCH_WITH_DRIPGREPPER]);
 	DripMenuItems.Add(CreateSubMenuItem(DRIP_MENUITEM_DRIPGREPPER_NAME,
-		{ } 'Search with DripGrepper...',
+		{ } MENU_ITEM_SEARCH_WITH_DRIPGREPPER,
 		{ } 'dripgrepper_icon',
 		{ } extSettings.SearchSelectedShortcut,
 		{ } TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH,
 		{ } DoDripGrepperMenuClick));
 
+	dbgMsg.MsgFmt('DripMenuItems.Add %s', [MENU_ITEM_OPEN_WITH]);
 	DripMenuItems.Add(
 		{ } CreateSubMenuItem(DRIP_MENUITEM_DRIPGREPPER_NAME,
-		{ } 'Open With...',
+		{ } MENU_ITEM_OPEN_WITH,
 		{ } 'openwith_icon',
 		{ } extSettings.OpenWithShortcut,
 		{ } TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH,
 		{ } DoOpenWithMenuClick));
 
+	dbgMsg.MsgFmt('Vcl.Menus.NewSubMenu %s', [_sMenuText]);
 	G_DripMenu := Vcl.Menus.NewSubMenu(_sMenuText, 0, DRIP_MENUITEM_NAME, DripMenuItems.Items);
 
 	G_DripMenu.ImageIndex := AddToImageList('splash_icon');
@@ -124,7 +127,6 @@ begin
 			Item.Insert(1, G_DripMenu);
 		end;
 	end;
-
 end;
 
 class function TDripExtensionMenu.CreateSubMenuItem(const _MenuName, _Caption, _icoResource, _scText, _defScText : string;
@@ -144,7 +146,7 @@ begin
 	Result := Vcl.Menus.NewItem(_Caption, sc, False, True, _onClick, 0, _MenuName);
 	Result.ImageIndex := AddToImageList(_icoResource);
 	// Result.ImageIndex
-	dbgMsg.MsgFmt('NewItem ''%s 0x%x''', [_MenuName, sc]);
+	dbgMsg.MsgFmt('NewItem ''%s - %s 0x%x''', [_MenuName, _Caption, sc]);
 end;
 
 class procedure TDripExtensionMenu.DoDripGrepperMenuClick(Sender : TObject);
@@ -209,4 +211,5 @@ begin
 	TDebugUtils.DebugMessage('TDripExtensionMenu.ShowDripGrepperForm');
 	TRipGrepperDockableForm.ShowDockableFormAndSearch();
 end;
+
 end.

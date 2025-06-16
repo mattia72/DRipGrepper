@@ -27,6 +27,10 @@ Marked with a checkmark if ready; otherwise, it is planned.
 Marked with checkmark if fixed, else it is a known bug.
 - [x] **extension**: avoid error when starting delphi: "Can't load package... scope class TBindComponentScope not registered"
 - [ ] style '' not found when config form is opened
+- [x] about form should show release notes of current release 
+- [x] setting form is dark, if main form is light
+- [x] color setting form doesn't load the used colors
+- [x] none background doesn't refresh on changed theme
 - [ ] after theme change icons won't repainted 
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: drip icon in menu has no transparent background

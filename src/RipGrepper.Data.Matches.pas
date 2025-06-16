@@ -100,9 +100,6 @@ begin
 		AddChildNode(node, _item);
 	finally
 		FVst.EndUpdate;
-		{$IFDEF THREADSAFE_LIST}
-		HistObject.Matches.Unlock;
-		{$ENDIF}
 	end;
 end;
 
@@ -136,25 +133,17 @@ var
 begin
 	MatchFiles.Clear;
 	matchItems := HistObject.Matches.Items;
-	try
-		for var item in matchItems do begin
-			sFile := item.Columns[Integer(ciFile)].Text;
-			node := GetParentNodeByItemType(sFile, item);
-			AddChildNode(node, item);
-		end;
-	finally
-		{$IFDEF THREADSAFE_LIST}
-		HistObject.Matches.Unlock;
-		{$ENDIF}
+
+	for var item in matchItems do begin
+		sFile := item.Columns[Integer(ciFile)].Text;
+		node := GetParentNodeByItemType(sFile, item);
+		AddChildNode(node, item);
 	end;
 end;
 
 function TRipGrepperData.GetTotalMatchCount : Integer;
 begin
 	Result := HistObject.Matches.Items.Count; // TODO: filter context lines (they have no column nummber)
-	{$IFDEF THREADSAFE_LIST}
-	HistObject.Matches.Unlock;
-	{$ENDIF}
 end;
 
 function TRipGrepperData.GetFileCount : Integer;
@@ -355,13 +344,7 @@ begin
 		if Assigned(HistObject) then begin
 			var
 			matchItems := HistObject.Matches.Items;
-			try
-				matchItems.Sort(lineComparer);
-			finally
-				{$IFDEF THREADSAFE_LIST}
-				HistObject.Matches.Unlock;
-				{$ENDIF}
-			end;
+			matchItems.Sort(lineComparer);
 		end;
 	finally
 		lineComparer.Free;
