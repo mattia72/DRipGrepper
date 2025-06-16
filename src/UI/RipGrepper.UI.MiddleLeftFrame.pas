@@ -107,7 +107,7 @@ type
 			function GetIsInitialized() : Boolean;
 			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
 			function GetSettings : TRipGrepperSettings;
-			function IsIndexGTHistoryCount(const _idx : Integer) : Boolean;
+			function IsIndexIsInLastHistoryCount(const _idx : Integer): Boolean;
 			function NodeDataFromStream(const sr : TStreamReader) : TVSHistoryNodeData;
 			procedure ShowReplaceColumn(const _bShow : Boolean);
 			procedure UpdateReplaceColumnVisible;
@@ -842,7 +842,7 @@ begin
 				end
 			end;
 			llsmMaxCount : begin
-				if IsIndexGTHistoryCount(idx) then begin
+				if IsIndexIsInLastHistoryCount(idx) then begin
 					Inc(Result);
 					dbgMsg.MsgFmt('idx %d >= %d', [idx, Result]);
 				end
@@ -922,7 +922,7 @@ begin
 	Result := FIsInitialized;
 end;
 
-function TMiddleLeftFrame.IsIndexGTHistoryCount(const _idx : Integer) : Boolean;
+function TMiddleLeftFrame.IsIndexIsInLastHistoryCount(const _idx : Integer): Boolean;
 begin
 	Result := _idx >= (Integer(VstHistory.RootNodeCount) - Settings.AppSettings.SearchHistoryCount);
 end;
@@ -995,7 +995,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.VstHistorySaveTree');
 	sw := Shared.Make<TStreamWriter>(TStreamWriter.Create(Stream));
-	sw.WriteLine(CountSaveNodes);
+	sw.WriteLine(CountSaveNodes());
 
 	for var node : PVirtualNode in VstHistory.Nodes() do begin
 		if node.Parent <> VstHistory.RootNode then begin
@@ -1018,15 +1018,15 @@ begin
 					dbgMsg.MsgFmt('Save idx: %d - %s', [idx, hio.SearchText]);
 					hio.SaveToStreamWriter(sw);
 				end else begin
-					dbgMsg.MsgFmt('Has no result, skipp idx: %d - %s', [idx, hio.SearchText], ETraceFilterType.tftVerbose);
+					dbgMsg.MsgFmt('Has no result, skip idx: %d - %s', [idx, hio.SearchText], ETraceFilterType.tftVerbose);
 				end;
 			end;
 			llsmMaxCount : begin
-				if not IsIndexGTHistoryCount(idx) then begin
+				if IsIndexIsInLastHistoryCount(idx) then begin
 					dbgMsg.MsgFmt('Save idx: %d - %s', [idx, hio.SearchText]);
 					hio.SaveToStreamWriter(sw);
 				end else begin
-					dbgMsg.MsgFmt('Idx is greater then max, skipp idx: %d - %s', [idx, hio.SearchText], ETraceFilterType.tftVerbose);
+					dbgMsg.MsgFmt('Idx is not in last max count, skip idx: %d - %s', [idx, hio.SearchText], ETraceFilterType.tftVerbose);
 				end;
 			end;
 		end;

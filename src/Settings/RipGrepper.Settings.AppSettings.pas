@@ -185,6 +185,7 @@ begin
 	CreateSetting(KEY_COLORTHEME, FColorTheme);
 	CreateSetting(KEY_COPYTOCLIPBOARDSHELL, FCopyToClipBoardShell);
 	CreateSetting(KEY_CMBHISTORYCOUNT, FComboHistoryCount);
+	CreateSetting(KEY_SEARCH_HISTORYCOUNT, FSearchHistoryCount);
 	CreateSetting(KEY_LOADLASTHISTORIESONSTARTUP, FLoadLastSearchHistory);
 	CreateSetting(KEY_LOADLASTHISTORIESONSTARTUP_WITHRESULTSONLY, FLoadLastSearchHistoryMode);
 	CreateSetting(KEY_DEBUGTRACE, FDebugTrace);

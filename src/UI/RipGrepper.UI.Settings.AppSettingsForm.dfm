@@ -73,7 +73,7 @@ object AppSettingsForm: TAppSettingsForm
       Height = 181
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Advanced'
-      TabOrder = 1
+      TabOrder = 3
       DesignSize = (
         485
         181)
@@ -117,7 +117,7 @@ object AppSettingsForm: TAppSettingsForm
         RightButton.ImageIndex = 2
         RightButton.ImageName = 'rocket'
         RightButton.Visible = True
-        TabOrder = 1
+        TabOrder = 2
         Text = 'Ini file path...'
         TextHint = 'Ini file path...'
         OnLeftButtonClick = btnedtIniFilePathLeftButtonClick
@@ -131,14 +131,14 @@ object AppSettingsForm: TAppSettingsForm
         Hint = 'Debug trace can be viewed in a debug viewer eg. DebugView++.'
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Debug trace filters'
-        TabOrder = 2
+        TabOrder = 1
         object chEnd: TCheckBox
           Left = 385
           Top = 20
           Width = 75
           Height = 17
           Caption = 'End'
-          TabOrder = 0
+          TabOrder = 5
         end
         object chBegin: TCheckBox
           Left = 308
@@ -146,7 +146,7 @@ object AppSettingsForm: TAppSettingsForm
           Width = 75
           Height = 17
           Caption = 'Begin'
-          TabOrder = 1
+          TabOrder = 4
         end
         object chError: TCheckBox
           Left = 3
@@ -154,7 +154,7 @@ object AppSettingsForm: TAppSettingsForm
           Width = 75
           Height = 17
           Caption = 'Error'
-          TabOrder = 2
+          TabOrder = 0
         end
         object chWarning: TCheckBox
           Left = 79
@@ -162,7 +162,7 @@ object AppSettingsForm: TAppSettingsForm
           Width = 75
           Height = 17
           Caption = 'Warning'
-          TabOrder = 3
+          TabOrder = 1
         end
         object chInfo: TCheckBox
           Left = 155
@@ -170,7 +170,7 @@ object AppSettingsForm: TAppSettingsForm
           Width = 75
           Height = 17
           Caption = 'Info'
-          TabOrder = 4
+          TabOrder = 2
         end
         object chRegex: TCheckBox
           Left = 3
@@ -178,7 +178,7 @@ object AppSettingsForm: TAppSettingsForm
           Width = 75
           Height = 17
           Caption = 'Regex'
-          TabOrder = 5
+          TabOrder = 7
           OnClick = chRegexClick
         end
         object edtRegex: TEdit
@@ -195,7 +195,7 @@ object AppSettingsForm: TAppSettingsForm
           Width = 75
           Height = 17
           Caption = 'Verbose'
-          TabOrder = 7
+          TabOrder = 3
         end
       end
     end
@@ -219,7 +219,7 @@ object AppSettingsForm: TAppSettingsForm
         'line 4')
       ParentFont = False
       ScrollBars = ssVertical
-      TabOrder = 2
+      TabOrder = 1
     end
     object grpSettings: TGroupBox
       Left = 11
@@ -228,7 +228,7 @@ object AppSettingsForm: TAppSettingsForm
       Height = 181
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Settings'
-      TabOrder = 3
+      TabOrder = 2
       object Label2: TLabel
         Left = 19
         Top = 24
@@ -309,8 +309,8 @@ object AppSettingsForm: TAppSettingsForm
         Width = 99
         Height = 24
         Hint = 'Number of history length in search history panel.'
-        MaxValue = 100
-        MinValue = 10
+        MaxValue = 500
+        MinValue = 1
         TabOrder = 4
         Value = 10
       end
