@@ -928,7 +928,8 @@ begin
 end;
 
 function TMiddleLeftFrame.NodeDataFromStream(const sr : TStreamReader) : TVSHistoryNodeData;
-var hio : IHistoryItemObject;
+var
+	hio : IHistoryItemObject;
 begin
 	hio := THistoryItemObject.Create;
 	hio.LoadFromStreamReader(sr);
@@ -968,8 +969,10 @@ begin
 end;
 
 procedure TMiddleLeftFrame.VstHistoryLoadTree(Sender : TBaseVirtualTree; Stream : TStream);
-var sr : IShared<TStreamReader>;
-	count : integer; nodeData : TVSHistoryNodeData;
+var
+	sr : IShared<TStreamReader>;
+	count : integer;
+	nodeData : TVSHistoryNodeData;
 begin
 	sr := Shared.Make<TStreamReader>(TStreamReader.Create(Stream));
 	count := StrToIntDef(sr.ReadLine(), 0);
@@ -984,7 +987,9 @@ begin
 end;
 
 procedure TMiddleLeftFrame.VstHistorySaveTree(Sender : TBaseVirtualTree; Stream : TStream);
-var hio : IHistoryItemObject; idx : integer;
+var
+	hio : IHistoryItemObject;
+	idx : integer;
 	sw : IShared<TStreamWriter>;
 begin
 	var
@@ -1000,7 +1005,8 @@ begin
 
 		idx := GetHistoryItemNodeIndex(node);
 		hio := GetHistoryObject(idx);
-		var appSettings : TAppSettings;
+		var
+			appSettings : TAppSettings;
 		appSettings := Settings.AppSettings;
 		case appSettings.LoadLastSearchHistoryMode of
 			llsmAll : begin
@@ -1011,15 +1017,18 @@ begin
 				if hio.HasResult then begin
 					dbgMsg.MsgFmt('Save idx: %d - %s', [idx, hio.SearchText]);
 					hio.SaveToStreamWriter(sw);
-				end
+				end else begin
+					dbgMsg.MsgFmt('Has no result, skipp idx: %d - %s', [idx, hio.SearchText], ETraceFilterType.tftVerbose);
+				end;
 			end;
 			llsmMaxCount : begin
-				if IsIndexGTHistoryCount(idx) then begin
+				if not IsIndexGTHistoryCount(idx) then begin
 					dbgMsg.MsgFmt('Save idx: %d - %s', [idx, hio.SearchText]);
 					hio.SaveToStreamWriter(sw);
-				end
+				end else begin
+					dbgMsg.MsgFmt('Idx is greater then max, skipp idx: %d - %s', [idx, hio.SearchText], ETraceFilterType.tftVerbose);
+				end;
 			end;
-
 		end;
 	end;
 end;
