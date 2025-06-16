@@ -10,39 +10,42 @@ uses
 	RipGrepper.Settings.SettingVariant;
 
 const
-	IS_GUITEST =  FALSE; //{$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
+	IS_GUITEST = FALSE; // {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
 	IS_EXTENSION = {$IFNDEF STANDALONE} TRUE; {$ELSE} FALSE; {$ENDIF}
-	IS_STANDALONE = {$IFDEF STANDALONE} TRUE; {$ELSE} FALSE; {$ENDIF}
+IS_STANDALONE = {$IFDEF STANDALONE} TRUE; {$ELSE} FALSE; {$ENDIF}
+
 type
-	TRipGrepperExtensionContext = record
-		IDEContext : integer;
+	TDelphiIDEContext = record
+		IDESearchContext : EDelphiIDESearchContext;
 		ActiveFile : string;
 		OpenFiles : TArray<string>;
 		ProjectFiles : TArray<string>;
 		ActiveProject : string;
+		function IsEmpty() : Boolean;
 
 		public
 			function ToLogString : string;
-			class function FromString(const _context, _proj, _file : string) : TRipGrepperExtensionContext; static;
-			class operator Initialize(out Dest : TRipGrepperExtensionContext);
+			class function FromString(const _context, _proj, _file : string) : TDelphiIDEContext; static;
+			procedure LoadFromIOTA();
+			class operator Initialize(out Dest : TDelphiIDEContext);
 	end;
 
 	TRipGrepperExtensionSettings = class(TPersistableSettings)
 		const
 			INI_SECTION = 'DelphiExtensionSettings';
-			KEY_IDE_CONTEXT = 'IDEContext';
+			KEY_IDE_CONTEXT = 'IDESearchContext';
 			KEY_SHORTCUT_SEARCH_SELECTED = 'SearchSelectedShortcut';
 			KEY_SHORTCUT_OPENWITH = 'OpenWithShortcut';
 
 		private
 			FSearchSelectedShortcut : IStringSetting;
-			FCurrentIDEContext : TRipGrepperExtensionContext;
+			FCurrentIDEContext : TDelphiIDEContext;
 			FIDEContext : IIntegerSetting;
 			FOpenWithShortCut : IStringSetting;
-			function GetCurrentIDEContext() : TRipGrepperExtensionContext;
+			function GetCurrentIDEContext() : TDelphiIDEContext;
 			function GetOpenWithShortcut() : string;
 			function GetSearchSelectedShortcut() : string;
-			procedure SetCurrentIDEContext(const Value : TRipGrepperExtensionContext);
+			procedure SetCurrentIDEContext(const Value : TDelphiIDEContext);
 			procedure SetOpenWithShortcut(const Value : string);
 			procedure SetSearchSelectedShortcut(const Value : string);
 
@@ -53,7 +56,7 @@ type
 			function ToLogString : string; override;
 			property SearchSelectedShortcut : string read GetSearchSelectedShortcut write SetSearchSelectedShortcut;
 			property OpenWithShortcut : string read GetOpenWithShortcut write SetOpenWithShortcut;
-			property CurrentIDEContext : TRipGrepperExtensionContext read GetCurrentIDEContext write SetCurrentIDEContext;
+			property CurrentIDEContext : TDelphiIDEContext read GetCurrentIDEContext write SetCurrentIDEContext;
 	end;
 
 implementation
@@ -78,9 +81,18 @@ begin
 	TDebugUtils.DebugMessage('TRipGrepperExtensionSettings.Create: ' + '[' + IniSectionName + ']');
 end;
 
-function TRipGrepperExtensionSettings.GetCurrentIDEContext() : TRipGrepperExtensionContext;
+function TRipGrepperExtensionSettings.GetCurrentIDEContext() : TDelphiIDEContext;
 begin
-	FCurrentIDEContext.IDEContext := FIDEContext.Value;
+	{$IF IS_EXTENSION}
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.GetCurrentIDEContext');
+
+	if FCurrentIDEContext.IsEmpty then begin
+		dbgMsg.Msg('CurrentIDEContext is empty. Load from IOTA...');
+		FCurrentIDEContext.LoadFromIOTA();
+	end;
+	{$ENDIF}
+	FCurrentIDEContext.IDESearchContext := EDelphiIDESearchContext(FIDEContext.Value);
 	Result := FCurrentIDEContext;
 end;
 
@@ -103,17 +115,17 @@ begin
 	FOpenWithShortCut := TStringSetting.Create(TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH);
 
 	FIDEContext := TIntegerSetting.Create();
-	FCurrentIDEContext.IDEContext := EXT_SEARCH_GIVEN_PATH;
+	FCurrentIDEContext.IDESearchContext := EDelphiIDESearchContext.dicPath;
 
 	CreateSetting(KEY_SHORTCUT_SEARCH_SELECTED, FSearchSelectedShortcut);
 	CreateSetting(KEY_SHORTCUT_OPENWITH, FOpenWithShortCut);
 	CreateSetting(KEY_IDE_CONTEXT, FIDEContext);
 end;
 
-procedure TRipGrepperExtensionSettings.SetCurrentIDEContext(const Value : TRipGrepperExtensionContext);
+procedure TRipGrepperExtensionSettings.SetCurrentIDEContext(const Value : TDelphiIDEContext);
 begin
 	FCurrentIDEContext := Value;
-	FIDEContext.Value := FCurrentIDEContext.IDEContext;
+	FIDEContext.Value := Integer(FCurrentIDEContext.IDESearchContext);
 end;
 
 procedure TRipGrepperExtensionSettings.SetOpenWithShortcut(const Value : string);
@@ -128,29 +140,48 @@ end;
 
 function TRipGrepperExtensionSettings.ToLogString : string;
 begin
-	Result := Format('OpenWithShortcut=%s, SearchSelectedShortcut=%s, IDEContext=%s',
+	Result := Format('OpenWithShortcut=%s, SearchSelectedShortcut=%s, IDESearchContext=%s',
 		[OpenWithShortcut, SearchSelectedShortcut, CurrentIDEContext.ToLogString]);
 end;
 
-function TRipGrepperExtensionContext.ToLogString : string;
+function TDelphiIDEContext.ToLogString : string;
 begin
-	Result := Format('IDEContext: %d, ActiveProject: %s, ActiveFile: %s', [Integer(IDEContext), ActiveProject, ActiveFile]);
+	Result := Format('IDESearchContext: %d, ActiveProject: %s, ActiveFile: %s', [Integer(IDESearchContext), ActiveProject, ActiveFile]);
 end;
 
-class function TRipGrepperExtensionContext.FromString(const _context, _proj, _file : string) : TRipGrepperExtensionContext;
+class function TDelphiIDEContext.FromString(const _context, _proj, _file : string) : TDelphiIDEContext;
 begin
-	Result.IDEContext := StrToInt(_context);
+	Result.IDESearchContext := EDelphiIDESearchContext(StrToInt(_context));
 	Result.ActiveProject := _proj;
 	Result.ActiveFile := _file;
 end;
 
-class operator TRipGrepperExtensionContext.Initialize(out Dest : TRipGrepperExtensionContext);
+function TDelphiIDEContext.IsEmpty() : Boolean;
+begin
+	Result := ActiveProject.IsEmpty;
+end;
+
+procedure TDelphiIDEContext.LoadFromIOTA();
+begin
+	{$IF IS_EXTENSION}
+	ActiveFile := IOTAUTils.GxOtaGetCurrentSourceFile();
+	ProjectFiles := IOTAUTils.GetProjectFiles();
+	OpenFiles := IOTAUTils.GetOpenedEditBuffers();
+	var
+	ap := IOTAUTils.GxOtaGetCurrentProject;
+	if Assigned(ap) then begin
+		ActiveProject := ap.FileName;
+	end;
+	{$ENDIF}
+end;
+
+class operator TDelphiIDEContext.Initialize(out Dest : TDelphiIDEContext);
 begin
 	Dest.ActiveFile := '';
 	Dest.ActiveProject := '';
 	Dest.OpenFiles := [];
 	Dest.ProjectFiles := [];
-	Dest.IDEContext := Integer(ERipGrepperExtensionContext.rgecNotSet);
+	Dest.IDESearchContext := EDelphiIDESearchContext.dicNotSet;
 end;
 
 end.
