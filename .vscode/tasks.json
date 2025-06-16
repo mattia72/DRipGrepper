@@ -49,6 +49,24 @@
             }
         },
         {
+            "label": "Build Extension & Local Deploy",
+            "type": "shell",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildExtension -LocalDeploy -Force",
+            "problemMatcher": [],
+            "group": {
+                "kind": "none"
+            }
+        },
+        {
+            "label": "Build Extension & Local Deploy",
+            "type": "shell",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildExtension -LocalDeploy -Force",
+            "problemMatcher": [],
+            "group": {
+                "kind": "none"
+            }
+        },
+        {
             "label": "Deploy to GitHub",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -DeployToGitHub",
