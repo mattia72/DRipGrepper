@@ -1356,7 +1356,7 @@ begin
 		var
 		dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange');
 
-		dic := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
+		dic.LoadFromIOTA();
 		dbgMsg.Msg(dic.ToLogString);
 
 		cmbSearchDir.Enabled := False;
