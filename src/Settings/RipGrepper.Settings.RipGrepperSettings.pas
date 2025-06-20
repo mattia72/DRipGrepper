@@ -403,6 +403,6 @@ TDebugUtils.UpdateTraceActive;
 
 finalization
 
-OutputDebugString(PChar('RipGrepperSettings finalization.'));
+OutputDebugString(PChar('RipGrepperSettings finalized.'));
 
 end.
