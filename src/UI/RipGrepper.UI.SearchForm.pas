@@ -281,6 +281,7 @@ begin
 
 	toolbarSearchTextOptions.AutoSize := False; // else shrinked as extension
 	cmbOptions.AutoComplete := False; // so we know the old value after change
+	cmbSearchText.AutoComplete := False;
 end;
 
 destructor TRipGrepperSearchDialogForm.Destroy;
@@ -616,8 +617,13 @@ end;
 
 procedure TRipGrepperSearchDialogForm.cmbSearchTextChange(Sender : TObject);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.cmbSearchTextChange');
+
 	cmbSearchText.Text := CheckAndCorrectMultiLine(cmbSearchText.Text);
 	UpdateCtrls(cmbSearchText);
+	cmbSearchText.AutoComplete := True;
+	dbgMsg.MsgFmt('SearchText = %s', [cmbSearchText.Text]);
 end;
 
 procedure TRipGrepperSearchDialogForm.ToggleExpertMode;
@@ -910,12 +916,16 @@ end;
 
 function TRipGrepperSearchDialogForm.CheckAndCorrectMultiLine(const _str : TMultiLineString) : string;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.CheckAndCorrectMultiLine');
+
 	Result := '';
 	if (_str.IsMultiLine) then begin
 		TMsgBox.ShowWarning('Multiline string not supported.' + CRLF + 'Only first line will be searched.');
 		// Save in ini not implemented for multiline strings
 	end;
 	Result := _str.GetLine(0);
+	dbgMsg.MsgFmt('Result = %s', [Result]);
 end;
 
 procedure TRipGrepperSearchDialogForm.CheckVsCodeRipGrep;
@@ -1356,7 +1366,7 @@ begin
 		var
 		dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange');
 
-		dic := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
+		dic.LoadFromIOTA();
 		dbgMsg.Msg(dic.ToLogString);
 
 		cmbSearchDir.Enabled := False;
