@@ -17,6 +17,7 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 ## 💥 Improvements:
 Marked with a checkmark if ready; otherwise, it is planned.
 - [ ] delete results with one click on x icon
+- [ ] load results from file on startup
 - [ ] search for file names eg. `rg.exe -g='*pattern*' --files <DIR>`
 - [ ] **extension**: display save all files message before search?
 - [ ] **extension**: predefined patterns for search type, function, definition, etc.
@@ -25,13 +26,8 @@ Marked with a checkmark if ready; otherwise, it is planned.
 
 ## 🐞 Bugs:
 Marked with checkmark if fixed, else it is a known bug.
-- [x] **extension**: avoid error when starting delphi: "Can't load package... scope class TBindComponentScope not registered"
-- [x] style '' not found when config form is opened
-- [x] about form should show release notes of current release 
-- [x] setting form is dark, if main form is light
-- [x] color setting form doesn't load the used colors
-- [x] none background doesn't refresh on changed theme
-- [x] save settings of load last searches on startup: count of last searches
+- [x] **extension**: LoadNewSearchSettings shouldn't load last search settings in CurrentFile context.
+- [x] autocomplete should be switched of on search selected from the IDE
 - [ ] after theme change icons won't repainted 
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: drip icon in menu has no transparent background
