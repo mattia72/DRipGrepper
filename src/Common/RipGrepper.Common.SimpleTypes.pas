@@ -48,7 +48,6 @@ type
 	EFileOpenException = class(Exception);
 
 	TSearchFormCtrlValueProxy = record
-		SearchText : string;
 		SearchTextHist : TArrayEx<string>;
 		SearchOptions : TSearchOptionSet;
 		IsReplaceMode : Boolean;
@@ -69,6 +68,16 @@ type
 
 		AdditionalExpertOptions : string;
 		AdditionalExpertOptionsHist : TArrayEx<string>;
+		function IsEmpty() : Boolean;
+
+		private
+			FSearchText : string;
+			function GetSearchText() : string;
+			procedure SetSearchText(const Value : string);
+
+		public
+			function ToString() : string;
+			property SearchText : string read GetSearchText write SetSearchText;
 	end;
 
 	TErrorCounters = record
@@ -94,6 +103,10 @@ const
 
 implementation
 
+uses
+	RipGrepper.Tools.DebugUtils,
+	RipGrepper.Common.Constants;
+
 procedure TErrorCounters.Reset;
 begin
 	FSumOfErrors := 0;
@@ -101,6 +114,39 @@ begin
 	FStatLineCount := 0;
 	FIsNoOutputError := False;
 	FIsRGReportedError := False;
+end;
+
+function TSearchFormCtrlValueProxy.GetSearchText() : string;
+begin
+	Result := FSearchText;
+end;
+
+function TSearchFormCtrlValueProxy.IsEmpty() : Boolean;
+begin
+	Result := SearchText.IsEmpty and SearchTextHist.IsEmpty
+	{ } and SearchPath.IsEmpty and SearchPathHist.IsEmpty
+	{ } and FileMasks.IsEmpty and FileMasksHist.IsEmpty
+	{ } and ReplaceText.IsEmpty and ReplaceTextHist.IsEmpty;
+end;
+
+procedure TSearchFormCtrlValueProxy.SetSearchText(const Value : string);
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormCtrlValueProxy.SetSearchText');
+	dbgMsg.MsgFmt('Value=%s', [Value]);
+	FSearchText := Value;
+end;
+
+function TSearchFormCtrlValueProxy.ToString() : string;
+begin
+	Result := Format('SearchText=%s, ' + CRLF +
+		// 'SearchOptions=%s,' + CRLF +
+		'IsReplaceMode=%s,' + CRLF + ' ReplaceText=%s,' + CRLF + ' ExtensionContext=%d,' + CRLF + ' SearchPath=%s,' + CRLF +
+		' FileMasks=%s,' + CRLF + ' IsHiddenChecked=%s,' + CRLF + ' IsNoIgnoreChecked=%s,' + CRLF + ' Encoding=%s,' + CRLF +
+		' IsPrettyChecked=%s,' + CRLF + ' LineContext=%d', [FSearchText,
+		// SearchOptions.ToString,
+		BoolToStr(IsReplaceMode, True), ReplaceText, Ord(ExtensionContext), SearchPath, FileMasks, BoolToStr(IsHiddenChecked, True),
+		BoolToStr(IsNoIgnoreChecked, True), Encoding, BoolToStr(IsPrettyChecked, True), LineContext]);
 end;
 
 end.

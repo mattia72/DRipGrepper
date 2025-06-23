@@ -186,7 +186,7 @@ type
 			function GetInIDESelectedText : string;
 			function GetValuesFromHistObjRipGrepArguments(const _argName : string; const _separator : string = ' ') : string;
 			procedure LoadNewSearchSettings;
-			procedure LoadExtensionSearchSettings;
+			procedure LoadExtensionSearchSettings(var _ctrlProxy : TSearchFormCtrlValueProxy);
 			procedure LoadOldHistorySearchSettings;
 			procedure LoadInitialSettings;
 			procedure SetCmbSearchPathText(const _sPath : string);
@@ -205,7 +205,7 @@ type
 			procedure CopyProxyToCtrls();
 			procedure CopySettingsToHistObj;
 			procedure SetCmbSearchTextText(const _sText : string);
-			procedure SetCmbSearchTextAutoComplete(const _Value: Boolean);
+			procedure SetCmbSearchTextAutoComplete(const _Value : Boolean);
 
 		protected
 			procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;
@@ -239,7 +239,6 @@ uses
 	System.SysUtils,
 	System.RegularExpressions,
 	System.Math,
-
 	RipGrepper.CommandLine.Builder,
 	Vcl.Clipbrd,
 	RipGrepper.CommandLine.OptionHelper,
@@ -274,6 +273,7 @@ begin
 	FHistItemObj := _histObj;
 
 	LoadInitialSettings;
+
 	dbgMsg.Msg(FSettings.SearchFormSettings.ToLogString);
 	dbgMsg.Msg('gui params=' + FSettingsProxy.ToLogString);
 
@@ -474,7 +474,7 @@ begin
 	FShowing := True;
 	try
 		WriteCtrlProxyToCtrls;
-		LoadExtensionSearchSettings;
+		// LoadExtensionSearchSettings;
 
 		CheckVsCodeRipGrep; // vscode rg doesn't support --pretty
 		dbgMsg.Msg('RipGrepPath=' + FSettings.RipGrepParameters.RipGrepPath);
@@ -627,6 +627,7 @@ begin
 
 	SetCmbSearchTextText(cmbSearchText.Text);
 	UpdateCtrls(cmbSearchText);
+	dbgMsg.MsgFmt('cmbSearchText.Text = %s', [cmbSearchText.Text]);
 end;
 
 procedure TRipGrepperSearchDialogForm.ToggleExpertMode;
@@ -670,7 +671,7 @@ begin
 	_cmb.Items.Clear;
 	_cmb.Items.AddStrings(_lst.Items);
 	_cmb.Text := _txt;
-	dbgMsg.MsgFmt('idx:%d, %s=%s', [_cmb.ItemIndex, _cmb.Name, _cmb.Text]);
+	dbgMsg.MsgFmt('idx:%d, %s.Text = %s', [_cmb.ItemIndex, _cmb.Name, _cmb.Text]);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetComboItemsFromOptions(_cmb : TComboBox; const _argMaskRegex : string;
@@ -1039,6 +1040,7 @@ begin
 		_ctrlProxy.IsPrettyChecked := FHistItemObj.SearchFormSettings.Pretty;
 		_ctrlProxy.LineContext := FHistItemObj.SearchFormSettings.Context;
 		_ctrlProxy.AdditionalExpertOptions := FHistItemObj.GuiSearchTextParams.ExpertOptions.AsString;
+		dbgMsg.MsgFmt('Proxy filled from HistItemObj: %s', [_ctrlProxy.ToString]);
 	end else begin
 		_ctrlProxy.SearchText := _ctrlProxy.SearchTextHist.SafeItem[0];
 		_ctrlProxy.ReplaceText := _ctrlProxy.ReplaceTextHist.SafeItem[0];
@@ -1053,6 +1055,7 @@ begin
 		_ctrlProxy.Encoding := FSettings.SearchFormSettings.Encoding;
 		_ctrlProxy.IsPrettyChecked := FSettings.SearchFormSettings.Pretty;
 		_ctrlProxy.LineContext := FSettings.SearchFormSettings.Context;
+		dbgMsg.MsgFmt('Proxy filled from Settings: %s', [_ctrlProxy.ToString]);
 	end;
 end;
 
@@ -1207,7 +1210,7 @@ begin
 	UpdateCheckBoxes();
 end;
 
-procedure TRipGrepperSearchDialogForm.LoadExtensionSearchSettings;
+procedure TRipGrepperSearchDialogForm.LoadExtensionSearchSettings(var _ctrlProxy : TSearchFormCtrlValueProxy);
 var
 	dic : TDelphiIDEContext;
 begin
@@ -1219,8 +1222,9 @@ begin
 	selectedText := GetInIDESelectedText;
 	if not HasHistItemObjWithResult then begin
 		if not selectedText.IsEmpty then begin
-//			SetCmbSearchTextAutoComplete(False);
-			SetCmbSearchTextText(selectedText);
+			// SetCmbSearchTextAutoComplete(False);
+			_ctrlProxy.SearchTextHist.Insert(0, selectedText);
+			_ctrlProxy.SearchText := selectedText;
 			dbgMsg.Msg('SelectedText=' + selectedText);
 		end;
 	end;
@@ -1249,13 +1253,13 @@ begin
 		LoadOldHistorySearchSettings;
 	end else begin
 		LoadNewSearchSettings;
-//		SetCmbSearchTextAutoComplete(True);
+		SetCmbSearchTextAutoComplete(True);
 	end;
-
 	CopySettingsToCtrlProxy(FCtrlProxy, FHistItemObj, FSettings);
+	LoadExtensionSearchSettings(FCtrlProxy);
 end;
 
-procedure TRipGrepperSearchDialogForm.SetCmbSearchTextAutoComplete(const _Value: Boolean);
+procedure TRipGrepperSearchDialogForm.SetCmbSearchTextAutoComplete(const _Value : Boolean);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetCmbSearchTextAutoComplete');
@@ -1566,7 +1570,6 @@ procedure TRipGrepperSearchDialogForm.SetCmbSearchTextText(const _sText : string
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetCmbSearchTextText');
-	SetCmbSearchTextAutoComplete(FIsKeyboardInput);
 	cmbSearchText.Text := CheckAndCorrectMultiLine(_sText);
 	dbgMsg.MsgFmt('AutoComplete = %s SearchText = %s', [BoolToStr(cmbSearchText.AutoComplete, True), cmbSearchText.Text]);
 end;
