@@ -38,6 +38,7 @@ type
 			FComboHistoryCount : IIntegerSetting;
 			FSearchHistoryCount : IIntegerSetting;
 			FLoadLastSearchHistory : IBoolSetting;
+			FCheckNewVersionOnStartup : IBoolSetting;
 			FDebugTrace : IStringSetting;
 			FDebugTraceRegexFilter : IStringSetting;
 			FExpertMode : IBoolSetting;
@@ -53,6 +54,7 @@ type
 			function GetExpertMode() : Boolean;
 			function GetLoadLastSearchHistory() : Boolean;
 			function GetLoadLastSearchHistoryMode() : ELoadLastHistoryMode;
+			function GetCheckNewVersionOnStartup: Boolean;
 			procedure SetColorTheme(const Value : string);
 			procedure SetComboHistoryCount(const Value : Integer);
 			procedure SetSearchHistoryCount(const Value : Integer);
@@ -63,7 +65,7 @@ type
 			procedure SetExpertMode(const Value : Boolean);
 			procedure SetLoadLastSearchHistory(const Value : Boolean);
 			procedure SetLoadLastSearchHistoryMode(const Value : ELoadLastHistoryMode);
-
+			procedure SetCheckNewVersionOnStartup(const Value: Boolean);
 		protected
 			procedure Init; override;
 
@@ -80,6 +82,7 @@ type
 			property EncodingItems : TArray<string> read GetEncodingItems write SetEncodingItems;
 			property LoadLastSearchHistory : Boolean read GetLoadLastSearchHistory write SetLoadLastSearchHistory;
 			property LoadLastSearchHistoryMode : ELoadLastHistoryMode read GetLoadLastSearchHistoryMode write SetLoadLastSearchHistoryMode;
+			property CheckNewVersionOnStartup: Boolean read GetCheckNewVersionOnStartup write SetCheckNewVersionOnStartup;
 	end;
 
 implementation
@@ -166,12 +169,17 @@ begin
 	Result := ELoadLastHistoryMode(FLoadLastSearchHistoryMode.Value);
 end;
 
+function TAppSettings.GetCheckNewVersionOnStartup: Boolean;
+begin
+	Result := FCheckNewVersionOnStartup.Value;
+end;
+
 procedure TAppSettings.Init;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TAppSettings.Init');
 
-	FColorTheme := TStringSetting.Create(''); //TDarkModeHelper.GetActualThemeName);
+	FColorTheme := TStringSetting.Create(''); // TDarkModeHelper.GetActualThemeName);
 	FCopyToClipBoardShell := TIntegerSetting.Create(Integer(TShellType.stPowershell));
 	FComboHistoryCount := TIntegerSetting.Create(MAX_HISTORY_COUNT);
 	FSearchHistoryCount := TIntegerSetting.Create(MAX_HISTORY_COUNT);
@@ -242,6 +250,11 @@ end;
 procedure TAppSettings.SetLoadLastSearchHistoryMode(const Value : ELoadLastHistoryMode);
 begin
 	FLoadLastSearchHistoryMode.Value := Integer(Value);
+end;
+
+procedure TAppSettings.SetCheckNewVersionOnStartup(const Value: Boolean);
+begin
+	FCheckNewVersionOnStartup.Value := Value;
 end;
 
 end.

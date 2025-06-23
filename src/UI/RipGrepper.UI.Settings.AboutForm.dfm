@@ -69,7 +69,7 @@ object AboutForm: TAboutForm
           AlignWithMargins = True
           Left = 4
           Top = 11
-          Width = 102
+          Width = 448
           Height = 23
           Margins.Top = 10
           Align = alTop
@@ -86,7 +86,7 @@ object AboutForm: TAboutForm
         object lblVersion: TLabel
           Left = 1
           Top = 37
-          Width = 76
+          Width = 454
           Height = 19
           Margins.Top = 10
           Align = alTop
@@ -110,7 +110,8 @@ object AboutForm: TAboutForm
         TabOrder = 1
         Tabs.Strings = (
           'License'
-          'Release Notes')
+          'Release Notes'
+          'Latest Release')
         TabIndex = 0
         OnChange = tbcLicenceReleaseNotesChange
         object Memo1: TMemo
@@ -13705,15 +13706,16 @@ object AboutForm: TAboutForm
       end
       object btnCheckUpdate: TButton
         Left = 72
-        Top = 312
+        Top = 330
         Width = 126
         Height = 26
         Action = ActionCheckUpdate
-        TabOrder = 0
+        TabOrder = 2
+        Visible = False
       end
       object lnkLatestUrl: TLinkLabel
-        Left = 85
-        Top = 344
+        Left = 80
+        Top = 295
         Width = 108
         Height = 19
         Caption = 'Latest: v4.6.2-beta'
@@ -13741,7 +13743,7 @@ object AboutForm: TAboutForm
         Font.Name = 'Segoe UI'
         Font.Style = [fsBold]
         ParentFont = False
-        TabOrder = 2
+        TabOrder = 0
         OnLinkClick = lnkHomeURLLinkClick
       end
     end

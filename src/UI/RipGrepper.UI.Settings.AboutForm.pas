@@ -133,7 +133,7 @@ begin
 	end else begin
 		AddReleaseToMemo(LatestRelease);
 	end;
-	tbcLicenceReleaseNotes.TabIndex := 1;
+	tbcLicenceReleaseNotes.TabIndex := 2;
 
 	if IsSameVersion(LatestRelease(), curInfo) then begin
 		TMsgBox.ShowInfo('You are using the latest version.');
@@ -301,6 +301,9 @@ begin
 		end;
 		1 : begin
 			InitMemoWithCurrentRelInfo(FCurrentRelease.CurrentRelease);
+		end;
+		2 : begin
+			ActionCheckUpdateExecute(self);
 		end;
 	end;
 end;
