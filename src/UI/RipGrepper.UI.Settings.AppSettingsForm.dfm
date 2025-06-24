@@ -67,8 +67,8 @@ object AppSettingsForm: TAppSettingsForm
     end
     object grpAdvanced: TGroupBox
       AlignWithMargins = True
-      Left = 3
-      Top = 330
+      Left = 11
+      Top = 327
       Width = 485
       Height = 181
       Anchors = [akLeft, akTop, akRight]
@@ -225,7 +225,7 @@ object AppSettingsForm: TAppSettingsForm
       Left = 11
       Top = 143
       Width = 485
-      Height = 181
+      Height = 178
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Settings'
       TabOrder = 2

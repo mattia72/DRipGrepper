@@ -29,6 +29,7 @@ type
 			KEY_COPYTOCLIPBOARDSHELL = 'CopyToClipBoardShell';
 			KEY_CMBHISTORYCOUNT = 'ComboHistoryCount';
 			KEY_SEARCH_HISTORYCOUNT = 'SearchHistoryCount';
+			KEY_CHECK_NEW_VERSION_ON_STARTUP = 'CheckNewVersionOnStartup';
 			KEY_LOADLASTHISTORIESONSTARTUP = 'LoadLastSearchesOnStartup';
 			KEY_LOADLASTHISTORIESONSTARTUP_WITHRESULTSONLY = 'LoadLastSearchesOnStartup_WithResultsOnly';
 
@@ -184,6 +185,7 @@ begin
 	FComboHistoryCount := TIntegerSetting.Create(MAX_HISTORY_COUNT);
 	FSearchHistoryCount := TIntegerSetting.Create(MAX_HISTORY_COUNT);
 	FLoadLastSearchHistory := TBoolSetting.Create(False);
+    FCheckNewVersionOnStartup := TBoolSetting.Create(False);
 	FLoadLastSearchHistoryMode := TIntegerSetting.Create();
 	FDebugTrace := TStringSetting.Create('');
 	FDebugTraceRegexFilter := TStringSetting.Create('');
@@ -195,6 +197,7 @@ begin
 	CreateSetting(KEY_CMBHISTORYCOUNT, FComboHistoryCount);
 	CreateSetting(KEY_SEARCH_HISTORYCOUNT, FSearchHistoryCount);
 	CreateSetting(KEY_LOADLASTHISTORIESONSTARTUP, FLoadLastSearchHistory);
+	CreateSetting(KEY_CHECK_NEW_VERSION_ON_STARTUP, FCheckNewVersionOnStartup);
 	CreateSetting(KEY_LOADLASTHISTORIESONSTARTUP_WITHRESULTSONLY, FLoadLastSearchHistoryMode);
 	CreateSetting(KEY_DEBUGTRACE, FDebugTrace);
 	CreateSetting(KEY_DEBUGTRACEREGEXFILTER, FDebugTraceRegexFilter);

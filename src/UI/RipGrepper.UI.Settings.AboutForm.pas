@@ -47,6 +47,7 @@ type
 		lnkHomeURL : TLinkLabel;
 		lblVersion : TLabel;
 		tbcLicenceReleaseNotes : TTabControl;
+		cbCheckNewReleaseOnStartup : TCheckBox;
 		procedure ActionCheckUpdateExecute(Sender : TObject);
 		procedure FormResize(Sender : TObject);
 		procedure FormShow(Sender : TObject);
@@ -236,12 +237,14 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TAboutForm.ReadSettings');
 	FAppSettings.LoadFromDict;
+	cbCheckNewReleaseOnStartup.Checked := FAppSettings.CheckNewVersionOnStartup;
 end;
 
 procedure TAboutForm.WriteSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TAboutForm.WriteSettings');
+    FAppSettings.CheckNewVersionOnStartup := cbCheckNewReleaseOnStartup.Checked;
 end;
 
 procedure TAboutForm.ShowNewVersionMsgBox(const _relInfo : IReleaseInfo);

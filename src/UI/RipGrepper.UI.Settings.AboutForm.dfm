@@ -47,7 +47,7 @@ object AboutForm: TAboutForm
       AlignWithMargins = True
       Left = 262
       Top = 3
-      Width = 458
+      Width = 456
       Height = 415
       Align = alRight
       Anchors = [akLeft, akTop, akRight, akBottom]
@@ -61,7 +61,7 @@ object AboutForm: TAboutForm
       object pnlTopRight: TPanel
         Left = 1
         Top = 1
-        Width = 456
+        Width = 454
         Height = 65
         Align = alTop
         TabOrder = 0
@@ -69,7 +69,7 @@ object AboutForm: TAboutForm
           AlignWithMargins = True
           Left = 4
           Top = 11
-          Width = 448
+          Width = 446
           Height = 23
           Margins.Top = 10
           Align = alTop
@@ -85,8 +85,8 @@ object AboutForm: TAboutForm
         end
         object lblVersion: TLabel
           Left = 1
-          Top = 37
-          Width = 454
+          Top = 34
+          Width = 452
           Height = 19
           Margins.Top = 10
           Align = alTop
@@ -104,7 +104,7 @@ object AboutForm: TAboutForm
       object tbcLicenceReleaseNotes: TTabControl
         Left = 1
         Top = 66
-        Width = 456
+        Width = 454
         Height = 348
         Align = alClient
         TabOrder = 1
@@ -118,7 +118,7 @@ object AboutForm: TAboutForm
           AlignWithMargins = True
           Left = 14
           Top = 29
-          Width = 418
+          Width = 416
           Height = 305
           Margins.Left = 10
           Margins.Right = 20
@@ -13705,8 +13705,8 @@ object AboutForm: TAboutForm
         OnDblClick = imgAboutDblClick
       end
       object btnCheckUpdate: TButton
-        Left = 72
-        Top = 330
+        Left = 62
+        Top = 351
         Width = 126
         Height = 26
         Action = ActionCheckUpdate
@@ -13714,8 +13714,8 @@ object AboutForm: TAboutForm
         Visible = False
       end
       object lnkLatestUrl: TLinkLabel
-        Left = 80
-        Top = 295
+        Left = 21
+        Top = 318
         Width = 108
         Height = 19
         Caption = 'Latest: v4.6.2-beta'
@@ -13731,7 +13731,7 @@ object AboutForm: TAboutForm
       end
       object lnkHomeURL: TLinkLabel
         AlignWithMargins = True
-        Left = 116
+        Left = 21
         Top = 270
         Width = 38
         Height = 19
@@ -13746,11 +13746,19 @@ object AboutForm: TAboutForm
         TabOrder = 0
         OnLinkClick = lnkHomeURLLinkClick
       end
+      object cbCheckNewReleaseOnStartup: TCheckBox
+        Left = 21
+        Top = 295
+        Width = 214
+        Height = 17
+        Caption = 'Check new release on sartup'
+        TabOrder = 3
+      end
     end
   end
   object ActionList1: TActionList
-    Left = 16
-    Top = 264
+    Left = 216
+    Top = 24
     object ActionCheckUpdate: TAction
       Caption = 'Check for Update...'
       OnExecute = ActionCheckUpdateExecute
