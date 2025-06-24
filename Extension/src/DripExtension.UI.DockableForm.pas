@@ -228,7 +228,7 @@ end;
 
 function TRipGrepperDockableForm.GetCaption : string;
 begin
-	Result := APPNAME;
+	Result := DRIPGREPPER_APPNAME;
 end;
 
 function TRipGrepperDockableForm.GetEditState : TEditState;
@@ -239,7 +239,7 @@ end;
 function TRipGrepperDockableForm.GetIdentifier : string;
 begin
 	if FIdentifier.IsEmpty then
-		FIdentifier := APPNAME; // + '.' + GetGuid;
+		FIdentifier := DRIPGREPPER_APPNAME; // + '.' + GetGuid;
 	Result := FIdentifier;
 end;
 

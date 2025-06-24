@@ -19,10 +19,16 @@ const
 	APP_PLATFORM = 'x86';
 	{ }	{$ENDIF}
 	RG_EXE = 'rg.exe';
-	APPNAME = 'DRipGrepper';
 
+	DRIPGREPPER_APPNAME = 'DRipGrepper';
 	EXTENSION_NAME = 'DRipExtensions';
+
+	{$IFDEF STANDALONE}
+	APPNAME = DRIPGREPPER_APPNAME;
+	{$ELSE}
+	APPNAME = EXTENSION_NAME;
 	EXTENSION_MENU_ROOT_TEXT = '&' + EXTENSION_NAME + '...';
+	{$ENDIF}
 	MENU_ITEM_OPEN_WITH = 'Open With...';
 	MENU_ITEM_SEARCH_WITH_DRIPGREPPER = 'Search with DripGrepper...';
 
