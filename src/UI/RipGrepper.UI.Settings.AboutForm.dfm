@@ -136,6 +136,22 @@ object AboutForm: TAboutForm
           TabOrder = 0
         end
       end
+      object lnkLatestUrl: TLinkLabel
+        Left = 224
+        Top = 70
+        Width = 108
+        Height = 19
+        Caption = 'Latest: v4.6.2-beta'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 2
+        Visible = False
+        OnLinkClick = lnkLatestUrlLinkClick
+      end
     end
     object pnlLeft: TPanel
       Left = 0
@@ -13705,29 +13721,13 @@ object AboutForm: TAboutForm
         OnDblClick = imgAboutDblClick
       end
       object btnCheckUpdate: TButton
-        Left = 62
-        Top = 351
+        Left = 21
+        Top = 318
         Width = 126
         Height = 26
         Action = ActionCheckUpdate
-        TabOrder = 2
-        Visible = False
-      end
-      object lnkLatestUrl: TLinkLabel
-        Left = 21
-        Top = 318
-        Width = 108
-        Height = 19
-        Caption = 'Latest: v4.6.2-beta'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 1
         Visible = False
-        OnLinkClick = lnkLatestUrlLinkClick
       end
       object lnkHomeURL: TLinkLabel
         AlignWithMargins = True
@@ -13752,7 +13752,7 @@ object AboutForm: TAboutForm
         Width = 214
         Height = 17
         Caption = 'Check new release on sartup'
-        TabOrder = 3
+        TabOrder = 2
       end
     end
   end

@@ -144,7 +144,7 @@ begin
 
 	if LatestRelease.LoadOk then begin
 		lnkLatestUrl.Visible := True;
-		lnkLatestUrl.Caption := MakeLinkCaption('Latest: ', LatestRelease.HtmlURL, LatestRelease.Version);
+		lnkLatestUrl.Caption := MakeLinkCaption('', LatestRelease.HtmlURL, LatestRelease.Version);
 	end;
 end;
 
@@ -178,15 +178,16 @@ end;
 procedure TAboutForm.DownloadReleaseInfos(var _relInfos : TReleaseInfoArray);
 var cursor : TCursorSaver;
 begin
-	cursor.SetHourGlassCursor();
-	_relInfos.Clear;
-	_relInfos := TReleaseUtils.DownloadReleaseInfoFromGithub();
+	if _relInfos.IsEmpty then begin
+		cursor.SetHourGlassCursor();
+		_relInfos := TReleaseUtils.DownloadReleaseInfoFromGithub();
+	end;
 end;
 
 procedure TAboutForm.FormResize(Sender : TObject);
 begin
-	lnkHomeURL.Left := trunc(pnlLeft.Width / 2) - trunc(lnkHomeURL.Width / 2);
-	lnkLatestUrl.Left := trunc(pnlLeft.Width / 2) - trunc(lnkLatestUrl.Width / 2);
+	// lnkHomeURL.Left := trunc(pnlLeft.Width / 2) - trunc(lnkHomeURL.Width / 2);
+	// lnkLatestUrl.Left := trunc(pnlLeft.Width / 2) - trunc(lnkLatestUrl.Width / 2);
 end;
 
 procedure TAboutForm.FormShow(Sender : TObject);
@@ -244,7 +245,7 @@ procedure TAboutForm.WriteSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TAboutForm.WriteSettings');
-    FAppSettings.CheckNewVersionOnStartup := cbCheckNewReleaseOnStartup.Checked;
+	FAppSettings.CheckNewVersionOnStartup := cbCheckNewReleaseOnStartup.Checked;
 end;
 
 procedure TAboutForm.ShowNewVersionMsgBox(const _relInfo : IReleaseInfo);
