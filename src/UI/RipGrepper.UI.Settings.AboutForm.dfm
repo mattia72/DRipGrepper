@@ -69,7 +69,7 @@ object AboutForm: TAboutForm
           AlignWithMargins = True
           Left = 4
           Top = 11
-          Width = 446
+          Width = 102
           Height = 23
           Margins.Top = 10
           Align = alTop
@@ -86,7 +86,7 @@ object AboutForm: TAboutForm
         object lblVersion: TLabel
           Left = 1
           Top = 34
-          Width = 452
+          Width = 76
           Height = 19
           Margins.Top = 10
           Align = alTop

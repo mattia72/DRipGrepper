@@ -16,6 +16,7 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 -->
 ## 💥 Improvements:
 Marked with a checkmark if ready; otherwise, it is planned.
+- [x] check version update on startup
 - [ ] delete results with one click on x icon
 - [ ] load results from file on startup
 - [ ] search for file names eg. `rg.exe -g='*pattern*' --files <DIR>`
@@ -28,7 +29,7 @@ Marked with a checkmark if ready; otherwise, it is planned.
 Marked with checkmark if fixed, else it is a known bug.
 - [x] **extension**: LoadNewSearchSettings shouldn't load last search settings in CurrentFile context.
 - [x] autocomplete should be switched of on search selected from the IDE
-- [ ] after theme change icons won't repainted 
+- [ ] after theme change some controls are not redrawn
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: drip icon in menu has no transparent background
 - [ ] look on dpi change (drag window to another monitor)

@@ -154,6 +154,10 @@ type
 			class procedure ChangeItems(_cmb : TComboBox; const _items : TArray<string>);
 	end;
 
+	TUrlLinkHelper = class(TObject)
+		class procedure OpenLink(const _link : string);
+	end;
+
 implementation
 
 uses
@@ -664,6 +668,11 @@ class procedure TComboBoxHelper.ChangeItems(_cmb : TComboBox; const _items : TAr
 begin
 	_cmb.Items.Clear;
 	_cmb.Items.AddStrings(_items);
+end;
+
+class procedure TUrlLinkHelper.OpenLink(const _link : string);
+begin
+	ShellExecute(0, 'OPEN', PChar(_link), '', '', SW_SHOWNORMAL);
 end;
 
 end.

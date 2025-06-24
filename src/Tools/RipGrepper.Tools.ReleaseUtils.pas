@@ -6,11 +6,12 @@ uses
 	System.JSON,
 	REST.Types,
 	REST.Client,
-	Spring, 
+	Spring,
 	ArrayEx;
 
 type
 	TReleaseInfo = class
+		private
 		public
 			Description : string;
 			Version : string;
@@ -21,22 +22,29 @@ type
 			procedure SetDescription(const _body : string);
 	end;
 
-    IReleaseInfo =  IShared<TReleaseInfo>;
+	IReleaseInfo = IShared<TReleaseInfo>;
 	TReleaseInfoArray = TArrayEx<IReleaseInfo>;
 
 	TReleaseUtils = record
 		private
 			FCurrentRelease : IReleaseInfo;
+			FDownloadedReleaseInfos : TReleaseInfoArray;
 			FCurrentNameWithVersion : string;
 			FCurrentName : string;
 			FCurrentVersion : string;
+			FDownloadErrorMsg : string;
+			FLatestVersion : string;
+			function DownloadReleaseInfoFromGithub : TReleaseInfoArray;
 			function GetCurrentRelease() : IReleaseInfo;
 			function GetCurrentVersion() : string;
+			function GetDownloadedReleaseInfos : TReleaseInfoArray;
+			function GetLatestRelease : IReleaseInfo;
+			function GetLatestVersion : string;
 			class function GetModuleVersion(Instance : THandle; out iMajor, iMinor, iRelease, iBuild : Integer) : Boolean; static;
 			class procedure InitRestClient(_restClient : TRESTClient; _restRequest : TRESTRequest; _restResponse : TRESTResponse); static;
 
 		public
-			class function DownloadReleaseInfoFromGithub(): TReleaseInfoArray; static;
+			procedure DownloadReleaseInfos;
 			class function GetAppDirectory() : string; static;
 			class function GetAppNameAndVersion(const _exePath : string) : string; static;
 			function GetCurrentNameWithVersion() : string;
@@ -45,10 +53,18 @@ type
 			class function GetRunningModuleVersion() : string; static;
 			class function GetModuleNameAndVersion() : string; static;
 			class function GetRunningModulePath() : string; static;
+			function IsCurrentTheLatest : Boolean;
+			class function IsSameVersion(_ri1, _ri2 : IReleaseInfo) : Boolean; static;
+			procedure ShowNewVersionMsgBox(const _bOnlyIfUpdateAvailable : Boolean = False);
+			function TryGetCurrentRelInfo(var _curInfo : IReleaseInfo) : Boolean;
 			property CurrentNameWithVersion : string read GetCurrentNameWithVersion;
 			property CurrentName : string read GetCurrentName;
 			property CurrentRelease : IReleaseInfo read GetCurrentRelease;
 			property CurrentVersion : string read GetCurrentVersion;
+			property DownloadedReleaseInfos : TReleaseInfoArray read GetDownloadedReleaseInfos write FDownloadedReleaseInfos;
+			property DownloadErrorMsg : string read FDownloadErrorMsg write FDownloadErrorMsg;
+			property LatestRelease : IReleaseInfo read GetLatestRelease;
+			property LatestVersion : string read GetLatestVersion;
 	end;
 
 implementation
@@ -62,7 +78,9 @@ uses
 	Winapi.Windows,
 	System.Classes,
 	RipGrepper.Tools.DebugUtils,
-	System.RegularExpressions;
+	System.RegularExpressions,
+	RipGrepper.Helper.UI,
+	System.UITypes;
 
 procedure TReleaseInfo.FromJson(_json : TJSONValue; const _idx : Integer);
 begin
@@ -98,33 +116,55 @@ begin
 	Description := string.Join(CRLF, lines.Items);
 end;
 
-class function TReleaseUtils.DownloadReleaseInfoFromGithub() : TReleaseInfoArray;
+function TReleaseUtils.DownloadReleaseInfoFromGithub : TReleaseInfoArray;
 var
 	jValue : TJSONValue;
 	restClient : TRESTClient;
 	restRequest : TRESTRequest;
 	restResponse : TRESTResponse;
+	cursor : TCursorSaver;
 begin
+	cursor.SetHourGlassCursor();
 	restClient := TRESTClient.Create(nil);
 	restRequest := TRESTRequest.Create(nil);
 	restResponse := TRESTResponse.Create(nil);
 	try
 		InitRestClient(restClient, restRequest, restResponse);
+		try
+			FDownloadErrorMsg := '';
+			restRequest.Execute;
+			jValue := restResponse.JSONValue;
 
-		restRequest.Execute;
-		jValue := restResponse.JSONValue;
-
-		for var idx := 0 to (jValue as TJSONArray).Count - 1 do begin
-			var
-			ri := Shared.Make<TReleaseInfo>();
-			ri.FromJson(jValue, idx);
-			Result.Add(ri);
+			for var idx := 0 to (jValue as TJSONArray).Count - 1 do begin
+				var
+				ri := Shared.Make<TReleaseInfo>();
+				ri.FromJson(jValue, idx);
+				FDownloadedReleaseInfos.Add(ri);
+			end;
+		except
+			on E : Exception do begin
+				FDownloadErrorMsg := 'Can''t load release infos from GitHub.' + CRLF2 + 'Error: ' + E.Message;
+				TMsgBox.ShowError(FDownloadErrorMsg);
+			end;
 		end;
 
 	finally
 		restClient.Free;
 		restRequest.Free;
 		restResponse.Free;
+	end;
+end;
+
+procedure TReleaseUtils.DownloadReleaseInfos();
+begin
+	if FDownloadedReleaseInfos.Count <= 1 then begin
+		DownloadReleaseInfoFromGithub();
+		if FDownloadedReleaseInfos.IsEmpty then begin
+			var
+			cr := CurrentRelease;
+			cr.LoadOk := False;
+			FDownloadedReleaseInfos.Add(cr);
+		end;
 	end;
 end;
 
@@ -179,6 +219,7 @@ begin
 	if not Assigned(FCurrentRelease) then begin
 		FCurrentRelease := Shared.Make<TReleaseInfo>();
 		FCurrentRelease.Version := CurrentVersion;
+		FCurrentRelease.LoadOk := True;
 	end;
 	Result := FCurrentRelease;
 end;
@@ -189,6 +230,22 @@ begin
 		FCurrentVersion := GetRunningModuleVersion()
 	end;
 	Result := FCurrentVersion;
+end;
+
+function TReleaseUtils.GetDownloadedReleaseInfos : TReleaseInfoArray;
+begin
+	if FDownloadedReleaseInfos.IsEmpty then begin
+		DownloadReleaseInfos();
+	end;
+	Result := FDownloadedReleaseInfos;
+end;
+
+function TReleaseUtils.GetLatestVersion : string;
+begin
+	if FLatestVersion.IsEmpty then begin
+		FLatestVersion := LatestRelease.Version;
+	end;
+	Result := FLatestVersion;
 end;
 
 class function TReleaseUtils.GetRunningModuleVersion() : string;
@@ -293,6 +350,11 @@ begin
 	end;
 end;
 
+function TReleaseUtils.GetLatestRelease : IReleaseInfo;
+begin
+	Result := DownloadedReleaseInfos[0];
+end;
+
 class function TReleaseUtils.GetRunningModulePath() : string;
 var
 	szFileName : array [0 .. MAX_PATH] of Char;
@@ -314,6 +376,54 @@ begin
 	_restRequest.Client := _restClient;
 	_restRequest.Response := _restResponse;
 	_restResponse.ContentType := 'application/json';
+end;
+
+function TReleaseUtils.IsCurrentTheLatest : Boolean;
+begin
+	Result := TReleaseUtils.IsSameVersion(LatestRelease, CurrentRelease);
+end;
+
+class function TReleaseUtils.IsSameVersion(_ri1, _ri2 : IReleaseInfo) : Boolean;
+var
+	mainVersion : string;
+begin
+	Result := False;
+	if Assigned(_ri1) and Assigned(_ri2) { and _ri1.LoadOk } then begin
+		mainVersion := _ri1.Version; // v4.1.2-beta
+		mainVersion := mainVersion.Substring(0, mainVersion.IndexOf('-')); // v4.1.2
+		Result := _ri2.Version.StartsWith(mainVersion);
+	end;
+end;
+
+procedure TReleaseUtils.ShowNewVersionMsgBox(const _bOnlyIfUpdateAvailable : Boolean = False);
+begin
+	if IsCurrentTheLatest then begin
+		if not _bOnlyIfUpdateAvailable then begin
+			if LatestRelease.LoadOk then begin
+				TMsgBox.ShowInfo('You are using the latest version.');
+			end; // else error msg already shown...
+		end;
+	end else begin
+		if mrYes = TMsgBox.ShowQuestion(Format(
+			{ } 'You are using %s' + CRLF +
+			{ } 'New version %s published at %s' + CRLF2 +
+			{ } 'Do you wan''t to go to the release page?', [GetModuleNameAndVersion(),
+			{ } LatestVersion, DateTimeToStr(LatestRelease.PublishedAt)])) then begin
+			TUrlLinkHelper.OpenLink(LatestRelease.HtmlURL);
+		end;
+	end;
+end;
+
+function TReleaseUtils.TryGetCurrentRelInfo(var _curInfo : IReleaseInfo) : Boolean;
+begin
+	Result := False;
+	for var relInfo in FDownloadedReleaseInfos do begin
+		if IsSameVersion(relInfo, _curInfo) then begin
+			_curInfo := relInfo;
+			Result := True;
+			break;
+		end;
+	end;
 end;
 
 end.

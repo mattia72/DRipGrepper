@@ -69,7 +69,8 @@ uses
 	{$ENDIF}
 	RipGrepper.UI.MiddleLeftFrame,
 	Spring.DesignPatterns,
-	RipGrepper.Helper.UI;
+	RipGrepper.Helper.UI,
+	RipGrepper.Tools.ReleaseUtils;
 
 {$R *.dfm}
 
@@ -164,6 +165,11 @@ begin
 	Settings.LoadInitialSettings;
 	TopFrame.Initialize();
 	BottomFrame.Initialize();
+	if Settings.AppSettings.CheckNewVersionOnStartup then begin
+		var
+			ru : TReleaseUtils;
+		ru.ShowNewVersionMsgBox(True);
+	end;
 end;
 
 procedure TParentFrame.FrameOnShowHide(var M : TMessage);
