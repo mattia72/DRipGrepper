@@ -19,13 +19,14 @@ type
 		Text : string;
 
 		public
-			class function New(const _Title : EColumnIndex; const _Text : string) : TColumnData; overload; static;
+			class function New(const _idxTitle : EColumnIndex; const _Text : string) : TColumnData; overload; static;
 	end;
 
 	{$M+}
 
 	IParsedObject = interface
 		['{5DDAF1CE-48EF-42C0-B87F-102E081B3D16}']
+		function GetColumnByTitle(const _title : string) : TColumnData;
 		function GetColumns : TArrayEx<TColumnData>;
 		procedure SetColumns(const Value : TArrayEx<TColumnData>);
 		property Columns : TArrayEx<TColumnData> read GetColumns write SetColumns;
@@ -72,8 +73,9 @@ type
 
 	{$M-}
 
-	TParsedObjectRow = class(TInterfacedObject, IParsedObjectRow)
+	TParsedObjectRow = class(TInterfacedObject, IParsedObjectRow, IParsedObject)
 
+		strict private
 		private
 			FErrorText : string;
 			FIsError : Boolean;
@@ -98,6 +100,7 @@ type
 			constructor Create(const _por : IParsedObjectRow; _parserType : TParserType); overload;
 			destructor Destroy; override;
 			procedure CopyTo(var _por : TParsedObjectRow);
+			function GetColumnByTitle(const _title : string) : TColumnData;
 			function GetColumnText(const _idx : integer) : string;
 			property Columns : TArrayEx<TColumnData> read GetColumns write SetColumns;
 			property ErrorText : string read GetErrorText write SetErrorText;
@@ -141,9 +144,9 @@ uses
 	System.SysUtils,
 	RipGrepper.Helper.Types;
 
-class function TColumnData.New(const _Title : EColumnIndex; const _Text : string) : TColumnData;
+class function TColumnData.New(const _idxTitle : EColumnIndex; const _Text : string) : TColumnData;
 begin
-	Result.Title := TDefaults.ColumnTitle[_Title];
+	Result.Title := TDefaults.ColumnTitle[_idxTitle];
 	Result.Text := _Text;
 end;
 
@@ -170,6 +173,21 @@ begin
 	_por.RowNr := RowNr;
 	_por.IsError := IsError;
 	_por.IsStatsLine := IsStatsLine;
+end;
+
+function TParsedObjectRow.GetColumnByTitle(const _title : string) : TColumnData;
+var
+	idxColumnData : Integer;
+	idxTitle : Integer;
+begin
+	idxTitle := TDefaults.ColumnIndex[_title];
+	idxColumnData := FColumns.IndexOf(TColumnData.New(EColumnIndex(idxTitle), ''), TComparer<TColumnData>.Construct(
+		function(const Left, Right : TColumnData) : Integer
+		begin
+			Result := TComparer<string>.Default.Compare(Left.Title, Right.Title);
+		end));
+
+	Result := FColumns.SafeItem[idxColumnData];
 end;
 
 function TParsedObjectRow.GetColumns : TArrayEx<TColumnData>;
@@ -243,13 +261,11 @@ end;
 constructor TParsedObjectRowCollection.Create;
 begin
 	inherited;
-	// FItems := TListType.Create();
 	FItems := TCollections.CreateList<IParsedObjectRow>();
 end;
 
 destructor TParsedObjectRowCollection.Destroy;
 begin
-	// FItems.Free;
 	inherited;
 end;
 
@@ -259,13 +275,45 @@ begin
 end;
 
 procedure TParsedObjectRowCollection.LoadFromStreamReader(_sr : TStreamReader);
+var
+	cd : TColumnData;
+	row : TParsedObjectRow;
+	columns : TArrayEx<TColumnData>;
+	idx : Integer;
+	line : string;
+	itemsCount : Integer;
+	text : string;
 begin
- // TODO: Implement loading from stream
+	FItems.Clear;
+	itemsCount := StrToIntDef(_sr.ReadLine, 0);
+	for var i : Integer := 0 to itemsCount - 1 do begin
+		columns.Clear;
+		for var sTitle in TREEVIEW_COLUMN_TITLES do begin
+			line := _sr.ReadLine;
+			idx := line.IndexOf(ARRAY_SEPARATOR);
+			if idx > 0 then begin
+				text := line.Substring(idx + 1);
+				cd := TColumnData.New(EColumnIndex(TDefaults.ColumnIndex[sTitle]), text);
+				columns.Add(cd);
+			end;
+		end;
+		row := TParsedObjectRow.Create( { nil, TParserType(0) } );
+		row.Columns := columns;
+		FItems.Add(row);
+	end;
 end;
 
 procedure TParsedObjectRowCollection.SaveToStreamWriter(_sw : TStreamWriter);
 begin
-// TODO: Implement saving to stream
+	_sw.WriteLine(FItems.Count);
+	for var row : IParsedObjectRow in FItems do begin
+		for var sTitle in TREEVIEW_COLUMN_TITLES do begin
+			var
+			cd := row.GetColumnByTitle(sTitle);
+			_sw.WriteLine(cd.Title + ARRAY_SEPARATOR + cd.Text);
+			// ParserType?
+		end;
+	end;
 end;
 
 function TParsedObjectGroupedRowCollection.GetGroupId : Integer;

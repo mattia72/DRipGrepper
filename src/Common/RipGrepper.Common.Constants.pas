@@ -262,7 +262,6 @@ const
 
 	MAX_COMMAND_LINE_LENGTH = 32767;
 
-	TREEVIEW_COLUMN_TITLES : TArray<string> = ['File', 'Row', 'Col', 'Text', 'MatchText', 'TextAfterMatch'];
 	TREEVIEW_INDENT_TAB_AS_SPACES = '    ';
 	TREEVIEW_FONTSPACE = 2;
 
@@ -284,8 +283,13 @@ type
 
 	EColumnIndex = (ciFile, ciRow, ciCol, ciText, ciMatchText, ciTextAfterMatch);
 
+const
+	TREEVIEW_COLUMN_TITLES : TArray<string> = ['File', 'Row', 'Col', 'Text', 'MatchText', 'TextAfterMatch'];
+
+type
 	TDefaults = class
 		private
+			class function GetColumnIndex(Index: string): integer; static;
 			class function GetColumnTitle(Index : EColumnIndex) : string; static;
 
 		public const
@@ -296,6 +300,7 @@ type
 			class var EXT_DEFAULT_SHORTCUT_SEARCH : string;
 			class var EXT_DEFAULT_SHORTCUT_OPEN_WITH : string;
 			class constructor Create;
+			class property ColumnIndex[Index: string]: integer read GetColumnIndex;
 			class property ColumnTitle[index : EColumnIndex] : string read GetColumnTitle; default;
 	end;
 
@@ -309,6 +314,14 @@ begin
 	inherited;
 	EXT_DEFAULT_SHORTCUT_SEARCH := ShortCutToText(ShortCut(Word('R'), [ssShift, ssAlt]));
 	EXT_DEFAULT_SHORTCUT_OPEN_WITH := ShortCutToText(ShortCut(Word('O'), [ssShift, ssAlt]));
+end;
+
+class function TDefaults.GetColumnIndex(Index: string): integer;
+var
+	arrTitles: TArrayEx<string>;
+begin
+	arrTitles := TREEVIEW_COLUMN_TITLES;
+	Result := arrTitles.IndexOf(Index);
 end;
 
 class function TDefaults.GetColumnTitle(Index : EColumnIndex) : string;
