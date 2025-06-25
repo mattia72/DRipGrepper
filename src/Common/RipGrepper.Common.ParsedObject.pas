@@ -74,9 +74,7 @@ type
 	{$M-}
 
 	TParsedObjectRow = class(TInterfacedObject, IParsedObjectRow, IParsedObject)
-
 		strict private
-		private
 			FErrorText : string;
 			FIsError : Boolean;
 			FColumns : TArrayEx<TColumnData>;

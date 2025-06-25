@@ -350,11 +350,11 @@ end;
 
 procedure TRipGrepperMiddleFrame.ActionCopyLineToClipboardExecute(Sender : TObject);
 var
-	Data : PVSFileNodeData;
+	nodeData : PVSFileNodeData;
 begin
-	Data := GetSelectedResultFileNodeData();
-	if Assigned(Data) then
-		Clipboard.AsText := Data.MatchData.LineText;
+	nodeData := GetSelectedResultFileNodeData();
+	if Assigned(nodeData) then
+		Clipboard.AsText := nodeData.MatchData.LineText;
 end;
 
 procedure TRipGrepperMiddleFrame.ActionCopyLineToClipboardUpdate(Sender : TObject);
@@ -364,11 +364,11 @@ end;
 
 procedure TRipGrepperMiddleFrame.ActionCopyMatchToClipboardExecute(Sender : TObject);
 var
-	Data : PVSFileNodeData;
+	nodeData : PVSFileNodeData;
 begin
-	Data := GetSelectedResultFileNodeData();
-	if Assigned(Data) then
-		Clipboard.AsText := Data.MatchData.LineText.Substring(Data.MatchData.Col - 1, Data.MatchData.MatchLength);
+	nodeData := GetSelectedResultFileNodeData();
+	if Assigned(nodeData) then
+		Clipboard.AsText := nodeData.MatchData.LineText.Substring(nodeData.MatchData.Col - 1, nodeData.MatchData.MatchLength);
 end;
 
 procedure TRipGrepperMiddleFrame.ActionCopyMatchToClipboardUpdate(Sender : TObject);
@@ -588,7 +588,7 @@ procedure TRipGrepperMiddleFrame.FilterTextMode(const Node : PVirtualNode; const
 	const _filterModes : TFilterModes);
 var
 	bIsFiltered : Boolean;
-	Data : PVSFileNodeData;
+	nodeData : PVSFileNodeData;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.FilterTextMode');
@@ -596,14 +596,14 @@ begin
 	var
 	line := '';
 	if (Node.Parent <> VstResult.RootNode) then begin
-		Data := VstResult.GetNodeData(Node);
-		bIsFiltered := IsNodeFiltered(Data, _sFilterPattern, _filterModes);
+		nodeData := VstResult.GetNodeData(Node);
+		bIsFiltered := IsNodeFiltered(nodeData, _sFilterPattern, _filterModes);
 
 		VstResult.IsFiltered[Node] := bIsFiltered;
 		if not bIsFiltered and Assigned(Node.Parent) and (Node.Parent <> VstResult.RootNode) then begin
 			VstResult.IsFiltered[Node.Parent] := False;
 		end;
-		line := Data.MatchData.LineText;
+		line := nodeData.MatchData.LineText;
 	end;
 	dbgMsg.MsgFmt('IsFiltered: %s %s', [BoolToStr(bIsFiltered, TRUE), line]);
 end;
@@ -612,19 +612,19 @@ procedure TRipGrepperMiddleFrame.FilterFileMode(const Node : PVirtualNode; const
 	const _filterModes : TFilterModes);
 var
 	bIsFiltered : Boolean;
-	Data : PVSFileNodeData;
+	nodeData : PVSFileNodeData;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.FilterFileMode');
-	Data := VstResult.GetNodeData(Node);
+	nodeData := VstResult.GetNodeData(Node);
 	bIsFiltered := False;
 	if (Node.Parent = VstResult.RootNode) then begin
-		bIsFiltered := IsNodeFiltered(Data, _sFilterPattern, _filterModes);
+		bIsFiltered := IsNodeFiltered(nodeData, _sFilterPattern, _filterModes);
 		VstResult.IsFiltered[Node] := bIsFiltered;
 	end else begin
 		VstResult.IsFiltered[Node] := VstResult.IsFiltered[Node.Parent];
 	end;
-	dbgMsg.MsgFmt('IsFiltered: %s %s', [BoolToStr(bIsFiltered, TRUE), Data.FilePath]);
+	dbgMsg.MsgFmt('IsFiltered: %s %s', [BoolToStr(bIsFiltered, TRUE), nodeData.FilePath]);
 end;
 
 procedure TRipGrepperMiddleFrame.FrameResize(Sender : TObject);
@@ -704,14 +704,14 @@ end;
 
 function TRipGrepperMiddleFrame.GetFilePathFromNode(_node : PVirtualNode) : string;
 var
-	Data : PVSFileNodeData;
+	nodeData : PVSFileNodeData;
 begin
 	if _node.ChildCount = 0 then begin
-		Data := VstResult.GetNodeData(_node.Parent);
+		nodeData := VstResult.GetNodeData(_node.Parent);
 	end else begin
-		Data := VstResult.GetNodeData(_node);
+		nodeData := VstResult.GetNodeData(_node);
 	end;
-	Result := Data.FilePath;
+	Result := nodeData.FilePath;
 end;
 
 function TRipGrepperMiddleFrame.GetHistItemObject : IHistoryItemObject;
@@ -735,27 +735,27 @@ end;
 
 function TRipGrepperMiddleFrame.GetOpenWithParamsFromSelected : TOpenWithParams;
 var
-	Node : PVirtualNode;
-	Data : PVSFileNodeData;
+	node : PVirtualNode;
+	nodeData : PVSFileNodeData;
 	dataParent : PVSFileNodeData;
 begin
-	Node := VstResult.GetFirstSelected();
-	if not Assigned(Node) then
+	node := VstResult.GetFirstSelected();
+	if not Assigned(node) then
 		Exit;
 
-	Data := VstResult.GetNodeData(Node);
-	if Node.ChildCount > 0 then begin
-		Result.RelativeBaseDirPath := GetOpenWithRelativeBaseDirPath(Data);
-		Result.FilePath := Data.FilePath;
+	nodeData := VstResult.GetNodeData(node);
+	if node.ChildCount > 0 then begin
+		Result.RelativeBaseDirPath := GetOpenWithRelativeBaseDirPath(nodeData);
+		Result.FilePath := nodeData.FilePath;
 		Result.Row := 0;
 		Result.Column := 0;
 		Result.IsEmpty := False;
 	end else begin
-		dataParent := VstResult.GetNodeData(Node.Parent);
+		dataParent := VstResult.GetNodeData(node.Parent);
 		Result.RelativeBaseDirPath := GetOpenWithRelativeBaseDirPath(dataParent);
 		Result.FilePath := dataParent.FilePath;
-		Result.Row := Data.MatchData.Row;
-		Result.Column := Data.MatchData.Col;
+		Result.Row := nodeData.MatchData.Row;
+		Result.Column := nodeData.MatchData.Col;
 		Result.IsEmpty := False;
 	end;
 
@@ -1300,7 +1300,7 @@ procedure TRipGrepperMiddleFrame.VstResultDrawText(Sender : TBaseVirtualTree; Ta
 Column : TColumnIndex; const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
 var
 	pos : Integer;
-	Data : PVSFileNodeData;
+	nodeData : PVSFileNodeData;
 	s, ss0, ss1, ss1_repl, ss2 : string;
 	iSpaces, iTabs, matchBegin : Integer;
 begin
@@ -1330,22 +1330,22 @@ begin
 					var
 					backup := TDrawParams.Save(TargetCanvas);
 
-					Data := VstResult.GetNodeData(Node);
-					s := Data.GetLineText(not Settings.NodeLookSettings.IndentLines, iSpaces, iTabs);
+					nodeData := VstResult.GetNodeData(Node);
+					s := nodeData.GetLineText(not Settings.NodeLookSettings.IndentLines, iSpaces, iTabs);
 
-					matchBegin := Data.MatchData.Col - 1 - (iSpaces + iTabs);
+					matchBegin := nodeData.MatchData.Col - 1 - (iSpaces + iTabs);
 
 					ss0 := s.Substring(0, matchBegin).Replace(#9, TREEVIEW_INDENT_TAB_AS_SPACES, [rfReplaceAll]);
 					pos := TargetCanvas.TextWidth(ss0);
 
 					TItemDrawer.ColoredTextOut(TargetCanvas, CellRect, ss0, FColorSettings.NormalText);
 
-					ss1 := s.Substring(matchBegin, Data.MatchData.MatchLength);
+					ss1 := s.Substring(matchBegin, nodeData.MatchData.MatchLength);
 					if IsGuiReplaceMode and (not Settings.LastSearchText.IsEmpty) then begin
 						ss1_repl := TReplaceHelper.ReplaceString(ss1, Settings.LastSearchText,
 						{ } Settings.RipGrepParameters.ReplaceText, 1, TopFrame.GetReplaceMode());
 					end;
-					ss2 := s.Substring(matchBegin + Data.MatchData.MatchLength);
+					ss2 := s.Substring(matchBegin + nodeData.MatchData.MatchLength);
 
 					if IsGuiReplaceMode or IsRgReplaceMode then begin
 						TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.ReplacedText);

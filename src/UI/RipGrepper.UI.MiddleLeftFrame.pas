@@ -369,47 +369,47 @@ end;
 
 function TMiddleLeftFrame.ChangeHistoryNodeText() : PVirtualNode;
 var
-	Node : PVirtualNode;
-	Data : PVSHistoryNodeData;
+	node : PVirtualNode;
+	nodeData : PVSHistoryNodeData;
 begin
 	TDebugUtils.DebugMessage('TMiddleLeftFrame.ChangeHistoryNodeText: idx = ' + CurrentHistoryItemIndex.ToString);
 
-	Node := GetNodeByIndex(VstHistory, CurrentHistoryItemIndex);
-	Data := VstHistory.GetNodeData(Node);
+	node := GetNodeByIndex(VstHistory, CurrentHistoryItemIndex);
+	nodeData := VstHistory.GetNodeData(node);
 	TDebugUtils.DebugMessageFormat('TMiddleLeftFrame.ChangeHistoryNodeText: SearchText orig=''%s'' new=''%''',
-		[Data^.SearchText, Settings.LastSearchText]);
+		[nodeData^.SearchText, Settings.LastSearchText]);
 	if not Settings.LastSearchText.IsEmpty then begin
-		Data^.SearchText := Settings.LastSearchText;
-		if Data^.ReplaceData.IsReplaceMode then begin
-			ChangeVstReplaceNode(Node, Data);
-			ExpandIfHasChild(Node);
+		nodeData^.SearchText := Settings.LastSearchText;
+		if nodeData^.ReplaceData.IsReplaceMode then begin
+			ChangeVstReplaceNode(node, nodeData);
+			ExpandIfHasChild(node);
 		end;
 	end;
 	VstHistory.Repaint;
-	Result := Node;
+	Result := node;
 end;
 
 procedure TMiddleLeftFrame.ChangeVstReplaceNode(Node : PVirtualNode; const _Data : PVSHistoryNodeData = nil);
 var
-	Data : PVSHistoryNodeData;
+	nodeData : PVSHistoryNodeData;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.ChangeVstReplaceNode');
 
-	Data := _Data;
-	if not Assigned(Data) then begin
-		Data := VstHistory.GetNodeData(Node);
+	nodeData := _Data;
+	if not Assigned(nodeData) then begin
+		nodeData := VstHistory.GetNodeData(Node);
 	end;
 
-	Data^.ReplaceData.IsReplaceMode := Settings.IsReplaceMode;
+	nodeData^.ReplaceData.IsReplaceMode := Settings.IsReplaceMode;
 	dbgMsg.MsgFmt('IsReplaceMode: %s, ChildCount: %d', [BoolToStr(Settings.IsReplaceMode), Node.ChildCount]);
 
-	if Data^.ReplaceData.IsReplaceMode then begin
+	if nodeData^.ReplaceData.IsReplaceMode then begin
 		if Node.ChildCount = 0 then begin
-			AddVstReplaceNode(Node, Data);
+			AddVstReplaceNode(Node, nodeData);
 		end else begin
 			VstHistory.DeleteNode(Node.FirstChild);
-			AddVstReplaceNode(Node, Data);
+			AddVstReplaceNode(Node, nodeData);
 		end;
 	end else begin
 		if Node.ChildCount > 0 then begin
@@ -664,11 +664,11 @@ end;
 
 procedure TMiddleLeftFrame.VstHistoryFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
 var
-	Data : PVSHistoryNodeData;
+	nodeData : PVSHistoryNodeData;
 begin
-	Data := VstHistory.GetNodeData(Node);
-	Data.SearchText := '';
-	Data.ReplaceData.ReplaceText := '';
+	nodeData := VstHistory.GetNodeData(Node);
+	nodeData.SearchText := '';
+	nodeData.ReplaceData.ReplaceText := '';
 end;
 
 procedure TMiddleLeftFrame.VstHistoryGetHint(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
@@ -867,7 +867,7 @@ var
 	ho : IHistoryItemObject;
 	node : PVirtualNode;
 	{$IFDEF DEBUG}
-	data : PVSHistoryNodeData;
+	nodeData : PVSHistoryNodeData;
 	{$ENDIF}
 begin
 	var
@@ -877,8 +877,8 @@ begin
 
 	node := GetNodeByIndex(VstHistory, CurrentHistoryItemIndex);
 	{$IFDEF DEBUG}
-	data := VstHistory.GetNodeData(node);
-	dbgMsg.MsgFmt('idx:%d node:%s, ho:%s', [CurrentHistoryItemIndex, data.SearchText, ho.GuiSearchTextParams.GetSearchText]);
+	nodeData := VstHistory.GetNodeData(node);
+	dbgMsg.MsgFmt('idx:%d node:%s, ho:%s', [CurrentHistoryItemIndex, nodeData.SearchText, ho.GuiSearchTextParams.GetSearchText]);
 	{$ENDIF}
 	VstHistory.DeleteNode(node);
 	VstHistory.Refresh;

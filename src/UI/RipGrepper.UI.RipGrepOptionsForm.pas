@@ -274,13 +274,13 @@ end;
 function TRipGrepOptionsForm.AddVSTStructure(AVST : TCustomVirtualStringTree; ANode : PVirtualNode; ARecord : THelpOptionsGroup)
 	: PVirtualNode;
 var
-	Data : PHelpOptionsGroup;
+	nodeData : PHelpOptionsGroup;
 begin
 	Result := AVST.AddChild(ANode);
-	Data := AVST.GetNodeData(Result);
+	nodeData := AVST.GetNodeData(Result);
 	Avst.ValidateNode(Result, False);
-	Data^.Option := ARecord.Option;
-	Data^.Group := ARecord.Group;
+	nodeData^.Option := ARecord.Option;
+	nodeData^.Group := ARecord.Group;
 end;
 
 procedure TRipGrepOptionsForm.FormShow(Sender : TObject);

@@ -35,6 +35,7 @@ type
 			function GetListItemCount : Integer;
 			function GetParentNode(const _sNodeText : string; _asFirst : Boolean = False) : PVirtualNode;
 			procedure AddChildNode(const _parentNode : PVirtualNode; _item : IParsedObjectRow);
+			procedure AddNode(_item : IParsedObjectRow);
 			function ErrorOrStatsLinesHandling(const _sFileColumnText : string; _item : IParsedObjectRow) : PVirtualNode;
 			function GetNoMatchFound : Boolean;
 			function GetParentNodeByItemType(const sFileColumnText : string; _item : IParsedObjectRow) : PVirtualNode;
@@ -85,9 +86,6 @@ begin
 end;
 
 procedure TRipGrepperData.Add(_item : IParsedObjectRow);
-var
-	node : PVirtualNode;
-	sFileColumnText : string;
 begin
 	if (_item.Columns.IsEmpty) then
 		Exit;
@@ -95,9 +93,7 @@ begin
 	FVst.BeginUpdate;
 	try
 		HistObject.Matches.Items.Add(_item);
-		sFileColumnText := _item.Columns[Integer(ciFile)].Text;
-		node := GetParentNodeByItemType(sFileColumnText, _item);
-		AddChildNode(node, _item);
+		AddNode(_item);
 	finally
 		FVst.EndUpdate;
 	end;
@@ -105,7 +101,7 @@ end;
 
 function TRipGrepperData.AddVSTStructure(_node : PVirtualNode; _rec : TVSFileNodeData; _asFirst : Boolean) : PVirtualNode;
 var
-	Data : PVSFileNodeData;
+	nodeData : PVSFileNodeData;
 begin
 	if _asFirst then begin
 		Result := FVst.InsertNode(_node, TVTNodeAttachMode.amAddChildFirst);
@@ -113,10 +109,10 @@ begin
 		Result := FVst.AddChild(_node);
 	end;
 	Result.CheckType := ctCheckBox;
-	Data := FVst.GetNodeData(Result);
+	nodeData := FVst.GetNodeData(Result);
 	// FVst.ValidateNode(Result, False);
-	Data^.FilePath := _rec.FilePath;
-	Data^.MatchData := _rec.MatchData;
+	nodeData^.FilePath := _rec.FilePath;
+	nodeData^.MatchData := _rec.MatchData;
 end;
 
 procedure TRipGrepperData.ClearMatchFiles;
@@ -260,6 +256,16 @@ begin
 
 	AddVSTStructure(_parentNode, nodeData, bAsFirst);
 	_parentNode.CheckType := ctCheckBox;
+end;
+
+procedure TRipGrepperData.AddNode(_item : IParsedObjectRow);
+var
+	node : PVirtualNode;
+	sFileColumnText : string;
+begin
+	sFileColumnText := _item.Columns[Integer(ciFile)].Text;
+	node := GetParentNodeByItemType(sFileColumnText, _item);
+	AddChildNode(node, _item);
 end;
 
 function TRipGrepperData.ErrorOrStatsLinesHandling(const _sFileColumnText : string; _item : IParsedObjectRow) : PVirtualNode;
