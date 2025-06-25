@@ -130,7 +130,7 @@ type
 			// _bUseBase determines whether things like .dfm/.hpp map
 			// to their parent file type.  Otherwise, they will not be located.
 			class function IsFileOpen(const _sFilePath : string; const _bUseBase : Boolean = False) : Boolean;
-			class procedure GxOtaLoadSourceEditorToUnicodeStrings(SourceEditor : IOTASourceEditor; Data : TStringList);
+			class procedure GxOtaLoadSourceEditorToUnicodeStrings(_editor : IOTASourceEditor; _content : TStringList);
 			// Make sure the given filename's source is visible.
 			// This swaps source/form views as necessary
 			class function GxOtaMakeSourceVisible(const FileName : string) : Boolean;
@@ -965,28 +965,28 @@ begin
 	end;
 end;
 
-class procedure IOTAUTils.GxOtaLoadSourceEditorToUnicodeStrings(SourceEditor : IOTASourceEditor; Data : TStringList);
+class procedure IOTAUTils.GxOtaLoadSourceEditorToUnicodeStrings(_editor : IOTASourceEditor; _content : TStringList);
 var
 	MemStream : TMemoryStream;
 begin
-	Data.Clear;
-	if not Assigned(SourceEditor) then
+	_content.Clear;
+	if not Assigned(_editor) then
 		raise Exception.Create('No source editor in GxOtaLoadSourceEditorToUnicodeStrings');
 	// TODO: Check stream format for forms as text (Ansi with escaped unicode, or UTF-8) in Delphi 2007/2009
 	MemStream := TMemoryStream.Create;
 	try
-		GxOtaSaveReaderToStream(SourceEditor.CreateReader, MemStream, False);
+		GxOtaSaveReaderToStream(_editor.CreateReader, MemStream, False);
 		MemStream.Position := 0;
 		{$IFDEF UNICODE}
-		Data.LoadFromStream(MemStream, TEncoding.UTF8);
+		_content.LoadFromStream(MemStream, TEncoding.UTF8);
 		// For some Unicode characters (e.g. $E59C and $E280 SynUnicode.LoadFromStream works,
 		// but TStringList.LoadFromStream doesn't.
 		// Depending on the RTL version the latter fails silently and returns an empty string list.
 		// So we check here for that condition and raise an error
-		if (Data.Count = 0) and (MemStream.Size > 0) then
-			raise Exception.CreateFmt('%s.LoadFromFile failed to read %s.', [Data.ClassParent.ClassName, SourceEditor.FileName]);
+		if (_content.Count = 0) and (MemStream.Size > 0) then
+			raise Exception.CreateFmt('%s.LoadFromFile failed to read %s.', [_content.ClassParent.ClassName, _editor.FileName]);
 		{$ELSE}
-		SynUnicode.LoadFromStream(Data, MemStream, seUTF8);
+		SynUnicode.LoadFromStream(_content, MemStream, seUTF8);
 		{$ENDIF}
 	finally
 		FreeAndNil(MemStream);

@@ -632,7 +632,7 @@ end;
 procedure TRipGrepperTopFrame.GetCheckedReplaceList(var replaceList : TReplaceList);
 var
 	node : PVirtualNode;
-	data : PVSFileNodeData;
+	nodeData : PVSFileNodeData;
 	parentData : PVSFileNodeData;
 	replaceLine : string;
 	fileName : string;
@@ -645,24 +645,24 @@ begin
 
 	while Assigned(node) do begin
 		if node.Parent <> MainFrame.VstResult.RootNode then begin
-			data := MainFrame.VstResult.GetNodeData(node);
+			nodeData := MainFrame.VstResult.GetNodeData(node);
 			parentData := MainFrame.VstResult.GetNodeData(node.Parent);
 			fileName := parentData.FilePath;
 			if fileName = RG_STATS_LINE then begin
 				continue;
 			end;
-			lineNum := data.MatchData.Row;
-			rowNum := data.MatchData.Col;
+			lineNum := nodeData.MatchData.Row;
+			rowNum := nodeData.MatchData.Col;
 			var
-			lineText := data.MatchData.LineText;
+			lineText := nodeData.MatchData.LineText;
 
 			if IsRgReplaceMode then begin
-				replaceLine := data.MatchData.LineText; // ok every replacement is done by rg.exe
+				replaceLine := nodeData.MatchData.LineText; // ok every replacement is done by rg.exe
 			end else if IsGuiReplaceMode then begin
 				if replaceList.TryGet(fileName, lineNum, rowNum, lineText) then begin
 					replaceList.Remove(fileName, lineNum, rowNum, lineText);
 				end;
-				// we should replace only from data.MatchData.Col?
+				// we should replace only from nodeData.MatchData.Col?
 
 				replaceLine := TReplaceHelper.ReplaceString(lineText, Settings.LastSearchText,
 					{ } Settings.RipGrepParameters.ReplaceText, rowNum, rm);

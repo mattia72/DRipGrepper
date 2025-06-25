@@ -695,13 +695,13 @@ end;
 procedure TMiddleLeftFrame.VstHistoryGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType;
 	var CellText : string);
 var
-	Data : PVSHistoryNodeData;
+	nodeData : PVSHistoryNodeData;
 begin
-	Data := VstHistory.GetNodeData(Node);
+	nodeData := VstHistory.GetNodeData(Node);
 	case Column of
 		COL_SEARCH_TEXT : begin
 			if TextType = ttNormal then begin
-				CellText := Data.SearchText; // + CRLF + MainFrame.GetCounterText(GetHistoryObject(Node.Index));
+				CellText := nodeData.SearchText; // + CRLF + MainFrame.GetCounterText(GetHistoryObject(Node.Index));
 			end else begin
 				// only for root
 				if Node.Parent = VstHistory.RootNode then begin
@@ -711,9 +711,9 @@ begin
 			end;
 		end;
 		COL_REPLACE_TEXT : begin
-			if Data.ReplaceData.IsReplaceMode then begin
+			if nodeData.ReplaceData.IsReplaceMode then begin
 				if TextType = ttNormal then begin
-					CellText := Data.ReplaceData.ReplaceText;
+					CellText := nodeData.ReplaceData.ReplaceText;
 				end;
 			end;
 		end;
@@ -744,12 +744,12 @@ begin
 
 	{$IFDEF debug}
 	var
-		data : PVSHistoryNodeData := VstHistory.GetNodeData(HitInfo.HitNode);
-	if data.ReplaceData.IsReplaceMode then begin
+		nodeData : PVSHistoryNodeData := VstHistory.GetNodeData(HitInfo.HitNode);
+	if nodeData.ReplaceData.IsReplaceMode then begin
 		VstHistory.Expanded[node] := node.ChildCount > 0;
 		var
 			childData : PVSHistoryNodeData := VstHistory.GetNodeData(node.FirstChild);
-		dbgMsg.MsgFmt('%s -> %s', [data.SearchText, childData.ReplaceData.ReplaceText]);
+		dbgMsg.MsgFmt('%s -> %s', [nodeData.SearchText, childData.ReplaceData.ReplaceText]);
 	end;
 	{$ENDIF}
 	SetReplaceMode();

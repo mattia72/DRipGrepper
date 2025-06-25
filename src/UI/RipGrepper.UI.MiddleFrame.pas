@@ -160,7 +160,7 @@ type
 			function AddParallelParser(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean) : TParallelParser;
 			function GetActiveProject() : string;
 			function GetIsInitialized() : Boolean;
-			function GetOpenWithRelativeBaseDirPath(const Data : PVSFileNodeData) : string;
+			function GetOpenWithRelativeBaseDirPath(const _nodeData : PVSFileNodeData) : string;
 			function GetResultSelectedFilePath : string;
 			function GetSelectedResultFileNodeData : PVSFileNodeData;
 			function GetSettings : TRipGrepperSettings;
@@ -201,12 +201,13 @@ type
 			function CreateNewHistObject : IHistoryItemObject;
 			procedure FilterNodes(const _sFilterPattern : string; const _filterModes : TFilterModes);
 			procedure FreeAndCleanParserList;
-			function GetCounterText(Data : IHistoryItemObject) : string;
+			function GetCounterText(_ho : IHistoryItemObject) : string;
 			function GetFilePathFromNode(_node : PVirtualNode) : string;
 			function GetOpenWithParamsFromSelected : TOpenWithParams;
 			function GetRowColText(_i : Integer; _type : TVSTTextType) : string;
 			procedure Initialize();
-			function IsNodeFiltered(const Data : PVSFileNodeData; const _sFilterText : string; const _filterModes : TFilterModes) : Boolean;
+			function IsNodeFiltered(const _nodeData : PVSFileNodeData; const _sFilterText : string; const _filterModes : TFilterModes)
+				: Boolean;
 			function IsSearchRunning : Boolean;
 			// IEOFProcessEventHandler
 			procedure OnEOFProcess;
@@ -664,29 +665,28 @@ begin
 	end;
 end;
 
-function TRipGrepperMiddleFrame.GetCounterText(Data : IHistoryItemObject) : string;
+function TRipGrepperMiddleFrame.GetCounterText(_ho : IHistoryItemObject) : string;
 begin
 	Result := '';
-	if not Assigned(Data) then begin
+	if not Assigned(_ho) then begin
 		Exit;
 	end;
 	var
-	ec := Data.GetErrorCounters;
+	ec := _ho.GetErrorCounters;
 	if ec.FSumOfErrors > 0 then begin
-		Result := Format('%s %d in %d(%d!)', [TREEVIEW_HISTORY_COUNTER_ERROR_PREFIX, Data.TotalMatchCount, Data.FileCount,
-			ec.FSumOfErrors]);
-	end else if Data.IsReplaceMode then begin
-		Result := Format('%s %d in %d', [TREEVIEW_HISTORY_REPLACE_PREFIX, Data.TotalMatchCount, Data.FileCount]);
+		Result := Format('%s %d in %d(%d!)', [TREEVIEW_HISTORY_COUNTER_ERROR_PREFIX, _ho.TotalMatchCount, _ho.FileCount, ec.FSumOfErrors]);
+	end else if _ho.IsReplaceMode then begin
+		Result := Format('%s %d in %d', [TREEVIEW_HISTORY_REPLACE_PREFIX, _ho.TotalMatchCount, _ho.FileCount]);
 	end else begin
-		if Data.NoMatchFound then begin
+		if _ho.NoMatchFound then begin
 			Result := TREEVIEW_HISTORY_COUNTER_NOTHING_FOUND_PREFIX + ' 0 in 0';
 		end else begin
-			Result := Format('%s %d in %d', [TREEVIEW_HISTORY_COUNTER_OK_PREFIX, Data.TotalMatchCount, Data.FileCount]);
+			Result := Format('%s %d in %d', [TREEVIEW_HISTORY_COUNTER_OK_PREFIX, _ho.TotalMatchCount, _ho.FileCount]);
 		end;
 	end;
 
-	if Data.IsLoadedFromStream then begin
-		if Data.TotalMatchCount = 0 then begin
+	if _ho.IsLoadedFromStream then begin
+		if _ho.TotalMatchCount = 0 then begin
 			Result := Format('%s ? in ?', [TREEVIEW_HISTORY_LOADED_PREFIX]);
 		end;
 	end;
@@ -1046,16 +1046,16 @@ begin
 	Result := VstResult.GetNodeData(Node);
 end;
 
-function TRipGrepperMiddleFrame.IsNodeFiltered(const Data : PVSFileNodeData; const _sFilterText : string; const _filterModes : TFilterModes)
-	: Boolean;
+function TRipGrepperMiddleFrame.IsNodeFiltered(const _nodeData : PVSFileNodeData; const _sFilterText : string;
+const _filterModes : TFilterModes) : Boolean;
 begin
 	if _sFilterText.IsEmpty then begin
 		Result := False;
 	end else begin
 		if EFilterMode.fmFilterFile in _filterModes then begin
-			Result := not IsTextMatch(GetAbsOrRelativePath(Data.FilePath), _sFilterText, _filterModes);
+			Result := not IsTextMatch(GetAbsOrRelativePath(_nodeData.FilePath), _sFilterText, _filterModes);
 		end else begin
-			Result := not IsTextMatch(Data.MatchData.LineText, _sFilterText, _filterModes);
+			Result := not IsTextMatch(_nodeData.MatchData.LineText, _sFilterText, _filterModes);
 		end;
 	end;
 end;
@@ -1531,13 +1531,13 @@ begin
 	Result := FIsInitialized;
 end;
 
-function TRipGrepperMiddleFrame.GetOpenWithRelativeBaseDirPath(const Data : PVSFileNodeData) : string;
+function TRipGrepperMiddleFrame.GetOpenWithRelativeBaseDirPath(const _nodeData : PVSFileNodeData) : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.GetOpenWithRelativeBaseDirPath');
 	Result := '';
 	{$IFDEF STANDALONE}
-	Result := IfThen(Settings.SearchPathIsDir, Settings.ActualSearchPath, ExtractFileDir(Data.FilePath));
+	Result := IfThen(Settings.SearchPathIsDir, Settings.ActualSearchPath, ExtractFileDir(_nodeData.FilePath));
 	{$ELSE}
 	var
 	activeProject := GetActiveProject();
