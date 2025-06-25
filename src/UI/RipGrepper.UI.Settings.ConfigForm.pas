@@ -127,6 +127,8 @@ end;
 destructor TConfigForm.Destroy;
 begin
 	Settings.ReLoadFromDisk;
+	for var i := 0 to PageControl1.PageCount - 1 do
+		PageControl1.Pages[0].Free;
 	inherited;
 end;
 
