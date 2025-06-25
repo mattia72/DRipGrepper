@@ -156,6 +156,7 @@ type
 
 	TUrlLinkHelper = class(TObject)
 		class procedure OpenLink(const _link : string);
+		class function MakeLinkWithCaption(const _caption, _href, _text: string): string;
 	end;
 
 implementation
@@ -668,6 +669,11 @@ class procedure TComboBoxHelper.ChangeItems(_cmb : TComboBox; const _items : TAr
 begin
 	_cmb.Items.Clear;
 	_cmb.Items.AddStrings(_items);
+end;
+
+class function TUrlLinkHelper.MakeLinkWithCaption(const _caption, _href, _text: string): string;
+begin
+	Result := Format('%s<a href="%s">%s</a>', [_caption, _href, _text]);
 end;
 
 class procedure TUrlLinkHelper.OpenLink(const _link : string);

@@ -65,7 +65,6 @@ type
 			procedure AddDescriptionLinesToMemo(const _relInfo : IReleaseInfo);
 			procedure AddReleaseToMemo(_relInfo : IReleaseInfo; const _bCheckLoading : Boolean = True);
 			procedure InitMemoWithCurrentRelInfo(_curVer : IReleaseInfo);
-			function MakeLinkCaption(const _label, _href, _text : string) : string;
 			procedure SetMemoText();
 
 		protected
@@ -111,7 +110,7 @@ begin
 
 	lblTitle.Caption := FReleaseUtils.CurrentName;
 	lblVersion.Caption := FReleaseUtils.CurrentVersion;
-	lnkHomeURL.Caption := MakeLinkCaption('Home: ', HOME_PAGE, 'mattia72/DripGrepper');
+	lnkHomeURL.Caption := TUrlLinkHelper.MakeLinkWithCaption('Home: ', HOME_PAGE, 'mattia72/DripGrepper');
 	SetMemoText();
 end;
 
@@ -133,7 +132,7 @@ begin
 
 	if FReleaseUtils.LatestRelease.LoadOk then begin
 		lnkLatestUrl.Visible := True;
-		lnkLatestUrl.Caption := MakeLinkCaption('', FReleaseUtils.LatestRelease.HtmlURL, FReleaseUtils.LatestVersion);
+		lnkLatestUrl.Caption := TUrlLinkHelper.MakeLinkWithCaption('Latest release: ', FReleaseUtils.LatestRelease.HtmlURL, FReleaseUtils.LatestVersion);
 	end;
 end;
 
@@ -243,11 +242,6 @@ end;
 procedure TAboutForm.lnkHomeURLLinkClick(Sender : TObject; const Link : string; LinkType : TSysLinkType);
 begin
 	TUrlLinkHelper.OpenLink(HOME_PAGE);
-end;
-
-function TAboutForm.MakeLinkCaption(const _label, _href, _text : string) : string;
-begin
-	Result := Format('%s<a href="%s">%s</a>', [_label, _href, _text]);
 end;
 
 procedure TAboutForm.SetMemoText();

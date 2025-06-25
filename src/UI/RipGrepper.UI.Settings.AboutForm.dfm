@@ -69,7 +69,7 @@ object AboutForm: TAboutForm
           AlignWithMargins = True
           Left = 4
           Top = 11
-          Width = 102
+          Width = 446
           Height = 23
           Margins.Top = 10
           Align = alTop
@@ -85,8 +85,8 @@ object AboutForm: TAboutForm
         end
         object lblVersion: TLabel
           Left = 1
-          Top = 34
-          Width = 76
+          Top = 37
+          Width = 452
           Height = 19
           Margins.Top = 10
           Align = alTop
@@ -135,22 +135,6 @@ object AboutForm: TAboutForm
           ScrollBars = ssBoth
           TabOrder = 0
         end
-      end
-      object lnkLatestUrl: TLinkLabel
-        Left = 224
-        Top = 70
-        Width = 108
-        Height = 19
-        Caption = 'Latest: v4.6.2-beta'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = [fsBold]
-        ParentFont = False
-        TabOrder = 2
-        Visible = False
-        OnLinkClick = lnkLatestUrlLinkClick
       end
     end
     object pnlLeft: TPanel
@@ -13726,8 +13710,7 @@ object AboutForm: TAboutForm
         Width = 126
         Height = 26
         Action = ActionCheckUpdate
-        TabOrder = 1
-        Visible = False
+        TabOrder = 2
       end
       object lnkHomeURL: TLinkLabel
         AlignWithMargins = True
@@ -13748,11 +13731,27 @@ object AboutForm: TAboutForm
       end
       object cbCheckNewReleaseOnStartup: TCheckBox
         Left = 21
-        Top = 295
+        Top = 350
         Width = 214
         Height = 17
         Caption = 'Check new release on sartup'
-        TabOrder = 2
+        TabOrder = 3
+      end
+      object lnkLatestUrl: TLinkLabel
+        Left = 21
+        Top = 293
+        Width = 108
+        Height = 19
+        Caption = 'Latest: v4.6.2-beta'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 1
+        Visible = False
+        OnLinkClick = lnkLatestUrlLinkClick
       end
     end
   end
