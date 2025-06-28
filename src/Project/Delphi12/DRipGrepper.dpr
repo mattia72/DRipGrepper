@@ -108,7 +108,8 @@ uses
   RipGrepper.Settings.RipGrepArguments in '..\..\Settings\RipGrepper.Settings.RipGrepArguments.pas',
   RipGrepper.Helper.StreamReaderWriter in '..\..\Helper\RipGrepper.Helper.StreamReaderWriter.pas',
   RipGrepper.UI.Settings.AboutForm in '..\..\UI\RipGrepper.UI.Settings.AboutForm.pas',
-  RipGrepper.Tools.ReleaseUtils in '..\..\Tools\RipGrepper.Tools.ReleaseUtils.pas';
+  RipGrepper.Tools.ReleaseUtils in '..\..\Tools\RipGrepper.Tools.ReleaseUtils.pas',
+  RipGrepper.Common.LoadHistoryMode in '..\..\Common\RipGrepper.Common.LoadHistoryMode.pas';
 
 {$R *.res}
 
@@ -122,4 +123,5 @@ begin
 	Application.CreateForm(TRipGrepperForm, RipGrepperForm);
   Application.CreateForm(TOpenWithCommandEditor, OpenWithCommandEditor);
   Application.Run;
+
 end.
