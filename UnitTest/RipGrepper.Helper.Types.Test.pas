@@ -114,7 +114,7 @@ type
 type
 
 	[TestFixture]
-	TLoadLastHistoryModesConverterTest = class
+	TLoadHistoryModesTest = class
 		public
 			[Test]
 			procedure TestModeToIntAndIntToMode;
@@ -155,7 +155,8 @@ uses
 	ArrayEx,
 	System.IOUtils,
 	RipGrepper.Tools.FileUtils,
-	RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.SimpleTypes,
+	RipGrepper.Common.LoadHistoryMode;
 
 procedure TStringsHelperTest.Setup;
 begin
@@ -466,36 +467,40 @@ begin
 	Assert.AreEqual('default', val);
 end;
 
-{ TLoadLastHistoryModesConverterTest }
+{ TLoadHistoryModesTest }
 
-procedure TLoadLastHistoryModesConverterTest.TestModeToIntAndIntToMode;
+procedure TLoadHistoryModesTest.TestModeToIntAndIntToMode;
 var
-	m : TLoadLastHistoryModes;
+	m : TLoadHistoryModes;
 	i : integer;
 begin
-	for var e := low(ELoadLastHistoryMode) to high(ELoadLastHistoryMode) do begin
-		m := [e];
-		i := TLoadLastHistoryModesConverter.ModeToInt(m);
-		Assert.IsTrue(i >= 0, 'ModeToInt should return a non-negative integer');
-		m := TLoadLastHistoryModesConverter.IntToMode(i);
-		Assert.IsTrue(e in m, Format('Mode %s should be in the converted mode',
-			{ } [TConversions<ELoadLastHistoryMode>.EnumerationToString(e)]));
+	for var e := low(ELoadHistoryMode) to high(ELoadHistoryMode) do begin
+		m := TLoadHistoryModes.New(e);
+		i := m.ToInt();
+		if Ord(e) < Ord(lhmSaveResults) then begin
+			Assert.IsTrue(i >= 0, 'ToInt should return a non-negative integer');
+		end else begin
+			Assert.AreEqual(-1, i, 'ToInt should return a negative integer');
+		end;
+		m.AddMode(i);
+		Assert.IsTrue(m.IsSet(e), Format('Mode %s should be in the converted mode',
+			{ } [TConversions<ELoadHistoryMode>.EnumerationToString(e)]));
 	end;
 end;
 
-procedure TLoadLastHistoryModesConverterTest.TestModeToStringAndStringToMode;
+procedure TLoadHistoryModesTest.TestModeToStringAndStringToMode;
 var
 	eAsString : string;
-	m : TLoadLastHistoryModes;
+	m : TLoadHistoryModes;
 	s : string;
 begin
-	for var e := low(ELoadLastHistoryMode) to high(ELoadLastHistoryMode) do begin
-		m := [e];
-		s := TLoadLastHistoryModesConverter.ModeToString(m);
-		eAsString := TConversions<ELoadLastHistoryMode>.EnumerationToString(e);
-		Assert.IsTrue(s.Contains(eAsString), 'ModeToString should contain ' + eAsString);
-		m := TLoadLastHistoryModesConverter.StringToMode(s);
-		Assert.IsTrue(e in m, Format('Mode %s should be in the converted mode', [eAsString]));
+	for var e := low(ELoadHistoryMode) to high(ELoadHistoryMode) do begin
+		m := TLoadHistoryModes.New(e);
+		s := m.ToString;
+		eAsString := TConversions<ELoadHistoryMode>.EnumerationToString(e);
+		Assert.IsTrue(s.Contains(eAsString), 'ToString should contain ' + eAsString);
+		m.AddMode(s);
+		Assert.IsTrue(m.IsSet(e), Format('Mode %s should be in the converted mode', [eAsString]));
 	end;
 end;
 
