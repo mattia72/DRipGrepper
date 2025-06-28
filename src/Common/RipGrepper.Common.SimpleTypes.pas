@@ -94,6 +94,7 @@ type
 
 	TNullableString = Nullable<string>;
 	ELoadLastHistoryMode = (llsmAll, llsmHasResultOnly, llsmMaxCount);
+	TLoadLastHistoryModes = set of ELoadLastHistoryMode;
 
 const
 	GUI_SEARCH_PARAMS : TArray<EGuiOption> = [

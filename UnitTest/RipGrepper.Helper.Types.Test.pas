@@ -80,6 +80,71 @@ type
 			procedure TestGetLineCount(const _str : string; const _count : Integer);
 	end;
 
+type
+
+	[TestFixture]
+	TStringsHelperMoreTest = class
+		private
+			FStrings : TStrings;
+
+		public
+			[Setup]
+			procedure Setup;
+			[TearDown]
+			procedure TearDown;
+
+			[Test]
+			procedure TestContains;
+			[Test]
+			procedure TestAddIfNotContains;
+			[Test]
+			procedure TestHasMatch;
+			[Test]
+			procedure TestContainsAny;
+			[Test]
+			procedure TestDeleteAllMatched;
+			[Test]
+			procedure TestIndexOfAllMatch;
+			[Test]
+			procedure TestIndexOfFirstMatch;
+			[Test]
+			procedure TestTryGetDef;
+	end;
+
+type
+
+	[TestFixture]
+	TLoadLastHistoryModesConverterTest = class
+		public
+			[Test]
+			procedure TestModeToIntAndIntToMode;
+			[Test]
+			procedure TestModeToStringAndStringToMode;
+	end;
+
+type
+
+	[TestFixture]
+	TConversionsTest = class
+		type
+			TTestEnum = (teOne, teTwo, teThree);
+
+		public
+			[Test]
+			procedure TestStringToEnumeration;
+			[Test]
+			procedure TestEnumerationToString;
+	end;
+
+type
+
+	[TestFixture]
+	TAutoDeleteTempFileTest = class
+		public
+			[Test]
+			procedure TestFilePathAndFinalize;
+	end;
+
 implementation
 
 uses
@@ -87,9 +152,10 @@ uses
 	System.StrUtils,
 	System.SysUtils,
 	System.Math,
-	ArrayEx, 
-	System.IOUtils, 
-	RipGrepper.Tools.FileUtils;
+	ArrayEx,
+	System.IOUtils,
+	RipGrepper.Tools.FileUtils,
+	RipGrepper.Common.SimpleTypes;
 
 procedure TStringsHelperTest.Setup;
 begin
@@ -304,10 +370,14 @@ end;
 
 procedure TFileUtilsTest.DeleteDirTest;
 begin
-	var tmpDir := TPath.GetTempPath;
-	var tmpDir1 := tmpDir + '\unittest_tmpdir_01';
-	var tmpDir2 := tmpDir + '\unittest_tmpdir_02';
-	var tmpDir3 := tmpDir + '\unittest_tmpdir_03';
+	var
+	tmpDir := TPath.GetTempPath;
+	var
+	tmpDir1 := tmpDir + '\unittest_tmpdir_01';
+	var
+	tmpDir2 := tmpDir + '\unittest_tmpdir_02';
+	var
+	tmpDir3 := tmpDir + '\unittest_tmpdir_03';
 	TDirectory.CreateDirectory(tmpDir1);
 	TDirectory.CreateDirectory(tmpDir2);
 	TDirectory.CreateDirectory(tmpDir3);
@@ -317,6 +387,154 @@ begin
 	Assert.IsFalse(TDirectory.Exists(tmpDir1), 'Directory shouldn''t exists.');
 	Assert.IsFalse(TDirectory.Exists(tmpDir2), 'Directory shouldn''t exists.');
 	Assert.IsFalse(TDirectory.Exists(tmpDir3), 'Directory shouldn''t exists.');
+end;
+
+{ TStringsHelperMoreTest }
+
+procedure TStringsHelperMoreTest.Setup;
+begin
+	FStrings := TStringList.Create;
+	FStrings.Add('foo');
+	FStrings.Add('bar');
+	FStrings.Add('baz=42');
+	FStrings.Add('qux=99');
+end;
+
+procedure TStringsHelperMoreTest.TearDown;
+begin
+	FStrings.Free;
+end;
+
+procedure TStringsHelperMoreTest.TestContains;
+begin
+	Assert.IsTrue(FStrings.Contains('foo'));
+	Assert.IsFalse(FStrings.Contains('notfound'));
+end;
+
+procedure TStringsHelperMoreTest.TestAddIfNotContains;
+begin
+	Assert.IsTrue(FStrings.AddIfNotContains('newitem'));
+	Assert.IsFalse(FStrings.AddIfNotContains('foo'));
+end;
+
+procedure TStringsHelperMoreTest.TestHasMatch;
+begin
+	Assert.IsTrue(FStrings.HasMatch('^ba'));
+	Assert.IsFalse(FStrings.HasMatch('^zzz'));
+end;
+
+procedure TStringsHelperMoreTest.TestContainsAny;
+var
+	arr : TArray<string>;
+begin
+	arr := ['bar', 'notfound'];
+	Assert.IsTrue(FStrings.ContainsAny(arr));
+	arr := ['notfound'];
+	Assert.IsFalse(FStrings.ContainsAny(arr));
+end;
+
+procedure TStringsHelperMoreTest.TestDeleteAllMatched;
+begin
+	FStrings.Add('test123');
+	Assert.AreNotEqual(0, FStrings.DeleteAllMatched('\d+'));
+	Assert.IsFalse(FStrings.HasMatch('\d+'));
+end;
+
+procedure TStringsHelperMoreTest.TestIndexOfAllMatch;
+var
+	idxs : TArray<integer>;
+begin
+	FStrings.Add('abc123');
+	idxs := FStrings.IndexOfAllMatch('\d+');
+	Assert.IsTrue(Length(idxs) > 0);
+end;
+
+procedure TStringsHelperMoreTest.TestIndexOfFirstMatch;
+begin
+	FStrings.Add('abc~123');
+	Assert.AreEqual(FStrings.Count - 1, FStrings.IndexOfFirstMatch('a.*~\d+'));
+	Assert.AreEqual(-1, FStrings.IndexOfFirstMatch('notfound'));
+end;
+
+procedure TStringsHelperMoreTest.TestTryGetDef;
+var
+	val : string;
+begin
+	Assert.IsTrue(FStrings.TryGetDef(0, val));
+	Assert.AreEqual('foo', val);
+	Assert.IsFalse(FStrings.TryGetDef(100, val, 'default'));
+	Assert.AreEqual('default', val);
+end;
+
+{ TLoadLastHistoryModesConverterTest }
+
+procedure TLoadLastHistoryModesConverterTest.TestModeToIntAndIntToMode;
+var
+	m : TLoadLastHistoryModes;
+	i : integer;
+begin
+	for var e := low(ELoadLastHistoryMode) to high(ELoadLastHistoryMode) do begin
+		m := [e];
+		i := TLoadLastHistoryModesConverter.ModeToInt(m);
+		Assert.IsTrue(i >= 0, 'ModeToInt should return a non-negative integer');
+		m := TLoadLastHistoryModesConverter.IntToMode(i);
+		Assert.IsTrue(e in m, Format('Mode %s should be in the converted mode',
+			{ } [TConversions<ELoadLastHistoryMode>.EnumerationToString(e)]));
+	end;
+end;
+
+procedure TLoadLastHistoryModesConverterTest.TestModeToStringAndStringToMode;
+var
+	eAsString : string;
+	m : TLoadLastHistoryModes;
+	s : string;
+begin
+	for var e := low(ELoadLastHistoryMode) to high(ELoadLastHistoryMode) do begin
+		m := [e];
+		s := TLoadLastHistoryModesConverter.ModeToString(m);
+		eAsString := TConversions<ELoadLastHistoryMode>.EnumerationToString(e);
+		Assert.IsTrue(s.Contains(eAsString), 'ModeToString should contain ' + eAsString);
+		m := TLoadLastHistoryModesConverter.StringToMode(s);
+		Assert.IsTrue(e in m, Format('Mode %s should be in the converted mode', [eAsString]));
+	end;
+end;
+
+{ TConversionsTest }
+
+procedure TConversionsTest.TestStringToEnumeration;
+var
+	e : TTestEnum;
+begin
+	e := TConversions<TTestEnum>.StringToEnumeration('teTwo');
+	Assert.AreEqual(Ord(teTwo), Ord(e));
+end;
+
+procedure TConversionsTest.TestEnumerationToString;
+var
+	e : TTestEnum;
+	s : string;
+begin
+	e := teThree;
+	s := TConversions<TTestEnum>.EnumerationToString(e);
+	Assert.AreEqual('teThree', s);
+end;
+
+{ TAutoDeleteTempFileTest }
+
+procedure TAutoDeleteTempFileTest.TestFilePathAndFinalize;
+var
+	path : string;
+begin
+	path := '';
+	for var i := 0 to 3 do begin
+		if True then begin
+			var temp : TAutoDeleteTempFile;
+			Assert.AreNotEqual(path, temp.FilePath);
+			path := temp.FilePath;
+			Assert.IsTrue(TFile.Exists(path));
+		end;
+		Assert.IsFalse(TFile.Exists(path));
+	end;
 end;
 
 initialization
