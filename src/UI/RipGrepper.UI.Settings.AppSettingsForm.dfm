@@ -320,7 +320,7 @@ object AppSettingsForm: TAppSettingsForm
         Width = 222
         Height = 17
         Hint = 'Save results of ripgrep search'
-        Caption = 'Save matching lines'
+        Caption = 'Save matching lines (experimental)'
         TabOrder = 5
         OnClick = cbLoadLastSearchHistoriesClick
       end

@@ -983,8 +983,14 @@ begin
 		AddVstHistItem(@nodeData);
 	end;
 	UpdateReplaceColumnVisible;
-	MainFrame.Data.DataToGrid;
-	//MainFrame.AfterHistObjChange();
+
+	// Select the last entry after loading
+	if count > 0 then begin
+		var lastIndex := count - 1;
+		SetSelectedHistoryItem(lastIndex);
+		CurrentHistoryItemIndex := lastIndex;
+		MainFrame.AfterHistObjChange();
+	end;
 end;
 
 procedure TMiddleLeftFrame.VstHistorySaveTree(Sender : TBaseVirtualTree; Stream : TStream);
