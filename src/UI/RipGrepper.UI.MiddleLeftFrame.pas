@@ -109,6 +109,7 @@ type
 			function GetSettings : TRipGrepperSettings;
 			function IsIndexIsInLastHistoryCount(const _idx : Integer) : Boolean;
 			function NodeDataFromStream(const sr : TStreamReader) : TVSHistoryNodeData;
+			procedure SelectLastItem;
 			procedure ShowReplaceColumn(const _bShow : Boolean);
 			procedure UpdateReplaceColumnVisible;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
@@ -942,6 +943,17 @@ begin
 	ChangeDataHistItemObject(hio);
 end;
 
+procedure TMiddleLeftFrame.SelectLastItem;
+begin
+	if VstHistory.RootNodeCount > 0 then begin
+		var
+		lastIndex := VstHistory.RootNodeCount - 1;
+		SetSelectedHistoryItem(lastIndex);
+		CurrentHistoryItemIndex := lastIndex;
+		MainFrame.AfterHistObjChange();
+	end;
+end;
+
 procedure TMiddleLeftFrame.UpdateUIStyle(_sNewStyle : string = '');
 begin
 	// TODO -cMM: TMiddleLeftFrame.UpdateUIStyle default body inserted
@@ -983,14 +995,7 @@ begin
 		AddVstHistItem(@nodeData);
 	end;
 	UpdateReplaceColumnVisible;
-
-	// Select the last entry after loading
-	if count > 0 then begin
-		var lastIndex := count - 1;
-		SetSelectedHistoryItem(lastIndex);
-		CurrentHistoryItemIndex := lastIndex;
-		MainFrame.AfterHistObjChange();
-	end;
+	SelectLastItem;
 end;
 
 procedure TMiddleLeftFrame.VstHistorySaveTree(Sender : TBaseVirtualTree; Stream : TStream);
