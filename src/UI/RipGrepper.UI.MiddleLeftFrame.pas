@@ -364,7 +364,6 @@ begin
 	// var beu := TBeginEndUpdater.New(VstHistory);
 	// First access to data will create MainFrame.Data
 	MainFrame.Data.HistObject := _ho;
-
 	SetReplaceMode(_ho);
 end;
 
@@ -929,6 +928,7 @@ var
 	hio : IHistoryItemObject;
 begin
 	hio := THistoryItemObject.Create;
+	hio.ShouldSaveResult := Settings.AppSettings.LoadHistoryMode.IsSet(lhmSaveResults);
 	hio.LoadFromStreamReader(sr);
 	AddHistoryObject(hio);
 
@@ -981,9 +981,10 @@ begin
 		nodeData := NodeDataFromStream(sr);
 		nodeData.IsFromStream := True;
 		AddVstHistItem(@nodeData);
-        MainFrame.AfterHistObjChange();
 	end;
 	UpdateReplaceColumnVisible;
+	MainFrame.Data.DataToGrid;
+	//MainFrame.AfterHistObjChange();
 end;
 
 procedure TMiddleLeftFrame.VstHistorySaveTree(Sender : TBaseVirtualTree; Stream : TStream);

@@ -140,7 +140,8 @@ implementation
 
 uses
 	System.SysUtils,
-	RipGrepper.Helper.Types, RipGrepper.Helper.StreamReaderWriter;
+	RipGrepper.Helper.Types,
+	RipGrepper.Helper.StreamReaderWriter;
 
 class function TColumnData.New(const _idxTitle : EColumnIndex; const _Text : string) : TColumnData;
 begin
@@ -275,7 +276,7 @@ end;
 procedure TParsedObjectRowCollection.LoadFromStreamReader(_sr : TStreamReader);
 var
 	cd : TColumnData;
-	row : TParsedObjectRow;
+	row : IParsedObjectRow;
 	columns : TArrayEx<TColumnData>;
 	idx : Integer;
 	line : string;
@@ -286,6 +287,8 @@ begin
 	itemsCount := _sr.ReadLineAsInteger;
 	for var i : Integer := 0 to itemsCount - 1 do begin
 		columns.Clear;
+		row := TParsedObjectRow.Create( { nil, TParserType(0) } );
+		row.ParserType := TParserType(_sr.ReadLineAsInteger());
 		for var sTitle in TREEVIEW_COLUMN_TITLES do begin
 			line := _sr.ReadLine;
 			idx := line.IndexOf(ARRAY_SEPARATOR);
@@ -295,7 +298,6 @@ begin
 				columns.Add(cd);
 			end;
 		end;
-		row := TParsedObjectRow.Create( { nil, TParserType(0) } );
 		row.Columns := columns;
 		FItems.Add(row);
 	end;
@@ -305,6 +307,7 @@ procedure TParsedObjectRowCollection.SaveToStreamWriter(_sw : TStreamWriter);
 begin
 	_sw.WriteLine(FItems.Count);
 	for var row : IParsedObjectRow in FItems do begin
+		_sw.WriteLine(Ord(row.ParserType));
 		for var sTitle in TREEVIEW_COLUMN_TITLES do begin
 			var
 			cd := row.GetColumnByTitle(sTitle);
