@@ -671,22 +671,24 @@ begin
 	if not Assigned(_ho) then begin
 		Exit;
 	end;
-	var
-	ec := _ho.GetErrorCounters;
-	if ec.FSumOfErrors > 0 then begin
-		Result := Format('%s %d in %d(%d!)', [TREEVIEW_HISTORY_COUNTER_ERROR_PREFIX, _ho.TotalMatchCount, _ho.FileCount, ec.FSumOfErrors]);
-	end else if _ho.IsReplaceMode then begin
-		Result := Format('%s %d in %d', [TREEVIEW_HISTORY_REPLACE_PREFIX, _ho.TotalMatchCount, _ho.FileCount]);
-	end else begin
-		if _ho.NoMatchFound then begin
-			Result := TREEVIEW_HISTORY_COUNTER_NOTHING_FOUND_PREFIX + ' 0 in 0';
-		end else begin
-			Result := Format('%s %d in %d', [TREEVIEW_HISTORY_COUNTER_OK_PREFIX, _ho.TotalMatchCount, _ho.FileCount]);
-		end;
-	end;
 
 	if _ho.IsLoadedFromStream then begin
 		Result := Format('%s %d in %d', [TREEVIEW_HISTORY_LOADED_PREFIX, _ho.TotalMatchCount, _ho.FileCount]);
+	end else begin
+		var
+		ec := _ho.GetErrorCounters;
+		if ec.FSumOfErrors > 0 then begin
+			Result := Format('%s %d in %d(%d!)', [TREEVIEW_HISTORY_COUNTER_ERROR_PREFIX, _ho.TotalMatchCount, _ho.FileCount,
+				ec.FSumOfErrors]);
+		end else if _ho.IsReplaceMode then begin
+			Result := Format('%s %d in %d', [TREEVIEW_HISTORY_REPLACE_PREFIX, _ho.TotalMatchCount, _ho.FileCount]);
+		end else begin
+			if _ho.NoMatchFound then begin
+				Result := TREEVIEW_HISTORY_COUNTER_NOTHING_FOUND_PREFIX + ' 0 in 0';
+			end else begin
+				Result := Format('%s %d in %d', [TREEVIEW_HISTORY_COUNTER_OK_PREFIX, _ho.TotalMatchCount, _ho.FileCount]);
+			end;
+		end;
 	end;
 
 end;
@@ -908,7 +910,7 @@ end;
 procedure TRipGrepperMiddleFrame.OnParsingProgress(const _bLastLine : Boolean);
 begin
 	RefreshCounters;
-	VstResult.Repaint;
+	VstResult.Repaint();
 end;
 
 function TRipGrepperMiddleFrame.ProcessShouldTerminate : Boolean;

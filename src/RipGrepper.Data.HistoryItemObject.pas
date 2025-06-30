@@ -212,6 +212,7 @@ begin
 	FErrorCounters.Reset;
 	FNoMatchFound := False;
 	FMatches.Items.Clear;
+	FIsLoadedFromStream := False;
 end;
 
 procedure THistoryItemObject.CopyToSettings(const _settings : TRipGrepperSettings);

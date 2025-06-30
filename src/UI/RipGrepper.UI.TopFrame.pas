@@ -463,7 +463,7 @@ begin
 	MainFrame.FileNameType := PARSER_TYPES[idx mod Length(PARSER_TYPES)];
 
 	Settings.StoreViewSettings('ShowRelativePath');
-	MainFrame.VstResult.Repaint;
+	MainFrame.VstResult.Repaint();
 
 	ActionShowRelativePathUpdate;
 end;
@@ -903,7 +903,7 @@ procedure TRipGrepperTopFrame.SetReplaceTextInSettings(const _sReplText : string
 begin
 	if Assigned(FSettings) then begin
 		FSettings.RipGrepParameters.ReplaceText := _sReplText;
-		MainFrame.VstResult.Repaint;
+		MainFrame.VstResult.Repaint();
 	end;
 end;
 
