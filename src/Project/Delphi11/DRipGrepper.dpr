@@ -108,7 +108,8 @@ uses
   RipGrepper.Helper.StreamReaderWriter in '..\..\Helper\RipGrepper.Helper.StreamReaderWriter.pas',
   RipGrepper.Settings.RipGrepArguments in '..\..\Settings\RipGrepper.Settings.RipGrepArguments.pas',
   RipGrepper.UI.Settings.ColorSettingsForm in '..\..\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas',
-  RipGrepper.Tools.ReleaseUtils in '..\..\Tools\RipGrepper.Tools.ReleaseUtils.pas';
+  RipGrepper.Tools.ReleaseUtils in '..\..\Tools\RipGrepper.Tools.ReleaseUtils.pas',
+  RipGrepper.Common.LoadHistoryMode in '..\..\Common\RipGrepper.Common.LoadHistoryMode.pas';
 
 {$R *.res}
 

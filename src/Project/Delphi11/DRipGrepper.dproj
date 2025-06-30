@@ -312,6 +312,7 @@
         <DCCReference Include="..\..\Settings\RipGrepper.Settings.RipGrepArguments.pas"/>
         <DCCReference Include="..\..\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas"/>
         <DCCReference Include="..\..\Tools\RipGrepper.Tools.ReleaseUtils.pas"/>
+        <DCCReference Include="..\..\Common\RipGrepper.Common.LoadHistoryMode.pas"/>
         <RcItem Include="..\..\..\deploy\Deploy-Description.md">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>

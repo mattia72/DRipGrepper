@@ -249,6 +249,7 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.ReleaseUtils.pas"/>
+        <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.LoadHistoryMode.pas"/>
         <RcItem Include="..\..\..\Resources\about_icon.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>about_icon</ResourceId>
