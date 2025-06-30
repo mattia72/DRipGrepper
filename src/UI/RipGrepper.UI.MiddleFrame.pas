@@ -686,9 +686,7 @@ begin
 	end;
 
 	if _ho.IsLoadedFromStream then begin
-		if _ho.TotalMatchCount = 0 then begin
-			Result := Format('%s ? in ?', [TREEVIEW_HISTORY_LOADED_PREFIX]);
-		end;
+		Result := Format('%s %d in %d', [TREEVIEW_HISTORY_LOADED_PREFIX, _ho.TotalMatchCount, _ho.FileCount]);
 	end;
 
 end;

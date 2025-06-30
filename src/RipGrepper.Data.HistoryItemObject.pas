@@ -40,7 +40,7 @@ type
 			FIsLoadedFromStream : Boolean;
 			FRipGrepArguments : IShared<TRipGrepArguments>;
 			FSearchFormSettings : TSearchFormSettings;
-			FShouldSaveResult: Boolean;
+			FShouldSaveResult : Boolean;
 
 			function GetElapsedTimeText() : string;
 			function GetErrorCounters() : TErrorCounters;
@@ -67,8 +67,9 @@ type
 			procedure SetRipGrepResult(const Value : Integer);
 
 		private
-			function GetShouldSaveResult(): Boolean;
-			procedure SetShouldSaveResult(const Value: Boolean);
+			function GetShouldSaveResult() : Boolean;
+			procedure SetShouldSaveResult(const Value : Boolean);
+
 		public
 			constructor Create;
 			destructor Destroy; override;
@@ -101,8 +102,7 @@ type
 			property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings write SetSearchFormSettings;
 			property SearchText : string read GetSearchText;
 			property ReplaceText : string read GetReplaceText;
-			property ShouldSaveResult: Boolean read GetShouldSaveResult write
-				SetShouldSaveResult;
+			property ShouldSaveResult : Boolean read GetShouldSaveResult write SetShouldSaveResult;
 
 	end;
 
@@ -285,7 +285,7 @@ begin
 	Result := FGuiSearchTextParams.SearchTextWithOptions;
 end;
 
-function THistoryItemObject.GetShouldSaveResult(): Boolean;
+function THistoryItemObject.GetShouldSaveResult() : Boolean;
 begin
 	Result := FShouldSaveResult;
 end;
@@ -340,6 +340,11 @@ begin
 		if ShouldSaveResult then begin
 			Matches.LoadFromStreamReader(_sr);
 			FHasResult := not Matches.Items.IsEmpty;
+			if HasResult then begin
+				FileCount := Matches.GetFileCount;
+				// TotalMatchCount := Matches.GetTotalMatchCount;
+				// TODO ErrorCounters ?
+			end;
 		end;
 
 		FIsLoadedFromStream := True;
@@ -421,7 +426,7 @@ begin
 	FIsLoadedFromStream := False; // so counters are updated on gui
 end;
 
-procedure THistoryItemObject.SetShouldSaveResult(const Value: Boolean);
+procedure THistoryItemObject.SetShouldSaveResult(const Value : Boolean);
 begin
 	FShouldSaveResult := Value;
 end;

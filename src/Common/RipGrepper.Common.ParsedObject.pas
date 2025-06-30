@@ -119,6 +119,9 @@ type
 			destructor Destroy; override;
 			procedure LoadFromStreamReader(_sr : TStreamReader);
 			procedure SaveToStreamWriter(_sw : TStreamWriter);
+			function GetFileCount : Integer;
+			function GetErrorCount : Integer;
+			function GetTotalMatchCount : Integer;
 			property Items : TListType read GetItems; // write SetItems;
 	end;
 
@@ -315,6 +318,35 @@ begin
 			// ParserType?
 		end;
 	end;
+end;
+
+function TParsedObjectRowCollection.GetFileCount : Integer;
+var
+	uniqueFiles : TArrayEx<string>;
+begin
+	FItems.All(
+		function(const Item : IParsedObjectRow) : Boolean
+		begin
+			uniqueFiles.AddIfNotContains(Item.GetColumnByTitle('File').Text);
+			Result := True;
+		end);
+	Result := uniqueFiles.Count;
+end;
+
+function TParsedObjectRowCollection.GetErrorCount : Integer;
+
+begin
+	Result := 0;
+	for var i in FItems do begin
+		if i.IsError then begin
+			Inc(Result);
+		end;
+	end;
+end;
+
+function TParsedObjectRowCollection.GetTotalMatchCount : Integer;
+begin
+	Result := FItems.Count;
 end;
 
 function TParsedObjectGroupedRowCollection.GetGroupId : Integer;
