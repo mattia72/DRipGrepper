@@ -31,7 +31,7 @@ type
 			function GetSettings : TRipGrepperSettings;
 			procedure FrameOnShowHide(var M : TMessage); message CM_SHOWINGCHANGED;
 			function GetIsInitialized() : Boolean;
-			procedure LoadLastSearchHistory;
+			procedure LoadHistory;
 			function GetSearchHistoryPath : string;
 			procedure SaveLastSearchHistory;
 			procedure WMSettingChange(var Message : TWMSettingChange); message WM_SETTINGCHANGE;
@@ -92,7 +92,7 @@ end;
 procedure TParentFrame.AfterConstruction;
 begin
 	inherited;
-	LoadLastSearchHistory;
+	LoadHistory;
 end;
 
 procedure TParentFrame.AfterHistObjChange;
@@ -219,13 +219,13 @@ begin
 	FIsInitialized := True;
 end;
 
-procedure TParentFrame.LoadLastSearchHistory;
+procedure TParentFrame.LoadHistory;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.LoadLastSearchHistory');
+	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.LoadHistory');
 	dbgMsg.Msg('from: ' + TPath.GetFullPath(GetSearchHistoryPath()));
-	if Settings.AppSettings.LoadLastSearchHistory and TFile.Exists(GetSearchHistoryPath()) then begin
-		dbgMsg.Msg('LoadLastSearchHistory = True, FileExists');
+	if Settings.AppSettings.LoadHistoryMode.IsSaveHistoryActive  and TFile.Exists(GetSearchHistoryPath()) then begin
+		dbgMsg.Msg('LoadHistory = True, FileExists');
 		try
 			MiddleLeftFrame.VstHistory.LoadFromFile(GetSearchHistoryPath());
 		except
@@ -241,8 +241,8 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.SaveLastSearchHistory');
 	try
 		dbgMsg.Msg('SaveToFile to: ' + TPath.GetFullPath(GetSearchHistoryPath()));
-		if Settings.AppSettings.LoadLastSearchHistory then begin
-			dbgMsg.Msg('LoadLastSearchHistory = TRUE');
+		if Settings.AppSettings.LoadHistoryMode.IsSaveHistoryActive then begin
+			dbgMsg.Msg('LoadHistory = TRUE');
 			MiddleLeftFrame.VstHistory.SaveToFile(GetSearchHistoryPath());
 		end;
 	except

@@ -70,6 +70,7 @@ type
 		rgModeLoadSeraches : TRadioGroup;
 		seSearchHistoryCount : TSpinEdit;
 		lblSearches : TLabel;
+		cbSaveResults : TCheckBox;
 		procedure btnedtIniFilePathLeftButtonClick(Sender : TObject);
 		procedure btnedtIniFilePathRightButtonClick(Sender : TObject);
 		procedure btnedtRgExePathEnter(Sender : TObject);
@@ -87,6 +88,7 @@ type
 			FRipGrepSettings : TRipGrepParameterSettings;
 			function GetTraceTypeFilters : TTraceFilterTypes;
 			function IsRgExeValid(const filePath : string) : Boolean;
+			procedure UpdateLoadHistoryControls();
 			{ User-defined message handler }
 			procedure ValidateInput(var M : TMessage); message USERMESSAGE_VALIDATE_INPUT;
 
@@ -117,7 +119,9 @@ uses
 	RipGrepper.OpenWith,
 	RipGrepper.Helper.UI.DarkMode,
 	System.StrUtils,
-	RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.SimpleTypes,
+	RipGrepper.Helper.Types,
+	RipGrepper.Common.LoadHistoryMode;
 
 {$R *.dfm}
 
@@ -179,7 +183,7 @@ end;
 
 procedure TAppSettingsForm.cbLoadLastSearchHistoriesClick(Sender : TObject);
 begin
-	rgModeLoadSeraches.Enabled := cbLoadLastSearchHistories.Checked;
+	UpdateLoadHistoryControls;
 end;
 
 procedure TAppSettingsForm.chRegexClick(Sender : TObject);
@@ -284,9 +288,12 @@ begin
 	cmbCopyCmdShell.ItemIndex := Integer(FAppSettings.CopyToClipBoardShell);
 	seCmbHistoryCount.Value := FAppSettings.ComboHistoryCount;
 	seSearchHistoryCount.Value := FAppSettings.SearchHistoryCount;
-	cbLoadLastSearchHistories.Checked := FAppSettings.LoadLastSearchHistory;
-	rgModeLoadSeraches.ItemIndex := Integer(FAppSettings.LoadLastSearchHistoryMode);
 
+	FAppSettings.UpdateInternalsFromSettings();
+	cbLoadLastSearchHistories.Checked := FAppSettings.LoadHistoryMode.IsSaveHistoryActive;
+	rgModeLoadSeraches.ItemIndex := FAppSettings.LoadHistoryMode.ToInt;
+	cbSaveResults.Checked := FAppSettings.LoadHistoryMode.IsSet(lhmSaveResults);
+	UpdateLoadHistoryControls;
 	var
 	path := FRipGrepSettings.RipGrepPath;
 	if path.IsEmpty then begin
@@ -294,6 +301,18 @@ begin
 	end;
 	btnedtRgExePath.Text := path;
 	Memo1.Text := GetRgVersion(path);
+end;
+
+procedure TAppSettingsForm.UpdateLoadHistoryControls();
+begin
+	var
+	bEnable := cbLoadLastSearchHistories.Checked;
+	rgModeLoadSeraches.Enabled := bEnable;
+	if bEnable and (rgModeLoadSeraches.ItemIndex < 0) then begin
+		rgModeLoadSeraches.ItemIndex := Ord(lhmAll);
+	end;
+	cbSaveResults.Enabled := bEnable;
+	seCmbHistoryCount.Enabled := bEnable;
 end;
 
 procedure TAppSettingsForm.ValidateInput(var M : TMessage);
@@ -321,6 +340,8 @@ begin
 end;
 
 procedure TAppSettingsForm.WriteSettings;
+var
+	lhm : IShared<TLoadHistoryModes>;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TAppSettingsForm.WriteSettings');
@@ -329,8 +350,18 @@ begin
 	FAppSettings.CopyToClipBoardShell := TShellType(cmbCopyCmdShell.ItemIndex);
 	FAppSettings.ComboHistoryCount := seCmbHistoryCount.Value;
 	FAppSettings.SearchHistoryCount := seSearchHistoryCount.Value;
-	FAppSettings.LoadLastSearchHistory := cbLoadLastSearchHistories.Checked;
-	FAppSettings.LoadLastSearchHistoryMode := ELoadLastHistoryMode(rgModeLoadSeraches.ItemIndex);
+    lhm := FAppSettings.LoadHistoryMode;
+	if (cbLoadLastSearchHistories.Checked) then begin
+		lhm.AddModeFromInt(rgModeLoadSeraches.ItemIndex);
+	end else begin
+		lhm.CleanModes(False);
+	end;
+	if cbSaveResults.Checked then begin
+		lhm.AddMode(lhmSaveResults);
+	end else begin
+		lhm.RemoveMode(lhmSaveResults);
+	end;
+	FAppSettings.UpdateSettingsFromInternals;
 
 	var
 	rgPath := btnedtRgExePath.Text;

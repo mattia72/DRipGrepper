@@ -68,7 +68,7 @@ object AppSettingsForm: TAppSettingsForm
     object grpAdvanced: TGroupBox
       AlignWithMargins = True
       Left = 11
-      Top = 327
+      Top = 351
       Width = 485
       Height = 181
       Anchors = [akLeft, akTop, akRight]
@@ -225,7 +225,7 @@ object AppSettingsForm: TAppSettingsForm
       Left = 11
       Top = 143
       Width = 485
-      Height = 178
+      Height = 202
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Settings'
       TabOrder = 2
@@ -299,7 +299,7 @@ object AppSettingsForm: TAppSettingsForm
         Width = 222
         Height = 17
         Hint = 'Automatically load saved search history items on startup.'
-        Caption = 'Load last searches on startup'
+        Caption = 'Load search history on startup'
         TabOrder = 2
         OnClick = cbLoadLastSearchHistoriesClick
       end
@@ -313,6 +313,16 @@ object AppSettingsForm: TAppSettingsForm
         MinValue = 1
         TabOrder = 4
         Value = 10
+      end
+      object cbSaveResults: TCheckBox
+        Left = 24
+        Top = 167
+        Width = 222
+        Height = 17
+        Hint = 'Save results of ripgrep search'
+        Caption = 'Save matching lines'
+        TabOrder = 5
+        OnClick = cbLoadLastSearchHistoriesClick
       end
     end
   end

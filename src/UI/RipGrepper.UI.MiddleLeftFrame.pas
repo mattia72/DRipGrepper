@@ -107,7 +107,7 @@ type
 			function GetIsInitialized() : Boolean;
 			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
 			function GetSettings : TRipGrepperSettings;
-			function IsIndexIsInLastHistoryCount(const _idx : Integer): Boolean;
+			function IsIndexIsInLastHistoryCount(const _idx : Integer) : Boolean;
 			function NodeDataFromStream(const sr : TStreamReader) : TVSHistoryNodeData;
 			procedure ShowReplaceColumn(const _bShow : Boolean);
 			procedure UpdateReplaceColumnVisible;
@@ -163,7 +163,8 @@ uses
 	RipGrepper.Helper.Types,
 	RipGrepper.Common.SimpleTypes,
 	Spring,
-	RipGrepper.Settings.AppSettings;
+	RipGrepper.Settings.AppSettings,
+	RipGrepper.Common.LoadHistoryMode;
 
 {$R *.dfm}
 
@@ -818,7 +819,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.CountSaveNodes');
 
 	appSettings := Settings.AppSettings;
-	if llsmAll = appSettings.LoadLastSearchHistoryMode then begin
+	if appSettings.LoadHistoryMode.IsSet(lhmAll) then begin
 		Result := VstHistory.RootNodeCount;
 		exit
 	end;
@@ -834,22 +835,18 @@ begin
 
 		dbgMsg.MsgFmt('check : %s', [hio.SearchText]);
 
-		case appSettings.LoadLastSearchHistoryMode of
-			llsmHasResultOnly : begin
-				if hio.HasResult then begin
-					Inc(Result);
-					dbgMsg.MsgFmt('has result : %d', [Result]);
-				end
+		if appSettings.LoadHistoryMode.IsSet(lhmHasResultOnly) then begin
+			if hio.HasResult then begin
+				Inc(Result);
+				dbgMsg.MsgFmt('has result : %d', [Result]);
+			end
+		end else if appSettings.LoadHistoryMode.IsSet(lhmMaxCount) then begin
+			if IsIndexIsInLastHistoryCount(idx) then begin
+				Inc(Result);
+				dbgMsg.MsgFmt('idx %d >= %d', [idx, Result]);
 			end;
-			llsmMaxCount : begin
-				if IsIndexIsInLastHistoryCount(idx) then begin
-					Inc(Result);
-					dbgMsg.MsgFmt('idx %d >= %d', [idx, Result]);
-				end
-			end;
-			else begin
-				dbgMsg.Msg('skip');
-			end;
+		end else begin
+			dbgMsg.Msg('skip');
 		end;
 	end;
 end;
@@ -922,7 +919,7 @@ begin
 	Result := FIsInitialized;
 end;
 
-function TMiddleLeftFrame.IsIndexIsInLastHistoryCount(const _idx : Integer): Boolean;
+function TMiddleLeftFrame.IsIndexIsInLastHistoryCount(const _idx : Integer) : Boolean;
 begin
 	Result := _idx >= (Integer(VstHistory.RootNodeCount) - Settings.AppSettings.SearchHistoryCount);
 end;
@@ -941,6 +938,8 @@ begin
 
 	Settings.LastReplaceText := hio.ReplaceText;
 	Settings.LastSearchText := Result.SearchText;
+
+	ChangeDataHistItemObject(hio);
 end;
 
 procedure TMiddleLeftFrame.UpdateUIStyle(_sNewStyle : string = '');
@@ -982,6 +981,7 @@ begin
 		nodeData := NodeDataFromStream(sr);
 		nodeData.IsFromStream := True;
 		AddVstHistItem(@nodeData);
+        MainFrame.AfterHistObjChange();
 	end;
 	UpdateReplaceColumnVisible;
 end;
@@ -1008,26 +1008,23 @@ begin
 		var
 			appSettings : TAppSettings;
 		appSettings := Settings.AppSettings;
-		case appSettings.LoadLastSearchHistoryMode of
-			llsmAll : begin
+		hio.ShouldSaveResult := appSettings.LoadHistoryMode.IsSet(lhmSaveResults);
+		if appSettings.LoadHistoryMode.IsSet(lhmAll) then begin
+			dbgMsg.MsgFmt('Save idx: %d - %s', [idx, hio.SearchText]);
+			hio.SaveToStreamWriter(sw);
+		end else if appSettings.LoadHistoryMode.IsSet(lhmHasResultOnly) then begin
+			if hio.HasResult then begin
 				dbgMsg.MsgFmt('Save idx: %d - %s', [idx, hio.SearchText]);
 				hio.SaveToStreamWriter(sw);
+			end else begin
+				dbgMsg.MsgFmt('Has no result, skip idx: %d - %s', [idx, hio.SearchText], ETraceFilterType.tftVerbose);
 			end;
-			llsmHasResultOnly : begin
-				if hio.HasResult then begin
-					dbgMsg.MsgFmt('Save idx: %d - %s', [idx, hio.SearchText]);
-					hio.SaveToStreamWriter(sw);
-				end else begin
-					dbgMsg.MsgFmt('Has no result, skip idx: %d - %s', [idx, hio.SearchText], ETraceFilterType.tftVerbose);
-				end;
-			end;
-			llsmMaxCount : begin
-				if IsIndexIsInLastHistoryCount(idx) then begin
-					dbgMsg.MsgFmt('Save idx: %d - %s', [idx, hio.SearchText]);
-					hio.SaveToStreamWriter(sw);
-				end else begin
-					dbgMsg.MsgFmt('Idx is not in last max count, skip idx: %d - %s', [idx, hio.SearchText], ETraceFilterType.tftVerbose);
-				end;
+		end else if appSettings.LoadHistoryMode.IsSet(lhmMaxCount) then begin
+			if IsIndexIsInLastHistoryCount(idx) then begin
+				dbgMsg.MsgFmt('Save idx: %d - %s', [idx, hio.SearchText]);
+				hio.SaveToStreamWriter(sw);
+			end else begin
+				dbgMsg.MsgFmt('Idx is not in last max count, skip idx: %d - %s', [idx, hio.SearchText], ETraceFilterType.tftVerbose);
 			end;
 		end;
 	end;
