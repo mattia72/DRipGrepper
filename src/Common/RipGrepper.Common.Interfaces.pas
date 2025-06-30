@@ -108,6 +108,7 @@ type
 		function GetSearchText() : string;
 		function GetReplaceText() : string;
 		function GetSearchTextWithOptions() : IShared<TSearchTextWithOptions>;
+		function GetShouldSaveResult(): Boolean;
 		procedure SetRipGrepArguments(const Value : IShared<TRipGrepArguments>);
 		function GetTotalMatchCount() : integer;
 		function HasResult() : Boolean;
@@ -121,6 +122,7 @@ type
 		procedure SetParserType(const Value : TParserType);
 		procedure SetSearchFormSettings(const Value : TSearchFormSettings);
 		procedure SetRipGrepResult(const Value : Integer);
+		procedure SetShouldSaveResult(const Value: Boolean);
 		function UpdateParserType : TParserType;
 
 		property ElapsedTimeText : string read GetElapsedTimeText write SetElapsedTimeText;
@@ -136,6 +138,8 @@ type
 		property IsReplaceMode : Boolean read GetIsReplaceMode;
 		property IsLoadedFromStream : Boolean read GetIsLoadedFromStream;
 		property ReplaceText : string read GetReplaceText;
+		property ShouldSaveResult: Boolean read GetShouldSaveResult write
+			SetShouldSaveResult;
 		property TotalMatchCount : integer read GetTotalMatchCount;
 	end;
 

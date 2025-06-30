@@ -72,6 +72,10 @@ type
 			/// </summary>
 			procedure Init; virtual; abstract;
 			function GetIniSectionName : string; virtual;
+			///
+			/// Update internal classes from Settings
+			procedure UpdateSettingsFromInternals(); virtual;
+			procedure UpdateInternalsFromSettings(); virtual;
 			function GetRootOwner() : TPersistableSettings;
 			function ToLogString : string; virtual;
 
@@ -105,7 +109,7 @@ type
 			/// </summary>
 			procedure LoadFromDict(); virtual;
 			/// ReLoads memini file content
-			procedure ReLoadFromDisk;
+				procedure ReLoadFromDisk;
 			/// <summary>
 			/// Members.StoreToPersister should be called here
 			/// Writes to ini.
@@ -488,6 +492,7 @@ end;
 procedure TPersistableSettings.LoadFromDict();
 begin
 	// overwrite this to convert setting values to other types
+	UpdateInternalsFromSettings;
 end;
 
 procedure TPersistableSettings.LoadFromStreamReader(_sr : TStreamReader);
@@ -534,6 +539,8 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.StoreDictToPersister');
 
+	UpdateSettingsFromInternals();
+
 	var
 	lock := TLockGuard.NewLock(GetLockObject());
 	section := IfThen(_section.IsEmpty, IniSectionName, _section);
@@ -545,6 +552,22 @@ begin
 	end;
 
 	SettingsDict.StoreToPersister(section);
+end;
+
+procedure TPersistableSettings.UpdateInternalsFromSettings();
+begin
+	// interne class update should happened here
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateInternalsFromSettings');
+
+end;
+
+procedure TPersistableSettings.UpdateSettingsFromInternals();
+begin
+	// settings update from intenal classe should go here
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.UpdateSettingsFromInternals');
+
 end;
 
 initialization

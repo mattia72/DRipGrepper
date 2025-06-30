@@ -14,7 +14,9 @@ uses
 	RipGrepper.Settings.FontColors,
 	RipGrepper.Settings.RipGrepParameterSettings,
 	RipGrepper.Common.SimpleTypes,
-	RipGrepper.Settings.SettingVariant;
+	RipGrepper.Settings.SettingVariant,
+	RipGrepper.Common.LoadHistoryMode,
+	Spring;
 
 type
 
@@ -30,21 +32,22 @@ type
 			KEY_CMBHISTORYCOUNT = 'ComboHistoryCount';
 			KEY_SEARCH_HISTORYCOUNT = 'SearchHistoryCount';
 			KEY_CHECK_NEW_VERSION_ON_STARTUP = 'CheckNewVersionOnStartup';
-			KEY_LOADLASTHISTORIESONSTARTUP = 'LoadLastSearchesOnStartup';
-			KEY_LOADLASTHISTORIESONSTARTUP_WITHRESULTSONLY = 'LoadLastSearchesOnStartup_WithResultsOnly';
+			KEY_LOAD_LAST_HISTORIES_ON_STARTUP = 'LoadLastSearchesOnStartup';
+			KEY_LOAD_LAST_HISTORY_MODE = 'LoadLastSearchesOnStartupMode';
 
 		private
 			FColorTheme : IStringSetting;
 			FCopyToClipBoardShell : IIntegerSetting;
 			FComboHistoryCount : IIntegerSetting;
 			FSearchHistoryCount : IIntegerSetting;
-			FLoadLastSearchHistory : IBoolSetting;
+			FLoadHistory : IBoolSetting;
 			FCheckNewVersionOnStartup : IBoolSetting;
 			FDebugTrace : IStringSetting;
 			FDebugTraceRegexFilter : IStringSetting;
 			FExpertMode : IBoolSetting;
 			FEncodingItems : IStringSetting;
-			FLoadLastSearchHistoryMode : IIntegerSetting;
+			FInternalLoadHistoryMode : IShared<TLoadHistoryModes>;
+			FLoadHistoryMode : IStringSetting;
 			function GetColorTheme() : string;
 			function GetComboHistoryCount() : Integer;
 			function GetSearchHistoryCount() : Integer;
@@ -53,9 +56,8 @@ type
 			function GetDebugTraceRegexFilter() : string;
 			function GetEncodingItems() : TArray<string>;
 			function GetExpertMode() : Boolean;
-			function GetLoadLastSearchHistory() : Boolean;
-			function GetLoadLastSearchHistoryMode() : ELoadLastHistoryMode;
-			function GetCheckNewVersionOnStartup: Boolean;
+			function GetLoadHistoryMode(): IShared<TLoadHistoryModes>;
+			function GetCheckNewVersionOnStartup : Boolean;
 			procedure SetColorTheme(const Value : string);
 			procedure SetComboHistoryCount(const Value : Integer);
 			procedure SetSearchHistoryCount(const Value : Integer);
@@ -64,15 +66,17 @@ type
 			procedure SetDebugTraceRegexFilter(const Value : string);
 			procedure SetEncodingItems(const Value : TArray<string>);
 			procedure SetExpertMode(const Value : Boolean);
-			procedure SetLoadLastSearchHistory(const Value : Boolean);
-			procedure SetLoadLastSearchHistoryMode(const Value : ELoadLastHistoryMode);
-			procedure SetCheckNewVersionOnStartup(const Value: Boolean);
+			procedure SetLoadHistoryMode(const Value: IShared<TLoadHistoryModes>);
+			procedure SetCheckNewVersionOnStartup(const Value : Boolean);
+
 		protected
 			procedure Init; override;
 
 		public
 			constructor Create(const _Owner : TPersistableSettings);
 			destructor Destroy; override;
+			procedure UpdateSettingsFromInternals(); override;
+			procedure UpdateInternalsFromSettings(); override;
 			property ColorTheme : string read GetColorTheme write SetColorTheme;
 			property ComboHistoryCount : Integer read GetComboHistoryCount write SetComboHistoryCount;
 			property SearchHistoryCount : Integer read GetSearchHistoryCount write SetSearchHistoryCount;
@@ -81,9 +85,9 @@ type
 			property DebugTraceRegexFilter : string read GetDebugTraceRegexFilter write SetDebugTraceRegexFilter;
 			property ExpertMode : Boolean read GetExpertMode write SetExpertMode;
 			property EncodingItems : TArray<string> read GetEncodingItems write SetEncodingItems;
-			property LoadLastSearchHistory : Boolean read GetLoadLastSearchHistory write SetLoadLastSearchHistory;
-			property LoadLastSearchHistoryMode : ELoadLastHistoryMode read GetLoadLastSearchHistoryMode write SetLoadLastSearchHistoryMode;
-			property CheckNewVersionOnStartup: Boolean read GetCheckNewVersionOnStartup write SetCheckNewVersionOnStartup;
+			property LoadHistoryMode: IShared<TLoadHistoryModes> read GetLoadHistoryMode
+				write SetLoadHistoryMode;
+			property CheckNewVersionOnStartup : Boolean read GetCheckNewVersionOnStartup write SetCheckNewVersionOnStartup;
 	end;
 
 implementation
@@ -160,17 +164,12 @@ begin
 	Result := FExpertMode.Value;
 end;
 
-function TAppSettings.GetLoadLastSearchHistory() : Boolean;
+function TAppSettings.GetLoadHistoryMode(): IShared<TLoadHistoryModes>;
 begin
-	Result := FLoadLastSearchHistory.Value;
+	Result := FInternalLoadHistoryMode;
 end;
 
-function TAppSettings.GetLoadLastSearchHistoryMode() : ELoadLastHistoryMode;
-begin
-	Result := ELoadLastHistoryMode(FLoadLastSearchHistoryMode.Value);
-end;
-
-function TAppSettings.GetCheckNewVersionOnStartup: Boolean;
+function TAppSettings.GetCheckNewVersionOnStartup : Boolean;
 begin
 	Result := FCheckNewVersionOnStartup.Value;
 end;
@@ -184,9 +183,10 @@ begin
 	FCopyToClipBoardShell := TIntegerSetting.Create(Integer(TShellType.stPowershell));
 	FComboHistoryCount := TIntegerSetting.Create(MAX_HISTORY_COUNT);
 	FSearchHistoryCount := TIntegerSetting.Create(MAX_HISTORY_COUNT);
-	FLoadLastSearchHistory := TBoolSetting.Create(False);
-    FCheckNewVersionOnStartup := TBoolSetting.Create(False);
-	FLoadLastSearchHistoryMode := TIntegerSetting.Create();
+	FLoadHistory := TBoolSetting.Create(False);
+	FCheckNewVersionOnStartup := TBoolSetting.Create(False);
+	FLoadHistoryMode := TStringSetting.Create();
+    FInternalLoadHistoryMode := Shared.Make<TLoadHistoryModes>();
 	FDebugTrace := TStringSetting.Create('');
 	FDebugTraceRegexFilter := TStringSetting.Create('');
 	FExpertMode := TBoolSetting.Create(False);
@@ -196,9 +196,9 @@ begin
 	CreateSetting(KEY_COPYTOCLIPBOARDSHELL, FCopyToClipBoardShell);
 	CreateSetting(KEY_CMBHISTORYCOUNT, FComboHistoryCount);
 	CreateSetting(KEY_SEARCH_HISTORYCOUNT, FSearchHistoryCount);
-	CreateSetting(KEY_LOADLASTHISTORIESONSTARTUP, FLoadLastSearchHistory);
 	CreateSetting(KEY_CHECK_NEW_VERSION_ON_STARTUP, FCheckNewVersionOnStartup);
-	CreateSetting(KEY_LOADLASTHISTORIESONSTARTUP_WITHRESULTSONLY, FLoadLastSearchHistoryMode);
+	CreateSetting(KEY_LOAD_LAST_HISTORIES_ON_STARTUP, FLoadHistory);
+	CreateSetting(KEY_LOAD_LAST_HISTORY_MODE, FLoadHistoryMode);
 	CreateSetting(KEY_DEBUGTRACE, FDebugTrace);
 	CreateSetting(KEY_DEBUGTRACEREGEXFILTER, FDebugTraceRegexFilter);
 	CreateSetting(KEY_ENCODING_ITEMS, FEncodingItems);
@@ -245,19 +245,26 @@ begin
 	FExpertMode.Value := Value;
 end;
 
-procedure TAppSettings.SetLoadLastSearchHistory(const Value : Boolean);
+procedure TAppSettings.SetLoadHistoryMode(const Value:
+	IShared<TLoadHistoryModes>);
 begin
-	FLoadLastSearchHistory.Value := Value;
+	FInternalLoadHistoryMode := Value;
+	UpdateSettingsFromInternals;
 end;
 
-procedure TAppSettings.SetLoadLastSearchHistoryMode(const Value : ELoadLastHistoryMode);
-begin
-	FLoadLastSearchHistoryMode.Value := Integer(Value);
-end;
-
-procedure TAppSettings.SetCheckNewVersionOnStartup(const Value: Boolean);
+procedure TAppSettings.SetCheckNewVersionOnStartup(const Value : Boolean);
 begin
 	FCheckNewVersionOnStartup.Value := Value;
+end;
+
+procedure TAppSettings.UpdateSettingsFromInternals();
+begin
+	FLoadHistoryMode.Value := FInternalLoadHistoryMode.ToString();
+end;
+
+procedure TAppSettings.UpdateInternalsFromSettings();
+begin
+	FInternalLoadHistoryMode.FromString(FLoadHistoryMode.Value);
 end;
 
 end.

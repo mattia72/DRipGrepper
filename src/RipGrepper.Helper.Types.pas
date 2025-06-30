@@ -76,14 +76,6 @@ type
 			property FilePath : string read GetFilePath;
 	end;
 
-	TLoadLastHistoryModesConverter = class
-		public
-			class function ModeToInt(const _m : TLoadLastHistoryModes) : integer;
-			class function IntToMode(const _i : integer) : TLoadLastHistoryModes;
-			class function ModeToString(const _m : TLoadLastHistoryModes) : string; static;
-			class function StringToMode(const s : string) : TLoadLastHistoryModes; static;
-	end;
-
 function GetElapsedTime(const _swStart : TStopwatch) : string;
 
 function PostInc(var Value : Integer; const n : Integer = 1) : Integer;
@@ -423,50 +415,6 @@ end;
 class operator TAutoDeleteTempFile.Initialize(out Dest : TAutoDeleteTempFile);
 begin
 	Dest.FFilePath := '';
-end;
-
-class function TLoadLastHistoryModesConverter.ModeToInt(const _m : TLoadLastHistoryModes) : integer;
-begin
-	Result := 0;
-	for var i := low(ELoadLastHistoryMode) to high(ELoadLastHistoryMode) do begin
-		if i in _m then begin
-			break;
-		end;
-		Inc(Result);
-	end;
-end;
-
-class function TLoadLastHistoryModesConverter.IntToMode(const _i : integer) : TLoadLastHistoryModes;
-begin
-	Result := [];
-	for var i := low(ELoadLastHistoryMode) to high(ELoadLastHistoryMode) do begin
-		if Ord(i) = _i then begin
-			Include(Result, i);
-			break;
-		end;
-	end;
-end;
-
-class function TLoadLastHistoryModesConverter.ModeToString(const _m : TLoadLastHistoryModes) : string;
-var
-	arr : TArrayEx<string>;
-begin
-	Result := '';
-	for var i := low(ELoadLastHistoryMode) to high(ELoadLastHistoryMode) do begin
-		if i in _m then begin
-			arr.Add(TConversions<ELoadLastHistoryMode>.EnumerationToString(i));
-		end;
-	end;
-	Result := '[' + string.Join(',', arr.Items) + ']';
-end;
-
-class function TLoadLastHistoryModesConverter.StringToMode(const s : string) : TLoadLastHistoryModes;
-begin
-	for var i := low(ELoadLastHistoryMode) to high(ELoadLastHistoryMode) do begin
-		if s.Contains(TConversions<ELoadLastHistoryMode>.EnumerationToString(i)) then begin
-			Include(Result, i);
-		end;
-	end;
 end;
 
 end.

@@ -327,6 +327,7 @@ end;
 
 procedure TRipGrepperSettings.LoadFromDict;
 begin
+	inherited;
 	FRipGrepParameters.LoadFromDict;
 	FSearchFormSettings.LoadFromDict;
 end;

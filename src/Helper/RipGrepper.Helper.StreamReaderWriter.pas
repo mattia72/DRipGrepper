@@ -37,7 +37,7 @@ var
 	s : string;
 begin
 	s := self.ReadLine();
-	Result := StrToInt(s);
+	Result := StrToIntDef(s, 0);
 end;
 
 procedure TStreamWriterHelper.WriteLineAsBool(const _b : Boolean);

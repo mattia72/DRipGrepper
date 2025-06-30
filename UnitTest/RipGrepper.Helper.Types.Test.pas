@@ -119,6 +119,9 @@ type
 			[Test]
 			procedure TestModeToIntAndIntToMode;
 			[Test]
+			procedure TestIsModeActive();
+
+			[Test]
 			procedure TestModeToStringAndStringToMode;
 	end;
 
@@ -485,6 +488,27 @@ begin
 		m.AddMode(i);
 		Assert.IsTrue(m.IsSet(e), Format('Mode %s should be in the converted mode',
 			{ } [TConversions<ELoadHistoryMode>.EnumerationToString(e)]));
+	end;
+end;
+
+{ TLoadHistoryModesTest }
+
+procedure TLoadHistoryModesTest.TestIsModeActive();
+var
+	eAsString: string;
+	m : TLoadHistoryModes;
+begin
+	for var e := low(ELoadHistoryMode) to high(ELoadHistoryMode) do begin
+		m := TLoadHistoryModes.New(e);
+        eAsString := TConversions<ELoadHistoryMode>.EnumerationToString(e);
+
+		if Ord(e) < Ord(lhmSaveResults) then begin
+			Assert.IsTrue(m.IsSaveHistoryActive,
+            	{} Format('IsSaveHistoryActive should be set at %s', [eAsString]));
+		end else begin
+			Assert.IsTrue(not m.IsSaveHistoryActive,
+            	{} Format('IsSaveHistoryActive shouldn''t be set at %s', [eAsString]));
+		end;
 	end;
 end;
 

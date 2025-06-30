@@ -140,6 +140,7 @@ end;
 
 procedure TFilterSettings.LoadFromDict;
 begin
+	inherited;
 	GetFilterModes();
 end;
 

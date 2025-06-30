@@ -140,7 +140,7 @@ implementation
 
 uses
 	System.SysUtils,
-	RipGrepper.Helper.Types;
+	RipGrepper.Helper.Types, RipGrepper.Helper.StreamReaderWriter;
 
 class function TColumnData.New(const _idxTitle : EColumnIndex; const _Text : string) : TColumnData;
 begin
@@ -283,7 +283,7 @@ var
 	text : string;
 begin
 	FItems.Clear;
-	itemsCount := StrToIntDef(_sr.ReadLine, 0);
+	itemsCount := _sr.ReadLineAsInteger;
 	for var i : Integer := 0 to itemsCount - 1 do begin
 		columns.Clear;
 		for var sTitle in TREEVIEW_COLUMN_TITLES do begin

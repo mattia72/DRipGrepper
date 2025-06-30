@@ -272,6 +272,7 @@ end;
 
 procedure TRipGrepParameterSettings.LoadFromDict();
 begin
+	inherited;
 	FGuiSearchTextParams.LoadFromDict();
 end;
 

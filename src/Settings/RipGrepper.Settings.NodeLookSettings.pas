@@ -131,6 +131,7 @@ end;
 
 procedure TNodeLookSettings.LoadFromDict;
 begin
+	inherited;
 	FilterSettings.LoadFromDict();
 end;
 

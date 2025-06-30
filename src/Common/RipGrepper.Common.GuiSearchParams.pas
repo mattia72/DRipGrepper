@@ -207,10 +207,11 @@ begin
 	CreateSetting('SearchParams', FSearchParams);
 end;
 
-procedure TGuiSearchTextParams.LoadFromDict(); // ok
+procedure TGuiSearchTextParams.LoadFromDict();
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.LoadFromDict');
+	inherited;
 	LoadSearchOptionsFromDict(False);
 end;
 

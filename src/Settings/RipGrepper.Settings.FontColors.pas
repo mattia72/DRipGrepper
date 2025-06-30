@@ -236,6 +236,7 @@ end;
 
 procedure TColorSettings.LoadFromDict;
 begin
+	inherited;
 	CopySettingsToFontColors;
 end;
 

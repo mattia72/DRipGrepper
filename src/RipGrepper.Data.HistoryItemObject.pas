@@ -25,7 +25,6 @@ type
 	THistoryItemObject = class(TInterfacedObject, IHistoryItemObject, IStreamPersistable, IStreamReaderWriterPersistable)
 
 		strict private
-		private
 			FElapsedTimeText : string;
 			FErrorCounters : TErrorCounters;
 			FFileCount : integer;
@@ -41,6 +40,7 @@ type
 			FIsLoadedFromStream : Boolean;
 			FRipGrepArguments : IShared<TRipGrepArguments>;
 			FSearchFormSettings : TSearchFormSettings;
+			FShouldSaveResult: Boolean;
 
 			function GetElapsedTimeText() : string;
 			function GetErrorCounters() : TErrorCounters;
@@ -66,6 +66,9 @@ type
 			procedure SetSearchFormSettings(const Value : TSearchFormSettings);
 			procedure SetRipGrepResult(const Value : Integer);
 
+		private
+			function GetShouldSaveResult(): Boolean;
+			procedure SetShouldSaveResult(const Value: Boolean);
 		public
 			constructor Create;
 			destructor Destroy; override;
@@ -98,6 +101,8 @@ type
 			property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings write SetSearchFormSettings;
 			property SearchText : string read GetSearchText;
 			property ReplaceText : string read GetReplaceText;
+			property ShouldSaveResult: Boolean read GetShouldSaveResult write
+				SetShouldSaveResult;
 
 	end;
 
@@ -280,6 +285,11 @@ begin
 	Result := FGuiSearchTextParams.SearchTextWithOptions;
 end;
 
+function THistoryItemObject.GetShouldSaveResult(): Boolean;
+begin
+	Result := FShouldSaveResult;
+end;
+
 function THistoryItemObject.HasResult : Boolean;
 begin
 	Result := FHasResult;
@@ -327,7 +337,10 @@ begin
 		dbgMsg.MsgFmt('RipGrepArguments = %s', [RipGrepArguments.Text]);
 
 		SearchFormSettings.LoadFromStreamReader(_sr);
-		Matches.LoadFromStreamReader(_sr);
+		if ShouldSaveResult then begin
+			Matches.LoadFromStreamReader(_sr);
+			FHasResult := not Matches.Items.IsEmpty;
+		end;
 
 		FIsLoadedFromStream := True;
 	except
@@ -366,8 +379,9 @@ begin
 		_sw.WriteLine(s);
 	end;
 	SearchFormSettings.SaveToStreamWriter(_sw);
-
-	Matches.SaveToStreamWriter(_sw);
+	if ShouldSaveResult then begin
+		Matches.SaveToStreamWriter(_sw);
+	end;
 end;
 
 procedure THistoryItemObject.SetElapsedTimeText(const Value : string);
@@ -405,6 +419,11 @@ begin
 	FRipGrepResult := Value;
 	FHasResult := True;
 	FIsLoadedFromStream := False; // so counters are updated on gui
+end;
+
+procedure THistoryItemObject.SetShouldSaveResult(const Value: Boolean);
+begin
+	FShouldSaveResult := Value;
 end;
 
 function THistoryItemObject.UpdateParserType : TParserType;
