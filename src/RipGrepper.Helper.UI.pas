@@ -29,12 +29,13 @@ type
 			class procedure SetCaption(_msgDlg : TForm);
 	end;
 
-    // Show MsgBox from a separate thread
+	// Show MsgBox from a separate thread
 	TAsyncMsgBox = class(TMsgBoxBase)
 		private
 			class var FMsgDlg : TForm;
 			class procedure SetModalResultAndClose(const _mr : Integer);
 			class function ThreadShowDlg() : TModalResult;
+
 		public
 			constructor Create;
 			class procedure Show(const _msg : string; const _type : TMsgDlgType; _parent : TWinControl = nil;
@@ -156,7 +157,7 @@ type
 
 	TUrlLinkHelper = class(TObject)
 		class procedure OpenLink(const _link : string);
-		class function MakeLinkWithCaption(const _caption, _href, _text: string): string;
+		class function MakeLinkWithCaption(const _caption, _href, _text : string) : string;
 	end;
 
 implementation
@@ -476,12 +477,15 @@ var
 	sExtension : string;
 	bmp : Vcl.Graphics.TBitmap;
 begin
-	sExtension := TPath.GetExtension(_sFilePath);
+	Result := -1;
+	if TPath.HasValidPathChars(_sFilePath, False) then begin
+		sExtension := TPath.GetExtension(_sFilePath);
 
-	if not FExtIndexDict.TryGetValue(sExtension, Result) then begin
-		bmp := TItemDrawer.GetIconBitmap(_sFilePath, FImage);
-		Result := FImageList.AddMasked(bmp, bmp.TransparentColor);
-		FExtIndexDict.Add(sExtension, Result);
+		if not FExtIndexDict.TryGetValue(sExtension, Result) then begin
+			bmp := TItemDrawer.GetIconBitmap(_sFilePath, FImage);
+			Result := FImageList.AddMasked(bmp, bmp.TransparentColor);
+			FExtIndexDict.Add(sExtension, Result);
+		end;
 	end;
 end;
 
@@ -615,7 +619,7 @@ end;
 
 class procedure TAsyncMsgBox.ShowQuestion(const _msg : string; _yesProc : TThreadProcedure; _noProc : TThreadProcedure = nil);
 begin
-    // TODO : this function is not tested
+	// TODO : this function is not tested
 	Show(_msg, TMsgDlgType.mtConfirmation, nil, _yesProc, _noProc);
 end;
 
@@ -642,7 +646,7 @@ begin
 			btnNo.OnClick := TAsyncMsgBox.OnNoClick;
 		end;
 	end;
-	Result := FMsgDlg.ShowModal;   // TODO : test appropriate result
+	Result := FMsgDlg.ShowModal; // TODO : test appropriate result
 end;
 
 class function TMsgBoxBase.GetButtonsByType(const _type : TMsgDlgType) : TMsgDlgButtons;
@@ -671,7 +675,7 @@ begin
 	_cmb.Items.AddStrings(_items);
 end;
 
-class function TUrlLinkHelper.MakeLinkWithCaption(const _caption, _href, _text: string): string;
+class function TUrlLinkHelper.MakeLinkWithCaption(const _caption, _href, _text : string) : string;
 begin
 	Result := Format('%s<a href="%s">%s</a>', [_caption, _href, _text]);
 end;
