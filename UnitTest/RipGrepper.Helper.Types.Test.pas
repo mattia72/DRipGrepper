@@ -159,7 +159,8 @@ uses
 	System.IOUtils,
 	RipGrepper.Tools.FileUtils,
 	RipGrepper.Common.SimpleTypes,
-	RipGrepper.Common.LoadHistoryMode;
+	RipGrepper.Common.LoadHistoryMode,
+	Spring;
 
 procedure TStringsHelperTest.Setup;
 begin
@@ -474,18 +475,19 @@ end;
 
 procedure TLoadHistoryModesTest.TestModeToIntAndIntToMode;
 var
-	m : TLoadHistoryModes;
+	m : IShared<TLoadHistoryModes>;
 	i : integer;
 begin
 	for var e := low(ELoadHistoryMode) to high(ELoadHistoryMode) do begin
-		m := TLoadHistoryModes.New(e);
+		m := Shared.Make<TLoadHistoryModes>();
+		m.AddMode(e);
 		i := m.ToInt();
 		if Ord(e) < Ord(lhmSaveResults) then begin
 			Assert.IsTrue(i >= 0, 'ToInt should return a non-negative integer');
 		end else begin
 			Assert.AreEqual(-1, i, 'ToInt should return a negative integer');
 		end;
-		m.AddMode(i);
+		m.AddModeFromInt(i);
 		Assert.IsTrue(m.IsSet(e), Format('Mode %s should be in the converted mode',
 			{ } [TConversions<ELoadHistoryMode>.EnumerationToString(e)]));
 	end;
@@ -495,19 +497,19 @@ end;
 
 procedure TLoadHistoryModesTest.TestIsModeActive();
 var
-	eAsString: string;
-	m : TLoadHistoryModes;
+	eAsString : string;
+	m : IShared<TLoadHistoryModes>;
 begin
 	for var e := low(ELoadHistoryMode) to high(ELoadHistoryMode) do begin
-		m := TLoadHistoryModes.New(e);
-        eAsString := TConversions<ELoadHistoryMode>.EnumerationToString(e);
+		m := Shared.Make<TLoadHistoryModes>(TLoadHistoryModes.Create(e));
+		eAsString := TConversions<ELoadHistoryMode>.EnumerationToString(e);
 
 		if Ord(e) < Ord(lhmSaveResults) then begin
 			Assert.IsTrue(m.IsSaveHistoryActive,
-            	{} Format('IsSaveHistoryActive should be set at %s', [eAsString]));
+				{ } Format('IsSaveHistoryActive should be set at %s', [eAsString]));
 		end else begin
 			Assert.IsTrue(not m.IsSaveHistoryActive,
-            	{} Format('IsSaveHistoryActive shouldn''t be set at %s', [eAsString]));
+				{ } Format('IsSaveHistoryActive shouldn''t be set at %s', [eAsString]));
 		end;
 	end;
 end;
@@ -515,15 +517,15 @@ end;
 procedure TLoadHistoryModesTest.TestModeToStringAndStringToMode;
 var
 	eAsString : string;
-	m : TLoadHistoryModes;
+	m : IShared<TLoadHistoryModes>;
 	s : string;
 begin
 	for var e := low(ELoadHistoryMode) to high(ELoadHistoryMode) do begin
-		m := TLoadHistoryModes.New(e);
+		m := Shared.Make<TLoadHistoryModes>(TLoadHistoryModes.Create(e));
 		s := m.ToString;
 		eAsString := TConversions<ELoadHistoryMode>.EnumerationToString(e);
 		Assert.IsTrue(s.Contains(eAsString), 'ToString should contain ' + eAsString);
-		m.AddMode(s);
+		m.FromString(s);
 		Assert.IsTrue(m.IsSet(e), Format('Mode %s should be in the converted mode', [eAsString]));
 	end;
 end;
