@@ -26,6 +26,7 @@ type
 		TopFrame : TRipGrepperTopFrame;
 
 		private
+			FbNewVersioMsgBoxAlreadyShown : Boolean;
 			FIsInitialized : Boolean;
 			FSettings : TRipGrepperSettings;
 			function GetSettings : TRipGrepperSettings;
@@ -79,6 +80,7 @@ begin
 	inherited;
 	ParentFrame := self;
 	FIsInitialized := False;
+	FbNewVersioMsgBoxAlreadyShown := False;
 	Initialize();
 end;
 
@@ -165,10 +167,11 @@ begin
 	Settings.LoadInitialSettings;
 	TopFrame.Initialize();
 	BottomFrame.Initialize();
-	if Settings.AppSettings.CheckNewVersionOnStartup then begin
+	if (not FbNewVersioMsgBoxAlreadyShown) and Settings.AppSettings.CheckNewVersionOnStartup then begin
 		var
 			ru : TReleaseUtils;
 		ru.ShowNewVersionMsgBox(True);
+		FbNewVersioMsgBoxAlreadyShown := True;
 	end;
 end;
 
@@ -224,7 +227,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TParentFrame.LoadHistory');
 	dbgMsg.Msg('from: ' + TPath.GetFullPath(GetSearchHistoryPath()));
-	if Settings.AppSettings.LoadHistoryMode.IsSaveHistoryActive  and TFile.Exists(GetSearchHistoryPath()) then begin
+	if Settings.AppSettings.LoadHistoryMode.IsSaveHistoryActive and TFile.Exists(GetSearchHistoryPath()) then begin
 		dbgMsg.Msg('LoadHistory = True, FileExists');
 		try
 			MiddleLeftFrame.VstHistory.LoadFromFile(GetSearchHistoryPath());
