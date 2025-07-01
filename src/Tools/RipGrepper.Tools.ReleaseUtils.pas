@@ -11,7 +11,6 @@ uses
 
 type
 	TReleaseInfo = class
-		private
 		public
 			Description : string;
 			Version : string;
