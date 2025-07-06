@@ -387,9 +387,17 @@ function New-ReleaseWithAsset {
         Write-Host "Copying files to $global:TransferDrive" -ForegroundColor Green
         Copy-Item -Path $global:AssetsDirectory\* -Destination $global:TransferDrive -Force -Recurse 
         $zipArr = List-Assets -Path $global:TransferDrive
-        Copy-Item -Path $global:AssetsDirectory\Win64\* -Destination $global:TransferDrive\Latest -Force
-        Copy-Item -Path $global:AssetsDirectory\Delphi11.Dll\* -Destination $global:TransferDrive\Latest -Force
-        $zipArr += List-Assets -Path $global:TransferDrive\Latest
+        
+        # Clear Latest directory before copying new assets
+        $latestDir = "$global:TransferDrive\Latest"
+        if (Test-Path $latestDir) {
+            Write-Host "Clearing Latest directory: $latestDir" -ForegroundColor Yellow
+            Remove-Item -Path "$latestDir\*" -Force -Recurse -ErrorAction SilentlyContinue
+        }
+        
+        Copy-Item -Path $global:AssetsDirectory\Win64\* -Destination $latestDir -Force
+        Copy-Item -Path $global:AssetsDirectory\Delphi11.Dll\* -Destination $latestDir -Force
+        $zipArr += List-Assets -Path $latestDir
         $zipArr | Format-Table -AutoSize -Property File, LastWriteTime, Length
     }
     if ($DeployToGitHub) {
