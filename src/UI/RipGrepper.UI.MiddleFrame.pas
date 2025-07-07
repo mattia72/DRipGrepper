@@ -176,6 +176,11 @@ type
 			procedure SetAbortSearch(const Value : Boolean);
 			procedure SetCheckedAllSubNode(ANode : PVirtualNode);
 			procedure SetColumnWidths;
+			procedure SetDeleteIconOnHotNode(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; var Ghosted : Boolean;
+				var ImageIndex : TImageIndex);
+			procedure SetFileIconImgIdx(Sender : TBaseVirtualTree; Node : PVirtualNode;
+				Kind : TVTImageKind; Column : TColumnIndex; var Ghosted : Boolean; var
+				ImageIndex : TImageIndex);
 			procedure SetHistItemObject(const Value : IHistoryItemObject);
 			function SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
 			procedure UpdateArgumentsAndSettings;
@@ -1381,32 +1386,26 @@ end;
 
 procedure TRipGrepperMiddleFrame.VstResultGetImageIndex(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind;
 Column : TColumnIndex; var Ghosted : Boolean; var ImageIndex : TImageIndex);
-var
-	NodeData : PVSFileNodeData;
 begin
-	if not Settings.NodeLookSettings.ShowFileIcon then
-		Exit;
 
-	if Node.ChildCount > 0 then begin
-		NodeData := Sender.GetNodeData(Node);
-		case Kind of
-			ikNormal, ikSelected :
-			case Column of
-				COL_FILE : begin
-					var
-					text := NodeData^.FilePath;
-					if TRegEx.IsMatch(text, '(^' + RG_ERROR_MSG_PREFIX + '|' + RG_ENDED_ERROR + ')') then begin
-						ImageIndex := LV_IMG_IDX_ERROR;
-						// ImageIndex := FIconImgList.GetImgIndexFromResourceDll('ERROR', ICON_IDX_ERROR);
-					end else if text = RG_STATS_LINE then begin
-						ImageIndex := LV_IMG_IDX_INFO;
-						// ImageIndex := FIconImgList.GetImgIndexFromResourceDll('STATISTIC', ICON_IDX_STATISTIC);
-					end else begin;
-						ImageIndex := FIconImgList.GetIconImgIndex(NodeData^.FilePath);
-					end;
-				end;
-			end;
-		end;
+	if not (Kind in [ikNormal, ikSelected] )then begin
+        Exit;
+    end;
+
+	// Always show the delete icon ('x') on every hot node in the file column
+	if (Column in [COL_FILE, COL_ROW_NUM]) and (Sender.HotNode = Node) then
+	begin
+		ImageIndex := LV_IMG_IDX_X;
+		Exit;
+	end;
+
+	// Otherwise, show file icons as before
+	if (Node.ChildCount > 0) then
+	begin
+		if not Settings.NodeLookSettings.ShowFileIcon then
+			Exit;
+
+		SetFileIconImgIdx(Sender, Node, Kind, Column, Ghosted, ImageIndex);
 	end;
 end;
 
@@ -1558,6 +1557,50 @@ end;
 procedure TRipGrepperMiddleFrame.SetAbortSearch(const Value : Boolean);
 begin
 	FAbortSearch := Value;
+end;
+
+procedure TRipGrepperMiddleFrame.SetDeleteIconOnHotNode(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
+var Ghosted : Boolean; var ImageIndex : TImageIndex);
+begin
+	ImageIndex := -1;
+	case Column of
+		COL_FILE : begin
+			begin
+//              Ghosted := False;
+				if (Sender.HotNode = Node) { and showNodeIcon } then begin
+					ImageIndex := LV_IMG_IDX_X;
+//                  Ghosted := True;
+				end;
+			end;
+		end;
+	end;
+end;
+
+procedure TRipGrepperMiddleFrame.SetFileIconImgIdx(Sender : TBaseVirtualTree;
+	Node : PVirtualNode; Kind : TVTImageKind; Column : TColumnIndex; var
+	Ghosted : Boolean; var ImageIndex : TImageIndex);
+var
+	NodeData : PVSFileNodeData;
+begin
+	NodeData := Sender.GetNodeData(Node);
+	case Kind of
+		ikNormal, ikSelected :
+		case Column of
+			COL_FILE : begin
+				var
+				text := NodeData^.FilePath;
+				if TRegEx.IsMatch(text, '(^' + RG_ERROR_MSG_PREFIX + '|' + RG_ENDED_ERROR + ')') then begin
+					ImageIndex := LV_IMG_IDX_ERROR;
+					// ImageIndex := FIconImgList.GetImgIndexFromResourceDll('ERROR', ICON_IDX_ERROR);
+				end else if text = RG_STATS_LINE then begin
+					ImageIndex := LV_IMG_IDX_INFO;
+					// ImageIndex := FIconImgList.GetImgIndexFromResourceDll('STATISTIC', ICON_IDX_STATISTIC);
+				end else begin;
+					ImageIndex := FIconImgList.GetIconImgIndex(NodeData^.FilePath);
+				end;
+			end;
+		end;
+	end;
 end;
 
 procedure TRipGrepperMiddleFrame.UpdateUIStyle(_sNewStyle : string = '');
