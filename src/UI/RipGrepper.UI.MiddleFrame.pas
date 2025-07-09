@@ -176,11 +176,11 @@ type
 			procedure SetAbortSearch(const Value : Boolean);
 			procedure SetCheckedAllSubNode(ANode : PVirtualNode);
 			procedure SetColumnWidths;
-			procedure SetDeleteIconOnHotNode(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; var Ghosted : Boolean;
-				var ImageIndex : TImageIndex);
-			procedure SetFileIconImgIdx(Sender : TBaseVirtualTree; Node : PVirtualNode;
-				Kind : TVTImageKind; Column : TColumnIndex; var Ghosted : Boolean; var
-				ImageIndex : TImageIndex);
+			procedure SetDeleteIconOnHotNodeForColumn(const _colNum: Integer; Sender:
+				TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var Ghosted:
+				Boolean; var ImageIndex: TImageIndex);
+			procedure SetFileIconImgIdx(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind; Column : TColumnIndex;
+				var Ghosted : Boolean; var ImageIndex : TImageIndex);
 			procedure SetHistItemObject(const Value : IHistoryItemObject);
 			function SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
 			procedure UpdateArgumentsAndSettings;
@@ -1387,25 +1387,19 @@ end;
 procedure TRipGrepperMiddleFrame.VstResultGetImageIndex(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind;
 Column : TColumnIndex; var Ghosted : Boolean; var ImageIndex : TImageIndex);
 begin
-
-	if not (Kind in [ikNormal, ikSelected] )then begin
-        Exit;
-    end;
-
-	// Always show the delete icon ('x') on every hot node in the file column
-	if (Column in [COL_FILE, COL_ROW_NUM]) and (Sender.HotNode = Node) then
-	begin
-		ImageIndex := LV_IMG_IDX_X;
+	if not(Kind in [ikNormal, ikSelected]) then begin
 		Exit;
 	end;
 
-	// Otherwise, show file icons as before
-	if (Node.ChildCount > 0) then
-	begin
-		if not Settings.NodeLookSettings.ShowFileIcon then
-			Exit;
+	SetDeleteIconOnHotNodeForColumn(COL_ROW_NUM, Sender, Node, Column, Ghosted, ImageIndex);
 
-		SetFileIconImgIdx(Sender, Node, Kind, Column, Ghosted, ImageIndex);
+	// Otherwise, show file icons as before
+	if (ImageIndex = -1) and (Node.ChildCount > 0) then begin
+		SetDeleteIconOnHotNodeForColumn(COL_FILE, Sender, Node, Column, Ghosted, ImageIndex);
+
+		if (ImageIndex = -1) and Settings.NodeLookSettings.ShowFileIcon then begin
+			SetFileIconImgIdx(Sender, Node, Kind, Column, Ghosted, ImageIndex);
+		end;
 	end;
 end;
 
@@ -1559,26 +1553,20 @@ begin
 	FAbortSearch := Value;
 end;
 
-procedure TRipGrepperMiddleFrame.SetDeleteIconOnHotNode(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
-var Ghosted : Boolean; var ImageIndex : TImageIndex);
+procedure TRipGrepperMiddleFrame.SetDeleteIconOnHotNodeForColumn(const _colNum:
+	Integer; Sender: TBaseVirtualTree; Node: PVirtualNode; Column:
+	TColumnIndex; var Ghosted: Boolean; var ImageIndex: TImageIndex);
 begin
 	ImageIndex := -1;
-	case Column of
-		COL_FILE : begin
-			begin
-//              Ghosted := False;
-				if (Sender.HotNode = Node) { and showNodeIcon } then begin
-					ImageIndex := LV_IMG_IDX_X;
-//                  Ghosted := True;
-				end;
-			end;
-		end;
+
+	// Always show the delete icon ('x') on every hot node in the file column
+	if (Column = _colNum) and (Sender.HotNode = Node) then begin
+		ImageIndex := LV_IMG_IDX_X;
 	end;
 end;
 
-procedure TRipGrepperMiddleFrame.SetFileIconImgIdx(Sender : TBaseVirtualTree;
-	Node : PVirtualNode; Kind : TVTImageKind; Column : TColumnIndex; var
-	Ghosted : Boolean; var ImageIndex : TImageIndex);
+procedure TRipGrepperMiddleFrame.SetFileIconImgIdx(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind;
+Column : TColumnIndex; var Ghosted : Boolean; var ImageIndex : TImageIndex);
 var
 	NodeData : PVSFileNodeData;
 begin
