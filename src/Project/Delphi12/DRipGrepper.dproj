@@ -4,8 +4,8 @@
         <ProjectVersion>20.1</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <Config Condition="'$(Config)'==''">Release</Config>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
         <MainSource>DRipGrepper.dpr</MainSource>
@@ -67,7 +67,7 @@
         <DCC_F>false</DCC_F>
         <DCC_K>false</DCC_K>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-        <Icon_MainIcon>..\..\images\icons\DripGrepper.ico</Icon_MainIcon>
+        <Icon_MainIcon>..\..\icons\DripGrepper.ico</Icon_MainIcon>
         <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
         <SanitizedProjectName>DRipGrepper</SanitizedProjectName>
@@ -77,13 +77,14 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=3.8.0.1;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=3.8.0.0</VerInfo_Keys>
         <Custom_Styles>Windows10|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows10.vsf;&quot;Windows10 Dark|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows10Dark.vsf&quot;;Carbon|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Carbon.vsf</Custom_Styles>
+        <UsePackages>true</UsePackages>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <DCC_UsePackage>soapserver;IndySystem;vclwinx;DesignIde;fmx;vclie;DbxCommonDriver;bindengine;vcldb;IndyIPCommon;VCLRESTComponents;FireDACCommonODBC;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;IndyIPClient;dbxcds;vcledge;vclFireDAC;bindcompvclwinx;bindcomp;FireDACCommon;IndyCore;RESTBackendComponents;bindcompfmx;bindcompdbx;inetdb;rtl;FireDACMySQLDriver;FireDACSqliteDriver;DbxClientDriver;FireDACADSDriver;RESTComponents;soapmidas;DBXSqliteDriver;vcl;vclactnband;IndyIPServer;dsnapxml;fmxFireDAC;dbexpress;dsnapcon;adortl;DBXMySQLDriver;VclSmp;inet;vclimg;vcltouch;FireDACPgDriver;FireDAC;fmxase;inetdbxpress;xmlrtl;tethering;dbrtl;bindcompvcl;dsnap;fmxdae;CloudService;FireDACMSAccDriver;CustomIPTransport;fmxobj;bindcompvclsmp;soaprtl;vcldsnap;DBXInterBaseDriver;FireDACIBDriver;VirtualTreesDR;DRipExtension;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UsePackage>soapserver;IndySystem;vclwinx;DesignIde;fmx;vclie;DbxCommonDriver;bindengine;vcldb;IndyIPCommon;VCLRESTComponents;FireDACCommonODBC;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;IndyIPClient;dbxcds;vcledge;vclFireDAC;bindcompvclwinx;bindcomp;FireDACCommon;IndyCore;RESTBackendComponents;bindcompfmx;bindcompdbx;inetdb;rtl;FireDACMySQLDriver;FireDACSqliteDriver;DbxClientDriver;FireDACADSDriver;RESTComponents;soapmidas;DBXSqliteDriver;vcl;vclactnband;IndyIPServer;dsnapxml;fmxFireDAC;dbexpress;dsnapcon;adortl;DBXMySQLDriver;VclSmp;inet;vclimg;vcltouch;FireDACPgDriver;FireDAC;fmxase;inetdbxpress;xmlrtl;tethering;dbrtl;bindcompvcl;dsnap;fmxdae;CloudService;FireDACMSAccDriver;CustomIPTransport;fmxobj;bindcompvclsmp;soaprtl;vcldsnap;DBXInterBaseDriver;FireDACIBDriver;VirtualTreesDR;$(DCC_UsePackage)</DCC_UsePackage>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.7.2.238;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.7.2</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.9.0.263;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.9.0</VerInfo_Keys>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
@@ -91,24 +92,22 @@
         <Icon_MainIcon>..\..\..\images\icons\DripGrepper.ico</Icon_MainIcon>
         <UWP_DelphiLogo44>icons\DripGrepperLogo.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>icons\DripGrepperLogo.png</UWP_DelphiLogo150>
-        <VerInfo_Build>238</VerInfo_Build>
-        <VerInfo_MinorVer>7</VerInfo_MinorVer>
-        <VerInfo_Release>2</VerInfo_Release>
+        <VerInfo_Build>263</VerInfo_Build>
+        <VerInfo_MinorVer>9</VerInfo_MinorVer>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <DCC_UsePackage>soapserver;IndySystem;vclwinx;fmx;vclie;DbxCommonDriver;bindengine;vcldb;IndyIPCommon;VCLRESTComponents;FireDACCommonODBC;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;IndyIPClient;dbxcds;vcledge;vclFireDAC;bindcompvclwinx;bindcomp;FireDACCommon;IndyCore;RESTBackendComponents;bindcompfmx;bindcompdbx;inetdb;rtl;FireDACMySQLDriver;FireDACSqliteDriver;DbxClientDriver;FireDACADSDriver;RESTComponents;soapmidas;DBXSqliteDriver;vcl;vclactnband;IndyIPServer;dsnapxml;fmxFireDAC;dbexpress;dsnapcon;adortl;DBXMySQLDriver;VclSmp;inet;vclimg;vcltouch;FireDACPgDriver;FireDAC;fmxase;inetdbxpress;xmlrtl;tethering;dbrtl;bindcompvcl;dsnap;fmxdae;CloudService;FireDACMSAccDriver;CustomIPTransport;fmxobj;bindcompvclsmp;soaprtl;vcldsnap;DBXInterBaseDriver;FireDACIBDriver;VirtualTreesDR;$(DCC_UsePackage)</DCC_UsePackage>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.7.2.238;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.7.2</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.9.0.263;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.9.0</VerInfo_Keys>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Build>238</VerInfo_Build>
+        <VerInfo_Build>263</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
         <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
-        <VerInfo_MinorVer>7</VerInfo_MinorVer>
-        <VerInfo_Release>2</VerInfo_Release>
+        <VerInfo_MinorVer>9</VerInfo_MinorVer>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>DEBUG;FASTMM4_OPT;$(DCC_Define)</DCC_Define>
@@ -128,23 +127,22 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.7.2.238;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.7.2</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.9.0.263;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.9.0</VerInfo_Keys>
         <DCC_DebugInfoInTds>true</DCC_DebugInfoInTds>
-        <VerInfo_Build>238</VerInfo_Build>
-        <VerInfo_MinorVer>7</VerInfo_MinorVer>
-        <VerInfo_Release>2</VerInfo_Release>
+        <VerInfo_Build>263</VerInfo_Build>
+        <VerInfo_MinorVer>9</VerInfo_MinorVer>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.7.2.251;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.7.2</VerInfo_Keys>
-        <VerInfo_Build>251</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.9.0.265;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.9.0</VerInfo_Keys>
+        <VerInfo_Build>265</VerInfo_Build>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <VerInfo_MinorVer>7</VerInfo_MinorVer>
-        <Icon_MainIcon>..\..\..\images\icons\DripGrepper.ico</Icon_MainIcon>
+        <VerInfo_MinorVer>9</VerInfo_MinorVer>
         <Debugger_DebugSourcePath>C:\home\mata\dev\delphi\spring4d\Source\Base\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
-        <VerInfo_Release>2</VerInfo_Release>
+        <UsePackages>true</UsePackages>
+        <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -161,21 +159,19 @@
         <UWP_DelphiLogo150>icons\DripGrepperLogo.png</UWP_DelphiLogo150>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.7.2.250;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.7.2</VerInfo_Keys>
-        <VerInfo_Build>250</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.9.0.264;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.9.0</VerInfo_Keys>
+        <VerInfo_Build>264</VerInfo_Build>
         <Icon_MainIcon>..\..\..\images\icons\DripGrepper.ico</Icon_MainIcon>
-        <VerInfo_MinorVer>7</VerInfo_MinorVer>
-        <VerInfo_Release>2</VerInfo_Release>
+        <VerInfo_MinorVer>9</VerInfo_MinorVer>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.7.2.250;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.7.2</VerInfo_Keys>
-        <VerInfo_Build>250</VerInfo_Build>
-        <VerInfo_MinorVer>7</VerInfo_MinorVer>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.9.0.264;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.9.0</VerInfo_Keys>
+        <VerInfo_Build>264</VerInfo_Build>
+        <VerInfo_MinorVer>9</VerInfo_MinorVer>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <VerInfo_Release>2</VerInfo_Release>
         <Icon_MainIcon>..\..\..\images\icons\DripGrepper.ico</Icon_MainIcon>
         <BRCC_CompilerToUse>rc</BRCC_CompilerToUse>
     </PropertyGroup>
@@ -363,6 +359,20 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="4">
+                <DeployFile LocalName="$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png" Configuration="Release" Class="UWP_DelphiLogo150">
+                    <Platform Name="Win32">
+                        <RemoteDir>Assets\</RemoteDir>
+                        <RemoteName>Logo150x150.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png" Configuration="Release" Class="UWP_DelphiLogo44">
+                    <Platform Name="Win32">
+                        <RemoteDir>Assets\</RemoteDir>
+                        <RemoteName>Logo44x44.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="..\..\..\LICENSE" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win64">
                         <RemoteDir>.\</RemoteDir>
@@ -412,13 +422,6 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="icons\DripGrepperLogo.png" Configuration="Debug" Class="UWP_DelphiLogo44">
-                    <Platform Name="Win32">
-                        <RemoteDir>Assets\</RemoteDir>
-                        <RemoteName>Logo44x44.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="icons\DripGrepperLogo.png" Configuration="Release" Class="UWP_DelphiLogo44">
                     <Platform Name="Win32">
                         <RemoteDir>Assets\</RemoteDir>
                         <RemoteName>Logo44x44.png</RemoteName>
