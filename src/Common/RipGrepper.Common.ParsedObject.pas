@@ -4,13 +4,13 @@ interface
 
 uses
 	ArrayEx,
-	System.Generics.Collections,
-	System.Generics.Defaults,
-	System.Classes,
 	RipGrepper.Common.Constants,
+	RipGrepper.Common.Interfaces.StreamPersistable,
 	RipGrepper.Common.SimpleTypes,
 	Spring.Collections,
-	RipGrepper.Common.Interfaces.StreamPersistable;
+	System.Classes,
+	System.Generics.Collections,
+	System.Generics.Defaults;
 
 type
 
@@ -50,7 +50,6 @@ type
 		property IsStatsLine : Boolean read GetIsStatsLine write SetIsStatsLine;
 		property ParserType : TParserType read GetParserType write SetParserType;
 		property RowNr : Integer read GetRowNr write SetRowNr;
-
 	end;
 
 type
@@ -81,18 +80,18 @@ type
 			FIsStatsLine : Boolean;
 			FParserType : TParserType;
 			FRowNr : Integer;
-			function GetColumns : TArrayEx<TColumnData>;
-			procedure SetColumns(const Value : TArrayEx<TColumnData>);
-			function GetErrorText : string;
-			function GetIsStatsLine : Boolean;
-			function GetIsError : Boolean;
-			function GetRowNr : Integer;
-			procedure SetErrorText(const Value : string);
-			procedure SetIsError(const Value : Boolean);
-			procedure SetRowNr(const Value : Integer);
-			function GetParserType : TParserType;
-			procedure SetIsStatsLine(const Value : Boolean);
-			procedure SetParserType(const Value : TParserType);
+			function getColumns : TArrayEx<TColumnData>;
+			procedure setColumns(const Value : TArrayEx<TColumnData>);
+			function getErrorText : string;
+			function getIsStatsLine : Boolean;
+			function getIsError : Boolean;
+			function getRowNr : Integer;
+			procedure setErrorText(const Value : string);
+			procedure setIsError(const Value : Boolean);
+			procedure setRowNr(const Value : Integer);
+			function getParserType : TParserType;
+			procedure setIsStatsLine(const Value : Boolean);
+			procedure setParserType(const Value : TParserType);
 
 		public
 			constructor Create(const _por : IParsedObjectRow; _parserType : TParserType); overload;
@@ -100,19 +99,19 @@ type
 			procedure CopyTo(var _por : TParsedObjectRow);
 			function GetColumnByTitle(const _title : string) : TColumnData;
 			function GetColumnText(const _idx : integer) : string;
-			property Columns : TArrayEx<TColumnData> read GetColumns write SetColumns;
-			property ErrorText : string read GetErrorText write SetErrorText;
-			property IsStatsLine : Boolean read GetIsStatsLine write SetIsStatsLine;
-			property IsError : Boolean read GetIsError write SetIsError;
-			property RowNr : Integer read GetRowNr write SetRowNr;
-			property ParserType : TParserType read GetParserType write SetParserType;
+
+			property Columns : TArrayEx<TColumnData> read getColumns write setColumns;
+			property ErrorText : string read getErrorText write setErrorText;
+			property IsStatsLine : Boolean read getIsStatsLine write setIsStatsLine;
+			property IsError : Boolean read getIsError write setIsError;
+			property RowNr : Integer read getRowNr write setRowNr;
+			property ParserType : TParserType read getParserType write setParserType;
 	end;
 
 	TParsedObjectRowCollection = class(TNoRefCountObject, IParsedObjectRowCollection, IStreamReaderWriterPersistable)
 		private
 			FItems : TListType;
-			function GetItems : TListType;
-			// procedure SetItems(const Value : TListType);
+			function getItems : TListType;
 
 		public
 			constructor Create;
@@ -122,17 +121,18 @@ type
 			function GetFileCount : Integer;
 			function GetErrorCount : Integer;
 			function GetTotalMatchCount : Integer;
-			property Items : TListType read GetItems; // write SetItems;
+
+			property Items : TListType read getItems;
 	end;
 
 	TParsedObjectGroupedRowCollection = class(TParsedObjectRowCollection, IParsedObjectGroupRowCollection)
 		private
 			FGroupId : Integer;
-			function GetGroupId : Integer;
-			procedure SetGroupId(const Value : Integer);
+			function getGroupId : Integer;
+			procedure setGroupId(const Value : Integer);
 
 		public
-			property GroupId : Integer read GetGroupId write SetGroupId;
+			property GroupId : Integer read getGroupId write setGroupId;
 	end;
 
 	TParsedObjectGroupCollection = class
@@ -142,9 +142,9 @@ type
 implementation
 
 uses
-	System.SysUtils,
+	RipGrepper.Helper.StreamReaderWriter,
 	RipGrepper.Helper.Types,
-	RipGrepper.Helper.StreamReaderWriter;
+	System.SysUtils;
 
 class function TColumnData.New(const _idxTitle : EColumnIndex; const _Text : string) : TColumnData;
 begin
@@ -192,7 +192,7 @@ begin
 	Result := FColumns.SafeItem[idxColumnData];
 end;
 
-function TParsedObjectRow.GetColumns : TArrayEx<TColumnData>;
+function TParsedObjectRow.getColumns : TArrayEx<TColumnData>;
 begin
 	Result := FColumns;
 end;
@@ -205,57 +205,57 @@ begin
 	end;
 end;
 
-function TParsedObjectRow.GetErrorText : string;
+function TParsedObjectRow.getErrorText : string;
 begin
 	Result := FErrorText;
 end;
 
-function TParsedObjectRow.GetIsStatsLine : Boolean;
+function TParsedObjectRow.getIsStatsLine : Boolean;
 begin
 	Result := FIsStatsLine;
 end;
 
-function TParsedObjectRow.GetIsError : Boolean;
+function TParsedObjectRow.getIsError : Boolean;
 begin
 	Result := FIsError;
 end;
 
-function TParsedObjectRow.GetParserType : TParserType;
+function TParsedObjectRow.getParserType : TParserType;
 begin
 	Result := FParserType;
 end;
 
-function TParsedObjectRow.GetRowNr : Integer;
+function TParsedObjectRow.getRowNr : Integer;
 begin
 	Result := FRowNr;
 end;
 
-procedure TParsedObjectRow.SetColumns(const Value : TArrayEx<TColumnData>);
+procedure TParsedObjectRow.setColumns(const Value : TArrayEx<TColumnData>);
 begin
 	FColumns := Value;
 end;
 
-procedure TParsedObjectRow.SetErrorText(const Value : string);
+procedure TParsedObjectRow.setErrorText(const Value : string);
 begin
 	FErrorText := Value;
 end;
 
-procedure TParsedObjectRow.SetIsStatsLine(const Value : Boolean);
+procedure TParsedObjectRow.setIsStatsLine(const Value : Boolean);
 begin
 	FIsStatsLine := Value;
 end;
 
-procedure TParsedObjectRow.SetIsError(const Value : Boolean);
+procedure TParsedObjectRow.setIsError(const Value : Boolean);
 begin
 	FIsError := Value;
 end;
 
-procedure TParsedObjectRow.SetParserType(const Value : TParserType);
+procedure TParsedObjectRow.setParserType(const Value : TParserType);
 begin
 	FParserType := Value;
 end;
 
-procedure TParsedObjectRow.SetRowNr(const Value : Integer);
+procedure TParsedObjectRow.setRowNr(const Value : Integer);
 begin
 	FRowNr := Value;
 end;
@@ -271,7 +271,7 @@ begin
 	inherited;
 end;
 
-function TParsedObjectRowCollection.GetItems : TListType;
+function TParsedObjectRowCollection.getItems : TListType;
 begin
 	Result := FItems;
 end;
@@ -334,7 +334,6 @@ begin
 end;
 
 function TParsedObjectRowCollection.GetErrorCount : Integer;
-
 begin
 	Result := 0;
 	for var i in FItems do begin
@@ -349,12 +348,12 @@ begin
 	Result := FItems.Count;
 end;
 
-function TParsedObjectGroupedRowCollection.GetGroupId : Integer;
+function TParsedObjectGroupedRowCollection.getGroupId : Integer;
 begin
 	Result := FGroupId;
 end;
 
-procedure TParsedObjectGroupedRowCollection.SetGroupId(const Value : Integer);
+procedure TParsedObjectGroupedRowCollection.setGroupId(const Value : Integer);
 begin
 	FGroupId := Value;
 end;
