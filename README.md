@@ -29,7 +29,7 @@ The [release](https://github.com/mattia72/DRipGrepper/releases) includes the sta
 Marked with checkmark if ready, else planned.
 Most actual working items, you will find in the last [release notes](https://github.com/mattia72/DRipGrepper/releases) 
 
-- [x] Delphi 11, 12.1, ~~12.3~~ suppport
+- [x] Delphi 11, 12.1, ~~12.3~~ support
 - [x] Searches text, parses output of `rg --vimgrep` 
 - [x] Sorting result groups by row/col/text
 - [x] Filtering results by file path/matching lines
