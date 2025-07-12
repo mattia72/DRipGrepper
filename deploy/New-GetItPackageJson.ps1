@@ -17,8 +17,13 @@ function New-GetItPackageJson {
         [string]$AllUsers = "1",
         [string]$OutputPath = "$PSScriptRoot\assets\GetItPackage" 
     )
+    
     $AssetName = "$Name.Delphi$DelphiVersion.$Version" 
-    Copy-Item -Path "$PSScriptRoot\assets\$AssetName.zip" -Destination "$OutputPath" 
+    if (!(Test-Path -Path $PSScriptRoot\assets)) {
+        Write-Error "Start in deploy directory!"
+    }
+    
+    Copy-Item -Path "$PSScriptRoot\assets\$AssetName.zip" -Destination "$OutputPath" -ErrorAction SilentlyContinue 
     Copy-Item -Path "$PSScriptRoot\..\$License" -Destination "$OutputPath\$License" 
     Copy-Item -Path "$PSScriptRoot\..\Extension\Resources\$Image" -Destination "$OutputPath" 
 
