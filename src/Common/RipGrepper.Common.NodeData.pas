@@ -2,9 +2,6 @@ unit RipGrepper.Common.NodeData;
 
 interface
 
-uses
-	RipGrepper.Common.ParsedObject;
-
 type
 	TVSMatchData = record
 		Row : integer;

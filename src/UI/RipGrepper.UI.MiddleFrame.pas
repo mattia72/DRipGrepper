@@ -118,6 +118,7 @@ type
 		procedure VstResultGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType;
 			var CellText : string);
 		procedure VstResultHeaderClick(Sender : TVTHeader; HitInfo : TVTHeaderHitInfo);
+		procedure VstResultNodeClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
 		procedure VstResultPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
 			TextType : TVSTTextType);
 
@@ -167,6 +168,7 @@ type
 			procedure InitSearch;
 			function IsTextMatch(_input, _filter : string; const _filterModes : TFilterModes) : Boolean;
 			procedure LoadBeforeSearchSettings;
+			procedure DeleteNodeAndData(const _sFilePath : string; const _node : PVirtualNode; const _bAllMatchingFile : Boolean = False);
 			procedure OnLastLine(const _iLineNr : Integer);
 			procedure OnParsingProgress(const _bLastLine : Boolean);
 			procedure OpenSelectedInIde;
@@ -176,9 +178,8 @@ type
 			procedure SetAbortSearch(const Value : Boolean);
 			procedure SetCheckedAllSubNode(ANode : PVirtualNode);
 			procedure SetColumnWidths;
-			procedure SetDeleteIconOnHotNodeForColumn(const _colNum: Integer; Sender:
-				TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var Ghosted:
-				Boolean; var ImageIndex: TImageIndex);
+			procedure SetDeleteIconOnHotNodeForColumn(const _colNum : Integer; Sender : TBaseVirtualTree; Node : PVirtualNode;
+				Column : TColumnIndex; var Ghosted : Boolean; var ImageIndex : TImageIndex);
 			procedure SetFileIconImgIdx(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind; Column : TColumnIndex;
 				var Ghosted : Boolean; var ImageIndex : TImageIndex);
 			procedure SetHistItemObject(const Value : IHistoryItemObject);
@@ -1539,6 +1540,27 @@ begin
 	dbgMsg.MsgFmt('OpenWith <DIR>=%s', [Result]);
 end;
 
+procedure TRipGrepperMiddleFrame.DeleteNodeAndData(const _sFilePath : string; const _node : PVirtualNode;
+const _bAllMatchingFile : Boolean = False);
+var
+	nodeData : PVSFileNodeData;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.DeleteNodeAndData');
+
+	nodeData := VstResult.GetNodeData(_node);
+	var
+	removed := HistItemObject.Matches.DeleteItemByNodeData(_sFilePath, _node, nodeData, _bAllMatchingFile);
+	dbgMsg.MsgFmt('%d HistItemObject.Matches removed', [removed]);
+
+	if (_node.Parent = VstResult.RootNode) and _bAllMatchingFile then begin
+		dbgMsg.MsgFmt('DeleteChildren of idx = %d', [_node.Index]);
+		VstResult.DeleteChildren(_node);
+	end;
+	dbgMsg.MsgFmt('DeleteNode of idx = %d', [_node.Index]);
+	VstResult.DeleteNode(_node);
+end;
+
 procedure TRipGrepperMiddleFrame.ReloadColorSettings;
 begin
 	// load color settings
@@ -1553,9 +1575,8 @@ begin
 	FAbortSearch := Value;
 end;
 
-procedure TRipGrepperMiddleFrame.SetDeleteIconOnHotNodeForColumn(const _colNum:
-	Integer; Sender: TBaseVirtualTree; Node: PVirtualNode; Column:
-	TColumnIndex; var Ghosted: Boolean; var ImageIndex: TImageIndex);
+procedure TRipGrepperMiddleFrame.SetDeleteIconOnHotNodeForColumn(const _colNum : Integer; Sender : TBaseVirtualTree; Node : PVirtualNode;
+Column : TColumnIndex; var Ghosted : Boolean; var ImageIndex : TImageIndex);
 begin
 	ImageIndex := -1;
 
@@ -1602,6 +1623,42 @@ begin
 	end;
 
 	dbgMsg.MsgFmt('MainFrame.StyleName = %s', [StyleName])
+end;
+
+procedure TRipGrepperMiddleFrame.VstResultNodeClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
+var
+	bDeleteParent : Boolean;
+	node : PVirtualNode;
+	nodeData : PVSFileNodeData;
+	parentNode : PVirtualNode;
+	parentNodeData : PVSFileNodeData;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.VstResultNodeClick');
+	node := HitInfo.HitNode;
+	dbgMsg.MsgFmt('Node index = %d', [node.Index]);
+
+	if (hiOnNormalIcon in HitInfo.HitPositions) then begin
+		nodeData := VstResult.GetNodeData(node);
+		if (node.Parent <> Sender.RootNode) then begin
+			parentNode := node.Parent;
+			parentNodeData := VstResult.GetNodeData(parentNode);
+			var
+			sFilePath := parentNodeData.FilePath;
+			dbgMsg.MsgFmt('sFilePath = %s', [sFilePath]);
+			bDeleteParent := parentNode.ChildCount = 1;
+
+			DeleteNodeAndData(sFilePath, node);
+			if bDeleteParent then begin
+				DeleteNodeAndData(sFilePath, parentNode, true);
+			end;
+		end else begin
+			DeleteNodeAndData(nodeData.FilePath, node, true);
+		end;
+		VstResult.Refresh;
+		Exit;
+	end;
+
 end;
 
 end.

@@ -59,7 +59,7 @@ uses
 	System.SysUtils,
 	System.IOUtils,
 	RipGrepper.Data.Parsers,
-	RipGrepper.Common.SearchTextWithOptions, 
+	RipGrepper.Common.SearchTextWithOptions,
 	Spring;
 
 constructor TVimGrepMatchLineParser.Create;
@@ -67,7 +67,7 @@ begin
 	inherited;
 	FParserData := TRipGrepLineParserData.Create(TParserType.ptRipGrepSearch, RG_MATCH_LINE_REGEX, RG_MATCH_LINE_CONTEXT_REGEX);
 	FParseResult := TParsedObjectRow.Create();
-//  FSearchParams :=
+	// FSearchParams :=
 end;
 
 destructor TVimGrepMatchLineParser.Destroy;
@@ -119,8 +119,6 @@ begin
 	if _sLine = RG_CONTEXT_SEPARATOR then
 		Exit;
 
-	FParseResult.RowNr := _iLnNr;
-
 	m := ParserData.LineParseRegex.Match(_sLine);
 	if m.Success then begin
 		// TDebugUtils.DebugMessage(_sLine);
@@ -168,7 +166,7 @@ begin
 		FParseResult.IsError := True;
 	end;
 
-	FParseResult.RowNr := _iLnNr;
+	FParseResult.ParsedRowNr := _iLnNr;
 	FParseResult.Columns := cd;
 end;
 
@@ -180,7 +178,7 @@ end;
 procedure TVimGrepMatchLineParser.SetPrettyRegex;
 var
 	pattern, s : string;
-	so: TSearchOptionSet;
+	so : TSearchOptionSet;
 	stwo : IShared<TSearchTextWithOptions>;
 begin
 	stwo := FSearchParams.GetGuiSearchParams; // can stwo
@@ -276,7 +274,7 @@ begin
 	if _s = RG_CONTEXT_SEPARATOR then
 		Exit;
 
-	ParseResult.RowNr := _iLnNr;
+	ParseResult.ParsedRowNr := _iLnNr;
 
 	m := ParserData.LineParseRegex.Match(_s);
 	if m.Success then begin
@@ -305,7 +303,7 @@ begin
 		FParseResult.IsError := True;
 	end;
 
-	ParseResult.RowNr := _iLnNr;
+	ParseResult.ParsedRowNr := _iLnNr;
 	ParseResult.Columns := cd;
 end;
 

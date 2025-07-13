@@ -1,4 +1,4 @@
-unit RipGrepper.Common.ParsedObject;
+﻿unit RipGrepper.Common.ParsedObject;
 
 interface
 
@@ -10,7 +10,9 @@ uses
 	Spring.Collections,
 	System.Classes,
 	System.Generics.Collections,
-	System.Generics.Defaults;
+	System.Generics.Defaults,
+	RipGrepper.Common.NodeData,
+	VirtualTrees;
 
 type
 
@@ -34,33 +36,41 @@ type
 
 	IParsedObjectRow = interface(IParsedObject)
 		['{85536634-C591-43F1-B348-BC93E4E62942}']
+		function GetCol() : Integer;
 		function GetErrorText : string;
-		function GetColumnText(const _idx : integer) : string;
+		function GetColumnText(const _idx : integer) : string; overload;
+		function GetColumnText(const _idx : EColumnIndex) : string; overload;
+		function GetFilePath() : string;
 		function GetIsError : Boolean;
 		function GetIsStatsLine : Boolean;
 		function GetParserType : TParserType;
-		function GetRowNr : Integer;
+		function GetParsedRowNr : Integer;
+		function GetRow() : Integer;
 		procedure SetErrorText(const Value : string);
 		procedure SetIsError(const Value : Boolean);
 		procedure SetIsStatsLine(const Value : Boolean);
 		procedure SetParserType(const Value : TParserType);
-		procedure SetRowNr(const Value : Integer);
+		procedure SetParsedRowNr(const Value : Integer);
 		property ErrorText : string read GetErrorText write SetErrorText;
 		property IsError : Boolean read GetIsError write SetIsError;
 		property IsStatsLine : Boolean read GetIsStatsLine write SetIsStatsLine;
 		property ParserType : TParserType read GetParserType write SetParserType;
-		property RowNr : Integer read GetRowNr write SetRowNr;
+		property ParsedRowNr : Integer read GetParsedRowNr write SetParsedRowNr;
+
+		property FilePath : string read GetFilePath;
+		property Col : Integer read GetCol;
+		property Row : Integer read GetRow;
 	end;
 
 type
 
 	TParsedObjectRow = class;
-	TListType = IList<IParsedObjectRow>;
+	TParsedRowList = IList<IParsedObjectRow>;
 
 	IParsedObjectRowCollection = interface
 		['{03AA4D67-689A-43A0-8D07-FAB44124E032}']
-		function GetItems : TListType;
-		property Items : TListType read GetItems;
+		function GetItems : TParsedRowList;
+		property Items : TParsedRowList read GetItems;
 	end;
 
 	IParsedObjectGroupRowCollection = interface(IParsedObjectRowCollection)
@@ -79,50 +89,63 @@ type
 			FColumns : TArrayEx<TColumnData>;
 			FIsStatsLine : Boolean;
 			FParserType : TParserType;
-			FRowNr : Integer;
+			FParsedRowNr : Integer;
 			function getColumns : TArrayEx<TColumnData>;
 			procedure setColumns(const Value : TArrayEx<TColumnData>);
 			function getErrorText : string;
 			function getIsStatsLine : Boolean;
 			function getIsError : Boolean;
-			function getRowNr : Integer;
+			function getParsedRowNr : Integer;
 			procedure setErrorText(const Value : string);
 			procedure setIsError(const Value : Boolean);
-			procedure setRowNr(const Value : Integer);
+			procedure setParsedRowNr(const Value : Integer);
 			function getParserType : TParserType;
 			procedure setIsStatsLine(const Value : Boolean);
 			procedure setParserType(const Value : TParserType);
+
+		private
+			function GetCol() : Integer;
+			function GetFilePath() : string;
+			function GetRow() : Integer;
 
 		public
 			constructor Create(const _por : IParsedObjectRow; _parserType : TParserType); overload;
 			destructor Destroy; override;
 			procedure CopyTo(var _por : TParsedObjectRow);
 			function GetColumnByTitle(const _title : string) : TColumnData;
-			function GetColumnText(const _idx : integer) : string;
-
+			function GetColumnText(const _idx : integer) : string; overload;
+			function GetColumnText(const _idx : EColumnIndex) : string; overload;
 			property Columns : TArrayEx<TColumnData> read getColumns write setColumns;
 			property ErrorText : string read getErrorText write setErrorText;
 			property IsStatsLine : Boolean read getIsStatsLine write setIsStatsLine;
 			property IsError : Boolean read getIsError write setIsError;
-			property RowNr : Integer read getRowNr write setRowNr;
+			// ParsedLine
+			property ParsedRowNr : Integer read getParsedRowNr write setParsedRowNr;
 			property ParserType : TParserType read getParserType write setParserType;
+
+			property FilePath : string read GetFilePath;
+			property Col : Integer read GetCol;
+			property Row : Integer read GetRow;
+
 	end;
 
 	TParsedObjectRowCollection = class(TNoRefCountObject, IParsedObjectRowCollection, IStreamReaderWriterPersistable)
 		private
-			FItems : TListType;
-			function getItems : TListType;
+			FItems : TParsedRowList;
+			function getItems : TParsedRowList;
 
 		public
 			constructor Create;
 			destructor Destroy; override;
+			function DeleteItemByNodeData(const _FilePath : string; const _node : PVirtualNode; const _nodeData : PVSFileNodeData;
+				_bAllMatchingFile : Boolean = False) : integer;
 			procedure LoadFromStreamReader(_sr : TStreamReader);
 			procedure SaveToStreamWriter(_sw : TStreamWriter);
 			function GetFileCount : Integer;
 			function GetErrorCount : Integer;
 			function GetTotalMatchCount : Integer;
 
-			property Items : TListType read getItems;
+			property Items : TParsedRowList read getItems;
 	end;
 
 	TParsedObjectGroupedRowCollection = class(TParsedObjectRowCollection, IParsedObjectGroupRowCollection)
@@ -135,9 +158,9 @@ type
 			property GroupId : Integer read getGroupId write setGroupId;
 	end;
 
-	TParsedObjectGroupCollection = class
-		Groups : TList<TParsedObjectGroupedRowCollection>;
-	end;
+	// TParsedObjectGroupCollection = class
+	// Groups : TList<TParsedObjectGroupedRowCollection>;
+	// end;
 
 implementation
 
@@ -157,7 +180,7 @@ begin
 	inherited Create();
 	ErrorText := _por.ErrorText;
 	Columns := _por.Columns;
-	RowNr := _por.RowNr;
+	ParsedRowNr := _por.ParsedRowNr;
 	IsError := _por.IsError;
 	IsStatsLine := _por.IsStatsLine;
 	ParserType := _parserType;
@@ -172,9 +195,14 @@ procedure TParsedObjectRow.CopyTo(var _por : TParsedObjectRow);
 begin
 	_por.ErrorText := ErrorText;
 	_por.FColumns := Columns;
-	_por.RowNr := RowNr;
+	_por.ParsedRowNr := ParsedRowNr;
 	_por.IsError := IsError;
 	_por.IsStatsLine := IsStatsLine;
+end;
+
+function TParsedObjectRow.GetCol() : Integer;
+begin
+	Result := StrToIntDef(GetColumnText(ciCol), -1);
 end;
 
 function TParsedObjectRow.GetColumnByTitle(const _title : string) : TColumnData;
@@ -205,9 +233,19 @@ begin
 	end;
 end;
 
+function TParsedObjectRow.GetColumnText(const _idx : EColumnIndex) : string;
+begin
+	Result := GetColumnText(Integer(_idx));
+end;
+
 function TParsedObjectRow.getErrorText : string;
 begin
 	Result := FErrorText;
+end;
+
+function TParsedObjectRow.GetFilePath() : string;
+begin
+	Result := GetColumnText(Integer(ciFile));
 end;
 
 function TParsedObjectRow.getIsStatsLine : Boolean;
@@ -225,9 +263,14 @@ begin
 	Result := FParserType;
 end;
 
-function TParsedObjectRow.getRowNr : Integer;
+function TParsedObjectRow.getParsedRowNr : Integer;
 begin
-	Result := FRowNr;
+	Result := FParsedRowNr;
+end;
+
+function TParsedObjectRow.GetRow() : Integer;
+begin
+	Result := StrToIntDef(GetColumnText(ciRow), -1);
 end;
 
 procedure TParsedObjectRow.setColumns(const Value : TArrayEx<TColumnData>);
@@ -255,9 +298,9 @@ begin
 	FParserType := Value;
 end;
 
-procedure TParsedObjectRow.setRowNr(const Value : Integer);
+procedure TParsedObjectRow.setParsedRowNr(const Value : Integer);
 begin
-	FRowNr := Value;
+	FParsedRowNr := Value;
 end;
 
 constructor TParsedObjectRowCollection.Create;
@@ -271,7 +314,25 @@ begin
 	inherited;
 end;
 
-function TParsedObjectRowCollection.getItems : TListType;
+function TParsedObjectRowCollection.DeleteItemByNodeData(const _FilePath : string; const _node : PVirtualNode;
+const _nodeData : PVSFileNodeData; _bAllMatchingFile : Boolean = False) : integer;
+var
+	sFile : string;
+begin
+	Result := Items.RemoveAll(
+		function(const _item : IParsedObjectRow) : boolean
+		begin
+			sFile := _item.GetColumnText(Integer(ciFile));
+			Result := (_FilePath = sFile);
+			if _bAllMatchingFile then begin
+				Exit;
+			end;
+			Result := Result and (_nodeData.MatchData.Row = _item.Row);
+			Result := Result and (_nodeData.MatchData.Col = _item.Col);
+		end);
+end;
+
+function TParsedObjectRowCollection.getItems : TParsedRowList;
 begin
 	Result := FItems;
 end;

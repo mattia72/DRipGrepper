@@ -125,7 +125,7 @@ procedure TRipGrepperData.DataToGrid;
 var
 	node : PVirtualNode;
 	sFile : string;
-	matchItems : TListType;
+	matchItems : TParsedRowList;
 begin
 	MatchFiles.Clear;
 	matchItems := HistObject.Matches.Items;
@@ -174,7 +174,7 @@ begin
 			Result := TComparer<IParsedObjectRow>.Construct(
 				function(const Left, Right : IParsedObjectRow) : Integer
 				begin
-					Result := TComparer<integer>.Default.Compare(Left.RowNr, Right.RowNr);
+					Result := TComparer<integer>.Default.Compare(Left.ParsedRowNr, Right.ParsedRowNr);
 				end);
 		end;
 	end;
@@ -233,11 +233,11 @@ begin
 	case _item.ParserType of
 		ptRipGrepSearch, ptRipGrepPrettySearch : begin
 			nodeData := TVSFileNodeData.New('', // File
-			{ } StrToIntDef(_item.Columns[Integer(ciRow)].Text, -1), // Row
-			{ } StrToIntDef(_item.Columns[Integer(ciCol)].Text, -1), // Col
-			{ } _item.GetColumnText(Integer(ciText)), // TextBefore
-			{ } _item.GetColumnText(Integer(ciMatchText)), // MatchText
-			{ } _item.GetColumnText(Integer(ciTextAfterMatch)) // TextAfter
+			{ } _item.Row, // Row
+			{ } _item.Col, // Col
+			{ } _item.GetColumnText(ciText), // TextBefore
+			{ } _item.GetColumnText(ciMatchText), // MatchText
+			{ } _item.GetColumnText(ciTextAfterMatch) // TextAfter
 				);
 		end;
 		ptRipGrepError : begin
@@ -250,7 +250,7 @@ begin
 			nodeData := TVSFileNodeData.New('', // File
 			{ } -1, // Row
 			{ } -1, // Col
-			{ } _item.Columns[Integer(ciText)].Text); // LineText
+			{ } _item.GetColumnText(ciText)); // LineText
 		end;
 	end;
 
