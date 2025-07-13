@@ -16,9 +16,9 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 -->
 ## 💥 Improvements:
 Marked with a checkmark if ready; otherwise, it is planned.
-- [x] check version update on startup
-- [x] load results from file on startup (experimental)
-- [ ] delete results with one click on x icon
+- [x] **extension**: Delphi 12.3 support
+- [x] load results from file on startup 
+- [x] delete results with one click on x icon
 - [ ] search for file names eg. `rg.exe -g='*pattern*' --files <DIR>`
 - [ ] **extension**: display save all files message before search?
 - [ ] **extension**: predefined patterns for search type, function, definition, etc.
@@ -27,9 +27,6 @@ Marked with a checkmark if ready; otherwise, it is planned.
 
 ## 🐞 Bugs:
 Marked with checkmark if fixed, else it is a known bug.
-- [x] version update message appears many times
-- [x] **extension**: LoadNewSearchSettings shouldn't load last search settings in CurrentFile context.
-- [x] autocomplete should be switched of on search selected from the IDE
 - [ ] after theme change some controls are not redrawn
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: drip icon in menu has no transparent background
@@ -41,3 +38,4 @@ Marked with checkmark if fixed, else it is a known bug.
 ## Tested with:
 - Delphi 11.3
 - Delphi 12.1 CE
+- Delphi 12.3 Athen
