@@ -1,0 +1,12 @@
+{
+	"*": {
+		"copilot": {
+			"instructionsFile": "copilot-instructions.md"
+		}
+	},
+	"*.pas": {
+		"copilot": {
+			"instructionsFile": ".github/instructions/pas.instructions.md"
+		}
+	}
+}
