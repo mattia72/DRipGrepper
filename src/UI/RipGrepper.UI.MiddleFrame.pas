@@ -82,6 +82,9 @@ type
 		ActionCopyCmdLineToClipboard : TAction;
 		MiddleLeftFrame1 : TMiddleLeftFrame;
 		SVGIconImageList1 : TSVGIconImageList;
+		ActionDeleteResultNode : TAction;
+		N4 : TMenuItem;
+		miDeleteResultNode : TMenuItem;
 		procedure ActionAddUsingImplementationExecute(Sender : TObject);
 		procedure ActionAddUsingImplementationUpdate(Sender : TObject);
 		procedure ActionAddUsingInterfaceExecute(Sender : TObject);
@@ -96,6 +99,8 @@ type
 		procedure ActionCopyMatchToClipboardUpdate(Sender : TObject);
 		procedure ActionCopyPathToClipboardExecute(Sender : TObject);
 		procedure ActionCopyPathToClipboardUpdate(Sender : TObject);
+		procedure ActionDeleteResultNodeExecute(Sender : TObject);
+		procedure ActionDeleteResultNodeUpdate(Sender : TObject);
 		procedure ActionOpenWithExecute(Sender : TObject);
 		procedure ActionOpenWithUpdate(Sender : TObject);
 		procedure ActionOpenInIdeExecute(Sender : TObject);
@@ -159,6 +164,7 @@ type
 			function GetIsGuiReplaceMode : Boolean;
 			function GetIsRgReplaceMode : Boolean;
 			function AddParallelParser(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean) : TParallelParser;
+			procedure DeleteResultNode(const node : PVirtualNode);
 			function GetActiveProject() : string;
 			function GetIsInitialized() : Boolean;
 			function GetOpenWithRelativeBaseDirPath(const _nodeData : PVSFileNodeData) : string;
@@ -393,6 +399,20 @@ begin
 	EnableActionIfResultSelected(ActionCopyPathToClipboard);
 end;
 
+procedure TRipGrepperMiddleFrame.ActionDeleteResultNodeExecute(Sender : TObject);
+var
+	node : PVirtualNode;
+begin
+	for node in VstResult.SelectedNodes(True) do begin
+		DeleteResultNode(node);
+	end;
+end;
+
+procedure TRipGrepperMiddleFrame.ActionDeleteResultNodeUpdate(Sender : TObject);
+begin
+	EnableActionIfResultSelected(ActionDeleteResultNode);
+end;
+
 procedure TRipGrepperMiddleFrame.ActionOpenWithExecute(Sender : TObject);
 var
 	owp : TOpenWithParams;
@@ -549,7 +569,7 @@ end;
 
 procedure TRipGrepperMiddleFrame.EnableActionIfResultSelected(_act : TAction);
 begin
-	_act.Enabled := VstResult.SelectedCount = 1;
+	_act.Enabled := VstResult.SelectedCount > 0;
 end;
 
 procedure TRipGrepperMiddleFrame.ExpandNodes;
@@ -1032,24 +1052,24 @@ end;
 
 function TRipGrepperMiddleFrame.GetResultSelectedFilePath : string;
 var
-	Node : PVirtualNode;
+	node : PVirtualNode;
 begin
-	Node := VstResult.GetFirstSelected();
-	if not Assigned(Node) then
+	node := VstResult.GetFirstSelected();
+	if not Assigned(node) then
 		Exit;
 
-	Result := GetFilePathFromNode(Node);
+	Result := GetFilePathFromNode(node);
 end;
 
 function TRipGrepperMiddleFrame.GetSelectedResultFileNodeData : PVSFileNodeData;
 var
-	Node : PVirtualNode;
+	node : PVirtualNode;
 begin
 	Result := nil;
-	Node := VstResult.GetFirstSelected();
-	if not Assigned(Node) then
+	node := VstResult.GetFirstSelected();
+	if not Assigned(node) then
 		Exit;
-	Result := VstResult.GetNodeData(Node);
+	Result := VstResult.GetNodeData(node);
 end;
 
 function TRipGrepperMiddleFrame.IsNodeFiltered(const _nodeData : PVSFileNodeData; const _sFilterText : string;
@@ -1490,6 +1510,39 @@ begin
 	end;
 end;
 
+procedure TRipGrepperMiddleFrame.DeleteResultNode(const node : PVirtualNode);
+var
+	bDeleteParent : Boolean;
+	nodeData : PVSFileNodeData;
+	parentNode : PVirtualNode;
+	parentNodeData : PVSFileNodeData;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.DeleteResultNode');
+	if not Assigned(node) then begin
+		Exit;
+	end;
+
+	nodeData := VstResult.GetNodeData(node);
+	if (node.Parent <> VstResult.RootNode) then begin
+		parentNode := node.Parent;
+		parentNodeData := VstResult.GetNodeData(parentNode);
+		var
+		sFilePath := parentNodeData.FilePath;
+		dbgMsg.MsgFmt('sFilePath = %s', [sFilePath]);
+		bDeleteParent := parentNode.ChildCount = 1;
+
+		DeleteNodeAndData(sFilePath, node);
+		if bDeleteParent then begin
+			DeleteNodeAndData(sFilePath, parentNode, true);
+		end;
+	end else begin
+		DeleteNodeAndData(nodeData.FilePath, node, true);
+	end;
+	VstResult.Refresh;
+    RefreshCounters;
+end;
+
 procedure TRipGrepperMiddleFrame.FreeAndCleanParserList;
 begin
 	var
@@ -1627,11 +1680,7 @@ end;
 
 procedure TRipGrepperMiddleFrame.VstResultNodeClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
 var
-	bDeleteParent : Boolean;
 	node : PVirtualNode;
-	nodeData : PVSFileNodeData;
-	parentNode : PVirtualNode;
-	parentNodeData : PVSFileNodeData;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.VstResultNodeClick');
@@ -1639,26 +1688,8 @@ begin
 	dbgMsg.MsgFmt('Node index = %d', [node.Index]);
 
 	if (hiOnNormalIcon in HitInfo.HitPositions) then begin
-		nodeData := VstResult.GetNodeData(node);
-		if (node.Parent <> Sender.RootNode) then begin
-			parentNode := node.Parent;
-			parentNodeData := VstResult.GetNodeData(parentNode);
-			var
-			sFilePath := parentNodeData.FilePath;
-			dbgMsg.MsgFmt('sFilePath = %s', [sFilePath]);
-			bDeleteParent := parentNode.ChildCount = 1;
-
-			DeleteNodeAndData(sFilePath, node);
-			if bDeleteParent then begin
-				DeleteNodeAndData(sFilePath, parentNode, true);
-			end;
-		end else begin
-			DeleteNodeAndData(nodeData.FilePath, node, true);
-		end;
-		VstResult.Refresh;
-		Exit;
+		DeleteResultNode(node);
 	end;
-
 end;
 
 end.

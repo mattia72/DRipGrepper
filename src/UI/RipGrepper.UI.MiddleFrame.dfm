@@ -81,7 +81,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
                 item
                   Position = 0
                   Text = 'Search'
-                  Width = 185
+                  Width = 181
                 end
                 item
                   Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coSmartResize, coAllowFocus, coEditable, coStyleColor]
@@ -90,6 +90,14 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
                   Width = 519
                 end>
               DefaultText = ''
+            end
+          end
+          inherited ActionList: TActionList
+            inherited ActionHistoryDelete: TAction
+              Caption = 'Remove'
+            end
+            inherited ActionHistoryDeleteAll: TAction
+              Caption = 'Remove All'
             end
           end
         end
@@ -235,6 +243,14 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
       ImageName = 'clippy'
       OnExecute = ActionOpenSearchFormExecute
     end
+    object ActionDeleteResultNode: TAction
+      Caption = 'Remove Item'
+      ImageIndex = 4
+      ImageName = 'x'
+      ShortCut = 16430
+      OnExecute = ActionDeleteResultNodeExecute
+      OnUpdate = ActionDeleteResultNodeUpdate
+    end
   end
   object PopupMenuResult: TPopupMenu
     Images = SVGIconImageList1
@@ -277,6 +293,12 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
       object miAddAsUsingImplementation: TMenuItem
         Action = ActionAddUsingImplementation
       end
+    end
+    object N4: TMenuItem
+      Caption = '-'
+    end
+    object miDeleteResultNode: TMenuItem
+      Action = ActionDeleteResultNode
     end
   end
   object ImageListListView: TImageList
@@ -556,8 +578,8 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
   end
   object PopupMenuHistory: TPopupMenu
     Images = MiddleLeftFrame1.SVGIconImageList1
-    Left = 295
-    Top = 199
+    Left = 71
+    Top = 135
     object pmOpenSearchForm: TMenuItem
       Action = ActionOpenSearchForm
       Default = True
@@ -575,12 +597,10 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
       Caption = '-'
     end
     object pmHistoryDelete: TMenuItem
-      ImageIndex = 2
-      ImageName = 'trash'
-      ShortCut = 46
+      Action = MiddleLeftFrame1.ActionHistoryDelete
     end
     object pmHistoryDeleteAll: TMenuItem
-      ShortCut = 16430
+      Action = MiddleLeftFrame1.ActionHistoryDeleteAll
     end
   end
   object SVGIconImageList1: TSVGIconImageList
@@ -668,6 +688,14 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           '0002 5V14L15.0002 15H6.00024L5.00024 14V9.00003V6.50003L6.00024 ' +
           '7.34699V14H15.0002V6H11.0002V2ZM12.0002 2V5H15.0002L12.0002 2Z" ' +
           'fill="#424242"/>'#13#10'</svg>'#13#10
+      end
+      item
+        IconName = 'x'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"' +
+          ' viewBox="0 0 24 24"><path fill="none" stroke="currentColor" str' +
+          'oke-linecap="round" stroke-linejoin="round" stroke-width="2" d="' +
+          'M18 6L6 18M6 6l12 12"/></svg>'
       end>
     Scaled = True
     Left = 544
