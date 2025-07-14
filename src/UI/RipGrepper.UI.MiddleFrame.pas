@@ -690,9 +690,9 @@ begin
 			activeProject := GetActiveProject();
 			actPath := TPath.GetDirectoryName(activeProject);
 		end;
-		dbgMsg.MsgFmt('search path: %s',[actPath]);
+		dbgMsg.MsgFmt('search path: %s', [actPath]);
 		Result := ExtractRelativePath(actPath + '\', _sFullPath);
-		dbgMsg.MsgFmt('relative path: %s',[Result]);
+		dbgMsg.MsgFmt('relative path: %s', [Result]);
 	end;
 end;
 
@@ -1545,7 +1545,7 @@ begin
 		DeleteNodeAndData(nodeData.FilePath, node, true);
 	end;
 	VstResult.Refresh;
-    RefreshCounters;
+	RefreshCounters;
 end;
 
 procedure TRipGrepperMiddleFrame.FreeAndCleanParserList;
