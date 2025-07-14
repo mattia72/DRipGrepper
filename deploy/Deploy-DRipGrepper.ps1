@@ -32,7 +32,8 @@ $global:ExpertMapFileName = "$global:DllNameWithoutExt.map"
 $global:AssetZipName = "DRipGrepper.{0}.{1}.zip"
 $global:AssetExpertZipName = "DRipExtension.Dll.{0}.{1}.{2}.zip"
 $global:AssetExtensionZipName = "DRipExtension.Bpl.{0}.{1}.{2}.zip"
-$global:AssetsDirectory = "$PSScriptRoot\assets"
+$global:AssetsDirectoryName = "assets"
+$global:AssetsDirectory = "$PSScriptRoot\$global:AssetsDirectoryName"
 
 $global:Owner = "mattia72"
 $global:Repo = "DRipGrepper"
@@ -191,13 +192,17 @@ function Add-ToAssetsDir {
     param (
         $AssetDir,
         $AssetItemPath,
-        [switch]$Win64
+        [switch]$Win64,
+        [switch]$ReplaceContent
     )
 
     $item = $(Get-Item $AssetItemPath)
     $appVersion = $($item.VersionInfo.FileVersion) # BPL is ok too :)
     if (-not $(Test-YesAnswer "Release version: $global:Version. Version of $($item.Name)($($Win64 ? 'Win64': 'Win32')) appName: $appVersion. Ok?")) {
         Write-Error "Search FileVersion=$appVersion in *.dproj and change it!`r`nDeploy stopped." -ErrorAction Stop
+    }
+    if ($ReplaceContent -and (Test-Path $AssetDir)) {
+        Remove-Item -Path $AssetDir -Recurse -Force -ErrorAction SilentlyContinue
     }
     New-Item -Path $AssetDir -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
     
@@ -217,23 +222,23 @@ function Add-ToAssetsDir {
         File          = $formattedLabel
         Version       = $appVersion
         LastWriteTime = $($item.LastWriteTime.ToString("dd/MM/yyyy HH:mm:ss"))
-        Length       = Format-FileSize -Length $item.Length
+        Length        = Format-FileSize -Length $item.Length
         Dir           = $($AssetDir -replace [regex]::Escape("$PSScriptRoot\"), '')
     }
 
     $assetObj
 }
 
-function Format-FileSize  {
+function Format-FileSize {
     param (
         $Length
     )
-            if ($Length -gt 1MB) {
-                "{0:N2} MB" -f ($Length / 1MB)
-            }
-            else {
-                "{0:N2} KB" -f ($Length / 1KB)
-            }
+    if ($Length -gt 1MB) {
+        "{0:N2} MB" -f ($Length / 1MB)
+    }
+    else {
+        "{0:N2} KB" -f ($Length / 1KB)
+    }
 }
 function New-StandaloneZips {
     $projectPath = Split-Path -Parent $PSScriptRoot 
@@ -244,7 +249,7 @@ function New-StandaloneZips {
         $AssetDir = $(Join-Path $global:AssetsDirectory $_)
     
         $win64 = $($_ -eq 'Win64')
-        Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $global:StandaloneAppName) -Win64:$win64
+        Add-ToAssetsDir -AssetDir $AssetDir -AssetItemPath $(Join-Path  $ZipDir $global:StandaloneAppName) -Win64:$win64 -ReplaceContent
     
         $dest = "$global:AssetsDirectory\$($global:AssetZipName -f $($win64 ? 'x64' : 'x86'), $global:Version)"
 
@@ -275,7 +280,7 @@ function New-ExtensionZip {
     
         $AssetDir = $(Join-Path $global:AssetsDirectory "$($_.Data.Dir).Bpl")
                 
-        Add-ToAssetsDir -AssetDir $AssetDir $extensionPath 
+        Add-ToAssetsDir -AssetDir $AssetDir $extensionPath -Empty -ReplaceContent
     
         $dest = "$global:AssetsDirectory\$($global:AssetExtensionZipName  -f $($win64 ? 'x64' : 'x86'), $_.Data.Dir ,$global:Version)"
         # Write-Host "$AssetDir\*.* to`n $dest" 
@@ -302,8 +307,8 @@ function New-ExpertDllZip {
         $dllName = "$global:DllNameWithoutExt.$($_.Data.Dir -replace "Delphi", "D").dll"
         $mapName = "$global:DllNameWithoutExt.$($_.Data.Dir -replace "Delphi", "D").map"
         $returnArr = @()
-        $returnArr += Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $dllName) -Win64:$false
-        $returnArr += Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $mapName) -Win64:$false
+        $returnArr += Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $dllName) -Win64:$false -ReplaceContent
+        $returnArr += Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $mapName) -Win64:$false 
 
         $dest = "$global:AssetsDirectory\$($global:AssetExpertZipName -f $($win64 ? 'x64' : 'x86'), $_.Data.Dir ,$global:Version)"
 
@@ -340,7 +345,7 @@ function List-Assets {
                     # Version        = $($_.VersionInfo.FileVersion)
                     LastWriteTime = $($_.LastWriteTime.ToString("dd/MM/yyyy HH:mm:ss"))
                     # format length in KB or MB
-                    Length       = Format-FileSize -Length $_.Length
+                    Length        = Format-FileSize -Length $_.Length
                     # Dir            = $Path -replace [regex]::Escape("$PSScriptRoot\")
                 }
             }
@@ -374,10 +379,23 @@ function New-ReleaseWithAsset {
         if ($LocalDeploy -or $DeployToTransferDrive) {
             $Force = $true
         }
-        Remove-Item -Path "$global:AssetsDirectory\*" -Recurse -Force -Confirm:$(-not $Force) -ErrorAction SilentlyContinue
+        Remove-Item -Path "$global:AssetsDirectory\*.zip" -Force -Confirm:$(-not $Force) -ErrorAction SilentlyContinue
         $assetArr = New-StandaloneZips 
         # New-ExtensionZip 
         $assetArr += New-ExpertDllZip 
+
+        # zip dll assets in directories not listed in $assetArr
+        Get-ChildItem $global:AssetsDirectory -Directory | ForEach-Object {
+            if ($($assetArr | Select-Object -ExpandProperty Dir) -notcontains "$global:AssetsDirectoryName\$($_.Name)") {
+                $zipPath = "$global:AssetsDirectory\$($global:AssetExpertZipName -f 'x86', $($_.Name -replace '.Dll') ,$global:Version)"
+                # $zipPath = Join-Path $global:AssetsDirectory "$global:DllNameWithoutExt.$($_.Name).zip"
+                if (-not (Test-Path $zipPath)) {
+                    Write-Host "Zipping extra directory: $($_.Name)" -ForegroundColor Yellow
+                    Compress-Archive -Path "$($_.FullName)\*" -DestinationPath $zipPath -Force
+                }
+            }
+        }
+
         $assetArr | Format-Table -AutoSize -Property File, Version, LastWriteTime, Length, Dir
         $zipArr = List-Assets -Path $global:AssetsDirectory
         $zipArr | Format-Table -AutoSize -Property File, LastWriteTime, Length
