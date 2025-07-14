@@ -28,7 +28,7 @@ object ConfigForm: TConfigForm
     Align = alBottom
     BevelOuter = bvNone
     ParentBackground = False
-    TabOrder = 0
+    TabOrder = 1
     DesignSize = (
       410
       48)
@@ -67,7 +67,7 @@ object ConfigForm: TConfigForm
     Width = 410
     Height = 210
     Align = alClient
-    TabOrder = 1
+    TabOrder = 0
     object PageControl1: TPageControl
       Left = 1
       Top = 1

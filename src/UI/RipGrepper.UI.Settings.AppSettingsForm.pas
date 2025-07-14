@@ -71,6 +71,7 @@ type
 		seSearchHistoryCount : TSpinEdit;
 		lblSearches : TLabel;
 		cbSaveResults : TCheckBox;
+		grpSaveLoad : TGroupBox;
 		procedure btnedtIniFilePathLeftButtonClick(Sender : TObject);
 		procedure btnedtIniFilePathRightButtonClick(Sender : TObject);
 		procedure btnedtRgExePathEnter(Sender : TObject);
@@ -350,7 +351,7 @@ begin
 	FAppSettings.CopyToClipBoardShell := TShellType(cmbCopyCmdShell.ItemIndex);
 	FAppSettings.ComboHistoryCount := seCmbHistoryCount.Value;
 	FAppSettings.SearchHistoryCount := seSearchHistoryCount.Value;
-    lhm := FAppSettings.LoadHistoryMode;
+	lhm := FAppSettings.LoadHistoryMode;
 	if (cbLoadLastSearchHistories.Checked) then begin
 		lhm.AddModeFromInt(rgModeLoadSeraches.ItemIndex);
 	end else begin
