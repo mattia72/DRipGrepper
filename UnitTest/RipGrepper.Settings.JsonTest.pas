@@ -23,8 +23,6 @@ type
 			procedure ConvertIniTest;
 //          [Test]
 			procedure ReadJsonTest;
-//			[Test]
-			procedure RootDTOTest;
 	end;
 
 implementation
@@ -35,8 +33,7 @@ uses
 
 	System.IOUtils,
 	Vcl.Forms,
-	RipGrepper.Common.Constants,
-	RootUnit;
+	RipGrepper.Common.Constants;
 
 procedure TJsonSettingsTest.AddValueByType(sectionObject : TJSONObject; const sKey, sValue : string);
 var
@@ -120,7 +117,11 @@ begin
 	var
 	dir := TPath.GetDirectoryName(Application.ExeName);
 	Result := TPath.Combine(dir, 'DripGrepper.json');
-	Convert(TPath.Combine(dir, 'DripGrepper.ini'), Result);
+	// Use existing ini file from unittest directory
+	var iniFile := TPath.Combine(dir, 'DRipGrepperUnittest.ini');
+	if not TFile.Exists(iniFile) then
+		iniFile := TPath.Combine(dir, 'DRipGrepperUnittest.exe.ini');
+	Convert(iniFile, Result);
 end;
 
 procedure TJsonSettingsTest.ReadJsonTest;
@@ -173,24 +174,9 @@ begin
 
 end;
 
-procedure TJsonSettingsTest.RootDTOTest;
-var
-	Root : TRoot;
-begin
-	Root := TRoot.Create;
-	try
-		var
-		jsonPath := CreateTestJson;
-		Root.AsJson := TFile.ReadAllText(jsonPath);
-		Assert.IsTrue(Root.RipGrepperSettings.DebugTrace.Value, 'DebugTrace should be true');
-
-	finally
-		Root.Free;
-	end;
-end;
-
 initialization
 
 TDUnitX.RegisterTestFixture(TJsonSettingsTest);
 
 end.
+
