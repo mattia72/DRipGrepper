@@ -4,8 +4,8 @@
         <ProjectVersion>20.1</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
-        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
         <MainSource>DRipGrepper.dpr</MainSource>
@@ -135,8 +135,8 @@
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.9.0.265;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.9.0</VerInfo_Keys>
-        <VerInfo_Build>265</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.9.0.275;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.9.0</VerInfo_Keys>
+        <VerInfo_Build>275</VerInfo_Build>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_MinorVer>9</VerInfo_MinorVer>
@@ -159,16 +159,16 @@
         <UWP_DelphiLogo150>icons\DripGrepperLogo.png</UWP_DelphiLogo150>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.9.0.264;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.9.0</VerInfo_Keys>
-        <VerInfo_Build>264</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.9.0.267;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.9.0</VerInfo_Keys>
+        <VerInfo_Build>267</VerInfo_Build>
         <Icon_MainIcon>..\..\..\images\icons\DripGrepper.ico</Icon_MainIcon>
         <VerInfo_MinorVer>9</VerInfo_MinorVer>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.9.0.264;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.9.0</VerInfo_Keys>
-        <VerInfo_Build>264</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.9.0.265;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.9.0</VerInfo_Keys>
+        <VerInfo_Build>265</VerInfo_Build>
         <VerInfo_MinorVer>9</VerInfo_MinorVer>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>

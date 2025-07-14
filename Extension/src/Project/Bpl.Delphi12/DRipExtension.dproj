@@ -76,7 +76,7 @@
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
         <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
         <SanitizedProjectName>DRipExtension</SanitizedProjectName>
-        <DCC_UnitSearchPath>..\..\..\src;..\..\..\..\external;..\..\..\..\src\OpenWith;..\..\..\..\external\GExpert;..\..\..\..\external\dzlib;..\..\..\..\external\RegExpr;..\..\..\..\external\mwParser;..\..\..\..\external\UniSynEdit;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\..\..\src;..\..\..\..\external;..\..\..\..\src\OpenWith;..\..\..\..\external\GExpert;..\..\..\..\external\dzlib;..\..\..\..\external\RegExpr;..\..\..\..\external\mwParser;..\..\..\..\external\UniSynEdit;..\..\..\..\..\spring4d\Library\Delphi12\$(Platform)\$(Config);..\..\..\..\src\UI;..\..\..\..\src\Common;..\..\..\..\src\Tools;..\..\..\..\src\Settings;..\..\..\..\src\Helper;..\..\..\..\src;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_Define>NO_TRANSLATION;NO_TRANSLATION_HINT;NO_OPTIMIZE_DZ_GRAPHIC_UTILS_HINT;UnicodeRE;EnableIdeDockingSupport;$(DCC_Define)</DCC_Define>
         <DCC_UnitAlias>GX_IdeDockStandAlone=GX_IdeDock;SynRegExpr=RegExprReplaceUnit;$(DCC_UnitAlias)</DCC_UnitAlias>
         <VerInfo_Locale>1031</VerInfo_Locale>
