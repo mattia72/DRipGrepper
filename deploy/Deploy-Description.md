@@ -16,7 +16,9 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 -->
 ## 💥 Improvements:
 Marked with a checkmark if ready; otherwise, it is planned.
-- [o] delete results with one click on x icon
+- [x] **extension**: Delphi 12.3 support
+- [x] load results from file on startup 
+- [x] delete results with one click on x icon
 - [ ] search for file names eg. `rg.exe -g='*pattern*' --files <DIR>`
 - [ ] **extension**: display save all files message before search?
 - [ ] **extension**: predefined patterns for search type, function, definition, etc.
@@ -37,3 +39,4 @@ Marked with checkmark if fixed, else it is a known bug.
 ## Tested with:
 - Delphi 11.3
 - Delphi 12.1 CE
+- Delphi 12.3 Athen
