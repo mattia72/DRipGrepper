@@ -1,3 +1,4 @@
+* Use english for all code comments and documentation.
 * Unit names should follow PascalCase.
 * Uses should be sorted alphabetically, in separate lines.
 * Class names should begin with 'T' and follow PascalCase (e.g., TClassName).
