@@ -668,6 +668,9 @@ function TRipGrepperMiddleFrame.GetAbsOrRelativePath(const _sFullPath : string) 
 var
 	actPath : string;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.GetAbsOrRelativePath');
+
 	Result := _sFullPath;
 	if Settings.NodeLookSettings.ShowRelativePath then begin
 		{$IFDEF STANDALONE}
@@ -685,9 +688,11 @@ begin
 		end else begin
 			var
 			activeProject := GetActiveProject();
-			Result := TPath.GetDirectoryName(activeProject);
+			actPath := TPath.GetDirectoryName(activeProject);
 		end;
+		dbgMsg.MsgFmt('search path: %s',[actPath]);
 		Result := ExtractRelativePath(actPath + '\', _sFullPath);
+		dbgMsg.MsgFmt('relative path: %s',[Result]);
 	end;
 end;
 
