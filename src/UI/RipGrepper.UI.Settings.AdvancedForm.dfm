@@ -1,9 +1,9 @@
-object AppSettingsForm: TAppSettingsForm
+object AdvancedForm: TAdvancedForm
   Left = 0
   Top = 0
-  Caption = 'AppSettingsForm'
-  ClientHeight = 413
-  ClientWidth = 514
+  Caption = 'Advanced'
+  ClientHeight = 221
+  ClientWidth = 524
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,204 +16,155 @@ object AppSettingsForm: TAppSettingsForm
   object ScrollBox1: TScrollBox
     Left = 0
     Top = 0
-    Width = 514
-    Height = 413
+    Width = 524
+    Height = 221
     Align = alClient
     TabOrder = 0
     DesignSize = (
-      510
-      409)
-    object lblRgExePath: TLabel
-      Left = 16
-      Top = 9
-      Width = 141
-      Height = 15
-      Caption = 'Path to ripgrep executable:'
-    end
-    object lblVersion: TLabel
-      Left = 16
-      Top = 56
-      Width = 41
-      Height = 15
-      Caption = 'Version:'
-    end
-    object btnedtRgExePath: TButtonedEdit
-      Left = 16
-      Top = 27
-      Width = 479
-      Height = 23
-      Hint = 'Full path to rg.exe.'
+      520
+      217)
+    object grpAdvanced: TGroupBox
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 508
+      Height = 178
       Anchors = [akLeft, akTop, akRight]
-      Color = clInfoBk
-      Images = SVGIconImageList1
-      LeftButton.DisabledImageIndex = 1
-      LeftButton.DisabledImageName = 'sync'
-      LeftButton.ImageIndex = 1
-      LeftButton.ImageName = 'sync'
-      LeftButton.Visible = True
-      ReadOnly = True
-      RightButton.DisabledImageIndex = 0
-      RightButton.DisabledImageName = 'folder-opened'
-      RightButton.ImageIndex = 0
-      RightButton.ImageName = 'folder-opened'
-      RightButton.Visible = True
+      Caption = 'Advanced'
       TabOrder = 0
-      Text = 'Path to rg.exe...'
-      TextHint = 'Path to rg.exe...'
-      OnEnter = btnedtRgExePathEnter
-      OnExit = btnedtRgExePathExit
-      OnLeftButtonClick = btnedtRgExePathLeftButtonClick
-      OnRightButtonClick = btnedtRgExePathRightButtonClick
-    end
-    object Memo1: TMemo
-      Left = 16
-      Top = 74
-      Width = 479
-      Height = 63
-      Hint = 'Output of "rg.exe --version".'
-      Anchors = [akLeft, akTop, akRight]
-      Color = clBlack
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clHighlightText
-      Font.Height = -12
-      Font.Name = 'Consolas'
-      Font.Style = []
-      Lines.Strings = (
-        'line 1'
-        'line 2'
-        'line 3'
-        'line 4')
-      ParentFont = False
-      ScrollBars = ssVertical
-      TabOrder = 1
-    end
-    object grpSettings: TGroupBox
-      Left = 11
-      Top = 143
-      Width = 484
-      Height = 252
-      Anchors = [akLeft, akTop, akRight]
-      Caption = 'Settings'
-      TabOrder = 2
       DesignSize = (
-        484
-        252)
-      object Label2: TLabel
-        Left = 19
-        Top = 24
-        Width = 116
+        508
+        178)
+      object Label1: TLabel
+        Left = 16
+        Top = 126
+        Width = 129
         Height = 15
-        Caption = 'Copy command shell:'
+        Caption = 'Configuaration file path:'
       end
-      object Label3: TLabel
-        Left = 19
-        Top = 52
-        Width = 116
-        Height = 15
-        Caption = 'Combo history count:'
+      object chExpertMode: TCheckBox
+        Left = 16
+        Top = 22
+        Width = 97
+        Height = 24
+        Hint = 'In expert mode, rg.exe can be freely parameterized.'
+        Caption = 'Expert mode'
+        TabOrder = 0
       end
-      object cmbCopyCmdShell: TComboBox
-        Left = 142
-        Top = 20
-        Width = 99
+      object btnedtIniFilePath: TButtonedEdit
+        Left = 16
+        Top = 147
+        Width = 483
         Height = 23
         Hint = 
-          'Select shell format to copy the RipGrep command to the clipboard' +
-          '.'
-        ItemIndex = 0
-        TabOrder = 0
-        Text = 'PowerShell '
-        Items.Strings = (
-          'PowerShell '
-          'DOS')
-      end
-      object grpSaveLoad: TGroupBox
-        Left = 16
-        Top = 79
-        Width = 456
-        Height = 162
+          'Full path to the settings file. It can be opened using the launc' +
+          'h icon.'
         Anchors = [akLeft, akTop, akRight]
-        Caption = 'Save/Load behaviour'
+        Color = clInfoBk
+        Images = SVGIconImageList1
+        LeftButton.DisabledImageIndex = 1
+        LeftButton.DisabledImageName = 'sync'
+        LeftButton.Hint = 'Refresh...'
+        LeftButton.ImageIndex = 1
+        LeftButton.ImageName = 'sync'
+        LeftButton.Visible = True
+        ReadOnly = True
+        RightButton.DisabledImageIndex = 2
+        RightButton.DisabledImageName = 'rocket'
+        RightButton.Hint = 'Open With...'
+        RightButton.ImageIndex = 2
+        RightButton.ImageName = 'rocket'
+        RightButton.Visible = True
         TabOrder = 2
-        DesignSize = (
-          456
-          162)
-        object lblSearches: TLabel
-          Left = 184
-          Top = 80
-          Width = 45
-          Height = 15
-          Caption = 'searches'
-        end
-        object rgModeLoadSeraches: TRadioGroup
-          AlignWithMargins = True
-          Left = 10
-          Top = 17
-          Width = 436
-          Height = 91
-          Hint = 
-            'All searches '#8211' Loads all previously saved searches.'#10#10#13#10'Only (re)' +
-            'executed searches '#8211' Loads only searches you'#8217've actually executed' +
-            '.'#10#10#13#10'Last NUM searches '#8211' Loads the latest NUM saved searches.'
-          Anchors = [akLeft, akTop, akRight]
-          Caption = 'Constraints'
-          Items.Strings = (
-            'All searches'
-            'Only (re)executed searches'
-            'Last')
-          TabOrder = 0
-          StyleElements = [seFont, seClient]
-        end
-        object seSearchHistoryCount: TSpinEdit
-          Left = 79
-          Top = 77
-          Width = 99
-          Height = 24
-          Hint = 'Number of history length in search history panel.'
-          MaxValue = 500
-          MinValue = 1
-          TabOrder = 1
-          Value = 10
-        end
-        object cbSaveResults: TCheckBox
-          Left = 3
-          Top = 119
-          Width = 222
+        Text = 'Path to ini file...'
+        TextHint = 'Path to ini file...'
+        OnLeftButtonClick = btnedtIniFilePathLeftButtonClick
+        OnRightButtonClick = btnedtIniFilePathRightButtonClick
+      end
+      object gbTrace: TGroupBox
+        Left = 16
+        Top = 52
+        Width = 480
+        Height = 68
+        Hint = 'Debug trace can be viewed in a debug viewer eg. DebugView++.'
+        Anchors = [akLeft, akTop, akRight]
+        Caption = 'Debug trace filters'
+        TabOrder = 1
+        object chEnd: TCheckBox
+          Left = 385
+          Top = 20
+          Width = 75
           Height = 17
-          Hint = 'Save results of ripgrep search'
-          Caption = 'Save / Load search results'
+          Caption = 'End'
+          TabOrder = 5
+        end
+        object chBegin: TCheckBox
+          Left = 308
+          Top = 20
+          Width = 75
+          Height = 17
+          Caption = 'Begin'
+          TabOrder = 4
+        end
+        object chError: TCheckBox
+          Left = 3
+          Top = 20
+          Width = 75
+          Height = 17
+          Caption = 'Error'
+          TabOrder = 0
+        end
+        object chWarning: TCheckBox
+          Left = 79
+          Top = 20
+          Width = 75
+          Height = 17
+          Caption = 'Warning'
+          TabOrder = 1
+        end
+        object chInfo: TCheckBox
+          Left = 155
+          Top = 20
+          Width = 75
+          Height = 17
+          Caption = 'Info'
           TabOrder = 2
         end
-        object cbLoadLastSearchHistories: TCheckBox
+        object chRegex: TCheckBox
           Left = 3
-          Top = 142
-          Width = 222
+          Top = 43
+          Width = 75
           Height = 17
-          Hint = 'Automatically load saved search history items on startup.'
-          Caption = 'Load search history on startup'
+          Caption = 'Regex'
+          TabOrder = 7
+          OnClick = chRegexClick
+        end
+        object edtRegex: TEdit
+          Left = 79
+          Top = 42
+          Width = 121
+          Height = 23
+          TabOrder = 6
+          TextHint = 'Regex'
+        end
+        object chVerbose: TCheckBox
+          Left = 232
+          Top = 20
+          Width = 75
+          Height = 17
+          Caption = 'Verbose'
           TabOrder = 3
         end
-      end
-      object seCmbHistoryCount: TSpinEdit
-        Left = 141
-        Top = 49
-        Width = 99
-        Height = 24
-        Hint = 'Number of history length in combo boxes.'
-        MaxValue = 100
-        MinValue = 10
-        TabOrder = 1
-        Value = 10
       end
     end
   end
   object OpenDialog1: TOpenDialog
-    Left = 115
-    Top = 77
+    Left = 250
+    Top = 112
   end
   object ActionList1: TActionList
-    Left = 306
-    Top = 76
+    Left = 316
+    Top = 116
     object ActionOpenFileDialog: TAction
       Caption = 'ActionOpenFileDialog'
       ImageIndex = 2
@@ -279,6 +230,6 @@ object AppSettingsForm: TAppSettingsForm
       end>
     Scaled = True
     Left = 384
-    Top = 328
+    Top = 108
   end
 end

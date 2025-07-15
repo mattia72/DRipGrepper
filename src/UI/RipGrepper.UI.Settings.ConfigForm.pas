@@ -20,6 +20,7 @@ uses
 	Vcl.StdCtrls,
 	Vcl.ExtCtrls,
 	RipGrepper.UI.Settings.AppSettingsForm,
+	RipGrepper.UI.Settings.AdvancedForm,
 	RipGrepper.UI.SettingsFormBase,
 	ArrayEx,
 	System.Generics.Collections,
@@ -48,6 +49,7 @@ type
 		private
 			FAboutForm : TAboutForm;
 			FAppSettingsForm : TAppSettingsForm;
+			FAdvancedForm : TAdvancedForm;
 			FColorSettingsForm : TColorSettingsForm;
 			FExtensionSettings : TRipGrepperExtensionSettings;
 			FExtensionSettingsForm : TExtensionSettingsForm;
@@ -90,6 +92,8 @@ begin
 		FOpenWithConfigForm := TOpenWithConfigForm.Create(nil, Settings.OpenWithSettings, Settings.AppSettings.ColorTheme);
 		FOpenWithConfigForm.Caption := 'Open With...';
 		FAppSettingsForm := TAppSettingsForm.Create(nil, Settings);
+		FAdvancedForm := TAdvancedForm.Create(nil, Settings);
+		FAdvancedForm.Caption := 'Advanced';
 		FColorSettingsForm := TColorSettingsForm.Create(nil, Settings);
 
 		FExtensionSettings := Settings.SearchFormSettings.ExtensionSettings;
@@ -105,6 +109,7 @@ begin
 			{ } FColorSettingsForm,
 			{ } FOpenWithConfigForm,
 			{ } FExtensionSettingsForm,
+			{ } FAdvancedForm,
 			{ } FAboutForm]);
 	finally
 		Screen.Cursor := crDefault;

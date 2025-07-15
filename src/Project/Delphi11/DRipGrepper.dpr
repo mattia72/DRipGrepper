@@ -109,7 +109,8 @@ uses
   RipGrepper.Settings.RipGrepArguments in '..\..\Settings\RipGrepper.Settings.RipGrepArguments.pas',
   RipGrepper.UI.Settings.ColorSettingsForm in '..\..\UI\RipGrepper.UI.Settings.ColorSettingsForm.pas',
   RipGrepper.Tools.ReleaseUtils in '..\..\Tools\RipGrepper.Tools.ReleaseUtils.pas',
-  RipGrepper.Common.LoadHistoryMode in '..\..\Common\RipGrepper.Common.LoadHistoryMode.pas';
+  RipGrepper.Common.LoadHistoryMode in '..\..\Common\RipGrepper.Common.LoadHistoryMode.pas',
+  RipGrepper.UI.Settings.AdvancedForm in '..\..\UI\RipGrepper.UI.Settings.AdvancedForm.pas' {AdvancedForm};
 
 {$R *.res}
 
