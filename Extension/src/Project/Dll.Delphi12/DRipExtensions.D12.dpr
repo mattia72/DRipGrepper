@@ -103,7 +103,8 @@ uses
   RipGrepper.Settings.RipGrepArguments in '..\..\..\..\src\Settings\RipGrepper.Settings.RipGrepArguments.pas',
   RipGrepper.UI.Settings.AboutForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.AboutForm.pas' {AboutForm},
   RipGrepper.Tools.ReleaseUtils in '..\..\..\..\src\Tools\RipGrepper.Tools.ReleaseUtils.pas',
-  RipGrepper.Common.LoadHistoryMode in '..\..\..\..\src\Common\RipGrepper.Common.LoadHistoryMode.pas';
+  RipGrepper.Common.LoadHistoryMode in '..\..\..\..\src\Common\RipGrepper.Common.LoadHistoryMode.pas',
+  RipGrepper.UI.Settings.AdvancedForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.AdvancedForm.pas';
 
 {$R *.res}
 
