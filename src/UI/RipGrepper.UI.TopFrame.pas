@@ -913,7 +913,14 @@ begin
 	cnt := _list.GetCounters();
 	Result := mrYes =
 	{ } TMsgBox.ShowQuestion(Format('Are you sure to change %d line(s) in %d file(s)?',
-		{ } [cnt.LineCount, cnt.FileCount]));
+		{ } [cnt.LineCount, cnt.FileCount]),
+		{ } 'Replace',
+		{$IFDEF STANDALONE}
+		{ } ''
+		{$ELSE}
+        {} 'Warning|The files already opened in the editor should be saved after replace.'
+        {$ENDIF}
+		);
 end;
 
 procedure TRipGrepperTopFrame.StartNewSearch;

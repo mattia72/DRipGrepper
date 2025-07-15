@@ -407,7 +407,8 @@ begin
 			{ } 'You are using %s' + CRLF +
 			{ } 'New version %s published at %s' + CRLF2 +
 			{ } 'Do you wan''t to go to the release page?', [GetModuleNameAndVersion(),
-			{ } LatestVersion, DateTimeToStr(LatestRelease.PublishedAt)])) then begin
+			{ } LatestVersion, DateTimeToStr(LatestRelease.PublishedAt)]),
+			{ } 'New Version') then begin
 			TUrlLinkHelper.OpenLink(LatestRelease.HtmlURL);
 		end;
 	end;

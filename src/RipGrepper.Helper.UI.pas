@@ -17,7 +17,8 @@ uses
 	Vcl.Forms,
 	VirtualTrees,
 	System.SysUtils,
-	RipGrepper.Settings.FontColors;
+	RipGrepper.Settings.FontColors,
+	Vcl.Dialogs;
 
 type
 
@@ -26,6 +27,8 @@ type
 	TMsgBoxBase = class
 		protected
 			class function GetButtonsByType(const _type : TMsgDlgType) : TMsgDlgButtons;
+			class function GetIconByType(const _type : TMsgDlgType) : TTaskDialogIcon;
+			class function GetTitleByType(const _type : TMsgDlgType) : string;
 			class procedure SetCaption(_msgDlg : TForm);
 	end;
 
@@ -51,13 +54,19 @@ type
 
 	TMsgBox = class(TMsgBoxBase)
 		private
-			class function CreateMsgDialog(const _msg : string; const _type : TMsgDlgType) : Integer;
+			class function CreateMsgDialog(const _msg : string; const _type : TMsgDlgType;
+				{ } const _title : string = ''; { } const _expandedCaptionAndText : string = '') : Integer;
+			class procedure CreateTaskMsgButtons(_msgBox : TTaskDialog; const _btns : TMsgDlgButtons);
 
 		public
-			class procedure ShowError(const _msg : string);
-			class procedure ShowWarning(const _msg : string; const _bModal : Boolean = True; _parent : TWinControl = nil);
-			class procedure ShowInfo(const _msg : string);
-			class function ShowQuestion(const _msg : string) : Integer;
+			class procedure ShowError(const _msg : string; { } const _title : string = '';
+				{ } const _expandedCaptionAndText : string = '');
+			class procedure ShowWarning(const _msg : string; { } const _title : string = '';
+				{ } const _expandedCaptionAndText : string = '');
+			class procedure ShowInfo(const _msg : string; { } const _title : string = '';
+				{ } const _expandedCaptionAndText : string = '');
+			class function ShowQuestion(const _msg : string; { } const _title : string =
+				''; { } const _expandedCaptionAndText : string = ''): Integer;
 	end;
 
 	TCursorSaver = record
@@ -169,7 +178,7 @@ uses
 	Winapi.ShellAPI,
 	System.IOUtils,
 	RipGrepper.Common.Constants,
-	Vcl.Dialogs,
+
 	System.StrUtils,
 	Winapi.ActiveX;
 
@@ -498,41 +507,113 @@ begin
 	end;
 end;
 
-class function TMsgBox.CreateMsgDialog(const _msg : string; const _type : TMsgDlgType) : Integer;
+class function TMsgBox.CreateMsgDialog(const _msg : string; const _type : TMsgDlgType;
+	{ } const _title : string = '';
+	{ } const _expandedCaptionAndText : string = '') : Integer;
 var
 	btns : TMsgDlgButtons;
+	taskMsgDlg : TTaskDialog;
 begin
-	btns := TMsgBoxBase.GetButtonsByType(_type);
-	CoInitialize(nil); // avoids EInvalidGraphicOperation: Cannot create instance of class CLSID_WICImagingFactory
-	var
-	FMsgDlg := CreateMessageDialog(_msg, _type, btns);
+	taskMsgDlg := TTaskDialog.Create(nil);
 	try
-		TMsgBoxBase.SetCaption(FMsgDlg);
-		Result := FMsgDlg.ShowModal;
+		taskMsgDlg.Flags := taskMsgDlg.Flags + [tfUseHiconMain];
+		taskMsgDlg.Caption := APPNAME;
+		if _title.IsEmpty then begin
+			taskMsgDlg.Title := TMsgBoxBase.GetTitleByType(_type);
+		end else begin
+            taskMsgDlg.Title := _title;
+        end;
+		taskMsgDlg.MainIcon := TMsgBoxBase.GetIconByType(_type);
+		taskMsgDlg.CommonButtons := [];
+		taskMsgDlg.Text := _msg;
+		btns := TMsgBoxBase.GetButtonsByType(_type);
+		CreateTaskMsgButtons(taskMsgDlg, btns);
+		if not _expandedCaptionAndText.IsEmpty then begin
+			var
+			arr := _expandedCaptionAndText.Split(['|']);
+			taskMsgDlg.ExpandButtonCaption := arr[0];
+			taskMsgDlg.ExpandedText := arr[1];
+		end;
+
+		taskMsgDlg.Execute;
+		Result := taskMsgDlg.ModalResult;
 	finally
-		FreeAndNil(FMsgDlg);
-		CoUninitialize;
+		taskMsgDlg.Free;
 	end;
 end;
 
-class procedure TMsgBox.ShowError(const _msg : string);
+class procedure TMsgBox.CreateTaskMsgButtons(_msgBox : TTaskDialog; const _btns : TMsgDlgButtons);
 begin
-	CreateMsgDialog(_msg, TMsgDlgType.mtError);
+	for var btn in _btns do begin
+		with _msgBox.Buttons.Add do begin
+			case TMsgDlgBtn(btn) of
+				TMsgDlgBtn.mbYes : begin
+					Caption := 'Yes';
+					ModalResult := mrYes;
+				end;
+				TMsgDlgBtn.mbNo : begin
+					Caption := 'No';
+					ModalResult := mrNo;
+				end;
+				TMsgDlgBtn.mbAbort : begin
+					Caption := 'Abort';
+					ModalResult := mrAbort;
+				end;
+				TMsgDlgBtn.mbRetry : begin
+					Caption := 'Retry';
+					ModalResult := mrRetry;
+				end;
+				TMsgDlgBtn.mbIgnore : begin
+					Caption := 'Ignore';
+					ModalResult := mrIgnore;
+				end;
+				TMsgDlgBtn.mbOK : begin
+					Caption := 'OK';
+					ModalResult := mrOk;
+				end;
+				TMsgDlgBtn.mbCancel : begin
+					Caption := 'Cancel';
+					ModalResult := mrCancel;
+				end;
+				TMsgDlgBtn.mbHelp : begin
+					Caption := 'Help';
+					ModalResult := mrHelp;
+				end;
+				TMsgDlgBtn.mbClose : begin
+					Caption := 'Close';
+					ModalResult := mrClose;
+				end;
+			end;
+		end;
+	end;
 end;
 
-class procedure TMsgBox.ShowWarning(const _msg : string; const _bModal : Boolean = True; _parent : TWinControl = nil);
+class procedure TMsgBox.ShowError(const _msg : string;
+	{ } const _title : string = '';
+	{ } const _expandedCaptionAndText : string = '');
 begin
-	CreateMsgDialog(_msg, TMsgDlgType.mtWarning);
+	CreateMsgDialog(_msg, TMsgDlgType.mtError, _title, _expandedCaptionAndText);
 end;
 
-class procedure TMsgBox.ShowInfo(const _msg : string);
+class procedure TMsgBox.ShowWarning(const _msg : string;
+	{ } const _title : string = '';
+	{ } const _expandedCaptionAndText : string = '');
 begin
-	CreateMsgDialog(_msg, TMsgDlgType.mtInformation);
+	CreateMsgDialog(_msg, TMsgDlgType.mtWarning, _title, _expandedCaptionAndText);
 end;
 
-class function TMsgBox.ShowQuestion(const _msg : string) : Integer;
+class procedure TMsgBox.ShowInfo(const _msg : string;
+	{ } const _title : string = '';
+	{ } const _expandedCaptionAndText : string = '');
 begin
-	Result := CreateMsgDialog(_msg, TMsgDlgType.mtConfirmation);
+	CreateMsgDialog(_msg, TMsgDlgType.mtInformation, _title, _expandedCaptionAndText);
+end;
+
+class function TMsgBox.ShowQuestion(const _msg : string;
+	{ } const _title : string = '';
+	{ } const _expandedCaptionAndText : string = '') : Integer;
+begin
+	Result := CreateMsgDialog(_msg, TMsgDlgType.mtConfirmation, _title, _expandedCaptionAndText);
 end;
 
 class function TDrawParams.Save(const _canvas : TCanvas) : TDrawParams;
@@ -659,6 +740,40 @@ begin
 		Result := [mbOk];
 		TMsgDlgType.mtConfirmation :
 		Result := mbYesNo;
+		TMsgDlgType.mtCustom :
+		{ } raise EDlgException.Create('mtCustom dlg type not supported');
+	end;
+end;
+
+class function TMsgBoxBase.GetIconByType(const _type : TMsgDlgType) : TTaskDialogIcon;
+begin
+	Result := tdiNone;
+	case _type of
+		TMsgDlgType.mtWarning :
+		{ } Result := tdiWarning;
+		TMsgDlgType.mtError :
+		{ } Result := tdiError;
+		TMsgDlgType.mtInformation :
+		{ } Result := tdiInformation;
+		TMsgDlgType.mtConfirmation :
+		{ } Result := tdiShield;
+		TMsgDlgType.mtCustom :
+		{ } raise EDlgException.Create('mtCustom dlg type not supported');
+	end;
+end;
+
+class function TMsgBoxBase.GetTitleByType(const _type : TMsgDlgType) : string;
+begin
+	Result := '';
+	case _type of
+		TMsgDlgType.mtWarning :
+		{ } Result := 'Warning';
+		TMsgDlgType.mtError :
+		{ } Result := 'Error';
+		TMsgDlgType.mtInformation :
+		{ } Result := 'Info';
+		TMsgDlgType.mtConfirmation :
+		{ } Result := 'Confirm';
 		TMsgDlgType.mtCustom :
 		{ } raise EDlgException.Create('mtCustom dlg type not supported');
 	end;
