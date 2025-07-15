@@ -78,7 +78,6 @@ type
 		procedure btnedtRgExePathExit(Sender : TObject);
 		procedure btnedtRgExePathLeftButtonClick(Sender : TObject);
 		procedure btnedtRgExePathRightButtonClick(Sender : TObject);
-		procedure cbLoadLastSearchHistoriesClick(Sender : TObject);
 		procedure chRegexClick(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 
@@ -89,7 +88,6 @@ type
 			FRipGrepSettings : TRipGrepParameterSettings;
 			function GetTraceTypeFilters : TTraceFilterTypes;
 			function IsRgExeValid(const filePath : string) : Boolean;
-			procedure UpdateLoadHistoryControls();
 			{ User-defined message handler }
 			procedure ValidateInput(var M : TMessage); message USERMESSAGE_VALIDATE_INPUT;
 
@@ -180,11 +178,6 @@ begin
 		btnedtRgExePath.Text := filePath;
 	end;
 	PostMessage(Handle, USERMESSAGE_VALIDATE_INPUT, 0, LParam(vcRgExePath));
-end;
-
-procedure TAppSettingsForm.cbLoadLastSearchHistoriesClick(Sender : TObject);
-begin
-	UpdateLoadHistoryControls;
 end;
 
 procedure TAppSettingsForm.chRegexClick(Sender : TObject);
@@ -294,7 +287,6 @@ begin
 	cbLoadLastSearchHistories.Checked := FAppSettings.LoadHistoryMode.IsSaveHistoryActive;
 	rgModeLoadSeraches.ItemIndex := FAppSettings.LoadHistoryMode.ToInt;
 	cbSaveResults.Checked := FAppSettings.LoadHistoryMode.IsSet(lhmSaveResults);
-	UpdateLoadHistoryControls;
 	var
 	path := FRipGrepSettings.RipGrepPath;
 	if path.IsEmpty then begin
@@ -302,18 +294,6 @@ begin
 	end;
 	btnedtRgExePath.Text := path;
 	Memo1.Text := GetRgVersion(path);
-end;
-
-procedure TAppSettingsForm.UpdateLoadHistoryControls();
-begin
-	var
-	bEnable := cbLoadLastSearchHistories.Checked;
-	rgModeLoadSeraches.Enabled := bEnable;
-	if bEnable and (rgModeLoadSeraches.ItemIndex < 0) then begin
-		rgModeLoadSeraches.ItemIndex := Ord(lhmAll);
-	end;
-	cbSaveResults.Enabled := bEnable;
-	seCmbHistoryCount.Enabled := bEnable;
 end;
 
 procedure TAppSettingsForm.ValidateInput(var M : TMessage);

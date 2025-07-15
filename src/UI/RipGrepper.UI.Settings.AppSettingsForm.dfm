@@ -317,7 +317,6 @@ object AppSettingsForm: TAppSettingsForm
           Hint = 'Save results of ripgrep search'
           Caption = 'Save / Load search results'
           TabOrder = 2
-          OnClick = cbLoadLastSearchHistoriesClick
         end
         object cbLoadLastSearchHistories: TCheckBox
           Left = 3
@@ -327,7 +326,6 @@ object AppSettingsForm: TAppSettingsForm
           Hint = 'Automatically load saved search history items on startup.'
           Caption = 'Load search history on startup'
           TabOrder = 3
-          OnClick = cbLoadLastSearchHistoriesClick
         end
       end
       object seCmbHistoryCount: TSpinEdit
