@@ -803,7 +803,9 @@ begin
 end;
 
 procedure TRipGrepperTopFrame.SearchForText(Sender : TBaseVirtualTree; Node : PVirtualNode; Data : Pointer; var Abort : Boolean);
-var dataStr : string; NodeData : PVSFileNodeData;
+var
+	dataStr : string;
+	NodeData : PVSFileNodeData;
 begin
 	NodeData := Sender.GetNodeData(Node);
 	dataStr := NodeData.FilePath + ' ' + NodeData.MatchData.LineText;
@@ -813,7 +815,9 @@ begin
 end;
 
 procedure TRipGrepperTopFrame.SelectNextFoundNode(const _prevFoundNode : PVirtualNode; const _searchPattern : string);
-var bLast : Boolean; nextNode, lastNode, foundNode : PVirtualNode;
+var
+	bLast : Boolean;
+	nextNode, lastNode, foundNode : PVirtualNode;
 begin
 	if _searchPattern.IsEmpty then begin
 		Exit;
@@ -914,17 +918,18 @@ begin
 	Result := mrYes =
 	{ } TMsgBox.ShowQuestion(Format('Are you sure to change %d line(s) in %d file(s)?',
 		{ } [cnt.LineCount, cnt.FileCount]),
-		{ } 'Replace',
-		{$IFDEF STANDALONE}
-		{ } ''
-		{$ELSE}
-        {} 'Warning|The files already opened in the editor should be saved after replace.'
-        {$ENDIF}
+		{ } 'Replace'
+		{$IFNDEF STANDALONE}
+		{ } ,
+		{ } 'Warning',
+		{ } 'The files already opened in the editor should be saved after replace.'
+		{$ENDIF}
 		);
 end;
 
 procedure TRipGrepperTopFrame.StartNewSearch;
-var formResult : Integer;
+var
+	formResult : Integer;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperTopFrame.StartNewSearch');
