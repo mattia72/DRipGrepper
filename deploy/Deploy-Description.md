@@ -1,7 +1,7 @@
 <!--
 
-Version:     v4.9.0-beta
-PrevVersion: v4.8.0-beta
+Version:     v4.10.0-beta
+PrevVersion: v4.9.0-beta
 
 Help Formatting:
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax, 
@@ -16,9 +16,6 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 -->
 ## 💥 Improvements:
 Marked with a checkmark if ready; otherwise, it is planned.
-- [x] **extension**: Delphi 12.3 support
-- [x] load results from file on startup 
-- [x] delete resulted match with one click on x icon
 - [ ] search for file names eg. `rg.exe -g='*pattern*' --files <DIR>`
 - [ ] **extension**: display save all files message before search?
 - [ ] **extension**: predefined patterns for search type, function, definition, etc.
@@ -27,8 +24,7 @@ Marked with a checkmark if ready; otherwise, it is planned.
 
 ## 🐞 Bugs:
 Marked with checkmark if fixed, else it is a known bug.
-- [o] 0 matches loaded results on startup, are displayed as 1 match and rg.exe has no output msg.
-- [x] **extension**: relative path in search results not displayed correctly
+- [x] 0 matches loaded results on startup, are displayed as 1 match and rg.exe has no output msg.
 - [ ] after theme change some controls are not redrawn
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: drip icon in menu has no transparent background
