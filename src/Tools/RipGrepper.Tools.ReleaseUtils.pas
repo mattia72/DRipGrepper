@@ -410,8 +410,8 @@ begin
 			{ } 'Do you wan''t to go to the release page?', [GetModuleNameAndVersion(),
 			{ } LatestVersion, DateTimeToStr(LatestRelease.PublishedAt)]);
 		var
-		mbp := TMsgBoxParams.Create(msg, TMsgDlgType.mtConfirmation);
-		mbp.ExpandedCaption := 'What''s New';
+		mbp := TMsgBoxParams.Create(msg, TMsgDlgType.mtConfirmation, 'New Version');
+		mbp.ExpandedCaption := 'What''s New?';
 		mbp.ExpandedText := LatestRelease.Description;
 		var
 		res := TMsgBox.CreateMsgDialog(mbp);
