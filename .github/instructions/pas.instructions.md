@@ -44,6 +44,11 @@ applyTo: "*.pas"
 * Use `IList<T>` or `IDictionary<K, V>` for collections
 * Use `TArrayEx<T>` where applicable for array operations
 
+## Records
+* Use `record` for simple data structures
+* Use `New` for creating instances of records
+* Use `T` prefix for record types (e.g., `TMyRecord`)
+
 ## Comments and Documentation
 * Use single-line comments `//` for short explanations
 * Use multi-line comments `{ }` for detailed descriptions
