@@ -78,6 +78,8 @@ object AdvancedForm: TAdvancedForm
         TabOrder = 2
         Text = 'Path to ini file...'
         TextHint = 'Path to ini file...'
+        OnEnter = btnedtIniFilePathEnter
+        OnExit = btnedtIniFilePathExit
         OnLeftButtonClick = btnedtIniFilePathLeftButtonClick
         OnRightButtonClick = btnedtIniFilePathRightButtonClick
       end
