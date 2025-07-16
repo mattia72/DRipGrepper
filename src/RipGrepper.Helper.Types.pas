@@ -76,6 +76,12 @@ type
 			property FilePath : string read GetFilePath;
 	end;
 
+	TResourceHelper = class(TObject)
+		public
+			class function GetDescriptionFromResource(const _resource : string) : string;
+			class function CreateIconFromResource(const _resource : string) : TIcon;
+	end;
+
 function GetElapsedTime(const _swStart : TStopwatch) : string;
 
 function PostInc(var Value : Integer; const n : Integer = 1) : Integer;
@@ -415,6 +421,29 @@ end;
 class operator TAutoDeleteTempFile.Initialize(out Dest : TAutoDeleteTempFile);
 begin
 	Dest.FFilePath := '';
+end;
+
+class function TResourceHelper.GetDescriptionFromResource(const _resource : string) : string;
+var
+	stream : TResourceStream;
+	list : TStringList;
+begin
+	stream := TResourceStream.Create(HInstance, _resource, RT_RCDATA);
+	list := TStringList.Create;
+	try
+		list.DefaultEncoding := TEncoding.UTF8;
+		list.LoadFromStream(stream);
+		Result := list.Text;
+	finally
+		list.Free;
+		stream.Free;
+	end;
+end;
+
+class function TResourceHelper.CreateIconFromResource(const _resource : string) : TIcon;
+begin
+	Result := TIcon.Create();
+	Result.LoadFromResourceName(HInstance, _resource);
 end;
 
 end.

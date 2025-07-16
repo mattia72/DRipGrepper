@@ -73,7 +73,6 @@ type
 
 		public
 			constructor Create(_Owner : TComponent; _settings : TRipGrepperSettings);
-			function GetDescriptionFromResource(const _resource : string) : string;
 
 		published
 	end;
@@ -88,7 +87,8 @@ uses
 	RipGrepper.Common.Constants,
 	RipGrepper.Helper.UI.DarkMode,
 	RipGrepper.Helper.UI,
-	Winapi.ShellAPI;
+	Winapi.ShellAPI,
+	RipGrepper.Helper.Types;
 
 {$R *.dfm}
 
@@ -97,10 +97,10 @@ begin
 	inherited Create(_Owner, _settings);
 	Caption := ABOUT_CAPTION;
 
-	FsLicence := GetDescriptionFromResource('LICENSE');
+	FsLicence := TResourceHelper.GetDescriptionFromResource('LICENSE');
 
 	var
-	s := GetDescriptionFromResource('DeployDescription');
+	s := TResourceHelper.GetDescriptionFromResource('DeployDescription');
 	FReleaseUtils.CurrentRelease.SetDescription(s);
 
 	lnkLatestUrl.Visible := False;
@@ -132,7 +132,8 @@ begin
 
 	if FReleaseUtils.LatestRelease.LoadOk then begin
 		lnkLatestUrl.Visible := True;
-		lnkLatestUrl.Caption := TUrlLinkHelper.MakeLinkWithCaption('Latest release: ', FReleaseUtils.LatestRelease.HtmlURL, FReleaseUtils.LatestVersion);
+		lnkLatestUrl.Caption := TUrlLinkHelper.MakeLinkWithCaption('Latest release: ', FReleaseUtils.LatestRelease.HtmlURL,
+			FReleaseUtils.LatestVersion);
 	end;
 end;
 
@@ -181,23 +182,6 @@ begin
 		FormResize(self);
 	finally
 		FbSkipClickEvent := False;
-	end;
-end;
-
-function TAboutForm.GetDescriptionFromResource(const _resource : string) : string;
-var
-	stream : TResourceStream;
-	list : TStringList;
-begin
-	stream := TResourceStream.Create(HInstance, _resource, RT_RCDATA);
-	list := TStringList.Create;
-	try
-		list.DefaultEncoding := TEncoding.UTF8;
-		list.LoadFromStream(stream);
-		Result := list.Text;
-	finally
-		list.Free;
-		stream.Free;
 	end;
 end;
 

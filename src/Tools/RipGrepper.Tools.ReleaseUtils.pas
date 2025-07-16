@@ -79,7 +79,8 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	System.RegularExpressions,
 	RipGrepper.Helper.UI,
-	System.UITypes;
+	System.UITypes,
+	RipGrepper.Helper.Types;
 
 procedure TReleaseInfo.FromJson(_json : TJSONValue; const _idx : Integer);
 begin
@@ -414,9 +415,16 @@ begin
 		mbp.ExpandedCaption := 'What''s New?';
 		mbp.ExpandedText := LatestRelease.Description;
 		var
-		res := TMsgBox.CreateMsgDialog(mbp);
-		if mrYes = res then begin
-			TUrlLinkHelper.OpenLink(LatestRelease.HtmlURL);
+		icon := TResourceHelper.CreateIconFromResource('MAINICON');
+		try
+			mbp.CustomMainIcon := icon;
+			var
+			res := TMsgBox.CreateMsgDialog(mbp);
+			if mrYes = res then begin
+				TUrlLinkHelper.OpenLink(LatestRelease.HtmlURL);
+			end;
+		finally
+			icon.Free;
 		end;
 	end;
 end;

@@ -215,7 +215,6 @@ begin
 	Title := _title;
 	ExpandedCaption := _expandedCaption;
 	ExpandedText := _expandedText;
-	CustomMainIcon := Application.Icon;
 end;
 
 procedure TCursorSaver.SetHourGlassCursor;

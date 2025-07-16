@@ -2,8 +2,8 @@ object AboutForm: TAboutForm
   Left = 0
   Top = 0
   Caption = 'Fonts and Colors'
-  ClientHeight = 428
-  ClientWidth = 711
+  ClientHeight = 420
+  ClientWidth = 709
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -23,8 +23,8 @@ object AboutForm: TAboutForm
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 421
-    Width = 711
+    Top = 413
+    Width = 709
     Height = 7
     Align = alBottom
     BevelOuter = bvNone
@@ -35,8 +35,8 @@ object AboutForm: TAboutForm
   object ScrollBox1: TScrollBox
     Left = 0
     Top = 0
-    Width = 711
-    Height = 421
+    Width = 709
+    Height = 413
     HorzScrollBar.Visible = False
     Align = alClient
     BevelInner = bvNone
@@ -85,7 +85,7 @@ object AboutForm: TAboutForm
         end
         object lblVersion: TLabel
           Left = 1
-          Top = 37
+          Top = 34
           Width = 452
           Height = 19
           Margins.Top = 10
@@ -118,8 +118,8 @@ object AboutForm: TAboutForm
           AlignWithMargins = True
           Left = 14
           Top = 29
-          Width = 416
-          Height = 305
+          Width = 414
+          Height = 297
           Margins.Left = 10
           Margins.Right = 20
           Margins.Bottom = 10
@@ -141,7 +141,7 @@ object AboutForm: TAboutForm
       Left = 0
       Top = 0
       Width = 265
-      Height = 421
+      Height = 413
       Align = alLeft
       BevelOuter = bvNone
       ShowCaption = False
