@@ -403,12 +403,19 @@ begin
 			end; // else error msg already shown...
 		end;
 	end else begin
-		if mrYes = TMsgBox.ShowQuestion(Format(
+		var
+		msg := Format(
 			{ } 'You are using %s' + CRLF +
 			{ } 'New version %s published at %s' + CRLF2 +
 			{ } 'Do you wan''t to go to the release page?', [GetModuleNameAndVersion(),
-			{ } LatestVersion, DateTimeToStr(LatestRelease.PublishedAt)]),
-			{ } 'New Version') then begin
+			{ } LatestVersion, DateTimeToStr(LatestRelease.PublishedAt)]);
+		var
+		mbp := TMsgBoxParams.Create(msg, TMsgDlgType.mtConfirmation, 'New Version');
+		mbp.ExpandedCaption := 'What''s New?';
+		mbp.ExpandedText := LatestRelease.Description;
+		var
+		res := TMsgBox.CreateMsgDialog(mbp);
+		if mrYes = res then begin
 			TUrlLinkHelper.OpenLink(LatestRelease.HtmlURL);
 		end;
 	end;

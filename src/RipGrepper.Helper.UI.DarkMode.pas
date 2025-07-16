@@ -59,7 +59,7 @@ type
 			class function GetActualThemeName : string;
 			class procedure BroadcastThemeChanged(_handle : HWND);
 
-			// Automatically sets a Dark Mode theme is Windows is running in Dark Mode
+			// Automatically sets a Dark Mode theme if Windows is running in Dark Mode
 			// To use:
 			// 1. Got to project properties
 			// 2. Select appearance and choose two or more themes.  Note down the names!

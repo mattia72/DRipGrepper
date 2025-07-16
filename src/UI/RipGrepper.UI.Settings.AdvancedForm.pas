@@ -57,6 +57,8 @@ type
 		SVGIconImageList1 : TSVGIconImageList;
 		chVerbose : TCheckBox;
 		ScrollBox1 : TScrollBox;
+		procedure btnedtIniFilePathEnter(Sender : TObject);
+		procedure btnedtIniFilePathExit(Sender : TObject);
 		procedure btnedtIniFilePathLeftButtonClick(Sender : TObject);
 		procedure btnedtIniFilePathRightButtonClick(Sender : TObject);
 		procedure chRegexClick(Sender : TObject);
@@ -68,7 +70,6 @@ type
 			FAppSettings : TAppSettings;
 			FRipGrepSettings : TRipGrepParameterSettings;
 			function GetTraceTypeFilters : TTraceFilterTypes;
-			function IsRgExeValid(const filePath : string) : Boolean;
 			{ User-defined message handler }
 			procedure ValidateInput(var M : TMessage); message USERMESSAGE_VALIDATE_INPUT;
 
@@ -110,6 +111,18 @@ begin
 	Caption := 'General';
 	FAppSettings := (FSettings as TRipGrepperSettings).AppSettings;
 	FRipGrepSettings := (FSettings as TRipGrepperSettings).RipGrepParameters;
+end;
+
+procedure TAdvancedForm.btnedtIniFilePathEnter(Sender : TObject);
+begin
+	if FRefocusing = btnedtIniFilePath then
+		FRefocusing := nil;
+end;
+
+procedure TAdvancedForm.btnedtIniFilePathExit(Sender : TObject);
+begin
+	if FRefocusing = nil then
+		PostMessage(Handle, USERMESSAGE_VALIDATE_INPUT, 0, LParam(vcIniFilePath));
 end;
 
 procedure TAdvancedForm.btnedtIniFilePathLeftButtonClick(Sender : TObject);
@@ -172,14 +185,6 @@ begin
 	end;
 end;
 
-function TAdvancedForm.IsRgExeValid(const filePath : string) : Boolean;
-var
-	name : string;
-begin
-	name := TPath.GetFileName(filePath);
-	Result := LowerCase(name) = LowerCase(RG_EXE);
-end;
-
 procedure TAdvancedForm.OnSettingsUpdated();
 begin
 	// here you can update things depending on changed settings
@@ -216,7 +221,7 @@ procedure TAdvancedForm.ValidateInput(var M : TMessage);
 begin
 	case EValidateCtrls(M.LParam) of
 		vcIniFilePath : begin // not used: ini file location can not be changed
-			if not IsRgExeValid(btnedtIniFilePath.Text) then begin
+			if not FileExists(btnedtIniFilePath.Text) then begin
 				FRefocusing := btnedtIniFilePath;
 				TMsgBox.ShowError('Ini file path not valid!');
 				btnedtIniFilePath.SetFocus;

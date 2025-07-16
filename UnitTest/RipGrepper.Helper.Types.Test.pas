@@ -265,7 +265,7 @@ begin
 	var
 	act_vals := FStrings.GetValues();
 
-	for var i := 0 to high(values) do begin
+	for var i : integer := 0  to high(values) do begin
 		Assert.AreEqual(i, FStrings.IndexOfValue(act_vals[i]), Format('index of %s should be %d', [act_vals[i], i]));
 	end;
 end;
