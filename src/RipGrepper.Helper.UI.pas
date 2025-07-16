@@ -24,6 +24,23 @@ type
 
 	EDlgException = class(Exception);
 
+	TMsgBoxParams = record
+		public
+			Title : string;
+			Msg : string;
+			DlgType : TMsgDlgType;
+			CustomMainIcon : TIcon;
+			ExpandedCaption : string;
+			ExpandedText : string;
+			FooterIcon : TTaskDialogIcon;
+			FooterText : string;
+			constructor Create(const _msg : string; const _dlgType : TMsgDlgType;
+				{ } const _title : string = '';
+				{ } const _expandedCaption : string = '';
+				{ } _expandedText : string = '');
+
+	end;
+
 	TMsgBoxBase = class
 		protected
 			class function GetButtonsByType(const _type : TMsgDlgType) : TMsgDlgButtons;
@@ -54,19 +71,27 @@ type
 
 	TMsgBox = class(TMsgBoxBase)
 		private
-			class function CreateMsgDialog(const _msg : string; const _type : TMsgDlgType;
-				{ } const _title : string = ''; { } const _expandedCaptionAndText : string = '') : Integer;
 			class procedure CreateTaskMsgButtons(_msgBox : TTaskDialog; const _btns : TMsgDlgButtons);
+			class procedure CreateTaskMsgButtonsByType(taskMsgDlg : TTaskDialog; const _type : TMsgDlgType);
 
 		public
-			class procedure ShowError(const _msg : string; { } const _title : string = '';
-				{ } const _expandedCaptionAndText : string = '');
-			class procedure ShowWarning(const _msg : string; { } const _title : string = '';
-				{ } const _expandedCaptionAndText : string = '');
-			class procedure ShowInfo(const _msg : string; { } const _title : string = '';
-				{ } const _expandedCaptionAndText : string = '');
-			class function ShowQuestion(const _msg : string; { } const _title : string =
-				''; { } const _expandedCaptionAndText : string = ''): Integer;
+			class function CreateMsgDialog(const _params : TMsgBoxParams) : Integer;
+			class procedure ShowError(const _msg : string;
+				{ } const _title : string = '';
+				{ } const _expandedCaption : string = '';
+				{ } _expandedText : string = '');
+			class procedure ShowWarning(const _msg : string;
+				{ } const _title : string = '';
+				{ } const _expandedCaption : string = '';
+				{ } _expandedText : string = '');
+			class procedure ShowInfo(const _msg : string;
+				{ } const _title : string = '';
+				{ } const _expandedCaption : string = '';
+				{ } _expandedText : string = '');
+			class function ShowQuestion(const _msg : string;
+				{ } const _title : string = '';
+				{ } const _expandedCaption : string = '';
+				{ } _expandedText : string = '') : Integer;
 	end;
 
 	TCursorSaver = record
@@ -178,9 +203,20 @@ uses
 	Winapi.ShellAPI,
 	System.IOUtils,
 	RipGrepper.Common.Constants,
-
 	System.StrUtils,
-	Winapi.ActiveX;
+	Winapi.ActiveX,
+	RipGrepper.Helper.UI.DarkMode;
+
+constructor TMsgBoxParams.Create(const _msg : string; const _dlgType : TMsgDlgType; { } const _title : string = '';
+	{ } const _expandedCaption : string = ''; _expandedText : string = '');
+begin
+	Msg := _msg;
+	DlgType := _dlgType;
+	Title := _title;
+	ExpandedCaption := _expandedCaption;
+	ExpandedText := _expandedText;
+	CustomMainIcon := Application.Icon;
+end;
 
 procedure TCursorSaver.SetHourGlassCursor;
 begin
@@ -507,34 +543,39 @@ begin
 	end;
 end;
 
-class function TMsgBox.CreateMsgDialog(const _msg : string; const _type : TMsgDlgType;
-	{ } const _title : string = '';
-	{ } const _expandedCaptionAndText : string = '') : Integer;
+class function TMsgBox.CreateMsgDialog(const _params : TMsgBoxParams) : Integer;
 var
-	btns : TMsgDlgButtons;
 	taskMsgDlg : TTaskDialog;
 begin
-	taskMsgDlg := TTaskDialog.Create(nil);
+	taskMsgDlg := TTaskDialog.Create(FindControl(GetForegroundWindow));
 	try
-		taskMsgDlg.Flags := taskMsgDlg.Flags + [tfUseHiconMain];
 		taskMsgDlg.Caption := APPNAME;
-		if _title.IsEmpty then begin
-			taskMsgDlg.Title := TMsgBoxBase.GetTitleByType(_type);
+		if _params.Title.IsEmpty then begin
+			taskMsgDlg.Title := TMsgBoxBase.GetTitleByType(_params.DlgType);
 		end else begin
-            taskMsgDlg.Title := _title;
-        end;
-		taskMsgDlg.MainIcon := TMsgBoxBase.GetIconByType(_type);
-		taskMsgDlg.CommonButtons := [];
-		taskMsgDlg.Text := _msg;
-		btns := TMsgBoxBase.GetButtonsByType(_type);
-		CreateTaskMsgButtons(taskMsgDlg, btns);
-		if not _expandedCaptionAndText.IsEmpty then begin
-			var
-			arr := _expandedCaptionAndText.Split(['|']);
-			taskMsgDlg.ExpandButtonCaption := arr[0];
-			taskMsgDlg.ExpandedText := arr[1];
+			taskMsgDlg.Title := _params.Title;
 		end;
 
+		if Assigned(_params.CustomMainIcon) then begin
+			taskMsgDlg.Flags := taskMsgDlg.Flags + [tfUseHiconMain];
+			taskMsgDlg.CustomMainIcon := _params.CustomMainIcon;
+		end else begin
+			taskMsgDlg.MainIcon := TMsgBoxBase.GetIconByType(_params.DlgType);
+		end;
+
+		taskMsgDlg.Text := _params.Msg;
+
+		CreateTaskMsgButtonsByType(taskMsgDlg, _params.DlgType);
+
+		if not _params.ExpandedCaption.IsEmpty then begin
+			taskMsgDlg.ExpandButtonCaption := _params.ExpandedCaption;
+			taskMsgDlg.ExpandedText := _params.ExpandedText;
+		end else if not _params.FooterText.IsEmpty then begin
+			taskMsgDlg.FooterText := _params.FooterText;
+			taskMsgDlg.FooterIcon := tdiInformation;
+			taskMsgDlg.MainIcon := tdiNone;
+		end;
+		// TDarkModeHelper.SetAppropriateThemeMode(taskMsgDlg);
 		taskMsgDlg.Execute;
 		Result := taskMsgDlg.ModalResult;
 	finally
@@ -544,76 +585,81 @@ end;
 
 class procedure TMsgBox.CreateTaskMsgButtons(_msgBox : TTaskDialog; const _btns : TMsgDlgButtons);
 begin
+	_msgBox.CommonButtons := [];
 	for var btn in _btns do begin
-		with _msgBox.Buttons.Add do begin
-			case TMsgDlgBtn(btn) of
-				TMsgDlgBtn.mbYes : begin
-					Caption := 'Yes';
-					ModalResult := mrYes;
-				end;
-				TMsgDlgBtn.mbNo : begin
-					Caption := 'No';
-					ModalResult := mrNo;
-				end;
-				TMsgDlgBtn.mbAbort : begin
-					Caption := 'Abort';
-					ModalResult := mrAbort;
-				end;
-				TMsgDlgBtn.mbRetry : begin
-					Caption := 'Retry';
-					ModalResult := mrRetry;
-				end;
-				TMsgDlgBtn.mbIgnore : begin
-					Caption := 'Ignore';
-					ModalResult := mrIgnore;
-				end;
-				TMsgDlgBtn.mbOK : begin
-					Caption := 'OK';
-					ModalResult := mrOk;
-				end;
-				TMsgDlgBtn.mbCancel : begin
-					Caption := 'Cancel';
-					ModalResult := mrCancel;
-				end;
-				TMsgDlgBtn.mbHelp : begin
-					Caption := 'Help';
-					ModalResult := mrHelp;
-				end;
-				TMsgDlgBtn.mbClose : begin
-					Caption := 'Close';
-					ModalResult := mrClose;
+		case TMsgDlgBtn(btn) of
+			TMsgDlgBtn.mbOK : begin
+				_msgBox.CommonButtons := _msgBox.CommonButtons + [tcbOk];
+			end;
+			TMsgDlgBtn.mbYes : begin
+				_msgBox.CommonButtons := _msgBox.CommonButtons + [tcbYes];
+			end;
+			TMsgDlgBtn.mbNo : begin
+				_msgBox.CommonButtons := _msgBox.CommonButtons + [tcbNo];
+			end;
+			TMsgDlgBtn.mbCancel : begin
+				_msgBox.CommonButtons := _msgBox.CommonButtons + [tcbCancel];
+			end;
+			TMsgDlgBtn.mbRetry : begin
+				_msgBox.CommonButtons := _msgBox.CommonButtons + [tcbRetry];
+			end;
+			TMsgDlgBtn.mbClose : begin
+				_msgBox.CommonButtons := _msgBox.CommonButtons + [tcbClose];
+			end;
+			else
+			with _msgBox.Buttons.Add do begin
+				case TMsgDlgBtn(btn) of
+					TMsgDlgBtn.mbAbort : begin
+						Caption := 'Abort';
+						ModalResult := mrAbort;
+					end;
+					TMsgDlgBtn.mbIgnore : begin
+						Caption := 'Ignore';
+						ModalResult := mrIgnore;
+					end;
+					TMsgDlgBtn.mbHelp : begin
+						Caption := 'Help';
+						ModalResult := mrHelp;
+					end;
+					else
+					{ } raise EDlgException.Create('Msg button type not supported');
 				end;
 			end;
 		end;
+
 	end;
 end;
 
-class procedure TMsgBox.ShowError(const _msg : string;
-	{ } const _title : string = '';
-	{ } const _expandedCaptionAndText : string = '');
+class procedure TMsgBox.CreateTaskMsgButtonsByType(taskMsgDlg : TTaskDialog; const _type : TMsgDlgType);
+var
+	btns : TMsgDlgButtons;
 begin
-	CreateMsgDialog(_msg, TMsgDlgType.mtError, _title, _expandedCaptionAndText);
+	btns := TMsgBoxBase.GetButtonsByType(_type);
+	CreateTaskMsgButtons(taskMsgDlg, btns);
 end;
 
-class procedure TMsgBox.ShowWarning(const _msg : string;
-	{ } const _title : string = '';
-	{ } const _expandedCaptionAndText : string = '');
+class procedure TMsgBox.ShowError(const _msg : string; { } const _title : string = ''; { } const _expandedCaption : string = ''; { }
+	_expandedText : string = '');
 begin
-	CreateMsgDialog(_msg, TMsgDlgType.mtWarning, _title, _expandedCaptionAndText);
+	CreateMsgDialog(TMsgBoxParams.Create(_msg, TMsgDlgType.mtError, _title, _expandedCaption, _expandedText));
 end;
 
-class procedure TMsgBox.ShowInfo(const _msg : string;
-	{ } const _title : string = '';
-	{ } const _expandedCaptionAndText : string = '');
+class procedure TMsgBox.ShowWarning(const _msg : string; { } const _title : string = ''; { } const _expandedCaption : string = ''; { }
+	_expandedText : string = '');
 begin
-	CreateMsgDialog(_msg, TMsgDlgType.mtInformation, _title, _expandedCaptionAndText);
+	CreateMsgDialog(TMsgBoxParams.Create(_msg, TMsgDlgType.mtWarning, _title, _expandedCaption, _expandedText));
 end;
 
-class function TMsgBox.ShowQuestion(const _msg : string;
-	{ } const _title : string = '';
-	{ } const _expandedCaptionAndText : string = '') : Integer;
+class procedure TMsgBox.ShowInfo(const _msg : string; { } const _title : string = ''; { } const _expandedCaption : string = ''; { }
+	_expandedText : string = '');
 begin
-	Result := CreateMsgDialog(_msg, TMsgDlgType.mtConfirmation, _title, _expandedCaptionAndText);
+	CreateMsgDialog(TMsgBoxParams.Create(_msg, TMsgDlgType.mtInformation, _title, _expandedCaption, _expandedText));
+end;
+
+class function TMsgBox.ShowQuestion(const _msg : string; { } const _title : string = ''; { } const _expandedCaption : string = ''; { }
+	_expandedText : string = '') : Integer;
+begin
+	Result := CreateMsgDialog(TMsgBoxParams.Create(_msg, TMsgDlgType.mtConfirmation, _title, _expandedCaption, _expandedText));
 end;
 
 class function TDrawParams.Save(const _canvas : TCanvas) : TDrawParams;
@@ -734,14 +780,12 @@ class function TMsgBoxBase.GetButtonsByType(const _type : TMsgDlgType) : TMsgDlg
 begin
 	Result := [];
 	case _type of
-		{ } TMsgDlgType.mtWarning,
-		{ } TMsgDlgType.mtError,
-		{ } TMsgDlgType.mtInformation :
-		Result := [mbOk];
+		TMsgDlgType.mtWarning, TMsgDlgType.mtError, TMsgDlgType.mtInformation :
+		{ } Result := [mbOk];
 		TMsgDlgType.mtConfirmation :
-		Result := mbYesNo;
+		{ } Result := mbYesNo;
 		TMsgDlgType.mtCustom :
-		{ } raise EDlgException.Create('mtCustom dlg type not supported');
+		{ } Result := [];
 	end;
 end;
 
@@ -756,7 +800,7 @@ begin
 		TMsgDlgType.mtInformation :
 		{ } Result := tdiInformation;
 		TMsgDlgType.mtConfirmation :
-		{ } Result := tdiShield;
+		{ } Result := tdiNone;
 		TMsgDlgType.mtCustom :
 		{ } raise EDlgException.Create('mtCustom dlg type not supported');
 	end;
