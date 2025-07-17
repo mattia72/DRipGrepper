@@ -85,12 +85,12 @@ begin
 	ReadSettings;
 
 	// setting theme is necessary here, if you don't want to get exception on close
+	{$IFDEF STANDALONE}
 	var
 	colorTheme := FAppSettings.ColorTheme;
 	dbgMsg.Msg('colorTheme = ' + colorTheme);
-
 	TDarkModeHelper.SetThemeMode(colorTheme);
-
+	{$ENDIF}
 	FAllHeight := TColorSelectorFrame.AddSelectionFrames(FFontColorSettings.FontColors, self, ScrollBox1);
 	FAllHeight := FAllHeight + pnlBottom.Height;
 

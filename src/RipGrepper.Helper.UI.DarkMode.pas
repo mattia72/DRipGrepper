@@ -47,21 +47,11 @@ type
 		private
 			class procedure ApplyTheme(const _style : string; _component : TComponent = nil);
 			class procedure SetFixedColorInSVGImgLists(_ctrl : TWinControl; const _color : TColor);
-			// Sets either a Dark Mode or non Dark mode theme based in the "AsDarkMode" boolean
-			// For example:
-			// SetDarkThemeMode(False, 'TheDarkModeThemeName', 'TheLightModeThemeName');
-			// Would change the application theme to the theme with the name 'TheLightModeThemeName'
-			// if it exists.
-			//
 			class procedure SetDarkThemeMode(_component : TComponent);
-			// Sets either a Dark Mode or non Dark mode theme based in the "AsDarkMode" boolean
-			// For example:
-			// SetLightThemeMode(False, 'TheDarkModeThemeName', 'TheLightModeThemeName');
-			// Would change the application theme to the theme with the name 'TheLightModeThemeName'
-			// if it exists.
-			//
 			class procedure SetLightThemeMode(_component : TComponent);
 			class procedure ApplyThemeByName(const _themeName : string; _component : TComponent = nil);
+			class function GetDarkThemeName() : string;
+			class function GetLightThemeName() : string;
 
 		public
 			class procedure AllowThemes;
@@ -132,9 +122,13 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.ApplyTheme');
 	dbgMsg.Msg('Applying theme: ' + _style);
+	{$IFDEF STANDALONE}
 	if (not _style.IsEmpty) and TStyleManager.TrySetStyle(_style) then begin
 		TStyleManager.FormBorderStyle := fbsCurrentStyle;
 	end;
+	{$ELSE}
+	TIDEThemeHelper.ApplyTheme(_component);
+	{$ENDIF};
 end;
 
 class function TDarkModeHelper.IsSystemDark : Boolean;
@@ -237,23 +231,11 @@ end;
 
 class function TDarkModeHelper.GetThemeNameByMode(const _tm : EThemeMode) : string;
 begin
-	{$IFDEF STANDALONE}
-	var
-	dark := DARK_THEME_NAME;
-	var
-	light := LIGHT_THEME_NAME;
-	{$ELSE}
-	var
-	dark := 'Dark';
-	var
-	light := 'Light';
-	{$ENDIF};
-
 	case _tm of
 		tmLight :
-		Result := light;
+		Result := GetLightThemeName;
 		tmDark :
-		Result := dark;
+		Result := GetDarkThemeName;
 		else
 		Result := SYSTEM_THEME;
 	end;
@@ -291,12 +273,12 @@ end;
 
 class procedure TDarkModeHelper.SetDarkThemeMode(_component : TComponent);
 begin
-	ApplyThemeByName(DARK_THEME_NAME, _component);
+	ApplyThemeByName(GetDarkThemeName(), _component);
 end;
 
 class procedure TDarkModeHelper.SetLightThemeMode(_component : TComponent);
 begin
-	ApplyThemeByName(LIGHT_THEME_NAME, _component);
+	ApplyThemeByName(GetLightThemeName(), _component);
 end;
 
 class procedure TDarkModeHelper.SetThemeMode(const _mode : EThemeMode; _component : TComponent = nil);
@@ -316,23 +298,14 @@ end;
 
 class procedure TDarkModeHelper.SetThemeMode(const _themeName : string; _component : TComponent = nil);
 var
-	darkThemeName : string;
-	lightThemeName : string;
 	mode : EThemeMode;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.SetThemeMode');
 
-	{$IFDEF STANDALONE}
-	darkThemeName := DARK_THEME_NAME;
-	lightThemeName := LIGHT_THEME_NAME;
-	{$ELSE}
-	darkThemeName := IDE_DARK_THEME_NAME;
-	lightThemeName := IDE_LIGHT_THEME_NAME;
-	{$ENDIF}
-	if (_themeName = darkThemeName) then begin
+	if (_themeName = GetDarkThemeName()) then begin
 		mode := tmDark;
-	end else if (_themeName = lightThemeName) then begin
+	end else if (_themeName = GetLightThemeName()) then begin
 		mode := tmLight;
 	end else begin
 		mode := tmSystem;
@@ -343,16 +316,30 @@ end;
 class procedure TDarkModeHelper.ApplyThemeByName(const _themeName : string; _component : TComponent = nil);
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.SetLightThemeMode');
+	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.ApplyThemeByName');
 	dbgMsg.MsgFmt('Theme name: %s', [_themeName]);
 	if Assigned(_component) then begin
 		dbgMsg.MsgFmt('Component name: %s', [_component.Name]);
 	end;
+	TDarkModeHelper.ApplyTheme(_themeName, _component);
+end;
+
+class function TDarkModeHelper.GetDarkThemeName() : string;
+begin
 	{$IFDEF STANDALONE}
-	TDarkModeHelper.ApplyTheme(_themeName);
+	Result := DARK_THEME_NAME;
 	{$ELSE}
-	TIDEThemeHelper.ApplyTheme(_component);
-	{$ENDIF};
+	Result := IDE_DARK_THEME_NAME;
+	{$ENDIF}
+end;
+
+class function TDarkModeHelper.GetLightThemeName() : string;
+begin
+	{$IFDEF STANDALONE}
+	Result := LIGHT_THEME_NAME;
+	{$ELSE}
+	Result := IDE_LIGHT_THEME_NAME;
+	{$ENDIF}
 end;
 
 {$IFNDEF STANDALONE}
