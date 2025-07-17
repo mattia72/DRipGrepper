@@ -84,14 +84,12 @@ begin
 	FAppSettings := _settings.AppSettings;
 	ReadSettings;
 
-    // setting theme is necessary here, if you don't want to get exception on close 
+	// setting theme is necessary here, if you don't want to get exception on close
 	var
 	colorTheme := FAppSettings.ColorTheme;
 	dbgMsg.Msg('colorTheme = ' + colorTheme);
-	// if colorTheme.IsEmpty then begin
-	// 	colorTheme := TDarkModeHelper.GetThemeNameByMode(TDarkModeHelper.GetActualThemeMode);
-	// end;
-	TDarkModeHelper.ApplyTheme(colorTheme);
+
+	TDarkModeHelper.SetThemeMode(colorTheme);
 
 	FAllHeight := TColorSelectorFrame.AddSelectionFrames(FFontColorSettings.FontColors, self, ScrollBox1);
 	FAllHeight := FAllHeight + pnlBottom.Height;
@@ -227,7 +225,7 @@ begin
 	theme := TDarkModeHelper.GetThemeNameByMode(tm);
 	dbgMsg.Msg('GetThemeNameByMode: ' + theme);
 
-	FAppSettings.ColorTheme := IfThen(tm in [tmLight, tmDark], theme);
+	FAppSettings.ColorTheme := theme;
 	dbgMsg.Msg('set FAppSettings.ColorTheme: ' + FAppSettings.ColorTheme);
 end;
 
