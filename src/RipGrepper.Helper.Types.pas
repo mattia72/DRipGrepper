@@ -96,7 +96,8 @@ uses
 	Winapi.Windows,
 	System.TypInfo,
 	System.Rtti,
-	System.IOUtils;
+	System.IOUtils,
+	RipGrepper.Tools.DebugUtils;
 
 function PostInc(var Value : Integer; const n : Integer = 1) : Integer;
 begin
@@ -428,12 +429,23 @@ var
 	stream : TResourceStream;
 	list : TStringList;
 begin
-	stream := TResourceStream.Create(HInstance, _resource, RT_RCDATA);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TResourceHelper.GetDescriptionFromResource');
+
+	Result := '';
 	list := TStringList.Create;
+	stream := nil; // avoid warning
 	try
-		list.DefaultEncoding := TEncoding.UTF8;
-		list.LoadFromStream(stream);
-		Result := list.Text;
+		try
+			stream := TResourceStream.Create(HInstance, _resource, RT_RCDATA);
+			list.DefaultEncoding := TEncoding.UTF8;
+			list.LoadFromStream(stream);
+			Result := list.Text;
+		except
+			on E : Exception do begin
+				dbgMsg.ErrorMsg(E.Message);
+			end;
+		end;
 	finally
 		list.Free;
 		stream.Free;
