@@ -127,7 +127,7 @@ begin
 	theme := Settings.AppSettings.ColorTheme;
 	dbgMsg.Msg('Applying theme from appsettings: ' + theme);
 	{$IFDEF STANDALONE}
-	TDarkModeHelper.SetThemeMode(theme, self);
+	TDarkModeHelper.SetThemeByName(theme, self);
 	{$ENDIF}
 end;
 

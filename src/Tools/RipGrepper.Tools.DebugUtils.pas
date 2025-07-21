@@ -57,7 +57,9 @@ type
 		public
 			procedure Msg(const _sMsg : string; const _type : ETraceFilterType = tftInfo);
 			procedure ErrorMsg(const _sMsg : string);
+			procedure WarningMsg(const _sMsg : string);
 			procedure ErrorMsgFmt(const _sMsg : string; const _args : array of const);
+			procedure WarningMsgFmt(const _sMsg : string; const _args : array of const);
 			procedure MsgIf(const _bCondition : Boolean; const _sMsg : string; const _type : ETraceFilterType = tftInfo);
 			procedure MsgFmt(const _s : string; const _args : array of const; const _type : ETraceFilterType = tftInfo);
 			procedure MsgFmtIf(const _bCondition : Boolean; const _s : string; const _args : array of const;
@@ -189,9 +191,19 @@ begin
 	TDebugUtils.Msg(FProcName + ' - ERROR -' + _sMsg, tftError);
 end;
 
+procedure TDebugMsgBeginEnd.WarningMsg(const _sMsg : string);
+begin
+	TDebugUtils.Msg(FProcName + ' - WARNING -' + _sMsg, tftError);
+end;
+
 procedure TDebugMsgBeginEnd.ErrorMsgFmt(const _sMsg : string; const _args : array of const);
 begin
 	TDebugUtils.MsgFmt(FProcName + ' - ERROR -' + _sMsg, _args, tftError);
+end;
+
+procedure TDebugMsgBeginEnd.WarningMsgFmt(const _sMsg : string; const _args : array of const);
+begin
+	TDebugUtils.MsgFmt(FProcName + ' - WARNING -' + _sMsg, _args, tftError);
 end;
 
 procedure TDebugMsgBeginEnd.MsgIf(const _bCondition : Boolean; const _sMsg : string; const _type : ETraceFilterType = tftInfo);

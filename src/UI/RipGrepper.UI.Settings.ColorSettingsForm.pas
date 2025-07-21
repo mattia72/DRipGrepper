@@ -89,7 +89,7 @@ begin
 	var
 	colorTheme := FAppSettings.ColorTheme;
 	dbgMsg.Msg('colorTheme = ' + colorTheme);
-	TDarkModeHelper.SetThemeMode(colorTheme);
+	TDarkModeHelper.SetThemeByName(colorTheme, nil);
 	{$ENDIF}
 	FAllHeight := TColorSelectorFrame.AddSelectionFrames(FFontColorSettings.FontColors, self, ScrollBox1);
 	FAllHeight := FAllHeight + pnlBottom.Height;
@@ -183,7 +183,7 @@ begin
 		Exit;
 	end;
 	tm := EThemeMode(rgTheme.ItemIndex);
-	TDarkModeHelper.SetThemeMode(tm);
+	TDarkModeHelper.SetThemeByMode(tm, nil); // called only in standalone, component not used.
 	ThemeChanged();
 end;
 
