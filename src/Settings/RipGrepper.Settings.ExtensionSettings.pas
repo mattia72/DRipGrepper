@@ -10,11 +10,9 @@ uses
 	RipGrepper.Settings.SettingVariant;
 
 const
-	IS_GUITEST = FALSE; // {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
-	IS_EXTENSION = {$IFNDEF STANDALONE} TRUE; {$ELSE} FALSE; {$ENDIF}
-IS_STANDALONE = {$IFDEF STANDALONE} TRUE; {$ELSE} FALSE; {$ENDIF}
+	IS_GUITEST = TRUE; // {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
 
-type
+	type
 	TDelphiIDEContext = record
 		IDESearchContext : EDelphiIDESearchContext;
 		ActiveFile : string;
@@ -36,16 +34,20 @@ type
 			KEY_IDE_CONTEXT = 'IDESearchContext';
 			KEY_SHORTCUT_SEARCH_SELECTED = 'SearchSelectedShortcut';
 			KEY_SHORTCUT_OPENWITH = 'OpenWithShortcut';
+			KEY_HANDLE_OPEN_WITH_DELPHI_COMMANDS = 'HandleOpenWithDelphiCommands';
 
 		private
 			FSearchSelectedShortcut : IStringSetting;
 			FCurrentIDEContext : TDelphiIDEContext;
 			FIDEContext : IIntegerSetting;
 			FOpenWithShortCut : IStringSetting;
+			FHandleOpenWithDelphiCommands : IBoolSetting;
 			function GetCurrentIDEContext() : TDelphiIDEContext;
+			function GetHandleOpenWithDelphiCommands() : Boolean;
 			function GetOpenWithShortcut() : string;
 			function GetSearchSelectedShortcut() : string;
 			procedure SetCurrentIDEContext(const Value : TDelphiIDEContext);
+			procedure SetHandleOpenWithDelphiCommands(const Value : Boolean);
 			procedure SetOpenWithShortcut(const Value : string);
 			procedure SetSearchSelectedShortcut(const Value : string);
 
@@ -56,6 +58,7 @@ type
 			function ToLogString : string; override;
 			property SearchSelectedShortcut : string read GetSearchSelectedShortcut write SetSearchSelectedShortcut;
 			property OpenWithShortcut : string read GetOpenWithShortcut write SetOpenWithShortcut;
+			property HandleOpenWithDelphiCommands : Boolean read GetHandleOpenWithDelphiCommands write SetHandleOpenWithDelphiCommands;
 			property CurrentIDEContext : TDelphiIDEContext read GetCurrentIDEContext write SetCurrentIDEContext;
 	end;
 
@@ -96,6 +99,11 @@ begin
 	Result := FCurrentIDEContext;
 end;
 
+function TRipGrepperExtensionSettings.GetHandleOpenWithDelphiCommands() : Boolean;
+begin
+	Result := FHandleOpenWithDelphiCommands.Value;
+end;
+
 function TRipGrepperExtensionSettings.GetOpenWithShortcut() : string;
 begin
 	Result := FOpenWithShortcut.Value;
@@ -113,12 +121,14 @@ begin
 
 	FSearchSelectedShortcut := TStringSetting.Create(TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH);
 	FOpenWithShortCut := TStringSetting.Create(TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH);
+	FHandleOpenWithDelphiCommands := TBoolSetting.Create(False);
 
 	FIDEContext := TIntegerSetting.Create();
 	FCurrentIDEContext.IDESearchContext := EDelphiIDESearchContext.dicPath;
 
 	CreateSetting(KEY_SHORTCUT_SEARCH_SELECTED, FSearchSelectedShortcut);
 	CreateSetting(KEY_SHORTCUT_OPENWITH, FOpenWithShortCut);
+	CreateSetting(KEY_HANDLE_OPEN_WITH_DELPHI_COMMANDS, FHandleOpenWithDelphiCommands);
 	CreateSetting(KEY_IDE_CONTEXT, FIDEContext);
 end;
 
@@ -126,6 +136,11 @@ procedure TRipGrepperExtensionSettings.SetCurrentIDEContext(const Value : TDelph
 begin
 	FCurrentIDEContext := Value;
 	FIDEContext.Value := Integer(FCurrentIDEContext.IDESearchContext);
+end;
+
+procedure TRipGrepperExtensionSettings.SetHandleOpenWithDelphiCommands(const Value : Boolean);
+begin
+	FHandleOpenWithDelphiCommands.Value := Value;
 end;
 
 procedure TRipGrepperExtensionSettings.SetOpenWithShortcut(const Value : string);
@@ -140,8 +155,8 @@ end;
 
 function TRipGrepperExtensionSettings.ToLogString : string;
 begin
-	Result := Format('OpenWithShortcut=%s, SearchSelectedShortcut=%s, IDESearchContext=%s',
-		[OpenWithShortcut, SearchSelectedShortcut, CurrentIDEContext.ToLogString]);
+	Result := Format('OpenWithShortcut=%s, SearchSelectedShortcut=%s, HandleOpenWithDelphiCommands=%s, IDESearchContext=%s',
+		[OpenWithShortcut, SearchSelectedShortcut, BoolToStr(HandleOpenWithDelphiCommands, True), CurrentIDEContext.ToLogString]);
 end;
 
 function TDelphiIDEContext.ToLogString : string;
