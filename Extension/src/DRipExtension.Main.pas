@@ -11,7 +11,8 @@ uses
 	Vcl.Menus,
 	ArrayEx,
 	RipGrepper.Settings.ExtensionSettings,
-	System.Classes;
+	System.Classes,
+	DRipExtension.VSCodeBridge;
 
 type
 	// TNotifierObject has stub implementations for the necessary but
@@ -102,6 +103,14 @@ begin
 	var
 	searchFormSetting := TSingleton.GetInstance<TRipGrepperSettings>().SearchFormSettings;
 	TDripExtensionMenu.CreateMenu(GetMenuText, searchFormSetting.ExtensionSettings);
+
+	TThread.CreateAnonymousThread(
+		procedure
+		begin
+			var
+			dbgMsg := TDebugMsgBeginEnd.New('TThread.CreateAnonymousThread');
+			TVsCodeBridge.StartPipeServer();
+		end).Start;
 end;
 
 destructor TDRipExtension.Destroy;
