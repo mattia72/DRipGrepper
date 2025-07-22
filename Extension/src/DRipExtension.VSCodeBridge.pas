@@ -2,18 +2,21 @@ unit DRipExtension.VsCodeBridge;
 
 interface
 
+uses
+	System.Classes;
+
 type
 	TVsCodeBridge = class
 		const
 			PIPENAME = '\\.\pipe\vscode_delphi_bridge';
 
 		private
+			class var FServerThread : TThread;
+			class var FStopRequested : Boolean;
 			class procedure parseJsonAndDoTheJob(const s : string);
-
 		public
-			// Checks if the IDE window is active (dummy implementation)
-			class function IsWindowActive() : Boolean;
 			class procedure StartPipeServer();
+			class procedure StopPipeServer();
 	end;
 
 implementation
@@ -21,20 +24,14 @@ implementation
 uses
 	Windows,
 	SysUtils,
-	Classes,
 	Dialogs,
 	ShellApi,
 	ActiveX,
 	ComObj,
 	JSON,
-	RipGrepper.Tools.DebugUtils,
-	RipGrepper.Common.IOTAUtils;
-
-class function TVsCodeBridge.IsWindowActive : Boolean;
-begin
-	// TODO: Check if Delphi window is foreground
-	Result := True; // Always active (dummy)
-end;
+	RipGrepper.Tools.DebugUtils
+	{$IFNDEF STANDALONE},
+	RipGrepper.Common.IOTAUtils {$ENDIF};
 
 class procedure TVsCodeBridge.parseJsonAndDoTheJob(const s : string);
 var
@@ -42,7 +39,7 @@ var
 	filePath : string;
 	line : Integer;
 	column : Integer;
-	command: string;
+	command : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TVsCodeBridge.ListenToPipe');
@@ -54,17 +51,23 @@ begin
 			filePath := jsonObj.GetValue('filePath').Value;
 			line := StrToIntDef(jsonObj.GetValue('line').Value, 1);
 			column := StrToIntDef(jsonObj.GetValue('column').Value, 1);
-            command := jsonObj.GetValue('command').Value;
-            if command = 'gotoFileLocation' then
+			command := jsonObj.GetValue('command').Value;
+			if command = 'gotoFileLocation' then
 
-			TThread.Synchronize(nil,
-				procedure
-				begin
-					var
-					dbgMsg := TDebugMsgBeginEnd.New('TThread.Synchronize');
-					dbgMsg.Msg('Opening file: ' + filePath + ' at line ' + IntToStr(line) + ', column ' + IntToStr(column));
-					IOTAUtils.GxOtaGoToFileLineColumn(filePath, line, column, column - 1);
-				end);
+				TThread.Synchronize(nil,
+					procedure
+					begin
+						var
+						dbgMsg := TDebugMsgBeginEnd.New('TThread.Synchronize');
+						dbgMsg.Msg('Opening file: ' + filePath + ' at line ' + IntToStr(line) + ', column ' + IntToStr(column));
+						{$IFNDEF STANDALONE}
+						IOTAUtils.GxOtaGoToFileLineColumn(filePath, line, column, column - 1);
+						{$ENDIF}
+					end)
+			else if command = 'stop' then begin
+				dbgMsg.Msg('Stop command received');
+				// No action needed, just unblocks the pipe
+			end;
 		finally
 			jsonObj.Free;
 		end;
@@ -74,38 +77,102 @@ begin
 end;
 
 class procedure TVsCodeBridge.StartPipeServer();
-var hPipe : THandle; buffer : array [0 .. 4095] of Byte; bytesRead : DWORD;
-	s : string; dbgMsg : TDebugMsgBeginEnd;
 begin
+	var
 	dbgMsg := TDebugMsgBeginEnd.New('TVsCodeBridge.StartPipeServer');
-	dbgMsg.Msg('Pipe server started');
-	while True do begin
-		hPipe := CreateNamedPipe(PChar(PIPENAME), PIPE_ACCESS_INBOUND, PIPE_TYPE_BYTE or PIPE_READMODE_BYTE or PIPE_WAIT, 1, 4096,
-			4096, 0, nil);
-		if hPipe = INVALID_HANDLE_VALUE then begin
-			dbgMsg.Msg('Pipe could not be created!');
-			ShowMessage('Pipe konnte nicht erstellt werden!');
-			Exit;
-		end;
-		dbgMsg.Msg('Pipe created, waiting for client...');
-		// Wait for client (Node.js)
-		if ConnectNamedPipe(hPipe, nil) then begin
-			dbgMsg.Msg('Client connected');
-			if ReadFile(hPipe, buffer, SizeOf(buffer), bytesRead, nil) and (bytesRead > 0) then begin
-				SetString(s, PAnsiChar(@buffer), bytesRead);
-				dbgMsg.Msg('Received: ' + s);
-				// Process JSON data here
-				parseJsonAndDoTheJob(s);
-			end else begin
-				dbgMsg.Msg('No data received from client');
-			end;
-		end else begin
-			dbgMsg.Msg('Client connection failed');
-		end;
-		DisconnectNamedPipe(hPipe);
-		CloseHandle(hPipe);
-		dbgMsg.Msg('Pipe closed');
+
+	if Assigned(FServerThread) and not FServerThread.Finished then begin
+		dbgMsg.Msg('Pipe server already running');
+		Exit;
+	end else begin
+		FServerThread.Free;
+		dbgMsg.Msg('Starting pipe server');
 	end;
+
+	FStopRequested := False;
+	FServerThread := TThread.CreateAnonymousThread(
+		procedure
+		var
+			hPipe : THandle;
+			buffer : array [0 .. 4095] of Byte;
+			bytesRead : DWORD;
+			s : string;
+			dbgMsg : TDebugMsgBeginEnd;
+		begin
+			dbgMsg := TDebugMsgBeginEnd.New('TVsCodeBridge.StartPipeServer Thread');
+
+			while not FStopRequested do begin
+				hPipe := CreateNamedPipe(PChar(PIPENAME), PIPE_ACCESS_INBOUND, PIPE_TYPE_BYTE or PIPE_READMODE_BYTE or PIPE_WAIT, 1, 4096,
+					4096, 1000, nil); // 1 second timeout
+				if hPipe = INVALID_HANDLE_VALUE then begin
+					dbgMsg.Msg('Pipe could not be created!');
+					Exit;
+				end;
+				dbgMsg.Msg('Pipe created, waiting for client...');
+
+				// Wait for client with timeout
+				if ConnectNamedPipe(hPipe, nil) or (GetLastError = ERROR_PIPE_CONNECTED) then begin
+					if not FStopRequested then begin
+						dbgMsg.Msg('Client connected');
+						if ReadFile(hPipe, buffer, SizeOf(buffer), bytesRead, nil) and (bytesRead > 0) then begin
+							SetString(s, PAnsiChar(@buffer), bytesRead);
+							dbgMsg.Msg('Received: ' + s);
+							// Process JSON data here
+							parseJsonAndDoTheJob(s);
+						end else begin
+							dbgMsg.Msg('No data received from client');
+						end;
+					end;
+				end else begin
+					dbgMsg.Msg('Client connection failed or timeout');
+				end;
+				DisconnectNamedPipe(hPipe);
+				CloseHandle(hPipe);
+				dbgMsg.Msg('Pipe closed');
+			end;
+			dbgMsg.Msg('Pipe server stopped');
+		end);
+	FServerThread.Start;
+end;
+
+class procedure TVsCodeBridge.StopPipeServer();
+var
+	hClientPipe: THandle;
+	bytesWritten: DWORD;
+	stopCommand: AnsiString;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TVsCodeBridge.StopPipeServer');
+
+	if not Assigned(FServerThread) or FServerThread.Finished then begin
+		dbgMsg.Msg('Pipe server not running');
+		Exit;
+	end;
+
+	dbgMsg.Msg('StopRequest set');
+	FStopRequested := True;
+
+	// Send a dummy command to unblock the pipe server
+	dbgMsg.Msg('Sending stop command to unblock pipe...');
+	try
+		hClientPipe := CreateFile(PChar(PIPENAME), GENERIC_WRITE, 0, nil, OPEN_EXISTING, 0, 0);
+		if hClientPipe <> INVALID_HANDLE_VALUE then begin
+			stopCommand := '{"command":"stop"}';
+			WriteFile(hClientPipe, stopCommand[1], Length(stopCommand), bytesWritten, nil);
+			CloseHandle(hClientPipe);
+			dbgMsg.Msg('Stop command sent');
+		end else begin
+			dbgMsg.Msg('Could not connect to pipe to send stop command');
+		end;
+	except
+		on E: Exception do
+			dbgMsg.Msg('Exception sending stop command: ' + E.Message);
+	end;
+
+	// Wait for thread to finish
+	// FServerThread.WaitFor;
+	FreeAndNil(FServerThread);
+	dbgMsg.Msg('Pipe server stopped');
 end;
 
 end.

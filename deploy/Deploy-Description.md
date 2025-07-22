@@ -17,6 +17,7 @@ https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
 ## 💥 Improvements:
 Marked with a checkmark if ready; otherwise, it is planned.
 - [x] advanced settings on separate tab in settings dialog
+- [x] **extension**: receive and handle OpenInDelphi commands from VSCode
 - [ ] search for file names eg. `rg.exe -g='*pattern*' --files <DIR>`
 - [ ] **extension**: display save all files message before search?
 - [ ] **extension**: predefined patterns for search type, function, definition, etc.
@@ -25,7 +26,7 @@ Marked with a checkmark if ready; otherwise, it is planned.
 
 ## 🐞 Bugs:
 Marked with checkmark if fixed, else it is a known bug.
-- [o] 0 matches loaded results on startup, are displayed as 1 match and rg.exe has no output msg.
+- [ ] if loaded results has 0 matches item, reading ends with error
 - [ ] after theme change some controls are not redrawn
 - [ ] **extension**: if search only in current file, path of the file is not saved in history
 - [ ] **extension**: drip icon in menu has no transparent background

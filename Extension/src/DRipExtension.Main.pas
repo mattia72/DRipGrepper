@@ -23,6 +23,7 @@ type
 			FKeyNotifier : IOTAKeyboardBinding;
 			FKeyBinding : integer;
 			FiPluginIndexAbout : Integer;
+			FExtensionSettings : TRipGrepperExtensionSettings;
 			procedure InitPluginInfo;
 			// **********************************************************************************************************************
 			// Plugin-Infos entfernen
@@ -43,6 +44,8 @@ type
 			procedure InitKeyboardNotifier;
 			procedure RegisterKeyboardBinding;
 			procedure UnregisterKeyboardBinding;
+			// VSCode Bridge management
+			procedure UpdateVSCodeBridgeState();
 
 	end;
 
@@ -102,21 +105,19 @@ begin
 
 	var
 	searchFormSetting := TSingleton.GetInstance<TRipGrepperSettings>().SearchFormSettings;
-	TDripExtensionMenu.CreateMenu(GetMenuText, searchFormSetting.ExtensionSettings);
-
-	TThread.CreateAnonymousThread(
-		procedure
-		begin
-			var
-			dbgMsg := TDebugMsgBeginEnd.New('TThread.CreateAnonymousThread');
-			TVsCodeBridge.StartPipeServer();
-		end).Start;
+	FExtensionSettings := searchFormSetting.ExtensionSettings;
+	TDripExtensionMenu.CreateMenu(GetMenuText, FExtensionSettings);
+	UpdateVSCodeBridgeState;
 end;
 
 destructor TDRipExtension.Destroy;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.Destroy');
+
+	// Stop VSCode bridge if running
+	// TVsCodeBridge.StopPipeServer();
+
 	RemovePluginInfo;
 	TRipGrepperDockableForm.DestroyInstance;
 	inherited;
@@ -222,6 +223,20 @@ begin
 	else
 		// FKeyNotifier.Free;
 		FKeyNotifier := nil;
+end;
+
+procedure TDRipExtension.UpdateVSCodeBridgeState();
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.UpdateVSCodeBridgeState');
+
+	if FExtensionSettings.HandleOpenWithDelphiCommands then begin
+		dbgMsg.Msg('Starting VSCode bridge as HandleOpenWithDelphiCommands is enabled');
+		TVsCodeBridge.StartPipeServer();
+	end else begin
+		dbgMsg.Msg('Stopping VSCode bridge as HandleOpenWithDelphiCommands is disabled');
+		TVsCodeBridge.StopPipeServer();
+	end;
 end;
 
 initialization

@@ -2,7 +2,7 @@ object ExtensionSettingsForm: TExtensionSettingsForm
   Left = 0
   Top = 0
   Caption = 'ExtensionSettingsForm'
-  ClientHeight = 273
+  ClientHeight = 362
   ClientWidth = 636
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,20 +16,17 @@ object ExtensionSettingsForm: TExtensionSettingsForm
     Left = 0
     Top = 0
     Width = 636
-    Height = 273
+    Height = 362
     Align = alClient
     TabOrder = 0
-    DesignSize = (
-      636
-      273)
     object grpShortcuts: TGroupBox
-      Left = 17
-      Top = 8
-      Width = 598
+      Left = 1
+      Top = 119
+      Width = 634
       Height = 100
-      Anchors = [akLeft, akTop, akRight]
+      Align = alTop
       Caption = 'Shortcuts'
-      TabOrder = 0
+      TabOrder = 1
       object lblOpenWith: TLabel
         Left = 36
         Top = 28
@@ -62,15 +59,15 @@ object ExtensionSettingsForm: TExtensionSettingsForm
       end
     end
     object grpInstallation: TGroupBox
-      Left = 17
-      Top = 114
-      Width = 598
+      Left = 1
+      Top = 1
+      Width = 634
       Height = 118
-      Anchors = [akLeft, akTop, akRight]
+      Align = alTop
       Caption = 'Install as Delphi IDE Extension'
-      TabOrder = 1
+      TabOrder = 0
       DesignSize = (
-        598
+        634
         118)
       object lblVersionInfo: TLabel
         Left = 16
@@ -89,18 +86,18 @@ object ExtensionSettingsForm: TExtensionSettingsForm
         OnChange = cmbDelphiVersionsChange
       end
       object btnInstallPackage: TButton
-        Left = 506
+        Left = 542
         Top = 55
         Width = 78
         Height = 21
         Action = ActionExtensionInstall
         Anchors = [akRight, akBottom]
-        TabOrder = 1
+        TabOrder = 2
       end
       object btnedtDllPath: TButtonedEdit
         Left = 16
         Top = 55
-        Width = 484
+        Width = 520
         Height = 23
         Anchors = [akLeft, akTop, akRight]
         Color = clInfoBk
@@ -114,10 +111,27 @@ object ExtensionSettingsForm: TExtensionSettingsForm
         RightButton.ImageIndex = 1
         RightButton.ImageName = 'folder-opened'
         RightButton.Visible = True
-        TabOrder = 2
+        TabOrder = 1
         Text = 'Dll path...'
         TextHint = 'Rg.exe path...'
         OnRightButtonClick = btnedtDllPathRightButtonClick
+      end
+    end
+    object grpVsCodeIntegration: TGroupBox
+      Left = 1
+      Top = 219
+      Width = 634
+      Height = 67
+      Align = alTop
+      Caption = 'Visual Studio Code Integration'
+      TabOrder = 2
+      object chkHandleOpenInDelphiCommands: TCheckBox
+        Left = 16
+        Top = 25
+        Width = 211
+        Height = 17
+        Caption = 'Handle Open in Delphi commands'
+        TabOrder = 0
       end
     end
   end

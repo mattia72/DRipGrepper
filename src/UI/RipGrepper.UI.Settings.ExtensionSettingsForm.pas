@@ -44,6 +44,8 @@ type
 		btnedtDllPath : TButtonedEdit;
 		SVGIconImageList1 : TSVGIconImageList;
 		lblVersionInfo : TLabel;
+		grpVsCodeIntegration : TGroupBox;
+		chkHandleOpenInDelphiCommands : TCheckBox;
 		procedure ActionExtensionInstallExecute(Sender : TObject);
 		procedure btnedtDllPathRightButtonClick(Sender : TObject);
 		procedure cmbDelphiVersionsChange(Sender : TObject);
@@ -91,8 +93,9 @@ implementation
 
 uses
 	RipGrepper.Tools.DebugUtils,
-	{$IFNDEF STANDALONE}
+	{$IF IS_EXTENSION}
 	DRipExtension.Menu,
+	DRipExtension.VSCodeBridge,
 	{$ENDIF}
 	Vcl.Menus,
 	RipGrepper.Tools.PackageInstall,
@@ -252,8 +255,18 @@ end;
 procedure TExtensionSettingsForm.OnSettingsUpdated();
 begin
 	// here you can update things depending on changed settings
-	{$IFNDEF STANDALONE}
+	{$IF IS_EXTENSION}
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TExtensionSettingsForm.OnSettingsUpdated');
+
 	TDripExtensionMenu.CreateMenu(EXTENSION_MENU_ROOT_TEXT, FExtensionSettings);
+	if FExtensionSettings.HandleOpenWithDelphiCommands then begin
+		dbgMsg.Msg('Starting VSCode bridge as HandleOpenWithDelphiCommands is enabled');
+		TVsCodeBridge.StartPipeServer();
+	end else begin
+		dbgMsg.Msg('Stopping VSCode bridge as HandleOpenWithDelphiCommands is disabled');
+		TVsCodeBridge.StopPipeServer();
+	end;
 	{$ENDIF}
 end;
 
@@ -266,6 +279,7 @@ begin
 	{$IF IS_GUITEST OR IS_EXTENSION}
 	hkedtOpenWidth.HotKey := TextToShortCut(FExtensionSettings.OpenWithShortcut);
 	hkedtSearchSelected.HotKey := TextToShortCut(FExtensionSettings.SearchSelectedShortcut);
+	chkHandleOpenInDelphiCommands.Checked := FExtensionSettings.HandleOpenWithDelphiCommands;
 	{$ENDIF}
 end;
 
@@ -352,6 +366,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TExtensionSettingsForm.WriteSettings');
 	FExtensionSettings.OpenWithShortcut := ShortCutToText(hkedtOpenWidth.HotKey);
 	FExtensionSettings.SearchSelectedShortcut := ShortCutToText(hkedtSearchSelected.HotKey);
+	FExtensionSettings.HandleOpenWithDelphiCommands := chkHandleOpenInDelphiCommands.Checked;
 	{$ENDIF}
 end;
 

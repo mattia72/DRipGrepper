@@ -13,11 +13,11 @@ uses
 	RipGrepper.Common.SimpleTypes;
 
 const
-	{ }{$IFDEF WIN64}
-	APP_PLATFORM = 'x64';
-	{ } {$ELSE}
-	APP_PLATFORM = 'x86';
-	{ }	{$ENDIF}
+
+	APP_PLATFORM = {$IFDEF WIN64} 'x64' {$ELSE} 'x86' {$ENDIF};
+	IS_EXTENSION = {$IFNDEF STANDALONE} TRUE {$ELSE} FALSE {$ENDIF};
+	IS_STANDALONE = {$IFDEF STANDALONE} TRUE {$ELSE} FALSE {$ENDIF};
+
 	RG_EXE = 'rg.exe';
 
 	DRIPGREPPER_APPNAME = 'DRipGrepper';
@@ -290,7 +290,7 @@ const
 type
 	TDefaults = class
 		private
-			class function GetColumnIndex(Index: string): integer; static;
+			class function GetColumnIndex(Index : string) : integer; static;
 			class function GetColumnTitle(Index : EColumnIndex) : string; static;
 
 		public const
@@ -301,7 +301,7 @@ type
 			class var EXT_DEFAULT_SHORTCUT_SEARCH : string;
 			class var EXT_DEFAULT_SHORTCUT_OPEN_WITH : string;
 			class constructor Create;
-			class property ColumnIndex[Index: string]: integer read GetColumnIndex;
+			class property ColumnIndex[index : string] : integer read GetColumnIndex;
 			class property ColumnTitle[index : EColumnIndex] : string read GetColumnTitle; default;
 	end;
 
@@ -317,12 +317,12 @@ begin
 	EXT_DEFAULT_SHORTCUT_OPEN_WITH := ShortCutToText(ShortCut(Word('O'), [ssShift, ssAlt]));
 end;
 
-class function TDefaults.GetColumnIndex(Index: string): integer;
+class function TDefaults.GetColumnIndex(Index : string) : integer;
 var
-	arrTitles: TArrayEx<string>;
+	arrTitles : TArrayEx<string>;
 begin
 	arrTitles := TREEVIEW_COLUMN_TITLES;
-	Result := arrTitles.IndexOf(Index);
+	Result := arrTitles.IndexOf(index);
 end;
 
 class function TDefaults.GetColumnTitle(Index : EColumnIndex) : string;
