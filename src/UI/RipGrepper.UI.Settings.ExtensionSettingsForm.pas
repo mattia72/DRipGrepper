@@ -261,10 +261,10 @@ begin
 
 	TDripExtensionMenu.CreateMenu(EXTENSION_MENU_ROOT_TEXT, FExtensionSettings);
 	if FExtensionSettings.HandleOpenWithDelphiCommands then begin
-		dbgMsg.Msg('Starting VSCode bridge as HandleOpenWithDelphiCommands is enabled');
+		dbgMsg.Msg('TVsCodeBridge.StartPipeServer as HandleOpenWithDelphiCommands is enabled');
 		TVsCodeBridge.StartPipeServer();
 	end else begin
-		dbgMsg.Msg('Stopping VSCode bridge as HandleOpenWithDelphiCommands is disabled');
+		dbgMsg.Msg('TVsCodeBridge.StopPipeServer as HandleOpenWithDelphiCommands is disabled');
 		TVsCodeBridge.StopPipeServer();
 	end;
 	{$ENDIF}
