@@ -289,7 +289,6 @@ class procedure TDarkModeHelper.SetThemeByMode(const _mode : EThemeMode; _compon
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.SetThemeByMode');
-	dbgMsg.MsgFmt('on %s', [_component.Name]);
 	case _mode of
 		tmDark : begin
 			setDarkThemeMode(_component);
@@ -327,6 +326,8 @@ begin
 	dbgMsg.MsgFmt('Theme name: %s', [_themeName]);
 	if Assigned(_component) then begin
 		dbgMsg.MsgFmt('Component name: %s', [_component.Name]);
+	end else begin
+		dbgMsg.Msg('Component is nil');
 	end;
 	TDarkModeHelper.applyTheme(_themeName, _component);
 end;
