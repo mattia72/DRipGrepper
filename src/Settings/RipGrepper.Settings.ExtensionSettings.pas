@@ -10,7 +10,7 @@ uses
 	RipGrepper.Settings.SettingVariant;
 
 const
-	IS_GUITEST = TRUE; // {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
+	IS_GUITEST = FALSE; // {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
 
 	type
 	TDelphiIDEContext = record
