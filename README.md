@@ -80,7 +80,7 @@ Many settings can be set in the config form, but some are only available in the 
   - [x] Delete history entries
   - [x] Copy path, etc.
   - [x] Add file to `uses` list in interface/implementation section
-- [x] Handling [OpenInDelphi](https://github.com/mattia72/OpenInDelphi) commands from VS Code
+- [x] Handling [OpenInDelphi](https://marketplace.visualstudio.com/items?itemName=Mattia72-OpenInDelphi.openindelphi) commands from VS Code
 
 ## Installation 
 
