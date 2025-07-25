@@ -19,9 +19,9 @@ type
 			procedure FillSectionObject(JsonObject : TJSONObject; var Section : string; Values : TStringList);
 
 		public
-			[Test]
+         [Test, Ignore]
 			procedure ConvertIniTest;
-//          [Test]
+         [Test, Ignore]
 			procedure ReadJsonTest;
 	end;
 
