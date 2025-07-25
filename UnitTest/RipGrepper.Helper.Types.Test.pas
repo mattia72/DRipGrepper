@@ -73,10 +73,18 @@ type
 			[Test]
 			procedure TestGetLine;
 			[Test]
+			procedure TestGetLineWithEqualsChar;
+			[Test]
+			procedure TestGetLineWithSpecialChars;
+			[Test]
+			procedure TestIsMultiLineWithDifferentLineEndings;
+			[Test]
 			[TestCase('empty', ',0')]
-			[TestCase('CRLF', CRLF + ',1')]
+			[TestCase('CRLF only', CRLF + ',2')]
 			[TestCase('one line', 'one line,1')]
 			[TestCase('two line', 'one line' + CRLF + 'two line,2')]
+			[TestCase('line with equals', 'key=value,1')]
+			[TestCase('multiline with equals', 'key=value' + CRLF + 'another=line,2')]
 			procedure TestGetLineCount(const _str : string; const _count : Integer);
 	end;
 
@@ -371,6 +379,87 @@ var
 begin
 	str := _str;
 	Assert.AreEqual(str.GetLineCount(), _count, '"' + str + '" line count should be ' + _count.ToString);
+end;
+
+procedure TMultiLineStringTest.TestGetLineWithEqualsChar;
+var
+	str : TMultiLineString;
+begin
+	// Test single line with equals - this is the main bug from GitHub issue #15
+	str := 'key=value';
+	Assert.AreEqual('key=value', str.GetLine(0), 'Single line with equals should return the full string');
+	Assert.IsFalse(str.IsMultiLine(), 'Single line with equals should not be detected as multiline');
+	Assert.AreEqual(1, str.GetLineCount(), 'Single line with equals should have count 1');
+	
+	// Test multiline with equals
+	str := 'key=value' + CRLF + 'another=line';
+	Assert.AreEqual('key=value', str.GetLine(0), 'First line with equals should be returned correctly');
+	Assert.AreEqual('another=line', str.GetLine(1), 'Second line with equals should be returned correctly');
+	Assert.IsTrue(str.IsMultiLine(), 'Multiline with equals should be detected as multiline');
+	Assert.AreEqual(2, str.GetLineCount(), 'Multiline with equals should have count 2');
+	
+	// Test with multiple equals on same line
+	str := 'key1=value1=extra' + CRLF + 'key2=value2';
+	Assert.AreEqual('key1=value1=extra', str.GetLine(0), 'Line with multiple equals should be preserved');
+	Assert.AreEqual('key2=value2', str.GetLine(1), 'Second line should be correct');
+	Assert.AreEqual(2, str.GetLineCount(), 'Lines with multiple equals should have correct count');
+	
+	// Test complex case with empty lines and equals
+	str := 'first=line' + CRLF + '' + CRLF + 'third=line';
+	Assert.AreEqual('first=line', str.GetLine(0), 'First line with equals should be correct');
+	Assert.AreEqual('', str.GetLine(1), 'Empty middle line should be empty string');
+	Assert.AreEqual('third=line', str.GetLine(2), 'Third line with equals should be correct');
+	Assert.AreEqual(3, str.GetLineCount(), 'Complex case should have correct line count');
+	
+	// Test edge case: just equals sign
+	str := '=' + CRLF + 'value=';
+	Assert.AreEqual('=', str.GetLine(0), 'Line with just equals should be preserved');
+	Assert.AreEqual('value=', str.GetLine(1), 'Line ending with equals should be preserved');
+	Assert.AreEqual(2, str.GetLineCount(), 'Edge case should have correct count');
+end;
+
+procedure TMultiLineStringTest.TestGetLineWithSpecialChars;
+var
+	str : TMultiLineString;
+begin
+	// Test with various special characters that could cause parsing issues
+	str := 'line with spaces and symbols: @#$%^&*()' + CRLF + 'second=line';
+	Assert.AreEqual('line with spaces and symbols: @#$%^&*()', str.GetLine(0), 'Line with special chars should be preserved');
+	Assert.AreEqual('second=line', str.GetLine(1), 'Second line should be correct');
+	
+	// Test with quotes and equals
+	str := 'key="value with spaces"' + CRLF + 'path=C:\folder\file.txt';
+	Assert.AreEqual('key="value with spaces"', str.GetLine(0), 'Line with quotes should be preserved');
+	Assert.AreEqual('path=C:\folder\file.txt', str.GetLine(1), 'Line with path should be preserved');
+end;
+
+procedure TMultiLineStringTest.TestIsMultiLineWithDifferentLineEndings;
+var
+	str : TMultiLineString;
+begin
+	// Test with CRLF (Windows)
+	str := 'line1' + CRLF + 'line2';
+	Assert.IsTrue(str.IsMultiLine(), 'CRLF should be detected as multiline');
+	
+	// Test with LF only (Unix)
+	str := 'line1' + LF + 'line2';
+	Assert.IsTrue(str.IsMultiLine(), 'LF should be detected as multiline');
+	
+	// Test with CR only (Mac)
+	str := 'line1' + CR + 'line2';
+	Assert.IsTrue(str.IsMultiLine(), 'CR should be detected as multiline');
+	
+	// Test single line with no line endings
+	str := 'single line with equals=sign';
+	Assert.IsFalse(str.IsMultiLine(), 'Single line should not be detected as multiline');
+	
+	// Test mixed line endings
+	str := 'line1' + CRLF + 'line2' + LF + 'line3' + CR + 'line4';
+	Assert.IsTrue(str.IsMultiLine(), 'Mixed line endings should be detected as multiline');
+	Assert.AreEqual('line1', str.GetLine(0), 'First line should be correct');
+	Assert.AreEqual('line2', str.GetLine(1), 'Second line should be correct');
+	Assert.AreEqual('line3', str.GetLine(2), 'Third line should be correct');
+	Assert.AreEqual('line4', str.GetLine(3), 'Fourth line should be correct');
 end;
 
 procedure TFileUtilsTest.DeleteDirTest;
