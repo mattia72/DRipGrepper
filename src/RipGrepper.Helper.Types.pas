@@ -367,8 +367,8 @@ end;
 
 function TMultiLineStringHelper.IsMultiLine : Boolean;
 begin
-	Result := (string(self).IndexOf(CR) <> -1) or 
-	          (string(self).IndexOf(LF) <> -1);
+	Result := (string(self).IndexOf(CR) <> -1) or
+	{ } (string(self).IndexOf(LF) <> -1);
 end;
 
 class function TConversions<T>.StringToEnumeration(x : string) : T;

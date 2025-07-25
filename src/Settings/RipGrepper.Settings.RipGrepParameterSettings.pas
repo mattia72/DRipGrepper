@@ -115,8 +115,9 @@ var
 	sParam : string;
 	argName : string;
 	argValue : string;
+	sText: string;
 begin
-	for var argKeyValue in RipGrepArguments do begin
+	for var argKeyValue : string in RipGrepArguments do begin
 		arrParamValue := argKeyValue.Split(['=']);
 		key := arrParamValue[0];
 		// if key = RG_ARG_REPLACE_TEXT then begin
@@ -124,17 +125,18 @@ begin
 		// end;
 
 		argName := arrParamValue.SafeItem[1];
-		argVAlue := arrParamValue.SafeItem[2];
+		argValue := arrParamValue.SafeItem[2];
 
-		sParam := IfThen(argVAlue.IsEmpty, argName, argName + '=' + argValue);
 		if (key = RG_ARG_OPTIONS) then begin
+			sParam := IfThen(argValue.IsEmpty, argName, argName + '=' + argValue);
 			if (_shell = TShellType.stPowershell) then begin
 				if TRegEx.IsMatch(argName, RG_PARAM_REGEX_GLOB) then begin
 					sParam := argName + '=' + argValue.QuotedString(_quoteChar);
 				end;
 			end;
 		end else if MatchStr(key, [RG_ARG_SEARCH_PATH, RG_ARG_SEARCH_TEXT]) then begin
-			sParam := argName.QuotedString(_quoteChar);
+			sText := string.Join('=', arrParamValue.Items, 1, arrParamValue.MaxIndex);
+			sParam := sText.QuotedString(_quoteChar);
 		end;
 		_cmdLine.Add(sParam);
 	end;
