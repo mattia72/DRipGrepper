@@ -296,7 +296,7 @@ begin
 	_sw.WriteLineAsBool(IsReplaceMode);
 
 	dbgMsg.MsgFmt('ReplaceText %s', [ReplaceText]);
-	_sw.WriteLine(ReplaceText);
+	_sw.WriteLineAsString(ReplaceText, true);
 end;
 
 procedure TGuiSearchTextParams.SetReplaceText(const Value : string);

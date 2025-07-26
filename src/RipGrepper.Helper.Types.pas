@@ -344,18 +344,13 @@ end;
 
 function TMultiLineStringHelper.GetLine(const _lineNum : Integer) : string;
 var
-	strList : TStringList;
+	lines : TArray<string>;
 begin;
 	Result := '';
 	if self.IsMultiLine then begin
-		strList := TStringList.Create();
-		try
-			strList.Text := string(self);
-			if _lineNum < strList.Count then begin
-				Result := strList[_lineNum];
-			end;
-		finally
-			strList.Free;
+		lines := string(self).Split([CRLF, CR, LF], TStringSplitOptions.None);
+		if _lineNum < Length(lines) then begin
+			Result := lines[_lineNum];
 		end;
 	end else begin;
 		Result := self;
@@ -364,20 +359,16 @@ end;
 
 function TMultiLineStringHelper.GetLineCount : Integer;
 var
-	strList : TStringList;
+	lines : TArray<string>;
 begin
-	strList := TStringList.Create();
-	try
-		strList.Text := string(self);
-		Result := strList.Count;
-	finally
-		strList.Free;
-	end;
+	lines := string(self).Split([CRLF, CR, LF], TStringSplitOptions.None);
+	Result := Length(lines);
 end;
 
 function TMultiLineStringHelper.IsMultiLine : Boolean;
 begin
-	Result := string(self).IndexOf(CRLF) <> -1;
+	Result := (string(self).IndexOf(CR) <> -1) or
+	{ } (string(self).IndexOf(LF) <> -1);
 end;
 
 class function TConversions<T>.StringToEnumeration(x : string) : T;

@@ -368,15 +368,25 @@ begin
 end;
 
 procedure TParsedObjectRowCollection.SaveToStreamWriter(_sw : TStreamWriter);
+var
+	cd : TColumnData;
+	row : IParsedObjectRow;
 begin
-	_sw.WriteLine(FItems.Count);
-	for var row : IParsedObjectRow in FItems do begin
-		_sw.WriteLine(Ord(row.ParserType));
-		for var sTitle in TREEVIEW_COLUMN_TITLES do begin
-			var
-			cd := row.GetColumnByTitle(sTitle);
-			_sw.WriteLine(cd.Title + ARRAY_SEPARATOR + cd.Text);
-			// ParserType?
+	if (FITems.Count = 1) then begin
+		row := FItems[0]; // so we avoid memory leak ? no 
+ 		cd := row.GetColumnByTitle(FILE_COLUMN);
+		if cd.Text.EndsWith(RG_HAS_NO_OUTPUT) then begin
+			_sw.WriteLineAsInteger(0);
+		end;
+	end else begin
+		_sw.WriteLineAsInteger(FItems.Count);
+		for row in FItems do begin
+			_sw.WriteLineAsInteger(Ord(row.ParserType));
+			for var sTitle in TREEVIEW_COLUMN_TITLES do begin
+				cd := row.GetColumnByTitle(sTitle);
+				_sw.WriteLineAsString(cd.Title + ARRAY_SEPARATOR + cd.Text);
+				// ParserType?
+			end;
 		end;
 	end;
 end;

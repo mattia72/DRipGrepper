@@ -379,10 +379,10 @@ begin
 
 	GuiSearchTextParams.SaveToStreamWriter(_sw);
 	dbgmsg.MsgFmt('RipGrepArguments.Count = %d', [RipGrepArguments.Count]);
-	_sw.WriteLine(RipgrepArguments.Count);
+	_sw.WriteLineAsInteger(RipgrepArguments.Count);
 	for var s in RipGrepArguments() do begin
 		dbgMsg.MsgFmt('RipGrepArguments = %s', [s]);
-		_sw.WriteLine(s);
+		_sw.WriteLineAsString(s);
 	end;
 	SearchFormSettings.SaveToStreamWriter(_sw);
 	if ShouldSaveResult then begin
