@@ -301,7 +301,7 @@ begin
 				RG_SUCCESS :
 				;
 				RG_NO_MATCH :
-				NewLineEventHandler(_newLineHandler, p.Executable + RG_HAS_NO_OUTUT);
+				NewLineEventHandler(_newLineHandler, p.Executable + RG_HAS_NO_OUTPUT);
 				RG_ERROR :
 				NewLineEventHandler(_newLineHandler, p.Executable + RG_ENDED_ERROR + p.ExitStatus.ToString);
 			end;

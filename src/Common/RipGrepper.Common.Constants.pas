@@ -250,7 +250,7 @@ const
 	RG_REPORTED_ERROR_MSG = 'rg.exe reported error.';
 
 	RG_ENDED_ERROR = ' failed with exit code: ';
-	RG_HAS_NO_OUTUT = ' has no output.';
+	RG_HAS_NO_OUTPUT = ' has no output.';
 	RG_STATS_LINE = 'search statistics:';
 
 	MSG_FORMAT_TOO_MANY_RESULTS = 'Too many results.' + CRLF + 'The first %d will be shown. Try to be more specific.';
@@ -285,7 +285,8 @@ type
 	EColumnIndex = (ciFile, ciRow, ciCol, ciText, ciMatchText, ciTextAfterMatch);
 
 const
-	TREEVIEW_COLUMN_TITLES : TArray<string> = ['File', 'Row', 'Col', 'Text', 'MatchText', 'TextAfterMatch'];
+	FILE_COLUMN = 'File';
+	TREEVIEW_COLUMN_TITLES : TArray<string> = [FILE_COLUMN, 'Row', 'Col', 'Text', 'MatchText', 'TextAfterMatch'];
 
 type
 	TDefaults = class

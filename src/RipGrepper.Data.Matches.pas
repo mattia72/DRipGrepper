@@ -283,7 +283,7 @@ begin
 				nodeData := TVSFileNodeData.New(_sFileColumnText.Remove(0, RG_ERROR_MSG_PREFIX.Length));
 				AddVSTStructure(node, nodeData, true);
 				Exit;
-			end else if _sFileColumnText.EndsWith(RG_HAS_NO_OUTUT) then begin
+			end else if _sFileColumnText.EndsWith(RG_HAS_NO_OUTPUT) then begin
 				FErrorCounters.FIsNoOutputError := True;
 				NoMatchFound := True;
 				Exit;
