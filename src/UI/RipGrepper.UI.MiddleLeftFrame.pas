@@ -27,7 +27,8 @@ uses
 	SVGIconImageListBase,
 	SVGIconImageList,
 	RipGrepper.UI.IFrameEvents,
-	System.UITypes;
+	System.UITypes, VirtualTrees.BaseAncestorVCL, VirtualTrees.BaseTree,
+  VirtualTrees.AncestorVCL;
 
 type
 
