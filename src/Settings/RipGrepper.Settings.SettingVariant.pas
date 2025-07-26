@@ -212,7 +212,7 @@ implementation
 uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Common.Constants,
-	System.StrUtils;
+	System.StrUtils, RipGrepper.Helper.StreamReaderWriter;
 
 constructor TSettingVariant<T>.Create(const _value : T;
 	{ } _state : TSettingState = ssInitialized;
@@ -292,7 +292,7 @@ procedure TSettingVariant<T>.LoadFromStreamReader(_sr : TStreamReader);
 begin
 	// FSettingType := TSettingType(_sr.ReadLine().ToInteger);
 	FSaveBehaviour := TSettingStoreBehavioursHelper.FromString(_sr.ReadLine());
-	FState := TSettingState(_sr.ReadLine().ToInteger());
+	FState := TSettingState(_sr.ReadLineAsInteger());
 	Value := GetValueFromString(_sr.ReadLine());
 end;
 

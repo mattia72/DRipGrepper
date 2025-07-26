@@ -165,7 +165,8 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	Spring,
 	RipGrepper.Settings.AppSettings,
-	RipGrepper.Common.LoadHistoryMode;
+	RipGrepper.Common.LoadHistoryMode, 
+	RipGrepper.Helper.StreamReaderWriter;
 
 {$R *.dfm}
 
@@ -985,8 +986,11 @@ var
 	count : integer;
 	nodeData : TVSHistoryNodeData;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.VstHistoryLoadTree');
+
 	sr := Shared.Make<TStreamReader>(TStreamReader.Create(Stream));
-	count := StrToIntDef(sr.ReadLine(), 0);
+	count := sr.ReadLineAsInteger();
 
 	VstHistory.Clear; // LoadFile creates the nodes, we should clear it
 	for var i := 0 to count - 1 do begin

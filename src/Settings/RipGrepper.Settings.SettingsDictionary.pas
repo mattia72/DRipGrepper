@@ -64,7 +64,8 @@ uses
 	System.SysUtils,
 	RipGrepper.Helper.Types,
 	Spring,
-	System.RegularExpressions;
+	System.RegularExpressions,
+	RipGrepper.Helper.StreamReaderWriter;
 
 constructor TSettingsDictionary.Create(const _section : string; _ownerPersister : IPersisterFactory);
 begin
@@ -117,7 +118,8 @@ var
 begin
 	i := 0;
 	for var cmd in TArraySetting(_setting).AsArray do begin
-		var s : ISetting := TStringSetting.Create(cmd);
+		var
+			s : ISetting := TStringSetting.Create(cmd);
 		s.SaveBehaviour := _setting.SaveBehaviour;
 		s.State := _setting.State;
 		var
@@ -273,7 +275,8 @@ begin
 			var
 			section := InnerDictionary[SectionName];
 			if InnerDictionary.TryGetValue(SectionName, section) then begin
-				var setting : ISetting;
+				var
+					setting : ISetting;
 				if section.TryGetValue(key, setting) then begin
 					dbgMsg.MsgFmt('InnerDictionary[%s][%s] found', [SectionName, key]);
 					setting.LoadFromPersister();
@@ -409,7 +412,7 @@ var
 	settingType : TSettingType;
 begin
 	InnerDictionary.Clear;
-	sectionCount := _sr.ReadLine.ToInteger;
+	sectionCount := _sr.ReadLineAsInteger;
 	for var i := 0 to sectionCount - 1 do begin
 		section := _sr.ReadLine();
 
@@ -418,10 +421,10 @@ begin
 			{ } TCollections.CreateSortedDictionary<TSettingKey, ISetting>();
 		end;
 
-		keyCount := _sr.ReadLine().ToInteger;
+		keyCount := _sr.ReadLineAsInteger;
 		for var j := 0 to keyCount - 1 do begin
 			key := _sr.ReadLine;
-			settingType := TSettingType(_sr.ReadLine.ToInteger);
+			settingType := TSettingType(_sr.ReadLineAsInteger);
 			setting := TSettingFactory.CreateSetting(settingType);
 			(setting as IStreamReaderWriterPersistable).LoadFromStreamReader(_sr);
 			CreateSetting(section, key, setting, FOwnerPersister);
