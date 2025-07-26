@@ -299,9 +299,9 @@ end;
 procedure TSettingVariant<T>.SaveToStreamWriter(_sw : TStreamWriter);
 begin
 	// _sw.WriteLine(Integer(SettingType).ToString);
-	_sw.WriteLine(TSettingStoreBehavioursHelper.ToString(SaveBehaviour));
-	_sw.WriteLine(Integer(State).ToString);
-	_sw.WriteLine(AsString);
+	_sw.WriteLineAsString(TSettingStoreBehavioursHelper.ToString(SaveBehaviour));
+	_sw.WriteLineAsInteger(Integer(State));
+	_sw.WriteLineAsString(AsString, True);
 end;
 
 procedure TSettingVariant<T>.StoreToPersister(const _section : string = '');

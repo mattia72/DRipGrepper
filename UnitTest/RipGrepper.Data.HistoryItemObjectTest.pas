@@ -207,7 +207,7 @@ var
 	sw : IShared<TStreamWriter>;
 begin
 	sw := Shared.Make<TStreamWriter>(TStreamWriter.Create(ms));
-	sw.WriteLine(HIST_OBJ_COUNT.ToString);
+	sw.WriteLineAsInteger(HIST_OBJ_COUNT);
 	for var i := 0 to (HIST_OBJ_COUNT - 1) do begin
 		hio := THistoryItemObject.Create();
 		hio.GuiSearchTextParams := FGuiSearchTextParams;

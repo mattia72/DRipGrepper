@@ -1011,7 +1011,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.VstHistorySaveTree');
 	sw := Shared.Make<TStreamWriter>(TStreamWriter.Create(Stream));
-	sw.WriteLine(CountSaveNodes());
+	sw.WriteLineAsInteger(CountSaveNodes());
 
 	for var node : PVirtualNode in VstHistory.Nodes() do begin
 		if node.Parent <> VstHistory.RootNode then begin

@@ -243,7 +243,7 @@ begin
 	{ } Context.ToString,
 	{ } Encoding]
 	{ } do begin
-		_sw.WriteLine(s);
+		_sw.WriteLineAsString(s, true);
 	end;
 
 	ExtensionSettings.SaveToStreamWriter(_sw);

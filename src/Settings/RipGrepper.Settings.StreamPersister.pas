@@ -90,21 +90,21 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TDictionaryStreamPersister.SaveToStreamWriter');
 
 	dbgMsg.MsgFmt('Count: %d', [FDictionary.Count]);
-	_sw.WriteLine(FDictionary.Count);
+	_sw.WriteLineAsInteger(FDictionary.Count);
 	for var section in FDictionary.Keys do begin
 		dbgMsg.MsgFmt('Section: %s', [section]);
-		_sw.WriteLine(section);
+		_sw.WriteLineAsString(section);
 		dbgMsg.MsgFmt('Count: %d', [FDictionary[section].Count]);
-		_sw.WriteLine(FDictionary[section].Count);
+		_sw.WriteLineAsInteger(FDictionary[section].Count);
 		for var key in FDictionary[section].Keys do begin
 			var
 			setting := FDictionary[section][key];
 			dbgMsg.MsgFmt('Key: %s', [key]);
-			_sw.WriteLine(key);
+			_sw.WriteLineAsString(key);
 			dbgMsg.MsgFmt('Type: %d', [Integer(setting.SettingType)]);
-			_sw.WriteLine(Integer(setting.SettingType));
+			_sw.WriteLineAsInteger(Integer(setting.SettingType));
 			dbgMsg.MsgFmt('Value: %s', [setting.AsString]);
-			_sw.WriteLine(setting.AsString);
+			_sw.WriteLineAsString(setting.AsString);
 		end;
 	end;
 end;

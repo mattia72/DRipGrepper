@@ -434,13 +434,13 @@ end;
 
 procedure TSettingsDictionary.SaveToStreamWriter(_sw : TStreamWriter);
 begin
-	_sw.WriteLine(FInnerDictionary.Count);
+	_sw.WriteLineAsInteger(FInnerDictionary.Count);
 	for var section in FInnerDictionary.Keys do begin
-		_sw.WriteLine(section);
-		_sw.WriteLine(FInnerDictionary[section].Count);
+		_sw.WriteLineAsString(section);
+		_sw.WriteLineAsInteger(FInnerDictionary[section].Count);
 		for var key in FInnerDictionary[section].Keys do begin
-			_sw.WriteLine(key);
-			_sw.WriteLine(Integer(FInnerDictionary[section][key].SettingType));
+			_sw.WriteLineAsString(key);
+			_sw.WriteLineAsInteger(Integer(FInnerDictionary[section][key].SettingType));
 			(FInnerDictionary[section][key] as IStreamReaderWriterPersistable).SaveToStreamWriter(_sw);
 		end;
 	end;
