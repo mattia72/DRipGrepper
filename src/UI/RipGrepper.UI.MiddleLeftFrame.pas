@@ -12,7 +12,13 @@ uses
 	Vcl.Forms,
 	Vcl.Dialogs,
 	VirtualTrees,
-	System.Actions,
+	RipGrepper.Common.Constants,
+	{$IF CompilerVersion > COMPILER_VERSION_DELPHI_12_1}
+	VirtualTrees.BaseAncestorVCL,
+	VirtualTrees.BaseTree,
+	VirtualTrees.AncestorVCL
+	{$ENDIF}
+		System.Actions,
 	Vcl.ActnList,
 	RipGrepper.Settings.RipGrepperSettings,
 	ArrayEx,
@@ -27,8 +33,7 @@ uses
 	SVGIconImageListBase,
 	SVGIconImageList,
 	RipGrepper.UI.IFrameEvents,
-	System.UITypes, VirtualTrees.BaseAncestorVCL, VirtualTrees.BaseTree,
-  VirtualTrees.AncestorVCL;
+	System.UITypes;   //this should be the last uses
 
 type
 
@@ -151,7 +156,6 @@ var
 implementation
 
 uses
-	RipGrepper.Common.Constants,
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.UI.SearchForm,
@@ -166,7 +170,7 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	Spring,
 	RipGrepper.Settings.AppSettings,
-	RipGrepper.Common.LoadHistoryMode, 
+	RipGrepper.Common.LoadHistoryMode,
 	RipGrepper.Helper.StreamReaderWriter;
 
 {$R *.dfm}
