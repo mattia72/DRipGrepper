@@ -21,7 +21,6 @@ uses
 	Vcl.Dialogs,
 	RipGrepper.Common.Constants,
 	RipGrepper.UI.DpiScaler,
-	GX_BaseForm,
 	Vcl.ButtonGroup,
 	Vcl.Buttons,
 	Vcl.ToolWin,
