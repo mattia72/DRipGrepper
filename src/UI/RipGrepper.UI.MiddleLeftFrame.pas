@@ -12,13 +12,9 @@ uses
 	Vcl.Forms,
 	Vcl.Dialogs,
 	VirtualTrees,
+	VirtualTrees.Types,
 	RipGrepper.Common.Constants,
-	{$IF CompilerVersion > COMPILER_VERSION_DELPHI_12_1}
-	VirtualTrees.BaseAncestorVCL,
-	VirtualTrees.BaseTree,
-	VirtualTrees.AncestorVCL
-	{$ENDIF}
-		System.Actions,
+	System.Actions,
 	Vcl.ActnList,
 	RipGrepper.Settings.RipGrepperSettings,
 	ArrayEx,
@@ -147,7 +143,6 @@ type
 			property CurrentHistoryItemIndex : Integer read FCurrentHistoryItemIndex write FCurrentHistoryItemIndex;
 			property Data : TRipGrepperData read GetData write FData;
 			property IsInitialized : Boolean read GetIsInitialized;
-			{ Public-Deklarationen }
 	end;
 
 var
@@ -163,7 +158,6 @@ uses
 	RipGrepper.UI.MiddleFrame,
 	System.Math,
 	System.RegularExpressions,
-	VirtualTrees.Types,
 	System.SysUtils,
 	System.StrUtils,
 	RipGrepper.Helper.Types,
