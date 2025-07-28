@@ -538,10 +538,8 @@ function New-ReleaseWithAsset {
         $zipArr | Format-Table -AutoSize -Property File, LastWriteTime, Length
     }
     if ($DeployToGitHub) {
-
         # generate description from CHANGELOG.md
         $releaseDescription = Get-CurrentVersionChangesFromChangelog
-
         $release = New-Release -url $global:Url -headers $global:headers -version $global:Version -description $releaseDescription -preRelease:$global:PreRelease -dryRun:$DryRun
         
         if (-not $DryRun) {
@@ -549,9 +547,9 @@ function New-ReleaseWithAsset {
         }
         else {
             Write-Host "DRY RUN: Would generate release notes with parameters" -ForegroundColor Cyan
-            Write-Host "Version: $global:Version, Previous Version: $global:PrevVersion" -ForegroundColor Cyan
-            Write-Host "Owner: $global:Owner, Repo: $global:Repo" -ForegroundColor Cyan
-            Write-Host "Headers: $($global:headers | Out-String)" -ForegroundColor Cyan
+            Write-Host "Version:`t$global:Version,`r`ntPrevious Version:`t$global:PrevVersion" 
+            Write-Host "Owner:`t$global:Owner,`r`ntRepo`t$global:Repo" 
+            Write-Host "Headers:`t$($global:headers | Out-String)" 
         }
 
         $ReleaseID = $release.id
