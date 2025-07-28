@@ -15,6 +15,10 @@
 **/*.tvsconfig
 **/.vscode/settings.json
 **/.icons/*
+**/DRipExtensions.D*.dres
+**/DRipExtensions.D*.rc
+**/DRipGrepperResource.dres
+**/DRipGrepperResource.rc
 images/icons/convert/*.*
 images/icons/bmps/*.*
 images/dripgrepper-gemini.jpg
@@ -24,7 +28,5 @@ deploy/assets/*
 deploy/RipGrepper.npps
 RipGrepper.code-workspace
 deploy/TransferDrive.txt
-Extension/src/Project/Dll.*/DRipExtensions.D*.dres
-Extension/src/Project/Dll.*/DRipExtensions.D*.rc
 src/Project/Delphi12/DRipGrepper.dsv
 UnitTest/DRipGrepperUnittest.D12.dsv
