@@ -1,4 +1,3 @@
-Import-Module -Name "$PSScriptRoot\GitHubReleaseUtils.ps1" -Force
 [CmdletBinding()]
 param (
     $BuildConfig = "Release",
@@ -10,18 +9,20 @@ param (
     [switch] $DeployToTransferDrive,
     [switch] $Force,
     [switch] $UpdateScoopManifest,
-    [switch] $AddMissingAsset
+    [switch] $AddMissingAsset,
+    [switch] $DryRun,
+    [string] $TestRepo = ""
 )
+
+Import-Module -Name "$PSScriptRoot\GitHubReleaseUtils.ps1" -Force
     
 # - Update Readme.md 
-# - Update Deploy-Description.md 
+# - Update CHANGELOG.md 
 # - Update file and product version in every projects for ALL CONFIGURATION!
 # - Commit and push all changes
 # - Run this script Ctrl+Shift+T Deploy
 $global:TransferDrive = Get-Content "$PSScriptRoot\TransferDrive.txt" -ErrorAction SilentlyContinue
-$global:Description = Get-Content "$PSScriptRoot\Deploy-Description.md"
-$global:Version = ($global:Description | Select-String '^Version:') -replace 'Version:\s*'
-$global:PrevVersion = ($global:Description | Select-String '^PrevVersion:') -replace 'PrevVersion:\s*'
+$global:Changelog = "$PSScriptRoot\..\CHANGELOG.md"
 
 $global:PreRelease = $true
 $global:StandaloneAppName = "DRipGrepper.exe"
@@ -38,6 +39,16 @@ $global:AssetsDirectory = "$PSScriptRoot\$global:AssetsDirectoryName"
 
 $global:Owner = "mattia72"
 $global:Repo = "DRipGrepper"
+
+# Test repository override
+if ($TestRepo -ne "") {
+    $global:Repo = $TestRepo
+    Write-Host "Using test repository: $TestRepo" -ForegroundColor Yellow
+}
+if ($DryRun) {
+    Write-Host "DRY RUN MODE - No actual GitHub operations will be performed" -ForegroundColor Magenta
+}
+
 $global:Url = "https://api.github.com/repos/$global:Owner/$global:Repo/releases"
 $global:Token = $(Get-Content $PSScriptRoot\SECRET_TOKEN)[0]
 
@@ -128,6 +139,110 @@ function Get-ProjectPath {
     )
     $latestVersion = Get-LastInstalledDelphiVersion 
     Join-Path $(Split-Path -Parent $PSScriptRoot) "$Path\$Leaf$($latestVersion.Data.Dir)"
+}
+
+function Get-VersionsFromChangelog {
+    param (
+        [string]$ChangelogPath = $global:Changelog
+    )
+    
+    if (-not (Test-Path $ChangelogPath)) {
+        Write-Error "No CHANGELOG.md found at $ChangelogPath."
+        return $null
+    }
+    
+    $changelogContent = Get-Content $ChangelogPath
+    $versions = @()
+    $versionPattern = "^## \[.*?\]"
+    
+    foreach ($line in $changelogContent) {
+        if ($line -match $versionPattern) {
+            # Extract version from pattern like "## [v4.10.1-beta]" or "## [4.10.0-beta]"
+            if ($line -match "^## \[([^\]]+)\]") {
+                $version = $matches[1]
+                # Remove 'v' prefix if present for consistency
+                $cleanVersion = $version -replace '^v', ''
+                
+                # Only add if it looks like a version number (contains digits and dots/dashes)
+                if ($cleanVersion -match '^\d+\.\d+.*') {
+                    $versions += $cleanVersion
+                }
+            }
+        }
+    }
+    
+    if ($versions.Count -eq 0) {
+        Write-Error "No versions found in changelog."
+        return $null
+    }
+    
+    $currentVersion = $versions[0]  # First version is the most recent
+    $previousVersion = if ($versions.Count -gt 1) { $versions[1] } else { "" }
+    
+    Write-Host "Extracted from CHANGELOG.md:" -ForegroundColor Green
+    Write-Host "  Current Version: $currentVersion" -ForegroundColor Cyan
+    Write-Host "  Previous Version: $previousVersion" -ForegroundColor Cyan
+    
+    return @{
+        CurrentVersion  = $currentVersion
+        PreviousVersion = $previousVersion
+    }
+}
+
+function Get-CurrentVersionChangesFromChangelog {
+    param (
+        [string]$ChangelogPath = $global:Changelog,
+        [string]$Version = $global:Version
+    )
+    
+    if (-not (Test-Path $ChangelogPath)) {
+        Write-Error "No CHANGELOG.md found."
+    }
+    
+    $changelogContent = Get-Content $ChangelogPath
+    $currentVersionChanges = @()
+    $inCurrentVersion = $false
+    $versionPattern = "^## \[.*\]"
+    
+    # Remove 'v' prefix if present for comparison
+    $cleanVersion = $Version -replace '^v', ''
+    
+    foreach ($line in $changelogContent) {
+        # Check if we found the current version section
+        if ($line -match $versionPattern) {
+            if ($line -match "^## (\[$cleanVersion\]|\[v$cleanVersion\])") {
+                $inCurrentVersion = $true
+                $currentVersionChanges += $line
+                continue
+            }
+            elseif ($inCurrentVersion) {
+                # We've hit the next version, stop collecting
+                break
+            }
+        }
+        
+        # If we're in the current version section, collect the lines
+        if ($inCurrentVersion) {
+            # Skip empty lines at the beginning and end
+            if ($line.Trim() -eq "" -and $currentVersionChanges.Count -eq 1) {
+                continue
+            }
+            $currentVersionChanges += $line
+        }
+    }
+    
+    if ($currentVersionChanges.Count -eq 0) {
+        Write-Warning "No changes found for version $Version in changelog"
+        return "No changes documented for this version."
+    }
+    
+    # Remove trailing empty lines
+    while ($currentVersionChanges.Count -gt 0 -and $currentVersionChanges[-1].Trim() -eq "") {
+        $currentVersionChanges = $currentVersionChanges[0..($currentVersionChanges.Count - 2)]
+    }
+    
+    # Join the changes and return
+    return ($currentVersionChanges -join "`n").Trim()
 }
 
 function Build-StandaloneRelease {
@@ -380,7 +495,10 @@ function New-ReleaseWithAsset {
         if ($LocalDeploy -or $DeployToTransferDrive) {
             $Force = $true
         }
-        Remove-Item -Path "$global:AssetsDirectory\*.zip" -Force -Confirm:$(-not $Force) -ErrorAction SilentlyContinue
+        if ($BuildStandalone -or $BuildExtension) {
+            Remove-Item -Path "$global:AssetsDirectory\*.zip" -Force -Confirm:$(-not $Force) -ErrorAction SilentlyContinue
+        }
+
         $assetArr = New-StandaloneZips 
         # New-ExtensionZip 
         $assetArr += New-ExpertDllZip 
@@ -420,14 +538,27 @@ function New-ReleaseWithAsset {
         $zipArr | Format-Table -AutoSize -Property File, LastWriteTime, Length
     }
     if ($DeployToGitHub) {
-        $release = New-Release -url $global:Url -headers $global:headers -version $global:Version -description ($global:Description|Out-String) -preRelease:$global:PreRelease
-        New-ReleaseNotes -owner $global:Owner -repo $global:Repo -headers $global:headers -version $global:Version -prevVersion $global:PrevVersion
+
+        # generate description from CHANGELOG.md
+        $releaseDescription = Get-CurrentVersionChangesFromChangelog
+
+        $release = New-Release -url $global:Url -headers $global:headers -version $global:Version -description $releaseDescription -preRelease:$global:PreRelease -dryRun:$DryRun
+        
+        if (-not $DryRun) {
+            New-ReleaseNotes -owner $global:Owner -repo $global:Repo -headers $global:headers -version $global:Version -prevVersion $global:PrevVersion
+        }
+        else {
+            Write-Host "DRY RUN: Would generate release notes with parameters" -ForegroundColor Cyan
+            Write-Host "Version: $global:Version, Previous Version: $global:PrevVersion" -ForegroundColor Cyan
+            Write-Host "Owner: $global:Owner, Repo: $global:Repo" -ForegroundColor Cyan
+            Write-Host "Headers: $($global:headers | Out-String)" -ForegroundColor Cyan
+        }
 
         $ReleaseID = $release.id
         #$ReleaseID = $( Get-Releases -Latest | Select-Object -Property id).id
 
         Get-ChildItem $global:AssetsDirectory -Filter "*.zip" | ForEach-Object {
-            Add-AssetToRelease -owner $global:Owner -repo $global:Repo -token $global:Token -releaseID $ReleaseID -zipFilePath $_ }
+            Add-AssetToRelease -owner $global:Owner -repo $global:Repo -token $global:Token -releaseID $ReleaseID -zipFilePath $_ -dryRun:$DryRun }
     }
 }
 
@@ -450,6 +581,12 @@ function Update-ScoopManifest {
 }
 
 function New-Deploy {
+
+    # Extract version information from CHANGELOG.md
+    $versionInfo = Get-VersionsFromChangelog -ChangelogPath $global:Changelog
+    $global:Version = $versionInfo.CurrentVersion
+    $global:PrevVersion = $versionInfo.PreviousVersion
+
     if ($LocalDeploy -or $DeployToGitHub -or $BuildStandalone -or $BuildExtension -or $RunUnittest -or $DeployToTransferDrive) {
         #New-ReleaseNotes
         New-ReleaseWithAsset

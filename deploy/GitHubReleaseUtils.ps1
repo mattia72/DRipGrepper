@@ -24,7 +24,8 @@ function New-Release {
         [hashtable]$headers,
         [string]$version,
         [string]$description,
-        [bool]$preRelease = $true
+        [bool]$preRelease = $true,
+        [bool]$dryRun = $false
     )
     $params = @{
         Uri     = $url
@@ -41,6 +42,20 @@ function New-Release {
             } | ConvertTo-Json )
     } 
     Write-Host "Send rest method with body: $($params.Body)"
+    
+    if ($dryRun) {
+        Write-Host "DRY RUN: Would create release with the following parameters:" -ForegroundColor Cyan
+        Write-Host "URL: $url" -ForegroundColor Gray
+        Write-Host "Body: $($params.Body -replace '\\n', "`r`n")" -ForegroundColor Gray
+        # Return mock response for dry run
+        return @{
+            id = "DRYRUN-$(Get-Random)"
+            tag_name = $version
+            body = $description
+            created_at = Get-Date
+        }
+    }
+    
     $response = $(Invoke-RestMethod @params)
     $response | Select-Object -Property id, tag_name, body, created_at
 }
@@ -75,7 +90,8 @@ function Add-AssetToRelease {
         [string]$repo,
         [string]$token,
         [string]$releaseID,
-        [string]$zipFilePath
+        [string]$zipFilePath,
+        [bool]$dryRun = $false
     )
     $AssetZipName = $(Split-Path $ZipFilePath -Leaf)
     $CurlArgument = '-L', 
@@ -86,5 +102,22 @@ function Add-AssetToRelease {
     "-H", "Content-Type: application/octet-stream" ,
     "https://uploads.github.com/repos/$owner/$repo/releases/$releaseID/assets?name=$AssetZipName" ,
     "--data-binary", "@$ZipFilePath"
+    
+    if ($dryRun) {
+        Write-Host "DRY RUN: Would upload asset: $AssetZipName to release $releaseID" -ForegroundColor Cyan
+        Write-Host "File path: $zipFilePath" -ForegroundColor Gray
+        # Group arguments in pairs for better readability
+        $formattedArgs = @($CurlArgument[0])
+        for ($i = 1; $i -lt $CurlArgument.Length; $i += 2) {
+            if ($i + 1 -lt $CurlArgument.Length) {
+                $formattedArgs += "$($CurlArgument[$i]) $($CurlArgument[$i + 1])"
+            } else {
+                $formattedArgs += $CurlArgument[$i]
+            }
+        }
+        Write-Host "Command: curl.exe `r`n    $($formattedArgs -join " `r`n    ")" -ForegroundColor Gray
+        return
+    }
+    
     & curl.exe @CurlArgument
 }
