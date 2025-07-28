@@ -50,6 +50,7 @@ applyTo: "*.pas"
 * Use `T` prefix for record types (e.g., `TMyRecord`)
 
 ## Comments and Documentation
+* Use english for comment texts
 * Use single-line comments `//` for short explanations
 * Use multi-line comments `{ }` for detailed descriptions
 * Document complex algorithms and business logic

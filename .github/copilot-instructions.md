@@ -11,6 +11,9 @@ powershell, delphi, autohotkey
 ## Before Commit
 - For DripGrepper build and run the unit tests before committing.
 
+## Comments
+- Use english for comments
+
 ## Commit Messages
-- For DripGrepper in english, use the format: `bug:|feat:|refact: <description>`, where `bug`, `feat`, or `refact` indicates the type of change.
+- Use english in format: `add:|del:|change: <description>`, where `add`, `del`, or `change` indicates the type of change.
 - For projects in C:\SCCS use use german language.
