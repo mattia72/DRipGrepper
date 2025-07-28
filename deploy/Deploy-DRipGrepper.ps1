@@ -1,3 +1,4 @@
+Import-Module -Name "$PSScriptRoot\GitHubReleaseUtils.ps1" -Force
 [CmdletBinding()]
 param (
     $BuildConfig = "Release",
@@ -419,82 +420,15 @@ function New-ReleaseWithAsset {
         $zipArr | Format-Table -AutoSize -Property File, LastWriteTime, Length
     }
     if ($DeployToGitHub) {
-        New-Release
-        New-ReleaseNotes
+        $release = New-Release -url $global:Url -headers $global:headers -version $global:Version -description ($global:Description|Out-String) -preRelease:$global:PreRelease
+        New-ReleaseNotes -owner $global:Owner -repo $global:Repo -headers $global:headers -version $global:Version -prevVersion $global:PrevVersion
 
-        $ReleaseID = $( Get-Releases -Tag $global:Version | Select-Object -Property id).id
+        $ReleaseID = $release.id
         #$ReleaseID = $( Get-Releases -Latest | Select-Object -Property id).id
 
         Get-ChildItem $global:AssetsDirectory -Filter "*.zip" | ForEach-Object {
-            Add-AssetToRelease -ReleaseID $ReleaseID -ZipFilePath "$_" }
+            Add-AssetToRelease -owner $global:Owner -repo $global:Repo -token $global:Token -releaseID $ReleaseID -zipFilePath $_ }
     }
-}
-function Get-Releases {
-    param (
-        [switch] $Latest, # only for real releases, not for pre-releases
-        [string]$Tag
-    )
-    $params = @{
-        Uri     = "$global:Url$( $Latest ? "/latest" : '' )$(($Tag -eq '' -or $null -eq $Tag) ? '' : "/tags/$Tag" )"
-        Method  = "GET"
-        Headers = $global:headers
-        Body    = ''
-    }
-    $content = $(Invoke-RestMethod @params)
-    $content | Select-Object -Property id, tag_name, html_url, assets
-}
-function New-Release {
-    $params = @{
-        Uri     = $global:Url
-        Method  = "POST"
-        Headers = $global:headers
-        Body    = $( @{ 
-                tag_name               = "$global:Version"
-                target_commitish       = "master"
-                name                   = "$global:Version"
-                body                   = "$($global:Description| Out-String)"
-                draft                  = $false
-                prerelease             = $global:PreRelease
-                generate_release_notes = $true
-            } | ConvertTo-Json )
-    } 
-    Write-Host "Send rest method with body: $($params.Body)"
-    $response = $(Invoke-RestMethod @params)
-    $response | Select-Object -Property id, tag_name, body, created_at
-}
-
-function New-ReleaseNotes {
-    $params = @{
-        Uri     = "https://api.github.com/repos/$global:Owner/$global:Repo/releases/generate-notes"
-        Method  = "POST"
-        Headers = $global:headers
-        Body    = $( @{
-                tag_name          = $global:Version
-                target_commitish  = "master"
-                previous_tag_name = $global:PrevVersion
-                # configuration_file_path = ".github/release.yml"     
-            } | ConvertTo-Json )
-    }
-    Write-Host "Send rest method with body: $($params.Body)"
-    $response = $(Invoke-RestMethod @params)
-    $response | Select-Object -Property name, body
-}
-
-function Add-AssetToRelease {
-    param (
-        $ReleaseID,
-        $ZipFilePath
-    )
-    $AssetZipName = $(Split-Path $ZipFilePath -Leaf)
-    $CurlArgument = '-L', 
-    '-X', 'POST',
-    "-H", "Accept: application/vnd.github+json" ,
-    "-H", "Authorization: Bearer $global:Token" ,
-    "-H", "X-GitHub-Api-Version: 2022-11-28" ,
-    "-H", "Content-Type: application/octet-stream" ,
-    "https://uploads.github.com/repos/$global:Owner/$global:Repo/releases/$ReleaseID/assets?name=$AssetZipName" ,
-    "--data-binary", "@$ZipFilePath"
-    & curl.exe @CurlArgument
 }
 
 function Update-ScoopManifest {
@@ -522,7 +456,7 @@ function New-Deploy {
     }
     if ($AddMissingAsset) {
         # Add assets to latest release
-        $latest = Get-Releases -Tag $global:Version 
+        $latest = Get-Releases  -URl $global:Url -Headers $global:headers -Tag $global:Version 
         $ReleaseID = $( $latest | Select-Object -Property id).id
         $assets = $( $latest | Select-Object -ExpandProperty assets | Select-Object -ExpandProperty name )
         Get-ChildItem $global:AssetsDirectory -Filter "*.zip" | ForEach-Object {
