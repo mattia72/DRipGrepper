@@ -67,7 +67,8 @@ uses
   RipGrepper.Settings.RipGrepperSettings in '..\src\Settings\RipGrepper.Settings.RipGrepperSettings.pas',
   RipGrepper.Helper.StreamReaderWriter in '..\src\Helper\RipGrepper.Helper.StreamReaderWriter.pas',
   RipGrepper.Settings.RipGrepArguments in '..\src\Settings\RipGrepper.Settings.RipGrepArguments.pas',
-  RipGrepper.Common.LoadHistoryMode in '..\src\Common\RipGrepper.Common.LoadHistoryMode.pas';
+  RipGrepper.Common.LoadHistoryMode in '..\src\Common\RipGrepper.Common.LoadHistoryMode.pas',
+  Test.RipGrepper.Tools.ReleaseUtils in 'Test.RipGrepper.Tools.ReleaseUtils.pas';
 
 // This comment has to guard the following IFDEF, that may be delted by delphi, if new unit added to the project
 {$IFNDEF TESTINSIGHT}
