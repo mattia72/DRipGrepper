@@ -10,11 +10,12 @@ const
 	SEPARATOR = #9;
 
 	DEFAULT_EDITORS : TArray<string> = [
-	{ } 'TRUE' + SEPARATOR + 'notepad.exe "<FILE>"',
-	{ } 'TRUE' + SEPARATOR + 'explorer.exe /select,"<FILE>"',
-	{ } 'FALSE' + SEPARATOR + 'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"',
-	{ } 'FALSE' + SEPARATOR + 'notepad++.exe "<FILE>" -n<LINE> -c<COL>',
-	{ } 'FALSE' + SEPARATOR + 'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"'];
+	{ } 'TRUE' + SEPARATOR +  'Notepad' + SEPARATOR + 'notepad.exe "<FILE>"' + SEPARATOR + 'Open in Notepad',
+	{ } 'TRUE' + SEPARATOR +  'Explorer' + SEPARATOR + 'explorer.exe /select,"<FILE>"' + SEPARATOR + 'Show in Explorer',
+	{ } 'FALSE' + SEPARATOR + 'VSCode' + SEPARATOR + 'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"' + SEPARATOR + 'Open in existing VsCode instance',
+	{ } 'FALSE' + SEPARATOR + 'Notepad++' + SEPARATOR + 'notepad++.exe "<FILE>" -n<LINE> -c<COL>' + SEPARATOR + 'Open in Notepad++',
+	{ } 'FALSE' + SEPARATOR + 'Neovim' + SEPARATOR + 'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"' + SEPARATOR + 'Open in Neovim'
+	];
 
 implementation
 
