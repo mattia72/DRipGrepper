@@ -1,4 +1,4 @@
-unit RipGrepper.Tools.FileUtils;
+﻿unit RipGrepper.Tools.FileUtils;
 
 interface
 
@@ -41,6 +41,7 @@ type
 			class function FindExecutable(sFileName : string; out sOutpuPath : string) : Boolean;
 			class function FindFileInSubDirs(const _dir : string; const _file : string) : string;
 			class function GetVsCodeDir : string;
+			class function GetVsCodeCommandItem : TCommandItem;
 			class function LongToShortFilePath(const LongPath : string) : string;
 			class function ShortToLongPath(const ShortPath : string) : string;
 	end;
@@ -176,6 +177,37 @@ begin
 		sCodePath : string;
 	if TFileUtils.FindExecutable('code', sCodePath) then begin
 		Result := TPath.GetDirectoryName(sCodePath);
+	end;
+end;
+
+class function TFileUtils.GetVsCodeCommandItem : TCommandItem;
+var
+	sCodePath : string;
+	sCommand : string;
+	sPotentialPaths : TArray<string>;
+	sPath : string;
+begin
+	Result := default(TCommandItem);
+	
+	if TFileUtils.FindExecutable('code.exe', sCodePath) then begin
+		sCommand := Format('"%s" --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"', [sCodePath]);
+		Result := TCommandItem.New('VSCode', sCommand, 'Open in existing VSCode instance', True);
+	end else begin
+		sPotentialPaths := [
+			'C:\Program Files\Microsoft VS Code\Code.exe',
+			'C:\Program Files (x86)\Microsoft VS Code\Code.exe',
+			'C:\Users\' + GetEnvironmentVariable('USERNAME') + '\AppData\Local\Programs\Microsoft VS Code\Code.exe'
+		];
+		
+		for sPath in sPotentialPaths do begin
+			if FileExists(sPath) then begin
+				sCommand := Format('"%s" --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"', [sPath]);
+				Result := TCommandItem.New('VSCode', sCommand, 'Open in existing VSCode instance', True);
+				Exit;
+			end;
+		end;
+		
+		Result := TCommandItem.New('VSCode', 'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"', 'Open in existing VSCode instance', False);
 	end;
 end;
 

@@ -18,6 +18,7 @@ type
 			FTestFile : TOpenWithParams;
 			function GetCommand(Index : Integer) : string;
 			function GetCommandListSetting(): IArraySetting;
+			function GetDefaultEditorsWithVSCodeDetection() : TArray<string>;
 			procedure SetDefaultsIfEmpty();
 			procedure SetCommand(Index : Integer; const Value : string);
 
@@ -42,7 +43,8 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	System.SysUtils,
 	RipGrepper.Settings.SettingsDictionary,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants,
+	RipGrepper.Tools.FileUtils;
 
 constructor TOpenWithSettings.Create(const _Owner : TPersistableSettings);
 begin
@@ -134,10 +136,32 @@ begin
      inherited;
 end;
 
+function TOpenWithSettings.GetDefaultEditorsWithVSCodeDetection() : TArray<string>;
+var
+	vscodeItem : TCommandItem;
+	vscodeString : string;
+	resultList : TArrayEx<string>;
+begin
+	resultList := DEFAULT_EDITORS;
+	
+	vscodeItem := TFileUtils.GetVsCodeCommandItem();
+	if vscodeItem.IsActive then begin
+		vscodeString := 'TRUE' + SEPARATOR + vscodeItem.Caption + SEPARATOR + 
+			vscodeItem.CommandLine.AsString() + SEPARATOR + vscodeItem.Description;
+	end else begin
+		vscodeString := 'FALSE' + SEPARATOR + vscodeItem.Caption + SEPARATOR + 
+			vscodeItem.CommandLine.AsString() + SEPARATOR + vscodeItem.Description;
+	end;
+
+	resultList[resultList.IndexOf(VSCODE_EDITOR_SETTING)] := vscodeString;
+
+	Result := resultList;
+end;
+
 procedure TOpenWithSettings.SetDefaultsIfEmpty();
 begin
 	if FCommandListSetting.Value.IsEmpty then begin
-        RecreateCommandList(DEFAULT_EDITORS);
+        RecreateCommandList(GetDefaultEditorsWithVSCodeDetection());
         StoreToPersister;
 	end;
 end;
