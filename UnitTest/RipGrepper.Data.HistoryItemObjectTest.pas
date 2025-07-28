@@ -61,10 +61,10 @@ uses
 
 	RipGrepper.Common.SimpleTypes,
 	System.SysUtils,
-
 	RipGrepper.Common.Constants,
 	RipGrepper.Settings.SettingsDictionary,
-	ArrayEx;
+	ArrayEx,
+	RipGrepper.Helper.StreamReaderWriter;
 
 constructor THistoryItemObjectTest.Create();
 begin
