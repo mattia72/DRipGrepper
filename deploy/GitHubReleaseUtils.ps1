@@ -1,3 +1,6 @@
+# GitHubReleaseUtils.ps1
+# This module contains utility functions for creating GitHub releases and managing assets.
+
 function Get-Releases {
     param (
         [string] $Url,
