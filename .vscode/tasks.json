@@ -4,7 +4,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build All & Deploy to TransferDrive and GitHub",
+            "label": "DripGrepper: Build All & Deploy to TransferDrive and GitHub",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone -BuildExtension -DeployToGitHub",
             "problemMatcher": [],
@@ -13,7 +13,7 @@
             }
         },
         {
-            "label": "Deploy to TransferDrive",
+            "label": "DripGrepper: Deploy to TransferDrive",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -DeployToTransferDrive",
             "problemMatcher": [],
@@ -22,7 +22,7 @@
             }
         },
         {
-            "label": "Build All & Deploy to TransferDrive",
+            "label": "DripGrepper: Build All & Deploy to TransferDrive",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone -BuildExtension -DeployToTransferDrive",
             "problemMatcher": [],
@@ -31,7 +31,7 @@
             }
         },
         {
-            "label": "Debug Build All & Local Deploy",
+            "label": "DripGrepper: Debug Build All & Local Deploy",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig Debug -BuildStandalone -BuildExtension -LocalDeploy -Force",
             "problemMatcher": [],
@@ -40,7 +40,7 @@
             }
         },
         {
-            "label": "Build All & Local Deploy",
+            "label": "DripGrepper: Build All & Local Deploy",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone -BuildExtension -LocalDeploy -Force",
             "problemMatcher": [],
@@ -49,7 +49,7 @@
             }
         },
         {
-            "label": "Build Extension & Local Deploy",
+            "label": "DripGrepper: Build Extension & Local Deploy",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -BuildExtension -LocalDeploy -Force",
             "problemMatcher": [],
@@ -58,7 +58,7 @@
             }
         },
         {
-            "label": "Build Extension & Local Deploy",
+            "label": "DripGrepper: Build Extension & Local Deploy",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -BuildExtension -LocalDeploy -Force",
             "problemMatcher": [],
@@ -67,7 +67,7 @@
             }
         },
         {
-            "label": "Deploy to GitHub",
+            "label": "DripGrepper: Deploy to GitHub",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -DeployToGitHub",
             "problemMatcher": [],
@@ -76,7 +76,7 @@
             }
         },
         {
-            "label": "Local Deploy Debug",
+            "label": "DripGrepper: Local Deploy Debug",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -LocalDeploy -Force -BuildConfig Debug",
             "problemMatcher": [],
@@ -85,7 +85,7 @@
             }
         },
         {
-            "label": "Local Deploy",
+            "label": "DripGrepper: Local Deploy",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -LocalDeploy -Force",
             "problemMatcher": [],
@@ -94,7 +94,7 @@
             }
         },
         {
-            "label": "Update scoop manifest",
+            "label": "DripGrepper: Update scoop manifest",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -UpdateScoopManifest",
             "problemMatcher": [],
@@ -103,7 +103,7 @@
             }
         },
         {
-            "label": "Build All",
+            "label": "DripGrepper: Build All",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone -BuildExtension",
             "problemMatcher": [],
@@ -112,7 +112,7 @@
             }
         },
         {
-            "label": "Debug Build DRipExtensions.dll",
+            "label": "DripGrepper: Debug Build DRipExtensions.dll",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -BuildExtension -BuildConfig Debug",
             "group": {
@@ -120,7 +120,7 @@
             }
         },
         {
-            "label": "Debug Build DRipGrepper",
+            "label": "DripGrepper: Debug Build DRipGrepper",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone -BuildConfig Debug",
             "group": {
@@ -128,7 +128,7 @@
             }
         },
         {
-            "label": "Build DRipGrepper",
+            "label": "DripGrepper: Build DRipGrepper",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone",
             "group": {
@@ -136,7 +136,7 @@
             }
         },
         {
-            "label": "Build and run DRipGrepper",
+            "label": "DripGrepper: Build and run DRipGrepper",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone; & .\\Win32\\Release\\DripGrepper.exe",
             "group": {
@@ -144,7 +144,7 @@
             }
         },
         {
-            "label": "Run DRipGrepper.exe (x86)",
+            "label": "DripGrepper: Run DRipGrepper.exe (x86)",
             "type": "shell",
             "command": "& .\\deploy\\assets\\Win32\\DripGrepper.exe",
             "group": {
@@ -152,7 +152,7 @@
             }
         },
         {
-            "label": "Run DRipGrepper.exe (x64)",
+            "label": "DripGrepper: Run DRipGrepper.exe (x64)",
             "type": "shell",
             "command": "& .\\deploy\\assets\\Win64\\DripGrepper.exe",
             "group": {
@@ -160,7 +160,7 @@
             }
         },
         {
-            "label": "Build DRipExtension",
+            "label": "DripGrepper: Build DRipExtension",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -BuildExtension",
             "group": {
@@ -168,7 +168,7 @@
             }
         },
         {
-            "label": "Build and run unittests",
+            "label": "DripGrepper: Build and run unittests",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -RunUnittest",
             "problemMatcher": [],
