@@ -3,7 +3,7 @@
 
 All relevant changes to the project are documented in this file.
 
-## [v4.10.1-beta] - 2025-08-01
+## [4.10.1-beta] - 2025-08-01
 
 ### 🐞 Fixed
 - '=' in search text is not interpreted in command line arguments (#15)
