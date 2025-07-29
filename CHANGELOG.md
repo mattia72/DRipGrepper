@@ -3,7 +3,7 @@
 
 All relevant changes to the project are documented in this file.
 
-## [4.10.1-beta] - 2025-08-01
+## [v4.10.1-beta] - 2025-08-01
 
 ### 🐞 Fixed
 - '=' in search text is not interpreted in command line arguments (#15)
@@ -17,7 +17,7 @@ All relevant changes to the project are documented in this file.
 - This `CHANGELOG.md` file for better traceability of changes.
 - Automatic VSCode detection and configuration for "Open With" functionality
 
-## [4.10.0-beta] - 2025-07-24
+## [v4.10.0-beta] - 2025-07-24
 
 ### Added
 - OpenInDelphi extension support for VSCode, allowing users to open Delphi files directly from the VSCode editor.
