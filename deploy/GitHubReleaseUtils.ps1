@@ -41,7 +41,7 @@ function New-Release {
                 generate_release_notes = $true
             } | ConvertTo-Json )
     } 
-    Write-Host "Send rest method with body: $($params.Body)"
+    Write-Host "New-Release: sends rest msg with body: $($params.Body)"
     
     if ($dryRun) {
         Write-Host "DRY RUN: Would create release with the following parameters:" -ForegroundColor Cyan
@@ -79,7 +79,7 @@ function New-ReleaseNotes {
                 # configuration_file_path = ".github/release.yml"     
             } | ConvertTo-Json )
     }
-    Write-Host "Send rest method with body: $($params.Body)"
+    Write-Host "New-ReleaseNotes: sends rest msg with body: $($params.Body)"
     $response = $(Invoke-RestMethod @params)
     $response | Select-Object -Property id, name, body
 }
