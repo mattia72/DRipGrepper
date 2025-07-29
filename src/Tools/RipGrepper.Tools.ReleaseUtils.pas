@@ -170,11 +170,11 @@ end;
 
 class function TReleaseUtils.GetAppDirectory() : string;
 begin
-	{$IF CompilerVersion >= COMPILER_VERSION_DELPHI_12}
-	Result := TPath.GetAppDirectory;
-	{$ELSE}
+//  {$IF CompilerVersion >= COMPILER_VERSION_DELPHI_12}
+//  Result := TPath.GetAppDirectory;
+//  {$ELSE}
 	Result := TPath.GetDirectoryName(TReleaseUtils.GetRunningModulePath);
-	{$ENDIF}
+//  {$ENDIF}
 end;
 
 class function TReleaseUtils.GetAppNameAndVersion(const _exePath : string) : string;

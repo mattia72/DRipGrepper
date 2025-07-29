@@ -20,7 +20,6 @@ uses
   RipGrepper.Parser.MatchTest in 'RipGrepper.Parser.MatchTest.pas',
   RipGrepper.Data.Matches in '..\src\RipGrepper.Data.Matches.pas',
   RipGrepper.ProcessUtils.Test in 'RipGrepper.ProcessUtils.Test.pas',
-  RipGrepper.Tools.ProcessUtils in '..\src\RipGrepper.Tools.ProcessUtils.pas',
   RipGrepper.Helper.Types.Test in 'RipGrepper.Helper.Types.Test.pas',
   RipGrepper.Helper.Types in '..\src\RipGrepper.Helper.Types.pas',
   RipGrepper.Parsers.VimGrepMatchLine in '..\src\RipGrepper.Parsers.VimGrepMatchLine.pas',
@@ -78,7 +77,7 @@ uses
   RipGrepper.Data.HistoryItemObjectTest in 'RipGrepper.Data.HistoryItemObjectTest.pas',
   RipGrepper.Helper.SettingStoreBehaviours in '..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas',
   RipGrepper.Helper.StreamReaderWriter in '..\src\Helper\RipGrepper.Helper.StreamReaderWriter.pas',
-  Test.RipGrepper.Tools.ReleaseUtils in 'Test.RipGrepper.Tools.ReleaseUtils.pas';
+  RipGrepper.Tools.ReleaseUtils.Test in 'RipGrepper.Tools.ReleaseUtils.Test.pas';
 
 // This comment has to guard the following IFDEF, that may be delted by delphi, if new unit added to the project
 {$IFNDEF TESTINSIGHT}

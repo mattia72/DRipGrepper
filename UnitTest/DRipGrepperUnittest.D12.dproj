@@ -108,7 +108,6 @@
         <DCCReference Include="RipGrepper.Parser.MatchTest.pas"/>
         <DCCReference Include="..\src\RipGrepper.Data.Matches.pas"/>
         <DCCReference Include="RipGrepper.ProcessUtils.Test.pas"/>
-        <DCCReference Include="..\src\RipGrepper.Tools.ProcessUtils.pas"/>
         <DCCReference Include="RipGrepper.Helper.Types.Test.pas"/>
         <DCCReference Include="..\src\RipGrepper.Helper.Types.pas"/>
         <DCCReference Include="..\src\RipGrepper.Parsers.VimGrepMatchLine.pas"/>
@@ -166,7 +165,7 @@
         <DCCReference Include="RipGrepper.Data.HistoryItemObjectTest.pas"/>
         <DCCReference Include="..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas"/>
         <DCCReference Include="..\src\Helper\RipGrepper.Helper.StreamReaderWriter.pas"/>
-        <DCCReference Include="Test.RipGrepper.Tools.ReleaseUtils.pas"/>
+        <DCCReference Include="RipGrepper.Tools.ReleaseUtils.Test.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
