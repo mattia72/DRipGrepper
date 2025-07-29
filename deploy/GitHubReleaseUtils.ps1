@@ -4,33 +4,40 @@
 function Get-Releases {
     param (
         [string] $Url,
-        [string] $Headers,
+        [hashtable] $Headers,
         [switch] $Latest, # only for real releases, not for pre-releases
         [string] $Tag
     )
+    if ($Latest) {
+        $uri = "$Url/latest"
+    } elseif ($Tag -and $Tag -ne '') {
+        $uri = "$Url/tags/$Tag"
+    } else {
+        $uri = $Url
+    }
     $params = @{
-        Uri     = "$Url$( $Latest ? "/latest" : '' )$(($Tag -eq '' -or $null -eq $Tag) ? '' : "/tags/$Tag" )"
+        Uri     = $uri
         Method  = "GET"
         Headers = $Headers
-        Body    = ''
     }
-    $content = $(Invoke-RestMethod @params)
+    $content = Invoke-RestMethod @params
+    if ($null -eq $content) { return $null }
     $content | Select-Object -Property id, tag_name, html_url, assets
 }
 
 function New-Release {
     param(
-        [string]$url,
-        [hashtable]$headers,
+        [string]$Url,
+        [hashtable]$Headers,
         [string]$version,
         [string]$description,
         [bool]$preRelease = $true,
-        [bool]$dryRun = $false
+        [bool]$DryRun = $false
     )
     $params = @{
-        Uri     = $url
+        Uri     = $Url
         Method  = "POST"
-        Headers = $headers
+        Headers = $Headers
         Body    = $( @{ 
                 tag_name               = $version
                 target_commitish       = "master"
@@ -43,9 +50,9 @@ function New-Release {
     } 
     Write-Host "New-Release: sends rest msg with body: $($params.Body)"
     
-    if ($dryRun) {
+    if ($DryRun) {
         Write-Host "DRY RUN: Would create release with the following parameters:" -ForegroundColor Cyan
-        Write-Host "URL: $url" -ForegroundColor Gray
+        Write-Host "URL: $Url" -ForegroundColor Gray
         Write-Host "Body: $($params.Body -replace '\\n', "`r`n")" -ForegroundColor Gray
         # Return mock response for dry run
         return @{
@@ -97,13 +104,13 @@ function Add-AssetToRelease {
     $CurlArgument = '-L', 
     '-X', 'POST',
     "-H", "Accept: application/vnd.github+json" ,
-    "-H", "Authorization: Bearer $global:Token" ,
+    "-H", "Authorization: Bearer $token" ,
     "-H", "X-GitHub-Api-Version: 2022-11-28" ,
     "-H", "Content-Type: application/octet-stream" ,
     "https://uploads.github.com/repos/$owner/$repo/releases/$releaseID/assets?name=$AssetZipName" ,
     "--data-binary", "@$ZipFilePath"
     
-    if ($dryRun) {
+    if ($DryRun) {
         Write-Host "DRY RUN: Would upload asset: $AssetZipName to release $releaseID" -ForegroundColor Cyan
         Write-Host "File path: $zipFilePath" -ForegroundColor Gray
         # Group arguments in pairs for better readability
