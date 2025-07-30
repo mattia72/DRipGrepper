@@ -104,7 +104,8 @@ uses
   RipGrepper.UI.Settings.AboutForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.AboutForm.pas' {AboutForm},
   RipGrepper.Tools.ReleaseUtils in '..\..\..\..\src\Tools\RipGrepper.Tools.ReleaseUtils.pas',
   RipGrepper.Common.LoadHistoryMode in '..\..\..\..\src\Common\RipGrepper.Common.LoadHistoryMode.pas',
-  RipGrepper.UI.Settings.AdvancedForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.AdvancedForm.pas';
+  RipGrepper.UI.Settings.AdvancedForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.AdvancedForm.pas',
+  RipGrepper.Tools.WinHttpClient in '..\..\..\..\src\Tools\RipGrepper.Tools.WinHttpClient.pas';
 
 {$R *.res}
 

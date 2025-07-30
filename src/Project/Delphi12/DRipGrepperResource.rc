@@ -1,2 +1,2 @@
-DeployDescription RCDATA "..\\..\\..\\deploy\\Deploy-Description.md"
 LICENSE RCDATA "..\\..\\..\\LICENSE"
+CHANGELOG RCDATA "..\\..\\..\\CHANGELOG.md"

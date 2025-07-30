@@ -138,8 +138,8 @@
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.10.1.287;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.10.1;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>287</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.10.1.288;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.10.1;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>288</VerInfo_Build>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_MinorVer>10</VerInfo_MinorVer>
@@ -163,8 +163,8 @@
         <UWP_DelphiLogo150>icons\DripGrepperLogo.png</UWP_DelphiLogo150>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.10.1.288;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.10.1;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>288</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.10.1.290;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.10.1;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>290</VerInfo_Build>
         <Icon_MainIcon>..\..\..\images\icons\DripGrepper.ico</Icon_MainIcon>
         <VerInfo_MinorVer>10</VerInfo_MinorVer>
         <VerInfo_Release>1</VerInfo_Release>
@@ -172,8 +172,8 @@
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.10.1.288;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.10.1;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>288</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.10.1.290;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.10.1;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>290</VerInfo_Build>
         <VerInfo_MinorVer>10</VerInfo_MinorVer>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
@@ -325,15 +325,16 @@
         <DCCReference Include="..\..\UI\RipGrepper.UI.Settings.AdvancedForm.pas">
             <FormType>dfm</FormType>
         </DCCReference>
-        <RcItem Include="..\..\..\deploy\Deploy-Description.md">
-            <ContainerId>ResourceItem</ContainerId>
-            <ResourceType>RCDATA</ResourceType>
-            <ResourceId>DeployDescription</ResourceId>
-        </RcItem>
+        <DCCReference Include="..\..\Tools\RipGrepper.Tools.WinHttpClient.pas"/>
         <RcItem Include="..\..\..\LICENSE">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>LICENSE</ResourceId>
+        </RcItem>
+        <RcItem Include="..\..\..\CHANGELOG.md">
+            <ContainerId>ResourceItem</ContainerId>
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>CHANGELOG</ResourceId>
         </RcItem>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
@@ -382,13 +383,13 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\LICENSE" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="..\..\..\CHANGELOG.md" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win64">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\deploy\Deploy-Description.md" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="..\..\..\LICENSE" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win64">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
