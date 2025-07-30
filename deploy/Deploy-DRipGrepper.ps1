@@ -153,20 +153,11 @@ function Get-VersionsFromChangelog {
     
     $changelogContent = Get-Content $ChangelogPath
     $versions = @()
-    $versionPattern = "^## \[.*?\]"
-    
     foreach ($line in $changelogContent) {
-        if ($line -match $versionPattern) {
-            # Extract version from pattern like "## [v4.10.1-beta]" or "## [4.10.0-beta]"
-            if ($line -match "^## \[([^\]]+)\]") {
-                $version = $matches[1]
-                # Remove 'v' prefix if present for consistency
-                $cleanVersion = $version -replace '^v', ''
-                
-                # Only add if it looks like a version number (contains digits and dots/dashes)
-                if ($cleanVersion -match '^\d+\.\d+.*') {
-                    $versions += $cleanVersion
-                }
+        if ($line -match "^## \[([^\]]+)\]") {
+            $extractedVersion = $matches[1]
+            if ($extractedVersion -match '^v?\d+\.\d+') {
+                $versions += $extractedVersion
             }
         }
     }
@@ -583,6 +574,10 @@ function New-Deploy {
     # Extract version information from CHANGELOG.md
     $versionInfo = Get-VersionsFromChangelog -ChangelogPath $global:Changelog
     $global:Version = $versionInfo.CurrentVersion
+    if ($global:Version -notmatch "^v\d+\.\d+\.\d+.*") {
+        Write-Error "Invalid version format in CHANGELOG.md: $global:Version. Expected format: vX.Y.Z"
+        Exit 1
+    }
     $global:PrevVersion = $versionInfo.PreviousVersion
 
     if ($LocalDeploy -or $DeployToGitHub -or $BuildStandalone -or $BuildExtension -or $RunUnittest -or $DeployToTransferDrive) {
