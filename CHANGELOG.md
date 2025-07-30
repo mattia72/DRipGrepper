@@ -11,7 +11,8 @@ All relevant changes to the project are documented in this file.
 
 ### 🔄 Changed
 - Refactoring: The GitHub release functions (`New-Release`, `New-ReleaseNotes`, `Add-AssetToRelease`) were extracted from `Deploy-DRipGrepper.ps1` and implemented as reusable functions with explicit parameters in `GitHubReleaseUtils.ps1`.
-- The calls in `Deploy-DRipGrepper.ps1` and `gh-release.ps1` were adapted accordingly, so that no global variables are needed anymore.
+- Improved version parsing in deployment script with better validation for CHANGELOG.md format
+- **RESTComponent elimination**: Removed RESTComponent dependencies from extension DLL to improve compatibility across different Delphi versions (12.1 → 12.3)
 
 ### 💥 Added
 - This `CHANGELOG.md` file for better traceability of changes.
