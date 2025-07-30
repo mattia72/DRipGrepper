@@ -100,7 +100,7 @@ begin
 	FsLicence := TResourceHelper.GetDescriptionFromResource('LICENSE');
 
 	var
-	s := TResourceHelper.GetDescriptionFromResource('DeployDescription');
+	s := TResourceHelper.GetDescriptionFromResource('CHANGELOG');
 	FReleaseUtils.CurrentRelease.SetDescription(s);
 
 	lnkLatestUrl.Visible := False;

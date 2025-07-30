@@ -64,8 +64,6 @@
     <VerInfo_Locale>1031</VerInfo_Locale>
     <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.6.2.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=2.6.2.0;Comments=</VerInfo_Keys>
     <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
-    <DCC_AdditionalSwitches>
-    </DCC_AdditionalSwitches>
     <DCC_MapFile>3</DCC_MapFile>
     <UsePackages>true</UsePackages>
   </PropertyGroup>
@@ -74,7 +72,7 @@
     <BT_BuildType>Debug</BT_BuildType>
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_Locale>1033</VerInfo_Locale>
-    <DCC_UsePackage>rtl;vcl;designide;VirtualTreesDR;bindcompvcl;RESTBackendComponents;RESTComponents;$(DCC_UsePackage)</DCC_UsePackage>
+    <DCC_UsePackage>rtl;vcl;designide;$(DCC_UsePackage)</DCC_UsePackage>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
     <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.10.1.225;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.10.1;Comments=beta</VerInfo_Keys>
     <VerInfo_Build>225</VerInfo_Build>
@@ -83,7 +81,7 @@
     <VerInfo_Release>1</VerInfo_Release>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Base_Win64)'!=''">
-    <DCC_UsePackage>rtl;dbrtl;vcldb;vcl;VirtualTreesDR;VclSmp;$(DCC_UsePackage)</DCC_UsePackage>
+    <DCC_UsePackage>rtl;vcl;$(DCC_UsePackage)</DCC_UsePackage>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_1)'!=''">
     <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -121,8 +119,8 @@
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
     <VerInfo_Locale>1033</VerInfo_Locale>
-    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.10.1.235;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.10.1;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>235</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.10.1.239;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.10.1;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>239</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <DCC_Description>RipGrep Search within Delphi</DCC_Description>
     <VerInfo_MinorVer>10</VerInfo_MinorVer>
@@ -254,6 +252,7 @@
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.AdvancedForm.pas">
       <FormType>dfm</FormType>
     </DCCReference>
+    <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.WinHttpClient.pas" />
     <RcItem Include="..\..\..\Resources\about_icon.bmp">
       <ResourceType>BITMAP</ResourceType>
       <ResourceId>about_icon</ResourceId>
@@ -270,15 +269,15 @@
       <ResourceType>BITMAP</ResourceType>
       <ResourceId>openwith_icon</ResourceId>
     </RcItem>
-    <RcItem Include="..\..\..\..\deploy\Deploy-Description.md">
-      <ContainerId>ResourceItem</ContainerId>
-      <ResourceType>RCDATA</ResourceType>
-      <ResourceId>DeployDescription</ResourceId>
-    </RcItem>
     <RcItem Include="..\..\..\..\LICENSE">
       <ContainerId>ResourceItem</ContainerId>
       <ResourceType>RCDATA</ResourceType>
       <ResourceId>LICENSE</ResourceId>
+    </RcItem>
+    <RcItem Include="..\..\..\..\CHANGELOG.md">
+      <ContainerId>ResourceItem</ContainerId>
+      <ResourceType>RCDATA</ResourceType>
+      <ResourceId>CHANGELOG</ResourceId>
     </RcItem>
     <BuildConfiguration Include="Base">
       <Key>Base</Key>
