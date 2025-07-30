@@ -4,24 +4,59 @@ interface
 
 uses
 	System.JSON,
-	REST.Types,
-	REST.Client,
-	Spring,
+	System.Generics.Collections,
 	ArrayEx;
 
 type
-	TReleaseInfo = class
-		public
-			Description : string;
-			Version : string;
-			HtmlURL : string;
-			PublishedAt : TDateTime;
-			LoadOk : Boolean;
-			procedure FromJson(_json : TJSONValue; const _idx : Integer);
-			procedure SetDescription(const _body : string);
+	IReleaseInfo = interface
+		['{9B1E8A45-8A2C-4F3E-9B7D-1C2E3F4A5B6C}']
+		function GetDescription : string;
+		function GetVersion : string;
+		function GetHtmlURL : string;
+		function GetPublishedAt : TDateTime;
+		function GetLoadOk : Boolean;
+		procedure SetDescription(const _value : string);
+		procedure SetVersion(const _value : string);
+		procedure SetHtmlURL(const _value : string);
+		procedure SetPublishedAt(const _value : TDateTime);
+		procedure SetLoadOk(const _value : Boolean);
+		procedure FromJson(_json : TJSONValue; const _idx : Integer);
+		procedure SetDescriptionFromBody(const _body : string);
+		property Description : string read GetDescription write SetDescription;
+		property Version : string read GetVersion write SetVersion;
+		property HtmlURL : string read GetHtmlURL write SetHtmlURL;
+		property PublishedAt : TDateTime read GetPublishedAt write SetPublishedAt;
+		property LoadOk : Boolean read GetLoadOk write SetLoadOk;
 	end;
 
-	IReleaseInfo = IShared<TReleaseInfo>;
+	TReleaseInfo = class(TInterfacedObject, IReleaseInfo)
+		private
+			FDescription : string;
+			FVersion : string;
+			FHtmlURL : string;
+			FPublishedAt : TDateTime;
+			FLoadOk : Boolean;
+			function GetDescription : string;
+			function GetVersion : string;
+			function GetHtmlURL : string;
+			function GetPublishedAt : TDateTime;
+			function GetLoadOk : Boolean;
+			procedure SetDescription(const _value : string);
+			procedure SetVersion(const _value : string);
+			procedure SetHtmlURL(const _value : string);
+			procedure SetPublishedAt(const _value : TDateTime);
+			procedure SetLoadOk(const _value : Boolean);
+
+		public
+			procedure FromJson(_json : TJSONValue; const _idx : Integer);
+			procedure SetDescriptionFromBody(const _body : string);
+			property Description : string read GetDescription write SetDescription;
+			property Version : string read GetVersion write SetVersion;
+			property HtmlURL : string read GetHtmlURL write SetHtmlURL;
+			property PublishedAt : TDateTime read GetPublishedAt write SetPublishedAt;
+			property LoadOk : Boolean read GetLoadOk write SetLoadOk;
+	end;
+
 	TReleaseInfoArray = TArrayEx<IReleaseInfo>;
 
 	TReleaseUtils = record
@@ -40,7 +75,6 @@ type
 			function GetLatestRelease : IReleaseInfo;
 			function GetLatestVersion : string;
 			class function GetModuleVersion(Instance : THandle; out iMajor, iMinor, iRelease, iBuild : Integer) : Boolean; static;
-			class procedure InitRestClient(_restClient : TRESTClient; _restRequest : TRESTRequest; _restResponse : TRESTResponse); static;
 
 		public
 			procedure DownloadReleaseInfos;
@@ -80,21 +114,79 @@ uses
 	System.RegularExpressions,
 	RipGrepper.Helper.UI,
 	System.UITypes,
-	RipGrepper.Helper.Types;
+	RipGrepper.Helper.Types,
+	RipGrepper.Tools.WinHttpClient;
+
+function TReleaseInfo.GetDescription : string;
+begin
+	Result := FDescription;
+end;
+
+function TReleaseInfo.GetVersion : string;
+begin
+	Result := FVersion;
+end;
+
+function TReleaseInfo.GetHtmlURL : string;
+begin
+	Result := FHtmlURL;
+end;
+
+function TReleaseInfo.GetPublishedAt : TDateTime;
+begin
+	Result := FPublishedAt;
+end;
+
+function TReleaseInfo.GetLoadOk : Boolean;
+begin
+	Result := FLoadOk;
+end;
+
+procedure TReleaseInfo.SetDescription(const _value : string);
+begin
+	FDescription := _value;
+end;
+
+procedure TReleaseInfo.SetVersion(const _value : string);
+begin
+	FVersion := _value;
+end;
+
+procedure TReleaseInfo.SetHtmlURL(const _value : string);
+begin
+	FHtmlURL := _value;
+end;
+
+procedure TReleaseInfo.SetPublishedAt(const _value : TDateTime);
+begin
+	FPublishedAt := _value;
+end;
+
+procedure TReleaseInfo.SetLoadOk(const _value : Boolean);
+begin
+	FLoadOk := _value;
+end;
 
 procedure TReleaseInfo.FromJson(_json : TJSONValue; const _idx : Integer);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TReleaseInfo.FromJson');
+
 	LoadOk := False;
 	var
 	item := _json.A[_idx];
 	HtmlURL := item.GetValue<string>('html_url');
+	dbgMsg.MsgFmt('HtmlURL: %s', [HtmlURL]);
 	Version := item.GetValue<string>('name');
+	dbgMsg.MsgFmt('Version: %s', [Version]);
 	PublishedAt := item.GetValue<TDateTime>('published_at');
-	SetDescription(item.GetValue<string>('body'));
+	dbgMsg.MsgFmt('PublishedAt: %s', [DateToStr(PublishedAt)]);
+	SetDescriptionFromBody(item.GetValue<string>('body'));
+	dbgMsg.MsgFmt('Description: %s', [Description.Substring(0, 20)]);
 	LoadOk := True;
 end;
 
-procedure TReleaseInfo.SetDescription(const _body : string);
+procedure TReleaseInfo.SetDescriptionFromBody(const _body : string);
 var
 	bIsComment : Boolean;
 	lines : TArrayEx<string>;
@@ -119,27 +211,30 @@ end;
 function TReleaseUtils.DownloadReleaseInfoFromGithub : TReleaseInfoArray;
 var
 	jValue : TJSONValue;
-	restClient : TRESTClient;
-	restRequest : TRESTRequest;
-	restResponse : TRESTResponse;
+	httpClient : TWinHttpClient;
+	responseText : string;
 	cursor : TCursorSaver;
 begin
 	cursor.SetHourGlassCursor();
-	restClient := TRESTClient.Create(nil);
-	restRequest := TRESTRequest.Create(nil);
-	restResponse := TRESTResponse.Create(nil);
+	httpClient := TWinHttpClient.Create;
 	try
-		InitRestClient(restClient, restRequest, restResponse);
+		httpClient.Accept := 'application/json, text/plain; q=0.9, text/html;q=0.8,';
+		httpClient.AcceptCharset := 'utf-8, *;q=0.8';
 		try
 			FDownloadErrorMsg := '';
-			restRequest.Execute;
-			jValue := restResponse.JSONValue;
-
-			for var idx := 0 to (jValue as TJSONArray).Count - 1 do begin
-				var
-				ri := Shared.Make<TReleaseInfo>();
-				ri.FromJson(jValue, idx);
-				FDownloadedReleaseInfos.Add(ri);
+			responseText := httpClient.Get('https://api.github.com/repos/mattia72/DripGrepper/releases');
+			jValue := TJSONObject.ParseJSONValue(responseText);
+			try
+				if Assigned(jValue) and (jValue is TJSONArray) then begin
+					for var idx := 0 to (jValue as TJSONArray).Count - 1 do begin
+						var
+							ri : IReleaseInfo := TReleaseInfo.Create;
+						ri.FromJson(jValue, idx);
+						FDownloadedReleaseInfos.Add(ri);
+					end;
+				end;
+			finally
+				jValue.Free;
 			end;
 		except
 			on E : Exception do begin
@@ -149,9 +244,7 @@ begin
 		end;
 
 	finally
-		restClient.Free;
-		restRequest.Free;
-		restResponse.Free;
+		httpClient.Free;
 	end;
 end;
 
@@ -170,11 +263,11 @@ end;
 
 class function TReleaseUtils.GetAppDirectory() : string;
 begin
-//  {$IF CompilerVersion >= COMPILER_VERSION_DELPHI_12}
-//  Result := TPath.GetAppDirectory;
-//  {$ELSE}
+	// {$IF CompilerVersion >= COMPILER_VERSION_DELPHI_12}
+	// Result := TPath.GetAppDirectory;
+	// {$ELSE}
 	Result := TPath.GetDirectoryName(TReleaseUtils.GetRunningModulePath);
-//  {$ENDIF}
+	// {$ENDIF}
 end;
 
 class function TReleaseUtils.GetAppNameAndVersion(const _exePath : string) : string;
@@ -217,7 +310,7 @@ end;
 function TReleaseUtils.GetCurrentRelease() : IReleaseInfo;
 begin
 	if not Assigned(FCurrentRelease) then begin
-		FCurrentRelease := Shared.Make<TReleaseInfo>();
+		FCurrentRelease := TReleaseInfo.Create;
 		FCurrentRelease.Version := CurrentVersion;
 		FCurrentRelease.LoadOk := True;
 	end;
@@ -366,16 +459,6 @@ begin
 	GetModuleFileName(hInstance, szFileName, MAX_PATH);
 	Result := szFileName;
 	dbgMsg.Msg(Result);
-end;
-
-class procedure TReleaseUtils.InitRestClient(_restClient : TRESTClient; _restRequest : TRESTRequest; _restResponse : TRESTResponse);
-begin
-	_restClient.Accept := 'application/json, text/plain; q=0.9, text/html;q=0.8,';
-	_restClient.AcceptCharset := 'utf-8, *;q=0.8';
-	_restClient.BaseURL := 'https://api.github.com/repos/mattia72/DripGrepper/releases';
-	_restRequest.Client := _restClient;
-	_restRequest.Response := _restResponse;
-	_restResponse.ContentType := 'application/json';
 end;
 
 function TReleaseUtils.IsCurrentTheLatest : Boolean;
