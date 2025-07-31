@@ -1,9 +1,15 @@
-
 # Changelog
 
-All relevant changes to the project are documented in this file.
+## [v4.10.2-beta] - 2025-07-31
 
-## [v4.10.1-beta] - 2025-08-01
+### 🐞 Fixed
+- In standalone version `Link with runtime packages` should be false to avoid bpl not found error (#19)
+- `Handle Open in Delphi commands` hidden in Extension Tab for Standalone Version (#20)
+
+### 🔄 Changed
+- Some hints on the Extension Tab
+
+## [v4.10.1-beta] - 2025-07-30
 
 ### 🐞 Fixed
 - '=' in search text is not interpreted in command line arguments (#15)
@@ -25,3 +31,7 @@ All relevant changes to the project are documented in this file.
 
 ## [Previous Versions]
 - See the release notes in the GitHub repository: https://github.com/mattia72/DRipGrepper/releases
+
+
+
+
