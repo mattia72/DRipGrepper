@@ -592,7 +592,10 @@ function New-Deploy {
         Get-ChildItem $global:AssetsDirectory -Filter "*.zip" | ForEach-Object {
             if ($assets -notcontains $_.Name) {
                 Write-Host "Adding asset $($_.Name) to latest release $global:Version" -ForegroundColor Green
-                Add-AssetToRelease -ReleaseID $ReleaseID -ZipFilePath "$_" 
+                $answere = Read-Host "Do you want to add this asset? (y/n)"
+                if ($answere -eq "y") {
+                    Add-AssetToRelease -ReleaseID $ReleaseID -ZipFilePath "$_" 
+                }
             }
             else {
                 Write-Host "Asset $($_.Name) already exists in latest release $global:Version" -ForegroundColor Yellow
