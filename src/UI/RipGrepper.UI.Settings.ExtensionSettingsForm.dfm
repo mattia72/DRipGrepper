@@ -10,6 +10,7 @@ object ExtensionSettingsForm: TExtensionSettingsForm
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
+  ShowHint = True
   OnShow = FormShow
   TextHeight = 15
   object pnlMiddle: TPanel
@@ -65,6 +66,8 @@ object ExtensionSettingsForm: TExtensionSettingsForm
       Height = 118
       Align = alTop
       Caption = 'Install as Delphi IDE Extension'
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 0
       DesignSize = (
         634
@@ -81,6 +84,7 @@ object ExtensionSettingsForm: TExtensionSettingsForm
         Top = 26
         Width = 145
         Height = 23
+        Hint = 'Select installed version...'
         TabOrder = 0
         Text = 'cmbDelphiVersions'
         OnChange = cmbDelphiVersionsChange
@@ -99,6 +103,7 @@ object ExtensionSettingsForm: TExtensionSettingsForm
         Top = 55
         Width = 520
         Height = 23
+        Hint = 'Full path to extension dll.'
         Anchors = [akLeft, akTop, akRight]
         Color = clInfoBk
         Images = SVGIconImageList1
@@ -113,7 +118,6 @@ object ExtensionSettingsForm: TExtensionSettingsForm
         RightButton.Visible = True
         TabOrder = 1
         Text = 'Dll path...'
-        TextHint = 'Rg.exe path...'
         OnRightButtonClick = btnedtDllPathRightButtonClick
       end
     end

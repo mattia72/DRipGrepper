@@ -172,6 +172,8 @@ begin
 	{$IF NOT IS_GUITEST AND IS_STANDALONE}
 	grpShortcuts.Visible := False;
 	grpInstallation.Top := grpShortcuts.Top;
+	grpVsCodeIntegration.Visible := False;
+	grpInstallation.Top := grpVsCodeIntegration.Top;
 	{$ENDIF}
 	installer := TPackageInstallMain.Create;
 	versions := TStringList.Create;
