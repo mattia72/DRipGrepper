@@ -143,7 +143,7 @@ function Update-ChangelogVersion {
         throw "CHANGELOG.md not found"
     }
     
-    $content = Get-Content $Script:ChangelogPath -Raw
+    $content = [string](Get-Content $Script:ChangelogPath -Raw)
     $today = Get-Date -Format "yyyy-MM-dd"
     
     # Create new version entry
@@ -158,11 +158,11 @@ function Update-ChangelogVersion {
 "@
     
     # Replace the changelog and insert new entry before the first existing version
-    if ($content -match '(# Changelog.*?)(## \[v[\d\.]+.*?\].*?)$', 'Singleline') {
-        $updatedContent = $content -replace '(# Changelog.*?)(## \[v[\d\.]+.*?)$', "`$1`n$newEntry`$2", 'Singleline'
-    } else {
-        # Fallback: just replace the header
-        $updatedContent = $content -replace '^# Changelog', $newEntry.TrimEnd()
+    $regexPattern = '(?s)(^# Changelog.*?)(## \[v\d[\d\.]+.*?\].*?)$'
+    if ($content -match $regexPattern) {
+        $updatedContent = $content -replace $regexPattern, "$newEntry`$2"
+    } else { # Fallback: just replace the header 
+        $updatedContent = $content -replace '(?s)^# Changelog', $newEntry
     }
     
     if ($PSCmdlet.ShouldProcess($Script:ChangelogPath, "Update version to $($NewVersion.FullVersion)")) {
