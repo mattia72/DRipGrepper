@@ -157,8 +157,13 @@ function Update-ChangelogVersion {
 
 "@
     
-    # Replace the changelog header and first version entry  
-    $updatedContent = $content -replace '^(# Changelog\s*\n\n)', $newEntry
+    # Replace the changelog and insert new entry before the first existing version
+    if ($content -match '(# Changelog.*?)(## \[v[\d\.]+.*?\].*?)$', 'Singleline') {
+        $updatedContent = $content -replace '(# Changelog.*?)(## \[v[\d\.]+.*?)$', "`$1`n$newEntry`$2", 'Singleline'
+    } else {
+        # Fallback: just replace the header
+        $updatedContent = $content -replace '^# Changelog', $newEntry.TrimEnd()
+    }
     
     if ($PSCmdlet.ShouldProcess($Script:ChangelogPath, "Update version to $($NewVersion.FullVersion)")) {
         Set-Content -Path $Script:ChangelogPath -Value $updatedContent -Encoding UTF8
@@ -202,13 +207,14 @@ function Update-ProjectFileVersion {
         
         # Update FileVersion and ProductVersion in VerInfo_Keys
         $versionString = "$($NewVersion.Major).$($NewVersion.Minor).$($NewVersion.Release)"
-        # Keep build number as is, it will be auto-incremented by Delphi
-        $content = $content -replace '(FileVersion=)[\d\.]+\.(\d+)', "`${1}$versionString.`${2}"
-        $content = $content -replace '(ProductVersion=)[\d\.]+', "`${1}$versionString"
         
-        # Update Comments field with suffix
+        # Update each VerInfo_Keys line individually - be more specific to avoid capturing too much
+        $content = $content -replace '(<VerInfo_Keys>[^<>]*FileVersion=)[\d\.]+\.(\d+)', "`${1}$versionString.`${2}"
+        $content = $content -replace '(<VerInfo_Keys>[^<>]*ProductVersion=)[\d\.]+', "`${1}$versionString"
+        
+        # Update Comments field with suffix within VerInfo_Keys
         $suffixComment = if ($Suffix) { $Suffix.TrimStart('-') } else { "beta" }
-        $content = $content -replace '(Comments=)[^;]*', "`${1}$suffixComment"
+        $content = $content -replace '(<VerInfo_Keys>[^<>]*Comments=)[^;<>]*', "`${1}$suffixComment"
         
         if ($modified -and $PSCmdlet.ShouldProcess($fullPath, "Update version numbers")) {
             Set-Content -Path $fullPath -Value $content -Encoding UTF8
