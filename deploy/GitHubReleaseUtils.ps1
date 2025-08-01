@@ -101,14 +101,17 @@ function Add-AssetToRelease {
         [bool]$dryRun = $false
     )
     $AssetZipName = $(Split-Path $ZipFilePath -Leaf)
-    $CurlArgument = '-L', 
-    '-X', 'POST',
-    "-H", "Accept: application/vnd.github+json" ,
-    "-H", "Authorization: Bearer $token" ,
-    "-H", "X-GitHub-Api-Version: 2022-11-28" ,
-    "-H", "Content-Type: application/octet-stream" ,
-    "https://uploads.github.com/repos/$owner/$repo/releases/$releaseID/assets?name=$AssetZipName" ,
-    "--data-binary", "@$ZipFilePath"
+    
+    # GitHub API expects multipart/form-data for file uploads
+    $CurlArgument = @(
+        '-L'
+        '-X', 'POST'
+        '-H', "Accept: application/vnd.github+json"
+        '-H', "Authorization: Bearer $token"
+        '-H', "X-GitHub-Api-Version: 2022-11-28"
+        '-F', "file=@$ZipFilePath;filename=$AssetZipName"
+        "https://uploads.github.com/repos/$owner/$repo/releases/$releaseID/assets?name=$AssetZipName"
+    )
     
     if ($DryRun) {
         Write-Host "DRY RUN: Would upload asset: $AssetZipName to release $releaseID" -ForegroundColor Cyan
@@ -126,5 +129,123 @@ function Add-AssetToRelease {
         return
     }
     
-    & curl.exe @CurlArgument
+    Write-Host "Uploading asset: $AssetZipName to release $releaseID" -ForegroundColor Green
+    $result = & curl.exe @CurlArgument 2>&1
+    
+    # Check for errors
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Failed to upload asset $AssetZipName. Exit code: $LASTEXITCODE. Output: $result"
+        return $false
+    }
+    
+    Write-Host "Successfully uploaded: $AssetZipName" -ForegroundColor Green
+    return $true
+}
+
+<#
+.SYNOPSIS
+    Creates a new GitHub issue in the specified repository.
+
+.DESCRIPTION
+    This function creates a new issue in a GitHub repository using the GitHub REST API.
+    It supports setting title, body, labels, assignees, and milestone.
+
+.PARAMETER owner
+    The GitHub repository owner (username or organization name).
+
+.PARAMETER repo
+    The name of the GitHub repository.
+
+.PARAMETER headers
+    Hashtable containing HTTP headers, including authorization token.
+
+.PARAMETER title
+    The title of the issue.
+
+.PARAMETER body
+    The body/description of the issue.
+
+.PARAMETER labels
+    Optional array of labels to apply to the issue.
+
+.PARAMETER assignee
+    Optional single assignee username.
+
+.PARAMETER assignees
+    Optional array of assignee usernames.
+
+.PARAMETER milestone
+    Optional milestone number to assign to the issue.
+
+.PARAMETER dryRun
+    If true, shows what would be created without actually creating the issue.
+
+.EXAMPLE
+    $headers = @{ "Authorization" = "token $token"; "Accept" = "application/vnd.github.v3+json" }
+    New-Issue -owner "mattia72" -repo "DRipGrepper" -headers $headers -title "Bug fix needed" -body "Description" -labels @("bug")
+
+.EXAMPLE
+    New-Issue -owner "user" -repo "project" -headers $headers -title "Feature request" -body "Details" -assignee "developer" -dryRun $true
+#>
+function New-Issue {
+    param(
+        [string]$owner,
+        [string]$repo,
+        [hashtable]$headers,
+        [string]$title,
+        [string]$body,
+        [string[]]$labels = @(),
+        [string]$assignee = "",
+        [string[]]$assignees = @(),
+        [int]$milestone = $null,
+        [bool]$dryRun = $false
+    )
+    
+    $issueData = @{
+        title = $title
+        body = $body
+    }
+    
+    if ($labels.Count -gt 0) {
+        $issueData.labels = $labels
+    }
+    
+    if ($assignee -and $assignee -ne "") {
+        $issueData.assignee = $assignee
+    }
+    
+    if ($assignees.Count -gt 0) {
+        $issueData.assignees = $assignees
+    }
+    
+    if ($milestone) {
+        $issueData.milestone = $milestone
+    }
+    
+    $params = @{
+        Uri     = "https://api.github.com/repos/$owner/$repo/issues"
+        Method  = "POST"
+        Headers = $headers
+        Body    = $($issueData | ConvertTo-Json)
+    }
+    
+    if ($dryRun) {
+        Write-Host "DRY RUN: Would create issue with the following parameters:" -ForegroundColor Cyan
+        Write-Host "URL: $($params.Uri)" -ForegroundColor Gray
+        Write-Host "Title: $title" -ForegroundColor Gray
+        Write-Host "Labels: $($labels -join ', ')" -ForegroundColor Gray
+        Write-Host "Body: $($body -replace '\\n', "`r`n")" -ForegroundColor Gray
+        # Return mock response for dry run
+        return @{
+            number = "DRYRUN-$(Get-Random)"
+            title = $title
+            body = $body
+            html_url = "https://github.com/$owner/$repo/issues/DRYRUN"
+            created_at = Get-Date
+        }
+    }
+    
+    Write-Host "New-Issue: Creating issue '$title' in $owner/$repo"
+    $response = Invoke-RestMethod @params
+    $response | Select-Object -Property number, title, body, html_url, created_at
 }

@@ -547,7 +547,7 @@ function New-ReleaseWithAsset {
         #$ReleaseID = $( Get-Releases -Latest | Select-Object -Property id).id
 
         Get-ChildItem $global:AssetsDirectory -Filter "*.zip" | ForEach-Object {
-            Add-AssetToRelease -owner $global:Owner -repo $global:Repo -token $global:Token -releaseID $ReleaseID -zipFilePath $_ -dryRun:$DryRun }
+            Add-AssetToRelease -owner $global:Owner -repo $global:Repo -token $global:Token -releaseID $ReleaseID -zipFilePath $_.FullName -dryRun:$DryRun }
     }
 }
 
@@ -594,7 +594,7 @@ function New-Deploy {
                 Write-Host "Adding asset $($_.Name) to latest release $global:Version" -ForegroundColor Green
                 $answere = Read-Host "Do you want to add this asset? (y/n)"
                 if ($answere -eq "y") {
-                    Add-AssetToRelease -ReleaseID $ReleaseID -ZipFilePath "$_" 
+                    Add-AssetToRelease -owner $global:Owner -repo $global:Repo -token $global:Token -releaseID $ReleaseID -zipFilePath $_.FullName 
                 }
             }
             else {
