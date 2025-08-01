@@ -104,9 +104,11 @@ begin
 	TRipGrepperDockableForm.CreateInstance; // saved layout loading ...
 
 	var
-	searchFormSetting := TSingleton.GetInstance<TRipGrepperSettings>().SearchFormSettings;
+	settings := TSingleton.GetInstance<TRipGrepperSettings>();
+	var
+	searchFormSetting := settings.SearchFormSettings;
 	FExtensionSettings := searchFormSetting.ExtensionSettings;
-	TDripExtensionMenu.CreateMenu(GetMenuText, FExtensionSettings);
+	TDripExtensionMenu.CreateMenu(GetMenuText, settings);
 	UpdateVSCodeBridgeState;
 end;
 

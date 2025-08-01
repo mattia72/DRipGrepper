@@ -36,6 +36,7 @@ const
 	{$ENDIF}
 	MENU_ITEM_OPEN_WITH = 'Open With...';
 	MENU_ITEM_SEARCH_WITH_DRIPGREPPER = 'Search with DripGrepper...';
+	MENU_ITEM_SETTINGS = 'Settings...';
 
 	SEARCH_HISTORY_DRH = 'SearchHistory.drh';
 	BAK_FILE_EXTENSION = '.bak';
@@ -306,6 +307,7 @@ type
 			{ } 'windows-1252'];
 			class var EXT_DEFAULT_SHORTCUT_SEARCH : string;
 			class var EXT_DEFAULT_SHORTCUT_OPEN_WITH : string;
+			class var EXT_DEFAULT_SHORTCUT_SETTINGS : string;
 			class constructor Create;
 			class property ColumnIndex[index : string] : integer read GetColumnIndex;
 			class property ColumnTitle[index : EColumnIndex] : string read GetColumnTitle; default;
@@ -321,6 +323,7 @@ begin
 	inherited;
 	EXT_DEFAULT_SHORTCUT_SEARCH := ShortCutToText(ShortCut(Word('R'), [ssShift, ssAlt]));
 	EXT_DEFAULT_SHORTCUT_OPEN_WITH := ShortCutToText(ShortCut(Word('O'), [ssShift, ssAlt]));
+	EXT_DEFAULT_SHORTCUT_SETTINGS := ShortCutToText(ShortCut(Word('S'), [ssShift, ssAlt]));
 end;
 
 class function TDefaults.GetColumnIndex(Index : string) : integer;

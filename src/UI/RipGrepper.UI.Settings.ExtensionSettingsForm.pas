@@ -261,7 +261,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TExtensionSettingsForm.OnSettingsUpdated');
 
-	TDripExtensionMenu.CreateMenu(EXTENSION_MENU_ROOT_TEXT, FExtensionSettings);
+	TDripExtensionMenu.CreateMenu(EXTENSION_MENU_ROOT_TEXT, (FSettings as TRipGrepperSettings));
 	if FExtensionSettings.HandleOpenWithDelphiCommands then begin
 		dbgMsg.Msg('TVsCodeBridge.StartPipeServer as HandleOpenWithDelphiCommands is enabled');
 		TVsCodeBridge.StartPipeServer();

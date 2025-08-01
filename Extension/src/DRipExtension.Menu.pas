@@ -6,7 +6,8 @@ uses
 	Vcl.Menus,
 	Vcl.Graphics,
 	System.Classes,
-	RipGrepper.Settings.ExtensionSettings;
+	RipGrepper.Settings.ExtensionSettings,
+	RipGrepper.Settings.RipGrepperSettings;
 
 type
 	TDripExtensionMenu = class(TObject)
@@ -14,9 +15,11 @@ type
 			DRIP_MENUITEM_NAME = 'DRipExpert_MenuItem';
 			DRIP_MENUITEM_DRIPGREPPER_NAME = 'DRipExpert_DripGrepper_MenuItem';
 			DRIP_MENUITEM_OPENWITH_NAME = 'DRipExpert_OpenWith_MenuItem';
+			DRIP_MENUITEM_SETTINGS_NAME = 'DRipExpert_Settings_MenuItem';
 
 		strict private
 			class var FIconBmp : TBitmap;
+			class var FSettings : TRipGrepperSettings;
 			class constructor Create;
 			class destructor Destroy;
 			class function AddToImageList(const _resourceName : string) : Integer;
@@ -24,12 +27,14 @@ type
 				: TMenuItem;
 			class procedure DoDripGrepperMenuClick(Sender : TObject);
 			class procedure DoOpenWithMenuClick(Sender : TObject);
+			class procedure DoSettingsMenuClick(Sender : TObject);
 			class procedure DripMenuClick(Sender : TObject);
 			class procedure RemoveExtensionMenu;
 			class procedure ShowDripGrepperForm;
+			class procedure ShowSettingsForm;
 
 		public
-			class procedure CreateMenu(const _sMenuText : string; extSettings : TRipGrepperExtensionSettings);
+			class procedure CreateMenu(const _sMenuText : string; settings : TRipGrepperSettings);
 	end;
 
 implementation
@@ -43,7 +48,7 @@ uses
 	RipGrepper.OpenWith.Params,
 	RipGrepper.OpenWith,
 	DripExtension.UI.DockableForm,
-	RipGrepper.Settings.RipGrepperSettings;
+	RipGrepper.UI.Settings.ConfigForm;
 
 var
 	G_DripMenu : TMenuItem;
@@ -68,11 +73,12 @@ begin
 	Result := IOTAUTils.AddToImageList(FIconBmp, _resourceName);
 end;
 
-class procedure TDripExtensionMenu.CreateMenu(const _sMenuText : string; extSettings : TRipGrepperExtensionSettings);
+class procedure TDripExtensionMenu.CreateMenu(const _sMenuText : string; settings : TRipGrepperSettings);
 var
 	Item : TMenuItem;
 	DripMenuItems : TArrayEx<TMenuItem>;
 	iPos : integer;
+	extSettings : TRipGrepperExtensionSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.CreateMenu');
@@ -82,6 +88,8 @@ begin
 
 	RemoveExtensionMenu();
 
+	FSettings := settings;
+	extSettings := settings.SearchFormSettings.ExtensionSettings;
 	dbgMsg.Msg('ReadFile');
 	extSettings.ReadFile();
 	dbgMsg.Msg('LoadFromDict');
@@ -97,12 +105,25 @@ begin
 
 	dbgMsg.MsgFmt('DripMenuItems.Add %s', [MENU_ITEM_OPEN_WITH]);
 	DripMenuItems.Add(
-		{ } CreateSubMenuItem(DRIP_MENUITEM_DRIPGREPPER_NAME,
+		{ } CreateSubMenuItem(DRIP_MENUITEM_OPENWITH_NAME,
 		{ } MENU_ITEM_OPEN_WITH,
 		{ } 'openwith_icon',
 		{ } extSettings.OpenWithShortcut,
 		{ } TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH,
 		{ } DoOpenWithMenuClick));
+
+	// Add separator before settings
+	dbgMsg.Msg('DripMenuItems.Add separator');
+	DripMenuItems.Add(Vcl.Menus.NewLine);
+
+	dbgMsg.MsgFmt('DripMenuItems.Add %s', [MENU_ITEM_SETTINGS]);
+	DripMenuItems.Add(
+		{ } CreateSubMenuItem(DRIP_MENUITEM_SETTINGS_NAME,
+		{ } MENU_ITEM_SETTINGS,
+		{ } '',//'settings_icon',
+		{ } extSettings.SettingsShortcut,
+		{ } TDefaults.EXT_DEFAULT_SHORTCUT_SETTINGS,
+		{ } DoSettingsMenuClick));
 
 	dbgMsg.MsgFmt('Vcl.Menus.NewSubMenu %s', [_sMenuText]);
 	G_DripMenu := Vcl.Menus.NewSubMenu(_sMenuText, 0, DRIP_MENUITEM_NAME, DripMenuItems.Items);
@@ -144,7 +165,9 @@ begin
 	end;
 
 	Result := Vcl.Menus.NewItem(_Caption, sc, False, True, _onClick, 0, _MenuName);
-	Result.ImageIndex := AddToImageList(_icoResource);
+	if (not _icoResource.IsEmpty) then begin
+		Result.ImageIndex := AddToImageList(_icoResource);
+	end;
 	// Result.ImageIndex
 	dbgMsg.MsgFmt('NewItem ''%s - %s 0x%x''', [_MenuName, _Caption, sc]);
 end;
@@ -167,6 +190,13 @@ begin
 	end;
 end;
 
+class procedure TDripExtensionMenu.DoSettingsMenuClick(Sender : TObject);
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.DoSettingsMenuClick');
+	ShowSettingsForm;
+end;
+
 class procedure TDripExtensionMenu.DripMenuClick(Sender : TObject);
 begin
 	var
@@ -179,6 +209,10 @@ begin
 	bEnabled := not IOTAUTils.GxOtaGetCurrentSourceFile.IsEmpty;
 	G_DripMenu.Items[1].Enabled := bEnabled;
 	dbgMsg.MsgFmt('%s enabled = %s', [G_DripMenu.Items[1].Caption, BoolToStr(bEnabled, True)]);
+
+	// Settings menu item is always enabled (index 3 because of separator at index 2)
+	G_DripMenu.Items[3].Enabled := True;
+	dbgMsg.MsgFmt('%s enabled = %s', [G_DripMenu.Items[3].Caption, BoolToStr(True, True)]);
 end;
 
 class procedure TDripExtensionMenu.RemoveExtensionMenu;
@@ -210,6 +244,17 @@ class procedure TDripExtensionMenu.ShowDripGrepperForm;
 begin
 	TDebugUtils.DebugMessage('TDripExtensionMenu.ShowDripGrepperForm');
 	TRipGrepperDockableForm.ShowDockableFormAndSearch();
+end;
+
+class procedure TDripExtensionMenu.ShowSettingsForm;
+begin
+	TDebugUtils.DebugMessage('TDripExtensionMenu.ShowSettingsForm');
+	var settingsForm := TConfigForm.Create(FSettings);
+	try
+		settingsForm.ShowModal;
+	finally
+		settingsForm.Free;
+	end;
 end;
 
 end.

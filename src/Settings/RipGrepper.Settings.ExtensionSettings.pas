@@ -34,6 +34,7 @@ const
 			KEY_IDE_CONTEXT = 'IDESearchContext';
 			KEY_SHORTCUT_SEARCH_SELECTED = 'SearchSelectedShortcut';
 			KEY_SHORTCUT_OPENWITH = 'OpenWithShortcut';
+			KEY_SHORTCUT_SETTINGS = 'SettingsShortcut';
 			KEY_HANDLE_OPEN_WITH_DELPHI_COMMANDS = 'HandleOpenWithDelphiCommands';
 
 		private
@@ -41,15 +42,18 @@ const
 			FCurrentIDEContext : TDelphiIDEContext;
 			FIDEContext : IIntegerSetting;
 			FOpenWithShortCut : IStringSetting;
+			FSettingsShortCut : IStringSetting;
 			FHandleOpenWithDelphiCommands : IBoolSetting;
 			function GetCurrentIDEContext() : TDelphiIDEContext;
 			function GetHandleOpenWithDelphiCommands() : Boolean;
 			function GetOpenWithShortcut() : string;
 			function GetSearchSelectedShortcut() : string;
+			function GetSettingsShortcut() : string;
 			procedure SetCurrentIDEContext(const Value : TDelphiIDEContext);
 			procedure SetHandleOpenWithDelphiCommands(const Value : Boolean);
 			procedure SetOpenWithShortcut(const Value : string);
 			procedure SetSearchSelectedShortcut(const Value : string);
+			procedure SetSettingsShortcut(const Value : string);
 
 		public
 			constructor Create(const _Owner : TPersistableSettings); overload;
@@ -58,6 +62,7 @@ const
 			function ToLogString : string; override;
 			property SearchSelectedShortcut : string read GetSearchSelectedShortcut write SetSearchSelectedShortcut;
 			property OpenWithShortcut : string read GetOpenWithShortcut write SetOpenWithShortcut;
+			property SettingsShortcut : string read GetSettingsShortcut write SetSettingsShortcut;
 			property HandleOpenWithDelphiCommands : Boolean read GetHandleOpenWithDelphiCommands write SetHandleOpenWithDelphiCommands;
 			property CurrentIDEContext : TDelphiIDEContext read GetCurrentIDEContext write SetCurrentIDEContext;
 	end;
@@ -121,6 +126,7 @@ begin
 
 	FSearchSelectedShortcut := TStringSetting.Create(TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH);
 	FOpenWithShortCut := TStringSetting.Create(TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH);
+	FSettingsShortCut := TStringSetting.Create(TDefaults.EXT_DEFAULT_SHORTCUT_SETTINGS);
 	FHandleOpenWithDelphiCommands := TBoolSetting.Create(False);
 
 	FIDEContext := TIntegerSetting.Create();
@@ -128,6 +134,7 @@ begin
 
 	CreateSetting(KEY_SHORTCUT_SEARCH_SELECTED, FSearchSelectedShortcut);
 	CreateSetting(KEY_SHORTCUT_OPENWITH, FOpenWithShortCut);
+	CreateSetting(KEY_SHORTCUT_SETTINGS, FSettingsShortCut);
 	CreateSetting(KEY_HANDLE_OPEN_WITH_DELPHI_COMMANDS, FHandleOpenWithDelphiCommands);
 	CreateSetting(KEY_IDE_CONTEXT, FIDEContext);
 end;
@@ -153,10 +160,20 @@ begin
 	FSearchSelectedShortcut.Value := Value;
 end;
 
+function TRipGrepperExtensionSettings.GetSettingsShortcut : string;
+begin
+	Result := FSettingsShortCut.Value;
+end;
+
+procedure TRipGrepperExtensionSettings.SetSettingsShortcut(const Value : string);
+begin
+	FSettingsShortCut.Value := Value;
+end;
+
 function TRipGrepperExtensionSettings.ToLogString : string;
 begin
-	Result := Format('OpenWithShortcut=%s, SearchSelectedShortcut=%s, HandleOpenWithDelphiCommands=%s, IDESearchContext=%s',
-		[OpenWithShortcut, SearchSelectedShortcut, BoolToStr(HandleOpenWithDelphiCommands, True), CurrentIDEContext.ToLogString]);
+	Result := Format('OpenWithShortcut=%s, SearchSelectedShortcut=%s, SettingsShortcut=%s, HandleOpenWithDelphiCommands=%s, IDESearchContext=%s',
+		[OpenWithShortcut, SearchSelectedShortcut, SettingsShortcut, BoolToStr(HandleOpenWithDelphiCommands, True), CurrentIDEContext.ToLogString]);
 end;
 
 function TDelphiIDEContext.ToLogString : string;
