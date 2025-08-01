@@ -102,14 +102,15 @@ function Add-AssetToRelease {
     )
     $AssetZipName = $(Split-Path $ZipFilePath -Leaf)
     
-    # GitHub API expects multipart/form-data for file uploads
+    # GitHub API expects raw binary data for asset uploads
     $CurlArgument = @(
         '-L'
         '-X', 'POST'
         '-H', "Accept: application/vnd.github+json"
         '-H', "Authorization: Bearer $token"
         '-H', "X-GitHub-Api-Version: 2022-11-28"
-        '-F', "file=@$ZipFilePath;filename=$AssetZipName"
+        '-H', "Content-Type: application/zip"
+        '--data-binary', "@$ZipFilePath"
         "https://uploads.github.com/repos/$owner/$repo/releases/$releaseID/assets?name=$AssetZipName"
     )
     
