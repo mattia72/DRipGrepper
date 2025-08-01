@@ -4,21 +4,12 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "DripGrepper: Build All & Deploy to TransferDrive and GitHub",
+            "label": "DripGrepper: Build All",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone -BuildExtension -DeployToGitHub",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone -BuildExtension",
             "problemMatcher": [],
             "group": {
-                "kind": "none"
-            }
-        },
-        {
-            "label": "DripGrepper: Deploy to TransferDrive",
-            "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -DeployToTransferDrive",
-            "problemMatcher": [],
-            "group": {
-                "kind": "none"
+                "kind": "build"
             }
         },
         {
@@ -31,9 +22,9 @@
             }
         },
         {
-            "label": "DripGrepper: Debug Build All & Local Deploy",
+            "label": "DripGrepper: Build All & Deploy to TransferDrive and GitHub",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig Debug -BuildStandalone -BuildExtension -LocalDeploy -Force",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone -BuildExtension -DeployToGitHub",
             "problemMatcher": [],
             "group": {
                 "kind": "none"
@@ -49,66 +40,54 @@
             }
         },
         {
-            "label": "DripGrepper: Build Extension & Local Deploy",
+            "label": "DripGrepper: Build and run DRipGrepper",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildExtension -LocalDeploy -Force",
-            "problemMatcher": [],
-            "group": {
-                "kind": "none"
-            }
-        },
-        {
-            "label": "DripGrepper: Build Extension & Local Deploy",
-            "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildExtension -LocalDeploy -Force",
-            "problemMatcher": [],
-            "group": {
-                "kind": "none"
-            }
-        },
-        {
-            "label": "DripGrepper: Deploy to GitHub",
-            "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -DeployToGitHub",
-            "problemMatcher": [],
-            "group": {
-                "kind": "none"
-            }
-        },
-        {
-            "label": "DripGrepper: Local Deploy Debug",
-            "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -LocalDeploy -Force -BuildConfig Debug",
-            "problemMatcher": [],
-            "group": {
-                "kind": "none"
-            }
-        },
-        {
-            "label": "DripGrepper: Local Deploy",
-            "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -LocalDeploy -Force",
-            "problemMatcher": [],
-            "group": {
-                "kind": "none"
-            }
-        },
-        {
-            "label": "DripGrepper: Update scoop manifest",
-            "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -UpdateScoopManifest",
-            "problemMatcher": [],
-            "group": {
-                "kind": "none"
-            }
-        },
-        {
-            "label": "DripGrepper: Build All",
-            "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone -BuildExtension",
-            "problemMatcher": [],
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone; & .\\Win32\\Release\\DripGrepper.exe",
             "group": {
                 "kind": "build"
+            }
+        },
+        {
+            "label": "DripGrepper: Build and run unittests",
+            "type": "shell",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -RunUnittest",
+            "problemMatcher": [],
+            "group": {
+                "kind": "none"
+            }
+        },
+        {
+            "label": "DripGrepper: Build DRipExtension",
+            "type": "shell",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildExtension",
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "label": "DripGrepper: Build DRipGrepper",
+            "type": "shell",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone",
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "label": "DripGrepper: Build Extension & Local Deploy",
+            "type": "shell",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildExtension -LocalDeploy -Force",
+            "problemMatcher": [],
+            "group": {
+                "kind": "none"
+            }
+        },
+        {
+            "label": "DripGrepper: Debug Build All & Local Deploy",
+            "type": "shell",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig Debug -BuildStandalone -BuildExtension -LocalDeploy -Force",
+            "problemMatcher": [],
+            "group": {
+                "kind": "none"
             }
         },
         {
@@ -128,27 +107,39 @@
             }
         },
         {
-            "label": "DripGrepper: Build DRipGrepper",
+            "label": "DripGrepper: Deploy to GitHub",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -DeployToGitHub",
+            "problemMatcher": [],
             "group": {
-                "kind": "build"
+                "kind": "none"
             }
         },
         {
-            "label": "DripGrepper: Build and run DRipGrepper",
+            "label": "DripGrepper: Deploy to TransferDrive",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone; & .\\Win32\\Release\\DripGrepper.exe",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -DeployToTransferDrive",
+            "problemMatcher": [],
             "group": {
-                "kind": "build"
+                "kind": "none"
             }
         },
         {
-            "label": "DripGrepper: Run DRipGrepper.exe (x86)",
+            "label": "DripGrepper: Local Deploy",
             "type": "shell",
-            "command": "& .\\deploy\\assets\\Win32\\DripGrepper.exe",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -LocalDeploy -Force",
+            "problemMatcher": [],
             "group": {
-                "kind": "test"
+                "kind": "none"
+            }
+        },
+        {
+            "label": "DripGrepper: Local Deploy Debug",
+            "type": "shell",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -LocalDeploy -Force -BuildConfig Debug",
+            "problemMatcher": [],
+            "group": {
+                "kind": "none"
             }
         },
         {
@@ -160,17 +151,26 @@
             }
         },
         {
-            "label": "DripGrepper: Build DRipExtension",
+            "label": "DripGrepper: Run DRipGrepper.exe (x86)",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildExtension",
+            "command": "& .\\deploy\\assets\\Win32\\DripGrepper.exe",
             "group": {
-                "kind": "build"
+                "kind": "test"
             }
         },
         {
-            "label": "DripGrepper: Build and run unittests",
+            "label": "DripGrepper: Update scoop manifest",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -RunUnittest",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -UpdateScoopManifest",
+            "problemMatcher": [],
+            "group": {
+                "kind": "none"
+            }
+        }
+        {
+            "label": "DripGrepper: Upload Missing Asset to Github",
+            "type": "shell",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -AddMissingAsset",
             "problemMatcher": [],
             "group": {
                 "kind": "none"
