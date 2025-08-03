@@ -313,7 +313,7 @@ function Add-ToAssetsDir {
     }
     New-Item -Path $AssetDir -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
     
-    Copy-Item -Path $AssetItemPath -Destination $AssetDir -ErrorAction Stop
+    Copy-Item -Path $AssetItemPath -Destination $AssetDir -ErrorAction Break
 
     $assetLabel = $($item.FullName -replace "^(.*)(\\.+\\.+\\$BuildConfig.*$)", "`$2" )
     $formattedLabel = $assetLabel.PadRight($global:PadRightValue)
