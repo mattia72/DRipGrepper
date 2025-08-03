@@ -378,7 +378,7 @@ object OpenWithCmdList: TOpenWithCmdList
       OnUpdate = ActionSwitchViewUpdate
     end
     object ActionShowConfig: TAction
-      Hint = 'Show Config...'
+      Hint = 'Show Settings...'
       ImageIndex = 0
       OnExecute = ActionShowConfigExecute
     end

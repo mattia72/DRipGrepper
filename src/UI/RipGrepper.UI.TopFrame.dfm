@@ -42,7 +42,9 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       object tbConfigure: TToolButton
         Left = 8
         Top = 0
+        Hint = 'Open Settings...'
         Action = ActionConfig
+        Caption = 'Settings'
         ParentShowHint = False
         ShowHint = True
       end

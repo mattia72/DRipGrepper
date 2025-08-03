@@ -35,7 +35,7 @@ const
 	EXTENSION_MENU_ROOT_TEXT = '&' + EXTENSION_NAME + '...';
 	{$ENDIF}
 	MENU_ITEM_OPEN_WITH = 'Open With...';
-	MENU_ITEM_SEARCH_WITH_DRIPGREPPER = 'Search with DripGrepper...';
+	MENU_ITEM_SEARCH_WITH_DRIPGREPPER = 'Search with DRipGrepper...';
 	MENU_ITEM_SETTINGS = 'Settings...';
 
 	SEARCH_HISTORY_DRH = 'SearchHistory.drh';
@@ -322,7 +322,7 @@ class constructor TDefaults.Create;
 begin
 	inherited;
 	EXT_DEFAULT_SHORTCUT_SEARCH := ShortCutToText(ShortCut(Word('R'), [ssShift, ssAlt]));
-	EXT_DEFAULT_SHORTCUT_OPEN_WITH := ShortCutToText(ShortCut(Word('O'), [ssShift, ssAlt]));
+	EXT_DEFAULT_SHORTCUT_OPEN_WITH := '';
 	EXT_DEFAULT_SHORTCUT_SETTINGS := ShortCutToText(ShortCut(Word('S'), [ssShift, ssAlt]));
 end;
 

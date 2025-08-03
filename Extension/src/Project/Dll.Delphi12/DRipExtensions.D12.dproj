@@ -121,8 +121,8 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.10.2.246;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.10.2;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>246</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.10.2.253;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.10.2;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>253</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <DCC_Description>RipGrep Search within Delphi</DCC_Description>
         <VerInfo_MinorVer>10</VerInfo_MinorVer>
@@ -277,6 +277,10 @@
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>CHANGELOG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\..\..\Resources\settings_icon-96px.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>settings_icon</ResourceId>
         </RcItem>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

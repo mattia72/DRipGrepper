@@ -120,7 +120,7 @@ begin
 	DripMenuItems.Add(
 		{ } CreateSubMenuItem(DRIP_MENUITEM_SETTINGS_NAME,
 		{ } MENU_ITEM_SETTINGS,
-		{ } '',//'settings_icon',
+		{ } 'settings_icon',
 		{ } extSettings.SettingsShortcut,
 		{ } TDefaults.EXT_DEFAULT_SHORTCUT_SETTINGS,
 		{ } DoSettingsMenuClick));
