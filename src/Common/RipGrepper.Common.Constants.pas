@@ -322,8 +322,8 @@ class constructor TDefaults.Create;
 begin
 	inherited;
 	EXT_DEFAULT_SHORTCUT_SEARCH := ShortCutToText(ShortCut(Word('R'), [ssShift, ssAlt]));
-	EXT_DEFAULT_SHORTCUT_OPEN_WITH := '';
-	EXT_DEFAULT_SHORTCUT_SETTINGS := ShortCutToText(ShortCut(Word('S'), [ssShift, ssAlt]));
+	EXT_DEFAULT_SHORTCUT_OPEN_WITH := ShortCutToText(ShortCut(Word('O'), [ssShift, ssAlt]));
+	EXT_DEFAULT_SHORTCUT_SETTINGS := ''; //no default. it can be set in INI
 end;
 
 class function TDefaults.GetColumnIndex(Index : string) : integer;
