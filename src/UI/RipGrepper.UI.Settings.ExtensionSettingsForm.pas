@@ -185,15 +185,16 @@ begin
 				FDelphiVersions.Find(v, dv);
 				cmbDelphiVersions.Items.AddObject('Delphi ' + (dv as TDelphiVersion).Name, TObject(dv));
 			end;
+			cmbDelphiVersions.ItemIndex := 0;
+			dv := GetSelectedDelphiVersion;
+			if not TryGetDllPath(dllPath, dv) then begin
+				dllPath := TPath.Combine(TReleaseUtils.GetAppDirectory(), GetValidDllName());
+			end;
+			EditedDllPath := dllPath;
 		end else begin
 			cmbDelphiVersions.Items.Add('No Delphi installation found');
+			cmbDelphiVersions.ItemIndex := 0;
 		end;
-		cmbDelphiVersions.ItemIndex := 0;
-		dv := GetSelectedDelphiVersion;
-		if not TryGetDllPath(dllPath, dv) then begin
-			dllPath := TPath.Combine(TReleaseUtils.GetAppDirectory(), GetValidDllName());
-		end;
-		EditedDllPath := dllPath;
 		UpdateRegisteredDllVersionInfo();
 		UpdateInstallBtnCaption();
 	finally
@@ -228,7 +229,7 @@ begin
 	var
 	idx := cmbDelphiVersions.ItemIndex;
 	dvo := cmbDelphiVersions.Items.Objects[idx];
-	if Supports(dvo, IDelphiVersion, idv) then
+	if Assigned(dvo) and Supports(dvo, IDelphiVersion, idv) then
 		Result := idv;
 end;
 
@@ -342,9 +343,15 @@ end;
 procedure TExtensionSettingsForm.UpdateRegisteredDllPath;
 begin
 	var
+	dbgMsg := TDebugMsgBeginEnd.New('TExtensionSettingsForm.UpdateRegisteredDllPath');
+
+	var
 		dv : IDelphiVersion := GetSelectedDelphiVersion;
-	FRegisteredDllPath := GetRegisteredExpertPath(dv);
-	EditedDllPath := FRegisteredDllPath;
+	if Assigned(dv) then begin
+        dbgMsg.MsgFmt('Found: %s', [dv.BDS]);
+		FRegisteredDllPath := GetRegisteredExpertPath(dv);
+		EditedDllPath := FRegisteredDllPath;
+	end;
 end;
 
 procedure TExtensionSettingsForm.UpdateRegisteredDllVersionInfo();
