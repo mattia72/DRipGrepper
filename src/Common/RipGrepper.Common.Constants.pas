@@ -35,7 +35,7 @@ const
 	EXTENSION_MENU_ROOT_TEXT = '&' + EXTENSION_NAME + '...';
 	{$ENDIF}
 	MENU_ITEM_OPEN_WITH = 'Open With...';
-	MENU_ITEM_SEARCH_WITH_DRIPGREPPER = 'Search with DRipGrepper...';
+	MENU_ITEM_SEARCH_WITH_DRIPGREPPER = 'Search with DripGrepper...';
 	MENU_ITEM_SETTINGS = 'Settings...';
 
 	SEARCH_HISTORY_DRH = 'SearchHistory.drh';
