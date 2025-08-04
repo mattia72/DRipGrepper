@@ -45,6 +45,7 @@ type
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionOkExecute(Sender : TObject);
 		procedure FormShow(Sender : TObject);
+		procedure PageControl1Change(Sender : TObject);
 
 		private
 			FAboutForm : TAboutForm;
@@ -134,8 +135,6 @@ end;
 destructor TConfigForm.Destroy;
 begin
 	Settings.ReLoadFromDisk;
-	for var i := 0 to PageControl1.PageCount - 1 do
-		PageControl1.Pages[0].Free;
 	inherited;
 end;
 
@@ -176,6 +175,7 @@ procedure TConfigForm.AddSettingTabs;
 var
 	iMaxHeight : integer;
 	iMaxWidth : integer;
+	tabPage : TTabSheet;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TConfigForm.AddSettingTabs');
@@ -186,7 +186,18 @@ begin
 		for var form : TForm in FSettingsForms do begin
 			iMaxHeight := System.Math.Max(iMaxHeight, form.Height);
 			iMaxWidth := System.Math.Max(iMaxWidth, form.Width);
-			form.ManualDock(PageControl1);
+			
+			// Create a new tab page for each form
+			tabPage := TTabSheet.Create(PageControl1);
+			tabPage.PageControl := PageControl1;
+			tabPage.Caption := form.Caption;
+			
+			// Configure form for docking
+			form.BorderStyle := bsNone;
+			form.Align := alClient;
+			
+			// Dock the form to the tab page
+			form.ManualDock(tabPage);
 		end;
 		FOpenWithConfigForm.pnlBottom.Visible := False;
 		self.Height := iMaxHeight + PageControl1.TabHeight + pnlBottom.Height;
@@ -194,6 +205,7 @@ begin
 		// Autoscroll := true;
 		// VertScrollBar.Range := iMaxHeight;
 		PageControl1.TabIndex := 0;
+		
 	finally
 		Screen.Cursor := crDefault;
 	end;
@@ -235,16 +247,21 @@ procedure TConfigForm.FormShow(Sender : TObject);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TConfigForm.FormShow');
-
-	for var form : TForm in FSettingsForms do begin
+	
+	// Show only the first form initially (lazy loading for others)
+	if FSettingsForms.Count > 0 then begin
+		var
+		firstForm := FSettingsForms[0];
+		dbgMsg.Msg('Showing first form on FormShow: ' + firstForm.Caption);
 		try
-			dbgMsg.Msg('Showing form: ' + form.Caption);
-			form.Show();
+			firstForm.Show();
 		except
 			on E : Exception do
-				dbgMsg.Msg('Error showing form: ' + form.Name + ' - ' + E.Message);
+				dbgMsg.Msg('Error showing first form: ' + firstForm.Name + ' - ' + E.Message);
 		end;
 	end;
+	
+	dbgMsg.Msg('ConfigForm shown - first form initialized, lazy loading for others');
 end;
 
 function TConfigForm.GetThemeHandler : TThemeHandler;
@@ -253,6 +270,27 @@ begin
 		FThemeHandler := TThemeHandler.Create(self, FThemeName);
 	end;
 	Result := FThemeHandler;
+end;
+
+procedure TConfigForm.PageControl1Change(Sender : TObject);
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TConfigForm.PageControl1Change');
+	
+	// Show the form on the newly activated tab (lazy loading)
+	if (PageControl1.ActivePage <> nil) and (PageControl1.ActivePage.ControlCount > 0) then begin
+		var
+		activeForm := PageControl1.ActivePage.Controls[0] as TForm;
+		if not activeForm.Visible then begin
+			try
+				dbgMsg.Msg('Lazy loading form: ' + activeForm.Caption);
+				activeForm.Show();
+			except
+				on E : Exception do
+					dbgMsg.Msg('Error showing form: ' + activeForm.Name + ' - ' + E.Message);
+			end;
+		end;
+	end;
 end;
 
 end.

@@ -76,6 +76,7 @@ object ConfigForm: TConfigForm
       Align = alClient
       MultiLine = True
       TabOrder = 0
+      OnChange = PageControl1Change
     end
   end
   object ActionList1: TActionList
