@@ -1,5 +1,16 @@
 # Changelog
 
+## [v4.11.0-beta] - 2025-08-04
+
+### 💥 Added
+- Settings menu added to DRipExtensions menu
+
+### 🔄 Changed
+- Faster load of settings form 
+
+### 🐞 Fixed
+- Exception while opening Extension Settings tab if no installed Delphi found. (#23)
+
 ## [v4.10.2-beta] - 2025-07-31
 
 ### 🐞 Fixed
@@ -31,6 +42,7 @@
 
 ## [Previous Versions]
 - See the release notes in the GitHub repository: https://github.com/mattia72/DRipGrepper/releases
+
 
 
 

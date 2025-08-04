@@ -1,4 +1,4 @@
-﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{61FA8D59-16BA-4F6D-96E6-6AF82C96C442}</ProjectGuid>
         <ProjectVersion>20.1</ProjectVersion>
@@ -62,7 +62,7 @@
         <DCC_Define>NO_TRANSLATION;NO_TRANSLATION_HINT;NO_OPTIMIZE_DZ_GRAPHIC_UTILS_HINT;UnicodeRE;EnableIdeDockingSupport;$(DCC_Define)</DCC_Define>
         <DCC_UnitAlias>GX_IdeDockStandAlone=GX_IdeDock;SynRegExpr=RegExprReplaceUnit;$(DCC_UnitAlias)</DCC_UnitAlias>
         <VerInfo_Locale>1031</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=4.10.2.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.10.2;Comments=beta</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=4.11.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.11.0;Comments=beta</VerInfo_Keys>
         <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
         <DCC_AdditionalSwitches>-LUDesignIDE</DCC_AdditionalSwitches>
         <UsePackages>true</UsePackages>
@@ -74,13 +74,13 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_UsePackage>rtl;vcl;designide;$(DCC_UsePackage)</DCC_UsePackage>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.10.2.232;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.10.2;Comments=beta</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.11.0.232;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.11.0;Comments=beta</VerInfo_Keys>
         <VerInfo_Build>232</VerInfo_Build>
-        <VerInfo_MinorVer>10</VerInfo_MinorVer>
+        <VerInfo_MinorVer>11</VerInfo_MinorVer>
         <UsePackages>true</UsePackages>
         <Manifest_File>(None)</Manifest_File>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
-        <VerInfo_Release>2</VerInfo_Release>
+        <VerInfo_Release>0</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <DCC_UsePackage>rtl;dbrtl;vcldb;vcl;VirtualTreesDR;VclSmp;$(DCC_UsePackage)</DCC_UsePackage>
@@ -103,13 +103,13 @@
         <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\23.0\bin\bds.exe</Debugger_HostApplication>
         <DCC_ShowGeneralMessages>true</DCC_ShowGeneralMessages>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.10.2.232;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.10.2;Comments=beta</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.11.0.232;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.11.0;Comments=beta</VerInfo_Keys>
         <VerInfo_Build>232</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <Manifest_File>..\Delphi12\(None)</Manifest_File>
-        <VerInfo_MinorVer>10</VerInfo_MinorVer>
+        <VerInfo_MinorVer>11</VerInfo_MinorVer>
         <UsePackages>true</UsePackages>
-        <VerInfo_Release>2</VerInfo_Release>
+        <VerInfo_Release>0</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -121,16 +121,16 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.10.2.253;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.10.2;Comments=beta</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.11.0.253;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.11.0;Comments=beta</VerInfo_Keys>
         <VerInfo_Build>253</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <DCC_Description>RipGrep Search within Delphi</DCC_Description>
-        <VerInfo_MinorVer>10</VerInfo_MinorVer>
+        <VerInfo_MinorVer>11</VerInfo_MinorVer>
         <DCC_MapFile>3</DCC_MapFile>
         <BRCC_CompilerToUse>rc</BRCC_CompilerToUse>
         <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\23.0\bin\bds.exe</Debugger_HostApplication>
         <UsePackages>true</UsePackages>
-        <VerInfo_Release>2</VerInfo_Release>
+        <VerInfo_Release>0</VerInfo_Release>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -1211,3 +1211,4 @@
     <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
     <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')"/>
 </Project>
+
