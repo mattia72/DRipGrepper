@@ -19,9 +19,11 @@ type
 			procedure FillSectionObject(JsonObject : TJSONObject; var Section : string; Values : TStringList);
 
 		public
-         [Test, Ignore]
+			[Test]
+			[Ignore('Ignore this test, it is for converting ini to json')]
 			procedure ConvertIniTest;
-         [Test, Ignore]
+			[Test]
+			[Ignore('Ignore this test, it is for reading json')]
 			procedure ReadJsonTest;
 	end;
 

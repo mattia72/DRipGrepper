@@ -42,6 +42,9 @@ type
 			procedure AssertContainsIntAndStrSetting(hio : IHistoryItemObject);
 			function GetSettingsDictAsArray(const hio : IHistoryItemObject) : TArray<TArray<string>>;
 			procedure WriteHistObjsToStream(const ms : IShared<TMemoryStream>);
+			function CreateSampleHistoryItemWithSearchAndMatches() : IHistoryItemObject;
+			function CreateSampleHistoryItemWithSearchAndNoMatches() : IHistoryItemObject;
+			function CreateSampleHistoryItemWithReplaceAndMatches() : IHistoryItemObject;
 
 		public
 			constructor Create();
@@ -53,6 +56,18 @@ type
 			procedure TestSaveLoadFromStream();
 			[Test]
 			procedure TestSaveLoadListFromStream();
+			[Test]
+			procedure LoadFromStreamShouldRestoreSearchWithMatches();
+			[Test]
+			procedure LoadFromStreamShouldRestoreSearchWithoutMatches();
+			[Test]
+			procedure LoadFromStreamShouldRestoreReplaceWithMatches();
+			[Test]
+			procedure SaveToStreamShouldPersistSearchWithMatches();
+			[Test]
+			procedure SaveToStreamShouldPersistSearchWithoutMatches();
+			[Test]
+			procedure SaveToStreamShouldPersistReplaceWithMatches();
 	end;
 
 implementation
@@ -64,7 +79,8 @@ uses
 	RipGrepper.Common.Constants,
 	RipGrepper.Settings.SettingsDictionary,
 	ArrayEx,
-	RipGrepper.Helper.StreamReaderWriter;
+	RipGrepper.Helper.StreamReaderWriter,
+	RipGrepper.Common.ParsedObject;
 
 constructor THistoryItemObjectTest.Create();
 begin
@@ -231,6 +247,339 @@ begin
 		FHistoryObjectList.Add(hio);
 	end;
 	AssertContainsIntAndStrSetting(hio);
+end;
+
+function THistoryItemObjectTest.CreateSampleHistoryItemWithSearchAndMatches() : IHistoryItemObject;
+var
+	guiParams : IShared<TGuiSearchTextParams>;
+	searchText : IShared<TSearchTextWithOptions>;
+	row : IParsedObjectRow;
+	colData : TArrayEx<TColumnData>;
+begin
+	Result := THistoryItemObject.Create();
+
+	// Setup search parameters
+	guiParams := Shared.Make<TGuiSearchTextParams>(TGuiSearchTextParams.Create('TestSection'));
+	searchText := guiParams.SearchTextWithOptions;
+	searchText.SearchTextOfUser := 'test pattern';
+	searchText.SetOption(EGuiOption.soMatchCase);
+	guiParams.IsReplaceMode := False;
+
+	Result.GuiSearchTextParams := guiParams;
+
+	// Add some RipGrep arguments
+	Result.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '--case-sensitive');
+	Result.RipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, 'test pattern');
+	Result.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '--type');
+	Result.RipGrepArguments.AddPair(RG_ARG_OPTIONS, 'pas');
+
+	// Setup search form settings
+	Result.SearchFormSettings.SearchPath := 'C:\Test\Path';
+	Result.SearchFormSettings.FileMasks := '*.pas';
+
+	// Create some sample matches
+	Result.ShouldSaveResult := True;
+
+	// Create first match
+	row := TParsedObjectRow.Create(nil, ptRipGrepSearch);
+	colData.Clear();
+	colData.Add(TColumnData.New(ciFile, 'C:\Test\File1.pas'));
+	colData.Add(TColumnData.New(ciRow, '10'));
+	colData.Add(TColumnData.New(ciCol, '5'));
+	colData.Add(TColumnData.New(ciText, 'This is a test pattern match'));
+	colData.Add(TColumnData.New(ciMatchText, 'test pattern'));
+	colData.Add(TColumnData.New(ciTextAfterMatch, ' match'));
+	row.Columns := colData;
+	Result.Matches.Items.Add(row);
+
+	// Create second match
+	row := TParsedObjectRow.Create(nil, ptRipGrepSearch);
+	colData.Clear();
+	colData.Add(TColumnData.New(ciFile, 'C:\Test\File2.pas'));
+	colData.Add(TColumnData.New(ciRow, '15'));
+	colData.Add(TColumnData.New(ciCol, '8'));
+	colData.Add(TColumnData.New(ciText, 'Another test pattern here'));
+	colData.Add(TColumnData.New(ciMatchText, 'test pattern'));
+	colData.Add(TColumnData.New(ciTextAfterMatch, ' here'));
+	row.Columns := colData;
+	Result.Matches.Items.Add(row);
+
+	Result.FileCount := 2;
+end;
+
+function THistoryItemObjectTest.CreateSampleHistoryItemWithSearchAndNoMatches() : IHistoryItemObject;
+var
+	guiParams : IShared<TGuiSearchTextParams>;
+	searchText : IShared<TSearchTextWithOptions>;
+	row : IParsedObjectRow;
+	colData : TArrayEx<TColumnData>;
+begin
+	Result := THistoryItemObject.Create();
+
+	// Setup search parameters
+	guiParams := Shared.Make<TGuiSearchTextParams>(TGuiSearchTextParams.Create('TestSection'));
+	searchText := guiParams.SearchTextWithOptions;
+	searchText.SearchTextOfUser := 'nonexistent pattern';
+	searchText.SetOption(EGuiOption.soUseRegex);
+	guiParams.IsReplaceMode := False;
+
+	Result.GuiSearchTextParams := guiParams;
+
+	// Add some RipGrep arguments
+	Result.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '--regex');
+	Result.RipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, 'nonexistent pattern');
+
+	// Setup search form settings
+	Result.SearchFormSettings.SearchPath := 'C:\Empty\Path';
+	Result.SearchFormSettings.FileMasks := '*.txt';
+
+	// Create "no output" result
+	Result.ShouldSaveResult := True;
+	row := TParsedObjectRow.Create(nil, ptRipGrepSearch);
+	colData.Clear();
+	colData.Add(TColumnData.New(ciFile, 'rg.exe' + RG_HAS_NO_OUTPUT));
+	colData.Add(TColumnData.New(ciRow, ''));
+	colData.Add(TColumnData.New(ciCol, ''));
+	colData.Add(TColumnData.New(ciText, ''));
+	colData.Add(TColumnData.New(ciMatchText, ''));
+	colData.Add(TColumnData.New(ciTextAfterMatch, ''));
+	row.Columns := colData;
+	Result.Matches.Items.Add(row);
+
+	Result.FileCount := 0;
+end;
+
+function THistoryItemObjectTest.CreateSampleHistoryItemWithReplaceAndMatches() : IHistoryItemObject;
+var
+	guiParams : IShared<TGuiSearchTextParams>;
+	searchText : IShared<TSearchTextWithOptions>;
+	row : IParsedObjectRow;
+	colData : TArrayEx<TColumnData>;
+begin
+	Result := THistoryItemObject.Create();
+
+	// Setup replace parameters
+	guiParams := Shared.Make<TGuiSearchTextParams>(TGuiSearchTextParams.Create('TestSection'));
+	searchText := guiParams.SearchTextWithOptions;
+	searchText.SearchTextOfUser := 'old_value';
+	searchText.SetOption(EGuiOption.soMatchWord);
+	guiParams.IsReplaceMode := True;
+	guiParams.ReplaceText := 'new_value';
+
+	Result.GuiSearchTextParams := guiParams;
+
+	// Add some RipGrep arguments for replace
+	Result.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '--replace');
+	Result.RipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, 'new_value');
+	Result.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '--word-regexp');
+	Result.RipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, 'old_value');
+
+	// Setup search form settings
+	Result.SearchFormSettings.SearchPath := 'C:\Replace\Path';
+	Result.SearchFormSettings.FileMasks := '*.pas;*.inc';
+
+	// Create some sample replace matches
+	Result.ShouldSaveResult := True;
+
+	// Create first replace match
+	row := TParsedObjectRow.Create(nil, ptRipGrepReplace);
+	colData.Clear();
+	colData.Add(TColumnData.New(ciFile, 'C:\Replace\File1.pas'));
+	colData.Add(TColumnData.New(ciRow, '20'));
+	colData.Add(TColumnData.New(ciCol, '12'));
+	colData.Add(TColumnData.New(ciText, 'var old_value: string;'));
+	colData.Add(TColumnData.New(ciMatchText, 'old_value'));
+	colData.Add(TColumnData.New(ciTextAfterMatch, ': string;'));
+	row.Columns := colData;
+	Result.Matches.Items.Add(row);
+
+	Result.FileCount := 1;
+end;
+
+procedure THistoryItemObjectTest.SaveToStreamShouldPersistSearchWithMatches();
+var
+	historyItem : IHistoryItemObject;
+	stream : TMemoryStream;
+begin
+	// Arrange
+	historyItem := CreateSampleHistoryItemWithSearchAndMatches();
+	stream := TMemoryStream.Create();
+	try
+		// Act
+		historyItem.SaveToStream(stream);
+
+		// Assert
+		Assert.IsTrue(stream.Size > 0, 'Stream should contain data after saving');
+		Assert.AreEqual('test pattern', historyItem.GuiSearchTextParams.SearchTextWithOptions.SearchTextOfUser,
+			'Search text should be preserved');
+		Assert.AreEqual(2, historyItem.Matches.Items.Count, 'Should have 2 matches');
+		Assert.AreEqual(4, historyItem.RipGrepArguments.Count, 'Should have 4 RipGrep arguments');
+	finally
+		stream.Free();
+	end;
+end;
+
+procedure THistoryItemObjectTest.SaveToStreamShouldPersistSearchWithoutMatches();
+var
+	historyItem : IHistoryItemObject;
+	stream : TMemoryStream;
+begin
+	// Arrange
+	historyItem := CreateSampleHistoryItemWithSearchAndNoMatches();
+	stream := TMemoryStream.Create();
+	try
+		// Act
+		historyItem.SaveToStream(stream);
+
+		// Assert
+		Assert.IsTrue(stream.Size > 0, 'Stream should contain data after saving');
+		Assert.AreEqual('nonexistent pattern', historyItem.GuiSearchTextParams.SearchTextWithOptions.SearchTextOfUser,
+			'Search text should be preserved');
+		Assert.AreEqual(1, historyItem.Matches.Items.Count, 'Should have 1 "no output" item');
+		Assert.AreEqual(2, historyItem.RipGrepArguments.Count, 'Should have 2 RipGrep arguments');
+	finally
+		stream.Free();
+	end;
+end;
+
+procedure THistoryItemObjectTest.SaveToStreamShouldPersistReplaceWithMatches();
+var
+	historyItem : IHistoryItemObject;
+	stream : TMemoryStream;
+begin
+	// Arrange
+	historyItem := CreateSampleHistoryItemWithReplaceAndMatches();
+	stream := TMemoryStream.Create();
+	try
+		// Act
+		historyItem.SaveToStream(stream);
+
+		// Assert
+		Assert.IsTrue(stream.Size > 0, 'Stream should contain data after saving');
+		Assert.AreEqual('old_value', historyItem.GuiSearchTextParams.SearchTextWithOptions.SearchTextOfUser,
+			'Search text should be preserved');
+		Assert.IsTrue(historyItem.GuiSearchTextParams.IsReplaceMode, 'Should be in replace mode');
+		Assert.AreEqual('new_value', historyItem.GuiSearchTextParams.ReplaceText, 'Replace text should be preserved');
+		Assert.AreEqual(1, historyItem.Matches.Items.Count, 'Should have 1 replace match');
+		Assert.AreEqual(4, historyItem.RipGrepArguments.Count, 'Should have 4 RipGrep arguments');
+	finally
+		stream.Free();
+	end;
+end;
+
+procedure THistoryItemObjectTest.LoadFromStreamShouldRestoreSearchWithMatches();
+var
+	originalItem : IHistoryItemObject;
+	loadedItem : IHistoryItemObject;
+	stream : TMemoryStream;
+begin
+	// Arrange
+	originalItem := CreateSampleHistoryItemWithSearchAndMatches();
+	stream := TMemoryStream.Create();
+	try
+		originalItem.SaveToStream(stream);
+		stream.Position := 0;
+
+		// Act
+		loadedItem := THistoryItemObject.Create();
+		loadedItem.LoadFromStream(stream);
+
+		// Assert
+		Assert.IsTrue(loadedItem.IsLoadedFromStream, 'Should be marked as loaded from stream');
+		Assert.AreEqual('test pattern', loadedItem.GuiSearchTextParams.SearchTextWithOptions.SearchTextOfUser,
+			'Search text should be restored');
+		Assert.IsFalse(loadedItem.GuiSearchTextParams.IsReplaceMode, 'Should not be in replace mode');
+		Assert.IsTrue(EGuiOption.soMatchCase in loadedItem.GuiSearchTextParams.SearchTextWithOptions.SearchOptions,
+			'Search options should be restored');
+		Assert.AreEqual(4, loadedItem.RipGrepArguments.Count, 'RipGrep arguments should be restored');
+		Assert.IsTrue(loadedItem.RipGrepArguments.Text.Contains('--case-sensitive'), 'First argument should be restored');
+		Assert.AreEqual('C:\Test\Path', loadedItem.SearchFormSettings.SearchPath, 'Search path should be restored');
+		Assert.AreEqual('*.pas', loadedItem.SearchFormSettings.FileMasks, 'File masks should be restored');
+		Assert.AreEqual(2, loadedItem.Matches.Items.Count, 'Matches should be restored');
+		Assert.AreEqual('C:\Test\File1.pas', loadedItem.Matches.Items[0].GetColumnText(ciFile),
+			'First match file should be restored');
+		Assert.AreEqual('test pattern', loadedItem.Matches.Items[0].GetColumnText(ciMatchText),
+			'First match text should be restored');
+		Assert.AreEqual(2, loadedItem.FileCount, 'File count should be restored');
+	finally
+		stream.Free();
+	end;
+end;
+
+procedure THistoryItemObjectTest.LoadFromStreamShouldRestoreSearchWithoutMatches();
+var
+	originalItem : IHistoryItemObject;
+	loadedItem : IHistoryItemObject;
+	stream : TMemoryStream;
+begin
+	// Arrange
+	originalItem := CreateSampleHistoryItemWithSearchAndNoMatches();
+	stream := TMemoryStream.Create();
+	try
+		originalItem.SaveToStream(stream);
+		stream.Position := 0;
+
+		// Act
+		loadedItem := THistoryItemObject.Create();
+		loadedItem.LoadFromStream(stream);
+
+		// Assert
+		Assert.IsTrue(loadedItem.IsLoadedFromStream, 'Should be marked as loaded from stream');
+		Assert.AreEqual('nonexistent pattern', loadedItem.GuiSearchTextParams.SearchTextWithOptions.SearchTextOfUser,
+			'Search text should be restored');
+		Assert.IsFalse(loadedItem.GuiSearchTextParams.IsReplaceMode, 'Should not be in replace mode');
+		Assert.IsTrue(EGuiOption.soUseRegex in loadedItem.GuiSearchTextParams.SearchTextWithOptions.SearchOptions,
+			'Search options should be restored');
+		Assert.AreEqual(2, loadedItem.RipGrepArguments.Count, 'RipGrep arguments should be restored');
+		Assert.IsTrue(loadedItem.RipGrepArguments.Text.Contains('--regex'), 'First argument should be restored');
+		Assert.AreEqual('C:\Empty\Path', loadedItem.SearchFormSettings.SearchPath, 'Search path should be restored');
+		Assert.AreEqual('*.txt', loadedItem.SearchFormSettings.FileMasks, 'File masks should be restored');
+		// Note: "No output" items result in 0 items being stored to stream
+		Assert.AreEqual(0, loadedItem.Matches.Items.Count, 'No matches should be restored for "no output" case');
+		Assert.AreEqual(0, loadedItem.FileCount, 'File count should be 0 for no matches');
+	finally
+		stream.Free();
+	end;
+end;
+
+procedure THistoryItemObjectTest.LoadFromStreamShouldRestoreReplaceWithMatches();
+var
+	originalItem : IHistoryItemObject;
+	loadedItem : IHistoryItemObject;
+	stream : TMemoryStream;
+begin
+	// Arrange
+	originalItem := CreateSampleHistoryItemWithReplaceAndMatches();
+	stream := TMemoryStream.Create();
+	try
+		originalItem.SaveToStream(stream);
+		stream.Position := 0;
+
+		// Act
+		loadedItem := THistoryItemObject.Create();
+		loadedItem.LoadFromStream(stream);
+
+		// Assert
+		Assert.IsTrue(loadedItem.IsLoadedFromStream, 'Should be marked as loaded from stream');
+		Assert.AreEqual('old_value', loadedItem.GuiSearchTextParams.SearchTextWithOptions.SearchTextOfUser,
+			'Search text should be restored');
+		Assert.IsTrue(loadedItem.GuiSearchTextParams.IsReplaceMode, 'Should be in replace mode');
+		Assert.AreEqual('new_value', loadedItem.GuiSearchTextParams.ReplaceText, 'Replace text should be restored');
+		Assert.IsTrue(EGuiOption.soMatchWord in loadedItem.GuiSearchTextParams.SearchTextWithOptions.SearchOptions,
+			'Search options should be restored');
+		Assert.AreEqual(4, loadedItem.RipGrepArguments.Count, 'RipGrep arguments should be restored');
+		Assert.IsTrue(loadedItem.RipGrepArguments.Text.Contains('--replace'), 'First argument should be restored');
+		Assert.AreEqual('C:\Replace\Path', loadedItem.SearchFormSettings.SearchPath, 'Search path should be restored');
+		Assert.AreEqual('*.pas;*.inc', loadedItem.SearchFormSettings.FileMasks, 'File masks should be restored');
+		Assert.AreEqual(1, loadedItem.Matches.Items.Count, 'Matches should be restored');
+		Assert.AreEqual('C:\Replace\File1.pas', loadedItem.Matches.Items[0].GetColumnText(ciFile),
+			'Match file should be restored');
+		Assert.AreEqual('old_value', loadedItem.Matches.Items[0].GetColumnText(ciMatchText),
+			'Match text should be restored');
+		Assert.AreEqual(1, loadedItem.FileCount, 'File count should be restored');
+	finally
+		stream.Free();
+	end;
 end;
 
 end.
