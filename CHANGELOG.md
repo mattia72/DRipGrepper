@@ -4,9 +4,13 @@
 
 ### 💥 Added
 - Settings menu added to DRipExtensions menu
+- New unittests of Load/SaveStream of History Objects
 
 ### 🔄 Changed
 - Faster load of settings form 
+- ButtonEdit controls has hints for left and right buttons
+- Deploy script update to build the right unittest projects
+- If newer release runs as the current github release, info message is not shown.
 
 ### 🐞 Fixed
 - Exception while opening Extension Settings tab if no installed Delphi found. (#23)

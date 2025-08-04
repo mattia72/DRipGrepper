@@ -259,7 +259,8 @@ function Build-AndRunUnittest {
     Test-BuildResult -result $result    
     $unittestPath = Join-Path $unittestPath "\Win32\$BuildConfig"
 
-    & $unittestPath\DRipGrepperUnittest.exe -exitbehavior:Continue
+    Write-Host "Running unit tests..."
+    & $unittestPath\DRipGrepperUnittest.exe --dontshowignored --exitbehavior:Continue
     
     Write-Host -ForegroundColor Blue @"
     -------------
@@ -290,7 +291,7 @@ function Build-ExpertDllRelease {
     $latestVersion = Get-LastInstalledDelphiVersion 
     $dllProjName = "$global:DllNameWithoutExt.$($latestVersion.Data.Dir -replace "Delphi", "D").dproj"
     $result = $null
-    # add -LUDesignIde to the msbuild parameters
+    # add DesignIde to the msbuild parameters
     # see https://docwiki.embarcadero.com/Libraries/Athens/en/DesignIntf
     Build-DelphiProject -ProjectPath $projectPath\$dllProjName -BuildConfig $BuildConfig `
         -AddMsBuildParameters "/p:mapfile=Detailed;DCC_MapFile=3" -StopOnFirstFailure -CountResult -Result ([ref]$result)

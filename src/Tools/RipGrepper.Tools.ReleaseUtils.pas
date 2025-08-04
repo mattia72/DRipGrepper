@@ -75,8 +75,10 @@ type
 			function GetLatestRelease : IReleaseInfo;
 			function GetLatestVersion : string;
 			class function GetModuleVersion(Instance : THandle; out iMajor, iMinor, iRelease, iBuild : Integer) : Boolean; static;
+			class function ParseVersionString(const _version : string; out _major, _minor, _patch, _build : Integer; out _suffix : string) : Boolean; static;
 
 		public
+			class function CompareVersions(const _version1, _version2 : string) : Integer; static;
 			procedure DownloadReleaseInfos;
 			class function GetAppDirectory() : string; static;
 			class function GetAppNameAndVersion(const _exePath : string) : string; static;
@@ -463,7 +465,10 @@ end;
 
 function TReleaseUtils.IsCurrentTheLatest : Boolean;
 begin
-	Result := TReleaseUtils.IsSameVersion(LatestRelease, CurrentRelease);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TReleaseUtils.IsCurrentTheLatest');
+	Result := TReleaseUtils.CompareVersions(LatestRelease.Version, CurrentRelease.Version) <= 0;
+	dbgMsg.MsgFmt('IsCurrentTheLatest: %s >= %s = %s', [LatestRelease.Version, CurrentRelease.Version, BoolToStr(Result, True)]);
 end;
 
 class function TReleaseUtils.IsSameVersion(_ri1, _ri2 : IReleaseInfo) : Boolean;
@@ -522,6 +527,126 @@ begin
 			break;
 		end;
 	end;
+end;
+
+class function TReleaseUtils.ParseVersionString(const _version : string; out _major, _minor, _patch, _build : Integer; out _suffix : string) : Boolean;
+var
+	cleanVersion : string;
+	versionParts : TArray<string>;
+	suffixPos : Integer;
+begin
+	Result := False;
+	_major := 0;
+	_minor := 0;
+	_patch := 0;
+	_build := 0;
+	_suffix := '';
+
+	if _version.IsEmpty then begin
+		Exit;
+	end;
+
+	// Remove 'v' prefix if present
+	cleanVersion := _version;
+	if cleanVersion.StartsWith('v') or cleanVersion.StartsWith('V') then begin
+		cleanVersion := cleanVersion.Substring(1);
+	end;
+
+	// Split version and suffix at '-' or '+' (for pre-release or build metadata)
+	suffixPos := cleanVersion.IndexOfAny(['-', '+']);
+	if suffixPos >= 0 then begin
+		_suffix := cleanVersion.Substring(suffixPos + 1);
+		cleanVersion := cleanVersion.Substring(0, suffixPos);
+	end;
+
+	// Split version parts
+	versionParts := cleanVersion.Split(['.']);
+	if Length(versionParts) < 2 then begin
+		Exit; // At least major.minor required
+	end;
+
+	// Parse version components
+	try
+		_major := StrToInt(versionParts[0]);
+		_minor := StrToInt(versionParts[1]);
+		
+		if Length(versionParts) > 2 then begin
+			_patch := StrToInt(versionParts[2]);
+		end;
+		
+		if Length(versionParts) > 3 then begin
+			_build := StrToInt(versionParts[3]);
+		end;
+		
+		Result := True;
+	except
+		on E : EConvertError do begin
+			// Invalid version format
+			Result := False;
+		end;
+	end;
+end;
+
+class function TReleaseUtils.CompareVersions(const _version1, _version2 : string) : Integer;
+var
+	major1, minor1, patch1, build1 : Integer;
+	major2, minor2, patch2, build2 : Integer;
+	suffix1, suffix2 : string;
+	version1Valid, version2Valid : Boolean;
+begin
+	version1Valid := ParseVersionString(_version1, major1, minor1, patch1, build1, suffix1);
+	version2Valid := ParseVersionString(_version2, major2, minor2, patch2, build2, suffix2);
+
+	// Handle invalid versions
+	if not version1Valid and not version2Valid then begin
+		Result := CompareStr(_version1, _version2); // Fallback to string comparison
+		Exit;
+	end;
+	
+	if not version1Valid then begin
+		Result := -1; // Invalid version is considered lower
+		Exit;
+	end;
+	
+	if not version2Valid then begin
+		Result := 1; // Valid version is higher than invalid
+		Exit;
+	end;
+
+	if major1 <> major2 then begin
+		Result := major1 - major2;
+		Exit;
+	end;
+
+	if minor1 <> minor2 then begin
+		Result := minor1 - minor2;
+		Exit;
+	end;
+
+	if patch1 <> patch2 then begin
+		Result := patch1 - patch2;
+		Exit;
+	end;
+
+	if build1 <> build2 then begin
+		Result := build1 - build2;
+		Exit;
+	end;
+
+	// Compare suffixes (pre-release versions)
+	// A version without suffix is considered higher than one with suffix
+	if suffix1.IsEmpty and not suffix2.IsEmpty then begin
+		Result := 1; // No suffix is higher than with suffix (stable > pre-release)
+		Exit;
+	end;
+	
+	if not suffix1.IsEmpty and suffix2.IsEmpty then begin
+		Result := -1; // With suffix is lower than no suffix (pre-release < stable)
+		Exit;
+	end;
+
+	// Both have suffixes or both don't have suffixes
+	Result := CompareStr(suffix1, suffix2);
 end;
 
 end.
