@@ -1,6 +1,6 @@
 program DRipGrepper;
 
-{$R *.dres}
+{$R *.dres}   // to read resources
 
 uses
   {$IFDEF FASTMM4_OPT}
