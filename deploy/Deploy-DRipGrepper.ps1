@@ -253,7 +253,9 @@ function Build-AndRunUnittest {
     $projectPath = Split-Path -Parent $PSScriptRoot 
     $unittestPath = Join-Path $projectPath "UnitTest"
     $result = $null
-    Build-DelphiProject -ProjectPath $unittestPath\DRipGrepperUnittest.dproj -BuildConfig $BuildConfig -StopOnFirstFailure -CountResult -Result ([ref]$result)
+    # get installed Delphi version
+    $latestVersion = Get-LastInstalledDelphiVersion
+    Build-DelphiProject -ProjectPath $unittestPath\DRipGrepperUnittest.$($latestVersion.Data.Dir -replace "Delphi", "D").dproj -BuildConfig $BuildConfig -StopOnFirstFailure -CountResult -Result ([ref]$result)
     Test-BuildResult -result $result    
     $unittestPath = Join-Path $unittestPath "\Win32\$BuildConfig"
 
