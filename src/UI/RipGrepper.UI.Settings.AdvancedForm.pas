@@ -129,6 +129,7 @@ procedure TAdvancedForm.btnedtIniFilePathLeftButtonClick(Sender : TObject);
 begin
 	FSettings.ReLoadFromDisk;
 	ReadSettings;
+	TMsgBox.ShowInfo('Settings reloaded from disk.');
 end;
 
 procedure TAdvancedForm.btnedtIniFilePathRightButtonClick(Sender : TObject);
@@ -154,6 +155,8 @@ end;
 
 procedure TAdvancedForm.FormShow(Sender : TObject);
 begin
+	btnedtIniFilePath.LeftButton.Hint := 'Reload settings from disk';
+	btnedtIniFilePath.RightButton.Hint := 'Open with...';
 	ReadSettings;
 end;
 

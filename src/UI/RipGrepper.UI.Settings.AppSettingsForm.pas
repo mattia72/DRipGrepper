@@ -207,6 +207,8 @@ begin
 		FRipGrepSettings.TryGetRipGrepPath(path);
 	end;
 	btnedtRgExePath.Text := path;
+	btnedtRgExePath.LeftButton.Hint := 'Refresh version info';
+	btnedtRgExePath.RightButton.Hint := 'Select rg.exe';
 	Memo1.Text := GetRgVersion(path);
 end;
 

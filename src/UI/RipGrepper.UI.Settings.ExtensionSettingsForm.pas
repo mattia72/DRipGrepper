@@ -47,6 +47,7 @@ type
 		grpVsCodeIntegration : TGroupBox;
 		chkHandleOpenInDelphiCommands : TCheckBox;
 		procedure ActionExtensionInstallExecute(Sender : TObject);
+		procedure btnedtDllPathLeftButtonClick(Sender : TObject);
 		procedure btnedtDllPathRightButtonClick(Sender : TObject);
 		procedure cmbDelphiVersionsChange(Sender : TObject);
 		procedure FormShow(Sender : TObject);
@@ -117,6 +118,8 @@ begin
 	{$IF IS_GUITEST OR IS_EXTENSION}
 	ReadSettings;
 	{$ENDIF}
+	btnedtDllPath.LeftButton.Hint := 'Refresh version info';
+	btnedtDllPath.RightButton.Hint := 'Select dll path';
 end;
 
 destructor TExtensionSettingsForm.Destroy;
@@ -150,6 +153,11 @@ begin
 	finally
 		installer.Free;
 	end;
+end;
+
+procedure TExtensionSettingsForm.btnedtDllPathLeftButtonClick(Sender : TObject);
+begin
+	UpdateRegisteredDllVersionInfo();
 end;
 
 procedure TExtensionSettingsForm.btnedtDllPathRightButtonClick(Sender : TObject);
@@ -348,7 +356,7 @@ begin
 	var
 		dv : IDelphiVersion := GetSelectedDelphiVersion;
 	if Assigned(dv) then begin
-        dbgMsg.MsgFmt('Found: %s', [dv.BDS]);
+		dbgMsg.MsgFmt('Found: %s', [dv.BDS]);
 		FRegisteredDllPath := GetRegisteredExpertPath(dv);
 		EditedDllPath := FRegisteredDllPath;
 	end;

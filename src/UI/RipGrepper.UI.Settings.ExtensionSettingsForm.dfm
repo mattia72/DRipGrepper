@@ -118,6 +118,7 @@ object ExtensionSettingsForm: TExtensionSettingsForm
         RightButton.Visible = True
         TabOrder = 1
         Text = 'Dll path...'
+        OnLeftButtonClick = btnedtDllPathLeftButtonClick
         OnRightButtonClick = btnedtDllPathRightButtonClick
       end
     end
