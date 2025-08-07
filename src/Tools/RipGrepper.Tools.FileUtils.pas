@@ -7,7 +7,8 @@ uses
 	System.Classes,
 	System.Generics.Collections,
 	ArrayEx,
-	System.JSON;
+	System.JSON,
+	Winapi.Windows;
 
 type
 	TCommandLineRec = record
@@ -33,27 +34,33 @@ type
 	end;
 
 	TFileUtils = class(TObject)
+
 		private
+
 		public
 			class procedure CreateBackup(const fileName : string);
 			class procedure DeleteTempDirectory(const _dirPattern : string; const _bForce : Boolean = False);
 			class procedure EmptyFile(const _filePath : string);
+			/// <summary>
+			/// Expands a relative FileName relative to the given BaseDir. </summary>
+			class function ExpandFileNameRelBaseDir(const _Filename, _BaseDir : string) : string;
 			class function FindExecutable(sFileName : string; out sOutpuPath : string) : Boolean;
 			class function FindFileInSubDirs(const _dir : string; const _file : string) : string;
 			class function GetVsCodeDir : string;
 			class function GetVsCodeCommandItem : TCommandItem;
+			// Determine if a passed in path/file is absolute or relative
+			class function IsPathAbsolute(const FileName : string) : Boolean;
 			class function LongToShortFilePath(const LongPath : string) : string;
 			class function ShortToLongPath(const ShortPath : string) : string;
 	end;
 
-procedure GetPackageNameInfoProc(const Name : string; NameType : TNameType; Flags : Byte; Param : Pointer);
+procedure GetPackageNameInfoProc(const name : string; NameType : TNameType; Flags : Byte; Param : Pointer);
 
 implementation
 
 uses
 
 	Winapi.ShellAPI,
-	Winapi.Windows,
 	RipGrepper.Tools.DebugUtils,
 	System.IOUtils,
 	RipGrepper.Common.Constants,
@@ -108,6 +115,16 @@ begin
 	AssignFile(txtFile, _filePath);
 	Rewrite(txtFile);
 	CloseFile(txtFile);
+end;
+
+class function TFileUtils.ExpandFileNameRelBaseDir(const _Filename, _BaseDir : string) : string;
+begin
+	if TPath.IsRelativePath(_Filename) then begin
+		Result := IncludeTrailingPathDelimiter(_BaseDir) + _Filename;
+	end else begin
+		Result := _Filename;
+	end;
+	Result := TPath.GetFullPath(Result);
 end;
 
 class function TFileUtils.FindExecutable(sFileName : string; out sOutpuPath : string) : Boolean;
@@ -187,18 +204,15 @@ var
 	sPotentialPaths : TArray<string>;
 	sPath : string;
 begin
-	Result := default(TCommandItem);
-	
+	Result := default (TCommandItem);
+
 	if TFileUtils.FindExecutable('code.exe', sCodePath) then begin
 		sCommand := Format('"%s" --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"', [sCodePath]);
 		Result := TCommandItem.New('VSCode', sCommand, 'Open in existing VSCode instance', True);
 	end else begin
-		sPotentialPaths := [
-			'C:\Program Files\Microsoft VS Code\Code.exe',
-			'C:\Program Files (x86)\Microsoft VS Code\Code.exe',
-			'C:\Users\' + GetEnvironmentVariable('USERNAME') + '\AppData\Local\Programs\Microsoft VS Code\Code.exe'
-		];
-		
+		sPotentialPaths := ['C:\Program Files\Microsoft VS Code\Code.exe', 'C:\Program Files (x86)\Microsoft VS Code\Code.exe',
+			'C:\Users\' + GetEnvironmentVariable('USERNAME') + '\AppData\Local\Programs\Microsoft VS Code\Code.exe'];
+
 		for sPath in sPotentialPaths do begin
 			if FileExists(sPath) then begin
 				sCommand := Format('"%s" --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"', [sPath]);
@@ -206,10 +220,19 @@ begin
 				Exit;
 			end;
 		end;
-		
-		Result := TCommandItem.New('VSCode', 'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"', 'Open in existing VSCode instance', False);
+
+		Result := TCommandItem.New('VSCode', 'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"',
+			'Open in existing VSCode instance', False);
 	end;
 end;
+
+class function TFileUtils.IsPathAbsolute(const FileName : string) : Boolean;
+begin
+	Result := ExtractFileDrive(FileName) <> '';
+end;
+
+// TODO: PathIsRelativeAPI
+// function TFileUtils.PathIsRelativeAPI(pszPath : PChar): BOOL;
 
 function TCommandLineRec.AsString() : string;
 begin

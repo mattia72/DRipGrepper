@@ -12,12 +12,13 @@ uses
 const
 	IS_GUITEST = FALSE; // {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
 
-	type
+type
 	TDelphiIDEContext = record
 		IDESearchContext : EDelphiIDESearchContext;
 		ActiveFile : string;
 		OpenFiles : TArray<string>;
 		ProjectFiles : TArray<string>;
+		LibraryPath : TArray<string>;
 		ActiveProject : string;
 		function IsEmpty() : Boolean;
 
@@ -172,8 +173,10 @@ end;
 
 function TRipGrepperExtensionSettings.ToLogString : string;
 begin
-	Result := Format('OpenWithShortcut=%s, SearchSelectedShortcut=%s, SettingsShortcut=%s, HandleOpenWithDelphiCommands=%s, IDESearchContext=%s',
-		[OpenWithShortcut, SearchSelectedShortcut, SettingsShortcut, BoolToStr(HandleOpenWithDelphiCommands, True), CurrentIDEContext.ToLogString]);
+	Result := Format
+		('OpenWithShortcut=%s, SearchSelectedShortcut=%s, SettingsShortcut=%s, HandleOpenWithDelphiCommands=%s, IDESearchContext=%s',
+		[OpenWithShortcut, SearchSelectedShortcut, SettingsShortcut, BoolToStr(HandleOpenWithDelphiCommands, True),
+		CurrentIDEContext.ToLogString]);
 end;
 
 function TDelphiIDEContext.ToLogString : string;
@@ -196,6 +199,9 @@ end;
 procedure TDelphiIDEContext.LoadFromIOTA();
 begin
 	{$IF IS_EXTENSION}
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TDelphiIDEContext.LoadFromIOTA');
+
 	ActiveFile := IOTAUTils.GxOtaGetCurrentSourceFile();
 	ProjectFiles := IOTAUTils.GetProjectFiles();
 	OpenFiles := IOTAUTils.GetOpenedEditBuffers();
@@ -203,7 +209,14 @@ begin
 	ap := IOTAUTils.GxOtaGetCurrentProject;
 	if Assigned(ap) then begin
 		ActiveProject := ap.FileName;
+		LibraryPath := IOTAUtils.GxOtaGetProjectSourcePathStrings();
 	end;
+	dbgMsg.Msg('ActiveFile: ' + ActiveFile);
+	dbgMsg.Msg('ActiveProject: ' + ActiveProject);
+	dbgMsg.Msg('OpenFiles: ' + string.Join(', ', OpenFiles));
+	dbgMsg.Msg('ProjectFiles: ' + string.Join(', ', ProjectFiles));
+	dbgMsg.Msg('LibraryPath: ' + string.Join(', ', LibraryPath));
+
 	{$ENDIF}
 end;
 
@@ -213,6 +226,7 @@ begin
 	Dest.ActiveProject := '';
 	Dest.OpenFiles := [];
 	Dest.ProjectFiles := [];
+	Dest.LibraryPath := [];
 	Dest.IDESearchContext := EDelphiIDESearchContext.dicNotSet;
 end;
 
