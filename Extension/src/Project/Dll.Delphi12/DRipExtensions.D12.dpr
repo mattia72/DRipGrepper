@@ -105,7 +105,9 @@ uses
   RipGrepper.Tools.ReleaseUtils in '..\..\..\..\src\Tools\RipGrepper.Tools.ReleaseUtils.pas',
   RipGrepper.Common.LoadHistoryMode in '..\..\..\..\src\Common\RipGrepper.Common.LoadHistoryMode.pas',
   RipGrepper.UI.Settings.AdvancedForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.AdvancedForm.pas',
-  RipGrepper.Tools.WinHttpClient in '..\..\..\..\src\Tools\RipGrepper.Tools.WinHttpClient.pas';
+  RipGrepper.Tools.WinHttpClient in '..\..\..\..\src\Tools\RipGrepper.Tools.WinHttpClient.pas',
+  RipGrepper.Common.IOTAUtils.Constants in '..\..\..\..\src\Common\RipGrepper.Common.IOTAUtils.Constants.pas',
+  RipGrepper.Common.RegistryUtils in '..\..\..\..\src\Common\RipGrepper.Common.RegistryUtils.pas';
 
 {$R *.res}
 
