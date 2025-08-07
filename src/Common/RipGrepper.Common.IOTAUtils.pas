@@ -10,11 +10,32 @@ uses
 	Vcl.Controls,
 	Vcl.Forms,
 	RipGrepper.Helper.Types,
-	Vcl.Graphics;
+	Vcl.Graphics,
+	ArrayEx,
+	System.Win.Registry,
+	Winapi.Windows,
+	RipGrepper.Common.IOTAUtils.Constants,
+	RipGrepper.Common.RegistryUtils;
 
 type
-	IOTAUTils = class
+
+	IOTAUtils = class(TObject)
+		const
+			// 'DCC_UnitSearchPath'
+			OPTION_NAME_UNIT_SEARCH_PATH = 'SrcDir';
+
 		private
+			// Returns IDE's base registry key, for instance
+			// Software\Borland\Delphi\4.0
+			// The returned string is guaranteed to NOT have a
+			// backslash appended and it does NOT have a leading
+			// backslash either (Windows 2000 is allergic to that).
+			class function GxOtaGetIdeBaseRegistryKey() : string;
+			/// <summary>
+			/// Returns the project's current platform, if any (and supported), or an empty string </summary>
+			class function GxOtaGetProjectPlatform(Project : IOTAProject = nil) : string;
+			class procedure ProcessPaths(Paths : TArrayEx<string>; const Prefix : string; const PlatformName : string);
+
 		public
 			class function AddToImageList(_bmp : Vcl.Graphics.TBitmap; const _identText : string) : Integer;
 			// Returns the size of any EOL character(s) at a given position (0 if none)
@@ -22,9 +43,9 @@ type
 			class function FileMatchesExtension(const FileName, FileExtension : string) : Boolean;
 			class function FileMatchesExtensions(const FileName : string; FileExtensions : array of string) : Boolean; overload;
 			class function GetSettingFilePath : string;
-			class function FindMenuItem(const Name : string) : TMenuItem;
-			class function FindMenu(const Name : string) : TMenu;
-			class function FindInMainMenu(const Name : string) : TMenuItem;
+			class function FindMenuItem(const name : string) : TMenuItem;
+			class function FindMenu(const name : string) : TMenu;
+			class function FindInMainMenu(const name : string) : TMenuItem;
 			class function FindInMenu(_menu : TMenuItem; const _menuName : string) : TMenuItem;
 			class function GetEditPosition : IOTAEditPosition;
 			// Get the actual TEditControl embedded in the given IDE editor form
@@ -41,6 +62,8 @@ type
 			class procedure GxOtaAssertSourceEditorNotReadOnly(SourceEditor : IOTASourceEditor);
 
 			class function GxOtaConvertColumnCharsToBytes(LineData : UTF8String; CharIndex : Integer; EndByte : Boolean) : Integer;
+			class function GxOtaCurrentProjectIsDelphiDotNet() : Boolean;
+			class function GxOtaCurrentProjectIsNativeCpp() : Boolean;
 			// Determine is a file exists or the file's module is currently loaded in the IDE
 			class function GxOtaFileOrModuleExists(const AFileName : string; UseBase : Boolean = False) : Boolean;
 			class function GxOtaFocusCurrentIDEEditControl : Boolean;
@@ -93,12 +116,34 @@ type
 			// Get an edit writer for the current source editor (raise an exception if not availble)
 			// Use the current source editor if none is specified
 			class function GxOtaGetEditWriterForSourceEditor(SourceEditor : IOTASourceEditor = nil) : IOTAEditWriter;
+			/// <summary>
+			/// Return the effective library path, with the project specific paths
+			/// first and then the IDE's global library path.
+			/// @params if DoProcessing is true, the paths are macro expanded and non-existing
+			/// paths removed.
+			/// @params AdditionalPaths are appended at the end and optionally processed too </summary>
+			class function GxOtaGetEffectiveLibraryPath(Project : IOTAProject = nil; DoProcessing : Boolean = True;
+				AdditionalPaths : TStrings = nil) : TArrayEx<string>;
+			// Get the environment options interface.  Succeeds or raises an exception.
+			class function GxOtaGetEnvironmentOptions() : IOTAEnvironmentOptions;
 			// Get the Index-th IOTAEditor for the given module
 			// Works around a BCB 5 bug with simple units
-			class function GxOtaGetFileEditorForModule(Module : IOTAModule; Index : Integer) : IOTAEditor;
+			class function GxOtaGetFileEditorForModule(Module : IOTAModule; index : Integer) : IOTAEditor;
 			// Returns a form editor for Module if it exists; nil otherwise.
 			// Module can be nil, if it is , this function will return nil
 			class function GxOtaGetFormEditorFromModule(const Module : IOTAModule) : IOTAFormEditor;
+			// Return the IDE's environment string value that is
+			// associated with EnvironmentStringName
+			class function GxOtaGetIdeEnvironmentString(const EnvironmentStringName : string) : string;
+			// Return all of the IDE's environment settings names
+			class procedure GxOtaGetIdeEnvironmentStrings(Settings : TStrings);
+			// Return the IDE's global library path
+			class function GxOtaGetIdeLibraryPath() : string;
+			/// <summary>
+			/// Return the global IDE library path (without the project specific paths).
+			/// @params if DoProcessing is true, the paths are macro expanded and non-existing
+			/// paths removed. </summary>
+			class function GxOtaGetIdeLibraryPathStrings(DoProcessing : Boolean = true) : TArrayEx<string>;
 			// Returns a module interface for a given filename
 			// May return nil if no such module is open.
 			class function GxOtaGetModule(const FileName : string) : IOTAModule;
@@ -115,6 +160,15 @@ type
 			class function GxOtaGetProjectGroup : IOTAProjectGroup;
 			// Get the personality identifier string for the project, or blank for none
 			class function GxOtaGetProjectPersonality(Project : IOTAProject) : string;
+			/// <summary>
+			/// Returns the project's current platform, if any (and supported), or an empty string </summary>
+			class function GxOtaGetProjectPlatform1(Project : IOTAProject = nil) : string;
+			/// <summary>
+			/// Return project specific search path, with the directory containing the project
+			// file first.
+			/// @params if DoProcessing is true, the paths are macro expanded and non-existing
+			/// paths removed. </summary>
+			class function GxOtaGetProjectSourcePathStrings(Project : IOTAProject = nil; DoProcessing : Boolean = True) : TArrayEx<string>;
 			// Returns the IOTASourceEditor interface for a module
 			// if there is a file that supports one; returns nil
 			// if there is no IOTASourceEditor
@@ -137,11 +191,19 @@ type
 			class function GxOtaModuleIsShowingFormSource(Module : IOTAModule) : Boolean;
 			// Open FileName in IDE; returns True on success, False otherwise.
 			class function GxOtaOpenFile(const FileName : string) : Boolean;
+			class function GxOtaProjectIsDelphiDotNet(Project : IOTAProject) : Boolean;
 			class function GxOtaProjectIsEitherDelphi(Project : IOTAProject) : Boolean;
+			class function GxOtaProjectIsNativeCpp(Project : IOTAProject) : Boolean;
 			// Save an edit reader to a stream
 			class procedure GxOtaSaveReaderToStream(EditReader : IOTAEditReader; Stream : TStream; TrailingNull : Boolean = True);
 			class function GxOtaTryGetCurrentProject(out _Project : IOTAProject) : Boolean;
 			class function GxOtaTryGetCurrentSourceEditor(out SourceEditor : IOTASourceEditor) : boolean;
+			/// <summary>
+			/// Tries to get the options of the given or the active project
+			/// @param ProjectOptions will contain the options, only valid if Result is True
+			/// @param Project is the project whose options to get, it nil the current project will be used
+			/// @returns True, if the options could be retrieved, False otherwise (e.g. if there is no active project) </summary>
+			class function GxOtaTryGetProjectOptions(out _ProjectOptions : IOTAProjectOptions; _Project : IOTAProject = nil) : Boolean;
 			// calls GxOtaGetTopMostEditView and returns false if no edit view is available
 			class function GxOtaTryGetTopMostEditView(out EditView : IOTAEditView) : boolean; overload;
 			class function IDEEditorStringToString(const S : string) : string; overload;
@@ -164,6 +226,13 @@ type
 			class function TryFocusControl(Control : TWinControl) : Boolean;
 	end;
 
+	TIdeUtils = class
+		public
+			// Return the IDE's root directory (the installation directory).
+			// Returns an empty string if the information could not be retrieved.
+			class function GetIdeRootDirectory() : string;
+	end;
+
 implementation
 
 uses
@@ -171,10 +240,35 @@ uses
 	System.SysUtils,
 	System.StrUtils,
 	RipGrepper.Common.Constants,
-	Winapi.Windows,
-	RipGrepper.Tools.DebugUtils;
 
-class function IOTAUTils.AddToImageList(_bmp : Vcl.Graphics.TBitmap; const _identText : string) : Integer;
+	RipGrepper.Tools.DebugUtils,
+	RipGrepper.Tools.FileUtils,
+	u_dzClassUtils;
+
+type
+	TPathProcessor = class
+		private
+			FIdeBasePath : string;
+			FConfigName : string;
+			FPlatformName : string;
+			FPrefix : string;
+			FEnvironment : TStringList;
+			class function ReplaceMacro(const Str, OldValue, NewValue : string) : string;
+
+		public
+			/// <summary>
+			/// @param Prefix will be used for relative paths
+			/// @param Project will be used to determine Platform and Config, if not given, the
+			/// current project will be used. </summary>
+			constructor Create(const _Prefix : string; _Project : IOTAProject = nil);
+			destructor Destroy; override;
+			procedure GetEnvironmentVariables(Strings : TStrings);
+			function Process(const _Path : string) : string;
+			property PlatformName : string read FPlatformName write FPlatformName;
+			property ConfigName : string read FConfigName write FConfigName;
+	end;
+
+class function IOTAUtils.AddToImageList(_bmp : Vcl.Graphics.TBitmap; const _identText : string) : Integer;
 var
 	Services : INTAServices;
 begin
@@ -189,7 +283,7 @@ end;
 // #10    (Unix)
 // #13    (Macintosh, Amiga)
 // Note: Pos must be at the beginning of the EOL characters
-class function IOTAUTils.EOLSizeAtPos(const S : string; Pos : Integer) : Integer;
+class function IOTAUtils.EOLSizeAtPos(const S : string; Pos : Integer) : Integer;
 begin
 	if IsCharLineEnding(StrCharAt(S, Pos)) then begin
 		Result := 1;
@@ -200,17 +294,17 @@ begin
 		Result := 0;
 end;
 
-class function IOTAUTils.FileMatchesExtension(const FileName, FileExtension : string) : Boolean;
+class function IOTAUtils.FileMatchesExtension(const FileName, FileExtension : string) : Boolean;
 begin
 	Result := FileMatchesExtensions(FileName, [FileExtension]);
 end;
 
-class function IOTAUTils.FileMatchesExtensions(const FileName : string; FileExtensions : array of string) : Boolean;
+class function IOTAUtils.FileMatchesExtensions(const FileName : string; FileExtensions : array of string) : Boolean;
 begin
 	Result := MatchStr(ExtractFileExt(FileName), FileExtensions);
 end;
 
-class function IOTAUTils.FindMenuItem(const Name : string) : TMenuItem;
+class function IOTAUtils.FindMenuItem(const Name : string) : TMenuItem;
 var
 	Comp : TComponent;
 begin
@@ -221,7 +315,7 @@ begin
 		Result := nil;
 end;
 
-class function IOTAUTils.FindMenu(const Name : string) : TMenu;
+class function IOTAUtils.FindMenu(const Name : string) : TMenu;
 var
 	Comp : TComponent;
 begin
@@ -232,7 +326,7 @@ begin
 		Result := nil;
 end;
 
-class function IOTAUTils.FindInMainMenu(const Name : string) : TMenuItem;
+class function IOTAUtils.FindInMainMenu(const Name : string) : TMenuItem;
 begin
 	Result := nil;
 	var
@@ -240,7 +334,7 @@ begin
 	for var i := 0 to mainMenu.Items.Count - 1 do begin
 		var
 		m := mainMenu.Items[i];
-		TDebugUtils.DebugMessage('IOTAUTils.FindInMainMenu - ' + m.Name);
+		TDebugUtils.DebugMessage('IOTAUtils.FindInMainMenu - ' + m.Name);
 		if CompareText(m.Name, name) = 0 then begin
 			Result := m;
 			break;
@@ -248,22 +342,22 @@ begin
 	end;
 end;
 
-class function IOTAUTils.FindInMenu(_menu : TMenuItem; const _menuName : string) : TMenuItem;
+class function IOTAUtils.FindInMenu(_menu : TMenuItem; const _menuName : string) : TMenuItem;
 begin
 	Result := nil;
 	for var i := 0 to _menu.Count - 1 do begin
 		var
 		m := _menu.Items[i];
-		TDebugUtils.DebugMessage('IOTAUTils.FindInMenu - check ' + m.Name);
+		TDebugUtils.DebugMessage('IOTAUtils.FindInMenu - check ' + m.Name);
 		if CompareText(m.Name, _menuName) = 0 then begin
-			TDebugUtils.DebugMessage('IOTAUTils.FindInMenu - found ' + m.Name);
+			TDebugUtils.DebugMessage('IOTAUtils.FindInMenu - found ' + m.Name);
 			Result := m;
 			break;
 		end;
 	end;
 end;
 
-class function IOTAUTils.GetEditPosition : IOTAEditPosition;
+class function IOTAUtils.GetEditPosition : IOTAEditPosition;
 var
 	aEditorServices : IOTAEditorServices;
 	aEditBuffer : IOTAEditBuffer;
@@ -281,7 +375,7 @@ begin
 	end;
 end;
 
-class function IOTAUTils.GetIDEEditControl(Form : TCustomForm) : TWinControl;
+class function IOTAUtils.GetIDEEditControl(Form : TCustomForm) : TWinControl;
 const
 	SEditorControlName = 'Editor';
 var
@@ -295,7 +389,7 @@ begin
 			Result := Component as TWinControl;
 end;
 
-class function IOTAUTils.GetOpenedEditorFiles : TArray<string>;
+class function IOTAUtils.GetOpenedEditorFiles : TArray<string>;
 var
 	module : IOTAModule;
 	editor : IOTAEditor;
@@ -308,14 +402,14 @@ begin
 			module := service.Modules[i];
 			for var j := 0 to module.GetModuleFileCount - 1 do begin
 				editor := module.GetModuleFileEditor(j);
-				TDebugUtils.DebugMessage('IOTAUTils.GetOpenedEditorFiles FileName=' + editor.FileName);
+				TDebugUtils.DebugMessage('IOTAUtils.GetOpenedEditorFiles FileName=' + editor.FileName);
 				Result := Result + [editor.FileName];
 			end;
 		end;
 	end;
 end;
 
-class function IOTAUTils.GetOpenedEditBuffers : TArray<string>;
+class function IOTAUtils.GetOpenedEditBuffers : TArray<string>;
 var
 	service : IOTAEditorServices;
 	it : IOTAEditBufferIterator;
@@ -327,7 +421,7 @@ begin
 		if (service.GetEditBufferIterator(it)) then begin
 			for var i := 0 to it.Count - 1 do begin
 				buffer := it.EditBuffers[i];
-				TDebugUtils.DebugMessage('IOTAUTils.GetOpenedEditBuffers FileName=' + buffer.FileName + ' ViewCount=' +
+				TDebugUtils.DebugMessage('IOTAUtils.GetOpenedEditBuffers FileName=' + buffer.FileName + ' ViewCount=' +
 					buffer.EditViewCount.ToString);
 				if buffer.EditViewCount > 0 then begin
 					Result := Result + [buffer.FileName];
@@ -337,7 +431,7 @@ begin
 	end;
 end;
 
-class function IOTAUTils.GetModifiedEditBuffers : TArray<string>;
+class function IOTAUtils.GetModifiedEditBuffers : TArray<string>;
 var
 	service : IOTAEditorServices;
 	it : IOTAEditBufferIterator;
@@ -349,7 +443,7 @@ begin
 		if (service.GetEditBufferIterator(it)) then begin
 			for var i := 0 to it.Count - 1 do begin
 				buffer := it.EditBuffers[i];
-				TDebugUtils.DebugMessage('IOTAUTils.GetModifiedEditBuffers FileName=' + buffer.FileName + ' ViewCount=' +
+				TDebugUtils.DebugMessage('IOTAUtils.GetModifiedEditBuffers FileName=' + buffer.FileName + ' ViewCount=' +
 					buffer.EditViewCount.ToString);
 				if ((buffer.EditViewCount > 0) and buffer.IsModified) then begin
 					Result := Result + [buffer.FileName];
@@ -359,7 +453,7 @@ begin
 	end;
 end;
 
-class function IOTAUTils.GetProjectFiles : TArray<string>;
+class function IOTAUtils.GetProjectFiles : TArray<string>;
 var
 	fn : string;
 	project : IOTAProject;
@@ -370,12 +464,12 @@ begin
 		Exit;
 	for var i : integer := 0 to project.GetModuleCount - 1 do begin
 		fn := project.GetModule(i).GetFileName;
-		TDebugUtils.DebugMessage('IOTAUTils.GetProjectFiles FileName=' + fn);
+		TDebugUtils.DebugMessage('IOTAUtils.GetProjectFiles FileName=' + fn);
 		Result := Result + [fn]
 	end;
 end;
 
-class function IOTAUTils.GetActiveProjectFilePath() : string;
+class function IOTAUtils.GetActiveProjectFilePath() : string;
 var
 	project : IOTAProject;
 begin
@@ -386,12 +480,12 @@ begin
 	end;
 end;
 
-class function IOTAUTils.GetActiveProjectDirectory() : string;
+class function IOTAUtils.GetActiveProjectDirectory() : string;
 begin
 	Result := ExtractFileDir(GetActiveProjectFilePath());
 end;
 
-class function IOTAUTils.GetSettingFilePath : string;
+class function IOTAUtils.GetSettingFilePath : string;
 var
 	aIDEServices : IOTAServices;
 begin
@@ -401,7 +495,7 @@ begin
 		raise Exception.Create('GetSettingsFilePath: path not defined by IDEServices');
 end;
 
-class procedure IOTAUTils.GxOtaAssertSourceEditorNotReadOnly(SourceEditor : IOTASourceEditor);
+class procedure IOTAUtils.GxOtaAssertSourceEditorNotReadOnly(SourceEditor : IOTASourceEditor);
 begin
 	Assert(Assigned(SourceEditor));
 	if Supports(SourceEditor, IOTAEditBuffer) then
@@ -409,7 +503,7 @@ begin
 			raise Exception.CreateFmt('%s is read only', [ExtractFileName(SourceEditor.FileName)]);
 end;
 
-class function IOTAUTils.GxOtaConvertColumnCharsToBytes(LineData : UTF8String; CharIndex : Integer; EndByte : Boolean) : Integer;
+class function IOTAUtils.GxOtaConvertColumnCharsToBytes(LineData : UTF8String; CharIndex : Integer; EndByte : Boolean) : Integer;
 var
 	UString : string;
 	FinalUChar : string;
@@ -430,12 +524,22 @@ begin
 	end;
 end;
 
-class function IOTAUTils.GxOtaFileOrModuleExists(const AFileName : string; UseBase : Boolean = False) : Boolean;
+class function IOTAUtils.GxOtaCurrentProjectIsDelphiDotNet() : Boolean;
+begin
+	Result := GxOtaProjectIsDelphiDotNet(GxOtaGetCurrentProject);
+end;
+
+class function IOTAUtils.GxOtaCurrentProjectIsNativeCpp() : Boolean;
+begin
+	Result := GxOtaProjectIsNativeCpp(GxOtaGetCurrentProject);
+end;
+
+class function IOTAUtils.GxOtaFileOrModuleExists(const AFileName : string; UseBase : Boolean = False) : Boolean;
 begin
 	Result := FileExists(AFileName) or IsFileOpen(AFileName, UseBase);
 end;
 
-class function IOTAUTils.GxOtaFocusCurrentIDEEditControl : Boolean;
+class function IOTAUtils.GxOtaFocusCurrentIDEEditControl : Boolean;
 var
 	EditControl : TWinControl;
 begin
@@ -444,7 +548,7 @@ begin
 	TryFocusControl(EditControl)
 end;
 
-class function IOTAUTils.GxOtaGetActiveEditorText(Lines : TStringList; UseSelection : Boolean = True) : Boolean;
+class function IOTAUtils.GxOtaGetActiveEditorText(Lines : TStringList; UseSelection : Boolean = True) : Boolean;
 var
 	ISourceEditor : IOTASourceEditor;
 	IEditView : IOTAEditView;
@@ -468,7 +572,7 @@ begin
 	end;
 end;
 
-class function IOTAUTils.GxOtaGetActiveEditorTextAsString(var Text : string; UseSelection : Boolean = True) : Boolean;
+class function IOTAUtils.GxOtaGetActiveEditorTextAsString(var Text : string; UseSelection : Boolean = True) : Boolean;
 var
 	Lines : string;
 begin
@@ -476,7 +580,7 @@ begin
 	Text := Lines;
 end;
 
-class function IOTAUTils.GxOtaGetActiveEditorTextAsMultilineString(var Text : TMultiLineString; UseSelection : Boolean = True) : Boolean;
+class function IOTAUtils.GxOtaGetActiveEditorTextAsMultilineString(var Text : TMultiLineString; UseSelection : Boolean = True) : Boolean;
 var
 	Lines : string;
 begin
@@ -484,7 +588,7 @@ begin
 	Text := Lines;
 end;
 
-class function IOTAUTils.GxOtaGetActiveEditorTextAsUnicodeString(var Text : string; UseSelection : Boolean = True) : Boolean;
+class function IOTAUtils.GxOtaGetActiveEditorTextAsUnicodeString(var Text : string; UseSelection : Boolean = True) : Boolean;
 var
 	Lines : TStringList;
 begin
@@ -497,7 +601,7 @@ begin
 	end;
 end;
 
-class function IOTAUTils.GxOtaGetBaseModuleFileName(const FileName : string) : string;
+class function IOTAUtils.GxOtaGetBaseModuleFileName(const FileName : string) : string;
 var
 	AltName : string;
 begin
@@ -515,7 +619,7 @@ begin
 	end;
 end;
 
-class function IOTAUTils.GxOtaGetCurrentIDEEditControl : TWinControl;
+class function IOTAUtils.GxOtaGetCurrentIDEEditControl : TWinControl;
 var
 	EditView : IOTAEditView;
 	EditWindow : INTAEditWindow;
@@ -533,7 +637,7 @@ begin
 	end;
 end;
 
-class function IOTAUTils.GxOtaGetCurrentModule : IOTAModule;
+class function IOTAUtils.GxOtaGetCurrentModule : IOTAModule;
 var
 	ModuleServices : IOTAModuleServices;
 begin
@@ -543,18 +647,18 @@ begin
 	Result := ModuleServices.CurrentModule;
 end;
 
-class function IOTAUTils.GxOtaGetCurrentProject : IOTAProject;
+class function IOTAUtils.GxOtaGetCurrentProject : IOTAProject;
 begin
 	if not GxOtaTryGetCurrentProject(Result) then
 		Result := nil;
 end;
 
-class function IOTAUTils.GxOtaGetCurrentProjectFileName(NormalizeBdsProj : Boolean = False) : string;
+class function IOTAUtils.GxOtaGetCurrentProjectFileName(NormalizeBdsProj : Boolean = False) : string;
 begin
 	Result := GxOtaGetProjectFileName(GxOtaGetCurrentProject, NormalizeBdsProj);
 end;
 
-class function IOTAUTils.GxOtaGetCurrentProjectName : string;
+class function IOTAUtils.GxOtaGetCurrentProjectName : string;
 var
 	IProject : IOTAProject;
 begin
@@ -567,7 +671,7 @@ begin
 	end;
 end;
 
-class function IOTAUTils.GxOtaGetCurrentSelection(IncludeTrailingCRLF : Boolean = True) : string;
+class function IOTAUtils.GxOtaGetCurrentSelection(IncludeTrailingCRLF : Boolean = True) : string;
 var
 	EditView : IOTAEditView;
 	EditBlock : IOTAEditBlock;
@@ -587,7 +691,7 @@ begin
 	end;
 end;
 
-class function IOTAUTils.GxOtaGetCurrentSourceEditor : IOTASourceEditor;
+class function IOTAUtils.GxOtaGetCurrentSourceEditor : IOTASourceEditor;
 var
 	EditBuffer : IOTAEditBuffer;
 begin
@@ -599,7 +703,7 @@ begin
 		Result := GxOtaGetSourceEditorFromModule(GxOtaGetCurrentModule);
 end;
 
-class function IOTAUTils.GxOtaGetCurrentSourceFile : string;
+class function IOTAUtils.GxOtaGetCurrentSourceFile : string;
 var
 	Module : IOTAModule;
 	Editor : IOTAEditor;
@@ -615,7 +719,7 @@ begin
 	end;
 end;
 
-class function IOTAUTils.GxOtaGetEditActionsFromModule(Module : IOTAModule) : IOTAEditActions;
+class function IOTAUtils.GxOtaGetEditActionsFromModule(Module : IOTAModule) : IOTAEditActions;
 var
 	i : Integer;
 	EditView : IOTAEditView;
@@ -635,7 +739,7 @@ begin
 	Result := nil;
 end;
 
-class function IOTAUTils.GxOtaGetEditorLine(View : IOTAEditView; LineNo : Integer) : UTF8String;
+class function IOTAUtils.GxOtaGetEditorLine(View : IOTAEditView; LineNo : Integer) : UTF8String;
 var
 	Buffer : IOTAEditBuffer;
 	LineStartByte : Integer;
@@ -670,13 +774,13 @@ end;
 // IOTAEditorServices = IOTAEditorServices70;
 // {$ENDIF VER170}
 
-class function IOTAUTils.GxOtaGetEditorServices : IOTAEditorServices;
+class function IOTAUtils.GxOtaGetEditorServices : IOTAEditorServices;
 begin
 	Result := (BorlandIDEServices as IOTAEditorServices);
 	Assert(Assigned(Result), 'BorlandIDEServices is not assigned');
 end;
 
-class function IOTAUTils.GxOtaGetEditWriterForSourceEditor(SourceEditor : IOTASourceEditor = nil) : IOTAEditWriter;
+class function IOTAUtils.GxOtaGetEditWriterForSourceEditor(SourceEditor : IOTASourceEditor = nil) : IOTAEditWriter;
 resourcestring
 	SEditWriterNotAvail = 'Edit writer not available';
 begin
@@ -689,13 +793,44 @@ begin
 	Assert(Assigned(Result), SEditWriterNotAvail);
 end;
 
-class function IOTAUTils.GxOtaGetFileEditorForModule(Module : IOTAModule; index : Integer) : IOTAEditor;
+class function IOTAUtils.GxOtaGetEffectiveLibraryPath(Project : IOTAProject = nil; DoProcessing : Boolean = True;
+	AdditionalPaths : TStrings = nil) : TArrayEx<string>;
+var
+	i : Integer;
+	PlatformName : string;
+begin
+	// DoProcessing = True uses the project file's directory as the base to expand relative paths
+	Result := GxOtaGetProjectSourcePathStrings(Project, DoProcessing);
+
+	// DoProcessing = True expands any general macros and relative paths
+	var
+	localList := GxOtaGetIdeLibraryPathStrings(DoProcessing);
+	if DoProcessing then begin
+		// do another processing, this time also expanding the Platform related macros
+		PlatformName := GxOtaGetProjectPlatform(Project);
+		// There shouldn't be any more relatives paths left, so passing GetCurrentDir is probably fine
+		ProcessPaths(localList, GetCurrentDir, PlatformName);
+	end;
+	for i := 0 to localList.Count - 1 do begin
+		Result.AddIfNotContains(localList[i]);
+	end;
+end;
+
+class function IOTAUtils.GxOtaGetEnvironmentOptions() : IOTAEnvironmentOptions;
+begin
+	var
+	services := BorlandIDEServices as IOTAServices;
+	Result := services.GetEnvironmentOptions;
+	Assert(Assigned(Result));
+end;
+
+class function IOTAUtils.GxOtaGetFileEditorForModule(Module : IOTAModule; index : Integer) : IOTAEditor;
 begin
 	Assert(Assigned(Module));
 	Result := Module.GetModuleFileEditor(index);
 end;
 
-class function IOTAUTils.GxOtaGetFormEditorFromModule(const Module : IOTAModule) : IOTAFormEditor;
+class function IOTAUtils.GxOtaGetFormEditorFromModule(const Module : IOTAModule) : IOTAFormEditor;
 var
 	i : Integer;
 	Editor : IOTAEditor;
@@ -715,7 +850,69 @@ begin
 	end;
 end;
 
-class function IOTAUTils.GxOtaGetModule(const FileName : string) : IOTAModule;
+class function IOTAUtils.GxOtaGetIdeBaseRegistryKey() : string;
+begin
+	if IsStandAlone then
+		Result := 'Software\' + CompilerDefinedProductRegistryKey
+	else
+		Result := (BorlandIDEServices as IOTAServices).GetBaseRegistryKey;
+
+	if Length(Result) > 0 then begin
+		// Windows 2000 is allergic to a leading backslash
+		// in the registry key - NT4, for instance, is not.
+		if Result[1] = '\' then
+			Delete(Result, 1, 1);
+
+		Assert(Result[Length(Result)] <> '\');
+	end;
+end;
+
+class function IOTAUtils.GxOtaGetIdeEnvironmentString(const EnvironmentStringName : string) : string;
+begin
+	Result := GxOtaGetEnvironmentOptions.Values[EnvironmentStringName];
+end;
+
+class procedure IOTAUtils.GxOtaGetIdeEnvironmentStrings(Settings : TStrings);
+var
+	EnvOptions : IOTAEnvironmentOptions;
+	i : Integer;
+	Options : TOTAOptionNameArray;
+begin
+	EnvOptions := GxOtaGetEnvironmentOptions;
+
+	Settings.Clear;
+	Options := EnvOptions.GetOptionNames; // Broken in Delphi 2005
+	for i := 0 to Length(Options) - 1 do
+		Settings.Add(Options[i].Name);
+end;
+
+class function IOTAUtils.GxOtaGetIdeLibraryPath() : string;
+begin
+	// Do not localize.
+	var
+	bRunningDelphi11OrGreater := {$IF CompilerVersion >= 35} TRUE {$ELSE} FALSE {$ENDIF};
+	if bRunningDelphi11OrGreater and GxOtaCurrentProjectIsDelphiDotNet then
+		Result := GxOtaGetIdeEnvironmentString('DotNetLibraryPath')
+	else if bRunningDelphi11OrGreater and GxOtaCurrentProjectIsNativeCpp then
+		Result := GxOtaGetIdeEnvironmentString('CppSearchPath')
+	else
+		Result := GxOtaGetIdeEnvironmentString('LibraryPath');
+end;
+
+class function IOTAUtils.GxOtaGetIdeLibraryPathStrings(DoProcessing : Boolean = true) : TArrayEx<string>;
+var
+	IdePathString : string;
+begin
+	IdePathString := GxOtaGetIdeLibraryPath;
+	Result := IdePathString.Split([';']);
+	if DoProcessing then begin
+		// todo: Is it correct to use GetCurrentDir here? Shouldn't that either be the
+		// IDE base path or the project's directory?
+		ProcessPaths(Result, GetCurrentDir, '');
+	end;
+end;
+
+class function IOTAUtils.GxOtaGetModule(const FileName : string) : IOTAModule;
 var
 	ModuleServices : IOTAModuleServices;
 begin
@@ -725,7 +922,7 @@ begin
 	Result := ModuleServices.FindModule(FileName);
 end;
 
-class function IOTAUTils.GxOtaGetOpenModuleCount : Integer;
+class function IOTAUtils.GxOtaGetOpenModuleCount : Integer;
 var
 	ModuleServices : IOTAModuleServices;
 begin
@@ -734,7 +931,7 @@ begin
 	Result := ModuleServices.ModuleCount;
 end;
 
-class function IOTAUTils.GxOtaGetProjectFileName(Project : IOTAProject; NormalizeBdsProj : Boolean = False) : string;
+class function IOTAUtils.GxOtaGetProjectFileName(Project : IOTAProject; NormalizeBdsProj : Boolean = False) : string;
 
 	function SearchProjectSourceViaModule(var AProjectFileName : string) : Boolean;
 	var
@@ -788,7 +985,7 @@ begin
 	end;
 end;
 
-class function IOTAUTils.GxOtaGetProjectGroup : IOTAProjectGroup;
+class function IOTAUtils.GxOtaGetProjectGroup : IOTAProjectGroup;
 var
 	IModuleServices : IOTAModuleServices;
 	IModule : IOTAModule;
@@ -807,7 +1004,7 @@ begin
 	end;
 end;
 
-class function IOTAUTils.GxOtaGetProjectPersonality(Project : IOTAProject) : string;
+class function IOTAUtils.GxOtaGetProjectPersonality(Project : IOTAProject) : string;
 begin
 	Result := '';
 	if Assigned(Project) then begin
@@ -815,7 +1012,52 @@ begin
 	end;
 end;
 
-class function IOTAUTils.GxOtaGetSourceEditorFromModule(Module : IOTAModule; const FileName : string = '') : IOTASourceEditor;
+class function IOTAUtils.GxOtaGetProjectPlatform(Project : IOTAProject = nil) : string;
+begin
+	Result := '';
+	if Project = nil then
+		Project := GxOtaGetCurrentProject;
+	if Project <> nil then
+		Result := Project.CurrentPlatform;
+end;
+
+class function IOTAUtils.GxOtaGetProjectPlatform1(Project : IOTAProject = nil) : string;
+begin
+	Result := '';
+	{$IFDEF GX_VER230_up} // RAD Studio XE 2 (16; BDS 9)
+	if Project = nil then
+		Project := GxOtaGetCurrentProject;
+	if Project <> nil then
+		Result := Project.CurrentPlatform;
+	{$ENDIF GX_VER230_up}
+end;
+
+class function IOTAUtils.GxOtaGetProjectSourcePathStrings(Project : IOTAProject = nil; DoProcessing : Boolean = True) : TArrayEx<string>;
+var
+	IdePathString : string;
+	ProjectOptions : IOTAProjectOptions;
+	ProjectDir : string;
+	PlatformName : string;
+begin
+	if Project = nil then
+		Project := GxOtaGetCurrentProject;
+	if Assigned(Project) then begin
+		ProjectDir := ExtractFileDir(Project.FileName);
+		// Add the current project directory first
+		Result.Add(ProjectDir);
+		// Then the project search path
+		if GxOtaTryGetProjectOptions(ProjectOptions, Project) then begin
+			IdePathString := ProjectOptions.Values[OPTION_NAME_UNIT_SEARCH_PATH];
+			Result.AddRange(IdePathString.Split([';']));
+		end;
+		if DoProcessing then begin
+			PlatformName := GxOtaGetProjectPlatform(Project);
+			ProcessPaths(Result, ProjectDir, PlatformName);
+		end;
+	end;
+end;
+
+class function IOTAUtils.GxOtaGetSourceEditorFromModule(Module : IOTAModule; const FileName : string = '') : IOTASourceEditor;
 var
 	i : Integer;
 	IEditor : IOTAEditor;
@@ -839,12 +1081,12 @@ begin
 	end;
 end;
 
-class function IOTAUTils.GxOtaGetTopMostEditBuffer : IOTAEditBuffer;
+class function IOTAUtils.GxOtaGetTopMostEditBuffer : IOTAEditBuffer;
 begin
 	Result := GxOTAGetEditorServices.TopBuffer;
 end;
 
-class function IOTAUTils.GxOtaGetTopMostEditView(SourceEditor : IOTASourceEditor) : IOTAEditView;
+class function IOTAUtils.GxOtaGetTopMostEditView(SourceEditor : IOTASourceEditor) : IOTAEditView;
 begin
 	if SourceEditor = nil then
 		SourceEditor := GxOtaGetCurrentSourceEditor;
@@ -854,7 +1096,7 @@ begin
 		Result := nil;
 end;
 
-class function IOTAUTils.GxOtaGetTopMostEditView : IOTAEditView;
+class function IOTAUtils.GxOtaGetTopMostEditView : IOTAEditView;
 begin
 	Result := nil;
 	// Bug: Delphi 5/6 crash when calling TopView with no files open
@@ -863,7 +1105,7 @@ begin
 	Result := GxOTAGetEditorServices.TopView;
 end;
 
-class procedure IOTAUTils.GxOtaGoToFileLineColumn(const FileName : string; Line : Integer; StartColumn : Integer = 0;
+class procedure IOTAUtils.GxOtaGoToFileLineColumn(const FileName : string; Line : Integer; StartColumn : Integer = 0;
 	StopColumn : Integer = 0; ShowInMiddle : Boolean = True);
 var
 	EditView : IOTAEditView;
@@ -933,7 +1175,7 @@ begin
 	EditView.Paint;
 end;
 
-class function IOTAUTils.IsFileOpen(const _sFilePath : string; const _bUseBase : Boolean = False) : Boolean;
+class function IOTAUtils.IsFileOpen(const _sFilePath : string; const _bUseBase : Boolean = False) : Boolean;
 var
 	ModuleServices : IOTAModuleServices;
 	Module : IOTAModule;
@@ -965,7 +1207,7 @@ begin
 	end;
 end;
 
-class procedure IOTAUTils.GxOtaLoadSourceEditorToUnicodeStrings(_editor : IOTASourceEditor; _content : TStringList);
+class procedure IOTAUtils.GxOtaLoadSourceEditorToUnicodeStrings(_editor : IOTASourceEditor; _content : TStringList);
 var
 	MemStream : TMemoryStream;
 begin
@@ -993,7 +1235,7 @@ begin
 	end;
 end;
 
-class function IOTAUTils.GxOtaMakeSourceVisible(const FileName : string) : Boolean;
+class function IOTAUtils.GxOtaMakeSourceVisible(const FileName : string) : Boolean;
 var
 	EditActions : IOTAEditActions;
 	Module : IOTAModule;
@@ -1071,7 +1313,7 @@ begin
 	end;
 end;
 
-class function IOTAUTils.GxOtaModuleIsShowingFormSource(Module : IOTAModule) : Boolean;
+class function IOTAUtils.GxOtaModuleIsShowingFormSource(Module : IOTAModule) : Boolean;
 var
 	Editor : IOTAEditor;
 	i : Integer;
@@ -1088,7 +1330,7 @@ begin
 	end;
 end;
 
-class function IOTAUTils.GxOtaOpenFile(const FileName : string) : Boolean;
+class function IOTAUtils.GxOtaOpenFile(const FileName : string) : Boolean;
 var
 	ActionServices : IOTAActionServices;
 	hWndSaved : HWND;
@@ -1102,12 +1344,22 @@ begin
 		SetForegroundWindow(hWndSaved);
 end;
 
-class function IOTAUTils.GxOtaProjectIsEitherDelphi(Project : IOTAProject) : Boolean;
+class function IOTAUtils.GxOtaProjectIsDelphiDotNet(Project : IOTAProject) : Boolean;
+begin
+	Result := SameText(GxOtaGetProjectPersonality(Project), sDelphiDotNetPersonality);
+end;
+
+class function IOTAUtils.GxOtaProjectIsEitherDelphi(Project : IOTAProject) : Boolean;
 begin
 	Result := MatchStr(GxOtaGetProjectPersonality(Project), [sDelphiPersonality, sDelphiDotNetPersonality]);
 end;
 
-class procedure IOTAUTils.GxOtaSaveReaderToStream(EditReader : IOTAEditReader; Stream : TStream; TrailingNull : Boolean = True);
+class function IOTAUtils.GxOtaProjectIsNativeCpp(Project : IOTAProject) : Boolean;
+begin
+	Result := SameText(GxOtaGetProjectPersonality(Project), sCBuilderPersonality);
+end;
+
+class procedure IOTAUtils.GxOtaSaveReaderToStream(EditReader : IOTAEditReader; Stream : TStream; TrailingNull : Boolean = True);
 const
 	// Leave typed constant as is - needed for streaming code.
 	NULL_CHAR : AnsiChar = #0;
@@ -1133,7 +1385,7 @@ begin
 		Stream.Write(NULL_CHAR, SizeOf(NULL_CHAR)); // The source parsers need this
 end;
 
-class function IOTAUTils.GxOtaTryGetCurrentProject(out _Project : IOTAProject) : Boolean;
+class function IOTAUtils.GxOtaTryGetCurrentProject(out _Project : IOTAProject) : Boolean;
 var
 	IProjectGroup : IOTAProjectGroup;
 	IModuleServices : IOTAModuleServices;
@@ -1167,74 +1419,103 @@ begin
 	end; // FI:W501 Empty except block
 end;
 
-class function IOTAUTils.GxOtaTryGetCurrentSourceEditor(out SourceEditor : IOTASourceEditor) : boolean;
+class function IOTAUtils.GxOtaTryGetCurrentSourceEditor(out SourceEditor : IOTASourceEditor) : boolean;
 begin
 	SourceEditor := GxOtaGetCurrentSourceEditor;
 	Result := Assigned(SourceEditor);
 end;
 
-class function IOTAUTils.GxOtaTryGetTopMostEditView(out EditView : IOTAEditView) : boolean;
+class function IOTAUtils.GxOtaTryGetProjectOptions(out _ProjectOptions : IOTAProjectOptions; _Project : IOTAProject = nil) : Boolean;
+begin
+	if not Assigned(_Project) then
+		_Project := GxOtaGetCurrentProject;
+	if Assigned(_Project) then
+		_ProjectOptions := _Project.GetProjectOptions;
+	Result := Assigned(_ProjectOptions);
+end;
+
+class function IOTAUtils.GxOtaTryGetTopMostEditView(out EditView : IOTAEditView) : boolean;
 begin
 	EditView := GxOtaGetTopMostEditView;
 	Result := Assigned(EditView);
 end;
 
-class function IOTAUTils.IDEEditorStringToString(const S : string) : string;
+class function IOTAUtils.IDEEditorStringToString(const S : string) : string;
 begin
 	Result := S;
 end;
 
-class function IOTAUTils.IsBdsproj(const FileName : string) : Boolean;
+class function IOTAUtils.IsBdsproj(const FileName : string) : Boolean;
 begin
 	Result := FileMatchesExtension(FileName, '.bdsproj');
 end;
 
-class function IOTAUTils.IsBdsprojOrDproj(const FileName : string) : Boolean;
+class function IOTAUtils.IsBdsprojOrDproj(const FileName : string) : Boolean;
 begin
 	Result := IsBdsproj(FileName) or IsDproj(FileName);
 end;
 
-class function IOTAUTils.IsBpr(const FileName : string) : Boolean;
+class function IOTAUtils.IsBpr(const FileName : string) : Boolean;
 begin
 	Result := FileMatchesExtension(FileName, '.bpr');
 end;
 
-class function IOTAUTils.IsCharLineEnding(C : Char) : Boolean;
+class function IOTAUtils.IsCharLineEnding(C : Char) : Boolean;
 begin
 	Result := CharInSet(C, [LF, CR]);
 end;
 
-class function IOTAUTils.IsDpr(const FileName : string) : Boolean;
+class function IOTAUtils.IsDpr(const FileName : string) : Boolean;
 begin
 	Result := FileMatchesExtension(FileName, '.dpr');
 end;
 
-class function IOTAUTils.IsDproj(const FileName : string) : Boolean;
+class function IOTAUtils.IsDproj(const FileName : string) : Boolean;
 begin
 	Result := FileMatchesExtension(FileName, '.dproj');
 end;
 
-class function IOTAUTils.IsForm(const FileName : string) : Boolean;
+class function IOTAUtils.IsForm(const FileName : string) : Boolean;
 begin
 	Result := FileMatchesExtensions(FileName, ['.dfm', '.xfm', '.nfm', '.fmx']);
 end;
 
-class function IOTAUTils.IsPackage(const FileName : string) : Boolean;
+class function IOTAUtils.IsPackage(const FileName : string) : Boolean;
 begin
 	Result := FileMatchesExtensions(FileName, ['.dpk', '.dpkw', '.bpk']);
 end;
 
-class function IOTAUTils.IsProjectSource(const FileName : string) : Boolean;
+class function IOTAUtils.IsProjectSource(const FileName : string) : Boolean;
 begin
 	Result := IsDpr(FileName) or IsBpr(FileName) or IsPackage(FileName);
 end;
 
-class function IOTAUTils.IsStandAlone : Boolean;
+class function IOTAUtils.IsStandAlone : Boolean;
 begin
 	Result := (BorlandIDEServices = nil);
 end;
 
-class procedure IOTAUTils.RemoveLastEOL(var S : string);
+class procedure IOTAUtils.ProcessPaths(Paths : TArrayEx<string>; const Prefix : string; const PlatformName : string);
+var
+	i : Integer;
+	PathItem : string;
+	PathProcessor : TPathProcessor;
+begin
+	PathProcessor := TPathProcessor.Create(Prefix);
+	try
+		// todo: What about ConfigName?
+		PathProcessor.PlatformName := PlatformName;
+		for i := 0 to Paths.Count - 1 do begin
+			PathItem := Paths[i];
+			PathItem := PathProcessor.Process(PathItem);
+			Paths[i] := PathItem;
+		end;
+	finally
+		FreeAndNil(PathProcessor);
+	end;
+end;
+
+class procedure IOTAUtils.RemoveLastEOL(var S : string);
 var
 	CurrLen : Integer;
 	EOLSize : Integer;
@@ -1252,7 +1533,7 @@ begin
 	end;
 end;
 
-class function IOTAUTils.StrCharAt(const S : string; Pos : Integer) : Char;
+class function IOTAUtils.StrCharAt(const S : string; Pos : Integer) : Char;
 begin
 	if (Pos >= 1) and (Pos <= Length(S)) then
 		Result := S[Pos]
@@ -1260,7 +1541,7 @@ begin
 		Result := #0;
 end;
 
-class function IOTAUTils.TryFocusControl(Control : TWinControl) : Boolean;
+class function IOTAUtils.TryFocusControl(Control : TWinControl) : Boolean;
 begin
 	Result := False;
 	if Assigned(Control) then begin
@@ -1274,6 +1555,122 @@ begin
 		end;
 	end;
 end;
+
+{ TPathProcessor }
+
+constructor TPathProcessor.Create(const _Prefix : string; _Project : IOTAProject = nil);
+
+	procedure Init(_Project : IOTAProject);
+
+	begin
+		if _Project = nil then
+			_Project := IOTAUtils.GxOtaGetCurrentProject;
+		if _Project <> nil then begin
+			FPlatformName := _Project.CurrentPlatform;
+			FConfigName := _Project.CurrentConfiguration;
+		end;
+	end;
+
+begin
+	inherited Create;
+	FPrefix := _Prefix;
+	Init(_Project);
+	FIdeBasePath := ExcludeTrailingPathDelimiter(TIdeUtils.GetIdeRootDirectory);
+	FEnvironment := TStringList.Create;
+	GetEnvironmentVariables(FEnvironment);
+end;
+
+destructor TPathProcessor.Destroy;
+begin
+	FreeAndNil(FEnvironment);
+	inherited;
+end;
+
+procedure TPathProcessor.GetEnvironmentVariables(Strings : TStrings);
+var
+	EnvStart : Pointer;
+	EnvPos : PChar;
+begin
+	Assert(Assigned(Strings));
+	Strings.Clear;
+	EnvStart := GetEnvironmentStrings;
+	try
+		EnvPos := EnvStart;
+		while StrLen(EnvPos) > 0 do begin
+			Strings.Add(EnvPos);
+			EnvPos := StrEnd(EnvPos) + 1;
+		end;
+	finally
+		FreeEnvironmentStrings(EnvStart);
+	end;
+end;
+
+function TPathProcessor.Process(const _Path : string) : string;
+const
+	IDEBaseMacros : array [0 .. 2] of string = ('BDS', 'DELPHI', 'BCB');
+var
+	i : Integer;
+	EnvName : string;
+	EnvValue : string;
+begin
+	Result := _Path;
+
+	// Expand the IDE base folder names $([DELPHI,BCB,BDS])
+	for i := low(IDEBaseMacros) to high(IDEBaseMacros) do
+		Result := ReplaceMacro(Result, IDEBaseMacros[i], FIdeBasePath);
+
+	// Expand any environment variable macros
+	for i := 0 to FEnvironment.Count - 1 do begin
+		EnvName := FEnvironment.Names[i];
+		EnvValue := FEnvironment.Values[EnvName];
+		if (Trim(EnvName) <> '') and (Trim(EnvValue) <> '') then
+			Result := ReplaceMacro(Result, EnvName, EnvValue);
+	end;
+
+	if FPlatformName <> '' then
+		Result := ReplaceMacro(Result, 'Platform', FPlatformName);
+
+	if FConfigName <> '' then
+		Result := ReplaceMacro(Result, 'Config', FConfigName);
+
+	if not TFileUtils.IsPathAbsolute(Result) then begin
+		if FPrefix <> '' then begin
+			Result := TFileUtils.ExpandFileNameRelBaseDir(Result, FPrefix);
+		end;
+	end;
+end;
+
+class function TPathProcessor.ReplaceMacro(const Str, OldValue, NewValue : string) : string;
+var
+	ReplaceVal : string;
+begin
+	ReplaceVal := '$(' + OldValue + ')';
+	Result := StringReplace(Str, ReplaceVal, NewValue, [rfReplaceAll, rfIgnoreCase]);
+end;
+
+class function TIdeUtils.GetIdeRootDirectory() : string;
+const
+	BinDirPostfix = PathDelim + 'Bin';
+begin
+	if TRegistryUtils.TryReadString(IOTAUtils.GxOtaGetIdeBaseRegistryKey(), 'RootDir', Result, HKEY_LOCAL_MACHINE) then begin
+		if DirectoryExists(Result) then begin
+			Result := IncludeTrailingPathDelimiter(Result);
+			Exit; // ==>
+		end;
+	end;
+
+	// There is no entry in the registry or it is invalid -> use the application's exename
+	Result := ExcludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
+	if SameText(RightStr(Result, Length(BinDirPostfix)), BinDirPostfix) then begin
+		var
+		len := Length(BinDirPostfix);
+		Result := Result.Substring(Length(Result) - len + 1, len);
+		Result := IncludeTrailingPathDelimiter(Result);
+	end else begin
+		Result := '';
+	end;
+end;
+
 {$ELSE}
 
 interface
