@@ -1,5 +1,15 @@
 # Changelog
 
+## [v4.12.0-beta] - 2025-08-07
+
+### 💥 Added
+- Support search in library paths
+
+### 🔄 Changed
+- Unittests for Load/SaveStream of History Objects
+
+### 🐞 Fixed
+
 ## [v4.11.0-beta] - 2025-08-04
 
 ### 💥 Added
@@ -46,6 +56,7 @@
 
 ## [Previous Versions]
 - See the release notes in the GitHub repository: https://github.com/mattia72/DRipGrepper/releases
+
 
 
 

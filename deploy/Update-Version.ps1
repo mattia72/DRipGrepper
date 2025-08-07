@@ -152,8 +152,12 @@ function Update-ChangelogVersion {
 
 ## [v$($NewVersion.FullVersion)$Suffix] - $today
 
+### 💥 Added
+
 ### 🔄 Changed
 - Version updated to $($NewVersion.FullVersion)
+
+### 🐞 Fixed
 
 "@
     

@@ -62,7 +62,7 @@
     <DCC_Define>NO_TRANSLATION;NO_TRANSLATION_HINT;NO_OPTIMIZE_DZ_GRAPHIC_UTILS_HINT;UnicodeRE;EnableIdeDockingSupport;$(DCC_Define)</DCC_Define>
     <DCC_UnitAlias>GX_IdeDockStandAlone=GX_IdeDock;SynRegExpr=RegExprReplaceUnit;$(DCC_UnitAlias)</DCC_UnitAlias>
     <VerInfo_Locale>1031</VerInfo_Locale>
-    <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=4.11.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.11.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=4.12.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.12.0;Comments=beta</VerInfo_Keys>
     <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Base_Win32)'!=''">
@@ -72,7 +72,7 @@
     <VerInfo_Locale>1033</VerInfo_Locale>
     <DCC_UsePackage>rtl;dbrtl;vcldb;vcl;VirtualTreesDR;VclSmp;$(DCC_UsePackage)</DCC_UsePackage>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.11.0.1;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.11.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.12.0.1;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.12.0;Comments=beta</VerInfo_Keys>
     <VerInfo_Build>1</VerInfo_Build>
     <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
   </PropertyGroup>
@@ -96,7 +96,7 @@
     <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\22.0\bin\bds.exe</Debugger_HostApplication>
     <DCC_ShowGeneralMessages>true</DCC_ShowGeneralMessages>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipExtension;FileVersion=4.11.0.12;ProgramID=com.embarcadero.DRipExtension;ProductName=DRipExtension;ProductVersion=4.11.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Keys>FileDescription=DRipExtension;FileVersion=4.12.0.12;ProgramID=com.embarcadero.DRipExtension;ProductName=DRipExtension;ProductVersion=4.12.0;Comments=beta</VerInfo_Keys>
     <VerInfo_Build>12</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
   </PropertyGroup>
@@ -110,7 +110,7 @@
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
     <VerInfo_Locale>1033</VerInfo_Locale>
-    <VerInfo_Keys>FileDescription=DRipExtension;FileVersion=4.11.0.22;ProgramID=com.embarcadero.DRipExtension;ProductName=DRipExtension;ProductVersion=4.11.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Keys>FileDescription=DRipExtension;FileVersion=4.12.0.22;ProgramID=com.embarcadero.DRipExtension;ProductName=DRipExtension;ProductVersion=4.12.0;Comments=beta</VerInfo_Keys>
     <VerInfo_Build>22</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
   </PropertyGroup>
@@ -1052,4 +1052,5 @@
   <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" />
   <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')" />
 </Project>
+
 
