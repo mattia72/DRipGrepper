@@ -59,19 +59,16 @@ type
 			[Ignore('todo')]
 			procedure TestSaveLoadListFromStream();
 			[Test]
-			[Ignore('todo')]
+//          [Ignore('todo')]
 			procedure LoadFromStreamShouldRestoreSearchWithMatches();
 			[Test]
-			[Ignore('todo')]
 			procedure LoadFromStreamShouldRestoreSearchWithoutMatches();
 			[Test]
 			[Ignore('todo')]
 			procedure LoadFromStreamShouldRestoreReplaceWithMatches();
 			[Test]
-			[Ignore('todo')]
 			procedure SaveToStreamShouldPersistSearchWithMatches();
 			[Test]
-			[Ignore('todo')]
 			procedure SaveToStreamShouldPersistSearchWithoutMatches();
 			[Test]
 			[Ignore('todo')]
@@ -285,7 +282,7 @@ begin
 	Result.ShouldSaveResult := True;
 
 	// Create first match
-	row := TParsedObjectRow.Create(nil, ptRipGrepSearch);
+	row := TParsedObjectRow.Create({nil, ptRipGrepSearch});
 	colData.Clear();
 	colData.Add(TColumnData.New(ciFile, 'C:\Test\File1.pas'));
 	colData.Add(TColumnData.New(ciRow, '10'));
@@ -297,7 +294,7 @@ begin
 	Result.Matches.Items.Add(row);
 
 	// Create second match
-	row := TParsedObjectRow.Create(nil, ptRipGrepSearch);
+	row := TParsedObjectRow.Create({nil, ptRipGrepSearch});
 	colData.Clear();
 	colData.Add(TColumnData.New(ciFile, 'C:\Test\File2.pas'));
 	colData.Add(TColumnData.New(ciRow, '15'));
@@ -337,7 +334,7 @@ begin
 
 	// Create "no output" result
 	Result.ShouldSaveResult := True;
-	row := TParsedObjectRow.Create(nil, ptRipGrepSearch);
+	row := TParsedObjectRow.Create({nil, ptRipGrepSearch});
 	colData.Clear();
 	colData.Add(TColumnData.New(ciFile, 'rg.exe' + RG_HAS_NO_OUTPUT));
 	colData.Add(TColumnData.New(ciRow, ''));
@@ -383,7 +380,7 @@ begin
 	Result.ShouldSaveResult := True;
 
 	// Create first replace match
-	row := TParsedObjectRow.Create(nil, ptRipGrepSearch);
+	row := TParsedObjectRow.Create({nil, ptRipGrepSearch});
 	colData.Clear();
 	colData.Add(TColumnData.New(ciFile, 'C:\Replace\File1.pas'));
 	colData.Add(TColumnData.New(ciRow, '20'));
@@ -494,7 +491,7 @@ begin
 			'Search options should be restored');
 		Assert.AreEqual(4, loadedItem.RipGrepArguments.Count, 'RipGrep arguments should be restored');
 		Assert.IsTrue(loadedItem.RipGrepArguments.Text.Contains('--case-sensitive'), 'First argument should be restored');
-		Assert.AreEqual('C:\Test\Path', loadedItem.SearchText, 'Search path should be restored');
+		Assert.AreEqual('test pattern', loadedItem.SearchText, 'Search path should be restored');
 		// Assert.AreEqual('*.pas', loadedItem.FileMasks, 'File masks should be restored');
 		Assert.AreEqual(2, loadedItem.Matches.Items.Count, 'Matches should be restored');
 		Assert.AreEqual('C:\Test\File1.pas', loadedItem.Matches.Items[0].GetColumnText(ciFile), 'First match file should be restored');
