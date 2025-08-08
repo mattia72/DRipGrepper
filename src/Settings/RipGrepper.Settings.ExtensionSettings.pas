@@ -10,8 +10,8 @@ uses
 	RipGrepper.Settings.SettingVariant;
 
 const
-//  IS_GUITEST = FALSE; // {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
-	IS_GUITEST = {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
+//	IS_GUITEST = FALSE;
+	 IS_GUITEST = {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
 
 type
 	TDelphiIDEContext = record

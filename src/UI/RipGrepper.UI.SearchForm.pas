@@ -86,8 +86,7 @@ type
 		cbRgParamContext : TCheckBox;
 		seContextLineNum : TSpinEdit;
 		rbExtensionOptions : TRadioGroup;
-		gbFileFilters : TGroupBox;
-		gbPath : TGroupBox;
+		pnlPath : TPanel;
 		btnShowInLines : TButton;
 		ActionShowInLines : TAction;
 		lblHintHelper : TLabel;
@@ -101,6 +100,7 @@ type
 		SVGIconImageList1 : TSVGIconImageList;
 		ToolButton1 : TToolButton;
 		ToolButton2 : TToolButton;
+		pnlRgOptions : TPanel;
 		procedure ActionAddParamMatchCaseExecute(Sender : TObject);
 		procedure ActionAddParamMatchCaseUpdate(Sender : TObject);
 		procedure ActionAddParamRegexExecute(Sender : TObject);
@@ -194,6 +194,7 @@ type
 			procedure SetOrigHeights;
 			class procedure SetReplaceText(_settings : TRipGrepperSettings; const _replaceText : string);
 			procedure SetReplaceTextSetting(const _replaceText : string);
+			procedure UpdateExtensionOptionsHint(const _paths : string);
 			procedure ShowReplaceCtrls(const _bShow : Boolean);
 			procedure UpdateSearchOptionsBtns;
 			procedure UpdateCmbsOnIDEContextChange;
@@ -1273,6 +1274,19 @@ begin
 	TDebugUtils.Msg('cmbSearchDir.Text=' + cmbSearchDir.Text);
 end;
 
+procedure TRipGrepperSearchDialogForm.UpdateExtensionOptionsHint(const _paths : string);
+begin
+	if _paths.IsEmpty then begin
+		rbExtensionOptions.Hint := '';
+		Exit;
+	end;
+	
+	var
+	pathArray := _paths.Split([';', ',']);
+	TArray.Sort<string>(pathArray);
+	rbExtensionOptions.Hint := string.Join(CRLF, pathArray);
+end;
+
 procedure TRipGrepperSearchDialogForm.SetExpertGroupSize();
 begin
 	var
@@ -1286,11 +1300,17 @@ end;
 
 procedure TRipGrepperSearchDialogForm.SetOrigHeights;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetOrigHeights');
+
 	FOptionsFiltersOrigHeight := gbOptionsFilters.Height;
 	FOptionsOutputOrigTop := gbOptionsOutput.Top;
 	FpnlMiddleOrigHeight := pnlMiddle.Height;
 	FTopPanelOrigHeight := pnlTop.Height;
 	FOrigHeight := Height;
+
+	dbgMsg.MsgFmt('Captured heights - gbOptionsFilters: %d, pnlTop: %d, Form: %d', [FOptionsFiltersOrigHeight, FTopPanelOrigHeight,
+		FOrigHeight]);
 end;
 
 class procedure TRipGrepperSearchDialogForm.SetReplaceText(_settings : TRipGrepperSettings; const _replaceText : string);
@@ -1388,20 +1408,31 @@ begin
 		case FCtrlProxy.ExtensionContext of
 			EDelphiIDESearchContext.dicActiveFile : begin
 				SetCmbSearchPathText(dic.ActiveFile);
+				UpdateExtensionOptionsHint(dic.ActiveFile);
 			end;
 			EDelphiIDESearchContext.dicProjectFiles : begin
-				SetCmbSearchPathText(string.Join(SEARCH_PATH_SEPARATOR, dic.ProjectFiles).Trim([SEARCH_PATH_SEPARATOR]));
+				var
+				projectPaths := string.Join(SEARCH_PATH_SEPARATOR, dic.ProjectFiles).Trim([SEARCH_PATH_SEPARATOR]);
+				SetCmbSearchPathText(projectPaths);
+				UpdateExtensionOptionsHint(projectPaths);
 			end;
 			EDelphiIDESearchContext.dicOpenFiles : begin
-				SetCmbSearchPathText(string.Join(SEARCH_PATH_SEPARATOR, dic.OpenFiles).Trim([SEARCH_PATH_SEPARATOR]));
+				var
+				openPaths := string.Join(SEARCH_PATH_SEPARATOR, dic.OpenFiles).Trim([SEARCH_PATH_SEPARATOR]);
+				SetCmbSearchPathText(openPaths);
+				UpdateExtensionOptionsHint(openPaths);
 			end;
 			EDelphiIDESearchContext.dicProjectSourcePath : begin
-				SetCmbSearchPathText(string.Join(SEARCH_PATH_SEPARATOR, dic.SourcePath).Trim([SEARCH_PATH_SEPARATOR]));
+				var
+				sourcePaths := string.Join(SEARCH_PATH_SEPARATOR, dic.SourcePath).Trim([SEARCH_PATH_SEPARATOR]);
+				SetCmbSearchPathText(sourcePaths);
+				UpdateExtensionOptionsHint(sourcePaths);
 			end;
 			EDelphiIDESearchContext.dicPath : begin
 				cmbSearchDir.Enabled := True;
 				dbgMsg.MsgFmt('SearchPath=%s', [FCtrlProxy.SearchPath]);
 				SetComboItemsAndText(cmbSearchDir, FCtrlProxy.SearchPath, FSettings.SearchPathsHistory.Value);
+				UpdateExtensionOptionsHint(FCtrlProxy.SearchPath);
 			end
 			else begin
 				raise Exception.Create('Extension IDE Context not supported');
@@ -1434,24 +1465,27 @@ begin
 	dbgMsg.Msg('pnlTop.Height=' + pnlTop.Height.ToString);
 	pnlMiddle.Top := pnlTop.Height;
 	var
-	bStandalone := {$IF IS_GUITEST OR IS_STANDALONE} True; {$ELSE} False; {$ENDIF}
-    lblPaths.Visible := bStandalone;
+	bStandalone := {$IF IS_STANDALONE} True; {$ELSE} False; {$ENDIF}
+	lblPaths.Visible := bStandalone;
 	if bStandalone then begin
-		rbExtensionOptions.Enabled := False;
-		rbExtensionOptions.Visible := False;
+		rbExtensionOptions.Enabled := {$IF IS_GUITEST} True; {$ELSE} False; {$ENDIF};
+		rbExtensionOptions.Visible := {$IF IS_GUITEST} True; {$ELSE} False; {$ENDIF};
 		var
-		extensionSpace := rbExtensionOptions.Height; // GetFullHeight(rbExtensionOptions);
+		extensionSpace := {$IF IS_GUITEST} 0 {$ELSE} rbExtensionOptions.Height - 12 {$ENDIF}; // GetFullHeight(rbExtensionOptions);
 		dbgMsg.Msg('extensionSpace=' + extensionSpace.ToString);
 
-		gbOptionsFilters.Height := FOptionsFiltersOrigHeight - extensionSpace;
 		if not rbExtensionOptions.Visible then begin
-			gbPath.Align := alTop;
+			pnlPath.Align := alTop;
 		end;
+
+		gbOptionsFilters.Height := FOptionsFiltersOrigHeight - extensionSpace;
+		dbgMsg.Msg('gbOptionsFilters.Height=' + gbOptionsFilters.Height.ToString);
+
 		gbOptionsOutput.Top := FOptionsOutputOrigTop - extensionSpace;
 
 		pnlMiddle.Height := FpnlMiddleOrigHeight - extensionSpace;
 		dbgMsg.Msg('pnlMiddle.Height=' + pnlMiddle.Height.ToString);
-    end;
+	end;
 
 	var
 	iHeight := GetFullHeights;
