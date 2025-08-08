@@ -2,6 +2,17 @@
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
     "version": "2.0.0",
+    "inputs": [
+        {
+            "id": "delphiVersion",
+            "description": "Choose Delphi-Version",
+            "type": "pickString",
+            "options": [
+                "Delphi11",
+                "Delphi12"
+            ]
+        }
+    ],
     "tasks": [
         {
             "label": "DripGrepper: Build All",
@@ -42,7 +53,7 @@
         {
             "label": "DripGrepper: Build and run DRipGrepper",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone; & .\\Win32\\Release\\DripGrepper.exe",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone; & src\\Project\\${input:delphiVersion}\\Win32\\Release\\DripGrepper.exe",
             "group": {
                 "kind": "build"
             }
