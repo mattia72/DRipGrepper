@@ -11,13 +11,22 @@
                 "Delphi11",
                 "Delphi12"
             ]
+        },
+        {
+            "id": "buildConfig",
+            "description": "Choose Build Configuration",
+            "type": "pickString",
+            "options": [
+                "Debug",
+                "Release"
+            ]
         }
     ],
     "tasks": [
         {
             "label": "DripGrepper: Build All",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone -BuildExtension",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig ${input:buildConfig} -BuildStandalone -BuildExtension",
             "problemMatcher": [],
             "group": {
                 "kind": "build"
@@ -26,7 +35,7 @@
         {
             "label": "DripGrepper: Build All & Deploy to TransferDrive",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone -BuildExtension -DeployToTransferDrive",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig ${input:buildConfig} -BuildStandalone -BuildExtension -DeployToTransferDrive",
             "problemMatcher": [],
             "group": {
                 "kind": "none"
@@ -35,7 +44,7 @@
         {
             "label": "DripGrepper: Build All & Deploy to TransferDrive and GitHub",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone -BuildExtension -DeployToGitHub",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig ${input:buildConfig} -BuildStandalone -BuildExtension -DeployToGitHub",
             "problemMatcher": [],
             "group": {
                 "kind": "none"
@@ -44,16 +53,16 @@
         {
             "label": "DripGrepper: Build All & Local Deploy",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone -BuildExtension -LocalDeploy -Force",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig ${input:buildConfig} -BuildStandalone -BuildExtension -LocalDeploy -Force",
             "problemMatcher": [],
             "group": {
                 "kind": "none"
             }
         },
         {
-            "label": "DripGrepper: Build and run DRipGrepper",
+            "label": "DripGrepper: Build and run DripGrepper",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone; & src\\Project\\${input:delphiVersion}\\Win32\\Release\\DripGrepper.exe",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig ${input:buildConfig} -BuildStandalone; & src\\Project\\${input:delphiVersion}\\Win32\\${input:buildConfig}\\DripGrepper.exe",
             "group": {
                 "kind": "build"
             }
@@ -64,21 +73,21 @@
             "command": "deploy\\Deploy-DripGrepper.ps1 -RunUnittest",
             "problemMatcher": [],
             "group": {
-                "kind": "none"
+                "kind": "test"
             }
         },
         {
-            "label": "DripGrepper: Build DRipExtension",
+            "label": "DripGrepper: Build DripExtension",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildExtension",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig ${input:buildConfig} -BuildExtension",
             "group": {
                 "kind": "build"
             }
         },
         {
-            "label": "DripGrepper: Build DRipGrepper",
+            "label": "DripGrepper: Build DripGrepper",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig ${input:buildConfig} -BuildStandalone",
             "group": {
                 "kind": "build"
             }
@@ -86,35 +95,35 @@
         {
             "label": "DripGrepper: Build Extension & Local Deploy",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildExtension -LocalDeploy -Force",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig ${input:buildConfig} -BuildExtension -LocalDeploy -Force",
             "problemMatcher": [],
             "group": {
                 "kind": "none"
             }
         },
         {
-            "label": "DripGrepper: Debug Build All & Local Deploy",
+            "label": "DripGrepper: Local Deploy",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig Debug -BuildStandalone -BuildExtension -LocalDeploy -Force",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig ${input:buildConfig} -LocalDeploy -Force",
             "problemMatcher": [],
             "group": {
                 "kind": "none"
             }
         },
         {
-            "label": "DripGrepper: Debug Build DRipExtensions.dll",
+            "label": "DripGrepper: Run DripGrepper.exe (x64)",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildExtension -BuildConfig Debug",
+            "command": "& src\\Project\\${input:delphiVersion}\\Win64\\${input:buildConfig}\\DripGrepper.exe",
             "group": {
-                "kind": "build"
+                "kind": "test"
             }
         },
         {
-            "label": "DripGrepper: Debug Build DRipGrepper",
+            "label": "DripGrepper: Run DripGrepper.exe (x86)",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildStandalone -BuildConfig Debug",
+            "command": "& src\\Project\\${input:delphiVersion}\\Win32\\${input:buildConfig}\\DripGrepper.exe",
             "group": {
-                "kind": "build"
+                "kind": "test"
             }
         },
         {
@@ -136,40 +145,6 @@
             }
         },
         {
-            "label": "DripGrepper: Local Deploy",
-            "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -LocalDeploy -Force",
-            "problemMatcher": [],
-            "group": {
-                "kind": "none"
-            }
-        },
-        {
-            "label": "DripGrepper: Local Deploy Debug",
-            "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -LocalDeploy -Force -BuildConfig Debug",
-            "problemMatcher": [],
-            "group": {
-                "kind": "none"
-            }
-        },
-        {
-            "label": "DripGrepper: Run DRipGrepper.exe (x64)",
-            "type": "shell",
-            "command": "& .\\deploy\\assets\\Win64\\DripGrepper.exe",
-            "group": {
-                "kind": "test"
-            }
-        },
-        {
-            "label": "DripGrepper: Run DRipGrepper.exe (x86)",
-            "type": "shell",
-            "command": "& .\\deploy\\assets\\Win32\\DripGrepper.exe",
-            "group": {
-                "kind": "test"
-            }
-        },
-        {
             "label": "DripGrepper: Update scoop manifest",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -UpdateScoopManifest",
@@ -177,7 +152,7 @@
             "group": {
                 "kind": "none"
             }
-        }
+        },
         {
             "label": "DripGrepper: Upload Missing Asset to Github",
             "type": "shell",
