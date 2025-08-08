@@ -9,7 +9,6 @@ A powerful [ripgrep](https://github.com/BurntSushi/ripgrep) GUI written in Delph
 ## Features
 
 **Core Functionality**
-- Delphi 11, 12 support
 - Advanced `ripgrep` parameter configuration with expert mode
 - Result filtering by file path and matching lines
 - Text replacement with preview
@@ -17,6 +16,7 @@ A powerful [ripgrep](https://github.com/BurntSushi/ripgrep) GUI written in Delph
 - "Open with..." integration ([wiki examples](https://github.com/mattia72/DRipGrepper/wiki/Open-With...-help-and-samples))
 
 **Delphi Extension**
+- Delphi 11, 12 support
 - Tools menu integration (Shift+Alt+R)
 - Direct file opening at search position
 - Add files to `uses` clauses
