@@ -30,9 +30,10 @@ type
 	EDelphiIDESearchContext = (
 		{ } dicNotSet = -1,
 		{ } dicActiveFile = 0,
-		{ } dicOpeneFiles = 1,
+		{ } dicOpenFiles = 1,
 		{ } dicProjectFiles = 2,
-		{ } dicPath = 3
+		{ } dicProjectSourcePath = 3,
+		{ } dicPath = 4
 		{ } );
 
 	TShellType = (stNone = -1, stPowershell = 0, stCmd = 1);

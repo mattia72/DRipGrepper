@@ -37,7 +37,8 @@ uses
 	RipGrepper.Helper.UI.DarkMode,
 	Spring,
 	ArrayEx,
-	RipGrepper.Settings.SettingVariant;
+	RipGrepper.Settings.SettingVariant,
+	Vcl.ControlList;
 
 type
 	TRipGrepperSearchDialogForm = class(TForm)
@@ -1391,8 +1392,11 @@ begin
 			EDelphiIDESearchContext.dicProjectFiles : begin
 				SetCmbSearchPathText(string.Join(SEARCH_PATH_SEPARATOR, dic.ProjectFiles).Trim([SEARCH_PATH_SEPARATOR]));
 			end;
-			EDelphiIDESearchContext.dicOpeneFiles : begin
+			EDelphiIDESearchContext.dicOpenFiles : begin
 				SetCmbSearchPathText(string.Join(SEARCH_PATH_SEPARATOR, dic.OpenFiles).Trim([SEARCH_PATH_SEPARATOR]));
+			end;
+			EDelphiIDESearchContext.dicProjectSourcePath : begin
+				SetCmbSearchPathText(string.Join(SEARCH_PATH_SEPARATOR, dic.SourcePath).Trim([SEARCH_PATH_SEPARATOR]));
 			end;
 			EDelphiIDESearchContext.dicPath : begin
 				cmbSearchDir.Enabled := True;
@@ -1431,6 +1435,7 @@ begin
 	pnlMiddle.Top := pnlTop.Height;
 	var
 	bStandalone := {$IF IS_GUITEST OR IS_STANDALONE} True; {$ELSE} False; {$ENDIF}
+    lblPaths.Visible := bStandalone;
 	if bStandalone then begin
 		rbExtensionOptions.Enabled := False;
 		rbExtensionOptions.Visible := False;
@@ -1446,7 +1451,7 @@ begin
 
 		pnlMiddle.Height := FpnlMiddleOrigHeight - extensionSpace;
 		dbgMsg.Msg('pnlMiddle.Height=' + pnlMiddle.Height.ToString);
-	end;
+    end;
 
 	var
 	iHeight := GetFullHeights;

@@ -10,7 +10,8 @@ uses
 	RipGrepper.Settings.SettingVariant;
 
 const
-	IS_GUITEST = FALSE; // {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
+//  IS_GUITEST = FALSE; // {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
+	IS_GUITEST = {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
 
 type
 	TDelphiIDEContext = record
@@ -18,7 +19,7 @@ type
 		ActiveFile : string;
 		OpenFiles : TArray<string>;
 		ProjectFiles : TArray<string>;
-		LibraryPath : TArray<string>;
+		SourcePath : TArray<string>;
 		ActiveProject : string;
 		function IsEmpty() : Boolean;
 
@@ -209,13 +210,13 @@ begin
 	ap := IOTAUTils.GxOtaGetCurrentProject;
 	if Assigned(ap) then begin
 		ActiveProject := ap.FileName;
-		LibraryPath := IOTAUtils.GxOtaGetProjectSourcePathStrings();
+		SourcePath := IOTAUtils.GxOtaGetProjectSourcePathStrings();
 	end;
 	dbgMsg.Msg('ActiveFile: ' + ActiveFile);
 	dbgMsg.Msg('ActiveProject: ' + ActiveProject);
 	dbgMsg.Msg('OpenFiles: ' + string.Join(', ', OpenFiles));
 	dbgMsg.Msg('ProjectFiles: ' + string.Join(', ', ProjectFiles));
-	dbgMsg.Msg('LibraryPath: ' + string.Join(', ', LibraryPath));
+	dbgMsg.Msg('SourcePath: ' + string.Join(', ', SourcePath));
 
 	{$ENDIF}
 end;
@@ -226,7 +227,7 @@ begin
 	Dest.ActiveProject := '';
 	Dest.OpenFiles := [];
 	Dest.ProjectFiles := [];
-	Dest.LibraryPath := [];
+	Dest.SourcePath := [];
 	Dest.IDESearchContext := EDelphiIDESearchContext.dicNotSet;
 end;
 
