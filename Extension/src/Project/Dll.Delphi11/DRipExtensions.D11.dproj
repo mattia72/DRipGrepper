@@ -1,10 +1,10 @@
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ProjectGuid>{61FA8D59-16BA-4F6D-96E6-6AF82C96C442}</ProjectGuid>
     <ProjectVersion>20.1</ProjectVersion>
     <FrameworkType>VCL</FrameworkType>
     <Base>True</Base>
-    <Config Condition="'$(Config)'==''">Release</Config>
+    <Config Condition="'$(Config)'==''">Debug</Config>
     <Platform Condition="'$(Platform)'==''">Win32</Platform>
     <ProjectName Condition="'$(ProjectName)'==''">DRipExtensions.D11</ProjectName>
     <TargetedPlatforms>1</TargetedPlatforms>
@@ -119,8 +119,8 @@
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
     <VerInfo_Locale>1033</VerInfo_Locale>
-    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.12.0.252;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.12.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>252</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.12.0.253;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.12.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>253</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <DCC_Description>RipGrep Search within Delphi</DCC_Description>
     <VerInfo_MinorVer>12</VerInfo_MinorVer>
@@ -253,6 +253,8 @@
       <FormType>dfm</FormType>
     </DCCReference>
     <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.WinHttpClient.pas" />
+    <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.IOTAUtils.Constants.pas" />
+    <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.RegistryUtils.pas" />
     <RcItem Include="..\..\..\Resources\about_icon.bmp">
       <ResourceType>BITMAP</ResourceType>
       <ResourceId>about_icon</ResourceId>
