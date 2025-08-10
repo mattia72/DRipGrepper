@@ -1,4 +1,4 @@
-unit RipGrepper.Common.IOTAUtils;
+﻿unit RipGrepper.Common.IOTAUtils;
 {$IFNDEF STANDALONE}
 
 interface
@@ -35,6 +35,21 @@ type
 			/// Returns the project's current platform, if any (and supported), or an empty string </summary>
 			class function GxOtaGetProjectPlatform(Project : IOTAProject = nil) : string;
 			class procedure ProcessPaths(Paths : TArrayEx<string>; const Prefix : string; const PlatformName : string);
+			/// <summary>
+			/// Shows a message box with non-existing paths to inform the user
+			/// @param NonExistsPaths list of paths that do not exist </summary>
+			class procedure ShowNonExistingPathsMessage(NonExistsPaths : TStrings);
+			/// <summary>
+			/// Get all available macros that can be used in ReplaceMacros including Platform, Config,
+			/// environment variables, IDE base paths, and preprocessor constants (defines)
+			/// @param Macros will contain all available macros in "Name=Value" format
+			/// @param Project is the project to get options from, if nil the current project will be used </summary>
+			class procedure GetAllAvailableMacros(Macros : TStrings; Project : IOTAProject = nil);
+			/// <summary>
+			/// Get all preprocessor constants (conditional defines) for the given project
+			/// @param Defines will contain all conditional defines in "Name=Value" format
+			/// @param Project is the project to get defines from, if nil the current project will be used </summary>
+			class procedure GetPreprocessorConstants(Defines : TStrings; Project : IOTAProject = nil);
 
 		public
 			class function AddToImageList(_bmp : Vcl.Graphics.TBitmap; const _identText : string) : Integer;
@@ -243,7 +258,9 @@ uses
 
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Tools.FileUtils,
-	u_dzClassUtils;
+	u_dzClassUtils,
+	System.Variants,
+	System.Math;
 
 type
 	TPathProcessor = class
@@ -253,6 +270,7 @@ type
 			FPlatformName : string;
 			FPrefix : string;
 			FEnvironment : TStringList;
+			FProjectOptions : IOTAProjectOptions;
 			class function ReplaceMacro(const Str, OldValue, NewValue : string) : string;
 
 		public
@@ -263,6 +281,8 @@ type
 			constructor Create(const _Prefix : string; _Project : IOTAProject = nil);
 			destructor Destroy; override;
 			procedure GetEnvironmentVariables(Strings : TStrings);
+			procedure GetAllProjectOptions(Options : TStrings);
+			function GetProjectOption(const OptionName : string) : string;
 			function Process(const _Path : string) : string;
 			property PlatformName : string read FPlatformName write FPlatformName;
 			property ConfigName : string read FConfigName write FConfigName;
@@ -1500,15 +1520,86 @@ var
 	i : Integer;
 	PathItem : string;
 	PathProcessor : TPathProcessor;
+	NonExistsPaths : TStringList;
 begin
 	PathProcessor := TPathProcessor.Create(Prefix);
+	NonExistsPaths := TStringList.Create;
 	try
 		// todo: What about ConfigName?
 		PathProcessor.PlatformName := PlatformName;
 		for i := 0 to Paths.Count - 1 do begin
 			PathItem := Paths[i];
 			PathItem := PathProcessor.Process(PathItem);
-			Paths[i] := PathItem;
+			if DirectoryExists(PathItem) then begin
+				// Only add valid directories
+				Paths[i] := PathItem;
+			end else begin
+				NonExistsPaths.Add(PathItem);
+			end;
+		end;
+
+		// Show non-existing paths to user if any found
+		if NonExistsPaths.Count > 0 then begin
+			ShowNonExistingPathsMessage(NonExistsPaths);
+		end;
+	finally
+		FreeAndNil(PathProcessor);
+		FreeAndNil(NonExistsPaths);
+	end;
+end;
+
+class procedure IOTAUtils.GetAllAvailableMacros(Macros : TStrings; Project : IOTAProject = nil);
+const
+	IDEBaseMacros : array [0 .. 2] of string = ('BDS', 'DELPHI', 'BCB');
+var
+	PathProcessor : TPathProcessor;
+	i : Integer;
+	DefineValue : string;
+	DefineList : TStringList;
+	IdeBasePath : string;
+begin
+	Assert(Assigned(Macros));
+	Macros.Clear;
+
+	PathProcessor := TPathProcessor.Create('', Project);
+	try
+		// Add IDE base paths
+		IdeBasePath := TIdeUtils.GetIdeRootDirectory;
+		for i := low(IDEBaseMacros) to high(IDEBaseMacros) do
+			Macros.Add(IDEBaseMacros[i] + '=' + IdeBasePath);
+
+		// Add environment variables
+		PathProcessor.GetEnvironmentVariables(Macros);
+
+		// Add Platform and Config
+		if PathProcessor.PlatformName <> '' then
+			Macros.Add('Platform=' + PathProcessor.PlatformName);
+		if PathProcessor.ConfigName <> '' then
+			Macros.Add('Config=' + PathProcessor.ConfigName);
+
+		// Add preprocessor constants (defines)
+		DefineValue := PathProcessor.GetProjectOption('DCC_Define');
+		if DefineValue <> '' then begin
+			DefineList := TStringList.Create;
+			try
+				DefineList.Delimiter := ';';
+				DefineList.DelimitedText := DefineValue;
+				for i := 0 to DefineList.Count - 1 do begin
+					var
+					Define := DefineList[i];
+					var
+					EqualPos := Pos('=', Define);
+					if EqualPos > 0 then begin
+						// Define with value: SYMBOL=VALUE
+						Macros.Add(Define);
+					end else begin
+						// Define without value: SYMBOL (assume '1')
+						Macros.Add(Define + '=1');
+					end;
+				end;
+			finally
+				FreeAndNil(DefineList);
+			end;
 		end;
 	finally
 		FreeAndNil(PathProcessor);
@@ -1568,6 +1659,7 @@ constructor TPathProcessor.Create(const _Prefix : string; _Project : IOTAProject
 		if _Project <> nil then begin
 			FPlatformName := _Project.CurrentPlatform;
 			FConfigName := _Project.CurrentConfiguration;
+			FProjectOptions := _Project.GetProjectOptions;
 		end;
 	end;
 
@@ -1605,6 +1697,31 @@ begin
 	end;
 end;
 
+procedure TPathProcessor.GetAllProjectOptions(Options : TStrings);
+begin
+	Assert(Assigned(Options));
+	Options.Clear;
+	if Assigned(FProjectOptions) then begin
+		var
+		OptionNames := FProjectOptions.GetOptionNames;
+		for var i := 0 to Length(OptionNames) - 1 do begin
+			var
+			OptionName := OptionNames[i].Name;
+			var
+			OptionValue := VarToStr(FProjectOptions.Values[OptionName]);
+			Options.Add(OptionName + '=' + OptionValue);
+		end;
+	end;
+end;
+
+function TPathProcessor.GetProjectOption(const OptionName : string) : string;
+begin
+	Result := '';
+	if Assigned(FProjectOptions) then begin
+		Result := VarToStr(FProjectOptions.Values[OptionName]);
+	end;
+end;
+
 function TPathProcessor.Process(const _Path : string) : string;
 const
 	IDEBaseMacros : array [0 .. 2] of string = ('BDS', 'DELPHI', 'BCB');
@@ -1612,7 +1729,12 @@ var
 	i : Integer;
 	EnvName : string;
 	EnvValue : string;
+	DefineList : TStringList;
+	DefineValue : string;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPathProcessor.Process');
+
 	Result := _Path;
 
 	// Expand the IDE base folder names $([DELPHI,BCB,BDS])
@@ -1625,6 +1747,37 @@ begin
 		EnvValue := FEnvironment.Values[EnvName];
 		if (Trim(EnvName) <> '') and (Trim(EnvValue) <> '') then
 			Result := ReplaceMacro(Result, EnvName, EnvValue);
+	end;
+
+	// Expand project preprocessor constants (DCC_Define)
+	if Assigned(FProjectOptions) then begin
+		DefineValue := VarToStr(FProjectOptions.Values['DCC_Define']);
+		if DefineValue <> '' then begin
+			DefineList := TStringList.Create;
+			try
+				DefineList.Delimiter := ';';
+				DefineList.DelimitedText := DefineValue;
+				for i := 0 to DefineList.Count - 1 do begin
+					var
+					Define := DefineList[i];
+					var
+					EqualPos := Pos('=', Define);
+					if EqualPos > 0 then begin
+						// Define with value: SYMBOL=VALUE
+						var
+						SymbolName := Copy(Define, 1, EqualPos - 1);
+						var
+						SymbolValue := Copy(Define, EqualPos + 1, Length(Define));
+						Result := ReplaceMacro(Result, SymbolName, SymbolValue);
+					end else begin
+						// Define without value: SYMBOL (assume empty string or '1')
+						Result := ReplaceMacro(Result, Define, '1');
+					end;
+				end;
+			finally
+				FreeAndNil(DefineList);
+			end;
+		end;
 	end;
 
 	if FPlatformName <> '' then
@@ -1644,8 +1797,92 @@ class function TPathProcessor.ReplaceMacro(const Str, OldValue, NewValue : strin
 var
 	ReplaceVal : string;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TPathProcessor.ReplaceMacro');
 	ReplaceVal := '$(' + OldValue + ')';
+	dbgMsg.Msg('Replacing: ' + ReplaceVal + ' with: ' + NewValue);
 	Result := StringReplace(Str, ReplaceVal, NewValue, [rfReplaceAll, rfIgnoreCase]);
+	dbgMsg.Msg('Result: ' + Result);
+end;
+
+class procedure IOTAUtils.GetPreprocessorConstants(Defines : TStrings; Project : IOTAProject = nil);
+var
+	PathProcessor : TPathProcessor;
+	DefineValue : string;
+	DefineList : TStringList;
+	i : Integer;
+begin
+	Assert(Assigned(Defines));
+	Defines.Clear;
+
+	PathProcessor := TPathProcessor.Create('', Project);
+	try
+		// Get preprocessor constants (defines)
+		DefineValue := PathProcessor.GetProjectOption('DCC_Define');
+		if DefineValue <> '' then begin
+			DefineList := TStringList.Create;
+			try
+				DefineList.Delimiter := ';';
+				DefineList.DelimitedText := DefineValue;
+				for i := 0 to DefineList.Count - 1 do begin
+					var
+					Define := DefineList[i];
+					var
+					EqualPos := Pos('=', Define);
+					if EqualPos > 0 then begin
+						// Define with value: SYMBOL=VALUE
+						Defines.Add(Define);
+					end else begin
+						// Define without value: SYMBOL (assume '1')
+						Defines.Add(Define + '=1');
+					end;
+				end;
+			finally
+				FreeAndNil(DefineList);
+			end;
+		end;
+	finally
+		FreeAndNil(PathProcessor);
+	end;
+end;
+
+class procedure IOTAUtils.ShowNonExistingPathsMessage(NonExistsPaths : TStrings);
+var
+	MessageText : string;
+	PathsList : string;
+const
+	MAX_PATHS_TO_SHOW = 20; // Limit the number of paths shown in the message
+begin
+	Assert(Assigned(NonExistsPaths));
+
+	if NonExistsPaths.Count = 0 then
+		Exit;
+
+	if NonExistsPaths.Count = 1 then
+		MessageText := 'The following path does not exist:' + #13#10#13#10
+	else
+		MessageText := Format('The following %d paths do not exist:', [NonExistsPaths.Count]) + #13#10#13#10;
+
+	// Build list of paths to show (limit to avoid too large message boxes)
+	var
+	PathCount := Min(NonExistsPaths.Count, MAX_PATHS_TO_SHOW);
+	for var i := 0 to PathCount - 1 do begin
+		PathsList := PathsList + '• ' + NonExistsPaths[i] + #13#10;
+	end;
+
+	if NonExistsPaths.Count > MAX_PATHS_TO_SHOW then
+		PathsList := PathsList + Format('... and %d more paths', [NonExistsPaths.Count - MAX_PATHS_TO_SHOW]);
+
+	MessageText := MessageText + PathsList + #13#10 + 'These paths will be ignored when searching for files. ' +
+		'Please check your project and IDE library path settings.';
+
+	// Show message box (use MessageBox for simple display)
+	{$IFDEF MSWINDOWS}
+	MessageBox(0, PChar(MessageText), 'Non-existing Paths Found', MB_OK or MB_ICONWARNING);
+	{$ELSE}
+	// Fallback for other platforms if needed
+	Application.MessageBox(PChar(MessageText), 'Non-existing Paths Found', MB_OK or MB_ICONWARNING);
+	{$ENDIF}
 end;
 
 class function TIdeUtils.GetIdeRootDirectory() : string;
