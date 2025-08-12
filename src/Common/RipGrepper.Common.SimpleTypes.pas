@@ -32,8 +32,8 @@ type
 		{ } dicActiveFile = 0,
 		{ } dicOpenFiles = 1,
 		{ } dicProjectFiles = 2,
-		{ } dicProjectSourcePath = 3,
-		{ } dicPath = 4
+		{ } dicPath = 3,
+		{ } dicProjectSourcePath = 4 // new types should be added after this
 		{ } );
 
 	TShellType = (stNone = -1, stPowershell = 0, stCmd = 1);

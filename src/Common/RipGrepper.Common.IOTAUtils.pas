@@ -25,6 +25,7 @@ type
 			OPTION_NAME_UNIT_SEARCH_PATH = 'SrcDir';
 
 		private
+			class procedure addProjectDefineMacros(var _defineValue : string; _macros : TStrings);
 			// Returns IDE's base registry key, for instance
 			// Software\Borland\Delphi\4.0
 			// The returned string is guaranteed to NOT have a
@@ -34,22 +35,23 @@ type
 			/// <summary>
 			/// Returns the project's current platform, if any (and supported), or an empty string </summary>
 			class function GxOtaGetProjectPlatform(Project : IOTAProject = nil) : string;
-			class procedure ProcessPaths(Paths : TArrayEx<string>; const Prefix : string; const PlatformName : string);
+			class procedure processPaths(_paths : TArrayEx<string>; _nonExistsPaths : TArrayEx<string>;
+				const _prefix, _platformName : string);
 			/// <summary>
 			/// Shows a message box with non-existing paths to inform the user
 			/// @param NonExistsPaths list of paths that do not exist </summary>
-			class procedure ShowNonExistingPathsMessage(NonExistsPaths : TStrings);
+			class procedure showNonExistingPathsMessage(NonExistsPaths : TStrings);
 			/// <summary>
-			/// Get all available macros that can be used in ReplaceMacros including Platform, Config,
+			/// Get all available _macros that can be used in ReplaceMacros including Platform, Config,
 			/// environment variables, IDE base paths, and preprocessor constants (defines)
-			/// @param Macros will contain all available macros in "Name=Value" format
-			/// @param Project is the project to get options from, if nil the current project will be used </summary>
-			class procedure GetAllAvailableMacros(Macros : TStrings; Project : IOTAProject = nil);
+			/// @param _macros will contain all available _macros in "Name=Value" format
+			/// @param _project is the _project to get options from, if nil the current _project will be used </summary>
+			class procedure getAllAvailableMacros(_macros : TStrings; _project : IOTAProject = nil);
 			/// <summary>
 			/// Get all preprocessor constants (conditional defines) for the given project
 			/// @param Defines will contain all conditional defines in "Name=Value" format
 			/// @param Project is the project to get defines from, if nil the current project will be used </summary>
-			class procedure GetPreprocessorConstants(Defines : TStrings; Project : IOTAProject = nil);
+			class procedure getPreprocessorConstants(Defines : TStrings; Project : IOTAProject = nil);
 
 		public
 			class function AddToImageList(_bmp : Vcl.Graphics.TBitmap; const _identText : string) : Integer;
@@ -132,13 +134,13 @@ type
 			// Use the current source editor if none is specified
 			class function GxOtaGetEditWriterForSourceEditor(SourceEditor : IOTASourceEditor = nil) : IOTAEditWriter;
 			/// <summary>
-			/// Return the effective library path, with the project specific paths
+			/// Return the effective library path, with the _project specific paths
 			/// first and then the IDE's global library path.
-			/// @params if DoProcessing is true, the paths are macro expanded and non-existing
+			/// @params if _shouldDoProcessing is true, the paths are macro expanded and non-existing
 			/// paths removed.
 			/// @params AdditionalPaths are appended at the end and optionally processed too </summary>
-			class function GxOtaGetEffectiveLibraryPath(Project : IOTAProject = nil; DoProcessing : Boolean = True;
-				AdditionalPaths : TStrings = nil) : TArrayEx<string>;
+			class function GxOtaGetEffectiveLibraryPath(_project : IOTAProject; var _errList : TArrayEx<string>;
+				const _shouldDoProcessing : Boolean = True) : TArrayEx<string>;
 			// Get the environment options interface.  Succeeds or raises an exception.
 			class function GxOtaGetEnvironmentOptions() : IOTAEnvironmentOptions;
 			// Get the Index-th IOTAEditor for the given module
@@ -156,9 +158,10 @@ type
 			class function GxOtaGetIdeLibraryPath() : string;
 			/// <summary>
 			/// Return the global IDE library path (without the project specific paths).
-			/// @params if DoProcessing is true, the paths are macro expanded and non-existing
+			/// @params if _shouldDoProcessing is true, the paths are macro expanded and non-existing
 			/// paths removed. </summary>
-			class function GxOtaGetIdeLibraryPathStrings(DoProcessing : Boolean = true) : TArrayEx<string>;
+			class function GxOtaGetIdeLibraryPathStrings(var _errList : TArrayEx<string>; _shouldDoProcessing : Boolean = true)
+				: TArrayEx<string>;
 			// Returns a module interface for a given filename
 			// May return nil if no such module is open.
 			class function GxOtaGetModule(const FileName : string) : IOTAModule;
@@ -179,11 +182,13 @@ type
 			/// Returns the project's current platform, if any (and supported), or an empty string </summary>
 			class function GxOtaGetProjectPlatform1(Project : IOTAProject = nil) : string;
 			/// <summary>
-			/// Return project specific search path, with the directory containing the project
+			/// Return _project specific search path, with the directory containing the _project
 			// file first.
-			/// @params if DoProcessing is true, the paths are macro expanded and non-existing
+			/// @params if _shouldDoProcessing is true, the paths are macro expanded and non-existing
 			/// paths removed. </summary>
-			class function GxOtaGetProjectSourcePathStrings(Project : IOTAProject = nil; DoProcessing : Boolean = True) : TArrayEx<string>;
+			class function GxOtaGetProjectSourcePathStrings(_project: IOTAProject;
+				_errList: TArrayEx<string>; _shouldDoProcessing: Boolean = True):
+				TArrayEx<string>;
 			// Returns the IOTASourceEditor interface for a module
 			// if there is a file that supports one; returns nil
 			// if there is no IOTASourceEditor
@@ -813,23 +818,22 @@ begin
 	Assert(Assigned(Result), SEditWriterNotAvail);
 end;
 
-class function IOTAUtils.GxOtaGetEffectiveLibraryPath(Project : IOTAProject = nil; DoProcessing : Boolean = True;
-	AdditionalPaths : TStrings = nil) : TArrayEx<string>;
+class function IOTAUtils.GxOtaGetEffectiveLibraryPath(_project : IOTAProject; var _errList : TArrayEx<string>;
+	const _shouldDoProcessing : Boolean = True) : TArrayEx<string>;
 var
 	i : Integer;
-	PlatformName : string;
+	platformName : string;
 begin
-	// DoProcessing = True uses the project file's directory as the base to expand relative paths
-	Result := GxOtaGetProjectSourcePathStrings(Project, DoProcessing);
+	// _shouldDoProcessing = True uses the _project file's directory as the base to expand relative paths
+	Result := GxOtaGetProjectSourcePathStrings(_project, _errList, _shouldDoProcessing);
 
-	// DoProcessing = True expands any general macros and relative paths
 	var
-	localList := GxOtaGetIdeLibraryPathStrings(DoProcessing);
-	if DoProcessing then begin
+	localList := GxOtaGetIdeLibraryPathStrings(_errList, _shouldDoProcessing);
+	if _shouldDoProcessing then begin
 		// do another processing, this time also expanding the Platform related macros
-		PlatformName := GxOtaGetProjectPlatform(Project);
+		platformName := GxOtaGetProjectPlatform(_project);
 		// There shouldn't be any more relatives paths left, so passing GetCurrentDir is probably fine
-		ProcessPaths(localList, GetCurrentDir, PlatformName);
+		processPaths(localList, _errList, GetCurrentDir, platformName);
 	end;
 	for i := 0 to localList.Count - 1 do begin
 		Result.AddIfNotContains(localList[i]);
@@ -919,16 +923,17 @@ begin
 		Result := GxOtaGetIdeEnvironmentString('LibraryPath');
 end;
 
-class function IOTAUtils.GxOtaGetIdeLibraryPathStrings(DoProcessing : Boolean = true) : TArrayEx<string>;
+class function IOTAUtils.GxOtaGetIdeLibraryPathStrings(var _errList : TArrayEx<string>; _shouldDoProcessing : Boolean = true)
+	: TArrayEx<string>;
 var
-	IdePathString : string;
+	idePathString : string;
 begin
-	IdePathString := GxOtaGetIdeLibraryPath;
-	Result := IdePathString.Split([';']);
-	if DoProcessing then begin
+	idePathString := GxOtaGetIdeLibraryPath;
+	Result := idePathString.Split([';']);
+	if _shouldDoProcessing then begin
 		// todo: Is it correct to use GetCurrentDir here? Shouldn't that either be the
 		// IDE base path or the project's directory?
-		ProcessPaths(Result, GetCurrentDir, '');
+		processPaths(Result, _errList, GetCurrentDir, '');
 	end;
 end;
 
@@ -1052,27 +1057,29 @@ begin
 	{$ENDIF GX_VER230_up}
 end;
 
-class function IOTAUtils.GxOtaGetProjectSourcePathStrings(Project : IOTAProject = nil; DoProcessing : Boolean = True) : TArrayEx<string>;
+class function IOTAUtils.GxOtaGetProjectSourcePathStrings(_project:
+	IOTAProject; _errList: TArrayEx<string>; _shouldDoProcessing: Boolean =
+	True): TArrayEx<string>;
 var
-	IdePathString : string;
-	ProjectOptions : IOTAProjectOptions;
-	ProjectDir : string;
-	PlatformName : string;
+	idePathString : string;
+	projectOptions : IOTAProjectOptions;
+	projectDir : string;
+	platformName : string;
 begin
-	if Project = nil then
-		Project := GxOtaGetCurrentProject;
-	if Assigned(Project) then begin
-		ProjectDir := ExtractFileDir(Project.FileName);
-		// Add the current project directory first
-		Result.Add(ProjectDir);
-		// Then the project search path
-		if GxOtaTryGetProjectOptions(ProjectOptions, Project) then begin
-			IdePathString := ProjectOptions.Values[OPTION_NAME_UNIT_SEARCH_PATH];
-			Result.AddRange(IdePathString.Split([';']));
+	if _project = nil then
+		_project := GxOtaGetCurrentProject;
+	if Assigned(_project) then begin
+		projectDir := ExtractFileDir(_project.FileName);
+		// Add the current _project directory first
+		Result.Add(projectDir);
+		// Then the _project search path
+		if GxOtaTryGetProjectOptions(projectOptions, _project) then begin
+			idePathString := projectOptions.Values[OPTION_NAME_UNIT_SEARCH_PATH];
+			Result.AddRange(idePathString.Split([';']));
 		end;
-		if DoProcessing then begin
-			PlatformName := GxOtaGetProjectPlatform(Project);
-			ProcessPaths(Result, ProjectDir, PlatformName);
+		if _shouldDoProcessing then begin
+			platformName := GxOtaGetProjectPlatform(_project);
+			processPaths(Result, _errList, projectDir, platformName);
 		end;
 	end;
 end;
@@ -1515,94 +1522,70 @@ begin
 	Result := (BorlandIDEServices = nil);
 end;
 
-class procedure IOTAUtils.ProcessPaths(Paths : TArrayEx<string>; const Prefix : string; const PlatformName : string);
+class procedure IOTAUtils.processPaths(_paths : TArrayEx<string>; _nonExistsPaths : TArrayEx<string>;
+	const _prefix, _platformName : string);
 var
 	i : Integer;
-	PathItem : string;
-	PathProcessor : TPathProcessor;
-	NonExistsPaths : TStringList;
+	pathItem : string;
+	pathProcessor : TPathProcessor;
 begin
-	PathProcessor := TPathProcessor.Create(Prefix);
-	NonExistsPaths := TStringList.Create;
+	pathProcessor := TPathProcessor.Create(_prefix);
 	try
 		// todo: What about ConfigName?
-		PathProcessor.PlatformName := PlatformName;
-		for i := 0 to Paths.Count - 1 do begin
-			PathItem := Paths[i];
-			PathItem := PathProcessor.Process(PathItem);
-			if DirectoryExists(PathItem) then begin
+		pathProcessor.PlatformName := _platformName;
+		for i := 0 to _paths.Count - 1 do begin
+			pathItem := _paths[i];
+			pathItem := pathProcessor.Process(pathItem);
+			if DirectoryExists(pathItem) then begin
 				// Only add valid directories
-				Paths[i] := PathItem;
+				_paths[i] := pathItem;
 			end else begin
-				NonExistsPaths.Add(PathItem);
+				_nonExistsPaths.Add(pathItem);
 			end;
 		end;
-
-		// Show non-existing paths to user if any found
-		if NonExistsPaths.Count > 0 then begin
-			ShowNonExistingPathsMessage(NonExistsPaths);
-		end;
 	finally
-		FreeAndNil(PathProcessor);
-		FreeAndNil(NonExistsPaths);
+		FreeAndNil(pathProcessor);
 	end;
 end;
 
-class procedure IOTAUtils.GetAllAvailableMacros(Macros : TStrings; Project : IOTAProject = nil);
+class procedure IOTAUtils.getAllAvailableMacros(_macros : TStrings; _project : IOTAProject = nil);
 const
 	IDEBaseMacros : array [0 .. 2] of string = ('BDS', 'DELPHI', 'BCB');
 var
-	PathProcessor : TPathProcessor;
+	pathProcessor : TPathProcessor;
 	i : Integer;
-	DefineValue : string;
-	DefineList : TStringList;
-	IdeBasePath : string;
+	defineValue : string;
+	ideBasePath : string;
 begin
-	Assert(Assigned(Macros));
-	Macros.Clear;
+	Assert(Assigned(_macros));
+	_macros.Clear;
 
-	PathProcessor := TPathProcessor.Create('', Project);
+	pathProcessor := TPathProcessor.Create('', _project);
 	try
 		// Add IDE base paths
-		IdeBasePath := TIdeUtils.GetIdeRootDirectory;
-		for i := low(IDEBaseMacros) to high(IDEBaseMacros) do
-			Macros.Add(IDEBaseMacros[i] + '=' + IdeBasePath);
+		ideBasePath := TIdeUtils.GetIdeRootDirectory;
+		for i := low(IDEBaseMacros) to high(IDEBaseMacros) do begin
+			_macros.Add(IDEBaseMacros[i] + '=' + ideBasePath);
+		end;
 
 		// Add environment variables
-		PathProcessor.GetEnvironmentVariables(Macros);
+		pathProcessor.GetEnvironmentVariables(_macros);
 
 		// Add Platform and Config
-		if PathProcessor.PlatformName <> '' then
-			Macros.Add('Platform=' + PathProcessor.PlatformName);
-		if PathProcessor.ConfigName <> '' then
-			Macros.Add('Config=' + PathProcessor.ConfigName);
+		if pathProcessor.PlatformName <> '' then begin
+			_macros.Add('Platform=' + pathProcessor.PlatformName);
+		end;
+		if pathProcessor.ConfigName <> '' then begin
+			_macros.Add('Config=' + pathProcessor.ConfigName);
+		end;
 
 		// Add preprocessor constants (defines)
-		DefineValue := PathProcessor.GetProjectOption('DCC_Define');
-		if DefineValue <> '' then begin
-			DefineList := TStringList.Create;
-			try
-				DefineList.Delimiter := ';';
-				DefineList.DelimitedText := DefineValue;
-				for i := 0 to DefineList.Count - 1 do begin
-					var
-					Define := DefineList[i];
-					var
-					EqualPos := Pos('=', Define);
-					if EqualPos > 0 then begin
-						// Define with value: SYMBOL=VALUE
-						Macros.Add(Define);
-					end else begin
-						// Define without value: SYMBOL (assume '1')
-						Macros.Add(Define + '=1');
-					end;
-				end;
-			finally
-				FreeAndNil(DefineList);
-			end;
+		defineValue := pathProcessor.GetProjectOption('DCC_Define');
+		if defineValue <> '' then begin
+			addProjectDefineMacros(defineValue, _macros);
 		end;
 	finally
-		FreeAndNil(PathProcessor);
+		FreeAndNil(pathProcessor);
 	end;
 end;
 
@@ -1805,7 +1788,33 @@ begin
 	dbgMsg.Msg('Result: ' + Result);
 end;
 
-class procedure IOTAUtils.GetPreprocessorConstants(Defines : TStrings; Project : IOTAProject = nil);
+class procedure IOTAUtils.addProjectDefineMacros(var _defineValue : string; _macros : TStrings);
+var
+	defineList : TStringList;
+begin
+	defineList := TStringList.Create;
+	try
+		defineList.Delimiter := ';';
+		defineList.DelimitedText := _defineValue;
+		for var i := 0 to defineList.Count - 1 do begin
+			var
+			Define := defineList[i];
+			var
+			EqualPos := Pos('=', Define);
+			if EqualPos > 0 then begin
+				// Define with value: SYMBOL=VALUE
+				_macros.Add(Define);
+			end else begin
+				// Define without value: SYMBOL (assume '1')
+				_macros.Add(Define + '=1');
+			end;
+		end;
+	finally
+		FreeAndNil(defineList);
+	end;
+end;
+
+class procedure IOTAUtils.getPreprocessorConstants(Defines : TStrings; Project : IOTAProject = nil);
 var
 	PathProcessor : TPathProcessor;
 	DefineValue : string;
@@ -1846,7 +1855,7 @@ begin
 	end;
 end;
 
-class procedure IOTAUtils.ShowNonExistingPathsMessage(NonExistsPaths : TStrings);
+class procedure IOTAUtils.showNonExistingPathsMessage(NonExistsPaths : TStrings);
 var
 	MessageText : string;
 	PathsList : string;

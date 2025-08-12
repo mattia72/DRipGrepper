@@ -20,6 +20,7 @@ type
 		OpenFiles : TArray<string>;
 		ProjectFiles : TArray<string>;
 		SourcePath : TArray<string>;
+		NotExistsPath : TArray<string>;
 		ActiveProject : string;
 		function IsEmpty() : Boolean;
 
@@ -210,13 +211,14 @@ begin
 	ap := IOTAUTils.GxOtaGetCurrentProject;
 	if Assigned(ap) then begin
 		ActiveProject := ap.FileName;
-		SourcePath := IOTAUtils.GxOtaGetProjectSourcePathStrings();
+		SourcePath := IOTAUtils.GxOtaGetProjectSourcePathStrings(ap, NotExistsPath);
 	end;
 	dbgMsg.Msg('ActiveFile: ' + ActiveFile);
 	dbgMsg.Msg('ActiveProject: ' + ActiveProject);
-	dbgMsg.Msg('OpenFiles: ' + string.Join(', ', OpenFiles));
-	dbgMsg.Msg('ProjectFiles: ' + string.Join(', ', ProjectFiles));
-	dbgMsg.Msg('SourcePath: ' + string.Join(', ', SourcePath));
+	dbgMsg.Msg('OpenFiles: ' + string.Join(';', OpenFiles));
+	dbgMsg.Msg('ProjectFiles: ' + string.Join(';', ProjectFiles));
+	dbgMsg.Msg('SourcePath: ' + string.Join(';', SourcePath));
+	dbgMsg.Msg('NotExistsPath: ' + string.Join(';', NotExistsPath));
 
 	{$ENDIF}
 end;
