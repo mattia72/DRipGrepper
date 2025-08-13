@@ -1,17 +1,18 @@
 [CmdletBinding()]
 param (
     $BuildConfig = "Release",
-    [switch] $BuildStandalone,
-    [switch] $BuildExtension,
-    [switch] $RunUnittest,
-    [switch] $DeployToGitHub,
-    [switch] $LocalDeploy,
-    [switch] $DeployToTransferDrive,
-    [switch] $Force,
-    [switch] $UpdateScoopManifest,
-    [switch] $AddMissingAsset,
-    [switch] $DryRun,
-    [string] $TestRepo = ""
+    [switch] $BuildStandalone,      # Build the standalone DripGrepper application
+    [switch] $BuildExtension,       # Build the Delphi IDE extension
+    [switch] $BuildUnittest,        # Build unit tests only
+    [switch] $RunUnittest,          # Run unit tests only (requires built unit tests)
+    [switch] $DeployToGitHub,       # Deploy release to GitHub
+    [switch] $LocalDeploy,          # Deploy locally
+    [switch] $DeployToTransferDrive, # Deploy to transfer drive
+    [switch] $Force,                # Force operations without prompts
+    [switch] $UpdateScoopManifest,  # Update scoop manifest
+    [switch] $AddMissingAsset,      # Add missing assets to GitHub release
+    [switch] $DryRun,               # Dry run mode (no actual operations)
+    [string] $TestRepo = ""         # Test repository override
 )
 
 Import-Module -Name "$PSScriptRoot\GitHubReleaseUtils.ps1" -Force
@@ -247,31 +248,57 @@ function Build-StandaloneRelease {
     Test-BuildResult -result $result    
 }
 
-function Build-AndRunUnittest {
-    # copy scripts
+function Build-Unittest {
+    # Build unit tests only
     Import-Module -Name PSDelphi -Force
     $projectPath = Split-Path -Parent $PSScriptRoot 
     $unittestPath = Join-Path $projectPath "UnitTest"
     $result = $null
     # get installed Delphi version
     $latestVersion = Get-LastInstalledDelphiVersion
-    Build-DelphiProject -ProjectPath $unittestPath\DRipGrepperUnittest.$($latestVersion.Data.Dir -replace "Delphi", "D").dproj -BuildConfig $BuildConfig -StopOnFirstFailure -CountResult -Result ([ref]$result)
+    $latestVersion = $latestVersion.Data.Dir -replace "Delphi", "D"
+    Build-DelphiProject -ProjectPath $unittestPath\DRipGrepperUnittest.$latestVersion.dproj -BuildConfig $BuildConfig -StopOnFirstFailure -CountResult -Result ([ref]$result)
     Test-BuildResult -result $result    
-    $unittestPath = Join-Path $unittestPath "\Win32\$BuildConfig"
+    
+    Write-Host "Unit test build completed successfully!" -ForegroundColor Green
+    return $result
+}
 
-    Write-Host "Running unit tests..."
-    & $unittestPath\DRipGrepperUnittest.exe --dontshowignored --exitbehavior:Continue
+function Run-Unittest {
+    # Run unit tests only (assumes they are already built)
+    $projectPath = Split-Path -Parent $PSScriptRoot 
+    $unittestPath = Join-Path $projectPath "UnitTest"
+    # get installed Delphi version
+    $latestVersion = Get-LastInstalledDelphiVersion
+    $latestVersion = $latestVersion.Data.Dir -replace "Delphi", "D"
+    
+    $unittestPath = "$(Join-Path $unittestPath "\Win32\$BuildConfig")\DRipGrepperUnittest.$latestVersion.exe"
+    
+    if (-not (Test-Path $unittestPath)) {
+        Write-Error "Unit test executable not found at: $unittestPath. Please build unit tests first with -BuildUnittest parameter." -ErrorAction Stop
+    }
+
+    Read-Host "Press Enter to run unit tests:`n$unittestPath"
+    & $unittestPath --dontshowignored --exitbehavior:Continue
     
     Write-Host -ForegroundColor Blue @"
-    -------------
-    Unittest results:
-    Succeded?   : $?
-    LASTEXITCODE: $LASTEXITCODE
-    -------------
+-------------
+Unittest results:
+Succeeded: $?
+LASTEXITCODE: $LASTEXITCODE
+-------------
 "@
     if (-not $? -or $LASTEXITCODE -ne 0) {
         Write-Error "Unittest failed, deploy canceled." -ErrorAction Stop
     }
+    
+    Write-Host "Unit tests completed successfully!" -ForegroundColor Green
+}
+
+function Build-AndRunUnittest {
+    # Legacy function that does both build and run for backward compatibility
+    Build-Unittest
+    Run-Unittest
 }
 
 function Build-BplExtensionRelease {
@@ -471,8 +498,12 @@ function List-Assets {
 
 function New-ReleaseWithAsset {
 
+    if ($BuildUnittest) {
+        Build-Unittest
+    }
+
     if ($RunUnittest) {
-        Build-AndRunUnittest
+        Run-Unittest
     }
 
     if ($BuildStandalone) {
@@ -583,7 +614,7 @@ function New-Deploy {
     }
     $global:PrevVersion = $versionInfo.PreviousVersion
 
-    if ($LocalDeploy -or $DeployToGitHub -or $BuildStandalone -or $BuildExtension -or $RunUnittest -or $DeployToTransferDrive) {
+    if ($LocalDeploy -or $DeployToGitHub -or $BuildStandalone -or $BuildExtension -or $BuildUnittest -or $RunUnittest -or $DeployToTransferDrive) {
         #New-ReleaseNotes
         New-ReleaseWithAsset
     }

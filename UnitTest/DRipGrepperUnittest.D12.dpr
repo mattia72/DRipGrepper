@@ -15,6 +15,7 @@ uses
   TestInsight.DUnitX,
   {$ELSE}
   DUnitX.Loggers.Console,
+  DUnitX.Loggers.XML.NUnit,
   {$ENDIF }
   DUnitX.TestFramework,
   RipGrepper.Parser.MatchTest in 'RipGrepper.Parser.MatchTest.pas',
