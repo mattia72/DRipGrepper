@@ -48,10 +48,11 @@ type
 			/// @param _project is the _project to get options from, if nil the current _project will be used </summary>
 			class procedure getAllAvailableMacros(_macros : TStrings; _project : IOTAProject = nil);
 			/// <summary>
-			/// Get all preprocessor constants (conditional defines) for the given project
-			/// @param Defines will contain all conditional defines in "Name=Value" format
-			/// @param Project is the project to get defines from, if nil the current project will be used </summary>
-			class procedure getPreprocessorConstants(Defines : TStrings; Project : IOTAProject = nil);
+			/// Get all preprocessor constants (conditional _defines) for the given _project
+			/// @param _defines will contain all conditional _defines in "Name=Value" format
+			/// @param _project is the _project to get _defines from, if nil the current _project will be used </summary>
+			class procedure getPreprocessorConstants(_defines: TStrings; _project:
+				IOTAProject = nil);
 
 		public
 			class function AddToImageList(_bmp : Vcl.Graphics.TBitmap; const _identText : string) : Integer;
@@ -824,8 +825,10 @@ var
 	i : Integer;
 	platformName : string;
 begin
+	var dbgMsg := TDebugMsgBeginEnd.New('IOATAUtils.GxOtaGetEffectiveLibraryPath');
 	// _shouldDoProcessing = True uses the _project file's directory as the base to expand relative paths
 	Result := GxOtaGetProjectSourcePathStrings(_project, _errList, _shouldDoProcessing);
+	dbgMsg.MsgFmt('Project source paths: %s', [string.Join(CRLF, Result.Items)]);
 
 	var
 	localList := GxOtaGetIdeLibraryPathStrings(_errList, _shouldDoProcessing);
@@ -1550,7 +1553,7 @@ end;
 
 class procedure IOTAUtils.getAllAvailableMacros(_macros : TStrings; _project : IOTAProject = nil);
 const
-	IDEBaseMacros : array [0 .. 2] of string = ('BDS', 'DELPHI', 'BCB');
+	IDE_BASE_MACROS : array [0 .. 3] of string = ('BDS', 'DELPHI', 'BCB', 'CompilerVersion');
 var
 	pathProcessor : TPathProcessor;
 	i : Integer;
@@ -1564,8 +1567,8 @@ begin
 	try
 		// Add IDE base paths
 		ideBasePath := TIdeUtils.GetIdeRootDirectory;
-		for i := low(IDEBaseMacros) to high(IDEBaseMacros) do begin
-			_macros.Add(IDEBaseMacros[i] + '=' + ideBasePath);
+		for i := low(IDE_BASE_MACROS) to high(IDE_BASE_MACROS) do begin
+			_macros.Add(IDE_BASE_MACROS[i] + '=' + ideBasePath);
 		end;
 
 		// Add environment variables
@@ -1814,44 +1817,45 @@ begin
 	end;
 end;
 
-class procedure IOTAUtils.getPreprocessorConstants(Defines : TStrings; Project : IOTAProject = nil);
+class procedure IOTAUtils.getPreprocessorConstants(_defines: TStrings;
+	_project: IOTAProject = nil);
 var
-	PathProcessor : TPathProcessor;
-	DefineValue : string;
-	DefineList : TStringList;
+	pathProcessor : TPathProcessor;
+	defineValue : string;
+	defineList : TStringList;
 	i : Integer;
 begin
-	Assert(Assigned(Defines));
-	Defines.Clear;
+	Assert(Assigned(_defines));
+	_defines.Clear;
 
-	PathProcessor := TPathProcessor.Create('', Project);
+	pathProcessor := TPathProcessor.Create('', _project);
 	try
-		// Get preprocessor constants (defines)
-		DefineValue := PathProcessor.GetProjectOption('DCC_Define');
-		if DefineValue <> '' then begin
-			DefineList := TStringList.Create;
+		// Get preprocessor constants (_defines)
+		defineValue := pathProcessor.GetProjectOption('DCC_Define');
+		if defineValue <> '' then begin
+			defineList := TStringList.Create;
 			try
-				DefineList.Delimiter := ';';
-				DefineList.DelimitedText := DefineValue;
-				for i := 0 to DefineList.Count - 1 do begin
+				defineList.Delimiter := ';';
+				defineList.DelimitedText := defineValue;
+				for i := 0 to defineList.Count - 1 do begin
 					var
-					Define := DefineList[i];
+					Define := defineList[i];
 					var
 					EqualPos := Pos('=', Define);
 					if EqualPos > 0 then begin
 						// Define with value: SYMBOL=VALUE
-						Defines.Add(Define);
+						_defines.Add(Define);
 					end else begin
 						// Define without value: SYMBOL (assume '1')
-						Defines.Add(Define + '=1');
+						_defines.Add(Define + '=1');
 					end;
 				end;
 			finally
-				FreeAndNil(DefineList);
+				FreeAndNil(defineList);
 			end;
 		end;
 	finally
-		FreeAndNil(PathProcessor);
+		FreeAndNil(pathProcessor);
 	end;
 end;
 

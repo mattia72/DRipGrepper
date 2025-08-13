@@ -7,7 +7,7 @@ uses
 	System.IniFiles,
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.SimpleTypes,
-	RipGrepper.Settings.SettingVariant;
+	RipGrepper.Settings.SettingVariant, ArrayEx;
 
 const
 //	IS_GUITEST = FALSE;
@@ -20,7 +20,7 @@ type
 		OpenFiles : TArray<string>;
 		ProjectFiles : TArray<string>;
 		SourcePath : TArray<string>;
-		NotExistsPath : TArray<string>;
+		NotExistsPath : TArrayEx<string>;
 		ActiveProject : string;
 		function IsEmpty() : Boolean;
 
@@ -211,14 +211,15 @@ begin
 	ap := IOTAUTils.GxOtaGetCurrentProject;
 	if Assigned(ap) then begin
 		ActiveProject := ap.FileName;
-		SourcePath := IOTAUtils.GxOtaGetProjectSourcePathStrings(ap, NotExistsPath);
+//      SourcePath := IOTAUtils.GxOtaGetProjectSourcePathStrings(ap, NotExistsPath);
+		SourcePath := IOTAUtils.GxOtaGetEffectiveLibraryPath(ap, NotExistsPath);
 	end;
 	dbgMsg.Msg('ActiveFile: ' + ActiveFile);
 	dbgMsg.Msg('ActiveProject: ' + ActiveProject);
 	dbgMsg.Msg('OpenFiles: ' + string.Join(';', OpenFiles));
 	dbgMsg.Msg('ProjectFiles: ' + string.Join(';', ProjectFiles));
 	dbgMsg.Msg('SourcePath: ' + string.Join(';', SourcePath));
-	dbgMsg.Msg('NotExistsPath: ' + string.Join(';', NotExistsPath));
+	dbgMsg.Msg('NotExistsPath: ' + string.Join(';', NotExistsPath.Items));
 
 	{$ENDIF}
 end;
