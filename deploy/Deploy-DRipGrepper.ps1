@@ -278,7 +278,7 @@ function Run-Unittest {
         Write-Error "Unit test executable not found at: $unittestPath. Please build unit tests first with -BuildUnittest parameter." -ErrorAction Stop
     }
 
-    Read-Host "Press Enter to run unit tests:`n$unittestPath"
+    # Read-Host "Press Enter to run unit tests:`n$unittestPath"
     & $unittestPath --dontshowignored --exitbehavior:Continue
     
     Write-Host -ForegroundColor Blue @"

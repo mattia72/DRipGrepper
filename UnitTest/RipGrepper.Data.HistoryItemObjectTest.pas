@@ -64,14 +64,14 @@ type
 			[Test]
 			procedure LoadFromStreamShouldRestoreSearchWithoutMatches();
 			[Test]
-			[Ignore('todo')]
+			// [Ignore('todo')]
 			procedure LoadFromStreamShouldRestoreReplaceWithMatches();
 			[Test]
 			procedure SaveToStreamShouldPersistSearchWithMatches();
 			[Test]
 			procedure SaveToStreamShouldPersistSearchWithoutMatches();
 			[Test]
-			[Ignore('todo')]
+			// [Ignore('todo')]
 			procedure SaveToStreamShouldPersistReplaceWithMatches();
 			[Test]
 			procedure SearchItemShouldNotBecomeReplaceAfterSerialization();
