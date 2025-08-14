@@ -330,15 +330,18 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('THistoryItemObject.LoadFromStreamReader');
 	try
 		GuiSearchTextParams.LoadFromStreamReader(_sr);
-		count := _sr.ReadLineAsInteger;
+		count := _sr.ReadLineAsInteger('RipGrepArguments.Count');
 		dbgMsg.MsgFmt('RipGrepArguments.Count = %d', [count]);
 		for var i := 0 to count - 1 do begin
-			RipGrepArguments.Add(_sr.ReadLine);
+			RipGrepArguments.Add(_sr.ReadLineAsString(true, 'RipGrepArguments[' + i.ToString + ']')); // RipGrep arguments can be empty
 		end;
 		dbgMsg.MsgFmt('RipGrepArguments = %s', [RipGrepArguments.Text]);
 
 		SearchFormSettings.LoadFromStreamReader(_sr);
-		if ShouldSaveResult then begin
+		// Read the flag indicating whether matches data follows
+		FShouldSaveResult := _sr.ReadLineAsBool('ShouldSaveResult');
+		dbgMsg.MsgFmt('ShouldSaveResult = %s', [BoolToStr(FShouldSaveResult, True)]);
+		if FShouldSaveResult then begin
 			Matches.LoadFromStreamReader(_sr);
 			FHasResult := not Matches.Items.IsEmpty;
 			if HasResult then begin
@@ -382,9 +385,12 @@ begin
 	_sw.WriteLineAsInteger(RipgrepArguments.Count);
 	for var s in RipGrepArguments() do begin
 		dbgMsg.MsgFmt('RipGrepArguments = %s', [s]);
-		_sw.WriteLineAsString(s);
+		_sw.WriteLineAsString(s, false, 'RipGrepArguments=''' + s + '''');
 	end;
 	SearchFormSettings.SaveToStreamWriter(_sw);
+	// Always save a flag indicating whether matches data follows
+	_sw.WriteLineAsBool(ShouldSaveResult);
+	dbgMsg.MsgFmt('HasMatchesData = %s', [BoolToStr(ShouldSaveResult, True)]);
 	if ShouldSaveResult then begin
 		Matches.SaveToStreamWriter(_sw);
 	end;

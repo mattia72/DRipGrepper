@@ -278,9 +278,10 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TGuiSearchTextParams.LoadFromStreamReader');
 	FSearchTextWithOptions.LoadFromStreamReader(_sr);
 	FExpertOptions.LoadFromStreamReader(_sr);
-	IsReplaceMode := _sr.ReadLineAsBool();
+	IsReplaceMode := _sr.ReadLineAsBool('IsReplaceMode');
 	dbgMsg.MsgFmt('IsReplaceMode %s', [BoolToStr(IsReplaceMode)]);
-	ReplaceText := _sr.ReadLine();
+	// ReplaceText can be empty, so we need to read it with allowEmpty=true to match SaveToStreamWriter
+	ReplaceText := _sr.ReadLineAsString(true, 'ReplaceText');
 	dbgMsg.MsgFmt('ReplaceText %s', [ReplaceText]);
 end;
 

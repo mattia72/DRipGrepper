@@ -302,9 +302,9 @@ procedure TOptionStrings.LoadFromStreamReader(_sr : TStreamReader);
 var
 	count : Integer;
 begin
-	count := _sr.ReadLineAsInteger();
+	count := _sr.ReadLineAsInteger('OptionStrings.Count');
 	for var i := 0 to count - 1 do begin
-		FOptions.Add(_sr.ReadLine());
+		FOptions.Add(_sr.ReadLineAsString(true, 'OptionStrings[' + i.ToString + ']')); 
 	end;
 end;
 
@@ -365,7 +365,7 @@ procedure TOptionStrings.SaveToStreamWriter(_sw : TStreamWriter);
 begin
 	_sw.WriteLineAsInteger(FOptions.Count);
 	for var i := 0 to FOptions.Count - 1 do begin
-		_sw.WriteLineAsString(FOptions[i]);
+		_sw.WriteLineAsString(FOptions[i], false, 'OptionStrings[' + i.ToString + ']');
 	end;
 end;
 

@@ -348,11 +348,11 @@ var
 	text : string;
 begin
 	FItems.Clear;
-	itemsCount := _sr.ReadLineAsInteger;
+	itemsCount := _sr.ReadLineAsInteger('RowCollection.Count');
 	for var i : Integer := 0 to itemsCount - 1 do begin
 		columns.Clear;
 		row := TParsedObjectRow.Create( { nil, TParserType(0) } );
-		row.ParserType := TParserType(_sr.ReadLineAsInteger());
+		row.ParserType := TParserType(_sr.ReadLineAsInteger('row.ParserType'));
 		for var sTitle in TREEVIEW_COLUMN_TITLES do begin
 			line := _sr.ReadLine;
 			idx := line.IndexOf(ARRAY_SEPARATOR);
@@ -373,22 +373,24 @@ var
 	row : IParsedObjectRow;
 begin
 	if (FITems.Count = 1) then begin
-		row := FItems[0]; // so we avoid memory leak ? no 
- 		cd := row.GetColumnByTitle(FILE_COLUMN);
+		row := FItems[0]; // so we avoid memory leak ? no
+		cd := row.GetColumnByTitle(FILE_COLUMN);
 		if cd.Text.EndsWith(RG_HAS_NO_OUTPUT) then begin
 			_sw.WriteLineAsInteger(0);
-		end;
-	end else begin
-		_sw.WriteLineAsInteger(FItems.Count);
-		for row in FItems do begin
-			_sw.WriteLineAsInteger(Ord(row.ParserType));
-			for var sTitle in TREEVIEW_COLUMN_TITLES do begin
-				cd := row.GetColumnByTitle(sTitle);
-				_sw.WriteLineAsString(cd.Title + ARRAY_SEPARATOR + cd.Text);
-				// ParserType?
-			end;
+			Exit;
 		end;
 	end;
+
+	_sw.WriteLineAsInteger(FItems.Count);
+	for row in FItems do begin
+		_sw.WriteLineAsInteger(Ord(row.ParserType));
+		for var sTitle in TREEVIEW_COLUMN_TITLES do begin
+			cd := row.GetColumnByTitle(sTitle);
+			_sw.WriteLineAsString(cd.Title + ARRAY_SEPARATOR + cd.Text, false, 'ColumnData[' + sTitle + ']');
+			// ParserType?
+		end;
+	end;
+
 end;
 
 function TParsedObjectRowCollection.GetFileCount : Integer;

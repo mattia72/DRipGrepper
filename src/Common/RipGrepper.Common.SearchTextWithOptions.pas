@@ -166,8 +166,17 @@ end;
 
 procedure TSearchTextWithOptions.LoadFromStreamReader(_sr : TStreamReader);
 begin
-	SearchTextOfUser := _sr.ReadLine;
-	SearchOptions := StringToSearchOptionSet(_sr.ReadLine);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TSearchTextWithOptions.LoadFromStreamReader');
+
+	// SearchTextOfUser can be empty, so we need to read it with allowEmpty=true to match SaveToStreamWriter
+	SearchTextOfUser := _sr.ReadLineAsString(false, 'SearchTextOfUser');
+	dbgMsg.Msg('SearchTextOfUser: ' + SearchTextOfUser);
+
+	var
+	s := _sr.ReadLineAsString(false, 'SearchOptions'); // SearchOptions can be empty, so use allowEmpty=true
+	dbgMsg.Msg('SearchOptions: ' + s);
+	UpdateSearchOptions(s);
 end;
 
 procedure TSearchTextWithOptions.SaveToStream(_stream : TStream);
@@ -184,12 +193,12 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TSearchTextWithOptions.SaveToStreamWriter');
 
 	dbgMsg.Msg('SearchTextOfUser: ' + SearchTextOfUser);
-	_sw.WriteLineAsString(SearchTextOfUser);
+	_sw.WriteLineAsString(SearchTextOfUser, false, 'SearchTextOfUser');
 
 	var
 	s := SearchOptionSetToString(SearchOptions);
 	dbgMsg.Msg('SearchOptions: ' + s);
-	_sw.WriteLineAsString(s);
+	_sw.WriteLineAsString(s, false, 'SearchOptions'); // at last '[]'
 end;
 
 class function TSearchTextWithOptions.SearchOptionSetToString(const _so : TSearchOptionSet) : string;

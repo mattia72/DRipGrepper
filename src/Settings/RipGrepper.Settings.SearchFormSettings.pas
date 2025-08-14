@@ -179,11 +179,11 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.LoadFromStreamReader');
 	inherited;
-	Hidden := _sr.ReadLineAsBool();
-	NoIgnore := _sr.ReadLineAsBool();
-	Pretty := _sr.ReadLineAsBool();
-	Context := _sr.ReadLineAsInteger();
-	Encoding := _sr.ReadLine();
+	Hidden := _sr.ReadLineAsBool('Hidden');
+	NoIgnore := _sr.ReadLineAsBool('NoIgnore');
+	Pretty := _sr.ReadLineAsBool('Pretty');
+	Context := _sr.ReadLineAsInteger('Context');
+	Encoding := _sr.ReadLineAsString(true, 'Encoding'); // Encoding can potentially be empty
 	ExtensionSettings.LoadFromStreamReader(_sr);
 end;
 

@@ -414,7 +414,7 @@ begin
 	InnerDictionary.Clear;
 	sectionCount := _sr.ReadLineAsInteger;
 	for var i := 0 to sectionCount - 1 do begin
-		section := _sr.ReadLine();
+		section := _sr.ReadLineAsString(false, 'SettingsDictionary.SectionName'); // Section names should not be empty
 
 		if not FInnerDictionary.ContainsKey(section) then begin
 			FInnerDictionary[section] :=
@@ -436,10 +436,10 @@ procedure TSettingsDictionary.SaveToStreamWriter(_sw : TStreamWriter);
 begin
 	_sw.WriteLineAsInteger(FInnerDictionary.Count);
 	for var section in FInnerDictionary.Keys do begin
-		_sw.WriteLineAsString(section);
+		_sw.WriteLineAsString(section, false, 'SettingsDictionary.SectionName');
 		_sw.WriteLineAsInteger(FInnerDictionary[section].Count);
 		for var key in FInnerDictionary[section].Keys do begin
-			_sw.WriteLineAsString(key);
+			_sw.WriteLineAsString(key, false, 'SettingsDictionary.KeyName');
 			_sw.WriteLineAsInteger(Integer(FInnerDictionary[section][key].SettingType));
 			(FInnerDictionary[section][key] as IStreamReaderWriterPersistable).SaveToStreamWriter(_sw);
 		end;

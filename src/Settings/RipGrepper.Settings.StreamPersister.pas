@@ -57,22 +57,39 @@ begin
 	sectionCount := _sr.ReadLineAsInteger;
 	dbgMsg.MsgFmt('SectionCount: %d', [sectionCount]);
 	for var i : integer := 0 to sectionCount - 1 do begin
-		section := _sr.ReadLine();
+		section := _sr.ReadLineAsString(false, 'SettingsDictionary.SectionName'); // Section names should not be empty
 		dbgMsg.MsgFmt('Section: %s', [section]);
 		keyDict := TCollections.CreateSortedDictionary<TSettingKey, ISetting>();
 		FDictionary.Add(section, keyDict);
 		keyCount := _sr.ReadLineAsInteger;
 		dbgMsg.MsgFmt('KeyCount: %d', [keyCount]);
 		for var j : integer := 0 to keyCount - 1 do begin
-			key := _sr.ReadLine();
+			key := _sr.ReadLineAsString(false); // Setting keys should not be empty
 			dbgMsg.MsgFmt('Key: %s', [key]);
 			settingType := TSettingType(_sr.ReadLineAsInteger);
 			dbgMsg.MsgFmt('KeyType: %d', [Integer(settingType)]);
-			settingValue := _sr.ReadLine();
+			settingValue := _sr.ReadLineAsString(true); // Setting values can be empty
 			dbgMsg.MsgFmt('KeyValue: %s', [settingValue]);
 			case settingType of
 				stString :
 				setting := TStringSetting.Create(settingValue);
+				stInteger :
+				setting := TIntegerSetting.Create(StrToIntDef(settingValue, 0));
+				stBool :
+				setting := TBoolSetting.Create(settingValue <> '0');
+				stStrArray :
+				begin
+					var arr := TArraySetting.Create();
+					if not settingValue.IsEmpty then begin
+						var parts := settingValue.Split([',']);
+						for var part in parts do begin
+							arr.Value.Add(part);
+						end;
+					end;
+					setting := arr;
+				end;
+			else
+				raise ESettingsException.CreateFmt('Unsupported setting type: %d', [Integer(settingType)]);
 			end;
 			FDictionary[section].Add(key, setting);
 		end;
@@ -93,18 +110,18 @@ begin
 	_sw.WriteLineAsInteger(FDictionary.Count);
 	for var section in FDictionary.Keys do begin
 		dbgMsg.MsgFmt('Section: %s', [section]);
-		_sw.WriteLineAsString(section);
+		_sw.WriteLineAsString(section, false, 'SettingsDictionary.SectionName');
 		dbgMsg.MsgFmt('Count: %d', [FDictionary[section].Count]);
 		_sw.WriteLineAsInteger(FDictionary[section].Count);
 		for var key in FDictionary[section].Keys do begin
 			var
 			setting := FDictionary[section][key];
 			dbgMsg.MsgFmt('Key: %s', [key]);
-			_sw.WriteLineAsString(key);
+			_sw.WriteLineAsString(key, false, 'SettingsDictionary.KeyName');
 			dbgMsg.MsgFmt('Type: %d', [Integer(setting.SettingType)]);
 			_sw.WriteLineAsInteger(Integer(setting.SettingType));
 			dbgMsg.MsgFmt('Value: %s', [setting.AsString]);
-			_sw.WriteLineAsString(setting.AsString);
+			_sw.WriteLineAsString(setting.AsString, false, 'SettingsDictionary.KeyValue');
 		end;
 	end;
 end;

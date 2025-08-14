@@ -291,15 +291,15 @@ end;
 procedure TSettingVariant<T>.LoadFromStreamReader(_sr : TStreamReader);
 begin
 	// FSettingType := TSettingType(_sr.ReadLine().ToInteger);
-	FSaveBehaviour := TSettingStoreBehavioursHelper.FromString(_sr.ReadLine());
+	FSaveBehaviour := TSettingStoreBehavioursHelper.FromString(_sr.ReadLineAsString(false, 'SaveBehaviour'));
 	FState := TSettingState(_sr.ReadLineAsInteger());
-	Value := GetValueFromString(_sr.ReadLine());
+	Value := GetValueFromString(_sr.ReadLineAsString(true)); // Values can be empty
 end;
 
 procedure TSettingVariant<T>.SaveToStreamWriter(_sw : TStreamWriter);
 begin
 	// _sw.WriteLine(Integer(SettingType).ToString);
-	_sw.WriteLineAsString(TSettingStoreBehavioursHelper.ToString(SaveBehaviour));
+	_sw.WriteLineAsString(TSettingStoreBehavioursHelper.ToString(SaveBehaviour), false, 'SaveBehaviour');
 	_sw.WriteLineAsInteger(Integer(State));
 	_sw.WriteLineAsString(AsString, True);
 end;
