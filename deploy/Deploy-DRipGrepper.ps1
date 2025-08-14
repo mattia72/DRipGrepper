@@ -281,15 +281,8 @@ function Run-Unittest {
     # Read-Host "Press Enter to run unit tests:`n$unittestPath"
     & $unittestPath --dontshowignored --exitbehavior:Continue
     
-    Write-Host -ForegroundColor Blue @"
--------------
-Unittest results:
-Succeeded: $?
-LASTEXITCODE: $LASTEXITCODE
--------------
-"@
-    if (-not $? -or $LASTEXITCODE -ne 0) {
-        Write-Error "Unittest failed, deploy canceled." -ErrorAction Stop
+    if ((-not $?) -or $LASTEXITCODE -ne 0) {
+        Write-Error "Unit tests failed to run. Please check the output above." -ErrorAction Stop
     }
     
     Write-Host "Unit tests completed successfully!" -ForegroundColor Green
