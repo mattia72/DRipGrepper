@@ -84,13 +84,13 @@ type
 			[Test]
 			procedure MixedSearchAndReplaceItemsSerializationShouldPreserveMode();
 			[Test]
-			procedure EmptySearchTextSerializationShouldPreserveMode();
-			[Test]
 			procedure EmptyReplaceTextSerializationShouldPreserveMode();
 			[Test]
 			procedure SpecialCharactersInTextShouldPreserveMode();
 			[Test]
 			procedure LargeDataSerializationShouldPreserveMode();
+			[Test]
+			procedure EmptyTest();
 	end;
 
 implementation
@@ -208,7 +208,6 @@ end;
 
 procedure THistoryItemObjectTest.TestSaveLoadListFromStream();
 var
-	arr : TArray<TArray<string>>;
 	hio : IHistoryItemObject;
 	ms : IShared<TMemoryStream>;
 	sr : IShared<TStreamReader>;
@@ -651,7 +650,9 @@ begin
 			'CRITICAL FAULT: Replace item became search item after serialization!');
 		Assert.AreEqual('new_value', loadedItem.ReplaceText, 
 			'CRITICAL FAULT: Replace item should preserve replace text after deserialization!');
-		Assert.AreEqual('old_value', loadedItem.SearchText, 'Search text should be preserved');
+		Assert.AreEqual(originalItem.GuiSearchTextParams.ToLogString,loadedItem.GuiSearchTextParams.ToLogString, 
+			'CRITICAL FAULT: Replace item should preserve GUI search text parameters after deserialization!');
+		Assert.AreEqual( originalItem.SearchText, loadedItem.SearchText, 'Search text should be preserved');
 	finally
 		stream.Free();
 	end;
@@ -659,24 +660,23 @@ end;
 
 procedure THistoryItemObjectTest.MultipleSearchItemsSerializationShouldPreserveMode();
 var
-	searchItems : TArray<IHistoryItemObject>;
-	loadedItems : TArray<IHistoryItemObject>;
+	searchItems : TArrayEx<IHistoryItemObject>;
+	loadedItems : TArrayEx<IHistoryItemObject>;
 	stream : TMemoryStream;
 	sw : TStreamWriter;
 	sr : TStreamReader;
 begin
 	// Arrange: Create multiple search items
-	SetLength(searchItems, 3);
-	searchItems[0] := CreateSampleHistoryItemWithSearchAndMatches();
-	searchItems[1] := CreateSampleHistoryItemWithSearchAndNoMatches();
-	searchItems[2] := CreateSampleHistoryItemWithSearchAndMatches();
-	
+	searchItems.Add(CreateSampleHistoryItemWithSearchAndMatches());
+	searchItems.Add(CreateSampleHistoryItemWithSearchAndNoMatches());
+	searchItems.Add(CreateSampleHistoryItemWithSearchAndMatches());
+
 	stream := TMemoryStream.Create();
 	try
 		sw := TStreamWriter.Create(stream);
 		try
 			// Save multiple search items
-			sw.WriteLine(IntToStr(Length(searchItems)));
+			sw.WriteLine(searchItems.Count.ToString);
 			for var item in searchItems do begin
 				Assert.IsFalse(item.IsReplaceMode, 'All original items should be search items');
 				item.SaveToStreamWriter(sw);
@@ -690,9 +690,8 @@ begin
 		sr := TStreamReader.Create(stream, TEncoding.UTF8);
 		try
 			var count := StrToInt(sr.ReadLine());
-			SetLength(loadedItems, count);
 			for var i := 0 to count - 1 do begin
-				loadedItems[i] := THistoryItemObject.Create();
+				loadedItems.Add(THistoryItemObject.Create());
 				loadedItems[i].LoadFromStreamReader(sr);
 			end;
 		finally
@@ -700,7 +699,7 @@ begin
 		end;
 
 		// Assert: All loaded items should still be search items
-		for var i := 0 to Length(loadedItems) - 1 do begin
+		for var i := 0 to loadedItems.Count - 1 do begin
 			Assert.IsFalse(loadedItems[i].IsReplaceMode, 
 				Format('CRITICAL FAULT: Search item %d became replace item after serialization!', [i]));
 			Assert.AreEqual('', loadedItems[i].ReplaceText, 
@@ -713,24 +712,23 @@ end;
 
 procedure THistoryItemObjectTest.MultipleReplaceItemsSerializationShouldPreserveMode();
 var
-	replaceItems : TArray<IHistoryItemObject>;
-	loadedItems : TArray<IHistoryItemObject>;
+	replaceItems : TArrayEx<IHistoryItemObject>;
+	loadedItems : TArrayEx<IHistoryItemObject>;
 	stream : TMemoryStream;
 	sw : TStreamWriter;
 	sr : TStreamReader;
 begin
 	// Arrange: Create multiple replace items
-	SetLength(replaceItems, 3);
-	replaceItems[0] := CreateSampleHistoryItemWithReplaceAndMatches();
-	replaceItems[1] := CreateSampleHistoryItemWithReplaceAndMatches();
-	replaceItems[2] := CreateSampleHistoryItemWithReplaceAndMatches();
-	
+	replaceItems.Add(CreateSampleHistoryItemWithReplaceAndMatches());
+	replaceItems.Add(CreateSampleHistoryItemWithReplaceAndMatches());
+	replaceItems.Add(CreateSampleHistoryItemWithReplaceAndMatches());
+
 	stream := TMemoryStream.Create();
 	try
 		sw := TStreamWriter.Create(stream);
 		try
 			// Save multiple replace items
-			sw.WriteLine(IntToStr(Length(replaceItems)));
+			sw.WriteLine(replaceItems.Count.ToString);
 			for var item in replaceItems do begin
 				Assert.IsTrue(item.IsReplaceMode, 'All original items should be replace items');
 				item.SaveToStreamWriter(sw);
@@ -744,9 +742,8 @@ begin
 		sr := TStreamReader.Create(stream, TEncoding.UTF8);
 		try
 			var count := StrToInt(sr.ReadLine());
-			SetLength(loadedItems, count);
 			for var i := 0 to count - 1 do begin
-				loadedItems[i] := THistoryItemObject.Create();
+				loadedItems.Add(THistoryItemObject.Create());
 				loadedItems[i].LoadFromStreamReader(sr);
 			end;
 		finally
@@ -754,7 +751,7 @@ begin
 		end;
 
 		// Assert: All loaded items should still be replace items
-		for var i := 0 to Length(loadedItems) - 1 do begin
+		for var i := 0 to loadedItems.Count - 1 do begin
 			Assert.IsTrue(loadedItems[i].IsReplaceMode, 
 				Format('CRITICAL FAULT: Replace item %d became search item after serialization!', [i]));
 			Assert.AreNotEqual('', loadedItems[i].ReplaceText, 
@@ -832,39 +829,6 @@ begin
 					Format('Search item %d should have empty replace text', [i]));
 			end;
 		end;
-	finally
-		stream.Free();
-	end;
-end;
-
-procedure THistoryItemObjectTest.EmptySearchTextSerializationShouldPreserveMode();
-var
-	searchItem : IHistoryItemObject;
-	loadedItem : IHistoryItemObject;
-	stream : TMemoryStream;
-	guiParams : IShared<TGuiSearchTextParams>;
-begin
-	// Arrange: Create search item with empty search text
-	searchItem := THistoryItemObject.Create();
-	guiParams := Shared.Make<TGuiSearchTextParams>(TGuiSearchTextParams.Create('TestSection'));
-	guiParams.SearchTextWithOptions.SearchTextOfUser := '';
-	guiParams.IsReplaceMode := False; // Explicitly set to search mode
-	guiParams.ReplaceText := '';
-	searchItem.GuiSearchTextParams := guiParams;
-	
-	stream := TMemoryStream.Create();
-	try
-		// Act: Save and load
-		searchItem.SaveToStream(stream);
-		stream.Position := 0;
-		loadedItem := THistoryItemObject.Create();
-		loadedItem.LoadFromStream(stream);
-
-		// Assert: Should still be search item even with empty text
-		Assert.IsFalse(loadedItem.IsReplaceMode, 
-			'CRITICAL FAULT: Empty search item became replace item after serialization!');
-		Assert.AreEqual('', loadedItem.ReplaceText, 'Empty search item should have empty replace text');
-		Assert.AreEqual('', loadedItem.SearchText, 'Empty search text should be preserved');
 	finally
 		stream.Free();
 	end;
@@ -1030,4 +994,12 @@ begin
 	end;
 end;
 
+procedure THistoryItemObjectTest.EmptyTest;
+begin
+	Assert.IsFalse(THistoryItemObject.Create().IsReplaceMode, 'CRITICAL FAULT: Empty item became replace item!');
+end;
+
+initialization
+	// Register the test class
+	TDUnitX.RegisterTestFixture(THistoryItemObjectTest);
 end.
