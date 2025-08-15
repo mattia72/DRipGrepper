@@ -194,7 +194,7 @@ var
 	lines : TArrayEx<string>;
 begin
 	bIsComment := False;
-	for var l : string in _body.Split([CRLF]) do begin
+	for var l : string in _body.Split([CR,LF,CRLF]) do begin
 		if bIsComment or TRegEx.IsMatch(l, '^\s*<!--') then begin
 			bIsComment := True;
 		end;
