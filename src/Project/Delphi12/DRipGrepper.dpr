@@ -111,7 +111,9 @@ uses
   RipGrepper.Tools.ReleaseUtils in '..\..\Tools\RipGrepper.Tools.ReleaseUtils.pas',
   RipGrepper.Common.LoadHistoryMode in '..\..\Common\RipGrepper.Common.LoadHistoryMode.pas',
   RipGrepper.UI.Settings.AdvancedForm in '..\..\UI\RipGrepper.UI.Settings.AdvancedForm.pas',
-  RipGrepper.Tools.WinHttpClient in '..\..\Tools\RipGrepper.Tools.WinHttpClient.pas';
+  RipGrepper.Tools.WinHttpClient in '..\..\Tools\RipGrepper.Tools.WinHttpClient.pas',
+  RipGrepper.UI.Settings.ExtensionContexFrame in '..\..\UI\RipGrepper.UI.Settings.ExtensionContexFrame.pas' {ExtensionContextFrame: TFrame},
+  RipGrepper.UI.CustomRadioGroup in '..\..\UI\RipGrepper.UI.CustomRadioGroup.pas';
 
 {$R *.res}
 

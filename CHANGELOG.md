@@ -9,6 +9,8 @@
 - Unittests for Load/SaveStream of History Objects
 
 ### 🐞 Fixed
+- Empty collection of saved matches causes exception during deserialization #16
+- Release info lines are joined erroneously in About tab of Settings form #25
 
 ## [v4.11.0-beta] - 2025-08-04
 
