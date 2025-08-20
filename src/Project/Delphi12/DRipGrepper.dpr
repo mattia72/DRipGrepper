@@ -114,7 +114,8 @@ uses
   RipGrepper.Tools.WinHttpClient in '..\..\Tools\RipGrepper.Tools.WinHttpClient.pas',
   RipGrepper.UI.Settings.ExtensionContexFrame in '..\..\UI\RipGrepper.UI.Settings.ExtensionContexFrame.pas' {ExtensionContextFrame: TFrame},
   RipGrepper.UI.CustomRadioGroup in '..\..\UI\RipGrepper.UI.CustomRadioGroup.pas',
-  RipGrepper.Common.IDEContextValues in '..\..\Common\RipGrepper.Common.IDEContextValues.pas';
+  RipGrepper.Common.IDEContextValues in '..\..\Common\RipGrepper.Common.IDEContextValues.pas',
+  RipGrepper.UI.SearchForm.CtrlValueProxy in '..\..\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas';
 
 {$R *.res}
 

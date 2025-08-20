@@ -14,17 +14,14 @@ uses
 	Vcl.Dialogs,
 	Vcl.StdCtrls,
 	RipGrepper.Common.IDEContextValues,
-	RipGrepper.Common.SimpleTypes,
-
-	RipGrepper.UI.CustomRadioGroup,
-	Spring.Collections;
+	RipGrepper.UI.CustomRadioGroup;
 
 type
 	TExtensionContextFrame = class(TFrame)
 		private
 			FContextRadioGroup : TCustomRadioGroup;
 			FOnContextChange : TExtensionContextChangeEvent;
-			function GetContextValues(): IIDEContextValues;
+			function GetContextValues() : IIDEContextValues;
 			function getSelectedItem() : TCustomRadioItem;
 			procedure onRadioItemSelect(_sender : TObject; _item : TCustomRadioItem);
 
@@ -33,7 +30,7 @@ type
 			function GetSelectedIDEContext : EDelphiIDESearchContext;
 			procedure SetSelectedIDEContext(_ideContext : EDelphiIDESearchContext);
 			property ContextRadioGroup : TCustomRadioGroup read FContextRadioGroup;
-			property ContextValues: IIDEContextValues read GetContextValues;
+			property ContextValues : IIDEContextValues read GetContextValues;
 
 		published
 			property SelectedItem : TCustomRadioItem read getSelectedItem;
@@ -44,7 +41,8 @@ implementation
 
 uses
 	Spring,
-	RipGrepper.Settings.ExtensionSettings;
+	RipGrepper.Settings.ExtensionSettings,
+	RipGrepper.Tools.DebugUtils;
 
 {$R *.dfm}
 
@@ -82,25 +80,25 @@ begin
 	FContextRadioGroup.ItemIndex := 0;
 end;
 
-function TExtensionContextFrame.GetContextValues(): IIDEContextValues;
+function TExtensionContextFrame.GetContextValues() : IIDEContextValues;
 var
-    icv : IIDEContextValues;
+	icv : IIDEContextValues;
 begin
-    if Assigned(SelectedItem) and Assigned(SelectedItem.TagObject) then begin
-        if Supports(SelectedItem.TagObject, IIDEContextValues, icv) then begin
-            Result := icv;
-            Exit;
-        end;
-    end;
-    Result := TIDEContextValues.Create(EDelphiIDESearchContext.dicNotSet, '');
+	if Assigned(SelectedItem) and Assigned(SelectedItem.TagObject) then begin
+		if Supports(SelectedItem.TagObject, IIDEContextValues, icv) then begin
+			Result := icv;
+			Exit;
+		end;
+	end;
+	Result := TIDEContextValues.Create(EDelphiIDESearchContext.dicNotSet, '');
 end;
 
 procedure TExtensionContextFrame.onRadioItemSelect(_sender : TObject; _item : TCustomRadioItem);
 var
-    icv : IIDEContextValues;
+	icv : IIDEContextValues;
 begin
 	if Assigned(_item) and Assigned(_item.TagObject) then begin
-        if Supports(_item.TagObject, IIDEContextValues, icv) then begin
+		if Supports(_item.TagObject, IIDEContextValues, icv) then begin
 			// Fire change event
 			if Assigned(FOnContextChange) then begin
 				FOnContextChange(Self, icv);
@@ -127,12 +125,17 @@ begin
 end;
 
 procedure TExtensionContextFrame.SetSelectedIDEContext(_ideContext : EDelphiIDESearchContext);
-var i : Integer; item : TCustomRadioItem;
+var
+	i : Integer;
+	item : TCustomRadioItem;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TExtensionContextFrame.SetSelectedIDEContext');
 	for i := 0 to FContextRadioGroup.Items.Count - 1 do begin
 		item := FContextRadioGroup.Items[i];
 		if Assigned(item.TagObject) and
-        {} ((selectedItem.TagObject as IIDEContextValues).GetContextType = _ideContext) then begin
+		{ } ((selectedItem.TagObject as IIDEContextValues).GetContextType = _ideContext) then begin
+			dbgMsg.MsgFmt('Setting IDE context to %s', [item.Caption]);
 			FContextRadioGroup.ItemIndex := i;
 			Break;
 		end;

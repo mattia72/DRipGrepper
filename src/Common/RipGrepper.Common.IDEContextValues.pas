@@ -6,6 +6,16 @@ uses
 	RipGrepper.Common.SimpleTypes;
 
 type
+
+	EDelphiIDESearchContext = (
+		{ } dicNotSet = -1,
+		{ } dicActiveFile = 0,
+		{ } dicOpenFiles = 1,
+		{ } dicProjectFiles = 2,
+		{ } dicCustomLocation = 3,
+		{ } dicProjectSourcePath = 4 // new types should be added after this
+		{ } );
+
 	IIDEContextValues = interface
 		['{75CC020F-921D-4722-BE07-7105092FFA41}']
 		function GetContextType() : EDelphiIDESearchContext;

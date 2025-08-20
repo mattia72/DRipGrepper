@@ -40,7 +40,8 @@ uses
 	RipGrepper.Settings.SettingVariant,
 	Vcl.ControlList,
 	RipGrepper.UI.Settings.ExtensionContexFrame,
-	RipGrepper.Common.IDEContextValues;
+	RipGrepper.Common.IDEContextValues,
+	RipGrepper.UI.SearchForm.CtrlValueProxy;
 
 type
 	TRipGrepperSearchDialogForm = class(TForm)
@@ -1245,6 +1246,7 @@ begin
 	dbgMsg.MsgFmt('OpenFiles.Count=', [Length(dic.OpenFiles)]);
 	dbgMsg.Msg('ActiveProject=' + dic.ActiveProject);
 	dbgMsg.Msg('CurrentIDEContext:' + dic.ToLogString);
+
 	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext := dic;
 	UpdateRbExtensionItemIndex(dic.IDESearchContext);
 end;
@@ -1406,6 +1408,7 @@ begin
 		cmbSearchDir.Enabled := False;
 		FCtrlProxy.ExtensionContext := _icv.GetContextType();
 		contextValue := _icv.GetValue();
+		dbgMsg.MsgFmt('ExtensionContext=%d, Value=%s', [Ord(FCtrlProxy.ExtensionContext), contextValue]);
 		case FCtrlProxy.ExtensionContext of
 			EDelphiIDESearchContext.dicActiveFile,
 			{ } EDelphiIDESearchContext.dicProjectFiles,
