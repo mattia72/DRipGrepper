@@ -133,7 +133,7 @@ begin
 	FHandleOpenWithDelphiCommands := TBoolSetting.Create(False);
 
 	FIDEContext := TIntegerSetting.Create();
-	FCurrentIDEContext.IDESearchContext := EDelphiIDESearchContext.dicPath;
+	FCurrentIDEContext.IDESearchContext := EDelphiIDESearchContext.dicCustomLocation;
 
 	CreateSetting(KEY_SHORTCUT_SEARCH_SELECTED, FSearchSelectedShortcut);
 	CreateSetting(KEY_SHORTCUT_OPENWITH, FOpenWithShortCut);

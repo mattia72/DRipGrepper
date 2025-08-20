@@ -75,7 +75,7 @@ begin
 	icv := TIDEContextValues.Create(EDelphiIDESearchContext.dicProjectSourcePath, string.Join(';', dic.ProjectSourcePath));
 	FContextRadioGroup.AddItem('Project Source Paths', 3, icv);
 
-	icv := TIDEContextValues.Create(EDelphiIDESearchContext.dicPath, '');
+	icv := TIDEContextValues.Create(EDelphiIDESearchContext.dicCustomLocation, '');
 	FContextRadioGroup.AddItem('Custom Locations:', 4, icv);
 
 	// Select first option by default

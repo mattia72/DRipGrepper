@@ -40,7 +40,7 @@ uses
 	RipGrepper.Settings.SettingVariant,
 	Vcl.ControlList,
 	RipGrepper.UI.Settings.ExtensionContexFrame,
-  RipGrepper.Common.IDEContextValues;
+	RipGrepper.Common.IDEContextValues;
 
 type
 	TRipGrepperSearchDialogForm = class(TForm)
@@ -202,7 +202,7 @@ type
 			procedure UpdateCmbsOnIDEContextChange(_icv : IIDEContextValues);
 			procedure UpdateFileMasksInHistObjRgOptions; overload;
 			procedure UpdateHeight;
-			procedure UpdateRbExtensionItemIndex(const _idx : Integer);
+			procedure UpdateRbExtensionItemIndex(const _dic : EDelphiIDESearchContext);
 			function ValidateRegex : Boolean;
 			procedure WriteOptionCtrlToProxy;
 			procedure CopyProxyToCtrls();
@@ -1130,8 +1130,7 @@ begin
 	Result := Assigned(FHistItemObj) and (FHistItemObj.HasResult);
 end;
 
-procedure TRipGrepperSearchDialogForm.OnContextChange(Sender : TObject; _icv :
-	IIDEContextValues);
+procedure TRipGrepperSearchDialogForm.OnContextChange(Sender : TObject; _icv : IIDEContextValues);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.OnContextChange');
@@ -1200,7 +1199,7 @@ begin
 	var
 	cic := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
 	dbgMsg.Msg('IDESearchContext=' + cic.ToLogString);
-	UpdateRbExtensionItemIndex(Integer(cic.IDESearchContext));
+	UpdateRbExtensionItemIndex(cic.IDESearchContext);
 	dbgMsg.Msg('cmbSearchDir=' + cmbSearchDir.Text);
 	// {$ENDIF}
 	cmbFileMasks.Text := IfThen(FSettings.RipGrepParameters.FileMasks.IsEmpty, cmbFileMasks.Text, FSettings.RipGrepParameters.FileMasks);
@@ -1247,7 +1246,7 @@ begin
 	dbgMsg.Msg('ActiveProject=' + dic.ActiveProject);
 	dbgMsg.Msg('CurrentIDEContext:' + dic.ToLogString);
 	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext := dic;
-	UpdateRbExtensionItemIndex(Integer(dic.IDESearchContext));
+	UpdateRbExtensionItemIndex(dic.IDESearchContext);
 end;
 
 procedure TRipGrepperSearchDialogForm.LoadInitialSettings;
@@ -1347,8 +1346,9 @@ begin
 	ActionShowRGReplaceOptionHelp.Visible := _bShow;
 end;
 
-class function TRipGrepperSearchDialogForm.ShowSearchForm(_owner : TComponent; _settings : TRipGrepperSettings;
-	_histObj : IHistoryItemObject) : integer;
+class function TRipGrepperSearchDialogForm.ShowSearchForm(_owner : TComponent;
+	{ } _settings : TRipGrepperSettings;
+	{ } _histObj : IHistoryItemObject) : integer;
 var
 	frm : TRipGrepperSearchDialogForm;
 begin
@@ -1396,7 +1396,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange(_icv : IIDEContextValues);
 var
-	contextValue: string;
+	contextValue : string;
 begin
 	var
 	bSkipp := {$IF IS_GUITEST OR IS_EXTENSION} False; {$ELSE} True; {$ENDIF}
@@ -1405,16 +1405,16 @@ begin
 		dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange');
 		cmbSearchDir.Enabled := False;
 		FCtrlProxy.ExtensionContext := _icv.GetContextType();
-        contextValue := _icv.GetValue();
+		contextValue := _icv.GetValue();
 		case FCtrlProxy.ExtensionContext of
 			EDelphiIDESearchContext.dicActiveFile,
-            EDelphiIDESearchContext.dicProjectFiles,
-            EDelphiIDESearchContext.dicOpenFiles,
-            EDelphiIDESearchContext.dicProjectSourcePath : begin
+			{ } EDelphiIDESearchContext.dicProjectFiles,
+			{ } EDelphiIDESearchContext.dicOpenFiles,
+			{ } EDelphiIDESearchContext.dicProjectSourcePath : begin
 				SetCmbSearchPathText(contextValue);
 				UpdateExtensionOptionsHint(contextValue);
 			end;
-			EDelphiIDESearchContext.dicPath : begin
+			EDelphiIDESearchContext.dicCustomLocation : begin
 				cmbSearchDir.Enabled := True;
 				dbgMsg.MsgFmt('SearchPath=%s', [FCtrlProxy.SearchPath]);
 				SetComboItemsAndText(cmbSearchDir, FCtrlProxy.SearchPath, FSettings.SearchPathsHistory.Value);
@@ -1425,7 +1425,7 @@ begin
 			end;
 		end;
 		FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
-        var dic : TDelphiIDEContext;
+		var dic : TDelphiIDEContext;
 		dic.IDESearchContext := FCtrlProxy.ExtensionContext;
 		FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext := dic;
 		dbgMsg.Msg(dic.ToLogString);
@@ -1487,16 +1487,16 @@ begin
 	SetExpertGroupSize();
 end;
 
-procedure TRipGrepperSearchDialogForm.UpdateRbExtensionItemIndex(const _idx : Integer);
+procedure TRipGrepperSearchDialogForm.UpdateRbExtensionItemIndex(const _dic : EDelphiIDESearchContext);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateRbExtensionItemIndex');
 
 	FbExtensionOptionsSkipClick := True;
 	try
-		ExtensionContextFrame1.ContextRadioGroup.ItemIndex := _idx;
-		dbgMsg.MsgFmt('CustomRadioGroup.ItemIndex = %d', [_idx]);
-        var icv : IIDEContextValues := ExtensionContextFrame1.ContextValues;
+		ExtensionContextFrame1.SetSelectedIDEContext(_dic);
+		dbgMsg.MsgFmt('ContextRadioGroup.ItemIndex = %d', [Integer(_dic)]);
+		var icv : IIDEContextValues := ExtensionContextFrame1.ContextValues;
 		UpdateCmbsOnIDEContextChange(icv);
 	finally
 		FbExtensionOptionsSkipClick := False;
