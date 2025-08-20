@@ -38,7 +38,9 @@ uses
 	Spring,
 	ArrayEx,
 	RipGrepper.Settings.SettingVariant,
-	Vcl.ControlList;
+	Vcl.ControlList,
+	RipGrepper.UI.Settings.ExtensionContexFrame,
+  RipGrepper.Common.IDEContextValues;
 
 type
 	TRipGrepperSearchDialogForm = class(TForm)
@@ -85,7 +87,6 @@ type
 		cbRgParamPretty : TCheckBox;
 		cbRgParamContext : TCheckBox;
 		seContextLineNum : TSpinEdit;
-		rbExtensionOptions : TRadioGroup;
 		pnlPath : TPanel;
 		btnShowInLines : TButton;
 		ActionShowInLines : TAction;
@@ -101,6 +102,7 @@ type
 		ToolButton1 : TToolButton;
 		ToolButton2 : TToolButton;
 		pnlRgOptions : TPanel;
+		ExtensionContextFrame1 : TExtensionContextFrame;
 		procedure ActionAddParamMatchCaseExecute(Sender : TObject);
 		procedure ActionAddParamMatchCaseUpdate(Sender : TObject);
 		procedure ActionAddParamRegexExecute(Sender : TObject);
@@ -137,7 +139,7 @@ type
 		procedure FormResize(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 		procedure ToggleExpertMode;
-		procedure rbExtensionOptionsClick(Sender : TObject);
+		procedure OnContextChange(Sender : TObject; _icv : IIDEContextValues);
 		procedure seContextLineNumChange(Sender : TObject);
 		procedure TabControl1Change(Sender : TObject);
 
@@ -197,7 +199,7 @@ type
 			procedure UpdateExtensionOptionsHint(const _paths : string);
 			procedure ShowReplaceCtrls(const _bShow : Boolean);
 			procedure UpdateSearchOptionsBtns;
-			procedure UpdateCmbsOnIDEContextChange;
+			procedure UpdateCmbsOnIDEContextChange(_icv : IIDEContextValues);
 			procedure UpdateFileMasksInHistObjRgOptions; overload;
 			procedure UpdateHeight;
 			procedure UpdateRbExtensionItemIndex(const _idx : Integer);
@@ -272,6 +274,7 @@ begin
 
 	FSettings := _settings;
 	FHistItemObj := _histObj;
+	ExtensionContextFrame1.OnContextChange := OnContextChange;
 
 	LoadInitialSettings;
 
@@ -1127,18 +1130,19 @@ begin
 	Result := Assigned(FHistItemObj) and (FHistItemObj.HasResult);
 end;
 
-procedure TRipGrepperSearchDialogForm.rbExtensionOptionsClick(Sender : TObject);
+procedure TRipGrepperSearchDialogForm.OnContextChange(Sender : TObject; _icv :
+	IIDEContextValues);
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.rbExtensionOptionsClick');
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.OnContextChange');
 	var
 	bSkipp := {$IF IS_GUITEST OR IS_EXTENSION} False; {$ELSE} True; {$ENDIF}
 	dbgMsg.MsgFmt('FbExtensionOptionsSkipClick %s', [BoolToStr(FbExtensionOptionsSkipClick, True)]);
 	if bSkipp or FbExtensionOptionsSkipClick then begin
 		Exit;
 	end;
-	UpdateCmbsOnIDEContextChange();
-	WriteCtrlsToRipGrepParametersSettings(); // rbExtensionOptionsClick
+	UpdateCmbsOnIDEContextChange(_icv);
+	WriteCtrlsToRipGrepParametersSettings(); // OnContextChange
 	UpdateCmbOptionsAndMemoCommandLine();
 end;
 
@@ -1277,14 +1281,14 @@ end;
 procedure TRipGrepperSearchDialogForm.UpdateExtensionOptionsHint(const _paths : string);
 begin
 	if _paths.IsEmpty then begin
-		rbExtensionOptions.Hint := '';
+		ExtensionContextFrame1.Hint := '';
 		Exit;
 	end;
-	
+
 	var
 	pathArray := _paths.Split([';', ',']);
 	TArray.Sort<string>(pathArray);
-	rbExtensionOptions.Hint := string.Join(CRLF, pathArray);
+	ExtensionContextFrame1.Hint := string.Join(CRLF, pathArray);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetExpertGroupSize();
@@ -1390,43 +1394,25 @@ begin
 	ButtonDown(EGuiOption.soUseRegex, tbUseRegex);
 end;
 
-procedure TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange;
+procedure TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange(_icv : IIDEContextValues);
 var
-	dic : TDelphiIDEContext;
+	contextValue: string;
 begin
 	var
 	bSkipp := {$IF IS_GUITEST OR IS_EXTENSION} False; {$ELSE} True; {$ENDIF}
 	if not bSkipp then begin
 		var
 		dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange');
-
-		dic.LoadFromIOTA();
-		dbgMsg.Msg(dic.ToLogString);
-
 		cmbSearchDir.Enabled := False;
-		FCtrlProxy.ExtensionContext := EDelphiIDESearchContext(rbExtensionOptions.ItemIndex);
+		FCtrlProxy.ExtensionContext := _icv.GetContextType();
+        contextValue := _icv.GetValue();
 		case FCtrlProxy.ExtensionContext of
-			EDelphiIDESearchContext.dicActiveFile : begin
-				SetCmbSearchPathText(dic.ActiveFile);
-				UpdateExtensionOptionsHint(dic.ActiveFile);
-			end;
-			EDelphiIDESearchContext.dicProjectFiles : begin
-				var
-				projectPaths := string.Join(SEARCH_PATH_SEPARATOR, dic.ProjectFiles).Trim([SEARCH_PATH_SEPARATOR]);
-				SetCmbSearchPathText(projectPaths);
-				UpdateExtensionOptionsHint(projectPaths);
-			end;
-			EDelphiIDESearchContext.dicOpenFiles : begin
-				var
-				openPaths := string.Join(SEARCH_PATH_SEPARATOR, dic.OpenFiles).Trim([SEARCH_PATH_SEPARATOR]);
-				SetCmbSearchPathText(openPaths);
-				UpdateExtensionOptionsHint(openPaths);
-			end;
-			EDelphiIDESearchContext.dicProjectSourcePath : begin
-				var
-				sourcePaths := string.Join(SEARCH_PATH_SEPARATOR, dic.SourcePath).Trim([SEARCH_PATH_SEPARATOR]);
-				SetCmbSearchPathText(sourcePaths);
-				UpdateExtensionOptionsHint(sourcePaths);
+			EDelphiIDESearchContext.dicActiveFile,
+            EDelphiIDESearchContext.dicProjectFiles,
+            EDelphiIDESearchContext.dicOpenFiles,
+            EDelphiIDESearchContext.dicProjectSourcePath : begin
+				SetCmbSearchPathText(contextValue);
+				UpdateExtensionOptionsHint(contextValue);
 			end;
 			EDelphiIDESearchContext.dicPath : begin
 				cmbSearchDir.Enabled := True;
@@ -1439,7 +1425,8 @@ begin
 			end;
 		end;
 		FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
-		dic.IDESearchContext := EDelphiIDESearchContext(rbExtensionOptions.ItemIndex);
+        var dic : TDelphiIDEContext;
+		dic.IDESearchContext := FCtrlProxy.ExtensionContext;
 		FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext := dic;
 		dbgMsg.Msg(dic.ToLogString);
 	end;
@@ -1468,13 +1455,13 @@ begin
 	bStandalone := {$IF IS_STANDALONE} True; {$ELSE} False; {$ENDIF}
 	lblPaths.Visible := bStandalone;
 	if bStandalone then begin
-		rbExtensionOptions.Enabled := {$IF IS_GUITEST} True; {$ELSE} False; {$ENDIF};
-		rbExtensionOptions.Visible := {$IF IS_GUITEST} True; {$ELSE} False; {$ENDIF};
+		ExtensionContextFrame1.Enabled := {$IF IS_GUITEST} True; {$ELSE} False; {$ENDIF};
+		ExtensionContextFrame1.Visible := {$IF IS_GUITEST} True; {$ELSE} False; {$ENDIF};
 		var
-		extensionSpace := {$IF IS_GUITEST} 0 {$ELSE} rbExtensionOptions.Height - 12 {$ENDIF}; // GetFullHeight(rbExtensionOptions);
+		extensionSpace := {$IF IS_GUITEST} 0 {$ELSE} ExtensionContextFrame1.Height - 12 {$ENDIF}; // GetFullHeight(rbExtensionOptions);
 		dbgMsg.Msg('extensionSpace=' + extensionSpace.ToString);
 
-		if not rbExtensionOptions.Visible then begin
+		if not ExtensionContextFrame1.Visible then begin
 			pnlPath.Align := alTop;
 		end;
 
@@ -1507,9 +1494,10 @@ begin
 
 	FbExtensionOptionsSkipClick := True;
 	try
-		rbExtensionOptions.ItemIndex := _idx;
-		dbgMsg.MsgFmt('rbExtensionOptions.ItemIndex = %d', [_idx]);
-		UpdateCmbsOnIDEContextChange();
+		ExtensionContextFrame1.ContextRadioGroup.ItemIndex := _idx;
+		dbgMsg.MsgFmt('CustomRadioGroup.ItemIndex = %d', [_idx]);
+        var icv : IIDEContextValues := ExtensionContextFrame1.ContextValues;
+		UpdateCmbsOnIDEContextChange(icv);
 	finally
 		FbExtensionOptionsSkipClick := False;
 	end;

@@ -13,89 +13,127 @@ uses
 	Vcl.Forms,
 	Vcl.Dialogs,
 	Vcl.StdCtrls,
+	RipGrepper.Common.IDEContextValues,
 	RipGrepper.Common.SimpleTypes,
-	RipGrepper.UI.CustomRadioGroup;
+
+	RipGrepper.UI.CustomRadioGroup,
+	Spring.Collections;
 
 type
-	// Event type for extension context change
-	TExtensionContextChangeEvent = procedure(Sender: TObject; IDEContext: EDelphiIDESearchContext) of object;
-
 	TExtensionContextFrame = class(TFrame)
 		private
-			FCustomRadioGroup: TCustomRadioGroup;
-			FOnContextChange: TExtensionContextChangeEvent;
-			procedure onRadioItemSelect(_sender: TObject; _item: TCustomRadioItem);
+			FContextRadioGroup : TCustomRadioGroup;
+			FOnContextChange : TExtensionContextChangeEvent;
+			function GetContextValues(): IIDEContextValues;
+			function getSelectedItem() : TCustomRadioItem;
+			procedure onRadioItemSelect(_sender : TObject; _item : TCustomRadioItem);
+
 		public
-			constructor Create(_owner: TComponent); override;
-			function GetSelectedIDEContext: EDelphiIDESearchContext;
-			procedure SetSelectedIDEContext(_ideContext: EDelphiIDESearchContext);
-			property CustomRadioGroup: TCustomRadioGroup read FCustomRadioGroup;
+			constructor Create(_owner : TComponent); override;
+			function GetSelectedIDEContext : EDelphiIDESearchContext;
+			procedure SetSelectedIDEContext(_ideContext : EDelphiIDESearchContext);
+			property ContextRadioGroup : TCustomRadioGroup read FContextRadioGroup;
+			property ContextValues: IIDEContextValues read GetContextValues;
+
 		published
-			property OnContextChange: TExtensionContextChangeEvent read FOnContextChange write FOnContextChange;
+			property SelectedItem : TCustomRadioItem read getSelectedItem;
+			property OnContextChange : TExtensionContextChangeEvent read FOnContextChange write FOnContextChange;
 	end;
 
 implementation
 
+uses
+	Spring,
+	RipGrepper.Settings.ExtensionSettings;
+
 {$R *.dfm}
 
-constructor TExtensionContextFrame.Create(_owner: TComponent);
+constructor TExtensionContextFrame.Create(_owner : TComponent);
+var
+	icv : IIDEContextValues;
+	dic : TDelphiIDEContext;
 begin
 	inherited Create(_owner);
-	
-	// Create the custom radio group control
-	FCustomRadioGroup := TCustomRadioGroup.Create(Self);
-	FCustomRadioGroup.Parent := Self;
-	FCustomRadioGroup.Align := alClient;
-	FCustomRadioGroup.Columns := 1;
-	FCustomRadioGroup.OnItemSelect := onRadioItemSelect;
-	
-	// Add extension options matching rbExtensionOptions order and values
-	// Store EDelphiIDESearchContext enum values in the Obj property
-	FCustomRadioGroup.AddItem('Current File',Integer(EDelphiIDESearchContext.dicActiveFile), TObject(Pointer(Integer(EDelphiIDESearchContext.dicActiveFile))));
-	FCustomRadioGroup.AddItem('All Open Files', Integer(EDelphiIDESearchContext.dicOpenFiles), TObject(Pointer(Integer(EDelphiIDESearchContext.dicOpenFiles))));
-	FCustomRadioGroup.AddItem('Project Files', Integer(EDelphiIDESearchContext.dicProjectFiles), TObject(Pointer(Integer(EDelphiIDESearchContext.dicProjectFiles))));
-	FCustomRadioGroup.AddItem('Project Source Paths', Integer(EDelphiIDESearchContext.dicProjectSourcePath), TObject(Pointer(Integer(EDelphiIDESearchContext.dicProjectSourcePath))));
-	FCustomRadioGroup.AddItem('Custom Locations:', Integer(EDelphiIDESearchContext.dicPath), TObject(Pointer(Integer(EDelphiIDESearchContext.dicPath))));
-	
+
+	FContextRadioGroup := TCustomRadioGroup.Create(Self);
+	FContextRadioGroup.Parent := Self;
+	FContextRadioGroup.Align := alClient;
+	FContextRadioGroup.Columns := 1;
+	FContextRadioGroup.OnItemSelect := onRadioItemSelect;
+
+	dic.LoadFromIOTA();
+
+	icv := TIDEContextValues.Create(EDelphiIDESearchContext.dicActiveFile, dic.ActiveFile);
+	FContextRadioGroup.AddItem('Current File', 0, icv);
+
+	icv := TIDEContextValues.Create(EDelphiIDESearchContext.dicOpenFiles, string.Join(';', dic.OpenFiles));
+	FContextRadioGroup.AddItem('All Open Files', 1, icv);
+
+	icv := TIDEContextValues.Create(EDelphiIDESearchContext.dicProjectFiles, string.Join(';', dic.ProjectFiles));
+	FContextRadioGroup.AddItem('Project Files', 2, icv);
+
+	icv := TIDEContextValues.Create(EDelphiIDESearchContext.dicProjectSourcePath, string.Join(';', dic.ProjectSourcePath));
+	FContextRadioGroup.AddItem('Project Source Paths', 3, icv);
+
+	icv := TIDEContextValues.Create(EDelphiIDESearchContext.dicPath, '');
+	FContextRadioGroup.AddItem('Custom Locations:', 4, icv);
+
 	// Select first option by default
-	FCustomRadioGroup.ItemIndex := 0;
+	FContextRadioGroup.ItemIndex := 0;
 end;
 
-procedure TExtensionContextFrame.onRadioItemSelect(_sender: TObject; _item: TCustomRadioItem);
+function TExtensionContextFrame.GetContextValues(): IIDEContextValues;
 var
-	ideContext: EDelphiIDESearchContext;
+    icv : IIDEContextValues;
 begin
-	if Assigned(_item) and Assigned(_item.Obj) then begin
-		ideContext := EDelphiIDESearchContext(Integer(Pointer(_item.Obj)));
-		
-		// Fire change event
-		if Assigned(FOnContextChange) then begin
-			FOnContextChange(Self, ideContext);
+    if Assigned(SelectedItem) and Assigned(SelectedItem.TagObject) then begin
+        if Supports(SelectedItem.TagObject, IIDEContextValues, icv) then begin
+            Result := icv;
+            Exit;
+        end;
+    end;
+    Result := TIDEContextValues.Create(EDelphiIDESearchContext.dicNotSet, '');
+end;
+
+procedure TExtensionContextFrame.onRadioItemSelect(_sender : TObject; _item : TCustomRadioItem);
+var
+    icv : IIDEContextValues;
+begin
+	if Assigned(_item) and Assigned(_item.TagObject) then begin
+        if Supports(_item.TagObject, IIDEContextValues, icv) then begin
+			// Fire change event
+			if Assigned(FOnContextChange) then begin
+				FOnContextChange(Self, icv);
+			end;
 		end;
 	end;
 end;
 
-function TExtensionContextFrame.GetSelectedIDEContext: EDelphiIDESearchContext;
+function TExtensionContextFrame.GetSelectedIDEContext : EDelphiIDESearchContext;
 var
-	selectedItem: TCustomRadioItem;
+	selectedItem : TCustomRadioItem;
 begin
-	selectedItem := FCustomRadioGroup.SelectedItem;
-	if Assigned(selectedItem) and Assigned(selectedItem.Obj) then begin
-		Result := EDelphiIDESearchContext(Integer(Pointer(selectedItem.Obj)));
+	selectedItem := FContextRadioGroup.SelectedItem;
+	if Assigned(selectedItem) and Assigned(selectedItem.TagObject) then begin
+		Result := (selectedItem.TagObject as IIDEContextValues).GetContextType;
 	end else begin
 		Result := EDelphiIDESearchContext.dicNotSet;
 	end;
 end;
 
-procedure TExtensionContextFrame.SetSelectedIDEContext(_ideContext: EDelphiIDESearchContext);
-var
-	i: Integer;
-	item: TCustomRadioItem;
+function TExtensionContextFrame.getSelectedItem() : TCustomRadioItem;
 begin
-	for i := 0 to FCustomRadioGroup.Items.Count - 1 do begin
-		item := FCustomRadioGroup.Items[i];
-		if Assigned(item.Obj) and (EDelphiIDESearchContext(Integer(Pointer(item.Obj))) = _ideContext) then begin
-			FCustomRadioGroup.ItemIndex := i;
+	Result := ContextRadioGroup.SelectedItem;
+end;
+
+procedure TExtensionContextFrame.SetSelectedIDEContext(_ideContext : EDelphiIDESearchContext);
+var i : Integer; item : TCustomRadioItem;
+begin
+	for i := 0 to FContextRadioGroup.Items.Count - 1 do begin
+		item := FContextRadioGroup.Items[i];
+		if Assigned(item.TagObject) and
+        {} ((selectedItem.TagObject as IIDEContextValues).GetContextType = _ideContext) then begin
+			FContextRadioGroup.ItemIndex := i;
 			Break;
 		end;
 	end;

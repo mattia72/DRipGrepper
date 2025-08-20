@@ -19,7 +19,7 @@ type
 		ActiveFile : string;
 		OpenFiles : TArray<string>;
 		ProjectFiles : TArray<string>;
-		SourcePath : TArray<string>;
+		ProjectSourcePath : TArray<string>;
 		NotExistsPath : TArrayEx<string>;
 		ActiveProject : string;
 		function IsEmpty() : Boolean;
@@ -212,13 +212,13 @@ begin
 	if Assigned(ap) then begin
 		ActiveProject := ap.FileName;
 //      SourcePath := IOTAUtils.GxOtaGetProjectSourcePathStrings(ap, NotExistsPath);
-		SourcePath := IOTAUtils.GxOtaGetEffectiveLibraryPath(ap, NotExistsPath);
+		ProjectSourcePath := IOTAUtils.GxOtaGetEffectiveLibraryPath(ap, NotExistsPath);
 	end;
 	dbgMsg.Msg('ActiveFile: ' + ActiveFile);
 	dbgMsg.Msg('ActiveProject: ' + ActiveProject);
 	dbgMsg.Msg('OpenFiles: ' + string.Join(';', OpenFiles));
 	dbgMsg.Msg('ProjectFiles: ' + string.Join(';', ProjectFiles));
-	dbgMsg.Msg('SourcePath: ' + string.Join(';', SourcePath));
+	dbgMsg.Msg('SourcePath: ' + string.Join(';', ProjectSourcePath));
 	dbgMsg.Msg('NotExistsPath: ' + string.Join(';', NotExistsPath.Items));
 
 	{$ENDIF}
@@ -230,7 +230,7 @@ begin
 	Dest.ActiveProject := '';
 	Dest.OpenFiles := [];
 	Dest.ProjectFiles := [];
-	Dest.SourcePath := [];
+	Dest.ProjectSourcePath := [];
 	Dest.IDESearchContext := EDelphiIDESearchContext.dicNotSet;
 end;
 

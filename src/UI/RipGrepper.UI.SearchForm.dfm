@@ -313,7 +313,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Align = alBottom
         BevelOuter = bvNone
         ParentBackground = False
-        TabOrder = 1
+        TabOrder = 0
         DesignSize = (
           540
           100)
@@ -425,32 +425,6 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
           TabOrder = 4
         end
       end
-      object rbExtensionOptions: TRadioGroup
-        AlignWithMargins = True
-        Left = 5
-        Top = 20
-        Width = 534
-        Height = 103
-        Align = alTop
-        DefaultHeaderFont = False
-        HeaderFont.Charset = DEFAULT_CHARSET
-        HeaderFont.Color = clWindowText
-        HeaderFont.Height = -1
-        HeaderFont.Name = 'Segoe UI'
-        HeaderFont.Style = []
-        Items.Strings = (
-          'Current File'
-          'All Open Files'
-          'Project Files'
-          'Project Source Paths'
-          'Custom Locations:')
-        ParentShowHint = False
-        ShowFrame = False
-        ShowHint = True
-        TabOrder = 0
-        WordWrap = True
-        OnClick = rbExtensionOptionsClick
-      end
       object pnlRgOptions: TPanel
         Left = 2
         Top = 203
@@ -459,12 +433,12 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Align = alBottom
         BevelOuter = bvNone
         Padding.Left = 8
-        TabOrder = 2
+        TabOrder = 1
         object cbRgParamEncoding: TCheckBox
           AlignWithMargins = True
-          Left = 169
+          Left = 223
           Top = 3
-          Width = 80
+          Width = 100
           Height = 22
           Align = alLeft
           Caption = '--encoding'
@@ -475,7 +449,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
           AlignWithMargins = True
           Left = 11
           Top = 3
-          Width = 66
+          Width = 100
           Height = 22
           Align = alLeft
           Caption = '--hidden'
@@ -484,9 +458,9 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         end
         object cbRgParamNoIgnore: TCheckBox
           AlignWithMargins = True
-          Left = 83
+          Left = 117
           Top = 3
-          Width = 80
+          Width = 100
           Height = 22
           Align = alLeft
           Caption = '--no-ignore'
@@ -495,15 +469,24 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         end
         object cmbRgParamEncoding: TComboBox
           AlignWithMargins = True
-          Left = 248
+          Left = 329
           Top = 3
           Width = 100
           Height = 23
+          Align = alLeft
           AutoDropDownWidth = True
           TabOrder = 3
           Text = 'cmbRgParamEncoding'
           OnChange = cmbRgParamEncodingChange
         end
+      end
+      inline ExtensionContextFrame1: TExtensionContextFrame
+        Left = 2
+        Top = 17
+        Width = 540
+        Height = 86
+        Align = alClient
+        TabOrder = 2
       end
     end
     object gbOptionsOutput: TGroupBox
@@ -529,7 +512,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         AlignWithMargins = True
         Left = 15
         Top = 22
-        Width = 69
+        Width = 100
         Height = 17
         Margins.Top = 0
         Margins.Bottom = 0
@@ -541,14 +524,16 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object cbRgParamContext: TCheckBox
         AlignWithMargins = True
-        Left = 86
+        Left = 121
         Top = 22
-        Width = 80
+        Width = 100
         Height = 17
         Hint = 'Line Count Before and After Matched Line'
         Margins.Top = 0
         Margins.Bottom = 0
+        BiDiMode = bdLeftToRight
         Caption = '--context'
+        ParentBiDiMode = False
         ParentShowHint = False
         ShowHint = True
         TabOrder = 2
@@ -556,7 +541,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object seContextLineNum: TSpinEdit
         AlignWithMargins = True
-        Left = 162
+        Left = 227
         Top = 19
         Width = 36
         Height = 24

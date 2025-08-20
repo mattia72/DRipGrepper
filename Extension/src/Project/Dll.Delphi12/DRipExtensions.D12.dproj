@@ -1,4 +1,4 @@
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{61FA8D59-16BA-4F6D-96E6-6AF82C96C442}</ProjectGuid>
         <ProjectVersion>20.1</ProjectVersion>
@@ -121,8 +121,8 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.12.0.260;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.12.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>260</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.12.0.287;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.12.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>287</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <DCC_Description>RipGrep Search within Delphi</DCC_Description>
         <VerInfo_MinorVer>12</VerInfo_MinorVer>
@@ -254,6 +254,11 @@
         <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.WinHttpClient.pas"/>
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.IOTAUtils.Constants.pas"/>
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.RegistryUtils.pas"/>
+        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.ExtensionContexFrame.pas">
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.CustomRadioGroup.pas"/>
+        <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.IDEContextValues.pas"/>
         <RcItem Include="..\..\..\Resources\about_icon.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>about_icon</ResourceId>
@@ -1213,4 +1218,3 @@
     <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
     <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')"/>
 </Project>
-

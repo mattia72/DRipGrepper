@@ -107,7 +107,10 @@ uses
   RipGrepper.UI.Settings.AdvancedForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.AdvancedForm.pas',
   RipGrepper.Tools.WinHttpClient in '..\..\..\..\src\Tools\RipGrepper.Tools.WinHttpClient.pas',
   RipGrepper.Common.IOTAUtils.Constants in '..\..\..\..\src\Common\RipGrepper.Common.IOTAUtils.Constants.pas',
-  RipGrepper.Common.RegistryUtils in '..\..\..\..\src\Common\RipGrepper.Common.RegistryUtils.pas';
+  RipGrepper.Common.RegistryUtils in '..\..\..\..\src\Common\RipGrepper.Common.RegistryUtils.pas',
+  RipGrepper.UI.Settings.ExtensionContexFrame in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ExtensionContexFrame.pas',
+  RipGrepper.UI.CustomRadioGroup in '..\..\..\..\src\UI\RipGrepper.UI.CustomRadioGroup.pas',
+  RipGrepper.Common.IDEContextValues in '..\..\..\..\src\Common\RipGrepper.Common.IDEContextValues.pas';
 
 {$R *.res}
 
