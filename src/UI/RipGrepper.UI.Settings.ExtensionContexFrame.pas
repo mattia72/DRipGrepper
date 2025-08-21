@@ -15,7 +15,6 @@ uses
 	Vcl.StdCtrls,
 	RipGrepper.Common.IDEContextValues,
 	RipGrepper.Common.SimpleTypes,
-
 	RipGrepper.UI.CustomRadioGroup,
 	Spring.Collections;
 

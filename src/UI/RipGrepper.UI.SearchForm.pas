@@ -40,7 +40,7 @@ uses
 	RipGrepper.Settings.SettingVariant,
 	Vcl.ControlList,
 	RipGrepper.UI.Settings.ExtensionContexFrame,
-  RipGrepper.Common.IDEContextValues;
+	RipGrepper.Common.IDEContextValues;
 
 type
 	TRipGrepperSearchDialogForm = class(TForm)
@@ -143,6 +143,8 @@ type
 		procedure seContextLineNumChange(Sender : TObject);
 		procedure TabControl1Change(Sender : TObject);
 
+		strict private
+		FExtensionContextFrameOrigHeight: Integer;
 		private
 			FIsKeyboardInput : Boolean;
 			// proxy between settings and ctrls
@@ -291,6 +293,24 @@ begin
 	FIsKeyboardInput := False;
 	toolbarSearchTextOptions.AutoSize := False; // else shrinked as extension
 	cmbOptions.AutoComplete := False; // so we know the old value after change
+
+	// Reduce margins for tighter layout
+	pnlTop.Margins.Top := 2;
+	pnlTop.Margins.Bottom := 2;
+	// pnlTop.Margins.Left := 2;
+	// pnlTop.Margins.Right := 2;
+	pnlMiddle.Margins.Top := 2;
+	pnlMiddle.Margins.Bottom := 2;
+	// pnlMiddle.Margins.Left := 2;
+	// pnlMiddle.Margins.Right := 2;
+	pnlBottom.Margins.Top := 2;
+	pnlBottom.Margins.Bottom := 2;
+	// pnlBottom.Margins.Left := 2;
+	// pnlBottom.Margins.Right := 2;
+	gbOptionsFilters.Margins.Top := 2;
+	gbOptionsFilters.Margins.Bottom := 2;
+	// gbOptionsFilters.Margins.Left := 2;
+	// gbOptionsFilters.Margins.Right := 2;
 end;
 
 destructor TRipGrepperSearchDialogForm.Destroy;
@@ -1130,8 +1150,7 @@ begin
 	Result := Assigned(FHistItemObj) and (FHistItemObj.HasResult);
 end;
 
-procedure TRipGrepperSearchDialogForm.OnContextChange(Sender : TObject; _icv :
-	IIDEContextValues);
+procedure TRipGrepperSearchDialogForm.OnContextChange(Sender : TObject; _icv : IIDEContextValues);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.OnContextChange');
@@ -1297,8 +1316,8 @@ begin
 	iexpertHeight := Height - GetFullHeights();
 	gbExpert.Visible := FSettings.AppSettings.ExpertMode and (iexpertHeight > 0);
 	if gbExpert.Visible then begin
-		gbExpert.Top := gbOptionsOutput.Top + gbOptionsOutput.Height + gbOptionsOutput.Margins.Bottom;
-		gbExpert.Height := iexpertHeight;
+		// gbExpert.Top := gbOptionsOutput.Top + gbOptionsOutput.Height + gbOptionsOutput.Margins.Bottom;
+		// gbExpert.Height := iexpertHeight;
 	end;
 end;
 
@@ -1308,6 +1327,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetOrigHeights');
 
 	FOptionsFiltersOrigHeight := gbOptionsFilters.Height;
+	FExtensionContextFrameOrigHeight := ExtensionContextFrame1.Height;
 	FOptionsOutputOrigTop := gbOptionsOutput.Top;
 	FpnlMiddleOrigHeight := pnlMiddle.Height;
 	FTopPanelOrigHeight := pnlTop.Height;
@@ -1396,7 +1416,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange(_icv : IIDEContextValues);
 var
-	contextValue: string;
+	contextValue : string;
 begin
 	var
 	bSkipp := {$IF IS_GUITEST OR IS_EXTENSION} False; {$ELSE} True; {$ENDIF}
@@ -1405,12 +1425,10 @@ begin
 		dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange');
 		cmbSearchDir.Enabled := False;
 		FCtrlProxy.ExtensionContext := _icv.GetContextType();
-        contextValue := _icv.GetValue();
+		contextValue := _icv.GetValue();
 		case FCtrlProxy.ExtensionContext of
-			EDelphiIDESearchContext.dicActiveFile,
-            EDelphiIDESearchContext.dicProjectFiles,
-            EDelphiIDESearchContext.dicOpenFiles,
-            EDelphiIDESearchContext.dicProjectSourcePath : begin
+			EDelphiIDESearchContext.dicActiveFile, EDelphiIDESearchContext.dicProjectFiles, EDelphiIDESearchContext.dicOpenFiles,
+				EDelphiIDESearchContext.dicProjectSourcePath : begin
 				SetCmbSearchPathText(contextValue);
 				UpdateExtensionOptionsHint(contextValue);
 			end;
@@ -1425,7 +1443,8 @@ begin
 			end;
 		end;
 		FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
-        var dic : TDelphiIDEContext;
+		var
+			dic : TDelphiIDEContext;
 		dic.IDESearchContext := FCtrlProxy.ExtensionContext;
 		FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext := dic;
 		dbgMsg.Msg(dic.ToLogString);
@@ -1450,29 +1469,30 @@ begin
 		pnlTop.Height := FTopPanelOrigHeight - GetFullHeight(cmbReplaceText);
 	end;
 	dbgMsg.Msg('pnlTop.Height=' + pnlTop.Height.ToString);
-	pnlMiddle.Top := pnlTop.Height;
+	// pnlMiddle.Top := pnlTop.Height;
 	var
 	bStandalone := {$IF IS_STANDALONE} True; {$ELSE} False; {$ENDIF}
 	lblPaths.Visible := bStandalone;
 	if bStandalone then begin
 		ExtensionContextFrame1.Enabled := {$IF IS_GUITEST} True; {$ELSE} False; {$ENDIF};
 		ExtensionContextFrame1.Visible := {$IF IS_GUITEST} True; {$ELSE} False; {$ENDIF};
-		var
-		extensionSpace := {$IF IS_GUITEST} 0 {$ELSE} ExtensionContextFrame1.Height - 12 {$ENDIF}; // GetFullHeight(rbExtensionOptions);
-		dbgMsg.Msg('extensionSpace=' + extensionSpace.ToString);
-
-		if not ExtensionContextFrame1.Visible then begin
-			pnlPath.Align := alTop;
-		end;
-
-		gbOptionsFilters.Height := FOptionsFiltersOrigHeight - extensionSpace;
-		dbgMsg.Msg('gbOptionsFilters.Height=' + gbOptionsFilters.Height.ToString);
-
-		gbOptionsOutput.Top := FOptionsOutputOrigTop - extensionSpace;
-
-		pnlMiddle.Height := FpnlMiddleOrigHeight - extensionSpace;
-		dbgMsg.Msg('pnlMiddle.Height=' + pnlMiddle.Height.ToString);
 	end;
+		if ExtensionContextFrame1.Visible then begin
+			ExtensionContextFrame1.Align := alTop;
+			ExtensionContextFrame1.Height := ExtensionContextFrame1.ContextRadioGroup.Height;
+			// gbOptionsFilters.Top := ExtensionContextFrame1.Top + ExtensionContextFrame1.Height;
+			var padding := (ExtensionContextFrame1.Height - FExtensionContextFrameOrigHeight);
+			pnlMiddle.Height := FpnlMiddleOrigHeight - GetFullHeight(cmbReplaceText);
+			gbOptionsFilters.Height := FOptionsFiltersOrigHeight + padding;
+			// gbOptionsOutput.Top := gbOptionsFilters.Top + gbOptionsFilters.Height;
+			// pnlMiddle.Top := gbOptionsOutput.Top + gbOptionsOutput.Height;
+		end else begin
+			// gbOptionsFilters.Top := 0;
+			gbOptionsFilters.Height := FOptionsFiltersOrigHeight;
+			// gbOptionsOutput.Top := gbOptionsFilters.Top + gbOptionsFilters.Height;
+			// pnlMiddle.Top := gbOptionsOutput.Top + gbOptionsOutput.Height;
+		end;
+		dbgMsg.Msg('gbOptionsFilters.Height=' + gbOptionsFilters.Height.ToString);
 
 	var
 	iHeight := GetFullHeights;
@@ -1496,7 +1516,8 @@ begin
 	try
 		ExtensionContextFrame1.ContextRadioGroup.ItemIndex := _idx;
 		dbgMsg.MsgFmt('CustomRadioGroup.ItemIndex = %d', [_idx]);
-        var icv : IIDEContextValues := ExtensionContextFrame1.ContextValues;
+		var
+			icv : IIDEContextValues := ExtensionContextFrame1.ContextValues;
 		UpdateCmbsOnIDEContextChange(icv);
 	finally
 		FbExtensionOptionsSkipClick := False;
