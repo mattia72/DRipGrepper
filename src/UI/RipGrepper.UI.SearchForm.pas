@@ -145,7 +145,8 @@ type
 		procedure TabControl1Change(Sender : TObject);
 
 		strict private
-		FExtensionContextFrameOrigHeight: Integer;
+			FExtensionContextFrameOrigHeight : Integer;
+
 		private
 			FIsKeyboardInput : Boolean;
 			// proxy between settings and ctrls
@@ -1139,6 +1140,7 @@ begin
 	Result :=
 	{ } GetFullHeight(pnlTop) +
 	{ } pnlMiddle.Margins.Top +
+	{ } GetFullHeight(lblPaths) +
 	{ } GetFullHeight(gbOptionsFilters) +
 	{ } GetFullHeight(gbOptionsOutput) +
 	{ } pnlMiddle.Margins.Bottom +
@@ -1317,10 +1319,12 @@ begin
 	var
 	iexpertHeight := Height - GetFullHeights();
 	gbExpert.Visible := FSettings.AppSettings.ExpertMode and (iexpertHeight > 0);
-	if gbExpert.Visible then begin
-		// gbExpert.Top := gbOptionsOutput.Top + gbOptionsOutput.Height + gbOptionsOutput.Margins.Bottom;
-		// gbExpert.Height := iexpertHeight;
-	end;
+    // Position gbOptionsOutput right after gbOptionsFilters
+//  gbOptionsOutput.Top := gbOptionsFilters.Top + gbOptionsFilters.Height + gbOptionsFilters.Margins.Bottom;
+//  if gbExpert.Visible then begin
+//      gbExpert.Top := gbOptionsOutput.Top + gbOptionsOutput.Height + gbOptionsOutput.Margins.Bottom;
+//      gbExpert.Height := iexpertHeight;
+//  end;
 end;
 
 procedure TRipGrepperSearchDialogForm.SetOrigHeights;
@@ -1474,30 +1478,24 @@ begin
 		pnlTop.Height := FTopPanelOrigHeight - GetFullHeight(cmbReplaceText);
 	end;
 	dbgMsg.Msg('pnlTop.Height=' + pnlTop.Height.ToString);
-	// pnlMiddle.Top := pnlTop.Height;
 	var
 	bStandalone := {$IF IS_STANDALONE} True; {$ELSE} False; {$ENDIF}
-	lblPaths.Visible := bStandalone;
+	lblPaths.Visible :=  {$IF IS_GUITEST} FALSE; {$ELSE} bStandalone; {$ENDIF};;
 	if bStandalone then begin
 		ExtensionContextFrame1.Enabled := {$IF IS_GUITEST} True; {$ELSE} False; {$ENDIF};
 		ExtensionContextFrame1.Visible := {$IF IS_GUITEST} True; {$ELSE} False; {$ENDIF};
 	end;
-		if ExtensionContextFrame1.Visible then begin
-			ExtensionContextFrame1.Align := alTop;
-			ExtensionContextFrame1.Height := ExtensionContextFrame1.ContextRadioGroup.Height;
-			// gbOptionsFilters.Top := ExtensionContextFrame1.Top + ExtensionContextFrame1.Height;
-			var padding := (ExtensionContextFrame1.Height - FExtensionContextFrameOrigHeight);
-			pnlMiddle.Height := FpnlMiddleOrigHeight - GetFullHeight(cmbReplaceText);
-			gbOptionsFilters.Height := FOptionsFiltersOrigHeight + padding;
-			// gbOptionsOutput.Top := gbOptionsFilters.Top + gbOptionsFilters.Height;
-			// pnlMiddle.Top := gbOptionsOutput.Top + gbOptionsOutput.Height;
-		end else begin
-			// gbOptionsFilters.Top := 0;
-			gbOptionsFilters.Height := FOptionsFiltersOrigHeight;
-			// gbOptionsOutput.Top := gbOptionsFilters.Top + gbOptionsFilters.Height;
-			// pnlMiddle.Top := gbOptionsOutput.Top + gbOptionsOutput.Height;
-		end;
-		dbgMsg.Msg('gbOptionsFilters.Height=' + gbOptionsFilters.Height.ToString);
+	if ExtensionContextFrame1.Visible then begin
+		ExtensionContextFrame1.Align := alTop;
+		ExtensionContextFrame1.Height := ExtensionContextFrame1.ContextRadioGroup.Height;
+		var
+		padding := (ExtensionContextFrame1.Height - FExtensionContextFrameOrigHeight - lblPaths.Height);
+		pnlMiddle.Height := FpnlMiddleOrigHeight - GetFullHeight(cmbReplaceText);
+		gbOptionsFilters.Height := FOptionsFiltersOrigHeight + padding;
+	end else begin
+		gbOptionsFilters.Height := FOptionsFiltersOrigHeight;
+	end;
+	dbgMsg.Msg('gbOptionsFilters.Height=' + gbOptionsFilters.Height.ToString);
 
 	var
 	iHeight := GetFullHeights;

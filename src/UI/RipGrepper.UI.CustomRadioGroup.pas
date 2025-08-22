@@ -261,7 +261,7 @@ begin
 		end));
 
 	// Calculate layout
-	itemHeight := 20;
+	itemHeight := 22;
 	itemWidth := Width div FColumns;
 	maxRows := Ceil(sortedItems.Count / FColumns);
 
