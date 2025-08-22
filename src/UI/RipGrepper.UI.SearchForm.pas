@@ -1519,7 +1519,16 @@ begin
 	try
 		ExtensionContextFrame1.SetSelectedIDEContext(_dic);
 		dbgMsg.MsgFmt('ContextRadioGroup.ItemIndex = %d', [Integer(_dic)]);
-		var icv : IIDEContextValues := ExtensionContextFrame1.ContextValues;
+		
+		// Create the appropriate context values directly to ensure proper initialization
+		var icv : IIDEContextValues;
+		case _dic of
+			EDelphiIDESearchContext.dicCustomLocation:
+				icv := TIDEContextValues.Create(_dic, FCtrlProxy.SearchPath);
+			else
+				icv := ExtensionContextFrame1.ContextValues;
+		end;
+		
 		UpdateCmbsOnIDEContextChange(icv);
 	finally
 		FbExtensionOptionsSkipClick := False;
