@@ -134,7 +134,7 @@ begin
 	for i := 0 to FContextRadioGroup.Items.Count - 1 do begin
 		item := FContextRadioGroup.Items[i];
 		if Assigned(item.TagObject) and
-		{ } ((selectedItem.TagObject as IIDEContextValues).GetContextType = _ideContext) then begin
+		{ } ((item.TagObject as IIDEContextValues).GetContextType = _ideContext) then begin
 			dbgMsg.MsgFmt('Setting IDE context to %s', [item.Caption]);
 			FContextRadioGroup.ItemIndex := i;
 			Break;
