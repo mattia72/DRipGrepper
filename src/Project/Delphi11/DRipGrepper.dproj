@@ -1,11 +1,11 @@
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ProjectGuid>{690C375C-03A1-4C11-8B81-E628EF382F2C}</ProjectGuid>
     <ProjectVersion>19.5</ProjectVersion>
     <FrameworkType>VCL</FrameworkType>
     <Base>True</Base>
     <Config Condition="'$(Config)'==''">Debug</Config>
-    <Platform Condition="'$(Platform)'==''">Win64</Platform>
+    <Platform Condition="'$(Platform)'==''">Win32</Platform>
     <TargetedPlatforms>3</TargetedPlatforms>
     <AppType>Application</AppType>
     <MainSource>DRipGrepper.dpr</MainSource>
@@ -125,18 +125,18 @@
     <VerInfo_Locale>1033</VerInfo_Locale>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.12.0.159;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.12.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.12.0.160;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.12.0;Comments=beta</VerInfo_Keys>
     <DCC_DebugInfoInTds>true</DCC_DebugInfoInTds>
-    <VerInfo_Build>159</VerInfo_Build>
+    <VerInfo_Build>160</VerInfo_Build>
     <VerInfo_MinorVer>12</VerInfo_MinorVer>
     <VerInfo_Release>0</VerInfo_Release>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
     <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.12.0.159;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.12.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.12.0.161;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.12.0;Comments=beta</VerInfo_Keys>
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-    <VerInfo_Build>159</VerInfo_Build>
+    <VerInfo_Build>161</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <VerInfo_MinorVer>12</VerInfo_MinorVer>
     <BRCC_CompilerToUse>rc</BRCC_CompilerToUse>
@@ -155,16 +155,16 @@
     <VerInfo_Locale>1033</VerInfo_Locale>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.12.0.189;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.12.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>189</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.12.0.219;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.12.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>219</VerInfo_Build>
     <VerInfo_MinorVer>12</VerInfo_MinorVer>
     <VerInfo_Release>0</VerInfo_Release>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
     <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.12.0.188;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.12.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>188</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.12.0.217;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.12.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>217</VerInfo_Build>
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <VerInfo_MinorVer>12</VerInfo_MinorVer>
@@ -317,6 +317,14 @@
       <FormType>dfm</FormType>
     </DCCReference>
     <DCCReference Include="..\..\Tools\RipGrepper.Tools.WinHttpClient.pas" />
+    <DCCReference Include="..\..\UI\RipGrepper.UI.CustomRadioGroup.pas" />
+    <DCCReference Include="..\..\UI\RipGrepper.UI.Settings.ExtensionContexFrame.pas">
+      <Form>ExtensionContexFrame</Form>
+      <FormType>dfm</FormType>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="..\..\Common\RipGrepper.Common.IDEContextValues.pas" />
+    <DCCReference Include="..\..\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas" />
     <RcItem Include="..\..\..\LICENSE">
       <ContainerId>ResourceItem</ContainerId>
       <ResourceType>RCDATA</ResourceType>
@@ -381,6 +389,12 @@
           </Platform>
         </DeployFile>
         <DeployFile LocalName="..\..\..\CHANGELOG.md" Configuration="Debug" Class="ProjectFile">
+          <Platform Name="Win32">
+            <RemoteDir>.\</RemoteDir>
+            <Overwrite>true</Overwrite>
+          </Platform>
+        </DeployFile>
+        <DeployFile LocalName="..\..\..\CHANGELOG.md" Configuration="Debug" Class="ProjectFile">
           <Platform Name="Win64">
             <RemoteDir>.\</RemoteDir>
             <Overwrite>true</Overwrite>
@@ -406,12 +420,6 @@
         </DeployFile>
         <DeployFile LocalName="..\..\..\LICENSE" Configuration="Release" Class="ProjectFile">
           <Platform Name="Win64">
-            <RemoteDir>.\</RemoteDir>
-            <Overwrite>true</Overwrite>
-          </Platform>
-        </DeployFile>
-        <DeployFile LocalName="..\..\..\deploy\Deploy-Description.md" Configuration="Debug" Class="ProjectFile">
-          <Platform Name="Win32">
             <RemoteDir>.\</RemoteDir>
             <Overwrite>true</Overwrite>
           </Platform>
@@ -443,12 +451,6 @@
         <DeployFile LocalName="Win64\Debug\DRipGrepper.exe" Configuration="Debug" Class="ProjectOutput">
           <Platform Name="Win64">
             <RemoteName>DRipGrepper.exe</RemoteName>
-            <Overwrite>true</Overwrite>
-          </Platform>
-        </DeployFile>
-        <DeployFile LocalName="Win64\Debug\DRipGrepper.rsm" Configuration="Debug" Class="DebugSymbols">
-          <Platform Name="Win64">
-            <RemoteName>DRipGrepper.rsm</RemoteName>
             <Overwrite>true</Overwrite>
           </Platform>
         </DeployFile>
