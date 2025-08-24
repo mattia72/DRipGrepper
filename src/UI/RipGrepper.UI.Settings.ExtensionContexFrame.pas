@@ -27,6 +27,8 @@ type
 
 		public
 			constructor Create(_owner : TComponent); override;
+			class function GetAsHint(const _paths : string): string; overload;
+			class function GetAsHint(var _paths: TArray<string>): string; overload;
 			function GetSelectedIDEContext : EDelphiIDESearchContext;
 			procedure SetSelectedIDEContext(_ideContext : EDelphiIDESearchContext);
 			property ContextRadioGroup : TCustomRadioGroup read FContextRadioGroup;
@@ -42,7 +44,8 @@ implementation
 uses
 	Spring,
 	RipGrepper.Settings.ExtensionSettings,
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils,
+	RipGrepper.Common.Constants;
 
 {$R *.dfm}
 
@@ -62,22 +65,40 @@ begin
 	dic.LoadFromIOTA();
 
 	icv := TIDEContextValues.Create(EDelphiIDESearchContext.dicActiveFile, dic.ActiveFile);
-	FContextRadioGroup.AddItem('Current File', 0, icv);
+	FContextRadioGroup.AddItem('Current File', dic.ActiveFile, 0, icv);
 
-	icv := TIDEContextValues.Create(EDelphiIDESearchContext.dicOpenFiles, string.Join(';', dic.OpenFiles));
-	FContextRadioGroup.AddItem('All Open Files', 1, icv);
+	var
+	value := string.Join(';', dic.OpenFiles);
+	icv := TIDEContextValues.Create(EDelphiIDESearchContext.dicOpenFiles, value);
+	FContextRadioGroup.AddItem('All Open Files', GetAsHint(dic.OpenFiles), 1, icv);
 
-	icv := TIDEContextValues.Create(EDelphiIDESearchContext.dicProjectFiles, string.Join(';', dic.ProjectFiles));
-	FContextRadioGroup.AddItem('Project Files', 2, icv);
+	value := string.Join(';', dic.ProjectFiles);
+	icv := TIDEContextValues.Create(EDelphiIDESearchContext.dicProjectFiles, value);
+	FContextRadioGroup.AddItem('Project Files', GetAsHint(dic.ProjectFiles), 2, icv);
 
-	icv := TIDEContextValues.Create(EDelphiIDESearchContext.dicProjectSourcePath, string.Join(';', dic.ProjectSourcePath));
-	FContextRadioGroup.AddItem('Project Source Paths', 3, icv);
+	value := string.Join(';', dic.ProjectSourcePath);
+	icv := TIDEContextValues.Create(EDelphiIDESearchContext.dicProjectSourcePath, value);
+	FContextRadioGroup.AddItem('Project Source Paths', GetAsHint(dic.ProjectSourcePath), 3, icv);
 
 	icv := TIDEContextValues.Create(EDelphiIDESearchContext.dicCustomLocation, '');
-	FContextRadioGroup.AddItem('Custom Locations:', 4, icv);
+	FContextRadioGroup.AddItem('Custom Locations:', '', 4, icv);
 
 	// Select first option by default
 	FContextRadioGroup.ItemIndex := 0;
+end;
+
+class function TExtensionContextFrame.GetAsHint(const _paths : string) : string;
+begin
+	var
+	pathArray := _paths.Split([';', ',']);
+	Result := GetAsHint(pathArray);
+end;
+
+class function TExtensionContextFrame.GetAsHint(var _paths: TArray<string>):
+	string;
+begin
+	TArray.Sort<string>(_paths);
+	Result := string.Join(CRLF, _paths);
 end;
 
 function TExtensionContextFrame.GetContextValues() : IIDEContextValues;

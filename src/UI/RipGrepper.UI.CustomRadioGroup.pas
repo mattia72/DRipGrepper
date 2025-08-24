@@ -76,7 +76,7 @@ type
 			constructor Create(_owner : TComponent); override;
 			destructor Destroy; override;
 			procedure Clear;
-			function AddItem(const _caption : string; _orderIndex : Integer; _obj : IInterface = nil) : TCustomRadioItem;
+			function AddItem(const _caption, _hint : string; _orderIndex : Integer; _obj : IInterface = nil) : TCustomRadioItem;
 			procedure Arrange();
 
 		published
@@ -223,7 +223,7 @@ begin
 	FItemIndex := -1;
 end;
 
-function TCustomRadioGroup.AddItem(const _caption : string; _orderIndex : Integer; _obj : IInterface = nil) : TCustomRadioItem;
+function TCustomRadioGroup.AddItem(const _caption, _hint : string; _orderIndex : Integer; _obj : IInterface = nil) : TCustomRadioItem;
 var
 	radioButton : TRadioButton;
 begin
@@ -231,6 +231,7 @@ begin
 	radioButton.Parent := Self;
 	radioButton.Caption := _caption;
 	radioButton.OnClick := onRadioButtonClick;
+	radioButton.Hint := _hint;
 	Result := FItems.AddItem(radioButton, _caption, _orderIndex, _obj);
 end;
 

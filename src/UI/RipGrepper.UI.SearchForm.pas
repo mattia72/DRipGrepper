@@ -1052,9 +1052,7 @@ begin
 
 	if HasHistItemObjWithResult or FHistItemObj.IsLoadedFromStream then begin
 		_ctrlProxy.SearchText := FHistItemObj.GuiSearchTextParams.SearchTextWithOptions.SearchTextOfUser;
-		// GetValuesFromHistObjRipGrepArguments(RG_ARG_SEARCH_TEXT);
 		_ctrlProxy.SearchOptions := FHistItemObj.GuiSearchTextParams.GetSearchOptions;
-		// _ctrlProxy.ReplaceText := GetValuesFromHistObjRipGrepArguments(RG_ARG_REPLACE_TEXT);
 		_ctrlProxy.ReplaceText := FHistItemObj.ReplaceText;
 		_ctrlProxy.IsReplaceMode := FHistItemObj.IsReplaceMode;
 
@@ -1304,14 +1302,9 @@ end;
 procedure TRipGrepperSearchDialogForm.UpdateExtensionOptionsHint(const _paths : string);
 begin
 	if _paths.IsEmpty then begin
-		ExtensionContextFrame1.Hint := '';
 		Exit;
 	end;
-
-	var
-	pathArray := _paths.Split([';', ',']);
-	TArray.Sort<string>(pathArray);
-	ExtensionContextFrame1.Hint := string.Join(CRLF, pathArray);
+	ExtensionContextFrame1.SelectedItem.RadioButton.Hint := TExtensionContextFrame.GetAsHint(_paths);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetExpertGroupSize();
@@ -1319,12 +1312,12 @@ begin
 	var
 	iexpertHeight := Height - GetFullHeights();
 	gbExpert.Visible := FSettings.AppSettings.ExpertMode and (iexpertHeight > 0);
-    // Position gbOptionsOutput right after gbOptionsFilters
-//  gbOptionsOutput.Top := gbOptionsFilters.Top + gbOptionsFilters.Height + gbOptionsFilters.Margins.Bottom;
-//  if gbExpert.Visible then begin
-//      gbExpert.Top := gbOptionsOutput.Top + gbOptionsOutput.Height + gbOptionsOutput.Margins.Bottom;
-//      gbExpert.Height := iexpertHeight;
-//  end;
+	// Position gbOptionsOutput right after gbOptionsFilters
+	// gbOptionsOutput.Top := gbOptionsFilters.Top + gbOptionsFilters.Height + gbOptionsFilters.Margins.Bottom;
+	// if gbExpert.Visible then begin
+	// gbExpert.Top := gbOptionsOutput.Top + gbOptionsOutput.Height + gbOptionsOutput.Margins.Bottom;
+	// gbExpert.Height := iexpertHeight;
+	// end;
 end;
 
 procedure TRipGrepperSearchDialogForm.SetOrigHeights;
@@ -1440,7 +1433,6 @@ begin
 			{ } EDelphiIDESearchContext.dicOpenFiles,
 			{ } EDelphiIDESearchContext.dicProjectSourcePath : begin
 				SetCmbSearchPathText(contextValue);
-				UpdateExtensionOptionsHint(contextValue);
 			end;
 			EDelphiIDESearchContext.dicCustomLocation : begin
 				cmbSearchDir.Enabled := True;
@@ -1480,7 +1472,7 @@ begin
 	dbgMsg.Msg('pnlTop.Height=' + pnlTop.Height.ToString);
 	var
 	bStandalone := {$IF IS_STANDALONE} True; {$ELSE} False; {$ENDIF}
-	lblPaths.Visible :=  {$IF IS_GUITEST} FALSE; {$ELSE} bStandalone; {$ENDIF};;
+	lblPaths.Visible := {$IF IS_GUITEST} FALSE; {$ELSE} bStandalone; {$ENDIF};;
 	if bStandalone then begin
 		ExtensionContextFrame1.Enabled := {$IF IS_GUITEST} True; {$ELSE} False; {$ENDIF};
 		ExtensionContextFrame1.Visible := {$IF IS_GUITEST} True; {$ELSE} False; {$ENDIF};
