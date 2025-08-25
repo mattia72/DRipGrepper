@@ -15,7 +15,8 @@ uses
 	System.Win.Registry,
 	Winapi.Windows,
 	RipGrepper.Common.IOTAUtils.Constants,
-	RipGrepper.Common.RegistryUtils;
+	RipGrepper.Common.RegistryUtils,
+	RipGrepper.Common.IOTAUtils.PathProcessor;
 
 type
 
@@ -47,6 +48,7 @@ type
 			/// @param _macros will contain all available _macros in "Name=Value" format
 			/// @param _project is the _project to get options from, if nil the current _project will be used </summary>
 			class procedure getAllAvailableMacros(_macros : TStrings; _project : IOTAProject = nil);
+			class function GetIdeRootDirectoryFromRegistry() : string;
 			/// <summary>
 			/// Get all preprocessor constants (conditional _defines) for the given _project
 			/// @param _defines will contain all conditional _defines in "Name=Value" format
@@ -245,13 +247,6 @@ type
 			class function TryFocusControl(Control : TWinControl) : Boolean;
 	end;
 
-	TIdeUtils = class
-		public
-			// Return the IDE's root directory (the installation directory).
-			// Returns an empty string if the information could not be retrieved.
-			class function GetIdeRootDirectory() : string;
-	end;
-
 implementation
 
 uses
@@ -259,39 +254,11 @@ uses
 	System.SysUtils,
 	System.StrUtils,
 	RipGrepper.Common.Constants,
-
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Tools.FileUtils,
 	u_dzClassUtils,
 	System.Variants,
 	System.Math;
-
-type
-	TPathProcessor = class
-		private
-			FIdeBasePath : string;
-			FConfigName : string;
-			FPlatformName : string;
-			FPrefix : string;
-			FEnvironment : TStringList;
-			FProjectOptions : IOTAProjectOptions;
-			procedure Init(_Project : IOTAProject);
-			class function ReplaceMacro(const _str, _oldValue, _newValue : string) : string;
-
-		public
-			/// <summary>
-			/// @param _Prefix will be used for relative paths
-			/// @param _Project will be used to determine Platform and Config, if not given, the
-			/// current project will be used. </summary>
-			constructor Create(const _Prefix : string; _Project : IOTAProject = nil);
-			destructor Destroy; override;
-			procedure GetEnvironmentVariables(Strings : TStrings);
-			procedure GetAllProjectOptions(Options : TStrings);
-			function GetProjectOption(const OptionName : string) : string;
-			function Process(const _Path : string) : string;
-			property PlatformName : string read FPlatformName write FPlatformName;
-			property ConfigName : string read FConfigName write FConfigName;
-	end;
 
 class function IOTAUtils.AddToImageList(_bmp : Vcl.Graphics.TBitmap; const _identText : string) : Integer;
 var
@@ -960,7 +927,8 @@ begin
 end;
 
 class function IOTAUtils.GxOtaGetOpenModuleCount : Integer;
-var ModuleServices : IOTAModuleServices;
+var
+	ModuleServices : IOTAModuleServices;
 begin
 	ModuleServices := BorlandIDEServices as IOTAModuleServices;
 	Assert(Assigned(ModuleServices));
@@ -970,7 +938,9 @@ end;
 class function IOTAUtils.GxOtaGetProjectFileName(Project : IOTAProject; NormalizeBdsProj : Boolean = False) : string;
 
 	function SearchProjectSourceViaModule(var AProjectFileName : string) : Boolean;
-	var i : Integer; Module : IOTAModule;
+	var
+		i : Integer;
+		Module : IOTAModule;
 		Editor : IOTAEditor;
 	begin
 		Result := False;
@@ -986,7 +956,8 @@ class function IOTAUtils.GxOtaGetProjectFileName(Project : IOTAProject; Normaliz
 	end;
 
 	function SearchProjectSourceViaFileExt(var AProjectFileName : string) : Boolean;
-	var PackageFileName : string;
+	var
+		PackageFileName : string;
 	begin
 		Result := GxOtaProjectIsEitherDelphi(Project);
 		if Result then begin
@@ -1019,7 +990,9 @@ begin
 end;
 
 class function IOTAUtils.GxOtaGetProjectGroup : IOTAProjectGroup;
-var IModuleServices : IOTAModuleServices; IModule : IOTAModule;
+var
+	IModuleServices : IOTAModuleServices;
+	IModule : IOTAModule;
 	i : Integer;
 begin
 	Assert(Assigned(BorlandIDEServices));
@@ -1065,8 +1038,11 @@ end;
 
 class function IOTAUtils.GxOtaGetProjectSourcePathStrings(_project : IOTAProject; _errList : TArrayEx<string>;
 	_shouldDoProcessing : Boolean = True) : TArrayEx<string>;
-var idePathString : string; projectOptions : IOTAProjectOptions;
-	projectDir : string; platformName : string;
+var
+	idePathString : string;
+	projectOptions : IOTAProjectOptions;
+	projectDir : string;
+	platformName : string;
 begin
 	if _project = nil then
 		_project := GxOtaGetCurrentProject;
@@ -1087,7 +1063,10 @@ begin
 end;
 
 class function IOTAUtils.GxOtaGetSourceEditorFromModule(Module : IOTAModule; const FileName : string = '') : IOTASourceEditor;
-var i : Integer; IEditor : IOTAEditor; ISourceEditor : IOTASourceEditor;
+var
+	i : Integer;
+	IEditor : IOTAEditor;
+	ISourceEditor : IOTASourceEditor;
 begin
 	Result := nil;
 	if not Assigned(Module) then
@@ -1133,10 +1112,17 @@ end;
 
 class procedure IOTAUtils.GxOtaGoToFileLineColumn(const FileName : string; Line : Integer; StartColumn : Integer = 0;
 	StopColumn : Integer = 0; ShowInMiddle : Boolean = True);
-var EditView : IOTAEditView; Module : IOTAModule;
-	SourceEditor : IOTASourceEditor; CurPos : TOTAEditPos; CharPos : TOTACharPos; EditPos : TOTAEditPos; MatchLength : Integer;
+var
+	EditView : IOTAEditView;
+	Module : IOTAModule;
+	SourceEditor : IOTASourceEditor;
+	CurPos : TOTAEditPos;
+	CharPos : TOTACharPos;
+	EditPos : TOTAEditPos;
+	MatchLength : Integer;
 	LineData : UTF8String;
-resourcestring SCouldNotOpenFile = 'Could not open file %s';
+resourcestring
+	SCouldNotOpenFile = 'Could not open file %s';
 begin
 	// Force the source editor to show the right file (cpp, pas, dfm, xfm, etc.)
 	if not GxOtaMakeSourceVisible(FileName) then
@@ -1195,7 +1181,12 @@ begin
 end;
 
 class function IOTAUtils.IsFileOpen(const _sFilePath : string; const _bUseBase : Boolean = False) : Boolean;
-var ModuleServices : IOTAModuleServices; Module : IOTAModule; FileEditor : IOTAEditor; i : Integer; FileName : string;
+var
+	ModuleServices : IOTAModuleServices;
+	Module : IOTAModule;
+	FileEditor : IOTAEditor;
+	i : Integer;
+	FileName : string;
 begin
 	Result := False;
 
@@ -1222,7 +1213,8 @@ begin
 end;
 
 class procedure IOTAUtils.GxOtaLoadSourceEditorToUnicodeStrings(_editor : IOTASourceEditor; _content : TStringList);
-var MemStream : TMemoryStream;
+var
+	MemStream : TMemoryStream;
 begin
 	_content.Clear;
 	if not Assigned(_editor) then
@@ -1249,8 +1241,13 @@ begin
 end;
 
 class function IOTAUtils.GxOtaMakeSourceVisible(const FileName : string) : Boolean;
-var EditActions : IOTAEditActions;
-	Module : IOTAModule; FormEditor : IOTAFormEditor; SourceEditor : IOTASourceEditor; FileEditor : IOTAEditor; i : Integer;
+var
+	EditActions : IOTAEditActions;
+	Module : IOTAModule;
+	FormEditor : IOTAFormEditor;
+	SourceEditor : IOTASourceEditor;
+	FileEditor : IOTAEditor;
+	i : Integer;
 	BaseFileName : string;
 begin
 	BaseFileName := GxOtaGetBaseModuleFileName(FileName);
@@ -1322,7 +1319,9 @@ begin
 end;
 
 class function IOTAUtils.GxOtaModuleIsShowingFormSource(Module : IOTAModule) : Boolean;
-var Editor : IOTAEditor; i : Integer;
+var
+	Editor : IOTAEditor;
+	i : Integer;
 begin
 	Result := False;
 	if not Assigned(Module) then
@@ -1337,7 +1336,9 @@ begin
 end;
 
 class function IOTAUtils.GxOtaOpenFile(const FileName : string) : Boolean;
-var ActionServices : IOTAActionServices; hWndSaved : HWND;
+var
+	ActionServices : IOTAActionServices;
+	hWndSaved : HWND;
 begin
 	ActionServices := BorlandIDEServices as IOTAActionServices;
 	Assert(Assigned(ActionServices));
@@ -1366,8 +1367,11 @@ end;
 class procedure IOTAUtils.GxOtaSaveReaderToStream(EditReader : IOTAEditReader; Stream : TStream; TrailingNull : Boolean = True);
 const
 	// Leave typed constant as is - needed for streaming code.
-	NULL_CHAR : AnsiChar = #0; BUFFER_SIZE = 1024 * 24;
-var EditReaderPos : Integer; ReadDataSize : Integer;
+	NULL_CHAR : AnsiChar = #0;
+	BUFFER_SIZE = 1024 * 24;
+var
+	EditReaderPos : Integer;
+	ReadDataSize : Integer;
 	Buffer : array [0 .. BUFFER_SIZE] of AnsiChar; // Array of bytes, might be UTF-8
 begin
 	Assert(EditReader <> nil);
@@ -1387,8 +1391,11 @@ begin
 end;
 
 class function IOTAUtils.GxOtaTryGetCurrentProject(out _Project : IOTAProject) : Boolean;
-var IProjectGroup : IOTAProjectGroup;
-	IModuleServices : IOTAModuleServices; IModule : IOTAModule; i : Integer;
+var
+	IProjectGroup : IOTAProjectGroup;
+	IModuleServices : IOTAModuleServices;
+	IModule : IOTAModule;
+	i : Integer;
 begin
 	Result := False;
 
@@ -1525,7 +1532,8 @@ end;
 class procedure IOTAUtils.getAllAvailableMacros(_macros : TStrings; _project : IOTAProject = nil);
 const
 	IDE_BASE_MACROS : array [0 .. 3] of string = ('BDS', 'DELPHI', 'BCB', 'CompilerVersion');
-var pathProcessor : TPathProcessor;
+var
+	pathProcessor : TPathProcessor;
 	i : Integer;
 	defineValue : string;
 	ideBasePath : string;
@@ -1536,7 +1544,10 @@ begin
 	pathProcessor := TPathProcessor.Create('', _project);
 	try
 		// Add IDE base paths
-		ideBasePath := TIdeUtils.GetIdeRootDirectory;
+		ideBasePath := IOTAUtils.GetIdeRootDirectoryFromRegistry;
+		if ideBasePath.IsEmpty then begin
+			ideBasePath := TIdeUtils.GetIdeRootDirectory;
+		end;
 		for i := low(IDE_BASE_MACROS) to high(IDE_BASE_MACROS) do begin
 			_macros.Add(IDE_BASE_MACROS[i] + '=' + ideBasePath);
 		end;
@@ -1563,7 +1574,9 @@ begin
 end;
 
 class procedure IOTAUtils.RemoveLastEOL(var S : string);
-var CurrLen : Integer; EOLSize : Integer;
+var
+	CurrLen : Integer;
+	EOLSize : Integer;
 begin
 	CurrLen := Length(S);
 	if CurrLen > 0 then begin
@@ -1601,180 +1614,9 @@ begin
 	end;
 end;
 
-{ TPathProcessor }
-
-constructor TPathProcessor.Create(const _Prefix : string; _Project : IOTAProject = nil);
-
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TPathProcessor.Process');
-
-	inherited Create;
-	FPrefix := _Prefix;
-	dbgMsg.MsgFmt('FPrefix = %s', [FPrefix]);
-	Init(_Project);
-	FIdeBasePath := ExcludeTrailingPathDelimiter(TIdeUtils.GetIdeRootDirectory);
-	// FIdeBasePath := ExcludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
-	dbgMsg.MsgFmt('IdeBasePath = %s', [FIdeBasePath]);
-	FEnvironment := TStringList.Create;
-	GetEnvironmentVariables(FEnvironment);
-end;
-
-destructor TPathProcessor.Destroy;
-begin
-	FreeAndNil(FEnvironment);
-	inherited;
-end;
-
-procedure TPathProcessor.GetEnvironmentVariables(Strings : TStrings);
-var EnvStart : Pointer; EnvPos : PChar;
-begin
-	Assert(Assigned(Strings));
-	Strings.Clear;
-	EnvStart := GetEnvironmentStrings;
-	try
-		EnvPos := EnvStart;
-		while StrLen(EnvPos) > 0 do begin
-			Strings.Add(EnvPos);
-			EnvPos := StrEnd(EnvPos) + 1;
-		end;
-	finally
-		FreeEnvironmentStrings(EnvStart);
-	end;
-end;
-
-procedure TPathProcessor.GetAllProjectOptions(Options : TStrings);
-begin
-	Assert(Assigned(Options));
-	Options.Clear;
-	if Assigned(FProjectOptions) then begin
-		var
-		OptionNames := FProjectOptions.GetOptionNames;
-		for var i := 0 to Length(OptionNames) - 1 do begin
-			var
-			OptionName := OptionNames[i].Name;
-			var
-			OptionValue := VarToStr(FProjectOptions.Values[OptionName]);
-			Options.Add(OptionName + '=' + OptionValue);
-		end;
-	end;
-end;
-
-function TPathProcessor.GetProjectOption(const OptionName : string) : string;
-begin
-	Result := '';
-	if Assigned(FProjectOptions) then begin
-		Result := VarToStr(FProjectOptions.Values[OptionName]);
-	end;
-end;
-
-procedure TPathProcessor.Init(_Project : IOTAProject);
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TPathProcessor.Init');
-	if _Project = nil then begin
-		_Project := IOTAUtils.GxOtaGetCurrentProject;
-	end;
-	if _Project <> nil then begin
-		FPlatformName := _Project.CurrentPlatform;
-		dbgMsg.MsgFmt('FPlatformName = %s', [FPlatformName]);
-		FConfigName := _Project.CurrentConfiguration;
-		dbgMsg.MsgFmt('FConfigName = %s', [FConfigName]);
-		FProjectOptions := _Project.GetProjectOptions;
-		dbgMsg.MsgFmt('FProjectOptions length %d', [Length(FProjectOptions.GetOptionNames)]);
-	end;
-end;
-
-function TPathProcessor.Process(const _Path : string) : string;
-const
-	IDEBaseMacros : array [0 .. 2] of string = ('BDS', 'DELPHI', 'BCB');
-var
-	i : Integer;
-	EnvName : string;
-	EnvValue : string;
-	DefineList : TStringList;
-	DefineValue : string;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TPathProcessor.Process');
-
-	Result := _Path;
-
-	// Expand the IDE base folder names $([DELPHI,BCB,BDS])
-	for i := low(IDEBaseMacros) to high(IDEBaseMacros) do begin
-		Result := ReplaceMacro(Result, IDEBaseMacros[i], FIdeBasePath);
-	end;
-
-	// Expand any environment variable macros
-	for i := 0 to FEnvironment.Count - 1 do begin
-		EnvName := Trim(FEnvironment.Names[i]);
-		EnvValue := Trim(FEnvironment.Values[EnvName]);
-		if (EnvName <> '') and (EnvValue <> '') then begin
-			Result := ReplaceMacro(Result, EnvName, EnvValue);
-		end;
-	end;
-
-	// Expand project preprocessor constants (DCC_Define)
-	if Assigned(FProjectOptions) then begin
-		DefineValue := VarToStr(FProjectOptions.Values['DCC_Define']);
-		if DefineValue <> '' then begin
-			DefineList := TStringList.Create;
-			try
-				DefineList.Delimiter := ';';
-				DefineList.DelimitedText := DefineValue;
-				for i := 0 to DefineList.Count - 1 do begin
-					var
-					Define := DefineList[i];
-					var
-					EqualPos := Pos('=', Define);
-					if EqualPos > 0 then begin
-						// Define with value: SYMBOL=VALUE
-						var
-						SymbolName := Copy(Define, 1, EqualPos - 1);
-						var
-						SymbolValue := Copy(Define, EqualPos + 1, Length(Define));
-						Result := ReplaceMacro(Result, SymbolName, SymbolValue);
-					end else begin
-						// Define without value: SYMBOL (assume empty string or '1')
-						Result := ReplaceMacro(Result, Define, '1');
-					end;
-				end;
-			finally
-				FreeAndNil(DefineList);
-			end;
-		end;
-	end;
-
-	if FPlatformName <> '' then begin
-		Result := ReplaceMacro(Result, 'Platform', FPlatformName);
-	end;
-
-	if FConfigName <> '' then begin
-		Result := ReplaceMacro(Result, 'Config', FConfigName);
-	end;
-
-	if ( not FPrefix.IsEmpty )  and (not TFileUtils.IsPathAbsolute(Result) )then begin
-		Result := TFileUtils.ExpandFileNameRelBaseDir(Result, FPrefix);
-	end;
-end;
-
-class function TPathProcessor.ReplaceMacro(const _str, _oldValue, _newValue : string) : string;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TPathProcessor.ReplaceMacro', True);
-	var
-	replaceVal := '$(' + _oldValue + ')';
-	if _str.Contains(replaceVal) then begin
-		dbgMsg.MsgFmt('Path: %s', [_str]);
-		Result := StringReplace(_str, replaceVal, _newValue, [rfReplaceAll, rfIgnoreCase]);
-		dbgMsg.MsgFmt('Replacing: %s with: %s = %s', [replaceVal, _newValue, Result]);
-	end else begin
-		Result := _str;
-	end;
-end;
-
 class procedure IOTAUtils.addProjectDefineMacros(var _defineValue : string; _macros : TStrings);
-var defineList : TStringList;
+var
+	defineList : TStringList;
 begin
 	defineList := TStringList.Create;
 	try
@@ -1798,9 +1640,29 @@ begin
 	end;
 end;
 
+class function IOTAUtils.GetIdeRootDirectoryFromRegistry() : string;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('IOTAUtils.GetIdeRootDirectoryFromRegistry');
+	Result := '';
+	var
+	ideBaseReg := IOTAUtils.GxOtaGetIdeBaseRegistryKey();
+	if TRegistryUtils.TryReadString(ideBaseReg, 'RootDir', Result, HKEY_LOCAL_MACHINE) or
+		TRegistryUtils.TryReadString(ideBaseReg, 'RootDir', Result, HKEY_CURRENT_USER) then begin
+		dbgMsg.MsgFmt('RootDir from registry: %s', [Result]);
+		if DirectoryExists(Result) then begin
+			Result := IncludeTrailingPathDelimiter(Result);
+			Exit;
+		end;
+	end;
+end;
+
 class procedure IOTAUtils.getPreprocessorConstants(_defines : TStrings; _project : IOTAProject = nil);
-var pathProcessor : TPathProcessor;
-	defineValue : string; defineList : TStringList; i : Integer;
+var
+	pathProcessor : TPathProcessor;
+	defineValue : string;
+	defineList : TStringList;
+	i : Integer;
 begin
 	Assert(Assigned(_defines));
 	_defines.Clear;
@@ -1837,8 +1699,11 @@ begin
 end;
 
 class procedure IOTAUtils.showNonExistingPathsMessage(NonExistsPaths : TStrings);
-var MessageText : string; PathsList : string;
-const MAX_PATHS_TO_SHOW = 20; // Limit the number of paths shown in the message
+var
+	MessageText : string;
+	PathsList : string;
+const
+	MAX_PATHS_TO_SHOW = 20; // Limit the number of paths shown in the message
 begin
 	Assert(Assigned(NonExistsPaths));
 
@@ -1870,38 +1735,6 @@ begin
 	// Fallback for other platforms if needed
 	Application.MessageBox(PChar(MessageText), 'Non-existing Paths Found', MB_OK or MB_ICONWARNING);
 	{$ENDIF}
-end;
-
-class function TIdeUtils.GetIdeRootDirectory() : string;
-const
-	BIN_DIR_POSTFIX = PathDelim + 'Bin';
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TIdeUtils.GetIdeRootDirectory');
-    var ideBaseReg := IOTAUtils.GxOtaGetIdeBaseRegistryKey();
-	if TRegistryUtils.TryReadString(ideBaseReg, 'RootDir', Result, HKEY_LOCAL_MACHINE) or
-       TRegistryUtils.TryReadString(ideBaseReg, 'RootDir', Result, HKEY_CURRENT_USER)
-    then begin
-		dbgMsg.MsgFmt('RootDir from registry: %s', [Result]);
-		if DirectoryExists(Result) then begin
-			Result := IncludeTrailingPathDelimiter(Result);
-			Exit;
-		end;
-	end;
-
-	// There is no entry in the registry or it is invalid -> use the application's exename
-	Result := ExcludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
-	dbgMsg.MsgFmt('Application.ExeName: %s', [Result]);
-	if SameText(RightStr(Result, Length(BIN_DIR_POSTFIX)), BIN_DIR_POSTFIX) then begin
-		var
-		len := Length(BIN_DIR_POSTFIX);
-		Result := Result.Substring(Length(Result) - len + 1, len);
-		Result := IncludeTrailingPathDelimiter(Result);
-		dbgMsg.MsgFmt('Result %s', [Result]);
-	end else begin
-		Result := '';
-		dbgMsg.Msg('Result empty');
-	end;
 end;
 
 {$ELSE}
