@@ -1707,10 +1707,11 @@ begin
 
 	// Expand any environment variable macros
 	for i := 0 to FEnvironment.Count - 1 do begin
-		EnvName := FEnvironment.Names[i];
-		EnvValue := FEnvironment.Values[EnvName];
-		if (Trim(EnvName) <> '') and (Trim(EnvValue) <> '') then
+		EnvName := Trim(FEnvironment.Names[i]);
+		EnvValue := Trim(FEnvironment.Values[EnvName]);
+		if (EnvName <> '') and (EnvValue <> '') then begin
 			Result := ReplaceMacro(Result, EnvName, EnvValue);
+		end;
 	end;
 
 	// Expand project preprocessor constants (DCC_Define)
@@ -1744,23 +1745,23 @@ begin
 		end;
 	end;
 
-	if FPlatformName <> '' then
+	if FPlatformName <> '' then begin
 		Result := ReplaceMacro(Result, 'Platform', FPlatformName);
+	end;
 
-	if FConfigName <> '' then
+	if FConfigName <> '' then begin
 		Result := ReplaceMacro(Result, 'Config', FConfigName);
+	end;
 
-	if not TFileUtils.IsPathAbsolute(Result) then begin
-		if FPrefix <> '' then begin
-			Result := TFileUtils.ExpandFileNameRelBaseDir(Result, FPrefix);
-		end;
+	if ( not FPrefix.IsEmpty )  and (not TFileUtils.IsPathAbsolute(Result) )then begin
+		Result := TFileUtils.ExpandFileNameRelBaseDir(Result, FPrefix);
 	end;
 end;
 
 class function TPathProcessor.ReplaceMacro(const _str, _oldValue, _newValue : string) : string;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TPathProcessor.ReplaceMacro');
+	dbgMsg := TDebugMsgBeginEnd.New('TPathProcessor.ReplaceMacro', True);
 	var
 	replaceVal := '$(' + _oldValue + ')';
 	if _str.Contains(replaceVal) then begin
