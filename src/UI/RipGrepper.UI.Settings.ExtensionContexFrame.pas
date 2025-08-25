@@ -97,7 +97,7 @@ end;
 class function TExtensionContextFrame.GetAsHint(var _paths: TArray<string>):
 	string;
 begin
-	TArray.Sort<string>(_paths);
+//  TArray.Sort<string>(_paths);
 	Result := string.Join(CRLF, _paths);
 end;
 

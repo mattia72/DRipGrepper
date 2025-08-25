@@ -7,11 +7,12 @@ uses
 	System.IniFiles,
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.IDEContextValues,
-	RipGrepper.Settings.SettingVariant, ArrayEx;
+	RipGrepper.Settings.SettingVariant,
+	ArrayEx;
 
 const
-//	IS_GUITEST = FALSE;
-	 IS_GUITEST = {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
+	// IS_GUITEST = FALSE;
+	IS_GUITEST = {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
 
 type
 	TDelphiIDEContext = record
@@ -133,7 +134,7 @@ begin
 	FHandleOpenWithDelphiCommands := TBoolSetting.Create(False);
 
 	FIDEContext := TIntegerSetting.Create();
-	FCurrentIDEContext.IDESearchContext := EDelphiIDESearchContext.dicCustomLocation;
+	FCurrentIDEContext.IDESearchContext := EDelphiIDESearchContext.dicActiveFile;
 
 	CreateSetting(KEY_SHORTCUT_SEARCH_SELECTED, FSearchSelectedShortcut);
 	CreateSetting(KEY_SHORTCUT_OPENWITH, FOpenWithShortCut);
@@ -211,15 +212,15 @@ begin
 	ap := IOTAUTils.GxOtaGetCurrentProject;
 	if Assigned(ap) then begin
 		ActiveProject := ap.FileName;
-//      SourcePath := IOTAUtils.GxOtaGetProjectSourcePathStrings(ap, NotExistsPath);
-		ProjectSourcePath := IOTAUtils.GxOtaGetEffectiveLibraryPath(ap, NotExistsPath);
+		// SourcePath := IOTAUtils.GxOtaGetProjectSourcePathStrings(ap, NotExistsPath);
+		ProjectSourcePath := IOTAUtils.GxOtaGetEffectiveLibraryPath(ap, NotExistsPath, True);
 	end;
 	dbgMsg.Msg('ActiveFile: ' + ActiveFile);
 	dbgMsg.Msg('ActiveProject: ' + ActiveProject);
-	dbgMsg.Msg('OpenFiles: ' + string.Join(';', OpenFiles));
-	dbgMsg.Msg('ProjectFiles: ' + string.Join(';', ProjectFiles));
-	dbgMsg.Msg('SourcePath: ' + string.Join(';', ProjectSourcePath));
-	dbgMsg.Msg('NotExistsPath: ' + string.Join(';', NotExistsPath.Items));
+	dbgMsg.Msg('OpenFiles: ' + string.Join(';' + CRLF + TAB, OpenFiles));
+	dbgMsg.Msg('ProjectFiles: ' + string.Join(';' + CRLF + TAB, ProjectFiles));
+	dbgMsg.Msg('SourcePath: ' + string.Join(';' + CRLF + TAB, ProjectSourcePath));
+	dbgMsg.Msg('NotExistsPath: ' + string.Join(';' + CRLF + TAB, NotExistsPath.Items));
 
 	{$ENDIF}
 end;
