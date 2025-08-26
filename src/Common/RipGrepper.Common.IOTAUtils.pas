@@ -20,45 +20,126 @@ uses
 
 type
 
-	IOTAUtils = class(TObject)
+	IProjectPathGetter = interface(IInterface)
+	['{200BE41D-8762-43FB-929D-877236B4FBC4}']
+			/// <summary>
+			/// Return the effective library path, with the _project specific paths
+			/// first and then the IDE's global library path.
+			/// @params if _shouldDoProcessing is true, the paths are macro expanded and non-existing
+			/// paths removed.
+			/// @params AdditionalPaths are appended at the end and optionally processed too </summary>
+		function GetEffectiveLibraryPath(_project : IOTAProject; var _errList :
+			TArrayEx<string>; const _shouldDoProcessing : Boolean = True):
+			TArrayEx<string>;
+	end;
+
+
+	TIdeProjectPathHelper = class(TInterfacedObject, IProjectPathGetter)
 		const
 			// 'DCC_UnitSearchPath'
 			OPTION_NAME_UNIT_SEARCH_PATH = 'SrcDir';
 
 		private
 			class procedure addProjectDefineMacros(var _defineValue : string; _macros : TStrings);
-			// Returns IDE's base registry key, for instance
-			// Software\Borland\Delphi\4.0
-			// The returned string is guaranteed to NOT have a
-			// backslash appended and it does NOT have a leading
-			// backslash either (Windows 2000 is allergic to that).
-			class function GxOtaGetIdeBaseRegistryKey() : string;
-			/// <summary>
-			/// Returns the project's current platform, if any (and supported), or an empty string </summary>
-			class function GxOtaGetProjectPlatform(Project : IOTAProject = nil) : string;
-			class procedure processPaths(var _paths : TArrayEx<string>; var _nonExistsPaths : TArrayEx<string>;
-				const _prefix, _platformName : string);
-			/// <summary>
-			/// Shows a message box with non-existing paths to inform the user
-			/// @param NonExistsPaths list of paths that do not exist </summary>
-			class procedure showNonExistingPathsMessage(NonExistsPaths : TStrings);
 			/// <summary>
 			/// Get all available _macros that can be used in ReplaceMacros including Platform, Config,
 			/// environment variables, IDE base paths, and preprocessor constants (defines)
 			/// @param _macros will contain all available _macros in "Name=Value" format
 			/// @param _project is the _project to get options from, if nil the current _project will be used </summary>
 			class procedure getAllAvailableMacros(_macros : TStrings; _project : IOTAProject = nil);
-			class function GetIdeRootDirectoryFromRegistry() : string;
+			// Get the environment options interface.  Succeeds or raises an exception.
+			class function getEnvironmentOptions() : IOTAEnvironmentOptions;
+			class function getIdeRootDirectoryFromRegistry() : string;
+			// Returns IDE's base registry key, for instance
+			// Software\Borland\Delphi\4.0
+			// The returned string is guaranteed to NOT have a
+			// backslash appended and it does NOT have a leading
+			// backslash either (Windows 2000 is allergic to that).
+			class function getIdeBaseRegistryKey() : string;
+			// Return the IDE's environment string value that is
+			// associated with EnvironmentStringName
+			class function getIdeEnvironmentString(const _sEnvName : string) : string;
+			// Return all of the IDE's environment settings names
+			class procedure getIdeEnvironmentStrings(Settings : TStrings);
+			// Return the IDE's global library path
+			class function getIdeLibraryPath(): string;
+			/// <summary>
+			/// Return the global IDE library path (without the project specific paths).
+			/// @params if _shouldDoProcessing is true, the paths are macro expanded and non-existing
+			/// paths removed. </summary>
+			class function getIdeLibraryPathStrings(var _errList : TArrayEx<string>; _shouldDoProcessing : Boolean = true)
+				: TArrayEx<string>;
+			/// <summary>
+			/// Return _project specific search path, with the directory containing the _project
+			// file first.
+			/// @params if _shouldDoProcessing is true, the paths are macro expanded and non-existing
+			/// paths removed. </summary>
+			class function getProjectSourcePathStrings(_project : IOTAProject; _errList : TArrayEx<string>;
+				_shouldDoProcessing : Boolean = True) : TArrayEx<string>;
+			// Returns the IOTASourceEditor interface for a module
+			// if there is a file that supports one; returns nil
+			// if there is no IOTASourceEditor
+			class function getSourceEditorFromModule(_Module : IOTAModule; const _sFileName : string = '') : IOTASourceEditor;
+			/// <summary>
+			/// Returns the project's current platform, if any (and supported), or an empty string </summary>
+			class function getProjectPlatform(Project : IOTAProject = nil) : string;
+			class function isCurrentProjectIsDelphiDotNet() : Boolean;
+			class function isCurrentProjectNativeCpp() : Boolean;
+			class function IsProjectDelphiDotNet(Project : IOTAProject): Boolean;
+			class function isProjectNativeCpp(Project : IOTAProject) : Boolean;
+			class function isStandAlone() : Boolean;
+			class procedure processPaths(var _paths : TArrayEx<string>; var _nonExistsPaths : TArrayEx<string>;
+				const _prefix, _platformName : string);
+			/// <summary>
+			/// Tries to get the options of the given or the active project
+			/// @param ProjectOptions will contain the options, only valid if Result is True
+			/// @param Project is the project whose options to get, it nil the current project will be used
+			/// @returns True, if the options could be retrieved, False otherwise (e.g. if there is no active project) </summary>
+			class function tryGetProjectOptions(out _ProjectOptions : IOTAProjectOptions;
+				_Project : IOTAProject = nil): Boolean;
+
+		public
+			/// <summary>
+			/// Return the effective library path, with the _project specific paths
+			/// first and then the IDE's global library path.
+			/// @params if _shouldDoProcessing is true, the paths are macro expanded and non-existing
+			/// paths removed.
+			/// @params AdditionalPaths are appended at the end and optionally processed too </summary>
+			function GetEffectiveLibraryPath(_project : IOTAProject; var _errList :
+				TArrayEx<string>; const _shouldDoProcessing : Boolean = True):
+				TArrayEx<string>;
+	end;
+
+	IOTAUtils = class(TObject)
+
+		private
+			/// <summary>
+			/// Shows a message box with non-existing paths to inform the user
+			/// @param NonExistsPaths list of paths that do not exist </summary>
+			class procedure showNonExistingPathsMessage(NonExistsPaths : TStrings);
+			// Returns the size of any EOL character(s) at a given position (0 if none)
+			class function getEOLSizeAtPos(const S : string; Pos : Integer) : Integer;
 			/// <summary>
 			/// Get all preprocessor constants (conditional _defines) for the given _project
 			/// @param _defines will contain all conditional _defines in "Name=Value" format
 			/// @param _project is the _project to get _defines from, if nil the current _project will be used </summary>
 			class procedure getPreprocessorConstants(_defines : TStrings; _project : IOTAProject = nil);
+			// Raise an exception if the source editor is readonly
+			class procedure assertSourceEditorNotReadOnly(_sourceEditor : IOTASourceEditor);
+			class function convertColumnCharsToBytes(_sLineData : UTF8String; _iCharIndex : Integer; _bEndByte : Boolean) : Integer;
+			// Determine is a file exists or the file's module is currently loaded in the IDE
+			class function fileOrModuleExists(const _sFileName : string; _bUseBase : Boolean = False) : Boolean;
+			class function ideEditorStringToString(const S : string) : string; overload;
+			// Remove the last EOL character from a string
+			// EOL can be one or two characters long
+			// Useful for processing strings read from memo controls
+			class procedure removeLastEOL(var S : string);
+			// Get character at some position or #0 for invalid positions
+			class function strCharAt(const S : string; Pos : Integer) : Char;
+			class function tryFocusControl(_ctrl : TWinControl) : Boolean;
 
 		public
 			class function AddToImageList(_bmp : Vcl.Graphics.TBitmap; const _identText : string) : Integer;
-			// Returns the size of any EOL character(s) at a given position (0 if none)
-			class function EOLSizeAtPos(const S : string; Pos : Integer) : Integer;
 			class function FileMatchesExtension(const FileName, FileExtension : string) : Boolean;
 			class function FileMatchesExtensions(const FileName : string; FileExtensions : array of string) : Boolean; overload;
 			class function GetSettingFilePath : string;
@@ -74,17 +155,9 @@ type
 			class function GetOpenedEditBuffers : TArray<string>;
 			class function GetModifiedEditBuffers : TArray<string>;
 
-			class function GetProjectFiles : TArray<string>;
+			class function GetProjectFiles() : TArray<string>;
 			class function GetActiveProjectFilePath() : string;
 			class function GetActiveProjectDirectory() : string;
-			// Raise an exception if the source editor is readonly
-			class procedure GxOtaAssertSourceEditorNotReadOnly(SourceEditor : IOTASourceEditor);
-
-			class function GxOtaConvertColumnCharsToBytes(LineData : UTF8String; CharIndex : Integer; EndByte : Boolean) : Integer;
-			class function GxOtaCurrentProjectIsDelphiDotNet() : Boolean;
-			class function GxOtaCurrentProjectIsNativeCpp() : Boolean;
-			// Determine is a file exists or the file's module is currently loaded in the IDE
-			class function GxOtaFileOrModuleExists(const AFileName : string; UseBase : Boolean = False) : Boolean;
 			class function GxOtaFocusCurrentIDEEditControl : Boolean;
 			// If UseSelection is True, get the selected text in the current edit view
 			// (if any) and return True or get all of the editor's text (if no selection)
@@ -135,35 +208,12 @@ type
 			// Get an edit writer for the current source editor (raise an exception if not availble)
 			// Use the current source editor if none is specified
 			class function GxOtaGetEditWriterForSourceEditor(SourceEditor : IOTASourceEditor = nil) : IOTAEditWriter;
-			/// <summary>
-			/// Return the effective library path, with the _project specific paths
-			/// first and then the IDE's global library path.
-			/// @params if _shouldDoProcessing is true, the paths are macro expanded and non-existing
-			/// paths removed.
-			/// @params AdditionalPaths are appended at the end and optionally processed too </summary>
-			class function GxOtaGetEffectiveLibraryPath(_project : IOTAProject; var _errList : TArrayEx<string>;
-				const _shouldDoProcessing : Boolean = True) : TArrayEx<string>;
-			// Get the environment options interface.  Succeeds or raises an exception.
-			class function GxOtaGetEnvironmentOptions() : IOTAEnvironmentOptions;
 			// Get the Index-th IOTAEditor for the given module
 			// Works around a BCB 5 bug with simple units
 			class function GxOtaGetFileEditorForModule(Module : IOTAModule; index : Integer) : IOTAEditor;
 			// Returns a form editor for Module if it exists; nil otherwise.
 			// Module can be nil, if it is , this function will return nil
 			class function GxOtaGetFormEditorFromModule(const Module : IOTAModule) : IOTAFormEditor;
-			// Return the IDE's environment string value that is
-			// associated with EnvironmentStringName
-			class function GxOtaGetIdeEnvironmentString(const EnvironmentStringName : string) : string;
-			// Return all of the IDE's environment settings names
-			class procedure GxOtaGetIdeEnvironmentStrings(Settings : TStrings);
-			// Return the IDE's global library path
-			class function GxOtaGetIdeLibraryPath() : string;
-			/// <summary>
-			/// Return the global IDE library path (without the project specific paths).
-			/// @params if _shouldDoProcessing is true, the paths are macro expanded and non-existing
-			/// paths removed. </summary>
-			class function GxOtaGetIdeLibraryPathStrings(var _errList : TArrayEx<string>; _shouldDoProcessing : Boolean = true)
-				: TArrayEx<string>;
 			// Returns a module interface for a given filename
 			// May return nil if no such module is open.
 			class function GxOtaGetModule(const FileName : string) : IOTAModule;
@@ -180,16 +230,6 @@ type
 			class function GxOtaGetProjectGroup : IOTAProjectGroup;
 			// Get the personality identifier string for the project, or blank for none
 			class function GxOtaGetProjectPersonality(Project : IOTAProject) : string;
-			/// <summary>
-			/// Returns the project's current platform, if any (and supported), or an empty string </summary>
-			class function GxOtaGetProjectPlatform1(Project : IOTAProject = nil) : string;
-			/// <summary>
-			/// Return _project specific search path, with the directory containing the _project
-			// file first.
-			/// @params if _shouldDoProcessing is true, the paths are macro expanded and non-existing
-			/// paths removed. </summary>
-			class function GxOtaGetProjectSourcePathStrings(_project : IOTAProject; _errList : TArrayEx<string>;
-				_shouldDoProcessing : Boolean = True) : TArrayEx<string>;
 			// Returns the IOTASourceEditor interface for a module
 			// if there is a file that supports one; returns nil
 			// if there is no IOTASourceEditor
@@ -212,22 +252,13 @@ type
 			class function GxOtaModuleIsShowingFormSource(Module : IOTAModule) : Boolean;
 			// Open FileName in IDE; returns True on success, False otherwise.
 			class function GxOtaOpenFile(const FileName : string) : Boolean;
-			class function GxOtaProjectIsDelphiDotNet(Project : IOTAProject) : Boolean;
 			class function GxOtaProjectIsEitherDelphi(Project : IOTAProject) : Boolean;
-			class function GxOtaProjectIsNativeCpp(Project : IOTAProject) : Boolean;
 			// Save an edit reader to a stream
 			class procedure GxOtaSaveReaderToStream(EditReader : IOTAEditReader; Stream : TStream; TrailingNull : Boolean = True);
 			class function GxOtaTryGetCurrentProject(out _Project : IOTAProject) : Boolean;
 			class function GxOtaTryGetCurrentSourceEditor(out SourceEditor : IOTASourceEditor) : boolean;
-			/// <summary>
-			/// Tries to get the options of the given or the active project
-			/// @param ProjectOptions will contain the options, only valid if Result is True
-			/// @param Project is the project whose options to get, it nil the current project will be used
-			/// @returns True, if the options could be retrieved, False otherwise (e.g. if there is no active project) </summary>
-			class function GxOtaTryGetProjectOptions(out _ProjectOptions : IOTAProjectOptions; _Project : IOTAProject = nil) : Boolean;
 			// calls GxOtaGetTopMostEditView and returns false if no edit view is available
 			class function GxOtaTryGetTopMostEditView(out EditView : IOTAEditView) : boolean; overload;
-			class function IDEEditorStringToString(const S : string) : string; overload;
 			class function IsBdsproj(const FileName : string) : Boolean;
 			class function IsBdsprojOrDproj(const FileName : string) : Boolean;
 			class function IsBpr(const FileName : string) : Boolean;
@@ -238,14 +269,8 @@ type
 			class function IsPackage(const FileName : string) : Boolean;
 			class function IsProjectSource(const FileName : string) : Boolean;
 			class function IsStandAlone : Boolean;
-			// Remove the last EOL character from a string
-			// EOL can be one or two characters long
-			// Useful for processing strings read from memo controls
-			class procedure RemoveLastEOL(var S : string);
-			// Get character at some position or #0 for invalid positions
-			class function StrCharAt(const S : string; Pos : Integer) : Char;
-			class function TryFocusControl(Control : TWinControl) : Boolean;
 	end;
+
 
 implementation
 
@@ -275,11 +300,11 @@ end;
 // #10    (Unix)
 // #13    (Macintosh, Amiga)
 // Note: Pos must be at the beginning of the EOL characters
-class function IOTAUtils.EOLSizeAtPos(const S : string; Pos : Integer) : Integer;
+class function IOTAUtils.getEOLSizeAtPos(const S : string; Pos : Integer) : Integer;
 begin
-	if IsCharLineEnding(StrCharAt(S, Pos)) then begin
+	if IsCharLineEnding(strCharAt(S, Pos)) then begin
 		Result := 1;
-		if (IsCharLineEnding(StrCharAt(S, Pos + 1)) and (StrCharAt(S, Pos) <> StrCharAt(S, Pos + 1))) then
+		if (IsCharLineEnding(strCharAt(S, Pos + 1)) and (strCharAt(S, Pos) <> strCharAt(S, Pos + 1))) then
 			Inc(Result);
 	end
 	else
@@ -489,25 +514,25 @@ begin
 		raise Exception.Create('GetSettingsFilePath: path not defined by IDEServices');
 end;
 
-class procedure IOTAUtils.GxOtaAssertSourceEditorNotReadOnly(SourceEditor : IOTASourceEditor);
+class procedure IOTAUtils.assertSourceEditorNotReadOnly(_sourceEditor : IOTASourceEditor);
 begin
-	Assert(Assigned(SourceEditor));
-	if Supports(SourceEditor, IOTAEditBuffer) then
-		if (SourceEditor as IOTAEditBuffer).IsReadOnly then
-			raise Exception.CreateFmt('%s is read only', [ExtractFileName(SourceEditor.FileName)]);
+	Assert(Assigned(_sourceEditor));
+	if Supports(_sourceEditor, IOTAEditBuffer) then
+		if (_sourceEditor as IOTAEditBuffer).IsReadOnly then
+			raise Exception.CreateFmt('%s is read only', [ExtractFileName(_sourceEditor.FileName)]);
 end;
 
-class function IOTAUtils.GxOtaConvertColumnCharsToBytes(LineData : UTF8String; CharIndex : Integer; EndByte : Boolean) : Integer;
+class function IOTAUtils.convertColumnCharsToBytes(_sLineData : UTF8String; _iCharIndex : Integer; _bEndByte : Boolean) : Integer;
 var
 	UString : string;
 	FinalUChar : string;
 	UTF8Str : UTF8String;
 begin
-	UString := UTF8ToUnicodeString(LineData);
-	UString := Copy(UString, 1, CharIndex);
+	UString := UTF8ToUnicodeString(_sLineData);
+	UString := Copy(UString, 1, _iCharIndex);
 	UTF8Str := UTF8String(UTF8Encode(UString));
 	Result := Length(UTF8Str);
-	if not EndByte then begin
+	if not _bEndByte then begin
 		if Length(UString) = 0 then
 			Result := 0
 		else begin
@@ -518,19 +543,9 @@ begin
 	end;
 end;
 
-class function IOTAUtils.GxOtaCurrentProjectIsDelphiDotNet() : Boolean;
+class function IOTAUtils.fileOrModuleExists(const _sFileName : string; _bUseBase : Boolean = False) : Boolean;
 begin
-	Result := GxOtaProjectIsDelphiDotNet(GxOtaGetCurrentProject);
-end;
-
-class function IOTAUtils.GxOtaCurrentProjectIsNativeCpp() : Boolean;
-begin
-	Result := GxOtaProjectIsNativeCpp(GxOtaGetCurrentProject);
-end;
-
-class function IOTAUtils.GxOtaFileOrModuleExists(const AFileName : string; UseBase : Boolean = False) : Boolean;
-begin
-	Result := FileExists(AFileName) or IsFileOpen(AFileName, UseBase);
+	Result := FileExists(_sFileName) or IsFileOpen(_sFileName, _bUseBase);
 end;
 
 class function IOTAUtils.GxOtaFocusCurrentIDEEditControl : Boolean;
@@ -539,7 +554,7 @@ var
 begin
 	Result := False;
 	EditControl := GxOtaGetCurrentIDEEditControl;
-	TryFocusControl(EditControl)
+	tryFocusControl(EditControl)
 end;
 
 class function IOTAUtils.GxOtaGetActiveEditorText(Lines : TStringList; UseSelection : Boolean = True) : Boolean;
@@ -604,11 +619,11 @@ begin
 		// if GxOtaHaveCPPSupport then
 		// begin
 		// AltName := ChangeFileExt(FileName, '.cpp');
-		// if GxOtaFileOrModuleExists(AltName) then
+		// if fileOrModuleExists(AltName) then
 		// Result := AltName;
 		// end;
 		AltName := ChangeFileExt(FileName, '.pas');
-		if GxOtaFileOrModuleExists(AltName) then
+		if fileOrModuleExists(AltName) then
 			Result := AltName;
 	end;
 end;
@@ -677,11 +692,11 @@ begin
 
 	EditBlock := EditView.Block;
 	if Assigned(EditBlock) then begin
-		Result := IDEEditorStringToString(EditBlock.Text);
+		Result := ideEditorStringToString(EditBlock.Text);
 		// Result := HackBadIDEUTF8StringToString(Result);
 
 		if not IncludeTrailingCRLF and (EditBlock.Style in [btNonInclusive]) then
-			RemoveLastEOL(Result);
+			removeLastEOL(Result);
 	end;
 end;
 
@@ -781,45 +796,10 @@ begin
 	if not Assigned(SourceEditor) then
 		SourceEditor := GxOtaGetCurrentSourceEditor;
 	if Assigned(SourceEditor) then begin
-		GxOtaAssertSourceEditorNotReadOnly(SourceEditor);
+		assertSourceEditorNotReadOnly(SourceEditor);
 		Result := SourceEditor.CreateUndoableWriter;
 	end;
 	Assert(Assigned(Result), SEditWriterNotAvail);
-end;
-
-class function IOTAUtils.GxOtaGetEffectiveLibraryPath(_project : IOTAProject; var _errList : TArrayEx<string>;
-	const _shouldDoProcessing : Boolean = True) : TArrayEx<string>;
-var
-	i : Integer;
-	platformName : string;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('IOATAUtils.GxOtaGetEffectiveLibraryPath');
-	// _shouldDoProcessing = True uses the _project file's directory as the base to expand relative paths
-	Result := GxOtaGetProjectSourcePathStrings(_project, _errList, _shouldDoProcessing);
-	dbgMsg.MsgFmt('Project source paths: %s', [string.Join(CRLF, Result.Items)]);
-
-	var
-	localList := GxOtaGetIdeLibraryPathStrings(_errList, _shouldDoProcessing);
-	if _shouldDoProcessing then begin
-		// do another processing, this time also expanding the Platform related macros
-		platformName := GxOtaGetProjectPlatform(_project);
-		dbgMsg.MsgFmt('platformName: %s', [platformName]);
-
-		// There shouldn't be any more relatives paths left, so passing GetCurrentDir is probably fine
-		processPaths(localList, _errList, GetCurrentDir, platformName);
-	end;
-	for i := 0 to localList.Count - 1 do begin
-		Result.AddIfNotContains(localList[i]);
-	end;
-end;
-
-class function IOTAUtils.GxOtaGetEnvironmentOptions() : IOTAEnvironmentOptions;
-begin
-	var
-	services := BorlandIDEServices as IOTAServices;
-	Result := services.GetEnvironmentOptions;
-	Assert(Assigned(Result));
 end;
 
 class function IOTAUtils.GxOtaGetFileEditorForModule(Module : IOTAModule; index : Integer) : IOTAEditor;
@@ -845,74 +825,6 @@ begin
 			// In order to assert our assumptions that only one form
 			// is ever associated with a module, do not call Break; here.
 		end;
-	end;
-end;
-
-class function IOTAUtils.GxOtaGetIdeBaseRegistryKey() : string;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('IOTAUtils.GxOtaGetIdeBaseRegistryKey');
-
-	if IsStandAlone then
-		Result := 'Software\' + CompilerDefinedProductRegistryKey
-	else
-		Result := (BorlandIDEServices as IOTAServices).GetBaseRegistryKey;
-
-	if Length(Result) > 0 then begin
-		// Windows 2000 is allergic to a leading backslash
-		// in the registry key - NT4, for instance, is not.
-		if Result[1] = '\' then
-			Delete(Result, 1, 1);
-
-		Assert(Result[Length(Result)] <> '\');
-	end;
-	dbgMsg.MsgFmt('Result: %s', [Result]);
-end;
-
-class function IOTAUtils.GxOtaGetIdeEnvironmentString(const EnvironmentStringName : string) : string;
-begin
-	Result := GxOtaGetEnvironmentOptions.Values[EnvironmentStringName];
-end;
-
-class procedure IOTAUtils.GxOtaGetIdeEnvironmentStrings(Settings : TStrings);
-var
-	EnvOptions : IOTAEnvironmentOptions;
-	i : Integer;
-	Options : TOTAOptionNameArray;
-begin
-	EnvOptions := GxOtaGetEnvironmentOptions;
-
-	Settings.Clear;
-	Options := EnvOptions.GetOptionNames; // Broken in Delphi 2005
-	for i := 0 to Length(Options) - 1 do
-		Settings.Add(Options[i].Name);
-end;
-
-class function IOTAUtils.GxOtaGetIdeLibraryPath() : string;
-begin
-	// Do not localize.
-	var
-	bRunningDelphi11OrGreater := {$IF CompilerVersion >= 35} TRUE {$ELSE} FALSE
-	{$ENDIF};
-	if bRunningDelphi11OrGreater and GxOtaCurrentProjectIsDelphiDotNet then
-		Result := GxOtaGetIdeEnvironmentString('DotNetLibraryPath')
-	else if bRunningDelphi11OrGreater and GxOtaCurrentProjectIsNativeCpp then
-		Result := GxOtaGetIdeEnvironmentString('CppSearchPath')
-	else
-		Result := GxOtaGetIdeEnvironmentString('LibraryPath');
-end;
-
-class function IOTAUtils.GxOtaGetIdeLibraryPathStrings(var _errList : TArrayEx<string>; _shouldDoProcessing : Boolean = true)
-	: TArrayEx<string>;
-var
-	idePathString : string;
-begin
-	idePathString := GxOtaGetIdeLibraryPath;
-	Result := idePathString.Split([';']);
-	if _shouldDoProcessing then begin
-		// todo: Is it correct to use GetCurrentDir here? Shouldn't that either be the
-		// IDE base path or the project's directory?
-		processPaths(Result, _errList, GetCurrentDir, '');
 	end;
 end;
 
@@ -962,9 +874,9 @@ class function IOTAUtils.GxOtaGetProjectFileName(Project : IOTAProject; Normaliz
 		Result := GxOtaProjectIsEitherDelphi(Project);
 		if Result then begin
 			AProjectFileName := ChangeFileExt(AProjectFileName, '.dpr');
-			if not GxOtaFileOrModuleExists(AProjectFileName) then begin
+			if not fileOrModuleExists(AProjectFileName) then begin
 				PackageFileName := ChangeFileExt(AProjectFileName, '.dpk');
-				if GxOtaFileOrModuleExists(PackageFileName) then
+				if fileOrModuleExists(PackageFileName) then
 					AProjectFileName := PackageFileName
 				else
 					Result := False;
@@ -1013,76 +925,6 @@ begin
 	Result := '';
 	if Assigned(Project) then begin
 		Result := Project.Personality;
-	end;
-end;
-
-class function IOTAUtils.GxOtaGetProjectPlatform(Project : IOTAProject = nil) : string;
-begin
-	Result := '';
-	if Project = nil then
-		Project := GxOtaGetCurrentProject;
-	if Project <> nil then
-		Result := Project.CurrentPlatform;
-end;
-
-class function IOTAUtils.GxOtaGetProjectPlatform1(Project : IOTAProject = nil) : string;
-begin
-	Result := '';
-	{$IFDEF GX_VER230_up} // RAD Studio XE 2 (16; BDS 9)
-	if Project = nil then
-		Project := GxOtaGetCurrentProject;
-	if Project <> nil then
-		Result := Project.CurrentPlatform;
-	{$ENDIF GX_VER230_up}
-end;
-
-class function IOTAUtils.GxOtaGetProjectSourcePathStrings(_project : IOTAProject; _errList : TArrayEx<string>;
-	_shouldDoProcessing : Boolean = True) : TArrayEx<string>;
-var
-	idePathString : string;
-	projectOptions : IOTAProjectOptions;
-	projectDir : string;
-	platformName : string;
-begin
-	if _project = nil then
-		_project := GxOtaGetCurrentProject;
-	if Assigned(_project) then begin
-		projectDir := ExtractFileDir(_project.FileName);
-		// Add the current _project directory first
-		Result.Add(projectDir);
-		// Then the _project search path
-		if GxOtaTryGetProjectOptions(projectOptions, _project) then begin
-			idePathString := projectOptions.Values[OPTION_NAME_UNIT_SEARCH_PATH];
-			Result.AddRange(idePathString.Split([';']));
-		end;
-		if _shouldDoProcessing then begin
-			platformName := GxOtaGetProjectPlatform(_project);
-			processPaths(Result, _errList, projectDir, platformName);
-		end;
-	end;
-end;
-
-class function IOTAUtils.GxOtaGetSourceEditorFromModule(Module : IOTAModule; const FileName : string = '') : IOTASourceEditor;
-var
-	i : Integer;
-	IEditor : IOTAEditor;
-	ISourceEditor : IOTASourceEditor;
-begin
-	Result := nil;
-	if not Assigned(Module) then
-		Exit;
-
-	for i := 0 to Module.GetModuleFileCount - 1 do begin
-		IEditor := GxOtaGetFileEditorForModule(Module, i);
-
-		if Supports(IEditor, IOTASourceEditor, ISourceEditor) then begin
-			if Assigned(ISourceEditor) then begin
-				if (FileName = '') or SameFileName(ISourceEditor.FileName, FileName) then begin
-					Result := ISourceEditor;
-					Break;
-				end;
-			end;
-		end;
 	end;
 end;
 
@@ -1158,8 +1000,8 @@ begin
 	GxOtaFocusCurrentIDEEditControl;
 
 	LineData := GxOtaGetEditorLine(EditView, Line);
-	StartColumn := GxOtaConvertColumnCharsToBytes(LineData, StartColumn, False);
-	StopColumn := GxOtaConvertColumnCharsToBytes(LineData, StopColumn, True);
+	StartColumn := convertColumnCharsToBytes(LineData, StartColumn, False);
+	StopColumn := convertColumnCharsToBytes(LineData, StopColumn, True);
 
 	// Position the cursor to the line and column of the match
 	CharPos.CharIndex := StartColumn - 1;
@@ -1349,19 +1191,9 @@ begin
 		SetForegroundWindow(hWndSaved);
 end;
 
-class function IOTAUtils.GxOtaProjectIsDelphiDotNet(Project : IOTAProject) : Boolean;
-begin
-	Result := SameText(GxOtaGetProjectPersonality(Project), sDelphiDotNetPersonality);
-end;
-
 class function IOTAUtils.GxOtaProjectIsEitherDelphi(Project : IOTAProject) : Boolean;
 begin
 	Result := MatchStr(GxOtaGetProjectPersonality(Project), [sDelphiPersonality, sDelphiDotNetPersonality]);
-end;
-
-class function IOTAUtils.GxOtaProjectIsNativeCpp(Project : IOTAProject) : Boolean;
-begin
-	Result := SameText(GxOtaGetProjectPersonality(Project), sCBuilderPersonality);
 end;
 
 class procedure IOTAUtils.GxOtaSaveReaderToStream(EditReader : IOTAEditReader; Stream : TStream; TrailingNull : Boolean = True);
@@ -1430,22 +1262,13 @@ begin
 	Result := Assigned(SourceEditor);
 end;
 
-class function IOTAUtils.GxOtaTryGetProjectOptions(out _ProjectOptions : IOTAProjectOptions; _Project : IOTAProject = nil) : Boolean;
-begin
-	if not Assigned(_Project) then
-		_Project := GxOtaGetCurrentProject;
-	if Assigned(_Project) then
-		_ProjectOptions := _Project.GetProjectOptions;
-	Result := Assigned(_ProjectOptions);
-end;
-
 class function IOTAUtils.GxOtaTryGetTopMostEditView(out EditView : IOTAEditView) : boolean;
 begin
 	EditView := GxOtaGetTopMostEditView;
 	Result := Assigned(EditView);
 end;
 
-class function IOTAUtils.IDEEditorStringToString(const S : string) : string;
+class function IOTAUtils.ideEditorStringToString(const S : string) : string;
 begin
 	Result := S;
 end;
@@ -1500,92 +1323,17 @@ begin
 	Result := (BorlandIDEServices = nil);
 end;
 
-class procedure IOTAUtils.processPaths(var _paths : TArrayEx<string>; var _nonExistsPaths : TArrayEx<string>;
-	const _prefix, _platformName : string);
-var
-	i : Integer;
-	pathItem : string;
-	pathProcessor : TPathProcessor;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('IOTAUtils.processPaths');
-	pathProcessor := TPathProcessor.Create(_prefix);
-	try
-		// todo: What about ConfigName?
-		pathProcessor.PlatformName := _platformName;
-		for i := 0 to _paths.Count - 1 do begin
-			pathItem := _paths[i];
-			dbgMsg.MsgFmt('Original path: %s', [pathItem], tftVerbose);
-			pathItem := pathProcessor.Process(pathItem);
-			dbgMsg.MsgFmt('Processed path: %s', [pathItem], tftVerbose);
-			if DirectoryExists(pathItem) then begin
-				// Only add valid directories
-				_paths[i] := pathItem;
-			end else begin
-				dbgMsg.ErrorMsgFmt('Path does not exist: %s', [pathItem]);
-				_nonExistsPaths.Add(pathItem);
-			end;
-		end;
-	finally
-		FreeAndNil(pathProcessor);
-	end;
-end;
-
-class procedure IOTAUtils.getAllAvailableMacros(_macros : TStrings; _project : IOTAProject = nil);
-const
-	IDE_BASE_MACROS : array [0 .. 3] of string = ('BDS', 'DELPHI', 'BCB', 'CompilerVersion');
-var
-	pathProcessor : TPathProcessor;
-	i : Integer;
-	defineValue : string;
-	ideBasePath : string;
-begin
-	Assert(Assigned(_macros));
-	_macros.Clear;
-
-	pathProcessor := TPathProcessor.Create('', _project);
-	try
-		// Add IDE base paths
-		ideBasePath := IOTAUtils.GetIdeRootDirectoryFromRegistry;
-		if ideBasePath.IsEmpty then begin
-			ideBasePath := TIdeUtils.GetIdeRootDirectory;
-		end;
-		for i := low(IDE_BASE_MACROS) to high(IDE_BASE_MACROS) do begin
-			_macros.Add(IDE_BASE_MACROS[i] + '=' + ideBasePath);
-		end;
-
-		// Add environment variables
-		pathProcessor.GetEnvironmentVariables(_macros);
-
-		// Add Platform and Config
-		if pathProcessor.PlatformName <> '' then begin
-			_macros.Add('Platform=' + pathProcessor.PlatformName);
-		end;
-		if pathProcessor.ConfigName <> '' then begin
-			_macros.Add('Config=' + pathProcessor.ConfigName);
-		end;
-
-		// Add preprocessor constants (defines)
-		defineValue := pathProcessor.GetProjectOption('DCC_Define');
-		if defineValue <> '' then begin
-			addProjectDefineMacros(defineValue, _macros);
-		end;
-	finally
-		FreeAndNil(pathProcessor);
-	end;
-end;
-
-class procedure IOTAUtils.RemoveLastEOL(var S : string);
+class procedure IOTAUtils.removeLastEOL(var S : string);
 var
 	CurrLen : Integer;
 	EOLSize : Integer;
 begin
 	CurrLen := Length(S);
 	if CurrLen > 0 then begin
-		EOLSize := EOLSizeAtPos(S, CurrLen);
+		EOLSize := getEOLSizeAtPos(S, CurrLen);
 		if EOLSize > 0 then begin
 			Dec(CurrLen);
-			if EOLSizeAtPos(S, CurrLen) > EOLSize then
+			if getEOLSizeAtPos(S, CurrLen) > EOLSize then
 				// one more character found for EOL
 				Dec(CurrLen);
 			SetLength(S, CurrLen);
@@ -1593,7 +1341,7 @@ begin
 	end;
 end;
 
-class function IOTAUtils.StrCharAt(const S : string; Pos : Integer) : Char;
+class function IOTAUtils.strCharAt(const S : string; Pos : Integer) : Char;
 begin
 	if (Pos >= 1) and (Pos <= Length(S)) then
 		Result := S[Pos]
@@ -1601,60 +1349,17 @@ begin
 		Result := #0;
 end;
 
-class function IOTAUtils.TryFocusControl(Control : TWinControl) : Boolean;
+class function IOTAUtils.tryFocusControl(_ctrl : TWinControl) : Boolean;
 begin
 	Result := False;
-	if Assigned(Control) then begin
-		if Control.CanFocus and Control.Visible then begin
+	if Assigned(_ctrl) then begin
+		if _ctrl.CanFocus and _ctrl.Visible then begin
 			try
-				Control.SetFocus;
+				_ctrl.SetFocus;
 				Result := True;
 			except
 				// Ignore focus errors
 			end; // FI:W501
-		end;
-	end;
-end;
-
-class procedure IOTAUtils.addProjectDefineMacros(var _defineValue : string; _macros : TStrings);
-var
-	defineList : TStringList;
-begin
-	defineList := TStringList.Create;
-	try
-		defineList.Delimiter := ';';
-		defineList.DelimitedText := _defineValue;
-		for var i := 0 to defineList.Count - 1 do begin
-			var
-			Define := defineList[i];
-			var
-			EqualPos := Pos('=', Define);
-			if EqualPos > 0 then begin
-				// Define with value: SYMBOL=VALUE
-				_macros.Add(Define);
-			end else begin
-				// Define without value: SYMBOL (assume '1')
-				_macros.Add(Define + '=1');
-			end;
-		end;
-	finally
-		FreeAndNil(defineList);
-	end;
-end;
-
-class function IOTAUtils.GetIdeRootDirectoryFromRegistry() : string;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('IOTAUtils.GetIdeRootDirectoryFromRegistry');
-	Result := '';
-	var
-	ideBaseReg := IOTAUtils.GxOtaGetIdeBaseRegistryKey();
-	if TRegistryUtils.TryReadString(ideBaseReg, 'RootDir', Result, HKEY_LOCAL_MACHINE) or
-		TRegistryUtils.TryReadString(ideBaseReg, 'RootDir', Result, HKEY_CURRENT_USER) then begin
-		dbgMsg.MsgFmt('RootDir from registry: %s', [Result]);
-		if DirectoryExists(Result) then begin
-			Result := IncludeTrailingPathDelimiter(Result);
-			Exit;
 		end;
 	end;
 end;
@@ -1700,6 +1405,30 @@ begin
 	end;
 end;
 
+class function IOTAUtils.GxOtaGetSourceEditorFromModule(Module : IOTAModule; const FileName : string = '') : IOTASourceEditor;
+var
+	i : Integer;
+	IEditor : IOTAEditor;
+	ISourceEditor : IOTASourceEditor;
+begin
+	Result := nil;
+	if not Assigned(Module) then
+		Exit;
+
+	for i := 0 to Module.GetModuleFileCount - 1 do begin
+		IEditor := GxOtaGetFileEditorForModule(Module, i);
+
+		if Supports(IEditor, IOTASourceEditor, ISourceEditor) then begin
+			if Assigned(ISourceEditor) then begin
+				if (FileName = '') or SameFileName(ISourceEditor.FileName, FileName) then begin
+					Result := ISourceEditor;
+					Break;
+				end;
+			end;
+		end;
+	end;
+end;
+
 class procedure IOTAUtils.showNonExistingPathsMessage(NonExistsPaths : TStrings);
 var
 	MessageText : string;
@@ -1737,6 +1466,322 @@ begin
 	// Fallback for other platforms if needed
 	Application.MessageBox(PChar(MessageText), 'Non-existing Paths Found', MB_OK or MB_ICONWARNING);
 	{$ENDIF}
+end;
+
+class procedure TIdeProjectPathHelper.addProjectDefineMacros(var _defineValue : string; _macros : TStrings);
+var
+	defineList : TStringList;
+begin
+	defineList := TStringList.Create;
+	try
+		defineList.Delimiter := ';';
+		defineList.DelimitedText := _defineValue;
+		for var i := 0 to defineList.Count - 1 do begin
+			var
+			Define := defineList[i];
+			var
+			EqualPos := Pos('=', Define);
+			if EqualPos > 0 then begin
+				// Define with value: SYMBOL=VALUE
+				_macros.Add(Define);
+			end else begin
+				// Define without value: SYMBOL (assume '1')
+				_macros.Add(Define + '=1');
+			end;
+		end;
+	finally
+		FreeAndNil(defineList);
+	end;
+end;
+
+class procedure TIdeProjectPathHelper.getAllAvailableMacros(_macros : TStrings; _project : IOTAProject = nil);
+const
+	IDE_BASE_MACROS : array [0 .. 3] of string = ('BDS', 'DELPHI', 'BCB', 'CompilerVersion');
+var
+	pathProcessor : TPathProcessor;
+	i : Integer;
+	defineValue : string;
+	ideBasePath : string;
+begin
+	Assert(Assigned(_macros));
+	_macros.Clear;
+
+	pathProcessor := TPathProcessor.Create('', _project);
+	try
+		// Add IDE base paths
+		ideBasePath := TIdeProjectPathHelper.getIdeRootDirectoryFromRegistry;
+		if ideBasePath.IsEmpty then begin
+			ideBasePath := TIdeUtils.GetIdeRootDirectory;
+		end;
+		for i := low(IDE_BASE_MACROS) to high(IDE_BASE_MACROS) do begin
+			_macros.Add(IDE_BASE_MACROS[i] + '=' + ideBasePath);
+		end;
+
+		// Add environment variables
+		pathProcessor.GetEnvironmentVariables(_macros);
+
+		// Add Platform and Config
+		if pathProcessor.PlatformName <> '' then begin
+			_macros.Add('Platform=' + pathProcessor.PlatformName);
+		end;
+		if pathProcessor.ConfigName <> '' then begin
+			_macros.Add('Config=' + pathProcessor.ConfigName);
+		end;
+
+		// Add preprocessor constants (defines)
+		defineValue := pathProcessor.GetProjectOption('DCC_Define');
+		if defineValue <> '' then begin
+			addProjectDefineMacros(defineValue, _macros);
+		end;
+	finally
+		FreeAndNil(pathProcessor);
+	end;
+end;
+
+class function TIdeProjectPathHelper.getIdeRootDirectoryFromRegistry() : string;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.getIdeRootDirectoryFromRegistry');
+	Result := '';
+	var
+	ideBaseReg := TIdeProjectPathHelper.getIdeBaseRegistryKey();
+	if TRegistryUtils.TryReadString(ideBaseReg, 'RootDir', Result, HKEY_LOCAL_MACHINE) or
+		TRegistryUtils.TryReadString(ideBaseReg, 'RootDir', Result, HKEY_CURRENT_USER) then begin
+		dbgMsg.MsgFmt('RootDir from registry: %s', [Result]);
+		if DirectoryExists(Result) then begin
+			Result := IncludeTrailingPathDelimiter(Result);
+			Exit;
+		end;
+	end;
+end;
+
+class function TIdeProjectPathHelper.getIdeBaseRegistryKey() : string;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.getIdeBaseRegistryKey');
+
+	if isStandAlone then
+		Result := 'Software\' + CompilerDefinedProductRegistryKey
+	else
+		Result := (BorlandIDEServices as IOTAServices).GetBaseRegistryKey;
+
+	if Length(Result) > 0 then begin
+		// Windows 2000 is allergic to a leading backslash
+		// in the registry key - NT4, for instance, is not.
+		if Result[1] = '\' then
+			Delete(Result, 1, 1);
+
+		Assert(Result[Length(Result)] <> '\');
+	end;
+	dbgMsg.MsgFmt('Result: %s', [Result]);
+end;
+
+function TIdeProjectPathHelper.GetEffectiveLibraryPath(_project : IOTAProject; var
+	_errList : TArrayEx<string>; const _shouldDoProcessing : Boolean = True):
+	TArrayEx<string>;
+var
+	i : Integer;
+	platformName : string;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('IOATAUtils.GetEffectiveLibraryPath');
+	// _shouldDoProcessing = True uses the _project file's directory as the base to expand relative paths
+	Result := getProjectSourcePathStrings(_project, _errList, _shouldDoProcessing);
+	dbgMsg.MsgFmt('Project source paths: %s', [string.Join(CRLF, Result.Items)]);
+
+	var
+	localList := getIdeLibraryPathStrings(_errList, _shouldDoProcessing);
+	if _shouldDoProcessing then begin
+		// do another processing, this time also expanding the Platform related macros
+		platformName := getProjectPlatform(_project);
+		dbgMsg.MsgFmt('platformName: %s', [platformName]);
+
+		// There shouldn't be any more relatives paths left, so passing GetCurrentDir is probably fine
+		processPaths(localList, _errList, GetCurrentDir, platformName);
+	end;
+	for i := 0 to localList.Count - 1 do begin
+		Result.AddIfNotContains(localList[i]);
+	end;
+end;
+
+class function TIdeProjectPathHelper.getIdeEnvironmentString(const _sEnvName : string) : string;
+begin
+	Result := getEnvironmentOptions.Values[_sEnvName];
+end;
+
+class function TIdeProjectPathHelper.getSourceEditorFromModule(_Module : IOTAModule; const _sFileName : string = '') : IOTASourceEditor;
+var
+	i : Integer;
+	IEditor : IOTAEditor;
+	ISourceEditor : IOTASourceEditor;
+begin
+	Result := nil;
+	if not Assigned(_Module) then
+		Exit;
+
+	for i := 0 to _Module.GetModuleFileCount - 1 do begin
+		IEditor := IOTAUtils.GxOtaGetFileEditorForModule(_Module, i);
+
+		if Supports(IEditor, IOTASourceEditor, ISourceEditor) then begin
+			if Assigned(ISourceEditor) then begin
+				if (_sFileName = '') or SameFileName(ISourceEditor.FileName, _sFileName) then begin
+					Result := ISourceEditor;
+					Break;
+				end;
+			end;
+		end;
+	end;
+end;
+
+class function TIdeProjectPathHelper.getEnvironmentOptions() : IOTAEnvironmentOptions;
+begin
+	var
+	services := BorlandIDEServices as IOTAServices;
+	Result := services.GetEnvironmentOptions;
+	Assert(Assigned(Result));
+end;
+
+class procedure TIdeProjectPathHelper.getIdeEnvironmentStrings(Settings : TStrings);
+var
+	EnvOptions : IOTAEnvironmentOptions;
+	i : Integer;
+	Options : TOTAOptionNameArray;
+begin
+	EnvOptions := getEnvironmentOptions;
+
+	Settings.Clear;
+	Options := EnvOptions.GetOptionNames; // Broken in Delphi 2005
+	for i := 0 to Length(Options) - 1 do
+		Settings.Add(Options[i].Name);
+end;
+
+class function TIdeProjectPathHelper.isCurrentProjectNativeCpp() : Boolean;
+begin
+	Result := isProjectNativeCpp(IOTAUtils.GxOtaGetCurrentProject);
+end;
+
+class function TIdeProjectPathHelper.getIdeLibraryPath(): string;
+begin
+	// Do not localize.
+	var
+	bRunningDelphi11OrGreater := {$IF CompilerVersion >= 35} TRUE {$ELSE} FALSE
+	{$ENDIF};
+	if bRunningDelphi11OrGreater and isCurrentProjectIsDelphiDotNet then
+		Result := getIdeEnvironmentString('DotNetLibraryPath')
+	else if bRunningDelphi11OrGreater and isCurrentProjectNativeCpp then
+		Result := getIdeEnvironmentString('CppSearchPath')
+	else
+		Result := getIdeEnvironmentString('LibraryPath');
+end;
+
+class function TIdeProjectPathHelper.getIdeLibraryPathStrings(var _errList : TArrayEx<string>; _shouldDoProcessing : Boolean = true)
+	: TArrayEx<string>;
+var
+	idePathString : string;
+begin
+	idePathString := getIdeLibraryPath;
+	Result := idePathString.Split([';']);
+	if _shouldDoProcessing then begin
+		// todo: Is it correct to use GetCurrentDir here? Shouldn't that either be the
+		// IDE base path or the project's directory?
+		processPaths(Result, _errList, GetCurrentDir, '');
+	end;
+end;
+
+class function TIdeProjectPathHelper.getProjectPlatform(Project : IOTAProject = nil) : string;
+begin
+	Result := '';
+	if Project = nil then
+		Project := IOTAUtils.GxOtaGetCurrentProject;
+	if Project <> nil then
+		Result := Project.CurrentPlatform;
+end;
+
+class function TIdeProjectPathHelper.getProjectSourcePathStrings(_project : IOTAProject; _errList : TArrayEx<string>;
+	_shouldDoProcessing : Boolean = True) : TArrayEx<string>;
+var
+	idePathString : string;
+	projectOptions : IOTAProjectOptions;
+	projectDir : string;
+	platformName : string;
+begin
+	if _project = nil then
+		_project := IOTAUtils.GxOtaGetCurrentProject;
+	if Assigned(_project) then begin
+		projectDir := ExtractFileDir(_project.FileName);
+		// Add the current _project directory first
+		Result.Add(projectDir);
+		// Then the _project search path
+		if tryGetProjectOptions(projectOptions, _project) then begin
+			idePathString := projectOptions.Values[OPTION_NAME_UNIT_SEARCH_PATH];
+			Result.AddRange(idePathString.Split([';']));
+		end;
+		if _shouldDoProcessing then begin
+			platformName := getProjectPlatform(_project);
+			processPaths(Result, _errList, projectDir, platformName);
+		end;
+	end;
+end;
+
+class function TIdeProjectPathHelper.IsProjectDelphiDotNet(Project : IOTAProject): Boolean;
+begin
+	Result := SameText(IOTAUtils.GxOtaGetProjectPersonality(Project), sDelphiDotNetPersonality);
+end;
+
+class function TIdeProjectPathHelper.tryGetProjectOptions(out _ProjectOptions :
+	IOTAProjectOptions; _Project : IOTAProject = nil): Boolean;
+begin
+	if not Assigned(_Project) then
+		_Project := IOTAUtils.GxOtaGetCurrentProject;
+	if Assigned(_Project) then
+		_ProjectOptions := _Project.GetProjectOptions;
+	Result := Assigned(_ProjectOptions);
+end;
+
+class function TIdeProjectPathHelper.isProjectNativeCpp(Project : IOTAProject) : Boolean;
+begin
+	Result := SameText(IOTAUtils.GxOtaGetProjectPersonality(Project), sCBuilderPersonality);
+end;
+
+class function TIdeProjectPathHelper.isCurrentProjectIsDelphiDotNet() : Boolean;
+begin
+	Result := IsProjectDelphiDotNet(IOTAUtils.GxOtaGetCurrentProject);
+end;
+
+class function TIdeProjectPathHelper.isStandAlone() : Boolean;
+begin
+	Result := IOTAUtils.IsStandAlone;
+end;
+
+class procedure TIdeProjectPathHelper.processPaths(var _paths : TArrayEx<string>; var _nonExistsPaths : TArrayEx<string>;
+	const _prefix, _platformName : string);
+var
+	i : Integer;
+	pathItem : string;
+	pathProcessor : TPathProcessor;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.processPaths');
+	pathProcessor := TPathProcessor.Create(_prefix);
+	try
+		// todo: What about ConfigName?
+		pathProcessor.PlatformName := _platformName;
+		for i := 0 to _paths.Count - 1 do begin
+			pathItem := _paths[i];
+			dbgMsg.MsgFmt('Original path: %s', [pathItem], tftVerbose);
+			pathItem := pathProcessor.Process(pathItem);
+			dbgMsg.MsgFmt('Processed path: %s', [pathItem], tftVerbose);
+			if DirectoryExists(pathItem) then begin
+				// Only add valid directories
+				_paths[i] := pathItem;
+			end else begin
+				dbgMsg.ErrorMsgFmt('Path does not exist: %s', [pathItem]);
+				_nonExistsPaths.Add(pathItem);
+			end;
+		end;
+	finally
+		FreeAndNil(pathProcessor);
+	end;
 end;
 
 {$ELSE}

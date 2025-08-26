@@ -224,6 +224,8 @@ begin
 end;
 
 procedure TDelphiIDEContext.LoadFromIOTA();
+var
+    projPathGetter : IProjectPathGetter;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDelphiIDEContext.LoadFromIOTA');
@@ -235,8 +237,9 @@ begin
 	ap := IOTAUTils.GxOtaGetCurrentProject;
 	if Assigned(ap) then begin
 		ActiveProject := ap.FileName;
+        projPathGetter := TIdeProjectPathHelper.Create();
 		// SourcePath := IOTAUtils.GxOtaGetProjectSourcePathStrings(ap, NotExistsPath);
-		ProjectSourcePath := IOTAUtils.GxOtaGetEffectiveLibraryPath(ap, NotExistsPath, True);
+		ProjectSourcePath := projPathGetter.GetEffectiveLibraryPath(ap, NotExistsPath, True);
 	end;
 	{$ELSE}
 	ActiveFile := 'c:\temp\myfile.pas';
