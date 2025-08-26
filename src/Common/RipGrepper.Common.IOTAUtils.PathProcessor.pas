@@ -16,6 +16,8 @@ type
 			FEnvironment : TStringList;
 			FProjectOptions : IOTAProjectOptions;
 			procedure Init(_Project : IOTAProject);
+			function ProcessProjectDefines(const _Path : string) : string;
+
 		public
 			/// <summary>
 			/// @param _Prefix will be used for relative paths
@@ -26,15 +28,15 @@ type
 			procedure GetEnvironmentVariables(Strings : TStrings);
 			procedure GetAllProjectOptions(Options : TStrings);
 			function GetProjectOption(const OptionName : string) : string;
-			function Process(const _Path : string) : string;
-			class function ReplaceMacro(const _str, _oldValue, _newValue : string): string;
+			function Process(const _sPath : string; const _bSkipProjectDefines : Boolean = False) : string;
+			class function ReplaceMacro(const _str, _oldValue, _newValue : string) : string;
 			property PlatformName : string read FPlatformName write FPlatformName;
 			property ConfigName : string read FConfigName write FConfigName;
+			property IdeBasePath : string read FIdeBasePath write FIdeBasePath;
 	end;
 
 type
 	TIdeUtils = class
-		private
 		public
 			// Return the IDE's root directory (the installation directory).
 			// Returns an empty string if the information could not be retrieved.
@@ -49,7 +51,9 @@ uses
 	Winapi.Windows,
 	System.Variants,
 	RipGrepper.Tools.FileUtils,
-	RipGrepper.Common.RegistryUtils, Vcl.Forms, System.StrUtils;
+	RipGrepper.Common.RegistryUtils,
+	Vcl.Forms,
+	System.StrUtils;
 
 { TPathProcessor }
 
@@ -137,20 +141,17 @@ begin
 	end;
 end;
 
-function TPathProcessor.Process(const _Path : string) : string;
+function TPathProcessor.Process(const _sPath : string; const _bSkipProjectDefines : Boolean = False) : string;
 const
 	IDEBaseMacros : array [0 .. 2] of string = ('BDS', 'DELPHI', 'BCB');
 var
 	i : Integer;
 	EnvName : string;
 	EnvValue : string;
-	DefineList : TStringList;
-	DefineValue : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPathProcessor.Process');
-
-	Result := _Path;
+	Result := _sPath;
 
 	// Expand the IDE base folder names $([DELPHI,BCB,BDS])
 	for i := low(IDEBaseMacros) to high(IDEBaseMacros) do begin
@@ -167,6 +168,30 @@ begin
 	end;
 
 	// Expand project preprocessor constants (DCC_Define)
+	if not _bSkipProjectDefines then begin
+		Result := ProcessProjectDefines(Result);
+	end;
+
+	if FPlatformName <> '' then begin
+		Result := ReplaceMacro(Result, 'Platform', FPlatformName);
+	end;
+
+	if FConfigName <> '' then begin
+		Result := ReplaceMacro(Result, 'Config', FConfigName);
+	end;
+
+	if (not FPrefix.IsEmpty) and (not TFileUtils.IsPathAbsolute(Result)) then begin
+		Result := TFileUtils.ExpandFileNameRelBaseDir(Result, FPrefix);
+	end;
+end;
+
+function TPathProcessor.ProcessProjectDefines(const _Path : string) : string;
+var
+	DefineList : TStringList;
+	DefineValue : string;
+begin
+	Result := _Path;
+	// Expand project preprocessor constants (DCC_Define)
 	if Assigned(FProjectOptions) then begin
 		DefineValue := VarToStr(FProjectOptions.Values['DCC_Define']);
 		if DefineValue <> '' then begin
@@ -174,7 +199,7 @@ begin
 			try
 				DefineList.Delimiter := ';';
 				DefineList.DelimitedText := DefineValue;
-				for i := 0 to DefineList.Count - 1 do begin
+				for var i := 0 to DefineList.Count - 1 do begin
 					var
 					Define := DefineList[i];
 					var
@@ -196,32 +221,18 @@ begin
 			end;
 		end;
 	end;
-
-	if FPlatformName <> '' then begin
-		Result := ReplaceMacro(Result, 'Platform', FPlatformName);
-	end;
-
-	if FConfigName <> '' then begin
-		Result := ReplaceMacro(Result, 'Config', FConfigName);
-	end;
-
-	if (not FPrefix.IsEmpty) and (not TFileUtils.IsPathAbsolute(Result)) then begin
-		Result := TFileUtils.ExpandFileNameRelBaseDir(Result, FPrefix);
-	end;
 end;
 
-class function TPathProcessor.ReplaceMacro(const _str, _oldValue, _newValue : string): string;
+class function TPathProcessor.ReplaceMacro(const _str, _oldValue, _newValue : string) : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPathProcessor.ReplaceMacro', True);
 	var
 	replaceVal := '$(' + _oldValue + ')';
-	if _str.Contains(replaceVal) then begin
+	Result := StringReplace(_str, replaceVal, _newValue, [rfReplaceAll, rfIgnoreCase]);
+	if _str <> Result then begin
 		dbgMsg.MsgFmt('Path: %s', [_str]);
-		Result := StringReplace(_str, replaceVal, _newValue, [rfReplaceAll, rfIgnoreCase]);
 		dbgMsg.MsgFmt('Replacing: %s with: %s = %s', [replaceVal, _newValue, Result]);
-	end else begin
-		Result := _str;
 	end;
 end;
 
