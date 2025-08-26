@@ -225,19 +225,19 @@ end;
 
 procedure TDelphiIDEContext.LoadFromIOTA();
 var
-    projPathGetter : IProjectPathGetter;
+	projPathGetter : IProjectPathGetter;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDelphiIDEContext.LoadFromIOTA');
 	{$IF IS_EXTENSION}
-	ActiveFile := IOTAUTils.GxOtaGetCurrentSourceFile();
+	projPathGetter := TIdeProjectPathHelper.Create();
+	ActiveFile := projPathGetter.GetCurrentSourceFile();
 	ProjectFiles := IOTAUTils.GetProjectFiles();
 	OpenFiles := IOTAUTils.GetOpenedEditBuffers();
 	var
 	ap := IOTAUTils.GxOtaGetCurrentProject;
 	if Assigned(ap) then begin
 		ActiveProject := ap.FileName;
-        projPathGetter := TIdeProjectPathHelper.Create();
 		// SourcePath := IOTAUtils.GxOtaGetProjectSourcePathStrings(ap, NotExistsPath);
 		ProjectSourcePath := projPathGetter.GetEffectiveLibraryPath(ap, NotExistsPath, True);
 	end;

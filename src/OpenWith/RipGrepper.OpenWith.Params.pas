@@ -26,6 +26,8 @@ uses
 	System.SysUtils, RipGrepper.Common.Constants;
 
 class function TOpenWithParams.GetParamsOfActiveFileInDelphiIde : TOpenWithParams;
+var
+	projPathGetter : IProjectPathGetter;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithParams.GetParamsOfActiveFileInDelphiIde');
@@ -34,7 +36,8 @@ begin
 	var
 	editPosition := IOTAUTils.GetEditPosition;
 	if Assigned(editPosition) then begin
-		Result.FilePath := IOTAUtils.GxOtaGetCurrentSourceFile;;
+        projPathGetter := TIdeProjectPathHelper.Create();
+		Result.FilePath := projPathGetter.GetCurrentSourceFile;
 		var
 			sProjPath : string := IOTAUtils.GetActiveProjectFilePath;
 		dbgMsg.MsgFmt('proj: %s ', [sProjPath]);

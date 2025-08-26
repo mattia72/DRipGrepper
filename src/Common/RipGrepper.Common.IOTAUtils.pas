@@ -21,18 +21,18 @@ uses
 type
 
 	IProjectPathGetter = interface(IInterface)
-	['{200BE41D-8762-43FB-929D-877236B4FBC4}']
-			/// <summary>
-			/// Return the effective library path, with the _project specific paths
-			/// first and then the IDE's global library path.
-			/// @params if _shouldDoProcessing is true, the paths are macro expanded and non-existing
-			/// paths removed.
-			/// @params AdditionalPaths are appended at the end and optionally processed too </summary>
-		function GetEffectiveLibraryPath(_project : IOTAProject; var _errList :
-			TArrayEx<string>; const _shouldDoProcessing : Boolean = True):
-			TArrayEx<string>;
-	end;
+		['{200BE41D-8762-43FB-929D-877236B4FBC4}']
+		function GetCurrentSourceFile() : string;
+		/// <summary>
+		/// Return the effective library path, with the _project specific paths
+		/// first and then the IDE's global library path.
+		/// @params if _shouldDoProcessing is true, the paths are macro expanded and non-existing
+		/// paths removed.
+		/// @params AdditionalPaths are appended at the end and optionally processed too </summary>
+		function GetEffectiveLibraryPath(_project : IOTAProject; var _errList : TArrayEx<string>;
+			const _shouldDoProcessing : Boolean = True) : TArrayEx<string>;
 
+	end;
 
 	TIdeProjectPathHelper = class(TInterfacedObject, IProjectPathGetter)
 		const
@@ -62,7 +62,7 @@ type
 			// Return all of the IDE's environment settings names
 			class procedure getIdeEnvironmentStrings(Settings : TStrings);
 			// Return the IDE's global library path
-			class function getIdeLibraryPath(): string;
+			class function getIdeLibraryPath() : string;
 			/// <summary>
 			/// Return the global IDE library path (without the project specific paths).
 			/// @params if _shouldDoProcessing is true, the paths are macro expanded and non-existing
@@ -85,7 +85,7 @@ type
 			class function getProjectPlatform(Project : IOTAProject = nil) : string;
 			class function isCurrentProjectIsDelphiDotNet() : Boolean;
 			class function isCurrentProjectNativeCpp() : Boolean;
-			class function IsProjectDelphiDotNet(Project : IOTAProject): Boolean;
+			class function IsProjectDelphiDotNet(Project : IOTAProject) : Boolean;
 			class function isProjectNativeCpp(Project : IOTAProject) : Boolean;
 			class function isStandAlone() : Boolean;
 			class procedure processPaths(var _paths : TArrayEx<string>; var _nonExistsPaths : TArrayEx<string>;
@@ -95,8 +95,7 @@ type
 			/// @param ProjectOptions will contain the options, only valid if Result is True
 			/// @param Project is the project whose options to get, it nil the current project will be used
 			/// @returns True, if the options could be retrieved, False otherwise (e.g. if there is no active project) </summary>
-			class function tryGetProjectOptions(out _ProjectOptions : IOTAProjectOptions;
-				_Project : IOTAProject = nil): Boolean;
+			class function tryGetProjectOptions(out _ProjectOptions : IOTAProjectOptions; _Project : IOTAProject = nil) : Boolean;
 
 		public
 			/// <summary>
@@ -105,9 +104,12 @@ type
 			/// @params if _shouldDoProcessing is true, the paths are macro expanded and non-existing
 			/// paths removed.
 			/// @params AdditionalPaths are appended at the end and optionally processed too </summary>
-			function GetEffectiveLibraryPath(_project : IOTAProject; var _errList :
-				TArrayEx<string>; const _shouldDoProcessing : Boolean = True):
-				TArrayEx<string>;
+			function GetEffectiveLibraryPath(_project : IOTAProject; var _errList : TArrayEx<string>;
+				const _shouldDoProcessing : Boolean = True) : TArrayEx<string>;
+			// Returns a fully qualified name of the current file,
+			// which could either be a form or unit (.pas/.cpp/.dfm/.xfm etc.).
+			// Returns an empty string if no file is currently selected.
+			function GetCurrentSourceFile() : string;
 	end;
 
 	IOTAUtils = class(TObject)
@@ -197,10 +199,6 @@ type
 			// is a form editor! This is probably not what you want.
 			// See also GxOtaGetCurrentEditorAsSourceEditor
 			class function GxOtaGetCurrentSourceEditor : IOTASourceEditor;
-			// Returns a fully qualified name of the current file,
-			// which could either be a form or unit (.pas/.cpp/.dfm/.xfm etc.).
-			// Returns an empty string if no file is currently selected.
-			class function GxOtaGetCurrentSourceFile : string;
 			// Obtain the IOTAEditActions interface for a given module
 			class function GxOtaGetEditActionsFromModule(Module : IOTAModule) : IOTAEditActions;
 			class function GxOtaGetEditorLine(View : IOTAEditView; LineNo : Integer) : UTF8String;
@@ -270,7 +268,6 @@ type
 			class function IsProjectSource(const FileName : string) : Boolean;
 			class function IsStandAlone : Boolean;
 	end;
-
 
 implementation
 
@@ -710,22 +707,6 @@ begin
 		Result := GxOtaGetSourceEditorFromModule(GxOtaGetCurrentModule, EditBuffer.FileName);
 	if Result = nil then
 		Result := GxOtaGetSourceEditorFromModule(GxOtaGetCurrentModule);
-end;
-
-class function IOTAUtils.GxOtaGetCurrentSourceFile : string;
-var
-	Module : IOTAModule;
-	Editor : IOTAEditor;
-begin
-	Result := '';
-	Module := GxOtaGetCurrentModule;
-	if Module <> nil then begin
-		Editor := Module.GetCurrentEditor;
-		if Editor <> nil then
-			Result := Editor.FileName
-		else // C++Builder 6 returns nil for some old-style modules without DFMs
-			Result := Module.FileName;
-	end;
 end;
 
 class function IOTAUtils.GxOtaGetEditActionsFromModule(Module : IOTAModule) : IOTAEditActions;
@@ -1576,9 +1557,8 @@ begin
 	dbgMsg.MsgFmt('Result: %s', [Result]);
 end;
 
-function TIdeProjectPathHelper.GetEffectiveLibraryPath(_project : IOTAProject; var
-	_errList : TArrayEx<string>; const _shouldDoProcessing : Boolean = True):
-	TArrayEx<string>;
+function TIdeProjectPathHelper.GetEffectiveLibraryPath(_project : IOTAProject; var _errList : TArrayEx<string>;
+	const _shouldDoProcessing : Boolean = True) : TArrayEx<string>;
 var
 	i : Integer;
 	platformName : string;
@@ -1660,7 +1640,7 @@ begin
 	Result := isProjectNativeCpp(IOTAUtils.GxOtaGetCurrentProject);
 end;
 
-class function TIdeProjectPathHelper.getIdeLibraryPath(): string;
+class function TIdeProjectPathHelper.getIdeLibraryPath() : string;
 begin
 	// Do not localize.
 	var
@@ -1723,13 +1703,28 @@ begin
 	end;
 end;
 
-class function TIdeProjectPathHelper.IsProjectDelphiDotNet(Project : IOTAProject): Boolean;
+function TIdeProjectPathHelper.GetCurrentSourceFile() : string;
+var
+	Module : IOTAModule;
+	Editor : IOTAEditor;
+begin
+	Result := '';
+	Module := IOTAUtils.GxOtaGetCurrentModule;
+	if Module <> nil then begin
+		Editor := Module.GetCurrentEditor;
+		if Editor <> nil then
+			Result := Editor.FileName
+		else // C++Builder 6 returns nil for some old-style modules without DFMs
+			Result := Module.FileName;
+	end;
+end;
+
+class function TIdeProjectPathHelper.IsProjectDelphiDotNet(Project : IOTAProject) : Boolean;
 begin
 	Result := SameText(IOTAUtils.GxOtaGetProjectPersonality(Project), sDelphiDotNetPersonality);
 end;
 
-class function TIdeProjectPathHelper.tryGetProjectOptions(out _ProjectOptions :
-	IOTAProjectOptions; _Project : IOTAProject = nil): Boolean;
+class function TIdeProjectPathHelper.tryGetProjectOptions(out _ProjectOptions : IOTAProjectOptions; _Project : IOTAProject = nil) : Boolean;
 begin
 	if not Assigned(_Project) then
 		_Project := IOTAUtils.GxOtaGetCurrentProject;
