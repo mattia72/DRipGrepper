@@ -27,6 +27,7 @@ type
 
 		public
 			function ToLogString : string;
+			function GetValueByContext() : string;
 			class function FromString(const _context, _proj, _file : string) : TDelphiIDEContext; static;
 			procedure LoadFromIOTA();
 			class operator Initialize(out Dest : TDelphiIDEContext);
@@ -77,7 +78,8 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	{$IFNDEF STANDALONE} RipGrepper.Common.IOTAUtils, {$ENDIF}
 	System.SysUtils,
-	System.Variants;
+	System.Variants,
+	System.IOUtils;
 
 constructor TRipGrepperExtensionSettings.Create(const _Owner : TPersistableSettings);
 begin
@@ -199,12 +201,33 @@ begin
 	Result := ActiveProject.IsEmpty;
 end;
 
+function TDelphiIDEContext.GetValueByContext() : string;
+begin
+	Result := '';
+	case IDESearchContext of
+		EDelphiIDESearchContext.dicActiveFile :
+		Result := ActiveFile;
+		EDelphiIDESearchContext.dicOpenFiles :
+		Result := string.Join(';', OpenFiles);
+		EDelphiIDESearchContext.dicProjectFiles :
+		Result := string.Join(';', ProjectFiles);
+		EDelphiIDESearchContext.dicProjectSourcePath :
+		Result := string.Join(';', ProjectSourcePath);
+		EDelphiIDESearchContext.dicProjectRootDirectory :
+		if not ActiveProject.IsEmpty then begin
+			Result := TPath.GetDirectoryName(ActiveProject);
+		end;
+		EDelphiIDESearchContext.dicCustomLocation :
+		Result := '';
+	end;
+
+end;
+
 procedure TDelphiIDEContext.LoadFromIOTA();
 begin
-	{$IF IS_EXTENSION}
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDelphiIDEContext.LoadFromIOTA');
-
+	{$IF IS_EXTENSION}
 	ActiveFile := IOTAUTils.GxOtaGetCurrentSourceFile();
 	ProjectFiles := IOTAUTils.GetProjectFiles();
 	OpenFiles := IOTAUTils.GetOpenedEditBuffers();
@@ -215,14 +238,19 @@ begin
 		// SourcePath := IOTAUtils.GxOtaGetProjectSourcePathStrings(ap, NotExistsPath);
 		ProjectSourcePath := IOTAUtils.GxOtaGetEffectiveLibraryPath(ap, NotExistsPath, True);
 	end;
+	{$ELSE}
+	ActiveFile := 'c:\temp\myfile.pas';
+	ActiveProject := 'c:\temp\myproject.dproj';
+	OpenFiles := ['c:\temp\myfile1.pas', 'c:\temp\myfile2.pas'];
+	ProjectFiles := ['c:\temp\myfile1.pas', 'c:\temp\myfile2.pas', 'c:\temp\myfile3.pas'];
+	ProjectSourcePath := ['c:\temp\source'];
+	{$ENDIF}
 	dbgMsg.Msg('ActiveFile: ' + ActiveFile);
 	dbgMsg.Msg('ActiveProject: ' + ActiveProject);
 	dbgMsg.Msg('OpenFiles: ' + string.Join(';' + CRLF + TAB, OpenFiles));
 	dbgMsg.Msg('ProjectFiles: ' + string.Join(';' + CRLF + TAB, ProjectFiles));
 	dbgMsg.Msg('SourcePath: ' + string.Join(';' + CRLF + TAB, ProjectSourcePath));
 	dbgMsg.Msg('NotExistsPath: ' + string.Join(';' + CRLF + TAB, NotExistsPath.Items));
-
-	{$ENDIF}
 end;
 
 class operator TDelphiIDEContext.Initialize(out Dest : TDelphiIDEContext);

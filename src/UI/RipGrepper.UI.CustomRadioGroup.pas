@@ -142,7 +142,7 @@ begin
 	icv : IIDEContextValues;
 
 	if Supports(FTagObject, IIDEContextValues, icv) then begin
-		Assert(icv.GetContextType <= EDelphiIDESearchContext.dicProjectSourcePath);
+		Assert(icv.GetContextType <= EDelphiIDESearchContext.dicProjectRootDirectory, 'Context type is greater than the max');
 	end;
     {$ENDIF}
 end;

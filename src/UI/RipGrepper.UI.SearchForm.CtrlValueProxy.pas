@@ -44,7 +44,7 @@ type
 implementation
 
 uses
-  System.SysUtils;
+	System.SysUtils;
 
 function TSearchFormCtrlValueProxy.IsEmpty() : Boolean;
 begin

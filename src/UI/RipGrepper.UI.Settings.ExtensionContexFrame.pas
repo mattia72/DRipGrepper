@@ -14,13 +14,15 @@ uses
 	Vcl.Dialogs,
 	Vcl.StdCtrls,
 	RipGrepper.Common.IDEContextValues,
-	RipGrepper.UI.CustomRadioGroup;
+	RipGrepper.UI.CustomRadioGroup,
+	RipGrepper.Settings.ExtensionSettings;
 
 type
 	TExtensionContextFrame = class(TFrame)
 		private
 			FContextRadioGroup : TCustomRadioGroup;
 			FOnContextChange : TExtensionContextChangeEvent;
+			procedure AddItem(const _caption : string; const _idx: Integer; const _dic: TDelphiIDEContext);
 			function GetContextValues() : IIDEContextValues;
 			function getSelectedItem() : TCustomRadioItem;
 			procedure onRadioItemSelect(_sender : TObject; _item : TCustomRadioItem);
@@ -43,7 +45,8 @@ implementation
 
 uses
 	Spring,
-	RipGrepper.Settings.ExtensionSettings,
+	System.IOUtils,
+
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Common.Constants;
 
@@ -51,7 +54,6 @@ uses
 
 constructor TExtensionContextFrame.Create(_owner : TComponent);
 var
-	icv : IIDEContextValues;
 	dic : TDelphiIDEContext;
 begin
 	inherited Create(_owner);
@@ -59,32 +61,45 @@ begin
 	FContextRadioGroup := TCustomRadioGroup.Create(Self);
 	FContextRadioGroup.Parent := Self;
 	FContextRadioGroup.Align := alClient;
-	FContextRadioGroup.Columns := 1;
+	FContextRadioGroup.Columns := 2;
 	FContextRadioGroup.OnItemSelect := onRadioItemSelect;
 
 	dic.LoadFromIOTA();
 
-	icv := TIDEContextValues.Create(EDelphiIDESearchContext.dicActiveFile, dic.ActiveFile);
-	FContextRadioGroup.AddItem('Current File', dic.ActiveFile, 0, icv);
+	dic.IDESearchContext := EDelphiIDESearchContext.dicActiveFile;
+	AddItem('Current File', 0, dic);
 
-	var
-	value := string.Join(';', dic.OpenFiles);
-	icv := TIDEContextValues.Create(EDelphiIDESearchContext.dicOpenFiles, value);
-	FContextRadioGroup.AddItem('All Open Files', GetAsHint(dic.OpenFiles), 1, icv);
+	dic.IDESearchContext := EDelphiIDESearchContext.dicOpenFiles;
+	AddItem('All Open Files', 1, dic);
 
-	value := string.Join(';', dic.ProjectFiles);
-	icv := TIDEContextValues.Create(EDelphiIDESearchContext.dicProjectFiles, value);
-	FContextRadioGroup.AddItem('Project Files', GetAsHint(dic.ProjectFiles), 2, icv);
+	dic.IDESearchContext := EDelphiIDESearchContext.dicProjectFiles;
+	AddItem('Project Files',  2, dic);
 
-	value := string.Join(';', dic.ProjectSourcePath);
-	icv := TIDEContextValues.Create(EDelphiIDESearchContext.dicProjectSourcePath, value);
-	FContextRadioGroup.AddItem('Project Source Paths', GetAsHint(dic.ProjectSourcePath), 3, icv);
+	dic.IDESearchContext := EDelphiIDESearchContext.dicProjectRootDirectory;
+	AddItem('Project Root Directory', 3, dic);
 
-	icv := TIDEContextValues.Create(EDelphiIDESearchContext.dicCustomLocation, '');
-	FContextRadioGroup.AddItem('Custom Locations:', '', 4, icv);
+	dic.IDESearchContext := EDelphiIDESearchContext.dicProjectSourcePath;
+	AddItem('Project Source Paths (experimental)', 4, dic);
+
+	dic.IDESearchContext := EDelphiIDESearchContext.dicCustomLocation;
+	AddItem('Custom Locations:', 5, dic);
 
 	// Select first option by default
 	FContextRadioGroup.ItemIndex := 0;
+end;
+
+procedure TExtensionContextFrame.AddItem(const _caption : string; const _idx: Integer; const _dic: TDelphiIDEContext);
+var
+	icv: IIDEContextValues;
+	values, hint : string;
+begin
+	values := _dic.GetValueByContext();
+	icv := TIDEContextValues.Create(_dic.IDESearchContext, values);
+	hint := GetAsHint(values);
+	if hint.IsEmpty then begin
+		hint := values;
+	end;
+	FContextRadioGroup.AddItem(_caption, hint, _idx, icv);
 end;
 
 class function TExtensionContextFrame.GetAsHint(const _paths : string) : string;

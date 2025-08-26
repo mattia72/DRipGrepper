@@ -1515,7 +1515,9 @@ begin
 		pathProcessor.PlatformName := _platformName;
 		for i := 0 to _paths.Count - 1 do begin
 			pathItem := _paths[i];
+			dbgMsg.MsgFmt('Original path: %s', [pathItem], tftVerbose);
 			pathItem := pathProcessor.Process(pathItem);
+			dbgMsg.MsgFmt('Processed path: %s', [pathItem], tftVerbose);
 			if DirectoryExists(pathItem) then begin
 				// Only add valid directories
 				_paths[i] := pathItem;

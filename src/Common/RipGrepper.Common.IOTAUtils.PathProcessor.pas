@@ -247,9 +247,8 @@ begin
 	Result := ExcludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
 	dbgMsg.MsgFmt('Application.ExeName: %s', [Result]);
 	if SameText(RightStr(Result, Length(BIN_DIR_POSTFIX)), BIN_DIR_POSTFIX) then begin
-		var
-		len := Length(BIN_DIR_POSTFIX);
-		Result := Result.Substring(Length(Result) - len + 1, len);
+		// Remove the '\Bin' suffix from the path
+		Result := Copy(Result, 1, Length(Result) - Length(BIN_DIR_POSTFIX));
 		Result := IncludeTrailingPathDelimiter(Result);
 		dbgMsg.MsgFmt('Result %s', [Result]);
 	end else begin

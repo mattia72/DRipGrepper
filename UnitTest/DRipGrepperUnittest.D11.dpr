@@ -6,6 +6,9 @@ program DRipGrepperUnittest.D11;
 {$STRONGLINKTYPES ON}
 {$WARN DUPLICATE_CTOR_DTOR OFF}
 
+//{$WEAKLINKRTTI OFF}
+//{$RTTI EXPLICIT METHODS([vcPublic, vcPublished]) PROPERTIES([vcPublic, vcPublished]) FIELDS([vcPublic, vcPublished])}
+
 uses
   {$IFDEF FASTMM4_OPT}
   FastMM4,
@@ -69,7 +72,9 @@ uses
   RipGrepper.Helper.StreamReaderWriter in '..\src\Helper\RipGrepper.Helper.StreamReaderWriter.pas',
   RipGrepper.Settings.RipGrepArguments in '..\src\Settings\RipGrepper.Settings.RipGrepArguments.pas',
   RipGrepper.Common.LoadHistoryMode in '..\src\Common\RipGrepper.Common.LoadHistoryMode.pas',
-  RipGrepper.Data.HistoryItemObjectTest in 'RipGrepper.Data.HistoryItemObjectTest.pas';
+  RipGrepper.Data.HistoryItemObjectTest in 'RipGrepper.Data.HistoryItemObjectTest.pas',
+  RipGrepper.Common.IOTAUtils.TPathProcessor.Test in 'RipGrepper.Common.IOTAUtils.TPathProcessor.Test.pas',
+  RipGrepper.Common.IOTAUtils.PathProcessor in '..\src\Common\RipGrepper.Common.IOTAUtils.PathProcessor.pas';
 
 // This comment has to guard the following IFDEF, that may be delted by delphi, if new unit added to the project
 {$IFNDEF TESTINSIGHT}

@@ -156,6 +156,8 @@
         <DCCReference Include="..\src\Settings\RipGrepper.Settings.RipGrepArguments.pas"/>
         <DCCReference Include="..\src\Common\RipGrepper.Common.LoadHistoryMode.pas"/>
         <DCCReference Include="RipGrepper.Data.HistoryItemObjectTest.pas"/>
+        <DCCReference Include="RipGrepper.Common.IOTAUtils.TPathProcessor.Test.pas"/>
+        <DCCReference Include="..\src\Common\RipGrepper.Common.IOTAUtils.PathProcessor.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -199,6 +201,12 @@
                 <DeployFile LocalName="Win32\Debug\DRipGrepperUnittest.D11.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>DRipGrepperUnittest_D11.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Win32\Debug\DRipGrepperUnittest.D11.rsm" Configuration="Debug" Class="DebugSymbols">
+                    <Platform Name="Win32">
+                        <RemoteName>DRipGrepperUnittest_D11.rsm</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
