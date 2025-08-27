@@ -8,22 +8,24 @@ uses
 
 type
 	TPathProcessor = class
+
 		private
 			FIdeBasePath : string;
 			FConfigName : string;
 			FPlatformName : string;
-			FPrefix : string;
+			FRootDir : string;
 			FEnvironment : TStringList;
+			FNonExistsPaths : TStringList;
 			FProjectOptions : IOTAProjectOptions;
 			procedure Init(_Project : IOTAProject);
 			function ProcessProjectDefines(const _Path : string) : string;
 
 		public
 			/// <summary>
-			/// @param _Prefix will be used for relative paths
+			/// @param _sRootDir will be used for relative paths
 			/// @param _Project will be used to determine Platform and Config, if not given, the
 			/// current project will be used. </summary>
-			constructor Create(const _Prefix : string; _Project : IOTAProject = nil);
+			constructor Create(const _sRootDir : string; _Project : IOTAProject = nil);
 			destructor Destroy; override;
 			procedure GetEnvironmentVariables(Strings : TStrings);
 			procedure GetAllProjectOptions(Options : TStrings);
@@ -32,7 +34,9 @@ type
 			class function ReplaceMacro(const _str, _oldValue, _newValue : string) : string;
 			property PlatformName : string read FPlatformName write FPlatformName;
 			property ConfigName : string read FConfigName write FConfigName;
+			property Environment: TStringList read FEnvironment;
 			property IdeBasePath : string read FIdeBasePath write FIdeBasePath;
+			property NonExistsPaths: TStringList read FNonExistsPaths;
 	end;
 
 type
@@ -57,26 +61,28 @@ uses
 
 { TPathProcessor }
 
-constructor TPathProcessor.Create(const _Prefix : string; _Project : IOTAProject = nil);
+constructor TPathProcessor.Create(const _sRootDir : string; _Project : IOTAProject = nil);
 
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPathProcessor.Process');
 
 	inherited Create;
-	FPrefix := _Prefix;
-	dbgMsg.MsgFmt('FPrefix = %s', [FPrefix]);
+	FRootDir := _sRootDir;
+	dbgMsg.MsgFmt('FRootDir = %s', [FRootDir]);
 	Init(_Project);
 	FIdeBasePath := ExcludeTrailingPathDelimiter(TIdeUtils.GetIdeRootDirectory);
 	// FIdeBasePath := ExcludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
 	dbgMsg.MsgFmt('IdeBasePath = %s', [FIdeBasePath]);
-	FEnvironment := TStringList.Create;
+	FEnvironment := TStringList.Create(TDuplicates.dupIgnore,True,false);
+	FNonExistsPaths := TStringList.Create(TDuplicates.dupIgnore,True,false);
 	GetEnvironmentVariables(FEnvironment);
 end;
 
 destructor TPathProcessor.Destroy;
 begin
 	FreeAndNil(FEnvironment);
+	FreeAndNil(FNonExistsPaths);
 	inherited;
 end;
 
@@ -180,9 +186,14 @@ begin
 		Result := ReplaceMacro(Result, 'Config', FConfigName);
 	end;
 
-	if (not FPrefix.IsEmpty) and (not TFileUtils.IsPathAbsolute(Result)) then begin
-		Result := TFileUtils.ExpandFileNameRelBaseDir(Result, FPrefix);
+	if (not FRootDir.IsEmpty) and (not TFileUtils.IsPathAbsolute(Result)) then begin
+		Result := TFileUtils.ExpandFileNameRelBaseDir(Result, FRootDir);
 	end;
+
+	if not DirectoryExists(Result) then begin
+		NonExistsPaths.Add(Result);
+	end;
+
 end;
 
 function TPathProcessor.ProcessProjectDefines(const _Path : string) : string;

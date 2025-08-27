@@ -33,8 +33,7 @@ type
 		/// @params if _shouldProcess is true, the paths are macro expanded and non-existing
 		/// paths removed.
 		/// @params AdditionalPaths are appended at the end and optionally processed too </summary>
-		function GetEffectiveLibraryPath(_project: IOTAProject; var _errDirList: TArrayEx<string>; const _shouldProcess: Boolean = True):
-			TArrayEx<string>;
+		function GetEffectiveLibraryPath(var _errDirList : TArrayEx<string>; const _shouldProcess : Boolean = True) : TArrayEx<string>;
 
 	end;
 
@@ -42,6 +41,9 @@ type
 		const
 			// 'DCC_UnitSearchPath'
 			OPTION_NAME_UNIT_SEARCH_PATH = 'SrcDir';
+
+		strict private
+			FProject : IOTAProject;
 
 		private
 			class procedure addProjectDefineMacros(var _defineValue : string; _macros : TStrings);
@@ -71,37 +73,41 @@ type
 			/// Return the global IDE library path (without the project specific paths).
 			/// @params if _shouldDoProcessing is true, the paths are macro expanded and non-existing
 			/// paths removed. </summary>
-			class function getIdeLibraryPathStrings(var _errList : TArrayEx<string>; _shouldDoProcessing : Boolean = true)
-				: TArrayEx<string>;
+			function getIdeLibraryPathStrings() : TArrayEx<string>;
+			/// <summary>
+			/// Get all preprocessor constants (conditional _defines) for the given _project
+			/// @param _defines will contain all conditional _defines in "Name=Value" format
+			/// @param _project is the _project to get _defines from, if nil the current _project will be used </summary>
+			class procedure getPreprocessorConstants(_defines : TStrings; _project : IOTAProject = nil);
 			/// <summary>
 			/// Return _project specific search path, with the directory containing the _project
 			// file first.
 			/// @params if _shouldDoProcessing is true, the paths are macro expanded and non-existing
 			/// paths removed. </summary>
-			class function getProjectSourcePathStrings(_project : IOTAProject; _errList : TArrayEx<string>;
-				_shouldDoProcessing : Boolean = True) : TArrayEx<string>;
+			function getProjectSourcePathStrings() : TArrayEx<string>;
 			// Returns the IOTASourceEditor interface for a module
 			// if there is a file that supports one; returns nil
 			// if there is no IOTASourceEditor
 			class function getSourceEditorFromModule(_Module : IOTAModule; const _sFileName : string = '') : IOTASourceEditor;
 			/// <summary>
 			/// Returns the project's current platform, if any (and supported), or an empty string </summary>
-			class function getProjectPlatform(Project : IOTAProject = nil) : string;
+			function getProjectPlatform() : string;
 			class function isCurrentProjectIsDelphiDotNet() : Boolean;
 			class function isCurrentProjectNativeCpp() : Boolean;
 			class function IsProjectDelphiDotNet(Project : IOTAProject) : Boolean;
 			class function isProjectNativeCpp(Project : IOTAProject) : Boolean;
 			class function isStandAlone() : Boolean;
-			class procedure processPaths(var _paths : TArrayEx<string>; var _nonExistsPaths : TArrayEx<string>;
-				const _prefix, _platformName : string);
+			function processPaths(const _paths : TArrayEx<string>; var _nonExistsPaths : TArrayEx<string>; const _rootDir : string)
+				: TArrayEx<string>;
 			/// <summary>
 			/// Tries to get the options of the given or the active project
 			/// @param ProjectOptions will contain the options, only valid if Result is True
 			/// @param Project is the project whose options to get, it nil the current project will be used
 			/// @returns True, if the options could be retrieved, False otherwise (e.g. if there is no active project) </summary>
-			class function tryGetProjectOptions(out _ProjectOptions : IOTAProjectOptions; _Project : IOTAProject = nil) : Boolean;
+			function tryGetProjectOptions(out _ProjectOptions : IOTAProjectOptions) : Boolean;
 
 		public
+			constructor Create();
 			function GetActiveProjectDirectory() : string;
 			function GetActiveProjectFilePath() : string;
 			/// <summary>
@@ -110,8 +116,7 @@ type
 			/// @params if _shouldProcess is true, the paths are macro expanded and non-existing
 			/// paths removed.
 			/// @params AdditionalPaths are appended at the end and optionally processed too </summary>
-			function GetEffectiveLibraryPath(_project: IOTAProject; var _errDirList: TArrayEx<string>; const _shouldProcess: Boolean = True):
-				TArrayEx<string>;
+			function GetEffectiveLibraryPath(var _errDirList : TArrayEx<string>; const _shouldProcess : Boolean = True) : TArrayEx<string>;
 			// Returns a fully qualified name of the current file,
 			// which could either be a form or unit (.pas/.cpp/.dfm/.xfm etc.).
 			// Returns an empty string if no file is currently selected.
@@ -123,17 +128,8 @@ type
 	IOTAUtils = class(TObject)
 
 		private
-			/// <summary>
-			/// Shows a message box with non-existing paths to inform the user
-			/// @param NonExistsPaths list of paths that do not exist </summary>
-			class procedure showNonExistingPathsMessage(NonExistsPaths : TStrings);
 			// Returns the size of any EOL character(s) at a given position (0 if none)
 			class function getEOLSizeAtPos(const S : string; Pos : Integer) : Integer;
-			/// <summary>
-			/// Get all preprocessor constants (conditional _defines) for the given _project
-			/// @param _defines will contain all conditional _defines in "Name=Value" format
-			/// @param _project is the _project to get _defines from, if nil the current _project will be used </summary>
-			class procedure getPreprocessorConstants(_defines : TStrings; _project : IOTAProject = nil);
 			// Raise an exception if the source editor is readonly
 			class procedure assertSourceEditorNotReadOnly(_sourceEditor : IOTASourceEditor);
 			class function convertColumnCharsToBytes(_sLineData : UTF8String; _iCharIndex : Integer; _bEndByte : Boolean) : Integer;
@@ -284,7 +280,8 @@ uses
 	RipGrepper.Tools.FileUtils,
 	u_dzClassUtils,
 	System.Variants,
-	System.Math;
+	System.Math,
+	Spring;
 
 class function IOTAUtils.AddToImageList(_bmp : Vcl.Graphics.TBitmap; const _identText : string) : Integer;
 var
@@ -1293,47 +1290,6 @@ begin
 	end;
 end;
 
-class procedure IOTAUtils.getPreprocessorConstants(_defines : TStrings; _project : IOTAProject = nil);
-var
-	pathProcessor : TPathProcessor;
-	defineValue : string;
-	defineList : TStringList;
-	i : Integer;
-begin
-	Assert(Assigned(_defines));
-	_defines.Clear;
-
-	pathProcessor := TPathProcessor.Create('', _project);
-	try
-		// Get preprocessor constants (_defines)
-		defineValue := pathProcessor.GetProjectOption('DCC_Define');
-		if defineValue <> '' then begin
-			defineList := TStringList.Create;
-			try
-				defineList.Delimiter := ';';
-				defineList.DelimitedText := defineValue;
-				for i := 0 to defineList.Count - 1 do begin
-					var
-					Define := defineList[i];
-					var
-					EqualPos := Pos('=', Define);
-					if EqualPos > 0 then begin
-						// Define with value: SYMBOL=VALUE
-						_defines.Add(Define);
-					end else begin
-						// Define without value: SYMBOL (assume '1')
-						_defines.Add(Define + '=1');
-					end;
-				end;
-			finally
-				FreeAndNil(defineList);
-			end;
-		end;
-	finally
-		FreeAndNil(pathProcessor);
-	end;
-end;
-
 class function IOTAUtils.GxOtaGetSourceEditorFromModule(Module : IOTAModule; const FileName : string = '') : IOTASourceEditor;
 var
 	i : Integer;
@@ -1358,43 +1314,10 @@ begin
 	end;
 end;
 
-class procedure IOTAUtils.showNonExistingPathsMessage(NonExistsPaths : TStrings);
-var
-	MessageText : string;
-	PathsList : string;
-const
-	MAX_PATHS_TO_SHOW = 20; // Limit the number of paths shown in the message
+constructor TIdeProjectPathHelper.Create();
 begin
-	Assert(Assigned(NonExistsPaths));
-
-	if NonExistsPaths.Count = 0 then
-		Exit;
-
-	if NonExistsPaths.Count = 1 then
-		MessageText := 'The following path does not exist:' + #13#10#13#10
-	else
-		MessageText := Format('The following %d paths do not exist:', [NonExistsPaths.Count]) + #13#10#13#10;
-
-	// Build list of paths to show (limit to avoid too large message boxes)
-	var
-	PathCount := Min(NonExistsPaths.Count, MAX_PATHS_TO_SHOW);
-	for var i := 0 to PathCount - 1 do begin
-		PathsList := PathsList + '• ' + NonExistsPaths[i] + #13#10;
-	end;
-
-	if NonExistsPaths.Count > MAX_PATHS_TO_SHOW then
-		PathsList := PathsList + Format('... and %d more paths', [NonExistsPaths.Count - MAX_PATHS_TO_SHOW]);
-
-	MessageText := MessageText + PathsList + #13#10 + 'These paths will be ignored when searching for files. ' +
-		'Please check your project and IDE library path settings.';
-
-	// Show message box (use MessageBox for simple display)
-	{$IFDEF MSWINDOWS}
-	MessageBox(0, PChar(MessageText), 'Non-existing Paths Found', MB_OK or MB_ICONWARNING);
-	{$ELSE}
-	// Fallback for other platforms if needed
-	Application.MessageBox(PChar(MessageText), 'Non-existing Paths Found', MB_OK or MB_ICONWARNING);
-	{$ENDIF}
+	inherited;
+	FProject := IOTAUtils.GxOtaGetCurrentProject;
 end;
 
 class procedure TIdeProjectPathHelper.addProjectDefineMacros(var _defineValue : string; _macros : TStrings);
@@ -1429,14 +1352,15 @@ begin
 end;
 
 function TIdeProjectPathHelper.GetActiveProjectFilePath() : string;
-var
-	project : IOTAProject;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.GetActiveProjectFilePath');
+
 	Result := '';
-	project := IOTAUtils.GxOtaGetCurrentProject;
-	if Assigned(project) then begin
-		Result := project.FileName;
+	if Assigned(FProject) then begin
+		Result := FProject.FileName;
 	end;
+	dbgMsg.MsgFmt('Result = %s', [Result]);
 end;
 
 class procedure TIdeProjectPathHelper.getAllAvailableMacros(_macros : TStrings; _project : IOTAProject = nil);
@@ -1448,7 +1372,9 @@ var
 	defineValue : string;
 	ideBasePath : string;
 begin
-	Assert(Assigned(_macros));
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.getAllAvailableMacros');
+
 	_macros.Clear;
 
 	pathProcessor := TPathProcessor.Create('', _project);
@@ -1479,6 +1405,7 @@ begin
 			addProjectDefineMacros(defineValue, _macros);
 		end;
 	finally
+		dbgMsg.MsgFmt('Macros: %s', [_macros.Text]);
 		FreeAndNil(pathProcessor);
 	end;
 end;
@@ -1521,30 +1448,21 @@ begin
 	dbgMsg.MsgFmt('Result: %s', [Result]);
 end;
 
-function TIdeProjectPathHelper.GetEffectiveLibraryPath(_project: IOTAProject; var _errDirList: TArrayEx<string>; const _shouldProcess:
-	Boolean = True): TArrayEx<string>;
+function TIdeProjectPathHelper.GetEffectiveLibraryPath(var _errDirList : TArrayEx<string>; const _shouldProcess : Boolean = True)
+	: TArrayEx<string>;
 var
-	i : Integer;
-	platformName : string;
+	pathList : TArrayEx<string>;
+	pathList2 : TArrayEx<string>;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('IOATAUtils.GetEffectiveLibraryPath');
+	dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.GetEffectiveLibraryPath');
 	// _shouldProcess = True uses the _project file's directory as the base to expand relative paths
-	Result := getProjectSourcePathStrings(_project, _errDirList, _shouldProcess);
-	dbgMsg.MsgFmt('Project source paths: %s', [string.Join(CRLF, Result.Items)]);
-
-	var
-	localList := getIdeLibraryPathStrings(_errDirList, _shouldProcess);
+	pathList := getProjectSourcePathStrings();
+	pathList2 := getIdeLibraryPathStrings();
+	pathList.AddRange(pathList2);
+	dbgMsg.MsgFmt('Combined paths: %s', [string.Join(CRLF + TAB, pathList.Items)]);
 	if _shouldProcess then begin
-		// do another processing, this time also expanding the Platform related macros
-		platformName := getProjectPlatform(_project);
-		dbgMsg.MsgFmt('platformName: %s', [platformName]);
-
-		// There shouldn't be any more relatives paths left, so passing GetCurrentDir is probably fine
-		processPaths(localList, _errDirList, GetCurrentDir, platformName);
-	end;
-	for i := 0 to localList.Count - 1 do begin
-		Result.AddIfNotContains(localList[i]);
+		Result := processPaths(pathList, _errDirList, GetActiveProjectDirectory);
 	end;
 end;
 
@@ -1618,53 +1536,43 @@ begin
 		Result := getIdeEnvironmentString('LibraryPath');
 end;
 
-class function TIdeProjectPathHelper.getIdeLibraryPathStrings(var _errList : TArrayEx<string>; _shouldDoProcessing : Boolean = true)
-	: TArrayEx<string>;
+function TIdeProjectPathHelper.getIdeLibraryPathStrings() : TArrayEx<string>;
 var
 	idePathString : string;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.getIdeLibraryPathStrings');
 	idePathString := getIdeLibraryPath;
 	Result := idePathString.Split([';']);
-	if _shouldDoProcessing then begin
-		// todo: Is it correct to use GetCurrentDir here? Shouldn't that either be the
-		// IDE base path or the project's directory?
-		processPaths(Result, _errList, GetCurrentDir, '');
-	end;
+	dbgMsg.MsgFmt('Result: %s', [string.Join(CRLF + TAB, Result.Items)]);
 end;
 
-class function TIdeProjectPathHelper.getProjectPlatform(Project : IOTAProject = nil) : string;
+function TIdeProjectPathHelper.getProjectPlatform() : string;
 begin
 	Result := '';
-	if Project = nil then
-		Project := IOTAUtils.GxOtaGetCurrentProject;
-	if Project <> nil then
-		Result := Project.CurrentPlatform;
+	if FProject <> nil then
+		Result := FProject.CurrentPlatform;
 end;
 
-class function TIdeProjectPathHelper.getProjectSourcePathStrings(_project : IOTAProject; _errList : TArrayEx<string>;
-	_shouldDoProcessing : Boolean = True) : TArrayEx<string>;
+function TIdeProjectPathHelper.getProjectSourcePathStrings() : TArrayEx<string>;
 var
 	idePathString : string;
 	projectOptions : IOTAProjectOptions;
 	projectDir : string;
-	platformName : string;
 begin
-	if _project = nil then
-		_project := IOTAUtils.GxOtaGetCurrentProject;
-	if Assigned(_project) then begin
-		projectDir := ExtractFileDir(_project.FileName);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.getProjectSourcePathStrings');
+	if Assigned(FProject) then begin
+		projectDir := ExtractFileDir(FProject.FileName);
 		// Add the current _project directory first
 		Result.Add(projectDir);
 		// Then the _project search path
-		if tryGetProjectOptions(projectOptions, _project) then begin
+		if tryGetProjectOptions(projectOptions) then begin
 			idePathString := projectOptions.Values[OPTION_NAME_UNIT_SEARCH_PATH];
 			Result.AddRange(idePathString.Split([';']));
 		end;
-		if _shouldDoProcessing then begin
-			platformName := getProjectPlatform(_project);
-			processPaths(Result, _errList, projectDir, platformName);
-		end;
 	end;
+	dbgMsg.MsgFmt('Result: %s', [string.Join(CRLF + TAB, Result.Items)]);
 end;
 
 function TIdeProjectPathHelper.GetCurrentSourceFile() : string;
@@ -1705,17 +1613,56 @@ begin
 	end;
 end;
 
+class procedure TIdeProjectPathHelper.getPreprocessorConstants(_defines : TStrings; _project : IOTAProject = nil);
+var
+	pathProcessor : TPathProcessor;
+	defineValue : string;
+	defineList : TStringList;
+	i : Integer;
+begin
+	Assert(Assigned(_defines));
+	_defines.Clear;
+
+	pathProcessor := TPathProcessor.Create('', _project);
+	try
+		// Get preprocessor constants (_defines)
+		defineValue := pathProcessor.GetProjectOption('DCC_Define');
+		if defineValue <> '' then begin
+			defineList := TStringList.Create;
+			try
+				defineList.Delimiter := ';';
+				defineList.DelimitedText := defineValue;
+				for i := 0 to defineList.Count - 1 do begin
+					var
+					Define := defineList[i];
+					var
+					EqualPos := Pos('=', Define);
+					if EqualPos > 0 then begin
+						// Define with value: SYMBOL=VALUE
+						_defines.Add(Define);
+					end else begin
+						// Define without value: SYMBOL (assume '1')
+						_defines.Add(Define + '=1');
+					end;
+				end;
+			finally
+				FreeAndNil(defineList);
+			end;
+		end;
+	finally
+		FreeAndNil(pathProcessor);
+	end;
+end;
+
 function TIdeProjectPathHelper.GetProjectFiles() : TArray<string>;
 var
 	fn : string;
-	project : IOTAProject;
 begin
 	Result := [];
-	project := IOTAUtils.GxOtaGetCurrentProject;
-	if not Assigned(project) then
+	if not Assigned(FProject) then
 		Exit;
-	for var i : integer := 0 to project.GetModuleCount - 1 do begin
-		fn := project.GetModule(i).GetFileName;
+	for var i : integer := 0 to FProject.GetModuleCount - 1 do begin
+		fn := FProject.GetModule(i).GetFileName;
 		if not fn.IsEmpty then begin
 			TDebugUtils.DebugMessage('TIdeProjectPathHelper.GetProjectFiles FileName=' + fn);
 			Result := Result + [fn]
@@ -1728,12 +1675,10 @@ begin
 	Result := SameText(IOTAUtils.GxOtaGetProjectPersonality(Project), sDelphiDotNetPersonality);
 end;
 
-class function TIdeProjectPathHelper.tryGetProjectOptions(out _ProjectOptions : IOTAProjectOptions; _Project : IOTAProject = nil) : Boolean;
+function TIdeProjectPathHelper.tryGetProjectOptions(out _ProjectOptions : IOTAProjectOptions) : Boolean;
 begin
-	if not Assigned(_Project) then
-		_Project := IOTAUtils.GxOtaGetCurrentProject;
-	if Assigned(_Project) then
-		_ProjectOptions := _Project.GetProjectOptions;
+	if Assigned(FProject) then
+		_ProjectOptions := FProject.GetProjectOptions;
 	Result := Assigned(_ProjectOptions);
 end;
 
@@ -1752,35 +1697,25 @@ begin
 	Result := IOTAUtils.IsStandAlone;
 end;
 
-class procedure TIdeProjectPathHelper.processPaths(var _paths : TArrayEx<string>; var _nonExistsPaths : TArrayEx<string>;
-	const _prefix, _platformName : string);
+function TIdeProjectPathHelper.processPaths(const _paths : TArrayEx<string>; var _nonExistsPaths : TArrayEx<string>;
+	const _rootDir : string) : TArrayEx<string>;
 var
 	i : Integer;
 	pathItem : string;
-	pathProcessor : TPathProcessor;
+	pathProcessor : IShared<TPathProcessor>;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.processPaths');
-	pathProcessor := TPathProcessor.Create(_prefix);
-	try
-		// todo: What about ConfigName?
-		pathProcessor.PlatformName := _platformName;
-		for i := 0 to _paths.Count - 1 do begin
-			pathItem := _paths[i];
-			dbgMsg.MsgFmt('Original path: %s', [pathItem], tftVerbose);
-			pathItem := pathProcessor.Process(pathItem);
-			dbgMsg.MsgFmt('Processed path: %s', [pathItem], tftVerbose);
-			if DirectoryExists(pathItem) then begin
-				// Only add valid directories
-				_paths[i] := pathItem;
-			end else begin
-				dbgMsg.ErrorMsgFmt('Path does not exist: %s', [pathItem]);
-				_nonExistsPaths.Add(pathItem);
-			end;
-		end;
-	finally
-		FreeAndNil(pathProcessor);
+	pathProcessor := Shared.Make<TPathProcessor>(TPathProcessor.Create(_rootDir, FProject));
+
+	for i := 0 to _paths.Count - 1 do begin
+		pathItem := pathProcessor.Process(_paths[i]);
+		Result.AddIfNotContains(pathItem);
+		dbgMsg.MsgFmt('Original path: %s', [_paths[i]], tftVerbose);
+		dbgMsg.MsgFmt('Processed path: %s', [pathItem], tftVerbose);
 	end;
+
+	_nonExistsPaths.AddRange(pathProcessor.NonExistsPaths.ToStringArray);
 end;
 
 {$ELSE}

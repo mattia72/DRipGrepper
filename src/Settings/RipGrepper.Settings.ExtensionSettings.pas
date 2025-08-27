@@ -21,7 +21,7 @@ type
 		OpenFiles : TArray<string>;
 		ProjectFiles : TArray<string>;
 		ProjectSourcePath : TArray<string>;
-		NotExistsPath : TArrayEx<string>;
+		InvalidProjectSourcePath: TArrayEx<string>;
 		ActiveProject : string;
 		function IsEmpty() : Boolean;
 
@@ -233,13 +233,9 @@ begin
 	ActiveFile := projPathGetter.GetCurrentSourceFile();
 	ProjectFiles := projPathGetter.GetProjectFiles();
 	OpenFiles := projPathGetter.GetOpenedEditBuffers();
-	var
-	ap := IOTAUTils.GxOtaGetCurrentProject;
-	if Assigned(ap) then begin
-		ActiveProject := ap.FileName;
-		// SourcePath := IOTAUtils.GxOtaGetProjectSourcePathStrings(ap, NotExistsPath);
-		ProjectSourcePath := projPathGetter.GetEffectiveLibraryPath(ap, NotExistsPath, True);
-	end;
+	ActiveProject := projPathGetter.GetActiveProjectFilePath();
+	// SourcePath := IOTAUtils.GxOtaGetProjectSourcePathStrings(ap, InvalidProjectSourcePath);
+	ProjectSourcePath := projPathGetter.GetEffectiveLibraryPath(InvalidProjectSourcePath, True);
 	{$ELSE}
 	ActiveFile := 'c:\temp\myfile.pas';
 	ActiveProject := 'c:\temp\myproject.dproj';
@@ -251,8 +247,8 @@ begin
 	dbgMsg.Msg('ActiveProject: ' + ActiveProject);
 	dbgMsg.Msg('OpenFiles: ' + string.Join(';' + CRLF + TAB, OpenFiles));
 	dbgMsg.Msg('ProjectFiles: ' + string.Join(';' + CRLF + TAB, ProjectFiles));
-	dbgMsg.Msg('SourcePath: ' + string.Join(';' + CRLF + TAB, ProjectSourcePath));
-	dbgMsg.Msg('NotExistsPath: ' + string.Join(';' + CRLF + TAB, NotExistsPath.Items));
+	dbgMsg.Msg('ProjectSourcePath: ' + string.Join(';' + CRLF + TAB, ProjectSourcePath));
+	dbgMsg.WarningMsg('InvalidProjectSourcePath: ' + string.Join(';' + CRLF + TAB, InvalidProjectSourcePath.Items));
 end;
 
 class operator TDelphiIDEContext.Initialize(out Dest : TDelphiIDEContext);
