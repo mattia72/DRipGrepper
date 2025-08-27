@@ -59,7 +59,7 @@ type
 			[Test]
 			procedure TestEnvironmentVariables;
 
-//   [Test]
+			// [Test]
 			procedure TestProjectDefines;
 
 			[Test]
@@ -109,7 +109,7 @@ procedure TPathProcessorTest.TestIdeBaseMacros(const Input, Expected : string);
 var
 	Result : string;
 begin
-	Result := FPathProcessor.Process(Input, True);
+	Result := FPathProcessor.Process(Input, True, True);
 	Assert.AreEqual(Expected, Result, Format('Failed to process IDE base macro. Input: %s', [Input]));
 end;
 
@@ -122,7 +122,7 @@ begin
 	if Expected.Contains('Win64') then
 		FPathProcessor.PlatformName := 'Win64';
 
-	Result := FPathProcessor.Process(Input, True);
+	Result := FPathProcessor.Process(Input, True, True);
 	Assert.AreEqual(Expected, Result, Format('Failed to process Platform macro. Input: %s', [Input]));
 end;
 
@@ -135,7 +135,7 @@ begin
 	if Expected.Contains('Release') then
 		FPathProcessor.ConfigName := 'Release';
 
-	Result := FPathProcessor.Process(Input, True);
+	Result := FPathProcessor.Process(Input, True, True);
 	Assert.AreEqual(Expected, Result, Format('Failed to process Config macro. Input: %s', [Input]));
 end;
 
@@ -145,7 +145,7 @@ var
 begin
 	FPathProcessor.PlatformName := 'Win32';
 	FPathProcessor.ConfigName := 'Debug';
-	Result := FPathProcessor.Process(Input, True);
+	Result := FPathProcessor.Process(Input, True, True);
 	Assert.AreEqual(Expected, Result, Format('Failed to process multiple macros. Input: %s', [Input]));
 end;
 
@@ -153,7 +153,7 @@ procedure TPathProcessorTest.TestNoMacroReplacement(const Input, Expected : stri
 var
 	Result : string;
 begin
-	Result := FPathProcessor.Process(Input, True);
+	Result := FPathProcessor.Process(Input, True, True);
 	Assert.AreEqual(Expected, Result, Format('Unexpected macro replacement. Input: %s', [Input]));
 end;
 
@@ -172,7 +172,7 @@ begin
 		FPathProcessor := TPathProcessor.Create('');
 
 		TestPath := '$(' + TempVar + ')\subfolder';
-		Result := FPathProcessor.Process(TestPath);
+		Result := FPathProcessor.Process(TestPath, False, True);
 		Assert.AreEqual('C:\TestValue\subfolder', Result, 'Failed to process environment variable macro');
 	finally
 		SetEnvironmentVariable(PChar(TempVar), nil); // Remove test variable
@@ -189,7 +189,7 @@ begin
 	// .AddProjectDefine('SIMPLE_DEFINE', ''); // Empty value should default to '1'
 
 	TestPath := '$(TESTDEFINE)\test\$(SIMPLE_DEFINE)';
-	Result := FPathProcessor.Process(TestPath, True);
+	Result := FPathProcessor.Process(TestPath, True, True);
 	Assert.AreEqual('TestValue\test\1', Result, 'Failed to process project defines');
 end;
 
@@ -203,7 +203,7 @@ begin
 	FPathProcessor := TPathProcessor.Create('C:\TestProject');
 
 	RelativePath := 'relative\path';
-	Result := FPathProcessor.Process(RelativePath, True);
+	Result := FPathProcessor.Process(RelativePath, True, True);
 	Assert.AreEqual('C:\TestProject\relative\path', Result, 'Failed to handle relative path correctly');
 end;
 
@@ -218,13 +218,12 @@ begin
 
 	FPathProcessor.PlatformName := 'Win32';
 
-	Result := FPathProcessor.Process(TestPath);
-	Assert.AreEqual(IDE_PATH + '\Win32\release', Result,
-		'Failed to process original bug scenario: $(BDS)\$(Platform)\release');
+	Result := FPathProcessor.Process(TestPath, False, True);
+	Assert.AreEqual(IDE_PATH + '\Win32\release', Result, 'Failed to process original bug scenario: $(BDS)\$(Platform)\release');
 
 	// Test with Win64 platform
 	FPathProcessor.PlatformName := 'Win64';
-	Result := FPathProcessor.Process(TestPath);
+	Result := FPathProcessor.Process(TestPath, False, True);
 	Assert.AreEqual('C:\Program Files\Embarcadero\Studio\22.0\Win64\release', Result, 'Failed to process Win64 platform scenario');
 end;
 

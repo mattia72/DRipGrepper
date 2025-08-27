@@ -31,7 +31,8 @@ type
 			procedure GetEnvironmentVariables(Strings : TStrings);
 			procedure GetAllProjectOptions(Options : TStrings);
 			function GetProjectOption(const OptionName : string) : string;
-			function Process(const _sPath : string; const _bSkipProjectDefines : Boolean = False) : string;
+			function Process(const _sPath: string; const _bSkipProjectDefines: Boolean =
+				False; _bSkipExistsCheck: Boolean = False): string;
 			class function ReplaceMacro(const _str, _oldValue, _newValue : string) : string;
 			property PlatformName : string read FPlatformName write FPlatformName;
 			property ConfigName : string read FConfigName write FConfigName;
@@ -156,7 +157,9 @@ begin
 	end;
 end;
 
-function TPathProcessor.Process(const _sPath : string; const _bSkipProjectDefines : Boolean = False) : string;
+function TPathProcessor.Process(const _sPath: string; const
+	_bSkipProjectDefines: Boolean = False; _bSkipExistsCheck: Boolean = False):
+	string;
 const
 	IDEBaseMacros : array [0 .. 2] of string = ('BDS', 'DELPHI', 'BCB');
 var
@@ -204,7 +207,7 @@ begin
 		Result := TFileUtils.ExpandFileNameRelBaseDir(Result, FRootDir);
 	end;
 
-	if not DirectoryExists(Result) then begin
+	if (not _bSkipExistsCheck) and (not DirectoryExists(Result)) then begin
 		NonExistsPaths.Add(Result);
 		Result := '';
 	end else begin

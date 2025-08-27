@@ -85,13 +85,6 @@ type
 			/// @params if _shouldDoProcessing is true, the paths are macro expanded and non-existing
 			/// paths removed. </summary>
 			function getProjectSourcePathStrings() : TArrayEx<string>;
-			// Returns the IOTASourceEditor interface for a module
-			// if there is a file that supports one; returns nil
-			// if there is no IOTASourceEditor
-			class function getSourceEditorFromModule(_Module : IOTAModule; const _sFileName : string = '') : IOTASourceEditor;
-			/// <summary>
-			/// Returns the project's current platform, if any (and supported), or an empty string </summary>
-			function getProjectPlatform() : string;
 			class function isCurrentProjectIsDelphiDotNet() : Boolean;
 			class function isCurrentProjectNativeCpp() : Boolean;
 			class function IsProjectDelphiDotNet(Project : IOTAProject) : Boolean;
@@ -1471,30 +1464,6 @@ begin
 	Result := getEnvironmentOptions.Values[_sEnvName];
 end;
 
-class function TIdeProjectPathHelper.getSourceEditorFromModule(_Module : IOTAModule; const _sFileName : string = '') : IOTASourceEditor;
-var
-	i : Integer;
-	IEditor : IOTAEditor;
-	ISourceEditor : IOTASourceEditor;
-begin
-	Result := nil;
-	if not Assigned(_Module) then
-		Exit;
-
-	for i := 0 to _Module.GetModuleFileCount - 1 do begin
-		IEditor := IOTAUtils.GxOtaGetFileEditorForModule(_Module, i);
-
-		if Supports(IEditor, IOTASourceEditor, ISourceEditor) then begin
-			if Assigned(ISourceEditor) then begin
-				if (_sFileName = '') or SameFileName(ISourceEditor.FileName, _sFileName) then begin
-					Result := ISourceEditor;
-					Break;
-				end;
-			end;
-		end;
-	end;
-end;
-
 class function TIdeProjectPathHelper.getEnvironmentOptions() : IOTAEnvironmentOptions;
 begin
 	var
@@ -1547,13 +1516,6 @@ begin
 	dbgMsg.MsgFmt('Result: %s', [string.Join(CRLF + TAB, Result.Items)]);
 end;
 
-function TIdeProjectPathHelper.getProjectPlatform() : string;
-begin
-	Result := '';
-	if FProject <> nil then
-		Result := FProject.CurrentPlatform;
-end;
-
 function TIdeProjectPathHelper.getProjectSourcePathStrings() : TArrayEx<string>;
 var
 	idePathString : string;
@@ -1563,7 +1525,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.getProjectSourcePathStrings');
 	if Assigned(FProject) then begin
-		projectDir := ExtractFileDir(FProject.FileName);
+		projectDir := GetActiveProjectDirectory();
 		// Add the current _project directory first
 		Result.Add(projectDir);
 		// Then the _project search path
