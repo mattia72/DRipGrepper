@@ -9,9 +9,8 @@ uses
 type
 	TPathProcessor = class
 
-		strict private
-			FCompilerVersion: string;
 		private
+			FCompilerVersion : string;
 			FIdeBasePath : string;
 			FConfigName : string;
 			FPlatformName : string;
@@ -36,9 +35,9 @@ type
 			class function ReplaceMacro(const _str, _oldValue, _newValue : string) : string;
 			property PlatformName : string read FPlatformName write FPlatformName;
 			property ConfigName : string read FConfigName write FConfigName;
-			property Environment: TStringList read FEnvironment;
+			property Environment : TStringList read FEnvironment;
 			property IdeBasePath : string read FIdeBasePath write FIdeBasePath;
-			property NonExistsPaths: TStringList read FNonExistsPaths;
+			property NonExistsPaths : TStringList read FNonExistsPaths;
 	end;
 
 type
@@ -59,7 +58,8 @@ uses
 	RipGrepper.Tools.FileUtils,
 	RipGrepper.Common.RegistryUtils,
 	Vcl.Forms,
-	System.StrUtils;
+	System.StrUtils,
+	RipGrepper.Common.Constants;
 
 { TPathProcessor }
 
@@ -76,8 +76,8 @@ begin
 	FIdeBasePath := ExcludeTrailingPathDelimiter(TIdeUtils.GetIdeRootDirectory);
 	// FIdeBasePath := ExcludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
 	dbgMsg.MsgFmt('IdeBasePath = %s', [FIdeBasePath]);
-	FEnvironment := TStringList.Create(TDuplicates.dupIgnore,True,false);
-	FNonExistsPaths := TStringList.Create(TDuplicates.dupIgnore,True,false);
+	FEnvironment := TStringList.Create(TDuplicates.dupIgnore, True, false);
+	FNonExistsPaths := TStringList.Create(TDuplicates.dupIgnore, True, false);
 	GetEnvironmentVariables(FEnvironment);
 end;
 
@@ -145,6 +145,13 @@ begin
 		FConfigName := _Project.CurrentConfiguration;
 		dbgMsg.MsgFmt('FConfigName = %s', [FConfigName]);
 		FProjectOptions := _Project.GetProjectOptions;
+		{$IF CompilerVersion = COMPILER_VERSION_DELPHI_11}
+		FCompilerVersion := '22.0';
+		{$ENDIF}
+		{$IF CompilerVersion = COMPILER_VERSION_DELPHI_12}
+		FCompilerVersion := '23.0';
+		{$ENDIF}
+		dbgMsg.MsgFmt('FCompilerVersion = %s', [FCompilerVersion]);
 		dbgMsg.MsgFmt('FProjectOptions length %d', [Length(FProjectOptions.GetOptionNames)]);
 	end;
 end;
@@ -192,7 +199,6 @@ begin
 	if FCompilerVersion <> '' then begin
 		Result := ReplaceMacro(Result, 'CompilerVersion', FCompilerVersion);
 	end;
-
 
 	if (not FRootDir.IsEmpty) and (not TFileUtils.IsPathAbsolute(Result)) then begin
 		Result := TFileUtils.ExpandFileNameRelBaseDir(Result, FRootDir);
