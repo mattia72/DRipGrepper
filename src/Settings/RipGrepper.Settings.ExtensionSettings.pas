@@ -224,16 +224,15 @@ begin
 end;
 
 procedure TDelphiIDEContext.LoadFromIOTA();
-var
-	projPathGetter : IProjectPathGetter;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDelphiIDEContext.LoadFromIOTA');
 	{$IF IS_EXTENSION}
-	projPathGetter := TIdeProjectPathHelper.Create();
+	var
+		projPathGetter : IIdeProjectPathHelper := TIdeProjectPathHelper.Create();
 	ActiveFile := projPathGetter.GetCurrentSourceFile();
-	ProjectFiles := IOTAUTils.GetProjectFiles();
-	OpenFiles := IOTAUTils.GetOpenedEditBuffers();
+	ProjectFiles := projPathGetter.GetProjectFiles();
+	OpenFiles := projPathGetter.GetOpenedEditBuffers();
 	var
 	ap := IOTAUTils.GxOtaGetCurrentProject;
 	if Assigned(ap) then begin

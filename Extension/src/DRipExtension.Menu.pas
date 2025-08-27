@@ -206,7 +206,7 @@ begin
 	G_DripMenu.Items[0].Enabled := bEnabled;
 	dbgMsg.MsgFmt('%s img=%d enabled=%s', [G_DripMenu.Items[0].Caption, G_DripMenu.Items[0].ImageIndex, BoolToStr(bEnabled, True)]);
     var
-	projPathGetter : IProjectPathGetter := TIdeProjectPathHelper.Create();
+	projPathGetter : IIdeProjectPathHelper := TIdeProjectPathHelper.Create();
 	bEnabled := not projPathGetter.GetCurrentSourceFile.IsEmpty;
 	G_DripMenu.Items[1].Enabled := bEnabled;
 	dbgMsg.MsgFmt('%s enabled = %s', [G_DripMenu.Items[1].Caption, BoolToStr(bEnabled, True)]);

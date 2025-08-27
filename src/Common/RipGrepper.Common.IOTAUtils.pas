@@ -20,21 +20,25 @@ uses
 
 type
 
-	IProjectPathGetter = interface(IInterface)
+	IIdeProjectPathHelper = interface(IInterface)
 		['{200BE41D-8762-43FB-929D-877236B4FBC4}']
+		function GetActiveProjectDirectory() : string;
+		function GetActiveProjectFilePath() : string;
+		function GetProjectFiles() : TArray<string>;
+		function GetOpenedEditBuffers() : TArray<string>;
 		function GetCurrentSourceFile() : string;
 		/// <summary>
 		/// Return the effective library path, with the _project specific paths
 		/// first and then the IDE's global library path.
-		/// @params if _shouldDoProcessing is true, the paths are macro expanded and non-existing
+		/// @params if _shouldProcess is true, the paths are macro expanded and non-existing
 		/// paths removed.
 		/// @params AdditionalPaths are appended at the end and optionally processed too </summary>
-		function GetEffectiveLibraryPath(_project : IOTAProject; var _errList : TArrayEx<string>;
-			const _shouldDoProcessing : Boolean = True) : TArrayEx<string>;
+		function GetEffectiveLibraryPath(_project: IOTAProject; var _errDirList: TArrayEx<string>; const _shouldProcess: Boolean = True):
+			TArrayEx<string>;
 
 	end;
 
-	TIdeProjectPathHelper = class(TInterfacedObject, IProjectPathGetter)
+	TIdeProjectPathHelper = class(TInterfacedObject, IIdeProjectPathHelper)
 		const
 			// 'DCC_UnitSearchPath'
 			OPTION_NAME_UNIT_SEARCH_PATH = 'SrcDir';
@@ -98,18 +102,22 @@ type
 			class function tryGetProjectOptions(out _ProjectOptions : IOTAProjectOptions; _Project : IOTAProject = nil) : Boolean;
 
 		public
+			function GetActiveProjectDirectory() : string;
+			function GetActiveProjectFilePath() : string;
 			/// <summary>
 			/// Return the effective library path, with the _project specific paths
 			/// first and then the IDE's global library path.
-			/// @params if _shouldDoProcessing is true, the paths are macro expanded and non-existing
+			/// @params if _shouldProcess is true, the paths are macro expanded and non-existing
 			/// paths removed.
 			/// @params AdditionalPaths are appended at the end and optionally processed too </summary>
-			function GetEffectiveLibraryPath(_project : IOTAProject; var _errList : TArrayEx<string>;
-				const _shouldDoProcessing : Boolean = True) : TArrayEx<string>;
+			function GetEffectiveLibraryPath(_project: IOTAProject; var _errDirList: TArrayEx<string>; const _shouldProcess: Boolean = True):
+				TArrayEx<string>;
 			// Returns a fully qualified name of the current file,
 			// which could either be a form or unit (.pas/.cpp/.dfm/.xfm etc.).
 			// Returns an empty string if no file is currently selected.
 			function GetCurrentSourceFile() : string;
+			function GetOpenedEditBuffers() : TArray<string>;
+			function GetProjectFiles() : TArray<string>;
 	end;
 
 	IOTAUtils = class(TObject)
@@ -154,12 +162,8 @@ type
 			class function GetIDEEditControl(Form : TCustomForm) : TWinControl;
 
 			class function GetOpenedEditorFiles : TArray<string>;
-			class function GetOpenedEditBuffers : TArray<string>;
 			class function GetModifiedEditBuffers : TArray<string>;
 
-			class function GetProjectFiles() : TArray<string>;
-			class function GetActiveProjectFilePath() : string;
-			class function GetActiveProjectDirectory() : string;
 			class function GxOtaFocusCurrentIDEEditControl : Boolean;
 			// If UseSelection is True, get the selected text in the current edit view
 			// (if any) and return True or get all of the editor's text (if no selection)
@@ -423,28 +427,6 @@ begin
 	end;
 end;
 
-class function IOTAUtils.GetOpenedEditBuffers : TArray<string>;
-var
-	service : IOTAEditorServices;
-	it : IOTAEditBufferIterator;
-	buffer : IOTAEditBuffer;
-begin
-	Result := [];
-	service := (BorlandIDEServices as IOTAEditorServices);
-	if Assigned(service) then begin
-		if (service.GetEditBufferIterator(it)) then begin
-			for var i := 0 to it.Count - 1 do begin
-				buffer := it.EditBuffers[i];
-				TDebugUtils.DebugMessage('IOTAUtils.GetOpenedEditBuffers FileName=' + buffer.FileName + ' ViewCount=' +
-					buffer.EditViewCount.ToString);
-				if buffer.EditViewCount > 0 then begin
-					Result := Result + [buffer.FileName];
-				end;
-			end;
-		end;
-	end;
-end;
-
 class function IOTAUtils.GetModifiedEditBuffers : TArray<string>;
 var
 	service : IOTAEditorServices;
@@ -465,40 +447,6 @@ begin
 			end;
 		end;
 	end;
-end;
-
-class function IOTAUtils.GetProjectFiles : TArray<string>;
-var
-	fn : string;
-	project : IOTAProject;
-begin
-	Result := [];
-	project := GxOtaGetCurrentProject;
-	if not Assigned(project) then
-		Exit;
-	for var i : integer := 0 to project.GetModuleCount - 1 do begin
-		fn := project.GetModule(i).GetFileName;
-		if not fn.IsEmpty then begin
-			TDebugUtils.DebugMessage('IOTAUtils.GetProjectFiles FileName=' + fn);
-			Result := Result + [fn]
-		end;
-	end;
-end;
-
-class function IOTAUtils.GetActiveProjectFilePath() : string;
-var
-	project : IOTAProject;
-begin
-	Result := '';
-	project := GxOtaGetCurrentProject;
-	if Assigned(project) then begin
-		Result := project.FileName;
-	end;
-end;
-
-class function IOTAUtils.GetActiveProjectDirectory() : string;
-begin
-	Result := ExtractFileDir(GetActiveProjectFilePath());
 end;
 
 class function IOTAUtils.GetSettingFilePath : string;
@@ -1475,6 +1423,22 @@ begin
 	end;
 end;
 
+function TIdeProjectPathHelper.GetActiveProjectDirectory() : string;
+begin
+	Result := ExtractFileDir(GetActiveProjectFilePath());
+end;
+
+function TIdeProjectPathHelper.GetActiveProjectFilePath() : string;
+var
+	project : IOTAProject;
+begin
+	Result := '';
+	project := IOTAUtils.GxOtaGetCurrentProject;
+	if Assigned(project) then begin
+		Result := project.FileName;
+	end;
+end;
+
 class procedure TIdeProjectPathHelper.getAllAvailableMacros(_macros : TStrings; _project : IOTAProject = nil);
 const
 	IDE_BASE_MACROS : array [0 .. 3] of string = ('BDS', 'DELPHI', 'BCB', 'CompilerVersion');
@@ -1557,27 +1521,27 @@ begin
 	dbgMsg.MsgFmt('Result: %s', [Result]);
 end;
 
-function TIdeProjectPathHelper.GetEffectiveLibraryPath(_project : IOTAProject; var _errList : TArrayEx<string>;
-	const _shouldDoProcessing : Boolean = True) : TArrayEx<string>;
+function TIdeProjectPathHelper.GetEffectiveLibraryPath(_project: IOTAProject; var _errDirList: TArrayEx<string>; const _shouldProcess:
+	Boolean = True): TArrayEx<string>;
 var
 	i : Integer;
 	platformName : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('IOATAUtils.GetEffectiveLibraryPath');
-	// _shouldDoProcessing = True uses the _project file's directory as the base to expand relative paths
-	Result := getProjectSourcePathStrings(_project, _errList, _shouldDoProcessing);
+	// _shouldProcess = True uses the _project file's directory as the base to expand relative paths
+	Result := getProjectSourcePathStrings(_project, _errDirList, _shouldProcess);
 	dbgMsg.MsgFmt('Project source paths: %s', [string.Join(CRLF, Result.Items)]);
 
 	var
-	localList := getIdeLibraryPathStrings(_errList, _shouldDoProcessing);
-	if _shouldDoProcessing then begin
+	localList := getIdeLibraryPathStrings(_errDirList, _shouldProcess);
+	if _shouldProcess then begin
 		// do another processing, this time also expanding the Platform related macros
 		platformName := getProjectPlatform(_project);
 		dbgMsg.MsgFmt('platformName: %s', [platformName]);
 
 		// There shouldn't be any more relatives paths left, so passing GetCurrentDir is probably fine
-		processPaths(localList, _errList, GetCurrentDir, platformName);
+		processPaths(localList, _errDirList, GetCurrentDir, platformName);
 	end;
 	for i := 0 to localList.Count - 1 do begin
 		Result.AddIfNotContains(localList[i]);
@@ -1716,6 +1680,46 @@ begin
 			Result := Editor.FileName
 		else // C++Builder 6 returns nil for some old-style modules without DFMs
 			Result := Module.FileName;
+	end;
+end;
+
+function TIdeProjectPathHelper.GetOpenedEditBuffers() : TArray<string>;
+var
+	service : IOTAEditorServices;
+	it : IOTAEditBufferIterator;
+	buffer : IOTAEditBuffer;
+begin
+	Result := [];
+	service := (BorlandIDEServices as IOTAEditorServices);
+	if Assigned(service) then begin
+		if (service.GetEditBufferIterator(it)) then begin
+			for var i := 0 to it.Count - 1 do begin
+				buffer := it.EditBuffers[i];
+				TDebugUtils.DebugMessage('TIdeProjectPathHelper.GetOpenedEditBuffers FileName=' + buffer.FileName + ' ViewCount=' +
+					buffer.EditViewCount.ToString);
+				if buffer.EditViewCount > 0 then begin
+					Result := Result + [buffer.FileName];
+				end;
+			end;
+		end;
+	end;
+end;
+
+function TIdeProjectPathHelper.GetProjectFiles() : TArray<string>;
+var
+	fn : string;
+	project : IOTAProject;
+begin
+	Result := [];
+	project := IOTAUtils.GxOtaGetCurrentProject;
+	if not Assigned(project) then
+		Exit;
+	for var i : integer := 0 to project.GetModuleCount - 1 do begin
+		fn := project.GetModule(i).GetFileName;
+		if not fn.IsEmpty then begin
+			TDebugUtils.DebugMessage('TIdeProjectPathHelper.GetProjectFiles FileName=' + fn);
+			Result := Result + [fn]
+		end;
 	end;
 end;
 

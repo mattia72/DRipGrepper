@@ -23,11 +23,10 @@ implementation
 uses
 	{$IFNDEF STANDALONE} RipGrepper.Common.IOTAUtils, {$ENDIF}
 	RipGrepper.Tools.DebugUtils,
-	System.SysUtils, RipGrepper.Common.Constants;
+	System.SysUtils,
+	RipGrepper.Common.Constants;
 
 class function TOpenWithParams.GetParamsOfActiveFileInDelphiIde : TOpenWithParams;
-var
-	projPathGetter : IProjectPathGetter;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithParams.GetParamsOfActiveFileInDelphiIde');
@@ -36,10 +35,11 @@ begin
 	var
 	editPosition := IOTAUTils.GetEditPosition;
 	if Assigned(editPosition) then begin
-        projPathGetter := TIdeProjectPathHelper.Create();
+		var
+			projPathGetter : IIdeProjectPathHelper := TIdeProjectPathHelper.Create();
 		Result.FilePath := projPathGetter.GetCurrentSourceFile;
 		var
-			sProjPath : string := IOTAUtils.GetActiveProjectFilePath;
+			sProjPath : string := projPathGetter.GetActiveProjectFilePath;
 		dbgMsg.MsgFmt('proj: %s ', [sProjPath]);
 		if (sProjPath <> '') then begin
 			Result.RelativeBaseDirPath := ExtractFileDir(sProjPath);
