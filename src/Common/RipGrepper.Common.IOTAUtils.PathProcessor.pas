@@ -9,6 +9,8 @@ uses
 type
 	TPathProcessor = class
 
+		strict private
+			FCompilerVersion: string;
 		private
 			FIdeBasePath : string;
 			FConfigName : string;
@@ -186,12 +188,21 @@ begin
 		Result := ReplaceMacro(Result, 'Config', FConfigName);
 	end;
 
+	// TODO: Implement compiler version replacement
+	if FCompilerVersion <> '' then begin
+		Result := ReplaceMacro(Result, 'CompilerVersion', FCompilerVersion);
+	end;
+
+
 	if (not FRootDir.IsEmpty) and (not TFileUtils.IsPathAbsolute(Result)) then begin
 		Result := TFileUtils.ExpandFileNameRelBaseDir(Result, FRootDir);
 	end;
 
 	if not DirectoryExists(Result) then begin
 		NonExistsPaths.Add(Result);
+		Result := '';
+	end else begin
+		Result := Result.TrimRight([PathDelim]);
 	end;
 
 end;

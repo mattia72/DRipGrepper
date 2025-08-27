@@ -1710,7 +1710,9 @@ begin
 
 	for i := 0 to _paths.Count - 1 do begin
 		pathItem := pathProcessor.Process(_paths[i]);
-		Result.AddIfNotContains(pathItem);
+		if not pathItem.IsEmpty then begin
+			Result.AddIfNotContains(pathItem);
+		end;
 		dbgMsg.MsgFmt('Original path: %s', [_paths[i]], tftVerbose);
 		dbgMsg.MsgFmt('Processed path: %s', [pathItem], tftVerbose);
 	end;
