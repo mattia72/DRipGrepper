@@ -1437,6 +1437,7 @@ begin
 		case FCtrlProxy.ExtensionContext of
 			EDelphiIDESearchContext.dicActiveFile,
 			{ } EDelphiIDESearchContext.dicProjectFiles,
+			{ } EDelphiIDESearchContext.dicProjectRootDirectory,
 			{ } EDelphiIDESearchContext.dicOpenFiles,
 			{ } EDelphiIDESearchContext.dicProjectSourcePath : begin
 				SetCmbSearchPathText(contextValue);
