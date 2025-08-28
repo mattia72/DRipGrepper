@@ -305,7 +305,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         AlignWithMargins = True
         Left = 10
         Top = 84
-        Width = 27
+        Width = 524
         Height = 15
         Margins.Left = 8
         Margins.Top = 8
@@ -431,12 +431,12 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         TabOrder = 2
         object cbRgParamEncoding: TCheckBox
           AlignWithMargins = True
-          Left = 223
+          Left = 203
           Top = 3
-          Width = 100
+          Width = 90
           Height = 22
           Align = alLeft
-          Caption = '--encoding'
+          Caption = '--encoding='
           TabOrder = 2
           OnClick = cbRgParamEncodingClick
         end
@@ -444,7 +444,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
           AlignWithMargins = True
           Left = 11
           Top = 3
-          Width = 100
+          Width = 90
           Height = 22
           Align = alLeft
           Caption = '--hidden'
@@ -453,9 +453,9 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         end
         object cbRgParamNoIgnore: TCheckBox
           AlignWithMargins = True
-          Left = 117
+          Left = 107
           Top = 3
-          Width = 100
+          Width = 90
           Height = 22
           Align = alLeft
           Caption = '--no-ignore'
@@ -464,7 +464,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         end
         object cmbRgParamEncoding: TComboBox
           AlignWithMargins = True
-          Left = 329
+          Left = 299
           Top = 3
           Width = 100
           Height = 23
@@ -509,7 +509,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         AlignWithMargins = True
         Left = 15
         Top = 22
-        Width = 100
+        Width = 90
         Height = 17
         Margins.Top = 0
         Margins.Bottom = 0
@@ -523,13 +523,13 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         AlignWithMargins = True
         Left = 121
         Top = 22
-        Width = 100
+        Width = 90
         Height = 17
         Hint = 'Line Count Before and After Matched Line'
         Margins.Top = 0
         Margins.Bottom = 0
         BiDiMode = bdLeftToRight
-        Caption = '--context'
+        Caption = '--context='
         ParentBiDiMode = False
         ParentShowHint = False
         ShowHint = True
