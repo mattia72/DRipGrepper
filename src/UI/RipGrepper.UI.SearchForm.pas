@@ -44,6 +44,8 @@ uses
 	RipGrepper.UI.SearchForm.CtrlValueProxy;
 
 type
+	EMemoTextFormat = (mtfOneLine, mtfSeparateLines);
+
 	TRipGrepperSearchDialogForm = class(TForm)
 		pnlMiddle : TPanel;
 		lblParams : TLabel;
@@ -159,6 +161,7 @@ type
 
 			FbExtensionOptionsSkipClick : Boolean;
 			FCbClickEventEnabled : Boolean;
+			FMemoTextFormat : EMemoTextFormat;
 			FOptionsFiltersOrigHeight : Integer;
 			FOptionsOutputOrigTop : Integer;
 			FpnlMiddleOrigHeight : Integer;
@@ -213,6 +216,7 @@ type
 			procedure CopySettingsToHistObj;
 			procedure SetCmbSearchTextText(const _sText : string);
 			procedure SetCmbSearchTextAutoComplete(const _Value : Boolean);
+			procedure UpdateMemoTextFormat();
 
 		protected
 			procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;
@@ -414,17 +418,17 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ActionShowInLinesExecute(Sender : TObject);
 var
-	str : string;
+	nextHint: string;
 begin
-	if ActionShowInLines.Hint = SHOW_CMD_IN_SEPARATE_LINES then begin
-		str := memoCommandLine.Text;
-		memoCommandLine.Text := string.Join(CRLF, str.Split([' ']));
-		ActionShowInLines.Hint := SHOW_CMD_IN_ONE_LINE;
+	if FMemoTextFormat = mtfSeparateLines then begin
+        FMemoTextFormat := mtfOneLine;
+		nextHint := SHOW_CMD_IN_ONE_LINE;
 	end else begin
-		str := memoCommandLine.Text;
-		memoCommandLine.Text := str.Replace(CRLF, ' ', [rfReplaceAll]);
-		ActionShowInLines.Hint := SHOW_CMD_IN_SEPARATE_LINES;
-	end;;
+        FMemoTextFormat := mtfSeparateLines;
+		nextHint := SHOW_CMD_IN_SEPARATE_LINES;
+	end;
+	UpdateMemoTextFormat();
+	ActionShowInLines.Hint := nextHint;
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionShowRGOptionsHelpExecute(Sender : TObject);
@@ -506,6 +510,8 @@ begin
 		dbgMsg.Msg('RipGrepPath=' + FSettings.RipGrepParameters.RipGrepPath);
 
 		WriteCtrlsToRipGrepParametersSettings; // FormShow
+
+		ActionShowInLines.Hint := SHOW_CMD_IN_SEPARATE_LINES;
 		UpdateCmbOptionsAndMemoCommandLine;
 
 		// Active Monitor
@@ -876,7 +882,8 @@ begin
 	FSettings.RipGrepParameters.GuiSearchTextParams.Copy(FSettingsProxy);
 
 	FSettings.RebuildArguments();
-	memoCommandLine.Text := FSettings.RipGrepParameters.GetCommandLine(FSettings.AppSettings.CopyToClipBoardShell);
+	// memoCommandLine.Text := FSettings.RipGrepParameters.GetCommandLine(FSettings.AppSettings.CopyToClipBoardShell);
+	UpdateMemoTextFormat();
 	FSettingsProxy.Copy(FSettings.RipGrepParameters.GuiSearchTextParams());
 	dbgMsg.Msg('FSettingsProxy= ' + FSettingsProxy.ToLogString);
 end;
@@ -1511,20 +1518,18 @@ begin
 	try
 		ExtensionContextFrame1.SetSelectedIDEContext(_dic);
 		dbgMsg.MsgFmt('ContextRadioGroup.ItemIndex = %d', [Integer(_dic)]);
-		
+
 		// Create the appropriate context values directly to ensure proper initialization
 		var icv : IIDEContextValues;
-		case _dic of
-			EDelphiIDESearchContext.dicCustomLocation:
-				icv := TIDEContextValues.Create(_dic, FCtrlProxy.SearchPath);
-			else
-				icv := ExtensionContextFrame1.ContextValues;
-		end;
-		
-		UpdateCmbsOnIDEContextChange(icv);
-	finally
-		FbExtensionOptionsSkipClick := False;
-	end;
+			case _dic of EDelphiIDESearchContext.dicCustomLocation : icv := TIDEContextValues.Create(_dic, FCtrlProxy.SearchPath);
+	else
+		icv := ExtensionContextFrame1.ContextValues;
+end;
+
+UpdateCmbsOnIDEContextChange(icv);
+finally
+	FbExtensionOptionsSkipClick := False;
+end;
 end;
 
 function TRipGrepperSearchDialogForm.ValidateRegex : Boolean;
@@ -1622,6 +1627,19 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetCmbSearchTextText');
 	cmbSearchText.Text := CheckAndCorrectMultiLine(_sText);
 	dbgMsg.MsgFmt('AutoComplete = %s SearchText = %s', [BoolToStr(cmbSearchText.AutoComplete, True), cmbSearchText.Text]);
+end;
+
+procedure TRipGrepperSearchDialogForm.UpdateMemoTextFormat();
+begin
+	var
+	params := FSettings.RipGrepParameters;
+	var
+	shellType := FSettings.AppSettings.CopyToClipBoardShell;
+	if FMemoTextFormat = mtfSeparateLines then begin
+		memoCommandLine.Text := string.Join(CRLF, params.GetCommandLineAsArray(shellType));
+	end else begin
+		memoCommandLine.Text := params.GetCommandLine(shellType);
+	end;
 end;
 
 end.

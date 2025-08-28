@@ -56,6 +56,7 @@ type
 			destructor Destroy; override;
 			procedure Copy(const _other : TPersistableSettings); override;
 			function GetCommandLine(const _shell : TShellType) : string;
+			function GetCommandLineAsArray(const _shell : TShellType): TArray<string>;
 			procedure ReadFile(); override;
 			procedure LoadFromDict; override;
 			function TryGetRipGrepPath(out _rgPath : string) : ERipGrepPathInitResult;
@@ -115,7 +116,7 @@ var
 	sParam : string;
 	argName : string;
 	argValue : string;
-	sText: string;
+	sText : string;
 begin
 	for var argKeyValue : string in RipGrepArguments do begin
 		arrParamValue := argKeyValue.Split(['=']);
@@ -149,7 +150,8 @@ begin
 	inherited Copy(_other);
 end;
 
-function TRipGrepParameterSettings.GetCommandLine(const _shell : TShellType) : string;
+function TRipGrepParameterSettings.GetCommandLineAsArray(const _shell :
+	TShellType): TArray<string>;
 var
 	cmdLine : IShared<TStringList>;
 	quote : Nullable<char>;
@@ -178,10 +180,12 @@ begin
 		cmdLine.AddStrings(RipGrepArguments.GetSearchPath());
 	end;
 
-	// DelimitedText puts unnecessary quotes so we build it
-	for var s in cmdLine do begin
-		Result := Result.Trim() + ' ' + s;
-	end;
+	Result := cmdLine.ToStringArray;
+end;
+
+function TRipGrepParameterSettings.GetCommandLine(const _shell : TShellType) : string;
+begin
+	Result := string.Join(' ', GetCommandLineAsArray(_shell));
 end;
 
 function TRipGrepParameterSettings.GetFileMasks() : string;
