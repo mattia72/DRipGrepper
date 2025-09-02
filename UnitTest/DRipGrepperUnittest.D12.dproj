@@ -166,6 +166,7 @@
         <DCCReference Include="..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas"/>
         <DCCReference Include="..\src\Helper\RipGrepper.Helper.StreamReaderWriter.pas"/>
         <DCCReference Include="RipGrepper.Tools.ReleaseUtils.Test.pas"/>
+        <DCCReference Include="RipGrepper.Common.IOTAUtils.TPathProcessor.Test.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

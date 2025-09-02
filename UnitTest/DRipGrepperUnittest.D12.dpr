@@ -15,6 +15,7 @@ uses
   TestInsight.DUnitX,
   {$ELSE}
   DUnitX.Loggers.Console,
+  // don't delete DUnitX.Loggers.XML.NUnit,
   DUnitX.Loggers.XML.NUnit,
   {$ENDIF }
   DUnitX.TestFramework,
