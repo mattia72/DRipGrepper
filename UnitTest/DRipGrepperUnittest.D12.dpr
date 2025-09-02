@@ -15,6 +15,7 @@ uses
   TestInsight.DUnitX,
   {$ELSE}
   DUnitX.Loggers.Console,
+  // don't delete DUnitX.Loggers.XML.NUnit,
   DUnitX.Loggers.XML.NUnit,
   {$ENDIF }
   DUnitX.TestFramework,
@@ -78,7 +79,8 @@ uses
   RipGrepper.Data.HistoryItemObjectTest in 'RipGrepper.Data.HistoryItemObjectTest.pas',
   RipGrepper.Helper.SettingStoreBehaviours in '..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas',
   RipGrepper.Helper.StreamReaderWriter in '..\src\Helper\RipGrepper.Helper.StreamReaderWriter.pas',
-  RipGrepper.Tools.ReleaseUtils.Test in 'RipGrepper.Tools.ReleaseUtils.Test.pas';
+  RipGrepper.Tools.ReleaseUtils.Test in 'RipGrepper.Tools.ReleaseUtils.Test.pas',
+  RipGrepper.Common.IOTAUtils.TPathProcessor.Test in 'RipGrepper.Common.IOTAUtils.TPathProcessor.Test.pas';
 
 // This comment has to guard the following IFDEF, that may be delted by delphi, if new unit added to the project
 {$IFNDEF TESTINSIGHT}
