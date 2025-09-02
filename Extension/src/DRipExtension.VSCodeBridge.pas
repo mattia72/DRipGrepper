@@ -14,6 +14,7 @@ type
 			class var FServerThread : TThread;
 			class var FStopRequested : Boolean;
 			class procedure parseJsonAndDoTheJob(const s : string);
+
 		public
 			class procedure StartPipeServer();
 			class procedure StopPipeServer();
@@ -29,13 +30,15 @@ uses
 	ActiveX,
 	ComObj,
 	JSON,
-	RipGrepper.Tools.DebugUtils
-	{$IFNDEF STANDALONE},
-	RipGrepper.Common.IOTAUtils {$ENDIF};
+	RipGrepper.Tools.DebugUtils,
+	{$IFNDEF STANDALONE}
+	RipGrepper.Common.IOTAUtils,
+	{$ENDIF}
+	Spring;
 
 class procedure TVsCodeBridge.parseJsonAndDoTheJob(const s : string);
 var
-	jsonObj : TJSONObject;
+	jsonObj : IShared<TJSONObject>;
 	filePath : string;
 	line : Integer;
 	column : Integer;
@@ -44,35 +47,55 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TVsCodeBridge.ListenToPipe');
 
-	jsonObj := TJSONObject.ParseJSONValue(s) as TJSONObject;
-	if Assigned(jsonObj) then begin
-		dbgMsg.Msg('JSON parsed: ' + s);
-		try
-			filePath := jsonObj.GetValue('filePath').Value;
-			line := StrToIntDef(jsonObj.GetValue('line').Value, 1);
-			column := StrToIntDef(jsonObj.GetValue('column').Value, 1);
-			command := jsonObj.GetValue('command').Value;
-			if command = 'gotoFileLocation' then
-
-				TThread.Synchronize(nil,
-					procedure
-					begin
-						var
-						dbgMsg := TDebugMsgBeginEnd.New('TThread.Synchronize');
-						dbgMsg.Msg('Opening file: ' + filePath + ' at line ' + IntToStr(line) + ', column ' + IntToStr(column));
-						{$IFNDEF STANDALONE}
-						IOTAUtils.GxOtaGoToFileLineColumn(filePath, line, column, column - 1);
-						{$ENDIF}
-					end)
-			else if command = 'stop' then begin
-				dbgMsg.Msg('Stop command received');
-				// No action needed, just unblocks the pipe
-			end;
-		finally
-			jsonObj.Free;
-		end;
-	end else begin
+	jsonObj := Shared.Make<TJsonObject>(TJSONObject.ParseJSONValue(s) as TJSONObject);
+	if not Assigned(jsonObj) then begin
 		dbgMsg.Msg('JSON parse failed');
+		Exit;
+	end;
+
+	dbgMsg.Msg('JSON parsed: ' + s);
+ 	command := jsonObj.GetValue('command').Value;
+	if command = 'gotoFileLocation' then begin
+		filePath := jsonObj.GetValue('filePath').Value;
+		line := StrToIntDef(jsonObj.GetValue('line').Value, 1);
+		column := StrToIntDef(jsonObj.GetValue('column').Value, 1);
+		TThread.Synchronize(nil,
+			procedure
+			begin
+				var
+				dbgMsg := TDebugMsgBeginEnd.New('TThread.Synchronize');
+				dbgMsg.Msg('Opening file: ' + filePath + ' at line ' + IntToStr(line) + ', column ' + IntToStr(column));
+				{$IFNDEF STANDALONE}
+				IOTAUtils.GxOtaGoToFileLineColumn(filePath, line, column, column - 1);
+				{$ENDIF}
+			end);
+	end else if command = 'buildActiveProject' then begin
+		TThread.Synchronize(nil,
+			procedure
+			begin
+				var
+				dbgMsg := TDebugMsgBeginEnd.New('TThread.Synchronize buildActiveProject');
+				dbgMsg.Msg('Building active project');
+				{$IFNDEF STANDALONE}
+				IOTAUtils.ReloadModifiedFiles();
+				IOTAUtils.BuildActiveProject();
+				{$ENDIF}
+			end);
+	end else if command = 'compileActiveProject' then begin
+		TThread.Synchronize(nil,
+			procedure
+			begin
+				var
+				dbgMsg := TDebugMsgBeginEnd.New('TThread.Synchronize compileActiveProject');
+				dbgMsg.Msg('Compiling active project');
+				{$IFNDEF STANDALONE}
+				IOTAUtils.ReloadModifiedFiles();
+				IOTAUtils.CompileActiveProject();
+				{$ENDIF}
+			end);
+	end else if command = 'stop' then begin
+		dbgMsg.Msg('Stop command received');
+		// No action needed, just unblocks the pipe
 	end;
 end;
 
@@ -137,9 +160,9 @@ end;
 
 class procedure TVsCodeBridge.StopPipeServer();
 var
-	hClientPipe: THandle;
-	bytesWritten: DWORD;
-	stopCommand: AnsiString;
+	hClientPipe : THandle;
+	bytesWritten : DWORD;
+	stopCommand : AnsiString;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TVsCodeBridge.StopPipeServer');
@@ -165,7 +188,7 @@ begin
 			dbgMsg.Msg('Could not connect to pipe to send stop command');
 		end;
 	except
-		on E: Exception do
+		on E : Exception do
 			dbgMsg.Msg('Exception sending stop command: ' + E.Message);
 	end;
 
