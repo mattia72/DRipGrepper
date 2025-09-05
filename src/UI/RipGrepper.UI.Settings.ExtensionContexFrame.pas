@@ -36,6 +36,7 @@ type
 
 		public
 			constructor Create(_owner : TComponent); override;
+			procedure AddItems();
 			class function GetAsHint(const _paths : string) : string; overload;
 			class function GetAsHint(var _paths : TArray<string>) : string; overload;
 			function GetSelectedIDEContext : EDelphiIDESearchContext;
@@ -72,7 +73,46 @@ begin
 	FContextRadioGroup.Align := alClient;
 	FContextRadioGroup.Columns := 2;
 	FContextRadioGroup.OnItemSelect := onRadioItemSelect;
+end;
 
+procedure TExtensionContextFrame.AddItem(const _caption : string; const _idx : Integer; const _dic : TDelphiIDEContext;
+	const _bInExpertModeOnly : Boolean = False);
+var
+	caption : string;
+	expertChoice : Boolean;
+begin
+	if not(Assigned(Settings) and Assigned(Settings.AppSettings)) then begin
+		AddItemIntern(_caption, _idx, _dic);
+	end else begin
+		expertChoice := Settings.AppSettings.ExpertMode and _bInExpertModeOnly;
+		caption := IfThen(expertChoice, _caption + ' *', _caption);
+		if expertChoice then begin
+			AddItemIntern(caption, _idx, _dic);
+		end else if not _bInExpertModeOnly then begin
+			AddItemIntern(caption, _idx, _dic);
+		end;
+	end;
+end;
+
+procedure TExtensionContextFrame.AddItemIntern(const caption : string; const _idx : Integer; const _dic : TDelphiIDEContext);
+var
+	icv : IIDEContextValues;
+	values : string;
+	hint : string;
+begin
+	values := _dic.GetValueByContext();
+	icv := TIDEContextValues.Create(_dic.IDESearchContext, values);
+	hint := GetAsHint(values);
+	if hint.IsEmpty then begin
+		hint := values;
+	end;
+	FContextRadioGroup.AddItem(caption, hint, _idx, icv);
+end;
+
+procedure TExtensionContextFrame.AddItems();
+var
+	dic : TDelphiIDEContext;
+begin
 	dic.LoadFromIOTA();
 
 	dic.IDESearchContext := EDelphiIDESearchContext.dicActiveFile;
@@ -94,38 +134,7 @@ begin
 	AddItem('Custom Locations:', 5, dic);
 
 	// Select first option by default
-	FContextRadioGroup.ItemIndex := 0;
-end;
-
-procedure TExtensionContextFrame.AddItem(const _caption : string; const _idx : Integer; const _dic : TDelphiIDEContext;
-	const _bInExpertModeOnly : Boolean = False);
-var
-	icv : IIDEContextValues;
-	values, hint, caption : string;
-begin
-	caption := IfThen(Settings.AppSettings.ExpertMode, _caption + ' *', _caption);
-	if Settings.AppSettings.ExpertMode then begin
-		if _bInExpertModeOnly then begin
-			AddItemIntern(caption, _idx, _dic);
-		end;
-	end else begin
-		AddItemIntern(caption, _idx, _dic);
-	end;
-end;
-
-procedure TExtensionContextFrame.AddItemIntern(const caption : string; const _idx : Integer; const _dic : TDelphiIDEContext);
-var
-	icv : IIDEContextValues;
-	values : string;
-	hint : string;
-begin
-	values := _dic.GetValueByContext();
-	icv := TIDEContextValues.Create(_dic.IDESearchContext, values);
-	hint := GetAsHint(values);
-	if hint.IsEmpty then begin
-		hint := values;
-	end;
-	FContextRadioGroup.AddItem(caption, hint, _idx, icv);
+	// FContextRadioGroup.ItemIndex := 0;
 end;
 
 class function TExtensionContextFrame.GetAsHint(const _paths : string) : string;

@@ -197,7 +197,7 @@ type
 			procedure LoadNewSearchSettings;
 			procedure LoadExtensionSearchSettings(var _ctrlProxy : TSearchFormCtrlValueProxy);
 			procedure LoadOldHistorySearchSettings;
-			procedure LoadInitialSettings;
+			procedure LoadInitialSearchSettings();
 			procedure SetCmbSearchPathText(const _sPath : string);
 			procedure SetExpertGroupSize;
 			procedure SetOrigHeights;
@@ -276,15 +276,17 @@ uses
 constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _settings : TRipGrepperSettings;
 	const _histObj : IHistoryItemObject);
 begin
+	FSettings := _settings;
 	inherited Create(AOwner);
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.Create');
 
-	FSettings := _settings;
 	FHistItemObj := _histObj;
-	ExtensionContextFrame1.OnContextChange := OnContextChange;
 	ExtensionContextFrame1.Settings := _settings;
-	LoadInitialSettings;
+	ExtensionContextFrame1.AddItems();
+	ExtensionContextFrame1.OnContextChange := OnContextChange;
+
+	LoadInitialSearchSettings;
 
 	dbgMsg.Msg(FSettings.SearchFormSettings.ToLogString);
 	dbgMsg.Msg('gui params=' + FSettingsProxy.ToLogString);
@@ -1278,10 +1280,10 @@ begin
 	UpdateRbExtensionItemIndex(dic.IDESearchContext);
 end;
 
-procedure TRipGrepperSearchDialogForm.LoadInitialSettings;
+procedure TRipGrepperSearchDialogForm.LoadInitialSearchSettings();
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadInitialSettings');
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadInitialSearchSettings');
 	if HasHistItemObjWithResult or FHistItemObj.IsLoadedFromStream then begin
 		LoadOldHistorySearchSettings;
 	end else begin
@@ -1524,15 +1526,18 @@ begin
 		// Create the appropriate context values directly to ensure proper initialization
 		var
 			icv : IIDEContextValues;
-			case _dic of EDelphiIDESearchContext.dicCustomLocation : icv := TIDEContextValues.Create(_dic, FCtrlProxy.SearchPath);
-	else
-		icv := ExtensionContextFrame1.ContextValues;
-end;
+		case _dic of
+			{ } EDelphiIDESearchContext.dicCustomLocation : begin
+				icv := TIDEContextValues.Create(_dic, FCtrlProxy.SearchPath);
+			end;
+			else
+			icv := ExtensionContextFrame1.ContextValues;
+		end;
 
-UpdateCmbsOnIDEContextChange(icv);
-finally
-	FbExtensionOptionsSkipClick := False;
-end;
+		UpdateCmbsOnIDEContextChange(icv);
+	finally
+		FbExtensionOptionsSkipClick := False;
+	end;
 end;
 
 function TRipGrepperSearchDialogForm.ValidateRegex : Boolean;
