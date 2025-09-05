@@ -283,7 +283,7 @@ begin
 	FSettings := _settings;
 	FHistItemObj := _histObj;
 	ExtensionContextFrame1.OnContextChange := OnContextChange;
-
+	ExtensionContextFrame1.Settings := _settings;
 	LoadInitialSettings;
 
 	dbgMsg.Msg(FSettings.SearchFormSettings.ToLogString);
@@ -418,13 +418,13 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ActionShowInLinesExecute(Sender : TObject);
 var
-	nextHint: string;
+	nextHint : string;
 begin
 	if FMemoTextFormat = mtfSeparateLines then begin
-        FMemoTextFormat := mtfOneLine;
+		FMemoTextFormat := mtfOneLine;
 		nextHint := SHOW_CMD_IN_ONE_LINE;
 	end else begin
-        FMemoTextFormat := mtfSeparateLines;
+		FMemoTextFormat := mtfSeparateLines;
 		nextHint := SHOW_CMD_IN_SEPARATE_LINES;
 	end;
 	UpdateMemoTextFormat();
@@ -1453,7 +1453,8 @@ begin
 			end;
 		end;
 		FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
-		var dic : TDelphiIDEContext;
+		var
+			dic : TDelphiIDEContext;
 		dic.IDESearchContext := FCtrlProxy.ExtensionContext;
 		FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext := dic;
 		dbgMsg.Msg(dic.ToLogString);
@@ -1521,7 +1522,8 @@ begin
 		dbgMsg.MsgFmt('ContextRadioGroup.ItemIndex = %d', [Integer(_dic)]);
 
 		// Create the appropriate context values directly to ensure proper initialization
-		var icv : IIDEContextValues;
+		var
+			icv : IIDEContextValues;
 			case _dic of EDelphiIDESearchContext.dicCustomLocation : icv := TIDEContextValues.Create(_dic, FCtrlProxy.SearchPath);
 	else
 		icv := ExtensionContextFrame1.ContextValues;

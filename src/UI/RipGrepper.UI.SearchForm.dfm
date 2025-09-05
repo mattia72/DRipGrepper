@@ -305,7 +305,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         AlignWithMargins = True
         Left = 10
         Top = 84
-        Width = 524
+        Width = 27
         Height = 15
         Margins.Left = 8
         Margins.Top = 8
@@ -422,7 +422,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object pnlRgOptions: TPanel
         Left = 2
-        Top = 187
+        Top = 190
         Width = 540
         Height = 28
         Align = alTop

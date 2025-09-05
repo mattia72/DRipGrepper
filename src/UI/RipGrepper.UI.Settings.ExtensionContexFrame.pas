@@ -15,22 +15,29 @@ uses
 	Vcl.StdCtrls,
 	RipGrepper.Common.IDEContextValues,
 	RipGrepper.UI.CustomRadioGroup,
-	RipGrepper.Settings.ExtensionSettings;
+	RipGrepper.Settings.ExtensionSettings,
+	RipGrepper.Settings.RipGrepperSettings;
 
 type
 	TExtensionContextFrame = class(TFrame)
+		strict private
+			FSettings : TRipGrepperSettings;
+			procedure SetSettings(const Value : TRipGrepperSettings);
+
 		private
 			FContextRadioGroup : TCustomRadioGroup;
 			FOnContextChange : TExtensionContextChangeEvent;
-			procedure AddItem(const _caption : string; const _idx: Integer; const _dic: TDelphiIDEContext);
+			procedure AddItem(const _caption : string; const _idx : Integer; const _dic : TDelphiIDEContext;
+				const _bInExpertModeOnly : Boolean = False);
+			procedure AddItemIntern(const caption : string; const _idx : Integer; const _dic : TDelphiIDEContext);
 			function GetContextValues() : IIDEContextValues;
 			function getSelectedItem() : TCustomRadioItem;
 			procedure onRadioItemSelect(_sender : TObject; _item : TCustomRadioItem);
 
 		public
 			constructor Create(_owner : TComponent); override;
-			class function GetAsHint(const _paths : string): string; overload;
-			class function GetAsHint(var _paths: TArray<string>): string; overload;
+			class function GetAsHint(const _paths : string) : string; overload;
+			class function GetAsHint(var _paths : TArray<string>) : string; overload;
 			function GetSelectedIDEContext : EDelphiIDESearchContext;
 			procedure SetSelectedIDEContext(_ideContext : EDelphiIDESearchContext);
 			property ContextRadioGroup : TCustomRadioGroup read FContextRadioGroup;
@@ -38,6 +45,7 @@ type
 
 		published
 			property SelectedItem : TCustomRadioItem read getSelectedItem;
+			property Settings : TRipGrepperSettings read FSettings write SetSettings;
 			property OnContextChange : TExtensionContextChangeEvent read FOnContextChange write FOnContextChange;
 	end;
 
@@ -48,7 +56,8 @@ uses
 	System.IOUtils,
 
 	RipGrepper.Tools.DebugUtils,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants,
+	System.StrUtils;
 
 {$R *.dfm}
 
@@ -73,13 +82,13 @@ begin
 	AddItem('All Open Files', 1, dic);
 
 	dic.IDESearchContext := EDelphiIDESearchContext.dicProjectFiles;
-	AddItem('Project Files',  2, dic);
+	AddItem('Project Files', 2, dic);
 
 	dic.IDESearchContext := EDelphiIDESearchContext.dicProjectRootDirectory;
 	AddItem('Project Root Directory', 3, dic);
 
 	dic.IDESearchContext := EDelphiIDESearchContext.dicProjectSourcePath;
-	AddItem('Project Source Paths (experimental)', 4, dic);
+	AddItem('Project Source Paths', 4, dic, True);
 
 	dic.IDESearchContext := EDelphiIDESearchContext.dicCustomLocation;
 	AddItem('Custom Locations:', 5, dic);
@@ -88,10 +97,27 @@ begin
 	FContextRadioGroup.ItemIndex := 0;
 end;
 
-procedure TExtensionContextFrame.AddItem(const _caption : string; const _idx: Integer; const _dic: TDelphiIDEContext);
+procedure TExtensionContextFrame.AddItem(const _caption : string; const _idx : Integer; const _dic : TDelphiIDEContext;
+	const _bInExpertModeOnly : Boolean = False);
 var
-	icv: IIDEContextValues;
-	values, hint : string;
+	icv : IIDEContextValues;
+	values, hint, caption : string;
+begin
+	caption := IfThen(Settings.AppSettings.ExpertMode, _caption + ' *', _caption);
+	if Settings.AppSettings.ExpertMode then begin
+		if _bInExpertModeOnly then begin
+			AddItemIntern(caption, _idx, _dic);
+		end;
+	end else begin
+		AddItemIntern(caption, _idx, _dic);
+	end;
+end;
+
+procedure TExtensionContextFrame.AddItemIntern(const caption : string; const _idx : Integer; const _dic : TDelphiIDEContext);
+var
+	icv : IIDEContextValues;
+	values : string;
+	hint : string;
 begin
 	values := _dic.GetValueByContext();
 	icv := TIDEContextValues.Create(_dic.IDESearchContext, values);
@@ -99,7 +125,7 @@ begin
 	if hint.IsEmpty then begin
 		hint := values;
 	end;
-	FContextRadioGroup.AddItem(_caption, hint, _idx, icv);
+	FContextRadioGroup.AddItem(caption, hint, _idx, icv);
 end;
 
 class function TExtensionContextFrame.GetAsHint(const _paths : string) : string;
@@ -109,10 +135,9 @@ begin
 	Result := GetAsHint(pathArray);
 end;
 
-class function TExtensionContextFrame.GetAsHint(var _paths: TArray<string>):
-	string;
+class function TExtensionContextFrame.GetAsHint(var _paths : TArray<string>) : string;
 begin
-//  TArray.Sort<string>(_paths);
+	// TArray.Sort<string>(_paths);
 	Result := string.Join(CRLF, _paths);
 end;
 
@@ -176,6 +201,11 @@ begin
 			Break;
 		end;
 	end;
+end;
+
+procedure TExtensionContextFrame.SetSettings(const Value : TRipGrepperSettings);
+begin
+	FSettings := Value;
 end;
 
 end.
