@@ -3,13 +3,16 @@
 ## [v4.12.0-beta] - 2025-08-07
 
 ### 💥 Added
-- **extension**: Support search in library paths
+- **feature**: History support for Filter and Replace textboxes in the search form
+  - Use UP/DOWN arrows to navigate through history
+- **extension**: Support search in library paths (in expert mode)
 - **extension**: Search in project root directory
 
 ### 🔄 Changed
 - Unittests for Load/SaveStream of History Objects
 
 ### 🐞 Fixed
+- Filter result is disabled on startup of RipGrepper
 - Empty collection of saved matches causes exception during deserialization #16
 - Release info lines are joined erroneously in About tab of Settings form #25
 - **extension**: Command line arguments are not properly separated in lines, in command line viewer of search form, if path contains spaces
