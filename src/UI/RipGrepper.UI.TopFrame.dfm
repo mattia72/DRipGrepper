@@ -30,7 +30,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       EdgeInner = esNone
       EdgeOuter = esNone
       Images = SvgImgLstTopFrame
-      TabOrder = 0
+      TabOrder = 2
       object ToolButton5: TToolButton
         Left = 0
         Top = 0
@@ -63,7 +63,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       EdgeInner = esNone
       EdgeOuter = esNone
       Images = SvgImgLstTopFrame
-      TabOrder = 1
+      TabOrder = 0
       object ToolButton7: TToolButton
         Left = 0
         Top = 0
@@ -113,7 +113,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
         ImageName = 'Search\view-refresh-symbolic'
         Style = tbsSeparator
       end
-      object edtFilter: TButtonedEdit
+      object edtFilter: THistoryButtonedEdit
         Left = 149
         Top = 0
         Width = 121
@@ -141,7 +141,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
         ImageName = 'multimedia-equalizer-symbolic'
         Style = tbsSeparator
       end
-      object edtReplace: TButtonedEdit
+      object edtReplace: THistoryButtonedEdit
         Left = 278
         Top = 0
         Width = 121
@@ -196,7 +196,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       EdgeInner = esNone
       EdgeOuter = esNone
       Images = SvgImgLstTopFrame
-      TabOrder = 2
+      TabOrder = 1
       object ToolButton8: TToolButton
         Left = 0
         Top = 0

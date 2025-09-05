@@ -113,7 +113,8 @@ uses
   RipGrepper.UI.Settings.ExtensionContexFrame in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ExtensionContexFrame.pas' {ExtensionContexFrame: TFrame},
   RipGrepper.UI.CustomRadioGroup in '..\..\..\..\src\UI\RipGrepper.UI.CustomRadioGroup.pas',
   RipGrepper.UI.SearchForm.CtrlValueProxy in '..\..\..\..\src\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas',
-  RipGrepper.Common.IOTAUtils.PathProcessor in '..\..\..\..\src\Common\RipGrepper.Common.IOTAUtils.PathProcessor.pas';
+  RipGrepper.Common.IOTAUtils.PathProcessor in '..\..\..\..\src\Common\RipGrepper.Common.IOTAUtils.PathProcessor.pas',
+  RipGrepper.UI.HistoryButtonedEdit in '..\..\..\..\src\UI\RipGrepper.UI.HistoryButtonedEdit.pas';
 
 {$R *.res}
 

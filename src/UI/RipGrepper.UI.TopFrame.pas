@@ -30,7 +30,8 @@ uses
 	RipGrepper.Tools.Replacer,
 	RipGrepper.UI.IFrameEvents,
 	SVGIconImageListBase,
-	SVGIconImageList;
+	SVGIconImageList,
+	RipGrepper.UI.HistoryButtonedEdit;
 
 type
 	TRipGrepperTopFrame = class(TFrame, IFrameEvents)
@@ -71,8 +72,8 @@ type
 		ToolButton5 : TToolButton;
 		ToolButton8 : TToolButton;
 		ActionSearchInResult : TAction;
-		edtFilter : TButtonedEdit;
-		edtReplace : TButtonedEdit;
+		edtFilter : THistoryButtonedEdit;
+		edtReplace : THistoryButtonedEdit;
 		ToolButton9 : TToolButton;
 		tbSaveReplacement : TToolButton;
 		ActionSaveReplacement : TAction;
