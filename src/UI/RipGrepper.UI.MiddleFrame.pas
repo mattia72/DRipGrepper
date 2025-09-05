@@ -484,7 +484,7 @@ end;
 
 procedure TRipGrepperMiddleFrame.AfterHistObjChange;
 begin
-	UpdateHistObjectAndGui
+	UpdateHistObjectAndGui();
 end;
 
 procedure TRipGrepperMiddleFrame.AfterSearch;
