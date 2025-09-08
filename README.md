@@ -47,30 +47,8 @@ scoop install dripgrepper
 
 **Manual**: Close DripGrepper and Delphi, delete all files except `.ini` settings, then extract new release.
 
-## Build
-
-### Prerequisites
-Download/clone these dependencies to folders next to DripGrepper:
-- [spring4d](https://bitbucket.org/sglienke/spring4d)
-- [FastMM4](https://github.com/pleriche/FastMM4)
-
-Install via Delphi's GetIt Package Manager:
-- VirtualTree for VCL
-- SVGIconImageList VCL and FMX
-
-Optional: [TestInsight](https://files.spring4d.com/TestInsight/latest/TestInsightSetup.zip)
-
-### Build Process
-Open `AllRripGrepperDXXProject.groupproj` and build.
-
 ## Contributing
-
-1. Fork the project
-2. Create feature branch: `git checkout -b my-new-feature`
-3. Make changes and test
-4. Commit: `git commit -am 'add: feature description'`
-5. Push: `git push origin my-new-feature`
-6. Open pull request
+[Contribution guidelines for this project](CONTRIBUTING.md)
 
 ## Acknowledgments
 -  [ripgrep](https://github.com/BurntSushi/ripgrep)
