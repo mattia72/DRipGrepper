@@ -99,7 +99,7 @@ function TRipGrepperExtensionSettings.GetCurrentIDEContext() : TDelphiIDEContext
 begin
 	{$IF IS_EXTENSION}
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.GetCurrentIDEContext');
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.GetCurrentIDEContext', True);
 
 	if FCurrentIDEContext.IsEmpty then begin
 		dbgMsg.Msg('CurrentIDEContext is empty. Load from IOTA...');
