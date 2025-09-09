@@ -347,7 +347,7 @@ end;
 
 procedure TMiddleLeftFrame.AfterHistObjChange();
 begin
-	// TODO -cMM: TMiddleLeftFrame.AfterHistObjChange default body inserted
+	// TODO : refactor to get hist object as parameter
 end;
 
 procedure TMiddleLeftFrame.AfterSearch();
@@ -366,6 +366,7 @@ begin
 	// First access to data will create MainFrame.Data
 	MainFrame.Data.HistObject := _ho;
 	SetReplaceMode(_ho);
+	ParentFrame.TopFrame.AfterHistObjChange();
 end;
 
 function TMiddleLeftFrame.ChangeHistoryNodeText() : PVirtualNode;
