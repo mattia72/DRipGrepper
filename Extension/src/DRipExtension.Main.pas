@@ -12,7 +12,9 @@ uses
 	ArrayEx,
 	RipGrepper.Settings.ExtensionSettings,
 	System.Classes,
-	DRipExtension.VSCodeBridge;
+	DRipExtension.VSCodeBridge,
+	DRipExtension.CompileNotifier,
+	DRipExtension.MessageNotifier;
 
 type
 	// TNotifierObject has stub implementations for the necessary but
@@ -120,6 +122,8 @@ begin
 	// Stop VSCode bridge if running
 	// TVsCodeBridge.StopPipeServer();
 
+	// TMessageHookNotifier.UnregisterNotifier();
+	// TCompileNotifier.UnregisterNotifier();
 	RemovePluginInfo;
 	TRipGrepperDockableForm.DestroyInstance;
 	inherited;
@@ -235,8 +239,12 @@ begin
 	if FExtensionSettings.HandleOpenWithDelphiCommands then begin
 		dbgMsg.Msg('Starting VSCode bridge as HandleOpenWithDelphiCommands is enabled');
 		TVsCodeBridge.StartPipeServer();
+		// TCompileNotifier.RegisterNotifier();
+		// TMessageHookNotifier.RegisterNotifier();
 	end else begin
 		dbgMsg.Msg('Stopping VSCode bridge as HandleOpenWithDelphiCommands is disabled');
+		// TMessageHookNotifier.UnregisterNotifier();
+		// TCompileNotifier.UnregisterNotifier();
 		TVsCodeBridge.StopPipeServer();
 	end;
 end;

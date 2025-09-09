@@ -49,11 +49,11 @@ begin
 
 	jsonObj := Shared.Make<TJsonObject>(TJSONObject.ParseJSONValue(s) as TJSONObject);
 	if not Assigned(jsonObj) then begin
-		dbgMsg.Msg('JSON parse failed');
+		dbgMsg.ErrorMsg('JSON parse failed');
 		Exit;
 	end;
 
-	dbgMsg.Msg('JSON parsed: ' + s);
+	dbgMsg.MsgFmt('JSON parsed: %s', [s]);
  	command := jsonObj.GetValue('command').Value;
 	if command = 'gotoFileLocation' then begin
 		filePath := jsonObj.GetValue('filePath').Value;
@@ -63,9 +63,9 @@ begin
 			procedure
 			begin
 				var
-				dbgMsg := TDebugMsgBeginEnd.New('TThread.Synchronize');
-				dbgMsg.Msg('Opening file: ' + filePath + ' at line ' + IntToStr(line) + ', column ' + IntToStr(column));
+				syncDbgMsg := TDebugMsgBeginEnd.New('TVsCodeBridge.parseJsonAndDoTheJob.gotoFileLocation', True);
 				{$IFNDEF STANDALONE}
+				syncDbgMsg.Msg('Opening file: ' + filePath + ' at line ' + IntToStr(line) + ', column ' + IntToStr(column));
 				IOTAUtils.GxOtaGoToFileLineColumn(filePath, line, column, column - 1);
 				{$ENDIF}
 			end);
@@ -74,8 +74,8 @@ begin
 			procedure
 			begin
 				var
-				dbgMsg := TDebugMsgBeginEnd.New('TThread.Synchronize buildActiveProject');
-				dbgMsg.Msg('Building active project');
+				syncDbgMsg := TDebugMsgBeginEnd.New('TVsCodeBridge.parseJsonAndDoTheJob.buildActiveProject', True);
+				syncDbgMsg.Msg('Building active project');
 				{$IFNDEF STANDALONE}
 				IOTAUtils.ReloadModifiedFiles();
 				IOTAUtils.BuildActiveProject();
@@ -86,8 +86,8 @@ begin
 			procedure
 			begin
 				var
-				dbgMsg := TDebugMsgBeginEnd.New('TThread.Synchronize compileActiveProject');
-				dbgMsg.Msg('Compiling active project');
+				syncDbgMsg := TDebugMsgBeginEnd.New('TVsCodeBridge.parseJsonAndDoTheJob.compileActiveProject', True);
+				syncDbgMsg.Msg('Compiling active project');
 				{$IFNDEF STANDALONE}
 				IOTAUtils.ReloadModifiedFiles();
 				IOTAUtils.CompileActiveProject();
@@ -120,40 +120,40 @@ begin
 			buffer : array [0 .. 4095] of Byte;
 			bytesRead : DWORD;
 			s : string;
-			dbgMsg : TDebugMsgBeginEnd;
 		begin
-			dbgMsg := TDebugMsgBeginEnd.New('TVsCodeBridge.StartPipeServer Thread');
+			var
+			threadDbgMsg := TDebugMsgBeginEnd.New('TVsCodeBridge.StartPipeServer Thread');
 
 			while not FStopRequested do begin
 				hPipe := CreateNamedPipe(PChar(PIPENAME), PIPE_ACCESS_INBOUND, PIPE_TYPE_BYTE or PIPE_READMODE_BYTE or PIPE_WAIT, 1, 4096,
 					4096, 1000, nil); // 1 second timeout
 				if hPipe = INVALID_HANDLE_VALUE then begin
-					dbgMsg.Msg('Pipe could not be created!');
+					threadDbgMsg.ErrorMsg('Pipe could not be created!');
 					Exit;
 				end;
-				dbgMsg.Msg('Pipe created, waiting for client...');
+				threadDbgMsg.Msg('Pipe created, waiting for client...');
 
 				// Wait for client with timeout
 				if ConnectNamedPipe(hPipe, nil) or (GetLastError = ERROR_PIPE_CONNECTED) then begin
 					if not FStopRequested then begin
-						dbgMsg.Msg('Client connected');
+						threadDbgMsg.Msg('Client connected');
 						if ReadFile(hPipe, buffer, SizeOf(buffer), bytesRead, nil) and (bytesRead > 0) then begin
 							SetString(s, PAnsiChar(@buffer), bytesRead);
-							dbgMsg.Msg('Received: ' + s);
+							threadDbgMsg.MsgFmt('Received: %s', [s]);
 							// Process JSON data here
 							parseJsonAndDoTheJob(s);
 						end else begin
-							dbgMsg.Msg('No data received from client');
+							threadDbgMsg.WarningMsg('No data received from client');
 						end;
 					end;
 				end else begin
-					dbgMsg.Msg('Client connection failed or timeout');
+					threadDbgMsg.WarningMsg('Client connection failed or timeout');
 				end;
 				DisconnectNamedPipe(hPipe);
 				CloseHandle(hPipe);
-				dbgMsg.Msg('Pipe closed');
+				threadDbgMsg.Msg('Pipe closed');
 			end;
-			dbgMsg.Msg('Pipe server stopped');
+			threadDbgMsg.Msg('Pipe server stopped');
 		end);
 	FServerThread.Start;
 end;
@@ -185,11 +185,11 @@ begin
 			CloseHandle(hClientPipe);
 			dbgMsg.Msg('Stop command sent');
 		end else begin
-			dbgMsg.Msg('Could not connect to pipe to send stop command');
+			dbgMsg.ErrorMsg('Could not connect to pipe to send stop command');
 		end;
 	except
 		on E : Exception do
-			dbgMsg.Msg('Exception sending stop command: ' + E.Message);
+			dbgMsg.ErrorMsgFmt('Exception sending stop command: %s', [E.Message]);
 	end;
 
 	// Wait for thread to finish

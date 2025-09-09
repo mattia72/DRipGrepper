@@ -97,6 +97,7 @@ uses
 	{$IF IS_EXTENSION}
 	DRipExtension.Menu,
 	DRipExtension.VSCodeBridge,
+	DRipExtension.CompileNotifier,
 	{$ENDIF}
 	Vcl.Menus,
 	RipGrepper.Tools.PackageInstall,
@@ -274,8 +275,10 @@ begin
 	if FExtensionSettings.HandleOpenWithDelphiCommands then begin
 		dbgMsg.Msg('TVsCodeBridge.StartPipeServer as HandleOpenWithDelphiCommands is enabled');
 		TVsCodeBridge.StartPipeServer();
+		// TCompileNotifier.RegisterNotifier();
 	end else begin
 		dbgMsg.Msg('TVsCodeBridge.StopPipeServer as HandleOpenWithDelphiCommands is disabled');
+		// TCompileNotifier.UnregisterNotifier();
 		TVsCodeBridge.StopPipeServer();
 	end;
 	{$ENDIF}
