@@ -1572,7 +1572,7 @@ end;
 function TRipGrepperMiddleFrame.GetActiveProject() : string;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.GetActiveProject');
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.GetActiveProject', True);
 	var
 	extSettings := Settings.SearchFormSettings.ExtensionSettings;
 	Result := extSettings.CurrentIDEContext.ActiveProject;
