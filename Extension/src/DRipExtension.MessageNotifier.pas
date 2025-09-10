@@ -263,7 +263,7 @@ begin
 	end;
 
 	// Send real build output to VS Code
-	TVsCodeBridge.SendBuildOutput(realBuildOutput);
+	// TVsCodeBridge.SendBuildOutput(realBuildOutput);
 end;
 
 function TMessageHookNotifier.GetBuildOutput: TStringList;

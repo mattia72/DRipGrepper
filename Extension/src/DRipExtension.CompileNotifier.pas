@@ -61,7 +61,7 @@ begin
 	if Assigned(Project) then begin
 		projectName := Project.FileName;
 		dbgMsg.MsgFmt('Starting compilation of project: %s', [projectName]);
-		TVsCodeBridge.SendCompileNotification('beforeCompile', projectName, False, 'Compilation started');
+		// TVsCodeBridge.SendCompileNotification('beforeCompile', projectName, False, 'Compilation started');
 	end;
 end;
 
@@ -84,10 +84,10 @@ begin
 
 	if Succeeded then begin
 		dbgMsg.MsgFmt('Compilation succeeded for project: %s', [projectName]);
-		TVsCodeBridge.SendCompileNotification('afterCompile', projectName, True);
+		// TVsCodeBridge.SendCompileNotification('afterCompile', projectName, True);
 	end else begin
 		dbgMsg.MsgFmt('Compilation failed for project: %s', [projectName]);
-		TVsCodeBridge.SendCompileNotification('afterCompile', projectName, False);
+		// TVsCodeBridge.SendCompileNotification('afterCompile', projectName, False);
 	end;
 end;
 

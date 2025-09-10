@@ -44,6 +44,7 @@ type
 			property MaxHistoryCount: Integer read FMaxHistoryCount write FMaxHistoryCount;
 			property HistoryIndex: Integer read FHistoryIndex;
 			property HistoryCount: Integer read getHistoryCount;
+			property CurrentHistoryText: string read getCurrentHistoryText;
 	end;
 
 procedure Register;
