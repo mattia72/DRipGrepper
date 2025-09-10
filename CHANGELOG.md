@@ -7,6 +7,7 @@
   - Use UP/DOWN arrows to navigate through history
 - **extension**: Support search in library paths (in expert mode)
 - **extension**: Search in project root directory
+- **extension**: New VSCode Open In Delphi commands: build or compile active project
 
 ### 🔄 Changed
 - Unittests for Load/SaveStream of History Objects
