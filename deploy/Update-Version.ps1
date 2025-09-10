@@ -23,6 +23,9 @@
 .PARAMETER Suffix
     Version suffix to append (default: "-beta")
 
+.PARAMETER UseUpdateVersionInfo
+    Use the Update-VersionInfo.ps1 script instead of the built-in project file update method
+
 .EXAMPLE
     .\Update-Version.ps1 -Minor
     Updates minor version in all project files and CHANGELOG
@@ -34,6 +37,10 @@
 .EXAMPLE
     .\Update-Version.ps1 -Minor -Suffix "-rc1"
     Updates minor version with release candidate suffix
+
+.EXAMPLE
+    .\Update-Version.ps1 -Release -UseUpdateVersionInfo
+    Updates release version using the Update-VersionInfo.ps1 script method
 
 .NOTES
     Author: DRipGrepper Team
@@ -47,7 +54,8 @@ param(
     [switch]$Minor, 
     [switch]$Release,
     [switch]$InCHANGELOGOnly,
-    [string]$Suffix = "-beta"
+    [string]$Suffix = "-beta",
+    [switch]$UseUpdateVersionInfo
 )
 
 # Set strict mode for better error handling
@@ -233,6 +241,46 @@ function Update-ProjectFileVersion {
     }
 }
 
+function Update-ProjectFilesWithVersionInfo {
+    param(
+        [hashtable]$NewVersion
+        [string]$ProjectFile
+    )
+    
+    $updateVersionInfoPath = Join-Path $PSScriptRoot "Update-VersionInfo.ps1"
+    
+    if (-not (Test-Path $updateVersionInfoPath)) {
+        throw "Update-VersionInfo.ps1 not found at: $updateVersionInfoPath"
+    }
+    
+    try {
+        # Build the version string
+        $versionString = "$($NewVersion.Major).$($NewVersion.Minor).$($NewVersion.Release)"
+        
+        Write-ColoredMessage "Using Update-VersionInfo.ps1 to set version to $versionString..." "White"
+        
+        # Call Update-VersionInfo.ps1 with the specific version
+        $arguments = @(
+            "-ProjectFiles", $ProjectFile
+            "-Version", $versionString
+        )
+        
+        if ($PSCmdlet.ShouldProcess("Project files", "Update version using Update-VersionInfo.ps1")) {
+            & $updateVersionInfoPath @arguments
+
+            if ($LASTEXITCODE -eq 0) {
+                Write-ColoredMessage "✓ Successfully updated project files using Update-VersionInfo.ps1" "Green"
+            } else {
+                throw "Update-VersionInfo.ps1 failed with exit code: $LASTEXITCODE"
+            }
+        }
+    }
+    catch {
+        Write-Error "Failed to update project files using Update-VersionInfo.ps1: $_"
+        throw
+    }
+}
+
 function Show-Summary {
     param(
         [hashtable]$OldVersion,
@@ -248,7 +296,8 @@ function Show-Summary {
     if ($InCHANGELOGOnly) {
         Write-ColoredMessage "Updated: CHANGELOG.md only" "Yellow"
     } else {
-        Write-ColoredMessage "Updated: All project files and CHANGELOG.md" "Green"
+        $methodText = if ($UseUpdateVersionInfo) { "Update-VersionInfo.ps1 script" } else { "built-in method" }
+        Write-ColoredMessage "Updated: All project files (using $methodText) and CHANGELOG.md" "Green"
     }
     Write-Host ""
 }
@@ -286,8 +335,13 @@ try {
         Write-Host ""
         Write-ColoredMessage "Updating project files..." "White"
         
+            # Use the built-in method
         foreach ($projectFile in $Script:ProjectFiles) {
-            Update-ProjectFileVersion -ProjectFile $projectFile -NewVersion $newVersion -Suffix $Suffix
+            if ($UseUpdateVersionInfo) {
+                Update-ProjectFilesWithVersionInfo -NewVersion $newVersion
+            } else {
+                Update-ProjectFileVersion -ProjectFile $projectFile -NewVersion $newVersion -Suffix $Suffix
+            }
         }
     }
     

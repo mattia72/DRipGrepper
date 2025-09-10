@@ -20,6 +20,16 @@
                 "Debug",
                 "Release"
             ]
+        },
+        {
+            "id": "versionType",
+            "description": "Choose Version Type to Increment",
+            "type": "pickString",
+            "options": [
+                "Major",
+                "Minor",
+                "Release"
+            ]
         }
     ],
     "tasks": [
@@ -157,6 +167,15 @@
             "label": "DripGrepper: Deploy to TransferDrive",
             "type": "shell",
             "command": "deploy\\Deploy-DripGrepper.ps1 -DeployToTransferDrive",
+            "problemMatcher": [],
+            "group": {
+                "kind": "none"
+            }
+        },
+        {
+            "label": "DripGrepper: Update Version Info in CHANGELOG and Project Files",
+            "type": "shell",
+            "command": "deploy\\Update-Version.ps1 -${input:versionType}",
             "problemMatcher": [],
             "group": {
                 "kind": "none"
