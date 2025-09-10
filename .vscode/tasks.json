@@ -175,7 +175,7 @@
         {
             "label": "DripGrepper: Update Version Info in CHANGELOG and Project Files",
             "type": "shell",
-            "command": "deploy\\Update-Version.ps1 -${input:versionType}",
+                "command": "deploy\\Update-Version.ps1 -${input:versionType} -UseUpdateVersionInfoScript",
             "problemMatcher": [],
             "group": {
                 "kind": "none"

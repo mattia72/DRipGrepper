@@ -68,11 +68,11 @@ param(
     [Parameter(Mandatory = $false)]
     [string[]]$ProjectFiles,
     
-    [Parameter(Mandatory = $false, ParameterSetName = "Increment")]
+    [Parameter(Mandatory = $true, ParameterSetName = "Increment")]
     [ValidateSet("Major", "Minor", "Release")]
     [string]$VersionType,
     
-    [Parameter(Mandatory = $false, ParameterSetName = "Set")]
+    [Parameter(Mandatory = $true, ParameterSetName = "Set")]
     [ValidatePattern('^\d+\.\d+\.\d+(\.\d+)?$')]
     [string]$Version,
     
@@ -107,19 +107,39 @@ function Get-CurrentVersion {
         Build = 0
     }
     
-    # Find any PropertyGroup that contains version info
-    $propertyGroups = $XmlDoc.Project.PropertyGroup | Where-Object { 
-        $_.VerInfo_MajorVer -or $_.VerInfo_MinorVer -or $_.VerInfo_Release -or $_.VerInfo_Build 
-    }
-    
-    if ($propertyGroups) {
-        # Take the first valid version found
-        $versionGroup = $propertyGroups | Select-Object -First 1
+    try {
+        # Use a more robust approach to find PropertyGroups with version info
+        $propertyGroups = @()
         
-        if ($versionGroup.VerInfo_MajorVer) { $versions.Major = [int]$versionGroup.VerInfo_MajorVer }
-        if ($versionGroup.VerInfo_MinorVer) { $versions.Minor = [int]$versionGroup.VerInfo_MinorVer }
-        if ($versionGroup.VerInfo_Release) { $versions.Release = [int]$versionGroup.VerInfo_Release }
-        if ($versionGroup.VerInfo_Build) { $versions.Build = [int]$versionGroup.VerInfo_Build }
+        foreach ($group in $XmlDoc.Project.PropertyGroup) {
+            if ($group -and ($group.GetElementsByTagName("VerInfo_MajorVer").Count -gt 0 -or 
+                            $group.GetElementsByTagName("VerInfo_MinorVer").Count -gt 0 -or 
+                            $group.GetElementsByTagName("VerInfo_Release").Count -gt 0 -or 
+                            $group.GetElementsByTagName("VerInfo_Build").Count -gt 0)) {
+                $propertyGroups += $group
+            }
+        }
+        
+        if ($propertyGroups.Count -gt 0) {
+            # Take the first valid version found
+            $versionGroup = $propertyGroups[0]
+            
+            $majorElement = $versionGroup.GetElementsByTagName("VerInfo_MajorVer") | Select-Object -First 1
+            if ($majorElement) { $versions.Major = [int]$majorElement.InnerText }
+            
+            $minorElement = $versionGroup.GetElementsByTagName("VerInfo_MinorVer") | Select-Object -First 1
+            if ($minorElement) { $versions.Minor = [int]$minorElement.InnerText }
+            
+            $releaseElement = $versionGroup.GetElementsByTagName("VerInfo_Release") | Select-Object -First 1
+            if ($releaseElement) { $versions.Release = [int]$releaseElement.InnerText }
+            
+            $buildElement = $versionGroup.GetElementsByTagName("VerInfo_Build") | Select-Object -First 1
+            if ($buildElement) { $versions.Build = [int]$buildElement.InnerText }
+        }
+    }
+    catch {
+        Write-Warning "Failed to parse version information: $_"
+        Write-Warning "Using default version 0.0.0.0"
     }
     
     return $versions
@@ -277,9 +297,16 @@ function Update-ProjectFile {
         $updated = $false
         
         # Find all PropertyGroups that contain version information
-        $propertyGroups = $xmlDoc.Project.PropertyGroup | Where-Object { 
-            $_.VerInfo_MajorVer -or $_.VerInfo_MinorVer -or $_.VerInfo_Release -or 
-            $_.VerInfo_Build -or $_.VerInfo_Keys
+        $propertyGroups = @()
+        
+        foreach ($group in $xmlDoc.Project.PropertyGroup) {
+            if ($group -and ($group.GetElementsByTagName("VerInfo_MajorVer").Count -gt 0 -or 
+                            $group.GetElementsByTagName("VerInfo_MinorVer").Count -gt 0 -or 
+                            $group.GetElementsByTagName("VerInfo_Release").Count -gt 0 -or 
+                            $group.GetElementsByTagName("VerInfo_Build").Count -gt 0 -or
+                            $group.GetElementsByTagName("VerInfo_Keys").Count -gt 0)) {
+                $propertyGroups += $group
+            }
         }
         
         Write-Verbose "  Found $($propertyGroups.Count) PropertyGroups with version information"
@@ -387,9 +414,11 @@ try {
     
     if ($WhatIfPreference) {
         Write-Host "WhatIf mode: No files were actually modified." -ForegroundColor Yellow
+        exit 0
     }
     else {
         Write-Host "Successfully updated $totalUpdated of $($projectFiles.Count) project files." -ForegroundColor Green
+        exit 0
     }
 }
 catch {

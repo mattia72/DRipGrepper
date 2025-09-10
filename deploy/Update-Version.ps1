@@ -23,7 +23,7 @@
 .PARAMETER Suffix
     Version suffix to append (default: "-beta")
 
-.PARAMETER UseUpdateVersionInfo
+.PARAMETER UseUpdateVersionInfoScript
     Use the Update-VersionInfo.ps1 script instead of the built-in project file update method
 
 .EXAMPLE
@@ -39,7 +39,7 @@
     Updates minor version with release candidate suffix
 
 .EXAMPLE
-    .\Update-Version.ps1 -Release -UseUpdateVersionInfo
+    .\Update-Version.ps1 -Major -UseUpdateVersionInfoScript
     Updates release version using the Update-VersionInfo.ps1 script method
 
 .NOTES
@@ -55,7 +55,7 @@ param(
     [switch]$Release,
     [switch]$InCHANGELOGOnly,
     [string]$Suffix = "-beta",
-    [switch]$UseUpdateVersionInfo
+    [switch]$UseUpdateVersionInfoScript
 )
 
 # Set strict mode for better error handling
@@ -243,40 +243,40 @@ function Update-ProjectFileVersion {
 
 function Update-ProjectFilesWithVersionInfo {
     param(
-        [hashtable]$NewVersion
+        [hashtable]$NewVersion,
         [string]$ProjectFile
     )
     
-    $updateVersionInfoPath = Join-Path $PSScriptRoot "Update-VersionInfo.ps1"
+    $updateVersionInfoPath = Join-Path $PSScriptRoot "Update-VersionInfoInProjects.ps1"
     
     if (-not (Test-Path $updateVersionInfoPath)) {
-        throw "Update-VersionInfo.ps1 not found at: $updateVersionInfoPath"
+        throw "Update-VersionInfoInProjects.ps1 not found at: $updateVersionInfoPath"
     }
     
     try {
         # Build the version string
         $versionString = "$($NewVersion.Major).$($NewVersion.Minor).$($NewVersion.Release)"
-        
-        Write-ColoredMessage "Using Update-VersionInfo.ps1 to set version to $versionString..." "White"
-        
-        # Call Update-VersionInfo.ps1 with the specific version
+
+        Write-ColoredMessage "Using Update-VersionInfoInProjects.ps1 to set version to $versionString..." "White"
+
+        # Call Update-VersionInfoInProjects.ps1 with the specific version
         $arguments = @(
-            "-ProjectFiles", $ProjectFile
+            "-ProjectFiles", @($ProjectFile)
             "-Version", $versionString
         )
         
         if ($PSCmdlet.ShouldProcess("Project files", "Update version using Update-VersionInfo.ps1")) {
-            & $updateVersionInfoPath @arguments
+            & $updateVersionInfoPath -ProjectFiles @($ProjectFile) -Version $versionString
 
             if ($LASTEXITCODE -eq 0) {
-                Write-ColoredMessage "✓ Successfully updated project files using Update-VersionInfo.ps1" "Green"
+                Write-ColoredMessage "✓ Successfully updated project files using Update-VersionInfoInProjects.ps1" "Green"
             } else {
-                throw "Update-VersionInfo.ps1 failed with exit code: $LASTEXITCODE"
+                throw "Update-VersionInfoInProjects.ps1 failed with exit code: $LASTEXITCODE"
             }
         }
     }
     catch {
-        Write-Error "Failed to update project files using Update-VersionInfo.ps1: $_"
+        Write-Error "Failed to update project files using Update-VersionInfoInProjects.ps1: $_"
         throw
     }
 }
@@ -296,7 +296,7 @@ function Show-Summary {
     if ($InCHANGELOGOnly) {
         Write-ColoredMessage "Updated: CHANGELOG.md only" "Yellow"
     } else {
-        $methodText = if ($UseUpdateVersionInfo) { "Update-VersionInfo.ps1 script" } else { "built-in method" }
+        $methodText = if ($UseUpdateVersionInfoScript) { "Update-VersionInfo.ps1 script" } else { "built-in method" }
         Write-ColoredMessage "Updated: All project files (using $methodText) and CHANGELOG.md" "Green"
     }
     Write-Host ""
@@ -337,8 +337,8 @@ try {
         
             # Use the built-in method
         foreach ($projectFile in $Script:ProjectFiles) {
-            if ($UseUpdateVersionInfo) {
-                Update-ProjectFilesWithVersionInfo -NewVersion $newVersion
+            if ($UseUpdateVersionInfoScript) {
+                Update-ProjectFilesWithVersionInfo -NewVersion $newVersion -ProjectFile $projectFile
             } else {
                 Update-ProjectFileVersion -ProjectFile $projectFile -NewVersion $newVersion -Suffix $Suffix
             }
