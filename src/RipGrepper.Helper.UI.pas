@@ -22,6 +22,8 @@ uses
 
 type
 
+	TMessageDialogButtons = TArray<TMsgDlgBtn>;
+
 	EDlgException = class(Exception);
 
 	TMsgBoxParams = record
@@ -30,7 +32,7 @@ type
 			Msg : string;
 			DlgType : TMsgDlgType;
 			CustomMainIcon : TIcon;
-			Btns : TMsgDlgButtons;
+			Btns : TMessageDialogButtons;
 			ExpandedCaption : string;
 			ExpandedText : string;
 			FooterIcon : TTaskDialogIcon;
@@ -44,10 +46,11 @@ type
 
 	TMsgBoxBase = class
 		protected
-			class function GetButtonsByType(const _type : TMsgDlgType) : TMsgDlgButtons;
+			class function GetButtonsByType(const _type : TMsgDlgType) : TMessageDialogButtons;
 			class function GetIconByType(const _type : TMsgDlgType) : TTaskDialogIcon;
 			class function GetTitleByType(const _type : TMsgDlgType) : string;
 			class procedure SetCaption(_msgDlg : TForm);
+			class function ArrayToSet(const _btns : TMessageDialogButtons) : TMsgDlgButtons;
 	end;
 
 	// Show MsgBox from a separate thread
@@ -74,7 +77,7 @@ type
 		private
 			class function AddCommonButtons(_msgBox : TTaskDialog; const _btn : TMsgDlgBtn) : Boolean;
 			class procedure AddCustomButtons(_msgBox : TTaskDialog; _btn : TMsgDlgBtn; _idx : integer);
-			class procedure CreateTaskMsgButtons(_msgBox : TTaskDialog; const _btns : TMsgDlgButtons);
+			class procedure CreateTaskMsgButtons(_msgBox : TTaskDialog; const _btns : TMessageDialogButtons);
 			class procedure CreateTaskMsgButtonsByType(taskMsgDlg : TTaskDialog; const _type : TMsgDlgType);
 
 		public
@@ -92,7 +95,7 @@ type
 				{ } const _expandedCaption : string = '';
 				{ } _expandedText : string = '');
 			class function ShowQuestion(const _msg : string; { } const _title : string = '';
-				{ } const _btns : TMsgDlgButtons = [mbYes, mbNo]; { }
+				{ } const _btns : TMessageDialogButtons = []; { }
 				const _expandedCaption : string = ''; { } _expandedText : string = '') : Integer;
 	end;
 
@@ -635,7 +638,7 @@ begin
 
 		taskMsgDlg.Text := _params.Msg;
 
-		if _params.Btns = [] then begin
+		if Length(_params.Btns) = 0 then begin
 			CreateTaskMsgButtonsByType(taskMsgDlg, _params.DlgType);
 		end else begin
 			CreateTaskMsgButtons(taskMsgDlg, _params.Btns);
@@ -657,7 +660,7 @@ begin
 	end;
 end;
 
-class procedure TMsgBox.CreateTaskMsgButtons(_msgBox : TTaskDialog; const _btns : TMsgDlgButtons);
+class procedure TMsgBox.CreateTaskMsgButtons(_msgBox : TTaskDialog; const _btns : TMessageDialogButtons);
 var
 	bNotSupportedBtnsFound : Boolean;
 begin
@@ -687,7 +690,7 @@ end;
 
 class procedure TMsgBox.CreateTaskMsgButtonsByType(taskMsgDlg : TTaskDialog; const _type : TMsgDlgType);
 var
-	btns : TMsgDlgButtons;
+	btns : TMessageDialogButtons;
 begin
 	btns := TMsgBoxBase.GetButtonsByType(_type);
 	CreateTaskMsgButtons(taskMsgDlg, btns);
@@ -713,15 +716,21 @@ end;
 
 class function TMsgBox.ShowQuestion(const _msg : string;
 	{ } const _title : string = '';
-	{ } const _btns : TMsgDlgButtons = [mbYes, mbNo];
+	{ } const _btns : TMessageDialogButtons = [];
 	{ } const _expandedCaption : string = '';
 	{ } _expandedText : string = '') : Integer;
 var
 	icon : IShared<TIcon>;
+	actualBtns : TMessageDialogButtons;
 begin
 	var
 	mbp := TMsgBoxParams.Create(_msg, TMsgDlgType.mtConfirmation, _title, _expandedCaption, _expandedText);
-	mbp.Btns := _btns;
+	if Length(_btns) = 0 then begin
+		actualBtns := [mbYes, mbNo];
+	end else begin
+		actualBtns := _btns;
+	end;
+	mbp.Btns := actualBtns;
 	icon := Shared.Make<TIcon>();
 	icon.Handle := LoadIcon(0, IDI_QUESTION);
 	mbp.CustomMainIcon := icon;
@@ -752,7 +761,7 @@ end;
 class procedure TAsyncMsgBox.Show(const _msg : string; const _type : TMsgDlgType; _parent : TWinControl = nil;
 	_yesProc : TThreadProcedure = nil; _noProc : TThreadProcedure = nil);
 var
-	btns : TMsgDlgButtons;
+	btns : TMessageDialogButtons;
 	modalResult : TModalResult;
 begin
 	TThread.Queue(nil,
@@ -760,7 +769,7 @@ begin
 		begin
 
 			btns := GetButtonsByType(_type);
-			FMsgDlg := CreateMessageDialog(_msg, _type, btns);
+			FMsgDlg := CreateMessageDialog(_msg, _type, ArrayToSet(btns));
 			try
 				FMsgDlg.Parent := _parent;
 				SetCaption(FMsgDlg);
@@ -842,14 +851,14 @@ begin
 	Result := FMsgDlg.ShowModal; // TODO : test appropriate result
 end;
 
-class function TMsgBoxBase.GetButtonsByType(const _type : TMsgDlgType) : TMsgDlgButtons;
+class function TMsgBoxBase.GetButtonsByType(const _type : TMsgDlgType) : TMessageDialogButtons;
 begin
 	Result := [];
 	case _type of
 		TMsgDlgType.mtWarning, TMsgDlgType.mtError, TMsgDlgType.mtInformation :
 		{ } Result := [mbOk];
 		TMsgDlgType.mtConfirmation :
-		{ } Result := mbYesNo;
+		{ } Result := [mbYes, mbNo];
 		TMsgDlgType.mtCustom :
 		{ } Result := [];
 	end;
@@ -892,6 +901,14 @@ end;
 class procedure TMsgBoxBase.SetCaption(_msgDlg : TForm);
 begin
 	_msgDlg.Caption := APPNAME;
+end;
+
+class function TMsgBoxBase.ArrayToSet(const _btns : TMessageDialogButtons) : TMsgDlgButtons;
+begin
+	Result := [];
+	for var btn in _btns do begin
+		Include(Result, btn);
+	end;
 end;
 
 class procedure TComboBoxHelper.ChangeItems(_cmb : TComboBox; const _items : TArray<string>);
