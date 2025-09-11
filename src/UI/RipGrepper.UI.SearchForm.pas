@@ -1485,18 +1485,23 @@ begin
 	bStandalone := {$IF IS_STANDALONE} True; {$ELSE} False; {$ENDIF}
 	lblPaths.Visible := {$IF IS_GUITEST} FALSE; {$ELSE} bStandalone; {$ENDIF};;
 	if bStandalone then begin
-		ExtensionContextFrame1.Enabled := {$IF IS_GUITEST} True; {$ELSE} False; {$ENDIF};
-		ExtensionContextFrame1.Visible := {$IF IS_GUITEST} True; {$ELSE} False; {$ENDIF};
+		var
+		bVisible := {$IF IS_GUITEST} True; {$ELSE} False; {$ENDIF};
+		ExtensionContextFrame1.Enabled := bVisible;
+		ExtensionContextFrame1.Visible := bVisible;
+		dbgMsg.MsgFmt('ExtensionContextFrame1.Visible=%s',
+			{ } [BoolToStr(bVisible, True)]);
 	end;
+
 	if ExtensionContextFrame1.Visible then begin
 		ExtensionContextFrame1.Align := alTop;
 		ExtensionContextFrame1.Height := ExtensionContextFrame1.ContextRadioGroup.Height;
+		pnlMiddle.Height := FpnlMiddleOrigHeight - GetFullHeight(cmbReplaceText);
 		var
 		padding := (ExtensionContextFrame1.Height - FExtensionContextFrameOrigHeight - lblPaths.Height);
-		pnlMiddle.Height := FpnlMiddleOrigHeight - GetFullHeight(cmbReplaceText);
 		gbOptionsFilters.Height := FOptionsFiltersOrigHeight + padding;
 	end else begin
-		gbOptionsFilters.Height := FOptionsFiltersOrigHeight;
+		gbOptionsFilters.Height := FOptionsFiltersOrigHeight - ExtensionContextFrame1.Height;
 	end;
 	dbgMsg.Msg('gbOptionsFilters.Height=' + gbOptionsFilters.Height.ToString);
 
