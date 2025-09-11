@@ -34,6 +34,7 @@ function New-Release {
         [bool]$preRelease = $true,
         [bool]$DryRun = $false
     )
+
     $params = @{
         Uri     = $Url
         Method  = "POST"
@@ -48,6 +49,7 @@ function New-Release {
                 generate_release_notes = $true
             } | ConvertTo-Json )
     } 
+    Write-Host "New-Release: sends rest msg with header: $($params.Headers | ConvertTo-Json)"
     Write-Host "New-Release: sends rest msg with body: $($params.Body)"
     
     if ($DryRun) {
