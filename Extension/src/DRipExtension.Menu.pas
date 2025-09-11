@@ -184,10 +184,15 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.DoOpenWithMenuClick');
 	owp := TOpenWithParams.GetParamsOfActiveFileInDelphiIde();
-	dbgMsg.MsgFmt('TDripExtensionMenu.DoOpenWithMenuClick %s', [owp.ToString]);
-	if not owp.IsEmpty then begin
-		TOpenWith.Execute(owp);
+
+	if owp.IsEmpty then begin
+		Exit;
 	end;
+
+	dbgMsg.MsgFmt('TDripExtensionMenu.DoOpenWithMenuClick %s', [owp.ToString]);
+
+	TOpenWith.Execute(owp);
+
 end;
 
 class procedure TDripExtensionMenu.DoSettingsMenuClick(Sender : TObject);
