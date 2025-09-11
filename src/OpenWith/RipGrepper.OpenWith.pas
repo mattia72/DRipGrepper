@@ -68,38 +68,8 @@ begin
 	end;
 
 	{$IF IS_EXTENSION}
-	var
-		arr : TArrayEx<string> := IOTAUTils.GetModifiedEditBuffers();
-	if arr.Contains(_owp.FilePath) then begin
-		dbgMsg.Msg('File is modified : ' + _owp.FilePath);
-		var
-		res := TMsgBox.ShowQuestion('Do you wan''t to save it now?',
-			{ } 'File is modified',
-			{ } [mbYes, mbYesToAll, mbNo, mbCancel],
-			{ } 'Info',
-			{ } 'Modified files:' + CRLF + string.Join(CRLF, arr.Items));
-		case res of
-			mrYes : begin
-				if not IOTAUtils.SaveFile(_owp.FilePath) then begin
-					TMsgBox.ShowError(_owp.FilePath + CRLF + 'couldn''t be saved, opening aborted.');
-					Exit;
-				end;
-			end;
-			mrYesToAll : begin
-				for var filePath in arr do begin
-					dbgMsg.Msg('Saving file: ' + filePath);
-					if not IOTAUtils.SaveFile(filePath) then begin
-						TMsgBox.ShowError(filePath + CRLF + 'couldn''t be saved, opening aborted.');
-						Exit;
-					end;
-				end;
-			end;
-			mrNo : begin
-			end;
-			mrCancel : begin
-				Exit;
-			end;
-		end;
+	if not IOTAUtils.AskSaveModifiedFiles(_owp.FilePath) then begin
+	  Exit;
 	end;
 	{$ENDIF}
 	sEditorCmd := GetSelectedCmd(_owp);
