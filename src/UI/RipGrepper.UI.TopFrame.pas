@@ -919,7 +919,8 @@ begin
 	Result := mrYes =
 	{ } TMsgBox.ShowQuestion(Format('Are you sure to change %d line(s) in %d file(s)?',
 		{ } [cnt.LineCount, cnt.FileCount]),
-		{ } 'Replace'
+		{ } 'Replace',
+		{ } [mbYes, mbNo]
 		{$IFNDEF STANDALONE}
 		{ } ,
 		{ } 'Warning',

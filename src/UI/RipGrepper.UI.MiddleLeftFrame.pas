@@ -29,7 +29,7 @@ uses
 	SVGIconImageListBase,
 	SVGIconImageList,
 	RipGrepper.UI.IFrameEvents,
-	System.UITypes;   //this should be the last uses
+	System.UITypes; // this should be the last uses
 
 type
 
@@ -215,24 +215,30 @@ begin
 end;
 
 procedure TMiddleLeftFrame.ActionLoadExecute(Sender : TObject);
+var
+	res : Integer;
 begin
 	OpenDialog1.InitialDir := ExtractFilePath(Application.ExeName);
 	OpenDialog1.Filter := 'DRipGrepper History File (*.drh)|*.drh|All Files (*.*)|*.*';
 	OpenDialog1.DefaultExt := 'rgh';
+	res := mrNone;
+	if VstHistory.RootNodeCount > 0 then begin
+		res := TMsgBox.ShowQuestion('Existing history will be deleted! Do you want to continue?');
+		if mrNo = res then begin
+			Exit;
+		end;
+	end;
+
 	if OpenDialog1.Execute then begin
-		if VstHistory.RootNodeCount > 0 then begin
-			if mrYes = TMsgBox.ShowQuestion('Existing history will be deleted! Do you want to continue?') then begin
-				DeleteAllHistoryItems();
-			end else begin
-				Exit;
-			end;
+		if mrYes = res then begin
+			DeleteAllHistoryItems();
 		end;
-		try
-			VstHistory.LoadFromFile(OpenDialog1.FileName);
-		except
-			on E : Exception do
-				TMsgBox.ShowError('Error occurred while loading saved searches.');
-		end;
+	end;
+	try
+		VstHistory.LoadFromFile(OpenDialog1.FileName);
+	except
+		on E : Exception do
+			TMsgBox.ShowError('Error occurred while loading saved searches.');
 	end;
 end;
 

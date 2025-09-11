@@ -31,6 +31,12 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Helper.UI,
 	System.IOUtils,
+	RipGrepper.Common.Constants,
+	{$IF IS_EXTENSION}
+	RipGrepper.Common.IOTAUtils,
+	ArrayEx,
+	System.UITypes,
+	{$ENDIF}
 	Spring.DesignPatterns;
 
 class function TOpenWith.GetSelectedCmd(_owpTestFile : TOpenWithParams) : string;
@@ -57,23 +63,31 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWith.Execute');
 	dbgMsg.MsgFmt('%s ', [_owp.ToString]);
 
-	if FileExists(_owp.FilePath) then begin
-		sEditorCmd := GetSelectedCmd(_owp);
-
-		if sEditorCmd.IsEmpty then begin
-			exit;
-		end;
-
-		dbgMsg.MsgFmt('Cmd: %s ', [sEditorCmd]);
-
-		iPos := Pos('.EXE', AnsiUppercase(sEditorCmd));
-		if iPos = 0 then begin
-			TMsgBox.ShowError('There is no executable configured!');
-			exit;
-		end;
-
-		TOpenWithRunner.RunEditorCommand(sEditorCmd, _owp);
+	if not FileExists(_owp.FilePath) then begin
+		Exit;
 	end;
+
+	{$IF IS_EXTENSION}
+	if not IOTAUtils.AskSaveModifiedFiles(_owp.FilePath) then begin
+	  Exit;
+	end;
+	{$ENDIF}
+	sEditorCmd := GetSelectedCmd(_owp);
+
+	if sEditorCmd.IsEmpty then begin
+		exit;
+	end;
+
+	dbgMsg.MsgFmt('Cmd: %s ', [sEditorCmd]);
+
+	iPos := Pos('.EXE', AnsiUppercase(sEditorCmd));
+	if iPos = 0 then begin
+		TMsgBox.ShowError('There is no executable configured!');
+		exit;
+	end;
+
+	TOpenWithRunner.RunEditorCommand(sEditorCmd, _owp);
+
 end;
 
 end.
