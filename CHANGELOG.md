@@ -1,5 +1,13 @@
 # Changelog
 
+## [v4.13.0-beta] - 2025-09-12
+
+### 💥 Added
+- **extension**: Modified file detection before calling `Open With...`
+
+### 🐞 Fixed
+- Large gap between "Search in" and "Output" group boxes in search form (#26)
+
 ## [v4.12.0-beta] - 2025-08-07
 
 ### 💥 Added
