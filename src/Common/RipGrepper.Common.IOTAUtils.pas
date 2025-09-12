@@ -140,6 +140,7 @@ type
 			/// Common functionality for building/compiling the active project
 			/// </summary>
 			class procedure executeProjectCompilation(const _compileMode : TOTACompileMode);
+			class function showSaveModifiedFilesQuestion(const _modifiedFiles : TArrayEx<string>) : Boolean;
 
 		public
 			class function AddToImageList(_bmp : Vcl.Graphics.TBitmap; const _identText : string) : Integer;
@@ -1738,79 +1739,31 @@ end;
 
 class function IOTAUtils.AskSaveModifiedFiles(const _filePath : string) : Boolean;
 var
+	baseFileName : string;
+	dfmFile : string;
 	modifiedRelatedFiles : TArrayEx<string>;
+	modifiedBuffers : TArrayEx<string>;
+	pasFile : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('IOTAUtils.AskSaveModifiedFiles');
 
-	Result := True;
-
-	var
-		relatedFiles : TArrayEx<string>;
-	relatedFiles.Add(_filePath);
-
-	// Add related files (.pas/.dfm pairs)
-	var
 	baseFileName := ChangeFileExt(_filePath, '');
-	var
-	pasFileName := baseFileName + '.pas';
-	var
-	dfmFileName := baseFileName + '.dfm';
+	dfmFile := baseFileName + '.dfm';
+	pasFile := baseFileName + '.pas';
 
-	if (not SameText(ExtractFileExt(_filePath), '.pas')) and FileExists(pasFileName) then begin
-		relatedFiles.Add(pasFileName);
-		dbgMsg.Msg('add related: ' + pasFileName);
+	modifiedBuffers := IOTAUTils.GetModifiedEditBuffers();
+	modifiedRelatedFiles.Add(_filePath);
+	if modifiedBuffers.Contains(dfmFile) then begin
+		modifiedRelatedFiles.AddIfNotContains(dfmFile);
+		dbgMsg.Msg('add modified dfm: ' + dfmFile);
 	end;
-	if (not SameText(ExtractFileExt(_filePath), '.dfm')) and FileExists(dfmFileName) then begin
-		relatedFiles.Add(dfmFileName);
-		dbgMsg.Msg('add related: ' + dfmFileName);
+	if modifiedBuffers.Contains(pasFile) then begin
+		modifiedRelatedFiles.AddIfNotContains(pasFile);
+		dbgMsg.Msg('add modified pas: ' + pasFile);
 	end;
 
-	var
-		modifiedBuffers : TArrayEx<string> := IOTAUTils.GetModifiedEditBuffers();
-
-	dbgMsg.Msg('File modified: ' + _filePath);
-	// Check if any of the related files are modified
-	for var relatedFile in relatedFiles do begin
-		if modifiedBuffers.Contains(relatedFile) then begin
-			modifiedRelatedFiles.Add(relatedFile);
-			dbgMsg.Msg('add modified related: ' + relatedFile);
-		end;
-	end;
-	if modifiedRelatedFiles.Count > 0 then begin
-		dbgMsg.Msg('File(s) modified: ' + string.Join(', ', modifiedRelatedFiles.Items));
-		var
-		res := TMsgBox.ShowQuestion('Do you wan''t to save it now?',
-			{ } 'File(s) modified',
-			{ } [TMsgDlgBtn.mbYes, TMsgDlgBtn.mbYesToAll, TMsgDlgBtn.mbNo, TMsgDlgBtn.mbCancel],
-			{ } 'Info',
-			{ } 'Modified files:' + CRLF + string.Join(CRLF, modifiedBuffers.Items));
-		case res of
-			mrYes : begin
-				for var filePath in modifiedRelatedFiles do begin
-					dbgMsg.Msg('Saving file: ' + filePath);
-					if not IOTAUtils.SaveFile(filePath) then begin
-						TMsgBox.ShowError(filePath + CRLF + 'couldn''t be saved, opening aborted.');
-						Result := False;
-					end;
-				end;
-			end;
-			mrYesToAll : begin
-				for var filePath in modifiedBuffers do begin
-					dbgMsg.Msg('Saving file: ' + filePath);
-					if not IOTAUtils.SaveFile(filePath) then begin
-						TMsgBox.ShowError(filePath + CRLF + 'couldn''t be saved, opening aborted.');
-						Result := False;
-					end;
-				end;
-			end;
-			mrNo : begin
-			end;
-			mrCancel : begin
-				Result := False;
-			end;
-		end;
-	end;
+	Result := showSaveModifiedFilesQuestion(modifiedRelatedFiles);
 end;
 
 class procedure IOTAUtils.executeProjectCompilation(const _compileMode : TOTACompileMode);
@@ -1936,6 +1889,54 @@ begin
 		end;
 	end;
 	dbgMsg.Msg('File reload completed');
+end;
+
+class function IOTAUtils.showSaveModifiedFilesQuestion(const _modifiedFiles : TArrayEx<string>) : Boolean;
+var
+	btnArr : TMessageDialogButtons;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('IOTAUtils.showSaveModifiedFilesQuestion');
+	Result := True;
+	if _modifiedFiles.Count > 0 then begin
+		btnArr := [TMsgDlgBtn.mbYes, TMsgDlgBtn.mbYesToAll, TMsgDlgBtn.mbNo, TMsgDlgBtn.mbCancel];
+		if _modifiedFiles.Count = 1 then begin
+			btnArr := [TMsgDlgBtn.mbYes, TMsgDlgBtn.mbNo, TMsgDlgBtn.mbCancel];
+		end;
+
+		dbgMsg.Msg('File(s) modified: ' + string.Join(', ', _modifiedFiles.Items));
+		var
+		res := TMsgBox.ShowQuestion('Do you wan''t to save it now?',
+			{ } 'File modified',
+			{ } btnArr,
+			{ } 'Info',
+			{ } 'Modified files:' + CRLF + string.Join(CRLF, _modifiedFiles.Items));
+		case res of
+			mrYes : begin
+				for var filePath in _modifiedFiles do begin
+					dbgMsg.Msg('Saving file: ' + filePath);
+					if not IOTAUtils.SaveFile(filePath) then begin
+						TMsgBox.ShowError(filePath + CRLF + 'couldn''t be saved, opening aborted.');
+						Result := False;
+					end;
+				end;
+			end;
+			mrYesToAll : begin
+				for var filePath in _modifiedFiles do begin
+					dbgMsg.Msg('Saving file: ' + filePath);
+					if not IOTAUtils.SaveFile(filePath) then begin
+						TMsgBox.ShowError(filePath + CRLF + 'couldn''t be saved, opening aborted.');
+						Result := False;
+					end;
+				end;
+			end;
+			mrNo : begin
+			end;
+			mrCancel : begin
+				Result := False;
+			end;
+		end;
+	end;
 end;
 
 {$ELSE}
