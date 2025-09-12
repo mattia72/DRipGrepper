@@ -74,10 +74,10 @@
     <VerInfo_Locale>1033</VerInfo_Locale>
     <DCC_UsePackage>rtl;vcl;designide;$(DCC_UsePackage)</DCC_UsePackage>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.12.0.225;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.12.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>225</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.13.0.227;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>227</VerInfo_Build>
     <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
-    <VerInfo_MinorVer>12</VerInfo_MinorVer>
+    <VerInfo_MinorVer>13</VerInfo_MinorVer>
     <VerInfo_Release>0</VerInfo_Release>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Base_Win64)'!=''">
@@ -100,12 +100,12 @@
     <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\22.0\bin\bds.exe</Debugger_HostApplication>
     <DCC_ShowGeneralMessages>true</DCC_ShowGeneralMessages>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.12.0.225;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.12.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>225</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.13.0.227;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>227</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <Manifest_File>..\Delphi12\(None)</Manifest_File>
     <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
-    <VerInfo_MinorVer>12</VerInfo_MinorVer>
+    <VerInfo_MinorVer>13</VerInfo_MinorVer>
     <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
     <VerInfo_Release>0</VerInfo_Release>
   </PropertyGroup>
@@ -119,11 +119,11 @@
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
     <VerInfo_Locale>1033</VerInfo_Locale>
-    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.12.0.299;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.12.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>299</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.13.0.228;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>228</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <DCC_Description>RipGrep Search within Delphi</DCC_Description>
-    <VerInfo_MinorVer>12</VerInfo_MinorVer>
+    <VerInfo_MinorVer>13</VerInfo_MinorVer>
     <Manifest_File>(Ohne)</Manifest_File>
     <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
     <DCC_MapFile>3</DCC_MapFile>
@@ -265,6 +265,7 @@
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas" />
     <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.IOTAUtils.PathProcessor.pas" />
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.HistoryButtonedEdit.pas" />
+    <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.IOTAFileUtils.pas" />
     <RcItem Include="..\..\..\Resources\about_icon.bmp">
       <ResourceType>BITMAP</ResourceType>
       <ResourceId>about_icon</ResourceId>
