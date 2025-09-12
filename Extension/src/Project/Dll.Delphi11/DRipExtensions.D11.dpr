@@ -1,4 +1,4 @@
-library DRipExtensions.D11;
+﻿library DRipExtensions.D11;
 
 { Important note about DLL memory management: ShareMem must be the
   first unit in your library's USES clause AND your project's (select
@@ -114,7 +114,8 @@ uses
   RipGrepper.UI.CustomRadioGroup in '..\..\..\..\src\UI\RipGrepper.UI.CustomRadioGroup.pas',
   RipGrepper.UI.SearchForm.CtrlValueProxy in '..\..\..\..\src\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas',
   RipGrepper.Common.IOTAUtils.PathProcessor in '..\..\..\..\src\Common\RipGrepper.Common.IOTAUtils.PathProcessor.pas',
-  RipGrepper.UI.HistoryButtonedEdit in '..\..\..\..\src\UI\RipGrepper.UI.HistoryButtonedEdit.pas';
+  RipGrepper.UI.HistoryButtonedEdit in '..\..\..\..\src\UI\RipGrepper.UI.HistoryButtonedEdit.pas',
+  RipGrepper.Common.IOTAFileUtils in '..\..\..\..\src\Common\RipGrepper.Common.IOTAFileUtils.pas';
 
 {$R *.res}
 

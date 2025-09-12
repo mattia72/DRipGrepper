@@ -140,11 +140,9 @@ type
 			/// Common functionality for building/compiling the active project
 			/// </summary>
 			class procedure executeProjectCompilation(const _compileMode : TOTACompileMode);
-			class function showSaveModifiedFilesQuestion(const _modifiedFiles : TArrayEx<string>) : Boolean;
 
 		public
 			class function AddToImageList(_bmp : Vcl.Graphics.TBitmap; const _identText : string) : Integer;
-			class function AskSaveModifiedFiles(const _filePath : string) : Boolean;
 			class function FileMatchesExtension(const FileName, FileExtension : string) : Boolean;
 			class function FileMatchesExtensions(const FileName : string; FileExtensions : array of string) : Boolean; overload;
 			class function GetSettingFilePath : string;
@@ -156,8 +154,7 @@ type
 			// Get the actual TEditControl embedded in the given IDE editor form
 			class function GetIDEEditControl(Form : TCustomForm) : TWinControl;
 
-			class function GetOpenedEditorFiles : TArray<string>;
-			class function GetModifiedEditBuffers : TArray<string>;
+			class function GetOpenedEditorFiles(const _bModifiedOnly : Boolean) : TArray<string>;
 			class function GetExternallyModifiedFiles : TArray<string>;
 
 			class function GxOtaFocusCurrentIDEEditControl : Boolean;
@@ -287,7 +284,7 @@ uses
 	System.Variants,
 	System.Math,
 	Spring,
-	RipGrepper.Helper.UI,
+
 	System.UITypes;
 
 class function IOTAUtils.AddToImageList(_bmp : Vcl.Graphics.TBitmap; const _identText : string) : Integer;
@@ -411,12 +408,14 @@ begin
 			Result := Component as TWinControl;
 end;
 
-class function IOTAUtils.GetOpenedEditorFiles : TArray<string>;
+class function IOTAUtils.GetOpenedEditorFiles(const _bModifiedOnly : Boolean) : TArray<string>;
 var
 	module : IOTAModule;
 	editor : IOTAEditor;
 	service : IOTAModuleServices;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('IOTAUtils.GetOpenedEditorFiles');
 	Result := [];
 	service := (BorlandIDEServices as IOTAModuleServices);
 	if Assigned(service) then begin
@@ -424,29 +423,12 @@ begin
 			module := service.Modules[i];
 			for var j := 0 to module.GetModuleFileCount - 1 do begin
 				editor := module.GetModuleFileEditor(j);
-				TDebugUtils.DebugMessage('IOTAUtils.GetOpenedEditorFiles FileName=' + editor.FileName);
-				Result := Result + [editor.FileName];
-			end;
-		end;
-	end;
-end;
-
-class function IOTAUtils.GetModifiedEditBuffers : TArray<string>;
-var
-	service : IOTAEditorServices;
-	it : IOTAEditBufferIterator;
-	buffer : IOTAEditBuffer;
-begin
-	Result := [];
-	service := (BorlandIDEServices as IOTAEditorServices);
-	if Assigned(service) then begin
-		if (service.GetEditBufferIterator(it)) then begin
-			for var i := 0 to it.Count - 1 do begin
-				buffer := it.EditBuffers[i];
-				if ((buffer.EditViewCount > 0) and buffer.IsModified) then begin
-					TDebugUtils.DebugMessage('IOTAUtils.GetModifiedEditBuffers FileName=' + buffer.FileName + ' ViewCount=' +
-						buffer.EditViewCount.ToString);
-					Result := Result + [buffer.FileName];
+				if _bModifiedOnly and (not editor.Modified) then begin
+					dbgMsg.Msg('Skipping non-modified: ' + editor.FileName);
+					continue;
+				end else begin
+					dbgMsg.Msg('Add to result: ' + editor.FileName);
+					Result := Result + [editor.FileName];
 				end;
 			end;
 		end;
@@ -789,13 +771,20 @@ begin
 	Result := nil;
 	if not Assigned(Module) then
 		Exit;
+
+	if Module.GetModuleFileCount <= 1 then begin
+		Exit;
+	end;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('IOTAUtils.GxOtaGetFormEditorFromModule', True);
+
+	dbgMsg.MsgFmt('Checking module %s for form editors', [Module.FileName]);
 	for i := 0 to Module.GetModuleFileCount - 1 do begin
 		Editor := GxOtaGetFileEditorForModule(Module, i);
 		if Supports(Editor, IOTAFormEditor, FormEditor) then begin
-			Assert(not Assigned(Result), 'There should never be more than one form for a module');
 			Result := FormEditor;
-			// In order to assert our assumptions that only one form
-			// is ever associated with a module, do not call Break; here.
+			dbgMsg.Msg('Found form editor: ' + Result.FileName + ' is modified=' +
+				{ } BoolToStr(FormEditor.Modified, True));
 		end;
 	end;
 end;
@@ -1737,35 +1726,6 @@ begin
 	_nonExistsPaths.AddRange(pathProcessor.NonExistsPaths.ToStringArray);
 end;
 
-class function IOTAUtils.AskSaveModifiedFiles(const _filePath : string) : Boolean;
-var
-	baseFileName : string;
-	dfmFile : string;
-	modifiedRelatedFiles : TArrayEx<string>;
-	modifiedBuffers : TArrayEx<string>;
-	pasFile : string;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('IOTAUtils.AskSaveModifiedFiles');
-
-	baseFileName := ChangeFileExt(_filePath, '');
-	dfmFile := baseFileName + '.dfm';
-	pasFile := baseFileName + '.pas';
-
-	modifiedBuffers := IOTAUTils.GetModifiedEditBuffers();
-	modifiedRelatedFiles.Add(_filePath);
-	if modifiedBuffers.Contains(dfmFile) then begin
-		modifiedRelatedFiles.AddIfNotContains(dfmFile);
-		dbgMsg.Msg('add modified dfm: ' + dfmFile);
-	end;
-	if modifiedBuffers.Contains(pasFile) then begin
-		modifiedRelatedFiles.AddIfNotContains(pasFile);
-		dbgMsg.Msg('add modified pas: ' + pasFile);
-	end;
-
-	Result := showSaveModifiedFilesQuestion(modifiedRelatedFiles);
-end;
-
 class procedure IOTAUtils.executeProjectCompilation(const _compileMode : TOTACompileMode);
 var
 	projectGroup : IOTAProjectGroup;
@@ -1889,54 +1849,6 @@ begin
 		end;
 	end;
 	dbgMsg.Msg('File reload completed');
-end;
-
-class function IOTAUtils.showSaveModifiedFilesQuestion(const _modifiedFiles : TArrayEx<string>) : Boolean;
-var
-	btnArr : TMessageDialogButtons;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('IOTAUtils.showSaveModifiedFilesQuestion');
-	Result := True;
-	if _modifiedFiles.Count > 0 then begin
-		btnArr := [TMsgDlgBtn.mbYes, TMsgDlgBtn.mbYesToAll, TMsgDlgBtn.mbNo, TMsgDlgBtn.mbCancel];
-		if _modifiedFiles.Count = 1 then begin
-			btnArr := [TMsgDlgBtn.mbYes, TMsgDlgBtn.mbNo, TMsgDlgBtn.mbCancel];
-		end;
-
-		dbgMsg.Msg('File(s) modified: ' + string.Join(', ', _modifiedFiles.Items));
-		var
-		res := TMsgBox.ShowQuestion('Do you wan''t to save it now?',
-			{ } 'File modified',
-			{ } btnArr,
-			{ } 'Info',
-			{ } 'Modified files:' + CRLF + string.Join(CRLF, _modifiedFiles.Items));
-		case res of
-			mrYes : begin
-				for var filePath in _modifiedFiles do begin
-					dbgMsg.Msg('Saving file: ' + filePath);
-					if not IOTAUtils.SaveFile(filePath) then begin
-						TMsgBox.ShowError(filePath + CRLF + 'couldn''t be saved, opening aborted.');
-						Result := False;
-					end;
-				end;
-			end;
-			mrYesToAll : begin
-				for var filePath in _modifiedFiles do begin
-					dbgMsg.Msg('Saving file: ' + filePath);
-					if not IOTAUtils.SaveFile(filePath) then begin
-						TMsgBox.ShowError(filePath + CRLF + 'couldn''t be saved, opening aborted.');
-						Result := False;
-					end;
-				end;
-			end;
-			mrNo : begin
-			end;
-			mrCancel : begin
-				Result := False;
-			end;
-		end;
-	end;
 end;
 
 {$ELSE}

@@ -33,7 +33,7 @@ uses
 	System.IOUtils,
 	RipGrepper.Common.Constants,
 	{$IF IS_EXTENSION}
-	RipGrepper.Common.IOTAUtils,
+	RipGrepper.Common.IOTAFileUtils,
 	ArrayEx,
 	System.UITypes,
 	{$ENDIF}
@@ -68,7 +68,7 @@ begin
 	end;
 
 	{$IF IS_EXTENSION}
-	if not IOTAUtils.AskSaveModifiedFiles(_owp.FilePath) then begin
+	if not IOTAFileUtils.AskSaveModifiedFiles(_owp.FilePath) then begin
 	  Exit;
 	end;
 	{$ENDIF}

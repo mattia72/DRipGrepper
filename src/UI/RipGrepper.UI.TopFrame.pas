@@ -778,7 +778,7 @@ begin
 		GetCheckedReplaceList(replaceList);
 		{$IFNDEF STANDALONE}
 		var
-		arr := IOTAUTils.GetModifiedEditBuffers();
+		arr := IOTAUTils.GetOpenedEditorFiles(True);
 		for var filePath in arr do begin
 			if replaceList.Items.ContainsKey(filePath) then begin
 				TMsgBox.ShowWarning('There are not saved files in the editor.');
