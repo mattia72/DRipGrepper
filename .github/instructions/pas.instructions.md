@@ -44,6 +44,10 @@ applyTo: "*.pas"
 * Use `IList<T>` or `IDictionary<K, V>` for collections
 * Use `TArrayEx<T>` where applicable for array operations
 
+## Shared references
+* Use `IShared<T>` from Spring4D for shared references to objects, to get rid of finally free blocks and avoid memory leaks
+* Use `var obj := Shared.Make<T>(T.Create(...))` to create shared references
+
 ## Records
 * Use `record` for simple data structures
 * Use `New` for creating instances of records
