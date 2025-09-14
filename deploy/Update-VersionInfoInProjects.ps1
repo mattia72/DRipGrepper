@@ -330,7 +330,9 @@ function Update-ProjectFile {
                 $updated = $true
             }
             
-            if ($ResetBuild -and (Update-VersionProperty $propertyGroup "VerInfo_Build" $NewVersion.Build.ToString())) {
+            # Update build number if ResetBuild is specified, or if we're setting a specific version with 4 parts
+            $shouldUpdateBuild = $ResetBuild -or ($Version -and $Version.Split('.').Length -gt 3)
+            if ($shouldUpdateBuild -and (Update-VersionProperty $propertyGroup "VerInfo_Build" $NewVersion.Build.ToString())) {
                 Write-Verbose "  Updated VerInfo_Build to $($NewVersion.Build)"
                 $updated = $true
             }

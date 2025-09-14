@@ -254,19 +254,20 @@ function Update-ProjectFilesWithVersionInfo {
     }
     
     try {
-        # Build the version string
-        $versionString = "$($NewVersion.Major).$($NewVersion.Minor).$($NewVersion.Release)"
+        # Determine which parameters to use based on the original user input
+        if ($Major) {
+            $versionType = "Major"
+            Write-ColoredMessage "Using Update-VersionInfoInProjects.ps1 to increment MAJOR version..." "White"
+        } elseif ($Minor) {
+            $versionType = "Minor" 
+            Write-ColoredMessage "Using Update-VersionInfoInProjects.ps1 to increment MINOR version..." "White"
+        } elseif ($Release) {
+            $versionType = "Release"
+            Write-ColoredMessage "Using Update-VersionInfoInProjects.ps1 to increment RELEASE version..." "White"
+        }
 
-        Write-ColoredMessage "Using Update-VersionInfoInProjects.ps1 to set version to $versionString..." "White"
-
-        # Call Update-VersionInfoInProjects.ps1 with the specific version
-        $arguments = @(
-            "-ProjectFiles", @($ProjectFile)
-            "-Version", $versionString
-        )
-        
         if ($PSCmdlet.ShouldProcess("Project files", "Update version using Update-VersionInfo.ps1")) {
-            & $updateVersionInfoPath -ProjectFiles @($ProjectFile) -Version $versionString
+            & $updateVersionInfoPath -ProjectFiles $ProjectFile -VersionType $versionType
 
             if ($LASTEXITCODE -eq 0) {
                 Write-ColoredMessage "✓ Successfully updated project files using Update-VersionInfoInProjects.ps1" "Green"
