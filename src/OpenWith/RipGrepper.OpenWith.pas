@@ -37,7 +37,8 @@ uses
 	ArrayEx,
 	System.UITypes,
 	{$ENDIF}
-	Spring.DesignPatterns;
+	Spring.DesignPatterns,
+	RipGrepper.Common.SimpleTypes;
 
 class function TOpenWith.GetSelectedCmd(_owpTestFile : TOpenWithParams) : string;
 begin
@@ -68,8 +69,10 @@ begin
 	end;
 
 	{$IF IS_EXTENSION}
-	if not IOTAFileUtils.AskSaveModifiedFiles(_owp.FilePath) then begin
-	  Exit;
+	var
+	askResult := IOTAFileUtils.AskSaveModifiedFiles(_owp.FilePath);
+	if not(askResult in [smfrActSaved, smfrAllSaved]) then begin
+		Exit;
 	end;
 	{$ENDIF}
 	sEditorCmd := GetSelectedCmd(_owp);

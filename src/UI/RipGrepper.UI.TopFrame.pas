@@ -1,4 +1,4 @@
-unit RipGrepper.UI.TopFrame;
+﻿unit RipGrepper.UI.TopFrame;
 
 interface
 
@@ -31,9 +31,11 @@ uses
 	RipGrepper.UI.IFrameEvents,
 	SVGIconImageListBase,
 	SVGIconImageList,
-	RipGrepper.UI.HistoryButtonedEdit;
+	RipGrepper.UI.HistoryButtonedEdit,
+	Spring;
 
 type
+
 	TRipGrepperTopFrame = class(TFrame, IFrameEvents)
 		ActionList : TActionList;
 		ActionSearch : TAction;
@@ -142,15 +144,16 @@ type
 			FSettings : TRipGrepperSettings;
 			FSkipButtonEditChange : Boolean;
 			FViewStyleIndex : integer;
+			FReplaceList : IShared<TReplaceList>;
 			procedure ChangeButtonedEditTextButSkipChangeEvent(_edt : TButtonedEdit; const _txt : string);
-			procedure GetCheckedReplaceList(var replaceList : TReplaceList);
+			procedure GetCheckedReplaceList();
 			function GetIsGuiReplaceMode : Boolean;
 			function GetIsInitialized() : Boolean;
 			function GetSettings : TRipGrepperSettings;
 			function GetToolBarWidth(_tb : TToolBar) : Integer;
 			procedure HandleReplaceErrors(const failedReplace : TFailedReplaceData);
 			function IsFilterOn : Boolean;
-			procedure SaveSelectedReplacements;
+			function SaveSelectedReplacements() : ESaveReplacementResult;
 			procedure SelectNextFoundNode(const _prevFoundNode : PVirtualNode; const _searchPattern : string);
 			procedure SetFilterMode(const _fm : EFilterMode; const _bReset : Boolean = False);
 			procedure SetGuiReplaceModes(const _bOn : Boolean = True);
@@ -220,6 +223,7 @@ uses
 	System.RegularExpressions,
 	{$IFNDEF STANDALONE}
 	RipGrepper.Common.IOTAUtils,
+	RipGrepper.Common.IOTAFileUtils,
 	{$ENDIF}
 	RipGrepper.Settings.NodeLook.FilterSettings,
 	RipGrepper.Helper.UI.DarkMode,
@@ -236,6 +240,7 @@ begin
 	FGuiReplaceModes := []; // [EGuiReplaceMode.grmEditEnabled];
 	FFilterMode := [EFilterMode.fmFilterFile];
 	FIsInitialized := False;
+	FReplaceList := Shared.Make<TReplaceList>();
 end;
 
 destructor TRipGrepperTopFrame.Destroy;
@@ -358,6 +363,8 @@ procedure TRipGrepperTopFrame.ActionRefreshSearchExecute(Sender : TObject);
 var
 	cursor : TCursorSaver;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperTopFrame.ActionRefreshSearchExecute');
 	cursor.SetHourGlassCursor;
 	MainFrame.RefreshSearch();
 end;
@@ -382,9 +389,48 @@ begin
 end;
 
 procedure TRipGrepperTopFrame.ActionSaveReplacementExecute(Sender : TObject);
+var
+	saveResult : ESaveReplacementResult;
 begin
-	SaveSelectedReplacements;
-	ActionRefreshSearchExecute(self);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperTopFrame.ActionSaveReplacementExecute');
+
+	GetCheckedReplaceList();
+
+	{$IF IS_EXTENSION}
+	var
+	arrModifiedFiles := IOTAUTils.GetOpenedEditorFiles(True);
+	for var modifiedFile in arrModifiedFiles do begin
+		if FReplaceList.Items.ContainsKey(modifiedFile) then begin
+			dbgMsg.Msg('File is modified in IDE: ' + modifiedFile);
+			case IOTAFileUtils.AskSaveModifiedFiles(modifiedFile) of
+				smfrActSaved : begin
+					continue;
+				end;
+				smfrAllSaved : begin
+					break;
+				end;
+				else
+				Exit;
+			end;
+		end;
+	end;
+	{$ENDIF}
+	saveResult := SaveSelectedReplacements();
+	case saveResult of
+		srrDone : begin
+			dbgMsg.Msg('srrDone');
+			ActionRefreshSearchExecute(self);
+		end;
+		srrError : begin
+			dbgMsg.ErrorMsg('srrError - error occured');
+			Exit;
+		end;
+		srrCancel : begin
+			dbgMsg.Msg('srrCancel - user cancel');
+			Exit;
+		end;
+	end;
 	if IsRGReplaceMode then begin
 		// nothing to do?
 	end else if IsGuiReplaceMode then begin
@@ -630,7 +676,7 @@ begin
 	SetReplaceModeOnGui();
 end;
 
-procedure TRipGrepperTopFrame.GetCheckedReplaceList(var replaceList : TReplaceList);
+procedure TRipGrepperTopFrame.GetCheckedReplaceList();
 var
 	node : PVirtualNode;
 	nodeData : PVSFileNodeData;
@@ -643,7 +689,7 @@ var
 begin
 	node := MainFrame.VstResult.GetFirstChecked();
 	rm := GetReplaceMode();
-
+	FReplaceList.Items.Clear;
 	while Assigned(node) do begin
 		if node.Parent <> MainFrame.VstResult.RootNode then begin
 			nodeData := MainFrame.VstResult.GetNodeData(node);
@@ -660,15 +706,15 @@ begin
 			if IsRgReplaceMode then begin
 				replaceLine := nodeData.MatchData.LineText; // ok every replacement is done by rg.exe
 			end else if IsGuiReplaceMode then begin
-				if replaceList.TryGet(fileName, lineNum, rowNum, lineText) then begin
-					replaceList.Remove(fileName, lineNum, rowNum, lineText);
+				if FReplaceList.TryGet(fileName, lineNum, rowNum, lineText) then begin
+					FReplaceList.Remove(fileName, lineNum, rowNum, lineText);
 				end;
 				// we should replace only from nodeData.MatchData.Col?
 
 				replaceLine := TReplaceHelper.ReplaceString(lineText, Settings.LastSearchText,
 					{ } Settings.RipGrepParameters.ReplaceText, rowNum, rm);
 			end;
-			replaceList.AddUnique(fileName, lineNum, rowNum, lineText, replaceLine);
+			FReplaceList.AddUnique(fileName, lineNum, rowNum, lineText, replaceLine);
 		end;
 		node := MainFrame.VstResult.GetNextChecked(Node);
 	end;
@@ -768,30 +814,22 @@ begin
 	Result := EGuiReplaceMode.grmRGReplace in FGuiReplaceModes;
 end;
 
-procedure TRipGrepperTopFrame.SaveSelectedReplacements;
+function TRipGrepperTopFrame.SaveSelectedReplacements() : ESaveReplacementResult;
 var
-	replaceList : TReplaceList;
 	failedReplace : TFailedReplaceData;
 begin
-	replaceList := TReplaceList.Create();
-	try
-		GetCheckedReplaceList(replaceList);
-		{$IFNDEF STANDALONE}
-		var
-		arr := IOTAUTils.GetOpenedEditorFiles(True);
-		for var filePath in arr do begin
-			if replaceList.Items.ContainsKey(filePath) then begin
-				TMsgBox.ShowWarning('There are not saved files in the editor.');
-				Exit;
-			end;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperTopFrame.SaveSelectedReplacements');
+	Result := srrDone;
+
+	if ShowWarningBeforeSave(FReplaceList) then begin
+		TReplaceHelper.ReplaceLineInFiles(FReplaceList, failedReplace);
+		HandleReplaceErrors(failedReplace);
+		if failedReplace.Count > 0 then begin
+			Result := srrError;
 		end;
-		{$ENDIF}
-		if ShowWarningBeforeSave(replaceList) then begin
-			TReplaceHelper.ReplaceLineInFiles(replaceList, failedReplace);
-			HandleReplaceErrors(failedReplace);
-		end;
-	finally
-		replaceList.Free;
+	end else begin
+		Result := srrCancel;
 	end;
 end;
 

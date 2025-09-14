@@ -201,7 +201,7 @@ var
 	op : TRegexOptions;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TReplaceHelper.ReplaceString');
+	dbgMsg := TDebugMsgBeginEnd.New('TReplaceHelper.ReplaceString', True);
 
 	prefixStr := _input.Substring(0, _fromCol - 1);
 	postfixStr := _input.Substring(_fromCol - 1);

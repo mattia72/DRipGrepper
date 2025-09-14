@@ -50,8 +50,11 @@ type
 
 	EReplaceMode = (rmUseRegex, rmIgnoreCase);
 	TReplaceModes = set of EReplaceMode;
+	ESaveReplacementResult = (srrDone, srrCancel, srrError);
+    ESaveModifiedFilesResults = (smfrActSaved, smfrAllSaved, smfrNothingSaved, smfrCancel, smfrError);
 
 	TNullableString = Nullable<string>;
+
 const
 	GUI_SEARCH_PARAMS : TArray<EGuiOption> = [
 	{ } EGuiOption.soMatchCase,
