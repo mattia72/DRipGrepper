@@ -398,23 +398,42 @@ begin
 	GetCheckedReplaceList();
 
 	{$IF IS_EXTENSION}
-	var
-	arrModifiedFiles := IOTAUTils.GetOpenedEditorFiles(True);
-	for var modifiedFile in arrModifiedFiles do begin
-		if FReplaceList.Items.ContainsKey(modifiedFile) then begin
-			dbgMsg.Msg('File is modified in IDE: ' + modifiedFile);
-			case IOTAFileUtils.AskSaveModifiedFiles(modifiedFile) of
-				smfrActSaved : begin
-					continue;
+	repeat
+		var
+		arrModifiedFiles := IOTAUTils.GetOpenedEditorFiles(True);
+		var replKeyArrEx : TArrayEx<string> := FReplaceList.Items.Keys.ToArray;
+		var idx : integer :=  replKeyArrEx.GetFirstMatchIndex(arrModifiedFiles);
+		if(idx <> -1) then begin
+				case IOTAFileUtils.AskSaveModifiedFiles(arrModifiedFiles[idx]) of
+					smfrActSaved : begin
+						dbgMsg.Msg('smfrActSaved - file saved: ' + arrModifiedFiles[idx]);
+						continue;
+					end;
+					smfrAllSaved : begin
+						dbgMsg.Msg('smfrAllSaved - all files saved');
+						break;
+					end;
+					smfrActNotSaved : begin
+						dbgMsg.Msg('smfrActNotSaved - user chose not to save: ' + arrModifiedFiles[idx]);
+						Exit;
+					end;
+					smfrCancel : begin
+						dbgMsg.Msg('smfrCancel - user cancel');
+						Exit;
+					end;
+					smfrError : begin
+						dbgMsg.ErrorMsg('smfrError - error occured');
+						Exit;
+					end;
+					else begin
+						dbgMsg.Msg('Unknown result, exiting');
+						Exit;
+					end;
 				end;
-				smfrAllSaved : begin
-					break;
-				end;
-				else
-				Exit;
-			end;
+		end else begin
+			break;
 		end;
-	end;
+	until True;
 	{$ENDIF}
 	saveResult := SaveSelectedReplacements();
 	case saveResult of

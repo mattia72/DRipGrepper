@@ -71,7 +71,7 @@ begin
 	{$IF IS_EXTENSION}
 	var
 	askResult := IOTAFileUtils.AskSaveModifiedFiles(_owp.FilePath);
-	if not(askResult in [smfrActSaved, smfrAllSaved]) then begin
+	if (askResult in [smfrCancel, smfrError]) then begin
 		Exit;
 	end;
 	{$ENDIF}

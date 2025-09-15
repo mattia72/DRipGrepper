@@ -51,7 +51,7 @@ type
 	EReplaceMode = (rmUseRegex, rmIgnoreCase);
 	TReplaceModes = set of EReplaceMode;
 	ESaveReplacementResult = (srrDone, srrCancel, srrError);
-    ESaveModifiedFilesResults = (smfrActSaved, smfrAllSaved, smfrNothingSaved, smfrCancel, smfrError);
+    ESaveModifiedFilesResults = (smfrNotSet, smfrActSaved, smfrAllSaved, smfrActNotSaved, smfrCancel, smfrError);
 
 	TNullableString = Nullable<string>;
 
