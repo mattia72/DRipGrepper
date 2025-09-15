@@ -227,6 +227,7 @@ type
 			function BinarySearch(const AItem : T; out AFoundIndex : Integer; const AComparer : IComparer<T>) : Boolean; overload;
 			function BinarySearch(const AItem : T; out AFoundIndex : Integer) : Boolean; overload;
 			function HasMatch(const Values : TArray<T>) : boolean; overload;
+			function GetFirstMatchIndex(const Values : TArray<T>) : integer; overload;
 
 			procedure Unique; // remove duplicates
 			function GetRange(const _idx : integer; const _count : integer = -1) : TArrayEx<T>;
@@ -886,6 +887,17 @@ end;
 class operator TArrayEx<T>.Implicit(const Values : TArrayEx<T>) : TArray<T>;
 begin
 	Result := Values.Items;
+end;
+
+function TArrayEx<T>.GetFirstMatchIndex(const Values: TArray<T>): integer;
+begin
+	Result := -1;
+	for var i : integer := Low(Values) to High(Values) do begin
+		if TArray.Contains<T>(Items, Values[i]) then begin
+			Result := i;
+			Exit
+		end;
+	end;
 end;
 
 end.

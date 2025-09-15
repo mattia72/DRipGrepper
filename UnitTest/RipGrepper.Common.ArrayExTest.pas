@@ -53,6 +53,18 @@ type
 			procedure MultiDimContainTest();
 			[Test]
 			procedure MultiDimStrContainTest();
+			[Test]
+			[TestCase('Empty array', '', '')]
+			[TestCase('No matches', '10,20,30', '1,2,3')]
+			[TestCase('First element match', '1,2,3', '1,4,5')]
+			[TestCase('Second element match', '1,2,3', '4,2,5')]
+			[TestCase('Last element match', '1,2,3', '4,5,3')]
+			[TestCase('Multiple matches', '1,2,3', '2,3,4')]
+			[TestCase('Single element match', '5', '5')]
+			[TestCase('Single element no match', '5', '7')]
+			procedure GetFirstMatchIndexTest(const sourceArray: string; const testArray: string);
+			[Test]
+			procedure GetFirstMatchIndexStringTest();
 	end;
 
 implementation
@@ -164,6 +176,90 @@ begin
 	Assert.IsFalse(a.Contains(['4', '2'], comp), 'array shouldn''t contain [4,2]');
 	Assert.IsFalse(a.Contains(['1', '4'], comp), 'array shouldn''t contain [1,4]');
 	Assert.IsTrue(a.Contains(['3', '4'], comp), 'array should contain [3,4]');
+end;
+
+procedure TArrayExTest.GetFirstMatchIndexTest(const sourceArray: string; const testArray: string);
+var
+	ai : TArrayEx<integer>;
+	testValues : TArray<integer>;
+	result : integer;
+	expectedResult : integer;
+begin
+	// Parse source array
+	if sourceArray = '' then
+	begin
+		ai.Clear;
+		expectedResult := -1;
+	end
+	else
+	begin
+		var sourceElements := sourceArray.Split([',']);
+		var sourceInts : TArray<integer>;
+		SetLength(sourceInts, Length(sourceElements));
+		for var i := 0 to High(sourceElements) do
+			sourceInts[i] := StrToInt(sourceElements[i]);
+		ai := sourceInts;
+	end;
+	
+	// Parse test array
+	if testArray = '' then
+	begin
+		SetLength(testValues, 0);
+		expectedResult := -1;
+	end
+	else
+	begin
+		var testElements := testArray.Split([',']);
+		SetLength(testValues, Length(testElements));
+		for var i := 0 to High(testElements) do
+			testValues[i] := StrToInt(testElements[i]);
+	end;
+	
+	// Calculate expected result if not already set
+	if (sourceArray <> '') and (testArray <> '') then
+	begin
+		expectedResult := -1;
+		for var i := 0 to ai.Count - 1 do
+		begin
+			for var j := 0 to High(testValues) do
+			begin
+				if ai[i] = testValues[j] then
+				begin
+					expectedResult := i;
+					Break;
+				end;
+			end;
+			if expectedResult >= 0 then
+				Break;
+		end;
+	end;
+	
+	// Execute test
+	result := ai.GetFirstMatchIndex(testValues);
+	
+	// Assert result
+	Assert.IsTrue(result = expectedResult, 
+		Format('Expected %d but got %d for source=%s, test=%s', 
+			[expectedResult, result, sourceArray, testArray]));
+end;
+
+procedure TArrayExTest.GetFirstMatchIndexStringTest();
+var
+	aStr : TArrayEx<string>;
+	testStrings : TArray<string>;
+	result : integer;
+begin
+	// Test with string array
+	aStr := ['apple', 'banana', 'cherry'];
+	testStrings := ['orange', 'banana', 'grape'];
+	result := aStr.GetFirstMatchIndex(testStrings);
+	Assert.IsTrue(result = 1, 'String array match should return correct index');
+
+	// Test with no string matches
+	aStr := ['apple', 'banana', 'cherry'];
+	testStrings := ['orange', 'kiwi', 'grape'];
+	result := aStr.GetFirstMatchIndex(testStrings);
+	Assert.IsTrue(result = -1, 'String array with no matches should return -1');
 end;
 
 procedure TArrayExTest.TestArrayContainer();
