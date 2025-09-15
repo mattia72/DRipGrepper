@@ -305,7 +305,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         AlignWithMargins = True
         Left = 10
         Top = 84
-        Width = 27
+        Width = 524
         Height = 15
         Margins.Left = 8
         Margins.Top = 8
@@ -315,7 +315,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object pnlPath: TPanel
         Left = 2
-        Top = 99
+        Top = 102
         Width = 540
         Height = 88
         Margins.Top = 0
@@ -484,6 +484,10 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
+        inherited pnlMain: TPanel
+          Width = 540
+          Height = 59
+        end
       end
     end
     object gbOptionsOutput: TGroupBox
@@ -521,7 +525,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object cbRgParamContext: TCheckBox
         AlignWithMargins = True
-        Left = 121
+        Left = 109
         Top = 22
         Width = 90
         Height = 17
@@ -538,7 +542,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object seContextLineNum: TSpinEdit
         AlignWithMargins = True
-        Left = 227
+        Left = 205
         Top = 19
         Width = 36
         Height = 24

@@ -1441,7 +1441,7 @@ begin
 			{ } EDelphiIDESearchContext.dicProjectFiles,
 			{ } EDelphiIDESearchContext.dicProjectRootDirectory,
 			{ } EDelphiIDESearchContext.dicOpenFiles,
-			{ } EDelphiIDESearchContext.dicProjectSourcePath : begin
+			{ } EDelphiIDESearchContext.dicProjectLibraryPath : begin
 				SetCmbSearchPathText(contextValue);
 			end;
 			EDelphiIDESearchContext.dicCustomLocation : begin

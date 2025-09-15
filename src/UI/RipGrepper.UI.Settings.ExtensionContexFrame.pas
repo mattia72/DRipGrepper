@@ -13,6 +13,7 @@ uses
 	Vcl.Forms,
 	Vcl.Dialogs,
 	Vcl.StdCtrls,
+	Vcl.ExtCtrls,
 	RipGrepper.Common.IDEContextValues,
 	RipGrepper.UI.CustomRadioGroup,
 	RipGrepper.Settings.ExtensionSettings,
@@ -20,6 +21,8 @@ uses
 
 type
 	TExtensionContextFrame = class(TFrame)
+		pnlMain : TPanel;
+
 		strict private
 			FSettings : TRipGrepperSettings;
 			procedure SetSettings(const Value : TRipGrepperSettings);
@@ -55,7 +58,6 @@ implementation
 uses
 	Spring,
 	System.IOUtils,
-
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Common.Constants,
 	System.StrUtils;
@@ -67,9 +69,9 @@ var
 	dic : TDelphiIDEContext;
 begin
 	inherited Create(_owner);
-
+    pnlMain.Caption := '';
 	FContextRadioGroup := TCustomRadioGroup.Create(Self);
-	FContextRadioGroup.Parent := Self;
+	FContextRadioGroup.Parent := pnlMain;
 	FContextRadioGroup.Align := alClient;
 	FContextRadioGroup.Columns := 2;
 	FContextRadioGroup.OnItemSelect := onRadioItemSelect;
@@ -127,8 +129,8 @@ begin
 	dic.IDESearchContext := EDelphiIDESearchContext.dicProjectRootDirectory;
 	AddItem('Project Root Directory', 3, dic);
 
-	dic.IDESearchContext := EDelphiIDESearchContext.dicProjectSourcePath;
-	AddItem('Project Source Paths', 4, dic, True);
+	dic.IDESearchContext := EDelphiIDESearchContext.dicProjectLibraryPath;
+	AddItem('Project Library Paths', 4, dic, True);
 
 	dic.IDESearchContext := EDelphiIDESearchContext.dicCustomLocation;
 	AddItem('Custom Locations:', 5, dic);

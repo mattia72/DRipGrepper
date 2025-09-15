@@ -13,7 +13,7 @@ type
 		{ } dicOpenFiles = 1,
 		{ } dicProjectFiles = 2,
 		{ } dicCustomLocation = 3,
-		{ } dicProjectSourcePath = 4, 
+		{ } dicProjectLibraryPath = 4,
 		{ } dicProjectRootDirectory = 5 
 		// new types should be added after this
 		{ } );
