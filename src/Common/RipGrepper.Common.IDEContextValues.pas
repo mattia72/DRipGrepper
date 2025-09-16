@@ -10,11 +10,12 @@ type
 	EDelphiIDESearchContext = (
 		{ } dicNotSet = -1,
 		{ } dicActiveFile = 0,
-		{ } dicOpenFiles = 1,
-		{ } dicProjectFiles = 2,
+		{ } dicOpenFiles = 1, // opened files in ide
+		{ } dicProjectFiles = 2, // all listed files in dproj
 		{ } dicCustomLocation = 3,
-		{ } dicProjectLibraryPath = 4,
-		{ } dicProjectRootDirectory = 5 
+		{ } dicProjectLibraryPath = 4, // all possible path?
+		{ } dicProjectRootDirectory = 5, // dproj parent directory path
+		{ } dicProjectFilesDirs = 6 // directory list of project files
 		// new types should be added after this
 		{ } );
 
@@ -42,7 +43,7 @@ type
 			property ContextType : EDelphiIDESearchContext read GetContextType write SetContextType;
 	end;
 
-    // Event type for extension context change
+	// Event type for extension context change
 	TExtensionContextChangeEvent = procedure(Sender : TObject; _icv : IIDEContextValues) of object;
 
 implementation

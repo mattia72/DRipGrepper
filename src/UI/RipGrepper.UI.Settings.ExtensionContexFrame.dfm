@@ -12,6 +12,7 @@ object ExtensionContextFrame: TExtensionContextFrame
     Width = 453
     Height = 136
     Align = alClient
+    BevelOuter = bvNone
     Caption = 'Extension Context Frame'
     TabOrder = 0
   end

@@ -137,14 +137,14 @@ procedure TCustomRadioItem.SetTagObject(const Value : IInterface);
 begin
 	FTagObject := Value;
 
-    {$IFDEF DEBUG}
-    var
-	icv : IIDEContextValues;
+	{$IFDEF DEBUG}
+	var
+		icv : IIDEContextValues;
 
 	if Supports(FTagObject, IIDEContextValues, icv) then begin
-		Assert(icv.GetContextType <= EDelphiIDESearchContext.dicProjectRootDirectory, 'Context type is greater than the max');
+		Assert(icv.GetContextType <= high(EDelphiIDESearchContext), 'Context type is greater than the max');
 	end;
-    {$ENDIF}
+	{$ENDIF}
 end;
 
 { TCustomRadioItems }

@@ -25,6 +25,7 @@ type
 		function GetActiveProjectDirectory() : string;
 		function GetActiveProjectFilePath() : string;
 		function GetProjectFiles() : TArray<string>;
+		function GetProjectFilesDirs() : TArray<string>;
 		function GetOpenedEditBuffers() : TArray<string>;
 		function GetCurrentSourceFile() : string;
 		/// <summary>
@@ -116,6 +117,7 @@ type
 			function GetCurrentSourceFile() : string;
 			function GetOpenedEditBuffers() : TArray<string>;
 			function GetProjectFiles() : TArray<string>;
+			function GetProjectFilesDirs(): TArray<string>;
 	end;
 
 	IOTAUtils = class(TObject)
@@ -1664,16 +1666,41 @@ function TIdeProjectPathHelper.GetProjectFiles() : TArray<string>;
 var
 	fn : string;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.GetProjectFiles');
+
 	Result := [];
 	if not Assigned(FProject) then
 		Exit;
 	for var i : integer := 0 to FProject.GetModuleCount - 1 do begin
 		fn := FProject.GetModule(i).GetFileName;
 		if not fn.IsEmpty then begin
-			TDebugUtils.DebugMessage('TIdeProjectPathHelper.GetProjectFiles FileName=' + fn);
+			TDebugUtils.DebugMessage('Add FileName=' + fn);
 			Result := Result + [fn]
 		end;
 	end;
+end;
+
+function TIdeProjectPathHelper.GetProjectFilesDirs(): TArray<string>;
+var
+	fn : string;
+	arr : TArrayEx<string>;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.GetProjectFilesDirs');
+
+	if not Assigned(FProject) then
+		Exit;
+	for var i : integer := 0 to FProject.GetModuleCount - 1 do begin
+		fn := FProject.GetModule(i).GetFileName;
+		if not fn.IsEmpty then begin
+			var
+			dir := TPath.GetDirectoryName(fn);
+			TDebugUtils.DebugMessage('Add DirName=' + dir);
+			arr.AddIfNotContains(dir);
+		end;
+	end;
+	Result := arr.Items;
 end;
 
 class function TIdeProjectPathHelper.IsProjectDelphiDotNet(Project : IOTAProject) : Boolean;

@@ -20,8 +20,9 @@ type
 		ActiveFile : string;
 		OpenFiles : TArray<string>;
 		ProjectFiles : TArray<string>;
+		ProjectFilesDirs : TArray<string>;
 		ProjectLibraryPath : TArray<string>;
-		InvalidProjectSourcePath: TArrayEx<string>;
+		InvalidProjectSourcePath : TArrayEx<string>;
 		ActiveProject : string;
 		function IsEmpty() : Boolean;
 
@@ -211,6 +212,8 @@ begin
 		Result := string.Join(';', OpenFiles);
 		EDelphiIDESearchContext.dicProjectFiles :
 		Result := string.Join(';', ProjectFiles);
+		EDelphiIDESearchContext.dicProjectFilesDirs :
+		Result := string.Join(';', ProjectFilesDirs);
 		EDelphiIDESearchContext.dicProjectLibraryPath :
 		Result := string.Join(';', ProjectLibraryPath);
 		EDelphiIDESearchContext.dicProjectRootDirectory :
@@ -232,6 +235,7 @@ begin
 		projPathGetter : IIdeProjectPathHelper := TIdeProjectPathHelper.Create();
 	ActiveFile := projPathGetter.GetCurrentSourceFile();
 	ProjectFiles := projPathGetter.GetProjectFiles();
+	ProjectFilesDirs := projPathGetter.GetProjectFilesDirs();
 	OpenFiles := projPathGetter.GetOpenedEditBuffers();
 	ActiveProject := projPathGetter.GetActiveProjectFilePath();
 	// SourcePath := IOTAUtils.GxOtaGetProjectSourcePathStrings(ap, InvalidProjectSourcePath);
@@ -240,13 +244,15 @@ begin
 	ActiveFile := 'c:\temp\myfile.pas';
 	ActiveProject := 'c:\temp\myproject.dproj';
 	OpenFiles := ['c:\temp\myfile1.pas', 'c:\temp\myfile2.pas'];
-	ProjectFiles := ['c:\temp\myfile1.pas', 'c:\temp\myfile2.pas', 'c:\temp\myfile3.pas'];
+	ProjectFiles := ['c:\temp\myfile1.pas', 'c:\temp2\myfile2.pas', 'c:\temp\myfile3.pas'];
+	ProjectFilesDirs := ['c:\temp', 'c:\temp2'];
 	ProjectLibraryPath := ['c:\temp\source'];
 	{$ENDIF}
 	dbgMsg.Msg('ActiveFile: ' + ActiveFile);
 	dbgMsg.Msg('ActiveProject: ' + ActiveProject);
 	dbgMsg.Msg('OpenFiles: ' + string.Join(';' + CRLF + TAB, OpenFiles));
 	dbgMsg.Msg('ProjectFiles: ' + string.Join(';' + CRLF + TAB, ProjectFiles));
+	dbgMsg.Msg('ProjectFilesDirs: ' + string.Join(';' + CRLF + TAB, ProjectFilesDirs));
 	dbgMsg.Msg('ProjectLibraryPath: ' + string.Join(';' + CRLF + TAB, ProjectLibraryPath));
 	dbgMsg.WarningMsg('InvalidProjectSourcePath: ' + string.Join(';' + CRLF + TAB, InvalidProjectSourcePath.Items));
 end;
@@ -257,6 +263,7 @@ begin
 	Dest.ActiveProject := '';
 	Dest.OpenFiles := [];
 	Dest.ProjectFiles := [];
+	Dest.ProjectFilesDirs := [];
 	Dest.ProjectLibraryPath := [];
 	Dest.IDESearchContext := EDelphiIDESearchContext.dicNotSet;
 end;

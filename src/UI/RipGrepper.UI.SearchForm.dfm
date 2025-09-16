@@ -305,7 +305,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         AlignWithMargins = True
         Left = 10
         Top = 84
-        Width = 524
+        Width = 27
         Height = 15
         Margins.Left = 8
         Margins.Top = 8
