@@ -5,6 +5,7 @@
 ### 💥 Added
 - **extension**: Modified file detection and asking for save before calling `Open With...`
 - **extension**: Modified file detection and asking for save before replace
+- **extension**: New search context choice: `Project Files Directories` (all dirs of all project files)
 - Unittests for TArrayEx.GetFirstMatchIndex
 
 ### 🐞 Fixed
