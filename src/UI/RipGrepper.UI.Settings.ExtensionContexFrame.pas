@@ -20,7 +20,7 @@ uses
 	RipGrepper.Settings.RipGrepperSettings;
 
 type
-	TExtensionContextFrame = class(TFrame)
+	TExtensionContextFrame = class(TCustomFrame)
 		pnlMain : TPanel;
 
 		strict private
@@ -40,6 +40,7 @@ type
 		public
 			constructor Create(_owner : TComponent); override;
 			procedure AddItems();
+			procedure AdjustHeight();
 			class function GetAsHint(const _paths : string) : string; overload;
 			class function GetAsHint(var _paths : TArray<string>) : string; overload;
 			function GetSelectedIDEContext : EDelphiIDESearchContext;
@@ -142,6 +143,19 @@ begin
 
 	// Select first option by default
 	// FContextRadioGroup.ItemIndex := 0;
+end;
+
+procedure TExtensionContextFrame.AdjustHeight();
+begin
+	// Ensure width fits within parent with margins
+	if Assigned(Parent) then begin
+		Width := Parent.ClientWidth - 16; // Leave margin for proper appearance
+	end;
+	// Make sure the radio group uses full available width
+	FContextRadioGroup.Width := Width - 8;
+	FContextRadioGroup.Arrange();
+	// Height should match exactly the radio group height
+	Height := FContextRadioGroup.Height;
 end;
 
 class function TExtensionContextFrame.GetAsHint(const _paths : string) : string;

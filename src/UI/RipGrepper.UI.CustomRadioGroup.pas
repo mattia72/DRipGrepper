@@ -292,7 +292,7 @@ begin
 
 	// Adjust control height if needed
 	if maxRows > 0 then begin
-		Height := Max(Height, maxRows * itemHeight + 16);
+		Height := maxRows * itemHeight + 8; // Minimal padding for clean layout
 	end;
 
 end;

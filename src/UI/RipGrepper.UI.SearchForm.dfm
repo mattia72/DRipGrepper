@@ -304,8 +304,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       object lblPaths: TLabel
         AlignWithMargins = True
         Left = 10
-        Top = 84
-        Width = 27
+        Top = 25
+        Width = 524
         Height = 15
         Margins.Left = 8
         Margins.Top = 8
@@ -315,7 +315,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object pnlPath: TPanel
         Left = 2
-        Top = 102
+        Top = 43
         Width = 540
         Height = 88
         Margins.Top = 0
@@ -422,13 +422,13 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object pnlRgOptions: TPanel
         Left = 2
-        Top = 190
+        Top = 131
         Width = 540
         Height = 28
         Align = alTop
         BevelOuter = bvNone
         Padding.Left = 8
-        TabOrder = 2
+        TabOrder = 0
         object cbRgParamEncoding: TCheckBox
           AlignWithMargins = True
           Left = 203
@@ -473,20 +473,6 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
           TabOrder = 3
           Text = 'cmbRgParamEncoding'
           OnChange = cmbRgParamEncodingChange
-        end
-      end
-      inline ExtensionContextFrame1: TExtensionContextFrame
-        Left = 2
-        Top = 17
-        Width = 540
-        Height = 59
-        Align = alTop
-        ParentShowHint = False
-        ShowHint = True
-        TabOrder = 0
-        inherited pnlMain: TPanel
-          Width = 540
-          Height = 59
         end
       end
     end

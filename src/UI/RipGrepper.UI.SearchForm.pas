@@ -105,7 +105,6 @@ type
 		ToolButton1 : TToolButton;
 		ToolButton2 : TToolButton;
 		pnlRgOptions : TPanel;
-		ExtensionContextFrame1 : TExtensionContextFrame;
 		procedure ActionAddParamMatchCaseExecute(Sender : TObject);
 		procedure ActionAddParamMatchCaseUpdate(Sender : TObject);
 		procedure ActionAddParamRegexExecute(Sender : TObject);
@@ -147,9 +146,8 @@ type
 		procedure TabControl1Change(Sender : TObject);
 
 		strict private
+			ExtensionContextFrame1 : TExtensionContextFrame;
 			FExtensionContextFrameOrigHeight : Integer;
-
-		private
 			FIsKeyboardInput : Boolean;
 			// proxy between settings and ctrls
 			FCtrlProxy : TSearchFormCtrlValueProxy;
@@ -282,9 +280,16 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.Create');
 
 	FHistItemObj := _histObj;
+
+	ExtensionContextFrame1 := TExtensionContextFrame.Create(self);
+
 	ExtensionContextFrame1.Settings := _settings;
-	ExtensionContextFrame1.AddItems();
 	ExtensionContextFrame1.OnContextChange := OnContextChange;
+	ExtensionContextFrame1.Parent := gbOptionsFilters;
+	ExtensionContextFrame1.Align := alTop;
+	ExtensionContextFrame1.AddItems();
+	// Adjust size to fit properly in gbOptionsFilters
+	ExtensionContextFrame1.AdjustHeight();
 
 	LoadInitialSearchSettings;
 
@@ -1496,11 +1501,12 @@ begin
 
 	if ExtensionContextFrame1.Visible then begin
 		ExtensionContextFrame1.Align := alTop;
-		ExtensionContextFrame1.Height := ExtensionContextFrame1.ContextRadioGroup.Height;
+		// Ensure proper frame size adjustment
+		ExtensionContextFrame1.AdjustHeight();
+		// Use the frame's height exactly as calculated by AdjustHeight without extra calculations
 		pnlMiddle.Height := FpnlMiddleOrigHeight - GetFullHeight(cmbReplaceText);
-		var
-		padding := (ExtensionContextFrame1.Height - FExtensionContextFrameOrigHeight - lblPaths.Height);
-		gbOptionsFilters.Height := FOptionsFiltersOrigHeight + padding;
+		// Just adjust the gbOptionsFilters height to accommodate the frame
+		gbOptionsFilters.Height := FOptionsFiltersOrigHeight;
 	end else begin
 		gbOptionsFilters.Height := FOptionsFiltersOrigHeight - ExtensionContextFrame1.Height;
 	end;

@@ -3,9 +3,6 @@ object ExtensionContextFrame: TExtensionContextFrame
   Top = 0
   Width = 453
   Height = 136
-  ParentShowHint = False
-  ShowHint = True
-  TabOrder = 0
   object pnlMain: TPanel
     Left = 0
     Top = 0
