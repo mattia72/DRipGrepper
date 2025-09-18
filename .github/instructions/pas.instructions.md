@@ -60,5 +60,5 @@ applyTo: "*.pas"
 * Document complex algorithms and business logic
 
 ## Quality Assurance
-* Build and run unit tests before committing changes
+* Build all relevant projects after changes to ensure compilation
 * Ensure code follows these standards before submission
