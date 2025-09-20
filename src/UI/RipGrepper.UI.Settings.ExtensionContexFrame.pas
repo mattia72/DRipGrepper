@@ -133,7 +133,7 @@ begin
 	AddItem('Project Files Directories', dic);
 
 	dic.IDESearchContext := EDelphiIDESearchContext.dicProjectRootDirectory;
-	AddItem('Project Root Directory', dic);
+	AddItem('Project Root Directory', dic, True);
 
 	dic.IDESearchContext := EDelphiIDESearchContext.dicProjectLibraryPath;
 	AddItem('Project Library Paths', dic, True);
