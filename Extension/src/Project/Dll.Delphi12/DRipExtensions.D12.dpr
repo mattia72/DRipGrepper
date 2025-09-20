@@ -109,7 +109,7 @@ uses
   RipGrepper.Common.IOTAUtils.Constants in '..\..\..\..\src\Common\RipGrepper.Common.IOTAUtils.Constants.pas',
   RipGrepper.Common.RegistryUtils in '..\..\..\..\src\Common\RipGrepper.Common.RegistryUtils.pas',
   RipGrepper.UI.Settings.ExtensionContexFrame in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ExtensionContexFrame.pas',
-  RipGrepper.UI.CustomRadioGroup in '..\..\..\..\src\UI\RipGrepper.UI.CustomRadioGroup.pas',
+  RipGrepper.UI.CustomOptionsGroup in '..\..\..\..\src\UI\RipGrepper.UI.CustomOptionsGroup.pas',
   RipGrepper.Common.IDEContextValues in '..\..\..\..\src\Common\RipGrepper.Common.IDEContextValues.pas',
   RipGrepper.UI.SearchForm.CtrlValueProxy in '..\..\..\..\src\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas',
   RipGrepper.Common.IOTAUtils.PathProcessor in '..\..\..\..\src\Common\RipGrepper.Common.IOTAUtils.PathProcessor.pas',

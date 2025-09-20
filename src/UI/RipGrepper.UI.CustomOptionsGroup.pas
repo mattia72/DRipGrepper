@@ -1,4 +1,4 @@
-unit RipGrepper.UI.CustomRadioGroup;
+unit RipGrepper.UI.CustomOptionsGroup;
 
 interface
 
@@ -53,13 +53,13 @@ type
 	end;
 
 	// Forward declaration
-	TCustomRadioGroup = class;
+	TCustomOptionsGroup = class;
 
 	// Event type for item selection
 	TRadioItemSelectEvent = procedure(Sender : TObject; Item : TCustomRadioItem) of object;
 
 	// Main custom radio group control
-	TCustomRadioGroup = class(TCustomPanel)
+	TCustomOptionsGroup = class(TCustomPanel)
 		private
 			FItems : TCustomRadioItems;
 			FItemIndex : Integer;
@@ -187,9 +187,9 @@ begin
 	inherited SetItem(_index, _value);
 end;
 
-{ TCustomRadioGroup }
+{ TCustomOptionsGroup }
 
-constructor TCustomRadioGroup.Create(_owner : TComponent);
+constructor TCustomOptionsGroup.Create(_owner : TComponent);
 begin
 	inherited Create(_owner);
 	FItems := TCustomRadioItems.Create(Self);
@@ -201,14 +201,14 @@ begin
 	Height := 100;
 end;
 
-destructor TCustomRadioGroup.Destroy;
+destructor TCustomOptionsGroup.Destroy;
 begin
 	Clear;
 	FItems.Free;
 	inherited Destroy;
 end;
 
-procedure TCustomRadioGroup.Clear;
+procedure TCustomOptionsGroup.Clear;
 var
 	i : Integer;
 	item : TCustomRadioItem;
@@ -225,7 +225,7 @@ begin
 	FItemIndex := -1;
 end;
 
-function TCustomRadioGroup.AddItem(const _caption, _hint : string; _orderIndex : Integer; _obj : IInterface = nil) : TCustomRadioItem;
+function TCustomOptionsGroup.AddItem(const _caption, _hint : string; _orderIndex : Integer; _obj : IInterface = nil) : TCustomRadioItem;
 var
 	radioButton : TRadioButton;
 begin
@@ -237,7 +237,7 @@ begin
 	Result := FItems.AddItem(radioButton, _caption, _orderIndex, _obj);
 end;
 
-procedure TCustomRadioGroup.Arrange();
+procedure TCustomOptionsGroup.Arrange();
 var
 	sortedItems : IShared<TList<TCustomRadioItem>>;
 	i, j, col, row : Integer;
@@ -300,7 +300,7 @@ begin
 
 end;
 
-procedure TCustomRadioGroup.onRadioButtonClick(_sender : TObject);
+procedure TCustomOptionsGroup.onRadioButtonClick(_sender : TObject);
 var
 	radioButton : TRadioButton;
 	itemIndex : Integer;
@@ -327,13 +327,13 @@ begin
 	end;
 end;
 
-procedure TCustomRadioGroup.Resize;
+procedure TCustomOptionsGroup.Resize;
 begin
 	inherited Resize;
 	Arrange;
 end;
 
-procedure TCustomRadioGroup.setColumns(const _value : Integer);
+procedure TCustomOptionsGroup.setColumns(const _value : Integer);
 begin
 	if (_value > 0) and (FColumns <> _value) then begin
 		FColumns := _value;
@@ -341,7 +341,7 @@ begin
 	end;
 end;
 
-procedure TCustomRadioGroup.setItemIndex(const _value : Integer);
+procedure TCustomOptionsGroup.setItemIndex(const _value : Integer);
 var
 	i : Integer;
 	item : TCustomRadioItem;
@@ -372,7 +372,7 @@ begin
 	end;
 end;
 
-function TCustomRadioGroup.getSelectedItem : TCustomRadioItem;
+function TCustomOptionsGroup.getSelectedItem : TCustomRadioItem;
 begin
 	if (FItemIndex >= 0) and (FItemIndex < FItems.Count) then begin
 		Result := FItems[FItemIndex];
@@ -383,7 +383,7 @@ end;
 
 procedure Register;
 begin
-	RegisterComponents('Custom', [TCustomRadioGroup]);
+	RegisterComponents('Custom', [TCustomOptionsGroup]);
 end;
 
 end.

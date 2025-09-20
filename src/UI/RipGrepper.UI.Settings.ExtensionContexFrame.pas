@@ -15,7 +15,7 @@ uses
 	Vcl.StdCtrls,
 	Vcl.ExtCtrls,
 	RipGrepper.Common.IDEContextValues,
-	RipGrepper.UI.CustomRadioGroup,
+	RipGrepper.UI.CustomOptionsGroup,
 	RipGrepper.Settings.ExtensionSettings,
 	RipGrepper.Settings.RipGrepperSettings;
 
@@ -28,7 +28,7 @@ type
 			procedure SetSettings(const Value : TRipGrepperSettings);
 
 		private
-			FContextRadioGroup : TCustomRadioGroup;
+			FContextRadioGroup : TCustomOptionsGroup;
 			FOnContextChange : TExtensionContextChangeEvent;
 			FRadioItemIndex : Integer;
 			procedure AddItem(const _caption : string; const _dic : TDelphiIDEContext; const _bInExpertModeOnly : Boolean = False);
@@ -45,7 +45,7 @@ type
 			class function GetAsHint(var _paths : TArray<string>) : string; overload;
 			function GetSelectedIDEContext : EDelphiIDESearchContext;
 			procedure SetSelectedIDEContext(_ideContext : EDelphiIDESearchContext);
-			property ContextRadioGroup : TCustomRadioGroup read FContextRadioGroup;
+			property ContextRadioGroup : TCustomOptionsGroup read FContextRadioGroup;
 			property ContextValues : IIDEContextValues read GetContextValues;
 
 		published
@@ -71,7 +71,7 @@ var
 begin
 	inherited Create(_owner);
 	pnlMain.Caption := '';
-	FContextRadioGroup := TCustomRadioGroup.Create(Self);
+	FContextRadioGroup := TCustomOptionsGroup.Create(Self);
 	FContextRadioGroup.Parent := pnlMain;
 	FContextRadioGroup.Align := alClient;
 	FContextRadioGroup.Columns := 3;

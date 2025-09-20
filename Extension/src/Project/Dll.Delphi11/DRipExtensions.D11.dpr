@@ -111,7 +111,7 @@ uses
   RipGrepper.Common.RegistryUtils in '..\..\..\..\src\Common\RipGrepper.Common.RegistryUtils.pas',
   RipGrepper.Common.IDEContextValues in '..\..\..\..\src\Common\RipGrepper.Common.IDEContextValues.pas',
   RipGrepper.UI.Settings.ExtensionContexFrame in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ExtensionContexFrame.pas' {ExtensionContexFrame: TFrame},
-  RipGrepper.UI.CustomRadioGroup in '..\..\..\..\src\UI\RipGrepper.UI.CustomRadioGroup.pas',
+  RipGrepper.UI.CustomOptionsGroup in '..\..\..\..\src\UI\RipGrepper.UI.CustomOptionsGroup.pas',
   RipGrepper.UI.SearchForm.CtrlValueProxy in '..\..\..\..\src\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas',
   RipGrepper.Common.IOTAUtils.PathProcessor in '..\..\..\..\src\Common\RipGrepper.Common.IOTAUtils.PathProcessor.pas',
   RipGrepper.UI.HistoryButtonedEdit in '..\..\..\..\src\UI\RipGrepper.UI.HistoryButtonedEdit.pas',
