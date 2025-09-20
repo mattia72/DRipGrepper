@@ -9,7 +9,8 @@ uses
 	System.SysUtils,
 	Vcl.Controls,
 	Vcl.StdCtrls,
-	Vcl.ExtCtrls;
+	Vcl.ExtCtrls,
+	Winapi.Windows;
 
 type
 	// Custom collection item for radio items
@@ -95,7 +96,8 @@ uses
 	Math,
 	Spring,
 	RipGrepper.Common.IDEContextValues,
-	RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.SimpleTypes,
+	RipGrepper.UI.DpiScaler;
 
 { TCustomRadioItem }
 
@@ -262,7 +264,8 @@ begin
 		end));
 
 	// Calculate layout
-	itemHeight := 22;
+	var dpi := TRipGrepperDpiScaler.GetActualDPI();
+	itemHeight := MulDiv(22, dpi, 96); // Use DPI-aware height calculation
 	itemWidth := Width div FColumns;
 	maxRows := Ceil(sortedItems.Count / FColumns);
 
