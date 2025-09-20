@@ -1139,10 +1139,24 @@ end;
 procedure TRipGrepperSearchDialogForm.FormResize(Sender : TObject);
 begin
 	inherited;
-	// var ctrlBackup := ActiveControl;
-	// ActiveControl := nil;
+	// Calculate the height needed for non-expert mode
+	var
+	fullHeight := GetFullHeights();
+
+	// If Expert mode is not enabled, prevent vertical resizing
+	if not FSettings.AppSettings.ExpertMode then begin
+		// Set both min and max height to the same value to prevent vertical resizing
+		Constraints.MinHeight := fullHeight;
+		Constraints.MaxHeight := fullHeight;
+		// Ensure the form height matches the constraint
+		Height := fullHeight;
+	end else begin
+		// In Expert mode, allow vertical resizing
+		Constraints.MinHeight := fullHeight;
+		Constraints.MaxHeight := 0; // 0 means no maximum height constraint
+	end;
+
 	SetExpertGroupSize();
-	// ActiveControl := ctrlBackup; // TODO: after resize every edit is selected
 end;
 
 function TRipGrepperSearchDialogForm.GetFullHeights() : integer;
@@ -1326,12 +1340,6 @@ begin
 	var
 	iexpertHeight := Height - GetFullHeights();
 	gbExpert.Visible := FSettings.AppSettings.ExpertMode and (iexpertHeight > 0);
-	// Position gbOptionsOutput right after gbOptionsFilters
-	// gbOptionsOutput.Top := gbOptionsFilters.Top + gbOptionsFilters.Height + gbOptionsFilters.Margins.Bottom;
-	// if gbExpert.Visible then begin
-	// gbExpert.Top := gbOptionsOutput.Top + gbOptionsOutput.Height + gbOptionsOutput.Margins.Bottom;
-	// gbExpert.Height := iexpertHeight;
-	// end;
 end;
 
 procedure TRipGrepperSearchDialogForm.SetOrigHeights;
@@ -1479,14 +1487,17 @@ procedure TRipGrepperSearchDialogForm.UpdateHeight;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateHeight');
-	// Height := FOrigHeight;
 	dbgMsg.Msg('Height=' + Height.ToString);
+
+	// Adjust top panel for replace text visibility
 	if cmbReplaceText.Visible then begin
 		pnlTop.Height := FTopPanelOrigHeight;
 	end else begin
 		pnlTop.Height := FTopPanelOrigHeight - GetFullHeight(cmbReplaceText);
 	end;
 	dbgMsg.Msg('pnlTop.Height=' + pnlTop.Height.ToString);
+
+	// Handle extension context frame visibility
 	var
 	bStandalone := {$IF IS_STANDALONE} True; {$ELSE} False; {$ENDIF}
 	lblPaths.Visible := {$IF IS_GUITEST} FALSE; {$ELSE} bStandalone; {$ENDIF};;
@@ -1495,29 +1506,33 @@ begin
 		bVisible := {$IF IS_GUITEST} True; {$ELSE} False; {$ENDIF};
 		ExtensionContextFrame1.Enabled := bVisible;
 		ExtensionContextFrame1.Visible := bVisible;
-		dbgMsg.MsgFmt('ExtensionContextFrame1.Visible=%s',
-			{ } [BoolToStr(bVisible, True)]);
+		dbgMsg.MsgFmt('ExtensionContextFrame1.Visible=%s', [BoolToStr(bVisible, True)]);
 	end;
 
+	// Handle extension context frame sizing
 	if ExtensionContextFrame1.Visible then begin
 		ExtensionContextFrame1.Align := alTop;
-		// Ensure proper frame size adjustment
 		ExtensionContextFrame1.AdjustHeight();
-		// Use the frame's height exactly as calculated by AdjustHeight without extra calculations
-		pnlMiddle.Height := FpnlMiddleOrigHeight - GetFullHeight(cmbReplaceText);
-		// Just adjust the gbOptionsFilters height to accommodate the frame
-		gbOptionsFilters.Height := FOptionsFiltersOrigHeight;
+
+		// Adjust gbOptionsFilters to accommodate the frame properly
+		// Calculate the required height for all content in gbOptionsFilters
+		var
+		requiredFilterHeight := GetFullHeight(lblPaths) + GetFullHeight(pnlPath) + GetFullHeight(pnlRgOptions) +
+			ExtensionContextFrame1.Height + gbOptionsFilters.Padding.Top + gbOptionsFilters.Padding.Bottom;
+		gbOptionsFilters.Height := requiredFilterHeight;
 	end else begin
-		gbOptionsFilters.Height := FOptionsFiltersOrigHeight - ExtensionContextFrame1.Height;
+		// Frame not visible, use original height
+		gbOptionsFilters.Height := FOptionsFiltersOrigHeight;
 	end;
 	dbgMsg.Msg('gbOptionsFilters.Height=' + gbOptionsFilters.Height.ToString);
 
+	// Calculate and set form height
 	var
 	iHeight := GetFullHeights;
 	Constraints.MinHeight := iHeight;
 
 	if FSettings.AppSettings.ExpertMode then begin
-		iHeight := iHeight + gbExpert.Height; // expertHeight will be changed by parent height.
+		iHeight := iHeight + gbExpert.Height;
 	end;
 
 	Height := iHeight;
