@@ -155,16 +155,16 @@
     <VerInfo_Locale>1033</VerInfo_Locale>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.13.0.163;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>163</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.13.0.188;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>188</VerInfo_Build>
     <VerInfo_MinorVer>13</VerInfo_MinorVer>
     <VerInfo_Release>0</VerInfo_Release>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
     <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.13.0.162;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>162</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.13.0.185;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>185</VerInfo_Build>
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <VerInfo_MinorVer>13</VerInfo_MinorVer>
@@ -320,7 +320,6 @@
     <DCCReference Include="..\..\UI\RipGrepper.UI.CustomRadioGroup.pas" />
     <DCCReference Include="..\..\UI\RipGrepper.UI.Settings.ExtensionContexFrame.pas">
       <Form>ExtensionContexFrame</Form>
-      <FormType>dfm</FormType>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="..\..\Common\RipGrepper.Common.IDEContextValues.pas" />

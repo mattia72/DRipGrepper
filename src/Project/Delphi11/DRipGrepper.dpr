@@ -7,6 +7,8 @@ uses
   FastMM4,
   {$ENDIF }
   Vcl.Forms,
+  Vcl.Themes,
+  Vcl.Styles,
   dpipes in '..\..\..\external\dpipes.pas',
   dprocess in '..\..\..\external\dprocess.pas',
   ArrayEx in '..\..\..\external\ArrayEx.pas',
@@ -96,8 +98,6 @@ uses
   RipGrepper.UI.Settings.ExtensionSettingsForm in '..\..\UI\RipGrepper.UI.Settings.ExtensionSettingsForm.pas' {ExtensionSettingsForm},
   RipGrepper.Helper.MemIniFile in '..\..\Helper\RipGrepper.Helper.MemIniFile.pas',
   RipGrepper.Helper.UI.DarkMode in '..\..\RipGrepper.Helper.UI.DarkMode.pas',
-  Vcl.Themes,
-  Vcl.Styles,
   RipGrepper.Common.SearchTextWithOptions in '..\..\Common\RipGrepper.Common.SearchTextWithOptions.pas',
   RipGrepper.OpenWith.CmdEditorForm in '..\..\OpenWith\RipGrepper.OpenWith.CmdEditorForm.pas' {OpenWithCommandEditor},
   RipGrepper.Settings.FilePersister in '..\..\Settings\RipGrepper.Settings.FilePersister.pas',
