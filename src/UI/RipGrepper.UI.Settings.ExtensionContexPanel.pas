@@ -1,4 +1,4 @@
-﻿unit RipGrepper.UI.Settings.ExtensionContexFrame;
+﻿unit RipGrepper.UI.Settings.ExtensionContexPanel;
 
 interface
 
@@ -20,7 +20,7 @@ uses
 	RipGrepper.UI.CustomRadioOptions;
 
 type
-	TExtensionContextFrame = class(TCustomPanel)
+	TExtensionContexPanel = class(TCustomPanel)
 		pnlMain : TPanel;
 
 		strict private
@@ -63,7 +63,7 @@ uses
 	RipGrepper.Common.Constants,
 	System.StrUtils;
 
-constructor TExtensionContextFrame.Create(_owner : TComponent);
+constructor TExtensionContexPanel.Create(_owner : TComponent);
 begin
 	inherited Create(_owner);
 	
@@ -82,7 +82,7 @@ begin
 	FRadioItemIndex := 0;
 end;
 
-procedure TExtensionContextFrame.AddItem(const _caption : string; const _dic : TDelphiIDEContext;
+procedure TExtensionContexPanel.AddItem(const _caption : string; const _dic : TDelphiIDEContext;
 	const _bInExpertModeOnly : Boolean = False);
 var
 	caption : string;
@@ -101,7 +101,7 @@ begin
 	end;
 end;
 
-procedure TExtensionContextFrame.AddItemIntern(const caption : string; const _dic : TDelphiIDEContext);
+procedure TExtensionContexPanel.AddItemIntern(const caption : string; const _dic : TDelphiIDEContext);
 var
 	icv : IIDEContextValues;
 	values : string;
@@ -117,7 +117,7 @@ begin
 	Inc(FRadioItemIndex);
 end;
 
-procedure TExtensionContextFrame.AddItems();
+procedure TExtensionContexPanel.AddItems();
 var
 	dic : TDelphiIDEContext;
 begin
@@ -148,7 +148,7 @@ begin
 	// FContextRadioGroup.ItemIndex := 0;
 end;
 
-procedure TExtensionContextFrame.AdjustHeight();
+procedure TExtensionContexPanel.AdjustHeight();
 begin
 	// Ensure width fits within parent with margins
 	if Assigned(Parent) then begin
@@ -161,20 +161,20 @@ begin
 	Height := FContextRadioGroup.Height;
 end;
 
-class function TExtensionContextFrame.GetAsHint(const _paths : string) : string;
+class function TExtensionContexPanel.GetAsHint(const _paths : string) : string;
 begin
 	var
 	pathArray := _paths.Split([';', ',']);
 	Result := GetAsHint(pathArray);
 end;
 
-class function TExtensionContextFrame.GetAsHint(var _paths : TArray<string>) : string;
+class function TExtensionContexPanel.GetAsHint(var _paths : TArray<string>) : string;
 begin
 	// TArray.Sort<string>(_paths);
 	Result := string.Join(CRLF, _paths);
 end;
 
-function TExtensionContextFrame.GetContextValues() : IIDEContextValues;
+function TExtensionContexPanel.GetContextValues() : IIDEContextValues;
 var
 	icv : IIDEContextValues;
 begin
@@ -187,7 +187,7 @@ begin
 	Result := TIDEContextValues.Create(EDelphiIDESearchContext.dicNotSet, '');
 end;
 
-procedure TExtensionContextFrame.onRadioItemSelect(_sender : TObject; _item : TCustomRadioItem);
+procedure TExtensionContexPanel.onRadioItemSelect(_sender : TObject; _item : TCustomRadioItem);
 var
 	icv : IIDEContextValues;
 begin
@@ -201,7 +201,7 @@ begin
 	end;
 end;
 
-function TExtensionContextFrame.GetSelectedIDEContext : EDelphiIDESearchContext;
+function TExtensionContexPanel.GetSelectedIDEContext : EDelphiIDESearchContext;
 var
 	selectedItem : TCustomRadioItem;
 begin
@@ -213,18 +213,18 @@ begin
 	end;
 end;
 
-function TExtensionContextFrame.getSelectedItem() : TCustomRadioItem;
+function TExtensionContexPanel.getSelectedItem() : TCustomRadioItem;
 begin
 	Result := ContextRadioGroup.SelectedItem;
 end;
 
-procedure TExtensionContextFrame.SetSelectedIDEContext(_ideContext : EDelphiIDESearchContext);
+procedure TExtensionContexPanel.SetSelectedIDEContext(_ideContext : EDelphiIDESearchContext);
 var
 	i : Integer;
 	item : TCustomRadioItem;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TExtensionContextFrame.SetSelectedIDEContext');
+	dbgMsg := TDebugMsgBeginEnd.New('TExtensionContexPanel.SetSelectedIDEContext');
 	for i := 0 to FContextRadioGroup.Items.Count - 1 do begin
 		item := FContextRadioGroup.Items[i];
 		if Assigned(item.TagObject) and
@@ -236,7 +236,7 @@ begin
 	end;
 end;
 
-procedure TExtensionContextFrame.SetSettings(const Value : TRipGrepperSettings);
+procedure TExtensionContexPanel.SetSettings(const Value : TRipGrepperSettings);
 begin
 	FSettings := Value;
 end;

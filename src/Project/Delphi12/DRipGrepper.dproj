@@ -171,8 +171,8 @@
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.13.0.330;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>330</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.13.0.331;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>331</VerInfo_Build>
         <VerInfo_MinorVer>13</VerInfo_MinorVer>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
@@ -330,7 +330,7 @@
         <DCCReference Include="..\..\UI\RipGrepper.UI.HistoryButtonedEdit.pas"/>
         <DCCReference Include="..\..\UI\RipGrepper.UI.CustomCheckOptions.pas"/>
         <DCCReference Include="..\..\UI\RipGrepper.UI.CustomRadioOptions.pas"/>
-        <DCCReference Include="..\..\UI\RipGrepper.UI.Settings.ExtensionContexFrame.pas"/>
+        <DCCReference Include="..\..\UI\RipGrepper.UI.Settings.ExtensionContexPanel.pas"/>
         <RcItem Include="..\..\..\LICENSE">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>

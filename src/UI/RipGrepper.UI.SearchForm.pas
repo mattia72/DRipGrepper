@@ -39,7 +39,7 @@ uses
 	ArrayEx,
 	RipGrepper.Settings.SettingVariant,
 	Vcl.ControlList,
-	RipGrepper.UI.Settings.ExtensionContexFrame,
+	RipGrepper.UI.Settings.ExtensionContexPanel,
 	RipGrepper.Common.IDEContextValues,
 	RipGrepper.UI.SearchForm.CtrlValueProxy;
 
@@ -146,7 +146,7 @@ type
 		procedure TabControl1Change(Sender : TObject);
 
 		strict private
-			ExtensionContextFrame1 : TExtensionContextFrame;
+			ExtensionContextFrame1 : TExtensionContexPanel;
 			FExtensionContextFrameOrigHeight : Integer;
 			FIsKeyboardInput : Boolean;
 			// proxy between settings and ctrls
@@ -281,7 +281,7 @@ begin
 
 	FHistItemObj := _histObj;
 
-	ExtensionContextFrame1 := TExtensionContextFrame.Create(self);
+	ExtensionContextFrame1 := TExtensionContexPanel.Create(self);
 
 	ExtensionContextFrame1.Settings := _settings;
 	ExtensionContextFrame1.OnContextChange := OnContextChange;
@@ -1332,7 +1332,7 @@ begin
 	if _paths.IsEmpty then begin
 		Exit;
 	end;
-	ExtensionContextFrame1.SelectedItem.RadioButton.Hint := TExtensionContextFrame.GetAsHint(_paths);
+	ExtensionContextFrame1.SelectedItem.RadioButton.Hint := TExtensionContexPanel.GetAsHint(_paths);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetExpertGroupSize();
