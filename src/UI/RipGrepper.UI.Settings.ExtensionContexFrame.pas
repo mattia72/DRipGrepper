@@ -28,7 +28,7 @@ type
 			procedure SetSettings(const Value : TRipGrepperSettings);
 
 		private
-			FContextRadioGroup : TCustomOptionsGroup;
+			FContextRadioGroup : TCustomRadioOptions;
 			FOnContextChange : TExtensionContextChangeEvent;
 			FRadioItemIndex : Integer;
 			procedure AddItem(const _caption : string; const _dic : TDelphiIDEContext; const _bInExpertModeOnly : Boolean = False);
@@ -45,7 +45,7 @@ type
 			class function GetAsHint(var _paths : TArray<string>) : string; overload;
 			function GetSelectedIDEContext : EDelphiIDESearchContext;
 			procedure SetSelectedIDEContext(_ideContext : EDelphiIDESearchContext);
-			property ContextRadioGroup : TCustomOptionsGroup read FContextRadioGroup;
+			property ContextRadioGroup : TCustomRadioOptions read FContextRadioGroup;
 			property ContextValues : IIDEContextValues read GetContextValues;
 
 		published
@@ -71,7 +71,7 @@ var
 begin
 	inherited Create(_owner);
 	pnlMain.Caption := '';
-	FContextRadioGroup := TCustomOptionsGroup.Create(Self);
+	FContextRadioGroup := TCustomRadioOptions.Create(Self);
 	FContextRadioGroup.Parent := pnlMain;
 	FContextRadioGroup.Align := alClient;
 	FContextRadioGroup.Columns := 3;
@@ -153,7 +153,7 @@ begin
 	end;
 	// Make sure the radio group uses full available width
 	FContextRadioGroup.Width := Width - 8;
-	FContextRadioGroup.Arrange();
+//  FContextRadioGroup.ArrangeItems();
 	// Height should match exactly the radio group height
 	Height := FContextRadioGroup.Height;
 end;

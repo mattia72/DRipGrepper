@@ -13,6 +13,9 @@ uses
 	Winapi.Windows;
 
 type
+	// Enumeration for the control type
+	TCustomOptionsGroupType = (cogtRadioButtons, cogtCheckBoxes);
+
 	// Custom collection item for radio items
 	TCustomRadioItem = class(TCollectionItem)
 		private
@@ -34,6 +37,30 @@ type
 			property TagObject : IInterface read FTagObject write SetTagObject;
 	end;
 
+	// Custom collection item for checkbox items
+	TCustomCheckItem = class(TCollectionItem)
+		private
+			FCaption : string;
+			FOrderIndex : Integer;
+			FTagObject : IInterface;
+			FCheckBox : TCheckBox;
+			FChecked : Boolean;
+			procedure setCaption(const _value : string);
+			procedure setOrderIndex(const _value : Integer);
+			procedure SetTagObject(const Value : IInterface);
+			procedure setChecked(const _value : Boolean);
+
+		public
+			constructor Create(Collection : TCollection); override;
+			destructor Destroy; override;
+
+			property CheckBox : TCheckBox read FCheckBox write FCheckBox;
+			property Caption : string read FCaption write setCaption;
+			property OrderIndex : Integer read FOrderIndex write setOrderIndex;
+			property TagObject : IInterface read FTagObject write SetTagObject;
+			property Checked : Boolean read FChecked write setChecked;
+	end;
+
 	// Collection for radio items
 	TCustomRadioItems = class(TCollection)
 		private
@@ -52,40 +79,98 @@ type
 			property Items[index : Integer] : TCustomRadioItem read getItem write setItem; default;
 	end;
 
-	// Forward declaration
-	TCustomOptionsGroup = class;
+	// Collection for checkbox items
+	TCustomCheckItems = class(TCollection)
+		private
+			FOwner : TControl;
+			function getItem(_index : Integer) : TCustomCheckItem;
+			procedure setItem(_index : Integer; const _value : TCustomCheckItem);
+
+		protected
+			function GetOwner : TPersistent; override;
+
+		public
+			constructor Create(_owner : TControl);
+			function Add : TCustomCheckItem;
+			function AddItem(_cb : TCheckBox; const _caption : string; const _orderIndex : Integer; _obj : IInterface = nil)
+				: TCustomCheckItem;
+			property Items[index : Integer] : TCustomCheckItem read getItem write setItem; default;
+	end;
+
+	// Forward declarations
+	TCustomOptionsBase = class;
+	TCustomRadioOptions = class;
+	TCustomCheckOptions = class;
 
 	// Event type for item selection
 	TRadioItemSelectEvent = procedure(Sender : TObject; Item : TCustomRadioItem) of object;
+	TCheckItemSelectEvent = procedure(Sender : TObject; Item : TCustomCheckItem) of object;
 
-	// Main custom radio group control
-	TCustomOptionsGroup = class(TCustomPanel)
+	// Base class for custom option controls
+	TCustomOptionsBase = class(TCustomPanel)
+		private
+			FColumns : Integer;
+			procedure setColumns(const _value : Integer);
+
+		protected
+			procedure Resize; override;
+			procedure ArrangeItems; virtual; abstract;
+
+		public
+			constructor Create(_owner : TComponent); override;
+			procedure Clear; virtual; abstract;
+
+		published
+			property Columns : Integer read FColumns write setColumns default 1;
+	end;
+
+	// Custom radio options control
+	TCustomRadioOptions = class(TCustomOptionsBase)
 		private
 			FItems : TCustomRadioItems;
 			FItemIndex : Integer;
-			FColumns : Integer;
 			FOnItemSelect : TRadioItemSelectEvent;
 			procedure onRadioButtonClick(_sender : TObject);
-			procedure setColumns(const _value : Integer);
 			procedure setItemIndex(const _value : Integer);
 			function getSelectedItem : TCustomRadioItem;
 
 		protected
-			procedure Resize; override;
+			procedure ArrangeItems; override;
 
 		public
 			constructor Create(_owner : TComponent); override;
 			destructor Destroy; override;
-			procedure Clear;
+			procedure Clear; override;
 			function AddItem(const _caption, _hint : string; _orderIndex : Integer; _obj : IInterface = nil) : TCustomRadioItem;
-			procedure Arrange();
 
 		published
 			property SelectedItem : TCustomRadioItem read getSelectedItem;
 			property Items : TCustomRadioItems read FItems write FItems;
 			property ItemIndex : Integer read FItemIndex write setItemIndex default -1;
-			property Columns : Integer read FColumns write setColumns default 1;
 			property OnItemSelect : TRadioItemSelectEvent read FOnItemSelect write FOnItemSelect;
+	end;
+
+	// Custom checkbox options control
+	TCustomCheckOptions = class(TCustomOptionsBase)
+		private
+			FItems : TCustomCheckItems;
+			FOnItemSelect : TCheckItemSelectEvent;
+			procedure onCheckBoxClick(_sender : TObject);
+			function getSelectedItems : TArray<TCustomCheckItem>;
+
+		protected
+			procedure ArrangeItems; override;
+
+		public
+			constructor Create(_owner : TComponent); override;
+			destructor Destroy; override;
+			procedure Clear; override;
+			function AddItem(const _caption, _hint : string; _orderIndex : Integer; _obj : IInterface = nil) : TCustomCheckItem;
+
+		published
+			property SelectedItems : TArray<TCustomCheckItem> read getSelectedItems;
+			property Items : TCustomCheckItems read FItems write FItems;
+			property OnItemSelect : TCheckItemSelectEvent read FOnItemSelect write FOnItemSelect;
 	end;
 
 procedure Register;
@@ -94,10 +179,95 @@ implementation
 
 uses
 	Math,
-	Spring,
 	RipGrepper.Common.IDEContextValues,
-	RipGrepper.Common.SimpleTypes,
-	RipGrepper.UI.DpiScaler;
+	RipGrepper.Common.SimpleTypes;
+
+{ TCustomOptionsBase }
+
+constructor TCustomOptionsBase.Create(_owner : TComponent);
+begin
+	inherited Create(_owner);
+	FColumns := 1;
+	Caption := '';
+	BevelOuter := bvNone;
+	Width := 200;
+	Height := 100;
+end;
+
+procedure TCustomOptionsBase.setColumns(const _value : Integer);
+begin
+	if (_value > 0) and (FColumns <> _value) then begin
+		FColumns := _value;
+		ArrangeItems;
+	end;
+end;
+
+procedure TCustomOptionsBase.Resize;
+begin
+	inherited Resize;
+	ArrangeItems;
+end;
+
+{ TCustomCheckItem }
+
+constructor TCustomCheckItem.Create(Collection : TCollection);
+begin
+	inherited Create(Collection);
+	FOrderIndex := 0; // Default order index
+	FCheckBox := nil;
+	FTagObject := nil;
+	FChecked := False;
+end;
+
+destructor TCustomCheckItem.Destroy;
+begin
+	if Assigned(FCheckBox) then begin
+		FCheckBox.Free;
+		FCheckBox := nil;
+	end;
+	inherited Destroy;
+end;
+
+procedure TCustomCheckItem.setCaption(const _value : string);
+begin
+	if FCaption <> _value then begin
+		FCaption := _value;
+		if Assigned(FCheckBox) then begin
+			FCheckBox.Caption := _value;
+		end;
+	end;
+end;
+
+procedure TCustomCheckItem.setChecked(const _value : Boolean);
+begin
+	if FChecked <> _value then begin
+		FChecked := _value;
+		if Assigned(FCheckBox) then begin
+			FCheckBox.Checked := _value;
+		end;
+	end;
+end;
+
+procedure TCustomCheckItem.setOrderIndex(const _value : Integer);
+begin
+	if FOrderIndex <> _value then begin
+		FOrderIndex := _value;
+	end;
+end;
+
+procedure TCustomCheckItem.SetTagObject(const Value : IInterface);
+begin
+	FTagObject := Value;
+
+	{$IFDEF DEBUG}
+	var
+		icv : IIDEContextValues;
+
+	if Supports(FTagObject, IIDEContextValues, icv) then begin
+		Assert(icv.GetContextType <= high(EDelphiIDESearchContext), 'Context type is greater than the max');
+	end;
+	{$ENDIF}
+end;
 
 { TCustomRadioItem }
 
@@ -149,6 +319,44 @@ begin
 	{$ENDIF}
 end;
 
+{ TCustomCheckItems }
+
+constructor TCustomCheckItems.Create(_owner : TControl);
+begin
+	inherited Create(TCustomCheckItem);
+	FOwner := _owner;
+end;
+
+function TCustomCheckItems.Add : TCustomCheckItem;
+begin
+	Result := TCustomCheckItem(inherited Add);
+end;
+
+function TCustomCheckItems.AddItem(_cb : TCheckBox; const _caption : string; const _orderIndex : Integer; _obj : IInterface = nil)
+	: TCustomCheckItem;
+begin
+	Result := Add;
+	Result.FCaption := _caption;
+	Result.FOrderIndex := _orderIndex;
+	Result.TagObject := _obj;
+	Result.FCheckBox := _cb;
+end;
+
+function TCustomCheckItems.getItem(_index : Integer) : TCustomCheckItem;
+begin
+	Result := TCustomCheckItem(inherited GetItem(_index));
+end;
+
+function TCustomCheckItems.GetOwner : TPersistent;
+begin
+	Result := FOwner;
+end;
+
+procedure TCustomCheckItems.setItem(_index : Integer; const _value : TCustomCheckItem);
+begin
+	inherited SetItem(_index, _value);
+end;
+
 { TCustomRadioItems }
 
 constructor TCustomRadioItems.Create(_owner : TControl);
@@ -187,28 +395,23 @@ begin
 	inherited SetItem(_index, _value);
 end;
 
-{ TCustomOptionsGroup }
+{ TCustomRadioOptions }
 
-constructor TCustomOptionsGroup.Create(_owner : TComponent);
+constructor TCustomRadioOptions.Create(_owner : TComponent);
 begin
 	inherited Create(_owner);
 	FItems := TCustomRadioItems.Create(Self);
 	FItemIndex := -1;
-	FColumns := 1;
-	Caption := '';
-	BevelOuter := bvNone;
-	Width := 200;
-	Height := 100;
 end;
 
-destructor TCustomOptionsGroup.Destroy;
+destructor TCustomRadioOptions.Destroy;
 begin
 	Clear;
 	FItems.Free;
 	inherited Destroy;
 end;
 
-procedure TCustomOptionsGroup.Clear;
+procedure TCustomRadioOptions.Clear;
 var
 	i : Integer;
 	item : TCustomRadioItem;
@@ -225,7 +428,7 @@ begin
 	FItemIndex := -1;
 end;
 
-function TCustomOptionsGroup.AddItem(const _caption, _hint : string; _orderIndex : Integer; _obj : IInterface = nil) : TCustomRadioItem;
+function TCustomRadioOptions.AddItem(const _caption, _hint : string; _orderIndex : Integer; _obj : IInterface = nil) : TCustomRadioItem;
 var
 	radioButton : TRadioButton;
 begin
@@ -237,41 +440,25 @@ begin
 	Result := FItems.AddItem(radioButton, _caption, _orderIndex, _obj);
 end;
 
-procedure TCustomOptionsGroup.Arrange();
+procedure TCustomRadioOptions.ArrangeItems;
 var
-	sortedItems : IShared<TList<TCustomRadioItem>>;
-	i, j, col, row : Integer;
+	i, col, row : Integer;
 	itemHeight, itemWidth : Integer;
 	maxRows : Integer;
 	item : TCustomRadioItem;
-	originalIndex : Integer;
 begin
 	if FItems.Count = 0 then begin
 		Exit;
 	end;
 
-	// Create a sorted list based on OrderIndex
-	sortedItems := Shared.Make < TList < TCustomRadioItem >> ();
-	for i := 0 to FItems.Count - 1 do begin
-		sortedItems.Add(FItems[i]);
-	end;
-
-	// Sort by OrderIndex
-	sortedItems.Sort(TComparer<TCustomRadioItem>.Construct(
-		function(const Left, Right : TCustomRadioItem) : Integer
-		begin
-			Result := TComparer<Integer>.Default.Compare(Left.OrderIndex, Right.OrderIndex);
-		end));
-
 	// Calculate layout
-	var dpi := TRipGrepperDpiScaler.GetActualDPI();
-	itemHeight := MulDiv(22, dpi, 96); // Use DPI-aware height calculation
+	itemHeight := 22; // Standard height
 	itemWidth := Width div FColumns;
-	maxRows := Ceil(sortedItems.Count / FColumns);
+	maxRows := Ceil(FItems.Count / FColumns);
 
-	// Position radio buttons according to sorted order
-	for i := 0 to sortedItems.Count - 1 do begin
-		item := sortedItems[i];
+	// Position radio buttons
+	for i := 0 to FItems.Count - 1 do begin
+		item := FItems[i];
 		if Assigned(item.RadioButton) then begin
 			col := i mod FColumns;
 			row := i div FColumns;
@@ -280,27 +467,17 @@ begin
 			item.RadioButton.Top := row * itemHeight + 8;
 			item.RadioButton.Width := itemWidth - 16;
 			item.RadioButton.Height := itemHeight - 2;
-
-			// Find the original index in the collection
-			originalIndex := -1;
-			for j := 0 to FItems.Count - 1 do begin
-				if FItems[j] = item then begin
-					originalIndex := j;
-					Break;
-				end;
-			end;
-			item.RadioButton.Tag := originalIndex;
+			item.RadioButton.Tag := i;
 		end;
 	end;
 
 	// Adjust control height if needed
 	if maxRows > 0 then begin
-		Height := maxRows * itemHeight + 8; // Minimal padding for clean layout
+		Height := maxRows * itemHeight + 16; // Padding for clean layout
 	end;
-
 end;
 
-procedure TCustomOptionsGroup.onRadioButtonClick(_sender : TObject);
+procedure TCustomRadioOptions.onRadioButtonClick(_sender : TObject);
 var
 	radioButton : TRadioButton;
 	itemIndex : Integer;
@@ -327,21 +504,7 @@ begin
 	end;
 end;
 
-procedure TCustomOptionsGroup.Resize;
-begin
-	inherited Resize;
-	Arrange;
-end;
-
-procedure TCustomOptionsGroup.setColumns(const _value : Integer);
-begin
-	if (_value > 0) and (FColumns <> _value) then begin
-		FColumns := _value;
-		Arrange;
-	end;
-end;
-
-procedure TCustomOptionsGroup.setItemIndex(const _value : Integer);
+procedure TCustomRadioOptions.setItemIndex(const _value : Integer);
 var
 	i : Integer;
 	item : TCustomRadioItem;
@@ -372,7 +535,7 @@ begin
 	end;
 end;
 
-function TCustomOptionsGroup.getSelectedItem : TCustomRadioItem;
+function TCustomRadioOptions.getSelectedItem : TCustomRadioItem;
 begin
 	if (FItemIndex >= 0) and (FItemIndex < FItems.Count) then begin
 		Result := FItems[FItemIndex];
@@ -381,9 +544,137 @@ begin
 	end;
 end;
 
+{ TCustomCheckOptions }
+
+constructor TCustomCheckOptions.Create(_owner : TComponent);
+begin
+	inherited Create(_owner);
+	FItems := TCustomCheckItems.Create(Self);
+end;
+
+destructor TCustomCheckOptions.Destroy;
+begin
+	Clear;
+	FItems.Free;
+	inherited Destroy;
+end;
+
+procedure TCustomCheckOptions.Clear;
+var
+	i : Integer;
+	item : TCustomCheckItem;
+begin
+	// Free all checkboxes
+	for i := 0 to FItems.Count - 1 do begin
+		item := FItems[i];
+		if Assigned(item.CheckBox) then begin
+			item.CheckBox.Free;
+			item.CheckBox := nil;
+		end;
+	end;
+	FItems.Clear;
+end;
+
+function TCustomCheckOptions.AddItem(const _caption, _hint : string; _orderIndex : Integer; _obj : IInterface = nil) : TCustomCheckItem;
+var
+	checkBox : TCheckBox;
+begin
+	checkBox := TCheckBox.Create(Self);
+	checkBox.Parent := Self;
+	checkBox.Caption := _caption;
+	checkBox.OnClick := onCheckBoxClick;
+	checkBox.Hint := _hint;
+	Result := FItems.AddItem(checkBox, _caption, _orderIndex, _obj);
+end;
+
+procedure TCustomCheckOptions.ArrangeItems;
+var
+	i, col, row : Integer;
+	itemHeight, itemWidth : Integer;
+	maxRows : Integer;
+	item : TCustomCheckItem;
+begin
+	if FItems.Count = 0 then begin
+		Exit;
+	end;
+
+	// Calculate layout
+	itemHeight := 22; // Standard height
+	itemWidth := Width div FColumns;
+	maxRows := Ceil(FItems.Count / FColumns);
+
+	// Position checkboxes
+	for i := 0 to FItems.Count - 1 do begin
+		item := FItems[i];
+		if Assigned(item.CheckBox) then begin
+			col := i mod FColumns;
+			row := i div FColumns;
+
+			item.CheckBox.Left := col * itemWidth + 8;
+			item.CheckBox.Top := row * itemHeight + 8;
+			item.CheckBox.Width := itemWidth - 16;
+			item.CheckBox.Height := itemHeight - 2;
+			item.CheckBox.Tag := i;
+		end;
+	end;
+
+	// Adjust control height if needed
+	if maxRows > 0 then begin
+		Height := maxRows * itemHeight + 16; // Padding for clean layout
+	end;
+end;
+
+procedure TCustomCheckOptions.onCheckBoxClick(_sender : TObject);
+var
+	checkBox : TCheckBox;
+	itemIndex : Integer;
+	item : TCustomCheckItem;
+begin
+	checkBox := _sender as TCheckBox;
+	itemIndex := checkBox.Tag;
+
+	// Update the checked state in the item
+	if (itemIndex >= 0) and (itemIndex < FItems.Count) then begin
+		item := FItems[itemIndex];
+		item.Checked := checkBox.Checked;
+
+		// Fire event
+		if Assigned(FOnItemSelect) then begin
+			FOnItemSelect(Self, item);
+		end;
+	end;
+end;
+
+function TCustomCheckOptions.getSelectedItems : TArray<TCustomCheckItem>;
+var
+	i : Integer;
+	selectedCount : Integer;
+	item : TCustomCheckItem;
+begin
+	// Count selected items first
+	selectedCount := 0;
+	for i := 0 to FItems.Count - 1 do begin
+		item := FItems[i];
+		if item.Checked then begin
+			Inc(selectedCount);
+		end;
+	end;
+
+	// Create result array
+	SetLength(Result, selectedCount);
+	selectedCount := 0;
+	for i := 0 to FItems.Count - 1 do begin
+		item := FItems[i];
+		if item.Checked then begin
+			Result[selectedCount] := item;
+			Inc(selectedCount);
+		end;
+	end;
+end;
+
 procedure Register;
 begin
-	RegisterComponents('Custom', [TCustomOptionsGroup]);
+	RegisterComponents('Custom', [TCustomRadioOptions, TCustomCheckOptions]);
 end;
 
 end.
