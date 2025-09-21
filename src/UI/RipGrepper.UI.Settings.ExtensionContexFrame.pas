@@ -20,7 +20,7 @@ uses
 	RipGrepper.UI.CustomRadioOptions;
 
 type
-	TExtensionContextFrame = class(TCustomFrame)
+	TExtensionContextFrame = class(TCustomPanel)
 		pnlMain : TPanel;
 
 		strict private
@@ -63,14 +63,17 @@ uses
 	RipGrepper.Common.Constants,
 	System.StrUtils;
 
-{$R *.dfm}
-
 constructor TExtensionContextFrame.Create(_owner : TComponent);
-var
-	dic : TDelphiIDEContext;
 begin
 	inherited Create(_owner);
+	
+	// Create pnlMain programmatically since we no longer use DFM
+	pnlMain := TPanel.Create(Self);
+	pnlMain.Parent := Self;
+	pnlMain.Align := alClient;
+	pnlMain.BevelOuter := bvNone;
 	pnlMain.Caption := '';
+	
 	FContextRadioGroup := TCustomRadioOptions.Create(Self);
 	FContextRadioGroup.Parent := pnlMain;
 	FContextRadioGroup.Align := alClient;
