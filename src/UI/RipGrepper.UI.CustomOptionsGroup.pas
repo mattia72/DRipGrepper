@@ -437,6 +437,7 @@ begin
 	radioButton.Caption := _caption;
 	radioButton.OnClick := onRadioButtonClick;
 	radioButton.Hint := _hint;
+	radioButton.ShowHint := True;
 	Result := FItems.AddItem(radioButton, _caption, _orderIndex, _obj);
 end;
 
@@ -584,6 +585,7 @@ begin
 	checkBox.Caption := _caption;
 	checkBox.OnClick := onCheckBoxClick;
 	checkBox.Hint := _hint;
+	checkBox.ShowHint := True;
 	Result := FItems.AddItem(checkBox, _caption, _orderIndex, _obj);
 end;
 
