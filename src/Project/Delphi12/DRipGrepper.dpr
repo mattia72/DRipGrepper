@@ -113,10 +113,11 @@ uses
   RipGrepper.UI.Settings.AdvancedForm in '..\..\UI\RipGrepper.UI.Settings.AdvancedForm.pas',
   RipGrepper.Tools.WinHttpClient in '..\..\Tools\RipGrepper.Tools.WinHttpClient.pas',
   RipGrepper.UI.Settings.ExtensionContexFrame in '..\..\UI\RipGrepper.UI.Settings.ExtensionContexFrame.pas' {ExtensionContextFrame: TFrame},
-  RipGrepper.UI.CustomOptionsGroup in '..\..\UI\RipGrepper.UI.CustomOptionsGroup.pas',
   RipGrepper.Common.IDEContextValues in '..\..\Common\RipGrepper.Common.IDEContextValues.pas',
   RipGrepper.UI.SearchForm.CtrlValueProxy in '..\..\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas',
-  RipGrepper.UI.HistoryButtonedEdit in '..\..\UI\RipGrepper.UI.HistoryButtonedEdit.pas';
+  RipGrepper.UI.HistoryButtonedEdit in '..\..\UI\RipGrepper.UI.HistoryButtonedEdit.pas',
+  RipGrepper.UI.CustomCheckOptions in '..\..\UI\RipGrepper.UI.CustomCheckOptions.pas',
+  RipGrepper.UI.CustomRadioOptions in '..\..\UI\RipGrepper.UI.CustomRadioOptions.pas';
 
 {$R *.res}
 

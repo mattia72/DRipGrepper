@@ -15,9 +15,9 @@ uses
 	Vcl.StdCtrls,
 	Vcl.ExtCtrls,
 	RipGrepper.Common.IDEContextValues,
-	RipGrepper.UI.CustomOptionsGroup,
 	RipGrepper.Settings.ExtensionSettings,
-	RipGrepper.Settings.RipGrepperSettings;
+	RipGrepper.Settings.RipGrepperSettings,
+	RipGrepper.UI.CustomRadioOptions;
 
 type
 	TExtensionContextFrame = class(TCustomFrame)
@@ -153,7 +153,7 @@ begin
 	end;
 	// Make sure the radio group uses full available width
 	FContextRadioGroup.Width := Width - 8;
-//  FContextRadioGroup.ArrangeItems();
+	// FContextRadioGroup.ArrangeItems();
 	// Height should match exactly the radio group height
 	Height := FContextRadioGroup.Height;
 end;
