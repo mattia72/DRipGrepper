@@ -23,21 +23,29 @@ type
 			FOrderIndex : Integer;
 			FTagObject : IInterface;
 			FCheckBox : TCheckBox;
+			FComboBox : TComboBox;
+			FComboBoxItems : TStringList;
 			FChecked : Boolean;
+			FHasComboBox : Boolean;
 			procedure setCaption(const _value : string);
 			procedure setOrderIndex(const _value : Integer);
 			procedure SetTagObject(const Value : IInterface);
 			procedure setChecked(const _value : Boolean);
+			procedure setHasComboBox(const _value : Boolean);
+			procedure setComboBoxItems(const _value : TStringList);
 
 		public
 			constructor Create(Collection : TCollection); override;
 			destructor Destroy; override;
 
 			property CheckBox : TCheckBox read FCheckBox write FCheckBox;
+			property ComboBox : TComboBox read FComboBox write FComboBox;
+			property ComboBoxItems : TStringList read FComboBoxItems write setComboBoxItems;
 			property Caption : string read FCaption write setCaption;
 			property OrderIndex : Integer read FOrderIndex write setOrderIndex;
 			property TagObject : IInterface read FTagObject write SetTagObject;
 			property Checked : Boolean read FChecked write setChecked;
+			property HasComboBox : Boolean read FHasComboBox write setHasComboBox;
 	end;
 
 	// Collection for checkbox items
@@ -54,7 +62,9 @@ type
 			constructor Create(_owner : TControl);
 			function Add : TCustomCheckItem;
 			function AddItem(_cb : TCheckBox; const _caption : string; const _orderIndex : Integer; _obj : IInterface = nil)
-				: TCustomCheckItem;
+				: TCustomCheckItem; overload;
+			function AddItem(_cb : TCheckBox; _combo : TComboBox; const _caption : string; const _orderIndex : Integer; _obj : IInterface = nil)
+				: TCustomCheckItem; overload;
 			property Items[index : Integer] : TCustomCheckItem read getItem write setItem; default;
 	end;
 
@@ -94,7 +104,8 @@ type
 			constructor Create(_owner : TComponent); override;
 			destructor Destroy; override;
 			procedure Clear; override;
-			function AddItem(const _caption, _hint : string; _orderIndex : Integer; _obj : IInterface = nil) : TCustomCheckItem;
+			function AddItem(const _caption, _hint : string; _orderIndex : Integer; _obj : IInterface = nil) : TCustomCheckItem; overload;
+			function AddItem(const _caption, _hint : string; _orderIndex : Integer; _comboItems : TStringList; _obj : IInterface = nil) : TCustomCheckItem; overload;
 
 		published
 			property SelectedItems : TArray<TCustomCheckItem> read getSelectedItems;
@@ -144,16 +155,24 @@ begin
 	inherited Create(Collection);
 	FOrderIndex := 0; // Default order index
 	FCheckBox := nil;
+	FComboBox := nil;
+	FComboBoxItems := TStringList.Create;
 	FTagObject := nil;
 	FChecked := False;
+	FHasComboBox := False;
 end;
 
 destructor TCustomCheckItem.Destroy;
 begin
+	if Assigned(FComboBox) then begin
+		FComboBox.Free;
+		FComboBox := nil;
+	end;
 	if Assigned(FCheckBox) then begin
 		FCheckBox.Free;
 		FCheckBox := nil;
 	end;
+	FComboBoxItems.Free;
 	inherited Destroy;
 end;
 
@@ -198,6 +217,23 @@ begin
 	{$ENDIF}
 end;
 
+procedure TCustomCheckItem.setHasComboBox(const _value : Boolean);
+begin
+	if FHasComboBox <> _value then begin
+		FHasComboBox := _value;
+	end;
+end;
+
+procedure TCustomCheckItem.setComboBoxItems(const _value : TStringList);
+begin
+	if Assigned(_value) then begin
+		FComboBoxItems.Assign(_value);
+		if Assigned(FComboBox) then begin
+			FComboBox.Items.Assign(_value);
+		end;
+	end;
+end;
+
 { TCustomCheckItems }
 
 constructor TCustomCheckItems.Create(_owner : TControl);
@@ -219,6 +255,19 @@ begin
 	Result.FOrderIndex := _orderIndex;
 	Result.TagObject := _obj;
 	Result.FCheckBox := _cb;
+	Result.FHasComboBox := False;
+end;
+
+function TCustomCheckItems.AddItem(_cb : TCheckBox; _combo : TComboBox; const _caption : string; const _orderIndex : Integer; _obj : IInterface = nil)
+	: TCustomCheckItem;
+begin
+	Result := Add;
+	Result.FCaption := _caption;
+	Result.FOrderIndex := _orderIndex;
+	Result.TagObject := _obj;
+	Result.FCheckBox := _cb;
+	Result.FComboBox := _combo;
+	Result.FHasComboBox := True;
 end;
 
 function TCustomCheckItems.getItem(_index : Integer) : TCustomCheckItem;
@@ -256,9 +305,13 @@ var
 	i : Integer;
 	item : TCustomCheckItem;
 begin
-	// Free all checkboxes
+	// Free all checkboxes and comboboxes
 	for i := 0 to FItems.Count - 1 do begin
 		item := FItems[i];
+		if Assigned(item.ComboBox) then begin
+			item.ComboBox.Free;
+			item.ComboBox := nil;
+		end;
 		if Assigned(item.CheckBox) then begin
 			item.CheckBox.Free;
 			item.CheckBox := nil;
@@ -280,10 +333,33 @@ begin
 	Result := FItems.AddItem(checkBox, _caption, _orderIndex, _obj);
 end;
 
+function TCustomCheckOptions.AddItem(const _caption, _hint : string; _orderIndex : Integer; _comboItems : TStringList; _obj : IInterface = nil) : TCustomCheckItem;
+var
+	checkBox : TCheckBox;
+	comboBox : TComboBox;
+begin
+	checkBox := TCheckBox.Create(Self);
+	checkBox.Parent := Self;
+	checkBox.Caption := _caption;
+	checkBox.OnClick := onCheckBoxClick;
+	checkBox.Hint := _hint;
+	checkBox.ShowHint := True;
+
+	comboBox := TComboBox.Create(Self);
+	comboBox.Parent := Self;
+	comboBox.Style := csDropDownList;
+	if Assigned(_comboItems) then begin
+		comboBox.Items.Assign(_comboItems);
+	end;
+	
+	Result := FItems.AddItem(checkBox, comboBox, _caption, _orderIndex, _obj);
+	Result.ComboBoxItems := _comboItems;
+end;
+
 procedure TCustomCheckOptions.ArrangeItems;
 var
 	i, col, row : Integer;
-	itemHeight, itemWidth : Integer;
+	itemHeight, itemWidth, checkBoxWidth, comboBoxWidth : Integer;
 	maxRows : Integer;
 	item : TCustomCheckItem;
 begin
@@ -294,20 +370,41 @@ begin
 	// Calculate layout
 	itemHeight := 22; // Standard height
 	itemWidth := Width div FColumns;
+	checkBoxWidth := itemWidth div 2; // Half width for checkbox when combo is present
+	comboBoxWidth := itemWidth - checkBoxWidth - 16; // Remaining width for combo
 	maxRows := Ceil(FItems.Count / FColumns);
 
-	// Position checkboxes
+	// Position checkboxes and comboboxes
 	for i := 0 to FItems.Count - 1 do begin
 		item := FItems[i];
 		if Assigned(item.CheckBox) then begin
 			col := i mod FColumns;
 			row := i div FColumns;
 
-			item.CheckBox.Left := col * itemWidth + 8;
-			item.CheckBox.Top := row * itemHeight + 8;
-			item.CheckBox.Width := itemWidth - 16;
-			item.CheckBox.Height := itemHeight - 2;
-			item.CheckBox.Tag := i;
+			if item.HasComboBox then begin
+				// Position checkbox with reduced width
+				item.CheckBox.Left := col * itemWidth + 8;
+				item.CheckBox.Top := row * itemHeight + 8;
+				item.CheckBox.Width := checkBoxWidth - 8;
+				item.CheckBox.Height := itemHeight - 2;
+				item.CheckBox.Tag := i;
+
+				// Position combobox next to checkbox
+				if Assigned(item.ComboBox) then begin
+					item.ComboBox.Left := col * itemWidth + checkBoxWidth + 8;
+					item.ComboBox.Top := row * itemHeight + 8;
+					item.ComboBox.Width := comboBoxWidth;
+					item.ComboBox.Height := itemHeight - 2;
+					item.ComboBox.Tag := i;
+				end;
+			end else begin
+				// Position checkbox with full width
+				item.CheckBox.Left := col * itemWidth + 8;
+				item.CheckBox.Top := row * itemHeight + 8;
+				item.CheckBox.Width := itemWidth - 16;
+				item.CheckBox.Height := itemHeight - 2;
+				item.CheckBox.Tag := i;
+			end;
 		end;
 	end;
 
