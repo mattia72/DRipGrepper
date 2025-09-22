@@ -111,11 +111,11 @@ uses
   RipGrepper.Common.RegistryUtils in '..\..\..\..\src\Common\RipGrepper.Common.RegistryUtils.pas',
   RipGrepper.Common.IDEContextValues in '..\..\..\..\src\Common\RipGrepper.Common.IDEContextValues.pas',
   RipGrepper.UI.Settings.ExtensionContexPanel in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ExtensionContexPanel.pas',
-  RipGrepper.UI.CustomOptionsGroup in '..\..\..\..\src\UI\RipGrepper.UI.CustomOptionsGroup.pas',
   RipGrepper.UI.SearchForm.CtrlValueProxy in '..\..\..\..\src\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas',
   RipGrepper.Common.IOTAUtils.PathProcessor in '..\..\..\..\src\Common\RipGrepper.Common.IOTAUtils.PathProcessor.pas',
   RipGrepper.UI.HistoryButtonedEdit in '..\..\..\..\src\UI\RipGrepper.UI.HistoryButtonedEdit.pas',
-  RipGrepper.Common.IOTAFileUtils in '..\..\..\..\src\Common\RipGrepper.Common.IOTAFileUtils.pas';
+  RipGrepper.Common.IOTAFileUtils in '..\..\..\..\src\Common\RipGrepper.Common.IOTAFileUtils.pas',
+  RipGrepper.UI.CustomRadioOptions in '..\..\..\..\src\UI\RipGrepper.UI.CustomRadioOptions.pas';
 
 {$R *.res}
 

@@ -112,11 +112,11 @@ uses
   RipGrepper.Common.LoadHistoryMode in '..\..\Common\RipGrepper.Common.LoadHistoryMode.pas',
   RipGrepper.UI.Settings.AdvancedForm in '..\..\UI\RipGrepper.UI.Settings.AdvancedForm.pas' {AdvancedForm},
   RipGrepper.Tools.WinHttpClient in '..\..\Tools\RipGrepper.Tools.WinHttpClient.pas',
-  RipGrepper.UI.CustomOptionsGroup in '..\..\UI\RipGrepper.UI.CustomOptionsGroup.pas',
   RipGrepper.UI.Settings.ExtensionContexPanel in '..\..\UI\RipGrepper.UI.Settings.ExtensionContexPanel.pas',
   RipGrepper.Common.IDEContextValues in '..\..\Common\RipGrepper.Common.IDEContextValues.pas',
   RipGrepper.UI.SearchForm.CtrlValueProxy in '..\..\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas',
-  RipGrepper.UI.HistoryButtonedEdit in '..\..\UI\RipGrepper.UI.HistoryButtonedEdit.pas';
+  RipGrepper.UI.HistoryButtonedEdit in '..\..\UI\RipGrepper.UI.HistoryButtonedEdit.pas',
+  RipGrepper.UI.CustomRadioOptions in '..\..\UI\RipGrepper.UI.CustomRadioOptions.pas';
 
 {$R *.res}
 
