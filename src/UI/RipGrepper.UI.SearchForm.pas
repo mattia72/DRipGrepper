@@ -41,7 +41,8 @@ uses
 	Vcl.ControlList,
 	RipGrepper.UI.Settings.ExtensionContexPanel,
 	RipGrepper.Common.IDEContextValues,
-	RipGrepper.UI.SearchForm.CtrlValueProxy;
+	RipGrepper.UI.SearchForm.CtrlValueProxy,
+	RipGrepper.UI.CustomCheckOptions;
 
 type
 	EMemoTextFormat = (mtfOneLine, mtfSeparateLines);
@@ -147,6 +148,7 @@ type
 
 		strict private
 			ExtensionContextFrame1 : TExtensionContexPanel;
+			FRgOptionsPanel : TCustomCheckOptions;
 			FExtensionContextFrameOrigHeight : Integer;
 			FIsKeyboardInput : Boolean;
 			// proxy between settings and ctrls
@@ -282,6 +284,62 @@ begin
 	FHistItemObj := _histObj;
 
 	ExtensionContextFrame1 := TExtensionContexPanel.Create(self);
+	
+	// Create RgOptions panel programmatically
+	FRgOptionsPanel := TCustomCheckOptions.Create(self);
+	FRgOptionsPanel.Parent := pnlRgOptions;
+	FRgOptionsPanel.Align := alClient;
+	FRgOptionsPanel.Columns := 1;
+	
+	// Add the checkbox options
+	var encodingItems := TStringList.Create;
+	try
+		encodingItems.Add('ascii');
+		encodingItems.Add('big5');
+		encodingItems.Add('euc-jp');
+		encodingItems.Add('euc-kr');
+		encodingItems.Add('gb18030');
+		encodingItems.Add('gbk');
+		encodingItems.Add('iso-8859-1');
+		encodingItems.Add('iso-8859-2');
+		encodingItems.Add('iso-8859-3');
+		encodingItems.Add('iso-8859-4');
+		encodingItems.Add('iso-8859-5');
+		encodingItems.Add('iso-8859-6');
+		encodingItems.Add('iso-8859-7');
+		encodingItems.Add('iso-8859-8');
+		encodingItems.Add('iso-8859-10');
+		encodingItems.Add('iso-8859-13');
+		encodingItems.Add('iso-8859-14');
+		encodingItems.Add('iso-8859-15');
+		encodingItems.Add('iso-8859-16');
+		encodingItems.Add('koi8-r');
+		encodingItems.Add('koi8-u');
+		encodingItems.Add('shift_jis');
+		encodingItems.Add('utf-8');
+		encodingItems.Add('utf-16');
+		encodingItems.Add('utf-16be');
+		encodingItems.Add('utf-16le');
+		encodingItems.Add('utf-32');
+		encodingItems.Add('utf-32be');
+		encodingItems.Add('utf-32le');
+		encodingItems.Add('windows-1250');
+		encodingItems.Add('windows-1251');
+		encodingItems.Add('windows-1252');
+		encodingItems.Add('windows-1253');
+		encodingItems.Add('windows-1254');
+		encodingItems.Add('windows-1255');
+		encodingItems.Add('windows-1256');
+		encodingItems.Add('windows-1257');
+		encodingItems.Add('windows-1258');
+		encodingItems.Add('windows-874');
+		
+		FRgOptionsPanel.AddItem('--hidden', 'Include hidden files in search', 0);
+		FRgOptionsPanel.AddItem('--no-ignore', 'Don''t respect ignore files', 1);
+		FRgOptionsPanel.AddItem('--encoding=', 'Specify text encoding', 2, encodingItems);
+	finally
+		encodingItems.Free;
+	end;
 
 	ExtensionContextFrame1.Settings := _settings;
 	ExtensionContextFrame1.OnContextChange := OnContextChange;

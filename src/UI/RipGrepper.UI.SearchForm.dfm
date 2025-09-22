@@ -430,51 +430,6 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         BevelOuter = bvNone
         Padding.Left = 8
         TabOrder = 0
-        object cbRgParamEncoding: TCheckBox
-          AlignWithMargins = True
-          Left = 203
-          Top = 3
-          Width = 90
-          Height = 22
-          Align = alLeft
-          Caption = '--encoding='
-          TabOrder = 2
-          OnClick = cbRgParamEncodingClick
-        end
-        object cbRgParamHidden: TCheckBox
-          AlignWithMargins = True
-          Left = 11
-          Top = 3
-          Width = 90
-          Height = 22
-          Align = alLeft
-          Caption = '--hidden'
-          TabOrder = 0
-          OnClick = cbRgParamHiddenClick
-        end
-        object cbRgParamNoIgnore: TCheckBox
-          AlignWithMargins = True
-          Left = 107
-          Top = 3
-          Width = 90
-          Height = 22
-          Align = alLeft
-          Caption = '--no-ignore'
-          TabOrder = 1
-          OnClick = cbRgParamNoIgnoreClick
-        end
-        object cmbRgParamEncoding: TComboBox
-          AlignWithMargins = True
-          Left = 299
-          Top = 3
-          Width = 100
-          Height = 23
-          Align = alLeft
-          AutoDropDownWidth = True
-          TabOrder = 3
-          Text = 'cmbRgParamEncoding'
-          OnChange = cmbRgParamEncodingChange
-        end
       end
     end
     object gbOptionsOutput: TGroupBox
