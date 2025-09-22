@@ -115,7 +115,8 @@ uses
   RipGrepper.Common.IOTAUtils.PathProcessor in '..\..\..\..\src\Common\RipGrepper.Common.IOTAUtils.PathProcessor.pas',
   RipGrepper.UI.HistoryButtonedEdit in '..\..\..\..\src\UI\RipGrepper.UI.HistoryButtonedEdit.pas',
   RipGrepper.Common.IOTAFileUtils in '..\..\..\..\src\Common\RipGrepper.Common.IOTAFileUtils.pas',
-  RipGrepper.UI.CustomRadioOptions in '..\..\..\..\src\UI\RipGrepper.UI.CustomRadioOptions.pas';
+  RipGrepper.UI.CustomRadioOptions in '..\..\..\..\src\UI\RipGrepper.UI.CustomRadioOptions.pas',
+  RipGrepper.UI.CustomCheckOptions in '..\..\..\..\src\UI\RipGrepper.UI.CustomCheckOptions.pas';
 
 {$R *.res}
 

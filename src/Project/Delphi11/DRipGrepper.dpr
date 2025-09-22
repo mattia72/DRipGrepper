@@ -116,7 +116,8 @@ uses
   RipGrepper.Common.IDEContextValues in '..\..\Common\RipGrepper.Common.IDEContextValues.pas',
   RipGrepper.UI.SearchForm.CtrlValueProxy in '..\..\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas',
   RipGrepper.UI.HistoryButtonedEdit in '..\..\UI\RipGrepper.UI.HistoryButtonedEdit.pas',
-  RipGrepper.UI.CustomRadioOptions in '..\..\UI\RipGrepper.UI.CustomRadioOptions.pas';
+  RipGrepper.UI.CustomRadioOptions in '..\..\UI\RipGrepper.UI.CustomRadioOptions.pas',
+  RipGrepper.UI.CustomCheckOptions in '..\..\UI\RipGrepper.UI.CustomCheckOptions.pas';
 
 {$R *.res}
 

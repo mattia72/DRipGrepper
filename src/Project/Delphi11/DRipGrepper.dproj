@@ -322,6 +322,7 @@
         <DCCReference Include="..\..\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas"/>
         <DCCReference Include="..\..\UI\RipGrepper.UI.HistoryButtonedEdit.pas"/>
         <DCCReference Include="..\..\UI\RipGrepper.UI.CustomRadioOptions.pas"/>
+        <DCCReference Include="..\..\UI\RipGrepper.UI.CustomCheckOptions.pas"/>
         <RcItem Include="..\..\..\LICENSE">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>

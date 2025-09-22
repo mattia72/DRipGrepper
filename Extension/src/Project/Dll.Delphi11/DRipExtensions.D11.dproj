@@ -262,6 +262,7 @@
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.HistoryButtonedEdit.pas"/>
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.IOTAFileUtils.pas"/>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.CustomRadioOptions.pas"/>
+        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.CustomCheckOptions.pas"/>
         <RcItem Include="..\..\..\Resources\about_icon.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>about_icon</ResourceId>
