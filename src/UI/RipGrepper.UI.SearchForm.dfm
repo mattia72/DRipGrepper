@@ -172,7 +172,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       Margins.Left = 8
       Margins.Right = 8
       Align = alClient
-      Caption = 'Expert'
+      Caption = 'Expert *'
       Constraints.MinHeight = 130
       ParentShowHint = False
       ShowHint = True
