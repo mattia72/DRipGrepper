@@ -356,7 +356,8 @@ begin
 
 	comboBox := TComboBox.Create(Self);
 	comboBox.Parent := Self;
-	comboBox.Style := csDropDownList;
+	comboBox.Style := csDropDown;
+    comboBox.AutoDropDownWidth := True;
 	if Assigned(_comboItems) then begin
 		comboBox.Items.Assign(_comboItems);
 	end;

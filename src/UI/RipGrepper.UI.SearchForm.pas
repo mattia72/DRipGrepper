@@ -42,11 +42,13 @@ uses
 	RipGrepper.UI.Settings.ExtensionContexPanel,
 	RipGrepper.Common.IDEContextValues,
 	RipGrepper.UI.SearchForm.CtrlValueProxy,
-	RipGrepper.UI.CustomCheckOptions;
+	RipGrepper.UI.CustomCheckOptions,
+	RipGrepper.UI.RgOptionsPanel;
 
 type
 	EMemoTextFormat = (mtfOneLine, mtfSeparateLines);
 
+type
 	TRipGrepperSearchDialogForm = class(TForm)
 		pnlMiddle : TPanel;
 		lblParams : TLabel;
@@ -86,8 +88,6 @@ type
 		btnRGOptionsHelp : TButton;
 		ActionShowRGOptionsHelp : TAction;
 		gbOptionsOutput : TGroupBox;
-		cbRgParamHidden : TCheckBox;
-		cbRgParamNoIgnore : TCheckBox;
 		cbRgParamPretty : TCheckBox;
 		cbRgParamContext : TCheckBox;
 		seContextLineNum : TSpinEdit;
@@ -95,8 +95,6 @@ type
 		btnShowInLines : TButton;
 		ActionShowInLines : TAction;
 		lblHintHelper : TLabel;
-		cbRgParamEncoding : TCheckBox;
-		cmbRgParamEncoding : TComboBox;
 		pnlTop : TPanel;
 		TabControl1 : TTabControl;
 		cmbReplaceText : TComboBox;
@@ -123,9 +121,6 @@ type
 		procedure ActionShowRGOptionsHelpExecute(Sender : TObject);
 		procedure ActionShowRGReplaceOptionHelpExecute(Sender : TObject);
 		procedure cbRgParamContextClick(Sender : TObject);
-		procedure cbRgParamEncodingClick(Sender : TObject);
-		procedure cbRgParamHiddenClick(Sender : TObject);
-		procedure cbRgParamNoIgnoreClick(Sender : TObject);
 		procedure cbRgParamPrettyClick(Sender : TObject);
 		procedure cmbFileMasksChange(Sender : TObject);
 		procedure cmbFileMasksExit(Sender : TObject);
@@ -133,7 +128,6 @@ type
 		procedure cmbOptionsChange(Sender : TObject);
 		procedure cmbOptionsSelect(Sender : TObject);
 		procedure cmbReplaceTextChange(Sender : TObject);
-		procedure cmbRgParamEncodingChange(Sender : TObject);
 		procedure cmbSearchDirChange(Sender : TObject);
 		procedure cmbSearchTextChange(Sender : TObject);
 		procedure cmbSearchTextKeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
@@ -148,7 +142,11 @@ type
 
 		strict private
 			ExtensionContextFrame1 : TExtensionContexPanel;
-			FRgOptionsPanel : TCustomCheckOptions;
+			FRgOptionsPanel : TRgOptionsPanel;
+			cbRgParamHidden : TCheckBox;
+			cbRgParamNoIgnore : TCheckBox;
+			cbRgParamEncoding : TCheckBox;
+			cmbRgParamEncoding : TComboBox;
 			FExtensionContextFrameOrigHeight : Integer;
 			FIsKeyboardInput : Boolean;
 			// proxy between settings and ctrls
@@ -194,6 +192,7 @@ type
 			function HasHistItemObjWithResult : Boolean;
 			function GetInIDESelectedText : string;
 			function GetValuesFromHistObjRipGrepArguments(const _argName : string; const _separator : string = ' ') : string;
+
 			procedure LoadNewSearchSettings;
 			procedure LoadExtensionSearchSettings(var _ctrlProxy : TSearchFormCtrlValueProxy);
 			procedure LoadOldHistorySearchSettings;
@@ -207,6 +206,8 @@ type
 			procedure ShowReplaceCtrls(const _bShow : Boolean);
 			procedure UpdateSearchOptionsBtns;
 			procedure UpdateCmbsOnIDEContextChange(_icv : IIDEContextValues);
+			procedure OnRgOptionsPanelItemSelect(Sender : TObject; Item : TCustomCheckItem);
+			procedure OnEncodingComboBoxChange(Sender : TObject);
 			procedure UpdateFileMasksInHistObjRgOptions; overload;
 			procedure UpdateHeight;
 			procedure UpdateRbExtensionItemIndex(const _dic : EDelphiIDESearchContext);
@@ -283,70 +284,26 @@ begin
 
 	FHistItemObj := _histObj;
 
-	ExtensionContextFrame1 := TExtensionContexPanel.Create(self);
-	
-	// Create RgOptions panel programmatically
-	FRgOptionsPanel := TCustomCheckOptions.Create(self);
+	FRgOptionsPanel := TRgOptionsPanel.Create(self);
+	FRgOptionsPanel.Settings := _settings;
 	FRgOptionsPanel.Parent := pnlRgOptions;
-	FRgOptionsPanel.Align := alClient;
-	FRgOptionsPanel.Columns := 1;
-	
-	// Add the checkbox options
-	var encodingItems := TStringList.Create;
-	try
-		encodingItems.Add('ascii');
-		encodingItems.Add('big5');
-		encodingItems.Add('euc-jp');
-		encodingItems.Add('euc-kr');
-		encodingItems.Add('gb18030');
-		encodingItems.Add('gbk');
-		encodingItems.Add('iso-8859-1');
-		encodingItems.Add('iso-8859-2');
-		encodingItems.Add('iso-8859-3');
-		encodingItems.Add('iso-8859-4');
-		encodingItems.Add('iso-8859-5');
-		encodingItems.Add('iso-8859-6');
-		encodingItems.Add('iso-8859-7');
-		encodingItems.Add('iso-8859-8');
-		encodingItems.Add('iso-8859-10');
-		encodingItems.Add('iso-8859-13');
-		encodingItems.Add('iso-8859-14');
-		encodingItems.Add('iso-8859-15');
-		encodingItems.Add('iso-8859-16');
-		encodingItems.Add('koi8-r');
-		encodingItems.Add('koi8-u');
-		encodingItems.Add('shift_jis');
-		encodingItems.Add('utf-8');
-		encodingItems.Add('utf-16');
-		encodingItems.Add('utf-16be');
-		encodingItems.Add('utf-16le');
-		encodingItems.Add('utf-32');
-		encodingItems.Add('utf-32be');
-		encodingItems.Add('utf-32le');
-		encodingItems.Add('windows-1250');
-		encodingItems.Add('windows-1251');
-		encodingItems.Add('windows-1252');
-		encodingItems.Add('windows-1253');
-		encodingItems.Add('windows-1254');
-		encodingItems.Add('windows-1255');
-		encodingItems.Add('windows-1256');
-		encodingItems.Add('windows-1257');
-		encodingItems.Add('windows-1258');
-		encodingItems.Add('windows-874');
-		
-		FRgOptionsPanel.AddItem('--hidden', 'Include hidden files in search', 0);
-		FRgOptionsPanel.AddItem('--no-ignore', 'Don''t respect ignore files', 1);
-		FRgOptionsPanel.AddItem('--encoding=', 'Specify text encoding', 2, encodingItems);
-	finally
-		encodingItems.Free;
-	end;
+	FRgOptionsPanel.AddItems();
+	var
+	optionsGroup := FRgOptionsPanel.CheckOptionsGroup;
+	FRgOptionsPanel.OnOptionChange := OnRgOptionsPanelItemSelect;
+	optionsGroup.Items[RG_OPTION_ENCODING_INDEX].ComboBox.OnChange := OnEncodingComboBoxChange;
 
+	cbRgParamHidden := optionsGroup.Items[RG_OPTION_HIDDEN_INDEX].CheckBox;
+	cbRgParamNoIgnore := optionsGroup.Items[RG_OPTION_NO_IGNORE_INDEX].CheckBox;
+	cbRgParamEncoding := optionsGroup.Items[RG_OPTION_ENCODING_INDEX].CheckBox;
+	cmbRgParamEncoding := optionsGroup.Items[RG_OPTION_ENCODING_INDEX].ComboBox;
+
+	ExtensionContextFrame1 := TExtensionContexPanel.Create(self);
 	ExtensionContextFrame1.Settings := _settings;
 	ExtensionContextFrame1.OnContextChange := OnContextChange;
 	ExtensionContextFrame1.Parent := gbOptionsFilters;
 	ExtensionContextFrame1.Align := alTop;
 	ExtensionContextFrame1.AddItems();
-	// Adjust size to fit properly in gbOptionsFilters
 	ExtensionContextFrame1.AdjustHeight();
 
 	LoadInitialSearchSettings;
@@ -665,24 +622,6 @@ begin
 	UpdateCtrls(cbRgParamContext);
 end;
 
-procedure TRipGrepperSearchDialogForm.cbRgParamHiddenClick(Sender : TObject);
-begin
-	if not FCbClickEventEnabled then
-		Exit;
-
-	FSettings.SearchFormSettings.Hidden := cbRgParamHidden.Checked;
-	UpdateCtrls(cbRgParamHidden);
-end;
-
-procedure TRipGrepperSearchDialogForm.cbRgParamNoIgnoreClick(Sender : TObject);
-begin
-	if not FCbClickEventEnabled then
-		Exit;
-
-	FSettings.SearchFormSettings.NoIgnore := cbRgParamNoIgnore.Checked;
-	UpdateCtrls(cbRgParamNoIgnore);
-end;
-
 procedure TRipGrepperSearchDialogForm.cbRgParamPrettyClick(Sender : TObject);
 begin
 	if not FCbClickEventEnabled then
@@ -852,9 +791,9 @@ begin
 			cmbRgParamEncoding.Text := cmbRgParamEncoding.Items[0];
 		end;
 		FSettings.SearchFormSettings.Encoding := cmbRgParamEncoding.Text;
-		FSettingsProxy.SetRgOptionWithValue(RG_PARAM_REGEX_ENCODING, cmbRgParamEncoding.Text, True);
+		FSettingsProxy.SetRgOptionWithValue(RG_PARAM_REGEX_ENCODING, cmbRgParamEncoding.Text, {bUnique} True);
 	end else begin
-		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_ENCODING, True);
+		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_ENCODING, {bReset} True);
 		FSettings.SearchFormSettings.Encoding := '';
 	end;
 
@@ -969,7 +908,8 @@ begin
 	end else if cmbFileMasks = _ctrlChanged then begin
 		UpdateFileMasksInHistObjRgOptions();
 		UpdateMemoCommandLine(); // UpdateCtrls
-	end else if (cbRgParamHidden = _ctrlChanged)
+	end else if (FRgOptionsPanel = _ctrlChanged)
+	{ } or (cbRgParamHidden = _ctrlChanged)
 	{ } or (cbRgParamNoIgnore = _ctrlChanged)
 	{ } or (cbRgParamPretty = _ctrlChanged)
 	{ } or (cbRgParamContext = _ctrlChanged)
@@ -982,17 +922,6 @@ begin
 		UpdateMemoCommandLine(); // this should be done first! UpdateCtrls
 		UpdateCheckBoxesByGuiSearchParams(); // UpdateCtrs(cmbControls)
 	end;
-end;
-
-procedure TRipGrepperSearchDialogForm.cbRgParamEncodingClick(Sender : TObject);
-begin
-	if not FCbClickEventEnabled then begin
-		Exit;
-	end;
-
-	cmbRgParamEncoding.Enabled := cbRgParamEncoding.Checked;
-	FSettings.SearchFormSettings.Encoding := IfThen(cmbRgParamEncoding.Enabled, cmbRgParamEncoding.Text);
-	UpdateCtrls(cbRgParamEncoding);
 end;
 
 procedure TRipGrepperSearchDialogForm.ChangeHistoryItems(_cmb : TComboBox; var _items : TArrayEx<string>);
@@ -1068,12 +997,6 @@ begin
 
 	cmbReplaceText.Text := CheckAndCorrectMultiLine(cmbReplaceText.Text);
 	UpdateCtrls(cmbReplaceText);
-end;
-
-procedure TRipGrepperSearchDialogForm.cmbRgParamEncodingChange(Sender : TObject);
-begin
-	FSettings.SearchFormSettings.Encoding := IfThen(cmbRgParamEncoding.Enabled, cmbRgParamEncoding.Text);
-	UpdateCtrls(cmbRgParamEncoding);
 end;
 
 procedure TRipGrepperSearchDialogForm.cmbSearchTextKeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
@@ -1711,7 +1634,6 @@ begin
 		FSettings.SearchFormSettings.Copy(FHistItemObj.SearchFormSettings);
 		FSettings.LoadFromDict();
 	end;
-
 end;
 
 procedure TRipGrepperSearchDialogForm.SetCmbSearchTextText(const _sText : string);
@@ -1733,6 +1655,24 @@ begin
 	end else begin
 		memoCommandLine.Text := params.GetCommandLine(shellType);
 	end;
+end;
+
+procedure TRipGrepperSearchDialogForm.OnRgOptionsPanelItemSelect(Sender : TObject; Item : TCustomCheckItem);
+begin
+	if not FCbClickEventEnabled then
+		Exit;
+
+	UpdateCtrls(FRgOptionsPanel);
+end;
+
+procedure TRipGrepperSearchDialogForm.OnEncodingComboBoxChange(Sender : TObject);
+begin
+	// if FShowing then
+	// 	Exit;
+
+	// This covers the functionality that was in cmbRgParamEncodingChange
+	FSettings.SearchFormSettings.Encoding := IfThen(cmbRgParamEncoding.Enabled, cmbRgParamEncoding.Text);
+	UpdateCtrls(cmbRgParamEncoding);
 end;
 
 end.
