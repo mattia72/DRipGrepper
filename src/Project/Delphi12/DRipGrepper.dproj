@@ -137,8 +137,8 @@
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.13.0.327;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>327</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.13.0.332;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>332</VerInfo_Build>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_MinorVer>13</VerInfo_MinorVer>
@@ -331,6 +331,7 @@
         <DCCReference Include="..\..\UI\RipGrepper.UI.CustomCheckOptions.pas"/>
         <DCCReference Include="..\..\UI\RipGrepper.UI.CustomRadioOptions.pas"/>
         <DCCReference Include="..\..\UI\RipGrepper.UI.Settings.ExtensionContexPanel.pas"/>
+        <DCCReference Include="..\..\UI\RipGrepper.UI.RgOptionsPanel.pas"/>
         <RcItem Include="..\..\..\LICENSE">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>

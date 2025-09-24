@@ -14,7 +14,14 @@ uses
 	Vcl.Dialogs,
 	Vcl.StdCtrls,
 	Vcl.ExtCtrls,
-	RipGrepper.UI.CustomCheckOptions;
+	RipGrepper.UI.CustomCheckOptions,
+	RipGrepper.Settings.RipGrepperSettings;
+
+const
+	// Constants for OrderIndex values
+	RG_OPTION_HIDDEN_INDEX = 0;
+	RG_OPTION_NO_IGNORE_INDEX = 1;
+	RG_OPTION_ENCODING_INDEX = 2;
 
 type
 	// Event type for option change
@@ -25,6 +32,8 @@ type
 
 		strict private
 			FOnOptionChange : TRgOptionChangeEvent;
+			FSettings : TRipGrepperSettings;
+			procedure SetSettings(const Value : TRipGrepperSettings);
 
 		private
 			FCheckOptionsGroup : TCustomCheckOptions;
@@ -44,29 +53,32 @@ type
 			procedure SetEncodingOption(const _value : Boolean);
 			procedure SetEncodingValue(const _value : string);
 			property CheckOptionsGroup : TCustomCheckOptions read FCheckOptionsGroup;
-
-		published
 			property SelectedItems : TArray<TCustomCheckItem> read getSelectedItems;
+			property Settings : TRipGrepperSettings read FSettings write SetSettings;
 			property OnOptionChange : TRgOptionChangeEvent read FOnOptionChange write FOnOptionChange;
 	end;
 
 implementation
 
 uses
+	Spring,
 	RipGrepper.Tools.DebugUtils,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants,
+	System.StrUtils;
 
 constructor TRgOptionsPanel.Create(_owner : TComponent);
 begin
 	inherited Create(_owner);
-	
+	BevelOuter := bvNone;
+	Align := alClient;
+
 	// Create pnlMain programmatically
 	pnlMain := TPanel.Create(Self);
 	pnlMain.Parent := Self;
 	pnlMain.Align := alClient;
 	pnlMain.BevelOuter := bvNone;
 	pnlMain.Caption := '';
-	
+
 	FCheckOptionsGroup := TCustomCheckOptions.Create(Self);
 	FCheckOptionsGroup.Parent := pnlMain;
 	FCheckOptionsGroup.Align := alClient;
@@ -76,58 +88,56 @@ end;
 
 procedure TRgOptionsPanel.AddItems();
 var
-	encodingItems : TStringList;
+	encodingItems : IShared<TStringList>;
 begin
-	encodingItems := TStringList.Create;
-	try
-		// Add encoding options
-		encodingItems.Add('ascii');
-		encodingItems.Add('big5');
-		encodingItems.Add('euc-jp');
-		encodingItems.Add('euc-kr');
-		encodingItems.Add('gb18030');
-		encodingItems.Add('gbk');
-		encodingItems.Add('iso-8859-1');
-		encodingItems.Add('iso-8859-2');
-		encodingItems.Add('iso-8859-3');
-		encodingItems.Add('iso-8859-4');
-		encodingItems.Add('iso-8859-5');
-		encodingItems.Add('iso-8859-6');
-		encodingItems.Add('iso-8859-7');
-		encodingItems.Add('iso-8859-8');
-		encodingItems.Add('iso-8859-10');
-		encodingItems.Add('iso-8859-13');
-		encodingItems.Add('iso-8859-14');
-		encodingItems.Add('iso-8859-15');
-		encodingItems.Add('iso-8859-16');
-		encodingItems.Add('koi8-r');
-		encodingItems.Add('koi8-u');
-		encodingItems.Add('shift_jis');
-		encodingItems.Add('utf-8');
-		encodingItems.Add('utf-16');
-		encodingItems.Add('utf-16be');
-		encodingItems.Add('utf-16le');
-		encodingItems.Add('utf-32');
-		encodingItems.Add('utf-32be');
-		encodingItems.Add('utf-32le');
-		encodingItems.Add('windows-1250');
-		encodingItems.Add('windows-1251');
-		encodingItems.Add('windows-1252');
-		encodingItems.Add('windows-1253');
-		encodingItems.Add('windows-1254');
-		encodingItems.Add('windows-1255');
-		encodingItems.Add('windows-1256');
-		encodingItems.Add('windows-1257');
-		encodingItems.Add('windows-1258');
-		encodingItems.Add('windows-874');
+	encodingItems := Shared.Make<TStringList>();
 
-		// Add checkbox options
-		FCheckOptionsGroup.AddItem('--hidden', 'Include hidden files in search', 0);
-		FCheckOptionsGroup.AddItem('--no-ignore', 'Don''t respect ignore files', 1);
-		FCheckOptionsGroup.AddItem('--encoding=', 'Specify text encoding', 2, encodingItems);
-	finally
-		encodingItems.Free;
-	end;
+	// Add encoding options
+	encodingItems.Add('ascii');
+	encodingItems.Add('big5');
+	encodingItems.Add('euc-jp');
+	encodingItems.Add('euc-kr');
+	encodingItems.Add('gb18030');
+	encodingItems.Add('gbk');
+	encodingItems.Add('iso-8859-1');
+	encodingItems.Add('iso-8859-2');
+	encodingItems.Add('iso-8859-3');
+	encodingItems.Add('iso-8859-4');
+	encodingItems.Add('iso-8859-5');
+	encodingItems.Add('iso-8859-6');
+	encodingItems.Add('iso-8859-7');
+	encodingItems.Add('iso-8859-8');
+	encodingItems.Add('iso-8859-10');
+	encodingItems.Add('iso-8859-13');
+	encodingItems.Add('iso-8859-14');
+	encodingItems.Add('iso-8859-15');
+	encodingItems.Add('iso-8859-16');
+	encodingItems.Add('koi8-r');
+	encodingItems.Add('koi8-u');
+	encodingItems.Add('shift_jis');
+	encodingItems.Add('utf-8');
+	encodingItems.Add('utf-16');
+	encodingItems.Add('utf-16be');
+	encodingItems.Add('utf-16le');
+	encodingItems.Add('utf-32');
+	encodingItems.Add('utf-32be');
+	encodingItems.Add('utf-32le');
+	encodingItems.Add('windows-1250');
+	encodingItems.Add('windows-1251');
+	encodingItems.Add('windows-1252');
+	encodingItems.Add('windows-1253');
+	encodingItems.Add('windows-1254');
+	encodingItems.Add('windows-1255');
+	encodingItems.Add('windows-1256');
+	encodingItems.Add('windows-1257');
+	encodingItems.Add('windows-1258');
+	encodingItems.Add('windows-874');
+
+	// Add checkbox options
+	FCheckOptionsGroup.AddItem('--hidden', 'Include hidden files in search', RG_OPTION_HIDDEN_INDEX);
+	FCheckOptionsGroup.AddItem('--no-ignore', 'Don''t respect ignore files', RG_OPTION_NO_IGNORE_INDEX);
+	FCheckOptionsGroup.AddItem('--encoding=', 'Specify text encoding', RG_OPTION_ENCODING_INDEX, encodingItems);
+
 end;
 
 procedure TRgOptionsPanel.AdjustHeight();
@@ -144,6 +154,23 @@ end;
 
 procedure TRgOptionsPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
 begin
+
+	// Handle the functionality that was previously in the individual event handlers
+	case _item.OrderIndex of
+		RG_OPTION_HIDDEN_INDEX : begin
+			FSettings.SearchFormSettings.Hidden := _item.Checked;
+		end;
+		RG_OPTION_NO_IGNORE_INDEX : begin
+			FSettings.SearchFormSettings.NoIgnore := _item.Checked;
+		end;
+		RG_OPTION_ENCODING_INDEX : begin
+			if Assigned(_item.ComboBox) then begin
+				_item.ComboBox.Enabled := _item.Checked;
+				FSettings.SearchFormSettings.Encoding := IfThen(_item.ComboBox.Enabled, _item.ComboBox.Text);
+			end;
+		end;
+	end;
+
 	// Fire change event
 	if Assigned(FOnOptionChange) then begin
 		FOnOptionChange(Self, _item);
@@ -166,53 +193,60 @@ end;
 function TRgOptionsPanel.GetNoIgnoreOption : Boolean;
 begin
 	Result := False;
-	if FCheckOptionsGroup.Items.Count > 1 then begin
-		Result := FCheckOptionsGroup.Items[1].Checked;
+	if FCheckOptionsGroup.Items.Count > RG_OPTION_NO_IGNORE_INDEX then begin
+		Result := FCheckOptionsGroup.Items[RG_OPTION_NO_IGNORE_INDEX].Checked;
 	end;
 end;
 
 function TRgOptionsPanel.GetEncodingOption : Boolean;
 begin
 	Result := False;
-	if FCheckOptionsGroup.Items.Count > 2 then begin
-		Result := FCheckOptionsGroup.Items[2].Checked;
+	if FCheckOptionsGroup.Items.Count > RG_OPTION_ENCODING_INDEX then begin
+		Result := FCheckOptionsGroup.Items[RG_OPTION_ENCODING_INDEX].Checked;
 	end;
 end;
 
 function TRgOptionsPanel.GetEncodingValue : string;
 begin
 	Result := '';
-	if (FCheckOptionsGroup.Items.Count > 2) and Assigned(FCheckOptionsGroup.Items[2].ComboBox) then begin
-		Result := FCheckOptionsGroup.Items[2].ComboBox.Text;
+	if (FCheckOptionsGroup.Items.Count > RG_OPTION_ENCODING_INDEX) and Assigned(FCheckOptionsGroup.Items[RG_OPTION_ENCODING_INDEX].ComboBox)
+	then begin
+		Result := FCheckOptionsGroup.Items[RG_OPTION_ENCODING_INDEX].ComboBox.Text;
 	end;
 end;
 
 procedure TRgOptionsPanel.SetHiddenOption(const _value : Boolean);
 begin
-	if FCheckOptionsGroup.Items.Count > 0 then begin
-		FCheckOptionsGroup.Items[0].Checked := _value;
+	if FCheckOptionsGroup.Items.Count > RG_OPTION_HIDDEN_INDEX then begin
+		FCheckOptionsGroup.Items[RG_OPTION_HIDDEN_INDEX].Checked := _value;
 	end;
 end;
 
 procedure TRgOptionsPanel.SetNoIgnoreOption(const _value : Boolean);
 begin
-	if FCheckOptionsGroup.Items.Count > 1 then begin
-		FCheckOptionsGroup.Items[1].Checked := _value;
+	if FCheckOptionsGroup.Items.Count > RG_OPTION_NO_IGNORE_INDEX then begin
+		FCheckOptionsGroup.Items[RG_OPTION_NO_IGNORE_INDEX].Checked := _value;
 	end;
 end;
 
 procedure TRgOptionsPanel.SetEncodingOption(const _value : Boolean);
 begin
-	if FCheckOptionsGroup.Items.Count > 2 then begin
-		FCheckOptionsGroup.Items[2].Checked := _value;
+	if FCheckOptionsGroup.Items.Count > RG_OPTION_ENCODING_INDEX then begin
+		FCheckOptionsGroup.Items[RG_OPTION_ENCODING_INDEX].Checked := _value;
 	end;
 end;
 
 procedure TRgOptionsPanel.SetEncodingValue(const _value : string);
 begin
-	if (FCheckOptionsGroup.Items.Count > 2) and Assigned(FCheckOptionsGroup.Items[2].ComboBox) then begin
-		FCheckOptionsGroup.Items[2].ComboBox.Text := _value;
+	if (FCheckOptionsGroup.Items.Count > RG_OPTION_ENCODING_INDEX) and Assigned(FCheckOptionsGroup.Items[RG_OPTION_ENCODING_INDEX].ComboBox)
+	then begin
+		FCheckOptionsGroup.Items[RG_OPTION_ENCODING_INDEX].ComboBox.Text := _value;
 	end;
+end;
+
+procedure TRgOptionsPanel.SetSettings(const Value : TRipGrepperSettings);
+begin
+	FSettings := Value;
 end;
 
 end.

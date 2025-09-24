@@ -10,7 +10,8 @@ uses
 	Vcl.Controls,
 	Vcl.StdCtrls,
 	Vcl.ExtCtrls,
-	Winapi.Windows;
+	Winapi.Windows,
+	RipGrepper.Settings.RipGrepperSettings;
 
 type
 	// Forward declarations
@@ -63,8 +64,8 @@ type
 			function Add : TCustomCheckItem;
 			function AddItem(_cb : TCheckBox; const _caption : string; const _orderIndex : Integer; _obj : IInterface = nil)
 				: TCustomCheckItem; overload;
-			function AddItem(_cb : TCheckBox; _combo : TComboBox; const _caption : string; const _orderIndex : Integer; _obj : IInterface = nil)
-				: TCustomCheckItem; overload;
+			function AddItem(_cb : TCheckBox; _combo : TComboBox; const _caption : string; const _orderIndex : Integer;
+				_obj : IInterface = nil) : TCustomCheckItem; overload;
 			property Items[index : Integer] : TCustomCheckItem read getItem write setItem; default;
 	end;
 
@@ -91,6 +92,7 @@ type
 
 	// Custom checkbox options control
 	TCustomCheckOptions = class(TCustomOptionsBase)
+		strict private
 		private
 			FItems : TCustomCheckItems;
 			FOnItemSelect : TCheckItemSelectEvent;
@@ -105,7 +107,13 @@ type
 			destructor Destroy; override;
 			procedure Clear; override;
 			function AddItem(const _caption, _hint : string; _orderIndex : Integer; _obj : IInterface = nil) : TCustomCheckItem; overload;
-			function AddItem(const _caption, _hint : string; _orderIndex : Integer; _comboItems : TStringList; _obj : IInterface = nil) : TCustomCheckItem; overload;
+			function AddItem(const _caption, _hint : string; _orderIndex : Integer; _comboItems : TStringList; _obj : IInterface = nil)
+				: TCustomCheckItem; overload;
+			// Getter functions for specific items by order index
+			function GetItemChecked(orderIndex : Integer) : Boolean;
+			function GetItemText(orderIndex : Integer) : string;
+			procedure SetItemChecked(orderIndex : Integer; checked : Boolean);
+			procedure SetItemText(orderIndex : Integer; const text : string);
 
 		published
 			property SelectedItems : TArray<TCustomCheckItem> read getSelectedItems;
@@ -258,8 +266,8 @@ begin
 	Result.FHasComboBox := False;
 end;
 
-function TCustomCheckItems.AddItem(_cb : TCheckBox; _combo : TComboBox; const _caption : string; const _orderIndex : Integer; _obj : IInterface = nil)
-	: TCustomCheckItem;
+function TCustomCheckItems.AddItem(_cb : TCheckBox; _combo : TComboBox; const _caption : string; const _orderIndex : Integer;
+	_obj : IInterface = nil) : TCustomCheckItem;
 begin
 	Result := Add;
 	Result.FCaption := _caption;
@@ -333,7 +341,8 @@ begin
 	Result := FItems.AddItem(checkBox, _caption, _orderIndex, _obj);
 end;
 
-function TCustomCheckOptions.AddItem(const _caption, _hint : string; _orderIndex : Integer; _comboItems : TStringList; _obj : IInterface = nil) : TCustomCheckItem;
+function TCustomCheckOptions.AddItem(const _caption, _hint : string; _orderIndex : Integer; _comboItems : TStringList;
+	_obj : IInterface = nil) : TCustomCheckItem;
 var
 	checkBox : TCheckBox;
 	comboBox : TComboBox;
@@ -351,7 +360,8 @@ begin
 	if Assigned(_comboItems) then begin
 		comboBox.Items.Assign(_comboItems);
 	end;
-	
+	// We'll set OnChange in the SearchForm after creation
+
 	Result := FItems.AddItem(checkBox, comboBox, _caption, _orderIndex, _obj);
 	Result.ComboBoxItems := _comboItems;
 end;
@@ -458,6 +468,66 @@ begin
 		if item.Checked then begin
 			Result[selectedCount] := item;
 			Inc(selectedCount);
+		end;
+	end;
+end;
+
+function TCustomCheckOptions.GetItemChecked(orderIndex : Integer) : Boolean;
+var
+	i : Integer;
+	item : TCustomCheckItem;
+begin
+	Result := False;
+	for i := 0 to FItems.Count - 1 do begin
+		item := FItems[i];
+		if item.OrderIndex = orderIndex then begin
+			Result := item.Checked;
+			Exit;
+		end;
+	end;
+end;
+
+function TCustomCheckOptions.GetItemText(orderIndex : Integer) : string;
+var
+	i : Integer;
+	item : TCustomCheckItem;
+begin
+	Result := '';
+	for i := 0 to FItems.Count - 1 do begin
+		item := FItems[i];
+		if (item.OrderIndex = orderIndex) and item.HasComboBox and Assigned(item.ComboBox) then begin
+			Result := item.ComboBox.Text;
+			Exit;
+		end;
+	end;
+end;
+
+procedure TCustomCheckOptions.SetItemChecked(orderIndex : Integer; checked : Boolean);
+var
+	i : Integer;
+	item : TCustomCheckItem;
+begin
+	for i := 0 to FItems.Count - 1 do begin
+		item := FItems[i];
+		if item.OrderIndex = orderIndex then begin
+			item.Checked := checked;
+			if Assigned(item.CheckBox) then
+				item.CheckBox.Checked := checked;
+			Exit;
+		end;
+	end;
+end;
+
+procedure TCustomCheckOptions.SetItemText(orderIndex : Integer; const text : string);
+var
+	i : Integer;
+	item : TCustomCheckItem;
+begin
+	for i := 0 to FItems.Count - 1 do begin
+		item := FItems[i];
+		if (item.OrderIndex = orderIndex) and item.HasComboBox and Assigned(item.ComboBox) then begin
+			item.ComboBox.Text := text;
+			Exit;
 		end;
 	end;
 end;
