@@ -66,8 +66,8 @@ uses
 constructor TExtensionContexPanel.Create(_owner : TComponent);
 begin
 	inherited Create(_owner);
-	
-	// Create pnlMain programmatically since we no longer use DFM
+	BevelOuter := bvNone;
+
 	pnlMain := TPanel.Create(Self);
 	pnlMain.Parent := Self;
 	pnlMain.Align := alClient;
