@@ -371,6 +371,8 @@ begin
 end;
 
 procedure TCustomCheckOptions.ArrangeItems;
+const
+	SPACE = 8;
 var
 	i, col, row : Integer;
 	itemHeight, itemWidth, checkBoxWidth, comboBoxWidth : Integer;
@@ -385,7 +387,7 @@ begin
 	itemHeight := 22; // Standard height
 	itemWidth := Width div FColumns;
 	checkBoxWidth := itemWidth div 2; // Half width for checkbox when combo is present
-	comboBoxWidth := itemWidth - checkBoxWidth - 16; // Remaining width for combo
+	comboBoxWidth := itemWidth - checkBoxWidth - (2 * SPACE); // Remaining width for combo
 	maxRows := Ceil(FItems.Count / FColumns);
 
 	// Position checkboxes and comboboxes
@@ -397,25 +399,25 @@ begin
 
 			if item.HasComboBox then begin
 				// Position checkbox with reduced width
-				item.CheckBox.Left := col * itemWidth + 8;
-				item.CheckBox.Top := row * itemHeight + 8;
-				item.CheckBox.Width := checkBoxWidth - 8;
+				item.CheckBox.Left := col * itemWidth + SPACE;
+				item.CheckBox.Top := row * itemHeight + SPACE;
+				item.CheckBox.Width := checkBoxWidth - SPACE;
 				item.CheckBox.Height := itemHeight - 2;
 				item.CheckBox.Tag := i;
 
 				// Position combobox next to checkbox
 				if Assigned(item.ComboBox) then begin
-					item.ComboBox.Left := col * itemWidth + checkBoxWidth + 8;
-					item.ComboBox.Top := row * itemHeight + 8;
+					item.ComboBox.Left := col * itemWidth + checkBoxWidth + SPACE;
+					item.ComboBox.Top := row * itemHeight + SPACE;
 					item.ComboBox.Width := comboBoxWidth;
 					item.ComboBox.Height := itemHeight - 2;
 					item.ComboBox.Tag := i;
 				end;
 			end else begin
 				// Position checkbox with full width
-				item.CheckBox.Left := col * itemWidth + 8;
-				item.CheckBox.Top := row * itemHeight + 8;
-				item.CheckBox.Width := itemWidth - 16;
+				item.CheckBox.Left := col * itemWidth + SPACE;
+				item.CheckBox.Top := row * itemHeight + SPACE;
+				item.CheckBox.Width := itemWidth - (2 * SPACE);
 				item.CheckBox.Height := itemHeight - 2;
 				item.CheckBox.Tag := i;
 			end;
