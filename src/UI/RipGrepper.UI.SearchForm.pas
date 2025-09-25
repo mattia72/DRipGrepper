@@ -141,7 +141,7 @@ type
 		procedure TabControl1Change(Sender : TObject);
 
 		strict private
-			ExtensionContextFrame1 : TExtensionContexPanel;
+			FExtensionContextPanel : TExtensionContexPanel;
 			FRgOptionsPanel : TRgOptionsPanel;
 			cbRgParamHidden : TCheckBox;
 			cbRgParamNoIgnore : TCheckBox;
@@ -298,13 +298,13 @@ begin
 	cbRgParamEncoding := optionsGroup.Items[RG_OPTION_ENCODING_INDEX].CheckBox;
 	cmbRgParamEncoding := optionsGroup.Items[RG_OPTION_ENCODING_INDEX].ComboBox;
 
-	ExtensionContextFrame1 := TExtensionContexPanel.Create(self);
-	ExtensionContextFrame1.Settings := _settings;
-	ExtensionContextFrame1.OnContextChange := OnContextChange;
-	ExtensionContextFrame1.Parent := gbOptionsFilters;
-	ExtensionContextFrame1.Align := alTop;
-	ExtensionContextFrame1.AddItems();
-	ExtensionContextFrame1.AdjustHeight();
+	FExtensionContextPanel := TExtensionContexPanel.Create(self);
+	FExtensionContextPanel.Settings := _settings;
+	FExtensionContextPanel.OnContextChange := OnContextChange;
+	FExtensionContextPanel.Parent := gbOptionsFilters;
+	FExtensionContextPanel.Align := alTop;
+	FExtensionContextPanel.AddItems();
+	FExtensionContextPanel.AdjustHeight();
 
 	LoadInitialSearchSettings;
 
@@ -791,9 +791,9 @@ begin
 			cmbRgParamEncoding.Text := cmbRgParamEncoding.Items[0];
 		end;
 		FSettings.SearchFormSettings.Encoding := cmbRgParamEncoding.Text;
-		FSettingsProxy.SetRgOptionWithValue(RG_PARAM_REGEX_ENCODING, cmbRgParamEncoding.Text, {bUnique} True);
+		FSettingsProxy.SetRgOptionWithValue(RG_PARAM_REGEX_ENCODING, cmbRgParamEncoding.Text, { bUnique } True);
 	end else begin
-		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_ENCODING, {bReset} True);
+		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_ENCODING, { bReset } True);
 		FSettings.SearchFormSettings.Encoding := '';
 	end;
 
@@ -826,18 +826,18 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCheckBoxesByGuiSearchParams');
 
 	FCbClickEventEnabled := False;
+	FRgOptionsPanel.EventsEnabled := False;
 	try
 		cbRgParamHidden.Checked := IsOptionSet(RG_PARAM_REGEX_HIDDEN);
 		cbRgParamNoIgnore.Checked := IsOptionSet(RG_PARAM_REGEX_NO_IGNORE);
-		cbRgParamPretty.Checked := IsOptionSet(RG_PARAM_REGEX_PRETTY);
-
-		cbRgParamContext.Checked := FSettingsProxy.RgOptions.GetOptionValue(RG_PARAM_REGEX_CONTEXT, sVal);
-		seContextLineNum.Enabled := cbRgParamContext.Checked;
-		seContextLineNum.Text := IfThen(seContextLineNum.Enabled, sVal, '0');
-
 		cbRgParamEncoding.Checked := FSettingsProxy.RgOptions.GetOptionValue(RG_PARAM_REGEX_ENCODING, sVal);
 		cmbRgParamEncoding.Enabled := cbRgParamEncoding.Checked;
 		cmbRgParamEncoding.Text := IfThen(cmbRgParamEncoding.Enabled, sVal, '');
+
+		cbRgParamPretty.Checked := IsOptionSet(RG_PARAM_REGEX_PRETTY);
+		cbRgParamContext.Checked := FSettingsProxy.RgOptions.GetOptionValue(RG_PARAM_REGEX_CONTEXT, sVal);
+		seContextLineNum.Enabled := cbRgParamContext.Checked;
+		seContextLineNum.Text := IfThen(seContextLineNum.Enabled, sVal, '0');
 
 		sVal := '';
 		var
@@ -847,6 +847,7 @@ begin
 
 	finally
 		FCbClickEventEnabled := True;
+		FRgOptionsPanel.EventsEnabled := True;
 	end;
 	dbgMsg.MsgFmt('Hidden %s NoIgnore %s Pretty %s',
 		{ } [BoolToStr(cbRgParamHidden.Checked),
@@ -860,10 +861,12 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCheckBoxes');
 
 	FCbClickEventEnabled := False;
+	FRgOptionsPanel.EventsEnabled := False;
 	try
 		CopyProxyToCtrls();
 	finally
 		FCbClickEventEnabled := True;
+		FRgOptionsPanel.EventsEnabled := True;
 	end;
 	dbgMsg.MsgFmt('cbHidden %s cbNoIgnore %s cbPretty %s',
 		{ } [BoolToStr(cbRgParamHidden.Checked),
@@ -1313,7 +1316,7 @@ begin
 	if _paths.IsEmpty then begin
 		Exit;
 	end;
-	ExtensionContextFrame1.SelectedItem.RadioButton.Hint := TExtensionContexPanel.GetAsHint(_paths);
+	FExtensionContextPanel.SelectedItem.RadioButton.Hint := TExtensionContexPanel.GetAsHint(_paths);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetExpertGroupSize();
@@ -1329,7 +1332,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetOrigHeights');
 
 	FOptionsFiltersOrigHeight := gbOptionsFilters.Height;
-	FExtensionContextFrameOrigHeight := ExtensionContextFrame1.Height;
+	FExtensionContextFrameOrigHeight := FExtensionContextPanel.Height;
 	FOptionsOutputOrigTop := gbOptionsOutput.Top;
 	FpnlMiddleOrigHeight := pnlMiddle.Height;
 	FTopPanelOrigHeight := pnlTop.Height;
@@ -1485,21 +1488,21 @@ begin
 	if bStandalone then begin
 		var
 		bVisible := {$IF IS_GUITEST} True; {$ELSE} False; {$ENDIF};
-		ExtensionContextFrame1.Enabled := bVisible;
-		ExtensionContextFrame1.Visible := bVisible;
-		dbgMsg.MsgFmt('ExtensionContextFrame1.Visible=%s', [BoolToStr(bVisible, True)]);
+		FExtensionContextPanel.Enabled := bVisible;
+		FExtensionContextPanel.Visible := bVisible;
+		dbgMsg.MsgFmt('FExtensionContextPanel.Visible=%s', [BoolToStr(bVisible, True)]);
 	end;
 
 	// Handle extension context frame sizing
-	if ExtensionContextFrame1.Visible then begin
-		ExtensionContextFrame1.Align := alTop;
-		ExtensionContextFrame1.AdjustHeight();
+	if FExtensionContextPanel.Visible then begin
+		FExtensionContextPanel.Align := alTop;
+		FExtensionContextPanel.AdjustHeight();
 
 		// Adjust gbOptionsFilters to accommodate the frame properly
 		// Calculate the required height for all content in gbOptionsFilters
 		var
 		requiredFilterHeight := GetFullHeight(lblPaths) + GetFullHeight(pnlPath) + GetFullHeight(pnlRgOptions) +
-			ExtensionContextFrame1.Height + gbOptionsFilters.Padding.Top + gbOptionsFilters.Padding.Bottom;
+			FExtensionContextPanel.Height + gbOptionsFilters.Padding.Top + gbOptionsFilters.Padding.Bottom;
 		gbOptionsFilters.Height := requiredFilterHeight;
 	end else begin
 		// Frame not visible, use original height
@@ -1528,7 +1531,7 @@ begin
 
 	FbExtensionOptionsSkipClick := True;
 	try
-		ExtensionContextFrame1.SetSelectedIDEContext(_dic);
+		FExtensionContextPanel.SetSelectedIDEContext(_dic);
 		dbgMsg.MsgFmt('ContextRadioGroup.ItemIndex = %d', [Integer(_dic)]);
 
 		// Create the appropriate context values directly to ensure proper initialization
@@ -1539,7 +1542,7 @@ begin
 				icv := TIDEContextValues.Create(_dic, FCtrlProxy.SearchPath);
 			end;
 			else
-			icv := ExtensionContextFrame1.ContextValues;
+			icv := FExtensionContextPanel.ContextValues;
 		end;
 
 		UpdateCmbsOnIDEContextChange(icv);
@@ -1585,10 +1588,7 @@ begin
 	TabControl1.TabIndex := IfThen(FCtrlProxy.IsReplaceMode, 1, 0);
 	cmbReplaceText.Text := FCtrlProxy.ReplaceText;
 	dbgMsg.MsgFmt('cmbReplaceText.Text %s', [cmbReplaceText.Text]);
-	cbRgParamHidden.Checked := FCtrlProxy.IsHiddenChecked;
-	dbgMsg.MsgFmt('cbRgParamHidden.Checked %s', [BoolToStr(cbRgParamHidden.Checked)]);
-	cbRgParamNoIgnore.Checked := FCtrlProxy.IsNoIgnoreChecked;
-	dbgMsg.MsgFmt('cbRgParamNoIgnore.Checked %s', [BoolToStr(cbRgParamNoIgnore.Checked)]);
+
 	cbRgParamPretty.Checked := FCtrlProxy.IsPrettyChecked;
 	dbgMsg.MsgFmt('cbRgParamPretty.Checked %s', [BoolToStr(cbRgParamPretty.Checked)]);
 
@@ -1597,10 +1597,23 @@ begin
 	seContextLineNum.Value := FCtrlProxy.LineContext;
 	dbgMsg.MsgFmt('seContextLineNum.Value=%d', [seContextLineNum.Value]);
 
-	cbRgParamEncoding.Checked := FCtrlProxy.Encoding <> '';
-	cmbRgParamEncoding.Enabled := cbRgParamEncoding.Checked;
-	cmbRgParamEncoding.Text := FCtrlProxy.Encoding;
-	dbgMsg.Msg('cmbRgParamEncoding.Text=' + cmbRgParamEncoding.Text);
+	// FRgOptionsPanel.EventsEnabled := False;
+	try
+		dbgMsg.MsgFmt('FCtrlProxy.IsHiddenChecked=%s', [BoolToStr(FCtrlProxy.IsHiddenChecked, True)]);
+		cbRgParamHidden.Checked := FCtrlProxy.IsHiddenChecked;
+		dbgMsg.MsgFmt('cbRgParamHidden.Checked=%s', [BoolToStr(cbRgParamHidden.Checked, True)]);
+		
+		dbgMsg.MsgFmt('FCtrlProxy.IsNoIgnoreChecked=%s', [BoolToStr(FCtrlProxy.IsNoIgnoreChecked, True)]);
+		cbRgParamNoIgnore.Checked := FCtrlProxy.IsNoIgnoreChecked;
+		dbgMsg.MsgFmt('cbRgParamNoIgnore.Checked=%s', [BoolToStr(cbRgParamNoIgnore.Checked, True)]);
+
+		cbRgParamEncoding.Checked := FCtrlProxy.Encoding <> '';
+		cmbRgParamEncoding.Enabled := cbRgParamEncoding.Checked;
+		cmbRgParamEncoding.Text := FCtrlProxy.Encoding;
+		dbgMsg.Msg('cmbRgParamEncoding.Text=' + cmbRgParamEncoding.Text);
+	finally
+		// FRgOptionsPanel.EventsEnabled := True;
+	end;
 end;
 
 procedure TRipGrepperSearchDialogForm.CopySettingsToHistObj;
@@ -1668,7 +1681,7 @@ end;
 procedure TRipGrepperSearchDialogForm.OnEncodingComboBoxChange(Sender : TObject);
 begin
 	// if FShowing then
-	// 	Exit;
+	// Exit;
 
 	// This covers the functionality that was in cmbRgParamEncodingChange
 	FSettings.SearchFormSettings.Encoding := IfThen(cmbRgParamEncoding.Enabled, cmbRgParamEncoding.Text);

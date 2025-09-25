@@ -26,8 +26,8 @@ type
 			FCheckBox : TCheckBox;
 			FComboBox : TComboBox;
 			FComboBoxItems : TStringList;
-			FChecked : Boolean;
 			FHasComboBox : Boolean;
+			function getChecked() : Boolean;
 			procedure setCaption(const _value : string);
 			procedure setOrderIndex(const _value : Integer);
 			procedure SetTagObject(const Value : IInterface);
@@ -45,7 +45,7 @@ type
 			property Caption : string read FCaption write setCaption;
 			property OrderIndex : Integer read FOrderIndex write setOrderIndex;
 			property TagObject : IInterface read FTagObject write SetTagObject;
-			property Checked : Boolean read FChecked write setChecked;
+			property Checked : Boolean read getChecked write setChecked;
 			property HasComboBox : Boolean read FHasComboBox write setHasComboBox;
 	end;
 
@@ -112,8 +112,6 @@ type
 			// Getter functions for specific items by order index
 			function GetItemChecked(orderIndex : Integer) : Boolean;
 			function GetItemText(orderIndex : Integer) : string;
-			procedure SetItemChecked(orderIndex : Integer; checked : Boolean);
-			procedure SetItemText(orderIndex : Integer; const text : string);
 
 		published
 			property SelectedItems : TArray<TCustomCheckItem> read getSelectedItems;
@@ -166,7 +164,6 @@ begin
 	FComboBox := nil;
 	FComboBoxItems := TStringList.Create;
 	FTagObject := nil;
-	FChecked := False;
 	FHasComboBox := False;
 end;
 
@@ -184,6 +181,11 @@ begin
 	inherited Destroy;
 end;
 
+function TCustomCheckItem.getChecked() : Boolean;
+begin
+	Result := Assigned(FCheckbox) and FCheckBox.Checked;
+end;
+
 procedure TCustomCheckItem.setCaption(const _value : string);
 begin
 	if FCaption <> _value then begin
@@ -196,11 +198,8 @@ end;
 
 procedure TCustomCheckItem.setChecked(const _value : Boolean);
 begin
-	if FChecked <> _value then begin
-		FChecked := _value;
-		if Assigned(FCheckBox) then begin
-			FCheckBox.Checked := _value;
-		end;
+	if Assigned(FCheckBox) and (FCheckbox.Checked <> _value) then begin
+		FCheckBox.Checked := _value;
 	end;
 end;
 
@@ -333,6 +332,9 @@ var
 	checkBox : TCheckBox;
 begin
 	checkBox := TCheckBox.Create(Self);
+	var
+	cleanCaption := _caption.Trim(['-']).Replace('-', '_');
+	checkbox.Name := 'cmb' + UpCase(cleanCaption[1]) + cleanCaption.Substring(1);
 	checkBox.Parent := Self;
 	checkBox.Caption := _caption;
 	checkBox.OnClick := onCheckBoxClick;
@@ -357,7 +359,7 @@ begin
 	comboBox := TComboBox.Create(Self);
 	comboBox.Parent := Self;
 	comboBox.Style := csDropDown;
-    comboBox.AutoDropDownWidth := True;
+	comboBox.AutoDropDownWidth := True;
 	if Assigned(_comboItems) then begin
 		comboBox.Items.Assign(_comboItems);
 	end;
@@ -437,7 +439,9 @@ begin
 	// Update the checked state in the item
 	if (itemIndex >= 0) and (itemIndex < FItems.Count) then begin
 		item := FItems[itemIndex];
-		item.Checked := checkBox.Checked;
+		if (not item.Checked) and Assigned(item.ComboBox) then begin
+			item.ComboBox.Text := '';
+		end;
 
 		// Fire event
 		if Assigned(FOnItemSelect) then begin
@@ -498,36 +502,6 @@ begin
 		item := FItems[i];
 		if (item.OrderIndex = orderIndex) and item.HasComboBox and Assigned(item.ComboBox) then begin
 			Result := item.ComboBox.Text;
-			Exit;
-		end;
-	end;
-end;
-
-procedure TCustomCheckOptions.SetItemChecked(orderIndex : Integer; checked : Boolean);
-var
-	i : Integer;
-	item : TCustomCheckItem;
-begin
-	for i := 0 to FItems.Count - 1 do begin
-		item := FItems[i];
-		if item.OrderIndex = orderIndex then begin
-			item.Checked := checked;
-			if Assigned(item.CheckBox) then
-				item.CheckBox.Checked := checked;
-			Exit;
-		end;
-	end;
-end;
-
-procedure TCustomCheckOptions.SetItemText(orderIndex : Integer; const text : string);
-var
-	i : Integer;
-	item : TCustomCheckItem;
-begin
-	for i := 0 to FItems.Count - 1 do begin
-		item := FItems[i];
-		if (item.OrderIndex = orderIndex) and item.HasComboBox and Assigned(item.ComboBox) then begin
-			item.ComboBox.Text := text;
 			Exit;
 		end;
 	end;

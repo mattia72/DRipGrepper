@@ -33,29 +33,20 @@ type
 		strict private
 			FOnOptionChange : TRgOptionChangeEvent;
 			FSettings : TRipGrepperSettings;
+			FEventsEnabled : Boolean;
 			procedure SetSettings(const Value : TRipGrepperSettings);
 
 		private
 			FCheckOptionsGroup : TCustomCheckOptions;
 			procedure onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
-			function getSelectedItems() : TArray<TCustomCheckItem>;
-
 		public
 			constructor Create(_owner : TComponent); override;
 			procedure AddItems();
 			procedure AdjustHeight();
-			function GetHiddenOption : Boolean;
-			function GetNoIgnoreOption : Boolean;
-			function GetEncodingOption : Boolean;
-			function GetEncodingValue : string;
-			procedure SetHiddenOption(const _value : Boolean);
-			procedure SetNoIgnoreOption(const _value : Boolean);
-			procedure SetEncodingOption(const _value : Boolean);
-			procedure SetEncodingValue(const _value : string);
 			property CheckOptionsGroup : TCustomCheckOptions read FCheckOptionsGroup;
-			property SelectedItems : TArray<TCustomCheckItem> read getSelectedItems;
 			property Settings : TRipGrepperSettings read FSettings write SetSettings;
 			property OnOptionChange : TRgOptionChangeEvent read FOnOptionChange write FOnOptionChange;
+			property EventsEnabled : Boolean read FEventsEnabled write FEventsEnabled;
 	end;
 
 implementation
@@ -71,6 +62,7 @@ begin
 	inherited Create(_owner);
 	BevelOuter := bvNone;
 	Align := alClient;
+	FEventsEnabled := True; // Default to enabled
 
 	// Create pnlMain programmatically
 	pnlMain := TPanel.Create(Self);
@@ -154,19 +146,29 @@ end;
 
 procedure TRgOptionsPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
 begin
-
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRgOptionsPanel.onCheckOptionSelect');
+	
+	if not FEventsEnabled then begin
+		dbgMsg.MsgFmt('Events for idx:%d disabled, exiting', [_item.OrderIndex]);
+		Exit;
+	end;
+	
 	// Handle the functionality that was previously in the individual event handlers
 	case _item.OrderIndex of
 		RG_OPTION_HIDDEN_INDEX : begin
 			FSettings.SearchFormSettings.Hidden := _item.Checked;
+			dbgMsg.Msg('Hidden option changed to: ' + BoolToStr(FSettings.SearchFormSettings.Hidden));
 		end;
 		RG_OPTION_NO_IGNORE_INDEX : begin
 			FSettings.SearchFormSettings.NoIgnore := _item.Checked;
+			dbgMsg.Msg('NoIgnore option changed to: ' + BoolToStr(FSettings.SearchFormSettings.NoIgnore));
 		end;
 		RG_OPTION_ENCODING_INDEX : begin
 			if Assigned(_item.ComboBox) then begin
 				_item.ComboBox.Enabled := _item.Checked;
 				FSettings.SearchFormSettings.Encoding := IfThen(_item.ComboBox.Enabled, _item.ComboBox.Text);
+				dbgMsg.Msg('Encoding option changed to: ' + FSettings.SearchFormSettings.Encoding);
 			end;
 		end;
 	end;
@@ -174,73 +176,6 @@ begin
 	// Fire change event
 	if Assigned(FOnOptionChange) then begin
 		FOnOptionChange(Self, _item);
-	end;
-end;
-
-function TRgOptionsPanel.getSelectedItems() : TArray<TCustomCheckItem>;
-begin
-	Result := FCheckOptionsGroup.SelectedItems;
-end;
-
-function TRgOptionsPanel.GetHiddenOption : Boolean;
-begin
-	Result := False;
-	if FCheckOptionsGroup.Items.Count > 0 then begin
-		Result := FCheckOptionsGroup.Items[0].Checked;
-	end;
-end;
-
-function TRgOptionsPanel.GetNoIgnoreOption : Boolean;
-begin
-	Result := False;
-	if FCheckOptionsGroup.Items.Count > RG_OPTION_NO_IGNORE_INDEX then begin
-		Result := FCheckOptionsGroup.Items[RG_OPTION_NO_IGNORE_INDEX].Checked;
-	end;
-end;
-
-function TRgOptionsPanel.GetEncodingOption : Boolean;
-begin
-	Result := False;
-	if FCheckOptionsGroup.Items.Count > RG_OPTION_ENCODING_INDEX then begin
-		Result := FCheckOptionsGroup.Items[RG_OPTION_ENCODING_INDEX].Checked;
-	end;
-end;
-
-function TRgOptionsPanel.GetEncodingValue : string;
-begin
-	Result := '';
-	if (FCheckOptionsGroup.Items.Count > RG_OPTION_ENCODING_INDEX) and Assigned(FCheckOptionsGroup.Items[RG_OPTION_ENCODING_INDEX].ComboBox)
-	then begin
-		Result := FCheckOptionsGroup.Items[RG_OPTION_ENCODING_INDEX].ComboBox.Text;
-	end;
-end;
-
-procedure TRgOptionsPanel.SetHiddenOption(const _value : Boolean);
-begin
-	if FCheckOptionsGroup.Items.Count > RG_OPTION_HIDDEN_INDEX then begin
-		FCheckOptionsGroup.Items[RG_OPTION_HIDDEN_INDEX].Checked := _value;
-	end;
-end;
-
-procedure TRgOptionsPanel.SetNoIgnoreOption(const _value : Boolean);
-begin
-	if FCheckOptionsGroup.Items.Count > RG_OPTION_NO_IGNORE_INDEX then begin
-		FCheckOptionsGroup.Items[RG_OPTION_NO_IGNORE_INDEX].Checked := _value;
-	end;
-end;
-
-procedure TRgOptionsPanel.SetEncodingOption(const _value : Boolean);
-begin
-	if FCheckOptionsGroup.Items.Count > RG_OPTION_ENCODING_INDEX then begin
-		FCheckOptionsGroup.Items[RG_OPTION_ENCODING_INDEX].Checked := _value;
-	end;
-end;
-
-procedure TRgOptionsPanel.SetEncodingValue(const _value : string);
-begin
-	if (FCheckOptionsGroup.Items.Count > RG_OPTION_ENCODING_INDEX) and Assigned(FCheckOptionsGroup.Items[RG_OPTION_ENCODING_INDEX].ComboBox)
-	then begin
-		FCheckOptionsGroup.Items[RG_OPTION_ENCODING_INDEX].ComboBox.Text := _value;
 	end;
 end;
 
