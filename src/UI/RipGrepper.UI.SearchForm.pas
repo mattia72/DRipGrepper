@@ -160,7 +160,6 @@ type
 			FbExtensionOptionsSkipClick : Boolean;
 			FCbClickEventEnabled : Boolean;
 			FMemoTextFormat : EMemoTextFormat;
-			FOptionsFiltersOrigHeight : Integer;
 			FOptionsOutputOrigTop : Integer;
 			FpnlMiddleOrigHeight : Integer;
 			FOrigSearchFormSettings : TSearchFormSettings;
@@ -209,7 +208,7 @@ type
 			procedure OnRgOptionsPanelItemSelect(Sender : TObject; Item : TCustomCheckItem);
 			procedure OnEncodingComboBoxChange(Sender : TObject);
 			procedure UpdateFileMasksInHistObjRgOptions; overload;
-			procedure UpdateHeight;
+			procedure AdjustHeight();
 			procedure UpdateRbExtensionItemIndex(const _dic : EDelphiIDESearchContext);
 			function ValidateRegex : Boolean;
 			procedure WriteOptionCtrlToProxy;
@@ -218,6 +217,7 @@ type
 			procedure SetCmbSearchTextText(const _sText : string);
 			procedure SetCmbSearchTextAutoComplete(const _Value : Boolean);
 			procedure UpdateMemoTextFormat();
+			function getOptionsAndFiltersHeight(const _bWithLabel : Boolean) : integer;
 
 		protected
 			procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;
@@ -292,6 +292,7 @@ begin
 	optionsGroup := FRgOptionsPanel.CheckOptionsGroup;
 	FRgOptionsPanel.OnOptionChange := OnRgOptionsPanelItemSelect;
 	optionsGroup.Items[RG_OPTION_ENCODING_INDEX].ComboBox.OnChange := OnEncodingComboBoxChange;
+	FRgOptionsPanel.AdjustHeight();
 
 	cbRgParamHidden := optionsGroup.Items[RG_OPTION_HIDDEN_INDEX].CheckBox;
 	cbRgParamNoIgnore := optionsGroup.Items[RG_OPTION_NO_IGNORE_INDEX].CheckBox;
@@ -538,7 +539,7 @@ begin
 
 		// Active Monitor
 		ScaleBy(TRipGrepperDpiScaler.GetActualDPI, self.PixelsPerInch);
-		UpdateHeight;
+		AdjustHeight;
 
 		ActiveControl := cmbSearchText;
 	finally
@@ -669,7 +670,7 @@ end;
 procedure TRipGrepperSearchDialogForm.ToggleExpertMode;
 begin
 	FSettings.AppSettings.ExpertMode := not FSettings.AppSettings.ExpertMode;
-	UpdateHeight();
+	AdjustHeight();
 end;
 
 function TRipGrepperSearchDialogForm.GetFullHeight(_ctrl : TControl) : integer;
@@ -1331,15 +1332,13 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetOrigHeights');
 
-	FOptionsFiltersOrigHeight := gbOptionsFilters.Height;
 	FExtensionContextFrameOrigHeight := FExtensionContextPanel.Height;
 	FOptionsOutputOrigTop := gbOptionsOutput.Top;
 	FpnlMiddleOrigHeight := pnlMiddle.Height;
 	FTopPanelOrigHeight := pnlTop.Height;
 	FOrigHeight := Height;
 
-	dbgMsg.MsgFmt('Captured heights - gbOptionsFilters: %d, pnlTop: %d, Form: %d', [FOptionsFiltersOrigHeight, FTopPanelOrigHeight,
-		FOrigHeight]);
+	dbgMsg.MsgFmt('Captured heights - pnlTop: %d, Form: %d', [FTopPanelOrigHeight, FOrigHeight]);
 end;
 
 class procedure TRipGrepperSearchDialogForm.SetReplaceText(_settings : TRipGrepperSettings; const _replaceText : string);
@@ -1402,7 +1401,7 @@ end;
 procedure TRipGrepperSearchDialogForm.TabControl1Change(Sender : TObject);
 begin
 	ShowReplaceCtrls(IsReplaceMode());
-	UpdateHeight;
+	AdjustHeight;
 	UpdateCtrls(TabControl1);
 end;
 
@@ -1467,10 +1466,10 @@ begin
 	FSettings.RipGrepParameters.FileMasks := cmbFileMasks.Text;
 end;
 
-procedure TRipGrepperSearchDialogForm.UpdateHeight;
+procedure TRipGrepperSearchDialogForm.AdjustHeight();
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateHeight');
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.AdjustHeight');
 	dbgMsg.Msg('Height=' + Height.ToString);
 
 	// Adjust top panel for replace text visibility
@@ -1500,14 +1499,12 @@ begin
 
 		// Adjust gbOptionsFilters to accommodate the frame properly
 		// Calculate the required height for all content in gbOptionsFilters
-		var
-		requiredFilterHeight := GetFullHeight(lblPaths) + GetFullHeight(pnlPath) + GetFullHeight(pnlRgOptions) +
-			FExtensionContextPanel.Height + gbOptionsFilters.Padding.Top + gbOptionsFilters.Padding.Bottom;
-		gbOptionsFilters.Height := requiredFilterHeight;
+		gbOptionsFilters.Height := getOptionsAndFiltersHeight(False) + FExtensionContextPanel.Height;
 	end else begin
 		// Frame not visible, use original height
-		gbOptionsFilters.Height := FOptionsFiltersOrigHeight;
+		gbOptionsFilters.Height := getOptionsAndFiltersHeight(True);
 	end;
+	gbOptionsFilters.Height := gbOptionsFilters.Height + 10;
 	dbgMsg.Msg('gbOptionsFilters.Height=' + gbOptionsFilters.Height.ToString);
 
 	// Calculate and set form height
@@ -1602,7 +1599,7 @@ begin
 		dbgMsg.MsgFmt('FCtrlProxy.IsHiddenChecked=%s', [BoolToStr(FCtrlProxy.IsHiddenChecked, True)]);
 		cbRgParamHidden.Checked := FCtrlProxy.IsHiddenChecked;
 		dbgMsg.MsgFmt('cbRgParamHidden.Checked=%s', [BoolToStr(cbRgParamHidden.Checked, True)]);
-		
+
 		dbgMsg.MsgFmt('FCtrlProxy.IsNoIgnoreChecked=%s', [BoolToStr(FCtrlProxy.IsNoIgnoreChecked, True)]);
 		cbRgParamNoIgnore.Checked := FCtrlProxy.IsNoIgnoreChecked;
 		dbgMsg.MsgFmt('cbRgParamNoIgnore.Checked=%s', [BoolToStr(cbRgParamNoIgnore.Checked, True)]);
@@ -1631,6 +1628,15 @@ end;
 function TRipGrepperSearchDialogForm.GetMaxCountHistoryItems(const _arr : TArrayEx<string>) : TArrayEx<string>;
 begin
 	Result := _arr.GetRange(0, MAX_HISTORY_COUNT); // .GetReversedRange();
+end;
+
+function TRipGrepperSearchDialogForm.getOptionsAndFiltersHeight(const _bWithLabel : Boolean) : integer;
+begin
+	Result := IfThen(_bWithLabel, GetFullHeight(lblPaths)) +
+	{ } GetFullHeight(pnlPath) +
+	{ } GetFullHeight(pnlRgOptions) +
+	{ } gbOptionsFilters.Padding.Top +
+	{ } gbOptionsFilters.Padding.Bottom;
 end;
 
 procedure TRipGrepperSearchDialogForm.LoadOldHistorySearchSettings;

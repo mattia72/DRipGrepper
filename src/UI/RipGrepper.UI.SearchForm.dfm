@@ -425,7 +425,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Left = 2
         Top = 128
         Width = 626
-        Height = 28
+        Height = 35
         Align = alTop
         BevelOuter = bvNone
         Padding.Left = 8
