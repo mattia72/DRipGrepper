@@ -202,7 +202,6 @@ type
 	end;
 
 	TSettingFactory = class(TObject)
-		private
 		public
 			class function CreateSetting(const settingType : TSettingType) : ISetting;
 	end;
