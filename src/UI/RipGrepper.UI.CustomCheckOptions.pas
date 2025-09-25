@@ -30,7 +30,7 @@ type
 			function getChecked() : Boolean;
 			procedure setCaption(const _value : string);
 			procedure setOrderIndex(const _value : Integer);
-			procedure SetTagObject(const Value : IInterface);
+			procedure setTagObject(const Value : IInterface);
 			procedure setChecked(const _value : Boolean);
 			procedure setHasComboBox(const _value : Boolean);
 			procedure setComboBoxItems(const _value : TStringList);
@@ -44,7 +44,7 @@ type
 			property ComboBoxItems : TStringList read FComboBoxItems write setComboBoxItems;
 			property Caption : string read FCaption write setCaption;
 			property OrderIndex : Integer read FOrderIndex write setOrderIndex;
-			property TagObject : IInterface read FTagObject write SetTagObject;
+			property TagObject : IInterface read FTagObject write setTagObject;
 			property Checked : Boolean read getChecked write setChecked;
 			property HasComboBox : Boolean read FHasComboBox write setHasComboBox;
 	end;
@@ -100,6 +100,7 @@ type
 			function getSelectedItems : TArray<TCustomCheckItem>;
 
 		protected
+
 			procedure ArrangeItems; override;
 
 		public
@@ -210,7 +211,7 @@ begin
 	end;
 end;
 
-procedure TCustomCheckItem.SetTagObject(const Value : IInterface);
+procedure TCustomCheckItem.setTagObject(const Value : IInterface);
 begin
 	FTagObject := Value;
 
