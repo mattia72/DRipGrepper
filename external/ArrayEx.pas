@@ -820,11 +820,11 @@ end;
 
 function TArrayEx<T>.InsertUnique(const Index : Integer; const AItem : T) : boolean;
 begin
-	Result := not contains(AItem);
+	Result := not Contains(AItem);
 	if Result then begin
 		Insert(index, AItem);
 	end else begin
-		Remove(AItem);
+		RemoveAll(AItem);
 		Insert(index, AItem);
 	end;
 end;
