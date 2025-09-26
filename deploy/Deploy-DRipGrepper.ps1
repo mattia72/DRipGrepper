@@ -15,6 +15,9 @@ param (
     [string] $TestRepo = ""         # Test repository override
 )
 
+# Stop script execution on any error
+$ErrorActionPreference = "Stop"
+
 Import-Module -Name "$PSScriptRoot\GitHubReleaseUtils.ps1" -Force
     
 # - Update Readme.md 
@@ -62,6 +65,7 @@ $global:headers = @{
     Authorization          = "Bearer $global:Token"
     "X-GitHub-Api-Version" = "2022-11-28"
 }
+
 function Get-DelphiName {
     param (
         [string]$versionNumber
@@ -243,9 +247,9 @@ function Build-StandaloneRelease {
     $projectPath = Get-ProjectPath "src\Project" ""
     $result = $null
     Build-DelphiProject -ProjectPath $projectPath\DRipGrepper.dproj -BuildConfig $BuildConfig -Platform "Win32" -StopOnFirstFailure -CountResult -Result ([ref]$result)
-    Test-BuildResult -result $result
+    Test-BuildResult -Result $result
     Build-DelphiProject -ProjectPath $projectPath\DRipGrepper.dproj -BuildConfig $BuildConfig -Platform "Win64" -StopOnFirstFailure -CountResult -Result ([ref]$result)
-    Test-BuildResult -result $result    
+    Test-BuildResult -Result $result    
 }
 
 function Build-Unittest {
@@ -258,7 +262,7 @@ function Build-Unittest {
     $latestVersion = Get-LastInstalledDelphiVersion
     $latestVersion = $latestVersion.Data.Dir -replace "Delphi", "D"
     Build-DelphiProject -ProjectPath $unittestPath\DRipGrepperUnittest.$latestVersion.dproj -BuildConfig $BuildConfig -StopOnFirstFailure -CountResult -Result ([ref]$result)
-    Test-BuildResult -result $result    
+    Test-BuildResult -Result $result    
     
     Write-Host "Unit test build completed successfully!" -ForegroundColor Green
     return $result
@@ -299,8 +303,8 @@ function Build-BplExtensionRelease {
     Import-Module -Name PSDelphi -Force
     $projectPath = Get-ProjectPath "Extension\src\Project" "Bpl."
     $result = $null
-    Build-DelphiProject -ProjectPath $projectPath\DRipExtension.dproj -BuildConfig $BuildConfig -StopOnFirstFailure -CountResult -Result ([ref]$result) `
-        Test-BuildResult -result $result
+    Build-DelphiProject -ProjectPath $projectPath\DRipExtension.dproj -BuildConfig $BuildConfig -StopOnFirstFailure -CountResult -Result ([ref]$result)
+    Test-BuildResult -Result $result
 }
 
 function Build-ExpertDllRelease {
@@ -315,7 +319,7 @@ function Build-ExpertDllRelease {
     # see https://docwiki.embarcadero.com/Libraries/Athens/en/DesignIntf
     Build-DelphiProject -ProjectPath $projectPath\$dllProjName -BuildConfig $BuildConfig `
         -AddMsBuildParameters "/p:mapfile=Detailed;DCC_MapFile=3" -StopOnFirstFailure -CountResult -Result ([ref]$result)
-    Test-BuildResult -result $result
+    Test-BuildResult -Result $result
 }
 
 function Add-ToAssetsDir {
