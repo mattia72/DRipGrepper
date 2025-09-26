@@ -1429,7 +1429,13 @@ begin
 		var
 		dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange');
 		cmbSearchDir.Enabled := False;
-		FCtrlProxy.ExtensionContext := _icv.GetContextType();
+		if _icv.GetContextType() = dicNotSet then begin
+			dbgMsg.WarningMsgFmt('Extension IDE Context not supported :%d. fallback to custom locations:',
+				[Ord(FCtrlProxy.ExtensionContext)]);
+			FCtrlProxy.ExtensionContext := EDelphiIDESearchContext.dicCustomLocation;
+		end else begin
+			FCtrlProxy.ExtensionContext := _icv.GetContextType();
+		end;
 		contextValue := _icv.GetValue();
 		dbgMsg.MsgFmt('ExtensionContext=%d, Value=%s', [Ord(FCtrlProxy.ExtensionContext), contextValue]);
 		case FCtrlProxy.ExtensionContext of
@@ -1447,10 +1453,8 @@ begin
 				SetComboItemsAndText(cmbSearchDir, FCtrlProxy.SearchPath, FSettings.SearchPathsHistory.Value);
 				UpdateExtensionOptionsHint(FCtrlProxy.SearchPath);
 			end
-			else begin
-				raise Exception.Create('Extension IDE Context not supported');
-			end;
 		end;
+
 		FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
 		var
 			dic : TDelphiIDEContext;
