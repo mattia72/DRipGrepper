@@ -117,7 +117,8 @@ uses
   RipGrepper.UI.SearchForm.CtrlValueProxy in '..\..\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas',
   RipGrepper.UI.HistoryButtonedEdit in '..\..\UI\RipGrepper.UI.HistoryButtonedEdit.pas',
   RipGrepper.UI.CustomRadioOptions in '..\..\UI\RipGrepper.UI.CustomRadioOptions.pas',
-  RipGrepper.UI.CustomCheckOptions in '..\..\UI\RipGrepper.UI.CustomCheckOptions.pas';
+  RipGrepper.UI.CustomCheckOptions in '..\..\UI\RipGrepper.UI.CustomCheckOptions.pas',
+  RipGrepper.UI.RgOptionsPanel in '..\..\UI\RipGrepper.UI.RgOptionsPanel.pas';
 
 {$R *.res}
 

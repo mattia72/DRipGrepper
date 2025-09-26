@@ -155,16 +155,16 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.13.0.192;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>192</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.13.0.196;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>196</VerInfo_Build>
         <VerInfo_MinorVer>13</VerInfo_MinorVer>
         <VerInfo_Release>0</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.13.0.190;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>190</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.13.0.194;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>194</VerInfo_Build>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_MinorVer>13</VerInfo_MinorVer>
@@ -323,6 +323,7 @@
         <DCCReference Include="..\..\UI\RipGrepper.UI.HistoryButtonedEdit.pas"/>
         <DCCReference Include="..\..\UI\RipGrepper.UI.CustomRadioOptions.pas"/>
         <DCCReference Include="..\..\UI\RipGrepper.UI.CustomCheckOptions.pas"/>
+        <DCCReference Include="..\..\UI\RipGrepper.UI.RgOptionsPanel.pas"/>
         <RcItem Include="..\..\..\LICENSE">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>
