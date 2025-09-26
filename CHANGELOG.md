@@ -8,8 +8,12 @@
 - **extension**: New search context choice: `Project Files Directories` (all dirs of all project files)
 - Unittests for TArrayEx.GetFirstMatchIndex
 
+### 🔄 Changed
+- Searchform layout improvements
+
 ### 🐞 Fixed
 - Large gap between "Search in" and "Output" group boxes in search form (#26)
+- After expert mode is switched off search context could be invalid
 
 ## [v4.12.0-beta] - 2025-08-07
 
