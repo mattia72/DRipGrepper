@@ -28,19 +28,17 @@ type
 			class constructor Create;
 			class destructor Destroy;
 			class function AddToImageList(const _resourceName : string) : Integer;
-			class procedure DoDripGrepperMenuClick(Sender : TObject);
-			class procedure DoOpenWithMenuClick(Sender : TObject);
-			class procedure DoSettingsMenuClick(Sender : TObject);
-			class procedure DripMenuClick(Sender : TObject);
+			class procedure doDripGrepperMenuClick(Sender : TObject);
+			class procedure doOpenWithMenuClick(Sender : TObject);
+			class procedure doSettingsMenuClick(Sender : TObject);
+			class procedure dripMenuClick(Sender : TObject);
 			class procedure RemoveExtensionMenu;
 			class procedure ShowDripGrepperForm;
 			class procedure ShowSettingsForm;
-
-		private
-			class function CreateActions(_extSettings : TRipGrepperExtensionSettings) : TArrayEx<TAction>;
-			class function CreateMenuFromActions(_actions : TArrayEx<TAction>) : TArrayEx<TMenuItem>;
-			class procedure AddActionsToIdeToolbar(_actions : TArrayEx<TAction>);
-			class procedure InsertIntoToolsMenu(_submenu : TMenuItem);
+			class function createActions(_extSettings : TRipGrepperExtensionSettings) : TArrayEx<TAction>;
+			class function createMenuFromActions(_actions : TArrayEx<TAction>) : TArrayEx<TMenuItem>;
+			class procedure addActionsToIdeToolbar(_actions : TArrayEx<TAction>);
+			class procedure insertIntoToolsMenu(_submenu : TMenuItem);
 
 		public
 			class procedure CreateMenu(const _sMenuText : string; settings : TRipGrepperSettings);
@@ -130,58 +128,57 @@ begin
 	dbgMsg.Msg('LoadFromDict');
 	extSettings.LoadFromDict();
 
-    var i := AddToImageList('splash_icon');
 	// First create actions
-	actionArr := CreateActions(extSettings);
+	actionArr := createActions(extSettings);
 
 	// Then create menu items from actions
-	dripMenuArr := CreateMenuFromActions(actionArr);
+	dripMenuArr := createMenuFromActions(actionArr);
 	dbgMsg.MsgFmt('Vcl.Menus.NewSubMenu %s', [_sMenuText]);
 	G_DripMenu := Vcl.Menus.NewSubMenu(_sMenuText, 0, DRIP_MENUITEM_NAME, dripMenuArr.Items);
-	G_DripMenu.ImageIndex := i; //AddToImageList('splash_icon');
+	G_DripMenu.ImageIndex := AddToImageList('splash_icon');
 	dbgMsg.MsgFmt('G_DripMenu Name %s ImageIndex %d', [G_DripMenu.Name, G_DripMenu.ImageIndex]);
-	G_DripMenu.OnClick := DripMenuClick;
-	InsertIntoToolsMenu(G_DripMenu);
+	G_DripMenu.OnClick := dripMenuClick;
+	insertIntoToolsMenu(G_DripMenu);
 
 	// Add actions to IDE toolbar
-	AddActionsToIdeToolbar(actionArr);
+	addActionsToIdeToolbar(actionArr);
 
 end;
 
-class procedure TDripExtensionMenu.DoDripGrepperMenuClick(Sender : TObject);
+class procedure TDripExtensionMenu.doDripGrepperMenuClick(Sender : TObject);
 begin
 	ShowDripGrepperForm;
 end;
 
-class procedure TDripExtensionMenu.DoOpenWithMenuClick(Sender : TObject);
+class procedure TDripExtensionMenu.doOpenWithMenuClick(Sender : TObject);
 var
 	owp : TOpenWithParams;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.DoOpenWithMenuClick');
+	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.doOpenWithMenuClick');
 	owp := TOpenWithParams.GetParamsOfActiveFileInDelphiIde();
 
 	if owp.IsEmpty then begin
 		Exit;
 	end;
 
-	dbgMsg.MsgFmt('TDripExtensionMenu.DoOpenWithMenuClick %s', [owp.ToString]);
+	dbgMsg.MsgFmt('TDripExtensionMenu.doOpenWithMenuClick %s', [owp.ToString]);
 
 	TOpenWith.Execute(owp);
 
 end;
 
-class procedure TDripExtensionMenu.DoSettingsMenuClick(Sender : TObject);
+class procedure TDripExtensionMenu.doSettingsMenuClick(Sender : TObject);
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.DoSettingsMenuClick');
+	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.doSettingsMenuClick');
 	ShowSettingsForm;
 end;
 
-class procedure TDripExtensionMenu.DripMenuClick(Sender : TObject);
+class procedure TDripExtensionMenu.dripMenuClick(Sender : TObject);
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.DripMenuClick');
+	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.dripMenuClick');
 	var
 	bEnabled := Assigned(IOTAUtils.GxOtaGetCurrentProject());
 	G_DripMenu.Items[0].Enabled := bEnabled;
@@ -238,99 +235,100 @@ begin
 	end;
 end;
 
-class function TDripExtensionMenu.CreateActions(_extSettings : TRipGrepperExtensionSettings) : TArrayEx<TAction>;
+class function TDripExtensionMenu.createActions(_extSettings : TRipGrepperExtensionSettings) : TArrayEx<TAction>;
 var
-	Action : TAction;
+	action : TAction;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.CreateActions');
+	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.createActions');
 
-	// Create Open With Action
-	Action := TAction.Create(Application.MainForm);
-	Action.Name := 'DRipGrepperOpenWithAction';
-	Action.Caption := 'Open With';
-	Action.Hint := 'Open current file with external application';
-	Action.Category := 'DRipGrepper';
-	Action.ShortCut := TextToShortcut(_extSettings.OpenWithShortcut);
-	Action.OnExecute := DoOpenWithMenuClick;
-	Action.ImageIndex := AddToImageList('openwith_icon');
-	Result.Add(Action);
-	dbgMsg.MsgFmt('Created Open With action with ImageIndex %d', [Action.ImageIndex]);
+	// Create Open With action
+	action := TAction.Create(Application.MainForm);
+	action.Name := 'DRipGrepperOpenWithAction';
+	action.Caption := 'Open With';
+	action.Hint := 'Open current file with external application';
+	action.Category := 'DRipGrepper';
+	action.ShortCut := TextToShortcut(_extSettings.OpenWithShortcut);
+	action.OnExecute := doOpenWithMenuClick;
+	action.ImageIndex := AddToImageList('openwith_icon');
+	Result.Add(action);
+	dbgMsg.MsgFmt('Created Open With action with ImageIndex %d', [action.ImageIndex]);
 
-	// Create DripGrepper Search Action
-	Action := TAction.Create(Application.MainForm);
-	Action.Name := 'DRipGrepperSearchAction';
-	Action.Caption := 'Search with DripGrepper';
-	Action.Hint := 'Search in project files using DripGrepper';
-	Action.Category := 'DRipGrepper';
-	Action.ShortCut := TextToShortcut(_extSettings.SearchSelectedShortcut);
-	Action.OnExecute := DoDripGrepperMenuClick;
-	Action.ImageIndex := AddToImageList('dripgrepper_icon');
-	Result.Add(Action);
-	dbgMsg.MsgFmt('Created Search action with ImageIndex %d', [Action.ImageIndex]);
+	// Create DripGrepper Search action
+	action := TAction.Create(Application.MainForm);
+	action.Name := 'DRipGrepperSearchAction';
+	action.Caption := 'Search with DripGrepper';
+	action.Hint := 'Search in project files using DripGrepper';
+	action.Category := 'DRipGrepper';
+	action.ShortCut := TextToShortcut(_extSettings.SearchSelectedShortcut);
+	action.OnExecute := doDripGrepperMenuClick;
+	action.ImageIndex := AddToImageList('dripgrepper_icon');
+	Result.Add(action);
+	dbgMsg.MsgFmt('Created Search action with ImageIndex %d', [action.ImageIndex]);
 
-	// Create Settings Action
-	Action := TAction.Create(Application.MainForm);
-	Action.Name := 'DRipGrepperSettingsAction';
-	Action.Caption := 'DripGrepper Settings';
-	Action.Hint := 'Configure DripGrepper settings';
-	Action.Category := 'DRipGrepper';
-	Action.ShortCut := TextToShortcut(_extSettings.SettingsShortcut);
-	Action.OnExecute := DoSettingsMenuClick;
-	Action.ImageIndex := AddToImageList('settings_icon');
-	Result.Add(Action);
-	dbgMsg.MsgFmt('Created Settings action with ImageIndex %d', [Action.ImageIndex]);
+	// Create Settings action
+	action := TAction.Create(Application.MainForm);
+	action.Name := 'DRipGrepperSettingsAction';
+	action.Caption := 'DripGrepper Settings';
+	action.Hint := 'Configure DripGrepper settings';
+	action.Category := 'DRipGrepper';
+	action.ShortCut := TextToShortcut(_extSettings.SettingsShortcut);
+	action.OnExecute := doSettingsMenuClick;
+	action.ImageIndex := AddToImageList('settings_icon');
+	Result.Add(action);
+	dbgMsg.MsgFmt('Created Settings action with ImageIndex %d', [action.ImageIndex]);
 end;
 
-class function TDripExtensionMenu.CreateMenuFromActions(_actions : TArrayEx<TAction>) : TArrayEx<TMenuItem>;
+class function TDripExtensionMenu.createMenuFromActions(_actions : TArrayEx<TAction>) : TArrayEx<TMenuItem>;
 var
-	Action : TAction;
-	MenuItem : TMenuItem;
+	action : TAction;
+	menuItem : TMenuItem;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.CreateMenuFromActions');
+	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.createMenuFromActions');
 
 	for var i := 0 to _actions.Count - 1 do begin
-		Action := _actions[i];
+		action := _actions[i];
 
 		// Create menu item from action
-		MenuItem := TMenuItem.Create(Application.MainForm);
-		MenuItem.Name := Action.Name + '_MenuItem';
-		MenuItem.Caption := Action.Caption;
-		MenuItem.Hint := Action.Hint;
-		MenuItem.ImageIndex := Action.ImageIndex;
-		MenuItem.OnClick := Action.OnExecute;
+		menuItem := TMenuItem.Create(Application.MainForm);
+		menuItem.Name := action.Name + '_MenuItem';
+		menuItem.Caption := action.Caption;
+		menuItem.Hint := action.Hint;
+		menuItem.ShortCut := action.ShortCut;
+		menuItem.ImageIndex := action.ImageIndex;
+		menuItem.OnClick := action.OnExecute;
 
-		Result.Add(MenuItem);
-		dbgMsg.MsgFmt('Created menu item %s with ImageIndex %d', [MenuItem.Caption, MenuItem.ImageIndex]);
+		Result.Add(menuItem);
+		dbgMsg.MsgFmt('Created menu item %s with ImageIndex %d', [menuItem.Caption, menuItem.ImageIndex]);
 
-		// Add separator after Open With (index 1)
-		if i = 1 then begin
+		// Add separator before last settings menu
+		if i = _actions.Count - 2 then begin
 			Result.Add(Vcl.Menus.NewLine);
 			dbgMsg.Msg('Added separator after Open With');
 		end;
 	end;
 end;
 
-class procedure TDripExtensionMenu.AddActionsToIdeToolbar(_actions : TArrayEx<TAction>);
+class procedure TDripExtensionMenu.addActionsToIdeToolbar(_actions : TArrayEx<TAction>);
 var
 	NTAServices : INTAServices;
-	ActionList : TCustomActionList;
-	Action : TAction;
+	actionList : TCustomActionList;
+	action : TAction;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.AddActionsToIdeToolbar');
+	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.addActionsToIdeToolbar');
 
 	// Get IDE services for toolbar integration
 	if Supports(BorlandIDEServices, INTAServices, NTAServices) then begin
-		ActionList := NTAServices.ActionList;
-		dbgMsg.Msg('Got IDE ActionList');
+		actionList := NTAServices.actionList;
+		dbgMsg.Msg('Got IDE actionList');
 
 		try
 			for var i := 0 to _actions.Count - 1 do begin
-				Action := _actions[i];
-				Action.ActionList := ActionList;
-				dbgMsg.MsgFmt('Added %s to IDE ActionList with ImageIndex %d', [Action.Caption, Action.ImageIndex]);
+				action := _actions[i];
+				action.actionList := actionList;
+				dbgMsg.MsgFmt('Added %s to IDE actionList with ImageIndex %d', [action.Caption, action.ImageIndex]);
 			end;
 
 			dbgMsg.Msg('All actions added to IDE - they should now appear in Tools > Customize');
@@ -343,13 +341,13 @@ begin
 	end;
 end;
 
-class procedure TDripExtensionMenu.InsertIntoToolsMenu(_submenu : TMenuItem);
+class procedure TDripExtensionMenu.insertIntoToolsMenu(_submenu : TMenuItem);
 var
 	menuItem : TMenuItem;
 	iPos : integer;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.InsertIntoToolsMenu');
+	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.insertIntoToolsMenu');
 
 	menuItem := IOTAUtils.FindMenuItem(IDE_TOOLSMENU);
 	if menuItem <> nil then begin
