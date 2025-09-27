@@ -62,7 +62,7 @@
         <DCC_Define>NO_TRANSLATION;NO_TRANSLATION_HINT;NO_OPTIMIZE_DZ_GRAPHIC_UTILS_HINT;UnicodeRE;EnableIdeDockingSupport;$(DCC_Define)</DCC_Define>
         <DCC_UnitAlias>GX_IdeDockStandAlone=GX_IdeDock;SynRegExpr=RegExprReplaceUnit;$(DCC_UnitAlias)</DCC_UnitAlias>
         <VerInfo_Locale>1031</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=4.12.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.12.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=4.14.0.360;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.14.0;Comments=beta</VerInfo_Keys>
         <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
         <DCC_AdditionalSwitches>-LUDesignIDE</DCC_AdditionalSwitches>
         <UsePackages>true</UsePackages>
@@ -74,9 +74,9 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_UsePackage>rtl;vcl;designide;$(DCC_UsePackage)</DCC_UsePackage>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.13.0.360;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.14.0.360;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.14.0;Comments=beta</VerInfo_Keys>
         <VerInfo_Build>360</VerInfo_Build>
-        <VerInfo_MinorVer>13</VerInfo_MinorVer>
+        <VerInfo_MinorVer>14</VerInfo_MinorVer>
         <UsePackages>true</UsePackages>
         <Manifest_File>(None)</Manifest_File>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
@@ -103,11 +103,11 @@
         <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\23.0\bin\bds.exe</Debugger_HostApplication>
         <DCC_ShowGeneralMessages>true</DCC_ShowGeneralMessages>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.13.0.360;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.14.0.360;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.14.0;Comments=beta</VerInfo_Keys>
         <VerInfo_Build>360</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <Manifest_File>..\Delphi12\(None)</Manifest_File>
-        <VerInfo_MinorVer>13</VerInfo_MinorVer>
+        <VerInfo_MinorVer>14</VerInfo_MinorVer>
         <UsePackages>true</UsePackages>
         <VerInfo_Release>0</VerInfo_Release>
     </PropertyGroup>
@@ -121,11 +121,11 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.13.0.373;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>373</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.14.0.396;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.14.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>396</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <DCC_Description>RipGrep Search within Delphi</DCC_Description>
-        <VerInfo_MinorVer>13</VerInfo_MinorVer>
+        <VerInfo_MinorVer>14</VerInfo_MinorVer>
         <DCC_MapFile>3</DCC_MapFile>
         <BRCC_CompilerToUse>rc</BRCC_CompilerToUse>
         <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\23.0\bin\bds.exe</Debugger_HostApplication>

@@ -4,8 +4,8 @@
         <ProjectVersion>20.1</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <Config Condition="'$(Config)'==''">Release</Config>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
         <MainSource>DRipGrepper.dpr</MainSource>
@@ -75,7 +75,7 @@
         <DCC_UnitSearchPath>..\..\..\..\FastMM4;..\..\..\external\GExpert;..\..\..\external\dzlib;$(BDS)\source\ToolsAPI;..\..\..\external\UniSynEdit;..\..\..\external\RegExpr;..\..\..\Extension\src;..\..\..\..\spring4d\Library\Delphi12\$(Platform)\$(Config);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_UnitAlias>GX_IdeDockStandAlone=GX_IdeDock;SynRegExpr=RegExprReplaceUnit;$(DCC_UnitAlias)</DCC_UnitAlias>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.12.0.1;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.12.0</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.14.0.317;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.14.0</VerInfo_Keys>
         <Custom_Styles>Windows10|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows10.vsf;&quot;Windows10 Dark|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows10Dark.vsf&quot;;Carbon|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Carbon.vsf</Custom_Styles>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
@@ -83,7 +83,7 @@
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.13.0.317;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.14.0.317;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.14.0;Comments=beta</VerInfo_Keys>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
@@ -92,7 +92,7 @@
         <UWP_DelphiLogo44>icons\DripGrepperLogo.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>icons\DripGrepperLogo.png</UWP_DelphiLogo150>
         <VerInfo_Build>317</VerInfo_Build>
-        <VerInfo_MinorVer>13</VerInfo_MinorVer>
+        <VerInfo_MinorVer>14</VerInfo_MinorVer>
         <VerInfo_Release>0</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
@@ -100,14 +100,14 @@
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.13.0.317;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.14.0.317;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.14.0;Comments=beta</VerInfo_Keys>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
         <VerInfo_Build>317</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
         <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
-        <VerInfo_MinorVer>13</VerInfo_MinorVer>
+        <VerInfo_MinorVer>14</VerInfo_MinorVer>
         <VerInfo_Release>0</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
@@ -120,7 +120,7 @@
         <DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
         <DCC_RangeChecking>true</DCC_RangeChecking>
         <VerInfo_Locale>1031</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=4.12.0.35;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.12.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=4.14.0.317;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.14.0;Comments=beta</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
@@ -128,20 +128,20 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.13.0.317;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.14.0.317;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.14.0;Comments=beta</VerInfo_Keys>
         <DCC_DebugInfoInTds>true</DCC_DebugInfoInTds>
-        <VerInfo_Build>317</VerInfo_Build>
-        <VerInfo_MinorVer>13</VerInfo_MinorVer>
+        <VerInfo_Build>320</VerInfo_Build>
+        <VerInfo_MinorVer>14</VerInfo_MinorVer>
         <VerInfo_Release>0</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.13.0.332;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>332</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.14.0.317;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.14.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>344</VerInfo_Build>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <VerInfo_MinorVer>13</VerInfo_MinorVer>
+        <VerInfo_MinorVer>14</VerInfo_MinorVer>
         <Debugger_DebugSourcePath>C:\home\mata\dev\delphi\spring4d\Source\Base\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
         <UsePackages>true</UsePackages>
         <Icon_MainIcon>..\..\..\icons\DripGrepper.ico</Icon_MainIcon>
@@ -153,7 +153,7 @@
         <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
         <DCC_DebugInformation>0</DCC_DebugInformation>
         <VerInfo_Locale>1031</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=DRipGrepper;FileVersion=4.12.0.15;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.12.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=DRipGrepper;FileVersion=4.14.0.317;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.14.0;Comments=beta</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
@@ -162,18 +162,18 @@
         <UWP_DelphiLogo150>icons\DripGrepperLogo.png</UWP_DelphiLogo150>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.13.0.317;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.14.0.317;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.14.0;Comments=beta</VerInfo_Keys>
         <VerInfo_Build>317</VerInfo_Build>
         <Icon_MainIcon>..\..\..\images\icons\DripGrepper.ico</Icon_MainIcon>
-        <VerInfo_MinorVer>13</VerInfo_MinorVer>
+        <VerInfo_MinorVer>14</VerInfo_MinorVer>
         <VerInfo_Release>0</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.13.0.331;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.13.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>331</VerInfo_Build>
-        <VerInfo_MinorVer>13</VerInfo_MinorVer>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.14.0.334;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.14.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>334</VerInfo_Build>
+        <VerInfo_MinorVer>14</VerInfo_MinorVer>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <Icon_MainIcon>..\..\..\images\icons\DripGrepper.ico</Icon_MainIcon>

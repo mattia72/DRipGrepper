@@ -27,14 +27,14 @@ type
 			class var FSettings : TRipGrepperSettings;
 			class constructor Create;
 			class destructor Destroy;
-			class function AddToImageList(const _resourceName : string) : Integer;
+			class function addToImageList(const _resourceName : string): Integer;
 			class procedure doDripGrepperMenuClick(Sender : TObject);
 			class procedure doOpenWithMenuClick(Sender : TObject);
 			class procedure doSettingsMenuClick(Sender : TObject);
 			class procedure dripMenuClick(Sender : TObject);
-			class procedure RemoveExtensionMenu;
-			class procedure ShowDripGrepperForm;
-			class procedure ShowSettingsForm;
+			class procedure removeExtensionMenu();
+			class procedure showDripGrepperForm();
+			class procedure showSettingsForm();
 			class function createActions(_extSettings : TRipGrepperExtensionSettings) : TArrayEx<TAction>;
 			class function createMenuFromActions(_actions : TArrayEx<TAction>) : TArrayEx<TMenuItem>;
 			class procedure addActionsToIdeToolbar(_actions : TArrayEx<TAction>);
@@ -74,7 +74,8 @@ begin
 	FreeAndNil(G_DripMenu);
 end;
 
-class function TDripExtensionMenu.AddToImageList(const _resourceName : string) : Integer;
+class function TDripExtensionMenu.addToImageList(const _resourceName : string):
+	Integer;
 var
 	IconBmp : TBitmap;
 	Services : INTAServices;
@@ -82,7 +83,7 @@ var
 	dbgMsg : TDebugMsgBeginEnd;
 	TranspColor : TColor;
 begin
-	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.AddToImageList');
+	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.addToImageList');
 	IconBmp := TBitmap.Create;
 	try
 		IconBmp.LoadFromResourceName(hInstance, _resourceName);
@@ -119,7 +120,7 @@ var
 begin
 	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.CreateMenu');
 
-	RemoveExtensionMenu();
+	removeExtensionMenu();
 
 	FSettings := settings;
 	extSettings := settings.SearchFormSettings.ExtensionSettings;
@@ -135,7 +136,7 @@ begin
 	dripMenuArr := createMenuFromActions(actionArr);
 	dbgMsg.MsgFmt('Vcl.Menus.NewSubMenu %s', [_sMenuText]);
 	G_DripMenu := Vcl.Menus.NewSubMenu(_sMenuText, 0, DRIP_MENUITEM_NAME, dripMenuArr.Items);
-	G_DripMenu.ImageIndex := AddToImageList('splash_icon');
+	G_DripMenu.ImageIndex := addToImageList('splash_icon');
 	dbgMsg.MsgFmt('G_DripMenu Name %s ImageIndex %d', [G_DripMenu.Name, G_DripMenu.ImageIndex]);
 	G_DripMenu.OnClick := dripMenuClick;
 	insertIntoToolsMenu(G_DripMenu);
@@ -147,7 +148,7 @@ end;
 
 class procedure TDripExtensionMenu.doDripGrepperMenuClick(Sender : TObject);
 begin
-	ShowDripGrepperForm;
+	showDripGrepperForm;
 end;
 
 class procedure TDripExtensionMenu.doOpenWithMenuClick(Sender : TObject);
@@ -172,7 +173,7 @@ class procedure TDripExtensionMenu.doSettingsMenuClick(Sender : TObject);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.doSettingsMenuClick');
-	ShowSettingsForm;
+	showSettingsForm;
 end;
 
 class procedure TDripExtensionMenu.dripMenuClick(Sender : TObject);
@@ -194,13 +195,13 @@ begin
 	dbgMsg.MsgFmt('%s enabled = %s', [G_DripMenu.Items[3].Caption, BoolToStr(True, True)]);
 end;
 
-class procedure TDripExtensionMenu.RemoveExtensionMenu;
+class procedure TDripExtensionMenu.removeExtensionMenu();
 var
 	toolsMenu : TMenuItem;
 	dripMenuItem : TMenuItem;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.RemoveExtensionMenu');
+	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.removeExtensionMenu');
 
 	toolsMenu := IOTAUtils.FindInMainMenu(IDE_TOOLSMENU);
 	if toolsMenu <> nil then begin
@@ -217,15 +218,15 @@ begin
 
 end;
 
-class procedure TDripExtensionMenu.ShowDripGrepperForm;
+class procedure TDripExtensionMenu.showDripGrepperForm();
 begin
-	TDebugUtils.DebugMessage('TDripExtensionMenu.ShowDripGrepperForm');
+	TDebugUtils.DebugMessage('TDripExtensionMenu.showDripGrepperForm');
 	TRipGrepperDockableForm.ShowDockableFormAndSearch();
 end;
 
-class procedure TDripExtensionMenu.ShowSettingsForm;
+class procedure TDripExtensionMenu.showSettingsForm();
 begin
-	TDebugUtils.DebugMessage('TDripExtensionMenu.ShowSettingsForm');
+	TDebugUtils.DebugMessage('TDripExtensionMenu.showSettingsForm');
 	var
 	settingsForm := TConfigForm.Create(FSettings);
 	try
@@ -246,11 +247,11 @@ begin
 	action := TAction.Create(Application.MainForm);
 	action.Name := 'DRipGrepperOpenWithAction';
 	action.Caption := 'Open With';
-	action.Hint := 'Open current file with external application';
-	action.Category := 'DRipGrepper';
+	action.Hint := 'Open With';
+	action.Category := 'DRipExtensions';
 	action.ShortCut := TextToShortcut(_extSettings.OpenWithShortcut);
 	action.OnExecute := doOpenWithMenuClick;
-	action.ImageIndex := AddToImageList('openwith_icon');
+	action.ImageIndex := addToImageList('openwith_icon');
 	Result.Add(action);
 	dbgMsg.MsgFmt('Created Open With action with ImageIndex %d', [action.ImageIndex]);
 
@@ -258,23 +259,23 @@ begin
 	action := TAction.Create(Application.MainForm);
 	action.Name := 'DRipGrepperSearchAction';
 	action.Caption := 'Search with DripGrepper';
-	action.Hint := 'Search in project files using DripGrepper';
-	action.Category := 'DRipGrepper';
+	action.Hint := 'Search with DripGrepper';
+	action.Category := 'DRipExtensions';
 	action.ShortCut := TextToShortcut(_extSettings.SearchSelectedShortcut);
 	action.OnExecute := doDripGrepperMenuClick;
-	action.ImageIndex := AddToImageList('dripgrepper_icon');
+	action.ImageIndex := addToImageList('dripgrepper_icon');
 	Result.Add(action);
 	dbgMsg.MsgFmt('Created Search action with ImageIndex %d', [action.ImageIndex]);
 
 	// Create Settings action
 	action := TAction.Create(Application.MainForm);
 	action.Name := 'DRipGrepperSettingsAction';
-	action.Caption := 'DripGrepper Settings';
-	action.Hint := 'Configure DripGrepper settings';
-	action.Category := 'DRipGrepper';
+	action.Caption := 'Configure DRipExtensions';
+	action.Hint := 'Configure DRipExtensions';
+	action.Category := 'DRipExtensions';
 	action.ShortCut := TextToShortcut(_extSettings.SettingsShortcut);
 	action.OnExecute := doSettingsMenuClick;
-	action.ImageIndex := AddToImageList('settings_icon');
+	action.ImageIndex := addToImageList('settings_icon');
 	Result.Add(action);
 	dbgMsg.MsgFmt('Created Settings action with ImageIndex %d', [action.ImageIndex]);
 end;
