@@ -3,13 +3,14 @@
 ## [v4.14.0-beta] - 2025-09-27
 
 ### 💥 Added
-- `Open with...` and `Search with DripGrepper` can be called from IDE Toolbar buttons 
+- `Open with...` and `Search with DripGrepper` can be called from IDE Toolbar buttons.
+  The only caveat is that while toolbar customization in Delphi 12 the IDE doesn't show the right icons, only after restarting the IDE.
 
 ### 🔄 Changed
 - Version updated to 4.14.0
 
 ### 🐞 Fixed
-- 
+- Exception when saving settings: DRipExtensions_OpenWith_Action_MenuItem already exists. bereits.
 
 ## [v4.13.0-beta] - 2025-09-12
 
