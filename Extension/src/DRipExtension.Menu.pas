@@ -18,10 +18,11 @@ type
 	TDripExtensionMenu = class(TObject)
 		const
 			DRIP_EXTENSIONS = 'DRipExtensions';
-			DRIP_MENUITEM_NAME = DRIP_EXTENSIONS + '_MenuItem';
-			DRIP_MENUITEM_DRIPGREPPER_NAME = DRIP_EXTENSIONS + '_DripGrepper_MenuItem';
-			DRIP_MENUITEM_OPENWITH_NAME = DRIP_EXTENSIONS + '_OpenWith_MenuItem';
-			DRIP_MENUITEM_SETTINGS_NAME = DRIP_EXTENSIONS + '_Settings_MenuItem';
+			MENUITEM_POSTFIX = '_MenuItem';
+			DRIP_MENUITEM_NAME = DRIP_EXTENSIONS + MENUITEM_POSTFIX;
+			DRIP_MENUITEM_DRIPGREPPER_NAME = DRIP_EXTENSIONS + '_DripGrepper' + MENUITEM_POSTFIX;
+			DRIP_MENUITEM_OPENWITH_NAME = DRIP_EXTENSIONS + '_OpenWith' + MENUITEM_POSTFIX;
+			DRIP_MENUITEM_SETTINGS_NAME = DRIP_EXTENSIONS + '_Settings' + MENUITEM_POSTFIX;
 
 			ACTION_PREFIX = DRIP_EXTENSIONS + '_';
 			IDE_TOOLSMENU = 'ToolsMenu';
@@ -53,9 +54,9 @@ type
 			class function createMenuFromActions(_actions : TArrayEx<TAction>) : TArrayEx<TMenuItem>;
 			class procedure addActionsToIdeToolbar(_actions : TArrayEx<TAction>);
 			class procedure insertIntoToolsMenu(_submenu : TMenuItem);
-
-		private
 			class function addToImageList(const _resourceName : string) : Integer;
+			class procedure enableMenuItem(const _sName : string; const _bEnabled : Boolean);
+			class function getMenuItemIdxByName(const _sName : string) : integer;
 
 		public
 			class procedure CreateMenu(const _sMenuText : string; settings : TRipGrepperSettings);
@@ -73,7 +74,8 @@ uses
 	RipGrepper.OpenWith,
 	DripExtension.UI.DockableForm,
 	RipGrepper.UI.Settings.ConfigForm,
-	ToolsAPI;
+	ToolsAPI,
+	System.Generics.Defaults;
 
 var
 	G_DripMenu : TMenuItem;
@@ -197,22 +199,19 @@ begin
 end;
 
 class procedure TDripExtensionMenu.dripMenuClick(Sender : TObject);
+var
+	projPathGetter : IIdeProjectPathHelper;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.dripMenuClick');
-	var
-	bEnabled := Assigned(IOTAUtils.GxOtaGetCurrentProject());
-	G_DripMenu.Items[0].Enabled := bEnabled;
-	dbgMsg.MsgFmt('%s img=%d enabled=%s', [G_DripMenu.Items[0].Caption, G_DripMenu.Items[0].ImageIndex, BoolToStr(bEnabled, True)]);
-	var
-		projPathGetter : IIdeProjectPathHelper := TIdeProjectPathHelper.Create();
-	bEnabled := not projPathGetter.GetCurrentSourceFile.IsEmpty;
-	G_DripMenu.Items[1].Enabled := bEnabled;
-	dbgMsg.MsgFmt('%s enabled = %s', [G_DripMenu.Items[1].Caption, BoolToStr(bEnabled, True)]);
 
-	// Settings menu item is always enabled (index 3 because of separator at index 2)
-	G_DripMenu.Items[3].Enabled := True;
-	dbgMsg.MsgFmt('%s enabled = %s', [G_DripMenu.Items[3].Caption, BoolToStr(True, True)]);
+	enableMenuItem(DRIP_MENUITEM_DRIPGREPPER_NAME, Assigned(IOTAUtils.GxOtaGetCurrentProject()));
+
+	projPathGetter := TIdeProjectPathHelper.Create();
+	enableMenuItem(DRIP_MENUITEM_OPENWITH_NAME, not projPathGetter.GetCurrentSourceFile.IsEmpty);
+
+	// Settings menu item is always enabled
+	enableMenuItem(DRIP_MENUITEM_SETTINGS_NAME, True);
 end;
 
 class procedure TDripExtensionMenu.removeExtensionMenu();
@@ -334,7 +333,7 @@ begin
 
 		// Create menu item from action
 		menuItem := TMenuItem.Create(Application.MainForm);
-		menuItem.Name := action.Name + '_MenuItem';
+		menuItem.Name := string(action.Name).Replace(ACTION_POSTFIX, MENUITEM_POSTFIX);
 		menuItem.Caption := action.Caption;
 		menuItem.Hint := action.Hint;
 		menuItem.ShortCut := action.ShortCut;
@@ -381,6 +380,41 @@ begin
 		dbgMsg.ErrorMsg('Could not get INTAServices - toolbar integration not available');
 	end;
 end;
+
+class procedure TDripExtensionMenu.enableMenuItem(const _sName : string; const _bEnabled : Boolean);
+var
+	idx : integer;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.enableMenuItem');
+
+	idx := getMenuItemIdxByName(_sName);
+	if idx < FDripExtensionsMenuItems.Count then begin
+		FDripExtensionsMenuItems[idx].Enabled := _bEnabled;
+		dbgMsg.MsgFmt('%s idx=%d img=%d enabled=%s',
+			{ } [FDripExtensionsMenuItems[idx].Caption, idx, FDripExtensionsMenuItems[idx].ImageIndex, BoolToStr(_bEnabled, True)]);
+	end else begin
+		dbgMsg.MsgFmt('%s not found idx=%d ', [_sName, idx]);
+	end;
+end;
+
+class function TDripExtensionMenu.getMenuItemIdxByName(const _sName : string) : integer;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.getMenuItemIdxByName');
+	Result := -1;
+
+	for var i : Integer := 0 to FDripExtensionsMenuItems.Count - 1 do begin
+			dbgMsg.MsgFmt('Check %s at index %d', [FDripExtensionsMenuItems[i].Name, i]);
+		if SameText(FDripExtensionsMenuItems[i].Name, _sName) then begin
+			Result := i;
+			dbgMsg.MsgFmt('Found %s at index %d', [_sName, Result]);
+			break;
+		end;
+	end;
+	dbgMsg.MsgFmtIf(Result = -1, 'Item %s not found, Result := %d', [_sName, Result]);
+end;
+
 {$IFDEF IMAGELIST_WORKAROUND_DELPHI12}
 
 class function TDripExtensionMenu.addToIdeImageList() : Integer;
