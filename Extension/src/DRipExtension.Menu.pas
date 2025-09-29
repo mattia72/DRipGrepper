@@ -33,6 +33,8 @@ type
 
 		strict private
 			class var FSettings : TRipGrepperSettings;
+			class var FActions : TArrayEx<TAction>;
+			class var FDripExtensionsMenuItems : TArrayEx<TMenuItem>;
 			class constructor Create;
 			class destructor Destroy;
 			{$IFDEF IMAGELIST_WORKAROUND_DELPHI12}
@@ -134,47 +136,34 @@ end;
 
 class procedure TDripExtensionMenu.CreateMenu(const _sMenuText : string; settings : TRipGrepperSettings);
 var
-	dripMenuArr : TArrayEx<TMenuItem>;
 	extSettings : TRipGrepperExtensionSettings;
 	dbgMsg : TDebugMsgBeginEnd;
-	actionArr : TArrayEx<TAction>;
 begin
 	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.CreateMenu');
 
+	// Always remove existing menu first
 	removeExtensionMenu();
 
 	FSettings := settings;
 	extSettings := settings.SearchFormSettings.ExtensionSettings;
-	dbgMsg.Msg('ReadFile');
 	extSettings.ReadFile();
-	dbgMsg.Msg('LoadFromDict');
 	extSettings.LoadFromDict();
 
-	// First create actions
-	actionArr := createActions(extSettings);
+	// Create new actions (arrays are now empty after removeExtensionMenu)
+	FActions := createActions(extSettings);
 
-	// Then create menu items from actions
-	dripMenuArr := createMenuFromActions(actionArr);
+	// Create new menu items from actions
+	FDripExtensionsMenuItems := createMenuFromActions(FActions);
+
 	dbgMsg.MsgFmt('Vcl.Menus.NewSubMenu %s', [_sMenuText]);
-	G_DripMenu := Vcl.Menus.NewSubMenu(_sMenuText, 0, DRIP_MENUITEM_NAME, dripMenuArr.Items);
+	G_DripMenu := Vcl.Menus.NewSubMenu(_sMenuText, 0, DRIP_MENUITEM_NAME, FDripExtensionsMenuItems.Items);
 	G_DripMenu.ImageIndex := addToImageList('splash_icon');
 	dbgMsg.MsgFmt('G_DripMenu Name %s ImageIndex %d', [G_DripMenu.Name, G_DripMenu.ImageIndex]);
 	G_DripMenu.OnClick := dripMenuClick;
 	insertIntoToolsMenu(G_DripMenu);
 
-	// var
-	// baseImgIdx := addToIdeImageList(FTempImageList);
-	// dbgMsg.MsgFmt('BaseImageIndex %d', [baseImgIdx]);
-	// for var action in actionArr do begin
-	// action.ImageIndex := action.ImageIndex + baseImgIdx;
-	// dbgMsg.MsgFmt('Set Action %s ImageIndex %d', [action.Name, action.ImageIndex]);
-	// end;
-	// G_DripMenu.ImageIndex := G_DripMenu.ImageIndex + baseImgIdx;
-	// dbgMsg.MsgFmt('G_DripMenu Name %s ImageIndex %d', [G_DripMenu.Name, G_DripMenu.ImageIndex]);
-
 	// Add actions to IDE toolbar
-	addActionsToIdeToolbar(actionArr);
-
+	addActionsToIdeToolbar(FActions);
 end;
 
 class procedure TDripExtensionMenu.doDripGrepperMenuClick(Sender : TObject);
@@ -230,23 +219,44 @@ class procedure TDripExtensionMenu.removeExtensionMenu();
 var
 	toolsMenu : TMenuItem;
 	dripMenuItem : TMenuItem;
+	action : TAction;
+	menuItem : TMenuItem;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.removeExtensionMenu');
 
+	// Remove existing actions first
+	for action in FActions do begin
+		if Assigned(action) then begin
+			dbgMsg.MsgFmt('Removing action %s', [action.Name]);
+			action.Free;
+		end;
+	end;
+	FActions.Clear;
+
+	// Remove existing menu items
+	for menuItem in FDripExtensionsMenuItems do begin
+		if Assigned(menuItem) then begin
+			dbgMsg.MsgFmt('Removing menu item %s', [menuItem.Name]);
+			menuItem.Free;
+		end;
+	end;
+	FDripExtensionsMenuItems.Clear;
+
+	// Remove from Tools menu
 	toolsMenu := IOTAUtils.FindInMainMenu(IDE_TOOLSMENU);
 	if toolsMenu <> nil then begin
 		dripMenuItem := IOTAUtils.FindInMenu(toolsMenu, DRIP_MENUITEM_NAME);
 		if dripMenuItem <> nil then begin
 			dbgMsg.Msg('remove - ' + dripMenuItem.Caption);
 			toolsMenu.Remove(dripMenuItem);
+			// Don't free here - it will be freed when G_DripMenu is freed
 		end else begin
 			dbgMsg.ErrorMsg(DRIP_MENUITEM_NAME + ' not found.');
 		end;
 	end else begin
 		dbgMsg.ErrorMsg(IDE_TOOLSMENU + ' not found.');
 	end;
-
 end;
 
 class procedure TDripExtensionMenu.showDripGrepperForm();
