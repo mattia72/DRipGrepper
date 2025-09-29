@@ -13,6 +13,7 @@ type
 			function IsEmpty : Boolean;
 			class function New(_row, _col, _colEnd : Integer; _matchText : string) : TVSMatchData; static;
 			class operator Initialize(out Dest : TVSMatchData);
+			function ToString() : string; 
 	end;
 
 	TVSFileNodeData = record
@@ -89,6 +90,11 @@ begin
 	Result.Col := _col;
 	Result.MatchLength := _colEnd;
 	Result.LineText := _matchText;
+end;
+
+function TVSMatchData.ToString() : string;
+begin
+	Result := Format('Raw Text: "%s" (R:%d|C:%d|Length: %d): "%s"', [LineText, Row, Col, MatchLength, LineText.Substring(Col - 1, MatchLength)]);
 end;
 
 class operator TVSMatchData.Initialize(out Dest : TVSMatchData);

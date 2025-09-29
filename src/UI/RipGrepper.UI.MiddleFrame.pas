@@ -1363,7 +1363,6 @@ begin
 
 					nodeData := VstResult.GetNodeData(Node);
 					s := nodeData.GetLineText(not Settings.NodeLookSettings.IndentLines, iSpaces, iTabs);
-
 					matchBegin := nodeData.MatchData.Col - 1 - (iSpaces + iTabs);
 
 					ss0 := s.Substring(0, matchBegin).Replace(#9, TREEVIEW_INDENT_TAB_AS_SPACES, [rfReplaceAll]);
@@ -1372,6 +1371,8 @@ begin
 					TItemDrawer.ColoredTextOut(TargetCanvas, CellRect, ss0, FColorSettings.NormalText);
 
 					ss1 := s.Substring(matchBegin, nodeData.MatchData.MatchLength);
+					TDebugUtils.MsgFmt('Line: "%s" (s:%d,t:%d) match at %d: "%s"', [s, iSpaces, iTabs, matchBegin, ss1], tftVerbose);
+
 					if IsGuiReplaceMode and (not Settings.LastSearchText.IsEmpty) then begin
 						ss1_repl := TReplaceHelper.ReplaceString(ss1, Settings.LastSearchText,
 						{ } Settings.RipGrepParameters.ReplaceText, 1, TopFrame.GetReplaceMode());

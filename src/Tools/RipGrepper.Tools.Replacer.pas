@@ -141,6 +141,9 @@ var
 	prevRow : TReplaceData;
 	replacedLine : string;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TReplaceHelper.ReplaceLineInFiles');
+
 	_list.Sort(); // sort rows and cols
 
 	context := TReplaceContext.Create();
@@ -156,6 +159,8 @@ begin
 
 					fileLine := fileLines[rd.Row - 1];
 					if (iCheckedRow <> rd.Row) and (rd.OrigLine <> fileLine) then begin
+						dbgMsg.Msg('orig:' + rd.OrigLine);
+						dbgMsg.Msg('act:' + fileLine);
 						failedItem := TPair<string, TReplaceData>.Create(fileName, rd);
 						_failed.Add(failedItem);
 						bFileMismatch := True;
