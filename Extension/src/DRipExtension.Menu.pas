@@ -9,25 +9,37 @@ uses
 	Vcl.ActnList,
 	RipGrepper.Settings.ExtensionSettings,
 	RipGrepper.Settings.RipGrepperSettings,
-	ArrayEx;
+	ArrayEx,
+	Vcl.Controls,
+	Spring;
 
 type
+	// {$DEFINE IMAGELIST_WORKAROUND_DELPHI12} // doesn't work as expected
 	TDripExtensionMenu = class(TObject)
 		const
-			DRIP_MENUITEM_NAME = 'DRipExpert_MenuItem';
-			DRIP_MENUITEM_DRIPGREPPER_NAME = 'DRipExpert_DripGrepper_MenuItem';
-			DRIP_MENUITEM_OPENWITH_NAME = 'DRipExpert_OpenWith_MenuItem';
-			DRIP_MENUITEM_SETTINGS_NAME = 'DRipExpert_Settings_MenuItem';
+			DRIP_EXTENSIONS = 'DRipExtensions';
+			DRIP_MENUITEM_NAME = DRIP_EXTENSIONS + '_MenuItem';
+			DRIP_MENUITEM_DRIPGREPPER_NAME = DRIP_EXTENSIONS + '_DripGrepper_MenuItem';
+			DRIP_MENUITEM_OPENWITH_NAME = DRIP_EXTENSIONS + '_OpenWith_MenuItem';
+			DRIP_MENUITEM_SETTINGS_NAME = DRIP_EXTENSIONS + '_Settings_MenuItem';
 
+			ACTION_PREFIX = DRIP_EXTENSIONS + '_';
 			IDE_TOOLSMENU = 'ToolsMenu';
 			IDE_TOOLS_TOOLS_ITEM = 'ToolsToolsItem';
 			IDE_TOOLS_DEBUGGER_OPTIONS_ITEM = 'ToolsDebuggerOptionsItem';
+
+			ACTION_POSTFIX = '_Action';
+			ICON_POSTFIX = '_Icon';
 
 		strict private
 			class var FSettings : TRipGrepperSettings;
 			class constructor Create;
 			class destructor Destroy;
-			class function addToImageList(const _resourceName : string): Integer;
+			{$IFDEF IMAGELIST_WORKAROUND_DELPHI12}
+			class var FTempImageList : TImageList;
+			class function addToTempImageList(const _resourceName : string) : Integer;
+			class function addToIdeImageList() : Integer; overload;
+			{$ENDIF}
 			class procedure doDripGrepperMenuClick(Sender : TObject);
 			class procedure doOpenWithMenuClick(Sender : TObject);
 			class procedure doSettingsMenuClick(Sender : TObject);
@@ -39,6 +51,9 @@ type
 			class function createMenuFromActions(_actions : TArrayEx<TAction>) : TArrayEx<TMenuItem>;
 			class procedure addActionsToIdeToolbar(_actions : TArrayEx<TAction>);
 			class procedure insertIntoToolsMenu(_submenu : TMenuItem);
+
+		private
+			class function addToImageList(const _resourceName : string) : Integer;
 
 		public
 			class procedure CreateMenu(const _sMenuText : string; settings : TRipGrepperSettings);
@@ -64,6 +79,9 @@ var
 class constructor TDripExtensionMenu.Create;
 begin
 	inherited;
+	{$IFDEF IMAGELIST_WORKAROUND_DELPHI12}
+	FTempImageList := TImageList.Create(nil);
+	{$ENDIF}
 end;
 
 class destructor TDripExtensionMenu.Destroy;
@@ -72,10 +90,13 @@ var
 begin
 	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.Destroy');
 	FreeAndNil(G_DripMenu);
+	{$IFDEF IMAGELIST_WORKAROUND_DELPHI12}
+	FTempImageList.Free;
+	{$ENDIF}
+	inherited;
 end;
 
-class function TDripExtensionMenu.addToImageList(const _resourceName : string):
-	Integer;
+class function TDripExtensionMenu.addToImageList(const _resourceName : string) : Integer;
 var
 	IconBmp : TBitmap;
 	Services : INTAServices;
@@ -140,6 +161,16 @@ begin
 	dbgMsg.MsgFmt('G_DripMenu Name %s ImageIndex %d', [G_DripMenu.Name, G_DripMenu.ImageIndex]);
 	G_DripMenu.OnClick := dripMenuClick;
 	insertIntoToolsMenu(G_DripMenu);
+
+	// var
+	// baseImgIdx := addToIdeImageList(FTempImageList);
+	// dbgMsg.MsgFmt('BaseImageIndex %d', [baseImgIdx]);
+	// for var action in actionArr do begin
+	// action.ImageIndex := action.ImageIndex + baseImgIdx;
+	// dbgMsg.MsgFmt('Set Action %s ImageIndex %d', [action.Name, action.ImageIndex]);
+	// end;
+	// G_DripMenu.ImageIndex := G_DripMenu.ImageIndex + baseImgIdx;
+	// dbgMsg.MsgFmt('G_DripMenu Name %s ImageIndex %d', [G_DripMenu.Name, G_DripMenu.ImageIndex]);
 
 	// Add actions to IDE toolbar
 	addActionsToIdeToolbar(actionArr);
@@ -245,7 +276,7 @@ begin
 
 	// Create Open With action
 	action := TAction.Create(Application.MainForm);
-	action.Name := 'DRipGrepperOpenWithAction';
+	action.Name := ACTION_PREFIX + 'OpenWith' + ACTION_POSTFIX;
 	action.Caption := 'Open With';
 	action.Hint := 'Open With';
 	action.Category := 'DRipExtensions';
@@ -257,9 +288,9 @@ begin
 
 	// Create DripGrepper Search action
 	action := TAction.Create(Application.MainForm);
-	action.Name := 'DRipGrepperSearchAction';
-	action.Caption := 'Search with DripGrepper';
-	action.Hint := 'Search with DripGrepper';
+	action.Name := ACTION_PREFIX + 'DRipGrepper' + ACTION_POSTFIX;
+	action.Caption := 'Search with DRipGrepper';
+	action.Hint := 'Search with DRipGrepper';
 	action.Category := 'DRipExtensions';
 	action.ShortCut := TextToShortcut(_extSettings.SearchSelectedShortcut);
 	action.OnExecute := doDripGrepperMenuClick;
@@ -269,9 +300,9 @@ begin
 
 	// Create Settings action
 	action := TAction.Create(Application.MainForm);
-	action.Name := 'DRipGrepperSettingsAction';
-	action.Caption := 'Configure DRipExtensions';
-	action.Hint := 'Configure DRipExtensions';
+	action.Name := ACTION_PREFIX + 'Settings' + ACTION_POSTFIX;
+	action.Caption := 'Settings';
+	action.Hint := 'DRipExtensions Settings...';
 	action.Category := 'DRipExtensions';
 	action.ShortCut := TextToShortcut(_extSettings.SettingsShortcut);
 	action.OnExecute := doSettingsMenuClick;
@@ -324,7 +355,6 @@ begin
 	if Supports(BorlandIDEServices, INTAServices, NTAServices) then begin
 		actionList := NTAServices.actionList;
 		dbgMsg.Msg('Got IDE actionList');
-
 		try
 			for var i := 0 to _actions.Count - 1 do begin
 				action := _actions[i];
@@ -341,6 +371,49 @@ begin
 		dbgMsg.ErrorMsg('Could not get INTAServices - toolbar integration not available');
 	end;
 end;
+{$IFDEF IMAGELIST_WORKAROUND_DELPHI12}
+
+class function TDripExtensionMenu.addToIdeImageList() : Integer;
+var
+	Services : INTAServices;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.addToIdeImageList');
+	// Add directly to IDE image list with unique identifier
+	if Supports(BorlandIDEServices, INTAServices, Services) then begin
+		// This is a workaround for a bug in the Delphi 12 INTAServices.AddMasked OTAPI
+		// Icons must be added to IDE image list separately from action creation
+
+		Result := Services.AddImages(FTempImageList, DRIP_EXTENSIONS);
+		dbgMsg.MsgFmt('FTempImageList added to IDE ImageList, got index %d', [Result]);
+	end else begin
+		Result := -1;
+		dbgMsg.ErrorMsg('Could not get INTAServices');
+	end;
+end;
+
+class function TDripExtensionMenu.addToTempImageList(const _resourceName : string) : Integer;
+var
+	iconBmp : IShared<TBitmap>;
+	dbgMsg : TDebugMsgBeginEnd;
+	transpColor : TColor;
+begin
+	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.addToImageList');
+	iconBmp := Shared.Make<TBitmap>();
+
+	iconBmp.LoadFromResourceName(hInstance, _resourceName);
+
+	// Force transparent color to be the bottom-left pixel (standard approach)
+	transpColor := iconBmp.Canvas.Pixels[0, iconBmp.Height - 1];
+	iconBmp.TransparentColor := transpColor;
+	iconBmp.Transparent := True;
+
+	dbgMsg.MsgFmt('Loaded bitmap %s: %dx%d, TransparentColor: %d', [_resourceName, iconBmp.Width, iconBmp.Height, transpColor]);
+
+	Result := FTempImageList.AddMasked(iconBmp, transpColor);
+	dbgMsg.MsgFmt('Added %s to IDE ImageList, got index %d', [_resourceName, Result]);
+end;
+{$ENDIF}
 
 class procedure TDripExtensionMenu.insertIntoToolsMenu(_submenu : TMenuItem);
 var
