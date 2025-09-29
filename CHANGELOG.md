@@ -1,5 +1,16 @@
 # Changelog
 
+## [v4.14.0-beta] - 2025-09-27
+
+### 💥 Added
+- `Open with...` and `Search with DripGrepper` can be called from IDE Toolbar buttons 
+
+### 🔄 Changed
+- Version updated to 4.14.0
+
+### 🐞 Fixed
+- 
+
 ## [v4.13.0-beta] - 2025-09-12
 
 ### 💥 Added
@@ -79,6 +90,7 @@
 
 ## [Previous Versions]
 - See the release notes in the GitHub repository: https://github.com/mattia72/DRipGrepper/releases
+
 
 
 
