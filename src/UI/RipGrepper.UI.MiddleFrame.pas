@@ -1363,7 +1363,13 @@ begin
 
 					nodeData := VstResult.GetNodeData(Node);
 					s := nodeData.GetLineText(not Settings.NodeLookSettings.IndentLines, iSpaces, iTabs);
-					matchBegin := nodeData.MatchData.Col - 1 - (iSpaces + iTabs);
+					{ }
+					// If Col is in the trimmed content (e.g., Col = 1), IndentLines should be ignored
+					if (nodeData.MatchData.Col <= (iSpaces + iTabs)) then begin
+						matchBegin := nodeData.MatchData.Col - 1;
+					end else begin
+						matchBegin := nodeData.MatchData.Col - 1 - (iSpaces + iTabs);
+					end;
 
 					ss0 := s.Substring(0, matchBegin).Replace(#9, TREEVIEW_INDENT_TAB_AS_SPACES, [rfReplaceAll]);
 					pos := TargetCanvas.TextWidth(ss0);

@@ -16,8 +16,8 @@ const
 
 	COMPILER_VERSION_DELPHI_11 = 35; // Delphi 11 Alexandria
 	COMPILER_VERSION_DELPHI_12 = 36; // Delphi 12.1 Athens
-	//COMPILER_VERSION_DELPHI_12_1 = 36; // Delphi 12.1 Athens
-	//COMPILER_VERSION_DELPHI_12_3 = 36; // Delphi 12.3 Athens Update
+	// COMPILER_VERSION_DELPHI_12_1 = 36; // Delphi 12.1 Athens
+	// COMPILER_VERSION_DELPHI_12_3 = 36; // Delphi 12.3 Athens Update
 
 	APP_PLATFORM = {$IFDEF WIN64} 'x64' {$ELSE} 'x86' {$ENDIF};
 	IS_EXTENSION = {$IFNDEF STANDALONE} TRUE {$ELSE} FALSE {$ENDIF};
@@ -323,7 +323,7 @@ begin
 	inherited;
 	EXT_DEFAULT_SHORTCUT_SEARCH := ShortCutToText(ShortCut(Word('R'), [ssShift, ssAlt]));
 	EXT_DEFAULT_SHORTCUT_OPEN_WITH := ShortCutToText(ShortCut(Word('O'), [ssShift, ssAlt]));
-	EXT_DEFAULT_SHORTCUT_SETTINGS := ''; //no default. it can be set in INI
+	EXT_DEFAULT_SHORTCUT_SETTINGS := ''; // no default. it can be set in INI
 end;
 
 class function TDefaults.GetColumnIndex(Index : string) : integer;
