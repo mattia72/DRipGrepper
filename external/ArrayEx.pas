@@ -77,25 +77,21 @@ type
 		class procedure Delete<T>(var Values : TArray<T>; Index : integer); static;
 
 		// insert item at index
-		class procedure Insert<T>(var Values: TArray<T>; Index: integer; const Value:
-			T); static;
+		class procedure Insert<T>(var Values : TArray<T>; Index : integer; const Value : T); static;
 
 		// append array
 		class procedure AddRange<T>(var Values : TArray<T>; const ValuesToInsert : array of T); static;
 		// get index of equal item
-		class function CountOf<T>(var Values: TArray<T>; const Item: T; const Comparer:
-			IComparer<T>): integer; overload; static;
+		class function CountOf<T>(var Values : TArray<T>; const Item : T; const Comparer : IComparer<T>) : integer; overload; static;
 
 		// insert array at index
 		class procedure InsertRange<T>(var Values : TArray<T>; Index : Integer; const ValuesToInsert : array of T); static;
 
 		// get index of equal item
-		class function IndexOf<T>(var Values: TArray<T>; const Item: T): integer;
-			overload; static;
+		class function IndexOf<T>(var Values : TArray<T>; const Item : T) : integer; overload; static;
 
 		// get index of equal item (using IComparer)
-		class function IndexOf<T>(var Values: TArray<T>; const Item: T; const Comparer:
-			IComparer<T>): integer; overload; static;
+		class function IndexOf<T>(var Values : TArray<T>; const Item : T; const Comparer : IComparer<T>) : integer; overload; static;
 
 		// get index of maximal item
 		class function IndexOfMax<T>(var Values : TArray<T>) : integer; overload; static;
@@ -186,7 +182,7 @@ type
 			procedure SetItems(const Values : array of T);
 			function Add(const Value : T) : integer;
 			procedure Delete(Index : integer); overload;
-			procedure Insert(Index: integer; const Value: T);
+			procedure Insert(Index : integer; const Value : T);
 			function Remove(const AItem : T) : boolean;
 			function AddIfNotContains(const AItem : T) : Integer;
 			function InsertIfNotContains(const Index : Integer; const AItem : T) : boolean;
@@ -197,9 +193,8 @@ type
 			procedure InsertRange(Index : Integer; const ValuesToInsert : array of T); overload;
 			procedure InsertRange(Index : Integer; const ValuesToInsert : TArrayEx<T>); overload;
 
-			function IndexOf(const Item: T): integer; overload;
-			function IndexOf(const Item: T; const Comparer: IComparer<T>): integer;
-				overload;
+			function IndexOf(const Item : T) : integer; overload;
+			function IndexOf(const Item : T; const Comparer : IComparer<T>) : integer; overload;
 
 			function IndexOfMax : integer; overload;
 			function IndexOfMax(const Comparer : IComparer<T>) : integer; overload;
@@ -236,9 +231,8 @@ type
 			function AllIndexOf(Item : T; const Comparer : IComparer<T>) : TArray<integer>; overload;
 			function AllIndexOf(Item : T) : TArray<integer>; overload;
 			function GetReversedRange(const _idx : integer = -1; const _count : integer = -1) : TArrayEx<T>;
-			function CountOf(const Item: T): integer; overload;
-			function CountOf(const Item: T; const Comparer: IComparer<T>): integer;
-				overload;
+			function CountOf(const Item : T) : integer; overload;
+			function CountOf(const Item : T; const Comparer : IComparer<T>) : integer; overload;
 			function InsertUnique(const Index : Integer; const AItem : T) : boolean;
 			function RemoveAll(const AItem : T) : boolean;
 			// operator overloads
@@ -274,8 +268,7 @@ begin
 	SetLength(Values, length(Values) - 1);
 end;
 
-class procedure TArrayHelper.Insert<T>(var Values: TArray<T>; Index: integer;
-	const Value: T);
+class procedure TArrayHelper.Insert<T>(var Values : TArray<T>; Index : integer; const Value : T);
 var
 	I, H : Integer;
 begin
@@ -315,8 +308,7 @@ begin
 		Values[index + I] := ValuesToInsert[I];
 end;
 
-class function TArrayHelper.CountOf<T>(var Values: TArray<T>; const Item: T;
-	const Comparer: IComparer<T>): integer;
+class function TArrayHelper.CountOf<T>(var Values : TArray<T>; const Item : T; const Comparer : IComparer<T>) : integer;
 begin
 	Result := 0;
 	for var i := low(Values) to high(Values) do begin
@@ -326,8 +318,7 @@ begin
 	end;
 end;
 
-class function TArrayHelper.IndexOf<T>(var Values: TArray<T>; const Item: T;
-	const Comparer: IComparer<T>): integer;
+class function TArrayHelper.IndexOf<T>(var Values : TArray<T>; const Item : T; const Comparer : IComparer<T>) : integer;
 begin
 	for Result := low(Values) to high(Values) do
 		if Comparer.Compare(Values[Result], Item) = 0 then
@@ -335,8 +326,7 @@ begin
 	Result := -1;
 end;
 
-class function TArrayHelper.IndexOf<T>(var Values: TArray<T>; const Item: T):
-	integer;
+class function TArrayHelper.IndexOf<T>(var Values : TArray<T>; const Item : T) : integer;
 begin
 	Result := IndexOf<T>(Values, Item, TComparer<T>.Default);
 end;
@@ -612,8 +602,7 @@ begin
 	Result := TArray.Contains<T>(Items, Item);
 end;
 
-function TArrayEx<T>.IndexOf(const Item: T; const Comparer: IComparer<T>):
-	integer;
+function TArrayEx<T>.IndexOf(const Item : T; const Comparer : IComparer<T>) : integer;
 begin
 	Result := TArray.IndexOf<T>(Items, Item, Comparer);
 end;
@@ -638,12 +627,12 @@ begin
 	Result := TArray.IndexOfMin<T>(Items, Comparer);
 end;
 
-function TArrayEx<T>.IndexOf(const Item: T): integer;
+function TArrayEx<T>.IndexOf(const Item : T) : integer;
 begin
 	Result := TArray.IndexOf<T>(Items, Item);
 end;
 
-procedure TArrayEx<T>.Insert(Index: integer; const Value: T);
+procedure TArrayEx<T>.Insert(Index : integer; const Value : T);
 begin
 	TArray.Insert<T>(Items, index, Value);
 end;
@@ -690,13 +679,12 @@ begin
 	end;
 end;
 
-function TArrayEx<T>.CountOf(const Item: T): integer;
+function TArrayEx<T>.CountOf(const Item : T) : integer;
 begin
 	Result := TArray.CountOf<T>(Items, Item, TComparer<T>.Default);
 end;
 
-function TArrayEx<T>.CountOf(const Item: T; const Comparer: IComparer<T>):
-	integer;
+function TArrayEx<T>.CountOf(const Item : T; const Comparer : IComparer<T>) : integer;
 begin
 	Result := TArray.CountOf<T>(Items, Item, Comparer);
 end;
@@ -820,7 +808,7 @@ end;
 
 function TArrayEx<T>.InsertUnique(const Index : Integer; const AItem : T) : boolean;
 begin
-	Result := not Contains(AItem);
+	Result := not contains(AItem);
 	if Result then begin
 		Insert(index, AItem);
 	end else begin
@@ -889,10 +877,10 @@ begin
 	Result := Values.Items;
 end;
 
-function TArrayEx<T>.GetFirstMatchIndex(const Values: TArray<T>): integer;
+function TArrayEx<T>.GetFirstMatchIndex(const Values : TArray<T>) : integer;
 begin
 	Result := -1;
-	for var i : integer := Low(Values) to High(Values) do begin
+	for var i : integer := low(Values) to high(Values) do begin
 		if TArray.Contains<T>(Items, Values[i]) then begin
 			Result := i;
 			Exit
@@ -901,4 +889,3 @@ begin
 end;
 
 end.
-
