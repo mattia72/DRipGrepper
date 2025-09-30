@@ -35,6 +35,8 @@ type
 			procedure TestReplaceInFile();
 			[Test]
 			procedure TestReplaceInModifiedFile();
+			[Test]
+			procedure TestReplaceSkipCheckModifiedFile();
 	end;
 
 implementation
@@ -184,7 +186,7 @@ end;
 
 procedure TTestReplaceHelper.TestReplaceInFile();
 var
-	failedReplace : TFailedReplaceData;
+	failReplaceData : TFailedReplaceData;
 	rl : IShared<TReplaceList>;
 	rd : TReplaceData;
 	wordIdx : TArrayEx<Integer>;
@@ -202,7 +204,7 @@ begin
 
 	rl.Sort;
 	try
-		TReplaceHelper.ReplaceLineInFiles(rl, failedReplace, False);
+		TReplaceHelper.ReplaceLineInFiles(rl, failReplaceData, False, False);
 		slFileContent.Clear;
 		slFileContent.LoadFromFile(sOrigFileName);
 	finally
@@ -220,7 +222,7 @@ end;
 
 procedure TTestReplaceHelper.TestReplaceInModifiedFile();
 var
-	failedReplace : TFailedReplaceData;
+	failReplaceData : TFailedReplaceData;
 	rl : IShared<TReplaceList>;
 	rd : TReplaceData;
 	wordIdx : TArrayEx<Integer>;
@@ -241,14 +243,47 @@ begin
 	rl.Items[sOrigFileName][3] := rd;
 	rl.Sort;
 	try
-		TReplaceHelper.ReplaceLineInFiles(rl, failedReplace, False);
+		TReplaceHelper.ReplaceLineInFiles(rl, failReplaceData, False, False);
 		slFileContent.Clear;
 		slFileContent.LoadFromFile(sOrigFileName);
 	finally
 		TFile.Delete(sOrigFileName);
 	end;
 
-	Assert.IsTrue(failedReplace.Count > 0, 'failedReplace count shouldn''t be empty.');
+	Assert.IsTrue(failReplaceData.Count > 0, 'failReplaceData count shouldn''t be empty.');
+end;
+
+procedure TTestReplaceHelper.TestReplaceSkipCheckModifiedFile();
+var
+	failReplaceData : TFailedReplaceData;
+	rl : IShared<TReplaceList>;
+	rd : TReplaceData;
+	wordIdx : TArrayEx<Integer>;
+	slFileContent : IShared<TStringList>;
+	sOrigFileName : string;
+begin
+	rl := Shared.Make<TReplaceList>();
+	slFileContent := Shared.Make<TStringList>();
+
+	sOrigFileName := PreapreNewFileContent(rl, slFileContent, wordIdx);
+
+	slFileContent.SaveToFile(sOrigFileName);
+
+	PrepareReplaceDataList(rl, slFileContent, sOrigFileName, wordIdx);
+
+	rd := rl.Items[sOrigFileName][3];
+	rd.OrigLine := 'modified';
+	rl.Items[sOrigFileName][3] := rd;
+	rl.Sort;
+	try
+		TReplaceHelper.ReplaceLineInFiles(rl, failReplaceData, False, True);
+		slFileContent.Clear;
+		slFileContent.LoadFromFile(sOrigFileName);
+	finally
+		TFile.Delete(sOrigFileName);
+	end;
+
+	Assert.IsTrue(failReplaceData.Count = 0, 'failReplaceData should be empty.');
 end;
 
 initialization
