@@ -1,0 +1,260 @@
+﻿unit RipGrepper.Parser.JsonMatchTest;
+
+interface
+
+uses
+	DUnitX.TestFramework,
+	RipGrepper.Common.Interfaces,
+	RipGrepper.Common.SearchTextWithOptions,
+	Spring;
+
+type
+
+	TSearchParamMock = class(TInterfacedObject, ISearchParams)
+		private
+			FGuiSearchParams : IShared<TSearchTextWithOptions>;
+		public
+			constructor Create(const _guiParams : IShared<TSearchTextWithOptions>);
+			function GetGuiSearchParams() : IShared<TSearchTextWithOptions>;
+	end;
+
+	[TestFixture]
+	TRipGrepJsonMatchTest = class
+		private
+			FSearchParamMock : ISearchParams;
+			FguiParams : IShared<TSearchTextWithOptions>;
+
+		public
+			[Setup]
+			procedure Setup;
+			[TearDown]
+			procedure TearDown;
+
+			// Test JSON begin line
+			[Test]
+			procedure ParseJsonBeginTest;
+
+			// Test JSON match lines
+			[Test]
+			procedure ParseJsonMatchTest;
+
+			// Test JSON end line
+			[Test]
+			procedure ParseJsonEndTest;
+
+			// Test JSON summary line
+			[Test]
+			procedure ParseJsonSummaryTest;
+
+			// Test invalid JSON
+			[Test]
+			[TestCase('Invalid JSON 1', 'invalid json string')]
+			[TestCase('Empty String', '')]
+			[TestCase('Malformed JSON', '{"type":"match","data"]')]
+			procedure ParseJsonErrorTest(const _s : string);
+
+			// Test complete JSON sequence
+			[Test]
+			procedure ParseJsonSequenceTest;
+	end;
+
+implementation
+
+uses
+	RipGrepper.Common.Constants,
+	System.Classes,
+	System.SysUtils,
+	RipGrepper.Parsers.JsonMatchLine,
+	RipGrepper.Common.ParsedObject,
+	DUnitX.Utils;
+
+{ TSearchParamMock }
+
+constructor TSearchParamMock.Create(const _guiParams : IShared<TSearchTextWithOptions>);
+begin
+	inherited Create();
+	FGuiSearchParams := _guiParams;
+end;
+
+function TSearchParamMock.GetGuiSearchParams() : IShared<TSearchTextWithOptions>;
+begin
+	Result := FGuiSearchParams;
+end;
+
+procedure TRipGrepJsonMatchTest.Setup;
+begin
+	FguiParams := Shared.Make<TSearchTextWithOptions>(TSearchTextWithOptions.Create('search_text', []));
+	FSearchParamMock := TSearchParamMock.Create(FguiParams);
+end;
+
+procedure TRipGrepJsonMatchTest.TearDown;
+begin
+	FSearchParamMock := nil;
+	FguiParams := nil;
+end;
+
+procedure TRipGrepJsonMatchTest.ParseJsonBeginTest;
+var
+	parser : TJsonMatchLineParser;
+	pr : IParsedObjectRow;
+	testLine : string;
+begin
+	testLine := '{"type":"begin","data":{"path":{"text":"test.pas"}}}';
+
+	parser := TJsonMatchLineParser.Create();
+	try
+		parser.SearchParams := FSearchParamMock;
+		parser.ParseLine(0, testLine);
+		pr := parser.ParseResult;
+
+		Assert.IsFalse(pr.IsError, 'JSON begin line should not have errors: ' + pr.ErrorText);
+		Assert.AreEqual(6, pr.Columns.Count, 'Expected 6 columns for begin line');
+		Assert.AreEqual('test.pas', pr.Columns[Integer(ciFile)].Text, 'File path not correctly extracted');
+		Assert.IsTrue(pr.Columns[Integer(ciText)].Text.Contains('Begin file'), 'Begin line text should contain "Begin file"');
+	finally
+		parser.Free;
+	end;
+end;
+
+procedure TRipGrepJsonMatchTest.ParseJsonMatchTest;
+var
+	parser : TJsonMatchLineParser;
+	pr : IParsedObjectRow;
+	testLine : string;
+begin
+	// Use a shorter JSON string that fits in 255 characters
+	testLine := '{"type":"match","data":{"path":{"text":"test.pas"},"lines":{"text":"test line"},' +
+		'"line_number":1,"submatches":[{"match":{"text":"test"},"start":0,"end":4}]}}';
+
+	parser := TJsonMatchLineParser.Create();
+	try
+		parser.SearchParams := FSearchParamMock;
+		parser.ParseLine(0, testLine);
+		pr := parser.ParseResult;
+
+		Assert.IsFalse(pr.IsError, 'JSON match line should not have errors: ' + pr.ErrorText);
+		Assert.AreEqual(6, pr.Columns.Count, 'Expected 6 columns for match line');
+
+		// Check if file path is extracted
+		Assert.AreEqual('test.pas', pr.Columns[Integer(ciFile)].Text, 'File path should be test.pas');
+
+		// Check if line number is extracted
+		Assert.AreEqual('1', pr.Columns[Integer(ciRow)].Text, 'Line number should be 1');
+
+		// Check if column is extracted (should be start position + 1)
+		Assert.AreEqual('1', pr.Columns[Integer(ciCol)].Text, 'Column should be 1');
+
+		// Check if match text is extracted
+		Assert.AreEqual('test', pr.Columns[Integer(ciMatchText)].Text, 'Match text should be "test"');
+	finally
+		parser.Free;
+	end;
+end;
+
+procedure TRipGrepJsonMatchTest.ParseJsonEndTest;
+var
+	parser : TJsonMatchLineParser;
+	pr : IParsedObjectRow;
+	testLine : string;
+begin
+	testLine := '{"type":"end","data":{"path":{"text":"test.pas"},' + '"stats":{"matches":4,"matched_lines":3}}}';
+
+	parser := TJsonMatchLineParser.Create();
+	try
+		parser.SearchParams := FSearchParamMock;
+		parser.ParseLine(0, testLine);
+		pr := parser.ParseResult;
+
+		Assert.IsFalse(pr.IsError, 'JSON end line should not have errors: ' + pr.ErrorText);
+		Assert.IsTrue(pr.IsStatsLine, 'End line should be marked as stats line');
+		Assert.AreEqual(6, pr.Columns.Count, 'Expected 6 columns for end line');
+		Assert.AreEqual(RG_STATS_LINE, pr.Columns[Integer(ciFile)].Text, 'End line should have RG_STATS_LINE as file');
+		Assert.IsTrue(pr.Columns[Integer(ciText)].Text.Contains('End file'), 'End line text should contain "End file"');
+		Assert.IsTrue(pr.Columns[Integer(ciText)].Text.Contains('Matches:'), 'End line text should contain match statistics');
+	finally
+		parser.Free;
+	end;
+end;
+
+procedure TRipGrepJsonMatchTest.ParseJsonSummaryTest;
+var
+	parser : TJsonMatchLineParser;
+	pr : IParsedObjectRow;
+	testLine : string;
+begin
+	testLine := '{"type":"summary","data":{"stats":{"matches":4,"matched_lines":3,"searches":1}}}';
+
+	parser := TJsonMatchLineParser.Create();
+	try
+		parser.SearchParams := FSearchParamMock;
+		parser.ParseLine(0, testLine);
+		pr := parser.ParseResult;
+
+		Assert.IsFalse(pr.IsError, 'JSON summary line should not have errors: ' + pr.ErrorText);
+		Assert.IsTrue(pr.IsStatsLine, 'Summary line should be marked as stats line');
+		Assert.AreEqual(6, pr.Columns.Count, 'Expected 6 columns for summary line');
+		Assert.AreEqual(RG_STATS_LINE, pr.Columns[Integer(ciFile)].Text, 'Summary line should have RG_STATS_LINE as file');
+		Assert.IsTrue(pr.Columns[Integer(ciText)].Text.Contains('Summary:'), 'Summary line text should contain "Summary:"');
+		Assert.IsTrue(pr.Columns[Integer(ciText)].Text.Contains('searches'), 'Summary line text should contain search statistics');
+	finally
+		parser.Free;
+	end;
+end;
+
+procedure TRipGrepJsonMatchTest.ParseJsonErrorTest(const _s : string);
+var
+	parser : TJsonMatchLineParser;
+	pr : IParsedObjectRow;
+begin
+	parser := TJsonMatchLineParser.Create();
+	try
+		parser.SearchParams := FSearchParamMock;
+		parser.ParseLine(0, _s);
+		pr := parser.ParseResult;
+
+		Assert.IsTrue(pr.IsError, 'Invalid JSON should result in an error: ' + _s);
+		Assert.IsFalse(pr.ErrorText.IsEmpty, 'Error text should not be empty for invalid JSON');
+	finally
+		parser.Free;
+	end;
+end;
+
+procedure TRipGrepJsonMatchTest.ParseJsonSequenceTest;
+var
+	parser : TJsonMatchLineParser;
+	pr : IParsedObjectRow;
+	testLines : TArray<string>;
+	i : Integer;
+begin
+	// Test a complete sequence with shorter test data
+	testLines := ['{"type":"begin","data":{"path":{"text":"Test.pas"}}}',
+		'{"type":"match","data":{"path":{"text":"Test.pas"},"lines":{"text":"test line"},' +
+		'"line_number":1,"submatches":[{"match":{"text":"test"},"start":0,"end":4}]}}',
+		'{"type":"match","data":{"path":{"text":"Test.pas"},"lines":{"text":"another test"},' +
+		'"line_number":2,"submatches":[{"match":{"text":"test"},"start":8,"end":12}]}}',
+		'{"type":"end","data":{"path":{"text":"Test.pas"},' +
+		'"stats":{"matches":2,"matched_lines":2}}}',
+		'{"type":"summary","data":{"stats":{"matches":2,"matched_lines":2,"searches":1}}}'];
+
+	parser := TJsonMatchLineParser.Create();
+	try
+		parser.SearchParams := FSearchParamMock;
+
+		for i := 0 to high(testLines) do begin
+			parser.ParseLine(i, testLines[i]);
+			pr := parser.ParseResult;
+
+			Assert.IsFalse(pr.IsError, Format('Line %d should not have errors: %s' + CRLF + 'Line: %s', [i, pr.ErrorText, testLines[i]]));
+
+			Assert.AreEqual(6, pr.Columns.Count, Format('Line %d should have 6 columns, got %d', [i, pr.Columns.Count]));
+		end;
+	finally
+		parser.Free;
+	end;
+end;
+
+initialization
+
+TDUnitX.RegisterTestFixture(TRipGrepJsonMatchTest);
+
+end.
