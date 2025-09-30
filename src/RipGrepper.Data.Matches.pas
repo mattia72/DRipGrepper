@@ -231,10 +231,10 @@ begin
 		bAsFirst := True;
 	end;
 	case _item.ParserType of
-		ptRipGrepSearch, ptRipGrepPrettySearch : begin
+		ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepJson : begin
 			nodeData := TVSFileNodeData.New('', // File
 			{ } _item.Row, // Row
-			{ } _item.Col, // Col
+			{ } _item.ColBegin, // Col
 			{ } _item.GetColumnText(ciText), // TextBefore
 			{ } _item.GetColumnText(ciMatchText), // MatchText
 			{ } _item.GetColumnText(ciTextAfterMatch) // TextAfter

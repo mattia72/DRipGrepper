@@ -151,7 +151,7 @@ type
 			function GetIsInitialized() : Boolean;
 			function GetSettings : TRipGrepperSettings;
 			function GetToolBarWidth(_tb : TToolBar) : Integer;
-			procedure HandleReplaceErrors(const failedReplace : TFailedReplaceData);
+			procedure HandleReplaceErrors(const failReplaceData : TFailedReplaceData);
 			function IsFilterOn : Boolean;
 			function SaveSelectedReplacements() : ESaveReplacementResult;
 			procedure SelectNextFoundNode(const _prevFoundNode : PVirtualNode; const _searchPattern : string);
@@ -401,35 +401,37 @@ begin
 	repeat
 		var
 		arrModifiedFiles := IOTAUTils.GetOpenedEditorFiles(True);
-		var replKeyArrEx : TArrayEx<string> := FReplaceList.Items.Keys.ToArray;
-		var idx : integer :=  replKeyArrEx.GetFirstMatchIndex(arrModifiedFiles);
-		if(idx <> -1) then begin
-				case IOTAFileUtils.AskSaveModifiedFiles(arrModifiedFiles[idx]) of
-					smfrActSaved : begin
-						dbgMsg.Msg('smfrActSaved - file saved: ' + arrModifiedFiles[idx]);
-						continue;
-					end;
-					smfrAllSaved : begin
-						dbgMsg.Msg('smfrAllSaved - all files saved');
-						break;
-					end;
-					smfrActNotSaved : begin
-						dbgMsg.Msg('smfrActNotSaved - user chose not to save: ' + arrModifiedFiles[idx]);
-						Exit;
-					end;
-					smfrCancel : begin
-						dbgMsg.Msg('smfrCancel - user cancel');
-						Exit;
-					end;
-					smfrError : begin
-						dbgMsg.ErrorMsg('smfrError - error occured');
-						Exit;
-					end;
-					else begin
-						dbgMsg.Msg('Unknown result, exiting');
-						Exit;
-					end;
+		var
+			replKeyArrEx : TArrayEx<string> := FReplaceList.Items.Keys.ToArray;
+		var
+			idx : integer := replKeyArrEx.GetFirstMatchIndex(arrModifiedFiles);
+		if (idx <> -1) then begin
+			case IOTAFileUtils.AskSaveModifiedFiles(arrModifiedFiles[idx]) of
+				smfrActSaved : begin
+					dbgMsg.Msg('smfrActSaved - file saved: ' + arrModifiedFiles[idx]);
+					continue;
 				end;
+				smfrAllSaved : begin
+					dbgMsg.Msg('smfrAllSaved - all files saved');
+					break;
+				end;
+				smfrActNotSaved : begin
+					dbgMsg.Msg('smfrActNotSaved - user chose not to save: ' + arrModifiedFiles[idx]);
+					Exit;
+				end;
+				smfrCancel : begin
+					dbgMsg.Msg('smfrCancel - user cancel');
+					Exit;
+				end;
+				smfrError : begin
+					dbgMsg.ErrorMsg('smfrError - error occured');
+					Exit;
+				end;
+				else begin
+					dbgMsg.Msg('Unknown result, exiting');
+					Exit;
+				end;
+			end;
 		end else begin
 			break;
 		end;
@@ -718,7 +720,7 @@ begin
 				continue;
 			end;
 			lineNum := nodeData.MatchData.Row;
-			rowNum := nodeData.MatchData.Col;
+			rowNum := nodeData.MatchData.ColBegin;
 			var
 			lineText := nodeData.MatchData.LineText;
 
@@ -786,13 +788,13 @@ begin
 	// TDebugUtils.DebugMessage(Format('TRipGrepperTopFrame.GetToolBarWidth %s Width: %d', [_tb.Name, Result, _tb.ButtonCount]));
 end;
 
-procedure TRipGrepperTopFrame.HandleReplaceErrors(const failedReplace : TFailedReplaceData);
+procedure TRipGrepperTopFrame.HandleReplaceErrors(const failReplaceData : TFailedReplaceData);
 var
 	errMsg : TArrayEx<string>;
 begin
-	if failedReplace.Count > 0 then begin
+	if failReplaceData.Count > 0 then begin
 		errMsg.Add('Current line(s) in file(s) doesn''t match the line which was replaced:');
-		for var p in failedReplace do begin
+		for var p in failReplaceData do begin
 			errMsg.Add(Format('%s(%d)', [p.Key, p.Value.Row]));
 		end;
 
@@ -835,16 +837,16 @@ end;
 
 function TRipGrepperTopFrame.SaveSelectedReplacements() : ESaveReplacementResult;
 var
-	failedReplace : TFailedReplaceData;
+	failReplaceData : TFailedReplaceData;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperTopFrame.SaveSelectedReplacements');
 	Result := srrDone;
 
 	if ShowWarningBeforeSave(FReplaceList) then begin
-		TReplaceHelper.ReplaceLineInFiles(FReplaceList, failedReplace);
-		HandleReplaceErrors(failedReplace);
-		if failedReplace.Count > 0 then begin
+		TReplaceHelper.ReplaceLineInFiles(FReplaceList, failReplaceData, { _bCreateBackup } True, IsRgReplaceMode);
+		HandleReplaceErrors(failReplaceData);
+		if failReplaceData.Count > 0 then begin
 			Result := srrError;
 		end;
 	end else begin

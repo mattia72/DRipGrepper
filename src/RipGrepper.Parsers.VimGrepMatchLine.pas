@@ -94,7 +94,7 @@ begin
 	s := Format('%s%s', [_m.Groups['drive'].Value, _m.Groups['path'].Value]);
 	_cd.Add(TColumnData.New(ciFile, s));
 	_cd.Add(TColumnData.New(ciRow, _m.Groups['row'].Value));
-	_cd.Add(TColumnData.New(ciCol, ''));
+	_cd.Add(TColumnData.New(ciColBegin, ''));
 	_cd.Add(TColumnData.New(ciText, _m.Groups['text'].Value));
 end;
 
@@ -102,7 +102,7 @@ procedure TVimGrepMatchLineParser.ParseStatsLine(const _m : TMatch; var _cd : TA
 begin
 	_cd.Add(TColumnData.New(ciFile, RG_STATS_LINE));
 	_cd.Add(TColumnData.New(ciRow, ''));
-	_cd.Add(TColumnData.New(ciCol, ''));
+	_cd.Add(TColumnData.New(ciColBegin, ''));
 	_cd.Add(TColumnData.New(ciText, _m.Groups[0].Value));
 	_cd.Add(TColumnData.New(ciMatchText, ''));
 	_cd.Add(TColumnData.New(ciTextAfterMatch, ''));
@@ -127,7 +127,7 @@ begin
 		s := Format('%s%s', [m.Groups['drive'].Value, m.Groups['path'].Value]);
 		cd.Add(TColumnData.New(ciFile, s));
 		cd.Add(TColumnData.New(ciRow, m.Groups['row'].Value));
-		cd.Add(TColumnData.New(ciCol, m.Groups['col'].Value));
+		cd.Add(TColumnData.New(ciColBegin, m.Groups['col'].Value));
 		s := m.Groups['text'].Value;
 
 		var // not used, but so we have less memory leak!
@@ -203,7 +203,7 @@ procedure TVimGrepMatchLineParser.SetRgResultLineParseError(out row : TArrayEx<T
 begin
 	row.Add(TColumnData.New(ciFile, _sLine));
 	row.Add(TColumnData.New(ciRow, ''));
-	row.Add(TColumnData.New(ciCol, ''));
+	row.Add(TColumnData.New(ciColBegin, ''));
 	row.Add(TColumnData.New(ciText, ''));
 end;
 
@@ -228,7 +228,7 @@ begin
 		ParseResult.ErrorText := 'Invalid Row:' + sRow;
 		Exit;
 	end;
-	sCol := row[Integer(ciCol)].Text;
+	sCol := row[Integer(ciColBegin)].Text;
 	ParseResult.IsError := ParseResult.IsError and (StrToIntDef(sCol, -1) > 0);
 	if ParseResult.IsError then begin
 		ParseResult.ErrorText := 'Invalid Col:' + sCol;
@@ -313,7 +313,7 @@ begin
 	s := Format('%s%s', [m.Groups['drive'].Value, m.Groups['path'].Value]);
 	cd.Add(TColumnData.New(ciFile, s));
 	cd.Add(TColumnData.New(ciRow, m.Groups['row'].Value));
-	cd.Add(TColumnData.New(ciCol, m.Groups['col'].Value));
+	cd.Add(TColumnData.New(ciColBegin, m.Groups['col'].Value));
 	cd.Add(TColumnData.New(ciText, m.Groups['text_before_match'].Value));
 	var
 	count := cd.Count;

@@ -9,7 +9,7 @@ uses
 	Spring;
 
 type
-	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepStats, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
+	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepJson, ptRipGrepStats, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
 	// TODO : use this instead of IsError IsStats
 	EParsedLineType = (pltErrorLine, pltStatsLine, pltContexLine);
 	TParsedLineType = set of EParsedLineType;

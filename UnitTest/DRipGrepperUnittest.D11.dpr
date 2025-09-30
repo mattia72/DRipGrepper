@@ -18,6 +18,7 @@ uses
   TestInsight.DUnitX,
   {$ELSE}
   DUnitX.Loggers.Console,
+  // don't delete DUnitX.Loggers.XML.NUnit,
   DUnitX.Loggers.XML.NUnit,
   {$ENDIF }
   DUnitX.TestFramework,
@@ -74,7 +75,8 @@ uses
   RipGrepper.Common.LoadHistoryMode in '..\src\Common\RipGrepper.Common.LoadHistoryMode.pas',
   RipGrepper.Data.HistoryItemObjectTest in 'RipGrepper.Data.HistoryItemObjectTest.pas',
   RipGrepper.Common.IOTAUtils.TPathProcessor.Test in 'RipGrepper.Common.IOTAUtils.TPathProcessor.Test.pas',
-  RipGrepper.Common.IOTAUtils.PathProcessor in '..\src\Common\RipGrepper.Common.IOTAUtils.PathProcessor.pas';
+  RipGrepper.Common.IOTAUtils.PathProcessor in '..\src\Common\RipGrepper.Common.IOTAUtils.PathProcessor.pas',
+  RipGrepper.Parser.JsonMatchTest in 'RipGrepper.Parser.JsonMatchTest.pas';
 
 // This comment has to guard the following IFDEF, that may be delted by delphi, if new unit added to the project
 {$IFNDEF TESTINSIGHT}

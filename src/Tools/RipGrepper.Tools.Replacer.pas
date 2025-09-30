@@ -59,9 +59,9 @@ type
 
 		public
 			class function ReplaceLineInFile(const _fileName : string; const _row, _col : Integer; const _origLine, _replaceLine : string;
-				const _createBackup : Boolean = True) : Boolean;
-			class procedure ReplaceLineInFiles(_list : TReplaceList; { } var _failed : TFailedReplaceData;
-				{ } const _createBackup : Boolean = True);
+				const _bCreateBackup, _bSkipOrigCheck : Boolean) : Boolean;
+			class procedure ReplaceLineInFiles(_list : TReplaceList; var _failed : TFailedReplaceData;
+				const _bCreateBackup, _bSkipOrigCheck : Boolean);
 			class function ReplaceString(const _input, _pattern, _replacement : string; const _fromCol : Integer;
 				const _mode : TReplaceModes) : string;
 	end;
@@ -109,24 +109,23 @@ begin
 end;
 
 class function TReplaceHelper.ReplaceLineInFile(const _fileName : string; const _row, _col : Integer;
-	const _origLine, _replaceLine : string; const _createBackup : Boolean = True) : Boolean;
+	const _origLine, _replaceLine : string; const _bCreateBackup, _bSkipOrigCheck : Boolean) : Boolean;
 var
-	failedReplace : TFailedReplaceData;
+	failReplaceData : TFailedReplaceData;
 	list : TReplaceList;
 begin
 	list := TReplaceList.Create;
 	try
 		list.AddUnique(_fileName, _row, _col, _origLine, _replaceLine);
-		TReplaceHelper.ReplaceLineInFiles(list, failedReplace);
+		TReplaceHelper.ReplaceLineInFiles(list, failReplaceData, _bCreateBackup, _bSkipOrigCheck);
 	finally
 		list.Free;
-		Result := (failedReplace.Count = 0);
+		Result := (failReplaceData.Count = 0);
 	end;
 end;
 
-class procedure TReplaceHelper.ReplaceLineInFiles(_list : TReplaceList;
-	{ } var _failed : TFailedReplaceData;
-	{ } const _createBackup : Boolean = True);
+class procedure TReplaceHelper.ReplaceLineInFiles(_list : TReplaceList; var _failed : TFailedReplaceData;
+	const _bCreateBackup, _bSkipOrigCheck : Boolean);
 var
 	actLine, origLine : string;
 	bFileMismatch : Boolean;
@@ -156,15 +155,18 @@ begin
 			iCheckedRow := -1;
 			for var rd : TReplaceData in _list.Items[fileName] do begin
 				if (rd.Row >= 0) and (rd.Row <= fileLines.Count) then begin
-
+					dbgMsg.MsgIf(_bSkipOrigCheck, 'Orig check skipped.');
 					fileLine := fileLines[rd.Row - 1];
-					if (iCheckedRow <> rd.Row) and (rd.OrigLine <> fileLine) then begin
-						dbgMsg.Msg('orig:' + rd.OrigLine);
-						dbgMsg.Msg('act:' + fileLine);
-						failedItem := TPair<string, TReplaceData>.Create(fileName, rd);
-						_failed.Add(failedItem);
-						bFileMismatch := True;
-						break;
+					if (iCheckedRow <> rd.Row) and
+					{ } (rd.OrigLine <> fileLine) then begin
+						if (not _bSkipOrigCheck) then begin
+							dbgMsg.Msg('origin:' + rd.OrigLine);
+							dbgMsg.Msg('actual:' + fileLine);
+							failedItem := TPair<string, TReplaceData>.Create(fileName, rd);
+							_failed.Add(failedItem);
+							bFileMismatch := True;
+							break;
+						end;
 					end else begin
 						iCheckedRow := rd.Row;
 					end;
@@ -186,7 +188,7 @@ begin
 			end;
 
 			if not bFileMismatch then begin
-				if _createBackup then begin
+				if _bCreateBackup then begin
 					TFileUtils.CreateBackup(fileName);
 				end;
 
