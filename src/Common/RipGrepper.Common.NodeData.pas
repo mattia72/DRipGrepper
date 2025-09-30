@@ -5,9 +5,10 @@ interface
 type
 	TVSMatchData = record
 		Row : integer;
-		Col : integer;
-		MatchLength : integer;
+		ColBegin : integer;
+		ColEnd : integer;
 		LineText : string;
+		function GetMatchLength(): integer;
 
 		public
 			function IsEmpty : Boolean;
@@ -79,29 +80,34 @@ begin
 	Result.MatchData := TVSMatchData.New(_row, _col, -1, _matchText);
 end;
 
+function TVSMatchData.GetMatchLength(): integer;
+begin
+	Result := ColEnd - ColBegin;
+end;
+
 function TVSMatchData.IsEmpty : Boolean;
 begin
-	Result := (Row = -1) and (Col = -1) and (MatchLength = -1) and (LineText.IsEmpty);
+	Result := (Row = -1) and (ColEnd = -1) and (ColBegin = -1) and (LineText.IsEmpty);
 end;
 
 class function TVSMatchData.New(_row, _col, _colEnd : Integer; _matchText : string) : TVSMatchData;
 begin
 	Result.Row := _row;
-	Result.Col := _col;
-	Result.MatchLength := _colEnd;
+	Result.ColBegin := _col;
+	Result.ColEnd := _colEnd;
 	Result.LineText := _matchText;
 end;
 
 function TVSMatchData.ToString() : string;
 begin
-	Result := Format('Raw Text: "%s" (R:%d|C:%d|Length: %d): "%s"', [LineText, Row, Col, MatchLength, LineText.Substring(Col - 1, MatchLength)]);
+	Result := Format('Raw Text: "%s" (R:%d|C:%d|Length: %d): "%s"', [LineText, Row, ColBegin, GetMatchLength, LineText.Substring(ColBegin - 1, GetMatchLength)]);
 end;
 
 class operator TVSMatchData.Initialize(out Dest : TVSMatchData);
 begin
 	Dest.Row := -1;
-	Dest.Col := -1;
-	Dest.MatchLength := -1;
+	Dest.ColBegin := -1;
+	Dest.ColEnd := -1;
 	Dest.LineText := '';
 end;
 

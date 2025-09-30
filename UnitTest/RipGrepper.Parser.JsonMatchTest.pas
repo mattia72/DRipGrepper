@@ -142,7 +142,7 @@ begin
 		Assert.AreEqual('1', pr.Columns[Integer(ciRow)].Text, 'Line number should be 1');
 
 		// Check if column is extracted (should be start position + 1)
-		Assert.AreEqual('1', pr.Columns[Integer(ciCol)].Text, 'Column should be 1');
+		Assert.AreEqual('1', pr.Columns[Integer(ciColBegin)].Text, 'Column should be 1');
 
 		// Check if match text is extracted
 		Assert.AreEqual('test', pr.Columns[Integer(ciMatchText)].Text, 'Match text should be "test"');

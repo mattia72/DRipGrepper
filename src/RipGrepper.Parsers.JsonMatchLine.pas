@@ -9,6 +9,7 @@ uses
 	System.JSON;
 
 type
+	{$DEFINE SKIP_BEGIN_END}
 	TJsonMatchLineParser = class(TInterfacedObject, ISearchResultLineParser)
 		private
 			FParserData : ILineParserData;
@@ -18,14 +19,14 @@ type
 			procedure SetParseResult(const Value : IParsedObjectRow);
 			function GetSearchParams : ISearchParams;
 			procedure SetSearchParams(const Value : ISearchParams);
-			procedure SetRgResultLineParseError(out row : TArrayEx<TColumnData>; const _sLine : string);
+			procedure setRgResultLineParseError(out row : TArrayEx<TColumnData>; const _sLine : string);
 			function Validate(var row : TArrayEx<TColumnData>) : Boolean; virtual;
 			function ValidatePath(const sFile : string) : Boolean;
-			procedure ParseJsonMatchLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
-			procedure ParseJsonBeginLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
-			procedure ParseJsonEndLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
-			procedure ParseJsonSummaryLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
-			function ExtractTextParts(const _lineText : string; const _submatches : TJSONArray) : TArray<string>;
+			procedure parseJsonMatchLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
+			procedure parseJsonBeginLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
+			procedure parseJsonEndLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
+			procedure parseJsonSummaryLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
+			function extractTextParts(const _lineText : string; const _submatches : TJSONArray) : TArray<string>;
 
 		public
 			property ParserData : ILineParserData read FParserData write FParserData;
@@ -44,7 +45,8 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	System.SysUtils,
 	System.IOUtils,
-	RipGrepper.Data.Parsers, System.Generics.Collections;
+	RipGrepper.Data.Parsers,
+	System.Generics.Collections;
 
 constructor TJsonMatchLineParser.Create;
 begin
@@ -92,7 +94,7 @@ begin
 
 	// Check if line starts with JSON format
 	if not _sLine.StartsWith('{"') then begin
-		SetRgResultLineParseError(cd, _sLine);
+		setRgResultLineParseError(cd, _sLine);
 		FParseResult.ErrorText := 'Not a valid JSON line';
 		FParseResult.IsError := True;
 		FParseResult.Columns := cd;
@@ -101,37 +103,38 @@ begin
 
 	try
 		jsonValue := TJSONObject.ParseJSONValue(_sLine);
-		if not Assigned(jsonValue) or not (jsonValue is TJSONObject) then begin
-			SetRgResultLineParseError(cd, _sLine);
+		if not Assigned(jsonValue) or not(jsonValue is TJSONObject) then begin
+			setRgResultLineParseError(cd, _sLine);
 			FParseResult.ErrorText := 'Invalid JSON format';
 			FParseResult.IsError := True;
 		end else begin
 			jsonObj := jsonValue as TJSONObject;
-			
+
 			// Get the type field
-			var typeValue := jsonObj.GetValue('type');
+			var
+			typeValue := jsonObj.GetValue('type');
 			if Assigned(typeValue) then
 				jsonType := typeValue.Value
 			else
 				jsonType := '';
-			
+
 			if jsonType = 'begin' then begin
-//				ParseJsonBeginLine(jsonObj, cd);
+				parseJsonBeginLine(jsonObj, cd);
 			end else if jsonType = 'match' then begin
-				ParseJsonMatchLine(jsonObj, cd);
+				parseJsonMatchLine(jsonObj, cd);
 			end else if jsonType = 'end' then begin
-//				ParseJsonEndLine(jsonObj, cd);
+				parseJsonEndLine(jsonObj, cd);
 			end else if jsonType = 'summary' then begin
-//				ParseJsonSummaryLine(jsonObj, cd);
+				parseJsonSummaryLine(jsonObj, cd);
 			end else begin
-				SetRgResultLineParseError(cd, _sLine);
+				setRgResultLineParseError(cd, _sLine);
 				FParseResult.ErrorText := 'Unknown JSON type: ' + jsonType;
 				FParseResult.IsError := True;
 			end;
 		end;
 	except
-		on E: Exception do begin
-			SetRgResultLineParseError(cd, _sLine);
+		on E : Exception do begin
+			setRgResultLineParseError(cd, _sLine);
 			FParseResult.ErrorText := 'JSON parsing error: ' + E.Message;
 			FParseResult.IsError := True;
 		end;
@@ -141,33 +144,39 @@ begin
 		FParseResult.IsError := not Validate(cd);
 
 	FParseResult.Columns := cd;
-	
+
 	if Assigned(jsonValue) then
 		jsonValue.Free;
 end;
 
-procedure TJsonMatchLineParser.ParseJsonBeginLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
+procedure TJsonMatchLineParser.parseJsonBeginLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
 var
 	dataObj : TJSONObject;
 	pathObj : TJSONObject;
 	filePath : string;
 	textValue : TJSONValue;
 begin
+	{$IFDEF SKIP_BEGIN_END}
+	Exit;
+	{$ENDIF}
 	// Extract file path from {"type":"begin","data":{"path":{"text":"filename"}}}
-	var dataValue := _jsonObj.GetValue('data');
+	var
+	dataValue := _jsonObj.GetValue('data');
 	if Assigned(dataValue) and (dataValue is TJSONObject) then begin
 		dataObj := dataValue as TJSONObject;
-		var pathValue := dataObj.GetValue('path');
+		var
+		pathValue := dataObj.GetValue('path');
 		if Assigned(pathValue) and (pathValue is TJSONObject) then begin
 			pathObj := pathValue as TJSONObject;
 			textValue := pathObj.GetValue('text');
-			if Assigned(textValue) then
+			if Assigned(textValue) then begin
 				filePath := textValue.Value
-			else
+			end else begin
 				filePath := '';
+			end;
 			_cd.Add(TColumnData.New(ciFile, filePath));
 			_cd.Add(TColumnData.New(ciRow, ''));
-			_cd.Add(TColumnData.New(ciCol, ''));
+			_cd.Add(TColumnData.New(ciColBegin, ''));
 			_cd.Add(TColumnData.New(ciText, '--- Begin file: ' + filePath + ' ---'));
 			_cd.Add(TColumnData.New(ciMatchText, ''));
 			_cd.Add(TColumnData.New(ciTextAfterMatch, ''));
@@ -175,7 +184,7 @@ begin
 	end;
 end;
 
-procedure TJsonMatchLineParser.ParseJsonMatchLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
+procedure TJsonMatchLineParser.parseJsonMatchLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
 var
 	dataObj : TJSONObject;
 	pathObj : TJSONObject;
@@ -189,13 +198,15 @@ var
 	numberValue : TJSONValue;
 begin
 	// Extract data from {"type":"match","data":{"path":{"text":"..."},"lines":{"text":"..."},"line_number":123,"submatches":[...]}}
-	var dataValue := _jsonObj.GetValue('data');
-	if not Assigned(dataValue) or not (dataValue is TJSONObject) then
+	var
+	dataValue := _jsonObj.GetValue('data');
+	if not Assigned(dataValue) or not(dataValue is TJSONObject) then
 		Exit;
 	dataObj := dataValue as TJSONObject;
 
 	// Get file path
-	var pathValue := dataObj.GetValue('path');
+	var
+	pathValue := dataObj.GetValue('path');
 	if Assigned(pathValue) and (pathValue is TJSONObject) then begin
 		pathObj := pathValue as TJSONObject;
 		textValue := pathObj.GetValue('text');
@@ -213,41 +224,49 @@ begin
 		lineNumber := 0;
 
 	// Get line text
-	var linesValue := dataObj.GetValue('lines');
+	var
+	linesValue := dataObj.GetValue('lines');
 	if Assigned(linesValue) and (linesValue is TJSONObject) then begin
 		linesObj := linesValue as TJSONObject;
 		textValue := linesObj.GetValue('text');
-		if Assigned(textValue) then
+		if Assigned(textValue) then begin
 			lineText := textValue.Value
-		else
+		end else begin
 			lineText := '';
+		end;
 	end;
 
 	// Get submatches for highlighting
-	var submatchesValue := dataObj.GetValue('submatches');
-	if Assigned(submatchesValue) and (submatchesValue is TJSONArray) then
-		submatchesArray := submatchesValue as TJSONArray
-	else
+	var
+	submatchesValue := dataObj.GetValue('submatches');
+	if Assigned(submatchesValue) and (submatchesValue is TJSONArray) then begin
+		submatchesArray := submatchesValue as TJSONArray;
+	end else begin
 		submatchesArray := nil;
-	
+	end;
+
 	_cd.Add(TColumnData.New(ciFile, filePath));
 	_cd.Add(TColumnData.New(ciRow, IntToStr(lineNumber)));
-	
+
 	// Calculate column from first submatch
 	if Assigned(submatchesArray) and (submatchesArray.Count > 0) then begin
-		var submatchItem := submatchesArray.Items[0];
+		var
+		submatchItem := submatchesArray.Items[0];
 		if Assigned(submatchItem) and (submatchItem is TJSONObject) then begin
-			var submatchObj := submatchItem as TJSONObject;
-			var startValue := submatchObj.GetValue('start');
-			var startPos : Integer;
+			var
+			submatchObj := submatchItem as TJSONObject;
+			var
+			startValue := submatchObj.GetValue('start');
+			var
+				startPos : Integer;
 			if Assigned(startValue) then
 				startPos := StrToIntDef(startValue.Value, 0)
 			else
 				startPos := 0;
-			_cd.Add(TColumnData.New(ciCol, IntToStr(startPos + 1))); // 1-based indexing
-		
+			_cd.Add(TColumnData.New(ciColBegin, IntToStr(startPos + 1))); // 1-based indexing
+
 			// Extract text parts for highlighting
-			textParts := ExtractTextParts(lineText, submatchesArray);
+			textParts := extractTextParts(lineText, submatchesArray);
 			if Length(textParts) >= 3 then begin
 				_cd.Add(TColumnData.New(ciText, textParts[0])); // text before match
 				_cd.Add(TColumnData.New(ciMatchText, textParts[1])); // matched text
@@ -258,20 +277,20 @@ begin
 				_cd.Add(TColumnData.New(ciTextAfterMatch, ''));
 			end;
 		end else begin
-			_cd.Add(TColumnData.New(ciCol, '1'));
+			_cd.Add(TColumnData.New(ciColBegin, '1'));
 			_cd.Add(TColumnData.New(ciText, lineText));
 			_cd.Add(TColumnData.New(ciMatchText, ''));
 			_cd.Add(TColumnData.New(ciTextAfterMatch, ''));
 		end;
 	end else begin
-		_cd.Add(TColumnData.New(ciCol, '1'));
+		_cd.Add(TColumnData.New(ciColBegin, '1'));
 		_cd.Add(TColumnData.New(ciText, lineText));
 		_cd.Add(TColumnData.New(ciMatchText, ''));
 		_cd.Add(TColumnData.New(ciTextAfterMatch, ''));
 	end;
 end;
 
-procedure TJsonMatchLineParser.ParseJsonEndLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
+procedure TJsonMatchLineParser.parseJsonEndLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
 var
 	dataObj : TJSONObject;
 	pathObj : TJSONObject;
@@ -282,11 +301,16 @@ var
 	matchesValue, matchedLinesValue : TJSONValue;
 	matches, matchedLines : Integer;
 begin
+	{$IFDEF SKIP_BEGIN_END}
+	Exit;
+	{$ENDIF}
 	// Extract data from {"type":"end","data":{"path":{"text":"..."},"stats":{...}}}
-	var dataValue := _jsonObj.GetValue('data');
+	var
+	dataValue := _jsonObj.GetValue('data');
 	if Assigned(dataValue) and (dataValue is TJSONObject) then begin
 		dataObj := dataValue as TJSONObject;
-		var pathValue := dataObj.GetValue('path');
+		var
+		pathValue := dataObj.GetValue('path');
 		if Assigned(pathValue) and (pathValue is TJSONObject) then begin
 			pathObj := pathValue as TJSONObject;
 			textValue := pathObj.GetValue('text');
@@ -295,8 +319,9 @@ begin
 			else
 				filePath := '';
 		end;
-		
-		var statsValue := dataObj.GetValue('stats');
+
+		var
+		statsValue := dataObj.GetValue('stats');
 		if Assigned(statsValue) and (statsValue is TJSONObject) then begin
 			statsObj := statsValue as TJSONObject;
 			matchesValue := statsObj.GetValue('matches');
@@ -304,30 +329,30 @@ begin
 				matches := StrToIntDef(matchesValue.Value, 0)
 			else
 				matches := 0;
-				
+
 			matchedLinesValue := statsObj.GetValue('matched_lines');
 			if Assigned(matchedLinesValue) then
 				matchedLines := StrToIntDef(matchedLinesValue.Value, 0)
 			else
 				matchedLines := 0;
-				
+
 			statsText := Format('--- End file: %s (Matches: %d, Lines: %d) ---', [filePath, matches, matchedLines]);
 		end else begin
 			statsText := '--- End file: ' + filePath + ' ---';
 		end;
-		
+
 		_cd.Add(TColumnData.New(ciFile, RG_STATS_LINE));
 		_cd.Add(TColumnData.New(ciRow, ''));
-		_cd.Add(TColumnData.New(ciCol, ''));
+		_cd.Add(TColumnData.New(ciColBegin, ''));
 		_cd.Add(TColumnData.New(ciText, statsText));
 		_cd.Add(TColumnData.New(ciMatchText, ''));
 		_cd.Add(TColumnData.New(ciTextAfterMatch, ''));
-		
+
 		ParseResult.IsStatsLine := True;
 	end;
 end;
 
-procedure TJsonMatchLineParser.ParseJsonSummaryLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
+procedure TJsonMatchLineParser.parseJsonSummaryLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
 var
 	dataObj : TJSONObject;
 	statsObj : TJSONObject;
@@ -335,11 +360,17 @@ var
 	matchesValue, matchedLinesValue, searchesValue : TJSONValue;
 	matches, matchedLines, searches : Integer;
 begin
+
+	{$IFDEF SKIP_BEGIN_END}
+	Exit;
+	{$ENDIF}
 	// Extract summary data from {"type":"summary","data":{"stats":{...}}}
-	var dataValue := _jsonObj.GetValue('data');
+	var
+	dataValue := _jsonObj.GetValue('data');
 	if Assigned(dataValue) and (dataValue is TJSONObject) then begin
 		dataObj := dataValue as TJSONObject;
-		var statsValue := dataObj.GetValue('stats');
+		var
+		statsValue := dataObj.GetValue('stats');
 		if Assigned(statsValue) and (statsValue is TJSONObject) then begin
 			statsObj := statsValue as TJSONObject;
 			matchesValue := statsObj.GetValue('matches');
@@ -347,36 +378,36 @@ begin
 				matches := StrToIntDef(matchesValue.Value, 0)
 			else
 				matches := 0;
-				
+
 			matchedLinesValue := statsObj.GetValue('matched_lines');
 			if Assigned(matchedLinesValue) then
 				matchedLines := StrToIntDef(matchedLinesValue.Value, 0)
 			else
 				matchedLines := 0;
-				
+
 			searchesValue := statsObj.GetValue('searches');
 			if Assigned(searchesValue) then
 				searches := StrToIntDef(searchesValue.Value, 0)
 			else
 				searches := 0;
-				
+
 			summaryText := Format('=== Summary: %d searches, %d matches, %d matched lines ===', [searches, matches, matchedLines]);
 		end else begin
 			summaryText := '=== Search completed ===';
 		end;
-		
+
 		_cd.Add(TColumnData.New(ciFile, RG_STATS_LINE));
 		_cd.Add(TColumnData.New(ciRow, ''));
-		_cd.Add(TColumnData.New(ciCol, ''));
+		_cd.Add(TColumnData.New(ciColBegin, ''));
 		_cd.Add(TColumnData.New(ciText, summaryText));
 		_cd.Add(TColumnData.New(ciMatchText, ''));
 		_cd.Add(TColumnData.New(ciTextAfterMatch, ''));
-		
+
 		ParseResult.IsStatsLine := True;
 	end;
 end;
 
-function TJsonMatchLineParser.ExtractTextParts(const _lineText : string; const _submatches : TJSONArray) : TArray<string>;
+function TJsonMatchLineParser.extractTextParts(const _lineText : string; const _submatches : TJSONArray) : TArray<string>;
 var
 	submatchObj : TJSONObject;
 	matchObj : TJSONObject;
@@ -385,39 +416,43 @@ var
 	startValue, endValue, textValue : TJSONValue;
 begin
 	SetLength(Result, 3);
-	
+
 	if not Assigned(_submatches) or (_submatches.Count = 0) then begin
 		Result[0] := _lineText;
 		Result[1] := '';
 		Result[2] := '';
 		Exit;
 	end;
-	
+
 	// Get first submatch
-	var submatchItem := _submatches.Items[0];
-	if not Assigned(submatchItem) or not (submatchItem is TJSONObject) then begin
+	var
+	submatchItem := _submatches.Items[0];
+	if not Assigned(submatchItem) or not(submatchItem is TJSONObject) then begin
 		Result[0] := _lineText;
 		Result[1] := '';
 		Result[2] := '';
 		Exit;
 	end;
-	
+
 	submatchObj := submatchItem as TJSONObject;
-	
+
 	startValue := submatchObj.GetValue('start');
-	if Assigned(startValue) then
-		startPos := StrToIntDef(startValue.Value, 0)
-	else
+	if Assigned(startValue) then begin
+		startPos := StrToIntDef(startValue.Value, 0);
+	end else begin
 		startPos := 0;
-		
+	end;
+
 	endValue := submatchObj.GetValue('end');
-	if Assigned(endValue) then
-		endPos := StrToIntDef(endValue.Value, 0)
-	else
+	if Assigned(endValue) then begin
+		endPos := StrToIntDef(endValue.Value, 0);
+	end else begin
 		endPos := 0;
-	
+	end;
+
 	// Extract match text from submatch object
-	var matchValue := submatchObj.GetValue('match');
+	var
+	matchValue := submatchObj.GetValue('match');
 	if Assigned(matchValue) and (matchValue is TJSONObject) then begin
 		matchObj := matchValue as TJSONObject;
 		textValue := matchObj.GetValue('text');
@@ -428,21 +463,21 @@ begin
 	end else begin
 		matchText := '';
 	end;
-	
+
 	// Split the line text
 	beforeText := Copy(_lineText, 1, startPos);
 	afterText := Copy(_lineText, endPos + 1, Length(_lineText));
-	
+
 	Result[0] := beforeText;
 	Result[1] := matchText;
 	Result[2] := afterText;
 end;
 
-procedure TJsonMatchLineParser.SetRgResultLineParseError(out row : TArrayEx<TColumnData>; const _sLine : string);
+procedure TJsonMatchLineParser.setRgResultLineParseError(out row : TArrayEx<TColumnData>; const _sLine : string);
 begin
 	row.Add(TColumnData.New(ciFile, _sLine));
 	row.Add(TColumnData.New(ciRow, ''));
-	row.Add(TColumnData.New(ciCol, ''));
+	row.Add(TColumnData.New(ciColBegin, ''));
 	row.Add(TColumnData.New(ciText, ''));
 	row.Add(TColumnData.New(ciMatchText, ''));
 	row.Add(TColumnData.New(ciTextAfterMatch, ''));
@@ -454,17 +489,17 @@ var
 	sRow : string;
 begin
 	Result := False;
-	
+
 	// Skip validation for stats lines
 	if ParseResult.IsStatsLine then begin
 		Result := True;
 		Exit;
 	end;
-	
+
 	ParseResult.IsError := not ValidatePath(row[Integer(ciFile)].Text);
 	if ParseResult.IsError then
 		Exit;
-		
+
 	sRow := row[Integer(ciRow)].Text;
 	if sRow <> '' then begin
 		ParseResult.IsError := StrToIntDef(sRow, -1) <= 0;
@@ -473,8 +508,8 @@ begin
 			Exit;
 		end;
 	end;
-	
-	sCol := row[Integer(ciCol)].Text;
+
+	sCol := row[Integer(ciColBegin)].Text;
 	if sCol <> '' then begin
 		ParseResult.IsError := StrToIntDef(sCol, -1) <= 0;
 		if ParseResult.IsError then begin
@@ -482,7 +517,7 @@ begin
 			Exit;
 		end;
 	end;
-	
+
 	Result := True;
 end;
 
@@ -493,7 +528,7 @@ begin
 		Result := True;
 		Exit;
 	end;
-	
+
 	if sFile.StartsWith(':') then begin
 		ParseResult.ErrorText := 'Begins with '':''';
 	end else if not TPath.HasValidPathChars(sFile, False) then begin

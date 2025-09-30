@@ -288,7 +288,7 @@ const
 
 type
 
-	EColumnIndex = (ciFile, ciRow, ciCol, ciText, ciMatchText, ciTextAfterMatch);
+	EColumnIndex = (ciFile, ciRow, ciColBegin, ciColEnd, ciText, ciMatchText, ciTextAfterMatch);
 
 const
 	FILE_COLUMN = 'File';

@@ -720,7 +720,7 @@ begin
 				continue;
 			end;
 			lineNum := nodeData.MatchData.Row;
-			rowNum := nodeData.MatchData.Col;
+			rowNum := nodeData.MatchData.ColBegin;
 			var
 			lineText := nodeData.MatchData.LineText;
 

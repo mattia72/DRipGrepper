@@ -381,7 +381,7 @@ var
 begin
 	nodeData := GetSelectedResultFileNodeData();
 	if Assigned(nodeData) then
-		Clipboard.AsText := nodeData.MatchData.LineText.Substring(nodeData.MatchData.Col - 1, nodeData.MatchData.MatchLength);
+		Clipboard.AsText := nodeData.MatchData.LineText.Substring(nodeData.MatchData.ColBegin - 1, nodeData.MatchData.GetMatchLength);
 end;
 
 procedure TRipGrepperMiddleFrame.ActionCopyMatchToClipboardUpdate(Sender : TObject);
@@ -786,7 +786,7 @@ begin
 		Result.RelativeBaseDirPath := GetOpenWithRelativeBaseDirPath(dataParent);
 		Result.FilePath := dataParent.FilePath;
 		Result.Row := nodeData.MatchData.Row;
-		Result.Column := nodeData.MatchData.Col;
+		Result.Column := nodeData.MatchData.ColBegin;
 		Result.IsEmpty := False;
 	end;
 
@@ -1305,7 +1305,7 @@ begin
 			COL_ROW_NUM :
 			Result := { CompareText(s1, s2) + } CompareValue(Data1.MatchData.Row, Data2.MatchData.Row);
 			COL_COL_NUM :
-			Result := { CompareText(s1, s2) + } CompareValue(Data1.MatchData.Col, Data2.MatchData.Col);
+			Result := { CompareText(s1, s2) + } CompareValue(Data1.MatchData.ColBegin, Data2.MatchData.ColBegin);
 			COL_MATCH_TEXT :
 			Result := CompareText(Data1.MatchData.LineText, Data2.MatchData.LineText);
 		end;
@@ -1333,7 +1333,7 @@ var
 	pos : Integer;
 	nodeData : PVSFileNodeData;
 	s, ss0, ss1, ss1_repl, ss2 : string;
-	iSpaces, iTabs, matchBegin : Integer;
+	iTrimmedSpaces, iTrimmedTabs, matchBegin : Integer;
 begin
 	case Column of
 		COL_FILE : begin
@@ -1355,29 +1355,31 @@ begin
 		end;
 		COL_MATCH_TEXT : begin
 			case FHistItemObj.ParserType of
-				ptRipGrepSearch, ptRipGrepPrettySearch : begin
+				ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepJson : begin
 					DefaultDraw := False;
 					// First, store the default font size and color number
 					var
 					backup := TDrawParams.Save(TargetCanvas);
 
 					nodeData := VstResult.GetNodeData(Node);
-					s := nodeData.GetLineText(not Settings.NodeLookSettings.IndentLines, iSpaces, iTabs);
-					matchBegin := nodeData.MatchData.Col - 1 - (iSpaces + iTabs);
+					s := nodeData.GetLineText(not Settings.NodeLookSettings.IndentLines, iTrimmedSpaces, iTrimmedTabs);
+					matchBegin := nodeData.MatchData.ColBegin - 1 - (iTrimmedSpaces + iTrimmedTabs);
 
 					ss0 := s.Substring(0, matchBegin).Replace(#9, TREEVIEW_INDENT_TAB_AS_SPACES, [rfReplaceAll]);
 					pos := TargetCanvas.TextWidth(ss0);
 
 					TItemDrawer.ColoredTextOut(TargetCanvas, CellRect, ss0, FColorSettings.NormalText);
 
-					ss1 := s.Substring(matchBegin, nodeData.MatchData.MatchLength);
-					TDebugUtils.MsgFmt('Line: "%s" (s:%d,t:%d) match at %d: "%s"', [s, iSpaces, iTabs, matchBegin, ss1], tftVerbose);
+					ss1 := s.Substring(matchBegin, nodeData.MatchData.GetMatchLength);
+
+					TDebugUtils.MsgFmt('%s', [nodeData.MatchData.ToString], tftVerbose);
+					TDebugUtils.MsgFmt('Line: "%s" (s:%d,t:%d) match at %d: "%s"', [s, iTrimmedSpaces, iTrimmedTabs, matchBegin, ss1], tftVerbose);
 
 					if IsGuiReplaceMode and (not Settings.LastSearchText.IsEmpty) then begin
 						ss1_repl := TReplaceHelper.ReplaceString(ss1, Settings.LastSearchText,
 						{ } Settings.RipGrepParameters.ReplaceText, 1, TopFrame.GetReplaceMode());
 					end;
-					ss2 := s.Substring(matchBegin + nodeData.MatchData.MatchLength);
+					ss2 := s.Substring(matchBegin + nodeData.MatchData.GetMatchLength);
 
 					if IsGuiReplaceMode or IsRgReplaceMode then begin
 						TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.ReplacedText);
@@ -1457,7 +1459,7 @@ begin
 			CellText := GetRowColText(NodeData.MatchData.Row, TextType);
 		end;
 		COL_COL_NUM : begin
-			CellText := GetRowColText(NodeData.MatchData.Col, TextType);
+			CellText := GetRowColText(NodeData.MatchData.ColBegin, TextType);
 		end;
 		COL_MATCH_TEXT : begin
 			if (TextType = ttNormal) then begin

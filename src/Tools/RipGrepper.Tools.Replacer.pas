@@ -155,18 +155,19 @@ begin
 			iCheckedRow := -1;
 			for var rd : TReplaceData in _list.Items[fileName] do begin
 				if (rd.Row >= 0) and (rd.Row <= fileLines.Count) then begin
-
+					dbgMsg.MsgIf(_bSkipOrigCheck, 'Orig check skipped.');
 					fileLine := fileLines[rd.Row - 1];
 					if (iCheckedRow <> rd.Row) and
-					{ } ((not _bSkipOrigCheck) and (rd.OrigLine <> fileLine)) then begin
-						dbgMsg.Msg('orig:' + rd.OrigLine);
-						dbgMsg.Msg('act:' + fileLine);
-						failedItem := TPair<string, TReplaceData>.Create(fileName, rd);
-						_failed.Add(failedItem);
-						bFileMismatch := True;
-						break;
+					{ } (rd.OrigLine <> fileLine) then begin
+						if (not _bSkipOrigCheck) then begin
+							dbgMsg.Msg('origin:' + rd.OrigLine);
+							dbgMsg.Msg('actual:' + fileLine);
+							failedItem := TPair<string, TReplaceData>.Create(fileName, rd);
+							_failed.Add(failedItem);
+							bFileMismatch := True;
+							break;
+						end;
 					end else begin
-						dbgMsg.MsgIf(_bSkipOrigCheck, 'Orig check skipped.');
 						iCheckedRow := rd.Row;
 					end;
 

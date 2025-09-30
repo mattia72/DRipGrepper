@@ -20,6 +20,7 @@ uses
   {$ENDIF }
   DUnitX.TestFramework,
   RipGrepper.Parser.MatchTest in 'RipGrepper.Parser.MatchTest.pas',
+  RipGrepper.Parser.JsonMatchTest in 'RipGrepper.Parser.JsonMatchTest.pas',
   RipGrepper.Data.Matches in '..\src\RipGrepper.Data.Matches.pas',
   RipGrepper.ProcessUtils.Test in 'RipGrepper.ProcessUtils.Test.pas',
   RipGrepper.Helper.Types.Test in 'RipGrepper.Helper.Types.Test.pas',

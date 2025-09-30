@@ -36,7 +36,8 @@ type
 
 	IParsedObjectRow = interface(IParsedObject)
 		['{85536634-C591-43F1-B348-BC93E4E62942}']
-		function GetCol() : Integer;
+		function GetColBegin(): Integer;
+		function GetColEnd(): Integer;
 		function GetErrorText : string;
 		function GetColumnText(const _idx : integer) : string; overload;
 		function GetColumnText(const _idx : EColumnIndex) : string; overload;
@@ -51,6 +52,7 @@ type
 		procedure SetIsStatsLine(const Value : Boolean);
 		procedure SetParserType(const Value : TParserType);
 		procedure SetParsedRowNr(const Value : Integer);
+
 		property ErrorText : string read GetErrorText write SetErrorText;
 		property IsError : Boolean read GetIsError write SetIsError;
 		property IsStatsLine : Boolean read GetIsStatsLine write SetIsStatsLine;
@@ -58,7 +60,8 @@ type
 		property ParsedRowNr : Integer read GetParsedRowNr write SetParsedRowNr;
 
 		property FilePath : string read GetFilePath;
-		property Col : Integer read GetCol;
+		property ColBegin: Integer read GetColBegin;
+		property ColEnd: Integer read GetColEnd;
 		property Row : Integer read GetRow;
 	end;
 
@@ -84,12 +87,14 @@ type
 
 	TParsedObjectRow = class(TInterfacedObject, IParsedObjectRow, IParsedObject)
 		strict private
+			FColEnd: Integer;
 			FErrorText : string;
 			FIsError : Boolean;
 			FColumns : TArrayEx<TColumnData>;
 			FIsStatsLine : Boolean;
 			FParserType : TParserType;
 			FParsedRowNr : Integer;
+			function GetColEnd(): Integer;
 			function getColumns : TArrayEx<TColumnData>;
 			procedure setColumns(const Value : TArrayEx<TColumnData>);
 			function getErrorText : string;
@@ -104,7 +109,7 @@ type
 			procedure setParserType(const Value : TParserType);
 
 		private
-			function GetCol() : Integer;
+			function GetColBegin(): Integer;
 			function GetFilePath() : string;
 			function GetRow() : Integer;
 
@@ -124,7 +129,8 @@ type
 			property ParserType : TParserType read getParserType write setParserType;
 
 			property FilePath : string read GetFilePath;
-			property Col : Integer read GetCol;
+			property ColBegin: Integer read GetColBegin;
+			property ColEnd: Integer read GetColEnd;
 			property Row : Integer read GetRow;
 
 	end;
@@ -200,9 +206,14 @@ begin
 	_por.IsStatsLine := IsStatsLine;
 end;
 
-function TParsedObjectRow.GetCol() : Integer;
+function TParsedObjectRow.GetColBegin(): Integer;
 begin
-	Result := StrToIntDef(GetColumnText(ciCol), -1);
+	Result := StrToIntDef(GetColumnText(ciColBegin), -1);
+end;
+
+function TParsedObjectRow.GetColEnd(): Integer;
+begin
+	Result := FColEnd;
 end;
 
 function TParsedObjectRow.GetColumnByTitle(const _title : string) : TColumnData;
@@ -328,7 +339,7 @@ begin
 				Exit;
 			end;
 			Result := Result and (_nodeData.MatchData.Row = _item.Row);
-			Result := Result and (_nodeData.MatchData.Col = _item.Col);
+			Result := Result and (_nodeData.MatchData.ColBegin = _item.ColBegin);
 		end);
 end;
 
