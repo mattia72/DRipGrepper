@@ -8,6 +8,9 @@ applyTo: "*.pas"
 * Use English for all code comments and documentation
 * Prioritize code quality and maintainability
 * Follow consistent formatting and naming conventions
+* Don't bother compiling errors - they are not caught correctly by VsCode
+* Don't try to compile from command line - it will fail due to missing license of Delphi IDE
+
 
 ## File Organization
 * Unit names should follow PascalCase
