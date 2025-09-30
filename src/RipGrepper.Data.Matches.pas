@@ -231,7 +231,7 @@ begin
 		bAsFirst := True;
 	end;
 	case _item.ParserType of
-		ptRipGrepSearch, ptRipGrepPrettySearch : begin
+		ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepJson : begin
 			nodeData := TVSFileNodeData.New('', // File
 			{ } _item.Row, // Row
 			{ } _item.Col, // Col
