@@ -13,6 +13,9 @@ type
 	{$IFDEF TESTINSIGHT}
 	{$UNDEF SKIP_BEGIN_END}
 	{$ENDIF}
+	{$IFDEF CONSOLE}
+	{$UNDEF SKIP_BEGIN_END}
+	{$ENDIF}
 	TJsonMatchLineParser = class(TInterfacedObject, ISearchResultLineParser)
 		private
 			FParserData : ILineParserData;
@@ -191,6 +194,7 @@ begin
 			_cd.Add(TColumnData.New(ciFile, filePath));
 			_cd.Add(TColumnData.New(ciRow, ''));
 			_cd.Add(TColumnData.New(ciColBegin, ''));
+			_cd.Add(TColumnData.New(ciColEnd, ''));
 			_cd.Add(TColumnData.New(ciText, '--- Begin file: ' + filePath + ' ---'));
 			_cd.Add(TColumnData.New(ciMatchText, ''));
 			_cd.Add(TColumnData.New(ciTextAfterMatch, ''));
@@ -319,6 +323,7 @@ begin
 		_cd.Add(TColumnData.New(ciFile, RG_STATS_LINE));
 		_cd.Add(TColumnData.New(ciRow, ''));
 		_cd.Add(TColumnData.New(ciColBegin, ''));
+		_cd.Add(TColumnData.New(ciColEnd, ''));
 		_cd.Add(TColumnData.New(ciText, statsText));
 		_cd.Add(TColumnData.New(ciMatchText, ''));
 		_cd.Add(TColumnData.New(ciTextAfterMatch, ''));
@@ -374,6 +379,7 @@ begin
 		_cd.Add(TColumnData.New(ciFile, RG_STATS_LINE));
 		_cd.Add(TColumnData.New(ciRow, ''));
 		_cd.Add(TColumnData.New(ciColBegin, ''));
+		_cd.Add(TColumnData.New(ciColEnd, ''));
 		_cd.Add(TColumnData.New(ciText, summaryText));
 		_cd.Add(TColumnData.New(ciMatchText, ''));
 		_cd.Add(TColumnData.New(ciTextAfterMatch, ''));

@@ -87,7 +87,6 @@ type
 
 	TParsedObjectRow = class(TInterfacedObject, IParsedObjectRow, IParsedObject)
 		strict private
-			FColEnd: Integer;
 			FErrorText : string;
 			FIsError : Boolean;
 			FColumns : TArrayEx<TColumnData>;

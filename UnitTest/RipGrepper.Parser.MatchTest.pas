@@ -92,8 +92,7 @@ begin
 		{ } pr.Columns[Integer(ciFile)].Text + CRLF +
 		{ } pr.Columns[Integer(ciRow)].Text + CRLF +
 		{ } pr.Columns[Integer(ciColBegin)].Text + CRLF +
-
-
+		{ } pr.Columns[Integer(ciColEnd)].Text + CRLF +
 		{ } pr.Columns[Integer(ciText)].Text + CRLF +
 		{ } pr.Columns[Integer(ciMatchText)].Text + CRLF +
 		{ } pr.Columns[Integer(ciTextAfterMatch)].Text);
@@ -110,18 +109,15 @@ begin
 	parseRes := (m as TVimGrepMatchLineParser).ParseResult;
 	Assert.IsTrue(parseRes.IsError and
 		{ } parseRes.Columns[Integer(ciColBegin)].Text.IsEmpty and
-
-		{ } parseRes.Columns[Integer(ciColBegin)].Text.IsEmpty and
+		{ } parseRes.Columns[Integer(ciColEnd)].Text.IsEmpty and
 
 		{ } parseRes.Columns[Integer(ciText)].Text.IsEmpty,
 		{ } 'Line:' + CRLF +
 		{ } _s + CRLF +
 		{ } parseRes.Columns[Integer(ciColBegin)].Text + CRLF +
-
+		{ } parseRes.Columns[Integer(ciColEnd)].Text + CRLF +
 		{ } parseRes.Columns[Integer(ciRow)].Text + CRLF +
-		{ } parseRes.Columns[Integer(ciColBegin)].Text + CRLF +
-
-		{ } parseRes.Columns[Integer(ciText)].Text + CRLF);
+		{ } parseRes.Columns[Integer(ciText)].Text);
 
 end;
 
@@ -138,7 +134,7 @@ begin
 
 	Assert.IsTrue(not parseRes.IsError, 'Line parsed with error: ' + _s);
 
-	Assert.IsTrue(parseRes.Columns.Count = 6,
+	Assert.IsTrue(parseRes.Columns.Count = 7,
 		{ } 'Line:' + CRLF +
 		{ } parseRes.Columns[Integer(ciColBegin)].Text + CRLF +
 

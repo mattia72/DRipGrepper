@@ -68,6 +68,9 @@ uses
 	RipGrepper.Common.ParsedObject,
 	DUnitX.Utils;
 
+const
+	COLUMN_NUM = 7;
+
 { TSearchParamMock }
 
 constructor TSearchParamMock.Create(const _guiParams : IShared<TSearchTextWithOptions>);
@@ -108,7 +111,7 @@ begin
 		pr := parser.ParseResult;
 
 		Assert.IsFalse(pr.IsError, 'JSON begin line should not have errors: ' + pr.ErrorText);
-		Assert.AreEqual(6, pr.Columns.Count, 'Expected 6 columns for begin line');
+		Assert.AreEqual(COLUMN_NUM, pr.Columns.Count, 'Expected columns for begin line');
 		Assert.AreEqual('test.pas', pr.Columns[Integer(ciFile)].Text, 'File path not correctly extracted');
 		Assert.IsTrue(pr.Columns[Integer(ciText)].Text.Contains('Begin file'), 'Begin line text should contain "Begin file"');
 	finally
@@ -133,7 +136,7 @@ begin
 		pr := parser.ParseResult;
 
 		Assert.IsFalse(pr.IsError, 'JSON match line should not have errors: ' + pr.ErrorText);
-		Assert.AreEqual(6, pr.Columns.Count, 'Expected 6 columns for match line');
+		Assert.AreEqual(COLUMN_NUM, pr.Columns.Count, 'Expected columns for match line');
 
 		// Check if file path is extracted
 		Assert.AreEqual('test.pas', pr.Columns[Integer(ciFile)].Text, 'File path should be test.pas');
@@ -167,7 +170,7 @@ begin
 
 		Assert.IsFalse(pr.IsError, 'JSON end line should not have errors: ' + pr.ErrorText);
 		Assert.IsTrue(pr.IsStatsLine, 'End line should be marked as stats line');
-		Assert.AreEqual(6, pr.Columns.Count, 'Expected 6 columns for end line');
+		Assert.AreEqual(COLUMN_NUM, pr.Columns.Count, 'Expected columns for end line');
 		Assert.AreEqual(RG_STATS_LINE, pr.Columns[Integer(ciFile)].Text, 'End line should have RG_STATS_LINE as file');
 		Assert.IsTrue(pr.Columns[Integer(ciText)].Text.Contains('End file'), 'End line text should contain "End file"');
 		Assert.IsTrue(pr.Columns[Integer(ciText)].Text.Contains('Matches:'), 'End line text should contain match statistics');
@@ -192,7 +195,7 @@ begin
 
 		Assert.IsFalse(pr.IsError, 'JSON summary line should not have errors: ' + pr.ErrorText);
 		Assert.IsTrue(pr.IsStatsLine, 'Summary line should be marked as stats line');
-		Assert.AreEqual(6, pr.Columns.Count, 'Expected 6 columns for summary line');
+		Assert.AreEqual(COLUMN_NUM, pr.Columns.Count, 'Expected columns for summary line');
 		Assert.AreEqual(RG_STATS_LINE, pr.Columns[Integer(ciFile)].Text, 'Summary line should have RG_STATS_LINE as file');
 		Assert.IsTrue(pr.Columns[Integer(ciText)].Text.Contains('Summary:'), 'Summary line text should contain "Summary:"');
 		Assert.IsTrue(pr.Columns[Integer(ciText)].Text.Contains('searches'), 'Summary line text should contain search statistics');
@@ -246,7 +249,7 @@ begin
 
 			Assert.IsFalse(pr.IsError, Format('Line %d should not have errors: %s' + CRLF + 'Line: %s', [i, pr.ErrorText, testLines[i]]));
 
-			Assert.AreEqual(6, pr.Columns.Count, Format('Line %d should have 6 columns, got %d', [i, pr.Columns.Count]));
+			Assert.AreEqual(COLUMN_NUM, pr.Columns.Count, Format('Line %d should have %d columns, got %d', [i, COLUMN_NUM, pr.Columns.Count]));
 		end;
 	finally
 		parser.Free;

@@ -95,6 +95,7 @@ begin
 	_cd.Add(TColumnData.New(ciFile, s));
 	_cd.Add(TColumnData.New(ciRow, _m.Groups['row'].Value));
 	_cd.Add(TColumnData.New(ciColBegin, ''));
+	_cd.Add(TColumnData.New(ciColEnd, ''));
 	_cd.Add(TColumnData.New(ciText, _m.Groups['text'].Value));
 end;
 
@@ -103,6 +104,7 @@ begin
 	_cd.Add(TColumnData.New(ciFile, RG_STATS_LINE));
 	_cd.Add(TColumnData.New(ciRow, ''));
 	_cd.Add(TColumnData.New(ciColBegin, ''));
+	_cd.Add(TColumnData.New(ciColEnd, ''));
 	_cd.Add(TColumnData.New(ciText, _m.Groups[0].Value));
 	_cd.Add(TColumnData.New(ciMatchText, ''));
 	_cd.Add(TColumnData.New(ciTextAfterMatch, ''));
@@ -128,6 +130,7 @@ begin
 		cd.Add(TColumnData.New(ciFile, s));
 		cd.Add(TColumnData.New(ciRow, m.Groups['row'].Value));
 		cd.Add(TColumnData.New(ciColBegin, m.Groups['col'].Value));
+		cd.Add(TColumnData.New(ciColEnd, ''));
 		s := m.Groups['text'].Value;
 
 		var // not used, but so we have less memory leak!
@@ -145,6 +148,7 @@ begin
 			cd.Add(TColumnData.New(ciMatchText, ''));
 			cd.Add(TColumnData.New(ciTextAfterMatch, ''));
 		end;
+
 	end else begin
 		m := ParserData.ContextLineParseRegex.Match(_sLine);
 		if m.Success then begin
@@ -204,6 +208,7 @@ begin
 	row.Add(TColumnData.New(ciFile, _sLine));
 	row.Add(TColumnData.New(ciRow, ''));
 	row.Add(TColumnData.New(ciColBegin, ''));
+	row.Add(TColumnData.New(ciColEnd, ''));
 	row.Add(TColumnData.New(ciText, ''));
 end;
 
@@ -314,6 +319,7 @@ begin
 	cd.Add(TColumnData.New(ciFile, s));
 	cd.Add(TColumnData.New(ciRow, m.Groups['row'].Value));
 	cd.Add(TColumnData.New(ciColBegin, m.Groups['col'].Value));
+	cd.Add(TColumnData.New(ciColEnd,''));
 	cd.Add(TColumnData.New(ciText, m.Groups['text_before_match'].Value));
 	var
 	count := cd.Count;

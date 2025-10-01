@@ -304,6 +304,7 @@ begin
 	colData.Add(TColumnData.New(ciFile, 'C:\Test\File1.pas'));
 	colData.Add(TColumnData.New(ciRow, '10'));
 	colData.Add(TColumnData.New(ciColBegin, '5'));
+	colData.Add(TColumnData.New(ciColEnd, '6'));
 	colData.Add(TColumnData.New(ciText, 'This is a test pattern match'));
 	colData.Add(TColumnData.New(ciMatchText, 'test pattern'));
 	colData.Add(TColumnData.New(ciTextAfterMatch, ' match'));
@@ -316,6 +317,7 @@ begin
 	colData.Add(TColumnData.New(ciFile, 'C:\Test\File2.pas'));
 	colData.Add(TColumnData.New(ciRow, '15'));
 	colData.Add(TColumnData.New(ciColBegin, '8'));
+	colData.Add(TColumnData.New(ciColEnd, '9'));
 	colData.Add(TColumnData.New(ciText, 'Another test pattern here'));
 	colData.Add(TColumnData.New(ciMatchText, 'test pattern'));
 	colData.Add(TColumnData.New(ciTextAfterMatch, ' here'));
@@ -356,6 +358,7 @@ begin
 	colData.Add(TColumnData.New(ciFile, 'rg.exe' + RG_HAS_NO_OUTPUT));
 	colData.Add(TColumnData.New(ciRow, ''));
 	colData.Add(TColumnData.New(ciColBegin, ''));
+	colData.Add(TColumnData.New(ciColEnd, ''));
 	colData.Add(TColumnData.New(ciText, ''));
 	colData.Add(TColumnData.New(ciMatchText, ''));
 	colData.Add(TColumnData.New(ciTextAfterMatch, ''));
@@ -401,7 +404,8 @@ begin
 	colData.Clear();
 	colData.Add(TColumnData.New(ciFile, 'C:\Replace\File1.pas'));
 	colData.Add(TColumnData.New(ciRow, '20'));
-	colData.Add(TColumnData.New(ciColBegin, '12'));
+	colData.Add(TColumnData.New(ciColBegin, '5'));
+	colData.Add(TColumnData.New(ciColEnd, '13'));
 	colData.Add(TColumnData.New(ciText, 'var old_value: string;'));
 	colData.Add(TColumnData.New(ciMatchText, 'old_value'));
 	colData.Add(TColumnData.New(ciTextAfterMatch, ': string;'));
@@ -951,6 +955,7 @@ begin
 		colData.Add(TColumnData.New(ciFile, Format('C:\Test\LargeFile%d.pas', [i])));
 		colData.Add(TColumnData.New(ciRow, IntToStr(i * 10)));
 		colData.Add(TColumnData.New(ciColBegin, '5'));
+		colData.Add(TColumnData.New(ciColEnd, '6'));
 		colData.Add(TColumnData.New(ciText, largeSearchText + ' match ' + IntToStr(i)));
 		colData.Add(TColumnData.New(ciMatchText, largeSearchText));
 		row.Columns := colData;
