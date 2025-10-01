@@ -86,7 +86,15 @@ end;
 
 function TVSMatchData.GetMatchLength() : integer;
 begin
-	Result := ColEnd - ColBegin;
+	// Add validation to prevent negative lengths in 32-bit Release builds
+	if FColEnd < ColBegin then begin
+		{$IFDEF DEBUG}
+		TDebugUtils.MsgFmt('Warning: ColEnd (%d) < ColBegin (%d) in GetMatchLength', [FColEnd, ColBegin]);
+		{$ENDIF}
+		Result := 0; // Return safe value instead of negative
+	end else begin
+		Result := FColEnd - ColBegin;
+	end;
 end;
 
 function TVSMatchData.IsEmpty : Boolean;
@@ -104,6 +112,11 @@ end;
 
 procedure TVSMatchData.SetColEnd(const Value : Integer);
 begin
+	{$IFDEF DEBUG}
+	if Value < ColBegin then begin
+		TDebugUtils.MsgFmt('Warning: Setting ColEnd (%d) < ColBegin (%d)', [Value, ColBegin]);
+	end;
+	{$ENDIF}
 	FColEnd := Value;
 end;
 

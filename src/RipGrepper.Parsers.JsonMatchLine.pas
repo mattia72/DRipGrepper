@@ -493,14 +493,12 @@ end;
 
 function TJsonMatchLineParser.BytePosToStringPos(const _utf8Text : string; _bytePos : Integer) : Integer;
 var
-	utf8Bytes : TBytes;
 	i, byteCount : Integer;
 begin
 	Result := 1;
 	if _bytePos <= 0 then
 		Exit;
 
-	utf8Bytes := TEncoding.UTF8.GetBytes(_utf8Text);
 	byteCount := 0;
 
 	for i := 1 to Length(_utf8Text) do begin
