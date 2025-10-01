@@ -213,7 +213,7 @@ end;
 
 function TParsedObjectRow.GetColEnd(): Integer;
 begin
-	Result := FColEnd;
+	Result := StrToIntDef(GetColumnText(ciColEnd), -1);;
 end;
 
 function TParsedObjectRow.GetColumnByTitle(const _title : string) : TColumnData;

@@ -292,7 +292,7 @@ type
 
 const
 	FILE_COLUMN = 'File';
-	TREEVIEW_COLUMN_TITLES : TArray<string> = [FILE_COLUMN, 'Row', 'Col', 'Text', 'MatchText', 'TextAfterMatch'];
+	TREEVIEW_COLUMN_TITLES : TArray<string> = [FILE_COLUMN, 'Row', 'Col', 'ColEnd', 'Text', 'MatchText', 'TextAfterMatch'];
 
 type
 	TDefaults = class

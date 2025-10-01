@@ -234,7 +234,8 @@ begin
 		ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepJson : begin
 			nodeData := TVSFileNodeData.New('', // File
 			{ } _item.Row, // Row
-			{ } _item.ColBegin, // Col
+			{ } _item.ColBegin, // ColBegin
+			{ } _item.ColEnd, // ColEnd
 			{ } _item.GetColumnText(ciText), // TextBefore
 			{ } _item.GetColumnText(ciMatchText), // MatchText
 			{ } _item.GetColumnText(ciTextAfterMatch) // TextAfter
@@ -243,13 +244,15 @@ begin
 		ptRipGrepError : begin
 			nodeData := TVSFileNodeData.New(_item.Columns[Integer(ciFile)].Text, // File
 			{ } -1, // Row
-			{ } -1, // Col
+			{ } -1, // ColBegin
+			{ } -1, // ColEnd
 			{ } ''); // LineText
 		end;
 		ptRipGrepStats : begin
 			nodeData := TVSFileNodeData.New('', // File
 			{ } -1, // Row
-			{ } -1, // Col
+			{ } -1, // ColBegin
+			{ } -1, // ColEnd
 			{ } _item.GetColumnText(ciText)); // LineText
 		end;
 	end;

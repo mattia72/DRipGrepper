@@ -6,15 +6,19 @@ type
 	TVSMatchData = record
 		Row : integer;
 		ColBegin : integer;
-		ColEnd : integer;
 		LineText : string;
-		function GetMatchLength(): integer;
+
+		private
+			FColEnd : Integer;
+			procedure SetColEnd(const Value : Integer);
 
 		public
+			function GetMatchLength() : integer;
 			function IsEmpty : Boolean;
 			class function New(_row, _col, _colEnd : Integer; _matchText : string) : TVSMatchData; static;
 			class operator Initialize(out Dest : TVSMatchData);
-			function ToString() : string; 
+			function ToString() : string;
+			property ColEnd : Integer read FColEnd write SetColEnd;
 	end;
 
 	TVSFileNodeData = record
@@ -24,10 +28,10 @@ type
 		function GetLineText(const _bTrimLeft : Boolean; var _iSpaceCount, _iTabCount : Integer) : string;
 
 		public
-			class function New(_file : string; _row, _col : Integer; _textBefore, _matchText, _textAfter : string) : TVSFileNodeData;
-				overload; static;
-			class function New(_file : string; _row : Integer = -1; _col : Integer = -1; _matchText : string = '') : TVSFileNodeData;
-				overload; static;
+			class function New(const _file : string; const _row, _colBegin, _colEnd : Integer; const _textBefore : string;
+				_matchText, _textAfter : string) : TVSFileNodeData; overload; static;
+			class function New(const _file : string; const _row : Integer = -1; const _colBegin : Integer = -1;
+				const _colEnd : Integer = -1; const _matchText : string = '') : TVSFileNodeData; overload; static;
 	end;
 
 	PVSMatchData = ^TVSMatchData;
@@ -63,24 +67,24 @@ begin
 
 end;
 
-class function TVSFileNodeData.New(_file : string; _row, _col : Integer; _textBefore, _matchText, _textAfter : string) : TVSFileNodeData;
+class function TVSFileNodeData.New(const _file : string; const _row, _colBegin, _colEnd : Integer; const _textBefore : string;
+	_matchText, _textAfter : string) : TVSFileNodeData;
 var
-	matchLength : integer;
 	text : string;
 begin
 	Result.FilePath := _file;
 	text := _textBefore + _matchText + _textAfter;
-	matchLength := Length(_matchText);
-	Result.MatchData := TVSMatchData.New(_row, _col, matchLength, text);
+	Result.MatchData := TVSMatchData.New(_row, _colBegin, _colEnd, text);
 end;
 
-class function TVSFileNodeData.New(_file : string; _row : Integer = -1; _col : Integer = -1; _matchText : string = '') : TVSFileNodeData;
+class function TVSFileNodeData.New(const _file : string; const _row : Integer = -1; const _colBegin : Integer = -1;
+	const _colEnd : Integer = -1; const _matchText : string = '') : TVSFileNodeData;
 begin
 	Result.FilePath := _file;
-	Result.MatchData := TVSMatchData.New(_row, _col, -1, _matchText);
+	Result.MatchData := TVSMatchData.New(_row, _colBegin, -1, _matchText);
 end;
 
-function TVSMatchData.GetMatchLength(): integer;
+function TVSMatchData.GetMatchLength() : integer;
 begin
 	Result := ColEnd - ColBegin;
 end;
@@ -98,9 +102,15 @@ begin
 	Result.LineText := _matchText;
 end;
 
+procedure TVSMatchData.SetColEnd(const Value : Integer);
+begin
+	FColEnd := Value;
+end;
+
 function TVSMatchData.ToString() : string;
 begin
-	Result := Format('Raw Text: "%s" (R:%d|C:%d|Length: %d): "%s"', [LineText, Row, ColBegin, GetMatchLength, LineText.Substring(ColBegin - 1, GetMatchLength)]);
+	Result := Format('Raw Text: "%s" (R:%d|C:%d|Length: %d): "%s"', [LineText, Row, ColBegin, GetMatchLength,
+		LineText.Substring(ColBegin - 1, GetMatchLength)]);
 end;
 
 class operator TVSMatchData.Initialize(out Dest : TVSMatchData);

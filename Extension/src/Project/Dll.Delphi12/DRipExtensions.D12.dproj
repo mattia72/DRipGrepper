@@ -121,8 +121,8 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.14.0.396;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.14.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>396</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.14.0.418;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.14.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>418</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <DCC_Description>RipGrep Search within Delphi</DCC_Description>
         <VerInfo_MinorVer>14</VerInfo_MinorVer>
@@ -263,6 +263,7 @@
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.CustomCheckOptions.pas"/>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.CustomRadioOptions.pas"/>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.RgOptionsPanel.pas"/>
+        <DCCReference Include="..\..\..\..\src\RipGrepper.Parsers.JsonMatchLine.pas"/>
         <RcItem Include="..\..\..\Resources\about_icon.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>about_icon</ResourceId>
