@@ -35,6 +35,7 @@ type
 			procedure parseJsonSummaryLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
 			function getJsonIntValue(const _jsonObj : TJSONObject; const _sKey : string) : integer;
 			function getJsonStringValue(const _dataObj : TJSONObject; const _sKey : string) : string;
+			function BytePosToStringPos(const _utf8Text : string; _bytePos : Integer) : Integer;
 
 		public
 			property ParserData : ILineParserData read FParserData write FParserData;
@@ -208,6 +209,8 @@ var
 	filePath : string;
 	lineNumber : Integer;
 	lineText : string;
+	startBytePos, endBytePos : Integer;
+	startCharPos, endCharPos : Integer;
 begin
 	// Extract data from {"type":"match","data":{"path":{"text":"..."},"lines":{"text":"..."},"line_number":123,"submatches":[...]}}
 	var
@@ -241,18 +244,25 @@ begin
 		if Assigned(submatchItem) and (submatchItem is TJSONObject) then begin
 			var
 			submatchObj := submatchItem as TJSONObject;
+
+			// Get byte positions from JSON
+			startBytePos := getJsonIntValue(submatchObj, 'start');
+			endBytePos := getJsonIntValue(submatchObj, 'end');
+
+			// Convert byte positions to string positions
+			startCharPos := BytePosToStringPos(lineText, startBytePos);
+			endCharPos := BytePosToStringPos(lineText, endBytePos);
+
+			_cd.Add(TColumnData.New(ciColBegin, IntToStr(startCharPos)));
+			_cd.Add(TColumnData.New(ciColEnd, IntToStr(endCharPos)));
+
+			// Extract text parts using string positions
 			var
-			startPos := getJsonIntValue(submatchObj, 'start');
-			_cd.Add(TColumnData.New(ciColBegin, IntToStr(startPos + 1))); // 1-based indexing
+			beforeText := Copy(lineText, 1, startCharPos - 1);
 			var
-			endPos := getJsonIntValue(submatchObj, 'end');
-			_cd.Add(TColumnData.New(ciColEnd, IntToStr(endPos + 1))); // 1-based indexing
+			matchText := Copy(lineText, startCharPos, endCharPos - startCharPos);
 			var
-			matchText := getJsonStringValue(submatchObj, 'match');
-			var
-			beforeText := Copy(lineText, 1, startPos);
-			var
-			afterText := Copy(lineText, endPos + 1, Length(lineText));
+			afterText := Copy(lineText, endCharPos, Length(lineText));
 
 			_cd.Add(TColumnData.New(ciText, beforeText));
 			_cd.Add(TColumnData.New(ciMatchText, matchText));
@@ -479,6 +489,31 @@ begin
 		ParseResult.ErrorText := 'Not an abs or relative path: ' + sFile;
 	end;
 	Result := ParseResult.ErrorText = '';
+end;
+
+function TJsonMatchLineParser.BytePosToStringPos(const _utf8Text : string; _bytePos : Integer) : Integer;
+var
+	utf8Bytes : TBytes;
+	i, byteCount : Integer;
+begin
+	Result := 1;
+	if _bytePos <= 0 then
+		Exit;
+
+	utf8Bytes := TEncoding.UTF8.GetBytes(_utf8Text);
+	byteCount := 0;
+
+	for i := 1 to Length(_utf8Text) do begin
+		if byteCount >= _bytePos then begin
+			Result := i;
+			Exit;
+		end;
+		// Count bytes for current character
+		Inc(byteCount, TEncoding.UTF8.GetByteCount(_utf8Text[i]));
+	end;
+
+	// If we reach here, position is at or beyond end
+	Result := Length(_utf8Text) + 1;
 end;
 
 end.
