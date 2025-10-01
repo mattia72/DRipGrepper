@@ -81,7 +81,7 @@ class function TVSFileNodeData.New(const _file : string; const _row : Integer = 
 	const _colEnd : Integer = -1; const _matchText : string = '') : TVSFileNodeData;
 begin
 	Result.FilePath := _file;
-	Result.MatchData := TVSMatchData.New(_row, _colBegin, -1, _matchText);
+	Result.MatchData := TVSMatchData.New(_row, _colBegin, _colEnd, _matchText);
 end;
 
 function TVSMatchData.GetMatchLength() : integer;
