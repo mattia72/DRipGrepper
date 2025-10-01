@@ -10,6 +10,9 @@ uses
 
 type
 	{$DEFINE SKIP_BEGIN_END}
+	{$IFDEF TESTINSIGHT}
+	{$UNDEF SKIP_BEGIN_END}
+	{$ENDIF}
 	TJsonMatchLineParser = class(TInterfacedObject, ISearchResultLineParser)
 		private
 			FParserData : ILineParserData;
