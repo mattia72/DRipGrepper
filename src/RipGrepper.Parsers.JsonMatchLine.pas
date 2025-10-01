@@ -33,7 +33,6 @@ type
 			procedure parseJsonBeginLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
 			procedure parseJsonEndLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
 			procedure parseJsonSummaryLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
-			function extractTextParts(const _lineText : string; const _submatches : TJSONArray) : TArray<string>;
 			function getJsonIntValue(const _jsonObj : TJSONObject; const _sKey : string) : integer;
 			function getJsonStringValue(const _dataObj : TJSONObject; const _sKey : string) : string;
 
@@ -209,7 +208,6 @@ var
 	filePath : string;
 	lineNumber : Integer;
 	lineText : string;
-	textParts : TArray<string>;
 begin
 	// Extract data from {"type":"match","data":{"path":{"text":"..."},"lines":{"text":"..."},"line_number":123,"submatches":[...]}}
 	var
@@ -244,23 +242,22 @@ begin
 			var
 			submatchObj := submatchItem as TJSONObject;
 			var
-			pos := getJsonIntValue(submatchObj, 'start');
-			_cd.Add(TColumnData.New(ciColBegin, IntToStr(pos + 1))); // 1-based indexing
+			startPos := getJsonIntValue(submatchObj, 'start');
+			_cd.Add(TColumnData.New(ciColBegin, IntToStr(startPos + 1))); // 1-based indexing
+			var
+			endPos := getJsonIntValue(submatchObj, 'end');
+			_cd.Add(TColumnData.New(ciColEnd, IntToStr(endPos + 1))); // 1-based indexing
+			var
+			matchText := getJsonStringValue(submatchObj, 'match');
+			var
+			beforeText := Copy(lineText, 1, startPos);
+			var
+			afterText := Copy(lineText, endPos + 1, Length(lineText));
 
-			pos := getJsonIntValue(submatchObj, 'end');
-			_cd.Add(TColumnData.New(ciColEnd, IntToStr(pos + 1))); // 1-based indexing
+			_cd.Add(TColumnData.New(ciText, beforeText));
+			_cd.Add(TColumnData.New(ciMatchText, matchText));
+			_cd.Add(TColumnData.New(ciTextAfterMatch, afterText));
 
-			// Extract text parts for highlighting
-			textParts := extractTextParts(lineText, submatchesArray);
-			if Length(textParts) >= 3 then begin
-				_cd.Add(TColumnData.New(ciText, textParts[0])); // text before match
-				_cd.Add(TColumnData.New(ciMatchText, textParts[1])); // matched text
-				_cd.Add(TColumnData.New(ciTextAfterMatch, textParts[2])); // text after match
-			end else begin
-				_cd.Add(TColumnData.New(ciText, lineText));
-				_cd.Add(TColumnData.New(ciMatchText, ''));
-				_cd.Add(TColumnData.New(ciTextAfterMatch, ''));
-			end;
 		end else begin
 			addNoMatchToColumData(_cd, lineText);
 		end;
@@ -386,72 +383,6 @@ begin
 
 		ParseResult.IsStatsLine := True;
 	end;
-end;
-
-function TJsonMatchLineParser.extractTextParts(const _lineText : string; const _submatches : TJSONArray) : TArray<string>;
-var
-	submatchObj : TJSONObject;
-	matchObj : TJSONObject;
-	startPos, endPos : Integer;
-	beforeText, matchText, afterText : string;
-	startValue, endValue, textValue : TJSONValue;
-begin
-	SetLength(Result, 3);
-
-	if not Assigned(_submatches) or (_submatches.Count = 0) then begin
-		Result[0] := _lineText;
-		Result[1] := '';
-		Result[2] := '';
-		Exit;
-	end;
-
-	// Get first submatch
-	var
-	submatchItem := _submatches.Items[0];
-	if not Assigned(submatchItem) or not(submatchItem is TJSONObject) then begin
-		Result[0] := _lineText;
-		Result[1] := '';
-		Result[2] := '';
-		Exit;
-	end;
-
-	submatchObj := submatchItem as TJSONObject;
-
-	startValue := submatchObj.GetValue('start');
-	if Assigned(startValue) then begin
-		startPos := StrToIntDef(startValue.Value, 0);
-	end else begin
-		startPos := 0;
-	end;
-
-	endValue := submatchObj.GetValue('end');
-	if Assigned(endValue) then begin
-		endPos := StrToIntDef(endValue.Value, 0);
-	end else begin
-		endPos := 0;
-	end;
-
-	// Extract match text from submatch object
-	var
-	matchValue := submatchObj.GetValue('match');
-	if Assigned(matchValue) and (matchValue is TJSONObject) then begin
-		matchObj := matchValue as TJSONObject;
-		textValue := matchObj.GetValue('text');
-		if Assigned(textValue) then
-			matchText := textValue.Value
-		else
-			matchText := '';
-	end else begin
-		matchText := '';
-	end;
-
-	// Split the line text
-	beforeText := Copy(_lineText, 1, startPos);
-	afterText := Copy(_lineText, endPos + 1, Length(_lineText));
-
-	Result[0] := beforeText;
-	Result[1] := matchText;
-	Result[2] := afterText;
 end;
 
 function TJsonMatchLineParser.getJsonIntValue(const _jsonObj : TJSONObject; const _sKey : string) : integer;
