@@ -1371,7 +1371,7 @@ begin
 					end else begin
 						matchBegin := nodeData.MatchData.ColBegin - (iTrimmedSpaces + iTrimmedTabs);
 					end;
-
+					Dec(matchBegin); // 0 based pos
 					ss0 := s.Substring(0, matchBegin).Replace(#9, TREEVIEW_INDENT_TAB_AS_SPACES, [rfReplaceAll]);
 					pos := TargetCanvas.TextWidth(ss0);
 
@@ -1380,7 +1380,8 @@ begin
 					ss1 := s.Substring(matchBegin, nodeData.MatchData.GetMatchLength);
 
 					TDebugUtils.MsgFmt('%s', [nodeData.MatchData.ToString], tftVerbose);
-					TDebugUtils.MsgFmt('Line: "%s" (s:%d,t:%d) match at %d: "%s"', [s, iTrimmedSpaces, iTrimmedTabs, matchBegin, ss1], tftVerbose);
+					TDebugUtils.MsgFmt('Line: "%s" (s:%d,t:%d) match at %d: "%s"', [s, iTrimmedSpaces, iTrimmedTabs, matchBegin, ss1],
+						tftVerbose);
 
 					if IsGuiReplaceMode and (not Settings.LastSearchText.IsEmpty) then begin
 						ss1_repl := TReplaceHelper.ReplaceString(ss1, Settings.LastSearchText,

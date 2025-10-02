@@ -157,10 +157,11 @@ begin
 				if (rd.Row >= 0) and (rd.Row <= fileLines.Count) then begin
 					dbgMsg.MsgIf(_bSkipOrigCheck, 'Orig check skipped.');
 					fileLine := fileLines[rd.Row - 1];
+					origLine := string(rd.OrigLine).TrimRight([CR,LF]);
 					if (iCheckedRow <> rd.Row) and
-					{ } (rd.OrigLine <> fileLine) then begin
+					{ } (origLine <> fileLine) then begin
 						if (not _bSkipOrigCheck) then begin
-							dbgMsg.Msg('origin:' + rd.OrigLine);
+							dbgMsg.Msg('origin:' + origLine);
 							dbgMsg.Msg('actual:' + fileLine);
 							failedItem := TPair<string, TReplaceData>.Create(fileName, rd);
 							_failed.Add(failedItem);
@@ -182,7 +183,7 @@ begin
 						origLine := fileLine;
 						replacedLine := rd.ReplacedLine;
 					end;
-					fileLines[rd.Row - 1] := replacedLine;
+					fileLines[rd.Row - 1] := replacedLine.TrimRight([CR,LF]);
 				end;
 				prevRow := rd;
 			end;

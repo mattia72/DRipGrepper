@@ -182,7 +182,7 @@ begin
 			Inc(byteCount, TEncoding.UTF8.GetByteCount(_lineText[i]));
 		end;
 		
-		Assert.AreEqual(IntToStr(expectedCharPos), pr.Columns[Integer(ciColBegin)].Text, 'Column should be ' + IntToStr(expectedCharPos));
+		Assert.AreEqual(IntToStr(expectedCharPos + 1), pr.Columns[Integer(ciColBegin)].Text, 'Column should be ' + IntToStr(expectedCharPos + 1));
 
 		// Check if match text is extracted
 		Assert.AreEqual(_matchText, pr.Columns[Integer(ciMatchText)].Text, 'Match text should be "' + _matchText + '"');
@@ -220,10 +220,8 @@ begin
 
 		// Check if line number is extracted
 		Assert.AreEqual('1', pr.Columns[Integer(ciRow)].Text, 'Line number should be 1');
-
-		// Check if column is extracted (should be start position)
-		Assert.AreEqual('0', pr.Columns[Integer(ciColBegin)].Text, 'Column should be 0');
-
+		// Check if column is extracted (should be start position + 1)
+		Assert.AreEqual('1', pr.Columns[Integer(ciColBegin)].Text, 'Column should be 1');
 		// Check if match text is extracted
 		Assert.AreEqual('test', pr.Columns[Integer(ciMatchText)].Text, 'Match text should be "test"');
 	finally

@@ -30,6 +30,7 @@ type
 			function Validate(var row : TArrayEx<TColumnData>) : Boolean; virtual;
 			function ValidatePath(const sFile : string) : Boolean;
 			procedure parseJsonMatchLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
+			procedure parseJsonContextLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
 			procedure parseJsonBeginLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
 			procedure parseJsonEndLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
 			procedure parseJsonSummaryLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
@@ -142,6 +143,8 @@ begin
 				parseJsonBeginLine(jsonObj, cd);
 			end else if jsonType = 'match' then begin
 				parseJsonMatchLine(jsonObj, cd);
+			end else if jsonType = 'context' then begin
+				parseJsonContextLine(jsonObj, cd);
 			end else if jsonType = 'end' then begin
 				parseJsonEndLine(jsonObj, cd);
 			end else if jsonType = 'summary' then begin
@@ -254,12 +257,12 @@ begin
 			endBytePos := getJsonIntValue(submatchObj, 'end');
 
 			if bEncoded then begin
-				startCharPos := startBytePos; // Keep 0-based position
-				endCharPos := endBytePos; // Keep 0-based position
+				startCharPos := startBytePos + 1; // Keep 1-based position
+				endCharPos := endBytePos + 1; // Keep 1-based position
 			end else begin
-				// Convert byte positions to string positions (0-based)
-				startCharPos := BytePosToStringPos(lineText, startBytePos);
-				endCharPos := BytePosToStringPos(lineText, endBytePos);
+				// Convert byte positions to string positions (1-based)
+				startCharPos := BytePosToStringPos(lineText, startBytePos) + 1;
+				endCharPos := BytePosToStringPos(lineText, endBytePos) + 1;
 			end;
 
 			_cd.Add(TColumnData.New(ciColBegin, IntToStr(startCharPos)));
@@ -267,11 +270,11 @@ begin
 
 			// Extract text parts using string positions (startCharPos and endCharPos are 0-based)
 			var
-			beforeText := Copy(lineText, 1, startCharPos);
+			beforeText := lineText.Substring(0, startCharPos - 1);
 			var
-			matchText := Copy(lineText, startCharPos + 1, endCharPos - startCharPos);
+			matchText := lineText.Substring(startCharPos - 1, endCharPos - startCharPos);
 			var
-			afterText := Copy(lineText, endCharPos + 1, Length(lineText));
+			afterText := lineText.Substring(endCharPos - 1);
 
 			_cd.Add(TColumnData.New(ciText, beforeText));
 			_cd.Add(TColumnData.New(ciMatchText, matchText));
@@ -283,6 +286,34 @@ begin
 	end else begin
 		addNoMatchToColumData(_cd, lineText);
 	end;
+end;
+
+procedure TJsonMatchLineParser.parseJsonContextLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
+var
+	bEncoded : Boolean;
+	dataObj : TJSONObject;
+	filePath : string;
+	lineNumber : Integer;
+	lineText : string;
+begin
+	// Extract data from {"type":"context","data":{"path":{"text":"..."},"lines":{"bytes":"..."},"line_number":123,"absolute_offset":3925,"submatches":[]}}
+	var
+	dataValue := _jsonObj.GetValue('data');
+	if not Assigned(dataValue) or not(dataValue is TJSONObject) then
+		Exit;
+	dataObj := dataValue as TJSONObject;
+
+	// Get file path
+	filePath := getJsonStringValue(dataObj, 'path');
+	_cd.Add(TColumnData.New(ciFile, filePath));
+
+	lineNumber := getJsonIntValue(dataObj, 'line_number');
+	_cd.Add(TColumnData.New(ciRow, IntToStr(lineNumber)));
+
+	lineText := getJsonStringValue(dataObj, 'lines', bEncoded);
+
+	// Context lines don't have matches, so we add the full line as text
+	addNoMatchToColumData(_cd, lineText);
 end;
 
 procedure TJsonMatchLineParser.parseJsonEndLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
@@ -465,6 +496,7 @@ begin
 	row.Add(TColumnData.New(ciFile, _sLine));
 	row.Add(TColumnData.New(ciRow, ''));
 	row.Add(TColumnData.New(ciColBegin, ''));
+	row.Add(TColumnData.New(ciColEnd, ''));
 	row.Add(TColumnData.New(ciText, ''));
 	row.Add(TColumnData.New(ciMatchText, ''));
 	row.Add(TColumnData.New(ciTextAfterMatch, ''));
