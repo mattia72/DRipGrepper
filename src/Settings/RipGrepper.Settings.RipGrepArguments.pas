@@ -12,11 +12,13 @@ type
 			function GetOptions() : TArray<string>;
 			function GetSearchText() : string;
 			function GetSearchPath() : TArray<string>;
+			function IsOptionSet(const _sOptionRegex: string): Boolean;
 	end;
 
 implementation
 
 uses
+	System.SysUtils,
 	RipGrepper.Helper.Types,
 	RipGrepper.Common.Constants,
 	RipGrepper.CommandLine.OptionStrings;
@@ -44,6 +46,26 @@ end;
 function TRipGrepArguments.GetSearchPath() : TArray<string>;
 begin
 	Result := self.GetValues(RG_ARG_SEARCH_Path);
+end;
+
+function TRipGrepArguments.IsOptionSet(const _sOptionRegex: string): Boolean;
+var
+	options: TArray<string>;
+	os: TOptionStrings;
+begin
+	Result := False;
+	
+	if _sOptionRegex.IsEmpty then begin
+		Exit;
+	end;
+	
+	options := self.GetOptions();
+	if Length(options) = 0 then begin
+		Exit;
+	end;
+	
+	os := TOptionStrings.New(options);
+	Result := os.IsOptionSet(_sOptionRegex);
 end;
 
 end.
