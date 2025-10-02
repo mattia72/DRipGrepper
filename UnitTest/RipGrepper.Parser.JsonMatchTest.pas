@@ -69,6 +69,16 @@ type
 			// Test complete JSON sequence
 			[Test]
 			procedure ParseJsonSequenceTest;
+
+			// Test bytes field handling for invalid UTF-8
+			[Test]
+			procedure ParseJsonMatchWithTextFieldTest;
+
+			[Test]
+			procedure ParseJsonMatchWithValidBytesTest;
+
+			[Test]
+			procedure ParseJsonMatchWithInvalidBytesTest;
 	end;
 
 implementation
@@ -137,7 +147,6 @@ var
 	parser : TJsonMatchLineParser;
 	pr : IParsedObjectRow;
 	testLine : string;
-	expectedColumn : string;
 begin
 	// Build JSON string with provided parameters
 	testLine := Format('{"type":"match","data":{"path":{"text":"%s"},"lines":{"text":"%s"},' +
@@ -162,12 +171,12 @@ begin
 		// Parser converts byte positions to character positions, so we need to calculate expected character position
 		// The _start and _end parameters are now byte positions
 		var
-		expectedCharPos := 1;
+		expectedCharPos := 0;
 		var
 		byteCount := 0;
 		for var i := 1 to Length(_lineText) do begin
 			if byteCount >= _start then begin
-				expectedCharPos := i;
+				expectedCharPos := i - 1; // Convert to 0-based
 				break;
 			end;
 			Inc(byteCount, TEncoding.UTF8.GetByteCount(_lineText[i]));
@@ -180,8 +189,8 @@ begin
 
 		// Additional check: verify text contains the text before match text (using character position)
 		var
-		beforeMatch := Copy(_lineText, 1, expectedCharPos - 1);
-		Assert.AreEqual(pr.Columns[Integer(ciText)].Text, beforeMatch, 'Before match text should be "' + beforeMatch + '"');
+		beforeMatch := Copy(_lineText, 1, expectedCharPos);
+		Assert.AreEqual(beforeMatch, pr.Columns[Integer(ciText)].Text, 'Before match text should be "' + beforeMatch + '"');
 	finally
 		parser.Free;
 	end;
@@ -212,8 +221,8 @@ begin
 		// Check if line number is extracted
 		Assert.AreEqual('1', pr.Columns[Integer(ciRow)].Text, 'Line number should be 1');
 
-		// Check if column is extracted (should be start position + 1)
-		Assert.AreEqual('1', pr.Columns[Integer(ciColBegin)].Text, 'Column should be 1');
+		// Check if column is extracted (should be start position)
+		Assert.AreEqual('0', pr.Columns[Integer(ciColBegin)].Text, 'Column should be 0');
 
 		// Check if match text is extracted
 		Assert.AreEqual('test', pr.Columns[Integer(ciMatchText)].Text, 'Match text should be "test"');
@@ -317,6 +326,94 @@ begin
 
 			Assert.AreEqual(COLUMN_NUM, pr.Columns.Count, Format('Line %d should have %d columns, got %d',
 				[i, COLUMN_NUM, pr.Columns.Count]));
+		end;
+	finally
+		parser.Free;
+	end;
+end;
+
+procedure TRipGrepJsonMatchTest.ParseJsonMatchWithTextFieldTest;
+var
+	parser : TJsonMatchLineParser;
+	pr : IParsedObjectRow;
+	testLineWithText : string;
+begin
+	// Test normal text field
+	testLineWithText := '{"type":"match","data":{"path":{"text":"test.pas"},"lines":{"text":"normal text"},' +
+		'"line_number":1,"submatches":[{"match":{"text":"text"},"start":7,"end":11}]}}';
+
+	parser := TJsonMatchLineParser.Create();
+	try
+		parser.SearchParams := FSearchParamMock;
+		parser.ParseLine(0, testLineWithText);
+		pr := parser.ParseResult;
+
+		Assert.IsFalse(pr.IsError, 'JSON match line with text should not have errors: ' + pr.ErrorText);
+		Assert.AreEqual(COLUMN_NUM, pr.Columns.Count, 'Expected columns for match line');
+		Assert.AreEqual('normal text', pr.Columns[Integer(ciText)].Text + pr.Columns[Integer(ciMatchText)].Text + 
+			pr.Columns[Integer(ciTextAfterMatch)].Text, 'Full line text should be preserved');
+	finally
+		parser.Free;
+	end;
+end;
+
+procedure TRipGrepJsonMatchTest.ParseJsonMatchWithValidBytesTest;
+var
+	parser : TJsonMatchLineParser;
+	pr : IParsedObjectRow;
+	testLineWithBytes : string;
+	fullLineText : string;
+begin
+	// Test bytes field (base64 encoded "binary data")
+	// "YmluYXJ5IGRhdGE=" is base64 for "binary data"
+	testLineWithBytes := '{"type":"match","data":{"path":{"text":"binary.bin"},"lines":{"bytes":"YmluYXJ5IGRhdGE="},' +
+		'"line_number":2,"submatches":[{"match":{"text":"data"},"start":7,"end":11}]}}';
+
+	parser := TJsonMatchLineParser.Create();
+	try
+		parser.SearchParams := FSearchParamMock;
+		parser.ParseLine(0, testLineWithBytes);
+		pr := parser.ParseResult;
+
+		Assert.IsFalse(pr.IsError, 'JSON match line with bytes should not have errors: ' + pr.ErrorText);
+		Assert.AreEqual(COLUMN_NUM, pr.Columns.Count, 'Expected columns for match line with bytes');
+		
+		// The full line text should be the decoded base64 content
+		fullLineText := pr.Columns[Integer(ciText)].Text + pr.Columns[Integer(ciMatchText)].Text + 
+			pr.Columns[Integer(ciTextAfterMatch)].Text;
+		Assert.AreEqual('binary data', fullLineText, 'Bytes field should be decoded from base64');
+	finally
+		parser.Free;
+	end;
+end;
+
+procedure TRipGrepJsonMatchTest.ParseJsonMatchWithInvalidBytesTest;
+var
+	parser : TJsonMatchLineParser;
+	pr : IParsedObjectRow;
+	testLineWithInvalidBytes : string;
+	fullLineText : string;
+begin
+	// Test invalid base64 - should use fallback format when empty bytes or exception
+	testLineWithInvalidBytes := '{"type":"match","data":{"path":{"text":"invalid.bin"},"lines":{"bytes":"invalid-base64!"},' +
+		'"line_number":3,"submatches":[{"match":{"text":"data"},"start":0,"end":4}]}}';
+
+	parser := TJsonMatchLineParser.Create();
+	try
+		parser.SearchParams := FSearchParamMock;
+		parser.ParseLine(0, testLineWithInvalidBytes);
+		pr := parser.ParseResult;
+
+		Assert.IsFalse(pr.IsError, 'JSON match line with invalid bytes should not have errors: ' + pr.ErrorText);
+		fullLineText := pr.Columns[Integer(ciText)].Text + pr.Columns[Integer(ciMatchText)].Text + 
+			pr.Columns[Integer(ciTextAfterMatch)].Text;
+		
+		// Invalid base64 should either decode to something or use fallback format
+		Assert.IsTrue(Length(fullLineText) > 0, 'Invalid base64 should produce some result');
+		// If it uses fallback format, it should contain the base64 string
+		if fullLineText.StartsWith('<base64:') then begin
+			Assert.IsTrue(fullLineText.EndsWith('>'), 'Fallback format should end with >');
+			Assert.IsTrue(fullLineText.Contains('invalid-base64!'), 'Fallback should contain original base64 string');
 		end;
 	finally
 		parser.Free;

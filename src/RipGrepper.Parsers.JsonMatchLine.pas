@@ -34,8 +34,9 @@ type
 			procedure parseJsonEndLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
 			procedure parseJsonSummaryLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
 			function getJsonIntValue(const _jsonObj : TJSONObject; const _sKey : string) : integer;
-			function getJsonStringValue(const _dataObj : TJSONObject; const _sKey : string) : string;
+			function getJsonStringValue(const _dataObj : TJSONObject; const _sKey : string; out _bEncoded : Boolean) : string; overload;
 			function BytePosToStringPos(const _utf8Text : string; _bytePos : Integer) : Integer;
+			function getJsonStringValue(const _dataObj : TJSONObject; const _sKey : string) : string; overload;
 
 		public
 			property ParserData : ILineParserData read FParserData write FParserData;
@@ -54,6 +55,7 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	System.SysUtils,
 	System.IOUtils,
+	System.NetEncoding,
 	RipGrepper.Data.Parsers,
 	System.Generics.Collections;
 
@@ -73,7 +75,8 @@ end;
 
 procedure TJsonMatchLineParser.addNoMatchToColumData(var _cd : TArrayEx<TColumnData>; const _lineText : string);
 begin
-	_cd.Add(TColumnData.New(ciColBegin, '1'));
+	_cd.Add(TColumnData.New(ciColBegin, '0'));
+	_cd.Add(TColumnData.New(ciColEnd, '0'));
 	_cd.Add(TColumnData.New(ciText, _lineText));
 	_cd.Add(TColumnData.New(ciMatchText, ''));
 	_cd.Add(TColumnData.New(ciTextAfterMatch, ''));
@@ -204,6 +207,7 @@ end;
 
 procedure TJsonMatchLineParser.parseJsonMatchLine(const _jsonObj : TJSONObject; var _cd : TArrayEx<TColumnData>);
 var
+	bEncoded : Boolean;
 	dataObj : TJSONObject;
 	submatchesArray : TJSONArray;
 	filePath : string;
@@ -226,7 +230,7 @@ begin
 	lineNumber := getJsonIntValue(dataObj, 'line_number');
 	_cd.Add(TColumnData.New(ciRow, IntToStr(lineNumber)));
 
-	lineText := getJsonStringValue(dataObj, 'lines');
+	lineText := getJsonStringValue(dataObj, 'lines', bEncoded);
 
 	// Get submatches for highlighting
 	var
@@ -245,24 +249,29 @@ begin
 			var
 			submatchObj := submatchItem as TJSONObject;
 
-			// Get byte positions from JSON
+			// Get byte 0 based positions from JSON
 			startBytePos := getJsonIntValue(submatchObj, 'start');
 			endBytePos := getJsonIntValue(submatchObj, 'end');
 
-			// Convert byte positions to string positions
-			startCharPos := BytePosToStringPos(lineText, startBytePos);
-			endCharPos := BytePosToStringPos(lineText, endBytePos);
+			if bEncoded then begin
+				startCharPos := startBytePos; // Keep 0-based position
+				endCharPos := endBytePos; // Keep 0-based position
+			end else begin
+				// Convert byte positions to string positions (0-based)
+				startCharPos := BytePosToStringPos(lineText, startBytePos);
+				endCharPos := BytePosToStringPos(lineText, endBytePos);
+			end;
 
 			_cd.Add(TColumnData.New(ciColBegin, IntToStr(startCharPos)));
 			_cd.Add(TColumnData.New(ciColEnd, IntToStr(endCharPos)));
 
-			// Extract text parts using string positions
+			// Extract text parts using string positions (startCharPos and endCharPos are 0-based)
 			var
-			beforeText := Copy(lineText, 1, startCharPos - 1);
+			beforeText := Copy(lineText, 1, startCharPos);
 			var
-			matchText := Copy(lineText, startCharPos, endCharPos - startCharPos);
+			matchText := Copy(lineText, startCharPos + 1, endCharPos - startCharPos);
 			var
-			afterText := Copy(lineText, endCharPos, Length(lineText));
+			afterText := Copy(lineText, endCharPos + 1, Length(lineText));
 
 			_cd.Add(TColumnData.New(ciText, beforeText));
 			_cd.Add(TColumnData.New(ciMatchText, matchText));
@@ -407,20 +416,46 @@ begin
 	end;
 end;
 
-function TJsonMatchLineParser.getJsonStringValue(const _dataObj : TJSONObject; const _sKey : string) : string;
+function TJsonMatchLineParser.getJsonStringValue(const _dataObj : TJSONObject; const _sKey : string; out _bEncoded : Boolean) : string;
 var
 	jsonObj : TJSONObject;
-	textValue : TJSONValue;
+	textValue, bytesValue : TJSONValue;
+	base64Data : string;
+	decodedBytes : TBytes;
 begin
 	Result := '';
-
+	_bEncoded := False;
 	var
 	linesValue := _dataObj.GetValue(_sKey);
 	if Assigned(linesValue) and (linesValue is TJSONObject) then begin
 		jsonObj := linesValue as TJSONObject;
+
+		// First try to get text field (valid UTF-8)
 		textValue := jsonObj.GetValue('text');
 		if Assigned(textValue) then begin
-			Result := textValue.Value
+			Result := textValue.Value;
+		end else begin
+			// If no text field, try bytes field (base64 encoded invalid UTF-8)
+			bytesValue := jsonObj.GetValue('bytes');
+			if Assigned(bytesValue) then begin
+				try
+					base64Data := bytesValue.Value;
+					decodedBytes := TNetEncoding.Base64.DecodeStringToBytes(base64Data);
+					// Convert bytes to string using default encoding
+					if Length(decodedBytes) > 0 then begin
+						Result := TEncoding.Default.GetString(decodedBytes);
+						_bEncoded := True;
+					end else begin
+						// Empty result from base64 decode - use fallback
+						Result := '<base64:' + base64Data + '>';
+					end;
+				except
+					on E : Exception do begin
+						// Fallback: use base64 data as-is if decoding fails
+						Result := '<base64:' + base64Data + '>';
+					end;
+				end;
+			end;
 		end;
 	end;
 end;
@@ -463,9 +498,9 @@ begin
 
 	sCol := row[Integer(ciColBegin)].Text;
 	if sCol <> '' then begin
-		ParseResult.IsError := StrToIntDef(sCol, -1) <= 0;
+		ParseResult.IsError := StrToIntDef(sCol, -1) < 0;
 		if ParseResult.IsError then begin
-			ParseResult.ErrorText := 'Invalid Col: ' + sCol;
+			ParseResult.ErrorText := 'Invalid ColBegin: ' + sCol;
 			Exit;
 		end;
 	end;
@@ -495,15 +530,14 @@ function TJsonMatchLineParser.BytePosToStringPos(const _utf8Text : string; _byte
 var
 	i, byteCount : Integer;
 begin
-	Result := 1;
-	if _bytePos <= 0 then
+	Result := 0;
+	if _bytePos < 0 then
 		Exit;
 
 	byteCount := 0;
-
 	for i := 1 to Length(_utf8Text) do begin
 		if byteCount >= _bytePos then begin
-			Result := i;
+			Result := i - 1; // 0 based position
 			Exit;
 		end;
 		// Count bytes for current character
@@ -511,7 +545,14 @@ begin
 	end;
 
 	// If we reach here, position is at or beyond end
-	Result := Length(_utf8Text) + 1;
+	Result := Length(_utf8Text);
+end;
+
+function TJsonMatchLineParser.getJsonStringValue(const _dataObj : TJSONObject; const _sKey : string) : string;
+var
+	bEncoded : Boolean;
+begin
+	Result := getJsonStringValue(_dataObj, _sKey, bEncoded);
 end;
 
 end.

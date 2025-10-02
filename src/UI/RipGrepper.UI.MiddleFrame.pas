@@ -1366,10 +1366,10 @@ begin
 					{ }
 					// If Col is in the trimmed content (e.g., Col = 1), IndentLines should be ignored
 					if (nodeData.MatchData.ColBegin <= (iTrimmedSpaces + iTrimmedTabs)) then begin
-						matchBegin := nodeData.MatchData.ColBegin - 1;
+						matchBegin := nodeData.MatchData.ColBegin;
 						s := nodeData.MatchData.LineText; // full line
 					end else begin
-						matchBegin := nodeData.MatchData.ColBegin - 1 - (iTrimmedSpaces + iTrimmedTabs);
+						matchBegin := nodeData.MatchData.ColBegin - (iTrimmedSpaces + iTrimmedTabs);
 					end;
 
 					ss0 := s.Substring(0, matchBegin).Replace(#9, TREEVIEW_INDENT_TAB_AS_SPACES, [rfReplaceAll]);
