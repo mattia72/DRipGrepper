@@ -42,12 +42,12 @@ type
 			// Test JSON match lines with parameters and Unicode
 			[Test]
 			[TestCase('Basic ASCII Match', 'test.pas,test line,test,1,0,4')]
-			[TestCase('German Umlauts', 'äöü.pas,Zeile mit Ümlauten,Ümlauten,2,9,17')]
-			[TestCase('French Accents', 'café.pas,ligne avec accénts,accénts,3,11,18')]
-			[TestCase('Cyrillic Text', 'файл.pas,строка с текстом,текстом,4,10,17')]
-			[TestCase('Chinese Characters', '文件.pas,包含中文的行,中文,5,2,4')]
-			[TestCase('Mixed Unicode', 'test_файл_中文.pas,Line with مختلف languages,مختلف,6,10,15')]
-			[TestCase('Emoji in Path', '🔍search.pas,line with 🚀 emoji,🚀,7,10,11')]
+			[TestCase('German Umlauts', 'äöü.pas,Zeile mit Ümlauten,Ümlauten,2,10,19')]
+			[TestCase('French Accents', 'café.pas,ligne avec accénts,accénts,3,11,19')]
+			[TestCase('Cyrillic Text', 'файл.pas,строка с текстом,текстом,4,16,32')]
+			[TestCase('Chinese Characters', '文件.pas,包含中文的行,中文,5,6,12')]
+			[TestCase('Mixed Unicode', 'test_файл_中文.pas,Line with مختلف languages,مختلف,6,10,20')]
+			[TestCase('Emoji in Path', '🔍search.pas,line with 🚀 emoji,🚀,7,10,14')]
 			[TestCase('Special Characters', 'test@#$.pas,Line with @#$ symbols,@#$,8,10,13')]
 			procedure ParseJsonMatchTest(const _fileName, _lineText, _matchText : string; _lineNumber, _start, _end : Integer);
 
@@ -159,16 +159,28 @@ begin
 		// Check if line number is extracted
 		Assert.AreEqual(IntToStr(_lineNumber), pr.Columns[Integer(ciRow)].Text, 'Line number should be ' + IntToStr(_lineNumber));
 
-		// Check if column is extracted (should be start position + 1)
-		expectedColumn := IntToStr(_start + 1);
-		Assert.AreEqual(expectedColumn, pr.Columns[Integer(ciColBegin)].Text, 'Column should be ' + expectedColumn);
+		// Parser converts byte positions to character positions, so we need to calculate expected character position
+		// The _start and _end parameters are now byte positions
+		var
+		expectedCharPos := 1;
+		var
+		byteCount := 0;
+		for var i := 1 to Length(_lineText) do begin
+			if byteCount >= _start then begin
+				expectedCharPos := i;
+				break;
+			end;
+			Inc(byteCount, TEncoding.UTF8.GetByteCount(_lineText[i]));
+		end;
+		
+		Assert.AreEqual(IntToStr(expectedCharPos), pr.Columns[Integer(ciColBegin)].Text, 'Column should be ' + IntToStr(expectedCharPos));
 
 		// Check if match text is extracted
 		Assert.AreEqual(_matchText, pr.Columns[Integer(ciMatchText)].Text, 'Match text should be "' + _matchText + '"');
 
-		// Additional check: verify text contains the text before match text
+		// Additional check: verify text contains the text before match text (using character position)
 		var
-		beforeMatch := Copy(_lineText, 1, _start);
+		beforeMatch := Copy(_lineText, 1, expectedCharPos - 1);
 		Assert.AreEqual(pr.Columns[Integer(ciText)].Text, beforeMatch, 'Before match text should be "' + beforeMatch + '"');
 	finally
 		parser.Free;

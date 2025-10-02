@@ -41,7 +41,8 @@ implementation
 
 uses
 	System.SysUtils,
-	RipGrepper.Helper.Types;
+	RipGrepper.Helper.Types,
+	RipGrepper.Tools.DebugUtils;
 
 function TVSFileNodeData.GetLineText(const _bTrimLeft : Boolean; var _iSpaceCount, _iTabCount : Integer) : string;
 var
