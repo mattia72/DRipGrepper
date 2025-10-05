@@ -62,7 +62,7 @@ type
 			[TestCase('Multiple matches', '1,2,3', '2,3,4')]
 			[TestCase('Single element match', '5', '5')]
 			[TestCase('Single element no match', '5', '7')]
-			procedure GetFirstMatchIndexTest(const sourceArray: string; const testArray: string);
+			procedure GetFirstMatchIndexTest(const sourceArray : string; const testArray : string);
 			[Test]
 			procedure GetFirstMatchIndexStringTest();
 	end;
@@ -178,53 +178,43 @@ begin
 	Assert.IsTrue(a.Contains(['3', '4'], comp), 'array should contain [3,4]');
 end;
 
-procedure TArrayExTest.GetFirstMatchIndexTest(const sourceArray: string; const testArray: string);
+procedure TArrayExTest.GetFirstMatchIndexTest(const sourceArray : string; const testArray : string);
 var
 	ai : TArrayEx<integer>;
 	testValues : TArray<integer>;
 	result : integer;
 	expectedResult : integer;
 begin
+	expectedResult := -1;
 	// Parse source array
-	if sourceArray = '' then
-	begin
+	if sourceArray = '' then begin
 		ai.Clear;
-		expectedResult := -1;
-	end
-	else
-	begin
-		var sourceElements := sourceArray.Split([',']);
+	end else begin
+		var
+		sourceElements := sourceArray.Split([',']);
 		var sourceInts : TArray<integer>;
 		SetLength(sourceInts, Length(sourceElements));
-		for var i := 0 to High(sourceElements) do
+		for var i := 0 to high(sourceElements) do
 			sourceInts[i] := StrToInt(sourceElements[i]);
 		ai := sourceInts;
 	end;
-	
+
 	// Parse test array
-	if testArray = '' then
-	begin
+	if testArray = '' then begin
 		SetLength(testValues, 0);
-		expectedResult := -1;
-	end
-	else
-	begin
-		var testElements := testArray.Split([',']);
+	end else begin
+		var
+		testElements := testArray.Split([',']);
 		SetLength(testValues, Length(testElements));
-		for var i := 0 to High(testElements) do
+		for var i := 0 to high(testElements) do
 			testValues[i] := StrToInt(testElements[i]);
 	end;
-	
+
 	// Calculate expected result if not already set
-	if (sourceArray <> '') and (testArray <> '') then
-	begin
-		expectedResult := -1;
-		for var i := 0 to ai.Count - 1 do
-		begin
-			for var j := 0 to High(testValues) do
-			begin
-				if ai[i] = testValues[j] then
-				begin
+	if (sourceArray <> '') and (testArray <> '') then begin
+		for var i := 0 to ai.Count - 1 do begin
+			for var j := 0 to high(testValues) do begin
+				if ai[i] = testValues[j] then begin
 					expectedResult := i;
 					Break;
 				end;
@@ -233,14 +223,13 @@ begin
 				Break;
 		end;
 	end;
-	
+
 	// Execute test
 	result := ai.GetFirstMatchIndex(testValues);
-	
+
 	// Assert result
-	Assert.IsTrue(result = expectedResult, 
-		Format('Expected %d but got %d for source=%s, test=%s', 
-			[expectedResult, result, sourceArray, testArray]));
+	Assert.IsTrue(result = expectedResult, Format('Expected %d but got %d for source=%s, test=%s', [expectedResult, result, sourceArray,
+		testArray]));
 end;
 
 procedure TArrayExTest.GetFirstMatchIndexStringTest();
