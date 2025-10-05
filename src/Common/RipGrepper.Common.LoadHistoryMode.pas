@@ -80,7 +80,7 @@ begin
 		end;
 		Inc(intVal);
 	end;
-	Result := IfThen(bFound and (intVal <= Ord(lhmMaxCount)), intVal, -1);
+	Result := IfThen(bFound and (intVal <= Ord(high(ELoadHistoryMode))), intVal, -1);
 end;
 
 procedure TLoadHistoryModes.AddModeFromInt(const _i : integer);
