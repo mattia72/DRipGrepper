@@ -7,10 +7,11 @@
   The only caveat is that while toolbar customization in Delphi 12 the IDE doesn't show the right icons, only after restarting the IDE.
 
 ### 🔄 Changed
-- Version updated to 4.14.0
+- History load and save settings redesigned in settings form.
 
 ### 🐞 Fixed
-- Exception when saving settings: DRipExtensions_OpenWith_Action_MenuItem already exists. bereits.
+- Exception when saving settings: DRipExtensions_OpenWith_Action_MenuItem already exists. 
+- History load and save settings were not saved correctly in some cases.
 
 ## [v4.13.0-beta] - 2025-09-12
 
