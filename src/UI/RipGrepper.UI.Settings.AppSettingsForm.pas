@@ -56,21 +56,25 @@ type
 		cbLoadLastSearchHistories : TCheckBox;
 		rgModeLoadSeraches : TRadioGroup;
 		seSearchHistoryCount : TSpinEdit;
-		lblSearches : TLabel;
 		cbSaveResults : TCheckBox;
 		grpSaveLoad : TGroupBox;
 		procedure btnedtRgExePathEnter(Sender : TObject);
 		procedure btnedtRgExePathExit(Sender : TObject);
 		procedure btnedtRgExePathLeftButtonClick(Sender : TObject);
 		procedure btnedtRgExePathRightButtonClick(Sender : TObject);
+		procedure cbLoadLastSearchHistoriesClick(Sender : TObject);
+		procedure cbSaveResultsClick(Sender : TObject);
 		procedure FormShow(Sender : TObject);
+		procedure rgModeLoadSerachesClick(Sender : TObject);
 
 		private
 
 			FRefocusing : TObject;
 			FAppSettings : TAppSettings;
 			FRipGrepSettings : TRipGrepParameterSettings;
+			FSkipClickEvents : Boolean;
 			function IsRgExeValid(const filePath : string) : Boolean;
+			procedure UpdateModeLoadSearchesGroup();
 			{ User-defined message handler }
 			procedure ValidateInput(var M : TMessage); message USERMESSAGE_VALIDATE_INPUT;
 
@@ -129,6 +133,9 @@ end;
 
 procedure TAppSettingsForm.btnedtRgExePathLeftButtonClick(Sender : TObject);
 begin
+	if FSkipClickEvents then begin
+		Exit;
+	end;
 	Memo1.Text := 'rg.exe --version';
 	Memo1.Text := GetRgVersion(btnedtRgExePath.Text);
 end;
@@ -145,6 +152,22 @@ begin
 		btnedtRgExePath.Text := filePath;
 	end;
 	PostMessage(Handle, USERMESSAGE_VALIDATE_INPUT, 0, LParam(vcRgExePath));
+end;
+
+procedure TAppSettingsForm.cbLoadLastSearchHistoriesClick(Sender : TObject);
+begin
+	if FSkipClickEvents then begin
+		Exit;
+	end;
+	UpdateModeLoadSearchesGroup;
+end;
+
+procedure TAppSettingsForm.cbSaveResultsClick(Sender : TObject);
+begin
+	if FSkipClickEvents then begin
+		Exit;
+	end;
+	UpdateModeLoadSearchesGroup;
 end;
 
 procedure TAppSettingsForm.FormShow(Sender : TObject);
@@ -193,23 +216,48 @@ begin
 	FAppSettings.LoadFromDict;
 	FRipGrepSettings.LoadFromDict;
 
-	cmbCopyCmdShell.ItemIndex := Integer(FAppSettings.CopyToClipBoardShell);
-	seCmbHistoryCount.Value := FAppSettings.ComboHistoryCount;
-	seSearchHistoryCount.Value := FAppSettings.SearchHistoryCount;
+	FSkipClickEvents := True;
+	try
+		cmbCopyCmdShell.ItemIndex := Integer(FAppSettings.CopyToClipBoardShell);
+		seCmbHistoryCount.Value := FAppSettings.ComboHistoryCount;
+		seSearchHistoryCount.Value := FAppSettings.SearchHistoryCount;
 
-	FAppSettings.UpdateInternalsFromSettings();
-	cbLoadLastSearchHistories.Checked := FAppSettings.LoadHistoryMode.IsSaveHistoryActive;
-	rgModeLoadSeraches.ItemIndex := FAppSettings.LoadHistoryMode.ToInt;
-	cbSaveResults.Checked := FAppSettings.LoadHistoryMode.IsSet(lhmSaveResults);
-	var
-	path := FRipGrepSettings.RipGrepPath;
-	if path.IsEmpty then begin
-		FRipGrepSettings.TryGetRipGrepPath(path);
+		FAppSettings.UpdateInternalsFromSettings();
+		cbLoadLastSearchHistories.Checked := FAppSettings.LoadHistoryMode.IsSet(lhmLoadLastSearchHistories);
+		cbSaveResults.Checked := FAppSettings.LoadHistoryMode.IsSet(lhmSaveResults);
+
+		// Always set the radio group item index
+		var
+		idx := FAppSettings.LoadHistoryMode.ToInt;
+		rgModeLoadSeraches.ItemIndex := idx;
+
+		UpdateModeLoadSearchesGroup();
+
+		var
+		path := FRipGrepSettings.RipGrepPath;
+		if path.IsEmpty then begin
+			FRipGrepSettings.TryGetRipGrepPath(path);
+		end;
+		btnedtRgExePath.Text := path;
+		btnedtRgExePath.LeftButton.Hint := 'Refresh version info';
+		btnedtRgExePath.RightButton.Hint := 'Select rg.exe';
+		Memo1.Text := GetRgVersion(path);
+	finally
+		FSkipClickEvents := False;
 	end;
-	btnedtRgExePath.Text := path;
-	btnedtRgExePath.LeftButton.Hint := 'Refresh version info';
-	btnedtRgExePath.RightButton.Hint := 'Select rg.exe';
-	Memo1.Text := GetRgVersion(path);
+end;
+
+procedure TAppSettingsForm.rgModeLoadSerachesClick(Sender : TObject);
+begin
+	if FSkipClickEvents then begin
+		Exit;
+	end;
+	TDebugUtils.MsgFmt('item index : %d', [rgModeLoadSeraches.ItemIndex]);
+end;
+
+procedure TAppSettingsForm.UpdateModeLoadSearchesGroup();
+begin
+	rgModeLoadSeraches.Enabled := cbLoadLastSearchHistories.Checked;
 end;
 
 procedure TAppSettingsForm.ValidateInput(var M : TMessage);
@@ -239,10 +287,12 @@ begin
 	FAppSettings.SearchHistoryCount := seSearchHistoryCount.Value;
 	lhm := FAppSettings.LoadHistoryMode;
 	if (cbLoadLastSearchHistories.Checked) then begin
-		lhm.AddModeFromInt(rgModeLoadSeraches.ItemIndex);
+		lhm.AddMode(lhmLoadLastSearchHistories);
 	end else begin
-		lhm.CleanModes(False);
+		lhm.RemoveMode(lhmLoadLastSearchHistories);
 	end;
+	lhm.AddModeFromInt(rgModeLoadSeraches.ItemIndex);
+
 	if cbSaveResults.Checked then begin
 		lhm.AddMode(lhmSaveResults);
 	end else begin

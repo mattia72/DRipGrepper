@@ -3,9 +3,11 @@
 interface
 
 type
-	ELoadHistoryMode = (lhmAll,
+	ELoadHistoryMode = (
+		{ } lhmAll = 0, // should be index 0 because of radio button group
 		{ } lhmHasResultOnly,
 		{ } lhmMaxCount,
+		{ } lhmLoadLastSearchHistories,
 		{ } lhmSaveResults);
 
 	TLoadHistoryModeSet = set of ELoadHistoryMode;
@@ -20,10 +22,10 @@ type
 		public
 			function ToInt() : integer;
 			procedure AddModeFromInt(const _i : integer);
-			function ToString(): string; reintroduce;
-			procedure FromString(const _s: string);
+			function ToString() : string; reintroduce;
+			procedure FromString(const _s : string);
 			procedure AddMode(const _e : ELoadHistoryMode); overload;
-		procedure RemoveMode(const _e : ELoadHistoryMode); overload;
+			procedure RemoveMode(const _e : ELoadHistoryMode); overload;
 			procedure CleanModes(const _bModesOnly : Boolean);
 			function IsSet(_e : ELoadHistoryMode) : Boolean;
 			constructor Create(const _m : ELoadHistoryMode);
@@ -46,10 +48,16 @@ end;
 
 procedure TLoadHistoryModes.CleanModes(const _bModesOnly : Boolean);
 begin
-	if _bModesOnly and (lhmSaveResults in FModes) then begin
-		FModes := [lhmSaveResults];
-	end else begin
-		FModes := [];
+	var
+	tmpModes := FModes;
+	FModes := [];
+	if _bModesOnly then begin
+		if (lhmSaveResults in tmpModes) then begin
+			Include(FModes, lhmSaveResults);
+		end;
+		if (lhmLoadLastSearchHistories in tmpModes) then begin
+			Include(FModes, lhmLoadLastSearchHistories);
+		end;
 	end;
 end;
 
@@ -86,7 +94,7 @@ begin
 	end;
 end;
 
-function TLoadHistoryModes.ToString(): string;
+function TLoadHistoryModes.ToString() : string;
 var
 	arr : TArrayEx<string>;
 begin
@@ -99,7 +107,7 @@ begin
 	Result := '[' + string.Join(',', arr.Items) + ']';
 end;
 
-procedure TLoadHistoryModes.FromString(const _s: string);
+procedure TLoadHistoryModes.FromString(const _s : string);
 begin
 	FModes := [];
 	for var i := low(ELoadHistoryMode) to high(ELoadHistoryMode) do begin

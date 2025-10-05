@@ -40,7 +40,7 @@ object AppSettingsForm: TAppSettingsForm
     object btnedtRgExePath: TButtonedEdit
       Left = 16
       Top = 27
-      Width = 479
+      Width = 477
       Height = 23
       Hint = 'Full path to rg.exe.'
       Anchors = [akLeft, akTop, akRight]
@@ -68,7 +68,7 @@ object AppSettingsForm: TAppSettingsForm
     object Memo1: TMemo
       Left = 16
       Top = 74
-      Width = 479
+      Width = 477
       Height = 63
       Hint = 'Output of "rg.exe --version".'
       Anchors = [akLeft, akTop, akRight]
@@ -90,13 +90,13 @@ object AppSettingsForm: TAppSettingsForm
     object grpSettings: TGroupBox
       Left = 11
       Top = 143
-      Width = 484
+      Width = 482
       Height = 252
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Settings'
       TabOrder = 2
       DesignSize = (
-        484
+        482
         252)
       object Label2: TLabel
         Left = 19
@@ -130,26 +130,19 @@ object AppSettingsForm: TAppSettingsForm
       object grpSaveLoad: TGroupBox
         Left = 16
         Top = 79
-        Width = 456
+        Width = 454
         Height = 162
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Save/Load behaviour'
         TabOrder = 2
         DesignSize = (
-          456
+          454
           162)
-        object lblSearches: TLabel
-          Left = 184
-          Top = 80
-          Width = 45
-          Height = 15
-          Caption = 'searches'
-        end
         object rgModeLoadSeraches: TRadioGroup
           AlignWithMargins = True
-          Left = 10
-          Top = 17
-          Width = 436
+          Left = 3
+          Top = 68
+          Width = 448
           Height = 91
           Hint = 
             'All searches '#8211' Loads all previously saved searches.'#10#10#13#10'Only (re)' +
@@ -160,14 +153,15 @@ object AppSettingsForm: TAppSettingsForm
           Items.Strings = (
             'All searches'
             'Only (re)executed searches'
-            'Last')
+            'Last                       searches')
           TabOrder = 0
           StyleElements = [seFont, seClient]
+          OnClick = rgModeLoadSerachesClick
         end
         object seSearchHistoryCount: TSpinEdit
-          Left = 79
-          Top = 77
-          Width = 99
+          Left = 61
+          Top = 130
+          Width = 52
           Height = 24
           Hint = 'Number of history length in search history panel.'
           MaxValue = 500
@@ -177,21 +171,23 @@ object AppSettingsForm: TAppSettingsForm
         end
         object cbSaveResults: TCheckBox
           Left = 3
-          Top = 119
+          Top = 23
           Width = 222
           Height = 17
           Hint = 'Save results of ripgrep search'
           Caption = 'Save / Load search results'
           TabOrder = 2
+          OnClick = cbSaveResultsClick
         end
         object cbLoadLastSearchHistories: TCheckBox
           Left = 3
-          Top = 142
+          Top = 46
           Width = 222
           Height = 17
           Hint = 'Automatically load saved search history items on startup.'
           Caption = 'Load search history on startup'
           TabOrder = 3
+          OnClick = cbLoadLastSearchHistoriesClick
         end
       end
       object seCmbHistoryCount: TSpinEdit
