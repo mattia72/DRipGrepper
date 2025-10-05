@@ -81,7 +81,8 @@ uses
   RipGrepper.Helper.SettingStoreBehaviours in '..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas',
   RipGrepper.Helper.StreamReaderWriter in '..\src\Helper\RipGrepper.Helper.StreamReaderWriter.pas',
   RipGrepper.Tools.ReleaseUtils.Test in 'RipGrepper.Tools.ReleaseUtils.Test.pas',
-  RipGrepper.Common.IOTAUtils.TPathProcessor.Test in 'RipGrepper.Common.IOTAUtils.TPathProcessor.Test.pas';
+  RipGrepper.Common.IOTAUtils.TPathProcessor.Test in 'RipGrepper.Common.IOTAUtils.TPathProcessor.Test.pas',
+  RipGrepper.Parsers.JsonMatchLine in '..\src\RipGrepper.Parsers.JsonMatchLine.pas';
 
 // This comment has to guard the following IFDEF, that may be delted by delphi, if new unit added to the project
 {$IFNDEF TESTINSIGHT}
