@@ -322,6 +322,22 @@ begin
 	{ } 'RipGrepArguments content should match the expected serialized data');
 	Assert.AreEqual(hio.Matches.Items.Count, other.Matches.Items.Count,
 	{ } 'Matches count should match the expected serialized data');
+	for var i := 0 to hio.Matches.Items.Count - 1 do begin
+		Assert.AreEqual(hio.Matches.Items[i].GetColumnText(ciFile), other.Matches.Items[i].GetColumnText(ciFile),
+		{ } 'Match item file should match the expected serialized data');
+		Assert.AreEqual(hio.Matches.Items[i].GetColumnText(ciMatchText), other.Matches.Items[i].GetColumnText(ciMatchText),
+		{ } 'Match item text should match the expected serialized data');
+		Assert.AreEqual(hio.Matches.Items[i].GetColumnText(ciRow), other.Matches.Items[i].GetColumnText(ciRow),
+		{ } 'Match item row should match the expected serialized data');
+		Assert.AreEqual(hio.Matches.Items[i].GetColumnText(ciColBegin), other.Matches.Items[i].GetColumnText(ciColBegin),
+		{ } 'Match item col begin should match the expected serialized data');
+		Assert.AreEqual(hio.Matches.Items[i].GetColumnText(ciColEnd), other.Matches.Items[i].GetColumnText(ciColEnd),
+		{ } 'Match item col end should match the expected serialized data');
+		Assert.AreEqual(hio.Matches.Items[i].GetColumnText(ciText), other.Matches.Items[i].GetColumnText(ciText),
+		{ } 'Match item text should match the expected serialized data');
+		Assert.AreEqual(hio.Matches.Items[i].GetColumnText(ciTextAfterMatch), other.Matches.Items[i].GetColumnText(ciTextAfterMatch),
+		{ } 'Match item text after match should match the expected serialized data');
+	end;
 end;
 
 procedure THistoryItemObjectTest.TestSaveLoadListFromStream();
