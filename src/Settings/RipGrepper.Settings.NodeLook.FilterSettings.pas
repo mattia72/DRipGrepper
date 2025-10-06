@@ -88,7 +88,8 @@ end;
 
 function TFilterSettings.GetFilterModes : TFilterModes;
 begin
-	var modes : TArrayEx<string> := FILTER_MODES;
+	var
+		modes : TArrayEx<string> := FILTER_MODES;
 	var
 	idx := modes.IndexOf(ChosenFilterMode);
 	case idx of
@@ -129,13 +130,13 @@ end;
 
 procedure TFilterSettings.Init;
 begin
-	FChosenFilterMode := TStringSetting.Create(FILE_FILTER_MODE);
-	FIsCaseSensitive := TBoolSetting.Create(False);
-	FIsUseRegex := TBoolSetting.Create(False);
+	FChosenFilterMode := TStringSetting.Create('FilterMode', FILE_FILTER_MODE);
+	FIsCaseSensitive := TBoolSetting.Create('FilterMode.CaseSensitive', False);
+	FIsUseRegex := TBoolSetting.Create('FilterMode.UseRegex', False);
 
-	CreateSetting('FilterMode', FChosenFilterMode);
-	CreateSetting('FilterMode.CaseSensitive', FIsCaseSensitive);
-	CreateSetting('FilterMode.UseRegex', FIsUseRegex);
+	CreateSetting(FChosenFilterMode);
+	CreateSetting(FIsCaseSensitive);
+	CreateSetting(FIsUseRegex);
 end;
 
 procedure TFilterSettings.LoadFromDict;

@@ -77,8 +77,8 @@ procedure TSettingVariantTest.TestEquals();
 var
 	v, v2 : ISettingVariant<integer>;
 begin
-	v := TSettingVariant<integer>.Create(42);
-	v2 := TSettingVariant<integer>.Create(42);
+	v := TSettingVariant<integer>.Create('v', 42);
+	v2 := TSettingVariant<integer>.Create('v2', 42);
 
 	Assert.IsTrue(v.Equals(v2), Format('Expected %d should be equal to %d', [v.Value, v2.Value]));
 
@@ -92,8 +92,8 @@ procedure TSettingVariantTest.TestEqualsStr();
 var
 	v, v2 : ISettingVariant<string>;
 begin
-	v := TSettingVariant<string>.Create('SHIFT + F2');
-	v2 := TSettingVariant<string>.Create('SHIFT + F2');
+	v := TSettingVariant<string>.Create('v', 'SHIFT + F2');
+	v2 := TSettingVariant<string>.Create('v2', 'SHIFT + F2');
 
 	Assert.IsTrue(v.Equals(v2), Format('Expected %s should be equal to %s', [v.Value, v2.Value]));
 
@@ -138,7 +138,7 @@ var
 	Section, Ident : string;
 	ExpectedValue, ActualValue : integer;
 begin
-	v := TIntegerSetting.Create(42);
+	v := TIntegerSetting.Create('v', 42);
 
 	Section := 'TestSection';
 	Ident := 'TestIdent';
@@ -167,7 +167,7 @@ var
 	Section, Ident : string;
 	ExpectedValue, ActualValue : Boolean;
 begin
-	v := TBoolSetting.Create(True);
+	v := TBoolSetting.Create('v', True);
 	Section := 'TestSection';
 	Ident := 'TestIdent';
 	v.Persister := TMemIniBoolPersister.Create(IniFile, Section, Ident);
@@ -202,7 +202,7 @@ begin
 	arr := ['item1', 'item2', 'item3'];
 	var
 	varr := TArrayEx<string>.Create(arr);
-	v := TArraySetting.Create(varr);
+	v := TArraySetting.Create('varr', varr);
 	Section := 'TestSection';
 
 	v.Persister := TMemIniStrArrayPersister.Create(IniFile, Section);
@@ -232,8 +232,8 @@ procedure TSettingVariantTest.TestCopy();
 var
 	v, v2 : ISettingVariant<integer>;
 begin
-	v := TSettingVariant<integer>.Create(42);
-	v2 := TSettingVariant<integer>.Create(0);
+	v := TSettingVariant<integer>.Create('v', 42);
+	v2 := TSettingVariant<integer>.Create('v2', 0);
 
 	v2.Copy(v);
 	Assert.AreEqual(v.Value, v2.Value, 'Values should be equal after copy');
@@ -243,8 +243,8 @@ procedure TSettingVariantTest.TestCompareTo();
 var
 	v, v2 : ISettingVariant<integer>;
 begin
-	v := TSettingVariant<integer>.Create(42);
-	v2 := TSettingVariant<integer>.Create(42);
+	v := TSettingVariant<integer>.Create('v', 42);
+	v2 := TSettingVariant<integer>.Create('v2', 42);
 
 	Assert.AreEqual(0, v.CompareTo(v2), 'Expected values to be equal');
 
@@ -256,8 +256,8 @@ procedure TSettingVariantTest.TestCopySettingValue;
 var
 	v, v2 : ISetting;
 begin
-	v := TIntegerSetting.Create(42);
-	v2 := TIntegerSetting.Create(0);
+	v := TIntegerSetting.Create('v', 42);
+	v2 := TIntegerSetting.Create('v2', 0);
 
 	v2.Copy(v);
 	Assert.AreNotEqual(v.AsString, v2.AsString, 'is not equal after copy :( ');
@@ -270,8 +270,8 @@ procedure TSettingVariantTest.TestCopyIntegerSetting;
 var
 	v, v2 : IIntegerSetting;
 begin
-	v := TIntegerSetting.Create(42);
-	v2 := TIntegerSetting.Create(0);
+	v := TIntegerSetting.Create('v', 42);
+	v2 := TIntegerSetting.Create('v2', 0);
 
 	v2.Copy(v);
 	Assert.AreEqual(v.Value, v2.Value, 'Values should be equal after copy');
@@ -282,8 +282,8 @@ procedure TSettingVariantTest.TestCopyBoolSetting;
 var
 	v, v2 : IBoolSetting;
 begin
-	v := TBoolSetting.Create(True);
-	v2 := TBoolSetting.Create(False);
+	v := TBoolSetting.Create('v', True);
+	v2 := TBoolSetting.Create('v2', False);
 
 	v2.Copy(v);
 	Assert.AreEqual(True, v2.Value, 'Value should be True');
@@ -295,8 +295,8 @@ procedure TSettingVariantTest.TestCopyStringSetting;
 var
 	v, v2 : IStringSetting;
 begin
-	v := TStringSetting.Create('string value');
-	v2 := TStringSetting.Create('other string value');
+	v := TStringSetting.Create('v', 'string value');
+	v2 := TStringSetting.Create('v2', 'other string value');
 
 	v2.Copy(v);
 	Assert.AreEqual(v.Value, v2.Value, 'Values should be equal after copy');
@@ -309,8 +309,8 @@ var
 begin
 	var
 	a := ['one', 'two', 'three'];
-	v := TArraySetting.Create(a);
-	v2 := TArraySetting.Create();
+	v := TArraySetting.Create('v', a);
+	v2 := TArraySetting.Create('v2');
 
 	v2.Copy(v);
 	Assert.AreEqual(v.Value, v2.Value, 'Values should be equal after copy');
@@ -321,7 +321,7 @@ procedure TSettingVariantTest.TestStatus();
 var
 	v : ISettingVariant<integer>;
 begin
-	v := TSettingVariant<integer>.Create(0);
+	v := TSettingVariant<integer>.Create('v', 0);
 	Assert.IsTrue(v.State = ssInitialized, 'Expected setting state ssInitialized');
 
 	v.Value := 42;
@@ -342,7 +342,7 @@ begin
 	arr := ['item1', 'item2', 'item3'];
 	var
 	varr := TArrayEx<string>.Create(arr);
-	v := TArraySetting.Create(varr);
+	v := TArraySetting.Create('varr', varr);
 	Section := 'TestSection';
 
 	v.Persister := TMemIniStrArrayPersister.Create(IniFile, Section);

@@ -179,30 +179,30 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TAppSettings.Init');
 
-	FColorTheme := TStringSetting.Create(''); // TDarkModeHelper.GetActualThemeName);
-	FCopyToClipBoardShell := TIntegerSetting.Create(Integer(TShellType.stPowershell));
-	FComboHistoryCount := TIntegerSetting.Create(MAX_HISTORY_COUNT);
-	FSearchHistoryCount := TIntegerSetting.Create(MAX_HISTORY_COUNT);
-	FLoadHistory := TBoolSetting.Create(False);
-	FCheckNewVersionOnStartup := TBoolSetting.Create(False);
-	FLoadHistoryMode := TStringSetting.Create();
+	FColorTheme := TStringSetting.Create(KEY_COLORTHEME, ''); // TDarkModeHelper.GetActualThemeName);
+	FCopyToClipBoardShell := TIntegerSetting.Create(KEY_COPYTOCLIPBOARDSHELL, Integer(TShellType.stPowershell));
+	FComboHistoryCount := TIntegerSetting.Create(KEY_CMBHISTORYCOUNT, MAX_HISTORY_COUNT);
+	FSearchHistoryCount := TIntegerSetting.Create(KEY_SEARCH_HISTORYCOUNT, MAX_HISTORY_COUNT);
+	FCheckNewVersionOnStartup := TBoolSetting.Create(KEY_CHECK_NEW_VERSION_ON_STARTUP, False);
+	FLoadHistory := TBoolSetting.Create(KEY_LOAD_LAST_HISTORIES_ON_STARTUP, False);
+	FLoadHistoryMode := TStringSetting.Create(KEY_LOAD_LAST_HISTORY_MODE, '');
     FInternalLoadHistoryMode := Shared.Make<TLoadHistoryModes>();
-	FDebugTrace := TStringSetting.Create('');
-	FDebugTraceRegexFilter := TStringSetting.Create('');
-	FExpertMode := TBoolSetting.Create(False);
-	FEncodingItems := TStringSetting.Create(string.join(ARRAY_SEPARATOR, TDefaults.RG_PARAM_ENCODING_VALUES));
+	FDebugTrace := TStringSetting.Create(KEY_DEBUGTRACE, '');
+	FDebugTraceRegexFilter := TStringSetting.Create(KEY_DEBUGTRACEREGEXFILTER, '');
+	FEncodingItems := TStringSetting.Create(KEY_ENCODING_ITEMS, string.join(ARRAY_SEPARATOR, TDefaults.RG_PARAM_ENCODING_VALUES));
+	FExpertMode := TBoolSetting.Create(KEY_EXPERTMODE, False);
 
-	CreateSetting(KEY_COLORTHEME, FColorTheme);
-	CreateSetting(KEY_COPYTOCLIPBOARDSHELL, FCopyToClipBoardShell);
-	CreateSetting(KEY_CMBHISTORYCOUNT, FComboHistoryCount);
-	CreateSetting(KEY_SEARCH_HISTORYCOUNT, FSearchHistoryCount);
-	CreateSetting(KEY_CHECK_NEW_VERSION_ON_STARTUP, FCheckNewVersionOnStartup);
-	CreateSetting(KEY_LOAD_LAST_HISTORIES_ON_STARTUP, FLoadHistory);
-	CreateSetting(KEY_LOAD_LAST_HISTORY_MODE, FLoadHistoryMode);
-	CreateSetting(KEY_DEBUGTRACE, FDebugTrace);
-	CreateSetting(KEY_DEBUGTRACEREGEXFILTER, FDebugTraceRegexFilter);
-	CreateSetting(KEY_ENCODING_ITEMS, FEncodingItems);
-	CreateSetting(KEY_EXPERTMODE, FExpertMode);
+	CreateSetting(FColorTheme);
+	CreateSetting(FCopyToClipBoardShell);
+	CreateSetting(FComboHistoryCount);
+	CreateSetting(FSearchHistoryCount);
+	CreateSetting(FCheckNewVersionOnStartup);
+	CreateSetting(FLoadHistory);
+	CreateSetting(FLoadHistoryMode);
+	CreateSetting(FDebugTrace);
+	CreateSetting(FDebugTraceRegexFilter);
+	CreateSetting(FEncodingItems);
+	CreateSetting(FExpertMode);
 end;
 
 procedure TAppSettings.SetColorTheme(const Value : string);

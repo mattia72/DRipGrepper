@@ -11,7 +11,8 @@ uses
 	RipGrepper.Helper.MemIniFile,
 	RipGrepper.Settings.FilePersister,
 	ArrayEx,
-	Spring, RipGrepper.Settings.Persister.Interfaces;
+	Spring,
+	RipGrepper.Settings.Persister.Interfaces;
 
 const
 	NOTEXISTS = '<not exists>';
@@ -433,7 +434,7 @@ begin
 	end;
 
 	FSettings.SearchTextsHistory.Value := FSearchTextHist.GetRange(0, MAX_HISTORY_COUNT);
-    FSettings.StoreToPersister;
+	FSettings.StoreToPersister;
 
 	// see SearchForm.OnClose.
 	// FSettings.StoreHistories(); already done by FSettings.StoreToPersister
@@ -442,11 +443,14 @@ begin
 
 	var
 	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
-
-	Assert.AreEqual(FActualTextHistValue, FSettings.SearchTextsHistory.AsArray[0],
+	var
+	actualHistText := FSettings.SearchTextsHistory.AsArray[0];
+	Assert.AreEqual(FActualTextHistValue, actualHistText,
 		{ } 'SearchTextsHistory[0] item should be the actual');
+
+	actualHistText := FFactory.GetStringPersister.LoadValue('SearchTextsHistory', 'Item_0');
 	Assert.AreEqual(FActualTextHistValue,
-		{ } FFactory.GetStringPersister.LoadValue('SearchTextsHistory', 'Item_0'),
+		{ } actualHistText,
 		{ } 'first persisted SearchTextsHistory item should be the actual');
 
 	var
@@ -496,7 +500,7 @@ begin
 	FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext :=
 	{ } TDelphiIDEContext.FromString('2', 'active project', 'active file');
 
-    FSettings.StoreToPersister;
+	FSettings.StoreToPersister;
 
 	FstrPers := FFactory.GetStringPersister();
 	FintPers := FFactory.GetIntegerPersister();
@@ -516,7 +520,8 @@ begin
 end;
 
 procedure TInnerSearchFormSettingsTest.EncodingChangeAndUpdateFile();
-var settingVal, iniVal : string;
+var
+	settingVal, iniVal : string;
 begin
 	FSettings.SearchFormSettings.Encoding := 'utf8';
 	FSettings.StoreToPersister();
@@ -528,7 +533,8 @@ begin
 end;
 
 procedure TInnerSearchFormSettingsTest.EncodingChangeChangesDictionary();
-var settingVal, dictVal : string;
+var
+	settingVal, dictVal : string;
 begin
 	FSettings.SearchFormSettings.Encoding := 'utf8';
 
@@ -542,7 +548,8 @@ begin
 end;
 
 procedure TInnerSearchFormSettingsTest.ContextChangeChangesDictionary();
-var settingVal, dictVal : string;
+var
+	settingVal, dictVal : string;
 begin
 	FSettings.SearchFormSettings.Context := 1;
 

@@ -3,12 +3,13 @@ unit RipGrepper.Common.Interfaces;
 interface
 
 uses
+	System.Classes,
+	System.Generics.Collections,
 	System.RegularExpressions,
+	ArrayEx,
+	Spring,
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.SimpleTypes,
-	ArrayEx,
-	System.Generics.Collections,
-	System.Classes,
 	RipGrepper.Common.ParsedObject,
 	RipGrepper.Common.SearchTextWithOptions,
 	RipGrepper.Settings.SearchFormSettings,
@@ -16,8 +17,7 @@ uses
 	RipGrepper.Common.EncodedStringList,
 	RipGrepper.Common.GuiSearchParams,
 	RipGrepper.Common.Interfaces.StreamPersistable,
-    RipGrepper.Settings.RipGrepArguments,
-	Spring;
+	RipGrepper.Settings.RipGrepArguments;
 
 type
 

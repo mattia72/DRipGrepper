@@ -63,7 +63,7 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	System.StrUtils,
 	RipGrepper.Helper.Types,
-	System.SysUtils, 
+	System.SysUtils,
 	RipGrepper.Helper.SettingStoreBehaviours;
 
 constructor TNodeLookSettings.Create(const _Owner : TPersistableSettings);
@@ -114,18 +114,18 @@ end;
 procedure TNodeLookSettings.Init;
 begin
 	var
-	ssb : TSettingStoreBehaviours := [ssbStoreIfModified,ssbStoreAfterChangeImmediately];
-	FShowRelativePath := TBoolSetting.Create(False, ssInitialized, ssb);
-	FAlternateRowColors := TBoolSetting.Create(False, ssInitialized, ssb);
-	FExpandNodes := TBoolSetting.Create(False, ssInitialized, ssb);
-	FIndentLines := TBoolSetting.Create(False, ssInitialized, ssb);
-	FShowFileIcon := TBoolSetting.Create(False, ssInitialized, ssb);
+		ssb : TSettingStoreBehaviours := [ssbStoreIfModified, ssbStoreAfterChangeImmediately];
+	FShowRelativePath := TBoolSetting.Create('ShowRelativePath', False, ssInitialized, ssb);
+	FAlternateRowColors := TBoolSetting.Create('AlternateRowColors', False, ssInitialized, ssb);
+	FExpandNodes := TBoolSetting.Create('ExpandNodes', False, ssInitialized, ssb);
+	FIndentLines := TBoolSetting.Create('IndentLines', False, ssInitialized, ssb);
+	FShowFileIcon := TBoolSetting.Create('ShowFileIcon', False, ssInitialized, ssb);
 
-	CreateSetting('ShowRelativePath', FShowRelativePath);
-	CreateSetting('ShowFileIcon', FShowFileIcon);
-	CreateSetting('AlternateRowColors', FAlternateRowColors);
-	CreateSetting('IndentLines', FIndentLines);
-	CreateSetting('ExpandNodes', FExpandNodes);
+	CreateSetting(FShowRelativePath);
+	CreateSetting(FShowFileIcon);
+	CreateSetting(FAlternateRowColors);
+	CreateSetting(FIndentLines);
+	CreateSetting(FExpandNodes);
 	FFilterSettings.Init();
 end;
 

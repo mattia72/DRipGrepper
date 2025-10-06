@@ -119,7 +119,7 @@ begin
 	i := 0;
 	for var cmd in TArraySetting(_setting).AsArray do begin
 		var
-			s : ISetting := TStringSetting.Create(cmd);
+			s : ISetting := TStringSetting.Create(_key, cmd);
 		s.SaveBehaviour := _setting.SaveBehaviour;
 		s.State := _setting.State;
 		var
@@ -212,9 +212,9 @@ end;
 
 class function TSettingsDictionary.DictToStringArray(_dict : TSettingsDictionary) : TArray<TArray<string>>;
 const
-    { } IS_CONSOLE = {$IFDEF CONSOLE} TRUE; {$ELSE} FALSE; {$ENDIF}
-	{ } IS_UNITTEST = {$IFDEF TESTINSIGHT} TRUE; {$ELSE} FALSE; {$ENDIF}
-    { } IS_DEBUG = {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
+	{ } IS_CONSOLE = {$IFDEF CONSOLE} TRUE; {$ELSE} FALSE; {$ENDIF}
+{ } IS_UNITTEST = {$IFDEF TESTINSIGHT} TRUE; {$ELSE} FALSE; {$ENDIF}
+{ } IS_DEBUG = {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
 begin
 	{$IF IS_DEBUG OR IS_UNITTEST OR IS_CONSOLE}
 	var
@@ -405,7 +405,6 @@ end;
 
 procedure TSettingsDictionary.LoadFromStreamReader(_sr : TStreamReader);
 var
-	key : string;
 	keyCount : Integer;
 	section : string;
 	sectionCount : integer;
@@ -424,9 +423,10 @@ begin
 
 		keyCount := _sr.ReadLineAsInteger;
 		for var j := 0 to keyCount - 1 do begin
-			key := _sr.ReadLine;
+			var
+			key := _sr.ReadLineAsString();
 			settingType := TSettingType(_sr.ReadLineAsInteger);
-			setting := TSettingFactory.CreateSetting(settingType);
+			setting := TSettingFactory.CreateSetting(settingType, key);
 			(setting as IStreamReaderWriterPersistable).LoadFromStreamReader(_sr);
 			CreateSetting(section, key, setting, FOwnerPersister);
 		end;
@@ -436,11 +436,13 @@ end;
 procedure TSettingsDictionary.SaveToStreamWriter(_sw : TStreamWriter);
 begin
 	_sw.WriteLineAsInteger(FInnerDictionary.Count);
+	var
+	arr := DictToStringArray(self);
 	for var section in FInnerDictionary.Keys do begin
 		_sw.WriteLineAsString(section, false, 'SettingsDictionary.SectionName');
 		_sw.WriteLineAsInteger(FInnerDictionary[section].Count);
 		for var key in FInnerDictionary[section].Keys do begin
-			_sw.WriteLineAsString(key, false, 'SettingsDictionary.KeyName');
+			_sw.WriteLineAsString(key, false, Format('[%s]%s', [section, key]));
 			_sw.WriteLineAsInteger(Integer(FInnerDictionary[section][key].SettingType));
 			(FInnerDictionary[section][key] as IStreamReaderWriterPersistable).SaveToStreamWriter(_sw);
 		end;

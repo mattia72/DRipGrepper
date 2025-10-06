@@ -161,17 +161,17 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.Init');
 
-	FPretty := TBoolSetting.Create(False);
-	FHidden := TBoolSetting.Create(False);
-	FNoIgnore := TBoolSetting.Create(False);
-	FContext := TIntegerSetting.Create(0);
-	FEncoding := TStringSetting.Create('');
+	FPretty := TBoolSetting.Create('Pretty', False);
+	FHidden := TBoolSetting.Create('Hidden', False);
+	FNoIgnore := TBoolSetting.Create('NoIgnore', False);
+	FContext := TIntegerSetting.Create('Context', 0);
+	FEncoding := TStringSetting.Create('Encoding', '');
 
-	CreateSetting('Pretty', FPretty);
-	CreateSetting('Hidden', FHidden);
-	CreateSetting('NoIgnore', FNoIgnore);
-	CreateSetting('Context', FContext);
-	CreateSetting('Encoding', FEncoding);
+	CreateSetting(FPretty);
+	CreateSetting(FHidden);
+	CreateSetting(FNoIgnore);
+	CreateSetting(FContext);
+	CreateSetting(FEncoding);
 end;
 
 procedure TSearchFormSettings.LoadFromStreamReader(_sr : TStreamReader);

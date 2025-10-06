@@ -131,19 +131,19 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.Init');
 
-	FSearchSelectedShortcut := TStringSetting.Create(TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH);
-	FOpenWithShortCut := TStringSetting.Create(TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH);
-	FSettingsShortCut := TStringSetting.Create(TDefaults.EXT_DEFAULT_SHORTCUT_SETTINGS);
-	FHandleOpenWithDelphiCommands := TBoolSetting.Create(False);
+	FSearchSelectedShortcut := TStringSetting.Create(KEY_SHORTCUT_SEARCH_SELECTED, TDefaults.EXT_DEFAULT_SHORTCUT_SEARCH);
+	FOpenWithShortCut := TStringSetting.Create(KEY_SHORTCUT_OPENWITH, TDefaults.EXT_DEFAULT_SHORTCUT_OPEN_WITH);
+	FSettingsShortCut := TStringSetting.Create(KEY_SHORTCUT_SETTINGS, TDefaults.EXT_DEFAULT_SHORTCUT_SETTINGS);
+	FHandleOpenWithDelphiCommands := TBoolSetting.Create(KEY_HANDLE_OPEN_WITH_DELPHI_COMMANDS, False);
 
-	FIDEContext := TIntegerSetting.Create();
+	FIDEContext := TIntegerSetting.Create(KEY_IDE_CONTEXT);
 	FCurrentIDEContext.IDESearchContext := EDelphiIDESearchContext.dicActiveFile;
 
-	CreateSetting(KEY_SHORTCUT_SEARCH_SELECTED, FSearchSelectedShortcut);
-	CreateSetting(KEY_SHORTCUT_OPENWITH, FOpenWithShortCut);
-	CreateSetting(KEY_SHORTCUT_SETTINGS, FSettingsShortCut);
-	CreateSetting(KEY_HANDLE_OPEN_WITH_DELPHI_COMMANDS, FHandleOpenWithDelphiCommands);
-	CreateSetting(KEY_IDE_CONTEXT, FIDEContext);
+	CreateSetting(FSearchSelectedShortcut);
+	CreateSetting(FOpenWithShortCut);
+	CreateSetting(FSettingsShortCut);
+	CreateSetting(FHandleOpenWithDelphiCommands);
+	CreateSetting(FIDEContext);
 end;
 
 procedure TRipGrepperExtensionSettings.SetCurrentIDEContext(const Value : TDelphiIDEContext);

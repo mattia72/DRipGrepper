@@ -72,14 +72,14 @@ begin
 			dbgMsg.MsgFmt('KeyValue: %s', [settingValue]);
 			case settingType of
 				stString :
-				setting := TStringSetting.Create(settingValue);
+				setting := TStringSetting.Create(key, settingValue);
 				stInteger :
-				setting := TIntegerSetting.Create(StrToIntDef(settingValue, 0));
+				setting := TIntegerSetting.Create(key, StrToIntDef(settingValue, 0));
 				stBool :
-				setting := TBoolSetting.Create(settingValue <> '0');
+				setting := TBoolSetting.Create(key, settingValue <> '0');
 				stStrArray :
 				begin
-					var arr := TArraySetting.Create();
+					var arr := TArraySetting.Create(key);
 					if not settingValue.IsEmpty then begin
 						var parts := settingValue.Split([',']);
 						for var part in parts do begin

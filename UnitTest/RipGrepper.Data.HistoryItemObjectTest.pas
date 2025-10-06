@@ -193,7 +193,8 @@ var
 begin
 	arr := GetSettingsDictAsArray(hio);
 	arrEx := arr;
-	var inta : TArray<string> := [INT_SETTING_KEY, INT_SETTING_VAL.ToString];
+	var
+		inta : TArray<string> := [INT_SETTING_KEY, INT_SETTING_VAL.ToString];
 	dictContent := 'SettingsDict count:' + arrEx.Count.ToString + CRLF + 'SettingsDict content:' + CRLF;
 	for var a : TArray<string> in arr do begin
 		dictContent := dictContent + string.Join('CRLF', a);
@@ -204,7 +205,8 @@ begin
 
 	inta := [STR_SETTING_KEY, STR_SETTING_VAL];
 	cont := arrEx.Contains(inta, FArrayComparer);
-	Assert.IsTrue(cont, Format(dictContent + CRLF + ' SettingsDict[%s] = %s should contain Str Setting', [STR_SETTING_KEY, STR_SETTING_VAL]));
+	Assert.IsTrue(cont, Format(dictContent + CRLF + ' SettingsDict[%s] = %s should contain Str Setting',
+		[STR_SETTING_KEY, STR_SETTING_VAL]));
 end;
 
 function THistoryItemObjectTest.GetSettingsDictAsArray(const hio : IHistoryItemObject) : TArray<TArray<string>>;
@@ -237,8 +239,8 @@ begin
 	AddUniqueSearchText(FRipGrepArguments, 'search text');
 	FRipGrepArguments.AddPair(RG_ARG_SEARCH_PATH, 'C:\Path\Search\Files');
 
-	FStrSetting := TStringSetting.Create(STR_SETTING_VAL);
-	FIntSetting := TIntegerSetting.Create(INT_SETTING_VAL);
+	FStrSetting := TStringSetting.Create(STR_SETTING_KEY, STR_SETTING_VAL);
+	FIntSetting := TIntegerSetting.Create(INT_SETTING_KEY, INT_SETTING_VAL);
 end;
 
 procedure THistoryItemObjectTest.TearDown();
@@ -257,6 +259,7 @@ begin
 	hio := Shared.Make<THistoryItemObject>(THistoryItemObject.Create);
 	hio.GuiSearchTextParams := FGuiSearchTextParams;
 	hio.RipGrepArguments := FRipGrepArguments;
+	hio.SearchFormSettings.Init;
 
 	ms := Shared.Make<TMemoryStream>();
 	hio.SaveToStream(ms);

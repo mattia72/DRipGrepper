@@ -63,8 +63,8 @@ type
 			FChildren : TArrayEx<TPersistableSettings>;
 			FIsModified : Boolean;
 
-			procedure CreateSetting(const _key : string; _setting : ISetting); overload;
-			procedure CreateSetting(const _section, _key : string; _setting : ISetting); overload;
+			procedure CreateSetting(_setting : ISetting); overload;
+			procedure CreateSetting(const _section, _key: string; _setting : ISetting); overload;
 			function GetIsAlreadyRead : Boolean; virtual;
 			function GetIsModified : Boolean; virtual;
 			/// <summary>TPersistableSettings.Init
@@ -270,9 +270,9 @@ begin
 	end;
 end;
 
-procedure TPersistableSettings.CreateSetting(const _key : string; _setting : ISetting);
+procedure TPersistableSettings.CreateSetting(_setting : ISetting);
 begin
-	SettingsDict.CreateSetting(_key, _setting, PersisterFactory);
+	SettingsDict.CreateSetting(_setting.Name, _setting, PersisterFactory);
 end;
 
 function TPersistableSettings.GetCount() : Integer;
@@ -476,7 +476,7 @@ begin
 	Result := rootOwner;
 end;
 
-procedure TPersistableSettings.CreateSetting(const _section, _key : string; _setting : ISetting);
+procedure TPersistableSettings.CreateSetting(const _section, _key: string; _setting : ISetting);
 begin
 	SettingsDict.CreateSetting(_section, _key, _setting, PersisterFactory);
 end;

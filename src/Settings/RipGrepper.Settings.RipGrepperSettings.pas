@@ -5,8 +5,10 @@ interface
 uses
 	System.Classes,
 	System.IniFiles,
+	Spring,
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.SimpleTypes,
+	RipGrepper.Helper.MemIniFile,
 	RipGrepper.Settings.AppSettings,
 	RipGrepper.Settings.Persistable,
 	RipGrepper.Settings.RipGrepParameterSettings,
@@ -14,10 +16,8 @@ uses
 	RipGrepper.Settings.NodeLookSettings,
 	RipGrepper.Settings.OpenWithSettings,
 	RipGrepper.Settings.FontColors,
-	RipGrepper.Helper.MemIniFile,
-	Spring,
 	RipGrepper.Settings.SettingVariant,
-    RipGrepper.Settings.RipGrepArguments;
+	RipGrepper.Settings.RipGrepArguments;
 
 type
 	TRipGrepperSettings = class(TPersistableSettings)
@@ -267,17 +267,17 @@ end;
 
 procedure TRipGrepperSettings.Init;
 begin
-	FSearchPathsHistory := TArraySetting.Create();
-	FSearchTextsHistory := TArraySetting.Create();
-	FReplaceTextsHistory := TArraySetting.Create();
-	FExpertOptionHistory := TArraySetting.Create();
-	FFileMasksHistory := TArraySetting.Create();
+	FSearchPathsHistory := TArraySetting.Create('SearchPathsHistory');
+	FSearchTextsHistory := TArraySetting.Create('SearchTextsHistory');
+	FReplaceTextsHistory := TArraySetting.Create('ReplaceTextsHistory');
+	FExpertOptionHistory := TArraySetting.Create('ExpertOptionHistory');
+	FFileMasksHistory := TArraySetting.Create('FileMasksHistory');
 
-	CreateSetting('SearchPathsHistory', ITEM_KEY_PREFIX, FSearchPathsHistory);
-	CreateSetting('SearchTextsHistory', ITEM_KEY_PREFIX, FSearchTextsHistory);
-	CreateSetting('ReplaceTextsHistory', ITEM_KEY_PREFIX, FReplaceTextsHistory);
-	CreateSetting('ExpertOptionHistory', ITEM_KEY_PREFIX, FExpertOptionHistory);
-	CreateSetting('FileMasksHistory', ITEM_KEY_PREFIX, FFileMasksHistory);
+	CreateSetting(FSearchPathsHistory.Name, ITEM_KEY_PREFIX, FSearchPathsHistory);
+	CreateSetting(FSearchTextsHistory.Name, ITEM_KEY_PREFIX, FSearchTextsHistory);
+	CreateSetting(FReplaceTextsHistory.Name, ITEM_KEY_PREFIX, FReplaceTextsHistory);
+	CreateSetting(FExpertOptionHistory.Name, ITEM_KEY_PREFIX, FExpertOptionHistory);
+	CreateSetting(FFileMasksHistory.Name, ITEM_KEY_PREFIX, FFileMasksHistory);
 
 end;
 

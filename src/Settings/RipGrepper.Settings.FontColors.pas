@@ -186,7 +186,7 @@ procedure TColorSettings.CopyFontColorsToSettings();
 begin
 	for var s in TDefaultFontColors.DEFAULT_COLORS do begin
 		var
-		setting := TStringSetting.Create(FontColors.GetByName(s.Name).ToString);
+		setting := TStringSetting.Create(s.Name, FontColors.GetByName(s.Name).ToString);
 		TStringSetting.CopySettingValue(setting, FFontColorsSettings[s.Name]);
 		FFontColorsSettings[s.Name].StoreToPersister();
 	end;
@@ -211,11 +211,11 @@ begin
 	FFontColorsSettings := TCollections.CreateSortedDictionary<string, ISetting>();
 
 	for var s in TDefaultFontColors.DEFAULT_COLORS do begin
-		FFontColorsSettings.Add(s.Name, TStringSetting.Create(''));
+		FFontColorsSettings.Add(s.Name,TStringSetting.Create(s.Name, ''));
 	end;
 
 	for var pair in FFontColorsSettings do begin
-		CreateSetting(pair.key, pair.Value);
+		CreateSetting(pair.Value);
 	end;
     ReadFile();
 end;

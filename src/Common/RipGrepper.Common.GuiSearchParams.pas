@@ -203,8 +203,8 @@ end;
 
 procedure TGuiSearchTextParams.Init;
 begin
-	FSearchParams := TStringSetting.Create('');
-	CreateSetting('SearchParams', FSearchParams);
+	FSearchParams := TStringSetting.Create('SearchParams', '');
+	CreateSetting(FSearchParams);
 end;
 
 procedure TGuiSearchTextParams.LoadFromDict();
@@ -297,7 +297,7 @@ begin
 	_sw.WriteLineAsBool(IsReplaceMode);
 
 	dbgMsg.MsgFmt('ReplaceText %s', [ReplaceText]);
-	_sw.WriteLineAsString(ReplaceText, true);
+	_sw.WriteLineAsString(ReplaceText, true, 'ReplaceText');
 end;
 
 procedure TGuiSearchTextParams.SetReplaceText(const Value : string);

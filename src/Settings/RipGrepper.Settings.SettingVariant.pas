@@ -63,9 +63,11 @@ type
 		function AsInteger() : Integer;
 		function AsBool() : Boolean;
 		function AsArray() : TArrayEx<string>;
+		function GetName() : string;
 		function GetSaveBehaviour() : TSettingStoreBehaviours;
 		procedure SetSaveBehaviour(const Value : TSettingStoreBehaviours);
 
+		property Name : string read GetName;
 		property State : TSettingState read GetState write SetState;
 		property SettingType : TSettingType read GetSettingType;
 		property SaveBehaviour : TSettingStoreBehaviours read GetSaveBehaviour write SetSaveBehaviour;
@@ -79,7 +81,6 @@ type
 
 		function CompareTo(Value : ISettingVariant<T>) : Integer;
 		procedure Copy(_other : ISettingVariant<T>);
-
 		function GetValue : T;
 		procedure SetValue(const Value : T);
 
@@ -92,10 +93,12 @@ type
 
 	TSetting = class(TInterfacedObject, ISetting)
 		private
+			FName: string;
 			FSettingType : TSettingType;
 			FSaveBehaviour : TSettingStoreBehaviours;
 			FState : TSettingState;
 
+			function GetName(): string;
 			function GetState() : TSettingState;
 			procedure SetSettingType(const Value : TSettingType);
 			procedure SetState(const Value : TSettingState);
@@ -104,9 +107,8 @@ type
 			function GetSettingType() : TSettingType; virtual;
 
 		public
-			constructor Create(
-				{ } _state : TSettingState = ssInitialized;
-				{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]); overload;
+			constructor Create(const _name : string; { } _state : TSettingState = ssInitialized; { } _saveBehaviour : TSettingStoreBehaviours =
+				[ssbStoreIfModified]); overload;
 			procedure LoadFromPersister(); virtual; abstract;
 			procedure StoreToPersister(const _section : string = ''); virtual; abstract;
 
@@ -129,6 +131,7 @@ type
 			function GetSaveBehaviour() : TSettingStoreBehaviours;
 			procedure SetSaveBehaviour(const Value : TSettingStoreBehaviours);
 
+			property Name: string read GetName;
 			property State : TSettingState read GetState write SetState;
 			property SaveBehaviour : TSettingStoreBehaviours read GetSaveBehaviour write SetSaveBehaviour;
 
@@ -148,8 +151,7 @@ type
 			procedure SetPersister(const Value : IFilePersister<T>);
 
 		public
-			constructor Create(const _value : T;
-				{ } _state : TSettingState = ssInitialized;
+			constructor Create(const _name : string; const _value : T; { } _state : TSettingState = ssInitialized;
 				{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]); overload;
 			procedure Clear(); override;
 			function CompareTo(Value : ISettingVariant<T>) : Integer;
@@ -203,7 +205,7 @@ type
 
 	TSettingFactory = class(TObject)
 		public
-			class function CreateSetting(const settingType : TSettingType) : ISetting;
+			class function CreateSetting(const settingType : TSettingType; const _name : string) : ISetting;
 	end;
 
 implementation
@@ -211,13 +213,14 @@ implementation
 uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Common.Constants,
-	System.StrUtils, RipGrepper.Helper.StreamReaderWriter;
+	System.StrUtils,
+	RipGrepper.Helper.StreamReaderWriter;
 
-constructor TSettingVariant<T>.Create(const _value : T;
+constructor TSettingVariant<T>.Create(const _name : string; const _value : T;
 	{ } _state : TSettingState = ssInitialized;
 	{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]);
 begin
-	inherited Create(_state, _saveBehaviour);
+	inherited Create(_name, _state, _saveBehaviour);
 	FValue := _value;
 end;
 
@@ -300,7 +303,7 @@ begin
 	// _sw.WriteLine(Integer(SettingType).ToString);
 	_sw.WriteLineAsString(TSettingStoreBehavioursHelper.ToString(SaveBehaviour), false, 'SaveBehaviour');
 	_sw.WriteLineAsInteger(Integer(State));
-	_sw.WriteLineAsString(AsString, True);
+	_sw.WriteLineAsString(AsString, True, name);
 end;
 
 procedure TSettingVariant<T>.StoreToPersister(const _section : string = '');
@@ -322,10 +325,12 @@ begin
 	FPersister := Value;
 end;
 
-constructor TSetting.Create(
+constructor TSetting.Create(const _name : string;
 	{ } _state : TSettingState = ssInitialized;
 	{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]);
 begin
+	inherited Create();
+	FName := _name;
 	FState := _state;
 	FSaveBehaviour := _saveBehaviour;
 	FSettingType := stNotSet;
@@ -394,6 +399,7 @@ end;
 
 procedure TSetting.Clear();
 begin
+	FName := '';
 	FState := ssInitialized;
 	FSaveBehaviour := [ssbStoreIfModified];
 end;
@@ -409,6 +415,7 @@ end;
 
 procedure TSetting.Copy(_other : ISetting);
 begin
+	FName := _other.Name;
 	FState := _other.State;
 end;
 
@@ -447,6 +454,11 @@ end;
 function TSetting.Equals(_other : ISetting) : Boolean;
 begin
 	Result := (FState = _other.State);
+end;
+
+function TSetting.GetName(): string;
+begin
+	Result := FName;
 end;
 
 function TSetting.GetSaveBehaviour() : TSettingStoreBehaviours;
@@ -555,19 +567,19 @@ begin
 	Result := _strValue.ToInteger;
 end;
 
-class function TSettingFactory.CreateSetting(const settingType : TSettingType) : ISetting;
+class function TSettingFactory.CreateSetting(const settingType : TSettingType; const _name : string) : ISetting;
 begin
 	case settingType of
 		stNotSet :
 		raise ESettingsException.Create('Setting Type not set');
 		stString :
-		Result := TStringSetting.Create();
+		Result := TStringSetting.Create(_name, '');
 		stInteger :
-		Result := TIntegerSetting.Create();
+		Result := TIntegerSetting.Create(_name);
 		stBool :
-		Result := TBoolSetting.Create();
+		Result := TBoolSetting.Create(_name);
 		stStrArray :
-		Result := TArraySetting.Create();
+		Result := TArraySetting.Create(_name);
 	end;
 end;
 

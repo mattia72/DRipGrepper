@@ -101,8 +101,8 @@ end;
 
 procedure TTestSettings.Init;
 begin
-	FStrSetting1 := TStringSetting.Create(INITIAL_STR_VALUE);
-	CreateSetting('StrSetting', FStrSetting1);
+	FStrSetting1 := TStringSetting.Create('StrSetting', INITIAL_STR_VALUE);
+	CreateSetting(FStrSetting1);
 end;
 
 procedure TTestSettings.ReadFile;

@@ -150,7 +150,7 @@ var
 	setting : ISetting;
 begin
 	// Arrange
-	setting := TStringSetting.Create('TestValue');
+	setting := TStringSetting.Create('TestKey', 'TestValue');
 	FSettingsDict.AddOrChange('TestKey', setting);
 
 	// Act
@@ -212,7 +212,7 @@ begin
 	for var i : Integer := 0 to MAX_COUNT do begin
 		key := Format('%s_%d', [TESTKEY, i]);
 		value := Format('%s_%d', [TESTVALUE, i]);
-		setting := TStringSetting.Create(value);
+		setting := TStringSetting.Create(key, value);
 		setting.Persister := TMemIniStringPersister.Create(FIniFile, 'TestSection', key);
 		keyDict.Add(key, setting);
 	end;

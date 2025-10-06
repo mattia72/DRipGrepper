@@ -222,12 +222,12 @@ end;
 
 procedure TRipGrepParameterSettings.Init;
 begin
-	FRipGrepPath := TStringSetting.Create('');
-	FSearchPath := TStringSetting.Create('');
-	FFileMasks := TStringSetting.Create('');
-	CreateSetting(RG_INI_KEY_RGPATH, FRipGrepPath);
-	CreateSetting(SEARCHPATH_KEY, FSearchPath);
-	CreateSetting(FILEMASKS_KEY, FFileMasks);
+	FRipGrepPath := TStringSetting.Create(RG_INI_KEY_RGPATH, '');
+	FSearchPath := TStringSetting.Create(SEARCHPATH_KEY, '');
+	FFileMasks := TStringSetting.Create(FILEMASKS_KEY, '');
+	CreateSetting(FRipGrepPath);
+	CreateSetting(FSearchPath);
+	CreateSetting(FFileMasks);
 	// inherited Init(); abstract
 end;
 

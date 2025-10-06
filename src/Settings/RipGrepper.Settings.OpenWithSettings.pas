@@ -75,7 +75,7 @@ end;
 
 procedure TOpenWithSettings.Init;
 begin
-	FCommandListSetting := TArraySetting.Create();
+	FCommandListSetting := TArraySetting.Create(OPEN_WITH_SETTINGS);
 //  FCommandListSetting.SaveBehaviour := [ssbStoreIfModified, ssbStoreOnceEvenIfNotModified];
 	CreateSetting(OPEN_WITH_SETTINGS, ITEM_KEY_PREFIX, FCommandListSetting);
 end;
@@ -88,7 +88,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithSettings.ReadFile');
 
-	iarr := TArraySetting.Create(arr);
+	iarr := TArraySetting.Create('OpenWithCommands', arr);
 	iarr.Copy(FCommandListSetting);
 	iarr.LoadFromPersister();
 	if not iarr.Value.IsEmpty then begin
