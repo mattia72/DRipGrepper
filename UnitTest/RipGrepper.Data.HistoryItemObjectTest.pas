@@ -13,7 +13,8 @@ uses
 	RipGrepper.Settings.SettingVariant,
 	System.Generics.Defaults,
 	RipGrepper.Settings.RipGrepArguments,
-	RipGrepper.Common.Interfaces;
+	RipGrepper.Common.Interfaces,
+	RipGrepper.Common.ParsedObject;
 
 type
 
@@ -46,6 +47,7 @@ type
 			function CreateSampleHistoryItemWithSearchAndNoMatches() : IHistoryItemObject;
 			function CreateSampleHistoryItemWithReplaceAndMatches() : IHistoryItemObject;
 			procedure AddUniqueSearchText(const _ripGrepArgs : IShared<TRipGrepArguments>; const _searchText : string);
+			function CreateParsedRow(_porc : IParsedObjectRowCollection) : IParsedObjectRow;
 
 		public
 			constructor Create();
@@ -164,7 +166,7 @@ uses
 	RipGrepper.Settings.SettingsDictionary,
 	ArrayEx,
 	RipGrepper.Helper.StreamReaderWriter,
-	RipGrepper.Common.ParsedObject,
+
 	RipGrepper.Helper.Types;
 
 constructor THistoryItemObjectTest.Create();
@@ -207,6 +209,38 @@ begin
 	cont := arrEx.Contains(inta, FArrayComparer);
 	Assert.IsTrue(cont, Format(dictContent + CRLF + ' SettingsDict[%s] = %s should contain Str Setting',
 		[STR_SETTING_KEY, STR_SETTING_VAL]));
+end;
+
+function THistoryItemObjectTest.CreateParsedRow(_porc : IParsedObjectRowCollection) : IParsedObjectRow;
+var
+	colData : TArrayEx<TColumnData>;
+	row : IParsedObjectRow;
+begin
+	row := TParsedObjectRow.Create( { nil, ptRipGrepSearch } );
+	colData.Clear();
+	colData.Add(TColumnData.New(ciFile, 'C:\Test\File1.pas'));
+	colData.Add(TColumnData.New(ciRow, '10'));
+	colData.Add(TColumnData.New(ciColBegin, '5'));
+	colData.Add(TColumnData.New(ciColEnd, '6'));
+	colData.Add(TColumnData.New(ciText, 'This is a test pattern match'));
+	colData.Add(TColumnData.New(ciMatchText, 'test pattern'));
+	colData.Add(TColumnData.New(ciTextAfterMatch, ' match'));
+	row.Columns := colData;
+	_porc.Items.Add(row);
+
+	// Create second match
+	row := TParsedObjectRow.Create( { nil, ptRipGrepSearch } );
+	colData.Clear();
+	colData.Add(TColumnData.New(ciFile, 'C:\Test\File2.pas'));
+	colData.Add(TColumnData.New(ciRow, '15'));
+	colData.Add(TColumnData.New(ciColBegin, '8'));
+	colData.Add(TColumnData.New(ciColEnd, '9'));
+	colData.Add(TColumnData.New(ciText, 'Another test pattern here'));
+	colData.Add(TColumnData.New(ciMatchText, 'test pattern'));
+	colData.Add(TColumnData.New(ciTextAfterMatch, ' here'));
+	row.Columns := colData;
+	_porc.Items.Add(row);
+
 end;
 
 function THistoryItemObjectTest.GetSettingsDictAsArray(const hio : IHistoryItemObject) : TArray<TArray<string>>;
@@ -261,6 +295,10 @@ begin
 	hio.RipGrepArguments := FRipGrepArguments;
 	hio.SearchFormSettings.Init;
 
+	CreateParsedRow(hio.Matches);
+
+	hio.ShouldSaveResult := True;
+
 	ms := Shared.Make<TMemoryStream>();
 	hio.SaveToStream(ms);
 	ms.Position := 0;
@@ -282,6 +320,8 @@ begin
 	arrOther := other.RipGrepArguments.ToStringArray;
 	Assert.AreEqual(string.Join(';', arrHio), string.Join(';', arrOther),
 	{ } 'RipGrepArguments content should match the expected serialized data');
+	Assert.AreEqual(hio.Matches.Items.Count, other.Matches.Items.Count,
+	{ } 'Matches count should match the expected serialized data');
 end;
 
 procedure THistoryItemObjectTest.TestSaveLoadListFromStream();
@@ -363,8 +403,6 @@ function THistoryItemObjectTest.CreateSampleHistoryItemWithSearchAndMatches() : 
 var
 	guiParams : IShared<TGuiSearchTextParams>;
 	searchText : IShared<TSearchTextWithOptions>;
-	row : IParsedObjectRow;
-	colData : TArrayEx<TColumnData>;
 begin
 	Result := THistoryItemObject.Create();
 
@@ -385,33 +423,7 @@ begin
 
 	// Create some sample matches
 	Result.ShouldSaveResult := True;
-
-	// Create first match
-	row := TParsedObjectRow.Create( { nil, ptRipGrepSearch } );
-	colData.Clear();
-	colData.Add(TColumnData.New(ciFile, 'C:\Test\File1.pas'));
-	colData.Add(TColumnData.New(ciRow, '10'));
-	colData.Add(TColumnData.New(ciColBegin, '5'));
-	colData.Add(TColumnData.New(ciColEnd, '6'));
-	colData.Add(TColumnData.New(ciText, 'This is a test pattern match'));
-	colData.Add(TColumnData.New(ciMatchText, 'test pattern'));
-	colData.Add(TColumnData.New(ciTextAfterMatch, ' match'));
-	row.Columns := colData;
-	Result.Matches.Items.Add(row);
-
-	// Create second match
-	row := TParsedObjectRow.Create( { nil, ptRipGrepSearch } );
-	colData.Clear();
-	colData.Add(TColumnData.New(ciFile, 'C:\Test\File2.pas'));
-	colData.Add(TColumnData.New(ciRow, '15'));
-	colData.Add(TColumnData.New(ciColBegin, '8'));
-	colData.Add(TColumnData.New(ciColEnd, '9'));
-	colData.Add(TColumnData.New(ciText, 'Another test pattern here'));
-	colData.Add(TColumnData.New(ciMatchText, 'test pattern'));
-	colData.Add(TColumnData.New(ciTextAfterMatch, ' here'));
-	row.Columns := colData;
-	Result.Matches.Items.Add(row);
-
+	CreateParsedRow(Result.Matches);
 	Result.FileCount := 2;
 end;
 
