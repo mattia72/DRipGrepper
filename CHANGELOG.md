@@ -7,7 +7,7 @@
   The only caveat is that while toolbar customization in Delphi 12 the IDE doesn't show the right icons, only after restarting the IDE.
 
 ### 🔄 Changed
-- Version updated to 4.14.0
+- Parsing json instead of vimgrep output of rg.exe
 
 ### 🐞 Fixed
 - Exception when saving settings: DRipExtensions_OpenWith_Action_MenuItem already exists. bereits.
