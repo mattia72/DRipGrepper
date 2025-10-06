@@ -164,7 +164,8 @@ uses
 	RipGrepper.Settings.SettingsDictionary,
 	ArrayEx,
 	RipGrepper.Helper.StreamReaderWriter,
-	RipGrepper.Common.ParsedObject;
+	RipGrepper.Common.ParsedObject,
+	RipGrepper.Helper.Types;
 
 constructor THistoryItemObjectTest.Create();
 begin
@@ -178,18 +179,9 @@ begin
 end;
 
 procedure THistoryItemObjectTest.AddUniqueSearchText(const _ripGrepArgs : IShared<TRipGrepArguments>; const _searchText : string);
-var
-	i : Integer;
 begin
-	// Remove all existing RG_ARG_SEARCH_TEXT entries
-	for i := _ripGrepArgs.Count - 1 downto 0 do begin
-		if _ripGrepArgs.Names[i] = RG_ARG_SEARCH_TEXT then begin
-			_ripGrepArgs.Delete(i);
-		end;
-	end;
-	
 	// Add the new unique search text
-	_ripGrepArgs.AddPair(RG_ARG_SEARCH_TEXT, _searchText);
+	_ripGrepArgs.AddPairUnique(RG_ARG_SEARCH_TEXT, _searchText);
 end;
 
 procedure THistoryItemObjectTest.AssertContainsIntAndStrSetting(hio : IHistoryItemObject);
@@ -569,7 +561,7 @@ begin
 		Assert.IsTrue(historyItem.GuiSearchTextParams.IsReplaceMode, 'Should be in replace mode');
 		Assert.AreEqual('new_value', historyItem.GuiSearchTextParams.ReplaceText, 'Replace text should be preserved');
 		Assert.AreEqual(1, historyItem.Matches.Items.Count, 'Should have 1 replace match');
-		Assert.AreEqual(6, historyItem.RipGrepArguments.Count, 'Should have 7 RipGrep arguments');
+		Assert.AreEqual(6, historyItem.RipGrepArguments.Count, 'Should have 6 RipGrep arguments');
 	finally
 		stream.Free();
 	end;

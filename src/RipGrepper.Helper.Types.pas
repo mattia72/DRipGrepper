@@ -21,6 +21,7 @@ type
 			function GetValues(_sName : string = '') : TArray<string>;
 
 			function AddIfNotContains(const _sValue : string) : Boolean;
+			function AddPairUnique(const _sName, _sValue : string): TStrings;
 			function IndexOfValue(const s : string; const bMatchCase : Boolean = True) : integer;
 			function HasMatch(const _sRegEx : string) : Boolean;
 			function DeleteAll(const _arr : TArray<string>) : Integer;
@@ -125,6 +126,15 @@ begin
 	if Result then begin
 		self.Add(_sValue);
 	end;
+end;
+
+function TStringsHelper.AddPairUnique(const _sName, _sValue : string): TStrings;
+begin
+	var idx:= self.IndexOfName(_sName);
+	if idx >= 0 then begin
+		self.Delete(idx);
+	end;
+	Result := self.AddPair(_sName, _sValue);
 end;
 
 function TStringsHelper.Contains(const s : string) : Boolean;

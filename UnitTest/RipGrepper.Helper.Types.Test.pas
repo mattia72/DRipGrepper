@@ -21,25 +21,18 @@ type
 			procedure Setup;
 			[TearDown]
 			procedure TearDown;
-			// Sample Methods
-			// Simple single Test
 			[Test]
 			procedure TestGetValues;
-			// Test with TestCase Attribute to supply parameters.
 			[Test]
 			procedure TestDeleteAll;
-			// Test with TestCase Attribute to supply parameters.
 			[Test]
 			procedure TestSliceMaxLength;
-			// Sample Methods
-			// Simple single Test
 			[Test]
 			procedure TestGetValues1;
-			// Sample Methods
-			// Simple single Test
 			[Test]
 			procedure TestIndexOfValue;
-			// Test with TestCase Attribute to supply parameters.
+			[Test]
+			procedure TestAddPairUnique;
 			[Test]
 			procedure TestSlice;
 	end;
@@ -276,6 +269,41 @@ begin
 	for var i : integer := 0  to high(values) do begin
 		Assert.AreEqual(i, FStrings.IndexOfValue(act_vals[i]), Format('index of %s should be %d', [act_vals[i], i]));
 	end;
+end;
+
+procedure TStringsHelperTest.TestAddPairUnique;
+begin
+	// Test adding new pairs
+	FStrings.AddPairUnique('key1', 'value1');
+	FStrings.AddPairUnique('key2', 'value2');
+	
+	Assert.AreEqual(2, FStrings.Count, 'Should have 2 pairs after adding 2 unique pairs');
+	Assert.AreEqual('value1', FStrings.Values['key1'], 'key1 should have value1');
+	Assert.AreEqual('value2', FStrings.Values['key2'], 'key2 should have value2');
+
+	// Test updating existing pair (should replace, not add)
+	FStrings.AddPairUnique('key1', 'newvalue1');
+	
+	Assert.AreEqual(2, FStrings.Count, 'Should still have 2 pairs after updating existing key');
+	Assert.AreEqual('newvalue1', FStrings.Values['key1'], 'key1 should have updated value');
+	Assert.AreEqual('value2', FStrings.Values['key2'], 'key2 should remain unchanged');
+
+	// Test adding another unique pair after update
+	FStrings.AddPairUnique('key3', 'value3');
+	
+	Assert.AreEqual(3, FStrings.Count, 'Should have 3 pairs after adding third unique pair');
+	Assert.AreEqual('newvalue1', FStrings.Values['key1'], 'key1 should still have updated value');
+	Assert.AreEqual('value2', FStrings.Values['key2'], 'key2 should remain unchanged');
+	Assert.AreEqual('value3', FStrings.Values['key3'], 'key3 should have value3');
+
+	// Test updating multiple times
+	FStrings.AddPairUnique('key2', 'updatedvalue2');
+	FStrings.AddPairUnique('key3', 'updatedvalue3');
+	
+	Assert.AreEqual(3, FStrings.Count, 'Should still have 3 pairs after multiple updates');
+	Assert.AreEqual('newvalue1', FStrings.Values['key1'], 'key1 should remain unchanged');
+	Assert.AreEqual('updatedvalue2', FStrings.Values['key2'], 'key2 should have updated value');
+	Assert.AreEqual('updatedvalue3', FStrings.Values['key3'], 'key3 should have updated value');
 end;
 
 procedure TStringsHelperTest.TestSlice;
