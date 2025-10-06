@@ -597,6 +597,10 @@ begin
 			Include(mode, EGuiReplaceMode.grmActive);
 			Include(mode, EGuiReplaceMode.grmSaveEnabled);
 			Include(mode, EGuiReplaceMode.grmRGReplace);
+
+			if hio.RipGrepArguments.IsOptionSet(RG_PARAM_REGEX_JSON) then begin
+				Include(mode, EGuiReplaceMode.grmRgJson);
+			end;
 		end else begin
 			Include(mode, EGuiReplaceMode.grmEditEnabled);
 		end;

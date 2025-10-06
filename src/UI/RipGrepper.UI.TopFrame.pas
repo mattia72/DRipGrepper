@@ -710,8 +710,10 @@ var
 begin
 	node := MainFrame.VstResult.GetFirstChecked();
 	rm := GetReplaceMode();
-	var	replaceText := Settings.RipGrepParameters.ReplaceText;
-	var isJson := Settings.RipGrepParameters.RipGrepArguments.IsOptionSet(RG_PARAM_REGEX_JSON);
+	var
+	replaceText := Settings.RipGrepParameters.ReplaceText;
+	var
+	isJson := Settings.RipGrepParameters.RipGrepArguments.IsOptionSet(RG_PARAM_REGEX_JSON);
 	FReplaceList.Items.Clear;
 	while Assigned(node) do begin
 		if node.Parent <> MainFrame.VstResult.RootNode then begin
@@ -727,7 +729,7 @@ begin
 			lineText := nodeData.MatchData.LineText;
 
 			if IsRgReplaceMode then begin
-				if isJson then begin
+				if not isJson then begin
 					replaceLine := lineText; // ok every replacement is done by rg.exe if not --json
 				end else begin
 					replaceLine := TReplaceHelper.ReplaceString(lineText, Settings.LastSearchText, replaceText, rowNum, rm);

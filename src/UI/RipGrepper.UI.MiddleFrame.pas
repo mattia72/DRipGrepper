@@ -1389,15 +1389,15 @@ begin
 					end;
 					ss2 := s.Substring(matchBegin + nodeData.MatchData.GetMatchLength);
 
-					if IsGuiReplaceMode or IsRgReplaceMode then begin
+					if (IsGuiReplaceMode or IsRgReplaceMode) then begin
 						TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.ReplacedText);
 					end else begin
 						TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.MatchText);
 					end;
-					if not IsRgReplaceMode then begin
+//                  if not IsRgReplaceMode then begin
 						TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1);
 						pos := pos + TargetCanvas.TextWidth(ss1);
-					end;
+//                  end;
 					if IsGuiReplaceMode or IsRgReplaceMode then begin
 						TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.ReplaceText);
 						TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1_repl);

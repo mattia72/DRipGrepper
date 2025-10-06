@@ -36,8 +36,8 @@ type
 
 	IParsedObjectRow = interface(IParsedObject)
 		['{85536634-C591-43F1-B348-BC93E4E62942}']
-		function GetColBegin(): Integer;
-		function GetColEnd(): Integer;
+		function GetColBegin() : Integer;
+		function GetColEnd() : Integer;
 		function GetErrorText : string;
 		function GetColumnText(const _idx : integer) : string; overload;
 		function GetColumnText(const _idx : EColumnIndex) : string; overload;
@@ -60,8 +60,8 @@ type
 		property ParsedRowNr : Integer read GetParsedRowNr write SetParsedRowNr;
 
 		property FilePath : string read GetFilePath;
-		property ColBegin: Integer read GetColBegin;
-		property ColEnd: Integer read GetColEnd;
+		property ColBegin : Integer read GetColBegin;
+		property ColEnd : Integer read GetColEnd;
 		property Row : Integer read GetRow;
 	end;
 
@@ -93,7 +93,7 @@ type
 			FIsStatsLine : Boolean;
 			FParserType : TParserType;
 			FParsedRowNr : Integer;
-			function GetColEnd(): Integer;
+			function GetColEnd() : Integer;
 			function getColumns : TArrayEx<TColumnData>;
 			procedure setColumns(const Value : TArrayEx<TColumnData>);
 			function getErrorText : string;
@@ -108,11 +108,12 @@ type
 			procedure setParserType(const Value : TParserType);
 
 		private
-			function GetColBegin(): Integer;
+			function GetColBegin() : Integer;
 			function GetFilePath() : string;
 			function GetRow() : Integer;
 
 		public
+			constructor Create(); overload;
 			constructor Create(const _por : IParsedObjectRow; _parserType : TParserType); overload;
 			destructor Destroy; override;
 			procedure CopyTo(var _por : TParsedObjectRow);
@@ -128,8 +129,8 @@ type
 			property ParserType : TParserType read getParserType write setParserType;
 
 			property FilePath : string read GetFilePath;
-			property ColBegin: Integer read GetColBegin;
-			property ColEnd: Integer read GetColEnd;
+			property ColBegin : Integer read GetColBegin;
+			property ColEnd : Integer read GetColEnd;
 			property Row : Integer read GetRow;
 
 	end;
@@ -172,6 +173,7 @@ implementation
 uses
 	RipGrepper.Helper.StreamReaderWriter,
 	RipGrepper.Helper.Types,
+	RipGrepper.Tools.DebugUtils,
 	System.SysUtils;
 
 class function TColumnData.New(const _idxTitle : EColumnIndex; const _Text : string) : TColumnData;
@@ -191,6 +193,18 @@ begin
 	ParserType := _parserType;
 end;
 
+constructor TParsedObjectRow.Create();
+begin
+	inherited Create();
+	// Initialize with default values
+	ErrorText := '';
+	IsError := False;
+	IsStatsLine := False;
+	ParserType := ptEmpty;
+	ParsedRowNr := 0;
+	FColumns.Clear();
+end;
+
 destructor TParsedObjectRow.Destroy;
 begin
 	inherited;
@@ -205,12 +219,12 @@ begin
 	_por.IsStatsLine := IsStatsLine;
 end;
 
-function TParsedObjectRow.GetColBegin(): Integer;
+function TParsedObjectRow.GetColBegin() : Integer;
 begin
 	Result := StrToIntDef(GetColumnText(ciColBegin), -1);
 end;
 
-function TParsedObjectRow.GetColEnd(): Integer;
+function TParsedObjectRow.GetColEnd() : Integer;
 begin
 	Result := StrToIntDef(GetColumnText(ciColEnd), -1);;
 end;
@@ -357,14 +371,21 @@ var
 	itemsCount : Integer;
 	text : string;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TParsedObjectRowCollection.LoadFromStreamReader');
 	FItems.Clear;
 	itemsCount := _sr.ReadLineAsInteger('RowCollection.Count');
+	dbgMsg.Msg('Rows to read: ' + itemsCount.ToString);
 	for var i : Integer := 0 to itemsCount - 1 do begin
 		columns.Clear;
 		row := TParsedObjectRow.Create( { nil, TParserType(0) } );
-		row.ParserType := TParserType(_sr.ReadLineAsInteger('row.ParserType'));
+		var
+		parserType := _sr.ReadLineAsInteger('row.ParserType');
+		dbgMsg.Msg('Reading row ' + i.ToString + ' with ParserType=' + parserType.ToString);
+		row.ParserType := TParserType(parserType);
 		for var sTitle in TREEVIEW_COLUMN_TITLES do begin
-			line := _sr.ReadLine;
+			line := _sr.ReadLineAsString(true, 'ColumnData[' + sTitle + ']'); // Use helper method to match save method
+			dbgMsg.Msg('Line: ' + line);
 			idx := line.IndexOf(ARRAY_SEPARATOR);
 			if idx > 0 then begin
 				text := line.Substring(idx + 1);
@@ -382,21 +403,33 @@ var
 	cd : TColumnData;
 	row : IParsedObjectRow;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TParsedObjectRowCollection.SaveToStreamWriter');
+
 	if (FITems.Count = 1) then begin
 		row := FItems[0]; // so we avoid memory leak ? no
 		cd := row.GetColumnByTitle(FILE_COLUMN);
 		if cd.Text.EndsWith(RG_HAS_NO_OUTPUT) then begin
 			_sw.WriteLineAsInteger(0);
+			dbgMsg.Msg('Write FItems.Count 0');
 			Exit;
 		end;
 	end;
 
 	_sw.WriteLineAsInteger(FItems.Count);
+	dbgMsg.MsgFmt('Write FItems.Count = %d', [FItems.Count]);
 	for row in FItems do begin
-		_sw.WriteLineAsInteger(Ord(row.ParserType));
+		var
+		parserType := Ord(row.ParserType);
+		_sw.WriteLineAsInteger(parserType);
+		dbgMsg.Msg('Write ParserType=' + parserType.ToString);
+
 		for var sTitle in TREEVIEW_COLUMN_TITLES do begin
 			cd := row.GetColumnByTitle(sTitle);
-			_sw.WriteLineAsString(cd.Title + ARRAY_SEPARATOR + cd.Text, false, 'ColumnData[' + sTitle + ']');
+			var
+			line := cd.Title + ARRAY_SEPARATOR + cd.Text;
+			_sw.WriteLineAsString(line, true, 'ColumnData[' + sTitle + ']'); // Allow empty values for column data
+			dbgMsg.MsgFmt('Write title = %s line = %s', [sTitle, line]);
 			// ParserType?
 		end;
 	end;

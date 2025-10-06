@@ -9,7 +9,8 @@ uses
 	Spring;
 
 type
-	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepJson, ptRipGrepStats, ptRipGrepVersion, ptRipGrepError, ptRipGrepHelp);
+	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepJson, ptRipGrepStats, ptRipGrepVersion, ptRipGrepError,
+		ptRipGrepHelp);
 	// TODO : use this instead of IsError IsStats
 	EParsedLineType = (pltErrorLine, pltStatsLine, pltContexLine);
 	TParsedLineType = set of EParsedLineType;
@@ -17,7 +18,9 @@ type
 	TFileNameType = (ftAbsolute, ftRelative);
 
 	{$SCOPEDENUMS ON}
-	EGuiReplaceMode = (grmRGReplace, grmEditEnabled, grmActive, grmSaveEnabled, grmCaseSensitive, grmUseRegex);
+	EGuiReplaceMode = (grmRGReplace, grmRgJson, grmEditEnabled, grmActive { GuiReplaceModeActive } ,
+		{ } grmSaveEnabled,
+		{ } grmCaseSensitive, grmUseRegex);
 	EFilterMode = (fmFilterFile, fmFilterText, fmCaseSensitive, fmUseRegex);
 
 	TGuiReplaceModes = set of EGuiReplaceMode;
@@ -51,7 +54,7 @@ type
 	EReplaceMode = (rmUseRegex, rmIgnoreCase);
 	TReplaceModes = set of EReplaceMode;
 	ESaveReplacementResult = (srrDone, srrCancel, srrError);
-    ESaveModifiedFilesResults = (smfrNotSet, smfrActSaved, smfrAllSaved, smfrActNotSaved, smfrCancel, smfrError);
+	ESaveModifiedFilesResults = (smfrNotSet, smfrActSaved, smfrAllSaved, smfrActNotSaved, smfrCancel, smfrError);
 
 	TNullableString = Nullable<string>;
 

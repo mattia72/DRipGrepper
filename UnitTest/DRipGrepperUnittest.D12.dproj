@@ -65,7 +65,7 @@
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_UsePackage>soapserver;IndySystem;vclwinx;fmx;vclie;DbxCommonDriver;bindengine;vcldb;IndyIPCommon;VCLRESTComponents;FireDACCommonODBC;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;IndyIPClient;dbxcds;vcledge;vclFireDAC;bindcompvclwinx;bindcomp;FireDACCommon;IndyCore;RESTBackendComponents;bindcompfmx;bindcompdbx;inetdb;rtl;FireDACMySQLDriver;FireDACSqliteDriver;DbxClientDriver;FireDACADSDriver;RESTComponents;soapmidas;DBXSqliteDriver;vcl;vclactnband;IndyIPServer;dsnapxml;fmxFireDAC;dbexpress;dsnapcon;adortl;DBXMySQLDriver;VclSmp;inet;vclimg;vcltouch;FireDACPgDriver;FireDAC;fmxase;inetdbxpress;xmlrtl;tethering;dbrtl;bindcompvcl;dsnap;fmxdae;CloudService;FireDACMSAccDriver;CustomIPTransport;fmxobj;bindcompvclsmp;soaprtl;vcldsnap;DBXInterBaseDriver;FireDACIBDriver;DesignIde;$(DCC_UsePackage)</DCC_UsePackage>
         <BT_BuildType>Debug</BT_BuildType>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=0.1.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=0.1.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
@@ -106,6 +106,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="RipGrepper.Parser.MatchTest.pas"/>
+        <DCCReference Include="RipGrepper.Parser.JsonMatchTest.pas"/>
         <DCCReference Include="..\src\RipGrepper.Data.Matches.pas"/>
         <DCCReference Include="RipGrepper.ProcessUtils.Test.pas"/>
         <DCCReference Include="RipGrepper.Helper.Types.Test.pas"/>
@@ -167,6 +168,9 @@
         <DCCReference Include="..\src\Helper\RipGrepper.Helper.StreamReaderWriter.pas"/>
         <DCCReference Include="RipGrepper.Tools.ReleaseUtils.Test.pas"/>
         <DCCReference Include="RipGrepper.Common.IOTAUtils.TPathProcessor.Test.pas"/>
+        <DCCReference Include="..\src\RipGrepper.Parsers.JsonMatchLine.pas"/>
+        <DCCReference Include="RipGrepper.Common.SearchTextWithOptions.StreamPersistence.Test.pas"/>
+        <DCCReference Include="RipGrepper.Common.ParsedObject.Test.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

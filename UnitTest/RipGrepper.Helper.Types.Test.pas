@@ -571,7 +571,7 @@ begin
 		m := Shared.Make<TLoadHistoryModes>();
 		m.AddMode(e);
 		i := m.ToInt();
-		if Ord(e) < Ord(lhmSaveResults) then begin
+		if Ord(e) <= Ord(high(ELoadHistoryMode)) then begin
 			Assert.IsTrue(i >= 0, 'ToInt should return a non-negative integer');
 		end else begin
 			Assert.AreEqual(-1, i, 'ToInt should return a negative integer');
