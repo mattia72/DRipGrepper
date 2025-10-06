@@ -19,6 +19,7 @@ type
 		class function AgeComparer : IComparer<TTestRecord>; static;
 		class function ConvertToNames(const Value : TTestRecord) : string; static;
 		class function ConvertToAges(const Value : TTestRecord) : integer; static;
+		class function NameAgeComparer(): IComparer<TTestRecord>; static;
 	end;
 
 	[TestFixture]
@@ -65,6 +66,8 @@ type
 			procedure GetFirstMatchIndexTest(const sourceArray : string; const testArray : string);
 			[Test]
 			procedure GetFirstMatchIndexStringTest();
+			[Test]
+			procedure ContainsTest();
 	end;
 
 implementation
@@ -249,6 +252,65 @@ begin
 	testStrings := ['orange', 'kiwi', 'grape'];
 	result := aStr.GetFirstMatchIndex(testStrings);
 	Assert.IsTrue(result = -1, 'String array with no matches should return -1');
+end;
+
+procedure TArrayExTest.ContainsTest();
+var
+	aiInt : TArrayEx<integer>;
+	asStr : TArrayEx<string>;
+	arRec : TArrayEx<TTestRecord>;
+	customComparer : IComparer<integer>;
+begin
+	// Test with integer array - basic contains
+	aiInt := [1, 2, 3, 4, 5];
+	Assert.IsTrue(aiInt.Contains(3), 'Integer array should contain 3');
+	Assert.IsFalse(aiInt.Contains(10), 'Integer array should not contain 10');
+	Assert.IsTrue(aiInt.Contains(1), 'Integer array should contain first element');
+	Assert.IsTrue(aiInt.Contains(5), 'Integer array should contain last element');
+
+	// Test with empty integer array
+	aiInt.Clear;
+	Assert.IsFalse(aiInt.Contains(1), 'Empty array should not contain any element');
+
+	// Test with single element
+	aiInt := [42];
+	Assert.IsTrue(aiInt.Contains(42), 'Single element array should contain the element');
+	Assert.IsFalse(aiInt.Contains(41), 'Single element array should not contain different element');
+
+	// Test with string array
+	asStr := ['apple', 'banana', 'cherry', 'date'];
+	Assert.IsTrue(asStr.Contains('banana'), 'String array should contain banana');
+	Assert.IsFalse(asStr.Contains('orange'), 'String array should not contain orange');
+	Assert.IsTrue(asStr.Contains('apple'), 'String array should contain first element');
+	Assert.IsTrue(asStr.Contains('date'), 'String array should contain last element');
+
+	// Test with custom comparer for integers
+	aiInt := [1, 2, 3, 4, 5];
+	customComparer := TComparer<integer>.Construct(
+		function(const Left, Right : integer) : Integer
+		begin
+			// Custom comparison: consider values equal if their difference is <= 1
+			if Abs(Left - Right) <= 1 then
+				Result := 0
+			else
+				Result := Left - Right;
+		end);
+	
+	Assert.IsTrue(aiInt.Contains(3, customComparer), 'Should contain 3 with custom comparer');
+	Assert.IsTrue(aiInt.Contains(2, customComparer), 'Should contain 2 with custom comparer (matches 1,2,3)');
+	Assert.IsFalse(aiInt.Contains(10, customComparer), 'Should not contain 10 with custom comparer');
+
+	// Test with record array using default equality
+	arRec := [TTestRecord.Create('Alice', 25), TTestRecord.Create('Bob', 30), TTestRecord.Create('Charlie', 35)];
+	Assert.IsTrue(arRec.Contains(TTestRecord.Create('Bob', 30), TTestRecord.NameComparer), 'Record array should contain Bob record');
+	Assert.IsFalse(arRec.Contains(TTestRecord.Create('Dave', 40), TTestRecord.NameComparer), 'Record array should not contain Dave record');
+	Assert.IsFalse(arRec.Contains(TTestRecord.Create('Bob', 31), TTestRecord.NameAgeComparer), 'Record array should not contain Bob with different age');
+
+	// Test with record array using custom name comparer
+	Assert.IsTrue(arRec.Contains(TTestRecord.Create('Alice', 99), TTestRecord.NameComparer), 
+		'Should find Alice by name regardless of age');
+	Assert.IsFalse(arRec.Contains(TTestRecord.Create('Eve', 25), TTestRecord.NameComparer), 
+		'Should not find Eve by name');
 end;
 
 procedure TArrayExTest.TestArrayContainer();
@@ -632,6 +694,15 @@ begin
 		function(const Left, Right : TTestRecord) : Integer
 		begin
 			Result := TComparer<string>.Default.Compare(Left.Name, Right.Name);
+		end);
+end;
+
+class function TTestRecord.NameAgeComparer(): IComparer<TTestRecord>;
+begin
+	Result := TComparer<TTestRecord>.Construct(
+		function(const Left, Right : TTestRecord) : Integer
+		begin
+			Result := Abs(TComparer<string>.Default.Compare(Left.Name, Right.Name)) + Abs(TComparer<integer>.Default.Compare(Left.Age, Right.Age));
 		end);
 end;
 

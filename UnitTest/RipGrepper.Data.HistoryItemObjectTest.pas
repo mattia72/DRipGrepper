@@ -189,17 +189,22 @@ var
 	arr : TArray<TArray<string>>;
 	arrEx : TArrayEx<TArray<string>>;
 	cont : Boolean;
+	dictContent : string;
 begin
 	arr := GetSettingsDictAsArray(hio);
 	arrEx := arr;
 	var inta : TArray<string> := [INT_SETTING_KEY, INT_SETTING_VAL.ToString];
+	dictContent := 'SettingsDict count:' + arrEx.Count.ToString + CRLF + 'SettingsDict content:' + CRLF;
+	for var a : TArray<string> in arr do begin
+		dictContent := dictContent + string.Join('CRLF', a);
+	end;
 	cont := arrEx.Contains(inta, FArrayComparer);
 	Assert.IsTrue(cont,
-	{ } Format(hio.SearchText + ' [%s]%s Dict should contain Int Setting', [INT_SETTING_KEY, INT_SETTING_VAL.ToString]));
+	{ } Format(dictContent + CRLF + ' SettingsDict[%s] = %s should contain Int Setting', [INT_SETTING_KEY, INT_SETTING_VAL.ToString]));
 
 	inta := [STR_SETTING_KEY, STR_SETTING_VAL];
 	cont := arrEx.Contains(inta, FArrayComparer);
-	Assert.IsTrue(cont, hio.SearchText + ' Dict should contain Str Setting');
+	Assert.IsTrue(cont, Format(dictContent + CRLF + ' SettingsDict[%s] = %s should contain Str Setting', [STR_SETTING_KEY, STR_SETTING_VAL]));
 end;
 
 function THistoryItemObjectTest.GetSettingsDictAsArray(const hio : IHistoryItemObject) : TArray<TArray<string>>;
@@ -313,6 +318,7 @@ begin
 
 		Assert.AreEqual(hioArgs2, hioArgs,
 		{ } 'RipGrepArguments content should match the expected serialized data');
+
 		AssertContainsIntAndStrSetting(hioLoaded);
 	end;
 end;

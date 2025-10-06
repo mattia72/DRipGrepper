@@ -212,10 +212,11 @@ end;
 
 class function TSettingsDictionary.DictToStringArray(_dict : TSettingsDictionary) : TArray<TArray<string>>;
 const
+    { } IS_CONSOLE = {$IFDEF CONSOLE} TRUE; {$ELSE} FALSE; {$ENDIF}
 	{ } IS_UNITTEST = {$IFDEF TESTINSIGHT} TRUE; {$ELSE} FALSE; {$ENDIF}
-{ } IS_DEBUG = {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
+    { } IS_DEBUG = {$IFDEF DEBUG} TRUE; {$ELSE} FALSE; {$ENDIF}
 begin
-	{$IF IS_DEBUG OR IS_UNITTEST}
+	{$IF IS_DEBUG OR IS_UNITTEST OR IS_CONSOLE}
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.DictToStringArray');
 	for var section in _dict.InnerDictionary.Keys do begin
