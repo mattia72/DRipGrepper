@@ -85,7 +85,7 @@ begin
 	ai := [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 	var
 	revArr := ai.GetReversedRange();
-	Assert.AreEqual<integer>([9, 8, 7, 6, 5, 4, 3, 2, 1, 0], revArr, 'reversed array should be equal')
+	Assert.AreEqual<TArray<integer>>([9, 8, 7, 6, 5, 4, 3, 2, 1, 0], revArr, 'reversed array should be equal') ;
 end;
 
 procedure TArrayExTest.RecordTest();
@@ -112,7 +112,7 @@ begin
 	var
 	revArr := ai.GetReversedRange(7, 4);
 
-	Assert.AreEqual<integer>([7, 6, 5, 4], revArr, 'reversed array count should be equal')
+	Assert.AreEqual<TArray<integer>>([7, 6, 5, 4], revArr, 'reversed array count should be equal')
 end;
 
 procedure TArrayExTest.GetReversedRangeMaxCountTest();
@@ -124,7 +124,7 @@ begin
 	var
 	revArr := ai.GetReversedRange(-1, 10);
 
-	Assert.AreEqual<integer>([4, 3, 2, 1, 0], revArr, 'reversed array count should be equal')
+	Assert.AreEqual<TArray<integer>>([4, 3, 2, 1, 0], revArr, 'reversed array count should be equal')
 end;
 
 procedure TArrayExTest.GetReversedRangeMaxCountTest1();
@@ -136,7 +136,7 @@ begin
 	var
 	revArr := ai.GetReversedRange(-1, 5);
 
-	Assert.AreEqual<integer>([10, 9, 8, 7, 6], revArr, 'reversed array count should be equal')
+	Assert.AreEqual<TArray<integer>>([10, 9, 8, 7, 6], revArr, 'reversed array count should be equal')
 end;
 
 procedure TArrayExTest.GetRangeAndReversedRange();
@@ -148,7 +148,7 @@ begin
 	var
 	revArr := ai.GetRange(0, 5).GetReversedRange();
 
-	Assert.AreEqual<integer>([4, 3, 2, 1, 0], revArr, 'reversed array count should be equal')
+	Assert.AreEqual<TArray<integer>>([4, 3, 2, 1, 0], revArr, 'reversed array count should be equal')
 end;
 
 procedure TArrayExTest.MultiDimContainTest();

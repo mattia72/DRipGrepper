@@ -159,6 +159,9 @@
         <DCCReference Include="RipGrepper.Common.IOTAUtils.TPathProcessor.Test.pas"/>
         <DCCReference Include="..\src\Common\RipGrepper.Common.IOTAUtils.PathProcessor.pas"/>
         <DCCReference Include="RipGrepper.Parser.JsonMatchTest.pas"/>
+        <DCCReference Include="..\src\RipGrepper.Parsers.JsonMatchLine.pas"/>
+        <DCCReference Include="RipGrepper.Common.ParsedObject.Test.pas"/>
+        <DCCReference Include="RipGrepper.Common.SearchTextWithOptions.StreamPersistence.Test.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

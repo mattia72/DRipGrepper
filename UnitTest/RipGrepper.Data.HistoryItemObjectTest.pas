@@ -45,6 +45,7 @@ type
 			function CreateSampleHistoryItemWithSearchAndMatches() : IHistoryItemObject;
 			function CreateSampleHistoryItemWithSearchAndNoMatches() : IHistoryItemObject;
 			function CreateSampleHistoryItemWithReplaceAndMatches() : IHistoryItemObject;
+			procedure AddUniqueSearchText(const _ripGrepArgs : IShared<TRipGrepArguments>; const _searchText : string);
 
 		public
 			constructor Create();
@@ -176,6 +177,21 @@ begin
 
 end;
 
+procedure THistoryItemObjectTest.AddUniqueSearchText(const _ripGrepArgs : IShared<TRipGrepArguments>; const _searchText : string);
+var
+	i : Integer;
+begin
+	// Remove all existing RG_ARG_SEARCH_TEXT entries
+	for i := _ripGrepArgs.Count - 1 downto 0 do begin
+		if _ripGrepArgs.Names[i] = RG_ARG_SEARCH_TEXT then begin
+			_ripGrepArgs.Delete(i);
+		end;
+	end;
+	
+	// Add the new unique search text
+	_ripGrepArgs.AddPair(RG_ARG_SEARCH_TEXT, _searchText);
+end;
+
 procedure THistoryItemObjectTest.AssertContainsIntAndStrSetting(hio : IHistoryItemObject);
 var
 	arr : TArray<TArray<string>>;
@@ -221,7 +237,7 @@ begin
 	FRipGrepArguments.AddPair(RG_ARG_OPTIONS, '--vimgrep');
 	FRipGrepArguments.AddPair(RG_ARG_OPTIONS, '-g=*.txt');
 	FRipGrepArguments.AddPair(RG_ARG_OPTIONS, RG_PARAM_END);
-	FRipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, 'search text');
+	AddUniqueSearchText(FRipGrepArguments, 'search text');
 	FRipGrepArguments.AddPair(RG_ARG_SEARCH_PATH, 'C:\Path\Search\Files');
 
 	FStrSetting := TStringSetting.Create(STR_SETTING_VAL);
@@ -270,7 +286,7 @@ end;
 
 procedure THistoryItemObjectTest.TestSaveLoadListFromStream();
 var
-	hio : IHistoryItemObject;
+	hioLoaded : IHistoryItemObject;
 	ms : IShared<TMemoryStream>;
 	sr : IShared<TStreamReader>;
 	hioList : THistoryObjectArray;
@@ -284,18 +300,18 @@ begin
 	count := StrToInt(sr.ReadLine());
 
 	for var i := 0 to count - 1 do begin
-		hio := THistoryItemObject.Create();
-		hio.LoadFromStreamReader(sr);
-		hioList.Add(hio);
+		hioLoaded := THistoryItemObject.Create();
+		hioLoaded.LoadFromStreamReader(sr);
+		hioList.Add(hioLoaded);
 	end;
 
 	for var i := 0 to count - 1 do begin
-		hio := hioList[i];
+		hioLoaded := hioList[i];
 		Assert.AreEqual(TEST_SEARCH_TEXT + i.ToString,
-		{ } hio.GuiSearchTextParams.SearchTextWithOptions.SearchTextOfUser,
+		{ } hioLoaded.GuiSearchTextParams.SearchTextWithOptions.SearchTextOfUser,
 		{ } 'SearchText content should match the expected serialized data');
 		var
-		arr := hio.RipGrepArguments.ToStringArray;
+		arr := hioLoaded.RipGrepArguments.ToStringArray;
 		var
 		arr2 := FHistoryObjectList[i].RipGrepArguments.ToStringArray;
 		var
@@ -305,7 +321,7 @@ begin
 
 		Assert.AreEqual(hioArgs2, hioArgs,
 		{ } 'RipGrepArguments content should match the expected serialized data');
-		AssertContainsIntAndStrSetting(hio);
+		AssertContainsIntAndStrSetting(hioLoaded);
 	end;
 end;
 
@@ -323,8 +339,9 @@ begin
 		searchText := TEST_SEARCH_TEXT + i.ToString;
 
 		hio.GuiSearchTextParams.SetSearchText(searchText);
-		hio.RipGrepArguments := FRipGrepArguments;
-		hio.RipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, searchText);
+		hio.RipGrepArguments.Assign(FRipGrepArguments);
+
+		AddUniqueSearchText(hio.RipGrepArguments, searchText);
 
 		var
 		dict := hio.SearchFormSettings.SettingsDict;
@@ -361,7 +378,7 @@ begin
 
 	// Add some RipGrep arguments
 	Result.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '--case-sensitive');
-	Result.RipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, 'test pattern');
+	AddUniqueSearchText(Result.RipGrepArguments, 'test pattern');
 	Result.RipGrepArguments.AddPair(RG_ARG_SEARCH_PATH, 'C:\Test\Path');
 	Result.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '-g *.pas');
 
@@ -417,7 +434,7 @@ begin
 
 	// Add some RipGrep arguments
 	Result.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '--regex');
-	Result.RipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, 'nonexistent pattern');
+	AddUniqueSearchText(Result.RipGrepArguments, 'nonexistent pattern');
 	Result.RipGrepArguments.AddPair(RG_ARG_SEARCH_PATH, 'C:\Empty\Path');
 	Result.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '-g *.text');
 
@@ -459,9 +476,11 @@ begin
 
 	// Add some RipGrep arguments for replace
 	Result.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '--replace');
-	Result.RipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, 'new_value');
+	AddUniqueSearchText(Result.RipGrepArguments, 'new_value');
 	Result.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '--word-regexp');
-	Result.RipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, 'old_value');
+	// Note: In replace mode, we typically only have one search text, but keeping the pattern
+	// The second AddUniqueSearchText will remove the first and add this one
+	AddUniqueSearchText(Result.RipGrepArguments, 'old_value');
 	Result.RipGrepArguments.AddPair(RG_ARG_SEARCH_PATH, 'C:\Replace\Path');
 	Result.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '-g *.pas');
 	Result.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '-g *.inc');
@@ -550,7 +569,7 @@ begin
 		Assert.IsTrue(historyItem.GuiSearchTextParams.IsReplaceMode, 'Should be in replace mode');
 		Assert.AreEqual('new_value', historyItem.GuiSearchTextParams.ReplaceText, 'Replace text should be preserved');
 		Assert.AreEqual(1, historyItem.Matches.Items.Count, 'Should have 1 replace match');
-		Assert.AreEqual(7, historyItem.RipGrepArguments.Count, 'Should have 7 RipGrep arguments');
+		Assert.AreEqual(6, historyItem.RipGrepArguments.Count, 'Should have 7 RipGrep arguments');
 	finally
 		stream.Free();
 	end;
@@ -654,7 +673,7 @@ begin
 		Assert.AreEqual('new_value', loadedItem.GuiSearchTextParams.ReplaceText, 'Replace text should be restored');
 		Assert.IsTrue(EGuiOption.soMatchWord in loadedItem.GuiSearchTextParams.SearchTextWithOptions.SearchOptions,
 			'Search options should be restored');
-		Assert.AreEqual(7, loadedItem.RipGrepArguments.Count, 'RipGrep arguments should be restored');
+		Assert.AreEqual(6, loadedItem.RipGrepArguments.Count, 'RipGrep arguments should be restored');
 		Assert.IsTrue(loadedItem.RipGrepArguments.Text.Contains('--replace'), 'First argument should be restored');
 		// Assert.AreEqual('C:\Replace\Path', loadedItem.SearchFormSettings.SearchPath, 'Search path should be restored');
 		// Assert.AreEqual('*.pas;*.inc', loadedItem.SearchFormSettings.FileMasks, 'File masks should be restored');
@@ -1198,7 +1217,7 @@ begin
 	guiParams.SearchTextWithOptions.SearchTextOfUser := specialText;
 	guiParams.IsReplaceMode := False;
 	historyItem.GuiSearchTextParams := guiParams;
-	historyItem.RipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, specialText);
+	AddUniqueSearchText(historyItem.RipGrepArguments, specialText);
 
 	stream := Shared.Make<TMemoryStream>(TMemoryStream.Create());
 	writer := Shared.Make<TStreamWriter>(TStreamWriter.Create(stream, TEncoding.UTF8));
@@ -1337,7 +1356,7 @@ begin
 	guiParams.IsReplaceMode := True;
 	guiParams.ReplaceText := 'replace with special chars αβγ';
 	originalItem.GuiSearchTextParams := guiParams;
-	originalItem.RipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, specialText);
+	AddUniqueSearchText(originalItem.RipGrepArguments, specialText);
 
 	stream := Shared.Make<TMemoryStream>(TMemoryStream.Create());
 	writer := Shared.Make<TStreamWriter>(TStreamWriter.Create(stream, TEncoding.UTF8));
@@ -1436,7 +1455,7 @@ begin
 			guiParams.ReplaceText := 'replaced_' + IntToStr(i);
 		end;
 		edgeCaseItems[i].GuiSearchTextParams := guiParams;
-		edgeCaseItems[i].RipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, edgeCaseTexts[i]);
+		AddUniqueSearchText(edgeCaseItems[i].RipGrepArguments, edgeCaseTexts[i]);
 
 		// Act - Save and load
 		stream := Shared.Make<TMemoryStream>(TMemoryStream.Create());
@@ -1544,7 +1563,7 @@ begin
 	guiParams.IsReplaceMode := True;
 	guiParams.ReplaceText := replaceText;
 	historyItem.GuiSearchTextParams := guiParams;
-	historyItem.RipGrepArguments.AddPair(RG_ARG_SEARCH_TEXT, unicodeText);
+	AddUniqueSearchText(historyItem.RipGrepArguments, unicodeText);
 
 	stream := Shared.Make<TMemoryStream>(TMemoryStream.Create());
 	writer := Shared.Make<TStreamWriter>(TStreamWriter.Create(stream, TEncoding.UTF8));
