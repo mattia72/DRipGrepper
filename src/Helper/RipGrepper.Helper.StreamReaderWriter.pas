@@ -46,7 +46,7 @@ begin
 			'\': Result := Result + '\\';  // \ -> \\
 			CR:  Result := Result + '\r';  // CR -> \r
 			LF:  Result := Result + '\n';  // LF -> \n  
-			#9:  Result := Result + '\t';  // TAB -> \t
+			// #9:  Result := Result + '\t';  // TAB -> \t
 		else
 			Result := Result + ch;         // All other characters as-is
 		end;
@@ -146,7 +146,7 @@ begin
 				'\': begin Result := Result + '\'; Inc(i, 2); end;	// \\ -> \
 				'r': begin Result := Result + CR; Inc(i, 2); end;	// \r -> CR
 				'n': begin Result := Result + LF; Inc(i, 2); end;	// \n -> LF
-				't': begin Result := Result + #9; Inc(i, 2); end;	// \t -> TAB
+				// 't': begin Result := Result + #9; Inc(i, 2); end;	// \t -> TAB
 			else
 				// Not a recognized escape sequence, keep the backslash
 				Result := Result + ch;
