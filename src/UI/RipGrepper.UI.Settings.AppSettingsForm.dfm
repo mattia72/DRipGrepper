@@ -133,7 +133,7 @@ object AppSettingsForm: TAppSettingsForm
         Width = 454
         Height = 162
         Anchors = [akLeft, akTop, akRight]
-        Caption = 'Save/Load behaviour'
+        Caption = 'Startup behaviour'
         TabOrder = 2
         DesignSize = (
           454
@@ -141,7 +141,7 @@ object AppSettingsForm: TAppSettingsForm
         object rgModeLoadSeraches: TRadioGroup
           AlignWithMargins = True
           Left = 3
-          Top = 68
+          Top = 45
           Width = 448
           Height = 91
           Hint = 
@@ -159,8 +159,8 @@ object AppSettingsForm: TAppSettingsForm
           OnClick = rgModeLoadSerachesClick
         end
         object seSearchHistoryCount: TSpinEdit
-          Left = 61
-          Top = 130
+          Left = 56
+          Top = 105
           Width = 52
           Height = 24
           Hint = 'Number of history length in search history panel.'
@@ -171,21 +171,21 @@ object AppSettingsForm: TAppSettingsForm
         end
         object cbSaveResults: TCheckBox
           Left = 3
-          Top = 23
-          Width = 222
+          Top = 142
+          Width = 273
           Height = 17
           Hint = 'Save results of ripgrep search'
-          Caption = 'Save / Load search results'
+          Caption = 'Load found files and matches from last session'
           TabOrder = 2
           OnClick = cbSaveResultsClick
         end
         object cbLoadLastSearchHistories: TCheckBox
           Left = 3
-          Top = 46
+          Top = 22
           Width = 222
           Height = 17
           Hint = 'Automatically load saved search history items on startup.'
-          Caption = 'Load search history on startup'
+          Caption = 'Load search history from last session'
           TabOrder = 3
           OnClick = cbLoadLastSearchHistoriesClick
         end
