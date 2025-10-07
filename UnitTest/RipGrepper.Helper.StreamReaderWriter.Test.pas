@@ -234,7 +234,8 @@ end;
 
 procedure TStreamReaderWriterHelperTest.TestComplexStringWithAllSpecialChars;
 const
-	COMPLEX_STRING = 'Complex: \backslashes\ and' + CRLF + 'CRLF and' + CR + 'CR and' + LF + 'LF and \\escaped\\';
+	COMPLEX_STRING = 'Complex: \backslashes\ and' + CRLF + 'CRLF and' + CR + 'CR and' + LF + 'LF and \\escaped\\' 
+	+ ' and \r and \n and \t and \\';
 begin
 	FStreamWriter.WriteLineAsString(COMPLEX_STRING, False, 'complex string');
 	ResetStreamForReading;

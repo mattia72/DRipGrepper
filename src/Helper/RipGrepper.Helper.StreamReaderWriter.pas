@@ -7,6 +7,8 @@ uses
 
 type
 	TStreamReaderHelper = class Helper for TStreamReader
+		private
+			function DecodeEscapedString(const input: string): string;
 		public
 			function ReadLineAsBool(const _description : string) : Boolean;
 			function ReadLineAsInteger(const _description : string) : Integer;
@@ -15,6 +17,8 @@ type
 
 type
 	TStreamWriterHelper = class Helper for TStreamWriter
+		private
+			function EncodeEscapedString(const input: string): string;
 		public
 			procedure WriteLineAsBool(const _b : Boolean; const _description : string);
 			procedure WriteLineAsInteger(const _i : Integer; const _description : string);
@@ -28,11 +32,26 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Common.Constants;
 
-const
-	// Use backslash as single escape character
-	CR_ESCAPED = '\\r';       // Actual CR → \r  
-	LF_ESCAPED = '\\n';       // Actual LF → \n
-	BACKSLASH_ESCAPED = '\\'; // Backslash → \\
+{ TStreamWriterHelper }
+
+function TStreamWriterHelper.EncodeEscapedString(const input: string): string;
+var
+	i: Integer; 
+	ch: Char;
+begin
+	Result := '';
+	for i := 1 to Length(input) do begin
+		ch := input[i];
+		case ch of
+			'\': Result := Result + '\\';  // \ -> \\
+			CR:  Result := Result + '\r';  // CR -> \r
+			LF:  Result := Result + '\n';  // LF -> \n  
+			#9:  Result := Result + '\t';  // TAB -> \t
+		else
+			Result := Result + ch;         // All other characters as-is
+		end;
+	end;
+end;
 
 function TStreamReaderHelper.ReadLineAsBool(const _description : string) : Boolean;
 var
@@ -71,11 +90,8 @@ begin
 		raise Exception.Create(msg);
 	end;
 
-	// Decode escaped sequences back to original format
-	// Order matters: decode double backslashes first, then single escapes
-	Result := Result.Replace(BACKSLASH_ESCAPED, '\')
-	{ }.Replace(CR_ESCAPED, CR) 
-	{ }.Replace(LF_ESCAPED, LF);
+	// Decode using character-by-character processing to avoid conflicts
+	Result := self.DecodeEscapedString(Result);
 
 	dbgMsg.Msg('Result=' + Result);
 end;
@@ -108,13 +124,40 @@ begin
 		raise Exception.Create(msg);
 	end;
 
-	// Encode in specific order: backslashes first, then line endings
-	var
-	encodedString := _s.Replace('\', BACKSLASH_ESCAPED)  // First: escape existing backslashes 
-	{ } .Replace(CR, CR_ESCAPED)                           // Then: actual CR → \r
-	{ } .Replace(LF, LF_ESCAPED);                          // Then: actual LF → \n
-
+	// Encode using character-by-character processing to avoid conflicts
+	var encodedString := self.EncodeEscapedString(_s);
 	self.WriteLine(encodedString);
+end;
+
+{ TStreamReaderHelper }
+
+function TStreamReaderHelper.DecodeEscapedString(const input: string): string;
+var
+	i: Integer;
+	ch: Char;
+begin
+	Result := '';
+	i := 1;
+	while i <= Length(input) do begin
+		ch := input[i];
+		if (ch = '\') and (i < Length(input)) then begin
+			// Check the next character after backslash
+			case input[i + 1] of
+				'\': begin Result := Result + '\'; Inc(i, 2); end;	// \\ -> \
+				'r': begin Result := Result + CR; Inc(i, 2); end;	// \r -> CR
+				'n': begin Result := Result + LF; Inc(i, 2); end;	// \n -> LF
+				't': begin Result := Result + #9; Inc(i, 2); end;	// \t -> TAB
+			else
+				// Not a recognized escape sequence, keep the backslash
+				Result := Result + ch;
+				Inc(i);
+			end;
+		end else begin
+			// Regular character, just add it
+			Result := Result + ch;	
+			Inc(i);
+		end;
+	end;
 end;
 
 end.
