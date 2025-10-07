@@ -229,7 +229,6 @@ begin
 
 		if sCmds = '' then begin
 			break
-		end else begin
 		end;
 
 		arrCmd := [''];

@@ -31,6 +31,10 @@ type
 			class function New(const _caption, _cmd : string; const _descr : string = ''; const _isActive : Boolean = True) : TCommandItem;
 				overload; static;
 			class function New(const _arr : TArray<string>) : TCommandItem; overload; static;
+			class function FromJSON(const _json : TJSONObject) : TCommandItem; static;
+			function ToJSON() : TJSONObject;
+			class function ArrayToJSON(const _items : TArray<TCommandItem>) : string; static;
+			class function ArrayFromJSON(const _jsonString : string) : TArray<TCommandItem>; static;
 	end;
 
 	TFileUtils = class(TObject)
@@ -283,6 +287,72 @@ begin
 		Result.Caption := arrEx.SafeItem[1];
 		Result.CommandLine := TCommandLineRec.ParseCommand(arrEx.SafeItem[2]);
 		Result.Description := arrEx.SafeItem[3];
+	end;
+end;
+
+class function TCommandItem.FromJSON(const _json : TJSONObject) : TCommandItem;
+begin
+	Result.Caption := _json.GetValue<string>('caption', '');
+	Result.Description := _json.GetValue<string>('description', '');
+	Result.IsActive := _json.GetValue<Boolean>('isActive', True);
+	Result.CommandLine := TCommandLineRec.ParseCommand(_json.GetValue<string>('commandLine', ''));
+end;
+
+function TCommandItem.ToJSON() : TJSONObject;
+begin
+	Result := TJSONObject.Create;
+	Result.AddPair('caption', Caption);
+	Result.AddPair('description', Description);
+	Result.AddPair('isActive', TJSONBool.Create(IsActive));
+	Result.AddPair('commandLine', CommandLine.AsString());
+end;
+
+class function TCommandItem.ArrayToJSON(const _items : TArray<TCommandItem>) : string;
+var
+	jsonArray : TJSONArray;
+	item : TCommandItem;
+begin
+	jsonArray := TJSONArray.Create;
+	try
+		for item in _items do begin
+			jsonArray.AddElement(item.ToJSON());
+		end;
+		Result := jsonArray.Format(2);
+	finally
+		jsonArray.Free;
+	end;
+end;
+
+class function TCommandItem.ArrayFromJSON(const _jsonString : string) : TArray<TCommandItem>;
+var
+	jsonArray : TJSONArray;
+	jsonValue : TJSONValue;
+	i : Integer;
+begin
+	Result := [];
+	
+	if _jsonString.Trim.IsEmpty then begin
+		Exit;
+	end;
+	
+	jsonValue := TJSONObject.ParseJSONValue(_jsonString);
+	if not Assigned(jsonValue) then begin
+		Exit;
+	end;
+	
+	try
+		if jsonValue is TJSONArray then begin
+			jsonArray := TJSONArray(jsonValue);
+			SetLength(Result, jsonArray.Count);
+			
+			for i := 0 to jsonArray.Count - 1 do begin
+				if jsonArray.Items[i] is TJSONObject then begin
+					Result[i] := TCommandItem.FromJSON(TJSONObject(jsonArray.Items[i]));
+				end;
+			end;
+		end;
+	finally
+		jsonValue.Free;
 	end;
 end;
 

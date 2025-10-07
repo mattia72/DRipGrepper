@@ -9,6 +9,8 @@ uses
 	RipGrepper.OpenWith.Constants,
 	RipGrepper.OpenWith.Params,
 	RipGrepper.Settings.SettingVariant,
+	RipGrepper.Settings.Persister.Interfaces,
+	RipGrepper.Tools.FileUtils,
 	ArrayEx;
 
 type
@@ -26,11 +28,15 @@ type
 			constructor Create(const _Owner : TPersistableSettings);
 			procedure ClearCommandList;
 			function GetCommands() : TArray<string>;
+			function GetCommandItems() : TArray<TCommandItem>;
 			procedure Init; override;
 			procedure ReadFile(); override;
 			procedure ForceUpdateFile();
 			procedure LoadFromDict(); override;
-			procedure RecreateCommandList(_cmdListItems : TArrayEx<string>);
+			procedure RecreateCommandList(_cmdListItems : TArrayEx<string>); overload;
+			procedure RecreateCommandList(_cmdItems : TArray<TCommandItem>); overload;
+			procedure LoadCommandsFromJSON();
+			procedure SaveCommandsToJSON();
 			function ToString : string; override;
 			property Command[index : Integer] : string read GetCommand write SetCommand;
 			property CommandListSetting: IArraySetting read GetCommandListSetting;
@@ -44,7 +50,7 @@ uses
 	System.SysUtils,
 	RipGrepper.Settings.SettingsDictionary,
 	RipGrepper.Common.Constants,
-	RipGrepper.Tools.FileUtils;
+	System.JSON;
 
 constructor TOpenWithSettings.Create(const _Owner : TPersistableSettings);
 begin
@@ -186,6 +192,77 @@ begin
 		{ } FCommandListSetting,
 		{ } PersisterFactory);
 	GetRootOwner().SettingsDict().CopySection(IniSectionName, SettingsDict);
+end;
+
+function TOpenWithSettings.GetCommandItems() : TArray<TCommandItem>;
+var
+	commands : TArray<string>;
+	i : Integer;
+begin
+	commands := GetCommands();
+	SetLength(Result, Length(commands));
+	
+	for i := 0 to High(commands) do begin
+		Result[i] := RipGrepper.Tools.FileUtils.TCommandItem.New(commands[i].Split([SEPARATOR]));
+	end;
+end;
+
+procedure TOpenWithSettings.RecreateCommandList(_cmdItems : TArray<TCommandItem>);
+var
+	stringItems : TArrayEx<string>;
+	item : TCommandItem;
+	tabSeparatedString : string;
+begin
+	stringItems.Clear;
+	
+	for item in _cmdItems do begin
+		tabSeparatedString := Format('%s%s%s%s%s%s%s',
+			[BoolToStr(item.IsActive, True), SEPARATOR,
+			 item.Caption, SEPARATOR,
+			 item.CommandLine.AsString(), SEPARATOR,
+			 item.Description]);
+		stringItems.Add(tabSeparatedString);
+	end;
+	
+	RecreateCommandList(stringItems);
+end;
+
+procedure TOpenWithSettings.LoadCommandsFromJSON();
+const
+	JSON_COMMANDS_KEY = 'CommandsJSON';
+var
+	jsonString : string;
+	cmdItems : TArray<TCommandItem>;
+	persister : IFilePersister<string>;
+begin
+	// Try to load from JSON first
+	persister := PersisterFactory.GetStringPersister(IniSectionName, JSON_COMMANDS_KEY);
+	
+	if persister.TryLoadValue(jsonString) and not jsonString.Trim.IsEmpty then begin
+		cmdItems := RipGrepper.Tools.FileUtils.TCommandItem.ArrayFromJSON(jsonString);
+		if Length(cmdItems) > 0 then begin
+			RecreateCommandList(cmdItems);
+			Exit;
+		end;
+	end;
+	
+	// Fallback to tab-separated format if JSON not found
+	// (existing logic in ReadFile)
+end;
+
+procedure TOpenWithSettings.SaveCommandsToJSON();
+const
+	JSON_COMMANDS_KEY = 'CommandsJSON';
+var
+	cmdItems : TArray<TCommandItem>;
+	jsonString : string;
+	persister : IFilePersister<string>;
+begin
+	cmdItems := GetCommandItems();
+	jsonString := RipGrepper.Tools.FileUtils.TCommandItem.ArrayToJSON(cmdItems);
+	
+	persister := PersisterFactory.GetStringPersister(IniSectionName, JSON_COMMANDS_KEY);
+	persister.StoreValue(jsonString);
 end;
 
 function TOpenWithSettings.ToString : string;
