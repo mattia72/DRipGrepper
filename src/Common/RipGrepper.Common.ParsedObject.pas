@@ -113,7 +113,6 @@ type
 			function GetRow() : Integer;
 
 		public
-			constructor Create(); overload;
 			constructor Create(const _por : IParsedObjectRow; _parserType : TParserType); overload;
 			destructor Destroy; override;
 			procedure CopyTo(var _por : TParsedObjectRow);
@@ -191,18 +190,6 @@ begin
 	IsError := _por.IsError;
 	IsStatsLine := _por.IsStatsLine;
 	ParserType := _parserType;
-end;
-
-constructor TParsedObjectRow.Create();
-begin
-	inherited Create();
-	// Initialize with default values
-	ErrorText := '';
-	IsError := False;
-	IsStatsLine := False;
-	ParserType := ptEmpty;
-	ParsedRowNr := 0;
-	FColumns.Clear();
 end;
 
 destructor TParsedObjectRow.Destroy;
@@ -384,7 +371,8 @@ begin
 		dbgMsg.Msg('Reading row ' + i.ToString + ' with ParserType=' + parserType.ToString);
 		row.ParserType := TParserType(parserType);
 		for var sTitle in TREEVIEW_COLUMN_TITLES do begin
-			line := _sr.ReadLineAsString(true, 'ColumnData[' + sTitle + ']'); // Use helper method to match save method
+            // Use the same helper method as in SaveToStreamWriter
+            line := _sr.ReadLineAsString(false, 'ColumnData[' + sTitle + ']');
 			dbgMsg.Msg('Line: ' + line);
 			idx := line.IndexOf(ARRAY_SEPARATOR);
 			if idx > 0 then begin
@@ -410,26 +398,26 @@ begin
 		row := FItems[0]; // so we avoid memory leak ? no
 		cd := row.GetColumnByTitle(FILE_COLUMN);
 		if cd.Text.EndsWith(RG_HAS_NO_OUTPUT) then begin
-			_sw.WriteLineAsInteger(0);
+			_sw.WriteLineAsInteger(0, 'RG_HAS_NO_OUTPUT');
 			dbgMsg.Msg('Write FItems.Count 0');
 			Exit;
 		end;
 	end;
 
-	_sw.WriteLineAsInteger(FItems.Count);
+	_sw.WriteLineAsInteger(FItems.Count, 'Items.Count');
 	dbgMsg.MsgFmt('Write FItems.Count = %d', [FItems.Count]);
 	for row in FItems do begin
 		var
 		parserType := Ord(row.ParserType);
-		_sw.WriteLineAsInteger(parserType);
+		_sw.WriteLineAsInteger(parserType, 'row.ParserType');
 		dbgMsg.Msg('Write ParserType=' + parserType.ToString);
 
 		for var sTitle in TREEVIEW_COLUMN_TITLES do begin
 			cd := row.GetColumnByTitle(sTitle);
 			var
 			line := cd.Title + ARRAY_SEPARATOR + cd.Text;
-			_sw.WriteLineAsString(line, true, 'ColumnData[' + sTitle + ']'); // Allow empty values for column data
-			dbgMsg.MsgFmt('Write title = %s line = %s', [sTitle, line]);
+			_sw.WriteLineAsString(line, false, 'ColumnData[' + sTitle + ']');
+			dbgMsg.MsgFmt('Write title = %s line = ''%s''', [sTitle, line]);
 			// ParserType?
 		end;
 	end;

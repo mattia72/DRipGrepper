@@ -44,6 +44,7 @@ uses
   RipGrepper.Helper.MemIniFile in '..\src\Helper\RipGrepper.Helper.MemIniFile.pas',
   RipGrepper.Helper.SettingStoreBehaviours in '..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas',
   RipGrepper.Helper.StreamReaderWriter in '..\src\Helper\RipGrepper.Helper.StreamReaderWriter.pas',
+  RipGrepper.Helper.StreamReaderWriter.Test in 'RipGrepper.Helper.StreamReaderWriter.Test.pas',
   RipGrepper.Helper.Types in '..\src\RipGrepper.Helper.Types.pas',
   RipGrepper.Helper.Types.Test in 'RipGrepper.Helper.Types.Test.pas',
   RipGrepper.Helper.UI.DarkMode in '..\src\RipGrepper.Helper.UI.DarkMode.pas',

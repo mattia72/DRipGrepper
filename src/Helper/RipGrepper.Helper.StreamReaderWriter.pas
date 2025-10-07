@@ -8,8 +8,8 @@ uses
 type
 	TStreamReaderHelper = class Helper for TStreamReader
 		public
-			function ReadLineAsBool(const _description: string): Boolean;
-			function ReadLineAsInteger(const _description: string): Integer;
+			function ReadLineAsBool(const _description : string) : Boolean;
+			function ReadLineAsInteger(const _description : string) : Integer;
 			function ReadLineAsString(const _bAllowEmpty : boolean = false; const _description : string = '') : string;
 	end;
 
@@ -25,10 +25,16 @@ implementation
 
 uses
 	System.SysUtils,
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils,
+	RipGrepper.Common.Constants;
 
-function TStreamReaderHelper.ReadLineAsBool(const _description: string):
-	Boolean;
+const
+	// Use backslash as single escape character
+	CR_ESCAPED = '\\r';       // Actual CR → \r  
+	LF_ESCAPED = '\\n';       // Actual LF → \n
+	BACKSLASH_ESCAPED = '\\'; // Backslash → \\
+
+function TStreamReaderHelper.ReadLineAsBool(const _description : string) : Boolean;
 var
 	s : string;
 begin
@@ -40,8 +46,7 @@ begin
 	Result := s <> '0';
 end;
 
-function TStreamReaderHelper.ReadLineAsInteger(const _description: string):
-	Integer;
+function TStreamReaderHelper.ReadLineAsInteger(const _description : string) : Integer;
 var
 	s : string;
 begin
@@ -65,6 +70,13 @@ begin
 		dbgMsg.ErrorMsg(msg);
 		raise Exception.Create(msg);
 	end;
+
+	// Decode escaped sequences back to original format
+	// Order matters: decode double backslashes first, then single escapes
+	Result := Result.Replace(BACKSLASH_ESCAPED, '\')
+	{ }.Replace(CR_ESCAPED, CR) 
+	{ }.Replace(LF_ESCAPED, LF);
+
 	dbgMsg.Msg('Result=' + Result);
 end;
 
@@ -95,7 +107,14 @@ begin
 		dbgMsg.ErrorMsg(msg);
 		raise Exception.Create(msg);
 	end;
-	self.WriteLine(_s);
+
+	// Encode in specific order: backslashes first, then line endings
+	var
+	encodedString := _s.Replace('\', BACKSLASH_ESCAPED)  // First: escape existing backslashes 
+	{ } .Replace(CR, CR_ESCAPED)                           // Then: actual CR → \r
+	{ } .Replace(LF, LF_ESCAPED);                          // Then: actual LF → \n
+
+	self.WriteLine(encodedString);
 end;
 
 end.

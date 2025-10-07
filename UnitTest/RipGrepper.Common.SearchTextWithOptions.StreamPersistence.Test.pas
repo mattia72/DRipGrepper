@@ -226,8 +226,8 @@ begin
 	// Assert - Read the content properly using StreamReader
 	stream.Position := 0;
 	reader := Shared.Make<TStreamReader>(TStreamReader.Create(stream, TEncoding.UTF8));
-	line1 := reader.ReadLine(); // SearchTextOfUser
-	line2 := reader.ReadLine(); // SearchOptions
+	line1 := reader.ReadLineAsString(); // SearchTextOfUser
+	line2 := reader.ReadLineAsString(); // SearchOptions
 
 	Assert.AreEqual(COMPLEX_SEARCH_TEXT, line1, 'First line should contain the complex search text');
 	Assert.IsTrue(line2.Contains('MatchCase'), 'Second line should contain MatchCase option');
