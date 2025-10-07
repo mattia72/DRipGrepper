@@ -206,7 +206,7 @@ const
 	{ } ];
 
 	RG_NECESSARY_PARAMS : TArray<string> = [
-	{ } '--vimgrep',
+	{ } '--json',
 	{ } '--line-buffered', // some big search couldn't be catched without this
 	{ } '--no-ignore-parent',
 	{ } '--follow',
