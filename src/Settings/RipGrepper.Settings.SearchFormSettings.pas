@@ -235,15 +235,23 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.SaveToStreamWriter');
 	inherited;
-
-	for var s : string in [
+	var
+	strArr := [
 	{ } BoolToStr(Hidden),
 	{ } BoolToStr(NoIgnore),
 	{ } BoolToStr(Pretty),
 	{ } Context.ToString,
-	{ } Encoding]
-	{ } do begin
-		_sw.WriteLineAsString(s, true);
+	{ } Encoding];
+	var
+	strNameArr := [
+	{ } 'Hidden',
+	{ } 'NoIgnore',
+	{ } 'Pretty',
+	{ } 'Context',
+	{ } 'Encoding'];
+
+	for var i := 0 to Length(strArr) - 1 do begin
+		_sw.WriteLineAsString(strArr[i], true, strNameArr[i]);
 	end;
 
 	ExtensionSettings.SaveToStreamWriter(_sw);

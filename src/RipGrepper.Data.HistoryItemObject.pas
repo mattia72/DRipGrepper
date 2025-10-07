@@ -354,7 +354,7 @@ begin
 		FIsLoadedFromStream := True;
 	except
 		on E : Exception do begin
-			dbgMsg.ErrorMsg('Error loading saved searches from file stream');
+			dbgMsg.ErrorMsg('Error loading saved searches from file stream.');
 			Initialize;
 			raise;
 		end;
@@ -382,14 +382,14 @@ begin
 
 	GuiSearchTextParams.SaveToStreamWriter(_sw);
 	dbgmsg.MsgFmt('RipGrepArguments.Count = %d', [RipGrepArguments.Count]);
-	_sw.WriteLineAsInteger(RipgrepArguments.Count);
+	_sw.WriteLineAsInteger(RipgrepArguments.Count, 'RipgrepArguments.Count');
 	for var s in RipGrepArguments() do begin
 		dbgMsg.MsgFmt('RipGrepArguments = %s', [s]);
 		_sw.WriteLineAsString(s, false, 'RipGrepArguments=''' + s + '''');
 	end;
 	SearchFormSettings.SaveToStreamWriter(_sw);
 	// Always save a flag indicating whether matches data follows
-	_sw.WriteLineAsBool(ShouldSaveResult);
+	_sw.WriteLineAsBool(ShouldSaveResult, 'ShouldSaveResult');
 	dbgMsg.MsgFmt('HasMatchesData = %s', [BoolToStr(ShouldSaveResult, True)]);
 	if ShouldSaveResult then begin
 		Matches.SaveToStreamWriter(_sw);

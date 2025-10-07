@@ -363,7 +363,7 @@ end;
 
 procedure TOptionStrings.SaveToStreamWriter(_sw : TStreamWriter);
 begin
-	_sw.WriteLineAsInteger(FOptions.Count);
+	_sw.WriteLineAsInteger(FOptions.Count, 'Options.Count');
 	for var i := 0 to FOptions.Count - 1 do begin
 		_sw.WriteLineAsString(FOptions[i], false, 'OptionStrings[' + i.ToString + ']');
 	end;

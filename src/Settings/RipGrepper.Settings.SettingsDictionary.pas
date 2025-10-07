@@ -412,7 +412,7 @@ var
 	settingType : TSettingType;
 begin
 	InnerDictionary.Clear;
-	sectionCount := _sr.ReadLineAsInteger;
+	sectionCount := _sr.ReadLineAsInteger('SectionCount');
 	for var i := 0 to sectionCount - 1 do begin
 		section := _sr.ReadLineAsString(false, 'SettingsDictionary.SectionName'); // Section names should not be empty
 
@@ -421,11 +421,11 @@ begin
 			{ } TCollections.CreateSortedDictionary<TSettingKey, ISetting>();
 		end;
 
-		keyCount := _sr.ReadLineAsInteger;
+		keyCount := _sr.ReadLineAsInteger('KeyCount');
 		for var j := 0 to keyCount - 1 do begin
 			var
 			key := _sr.ReadLineAsString();
-			settingType := TSettingType(_sr.ReadLineAsInteger);
+			settingType := TSettingType(_sr.ReadLineAsInteger(key + '.SettingType'));
 			setting := TSettingFactory.CreateSetting(settingType, key);
 			(setting as IStreamReaderWriterPersistable).LoadFromStreamReader(_sr);
 			CreateSetting(section, key, setting, FOwnerPersister);
@@ -435,15 +435,15 @@ end;
 
 procedure TSettingsDictionary.SaveToStreamWriter(_sw : TStreamWriter);
 begin
-	_sw.WriteLineAsInteger(FInnerDictionary.Count);
+	_sw.WriteLineAsInteger(FInnerDictionary.Count, 'FInnerDictionary.Count');
 	var
 	arr := DictToStringArray(self);
 	for var section in FInnerDictionary.Keys do begin
 		_sw.WriteLineAsString(section, false, 'SettingsDictionary.SectionName');
-		_sw.WriteLineAsInteger(FInnerDictionary[section].Count);
+		_sw.WriteLineAsInteger(FInnerDictionary[section].Count, section + '.Count');
 		for var key in FInnerDictionary[section].Keys do begin
 			_sw.WriteLineAsString(key, false, Format('[%s]%s', [section, key]));
-			_sw.WriteLineAsInteger(Integer(FInnerDictionary[section][key].SettingType));
+			_sw.WriteLineAsInteger(Integer(FInnerDictionary[section][key].SettingType), Format('[%s]%s.SettingType',[section, key]));
 			(FInnerDictionary[section][key] as IStreamReaderWriterPersistable).SaveToStreamWriter(_sw);
 		end;
 	end;

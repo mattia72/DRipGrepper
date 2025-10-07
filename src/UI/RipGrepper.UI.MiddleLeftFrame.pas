@@ -1000,7 +1000,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.VstHistoryLoadTree');
 
 	sr := Shared.Make<TStreamReader>(TStreamReader.Create(Stream));
-	count := sr.ReadLineAsInteger();
+	count := sr.ReadLineAsInteger('nodeCount');
 
 	VstHistory.Clear; // LoadFile creates the nodes, we should clear it
 	for var i := 0 to count - 1 do begin
@@ -1021,7 +1021,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMiddleLeftFrame.VstHistorySaveTree');
 	sw := Shared.Make<TStreamWriter>(TStreamWriter.Create(Stream));
-	sw.WriteLineAsInteger(CountSaveNodes());
+	sw.WriteLineAsInteger(CountSaveNodes(), 'CountSaveNodes');
 
 	for var node : PVirtualNode in VstHistory.Nodes() do begin
 		if node.Parent <> VstHistory.RootNode then begin

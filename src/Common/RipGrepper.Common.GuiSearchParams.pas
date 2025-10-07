@@ -294,7 +294,7 @@ begin
 	FExpertOptions.SaveToStreamWriter(_sw);
 
 	dbgMsg.MsgFmt('IsReplaceMode %s', [BoolToStr(IsReplaceMode, True)]);
-	_sw.WriteLineAsBool(IsReplaceMode);
+	_sw.WriteLineAsBool(IsReplaceMode, 'IsReplaceMode');
 
 	dbgMsg.MsgFmt('ReplaceText %s', [ReplaceText]);
 	_sw.WriteLineAsString(ReplaceText, true, 'ReplaceText');

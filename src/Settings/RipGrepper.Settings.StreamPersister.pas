@@ -30,8 +30,9 @@ type
 implementation
 
 uses
-	RipGrepper.Settings.SettingVariant, RipGrepper.Tools.DebugUtils,
-  RipGrepper.Helper.StreamReaderWriter;
+	RipGrepper.Settings.SettingVariant,
+	RipGrepper.Tools.DebugUtils,
+	RipGrepper.Helper.StreamReaderWriter;
 
 { TDictionaryStreamPersister }
 
@@ -54,21 +55,21 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDictionaryStreamPersister.LoadFromStreamReader');
 	FDictionary.Clear();
-	sectionCount := _sr.ReadLineAsInteger;
+	sectionCount := _sr.ReadLineAsInteger('sectionCount');
 	dbgMsg.MsgFmt('SectionCount: %d', [sectionCount]);
 	for var i : integer := 0 to sectionCount - 1 do begin
 		section := _sr.ReadLineAsString(false, 'SettingsDictionary.SectionName'); // Section names should not be empty
 		dbgMsg.MsgFmt('Section: %s', [section]);
 		keyDict := TCollections.CreateSortedDictionary<TSettingKey, ISetting>();
 		FDictionary.Add(section, keyDict);
-		keyCount := _sr.ReadLineAsInteger;
+		keyCount := _sr.ReadLineAsInteger(section + '.KeyCount');
 		dbgMsg.MsgFmt('KeyCount: %d', [keyCount]);
 		for var j : integer := 0 to keyCount - 1 do begin
 			key := _sr.ReadLineAsString(false); // Setting keys should not be empty
 			dbgMsg.MsgFmt('Key: %s', [key]);
-			settingType := TSettingType(_sr.ReadLineAsInteger);
+			settingType := TSettingType(_sr.ReadLineAsInteger(key + '.SettingType'));
 			dbgMsg.MsgFmt('KeyType: %d', [Integer(settingType)]);
-			settingValue := _sr.ReadLineAsString(true); // Setting values can be empty
+			settingValue := _sr.ReadLineAsString(true, key + '.SettingValue'); // Setting values can be empty
 			dbgMsg.MsgFmt('KeyValue: %s', [settingValue]);
 			case settingType of
 				stString :
@@ -77,18 +78,19 @@ begin
 				setting := TIntegerSetting.Create(key, StrToIntDef(settingValue, 0));
 				stBool :
 				setting := TBoolSetting.Create(key, settingValue <> '0');
-				stStrArray :
-				begin
-					var arr := TArraySetting.Create(key);
+				stStrArray : begin
+					var
+					arr := TArraySetting.Create(key);
 					if not settingValue.IsEmpty then begin
-						var parts := settingValue.Split([',']);
+						var
+						parts := settingValue.Split([',']);
 						for var part in parts do begin
 							arr.Value.Add(part);
 						end;
 					end;
 					setting := arr;
 				end;
-			else
+				else
 				raise ESettingsException.CreateFmt('Unsupported setting type: %d', [Integer(settingType)]);
 			end;
 			FDictionary[section].Add(key, setting);
@@ -107,19 +109,19 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TDictionaryStreamPersister.SaveToStreamWriter');
 
 	dbgMsg.MsgFmt('Count: %d', [FDictionary.Count]);
-	_sw.WriteLineAsInteger(FDictionary.Count);
+	_sw.WriteLineAsInteger(FDictionary.Count, 'Dictionary.Count');
 	for var section in FDictionary.Keys do begin
 		dbgMsg.MsgFmt('Section: %s', [section]);
 		_sw.WriteLineAsString(section, false, 'SettingsDictionary.SectionName');
 		dbgMsg.MsgFmt('Count: %d', [FDictionary[section].Count]);
-		_sw.WriteLineAsInteger(FDictionary[section].Count);
+		_sw.WriteLineAsInteger(FDictionary[section].Count, section + '.Count');
 		for var key in FDictionary[section].Keys do begin
 			var
 			setting := FDictionary[section][key];
 			dbgMsg.MsgFmt('Key: %s', [key]);
 			_sw.WriteLineAsString(key, false, 'SettingsDictionary.KeyName');
 			dbgMsg.MsgFmt('Type: %d', [Integer(setting.SettingType)]);
-			_sw.WriteLineAsInteger(Integer(setting.SettingType));
+			_sw.WriteLineAsInteger(Integer(setting.SettingType), Format('[%s]%s.SettingType', [section, key]));
 			dbgMsg.MsgFmt('Value: %s', [setting.AsString]);
 			_sw.WriteLineAsString(setting.AsString, false, 'SettingsDictionary.KeyValue');
 		end;

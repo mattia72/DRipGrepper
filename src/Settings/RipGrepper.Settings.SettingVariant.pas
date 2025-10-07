@@ -93,12 +93,12 @@ type
 
 	TSetting = class(TInterfacedObject, ISetting)
 		private
-			FName: string;
+			FName : string;
 			FSettingType : TSettingType;
 			FSaveBehaviour : TSettingStoreBehaviours;
 			FState : TSettingState;
 
-			function GetName(): string;
+			function GetName() : string;
 			function GetState() : TSettingState;
 			procedure SetSettingType(const Value : TSettingType);
 			procedure SetState(const Value : TSettingState);
@@ -107,8 +107,8 @@ type
 			function GetSettingType() : TSettingType; virtual;
 
 		public
-			constructor Create(const _name : string; { } _state : TSettingState = ssInitialized; { } _saveBehaviour : TSettingStoreBehaviours =
-				[ssbStoreIfModified]); overload;
+			constructor Create(const _name : string; { } _state : TSettingState = ssInitialized;
+				{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]); overload;
 			procedure LoadFromPersister(); virtual; abstract;
 			procedure StoreToPersister(const _section : string = ''); virtual; abstract;
 
@@ -294,16 +294,16 @@ procedure TSettingVariant<T>.LoadFromStreamReader(_sr : TStreamReader);
 begin
 	// FSettingType := TSettingType(_sr.ReadLine().ToInteger);
 	FSaveBehaviour := TSettingStoreBehavioursHelper.FromString(_sr.ReadLineAsString(false, 'SaveBehaviour'));
-	FState := TSettingState(_sr.ReadLineAsInteger());
-	Value := GetValueFromString(_sr.ReadLineAsString(true)); // Values can be empty
+	FState := TSettingState(_sr.ReadLineAsInteger(Name));
+	Value := GetValueFromString(_sr.ReadLineAsString(true, Name)); // Values can be empty
 end;
 
 procedure TSettingVariant<T>.SaveToStreamWriter(_sw : TStreamWriter);
 begin
 	// _sw.WriteLine(Integer(SettingType).ToString);
-	_sw.WriteLineAsString(TSettingStoreBehavioursHelper.ToString(SaveBehaviour), false, 'SaveBehaviour');
-	_sw.WriteLineAsInteger(Integer(State));
-	_sw.WriteLineAsString(AsString, True, name);
+	_sw.WriteLineAsString(TSettingStoreBehavioursHelper.ToString(SaveBehaviour), false, Name + '.SettingVariant.SaveBehaviour');
+	_sw.WriteLineAsInteger(Integer(State), Name + '.SettingVariant.State');
+	_sw.WriteLineAsString(AsString, True, Name);
 end;
 
 procedure TSettingVariant<T>.StoreToPersister(const _section : string = '');
@@ -456,7 +456,7 @@ begin
 	Result := (FState = _other.State);
 end;
 
-function TSetting.GetName(): string;
+function TSetting.GetName() : string;
 begin
 	Result := FName;
 end;
