@@ -113,6 +113,14 @@ begin
 	jsonValue := nil;
 	FParseResult.ParsedRowNr := _iLnNr;
 
+	// Check if line is a special "no output" message
+	if _sLine.EndsWith(RG_HAS_NO_OUTPUT) then begin
+		setRgResultLineParseError(cd, _sLine);
+		FParseResult.IsError := False;
+		FParseResult.Columns := cd;
+		Exit;
+	end;
+
 	// Check if line starts with JSON format
 	if not _sLine.StartsWith('{"') then begin
 		setRgResultLineParseError(cd, _sLine);

@@ -79,6 +79,10 @@ type
 
 			[Test]
 			procedure ParseJsonMatchWithInvalidBytesTest;
+
+			// Test no output scenario
+			[Test]
+			procedure ParseNoOutputTest;
 	end;
 
 implementation
@@ -413,6 +417,29 @@ begin
 			Assert.IsTrue(fullLineText.EndsWith('>'), 'Fallback format should end with >');
 			Assert.IsTrue(fullLineText.Contains('invalid-base64!'), 'Fallback should contain original base64 string');
 		end;
+	finally
+		parser.Free;
+	end;
+end;
+
+procedure TRipGrepJsonMatchTest.ParseNoOutputTest;
+var
+	parser : TJsonMatchLineParser;
+	pr : IParsedObjectRow;
+	testLine : string;
+begin
+	// Test the special "no output" line that rg.exe sends when there are no matches
+	testLine := 'rg.exe' + RG_HAS_NO_OUTPUT;
+
+	parser := TJsonMatchLineParser.Create();
+	try
+		parser.SearchParams := FSearchParamMock;
+		parser.ParseLine(0, testLine);
+		pr := parser.ParseResult;
+
+		Assert.IsFalse(pr.IsError, 'No output line should not be treated as an error: ' + pr.ErrorText);
+		Assert.AreEqual(COLUMN_NUM, pr.Columns.Count, 'Expected columns for no output line');
+		Assert.AreEqual(testLine, pr.Columns[Integer(ciFile)].Text, 'File column should contain the no output message');
 	finally
 		parser.Free;
 	end;
