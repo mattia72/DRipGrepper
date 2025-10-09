@@ -113,21 +113,21 @@ begin
 	jsonValue := nil;
 	FParseResult.ParsedRowNr := _iLnNr;
 
-	// Check if line is a special "no output" message or error message from rg.exe
-	if _sLine.EndsWith(RG_HAS_NO_OUTPUT) or _sLine.Contains(RG_ENDED_ERROR) or _sLine.StartsWith(RG_ERROR_MSG_PREFIX) then begin
-		setRgResultLineParseError(cd, _sLine);
-		FParseResult.IsError := False;
-		FParseResult.Columns := cd;
-		Exit;
-	end;
-
 	// Check if line starts with JSON format
 	if not _sLine.StartsWith('{"') then begin
-		setRgResultLineParseError(cd, _sLine);
-		FParseResult.ErrorText := 'Not a valid JSON line';
-		FParseResult.IsError := True;
-		FParseResult.Columns := cd;
-		Exit;
+		if _sLine.EndsWith(RG_HAS_NO_OUTPUT) or _sLine.Contains(RG_ENDED_ERROR) or _sLine.StartsWith(RG_ERROR_MSG_PREFIX) then begin
+			setRgResultLineParseError(cd, _sLine);
+			FParseResult.IsError := True;
+			FParseResult.ErrorText := RG_PARSE_ERROR;
+			FParseResult.Columns := cd;
+			Exit;
+		end else begin
+			setRgResultLineParseError(cd, _sLine);
+			FParseResult.ErrorText := 'Not a valid JSON line';
+			FParseResult.IsError := True;
+			FParseResult.Columns := cd;
+			Exit;
+		end;
 	end;
 
 	try
