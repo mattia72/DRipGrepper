@@ -445,7 +445,7 @@ begin
 		parser.ParseLine(0, testLine);
 		pr := parser.ParseResult;
 
-		Assert.IsFalse(pr.IsError, 'No output line should not be treated as an error: ' + pr.ErrorText);
+		Assert.IsTrue(pr.IsError, 'No output line is treated as an error by the parser: ' + pr.ErrorText);
 		Assert.AreEqual(COLUMN_NUM, pr.Columns.Count, 'Expected columns for no output line');
 		Assert.AreEqual(testLine, pr.Columns[Integer(ciFile)].Text, 'File column should contain the no output message');
 	finally
@@ -468,7 +468,7 @@ begin
 		parser.ParseLine(0, testLine);
 		pr := parser.ParseResult;
 
-		Assert.IsFalse(pr.IsError, 'RG error line should not be treated as a parse error: ' + pr.ErrorText);
+		Assert.IsTrue(pr.IsError, 'RG error line is treated as a parse error by the parser: ' + pr.ErrorText);
 		Assert.AreEqual(COLUMN_NUM, pr.Columns.Count, 'Expected columns for rg error line');
 		Assert.AreEqual(testLine, pr.Columns[Integer(ciFile)].Text, 'File column should contain the error message');
 	finally
@@ -491,7 +491,7 @@ begin
 		parser.ParseLine(0, testLine);
 		pr := parser.ParseResult;
 
-		Assert.IsFalse(pr.IsError, 'RG prefix error should not be treated as a parse error: ' + pr.ErrorText);
+		Assert.IsTrue(pr.IsError, 'RG prefix error is treated as a parse error by the parser: ' + pr.ErrorText);
 		Assert.AreEqual(COLUMN_NUM, pr.Columns.Count, 'Expected columns for rg prefix error line');
 		Assert.AreEqual(testLine, pr.Columns[Integer(ciFile)].Text, 'File column should contain the error message');
 	finally
