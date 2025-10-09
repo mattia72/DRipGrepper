@@ -1196,7 +1196,7 @@ begin
 	IOTAUtils.GxOtaGetActiveEditorTextAsMultilineString(selectedText, True);
 	{$ELSE}
 	{$IF IS_GUITEST}
-	selectedText := 'guitest selected test';
+	selectedText := 'guitest selected test'; // this should appear in search combo;
 	{$ENDIF}
 	{$ENDIF}
 	TDebugUtils.DebugMessage('TRipGrepperSearchDialogForm.GetInIDESelectedText: ' + selectedText);
