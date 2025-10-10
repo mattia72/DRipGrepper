@@ -239,7 +239,7 @@ procedure TRgOutputOptionsPanel.AddItems();
 begin
 	// Add checkbox options
 	FCheckOptionsGroup.AddItem('--pretty', 'Parse pretty output', RG_OUTPUT_OPTION_PRETTY_INDEX);
-	FCheckOptionsGroup.AddItem('--json', 'Parse json output', RG_OUTPUT_OPTION_JSON_INDEX);
+	FCheckOptionsGroup.AddLabelComboItem('Parser', 'Output parser type', RG_OUTPUT_OPTION_JSON_INDEX, ['--json','--vimgrep']);
 	FCheckOptionsGroup.AddSpinItem('--context=', 'Context line number', RG_OUTPUT_OPTION_CONTEXT_INDEX, 0, 20, 0);
 end;
 
@@ -311,11 +311,6 @@ begin
 				FCheckOptionsGroup.Items[RG_OUTPUT_OPTION_CONTEXT_INDEX].SpinEdit.Enabled := contextEnabled;
 				FCheckOptionsGroup.Items[RG_OUTPUT_OPTION_CONTEXT_INDEX].SpinEdit.Value := FSettings.SearchFormSettings.Context;
 			end;
-		end;
-
-		// JSON option - not implemented in settings yet, default to false
-		if FCheckOptionsGroup.Items.Count > RG_OUTPUT_OPTION_JSON_INDEX then begin
-			FCheckOptionsGroup.Items[RG_OUTPUT_OPTION_JSON_INDEX].Checked := False;
 		end;
 
 	finally

@@ -136,8 +136,8 @@ type
 				: TCustomCheckItem; overload;
 			function AddSpinItem(const _caption, _hint : string; _orderIndex : Integer; _minValue, _maxValue, _defaultValue : Integer;
 				_obj : IInterface = nil) : TCustomCheckItem;
-			function AddLabelComboItem(const _caption, _hint : string; _orderIndex : Integer; _comboItems : TStringList; 
-				_obj : IInterface = nil) : TCustomCheckItem;
+			function AddLabelComboItem(const _caption, _hint: string; _orderIndex: Integer; _comboItems: TArray<string>; _obj: IInterface = nil):
+				TCustomCheckItem;
 			// Getter functions for specific items by order index
 			function GetItemChecked(orderIndex : Integer) : Boolean;
 			function GetItemText(orderIndex : Integer) : string;
@@ -156,7 +156,7 @@ implementation
 uses
 	Math,
 	RipGrepper.Common.IDEContextValues,
-	RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.SimpleTypes, Spring;
 
 { TCustomOptionsBase }
 
@@ -520,11 +520,12 @@ begin
 	Result.SpinValue := _defaultValue;
 end;
 
-function TCustomCheckOptions.AddLabelComboItem(const _caption, _hint : string; _orderIndex : Integer; _comboItems : TStringList; 
-	_obj : IInterface = nil) : TCustomCheckItem;
+function TCustomCheckOptions.AddLabelComboItem(const _caption, _hint: string; _orderIndex: Integer; _comboItems: TArray<string>; _obj:
+	IInterface = nil): TCustomCheckItem;
 var
 	labelControl : TLabel;
 	comboBox : TComboBox;
+	comboItems : IShared<TStringList>;
 begin
 	labelControl := TLabel.Create(Self);
 	var
@@ -540,22 +541,28 @@ begin
 	comboBox.Parent := Self;
 	comboBox.Style := csDropDown;
 	comboBox.AutoDropDownWidth := True;
+
+	comboItems := Shared.Make<TStringList>();
+	comboItems.AddStrings(_comboItems);
 	if Assigned(_comboItems) then begin
-		comboBox.Items.Assign(_comboItems);
+		comboBox.Items.Assign(comboItems);
 	end;
 
 	Result := FItems.AddItem(labelControl, comboBox, _caption, _orderIndex, _obj);
-	Result.ComboBoxItems := _comboItems;
+	Result.ComboBoxItems := comboItems;
 end;
 
 procedure TCustomCheckOptions.ArrangeItems;
 const
 	SPACE = 8;
+	FIRST_CONTROL_WIDTH = 80; // Fixed width for first control (checkbox/label)
+	SECOND_CONTROL_WIDTH = 80; // Fixed width for second control (combo/spin)
 var
 	i, col, row : Integer;
-	itemHeight, itemWidth, firstControlWidth, secondControlWidth : Integer;
+	itemHeight, itemWidth : Integer;
 	maxRows : Integer;
 	item : TCustomCheckItem;
+	baseLeft : Integer;
 begin
 	if FItems.Count = 0 then begin
 		Exit;
@@ -564,8 +571,6 @@ begin
 	// Calculate layout
 	itemHeight := 22; // Standard height
 	itemWidth := Width div FColumns;
-	firstControlWidth := itemWidth div 2; // Half width for first control when second control is present
-	secondControlWidth := itemWidth - firstControlWidth - (2 * SPACE); // Remaining width for second control
 	maxRows := Ceil(FItems.Count / FColumns);
 
 	// Position controls based on item type
@@ -573,12 +578,13 @@ begin
 		item := FItems[i];
 		col := i mod FColumns;
 		row := i div FColumns;
+		baseLeft := col * itemWidth + SPACE;
 
 		case item.ItemType of
 			citCheckBox: begin
 				// Single checkbox with full width
 				if Assigned(item.CheckBox) then begin
-					item.CheckBox.Left := col * itemWidth + SPACE;
+					item.CheckBox.Left := baseLeft;
 					item.CheckBox.Top := row * itemHeight + SPACE;
 					item.CheckBox.Width := itemWidth - (2 * SPACE);
 					item.CheckBox.Height := itemHeight - 2;
@@ -587,53 +593,53 @@ begin
 			end;
 
 			citCheckBoxWithCombo: begin
-				// Checkbox + ComboBox
+				// Checkbox + ComboBox - both left aligned
 				if Assigned(item.CheckBox) then begin
-					item.CheckBox.Left := col * itemWidth + SPACE;
+					item.CheckBox.Left := baseLeft;
 					item.CheckBox.Top := row * itemHeight + SPACE;
-					item.CheckBox.Width := firstControlWidth - SPACE;
+					item.CheckBox.Width := FIRST_CONTROL_WIDTH;
 					item.CheckBox.Height := itemHeight - 2;
 					item.CheckBox.Tag := i;
 				end;
 				if Assigned(item.ComboBox) then begin
-					item.ComboBox.Left := col * itemWidth + firstControlWidth + SPACE;
+					item.ComboBox.Left := baseLeft + FIRST_CONTROL_WIDTH + SPACE;
 					item.ComboBox.Top := row * itemHeight + SPACE;
-					item.ComboBox.Width := secondControlWidth;
+					item.ComboBox.Width := SECOND_CONTROL_WIDTH;
 					item.ComboBox.Height := itemHeight - 2;
 					item.ComboBox.Tag := i;
 				end;
 			end;
 
 			citCheckBoxWithSpin: begin
-				// Checkbox + SpinEdit
+				// Checkbox + SpinEdit - both left aligned
 				if Assigned(item.CheckBox) then begin
-					item.CheckBox.Left := col * itemWidth + SPACE;
+					item.CheckBox.Left := baseLeft;
 					item.CheckBox.Top := row * itemHeight + SPACE;
-					item.CheckBox.Width := firstControlWidth - SPACE;
+					item.CheckBox.Width := FIRST_CONTROL_WIDTH;
 					item.CheckBox.Height := itemHeight - 2;
 					item.CheckBox.Tag := i;
 				end;
 				if Assigned(item.SpinEdit) then begin
-					item.SpinEdit.Left := col * itemWidth + firstControlWidth + SPACE;
+					item.SpinEdit.Left := baseLeft + FIRST_CONTROL_WIDTH + SPACE;
 					item.SpinEdit.Top := row * itemHeight + SPACE;
-					item.SpinEdit.Width := secondControlWidth;
+					item.SpinEdit.Width := SECOND_CONTROL_WIDTH;
 					item.SpinEdit.Height := itemHeight - 2;
 					item.SpinEdit.Tag := i;
 				end;
 			end;
 
 			citLabelWithCombo: begin
-				// Label + ComboBox
+				// Label + ComboBox - both left aligned
 				if Assigned(item.LabelControl) then begin
-					item.LabelControl.Left := col * itemWidth + SPACE;
+					item.LabelControl.Left := baseLeft;
 					item.LabelControl.Top := row * itemHeight + SPACE + 3; // Slight vertical offset for better alignment
-					item.LabelControl.Width := firstControlWidth - SPACE;
+					item.LabelControl.Width := FIRST_CONTROL_WIDTH;
 					item.LabelControl.Height := itemHeight - 2;
 				end;
 				if Assigned(item.ComboBox) then begin
-					item.ComboBox.Left := col * itemWidth + firstControlWidth + SPACE;
+					item.ComboBox.Left := baseLeft + FIRST_CONTROL_WIDTH + SPACE;
 					item.ComboBox.Top := row * itemHeight + SPACE;
-					item.ComboBox.Width := secondControlWidth;
+					item.ComboBox.Width := SECOND_CONTROL_WIDTH;
 					item.ComboBox.Height := itemHeight - 2;
 					item.ComboBox.Tag := i;
 				end;
