@@ -19,15 +19,19 @@ uses
 
 const
 	// Constants for OrderIndex values
-	RG_OPTION_HIDDEN_INDEX = 0;
-	RG_OPTION_NO_IGNORE_INDEX = 1;
-	RG_OPTION_ENCODING_INDEX = 2;
+	RG_FILTER_OPTION_HIDDEN_INDEX = 0;
+	RG_FILTER_OPTION_NO_IGNORE_INDEX = 1;
+	RG_FILTER_OPTION_ENCODING_INDEX = 2;
+
+	RG_OUTPUT_OPTION_PRETTY_INDEX = 0;
+	RG_OUTPUT_OPTION_JSON_INDEX = 1;
+	RG_OUTPUT_OPTION_CONTEXT_INDEX = 2;
 
 type
 	// Event type for option change
 	TRgOptionChangeEvent = procedure(Sender : TObject; Item : TCustomCheckItem) of object;
 
-	TRgOptionsPanel = class(TCustomPanel)
+	TRgFilterOptionsPanel = class(TCustomPanel)
 		pnlMain : TPanel;
 
 		strict private
@@ -39,10 +43,35 @@ type
 		private
 			FCheckOptionsGroup : TCustomCheckOptions;
 			procedure onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
+
 		public
 			constructor Create(_owner : TComponent); override;
 			procedure AddItems();
 			procedure AdjustHeight();
+			property CheckOptionsGroup : TCustomCheckOptions read FCheckOptionsGroup;
+			property Settings : TRipGrepperSettings read FSettings write SetSettings;
+			property OnOptionChange : TRgOptionChangeEvent read FOnOptionChange write FOnOptionChange;
+			property EventsEnabled : Boolean read FEventsEnabled write FEventsEnabled;
+	end;
+
+	TRgOutputOptionsPanel = class(TCustomPanel)
+		pnlMain : TPanel;
+
+		strict private
+			FOnOptionChange : TRgOptionChangeEvent;
+			FSettings : TRipGrepperSettings;
+			FEventsEnabled : Boolean;
+			procedure SetSettings(const Value : TRipGrepperSettings);
+
+		private
+			FCheckOptionsGroup : TCustomCheckOptions;
+			procedure onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
+
+		public
+			constructor Create(_owner : TComponent); override;
+			procedure AddItems();
+			procedure AdjustHeight();
+			procedure LoadFromSettings();
 			property CheckOptionsGroup : TCustomCheckOptions read FCheckOptionsGroup;
 			property Settings : TRipGrepperSettings read FSettings write SetSettings;
 			property OnOptionChange : TRgOptionChangeEvent read FOnOptionChange write FOnOptionChange;
@@ -55,9 +84,10 @@ uses
 	Spring,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Common.Constants,
-	System.StrUtils;
+	System.StrUtils,
+	System.Math;
 
-constructor TRgOptionsPanel.Create(_owner : TComponent);
+constructor TRgFilterOptionsPanel.Create(_owner : TComponent);
 begin
 	inherited Create(_owner);
 	BevelOuter := bvNone;
@@ -78,7 +108,7 @@ begin
 	FCheckOptionsGroup.OnItemSelect := onCheckOptionSelect;
 end;
 
-procedure TRgOptionsPanel.AddItems();
+procedure TRgFilterOptionsPanel.AddItems();
 var
 	encodingItems : IShared<TStringList>;
 begin
@@ -126,13 +156,13 @@ begin
 	encodingItems.Add('windows-874');
 
 	// Add checkbox options
-	FCheckOptionsGroup.AddItem('--hidden', 'Include hidden files in search', RG_OPTION_HIDDEN_INDEX);
-	FCheckOptionsGroup.AddItem('--no-ignore', 'Don''t respect ignore files', RG_OPTION_NO_IGNORE_INDEX);
-	FCheckOptionsGroup.AddItem('--encoding=', 'Specify text encoding', RG_OPTION_ENCODING_INDEX, encodingItems);
+	FCheckOptionsGroup.AddItem('--hidden', 'Include hidden files in search', RG_FILTER_OPTION_HIDDEN_INDEX);
+	FCheckOptionsGroup.AddItem('--no-ignore', 'Don''t respect ignore files', RG_FILTER_OPTION_NO_IGNORE_INDEX);
+	FCheckOptionsGroup.AddItem('--encoding=', 'Specify text encoding', RG_FILTER_OPTION_ENCODING_INDEX, encodingItems);
 
 end;
 
-procedure TRgOptionsPanel.AdjustHeight();
+procedure TRgFilterOptionsPanel.AdjustHeight();
 begin
 	// Ensure width fits within parent with margins
 	if Assigned(Parent) then begin
@@ -144,27 +174,27 @@ begin
 	Height := FCheckOptionsGroup.Height;
 end;
 
-procedure TRgOptionsPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
+procedure TRgFilterOptionsPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRgOptionsPanel.onCheckOptionSelect');
-	
+	dbgMsg := TDebugMsgBeginEnd.New('TRgFilterOptionsPanel.onCheckOptionSelect');
+
 	if not FEventsEnabled then begin
 		dbgMsg.MsgFmt('Events for idx:%d disabled, exiting', [_item.OrderIndex]);
 		Exit;
 	end;
-	
+
 	// Handle the functionality that was previously in the individual event handlers
 	case _item.OrderIndex of
-		RG_OPTION_HIDDEN_INDEX : begin
+		RG_FILTER_OPTION_HIDDEN_INDEX : begin
 			FSettings.SearchFormSettings.Hidden := _item.Checked;
 			dbgMsg.Msg('Hidden option changed to: ' + BoolToStr(FSettings.SearchFormSettings.Hidden));
 		end;
-		RG_OPTION_NO_IGNORE_INDEX : begin
+		RG_FILTER_OPTION_NO_IGNORE_INDEX : begin
 			FSettings.SearchFormSettings.NoIgnore := _item.Checked;
 			dbgMsg.Msg('NoIgnore option changed to: ' + BoolToStr(FSettings.SearchFormSettings.NoIgnore));
 		end;
-		RG_OPTION_ENCODING_INDEX : begin
+		RG_FILTER_OPTION_ENCODING_INDEX : begin
 			if Assigned(_item.ComboBox) then begin
 				_item.ComboBox.Enabled := _item.Checked;
 				FSettings.SearchFormSettings.Encoding := IfThen(_item.ComboBox.Enabled, _item.ComboBox.Text);
@@ -179,7 +209,121 @@ begin
 	end;
 end;
 
-procedure TRgOptionsPanel.SetSettings(const Value : TRipGrepperSettings);
+procedure TRgFilterOptionsPanel.SetSettings(const Value : TRipGrepperSettings);
+begin
+	FSettings := Value;
+end;
+
+constructor TRgOutputOptionsPanel.Create(_owner : TComponent);
+begin
+	inherited Create(_owner);
+	BevelOuter := bvNone;
+	Align := alClient;
+	FEventsEnabled := True; // Default to enabled
+
+	// Create pnlMain programmatically
+	pnlMain := TPanel.Create(Self);
+	pnlMain.Parent := Self;
+	pnlMain.Align := alClient;
+	pnlMain.BevelOuter := bvNone;
+	pnlMain.Caption := '';
+
+	FCheckOptionsGroup := TCustomCheckOptions.Create(Self);
+	FCheckOptionsGroup.Parent := pnlMain;
+	FCheckOptionsGroup.Align := alClient;
+	FCheckOptionsGroup.Columns := 3;
+	FCheckOptionsGroup.OnItemSelect := onCheckOptionSelect;
+end;
+
+procedure TRgOutputOptionsPanel.AddItems();
+begin
+	// Add checkbox options
+	FCheckOptionsGroup.AddItem('--pretty', 'Parse pretty output', RG_OUTPUT_OPTION_PRETTY_INDEX);
+	FCheckOptionsGroup.AddItem('--json', 'Parse json output', RG_OUTPUT_OPTION_JSON_INDEX);
+	FCheckOptionsGroup.AddSpinItem('--context=', 'Context line number', RG_OUTPUT_OPTION_CONTEXT_INDEX, 0, 20, 0);
+end;
+
+procedure TRgOutputOptionsPanel.AdjustHeight();
+begin
+	// Ensure width fits within parent with margins
+	if Assigned(Parent) then begin
+		Width := Parent.ClientWidth - 16; // Leave margin for proper appearance
+	end;
+	// Make sure the check options group uses full available width
+	FCheckOptionsGroup.Width := Width - 8;
+	// Height should match exactly the check options group height
+	Height := FCheckOptionsGroup.Height;
+end;
+
+procedure TRgOutputOptionsPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRgOutputOptionsPanel.onCheckOptionSelect');
+
+	if not FEventsEnabled then begin
+		dbgMsg.MsgFmt('Events for idx:%d disabled, exiting', [_item.OrderIndex]);
+		Exit;
+	end;
+
+	// Handle the functionality that was previously in the individual event handlers
+	case _item.OrderIndex of
+		RG_OUTPUT_OPTION_PRETTY_INDEX : begin
+			FSettings.SearchFormSettings.Pretty := _item.Checked;
+			dbgMsg.Msg('Pretty option changed to: ' + BoolToStr(FSettings.SearchFormSettings.Pretty));
+		end;
+		RG_OUTPUT_OPTION_JSON_INDEX : begin
+			// JSON option is not yet implemented in settings
+			dbgMsg.Msg('JSON option changed to: ' + BoolToStr(_item.Checked));
+		end;
+		RG_OUTPUT_OPTION_CONTEXT_INDEX : begin
+			if Assigned(_item.SpinEdit) then begin
+				_item.SpinEdit.Enabled := _item.Checked;
+				FSettings.SearchFormSettings.Context := IfThen(_item.SpinEdit.Enabled, _item.SpinEdit.Value, 0);
+				dbgMsg.Msg('Context option changed to: ' + FSettings.SearchFormSettings.Context.ToString);
+			end;
+		end;
+	end;
+
+	// Fire change event
+	if Assigned(FOnOptionChange) then begin
+		FOnOptionChange(Self, _item);
+	end;
+end;
+
+procedure TRgOutputOptionsPanel.LoadFromSettings();
+begin
+	if not Assigned(FSettings) then
+		Exit;
+
+	FEventsEnabled := False;
+	try
+		// Load Pretty option
+		if FCheckOptionsGroup.Items.Count > RG_OUTPUT_OPTION_PRETTY_INDEX then begin
+			FCheckOptionsGroup.Items[RG_OUTPUT_OPTION_PRETTY_INDEX].Checked := FSettings.SearchFormSettings.Pretty;
+		end;
+
+		// Load Context option
+		if FCheckOptionsGroup.Items.Count > RG_OUTPUT_OPTION_CONTEXT_INDEX then begin
+			var
+			contextEnabled := FSettings.SearchFormSettings.Context > 0;
+			FCheckOptionsGroup.Items[RG_OUTPUT_OPTION_CONTEXT_INDEX].Checked := contextEnabled;
+			if Assigned(FCheckOptionsGroup.Items[RG_OUTPUT_OPTION_CONTEXT_INDEX].SpinEdit) then begin
+				FCheckOptionsGroup.Items[RG_OUTPUT_OPTION_CONTEXT_INDEX].SpinEdit.Enabled := contextEnabled;
+				FCheckOptionsGroup.Items[RG_OUTPUT_OPTION_CONTEXT_INDEX].SpinEdit.Value := FSettings.SearchFormSettings.Context;
+			end;
+		end;
+
+		// JSON option - not implemented in settings yet, default to false
+		if FCheckOptionsGroup.Items.Count > RG_OUTPUT_OPTION_JSON_INDEX then begin
+			FCheckOptionsGroup.Items[RG_OUTPUT_OPTION_JSON_INDEX].Checked := False;
+		end;
+
+	finally
+		FEventsEnabled := True;
+	end;
+end;
+
+procedure TRgOutputOptionsPanel.SetSettings(const Value : TRipGrepperSettings);
 begin
 	FSettings := Value;
 end;
