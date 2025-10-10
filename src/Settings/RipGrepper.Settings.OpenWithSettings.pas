@@ -19,7 +19,7 @@ type
 			FCommandListSetting : IArraySetting;
 			FTestFile : TOpenWithParams;
 			function GetCommand(Index : Integer) : string;
-			function GetCommandListSetting(): IArraySetting;
+			function GetCommandListSetting() : IArraySetting;
 			function GetDefaultEditorsWithVSCodeDetection() : TArray<string>;
 			procedure SetDefaultsIfEmpty();
 			procedure SetCommand(Index : Integer; const Value : string);
@@ -39,7 +39,7 @@ type
 			procedure SaveCommandsToJSON();
 			function ToString : string; override;
 			property Command[index : Integer] : string read GetCommand write SetCommand;
-			property CommandListSetting: IArraySetting read GetCommandListSetting;
+			property CommandListSetting : IArraySetting read GetCommandListSetting;
 			property TestFile : TOpenWithParams read FTestFile write FTestFile;
 	end;
 
@@ -82,7 +82,7 @@ end;
 procedure TOpenWithSettings.Init;
 begin
 	FCommandListSetting := TArraySetting.Create(OPEN_WITH_SETTINGS);
-//  FCommandListSetting.SaveBehaviour := [ssbStoreIfModified, ssbStoreOnceEvenIfNotModified];
+	// FCommandListSetting.SaveBehaviour := [ssbStoreIfModified, ssbStoreOnceEvenIfNotModified];
 	CreateSetting(OPEN_WITH_SETTINGS, ITEM_KEY_PREFIX, FCommandListSetting);
 end;
 
@@ -131,7 +131,7 @@ begin
 	GetRootOwner().UpdateFile(True, True);
 end;
 
-function TOpenWithSettings.GetCommandListSetting(): IArraySetting;
+function TOpenWithSettings.GetCommandListSetting() : IArraySetting;
 begin
 	SetDefaultsIfEmpty();
 	Result := FCommandListSetting;
@@ -139,7 +139,7 @@ end;
 
 procedure TOpenWithSettings.LoadFromDict();
 begin
-     inherited;
+	inherited;
 end;
 
 function TOpenWithSettings.GetDefaultEditorsWithVSCodeDetection() : TArray<string>;
@@ -149,14 +149,14 @@ var
 	resultList : TArrayEx<string>;
 begin
 	resultList := DEFAULT_EDITORS;
-	
+
 	vscodeItem := TFileUtils.GetVsCodeCommandItem();
 	if vscodeItem.IsActive then begin
-		vscodeString := 'TRUE' + SEPARATOR + vscodeItem.Caption + SEPARATOR + 
-			vscodeItem.CommandLine.AsString() + SEPARATOR + vscodeItem.Description;
+		vscodeString := 'TRUE' + SEPARATOR + vscodeItem.Caption + SEPARATOR +
+		{ } vscodeItem.CommandLine.AsString() + SEPARATOR + vscodeItem.Description;
 	end else begin
-		vscodeString := 'FALSE' + SEPARATOR + vscodeItem.Caption + SEPARATOR + 
-			vscodeItem.CommandLine.AsString() + SEPARATOR + vscodeItem.Description;
+		vscodeString := 'FALSE' + SEPARATOR + vscodeItem.Caption + SEPARATOR +
+		{ } vscodeItem.CommandLine.AsString() + SEPARATOR + vscodeItem.Description;
 	end;
 
 	resultList[resultList.IndexOf(VSCODE_EDITOR_SETTING)] := vscodeString;
@@ -167,8 +167,8 @@ end;
 procedure TOpenWithSettings.SetDefaultsIfEmpty();
 begin
 	if FCommandListSetting.Value.IsEmpty then begin
-        RecreateCommandList(GetDefaultEditorsWithVSCodeDetection());
-        StoreToPersister;
+		RecreateCommandList(GetDefaultEditorsWithVSCodeDetection());
+		StoreToPersister;
 	end;
 end;
 
@@ -201,8 +201,8 @@ var
 begin
 	commands := GetCommands();
 	SetLength(Result, Length(commands));
-	
-	for i := 0 to High(commands) do begin
+
+	for i := 0 to high(commands) do begin
 		Result[i] := RipGrepper.Tools.FileUtils.TCommandItem.New(commands[i].Split([SEPARATOR]));
 	end;
 end;
@@ -214,16 +214,16 @@ var
 	tabSeparatedString : string;
 begin
 	stringItems.Clear;
-	
+
 	for item in _cmdItems do begin
 		tabSeparatedString := Format('%s%s%s%s%s%s%s',
-			[BoolToStr(item.IsActive, True), SEPARATOR,
-			 item.Caption, SEPARATOR,
-			 item.CommandLine.AsString(), SEPARATOR,
-			 item.Description]);
+			{ } [BoolToStr(item.IsActive, True), SEPARATOR,
+			{ } item.Caption, SEPARATOR,
+			{ } item.CommandLine.AsString(), SEPARATOR,
+			{ } item.Description]);
 		stringItems.Add(tabSeparatedString);
 	end;
-	
+
 	RecreateCommandList(stringItems);
 end;
 
@@ -237,7 +237,7 @@ var
 begin
 	// Try to load from JSON first
 	persister := PersisterFactory.GetStringPersister(IniSectionName, JSON_COMMANDS_KEY);
-	
+
 	if persister.TryLoadValue(jsonString) and not jsonString.Trim.IsEmpty then begin
 		cmdItems := RipGrepper.Tools.FileUtils.TCommandItem.ArrayFromJSON(jsonString);
 		if Length(cmdItems) > 0 then begin
@@ -245,24 +245,26 @@ begin
 			Exit;
 		end;
 	end;
-	
+
 	// Fallback to tab-separated format if JSON not found
 	// (existing logic in ReadFile)
 end;
 
 procedure TOpenWithSettings.SaveCommandsToJSON();
 const
-	JSON_COMMANDS_KEY = 'CommandsJSON';
+	JSON_COMMANDS_KEY = 'JsonCommand';
 var
 	cmdItems : TArray<TCommandItem>;
-	jsonString : string;
+	jsonStrings : TArray<string>;
 	persister : IFilePersister<string>;
 begin
 	cmdItems := GetCommandItems();
-	jsonString := RipGrepper.Tools.FileUtils.TCommandItem.ArrayToJSON(cmdItems);
-	
-	persister := PersisterFactory.GetStringPersister(IniSectionName, JSON_COMMANDS_KEY);
-	persister.StoreValue(jsonString);
+	jsonStrings := RipGrepper.Tools.FileUtils.TCommandItem.ArrayToStringArrayOfJsonStrings(cmdItems);
+
+	for var i := low(jsonStrings) to high(jsonStrings) do begin
+		persister := PersisterFactory.GetStringPersister(IniSectionName, JSON_COMMANDS_KEY + i.ToString);
+		persister.StoreValue(jsonStrings[i]);
+	end;
 end;
 
 function TOpenWithSettings.ToString : string;

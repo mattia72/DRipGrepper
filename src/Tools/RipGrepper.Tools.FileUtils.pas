@@ -33,8 +33,9 @@ type
 			class function New(const _arr : TArray<string>) : TCommandItem; overload; static;
 			class function FromJSON(const _json : TJSONObject) : TCommandItem; static;
 			function ToJSON() : TJSONObject;
-			class function ArrayToJSON(const _items : TArray<TCommandItem>) : string; static;
+			class function ArrayToJSONArrayString(const _items : TArray<TCommandItem>) : string; static;
 			class function ArrayFromJSON(const _jsonString : string) : TArray<TCommandItem>; static;
+			class function ArrayToStringArrayOfJsonStrings(const _items : TArray<TCommandItem>) : TArray<string>; static;
 	end;
 
 	TFileUtils = class(TObject)
@@ -307,7 +308,7 @@ begin
 	Result.AddPair('commandLine', CommandLine.AsString());
 end;
 
-class function TCommandItem.ArrayToJSON(const _items : TArray<TCommandItem>) : string;
+class function TCommandItem.ArrayToJSONArrayString(const _items : TArray<TCommandItem>) : string;
 var
 	jsonArray : TJSONArray;
 	item : TCommandItem;
@@ -330,21 +331,21 @@ var
 	i : Integer;
 begin
 	Result := [];
-	
+
 	if _jsonString.Trim.IsEmpty then begin
 		Exit;
 	end;
-	
+
 	jsonValue := TJSONObject.ParseJSONValue(_jsonString);
 	if not Assigned(jsonValue) then begin
 		Exit;
 	end;
-	
+
 	try
 		if jsonValue is TJSONArray then begin
 			jsonArray := TJSONArray(jsonValue);
 			SetLength(Result, jsonArray.Count);
-			
+
 			for i := 0 to jsonArray.Count - 1 do begin
 				if jsonArray.Items[i] is TJSONObject then begin
 					Result[i] := TCommandItem.FromJSON(TJSONObject(jsonArray.Items[i]));
@@ -353,6 +354,15 @@ begin
 		end;
 	finally
 		jsonValue.Free;
+	end;
+end;
+
+class function TCommandItem.ArrayToStringArrayOfJsonStrings(const _items : TArray<TCommandItem>) : TArray<string>;
+var
+	item : TCommandItem;
+begin
+	for item in _items do begin
+		Result := Result + [item.ToJSON().ToString];
 	end;
 end;
 

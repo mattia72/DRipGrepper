@@ -316,7 +316,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object pnlPath: TPanel
         Left = 2
-        Top = 40
+        Top = 43
         Width = 626
         Height = 88
         Margins.Top = 0
@@ -421,9 +421,9 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
           TabOrder = 4
         end
       end
-      object pnlRgOptions: TPanel
+      object pnlRgFilterOptions: TPanel
         Left = 2
-        Top = 128
+        Top = 131
         Width = 626
         Height = 35
         Align = alTop
@@ -450,50 +450,6 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Height = 15
         Caption = 'lblHintHelper'
         Visible = False
-      end
-      object cbRgParamPretty: TCheckBox
-        AlignWithMargins = True
-        Left = 15
-        Top = 22
-        Width = 90
-        Height = 17
-        Margins.Top = 0
-        Margins.Bottom = 0
-        Caption = '--pretty'
-        ParentShowHint = False
-        ShowHint = True
-        TabOrder = 1
-        OnClick = cbRgParamPrettyClick
-      end
-      object cbRgParamContext: TCheckBox
-        AlignWithMargins = True
-        Left = 109
-        Top = 22
-        Width = 90
-        Height = 17
-        Hint = 'Line Count Before and After Matched Line'
-        Margins.Top = 0
-        Margins.Bottom = 0
-        BiDiMode = bdLeftToRight
-        Caption = '--context='
-        ParentBiDiMode = False
-        ParentShowHint = False
-        ShowHint = True
-        TabOrder = 2
-        OnClick = cbRgParamContextClick
-      end
-      object seContextLineNum: TSpinEdit
-        AlignWithMargins = True
-        Left = 205
-        Top = 19
-        Width = 36
-        Height = 24
-        MaxLength = 2
-        MaxValue = 99
-        MinValue = 0
-        TabOrder = 0
-        Value = 0
-        OnChange = seContextLineNumChange
       end
     end
   end

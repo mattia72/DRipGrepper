@@ -88,9 +88,6 @@ type
 		btnRGOptionsHelp : TButton;
 		ActionShowRGOptionsHelp : TAction;
 		gbOptionsOutput : TGroupBox;
-		cbRgParamPretty : TCheckBox;
-		cbRgParamContext : TCheckBox;
-		seContextLineNum : TSpinEdit;
 		pnlPath : TPanel;
 		btnShowInLines : TButton;
 		ActionShowInLines : TAction;
@@ -103,7 +100,7 @@ type
 		SVGIconImageList1 : TSVGIconImageList;
 		ToolButton1 : TToolButton;
 		ToolButton2 : TToolButton;
-		pnlRgOptions : TPanel;
+		pnlRgFilterOptions : TPanel;
 		procedure ActionAddParamMatchCaseExecute(Sender : TObject);
 		procedure ActionAddParamMatchCaseUpdate(Sender : TObject);
 		procedure ActionAddParamRegexExecute(Sender : TObject);
@@ -120,8 +117,7 @@ type
 		procedure ActionShowInLinesExecute(Sender : TObject);
 		procedure ActionShowRGOptionsHelpExecute(Sender : TObject);
 		procedure ActionShowRGReplaceOptionHelpExecute(Sender : TObject);
-		procedure cbRgParamContextClick(Sender : TObject);
-		procedure cbRgParamPrettyClick(Sender : TObject);
+
 		procedure cmbFileMasksChange(Sender : TObject);
 		procedure cmbFileMasksExit(Sender : TObject);
 		procedure cmbFileMasksSelect(Sender : TObject);
@@ -137,16 +133,21 @@ type
 		procedure FormShow(Sender : TObject);
 		procedure ToggleExpertMode;
 		procedure OnContextChange(Sender : TObject; _icv : IIDEContextValues);
-		procedure seContextLineNumChange(Sender : TObject);
+
 		procedure TabControl1Change(Sender : TObject);
 
 		strict private
 			FExtensionContextPanel : TExtensionContexPanel;
-			FRgOptionsPanel : TRgOptionsPanel;
+			FRgFilterOptionsPanel : TRgFilterOptionsPanel;
+			FRgOutpuOptionsPanel : TRgOutputOptionsPanel;
 			cbRgParamHidden : TCheckBox;
 			cbRgParamNoIgnore : TCheckBox;
 			cbRgParamEncoding : TCheckBox;
 			cmbRgParamEncoding : TComboBox;
+			// Output options panel controls
+			cbRgParamPretty : TCheckBox;
+			cbRgParamContext : TCheckBox;
+			seContextLineNum : TSpinEdit;
 			FExtensionContextFrameOrigHeight : Integer;
 			FIsKeyboardInput : Boolean;
 			// proxy between settings and ctrls
@@ -205,7 +206,8 @@ type
 			procedure ShowReplaceCtrls(const _bShow : Boolean);
 			procedure UpdateSearchOptionsBtns;
 			procedure UpdateCmbsOnIDEContextChange(_icv : IIDEContextValues);
-			procedure OnRgOptionsPanelItemSelect(Sender : TObject; Item : TCustomCheckItem);
+			procedure OnRgFilterOptionsPanelItemSelect(Sender : TObject; Item : TCustomCheckItem);
+			procedure OnRgOutputOptionsPanelItemSelect(Sender : TObject; Item : TCustomCheckItem);
 			procedure OnEncodingComboBoxChange(Sender : TObject);
 			procedure UpdateFileMasksInHistObjRgOptions; overload;
 			procedure AdjustHeight();
@@ -218,6 +220,8 @@ type
 			procedure SetCmbSearchTextAutoComplete(const _Value : Boolean);
 			procedure UpdateMemoTextFormat();
 			function getOptionsAndFiltersHeight(const _bWithLabel : Boolean) : integer;
+			procedure SetRgFilterOptionsPanel(const _settings : TRipGrepperSettings);
+			procedure SetRgOutputOptionsPanel(const _settings : TRipGrepperSettings);
 
 		protected
 			procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;
@@ -284,20 +288,8 @@ begin
 
 	FHistItemObj := _histObj;
 
-	FRgOptionsPanel := TRgOptionsPanel.Create(self);
-	FRgOptionsPanel.Settings := _settings;
-	FRgOptionsPanel.Parent := pnlRgOptions;
-	FRgOptionsPanel.AddItems();
-	var
-	optionsGroup := FRgOptionsPanel.CheckOptionsGroup;
-	FRgOptionsPanel.OnOptionChange := OnRgOptionsPanelItemSelect;
-	optionsGroup.Items[RG_OPTION_ENCODING_INDEX].ComboBox.OnChange := OnEncodingComboBoxChange;
-	FRgOptionsPanel.AdjustHeight();
-
-	cbRgParamHidden := optionsGroup.Items[RG_OPTION_HIDDEN_INDEX].CheckBox;
-	cbRgParamNoIgnore := optionsGroup.Items[RG_OPTION_NO_IGNORE_INDEX].CheckBox;
-	cbRgParamEncoding := optionsGroup.Items[RG_OPTION_ENCODING_INDEX].CheckBox;
-	cmbRgParamEncoding := optionsGroup.Items[RG_OPTION_ENCODING_INDEX].ComboBox;
+	SetRgFilterOptionsPanel(_settings);
+	SetRgOutputOptionsPanel(_settings);
 
 	FExtensionContextPanel := TExtensionContexPanel.Create(self);
 	FExtensionContextPanel.Settings := _settings;
@@ -314,7 +306,7 @@ begin
 
 	// FDpiScaler := TRipGrepperDpiScaler.Create(self);
 	var
-	mainSettingInstance := TSingleton.GetInstance<TRipGrepperSettings>();
+	mainSettingInstance := Spring.DesignPatterns.TSingleton.GetInstance<TRipGrepperSettings>();
 	FThemeHandler := TThemeHandler.Create(self, mainSettingInstance.AppSettings.ColorTheme);
 
 	FOrigHeight := 0;
@@ -613,25 +605,6 @@ begin
 	end;
 end;
 
-procedure TRipGrepperSearchDialogForm.cbRgParamContextClick(Sender : TObject);
-begin
-	if not FCbClickEventEnabled then
-		Exit;
-
-	seContextLineNum.Enabled := cbRgParamContext.Checked;
-	FSettings.SearchFormSettings.Context := IfThen(seContextLineNum.Enabled, seContextLineNum.Value);
-	UpdateCtrls(cbRgParamContext);
-end;
-
-procedure TRipGrepperSearchDialogForm.cbRgParamPrettyClick(Sender : TObject);
-begin
-	if not FCbClickEventEnabled then
-		Exit;
-
-	FSettings.SearchFormSettings.Pretty := cbRgParamPretty.Enabled and cbRgParamPretty.Checked;
-	UpdateCtrls(cbRgParamPretty);
-end;
-
 procedure TRipGrepperSearchDialogForm.cmbFileMasksChange(Sender : TObject);
 begin
 	UpdateCtrls(cmbFileMasks);
@@ -827,7 +800,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCheckBoxesByGuiSearchParams');
 
 	FCbClickEventEnabled := False;
-	FRgOptionsPanel.EventsEnabled := False;
+	FRgFilterOptionsPanel.EventsEnabled := False;
 	try
 		cbRgParamHidden.Checked := IsOptionSet(RG_PARAM_REGEX_HIDDEN);
 		cbRgParamNoIgnore.Checked := IsOptionSet(RG_PARAM_REGEX_NO_IGNORE);
@@ -848,7 +821,7 @@ begin
 
 	finally
 		FCbClickEventEnabled := True;
-		FRgOptionsPanel.EventsEnabled := True;
+		FRgFilterOptionsPanel.EventsEnabled := True;
 	end;
 	dbgMsg.MsgFmt('Hidden %s NoIgnore %s Pretty %s',
 		{ } [BoolToStr(cbRgParamHidden.Checked),
@@ -862,12 +835,12 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCheckBoxes');
 
 	FCbClickEventEnabled := False;
-	FRgOptionsPanel.EventsEnabled := False;
+	FRgFilterOptionsPanel.EventsEnabled := False;
 	try
 		CopyProxyToCtrls();
 	finally
 		FCbClickEventEnabled := True;
-		FRgOptionsPanel.EventsEnabled := True;
+		FRgFilterOptionsPanel.EventsEnabled := True;
 	end;
 	dbgMsg.MsgFmt('cbHidden %s cbNoIgnore %s cbPretty %s',
 		{ } [BoolToStr(cbRgParamHidden.Checked),
@@ -912,7 +885,7 @@ begin
 	end else if cmbFileMasks = _ctrlChanged then begin
 		UpdateFileMasksInHistObjRgOptions();
 		UpdateMemoCommandLine(); // UpdateCtrls
-	end else if (FRgOptionsPanel = _ctrlChanged)
+	end else if (FRgFilterOptionsPanel = _ctrlChanged)
 	{ } or (cbRgParamHidden = _ctrlChanged)
 	{ } or (cbRgParamNoIgnore = _ctrlChanged)
 	{ } or (cbRgParamPretty = _ctrlChanged)
@@ -1177,15 +1150,6 @@ begin
 	UpdateCmbsOnIDEContextChange(_icv);
 	WriteCtrlsToRipGrepParametersSettings(); // OnContextChange
 	UpdateCmbOptionsAndMemoCommandLine();
-end;
-
-procedure TRipGrepperSearchDialogForm.seContextLineNumChange(Sender : TObject);
-begin
-	if FShowing then
-		Exit;
-
-	FSettings.SearchFormSettings.Context := IfThen(seContextLineNum.Enabled, seContextLineNum.Value);
-	UpdateCtrls(seContextLineNum);
 end;
 
 function TRipGrepperSearchDialogForm.GetInIDESelectedText : string;
@@ -1598,7 +1562,7 @@ begin
 	seContextLineNum.Value := FCtrlProxy.LineContext;
 	dbgMsg.MsgFmt('seContextLineNum.Value=%d', [seContextLineNum.Value]);
 
-	// FRgOptionsPanel.EventsEnabled := False;
+	// FRgFilterOptionsPanel.EventsEnabled := False;
 	try
 		dbgMsg.MsgFmt('FCtrlProxy.IsHiddenChecked=%s', [BoolToStr(FCtrlProxy.IsHiddenChecked, True)]);
 		cbRgParamHidden.Checked := FCtrlProxy.IsHiddenChecked;
@@ -1613,7 +1577,7 @@ begin
 		cmbRgParamEncoding.Text := FCtrlProxy.Encoding;
 		dbgMsg.Msg('cmbRgParamEncoding.Text=' + cmbRgParamEncoding.Text);
 	finally
-		// FRgOptionsPanel.EventsEnabled := True;
+		// FRgFilterOptionsPanel.EventsEnabled := True;
 	end;
 end;
 
@@ -1638,7 +1602,7 @@ function TRipGrepperSearchDialogForm.getOptionsAndFiltersHeight(const _bWithLabe
 begin
 	Result := IfThen(_bWithLabel, GetFullHeight(lblPaths)) +
 	{ } GetFullHeight(pnlPath) +
-	{ } GetFullHeight(pnlRgOptions) +
+	{ } GetFullHeight(pnlRgFilterOptions) +
 	{ } gbOptionsFilters.Padding.Top +
 	{ } gbOptionsFilters.Padding.Bottom;
 end;
@@ -1680,12 +1644,20 @@ begin
 	end;
 end;
 
-procedure TRipGrepperSearchDialogForm.OnRgOptionsPanelItemSelect(Sender : TObject; Item : TCustomCheckItem);
+procedure TRipGrepperSearchDialogForm.OnRgFilterOptionsPanelItemSelect(Sender : TObject; Item : TCustomCheckItem);
 begin
 	if not FCbClickEventEnabled then
 		Exit;
 
-	UpdateCtrls(FRgOptionsPanel);
+	UpdateCtrls(FRgFilterOptionsPanel);
+end;
+
+procedure TRipGrepperSearchDialogForm.OnRgOutputOptionsPanelItemSelect(Sender : TObject; Item : TCustomCheckItem);
+begin
+	if not FCbClickEventEnabled then
+		Exit;
+
+	UpdateCtrls(FRgOutpuOptionsPanel);
 end;
 
 procedure TRipGrepperSearchDialogForm.OnEncodingComboBoxChange(Sender : TObject);
@@ -1696,6 +1668,42 @@ begin
 	// This covers the functionality that was in cmbRgParamEncodingChange
 	FSettings.SearchFormSettings.Encoding := IfThen(cmbRgParamEncoding.Enabled, cmbRgParamEncoding.Text);
 	UpdateCtrls(cmbRgParamEncoding);
+end;
+
+procedure TRipGrepperSearchDialogForm.SetRgFilterOptionsPanel(const _settings : TRipGrepperSettings);
+begin
+	FRgFilterOptionsPanel := TRgFilterOptionsPanel.Create(self);
+	FRgFilterOptionsPanel.Settings := _settings;
+	FRgFilterOptionsPanel.Parent := pnlRgFilterOptions;
+	FRgFilterOptionsPanel.AddItems();
+	var
+	optionsGroup := FRgFilterOptionsPanel.CheckOptionsGroup;
+	FRgFilterOptionsPanel.OnOptionChange := OnRgFilterOptionsPanelItemSelect;
+	optionsGroup.Items[RG_FILTER_OPTION_ENCODING_INDEX].ComboBox.OnChange := OnEncodingComboBoxChange;
+	FRgFilterOptionsPanel.AdjustHeight();
+
+	cbRgParamHidden := optionsGroup.Items[RG_FILTER_OPTION_HIDDEN_INDEX].CheckBox;
+	cbRgParamNoIgnore := optionsGroup.Items[RG_FILTER_OPTION_NO_IGNORE_INDEX].CheckBox;
+	cbRgParamEncoding := optionsGroup.Items[RG_FILTER_OPTION_ENCODING_INDEX].CheckBox;
+	cmbRgParamEncoding := optionsGroup.Items[RG_FILTER_OPTION_ENCODING_INDEX].ComboBox;
+end;
+
+procedure TRipGrepperSearchDialogForm.SetRgOutputOptionsPanel(const _settings : TRipGrepperSettings);
+begin
+	FRgOutpuOptionsPanel := TRgOutputOptionsPanel.Create(self);
+	FRgOutpuOptionsPanel.Settings := _settings;
+	FRgOutpuOptionsPanel.Parent := gbOptionsOutput;
+	FRgOutpuOptionsPanel.AddItems();
+	FRgOutpuOptionsPanel.LoadFromSettings();
+	var
+	optionsGroup := FRgOutpuOptionsPanel.CheckOptionsGroup;
+	FRgOutpuOptionsPanel.OnOptionChange := OnRgOutputOptionsPanelItemSelect;
+	FRgOutpuOptionsPanel.AdjustHeight();
+
+	// Map checkbox controls for output options
+	cbRgParamPretty := optionsGroup.Items[RG_OUTPUT_OPTION_PRETTY_INDEX].CheckBox;
+	cbRgParamContext := optionsGroup.Items[RG_OUTPUT_OPTION_CONTEXT_INDEX].CheckBox;
+	seContextLineNum := optionsGroup.Items[RG_OUTPUT_OPTION_CONTEXT_INDEX].SpinEdit;
 end;
 
 end.
