@@ -311,7 +311,9 @@ begin
 		{$IFDEF DEBUG}
 		var
 		value := InnerDictionary[_section][keys.Key].AsString;
-		dbgMsg.MsgFmt('StoreToPersister [%s] %s = %s', [_section, keys.Key, value]);
+		dbgMsg.MsgFmt('StoreToPersister [%s] %s = dic:''%s'' ? set:''%s''', [_section, keys.Key, value,  setting.AsString]);
+
+	    Assert(value = setting.AsString, Format('StoreToPersister [%s] %s %s <> %s', [_section, keys.Key, value, setting.AsString]));
 		{$ENDIF}
 	end;
 end;
