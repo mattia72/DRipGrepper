@@ -606,14 +606,14 @@ begin
 
 	// Calculate layout
 	itemHeight := 22; // Standard height
-	itemWidth := Width div FColumns;
-	maxRows := Ceil(FItems.Count / FColumns);
+	itemWidth := Width div Columns;
+	maxRows := Ceil(FItems.Count / Columns);
 
 	// Position controls based on item type
 	for i := 0 to FItems.Count - 1 do begin
 		item := FItems[i];
-		col := i mod FColumns;
-		row := i div FColumns;
+		col := i mod Columns;
+		row := i div Columns;
 		baseLeft := col * itemWidth + SPACE;
 
 		case item.ItemType of
