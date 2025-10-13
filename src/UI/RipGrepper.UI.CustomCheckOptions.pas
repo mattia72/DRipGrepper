@@ -114,7 +114,7 @@ type
 
 		protected
 			procedure Resize; override;
-			procedure ArrangeItems; virtual; abstract;
+			procedure AlignControlItems; virtual; abstract;
 			function BuildControlNameFromCaption(const _caption : string) : string;
 
 		public
@@ -135,7 +135,7 @@ type
 
 		protected
 			FEventsEnabled : Boolean;
-			procedure ArrangeItems; override;
+			procedure AlignControlItems; override;
 
 		public
 			constructor Create(_owner : TComponent); override;
@@ -192,14 +192,14 @@ procedure TCustomOptionsBase.setColumns(const _value : Integer);
 begin
 	if (_value > 0) and (FColumns <> _value) then begin
 		FColumns := _value;
-		ArrangeItems;
+		AlignControlItems;
 	end;
 end;
 
 procedure TCustomOptionsBase.Resize;
 begin
 	inherited Resize;
-	ArrangeItems;
+	AlignControlItems;
 end;
 
 { TCustomCheckItem }
@@ -588,7 +588,7 @@ begin
 	Result.ComboBoxItems := comboItems;
 end;
 
-procedure TCustomCheckOptions.ArrangeItems;
+procedure TCustomCheckOptions.AlignControlItems;
 const
 	SPACE = 8;
 	FIRST_CONTROL_WIDTH = 80; // Fixed width for first control (checkbox/label)

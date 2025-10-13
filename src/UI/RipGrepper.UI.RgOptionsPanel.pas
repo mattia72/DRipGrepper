@@ -262,38 +262,6 @@ begin
 	end;
 end;
 
-// procedure TRgOutputOptionsPanel.LoadFromSettings();
-// begin
-// if not Assigned(FSettings) then
-// Exit;
-//
-// FEventsEnabled := False;
-// try
-// // Load Pretty option
-// if FCheckOptionsGroup.Items.Count > RG_OUTPUT_OPTION_PRETTY_INDEX then begin
-// FCheckOptionsGroup.Items[RG_OUTPUT_OPTION_PRETTY_INDEX].Checked := FSettings.SearchFormSettings.Pretty;
-// end;
-//
-// // Load Context option
-// if FCheckOptionsGroup.Items.Count > RG_OUTPUT_OPTION_CONTEXT_INDEX then begin
-// var
-// contextEnabled := FSettings.SearchFormSettings.Context > 0;
-// FCheckOptionsGroup.Items[RG_OUTPUT_OPTION_CONTEXT_INDEX].Checked := contextEnabled;
-// if Assigned(FCheckOptionsGroup.Items[RG_OUTPUT_OPTION_CONTEXT_INDEX].SpinEdit) then begin
-// FCheckOptionsGroup.Items[RG_OUTPUT_OPTION_CONTEXT_INDEX].SpinEdit.Enabled := contextEnabled;
-// FCheckOptionsGroup.Items[RG_OUTPUT_OPTION_CONTEXT_INDEX].SpinEdit.Value := FSettings.SearchFormSettings.Context;
-// end;
-// end;
-//
-// // JSON option - not implemented in settings yet, default to false
-// if FCheckOptionsGroup.Items.Count > RG_OUTPUT_OPTION_JSON_INDEX then begin
-// FCheckOptionsGroup.Items[RG_OUTPUT_OPTION_JSON_INDEX].Checked := False;
-// end;
-//
-// finally
-// FEventsEnabled := True;
-// end;
-// end;
 
 procedure TOptionPanel.AdjustHeight();
 begin

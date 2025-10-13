@@ -66,7 +66,7 @@ type
 
 		protected
 			procedure Resize; override;
-			procedure ArrangeItems; virtual; abstract;
+			procedure AlignControlItems; virtual; abstract;
 
 		public
 			constructor Create(_owner : TComponent); override;
@@ -87,7 +87,7 @@ type
 			function getSelectedItem : TCustomRadioItem;
 
 		protected
-			procedure ArrangeItems; override;
+			procedure AlignControlItems; override;
 
 		public
 			constructor Create(_owner : TComponent); override;
@@ -127,14 +127,14 @@ procedure TCustomOptionsBase.setColumns(const _value : Integer);
 begin
 	if (_value > 0) and (FColumns <> _value) then begin
 		FColumns := _value;
-		ArrangeItems;
+		AlignControlItems;
 	end;
 end;
 
 procedure TCustomOptionsBase.Resize;
 begin
 	inherited Resize;
-	ArrangeItems;
+	AlignControlItems;
 end;
 
 { TCustomRadioItem }
@@ -271,7 +271,7 @@ begin
 	Result := FItems.AddItem(radioButton, _caption, _orderIndex, _obj);
 end;
 
-procedure TCustomRadioOptions.ArrangeItems;
+procedure TCustomRadioOptions.AlignControlItems;
 var
 	i, col, row : Integer;
 	itemHeight, itemWidth : Integer;
