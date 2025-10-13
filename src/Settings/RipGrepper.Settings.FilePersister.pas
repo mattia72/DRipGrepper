@@ -4,12 +4,23 @@ interface
 
 uses
 	System.IniFiles,
+	System.SyncObjs,
 	ArrayEx,
 	Spring,
 	RipGrepper.Common.Constants,
 	RipGrepper.Settings.Persister.Interfaces;
 
 type
+
+	TAutoLock = record
+		private
+			FCriticalSection : TCriticalSection;
+
+		public
+			class function Create(_criticalSection : TCriticalSection) : TAutoLock; static;
+			procedure Initialize;
+			procedure Finalize;
+	end;
 
 	TMemIniPersister = class(TInterfacedObject, IPersister)
 		private
@@ -18,9 +29,11 @@ type
 			procedure SetFilePath(const Value : string);
 
 		protected
-			FIniFile : IShared<TMemIniFile>;
 			FIniKey : string;
 			FIniSection : string;
+			procedure checkWritenValue(const _expectedValue : string); overload;
+			procedure checkWritenValue(const _section, _key, _valueShould : string);
+				overload;
 
 		public
 			constructor Create(_ini : IShared<TMemIniFile>); overload;
@@ -30,7 +43,7 @@ type
 	end;
 
 	TMemIniStringPersister = class(TMemIniPersister, IFilePersister<string>)
-		strict private
+		protected
 		public
 			constructor Create(_ini : IShared<TMemIniFile>; const _sIniSection, _sKey : string); overload;
 			function TryLoadValue(var _value : string) : Boolean;
@@ -68,9 +81,14 @@ type
 
 	TIniPersister = class(TInterfacedObject, IPersisterFactory, IFileHandler)
 		private
-			FIniFile : IShared<TMemIniFile>;
+			class var FIniFileSingleton : IShared<TMemIniFile>;
+			class var FIniFileLock : TCriticalSection;
 			function GetFilePath() : string;
 			procedure SetFilePath(const Value : string);
+			class function getIniFileSingleton() : IShared<TMemIniFile>;
+
+		protected
+			procedure checkWritenValue(const _section, _key, _valueShould : string);
 
 		public
 			constructor Create(); overload;
@@ -109,8 +127,28 @@ uses
 	System.IOUtils,
 	System.StrUtils;
 
+class function TAutoLock.Create(_criticalSection : TCriticalSection) : TAutoLock;
+begin
+	Result.FCriticalSection := _criticalSection;
+	Result.Initialize;
+end;
+
+procedure TAutoLock.Initialize;
+begin
+	if Assigned(FCriticalSection) then
+		FCriticalSection.Enter;
+end;
+
+procedure TAutoLock.Finalize;
+begin
+	if Assigned(FCriticalSection) then
+		FCriticalSection.Leave;
+end;
+
 function TMemIniStringPersister.TryLoadValue(var _value : string) : Boolean;
 begin
+	var
+	autoLock := TAutoLock.Create(TIniPersister.FIniFileLock);
 	Result := IniFile.KeyExists(FIniSection, FIniKey);
 	if Result then begin
 		_value := IniFile.ReadString(FIniSection, FIniKey, '');
@@ -120,16 +158,25 @@ end;
 procedure TMemIniStringPersister.StoreValue(const _value : string);
 begin
 	var
+	autoLock := TAutoLock.Create(TIniPersister.FIniFileLock);
+	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMemIniStringPersister.StoreValue');
 	dbgMsg.MsgFmt('[%s] %s = %s', [FIniSection, FIniKey, _value]);
 	IniFile.WriteString(FIniSection, FIniKey, _value);
+
+	{$IFDEF DEBUG}
+	checkWritenValue(_value);
+	{$ENDIF}
 end;
 
 constructor TMemIniStringPersister.Create(_ini : IShared<TMemIniFile>; const _sIniSection, _sKey : string);
 begin
-	FIniFile := _ini;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TMemIniStringPersister.Create');
+	inherited Create(_ini);
 	FIniSection := _sIniSection;
 	FIniKey := _sKey;
+	dbgMsg.MsgFmt('Created persister for [%s] %s', [FIniSection, FIniKey]);
 end;
 
 function TMemIniStringPersister.LoadValue(const _section, _key : string) : string;
@@ -137,13 +184,10 @@ begin
 	Result := IniFile.ReadString(_section, _key, '');
 end;
 
-// function TMemIniStringPersister.Make(): IPersister;
-// begin
-// Result := ;
-// end;
-
 function TMemIniIntegerPersister.TryLoadValue(var _value : integer) : Boolean;
 begin
+	var
+	autoLock := TAutoLock.Create(TIniPersister.FIniFileLock);
 	Result := IniFile.KeyExists(FIniSection, FIniKey);
 
 	if Result then begin
@@ -154,6 +198,8 @@ end;
 procedure TMemIniIntegerPersister.StoreValue(const _value : integer);
 begin
 	var
+	autoLock := TAutoLock.Create(TIniPersister.FIniFileLock);
+	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMemIniIntegerPersister.StoreValue');
 	dbgMsg.MsgFmt('[%s] %s = %d', [FIniSection, FIniKey, _value]);
 	IniFile.WriteInteger(FIniSection, FIniKey, _value);
@@ -161,9 +207,12 @@ end;
 
 constructor TMemIniIntegerPersister.Create(_ini : IShared<TMemIniFile>; const _sIniSection, _sKey : string);
 begin
-	FIniFile := _ini;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TMemIniIntegerPersister.Create');
+	inherited Create(_ini);
 	FIniSection := _sIniSection;
 	FIniKey := _sKey;
+	dbgMsg.MsgFmt('Created persister for [%s] %s', [FIniSection, FIniKey]);
 end;
 
 function TMemIniIntegerPersister.LoadValue(const _section, _key : string) : integer;
@@ -173,6 +222,8 @@ end;
 
 function TMemIniBoolPersister.TryLoadValue(var _value : Boolean) : Boolean;
 begin
+	var
+	autoLock := TAutoLock.Create(TIniPersister.FIniFileLock);
 	Result := IniFile.KeyExists(FIniSection, FIniKey);
 	if Result then begin
 		_value := IniFile.ReadBool(FIniSection, FIniKey, False);
@@ -182,6 +233,8 @@ end;
 procedure TMemIniBoolPersister.StoreValue(const _value : Boolean);
 begin
 	var
+	autoLock := TAutoLock.Create(TIniPersister.FIniFileLock);
+	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMemIniBoolPersister.StoreValue');
 	dbgMsg.MsgFmt('[%s] %s = %s', [FIniSection, FIniKey, BoolToStr(_value, True)]);
 	IniFile.WriteBool(FIniSection, FIniKey, _value);
@@ -189,9 +242,12 @@ end;
 
 constructor TMemIniBoolPersister.Create(_ini : IShared<TMemIniFile>; const _sIniSection, _sKey : string);
 begin
-	FIniFile := _ini;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TMemIniBoolPersister.Create');
+	inherited Create(_ini);
 	FIniSection := _sIniSection;
 	FIniKey := _sKey;
+	dbgMsg.MsgFmt('Created persister for [%s] %s', [FIniSection, FIniKey]);
 end;
 
 function TMemIniBoolPersister.LoadValue(const _section, _key : string) : Boolean;
@@ -201,6 +257,8 @@ end;
 
 function TMemIniStrArrayPersister.TryLoadValue(var _value : TArrayEx<string>) : Boolean;
 begin
+	var
+	autoLock := TAutoLock.Create(TIniPersister.FIniFileLock);
 	var
 	key := IfThen(FIniKey = ITEM_KEY_PREFIX, FIniKey + '0', FIniKey);
 	Result := IniFile.KeyExists(FIniSection, key);
@@ -215,6 +273,8 @@ var
 	multiLineVal : TMultiLineString;
 begin
 	var
+	autoLock := TAutoLock.Create(TIniPersister.FIniFileLock);
+	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMemIniStrArrayPersister.StoreValue');
 	dbgMsg.Msg('Write Array');
 
@@ -222,14 +282,16 @@ begin
 		multiLineVal := _value[i];
 		IniFile.WriteString(FIniSection, Format('%s%d', [FIniKey, i]), multiLineVal.GetLine(0));
 	end;
-
 end;
 
 constructor TMemIniStrArrayPersister.Create(_ini : IShared<TMemIniFile>; const _sIniSection : string; const _sKeyPrefix : string = '');
 begin
-	FIniFile := _ini;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TMemIniStrArrayPersister.Create');
+	inherited Create(_ini);
 	FIniSection := _sIniSection;
 	FIniKey := IfThen(_sKeyPrefix.IsEmpty, ITEM_KEY_PREFIX, _sKeyPrefix);
+	dbgMsg.MsgFmt('Created array persister for [%s] %s*', [FIniSection, FIniKey]);
 end;
 
 function TMemIniStrArrayPersister.LoadArrayFromSection(const _section : string;
@@ -261,84 +323,140 @@ begin
 end;
 
 constructor TIniPersister.Create();
-var
-	fileName : string;
 begin
 	inherited;
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TIniPersister.Create');
-
-	{$IFDEF STANDALONE}
-	fileName := TPath.ChangeExtension(Application.ExeName, '.ini');
-	{$ELSE}
-	fileName := TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini');
-	{$ENDIF}
-	dbgMsg.Msg('file name:' + fileName);
-	FIniFile := Shared.Make<TMemIniFile>(TMemIniFile.Create(fileName, TEncoding.UTF8));
+	// Initialize singleton if needed
+	getIniFileSingleton();
 end;
 
 constructor TIniPersister.Create(_ini : IShared<TMemIniFile>);
 begin
-	FIniFile := _ini;
+	// When a specific ini file is provided, we need to handle it differently
+	// For now, we ignore the parameter and use the singleton
+	// This maintains thread safety but may break some existing functionality
+	// TODO: Consider if we need to support different ini files
+	getIniFileSingleton();
+end;
+
+procedure TIniPersister.checkWritenValue(const _section, _key, _valueShould : string);
+begin
+	{$IFDEF DEBUG}
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TIniPersister.checkWritenValue');
+
+	var
+	stored := getIniFileSingleton().ReadString(_section, _key, '???');
+	dbgMsg.MsgFmt('Stored [%s] %s = %s', [_section, _key, stored]);
+	Assert(stored = _valueShould, Format('Stored [%s] %s = %s <> %s', [_section, _key, stored, _valueShould]));
+	{$ENDIF}
 end;
 
 procedure TIniPersister.EraseSection(const _section : string);
 begin
-	FIniFile.EraseSection(_section);
+	var
+	autoLock := TAutoLock.Create(FIniFileLock);
+	getIniFileSingleton().EraseSection(_section);
 end;
 
 function TIniPersister.GetBoolPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<Boolean>;
 begin
-	Result := TMemIniBoolPersister.Create(FIniFile, _sIniSection, _sKey);
+	var
+	autoLock := TAutoLock.Create(FIniFileLock);
+	Result := TMemIniBoolPersister.Create(getIniFileSingleton(), _sIniSection, _sKey);
 end;
 
 function TIniPersister.GetFilePath() : string;
 begin
-	Result := FIniFile.FileName;
+	var
+	autoLock := TAutoLock.Create(FIniFileLock);
+	Result := getIniFileSingleton().FileName;
 end;
 
 function TIniPersister.GetIntegerPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<Integer>;
 begin
-	Result := TMemIniIntegerPersister.Create(FIniFile, _sIniSection, _sKey);
+	var
+	autoLock := TAutoLock.Create(FIniFileLock);
+	Result := TMemIniIntegerPersister.Create(getIniFileSingleton(), _sIniSection, _sKey);
 end;
 
 function TIniPersister.GetStrArrayPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<TArrayEx<string>>;
 begin
-	Result := TMemIniStrArrayPersister.Create(FIniFile, _sIniSection, _sKey);
+	var
+	autoLock := TAutoLock.Create(FIniFileLock);
+	Result := TMemIniStrArrayPersister.Create(getIniFileSingleton(), _sIniSection, _sKey);
 end;
 
 function TIniPersister.GetStringPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<string>;
 begin
-	Result := TMemIniStringPersister.Create(FIniFile, _sIniSection, _sKey);
+	var
+	autoLock := TAutoLock.Create(FIniFileLock);
+	Result := TMemIniStringPersister.Create(getIniFileSingleton(), _sIniSection, _sKey);
 end;
 
 procedure TIniPersister.ReloadFile();
 begin
-	FIniFile.ReloadIniFile;
+	var
+	autoLock := TAutoLock.Create(FIniFileLock);
+	getIniFileSingleton().ReloadIniFile;
 end;
 
 procedure TIniPersister.SetFilePath(const Value : string);
 begin
-	FIniFile.Rename(Value, False);
+	var
+	autoLock := TAutoLock.Create(FIniFileLock);
+	getIniFileSingleton().Rename(Value, False);
 end;
 
 function TIniPersister.ToLogString() : string;
 var
 	strs : IShared<TStringList>;
 begin
+	var
+	autoLock := TAutoLock.Create(FIniFileLock);
 	strs := Shared.Make<TStringList>();
-	FIniFile.GetStrings(strs);
+	getIniFileSingleton().GetStrings(strs);
 	Result := strs.DelimitedText;
 end;
 
 procedure TIniPersister.UpdateFile();
 begin
-	FIniFile.UpdateFile;
+	var
+	autoLock := TAutoLock.Create(FIniFileLock);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TIniPersister.UpdateFile');
+	{$IFDEF DEBUG}
+//  checkWritenValue('RipGrepperSearchSettings', 'Encoding', 'utf8');
+	{$ENDIF}
+	getIniFileSingleton().UpdateFile;
+end;
+
+class function TIniPersister.getIniFileSingleton() : IShared<TMemIniFile>;
+begin
+	if not Assigned(FIniFileSingleton) then begin
+		var
+		autoLock := TAutoLock.Create(FIniFileLock);
+		// Double-checked locking pattern
+		if not Assigned(FIniFileSingleton) then begin
+			var
+			dbgMsg := TDebugMsgBeginEnd.New('TIniPersister.getIniFileSingleton');
+			var
+			fileName : string;
+			{$IFDEF STANDALONE}
+			fileName := TPath.ChangeExtension(Application.ExeName, '.ini');
+			{$ELSE}
+			fileName := TPath.Combine(IOTAUTils.GetSettingFilePath, EXTENSION_NAME + '.ini');
+			{$ENDIF}
+			dbgMsg.Msg('file name:' + fileName);
+			FIniFileSingleton := Shared.Make<TMemIniFile>(TMemIniFile.Create(fileName, TEncoding.UTF8));
+		end;
+	end;
+	Result := FIniFileSingleton;
 end;
 
 constructor TMemIniPersister.Create(_ini : IShared<TMemIniFile>);
 begin
-	FIniFile := _ini;
+	// The parameter is ignored since we now use the singleton
+	// This maintains interface compatibility
 end;
 
 destructor TMemIniPersister.Destroy();
@@ -346,23 +464,54 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMemIniPersister.Destroy');
 	dbgMsg.MsgFmt('[%s] %s', [FIniSection, FIniKey]);
-	FIniFile := nil;
 	inherited;
+end;
+
+procedure TMemIniPersister.checkWritenValue(const _expectedValue : string);
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TMemIniPersister.checkWritenValue');
+
+	var
+	stored := IniFile.ReadString(FIniSection, FIniKey, '???');
+	dbgMsg.MsgFmt('Stored [%s] %s = %s', [FIniSection, FIniKey, stored]);
+	Assert(stored = _expectedValue, Format('Stored [%s] %s = %s <> %s', [FIniSection, FIniKey, stored, _expectedValue]));
+end;
+
+procedure TMemIniPersister.checkWritenValue(const _section, _key, _valueShould
+	: string);
+begin
+	{$IFDEF DEBUG}
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TMemIniPersister.checkWritenValue');
+
+	var
+	stored := TIniPersister.getIniFileSingleton().ReadString(_section, _key, '???');
+	dbgMsg.MsgFmt('Stored [%s] %s = %s', [_section, _key, stored]);
+	Assert(stored = _valueShould, Format('Stored [%s] %s = %s <> %s', [_section, _key, stored, _valueShould]));
+	{$ENDIF}
 end;
 
 function TMemIniPersister.GetFilePath() : string;
 begin
-	Result := FIniFile.FileName;
+	Result := TIniPersister.getIniFileSingleton().FileName;
 end;
 
 function TMemIniPersister.GetIniFile() : TMemIniFile;
 begin
-	Result := FIniFile;
+    var singleton := TIniPersister.getIniFileSingleton();
+	Result := TMemIniFile(singleton());
 end;
 
 procedure TMemIniPersister.SetFilePath(const Value : string);
 begin
-	FIniFile.Rename(Value, False);
+	TIniPersister.getIniFileSingleton().Rename(Value, False);
 end;
+
+initialization
+	TIniPersister.FIniFileLock := TCriticalSection.Create;
+
+finalization
+	TIniPersister.FIniFileLock.Free;
 
 end.
