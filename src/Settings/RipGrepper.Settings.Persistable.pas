@@ -64,7 +64,7 @@ type
 			FIsModified : Boolean;
 
 			procedure CreateSetting(_setting : ISetting); overload;
-			procedure CreateSetting(const _section, _key: string; _setting : ISetting); overload;
+			procedure CreateSetting(const _section, _key : string; _setting : ISetting); overload;
 			function GetIsAlreadyRead : Boolean; virtual;
 			function GetIsModified : Boolean; virtual;
 			/// <summary>TPersistableSettings.Init
@@ -109,7 +109,7 @@ type
 			/// </summary>
 			procedure LoadFromDict(); virtual;
 			/// ReLoads memini file content
-				procedure ReLoadFromDisk;
+			procedure ReLoadFromDisk;
 			/// <summary>
 			/// Members.StoreToPersister should be called here
 			/// Writes to ini.
@@ -420,6 +420,8 @@ begin
 			var
 			lock := TLockGuard.NewLock(GetLockObject());
 			dbgMsg.Msg('Lock Entered to UpdateFile');
+			var
+			dbgArr := TSettingsDictionary.DictToStringArray(_dict);
 			fh.UpdateFile();
 			_dict.SetState(ssStored, ssSaved);
 			dbgMsg.Msg('Lock Released after UpdateFile');
@@ -476,7 +478,7 @@ begin
 	Result := rootOwner;
 end;
 
-procedure TPersistableSettings.CreateSetting(const _section, _key: string; _setting : ISetting);
+procedure TPersistableSettings.CreateSetting(const _section, _key : string; _setting : ISetting);
 begin
 	SettingsDict.CreateSetting(_section, _key, _setting, PersisterFactory);
 end;

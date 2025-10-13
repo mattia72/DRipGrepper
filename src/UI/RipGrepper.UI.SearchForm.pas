@@ -505,10 +505,11 @@ begin
 		FSettings.SearchFormSettings.LoadFromDict();
 	end;
 
+	FSettings.StoreToPersister();
+
 	var
 	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 
-	FSettings.StoreToPersister();
 	FSettings.UpdateFile();
 end;
 
@@ -799,30 +800,28 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCheckBoxesByGuiSearchParams');
 
-	FCbClickEventEnabled := False;
-	FRgFilterOptionsPanel.EventsEnabled := False;
-	try
-		cbRgParamHidden.Checked := IsOptionSet(RG_PARAM_REGEX_HIDDEN);
-		cbRgParamNoIgnore.Checked := IsOptionSet(RG_PARAM_REGEX_NO_IGNORE);
-		cbRgParamEncoding.Checked := FSettingsProxy.RgOptions.GetOptionValue(RG_PARAM_REGEX_ENCODING, sVal);
-		cmbRgParamEncoding.Enabled := cbRgParamEncoding.Checked;
-		cmbRgParamEncoding.Text := IfThen(cmbRgParamEncoding.Enabled, sVal, '');
+	var
+	ar := TAutoSetReset.New(FRgFilterOptionsPanel.FEventsEnabled, False);
+	var
+	ar2 := TAutoSetReset.New(FCbClickEventEnabled, False);
 
-		cbRgParamPretty.Checked := IsOptionSet(RG_PARAM_REGEX_PRETTY);
-		cbRgParamContext.Checked := FSettingsProxy.RgOptions.GetOptionValue(RG_PARAM_REGEX_CONTEXT, sVal);
-		seContextLineNum.Enabled := cbRgParamContext.Checked;
-		seContextLineNum.Text := IfThen(seContextLineNum.Enabled, sVal, '0');
+	cbRgParamHidden.Checked := IsOptionSet(RG_PARAM_REGEX_HIDDEN);
+	cbRgParamNoIgnore.Checked := IsOptionSet(RG_PARAM_REGEX_NO_IGNORE);
+	cbRgParamEncoding.Checked := FSettingsProxy.RgOptions.GetOptionValue(RG_PARAM_REGEX_ENCODING, sVal);
+	cmbRgParamEncoding.Enabled := cbRgParamEncoding.Checked;
+	cmbRgParamEncoding.Text := IfThen(cmbRgParamEncoding.Enabled, sVal, '');
 
-		sVal := '';
-		var
-		bReplaceMode := FSettingsProxy.RgOptions.GetOptionValue(RG_PARAM_REGEX_REPLACE, sVal);
-		TabControl1.TabIndex := IfThen(bReplaceMode, 1, 0);
-		cmbReplaceText.Text := TOptionStrings.MaybeDeQuoteIfQuoted(sVal);
+	cbRgParamPretty.Checked := IsOptionSet(RG_PARAM_REGEX_PRETTY);
+	cbRgParamContext.Checked := FSettingsProxy.RgOptions.GetOptionValue(RG_PARAM_REGEX_CONTEXT, sVal);
+	seContextLineNum.Enabled := cbRgParamContext.Checked;
+	seContextLineNum.Text := IfThen(seContextLineNum.Enabled, sVal, '0');
 
-	finally
-		FCbClickEventEnabled := True;
-		FRgFilterOptionsPanel.EventsEnabled := True;
-	end;
+	sVal := '';
+	var
+	bReplaceMode := FSettingsProxy.RgOptions.GetOptionValue(RG_PARAM_REGEX_REPLACE, sVal);
+	TabControl1.TabIndex := IfThen(bReplaceMode, 1, 0);
+	cmbReplaceText.Text := TOptionStrings.MaybeDeQuoteIfQuoted(sVal);
+
 	dbgMsg.MsgFmt('Hidden %s NoIgnore %s Pretty %s',
 		{ } [BoolToStr(cbRgParamHidden.Checked),
 		{ } BoolToStr(cbRgParamNoIgnore.Checked),
@@ -834,14 +833,13 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCheckBoxes');
 
-	FCbClickEventEnabled := False;
-	FRgFilterOptionsPanel.EventsEnabled := False;
-	try
-		CopyProxyToCtrls();
-	finally
-		FCbClickEventEnabled := True;
-		FRgFilterOptionsPanel.EventsEnabled := True;
-	end;
+	var
+	ar := TAutoSetReset.New(FRgFilterOptionsPanel.FEventsEnabled, False);
+	var
+	ar2 := TAutoSetReset.New(FCbClickEventEnabled, False);
+
+	CopyProxyToCtrls();
+
 	dbgMsg.MsgFmt('cbHidden %s cbNoIgnore %s cbPretty %s',
 		{ } [BoolToStr(cbRgParamHidden.Checked),
 		{ } BoolToStr(cbRgParamNoIgnore.Checked),
@@ -1694,7 +1692,7 @@ begin
 	FRgOutpuOptionsPanel.Settings := _settings;
 	FRgOutpuOptionsPanel.Parent := gbOptionsOutput;
 	FRgOutpuOptionsPanel.AddItems();
-	FRgOutpuOptionsPanel.LoadFromSettings();
+	// FRgOutpuOptionsPanel.LoadFromSettings();
 	var
 	optionsGroup := FRgOutpuOptionsPanel.CheckOptionsGroup;
 	FRgOutpuOptionsPanel.OnOptionChange := OnRgOutputOptionsPanelItemSelect;

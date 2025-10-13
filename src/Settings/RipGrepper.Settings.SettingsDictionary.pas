@@ -5,6 +5,7 @@ interface
 uses
 	System.Classes,
 	System.IniFiles,
+	System.SyncObjs,
 	Spring.Collections,
 	RipGrepper.Common.Interfaces.StreamPersistable,
 	RipGrepper.Settings.SettingVariant,
@@ -22,6 +23,7 @@ type
 			FInnerDictionary : ISettingSections;
 			FSectionName : string;
 			FOwnerPersister : IPersisterFactory;
+			FDictionaryLock : TCriticalSection;
 			procedure AddNewSectionAndKey(const _key : string; _setting : ISetting);
 			procedure AddOrChangeStrArrSettings(const _key : string; _setting : ISetting; _factory : IPersisterFactory);
 			function GetCount() : Integer;
@@ -33,6 +35,7 @@ type
 		public
 			constructor Create(const _section : string; _ownerPersister : IPersisterFactory); overload;
 			constructor Create; overload;
+			destructor Destroy; override;
 			procedure AddOrChange(const _key : string; _setting : ISetting);
 			procedure ClearSection(const _section : string);
 			function ContainsSection(const _section : string) : Boolean;
@@ -77,6 +80,12 @@ begin
 	FOwnerPersister := _ownerPersister;
 end;
 
+destructor TSettingsDictionary.Destroy;
+begin
+	FDictionaryLock.Free;
+	inherited;
+end;
+
 constructor TSettingsDictionary.Create;
 begin
 	inherited;
@@ -84,6 +93,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.Create', True);
 	dbgMsg.MsgFmt('Create %p for section: ???', [Pointer(self)]);
 	FInnerDictionary := TCollections.CreateSortedDictionary<TSettingSection, ISettingKeys>();
+	FDictionaryLock := TCriticalSection.Create;
 end;
 
 procedure TSettingsDictionary.AddNewSectionAndKey(const _key : string; _setting : ISetting);
@@ -101,6 +111,8 @@ procedure TSettingsDictionary.AddOrChange(const _key : string; _setting : ISetti
 var
 	keys : ISettingKeys;
 begin
+	var
+	autoLock := TAutoLock.Create(FDictionaryLock);
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.AddOrChange');
 
@@ -134,6 +146,8 @@ procedure TSettingsDictionary.ClearSection(const _section : string);
 var
 	sd : IDictionary<TSettingKey, ISetting>;
 begin
+	var
+	autoLock := TAutoLock.Create(FDictionaryLock);
 	if InnerDictionary.TryGetValue(_section, sd) then begin
 		for var key in sd.Keys do begin
 			sd[key].Clear();
@@ -144,6 +158,8 @@ end;
 
 function TSettingsDictionary.ContainsSection(const _section : string) : Boolean;
 begin
+	var
+	autoLock := TAutoLock.Create(FDictionaryLock);
 	Result := FInnerDictionary.ContainsKey(_section);
 end;
 
@@ -152,6 +168,8 @@ var
 	sdSelf : ISettingKeys;
 	sdFrom : ISettingKeys;
 begin
+	var
+	autoLock := TAutoLock.Create(FDictionaryLock);
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.CopySection');
 
@@ -247,6 +265,8 @@ end;
 
 function TSettingsDictionary.GetSections(index : string) : ISettingKeys;
 begin
+	var
+	autoLock := TAutoLock.Create(FDictionaryLock);
 	Result := FInnerDictionary[index];
 end;
 
@@ -254,6 +274,8 @@ function TSettingsDictionary.GetSetting(const _key : string) : ISetting;
 var
 	keys : ISettingKeys;
 begin
+	var
+	autoLock := TAutoLock.Create(FDictionaryLock);
 	Result := nil;
 	if FInnerDictionary.TryGetValue(SectionName, keys) then begin
 		Result := keys[_key];
@@ -262,11 +284,15 @@ end;
 
 function TSettingsDictionary.GetSections() : IReadOnlyCollection<string>;
 begin
+	var
+	autoLock := TAutoLock.Create(FDictionaryLock);
 	Result := FInnerDictionary.Keys;
 end;
 
 procedure TSettingsDictionary.LoadFromPersister();
 begin
+	var
+	autoLock := TAutoLock.Create(FDictionaryLock);
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.LoadFromPersister');
 
@@ -311,7 +337,9 @@ begin
 		{$IFDEF DEBUG}
 		var
 		value := InnerDictionary[_section][keys.Key].AsString;
-		dbgMsg.MsgFmt('StoreToPersister [%s] %s = %s', [_section, keys.Key, value]);
+		dbgMsg.MsgFmt('StoreToPersister [%s] %s = dic:''%s'' ? set:''%s''', [_section, keys.Key, value,  setting.AsString]);
+
+	    Assert(value = setting.AsString, Format('StoreToPersister [%s] %s %s <> %s', [_section, keys.Key, value, setting.AsString]));
 		{$ENDIF}
 	end;
 end;
@@ -320,6 +348,8 @@ procedure TSettingsDictionary.StoreToPersister(const _section : string);
 var
 	section : string;
 begin
+	var
+	autoLock := TAutoLock.Create(FDictionaryLock);
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.StoreToPersister');
 
@@ -343,11 +373,15 @@ end;
 
 procedure TSettingsDictionary.SetSections(index : string; const Value : ISettingKeys);
 begin
+	var
+	autoLock := TAutoLock.Create(FDictionaryLock);
 	FInnerDictionary[index] := Value;
 end;
 
 procedure TSettingsDictionary.SetState(const _from, _to : TSettingState; const _section : string = '');
 begin
+	var
+	autoLock := TAutoLock.Create(FDictionaryLock);
 	if _section.IsEmpty then begin
 		InnerDictionary.Where(
 			function(const p : TPair<string, ISettingKeys>) : Boolean
@@ -384,6 +418,8 @@ end;
 
 function TSettingsDictionary.HasState(const _state : TSettingState; const _section : string = '') : Boolean;
 begin
+	var
+	autoLock := TAutoLock.Create(FDictionaryLock);
 	if _section.IsEmpty then begin
 		Result := InnerDictionary.Any(
 			function(const p : TPair<string, ISettingKeys>) : Boolean
@@ -411,6 +447,8 @@ var
 	setting : ISetting;
 	settingType : TSettingType;
 begin
+	var
+	autoLock := TAutoLock.Create(FDictionaryLock);
 	InnerDictionary.Clear;
 	sectionCount := _sr.ReadLineAsInteger('SectionCount');
 	for var i := 0 to sectionCount - 1 do begin
@@ -435,6 +473,8 @@ end;
 
 procedure TSettingsDictionary.SaveToStreamWriter(_sw : TStreamWriter);
 begin
+	var
+	autoLock := TAutoLock.Create(FDictionaryLock);
 	_sw.WriteLineAsInteger(FInnerDictionary.Count, 'FInnerDictionary.Count');
 	var
 	arr := DictToStringArray(self);
