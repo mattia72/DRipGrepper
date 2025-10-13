@@ -29,6 +29,7 @@ type
 			procedure SetFilePath(const Value : string);
 
 		protected
+			FIniFile : IShared<TMemIniFile>; // Restore the FIniFile field
 			FIniKey : string;
 			FIniSection : string;
 			procedure checkWritenValue(const _expectedValue : string); overload;
@@ -81,11 +82,13 @@ type
 
 	TIniPersister = class(TInterfacedObject, IPersisterFactory, IFileHandler)
 		private
+			FIniFile : IShared<TMemIniFile>; // Instance-specific INI file (for tests)
 			class var FIniFileSingleton : IShared<TMemIniFile>;
 			class var FIniFileLock : TCriticalSection;
 			function GetFilePath() : string;
 			procedure SetFilePath(const Value : string);
 			class function getIniFileSingleton() : IShared<TMemIniFile>;
+			function getIniFile() : IShared<TMemIniFile>; // Get instance or singleton INI file
 
 		protected
 			procedure checkWritenValue(const _section, _key, _valueShould : string);
@@ -331,10 +334,10 @@ end;
 
 constructor TIniPersister.Create(_ini : IShared<TMemIniFile>);
 begin
-	// When a specific ini file is provided, we need to handle it differently
-	// For now, we ignore the parameter and use the singleton
-	// This maintains thread safety but may break some existing functionality
-	// TODO: Consider if we need to support different ini files
+	inherited Create();
+	// Store the provided ini file for instance-specific operations (like tests)
+	FIniFile := _ini;
+	// Still initialize singleton for compatibility
 	getIniFileSingleton();
 end;
 
@@ -345,7 +348,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TIniPersister.checkWritenValue');
 
 	var
-	stored := getIniFileSingleton().ReadString(_section, _key, '???');
+	stored := getIniFile().ReadString(_section, _key, '???');
 	dbgMsg.MsgFmt('Stored [%s] %s = %s', [_section, _key, stored]);
 	Assert(stored = _valueShould, Format('Stored [%s] %s = %s <> %s', [_section, _key, stored, _valueShould]));
 	{$ENDIF}
@@ -355,56 +358,56 @@ procedure TIniPersister.EraseSection(const _section : string);
 begin
 	var
 	autoLock := TAutoLock.Create(FIniFileLock);
-	getIniFileSingleton().EraseSection(_section);
+	getIniFile().EraseSection(_section);
 end;
 
 function TIniPersister.GetBoolPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<Boolean>;
 begin
 	var
 	autoLock := TAutoLock.Create(FIniFileLock);
-	Result := TMemIniBoolPersister.Create(getIniFileSingleton(), _sIniSection, _sKey);
+	Result := TMemIniBoolPersister.Create(getIniFile(), _sIniSection, _sKey);
 end;
 
 function TIniPersister.GetFilePath() : string;
 begin
 	var
 	autoLock := TAutoLock.Create(FIniFileLock);
-	Result := getIniFileSingleton().FileName;
+	Result := getIniFile().FileName;
 end;
 
 function TIniPersister.GetIntegerPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<Integer>;
 begin
 	var
 	autoLock := TAutoLock.Create(FIniFileLock);
-	Result := TMemIniIntegerPersister.Create(getIniFileSingleton(), _sIniSection, _sKey);
+	Result := TMemIniIntegerPersister.Create(getIniFile(), _sIniSection, _sKey);
 end;
 
 function TIniPersister.GetStrArrayPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<TArrayEx<string>>;
 begin
 	var
 	autoLock := TAutoLock.Create(FIniFileLock);
-	Result := TMemIniStrArrayPersister.Create(getIniFileSingleton(), _sIniSection, _sKey);
+	Result := TMemIniStrArrayPersister.Create(getIniFile(), _sIniSection, _sKey);
 end;
 
 function TIniPersister.GetStringPersister(const _sIniSection : string = ''; const _sKey : string = '') : IFilePersister<string>;
 begin
 	var
 	autoLock := TAutoLock.Create(FIniFileLock);
-	Result := TMemIniStringPersister.Create(getIniFileSingleton(), _sIniSection, _sKey);
+	Result := TMemIniStringPersister.Create(getIniFile(), _sIniSection, _sKey);
 end;
 
 procedure TIniPersister.ReloadFile();
 begin
 	var
 	autoLock := TAutoLock.Create(FIniFileLock);
-	getIniFileSingleton().ReloadIniFile;
+	getIniFile().ReloadIniFile;
 end;
 
 procedure TIniPersister.SetFilePath(const Value : string);
 begin
 	var
 	autoLock := TAutoLock.Create(FIniFileLock);
-	getIniFileSingleton().Rename(Value, False);
+	getIniFile().Rename(Value, False);
 end;
 
 function TIniPersister.ToLogString() : string;
@@ -414,7 +417,7 @@ begin
 	var
 	autoLock := TAutoLock.Create(FIniFileLock);
 	strs := Shared.Make<TStringList>();
-	getIniFileSingleton().GetStrings(strs);
+	getIniFile().GetStrings(strs);
 	Result := strs.DelimitedText;
 end;
 
@@ -427,7 +430,16 @@ begin
 	{$IFDEF DEBUG}
 //  checkWritenValue('RipGrepperSearchSettings', 'Encoding', 'utf8');
 	{$ENDIF}
-	getIniFileSingleton().UpdateFile;
+	getIniFile().UpdateFile;
+end;
+
+function TIniPersister.getIniFile() : IShared<TMemIniFile>;
+begin
+	// Use instance-specific INI file if available, otherwise fall back to singleton
+	if Assigned(FIniFile) then
+		Result := FIniFile
+	else
+		Result := getIniFileSingleton();
 end;
 
 class function TIniPersister.getIniFileSingleton() : IShared<TMemIniFile>;
@@ -455,8 +467,11 @@ end;
 
 constructor TMemIniPersister.Create(_ini : IShared<TMemIniFile>);
 begin
-	// The parameter is ignored since we now use the singleton
-	// This maintains interface compatibility
+	// Use the provided ini file if available, otherwise use singleton for compatibility
+	if Assigned(_ini) then
+		FIniFile := _ini
+	else
+		FIniFile := TIniPersister.getIniFileSingleton();
 end;
 
 destructor TMemIniPersister.Destroy();
@@ -464,6 +479,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMemIniPersister.Destroy');
 	dbgMsg.MsgFmt('[%s] %s', [FIniSection, FIniKey]);
+	FIniFile := nil; // Clean up the reference
 	inherited;
 end;
 
@@ -494,18 +510,29 @@ end;
 
 function TMemIniPersister.GetFilePath() : string;
 begin
-	Result := TIniPersister.getIniFileSingleton().FileName;
+	// Use the stored FIniFile if available, otherwise fall back to singleton
+	if Assigned(FIniFile) then
+		Result := FIniFile.FileName
+	else
+		Result := TIniPersister.getIniFileSingleton().FileName;
 end;
 
 function TMemIniPersister.GetIniFile() : TMemIniFile;
 begin
-    var singleton := TIniPersister.getIniFileSingleton();
-	Result := TMemIniFile(singleton());
+	// Use the stored FIniFile if available, otherwise fall back to singleton
+	if Assigned(FIniFile) then
+		Result := TMemIniFile(FIniFile())
+	else
+		Result := TMemIniFile(TIniPersister.getIniFileSingleton()());
 end;
 
 procedure TMemIniPersister.SetFilePath(const Value : string);
 begin
-	TIniPersister.getIniFileSingleton().Rename(Value, False);
+	// Use the stored FIniFile if available, otherwise fall back to singleton
+	if Assigned(FIniFile) then
+		FIniFile.Rename(Value, False)
+	else
+		TIniPersister.getIniFileSingleton().Rename(Value, False);
 end;
 
 initialization
