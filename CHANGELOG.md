@@ -1,5 +1,16 @@
 # Changelog
 
+## [v4.15.0-beta] - 2025-10-14
+
+### 💥 Added
+- Output format settings: json or vimgrep
+
+### 🔄 Changed
+- Output options uses generalized OptionPanel 
+
+### 🐞 Fixed
+- Faulty settings writing in the Ini file, caused by concurrent threads
+
 ## [v4.14.0-beta] - 2025-09-27
 
 ### 💥 Added
@@ -93,6 +104,7 @@
 
 ## [Previous Versions]
 - See the release notes in the GitHub repository: https://github.com/mattia72/DRipGrepper/releases
+
 
 
 
