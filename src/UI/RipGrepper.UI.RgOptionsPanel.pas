@@ -24,8 +24,8 @@ const
 	RG_FILTER_OPTION_ENCODING_INDEX = 2;
 
 	RG_OUTPUT_OPTION_PRETTY_INDEX = 0;
-	RG_OUTPUT_OPTION_JSON_INDEX = 1;
-	RG_OUTPUT_OPTION_CONTEXT_INDEX = 2;
+	RG_OUTPUT_OPTION_CONTEXT_INDEX = 1;
+	RG_OUTPUT_OPTION_JSON_INDEX = 2;
 
 type
 	// Event type for option change
@@ -223,8 +223,8 @@ procedure TRgOutputOptionsPanel.AddItems();
 begin
 	// Add checkbox options
 	FCheckOptionsGroup.AddCheckboxItem('--pretty', 'Parse pretty output', RG_OUTPUT_OPTION_PRETTY_INDEX);
-	FCheckOptionsGroup.AddLabelComboItem('Output Format:', 'Output format', RG_OUTPUT_OPTION_JSON_INDEX, ['json', 'vimgrep']);
 	FCheckOptionsGroup.AddCheckboxSpinItem('--context=', 'Context line number', RG_OUTPUT_OPTION_CONTEXT_INDEX, 0, 20, 0);
+	FCheckOptionsGroup.AddLabelComboItem('Output Format:', 'Output format', RG_OUTPUT_OPTION_JSON_INDEX, ['json', 'vimgrep']);
 end;
 
 procedure TRgOutputOptionsPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
