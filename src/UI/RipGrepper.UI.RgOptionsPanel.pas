@@ -244,8 +244,10 @@ begin
 			dbgMsg.Msg('Pretty option changed to: ' + BoolToStr(Settings.SearchFormSettings.Pretty));
 		end;
 		RG_OUTPUT_OPTION_OUTPUT_FORMAT_INDEX : begin
-			// Output format option is not yet implemented in settings
-			dbgMsg.Msg('Output format option changed to: ' + BoolToStr(_item.Checked));
+			if Assigned(_item.ComboBox) then begin
+				Settings.SearchFormSettings.OutputFormat := _item.ComboBox.Text;
+				dbgMsg.Msg('Output format option changed to: ' + Settings.SearchFormSettings.OutputFormat);
+			end;
 		end;
 		RG_OUTPUT_OPTION_CONTEXT_INDEX : begin
 			if Assigned(_item.SpinEdit) then begin

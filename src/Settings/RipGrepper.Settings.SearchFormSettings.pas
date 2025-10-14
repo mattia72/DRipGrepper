@@ -21,11 +21,14 @@ type
 
 	TSearchFormSettings = class(TPersistableSettings, IStreamReaderWriterPersistable)
 		const
-			SEARCH_SETTINGS : array [0 .. 4] of string =
-			{ } ('Pretty', 'Hidden', 'NoIgnore', 'Context', 'Encoding');
-
-		const
 			INI_SECTION = 'RipGrepperSearchSettings';
+			SEARCH_SETTING_NAMES : array [0 .. 5] of string = (
+			{ } 'Hidden',
+			{ } 'NoIgnore',
+			{ } 'Pretty',
+			{ } 'Context',
+			{ } 'Encoding',
+			{ } 'OutputFormat');
 
 		private
 
@@ -34,17 +37,20 @@ type
 			FExtensionSettings : TRipGrepperExtensionSettings;
 			FHidden : IBoolSetting;
 			FNoIgnore : IBoolSetting;
+			FOutputFormat : IStringSetting;
 			FPretty : IBoolSetting;
 			function GetContext : Integer;
 			function GetEncoding : string;
 			function GetExtensionSettings : TRipGrepperExtensionSettings;
 			function GetHidden : Boolean;
 			function GetNoIgnore : Boolean;
+			function GetOutputFormat : string;
 			function GetPretty : Boolean;
 			procedure SetContext(const Value : Integer);
 			procedure SetEncoding(const Value : string);
 			procedure SetHidden(const Value : Boolean);
 			procedure SetNoIgnore(const Value : Boolean);
+			procedure SetOutputFormat(const Value : string);
 			procedure SetPretty(const Value : Boolean);
 
 		public
@@ -66,6 +72,7 @@ type
 			property ExtensionSettings : TRipGrepperExtensionSettings read GetExtensionSettings write FExtensionSettings;
 			property Hidden : Boolean read GetHidden write SetHidden;
 			property NoIgnore : Boolean read GetNoIgnore write SetNoIgnore;
+			property OutputFormat : string read GetOutputFormat write SetOutputFormat;
 			property Pretty : Boolean read GetPretty write SetPretty;
 	end;
 
@@ -151,6 +158,11 @@ begin
 	Result := FNoIgnore.Value;
 end;
 
+function TSearchFormSettings.GetOutputFormat : string;
+begin
+	Result := FOutputFormat.Value;
+end;
+
 function TSearchFormSettings.GetPretty : Boolean;
 begin
 	Result := FPretty.Value;
@@ -166,12 +178,14 @@ begin
 	FNoIgnore := TBoolSetting.Create('NoIgnore', False);
 	FContext := TIntegerSetting.Create('Context', 0);
 	FEncoding := TStringSetting.Create('Encoding', '');
+	FOutputFormat := TStringSetting.Create('OutputFormat', '');
 
 	CreateSetting(FPretty);
 	CreateSetting(FHidden);
 	CreateSetting(FNoIgnore);
 	CreateSetting(FContext);
 	CreateSetting(FEncoding);
+	CreateSetting(FOutputFormat);
 end;
 
 procedure TSearchFormSettings.LoadFromStreamReader(_sr : TStreamReader);
@@ -184,6 +198,7 @@ begin
 	Pretty := _sr.ReadLineAsBool('Pretty');
 	Context := _sr.ReadLineAsInteger('Context');
 	Encoding := _sr.ReadLineAsString(true, 'Encoding'); // Encoding can potentially be empty
+	OutputFormat := _sr.ReadLineAsString(false, 'OutputFormat'); // OutputFormat can potentially be empty
 	ExtensionSettings.LoadFromStreamReader(_sr);
 end;
 
@@ -211,6 +226,11 @@ end;
 procedure TSearchFormSettings.SetNoIgnore(const Value : Boolean);
 begin
 	FNoIgnore.Value := Value;
+end;
+
+procedure TSearchFormSettings.SetOutputFormat(const Value : string);
+begin
+	FOutputFormat.Value := Value;
 end;
 
 procedure TSearchFormSettings.SetPretty(const Value : Boolean);
@@ -241,17 +261,11 @@ begin
 	{ } BoolToStr(NoIgnore),
 	{ } BoolToStr(Pretty),
 	{ } Context.ToString,
-	{ } Encoding];
-	var
-	strNameArr := [
-	{ } 'Hidden',
-	{ } 'NoIgnore',
-	{ } 'Pretty',
-	{ } 'Context',
-	{ } 'Encoding'];
+	{ } Encoding,
+	{ } OutputFormat];
 
 	for var i := 0 to Length(strArr) - 1 do begin
-		_sw.WriteLineAsString(strArr[i], true, strNameArr[i]);
+		_sw.WriteLineAsString(strArr[i], true, SEARCH_SETTING_NAMES[i]);
 	end;
 
 	ExtensionSettings.SaveToStreamWriter(_sw);
@@ -259,13 +273,14 @@ end;
 
 function TSearchFormSettings.ToLogString : string;
 begin
-	Result := Format('Hidden=%s NoIgnore=%s Pretty=%s Context=%s Encoding=%s Extension:[%s]',
+	Result := Format('Hidden=%s NoIgnore=%s Pretty=%s Context=%s Encoding=%s OutputFormat=%s Extension:[%s]',
 		{ } [
 		{ } BoolToStr(Hidden),
 		{ } BoolToStr(NoIgnore),
 		{ } BoolToStr(Pretty),
 		{ } Context.ToString,
 		{ } Encoding,
+		{ } OutputFormat,
 		{ } FExtensionSettings.ToLogString]);
 end;
 

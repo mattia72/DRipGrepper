@@ -148,6 +148,7 @@ type
 			cbRgParamPretty : TCheckBox;
 			cbRgParamContext : TCheckBox;
 			seContextLineNum : TSpinEdit;
+			cmbOutputFormat : TComboBox;
 			FExtensionContextFrameOrigHeight : Integer;
 			FIsKeyboardInput : Boolean;
 			// proxy between settings and ctrls
@@ -588,6 +589,8 @@ begin
 	SetComboItemsFromOptions(cmbFileMasks, FCtrlProxy.FileMasks, FCtrlProxy.FileMasksHist);
 	// Set available encodings...
 	SetComboItemsAndText(cmbRgParamEncoding, FCtrlProxy.Encoding, FCtrlProxy.EncodingItems);
+	// Set available output formats...
+	SetComboItemsAndText(cmbOutputFormat, FCtrlProxy.OutputFormat, FCtrlProxy.OutputFormatItems);
 
 	UpdateSearchOptionsBtns;
 	UpdateCheckBoxes();
@@ -988,6 +991,7 @@ begin
 	_ctrlProxy.IsPrettyChecked := cbRgParamPretty.Checked;
 	_ctrlProxy.LineContext := seContextLineNum.Value;
 	_ctrlProxy.Encoding := cmbRgParamEncoding.Text;
+	_ctrlProxy.OutputFormat := cmbOutputFormat.Text;
 	_ctrlProxy.SearchOptions := TSearchTextWithOptions.GetAsSearchOptionSet(
 		{ } tbMatchCase.Down,
 		{ } tbMatchWord.Down,
@@ -1015,6 +1019,9 @@ begin
 	CopyItemsToProxy(_ctrlProxy.AdditionalExpertOptionsHist, FSettings.ExpertOptionHistory);
 
 	_ctrlProxy.EncodingItems := FSettings.AppSettings.EncodingItems;
+	_ctrlProxy.OutputFormatItems.Clear;
+	_ctrlProxy.OutputFormatItems.Add('json');
+	_ctrlProxy.OutputFormatItems.Add('vimgrep');
 	var
 	iIDEContext := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext.IDESearchContext;
 	_ctrlProxy.ExtensionContext := EDelphiIDESearchContext(iIDECOntext);
@@ -1047,6 +1054,7 @@ begin
 		_ctrlProxy.IsHiddenChecked := FSettings.SearchFormSettings.Hidden;
 		_ctrlProxy.IsNoIgnoreChecked := FSettings.SearchFormSettings.NoIgnore;
 		_ctrlProxy.Encoding := FSettings.SearchFormSettings.Encoding;
+		_ctrlProxy.OutputFormat := FSettings.SearchFormSettings.OutputFormat;
 		_ctrlProxy.IsPrettyChecked := FSettings.SearchFormSettings.Pretty;
 		_ctrlProxy.LineContext := FSettings.SearchFormSettings.Context;
 		dbgMsg.MsgFmt('Proxy filled from Settings: %s', [_ctrlProxy.ToString]);
@@ -1076,6 +1084,7 @@ begin
 		_histObj.SearchFormSettings.Hidden := _ctrlProxy.IsHiddenChecked;
 		_histObj.SearchFormSettings.NoIgnore := _ctrlProxy.IsNoIgnoreChecked;
 		_histObj.SearchFormSettings.Encoding := _ctrlProxy.Encoding;
+		_histObj.SearchFormSettings.OutputFormat := _ctrlProxy.OutputFormat;
 		_histObj.SearchFormSettings.Pretty := _ctrlProxy.IsPrettyChecked;
 		_histObj.SearchFormSettings.Context := _ctrlProxy.LineContext;
 
@@ -1087,6 +1096,7 @@ begin
 		FSettings.SearchFormSettings.Hidden := _ctrlProxy.IsHiddenChecked;
 		FSettings.SearchFormSettings.NoIgnore := _ctrlProxy.IsNoIgnoreChecked;
 		FSettings.SearchFormSettings.Encoding := _ctrlProxy.Encoding;
+		FSettings.SearchFormSettings.OutputFormat := _ctrlProxy.OutputFormat;
 		FSettings.SearchFormSettings.Pretty := _ctrlProxy.IsPrettyChecked;
 		FSettings.SearchFormSettings.Context := _ctrlProxy.LineContext;
 	end;
@@ -1574,6 +1584,9 @@ begin
 		cmbRgParamEncoding.Enabled := cbRgParamEncoding.Checked;
 		cmbRgParamEncoding.Text := FCtrlProxy.Encoding;
 		dbgMsg.Msg('cmbRgParamEncoding.Text=' + cmbRgParamEncoding.Text);
+
+		cmbOutputFormat.Text := FCtrlProxy.OutputFormat;
+		dbgMsg.Msg('cmbOutputFormat.Text=' + cmbOutputFormat.Text);
 	finally
 		// FRgFilterOptionsPanel.EventsEnabled := True;
 	end;
@@ -1702,6 +1715,7 @@ begin
 	cbRgParamPretty := optionsGroup.Items[RG_OUTPUT_OPTION_PRETTY_INDEX].CheckBox;
 	cbRgParamContext := optionsGroup.Items[RG_OUTPUT_OPTION_CONTEXT_INDEX].CheckBox;
 	seContextLineNum := optionsGroup.Items[RG_OUTPUT_OPTION_CONTEXT_INDEX].SpinEdit;
+	cmbOutputFormat := optionsGroup.Items[RG_OUTPUT_OPTION_OUTPUT_FORMAT_INDEX].ComboBox;
 end;
 
 end.
