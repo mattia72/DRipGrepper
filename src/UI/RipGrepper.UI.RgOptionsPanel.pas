@@ -25,7 +25,7 @@ const
 
 	RG_OUTPUT_OPTION_PRETTY_INDEX = 0;
 	RG_OUTPUT_OPTION_CONTEXT_INDEX = 1;
-	RG_OUTPUT_OPTION_JSON_INDEX = 2;
+	RG_OUTPUT_OPTION_OUTPUT_FORMAT_INDEX = 2;
 
 type
 	// Event type for option change
@@ -224,7 +224,7 @@ begin
 	// Add checkbox options
 	FCheckOptionsGroup.AddCheckboxItem('--pretty', 'Parse pretty output', RG_OUTPUT_OPTION_PRETTY_INDEX);
 	FCheckOptionsGroup.AddCheckboxSpinItem('--context=', 'Context line number', RG_OUTPUT_OPTION_CONTEXT_INDEX, 0, 20, 0);
-	FCheckOptionsGroup.AddLabelComboItem('Output Format:', 'Output format', RG_OUTPUT_OPTION_JSON_INDEX, ['json', 'vimgrep']);
+	FCheckOptionsGroup.AddLabelComboItem('Output Format:', 'Output format', RG_OUTPUT_OPTION_OUTPUT_FORMAT_INDEX, ['json', 'vimgrep']);
 end;
 
 procedure TRgOutputOptionsPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
@@ -243,9 +243,9 @@ begin
 			Settings.SearchFormSettings.Pretty := _item.Checked;
 			dbgMsg.Msg('Pretty option changed to: ' + BoolToStr(Settings.SearchFormSettings.Pretty));
 		end;
-		RG_OUTPUT_OPTION_JSON_INDEX : begin
-			// JSON option is not yet implemented in settings
-			dbgMsg.Msg('JSON option changed to: ' + BoolToStr(_item.Checked));
+		RG_OUTPUT_OPTION_OUTPUT_FORMAT_INDEX : begin
+			// Output format option is not yet implemented in settings
+			dbgMsg.Msg('Output format option changed to: ' + BoolToStr(_item.Checked));
 		end;
 		RG_OUTPUT_OPTION_CONTEXT_INDEX : begin
 			if Assigned(_item.SpinEdit) then begin
