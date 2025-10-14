@@ -223,6 +223,7 @@ type
 			function getOptionsAndFiltersHeight(const _bWithLabel : Boolean) : integer;
 			procedure SetRgFilterOptionsPanel(const _settings : TRipGrepperSettings);
 			procedure SetRgOutputOptionsPanel(const _settings : TRipGrepperSettings);
+			procedure CopyProxyToSearchFormSettings(const _ctrlProxy : TSearchFormCtrlValueProxy; const _settings : TSearchFormSettings);
 
 		protected
 			procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;
@@ -1081,24 +1082,12 @@ begin
 
 	if HasHistItemObjWithResult or _histObj.IsLoadedFromStream then begin
 		_histObj.GuiSearchTextParams.SetSearchOptions(_ctrlProxy.SearchOptions);
-		_histObj.SearchFormSettings.Hidden := _ctrlProxy.IsHiddenChecked;
-		_histObj.SearchFormSettings.NoIgnore := _ctrlProxy.IsNoIgnoreChecked;
-		_histObj.SearchFormSettings.Encoding := _ctrlProxy.Encoding;
-		_histObj.SearchFormSettings.OutputFormat := _ctrlProxy.OutputFormat;
-		_histObj.SearchFormSettings.Pretty := _ctrlProxy.IsPrettyChecked;
-		_histObj.SearchFormSettings.Context := _ctrlProxy.LineContext;
-
+		CopyProxyToSearchFormSettings(_ctrlProxy, _histObj.SearchFormSettings);
 		// copy every other setting...
 		CopySettingsToHistObj;
-
 	end else begin
 		FSettings.RipGrepParameters.GuiSearchTextParams.SetSearchOptions(_ctrlProxy.SearchOptions);
-		FSettings.SearchFormSettings.Hidden := _ctrlProxy.IsHiddenChecked;
-		FSettings.SearchFormSettings.NoIgnore := _ctrlProxy.IsNoIgnoreChecked;
-		FSettings.SearchFormSettings.Encoding := _ctrlProxy.Encoding;
-		FSettings.SearchFormSettings.OutputFormat := _ctrlProxy.OutputFormat;
-		FSettings.SearchFormSettings.Pretty := _ctrlProxy.IsPrettyChecked;
-		FSettings.SearchFormSettings.Context := _ctrlProxy.LineContext;
+		CopyProxyToSearchFormSettings(_ctrlProxy, FSettings.SearchFormSettings);
 	end;
 end;
 
@@ -1590,6 +1579,17 @@ begin
 	finally
 		// FRgFilterOptionsPanel.EventsEnabled := True;
 	end;
+end;
+
+procedure TRipGrepperSearchDialogForm.CopyProxyToSearchFormSettings(const _ctrlProxy : TSearchFormCtrlValueProxy;
+	const _settings : TSearchFormSettings);
+begin
+	_settings.Hidden := _ctrlProxy.IsHiddenChecked;
+	_settings.NoIgnore := _ctrlProxy.IsNoIgnoreChecked;
+	_settings.Encoding := _ctrlProxy.Encoding;
+	_settings.OutputFormat := _ctrlProxy.OutputFormat;
+	_settings.Pretty := _ctrlProxy.IsPrettyChecked;
+	_settings.Context := _ctrlProxy.LineContext;
 end;
 
 procedure TRipGrepperSearchDialogForm.CopySettingsToHistObj;
