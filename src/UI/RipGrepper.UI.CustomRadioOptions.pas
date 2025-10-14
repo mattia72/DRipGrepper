@@ -81,7 +81,7 @@ type
 		private
 			FItems : TCustomRadioItems;
 			FItemIndex : Integer;
-			FOnItemSelect : TRadioItemSelectEvent;
+			FOnRadioItemSelect: TRadioItemSelectEvent;
 			procedure onRadioButtonClick(_sender : TObject);
 			procedure setItemIndex(const _value : Integer);
 			function getSelectedItem : TCustomRadioItem;
@@ -99,7 +99,7 @@ type
 			property SelectedItem : TCustomRadioItem read getSelectedItem;
 			property Items : TCustomRadioItems read FItems write FItems;
 			property ItemIndex : Integer read FItemIndex write setItemIndex default -1;
-			property OnItemSelect : TRadioItemSelectEvent read FOnItemSelect write FOnItemSelect;
+			property OnRadioItemSelect: TRadioItemSelectEvent read FOnRadioItemSelect write FOnRadioItemSelect;
 	end;
 
 procedure Register;
@@ -330,8 +330,8 @@ begin
 	FItemIndex := itemIndex;
 
 	// Fire event
-	if Assigned(FOnItemSelect) and (itemIndex >= 0) and (itemIndex < FItems.Count) then begin
-		FOnItemSelect(Self, FItems[itemIndex]);
+	if Assigned(FOnRadioItemSelect) and (itemIndex >= 0) and (itemIndex < FItems.Count) then begin
+		FOnRadioItemSelect(Self, FItems[itemIndex]);
 	end;
 end;
 
@@ -360,8 +360,8 @@ begin
 		end;
 
 		// Fire event
-		if Assigned(FOnItemSelect) and (_value >= 0) then begin
-			FOnItemSelect(Self, FItems[_value]);
+		if Assigned(FOnRadioItemSelect) and (_value >= 0) then begin
+			FOnRadioItemSelect(Self, FItems[_value]);
 		end;
 	end;
 end;

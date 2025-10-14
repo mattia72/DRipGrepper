@@ -175,7 +175,8 @@ const
 	RG_PARAM_REGEX_CONTEXT = '-C|--context';
 	RG_PARAM_REGEX_ENCODING = '-E|--encoding';
 	RG_PARAM_REGEX_REPLACE = '-r|--replace';
-	RG_PARAM_REGEX_JSON = '--json';
+	RG_PARAM_REGEX_JSON_OUTPUT = '--json';
+	RG_PARAM_REGEX_VIMGREP_OUTPUT = '--vimgrep';
 	RG_PARAM_END = '--';
 
 	RG_PARAM_REGEX_VALUE_FORMAT = '^(%s)=?(.+)?$';
@@ -206,7 +207,7 @@ const
 	{ } ];
 
 	RG_NECESSARY_PARAMS : TArray<string> = [
-	{ } '--json',
+//	{ } '--json',
 	{ } '--line-buffered', // some big search couldn't be catched without this
 	{ } '--no-ignore-parent',
 	{ } '--follow',

@@ -776,6 +776,15 @@ begin
 		FSettings.SearchFormSettings.Encoding := '';
 	end;
 
+	FSettings.SearchFormSettings.OutputFormat := cmbOutputFormat.Text;
+	if 'json' = cmbOutputFormat.Text then begin
+		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_JSON_OUTPUT);
+		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_VIMGREP_OUTPUT, True { Reset } );
+	end else if 'vimgrep' = cmbOutputFormat.Text then begin
+		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_JSON_OUTPUT, True { Reset } );
+		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_VIMGREP_OUTPUT);
+	end;
+
 	if Fsettings.AppSettings.ExpertMode then begin
 		WriteOptionCtrlToProxy;
 	end;
@@ -819,6 +828,12 @@ begin
 	cbRgParamContext.Checked := FSettingsProxy.RgOptions.GetOptionValue(RG_PARAM_REGEX_CONTEXT, sVal);
 	seContextLineNum.Enabled := cbRgParamContext.Checked;
 	seContextLineNum.Text := IfThen(seContextLineNum.Enabled, sVal, '0');
+
+	if (FSettingsProxy.RgOptions.GetOptionValue(RG_PARAM_REGEX_JSON_OUTPUT, sVal)) then begin
+		cmbOutputFormat.Text := sVal;
+	end else if (FSettingsProxy.RgOptions.GetOptionValue(RG_PARAM_REGEX_VIMGREP_OUTPUT, sVal)) then begin
+		cmbOutputFormat.Text := sVal;
+	end;
 
 	sVal := '';
 	var
@@ -1020,9 +1035,7 @@ begin
 	CopyItemsToProxy(_ctrlProxy.AdditionalExpertOptionsHist, FSettings.ExpertOptionHistory);
 
 	_ctrlProxy.EncodingItems := FSettings.AppSettings.EncodingItems;
-	_ctrlProxy.OutputFormatItems.Clear;
-	_ctrlProxy.OutputFormatItems.Add('json');
-	_ctrlProxy.OutputFormatItems.Add('vimgrep');
+	_ctrlProxy.OutputFormatItems.Items := OUTPUT_FORMATS;
 	var
 	iIDEContext := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext.IDESearchContext;
 	_ctrlProxy.ExtensionContext := EDelphiIDESearchContext(iIDECOntext);
@@ -1139,7 +1152,8 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.OnContextChange');
 	var
-	bSkipp := {$IF IS_GUITEST OR IS_EXTENSION} False; {$ELSE} True; {$ENDIF}
+	bSkipp :=
+	{$IF IS_GUITEST OR IS_EXTENSION} False; {$ELSE} True; {$ENDIF}
 	dbgMsg.MsgFmt('FbExtensionOptionsSkipClick %s', [BoolToStr(FbExtensionOptionsSkipClick, True)]);
 	if bSkipp or FbExtensionOptionsSkipClick then begin
 		Exit;
@@ -1451,7 +1465,9 @@ begin
 	lblPaths.Visible := {$IF IS_GUITEST} FALSE; {$ELSE} bStandalone; {$ENDIF};;
 	if bStandalone then begin
 		var
-		bVisible := {$IF IS_GUITEST} True; {$ELSE} False; {$ENDIF};
+		bVisible :=
+		{$IF IS_GUITEST} True; {$ELSE} False;
+		{$ENDIF};
 		FExtensionContextPanel.Enabled := bVisible;
 		FExtensionContextPanel.Visible := bVisible;
 		dbgMsg.MsgFmt('FExtensionContextPanel.Visible=%s', [BoolToStr(bVisible, True)]);

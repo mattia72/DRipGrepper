@@ -713,7 +713,7 @@ begin
 	var
 	replaceText := Settings.RipGrepParameters.ReplaceText;
 	var
-	isJson := Settings.RipGrepParameters.RipGrepArguments.IsOptionSet(RG_PARAM_REGEX_JSON);
+	isJson := Settings.RipGrepParameters.RipGrepArguments.IsOptionSet(RG_PARAM_REGEX_JSON_OUTPUT);
 	FReplaceList.Items.Clear;
 	while Assigned(node) do begin
 		if node.Parent <> MainFrame.VstResult.RootNode then begin

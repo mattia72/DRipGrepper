@@ -3,10 +3,10 @@
 ## [v4.15.0-beta] - 2025-10-14
 
 ### 💥 Added
-- Output format settings: json or vimgrep
+- Output format settings: json or vimgrep (BREAKING CHANGE: loading of history items saved by old version won't work)
 
 ### 🔄 Changed
-- Output options uses generalized OptionPanel 
+- Output options use generalized OptionPanel 
 
 ### 🐞 Fixed
 - Faulty settings writing in the Ini file, caused by concurrent threads

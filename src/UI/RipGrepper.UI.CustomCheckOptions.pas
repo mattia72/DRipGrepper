@@ -104,7 +104,7 @@ type
 	end;
 
 	// Event type for item selection
-	TCheckItemSelectEvent = procedure(Sender : TObject; Item : TCustomCheckItem) of object;
+	TItemChangedEvent = procedure(Sender : TObject; Item : TCustomCheckItem) of object;
 
 	// Base class for custom option controls
 	TCustomOptionsBase = class(TCustomPanel)
@@ -129,8 +129,8 @@ type
 	TCustomCheckOptions = class(TCustomOptionsBase)
 		strict private
 			FItems : TCustomCheckItems;
-			FOnItemSelect : TCheckItemSelectEvent;
-			procedure onCheckBoxClick(_sender : TObject);
+			FOnItemChange: TItemChangedEvent;
+			procedure onItemChangeEventHandler(_sender : TObject);
 			function getSelectedItems : TArray<TCustomCheckItem>;
 
 		protected
@@ -158,7 +158,7 @@ type
 		published
 			property SelectedItems : TArray<TCustomCheckItem> read getSelectedItems;
 			property Items : TCustomCheckItems read FItems write FItems;
-			property OnItemSelect : TCheckItemSelectEvent read FOnItemSelect write FOnItemSelect;
+			property OnItemChange: TItemChangedEvent read FOnItemChange write FOnItemChange;
 	end;
 
 procedure Register;
@@ -482,7 +482,7 @@ begin
 	checkbox.Name := 'cmb' + UpCase(cleanCaption[1]) + cleanCaption.Substring(1);
 	checkBox.Parent := Self;
 	checkBox.Caption := _caption;
-	checkBox.OnClick := onCheckBoxClick;
+	checkBox.OnClick := onItemChangeEventHandler;
 	checkBox.Hint := _hint;
 	checkBox.ShowHint := True;
 	Result := FItems.AddItem(checkBox, _caption, _orderIndex, _obj);
@@ -500,7 +500,7 @@ begin
 	checkBox := TCheckBox.Create(Self);
 	checkBox.Parent := Self;
 	checkBox.Caption := BuildControlNameFromCaption(_caption);
-	checkBox.OnClick := onCheckBoxClick;
+	checkBox.OnClick := onItemChangeEventHandler;
 	checkBox.Hint := _hint;
 	checkBox.ShowHint := True;
 
@@ -535,7 +535,7 @@ begin
 	checkBox.Name := 'cb' + UpCase(cleanCaption[1]) + cleanCaption.Substring(1);
 	checkBox.Parent := Self;
 	checkBox.Caption := _caption;
-	checkBox.OnClick := onCheckBoxClick;
+	checkBox.OnClick := onItemChangeEventHandler;
 	checkBox.Hint := _hint;
 	checkBox.ShowHint := True;
 
@@ -576,6 +576,7 @@ begin
 	comboBox.Parent := Self;
 	comboBox.Style := csDropDown;
 	comboBox.AutoDropDownWidth := True;
+	comboBox.OnChange := onItemChangeEventHandler;
 
 	comboItems := Shared.Make<TStringList>();
 	comboItems.AddStrings(_comboItems);
@@ -689,7 +690,7 @@ begin
 	end;
 end;
 
-procedure TCustomCheckOptions.onCheckBoxClick(_sender : TObject);
+procedure TCustomCheckOptions.onItemChangeEventHandler(_sender : TObject);
 var
 	checkBox : TCheckBox;
 	itemIndex : Integer;
@@ -705,7 +706,7 @@ begin
 	// Update the checked state in the item
 	if (itemIndex >= 0) and (itemIndex < FItems.Count) then begin
 		item := FItems[itemIndex];
-		if not item.Checked then begin
+		if Assigned(item.CheckBox) and (not item.Checked) then begin
 			// Clear associated controls when checkbox is unchecked
 			if Assigned(item.ComboBox) then begin
 				item.ComboBox.Text := '';
@@ -716,8 +717,8 @@ begin
 		end;
 
 		// Fire event
-		if Assigned(FOnItemSelect) then begin
-			FOnItemSelect(Self, item);
+		if Assigned(FOnItemChange) then begin
+			FOnItemChange(Self, item);
 		end;
 	end;
 end;

@@ -23,6 +23,8 @@ const
 	RG_FILTER_OPTION_NO_IGNORE_INDEX = 1;
 	RG_FILTER_OPTION_ENCODING_INDEX = 2;
 
+	OUTPUT_FORMATS : TArray<string> = ['json', 'vimgrep'];
+
 	RG_OUTPUT_OPTION_PRETTY_INDEX = 0;
 	RG_OUTPUT_OPTION_CONTEXT_INDEX = 1;
 	RG_OUTPUT_OPTION_OUTPUT_FORMAT_INDEX = 2;
@@ -108,7 +110,7 @@ begin
 	FCheckOptionsGroup.Parent := pnlMain;
 	FCheckOptionsGroup.Align := alClient;
 	FCheckOptionsGroup.Columns := 3;
-	FCheckOptionsGroup.OnItemSelect := onCheckOptionSelect;
+	FCheckOptionsGroup.OnItemChange := onCheckOptionSelect;
 end;
 
 procedure TRgFilterOptionsPanel.AddItems();
@@ -173,6 +175,11 @@ begin
 		Exit;
 	end;
 
+	if not Assigned(_item.CheckBox) then begin
+		dbgMsg.MsgFmt('Item :%d has no checkbox, exiting', [_item.OrderIndex]);
+		Exit;
+	end;
+
 	// Handle the functionality that was previously in the individual event handlers
 	case _item.OrderIndex of
 		RG_FILTER_OPTION_HIDDEN_INDEX : begin
@@ -216,7 +223,7 @@ begin
 	FCheckOptionsGroup.Parent := pnlMain;
 	FCheckOptionsGroup.Align := alClient;
 	FCheckOptionsGroup.Columns := 3;
-	FCheckOptionsGroup.OnItemSelect := onCheckOptionSelect;
+	FCheckOptionsGroup.OnItemChange := onCheckOptionSelect;
 end;
 
 procedure TRgOutputOptionsPanel.AddItems();
@@ -224,7 +231,7 @@ begin
 	// Add checkbox options
 	FCheckOptionsGroup.AddCheckboxItem('--pretty', 'Parse pretty output', RG_OUTPUT_OPTION_PRETTY_INDEX);
 	FCheckOptionsGroup.AddCheckboxSpinItem('--context=', 'Context line number', RG_OUTPUT_OPTION_CONTEXT_INDEX, 0, 20, 0);
-	FCheckOptionsGroup.AddLabelComboItem('Output Format:', 'Output format', RG_OUTPUT_OPTION_OUTPUT_FORMAT_INDEX, ['json', 'vimgrep']);
+	FCheckOptionsGroup.AddLabelComboItem('Output Format:', 'Output format', RG_OUTPUT_OPTION_OUTPUT_FORMAT_INDEX, OUTPUT_FORMATS);
 end;
 
 procedure TRgOutputOptionsPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
@@ -240,8 +247,10 @@ begin
 	// Handle the functionality that was previously in the individual event handlers
 	case _item.OrderIndex of
 		RG_OUTPUT_OPTION_PRETTY_INDEX : begin
-			Settings.SearchFormSettings.Pretty := _item.Checked;
-			dbgMsg.Msg('Pretty option changed to: ' + BoolToStr(Settings.SearchFormSettings.Pretty));
+			if Assigned(_item.CheckBox) then begin
+				Settings.SearchFormSettings.Pretty := _item.Checked;
+				dbgMsg.Msg('Pretty option changed to: ' + BoolToStr(Settings.SearchFormSettings.Pretty));
+			end;
 		end;
 		RG_OUTPUT_OPTION_OUTPUT_FORMAT_INDEX : begin
 			if Assigned(_item.ComboBox) then begin
@@ -263,7 +272,6 @@ begin
 		FOnOptionChange(Self, _item);
 	end;
 end;
-
 
 procedure TOptionPanel.AdjustHeight();
 begin

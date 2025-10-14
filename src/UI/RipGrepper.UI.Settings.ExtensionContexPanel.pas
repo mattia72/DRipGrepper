@@ -78,7 +78,7 @@ begin
 	FContextRadioGroup.Parent := pnlMain;
 	FContextRadioGroup.Align := alClient;
 	FContextRadioGroup.Columns := 3;
-	FContextRadioGroup.OnItemSelect := onRadioItemSelect;
+	FContextRadioGroup.OnRadioItemSelect := onRadioItemSelect;
 	FRadioItemIndex := 0;
 end;
 

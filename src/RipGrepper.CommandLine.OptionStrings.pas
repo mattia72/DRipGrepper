@@ -63,7 +63,8 @@ uses
 	RipGrepper.CommandLine.OptionHelper,
 	RipGrepper.CommandLine.Builder,
 	System.StrUtils,
-	RipGrepper.Helper.StreamReaderWriter;
+	RipGrepper.Helper.StreamReaderWriter, 
+	System.Math;
 
 function TOptionStrings.AddOption(const _sParamRegex : string) : string;
 begin
@@ -89,7 +90,7 @@ begin
 		if _sValue.IsEmpty then begin
 			iFoundIdx := GetFirsMatchedIndex('^(' + _paramRegex + ')$');
 			if (iFoundIdx < 0) then begin
-				FOptions.Insert(0, params[RG_PARAM_LONG_INDEX]);
+				FOptions.Insert(0, params[IfThen(params.Count = 2, RG_PARAM_LONG_INDEX, 0)]);
 			end;
 		end else begin
 			iFoundIdx := GetFirsMatchedIndex(Format(RG_PARAM_REGEX_VALUE_FORMAT, [_paramRegex]));
@@ -102,7 +103,7 @@ begin
 			end else if _sValue = QuotedStr('') then begin
 				sValue := '';
 			end;
-			FOptions.Insert(0, params[RG_PARAM_LONG_INDEX] + '=' + sValue);
+			FOptions.Insert(0, params[IfThen(params.Count = 2, RG_PARAM_LONG_INDEX, 0)] + '=' + sValue);
 		end;
 	end;
 end;
