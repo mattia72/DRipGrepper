@@ -902,7 +902,9 @@ begin
 	end else if cmbFileMasks = _ctrlChanged then begin
 		UpdateFileMasksInHistObjRgOptions();
 		UpdateMemoCommandLine(); // UpdateCtrls
-	end else if (FRgFilterOptionsPanel = _ctrlChanged)
+	end else if
+	{ } (FRgFilterOptionsPanel = _ctrlChanged)
+	{ } or (FRgOutpuOptionsPanel = _ctrlChanged)
 	{ } or (cbRgParamHidden = _ctrlChanged)
 	{ } or (cbRgParamNoIgnore = _ctrlChanged)
 	{ } or (cbRgParamPretty = _ctrlChanged)
@@ -910,6 +912,7 @@ begin
 	{ } or (seContextLineNum = _ctrlChanged)
 	{ } or (cbRgParamEncoding = _ctrlChanged)
 	{ } or (cmbRgParamEncoding = _ctrlChanged)
+	{ } or (cmbOutputFormat = _ctrlChanged)
 	{ } then begin
 		UpdateMemoCommandLine(); // this should be done first! UpdateCtrls
 	end else if cmbOptions = _ctrlChanged then begin

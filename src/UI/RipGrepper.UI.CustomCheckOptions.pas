@@ -129,7 +129,7 @@ type
 	TCustomCheckOptions = class(TCustomOptionsBase)
 		strict private
 			FItems : TCustomCheckItems;
-			FOnItemChange: TItemChangedEvent;
+			FOnItemChange : TItemChangedEvent;
 			procedure onItemChangeEventHandler(_sender : TObject);
 			function getSelectedItems : TArray<TCustomCheckItem>;
 
@@ -158,7 +158,7 @@ type
 		published
 			property SelectedItems : TArray<TCustomCheckItem> read getSelectedItems;
 			property Items : TCustomCheckItems read FItems write FItems;
-			property OnItemChange: TItemChangedEvent read FOnItemChange write FOnItemChange;
+			property OnItemChange : TItemChangedEvent read FOnItemChange write FOnItemChange;
 	end;
 
 procedure Register;
@@ -482,9 +482,9 @@ begin
 	checkbox.Name := 'cmb' + UpCase(cleanCaption[1]) + cleanCaption.Substring(1);
 	checkBox.Parent := Self;
 	checkBox.Caption := _caption;
-	checkBox.OnClick := onItemChangeEventHandler;
 	checkBox.Hint := _hint;
 	checkBox.ShowHint := True;
+	checkBox.OnClick := onItemChangeEventHandler;
 	Result := FItems.AddItem(checkBox, _caption, _orderIndex, _obj);
 end;
 
@@ -500,9 +500,9 @@ begin
 	checkBox := TCheckBox.Create(Self);
 	checkBox.Parent := Self;
 	checkBox.Caption := BuildControlNameFromCaption(_caption);
-	checkBox.OnClick := onItemChangeEventHandler;
 	checkBox.Hint := _hint;
 	checkBox.ShowHint := True;
+	checkBox.OnClick := onItemChangeEventHandler;
 
 	comboBox := TComboBox.Create(Self);
 	comboBox.Parent := Self;
@@ -535,9 +535,9 @@ begin
 	checkBox.Name := 'cb' + UpCase(cleanCaption[1]) + cleanCaption.Substring(1);
 	checkBox.Parent := Self;
 	checkBox.Caption := _caption;
-	checkBox.OnClick := onItemChangeEventHandler;
 	checkBox.Hint := _hint;
 	checkBox.ShowHint := True;
+	checkBox.OnClick := onItemChangeEventHandler;
 
 	spinEdit := TSpinEdit.Create(Self);
 	spinEdit.Name := 'sp' + UpCase(cleanCaption[1]) + cleanCaption.Substring(1);
@@ -545,6 +545,7 @@ begin
 	spinEdit.MinValue := _minValue;
 	spinEdit.MaxValue := _maxValue;
 	spinEdit.Value := _defaultValue;
+    spinEdit.OnChange := onItemChangeEventHandler;
 
 	Result := FItems.AddItem(checkBox, spinEdit, _caption, _orderIndex, _obj);
 	Result.MinValue := _minValue;
@@ -629,7 +630,7 @@ begin
 				end;
 			end;
 
-			citCheckBoxWithCombo: begin
+			citCheckBoxWithCombo : begin
 				// Checkbox + ComboBox - both left aligned
 				if Assigned(item.CheckBox) then begin
 					item.CheckBox.Left := baseLeft;
@@ -647,7 +648,7 @@ begin
 				end;
 			end;
 
-			citCheckBoxWithSpin: begin
+			citCheckBoxWithSpin : begin
 				// Checkbox + SpinEdit - both left aligned
 				if Assigned(item.CheckBox) then begin
 					item.CheckBox.Left := baseLeft;
@@ -665,7 +666,7 @@ begin
 				end;
 			end;
 
-			citLabelWithCombo: begin
+			citLabelWithCombo : begin
 				// Label + ComboBox - both left aligned
 				if Assigned(item.LabelControl) then begin
 					item.LabelControl.Left := baseLeft;
@@ -693,6 +694,8 @@ end;
 procedure TCustomCheckOptions.onItemChangeEventHandler(_sender : TObject);
 var
 	checkBox : TCheckBox;
+	combo : TComboBox;
+    spin : TSpinEdit;
 	itemIndex : Integer;
 	item : TCustomCheckItem;
 begin
@@ -700,8 +703,22 @@ begin
 		Exit;
 	end;
 
-	checkBox := _sender as TCheckBox;
-	itemIndex := checkBox.Tag;
+	itemIndex := -1;
+
+	if _sender is TCheckBox then begin
+		checkBox := _sender as TCheckBox;
+		itemIndex := checkBox.Tag;
+	end else if _sender is TComboBox then begin
+		combo := _sender as TComboBox;
+		itemIndex := combo.Tag;
+	end else if _sender is TSpinEdit then begin
+		spin := _sender as TSpinEdit;
+		itemIndex := spin.Tag;
+	end;
+
+    if itemIndex < 0 then begin
+        raise Exception.CreateFmt('CustomCheckOptions type %s not supported', [_sender.ClassName]);
+    end;
 
 	// Update the checked state in the item
 	if (itemIndex >= 0) and (itemIndex < FItems.Count) then begin

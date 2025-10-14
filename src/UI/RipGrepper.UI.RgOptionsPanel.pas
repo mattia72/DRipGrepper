@@ -78,7 +78,6 @@ type
 		public
 			constructor Create(_owner : TComponent); override;
 			procedure AddItems();
-			// procedure LoadFromSettings();
 			property OnOptionChange : TRgOptionChangeEvent read FOnOptionChange write FOnOptionChange;
 	end;
 
