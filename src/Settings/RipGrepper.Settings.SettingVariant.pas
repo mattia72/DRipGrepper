@@ -97,6 +97,7 @@ type
 			FSettingType : TSettingType;
 			FSaveBehaviour : TSettingStoreBehaviours;
 			FState : TSettingState;
+			FEnabled : Boolean;
 
 			function GetName() : string;
 			function GetState() : TSettingState;
@@ -134,6 +135,7 @@ type
 			property Name: string read GetName;
 			property State : TSettingState read GetState write SetState;
 			property SaveBehaviour : TSettingStoreBehaviours read GetSaveBehaviour write SetSaveBehaviour;
+			property Enabled : Boolean read FEnabled write FEnabled;
 
 			property SettingType : TSettingType read GetSettingType write SetSettingType;
 	end;
