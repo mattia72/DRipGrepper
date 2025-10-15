@@ -178,7 +178,7 @@ begin
 	FNoIgnore := TBoolSetting.Create('NoIgnore', False);
 	FContext := TIntegerSetting.Create('Context', 0);
 	FEncoding := TStringSetting.Create('Encoding', '');
-	FOutputFormat := TStringSetting.Create('OutputFormat', '');
+	FOutputFormat := TStringSetting.Create('OutputFormat', 'json');
 
 	CreateSetting(FPretty);
 	CreateSetting(FHidden);

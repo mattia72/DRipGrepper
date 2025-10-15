@@ -230,7 +230,7 @@ begin
 	// Add checkbox options
 	FCheckOptionsGroup.AddCheckboxItem('--pretty', 'Parse pretty output', RG_OUTPUT_OPTION_PRETTY_INDEX);
 	FCheckOptionsGroup.AddCheckboxSpinItem('--context=', 'Context line number', RG_OUTPUT_OPTION_CONTEXT_INDEX, 0, 20, 0);
-	FCheckOptionsGroup.AddLabelComboItem('Output Format:', 'Output format', RG_OUTPUT_OPTION_OUTPUT_FORMAT_INDEX, OUTPUT_FORMATS);
+	FCheckOptionsGroup.AddLabelComboItem('Output Format:', 'Output format of rg.exe (json is recommended)', RG_OUTPUT_OPTION_OUTPUT_FORMAT_INDEX, OUTPUT_FORMATS);
 end;
 
 procedure TRgOutputOptionsPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
