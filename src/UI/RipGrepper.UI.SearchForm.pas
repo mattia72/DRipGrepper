@@ -777,10 +777,10 @@ begin
 	end;
 
 	FSettings.SearchFormSettings.OutputFormat := cmbOutputFormat.Text;
-	if 'json' = cmbOutputFormat.Text then begin
+	if OUTPUT_FORMAT_JSON = cmbOutputFormat.Text then begin
 		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_JSON_OUTPUT);
 		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_VIMGREP_OUTPUT, True { Reset } );
-	end else if 'vimgrep' = cmbOutputFormat.Text then begin
+	end else if OUTPUT_FORMAT_VIMGREP = cmbOutputFormat.Text then begin
 		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_JSON_OUTPUT, True { Reset } );
 		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_VIMGREP_OUTPUT);
 	end;

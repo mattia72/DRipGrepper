@@ -23,7 +23,9 @@ const
 	RG_FILTER_OPTION_NO_IGNORE_INDEX = 1;
 	RG_FILTER_OPTION_ENCODING_INDEX = 2;
 
-	OUTPUT_FORMATS : TArray<string> = ['json', 'vimgrep'];
+	OUTPUT_FORMAT_JSON = 'json';
+	OUTPUT_FORMAT_VIMGREP = 'vimgrep';
+	OUTPUT_FORMATS : TArray<string> = [OUTPUT_FORMAT_JSON, OUTPUT_FORMAT_VIMGREP];
 
 	RG_OUTPUT_OPTION_PRETTY_INDEX = 0;
 	RG_OUTPUT_OPTION_CONTEXT_INDEX = 1;
@@ -74,6 +76,7 @@ type
 
 		private
 			procedure onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
+			procedure UpdatePrettyItem();
 
 		public
 			constructor Create(_owner : TComponent); override;
@@ -230,7 +233,8 @@ begin
 	// Add checkbox options
 	FCheckOptionsGroup.AddCheckboxItem('--pretty', 'Parse pretty output', RG_OUTPUT_OPTION_PRETTY_INDEX);
 	FCheckOptionsGroup.AddCheckboxSpinItem('--context=', 'Context line number', RG_OUTPUT_OPTION_CONTEXT_INDEX, 0, 20, 0);
-	FCheckOptionsGroup.AddLabelComboItem('Output Format:', 'Output format of rg.exe (json is recommended)', RG_OUTPUT_OPTION_OUTPUT_FORMAT_INDEX, OUTPUT_FORMATS);
+	FCheckOptionsGroup.AddLabelComboItem('Output Format:', 'Output format of rg.exe (json is recommended)',
+		RG_OUTPUT_OPTION_OUTPUT_FORMAT_INDEX, OUTPUT_FORMATS);
 end;
 
 procedure TRgOutputOptionsPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
@@ -254,6 +258,7 @@ begin
 		RG_OUTPUT_OPTION_OUTPUT_FORMAT_INDEX : begin
 			if Assigned(_item.ComboBox) then begin
 				Settings.SearchFormSettings.OutputFormat := _item.ComboBox.Text;
+				UpdatePrettyItem;
 				dbgMsg.Msg('Output format option changed to: ' + Settings.SearchFormSettings.OutputFormat);
 			end;
 		end;
@@ -269,6 +274,30 @@ begin
 	// Fire change event
 	if Assigned(FOnOptionChange) then begin
 		FOnOptionChange(Self, _item);
+	end;
+end;
+
+procedure TRgOutputOptionsPanel.UpdatePrettyItem();
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRgOutputOptionsPanel.UpdatePrettyItem');
+
+	var
+	prettyItem := CheckOptionsGroup.Items[RG_OUTPUT_OPTION_PRETTY_INDEX];
+	if (OUTPUT_FORMAT_JSON = Settings.SearchFormSettings.OutputFormat) then begin
+		// If json is selected, disable pretty option (not compatible)
+		if Assigned(prettyItem) and Assigned(prettyItem.CheckBox) then begin
+			prettyItem.CheckBox.Checked := False;
+			prettyItem.CheckBox.Enabled := False;
+			Settings.SearchFormSettings.Pretty := False;
+			dbgMsg.Msg('Pretty option disabled due to json output format selection');
+		end;
+	end else begin
+		// Enable pretty option if not json
+		if Assigned(prettyItem) and Assigned(prettyItem.CheckBox) then begin
+			prettyItem.CheckBox.Enabled := True;
+			dbgMsg.Msg('Pretty option enabled');
+		end;
 	end;
 end;
 
