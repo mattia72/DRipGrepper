@@ -35,24 +35,17 @@ type
 			FContext : IIntegerSetting;
 			FEncoding : IStringSetting;
 			FExtensionSettings : TRipGrepperExtensionSettings;
-			FHidden : IBoolSetting;
+			FHidden: IBoolSetting;
 			FNoIgnore : IBoolSetting;
-			FOutputFormat : IStringSetting;
+			FOutputFormat: IStringSetting;
 			FPretty : IBoolSetting;
-			function GetContext : Integer;
-			function GetEncoding : string;
+			function GetContext(): IIntegerSetting;
+			function GetEncoding(): IStringSetting;
 			function GetExtensionSettings : TRipGrepperExtensionSettings;
-			function GetHidden : Boolean;
-			function GetNoIgnore : Boolean;
-			function GetOutputFormat : string;
-			function GetPretty : Boolean;
-			procedure SetContext(const Value : Integer);
-			procedure SetEncoding(const Value : string);
-			procedure SetHidden(const Value : Boolean);
-			procedure SetNoIgnore(const Value : Boolean);
-			procedure SetOutputFormat(const Value : string);
-			procedure SetPretty(const Value : Boolean);
-
+			function GetHidden(): IBoolSetting;
+			function GetNoIgnore(): IBoolSetting;
+			function GetOutputFormat(): IStringSetting;
+			function GetPretty(): IBoolSetting;
 		public
 			constructor Create(const _Owner : TPersistableSettings); overload;
 			constructor Create; overload;
@@ -67,13 +60,13 @@ type
 			procedure SaveToStreamWriter(_sw : TStreamWriter);
 			function ToLogString : string; override;
 
-			property Context : Integer read GetContext write SetContext;
-			property Encoding : string read GetEncoding write SetEncoding;
+			property Context: IIntegerSetting read GetContext;
+			property Encoding: IStringSetting read GetEncoding;
 			property ExtensionSettings : TRipGrepperExtensionSettings read GetExtensionSettings write FExtensionSettings;
-			property Hidden : Boolean read GetHidden write SetHidden;
-			property NoIgnore : Boolean read GetNoIgnore write SetNoIgnore;
-			property OutputFormat : string read GetOutputFormat write SetOutputFormat;
-			property Pretty : Boolean read GetPretty write SetPretty;
+			property Hidden: IBoolSetting read GetHidden;
+			property NoIgnore: IBoolSetting read GetNoIgnore;
+			property OutputFormat: IStringSetting read GetOutputFormat;
+			property Pretty: IBoolSetting read GetPretty;
 	end;
 
 implementation
@@ -127,14 +120,14 @@ begin
 	end;
 end;
 
-function TSearchFormSettings.GetContext : Integer;
+function TSearchFormSettings.GetContext(): IIntegerSetting;
 begin
-	Result := FContext.Value;
+	Result := FContext;
 end;
 
-function TSearchFormSettings.GetEncoding : string;
+function TSearchFormSettings.GetEncoding(): IStringSetting;
 begin
-	Result := FEncoding.Value;
+	Result := FEncoding;
 end;
 
 function TSearchFormSettings.GetExtensionSettings : TRipGrepperExtensionSettings;
@@ -148,24 +141,24 @@ begin
 	Result := FExtensionSettings;
 end;
 
-function TSearchFormSettings.GetHidden : Boolean;
+function TSearchFormSettings.GetHidden(): IBoolSetting;
 begin
-	Result := FHidden.Value;
+	Result := FHidden;
 end;
 
-function TSearchFormSettings.GetNoIgnore : Boolean;
+function TSearchFormSettings.GetNoIgnore(): IBoolSetting;
 begin
-	Result := FNoIgnore.Value;
+	Result := FNoIgnore;
 end;
 
-function TSearchFormSettings.GetOutputFormat : string;
+function TSearchFormSettings.GetOutputFormat(): IStringSetting;
 begin
-	Result := FOutputFormat.Value;
+	Result := FOutputFormat;
 end;
 
-function TSearchFormSettings.GetPretty : Boolean;
+function TSearchFormSettings.GetPretty(): IBoolSetting;
 begin
-	Result := FPretty.Value;
+	Result := FPretty;
 end;
 
 procedure TSearchFormSettings.Init;
@@ -194,12 +187,12 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.LoadFromStreamReader');
 	inherited;
-	Hidden := _sr.ReadLineAsBool('Hidden');
-	NoIgnore := _sr.ReadLineAsBool('NoIgnore');
-	Pretty := _sr.ReadLineAsBool('Pretty');
-	Context := _sr.ReadLineAsInteger('Context');
-	Encoding := _sr.ReadLineAsString(true, 'Encoding'); // Encoding can potentially be empty
-	OutputFormat := _sr.ReadLineAsString(false, 'OutputFormat'); // OutputFormat can potentially be empty
+	Hidden.Value := _sr.ReadLineAsBool('Hidden');
+	NoIgnore.Value := _sr.ReadLineAsBool('NoIgnore');
+	Pretty.Value := _sr.ReadLineAsBool('Pretty');
+	Context.Value := _sr.ReadLineAsInteger('Context');
+	Encoding.Value := _sr.ReadLineAsString(true, 'Encoding'); // Encoding can potentially be empty
+	OutputFormat.Value := _sr.ReadLineAsString(false, 'OutputFormat'); // OutputFormat can potentially be empty
 	ExtensionSettings.LoadFromStreamReader(_sr);
 end;
 
@@ -207,36 +200,6 @@ procedure TSearchFormSettings.ReadFile();
 begin
 	FExtensionSettings.ReadFile;
 	inherited ReadFile();
-end;
-
-procedure TSearchFormSettings.SetContext(const Value : Integer);
-begin
-	FContext.Value := Value;
-end;
-
-procedure TSearchFormSettings.SetEncoding(const Value : string);
-begin
-	FEncoding.Value := Value;
-end;
-
-procedure TSearchFormSettings.SetHidden(const Value : Boolean);
-begin
-	FHidden.Value := Value;
-end;
-
-procedure TSearchFormSettings.SetNoIgnore(const Value : Boolean);
-begin
-	FNoIgnore.Value := Value;
-end;
-
-procedure TSearchFormSettings.SetOutputFormat(const Value : string);
-begin
-	FOutputFormat.Value := Value;
-end;
-
-procedure TSearchFormSettings.SetPretty(const Value : Boolean);
-begin
-	FPretty.Value := Value;
 end;
 
 procedure TSearchFormSettings.StoreToPersister; // extension switch off if TESTINSIGHT
@@ -258,12 +221,12 @@ begin
 	inherited;
 	var
 	strArr := [
-	{ } BoolToStr(Hidden),
-	{ } BoolToStr(NoIgnore),
-	{ } BoolToStr(Pretty),
-	{ } Context.ToString,
-	{ } Encoding,
-	{ } OutputFormat];
+	{ } BoolToStr(Hidden.Value),
+	{ } BoolToStr(NoIgnore.Value),
+	{ } BoolToStr(Pretty.Value),
+	{ } Context.Value.ToString,
+	{ } Encoding.Value,
+	{ } OutputFormat.Value];
 
 	for var i := 0 to Length(strArr) - 1 do begin
 		_sw.WriteLineAsString(strArr[i], true, SEARCH_SETTING_NAMES[i]);
@@ -276,12 +239,12 @@ function TSearchFormSettings.ToLogString : string;
 begin
 	Result := Format('Hidden=%s NoIgnore=%s Pretty=%s Context=%s Encoding=%s OutputFormat=%s Extension:[%s]',
 		{ } [
-		{ } BoolToStr(Hidden),
-		{ } BoolToStr(NoIgnore),
-		{ } BoolToStr(Pretty),
-		{ } Context.ToString,
-		{ } Encoding,
-		{ } OutputFormat,
+		{ } BoolToStr(Hidden.Value),
+		{ } BoolToStr(NoIgnore.Value),
+		{ } BoolToStr(Pretty.Value),
+		{ } Context.Value.ToString,
+		{ } Encoding.Value,
+		{ } OutputFormat.Value,
 		{ } FExtensionSettings.ToLogString]);
 end;
 

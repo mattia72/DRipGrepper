@@ -63,10 +63,13 @@ type
 		function AsInteger() : Integer;
 		function AsBool() : Boolean;
 		function AsArray() : TArrayEx<string>;
+		function GetEnabled(): Boolean;
 		function GetName() : string;
 		function GetSaveBehaviour() : TSettingStoreBehaviours;
+		procedure SetEnabled(const Value: Boolean);
 		procedure SetSaveBehaviour(const Value : TSettingStoreBehaviours);
 
+		property Enabled: Boolean read GetEnabled write SetEnabled;
 		property Name : string read GetName;
 		property State : TSettingState read GetState write SetState;
 		property SettingType : TSettingType read GetSettingType;
@@ -97,10 +100,12 @@ type
 			FSettingType : TSettingType;
 			FSaveBehaviour : TSettingStoreBehaviours;
 			FState : TSettingState;
-			FEnabled : Boolean;
+			FEnabled: Boolean;
 
+			function GetEnabled(): Boolean;
 			function GetName() : string;
 			function GetState() : TSettingState;
+			procedure SetEnabled(const Value: Boolean);
 			procedure SetSettingType(const Value : TSettingType);
 			procedure SetState(const Value : TSettingState);
 
@@ -135,7 +140,7 @@ type
 			property Name: string read GetName;
 			property State : TSettingState read GetState write SetState;
 			property SaveBehaviour : TSettingStoreBehaviours read GetSaveBehaviour write SetSaveBehaviour;
-			property Enabled : Boolean read FEnabled write FEnabled;
+			property Enabled: Boolean read GetEnabled write SetEnabled;
 
 			property SettingType : TSettingType read GetSettingType write SetSettingType;
 	end;
@@ -458,6 +463,11 @@ begin
 	Result := (FState = _other.State);
 end;
 
+function TSetting.GetEnabled(): Boolean;
+begin
+	Result := FEnabled;
+end;
+
 function TSetting.GetName() : string;
 begin
 	Result := FName;
@@ -476,6 +486,11 @@ end;
 function TSetting.GetSettingType() : TSettingType;
 begin
 	Result := FSettingType;
+end;
+
+procedure TSetting.SetEnabled(const Value: Boolean);
+begin
+	FEnabled := Value;
 end;
 
 procedure TSetting.SetSaveBehaviour(const Value : TSettingStoreBehaviours);

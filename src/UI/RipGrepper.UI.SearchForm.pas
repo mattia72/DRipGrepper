@@ -769,14 +769,14 @@ begin
 		if cmbRgParamEncoding.Text = '' then begin
 			cmbRgParamEncoding.Text := cmbRgParamEncoding.Items[0];
 		end;
-		FSettings.SearchFormSettings.Encoding := cmbRgParamEncoding.Text;
+		FSettings.SearchFormSettings.Encoding.Value := cmbRgParamEncoding.Text;
 		FSettingsProxy.SetRgOptionWithValue(RG_PARAM_REGEX_ENCODING, cmbRgParamEncoding.Text, { bUnique } True);
 	end else begin
 		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_ENCODING, { bReset } True);
-		FSettings.SearchFormSettings.Encoding := '';
+		FSettings.SearchFormSettings.Encoding.Value := '';
 	end;
 
-	FSettings.SearchFormSettings.OutputFormat := cmbOutputFormat.Text;
+	FSettings.SearchFormSettings.OutputFormat.Value := cmbOutputFormat.Text;
 	if OUTPUT_FORMAT_JSON = cmbOutputFormat.Text then begin
 		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_JSON_OUTPUT);
 		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_VIMGREP_OUTPUT, True { Reset } );
@@ -1052,11 +1052,11 @@ begin
 
 		_ctrlProxy.SearchPath := GetValuesFromHistObjRipGrepArguments(RG_ARG_SEARCH_PATH, SEARCH_PATH_SEPARATOR);
 		_ctrlProxy.FileMasks := GetValuesFromHistObjRipGrepArguments(RG_PARAM_REGEX_GLOB);
-		_ctrlProxy.IsHiddenChecked := FHistItemObj.SearchFormSettings.Hidden;
-		_ctrlProxy.IsNoIgnoreChecked := FHistItemObj.SearchFormSettings.NoIgnore;
-		_ctrlProxy.Encoding := FHistItemObj.SearchFormSettings.Encoding;
-		_ctrlProxy.IsPrettyChecked := FHistItemObj.SearchFormSettings.Pretty;
-		_ctrlProxy.LineContext := FHistItemObj.SearchFormSettings.Context;
+		_ctrlProxy.IsHiddenChecked := FHistItemObj.SearchFormSettings.Hidden.Value;
+		_ctrlProxy.IsNoIgnoreChecked := FHistItemObj.SearchFormSettings.NoIgnore.Value;
+		_ctrlProxy.Encoding := FHistItemObj.SearchFormSettings.Encoding.Value;
+		_ctrlProxy.IsPrettyChecked := FHistItemObj.SearchFormSettings.Pretty.Value;
+		_ctrlProxy.LineContext := FHistItemObj.SearchFormSettings.Context.Value;
 		_ctrlProxy.AdditionalExpertOptions := FHistItemObj.GuiSearchTextParams.ExpertOptions.AsString;
 		dbgMsg.MsgFmt('Proxy filled from HistItemObj: %s', [_ctrlProxy.ToString]);
 	end else begin
@@ -1068,12 +1068,12 @@ begin
 
 		_ctrlProxy.SearchOptions := FSettings.RipGrepParameters.GuiSearchTextParams.GetSearchOptions;
 		_ctrlProxy.IsReplaceMode := FSettings.IsReplaceMode;
-		_ctrlProxy.IsHiddenChecked := FSettings.SearchFormSettings.Hidden;
-		_ctrlProxy.IsNoIgnoreChecked := FSettings.SearchFormSettings.NoIgnore;
-		_ctrlProxy.Encoding := FSettings.SearchFormSettings.Encoding;
-		_ctrlProxy.OutputFormat := FSettings.SearchFormSettings.OutputFormat;
-		_ctrlProxy.IsPrettyChecked := FSettings.SearchFormSettings.Pretty;
-		_ctrlProxy.LineContext := FSettings.SearchFormSettings.Context;
+		_ctrlProxy.IsHiddenChecked := FSettings.SearchFormSettings.Hidden.Value;
+		_ctrlProxy.IsNoIgnoreChecked := FSettings.SearchFormSettings.NoIgnore.Value;
+		_ctrlProxy.Encoding := FSettings.SearchFormSettings.Encoding.Value;
+		_ctrlProxy.OutputFormat := FSettings.SearchFormSettings.OutputFormat.Value;
+		_ctrlProxy.IsPrettyChecked := FSettings.SearchFormSettings.Pretty.Value;
+		_ctrlProxy.LineContext := FSettings.SearchFormSettings.Context.Value;
 		dbgMsg.MsgFmt('Proxy filled from Settings: %s', [_ctrlProxy.ToString]);
 	end;
 end;
@@ -1603,12 +1603,12 @@ end;
 procedure TRipGrepperSearchDialogForm.CopyProxyToSearchFormSettings(const _ctrlProxy : TSearchFormCtrlValueProxy;
 	const _settings : TSearchFormSettings);
 begin
-	_settings.Hidden := _ctrlProxy.IsHiddenChecked;
-	_settings.NoIgnore := _ctrlProxy.IsNoIgnoreChecked;
-	_settings.Encoding := _ctrlProxy.Encoding;
-	_settings.OutputFormat := _ctrlProxy.OutputFormat;
-	_settings.Pretty := _ctrlProxy.IsPrettyChecked;
-	_settings.Context := _ctrlProxy.LineContext;
+	_settings.Hidden.Value := _ctrlProxy.IsHiddenChecked;
+	_settings.NoIgnore.Value := _ctrlProxy.IsNoIgnoreChecked;
+	_settings.Encoding.Value := _ctrlProxy.Encoding;
+	_settings.OutputFormat.Value := _ctrlProxy.OutputFormat;
+	_settings.Pretty.Value := _ctrlProxy.IsPrettyChecked;
+	_settings.Context.Value := _ctrlProxy.LineContext;
 end;
 
 procedure TRipGrepperSearchDialogForm.CopySettingsToHistObj;
@@ -1696,7 +1696,7 @@ begin
 	// Exit;
 
 	// This covers the functionality that was in cmbRgParamEncodingChange
-	FSettings.SearchFormSettings.Encoding := IfThen(cmbRgParamEncoding.Enabled, cmbRgParamEncoding.Text);
+	FSettings.SearchFormSettings.Encoding.Value := IfThen(cmbRgParamEncoding.Enabled, cmbRgParamEncoding.Text);
 	UpdateCtrls(cmbRgParamEncoding);
 end;
 

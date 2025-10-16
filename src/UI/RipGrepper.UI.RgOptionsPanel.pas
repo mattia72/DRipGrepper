@@ -37,6 +37,7 @@ type
 
 	TOptionPanel = class(TCustomPanel)
 		strict private
+			FOnOptionChange : TRgOptionChangeEvent;
 			FSettings : TRipGrepperSettings;
 			procedure SetSettings(const Value : TRipGrepperSettings);
 
@@ -44,6 +45,7 @@ type
 			FCheckOptionsGroup : TCustomCheckOptions;
 
 		protected
+			procedure onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem); virtual;
 
 		public
 			FEventsEnabled : Boolean;
@@ -51,37 +53,32 @@ type
 			property CheckOptionsGroup : TCustomCheckOptions read FCheckOptionsGroup;
 			property EventsEnabled : Boolean read FEventsEnabled write FEventsEnabled;
 			property Settings : TRipGrepperSettings read FSettings write SetSettings;
+			property OnOptionChange : TRgOptionChangeEvent read FOnOptionChange write FOnOptionChange;
 	end;
 
 	TRgFilterOptionsPanel = class(TOptionPanel)
 		pnlMain : TPanel;
 
 		strict private
-			FOnOptionChange : TRgOptionChangeEvent;
-
 		private
-			procedure onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
+			procedure onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem); override;
 
 		public
 			constructor Create(_owner : TComponent); override;
 			procedure AddItems();
-			property OnOptionChange : TRgOptionChangeEvent read FOnOptionChange write FOnOptionChange;
 	end;
 
 	TRgOutputOptionsPanel = class(TOptionPanel)
 		pnlMain : TPanel;
 
 		strict private
-			FOnOptionChange : TRgOptionChangeEvent;
-
 		private
-			procedure onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
+			procedure onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem); override;
 			procedure UpdatePrettyItem();
 
 		public
 			constructor Create(_owner : TComponent); override;
 			procedure AddItems();
-			property OnOptionChange : TRgOptionChangeEvent read FOnOptionChange write FOnOptionChange;
 	end;
 
 implementation
@@ -92,7 +89,8 @@ uses
 	RipGrepper.Common.Constants,
 	System.StrUtils,
 	System.Math,
-	ArrayEx;
+	ArrayEx,
+	RipGrepper.Settings.SettingVariant;
 
 constructor TRgFilterOptionsPanel.Create(_owner : TComponent);
 begin
@@ -160,51 +158,42 @@ begin
 	encodingItems.Add('windows-1258');
 	encodingItems.Add('windows-874');
 
+	var
+	sfs := Settings.SearchFormSettings;
 	// Add checkbox options
-	FCheckOptionsGroup.AddCheckboxItem('--hidden', 'Include hidden files in search', RG_FILTER_OPTION_HIDDEN_INDEX);
-	FCheckOptionsGroup.AddCheckboxItem('--no-ignore', 'Don''t respect ignore files', RG_FILTER_OPTION_NO_IGNORE_INDEX);
-	FCheckOptionsGroup.AddCheckboxComboItem('--encoding=', 'Specify text encoding', RG_FILTER_OPTION_ENCODING_INDEX, encodingItems);
+	FCheckOptionsGroup.AddCheckboxItem('--hidden', 'Include hidden files in search',
+		{ } RG_FILTER_OPTION_HIDDEN_INDEX,
+		{ } sfs.Hidden);
+	FCheckOptionsGroup.AddCheckboxItem('--no-ignore', 'Don''t respect ignore files',
+		{ } RG_FILTER_OPTION_NO_IGNORE_INDEX,
+		{ } sfs.NoIgnore);
+	FCheckOptionsGroup.AddCheckboxComboItem('--encoding=', 'Specify text encoding',
+		{ } RG_FILTER_OPTION_ENCODING_INDEX,
+		{ } encodingItems,
+		{ } sfs.Encoding);
 
 end;
 
 procedure TRgFilterOptionsPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
 begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRgFilterOptionsPanel.onCheckOptionSelect');
-
-	if not FEventsEnabled then begin
-		dbgMsg.MsgFmt('Events for idx:%d disabled, exiting', [_item.OrderIndex]);
-		Exit;
-	end;
-
-	if not Assigned(_item.CheckBox) then begin
-		dbgMsg.MsgFmt('Item :%d has no checkbox, exiting', [_item.OrderIndex]);
-		Exit;
-	end;
-
-	// Handle the functionality that was previously in the individual event handlers
-	case _item.OrderIndex of
-		RG_FILTER_OPTION_HIDDEN_INDEX : begin
-			Settings.SearchFormSettings.Hidden := _item.Checked;
-			dbgMsg.Msg('Hidden option changed to: ' + BoolToStr(Settings.SearchFormSettings.Hidden));
-		end;
-		RG_FILTER_OPTION_NO_IGNORE_INDEX : begin
-			Settings.SearchFormSettings.NoIgnore := _item.Checked;
-			dbgMsg.Msg('NoIgnore option changed to: ' + BoolToStr(Settings.SearchFormSettings.NoIgnore));
-		end;
-		RG_FILTER_OPTION_ENCODING_INDEX : begin
-			if Assigned(_item.ComboBox) then begin
-				_item.ComboBox.Enabled := _item.Checked;
-				Settings.SearchFormSettings.Encoding := IfThen(_item.ComboBox.Enabled, _item.ComboBox.Text);
-				dbgMsg.Msg('Encoding option changed to: ' + Settings.SearchFormSettings.Encoding);
-			end;
-		end;
-	end;
-
-	// Fire change event
-	if Assigned(FOnOptionChange) then begin
-		FOnOptionChange(Self, _item);
-	end;
+	inherited;
+	// case _item.OrderIndex of
+	// RG_FILTER_OPTION_HIDDEN_INDEX : begin
+	// Settings.SearchFormSettings.Hidden.Value := _item.Checked;
+	// dbgMsg.Msg('Hidden option changed to: ' + BoolToStr(Settings.SearchFormSettings.Hidden));
+	// end;
+	// RG_FILTER_OPTION_NO_IGNORE_INDEX : begin
+	// Settings.SearchFormSettings.NoIgnore.Value := _item.Checked;
+	// dbgMsg.Msg('NoIgnore option changed to: ' + BoolToStr(Settings.SearchFormSettings.NoIgnore));
+	// end;
+	// RG_FILTER_OPTION_ENCODING_INDEX : begin
+	// if Assigned(_item.ComboBox) then begin
+	// _item.ComboBox.Enabled := _item.Checked;
+	// Settings.SearchFormSettings.Encoding := IfThen(_item.ComboBox.Enabled, _item.ComboBox.Text);
+	// dbgMsg.Msg('Encoding option changed to: ' + Settings.SearchFormSettings.Encoding);
+	// end;
+	// end;
+	// end;
 end;
 
 constructor TRgOutputOptionsPanel.Create(_owner : TComponent);
@@ -231,49 +220,44 @@ end;
 procedure TRgOutputOptionsPanel.AddItems();
 begin
 	// Add checkbox options
-	FCheckOptionsGroup.AddCheckboxItem('--pretty', 'Parse pretty output', RG_OUTPUT_OPTION_PRETTY_INDEX);
-	FCheckOptionsGroup.AddCheckboxSpinItem('--context=', 'Context line number', RG_OUTPUT_OPTION_CONTEXT_INDEX, 0, 20, 0);
+	var
+	sfs := Settings.SearchFormSettings;
+	FCheckOptionsGroup.AddCheckboxItem('--pretty', 'Parse pretty output',
+		{ } RG_OUTPUT_OPTION_PRETTY_INDEX,
+		{ } sfs.Pretty);
+	FCheckOptionsGroup.AddCheckboxSpinItem('--context=', 'Context line number',
+		{ } RG_OUTPUT_OPTION_CONTEXT_INDEX,
+		{ } 0, 20, 0,
+		{ } sfs.Context);
 	FCheckOptionsGroup.AddLabelComboItem('Output Format:', 'Output format of rg.exe (json is recommended)',
-		RG_OUTPUT_OPTION_OUTPUT_FORMAT_INDEX, OUTPUT_FORMATS);
+		{ } RG_OUTPUT_OPTION_OUTPUT_FORMAT_INDEX,
+		{ } OUTPUT_FORMATS,
+		{ } sfs.OutputFormat);
 end;
 
 procedure TRgOutputOptionsPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
 begin
+	inherited;
+
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRgOutputOptionsPanel.onCheckOptionSelect');
-
 	if not FEventsEnabled then begin
 		dbgMsg.MsgFmt('Events for idx:%d disabled, exiting', [_item.OrderIndex]);
 		Exit;
 	end;
 
 	// Handle the functionality that was previously in the individual event handlers
-	case _item.OrderIndex of
-		RG_OUTPUT_OPTION_PRETTY_INDEX : begin
-			if Assigned(_item.CheckBox) then begin
-				Settings.SearchFormSettings.Pretty := _item.Checked;
-				dbgMsg.Msg('Pretty option changed to: ' + BoolToStr(Settings.SearchFormSettings.Pretty));
-			end;
-		end;
-		RG_OUTPUT_OPTION_OUTPUT_FORMAT_INDEX : begin
-			if Assigned(_item.ComboBox) then begin
-				Settings.SearchFormSettings.OutputFormat := _item.ComboBox.Text;
-				UpdatePrettyItem;
-				dbgMsg.Msg('Output format option changed to: ' + Settings.SearchFormSettings.OutputFormat);
-			end;
-		end;
-		RG_OUTPUT_OPTION_CONTEXT_INDEX : begin
-			if Assigned(_item.SpinEdit) then begin
-				_item.SpinEdit.Enabled := _item.Checked;
-				Settings.SearchFormSettings.Context := IfThen(_item.SpinEdit.Enabled, _item.SpinEdit.Value, 0);
-				dbgMsg.Msg('Context option changed to: ' + Settings.SearchFormSettings.Context.ToString);
-			end;
-		end;
+	if _item.Setting.Name = 'OutputFormat' then begin
+		UpdatePrettyItem;
+	end;
+
+	if _item.Setting.Name = 'Context' then begin
+		(_item.Setting as IIntegerSetting).Value := IfThen(_item.SpinEdit.Enabled, _item.SpinEdit.Value, 0);
 	end;
 
 	// Fire change event
-	if Assigned(FOnOptionChange) then begin
-		FOnOptionChange(Self, _item);
+	if Assigned(OnOptionChange) then begin
+		OnOptionChange(Self, _item);
 	end;
 end;
 
@@ -284,12 +268,12 @@ begin
 
 	var
 	prettyItem := CheckOptionsGroup.Items[RG_OUTPUT_OPTION_PRETTY_INDEX];
-	if (OUTPUT_FORMAT_JSON = Settings.SearchFormSettings.OutputFormat) then begin
+	if (OUTPUT_FORMAT_JSON = Settings.SearchFormSettings.OutputFormat.Value) then begin
 		// If json is selected, disable pretty option (not compatible)
 		if Assigned(prettyItem) and Assigned(prettyItem.CheckBox) then begin
 			prettyItem.CheckBox.Checked := False;
 			prettyItem.CheckBox.Enabled := False;
-			Settings.SearchFormSettings.Pretty := False;
+			Settings.SearchFormSettings.Pretty.Value := False;
 			dbgMsg.Msg('Pretty option disabled due to json output format selection');
 		end;
 	end else begin
@@ -311,6 +295,57 @@ begin
 	FCheckOptionsGroup.Width := Width - 8;
 	// Height should match exactly the check options group height
 	Height := FCheckOptionsGroup.Height;
+end;
+
+procedure TOptionPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TOptionPanel.onCheckOptionSelect');
+
+	if not FEventsEnabled then begin
+		dbgMsg.MsgFmt('Events for idx:%d disabled, exiting', [_item.OrderIndex]);
+		Exit;
+	end;
+
+	if Assigned(_item.CheckBox) then begin
+		if Assigned(_item.ComboBox) then begin
+			_item.ComboBox.Enabled := _item.Checked;
+		end;
+		if Assigned(_item.SpinEdit) then begin
+			_item.SpinEdit.Enabled := _item.Checked;
+		end;
+	end;
+
+	// Handle the functionality that was previously in the individual event handlers
+	case _item.Setting.SettingType of
+		stNotSet :
+		{ } raise Exception.Create('Setting invalid.');
+		stString : begin
+			var
+			setting := (_item.Setting as IStringSetting);
+			setting.Value := _item.ComboText;
+			dbgMsg.MsgFmt('%s option changed to: %s', [setting.Name, setting.Value]);
+		end;
+		stInteger : begin
+			var
+			setting := (_item.Setting as IIntegerSetting);
+			setting.Value := _item.SpinValue;
+			dbgMsg.MsgFmt('%s option changed to: %s', [setting.Name, setting.Value.ToString]);
+		end;
+		stBool : begin
+			var
+			setting := (_item.Setting as IBoolSetting);
+			setting.Value := _item.Checked;
+			dbgMsg.MsgFmt('%s option changed to: %s', [setting.Name, BoolToStr(setting.Value, True)]);
+		end;
+		stStrArray :
+		{ } raise Exception.Create('Array type not implemented');
+	end;
+
+	// Fire change event
+	if Assigned(OnOptionChange) then begin
+		OnOptionChange(Self, _item);
+	end;
 end;
 
 procedure TOptionPanel.SetSettings(const Value : TRipGrepperSettings);
