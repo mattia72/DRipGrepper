@@ -172,7 +172,7 @@ begin
 	FNoIgnore := TBoolSetting.Create('NoIgnore', False);
 	FContext := TIntegerSetting.Create('Context', 0);
 	FEncoding := TStringSetting.Create('Encoding', '');
-	FOutputFormat := TStringSetting.Create('OutputFormat', 'json');
+	FOutputFormat := TStringSetting.Create('OutputFormat', OUTPUT_FORMAT_JSON);
 	FPretty.Enabled := False; // Pretty is disabled if json output is selected
 
 	CreateSetting(FPretty);

@@ -15,21 +15,8 @@ uses
 	Vcl.StdCtrls,
 	Vcl.ExtCtrls,
 	RipGrepper.UI.CustomCheckOptions,
-	RipGrepper.Settings.RipGrepperSettings;
-
-const
-	// Constants for OrderIndex values
-	RG_FILTER_OPTION_HIDDEN_CAPTION = '--hidden';
-	RG_FILTER_OPTION_NO_IGNORE_CAPTION = '--no-ignore';
-	RG_FILTER_OPTION_ENCODING_CAPTION = '--encoding=';
-
-	OUTPUT_FORMAT_JSON = 'json';
-	OUTPUT_FORMAT_VIMGREP = 'vimgrep';
-	OUTPUT_FORMATS : TArray<string> = [OUTPUT_FORMAT_JSON, OUTPUT_FORMAT_VIMGREP];
-
-	RG_OUTPUT_OPTION_PRETTY_CAPTION = '--pretty';
-	RG_OUTPUT_OPTION_CONTEXT_CAPTION = '--context=';
-	RG_OUTPUT_OPTION_OUTPUT_FORMAT_CAPTION = 'Format:';
+	RipGrepper.Settings.RipGrepperSettings,
+	RipGrepper.Common.Constants;
 
 type
 	// Event type for option change
@@ -86,7 +73,6 @@ implementation
 uses
 	Spring,
 	RipGrepper.Tools.DebugUtils,
-	RipGrepper.Common.Constants,
 	System.StrUtils,
 	System.Math,
 	ArrayEx,

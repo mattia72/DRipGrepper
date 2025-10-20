@@ -288,6 +288,19 @@ const
 
 	USERMESSAGE_VALIDATE_INPUT = WM_USER + 100;
 
+	// Constants for OrderIndex values
+	RG_FILTER_OPTION_HIDDEN_CAPTION = '--hidden';
+	RG_FILTER_OPTION_NO_IGNORE_CAPTION = '--no-ignore';
+	RG_FILTER_OPTION_ENCODING_CAPTION = '--encoding=';
+
+	OUTPUT_FORMAT_JSON = '--json';
+	OUTPUT_FORMAT_VIMGREP = '--vimgrep';
+	OUTPUT_FORMATS : TArray<string> = [OUTPUT_FORMAT_JSON, OUTPUT_FORMAT_VIMGREP];
+
+	RG_OUTPUT_OPTION_PRETTY_CAPTION = '--pretty';
+	RG_OUTPUT_OPTION_CONTEXT_CAPTION = '--context=';
+	RG_OUTPUT_OPTION_OUTPUT_FORMAT_CAPTION = 'Format:';
+
 type
 
 	EColumnIndex = (ciFile, ciRow, ciColBegin, ciColEnd, ciText, ciMatchText, ciTextAfterMatch);

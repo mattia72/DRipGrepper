@@ -600,6 +600,7 @@ var
 	maxRows : Integer;
 	item : TCustomCheckItem;
 	baseLeft : Integer;
+	actualFirstWidth, actualSecondWidth : Integer;
 begin
 	if FItems.Count = 0 then begin
 		Exit;
@@ -609,6 +610,16 @@ begin
 	itemHeight := 22; // Standard height
 	itemWidth := Width div Columns;
 	maxRows := Ceil(FItems.Count / Columns);
+	
+	// Calculate actual widths - decrease if item width is too small
+	actualFirstWidth := Min(FIRST_CONTROL_WIDTH, itemWidth - (3 * SPACE) - SECOND_CONTROL_WIDTH);
+	actualSecondWidth := Min(SECOND_CONTROL_WIDTH, itemWidth - actualFirstWidth - (3 * SPACE));
+	
+	// Ensure minimum widths
+	if actualFirstWidth < 50 then begin
+		actualFirstWidth := itemWidth div 2 - SPACE;
+		actualSecondWidth := itemWidth - actualFirstWidth - (3 * SPACE);
+	end;
 
 	// Position controls based on item type
 	for i := 0 to FItems.Count - 1 do begin
@@ -634,14 +645,14 @@ begin
 				if Assigned(item.CheckBox) then begin
 					item.CheckBox.Left := baseLeft;
 					item.CheckBox.Top := row * itemHeight + SPACE;
-					item.CheckBox.Width := FIRST_CONTROL_WIDTH;
+					item.CheckBox.Width := actualFirstWidth;
 					item.CheckBox.Height := itemHeight - 2;
 					item.CheckBox.Tag := i;
 				end;
 				if Assigned(item.ComboBox) then begin
-					item.ComboBox.Left := baseLeft + FIRST_CONTROL_WIDTH + SPACE;
+					item.ComboBox.Left := baseLeft + actualFirstWidth + SPACE;
 					item.ComboBox.Top := row * itemHeight + SPACE;
-					item.ComboBox.Width := SECOND_CONTROL_WIDTH;
+					item.ComboBox.Width := actualSecondWidth;
 					item.ComboBox.Height := itemHeight - 2;
 					item.ComboBox.Tag := i;
 				end;
@@ -652,14 +663,14 @@ begin
 				if Assigned(item.CheckBox) then begin
 					item.CheckBox.Left := baseLeft;
 					item.CheckBox.Top := row * itemHeight + SPACE;
-					item.CheckBox.Width := FIRST_CONTROL_WIDTH;
+					item.CheckBox.Width := actualFirstWidth;
 					item.CheckBox.Height := itemHeight - 2;
 					item.CheckBox.Tag := i;
 				end;
 				if Assigned(item.SpinEdit) then begin
-					item.SpinEdit.Left := baseLeft + FIRST_CONTROL_WIDTH + SPACE;
+					item.SpinEdit.Left := baseLeft + actualFirstWidth + SPACE;
 					item.SpinEdit.Top := row * itemHeight + SPACE;
-					item.SpinEdit.Width := SECOND_CONTROL_WIDTH;
+					item.SpinEdit.Width := actualSecondWidth;
 					item.SpinEdit.Height := itemHeight - 2;
 					item.SpinEdit.Tag := i;
 				end;
@@ -670,13 +681,13 @@ begin
 				if Assigned(item.LabelControl) then begin
 					item.LabelControl.Left := baseLeft;
 					item.LabelControl.Top := row * itemHeight + SPACE + 3; // Slight vertical offset for better alignment
-					item.LabelControl.Width := FIRST_CONTROL_WIDTH;
+					item.LabelControl.Width := actualFirstWidth;
 					item.LabelControl.Height := itemHeight - 2;
 				end;
 				if Assigned(item.ComboBox) then begin
-					item.ComboBox.Left := baseLeft + FIRST_CONTROL_WIDTH + SPACE;
+					item.ComboBox.Left := baseLeft + actualFirstWidth + SPACE;
 					item.ComboBox.Top := row * itemHeight + SPACE;
-					item.ComboBox.Width := SECOND_CONTROL_WIDTH;
+					item.ComboBox.Width := actualSecondWidth;
 					item.ComboBox.Height := itemHeight - 2;
 					item.ComboBox.Tag := i;
 				end;
