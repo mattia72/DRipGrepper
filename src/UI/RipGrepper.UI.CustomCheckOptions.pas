@@ -94,10 +94,11 @@ type
 		public
 			constructor Create(_owner : TControl);
 			function Add : TCustomCheckItem;
-			function AddItem(_cb: TCheckBox; const _caption: string; _setting: ISetting): TCustomCheckItem; overload;
-			function AddItem(_cb: TCheckBox; _combo: TComboBox; const _caption: string; _setting: ISetting): TCustomCheckItem; overload;
-			function AddItem(_cb: TCheckBox; _spin: TSpinEdit; const _caption: string; _setting: ISetting): TCustomCheckItem; overload;
-			function AddItem(_lbl: TLabel; _combo: TComboBox; const _caption: string; _setting: ISetting): TCustomCheckItem; overload;
+			function AddItem(_cb : TCheckBox; const _caption : string; _setting : ISetting) : TCustomCheckItem; overload;
+			function AddItem(_cb : TCheckBox; _combo : TComboBox; const _caption : string; _setting : ISetting) : TCustomCheckItem;
+				overload;
+			function AddItem(_cb : TCheckBox; _spin : TSpinEdit; const _caption : string; _setting : ISetting) : TCustomCheckItem; overload;
+			function AddItem(_lbl : TLabel; _combo : TComboBox; const _caption : string; _setting : ISetting) : TCustomCheckItem; overload;
 			property Items[index : Integer] : TCustomCheckItem read getItem write setItem; default;
 	end;
 
@@ -139,10 +140,11 @@ type
 			constructor Create(_owner : TComponent); override;
 			destructor Destroy; override;
 			procedure Clear; override;
-			function AddCheckboxItem(const _caption, _hint: string; _setting: ISetting): TCustomCheckItem; overload;
-			function AddCheckboxComboItem(const _caption, _hint: string; _comboItems: TArray<string>; _setting: ISetting): TCustomCheckItem; overload;
-			function AddCheckboxSpinItem(const _caption, _hint: string; _minValue, _maxValue, _defaultValue: Integer; _setting: ISetting):
-				TCustomCheckItem;
+			function AddCheckboxItem(const _caption, _hint : string; _setting : ISetting) : TCustomCheckItem; overload;
+			function AddCheckboxComboItem(const _caption, _hint : string; _comboItems : TArray<string>; _setting : ISetting)
+				: TCustomCheckItem; overload;
+			function AddCheckboxSpinItem(const _caption, _hint : string; _minValue, _maxValue, _defaultValue : Integer; _setting : ISetting)
+				: TCustomCheckItem;
 			function AddLabelComboItem(const _caption, _hint : string; _comboItems : TArray<string>; _setting : ISetting)
 				: TCustomCheckItem;
 			// Getter functions for specific items by order index
@@ -362,7 +364,7 @@ begin
 	Result := TCustomCheckItem(inherited Add);
 end;
 
-function TCustomCheckItems.AddItem(_cb: TCheckBox; const _caption: string; _setting: ISetting): TCustomCheckItem;
+function TCustomCheckItems.AddItem(_cb : TCheckBox; const _caption : string; _setting : ISetting) : TCustomCheckItem;
 begin
 	Result := Add;
 	Result.FCaption := _caption;
@@ -372,7 +374,7 @@ begin
 	Result.FSetting := _setting;
 end;
 
-function TCustomCheckItems.AddItem(_cb: TCheckBox; _combo: TComboBox; const _caption: string; _setting: ISetting): TCustomCheckItem;
+function TCustomCheckItems.AddItem(_cb : TCheckBox; _combo : TComboBox; const _caption : string; _setting : ISetting) : TCustomCheckItem;
 begin
 	Result := Add;
 	Result.FCaption := _caption;
@@ -383,7 +385,7 @@ begin
 	Result.FSetting := _setting;
 end;
 
-function TCustomCheckItems.AddItem(_cb: TCheckBox; _spin: TSpinEdit; const _caption: string; _setting: ISetting): TCustomCheckItem;
+function TCustomCheckItems.AddItem(_cb : TCheckBox; _spin : TSpinEdit; const _caption : string; _setting : ISetting) : TCustomCheckItem;
 begin
 	Result := Add;
 	Result.FCaption := _caption;
@@ -394,7 +396,7 @@ begin
 	Result.FSetting := _setting;
 end;
 
-function TCustomCheckItems.AddItem(_lbl: TLabel; _combo: TComboBox; const _caption: string; _setting: ISetting): TCustomCheckItem;
+function TCustomCheckItems.AddItem(_lbl : TLabel; _combo : TComboBox; const _caption : string; _setting : ISetting) : TCustomCheckItem;
 begin
 	Result := Add;
 	Result.FCaption := _caption;
@@ -464,7 +466,7 @@ begin
 	FItems.Clear;
 end;
 
-function TCustomCheckOptions.AddCheckboxItem(const _caption, _hint: string; _setting: ISetting): TCustomCheckItem;
+function TCustomCheckOptions.AddCheckboxItem(const _caption, _hint : string; _setting : ISetting) : TCustomCheckItem;
 var
 	checkBox : TCheckBox;
 begin
@@ -483,8 +485,8 @@ begin
 	Result := FItems.AddItem(checkBox, _caption, _setting);
 end;
 
-function TCustomCheckOptions.AddCheckboxComboItem(const _caption, _hint: string; _comboItems: TArray<string>; _setting: ISetting):
-	TCustomCheckItem;
+function TCustomCheckOptions.AddCheckboxComboItem(const _caption, _hint : string; _comboItems : TArray<string>; _setting : ISetting)
+	: TCustomCheckItem;
 var
 	checkBox : TCheckBox;
 	comboBox : TComboBox;
@@ -502,6 +504,7 @@ begin
 	comboBox := TComboBox.Create(Self);
 	comboBox.Parent := Self;
 	comboBox.Hint := _hint;
+	comboBox.ShowHint := True;
 	comboBox.Style := csDropDown;
 	comboBox.AutoDropDownWidth := True;
 
@@ -517,8 +520,8 @@ begin
 	Result.ComboBoxItems := strList();
 end;
 
-function TCustomCheckOptions.AddCheckboxSpinItem(const _caption, _hint: string; _minValue, _maxValue, _defaultValue: Integer; _setting:
-	ISetting): TCustomCheckItem;
+function TCustomCheckOptions.AddCheckboxSpinItem(const _caption, _hint : string; _minValue, _maxValue, _defaultValue : Integer;
+	_setting : ISetting) : TCustomCheckItem;
 var
 	checkBox : TCheckBox;
 	spinEdit : TSpinEdit;
@@ -543,6 +546,7 @@ begin
 	spinEdit.MaxValue := _maxValue;
 	spinEdit.Value := _defaultValue;
 	spinEdit.Hint := _hint;
+	spinEdit.ShowHint := True;
 	spinEdit.OnChange := onItemChangeEventHandler;
 
 	Result := FItems.AddItem(checkBox, spinEdit, _caption, _setting);
@@ -574,6 +578,7 @@ begin
 	comboBox.Name := 'cmb' + UpCase(cleanCaption[1]) + cleanCaption.Substring(1);
 	comboBox.Parent := Self;
 	comboBox.Hint := _hint;
+	comboBox.ShowHint := True;
 	comboBox.Style := csDropDown;
 	comboBox.AutoDropDownWidth := True;
 	comboBox.OnChange := onItemChangeEventHandler;
@@ -610,11 +615,11 @@ begin
 	itemHeight := 22; // Standard height
 	itemWidth := Width div Columns;
 	maxRows := Ceil(FItems.Count / Columns);
-	
+
 	// Calculate actual widths - decrease if item width is too small
 	actualFirstWidth := Min(FIRST_CONTROL_WIDTH, itemWidth - (3 * SPACE) - SECOND_CONTROL_WIDTH);
 	actualSecondWidth := Min(SECOND_CONTROL_WIDTH, itemWidth - actualFirstWidth - (3 * SPACE));
-	
+
 	// Ensure minimum widths
 	if actualFirstWidth < 50 then begin
 		actualFirstWidth := itemWidth div 2 - SPACE;

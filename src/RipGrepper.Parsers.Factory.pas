@@ -20,7 +20,10 @@ implementation
 uses
 	RipGrepper.Parsers.VimGrepMatchLine,
 	RipGrepper.Parsers.JsonMatchLine,
-	RipGrepper.Helper.Types;
+	RipGrepper.Helper.Types,
+	RipGrepper.Common.Constants,
+	System.SysUtils,
+	System.StrUtils;
 
 class function TRipGrepperParsersFactory.GetParser(_type : TParserType) : ISearchResultLineParser;
 begin
@@ -36,9 +39,9 @@ end;
 
 class function TRipGrepperParsersFactory.TryGetParserType(_ripGrepArgs : TArrayEx<string>) : TParserType;
 begin
-	if _ripGrepArgs.HasMatch(['--json']) then begin
+	if _ripGrepArgs.HasMatch([OUTPUT_FORMAT_JSON]) then begin
 		Result := ptRipGrepJson;
-	end else if _ripGrepArgs.HasMatch(['-p', '--pretty']) then begin
+	end else if _ripGrepArgs.HasMatch(RG_PARAM_REGEX_PRETTY.Split(['|'])) then begin
 		Result := ptRipGrepPrettySearch;
 	end else begin
 		Result := ptRipGrepSearch;

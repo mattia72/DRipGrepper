@@ -146,15 +146,14 @@ begin
 
 	var
 	sfs := Settings.SearchFormSettings;
+	FCheckOptionsGroup.AddCheckboxComboItem(RG_FILTER_OPTION_ENCODING_CAPTION, 'Specify text encoding',
+		{ } encodingItems,
+		{ } sfs.Encoding);
 	// Add checkbox options
 	FCheckOptionsGroup.AddCheckboxItem(RG_FILTER_OPTION_HIDDEN_CAPTION, 'Include hidden files in search',
 		{ } sfs.Hidden);
 	FCheckOptionsGroup.AddCheckboxItem(RG_FILTER_OPTION_NO_IGNORE_CAPTION, 'Don''t respect ignore files',
 		{ } sfs.NoIgnore);
-	FCheckOptionsGroup.AddCheckboxComboItem(RG_FILTER_OPTION_ENCODING_CAPTION, 'Specify text encoding',
-		{ } encodingItems,
-		{ } sfs.Encoding);
-
 end;
 
 procedure TRgFilterOptionsPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
@@ -192,13 +191,13 @@ begin
 		{ } 'Output format of rg.exe (json is recommended)',
 		{ } OUTPUT_FORMATS,
 		{ } sfs.OutputFormat);
-	FCheckOptionsGroup.AddCheckboxItem(RG_OUTPUT_OPTION_PRETTY_CAPTION,
-		{ } 'Parse pretty output',
-		{ } sfs.Pretty);
 	FCheckOptionsGroup.AddCheckboxSpinItem(RG_OUTPUT_OPTION_CONTEXT_CAPTION,
 		{ } 'Number of context lines',
 		{ } 0, 20, 0,
 		{ } sfs.Context);
+	FCheckOptionsGroup.AddCheckboxItem(RG_OUTPUT_OPTION_PRETTY_CAPTION,
+		{ } 'Parse pretty output',
+		{ } sfs.Pretty);
 end;
 
 procedure TRgOutputOptionsPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
