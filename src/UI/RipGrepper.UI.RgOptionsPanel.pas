@@ -59,9 +59,8 @@ type
 
 		strict private
 			FIsVsCodeRipGrep : Boolean;
-			function getIsVsCodeRipGrep() : Boolean;
-
 			FVsCodeChecked : Boolean;
+			function getIsVsCodeRipGrep() : Boolean;
 			procedure updatePrettyItem();
 
 		protected
