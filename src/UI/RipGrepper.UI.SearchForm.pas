@@ -101,6 +101,7 @@ type
 		ToolButton1 : TToolButton;
 		ToolButton2 : TToolButton;
 		pnlRgFilterOptions : TPanel;
+		pnlRgOutputOptions: TPanel;
 		procedure ActionAddParamMatchCaseExecute(Sender : TObject);
 		procedure ActionAddParamMatchCaseUpdate(Sender : TObject);
 		procedure ActionAddParamRegexExecute(Sender : TObject);
@@ -1704,6 +1705,7 @@ procedure TRipGrepperSearchDialogForm.SetRgFilterOptionsPanel(const _settings : 
 begin
 	FRgFilterOptionsPanel := TRgFilterOptionsPanel.Create(self);
 	FRgFilterOptionsPanel.Settings := _settings;
+	pnlRgFilterOptions.Caption := '';
 	FRgFilterOptionsPanel.Parent := pnlRgFilterOptions;
 	FRgFilterOptionsPanel.AddItems();
 	var
@@ -1722,7 +1724,8 @@ procedure TRipGrepperSearchDialogForm.SetRgOutputOptionsPanel(const _settings : 
 begin
 	FRgOutpuOptionsPanel := TRgOutputOptionsPanel.Create(self);
 	FRgOutpuOptionsPanel.Settings := _settings;
-	FRgOutpuOptionsPanel.Parent := gbOptionsOutput;
+	pnlRgOutputOptions.Caption := '';
+	FRgOutpuOptionsPanel.Parent := pnlRgOutputOptions;
 	FRgOutpuOptionsPanel.AddItems();
 	// FRgOutpuOptionsPanel.LoadFromSettings();
 	var

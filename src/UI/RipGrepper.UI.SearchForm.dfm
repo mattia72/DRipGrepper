@@ -316,7 +316,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object pnlPath: TPanel
         Left = 2
-        Top = 40
+        Top = 43
         Width = 626
         Height = 88
         Margins.Top = 0
@@ -423,11 +423,12 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object pnlRgFilterOptions: TPanel
         Left = 2
-        Top = 128
+        Top = 131
         Width = 626
         Height = 35
         Align = alTop
         BevelOuter = bvNone
+        Caption = 'Filter Options'
         Padding.Left = 8
         TabOrder = 0
       end
@@ -450,6 +451,17 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Height = 15
         Caption = 'lblHintHelper'
         Visible = False
+      end
+      object pnlRgOutputOptions: TPanel
+        Left = 2
+        Top = 17
+        Width = 626
+        Height = 35
+        Align = alTop
+        BevelOuter = bvNone
+        Caption = 'Output Options'
+        Padding.Left = 8
+        TabOrder = 0
       end
     end
   end
