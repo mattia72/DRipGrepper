@@ -27,9 +27,9 @@ const
 	OUTPUT_FORMAT_VIMGREP = 'vimgrep';
 	OUTPUT_FORMATS : TArray<string> = [OUTPUT_FORMAT_JSON, OUTPUT_FORMAT_VIMGREP];
 
-	RG_OUTPUT_OPTION_PRETTY_INDEX = 0;
-	RG_OUTPUT_OPTION_CONTEXT_INDEX = 1;
-	RG_OUTPUT_OPTION_OUTPUT_FORMAT_INDEX = 2;
+	RG_OUTPUT_OPTION_PRETTY_CAPTION = '--pretty';
+	RG_OUTPUT_OPTION_CONTEXT_CAPTION = '--context=';
+	RG_OUTPUT_OPTION_OUTPUT_FORMAT_CAPTION = 'Format:';
 
 type
 	// Event type for option change
@@ -59,8 +59,7 @@ type
 	TRgFilterOptionsPanel = class(TOptionPanel)
 		pnlMain : TPanel;
 
-		strict private
-		private
+		protected
 			procedure onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem); override;
 
 		public
@@ -71,10 +70,11 @@ type
 	TRgOutputOptionsPanel = class(TOptionPanel)
 		pnlMain : TPanel;
 
-		strict private
 		private
+			procedure updatePrettyItem();
+
+		protected
 			procedure onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem); override;
-			procedure UpdatePrettyItem();
 
 		public
 			constructor Create(_owner : TComponent); override;
@@ -162,13 +162,10 @@ begin
 	sfs := Settings.SearchFormSettings;
 	// Add checkbox options
 	FCheckOptionsGroup.AddCheckboxItem('--hidden', 'Include hidden files in search',
-		{ } RG_FILTER_OPTION_HIDDEN_INDEX,
 		{ } sfs.Hidden);
 	FCheckOptionsGroup.AddCheckboxItem('--no-ignore', 'Don''t respect ignore files',
-		{ } RG_FILTER_OPTION_NO_IGNORE_INDEX,
 		{ } sfs.NoIgnore);
 	FCheckOptionsGroup.AddCheckboxComboItem('--encoding=', 'Specify text encoding',
-		{ } RG_FILTER_OPTION_ENCODING_INDEX,
 		{ } encodingItems,
 		{ } sfs.Encoding);
 
@@ -222,17 +219,17 @@ begin
 	// Add checkbox options
 	var
 	sfs := Settings.SearchFormSettings;
-	FCheckOptionsGroup.AddCheckboxItem('--pretty', 'Parse pretty output',
-		{ } RG_OUTPUT_OPTION_PRETTY_INDEX,
-		{ } sfs.Pretty);
-	FCheckOptionsGroup.AddCheckboxSpinItem('--context=', 'Context line number',
-		{ } RG_OUTPUT_OPTION_CONTEXT_INDEX,
-		{ } 0, 20, 0,
-		{ } sfs.Context);
-	FCheckOptionsGroup.AddLabelComboItem('Output Format:', 'Output format of rg.exe (json is recommended)',
-		{ } RG_OUTPUT_OPTION_OUTPUT_FORMAT_INDEX,
+	FCheckOptionsGroup.AddLabelComboItem(RG_OUTPUT_OPTION_OUTPUT_FORMAT_CAPTION,
+		{ } 'Output format of rg.exe (json is recommended)',
 		{ } OUTPUT_FORMATS,
 		{ } sfs.OutputFormat);
+	FCheckOptionsGroup.AddCheckboxItem(RG_OUTPUT_OPTION_PRETTY_CAPTION,
+		{ } 'Parse pretty output',
+		{ } sfs.Pretty);
+	FCheckOptionsGroup.AddCheckboxSpinItem(RG_OUTPUT_OPTION_CONTEXT_CAPTION,
+		{ } 'Number of context lines',
+		{ } 0, 20, 0,
+		{ } sfs.Context);
 end;
 
 procedure TRgOutputOptionsPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
@@ -242,13 +239,13 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRgOutputOptionsPanel.onCheckOptionSelect');
 	if not FEventsEnabled then begin
-		dbgMsg.MsgFmt('Events for idx:%d disabled, exiting', [_item.OrderIndex]);
+		dbgMsg.MsgFmt('Events for %s disabled, exiting', [_item.Setting.Name]);
 		Exit;
 	end;
 
 	// Handle the functionality that was previously in the individual event handlers
 	if _item.Setting.Name = 'OutputFormat' then begin
-		UpdatePrettyItem;
+		updatePrettyItem;
 	end;
 
 	if _item.Setting.Name = 'Context' then begin
@@ -261,13 +258,13 @@ begin
 	end;
 end;
 
-procedure TRgOutputOptionsPanel.UpdatePrettyItem();
+procedure TRgOutputOptionsPanel.updatePrettyItem();
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRgOutputOptionsPanel.UpdatePrettyItem');
+	dbgMsg := TDebugMsgBeginEnd.New('TRgOutputOptionsPanel.updatePrettyItem');
 
 	var
-	prettyItem := CheckOptionsGroup.Items[RG_OUTPUT_OPTION_PRETTY_INDEX];
+	prettyItem := CheckOptionsGroup.GetItemByCaption(RG_OUTPUT_OPTION_PRETTY_CAPTION);
 	if (OUTPUT_FORMAT_JSON = Settings.SearchFormSettings.OutputFormat.Value) then begin
 		// If json is selected, disable pretty option (not compatible)
 		if Assigned(prettyItem) and Assigned(prettyItem.CheckBox) then begin
@@ -303,7 +300,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TOptionPanel.onCheckOptionSelect');
 
 	if not FEventsEnabled then begin
-		dbgMsg.MsgFmt('Events for idx:%d disabled, exiting', [_item.OrderIndex]);
+		dbgMsg.MsgFmt('Events for %s disabled, exiting', [_item.Setting.Name]);
 		Exit;
 	end;
 

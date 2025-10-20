@@ -36,7 +36,6 @@ type
 	TCustomCheckItem = class(TCollectionItem)
 		private
 			FCaption : string;
-			FOrderIndex : Integer;
 			FTagObject : IInterface;
 			FCheckBox : TCheckBox;
 			FLabel : TLabel;
@@ -53,7 +52,6 @@ type
 			function getSpinValue() : Integer;
 			function getSetting() : ISetting;
 			procedure setCaption(const _value : string);
-			procedure setOrderIndex(const _value : Integer);
 			procedure setTagObject(const Value : IInterface);
 			procedure setChecked(const _value : Boolean);
 			procedure setComboBoxItems(const _value : TStringList);
@@ -73,7 +71,6 @@ type
 			property SpinEdit : TSpinEdit read FSpinEdit write FSpinEdit;
 			property ComboBoxItems : TStringList read FComboBoxItems write setComboBoxItems;
 			property Caption : string read FCaption write setCaption;
-			property OrderIndex : Integer read FOrderIndex write setOrderIndex;
 			property TagObject : IInterface read FTagObject write setTagObject;
 			property Checked : Boolean read getChecked write setChecked;
 			property ItemType : TCustomItemType read FItemType write FItemType;
@@ -97,14 +94,10 @@ type
 		public
 			constructor Create(_owner : TControl);
 			function Add : TCustomCheckItem;
-			function AddItem(_cb : TCheckBox; const _caption : string; const _orderIndex : Integer;
-				_setting : ISetting) : TCustomCheckItem; overload;
-			function AddItem(_cb : TCheckBox; _combo : TComboBox; const _caption : string; const _orderIndex : Integer;
-				_setting : ISetting) : TCustomCheckItem; overload;
-			function AddItem(_cb : TCheckBox; _spin : TSpinEdit; const _caption : string; const _orderIndex : Integer;
-				_setting : ISetting) : TCustomCheckItem; overload;
-			function AddItem(_lbl : TLabel; _combo : TComboBox; const _caption : string; const _orderIndex : Integer;
-				_setting : ISetting) : TCustomCheckItem; overload;
+			function AddItem(_cb: TCheckBox; const _caption: string; _setting: ISetting): TCustomCheckItem; overload;
+			function AddItem(_cb: TCheckBox; _combo: TComboBox; const _caption: string; _setting: ISetting): TCustomCheckItem; overload;
+			function AddItem(_cb: TCheckBox; _spin: TSpinEdit; const _caption: string; _setting: ISetting): TCustomCheckItem; overload;
+			function AddItem(_lbl: TLabel; _combo: TComboBox; const _caption: string; _setting: ISetting): TCustomCheckItem; overload;
 			property Items[index : Integer] : TCustomCheckItem read getItem write setItem; default;
 	end;
 
@@ -146,18 +139,18 @@ type
 			constructor Create(_owner : TComponent); override;
 			destructor Destroy; override;
 			procedure Clear; override;
-			function AddCheckboxItem(const _caption, _hint : string; _orderIndex : Integer;
-				_setting : ISetting) : TCustomCheckItem; overload;
-			function AddCheckboxComboItem(const _caption, _hint : string; _orderIndex : Integer; _comboItems : TArray<string>;
-				_setting : ISetting) : TCustomCheckItem; overload;
-			function AddCheckboxSpinItem(const _caption, _hint : string; _orderIndex : Integer;
-				_minValue, _maxValue, _defaultValue : Integer; _setting : ISetting) : TCustomCheckItem;
-			function AddLabelComboItem(const _caption, _hint : string; _orderIndex : Integer; _comboItems : TArray<string>;
-				_setting : ISetting) : TCustomCheckItem;
+			function AddCheckboxItem(const _caption, _hint: string; _setting: ISetting): TCustomCheckItem; overload;
+			function AddCheckboxComboItem(const _caption, _hint: string; _comboItems: TArray<string>; _setting: ISetting): TCustomCheckItem; overload;
+			function AddCheckboxSpinItem(const _caption, _hint: string; _minValue, _maxValue, _defaultValue: Integer; _setting: ISetting):
+				TCustomCheckItem;
+			function AddLabelComboItem(const _caption, _hint : string; _comboItems : TArray<string>; _setting : ISetting)
+				: TCustomCheckItem;
 			// Getter functions for specific items by order index
-			function GetItemChecked(orderIndex : Integer) : Boolean;
-			function GetItemText(orderIndex : Integer) : string;
-			function GetItemSpinValue(orderIndex : Integer) : Integer;
+			function GetItemChecked(_idx : Integer) : Boolean;
+			function GetItemText(_idx : Integer) : string;
+			function GetItemSpinValue(_idx : Integer) : Integer;
+			function GetItemCaption(_idx : Integer) : string;
+			function GetItemByCaption(const _caption : string) : TCustomCheckItem;
 			property EventsEnabled : Boolean read FEventsEnabled write FEventsEnabled;
 
 		published
@@ -212,7 +205,6 @@ end;
 constructor TCustomCheckItem.Create(Collection : TCollection);
 begin
 	inherited Create(Collection);
-	FOrderIndex := 0; // Default order index
 	FCheckBox := nil;
 	FLabel := nil;
 	FComboBox := nil;
@@ -285,13 +277,6 @@ procedure TCustomCheckItem.setChecked(const _value : Boolean);
 begin
 	if Assigned(FCheckBox) and (FCheckbox.Checked <> _value) then begin
 		FCheckBox.Checked := _value;
-	end;
-end;
-
-procedure TCustomCheckItem.setOrderIndex(const _value : Integer);
-begin
-	if FOrderIndex <> _value then begin
-		FOrderIndex := _value;
 	end;
 end;
 
@@ -377,24 +362,20 @@ begin
 	Result := TCustomCheckItem(inherited Add);
 end;
 
-function TCustomCheckItems.AddItem(_cb : TCheckBox; const _caption : string; const _orderIndex : Integer;
-	_setting : ISetting) : TCustomCheckItem;
+function TCustomCheckItems.AddItem(_cb: TCheckBox; const _caption: string; _setting: ISetting): TCustomCheckItem;
 begin
 	Result := Add;
 	Result.FCaption := _caption;
-	Result.FOrderIndex := _orderIndex;
 	Result.TagObject := _setting;
 	Result.FCheckBox := _cb;
 	Result.FItemType := citCheckBox;
 	Result.FSetting := _setting;
 end;
 
-function TCustomCheckItems.AddItem(_cb : TCheckBox; _combo : TComboBox; const _caption : string; const _orderIndex : Integer;
-	_setting : ISetting) : TCustomCheckItem;
+function TCustomCheckItems.AddItem(_cb: TCheckBox; _combo: TComboBox; const _caption: string; _setting: ISetting): TCustomCheckItem;
 begin
 	Result := Add;
 	Result.FCaption := _caption;
-	Result.FOrderIndex := _orderIndex;
 	Result.TagObject := _setting;
 	Result.FCheckBox := _cb;
 	Result.FComboBox := _combo;
@@ -402,12 +383,10 @@ begin
 	Result.FSetting := _setting;
 end;
 
-function TCustomCheckItems.AddItem(_cb : TCheckBox; _spin : TSpinEdit; const _caption : string; const _orderIndex : Integer;
-	_setting : ISetting) : TCustomCheckItem;
+function TCustomCheckItems.AddItem(_cb: TCheckBox; _spin: TSpinEdit; const _caption: string; _setting: ISetting): TCustomCheckItem;
 begin
 	Result := Add;
 	Result.FCaption := _caption;
-	Result.FOrderIndex := _orderIndex;
 	Result.TagObject := _setting;
 	Result.FCheckBox := _cb;
 	Result.FSpinEdit := _spin;
@@ -415,12 +394,10 @@ begin
 	Result.FSetting := _setting;
 end;
 
-function TCustomCheckItems.AddItem(_lbl : TLabel; _combo : TComboBox; const _caption : string; const _orderIndex : Integer;
-	_setting : ISetting) : TCustomCheckItem;
+function TCustomCheckItems.AddItem(_lbl: TLabel; _combo: TComboBox; const _caption: string; _setting: ISetting): TCustomCheckItem;
 begin
 	Result := Add;
 	Result.FCaption := _caption;
-	Result.FOrderIndex := _orderIndex;
 	Result.TagObject := _setting;
 	Result.FLabel := _lbl;
 	Result.FComboBox := _combo;
@@ -487,8 +464,7 @@ begin
 	FItems.Clear;
 end;
 
-function TCustomCheckOptions.AddCheckboxItem(const _caption, _hint : string; _orderIndex : Integer;
-	_setting : ISetting) : TCustomCheckItem;
+function TCustomCheckOptions.AddCheckboxItem(const _caption, _hint: string; _setting: ISetting): TCustomCheckItem;
 var
 	checkBox : TCheckBox;
 begin
@@ -504,11 +480,11 @@ begin
 	checkBox.Hint := _hint;
 	checkBox.ShowHint := True;
 	checkBox.OnClick := onItemChangeEventHandler;
-	Result := FItems.AddItem(checkBox, _caption, _orderIndex, _setting);
+	Result := FItems.AddItem(checkBox, _caption, _setting);
 end;
 
-function TCustomCheckOptions.AddCheckboxComboItem(const _caption, _hint : string; _orderIndex : Integer; _comboItems : TArray<string>;
-	_setting : ISetting) : TCustomCheckItem;
+function TCustomCheckOptions.AddCheckboxComboItem(const _caption, _hint: string; _comboItems: TArray<string>; _setting: ISetting):
+	TCustomCheckItem;
 var
 	checkBox : TCheckBox;
 	comboBox : TComboBox;
@@ -528,19 +504,20 @@ begin
 	comboBox.Style := csDropDown;
 	comboBox.AutoDropDownWidth := True;
 
-	var strList : IShared<TStringList> := Shared.Make<TStringList>();
+	var
+		strList : IShared<TStringList> := Shared.Make<TStringList>();
 	strList.AddStrings(_comboItems);
 	if Assigned(strList) then begin
 		comboBox.Items.Assign(strList());
 	end;
 	// We'll set OnChange in the SearchForm after creation
 
-	Result := FItems.AddItem(checkBox, comboBox, _caption, _orderIndex, _setting);
+	Result := FItems.AddItem(checkBox, comboBox, _caption, _setting);
 	Result.ComboBoxItems := strList();
 end;
 
-function TCustomCheckOptions.AddCheckboxSpinItem(const _caption, _hint : string; _orderIndex : Integer;
-	_minValue, _maxValue, _defaultValue : Integer; _setting : ISetting) : TCustomCheckItem;
+function TCustomCheckOptions.AddCheckboxSpinItem(const _caption, _hint: string; _minValue, _maxValue, _defaultValue: Integer; _setting:
+	ISetting): TCustomCheckItem;
 var
 	checkBox : TCheckBox;
 	spinEdit : TSpinEdit;
@@ -564,16 +541,16 @@ begin
 	spinEdit.MinValue := _minValue;
 	spinEdit.MaxValue := _maxValue;
 	spinEdit.Value := _defaultValue;
-    spinEdit.OnChange := onItemChangeEventHandler;
+	spinEdit.OnChange := onItemChangeEventHandler;
 
-	Result := FItems.AddItem(checkBox, spinEdit, _caption, _orderIndex, _setting);
+	Result := FItems.AddItem(checkBox, spinEdit, _caption, _setting);
 	Result.MinValue := _minValue;
 	Result.MaxValue := _maxValue;
 	Result.SpinValue := _defaultValue;
 end;
 
-function TCustomCheckOptions.AddLabelComboItem(const _caption, _hint : string; _orderIndex : Integer; _comboItems : TArray<string>;
-	_setting : ISetting) : TCustomCheckItem;
+function TCustomCheckOptions.AddLabelComboItem(const _caption, _hint : string; _comboItems : TArray<string>; _setting : ISetting)
+	: TCustomCheckItem;
 var
 	labelControl : TLabel;
 	comboBox : TComboBox;
@@ -605,7 +582,7 @@ begin
 	end;
 
 	comboBox.ItemIndex := 0;
-	Result := FItems.AddItem(labelControl, comboBox, _caption, _orderIndex, _setting);
+	Result := FItems.AddItem(labelControl, comboBox, _caption, _setting);
 	Result.ComboBoxItems := comboItems;
 end;
 
@@ -714,7 +691,7 @@ procedure TCustomCheckOptions.onItemChangeEventHandler(_sender : TObject);
 var
 	checkBox : TCheckBox;
 	combo : TComboBox;
-    spin : TSpinEdit;
+	spin : TSpinEdit;
 	itemIndex : Integer;
 	item : TCustomCheckItem;
 begin
@@ -735,9 +712,9 @@ begin
 		itemIndex := spin.Tag;
 	end;
 
-    if itemIndex < 0 then begin
-        raise Exception.CreateFmt('CustomCheckOptions type %s not supported', [_sender.ClassName]);
-    end;
+	if itemIndex < 0 then begin
+		raise Exception.CreateFmt('CustomCheckOptions type %s not supported', [_sender.ClassName]);
+	end;
 
 	// Update the checked state in the item
 	if (itemIndex >= 0) and (itemIndex < FItems.Count) then begin
@@ -786,59 +763,88 @@ begin
 	end;
 end;
 
-function TCustomCheckOptions.GetItemChecked(orderIndex : Integer) : Boolean;
+function TCustomCheckOptions.GetItemChecked(_idx : Integer) : Boolean;
 var
 	i : Integer;
 	item : TCustomCheckItem;
 begin
-	Result := False;
-	for i := 0 to FItems.Count - 1 do begin
-		item := FItems[i];
-		if item.OrderIndex = orderIndex then begin
-			Result := item.Checked;
-			Exit;
-		end;
-	end;
+	Result := FItems[_idx].Checked;
 end;
 
-function TCustomCheckOptions.GetItemText(orderIndex : Integer) : string;
+function TCustomCheckOptions.GetItemText(_idx : Integer) : string;
 var
 	i : Integer;
 	item : TCustomCheckItem;
 begin
 	Result := '';
-	for i := 0 to FItems.Count - 1 do begin
-		item := FItems[i];
-		if item.OrderIndex = orderIndex then begin
-			case item.ItemType of
-				citCheckBoxWithCombo, citLabelWithCombo : begin
-					if Assigned(item.ComboBox) then begin
-						Result := item.ComboBox.Text;
-						Exit;
-					end;
-				end;
-				citCheckBoxWithSpin : begin
-					if Assigned(item.SpinEdit) then begin
-						Result := item.SpinEdit.Value.ToString;
-						Exit;
-					end;
-				end;
+
+	item := FItems[_idx];
+	case item.ItemType of
+		citCheckBoxWithCombo, citLabelWithCombo : begin
+			if Assigned(item.ComboBox) then begin
+				Result := item.ComboBox.Text;
+				Exit;
+			end;
+		end;
+		citCheckBoxWithSpin : begin
+			if Assigned(item.SpinEdit) then begin
+				Result := item.SpinEdit.Value.ToString;
+				Exit;
 			end;
 		end;
 	end;
 end;
 
-function TCustomCheckOptions.GetItemSpinValue(orderIndex : Integer) : Integer;
+function TCustomCheckOptions.GetItemSpinValue(_idx : Integer) : Integer;
 var
 	i : Integer;
 	item : TCustomCheckItem;
 begin
 	Result := 0;
+	item := FItems[_idx];
+	if (item.ItemType = citCheckBoxWithSpin) and Assigned(item.SpinEdit) then begin
+		Result := item.SpinEdit.Value;
+		Exit;
+	end;
+
+end;
+
+function TCustomCheckOptions.GetItemCaption(_idx : Integer) : string;
+var
+	i : Integer;
+	item : TCustomCheckItem;
+begin
+	Result := '';
+
+	item := FItems[_idx];
+
+	case item.ItemType of
+		citLabelWithCombo : begin
+			if Assigned(item.LabelControl) then begin
+				Result := item.LabelControl.Caption;
+				Exit;
+			end;
+		end;
+		citCheckBoxWithCombo, citCheckBoxWithSpin : begin
+			if Assigned(item.CheckBox) then begin
+				Result := item.CheckBox.Caption;
+				Exit;
+			end;
+		end;
+	end;
+
+end;
+
+function TCustomCheckOptions.GetItemByCaption(const _caption : string) : TCustomCheckItem;
+var
+	i : Integer;
+	item : TCustomCheckItem;
+begin
+	Result := nil;
 	for i := 0 to FItems.Count - 1 do begin
 		item := FItems[i];
-		if (item.OrderIndex = orderIndex) and (item.ItemType = citCheckBoxWithSpin) and Assigned(item.SpinEdit) then begin
-			Result := item.SpinEdit.Value;
-			Exit;
+		if item.Caption = _caption then begin
+			Result := item;
 		end;
 	end;
 end;

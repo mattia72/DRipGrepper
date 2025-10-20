@@ -1734,10 +1734,10 @@ begin
 	FRgOutpuOptionsPanel.AdjustHeight();
 
 	// Map checkbox controls for output options
-	cbRgParamPretty := optionsGroup.Items[RG_OUTPUT_OPTION_PRETTY_INDEX].CheckBox;
-	cbRgParamContext := optionsGroup.Items[RG_OUTPUT_OPTION_CONTEXT_INDEX].CheckBox;
-	seContextLineNum := optionsGroup.Items[RG_OUTPUT_OPTION_CONTEXT_INDEX].SpinEdit;
-	cmbOutputFormat := optionsGroup.Items[RG_OUTPUT_OPTION_OUTPUT_FORMAT_INDEX].ComboBox;
+	cbRgParamPretty := optionsGroup.GetItemByCaption(RG_OUTPUT_OPTION_PRETTY_CAPTION).CheckBox;
+	cbRgParamContext := optionsGroup.GetItemByCaption(RG_OUTPUT_OPTION_CONTEXT_CAPTION).CheckBox;
+	seContextLineNum := optionsGroup.GetItemByCaption(RG_OUTPUT_OPTION_CONTEXT_CAPTION).SpinEdit;
+	cmbOutputFormat := optionsGroup.GetItemByCaption(RG_OUTPUT_OPTION_OUTPUT_FORMAT_CAPTION).ComboBox;
 end;
 
 end.
