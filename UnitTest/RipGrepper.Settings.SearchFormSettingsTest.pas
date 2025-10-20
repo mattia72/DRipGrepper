@@ -52,11 +52,11 @@ uses
 procedure TSearchFormSettingsTest.RefreshMembersShouldLoadDefaultsTest;
 begin
 //  FSettings.LoadDefaultsFromDict;
-	Assert.AreEqual(False, FSettings.Pretty, 'Pretty should be true');
-	Assert.AreEqual(False, FSettings.Hidden, 'Hidden should be true');
-	Assert.AreEqual(False, FSettings.NoIgnore, 'NoIgnore should be true');
-	Assert.AreEqual(0, FSettings.Context, 'Context should be true');
-	Assert.AreEqual('', FSettings.Encoding, 'Encoding should be ''''');
+	Assert.AreEqual(False, FSettings.Pretty.Value, 'Pretty should be true');
+	Assert.AreEqual(False, FSettings.Hidden.Value, 'Hidden should be true');
+	Assert.AreEqual(False, FSettings.NoIgnore.Value, 'NoIgnore should be true');
+	Assert.AreEqual(0, FSettings.Context.Value, 'Context should be true');
+	Assert.AreEqual('', FSettings.Encoding.Value, 'Encoding should be ''''');
 end;
 
 procedure TSearchFormSettingsTest.LoadDefaultsShouldReadDefaultFromIni;
@@ -65,11 +65,11 @@ begin
 	FSettings.ReadFile;
 
 	Assert.IsTrue(FSettings.IsAlreadyRead, 'IsAlreadyRead should be true');
-	Assert.AreEqual('utf8', FSettings.Encoding, 'Encoding should be utf8');
-	Assert.AreEqual(5, FSettings.Context, 'Context should be 5');
-	Assert.AreEqual(False, FSettings.Pretty, 'Pretty should be false');
-	Assert.AreEqual(True, FSettings.Hidden, 'Hidden should be true');
-	Assert.AreEqual(True, FSettings.NoIgnore, 'NoIgnore should be true');
+	Assert.AreEqual('utf8', FSettings.Encoding.Value, 'Encoding should be utf8');
+	Assert.AreEqual(5, FSettings.Context.Value, 'Context should be 5');
+	Assert.AreEqual(False, FSettings.Pretty.Value, 'Pretty should be false');
+	Assert.AreEqual(True, FSettings.Hidden.Value, 'Hidden should be true');
+	Assert.AreEqual(True, FSettings.NoIgnore.Value, 'NoIgnore should be true');
 end;
 
 procedure TSearchFormSettingsTest.AfterCopyValuesValuesShouldBeEqual;
@@ -86,11 +86,11 @@ begin
 	try
 		s.Copy(FSettings);
 		s.LoadFromDict();
-		Assert.AreEqual(s.Encoding, FSettings.Encoding, 'Encoding should be equal');
-		Assert.AreEqual(s.Context, FSettings.Context, 'Context should be equal');
-		Assert.AreEqual(s.Pretty, FSettings.Pretty, 'Pretty should be equal');
-		Assert.AreEqual(s.Hidden, FSettings.Hidden, 'Hidden should be equal');
-		Assert.AreEqual(s.NoIgnore, FSettings.NoIgnore, 'NoIgnore should be equal');
+		Assert.AreEqual(s.Encoding.Value, FSettings.Encoding.Value, 'Encoding should be equal');
+		Assert.AreEqual(s.Context.Value, FSettings.Context.Value, 'Context should be equal');
+		Assert.AreEqual(s.Pretty.Value, FSettings.Pretty.Value, 'Pretty should be equal');
+		Assert.AreEqual(s.Hidden.Value, FSettings.Hidden.Value, 'Hidden should be equal');
+		Assert.AreEqual(s.NoIgnore.Value, FSettings.NoIgnore.Value, 'NoIgnore should be equal');
 
 		Assert.AreEqual(s.ExtensionSettings.SearchSelectedShortcut, FSettings.ExtensionSettings.SearchSelectedShortcut,
 			'SearchSelectedSC should be equal')

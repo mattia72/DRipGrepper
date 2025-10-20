@@ -117,11 +117,11 @@ begin
 	s := Shared.Make<TRipGrepperSettings>(TRipGrepperSettings.Create());
 	sfs := s().SearchFormSettings;
 	// sfs.Init;
-	Assert.AreEqual(False, sfs.Pretty, 'Pretty should be False');
-	Assert.AreEqual(False, sfs.Hidden, 'Hidden should be False');
-	Assert.AreEqual(False, sfs.NoIgnore, 'NoIgnore should be False');
-	Assert.AreEqual(0, sfs.Context, 'Context should be 0');
-	Assert.AreEqual('', sfs.Encoding, 'Encoding should be ''''');
+	Assert.AreEqual(False, sfs.Pretty.Value, 'Pretty should be False');
+	Assert.AreEqual(False, sfs.Hidden.Value, 'Hidden should be False');
+	Assert.AreEqual(False, sfs.NoIgnore.Value, 'NoIgnore should be False');
+	Assert.AreEqual(0, sfs.Context.Value, 'Context should be 0');
+	Assert.AreEqual('', sfs.Encoding.Value, 'Encoding should be ''''');
 end;
 
 procedure TRipGrepperSettingsTest.AfterCopyValuesValuesShouldBeEqual;
@@ -133,16 +133,16 @@ begin
 	try
 		s.Copy(FSettings);
 
-		Assert.AreEqual(s.SearchFormSettings.Encoding,
-			{ } FSettings.SearchFormSettings.Encoding, 'Encoding should be utf8');
-		Assert.AreEqual(s.SearchFormSettings.Context,
-			{ } FSettings.SearchFormSettings.Context, 'Context should be 5');
-		Assert.AreEqual(s.SearchFormSettings.Pretty,
-			{ } FSettings.SearchFormSettings.Pretty, 'Pretty should be false');
-		Assert.AreEqual(s.SearchFormSettings.Hidden,
-			{ } FSettings.SearchFormSettings.Hidden, 'Hidden should be true');
-		Assert.AreEqual(s.SearchFormSettings.NoIgnore,
-			{ } FSettings.SearchFormSettings.NoIgnore, 'NoIgnore should be true');
+		Assert.AreEqual(s.SearchFormSettings.Encoding.Value,
+			{ } FSettings.SearchFormSettings.Encoding.Value, 'Encoding should be utf8');
+		Assert.AreEqual(s.SearchFormSettings.Context.Value,
+			{ } FSettings.SearchFormSettings.Context.Value, 'Context should be 5');
+		Assert.AreEqual(s.SearchFormSettings.Pretty.Value,
+			{ } FSettings.SearchFormSettings.Pretty.Value, 'Pretty should be false');
+		Assert.AreEqual(s.SearchFormSettings.Hidden.Value,
+			{ } FSettings.SearchFormSettings.Hidden.Value, 'Hidden should be true');
+		Assert.AreEqual(s.SearchFormSettings.NoIgnore.Value,
+			{ } FSettings.SearchFormSettings.NoIgnore.Value, 'NoIgnore should be true');
 
 		Assert.AreEqual(s.RipGrepParameters.SearchPath,
 			{ } FSettings.RipGrepParameters.SearchPath, 'SearchPath should be equal');
@@ -176,23 +176,23 @@ begin
 	Assert.AreEqual(settingVal.Trim(['[', ']']), iniVal.Trim(['[', ']']), 'SearchParams should be equal');
 
 	FFactory.GetStringPersister(FSettings.SearchFormSettings.IniSectionName, 'Encoding').TryLoadValue(iniVal);
-	settingVal := FSettings.SearchFormSettings.Encoding;
+	settingVal := FSettings.SearchFormSettings.Encoding.Value;
 	Assert.AreEqual(settingVal, iniVal, 'Encoding should be equal');
 
 	FFactory.GetStringPersister(FSettings.SearchFormSettings.IniSectionName, 'Context').TryLoadValue(iniVal);
-	settingVal := FSettings.SearchFormSettings.Context.ToString;
+	settingVal := FSettings.SearchFormSettings.Context.Value.ToString;
 	Assert.AreEqual(settingVal, iniVal, 'Context should be equal');
 
 	iniVal := ReadBoolIniAsString(FSettings.SearchFormSettings.IniSectionName, 'Pretty');
-	settingVal := BoolToStr(FSettings.SearchFormSettings.Pretty, True);
+	settingVal := BoolToStr(FSettings.SearchFormSettings.Pretty.Value, True);
 	Assert.AreEqual(settingVal, iniVal, 'Pretty should be equal');
 
 	iniVal := ReadBoolIniAsString(FSettings.SearchFormSettings.IniSectionName, 'Hidden');
-	settingVal := BoolToStr(FSettings.SearchFormSettings.Hidden, True);
+	settingVal := BoolToStr(FSettings.SearchFormSettings.Hidden.Value, True);
 	Assert.AreEqual(settingVal, iniVal, 'Hidden should be equal');
 
 	iniVal := ReadBoolIniAsString(FSettings.SearchFormSettings.IniSectionName, 'NoIgnore');
-	settingVal := BoolToStr(FSettings.SearchFormSettings.NoIgnore, True);
+	settingVal := BoolToStr(FSettings.SearchFormSettings.NoIgnore.Value, True);
 	Assert.AreEqual(settingVal, iniVal, 'NoIgnore should be equal');
 
 	// iniVal := FSettings.IniFile.ReadString(FSettings.SearchFormSettings.ExtensionSettings.INI_SECTION, 'CurrentIDEContext', '');
@@ -480,11 +480,11 @@ begin
 
 	FSettings.FontColorSettings.LoadDefaultColors(EThemeMode.tmLight);
 
-	FSettings.SearchFormSettings.Encoding := 'none';
-	FSettings.SearchFormSettings.Context := 1;
-	FSettings.SearchFormSettings.Pretty := True;
-	FSettings.SearchFormSettings.Hidden := True;
-	FSettings.SearchFormSettings.NoIgnore := True;
+	FSettings.SearchFormSettings.Encoding.Value := 'none';
+	FSettings.SearchFormSettings.Context.Value := 1;
+	FSettings.SearchFormSettings.Pretty.Value := True;
+	FSettings.SearchFormSettings.Hidden.Value := True;
+	FSettings.SearchFormSettings.NoIgnore.Value := True;
 	FSettings.RipGrepParameters.SearchPath := 'act\search\path';
 	FSettings.RipGrepParameters.FileMasks := '*.act';
 	FSettings.RipGrepParameters.GuiSearchTextParams.SetSearchOptions([EGuiOption.soNotSet]);
@@ -523,11 +523,11 @@ procedure TInnerSearchFormSettingsTest.EncodingChangeAndUpdateFile();
 var
 	settingVal, iniVal : string;
 begin
-	FSettings.SearchFormSettings.Encoding := 'utf8';
+	FSettings.SearchFormSettings.Encoding.Value := 'utf8';
 	FSettings.StoreToPersister();
 	FSettings.UpdateFile();
 	iniVal := FFactory.GetStringPersister().LoadValue(FSettings.SearchFormSettings.IniSectionName, 'Encoding');
-	settingVal := FSettings.SearchFormSettings.Encoding;
+	settingVal := FSettings.SearchFormSettings.Encoding.Value;
 
 	Assert.AreEqual(settingVal, iniVal, 'Encoding should be equal');
 end;
@@ -536,12 +536,12 @@ procedure TInnerSearchFormSettingsTest.EncodingChangeChangesDictionary();
 var
 	settingVal, dictVal : string;
 begin
-	FSettings.SearchFormSettings.Encoding := 'utf8';
+	FSettings.SearchFormSettings.Encoding.Value := 'utf8';
 
 	var
 	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 
-	settingVal := FSettings.SearchFormSettings.Encoding;
+	settingVal := FSettings.SearchFormSettings.Encoding.Value;
 	dictVal := FSettings.SettingsDict()['RipGrepperSearchSettings']['Encoding'].AsString;
 
 	Assert.AreEqual(settingVal, dictVal, 'Encoding should be equal');
@@ -551,12 +551,12 @@ procedure TInnerSearchFormSettingsTest.ContextChangeChangesDictionary();
 var
 	settingVal, dictVal : string;
 begin
-	FSettings.SearchFormSettings.Context := 1;
+	FSettings.SearchFormSettings.Context.Value := 1;
 
 	var
 	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 
-	settingVal := FSettings.SearchFormSettings.Context.ToString;
+	settingVal := FSettings.SearchFormSettings.Context.Value.ToString;
 	dictVal := FSettings.SettingsDict()['RipGrepperSearchSettings']['Context'].AsString;
 
 	Assert.AreEqual(settingVal, dictVal, 'Encoding should be equal');

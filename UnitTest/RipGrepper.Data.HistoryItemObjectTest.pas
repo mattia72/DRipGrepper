@@ -1758,11 +1758,11 @@ begin
 	originalItem.GuiSearchTextParams := guiParams;
 
 	// Set SearchFormSettings properties
-	originalItem.SearchFormSettings.Hidden := hidden;
-	originalItem.SearchFormSettings.NoIgnore := noIgnore;
-	originalItem.SearchFormSettings.Pretty := pretty;
-	originalItem.SearchFormSettings.Context := context;
-	originalItem.SearchFormSettings.Encoding := encoding;
+	originalItem.SearchFormSettings.Hidden.Value := hidden;
+	originalItem.SearchFormSettings.NoIgnore.Value := noIgnore;
+	originalItem.SearchFormSettings.Pretty.Value := pretty;
+	originalItem.SearchFormSettings.Context.Value := context;
+	originalItem.SearchFormSettings.Encoding.Value := encoding;
 
 	stream := Shared.Make<TMemoryStream>(TMemoryStream.Create());
 	writer := Shared.Make<TStreamWriter>(TStreamWriter.Create(stream, TEncoding.UTF8));
@@ -1777,14 +1777,14 @@ begin
 	loadedItem.LoadFromStreamReader(reader);
 
 	// Assert - All SearchFormSettings properties should be preserved
-	Assert.AreEqual(hidden, loadedItem.SearchFormSettings.Hidden, Format('Hidden should be preserved: expected %s',
+	Assert.AreEqual(hidden, loadedItem.SearchFormSettings.Hidden.Value, Format('Hidden should be preserved: expected %s',
 		[BoolToStr(hidden, True)]));
-	Assert.AreEqual(noIgnore, loadedItem.SearchFormSettings.NoIgnore, Format('NoIgnore should be preserved: expected %s',
+	Assert.AreEqual(noIgnore, loadedItem.SearchFormSettings.NoIgnore.Value, Format('NoIgnore should be preserved: expected %s',
 		[BoolToStr(noIgnore, True)]));
-	Assert.AreEqual(pretty, loadedItem.SearchFormSettings.Pretty, Format('Pretty should be preserved: expected %s',
+	Assert.AreEqual(pretty, loadedItem.SearchFormSettings.Pretty.Value, Format('Pretty should be preserved: expected %s',
 		[BoolToStr(pretty, True)]));
-	Assert.AreEqual(context, loadedItem.SearchFormSettings.Context, Format('Context should be preserved: expected %d', [context]));
-	Assert.AreEqual(encoding, loadedItem.SearchFormSettings.Encoding, Format('Encoding should be preserved: expected "%s"', [encoding]));
+	Assert.AreEqual(context, loadedItem.SearchFormSettings.Context.Value, Format('Context should be preserved: expected %d', [context]));
+	Assert.AreEqual(encoding, loadedItem.SearchFormSettings.Encoding.Value, Format('Encoding should be preserved: expected "%s"', [encoding]));
 end;
 
 procedure THistoryItemObjectTest.TestRoundtripPersistence_PathAndMasks(const searchPath : string; const fileMasks : string);
