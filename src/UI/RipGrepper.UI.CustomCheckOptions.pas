@@ -494,13 +494,14 @@ begin
 
 	checkBox := TCheckBox.Create(Self);
 	checkBox.Parent := Self;
-	checkBox.Caption := BuildControlNameFromCaption(_caption);
+	checkBox.Caption := _caption;
 	checkBox.Hint := _hint;
 	checkBox.ShowHint := True;
 	checkBox.OnClick := onItemChangeEventHandler;
 
 	comboBox := TComboBox.Create(Self);
 	comboBox.Parent := Self;
+	comboBox.Hint := _hint;
 	comboBox.Style := csDropDown;
 	comboBox.AutoDropDownWidth := True;
 
@@ -541,6 +542,7 @@ begin
 	spinEdit.MinValue := _minValue;
 	spinEdit.MaxValue := _maxValue;
 	spinEdit.Value := _defaultValue;
+	spinEdit.Hint := _hint;
 	spinEdit.OnChange := onItemChangeEventHandler;
 
 	Result := FItems.AddItem(checkBox, spinEdit, _caption, _setting);
@@ -571,6 +573,7 @@ begin
 	comboBox := TComboBox.Create(Self);
 	comboBox.Name := 'cmb' + UpCase(cleanCaption[1]) + cleanCaption.Substring(1);
 	comboBox.Parent := Self;
+	comboBox.Hint := _hint;
 	comboBox.Style := csDropDown;
 	comboBox.AutoDropDownWidth := True;
 	comboBox.OnChange := onItemChangeEventHandler;
@@ -589,7 +592,7 @@ end;
 procedure TCustomCheckOptions.AlignControlItems;
 const
 	SPACE = 8;
-	FIRST_CONTROL_WIDTH = 80; // Fixed width for first control (checkbox/label)
+	FIRST_CONTROL_WIDTH = 100; // Fixed width for first control (checkbox/label)
 	SECOND_CONTROL_WIDTH = 80; // Fixed width for second control (combo/spin)
 var
 	i, col, row : Integer;
