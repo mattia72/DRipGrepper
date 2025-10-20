@@ -101,7 +101,7 @@ type
 		ToolButton1 : TToolButton;
 		ToolButton2 : TToolButton;
 		pnlRgFilterOptions : TPanel;
-		pnlRgOutputOptions: TPanel;
+		pnlRgOutputOptions : TPanel;
 		procedure ActionAddParamMatchCaseExecute(Sender : TObject);
 		procedure ActionAddParamMatchCaseUpdate(Sender : TObject);
 		procedure ActionAddParamRegexExecute(Sender : TObject);
@@ -1047,36 +1047,40 @@ begin
 
 	if HasHistItemObjWithResult or FHistItemObj.IsLoadedFromStream then begin
 		_ctrlProxy.SearchText := FHistItemObj.GuiSearchTextParams.SearchTextWithOptions.SearchTextOfUser;
-		_ctrlProxy.SearchOptions := FHistItemObj.GuiSearchTextParams.GetSearchOptions;
 		_ctrlProxy.ReplaceText := FHistItemObj.ReplaceText;
+		_ctrlProxy.SearchOptions := FHistItemObj.GuiSearchTextParams.GetSearchOptions;
 		_ctrlProxy.IsReplaceMode := FHistItemObj.IsReplaceMode;
 
 		_ctrlProxy.SearchPath := GetValuesFromHistObjRipGrepArguments(RG_ARG_SEARCH_PATH, SEARCH_PATH_SEPARATOR);
 		_ctrlProxy.FileMasks := GetValuesFromHistObjRipGrepArguments(RG_PARAM_REGEX_GLOB);
+
 		_ctrlProxy.IsHiddenChecked := FHistItemObj.SearchFormSettings.Hidden.Value;
 		_ctrlProxy.IsNoIgnoreChecked := FHistItemObj.SearchFormSettings.NoIgnore.Value;
 		_ctrlProxy.Encoding := FHistItemObj.SearchFormSettings.Encoding.Value;
+
+		_ctrlProxy.OutputFormat := FHistItemObj.SearchFormSettings.OutputFormat.Value;
 		_ctrlProxy.IsPrettyChecked := FHistItemObj.SearchFormSettings.Pretty.Value;
 		_ctrlProxy.LineContext := FHistItemObj.SearchFormSettings.Context.Value;
 		_ctrlProxy.AdditionalExpertOptions := FHistItemObj.GuiSearchTextParams.ExpertOptions.AsString;
-		dbgMsg.MsgFmt('Proxy filled from HistItemObj: %s', [_ctrlProxy.ToString]);
 	end else begin
 		_ctrlProxy.SearchText := _ctrlProxy.SearchTextHist.SafeItem[0];
 		_ctrlProxy.ReplaceText := _ctrlProxy.ReplaceTextHist.SafeItem[0];
-		_ctrlProxy.SearchPath := _ctrlProxy.SearchPathHist.SafeItem[0];
-		_ctrlProxy.FileMasks := _ctrlProxy.FileMasksHist.SafeItem[0];
-		_ctrlProxy.AdditionalExpertOptions := _ctrlProxy.AdditionalExpertOptionsHist.SafeItem[0];
-
 		_ctrlProxy.SearchOptions := FSettings.RipGrepParameters.GuiSearchTextParams.GetSearchOptions;
 		_ctrlProxy.IsReplaceMode := FSettings.IsReplaceMode;
+
+		_ctrlProxy.SearchPath := _ctrlProxy.SearchPathHist.SafeItem[0];
+		_ctrlProxy.FileMasks := _ctrlProxy.FileMasksHist.SafeItem[0];
+
 		_ctrlProxy.IsHiddenChecked := FSettings.SearchFormSettings.Hidden.Value;
 		_ctrlProxy.IsNoIgnoreChecked := FSettings.SearchFormSettings.NoIgnore.Value;
 		_ctrlProxy.Encoding := FSettings.SearchFormSettings.Encoding.Value;
+
 		_ctrlProxy.OutputFormat := FSettings.SearchFormSettings.OutputFormat.Value;
 		_ctrlProxy.IsPrettyChecked := FSettings.SearchFormSettings.Pretty.Value;
 		_ctrlProxy.LineContext := FSettings.SearchFormSettings.Context.Value;
-		dbgMsg.MsgFmt('Proxy filled from Settings: %s', [_ctrlProxy.ToString]);
+		_ctrlProxy.AdditionalExpertOptions := _ctrlProxy.AdditionalExpertOptionsHist.SafeItem[0];
 	end;
+	dbgMsg.MsgFmt('Proxy filled from Settings: %s', [_ctrlProxy.ToString]);
 end;
 
 procedure TRipGrepperSearchDialogForm.CopyProxyToSettings(const _ctrlProxy : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;

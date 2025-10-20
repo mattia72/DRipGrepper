@@ -23,29 +23,30 @@ type
 		const
 			INI_SECTION = 'RipGrepperSearchSettings';
 			SEARCH_SETTING_NAMES : array [0 .. 5] of string = (
-			{ } 'Hidden',
-			{ } 'NoIgnore',
-			{ } 'Pretty',
-			{ } 'Context',
-			{ } 'Encoding',
-			{ } 'OutputFormat');
+				{ } 'Hidden',
+				{ } 'NoIgnore',
+				{ } 'Pretty',
+				{ } 'Context',
+				{ } 'Encoding',
+				{ } 'OutputFormat');
 
 		private
 
 			FContext : IIntegerSetting;
 			FEncoding : IStringSetting;
 			FExtensionSettings : TRipGrepperExtensionSettings;
-			FHidden: IBoolSetting;
+			FHidden : IBoolSetting;
 			FNoIgnore : IBoolSetting;
-			FOutputFormat: IStringSetting;
+			FOutputFormat : IStringSetting;
 			FPretty : IBoolSetting;
-			function GetContext(): IIntegerSetting;
-			function GetEncoding(): IStringSetting;
+			function GetContext() : IIntegerSetting;
+			function GetEncoding() : IStringSetting;
 			function GetExtensionSettings : TRipGrepperExtensionSettings;
-			function GetHidden(): IBoolSetting;
-			function GetNoIgnore(): IBoolSetting;
-			function GetOutputFormat(): IStringSetting;
-			function GetPretty(): IBoolSetting;
+			function GetHidden() : IBoolSetting;
+			function GetNoIgnore() : IBoolSetting;
+			function GetOutputFormat() : IStringSetting;
+			function GetPretty() : IBoolSetting;
+
 		public
 			constructor Create(const _Owner : TPersistableSettings); overload;
 			constructor Create; overload;
@@ -60,13 +61,13 @@ type
 			procedure SaveToStreamWriter(_sw : TStreamWriter);
 			function ToLogString : string; override;
 
-			property Context: IIntegerSetting read GetContext;
-			property Encoding: IStringSetting read GetEncoding;
+			property Context : IIntegerSetting read GetContext;
+			property Encoding : IStringSetting read GetEncoding;
 			property ExtensionSettings : TRipGrepperExtensionSettings read GetExtensionSettings write FExtensionSettings;
-			property Hidden: IBoolSetting read GetHidden;
-			property NoIgnore: IBoolSetting read GetNoIgnore;
-			property OutputFormat: IStringSetting read GetOutputFormat;
-			property Pretty: IBoolSetting read GetPretty;
+			property Hidden : IBoolSetting read GetHidden;
+			property NoIgnore : IBoolSetting read GetNoIgnore;
+			property OutputFormat : IStringSetting read GetOutputFormat;
+			property Pretty : IBoolSetting read GetPretty;
 	end;
 
 implementation
@@ -120,12 +121,12 @@ begin
 	end;
 end;
 
-function TSearchFormSettings.GetContext(): IIntegerSetting;
+function TSearchFormSettings.GetContext() : IIntegerSetting;
 begin
 	Result := FContext;
 end;
 
-function TSearchFormSettings.GetEncoding(): IStringSetting;
+function TSearchFormSettings.GetEncoding() : IStringSetting;
 begin
 	Result := FEncoding;
 end;
@@ -141,22 +142,22 @@ begin
 	Result := FExtensionSettings;
 end;
 
-function TSearchFormSettings.GetHidden(): IBoolSetting;
+function TSearchFormSettings.GetHidden() : IBoolSetting;
 begin
 	Result := FHidden;
 end;
 
-function TSearchFormSettings.GetNoIgnore(): IBoolSetting;
+function TSearchFormSettings.GetNoIgnore() : IBoolSetting;
 begin
 	Result := FNoIgnore;
 end;
 
-function TSearchFormSettings.GetOutputFormat(): IStringSetting;
+function TSearchFormSettings.GetOutputFormat() : IStringSetting;
 begin
 	Result := FOutputFormat;
 end;
 
-function TSearchFormSettings.GetPretty(): IBoolSetting;
+function TSearchFormSettings.GetPretty() : IBoolSetting;
 begin
 	Result := FPretty;
 end;
@@ -192,7 +193,11 @@ begin
 	Pretty.Value := _sr.ReadLineAsBool('Pretty');
 	Context.Value := _sr.ReadLineAsInteger('Context');
 	Encoding.Value := _sr.ReadLineAsString(true, 'Encoding'); // Encoding can potentially be empty
-	OutputFormat.Value := _sr.ReadLineAsString(false, 'OutputFormat'); // OutputFormat can potentially be empty
+	var
+	s := _sr.ReadLineAsString(false, 'OutputFormat');
+	if not s.IsEmpty then begin
+		OutputFormat.Value := s;
+	end;
 	ExtensionSettings.LoadFromStreamReader(_sr);
 end;
 
