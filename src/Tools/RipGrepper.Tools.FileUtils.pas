@@ -55,6 +55,7 @@ type
 			class function GetVsCodeCommandItem : TCommandItem;
 			// Determine if a passed in path/file is absolute or relative
 			class function IsPathAbsolute(const FileName : string) : Boolean;
+			class function IsVsCodeRipGrep(const _rgPath : string): Boolean;
 			class function LongToShortFilePath(const LongPath : string) : string;
 			class function ShortToLongPath(const ShortPath : string) : string;
 	end;
@@ -234,6 +235,22 @@ end;
 class function TFileUtils.IsPathAbsolute(const FileName : string) : Boolean;
 begin
 	Result := ExtractFileDrive(FileName) <> '';
+end;
+
+class function TFileUtils.IsVsCodeRipGrep(const _rgPath : string): Boolean;
+var
+	sRgPath : string;
+	sVsDir : string;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TFileUtils.IsVsCodeRipGrep');
+	Result := False;
+	sVsDir := TFileUtils.GetVsCodeDir;
+	if not sVsDir.IsEmpty then begin
+		TFileUtils.FindExecutable(_rgPath, sRgPath);
+		// Rg in VSCode doesn't support --pretty
+		Result := TFileUtils.ShortToLongPath(sRgPath).Contains('@vscode\ripgrep\bin');
+	end;
 end;
 
 // TODO: PathIsRelativeAPI

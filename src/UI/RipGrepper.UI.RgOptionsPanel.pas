@@ -57,7 +57,11 @@ type
 	TRgOutputOptionsPanel = class(TOptionPanel)
 		pnlMain : TPanel;
 
-		private
+		strict private
+			FIsVsCodeRipGrep : Boolean;
+			function getIsVsCodeRipGrep() : Boolean;
+
+			FVsCodeChecked : Boolean;
 			procedure updatePrettyItem();
 
 		protected
@@ -66,6 +70,7 @@ type
 		public
 			constructor Create(_owner : TComponent); override;
 			procedure AddItems();
+			property IsVsCodeRipGrep : Boolean read getIsVsCodeRipGrep;
 	end;
 
 implementation
@@ -76,7 +81,8 @@ uses
 	System.StrUtils,
 	System.Math,
 	ArrayEx,
-	RipGrepper.Settings.SettingVariant;
+	RipGrepper.Settings.SettingVariant,
+	RipGrepper.Tools.FileUtils;
 
 constructor TRgFilterOptionsPanel.Create(_owner : TComponent);
 begin
@@ -167,6 +173,7 @@ begin
 	BevelOuter := bvNone;
 	Align := alClient;
 	FEventsEnabled := True; // Default to enabled
+	FVsCodeChecked := False;
 
 	// Create pnlMain programmatically
 	pnlMain := TPanel.Create(Self);
@@ -200,6 +207,15 @@ begin
 		{ } sfs.Pretty);
 end;
 
+function TRgOutputOptionsPanel.getIsVsCodeRipGrep() : Boolean;
+begin
+	if not FVsCodeChecked then begin
+		FIsVsCodeRipGrep := TFileUtils.IsVsCodeRipGrep(Settings.RipGrepParameters.RipGrepPath);
+		FVsCodeChecked := True;
+	end;
+	Result := FIsVsCodeRipGrep;
+end;
+
 procedure TRgOutputOptionsPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
 begin
 	inherited;
@@ -212,7 +228,7 @@ begin
 	end;
 
 	// Handle the functionality that was previously in the individual event handlers
-	if _item.Setting.Name = 'OutputFormat' then begin
+	if (_item.Setting.Name = 'OutputFormat') and (not IsVsCodeRipGrep) then begin
 		updatePrettyItem;
 	end;
 

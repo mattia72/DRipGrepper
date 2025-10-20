@@ -97,6 +97,8 @@ begin
 	_cd.Add(TColumnData.New(ciColBegin, ''));
 	_cd.Add(TColumnData.New(ciColEnd, ''));
 	_cd.Add(TColumnData.New(ciText, _m.Groups['text'].Value));
+	_cd.Add(TColumnData.New(ciMatchText, ''));
+	_cd.Add(TColumnData.New(ciTextAfterMatch, ''));
 end;
 
 procedure TVimGrepMatchLineParser.ParseStatsLine(const _m : TMatch; var _cd : TArrayEx<TColumnData>);
@@ -210,6 +212,8 @@ begin
 	row.Add(TColumnData.New(ciColBegin, ''));
 	row.Add(TColumnData.New(ciColEnd, ''));
 	row.Add(TColumnData.New(ciText, ''));
+	row.Add(TColumnData.New(ciMatchText, ''));
+	row.Add(TColumnData.New(ciTextAfterMatch, ''));
 end;
 
 procedure TVimGrepMatchLineParser.SetSearchParams(const Value : ISearchParams);
@@ -265,8 +269,6 @@ end;
 procedure TVimGrepPrettyMatchLineParser.ParseContextLine(const _m : TMatch; var _cd : TArrayEx<TColumnData>);
 begin
 	inherited ParseContextLine(_m, _cd);
-	_cd.Add(TColumnData.New(ciMatchText, ''));
-	_cd.Add(TColumnData.New(ciTextAfterMatch, ''));
 end;
 
 { TVimGrepPrettyMatchLineParser }

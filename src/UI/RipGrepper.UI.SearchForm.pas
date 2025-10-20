@@ -187,7 +187,6 @@ type
 			procedure UpdateCheckBoxesByGuiSearchParams;
 			procedure UpdateCheckBoxes;
 			function CheckAndCorrectMultiLine(const _str : TMultiLineString) : string;
-			procedure CheckVsCodeRipGrep;
 			procedure CopyCtrlsToProxy(var _ctrlProxy : TSearchFormCtrlValueProxy);
 			procedure CopyItemsToProxy(var _arr : TArrayEx<string>; _setting : IArraySetting);
 			function GetFullHeights : integer;
@@ -225,6 +224,9 @@ type
 			procedure SetRgFilterOptionsPanel(const _settings : TRipGrepperSettings);
 			procedure SetRgOutputOptionsPanel(const _settings : TRipGrepperSettings);
 			procedure CopyProxyToSearchFormSettings(const _ctrlProxy : TSearchFormCtrlValueProxy; const _settings : TSearchFormSettings);
+
+		private
+			procedure SetPrettyCheckboxHint();
 
 		protected
 			procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;
@@ -525,9 +527,11 @@ begin
 		WriteCtrlProxyToCtrls;
 		// LoadExtensionSearchSettings;
 
-		CheckVsCodeRipGrep; // vscode rg doesn't support --pretty
 		dbgMsg.Msg('RipGrepPath=' + FSettings.RipGrepParameters.RipGrepPath);
-
+		// vscode rg doesn't support --pretty
+		if TFileUtils.IsVsCodeRipGrep(FSettings.RipGrepParameters.RipGrepPath) then begin
+			SetPrettyCheckboxHint;
+		end;
 		WriteCtrlsToRipGrepParametersSettings; // FormShow
 
 		ActionShowInLines.Hint := SHOW_CMD_IN_SEPARATE_LINES;
@@ -955,32 +959,6 @@ begin
 	end;
 	Result := _str.GetLine(0);
 	dbgMsg.MsgFmt('Result = %s', [Result]);
-end;
-
-procedure TRipGrepperSearchDialogForm.CheckVsCodeRipGrep;
-var
-	sRgPath : string;
-	sVsDir : string;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.CheckVsCodeRipGrep');
-
-	sVsDir := TFileUtils.GetVsCodeDir;
-	if not sVsDir.IsEmpty then begin
-		TFileUtils.FindExecutable(FSettings.RipGrepParameters.RipGrepPath, sRgPath);
-		// Rg in VSCode doesn't support --pretty
-		cbRgParamPretty.Enabled := not TFileUtils.ShortToLongPath(sRgPath).Contains('@vscode\ripgrep\bin');
-		if not cbRgParamPretty.Enabled then begin
-			lblHintHelper.Caption := '';
-			lblHintHelper.AutoSize := False;
-			lblHintHelper.SetBounds(cbRgParamPretty.BoundsRect.Left, cbRgParamPretty.BoundsRect.Top, cbRgParamPretty.BoundsRect.Width,
-				cbRgParamPretty.BoundsRect.Height);
-			lblHintHelper.Hint := 'rg.exe in VSCode doesn''t support --pretty';
-			lblHintHelper.ShowHint := True;
-			lblHintHelper.Visible := True;
-			dbgMsg.Msg(lblHintHelper.Hint);
-		end;
-	end;
 end;
 
 procedure TRipGrepperSearchDialogForm.cmbOptionsChange(Sender : TObject);
@@ -1703,6 +1681,22 @@ begin
 	// This covers the functionality that was in cmbRgParamEncodingChange
 	FSettings.SearchFormSettings.Encoding.Value := IfThen(cmbRgParamEncoding.Enabled, cmbRgParamEncoding.Text);
 	UpdateCtrls(cmbRgParamEncoding);
+end;
+
+procedure TRipGrepperSearchDialogForm.SetPrettyCheckboxHint();
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetPrettyCheckboxHint');
+
+	cbRgParamPretty.Enabled := False;
+	lblHintHelper.Caption := '';
+	lblHintHelper.AutoSize := False;
+	lblHintHelper.SetBounds(cbRgParamPretty.BoundsRect.Left, cbRgParamPretty.BoundsRect.Top, cbRgParamPretty.BoundsRect.Width,
+		cbRgParamPretty.BoundsRect.Height);
+	lblHintHelper.Hint := 'rg.exe in VSCode doesn''t support --pretty';
+	lblHintHelper.ShowHint := True;
+	lblHintHelper.Visible := True;
+	dbgMsg.Msg(lblHintHelper.Hint);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetRgFilterOptionsPanel(const _settings : TRipGrepperSettings);
