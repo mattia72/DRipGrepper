@@ -19,9 +19,9 @@ uses
 
 const
 	// Constants for OrderIndex values
-	RG_FILTER_OPTION_HIDDEN_INDEX = 0;
-	RG_FILTER_OPTION_NO_IGNORE_INDEX = 1;
-	RG_FILTER_OPTION_ENCODING_INDEX = 2;
+	RG_FILTER_OPTION_HIDDEN_CAPTION = '--hidden';
+	RG_FILTER_OPTION_NO_IGNORE_CAPTION = '--no-ignore';
+	RG_FILTER_OPTION_ENCODING_CAPTION = '--encoding=';
 
 	OUTPUT_FORMAT_JSON = 'json';
 	OUTPUT_FORMAT_VIMGREP = 'vimgrep';
@@ -161,11 +161,11 @@ begin
 	var
 	sfs := Settings.SearchFormSettings;
 	// Add checkbox options
-	FCheckOptionsGroup.AddCheckboxItem('--hidden', 'Include hidden files in search',
+	FCheckOptionsGroup.AddCheckboxItem(RG_FILTER_OPTION_HIDDEN_CAPTION, 'Include hidden files in search',
 		{ } sfs.Hidden);
-	FCheckOptionsGroup.AddCheckboxItem('--no-ignore', 'Don''t respect ignore files',
+	FCheckOptionsGroup.AddCheckboxItem(RG_FILTER_OPTION_NO_IGNORE_CAPTION, 'Don''t respect ignore files',
 		{ } sfs.NoIgnore);
-	FCheckOptionsGroup.AddCheckboxComboItem('--encoding=', 'Specify text encoding',
+	FCheckOptionsGroup.AddCheckboxComboItem(RG_FILTER_OPTION_ENCODING_CAPTION, 'Specify text encoding',
 		{ } encodingItems,
 		{ } sfs.Encoding);
 
@@ -174,23 +174,6 @@ end;
 procedure TRgFilterOptionsPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
 begin
 	inherited;
-	// case _item.OrderIndex of
-	// RG_FILTER_OPTION_HIDDEN_INDEX : begin
-	// Settings.SearchFormSettings.Hidden.Value := _item.Checked;
-	// dbgMsg.Msg('Hidden option changed to: ' + BoolToStr(Settings.SearchFormSettings.Hidden));
-	// end;
-	// RG_FILTER_OPTION_NO_IGNORE_INDEX : begin
-	// Settings.SearchFormSettings.NoIgnore.Value := _item.Checked;
-	// dbgMsg.Msg('NoIgnore option changed to: ' + BoolToStr(Settings.SearchFormSettings.NoIgnore));
-	// end;
-	// RG_FILTER_OPTION_ENCODING_INDEX : begin
-	// if Assigned(_item.ComboBox) then begin
-	// _item.ComboBox.Enabled := _item.Checked;
-	// Settings.SearchFormSettings.Encoding := IfThen(_item.ComboBox.Enabled, _item.ComboBox.Text);
-	// dbgMsg.Msg('Encoding option changed to: ' + Settings.SearchFormSettings.Encoding);
-	// end;
-	// end;
-	// end;
 end;
 
 constructor TRgOutputOptionsPanel.Create(_owner : TComponent);

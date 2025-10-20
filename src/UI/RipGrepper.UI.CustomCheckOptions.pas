@@ -764,16 +764,12 @@ begin
 end;
 
 function TCustomCheckOptions.GetItemChecked(_idx : Integer) : Boolean;
-var
-	i : Integer;
-	item : TCustomCheckItem;
 begin
 	Result := FItems[_idx].Checked;
 end;
 
 function TCustomCheckOptions.GetItemText(_idx : Integer) : string;
 var
-	i : Integer;
 	item : TCustomCheckItem;
 begin
 	Result := '';
@@ -797,7 +793,6 @@ end;
 
 function TCustomCheckOptions.GetItemSpinValue(_idx : Integer) : Integer;
 var
-	i : Integer;
 	item : TCustomCheckItem;
 begin
 	Result := 0;
@@ -811,7 +806,6 @@ end;
 
 function TCustomCheckOptions.GetItemCaption(_idx : Integer) : string;
 var
-	i : Integer;
 	item : TCustomCheckItem;
 begin
 	Result := '';

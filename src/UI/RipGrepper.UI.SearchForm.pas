@@ -1711,13 +1711,13 @@ begin
 	var
 	optionsGroup := FRgFilterOptionsPanel.CheckOptionsGroup;
 	FRgFilterOptionsPanel.OnOptionChange := OnRgFilterOptionsPanelItemSelect;
-	optionsGroup.Items[RG_FILTER_OPTION_ENCODING_INDEX].ComboBox.OnChange := OnEncodingComboBoxChange;
+	optionsGroup.GetItemByCaption(RG_FILTER_OPTION_ENCODING_CAPTION).ComboBox.OnChange := OnEncodingComboBoxChange;
 	FRgFilterOptionsPanel.AdjustHeight();
 
-	cbRgParamHidden := optionsGroup.Items[RG_FILTER_OPTION_HIDDEN_INDEX].CheckBox;
-	cbRgParamNoIgnore := optionsGroup.Items[RG_FILTER_OPTION_NO_IGNORE_INDEX].CheckBox;
-	cbRgParamEncoding := optionsGroup.Items[RG_FILTER_OPTION_ENCODING_INDEX].CheckBox;
-	cmbRgParamEncoding := optionsGroup.Items[RG_FILTER_OPTION_ENCODING_INDEX].ComboBox;
+	cbRgParamHidden := optionsGroup.GetItemByCaption(RG_FILTER_OPTION_HIDDEN_CAPTION).CheckBox;
+	cbRgParamNoIgnore := optionsGroup.GetItemByCaption(RG_FILTER_OPTION_NO_IGNORE_CAPTION).CheckBox;
+	cbRgParamEncoding := optionsGroup.GetItemByCaption(RG_FILTER_OPTION_ENCODING_CAPTION).CheckBox;
+	cmbRgParamEncoding := optionsGroup.GetItemByCaption(RG_FILTER_OPTION_ENCODING_CAPTION).ComboBox;
 end;
 
 procedure TRipGrepperSearchDialogForm.SetRgOutputOptionsPanel(const _settings : TRipGrepperSettings);
