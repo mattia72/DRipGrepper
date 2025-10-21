@@ -22,6 +22,15 @@
             ]
         },
         {
+            "id": "buildPlatform",
+            "description": "Choose Build Platform",
+            "type": "pickString",
+            "options": [
+                "Win32",
+                "Win64"
+            ]
+        },
+        {
             "id": "versionType",
             "description": "Choose Version Type to Increment",
             "type": "pickString",
@@ -72,7 +81,7 @@
         {
             "label": "DripGrepper: Build and run DripGrepper",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig ${input:buildConfig} -BuildStandalone; & src\\Project\\${input:delphiVersion}\\Win32\\${input:buildConfig}\\DripGrepper.exe",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig ${input:buildConfig} -BuildStandalone; & src\\Project\\${input:delphiVersion}\\${input:buildPlatform}\\${input:buildConfig}\\DripGrepper.exe",
             "group": {
                 "kind": "build"
             }
@@ -139,17 +148,9 @@
             }
         },
         {
-            "label": "DripGrepper: Run DripGrepper.exe (x64)",
+            "label": "DripGrepper: Run DripGrepper.exe (x86, x64)",
             "type": "shell",
-            "command": "& src\\Project\\${input:delphiVersion}\\Win64\\${input:buildConfig}\\DripGrepper.exe",
-            "group": {
-                "kind": "test"
-            }
-        },
-        {
-            "label": "DripGrepper: Run DripGrepper.exe (x86)",
-            "type": "shell",
-            "command": "& src\\Project\\${input:delphiVersion}\\Win32\\${input:buildConfig}\\DripGrepper.exe",
+            "command": "& src\\Project\\${input:delphiVersion}\\${input:buildPlatform}\\${input:buildConfig}\\DripGrepper.exe",
             "group": {
                 "kind": "test"
             }
