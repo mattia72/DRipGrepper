@@ -70,10 +70,6 @@ type
 			procedure setMaxValue(const _value : Integer);
 			procedure setSetting(const _value : ISetting);
 			procedure setEnabled(const _value : Boolean);
-			procedure setCheckBox(const _value : TCheckBox);
-			procedure setLabel(const _value : TLabel);
-			procedure setComboBox(const _value : TComboBox);
-			procedure setSpinEdit(const _value : TSpinEdit);
 			procedure showHintHelper();
 			procedure hideHintHelper();
 
@@ -81,10 +77,10 @@ type
 			constructor Create(Collection : TCollection); override;
 			destructor Destroy; override;
 
-			property CheckBox : TCheckBox read getCheckBox write setCheckBox;
-			property LabelControl : TLabel read getLabel write setLabel;
-			property ComboBox : TComboBox read getComboBox write setComboBox;
-			property SpinEdit : TSpinEdit read getSpinEdit write setSpinEdit;
+			property CheckBox : TCheckBox read getCheckBox;
+			property LabelControl : TLabel read getLabel;
+			property ComboBox : TComboBox read getComboBox;
+			property SpinEdit : TSpinEdit read getSpinEdit;
 			property HintHelper : TLabel read FHintHelper;
 			property ComboBoxItems : TStringList read FComboBoxItems write setComboBoxItems;
 			property Caption : string read FCaption write setCaption;
@@ -290,26 +286,6 @@ begin
 	Result := getSubItem(siSecond, TSpinEdit) as TSpinEdit;
 end;
 
-procedure TCustomCheckItem.setCheckBox(const _value : TCheckBox);
-begin
-	FSubItems[Ord(siFirst)] := _value;
-end;
-
-procedure TCustomCheckItem.setLabel(const _value : TLabel);
-begin
-	FSubItems[Ord(siFirst)] := _value;
-end;
-
-procedure TCustomCheckItem.setComboBox(const _value : TComboBox);
-begin
-	FSubItems[Ord(siSecond)] := _value;
-end;
-
-procedure TCustomCheckItem.setSpinEdit(const _value : TSpinEdit);
-begin
-	FSubItems[Ord(siSecond)] := _value;
-end;
-
 function TCustomCheckItem.getChecked() : Boolean;
 begin
 	Result := Assigned(CheckBox) and CheckBox.Checked;
@@ -495,7 +471,7 @@ begin
 	Result := Add;
 	Result.FCaption := _caption;
 	Result.TagObject := _setting;
-	Result.CheckBox := _cb;
+	Result.FSubItems[Ord(siFirst)] := _cb;
 	Result.FItemType := citCheckBox;
 	Result.FSetting := _setting;
 end;
@@ -505,8 +481,8 @@ begin
 	Result := Add;
 	Result.FCaption := _caption;
 	Result.TagObject := _setting;
-	Result.CheckBox := _cb;
-	Result.ComboBox := _combo;
+	Result.FSubItems[Ord(siFirst)] := _cb;
+	Result.FSubItems[Ord(siSecond)] := _combo;
 	Result.FItemType := citCheckBoxWithCombo;
 	Result.FSetting := _setting;
 end;
@@ -516,8 +492,8 @@ begin
 	Result := Add;
 	Result.FCaption := _caption;
 	Result.TagObject := _setting;
-	Result.CheckBox := _cb;
-	Result.SpinEdit := _spin;
+	Result.FSubItems[Ord(siFirst)] := _cb;
+	Result.FSubItems[Ord(siSecond)] := _spin;
 	Result.FItemType := citCheckBoxWithSpin;
 	Result.FSetting := _setting;
 end;
@@ -527,8 +503,8 @@ begin
 	Result := Add;
 	Result.FCaption := _caption;
 	Result.TagObject := _setting;
-	Result.LabelControl := _lbl;
-	Result.ComboBox := _combo;
+	Result.FSubItems[Ord(siFirst)] := _lbl;
+	Result.FSubItems[Ord(siSecond)] := _combo;
 	Result.FItemType := citLabelWithCombo;
 	Result.FSetting := _setting;
 end;
@@ -566,7 +542,7 @@ end;
 
 procedure TCustomCheckOptions.Clear;
 var
-	i : Integer;
+	i, j : Integer;
 	item : TCustomCheckItem;
 begin
 	// Free all controls
@@ -576,21 +552,12 @@ begin
 			item.HintHelper.Free;
 			item.FHintHelper := nil;
 		end;
-		if Assigned(item.SpinEdit) then begin
-			item.SpinEdit.Free;
-			item.SpinEdit := nil;
-		end;
-		if Assigned(item.ComboBox) then begin
-			item.ComboBox.Free;
-			item.ComboBox := nil;
-		end;
-		if Assigned(item.LabelControl) then begin
-			item.LabelControl.Free;
-			item.LabelControl := nil;
-		end;
-		if Assigned(item.CheckBox) then begin
-			item.CheckBox.Free;
-			item.CheckBox := nil;
+		// Free all sub-items (controls in FSubItems array)
+		for j := Low(item.FSubItems) to High(item.FSubItems) do begin
+			if Assigned(item.FSubItems[j]) then begin
+				item.FSubItems[j].Free;
+				item.FSubItems[j] := nil;
+			end;
 		end;
 	end;
 	FItems.Clear;
