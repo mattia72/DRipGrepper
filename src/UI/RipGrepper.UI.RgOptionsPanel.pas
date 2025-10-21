@@ -36,6 +36,7 @@ type
 
 		public
 			FEventsEnabled : Boolean;
+			constructor Create(_owner : TComponent); override;
 			procedure AdjustHeight();
 			property CheckOptionsGroup : TCustomCheckOptions read FCheckOptionsGroup;
 			property EventsEnabled : Boolean read FEventsEnabled write FEventsEnabled;
@@ -83,12 +84,17 @@ uses
 	RipGrepper.Settings.SettingVariant,
 	RipGrepper.Tools.FileUtils;
 
-constructor TRgFilterOptionsPanel.Create(_owner : TComponent);
+constructor TOptionPanel.Create(_owner : TComponent);
 begin
 	inherited Create(_owner);
 	BevelOuter := bvNone;
 	Align := alClient;
-	FEventsEnabled := True; // Default to enabled
+	FEventsEnabled := True;
+end;
+
+constructor TRgFilterOptionsPanel.Create(_owner : TComponent);
+begin
+	inherited Create(_owner);
 
 	// Create pnlMain programmatically
 	pnlMain := TPanel.Create(Self);
@@ -169,9 +175,6 @@ end;
 constructor TRgOutputOptionsPanel.Create(_owner : TComponent);
 begin
 	inherited Create(_owner);
-	BevelOuter := bvNone;
-	Align := alClient;
-	FEventsEnabled := True; // Default to enabled
 	FVsCodeChecked := False;
 
 	// Create pnlMain programmatically
@@ -204,6 +207,16 @@ begin
 	FCheckOptionsGroup.AddCheckboxItem(RG_OUTPUT_OPTION_PRETTY_CAPTION,
 		{ } 'Parse pretty output',
 		{ } sfs.Pretty);
+
+	// Check if VSCode RipGrep and disable pretty option
+	if IsVsCodeRipGrep then begin
+		var
+		prettyItem := CheckOptionsGroup.GetItemByCaption(RG_OUTPUT_OPTION_PRETTY_CAPTION);
+		if Assigned(prettyItem) then begin
+			prettyItem.DisabledHint := 'rg.exe in VSCode doesn''t support --pretty';
+			prettyItem.Enabled := False;
+		end;
+	end;
 end;
 
 function TRgOutputOptionsPanel.getIsVsCodeRipGrep() : Boolean;
@@ -252,14 +265,15 @@ begin
 		// If json is selected, disable pretty option (not compatible)
 		if Assigned(prettyItem) and Assigned(prettyItem.CheckBox) then begin
 			prettyItem.CheckBox.Checked := False;
-			prettyItem.CheckBox.Enabled := False;
 			Settings.SearchFormSettings.Pretty.Value := False;
+			prettyItem.DisabledHint := 'Pretty output is not compatible with JSON format';
+			prettyItem.Enabled := False;
 			dbgMsg.Msg('Pretty option disabled due to json output format selection');
 		end;
 	end else begin
 		// Enable pretty option if not json
-		if Assigned(prettyItem) and Assigned(prettyItem.CheckBox) then begin
-			prettyItem.CheckBox.Enabled := True;
+		if Assigned(prettyItem) then begin
+			prettyItem.Enabled := True;
 			dbgMsg.Msg('Pretty option enabled');
 		end;
 	end;

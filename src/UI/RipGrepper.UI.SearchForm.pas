@@ -1689,14 +1689,14 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetPrettyCheckboxHint');
 
 	cbRgParamPretty.Enabled := False;
-	lblHintHelper.Caption := '';
-	lblHintHelper.AutoSize := False;
-	lblHintHelper.SetBounds(cbRgParamPretty.BoundsRect.Left, cbRgParamPretty.BoundsRect.Top, cbRgParamPretty.BoundsRect.Width,
-		cbRgParamPretty.BoundsRect.Height);
-	lblHintHelper.Hint := 'rg.exe in VSCode doesn''t support --pretty';
-	lblHintHelper.ShowHint := True;
-	lblHintHelper.Visible := True;
-	dbgMsg.Msg(lblHintHelper.Hint);
+//	lblHintHelper.Caption := '';
+//	lblHintHelper.AutoSize := False;
+//	lblHintHelper.SetBounds(cbRgParamPretty.BoundsRect.Left, cbRgParamPretty.BoundsRect.Top, cbRgParamPretty.BoundsRect.Width,
+//		cbRgParamPretty.BoundsRect.Height);
+//	lblHintHelper.Hint := 'rg.exe in VSCode doesn''t support --pretty';
+//	lblHintHelper.ShowHint := True;
+//	lblHintHelper.Visible := True;
+//	dbgMsg.Msg(lblHintHelper.Hint);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetRgFilterOptionsPanel(const _settings : TRipGrepperSettings);
