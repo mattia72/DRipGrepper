@@ -407,7 +407,18 @@ begin
 end;
 
 procedure TCustomCheckItem.showHintHelper();
+var
+	firstCtrl, secondCtrl : TControl;
+	leftPos, topPos, rightPos, bottomPos : Integer;
 begin
+	// Get first and second controls
+	firstCtrl := FSubItems[Ord(siFirst)];
+	secondCtrl := FSubItems[Ord(siSecond)];
+
+	if not Assigned(firstCtrl) then begin
+		Exit; // Nothing to cover
+	end;
+
 	// Create hint helper if not exists
 	if not Assigned(FHintHelper) then begin
 		var
@@ -415,17 +426,38 @@ begin
 		var
 		owner := items.GetOwner as TControl;
 		FHintHelper := TLabel.Create(owner);
-		FHintHelper.Parent := owner as TWinControl;
+		FHintHelper.Name := 'lblHintHelper';
 		FHintHelper.Caption := '';
+		FHintHelper.Parent := owner as TWinControl;
 		FHintHelper.AutoSize := False;
 		FHintHelper.Transparent := True;
 	end;
 
-	if Assigned(CheckBox) then begin
-		CheckBox.Enabled := False;
-		FHintHelper.SetBounds(CheckBox.BoundsRect.Left, CheckBox.BoundsRect.Top, CheckBox.BoundsRect.Width,
-			{ } CheckBox.BoundsRect.Height);
+	// Calculate bounds to cover both controls if they exist
+	leftPos := firstCtrl.Left;
+	topPos := firstCtrl.Top;
+	rightPos := leftPos + firstCtrl.Width;
+	bottomPos := topPos + firstCtrl.Height;
+
+	// Extend to second control if exists
+	if Assigned(secondCtrl) then begin
+		rightPos := Max(rightPos, secondCtrl.Left + secondCtrl.Width);
+		bottomPos := Max(bottomPos, secondCtrl.Top + secondCtrl.Height);
 	end;
+
+	// Set position and size using SetBounds for atomic update
+	FHintHelper.SetBounds(leftPos, topPos, rightPos - leftPos, bottomPos - topPos);
+
+	// Disable first control (checkbox or label)
+	if firstCtrl is TWinControl then begin
+		TWinControl(firstCtrl).Enabled := False;
+	end;
+
+	// Disable second control if exists
+	if Assigned(secondCtrl) and (secondCtrl is TWinControl) then begin
+		TWinControl(secondCtrl).Enabled := False;
+	end;
+
 	FHintHelper.Hint := FDisabledHint;
 	FHintHelper.ShowHint := True;
 	FHintHelper.Visible := True;
@@ -433,13 +465,24 @@ begin
 end;
 
 procedure TCustomCheckItem.hideHintHelper();
+var
+	firstCtrl, secondCtrl : TControl;
 begin
 	if Assigned(FHintHelper) then begin
 		FHintHelper.Visible := False;
 		FHintHelper.Hint := '';
 	end;
-	if Assigned(CheckBox) then begin
-		CheckBox.Enabled := True;
+
+	// Re-enable first control (checkbox or label)
+	firstCtrl := FSubItems[Ord(siFirst)];
+	if Assigned(firstCtrl) and (firstCtrl is TWinControl) then begin
+		TWinControl(firstCtrl).Enabled := True;
+	end;
+
+	// Re-enable second control if exists
+	secondCtrl := FSubItems[Ord(siSecond)];
+	if Assigned(secondCtrl) and (secondCtrl is TWinControl) then begin
+		TWinControl(secondCtrl).Enabled := True;
 	end;
 end;
 
@@ -798,6 +841,14 @@ begin
 	// Adjust control height if needed
 	if maxRows > 0 then begin
 		Height := maxRows * itemHeight + 16; // Padding for clean layout
+	end;
+
+	// Update hint helper positions for disabled items
+	for i := 0 to FItems.Count - 1 do begin
+		item := FItems[i];
+		if not item.Enabled then begin
+			item.showHintHelper();
+		end;
 	end;
 end;
 
