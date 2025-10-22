@@ -91,7 +91,6 @@ type
 		pnlPath : TPanel;
 		btnShowInLines : TButton;
 		ActionShowInLines : TAction;
-		lblHintHelper : TLabel;
 		pnlTop : TPanel;
 		TabControl1 : TTabControl;
 		cmbReplaceText : TComboBox;
@@ -1526,7 +1525,7 @@ begin
 			tryRegex := TRegEx.Create(FSettingsProxy.GetSearchText, [roCompiled]);
 		except
 			on E : Exception do begin
-				TMsgBox.ShowError(E.Message);
+				TMsgBox.ShowError(E.Message + CRLF + 'Regex validation failed.');
 				ActiveControl := cmbSearchText;
 				bError := True;
 			end;
@@ -1689,14 +1688,6 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetPrettyCheckboxHint');
 
 	cbRgParamPretty.Enabled := False;
-//	lblHintHelper.Caption := '';
-//	lblHintHelper.AutoSize := False;
-//	lblHintHelper.SetBounds(cbRgParamPretty.BoundsRect.Left, cbRgParamPretty.BoundsRect.Top, cbRgParamPretty.BoundsRect.Width,
-//		cbRgParamPretty.BoundsRect.Height);
-//	lblHintHelper.Hint := 'rg.exe in VSCode doesn''t support --pretty';
-//	lblHintHelper.ShowHint := True;
-//	lblHintHelper.Visible := True;
-//	dbgMsg.Msg(lblHintHelper.Hint);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetRgFilterOptionsPanel(const _settings : TRipGrepperSettings);

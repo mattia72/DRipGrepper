@@ -303,10 +303,10 @@ begin
 
 	if Assigned(_item.CheckBox) then begin
 		if Assigned(_item.ComboBox) then begin
-			_item.ComboBox.Enabled := _item.Checked;
+			_item.SetControlEnabled(siSecond, _item.Checked);
 		end;
 		if Assigned(_item.SpinEdit) then begin
-			_item.SpinEdit.Enabled := _item.Checked;
+			_item.SetControlEnabled(siSecond, _item.Checked);
 		end;
 	end;
 

@@ -306,7 +306,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         AlignWithMargins = True
         Left = 10
         Top = 25
-        Width = 27
+        Width = 610
         Height = 15
         Margins.Left = 8
         Margins.Top = 8
@@ -454,14 +454,6 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Caption = 'Output Options'
         Padding.Left = 8
         TabOrder = 0
-        object lblHintHelper: TLabel
-          Left = 436
-          Top = 10
-          Width = 71
-          Height = 15
-          Caption = 'lblHintHelper'
-          Visible = False
-        end
       end
     end
   end

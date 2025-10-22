@@ -30,26 +30,30 @@ type
 	TCustomCheckOptions = class;
 
 	// Item control types
-	TCustomItemType = (citCheckBox, citCheckBoxWithCombo, citCheckBoxWithSpin, citLabelWithCombo);
+	ECustomItemType = (citCheckBox, citCheckBoxWithCombo, citCheckBoxWithSpin, citLabelWithCombo);
 
 	// Sub-item index constants
-	TSubItemIndex = (siFirst = 0, siSecond = 1);
+	ESubItemIndex = (siFirst = 0, siSecond = 1);
 
 	// Custom collection item for checkbox items
 	TCustomCheckItem = class(TCollectionItem)
+		strict private
+			FHintHelper : TLabel;
+			function GetHintHelper() : TLabel;
+
 		private
 			FCaption : string;
 			FTagObject : IInterface;
 			FSubItems : array of TControl;
-			FHintHelper : TLabel;
 			FComboBoxItems : TStringList;
-			FItemType : TCustomItemType;
+			FItemType : ECustomItemType;
 			FMinValue : Integer;
 			FMaxValue : Integer;
 			FSpinValue : Integer;
 			FSetting : ISetting;
 			FEnabled : Boolean;
 			FDisabledHint : string;
+			procedure enableCtrls(const _bEnable : Boolean);
 			function getChecked() : Boolean;
 			function getComboText() : string;
 			function getSpinValue() : Integer;
@@ -59,7 +63,8 @@ type
 			function getLabel() : TLabel;
 			function getComboBox() : TComboBox;
 			function getSpinEdit() : TSpinEdit;
-			function getSubItem(_index : TSubItemIndex; _controlClass : TClass) : TControl;
+			function getSubItem(_index : ESubItemIndex; _controlClass : TClass) : TControl;
+			function GetSubItemEnabled(const _idx : ESubItemIndex) : Boolean;
 			procedure setCaption(const _value : string);
 			procedure setTagObject(const Value : IInterface);
 			procedure setChecked(const _value : Boolean);
@@ -72,21 +77,24 @@ type
 			procedure setEnabled(const _value : Boolean);
 			procedure showHintHelper();
 			procedure hideHintHelper();
+			procedure setSubItemEnabled(const _idx: ESubItemIndex; const _bEnable: Boolean);
 
 		public
 			constructor Create(Collection : TCollection); override;
 			destructor Destroy; override;
 
+			procedure SetControlEnabled(_index : ESubItemIndex; _enabled : Boolean);
+
 			property CheckBox : TCheckBox read getCheckBox;
 			property LabelControl : TLabel read getLabel;
 			property ComboBox : TComboBox read getComboBox;
 			property SpinEdit : TSpinEdit read getSpinEdit;
-			property HintHelper : TLabel read FHintHelper;
+			property HintHelper : TLabel read GetHintHelper;
 			property ComboBoxItems : TStringList read FComboBoxItems write setComboBoxItems;
 			property Caption : string read FCaption write setCaption;
 			property TagObject : IInterface read FTagObject write setTagObject;
 			property Checked : Boolean read getChecked write setChecked;
-			property ItemType : TCustomItemType read FItemType write FItemType;
+			property ItemType : ECustomItemType read FItemType write FItemType;
 			property ComboText : string read getComboText write setComboText;
 			property SpinValue : Integer read getSpinValue write setSpinValue;
 			property MinValue : Integer read FMinValue write setMinValue;
@@ -168,6 +176,7 @@ type
 			function GetItemSpinValue(_idx : Integer) : Integer;
 			function GetItemCaption(_idx : Integer) : string;
 			function GetItemByCaption(const _caption : string) : TCustomCheckItem;
+			procedure SetItemControlEnabled(_itemIdx : Integer; _controlIdx : ESubItemIndex; _enabled : Boolean);
 			property EventsEnabled : Boolean read FEventsEnabled write FEventsEnabled;
 
 		published
@@ -244,7 +253,7 @@ begin
 		FHintHelper.Free;
 		FHintHelper := nil;
 	end;
-	for i := Low(FSubItems) to High(FSubItems) do begin
+	for i := low(FSubItems) to high(FSubItems) do begin
 		if Assigned(FSubItems[i]) then begin
 			FSubItems[i].Free;
 			FSubItems[i] := nil;
@@ -255,10 +264,16 @@ begin
 	inherited Destroy;
 end;
 
-function TCustomCheckItem.getSubItem(_index : TSubItemIndex; _controlClass : TClass) : TControl;
+procedure TCustomCheckItem.enableCtrls(const _bEnable : Boolean);
+begin
+	setSubItemEnabled(siFirst, _bEnable);
+	setSubItemEnabled(siSecond, _bEnable);
+end;
+
+function TCustomCheckItem.getSubItem(_index : ESubItemIndex; _controlClass : TClass) : TControl;
 begin
 	Result := nil;
-	if (Ord(_index) >= Low(FSubItems)) and (Ord(_index) <= High(FSubItems)) then begin
+	if (Ord(_index) >= low(FSubItems)) and (Ord(_index) <= high(FSubItems)) then begin
 		Result := FSubItems[Ord(_index)];
 		if Assigned(Result) and not Result.InheritsFrom(_controlClass) then begin
 			Result := nil;
@@ -391,6 +406,55 @@ begin
 	Result := FEnabled;
 end;
 
+function TCustomCheckItem.GetHintHelper() : TLabel;
+begin
+	// Create hint helper if not exists
+	if not Assigned(FHintHelper) then begin
+		var
+		items := TCustomCheckItems(Collection);
+		var
+		owner := items.GetOwner as TControl;
+		FHintHelper := TLabel.Create(owner);
+		FHintHelper.Name := Setting.Name + '_lblHintHelper';
+		FHintHelper.Caption := '';
+		FHintHelper.Parent := owner as TWinControl;
+		FHintHelper.AutoSize := False;
+		FHintHelper.Transparent := True;
+	end;
+	Result := FHintHelper;
+end;
+
+function TCustomCheckItem.GetSubItemEnabled(const _idx : ESubItemIndex) : Boolean;
+begin
+	Result := False;
+	var
+	ctrl := FSubItems[Ord(_idx)];
+	if Assigned(ctrl) and (ctrl is TWinControl) then begin
+		Result := TWinControl(ctrl).Enabled;
+	end;
+end;
+
+procedure TCustomCheckItem.SetControlEnabled(_index : ESubItemIndex; _enabled : Boolean);
+var
+	ctrl : TControl;
+begin
+	ctrl := FSubItems[Ord(_index)];
+
+	// Check if already in desired state
+	if not Assigned(ctrl) or ((ctrl is TWinControl) and (TWinControl(ctrl).Enabled = _enabled)) then begin
+		Exit;
+	end;
+
+	setSubItemEnabled(_index, _enabled);
+
+	// Update hint helper
+	if _enabled then begin
+		hideHintHelper();
+	end else begin
+		showHintHelper();
+	end;
+end;
+
 procedure TCustomCheckItem.setEnabled(const _value : Boolean);
 begin
 	if FEnabled = _value then begin
@@ -398,6 +462,7 @@ begin
 	end;
 
 	FEnabled := _value;
+	enableCtrls(FEnabled);
 
 	if FEnabled then begin
 		hideHintHelper();
@@ -410,79 +475,64 @@ procedure TCustomCheckItem.showHintHelper();
 var
 	firstCtrl, secondCtrl : TControl;
 	leftPos, topPos, rightPos, bottomPos : Integer;
+	hintText : string;
+	firstEnabled, secondEnabled : Boolean;
 begin
-	// Get first and second controls
 	firstCtrl := FSubItems[Ord(siFirst)];
 	secondCtrl := FSubItems[Ord(siSecond)];
 
-	if not Assigned(firstCtrl) then begin
-		Exit; // Nothing to cover
-	end;
+	// Get enabled states from controls
+	firstEnabled := GetSubItemEnabled(siFirst);
+	secondEnabled := GetSubItemEnabled(siSecond);
 
-	// Create hint helper if not exists
-	if not Assigned(FHintHelper) then begin
-		var
-		items := TCustomCheckItems(Collection);
-		var
-		owner := items.GetOwner as TControl;
-		FHintHelper := TLabel.Create(owner);
-		FHintHelper.Name := 'lblHintHelper';
-		FHintHelper.Caption := '';
-		FHintHelper.Parent := owner as TWinControl;
-		FHintHelper.AutoSize := False;
-		FHintHelper.Transparent := True;
-	end;
+	// Determine which controls to cover based on enabled states
+	if not FEnabled then begin
+		// Whole item disabled - cover both controls
+		leftPos := firstCtrl.Left;
+		topPos := firstCtrl.Top;
+		rightPos := leftPos + firstCtrl.Width;
+		bottomPos := topPos + firstCtrl.Height;
 
-	// Calculate bounds to cover both controls if they exist
-	leftPos := firstCtrl.Left;
-	topPos := firstCtrl.Top;
-	rightPos := leftPos + firstCtrl.Width;
-	bottomPos := topPos + firstCtrl.Height;
+		if Assigned(secondCtrl) then begin
+			rightPos := Max(rightPos, secondCtrl.Left + secondCtrl.Width);
+			bottomPos := Max(bottomPos, secondCtrl.Top + secondCtrl.Height);
+		end;
 
-	// Extend to second control if exists
-	if Assigned(secondCtrl) then begin
-		rightPos := Max(rightPos, secondCtrl.Left + secondCtrl.Width);
-		bottomPos := Max(bottomPos, secondCtrl.Top + secondCtrl.Height);
+		hintText := FDisabledHint;
+	end else begin
+		// Individual controls disabled - cover only disabled ones
+		if not firstEnabled then begin
+			leftPos := firstCtrl.Left;
+			topPos := firstCtrl.Top;
+			rightPos := leftPos + firstCtrl.Width;
+			bottomPos := topPos + firstCtrl.Height;
+			hintText := firstCtrl.Hint;
+		end else if not secondEnabled and Assigned(secondCtrl) then begin
+			leftPos := secondCtrl.Left;
+			topPos := secondCtrl.Top;
+			rightPos := leftPos + secondCtrl.Width;
+			bottomPos := topPos + secondCtrl.Height;
+			hintText := secondCtrl.Hint;
+		end else begin
+			// Nothing to cover
+			Exit;
+		end;
 	end;
 
 	// Set position and size using SetBounds for atomic update
-	FHintHelper.SetBounds(leftPos, topPos, rightPos - leftPos, bottomPos - topPos);
+	HintHelper.SetBounds(leftPos, topPos, rightPos - leftPos, bottomPos - topPos);
 
-	// Disable first control (checkbox or label)
-	if firstCtrl is TWinControl then begin
-		TWinControl(firstCtrl).Enabled := False;
-	end;
-
-	// Disable second control if exists
-	if Assigned(secondCtrl) and (secondCtrl is TWinControl) then begin
-		TWinControl(secondCtrl).Enabled := False;
-	end;
-
-	FHintHelper.Hint := FDisabledHint;
-	FHintHelper.ShowHint := True;
-	FHintHelper.Visible := True;
-	FHintHelper.BringToFront();
+	HintHelper.Hint := hintText;
+	HintHelper.ShowHint := True;
+	HintHelper.Visible := True;
+	HintHelper.BringToFront();
 end;
 
 procedure TCustomCheckItem.hideHintHelper();
-var
-	firstCtrl, secondCtrl : TControl;
 begin
 	if Assigned(FHintHelper) then begin
 		FHintHelper.Visible := False;
 		FHintHelper.Hint := '';
-	end;
-
-	// Re-enable first control (checkbox or label)
-	firstCtrl := FSubItems[Ord(siFirst)];
-	if Assigned(firstCtrl) and (firstCtrl is TWinControl) then begin
-		TWinControl(firstCtrl).Enabled := True;
-	end;
-
-	// Re-enable second control if exists
-	secondCtrl := FSubItems[Ord(siSecond)];
-	if Assigned(secondCtrl) and (secondCtrl is TWinControl) then begin
-		TWinControl(secondCtrl).Enabled := True;
 	end;
 end;
 
@@ -493,6 +543,14 @@ begin
 		if Assigned(ComboBox) then begin
 			ComboBox.Items.Assign(_value);
 		end;
+	end;
+end;
+
+procedure TCustomCheckItem.setSubItemEnabled(const _idx: ESubItemIndex; const _bEnable: Boolean);
+begin
+	var ctrl := FSubItems[Ord(_idx)];
+	if Assigned(ctrl) and (ctrl is TWinControl) then begin
+		TWinControl(ctrl).Enabled := _bEnable;
 	end;
 end;
 
@@ -585,23 +643,13 @@ end;
 
 procedure TCustomCheckOptions.Clear;
 var
-	i, j : Integer;
+	i : Integer;
 	item : TCustomCheckItem;
 begin
 	// Free all controls
-	for i := 0 to FItems.Count - 1 do begin
+	for i := FItems.Count - 1 downto 0 do begin
 		item := FItems[i];
-		if Assigned(item.HintHelper) then begin
-			item.HintHelper.Free;
-			item.FHintHelper := nil;
-		end;
-		// Free all sub-items (controls in FSubItems array)
-		for j := Low(item.FSubItems) to High(item.FSubItems) do begin
-			if Assigned(item.FSubItems[j]) then begin
-				item.FSubItems[j].Free;
-				item.FSubItems[j] := nil;
-			end;
-		end;
+		item.Free;
 	end;
 	FItems.Clear;
 end;
@@ -635,6 +683,7 @@ begin
 	ar := TAutoSetReset.New(FEventsEnabled, False);
 
 	checkBox := TCheckBox.Create(Self);
+	checkBox.Name := 'cb' + _setting.Name;
 	checkBox.Parent := Self;
 	checkBox.Caption := _caption;
 	checkBox.Hint := _hint;
@@ -642,6 +691,7 @@ begin
 	checkBox.OnClick := onItemChangeEventHandler;
 
 	comboBox := TComboBox.Create(Self);
+	checkBox.Name := 'cmb' + _setting.Name;
 	comboBox.Parent := Self;
 	comboBox.Hint := _hint;
 	comboBox.ShowHint := True;
@@ -670,7 +720,7 @@ begin
 	checkBox := TCheckBox.Create(Self);
 	var
 	cleanCaption := BuildControlNameFromCaption(_caption);
-	checkBox.Name := 'cb' + UpCase(cleanCaption[1]) + cleanCaption.Substring(1);
+	checkBox.Name := 'cb' + _setting.Name;
 	checkBox.Parent := Self;
 	checkBox.Caption := _caption;
 	checkBox.Hint := _hint;
@@ -678,7 +728,7 @@ begin
 	checkBox.OnClick := onItemChangeEventHandler;
 
 	spinEdit := TSpinEdit.Create(Self);
-	spinEdit.Name := 'sp' + UpCase(cleanCaption[1]) + cleanCaption.Substring(1);
+	spinEdit.Name := 'spin' + _setting.Name;
 	spinEdit.Parent := Self;
 	spinEdit.MinValue := _minValue;
 	spinEdit.MaxValue := _maxValue;
@@ -706,14 +756,14 @@ begin
 	labelControl := TLabel.Create(Self);
 	var
 	cleanCaption := BuildControlNameFromCaption(_caption);
-	labelControl.Name := 'lbl' + UpCase(cleanCaption[1]) + cleanCaption.Substring(1);
+	labelControl.Name := 'cb' + _setting.Name;
 	labelControl.Parent := Self;
 	labelControl.Caption := _caption;
 	labelControl.Hint := _hint;
 	labelControl.ShowHint := True;
 
 	comboBox := TComboBox.Create(Self);
-	comboBox.Name := 'cmb' + UpCase(cleanCaption[1]) + cleanCaption.Substring(1);
+	comboBox.Name := 'cmb' + _setting.Name;
 	comboBox.Parent := Self;
 	comboBox.Hint := _hint;
 	comboBox.ShowHint := True;
@@ -1006,6 +1056,15 @@ begin
 			Result := item;
 		end;
 	end;
+end;
+
+procedure TCustomCheckOptions.SetItemControlEnabled(_itemIdx : Integer; _controlIdx : ESubItemIndex; _enabled : Boolean);
+begin
+	if (_itemIdx < 0) or (_itemIdx >= FItems.Count) then begin
+		raise Exception.CreateFmt('Item index %d out of range (0..%d)', [_itemIdx, FItems.Count - 1]);
+	end;
+
+	FItems[_itemIdx].SetControlEnabled(_controlIdx, _enabled);
 end;
 
 procedure Register;
