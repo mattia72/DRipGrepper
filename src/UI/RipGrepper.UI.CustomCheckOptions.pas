@@ -39,7 +39,9 @@ type
 	TCustomCheckItem = class(TCollectionItem)
 		strict private
 			FHintHelper : TLabel;
+			FParentPanel : TPanel;
 			function GetHintHelper() : TLabel;
+			function GetParentPanel() : TPanel;
 
 		private
 			FCaption : string;
@@ -65,6 +67,7 @@ type
 			function getSpinEdit() : TSpinEdit;
 			function getSubItem(_index : ESubItemIndex; _controlClass : TClass) : TControl;
 			function GetSubItemEnabled(const _idx : ESubItemIndex) : Boolean;
+			function HasAnyDisabledControl() : Boolean;
 			procedure setCaption(const _value : string);
 			procedure setTagObject(const Value : IInterface);
 			procedure setChecked(const _value : Boolean);
@@ -77,6 +80,7 @@ type
 			procedure setEnabled(const _value : Boolean);
 			procedure showHintHelper();
 			procedure hideHintHelper();
+			procedure updateHintHelperVisibility();
 			procedure setSubItemEnabled(const _idx: ESubItemIndex; const _bEnable: Boolean);
 
 		public
@@ -90,6 +94,7 @@ type
 			property ComboBox : TComboBox read getComboBox;
 			property SpinEdit : TSpinEdit read getSpinEdit;
 			property HintHelper : TLabel read GetHintHelper;
+			property ParentPanel : TPanel read GetParentPanel;
 			property ComboBoxItems : TStringList read FComboBoxItems write setComboBoxItems;
 			property Caption : string read FCaption write setCaption;
 			property TagObject : IInterface read FTagObject write setTagObject;
@@ -158,6 +163,13 @@ type
 		protected
 			FEventsEnabled : Boolean;
 			procedure AlignControlItems; override;
+			function HasTwoControlItems : Boolean;
+			function CalculateItemWidth(const _hasTwoControls : Boolean) : Integer;
+			function GetItemWidth(const _item : TCustomCheckItem; const _baseWidth : Integer) : Integer;
+			procedure CalculateActualWidths(const _itemWidth : Integer; out _actualFirstWidth, _actualSecondWidth : Integer);
+			procedure PositionItemPanel(const _item : TCustomCheckItem; const _itemIndex, _itemWidth, _itemHeight : Integer);
+			procedure PositionItemControls(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth, 
+				_actualSecondWidth, _itemHeight : Integer);
 
 		public
 			constructor Create(_owner : TComponent); override;
@@ -177,6 +189,7 @@ type
 			function GetItemCaption(_idx : Integer) : string;
 			function GetItemByCaption(const _caption : string) : TCustomCheckItem;
 			procedure SetItemControlEnabled(_itemIdx : Integer; _controlIdx : ESubItemIndex; _enabled : Boolean);
+			function GetMinimumWidth() : Integer;
 			property EventsEnabled : Boolean read FEventsEnabled write FEventsEnabled;
 
 		published
@@ -235,6 +248,7 @@ begin
 	FSubItems[Ord(siFirst)] := nil;
 	FSubItems[Ord(siSecond)] := nil;
 	FHintHelper := nil;
+	FParentPanel := nil;
 	FComboBoxItems := TStringList.Create;
 	FTagObject := nil;
 	FItemType := citCheckBox;
@@ -260,6 +274,12 @@ begin
 		end;
 	end;
 	SetLength(FSubItems, 0);
+	
+	if Assigned(FParentPanel) then begin
+		FParentPanel.Free;
+		FParentPanel := nil;
+	end;
+	
 	FComboBoxItems.Free;
 	inherited Destroy;
 end;
@@ -417,11 +437,30 @@ begin
 		FHintHelper := TLabel.Create(owner);
 		FHintHelper.Name := Setting.Name + '_lblHintHelper';
 		FHintHelper.Caption := '';
-		FHintHelper.Parent := owner as TWinControl;
+		FHintHelper.Parent := ParentPanel;
 		FHintHelper.AutoSize := False;
 		FHintHelper.Transparent := True;
 	end;
 	Result := FHintHelper;
+end;
+
+function TCustomCheckItem.GetParentPanel() : TPanel;
+begin
+	// Create parent panel if not exists
+	if not Assigned(FParentPanel) then begin
+		var
+		items := TCustomCheckItems(Collection);
+		var
+		owner := items.GetOwner as TControl;
+		FParentPanel := TPanel.Create(owner);
+		FParentPanel.Name := 'pnl' + Setting.Name;
+		FParentPanel.Parent := owner as TWinControl;
+		FParentPanel.BevelOuter := bvNone;
+		FParentPanel.Caption := '';
+		FParentPanel.ParentBackground := False;
+		FParentPanel.ParentColor := True;
+	end;
+	Result := FParentPanel;
 end;
 
 function TCustomCheckItem.GetSubItemEnabled(const _idx : ESubItemIndex) : Boolean;
@@ -431,6 +470,24 @@ begin
 	ctrl := FSubItems[Ord(_idx)];
 	if Assigned(ctrl) and (ctrl is TWinControl) then begin
 		Result := TWinControl(ctrl).Enabled;
+	end;
+end;
+
+function TCustomCheckItem.HasAnyDisabledControl() : Boolean;
+begin
+	// Check if the whole item is disabled OR any individual control is disabled
+	Result := (not FEnabled) or 
+	          (not GetSubItemEnabled(siFirst)) or 
+	          (not GetSubItemEnabled(siSecond));
+end;
+
+procedure TCustomCheckItem.updateHintHelperVisibility();
+begin
+	// Show hint helper only if there are disabled controls
+	if HasAnyDisabledControl then begin
+		showHintHelper();
+	end else begin
+		hideHintHelper();
 	end;
 end;
 
@@ -447,12 +504,8 @@ begin
 
 	setSubItemEnabled(_index, _enabled);
 
-	// Update hint helper
-	if _enabled then begin
-		hideHintHelper();
-	end else begin
-		showHintHelper();
-	end;
+	// Update hint helper based on overall state
+	updateHintHelperVisibility();
 end;
 
 procedure TCustomCheckItem.setEnabled(const _value : Boolean);
@@ -464,11 +517,8 @@ begin
 	FEnabled := _value;
 	enableCtrls(FEnabled);
 
-	if FEnabled then begin
-		hideHintHelper();
-	end else begin
-		showHintHelper();
-	end;
+	// Update hint helper based on overall state
+	updateHintHelperVisibility();
 end;
 
 procedure TCustomCheckItem.showHintHelper();
@@ -478,7 +528,12 @@ var
 	hintText : string;
 	firstEnabled, secondEnabled : Boolean;
 begin
+	// Ensure controls are assigned
 	firstCtrl := FSubItems[Ord(siFirst)];
+	if not Assigned(firstCtrl) then begin
+		Exit;
+	end;
+	
 	secondCtrl := FSubItems[Ord(siSecond)];
 
 	// Get enabled states from controls
@@ -488,6 +543,7 @@ begin
 	// Determine which controls to cover based on enabled states
 	if not FEnabled then begin
 		// Whole item disabled - cover both controls
+		// Coordinates are relative to ParentPanel since HintHelper.Parent = ParentPanel
 		leftPos := firstCtrl.Left;
 		topPos := firstCtrl.Top;
 		rightPos := leftPos + firstCtrl.Width;
@@ -514,12 +570,19 @@ begin
 			bottomPos := topPos + secondCtrl.Height;
 			hintText := secondCtrl.Hint;
 		end else begin
-			// Nothing to cover
+			// Nothing to cover - all controls are enabled
+			hideHintHelper();
 			Exit;
 		end;
 	end;
 
+	// Ensure HintHelper is created and properly configured
+	if not Assigned(HintHelper) then begin
+		Exit;
+	end;
+
 	// Set position and size using SetBounds for atomic update
+	// Coordinates are relative to ParentPanel
 	HintHelper.SetBounds(leftPos, topPos, rightPos - leftPos, bottomPos - topPos);
 
 	HintHelper.Hint := hintText;
@@ -661,16 +724,25 @@ begin
 	var
 	ar := TAutoSetReset.New(FEventsEnabled, False);
 
+	// First create the item to get the parent panel
+	Result := FItems.Add;
+	Result.FCaption := _caption;
+	Result.TagObject := _setting;
+	Result.FItemType := citCheckBox;
+	Result.FSetting := _setting;
+
+	// Now create the checkbox with the panel as parent
 	checkBox := TCheckBox.Create(Self);
 	var
 	cleanCaption := BuildControlNameFromCaption(_caption);
 	checkbox.Name := 'cmb' + UpCase(cleanCaption[1]) + cleanCaption.Substring(1);
-	checkBox.Parent := Self;
+	checkBox.Parent := Result.ParentPanel;
 	checkBox.Caption := _caption;
 	checkBox.Hint := _hint;
 	checkBox.ShowHint := True;
 	checkBox.OnClick := onItemChangeEventHandler;
-	Result := FItems.AddItem(checkBox, _caption, _setting);
+	
+	Result.FSubItems[Ord(siFirst)] := checkBox;
 end;
 
 function TCustomCheckOptions.AddCheckboxComboItem(const _caption, _hint : string; _comboItems : TArray<string>; _setting : ISetting)
@@ -682,9 +754,17 @@ begin
 	var
 	ar := TAutoSetReset.New(FEventsEnabled, False);
 
+	// First create the item to get the parent panel
+	Result := FItems.Add;
+	Result.FCaption := _caption;
+	Result.TagObject := _setting;
+	Result.FItemType := citCheckBoxWithCombo;
+	Result.FSetting := _setting;
+
+	// Now create the controls with the panel as parent
 	checkBox := TCheckBox.Create(Self);
 	checkBox.Name := 'cb' + _setting.Name;
-	checkBox.Parent := Self;
+	checkBox.Parent := Result.ParentPanel;
 	checkBox.Caption := _caption;
 	checkBox.Hint := _hint;
 	checkBox.ShowHint := True;
@@ -692,7 +772,7 @@ begin
 
 	comboBox := TComboBox.Create(Self);
 	checkBox.Name := 'cmb' + _setting.Name;
-	comboBox.Parent := Self;
+	comboBox.Parent := Result.ParentPanel;
 	comboBox.Hint := _hint;
 	comboBox.ShowHint := True;
 	comboBox.Style := csDropDown;
@@ -704,7 +784,9 @@ begin
 	if Assigned(strList) then begin
 		comboBox.Items.Assign(strList());
 	end;
-	Result := FItems.AddItem(checkBox, comboBox, _caption, _setting);
+	
+	Result.FSubItems[Ord(siFirst)] := checkBox;
+	Result.FSubItems[Ord(siSecond)] := comboBox;
 	Result.ComboBoxItems := strList();
 end;
 
@@ -717,11 +799,22 @@ begin
 	var
 	ar := TAutoSetReset.New(FEventsEnabled, False);
 
+	// First create the item to get the parent panel
+	Result := FItems.Add;
+	Result.FCaption := _caption;
+	Result.TagObject := _setting;
+	Result.FItemType := citCheckBoxWithSpin;
+	Result.FSetting := _setting;
+	Result.MinValue := _minValue;
+	Result.MaxValue := _maxValue;
+	Result.SpinValue := _defaultValue;
+
+	// Now create the controls with the panel as parent
 	checkBox := TCheckBox.Create(Self);
 	var
 	cleanCaption := BuildControlNameFromCaption(_caption);
 	checkBox.Name := 'cb' + _setting.Name;
-	checkBox.Parent := Self;
+	checkBox.Parent := Result.ParentPanel;
 	checkBox.Caption := _caption;
 	checkBox.Hint := _hint;
 	checkBox.ShowHint := True;
@@ -729,7 +822,7 @@ begin
 
 	spinEdit := TSpinEdit.Create(Self);
 	spinEdit.Name := 'spin' + _setting.Name;
-	spinEdit.Parent := Self;
+	spinEdit.Parent := Result.ParentPanel;
 	spinEdit.MinValue := _minValue;
 	spinEdit.MaxValue := _maxValue;
 	spinEdit.Value := _defaultValue;
@@ -737,10 +830,8 @@ begin
 	spinEdit.ShowHint := True;
 	spinEdit.OnChange := onItemChangeEventHandler;
 
-	Result := FItems.AddItem(checkBox, spinEdit, _caption, _setting);
-	Result.MinValue := _minValue;
-	Result.MaxValue := _maxValue;
-	Result.SpinValue := _defaultValue;
+	Result.FSubItems[Ord(siFirst)] := checkBox;
+	Result.FSubItems[Ord(siSecond)] := spinEdit;
 end;
 
 function TCustomCheckOptions.AddLabelComboItem(const _caption, _hint : string; _comboItems : TArray<string>; _setting : ISetting)
@@ -753,18 +844,26 @@ begin
 	var
 	ar := TAutoSetReset.New(FEventsEnabled, False);
 
+	// First create the item to get the parent panel
+	Result := FItems.Add;
+	Result.FCaption := _caption;
+	Result.TagObject := _setting;
+	Result.FItemType := citLabelWithCombo;
+	Result.FSetting := _setting;
+
+	// Now create the controls with the panel as parent
 	labelControl := TLabel.Create(Self);
 	var
 	cleanCaption := BuildControlNameFromCaption(_caption);
 	labelControl.Name := 'cb' + _setting.Name;
-	labelControl.Parent := Self;
+	labelControl.Parent := Result.ParentPanel;
 	labelControl.Caption := _caption;
 	labelControl.Hint := _hint;
 	labelControl.ShowHint := True;
 
 	comboBox := TComboBox.Create(Self);
 	comboBox.Name := 'cmb' + _setting.Name;
-	comboBox.Parent := Self;
+	comboBox.Parent := Result.ParentPanel;
 	comboBox.Hint := _hint;
 	comboBox.ShowHint := True;
 	comboBox.Style := csDropDown;
@@ -778,127 +877,286 @@ begin
 	end;
 
 	comboBox.ItemIndex := 0;
-	Result := FItems.AddItem(labelControl, comboBox, _caption, _setting);
+	
+	Result.FSubItems[Ord(siFirst)] := labelControl;
+	Result.FSubItems[Ord(siSecond)] := comboBox;
 	Result.ComboBoxItems := comboItems;
+end;
+
+function TCustomCheckOptions.HasTwoControlItems : Boolean;
+var
+	i : Integer;
+begin
+	Result := False;
+	for i := 0 to FItems.Count - 1 do begin
+		if FItems[i].ItemType in [citCheckBoxWithCombo, citCheckBoxWithSpin, citLabelWithCombo] then begin
+			Result := True;
+			Break;
+		end;
+	end;
+end;
+
+function TCustomCheckOptions.CalculateItemWidth(const _hasTwoControls : Boolean) : Integer;
+const
+	SPACE = 8;
+	FIRST_CONTROL_WIDTH = 100;
+	SECOND_CONTROL_COMBO_WIDTH = 80;
+begin
+	// This method calculates the base width for layout purposes
+	// Individual items will use this differently based on their type
+	
+	// If ANY two-control items exist, use their width as the base unit
+	if _hasTwoControls then begin
+		// Two-control items: itemWidth = first + space + second + margins
+		Result := FIRST_CONTROL_WIDTH + SPACE + SECOND_CONTROL_COMBO_WIDTH + (2 * SPACE);
+	end else if FItems.Count = 1 then begin
+		// Single one-control item: use FIRST_CONTROL_WIDTH exactly
+		Result := FIRST_CONTROL_WIDTH + (2 * SPACE);
+	end else begin
+		// Multiple one-control items only: each is half the width of a two-control item
+		// So two one-control items together equal one two-control item
+		Result := (FIRST_CONTROL_WIDTH + SPACE + SECOND_CONTROL_COMBO_WIDTH + (2 * SPACE)) div 2;
+	end;
+end;
+
+function TCustomCheckOptions.GetItemWidth(const _item : TCustomCheckItem; const _baseWidth : Integer) : Integer;
+const
+	SPACE = 8;
+	FIRST_CONTROL_WIDTH = 100;
+	SECOND_CONTROL_COMBO_WIDTH = 80;
+begin
+	// Calculate width for individual item based on its type
+	case _item.ItemType of
+		citCheckBox : begin
+			// One-control item
+			if HasTwoControlItems then begin
+				// When mixed with two-control items, one-control items are half width
+				Result := _baseWidth div 2;
+			end else begin
+				// Only one-control items: use base width
+				Result := _baseWidth;
+			end;
+		end;
+		
+		citCheckBoxWithCombo, citCheckBoxWithSpin, citLabelWithCombo : begin
+			// Two-control items always use full base width
+			Result := _baseWidth;
+		end;
+		
+		else
+			Result := _baseWidth;
+	end;
+end;
+
+procedure TCustomCheckOptions.CalculateActualWidths(const _itemWidth : Integer; out _actualFirstWidth, 
+	_actualSecondWidth : Integer);
+const
+	SPACE = 8;
+	FIRST_CONTROL_WIDTH = 100;
+	SECOND_CONTROL_COMBO_WIDTH = 80;
+var
+	availableForControls : Integer;
+begin
+	// Calculate space available for controls (excluding margins)
+	availableForControls := _itemWidth - (3 * SPACE);
+	
+	// Use fixed widths as specified in requirements
+	// Only adjust if there's not enough space
+	if availableForControls >= (FIRST_CONTROL_WIDTH + SECOND_CONTROL_COMBO_WIDTH) then begin
+		// Enough space - use standard widths
+		_actualFirstWidth := FIRST_CONTROL_WIDTH;
+		_actualSecondWidth := SECOND_CONTROL_COMBO_WIDTH;
+	end else if availableForControls >= 100 then begin
+		// Less space - use minimum for first, rest for second
+		_actualFirstWidth := FIRST_CONTROL_WIDTH;
+		_actualSecondWidth := availableForControls - FIRST_CONTROL_WIDTH;
+	end else begin
+		// Very limited space - split evenly but ensure minimums
+		_actualFirstWidth := Max(50, availableForControls div 2);
+		_actualSecondWidth := Max(50, availableForControls - _actualFirstWidth);
+	end;
+end;
+
+procedure TCustomCheckOptions.PositionItemPanel(const _item : TCustomCheckItem; const _itemIndex, _itemWidth, 
+	_itemHeight : Integer);
+const
+	SPACE = 8;
+var
+	col, row : Integer;
+	baseLeft : Integer;
+	panelHeight : Integer;
+begin
+	col := _itemIndex mod Columns;
+	row := _itemIndex div Columns;
+	baseLeft := col * _itemWidth;
+
+	// Calculate panel height to accommodate controls
+	// Controls are positioned at SPACE div 2 from top and have height of _itemHeight - 2
+	// Add SPACE div 2 for bottom margin for symmetry
+	panelHeight := (SPACE div 2) + (_itemHeight - 2) + (SPACE div 2);
+
+	// Position the parent panel
+	if Assigned(_item.ParentPanel) then begin
+		_item.ParentPanel.Left := baseLeft;
+		_item.ParentPanel.Top := row * _itemHeight;
+		_item.ParentPanel.Width := _itemWidth;
+		_item.ParentPanel.Height := panelHeight; // Height to fully contain controls with margins
+	end;
+end;
+
+procedure TCustomCheckOptions.PositionItemControls(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth, 
+	_actualSecondWidth, _itemHeight : Integer);
+const
+	SPACE = 8;
+	FIRST_CONTROL_WIDTH = 100;
+	SECOND_CONTROL_SPIN_WIDTH = 60;
+var
+	spinWidth : Integer;
+begin
+	// Position controls within the panel (relative to panel)
+	case _item.ItemType of
+		citCheckBox : begin
+			// Single checkbox - if only one item total, use FIRST_CONTROL_WIDTH, otherwise use full item width
+			if Assigned(_item.CheckBox) then begin
+				_item.CheckBox.Left := SPACE;
+				_item.CheckBox.Top := SPACE div 2;
+				if (FItems.Count = 1) then begin
+					_item.CheckBox.Width := FIRST_CONTROL_WIDTH;
+				end else begin
+					_item.CheckBox.Width := _item.ParentPanel.Width - (2 * SPACE);
+				end;
+				_item.CheckBox.Height := _itemHeight - 2;
+				_item.CheckBox.Tag := _itemIndex;
+			end;
+		end;
+
+		citCheckBoxWithCombo : begin
+			// Checkbox + ComboBox - both left aligned
+			if Assigned(_item.CheckBox) then begin
+				_item.CheckBox.Left := SPACE;
+				_item.CheckBox.Top := SPACE div 2;
+				_item.CheckBox.Width := _actualFirstWidth;
+				_item.CheckBox.Height := _itemHeight - 2;
+				_item.CheckBox.Tag := _itemIndex;
+			end;
+			if Assigned(_item.ComboBox) then begin
+				_item.ComboBox.Left := SPACE + _actualFirstWidth + SPACE;
+				_item.ComboBox.Top := SPACE div 2;
+				_item.ComboBox.Width := _actualSecondWidth;
+				_item.ComboBox.Height := _itemHeight - 2;
+				_item.ComboBox.Tag := _itemIndex;
+			end;
+		end;
+
+		citCheckBoxWithSpin : begin
+			// Checkbox + SpinEdit - spin is narrower than combo, but itemWidth stays the same
+			if Assigned(_item.CheckBox) then begin
+				_item.CheckBox.Left := SPACE;
+				_item.CheckBox.Top := SPACE div 2;
+				_item.CheckBox.Width := _actualFirstWidth;
+				_item.CheckBox.Height := _itemHeight - 2;
+				_item.CheckBox.Tag := _itemIndex;
+			end;
+			if Assigned(_item.SpinEdit) then begin
+				// Spin control gets smaller width than combo
+				spinWidth := Min(SECOND_CONTROL_SPIN_WIDTH, _actualSecondWidth);
+				_item.SpinEdit.Left := SPACE + _actualFirstWidth + SPACE;
+				_item.SpinEdit.Top := SPACE div 2;
+				_item.SpinEdit.Width := spinWidth;
+				_item.SpinEdit.Height := _itemHeight - 2;
+				_item.SpinEdit.Tag := _itemIndex;
+			end;
+		end;
+
+		citLabelWithCombo : begin
+			// Label + ComboBox - both left aligned
+			if Assigned(_item.LabelControl) then begin
+				_item.LabelControl.Left := SPACE;
+				_item.LabelControl.Top := SPACE div 2 + 3; // Slight vertical offset for better alignment
+				_item.LabelControl.Width := _actualFirstWidth;
+				_item.LabelControl.Height := _itemHeight - 2;
+			end;
+			if Assigned(_item.ComboBox) then begin
+				_item.ComboBox.Left := SPACE + _actualFirstWidth + SPACE;
+				_item.ComboBox.Top := SPACE div 2;
+				_item.ComboBox.Width := _actualSecondWidth;
+				_item.ComboBox.Height := _itemHeight - 2;
+				_item.ComboBox.Tag := _itemIndex;
+			end;
+		end;
+	end;
 end;
 
 procedure TCustomCheckOptions.AlignControlItems;
 const
-	SPACE = 8;
-	FIRST_CONTROL_WIDTH = 100; // Fixed width for first control (checkbox/label)
-	SECOND_CONTROL_WIDTH = 80; // Fixed width for second control (combo/spin)
+	ITEM_HEIGHT = 22;
 var
-	i, col, row : Integer;
-	itemHeight, itemWidth : Integer;
-	maxRows : Integer;
+	i : Integer;
+	itemHeight, baseWidth, currentItemWidth : Integer;
 	item : TCustomCheckItem;
-	baseLeft : Integer;
+	hasTwoControls : Boolean;
 	actualFirstWidth, actualSecondWidth : Integer;
+	currentLeft, currentTop, currentRow : Integer;
+	maxWidth : Integer;
 begin
 	if FItems.Count = 0 then begin
 		Exit;
 	end;
 
 	// Calculate layout
-	itemHeight := 22; // Standard height
-	itemWidth := Width div Columns;
-	maxRows := Ceil(FItems.Count / Columns);
+	itemHeight := ITEM_HEIGHT;
 
-	// Calculate actual widths - decrease if item width is too small
-	actualFirstWidth := Min(FIRST_CONTROL_WIDTH, itemWidth - (3 * SPACE) - SECOND_CONTROL_WIDTH);
-	actualSecondWidth := Min(SECOND_CONTROL_WIDTH, itemWidth - actualFirstWidth - (3 * SPACE));
+	// Determine if we have any two-control items
+	hasTwoControls := HasTwoControlItems;
 
-	// Ensure minimum widths
-	if actualFirstWidth < 50 then begin
-		actualFirstWidth := itemWidth div 2 - SPACE;
-		actualSecondWidth := itemWidth - actualFirstWidth - (3 * SPACE);
-	end;
+	// Calculate base width for layout
+	baseWidth := CalculateItemWidth(hasTwoControls);
 
-	// Position controls based on item type
+	// Position panels and their controls
+	currentLeft := 0;
+	currentTop := 0;
+	currentRow := 0;
+	maxWidth := 0;
+	
 	for i := 0 to FItems.Count - 1 do begin
 		item := FItems[i];
-		col := i mod Columns;
-		row := i div Columns;
-		baseLeft := col * itemWidth + SPACE;
-
-		case item.ItemType of
-			citCheckBox : begin
-				// Single checkbox with full width
-				if Assigned(item.CheckBox) then begin
-					item.CheckBox.Left := baseLeft;
-					item.CheckBox.Top := row * itemHeight + SPACE;
-					item.CheckBox.Width := itemWidth - (2 * SPACE);
-					item.CheckBox.Height := itemHeight - 2;
-					item.CheckBox.Tag := i;
-				end;
-			end;
-
-			citCheckBoxWithCombo : begin
-				// Checkbox + ComboBox - both left aligned
-				if Assigned(item.CheckBox) then begin
-					item.CheckBox.Left := baseLeft;
-					item.CheckBox.Top := row * itemHeight + SPACE;
-					item.CheckBox.Width := actualFirstWidth;
-					item.CheckBox.Height := itemHeight - 2;
-					item.CheckBox.Tag := i;
-				end;
-				if Assigned(item.ComboBox) then begin
-					item.ComboBox.Left := baseLeft + actualFirstWidth + SPACE;
-					item.ComboBox.Top := row * itemHeight + SPACE;
-					item.ComboBox.Width := actualSecondWidth;
-					item.ComboBox.Height := itemHeight - 2;
-					item.ComboBox.Tag := i;
-				end;
-			end;
-
-			citCheckBoxWithSpin : begin
-				// Checkbox + SpinEdit - both left aligned
-				if Assigned(item.CheckBox) then begin
-					item.CheckBox.Left := baseLeft;
-					item.CheckBox.Top := row * itemHeight + SPACE;
-					item.CheckBox.Width := actualFirstWidth;
-					item.CheckBox.Height := itemHeight - 2;
-					item.CheckBox.Tag := i;
-				end;
-				if Assigned(item.SpinEdit) then begin
-					item.SpinEdit.Left := baseLeft + actualFirstWidth + SPACE;
-					item.SpinEdit.Top := row * itemHeight + SPACE;
-					item.SpinEdit.Width := actualSecondWidth;
-					item.SpinEdit.Height := itemHeight - 2;
-					item.SpinEdit.Tag := i;
-				end;
-			end;
-
-			citLabelWithCombo : begin
-				// Label + ComboBox - both left aligned
-				if Assigned(item.LabelControl) then begin
-					item.LabelControl.Left := baseLeft;
-					item.LabelControl.Top := row * itemHeight + SPACE + 3; // Slight vertical offset for better alignment
-					item.LabelControl.Width := actualFirstWidth;
-					item.LabelControl.Height := itemHeight - 2;
-				end;
-				if Assigned(item.ComboBox) then begin
-					item.ComboBox.Left := baseLeft + actualFirstWidth + SPACE;
-					item.ComboBox.Top := row * itemHeight + SPACE;
-					item.ComboBox.Width := actualSecondWidth;
-					item.ComboBox.Height := itemHeight - 2;
-					item.ComboBox.Tag := i;
-				end;
-			end;
+		
+		// Get width for this specific item
+		currentItemWidth := GetItemWidth(item, baseWidth);
+		
+		// Check if we need to wrap to next row based on columns
+		if (i > 0) and (i mod Columns = 0) then begin
+			currentLeft := 0;
+			Inc(currentRow);
+			currentTop := currentRow * itemHeight;
 		end;
+		
+		// Position the parent panel at current position
+		if Assigned(item.ParentPanel) then begin
+			item.ParentPanel.Left := currentLeft;
+			item.ParentPanel.Top := currentTop;
+			item.ParentPanel.Width := currentItemWidth;
+			item.ParentPanel.Height := itemHeight + 8; // Height to fully contain controls with margins
+		end;
+		
+		// Calculate actual widths for this item's controls
+		CalculateActualWidths(currentItemWidth, actualFirstWidth, actualSecondWidth);
+		
+		// Position controls within the panel
+		PositionItemControls(item, i, actualFirstWidth, actualSecondWidth, itemHeight);
+		
+		// Move to next position
+		currentLeft := currentLeft + currentItemWidth;
+		maxWidth := Max(maxWidth, currentLeft);
 	end;
 
 	// Adjust control height if needed
-	if maxRows > 0 then begin
-		Height := maxRows * itemHeight + 16; // Padding for clean layout
-	end;
+	Height := (currentRow + 1) * itemHeight + 16; // Padding for clean layout
 
-	// Update hint helper positions for disabled items
+	// Update hint helper visibility for all items (handles both disabled items and individual disabled controls)
 	for i := 0 to FItems.Count - 1 do begin
 		item := FItems[i];
-		if not item.Enabled then begin
-			item.showHintHelper();
-		end;
+		item.updateHintHelperVisibility();
 	end;
 end;
 
@@ -1065,6 +1323,60 @@ begin
 	end;
 
 	FItems[_itemIdx].SetControlEnabled(_controlIdx, _enabled);
+end;
+
+function TCustomCheckOptions.GetMinimumWidth() : Integer;
+const
+	SPACE = 8;
+	FIRST_CONTROL_WIDTH = 100;
+	SECOND_CONTROL_COMBO_WIDTH = 80;
+var
+	i : Integer;
+	item : TCustomCheckItem;
+	baseWidth : Integer;
+	totalWidth : Integer;
+	currentRowWidth : Integer;
+	hasTwoControls : Boolean;
+	itemWidth : Integer;
+begin
+	Result := 0;
+	
+	if FItems.Count = 0 then begin
+		Exit;
+	end;
+
+	// Determine if we have any two-control items
+	hasTwoControls := HasTwoControlItems;
+
+	// Calculate base width for layout
+	baseWidth := CalculateItemWidth(hasTwoControls);
+	
+	// Calculate the width needed for the widest row
+	currentRowWidth := 0;
+	totalWidth := 0;
+	
+	for i := 0 to FItems.Count - 1 do begin
+		item := FItems[i];
+		
+		// Get width for this specific item
+		itemWidth := GetItemWidth(item, baseWidth);
+		
+		// Check if we need to wrap to next row based on columns
+		if (i > 0) and (i mod Columns = 0) then begin
+			// Row complete - check if it's the widest
+			totalWidth := Max(totalWidth, currentRowWidth);
+			currentRowWidth := 0;
+		end;
+		
+		// Add item width to current row
+		currentRowWidth := currentRowWidth + itemWidth;
+	end;
+	
+	// Check last row
+	totalWidth := Max(totalWidth, currentRowWidth);
+	
+	// Add some padding for borders and margins
+	Result := totalWidth + 16; // 16px for panel margins and borders
 end;
 
 procedure Register;

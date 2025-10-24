@@ -222,6 +222,7 @@ type
 			function getOptionsAndFiltersHeight(const _bWithLabel : Boolean) : integer;
 			procedure SetRgFilterOptionsPanel(const _settings : TRipGrepperSettings);
 			procedure SetRgOutputOptionsPanel(const _settings : TRipGrepperSettings);
+			procedure SetMinimumWidthFromOptionsPanels();
 			procedure CopyProxyToSearchFormSettings(const _ctrlProxy : TSearchFormCtrlValueProxy; const _settings : TSearchFormSettings);
 
 		private
@@ -294,6 +295,9 @@ begin
 
 	SetRgFilterOptionsPanel(_settings);
 	SetRgOutputOptionsPanel(_settings);
+	
+	// Set minimum width based on widest options panel
+	SetMinimumWidthFromOptionsPanels();
 
 	FExtensionContextPanel := TExtensionContexPanel.Create(self);
 	FExtensionContextPanel.Settings := _settings;
@@ -1727,6 +1731,32 @@ begin
 	cbRgParamContext := optionsGroup.GetItemByCaption(RG_OUTPUT_OPTION_CONTEXT_CAPTION).CheckBox;
 	seContextLineNum := optionsGroup.GetItemByCaption(RG_OUTPUT_OPTION_CONTEXT_CAPTION).SpinEdit;
 	cmbOutputFormat := optionsGroup.GetItemByCaption(RG_OUTPUT_OPTION_OUTPUT_FORMAT_CAPTION).ComboBox;
+end;
+
+procedure TRipGrepperSearchDialogForm.SetMinimumWidthFromOptionsPanels();
+var
+	minWidth : Integer;
+	filterPanelWidth, outputPanelWidth : Integer;
+begin
+	minWidth := 0;
+	
+	// Get minimum width from filter options panel
+	if Assigned(FRgFilterOptionsPanel) and Assigned(FRgFilterOptionsPanel.CheckOptionsGroup) then begin
+		filterPanelWidth := FRgFilterOptionsPanel.CheckOptionsGroup.GetMinimumWidth();
+		minWidth := Max(minWidth, filterPanelWidth);
+	end;
+	
+	// Get minimum width from output options panel
+	if Assigned(FRgOutpuOptionsPanel) and Assigned(FRgOutpuOptionsPanel.CheckOptionsGroup) then begin
+		outputPanelWidth := FRgOutpuOptionsPanel.CheckOptionsGroup.GetMinimumWidth();
+		minWidth := Max(minWidth, outputPanelWidth);
+	end;
+	
+	// Add extra space for form borders, margins, and other controls
+	if minWidth > 0 then begin
+		minWidth := minWidth + 50; // Add padding for form chrome
+		Constraints.MinWidth := minWidth;
+	end;
 end;
 
 end.
