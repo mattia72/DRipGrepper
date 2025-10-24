@@ -170,6 +170,8 @@ type
 			procedure PositionItemPanel(const _item : TCustomCheckItem; const _itemIndex, _itemWidth, _itemHeight : Integer);
 			procedure PositionItemControls(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth, 
 				_actualSecondWidth, _itemHeight : Integer);
+			function CreateItemWithPanel(const _caption : string; _itemType : ECustomItemType; _setting : ISetting) : TCustomCheckItem;
+			function CreateCheckBox(const _parent : TWinControl; const _caption, _hint, _settingName : string) : TCheckBox;
 
 		public
 			constructor Create(_owner : TComponent); override;
@@ -191,8 +193,6 @@ type
 			procedure SetItemControlEnabled(_itemIdx : Integer; _controlIdx : ESubItemIndex; _enabled : Boolean);
 			function GetMinimumWidth() : Integer;
 			property EventsEnabled : Boolean read FEventsEnabled write FEventsEnabled;
-
-		published
 			property SelectedItems : TArray<TCustomCheckItem> read getSelectedItems;
 			property Items : TCustomCheckItems read FItems write FItems;
 			property OnItemChange : TItemChangedEvent read FOnItemChange write FOnItemChange;
@@ -717,30 +717,38 @@ begin
 	FItems.Clear;
 end;
 
-function TCustomCheckOptions.AddCheckboxItem(const _caption, _hint : string; _setting : ISetting) : TCustomCheckItem;
-var
-	checkBox : TCheckBox;
+function TCustomCheckOptions.CreateItemWithPanel(const _caption : string; _itemType : ECustomItemType; _setting : ISetting) : TCustomCheckItem;
 begin
 	var
 	ar := TAutoSetReset.New(FEventsEnabled, False);
 
-	// First create the item to get the parent panel
+	// Create the item to get the parent panel
 	Result := FItems.Add;
 	Result.FCaption := _caption;
 	Result.TagObject := _setting;
-	Result.FItemType := citCheckBox;
+	Result.FItemType := _itemType;
 	Result.FSetting := _setting;
+end;
 
-	// Now create the checkbox with the panel as parent
-	checkBox := TCheckBox.Create(Self);
-	var
-	cleanCaption := BuildControlNameFromCaption(_caption);
-	checkbox.Name := 'cmb' + UpCase(cleanCaption[1]) + cleanCaption.Substring(1);
-	checkBox.Parent := Result.ParentPanel;
-	checkBox.Caption := _caption;
-	checkBox.Hint := _hint;
-	checkBox.ShowHint := True;
-	checkBox.OnClick := onItemChangeEventHandler;
+function TCustomCheckOptions.CreateCheckBox(const _parent : TWinControl; const _caption, _hint, _settingName : string) : TCheckBox;
+begin
+	Result := TCheckBox.Create(Self);
+	Result.Name := 'cb' + _settingName;
+	Result.Parent := _parent;
+	Result.Caption := _caption;
+	Result.Hint := _hint;
+	Result.ShowHint := True;
+	Result.OnClick := onItemChangeEventHandler;
+end;
+
+function TCustomCheckOptions.AddCheckboxItem(const _caption, _hint : string; _setting : ISetting) : TCustomCheckItem;
+var
+	checkBox : TCheckBox;
+begin
+	Result := CreateItemWithPanel(_caption, citCheckBox, _setting);
+
+	// Create the checkbox
+	checkBox := CreateCheckBox(Result.ParentPanel, _caption, _hint, _setting.Name);
 	
 	Result.FSubItems[Ord(siFirst)] := checkBox;
 end;
@@ -751,27 +759,14 @@ var
 	checkBox : TCheckBox;
 	comboBox : TComboBox;
 begin
-	var
-	ar := TAutoSetReset.New(FEventsEnabled, False);
+	Result := CreateItemWithPanel(_caption, citCheckBoxWithCombo, _setting);
 
-	// First create the item to get the parent panel
-	Result := FItems.Add;
-	Result.FCaption := _caption;
-	Result.TagObject := _setting;
-	Result.FItemType := citCheckBoxWithCombo;
-	Result.FSetting := _setting;
+	// Create the checkbox
+	checkBox := CreateCheckBox(Result.ParentPanel, _caption, _hint, _setting.Name);
 
-	// Now create the controls with the panel as parent
-	checkBox := TCheckBox.Create(Self);
-	checkBox.Name := 'cb' + _setting.Name;
-	checkBox.Parent := Result.ParentPanel;
-	checkBox.Caption := _caption;
-	checkBox.Hint := _hint;
-	checkBox.ShowHint := True;
-	checkBox.OnClick := onItemChangeEventHandler;
-
+	// Create the combo box
 	comboBox := TComboBox.Create(Self);
-	checkBox.Name := 'cmb' + _setting.Name;
+	comboBox.Name := 'cmb' + _setting.Name;
 	comboBox.Parent := Result.ParentPanel;
 	comboBox.Hint := _hint;
 	comboBox.ShowHint := True;
@@ -796,30 +791,15 @@ var
 	checkBox : TCheckBox;
 	spinEdit : TSpinEdit;
 begin
-	var
-	ar := TAutoSetReset.New(FEventsEnabled, False);
-
-	// First create the item to get the parent panel
-	Result := FItems.Add;
-	Result.FCaption := _caption;
-	Result.TagObject := _setting;
-	Result.FItemType := citCheckBoxWithSpin;
-	Result.FSetting := _setting;
+	Result := CreateItemWithPanel(_caption, citCheckBoxWithSpin, _setting);
 	Result.MinValue := _minValue;
 	Result.MaxValue := _maxValue;
 	Result.SpinValue := _defaultValue;
 
-	// Now create the controls with the panel as parent
-	checkBox := TCheckBox.Create(Self);
-	var
-	cleanCaption := BuildControlNameFromCaption(_caption);
-	checkBox.Name := 'cb' + _setting.Name;
-	checkBox.Parent := Result.ParentPanel;
-	checkBox.Caption := _caption;
-	checkBox.Hint := _hint;
-	checkBox.ShowHint := True;
-	checkBox.OnClick := onItemChangeEventHandler;
+	// Create the checkbox
+	checkBox := CreateCheckBox(Result.ParentPanel, _caption, _hint, _setting.Name);
 
+	// Create the spin edit
 	spinEdit := TSpinEdit.Create(Self);
 	spinEdit.Name := 'spin' + _setting.Name;
 	spinEdit.Parent := Result.ParentPanel;
@@ -841,17 +821,9 @@ var
 	comboBox : TComboBox;
 	comboItems : IShared<TStringList>;
 begin
-	var
-	ar := TAutoSetReset.New(FEventsEnabled, False);
+	Result := CreateItemWithPanel(_caption, citLabelWithCombo, _setting);
 
-	// First create the item to get the parent panel
-	Result := FItems.Add;
-	Result.FCaption := _caption;
-	Result.TagObject := _setting;
-	Result.FItemType := citLabelWithCombo;
-	Result.FSetting := _setting;
-
-	// Now create the controls with the panel as parent
+	// Create the label
 	labelControl := TLabel.Create(Self);
 	var
 	cleanCaption := BuildControlNameFromCaption(_caption);
@@ -861,6 +833,7 @@ begin
 	labelControl.Hint := _hint;
 	labelControl.ShowHint := True;
 
+	// Create the combo box
 	comboBox := TComboBox.Create(Self);
 	comboBox.Name := 'cmb' + _setting.Name;
 	comboBox.Parent := Result.ParentPanel;
