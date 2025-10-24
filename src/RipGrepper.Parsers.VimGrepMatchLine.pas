@@ -129,10 +129,11 @@ begin
 		// according FastMM it is leaky :/
 		var
 		s := Format('%s%s', [m.Groups['drive'].Value, m.Groups['path'].Value]);
+		var
+		iColBegin := m.Groups['col'].Value.ToInteger;
 		cd.Add(TColumnData.New(ciFile, s));
 		cd.Add(TColumnData.New(ciRow, m.Groups['row'].Value));
-		cd.Add(TColumnData.New(ciColBegin, m.Groups['col'].Value));
-		cd.Add(TColumnData.New(ciColEnd, ''));
+		cd.Add(TColumnData.New(ciColBegin, iColBegin.ToString));
 		s := m.Groups['text'].Value;
 
 		var // not used, but so we have less memory leak!
@@ -141,11 +142,15 @@ begin
 
 		matchPretty := FPrettyRegex.Match(s);
 		if matchPretty.Groups.Count >= 4 then begin
+			var
+			sMatchText := matchPretty.Groups['text'].Value;
+			cd.Add(TColumnData.New(ciColEnd, (iColBegin + sMatchText.Length - 1).ToString));
 			cd.Add(TColumnData.New(ciText, matchPretty.Groups['before'].Value));
-			cd.Add(TColumnData.New(ciMatchText, matchPretty.Groups['text'].Value));
+			cd.Add(TColumnData.New(ciMatchText, sMatchText));
 			cd.Add(TColumnData.New(ciTextAfterMatch, matchPretty.Groups['after'].Value));
 		end else begin
 			// in this case highlighting doesn't work...
+			cd.Add(TColumnData.New(ciColEnd, ''));
 			cd.Add(TColumnData.New(ciText, s));
 			cd.Add(TColumnData.New(ciMatchText, ''));
 			cd.Add(TColumnData.New(ciTextAfterMatch, ''));
@@ -320,15 +325,18 @@ begin
 	s := Format('%s%s', [m.Groups['drive'].Value, m.Groups['path'].Value]);
 	cd.Add(TColumnData.New(ciFile, s));
 	cd.Add(TColumnData.New(ciRow, m.Groups['row'].Value));
-	cd.Add(TColumnData.New(ciColBegin, m.Groups['col'].Value));
-	cd.Add(TColumnData.New(ciColEnd,''));
+	var iColBegin := m.Groups['col'].Value.ToInteger;
+	cd.Add(TColumnData.New(ciColBegin, iColBegin.ToString));
 	cd.Add(TColumnData.New(ciText, m.Groups['text_before_match'].Value));
 	var
 	count := cd.Count;
 	if m.Groups.Count > count + 2 then begin
-		cd.Add(TColumnData.New(ciMatchText, m.Groups['match_text'].Value));
+		var sMatchText := m.Groups['match_text'].Value;
+		cd.Add(TColumnData.New(ciMatchText, sMatchText));
+		cd.Add(TColumnData.New(ciColEnd, (iColBegin + sMatchText.Length - 1).ToString));
 	end else begin
 		cd.Add(TColumnData.New(ciMatchText, ''));
+		cd.Add(TColumnData.New(ciColEnd, ''));
 	end;
 
 	count := cd.Count;
