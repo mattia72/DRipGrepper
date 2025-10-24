@@ -10,6 +10,7 @@
 
 ### 🐞 Fixed
 - Faulty settings writing in the Ini file, caused by concurrent threads
+- vimgrep and vimgrep pretty parsers works correctly with new output format settings
 
 ## [v4.14.0-beta] - 2025-09-27
 
