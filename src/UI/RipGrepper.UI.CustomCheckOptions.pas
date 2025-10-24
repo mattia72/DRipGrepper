@@ -66,8 +66,8 @@ type
 			function getComboBox() : TComboBox;
 			function getSpinEdit() : TSpinEdit;
 			function getSubItem(_index : ESubItemIndex; _controlClass : TClass) : TControl;
-			function GetSubItemEnabled(const _idx : ESubItemIndex) : Boolean;
-			function HasAnyDisabledControl() : Boolean;
+			function getSubItemEnabled(const _idx : ESubItemIndex) : Boolean;
+			function hasAnyDisabledControl() : Boolean;
 			procedure setCaption(const _value : string);
 			procedure setTagObject(const Value : IInterface);
 			procedure setChecked(const _value : Boolean);
@@ -463,7 +463,7 @@ begin
 	Result := FParentPanel;
 end;
 
-function TCustomCheckItem.GetSubItemEnabled(const _idx : ESubItemIndex) : Boolean;
+function TCustomCheckItem.getSubItemEnabled(const _idx : ESubItemIndex) : Boolean;
 begin
 	Result := False;
 	var
@@ -473,18 +473,18 @@ begin
 	end;
 end;
 
-function TCustomCheckItem.HasAnyDisabledControl() : Boolean;
+function TCustomCheckItem.hasAnyDisabledControl() : Boolean;
 begin
 	// Check if the whole item is disabled OR any individual control is disabled
 	Result := (not FEnabled) or 
-	          (not GetSubItemEnabled(siFirst)) or 
-	          (not GetSubItemEnabled(siSecond));
+	          (not getSubItemEnabled(siFirst)) or 
+	          (not getSubItemEnabled(siSecond));
 end;
 
 procedure TCustomCheckItem.updateHintHelperVisibility();
 begin
 	// Show hint helper only if there are disabled controls
-	if HasAnyDisabledControl then begin
+	if hasAnyDisabledControl then begin
 		showHintHelper();
 	end else begin
 		hideHintHelper();
@@ -537,8 +537,8 @@ begin
 	secondCtrl := FSubItems[Ord(siSecond)];
 
 	// Get enabled states from controls
-	firstEnabled := GetSubItemEnabled(siFirst);
-	secondEnabled := GetSubItemEnabled(siSecond);
+	firstEnabled := getSubItemEnabled(siFirst);
+	secondEnabled := getSubItemEnabled(siSecond);
 
 	// Determine which controls to cover based on enabled states
 	if not FEnabled then begin
