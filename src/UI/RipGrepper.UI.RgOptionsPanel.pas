@@ -161,9 +161,9 @@ begin
 		{ } encodingItems,
 		{ } sfs.Encoding);
 	// Add checkbox options
-	FCheckOptionsGroup.AddCheckboxItem(RG_FILTER_OPTION_HIDDEN_CAPTION, 'Include hidden files in search',
+	FCheckOptionsGroup.AddCheckboxItem(RG_FILTER_OPTION_HIDDEN_CAPTION, 'Search hidden files and directories',
 		{ } sfs.Hidden);
-	FCheckOptionsGroup.AddCheckboxItem(RG_FILTER_OPTION_NO_IGNORE_CAPTION, 'Don''t respect ignore files',
+	FCheckOptionsGroup.AddCheckboxItem(RG_FILTER_OPTION_NO_IGNORE_CAPTION, 'Don''t use ignore files',
 		{ } sfs.NoIgnore);
 end;
 
