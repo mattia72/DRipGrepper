@@ -28,10 +28,8 @@ type
 			FSettings : TRipGrepperSettings;
 			procedure SetSettings(const Value : TRipGrepperSettings);
 
-		private
-			FCheckOptionsGroup : TCustomCheckOptions;
-
 		protected
+			FCheckOptionsGroup : TCustomCheckOptions;
 			procedure onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem); virtual;
 
 		public
@@ -165,6 +163,7 @@ begin
 		{ } sfs.Hidden);
 	FCheckOptionsGroup.AddCheckboxItem(RG_FILTER_OPTION_NO_IGNORE_CAPTION, 'Don''t use ignore files',
 		{ } sfs.NoIgnore);
+	FCheckOptionsGroup.AlignControlItems;
 end;
 
 procedure TRgFilterOptionsPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
@@ -203,7 +202,8 @@ begin
 	FCheckOptionsGroup.AddCheckboxSpinItem(RG_OUTPUT_OPTION_CONTEXT_CAPTION,
 		{ } 'Number of context lines',
 		{ } 0, 20, 0,
-		{ } sfs.Context);
+		{ } sfs.Context,
+		{ } True { start in new line } );
 	FCheckOptionsGroup.AddCheckboxItem(RG_OUTPUT_OPTION_PRETTY_CAPTION,
 		{ } 'Parse pretty output',
 		{ } sfs.Pretty);
@@ -281,6 +281,9 @@ end;
 
 procedure TOptionPanel.AdjustHeight();
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TOptionPanel.AdjustHeight');
+
 	// Ensure width fits within parent with margins
 	if Assigned(Parent) then begin
 		Width := Parent.ClientWidth - 16; // Leave margin for proper appearance
@@ -289,6 +292,7 @@ begin
 	FCheckOptionsGroup.Width := Width - 8;
 	// Height should match exactly the check options group height
 	Height := FCheckOptionsGroup.Height;
+	dbgMsg.MsgFmt('Panel %s height: %d', [Name, Height]);
 end;
 
 procedure TOptionPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);

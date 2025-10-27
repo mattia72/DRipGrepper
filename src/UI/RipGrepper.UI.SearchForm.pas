@@ -1700,11 +1700,14 @@ begin
 	FRgFilterOptionsPanel.Settings := _settings;
 	pnlRgFilterOptions.Caption := '';
 	FRgFilterOptionsPanel.Parent := pnlRgFilterOptions;
+	FRgFilterOptionsPanel.OnOptionChange := OnRgFilterOptionsPanelItemSelect;
 	FRgFilterOptionsPanel.AddItems();
+
 	var
 	optionsGroup := FRgFilterOptionsPanel.CheckOptionsGroup;
-	FRgFilterOptionsPanel.OnOptionChange := OnRgFilterOptionsPanelItemSelect;
 	optionsGroup.GetItemByCaption(RG_FILTER_OPTION_ENCODING_CAPTION).ComboBox.OnChange := OnEncodingComboBoxChange;
+
+    optionsGroup.AlignControlItems;
 	FRgFilterOptionsPanel.AdjustHeight();
 
 	cbRgParamHidden := optionsGroup.GetItemByCaption(RG_FILTER_OPTION_HIDDEN_CAPTION).CheckBox;
@@ -1719,12 +1722,14 @@ begin
 	FRgOutpuOptionsPanel.Settings := _settings;
 	pnlRgOutputOptions.Caption := '';
 	FRgOutpuOptionsPanel.Parent := pnlRgOutputOptions;
+	FRgOutpuOptionsPanel.OnOptionChange := OnRgOutputOptionsPanelItemSelect;
 	FRgOutpuOptionsPanel.AddItems();
-	// FRgOutpuOptionsPanel.LoadFromSettings();
+
 	var
 	optionsGroup := FRgOutpuOptionsPanel.CheckOptionsGroup;
-	FRgOutpuOptionsPanel.OnOptionChange := OnRgOutputOptionsPanelItemSelect;
-	FRgOutpuOptionsPanel.AdjustHeight();
+
+	optionsGroup.AlignControlItems();
+//  FRgOutpuOptionsPanel.AdjustHeight();
 
 	// Map checkbox controls for output options
 	cbRgParamPretty := optionsGroup.GetItemByCaption(RG_OUTPUT_OPTION_PRETTY_CAPTION).CheckBox;

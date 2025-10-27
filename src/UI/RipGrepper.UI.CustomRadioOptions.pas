@@ -10,7 +10,8 @@ uses
 	Vcl.Controls,
 	Vcl.StdCtrls,
 	Vcl.ExtCtrls,
-	Winapi.Windows;
+	Winapi.Windows,
+	RipGrepper.UI.CustomCheckOptions;
 
 type
 	// Forward declarations
@@ -58,48 +59,29 @@ type
 	// Event type for item selection
 	TRadioItemSelectEvent = procedure(Sender : TObject; Item : TCustomRadioItem) of object;
 
-	// Base class for custom option controls
-	TCustomOptionsBase = class(TCustomPanel)
-		private
-			FColumns : Integer;
-			procedure setColumns(const _value : Integer);
-
-		protected
-			procedure Resize; override;
-			procedure AlignControlItems; virtual; abstract;
-
-		public
-			constructor Create(_owner : TComponent); override;
-			procedure Clear; virtual; abstract;
-
-		published
-			property Columns : Integer read FColumns write setColumns default 1;
-	end;
-
 	// Custom radio options control
 	TCustomRadioOptions = class(TCustomOptionsBase)
 		private
 			FItems : TCustomRadioItems;
 			FItemIndex : Integer;
-			FOnRadioItemSelect: TRadioItemSelectEvent;
+			FOnRadioItemSelect : TRadioItemSelectEvent;
 			procedure onRadioButtonClick(_sender : TObject);
 			procedure setItemIndex(const _value : Integer);
 			function getSelectedItem : TCustomRadioItem;
 
 		protected
-			procedure AlignControlItems; override;
-
 		public
 			constructor Create(_owner : TComponent); override;
 			destructor Destroy; override;
 			procedure Clear; override;
 			function AddItem(const _caption, _hint : string; _orderIndex : Integer; _obj : IInterface = nil) : TCustomRadioItem;
+			procedure AlignControlItems(); override;
 
 		published
 			property SelectedItem : TCustomRadioItem read getSelectedItem;
 			property Items : TCustomRadioItems read FItems write FItems;
 			property ItemIndex : Integer read FItemIndex write setItemIndex default -1;
-			property OnRadioItemSelect: TRadioItemSelectEvent read FOnRadioItemSelect write FOnRadioItemSelect;
+			property OnRadioItemSelect : TRadioItemSelectEvent read FOnRadioItemSelect write FOnRadioItemSelect;
 	end;
 
 procedure Register;
@@ -110,32 +92,6 @@ uses
 	Math,
 	RipGrepper.Common.IDEContextValues,
 	RipGrepper.Common.SimpleTypes;
-
-{ TCustomOptionsBase }
-
-constructor TCustomOptionsBase.Create(_owner : TComponent);
-begin
-	inherited Create(_owner);
-	FColumns := 1;
-	Caption := '';
-	BevelOuter := bvNone;
-	Width := 200;
-	Height := 100;
-end;
-
-procedure TCustomOptionsBase.setColumns(const _value : Integer);
-begin
-	if (_value > 0) and (FColumns <> _value) then begin
-		FColumns := _value;
-		AlignControlItems;
-	end;
-end;
-
-procedure TCustomOptionsBase.Resize;
-begin
-	inherited Resize;
-	AlignControlItems;
-end;
 
 { TCustomRadioItem }
 
@@ -271,7 +227,7 @@ begin
 	Result := FItems.AddItem(radioButton, _caption, _orderIndex, _obj);
 end;
 
-procedure TCustomRadioOptions.AlignControlItems;
+procedure TCustomRadioOptions.AlignControlItems();
 var
 	i, col, row : Integer;
 	itemHeight, itemWidth : Integer;
@@ -284,15 +240,15 @@ begin
 
 	// Calculate layout
 	itemHeight := 22; // Standard height
-	itemWidth := Width div FColumns;
-	maxRows := Ceil(FItems.Count / FColumns);
+	itemWidth := Width div Columns;
+	maxRows := Ceil(FItems.Count / Columns);
 
 	// Position radio buttons
 	for i := 0 to FItems.Count - 1 do begin
 		item := FItems[i];
 		if Assigned(item.RadioButton) then begin
-			col := i mod FColumns;
-			row := i div FColumns;
+			col := i mod Columns;
+			row := i div Columns;
 
 			item.RadioButton.Left := col * itemWidth + 8;
 			item.RadioButton.Top := row * itemHeight + 8;

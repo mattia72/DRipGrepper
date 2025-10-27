@@ -166,9 +166,9 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     object gbExpert: TGroupBox
       AlignWithMargins = True
       Left = 8
-      Top = 235
+      Top = 275
       Width = 630
-      Height = 265
+      Height = 225
       Margins.Left = 8
       Margins.Right = 8
       Align = alClient
@@ -179,7 +179,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       TabOrder = 2
       DesignSize = (
         630
-        265)
+        225)
       object lblParams: TLabel
         AlignWithMargins = True
         Left = 8
@@ -239,7 +239,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Left = 8
         Top = 85
         Width = 557
-        Height = 172
+        Height = 132
         Anchors = [akLeft, akTop, akRight, akBottom]
         Color = clInfoBk
         Lines.Strings = (
@@ -316,7 +316,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object pnlPath: TPanel
         Left = 2
-        Top = 43
+        Top = 40
         Width = 626
         Height = 88
         Margins.Top = 0
@@ -423,13 +423,12 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object pnlRgFilterOptions: TPanel
         Left = 2
-        Top = 131
+        Top = 128
         Width = 626
         Height = 35
         Align = alTop
         BevelOuter = bvNone
         Caption = 'Filter Options'
-        Padding.Left = 8
         TabOrder = 0
       end
     end
@@ -438,7 +437,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       Left = 8
       Top = 175
       Width = 630
-      Height = 54
+      Height = 94
       Margins.Left = 8
       Margins.Right = 8
       Align = alTop
@@ -448,11 +447,10 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Left = 2
         Top = 17
         Width = 626
-        Height = 35
-        Align = alTop
+        Height = 75
+        Align = alClient
         BevelOuter = bvNone
         Caption = 'Output Options'
-        Padding.Left = 8
         TabOrder = 0
       end
     end
