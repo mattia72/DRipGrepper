@@ -12,6 +12,7 @@ uses
 	Vcl.ExtCtrls,
 	Vcl.Samples.Spin,
 	Winapi.Windows,
+	Winapi.Messages,
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.Settings.SettingVariant;
 
@@ -28,6 +29,37 @@ type
 
 	// Forward declarations
 	TCustomCheckOptions = class;
+	TCustomCheckItem = class;
+
+	// Custom SpinEdit that notifies parent TCustomCheckItem about enabled state changes
+	TNotifyingSpinEdit = class(TSpinEdit)
+		private
+			FOwnerItem : TCustomCheckItem;
+		protected
+			procedure CMEnabledChanged(var Message : TMessage); message CM_ENABLEDCHANGED;
+		public
+			property OwnerItem : TCustomCheckItem read FOwnerItem write FOwnerItem;
+	end;
+
+	// Custom ComboBox that notifies parent TCustomCheckItem about enabled state changes
+	TNotifyingComboBox = class(TComboBox)
+		private
+			FOwnerItem : TCustomCheckItem;
+		protected
+			procedure CMEnabledChanged(var Message : TMessage); message CM_ENABLEDCHANGED;
+		public
+			property OwnerItem : TCustomCheckItem read FOwnerItem write FOwnerItem;
+	end;
+
+	// Custom CheckBox that notifies parent TCustomCheckItem about enabled state changes
+	TNotifyingCheckBox = class(TCheckBox)
+		private
+			FOwnerItem : TCustomCheckItem;
+		protected
+			procedure CMEnabledChanged(var Message : TMessage); message CM_ENABLEDCHANGED;
+		public
+			property OwnerItem : TCustomCheckItem read FOwnerItem write FOwnerItem;
+	end;
 
 	// Item control types
 	ECustomItemType = (citCheckBox, citCheckBoxWithCombo, citCheckBoxWithSpin, citLabelWithCombo);
@@ -55,6 +87,7 @@ type
 			FSetting : ISetting;
 			FEnabled : Boolean;
 			FDisabledHint : string;
+			FIndex: Integer;
 			FStartNewRow : Boolean;
 			procedure enableCtrls(const _bEnable : Boolean);
 			function getChecked() : Boolean;
@@ -85,6 +118,10 @@ type
 			procedure setSubItemEnabled(const _idx : ESubItemIndex; const _bEnable : Boolean);
 
 		public
+			// Called by notifying controls when their enabled state changes externally
+			procedure OnSubItemEnabledChanged(_sender : TObject);
+
+		public
 			constructor Create(Collection : TCollection); override;
 			destructor Destroy; override;
 
@@ -99,6 +136,7 @@ type
 			property ComboBoxItems : TStringList read FComboBoxItems write setComboBoxItems;
 			property Caption : string read FCaption write setCaption;
 			property TagObject : IInterface read FTagObject write setTagObject;
+            property Index: Integer read FIndex write FIndex;
 			property Checked : Boolean read getChecked write setChecked;
 			property ItemType : ECustomItemType read FItemType write FItemType;
 			property ComboText : string read getComboText write setComboText;
@@ -161,6 +199,9 @@ type
 			FOnItemChange : TItemChangedEvent;
 			procedure onItemChangeEventHandler(_sender : TObject);
 			function getSelectedItems : TArray<TCustomCheckItem>;
+
+		private
+			function CreateComboBox(const _name, _hint : string; _parent : TPanel) : TComboBox;
 
 		protected
 			FEventsEnabled : Boolean;
@@ -483,10 +524,15 @@ end;
 
 procedure TCustomCheckItem.updateHintHelperVisibility();
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TCustomCheckItem.updateHintHelperVisibility');
+
 	// Show hint helper only if there are disabled controls
 	if hasAnyDisabledControl then begin
+        dbgMsg.MsgFmt('Show hint helper of item %s', [Setting.Name]);
 		showHintHelper();
 	end else begin
+        dbgMsg.MsgFmt('Hide hint helper of item %s', [Setting.Name]);
 		hideHintHelper();
 	end;
 end;
@@ -528,6 +574,9 @@ var
 	hintText : string;
 	firstEnabled, secondEnabled : Boolean;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TCustomCheckItem.showHintHelper');
+
 	// Ensure controls are assigned
 	firstCtrl := FSubItems[Ord(siFirst)];
 	if not Assigned(firstCtrl) then begin
@@ -616,6 +665,17 @@ begin
 	if Assigned(ctrl) and (ctrl is TWinControl) then begin
 		TWinControl(ctrl).Enabled := _bEnable;
 	end;
+end;
+
+procedure TCustomCheckItem.OnSubItemEnabledChanged(_sender : TObject);
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TCustomCheckItem.OnSubItemEnabledChanged');
+	dbgMsg.MsgFmt('Control %s enabled state changed to: %s for item %s',
+		{ } [_sender.ClassName, BoolToStr(TWinControl(_sender).Enabled, True), Setting.Name]);
+
+	// Update hint helper when control enabled state changes externally
+	updateHintHelperVisibility();
 end;
 
 { TCustomCheckItems }
@@ -730,11 +790,12 @@ begin
 	Result.TagObject := _setting;
 	Result.FItemType := _itemType;
 	Result.FSetting := _setting;
+    Result.Index := Items.Count - 1;
 end;
 
 function TCustomCheckOptions.CreateCheckBox(const _parent : TWinControl; const _caption, _hint, _settingName : string) : TCheckBox;
 begin
-	Result := TCheckBox.Create(Self);
+	Result := TNotifyingCheckBox.Create(Self);
 	Result.Name := 'cb' + _settingName;
 	Result.Parent := _parent;
 	Result.Caption := _caption;
@@ -746,13 +807,14 @@ end;
 function TCustomCheckOptions.AddCheckboxItem(const _caption, _hint : string; _setting : ISetting; _startNewRow : Boolean = False)
 	: TCustomCheckItem;
 var
-	checkBox : TCheckBox;
+	checkBox : TNotifyingCheckBox;
 begin
 	Result := CreateItemWithPanel(_caption, citCheckBox, _setting);
 	Result.StartNewRow := _startNewRow;
 
 	// Create the checkbox
-	checkBox := CreateCheckBox(Result.ParentPanel, _caption, _hint, _setting.Name);
+	checkBox := CreateCheckBox(Result.ParentPanel, _caption, _hint, _setting.Name) as TNotifyingCheckBox;
+	checkBox.OwnerItem := Result;
 
 	Result.FSubItems[Ord(siFirst)] := checkBox;
 end;
@@ -760,23 +822,17 @@ end;
 function TCustomCheckOptions.AddCheckboxComboItem(const _caption, _hint : string; _comboItems : TArray<string>; _setting : ISetting;
 	_startNewRow : Boolean = False) : TCustomCheckItem;
 var
-	checkBox : TCheckBox;
-	comboBox : TComboBox;
+	checkBox : TNotifyingCheckBox;
+	comboBox : TNotifyingComboBox;
 begin
 	Result := CreateItemWithPanel(_caption, citCheckBoxWithCombo, _setting);
 	Result.StartNewRow := _startNewRow;
 
-	// Create the checkbox
-	checkBox := CreateCheckBox(Result.ParentPanel, _caption, _hint, _setting.Name);
+	checkBox := CreateCheckBox(Result.ParentPanel, _caption, _hint, _setting.Name) as TNotifyingCheckBox;
+	checkBox.OwnerItem := Result;
 
-	// Create the combo box
-	comboBox := TComboBox.Create(Self);
-	comboBox.Name := 'cmb' + _setting.Name;
-	comboBox.Parent := Result.ParentPanel;
-	comboBox.Hint := _hint;
-	comboBox.ShowHint := True;
-	comboBox.Style := csDropDown;
-	comboBox.AutoDropDownWidth := True;
+	comboBox := CreateComboBox(_setting.Name, _hint, Result.ParentPanel) as TNotifyingComboBox;
+	comboBox.OwnerItem := Result;
 
 	var
 		strList : IShared<TStringList> := Shared.Make<TStringList>();
@@ -793,8 +849,8 @@ end;
 function TCustomCheckOptions.AddCheckboxSpinItem(const _caption, _hint : string; _minValue, _maxValue, _defaultValue : Integer;
 	_setting : ISetting; _startNewRow : Boolean = False) : TCustomCheckItem;
 var
-	checkBox : TCheckBox;
-	spinEdit : TSpinEdit;
+	checkBox : TNotifyingCheckBox;
+	spinEdit : TNotifyingSpinEdit;
 begin
 	Result := CreateItemWithPanel(_caption, citCheckBoxWithSpin, _setting);
 	Result.StartNewRow := _startNewRow;
@@ -803,10 +859,11 @@ begin
 	Result.SpinValue := _defaultValue;
 
 	// Create the checkbox
-	checkBox := CreateCheckBox(Result.ParentPanel, _caption, _hint, _setting.Name);
+	checkBox := CreateCheckBox(Result.ParentPanel, _caption, _hint, _setting.Name) as TNotifyingCheckBox;
+	checkBox.OwnerItem := Result;
 
 	// Create the spin edit
-	spinEdit := TSpinEdit.Create(Self);
+	spinEdit := TNotifyingSpinEdit.Create(Self);
 	spinEdit.Name := 'spin' + _setting.Name;
 	spinEdit.Parent := Result.ParentPanel;
 	spinEdit.MinValue := _minValue;
@@ -815,6 +872,8 @@ begin
 	spinEdit.Hint := _hint;
 	spinEdit.ShowHint := True;
 	spinEdit.OnChange := onItemChangeEventHandler;
+	spinEdit.Height := checkBox.Height;
+	spinEdit.OwnerItem := Result;
 
 	Result.FSubItems[Ord(siFirst)] := checkBox;
 	Result.FSubItems[Ord(siSecond)] := spinEdit;
@@ -824,7 +883,7 @@ function TCustomCheckOptions.AddLabelComboItem(const _caption, _hint : string; _
 	_startNewRow : Boolean = False) : TCustomCheckItem;
 var
 	labelControl : TLabel;
-	comboBox : TComboBox;
+	comboBox : TNotifyingComboBox;
 	comboItems : IShared<TStringList>;
 begin
 	Result := CreateItemWithPanel(_caption, citLabelWithCombo, _setting);
@@ -839,14 +898,8 @@ begin
 	labelControl.ShowHint := True;
 
 	// Create the combo box
-	comboBox := TComboBox.Create(Self);
-	comboBox.Name := 'cmb' + _setting.Name;
-	comboBox.Parent := Result.ParentPanel;
-	comboBox.Hint := _hint;
-	comboBox.ShowHint := True;
-	comboBox.Style := csDropDown;
-	comboBox.AutoDropDownWidth := True;
-	comboBox.OnChange := onItemChangeEventHandler;
+	comboBox := CreateComboBox(_setting.Name, _hint, Result.ParentPanel) as TNotifyingComboBox;
+	comboBox.OwnerItem := Result;
 
 	comboItems := Shared.Make<TStringList>();
 	comboItems.AddStrings(_comboItems);
@@ -1084,7 +1137,7 @@ begin
 					p.Height := Height + SPACE;
 					dbgMsg.MsgFmt('GroupBox %s height: %d', [p.Name, p.Height]);
 				end;
-                break;
+				break;
 			end else begin
 				if (p.Height <> Height) then begin
 					p.Height := Height;
@@ -1409,6 +1462,18 @@ begin
 	Result := totalWidth + 16; // 16px for panel margins and borders
 end;
 
+function TCustomCheckOptions.CreateComboBox(const _name, _hint : string; _parent : TPanel) : TComboBox;
+begin
+	Result := TNotifyingComboBox.Create(Self);
+	Result.Name := 'cmb' + _name;
+	Result.Parent := _parent;
+	Result.Hint := _hint;
+	Result.ShowHint := True;
+	Result.Style := csDropDown;
+	Result.AutoDropDownWidth := True;
+	Result.OnChange := onItemChangeEventHandler;
+end;
+
 procedure Register;
 begin
 	RegisterComponents('Custom', [TCustomCheckOptions]);
@@ -1424,6 +1489,36 @@ class operator TAutoSetReset.Finalize(var Dest : TAutoSetReset);
 begin
 	if Assigned(Dest.FBoolPtr) then begin
 		Dest.FBoolPtr^ := not Dest.FBoolPtr^;
+	end;
+end;
+
+{ TNotifyingSpinEdit }
+
+procedure TNotifyingSpinEdit.CMEnabledChanged(var Message : TMessage);
+begin
+	inherited;
+	if Assigned(FOwnerItem) then begin
+		FOwnerItem.OnSubItemEnabledChanged(Self);
+	end;
+end;
+
+{ TNotifyingComboBox }
+
+procedure TNotifyingComboBox.CMEnabledChanged(var Message : TMessage);
+begin
+	inherited;
+	if Assigned(FOwnerItem) then begin
+		FOwnerItem.OnSubItemEnabledChanged(Self);
+	end;
+end;
+
+{ TNotifyingCheckBox }
+
+procedure TNotifyingCheckBox.CMEnabledChanged(var Message : TMessage);
+begin
+	inherited;
+	if Assigned(FOwnerItem) then begin
+		FOwnerItem.OnSubItemEnabledChanged(Self);
 	end;
 end;
 
