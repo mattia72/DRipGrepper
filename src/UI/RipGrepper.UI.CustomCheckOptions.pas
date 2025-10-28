@@ -549,9 +549,6 @@ begin
 	end;
 
 	setSubItemEnabled(_index, _enabled);
-
-	// Update hint helper based on overall state
-	updateHintHelperVisibility();
 end;
 
 procedure TCustomCheckItem.setEnabled(const _value : Boolean);
@@ -562,9 +559,6 @@ begin
 
 	FEnabled := _value;
 	enableCtrls(FEnabled);
-
-	// Update hint helper based on overall state
-	updateHintHelperVisibility();
 end;
 
 procedure TCustomCheckItem.showHintHelper();
