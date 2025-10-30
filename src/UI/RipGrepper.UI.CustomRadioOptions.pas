@@ -61,6 +61,11 @@ type
 
 	// Custom radio options control
 	TCustomRadioOptions = class(TCustomOptionsBase)
+		const
+			SPACE = 8;
+			ITEM_HEIGHT = 22;
+			GROUPBOX_PADDING = 8;
+
 		private
 			FItems : TCustomRadioItems;
 			FItemIndex : Integer;
@@ -70,6 +75,8 @@ type
 			function getSelectedItem : TCustomRadioItem;
 
 		protected
+			procedure AdjustParentHeights;
+
 		public
 			constructor Create(_owner : TComponent); override;
 			destructor Destroy; override;
@@ -228,9 +235,6 @@ begin
 end;
 
 procedure TCustomRadioOptions.AlignControlItems();
-const
-	SPACE = 8;
-	ITEM_HEIGHT = 22;
 var
 	i : Integer;
 	col : Integer;
@@ -271,6 +275,35 @@ begin
 	if maxRows > 0 then begin
 		panelHeight := (maxRows * itemHeight) + (2 * SPACE);
 		Self.Height := panelHeight;
+	end;
+
+	// Adjust parent heights to accommodate content
+	AdjustParentHeights;
+end;
+
+procedure TCustomRadioOptions.AdjustParentHeights;
+var
+	p : TWinControl;
+begin
+	p := Parent;
+
+	while Assigned(p) do begin
+		// Only adjust panels and groupboxes
+		if (p is TPanel) or (p is TGroupBox) then begin
+			// Set parent height to match content height
+			// Add extra padding for groupboxes to account for border and caption
+			if p is TGroupBox then begin
+				if p.Height <> Height + GROUPBOX_PADDING then begin
+					p.Height := Height + GROUPBOX_PADDING;
+				end;
+				Break;
+			end else begin
+				if (p.Height <> Height) then begin
+					p.Height := Height;
+				end;
+			end;
+		end;
+		p := p.Parent;
 	end;
 end;
 

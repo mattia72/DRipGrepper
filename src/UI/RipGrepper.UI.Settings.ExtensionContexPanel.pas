@@ -21,13 +21,17 @@ uses
 
 type
 	TExtensionContexPanel = class(TCustomPanel)
-		pnlMain : TPanel;
+		const
+			PARENT_MARGIN = 16;
+			RADIO_GROUP_MARGIN = 8;
+			PANEL_PADDING = 4;
 
 		strict private
 			FSettings : TRipGrepperSettings;
 			procedure SetSettings(const Value : TRipGrepperSettings);
 
 		private
+			pnlMain : TPanel;
 			FContextRadioGroup : TCustomRadioOptions;
 			FOnContextChange : TExtensionContextChangeEvent;
 			FRadioItemIndex : Integer;
@@ -73,6 +77,10 @@ begin
 	pnlMain.Align := alClient;
 	pnlMain.BevelOuter := bvNone;
 	pnlMain.Caption := '';
+	pnlMain.Padding.Left := PANEL_PADDING;
+	pnlMain.Padding.Top := PANEL_PADDING;
+	pnlMain.Padding.Right := PANEL_PADDING;
+	pnlMain.Padding.Bottom := PANEL_PADDING;
 	
 	FContextRadioGroup := TCustomRadioOptions.Create(Self);
 	FContextRadioGroup.Parent := pnlMain;
@@ -152,14 +160,14 @@ procedure TExtensionContexPanel.AdjustHeight();
 begin
 	// Ensure width fits within parent with margins
 	if Assigned(Parent) then begin
-		Width := Parent.ClientWidth - 16; // Leave margin for proper appearance
+		Width := Parent.ClientWidth - PARENT_MARGIN;
 	end;
 	// Make sure the radio group uses full available width
-	FContextRadioGroup.Width := Width - 8;
+	FContextRadioGroup.Width := Width - RADIO_GROUP_MARGIN;
 	// Align radio button items
 	FContextRadioGroup.AlignControlItems();
-	// Height should match exactly the radio group height
-	Height := FContextRadioGroup.Height;
+	// Height should match the radio group height plus padding
+	Height := FContextRadioGroup.Height + (2 * PANEL_PADDING);
 end;
 
 class function TExtensionContexPanel.GetAsHint(const _paths : string) : string;
