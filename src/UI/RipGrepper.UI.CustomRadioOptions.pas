@@ -228,19 +228,28 @@ begin
 end;
 
 procedure TCustomRadioOptions.AlignControlItems();
+const
+	SPACE = 8;
+	ITEM_HEIGHT = 22;
 var
-	i, col, row : Integer;
-	itemHeight, itemWidth : Integer;
+	i : Integer;
+	col : Integer;
+	row : Integer;
+	itemHeight : Integer;
+	itemWidth : Integer;
 	maxRows : Integer;
 	item : TCustomRadioItem;
+	panelWidth : Integer;
+	panelHeight : Integer;
 begin
 	if FItems.Count = 0 then begin
 		Exit;
 	end;
 
 	// Calculate layout
-	itemHeight := 22; // Standard height
-	itemWidth := Width div Columns;
+	itemHeight := ITEM_HEIGHT;
+	panelWidth := Self.Width;
+	itemWidth := panelWidth div Columns;
 	maxRows := Ceil(FItems.Count / Columns);
 
 	// Position radio buttons
@@ -250,9 +259,9 @@ begin
 			col := i mod Columns;
 			row := i div Columns;
 
-			item.RadioButton.Left := col * itemWidth + 8;
-			item.RadioButton.Top := row * itemHeight + 8;
-			item.RadioButton.Width := itemWidth - 16;
+			item.RadioButton.Left := (col * itemWidth) + SPACE;
+			item.RadioButton.Top := (row * itemHeight) + SPACE;
+			item.RadioButton.Width := itemWidth - (2 * SPACE);
 			item.RadioButton.Height := itemHeight - 2;
 			item.RadioButton.Tag := i;
 		end;
@@ -260,7 +269,8 @@ begin
 
 	// Adjust control height if needed
 	if maxRows > 0 then begin
-		Height := maxRows * itemHeight + 16; // Padding for clean layout
+		panelHeight := (maxRows * itemHeight) + (2 * SPACE);
+		Self.Height := panelHeight;
 	end;
 end;
 

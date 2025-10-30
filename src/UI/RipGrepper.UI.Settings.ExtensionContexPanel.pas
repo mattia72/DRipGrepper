@@ -156,7 +156,8 @@ begin
 	end;
 	// Make sure the radio group uses full available width
 	FContextRadioGroup.Width := Width - 8;
-	// FContextRadioGroup.ArrangeItems();
+	// Align radio button items
+	FContextRadioGroup.AlignControlItems();
 	// Height should match exactly the radio group height
 	Height := FContextRadioGroup.Height;
 end;
