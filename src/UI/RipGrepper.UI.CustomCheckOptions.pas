@@ -35,8 +35,10 @@ type
 	TNotifyingSpinEdit = class(TSpinEdit)
 		private
 			FOwnerItem : TCustomCheckItem;
+
 		protected
 			procedure CMEnabledChanged(var Message : TMessage); message CM_ENABLEDCHANGED;
+
 		public
 			property OwnerItem : TCustomCheckItem read FOwnerItem write FOwnerItem;
 	end;
@@ -45,8 +47,10 @@ type
 	TNotifyingComboBox = class(TComboBox)
 		private
 			FOwnerItem : TCustomCheckItem;
+
 		protected
 			procedure CMEnabledChanged(var Message : TMessage); message CM_ENABLEDCHANGED;
+
 		public
 			property OwnerItem : TCustomCheckItem read FOwnerItem write FOwnerItem;
 	end;
@@ -55,10 +59,13 @@ type
 	TNotifyingCheckBox = class(TCheckBox)
 		private
 			FOwnerItem : TCustomCheckItem;
+
 		protected
 			procedure CMEnabledChanged(var Message : TMessage); message CM_ENABLEDCHANGED;
+
 		public
 			property OwnerItem : TCustomCheckItem read FOwnerItem write FOwnerItem;
+
 		published
 			property AutoSize;
 	end;
@@ -89,7 +96,7 @@ type
 			FSetting : ISetting;
 			FEnabled : Boolean;
 			FDisabledHint : string;
-			FIndex: Integer;
+			FIndex : Integer;
 			FStartNewRow : Boolean;
 			procedure enableCtrls(const _bEnable : Boolean);
 			function getChecked() : Boolean;
@@ -138,7 +145,7 @@ type
 			property ComboBoxItems : TStringList read FComboBoxItems write setComboBoxItems;
 			property Caption : string read FCaption write setCaption;
 			property TagObject : IInterface read FTagObject write setTagObject;
-            property Index: Integer read FIndex write FIndex;
+			property index : Integer read FIndex write FIndex;
 			property Checked : Boolean read getChecked write setChecked;
 			property ItemType : ECustomItemType read FItemType write FItemType;
 			property ComboText : string read getComboText write setComboText;
@@ -196,6 +203,15 @@ type
 
 	// Custom checkbox options control
 	TCustomCheckOptions = class(TCustomOptionsBase)
+		const
+			ITEM_HEIGHT = 22;
+			PANEL_HEIGHT = 28;
+			BOTTOM_PADDING = 16;
+			SPACE = 8;
+			SECOND_CONTROL_SPIN_WIDTH = 60;
+			FIRST_CONTROL_WIDTH = 100;
+			SECOND_CONTROL_COMBO_WIDTH = 80;
+
 		strict private
 			FItems : TCustomCheckItems;
 			FOnItemChange : TItemChangedEvent;
@@ -266,10 +282,10 @@ uses
 
 const
 	// Layout mode: True = Flow layout (compact, auto-sized controls)
-	//              False = Table layout (equal size controls)
+	// False = Table layout (equal size controls)
 	USE_FLOW_LAYOUT = False;
 
-{ TCustomOptionsBase }
+	{ TCustomOptionsBase }
 
 constructor TCustomOptionsBase.Create(_owner : TComponent);
 begin
@@ -544,10 +560,10 @@ begin
 
 	// Show hint helper only if there are disabled controls
 	if hasAnyDisabledControl then begin
-        dbgMsg.MsgFmt('Show hint helper of item %s', [Setting.Name]);
+		dbgMsg.MsgFmt('Show hint helper of item %s', [Setting.Name]);
 		showHintHelper();
 	end else begin
-        dbgMsg.MsgFmt('Hide hint helper of item %s', [Setting.Name]);
+		dbgMsg.MsgFmt('Hide hint helper of item %s', [Setting.Name]);
 		hideHintHelper();
 	end;
 end;
@@ -799,7 +815,7 @@ begin
 	Result.TagObject := _setting;
 	Result.FItemType := _itemType;
 	Result.FSetting := _setting;
-    Result.Index := Items.Count - 1;
+	Result.Index := Items.Count - 1;
 end;
 
 function TCustomCheckOptions.CreateCheckBox(const _parent : TWinControl; const _caption, _hint, _settingName : string) : TCheckBox;
@@ -907,7 +923,7 @@ begin
 	labelControl.Caption := _caption;
 	labelControl.Hint := _hint;
 	labelControl.ShowHint := True;
-    labelControl.AutoSize := True;
+	labelControl.AutoSize := True;
 
 	// Create the combo box
 	comboBox := CreateComboBox(_setting.Name, _hint, Result.ParentPanel) as TNotifyingComboBox;
@@ -940,10 +956,6 @@ begin
 end;
 
 function TCustomCheckOptions.CalculateItemWidth(const _hasTwoControls : Boolean) : Integer;
-const
-	SPACE = 8;
-	FIRST_CONTROL_WIDTH = 100;
-	SECOND_CONTROL_COMBO_WIDTH = 80;
 begin
 	// This method calculates the base width for layout purposes
 	// Individual items will use this differently based on their type
@@ -963,10 +975,6 @@ begin
 end;
 
 function TCustomCheckOptions.GetItemWidth(const _item : TCustomCheckItem; const _baseWidth : Integer) : Integer;
-const
-	SPACE = 8;
-	FIRST_CONTROL_WIDTH = 100;
-	SECOND_CONTROL_COMBO_WIDTH = 80;
 begin
 	// Calculate width for individual item based on its type
 	case _item.ItemType of
@@ -992,10 +1000,6 @@ begin
 end;
 
 procedure TCustomCheckOptions.CalculateActualWidths(const _itemWidth : Integer; out _actualFirstWidth, _actualSecondWidth : Integer);
-const
-	SPACE = 8;
-	FIRST_CONTROL_WIDTH = 100;
-	SECOND_CONTROL_COMBO_WIDTH = 80;
 var
 	availableForControls : Integer;
 begin
@@ -1045,13 +1049,13 @@ begin
 	end;
 end;
 
-procedure TCustomCheckOptions.PositionCheckBoxOnly(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth,
-	_itemHeight : Integer);
+procedure TCustomCheckOptions.PositionCheckBoxOnly(const _item : TCustomCheckItem;
+	const _itemIndex, _actualFirstWidth, _itemHeight : Integer);
 const
 	SPACE = 8;
 	FIRST_CONTROL_WIDTH = 100;
 var
-	checkboxWidth: Integer;
+	checkboxWidth : Integer;
 begin
 	if not Assigned(_item.CheckBox) then begin
 		Exit;
@@ -1081,12 +1085,10 @@ begin
 	_item.CheckBox.Tag := _itemIndex;
 end;
 
-procedure TCustomCheckOptions.PositionCheckBoxWithCombo(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth,
-	_actualSecondWidth, _itemHeight : Integer);
-const
-	SPACE = 8;
+procedure TCustomCheckOptions.PositionCheckBoxWithCombo(const _item : TCustomCheckItem;
+	const _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight : Integer);
 var
-	checkboxWidth: Integer;
+	checkboxWidth : Integer;
 begin
 	// Position checkbox
 	if Assigned(_item.CheckBox) then begin
@@ -1123,14 +1125,11 @@ begin
 	end;
 end;
 
-procedure TCustomCheckOptions.PositionCheckBoxWithSpin(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth,
-	_actualSecondWidth, _itemHeight : Integer);
-const
-	SPACE = 8;
-	SECOND_CONTROL_SPIN_WIDTH = 60;
+procedure TCustomCheckOptions.PositionCheckBoxWithSpin(const _item : TCustomCheckItem;
+	const _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight : Integer);
 var
-	checkboxWidth: Integer;
-	spinWidth: Integer;
+	checkboxWidth : Integer;
+	spinWidth : Integer;
 begin
 	// Position checkbox
 	if Assigned(_item.CheckBox) then begin
@@ -1170,8 +1169,8 @@ begin
 	end;
 end;
 
-procedure TCustomCheckOptions.PositionLabelWithCombo(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth,
-	_actualSecondWidth, _itemHeight : Integer);
+procedure TCustomCheckOptions.PositionLabelWithCombo(const _item : TCustomCheckItem;
+	const _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight : Integer);
 const
 	SPACE = 8;
 begin
@@ -1215,20 +1214,18 @@ procedure TCustomCheckOptions.PositionItemControls(const _item : TCustomCheckIte
 begin
 	// Position controls within the panel (relative to panel) - delegate to specific helper methods
 	case _item.ItemType of
-		citCheckBox:
-			PositionCheckBoxOnly(_item, _itemIndex, _actualFirstWidth, _itemHeight);
-		citCheckBoxWithCombo:
-			PositionCheckBoxWithCombo(_item, _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight);
-		citCheckBoxWithSpin:
-			PositionCheckBoxWithSpin(_item, _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight);
-		citLabelWithCombo:
-			PositionLabelWithCombo(_item, _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight);
+		citCheckBox :
+		PositionCheckBoxOnly(_item, _itemIndex, _actualFirstWidth, _itemHeight);
+		citCheckBoxWithCombo :
+		PositionCheckBoxWithCombo(_item, _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight);
+		citCheckBoxWithSpin :
+		PositionCheckBoxWithSpin(_item, _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight);
+		citLabelWithCombo :
+		PositionLabelWithCombo(_item, _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight);
 	end;
 end;
 
 procedure TCustomCheckOptions.AdjustParentHeights;
-const
-	SPACE = 8;
 var
 	p : TWinControl;
 begin
@@ -1260,12 +1257,6 @@ begin
 end;
 
 procedure TCustomCheckOptions.AlignControlItems();
-const
-	ITEM_HEIGHT = 22;
-	SPACE = 8;
-	// Panel height calculation: (SPACE div 2) + (ITEM_HEIGHT - 2) + (SPACE div 2) = 4 + 20 + 4 = 28
-	PANEL_HEIGHT = 28;
-	BOTTOM_PADDING = 16;
 var
 	i : Integer;
 	itemHeight, baseWidth, currentItemWidth : Integer;
@@ -1519,10 +1510,6 @@ begin
 end;
 
 function TCustomCheckOptions.GetMinimumWidth() : Integer;
-const
-	SPACE = 8;
-	FIRST_CONTROL_WIDTH = 100;
-	SECOND_CONTROL_COMBO_WIDTH = 80;
 var
 	i : Integer;
 	item : TCustomCheckItem;
