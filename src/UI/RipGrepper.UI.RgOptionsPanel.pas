@@ -155,14 +155,15 @@ begin
 
 	var
 	sfs := Settings.SearchFormSettings;
-	FCheckOptionsGroup.AddCheckboxComboItem(RG_FILTER_OPTION_ENCODING_CAPTION, 'Specify text encoding',
-		{ } encodingItems,
-		{ } sfs.Encoding);
 	// Add checkbox options
 	FCheckOptionsGroup.AddCheckboxItem(RG_FILTER_OPTION_HIDDEN_CAPTION, 'Search hidden files and directories',
 		{ } sfs.Hidden);
 	FCheckOptionsGroup.AddCheckboxItem(RG_FILTER_OPTION_NO_IGNORE_CAPTION, 'Don''t use ignore files',
 		{ } sfs.NoIgnore);
+	FCheckOptionsGroup.AddCheckboxComboItem(RG_FILTER_OPTION_ENCODING_CAPTION, 'Specify text encoding',
+		{ } encodingItems,
+		{ } sfs.Encoding);
+
 	FCheckOptionsGroup.AlignControlItems;
 end;
 
@@ -199,14 +200,14 @@ begin
 		{ } 'Output format of rg.exe (json is recommended)',
 		{ } OUTPUT_FORMATS,
 		{ } sfs.OutputFormat);
+	FCheckOptionsGroup.AddCheckboxItem(RG_OUTPUT_OPTION_PRETTY_CAPTION,
+		{ } 'Parse pretty output',
+		{ } sfs.Pretty);
 	FCheckOptionsGroup.AddCheckboxSpinItem(RG_OUTPUT_OPTION_CONTEXT_CAPTION,
 		{ } 'Number of context lines',
 		{ } 0, 20, 0,
 		{ } sfs.Context,
-		{ } True { start in new line } );
-	FCheckOptionsGroup.AddCheckboxItem(RG_OUTPUT_OPTION_PRETTY_CAPTION,
-		{ } 'Parse pretty output',
-		{ } sfs.Pretty);
+		{ } False { start in new line } );
 
 	// Check if VSCode RipGrep and disable pretty option
 	if IsVsCodeRipGrep then begin
@@ -292,7 +293,7 @@ begin
 	FCheckOptionsGroup.Width := Width - 8;
 	// Height should match exactly the check options group height
 	Height := FCheckOptionsGroup.Height;
-	dbgMsg.MsgFmt('Panel %s height: %d', [Name, Height]);
+	dbgMsg.MsgFmt('Panel %s height: %d', [name, Height]);
 end;
 
 procedure TOptionPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);

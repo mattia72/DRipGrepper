@@ -59,6 +59,8 @@ type
 			procedure CMEnabledChanged(var Message : TMessage); message CM_ENABLEDCHANGED;
 		public
 			property OwnerItem : TCustomCheckItem read FOwnerItem write FOwnerItem;
+		published
+			property AutoSize;
 	end;
 
 	// Item control types
@@ -212,6 +214,14 @@ type
 			procedure PositionItemPanel(const _item : TCustomCheckItem; const _itemIndex, _itemWidth, _itemHeight : Integer);
 			procedure PositionItemControls(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth, _actualSecondWidth,
 				_itemHeight : Integer);
+			// Helper methods for positioning different control types
+			procedure PositionCheckBoxOnly(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth, _itemHeight : Integer);
+			procedure PositionCheckBoxWithCombo(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth, _actualSecondWidth,
+				_itemHeight : Integer);
+			procedure PositionCheckBoxWithSpin(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth, _actualSecondWidth,
+				_itemHeight : Integer);
+			procedure PositionLabelWithCombo(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth, _actualSecondWidth,
+				_itemHeight : Integer);
 			function CreateItemWithPanel(const _caption : string; _itemType : ECustomItemType; _setting : ISetting) : TCustomCheckItem;
 			function CreateCheckBox(const _parent : TWinControl; const _caption, _hint, _settingName : string) : TCheckBox;
 			procedure AdjustParentHeights;
@@ -253,6 +263,11 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	Spring,
 	RipGrepper.Tools.DebugUtils;
+
+const
+	// Layout mode: True = Flow layout (compact, auto-sized controls)
+	//              False = Table layout (equal size controls)
+	USE_FLOW_LAYOUT = False;
 
 { TCustomOptionsBase }
 
@@ -796,6 +811,8 @@ begin
 	Result.Hint := _hint;
 	Result.ShowHint := True;
 	Result.OnClick := onItemChangeEventHandler;
+	// Note: AutoSize for TCheckBox doesn't work as expected in all Delphi versions
+	// Will calculate width based on caption manually in AlignControlItems
 end;
 
 function TCustomCheckOptions.AddCheckboxItem(const _caption, _hint : string; _setting : ISetting; _startNewRow : Boolean = False)
@@ -890,6 +907,7 @@ begin
 	labelControl.Caption := _caption;
 	labelControl.Hint := _hint;
 	labelControl.ShowHint := True;
+    labelControl.AutoSize := True;
 
 	// Create the combo box
 	comboBox := CreateComboBox(_setting.Name, _hint, Result.ParentPanel) as TNotifyingComboBox;
@@ -1027,86 +1045,177 @@ begin
 	end;
 end;
 
-procedure TCustomCheckOptions.PositionItemControls(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth, _actualSecondWidth,
+procedure TCustomCheckOptions.PositionCheckBoxOnly(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth,
 	_itemHeight : Integer);
 const
 	SPACE = 8;
 	FIRST_CONTROL_WIDTH = 100;
-	SECOND_CONTROL_SPIN_WIDTH = 60;
-var
-	spinWidth : Integer;
 begin
-	// Position controls within the panel (relative to panel)
+	if not Assigned(_item.CheckBox) then begin
+		Exit;
+	end;
+
+	_item.CheckBox.Left := SPACE;
+	_item.CheckBox.Top := SPACE div 2;
+
+	if USE_FLOW_LAYOUT then begin
+		// Flow layout: calculate width based on caption text width using parent's canvas
+		checkboxWidth := Canvas.TextWidth(_item.CheckBox.Caption) + 20; // 20 for checkbox square + margin
+		if (FItems.Count = 1) then begin
+			_item.CheckBox.Width := Max(FIRST_CONTROL_WIDTH, checkboxWidth);
+		end else begin
+			_item.CheckBox.Width := checkboxWidth;
+		end;
+	end else begin
+		// Table layout: use fixed width
+		if (FItems.Count = 1) then begin
+			_item.CheckBox.Width := FIRST_CONTROL_WIDTH;
+		end else begin
+			_item.CheckBox.Width := _item.ParentPanel.Width - (2 * SPACE);
+		end;
+	end;
+
+	_item.CheckBox.Height := _itemHeight - 2;
+	_item.CheckBox.Tag := _itemIndex;
+end;
+
+procedure TCustomCheckOptions.PositionCheckBoxWithCombo(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth,
+	_actualSecondWidth, _itemHeight : Integer);
+const
+	SPACE = 8;
+begin
+	// Position checkbox
+	if Assigned(_item.CheckBox) then begin
+		_item.CheckBox.Left := SPACE;
+		_item.CheckBox.Top := SPACE div 2;
+
+		if USE_FLOW_LAYOUT then begin
+			// Flow layout: calculate width based on caption text width using parent's canvas
+			checkboxWidth := Canvas.TextWidth(_item.CheckBox.Caption) + 20; // 20 for checkbox square + margin
+			_item.CheckBox.Width := checkboxWidth;
+		end else begin
+			// Table layout: use fixed width
+			_item.CheckBox.Width := _actualFirstWidth;
+		end;
+
+		_item.CheckBox.Height := _itemHeight - 2;
+		_item.CheckBox.Tag := _itemIndex;
+	end;
+
+	// Position combobox
+	if Assigned(_item.ComboBox) then begin
+		if USE_FLOW_LAYOUT then begin
+			// Flow layout: position combobox after the checkbox's actual width
+			_item.ComboBox.Left := _item.CheckBox.Left + _item.CheckBox.Width + SPACE;
+		end else begin
+			// Table layout: use fixed position
+			_item.ComboBox.Left := SPACE + _actualFirstWidth + SPACE;
+		end;
+
+		_item.ComboBox.Top := SPACE div 2;
+		_item.ComboBox.Width := _actualSecondWidth;
+		_item.ComboBox.Height := _itemHeight - 2;
+		_item.ComboBox.Tag := _itemIndex;
+	end;
+end;
+
+procedure TCustomCheckOptions.PositionCheckBoxWithSpin(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth,
+	_actualSecondWidth, _itemHeight : Integer);
+const
+	SPACE = 8;
+	SECOND_CONTROL_SPIN_WIDTH = 60;
+begin
+	// Position checkbox
+	if Assigned(_item.CheckBox) then begin
+		_item.CheckBox.Left := SPACE;
+		_item.CheckBox.Top := SPACE div 2;
+
+		if USE_FLOW_LAYOUT then begin
+			// Flow layout: calculate width based on caption text width using parent's canvas
+			checkboxWidth := Canvas.TextWidth(_item.CheckBox.Caption) + 20; // 20 for checkbox square + margin
+			_item.CheckBox.Width := checkboxWidth;
+		end else begin
+			// Table layout: use fixed width
+			_item.CheckBox.Width := _actualFirstWidth;
+		end;
+
+		_item.CheckBox.Height := _itemHeight - 2;
+		_item.CheckBox.Tag := _itemIndex;
+	end;
+
+	// Position spin edit
+	if Assigned(_item.SpinEdit) then begin
+		// Spin control gets smaller width than combo
+		spinWidth := Min(SECOND_CONTROL_SPIN_WIDTH, _actualSecondWidth);
+
+		if USE_FLOW_LAYOUT then begin
+			// Flow layout: position spin after the checkbox's actual width
+			_item.SpinEdit.Left := _item.CheckBox.Left + _item.CheckBox.Width + SPACE;
+		end else begin
+			// Table layout: use fixed position
+			_item.SpinEdit.Left := SPACE + _actualFirstWidth + SPACE;
+		end;
+
+		_item.SpinEdit.Top := SPACE div 2;
+		_item.SpinEdit.Width := spinWidth;
+		_item.SpinEdit.Height := _itemHeight - 2;
+		_item.SpinEdit.Tag := _itemIndex;
+	end;
+end;
+
+procedure TCustomCheckOptions.PositionLabelWithCombo(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth,
+	_actualSecondWidth, _itemHeight : Integer);
+const
+	SPACE = 8;
+begin
+	// Position label
+	if Assigned(_item.LabelControl) then begin
+		_item.LabelControl.Left := SPACE;
+		_item.LabelControl.Top := SPACE div 2 + 3; // Slight vertical offset for better alignment
+
+		if not USE_FLOW_LAYOUT then begin
+			// Table layout: set fixed width (override AutoSize if needed)
+			_item.LabelControl.Width := _actualFirstWidth;
+		end;
+		// Flow layout: AutoSize handles width automatically (set in AddLabelComboItem)
+
+		_item.LabelControl.Height := _itemHeight - 2;
+	end;
+
+	// Position combobox
+	if Assigned(_item.ComboBox) then begin
+		if USE_FLOW_LAYOUT then begin
+			// Flow layout: position combobox after the label's actual width (respecting AutoSize)
+			if Assigned(_item.LabelControl) and _item.LabelControl.AutoSize then begin
+				_item.ComboBox.Left := _item.LabelControl.Left + _item.LabelControl.Width + SPACE;
+			end else begin
+				_item.ComboBox.Left := SPACE + _actualFirstWidth + SPACE;
+			end;
+		end else begin
+			// Table layout: use fixed position
+			_item.ComboBox.Left := SPACE + _actualFirstWidth + SPACE;
+		end;
+
+		_item.ComboBox.Top := SPACE div 2;
+		_item.ComboBox.Width := _actualSecondWidth;
+		_item.ComboBox.Height := _itemHeight - 2;
+		_item.ComboBox.Tag := _itemIndex;
+	end;
+end;
+
+procedure TCustomCheckOptions.PositionItemControls(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth, _actualSecondWidth,
+	_itemHeight : Integer);
+begin
+	// Position controls within the panel (relative to panel) - delegate to specific helper methods
 	case _item.ItemType of
-		citCheckBox : begin
-			// Single checkbox - if only one item total, use FIRST_CONTROL_WIDTH, otherwise use full item width
-			if Assigned(_item.CheckBox) then begin
-				_item.CheckBox.Left := SPACE;
-				_item.CheckBox.Top := SPACE div 2;
-				if (FItems.Count = 1) then begin
-					_item.CheckBox.Width := FIRST_CONTROL_WIDTH;
-				end else begin
-					_item.CheckBox.Width := _item.ParentPanel.Width - (2 * SPACE);
-				end;
-				_item.CheckBox.Height := _itemHeight - 2;
-				_item.CheckBox.Tag := _itemIndex;
-			end;
-		end;
-
-		citCheckBoxWithCombo : begin
-			// Checkbox + ComboBox - both left aligned
-			if Assigned(_item.CheckBox) then begin
-				_item.CheckBox.Left := SPACE;
-				_item.CheckBox.Top := SPACE div 2;
-				_item.CheckBox.Width := _actualFirstWidth;
-				_item.CheckBox.Height := _itemHeight - 2;
-				_item.CheckBox.Tag := _itemIndex;
-			end;
-			if Assigned(_item.ComboBox) then begin
-				_item.ComboBox.Left := SPACE + _actualFirstWidth + SPACE;
-				_item.ComboBox.Top := SPACE div 2;
-				_item.ComboBox.Width := _actualSecondWidth;
-				_item.ComboBox.Height := _itemHeight - 2;
-				_item.ComboBox.Tag := _itemIndex;
-			end;
-		end;
-
-		citCheckBoxWithSpin : begin
-			// Checkbox + SpinEdit - spin is narrower than combo, but itemWidth stays the same
-			if Assigned(_item.CheckBox) then begin
-				_item.CheckBox.Left := SPACE;
-				_item.CheckBox.Top := SPACE div 2;
-				_item.CheckBox.Width := _actualFirstWidth;
-				_item.CheckBox.Height := _itemHeight - 2;
-				_item.CheckBox.Tag := _itemIndex;
-			end;
-			if Assigned(_item.SpinEdit) then begin
-				// Spin control gets smaller width than combo
-				spinWidth := Min(SECOND_CONTROL_SPIN_WIDTH, _actualSecondWidth);
-				_item.SpinEdit.Left := SPACE + _actualFirstWidth + SPACE;
-				_item.SpinEdit.Top := SPACE div 2;
-				_item.SpinEdit.Width := spinWidth;
-				_item.SpinEdit.Height := _itemHeight - 2;
-				_item.SpinEdit.Tag := _itemIndex;
-			end;
-		end;
-
-		citLabelWithCombo : begin
-			// Label + ComboBox - both left aligned
-			if Assigned(_item.LabelControl) then begin
-				_item.LabelControl.Left := SPACE;
-				_item.LabelControl.Top := SPACE div 2 + 3; // Slight vertical offset for better alignment
-				_item.LabelControl.Width := _actualFirstWidth;
-				_item.LabelControl.Height := _itemHeight - 2;
-			end;
-			if Assigned(_item.ComboBox) then begin
-				_item.ComboBox.Left := SPACE + _actualFirstWidth + SPACE;
-				_item.ComboBox.Top := SPACE div 2;
-				_item.ComboBox.Width := _actualSecondWidth;
-				_item.ComboBox.Height := _itemHeight - 2;
-				_item.ComboBox.Tag := _itemIndex;
-			end;
-		end;
+		citCheckBox:
+			PositionCheckBoxOnly(_item, _itemIndex, _actualFirstWidth, _itemHeight);
+		citCheckBoxWithCombo:
+			PositionCheckBoxWithCombo(_item, _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight);
+		citCheckBoxWithSpin:
+			PositionCheckBoxWithSpin(_item, _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight);
+		citLabelWithCombo:
+			PositionLabelWithCombo(_item, _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight);
 	end;
 end;
 
