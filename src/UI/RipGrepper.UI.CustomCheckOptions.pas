@@ -127,13 +127,11 @@ type
 			procedure setSubItemEnabled(const _idx : ESubItemIndex; const _bEnable : Boolean);
 
 		public
-			// Called by notifying controls when their enabled state changes externally
-			procedure OnSubItemEnabledChanged(_sender : TObject);
-
-		public
 			constructor Create(Collection : TCollection); override;
 			destructor Destroy; override;
 
+			// Called by notifying controls when their enabled state changes externally
+			procedure OnSubItemEnabledChanged(_sender : TObject);
 			procedure SetControlEnabled(_index : ESubItemIndex; _enabled : Boolean);
 
 			property CheckBox : TCheckBox read getCheckBox;
@@ -211,6 +209,7 @@ type
 			SECOND_CONTROL_SPIN_WIDTH = 60;
 			FIRST_CONTROL_WIDTH = 100;
 			SECOND_CONTROL_COMBO_WIDTH = 80;
+			CHECKBOX_MARGIN = 20;
 
 		strict private
 			FItems : TCustomCheckItems;
@@ -1051,11 +1050,6 @@ end;
 
 procedure TCustomCheckOptions.PositionCheckBoxOnly(const _item : TCustomCheckItem;
 	const _itemIndex, _actualFirstWidth, _itemHeight : Integer);
-const
-	SPACE = 8;
-	FIRST_CONTROL_WIDTH = 100;
-var
-	checkboxWidth : Integer;
 begin
 	if not Assigned(_item.CheckBox) then begin
 		Exit;
@@ -1063,15 +1057,10 @@ begin
 
 	_item.CheckBox.Left := SPACE;
 	_item.CheckBox.Top := SPACE div 2;
-
 	if USE_FLOW_LAYOUT then begin
 		// Flow layout: calculate width based on caption text width using parent's canvas
-		checkboxWidth := Canvas.TextWidth(_item.CheckBox.Caption) + 20; // 20 for checkbox square + margin
-		if (FItems.Count = 1) then begin
-			_item.CheckBox.Width := Max(FIRST_CONTROL_WIDTH, checkboxWidth);
-		end else begin
-			_item.CheckBox.Width := checkboxWidth;
-		end;
+		var checkboxWidth : integer := Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN; // 20 for checkbox square + margin
+		_item.CheckBox.Width := IfThen(FItems.Count = 1, Max(FIRST_CONTROL_WIDTH, checkboxWidth), checkboxWidth);
 	end else begin
 		// Table layout: use fixed width
 		if (FItems.Count = 1) then begin
@@ -1087,18 +1076,14 @@ end;
 
 procedure TCustomCheckOptions.PositionCheckBoxWithCombo(const _item : TCustomCheckItem;
 	const _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight : Integer);
-var
-	checkboxWidth : Integer;
 begin
-	// Position checkbox
 	if Assigned(_item.CheckBox) then begin
 		_item.CheckBox.Left := SPACE;
 		_item.CheckBox.Top := SPACE div 2;
 
 		if USE_FLOW_LAYOUT then begin
 			// Flow layout: calculate width based on caption text width using parent's canvas
-			checkboxWidth := Canvas.TextWidth(_item.CheckBox.Caption) + 20; // 20 for checkbox square + margin
-			_item.CheckBox.Width := checkboxWidth;
+			_item.CheckBox.Width := Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN;
 		end else begin
 			// Table layout: use fixed width
 			_item.CheckBox.Width := _actualFirstWidth;
@@ -1128,18 +1113,15 @@ end;
 procedure TCustomCheckOptions.PositionCheckBoxWithSpin(const _item : TCustomCheckItem;
 	const _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight : Integer);
 var
-	checkboxWidth : Integer;
 	spinWidth : Integer;
 begin
-	// Position checkbox
 	if Assigned(_item.CheckBox) then begin
 		_item.CheckBox.Left := SPACE;
 		_item.CheckBox.Top := SPACE div 2;
 
 		if USE_FLOW_LAYOUT then begin
 			// Flow layout: calculate width based on caption text width using parent's canvas
-			checkboxWidth := Canvas.TextWidth(_item.CheckBox.Caption) + 20; // 20 for checkbox square + margin
-			_item.CheckBox.Width := checkboxWidth;
+			_item.CheckBox.Width := Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN; 
 		end else begin
 			// Table layout: use fixed width
 			_item.CheckBox.Width := _actualFirstWidth;
