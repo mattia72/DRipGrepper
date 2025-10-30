@@ -1050,6 +1050,8 @@ procedure TCustomCheckOptions.PositionCheckBoxOnly(const _item : TCustomCheckIte
 const
 	SPACE = 8;
 	FIRST_CONTROL_WIDTH = 100;
+var
+	checkboxWidth: Integer;
 begin
 	if not Assigned(_item.CheckBox) then begin
 		Exit;
@@ -1083,6 +1085,8 @@ procedure TCustomCheckOptions.PositionCheckBoxWithCombo(const _item : TCustomChe
 	_actualSecondWidth, _itemHeight : Integer);
 const
 	SPACE = 8;
+var
+	checkboxWidth: Integer;
 begin
 	// Position checkbox
 	if Assigned(_item.CheckBox) then begin
@@ -1124,6 +1128,9 @@ procedure TCustomCheckOptions.PositionCheckBoxWithSpin(const _item : TCustomChec
 const
 	SPACE = 8;
 	SECOND_CONTROL_SPIN_WIDTH = 60;
+var
+	checkboxWidth: Integer;
+	spinWidth: Integer;
 begin
 	// Position checkbox
 	if Assigned(_item.CheckBox) then begin
