@@ -295,12 +295,7 @@ begin
 
 	FHistItemObj := _histObj;
 
-	SetRgFilterOptionsPanel(_settings);
-	SetRgOutputOptionsPanel(_settings);
-	
-	// Set minimum width based on widest options panel
-	SetMinimumWidthFromOptionsPanels();
-
+	// Create extension context panel first so it appears at the top
 	FExtensionContextPanel := TExtensionContexPanel.Create(self);
 	FExtensionContextPanel.Settings := _settings;
 	FExtensionContextPanel.OnContextChange := OnContextChange;
@@ -310,6 +305,12 @@ begin
 	FExtensionContextPanel.AlignWithMargins := True;
 	FExtensionContextPanel.AddItems();
 	FExtensionContextPanel.AdjustHeight();
+
+	SetRgFilterOptionsPanel(_settings);
+	SetRgOutputOptionsPanel(_settings);
+	
+	// Set minimum width based on widest options panel
+	SetMinimumWidthFromOptionsPanels();
 
 	LoadInitialSearchSettings;
 
@@ -1723,6 +1724,8 @@ begin
 	FRgFilterOptionsPanel := TRgFilterOptionsPanel.Create(self);
 	FRgFilterOptionsPanel.Settings := _settings;
 	pnlRgFilterOptions.Caption := '';
+	pnlRgFilterOptions.Padding.Left := 4;
+	pnlRgFilterOptions.Padding.Right := 4;
 	FRgFilterOptionsPanel.Parent := pnlRgFilterOptions;
 	FRgFilterOptionsPanel.Align := alClient;
 	FRgFilterOptionsPanel.OnOptionChange := OnRgFilterOptionsPanelItemSelect;
@@ -1734,8 +1737,9 @@ begin
 
     optionsGroup.AlignControlItems;
 	FRgFilterOptionsPanel.AdjustHeight();
-	// Ensure parent panel height matches the filter panel
-	pnlRgFilterOptions.Height := FRgFilterOptionsPanel.Height;
+	// Ensure parent panel height matches the filter panel plus padding
+	pnlRgFilterOptions.Height := FRgFilterOptionsPanel.Height + 
+		pnlRgFilterOptions.Padding.Top + pnlRgFilterOptions.Padding.Bottom;
 
 	cbRgParamHidden := optionsGroup.GetItemByCaption(RG_FILTER_OPTION_HIDDEN_CAPTION).CheckBox;
 	cbRgParamNoIgnore := optionsGroup.GetItemByCaption(RG_FILTER_OPTION_NO_IGNORE_CAPTION).CheckBox;
@@ -1748,6 +1752,8 @@ begin
 	FRgOutpuOptionsPanel := TRgOutputOptionsPanel.Create(self);
 	FRgOutpuOptionsPanel.Settings := _settings;
 	pnlRgOutputOptions.Caption := '';
+	pnlRgOutputOptions.Padding.Left := 4;
+	pnlRgOutputOptions.Padding.Right := 4;
 	FRgOutpuOptionsPanel.Parent := pnlRgOutputOptions;
 	FRgOutpuOptionsPanel.Align := alClient;
 	FRgOutpuOptionsPanel.OnOptionChange := OnRgOutputOptionsPanelItemSelect;
@@ -1758,8 +1764,9 @@ begin
 
 	optionsGroup.AlignControlItems();
 //  FRgOutpuOptionsPanel.AdjustHeight();
-	// Ensure parent panel height matches the output panel
-	pnlRgOutputOptions.Height := FRgOutpuOptionsPanel.Height;
+	// Ensure parent panel height matches the output panel plus padding
+	pnlRgOutputOptions.Height := FRgOutpuOptionsPanel.Height + 
+		pnlRgOutputOptions.Padding.Top + pnlRgOutputOptions.Padding.Bottom;
 
 	// Map checkbox controls for output options
 	cbRgParamPretty := optionsGroup.GetItemByCaption(RG_OUTPUT_OPTION_PRETTY_CAPTION).CheckBox;

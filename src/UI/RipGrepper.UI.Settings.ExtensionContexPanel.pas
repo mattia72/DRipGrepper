@@ -17,21 +17,18 @@ uses
 	RipGrepper.Common.IDEContextValues,
 	RipGrepper.Settings.ExtensionSettings,
 	RipGrepper.Settings.RipGrepperSettings,
-	RipGrepper.UI.CustomRadioOptions;
+	RipGrepper.UI.CustomRadioOptions,
+	RipGrepper.UI.RgOptionsPanel;
 
 type
-	TExtensionContexPanel = class(TCustomPanel)
+	TExtensionContexPanel = class(TOptionPanel)
 		const
 			PARENT_MARGIN = 16;
 			RADIO_GROUP_MARGIN = 8;
 			PANEL_PADDING = 4;
 
 		strict private
-			FSettings : TRipGrepperSettings;
-			procedure SetSettings(const Value : TRipGrepperSettings);
-
 		private
-			pnlMain : TPanel;
 			FContextRadioGroup : TCustomRadioOptions;
 			FOnContextChange : TExtensionContextChangeEvent;
 			FRadioItemIndex : Integer;
@@ -54,7 +51,6 @@ type
 
 		published
 			property SelectedItem : TCustomRadioItem read getSelectedItem;
-			property Settings : TRipGrepperSettings read FSettings write SetSettings;
 			property OnContextChange : TExtensionContextChangeEvent read FOnContextChange write FOnContextChange;
 	end;
 
@@ -70,18 +66,18 @@ uses
 constructor TExtensionContexPanel.Create(_owner : TComponent);
 begin
 	inherited Create(_owner);
-	BevelOuter := bvNone;
+//  BevelOuter := bvNone;
 
-	pnlMain := TPanel.Create(Self);
-	pnlMain.Parent := Self;
-	pnlMain.Align := alClient;
-	pnlMain.BevelOuter := bvNone;
-	pnlMain.Caption := '';
-	pnlMain.Padding.Left := PANEL_PADDING;
-	pnlMain.Padding.Top := 0;
-	pnlMain.Padding.Right := PANEL_PADDING;
-	pnlMain.Padding.Bottom := 0;
-	
+	// pnlMain := TPanel.Create(Self);
+	// pnlMain.Parent := Self;
+	pnlMain.Align := alTop;
+	// pnlMain.BevelOuter := bvNone;
+	// pnlMain.Caption := '';
+	// pnlMain.Padding.Left := PANEL_PADDING;
+	// pnlMain.Padding.Top := 0;
+	// pnlMain.Padding.Right := PANEL_PADDING;
+	// pnlMain.Padding.Bottom := 0;
+
 	FContextRadioGroup := TCustomRadioOptions.Create(Self);
 	FContextRadioGroup.Parent := pnlMain;
 	FContextRadioGroup.Align := alClient;
@@ -245,11 +241,6 @@ begin
 			Break;
 		end;
 	end;
-end;
-
-procedure TExtensionContexPanel.SetSettings(const Value : TRipGrepperSettings);
-begin
-	FSettings := Value;
 end;
 
 end.

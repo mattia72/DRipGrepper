@@ -29,6 +29,7 @@ type
 			procedure SetSettings(const Value : TRipGrepperSettings);
 
 		protected
+			pnlMain: TPanel;
 			FCheckOptionsGroup : TCustomCheckOptions;
 			procedure onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem); virtual;
 
@@ -43,8 +44,6 @@ type
 	end;
 
 	TRgFilterOptionsPanel = class(TOptionPanel)
-		pnlMain : TPanel;
-
 		protected
 			procedure onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem); override;
 
@@ -54,8 +53,6 @@ type
 	end;
 
 	TRgOutputOptionsPanel = class(TOptionPanel)
-		pnlMain : TPanel;
-
 		strict private
 			FIsVsCodeRipGrep : Boolean;
 			FVsCodeChecked : Boolean;
@@ -88,18 +85,21 @@ begin
 	BevelOuter := bvNone;
 	Align := alClient;
 	FEventsEnabled := True;
-end;
 
-constructor TRgFilterOptionsPanel.Create(_owner : TComponent);
-begin
-	inherited Create(_owner);
-
-	// Create pnlMain programmatically
+    // Create pnlMain programmatically
 	pnlMain := TPanel.Create(Self);
 	pnlMain.Parent := Self;
 	pnlMain.Align := alClient;
 	pnlMain.BevelOuter := bvNone;
 	pnlMain.Caption := '';
+	pnlMain.Padding.Left := 2;
+	pnlMain.Padding.Right := 2;
+	pnlMain.Padding.Bottom := 4;
+end;
+
+constructor TRgFilterOptionsPanel.Create(_owner : TComponent);
+begin
+	inherited Create(_owner);
 
 	FCheckOptionsGroup := TCustomCheckOptions.Create(Self);
 	FCheckOptionsGroup.Parent := pnlMain;
@@ -176,13 +176,6 @@ constructor TRgOutputOptionsPanel.Create(_owner : TComponent);
 begin
 	inherited Create(_owner);
 	FVsCodeChecked := False;
-
-	// Create pnlMain programmatically
-	pnlMain := TPanel.Create(Self);
-	pnlMain.Parent := Self;
-	pnlMain.Align := alClient;
-	pnlMain.BevelOuter := bvNone;
-	pnlMain.Caption := '';
 
 	FCheckOptionsGroup := TCustomCheckOptions.Create(Self);
 	FCheckOptionsGroup.Parent := pnlMain;
@@ -291,9 +284,11 @@ begin
 	end;
 	// Make sure the check options group uses full available width
 	FCheckOptionsGroup.Width := Width - 8;
-	// Height should match exactly the check options group height
-	Height := FCheckOptionsGroup.Height;
-	dbgMsg.MsgFmt('Panel %s height: %d', [name, Height]);
+	// Height should match the check options group height plus pnlMain padding
+	Height := FCheckOptionsGroup.Height + 
+		pnlMain.Padding.Top + pnlMain.Padding.Bottom;
+	dbgMsg.MsgFmt('Panel %s height: %d (CheckOptionsGroup: %d + padding: %d)', 
+		[name, Height, FCheckOptionsGroup.Height, pnlMain.Padding.Top + pnlMain.Padding.Bottom]);
 end;
 
 procedure TOptionPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
