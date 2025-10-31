@@ -45,6 +45,9 @@ uses
 	RipGrepper.UI.CustomCheckOptions,
 	RipGrepper.UI.RgOptionsPanel;
 
+const
+	RG_OPTIONS_PADDING_LEFT = 4;
+
 type
 	EMemoTextFormat = (mtfOneLine, mtfSeparateLines);
 
@@ -139,7 +142,7 @@ type
 		strict private
 			FExtensionContextPanel : TExtensionContexPanel;
 			FRgFilterOptionsPanel : TRgFilterOptionsPanel;
-			FRgOutpuOptionsPanel : TRgOutputOptionsPanel;
+			FRgOutputOptionsPanel : TRgOutputOptionsPanel;
 			cbRgParamHidden : TCheckBox;
 			cbRgParamNoIgnore : TCheckBox;
 			cbRgParamEncoding : TCheckBox;
@@ -149,8 +152,12 @@ type
 			cbRgParamContext : TCheckBox;
 			seContextLineNum : TSpinEdit;
 			cmbOutputFormat : TComboBox;
+
+			// Orig heights
 			FExtensionContextFrameOrigHeight : Integer;
 			FRgFilterOptionsPanelOrigHeight : Integer;
+			FRgOutputOptionsPanelOrigHeight : Integer;
+
 			FpnlPathOrigHeight : Integer;
 			FIsKeyboardInput : Boolean;
 			// proxy between settings and ctrls
@@ -308,7 +315,7 @@ begin
 
 	SetRgFilterOptionsPanel(_settings);
 	SetRgOutputOptionsPanel(_settings);
-	
+
 	// Set minimum width based on widest options panel
 	SetMinimumWidthFromOptionsPanels();
 
@@ -545,13 +552,13 @@ begin
 		ActionShowInLines.Hint := SHOW_CMD_IN_SEPARATE_LINES;
 		UpdateCmbOptionsAndMemoCommandLine;
 
-		// Active Monitor
+		// Scale by active Monitor
 		ScaleBy(TRipGrepperDpiScaler.GetActualDPI, self.PixelsPerInch);
-		AdjustHeight;
-		
+		AdjustHeight();
+
 		// Capture the original heights after initial adjustment
 		if (FExtensionContextFrameOrigHeight = 0) then begin
-			SetOrigHeights;
+			SetOrigHeights();
 		end;
 
 		ActiveControl := cmbSearchText;
@@ -922,7 +929,7 @@ begin
 		UpdateMemoCommandLine(); // UpdateCtrls
 	end else if
 	{ } (FRgFilterOptionsPanel = _ctrlChanged)
-	{ } or (FRgOutpuOptionsPanel = _ctrlChanged)
+	{ } or (FRgOutputOptionsPanel = _ctrlChanged)
 	{ } or (cbRgParamHidden = _ctrlChanged)
 	{ } or (cbRgParamNoIgnore = _ctrlChanged)
 	{ } or (cbRgParamPretty = _ctrlChanged)
@@ -1310,16 +1317,17 @@ begin
 	if Assigned(FExtensionContextPanel) then begin
 		FExtensionContextPanel.AdjustHeight();
 	end;
-	
+
 	FExtensionContextFrameOrigHeight := FExtensionContextPanel.Height;
 	FRgFilterOptionsPanelOrigHeight := FRgFilterOptionsPanel.Height;
+	FRgOutputOptionsPanelOrigHeight := FRgOutputOptionsPanel.Height;
 	FpnlPathOrigHeight := pnlPath.Height;
 	FOptionsOutputOrigTop := gbOptionsOutput.Top;
 	FpnlMiddleOrigHeight := pnlMiddle.Height;
 	FTopPanelOrigHeight := pnlTop.Height;
 	FOrigHeight := Height;
 
-	dbgMsg.MsgFmt('Captured heights - pnlTop: %d, ExtensionPanel: %d, FilterPanel: %d, PathPanel: %d, Form: %d', 
+	dbgMsg.MsgFmt('Captured heights - pnlTop: %d, ExtensionPanel: %d, FilterPanel: %d, PathPanel: %d, Form: %d',
 		[FTopPanelOrigHeight, FExtensionContextFrameOrigHeight, FRgFilterOptionsPanelOrigHeight, FpnlPathOrigHeight, FOrigHeight]);
 end;
 
@@ -1383,7 +1391,7 @@ end;
 procedure TRipGrepperSearchDialogForm.TabControl1Change(Sender : TObject);
 begin
 	ShowReplaceCtrls(IsReplaceMode());
-	AdjustHeight;
+	AdjustHeight();
 	UpdateCtrls(TabControl1);
 end;
 
@@ -1493,8 +1501,8 @@ begin
 		// Calculate the required height for all content in gbOptionsFilters
 		// Use the original height to prevent shrinking on tab changes
 		// Include the top margin in the calculation
-		gbOptionsFilters.Height := getOptionsAndFiltersHeight(False) + 
-			FExtensionContextFrameOrigHeight + FExtensionContextPanel.Margins.Top;
+		gbOptionsFilters.Height := getOptionsAndFiltersHeight(False) + FExtensionContextFrameOrigHeight +
+			FExtensionContextPanel.Margins.Top;
 	end else begin
 		// Frame not visible, use original height
 		gbOptionsFilters.Height := getOptionsAndFiltersHeight(True);
@@ -1698,7 +1706,7 @@ begin
 	if not FCbClickEventEnabled then
 		Exit;
 
-	UpdateCtrls(FRgOutpuOptionsPanel);
+	UpdateCtrls(FRgOutputOptionsPanel);
 end;
 
 procedure TRipGrepperSearchDialogForm.OnEncodingComboBoxChange(Sender : TObject);
@@ -1724,8 +1732,8 @@ begin
 	FRgFilterOptionsPanel := TRgFilterOptionsPanel.Create(self);
 	FRgFilterOptionsPanel.Settings := _settings;
 	pnlRgFilterOptions.Caption := '';
-	pnlRgFilterOptions.Padding.Left := 4;
-	pnlRgFilterOptions.Padding.Right := 4;
+	pnlRgFilterOptions.Padding.Left := RG_OPTIONS_PADDING_LEFT;
+	pnlRgFilterOptions.Padding.Right := RG_OPTIONS_PADDING_LEFT;
 	FRgFilterOptionsPanel.Parent := pnlRgFilterOptions;
 	FRgFilterOptionsPanel.Align := alClient;
 	FRgFilterOptionsPanel.OnOptionChange := OnRgFilterOptionsPanelItemSelect;
@@ -1735,11 +1743,10 @@ begin
 	optionsGroup := FRgFilterOptionsPanel.CheckOptionsGroup;
 	optionsGroup.GetItemByCaption(RG_FILTER_OPTION_ENCODING_CAPTION).ComboBox.OnChange := OnEncodingComboBoxChange;
 
-    optionsGroup.AlignControlItems;
+	optionsGroup.AlignControlItems;
 	FRgFilterOptionsPanel.AdjustHeight();
 	// Ensure parent panel height matches the filter panel plus padding
-	pnlRgFilterOptions.Height := FRgFilterOptionsPanel.Height + 
-		pnlRgFilterOptions.Padding.Top + pnlRgFilterOptions.Padding.Bottom;
+	// pnlRgFilterOptions.Height := FRgFilterOptionsPanel.Height + pnlRgFilterOptions.Padding.Top + pnlRgFilterOptions.Padding.Bottom;
 
 	cbRgParamHidden := optionsGroup.GetItemByCaption(RG_FILTER_OPTION_HIDDEN_CAPTION).CheckBox;
 	cbRgParamNoIgnore := optionsGroup.GetItemByCaption(RG_FILTER_OPTION_NO_IGNORE_CAPTION).CheckBox;
@@ -1749,24 +1756,23 @@ end;
 
 procedure TRipGrepperSearchDialogForm.SetRgOutputOptionsPanel(const _settings : TRipGrepperSettings);
 begin
-	FRgOutpuOptionsPanel := TRgOutputOptionsPanel.Create(self);
-	FRgOutpuOptionsPanel.Settings := _settings;
+	FRgOutputOptionsPanel := TRgOutputOptionsPanel.Create(self);
+	FRgOutputOptionsPanel.Settings := _settings;
 	pnlRgOutputOptions.Caption := '';
-	pnlRgOutputOptions.Padding.Left := 4;
-	pnlRgOutputOptions.Padding.Right := 4;
-	FRgOutpuOptionsPanel.Parent := pnlRgOutputOptions;
-	FRgOutpuOptionsPanel.Align := alClient;
-	FRgOutpuOptionsPanel.OnOptionChange := OnRgOutputOptionsPanelItemSelect;
-	FRgOutpuOptionsPanel.AddItems();
+	pnlRgOutputOptions.Padding.Left := RG_OPTIONS_PADDING_LEFT;
+	pnlRgOutputOptions.Padding.Right := RG_OPTIONS_PADDING_LEFT;
+	FRgOutputOptionsPanel.Parent := pnlRgOutputOptions;
+	FRgOutputOptionsPanel.Align := alClient;
+	FRgOutputOptionsPanel.OnOptionChange := OnRgOutputOptionsPanelItemSelect;
+	FRgOutputOptionsPanel.AddItems();
 
 	var
-	optionsGroup := FRgOutpuOptionsPanel.CheckOptionsGroup;
+	optionsGroup := FRgOutputOptionsPanel.CheckOptionsGroup;
 
 	optionsGroup.AlignControlItems();
-//  FRgOutpuOptionsPanel.AdjustHeight();
+	FRgOutputOptionsPanel.AdjustHeight();
 	// Ensure parent panel height matches the output panel plus padding
-	pnlRgOutputOptions.Height := FRgOutpuOptionsPanel.Height + 
-		pnlRgOutputOptions.Padding.Top + pnlRgOutputOptions.Padding.Bottom;
+	// pnlRgOutputOptions.Height := FRgOutputOptionsPanel.Height + pnlRgOutputOptions.Padding.Top + pnlRgOutputOptions.Padding.Bottom;
 
 	// Map checkbox controls for output options
 	cbRgParamPretty := optionsGroup.GetItemByCaption(RG_OUTPUT_OPTION_PRETTY_CAPTION).CheckBox;
@@ -1781,19 +1787,19 @@ var
 	filterPanelWidth, outputPanelWidth : Integer;
 begin
 	minWidth := 0;
-	
+
 	// Get minimum width from filter options panel
 	if Assigned(FRgFilterOptionsPanel) and Assigned(FRgFilterOptionsPanel.CheckOptionsGroup) then begin
 		filterPanelWidth := FRgFilterOptionsPanel.CheckOptionsGroup.GetMinimumWidth();
 		minWidth := Max(minWidth, filterPanelWidth);
 	end;
-	
+
 	// Get minimum width from output options panel
-	if Assigned(FRgOutpuOptionsPanel) and Assigned(FRgOutpuOptionsPanel.CheckOptionsGroup) then begin
-		outputPanelWidth := FRgOutpuOptionsPanel.CheckOptionsGroup.GetMinimumWidth();
+	if Assigned(FRgOutputOptionsPanel) and Assigned(FRgOutputOptionsPanel.CheckOptionsGroup) then begin
+		outputPanelWidth := FRgOutputOptionsPanel.CheckOptionsGroup.GetMinimumWidth();
 		minWidth := Max(minWidth, outputPanelWidth);
 	end;
-	
+
 	// Add extra space for form borders, margins, and other controls
 	if minWidth > 0 then begin
 		minWidth := minWidth + 50; // Add padding for form chrome

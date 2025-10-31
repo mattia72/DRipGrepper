@@ -18,6 +18,12 @@ uses
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.Common.Constants;
 
+const
+	PNL_MAIN_PADDING_BOTTOM = 4;
+	PNL_MAIN_PADDING_LEFT = 2;
+	OUTPUT_OPTIONS_COL_NUM = 3;
+	FILTER_OPTIONS_COL_NUM = 3;
+
 type
 	// Event type for option change
 	TRgOptionChangeEvent = procedure(Sender : TObject; Item : TCustomCheckItem) of object;
@@ -92,9 +98,9 @@ begin
 	pnlMain.Align := alClient;
 	pnlMain.BevelOuter := bvNone;
 	pnlMain.Caption := '';
-	pnlMain.Padding.Left := 2;
-	pnlMain.Padding.Right := 2;
-	pnlMain.Padding.Bottom := 4;
+	pnlMain.Padding.Left := PNL_MAIN_PADDING_LEFT;
+	pnlMain.Padding.Right := PNL_MAIN_PADDING_LEFT;
+	pnlMain.Padding.Bottom := PNL_MAIN_PADDING_BOTTOM;
 end;
 
 constructor TRgFilterOptionsPanel.Create(_owner : TComponent);
@@ -104,7 +110,7 @@ begin
 	FCheckOptionsGroup := TCustomCheckOptions.Create(Self);
 	FCheckOptionsGroup.Parent := pnlMain;
 	FCheckOptionsGroup.Align := alClient;
-	FCheckOptionsGroup.Columns := 3;
+	FCheckOptionsGroup.Columns := FILTER_OPTIONS_COL_NUM;
 	FCheckOptionsGroup.OnItemChange := onCheckOptionSelect;
 end;
 
@@ -180,7 +186,7 @@ begin
 	FCheckOptionsGroup := TCustomCheckOptions.Create(Self);
 	FCheckOptionsGroup.Parent := pnlMain;
 	FCheckOptionsGroup.Align := alClient;
-	FCheckOptionsGroup.Columns := 3;
+	FCheckOptionsGroup.Columns := OUTPUT_OPTIONS_COL_NUM;
 	FCheckOptionsGroup.OnItemChange := onCheckOptionSelect;
 end;
 
