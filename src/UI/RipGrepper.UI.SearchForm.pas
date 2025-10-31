@@ -1501,8 +1501,8 @@ begin
 		// Calculate the required height for all content in gbOptionsFilters
 		// Use the original height to prevent shrinking on tab changes
 		// Include the top margin in the calculation
-		gbOptionsFilters.Height := getOptionsAndFiltersHeight(False) + FExtensionContextFrameOrigHeight +
-			FExtensionContextPanel.Margins.Top;
+		gbOptionsFilters.Height := getOptionsAndFiltersHeight(False) + FExtensionContextPanel.Height +
+			FExtensionContextPanel.Margins.Top + FExtensionContextPanel.Margins.Bottom;
 	end else begin
 		// Frame not visible, use original height
 		gbOptionsFilters.Height := getOptionsAndFiltersHeight(True);

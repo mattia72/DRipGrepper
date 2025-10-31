@@ -92,7 +92,7 @@ begin
 	Align := alClient;
 	FEventsEnabled := True;
 
-    // Create pnlMain programmatically
+	// Create pnlMain programmatically
 	pnlMain := TPanel.Create(Self);
 	pnlMain.Parent := Self;
 	pnlMain.Align := alClient;
@@ -101,17 +101,18 @@ begin
 	pnlMain.Padding.Left := PNL_MAIN_PADDING_LEFT;
 	pnlMain.Padding.Right := PNL_MAIN_PADDING_LEFT;
 	pnlMain.Padding.Bottom := PNL_MAIN_PADDING_BOTTOM;
+
+	FCheckOptionsGroup := TCustomCheckOptions.Create(Self);
+	FCheckOptionsGroup.Parent := pnlMain;
+	FCheckOptionsGroup.Align := alClient;
+	FCheckOptionsGroup.OnItemChange := onCheckOptionSelect;
 end;
 
 constructor TRgFilterOptionsPanel.Create(_owner : TComponent);
 begin
 	inherited Create(_owner);
 
-	FCheckOptionsGroup := TCustomCheckOptions.Create(Self);
-	FCheckOptionsGroup.Parent := pnlMain;
-	FCheckOptionsGroup.Align := alClient;
 	FCheckOptionsGroup.Columns := FILTER_OPTIONS_COL_NUM;
-	FCheckOptionsGroup.OnItemChange := onCheckOptionSelect;
 end;
 
 procedure TRgFilterOptionsPanel.AddItems();
@@ -183,11 +184,7 @@ begin
 	inherited Create(_owner);
 	FVsCodeChecked := False;
 
-	FCheckOptionsGroup := TCustomCheckOptions.Create(Self);
-	FCheckOptionsGroup.Parent := pnlMain;
-	FCheckOptionsGroup.Align := alClient;
 	FCheckOptionsGroup.Columns := OUTPUT_OPTIONS_COL_NUM;
-	FCheckOptionsGroup.OnItemChange := onCheckOptionSelect;
 end;
 
 procedure TRgOutputOptionsPanel.AddItems();
