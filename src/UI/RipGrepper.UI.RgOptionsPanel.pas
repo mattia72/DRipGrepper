@@ -35,7 +35,7 @@ type
 			procedure SetSettings(const Value : TRipGrepperSettings);
 
 		protected
-			pnlMain: TPanel;
+			pnlMain : TPanel;
 			FCheckOptionsGroup : TCustomCheckOptions;
 			procedure onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem); virtual;
 
@@ -288,10 +288,11 @@ begin
 	// Make sure the check options group uses full available width
 	FCheckOptionsGroup.Width := Width - 8;
 	// Height should match the check options group height plus pnlMain padding
-	Height := FCheckOptionsGroup.Height + 
-		pnlMain.Padding.Top + pnlMain.Padding.Bottom;
-	dbgMsg.MsgFmt('Panel %s height: %d (CheckOptionsGroup: %d + padding: %d)', 
-		[name, Height, FCheckOptionsGroup.Height, pnlMain.Padding.Top + pnlMain.Padding.Bottom]);
+	Height := FCheckOptionsGroup.Height +
+	{ } FCheckOptionsGroup.Margins.Top + FCheckOptionsGroup.Margins.Bottom +
+	{ } pnlMain.Padding.Top + pnlMain.Padding.Bottom;
+	dbgMsg.MsgFmt('Panel %s height: %d (CheckOptionsGroup: %d + padding: %d)', [name, Height, FCheckOptionsGroup.Height,
+		pnlMain.Padding.Top + pnlMain.Padding.Bottom]);
 end;
 
 procedure TOptionPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
