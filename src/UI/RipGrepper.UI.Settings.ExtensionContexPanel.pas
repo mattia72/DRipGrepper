@@ -78,9 +78,9 @@ begin
 	pnlMain.BevelOuter := bvNone;
 	pnlMain.Caption := '';
 	pnlMain.Padding.Left := PANEL_PADDING;
-	pnlMain.Padding.Top := PANEL_PADDING;
+	pnlMain.Padding.Top := 0;
 	pnlMain.Padding.Right := PANEL_PADDING;
-	pnlMain.Padding.Bottom := PANEL_PADDING;
+	pnlMain.Padding.Bottom := 0;
 	
 	FContextRadioGroup := TCustomRadioOptions.Create(Self);
 	FContextRadioGroup.Parent := pnlMain;
@@ -166,8 +166,10 @@ begin
 	FContextRadioGroup.Width := Width - RADIO_GROUP_MARGIN;
 	// Align radio button items
 	FContextRadioGroup.AlignControlItems();
-	// Height should match the radio group height plus padding
-	Height := FContextRadioGroup.Height + (2 * PANEL_PADDING);
+	// Height should match the radio group height exactly
+	// pnlMain has no top/bottom padding and uses alClient,
+	// so the outer panel height equals the radio group height
+	Height := FContextRadioGroup.Height;
 end;
 
 class function TExtensionContexPanel.GetAsHint(const _paths : string) : string;
