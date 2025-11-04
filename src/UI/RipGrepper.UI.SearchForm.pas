@@ -1746,7 +1746,7 @@ begin
 	optionsGroup.AlignControlItems;
 	FRgFilterOptionsPanel.AdjustHeight();
 	// Ensure parent panel height matches the filter panel plus padding
-	// pnlRgFilterOptions.Height := FRgFilterOptionsPanel.Height + pnlRgFilterOptions.Padding.Top + pnlRgFilterOptions.Padding.Bottom;
+	pnlRgFilterOptions.Height := FRgFilterOptionsPanel.Height + pnlRgFilterOptions.Padding.Top + pnlRgFilterOptions.Padding.Bottom;
 
 	cbRgParamHidden := optionsGroup.GetItemByCaption(RG_FILTER_OPTION_HIDDEN_CAPTION).CheckBox;
 	cbRgParamNoIgnore := optionsGroup.GetItemByCaption(RG_FILTER_OPTION_NO_IGNORE_CAPTION).CheckBox;
@@ -1772,7 +1772,7 @@ begin
 	optionsGroup.AlignControlItems();
 	FRgOutputOptionsPanel.AdjustHeight();
 	// Ensure parent panel height matches the output panel plus padding
-	// pnlRgOutputOptions.Height := FRgOutputOptionsPanel.Height + pnlRgOutputOptions.Padding.Top + pnlRgOutputOptions.Padding.Bottom;
+	pnlRgOutputOptions.Height := FRgOutputOptionsPanel.Height + pnlRgOutputOptions.Padding.Top + pnlRgOutputOptions.Padding.Bottom;
 
 	// Map checkbox controls for output options
 	cbRgParamPretty := optionsGroup.GetItemByCaption(RG_OUTPUT_OPTION_PRETTY_CAPTION).CheckBox;
