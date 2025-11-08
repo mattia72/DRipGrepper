@@ -1070,8 +1070,6 @@ begin
 	end else begin
 		_item.CheckBox.Width := _item.ParentPanel.Width - (2 * SPACE);
 	end;
-	{$ENDIF}
-
 	_item.CheckBox.Height := _itemHeight - 2;
 	_item.CheckBox.Tag := _itemIndex;
 end;
