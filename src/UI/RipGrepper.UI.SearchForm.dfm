@@ -166,20 +166,22 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     object gbExpert: TGroupBox
       AlignWithMargins = True
       Left = 8
-      Top = 239
+      Top = 295
       Width = 630
-      Height = 261
+      Height = 205
       Margins.Left = 8
       Margins.Right = 8
       Align = alClient
       Caption = 'Expert *'
       Constraints.MinHeight = 130
+      Padding.Top = 3
+      Padding.Bottom = 3
       ParentShowHint = False
       ShowHint = True
       TabOrder = 2
       DesignSize = (
         630
-        261)
+        205)
       object lblParams: TLabel
         AlignWithMargins = True
         Left = 8
@@ -237,9 +239,9 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object memoCommandLine: TMemo
         Left = 8
-        Top = 85
+        Top = 87
         Width = 557
-        Height = 168
+        Height = 110
         Anchors = [akLeft, akTop, akRight, akBottom]
         Color = clInfoBk
         Lines.Strings = (
@@ -296,16 +298,18 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       Left = 8
       Top = 3
       Width = 630
-      Height = 166
+      Height = 200
       Margins.Left = 8
       Margins.Right = 8
       Align = alTop
       Caption = 'Search in '
+      Padding.Top = 3
+      Padding.Bottom = 3
       TabOrder = 0
       object lblPaths: TLabel
         AlignWithMargins = True
         Left = 10
-        Top = 25
+        Top = 28
         Width = 610
         Height = 15
         Margins.Left = 8
@@ -316,7 +320,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object pnlPath: TPanel
         Left = 2
-        Top = 40
+        Top = 46
         Width = 626
         Height = 88
         Margins.Top = 0
@@ -423,9 +427,9 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object pnlRgFilterOptions: TPanel
         Left = 2
-        Top = 128
+        Top = 134
         Width = 626
-        Height = 35
+        Height = 60
         Align = alTop
         BevelOuter = bvNone
         Caption = 'Filter Options'
@@ -435,19 +439,21 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     object gbOptionsOutput: TGroupBox
       AlignWithMargins = True
       Left = 8
-      Top = 175
+      Top = 209
       Width = 630
-      Height = 58
+      Height = 80
       Margins.Left = 8
       Margins.Right = 8
       Align = alTop
       Caption = 'Output'
+      Padding.Top = 3
+      Padding.Bottom = 3
       TabOrder = 1
       object pnlRgOutputOptions: TPanel
         Left = 2
-        Top = 17
+        Top = 20
         Width = 626
-        Height = 39
+        Height = 55
         Align = alClient
         BevelOuter = bvNone
         Caption = 'Output Options'
