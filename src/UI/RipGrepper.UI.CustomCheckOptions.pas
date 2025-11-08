@@ -1057,18 +1057,19 @@ begin
 
 	_item.CheckBox.Left := SPACE;
 	_item.CheckBox.Top := SPACE div 2;
-	if USE_FLOW_LAYOUT then begin
-		// Flow layout: calculate width based on caption text width using parent's canvas
-		var checkboxWidth : integer := Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN;
-		_item.CheckBox.Width := IfThen(FItems.Count = 1, Max(FIRST_CONTROL_WIDTH, checkboxWidth), checkboxWidth);
+	{$IF USE_FLOW_LAYOUT}
+	// Flow layout: calculate width based on caption text width using parent's canvas
+	_item.CheckBox.Width := IfThen(FItems.Count = 1,
+		{ } Max(FIRST_CONTROL_WIDTH, Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN),
+		{ } Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN);
+	{$ELSE}
+	// Table layout: use fixed width
+	if (FItems.Count = 1) then begin
+		_item.CheckBox.Width := FIRST_CONTROL_WIDTH;
 	end else begin
-		// Table layout: use fixed width
-		if (FItems.Count = 1) then begin
-			_item.CheckBox.Width := FIRST_CONTROL_WIDTH;
-		end else begin
-			_item.CheckBox.Width := _item.ParentPanel.Width - (2 * SPACE);
-		end;
+		_item.CheckBox.Width := _item.ParentPanel.Width - (2 * SPACE);
 	end;
+	{$ENDIF}
 
 	_item.CheckBox.Height := _itemHeight - 2;
 	_item.CheckBox.Tag := _itemIndex;
@@ -1121,7 +1122,7 @@ begin
 
 		if USE_FLOW_LAYOUT then begin
 			// Flow layout: calculate width based on caption text width using parent's canvas
-			_item.CheckBox.Width := Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN; 
+			_item.CheckBox.Width := Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN;
 		end else begin
 			// Table layout: use fixed width
 			_item.CheckBox.Width := _actualFirstWidth;
