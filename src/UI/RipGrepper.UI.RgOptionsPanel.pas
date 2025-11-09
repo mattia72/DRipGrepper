@@ -195,10 +195,14 @@ begin
 	FCheckOptionsGroup.AddLabelComboItem(RG_OUTPUT_OPTION_OUTPUT_FORMAT_CAPTION,
 		{ } 'Output format of rg.exe (json is recommended)',
 		{ } OUTPUT_FORMATS,
-		{ } sfs.OutputFormat);
+		{ } sfs.OutputFormat,
+		{ } False { start in new line } ,
+		{ } True { show in expert mode only } );
 	FCheckOptionsGroup.AddCheckboxItem(RG_OUTPUT_OPTION_PRETTY_CAPTION,
 		{ } 'Parse pretty output',
-		{ } sfs.Pretty);
+		{ } sfs.Pretty,
+		{ } False { start in new line } ,
+		{ } True { show in expert mode only } );
 	FCheckOptionsGroup.AddCheckboxSpinItem(RG_OUTPUT_OPTION_CONTEXT_CAPTION,
 		{ } 'Number of context lines',
 		{ } 0, 20, 0,
@@ -349,6 +353,9 @@ end;
 procedure TOptionPanel.SetSettings(const Value : TRipGrepperSettings);
 begin
 	FSettings := Value;
+	if Assigned(FCheckOptionsGroup) then begin
+		FCheckOptionsGroup.Settings := FSettings;
+	end;
 end;
 
 end.

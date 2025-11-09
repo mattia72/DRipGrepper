@@ -98,6 +98,7 @@ type
 			FDisabledHint : string;
 			FIndex : Integer;
 			FStartNewRow : Boolean;
+			FShowInExpertModeOnly : Boolean;
 			procedure enableCtrls(const _bEnable : Boolean);
 			function getChecked() : Boolean;
 			function getComboText() : string;
@@ -153,6 +154,8 @@ type
 			property Setting : ISetting read getSetting write setSetting;
 			property Enabled : Boolean read getEnabled write setEnabled;
 			property DisabledHint : string read FDisabledHint write FDisabledHint;
+			// When True, this item will be shown only when expert mode is enabled
+			property ShowInExpertModeOnly : Boolean read FShowInExpertModeOnly write FShowInExpertModeOnly;
 			// When True, this item will start on a new row regardless of the current column position
 			property StartNewRow : Boolean read FStartNewRow write FStartNewRow;
 	end;
@@ -214,8 +217,10 @@ type
 		strict private
 			FItems : TCustomCheckItems;
 			FOnItemChange : TItemChangedEvent;
+			FSettings : TRipGrepperSettings;
 			procedure onItemChangeEventHandler(_sender : TObject);
 			function getSelectedItems : TArray<TCustomCheckItem>;
+			procedure SetSettings(const Value : TRipGrepperSettings);
 
 		private
 			function CreateComboBox(const _name, _hint : string; _parent : TPanel) : TComboBox;
@@ -245,14 +250,14 @@ type
 			constructor Create(_owner : TComponent); override;
 			destructor Destroy; override;
 			procedure Clear; override;
-			function AddCheckboxItem(const _caption, _hint : string; _setting : ISetting; _startNewRow : Boolean = False)
-				: TCustomCheckItem; overload;
+			function AddCheckboxItem(const _caption, _hint : string; _setting : ISetting; _startNewRow : Boolean = False;
+				_showInExpertModeOnly : Boolean = False) : TCustomCheckItem; overload;
 			function AddCheckboxComboItem(const _caption, _hint : string; _comboItems : TArray<string>; _setting : ISetting;
-				_startNewRow : Boolean = False) : TCustomCheckItem; overload;
+				_startNewRow : Boolean = False; _showInExpertModeOnly : Boolean = False) : TCustomCheckItem; overload;
 			function AddCheckboxSpinItem(const _caption, _hint : string; _minValue, _maxValue, _defaultValue : Integer; _setting : ISetting;
-				_startNewRow : Boolean = False) : TCustomCheckItem;
+				_startNewRow : Boolean = False; _showInExpertModeOnly : Boolean = False) : TCustomCheckItem;
 			function AddLabelComboItem(const _caption, _hint : string; _comboItems : TArray<string>; _setting : ISetting;
-				_startNewRow : Boolean = False) : TCustomCheckItem;
+				_startNewRow : Boolean = False; _showInExpertModeOnly : Boolean = False) : TCustomCheckItem;
 			procedure AlignControlItems(); override;
 			// Getter functions for specific items by order index
 			function GetItemChecked(_idx : Integer) : Boolean;
@@ -265,6 +270,7 @@ type
 			property EventsEnabled : Boolean read FEventsEnabled write FEventsEnabled;
 			property SelectedItems : TArray<TCustomCheckItem> read getSelectedItems;
 			property Items : TCustomCheckItems read FItems write FItems;
+			property Settings : TRipGrepperSettings read FSettings write SetSettings;
 			property OnItemChange : TItemChangedEvent read FOnItemChange write FOnItemChange;
 	end;
 
@@ -330,6 +336,7 @@ begin
 	FEnabled := True;
 	FDisabledHint := '';
 	FStartNewRow := False;
+	FShowInExpertModeOnly := False;
 end;
 
 destructor TCustomCheckItem.Destroy;
@@ -830,31 +837,73 @@ begin
 	// Will calculate width based on caption manually in AlignControlItems
 end;
 
-function TCustomCheckOptions.AddCheckboxItem(const _caption, _hint : string; _setting : ISetting; _startNewRow : Boolean = False)
-	: TCustomCheckItem;
+function TCustomCheckOptions.AddCheckboxItem(const _caption, _hint : string; _setting : ISetting; _startNewRow : Boolean = False;
+	_showInExpertModeOnly : Boolean = False) : TCustomCheckItem;
 var
 	checkBox : TNotifyingCheckBox;
+	caption : string;
+	expertChoice : Boolean;
 begin
 	Result := CreateItemWithPanel(_caption, citCheckBox, _setting);
 	Result.StartNewRow := _startNewRow;
+	Result.ShowInExpertModeOnly := _showInExpertModeOnly;
+
+	// Check if item should be shown based on expert mode
+	if not(Assigned(FSettings) and Assigned(FSettings.AppSettings)) then begin
+		// No settings available, add item normally
+	end else begin
+		expertChoice := FSettings.AppSettings.ExpertMode and _showInExpertModeOnly;
+		if not expertChoice and _showInExpertModeOnly then begin
+			// Expert mode only item, but expert mode is off - hide the control
+			Result.ParentPanel.Visible := False;
+		end;
+	end;
+
+	// Adjust caption if expert mode item
+	if _showInExpertModeOnly and Assigned(FSettings) and FSettings.AppSettings.ExpertMode then begin
+		caption := _caption + ' *';
+	end else begin
+		caption := _caption;
+	end;
 
 	// Create the checkbox
-	checkBox := CreateCheckBox(Result.ParentPanel, _caption, _hint, _setting.Name) as TNotifyingCheckBox;
+	checkBox := CreateCheckBox(Result.ParentPanel, caption, _hint, _setting.Name) as TNotifyingCheckBox;
 	checkBox.OwnerItem := Result;
 
 	Result.FSubItems[Ord(siFirst)] := checkBox;
 end;
 
 function TCustomCheckOptions.AddCheckboxComboItem(const _caption, _hint : string; _comboItems : TArray<string>; _setting : ISetting;
-	_startNewRow : Boolean = False) : TCustomCheckItem;
+	_startNewRow : Boolean = False; _showInExpertModeOnly : Boolean = False) : TCustomCheckItem;
 var
 	checkBox : TNotifyingCheckBox;
 	comboBox : TNotifyingComboBox;
+	caption : string;
+	expertChoice : Boolean;
 begin
 	Result := CreateItemWithPanel(_caption, citCheckBoxWithCombo, _setting);
 	Result.StartNewRow := _startNewRow;
+	Result.ShowInExpertModeOnly := _showInExpertModeOnly;
 
-	checkBox := CreateCheckBox(Result.ParentPanel, _caption, _hint, _setting.Name) as TNotifyingCheckBox;
+	// Check if item should be shown based on expert mode
+	if not(Assigned(FSettings) and Assigned(FSettings.AppSettings)) then begin
+		// No settings available, add item normally
+	end else begin
+		expertChoice := FSettings.AppSettings.ExpertMode and _showInExpertModeOnly;
+		if not expertChoice and _showInExpertModeOnly then begin
+			// Expert mode only item, but expert mode is off - hide the control
+			Result.ParentPanel.Visible := False;
+		end;
+	end;
+
+	// Adjust caption if expert mode item
+	if _showInExpertModeOnly and Assigned(FSettings) and FSettings.AppSettings.ExpertMode then begin
+		caption := _caption + ' *';
+	end else begin
+		caption := _caption;
+	end;
+
+	checkBox := CreateCheckBox(Result.ParentPanel, caption, _hint, _setting.Name) as TNotifyingCheckBox;
 	checkBox.OwnerItem := Result;
 
 	comboBox := CreateComboBox(_setting.Name, _hint, Result.ParentPanel) as TNotifyingComboBox;
@@ -873,19 +922,40 @@ begin
 end;
 
 function TCustomCheckOptions.AddCheckboxSpinItem(const _caption, _hint : string; _minValue, _maxValue, _defaultValue : Integer;
-	_setting : ISetting; _startNewRow : Boolean = False) : TCustomCheckItem;
+	_setting : ISetting; _startNewRow : Boolean = False; _showInExpertModeOnly : Boolean = False) : TCustomCheckItem;
 var
 	checkBox : TNotifyingCheckBox;
 	spinEdit : TNotifyingSpinEdit;
+	caption : string;
+	expertChoice : Boolean;
 begin
 	Result := CreateItemWithPanel(_caption, citCheckBoxWithSpin, _setting);
 	Result.StartNewRow := _startNewRow;
+	Result.ShowInExpertModeOnly := _showInExpertModeOnly;
 	Result.MinValue := _minValue;
 	Result.MaxValue := _maxValue;
 	Result.SpinValue := _defaultValue;
 
+	// Check if item should be shown based on expert mode
+	if not(Assigned(FSettings) and Assigned(FSettings.AppSettings)) then begin
+		// No settings available, add item normally
+	end else begin
+		expertChoice := FSettings.AppSettings.ExpertMode and _showInExpertModeOnly;
+		if not expertChoice and _showInExpertModeOnly then begin
+			// Expert mode only item, but expert mode is off - hide the control
+			Result.ParentPanel.Visible := False;
+		end;
+	end;
+
+	// Adjust caption if expert mode item
+	if _showInExpertModeOnly and Assigned(FSettings) and FSettings.AppSettings.ExpertMode then begin
+		caption := _caption + ' *';
+	end else begin
+		caption := _caption;
+	end;
+
 	// Create the checkbox
-	checkBox := CreateCheckBox(Result.ParentPanel, _caption, _hint, _setting.Name) as TNotifyingCheckBox;
+	checkBox := CreateCheckBox(Result.ParentPanel, caption, _hint, _setting.Name) as TNotifyingCheckBox;
 	checkBox.OwnerItem := Result;
 
 	// Create the spin edit
@@ -906,20 +976,41 @@ begin
 end;
 
 function TCustomCheckOptions.AddLabelComboItem(const _caption, _hint : string; _comboItems : TArray<string>; _setting : ISetting;
-	_startNewRow : Boolean = False) : TCustomCheckItem;
+	_startNewRow : Boolean = False; _showInExpertModeOnly : Boolean = False) : TCustomCheckItem;
 var
 	labelControl : TLabel;
 	comboBox : TNotifyingComboBox;
 	comboItems : IShared<TStringList>;
+	caption : string;
+	expertChoice : Boolean;
 begin
 	Result := CreateItemWithPanel(_caption, citLabelWithCombo, _setting);
 	Result.StartNewRow := _startNewRow;
+	Result.ShowInExpertModeOnly := _showInExpertModeOnly;
+
+	// Check if item should be shown based on expert mode
+	if not(Assigned(FSettings) and Assigned(FSettings.AppSettings)) then begin
+		// No settings available, add item normally
+	end else begin
+		expertChoice := FSettings.AppSettings.ExpertMode and _showInExpertModeOnly;
+		if not expertChoice and _showInExpertModeOnly then begin
+			// Expert mode only item, but expert mode is off - hide the control
+			Result.ParentPanel.Visible := False;
+		end;
+	end;
+
+	// Adjust caption if expert mode item
+	if _showInExpertModeOnly and Assigned(FSettings) and FSettings.AppSettings.ExpertMode then begin
+		caption := _caption + ' *';
+	end else begin
+		caption := _caption;
+	end;
 
 	// Create the label
 	labelControl := TLabel.Create(Self);
 	labelControl.Name := 'cb' + _setting.Name;
 	labelControl.Parent := Result.ParentPanel;
-	labelControl.Caption := _caption;
+	labelControl.Caption := caption;
 	labelControl.Hint := _hint;
 	labelControl.ShowHint := True;
 	labelControl.AutoSize := True;
@@ -1275,6 +1366,11 @@ begin
 	for i := 0 to FItems.Count - 1 do begin
 		item := FItems[i];
 
+		// Skip hidden items
+		if Assigned(item.ParentPanel) and not item.ParentPanel.Visible then begin
+			Continue;
+		end;
+
 		// Check if this item should start a new row
 		if item.StartNewRow and (i > 0) then begin
 			// Force new row
@@ -1322,6 +1418,10 @@ begin
 	// Update hint helper visibility for all items (handles both disabled items and individual disabled controls)
 	for i := 0 to FItems.Count - 1 do begin
 		item := FItems[i];
+		// Skip hidden items
+		if Assigned(item.ParentPanel) and not item.ParentPanel.Visible then begin
+			Continue;
+		end;
 		item.updateHintHelperVisibility();
 	end;
 end;
@@ -1551,6 +1651,11 @@ begin
 	Result.Style := csDropDown;
 	Result.AutoDropDownWidth := True;
 	Result.OnChange := onItemChangeEventHandler;
+end;
+
+procedure TCustomCheckOptions.SetSettings(const Value : TRipGrepperSettings);
+begin
+	FSettings := Value;
 end;
 
 procedure Register;
