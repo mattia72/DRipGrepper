@@ -214,7 +214,7 @@ begin
 	edtRegex.Text := FAppSettings.DebugTraceRegexFilter;
 	edtRegex.Enabled := chRegex.Checked;
 
-	chExpertMode.Checked := FAppSettings.ExpertMode;
+	chExpertMode.Checked := FAppSettings.IsExpertMode;
 	btnedtIniFilePath.Text := FAppSettings.PersisterFactory.FilePath;
 
 	FAppSettings.UpdateInternalsFromSettings();
@@ -238,7 +238,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TAdvancedForm.WriteSettings');
 	FAppSettings.DebugTrace := TDebugUtils.TraceTypesToStr(GetTraceTypeFilters());
-	FAppSettings.ExpertMode := chExpertMode.Checked;
+	FAppSettings.ExpertMode.Value := chExpertMode.Checked;
 
 	FAppSettings.UpdateSettingsFromInternals;
 end;

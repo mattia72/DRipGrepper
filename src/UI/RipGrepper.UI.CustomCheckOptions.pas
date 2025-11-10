@@ -852,7 +852,7 @@ begin
 	if not(Assigned(FSettings) and Assigned(FSettings.AppSettings)) then begin
 		// No settings available, add item normally
 	end else begin
-		expertChoice := FSettings.AppSettings.ExpertMode and _showInExpertModeOnly;
+		expertChoice := FSettings.AppSettings.IsExpertMode and _showInExpertModeOnly;
 		if not expertChoice and _showInExpertModeOnly then begin
 			// Expert mode only item, but expert mode is off - hide the control
 			Result.ParentPanel.Visible := False;
@@ -860,7 +860,7 @@ begin
 	end;
 
 	// Adjust caption if expert mode item
-	if _showInExpertModeOnly and Assigned(FSettings) and FSettings.AppSettings.ExpertMode then begin
+	if _showInExpertModeOnly and Assigned(FSettings) and FSettings.AppSettings.IsExpertMode then begin
 		caption := _caption + ' *';
 	end else begin
 		caption := _caption;
@@ -889,7 +889,7 @@ begin
 	if not(Assigned(FSettings) and Assigned(FSettings.AppSettings)) then begin
 		// No settings available, add item normally
 	end else begin
-		expertChoice := FSettings.AppSettings.ExpertMode and _showInExpertModeOnly;
+		expertChoice := FSettings.AppSettings.IsExpertMode and _showInExpertModeOnly;
 		if not expertChoice and _showInExpertModeOnly then begin
 			// Expert mode only item, but expert mode is off - hide the control
 			Result.ParentPanel.Visible := False;
@@ -897,7 +897,7 @@ begin
 	end;
 
 	// Adjust caption if expert mode item
-	if _showInExpertModeOnly and Assigned(FSettings) and FSettings.AppSettings.ExpertMode then begin
+	if _showInExpertModeOnly and Assigned(FSettings) and FSettings.AppSettings.IsExpertMode then begin
 		caption := _caption + ' *';
 	end else begin
 		caption := _caption;
@@ -940,7 +940,7 @@ begin
 	if not(Assigned(FSettings) and Assigned(FSettings.AppSettings)) then begin
 		// No settings available, add item normally
 	end else begin
-		expertChoice := FSettings.AppSettings.ExpertMode and _showInExpertModeOnly;
+		expertChoice := FSettings.AppSettings.IsExpertMode and _showInExpertModeOnly;
 		if not expertChoice and _showInExpertModeOnly then begin
 			// Expert mode only item, but expert mode is off - hide the control
 			Result.ParentPanel.Visible := False;
@@ -948,7 +948,7 @@ begin
 	end;
 
 	// Adjust caption if expert mode item
-	if _showInExpertModeOnly and Assigned(FSettings) and FSettings.AppSettings.ExpertMode then begin
+	if _showInExpertModeOnly and Assigned(FSettings) and FSettings.AppSettings.IsExpertMode then begin
 		caption := _caption + ' *';
 	end else begin
 		caption := _caption;
@@ -992,7 +992,7 @@ begin
 	if not(Assigned(FSettings) and Assigned(FSettings.AppSettings)) then begin
 		// No settings available, add item normally
 	end else begin
-		expertChoice := FSettings.AppSettings.ExpertMode and _showInExpertModeOnly;
+		expertChoice := FSettings.AppSettings.IsExpertMode and _showInExpertModeOnly;
 		if not expertChoice and _showInExpertModeOnly then begin
 			// Expert mode only item, but expert mode is off - hide the control
 			Result.ParentPanel.Visible := False;
@@ -1000,7 +1000,7 @@ begin
 	end;
 
 	// Adjust caption if expert mode item
-	if _showInExpertModeOnly and Assigned(FSettings) and FSettings.AppSettings.ExpertMode then begin
+	if _showInExpertModeOnly and Assigned(FSettings) and FSettings.AppSettings.IsExpertMode then begin
 		caption := _caption + ' *';
 	end else begin
 		caption := _caption;
@@ -1153,7 +1153,7 @@ begin
 		// var checkboxWidth : integer := Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN;
 		// it causes not used variable warning !
 		if (FItems.Count = 1) then begin
-			_item.CheckBox.Width := Max(FIRST_CONTROL_WIDTH, 
+			_item.CheckBox.Width := Max(FIRST_CONTROL_WIDTH,
 				Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN);
 		end else begin
 			_item.CheckBox.Width := Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN;

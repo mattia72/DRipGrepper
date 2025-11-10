@@ -44,7 +44,7 @@ type
 			FCheckNewVersionOnStartup : IBoolSetting;
 			FDebugTrace : IStringSetting;
 			FDebugTraceRegexFilter : IStringSetting;
-			FExpertMode : IBoolSetting;
+			FExpertMode: IBoolSetting;
 			FEncodingItems : IStringSetting;
 			FInternalLoadHistoryMode : IShared<TLoadHistoryModes>;
 			FLoadHistoryMode : IStringSetting;
@@ -55,7 +55,7 @@ type
 			function GetDebugTrace() : string;
 			function GetDebugTraceRegexFilter() : string;
 			function GetEncodingItems() : TArray<string>;
-			function GetExpertMode() : Boolean;
+			function GetExpertMode(): IBoolSetting;
 			function GetLoadHistoryMode(): IShared<TLoadHistoryModes>;
 			function GetCheckNewVersionOnStartup : Boolean;
 			procedure SetColorTheme(const Value : string);
@@ -65,7 +65,6 @@ type
 			procedure SetDebugTrace(const Value : string);
 			procedure SetDebugTraceRegexFilter(const Value : string);
 			procedure SetEncodingItems(const Value : TArray<string>);
-			procedure SetExpertMode(const Value : Boolean);
 			procedure SetLoadHistoryMode(const Value: IShared<TLoadHistoryModes>);
 			procedure SetCheckNewVersionOnStartup(const Value : Boolean);
 
@@ -75,6 +74,7 @@ type
 		public
 			constructor Create(const _Owner : TPersistableSettings);
 			destructor Destroy; override;
+			function IsExpertMode(): Boolean;
 			procedure UpdateSettingsFromInternals(); override;
 			procedure UpdateInternalsFromSettings(); override;
 			property ColorTheme : string read GetColorTheme write SetColorTheme;
@@ -83,7 +83,7 @@ type
 			property CopyToClipBoardShell : TShellType read GetCopyToClipBoardShell write SetCopyToClipBoardShell;
 			property DebugTrace : string read GetDebugTrace write SetDebugTrace;
 			property DebugTraceRegexFilter : string read GetDebugTraceRegexFilter write SetDebugTraceRegexFilter;
-			property ExpertMode : Boolean read GetExpertMode write SetExpertMode;
+			property ExpertMode: IBoolSetting read GetExpertMode;
 			property EncodingItems : TArray<string> read GetEncodingItems write SetEncodingItems;
 			property LoadHistoryMode: IShared<TLoadHistoryModes> read GetLoadHistoryMode
 				write SetLoadHistoryMode;
@@ -159,9 +159,9 @@ begin
 	Result := FEncodingItems.Value.Split([ARRAY_SEPARATOR]);
 end;
 
-function TAppSettings.GetExpertMode() : Boolean;
+function TAppSettings.GetExpertMode(): IBoolSetting;
 begin
-	Result := FExpertMode.Value;
+	Result := FExpertMode;
 end;
 
 function TAppSettings.GetLoadHistoryMode(): IShared<TLoadHistoryModes>;
@@ -205,6 +205,11 @@ begin
 	CreateSetting(FExpertMode);
 end;
 
+function TAppSettings.IsExpertMode(): Boolean;
+begin
+	Result := FExpertMode.Value;
+end;
+
 procedure TAppSettings.SetColorTheme(const Value : string);
 begin
 	FColorTheme.Value := Value;
@@ -238,11 +243,6 @@ end;
 procedure TAppSettings.SetEncodingItems(const Value : TArray<string>);
 begin
 	FEncodingItems.Value := string.join(ARRAY_SEPARATOR, Value);
-end;
-
-procedure TAppSettings.SetExpertMode(const Value : Boolean);
-begin
-	FExpertMode.Value := Value;
 end;
 
 procedure TAppSettings.SetLoadHistoryMode(const Value:

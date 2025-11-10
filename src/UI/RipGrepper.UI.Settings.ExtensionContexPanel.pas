@@ -95,7 +95,7 @@ begin
 	if not(Assigned(Settings) and Assigned(Settings.AppSettings)) then begin
 		AddItemIntern(_caption, _dic);
 	end else begin
-		expertChoice := Settings.AppSettings.ExpertMode and _bInExpertModeOnly;
+		expertChoice := Settings.AppSettings.IsExpertMode and _bInExpertModeOnly;
 		caption := IfThen(expertChoice, _caption + ' *', _caption);
 		if expertChoice then begin
 			AddItemIntern(caption, _dic);
@@ -146,7 +146,7 @@ begin
 	AddItem('Project Library Paths', dic, True);
 
 	dic.IDESearchContext := EDelphiIDESearchContext.dicCustomLocation;
-	AddItem('Custom Locations:', dic);
+	AddItem('Custom Location(s):', dic);
 
 	// Select first option by default
 	// FContextRadioGroup.ItemIndex := 0;

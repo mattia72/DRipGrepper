@@ -143,6 +143,7 @@ type
 			FExtensionContextPanel : TExtensionContexPanel;
 			FRgFilterOptionsPanel : TRgFilterOptionsPanel;
 			FRgOutputOptionsPanel : TRgOutputOptionsPanel;
+			FAppSettingsPanel : TAppOptionsPanel;
 			cbRgParamHidden : TCheckBox;
 			cbRgParamNoIgnore : TCheckBox;
 			cbRgParamEncoding : TCheckBox;
@@ -233,6 +234,8 @@ type
 			procedure SetRgOutputOptionsPanel(const _settings : TRipGrepperSettings);
 			procedure SetMinimumWidthFromOptionsPanels();
 			procedure CopyProxyToSearchFormSettings(const _ctrlProxy : TSearchFormCtrlValueProxy; const _settings : TSearchFormSettings);
+			procedure OnAppSettingsPanelItemSelect(Sender : TObject; Item : TCustomCheckItem);
+			procedure SetAppSettingsPanel(const _settings : TRipGrepperSettings);
 
 		private
 			procedure SetPrettyCheckboxHint();
@@ -315,6 +318,7 @@ begin
 
 	SetRgFilterOptionsPanel(_settings);
 	SetRgOutputOptionsPanel(_settings);
+    SetAppSettingsPanel(_settings);
 
 	// Set minimum width based on widest options panel
 	SetMinimumWidthFromOptionsPanels();
@@ -672,7 +676,8 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ToggleExpertMode;
 begin
-	FSettings.AppSettings.ExpertMode := not FSettings.AppSettings.ExpertMode;
+	FSettings.AppSettings.ExpertMode.Value :=
+	{ } not FSettings.AppSettings.ExpertMode.Value;
 	AdjustHeight();
 end;
 
@@ -810,7 +815,7 @@ begin
 		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_VIMGREP_OUTPUT);
 	end;
 
-	if Fsettings.AppSettings.ExpertMode then begin
+	if Fsettings.AppSettings.IsExpertMode then begin
 		WriteOptionCtrlToProxy;
 	end;
 
@@ -1118,7 +1123,7 @@ begin
 	fullHeight := GetFullHeights();
 
 	// If Expert mode is not enabled, prevent vertical resizing
-	if not FSettings.AppSettings.ExpertMode then begin
+	if not FSettings.AppSettings.IsExpertMode then begin
 		// Set both min and max height to the same value to prevent vertical resizing
 		Constraints.MinHeight := fullHeight;
 		Constraints.MaxHeight := fullHeight;
@@ -1305,7 +1310,7 @@ procedure TRipGrepperSearchDialogForm.SetExpertGroupSize();
 begin
 	var
 	iexpertHeight := Height - GetFullHeights();
-	gbExpert.Visible := FSettings.AppSettings.ExpertMode and (iexpertHeight > 0);
+	gbExpert.Visible := FSettings.AppSettings.IsExpertMode and (iexpertHeight > 0);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetOrigHeights;
@@ -1501,8 +1506,8 @@ begin
 		// Calculate the required height for all content in gbOptionsFilters
 		// Use the original height to prevent shrinking on tab changes
 		// Include the top margin in the calculation
-		gbOptionsFilters.Height := getOptionsAndFiltersHeight(False) + FExtensionContextPanel.Height +
-			FExtensionContextPanel.Margins.Top + FExtensionContextPanel.Margins.Bottom;
+		gbOptionsFilters.Height := getOptionsAndFiltersHeight(False) + FExtensionContextPanel.Height + FExtensionContextPanel.Margins.Top +
+			FExtensionContextPanel.Margins.Bottom;
 	end else begin
 		// Frame not visible, use original height
 		gbOptionsFilters.Height := getOptionsAndFiltersHeight(True);
@@ -1514,7 +1519,7 @@ begin
 	iHeight := GetFullHeights;
 	Constraints.MinHeight := iHeight;
 
-	if FSettings.AppSettings.ExpertMode then begin
+	if FSettings.AppSettings.IsExpertMode then begin
 		iHeight := iHeight + gbExpert.Height;
 	end;
 
@@ -1719,6 +1724,14 @@ begin
 	UpdateCtrls(cmbRgParamEncoding);
 end;
 
+procedure TRipGrepperSearchDialogForm.OnAppSettingsPanelItemSelect(Sender : TObject; Item : TCustomCheckItem);
+begin
+	if not FCbClickEventEnabled then
+		Exit;
+
+	UpdateCtrls(FAppSettingsPanel);
+end;
+
 procedure TRipGrepperSearchDialogForm.SetPrettyCheckboxHint();
 begin
 	var
@@ -1805,6 +1818,18 @@ begin
 		minWidth := minWidth + 50; // Add padding for form chrome
 		Constraints.MinWidth := minWidth;
 	end;
+end;
+
+procedure TRipGrepperSearchDialogForm.SetAppSettingsPanel(const _settings : TRipGrepperSettings);
+begin
+	FAppSettingsPanel := TAppOptionsPanel.Create(self);
+	FAppSettingsPanel.Settings := _settings;
+	pnlBottom.Padding.Left := RG_OPTIONS_PADDING_LEFT;
+	pnlBottom.Padding.Right := RG_OPTIONS_PADDING_LEFT;
+	FAppSettingsPanel.Parent := pnlBottom;
+	FAppSettingsPanel.Align := alClient;
+	FAppSettingsPanel.OnOptionChange := OnAppSettingsPanelItemSelect;
+	FAppSettingsPanel.AddItems();
 end;
 
 end.

@@ -474,7 +474,7 @@ end;
 procedure TRipGrepperSettingsTestBase.SetSettingValues();
 begin
 
-	FSettings.AppSettings.ExpertMode := True;
+	FSettings.AppSettings.ExpertMode.Value := True;
 	FSettings.AppSettings.CopyToClipBoardShell := TShellType.stPowershell;
 	FSettings.AppSettings.ColorTheme := 'Carbon';
 

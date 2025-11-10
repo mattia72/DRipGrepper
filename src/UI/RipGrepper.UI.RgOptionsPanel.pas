@@ -58,6 +58,12 @@ type
 			procedure AddItems();
 	end;
 
+	TAppOptionsPanel = class(TOptionPanel)
+
+		public
+			procedure AddItems();
+	end;
+
 	TRgOutputOptionsPanel = class(TOptionPanel)
 		strict private
 			FIsVsCodeRipGrep : Boolean;
@@ -356,6 +362,16 @@ begin
 	if Assigned(FCheckOptionsGroup) then begin
 		FCheckOptionsGroup.Settings := FSettings;
 	end;
+end;
+
+procedure TAppOptionsPanel.AddItems();
+begin
+	// Add checkbox options
+	var
+	sa := Settings.AppSettings;
+	FCheckOptionsGroup.AddCheckboxItem('Show Expert Options',
+		{ } 'Show Expert Options',
+		{ } sa.ExpertMode, True);
 end;
 
 end.
