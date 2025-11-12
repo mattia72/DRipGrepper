@@ -47,6 +47,7 @@ uses
 
 const
 	RG_OPTIONS_PADDING_LEFT = 4;
+	RG_OPTIONS_PADDING_TOP = 4;
 
 type
 	EMemoTextFormat = (mtfOneLine, mtfSeparateLines);
@@ -134,7 +135,6 @@ type
 		procedure FormClose(Sender : TObject; var Action : TCloseAction);
 		procedure FormResize(Sender : TObject);
 		procedure FormShow(Sender : TObject);
-		procedure ToggleExpertMode;
 		procedure OnContextChange(Sender : TObject; _icv : IIDEContextValues);
 
 		procedure TabControl1Change(Sender : TObject);
@@ -238,6 +238,7 @@ type
 			procedure SetAppSettingsPanel(const _settings : TRipGrepperSettings);
 
 		private
+			procedure SetConstraints();
 			procedure SetPrettyCheckboxHint();
 
 		protected
@@ -318,7 +319,11 @@ begin
 
 	SetRgFilterOptionsPanel(_settings);
 	SetRgOutputOptionsPanel(_settings);
-    SetAppSettingsPanel(_settings);
+	SetAppSettingsPanel(_settings);
+
+	// align buttons a bit lower
+	btnSearch.Top := btnSearch.Top + RG_OPTIONS_PADDING_TOP;
+	btnCancel.Top := btnCancel.Top + RG_OPTIONS_PADDING_TOP;
 
 	// Set minimum width based on widest options panel
 	SetMinimumWidthFromOptionsPanels();
@@ -672,13 +677,6 @@ begin
 	SetCmbSearchTextText(cmbSearchText.Text);
 	UpdateCtrls(cmbSearchText);
 	dbgMsg.MsgFmt('cmbSearchText.Text = %s', [cmbSearchText.Text]);
-end;
-
-procedure TRipGrepperSearchDialogForm.ToggleExpertMode;
-begin
-	FSettings.AppSettings.ExpertMode.Value :=
-	{ } not FSettings.AppSettings.ExpertMode.Value;
-	AdjustHeight();
 end;
 
 function TRipGrepperSearchDialogForm.GetFullHeight(_ctrl : TControl) : integer;
@@ -1118,23 +1116,7 @@ end;
 procedure TRipGrepperSearchDialogForm.FormResize(Sender : TObject);
 begin
 	inherited;
-	// Calculate the height needed for non-expert mode
-	var
-	fullHeight := GetFullHeights();
-
-	// If Expert mode is not enabled, prevent vertical resizing
-	if not FSettings.AppSettings.IsExpertMode then begin
-		// Set both min and max height to the same value to prevent vertical resizing
-		Constraints.MinHeight := fullHeight;
-		Constraints.MaxHeight := fullHeight;
-		// Ensure the form height matches the constraint
-		Height := fullHeight;
-	end else begin
-		// In Expert mode, allow vertical resizing
-		Constraints.MinHeight := fullHeight;
-		Constraints.MaxHeight := 0; // 0 means no maximum height constraint
-	end;
-
+	SetConstraints;
 	SetExpertGroupSize();
 end;
 
@@ -1514,10 +1496,11 @@ begin
 	end;
 	dbgMsg.Msg('gbOptionsFilters.Height=' + gbOptionsFilters.Height.ToString);
 
+    SetConstraints();
+
 	// Calculate and set form height
 	var
 	iHeight := GetFullHeights;
-	Constraints.MinHeight := iHeight;
 
 	if FSettings.AppSettings.IsExpertMode then begin
 		iHeight := iHeight + gbExpert.Height;
@@ -1729,7 +1712,19 @@ begin
 	if not FCbClickEventEnabled then
 		Exit;
 
-	UpdateCtrls(FAppSettingsPanel);
+	var
+	isExpert := FSettings.AppSettings.ExpertMode.Value;
+	if not isExpert and (mrYes <>
+		{ } TMsgBox.ShowQuestion('Switch to normal mode? ' + CRLF2 +
+		{ } 'All expert settings will be reset to defaults.')) then begin
+		Exit;
+	end;
+
+	FRgFilterOptionsPanel.UpdateExpertMode(isExpert);
+	FRgOutputOptionsPanel.UpdateExpertMode(isExpert);
+	FAppSettingsPanel.UpdateExpertMode(isExpert);
+
+	AdjustHeight();
 end;
 
 procedure TRipGrepperSearchDialogForm.SetPrettyCheckboxHint();
@@ -1825,11 +1820,33 @@ begin
 	FAppSettingsPanel := TAppOptionsPanel.Create(self);
 	FAppSettingsPanel.Settings := _settings;
 	pnlBottom.Padding.Left := RG_OPTIONS_PADDING_LEFT;
-	pnlBottom.Padding.Right := RG_OPTIONS_PADDING_LEFT;
+	pnlBottom.Padding.Top := RG_OPTIONS_PADDING_TOP;
 	FAppSettingsPanel.Parent := pnlBottom;
+
 	FAppSettingsPanel.Align := alClient;
 	FAppSettingsPanel.OnOptionChange := OnAppSettingsPanelItemSelect;
 	FAppSettingsPanel.AddItems();
+	FAppSettingsPanel.SendToBack();
+end;
+
+procedure TRipGrepperSearchDialogForm.SetConstraints();
+begin
+	// Calculate the height needed for non-expert mode
+	var
+	fullHeight := GetFullHeights();
+
+	// If Expert mode is not enabled, prevent vertical resizing
+	if not FSettings.AppSettings.IsExpertMode then begin
+		// Set both min and max height to the same value to prevent vertical resizing
+		Constraints.MinHeight := fullHeight;
+		Constraints.MaxHeight := fullHeight;
+		// Ensure the form height matches the constraint
+		Height := fullHeight;
+	end else begin
+		// In Expert mode, allow vertical resizing
+		Constraints.MinHeight := fullHeight;
+		Constraints.MaxHeight := 0; // 0 means no maximum height constraint
+	end;
 end;
 
 end.

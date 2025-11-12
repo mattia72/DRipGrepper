@@ -35,14 +35,16 @@ type
 			procedure SetSettings(const Value : TRipGrepperSettings);
 
 		protected
-			pnlMain : TPanel;
 			FCheckOptionsGroup : TCustomCheckOptions;
 			procedure onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem); virtual;
 
 		public
+			pnlMain : TPanel;
 			FEventsEnabled : Boolean;
 			constructor Create(_owner : TComponent); override;
+			procedure AddItems(); virtual;
 			procedure AdjustHeight();
+			procedure UpdateExpertMode(const _bExpert : Boolean);
 			property CheckOptionsGroup : TCustomCheckOptions read FCheckOptionsGroup;
 			property EventsEnabled : Boolean read FEventsEnabled write FEventsEnabled;
 			property Settings : TRipGrepperSettings read FSettings write SetSettings;
@@ -55,13 +57,13 @@ type
 
 		public
 			constructor Create(_owner : TComponent); override;
-			procedure AddItems();
+			procedure AddItems(); override;
 	end;
 
 	TAppOptionsPanel = class(TOptionPanel)
-
 		public
-			procedure AddItems();
+			constructor Create(_owner : TComponent); override;
+			procedure AddItems(); override;
 	end;
 
 	TRgOutputOptionsPanel = class(TOptionPanel)
@@ -76,7 +78,7 @@ type
 
 		public
 			constructor Create(_owner : TComponent); override;
-			procedure AddItems();
+			procedure AddItems(); override;
 			property IsVsCodeRipGrep : Boolean read getIsVsCodeRipGrep;
 	end;
 
@@ -100,6 +102,7 @@ begin
 
 	// Create pnlMain programmatically
 	pnlMain := TPanel.Create(Self);
+	pnlMain.Name := 'TOptionPanelMain';
 	pnlMain.Parent := Self;
 	pnlMain.Align := alClient;
 	pnlMain.BevelOuter := bvNone;
@@ -177,7 +180,7 @@ begin
 		{ } encodingItems,
 		{ } sfs.Encoding);
 
-	FCheckOptionsGroup.AlignControlItems;
+	inherited;
 end;
 
 procedure TRgFilterOptionsPanel.onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem);
@@ -224,6 +227,7 @@ begin
 			prettyItem.Enabled := False;
 		end;
 	end;
+	inherited;
 end;
 
 function TRgOutputOptionsPanel.getIsVsCodeRipGrep() : Boolean;
@@ -284,6 +288,11 @@ begin
 			dbgMsg.Msg('Pretty option enabled');
 		end;
 	end;
+end;
+
+procedure TOptionPanel.AddItems();
+begin
+	FCheckOptionsGroup.AlignControlItems;
 end;
 
 procedure TOptionPanel.AdjustHeight();
@@ -364,6 +373,21 @@ begin
 	end;
 end;
 
+procedure TOptionPanel.UpdateExpertMode(const _bExpert : Boolean);
+begin
+	CheckOptionsGroup.ShowExpertItems(_bExpert);
+	CheckOptionsGroup.AlignControlItems();
+	if _bExpert then begin
+		CheckOptionsGroup.SetDefaultValues();
+	end;
+end;
+
+constructor TAppOptionsPanel.Create(_owner : TComponent);
+begin
+	inherited Create(_owner);
+	FCheckOptionsGroup.UseFlowLayout := True;
+end;
+
 procedure TAppOptionsPanel.AddItems();
 begin
 	// Add checkbox options
@@ -372,6 +396,8 @@ begin
 	FCheckOptionsGroup.AddCheckboxItem('Show Expert Options',
 		{ } 'Show Expert Options',
 		{ } sa.ExpertMode, True);
+
+	inherited;
 end;
 
 end.

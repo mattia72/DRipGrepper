@@ -63,14 +63,16 @@ type
 		function AsInteger() : Integer;
 		function AsBool() : Boolean;
 		function AsArray() : TArrayEx<string>;
-		function GetEnabled(): Boolean;
+		function GetEnabled() : Boolean;
 		function GetName() : string;
 		function GetSaveBehaviour() : TSettingStoreBehaviours;
-		procedure SetEnabled(const Value: Boolean);
+		procedure SetEnabled(const Value : Boolean);
 		procedure SetSaveBehaviour(const Value : TSettingStoreBehaviours);
 
-		property Enabled: Boolean read GetEnabled write SetEnabled;
-		property Name : string read GetName;
+		procedure SetDefaultValue();
+
+		property Enabled : Boolean read GetEnabled write SetEnabled;
+		property name : string read GetName;
 		property State : TSettingState read GetState write SetState;
 		property SettingType : TSettingType read GetSettingType;
 		property SaveBehaviour : TSettingStoreBehaviours read GetSaveBehaviour write SetSaveBehaviour;
@@ -86,6 +88,7 @@ type
 		procedure Copy(_other : ISettingVariant<T>);
 		function GetValue : T;
 		procedure SetValue(const Value : T);
+		function GetDefaultValue() : T;
 
 		procedure SetPersister(const Value : IFilePersister<T>);
 		function GetPersister() : IFilePersister<T>;
@@ -100,12 +103,12 @@ type
 			FSettingType : TSettingType;
 			FSaveBehaviour : TSettingStoreBehaviours;
 			FState : TSettingState;
-			FEnabled: Boolean;
+			FEnabled : Boolean;
 
-			function GetEnabled(): Boolean;
+			function GetEnabled() : Boolean;
 			function GetName() : string;
 			function GetState() : TSettingState;
-			procedure SetEnabled(const Value: Boolean);
+			procedure SetEnabled(const Value : Boolean);
 			procedure SetSettingType(const Value : TSettingType);
 			procedure SetState(const Value : TSettingState);
 
@@ -135,12 +138,13 @@ type
 			class procedure CopySettingValue(_from, _to : ISetting);
 			function Equals(_other : ISetting) : Boolean; reintroduce;
 			function GetSaveBehaviour() : TSettingStoreBehaviours;
+			procedure SetDefaultValue();
 			procedure SetSaveBehaviour(const Value : TSettingStoreBehaviours);
 
-			property Name: string read GetName;
+			property name : string read GetName;
 			property State : TSettingState read GetState write SetState;
 			property SaveBehaviour : TSettingStoreBehaviours read GetSaveBehaviour write SetSaveBehaviour;
-			property Enabled: Boolean read GetEnabled write SetEnabled;
+			property Enabled : Boolean read GetEnabled write SetEnabled;
 
 			property SettingType : TSettingType read GetSettingType write SetSettingType;
 	end;
@@ -148,9 +152,11 @@ type
 	TSettingVariant<T> = class(TSetting, ISettingVariant<T>, ISetting, IStreamReaderWriterPersistable)
 		private
 			FValue : T;
+			FDefaultValue : T;
 			FPersister : IFilePersister<T>;
 
 			function GetValue() : T;
+			function GetDefaultValue() : T;
 			procedure SetValue(const Value : T);
 
 		protected
@@ -170,8 +176,10 @@ type
 			procedure LoadFromStreamReader(_sr : TStreamReader);
 			procedure SaveToStreamWriter(_sw : TStreamWriter);
 			procedure StoreToPersister(const _section : string = ''); override;
+			procedure SetDefaultValue();
 			property Persister : IFilePersister<T> read GetPersister write SetPersister;
 			property Value : T read GetValue write SetValue;
+			property DefaultValue : T read GetDefaultValue;
 	end;
 
 	TStringSetting = class(TSettingVariant<string>)
@@ -229,6 +237,7 @@ constructor TSettingVariant<T>.Create(const _name : string; const _value : T;
 begin
 	inherited Create(_name, _state, _saveBehaviour);
 	FValue := _value;
+	FDefaultValue := _value
 end;
 
 procedure TSettingVariant<T>.Clear();
@@ -288,6 +297,11 @@ begin
 	Result := FValue;
 end;
 
+function TSettingVariant<T>.GetDefaultValue() : T;
+begin
+	Result := FDefaultValue;
+end;
+
 procedure TSettingVariant<T>.LoadFromPersister();
 var
 	val : T;
@@ -301,16 +315,21 @@ procedure TSettingVariant<T>.LoadFromStreamReader(_sr : TStreamReader);
 begin
 	// FSettingType := TSettingType(_sr.ReadLine().ToInteger);
 	FSaveBehaviour := TSettingStoreBehavioursHelper.FromString(_sr.ReadLineAsString(false, 'SaveBehaviour'));
-	FState := TSettingState(_sr.ReadLineAsInteger(Name));
-	Value := GetValueFromString(_sr.ReadLineAsString(true, Name)); // Values can be empty
+	FState := TSettingState(_sr.ReadLineAsInteger(name));
+	Value := GetValueFromString(_sr.ReadLineAsString(true, name)); // Values can be empty
 end;
 
 procedure TSettingVariant<T>.SaveToStreamWriter(_sw : TStreamWriter);
 begin
 	// _sw.WriteLine(Integer(SettingType).ToString);
-	_sw.WriteLineAsString(TSettingStoreBehavioursHelper.ToString(SaveBehaviour), false, Name + '.SettingVariant.SaveBehaviour');
-	_sw.WriteLineAsInteger(Integer(State), Name + '.SettingVariant.State');
-	_sw.WriteLineAsString(AsString, True, Name);
+	_sw.WriteLineAsString(TSettingStoreBehavioursHelper.ToString(SaveBehaviour), false, name + '.SettingVariant.SaveBehaviour');
+	_sw.WriteLineAsInteger(Integer(State), name + '.SettingVariant.State');
+	_sw.WriteLineAsString(AsString, True, name);
+end;
+
+procedure TSettingVariant<T>.SetDefaultValue();
+begin
+	Value := DefaultValue;
 end;
 
 procedure TSettingVariant<T>.StoreToPersister(const _section : string = '');
@@ -463,7 +482,7 @@ begin
 	Result := (FState = _other.State);
 end;
 
-function TSetting.GetEnabled(): Boolean;
+function TSetting.GetEnabled() : Boolean;
 begin
 	Result := FEnabled;
 end;
@@ -488,7 +507,28 @@ begin
 	Result := FSettingType;
 end;
 
-procedure TSetting.SetEnabled(const Value: Boolean);
+procedure TSetting.SetDefaultValue();
+begin
+	case SettingType of
+		stString : begin
+			AsStringSetting.Value := AsStringSetting.GetDefaultValue;
+		end;
+		stInteger : begin
+			AsIntegerSetting.Value := AsIntegerSetting.GetDefaultValue;
+		end;
+		stBool : begin
+			AsBoolSetting.Value := AsBoolSetting.GetDefaultValue;
+		end;
+		stStrArray : begin
+			AsArraySetting.Value := AsArraySetting.GetDefaultValue;
+		end;
+		else
+		raise ESettingsException.Create('Setting Type not supported.');
+	end;
+
+end;
+
+procedure TSetting.SetEnabled(const Value : Boolean);
 begin
 	FEnabled := Value;
 end;

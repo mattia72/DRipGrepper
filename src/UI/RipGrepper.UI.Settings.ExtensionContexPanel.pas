@@ -40,7 +40,7 @@ type
 
 		public
 			constructor Create(_owner : TComponent); override;
-			procedure AddItems();
+			procedure AddItems(); override;
 			procedure AdjustHeight();
 			class function GetAsHint(const _paths : string) : string; overload;
 			class function GetAsHint(var _paths : TArray<string>) : string; overload;
@@ -66,7 +66,7 @@ uses
 constructor TExtensionContexPanel.Create(_owner : TComponent);
 begin
 	inherited Create(_owner);
-//  BevelOuter := bvNone;
+	// BevelOuter := bvNone;
 
 	// pnlMain := TPanel.Create(Self);
 	// pnlMain.Parent := Self;

@@ -166,9 +166,9 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     object gbExpert: TGroupBox
       AlignWithMargins = True
       Left = 8
-      Top = 295
+      Top = 255
       Width = 630
-      Height = 205
+      Height = 245
       Margins.Left = 8
       Margins.Right = 8
       Align = alClient
@@ -181,7 +181,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       TabOrder = 2
       DesignSize = (
         630
-        205)
+        245)
       object lblParams: TLabel
         AlignWithMargins = True
         Left = 8
@@ -241,7 +241,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Left = 8
         Top = 87
         Width = 557
-        Height = 110
+        Height = 150
         Anchors = [akLeft, akTop, akRight, akBottom]
         Color = clInfoBk
         Lines.Strings = (
@@ -298,7 +298,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       Left = 8
       Top = 3
       Width = 630
-      Height = 200
+      Height = 182
       Margins.Left = 8
       Margins.Right = 8
       Align = alTop
@@ -429,7 +429,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Left = 2
         Top = 131
         Width = 626
-        Height = 60
+        Height = 45
         Align = alTop
         BevelOuter = bvNone
         Caption = 'Filter Options'
@@ -439,9 +439,9 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     object gbOptionsOutput: TGroupBox
       AlignWithMargins = True
       Left = 8
-      Top = 209
+      Top = 191
       Width = 630
-      Height = 80
+      Height = 58
       Margins.Left = 8
       Margins.Right = 8
       Align = alTop
@@ -453,7 +453,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Left = 2
         Top = 20
         Width = 626
-        Height = 55
+        Height = 33
         Align = alClient
         BevelOuter = bvNone
         Caption = 'Output Options'

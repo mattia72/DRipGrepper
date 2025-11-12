@@ -126,6 +126,7 @@ type
 			procedure hideHintHelper();
 			procedure updateHintHelperVisibility();
 			procedure setSubItemEnabled(const _idx : ESubItemIndex; const _bEnable : Boolean);
+			procedure showSubItem(const _idx : ESubItemIndex; const _bShow : Boolean = True);
 
 		public
 			constructor Create(Collection : TCollection); override;
@@ -134,6 +135,7 @@ type
 			// Called by notifying controls when their enabled state changes externally
 			procedure OnSubItemEnabledChanged(_sender : TObject);
 			procedure SetControlEnabled(_index : ESubItemIndex; _enabled : Boolean);
+			procedure ShowControl(_index : ESubItemIndex; const _bShow : Boolean);
 
 			property CheckBox : TCheckBox read getCheckBox;
 			property LabelControl : TLabel read getLabel;
@@ -160,6 +162,8 @@ type
 			property StartNewRow : Boolean read FStartNewRow write FStartNewRow;
 	end;
 
+	TCustomCheckItemsEnumerator = class;
+
 	// Collection for checkbox items
 	TCustomCheckItems = class(TCollection)
 		strict private
@@ -178,7 +182,21 @@ type
 				overload;
 			function AddItem(_cb : TCheckBox; _spin : TSpinEdit; const _caption : string; _setting : ISetting) : TCustomCheckItem; overload;
 			function AddItem(_lbl : TLabel; _combo : TComboBox; const _caption : string; _setting : ISetting) : TCustomCheckItem; overload;
+			function GetEnumerator : TCustomCheckItemsEnumerator;
 			property Items[index : Integer] : TCustomCheckItem read getItem write setItem; default;
+	end;
+
+	// Enumerator for TCustomCheckItems
+	TCustomCheckItemsEnumerator = class
+		private
+			FCollection : TCustomCheckItems;
+			FIndex : Integer;
+
+		public
+			constructor Create(_collection : TCustomCheckItems);
+			function GetCurrent : TCustomCheckItem;
+			function MoveNext : Boolean;
+			property Current : TCustomCheckItem read GetCurrent;
 	end;
 
 	// Event type for item selection
@@ -187,6 +205,7 @@ type
 	// Base class for custom option controls
 	TCustomOptionsBase = class(TCustomPanel)
 		strict private
+			FUseFlowLayout : Boolean;
 			FColumns : Integer;
 			procedure setColumns(const _value : Integer);
 
@@ -197,6 +216,7 @@ type
 			constructor Create(_owner : TComponent); override;
 			procedure AlignControlItems(); virtual; abstract;
 			procedure Clear; virtual; abstract;
+			property UseFlowLayout : Boolean read FUseFlowLayout write FUseFlowLayout;
 
 		published
 			property Columns : Integer read FColumns write setColumns default 1;
@@ -267,6 +287,8 @@ type
 			function GetItemByCaption(const _caption : string) : TCustomCheckItem;
 			procedure SetItemControlEnabled(_itemIdx : Integer; _controlIdx : ESubItemIndex; _enabled : Boolean);
 			function GetMinimumWidth() : Integer;
+			procedure ShowExpertItems(const _bShow : Boolean = True);
+			procedure SetDefaultValues();
 			property EventsEnabled : Boolean read FEventsEnabled write FEventsEnabled;
 			property SelectedItems : TArray<TCustomCheckItem> read getSelectedItems;
 			property Items : TCustomCheckItems read FItems write FItems;
@@ -285,12 +307,27 @@ uses
 	Spring,
 	RipGrepper.Tools.DebugUtils;
 
-const
-	// Layout mode: True = Flow layout (compact, auto-sized controls)
-	// False = Table layout (equal size controls)
-	USE_FLOW_LAYOUT = False;
+{ TCustomCheckItemsEnumerator }
 
-	{ TCustomOptionsBase }
+constructor TCustomCheckItemsEnumerator.Create(_collection : TCustomCheckItems);
+begin
+	inherited Create;
+	FCollection := _collection;
+	FIndex := -1;
+end;
+
+function TCustomCheckItemsEnumerator.GetCurrent : TCustomCheckItem;
+begin
+	Result := FCollection.Items[FIndex];
+end;
+
+function TCustomCheckItemsEnumerator.MoveNext : Boolean;
+begin
+	Inc(FIndex);
+	Result := FIndex < FCollection.Count;
+end;
+
+{ TCustomOptionsBase }
 
 constructor TCustomOptionsBase.Create(_owner : TComponent);
 begin
@@ -300,6 +337,7 @@ begin
 	BevelOuter := bvNone;
 	Width := 200;
 	Height := 100;
+	FUseFlowLayout := False;
 end;
 
 procedure TCustomOptionsBase.setColumns(const _value : Integer);
@@ -709,6 +747,30 @@ begin
 	updateHintHelperVisibility();
 end;
 
+procedure TCustomCheckItem.showSubItem(const _idx : ESubItemIndex; const _bShow : Boolean = True);
+begin
+	var
+	ctrl := FSubItems[Ord(_idx)];
+	if Assigned(ctrl) and (ctrl is TWinControl) then begin
+		TWinControl(ctrl).Visible := _bShow;
+	end;
+end;
+
+procedure TCustomCheckItem.ShowControl(_index : ESubItemIndex; const _bShow : Boolean);
+var
+	ctrl : TControl;
+begin
+	ctrl := FSubItems[Ord(_index)];
+
+	// Check if already in desired state
+	if not Assigned(ctrl) or
+	{ } ((ctrl is TWinControl) and (TWinControl(ctrl).Visible = _bShow)) then begin
+		Exit;
+	end;
+
+	showSubItem(_index, _bShow);
+end;
+
 { TCustomCheckItems }
 
 constructor TCustomCheckItems.Create(_owner : TControl);
@@ -763,6 +825,11 @@ begin
 	Result.FSubItems[Ord(siSecond)] := _combo;
 	Result.FItemType := citLabelWithCombo;
 	Result.FSetting := _setting;
+end;
+
+function TCustomCheckItems.GetEnumerator : TCustomCheckItemsEnumerator;
+begin
+	Result := TCustomCheckItemsEnumerator.Create(Self);
 end;
 
 function TCustomCheckItems.getItem(_index : Integer) : TCustomCheckItem;
@@ -1141,6 +1208,8 @@ end;
 
 procedure TCustomCheckOptions.PositionCheckBoxOnly(const _item : TCustomCheckItem;
 	const _itemIndex, _actualFirstWidth, _itemHeight : Integer);
+var
+	iTextWidth : integer;
 begin
 	if not Assigned(_item.CheckBox) then begin
 		Exit;
@@ -1148,18 +1217,18 @@ begin
 
 	_item.CheckBox.Left := SPACE;
 	_item.CheckBox.Top := SPACE div 2;
-	if USE_FLOW_LAYOUT then begin
+	iTextWidth := Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN;
+	if UseFlowLayout then begin
 		// Flow layout: calculate width based on caption text width using parent's canvas
 		// var checkboxWidth : integer := Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN;
 		// it causes not used variable warning !
 		if (FItems.Count = 1) then begin
-			_item.CheckBox.Width := Max(FIRST_CONTROL_WIDTH,
-				Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN);
+			_item.CheckBox.Width := Max(FIRST_CONTROL_WIDTH, iTextWidth);
 		end else begin
-			_item.CheckBox.Width := Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN;
+			_item.CheckBox.Width := iTextWidth;
 		end;
 	end else begin
-		_item.CheckBox.Width := _item.ParentPanel.Width - (2 * SPACE);
+		_item.CheckBox.Width := Max(_item.ParentPanel.Width - (2 * SPACE), iTextWidth);
 	end;
 	_item.CheckBox.Height := _itemHeight - 2;
 	_item.CheckBox.Tag := _itemIndex;
@@ -1172,7 +1241,7 @@ begin
 		_item.CheckBox.Left := SPACE;
 		_item.CheckBox.Top := SPACE div 2;
 
-		if USE_FLOW_LAYOUT then begin
+		if UseFlowLayout then begin
 			// Flow layout: calculate width based on caption text width using parent's canvas
 			_item.CheckBox.Width := Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN;
 		end else begin
@@ -1186,7 +1255,7 @@ begin
 
 	// Position combobox
 	if Assigned(_item.ComboBox) then begin
-		if USE_FLOW_LAYOUT then begin
+		if UseFlowLayout then begin
 			// Flow layout: position combobox after the checkbox's actual width
 			_item.ComboBox.Left := _item.CheckBox.Left + _item.CheckBox.Width + SPACE;
 		end else begin
@@ -1210,7 +1279,7 @@ begin
 		_item.CheckBox.Left := SPACE;
 		_item.CheckBox.Top := SPACE div 2;
 
-		if USE_FLOW_LAYOUT then begin
+		if UseFlowLayout then begin
 			// Flow layout: calculate width based on caption text width using parent's canvas
 			_item.CheckBox.Width := Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN;
 		end else begin
@@ -1227,7 +1296,7 @@ begin
 		// Spin control gets smaller width than combo
 		spinWidth := Min(SECOND_CONTROL_SPIN_WIDTH, _actualSecondWidth);
 
-		if USE_FLOW_LAYOUT then begin
+		if UseFlowLayout then begin
 			// Flow layout: position spin after the checkbox's actual width
 			_item.SpinEdit.Left := _item.CheckBox.Left + _item.CheckBox.Width + SPACE;
 		end else begin
@@ -1252,7 +1321,7 @@ begin
 		_item.LabelControl.Left := SPACE;
 		_item.LabelControl.Top := SPACE div 2 + 3; // Slight vertical offset for better alignment
 
-		if not USE_FLOW_LAYOUT then begin
+		if not UseFlowLayout then begin
 			// Table layout: set fixed width (override AutoSize if needed)
 			_item.LabelControl.Width := _actualFirstWidth;
 		end;
@@ -1263,7 +1332,7 @@ begin
 
 	// Position combobox
 	if Assigned(_item.ComboBox) then begin
-		if USE_FLOW_LAYOUT then begin
+		if UseFlowLayout then begin
 			// Flow layout: position combobox after the label's actual width (respecting AutoSize)
 			if Assigned(_item.LabelControl) and _item.LabelControl.AutoSize then begin
 				_item.ComboBox.Left := _item.LabelControl.Left + _item.LabelControl.Width + SPACE;
@@ -1313,13 +1382,13 @@ begin
 			// Set parent height to match content height
 			// Add extra padding for groupboxes to account for border and caption
 			if p is TGroupBox then begin
-				if p.Height <> Height + SPACE then begin
+				if p.Height < Height + SPACE then begin
 					p.Height := Height + SPACE;
 					dbgMsg.MsgFmt('GroupBox %s height: %d', [p.Name, p.Height]);
 				end;
 				break;
 			end else begin
-				if (p.Height <> Height) then begin
+				if (p.Height < Height) then begin
 					p.Height := Height;
 					dbgMsg.MsgFmt('Not GroupBox %s height: %d', [p.Name, p.Height]);
 				end;
@@ -1656,6 +1725,24 @@ end;
 procedure TCustomCheckOptions.SetSettings(const Value : TRipGrepperSettings);
 begin
 	FSettings := Value;
+end;
+
+procedure TCustomCheckOptions.ShowExpertItems(const _bShow : Boolean = True);
+begin
+	for var item in Items do begin
+		if item.ShowInExpertModeOnly then begin
+			item.ParentPanel.Visible := _bShow;
+		end;
+	end;
+end;
+
+procedure TCustomCheckOptions.SetDefaultValues();
+begin
+	for var item in Items do begin
+		if item.ShowInExpertModeOnly then begin
+			item.Setting.SetDefaultValue();
+		end;
+	end;
 end;
 
 procedure Register;
