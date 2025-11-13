@@ -393,7 +393,7 @@ begin
 	// Add checkbox options
 	var
 	sa := Settings.AppSettings;
-	FCheckOptionsGroup.AddCheckboxItem('Show Expert Options',
+	FCheckOptionsGroup.AddCheckboxItem('Expert Options*',
 		{ } 'Show Expert Options',
 		{ } sa.ExpertMode, True);
 
