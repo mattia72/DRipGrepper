@@ -1160,6 +1160,13 @@ procedure TCustomCheckOptions.CalculateActualWidths(const _itemWidth : Integer; 
 var
 	availableForControls : Integer;
 begin
+	// If only one item exists, don't calculate with second control width
+	if FItems.Count = 1 then begin
+		_actualFirstWidth := _itemWidth - (2 * SPACE);
+		_actualSecondWidth := 0;
+		Exit;
+	end;
+
 	// Calculate space available for controls (excluding margins)
 	availableForControls := _itemWidth - (3 * SPACE);
 
@@ -1401,9 +1408,8 @@ end;
 procedure TCustomCheckOptions.AlignControlItems();
 var
 	i : Integer;
-	itemHeight, baseWidth, currentItemWidth : Integer;
+	baseWidth, currentItemWidth : Integer;
 	item : TCustomCheckItem;
-	hasTwoControls : Boolean;
 	actualFirstWidth, actualSecondWidth : Integer;
 	currentLeft, currentTop, currentRow : Integer;
 	maxWidth : Integer;
@@ -1416,14 +1422,8 @@ begin
 		Exit;
 	end;
 
-	// Calculate layout
-	itemHeight := ITEM_HEIGHT;
-
-	// Determine if we have any two-control items
-	hasTwoControls := HasTwoControlItems;
-
 	// Calculate base width for layout
-	baseWidth := CalculateItemWidth(hasTwoControls);
+	baseWidth := CalculateItemWidth(HasTwoControlItems);
 
 	// Position panels and their controls
 	currentLeft := 0;
@@ -1473,7 +1473,7 @@ begin
 		CalculateActualWidths(currentItemWidth, actualFirstWidth, actualSecondWidth);
 
 		// Position controls within the panel
-		PositionItemControls(item, i, actualFirstWidth, actualSecondWidth, itemHeight);
+		PositionItemControls(item, i, actualFirstWidth, actualSecondWidth, ITEM_HEIGHT);
 
 		// Move to next position
 		currentLeft := currentLeft + currentItemWidth;
