@@ -44,7 +44,7 @@ type
 			constructor Create(_owner : TComponent); override;
 			procedure AddItems(); virtual;
 			procedure AdjustHeight();
-			procedure UpdateExpertMode(const _bExpert : Boolean);
+			procedure UpdateExpertMode(const _bExpert : Boolean); virtual;
 			property CheckOptionsGroup : TCustomCheckOptions read FCheckOptionsGroup;
 			property EventsEnabled : Boolean read FEventsEnabled write FEventsEnabled;
 			property Settings : TRipGrepperSettings read FSettings write SetSettings;
@@ -393,8 +393,8 @@ begin
 	// Add checkbox options
 	var
 	sa := Settings.AppSettings;
-	FCheckOptionsGroup.AddCheckboxItem('Expert Options*',
-		{ } 'Show Expert Options',
+	FCheckOptionsGroup.AddCheckboxItem('Expert options *',
+		{ } 'Show expert options',
 		{ } sa.ExpertMode, True);
 
 	inherited;

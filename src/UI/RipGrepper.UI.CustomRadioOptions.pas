@@ -26,16 +26,17 @@ type
 			FRadioButton : TRadioButton;
 			procedure setCaption(const _value : string);
 			procedure setOrderIndex(const _value : Integer);
-			procedure SetTagObject(const Value : IInterface);
-
+			procedure setTagObject(const Value : IInterface);
+			function getShowInExpertModeOnly(): Boolean;
 		public
 			constructor Create(Collection : TCollection); override;
 			destructor Destroy; override;
 
 			property RadioButton : TRadioButton read FRadioButton write FRadioButton;
 			property Caption : string read FCaption write setCaption;
+			property ShowInExpertModeOnly: Boolean read getShowInExpertModeOnly;
 			property OrderIndex : Integer read FOrderIndex write setOrderIndex;
-			property TagObject : IInterface read FTagObject write SetTagObject;
+			property TagObject : IInterface read FTagObject write setTagObject;
 	end;
 
 	// Collection for radio items
@@ -67,7 +68,7 @@ type
 			GROUPBOX_PADDING = 8;
 
 		private
-			FItems : TCustomRadioItems;
+			FCollection: TCustomRadioItems;
 			FItemIndex : Integer;
 			FOnRadioItemSelect : TRadioItemSelectEvent;
 			procedure onRadioButtonClick(_sender : TObject);
@@ -81,12 +82,14 @@ type
 			constructor Create(_owner : TComponent); override;
 			destructor Destroy; override;
 			procedure Clear; override;
-			function AddItem(const _caption, _hint : string; _orderIndex : Integer; _obj : IInterface = nil) : TCustomRadioItem;
+			function AddRadioButton(const _caption, _hint : string; _orderIndex : Integer; _obj : IInterface = nil): TCustomRadioItem;
 			procedure AlignControlItems(); override;
+			procedure ShowExpertItems(const _bShow : Boolean = True);
+			procedure SetDefaultValues();
 
 		published
 			property SelectedItem : TCustomRadioItem read getSelectedItem;
-			property Items : TCustomRadioItems read FItems write FItems;
+			property Collection: TCustomRadioItems read FCollection write FCollection;
 			property ItemIndex : Integer read FItemIndex write setItemIndex default -1;
 			property OnRadioItemSelect : TRadioItemSelectEvent read FOnRadioItemSelect write FOnRadioItemSelect;
 	end;
@@ -119,6 +122,11 @@ begin
 	inherited Destroy;
 end;
 
+function TCustomRadioItem.getShowInExpertModeOnly(): Boolean;
+begin
+	Result := (TagObject as TIDEContextValues).IsExpert;
+end;
+
 procedure TCustomRadioItem.setCaption(const _value : string);
 begin
 	if FCaption <> _value then begin
@@ -136,7 +144,7 @@ begin
 	end;
 end;
 
-procedure TCustomRadioItem.SetTagObject(const Value : IInterface);
+procedure TCustomRadioItem.setTagObject(const Value : IInterface);
 begin
 	FTagObject := Value;
 
@@ -193,14 +201,14 @@ end;
 constructor TCustomRadioOptions.Create(_owner : TComponent);
 begin
 	inherited Create(_owner);
-	FItems := TCustomRadioItems.Create(Self);
+	FCollection := TCustomRadioItems.Create(Self);
 	FItemIndex := -1;
 end;
 
 destructor TCustomRadioOptions.Destroy;
 begin
 	Clear;
-	FItems.Free;
+	FCollection.Free;
 	inherited Destroy;
 end;
 
@@ -210,18 +218,19 @@ var
 	item : TCustomRadioItem;
 begin
 	// Free all radio buttons
-	for i := 0 to FItems.Count - 1 do begin
-		item := FItems[i];
+	for i := 0 to FCollection.Count - 1 do begin
+		item := Collection.Items[i];
 		if Assigned(item.RadioButton) then begin
 			item.RadioButton.Free;
 			item.RadioButton := nil;
 		end;
 	end;
-	FItems.Clear;
+	FCollection.Clear;
 	FItemIndex := -1;
 end;
 
-function TCustomRadioOptions.AddItem(const _caption, _hint : string; _orderIndex : Integer; _obj : IInterface = nil) : TCustomRadioItem;
+function TCustomRadioOptions.AddRadioButton(const _caption, _hint : string; _orderIndex : Integer; _obj : IInterface = nil):
+	TCustomRadioItem;
 var
 	radioButton : TRadioButton;
 begin
@@ -231,7 +240,7 @@ begin
 	radioButton.OnClick := onRadioButtonClick;
 	radioButton.Hint := _hint;
 	radioButton.ShowHint := True;
-	Result := FItems.AddItem(radioButton, _caption, _orderIndex, _obj);
+	Result := FCollection.AddItem(radioButton, _caption, _orderIndex, _obj);
 end;
 
 procedure TCustomRadioOptions.AlignControlItems();
@@ -239,41 +248,47 @@ var
 	i : Integer;
 	col : Integer;
 	row : Integer;
-	itemHeight : Integer;
 	itemWidth : Integer;
 	maxRows : Integer;
 	item : TCustomRadioItem;
-	panelWidth : Integer;
 	panelHeight : Integer;
+	visibleCount: Integer;
 begin
-	if FItems.Count = 0 then begin
+	if FCollection.Count = 0 then begin
 		Exit;
 	end;
 
 	// Calculate layout
-	itemHeight := ITEM_HEIGHT;
-	panelWidth := Self.Width;
-	itemWidth := panelWidth div Columns;
-	maxRows := Ceil(FItems.Count / Columns);
+	itemWidth := Self.Width div Columns;
+	visibleCount := 0;
 
 	// Position radio buttons
-	for i := 0 to FItems.Count - 1 do begin
-		item := FItems[i];
-		if Assigned(item.RadioButton) then begin
-			col := i mod Columns;
-			row := i div Columns;
+	for i := 0 to FCollection.Count - 1 do begin
+		item := FCollection[i];
+		if not  Assigned(item.RadioButton) then begin
+			continue;
+		end;
+		if Item.RadioButton.Visible then begin
+			col := visibleCount mod Columns;
+			row := visibleCount div Columns;
 
 			item.RadioButton.Left := (col * itemWidth) + SPACE;
-			item.RadioButton.Top := (row * itemHeight) + SPACE;
+			item.RadioButton.Top := (row * ITEM_HEIGHT) + SPACE;
 			item.RadioButton.Width := itemWidth - (2 * SPACE);
-			item.RadioButton.Height := itemHeight - 2;
+			item.RadioButton.Height := ITEM_HEIGHT - 2;
 			item.RadioButton.Tag := i;
+
+			Inc(visibleCount);
+		end else begin
+			item.RadioButton.Width := 0;
 		end;
 	end;
 
+	maxRows := Ceil(visibleCount / Columns);
+
 	// Adjust control height if needed
 	if maxRows > 0 then begin
-		panelHeight := (maxRows * itemHeight) + (2 * SPACE);
+		panelHeight := (maxRows * ITEM_HEIGHT) + (2 * SPACE);
 		Self.Height := panelHeight;
 	end;
 
@@ -293,12 +308,12 @@ begin
 			// Set parent height to match content height
 			// Add extra padding for groupboxes to account for border and caption
 			if p is TGroupBox then begin
-				if p.Height <> Height + GROUPBOX_PADDING then begin
+				if p.Height < Height + GROUPBOX_PADDING then begin
 					p.Height := Height + GROUPBOX_PADDING;
 				end;
 				Break;
 			end else begin
-				if (p.Height <> Height) then begin
+				if (p.Height < Height) then begin
 					p.Height := Height;
 				end;
 			end;
@@ -318,8 +333,8 @@ begin
 	itemIndex := radioButton.Tag;
 
 	// Uncheck all other radio buttons
-	for i := 0 to FItems.Count - 1 do begin
-		item := FItems[i];
+	for i := 0 to FCollection.Count - 1 do begin
+		item := FCollection[i];
 		if Assigned(item.RadioButton) and (item.RadioButton <> radioButton) then begin
 			item.RadioButton.Checked := False;
 		end;
@@ -329,8 +344,8 @@ begin
 	FItemIndex := itemIndex;
 
 	// Fire event
-	if Assigned(FOnRadioItemSelect) and (itemIndex >= 0) and (itemIndex < FItems.Count) then begin
-		FOnRadioItemSelect(Self, FItems[itemIndex]);
+	if Assigned(FOnRadioItemSelect) and (itemIndex >= 0) and (itemIndex < FCollection.Count) then begin
+		FOnRadioItemSelect(Self, FCollection[itemIndex]);
 	end;
 end;
 
@@ -340,19 +355,19 @@ var
 	item : TCustomRadioItem;
 	targetRadioButton : TRadioButton;
 begin
-	if (FItemIndex <> _value) and (_value >= -1) and (_value < FItems.Count) then begin
+	if (FItemIndex <> _value) and (_value >= -1) and (_value < FCollection.Count) then begin
 		FItemIndex := _value;
 
 		// Find the radio button that corresponds to the selected item
 		targetRadioButton := nil;
 		if _value >= 0 then begin
-			item := FItems[_value];
+			item := FCollection[_value];
 			targetRadioButton := item.RadioButton;
 		end;
 
 		// Update radio button states
-		for i := 0 to FItems.Count - 1 do begin
-			item := FItems[i];
+		for i := 0 to FCollection.Count - 1 do begin
+			item := FCollection[i];
 			if Assigned(item.RadioButton) then begin
 				item.RadioButton.Checked := (item.RadioButton = targetRadioButton);
 			end;
@@ -360,18 +375,33 @@ begin
 
 		// Fire event
 		if Assigned(FOnRadioItemSelect) and (_value >= 0) then begin
-			FOnRadioItemSelect(Self, FItems[_value]);
+			FOnRadioItemSelect(Self, FCollection[_value]);
 		end;
 	end;
 end;
 
 function TCustomRadioOptions.getSelectedItem : TCustomRadioItem;
 begin
-	if (FItemIndex >= 0) and (FItemIndex < FItems.Count) then begin
-		Result := FItems[FItemIndex];
+	if (FItemIndex >= 0) and (FItemIndex < FCollection.Count) then begin
+		Result := FCollection[FItemIndex];
 	end else begin
 		Result := nil;
 	end;
+end;
+
+procedure TCustomRadioOptions.ShowExpertItems(const _bShow : Boolean = True);
+begin
+	for var ci in Collection do begin
+		var item := ci as TCustomRadioItem;
+		if item.ShowInExpertModeOnly and Assigned(item.RadioButton) then begin
+			item.RadioButton.Visible := _bShow;
+		end;
+	end;
+end;
+
+procedure TCustomRadioOptions.SetDefaultValues();
+begin
+	ItemIndex := Collection.Count - 1;
 end;
 
 procedure Register;

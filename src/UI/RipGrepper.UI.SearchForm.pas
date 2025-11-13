@@ -1526,7 +1526,7 @@ begin
 			icv : IIDEContextValues;
 		case _dic of
 			{ } EDelphiIDESearchContext.dicCustomLocation : begin
-				icv := TIDEContextValues.Create(_dic, FCtrlProxy.SearchPath);
+				icv := TIDEContextValues.Create(_dic, FCtrlProxy.SearchPath, False {isExpert});
 			end;
 			else
 			icv := FExtensionContextPanel.ContextValues;
@@ -1720,6 +1720,7 @@ begin
 		Exit;
 	end;
 
+	FExtensionContextPanel.UpdateExpertMode(isExpert);
 	FRgFilterOptionsPanel.UpdateExpertMode(isExpert);
 	FRgOutputOptionsPanel.UpdateExpertMode(isExpert);
 	FAppSettingsPanel.UpdateExpertMode(isExpert);

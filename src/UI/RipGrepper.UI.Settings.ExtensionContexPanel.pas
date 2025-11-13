@@ -28,13 +28,12 @@ type
 			PANEL_PADDING = 4;
 
 		strict private
-		private
 			FContextRadioGroup : TCustomRadioOptions;
 			FOnContextChange : TExtensionContextChangeEvent;
 			FRadioItemIndex : Integer;
-			procedure AddItem(const _caption : string; const _dic : TDelphiIDEContext; const _bInExpertModeOnly : Boolean = False);
-			procedure AddItemIntern(const caption : string; const _dic : TDelphiIDEContext);
-			function GetContextValues() : IIDEContextValues;
+			procedure addItem(const _caption : string; const _dic : TDelphiIDEContext; const _bInExpertModeOnly : Boolean = False);
+			procedure addItemIntern(const _caption : string; const _dic : TDelphiIDEContext; const _isExpert : Boolean);
+			function getContextValues() : IIDEContextValues;
 			function getSelectedItem() : TCustomRadioItem;
 			procedure onRadioItemSelect(_sender : TObject; _item : TCustomRadioItem);
 
@@ -46,10 +45,9 @@ type
 			class function GetAsHint(var _paths : TArray<string>) : string; overload;
 			function GetSelectedIDEContext : EDelphiIDESearchContext;
 			procedure SetSelectedIDEContext(_ideContext : EDelphiIDESearchContext);
+			procedure UpdateExpertMode(const _bExpert : Boolean); override;
 			property ContextRadioGroup : TCustomRadioOptions read FContextRadioGroup;
-			property ContextValues : IIDEContextValues read GetContextValues;
-
-		published
+			property ContextValues : IIDEContextValues read getContextValues;
 			property SelectedItem : TCustomRadioItem read getSelectedItem;
 			property OnContextChange : TExtensionContextChangeEvent read FOnContextChange write FOnContextChange;
 	end;
@@ -86,38 +84,28 @@ begin
 	FRadioItemIndex := 0;
 end;
 
-procedure TExtensionContexPanel.AddItem(const _caption : string; const _dic : TDelphiIDEContext;
+procedure TExtensionContexPanel.addItem(const _caption : string; const _dic : TDelphiIDEContext;
 	const _bInExpertModeOnly : Boolean = False);
 var
 	caption : string;
-	expertChoice : Boolean;
 begin
-	if not(Assigned(Settings) and Assigned(Settings.AppSettings)) then begin
-		AddItemIntern(_caption, _dic);
-	end else begin
-		expertChoice := Settings.AppSettings.IsExpertMode and _bInExpertModeOnly;
-		caption := IfThen(expertChoice, _caption + ' *', _caption);
-		if expertChoice then begin
-			AddItemIntern(caption, _dic);
-		end else if not _bInExpertModeOnly then begin
-			AddItemIntern(caption, _dic);
-		end;
-	end;
+	caption := IfThen(_bInExpertModeOnly, _caption + ' *', _caption);
+	addItemIntern(caption, _dic, _bInExpertModeOnly);
 end;
 
-procedure TExtensionContexPanel.AddItemIntern(const caption : string; const _dic : TDelphiIDEContext);
+procedure TExtensionContexPanel.addItemIntern(const _caption : string; const _dic : TDelphiIDEContext; const _isExpert : Boolean);
 var
 	icv : IIDEContextValues;
 	values : string;
 	hint : string;
 begin
 	values := _dic.GetValueByContext();
-	icv := TIDEContextValues.Create(_dic.IDESearchContext, values);
+	icv := TIDEContextValues.Create(_dic.IDESearchContext, values, _isExpert);
 	hint := GetAsHint(values);
 	if hint.IsEmpty then begin
 		hint := values;
 	end;
-	FContextRadioGroup.AddItem(caption, hint, FRadioItemIndex, icv);
+	FContextRadioGroup.AddRadioButton(_caption, hint, FRadioItemIndex, icv);
 	Inc(FRadioItemIndex);
 end;
 
@@ -128,28 +116,27 @@ begin
 	dic.LoadFromIOTA();
 
 	dic.IDESearchContext := EDelphiIDESearchContext.dicActiveFile;
-	AddItem('Current File', dic);
+	addItem('Current file', dic);
 
 	dic.IDESearchContext := EDelphiIDESearchContext.dicOpenFiles;
-	AddItem('All Open Files', dic);
+	addItem('All open files', dic);
 
 	dic.IDESearchContext := EDelphiIDESearchContext.dicProjectFiles;
-	AddItem('Project Files', dic);
+	addItem('Project files', dic);
 
 	dic.IDESearchContext := EDelphiIDESearchContext.dicProjectFilesDirs;
-	AddItem('Project Files Directories', dic);
+	addItem('Folders of project files', dic);
 
 	dic.IDESearchContext := EDelphiIDESearchContext.dicProjectRootDirectory;
-	AddItem('Project Root Directory', dic, True);
+	addItem('Project root folder', dic, True { isExpert } );
 
 	dic.IDESearchContext := EDelphiIDESearchContext.dicProjectLibraryPath;
-	AddItem('Project Library Paths', dic, True);
+	addItem('Project library paths', dic, True { isExpert } );
 
 	dic.IDESearchContext := EDelphiIDESearchContext.dicCustomLocation;
-	AddItem('Custom Location(s):', dic);
+	addItem('Custom location(s):', dic);
 
-	// Select first option by default
-	// FContextRadioGroup.ItemIndex := 0;
+	UpdateExpertMode(Settings.AppSettings.IsExpertMode);
 end;
 
 procedure TExtensionContexPanel.AdjustHeight();
@@ -181,7 +168,7 @@ begin
 	Result := string.Join(CRLF, _paths);
 end;
 
-function TExtensionContexPanel.GetContextValues() : IIDEContextValues;
+function TExtensionContexPanel.getContextValues() : IIDEContextValues;
 var
 	icv : IIDEContextValues;
 begin
@@ -191,7 +178,7 @@ begin
 			Exit;
 		end;
 	end;
-	Result := TIDEContextValues.Create(EDelphiIDESearchContext.dicNotSet, '');
+	Result := TIDEContextValues.Create(EDelphiIDESearchContext.dicNotSet, '', False);
 end;
 
 procedure TExtensionContexPanel.onRadioItemSelect(_sender : TObject; _item : TCustomRadioItem);
@@ -232,14 +219,23 @@ var
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TExtensionContexPanel.SetSelectedIDEContext');
-	for i := 0 to FContextRadioGroup.Items.Count - 1 do begin
-		item := FContextRadioGroup.Items[i];
+	for i := 0 to FContextRadioGroup.Collection.Count - 1 do begin
+		item := FContextRadioGroup.Collection.Items[i];
 		if Assigned(item.TagObject) and
 		{ } ((item.TagObject as IIDEContextValues).GetContextType = _ideContext) then begin
 			dbgMsg.MsgFmt('Setting IDE context to %s', [item.Caption]);
 			FContextRadioGroup.ItemIndex := i;
 			Break;
 		end;
+	end;
+end;
+
+procedure TExtensionContexPanel.UpdateExpertMode(const _bExpert : Boolean);
+begin
+	ContextRadioGroup.ShowExpertItems(_bExpert);
+	ContextRadioGroup.AlignControlItems();
+	if _bExpert then begin
+		ContextRadioGroup.SetDefaultValues();
 	end;
 end;
 

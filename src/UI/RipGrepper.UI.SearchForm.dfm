@@ -320,7 +320,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object pnlPath: TPanel
         Left = 2
-        Top = 43
+        Top = 46
         Width = 626
         Height = 88
         Margins.Top = 0
@@ -427,7 +427,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
       object pnlRgFilterOptions: TPanel
         Left = 2
-        Top = 131
+        Top = 134
         Width = 626
         Height = 45
         Align = alTop
