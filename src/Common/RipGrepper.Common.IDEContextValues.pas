@@ -22,13 +22,21 @@ type
 	IIDEContextValues = interface
 		['{75CC020F-921D-4722-BE07-7105092FFA41}']
 		function GetContextType() : EDelphiIDESearchContext;
+		function GetIsExpert() : Boolean;
 		function GetValue() : string;
 		procedure SetContextType(const Value : EDelphiIDESearchContext);
+		procedure SetIsExpert(const Value : Boolean);
 		procedure SetValue(const Value : string);
+		property IsExpert : Boolean read GetIsExpert write SetIsExpert;
 
 	end;
 
 	TIDEContextValues = class(TInterfacedObject, IIDEContextValues)
+		strict private
+			FIsExpert : Boolean;
+			function GetIsExpert() : Boolean;
+			procedure SetIsExpert(const Value : Boolean);
+
 		private
 			FContextType : EDelphiIDESearchContext;
 			FValue : string;
@@ -38,9 +46,10 @@ type
 			procedure SetValue(const Value : string);
 
 		public
-			constructor Create(const _sc : EDelphiIDESearchContext; const _val : string);
+			constructor Create(const _sc : EDelphiIDESearchContext; const _val : string; const _isExpert : Boolean);
 			property Value : string read GetValue write SetValue;
 			property ContextType : EDelphiIDESearchContext read GetContextType write SetContextType;
+			property IsExpert : Boolean read GetIsExpert write SetIsExpert;
 	end;
 
 	// Event type for extension context change
@@ -48,16 +57,22 @@ type
 
 implementation
 
-constructor TIDEContextValues.Create(const _sc : EDelphiIDESearchContext; const _val : string);
+constructor TIDEContextValues.Create(const _sc : EDelphiIDESearchContext; const _val : string; const _isExpert : Boolean);
 begin
 	inherited Create;
 	FContextType := _sc;
 	FValue := _val;
+	FIsExpert := _isExpert;
 end;
 
 function TIDEContextValues.GetContextType() : EDelphiIDESearchContext;
 begin
 	Result := FContextType;
+end;
+
+function TIDEContextValues.GetIsExpert() : Boolean;
+begin
+	Result := FIsExpert;
 end;
 
 function TIDEContextValues.GetValue() : string;
@@ -68,6 +83,11 @@ end;
 procedure TIDEContextValues.SetContextType(const Value : EDelphiIDESearchContext);
 begin
 	FContextType := Value;
+end;
+
+procedure TIDEContextValues.SetIsExpert(const Value : Boolean);
+begin
+	FIsExpert := Value;
 end;
 
 procedure TIDEContextValues.SetValue(const Value : string);
