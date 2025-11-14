@@ -292,7 +292,7 @@ end;
 
 procedure TOptionPanel.AddItems();
 begin
-	FCheckOptionsGroup.AlignControlItems;
+	FCheckOptionsGroup.AlignControlItems();
 end;
 
 procedure TOptionPanel.AdjustHeight();

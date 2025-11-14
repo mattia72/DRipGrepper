@@ -205,10 +205,10 @@ type
 	// Base class for custom option controls
 	TCustomOptionsBase = class(TCustomPanel)
 		strict private
+			FExpertHeightDiff: Integer;
 			FUseFlowLayout : Boolean;
 			FColumns : Integer;
 			procedure setColumns(const _value : Integer);
-
 		protected
 			procedure Resize; override;
 
@@ -216,6 +216,8 @@ type
 			constructor Create(_owner : TComponent); override;
 			procedure AlignControlItems(); virtual; abstract;
 			procedure Clear; virtual; abstract;
+			property ExpertHeightDiff: Integer read FExpertHeightDiff write
+				FExpertHeightDiff;
 			property UseFlowLayout : Boolean read FUseFlowLayout write FUseFlowLayout;
 
 		published
@@ -344,7 +346,7 @@ procedure TCustomOptionsBase.setColumns(const _value : Integer);
 begin
 	if (_value > 0) and (FColumns <> _value) then begin
 		FColumns := _value;
-		AlignControlItems;
+		AlignControlItems();
 	end;
 end;
 
@@ -1389,9 +1391,13 @@ begin
 			// Set parent height to match content height
 			// Add extra padding for groupboxes to account for border and caption
 			if p is TGroupBox then begin
+				ExpertHeightDiff := p.Height;
 				if p.Height < Height + SPACE then begin
 					p.Height := Height + SPACE;
-					dbgMsg.MsgFmt('GroupBox %s height: %d', [p.Name, p.Height]);
+					ExpertHeightDiff := ExpertHeightDiff - p.Height;
+					dbgMsg.MsgFmt('GroupBox %s height: %d, diff: %d', [p.Name, p.Height, ExpertHeightDiff]);
+				end else begin
+					ExpertHeightDiff := 0;
 				end;
 				break;
 			end else begin

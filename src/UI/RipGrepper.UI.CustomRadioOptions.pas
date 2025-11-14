@@ -27,14 +27,15 @@ type
 			procedure setCaption(const _value : string);
 			procedure setOrderIndex(const _value : Integer);
 			procedure setTagObject(const Value : IInterface);
-			function getShowInExpertModeOnly(): Boolean;
+			function getShowInExpertModeOnly() : Boolean;
+
 		public
 			constructor Create(Collection : TCollection); override;
 			destructor Destroy; override;
 
 			property RadioButton : TRadioButton read FRadioButton write FRadioButton;
 			property Caption : string read FCaption write setCaption;
-			property ShowInExpertModeOnly: Boolean read getShowInExpertModeOnly;
+			property ShowInExpertModeOnly : Boolean read getShowInExpertModeOnly;
 			property OrderIndex : Integer read FOrderIndex write setOrderIndex;
 			property TagObject : IInterface read FTagObject write setTagObject;
 	end;
@@ -68,7 +69,7 @@ type
 			GROUPBOX_PADDING = 8;
 
 		private
-			FCollection: TCustomRadioItems;
+			FCollection : TCustomRadioItems;
 			FItemIndex : Integer;
 			FOnRadioItemSelect : TRadioItemSelectEvent;
 			procedure onRadioButtonClick(_sender : TObject);
@@ -76,20 +77,20 @@ type
 			function getSelectedItem : TCustomRadioItem;
 
 		protected
-			procedure AdjustParentHeights;
+			procedure AdjustParentHeights(const panelHeight : integer);
 
 		public
 			constructor Create(_owner : TComponent); override;
 			destructor Destroy; override;
 			procedure Clear; override;
-			function AddRadioButton(const _caption, _hint : string; _orderIndex : Integer; _obj : IInterface = nil): TCustomRadioItem;
+			function AddRadioButton(const _caption, _hint : string; _orderIndex : Integer; _obj : IInterface = nil) : TCustomRadioItem;
 			procedure AlignControlItems(); override;
 			procedure ShowExpertItems(const _bShow : Boolean = True);
 			procedure SetDefaultValues();
 
 		published
 			property SelectedItem : TCustomRadioItem read getSelectedItem;
-			property Collection: TCustomRadioItems read FCollection write FCollection;
+			property Collection : TCustomRadioItems read FCollection write FCollection;
 			property ItemIndex : Integer read FItemIndex write setItemIndex default -1;
 			property OnRadioItemSelect : TRadioItemSelectEvent read FOnRadioItemSelect write FOnRadioItemSelect;
 	end;
@@ -122,7 +123,7 @@ begin
 	inherited Destroy;
 end;
 
-function TCustomRadioItem.getShowInExpertModeOnly(): Boolean;
+function TCustomRadioItem.getShowInExpertModeOnly() : Boolean;
 begin
 	Result := (TagObject as TIDEContextValues).IsExpert;
 end;
@@ -229,8 +230,8 @@ begin
 	FItemIndex := -1;
 end;
 
-function TCustomRadioOptions.AddRadioButton(const _caption, _hint : string; _orderIndex : Integer; _obj : IInterface = nil):
-	TCustomRadioItem;
+function TCustomRadioOptions.AddRadioButton(const _caption, _hint : string; _orderIndex : Integer; _obj : IInterface = nil)
+	: TCustomRadioItem;
 var
 	radioButton : TRadioButton;
 begin
@@ -245,14 +246,13 @@ end;
 
 procedure TCustomRadioOptions.AlignControlItems();
 var
-	i : Integer;
 	col : Integer;
 	row : Integer;
 	itemWidth : Integer;
 	maxRows : Integer;
 	item : TCustomRadioItem;
 	panelHeight : Integer;
-	visibleCount: Integer;
+	visibleCount : Integer;
 begin
 	if FCollection.Count = 0 then begin
 		Exit;
@@ -263,9 +263,9 @@ begin
 	visibleCount := 0;
 
 	// Position radio buttons
-	for i := 0 to FCollection.Count - 1 do begin
+	for var i := 0 to FCollection.Count - 1 do begin
 		item := FCollection[i];
-		if not  Assigned(item.RadioButton) then begin
+		if not Assigned(item.RadioButton) then begin
 			continue;
 		end;
 		if Item.RadioButton.Visible then begin
@@ -287,34 +287,35 @@ begin
 	maxRows := Ceil(visibleCount / Columns);
 
 	// Adjust control height if needed
-	if maxRows > 0 then begin
-		panelHeight := (maxRows * ITEM_HEIGHT) + (2 * SPACE);
-		Self.Height := panelHeight;
-	end;
+	panelHeight := (maxRows * ITEM_HEIGHT) + (2 * SPACE);
 
 	// Adjust parent heights to accommodate content
-	AdjustParentHeights;
+	AdjustParentHeights(panelHeight);
+	Self.Height := panelHeight;
 end;
 
-procedure TCustomRadioOptions.AdjustParentHeights;
+procedure TCustomRadioOptions.AdjustParentHeights(const panelHeight : integer);
 var
 	p : TWinControl;
 begin
 	p := Parent;
-
 	while Assigned(p) do begin
 		// Only adjust panels and groupboxes
 		if (p is TPanel) or (p is TGroupBox) then begin
 			// Set parent height to match content height
 			// Add extra padding for groupboxes to account for border and caption
 			if p is TGroupBox then begin
-				if p.Height < Height + GROUPBOX_PADDING then begin
-					p.Height := Height + GROUPBOX_PADDING;
-				end;
+				ExpertHeightDiff := p.Height;
+				if p.Height < panelHeight + GROUPBOX_PADDING then begin
+					p.Height := panelHeight + GROUPBOX_PADDING;
+					ExpertHeightDiff := ExpertHeightDiff - p.Height;
+				end else begin
+                    ExpertHeightDiff := 0;
+                end;
 				Break;
 			end else begin
-				if (p.Height < Height) then begin
-					p.Height := Height;
+				if (p.Height < panelHeight) then begin
+					p.Height := panelHeight;
 				end;
 			end;
 		end;
@@ -392,7 +393,8 @@ end;
 procedure TCustomRadioOptions.ShowExpertItems(const _bShow : Boolean = True);
 begin
 	for var ci in Collection do begin
-		var item := ci as TCustomRadioItem;
+		var
+		item := ci as TCustomRadioItem;
 		if item.ShowInExpertModeOnly and Assigned(item.RadioButton) then begin
 			item.RadioButton.Visible := _bShow;
 		end;

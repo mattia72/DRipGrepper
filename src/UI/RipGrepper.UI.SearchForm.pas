@@ -155,9 +155,10 @@ type
 			cmbOutputFormat : TComboBox;
 
 			// Orig heights
-			FExtensionContextFrameOrigHeight : Integer;
+			FExtensionContextPanelOrigHeight : Integer;
 			FRgFilterOptionsPanelOrigHeight : Integer;
 			FRgOutputOptionsPanelOrigHeight : Integer;
+			FOrigHeight : integer;
 
 			FpnlPathOrigHeight : Integer;
 			FIsKeyboardInput : Boolean;
@@ -176,7 +177,6 @@ type
 			FpnlMiddleOrigHeight : Integer;
 			FOrigSearchFormSettings : TSearchFormSettings;
 			FTopPanelOrigHeight : Integer;
-			FOrigHeight : integer;
 			FShowing : Boolean;
 			FThemeHandler : TThemeHandler;
 			function GetSelectedPaths(const _initialDir : string; const _fdo : TFileDialogOptions) : string;
@@ -566,7 +566,7 @@ begin
 		AdjustHeight();
 
 		// Capture the original heights after initial adjustment
-		if (FExtensionContextFrameOrigHeight = 0) then begin
+		if (FExtensionContextPanelOrigHeight = 0) then begin
 			SetOrigHeights();
 		end;
 
@@ -737,6 +737,11 @@ procedure TRipGrepperSearchDialogForm.UpdateCmbOptionsAndMemoCommandLine;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCmbOptionsAndMemoCommandLine');
+
+	if not Assigned(FSettingsProxy) then begin
+		Exit;
+	end;
+
 	dbgMsg.Msg('FSettingsProxy=' + FSettingsProxy.ToString);
 	RemoveNecessaryOptionsFromCmbOptionsText;
 	dbgMsg.Msg('RgOptions=' + string.Join(' ', FSettingsProxy.RgOptions.AsString));
@@ -757,6 +762,10 @@ procedure TRipGrepperSearchDialogForm.WriteCtrlsToRipGrepParametersSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.WriteCtrlsToRipGrepParametersSettings');
+
+	if not Assigned(FSettingsProxy) then begin
+		Exit;
+	end;
 
 	dbgMsg.Msg('FSettingsProxy=' + FSettingsProxy.ToString);
 	FSettingsProxy.SetSearchText(cmbSearchText.Text);
@@ -1305,7 +1314,7 @@ begin
 		FExtensionContextPanel.AdjustHeight();
 	end;
 
-	FExtensionContextFrameOrigHeight := FExtensionContextPanel.Height;
+	FExtensionContextPanelOrigHeight := FExtensionContextPanel.Height;
 	FRgFilterOptionsPanelOrigHeight := FRgFilterOptionsPanel.Height;
 	FRgOutputOptionsPanelOrigHeight := FRgOutputOptionsPanel.Height;
 	FpnlPathOrigHeight := pnlPath.Height;
@@ -1315,7 +1324,7 @@ begin
 	FOrigHeight := Height;
 
 	dbgMsg.MsgFmt('Captured heights - pnlTop: %d, ExtensionPanel: %d, FilterPanel: %d, PathPanel: %d, Form: %d',
-		[FTopPanelOrigHeight, FExtensionContextFrameOrigHeight, FRgFilterOptionsPanelOrigHeight, FpnlPathOrigHeight, FOrigHeight]);
+		[FTopPanelOrigHeight, FExtensionContextPanelOrigHeight, FRgFilterOptionsPanelOrigHeight, FpnlPathOrigHeight, FOrigHeight]);
 end;
 
 class procedure TRipGrepperSearchDialogForm.SetReplaceText(_settings : TRipGrepperSettings; const _replaceText : string);
@@ -1480,8 +1489,8 @@ begin
 		FExtensionContextPanel.Align := alTop;
 		// Don't call AdjustHeight() here as it recalculates based on current state
 		// Instead, restore the original height to prevent shrinking
-		if FExtensionContextFrameOrigHeight > 0 then begin
-			FExtensionContextPanel.Height := FExtensionContextFrameOrigHeight;
+		if FExtensionContextPanelOrigHeight > 0 then begin
+			FExtensionContextPanel.Height := FExtensionContextPanelOrigHeight;
 		end;
 
 		// Adjust gbOptionsFilters to accommodate the frame properly
@@ -1496,7 +1505,7 @@ begin
 	end;
 	dbgMsg.Msg('gbOptionsFilters.Height=' + gbOptionsFilters.Height.ToString);
 
-    SetConstraints();
+	SetConstraints();
 
 	// Calculate and set form height
 	var
@@ -1526,7 +1535,7 @@ begin
 			icv : IIDEContextValues;
 		case _dic of
 			{ } EDelphiIDESearchContext.dicCustomLocation : begin
-				icv := TIDEContextValues.Create(_dic, FCtrlProxy.SearchPath, False {isExpert});
+				icv := TIDEContextValues.Create(_dic, FCtrlProxy.SearchPath, False { isExpert } );
 			end;
 			else
 			icv := FExtensionContextPanel.ContextValues;
@@ -1725,6 +1734,16 @@ begin
 	FRgOutputOptionsPanel.UpdateExpertMode(isExpert);
 	FAppSettingsPanel.UpdateExpertMode(isExpert);
 
+	var
+	diffHeight :=
+		{ } FExtensionContextPanel.ContextRadioGroup.ExpertHeightDiff;
+
+	if isExpert then begin
+		Inc(FExtensionContextPanelOrigHeight, diffHeight);
+	end else begin
+		Dec(FExtensionContextPanelOrigHeight, diffHeight);
+	end;
+
 	AdjustHeight();
 end;
 
@@ -1791,8 +1810,7 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.SetMinimumWidthFromOptionsPanels();
-var
-	minWidth : Integer;
+var minWidth : Integer;
 	filterPanelWidth, outputPanelWidth : Integer;
 begin
 	minWidth := 0;
