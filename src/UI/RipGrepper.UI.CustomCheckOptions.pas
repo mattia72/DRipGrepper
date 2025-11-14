@@ -939,6 +939,17 @@ begin
 	checkBox := CreateCheckBox(Result.ParentPanel, caption, _hint, _setting.Name) as TNotifyingCheckBox;
 	checkBox.OwnerItem := Result;
 
+	// Initialize checkbox state from setting value
+	if Assigned(_setting) then begin
+		case _setting.SettingType of
+			stBool : begin
+				var
+				boolSetting := _setting as IBoolSetting;
+				checkBox.Checked := boolSetting.Value;
+			end;
+		end;
+	end;
+
 	Result.FSubItems[Ord(siFirst)] := checkBox;
 end;
 
@@ -975,6 +986,17 @@ begin
 	checkBox := CreateCheckBox(Result.ParentPanel, caption, _hint, _setting.Name) as TNotifyingCheckBox;
 	checkBox.OwnerItem := Result;
 
+	// Initialize checkbox state from setting value
+	if Assigned(_setting) then begin
+		case _setting.SettingType of
+			stBool : begin
+				var
+				boolSetting := _setting as IBoolSetting;
+				checkBox.Checked := boolSetting.Value;
+			end;
+		end;
+	end;
+
 	comboBox := CreateComboBox(_setting.Name, _hint, Result.ParentPanel) as TNotifyingComboBox;
 	comboBox.OwnerItem := Result;
 
@@ -983,6 +1005,16 @@ begin
 	strList.AddStrings(_comboItems);
 	if Assigned(strList) then begin
 		comboBox.Items.Assign(strList());
+	end;
+
+	// Initialize combobox value from setting
+	if Assigned(_setting) and (_setting.SettingType = stString) then begin
+		var
+		strSetting := _setting as IStringSetting;
+		comboBox.Text := strSetting.Value;
+		// Enable/disable combo based on whether the checkbox should be checked
+		// For checkbox+combo items, combo is typically enabled when checkbox is checked
+		comboBox.Enabled := checkBox.Checked;
 	end;
 
 	Result.FSubItems[Ord(siFirst)] := checkBox;
@@ -1027,6 +1059,17 @@ begin
 	checkBox := CreateCheckBox(Result.ParentPanel, caption, _hint, _setting.Name) as TNotifyingCheckBox;
 	checkBox.OwnerItem := Result;
 
+	// Initialize checkbox state from setting value
+	if Assigned(_setting) then begin
+		case _setting.SettingType of
+			stBool : begin
+				var
+				boolSetting := _setting as IBoolSetting;
+				checkBox.Checked := boolSetting.Value;
+			end;
+		end;
+	end;
+
 	// Create the spin edit
 	spinEdit := TNotifyingSpinEdit.Create(Self);
 	spinEdit.Name := 'spin' + _setting.Name;
@@ -1039,6 +1082,15 @@ begin
 	spinEdit.OnChange := onItemChangeEventHandler;
 	spinEdit.Height := checkBox.Height;
 	spinEdit.OwnerItem := Result;
+
+	// Initialize spin value from setting
+	if Assigned(_setting) and (_setting.SettingType = stInteger) then begin
+		var
+		intSetting := _setting as IIntegerSetting;
+		spinEdit.Value := intSetting.Value;
+		// Enable/disable spin based on whether the checkbox should be checked
+		spinEdit.Enabled := checkBox.Checked;
+	end;
 
 	Result.FSubItems[Ord(siFirst)] := checkBox;
 	Result.FSubItems[Ord(siSecond)] := spinEdit;
@@ -1094,7 +1146,18 @@ begin
 		comboBox.Items.Assign(comboItems);
 	end;
 
-	comboBox.ItemIndex := 0;
+	// Initialize combobox value from setting
+	if Assigned(_setting) and (_setting.SettingType = stString) then begin
+		var
+		strSetting := _setting as IStringSetting;
+		if not strSetting.Value.IsEmpty then begin
+			comboBox.Text := strSetting.Value;
+		end else begin
+			comboBox.ItemIndex := 0;
+		end;
+	end else begin
+		comboBox.ItemIndex := 0;
+	end;
 
 	Result.FSubItems[Ord(siFirst)] := labelControl;
 	Result.FSubItems[Ord(siSecond)] := comboBox;
