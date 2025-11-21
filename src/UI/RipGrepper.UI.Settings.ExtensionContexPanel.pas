@@ -135,8 +135,6 @@ begin
 
 	dic.IDESearchContext := EDelphiIDESearchContext.dicCustomLocation;
 	addItem('Custom location(s):', dic);
-
-	UpdateExpertMode(Settings.AppSettings.IsExpertMode);
 end;
 
 procedure TExtensionContexPanel.AdjustHeight();

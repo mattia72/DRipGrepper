@@ -205,10 +205,11 @@ type
 	// Base class for custom option controls
 	TCustomOptionsBase = class(TCustomPanel)
 		strict private
-			FExpertHeightDiff: Integer;
+			FExpertHeightDiff : Integer;
 			FUseFlowLayout : Boolean;
 			FColumns : Integer;
 			procedure setColumns(const _value : Integer);
+
 		protected
 			procedure Resize; override;
 
@@ -216,8 +217,7 @@ type
 			constructor Create(_owner : TComponent); override;
 			procedure AlignControlItems(); virtual; abstract;
 			procedure Clear; virtual; abstract;
-			property ExpertHeightDiff: Integer read FExpertHeightDiff write
-				FExpertHeightDiff;
+			property ExpertHeightDiff : Integer read FExpertHeightDiff write FExpertHeightDiff;
 			property UseFlowLayout : Boolean read FUseFlowLayout write FUseFlowLayout;
 
 		published
@@ -945,7 +945,12 @@ begin
 			stBool : begin
 				var
 				boolSetting := _setting as IBoolSetting;
-				checkBox.Checked := boolSetting.Value;
+				EventsEnabled := False;
+				try
+					checkBox.Checked := boolSetting.Value;
+				finally
+					EventsEnabled := True;
+				end;
 			end;
 		end;
 	end;
