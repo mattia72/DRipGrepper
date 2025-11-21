@@ -626,13 +626,9 @@ begin
 
 	SetComboItemsAndText(cmbSearchText, FCtrlProxy.SearchText, FCtrlProxy.SearchTextHist);
 	SetComboItemsAndText(cmbSearchDir, FCtrlProxy.SearchPath, FCtrlProxy.SearchPathHist);
-
 	SetComboItemsAndText(cmbReplaceText, FCtrlProxy.ReplaceText, FCtrlProxy.ReplaceTextHist);
-
 	SetComboItemsFromOptions(cmbFileMasks, FCtrlProxy.FileMasks, FCtrlProxy.FileMasksHist);
-	// Set available encodings...
 	SetComboItemsAndText(cmbRgParamEncoding, FCtrlProxy.Encoding, FCtrlProxy.EncodingItems);
-	// Set available output formats...
 	SetComboItemsAndText(cmbOutputFormat, FCtrlProxy.OutputFormat, FCtrlProxy.OutputFormatItems);
 
 	UpdateSearchOptionsBtns;
@@ -811,14 +807,14 @@ begin
 	end;
 
 	if cbRgParamEncoding.Checked then begin
-		if cmbRgParamEncoding.Text = '' then begin
-			cmbRgParamEncoding.Text := cmbRgParamEncoding.Items[0];
-		end;
-		FSettings.SearchFormSettings.Encoding.Value := cmbRgParamEncoding.Text;
+		// if cmbRgParamEncoding.Text = '' then begin
+		// cmbRgParamEncoding.Text := cmbRgParamEncoding.Items[0];
+		// end;
+		// FSettings.SearchFormSettings.Encoding.Value := cmbRgParamEncoding.Text;
 		FSettingsProxy.SetRgOptionWithValue(RG_PARAM_REGEX_ENCODING, cmbRgParamEncoding.Text, { bUnique } True);
 	end else begin
 		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_ENCODING, { bReset } True);
-		FSettings.SearchFormSettings.Encoding.Value := '';
+		// FSettings.SearchFormSettings.Encoding.Value := '';
 	end;
 
 	FSettings.SearchFormSettings.OutputFormat.Value := cmbOutputFormat.Text;
@@ -865,9 +861,9 @@ begin
 
 	cbRgParamHidden.Checked := IsOptionSet(RG_PARAM_REGEX_HIDDEN);
 	cbRgParamNoIgnore.Checked := IsOptionSet(RG_PARAM_REGEX_NO_IGNORE);
-	cbRgParamEncoding.Checked := FSettingsProxy.RgOptions.GetOptionValue(RG_PARAM_REGEX_ENCODING, sVal);
-	cmbRgParamEncoding.Enabled := cbRgParamEncoding.Checked;
-	cmbRgParamEncoding.Text := IfThen(cmbRgParamEncoding.Enabled, sVal, '');
+	// cbRgParamEncoding.Checked := FSettingsProxy.RgOptions.GetOptionValue(RG_PARAM_REGEX_ENCODING, sVal);
+	// cmbRgParamEncoding.Enabled := cbRgParamEncoding.Checked;
+	// cmbRgParamEncoding.Text := IfThen(cmbRgParamEncoding.Enabled, sVal, '');
 
 	cbRgParamPretty.Checked := IsOptionSet(RG_PARAM_REGEX_PRETTY);
 	cbRgParamContext.Checked := FSettingsProxy.RgOptions.GetOptionValue(RG_PARAM_REGEX_CONTEXT, sVal);
@@ -1637,9 +1633,9 @@ begin
 		cbRgParamNoIgnore.Checked := FCtrlProxy.IsNoIgnoreChecked;
 		dbgMsg.MsgFmt('cbRgParamNoIgnore.Checked=%s', [BoolToStr(cbRgParamNoIgnore.Checked, True)]);
 
-		cbRgParamEncoding.Checked := FCtrlProxy.Encoding <> '';
-		cmbRgParamEncoding.Enabled := cbRgParamEncoding.Checked;
-		cmbRgParamEncoding.Text := FCtrlProxy.Encoding;
+		// cbRgParamEncoding.Checked := FCtrlProxy.Encoding <> '';
+		// cmbRgParamEncoding.Enabled := cbRgParamEncoding.Checked;
+		// cmbRgParamEncoding.Text := FCtrlProxy.Encoding;
 		dbgMsg.Msg('cmbRgParamEncoding.Text=' + cmbRgParamEncoding.Text);
 
 		cmbOutputFormat.Text := FCtrlProxy.OutputFormat;
@@ -1652,12 +1648,12 @@ end;
 procedure TRipGrepperSearchDialogForm.CopyProxyToSearchFormSettings(const _ctrlProxy : TSearchFormCtrlValueProxy;
 	const _settings : TSearchFormSettings);
 begin
-	_settings.Hidden.Value := _ctrlProxy.IsHiddenChecked;
-	_settings.NoIgnore.Value := _ctrlProxy.IsNoIgnoreChecked;
-	_settings.Encoding.Value := _ctrlProxy.Encoding;
-	_settings.OutputFormat.Value := _ctrlProxy.OutputFormat;
-	_settings.Pretty.Value := _ctrlProxy.IsPrettyChecked;
-	_settings.Context.Value := _ctrlProxy.LineContext;
+//	_settings.Hidden.Value := _ctrlProxy.IsHiddenChecked;
+//	_settings.NoIgnore.Value := _ctrlProxy.IsNoIgnoreChecked;
+ _settings.Encoding.Value := _ctrlProxy.Encoding;
+//  _settings.OutputFormat.Value := _ctrlProxy.OutputFormat;
+//  _settings.Pretty.Value := _ctrlProxy.IsPrettyChecked;
+//  _settings.Context.Value := _ctrlProxy.LineContext;
 end;
 
 procedure TRipGrepperSearchDialogForm.CopySettingsToHistObj;
@@ -1745,8 +1741,6 @@ begin
 	// if FShowing then
 	// Exit;
 
-	// This covers the functionality that was in cmbRgParamEncodingChange
-	FSettings.SearchFormSettings.Encoding.Value := IfThen(cmbRgParamEncoding.Enabled, cmbRgParamEncoding.Text);
 	UpdateCtrls(cmbRgParamEncoding);
 end;
 

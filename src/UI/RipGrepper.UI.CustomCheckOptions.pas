@@ -245,7 +245,12 @@ type
 			procedure SetSettings(const Value : TRipGrepperSettings);
 
 		private
+			function CheckAndInitExpertMode(var _newCaption : string; const _caption : string; _showInExpertModeOnly : Boolean = False)
+				: Boolean;
 			function CreateComboBox(const _name, _hint : string; _parent : TPanel) : TComboBox;
+			function CreateSpinEdit(const _parent : TWinControl; const _hint : string;
+				const _minValue, _maxValue, _defaultValue, _height : Integer; _setting : ISetting) : TNotifyingSpinEdit;
+			procedure InitCheckBoxAndComboValue(_checkBox : TNotifyingCheckBox; _comboBox : TNotifyingComboBox; _setting : ISetting);
 
 		protected
 			FEventsEnabled : Boolean;
@@ -963,7 +968,7 @@ function TCustomCheckOptions.AddCheckboxComboItem(const _caption, _hint : string
 var
 	checkBox : TNotifyingCheckBox;
 	comboBox : TNotifyingComboBox;
-	caption : string;
+	newCaption : string;
 	expertChoice : Boolean;
 begin
 	Result := CreateItemWithPanel(_caption, citCheckBoxWithCombo, _setting);
@@ -971,36 +976,11 @@ begin
 	Result.ShowInExpertModeOnly := _showInExpertModeOnly;
 
 	// Check if item should be shown based on expert mode
-	if not(Assigned(FSettings) and Assigned(FSettings.AppSettings)) then begin
-		// No settings available, add item normally
-	end else begin
-		expertChoice := FSettings.AppSettings.IsExpertMode and _showInExpertModeOnly;
-		if not expertChoice and _showInExpertModeOnly then begin
-			// Expert mode only item, but expert mode is off - hide the control
-			Result.ParentPanel.Visible := False;
-		end;
-	end;
+	Result.ParentPanel.Visible :=
+	{ } CheckAndInitExpertMode(newCaption, _caption, _showInExpertModeOnly);
 
-	// Adjust caption if expert mode item
-	if _showInExpertModeOnly and Assigned(FSettings) and FSettings.AppSettings.IsExpertMode then begin
-		caption := _caption + ' *';
-	end else begin
-		caption := _caption;
-	end;
-
-	checkBox := CreateCheckBox(Result.ParentPanel, caption, _hint, _setting.Name) as TNotifyingCheckBox;
+	checkBox := CreateCheckBox(Result.ParentPanel, newCaption, _hint, _setting.Name) as TNotifyingCheckBox;
 	checkBox.OwnerItem := Result;
-
-	// Initialize checkbox state from setting value
-	if Assigned(_setting) then begin
-		case _setting.SettingType of
-			stBool : begin
-				var
-				boolSetting := _setting as IBoolSetting;
-				checkBox.Checked := boolSetting.Value;
-			end;
-		end;
-	end;
 
 	comboBox := CreateComboBox(_setting.Name, _hint, Result.ParentPanel) as TNotifyingComboBox;
 	comboBox.OwnerItem := Result;
@@ -1013,14 +993,7 @@ begin
 	end;
 
 	// Initialize combobox value from setting
-	if Assigned(_setting) and (_setting.SettingType = stString) then begin
-		var
-		strSetting := _setting as IStringSetting;
-		comboBox.Text := strSetting.Value;
-		// Enable/disable combo based on whether the checkbox should be checked
-		// For checkbox+combo items, combo is typically enabled when checkbox is checked
-		comboBox.Enabled := checkBox.Checked;
-	end;
+	InitCheckBoxAndComboValue(checkBox, comboBox, _setting);
 
 	Result.FSubItems[Ord(siFirst)] := checkBox;
 	Result.FSubItems[Ord(siSecond)] := comboBox;
@@ -1032,7 +1005,7 @@ function TCustomCheckOptions.AddCheckboxSpinItem(const _caption, _hint : string;
 var
 	checkBox : TNotifyingCheckBox;
 	spinEdit : TNotifyingSpinEdit;
-	caption : string;
+	newCaption : string;
 	expertChoice : Boolean;
 begin
 	Result := CreateItemWithPanel(_caption, citCheckBoxWithSpin, _setting);
@@ -1043,49 +1016,17 @@ begin
 	Result.SpinValue := _defaultValue;
 
 	// Check if item should be shown based on expert mode
-	if not(Assigned(FSettings) and Assigned(FSettings.AppSettings)) then begin
-		// No settings available, add item normally
-	end else begin
-		expertChoice := FSettings.AppSettings.IsExpertMode and _showInExpertModeOnly;
-		if not expertChoice and _showInExpertModeOnly then begin
-			// Expert mode only item, but expert mode is off - hide the control
-			Result.ParentPanel.Visible := False;
-		end;
-	end;
-
-	// Adjust caption if expert mode item
-	if _showInExpertModeOnly and Assigned(FSettings) and FSettings.AppSettings.IsExpertMode then begin
-		caption := _caption + ' *';
-	end else begin
-		caption := _caption;
-	end;
+	// Check if item should be shown based on expert mode
+	Result.ParentPanel.Visible :=
+	{ } CheckAndInitExpertMode(newCaption, _caption, _showInExpertModeOnly);
 
 	// Create the checkbox
-	checkBox := CreateCheckBox(Result.ParentPanel, caption, _hint, _setting.Name) as TNotifyingCheckBox;
+	checkBox := CreateCheckBox(Result.ParentPanel, newCaption, _hint, _setting.Name) as TNotifyingCheckBox;
 	checkBox.OwnerItem := Result;
 
-	// Initialize checkbox state from setting value
-	if Assigned(_setting) then begin
-		case _setting.SettingType of
-			stBool : begin
-				var
-				boolSetting := _setting as IBoolSetting;
-				checkBox.Checked := boolSetting.Value;
-			end;
-		end;
-	end;
-
 	// Create the spin edit
-	spinEdit := TNotifyingSpinEdit.Create(Self);
-	spinEdit.Name := 'spin' + _setting.Name;
-	spinEdit.Parent := Result.ParentPanel;
-	spinEdit.MinValue := _minValue;
-	spinEdit.MaxValue := _maxValue;
-	spinEdit.Value := _defaultValue;
-	spinEdit.Hint := _hint;
-	spinEdit.ShowHint := True;
-	spinEdit.OnChange := onItemChangeEventHandler;
-	spinEdit.Height := checkBox.Height;
+	spinEdit := CreateSpinEdit(Result.ParentPanel, _hint,
+		{ } _minValue, _maxValue, _defaultValue, checkBox.Height, _setting);
 	spinEdit.OwnerItem := Result;
 
 	// Initialize spin value from setting
@@ -1094,7 +1035,7 @@ begin
 		intSetting := _setting as IIntegerSetting;
 		spinEdit.Value := intSetting.Value;
 		// Enable/disable spin based on whether the checkbox should be checked
-		spinEdit.Enabled := checkBox.Checked;
+		checkBox.Checked := spinEdit.Value <> 0;
 	end;
 
 	Result.FSubItems[Ord(siFirst)] := checkBox;
@@ -1569,6 +1510,31 @@ begin
 	end;
 end;
 
+function TCustomCheckOptions.CheckAndInitExpertMode(var _newCaption : string; const _caption : string;
+	_showInExpertModeOnly : Boolean = False) : Boolean;
+var
+	expertChoice : Boolean;
+begin
+	Result := True;
+	if not(Assigned(FSettings) and Assigned(FSettings.AppSettings)) then begin
+		// No settings available, add item normally
+	end else begin
+		expertChoice := FSettings.AppSettings.IsExpertMode and _showInExpertModeOnly;
+		if not expertChoice and _showInExpertModeOnly then begin
+			// Expert mode only item, but expert mode is off - hide the control
+			Result := False;
+		end;
+	end;
+
+	// Adjust _newCaption if expert mode item
+	if _showInExpertModeOnly and Assigned(FSettings) and
+	{ } FSettings.AppSettings.IsExpertMode then begin
+		_newCaption := _caption + ' *';
+	end else begin
+		_newCaption := _caption;
+	end;
+end;
+
 procedure TCustomCheckOptions.onItemChangeEventHandler(_sender : TObject);
 var
 	checkBox : TCheckBox;
@@ -1794,6 +1760,42 @@ begin
 	Result.Style := csDropDown;
 	Result.AutoDropDownWidth := True;
 	Result.OnChange := onItemChangeEventHandler;
+end;
+
+function TCustomCheckOptions.CreateSpinEdit(const _parent : TWinControl; const _hint : string;
+	const _minValue, _maxValue, _defaultValue, _height : Integer; _setting : ISetting) : TNotifyingSpinEdit;
+begin
+	Result := TNotifyingSpinEdit.Create(Self);
+	Result.Name := 'spin' + _setting.Name;
+	Result.Parent := _parent;
+	Result.MinValue := _minValue;
+	Result.MaxValue := _maxValue;
+	Result.Value := _defaultValue;
+	Result.Hint := _hint;
+	Result.ShowHint := True;
+	Result.OnChange := onItemChangeEventHandler;
+	Result.Height := _height;
+end;
+
+procedure TCustomCheckOptions.InitCheckBoxAndComboValue(_checkBox : TNotifyingCheckBox; _comboBox : TNotifyingComboBox;
+	_setting : ISetting);
+begin
+	if Assigned(_setting) then begin
+		case _setting.SettingType of
+			stString : begin
+				var
+				strSetting := _setting as IStringSetting;
+				_comboBox.Text := strSetting.Value;
+				_checkBox.Checked := not strSetting.Value.IsEmpty;
+			end;
+			stInteger : begin
+				var
+				intSetting := _setting as IIntegerSetting;
+				_comboBox.Text := intSetting.Value.ToString;
+				_checkBox.Checked := intSetting.Value <> 0;
+			end;
+		end;
+	end;
 end;
 
 procedure TCustomCheckOptions.SetSettings(const Value : TRipGrepperSettings);
