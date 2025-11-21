@@ -50,7 +50,13 @@ uses
 
 function TSearchFormCtrlValueProxy.IsEmpty() : Boolean;
 begin
-	Result := (SearchText = '') and (ReplaceText = '') and (SearchPath = '') and (FileMasks = '') and (Encoding = '') and (OutputFormat = '') and (LineContext = 0);
+	Result := (SearchText = '') and
+	{ } (ReplaceText = '') and
+	{ } (SearchPath = '') and
+	{ } (FileMasks = '') and
+	{ } (Encoding = '') and
+	{ } (OutputFormat = '') and
+	{ } (LineContext = 0);
 end;
 
 function TSearchFormCtrlValueProxy.ToString() : string;
