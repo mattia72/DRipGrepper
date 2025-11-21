@@ -969,7 +969,6 @@ var
 	checkBox : TNotifyingCheckBox;
 	comboBox : TNotifyingComboBox;
 	newCaption : string;
-	expertChoice : Boolean;
 begin
 	Result := CreateItemWithPanel(_caption, citCheckBoxWithCombo, _setting);
 	Result.StartNewRow := _startNewRow;
@@ -1006,7 +1005,6 @@ var
 	checkBox : TNotifyingCheckBox;
 	spinEdit : TNotifyingSpinEdit;
 	newCaption : string;
-	expertChoice : Boolean;
 begin
 	Result := CreateItemWithPanel(_caption, citCheckBoxWithSpin, _setting);
 	Result.StartNewRow := _startNewRow;
