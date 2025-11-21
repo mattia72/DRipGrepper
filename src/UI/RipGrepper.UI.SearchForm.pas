@@ -1615,22 +1615,22 @@ begin
 	cmbReplaceText.Text := FCtrlProxy.ReplaceText;
 	dbgMsg.MsgFmt('cmbReplaceText.Text %s', [cmbReplaceText.Text]);
 
-	cbRgParamPretty.Checked := FCtrlProxy.IsPrettyChecked;
+//  cbRgParamPretty.Checked := FCtrlProxy.IsPrettyChecked;
 	dbgMsg.MsgFmt('cbRgParamPretty.Checked %s', [BoolToStr(cbRgParamPretty.Checked)]);
 
-	cbRgParamContext.Checked := FCtrlProxy.LineContext <> 0;
-	seContextLineNum.Enabled := cbRgParamContext.Checked;
-	seContextLineNum.Value := FCtrlProxy.LineContext;
+//  cbRgParamContext.Checked := FCtrlProxy.LineContext <> 0;
+//  seContextLineNum.Enabled := cbRgParamContext.Checked;
+//  seContextLineNum.Value := FCtrlProxy.LineContext;
 	dbgMsg.MsgFmt('seContextLineNum.Value=%d', [seContextLineNum.Value]);
 
 	// FRgFilterOptionsPanel.EventsEnabled := False;
 	try
 		dbgMsg.MsgFmt('FCtrlProxy.IsHiddenChecked=%s', [BoolToStr(FCtrlProxy.IsHiddenChecked, True)]);
-		cbRgParamHidden.Checked := FCtrlProxy.IsHiddenChecked;
+//      cbRgParamHidden.Checked := FCtrlProxy.IsHiddenChecked;
 		dbgMsg.MsgFmt('cbRgParamHidden.Checked=%s', [BoolToStr(cbRgParamHidden.Checked, True)]);
 
 		dbgMsg.MsgFmt('FCtrlProxy.IsNoIgnoreChecked=%s', [BoolToStr(FCtrlProxy.IsNoIgnoreChecked, True)]);
-		cbRgParamNoIgnore.Checked := FCtrlProxy.IsNoIgnoreChecked;
+//      cbRgParamNoIgnore.Checked := FCtrlProxy.IsNoIgnoreChecked;
 		dbgMsg.MsgFmt('cbRgParamNoIgnore.Checked=%s', [BoolToStr(cbRgParamNoIgnore.Checked, True)]);
 
 		// cbRgParamEncoding.Checked := FCtrlProxy.Encoding <> '';
@@ -1638,7 +1638,7 @@ begin
 		// cmbRgParamEncoding.Text := FCtrlProxy.Encoding;
 		dbgMsg.Msg('cmbRgParamEncoding.Text=' + cmbRgParamEncoding.Text);
 
-		cmbOutputFormat.Text := FCtrlProxy.OutputFormat;
+//      cmbOutputFormat.Text := FCtrlProxy.OutputFormat;
 		dbgMsg.Msg('cmbOutputFormat.Text=' + cmbOutputFormat.Text);
 	finally
 		// FRgFilterOptionsPanel.EventsEnabled := True;
@@ -1648,12 +1648,12 @@ end;
 procedure TRipGrepperSearchDialogForm.CopyProxyToSearchFormSettings(const _ctrlProxy : TSearchFormCtrlValueProxy;
 	const _settings : TSearchFormSettings);
 begin
-//	_settings.Hidden.Value := _ctrlProxy.IsHiddenChecked;
-//	_settings.NoIgnore.Value := _ctrlProxy.IsNoIgnoreChecked;
- _settings.Encoding.Value := _ctrlProxy.Encoding;
-//  _settings.OutputFormat.Value := _ctrlProxy.OutputFormat;
-//  _settings.Pretty.Value := _ctrlProxy.IsPrettyChecked;
-//  _settings.Context.Value := _ctrlProxy.LineContext;
+	_settings.Hidden.Value := _ctrlProxy.IsHiddenChecked;
+	_settings.NoIgnore.Value := _ctrlProxy.IsNoIgnoreChecked;
+	_settings.Encoding.Value := _ctrlProxy.Encoding;
+	_settings.OutputFormat.Value := _ctrlProxy.OutputFormat;
+	_settings.Pretty.Value := _ctrlProxy.IsPrettyChecked;
+	_settings.Context.Value := _ctrlProxy.LineContext;
 end;
 
 procedure TRipGrepperSearchDialogForm.CopySettingsToHistObj;
