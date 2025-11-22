@@ -248,16 +248,18 @@ type
 			procedure OnAppSettingsPanelItemSelect(Sender : TObject; Item : TCustomCheckItem);
 			procedure SetAppSettingsPanel(const _settings : TRipGrepperSettings);
 
-		private
-			FUpdateLayoutRuns : Boolean;
-			procedure SetExtensionContextPanel(const _settings : TRipGrepperSettings);
-			procedure SetPrettyCheckboxHint();
-			procedure UpdateExpertModeInOptionPanels(const _bIsExpert : boolean);
+	private
+		FUpdateLayoutRuns : Boolean;
+		function GetFormExpertHeightDiff() : Integer;
+		function GetFormNormalHeight() : integer;
+		procedure SetExtensionContextPanel(const _settings : TRipGrepperSettings);
+		procedure SetPrettyCheckboxHint();
+		procedure UpdateExpertModeInOptionPanels(const _bIsExpert : boolean);
+		property FormExpertHeightDiff : Integer read GetFormExpertHeightDiff;
+		property FormNormalHeight : integer read GetFormNormalHeight;
 
-		protected
-			procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;
-
-		public
+	protected
+		procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;		public
 			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettings; const _histObj : IHistoryItemObject);
 				reintroduce; virtual;
 			destructor Destroy; override;
@@ -1615,22 +1617,22 @@ begin
 	cmbReplaceText.Text := FCtrlProxy.ReplaceText;
 	dbgMsg.MsgFmt('cmbReplaceText.Text %s', [cmbReplaceText.Text]);
 
-//  cbRgParamPretty.Checked := FCtrlProxy.IsPrettyChecked;
+	// cbRgParamPretty.Checked := FCtrlProxy.IsPrettyChecked;
 	dbgMsg.MsgFmt('cbRgParamPretty.Checked %s', [BoolToStr(cbRgParamPretty.Checked)]);
 
-//  cbRgParamContext.Checked := FCtrlProxy.LineContext <> 0;
-//  seContextLineNum.Enabled := cbRgParamContext.Checked;
-//  seContextLineNum.Value := FCtrlProxy.LineContext;
+	// cbRgParamContext.Checked := FCtrlProxy.LineContext <> 0;
+	// seContextLineNum.Enabled := cbRgParamContext.Checked;
+	// seContextLineNum.Value := FCtrlProxy.LineContext;
 	dbgMsg.MsgFmt('seContextLineNum.Value=%d', [seContextLineNum.Value]);
 
 	// FRgFilterOptionsPanel.EventsEnabled := False;
 	try
 		dbgMsg.MsgFmt('FCtrlProxy.IsHiddenChecked=%s', [BoolToStr(FCtrlProxy.IsHiddenChecked, True)]);
-//      cbRgParamHidden.Checked := FCtrlProxy.IsHiddenChecked;
+		// cbRgParamHidden.Checked := FCtrlProxy.IsHiddenChecked;
 		dbgMsg.MsgFmt('cbRgParamHidden.Checked=%s', [BoolToStr(cbRgParamHidden.Checked, True)]);
 
 		dbgMsg.MsgFmt('FCtrlProxy.IsNoIgnoreChecked=%s', [BoolToStr(FCtrlProxy.IsNoIgnoreChecked, True)]);
-//      cbRgParamNoIgnore.Checked := FCtrlProxy.IsNoIgnoreChecked;
+		// cbRgParamNoIgnore.Checked := FCtrlProxy.IsNoIgnoreChecked;
 		dbgMsg.MsgFmt('cbRgParamNoIgnore.Checked=%s', [BoolToStr(cbRgParamNoIgnore.Checked, True)]);
 
 		// cbRgParamEncoding.Checked := FCtrlProxy.Encoding <> '';
@@ -1638,7 +1640,7 @@ begin
 		// cmbRgParamEncoding.Text := FCtrlProxy.Encoding;
 		dbgMsg.Msg('cmbRgParamEncoding.Text=' + cmbRgParamEncoding.Text);
 
-//      cmbOutputFormat.Text := FCtrlProxy.OutputFormat;
+		// cmbOutputFormat.Text := FCtrlProxy.OutputFormat;
 		dbgMsg.Msg('cmbOutputFormat.Text=' + cmbOutputFormat.Text);
 	finally
 		// FRgFilterOptionsPanel.EventsEnabled := True;
@@ -1889,13 +1891,16 @@ begin
 	cmbOptions.Visible := True;
 
 	// Allow vertical resizing in expert mode
-	Constraints.MaxHeight := 0;
+	Constraints.MinHeight := FormNormalHeight; // Allow shrinking to normal mode height
+	Constraints.MaxHeight := 0; // Allow unlimited vertical growth
 
-	// Set form height to base normal height + expert difference
-	Height := FFormNormalHeight + FFormExpertHeightDiff;
+	// Set form height only during initial layout (FormShow), not during user resize
+	if FShowing then begin
+		Height := FormNormalHeight + FormExpertHeightDiff;
+	end;
 
 	dbgMsg.MsgFmt('ExpertMode layout applied, gbOptionsFilters.Height=%d, Form.Height=%d (base %d + diff %d)',
-		[gbOptionsFilters.Height, Height, FFormNormalHeight, FFormExpertHeightDiff]);
+		[gbOptionsFilters.Height, Height, FormNormalHeight, FormExpertHeightDiff]);
 end;
 
 procedure TRipGrepperSearchDialogForm.ApplyNormalModeLayout();
@@ -1922,11 +1927,27 @@ begin
 
 	// Fix height in normal mode (no vertical resizing)
 	// Set form height to pre-calculated normal mode height
-	Constraints.MinHeight := FFormNormalHeight;
-	Constraints.MaxHeight := FFormNormalHeight;
-	Height := FFormNormalHeight;
+	Constraints.MinHeight := FormNormalHeight;
+	Constraints.MaxHeight := FormNormalHeight;
+	Height := FormNormalHeight;
 
 	dbgMsg.MsgFmt('NormalMode layout applied, gbOptionsFilters.Height=%d, Form.Height=%d', [gbOptionsFilters.Height, Height]);
+end;
+
+function TRipGrepperSearchDialogForm.GetFormExpertHeightDiff() : Integer;
+begin
+	if FFormExpertHeightDiff = 0 then begin
+		CalculateExpertModeHeights;
+	end;
+	Result := FFormExpertHeightDiff;
+end;
+
+function TRipGrepperSearchDialogForm.GetFormNormalHeight() : integer;
+begin
+	if FFormNormalHeight = 0 then begin
+		CalculateNormalModeHeights();
+	end;
+	Result := FFormNormalHeight;
 end;
 
 procedure TRipGrepperSearchDialogForm.SetExtensionContextPanel(const _settings : TRipGrepperSettings);
