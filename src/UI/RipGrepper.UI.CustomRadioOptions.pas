@@ -63,10 +63,6 @@ type
 
 	// Custom radio options control
 	TCustomRadioOptions = class(TCustomOptionsBase)
-		const
-			SPACE = 8;
-			ITEM_HEIGHT = 22;
-			GROUPBOX_PADDING = 8;
 
 		private
 			FCollection : TCustomRadioItems;
@@ -272,9 +268,9 @@ begin
 			col := visibleCount mod Columns;
 			row := visibleCount div Columns;
 
-			item.RadioButton.Left := (col * itemWidth) + SPACE;
-			item.RadioButton.Top := (row * ITEM_HEIGHT) + SPACE;
-			item.RadioButton.Width := itemWidth - (2 * SPACE);
+			item.RadioButton.Left := (col * itemWidth) + CTRL_SPACE;
+			item.RadioButton.Top := (row * ITEM_HEIGHT) + CTRL_SPACE;
+			item.RadioButton.Width := itemWidth - (2 * CTRL_SPACE);
 			item.RadioButton.Height := ITEM_HEIGHT - 2;
 			item.RadioButton.Tag := i;
 
@@ -287,7 +283,7 @@ begin
 	maxRows := Ceil(visibleCount / Columns);
 
 	// Adjust control height if needed
-	panelHeight := (maxRows * ITEM_HEIGHT) + (2 * SPACE);
+	panelHeight := (maxRows * ITEM_HEIGHT) + (2 * CTRL_SPACE);
 
 	// Adjust parent heights to accommodate content
 	AdjustParentHeights(panelHeight);

@@ -27,6 +27,12 @@ type
 			class operator Finalize(var Dest : TAutoSetReset);
 	end;
 
+	TCheckItemParentPanel = class(TPanel)
+		public
+			function GetTextHeight(const _sText : string) : Integer;
+			function GetFontSize() : integer;
+	end;
+
 	// Forward declarations
 	TCustomCheckOptions = class;
 	TCustomCheckItem = class;
@@ -80,9 +86,9 @@ type
 	TCustomCheckItem = class(TCollectionItem)
 		strict private
 			FHintHelper : TLabel;
-			FParentPanel : TPanel;
+			FParentPanel : TCheckItemParentPanel;
 			function GetHintHelper() : TLabel;
-			function GetParentPanel() : TPanel;
+			function GetParentPanel() : TCheckItemParentPanel;
 
 		private
 			FCaption : string;
@@ -142,7 +148,7 @@ type
 			property ComboBox : TComboBox read getComboBox;
 			property SpinEdit : TSpinEdit read getSpinEdit;
 			property HintHelper : TLabel read GetHintHelper;
-			property ParentPanel : TPanel read GetParentPanel;
+			property ParentPanel : TCheckItemParentPanel read GetParentPanel;
 			property ComboBoxItems : TStringList read FComboBoxItems write setComboBoxItems;
 			property Caption : string read FCaption write setCaption;
 			property TagObject : IInterface read FTagObject write setTagObject;
@@ -204,6 +210,11 @@ type
 
 	// Base class for custom option controls
 	TCustomOptionsBase = class(TCustomPanel)
+		const
+			CTRL_SPACE = 8;
+			ITEM_HEIGHT = 22;
+			GROUPBOX_PADDING = 8;
+
 		strict private
 			FExpertHeightDiff : Integer;
 			FUseFlowLayout : Boolean;
@@ -217,6 +228,8 @@ type
 			constructor Create(_owner : TComponent); override;
 			procedure AlignControlItems(); virtual; abstract;
 			procedure Clear; virtual; abstract;
+			function GetFontSize() : integer;
+			function GetTextHeight(const _sText : string) : Integer;
 			property ExpertHeightDiff : Integer read FExpertHeightDiff write FExpertHeightDiff;
 			property UseFlowLayout : Boolean read FUseFlowLayout write FUseFlowLayout;
 
@@ -227,12 +240,8 @@ type
 	// Custom checkbox options control
 	TCustomCheckOptions = class(TCustomOptionsBase)
 		const
-			ITEM_HEIGHT = 22;
-			PANEL_HEIGHT = 28;
 			BOTTOM_PADDING = 16;
-			SPACE = 8;
 			SECOND_CONTROL_SPIN_WIDTH = 60;
-			FIRST_CONTROL_WIDTH = 100;
 			SECOND_CONTROL_COMBO_WIDTH = 80;
 			CHECKBOX_MARGIN = 20;
 
@@ -245,22 +254,25 @@ type
 			procedure SetSettings(const Value : TRipGrepperSettings);
 
 		private
+			FiCheckBoxSquareWidth : Integer;
 			function CheckAndInitExpertMode(var _newCaption : string; const _caption : string; _showInExpertModeOnly : Boolean = False)
 				: Boolean;
 			function CreateComboBox(const _name, _hint : string; _parent : TPanel) : TComboBox;
 			function CreateSpinEdit(const _parent : TWinControl; const _hint : string;
 				const _minValue, _maxValue, _defaultValue, _height : Integer; _setting : ISetting) : TNotifyingSpinEdit;
+			function GetFirstControlWidth(const _item : TCustomCheckItem) : Integer;
 			procedure InitCheckBoxAndComboValue(_checkBox : TNotifyingCheckBox; _comboBox : TNotifyingComboBox; _setting : ISetting);
 
 		protected
 			FEventsEnabled : Boolean;
 			function HasTwoControlItems : Boolean;
-			function CalculateItemWidth(const _hasTwoControls : Boolean) : Integer;
+			function CalculateItemWidth(const _firstControlWidth : Integer; const _hasTwoControls : Boolean) : Integer;
 			function GetItemWidth(const _item : TCustomCheckItem; const _baseWidth : Integer) : Integer;
-			procedure CalculateActualWidths(const _itemWidth : Integer; out _actualFirstWidth, _actualSecondWidth : Integer);
+			procedure CalculateActualWidths(const _itemWidth, _firstControlWidth : Integer;
+				out _actualFirstWidth, _actualSecondWidth : Integer);
 			procedure PositionItemPanel(const _item : TCustomCheckItem; const _itemIndex, _itemWidth, _itemHeight : Integer);
-			procedure PositionItemControls(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth, _actualSecondWidth,
-				_itemHeight : Integer);
+			procedure PositionItemControls(const _item : TCustomCheckItem; const
+				_itemIndex, _actualFirstWidth, _actualSecondWidth : Integer);
 			// Helper methods for positioning different control types
 			procedure PositionCheckBoxOnly(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth, _itemHeight : Integer);
 			procedure PositionCheckBoxWithCombo(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth, _actualSecondWidth,
@@ -345,6 +357,16 @@ begin
 	Width := 200;
 	Height := 100;
 	FUseFlowLayout := False;
+end;
+
+function TCustomOptionsBase.GetFontSize() : integer;
+begin
+	Result := Font.Size;
+end;
+
+function TCustomOptionsBase.GetTextHeight(const _sText : string) : Integer;
+begin
+	Result := Canvas.TextHeight(_sText);
 end;
 
 procedure TCustomOptionsBase.setColumns(const _value : Integer);
@@ -569,7 +591,7 @@ begin
 	Result := FHintHelper;
 end;
 
-function TCustomCheckItem.GetParentPanel() : TPanel;
+function TCustomCheckItem.GetParentPanel() : TCheckItemParentPanel;
 begin
 	// Create parent panel if not exists
 	if not Assigned(FParentPanel) then begin
@@ -577,7 +599,7 @@ begin
 		items := TCustomCheckItems(Collection);
 		var
 		owner := items.GetOwner as TControl;
-		FParentPanel := TPanel.Create(owner);
+		FParentPanel := TCheckItemParentPanel.Create(owner);
 		FParentPanel.Name := 'pnl' + Setting.Name;
 		FParentPanel.Parent := owner as TWinControl;
 		FParentPanel.BevelOuter := bvNone;
@@ -861,6 +883,7 @@ begin
 	inherited Create(_owner);
 	FItems := TCustomCheckItems.Create(Self);
 	FEventsEnabled := True;
+	FiCheckBoxSquareWidth := GetSystemMetrics(SM_CXMENUCHECK);
 end;
 
 destructor TCustomCheckOptions.Destroy;
@@ -1121,7 +1144,7 @@ begin
 	end;
 end;
 
-function TCustomCheckOptions.CalculateItemWidth(const _hasTwoControls : Boolean) : Integer;
+function TCustomCheckOptions.CalculateItemWidth(const _firstControlWidth : Integer; const _hasTwoControls : Boolean) : Integer;
 begin
 	// This method calculates the base width for layout purposes
 	// Individual items will use this differently based on their type
@@ -1129,14 +1152,14 @@ begin
 	// If ANY two-control items exist, use their width as the base unit
 	if _hasTwoControls then begin
 		// Two-control items: itemWidth = first + space + second + margins
-		Result := FIRST_CONTROL_WIDTH + SPACE + SECOND_CONTROL_COMBO_WIDTH + (2 * SPACE);
+		Result := _firstControlWidth + CTRL_SPACE + SECOND_CONTROL_COMBO_WIDTH + (2 * CTRL_SPACE);
 	end else if FItems.Count = 1 then begin
-		// Single one-control item: use FIRST_CONTROL_WIDTH exactly
-		Result := FIRST_CONTROL_WIDTH + (2 * SPACE);
+		// Single one-control item: use its own width
+		Result := _firstControlWidth + (2 * CTRL_SPACE);
 	end else begin
 		// Multiple one-control items only: each is half the width of a two-control item
 		// So two one-control items together equal one two-control item
-		Result := (FIRST_CONTROL_WIDTH + SPACE + SECOND_CONTROL_COMBO_WIDTH + (2 * SPACE)) div 2;
+		Result := (_firstControlWidth + CTRL_SPACE + SECOND_CONTROL_COMBO_WIDTH + (2 * CTRL_SPACE)) div 2;
 	end;
 end;
 
@@ -1165,30 +1188,31 @@ begin
 	end;
 end;
 
-procedure TCustomCheckOptions.CalculateActualWidths(const _itemWidth : Integer; out _actualFirstWidth, _actualSecondWidth : Integer);
+procedure TCustomCheckOptions.CalculateActualWidths(const _itemWidth, _firstControlWidth : Integer;
+	out _actualFirstWidth, _actualSecondWidth : Integer);
 var
 	availableForControls : Integer;
 begin
 	// If only one item exists, don't calculate with second control width
 	if FItems.Count = 1 then begin
-		_actualFirstWidth := _itemWidth - (2 * SPACE);
+		_actualFirstWidth := _itemWidth - (2 * CTRL_SPACE);
 		_actualSecondWidth := 0;
 		Exit;
 	end;
 
 	// Calculate space available for controls (excluding margins)
-	availableForControls := _itemWidth - (3 * SPACE);
+	availableForControls := _itemWidth - (2 * CTRL_SPACE);
 
 	// Use fixed widths as specified in requirements
 	// Only adjust if there's not enough space
-	if availableForControls >= (FIRST_CONTROL_WIDTH + SECOND_CONTROL_COMBO_WIDTH) then begin
+	if availableForControls >= (_firstControlWidth + SECOND_CONTROL_COMBO_WIDTH) then begin
 		// Enough space - use standard widths
-		_actualFirstWidth := FIRST_CONTROL_WIDTH;
+		_actualFirstWidth := _firstControlWidth;
 		_actualSecondWidth := SECOND_CONTROL_COMBO_WIDTH;
 	end else if availableForControls >= 100 then begin
 		// Less space - use minimum for first, rest for second
-		_actualFirstWidth := FIRST_CONTROL_WIDTH;
-		_actualSecondWidth := availableForControls - FIRST_CONTROL_WIDTH;
+		_actualFirstWidth := _firstControlWidth;
+		_actualSecondWidth := availableForControls - _firstControlWidth;
 	end else begin
 		// Very limited space - split evenly but ensure minimums
 		_actualFirstWidth := Max(50, availableForControls div 2);
@@ -1197,28 +1221,28 @@ begin
 end;
 
 procedure TCustomCheckOptions.PositionItemPanel(const _item : TCustomCheckItem; const _itemIndex, _itemWidth, _itemHeight : Integer);
-const
-	SPACE = 8;
-var
-	col, row : Integer;
-	baseLeft : Integer;
-	panelHeight : Integer;
+var col, row : Integer;
+	baseLeft, itemHeight : Integer;
 begin
 	col := _itemIndex mod Columns;
 	row := _itemIndex div Columns;
 	baseLeft := col * _itemWidth;
 
+	// Use font height for item height calculation
+	if Assigned(_item.ParentPanel) and (_item.ParentPanel.GetFontSize > 0) then begin
+		itemHeight := _item.ParentPanel.GetTextHeight('Tg') + CTRL_SPACE;
+	end else begin
+		itemHeight := 28; // Fallback
+	end;
+
 	// Calculate panel height to accommodate controls
-	// Controls are positioned at SPACE div 2 from top and have height of _itemHeight - 2
-	// Add SPACE div 2 for bottom margin for symmetry
-	panelHeight := (SPACE div 2) + (_itemHeight - 2) + (SPACE div 2);
 
 	// Position the parent panel
 	if Assigned(_item.ParentPanel) then begin
 		_item.ParentPanel.Left := baseLeft;
-		_item.ParentPanel.Top := row * _itemHeight;
+		_item.ParentPanel.Top := row * itemHeight;
 		_item.ParentPanel.Width := _itemWidth;
-		_item.ParentPanel.Height := panelHeight; // Height to fully contain controls with margins
+		_item.ParentPanel.Height := itemHeight; // Height to fully contain controls with margins
 	end;
 end;
 
@@ -1231,22 +1255,21 @@ begin
 		Exit;
 	end;
 
-	_item.CheckBox.Left := SPACE;
-	_item.CheckBox.Top := SPACE div 2;
+	_item.CheckBox.Left := CTRL_SPACE;
+	_item.CheckBox.Top := CTRL_SPACE div 2;
 	iTextWidth := Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN;
 	if UseFlowLayout then begin
 		// Flow layout: calculate width based on caption text width using parent's canvas
-		// var checkboxWidth : integer := Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN;
-		// it causes not used variable warning !
+		var checkboxWidth : integer := Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN;
 		if (FItems.Count = 1) then begin
-			_item.CheckBox.Width := Max(FIRST_CONTROL_WIDTH, iTextWidth);
+			_item.CheckBox.Width := Max(checkboxWidth, iTextWidth);
 		end else begin
 			_item.CheckBox.Width := iTextWidth;
 		end;
 	end else begin
-		_item.CheckBox.Width := Max(_item.ParentPanel.Width - (2 * SPACE), iTextWidth);
+		_item.CheckBox.Width := Max(_item.ParentPanel.Width - (2 * CTRL_SPACE), iTextWidth);
 	end;
-	_item.CheckBox.Height := _itemHeight - 2;
+	_item.CheckBox.Height := _item.ParentPanel.Height - 2;
 	_item.CheckBox.Tag := _itemIndex;
 end;
 
@@ -1254,8 +1277,8 @@ procedure TCustomCheckOptions.PositionCheckBoxWithCombo(const _item : TCustomChe
 	const _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight : Integer);
 begin
 	if Assigned(_item.CheckBox) then begin
-		_item.CheckBox.Left := SPACE;
-		_item.CheckBox.Top := SPACE div 2;
+		_item.CheckBox.Left := CTRL_SPACE;
+		_item.CheckBox.Top := CTRL_SPACE div 2;
 
 		if UseFlowLayout then begin
 			// Flow layout: calculate width based on caption text width using parent's canvas
@@ -1265,7 +1288,7 @@ begin
 			_item.CheckBox.Width := _actualFirstWidth;
 		end;
 
-		_item.CheckBox.Height := _itemHeight - 2;
+		_item.CheckBox.Height := _item.ParentPanel.Height - 2;
 		_item.CheckBox.Tag := _itemIndex;
 	end;
 
@@ -1273,15 +1296,15 @@ begin
 	if Assigned(_item.ComboBox) then begin
 		if UseFlowLayout then begin
 			// Flow layout: position combobox after the checkbox's actual width
-			_item.ComboBox.Left := _item.CheckBox.Left + _item.CheckBox.Width + SPACE;
+			_item.ComboBox.Left := _item.CheckBox.Left + _item.CheckBox.Width + CTRL_SPACE;
 		end else begin
 			// Table layout: use fixed position
-			_item.ComboBox.Left := SPACE + _actualFirstWidth + SPACE;
+			_item.ComboBox.Left := CTRL_SPACE + _actualFirstWidth + CTRL_SPACE;
 		end;
 
-		_item.ComboBox.Top := SPACE div 2;
+		_item.ComboBox.Top := CTRL_SPACE div 2;
 		_item.ComboBox.Width := _actualSecondWidth;
-		_item.ComboBox.Height := _itemHeight - 2;
+		_item.ComboBox.Height := _item.ParentPanel.Height - 2;
 		_item.ComboBox.Tag := _itemIndex;
 	end;
 end;
@@ -1292,8 +1315,8 @@ var
 	spinWidth : Integer;
 begin
 	if Assigned(_item.CheckBox) then begin
-		_item.CheckBox.Left := SPACE;
-		_item.CheckBox.Top := SPACE div 2;
+		_item.CheckBox.Left := CTRL_SPACE;
+		_item.CheckBox.Top := CTRL_SPACE div 2;
 
 		if UseFlowLayout then begin
 			// Flow layout: calculate width based on caption text width using parent's canvas
@@ -1303,7 +1326,7 @@ begin
 			_item.CheckBox.Width := _actualFirstWidth;
 		end;
 
-		_item.CheckBox.Height := _itemHeight - 2;
+		_item.CheckBox.Height := _item.ParentPanel.Height - 2;
 		_item.CheckBox.Tag := _itemIndex;
 	end;
 
@@ -1314,15 +1337,15 @@ begin
 
 		if UseFlowLayout then begin
 			// Flow layout: position spin after the checkbox's actual width
-			_item.SpinEdit.Left := _item.CheckBox.Left + _item.CheckBox.Width + SPACE;
+			_item.SpinEdit.Left := _item.CheckBox.Left + _item.CheckBox.Width + CTRL_SPACE;
 		end else begin
 			// Table layout: use fixed position
-			_item.SpinEdit.Left := SPACE + _actualFirstWidth + SPACE;
+			_item.SpinEdit.Left := CTRL_SPACE + _actualFirstWidth + CTRL_SPACE;
 		end;
 
-		_item.SpinEdit.Top := SPACE div 2;
+		_item.SpinEdit.Top := CTRL_SPACE div 2;
 		_item.SpinEdit.Width := spinWidth;
-		_item.SpinEdit.Height := _itemHeight - 2;
+		_item.SpinEdit.Height := _item.ParentPanel.Height - 2;
 		_item.SpinEdit.Tag := _itemIndex;
 	end;
 end;
@@ -1330,12 +1353,12 @@ end;
 procedure TCustomCheckOptions.PositionLabelWithCombo(const _item : TCustomCheckItem;
 	const _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight : Integer);
 const
-	SPACE = 8;
+	CTRL_SPACE = 8;
 begin
 	// Position label
 	if Assigned(_item.LabelControl) then begin
-		_item.LabelControl.Left := SPACE;
-		_item.LabelControl.Top := SPACE div 2 + 3; // Slight vertical offset for better alignment
+		_item.LabelControl.Left := CTRL_SPACE;
+		_item.LabelControl.Top := CTRL_SPACE div 2 + 3; // Slight vertical offset for better alignment
 
 		if not UseFlowLayout then begin
 			// Table layout: set fixed width (override AutoSize if needed)
@@ -1343,7 +1366,7 @@ begin
 		end;
 		// Flow layout: AutoSize handles width automatically (set in AddLabelComboItem)
 
-		_item.LabelControl.Height := _itemHeight - 2;
+		_item.LabelControl.Height := _item.ParentPanel.Height - 2;
 	end;
 
 	// Position combobox
@@ -1351,35 +1374,35 @@ begin
 		if UseFlowLayout then begin
 			// Flow layout: position combobox after the label's actual width (respecting AutoSize)
 			if Assigned(_item.LabelControl) and _item.LabelControl.AutoSize then begin
-				_item.ComboBox.Left := _item.LabelControl.Left + _item.LabelControl.Width + SPACE;
+				_item.ComboBox.Left := _item.LabelControl.Left + _item.LabelControl.Width + CTRL_SPACE;
 			end else begin
-				_item.ComboBox.Left := SPACE + _actualFirstWidth + SPACE;
+				_item.ComboBox.Left := CTRL_SPACE + _actualFirstWidth + CTRL_SPACE;
 			end;
 		end else begin
 			// Table layout: use fixed position
-			_item.ComboBox.Left := SPACE + _actualFirstWidth + SPACE;
+			_item.ComboBox.Left := CTRL_SPACE + _actualFirstWidth + CTRL_SPACE;
 		end;
 
-		_item.ComboBox.Top := SPACE div 2;
+		_item.ComboBox.Top := CTRL_SPACE div 2;
 		_item.ComboBox.Width := _actualSecondWidth;
-		_item.ComboBox.Height := _itemHeight - 2;
+		_item.ComboBox.Height := _item.ParentPanel.Height - 2;
 		_item.ComboBox.Tag := _itemIndex;
 	end;
 end;
 
-procedure TCustomCheckOptions.PositionItemControls(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth, _actualSecondWidth,
-	_itemHeight : Integer);
+procedure TCustomCheckOptions.PositionItemControls(const _item : TCustomCheckItem;
+	const _itemIndex, _actualFirstWidth, _actualSecondWidth : Integer);
 begin
 	// Position controls within the panel (relative to panel) - delegate to specific helper methods
 	case _item.ItemType of
 		citCheckBox :
-		PositionCheckBoxOnly(_item, _itemIndex, _actualFirstWidth, _itemHeight);
+		PositionCheckBoxOnly(_item, _itemIndex, _actualFirstWidth, _item.ParentPanel.Height);
 		citCheckBoxWithCombo :
-		PositionCheckBoxWithCombo(_item, _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight);
+		PositionCheckBoxWithCombo(_item, _itemIndex, _actualFirstWidth, _actualSecondWidth, _item.ParentPanel.Height);
 		citCheckBoxWithSpin :
-		PositionCheckBoxWithSpin(_item, _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight);
+		PositionCheckBoxWithSpin(_item, _itemIndex, _actualFirstWidth, _actualSecondWidth, _item.ParentPanel.Height);
 		citLabelWithCombo :
-		PositionLabelWithCombo(_item, _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight);
+		PositionLabelWithCombo(_item, _itemIndex, _actualFirstWidth, _actualSecondWidth, _item.ParentPanel.Height);
 	end;
 end;
 
@@ -1399,8 +1422,8 @@ begin
 			// Add extra padding for groupboxes to account for border and caption
 			if p is TGroupBox then begin
 				ExpertHeightDiff := p.Height;
-				if p.Height < Height + SPACE then begin
-					p.Height := Height + SPACE;
+				if p.Height < Height + CTRL_SPACE then begin
+					p.Height := Height + CTRL_SPACE;
 					ExpertHeightDiff := ExpertHeightDiff - p.Height;
 					dbgMsg.MsgFmt('GroupBox %s height: %d, diff: %d', [p.Name, p.Height, ExpertHeightDiff]);
 				end else begin
@@ -1423,7 +1446,7 @@ var
 	i : Integer;
 	baseWidth, currentItemWidth : Integer;
 	item : TCustomCheckItem;
-	actualFirstWidth, actualSecondWidth : Integer;
+	actualFirstWidth, actualSecondWidth, itemHeight : Integer;
 	currentLeft, currentTop, currentRow : Integer;
 	maxWidth : Integer;
 	colCount : Integer;
@@ -1435,9 +1458,6 @@ begin
 		Exit;
 	end;
 
-	// Calculate base width for layout
-	baseWidth := CalculateItemWidth(HasTwoControlItems);
-
 	// Position panels and their controls
 	currentLeft := 0;
 	currentTop := 0;
@@ -1445,6 +1465,7 @@ begin
 	maxWidth := 0;
 	colCount := 0;
 
+	// Use font height for item height calculation
 	for i := 0 to FItems.Count - 1 do begin
 		item := FItems[i];
 
@@ -1453,24 +1474,30 @@ begin
 			Continue;
 		end;
 
+		itemHeight := item.ParentPanel.GetTextHeight('Tg') + CTRL_SPACE;
+
 		// Check if this item should start a new row
 		if item.StartNewRow and (i > 0) then begin
 			// Force new row
 			currentLeft := 0;
 			Inc(currentRow);
-			currentTop := currentRow * PANEL_HEIGHT;
+			currentTop := currentRow * (itemHeight + (CTRL_SPACE div 2));
 			colCount := 0;
 		end else begin
 			// Check if we need to wrap to next row based on columns
 			if (colCount > 0) and (colCount mod Columns = 0) then begin
 				currentLeft := 0;
 				Inc(currentRow);
-				currentTop := currentRow * PANEL_HEIGHT;
+				currentTop := currentRow * (itemHeight + (CTRL_SPACE div 2));
 				colCount := 0;
 			end;
 		end;
 
+		// Calculate first control width once for this item
+		actualFirstWidth := GetFirstControlWidth(item);
+
 		// Get width for this specific item
+		baseWidth := CalculateItemWidth(actualFirstWidth, HasTwoControlItems);
 		currentItemWidth := GetItemWidth(item, baseWidth);
 
 		// Position the parent panel at current position
@@ -1478,15 +1505,15 @@ begin
 			item.ParentPanel.Left := currentLeft;
 			item.ParentPanel.Top := currentTop;
 			item.ParentPanel.Width := currentItemWidth;
-			item.ParentPanel.Height := PANEL_HEIGHT;
+			item.ParentPanel.Height := itemHeight + (CTRL_SPACE div 2);
 			dbgMsg.MsgFmt('Item %s height: %d', [item.Setting.Name, item.ParentPanel.Height]);
 		end;
 
 		// Calculate actual widths for this item's controls
-		CalculateActualWidths(currentItemWidth, actualFirstWidth, actualSecondWidth);
+		CalculateActualWidths(currentItemWidth, actualFirstWidth, actualFirstWidth, actualSecondWidth);
 
-		// Position controls within the panel
-		PositionItemControls(item, i, actualFirstWidth, actualSecondWidth, ITEM_HEIGHT);
+		// Position controls within the panel, using dynamic height
+		PositionItemControls(item, i, actualFirstWidth, actualSecondWidth);
 
 		// Move to next position
 		currentLeft := currentLeft + currentItemWidth;
@@ -1505,6 +1532,30 @@ begin
 			Continue;
 		end;
 		item.updateHintHelperVisibility();
+	end;
+end;
+
+function TCustomCheckOptions.GetFirstControlWidth(const _item : TCustomCheckItem) : Integer;
+begin
+	Result := 100; // Default fallback
+	if not Assigned(_item) then begin
+		Exit;
+	end;
+
+	var
+	ctrl := _item.FSubItems[Ord(siFirst)];
+	if Assigned(ctrl) then begin
+		if ctrl is TCheckBox then begin
+			// Add spacing between checkbox square and text (typically 3-4 pixels)
+			var
+			caption := TCheckBox(ctrl).Caption;
+			var
+			captionWidth := _item.ParentPanel.Canvas.TextWidth(caption);
+			Result := FiCheckBoxSquareWidth + Trunc(CTRL_SPACE / 2) + captionWidth + CHECKBOX_MARGIN;
+		end else if ctrl is TLabel then begin
+			Result := _item.ParentPanel.Canvas.TextWidth(TLabel(ctrl).Caption) +
+			{ } CTRL_SPACE;
+		end;
 	end;
 end;
 
@@ -1717,15 +1768,17 @@ begin
 	// Determine if we have any two-control items
 	hasTwoControls := HasTwoControlItems;
 
-	// Calculate base width for layout
-	baseWidth := CalculateItemWidth(hasTwoControls);
-
 	// Calculate the width needed for the widest row
 	currentRowWidth := 0;
 	totalWidth := 0;
 
 	for i := 0 to FItems.Count - 1 do begin
 		item := FItems[i];
+		// Calculate first control width once
+		var
+		firstControlWidth := GetFirstControlWidth(item);
+		// Calculate base width for layout
+		baseWidth := CalculateItemWidth(firstControlWidth, hasTwoControls);
 
 		// Get width for this specific item
 		itemWidth := GetItemWidth(item, baseWidth);
@@ -1865,6 +1918,16 @@ begin
 	if Assigned(FOwnerItem) then begin
 		FOwnerItem.OnSubItemEnabledChanged(Self);
 	end;
+end;
+
+function TCheckItemParentPanel.GetFontSize() : integer;
+begin
+	Result := Font.Size;
+end;
+
+function TCheckItemParentPanel.GetTextHeight(const _sText : string) : Integer;
+begin
+	Result := Canvas.TextHeight(_sText);
 end;
 
 end.
