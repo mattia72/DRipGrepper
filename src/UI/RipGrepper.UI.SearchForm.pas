@@ -1617,6 +1617,7 @@ begin
 	cmbReplaceText.Text := FCtrlProxy.ReplaceText;
 	dbgMsg.MsgFmt('cmbReplaceText.Text %s', [cmbReplaceText.Text]);
 
+	// these assignings doesn't needed anymore, XxxxxOptionsPanel do it
 	// cbRgParamPretty.Checked := FCtrlProxy.IsPrettyChecked;
 	dbgMsg.MsgFmt('cbRgParamPretty.Checked %s', [BoolToStr(cbRgParamPretty.Checked)]);
 
@@ -1883,8 +1884,9 @@ begin
 	// Update gbOptionsFilters height (base + difference)
 	var
 	expertPanelHeight := FExtensionContextPanelNormalHeight + FExtensionContextPanelExpertHeightDiff;
-	gbOptionsFilters.Height := getOptionsAndFiltersHeight(False) + expertPanelHeight + FExtensionContextPanel.Margins.Top +
-		FExtensionContextPanel.Margins.Bottom;
+	gbOptionsFilters.Height := getOptionsAndFiltersHeight(False) + 
+	{ } expertPanelHeight + FExtensionContextPanel.Margins.Top +
+	{ }	FExtensionContextPanel.Margins.Bottom;
 
 	// Show expert controls
 	gbExpert.Visible := True;
