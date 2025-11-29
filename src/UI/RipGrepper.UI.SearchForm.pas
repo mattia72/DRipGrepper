@@ -159,7 +159,6 @@ type
 			FFormNormalHeight : Integer;
 
 			// Height differences for expert mode (relative to normal mode)
-			FExtensionContextPanelExpertHeightDiff : Integer;
 			FFormExpertHeightDiff : Integer;
 
 			// Common orig heights
@@ -1356,11 +1355,6 @@ begin
 	// Temporarily switch to expert mode to calculate heights
 	FExtensionContextPanel.ContextRadioGroup.ShowExpertItems(True);
 	FExtensionContextPanel.ContextRadioGroup.AlignControlItems();
-	var
-	expertExtensionContextHeight := FExtensionContextPanel.ContextRadioGroup.Height;
-
-	// Calculate the difference from normal mode
-	FExtensionContextPanelExpertHeightDiff := expertExtensionContextHeight - FExtensionContextPanelNormalHeight;
 
 	// Include extension panel height only if it will be visible (extension mode)
 	var
@@ -1382,8 +1376,8 @@ begin
 
 	FFormExpertHeightDiff := (expertOptionsFiltersHeight - normalOptionsFiltersHeight) + gbExpert.Height;
 
-	dbgMsg.MsgFmt('Expert mode differences - ExtensionPanel: +%d, Form: +%d (gbExpert.Height=%d, ExtPanelVisible=%s)',
-		[FExtensionContextPanelExpertHeightDiff, FFormExpertHeightDiff, gbExpert.Height, BoolToStr(FExtensionContextPanel.Visible, True)]);
+	dbgMsg.MsgFmt('Expert mode differences - Form: +%d (gbExpert.Height=%d, ExtPanelVisible=%s)',
+		[FFormExpertHeightDiff, gbExpert.Height, BoolToStr(FExtensionContextPanel.Visible, True)]);
 end;
 
 procedure TRipGrepperSearchDialogForm.CalculateAndStoreBaseHeights();
@@ -1982,18 +1976,13 @@ begin
 		FExtensionContextPanel.ContextRadioGroup.ShowExpertItems(_bIsExpert);
 		FExtensionContextPanel.ContextRadioGroup.AlignControlItems();
 
-		// Set height to base normal height + expert difference
-//      FExtensionContextPanel.Height := FExtensionContextPanelNormalHeight +
-//      { } IfThen(_bIsExpert, FExtensionContextPanelExpertHeightDiff, 0);
-
 		Result := FExtensionContextPanel.Height +
 		{ } FExtensionContextPanel.Margins.Top +
 		{ } FExtensionContextPanel.Margins.Bottom;
 
-		dbgMsg.MsgFmt('ExtensionPanel Height set to=%d (base %d + diff %d)', [
+		dbgMsg.MsgFmt('ExtensionPanel Height set to=%d (base %d)', [
 			{ } FExtensionContextPanel.Height,
-			{ } FExtensionContextPanelNormalHeight,
-			{ } FExtensionContextPanelExpertHeightDiff]);
+			{ } FExtensionContextPanelNormalHeight]);
 	end;
 end;
 
