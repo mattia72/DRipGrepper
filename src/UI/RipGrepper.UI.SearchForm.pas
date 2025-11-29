@@ -180,7 +180,7 @@ type
 			FCbClickEventEnabled : Boolean;
 			FMemoTextFormat : EMemoTextFormat;
 			FOptionsOutputOrigTop : Integer;
-			FpnlMiddleOrigHeight : Integer;
+
 			FOrigSearchFormSettings : TSearchFormSettings;
 			FTopPanelOrigHeight : Integer;
 			FShowing : Boolean;
@@ -251,8 +251,10 @@ type
 
 		private
 			FUpdateLayoutRuns : Boolean;
+			function getExtensionContextPanelHeight(const _bIsExpert : Boolean) : integer;
 			function GetFormExpertHeightDiff() : Integer;
 			function GetFormNormalHeight() : integer;
+			function getVisiblePanelHeight(_panel : TExtensionContexPanel) : integer;
 			procedure SetExtensionContextPanel(const _settings : TRipGrepperSettings);
 			procedure SetPrettyCheckboxHint();
 			procedure ShowExpertGroupCtrls(const _bShow : Boolean = True);
@@ -1303,7 +1305,7 @@ begin
 	FRgOutputOptionsPanelOrigHeight := FRgOutputOptionsPanel.Height;
 	FpnlPathOrigHeight := pnlPath.Height;
 	FOptionsOutputOrigTop := gbOptionsOutput.Top;
-	FpnlMiddleOrigHeight := pnlMiddle.Height;
+
 	FTopPanelOrigHeight := pnlTop.Height;
 	FOrigHeight := Height;
 
@@ -1322,20 +1324,28 @@ begin
 	FExtensionContextPanelNormalHeight := FExtensionContextPanel.ContextRadioGroup.Height;
 
 	// Calculate form height for normal mode (without expert group box)
+	// Include extension panel height only if it will be visible (extension mode)
 	var
-	normalOptionsFiltersHeight := getOptionsAndFiltersHeight(True) + FExtensionContextPanelNormalHeight + FExtensionContextPanel.Margins.Top
-		+ FExtensionContextPanel.Margins.Bottom;
+	extensionPanelHeight := 0;
+	if FExtensionContextPanel.Visible then begin
+		extensionPanelHeight := FExtensionContextPanelNormalHeight +
+		{ } FExtensionContextPanel.Margins.Top +
+		{ } FExtensionContextPanel.Margins.Bottom;
+	end;
+
+	var
+	normalOptionsFiltersHeight := getOptionsAndFiltersHeight(True) + extensionPanelHeight;
 
 	FFormNormalHeight :=
 	{ } GetFullHeight(pnlTop) +
 	{ } pnlMiddle.Margins.Top +
-	{ } GetFullHeight(lblPaths) +
 	{ } normalOptionsFiltersHeight +
 	{ } GetFullHeight(gbOptionsOutput) +
 	{ } pnlMiddle.Margins.Bottom +
 	{ } GetFullHeight(pnlBottom);
 
-	dbgMsg.MsgFmt('Normal mode - ExtensionPanel: %d, Form: %d', [FExtensionContextPanelNormalHeight, FFormNormalHeight]);
+	dbgMsg.MsgFmt('Normal mode - ExtensionPanel: %d (visible=%s), Form: %d',
+		[FExtensionContextPanelNormalHeight, BoolToStr(FExtensionContextPanel.Visible, True), FFormNormalHeight]);
 end;
 
 procedure TRipGrepperSearchDialogForm.CalculateExpertModeHeights();
@@ -1347,23 +1357,33 @@ begin
 	FExtensionContextPanel.ContextRadioGroup.ShowExpertItems(True);
 	FExtensionContextPanel.ContextRadioGroup.AlignControlItems();
 	var
-	expertGroupHeight := gbExpert.Height;
+	expertExtensionContextHeight := FExtensionContextPanel.ContextRadioGroup.Height;
 
 	// Calculate the difference from normal mode
-	FExtensionContextPanelExpertHeightDiff := expertGroupHeight - FExtensionContextPanelNormalHeight;
+	FExtensionContextPanelExpertHeightDiff := expertExtensionContextHeight - FExtensionContextPanelNormalHeight;
+
+	// Include extension panel height only if it will be visible (extension mode)
+	var
+	extensionPanelExpertHeight := getVisiblePanelHeight(FExtensionContextPanel);
 
 	var
-	expertOptionsFiltersHeight := getOptionsAndFiltersHeight(False) + expertGroupHeight + FExtensionContextPanel.Margins.Top +
-		FExtensionContextPanel.Margins.Bottom;
+	extensionPanelNormalHeight := 0;
+	if FExtensionContextPanel.Visible then begin
+		extensionPanelNormalHeight := FExtensionContextPanelNormalHeight +
+		{ } FExtensionContextPanel.Margins.Top +
+		{ } FExtensionContextPanel.Margins.Bottom;
+	end;
 
 	var
-	normalOptionsFiltersHeight := getOptionsAndFiltersHeight(True) + FExtensionContextPanelNormalHeight + FExtensionContextPanel.Margins.Top
-		+ FExtensionContextPanel.Margins.Bottom;
+	expertOptionsFiltersHeight := getOptionsAndFiltersHeight(False) + extensionPanelExpertHeight;
+
+	var
+	normalOptionsFiltersHeight := getOptionsAndFiltersHeight(True) + extensionPanelNormalHeight;
 
 	FFormExpertHeightDiff := (expertOptionsFiltersHeight - normalOptionsFiltersHeight) + gbExpert.Height;
 
-	dbgMsg.MsgFmt('Expert mode differences - ExtensionPanel: +%d, Form: +%d (gbExpert.Height=%d)',
-		[FExtensionContextPanelExpertHeightDiff, FFormExpertHeightDiff, gbExpert.Height]);
+	dbgMsg.MsgFmt('Expert mode differences - ExtensionPanel: +%d, Form: +%d (gbExpert.Height=%d, ExtPanelVisible=%s)',
+		[FExtensionContextPanelExpertHeightDiff, FFormExpertHeightDiff, gbExpert.Height, BoolToStr(FExtensionContextPanel.Visible, True)]);
 end;
 
 procedure TRipGrepperSearchDialogForm.CalculateAndStoreBaseHeights();
@@ -1825,7 +1845,8 @@ begin
 	optionsGroup.AlignControlItems;
 	FRgFilterOptionsPanel.AdjustHeight();
 	// Ensure parent panel height matches the filter panel plus padding
-	pnlRgFilterOptions.Height := FRgFilterOptionsPanel.Height + pnlRgFilterOptions.Padding.Top + pnlRgFilterOptions.Padding.Bottom;
+	pnlRgFilterOptions.Height := FRgFilterOptionsPanel.Height +
+	{ } pnlRgFilterOptions.Padding.Top + pnlRgFilterOptions.Padding.Bottom;
 
 	cbRgParamHidden := optionsGroup.GetItemByCaption(RG_FILTER_OPTION_HIDDEN_CAPTION).CheckBox;
 	cbRgParamNoIgnore := optionsGroup.GetItemByCaption(RG_FILTER_OPTION_NO_IGNORE_CAPTION).CheckBox;
@@ -1905,22 +1926,12 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.ApplyExpertModeLayout');
 
-	// Show expert items in extension panel
-	if Assigned(FExtensionContextPanel) then begin
-		FExtensionContextPanel.ContextRadioGroup.ShowExpertItems();
-		FExtensionContextPanel.ContextRadioGroup.AlignControlItems();
-		// Set height to base normal height + expert difference
-		FExtensionContextPanel.Height := FExtensionContextPanelNormalHeight + FExtensionContextPanelExpertHeightDiff;
-		dbgMsg.MsgFmt('ExtensionPanel Height set to=%d (base %d + diff %d)',
-			[FExtensionContextPanel.Height, FExtensionContextPanelNormalHeight, FExtensionContextPanelExpertHeightDiff]);
-	end;
+	// Show expert items in extension panel if visible
+	var
+	extensionPanelHeight := getExtensionContextPanelHeight(True);
 
 	// Update gbOptionsFilters height (base + difference)
-	var
-	expertPanelHeight := FExtensionContextPanelNormalHeight + FExtensionContextPanelExpertHeightDiff;
-	gbOptionsFilters.Height := getOptionsAndFiltersHeight(False) +
-	{ } expertPanelHeight + FExtensionContextPanel.Margins.Top +
-	{ } FExtensionContextPanel.Margins.Bottom;
+	gbOptionsFilters.Height := getOptionsAndFiltersHeight(False) + extensionPanelHeight;
 
 	ShowExpertGroupCtrls();
 
@@ -1942,18 +1953,12 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.ApplyNormalModeLayout');
 
-	// Show normal items in extension panel
-	if Assigned(FExtensionContextPanel) then begin
-		FExtensionContextPanel.ContextRadioGroup.ShowExpertItems(False);
-		FExtensionContextPanel.ContextRadioGroup.AlignControlItems();
-		// Set height to pre-calculated normal mode height
-		FExtensionContextPanel.Height := FExtensionContextPanelNormalHeight;
-		dbgMsg.MsgFmt('ExtensionPanel Height set to=%d', [FExtensionContextPanel.Height]);
-	end;
-
+	// Show normal items in extension panel if visible
+	var
+	extensionPanelHeight := getExtensionContextPanelHeight(False);
+	dbgMsg.MsgFmt('ExtensionPanel Height set to=%d', [FExtensionContextPanel.Height]);
 	// Update gbOptionsFilters height
-	gbOptionsFilters.Height := getOptionsAndFiltersHeight(True) + FExtensionContextPanelNormalHeight + FExtensionContextPanel.Margins.Top +
-		FExtensionContextPanel.Margins.Bottom;
+	gbOptionsFilters.Height := getOptionsAndFiltersHeight(extensionPanelHeight <> 0) + extensionPanelHeight;
 
 	// Hide expert controls
 	ShowExpertGroupCtrls(False);
@@ -1965,6 +1970,31 @@ begin
 	Height := FormNormalHeight;
 
 	dbgMsg.MsgFmt('NormalMode layout applied, gbOptionsFilters.Height=%d, Form.Height=%d', [gbOptionsFilters.Height, Height]);
+end;
+
+function TRipGrepperSearchDialogForm.getExtensionContextPanelHeight(const _bIsExpert : Boolean) : integer;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.getExtensionContextPanelHeight');
+
+	Result := 0;
+	if Assigned(FExtensionContextPanel) and FExtensionContextPanel.Visible then begin
+		FExtensionContextPanel.ContextRadioGroup.ShowExpertItems(_bIsExpert);
+		FExtensionContextPanel.ContextRadioGroup.AlignControlItems();
+
+		// Set height to base normal height + expert difference
+//      FExtensionContextPanel.Height := FExtensionContextPanelNormalHeight +
+//      { } IfThen(_bIsExpert, FExtensionContextPanelExpertHeightDiff, 0);
+
+		Result := FExtensionContextPanel.Height +
+		{ } FExtensionContextPanel.Margins.Top +
+		{ } FExtensionContextPanel.Margins.Bottom;
+
+		dbgMsg.MsgFmt('ExtensionPanel Height set to=%d (base %d + diff %d)', [
+			{ } FExtensionContextPanel.Height,
+			{ } FExtensionContextPanelNormalHeight,
+			{ } FExtensionContextPanelExpertHeightDiff]);
+	end;
 end;
 
 function TRipGrepperSearchDialogForm.GetFormExpertHeightDiff() : Integer;
@@ -1981,6 +2011,16 @@ begin
 		CalculateNormalModeHeights();
 	end;
 	Result := FFormNormalHeight;
+end;
+
+function TRipGrepperSearchDialogForm.getVisiblePanelHeight(_panel : TExtensionContexPanel) : integer;
+begin
+	Result := 0;
+	if _panel.Visible then begin
+		Result := _panel.ContextRadioGroup.Height +
+		{ } FExtensionContextPanel.Margins.Top +
+		{ } FExtensionContextPanel.Margins.Bottom;
+	end;
 end;
 
 procedure TRipGrepperSearchDialogForm.SetExtensionContextPanel(const _settings : TRipGrepperSettings);
