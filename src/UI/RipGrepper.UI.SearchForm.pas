@@ -240,6 +240,7 @@ type
 			procedure SetCmbSearchTextText(const _sText : string);
 			procedure SetCmbSearchTextAutoComplete(const _Value : Boolean);
 			procedure UpdateMemoTextFormat();
+			procedure AdjustMemoHeightByContent();
 			function getOptionsAndFiltersHeight(const _bWithLabel : Boolean) : integer;
 			procedure SetRgFilterOptionsPanel(const _settings : TRipGrepperSettings);
 			procedure SetRgOutputOptionsPanel(const _settings : TRipGrepperSettings);
@@ -248,18 +249,21 @@ type
 			procedure OnAppSettingsPanelItemSelect(Sender : TObject; Item : TCustomCheckItem);
 			procedure SetAppSettingsPanel(const _settings : TRipGrepperSettings);
 
-	private
-		FUpdateLayoutRuns : Boolean;
-		function GetFormExpertHeightDiff() : Integer;
-		function GetFormNormalHeight() : integer;
-		procedure SetExtensionContextPanel(const _settings : TRipGrepperSettings);
-		procedure SetPrettyCheckboxHint();
-		procedure UpdateExpertModeInOptionPanels(const _bIsExpert : boolean);
-		property FormExpertHeightDiff : Integer read GetFormExpertHeightDiff;
-		property FormNormalHeight : integer read GetFormNormalHeight;
+		private
+			FUpdateLayoutRuns : Boolean;
+			function GetFormExpertHeightDiff() : Integer;
+			function GetFormNormalHeight() : integer;
+			procedure SetExtensionContextPanel(const _settings : TRipGrepperSettings);
+			procedure SetPrettyCheckboxHint();
+			procedure ShowExpertGroupCtrls(const _bShow : Boolean = True);
+			procedure UpdateExpertModeInOptionPanels(const _bIsExpert : boolean);
+			property FormExpertHeightDiff : Integer read GetFormExpertHeightDiff;
+			property FormNormalHeight : integer read GetFormNormalHeight;
 
-	protected
-		procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;		public
+		protected
+			procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;
+
+		public
 			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettings; const _histObj : IHistoryItemObject);
 				reintroduce; virtual;
 			destructor Destroy; override;
@@ -1131,7 +1135,9 @@ end;
 procedure TRipGrepperSearchDialogForm.FormResize(Sender : TObject);
 begin
 	inherited;
-	UpdateLayoutForMode();
+	if not FShowing then begin
+		UpdateLayoutForMode();
+	end;
 end;
 
 function TRipGrepperSearchDialogForm.HasHistItemObjWithResult : Boolean;
@@ -1341,18 +1347,13 @@ begin
 	FExtensionContextPanel.ContextRadioGroup.ShowExpertItems(True);
 	FExtensionContextPanel.ContextRadioGroup.AlignControlItems();
 	var
-	expertPanelHeight := FExtensionContextPanel.ContextRadioGroup.Height;
+	expertGroupHeight := gbExpert.Height;
 
 	// Calculate the difference from normal mode
-	FExtensionContextPanelExpertHeightDiff := expertPanelHeight - FExtensionContextPanelNormalHeight;
-
-	// Calculate form height difference (expert mode includes expert group box)
-	// The form difference is the panel difference plus the expert group box height
-	// Ensure gbExpert is visible to get correct height
-	gbExpert.Visible := True;
+	FExtensionContextPanelExpertHeightDiff := expertGroupHeight - FExtensionContextPanelNormalHeight;
 
 	var
-	expertOptionsFiltersHeight := getOptionsAndFiltersHeight(False) + expertPanelHeight + FExtensionContextPanel.Margins.Top +
+	expertOptionsFiltersHeight := getOptionsAndFiltersHeight(False) + expertGroupHeight + FExtensionContextPanel.Margins.Top +
 		FExtensionContextPanel.Margins.Bottom;
 
 	var
@@ -1360,9 +1361,6 @@ begin
 		+ FExtensionContextPanel.Margins.Bottom;
 
 	FFormExpertHeightDiff := (expertOptionsFiltersHeight - normalOptionsFiltersHeight) + gbExpert.Height;
-
-	// Don't restore visibility - let the layout method handle it
-	// The layout method will set the correct visibility based on the mode
 
 	dbgMsg.MsgFmt('Expert mode differences - ExtensionPanel: +%d, Form: +%d (gbExpert.Height=%d)',
 		[FExtensionContextPanelExpertHeightDiff, FFormExpertHeightDiff, gbExpert.Height]);
@@ -1721,6 +1719,42 @@ begin
 	end else begin
 		memoCommandLine.Text := params.GetCommandLine(shellType);
 	end;
+	AdjustMemoHeightByContent();
+end;
+
+procedure TRipGrepperSearchDialogForm.AdjustMemoHeightByContent();
+var
+	lineCount : Integer;
+	lineHeight : Integer;
+	newHeight : Integer;
+	dc : HDC;
+	tm : TTextMetric;
+begin
+	if not Assigned(memoCommandLine) then begin
+		Exit;
+	end;
+
+	// Get number of lines
+	lineCount := memoCommandLine.Lines.Count;
+	if lineCount = 0 then begin
+		lineCount := 1; // At least one line
+	end;
+
+	// Calculate line height based on font using device context
+	dc := GetDC(memoCommandLine.Handle);
+	try
+		SelectObject(dc, memoCommandLine.Font.Handle);
+		GetTextMetrics(dc, tm);
+		lineHeight := tm.tmHeight + tm.tmExternalLeading + 2; // Add small padding
+	finally
+		ReleaseDC(memoCommandLine.Handle, dc);
+	end;
+
+	// Calculate new height: lines * line height + border padding
+	newHeight := (lineCount * lineHeight) + 8; // 8px for borders and padding
+
+	// Apply height
+	memoCommandLine.Constraints.MinHeight := newHeight;
 end;
 
 procedure TRipGrepperSearchDialogForm.OnRgFilterOptionsPanelItemSelect(Sender : TObject; Item : TCustomCheckItem);
@@ -1884,13 +1918,11 @@ begin
 	// Update gbOptionsFilters height (base + difference)
 	var
 	expertPanelHeight := FExtensionContextPanelNormalHeight + FExtensionContextPanelExpertHeightDiff;
-	gbOptionsFilters.Height := getOptionsAndFiltersHeight(False) + 
+	gbOptionsFilters.Height := getOptionsAndFiltersHeight(False) +
 	{ } expertPanelHeight + FExtensionContextPanel.Margins.Top +
-	{ }	FExtensionContextPanel.Margins.Bottom;
+	{ } FExtensionContextPanel.Margins.Bottom;
 
-	// Show expert controls
-	gbExpert.Visible := True;
-	cmbOptions.Visible := True;
+	ShowExpertGroupCtrls();
 
 	// Allow vertical resizing in expert mode
 	Constraints.MinHeight := FormNormalHeight; // Allow shrinking to normal mode height
@@ -1924,8 +1956,7 @@ begin
 		FExtensionContextPanel.Margins.Bottom;
 
 	// Hide expert controls
-	gbExpert.Visible := False;
-	cmbOptions.Visible := False;
+	ShowExpertGroupCtrls(False);
 
 	// Fix height in normal mode (no vertical resizing)
 	// Set form height to pre-calculated normal mode height
@@ -1963,6 +1994,15 @@ begin
 	FExtensionContextPanel.AddItems();
 	FExtensionContextPanel.OnContextChange := OnContextChange;
 	FExtensionContextPanel.AdjustHeight();
+end;
+
+procedure TRipGrepperSearchDialogForm.ShowExpertGroupCtrls(const _bShow : Boolean = True);
+begin
+	gbExpert.Visible := _bShow;
+	cmbOptions.Visible := _bShow;
+	if _bShow { and _bForce } then begin
+		AdjustMemoHeightByContent();
+	end;
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateExpertModeInOptionPanels(const _bIsExpert : boolean);
