@@ -234,7 +234,7 @@ end;
 
 procedure Register;
 begin
-	RegisterComponents('RipGrepper', [THistoryButtonedEdit]);
+	RegisterComponents('DRipGrepper', [THistoryButtonedEdit]);
 end;
 
 end.
