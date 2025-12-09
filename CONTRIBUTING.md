@@ -25,4 +25,6 @@ https://docwiki.embarcadero.com/RADStudio/Athens/en/Install_Component
 
 <img width="645" height="517" alt="image" src="https://github.com/user-attachments/assets/5e4d3c91-cdf8-4f46-bb0f-c9fdb4b1df37" />
 
+* Here you should choose ***Install into a new package*** !
+
 <img width="648" height="516" alt="image" src="https://github.com/user-attachments/assets/8c0f215b-3610-4494-b11f-45287399abee" />
