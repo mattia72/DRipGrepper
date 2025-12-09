@@ -58,6 +58,11 @@ type
 
 	TNullableString = Nullable<string>;
 
+	EMemoTextFormat = (mtfOneLine, mtfSeparateLines);
+	ESearchFormLayout = (sflReplace, sflExtension, sflExpert);
+
+	TSearchFormLayout = set of ESearchFormLayout;
+
 const
 	GUI_SEARCH_PARAMS : TArray<EGuiOption> = [
 	{ } EGuiOption.soMatchCase,

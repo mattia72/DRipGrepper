@@ -16,7 +16,8 @@ uses
 	Vcl.ExtCtrls,
 	RipGrepper.UI.CustomCheckOptions,
 	RipGrepper.Settings.RipGrepperSettings,
-	RipGrepper.Common.Constants;
+	RipGrepper.Common.Constants,
+	RipGrepper.Common.SimpleTypes;
 
 const
 	PNL_MAIN_PADDING_BOTTOM = 4;
@@ -32,6 +33,7 @@ type
 		strict private
 			FOnOptionChange : TRgOptionChangeEvent;
 			FSettings : TRipGrepperSettings;
+			FSearchFormLayout : TSearchFormLayout;
 			procedure SetSettings(const Value : TRipGrepperSettings);
 
 		protected
@@ -44,7 +46,7 @@ type
 			constructor Create(_owner : TComponent); override;
 			procedure AddItems(); virtual;
 			procedure AdjustHeight();
-			procedure UpdateExpertMode(const _bExpert : Boolean); virtual;
+			procedure UpdateExpertMode(const _layout : TSearchFormLayout); virtual;
 			property CheckOptionsGroup : TCustomCheckOptions read FCheckOptionsGroup;
 			property EventsEnabled : Boolean read FEventsEnabled write FEventsEnabled;
 			property Settings : TRipGrepperSettings read FSettings write SetSettings;
@@ -373,12 +375,16 @@ begin
 	end;
 end;
 
-procedure TOptionPanel.UpdateExpertMode(const _bExpert : Boolean);
+procedure TOptionPanel.UpdateExpertMode(const _layout : TSearchFormLayout);
 begin
-	CheckOptionsGroup.ShowExpertItems(_bExpert);
-	CheckOptionsGroup.AlignControlItems();
-	if _bExpert then begin
-		CheckOptionsGroup.SetDefaultValues();
+	var wasExpert := sflExpert in FSearchFormLayout;
+	if FSearchFormLayout <> _layout then begin
+		FSearchFormLayout := _layout;
+		CheckOptionsGroup.UpdateLayout(_layout);
+		CheckOptionsGroup.AlignControlItems();
+		if (not wasExpert) and  (sflExpert in FSearchFormLayout) then begin
+			CheckOptionsGroup.SetDefaultValues();
+		end;
 	end;
 end;
 

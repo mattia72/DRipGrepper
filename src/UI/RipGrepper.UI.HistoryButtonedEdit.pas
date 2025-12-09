@@ -16,35 +16,35 @@ type
 	// Custom ButtonedEdit control with history functionality
 	THistoryButtonedEdit = class(TButtonedEdit)
 		private
-			FHistory: TList<string>;
-			FHistoryIndex: Integer;
-			FMaxHistoryCount: Integer;
-			FNavigating: Boolean;
-			
+			FHistory : TList<string>;
+			FHistoryIndex : Integer;
+			FMaxHistoryCount : Integer;
+			FNavigating : Boolean;
+
 			procedure saveToHistory();
-			procedure navigateHistory(_direction: Integer);
-			function getCurrentHistoryText(): string;
-			function getHistoryCount(): Integer;
-			
+			procedure navigateHistory(_direction : Integer);
+			function getCurrentHistoryText() : string;
+			function getHistoryCount() : Integer;
+
 		protected
-			procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+			procedure KeyDown(var Key : Word; Shift : TShiftState); override;
 			procedure DoExit(); override;
-			
+
 		public
-			constructor Create(AOwner: TComponent); override;
+			constructor Create(AOwner : TComponent); override;
 			destructor Destroy(); override;
-			
+
 			// Public methods to manage history
-			procedure AddToHistory(const _text: string);
+			procedure AddToHistory(const _text : string);
 			procedure ClearHistory();
-			function GetHistoryItems(): TArray<string>;
-			procedure LoadFromHistory(const _items: TArray<string>);
-			
+			function GetHistoryItems() : TArray<string>;
+			procedure LoadFromHistory(const _items : TArray<string>);
+
 			// Properties
-			property MaxHistoryCount: Integer read FMaxHistoryCount write FMaxHistoryCount;
-			property HistoryIndex: Integer read FHistoryIndex;
-			property HistoryCount: Integer read getHistoryCount;
-			property CurrentHistoryText: string read getCurrentHistoryText;
+			property MaxHistoryCount : Integer read FMaxHistoryCount write FMaxHistoryCount;
+			property HistoryIndex : Integer read FHistoryIndex;
+			property HistoryCount : Integer read getHistoryCount;
+			property CurrentHistoryText : string read getCurrentHistoryText;
 	end;
 
 procedure Register;
@@ -52,11 +52,12 @@ procedure Register;
 implementation
 
 uses
-	Vcl.Forms;
+	Vcl.Forms,
+	RipGrepper.Common.Constants;
 
 { THistoryButtonedEdit }
 
-constructor THistoryButtonedEdit.Create(AOwner: TComponent);
+constructor THistoryButtonedEdit.Create(AOwner : TComponent);
 begin
 	inherited Create(AOwner);
 	FHistory := TList<string>.Create();
@@ -71,33 +72,33 @@ begin
 	inherited Destroy();
 end;
 
-function THistoryButtonedEdit.getHistoryCount(): Integer;
+function THistoryButtonedEdit.getHistoryCount() : Integer;
 begin
 	Result := FHistory.Count;
 end;
 
-procedure THistoryButtonedEdit.KeyDown(var Key: Word; Shift: TShiftState);
+procedure THistoryButtonedEdit.KeyDown(var Key : Word; Shift : TShiftState);
 begin
 	// Handle Up/Down arrow keys for history navigation
 	if Shift = [] then begin
 		case Key of
-			VK_UP: begin
+			VK_UP : begin
 				navigateHistory(-1); // Go to previous item (older)
 				Key := 0; // Consume the key
 				Exit;
 			end;
-			VK_DOWN: begin
+			VK_DOWN : begin
 				navigateHistory(1); // Go to next item (newer)
 				Key := 0; // Consume the key
 				Exit;
 			end;
-			VK_RETURN: begin
+			VK_RETURN : begin
 				// Save current text to history when Enter is pressed
 				saveToHistory();
 			end;
 		end;
 	end;
-	
+
 	inherited KeyDown(Key, Shift);
 end;
 
@@ -112,63 +113,63 @@ end;
 
 procedure THistoryButtonedEdit.saveToHistory();
 var
-	currentText: string;
-	existingIndex: Integer;
+	currentText : string;
+	existingIndex : Integer;
 begin
 	currentText := Trim(Text);
-	
+
 	// Don't save empty strings
 	if currentText = '' then begin
 		Exit;
 	end;
-	
+
 	// Check if text already exists in history
 	existingIndex := FHistory.IndexOf(currentText);
 	if existingIndex >= 0 then begin
 		// Move existing item to top of history
 		FHistory.Delete(existingIndex);
 	end;
-	
+
 	// Add to beginning of history (most recent first)
 	FHistory.Insert(0, currentText);
-	
+
 	// Limit history size
 	while FHistory.Count > FMaxHistoryCount do begin
 		FHistory.Delete(FHistory.Count - 1);
 	end;
-	
+
 	// Reset history index
 	FHistoryIndex := -1;
 end;
 
-procedure THistoryButtonedEdit.navigateHistory(_direction: Integer);
+procedure THistoryButtonedEdit.navigateHistory(_direction : Integer);
 var
-	newIndex: Integer;
+	newIndex : Integer;
 begin
 	if FHistory.Count = 0 then begin
 		Exit;
 	end;
-	
+
 	FNavigating := True;
 	try
 		newIndex := FHistoryIndex + _direction;
-		
+
 		// Clamp index to valid range
 		if newIndex < -1 then begin
 			newIndex := -1;
 		end else if newIndex >= FHistory.Count then begin
 			newIndex := FHistory.Count - 1;
 		end;
-		
+
 		FHistoryIndex := newIndex;
-		
+
 		// Update text based on history index
 		if FHistoryIndex = -1 then begin
 			Text := ''; // Current/new text
 		end else begin
 			Text := FHistory[FHistoryIndex];
 		end;
-		
+
 		// Select all text for easy replacement
 		SelectAll();
 	finally
@@ -176,7 +177,7 @@ begin
 	end;
 end;
 
-function THistoryButtonedEdit.getCurrentHistoryText(): string;
+function THistoryButtonedEdit.getCurrentHistoryText() : string;
 begin
 	if (FHistoryIndex >= 0) and (FHistoryIndex < FHistory.Count) then begin
 		Result := FHistory[FHistoryIndex];
@@ -185,21 +186,22 @@ begin
 	end;
 end;
 
-procedure THistoryButtonedEdit.AddToHistory(const _text: string);
+procedure THistoryButtonedEdit.AddToHistory(const _text : string);
 var
-	textToAdd: string;
+	textToAdd : string;
 begin
 	textToAdd := Trim(_text);
 	if textToAdd <> '' then begin
 		// Remove if already exists
-		var existingIndex := FHistory.IndexOf(textToAdd);
+		var
+		existingIndex := FHistory.IndexOf(textToAdd);
 		if existingIndex >= 0 then begin
 			FHistory.Delete(existingIndex);
 		end;
-		
+
 		// Add to beginning
 		FHistory.Insert(0, textToAdd);
-		
+
 		// Limit size
 		while FHistory.Count > FMaxHistoryCount do begin
 			FHistory.Delete(FHistory.Count - 1);
@@ -214,17 +216,17 @@ begin
 	FHistoryIndex := -1;
 end;
 
-function THistoryButtonedEdit.GetHistoryItems(): TArray<string>;
+function THistoryButtonedEdit.GetHistoryItems() : TArray<string>;
 begin
 	Result := FHistory.ToArray();
 end;
 
-procedure THistoryButtonedEdit.LoadFromHistory(const _items: TArray<string>);
+procedure THistoryButtonedEdit.LoadFromHistory(const _items : TArray<string>);
 var
-	i: Integer;
+	i : Integer;
 begin
 	FHistory.Clear();
-	for i := 0 to High(_items) do begin
+	for i := 0 to high(_items) do begin
 		if Trim(_items[i]) <> '' then begin
 			FHistory.Add(_items[i]);
 		end;
@@ -234,7 +236,7 @@ end;
 
 procedure Register;
 begin
-	RegisterComponents('DRipGrepper', [THistoryButtonedEdit]);
+	RegisterComponents(DRIPGREPPER_APPNAME, [THistoryButtonedEdit]);
 end;
 
 end.

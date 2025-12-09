@@ -50,12 +50,6 @@ const
 	RG_OPTIONS_PADDING_TOP = 4;
 
 type
-	EMemoTextFormat = (mtfOneLine, mtfSeparateLines);
-	ESearchFormLayout = (sflReplace, sflExtension, sflExpert);
-
-	TSearchFormLayout = set of ESearchFormLayout;
-
-type
 	TRipGrepperSearchDialogForm = class(TForm)
 		pnlMiddle : TPanel;
 		lblParams : TLabel;
@@ -245,7 +239,7 @@ type
 			procedure SetLayout(const _bSet : Boolean; _eVal : ESearchFormLayout);
 			procedure SetPrettyCheckboxHint();
 			procedure ShowExpertGroupCtrls(const _bShow : Boolean = True);
-			procedure UpdateExpertModeInOptionPanels(const _bIsExpert : boolean);
+			procedure UpdateExpertModeInOptionPanels;
 
 		protected
 			procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;
@@ -563,7 +557,8 @@ begin
 		ScaleBy(TRipGrepperDpiScaler.GetActualDPI, self.PixelsPerInch);
 
 		// Apply the layout for the current mode
-		AdjustLayout();
+		// AdjustLayout();
+		UpdateExpertModeInOptionPanels();
 
 		ActiveControl := cmbSearchText;
 	finally
@@ -1792,7 +1787,7 @@ begin
 		Exit;
 	end;
 
-	UpdateExpertModeInOptionPanels(isExpert);
+	UpdateExpertModeInOptionPanels();
 end;
 
 procedure TRipGrepperSearchDialogForm.SetPrettyCheckboxHint();
@@ -1905,8 +1900,8 @@ begin
 
 	Result := 0;
 	if Assigned(FExtensionContextPanel) and FExtensionContextPanel.Visible then begin
-		// Use UpdateExpertMode which properly handles ShowExpertItems, AlignControlItems
-  	FExtensionContextPanel.UpdateExpertMode(_bIsExpert);
+		// Use UpdateExpertMode which properly handles UpdateLayout, AlignControlItems
+		FExtensionContextPanel.UpdateExpertMode(FSearchFormLayout);
 		// AdjustHeight recalculates panel height based on radio group
 		FExtensionContextPanel.AdjustHeight();
 
@@ -1973,12 +1968,12 @@ begin
 	end;
 end;
 
-procedure TRipGrepperSearchDialogForm.UpdateExpertModeInOptionPanels(const _bIsExpert : boolean);
+procedure TRipGrepperSearchDialogForm.UpdateExpertModeInOptionPanels();
 begin
-	FExtensionContextPanel.UpdateExpertMode(_bIsExpert);
-	FRgFilterOptionsPanel.UpdateExpertMode(_bIsExpert);
-	FRgOutputOptionsPanel.UpdateExpertMode(_bIsExpert);
-	FAppSettingsPanel.UpdateExpertMode(_bIsExpert);
+	FExtensionContextPanel.UpdateExpertMode(FSearchFormLayout);
+	FRgFilterOptionsPanel.UpdateExpertMode(FSearchFormLayout);
+	FRgOutputOptionsPanel.UpdateExpertMode(FSearchFormLayout);
+	FAppSettingsPanel.UpdateExpertMode(FSearchFormLayout);
 
 	// AdjustLayout will apply the appropriate layout mode
 	// The layout methods will handle extension panel sizing

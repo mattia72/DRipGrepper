@@ -18,7 +18,8 @@ uses
 	RipGrepper.Settings.ExtensionSettings,
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.UI.CustomRadioOptions,
-	RipGrepper.UI.RgOptionsPanel;
+	RipGrepper.UI.RgOptionsPanel,
+	RipGrepper.Common.SimpleTypes;
 
 type
 	TExtensionContexPanel = class(TOptionPanel)
@@ -31,12 +32,13 @@ type
 			FContextRadioGroup : TCustomRadioOptions;
 			FOnContextChange : TExtensionContextChangeEvent;
 			FRadioItemIndex : Integer;
+			FSearchFormLayout: TSearchFormLayout;
+
 			procedure addItem(const _caption : string; const _dic : TDelphiIDEContext; const _bInExpertModeOnly : Boolean = False);
 			procedure addItemIntern(const _caption : string; const _dic : TDelphiIDEContext; const _isExpert : Boolean);
 			function getContextValues() : IIDEContextValues;
 			function getSelectedItem() : TCustomRadioItem;
 			procedure onRadioItemSelect(_sender : TObject; _item : TCustomRadioItem);
-
 		public
 			constructor Create(_owner : TComponent); override;
 			procedure AddItems(); override;
@@ -45,7 +47,7 @@ type
 			class function GetAsHint(var _paths : TArray<string>) : string; overload;
 			function GetSelectedIDEContext : EDelphiIDESearchContext;
 			procedure SetSelectedIDEContext(_ideContext : EDelphiIDESearchContext);
-			procedure UpdateExpertMode(const _bExpert : Boolean); override;
+			procedure UpdateExpertMode(const _layout : TSearchFormLayout); override;
 			property ContextRadioGroup : TCustomRadioOptions read FContextRadioGroup;
 			property ContextValues : IIDEContextValues read getContextValues;
 			property SelectedItem : TCustomRadioItem read getSelectedItem;
@@ -228,12 +230,15 @@ begin
 	end;
 end;
 
-procedure TExtensionContexPanel.UpdateExpertMode(const _bExpert : Boolean);
+procedure TExtensionContexPanel.UpdateExpertMode(const _layout : TSearchFormLayout);
 begin
-	ContextRadioGroup.ShowExpertItems(_bExpert);
-	ContextRadioGroup.AlignControlItems();
-	if _bExpert then begin
-		ContextRadioGroup.SetDefaultValues();
+	if FSearchFormLayout = _layout then begin
+		ContextRadioGroup.UpdateLayout(FSearchFormLayout);
+		ContextRadioGroup.AlignControlItems();
+		if sflExpert in  FSearchFormLayout then begin
+			ContextRadioGroup.SetDefaultValues();
+		end;
+		FSearchFormLayout := _layout;
 	end;
 end;
 

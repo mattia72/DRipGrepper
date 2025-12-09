@@ -14,7 +14,8 @@ uses
 	Winapi.Windows,
 	Winapi.Messages,
 	RipGrepper.Settings.RipGrepperSettings,
-	RipGrepper.Settings.SettingVariant;
+	RipGrepper.Settings.SettingVariant,
+	RipGrepper.Common.SimpleTypes;
 
 type
 
@@ -222,6 +223,7 @@ type
 			procedure setColumns(const _value : Integer);
 
 		protected
+			FSearchFormLayout : TSearchFormLayout;
 			procedure Resize; override;
 
 		public
@@ -271,8 +273,8 @@ type
 			procedure CalculateActualWidths(const _itemWidth, _firstControlWidth : Integer;
 				out _actualFirstWidth, _actualSecondWidth : Integer);
 			procedure PositionItemPanel(const _item : TCustomCheckItem; const _itemIndex, _itemWidth, _itemHeight : Integer);
-			procedure PositionItemControls(const _item : TCustomCheckItem; const
-				_itemIndex, _actualFirstWidth, _actualSecondWidth : Integer);
+			procedure PositionItemControls(const _item : TCustomCheckItem;
+				const _itemIndex, _actualFirstWidth, _actualSecondWidth : Integer);
 			// Helper methods for positioning different control types
 			procedure PositionCheckBoxOnly(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth, _itemHeight : Integer);
 			procedure PositionCheckBoxWithCombo(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth, _actualSecondWidth,
@@ -306,7 +308,7 @@ type
 			function GetItemByCaption(const _caption : string) : TCustomCheckItem;
 			procedure SetItemControlEnabled(_itemIdx : Integer; _controlIdx : ESubItemIndex; _enabled : Boolean);
 			function GetMinimumWidth() : Integer;
-			procedure ShowExpertItems(const _bShow : Boolean = True);
+			procedure UpdateLayout(const _layout : TSearchFormLayout);
 			procedure SetDefaultValues();
 			property EventsEnabled : Boolean read FEventsEnabled write FEventsEnabled;
 			property SelectedItems : TArray<TCustomCheckItem> read getSelectedItems;
@@ -322,9 +324,10 @@ implementation
 uses
 	Math,
 	RipGrepper.Common.IDEContextValues,
-	RipGrepper.Common.SimpleTypes,
+
 	Spring,
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils,
+	RipGrepper.Common.Constants;
 
 { TCustomCheckItemsEnumerator }
 
@@ -1221,7 +1224,8 @@ begin
 end;
 
 procedure TCustomCheckOptions.PositionItemPanel(const _item : TCustomCheckItem; const _itemIndex, _itemWidth, _itemHeight : Integer);
-var col, row : Integer;
+var
+	col, row : Integer;
 	baseLeft, itemHeight : Integer;
 begin
 	col := _itemIndex mod Columns;
@@ -1260,7 +1264,8 @@ begin
 	iTextWidth := Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN;
 	if UseFlowLayout then begin
 		// Flow layout: calculate width based on caption text width using parent's canvas
-		var checkboxWidth : integer := Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN;
+		var
+			checkboxWidth : integer := Canvas.TextWidth(_item.CheckBox.Caption) + CHECKBOX_MARGIN;
 		if (FItems.Count = 1) then begin
 			_item.CheckBox.Width := Max(checkboxWidth, iTextWidth);
 		end else begin
@@ -1854,11 +1859,13 @@ begin
 	FSettings := Value;
 end;
 
-procedure TCustomCheckOptions.ShowExpertItems(const _bShow : Boolean = True);
+procedure TCustomCheckOptions.UpdateLayout(const _layout : TSearchFormLayout);
 begin
-	for var item in Items do begin
-		if item.ShowInExpertModeOnly then begin
-			item.ParentPanel.Visible := _bShow;
+	if FSearchFormLayout = _layout then begin
+		for var item in Items do begin
+			if item.ShowInExpertModeOnly then begin
+				item.ParentPanel.Visible := sflExpert in FSearchFormLayout;
+			end;
 		end;
 	end;
 end;
@@ -1874,7 +1881,7 @@ end;
 
 procedure Register;
 begin
-	RegisterComponents('Custom', [TCustomCheckOptions]);
+	RegisterComponents(DRIPGREPPER_APPNAME, [TCustomCheckOptions]);
 end;
 
 class function TAutoSetReset.New(var _bValue : Boolean; const _bInitValue : Boolean = True) : TAutoSetReset;

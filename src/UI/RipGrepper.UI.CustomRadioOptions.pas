@@ -11,7 +11,8 @@ uses
 	Vcl.StdCtrls,
 	Vcl.ExtCtrls,
 	Winapi.Windows,
-	RipGrepper.UI.CustomCheckOptions;
+	RipGrepper.UI.CustomCheckOptions, 
+	RipGrepper.Common.SimpleTypes;
 
 type
 	// Forward declarations
@@ -64,7 +65,8 @@ type
 	// Custom radio options control
 	TCustomRadioOptions = class(TCustomOptionsBase)
 
-		private
+		strict private
+			FSearchFormLayout: TSearchFormLayout;
 			FCollection : TCustomRadioItems;
 			FItemIndex : Integer;
 			FOnRadioItemSelect : TRadioItemSelectEvent;
@@ -81,7 +83,7 @@ type
 			procedure Clear; override;
 			function AddRadioButton(const _caption, _hint : string; _orderIndex : Integer; _obj : IInterface = nil) : TCustomRadioItem;
 			procedure AlignControlItems(); override;
-			procedure ShowExpertItems(const _bShow : Boolean = True);
+			procedure UpdateLayout(const _layout: TSearchFormLayout);
 			procedure SetDefaultValues();
 
 		published
@@ -97,8 +99,7 @@ implementation
 
 uses
 	Math,
-	RipGrepper.Common.IDEContextValues,
-	RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.IDEContextValues, RipGrepper.Common.Constants;
 
 { TCustomRadioItem }
 
@@ -386,13 +387,13 @@ begin
 	end;
 end;
 
-procedure TCustomRadioOptions.ShowExpertItems(const _bShow : Boolean = True);
+procedure TCustomRadioOptions.UpdateLayout(const _layout: TSearchFormLayout);
 begin
 	for var ci in Collection do begin
 		var
 		item := ci as TCustomRadioItem;
 		if item.ShowInExpertModeOnly and Assigned(item.RadioButton) then begin
-			item.RadioButton.Visible := _bShow;
+			item.RadioButton.Visible := sflExpert in _layout;
 		end;
 	end;
 end;
@@ -404,7 +405,7 @@ end;
 
 procedure Register;
 begin
-	RegisterComponents('Custom', [TCustomRadioOptions]);
+	RegisterComponents(DRIPGREPPER_APPNAME, [TCustomRadioOptions]);
 end;
 
 end.
