@@ -21,6 +21,7 @@
 **/DRipGrepperResource.rc
 images/icons/convert/*.*
 images/icons/bmps/*.*
+images/icons/ripgrepper-icons/**/*.*
 images/dripgrepper-gemini.jpg
 deploy/SECRET_TOKEN
 DRipGrepper_project.tvsconfig
