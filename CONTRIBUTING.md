@@ -28,3 +28,6 @@ https://docwiki.embarcadero.com/RADStudio/Athens/en/Install_Component
 * Here you should choose ***Install into a new package*** !
 
 <img width="648" height="516" alt="image" src="https://github.com/user-attachments/assets/8c0f215b-3610-4494-b11f-45287399abee" />
+
+* If installation doesn't work, (eg. Access violation at address xxxx in module 'rtl280.bpl') try to change the project's resource compiler from Borland (BRCC32) to the Windows SDK, and restart the IDE. (https://en.delphipraxis.net/topic/7775-delphi-112-cannot-create-and-install-new-component/)
+
