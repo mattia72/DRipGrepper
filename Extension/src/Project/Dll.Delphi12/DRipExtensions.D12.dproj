@@ -258,7 +258,7 @@
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.IDEContextValues.pas"/>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas"/>
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.IOTAUtils.PathProcessor.pas"/>
-        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.HistoryButtonedEdit.pas"/>
+        <DCCReference Include="..\..\..\..\src\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas"/>
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.IOTAFileUtils.pas"/>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.CustomCheckOptions.pas"/>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.CustomRadioOptions.pas"/>

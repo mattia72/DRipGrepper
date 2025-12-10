@@ -1,4 +1,4 @@
-unit RipGrepper.UI.HistoryButtonedEdit;
+unit RipGrepper.UI.Components.HistoryButtonedEdit;
 
 interface
 
@@ -52,8 +52,7 @@ procedure Register;
 implementation
 
 uses
-	Vcl.Forms,
-	RipGrepper.Common.Constants;
+	Vcl.Forms;
 
 { THistoryButtonedEdit }
 
@@ -236,7 +235,7 @@ end;
 
 procedure Register;
 begin
-	RegisterComponents(DRIPGREPPER_APPNAME, [THistoryButtonedEdit]);
+	RegisterComponents('DRipGrepper', [THistoryButtonedEdit]);
 end;
 
 end.

@@ -66,7 +66,7 @@ type
 	TCustomRadioOptions = class(TCustomOptionsBase)
 
 		strict private
-			FSearchFormLayout: TSearchFormLayout;
+//    FSearchFormLayout: TSearchFormLayout;
 			FCollection : TCustomRadioItems;
 			FItemIndex : Integer;
 			FOnRadioItemSelect : TRadioItemSelectEvent;

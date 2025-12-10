@@ -112,7 +112,7 @@ uses
   RipGrepper.Common.IDEContextValues in '..\..\..\..\src\Common\RipGrepper.Common.IDEContextValues.pas',
   RipGrepper.UI.SearchForm.CtrlValueProxy in '..\..\..\..\src\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas',
   RipGrepper.Common.IOTAUtils.PathProcessor in '..\..\..\..\src\Common\RipGrepper.Common.IOTAUtils.PathProcessor.pas',
-  RipGrepper.UI.HistoryButtonedEdit in '..\..\..\..\src\UI\RipGrepper.UI.HistoryButtonedEdit.pas',
+  RipGrepper.UI.Components.HistoryButtonedEdit in '..\..\..\..\src\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas',
   RipGrepper.Common.IOTAFileUtils in '..\..\..\..\src\Common\RipGrepper.Common.IOTAFileUtils.pas',
   RipGrepper.UI.CustomCheckOptions in '..\..\..\..\src\UI\RipGrepper.UI.CustomCheckOptions.pas',
   RipGrepper.UI.CustomRadioOptions in '..\..\..\..\src\UI\RipGrepper.UI.CustomRadioOptions.pas',

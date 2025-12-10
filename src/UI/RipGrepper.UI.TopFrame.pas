@@ -31,7 +31,7 @@ uses
 	RipGrepper.UI.IFrameEvents,
 	SVGIconImageListBase,
 	SVGIconImageList,
-	RipGrepper.UI.HistoryButtonedEdit,
+	RipGrepper.UI.Components.HistoryButtonedEdit,
 	Spring;
 
 type
