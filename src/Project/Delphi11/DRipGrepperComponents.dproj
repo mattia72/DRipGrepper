@@ -101,6 +101,7 @@
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.NotifyingControls.pas"/>
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.Constants.pas"/>
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.CustomOptionsBase.pas"/>
+        <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.OptionControls.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
