@@ -111,6 +111,7 @@
         <DCCReference Include="xmlrtl.dcp"/>
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas"/>
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.NotifyingControls.pas"/>
+        <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.CustomOptionsBase.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

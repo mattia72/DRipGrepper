@@ -11,7 +11,7 @@ uses
 	Vcl.StdCtrls,
 	Vcl.ExtCtrls,
 	Winapi.Windows,
-	RipGrepper.UI.CustomCheckOptions, 
+	RipGrepper.UI.Components.CustomOptionsBase,
 	RipGrepper.Common.SimpleTypes;
 
 type

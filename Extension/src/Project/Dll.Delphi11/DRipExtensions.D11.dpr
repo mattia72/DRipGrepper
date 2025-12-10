@@ -120,7 +120,8 @@ uses
   RipGrepper.Parsers.JsonMatchLine in '..\..\..\..\src\RipGrepper.Parsers.JsonMatchLine.pas',
   RipGrepper.UI.Components.HistoryButtonedEdit in '..\..\..\..\src\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas',
   RipGrepper.UI.Components.NotifyingControls in '..\..\..\..\src\UI\Components\RipGrepper.UI.Components.NotifyingControls.pas',
-  RipGrepper.UI.Components.Constants in '..\..\..\..\src\UI\Components\RipGrepper.UI.Components.Constants.pas';
+  RipGrepper.UI.Components.Constants in '..\..\..\..\src\UI\Components\RipGrepper.UI.Components.Constants.pas',
+  RipGrepper.UI.Components.CustomOptionsBase in '..\..\..\..\src\UI\Components\RipGrepper.UI.Components.CustomOptionsBase.pas';
 
 {$R *.res}
 

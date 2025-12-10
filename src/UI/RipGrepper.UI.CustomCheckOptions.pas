@@ -16,7 +16,8 @@ uses
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.Settings.SettingVariant,
 	RipGrepper.Common.SimpleTypes,
-	RipGrepper.UI.Components.NotifyingControls;
+	RipGrepper.UI.Components.NotifyingControls,
+	RipGrepper.UI.Components.CustomOptionsBase;
 
 type
 
@@ -168,36 +169,6 @@ type
 	// Event type for item selection
 	TItemChangedEvent = procedure(Sender : TObject; Item : TCustomCheckItem) of object;
 
-	// Base class for custom option controls
-	TCustomOptionsBase = class(TCustomPanel)
-		const
-			CTRL_SPACE = 8;
-			ITEM_HEIGHT = 22;
-			GROUPBOX_PADDING = 8;
-
-		strict private
-			FExpertHeightDiff : Integer;
-			FUseFlowLayout : Boolean;
-			FColumns : Integer;
-			procedure setColumns(const _value : Integer);
-
-		protected
-			FSearchFormLayout : TSearchFormLayout;
-			procedure Resize; override;
-
-		public
-			constructor Create(_owner : TComponent); override;
-			procedure AlignControlItems(); virtual; abstract;
-			procedure Clear; virtual; abstract;
-			function GetFontSize() : integer;
-			function GetTextHeight(const _sText : string) : Integer;
-			property ExpertHeightDiff : Integer read FExpertHeightDiff write FExpertHeightDiff;
-			property UseFlowLayout : Boolean read FUseFlowLayout write FUseFlowLayout;
-
-		published
-			property Columns : Integer read FColumns write setColumns default 1;
-	end;
-
 	// Custom checkbox options control
 	TCustomCheckOptions = class(TCustomOptionsBase)
 		const
@@ -207,6 +178,7 @@ type
 			CHECKBOX_MARGIN = 20;
 
 		strict private
+			FSearchFormLayout : TSearchFormLayout;
 			FItems : TCustomCheckItems;
 			FOnItemChange : TItemChangedEvent;
 			FSettings : TRipGrepperSettings;
@@ -306,44 +278,6 @@ function TCustomCheckItemsEnumerator.MoveNext : Boolean;
 begin
 	Inc(FIndex);
 	Result := FIndex < FCollection.Count;
-end;
-
-{ TCustomOptionsBase }
-
-constructor TCustomOptionsBase.Create(_owner : TComponent);
-begin
-	inherited Create(_owner);
-	FColumns := 1;
-	Caption := '';
-	BevelOuter := bvNone;
-	Width := 200;
-	Height := 100;
-	FUseFlowLayout := False;
-end;
-
-function TCustomOptionsBase.GetFontSize() : integer;
-begin
-	Result := Font.Size;
-end;
-
-function TCustomOptionsBase.GetTextHeight(const _sText : string) : Integer;
-begin
-	Result := Canvas.TextHeight(_sText);
-end;
-
-procedure TCustomOptionsBase.setColumns(const _value : Integer);
-begin
-	if (_value > 0) and (FColumns <> _value) then begin
-		FColumns := _value;
-		AlignControlItems();
-	end;
-end;
-
-procedure TCustomOptionsBase.Resize;
-begin
-	inherited Resize;
-	// AlignControlItems should be called explicitly when needed
-	// Automatic alignment during resize causes performance issues during initialization
 end;
 
 { TCustomCheckItem }

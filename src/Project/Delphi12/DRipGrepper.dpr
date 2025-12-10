@@ -120,7 +120,8 @@ uses
   RipGrepper.UI.Settings.ExtensionContexPanel in '..\..\UI\RipGrepper.UI.Settings.ExtensionContexPanel.pas',
   RipGrepper.UI.RgOptionsPanel in '..\..\UI\RipGrepper.UI.RgOptionsPanel.pas',
   RipGrepper.Parsers.JsonMatchLine in '..\..\RipGrepper.Parsers.JsonMatchLine.pas',
-  RipGrepper.UI.Components.NotifyingControls in '..\..\UI\Components\RipGrepper.UI.Components.NotifyingControls.pas';
+  RipGrepper.UI.Components.NotifyingControls in '..\..\UI\Components\RipGrepper.UI.Components.NotifyingControls.pas',
+  RipGrepper.UI.Components.CustomOptionsBase in '..\..\UI\Components\RipGrepper.UI.Components.CustomOptionsBase.pas';
 
 {$R *.res}
 
