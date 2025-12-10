@@ -45,7 +45,7 @@
         {
             "label": "DripGrepper: Build All",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig ${input:buildConfig} -BuildStandalone -BuildExtension",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig ${input:buildConfig} -BuildStandalone -BuildExtension -BuildUIComponents",
             "problemMatcher": [],
             "group": {
                 "kind": "build"

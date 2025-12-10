@@ -3,6 +3,7 @@ param (
     $BuildConfig = "Release",
     [switch] $BuildStandalone,      # Build the standalone DripGrepper application
     [switch] $BuildExtension,       # Build the Delphi IDE extension
+    [switch] $BuildUIComponents,    # Build the DRipGrepperComponents package
     [switch] $BuildUnittest,        # Build unit tests only
     [switch] $RunUnittest,          # Run unit tests only (requires built unit tests)
     [switch] $DeployToGitHub,       # Deploy release to GitHub
@@ -322,6 +323,32 @@ function Build-ExpertDllRelease {
     Test-BuildResult -Result $result
 }
 
+function Build-UIComponentsPackage {
+    # Build DRipGrepperComponents package
+    # Check if bds.exe is running and ask to close it manually
+    $bdsProcess = Get-Process | Where-Object { $_.Path -like "*bds.exe" }
+    if ($bdsProcess) {
+        Write-Host "WARNING: Delphi IDE is currently running!" -ForegroundColor Red
+        Write-Host "The IDE must be closed before building UI Components to avoid file conflicts." -ForegroundColor Yellow
+        Write-Host "Please save your work and close the Delphi IDE manually, then press Enter to continue..." -ForegroundColor Yellow
+        Read-Host
+        
+        # Check again if it's still running
+        $bdsProcess = Get-Process | Where-Object { $_.Path -like "*bds.exe" }
+        if ($bdsProcess) {
+            Write-Error "Delphi IDE is still running. Please close it and try again." -ErrorAction Stop
+        }
+        Write-Host "Delphi IDE closed. Continuing with build..." -ForegroundColor Green
+    }
+    
+    Import-Module -Name PSDelphi -Force
+    $projectPath = Get-ProjectPath "src\Project" ""
+    $result = $null
+    Build-DelphiProject -ProjectPath $projectPath\DRipGrepperComponents.dproj -BuildConfig $BuildConfig -StopOnFirstFailure -CountResult -Result ([ref]$result)
+    Test-BuildResult -Result $result
+    Write-Host "DRipGrepperComponents package build completed successfully!" -ForegroundColor Green
+}
+
 function Add-ToAssetsDir {
     param (
         $AssetDir,
@@ -503,6 +530,10 @@ function New-ReleaseWithAsset {
         Run-Unittest
     }
 
+    if ($BuildUIComponents) {
+        Build-UIComponentsPackage
+    }
+
     if ($BuildStandalone) {
         Build-StandaloneRelease 
     }
@@ -611,7 +642,7 @@ function New-Deploy {
     }
     $global:PrevVersion = $versionInfo.PreviousVersion
 
-    if ($LocalDeploy -or $DeployToGitHub -or $BuildStandalone -or $BuildExtension -or $BuildUnittest -or $RunUnittest -or $DeployToTransferDrive) {
+    if ($LocalDeploy -or $DeployToGitHub -or $BuildStandalone -or $BuildExtension -or $BuildUIComponents -or $BuildUnittest -or $RunUnittest -or $DeployToTransferDrive) {
         #New-ReleaseNotes
         New-ReleaseWithAsset
     }
