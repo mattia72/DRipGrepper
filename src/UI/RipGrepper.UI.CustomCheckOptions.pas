@@ -20,15 +20,6 @@ uses
 
 type
 
-	TAutoSetReset = record
-		private
-			FBoolPtr : PBoolean;
-
-		public
-			class function New(var _bValue : Boolean; const _bInitValue : Boolean = True) : TAutoSetReset; static;
-			class operator Finalize(var Dest : TAutoSetReset);
-	end;
-
 	TCheckItemParentPanel = class(TPanel)
 		public
 			function GetTextHeight(const _sText : string) : Integer;
@@ -1871,19 +1862,6 @@ end;
 procedure Register;
 begin
 	RegisterComponents(DRIPGREPPER_APPNAME, [TCustomCheckOptions]);
-end;
-
-class function TAutoSetReset.New(var _bValue : Boolean; const _bInitValue : Boolean = True) : TAutoSetReset;
-begin
-	_bValue := _bInitValue;
-	Result.FBoolPtr := @_bValue;
-end;
-
-class operator TAutoSetReset.Finalize(var Dest : TAutoSetReset);
-begin
-	if Assigned(Dest.FBoolPtr) then begin
-		Dest.FBoolPtr^ := not Dest.FBoolPtr^;
-	end;
 end;
 
 function TCheckItemParentPanel.GetFontSize() : integer;

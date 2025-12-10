@@ -52,6 +52,16 @@ type
 		procedure Reset;
 	end;
 
+type
+	TAutoSetReset = record
+		private
+			FBoolPtr : PBoolean;
+
+		public
+			class function New(var _bValue : Boolean; const _bInitValue : Boolean = True) : TAutoSetReset; static;
+			class operator Finalize(var Dest : TAutoSetReset);
+	end;
+
 	EReplaceMode = (rmUseRegex, rmIgnoreCase);
 	TReplaceModes = set of EReplaceMode;
 	ESaveReplacementResult = (srrDone, srrCancel, srrError);
@@ -107,6 +117,19 @@ begin
 	FStatLineCount := 0;
 	FIsNoOutputError := False;
 	FIsRGReportedError := False;
+end;
+
+class function TAutoSetReset.New(var _bValue : Boolean; const _bInitValue : Boolean = True) : TAutoSetReset;
+begin
+	_bValue := _bInitValue;
+	Result.FBoolPtr := @_bValue;
+end;
+
+class operator TAutoSetReset.Finalize(var Dest : TAutoSetReset);
+begin
+	if Assigned(Dest.FBoolPtr) then begin
+		Dest.FBoolPtr^ := not Dest.FBoolPtr^;
+	end;
 end;
 
 end.
