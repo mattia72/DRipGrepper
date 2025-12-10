@@ -115,12 +115,14 @@ uses
   RipGrepper.UI.Settings.ExtensionContexPanel in '..\..\UI\RipGrepper.UI.Settings.ExtensionContexPanel.pas',
   RipGrepper.Common.IDEContextValues in '..\..\Common\RipGrepper.Common.IDEContextValues.pas',
   RipGrepper.UI.SearchForm.CtrlValueProxy in '..\..\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas',
-  RipGrepper.UI.HistoryButtonedEdit in '..\..\UI\RipGrepper.UI.HistoryButtonedEdit.pas',
   RipGrepper.UI.CustomRadioOptions in '..\..\UI\RipGrepper.UI.CustomRadioOptions.pas',
   RipGrepper.UI.CustomCheckOptions in '..\..\UI\RipGrepper.UI.CustomCheckOptions.pas',
   RipGrepper.UI.RgOptionsPanel in '..\..\UI\RipGrepper.UI.RgOptionsPanel.pas',
   RipGrepper.Parsers.JsonMatchLine in '..\..\RipGrepper.Parsers.JsonMatchLine.pas',
-  RipGrepper.UI.Components.HistoryButtonedEdit in '..\..\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas';
+  RipGrepper.UI.Components.HistoryButtonedEdit in '..\..\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas',
+  RipGrepper.UI.Components.NotifyingControls in '..\..\UI\Components\RipGrepper.UI.Components.NotifyingControls.pas',
+  RipGrepper.UI.Components.Constants in '..\..\UI\Components\RipGrepper.UI.Components.Constants.pas',
+  RipGrepper.UI.Components.CustomOptionsBase in '..\..\UI\Components\RipGrepper.UI.Components.CustomOptionsBase.pas';
 
 {$R *.res}
 

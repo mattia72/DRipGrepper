@@ -5,12 +5,10 @@ interface
 uses
 	System.Classes,
 	Vcl.ComCtrls,
-	ArrayEx,
 	System.Generics.Defaults,
 	Vcl.Graphics,
 	Vcl.Menus,
-	Winapi.Messages,
-	RipGrepper.Common.SimpleTypes;
+	Winapi.Messages;
 
 const
 
@@ -212,29 +210,6 @@ const
 	{ } '--follow',
 	{ } '--crlf'];
 
-	SEARCH_OPTIONS : array [0 .. 2] of EGuiOption =
-	{ } (EGuiOption.soMatchCase, EGuiOption.soMatchWord, EGuiOption.soUseRegex);
-
-	SEARCH_OPTION_CASES : array [0 .. 8] of TSearchOptionToRgOptions = (
-		{ } (SearchOption : [];
-		{ }{ } RgOptions : [RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_REGEX_IGNORE_CASE]),
-		{ } (SearchOption : [EGuiOption.soNotSet];
-		{ }{ } RgOptions : [RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_REGEX_IGNORE_CASE]),
-		{ } (SearchOption : [EGuiOption.soMatchCase];
-		{ }{ } RgOptions : [RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_REGEX_CASE_SENSITIVE]),
-		{ } (SearchOption : [EGuiOption.soMatchWord];
-		{ }{ } RgOptions : [RG_PARAM_REGEX_IGNORE_CASE { , RG_PARAM_REGEX_WORD_REGEX } ]),
-		{ } (SearchOption : [EGuiOption.soUseRegex];
-		{ }{ } RgOptions : [RG_PARAM_REGEX_IGNORE_CASE { , RG_PARAM_REGEX_WORD_REGEX } ]),
-		{ } (SearchOption : [EGuiOption.soMatchCase, EGuiOption.soMatchWord];
-		{ }{ } RgOptions : [RG_PARAM_REGEX_CASE_SENSITIVE { , RG_PARAM_REGEX_WORD_REGEX } ]),
-		{ } (SearchOption : [EGuiOption.soMatchCase, EGuiOption.soUseRegex];
-		{ }{ } RgOptions : [RG_PARAM_REGEX_CASE_SENSITIVE { , RG_PARAM_REGEX_WORD_REGEX } ]),
-		{ } (SearchOption : [EGuiOption.soMatchWord, EGuiOption.soUseRegex];
-		{ }{ } RgOptions : [RG_PARAM_REGEX_IGNORE_CASE { , RG_PARAM_REGEX_WORD_REGEX } ]),
-		{ } (SearchOption : [EGuiOption.soMatchCase, EGuiOption.soMatchWord, EGuiOption.soUseRegex];
-		{ }{ } RgOptions : [RG_PARAM_REGEX_CASE_SENSITIVE { , RG_PARAM_REGEX_WORD_REGEX } ])
-		{ } );
 
 	RG_PARAM_SHORT_INDEX = 0;
 	RG_PARAM_LONG_INDEX = 1;
@@ -341,11 +316,14 @@ begin
 end;
 
 class function TDefaults.GetColumnIndex(Index : string) : integer;
-var
-	arrTitles : TArrayEx<string>;
 begin
-	arrTitles := TREEVIEW_COLUMN_TITLES;
-	Result := arrTitles.IndexOf(index);
+	Result := -1;
+	for var i := Low(TREEVIEW_COLUMN_TITLES) to High(TREEVIEW_COLUMN_TITLES) do begin
+		if SameText(TREEVIEW_COLUMN_TITLES[i], index) then begin
+			Result := i;
+			Break;
+		end;
+	end;
 end;
 
 class function TDefaults.GetColumnTitle(Index : EColumnIndex) : string;

@@ -15,18 +15,11 @@ uses
 	Winapi.Messages,
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.Settings.SettingVariant,
-	RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.SimpleTypes,
+	RipGrepper.UI.Components.NotifyingControls,
+	RipGrepper.UI.Components.CustomOptionsBase;
 
 type
-
-	TAutoSetReset = record
-		private
-			FBoolPtr : PBoolean;
-
-		public
-			class function New(var _bValue : Boolean; const _bInitValue : Boolean = True) : TAutoSetReset; static;
-			class operator Finalize(var Dest : TAutoSetReset);
-	end;
 
 	TCheckItemParentPanel = class(TPanel)
 		public
@@ -38,45 +31,6 @@ type
 	TCustomCheckOptions = class;
 	TCustomCheckItem = class;
 
-	// Custom SpinEdit that notifies parent TCustomCheckItem about enabled state changes
-	TNotifyingSpinEdit = class(TSpinEdit)
-		private
-			FOwnerItem : TCustomCheckItem;
-
-		protected
-			procedure CMEnabledChanged(var Message : TMessage); message CM_ENABLEDCHANGED;
-
-		public
-			property OwnerItem : TCustomCheckItem read FOwnerItem write FOwnerItem;
-	end;
-
-	// Custom ComboBox that notifies parent TCustomCheckItem about enabled state changes
-	TNotifyingComboBox = class(TComboBox)
-		private
-			FOwnerItem : TCustomCheckItem;
-
-		protected
-			procedure CMEnabledChanged(var Message : TMessage); message CM_ENABLEDCHANGED;
-
-		public
-			property OwnerItem : TCustomCheckItem read FOwnerItem write FOwnerItem;
-	end;
-
-	// Custom CheckBox that notifies parent TCustomCheckItem about enabled state changes
-	TNotifyingCheckBox = class(TCheckBox)
-		private
-			FOwnerItem : TCustomCheckItem;
-
-		protected
-			procedure CMEnabledChanged(var Message : TMessage); message CM_ENABLEDCHANGED;
-
-		public
-			property OwnerItem : TCustomCheckItem read FOwnerItem write FOwnerItem;
-
-		published
-			property AutoSize;
-	end;
-
 	// Item control types
 	ECustomItemType = (citCheckBox, citCheckBoxWithCombo, citCheckBoxWithSpin, citLabelWithCombo);
 
@@ -84,7 +38,7 @@ type
 	ESubItemIndex = (siFirst = 0, siSecond = 1);
 
 	// Custom collection item for checkbox items
-	TCustomCheckItem = class(TCollectionItem)
+	TCustomCheckItem = class(TCollectionItem, INotifyingControlOwner)
 		strict private
 			FHintHelper : TLabel;
 			FParentPanel : TCheckItemParentPanel;
@@ -134,6 +88,12 @@ type
 			procedure updateHintHelperVisibility();
 			procedure setSubItemEnabled(const _idx : ESubItemIndex; const _bEnable : Boolean);
 			procedure showSubItem(const _idx : ESubItemIndex; const _bShow : Boolean = True);
+
+		protected
+			// IInterface implementation (dummy for non-reference-counted object)
+			function QueryInterface(const IID : TGUID; out Obj) : HResult; stdcall;
+			function _AddRef : Integer; stdcall;
+			function _Release : Integer; stdcall;
 
 		public
 			constructor Create(Collection : TCollection); override;
@@ -209,36 +169,6 @@ type
 	// Event type for item selection
 	TItemChangedEvent = procedure(Sender : TObject; Item : TCustomCheckItem) of object;
 
-	// Base class for custom option controls
-	TCustomOptionsBase = class(TCustomPanel)
-		const
-			CTRL_SPACE = 8;
-			ITEM_HEIGHT = 22;
-			GROUPBOX_PADDING = 8;
-
-		strict private
-			FExpertHeightDiff : Integer;
-			FUseFlowLayout : Boolean;
-			FColumns : Integer;
-			procedure setColumns(const _value : Integer);
-
-		protected
-			FSearchFormLayout : TSearchFormLayout;
-			procedure Resize; override;
-
-		public
-			constructor Create(_owner : TComponent); override;
-			procedure AlignControlItems(); virtual; abstract;
-			procedure Clear; virtual; abstract;
-			function GetFontSize() : integer;
-			function GetTextHeight(const _sText : string) : Integer;
-			property ExpertHeightDiff : Integer read FExpertHeightDiff write FExpertHeightDiff;
-			property UseFlowLayout : Boolean read FUseFlowLayout write FUseFlowLayout;
-
-		published
-			property Columns : Integer read FColumns write setColumns default 1;
-	end;
-
 	// Custom checkbox options control
 	TCustomCheckOptions = class(TCustomOptionsBase)
 		const
@@ -248,6 +178,7 @@ type
 			CHECKBOX_MARGIN = 20;
 
 		strict private
+			FSearchFormLayout : TSearchFormLayout;
 			FItems : TCustomCheckItems;
 			FOnItemChange : TItemChangedEvent;
 			FSettings : TRipGrepperSettings;
@@ -349,44 +280,6 @@ begin
 	Result := FIndex < FCollection.Count;
 end;
 
-{ TCustomOptionsBase }
-
-constructor TCustomOptionsBase.Create(_owner : TComponent);
-begin
-	inherited Create(_owner);
-	FColumns := 1;
-	Caption := '';
-	BevelOuter := bvNone;
-	Width := 200;
-	Height := 100;
-	FUseFlowLayout := False;
-end;
-
-function TCustomOptionsBase.GetFontSize() : integer;
-begin
-	Result := Font.Size;
-end;
-
-function TCustomOptionsBase.GetTextHeight(const _sText : string) : Integer;
-begin
-	Result := Canvas.TextHeight(_sText);
-end;
-
-procedure TCustomOptionsBase.setColumns(const _value : Integer);
-begin
-	if (_value > 0) and (FColumns <> _value) then begin
-		FColumns := _value;
-		AlignControlItems();
-	end;
-end;
-
-procedure TCustomOptionsBase.Resize;
-begin
-	inherited Resize;
-	// AlignControlItems should be called explicitly when needed
-	// Automatic alignment during resize causes performance issues during initialization
-end;
-
 { TCustomCheckItem }
 
 constructor TCustomCheckItem.Create(Collection : TCollection);
@@ -432,6 +325,27 @@ begin
 
 	FComboBoxItems.Free;
 	inherited Destroy;
+end;
+
+{ IInterface implementation - dummy methods for non-reference-counted object }
+
+function TCustomCheckItem.QueryInterface(const IID : TGUID; out Obj) : HResult;
+begin
+	if GetInterface(IID, Obj) then begin
+		Result := S_OK;
+	end else begin
+		Result := E_NOINTERFACE;
+	end;
+end;
+
+function TCustomCheckItem._AddRef : Integer;
+begin
+	Result := -1; // Non-reference-counted
+end;
+
+function TCustomCheckItem._Release : Integer;
+begin
+	Result := -1; // Non-reference-counted
 end;
 
 procedure TCustomCheckItem.enableCtrls(const _bEnable : Boolean);
@@ -1882,49 +1796,6 @@ end;
 procedure Register;
 begin
 	RegisterComponents(DRIPGREPPER_APPNAME, [TCustomCheckOptions]);
-end;
-
-class function TAutoSetReset.New(var _bValue : Boolean; const _bInitValue : Boolean = True) : TAutoSetReset;
-begin
-	_bValue := _bInitValue;
-	Result.FBoolPtr := @_bValue;
-end;
-
-class operator TAutoSetReset.Finalize(var Dest : TAutoSetReset);
-begin
-	if Assigned(Dest.FBoolPtr) then begin
-		Dest.FBoolPtr^ := not Dest.FBoolPtr^;
-	end;
-end;
-
-{ TNotifyingSpinEdit }
-
-procedure TNotifyingSpinEdit.CMEnabledChanged(var Message : TMessage);
-begin
-	inherited;
-	if Assigned(FOwnerItem) then begin
-		FOwnerItem.OnSubItemEnabledChanged(Self);
-	end;
-end;
-
-{ TNotifyingComboBox }
-
-procedure TNotifyingComboBox.CMEnabledChanged(var Message : TMessage);
-begin
-	inherited;
-	if Assigned(FOwnerItem) then begin
-		FOwnerItem.OnSubItemEnabledChanged(Self);
-	end;
-end;
-
-{ TNotifyingCheckBox }
-
-procedure TNotifyingCheckBox.CMEnabledChanged(var Message : TMessage);
-begin
-	inherited;
-	if Assigned(FOwnerItem) then begin
-		FOwnerItem.OnSubItemEnabledChanged(Self);
-	end;
 end;
 
 function TCheckItemParentPanel.GetFontSize() : integer;

@@ -34,9 +34,14 @@ requires
   vcl,
   vclactnband,
   vclx,
-  xmlrtl;
+  xmlrtl,
+  VclSmp;
 
 contains
-  RipGrepper.UI.HistoryButtonedEdit in '..\..\UI\RipGrepper.UI.HistoryButtonedEdit.pas';
+  RipGrepper.UI.Components.HistoryButtonedEdit in '..\..\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas',
+  RipGrepper.UI.Components.NotifyingControls in '..\..\UI\Components\RipGrepper.UI.Components.NotifyingControls.pas',
+  RipGrepper.UI.Components.Constants in '..\..\UI\Components\RipGrepper.UI.Components.Constants.pas',
+  RipGrepper.UI.Components.CustomOptionsBase in '..\..\UI\Components\RipGrepper.UI.Components.CustomOptionsBase.pas',
+  RipGrepper.UI.Components.OptionControls in '..\..\UI\Components\RipGrepper.UI.Components.OptionControls.pas';
 
 end.

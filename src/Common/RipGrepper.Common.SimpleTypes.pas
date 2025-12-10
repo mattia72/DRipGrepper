@@ -6,7 +6,8 @@ uses
 	System.Classes,
 	System.SysUtils,
 	ArrayEx,
-	Spring;
+	Spring,
+	RipGrepper.Common.Constants;
 
 type
 	TParserType = (ptEmpty, ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepJson, ptRipGrepStats, ptRipGrepVersion, ptRipGrepError,
@@ -51,6 +52,16 @@ type
 		procedure Reset;
 	end;
 
+type
+	TAutoSetReset = record
+		private
+			FBoolPtr : PBoolean;
+
+		public
+			class function New(var _bValue : Boolean; const _bInitValue : Boolean = True) : TAutoSetReset; static;
+			class operator Finalize(var Dest : TAutoSetReset);
+	end;
+
 	EReplaceMode = (rmUseRegex, rmIgnoreCase);
 	TReplaceModes = set of EReplaceMode;
 	ESaveReplacementResult = (srrDone, srrCancel, srrError);
@@ -69,11 +80,35 @@ const
 	{ } EGuiOption.soMatchWord,
 	{ } EGuiOption.soUseRegex];
 
+    	SEARCH_OPTIONS : array [0 .. 2] of EGuiOption =
+	{ } (EGuiOption.soMatchCase, EGuiOption.soMatchWord, EGuiOption.soUseRegex);
+
+	SEARCH_OPTION_CASES : array [0 .. 8] of TSearchOptionToRgOptions = (
+		{ } (SearchOption : [];
+		{ }{ } RgOptions : [RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_REGEX_IGNORE_CASE]),
+		{ } (SearchOption : [EGuiOption.soNotSet];
+		{ }{ } RgOptions : [RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_REGEX_IGNORE_CASE]),
+		{ } (SearchOption : [EGuiOption.soMatchCase];
+		{ }{ } RgOptions : [RG_PARAM_REGEX_FIXED_STRINGS, RG_PARAM_REGEX_CASE_SENSITIVE]),
+		{ } (SearchOption : [EGuiOption.soMatchWord];
+		{ }{ } RgOptions : [RG_PARAM_REGEX_IGNORE_CASE { , RG_PARAM_REGEX_WORD_REGEX } ]),
+		{ } (SearchOption : [EGuiOption.soUseRegex];
+		{ }{ } RgOptions : [RG_PARAM_REGEX_IGNORE_CASE { , RG_PARAM_REGEX_WORD_REGEX } ]),
+		{ } (SearchOption : [EGuiOption.soMatchCase, EGuiOption.soMatchWord];
+		{ }{ } RgOptions : [RG_PARAM_REGEX_CASE_SENSITIVE { , RG_PARAM_REGEX_WORD_REGEX } ]),
+		{ } (SearchOption : [EGuiOption.soMatchCase, EGuiOption.soUseRegex];
+		{ }{ } RgOptions : [RG_PARAM_REGEX_CASE_SENSITIVE { , RG_PARAM_REGEX_WORD_REGEX } ]),
+		{ } (SearchOption : [EGuiOption.soMatchWord, EGuiOption.soUseRegex];
+		{ }{ } RgOptions : [RG_PARAM_REGEX_IGNORE_CASE { , RG_PARAM_REGEX_WORD_REGEX } ]),
+		{ } (SearchOption : [EGuiOption.soMatchCase, EGuiOption.soMatchWord, EGuiOption.soUseRegex];
+		{ }{ } RgOptions : [RG_PARAM_REGEX_CASE_SENSITIVE { , RG_PARAM_REGEX_WORD_REGEX } ])
+		{ } );
+
+
 implementation
 
 uses
-	RipGrepper.Tools.DebugUtils,
-	RipGrepper.Common.Constants;
+	RipGrepper.Tools.DebugUtils;
 
 procedure TErrorCounters.Reset;
 begin
@@ -82,6 +117,19 @@ begin
 	FStatLineCount := 0;
 	FIsNoOutputError := False;
 	FIsRGReportedError := False;
+end;
+
+class function TAutoSetReset.New(var _bValue : Boolean; const _bInitValue : Boolean = True) : TAutoSetReset;
+begin
+	_bValue := _bInitValue;
+	Result.FBoolPtr := @_bValue;
+end;
+
+class operator TAutoSetReset.Finalize(var Dest : TAutoSetReset);
+begin
+	if Assigned(Dest.FBoolPtr) then begin
+		Dest.FBoolPtr^ := not Dest.FBoolPtr^;
+	end;
 end;
 
 end.

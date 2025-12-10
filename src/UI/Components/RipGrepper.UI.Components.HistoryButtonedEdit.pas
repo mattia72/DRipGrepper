@@ -51,8 +51,10 @@ procedure Register;
 
 implementation
 
-uses
-	Vcl.Forms;
+uses // please don't use any uses, that pulls dependencies
+	Vcl.Forms,
+	RipGrepper.UI.Components.Constants;
+
 
 { THistoryButtonedEdit }
 
@@ -235,7 +237,7 @@ end;
 
 procedure Register;
 begin
-	RegisterComponents('DRipGrepper', [THistoryButtonedEdit]);
+	RegisterComponents(SECTION_NAME, [THistoryButtonedEdit]);
 end;
 
 end.
