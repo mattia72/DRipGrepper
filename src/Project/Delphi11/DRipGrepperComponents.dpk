@@ -37,6 +37,6 @@ requires
   xmlrtl;
 
 contains
-  RipGrepper.UI.HistoryButtonedEdit in '..\..\UI\RipGrepper.UI.HistoryButtonedEdit.pas';
+  RipGrepper.UI.Components.HistoryButtonedEdit in '..\..\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas';
 
 end.

@@ -15,6 +15,9 @@
         <Projects Include="Extension\src\Project\Dll.Delphi11\DRipExtensions.D11.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="src\Project\Delphi11\DRipGrepperComponents.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -59,17 +62,32 @@
     <Target Name="DRipExtensions_D11:Make">
         <MSBuild Projects="Extension\src\Project\Dll.Delphi11\DRipExtensions.D11.dproj" Targets="Make"/>
     </Target>
+    <Target Name="DRipGrepperComponents">
+        <MSBuild Projects="src\Project\Delphi11\DRipGrepperComponents.dproj"/>
+    </Target>
+    <Target Name="DRipGrepperComponents:Clean">
+        <MSBuild Projects="src\Project\Delphi11\DRipGrepperComponents.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DRipGrepperComponents:Make">
+        <MSBuild Projects="src\Project\Delphi11\DRipGrepperComponents.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="Spring_Tests_Delphi12;DRipGrepperUnittest_D11;DRipGrepper;DRipExtensions_D11"/>
+        <CallTarget Targets="Spring_Tests_Delphi12;DRipGrepperUnittest_D11;DRipGrepper;DRipExtensions_D11;DRipGrepperComponents"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Spring_Tests_Delphi12:Clean;DRipGrepperUnittest_D11:Clean;DRipGrepper:Clean;DRipExtensions_D11:Clean"/>
+        <CallTarget Targets="Spring_Tests_Delphi12:Clean;DRipGrepperUnittest_D11:Clean;DRipGrepper:Clean;DRipExtensions_D11:Clean;DRipGrepperComponents:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Spring_Tests_Delphi12:Make;DRipGrepperUnittest_D11:Make;DRipGrepper:Make;DRipExtensions_D11:Make"/>
+        <CallTarget Targets="Spring_Tests_Delphi12:Make;DRipGrepperUnittest_D11:Make;DRipGrepper:Make;DRipExtensions_D11:Make;DRipGrepperComponents:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
     <ItemGroup Condition="'$(BuildGroup)'=='Release'">
+        <BuildGroupProject Include="src\Project\Delphi11\DRipGrepperComponents.dproj">
+            <ProjectGuid>{8B327711-6F2C-4E83-8D58-55E4D9FA72D8}</ProjectGuid>
+            <Configurations>Debug</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
         <BuildGroupProject Include="Extension\src\Project\Dll.Delphi11\DRipExtensions.D11.dproj">
             <ProjectGuid>{61FA8D59-16BA-4F6D-96E6-6AF82C96C442}</ProjectGuid>
             <Configurations>Release</Configurations>
@@ -86,7 +104,7 @@
             <ProjectGuid>{DEF48A6C-8547-4DA4-981B-3EB3A1D44775}</ProjectGuid>
             <Configurations>Debug</Configurations>
             <Platforms>Win32;Win64</Platforms>
-            <Enabled>True</Enabled>
+            <Enabled>False</Enabled>
         </BuildGroupProject>
         <BuildGroupProject Include="src\Project\Delphi11\DRipGrepper.dproj">
             <ProjectGuid>{690C375C-03A1-4C11-8B81-E628EF382F2C}</ProjectGuid>
@@ -96,6 +114,12 @@
         </BuildGroupProject>
     </ItemGroup>
     <ItemGroup Condition="'$(BuildGroup)'=='Debug'">
+        <BuildGroupProject Include="src\Project\Delphi11\DRipGrepperComponents.dproj">
+            <ProjectGuid>{8B327711-6F2C-4E83-8D58-55E4D9FA72D8}</ProjectGuid>
+            <Configurations>Debug</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
         <BuildGroupProject Include="Extension\src\Project\Dll.Delphi11\DRipExtensions.D11.dproj">
             <ProjectGuid>{61FA8D59-16BA-4F6D-96E6-6AF82C96C442}</ProjectGuid>
             <Configurations>Debug</Configurations>

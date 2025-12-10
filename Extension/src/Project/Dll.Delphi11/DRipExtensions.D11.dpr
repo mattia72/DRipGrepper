@@ -113,12 +113,12 @@ uses
   RipGrepper.UI.Settings.ExtensionContexPanel in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ExtensionContexPanel.pas',
   RipGrepper.UI.SearchForm.CtrlValueProxy in '..\..\..\..\src\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas',
   RipGrepper.Common.IOTAUtils.PathProcessor in '..\..\..\..\src\Common\RipGrepper.Common.IOTAUtils.PathProcessor.pas',
-  RipGrepper.UI.HistoryButtonedEdit in '..\..\..\..\src\UI\RipGrepper.UI.HistoryButtonedEdit.pas',
   RipGrepper.Common.IOTAFileUtils in '..\..\..\..\src\Common\RipGrepper.Common.IOTAFileUtils.pas',
   RipGrepper.UI.CustomRadioOptions in '..\..\..\..\src\UI\RipGrepper.UI.CustomRadioOptions.pas',
   RipGrepper.UI.CustomCheckOptions in '..\..\..\..\src\UI\RipGrepper.UI.CustomCheckOptions.pas',
   RipGrepper.UI.RgOptionsPanel in '..\..\..\..\src\UI\RipGrepper.UI.RgOptionsPanel.pas',
-  RipGrepper.Parsers.JsonMatchLine in '..\..\..\..\src\RipGrepper.Parsers.JsonMatchLine.pas';
+  RipGrepper.Parsers.JsonMatchLine in '..\..\..\..\src\RipGrepper.Parsers.JsonMatchLine.pas',
+  RipGrepper.UI.Components.HistoryButtonedEdit in '..\..\..\..\src\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas';
 
 {$R *.res}
 

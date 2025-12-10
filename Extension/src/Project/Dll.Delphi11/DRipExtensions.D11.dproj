@@ -259,12 +259,12 @@
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.ExtensionContexPanel.pas"/>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas"/>
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.IOTAUtils.PathProcessor.pas"/>
-        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.HistoryButtonedEdit.pas"/>
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.IOTAFileUtils.pas"/>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.CustomRadioOptions.pas"/>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.CustomCheckOptions.pas"/>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.RgOptionsPanel.pas"/>
         <DCCReference Include="..\..\..\..\src\RipGrepper.Parsers.JsonMatchLine.pas"/>
+        <DCCReference Include="..\..\..\..\src\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas"/>
         <RcItem Include="..\..\..\Resources\about_icon.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>about_icon</ResourceId>
