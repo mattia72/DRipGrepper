@@ -125,18 +125,18 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.15.0.161;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.15.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.15.0.162;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.15.0;Comments=beta</VerInfo_Keys>
         <DCC_DebugInfoInTds>true</DCC_DebugInfoInTds>
-        <VerInfo_Build>161</VerInfo_Build>
+        <VerInfo_Build>162</VerInfo_Build>
         <VerInfo_MinorVer>15</VerInfo_MinorVer>
         <VerInfo_Release>0</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.15.0.161;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.15.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.15.0.162;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.15.0;Comments=beta</VerInfo_Keys>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Build>161</VerInfo_Build>
+        <VerInfo_Build>162</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_MinorVer>15</VerInfo_MinorVer>
         <BRCC_CompilerToUse>rc</BRCC_CompilerToUse>
@@ -325,6 +325,8 @@
         <DCCReference Include="..\..\UI\RipGrepper.UI.RgOptionsPanel.pas"/>
         <DCCReference Include="..\..\RipGrepper.Parsers.JsonMatchLine.pas"/>
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas"/>
+        <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.NotifyingControls.pas"/>
+        <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.Constants.pas"/>
         <RcItem Include="..\..\..\LICENSE">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>

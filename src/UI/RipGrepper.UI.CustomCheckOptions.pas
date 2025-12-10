@@ -15,7 +15,8 @@ uses
 	Winapi.Messages,
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.Settings.SettingVariant,
-	RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.SimpleTypes,
+	RipGrepper.UI.Components.NotifyingControls;
 
 type
 
@@ -38,45 +39,6 @@ type
 	TCustomCheckOptions = class;
 	TCustomCheckItem = class;
 
-	// Custom SpinEdit that notifies parent TCustomCheckItem about enabled state changes
-	TNotifyingSpinEdit = class(TSpinEdit)
-		private
-			FOwnerItem : TCustomCheckItem;
-
-		protected
-			procedure CMEnabledChanged(var Message : TMessage); message CM_ENABLEDCHANGED;
-
-		public
-			property OwnerItem : TCustomCheckItem read FOwnerItem write FOwnerItem;
-	end;
-
-	// Custom ComboBox that notifies parent TCustomCheckItem about enabled state changes
-	TNotifyingComboBox = class(TComboBox)
-		private
-			FOwnerItem : TCustomCheckItem;
-
-		protected
-			procedure CMEnabledChanged(var Message : TMessage); message CM_ENABLEDCHANGED;
-
-		public
-			property OwnerItem : TCustomCheckItem read FOwnerItem write FOwnerItem;
-	end;
-
-	// Custom CheckBox that notifies parent TCustomCheckItem about enabled state changes
-	TNotifyingCheckBox = class(TCheckBox)
-		private
-			FOwnerItem : TCustomCheckItem;
-
-		protected
-			procedure CMEnabledChanged(var Message : TMessage); message CM_ENABLEDCHANGED;
-
-		public
-			property OwnerItem : TCustomCheckItem read FOwnerItem write FOwnerItem;
-
-		published
-			property AutoSize;
-	end;
-
 	// Item control types
 	ECustomItemType = (citCheckBox, citCheckBoxWithCombo, citCheckBoxWithSpin, citLabelWithCombo);
 
@@ -84,7 +46,7 @@ type
 	ESubItemIndex = (siFirst = 0, siSecond = 1);
 
 	// Custom collection item for checkbox items
-	TCustomCheckItem = class(TCollectionItem)
+	TCustomCheckItem = class(TCollectionItem, INotifyingControlOwner)
 		strict private
 			FHintHelper : TLabel;
 			FParentPanel : TCheckItemParentPanel;
@@ -134,6 +96,12 @@ type
 			procedure updateHintHelperVisibility();
 			procedure setSubItemEnabled(const _idx : ESubItemIndex; const _bEnable : Boolean);
 			procedure showSubItem(const _idx : ESubItemIndex; const _bShow : Boolean = True);
+
+		protected
+			// IInterface implementation (dummy for non-reference-counted object)
+			function QueryInterface(const IID : TGUID; out Obj) : HResult; stdcall;
+			function _AddRef : Integer; stdcall;
+			function _Release : Integer; stdcall;
 
 		public
 			constructor Create(Collection : TCollection); override;
@@ -432,6 +400,27 @@ begin
 
 	FComboBoxItems.Free;
 	inherited Destroy;
+end;
+
+{ IInterface implementation - dummy methods for non-reference-counted object }
+
+function TCustomCheckItem.QueryInterface(const IID : TGUID; out Obj) : HResult;
+begin
+	if GetInterface(IID, Obj) then begin
+		Result := S_OK;
+	end else begin
+		Result := E_NOINTERFACE;
+	end;
+end;
+
+function TCustomCheckItem._AddRef : Integer;
+begin
+	Result := -1; // Non-reference-counted
+end;
+
+function TCustomCheckItem._Release : Integer;
+begin
+	Result := -1; // Non-reference-counted
 end;
 
 procedure TCustomCheckItem.enableCtrls(const _bEnable : Boolean);
@@ -1894,36 +1883,6 @@ class operator TAutoSetReset.Finalize(var Dest : TAutoSetReset);
 begin
 	if Assigned(Dest.FBoolPtr) then begin
 		Dest.FBoolPtr^ := not Dest.FBoolPtr^;
-	end;
-end;
-
-{ TNotifyingSpinEdit }
-
-procedure TNotifyingSpinEdit.CMEnabledChanged(var Message : TMessage);
-begin
-	inherited;
-	if Assigned(FOwnerItem) then begin
-		FOwnerItem.OnSubItemEnabledChanged(Self);
-	end;
-end;
-
-{ TNotifyingComboBox }
-
-procedure TNotifyingComboBox.CMEnabledChanged(var Message : TMessage);
-begin
-	inherited;
-	if Assigned(FOwnerItem) then begin
-		FOwnerItem.OnSubItemEnabledChanged(Self);
-	end;
-end;
-
-{ TNotifyingCheckBox }
-
-procedure TNotifyingCheckBox.CMEnabledChanged(var Message : TMessage);
-begin
-	inherited;
-	if Assigned(FOwnerItem) then begin
-		FOwnerItem.OnSubItemEnabledChanged(Self);
 	end;
 end;
 

@@ -99,7 +99,8 @@ implementation
 
 uses
 	Math,
-	RipGrepper.Common.IDEContextValues, RipGrepper.Common.Constants;
+	RipGrepper.Common.IDEContextValues, 
+	RipGrepper.Common.Constants;
 
 { TCustomRadioItem }
 

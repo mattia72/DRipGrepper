@@ -118,7 +118,9 @@ uses
   RipGrepper.UI.CustomCheckOptions in '..\..\..\..\src\UI\RipGrepper.UI.CustomCheckOptions.pas',
   RipGrepper.UI.RgOptionsPanel in '..\..\..\..\src\UI\RipGrepper.UI.RgOptionsPanel.pas',
   RipGrepper.Parsers.JsonMatchLine in '..\..\..\..\src\RipGrepper.Parsers.JsonMatchLine.pas',
-  RipGrepper.UI.Components.HistoryButtonedEdit in '..\..\..\..\src\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas';
+  RipGrepper.UI.Components.HistoryButtonedEdit in '..\..\..\..\src\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas',
+  RipGrepper.UI.Components.NotifyingControls in '..\..\..\..\src\UI\Components\RipGrepper.UI.Components.NotifyingControls.pas',
+  RipGrepper.UI.Components.Constants in '..\..\..\..\src\UI\Components\RipGrepper.UI.Components.Constants.pas';
 
 {$R *.res}
 

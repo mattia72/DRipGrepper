@@ -100,8 +100,8 @@
         <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\22.0\bin\bds.exe</Debugger_HostApplication>
         <DCC_ShowGeneralMessages>true</DCC_ShowGeneralMessages>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.15.0.227;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.15.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>227</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.15.0.228;ProgramID=com.embarcadero.DRipExtensions.D11;ProductName=DRipExtensions;ProductVersion=4.15.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>228</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <Manifest_File>..\Delphi12\(None)</Manifest_File>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
@@ -265,6 +265,8 @@
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.RgOptionsPanel.pas"/>
         <DCCReference Include="..\..\..\..\src\RipGrepper.Parsers.JsonMatchLine.pas"/>
         <DCCReference Include="..\..\..\..\src\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas"/>
+        <DCCReference Include="..\..\..\..\src\UI\Components\RipGrepper.UI.Components.NotifyingControls.pas"/>
+        <DCCReference Include="..\..\..\..\src\UI\Components\RipGrepper.UI.Components.Constants.pas"/>
         <RcItem Include="..\..\..\Resources\about_icon.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>about_icon</ResourceId>

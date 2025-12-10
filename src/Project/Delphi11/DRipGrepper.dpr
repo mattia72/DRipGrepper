@@ -119,7 +119,9 @@ uses
   RipGrepper.UI.CustomCheckOptions in '..\..\UI\RipGrepper.UI.CustomCheckOptions.pas',
   RipGrepper.UI.RgOptionsPanel in '..\..\UI\RipGrepper.UI.RgOptionsPanel.pas',
   RipGrepper.Parsers.JsonMatchLine in '..\..\RipGrepper.Parsers.JsonMatchLine.pas',
-  RipGrepper.UI.Components.HistoryButtonedEdit in '..\..\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas';
+  RipGrepper.UI.Components.HistoryButtonedEdit in '..\..\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas',
+  RipGrepper.UI.Components.NotifyingControls in '..\..\UI\Components\RipGrepper.UI.Components.NotifyingControls.pas',
+  RipGrepper.UI.Components.Constants in '..\..\UI\Components\RipGrepper.UI.Components.Constants.pas';
 
 {$R *.res}
 

@@ -149,6 +149,10 @@ var
 	oParsed : IParsedObjectRow;
 begin
 	try
+		if not Assigned(FHistObject) then begin
+			Exit;
+		end;
+
 		if FIsLast then begin
 			OnLastLine(FLineNr);
 			TDebugUtils.DebugMessage(Format('TParallelParser.ParseLine - Before parse last line: %d in %d err: %d',

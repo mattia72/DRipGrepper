@@ -57,7 +57,7 @@
         <GenPackage>true</GenPackage>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
         <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
-        <DCC_UnitSearchPath>C:\home\mata\dev\delphi\RipGrepper\src\UI\Components;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>C:\home\mata\dev\delphi\RipGrepper\src\UI\Components;C:\home\mata\dev\delphi\RipGrepper\src\Common;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <AppFileExt>bpl</AppFileExt>
         <BRCC_CompilerToUse>rc</BRCC_CompilerToUse>
         <VerInfo_Locale>1033</VerInfo_Locale>
@@ -110,6 +110,7 @@
         <DCCReference Include="vclx.dcp"/>
         <DCCReference Include="xmlrtl.dcp"/>
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas"/>
+        <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.NotifyingControls.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
