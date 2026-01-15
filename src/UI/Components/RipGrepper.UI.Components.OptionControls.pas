@@ -1,4 +1,4 @@
-unit RipGrepper.UI.Components.OptionControls;
+﻿unit RipGrepper.UI.Components.OptionControls;
 
 interface
 
@@ -52,12 +52,12 @@ type
 		public
 			constructor Create(_owner : TComponent); override;
 			destructor Destroy; override;
-			
+
 			property ValueProvider : IOptionValueProvider read FValueProvider write FValueProvider;
 			property Value : Variant read GetValue write SetValue;
 			property ControlPanel : TPanel read GetControlPanel;
 			property HintHelper : TLabel read GetHintHelper;
-			
+
 		published
 			property Caption : string read FCaption write setCaption;
 			property Enabled : Boolean read FEnabled write setEnabled;
@@ -81,12 +81,12 @@ type
 		public
 			constructor Create(_owner : TComponent); override;
 			destructor Destroy; override;
-			
+
 			// INotifyingControlOwner implementation
 			procedure OnSubItemEnabledChanged(_sender : TObject);
-			
+
 			property CheckBox : TNotifyingCheckBox read FCheckBox;
-			
+
 		published
 			// Inherited published properties are automatically available
 	end;
@@ -108,13 +108,13 @@ type
 		public
 			constructor Create(_owner : TComponent); override;
 			destructor Destroy; override;
-			
+
 			// INotifyingControlOwner implementation
 			procedure OnSubItemEnabledChanged(_sender : TObject);
-			
+
 			property CheckBox : TNotifyingCheckBox read FCheckBox;
 			property ComboBox : TNotifyingComboBox read FComboBox;
-			
+
 		published
 			property ComboItems : TStringList read FComboItems write setComboItems;
 	end;
@@ -138,13 +138,13 @@ type
 		public
 			constructor Create(_owner : TComponent); override;
 			destructor Destroy; override;
-			
+
 			// INotifyingControlOwner implementation
 			procedure OnSubItemEnabledChanged(_sender : TObject);
-			
+
 			property CheckBox : TNotifyingCheckBox read FCheckBox;
 			property SpinEdit : TNotifyingSpinEdit read FSpinEdit;
-			
+
 		published
 			property MinValue : Integer read FMinValue write setMinValue default 0;
 			property MaxValue : Integer read FMaxValue write setMaxValue default 100;
@@ -166,13 +166,13 @@ type
 		public
 			constructor Create(_owner : TComponent); override;
 			destructor Destroy; override;
-			
+
 			// INotifyingControlOwner implementation
 			procedure OnSubItemEnabledChanged(_sender : TObject);
-			
+
 			property LabelControl : TLabel read FLabel;
 			property ComboBox : TNotifyingComboBox read FComboBox;
-			
+
 		published
 			property ComboItems : TStringList read FComboItems write setComboItems;
 	end;
@@ -182,7 +182,8 @@ procedure Register;
 implementation
 
 uses
-	RipGrepper.UI.Components.Constants;
+	RipGrepper.UI.Components.Constants,
+	RipGrepper.UI.Components.LabeledComboBox;
 
 { TOptionControlBase }
 
@@ -193,7 +194,8 @@ begin
 	FEnabled := True;
 	FShowInExpertMode := False;
 	FStartNewRow := False;
-	
+	// Visible := True;
+
 	// Create control panel
 	FControlPanel := TPanel.Create(Self);
 	FControlPanel.Parent := Self;
@@ -203,7 +205,8 @@ begin
 	FControlPanel.Width := Self.Width;
 	FControlPanel.Height := Self.Height;
 	FControlPanel.Align := alClient;
-	
+	// FControlPanel.Visible := Visible;
+
 	// HintHelper will be created on demand
 	FHintHelper := nil;
 end;
@@ -274,6 +277,7 @@ begin
 	if FCaption <> _value then begin
 		FCaption := _value;
 		UpdateCaption();
+		// Invalidate();
 	end;
 end;
 
@@ -313,7 +317,7 @@ end;
 constructor TOptionCheckBox.Create(_owner : TComponent);
 begin
 	inherited Create(_owner);
-	
+
 	FCheckBox := TNotifyingCheckBox.Create(Self);
 	FCheckBox.Parent := ControlPanel;
 	FCheckBox.OwnerItem := Self;
@@ -322,7 +326,9 @@ begin
 	FCheckBox.Top := 0;
 	FCheckBox.Width := 200;
 	FCheckBox.Height := 21;
-	
+	// FCheckBox.AutoSize := True;
+	// FCheckBox.Visible := True;
+
 	UpdateCaption();
 end;
 
@@ -351,17 +357,20 @@ procedure TOptionCheckBox.OnSubItemEnabledChanged(_sender : TObject);
 begin
 	// Handle enabled state changes if needed
 end;
+
 procedure TOptionCheckBox.UpdateCaption();
 begin
 	inherited;
-	FCheckBox.Caption := Caption;
+	if Assigned(FCheckBox) then begin
+		FCheckBox.Caption := Caption;
+	end;
 end;
 { TOptionCheckBoxCombo }
 
 constructor TOptionCheckBoxCombo.Create(_owner : TComponent);
 begin
 	inherited Create(_owner);
-	
+
 	FCheckBox := TNotifyingCheckBox.Create(Self);
 	FCheckBox.Parent := ControlPanel;
 	FCheckBox.OwnerItem := Self;
@@ -370,7 +379,7 @@ begin
 	FCheckBox.Top := 0;
 	FCheckBox.Width := 150;
 	FCheckBox.Height := 21;
-	
+
 	FComboBox := TNotifyingComboBox.Create(Self);
 	FComboBox.Parent := ControlPanel;
 	FComboBox.OwnerItem := Self;
@@ -379,7 +388,7 @@ begin
 	FComboBox.Top := 0;
 	FComboBox.Width := 100;
 	FComboBox.Height := 21;
-	
+
 	FComboItems := TStringList.Create;
 end;
 
@@ -443,7 +452,7 @@ end;
 constructor TOptionCheckBoxSpin.Create(_owner : TComponent);
 begin
 	inherited Create(_owner);
-	
+
 	FCheckBox := TNotifyingCheckBox.Create(Self);
 	FCheckBox.Parent := ControlPanel;
 	FCheckBox.OwnerItem := Self;
@@ -452,7 +461,7 @@ begin
 	FCheckBox.Top := 0;
 	FCheckBox.Width := 150;
 	FCheckBox.Height := 21;
-	
+
 	FSpinEdit := TNotifyingSpinEdit.Create(Self);
 	FSpinEdit.Parent := ControlPanel;
 	FSpinEdit.OwnerItem := Self;
@@ -461,7 +470,7 @@ begin
 	FSpinEdit.Top := 0;
 	FSpinEdit.Width := 60;
 	FSpinEdit.Height := 21;
-	
+
 	FMinValue := 0;
 	FMaxValue := 100;
 	FSpinEdit.MinValue := FMinValue;
@@ -533,14 +542,14 @@ end;
 constructor TOptionLabelCombo.Create(_owner : TComponent);
 begin
 	inherited Create(_owner);
-	
+
 	FLabel := TLabel.Create(Self);
 	FLabel.Parent := ControlPanel;
 	FLabel.Left := 0;
 	FLabel.Top := 3;
 	FLabel.Width := 150;
 	FLabel.Height := 21;
-	
+
 	FComboBox := TNotifyingComboBox.Create(Self);
 	FComboBox.Parent := ControlPanel;
 	FComboBox.OwnerItem := Self;
@@ -549,7 +558,7 @@ begin
 	FComboBox.Top := 0;
 	FComboBox.Width := 100;
 	FComboBox.Height := 21;
-	
+
 	FComboItems := TStringList.Create;
 end;
 
@@ -593,7 +602,7 @@ end;
 
 procedure Register;
 begin
-	RegisterComponents(SECTION_NAME, [TOptionCheckBox, TOptionCheckBoxCombo, TOptionCheckBoxSpin, TOptionLabelCombo]);
+	RegisterComponents(SECTION_NAME, [TLabeledComboBox, TOptionCheckBox, TOptionCheckBoxCombo, TOptionCheckBoxSpin, TOptionLabelCombo]);
 end;
 
 end.
