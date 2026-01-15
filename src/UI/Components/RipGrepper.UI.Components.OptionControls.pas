@@ -47,6 +47,7 @@ type
 			procedure SetValue(const _value : Variant); virtual; abstract;
 			procedure UpdateFromProvider; virtual;
 			procedure UpdateToProvider; virtual;
+			procedure UpdateCaption(); virtual;
 
 		public
 			constructor Create(_owner : TComponent); override;
@@ -75,6 +76,7 @@ type
 		protected
 			function GetValue() : Variant; override;
 			procedure SetValue(const _value : Variant); override;
+			procedure UpdateCaption(); override;
 
 		public
 			constructor Create(_owner : TComponent); override;
@@ -271,7 +273,13 @@ procedure TOptionControlBase.setCaption(const _value : string);
 begin
 	if FCaption <> _value then begin
 		FCaption := _value;
+		UpdateCaption();
 	end;
+end;
+
+procedure TOptionControlBase.UpdateCaption();
+begin
+	// Override in descendants to update internal controls
 end;
 
 procedure TOptionControlBase.setEnabled(const _value : Boolean);
@@ -314,6 +322,8 @@ begin
 	FCheckBox.Top := 0;
 	FCheckBox.Width := 200;
 	FCheckBox.Height := 21;
+	
+	UpdateCaption();
 end;
 
 destructor TOptionCheckBox.Destroy;
@@ -341,7 +351,11 @@ procedure TOptionCheckBox.OnSubItemEnabledChanged(_sender : TObject);
 begin
 	// Handle enabled state changes if needed
 end;
-
+procedure TOptionCheckBox.UpdateCaption();
+begin
+	inherited;
+	FCheckBox.Caption := Caption;
+end;
 { TOptionCheckBoxCombo }
 
 constructor TOptionCheckBoxCombo.Create(_owner : TComponent);

@@ -9,24 +9,22 @@
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
 {$IOCHECKS ON}
-{$LOCALSYMBOLS ON}
+{$LOCALSYMBOLS OFF}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
-{$OPTIMIZATION OFF}
-{$OVERFLOWCHECKS ON}
-{$RANGECHECKS ON}
-{$REFERENCEINFO ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO OFF}
 {$SAFEDIVIDE OFF}
-{$STACKFRAMES ON}
+{$STACKFRAMES OFF}
 {$TYPEDADDRESS OFF}
 {$VARSTRINGCHECKS ON}
 {$WRITEABLECONST OFF}
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
-{$DEFINE DEBUG}
+{$DEFINE RELEASE}
 {$ENDIF IMPLICITBUILDING}
-{$DESCRIPTION 'UI Components of DRipGrepper'}
-{$DESIGNONLY}
 {$IMPLICITBUILD ON}
 
 requires
@@ -35,12 +33,15 @@ requires
   vcl,
   vclactnband,
   vclx,
-  xmlrtl;
+  xmlrtl,
+  VclSmp;
 
 contains
   RipGrepper.UI.Components.HistoryButtonedEdit in '..\..\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas',
   RipGrepper.UI.Components.NotifyingControls in '..\..\UI\Components\RipGrepper.UI.Components.NotifyingControls.pas',
   RipGrepper.UI.Components.CustomOptionsBase in '..\..\UI\Components\RipGrepper.UI.Components.CustomOptionsBase.pas',
-  RipGrepper.UI.Components.OptionControls in '..\..\UI\Components\RipGrepper.UI.Components.OptionControls.pas';
+  RipGrepper.UI.Components.OptionControls in '..\..\UI\Components\RipGrepper.UI.Components.OptionControls.pas',
+  RipGrepper.UI.Components.Constants in '..\..\UI\Components\RipGrepper.UI.Components.Constants.pas',
+  RipGrepper.UI.Components.LabeledComboBox in '..\..\UI\Components\RipGrepper.UI.Components.LabeledComboBox.pas';
 
 end.
