@@ -1,9 +1,10 @@
 object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
   Left = 756
   Top = 436
+  Width = 662
+  Height = 604
+  AutoScroll = True
   Caption = 'DRipGrepper - Search...'
-  ClientHeight = 702
-  ClientWidth = 646
   Color = clBtnFace
   Constraints.MinWidth = 420
   Font.Charset = DEFAULT_CHARSET
@@ -155,7 +156,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     Left = 0
     Top = 106
     Width = 646
-    Height = 562
+    Height = 425
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -168,7 +169,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       Left = 8
       Top = 247
       Width = 630
-      Height = 312
+      Height = 175
       Margins.Left = 8
       Margins.Right = 8
       Align = alClient
@@ -180,7 +181,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       TabOrder = 2
       DesignSize = (
         630
-        312)
+        175)
       object lblParams: TLabel
         AlignWithMargins = True
         Left = 8
@@ -240,7 +241,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Left = 8
         Top = 87
         Width = 555
-        Height = 217
+        Height = 80
         Anchors = [akLeft, akTop, akRight, akBottom]
         Color = clInfoBk
         Lines.Strings = (
@@ -483,7 +484,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 668
+    Top = 531
     Width = 646
     Height = 34
     Margins.Left = 8

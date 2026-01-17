@@ -33,6 +33,7 @@ type
 			FOnContextChange : TExtensionContextChangeEvent;
 			FRadioItemIndex : Integer;
 			FSearchFormLayout: TSearchFormLayout;
+			FLayoutInitialized: Boolean;
 
 			procedure addItem(const _caption : string; const _dic : TDelphiIDEContext; const _bInExpertModeOnly : Boolean = False);
 			procedure addItemIntern(const _caption : string; const _dic : TDelphiIDEContext; const _isExpert : Boolean);
@@ -66,6 +67,8 @@ uses
 constructor TExtensionContexPanel.Create(_owner : TComponent);
 begin
 	inherited Create(_owner);
+	FSearchFormLayout := [];
+	FLayoutInitialized := False;
 	// BevelOuter := bvNone;
 
 	// pnlMain := TPanel.Create(Self);
@@ -232,13 +235,11 @@ end;
 
 procedure TExtensionContexPanel.UpdateExpertMode(const _layout : TSearchFormLayout);
 begin
-	if FSearchFormLayout = _layout then begin
+	if (not FLayoutInitialized) or (FSearchFormLayout <> _layout) then begin
+		FSearchFormLayout := _layout;
+		FLayoutInitialized := True;
 		ContextRadioGroup.UpdateLayout(FSearchFormLayout);
 		ContextRadioGroup.AlignControlItems();
-		if sflExpert in  FSearchFormLayout then begin
-			ContextRadioGroup.SetDefaultValues();
-		end;
-		FSearchFormLayout := _layout;
 	end;
 end;
 

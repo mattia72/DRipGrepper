@@ -557,7 +557,6 @@ begin
 		ScaleBy(TRipGrepperDpiScaler.GetActualDPI, self.PixelsPerInch);
 
 		// Apply the layout for the current mode
-		// AdjustLayout();
 		UpdateExpertModeInOptionPanels();
 
 		ActiveControl := cmbSearchText;
@@ -1289,8 +1288,8 @@ begin
 		Result := FTopPanelFullHeight - replaceTextFullHeight;
 	end;
 
-	dbgMsg.MsgFmt('TopPanelHeight=%d (fullHeight=%d, replaceHeight=%d, ReplaceMode=%s)',
-			[Result, FTopPanelFullHeight, replaceTextFullHeight, BoolToStr(IsReplaceLayout(), True)]);
+	dbgMsg.MsgFmt('TopPanelHeight=%d (fullHeight=%d, replaceHeight=%d, ReplaceMode=%s)', [Result, FTopPanelFullHeight, replaceTextFullHeight,
+			BoolToStr(IsReplaceLayout(), True)]);
 end;
 
 function TRipGrepperSearchDialogForm.CalculateGbOptionsFiltersHeight(const _bIsExpert : Boolean) : Integer;
@@ -1307,8 +1306,8 @@ begin
 	// Calculate total height: caption bar + extension panel (if visible) + base content
 	Result := GB_CAPTION_HEIGHT + extensionPanelHeight + getOptionsAndFiltersHeight(False);
 
-	dbgMsg.MsgFmt('GbOptionsFiltersHeight=%d (caption=%d, ext=%d, base=%d)',
-			[Result, GB_CAPTION_HEIGHT, extensionPanelHeight, getOptionsAndFiltersHeight(False)]);
+	dbgMsg.MsgFmt('GbOptionsFiltersHeight=%d (caption=%d, ext=%d, base=%d)', [Result, GB_CAPTION_HEIGHT, extensionPanelHeight,
+			getOptionsAndFiltersHeight(False)]);
 end;
 
 function TRipGrepperSearchDialogForm.CalculateFormHeight(const _bIsExpert : Boolean) : Integer;
@@ -1341,9 +1340,8 @@ begin
 		Result := Result + GetFullHeight(gbExpert);
 	end;
 
-	dbgMsg.MsgFmt('FormHeight=%d (top=%d, filters=%d, output=%d, bottom=%d, expert=%s)',
-			[Result, topPanelHeight, gbOptionsFiltersHeight, gbOptionsOutputHeight, bottomPanelHeight,
-			BoolToStr(_bIsExpert, True)]);
+	dbgMsg.MsgFmt('FormHeight=%d (top=%d, filters=%d, output=%d, bottom=%d, expert=%s)', [Result, topPanelHeight, gbOptionsFiltersHeight,
+			gbOptionsOutputHeight, bottomPanelHeight, BoolToStr(_bIsExpert, True)]);
 end;
 
 procedure TRipGrepperSearchDialogForm.ApplyLayout(const _bIsExpert : Boolean);
@@ -1910,8 +1908,7 @@ begin
 		{ } FExtensionContextPanel.Margins.Bottom;
 
 		dbgMsg.MsgFmt('ExtensionPanel Height=%d (visible=%s, expert=%s)',
-				[FExtensionContextPanel.Height, BoolToStr(FExtensionContextPanel.Visible, True),
-				BoolToStr(_bIsExpert, True)]);
+				[FExtensionContextPanel.Height, BoolToStr(FExtensionContextPanel.Visible, True), BoolToStr(_bIsExpert, True)]);
 	end;
 end;
 
@@ -1924,9 +1921,12 @@ end;
 function TRipGrepperSearchDialogForm.IsStandaloneLayout() : Boolean;
 begin
 	{$IF IS_STANDALONE}
-	Exclude(FSearchFormLayout, sflExtension);
+	SetLayout(False, sflExtension);
 	{$ELSE}
-	Include(FSearchFormLayout, sflExtension);
+	SetLayout(True, sflExtension);
+	{$ENDIF};
+	{$IF IS_GUITEST}
+	SetLayout(True, sflExtension);
 	{$ENDIF};
 	Result := not(sflExtension in FSearchFormLayout)
 end;
@@ -1941,6 +1941,7 @@ begin
 	FExtensionContextPanel.AlignWithMargins := True;
 	FExtensionContextPanel.AddItems();
 	FExtensionContextPanel.OnContextChange := OnContextChange;
+	FExtensionContextPanel.UpdateExpertMode(FSearchFormLayout);
 	FExtensionContextPanel.AdjustHeight();
 
 	// Ensure FExtensionContextPanel appears at the top of gbOptionsFilters

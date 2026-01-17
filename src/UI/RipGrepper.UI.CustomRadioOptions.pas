@@ -312,9 +312,8 @@ begin
                 end;
 				Break;
 			end else begin
-				if (p.Height < panelHeight) then begin
-					p.Height := panelHeight;
-				end;
+				// Always set panel height to match content
+				p.Height := panelHeight;
 			end;
 		end;
 		p := p.Parent;
