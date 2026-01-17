@@ -9,16 +9,35 @@ uses
 	Vcl.Controls,
 	Vcl.ExtCtrls,
 	Vcl.Graphics,
-	Vcl.StdCtrls, System.Messaging;
+	Vcl.StdCtrls,
+	Winapi.Messages;
 
 type
 	TLabelPosition = (lpAbove, lpBelow, lpLeft, lpRight);
+
+	TCustomLabeledComboBox = class;
+
+	{ TBoundLabel }
+
+	TBoundLabelClass = class of TBoundLabel;
+
+	TBoundLabel = class(TLabel)
+		strict private
+			procedure CMTextChanged(var _message : TMessage); message CM_TEXTCHANGED;
+
+		protected
+			FIsLabelModified : Boolean;
+
+		public
+			constructor Create(_owner : TComponent); override;
+			property IsLabelModified : Boolean read FIsLabelModified write FIsLabelModified;
+	end;
 
 	{ TCustomLabeledComboBox }
 
 	TCustomLabeledComboBox = class(TComboBox)
 		strict private
-			FEditLabel : TLabel;
+			FEditLabel : TBoundLabel;
 			FLabelPosition : TLabelPosition;
 			FLabelSpacing : Integer;
 			procedure setLabelPosition(const _value : TLabelPosition);
@@ -29,15 +48,18 @@ type
 			procedure CMBidimodechanged(var _message : TMessage); message CM_BIDIMODECHANGED;
 
 		protected
+			class function withLabel() : Boolean; virtual;
+			class function getLabelClass() : TBoundLabelClass; virtual;
 			procedure SetParent(_parent : TWinControl); override;
 			procedure Notification(_component : TComponent; _operation : TOperation); override;
 			procedure SetName(const _value : TComponentName); override;
+			procedure Loaded; override;
 
 		public
 			constructor Create(_owner : TComponent); override;
 			procedure SetBounds(_left : Integer; _top : Integer; _width : Integer; _height : Integer); override;
 			procedure setupInternalLabel();
-			property EditLabel : TLabel read FEditLabel;
+			property EditLabel : TBoundLabel read FEditLabel;
 			property LabelPosition : TLabelPosition read FLabelPosition write setLabelPosition default lpAbove;
 			property LabelSpacing : Integer read FLabelSpacing write setLabelSpacing default 3;
 	end;
@@ -122,6 +144,23 @@ type
 
 implementation
 
+{ TBoundLabel }
+
+constructor TBoundLabel.Create(_owner : TComponent);
+begin
+	inherited Create(_owner);
+	Name := 'SubLabel';
+	SetSubComponent(True);
+	AutoSize := True;
+	IsLabelModified := False;
+end;
+
+procedure TBoundLabel.CMTextChanged(var _message : TMessage);
+begin
+	inherited;
+	IsLabelModified := True;
+end;
+
 { TCustomLabeledComboBox }
 
 constructor TCustomLabeledComboBox.Create(_owner : TComponent);
@@ -129,7 +168,16 @@ begin
 	inherited Create(_owner);
 	FLabelPosition := lpAbove;
 	FLabelSpacing := 3;
-	setupInternalLabel();
+end;
+
+class function TCustomLabeledComboBox.withLabel() : Boolean;
+begin
+	Result := True;
+end;
+
+class function TCustomLabeledComboBox.getLabelClass() : TBoundLabelClass;
+begin
+	Result := TBoundLabel;
 end;
 
 procedure TCustomLabeledComboBox.CMBidimodechanged(var _message : TMessage);
@@ -185,7 +233,7 @@ var
 	s : TSize;
 	lSpacing : Integer;
 begin
-	if FEditLabel = nil then begin
+	if (FEditLabel = nil) or (Parent = nil) then begin
 		Exit;
 	end;
 	s := TSize.Create(FEditLabel.Width, FEditLabel.Height);
@@ -211,6 +259,7 @@ begin
 		end;
 	end;
 	FEditLabel.SetBounds(p.x, p.y, s.Width, s.Height);
+	FEditLabel.Visible := True;
 	if (Parent <> nil) and Parent.HandleAllocated then begin
 		Parent.Invalidate;
 	end;
@@ -236,6 +285,7 @@ procedure TCustomLabeledComboBox.SetName(const _value : TComponentName);
 begin
 	if (csDesigning in ComponentState) and (FEditLabel <> nil) and SameText(FEditLabel.Caption, Name) then begin
 		FEditLabel.Caption := _value;
+		FEditLabel.IsLabelModified := False;
 	end;
 	inherited SetName(_value);
 end;
@@ -243,24 +293,38 @@ end;
 procedure TCustomLabeledComboBox.SetParent(_parent : TWinControl);
 begin
 	inherited SetParent(_parent);
-	if FEditLabel = nil then begin
-		Exit;
-	end;
-	FEditLabel.Parent := _parent;
-	if not (csDestroying in ComponentState) then begin
-		FEditLabel.Visible := Visible;
-		updateLabelPosition();
+	if _parent <> nil then begin
+		setupInternalLabel();
+		if FEditLabel <> nil then begin
+			FEditLabel.Parent := _parent;
+			if not (csDestroying in ComponentState) then begin
+				FEditLabel.Visible := Visible;
+				updateLabelPosition();
+			end;
+		end;
 	end;
 end;
 
 procedure TCustomLabeledComboBox.setupInternalLabel();
 begin
-	if FEditLabel <> nil then begin
+	if (FEditLabel <> nil) or not withLabel() then begin
 		Exit;
 	end;
-	FEditLabel := TLabel.Create(Self);
+	FEditLabel := getLabelClass().Create(Self);
 	FEditLabel.FreeNotification(Self);
 	FEditLabel.FocusControl := Self;
+end;
+
+procedure TCustomLabeledComboBox.Loaded;
+begin
+	inherited Loaded;
+	if Parent <> nil then begin
+		setupInternalLabel();
+		if FEditLabel <> nil then begin
+			FEditLabel.Parent := Parent;
+			updateLabelPosition();
+		end;
+	end;
 end;
 
 end.

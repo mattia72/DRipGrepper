@@ -18,7 +18,9 @@ uses
 	RipGrepper.UI.Components.HistoryButtonedEdit,
 	RipGrepper.UI.Components.NotifyingControls,
 	RipGrepper.UI.Components.OptionControls, Vcl.Mask,
-  RipGrepper.UI.Components.LabeledComboBox;
+  RipGrepper.UI.Components.LabeledComboBox,
+  RipGrepper.UI.Components.CheckBoxSpinEdit,
+  RipGrepper.UI.Components.CheckBoxComboBox;
 
 type
 	TFormComponentTest = class(TForm, INotifyingControlOwner)
@@ -39,10 +41,10 @@ type
 		btnTestRuntimeCreation : TButton;
 		pnlRuntimeControls : TPanel;
     ntfyngspndt1: TNotifyingSpinEdit;
-    optnchckbxspn1: TOptionCheckBoxSpin;
-    optnchckbxcmb1: TOptionCheckBoxCombo;
     lbledt1: TLabeledEdit;
-    lbldcmbx1: TLabeledComboBox;
+    LabeledComboBox1: TLabeledComboBox;
+    chckbxcmbx1: TCheckBoxComboBox;
+    chckbxspndt1: TCheckBoxSpinEdit;
 		procedure FormCreate(Sender : TObject);
 		procedure FormDestroy(Sender : TObject);
 		procedure btnAddToHistoryClick(Sender : TObject);

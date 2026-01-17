@@ -602,7 +602,12 @@ end;
 
 procedure Register;
 begin
-	RegisterComponents(SECTION_NAME, [TLabeledComboBox, TOptionCheckBox, TOptionCheckBoxCombo, TOptionCheckBoxSpin, TOptionLabelCombo]);
+	RegisterComponents(SECTION_NAME, [TLabeledComboBox,
+  {} TOptionCheckBox,
+  {} TOptionCheckBoxCombo,
+  {} TOptionCheckBoxSpin,
+  {} TOptionLabelCombo]);
+
 end;
 
 end.

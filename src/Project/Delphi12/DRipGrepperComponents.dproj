@@ -116,6 +116,9 @@
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.OptionControls.pas"/>
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.Constants.pas"/>
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.LabeledComboBox.pas"/>
+        <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.CheckBoxComboBox.pas"/>
+        <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.CheckBoxSpinEdit.pas"/>
+        <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.BoundCheckBox.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

@@ -42,6 +42,9 @@ contains
   RipGrepper.UI.Components.CustomOptionsBase in '..\..\UI\Components\RipGrepper.UI.Components.CustomOptionsBase.pas',
   RipGrepper.UI.Components.OptionControls in '..\..\UI\Components\RipGrepper.UI.Components.OptionControls.pas',
   RipGrepper.UI.Components.Constants in '..\..\UI\Components\RipGrepper.UI.Components.Constants.pas',
-  RipGrepper.UI.Components.LabeledComboBox in '..\..\UI\Components\RipGrepper.UI.Components.LabeledComboBox.pas';
+  RipGrepper.UI.Components.LabeledComboBox in '..\..\UI\Components\RipGrepper.UI.Components.LabeledComboBox.pas',
+  RipGrepper.UI.Components.CheckBoxComboBox in '..\..\UI\Components\RipGrepper.UI.Components.CheckBoxComboBox.pas',
+  RipGrepper.UI.Components.CheckBoxSpinEdit in '..\..\UI\Components\RipGrepper.UI.Components.CheckBoxSpinEdit.pas',
+  RipGrepper.UI.Components.BoundCheckBox in '..\..\UI\Components\RipGrepper.UI.Components.BoundCheckBox.pas';
 
 end.

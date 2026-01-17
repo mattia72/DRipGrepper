@@ -3,7 +3,7 @@ object FormComponentTest: TFormComponentTest
   Top = 0
   Caption = 'DRipGrepper Component Test Application'
   ClientHeight = 599
-  ClientWidth = 751
+  ClientWidth = 982
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,14 +16,14 @@ object FormComponentTest: TFormComponentTest
   object pnlMain: TPanel
     Left = 0
     Top = 0
-    Width = 751
+    Width = 982
     Height = 599
     Align = alClient
     TabOrder = 0
     object pnlHistoryTest: TPanel
       Left = 1
       Top = 1
-      Width = 749
+      Width = 980
       Height = 145
       Align = alTop
       TabOrder = 0
@@ -77,31 +77,11 @@ object FormComponentTest: TFormComponentTest
         TabOrder = 3
         Value = 0
       end
-      object optnchckbxspn1: TOptionCheckBoxSpin
-        Left = 464
-        Top = 74
-        Width = 185
-        Height = 29
-        BevelOuter = bvNone
-        Caption = 'lhjgljkg'
-        Enabled = True
-        TabOrder = 4
-      end
-      object optnchckbxcmb1: TOptionCheckBoxCombo
-        Left = 464
-        Top = 109
-        Width = 185
-        Height = 28
-        BevelOuter = bvNone
-        Caption = 'asdfasd'
-        Enabled = True
-        TabOrder = 5
-      end
     end
     object pnlNotifyingControls: TPanel
       Left = 1
       Top = 146
-      Width = 749
+      Width = 980
       Height = 145
       Align = alTop
       TabOrder = 1
@@ -143,7 +123,7 @@ object FormComponentTest: TFormComponentTest
     object pnlOptionControls: TPanel
       Left = 1
       Top = 291
-      Width = 749
+      Width = 980
       Height = 95
       Align = alTop
       TabOrder = 2
@@ -164,7 +144,7 @@ object FormComponentTest: TFormComponentTest
     object memoLog: TMemo
       Left = 1
       Top = 466
-      Width = 749
+      Width = 980
       Height = 132
       Align = alBottom
       Font.Charset = DEFAULT_CHARSET
@@ -179,9 +159,9 @@ object FormComponentTest: TFormComponentTest
     end
     object pnlRuntimeControls: TPanel
       Left = 1
-      Top = 392
-      Width = 749
-      Height = 74
+      Top = 243
+      Width = 980
+      Height = 223
       Align = alBottom
       TabOrder = 4
       object btnTestRuntimeCreation: TButton
@@ -194,15 +174,56 @@ object FormComponentTest: TFormComponentTest
         OnClick = btnTestRuntimeCreationClick
       end
       object lbledt1: TLabeledEdit
-        Left = 528
-        Top = 24
+        Left = 296
+        Top = 32
         Width = 121
         Height = 21
-        EditLabel.Width = 32
+        EditLabel.Width = 68
         EditLabel.Height = 13
-        EditLabel.Caption = 'lkjhlkjh'
+        EditLabel.Caption = 'TLabeled Edit:'
         TabOrder = 1
         Text = 'ljlkjj'
+      end
+      object LabeledComboBox1: TLabeledComboBox
+        Left = 296
+        Top = 80
+        Width = 145
+        Height = 21
+        TabOrder = 2
+        Text = 'LabeledComboBox1'
+      end
+      object chckbxcmbx1: TCheckBoxComboBox
+        Left = 512
+        Top = 16
+        Width = 145
+        Height = 21
+        TabOrder = 3
+        Text = 'chckbxcmbx1'
+        CheckBox.Left = 412
+        CheckBox.Top = 12
+        CheckBox.Width = 80
+        CheckBox.Height = 30
+        CheckBox.Caption = 'ComboBox checkbox'
+        CheckBox.TabOrder = 4
+        CheckBox.WordWrap = True
+        CheckBoxPosition = cpLeft
+        CheckBoxSpacing = 20
+      end
+      object chckbxspndt1: TCheckBoxSpinEdit
+        Left = 512
+        Top = 72
+        Width = 121
+        Height = 22
+        MaxValue = 0
+        MinValue = 0
+        TabOrder = 5
+        Value = 0
+        CheckBox.Left = 512
+        CheckBox.Top = 52
+        CheckBox.Width = 97
+        CheckBox.Height = 17
+        CheckBox.Caption = 'chckbxspndt1'
+        CheckBox.TabOrder = 6
       end
     end
   end

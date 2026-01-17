@@ -2,7 +2,8 @@ program ComponentTestApp;
 
 uses
   Vcl.Forms,
-  ComponentTestMain in 'ComponentTestMain.pas' {FormComponentTest};
+  ComponentTestMain in 'ComponentTestMain.pas' {FormComponentTest},
+  RipGrepper.UI.Components.LabeledComboBox in '..\..\UI\Components\RipGrepper.UI.Components.LabeledComboBox.pas';
 
 {$R *.res}
 
