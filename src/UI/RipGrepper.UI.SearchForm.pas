@@ -48,6 +48,7 @@ uses
 const
 	RG_OPTIONS_PADDING_LEFT = 4;
 	RG_OPTIONS_PADDING_TOP = 4;
+	GB_EXPERT_DESIGNED_HEIGHT = 175; // Designed height from .dfm file
 
 type
 	TRipGrepperSearchDialogForm = class(TForm)
@@ -1302,12 +1303,16 @@ begin
 	// Get extension panel height for current mode
 	var
 	extensionPanelHeight := getExtensionContextPanelHeight(_bIsExpert);
+	dbgMsg.MsgFmt('extensionPanelHeight=%d (isExpert=%s)', [extensionPanelHeight, BoolToStr(_bIsExpert, True)]);
+
+	var
+	baseHeight := getOptionsAndFiltersHeight(False);
+	dbgMsg.MsgFmt('baseHeight (pnlPath + pnlRgFilterOptions)=%d', [baseHeight]);
 
 	// Calculate total height: caption bar + extension panel (if visible) + base content
-	Result := GB_CAPTION_HEIGHT + extensionPanelHeight + getOptionsAndFiltersHeight(False);
+	Result := GB_CAPTION_HEIGHT + extensionPanelHeight + baseHeight;
 
-	dbgMsg.MsgFmt('GbOptionsFiltersHeight=%d (caption=%d, ext=%d, base=%d)', [Result, GB_CAPTION_HEIGHT, extensionPanelHeight,
-			getOptionsAndFiltersHeight(False)]);
+	dbgMsg.MsgFmt('GbOptionsFiltersHeight=%d (caption=%d, ext=%d, base=%d)', [Result, GB_CAPTION_HEIGHT, extensionPanelHeight, baseHeight]);
 end;
 
 function TRipGrepperSearchDialogForm.CalculateFormHeight(const _bIsExpert : Boolean) : Integer;
@@ -1318,27 +1323,54 @@ begin
 	// Calculate all component heights dynamically
 	var
 	topPanelHeight := GetTopPanelHeight();
+	dbgMsg.MsgFmt('topPanelHeight=%d', [topPanelHeight]);
+
 	var
 	gbOptionsFiltersHeight := CalculateGbOptionsFiltersHeight(_bIsExpert);
+	dbgMsg.MsgFmt('gbOptionsFiltersHeight=%d', [gbOptionsFiltersHeight]);
+
+	// gbOptionsOutput should have a minimum reasonable height (not the current cut-off height)
+	const MIN_GBOPTIONSOUTPUT_HEIGHT = 100; // Minimum height for output options
 	var
 	gbOptionsOutputHeight := GetFullHeight(gbOptionsOutput);
+	if gbOptionsOutputHeight < MIN_GBOPTIONSOUTPUT_HEIGHT then begin
+		gbOptionsOutputHeight := MIN_GBOPTIONSOUTPUT_HEIGHT;
+		dbgMsg.MsgFmt('gbOptionsOutput height adjusted from %d to minimum %d', [
+				{ } GetFullHeight(gbOptionsOutput), MIN_GBOPTIONSOUTPUT_HEIGHT]);
+	end;
+	dbgMsg.MsgFmt('gbOptionsOutput.Height=%d, Margins.Top=%d, Margins.Bottom=%d, GetFullHeight=%d',
+			[gbOptionsOutput.Height, gbOptionsOutput.Margins.Top,
+			{ } gbOptionsOutput.Margins.Bottom, gbOptionsOutputHeight]);
+
 	var
 	bottomPanelHeight := GetFullHeight(pnlBottom);
+	dbgMsg.MsgFmt('bottomPanelHeight=%d', [bottomPanelHeight]);
 
 	// Base form height (without expert group box)
+	// pnlMiddle uses alClient, so we calculate based on its contents
+	var
+	pnlMiddleContentHeight :=
+	{ } gbOptionsFiltersHeight +
+	{ } gbOptionsFilters.Margins.Top + gbOptionsFilters.Margins.Bottom +
+	{ } gbOptionsOutputHeight;
+
+	if _bIsExpert then begin
+		// Use designed height to prevent accumulation when switching modes
+		var
+		expertHeight := GB_EXPERT_DESIGNED_HEIGHT + gbExpert.Margins.Top + gbExpert.Margins.Bottom;
+		dbgMsg.MsgFmt('Adding gbExpert: DesignedHeight=%d, Margins.Top=%d, Margins.Bottom=%d, Total=%d',
+				[GB_EXPERT_DESIGNED_HEIGHT, gbExpert.Margins.Top, gbExpert.Margins.Bottom, expertHeight]);
+		pnlMiddleContentHeight := pnlMiddleContentHeight + expertHeight;
+	end;
+
+	dbgMsg.MsgFmt('pnlMiddle content height=%d', [pnlMiddleContentHeight]);
+
 	Result :=
 	{ } topPanelHeight +
 	{ } pnlMiddle.Margins.Top +
-	{ } gbOptionsFiltersHeight +
-	{ } gbOptionsFilters.Margins.Top + gbOptionsFilters.Margins.Bottom +
-	{ } gbOptionsOutputHeight +
+	{ } pnlMiddleContentHeight +
 	{ } pnlMiddle.Margins.Bottom +
 	{ } bottomPanelHeight;
-
-	// Add expert group box height if in expert mode
-	if _bIsExpert then begin
-		Result := Result + GetFullHeight(gbExpert);
-	end;
 
 	dbgMsg.MsgFmt('FormHeight=%d (top=%d, filters=%d, output=%d, bottom=%d, expert=%s)', [Result, topPanelHeight, gbOptionsFiltersHeight,
 			gbOptionsOutputHeight, bottomPanelHeight, BoolToStr(_bIsExpert, True)]);
@@ -1353,23 +1385,40 @@ begin
 
 	// Calculate heights dynamically
 	gbOptionsFilters.Height := CalculateGbOptionsFiltersHeight(_bIsExpert);
+	dbgMsg.MsgFmt('Set gbOptionsFilters.Height=%d (actual after set: %d)', [CalculateGbOptionsFiltersHeight(_bIsExpert),
+			gbOptionsFilters.Height]);
+
+	// Check what happened to gbOptionsOutput
+	dbgMsg.MsgFmt('After setting gbOptionsFilters: gbOptionsOutput.Top=%d, gbOptionsOutput.Height=%d',
+			[gbOptionsOutput.Top, gbOptionsOutput.Height]);
+
 	formHeight := CalculateFormHeight(_bIsExpert);
+	dbgMsg.MsgFmt('Calculated formHeight=%d', [formHeight]);
 
 	// Show/hide expert controls
 	ShowExpertGroupCtrls(_bIsExpert);
+	dbgMsg.MsgFmt('After ShowExpertGroupCtrls, gbExpert.Visible=%s, gbExpert.Height=%d',
+			[BoolToStr(gbExpert.Visible, True), gbExpert.Height]);
 
 	// Set form constraints and height based on mode
 	if _bIsExpert then begin
 		// Allow vertical resizing in expert mode
 		Constraints.MinHeight := CalculateFormHeight(False); // Normal mode as minimum
+		dbgMsg.MsgFmt('Expert mode: Set Constraints.MinHeight=%d', [Constraints.MinHeight]);
 		Constraints.MaxHeight := 0; // No max height - allow unlimited vertical growth
 	end else begin
 		// Fix height in normal mode (no vertical resizing)
 		Constraints.MinHeight := formHeight;
 		Constraints.MaxHeight := formHeight;
+		dbgMsg.MsgFmt('Normal mode: Set Constraints.MinHeight=%d, MaxHeight=%d', [Constraints.MinHeight, Constraints.MaxHeight]);
 	end;
 
 	Height := formHeight;
+	dbgMsg.MsgFmt('Set Form.Height=%d (actual after set: %d)', [formHeight, Height]);
+
+	// Final check of all control positions/heights
+	dbgMsg.MsgFmt('FINAL: gbOptionsFilters.Height=%d, gbOptionsOutput.Top=%d, gbOptionsOutput.Height=%d, pnlMiddle.Height=%d',
+			[gbOptionsFilters.Height, gbOptionsOutput.Top, gbOptionsOutput.Height, pnlMiddle.Height]);
 
 	dbgMsg.MsgFmt('Layout applied: Expert=%s, gbOptionsFilters.Height=%d, Form.Height=%d',
 			[BoolToStr(_bIsExpert, True), gbOptionsFilters.Height, Height]);
@@ -1943,12 +1992,6 @@ begin
 	FExtensionContextPanel.OnContextChange := OnContextChange;
 	FExtensionContextPanel.UpdateExpertMode(FSearchFormLayout);
 	FExtensionContextPanel.AdjustHeight();
-
-	// Ensure FExtensionContextPanel appears at the top of gbOptionsFilters
-	// by setting pnlPath to come after it (pnlRgFilterOptions follows pnlPath)
-	FExtensionContextPanel.Top := 0;
-	pnlPath.Top := FExtensionContextPanel.Height + FExtensionContextPanel.Margins.Top + FExtensionContextPanel.Margins.Bottom;
-	pnlRgFilterOptions.Top := pnlPath.Top + pnlPath.Height;
 end;
 
 procedure TRipGrepperSearchDialogForm.SetLayout(const _bSet : Boolean; _eVal : ESearchFormLayout);
