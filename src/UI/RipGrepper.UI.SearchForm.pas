@@ -222,7 +222,6 @@ type
 			procedure SetCmbSearchTextText(const _sText : string);
 			procedure SetCmbSearchTextAutoComplete(const _Value : Boolean);
 			procedure UpdateMemoTextFormat();
-			procedure AdjustMemoHeightByContent();
 			function getOptionsAndFiltersHeight(const _bWithLabel : Boolean) : integer;
 			procedure SetRgFilterOptionsPanel(const _settings : TRipGrepperSettings);
 			procedure SetRgOutputOptionsPanel(const _settings : TRipGrepperSettings);
@@ -1758,42 +1757,6 @@ begin
 	end else begin
 		memoCommandLine.Text := params.GetCommandLine(shellType);
 	end;
-	AdjustMemoHeightByContent();
-end;
-
-procedure TRipGrepperSearchDialogForm.AdjustMemoHeightByContent();
-var
-	lineCount : Integer;
-	lineHeight : Integer;
-	newHeight : Integer;
-	dc : HDC;
-	tm : TTextMetric;
-begin
-	if not Assigned(memoCommandLine) then begin
-		Exit;
-	end;
-
-	// Get number of lines
-	lineCount := memoCommandLine.Lines.Count;
-	if lineCount = 0 then begin
-		lineCount := 1; // At least one line
-	end;
-
-	// Calculate line height based on font using device context
-	dc := GetDC(memoCommandLine.Handle);
-	try
-		SelectObject(dc, memoCommandLine.Font.Handle);
-		GetTextMetrics(dc, tm);
-		lineHeight := tm.tmHeight + tm.tmExternalLeading + 2; // Add small padding
-	finally
-		ReleaseDC(memoCommandLine.Handle, dc);
-	end;
-
-	// Calculate new height: lines * line height + border padding
-	newHeight := (lineCount * lineHeight) + 8; // 8px for borders and padding
-
-	// Apply height
-	memoCommandLine.Constraints.MinHeight := newHeight;
 end;
 
 procedure TRipGrepperSearchDialogForm.OnRgFilterOptionsPanelItemSelect(Sender : TObject; Item : TCustomCheckItem);
@@ -2007,9 +1970,6 @@ procedure TRipGrepperSearchDialogForm.ShowExpertGroupCtrls(const _bShow : Boolea
 begin
 	gbExpert.Visible := _bShow;
 	cmbOptions.Visible := _bShow;
-	if _bShow { and _bForce } then begin
-		AdjustMemoHeightByContent();
-	end;
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateExpertModeInOptionPanels();
