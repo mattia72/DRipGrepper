@@ -36,6 +36,9 @@ type
 	end;
 
 	TPersistableSettings = class( { TInterfacedObject } TNoRefCountObject, ISettings, IIniPersistable, IStreamReaderWriterPersistable)
+		const
+			STREAM_FORMAT_VERSION = 2;
+
 		private
 			class var FLockObject : IShared<TObject>;
 
@@ -46,6 +49,7 @@ type
 			FIsAlreadyRead : Boolean;
 			FOwner : TPersistableSettings;
 			FIsOwnerOfPersisterFactory : Boolean;
+			FStreamFormatVersion : Integer;
 			procedure CopySettingsDictSectionSettingValues(const _section : string; _sdFrom : ISettingKeys;
 				const _bForceCopySettingObj : Boolean = False);
 			function GetCount() : Integer;
@@ -67,6 +71,10 @@ type
 			procedure CreateSetting(const _section, _key : string; _setting : ISetting); overload;
 			function GetIsAlreadyRead : Boolean; virtual;
 			function GetIsModified : Boolean; virtual;
+			function GetStreamFormatVersion : Integer; virtual;
+			procedure LoadVersionDependentSettings(_sr : TStreamReader); virtual;
+			procedure SaveVersionDependentSettings(_sw : TStreamWriter); virtual;
+			property StreamFormatVersion : Integer read GetStreamFormatVersion;
 			/// <summary>TPersistableSettings.Init
 			/// CreateSetting should be called here
 			/// </summary>
@@ -141,6 +149,7 @@ uses
 constructor TPersistableSettings.Create(const _Owner : TPersistableSettings);
 begin
 	inherited Create();
+	FStreamFormatVersion := STREAM_FORMAT_VERSION;
 	FOwner := _Owner;
 	if Assigned(FOwner) then begin
 		FPersisterFactory := _Owner.PersisterFactory;
@@ -155,6 +164,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.Create', True);
 
+	FStreamFormatVersion := STREAM_FORMAT_VERSION;
 	FIsModified := False;
 	FIsAlreadyRead := False;
 	FbDefaultLoaded := False;
@@ -311,6 +321,21 @@ begin
 			end);
 	end;
 	Result := FIsModified;
+end;
+
+function TPersistableSettings.GetStreamFormatVersion : Integer;
+begin
+	Result := FStreamFormatVersion;
+end;
+
+procedure TPersistableSettings.LoadVersionDependentSettings(_sr : TStreamReader);
+begin
+	// Override in derived classes to read version-specific fields
+end;
+
+procedure TPersistableSettings.SaveVersionDependentSettings(_sw : TStreamWriter);
+begin
+	// Override in derived classes to write version-specific fields
 end;
 
 procedure TPersistableSettings.ReadFile();
@@ -499,13 +524,22 @@ end;
 
 procedure TPersistableSettings.LoadFromStreamReader(_sr : TStreamReader);
 begin
+	var
+	versionStr := _sr.ReadLineAsString(true, 'Version');
+	if not versionStr.IsEmpty then begin
+		FStreamFormatVersion := StrToIntDef(versionStr, STREAM_FORMAT_VERSION);
+	end;
+	
 	SettingsDict.LoadFromStreamReader(_sr);
+	LoadVersionDependentSettings(_sr);
 	LoadFromDict;
 end;
 
 procedure TPersistableSettings.SaveToStreamWriter(_sw : TStreamWriter);
 begin
-	SettingsDict.SaveToStreamWriter(_sw)
+	_sw.WriteLineAsString(StreamFormatVersion.ToString, true, 'Version');
+	SettingsDict.SaveToStreamWriter(_sw);
+	SaveVersionDependentSettings(_sw);
 end;
 
 function TPersistableSettings.ToLogString : string;

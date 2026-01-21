@@ -30,8 +30,12 @@ type
 				{ } 'Encoding',
 				{ } 'OutputFormat');
 
+			SEARCH_SETTING_NAMES_V2 : array [0 .. 3] of string = (
+				{ } 'FormLeft',
+				{ } 'FormTop',
+				{ } 'FormWidth',
+				{ } 'FormHeight');
 		private
-
 			FContext : IIntegerSetting;
 			FEncoding : IStringSetting;
 			FExtensionSettings : TRipGrepperExtensionSettings;
@@ -54,6 +58,11 @@ type
 			function GetFormTop() : IIntegerSetting;
 			function GetFormWidth() : IIntegerSetting;
 			function GetFormHeight() : IIntegerSetting;
+
+		protected
+			function GetStreamFormatVersion : Integer; override;
+			procedure LoadVersionDependentSettings(_sr : TStreamReader); override;
+			procedure SaveVersionDependentSettings(_sw : TStreamWriter); override;
 
 		public
 			constructor Create(const _Owner : TPersistableSettings); overload;
@@ -194,6 +203,27 @@ begin
 	Result := FFormHeight;
 end;
 
+
+procedure TSearchFormSettings.LoadVersionDependentSettings(_sr : TStreamReader);
+begin
+	if StreamFormatVersion >= 2 then begin
+		FormLeft.Value := _sr.ReadLineAsInteger('FormLeft');
+		FormTop.Value := _sr.ReadLineAsInteger('FormTop');
+		FormWidth.Value := _sr.ReadLineAsInteger('FormWidth');
+		FormHeight.Value := _sr.ReadLineAsInteger('FormHeight');
+	end;
+end;
+
+procedure TSearchFormSettings.SaveVersionDependentSettings(_sw : TStreamWriter);
+begin
+	if StreamFormatVersion >= 2 then begin
+		_sw.WriteLineAsString(FormLeft.Value.ToString, true, 'FormLeft');
+		_sw.WriteLineAsString(FormTop.Value.ToString, true, 'FormTop');
+		_sw.WriteLineAsString(FormWidth.Value.ToString, true, 'FormWidth');
+		_sw.WriteLineAsString(FormHeight.Value.ToString, true, 'FormHeight');
+	end;
+end;
+
 procedure TSearchFormSettings.Init;
 begin
 	var
@@ -238,10 +268,6 @@ begin
 	if not s.IsEmpty then begin
 		OutputFormat.Value := s;
 	end;
-	FormLeft.Value := _sr.ReadLineAsInteger('FormLeft');
-	FormTop.Value := _sr.ReadLineAsInteger('FormTop');
-	FormWidth.Value := _sr.ReadLineAsInteger('FormWidth');
-	FormHeight.Value := _sr.ReadLineAsInteger('FormHeight');
 	ExtensionSettings.LoadFromStreamReader(_sr);
 end;
 
@@ -275,27 +301,10 @@ begin
 	{ } BoolToStr(Pretty.Value),
 	{ } Context.Value.ToString,
 	{ } Encoding.Value,
-	{ } OutputFormat.Value,
-	{ } FormLeft.Value.ToString,
-	{ } FormTop.Value.ToString,
-	{ } FormWidth.Value.ToString,
-	{ } FormHeight.Value.ToString];
+	{ } OutputFormat.Value];
 
 	for var i := 0 to Length(strArr) - 1 do begin
-		if i < 6 then begin
-			_sw.WriteLineAsString(strArr[i], true, SEARCH_SETTING_NAMES[i]);
-		end else begin
-			case i of
-				6:
-					_sw.WriteLineAsString(strArr[i], true, 'FormLeft');
-				7:
-					_sw.WriteLineAsString(strArr[i], true, 'FormTop');
-				8:
-					_sw.WriteLineAsString(strArr[i], true, 'FormWidth');
-				9:
-					_sw.WriteLineAsString(strArr[i], true, 'FormHeight');
-			end;
-		end;
+		_sw.WriteLineAsString(strArr[i], true, SEARCH_SETTING_NAMES[i]);
 	end;
 
 	ExtensionSettings.SaveToStreamWriter(_sw);
