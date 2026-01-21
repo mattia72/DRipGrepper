@@ -39,6 +39,10 @@ type
 			FNoIgnore : IBoolSetting;
 			FOutputFormat : IStringSetting;
 			FPretty : IBoolSetting;
+			FFormLeft : IIntegerSetting;
+			FFormTop : IIntegerSetting;
+			FFormWidth : IIntegerSetting;
+			FFormHeight : IIntegerSetting;
 			function GetContext() : IIntegerSetting;
 			function GetEncoding() : IStringSetting;
 			function GetExtensionSettings : TRipGrepperExtensionSettings;
@@ -46,6 +50,10 @@ type
 			function GetNoIgnore() : IBoolSetting;
 			function GetOutputFormat() : IStringSetting;
 			function GetPretty() : IBoolSetting;
+			function GetFormLeft() : IIntegerSetting;
+			function GetFormTop() : IIntegerSetting;
+			function GetFormWidth() : IIntegerSetting;
+			function GetFormHeight() : IIntegerSetting;
 
 		public
 			constructor Create(const _Owner : TPersistableSettings); overload;
@@ -68,6 +76,10 @@ type
 			property NoIgnore : IBoolSetting read GetNoIgnore;
 			property OutputFormat : IStringSetting read GetOutputFormat;
 			property Pretty : IBoolSetting read GetPretty;
+			property FormLeft : IIntegerSetting read GetFormLeft;
+			property FormTop : IIntegerSetting read GetFormTop;
+			property FormWidth : IIntegerSetting read GetFormWidth;
+			property FormHeight : IIntegerSetting read GetFormHeight;
 	end;
 
 implementation
@@ -162,6 +174,26 @@ begin
 	Result := FPretty;
 end;
 
+function TSearchFormSettings.GetFormLeft() : IIntegerSetting;
+begin
+	Result := FFormLeft;
+end;
+
+function TSearchFormSettings.GetFormTop() : IIntegerSetting;
+begin
+	Result := FFormTop;
+end;
+
+function TSearchFormSettings.GetFormWidth() : IIntegerSetting;
+begin
+	Result := FFormWidth;
+end;
+
+function TSearchFormSettings.GetFormHeight() : IIntegerSetting;
+begin
+	Result := FFormHeight;
+end;
+
 procedure TSearchFormSettings.Init;
 begin
 	var
@@ -174,6 +206,10 @@ begin
 	FEncoding := TStringSetting.Create('Encoding', '');
 	FOutputFormat := TStringSetting.Create('OutputFormat', OUTPUT_FORMAT_JSON);
 	FPretty.Enabled := False; // Pretty is disabled if json output is selected
+	FFormLeft := TIntegerSetting.Create('FormLeft', -1);
+	FFormTop := TIntegerSetting.Create('FormTop', -1);
+	FFormWidth := TIntegerSetting.Create('FormWidth', -1);
+	FFormHeight := TIntegerSetting.Create('FormHeight', -1);
 
 	CreateSetting(FPretty);
 	CreateSetting(FHidden);
@@ -181,6 +217,10 @@ begin
 	CreateSetting(FContext);
 	CreateSetting(FEncoding);
 	CreateSetting(FOutputFormat);
+	CreateSetting(FFormLeft);
+	CreateSetting(FFormTop);
+	CreateSetting(FFormWidth);
+	CreateSetting(FFormHeight);
 end;
 
 procedure TSearchFormSettings.LoadFromStreamReader(_sr : TStreamReader);
@@ -198,6 +238,10 @@ begin
 	if not s.IsEmpty then begin
 		OutputFormat.Value := s;
 	end;
+	FormLeft.Value := _sr.ReadLineAsInteger('FormLeft');
+	FormTop.Value := _sr.ReadLineAsInteger('FormTop');
+	FormWidth.Value := _sr.ReadLineAsInteger('FormWidth');
+	FormHeight.Value := _sr.ReadLineAsInteger('FormHeight');
 	ExtensionSettings.LoadFromStreamReader(_sr);
 end;
 
@@ -231,10 +275,27 @@ begin
 	{ } BoolToStr(Pretty.Value),
 	{ } Context.Value.ToString,
 	{ } Encoding.Value,
-	{ } OutputFormat.Value];
+	{ } OutputFormat.Value,
+	{ } FormLeft.Value.ToString,
+	{ } FormTop.Value.ToString,
+	{ } FormWidth.Value.ToString,
+	{ } FormHeight.Value.ToString];
 
 	for var i := 0 to Length(strArr) - 1 do begin
-		_sw.WriteLineAsString(strArr[i], true, SEARCH_SETTING_NAMES[i]);
+		if i < 6 then begin
+			_sw.WriteLineAsString(strArr[i], true, SEARCH_SETTING_NAMES[i]);
+		end else begin
+			case i of
+				6:
+					_sw.WriteLineAsString(strArr[i], true, 'FormLeft');
+				7:
+					_sw.WriteLineAsString(strArr[i], true, 'FormTop');
+				8:
+					_sw.WriteLineAsString(strArr[i], true, 'FormWidth');
+				9:
+					_sw.WriteLineAsString(strArr[i], true, 'FormHeight');
+			end;
+		end;
 	end;
 
 	ExtensionSettings.SaveToStreamWriter(_sw);
@@ -242,7 +303,7 @@ end;
 
 function TSearchFormSettings.ToLogString : string;
 begin
-	Result := Format('Hidden=%s NoIgnore=%s Pretty=%s Context=%s Encoding=%s OutputFormat=%s Extension:[%s]',
+	Result := Format('Hidden=%s NoIgnore=%s Pretty=%s Context=%s Encoding=%s OutputFormat=%s FormLeft=%d FormTop=%d FormWidth=%d FormHeight=%d Extension:[%s]',
 		{ } [
 		{ } BoolToStr(Hidden.Value),
 		{ } BoolToStr(NoIgnore.Value),
@@ -250,6 +311,10 @@ begin
 		{ } Context.Value.ToString,
 		{ } Encoding.Value,
 		{ } OutputFormat.Value,
+		{ } FormLeft.Value,
+		{ } FormTop.Value,
+		{ } FormWidth.Value,
+		{ } FormHeight.Value,
 		{ } FExtensionSettings.ToLogString]);
 end;
 

@@ -353,6 +353,12 @@ begin
 	// gbOptionsFilters.Margins.Right := 2;
 
 	FSearchFormLayout := []; // normal layout no replace, no expert
+
+	// Set Position to poDesigned if we have saved position to restore
+	if (FSettings.SearchFormSettings.FormLeft.Value >= 0) and
+		{ } (FSettings.SearchFormSettings.FormTop.Value >= 0) then begin
+		Position := poDesigned;
+	end;
 end;
 
 destructor TRipGrepperSearchDialogForm.Destroy;
@@ -512,6 +518,12 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.FormClose');
 
+	// Save form position and size to settings
+	FSettings.SearchFormSettings.FormLeft.Value := Left;
+	FSettings.SearchFormSettings.FormTop.Value := Top;
+	FSettings.SearchFormSettings.FormWidth.Value := Width;
+	FSettings.SearchFormSettings.FormHeight.Value := Height;
+
 	if ModalResult = mrCancel then begin
 		Exit;
 	end;
@@ -558,6 +570,20 @@ begin
 
 		// Apply the layout for the current mode
 		UpdateExpertModeInOptionPanels();
+
+		// Restore form size from settings (after scaling)
+		if (FSettings.SearchFormSettings.FormWidth.Value > 0) and
+			{ } (FSettings.SearchFormSettings.FormHeight.Value > 0) then begin
+			Width := FSettings.SearchFormSettings.FormWidth.Value;
+			Height := FSettings.SearchFormSettings.FormHeight.Value;
+		end;
+
+		// Restore form position from settings (after scaling and sizing)
+		if (FSettings.SearchFormSettings.FormLeft.Value >= 0) and
+			{ } (FSettings.SearchFormSettings.FormTop.Value >= 0) then begin
+			Left := FSettings.SearchFormSettings.FormLeft.Value;
+			Top := FSettings.SearchFormSettings.FormTop.Value;
+		end;
 
 		ActiveControl := cmbSearchText;
 	finally
