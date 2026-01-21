@@ -666,7 +666,11 @@ end;
 
 function TRipGrepperSearchDialogForm.GetFullHeight(_ctrl : TControl) : integer;
 begin
-	Result := _ctrl.Margins.Top + _ctrl.Height + _ctrl.Margins.Bottom;
+	if _ctrl.Visible then begin
+		Result := _ctrl.Margins.Top + _ctrl.Height + _ctrl.Margins.Bottom;
+	end else begin
+		Result := 0;
+	end;
 end;
 
 function TRipGrepperSearchDialogForm.IsOptionSet(const _sParamRegex : string; const _sParamValue : string = '') : Boolean;
@@ -1797,6 +1801,9 @@ begin
 		Exit;
 	end;
 
+	// Update the layout flag based on new expert mode state
+	SetLayout(isExpert, sflExpert);
+	
 	UpdateExpertModeInOptionPanels();
 end;
 

@@ -34,6 +34,7 @@ type
 			FOnOptionChange : TRgOptionChangeEvent;
 			FSettings : TRipGrepperSettings;
 			FSearchFormLayout : TSearchFormLayout;
+			FLayoutInitialized : Boolean;
 			procedure SetSettings(const Value : TRipGrepperSettings);
 
 		protected
@@ -101,6 +102,7 @@ begin
 	BevelOuter := bvNone;
 	Align := alClient;
 	FEventsEnabled := True;
+	FLayoutInitialized := False;
 
 	// Create pnlMain programmatically
 	pnlMain := TPanel.Create(Self);
@@ -175,12 +177,12 @@ begin
 	sfs := Settings.SearchFormSettings;
 	// Add checkbox options
 	FCheckOptionsGroup.AddCheckboxItem(RG_FILTER_OPTION_HIDDEN_CAPTION, 'Search hidden files and directories',
-		{ } sfs.Hidden);
+		{ } sfs.Hidden, false, true);
 	FCheckOptionsGroup.AddCheckboxItem(RG_FILTER_OPTION_NO_IGNORE_CAPTION, 'Don''t use ignore files',
-		{ } sfs.NoIgnore);
+		{ } sfs.NoIgnore, false, true);
 	FCheckOptionsGroup.AddCheckboxComboItem(RG_FILTER_OPTION_ENCODING_CAPTION, 'Specify text encoding',
 		{ } encodingItems,
-		{ } sfs.Encoding);
+		{ } sfs.Encoding, false, true);
 
 	inherited;
 end;
@@ -376,13 +378,39 @@ begin
 end;
 
 procedure TOptionPanel.UpdateExpertMode(const _layout : TSearchFormLayout);
+var
+	allHidden : Boolean;
 begin
 	var wasExpert := sflExpert in FSearchFormLayout;
-	if FSearchFormLayout <> _layout then begin
+	var isExpert := sflExpert in _layout;
+	
+	// Always update if: expert mode status changed, layout changed, or this is the first update
+	if (not FLayoutInitialized) or (FSearchFormLayout <> _layout) or (wasExpert <> isExpert) then begin
 		FSearchFormLayout := _layout;
+		FLayoutInitialized := True;
 		CheckOptionsGroup.UpdateLayout(_layout);
 		CheckOptionsGroup.AlignControlItems();
-		if (not wasExpert) and  (sflExpert in FSearchFormLayout) then begin
+		
+		// Check if all items are hidden
+		allHidden := True;
+		for var item in CheckOptionsGroup.Items do begin
+			if Assigned(item.ParentPanel) and item.ParentPanel.Visible then begin
+				allHidden := False;
+				Break;
+			end;
+		end;
+		
+		// Hide parent panel if all items are hidden, show otherwise
+		if Assigned(Parent) then begin
+			Parent.Visible := not allHidden;
+		end;
+		
+		// Only adjust height if panel is visible
+		if not allHidden then begin
+			AdjustHeight();
+		end;
+		
+		if (not wasExpert) and isExpert then begin
 			CheckOptionsGroup.SetDefaultValues();
 		end;
 	end;

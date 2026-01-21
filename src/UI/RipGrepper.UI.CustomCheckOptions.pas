@@ -856,25 +856,13 @@ function TCustomCheckOptions.AddCheckboxItem(const _caption, _hint : string; _se
 var
 	checkBox : TNotifyingCheckBox;
 	caption : string;
-	expertChoice : Boolean;
 begin
 	Result := CreateItemWithPanel(_caption, citCheckBox, _setting);
 	Result.StartNewRow := _startNewRow;
 	Result.ShowInExpertModeOnly := _showInExpertModeOnly;
 
-	// Check if item should be shown based on expert mode
-	if not(Assigned(FSettings) and Assigned(FSettings.AppSettings)) then begin
-		// No settings available, add item normally
-	end else begin
-		expertChoice := FSettings.AppSettings.IsExpertMode and _showInExpertModeOnly;
-		if not expertChoice and _showInExpertModeOnly then begin
-			// Expert mode only item, but expert mode is off - hide the control
-			Result.ParentPanel.Visible := False;
-		end;
-	end;
-
-	// Adjust caption if expert mode item
-	if _showInExpertModeOnly and Assigned(FSettings) and FSettings.AppSettings.IsExpertMode then begin
+	// Always add '*' if item is expert-only, regardless of current mode
+	if _showInExpertModeOnly then begin
 		caption := _caption + ' *';
 	end else begin
 		caption := _caption;
@@ -908,17 +896,20 @@ function TCustomCheckOptions.AddCheckboxComboItem(const _caption, _hint : string
 var
 	checkBox : TNotifyingCheckBox;
 	comboBox : TNotifyingComboBox;
-	newCaption : string;
+	caption : string;
 begin
 	Result := CreateItemWithPanel(_caption, citCheckBoxWithCombo, _setting);
 	Result.StartNewRow := _startNewRow;
 	Result.ShowInExpertModeOnly := _showInExpertModeOnly;
 
-	// Check if item should be shown based on expert mode
-	Result.ParentPanel.Visible :=
-	{ } CheckAndInitExpertMode(newCaption, _caption, _showInExpertModeOnly);
+	// Always add '*' if item is expert-only, regardless of current mode
+	if _showInExpertModeOnly then begin
+		caption := _caption + ' *';
+	end else begin
+		caption := _caption;
+	end;
 
-	checkBox := CreateCheckBox(Result.ParentPanel, newCaption, _hint, _setting.Name) as TNotifyingCheckBox;
+	checkBox := CreateCheckBox(Result.ParentPanel, caption, _hint, _setting.Name) as TNotifyingCheckBox;
 	checkBox.OwnerItem := Result;
 
 	comboBox := CreateComboBox(_setting.Name, _hint, Result.ParentPanel) as TNotifyingComboBox;
@@ -944,7 +935,7 @@ function TCustomCheckOptions.AddCheckboxSpinItem(const _caption, _hint : string;
 var
 	checkBox : TNotifyingCheckBox;
 	spinEdit : TNotifyingSpinEdit;
-	newCaption : string;
+	caption : string;
 begin
 	Result := CreateItemWithPanel(_caption, citCheckBoxWithSpin, _setting);
 	Result.StartNewRow := _startNewRow;
@@ -953,13 +944,15 @@ begin
 	Result.MaxValue := _maxValue;
 	Result.SpinValue := _defaultValue;
 
-	// Check if item should be shown based on expert mode
-	// Check if item should be shown based on expert mode
-	Result.ParentPanel.Visible :=
-	{ } CheckAndInitExpertMode(newCaption, _caption, _showInExpertModeOnly);
+	// Always add '*' if item is expert-only, regardless of current mode
+	if _showInExpertModeOnly then begin
+		caption := _caption + ' *';
+	end else begin
+		caption := _caption;
+	end;
 
 	// Create the checkbox
-	checkBox := CreateCheckBox(Result.ParentPanel, newCaption, _hint, _setting.Name) as TNotifyingCheckBox;
+	checkBox := CreateCheckBox(Result.ParentPanel, caption, _hint, _setting.Name) as TNotifyingCheckBox;
 	checkBox.OwnerItem := Result;
 
 	// Create the spin edit
@@ -987,25 +980,13 @@ var
 	comboBox : TNotifyingComboBox;
 	comboItems : IShared<TStringList>;
 	caption : string;
-	expertChoice : Boolean;
 begin
 	Result := CreateItemWithPanel(_caption, citLabelWithCombo, _setting);
 	Result.StartNewRow := _startNewRow;
 	Result.ShowInExpertModeOnly := _showInExpertModeOnly;
 
-	// Check if item should be shown based on expert mode
-	if not(Assigned(FSettings) and Assigned(FSettings.AppSettings)) then begin
-		// No settings available, add item normally
-	end else begin
-		expertChoice := FSettings.AppSettings.IsExpertMode and _showInExpertModeOnly;
-		if not expertChoice and _showInExpertModeOnly then begin
-			// Expert mode only item, but expert mode is off - hide the control
-			Result.ParentPanel.Visible := False;
-		end;
-	end;
-
-	// Adjust caption if expert mode item
-	if _showInExpertModeOnly and Assigned(FSettings) and FSettings.AppSettings.IsExpertMode then begin
+	// Always add '*' if item is expert-only, regardless of current mode
+	if _showInExpertModeOnly then begin
 		caption := _caption + ' *';
 	end else begin
 		caption := _caption;
@@ -1774,12 +1755,19 @@ begin
 end;
 
 procedure TCustomCheckOptions.UpdateLayout(const _layout : TSearchFormLayout);
+var
+	isExpert : Boolean;
 begin
-	if FSearchFormLayout = _layout then begin
-		for var item in Items do begin
-			if item.ShowInExpertModeOnly then begin
-				item.ParentPanel.Visible := sflExpert in FSearchFormLayout;
-			end;
+	FSearchFormLayout := _layout;
+	isExpert := sflExpert in FSearchFormLayout;
+	
+	for var item in Items do begin
+		if item.ShowInExpertModeOnly then begin
+			// Expert-only items: show only in expert mode
+			item.ParentPanel.Visible := isExpert;
+		end else begin
+			// Normal items: always visible
+			item.ParentPanel.Visible := True;
 		end;
 	end;
 end;
