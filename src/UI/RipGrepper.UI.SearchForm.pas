@@ -1798,6 +1798,8 @@ begin
 	if not isExpert and (mrYes <>
 			{ } TMsgBox.ShowQuestion('Switch to normal mode? ' + CRLF2 +
 			{ } 'All expert settings will be reset to defaults.')) then begin
+		// User answered "No" - restore checkbox to original state
+		Item.Checked := not Item.Checked;
 		Exit;
 	end;
 
