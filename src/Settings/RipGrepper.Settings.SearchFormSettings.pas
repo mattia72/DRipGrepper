@@ -206,20 +206,20 @@ end;
 procedure TSearchFormSettings.LoadVersionDependentSettings(_sr : TStreamReader);
 begin
 	if StreamFormatVersion >= 2 then begin
-		FormLeft.Value := _sr.ReadLineAsInteger('FormLeft');
-		FormTop.Value := _sr.ReadLineAsInteger('FormTop');
-		FormWidth.Value := _sr.ReadLineAsInteger('FormWidth');
-		FormHeight.Value := _sr.ReadLineAsInteger('FormHeight');
+		// FormLeft.Value := _sr.ReadLineAsInteger('FormLeft');
+		// FormTop.Value := _sr.ReadLineAsInteger('FormTop');
+		// FormWidth.Value := _sr.ReadLineAsInteger('FormWidth');
+		// FormHeight.Value := _sr.ReadLineAsInteger('FormHeight');
 	end;
 end;
 
 procedure TSearchFormSettings.SaveVersionDependentSettings(_sw : TStreamWriter);
 begin
 	if StreamFormatVersion >= 2 then begin
-		_sw.WriteLineAsString(FormLeft.Value.ToString, true, 'FormLeft');
-		_sw.WriteLineAsString(FormTop.Value.ToString, true, 'FormTop');
-		_sw.WriteLineAsString(FormWidth.Value.ToString, true, 'FormWidth');
-		_sw.WriteLineAsString(FormHeight.Value.ToString, true, 'FormHeight');
+		// _sw.WriteLineAsString(FormLeft.Value.ToString, true, 'FormLeft');
+		// _sw.WriteLineAsString(FormTop.Value.ToString, true, 'FormTop');
+		// _sw.WriteLineAsString(FormWidth.Value.ToString, true, 'FormWidth');
+		// _sw.WriteLineAsString(FormHeight.Value.ToString, true, 'FormHeight');
 	end;
 end;
 
