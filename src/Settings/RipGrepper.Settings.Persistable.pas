@@ -144,7 +144,8 @@ uses
 	System.IOUtils,
 	System.StrUtils,
 	RipGrepper.Tools.LockGuard,
-	Spring.Collections;
+	Spring.Collections,
+	RipGrepper.Helper.StreamReaderWriter;
 
 constructor TPersistableSettings.Create(const _Owner : TPersistableSettings);
 begin

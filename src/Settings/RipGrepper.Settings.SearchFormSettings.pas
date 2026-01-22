@@ -60,7 +60,6 @@ type
 			function GetFormHeight() : IIntegerSetting;
 
 		protected
-			function GetStreamFormatVersion : Integer; override;
 			procedure LoadVersionDependentSettings(_sr : TStreamReader); override;
 			procedure SaveVersionDependentSettings(_sw : TStreamWriter); override;
 
@@ -257,7 +256,7 @@ procedure TSearchFormSettings.LoadFromStreamReader(_sr : TStreamReader);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.LoadFromStreamReader');
-	inherited;
+	inherited LoadFromStreamReader(_sr);
 	Hidden.Value := _sr.ReadLineAsBool('Hidden');
 	NoIgnore.Value := _sr.ReadLineAsBool('NoIgnore');
 	Pretty.Value := _sr.ReadLineAsBool('Pretty');
@@ -293,7 +292,8 @@ procedure TSearchFormSettings.SaveToStreamWriter(_sw : TStreamWriter);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.SaveToStreamWriter');
-	inherited;
+	inherited SaveToStreamWriter(_sw);
+
 	var
 	strArr := [
 	{ } BoolToStr(Hidden.Value),

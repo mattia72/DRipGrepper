@@ -390,7 +390,6 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
           Height = 53
           Align = alTop
           BevelOuter = bvNone
-          Color = clActiveCaption
           ParentBackground = False
           TabOrder = 1
           DesignSize = (
