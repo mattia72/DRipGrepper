@@ -103,7 +103,7 @@ type
 			procedure OnSubItemEnabledChanged(_sender : TObject);
 			procedure SetControlEnabled(_index : ESubItemIndex; _enabled : Boolean);
 			procedure ShowControl(_index : ESubItemIndex; const _bShow : Boolean);
-
+			
 			property CheckBox : TCheckBox read getCheckBox;
 			property LabelControl : TLabel read getLabel;
 			property ComboBox : TComboBox read getComboBox;
@@ -111,6 +111,8 @@ type
 			property HintHelper : TLabel read GetHintHelper;
 			property ParentPanel : TCheckItemParentPanel read GetParentPanel;
 			property ComboBoxItems : TStringList read FComboBoxItems write setComboBoxItems;
+			procedure UpdateToProvider;
+			procedure UpdateFromProvider;
 			property Caption : string read FCaption write setCaption;
 			property TagObject : IInterface read FTagObject write setTagObject;
 			property index : Integer read FIndex write FIndex;
@@ -712,6 +714,86 @@ begin
 	end;
 
 	showSubItem(_index, _bShow);
+end;
+
+procedure TCustomCheckItem.UpdateToProvider;
+begin
+	if not Assigned(FSetting) then begin
+		Exit;
+	end;
+
+	case ItemType of
+		citCheckBox : begin
+			if Assigned(CheckBox) and (FSetting.SettingType = stBool) then begin
+				var boolSetting := FSetting as IBoolSetting;
+				boolSetting.Value := CheckBox.Checked;
+			end;
+		end;
+
+		citCheckBoxWithCombo : begin
+			if Assigned(ComboBox) and (FSetting.SettingType = stString) then begin
+				var strSetting := FSetting as IStringSetting;
+				strSetting.Value := ComboBox.Text;
+			end;
+		end;
+
+		citCheckBoxWithSpin : begin
+			if Assigned(SpinEdit) and (FSetting.SettingType = stInteger) then begin
+				var intSetting := FSetting as IIntegerSetting;
+				intSetting.Value := SpinEdit.Value;
+			end;
+		end;
+
+		citLabelWithCombo : begin
+			if Assigned(ComboBox) and (FSetting.SettingType = stString) then begin
+				var strSetting := FSetting as IStringSetting;
+				strSetting.Value := ComboBox.Text;
+			end;
+		end;
+	end;
+end;
+
+procedure TCustomCheckItem.UpdateFromProvider;
+begin
+	if not Assigned(FSetting) then begin
+		Exit;
+	end;
+
+	case ItemType of
+		citCheckBox : begin
+			if Assigned(CheckBox) and (FSetting.SettingType = stBool) then begin
+				var boolSetting := FSetting as IBoolSetting;
+				CheckBox.Checked := boolSetting.Value;
+			end;
+		end;
+
+		citCheckBoxWithCombo : begin
+			if Assigned(ComboBox) and (FSetting.SettingType = stString) then begin
+				var strSetting := FSetting as IStringSetting;
+				ComboBox.Text := strSetting.Value;
+				if Assigned(CheckBox) then begin
+					CheckBox.Checked := not strSetting.Value.IsEmpty;
+				end;
+			end;
+		end;
+
+		citCheckBoxWithSpin : begin
+			if Assigned(SpinEdit) and (FSetting.SettingType = stInteger) then begin
+				var intSetting := FSetting as IIntegerSetting;
+				SpinEdit.Value := intSetting.Value;
+				if Assigned(CheckBox) then begin
+					CheckBox.Checked := intSetting.Value <> 0;
+				end;
+			end;
+		end;
+
+		citLabelWithCombo : begin
+			if Assigned(ComboBox) and (FSetting.SettingType = stString) then begin
+				var strSetting := FSetting as IStringSetting;
+				ComboBox.Text := strSetting.Value;
+			end;
+		end;
+	end;
 end;
 
 { TCustomCheckItems }
@@ -1734,6 +1816,8 @@ begin
 	for var item in Items do begin
 		if item.ShowInExpertModeOnly then begin
 			item.Setting.SetDefaultValue();
+			// Update controls to reflect default value via ValueProvider
+			item.UpdateFromProvider;
 		end;
 	end;
 end;
