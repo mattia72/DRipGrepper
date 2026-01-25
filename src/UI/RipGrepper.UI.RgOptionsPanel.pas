@@ -383,7 +383,8 @@ var
 begin
 	var wasExpert := sflExpert in FSearchFormLayout;
 	var isExpert := sflExpert in _layout;
-	
+	var isNormal := not isExpert;
+
 	// Always update if: expert mode status changed, layout changed, or this is the first update
 	if (not FLayoutInitialized) or (FSearchFormLayout <> _layout) or (wasExpert <> isExpert) then begin
 		FSearchFormLayout := _layout;
@@ -410,7 +411,7 @@ begin
 			AdjustHeight();
 		end;
 		
-		if (not wasExpert) and isExpert then begin
+		if wasExpert and isNormal then begin
 			CheckOptionsGroup.SetDefaultValues();
 		end;
 	end;
