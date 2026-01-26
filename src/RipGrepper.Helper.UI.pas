@@ -211,8 +211,9 @@ uses
 	System.StrUtils,
 	Winapi.ActiveX,
 	RipGrepper.Helper.UI.DarkMode,
-	Spring, 
-	RipGrepper.Tools.DebugUtils;
+	Spring,
+	RipGrepper.Tools.DebugUtils,
+	RipGrepper.Tools.ProcessUtils;
 
 constructor TMsgBoxParams.Create(const _msg : string; const _dlgType : TMsgDlgType;
 	{ } const _title : string = '';
@@ -580,7 +581,7 @@ end;
 class procedure TMsgBox.AddCustomButtons(_msgBox : TTaskDialog; _btn : TMsgDlgBtn; _idx : integer);
 begin
 	with _msgBox.Buttons.Add do begin
-		Index := _idx;
+		index := _idx;
 		case TMsgDlgBtn(_btn) of
 			TMsgDlgBtn.mbYes : begin
 				Caption := 'Yes';
@@ -924,7 +925,7 @@ end;
 
 class procedure TUrlLinkHelper.OpenLink(const _link : string);
 begin
-	ShellExecute(0, 'OPEN', PChar(_link), '', '', SW_SHOWNORMAL);
+	TShellUtils.Run(_link);
 end;
 
 end.

@@ -25,7 +25,8 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.FileUtils,
-	System.Generics.Collections;
+	System.Generics.Collections,
+	RipGrepper.Tools.ProcessUtils;
 
 class function TOpenWithRunner.BuildParams(const _owp : TOpenWithParams; const _sParams : string) : string;
 var
@@ -58,7 +59,6 @@ end;
 
 class procedure TOpenWithRunner.RunEditorCommand(const _sEditorCmd : string; const _owp : TOpenWithParams);
 var
-	err : DWORD;
 	sParams : string;
 	cr : TCommandLineRec;
 	sCmd : string;
@@ -67,13 +67,8 @@ begin
 	sParams := string.Join(' ', cr.Arguments);
 	sCmd := '"' + cr.ExePath + '"';
 	sParams := BuildParams(_owp, sParams);
-
 	TDebugUtils.DebugMessage((Format('TOpenWithRunner.RunEditorCommand cmd: %s %s ', [sCmd, sParams])));
-	ShellExecute(0, 'OPEN', PChar(sCmd), PChar(sParams), nil, SW_SHOWNORMAL);
-	err := GetLastError;
-	if err <> 0 then begin
-		TMsgBox.ShowError(Format('%s %s' + CRLF + CRLF + '%s', [sCmd, sParams, SysErrorMessage(err)]));
-	end;
+	TShellUtils.Run(sCmd, sParams);
 end;
 
 end.

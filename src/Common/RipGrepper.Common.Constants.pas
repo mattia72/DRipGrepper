@@ -51,6 +51,7 @@ const
 	WWW_LINK_RG_MAN_PAGE = 'https://www.mankier.com/1/rg#Options';
 	WWW_LINK_RG_REPLACE_MAN_PAGE = 'https://www.mankier.com/1/rg#-r';
 	WWW_LINK_GLOBBING_HELP = 'https://www.w3schools.com/git/git_ignore.asp'; // https://www.mankier.com/5/gitignore
+	WWW_LINK_OPEN_IN_DELPHI = 'https://marketplace.visualstudio.com/items?itemName=Mattia72-OpenInDelphi.openindelphi';
 
 	FORMAT_VERSION_INFO = 'v%d.%d.%d.%d-beta';
 	FORMAT_NAME_VERSION_INFO = '%s (%s) %s';

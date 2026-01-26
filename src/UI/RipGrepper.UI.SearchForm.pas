@@ -455,7 +455,7 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ActionShowFileMaskHelpExecute(Sender : TObject);
 begin
-	ShellExecute(0, 'OPEN', PChar(WWW_LINK_GLOBBING_HELP), '', '', SW_SHOWNORMAL);
+	TShellUtils.Run(WWW_LINK_GLOBBING_HELP);
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionShowInLinesExecute(Sender : TObject);
@@ -475,12 +475,12 @@ end;
 
 procedure TRipGrepperSearchDialogForm.ActionShowRGOptionsHelpExecute(Sender : TObject);
 begin
-	ShellExecute(0, 'OPEN', PChar(WWW_LINK_RG_MAN_PAGE), '', '', SW_SHOWNORMAL);
+	TShellUtils.Run(WWW_LINK_RG_MAN_PAGE);
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionShowRGReplaceOptionHelpExecute(Sender : TObject);
 begin
-	ShellExecute(0, 'OPEN', PChar(WWW_LINK_RG_REPLACE_MAN_PAGE), '', '', SW_SHOWNORMAL);
+	TShellUtils.Run(WWW_LINK_RG_REPLACE_MAN_PAGE);
 end;
 
 procedure TRipGrepperSearchDialogForm.ProcessControl(_ctrl : TControl; _imgList : TImageList);

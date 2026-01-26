@@ -64,6 +64,12 @@ type
 				{ } _eofProcHandler : IEOFProcessEventHandler) : Boolean;
 	end;
 
+	TShellUtils = class
+
+		public
+			class procedure Run(const _sCmd : string; const _sParams : string = '');
+	end;
+
 implementation
 
 uses
@@ -393,6 +399,16 @@ begin
 	TProcessUtils.RunProcess(_exe, _args, _workDir, spor as INewLineEventHandler, nil, nil);
 	_stdOut.Clear;
 	_stdOut.Assign(spor.OutputText);
+end;
+
+class procedure TShellUtils.Run(const _sCmd : string; const _sParams : string = '');
+begin
+	ShellExecute(0, 'OPEN', PChar(_sCmd), PChar(_sParams), nil, SW_SHOWNORMAL);
+	var
+	err := GetLastError;
+	if err <> 0 then begin
+		TMsgBox.ShowError(Format('%s %s' + CRLF + CRLF + '%s', [_sCmd, _sParams, SysErrorMessage(err)]));
+	end;
 end;
 
 end.
