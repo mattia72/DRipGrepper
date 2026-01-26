@@ -301,7 +301,7 @@ end;
 
 procedure TRipGrepOptionsForm.llblHelpLinkClick(Sender : TObject; const Link : string; LinkType : TSysLinkType);
 begin
-	ShellExecute(0, 'OPEN', PChar(Link), '', '', SW_SHOWNORMAL);
+	TShellUtils.Run(Link);
 end;
 
 procedure TRipGrepOptionsForm.SearchBox1Change(Sender : TObject);
