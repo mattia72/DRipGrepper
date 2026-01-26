@@ -4,6 +4,10 @@
 
 ### 💥 Added
 - Output format settings: json or vimgrep (BREAKING CHANGE: loading of history items saved by old version won't work)
+- Search form: 
+  - Expert mode toggle to show/hide advanced options
+  - Save/Load form size and position
+
 
 ### 🔄 Changed
 - Output options use generalized OptionPanel 
