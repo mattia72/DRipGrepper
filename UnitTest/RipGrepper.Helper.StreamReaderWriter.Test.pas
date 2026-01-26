@@ -16,6 +16,8 @@ type
 			FMemoryStream : TMemoryStream;
 			FStreamWriter : TStreamWriter;
 			FStreamReader : TStreamReader;
+			procedure ResetStreamForReading;
+			function ReadAllStreamContent: string;
 
 		public
 			[Setup]
@@ -47,9 +49,6 @@ type
 			procedure TestComplexStringWithAllSpecialChars;
 			[Test]
 			procedure TestMultipleItemsRoundTrip;
-		private
-			procedure ResetStreamForReading;
-			function ReadAllStreamContent: string;
 	end;
 
 implementation
