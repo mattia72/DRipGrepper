@@ -25,7 +25,8 @@ uses
 	System.ImageList,
 	Vcl.ImgList,
 	SVGIconImageListBase,
-	SVGIconImageList;
+	SVGIconImageList,
+	Vcl.Buttons;
 
 type
 	TExtensionSettingsForm = class(TSettingsBaseForm)
@@ -46,7 +47,10 @@ type
 		lblVersionInfo : TLabel;
 		grpVsCodeIntegration : TGroupBox;
 		chkHandleOpenInDelphiCommands : TCheckBox;
+		sbtnOpenInDelphiLnk : TSpeedButton;
+		ActionOpenLinkVsCodeExtension : TAction;
 		procedure ActionExtensionInstallExecute(Sender : TObject);
+		procedure ActionOpenLinkVsCodeExtensionExecute(Sender : TObject);
 		procedure btnedtDllPathLeftButtonClick(Sender : TObject);
 		procedure btnedtDllPathRightButtonClick(Sender : TObject);
 		procedure cmbDelphiVersionsChange(Sender : TObject);
@@ -105,7 +109,8 @@ uses
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.FileUtils,
 	System.StrUtils,
-	RipGrepper.Tools.ReleaseUtils;
+	RipGrepper.Tools.ReleaseUtils,
+	RipGrepper.Tools.ProcessUtils;
 
 {$R *.dfm}
 
@@ -154,6 +159,11 @@ begin
 	finally
 		installer.Free;
 	end;
+end;
+
+procedure TExtensionSettingsForm.ActionOpenLinkVsCodeExtensionExecute(Sender : TObject);
+begin
+	TShellUtils.Run(WWW_LINK_OPEN_IN_DELPHI);
 end;
 
 procedure TExtensionSettingsForm.btnedtDllPathLeftButtonClick(Sender : TObject);
