@@ -10,6 +10,7 @@ uses
 	Vcl.Graphics,
 	Vcl.Controls,
 	Vcl.Forms,
+	Vcl.Menus,
 	Vcl.StdCtrls,
 	Vcl.ExtCtrls,
 	System.ImageList,
@@ -43,7 +44,9 @@ uses
 	RipGrepper.Common.IDEContextValues,
 	RipGrepper.UI.SearchForm.CtrlValueProxy,
 	RipGrepper.UI.CustomCheckOptions,
-	RipGrepper.UI.RgOptionsPanel;
+	RipGrepper.UI.RgOptionsPanel,
+	RipGrepper.Helper.RegexTemplates,
+	RipGrepper.UI.RegexTemplateMenu;
 
 const
 	RG_OPTIONS_PADDING_LEFT = 4;
@@ -105,6 +108,8 @@ type
 		pnlRgOutputOptions : TPanel;
 		pnl1 : TPanel;
 		pnl2 : TPanel;
+		btnRegexTemplates : TButton;
+		PopupMenuRegexTemplates : TPopupMenu;
 		procedure ActionAddParamMatchCaseExecute(Sender : TObject);
 		procedure ActionAddParamMatchCaseUpdate(Sender : TObject);
 		procedure ActionAddParamRegexExecute(Sender : TObject);
@@ -131,6 +136,7 @@ type
 		procedure cmbSearchDirChange(Sender : TObject);
 		procedure cmbSearchTextChange(Sender : TObject);
 		procedure cmbSearchTextKeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
+		procedure btnRegexTemplatesClick(Sender : TObject);
 		procedure ShowOptionsForm;
 		procedure FormClose(Sender : TObject; var Action : TCloseAction);
 		procedure FormResize(Sender : TObject);
@@ -144,6 +150,8 @@ type
 			FRgFilterOptionsPanel : TRgFilterOptionsPanel;
 			FRgOutputOptionsPanel : TRgOutputOptionsPanel;
 			FAppSettingsPanel : TAppOptionsPanel;
+			FRegexTemplateManager : TRegexTemplateManager;
+			FRegexTemplateMenu : TRegexTemplateMenu;
 			cbRgParamHidden : TCheckBox;
 			cbRgParamNoIgnore : TCheckBox;
 			cbRgParamEncoding : TCheckBox;
@@ -225,6 +233,7 @@ type
 			function getOptionsAndFiltersHeight(const _bWithLabel : Boolean) : integer;
 			procedure SetRgFilterOptionsPanel(const _settings : TRipGrepperSettings);
 			procedure SetRgOutputOptionsPanel(const _settings : TRipGrepperSettings);
+			procedure OnRegexTemplateSelected(const _pattern : string);
 			procedure SetMinimumWidthFromOptionsPanels();
 			procedure CopyProxyToSearchFormSettings(const _ctrlProxy : TSearchFormCtrlValueProxy; const _settings : TSearchFormSettings);
 			procedure OnAppSettingsPanelItemSelect(Sender : TObject; Item : TCustomCheckItem);
@@ -517,6 +526,17 @@ procedure TRipGrepperSearchDialogForm.FormClose(Sender : TObject; var Action : T
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.FormClose');
+
+	// Clean up regex template components
+	if Assigned(FRegexTemplateMenu) then begin
+		FRegexTemplateMenu.Free;
+		FRegexTemplateMenu := nil;
+	end;
+
+	if Assigned(FRegexTemplateManager) then begin
+		FRegexTemplateManager.Free;
+		FRegexTemplateManager := nil;
+	end;
 
 	// Save form position and size to settings
 	FSettings.SearchFormSettings.FormLeft.Value := Left;
@@ -2018,5 +2038,39 @@ begin
 	// The layout methods will handle extension panel sizing
 	AdjustLayout();
 end;
+
+procedure TRipGrepperSearchDialogForm.btnRegexTemplatesClick(Sender : TObject);
+begin
+	if not Assigned(FRegexTemplateManager) then begin
+		FRegexTemplateManager := TRegexTemplateManager.Create(FSettings.RegexTemplates);
+	end;
+
+	if not Assigned(FRegexTemplateMenu) then begin
+		FRegexTemplateMenu := TRegexTemplateMenu.Create(PopupMenuRegexTemplates, FRegexTemplateManager);
+		FRegexTemplateMenu.OnTemplateSelected := OnRegexTemplateSelected;
+	end;
+
+	FRegexTemplateMenu.ShowAtControl(btnRegexTemplates);
+end;
+
+procedure TRipGrepperSearchDialogForm.OnRegexTemplateSelected(const _pattern : string);
+var
+	newText : string;
+begin
+	// Apply template pattern to current search text
+	newText := StringReplace(_pattern, '<text>', cmbSearchText.Text, [rfReplaceAll]);
+
+	cmbSearchText.Text := newText;
+
+	// Enable regex option if not already enabled
+	if not tbUseRegex.Down then begin
+		tbUseRegex.Down := True;
+		ActionAddParamRegexExecute(nil);
+	end;
+
+	// Set focus to search text
+	cmbSearchText.SetFocus;
+end;
+
 
 end.

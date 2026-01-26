@@ -122,7 +122,9 @@ uses
   RipGrepper.Parsers.JsonMatchLine in '..\..\RipGrepper.Parsers.JsonMatchLine.pas',
   RipGrepper.UI.Components.NotifyingControls in '..\..\UI\Components\RipGrepper.UI.Components.NotifyingControls.pas',
   RipGrepper.UI.Components.CustomOptionsBase in '..\..\UI\Components\RipGrepper.UI.Components.CustomOptionsBase.pas',
-  RipGrepper.UI.Components.Constants in '..\..\UI\Components\RipGrepper.UI.Components.Constants.pas';
+  RipGrepper.UI.Components.Constants in '..\..\UI\Components\RipGrepper.UI.Components.Constants.pas',
+  RipGrepper.UI.RegexTemplateMenu in '..\..\UI\RipGrepper.UI.RegexTemplateMenu.pas',
+  RipGrepper.Helper.RegexTemplates in '..\..\Helper\RipGrepper.Helper.RegexTemplates.pas';
 
 {$R *.res}
 

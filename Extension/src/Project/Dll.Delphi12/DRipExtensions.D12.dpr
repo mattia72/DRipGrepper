@@ -119,7 +119,10 @@ uses
   RipGrepper.UI.RgOptionsPanel in '..\..\..\..\src\UI\RipGrepper.UI.RgOptionsPanel.pas',
   RipGrepper.Parsers.JsonMatchLine in '..\..\..\..\src\RipGrepper.Parsers.JsonMatchLine.pas',
   RipGrepper.UI.Components.NotifyingControls in '..\..\..\..\src\UI\Components\RipGrepper.UI.Components.NotifyingControls.pas',
-  RipGrepper.UI.Components.CustomOptionsBase in '..\..\..\..\src\UI\Components\RipGrepper.UI.Components.CustomOptionsBase.pas';
+  RipGrepper.UI.Components.CustomOptionsBase in '..\..\..\..\src\UI\Components\RipGrepper.UI.Components.CustomOptionsBase.pas',
+  RipGrepper.UI.Components.Constants in '..\..\..\..\src\UI\Components\RipGrepper.UI.Components.Constants.pas',
+  RipGrepper.Helper.RegexTemplates in '..\..\..\..\src\Helper\RipGrepper.Helper.RegexTemplates.pas',
+  RipGrepper.UI.RegexTemplateMenu in '..\..\..\..\src\UI\RipGrepper.UI.RegexTemplateMenu.pas';
 
 {$R *.res}
 

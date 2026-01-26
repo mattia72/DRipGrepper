@@ -34,7 +34,8 @@ type
 	IStringSetting = ISettingVariant<string>;
 	IBoolSetting = ISettingVariant<Boolean>;
 	IIntegerSetting = ISettingVariant<Integer>;
-	IArraySetting = ISettingVariant<TArrayEx<string>>;
+	IArraySetting = interface;
+
 	TSettingChangedEvent = procedure(Sender : TObject) of object;
 
 	ISetting = interface
@@ -117,7 +118,7 @@ type
 
 		public
 			constructor Create(const _name : string; { } _state : TSettingState = ssInitialized;
-				{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]); overload;
+					{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]); overload;
 			procedure LoadFromPersister(); virtual; abstract;
 			procedure StoreToPersister(const _section : string = ''); virtual; abstract;
 
@@ -165,7 +166,7 @@ type
 
 		public
 			constructor Create(const _name : string; const _value : T; { } _state : TSettingState = ssInitialized;
-				{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]); overload;
+					{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]); overload;
 			procedure Clear(); override;
 			function CompareTo(Value : ISettingVariant<T>) : Integer;
 			procedure Copy(_other : ISettingVariant<T>); reintroduce;
@@ -200,7 +201,22 @@ type
 			function GetValueFromString(const _strValue : string) : integer; override;
 	end;
 
-	TArraySetting = class(TSettingVariant < TArrayEx < string >> )
+	IArraySetting = interface(ISettingVariant < TArrayEx < string >> )
+		['{9E7A2B1C-4D5F-4E6A-8C9B-1A2B3C4D5E6F}']
+		procedure Add(const AItem : string);
+		function AddIfNotContains(const AItem : string) : Integer;
+		function GetCount() : Integer;
+		function GetItem(Index : Integer) : string;
+		function GetSafeItem(index : Integer) : string;
+		procedure SetItem(Index : Integer; const Value : string);
+		procedure SetSafeItem(index : Integer; const Value : string);
+
+		property Count : Integer read GetCount;
+		property Item[index : Integer] : string read GetItem write SetItem; default;
+		property SafeItem[index : Integer] : string read GetSafeItem write SetSafeItem;
+	end;
+
+	TArraySetting = class(TSettingVariant<TArrayEx<string>>, IArraySetting)
 		private
 			function GetCount() : Integer;
 			function GetItem(Index : Integer) : string;
@@ -209,6 +225,7 @@ type
 			procedure SetSafeItem(index : Integer; const Value : string);
 
 		public
+			procedure Add(const AItem : string);
 			function AddIfNotContains(const AItem : string) : Integer;
 			function GetValueFromString(const _strValue : string) : TArrayEx<string>; override;
 
@@ -232,8 +249,8 @@ uses
 	RipGrepper.Helper.StreamReaderWriter;
 
 constructor TSettingVariant<T>.Create(const _name : string; const _value : T;
-	{ } _state : TSettingState = ssInitialized;
-	{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]);
+		{ } _state : TSettingState = ssInitialized;
+		{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]);
 begin
 	inherited Create(_name, _state, _saveBehaviour);
 	FValue := _value;
@@ -352,8 +369,8 @@ begin
 end;
 
 constructor TSetting.Create(const _name : string;
-	{ } _state : TSettingState = ssInitialized;
-	{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]);
+		{ } _state : TSettingState = ssInitialized;
+		{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]);
 begin
 	inherited Create();
 	FName := _name;
@@ -550,12 +567,25 @@ begin
 	FState := Value;
 end;
 
+procedure TArraySetting.Add(const AItem : string);
+var
+	arr : TArrayEx<string>;
+begin
+	arr := self.Value;
+	arr.Add(AItem);
+	self.Value := arr;
+end;
+
 function TArraySetting.AddIfNotContains(const AItem : string) : Integer;
+var
+	arr : TArrayEx<string>;
 begin
 	Result := -1;
-	if not self.Value.Contains(AItem) then begin
-		self.Value.Insert(0, AItem);
-		Result := self.Value.Count;
+	arr := self.Value;
+	if not arr.Contains(AItem) then begin
+		arr.Insert(0, AItem);
+		self.Value := arr;
+		Result := arr.Count;
 	end;
 end;
 
