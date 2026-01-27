@@ -35,7 +35,6 @@ type
 			FSearchPathsHistory : IArraySetting;
 			FSearchTextsHistory : IArraySetting;
 			FFileMasksHistory : IArraySetting;
-			FRegexTemplates : IArraySetting;
 
 			FRipGrepArguments : IShared<TRipGrepArguments>;
 			FSearchPathIsDir : Boolean;
@@ -51,7 +50,6 @@ type
 			procedure SetExpertOptionHistory(const Value : IArraySetting);
 			procedure SetSearchPathsHistory(const Value : IArraySetting);
 			procedure SetSearchTextsHistory(const Value : IArraySetting);
-			procedure SetRegexTemplates(const Value : IArraySetting);
 			function GetActualSearchPath : string;
 			function GetIsReplaceMode : Boolean;
 			function GetSearchFormSettings : TSearchFormSettings;
@@ -80,7 +78,6 @@ type
 			procedure StoreHistories;
 			property LastSearchText : string read FLastSearchText write FLastSearchText;
 			property FileMasksHistory : IArraySetting read FFileMasksHistory write SetFileMasksHistory;
-			property RegexTemplates : IArraySetting read FRegexTemplates write SetRegexTemplates;
 			property IsEmpty : Boolean read GetIsEmpty;
 
 			property ActualSearchPath : string read GetActualSearchPath;
@@ -275,21 +272,12 @@ begin
 	FReplaceTextsHistory := TArraySetting.Create('ReplaceTextsHistory');
 	FExpertOptionHistory := TArraySetting.Create('ExpertOptionHistory');
 	FFileMasksHistory := TArraySetting.Create('FileMasksHistory');
-	FRegexTemplates := TArraySetting.Create('RegexTemplates');
 
 	CreateSetting(FSearchPathsHistory.Name, ITEM_KEY_PREFIX, FSearchPathsHistory);
 	CreateSetting(FSearchTextsHistory.Name, ITEM_KEY_PREFIX, FSearchTextsHistory);
 	CreateSetting(FReplaceTextsHistory.Name, ITEM_KEY_PREFIX, FReplaceTextsHistory);
 	CreateSetting(FExpertOptionHistory.Name, ITEM_KEY_PREFIX, FExpertOptionHistory);
 	CreateSetting(FFileMasksHistory.Name, ITEM_KEY_PREFIX, FFileMasksHistory);
-	CreateSetting(FRegexTemplates.Name, ITEM_KEY_PREFIX, FRegexTemplates);
-
-	// Set default regex templates
-	if FRegexTemplates.Count = 0 then begin
-		FRegexTemplates.Add('search as type|<text>\s*=\s*(class|record|interface)');
-		FRegexTemplates.Add('search as declaration|<text>\s*:\s\w+;');
-		FRegexTemplates.Add('search as function|(function|procedure)\s+<text>');
-	end;
 
 end;
 
@@ -305,7 +293,6 @@ begin
 		FReplaceTextsHistory.LoadFromPersister;
 		FExpertOptionHistory.LoadFromPersister;
 		FFileMasksHistory.LoadFromPersister;
-		FRegexTemplates.LoadFromPersister;
 
 	except
 		on E : Exception do begin
@@ -324,7 +311,6 @@ begin
 	FReplaceTextsHistory.LoadFromPersister;
 	FExpertOptionHistory.LoadFromPersister;
 	FFileMasksHistory.LoadFromPersister;
-	FRegexTemplates.LoadFromPersister;
 
 	FFontColorSettings.ReadFile;
 end;
@@ -376,11 +362,6 @@ begin
 	AddIfNotContains(FSearchTextsHistory, Value);
 end;
 
-procedure TRipGrepperSettings.SetRegexTemplates(const Value : IArraySetting);
-begin
-	AddIfNotContains(FRegexTemplates, Value);
-end;
-
 procedure TRipGrepperSettings.StoreToPersister; // histories save to file
 begin
 	var
@@ -399,7 +380,6 @@ begin
 	SearchPathsHistory.StoreToPersister;
 	FileMasksHistory.StoreToPersister;
 	ExpertOptionHistory.StoreToPersister;
-	RegexTemplates.StoreToPersister;
 end;
 
 procedure TRipGrepperSettings.StoreViewSettings(const _s : string = '');

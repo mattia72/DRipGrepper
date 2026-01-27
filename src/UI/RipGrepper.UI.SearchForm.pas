@@ -2042,7 +2042,7 @@ end;
 procedure TRipGrepperSearchDialogForm.btnRegexTemplatesClick(Sender : TObject);
 begin
 	if not Assigned(FRegexTemplateManager) then begin
-		FRegexTemplateManager := TRegexTemplateManager.Create(FSettings.RegexTemplates);
+		FRegexTemplateManager := TRegexTemplateManager.Create(FSettings.SearchFormSettings.RegexTemplates);
 	end;
 
 	if not Assigned(FRegexTemplateMenu) then begin

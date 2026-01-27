@@ -205,6 +205,7 @@ type
 		['{9E7A2B1C-4D5F-4E6A-8C9B-1A2B3C4D5E6F}']
 		procedure Add(const AItem : string);
 		function AddIfNotContains(const AItem : string) : Integer;
+		procedure Copy(_other : IArraySetting);
 		function GetCount() : Integer;
 		function GetItem(Index : Integer) : string;
 		function GetSafeItem(index : Integer) : string;
@@ -227,6 +228,7 @@ type
 		public
 			procedure Add(const AItem : string);
 			function AddIfNotContains(const AItem : string) : Integer;
+			procedure Copy(_other : IArraySetting);
 			function GetValueFromString(const _strValue : string) : TArrayEx<string>; override;
 
 			function GetSettingType() : TSettingType; override;
@@ -586,6 +588,13 @@ begin
 		arr.Insert(0, AItem);
 		self.Value := arr;
 		Result := arr.Count;
+	end;
+end;
+
+procedure TArraySetting.Copy(_other : IArraySetting);
+begin
+	if Assigned(_other) then begin
+		self.Value.SetItems(_other.Value.Items);
 	end;
 end;
 

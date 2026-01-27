@@ -47,6 +47,7 @@ type
 			FFormTop : IIntegerSetting;
 			FFormWidth : IIntegerSetting;
 			FFormHeight : IIntegerSetting;
+			FRegexTemplates : IArraySetting;
 			function GetContext() : IIntegerSetting;
 			function GetEncoding() : IStringSetting;
 			function GetExtensionSettings : TRipGrepperExtensionSettings;
@@ -58,6 +59,8 @@ type
 			function GetFormTop() : IIntegerSetting;
 			function GetFormWidth() : IIntegerSetting;
 			function GetFormHeight() : IIntegerSetting;
+			function GetRegexTemplates() : IArraySetting;
+			procedure SetRegexTemplates(const Value : IArraySetting);
 
 		protected
 			procedure LoadVersionDependentSettings(_sr : TStreamReader); override;
@@ -88,6 +91,7 @@ type
 			property FormTop : IIntegerSetting read GetFormTop;
 			property FormWidth : IIntegerSetting read GetFormWidth;
 			property FormHeight : IIntegerSetting read GetFormHeight;
+			property RegexTemplates : IArraySetting read GetRegexTemplates write SetRegexTemplates;
 	end;
 
 implementation
@@ -137,6 +141,7 @@ procedure TSearchFormSettings.Copy(const _other : TSearchFormSettings);
 begin
 	if Assigned(_other) then begin
 		inherited Copy(_other as TPersistableSettings);
+		FRegexTemplates.Copy(_other.RegexTemplates);
 		FExtensionSettings.Copy(_other.ExtensionSettings);
 	end;
 end;
@@ -202,6 +207,19 @@ begin
 	Result := FFormHeight;
 end;
 
+function TSearchFormSettings.GetRegexTemplates() : IArraySetting;
+begin
+	Result := FRegexTemplates;
+end;
+
+procedure TSearchFormSettings.SetRegexTemplates(const Value : IArraySetting);
+begin
+	if Assigned(FRegexTemplates) then begin
+		for var s in Value.Value do begin
+			FRegexTemplates.Value.InsertIfNotContains(0, s);
+		end;
+	end;
+end;
 
 procedure TSearchFormSettings.LoadVersionDependentSettings(_sr : TStreamReader);
 begin
@@ -239,6 +257,7 @@ begin
 	FFormTop := TIntegerSetting.Create('FormTop', -1);
 	FFormWidth := TIntegerSetting.Create('FormWidth', -1);
 	FFormHeight := TIntegerSetting.Create('FormHeight', -1);
+	FRegexTemplates := TArraySetting.Create('RegexTemplates');
 
 	CreateSetting(FPretty);
 	CreateSetting(FHidden);
@@ -250,6 +269,14 @@ begin
 	CreateSetting(FFormTop);
 	CreateSetting(FFormWidth);
 	CreateSetting(FFormHeight);
+	CreateSetting(FRegexTemplates.Name, ITEM_KEY_PREFIX, FRegexTemplates);
+
+	// Set default regex templates
+	if FRegexTemplates.Count = 0 then begin
+		FRegexTemplates.Add('search as type|<text>\s*=\s*(class|record|interface)');
+		FRegexTemplates.Add('search as declaration|<text>\s*:\s\w+;');
+		FRegexTemplates.Add('search as function|(function|procedure)\s+<text>');
+	end;
 end;
 
 procedure TSearchFormSettings.LoadFromStreamReader(_sr : TStreamReader);
@@ -267,6 +294,7 @@ begin
 	if not s.IsEmpty then begin
 		OutputFormat.Value := s;
 	end;
+	FRegexTemplates.LoadFromPersister;
 	ExtensionSettings.LoadFromStreamReader(_sr);
 end;
 
@@ -278,6 +306,7 @@ end;
 
 procedure TSearchFormSettings.StoreToPersister; // extension switch off if TESTINSIGHT
 begin
+	FRegexTemplates.StoreToPersister;
 	FExtensionSettings.StoreToPersister;
 	inherited StoreToPersister();
 end;
