@@ -3,6 +3,7 @@ unit RipGrepper.UI.RegexTemplateMenu;
 interface
 
 uses
+	ArrayEx,
 	System.Classes,
 	System.SysUtils,
 	Vcl.Menus,
@@ -18,7 +19,7 @@ type
 			FTemplateManager : TRegexTemplateManager;
 			FOnTemplateSelected : TRegexTemplateSelectedEvent;
 			FOriginalText : string;
-			FBuiltPatterns : TArray<string>;
+			FBuiltPatterns : TArrayEx<string>;
 			procedure OnMenuItemClick(Sender : TObject);
 			procedure OnAsIsMenuItemClick(Sender : TObject);
 			procedure PopulateMenu;
@@ -52,10 +53,10 @@ begin
 	FPopupMenu.Items.Clear;
 
 	// Build all patterns from original text
-	SetLength(FBuiltPatterns, FTemplateManager.GetTemplateCount);
+	FBuiltPatterns.Clear;
 	for var i : Integer := 0 to FTemplateManager.GetTemplateCount - 1 do begin
 		template := FTemplateManager.GetTemplate(i);
-		FBuiltPatterns[i] := template.ApplyToText(FOriginalText);
+		FBuiltPatterns.Add(template.ApplyToText(FOriginalText));
 
 		menuItem := TMenuItem.Create(FPopupMenu);
 		menuItem.Caption := template.Description;
