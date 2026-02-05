@@ -17,19 +17,22 @@ type
 			FPopupMenu : TPopupMenu;
 			FTemplateManager : TRegexTemplateManager;
 			FOnTemplateSelected : TRegexTemplateSelectedEvent;
+			FOriginalText : string;
+			FBuiltPatterns : TArray<string>;
 			procedure OnMenuItemClick(Sender : TObject);
+			procedure OnAsIsMenuItemClick(Sender : TObject);
 			procedure PopulateMenu;
 
 		public
 			constructor Create(_popupMenu : TPopupMenu; _templateManager : TRegexTemplateManager);
-			procedure ShowAtControl(_control : TControl);
+			procedure ShowAtControl(_control : TControl; const _originalText : string);
 			property OnTemplateSelected : TRegexTemplateSelectedEvent read FOnTemplateSelected write FOnTemplateSelected;
 	end;
 
 implementation
 
 uses
-  System.Types;
+	System.Types;
 
 { TRegexTemplateMenu }
 
@@ -38,6 +41,7 @@ begin
 	inherited Create;
 	FPopupMenu := _popupMenu;
 	FTemplateManager := _templateManager;
+	FOriginalText := '';
 end;
 
 procedure TRegexTemplateMenu.PopulateMenu;
@@ -47,8 +51,11 @@ var
 begin
 	FPopupMenu.Items.Clear;
 
+	// Build all patterns from original text
+	SetLength(FBuiltPatterns, FTemplateManager.GetTemplateCount);
 	for var i : Integer := 0 to FTemplateManager.GetTemplateCount - 1 do begin
 		template := FTemplateManager.GetTemplate(i);
+		FBuiltPatterns[i] := template.ApplyToText(FOriginalText);
 
 		menuItem := TMenuItem.Create(FPopupMenu);
 		menuItem.Caption := template.Description;
@@ -56,6 +63,19 @@ begin
 		menuItem.OnClick := OnMenuItemClick;
 		FPopupMenu.Items.Add(menuItem);
 	end;
+
+	// Add separator
+	if FTemplateManager.GetTemplateCount > 0 then begin
+		menuItem := TMenuItem.Create(FPopupMenu);
+		menuItem.Caption := '-';
+		FPopupMenu.Items.Add(menuItem);
+	end;
+
+	// Add 'as is' menu item
+	menuItem := TMenuItem.Create(FPopupMenu);
+	menuItem.Caption := 'as is';
+	menuItem.OnClick := OnAsIsMenuItemClick;
+	FPopupMenu.Items.Add(menuItem);
 end;
 
 procedure TRegexTemplateMenu.OnMenuItemClick(Sender : TObject);
@@ -68,17 +88,25 @@ begin
 	end;
 
 	menuItem := TMenuItem(Sender);
-	pattern := FTemplateManager.GetTemplate(menuItem.Tag).Pattern;
+	pattern := FBuiltPatterns[menuItem.Tag];
 
 	if Assigned(FOnTemplateSelected) then begin
 		FOnTemplateSelected(pattern);
 	end;
 end;
 
-procedure TRegexTemplateMenu.ShowAtControl(_control : TControl);
+procedure TRegexTemplateMenu.OnAsIsMenuItemClick(Sender : TObject);
+begin
+	if Assigned(FOnTemplateSelected) then begin
+		FOnTemplateSelected(FOriginalText);
+	end;
+end;
+
+procedure TRegexTemplateMenu.ShowAtControl(_control : TControl; const _originalText : string);
 var
 	pt : TPoint;
 begin
+	FOriginalText := _originalText;
 	PopulateMenu;
 	pt := _control.ClientToScreen(Point(0, _control.Height));
 	FPopupMenu.Popup(pt.X, pt.Y);

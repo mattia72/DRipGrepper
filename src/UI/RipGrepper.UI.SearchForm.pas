@@ -2050,7 +2050,7 @@ begin
 		FRegexTemplateMenu.OnTemplateSelected := OnRegexTemplateSelected;
 	end;
 
-	FRegexTemplateMenu.ShowAtControl(btnRegexTemplates);
+	FRegexTemplateMenu.ShowAtControl(btnRegexTemplates, cmbSearchText.Text);
 end;
 
 procedure TRipGrepperSearchDialogForm.OnRegexTemplateSelected(const _pattern : string);
