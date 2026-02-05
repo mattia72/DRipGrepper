@@ -10,7 +10,8 @@ uses
 	Vcl.Graphics,
 	RipGrepper.Helper.RegexTemplates,
 	System.Types,
-	Winapi.Windows;
+	Winapi.Windows,
+	ArrayEx;
 
 type
 	TRegexTemplateSelectedEvent = procedure(const _pattern : string) of object;
@@ -21,7 +22,7 @@ type
 			FTemplateManager : TRegexTemplateManager;
 			FOnTemplateSelected : TRegexTemplateSelectedEvent;
 			FOriginalText : string;
-			FBuiltPatterns : TArray<string>;
+			FBuiltPatterns : TArrayEx<string>;
 			FLastPreviewedIndex : Integer;
 			procedure OnMenuItemClick(Sender : TObject);
 			procedure OnAsIsMenuItemClick(Sender : TObject);
@@ -55,10 +56,9 @@ begin
 	FPopupMenu.Items.Clear;
 
 	// Build all patterns from original text
-	SetLength(FBuiltPatterns, FTemplateManager.GetTemplateCount);
 	for var i : Integer := 0 to FTemplateManager.GetTemplateCount - 1 do begin
 		template := FTemplateManager.GetTemplate(i);
-		FBuiltPatterns[i] := template.ApplyToText(FOriginalText);
+		FBuiltPatterns.Add(template.ApplyToText(FOriginalText));
 
 		menuItem := TMenuItem.Create(FPopupMenu);
 		menuItem.Caption := template.Description;
