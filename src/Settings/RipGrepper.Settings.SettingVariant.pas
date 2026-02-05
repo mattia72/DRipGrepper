@@ -593,6 +593,7 @@ end;
 
 procedure TArraySetting.Copy(_other : IArraySetting);
 begin
+	inherited Copy(_other);
 	if Assigned(_other) then begin
 		self.Value.SetItems(_other.Value.Items);
 	end;
