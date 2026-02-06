@@ -362,10 +362,11 @@ begin
 	AddIfNotContains(FSearchTextsHistory, Value);
 end;
 
-procedure TRipGrepperSettings.StoreToPersister; // histories save to file
+procedure TRipGrepperSettings.StoreToPersister;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.StoreToPersister');
+	SearchFormSettings.StoreToPersister;
 	inherited StoreToPersister();
 	StoreHistories();
 end;

@@ -35,6 +35,7 @@ type
 				{ } 'FormTop',
 				{ } 'FormWidth',
 				{ } 'FormHeight');
+
 		private
 			FContext : IIntegerSetting;
 			FEncoding : IStringSetting;
@@ -112,7 +113,8 @@ uses
 	Vcl.Menus,
 	System.RegularExpressions,
 	RipGrepper.CommandLine.Builder,
-	RipGrepper.Helper.StreamReaderWriter;
+	RipGrepper.Helper.StreamReaderWriter,
+	RipGrepper.Helper.SettingStoreBehaviours;
 
 constructor TSearchFormSettings.Create(const _Owner : TPersistableSettings);
 begin
@@ -141,7 +143,7 @@ procedure TSearchFormSettings.Copy(const _other : TSearchFormSettings);
 begin
 	if Assigned(_other) then begin
 		inherited Copy(_other as TPersistableSettings);
-		FRegexTemplates.Copy(_other.RegexTemplates);
+		FRegexTemplates.Value.SetItems(_other.RegexTemplates.Value.Items);
 		FExtensionSettings.Copy(_other.ExtensionSettings);
 	end;
 end;
@@ -257,7 +259,7 @@ begin
 	FFormTop := TIntegerSetting.Create('FormTop', -1);
 	FFormWidth := TIntegerSetting.Create('FormWidth', -1);
 	FFormHeight := TIntegerSetting.Create('FormHeight', -1);
-	FRegexTemplates := TArraySetting.Create('RegexTemplates');
+	FRegexTemplates := TArraySetting.Create('RegexTemplates', ssInitialized, [ssbStoreOnceEvenIfNotModified]);
 
 	CreateSetting(FPretty);
 	CreateSetting(FHidden);
@@ -341,7 +343,8 @@ end;
 
 function TSearchFormSettings.ToLogString : string;
 begin
-	Result := Format('Hidden=%s NoIgnore=%s Pretty=%s Context=%s Encoding=%s OutputFormat=%s FormLeft=%d FormTop=%d FormWidth=%d FormHeight=%d Extension:[%s]',
+	Result := Format
+		('Hidden=%s NoIgnore=%s Pretty=%s Context=%s Encoding=%s OutputFormat=%s FormLeft=%d FormTop=%d FormWidth=%d FormHeight=%d Extension:[%s]',
 		{ } [
 		{ } BoolToStr(Hidden.Value),
 		{ } BoolToStr(NoIgnore.Value),
