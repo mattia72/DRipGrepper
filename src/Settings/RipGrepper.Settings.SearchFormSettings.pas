@@ -143,7 +143,7 @@ procedure TSearchFormSettings.Copy(const _other : TSearchFormSettings);
 begin
 	if Assigned(_other) then begin
 		inherited Copy(_other as TPersistableSettings);
-		FRegexTemplates.Value.SetItems(_other.RegexTemplates.Value.Items);
+		FRegexTemplates.Copy(_other.RegexTemplates);
 		FExtensionSettings.Copy(_other.ExtensionSettings);
 	end;
 end;

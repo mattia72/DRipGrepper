@@ -55,6 +55,7 @@ type
 			function GetSearchFormSettings : TSearchFormSettings;
 			procedure LoadFirstNecessarySettings;
 			procedure SetReplaceTextsHistory(const Value : IArraySetting);
+			procedure StoreHistory(_arrSettings: IArraySetting);
 
 		protected
 			function GetIsAlreadyRead : Boolean; override;
@@ -112,7 +113,8 @@ uses
 	RipGrepper.Settings.FilePersister,
 	RipGrepper.Settings.SettingsDictionary,
 	RipGrepper.Settings.Persister.Interfaces,
-	Spring.DesignPatterns;
+	Spring.DesignPatterns,
+	ArrayEx;
 
 function TRipGrepperSettings.GetLastHistorySearchText : string;
 begin
@@ -213,10 +215,10 @@ begin
 		FRipGrepParameters.Copy(s.RipGrepParameters);
 		FSearchFormSettings.Copy(s.SearchFormSettings);
 
-		FSearchPathsHistory.Value.SetItems(s.SearchPathsHistory.Value.Items);
-		FSearchTextsHistory.Value.SetItems(s.SearchTextsHistory.Value.Items);
-		FReplaceTextsHistory.Value.SetItems(s.ReplaceTextsHistory.Value.Items);
-		FExpertOptionHistory.Value.SetItems(s.ExpertOptionHistory.Value.Items);
+		FSearchPathsHistory.Copy(s.SearchPathsHistory);
+		FSearchTextsHistory.Copy(s.SearchTextsHistory);
+		FReplaceTextsHistory.Copy(s.ReplaceTextsHistory);
+		FExpertOptionHistory.Copy(s.ExpertOptionHistory);
 		FRipGrepArguments.Assign(s.FRipGrepArguments());
 		// inherited Copy(_other as TPersistableSettings);
 	end;
@@ -376,11 +378,21 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.StoreHistories');
 
-	SearchTextsHistory.StoreToPersister;
-	ReplaceTextsHistory.StoreToPersister;
-	SearchPathsHistory.StoreToPersister;
-	FileMasksHistory.StoreToPersister;
-	ExpertOptionHistory.StoreToPersister;
+	StoreHistory(SearchTextsHistory);
+	StoreHistory(ReplaceTextsHistory);
+	StoreHistory(SearchPathsHistory);
+	StoreHistory(FileMasksHistory);
+	StoreHistory(ExpertOptionHistory);
+end;
+
+procedure TRipGrepperSettings.StoreHistory(_arrSettings: IArraySetting);
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.StoreHistories');
+
+	_arrSettings.RemoveDuplicates;
+	_arrSettings.SetNewLength(AppSettings.ComboHistoryCount);
+	_arrSettings.StoreToPersister;
 end;
 
 procedure TRipGrepperSettings.StoreViewSettings(const _s : string = '');

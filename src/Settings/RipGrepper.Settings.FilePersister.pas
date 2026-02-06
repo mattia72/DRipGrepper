@@ -39,6 +39,7 @@ type
 		public
 			constructor Create(_ini : IShared<TMemIniFile>); overload;
 			destructor Destroy(); override;
+			procedure EraseKeysInSection(_section: string);
 			property FilePath : string read GetFilePath write SetFilePath;
 			property IniFile : TMemIniFile read GetIniFile;
 	end;
@@ -279,11 +280,16 @@ begin
 	autoLock := TAutoLock.Create(TIniPersister.FIniFileLock);
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMemIniStrArrayPersister.StoreValue');
-	dbgMsg.Msg('Write Array');
 
+	dbgMsg.MsgFmt('Erase section: %s', [FIniSection]);
+	EraseKeysInSection(FIniSection);
+
+	dbgMsg.Msg('Write Array');
 	for var i := 0 to _value.MaxIndex do begin
 		multiLineVal := _value[i];
-		IniFile.WriteString(FIniSection, Format('%s%d', [FIniKey, i]), multiLineVal.GetLine(0));
+		if not multiLineVal.GetLine(0).IsEmpty then begin
+			IniFile.WriteString(FIniSection, Format('%s%d', [FIniKey, i]), multiLineVal.GetLine(0));
+		end;
 	end;
 end;
 
@@ -506,6 +512,25 @@ begin
 	dbgMsg.MsgFmt('Stored [%s] %s = %s', [_section, _key, stored]);
 	Assert(stored = _valueShould, Format('Stored [%s] %s = %s <> %s', [_section, _key, stored, _valueShould]));
 	{$ENDIF}
+end;
+
+procedure TMemIniPersister.EraseKeysInSection(_section: string);
+var
+	slKeys: TStrings;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TMemIniPersister.EraseKeysInSection');
+	dbgMsg.MsgFmt('Section %s', [_section]);
+	slKeys := TStringList.Create;
+	try
+		FIniFile.ReadSection(FIniSection, slKeys);
+		for var key in slKeys do begin
+			dbgMsg.MsgFmt('Key %s', [key]);
+			FIniFile.DeleteKey(FIniSection, key);
+		end;
+	finally
+		slKeys.Free;
+	end;
 end;
 
 function TMemIniPersister.GetFilePath() : string;

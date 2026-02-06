@@ -1076,6 +1076,12 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.CopySettingsToCtrlProxy');
 
+	FSettings.SearchTextsHistory.RemoveDuplicates;
+	FSettings.ReplaceTextsHistory.RemoveDuplicates;
+	FSettings.SearchPathsHistory.RemoveDuplicates;
+	FSettings.FileMasksHistory.RemoveDuplicates;
+	FSettings.ExpertOptionHistory.RemoveDuplicates;
+
 	CopyItemsToProxy(_ctrlProxy.SearchTextHist, FSettings.SearchTextsHistory);
 	CopyItemsToProxy(_ctrlProxy.ReplaceTextHist, FSettings.ReplaceTextsHistory);
 	CopyItemsToProxy(_ctrlProxy.SearchPathHist, FSettings.SearchPathsHistory);
@@ -1752,7 +1758,7 @@ end;
 
 function TRipGrepperSearchDialogForm.GetMaxCountHistoryItems(const _arr : TArrayEx<string>) : TArrayEx<string>;
 begin
-	Result := _arr.GetRange(0, MAX_HISTORY_COUNT); // .GetReversedRange();
+	Result := _arr.GetRange(0, FSettings.AppSettings.ComboHistoryCount); // .GetReversedRange();
 end;
 
 function TRipGrepperSearchDialogForm.getOptionsAndFiltersHeight(const _bWithLabel : Boolean) : integer;

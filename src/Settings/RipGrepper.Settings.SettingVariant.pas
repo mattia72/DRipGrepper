@@ -118,7 +118,7 @@ type
 
 		public
 			constructor Create(const _name : string; { } _state : TSettingState = ssInitialized;
-					{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]); overload;
+				{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]); overload;
 			procedure LoadFromPersister(); virtual; abstract;
 			procedure StoreToPersister(const _section : string = ''); virtual; abstract;
 
@@ -166,7 +166,7 @@ type
 
 		public
 			constructor Create(const _name : string; const _value : T; { } _state : TSettingState = ssInitialized;
-					{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]); overload;
+				{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]); overload;
 			procedure Clear(); override;
 			function CompareTo(Value : ISettingVariant<T>) : Integer;
 			procedure Copy(_other : ISettingVariant<T>); reintroduce;
@@ -209,7 +209,9 @@ type
 		function GetCount() : Integer;
 		function GetItem(Index : Integer) : string;
 		function GetSafeItem(index : Integer) : string;
+		procedure RemoveDuplicates();
 		procedure SetItem(Index : Integer; const Value : string);
+		procedure SetNewLength(const _len: Integer);
 		procedure SetSafeItem(index : Integer; const Value : string);
 
 		property Count : Integer read GetCount;
@@ -228,10 +230,14 @@ type
 		public
 			procedure Add(const AItem : string);
 			function AddIfNotContains(const AItem : string) : Integer;
+			procedure Clear; override;
+			procedure RemoveDuplicates;
 			procedure Copy(_other : IArraySetting);
+			function Equals(_other : IArraySetting) : Boolean; reintroduce;
 			function GetValueFromString(const _strValue : string) : TArrayEx<string>; override;
 
 			function GetSettingType() : TSettingType; override;
+			procedure SetNewLength(const _len: Integer);
 			property Count : Integer read GetCount;
 			property Item[index : Integer] : string read GetItem write SetItem; default;
 			property SafeItem[index : Integer] : string read GetSafeItem write SetSafeItem;
@@ -251,8 +257,8 @@ uses
 	RipGrepper.Helper.StreamReaderWriter;
 
 constructor TSettingVariant<T>.Create(const _name : string; const _value : T;
-		{ } _state : TSettingState = ssInitialized;
-		{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]);
+	{ } _state : TSettingState = ssInitialized;
+	{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]);
 begin
 	inherited Create(_name, _state, _saveBehaviour);
 	FValue := _value;
@@ -371,8 +377,8 @@ begin
 end;
 
 constructor TSetting.Create(const _name : string;
-		{ } _state : TSettingState = ssInitialized;
-		{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]);
+	{ } _state : TSettingState = ssInitialized;
+	{ } _saveBehaviour : TSettingStoreBehaviours = [ssbStoreIfModified]);
 begin
 	inherited Create();
 	FName := _name;
@@ -591,12 +597,22 @@ begin
 	end;
 end;
 
+procedure TArraySetting.Clear;
+begin
+	inherited;
+	FValue.Clear;
+end;
+
 procedure TArraySetting.Copy(_other : IArraySetting);
 begin
 	inherited Copy(_other);
-	if Assigned(_other) then begin
-		self.Value.SetItems(_other.Value.Items);
-	end;
+ 	Assert(_other.Equals(self));
+end;
+
+function TArraySetting.Equals(_other : IArraySetting) : Boolean;
+begin
+	Result := (FState = _other.State);
+	Result := Result and (Value = _other.Value);
 end;
 
 function TArraySetting.GetCount() : Integer;
@@ -624,9 +640,31 @@ begin
 	Result := _strValue.Split([ARRAY_SEPARATOR]);
 end;
 
+procedure TArraySetting.RemoveDuplicates;
+var
+	unique : TArrayEx<string>;
+	arr : TArrayEx<string>;
+begin
+	for var item in self.Value do begin
+		unique.AddIfNotContains(item);
+	end;
+	arr.SetItems(unique.Items);
+	if arr.Count = self.Value.Count then begin
+		self.State := ssModified;
+	end;
+	self.Value := arr;
+end;
+
 procedure TArraySetting.SetItem(Index : Integer; const Value : string);
 begin
 	self.Value[index] := Value;
+end;
+
+procedure TArraySetting.SetNewLength(const _len: Integer);
+begin
+	var items := Value.Items;
+	SetLength(items, _len);
+	Value := items;
 end;
 
 procedure TArraySetting.SetSafeItem(index : Integer; const Value : string);
