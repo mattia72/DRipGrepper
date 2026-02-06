@@ -80,6 +80,14 @@ type
 			procedure InsertIfNotContainsAtEndTest();
 			[Test]
 			procedure InsertIfNotContainsAtMiddleTest();
+			[Test]
+			procedure GetRangeTest();
+			[Test]
+			procedure GetRangeWithCountTest();
+			[Test]
+			procedure GetRangeExceedingCountTest();
+			[Test]
+			procedure GetRangeTenItemsTest();
 	end;
 
 implementation
@@ -807,6 +815,82 @@ begin
 			Result := Abs(TComparer<string>.Default.Compare(Left.Name, Right.Name)) + Abs(TComparer<integer>.Default.Compare(Left.Age,
 				Right.Age));
 		end);
+end;
+
+procedure TArrayExTest.GetRangeTest();
+var
+	ai : TArrayEx<integer>;
+	result : TArrayEx<integer>;
+begin
+	ai := [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+	
+	result := ai.GetRange(0, 5);
+	Assert.AreEqual<integer>(5, result.Count, 'GetRange(0, 5) should return 5 elements');
+	Assert.IsTrue(result.Compare([0, 1, 2, 3, 4]), 'GetRange(0, 5) should return first 5 elements');
+	
+	result := ai.GetRange(3, 4);
+	Assert.AreEqual<integer>(4, result.Count, 'GetRange(3, 4) should return 4 elements');
+	Assert.IsTrue(result.Compare([3, 4, 5, 6]), 'GetRange(3, 4) should return elements from index 3');
+	
+	result := ai.GetRange(7, 2);
+	Assert.AreEqual<integer>(2, result.Count, 'GetRange(7, 2) should return 2 elements');
+	Assert.IsTrue(result.Compare([7, 8]), 'GetRange(7, 2) should return last 2 elements before 9');
+	
+	result := ai.GetRange(9, 1);
+	Assert.AreEqual<integer>(1, result.Count, 'GetRange(9, 1) should return 1 element');
+	Assert.IsTrue(result.Compare([9]), 'GetRange(9, 1) should return last element');
+end;
+
+procedure TArrayExTest.GetRangeWithCountTest();
+var
+	ai : TArrayEx<integer>;
+	result : TArrayEx<integer>;
+begin
+	ai := [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+	
+	result := ai.GetRange(0, 3);
+	Assert.AreEqual<integer>(3, result.Count, 'Should return exactly 3 elements');
+	Assert.IsTrue(result.Compare([10, 20, 30]), 'Should return first 3 elements');
+	
+	result := ai.GetRange(5, 5);
+	Assert.AreEqual<integer>(5, result.Count, 'Should return 5 elements starting from index 5');
+	Assert.IsTrue(result.Compare([60, 70, 80, 90, 100]), 'Should return elements 60 to 100');
+end;
+
+procedure TArrayExTest.GetRangeExceedingCountTest();
+var
+	ai : TArrayEx<integer>;
+	result : TArrayEx<integer>;
+begin
+	ai := [1, 2, 3, 4, 5];
+	
+	result := ai.GetRange(0, 10);
+	Assert.AreEqual<integer>(5, result.Count, 'Should return all available elements when count exceeds array size');
+	Assert.IsTrue(result.Compare([1, 2, 3, 4, 5]), 'Should return all elements');
+	
+	result := ai.GetRange(3, 10);
+	Assert.AreEqual<integer>(2, result.Count, 'Should return remaining elements from index 3');
+	Assert.IsTrue(result.Compare([4, 5]), 'Should return last 2 elements');
+	
+	result := ai.GetRange(0, -1);
+	Assert.AreEqual<integer>(5, result.Count, 'Negative count should return all elements');
+	Assert.IsTrue(result.Compare([1, 2, 3, 4, 5]), 'Should return all elements with negative count');
+end;
+
+procedure TArrayExTest.GetRangeTenItemsTest();
+var
+	ai : TArrayEx<integer>;
+	result : TArrayEx<integer>;
+begin
+	ai := [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
+	
+	result := ai.GetRange(0, 10);
+	Assert.AreEqual<integer>(10, result.Count, 'Should return exactly 10 elements');
+	Assert.IsTrue(result.Compare([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 'Should return first 10 elements correctly');
+	
+	for var i := 0 to 9 do begin
+		Assert.AreEqual<integer>(i, result[i], Format('Element at index %d should be %d', [i, i]));
+	end;
 end;
 
 initialization

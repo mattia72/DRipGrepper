@@ -673,8 +673,8 @@ begin
 		copyCount := Count - _idx;
 	if copyCount > 0 then begin
 		SetLength(Result.Items, copyCount);
-		for var i := _idx to copyCount - 1 do begin
-			Result.Items[i] := Items[i];
+		for var i := 0 to copyCount - 1 do begin
+			Result.Items[i] := Items[_idx + i];
 		end;
 	end;
 end;

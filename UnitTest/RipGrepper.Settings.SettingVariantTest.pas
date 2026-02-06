@@ -48,6 +48,8 @@ type
 			[Test]
 			procedure TestCopyStrArraySetting;
 			[Test]
+			procedure TestCopyArraySetting;
+			[Test]
 			procedure TestAddToStrArraySetting();
 			[Test]
 			procedure TestAddIfNotContainsToStrArraySetting();
@@ -123,7 +125,7 @@ begin
 	ExpectedValue := '';
 
 	Assert.AreEqual(ExpectedValue, ActualValue, Format('Initialized is not stored. Expected %s should be equal to %s',
-			[ExpectedValue, ActualValue]));
+		[ExpectedValue, ActualValue]));
 
 	v.Value := 'ChangedValue';
 	v.StoreToPersister();
@@ -131,7 +133,7 @@ begin
 	ExpectedValue := v.Value;
 
 	Assert.AreEqual(ExpectedValue, ActualValue, Format('Modified should stored. Expected %s should be equal to %s',
-			[ExpectedValue, ActualValue]));
+		[ExpectedValue, ActualValue]));
 
 end;
 
@@ -153,7 +155,7 @@ begin
 	ExpectedValue := -1;
 
 	Assert.AreEqual(ExpectedValue, ActualValue, Format('Initialized is not stored. Expected %d should be equal to %d',
-			[ExpectedValue, ActualValue]));
+		[ExpectedValue, ActualValue]));
 
 	v.Value := 43;
 	v.StoreToPersister();
@@ -161,7 +163,7 @@ begin
 	ExpectedValue := 43;
 
 	Assert.AreEqual(ExpectedValue, ActualValue, Format('Modified should be stored. Expected %d should be equal to %d',
-			[ExpectedValue, ActualValue]));
+		[ExpectedValue, ActualValue]));
 
 end;
 
@@ -182,7 +184,7 @@ begin
 	ExpectedValue := v.Value;
 
 	Assert.AreNotEqual(ExpectedValue, ActualValue, Format('Initialized is not stored. Expected %s should be equal to %s',
-			[BoolToStr(ExpectedValue), BoolToStr(ActualValue)]));
+		[BoolToStr(ExpectedValue), BoolToStr(ActualValue)]));
 
 	v.Value := False;
 	v.Value := True;
@@ -192,7 +194,7 @@ begin
 	ExpectedValue := v.Value;
 
 	Assert.AreEqual(ExpectedValue, ActualValue, Format('Expected %s should be equal to %s',
-			[BoolToStr(ExpectedValue), BoolToStr(ActualValue)]));
+		[BoolToStr(ExpectedValue), BoolToStr(ActualValue)]));
 
 end;
 
@@ -216,7 +218,7 @@ begin
 		ActualValue := IniFile.ReadString(Section, Format('Item_%d', [i]), '');
 		ExpectedValue := varr[i];
 		Assert.AreNotEqual(ExpectedValue, ActualValue, Format('Initialized not saved. Expected %s should be equal to %s',
-				[ExpectedValue, ActualValue]));
+			[ExpectedValue, ActualValue]));
 	end;
 
 	varr := ['1', '2', '3'];
@@ -227,7 +229,7 @@ begin
 		ActualValue := IniFile.ReadString(Section, Format('Item_%d', [i]), '');
 		ExpectedValue := varr[i];
 		Assert.AreEqual(ExpectedValue, ActualValue, Format('Modified should stored. Expected %s should be equal to %s',
-				[ExpectedValue, ActualValue]));
+			[ExpectedValue, ActualValue]));
 	end;
 
 end;
@@ -317,8 +319,34 @@ begin
 	v2 := TArraySetting.Create('v2');
 
 	v2.Copy(v);
-	Assert.AreEqual(v.Value, v2.Value, 'Values should be equal after copy');
+	Assert.IsTrue(v.Value.Compare(v2.Value), 'Values should be equal after copy');
 	Assert.IsTrue(v.Equals(v2), 'Settings should be equal after copy');
+end;
+
+procedure TSettingVariantTest.TestCopyArraySetting;
+var
+	v, v2 : IArraySetting;
+begin
+	var
+	a := ['alpha', 'beta', 'gamma'];
+	v := TArraySetting.Create('sourceArray', a);
+	var
+	b := ['initial'];
+	v2 := TArraySetting.Create('targetArray', b);
+
+	// Test copy with populated source
+	v2.Copy(v);
+	Assert.AreEqual(3, v2.Value.Count, 'Count should be 3 after copy');
+	Assert.AreEqual('alpha', v2.Value[0], 'First item should be alpha');
+	Assert.AreEqual('beta', v2.Value[1], 'Second item should be beta');
+	Assert.AreEqual('gamma', v2.Value[2], 'Third item should be gamma');
+	Assert.IsTrue(v.Value.Compare(v2.Value), 'Values should be equal after copy');
+
+	// Test copy with empty source
+	var
+	v3 := TArraySetting.Create('emptyArray');
+	v2.Copy(v3);
+	Assert.AreEqual(0, v2.Value.Count, 'Count should be 0 after copying empty array');
 end;
 
 procedure TSettingVariantTest.TestAddToStrArraySetting();
@@ -389,7 +417,7 @@ begin
 		ActualValue := IniFile.ReadString(Section, Format('Item_%d', [i]), '');
 		ExpectedValue := varr[i];
 		Assert.AreNotEqual(ExpectedValue, ActualValue, Format('Initialized not saved. Expected %s should be equal to %s',
-				[ExpectedValue, ActualValue]));
+			[ExpectedValue, ActualValue]));
 	end;
 
 	varr := ['1', '2', '3'];
@@ -400,7 +428,7 @@ begin
 		ActualValue := IniFile.ReadString(Section, Format('Item_%d', [i]), '');
 		ExpectedValue := varr[i];
 		Assert.AreEqual(ExpectedValue, ActualValue, Format('Modified should stored. Expected %s should be equal to %s',
-				[ExpectedValue, ActualValue]));
+			[ExpectedValue, ActualValue]));
 	end;
 
 end;
