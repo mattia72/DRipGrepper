@@ -19,7 +19,7 @@ type
 		class function AgeComparer : IComparer<TTestRecord>; static;
 		class function ConvertToNames(const Value : TTestRecord) : string; static;
 		class function ConvertToAges(const Value : TTestRecord) : integer; static;
-		class function NameAgeComparer(): IComparer<TTestRecord>; static;
+		class function NameAgeComparer() : IComparer<TTestRecord>; static;
 	end;
 
 	[TestFixture]
@@ -68,6 +68,18 @@ type
 			procedure GetFirstMatchIndexStringTest();
 			[Test]
 			procedure ContainsTest();
+			[Test]
+			procedure InsertIfNotContainsTest();
+			[Test]
+			procedure InsertIfNotContainsEmptyArrayTest();
+			[Test]
+			procedure InsertIfNotContainsAlreadyExistsTest();
+			[Test]
+			procedure InsertIfNotContainsAtBeginningTest();
+			[Test]
+			procedure InsertIfNotContainsAtEndTest();
+			[Test]
+			procedure InsertIfNotContainsAtMiddleTest();
 	end;
 
 implementation
@@ -88,7 +100,7 @@ begin
 	ai := [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 	var
 	revArr := ai.GetReversedRange();
-	Assert.AreEqual<TArray<integer>>([9, 8, 7, 6, 5, 4, 3, 2, 1, 0], revArr, 'reversed array should be equal') ;
+	Assert.AreEqual < TArray < integer >> ([9, 8, 7, 6, 5, 4, 3, 2, 1, 0], revArr, 'reversed array should be equal');
 end;
 
 procedure TArrayExTest.RecordTest();
@@ -115,7 +127,7 @@ begin
 	var
 	revArr := ai.GetReversedRange(7, 4);
 
-	Assert.AreEqual<TArray<integer>>([7, 6, 5, 4], revArr, 'reversed array count should be equal')
+	Assert.AreEqual < TArray < integer >> ([7, 6, 5, 4], revArr, 'reversed array count should be equal')
 end;
 
 procedure TArrayExTest.GetReversedRangeMaxCountTest();
@@ -127,7 +139,7 @@ begin
 	var
 	revArr := ai.GetReversedRange(-1, 10);
 
-	Assert.AreEqual<TArray<integer>>([4, 3, 2, 1, 0], revArr, 'reversed array count should be equal')
+	Assert.AreEqual < TArray < integer >> ([4, 3, 2, 1, 0], revArr, 'reversed array count should be equal')
 end;
 
 procedure TArrayExTest.GetReversedRangeMaxCountTest1();
@@ -139,7 +151,7 @@ begin
 	var
 	revArr := ai.GetReversedRange(-1, 5);
 
-	Assert.AreEqual<TArray<integer>>([10, 9, 8, 7, 6], revArr, 'reversed array count should be equal')
+	Assert.AreEqual < TArray < integer >> ([10, 9, 8, 7, 6], revArr, 'reversed array count should be equal')
 end;
 
 procedure TArrayExTest.GetRangeAndReversedRange();
@@ -151,7 +163,7 @@ begin
 	var
 	revArr := ai.GetRange(0, 5).GetReversedRange();
 
-	Assert.AreEqual<TArray<integer>>([4, 3, 2, 1, 0], revArr, 'reversed array count should be equal')
+	Assert.AreEqual < TArray < integer >> ([4, 3, 2, 1, 0], revArr, 'reversed array count should be equal')
 end;
 
 procedure TArrayExTest.MultiDimContainTest();
@@ -195,7 +207,8 @@ begin
 	end else begin
 		var
 		sourceElements := sourceArray.Split([',']);
-		var sourceInts : TArray<integer>;
+		var
+			sourceInts : TArray<integer>;
 		SetLength(sourceInts, Length(sourceElements));
 		for var i := 0 to high(sourceElements) do
 			sourceInts[i] := StrToInt(sourceElements[i]);
@@ -295,7 +308,7 @@ begin
 			else
 				Result := Left - Right;
 		end);
-	
+
 	Assert.IsTrue(aiInt.Contains(3, customComparer), 'Should contain 3 with custom comparer');
 	Assert.IsTrue(aiInt.Contains(2, customComparer), 'Should contain 2 with custom comparer (matches 1,2,3)');
 	Assert.IsFalse(aiInt.Contains(10, customComparer), 'Should not contain 10 with custom comparer');
@@ -304,13 +317,12 @@ begin
 	arRec := [TTestRecord.Create('Alice', 25), TTestRecord.Create('Bob', 30), TTestRecord.Create('Charlie', 35)];
 	Assert.IsTrue(arRec.Contains(TTestRecord.Create('Bob', 30), TTestRecord.NameComparer), 'Record array should contain Bob record');
 	Assert.IsFalse(arRec.Contains(TTestRecord.Create('Dave', 40), TTestRecord.NameComparer), 'Record array should not contain Dave record');
-	Assert.IsFalse(arRec.Contains(TTestRecord.Create('Bob', 31), TTestRecord.NameAgeComparer), 'Record array should not contain Bob with different age');
+	Assert.IsFalse(arRec.Contains(TTestRecord.Create('Bob', 31), TTestRecord.NameAgeComparer),
+		'Record array should not contain Bob with different age');
 
 	// Test with record array using custom name comparer
-	Assert.IsTrue(arRec.Contains(TTestRecord.Create('Alice', 99), TTestRecord.NameComparer), 
-		'Should find Alice by name regardless of age');
-	Assert.IsFalse(arRec.Contains(TTestRecord.Create('Eve', 25), TTestRecord.NameComparer), 
-		'Should not find Eve by name');
+	Assert.IsTrue(arRec.Contains(TTestRecord.Create('Alice', 99), TTestRecord.NameComparer), 'Should find Alice by name regardless of age');
+	Assert.IsFalse(arRec.Contains(TTestRecord.Create('Eve', 25), TTestRecord.NameComparer), 'Should not find Eve by name');
 end;
 
 procedure TArrayExTest.TestArrayContainer();
@@ -615,6 +627,96 @@ begin
 
 end;
 
+procedure TArrayExTest.InsertIfNotContainsTest();
+var
+	ai : TArrayEx<integer>;
+	result : boolean;
+begin
+	// Test inserting a new item
+	ai := [1, 2, 3, 4, 5];
+	result := ai.InsertIfNotContains(2, 10);
+
+	Assert.IsTrue(result, 'Should return true when item is inserted');
+	Assert.AreEqual(6, Length(ai.Items), 'Array length should increase by 1');
+	Assert.AreEqual(10, ai.Items[2], 'Item should be at specified index');
+	Assert.IsTrue(ai.Compare([1, 2, 10, 3, 4, 5]), 'Array should contain item at correct position');
+end;
+
+procedure TArrayExTest.InsertIfNotContainsEmptyArrayTest();
+var
+	ai : TArrayEx<integer>;
+	result : boolean;
+begin
+	// Test inserting into empty array
+	ai := [];
+	result := ai.InsertIfNotContains(0, 42);
+
+	Assert.IsTrue(result, 'Should return true when inserting into empty array');
+	Assert.AreEqual(1, Length(ai.Items), 'Array length should be 1');
+	Assert.AreEqual(42, ai.Items[0], 'Item should be at index 0');
+end;
+
+procedure TArrayExTest.InsertIfNotContainsAlreadyExistsTest();
+var
+	ai : TArrayEx<integer>;
+	result : boolean;
+	originalLength : integer;
+begin
+	// Test inserting an item that already exists
+	ai := [1, 2, 3, 4, 5];
+	originalLength := Length(ai.Items);
+	result := ai.InsertIfNotContains(2, 3);
+
+	Assert.IsFalse(result, 'Should return false when item already exists');
+	Assert.AreEqual(originalLength, Length(ai.Items), 'Array length should not change');
+	Assert.IsTrue(ai.Compare([1, 2, 3, 4, 5]), 'Array should remain unchanged');
+end;
+
+procedure TArrayExTest.InsertIfNotContainsAtBeginningTest();
+var
+	ai : TArrayEx<integer>;
+	result : boolean;
+begin
+	// Test inserting at the beginning
+	ai := [10, 20, 30];
+	result := ai.InsertIfNotContains(0, 5);
+
+	Assert.IsTrue(result, 'Should return true when inserting at beginning');
+	Assert.AreEqual(4, Length(ai.Items), 'Array length should increase by 1');
+	Assert.AreEqual(5, ai.Items[0], 'Item should be at index 0');
+	Assert.IsTrue(ai.Compare([5, 10, 20, 30]), 'Array should have item at beginning');
+end;
+
+procedure TArrayExTest.InsertIfNotContainsAtEndTest();
+var
+	ai : TArrayEx<integer>;
+	result : boolean;
+begin
+	// Test inserting at the end
+	ai := [10, 20, 30];
+	result := ai.InsertIfNotContains(3, 40);
+
+	Assert.IsTrue(result, 'Should return true when inserting at end');
+	Assert.AreEqual(4, Length(ai.Items), 'Array length should increase by 1');
+	Assert.AreEqual(40, ai.Items[3], 'Item should be at last index');
+	Assert.IsTrue(ai.Compare([10, 20, 30, 40]), 'Array should have item at end');
+end;
+
+procedure TArrayExTest.InsertIfNotContainsAtMiddleTest();
+var
+	as_ : TArrayEx<string>;
+	result : boolean;
+begin
+	// Test with strings at middle position
+	as_ := ['alpha', 'beta', 'gamma', 'delta'];
+	result := as_.InsertIfNotContains(2, 'epsilon');
+
+	Assert.IsTrue(result, 'Should return true when inserting string');
+	Assert.AreEqual(5, Length(as_.Items), 'Array length should increase by 1');
+	Assert.AreEqual('epsilon', as_.Items[2], 'String should be at index 2');
+	Assert.IsTrue(as_.Compare(['alpha', 'beta', 'epsilon', 'gamma', 'delta']), 'Array should have string at correct position');
+end;
+
 procedure TArrayExTest.Test_TestRecord();
 var
 	List : TArrayEx<TTestRecord>;
@@ -697,12 +799,13 @@ begin
 		end);
 end;
 
-class function TTestRecord.NameAgeComparer(): IComparer<TTestRecord>;
+class function TTestRecord.NameAgeComparer() : IComparer<TTestRecord>;
 begin
 	Result := TComparer<TTestRecord>.Construct(
 		function(const Left, Right : TTestRecord) : Integer
 		begin
-			Result := Abs(TComparer<string>.Default.Compare(Left.Name, Right.Name)) + Abs(TComparer<integer>.Default.Compare(Left.Age, Right.Age));
+			Result := Abs(TComparer<string>.Default.Compare(Left.Name, Right.Name)) + Abs(TComparer<integer>.Default.Compare(Left.Age,
+				Right.Age));
 		end);
 end;
 
