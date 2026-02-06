@@ -3,7 +3,6 @@ unit RipGrepper.UI.RegexTemplateMenu;
 interface
 
 uses
-	ArrayEx,
 	System.Classes,
 	System.SysUtils,
 	Vcl.Menus,
@@ -24,6 +23,7 @@ type
 			FOnTemplateSelected : TRegexTemplateSelectedEvent;
 			FOriginalText : string;
 			FBuiltPatterns : TArrayEx<string>;
+			FLastPreviewedIndex : Integer;
 			procedure OnMenuItemClick(Sender : TObject);
 			procedure OnAsIsMenuItemClick(Sender : TObject);
 			procedure OnMenuItemDrawItem(Sender : TObject; ACanvas : TCanvas; ARect : TRect; State : TOwnerDrawState);
