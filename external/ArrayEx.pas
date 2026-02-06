@@ -669,7 +669,7 @@ begin
 	copyCount := _count;
 	if _count < 0 then
 		copyCount := Count;
-	if Count < (_idx + _count) then
+	if (_idx + copyCount) > Count then
 		copyCount := Count - _idx;
 	if copyCount > 0 then begin
 		SetLength(Result.Items, copyCount);
