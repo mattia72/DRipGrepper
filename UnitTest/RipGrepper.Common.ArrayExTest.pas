@@ -505,9 +505,9 @@ begin
 	Assert.IsTrue(AI.Compare([3, 4, 5, 6]));
 
 	// GetRange
-	// TODO Assert.IsTrue(AI.GetRange(2).Compare([5, 6]));
+	Assert.IsTrue(AI.GetRange(2).Compare([5, 6]));
 	Assert.IsTrue(AI.GetRange(0, 2).Compare([3, 4]));
-	// TODO Assert.IsTrue(AI.GetRange(1, 2).Compare([4, 5]));
+	Assert.IsTrue(AI.GetRange(1, 2).Compare([4, 5]));
 
 end;
 
