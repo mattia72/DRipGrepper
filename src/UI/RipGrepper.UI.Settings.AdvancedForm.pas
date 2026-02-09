@@ -127,7 +127,7 @@ end;
 
 procedure TAdvancedForm.btnedtIniFilePathLeftButtonClick(Sender : TObject);
 begin
-	FSettings.ReLoadFromDisk;
+	FSettings.ReLoadFromFile();
 	ReadSettings;
 	TMsgBox.ShowInfo('Settings reloaded from disk.');
 end;

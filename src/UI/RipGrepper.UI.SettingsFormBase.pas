@@ -28,7 +28,7 @@ type
 			property ThemeHandler : TThemeHandler read GetThemeHandler;
 
 		protected
-			FSettings : TPersistableSettings;
+			FSettings : IPersistable;
 			procedure OnCancel; virtual;
 			procedure OnOk; virtual;
 			/// here you can transform persisted settings to your needs
@@ -37,7 +37,7 @@ type
 			procedure OnSettingsUpdated(); virtual;
 
 		public
-			constructor Create(_Owner : TComponent; _settings : TPersistableSettings; _themeName : string = ''); reintroduce;
+			constructor Create(_Owner : TComponent; _settings : IPersistable; _themeName : string = ''); reintroduce;
 			destructor Destroy; override;
 	end;
 
@@ -48,7 +48,7 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Settings.RipGrepperSettings;
 
-constructor TSettingsBaseForm.Create(_Owner : TComponent; _settings : TPersistableSettings; _themeName : string = '');
+constructor TSettingsBaseForm.Create(_Owner : TComponent; _settings : IPersistable; _themeName : string = '');
 begin
 	inherited Create(_Owner);
 	FSettings := _settings;
@@ -83,7 +83,7 @@ end;
 
 procedure TSettingsBaseForm.OnSettingsUpdated();
 begin
-    // here you can update things depending on changed settings
+	// here you can update things depending on changed settings
 end;
 
 end.
