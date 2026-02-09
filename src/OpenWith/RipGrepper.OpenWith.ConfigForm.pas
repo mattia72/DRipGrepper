@@ -264,7 +264,7 @@ begin
 	finally
 		form.Free;
 		// re read content
-		_settings.ReLoadFromDisk;
+		_settings.ReLoadFromFile();
 	end;
 end;
 

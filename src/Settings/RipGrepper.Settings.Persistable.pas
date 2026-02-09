@@ -22,20 +22,33 @@ type
 
 	EWriteSettingsMode = (wsmActual, wsmDefault, wsmAll);
 
-	IIniPersistable = interface
-		['{A841C46D-56AF-4391-AB88-4C9496589FF4}']
-		function GetIniSectionName() : string;
+	IPersistable = interface(IInterface)
+		['{CAA3F298-BEFD-4419-A6DD-385D7A2660F8}']
 		procedure Init();
 		procedure ReadFile();
 		procedure LoadFromDict();
+		procedure ReLoad;
+		procedure ReLoadFromFile();
 		procedure StoreToPersister();
+	end;
+
+	IIniPersistable = interface(IPersistable)
+		['{A841C46D-56AF-4391-AB88-4C9496589FF4}']
+		function GetIniSectionName() : string;
+	end;
+
+
+	IPersistableArray = interface(IPersistable)
+		['{8FFC3DE1-C8DC-43F4-AEB6-EC9879B14F9D}']
+		function GetArraySetting():IArraySetting;
 	end;
 
 	ISettings = interface(IInterface)
 		['{372EC376-745A-459B-B946-A90EFA0A3FDE}']
 	end;
 
-	TPersistableSettings = class( { TInterfacedObject } TNoRefCountObject, ISettings, IIniPersistable, IStreamReaderWriterPersistable)
+
+	TPersistableSettings = class( { TInterfacedObject } TNoRefCountObject, ISettings, IPersistable, IIniPersistable, IStreamReaderWriterPersistable)
 		const
 			STREAM_FORMAT_VERSION = 2;
 
@@ -117,7 +130,7 @@ type
 			/// </summary>
 			procedure LoadFromDict(); virtual;
 			/// ReLoads memini file content
-			procedure ReLoadFromDisk;
+			procedure ReLoadFromFile();
 			/// <summary>
 			/// Members.StoreToPersister should be called here
 			/// Writes to ini.
@@ -379,12 +392,12 @@ begin
 	FIsAlreadyRead := True;
 end;
 
-procedure TPersistableSettings.ReLoadFromDisk;
+procedure TPersistableSettings.ReLoadFromFile();
 var
 	fh : IFileHandler;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.ReLoadFromDisk');
+	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.ReLoadFromFile');
 	if Supports(FPersisterFactory, IFileHandler, fh) then begin
 		fh.ReLoadFile();
 	end;
@@ -530,7 +543,7 @@ begin
 	if not versionStr.IsEmpty then begin
 		FStreamFormatVersion := StrToIntDef(versionStr, STREAM_FORMAT_VERSION);
 	end;
-	
+
 	SettingsDict.LoadFromStreamReader(_sr);
 	LoadVersionDependentSettings(_sr);
 	LoadFromDict;

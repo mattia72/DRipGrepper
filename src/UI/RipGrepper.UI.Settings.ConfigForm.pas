@@ -134,7 +134,7 @@ end;
 
 destructor TConfigForm.Destroy;
 begin
-	Settings.ReLoadFromDisk;
+	Settings.ReLoadFromFile();
 	inherited;
 end;
 
@@ -186,16 +186,16 @@ begin
 		for var form : TForm in FSettingsForms do begin
 			iMaxHeight := System.Math.Max(iMaxHeight, form.Height);
 			iMaxWidth := System.Math.Max(iMaxWidth, form.Width);
-			
+
 			// Create a new tab page for each form
 			tabPage := TTabSheet.Create(PageControl1);
 			tabPage.PageControl := PageControl1;
 			tabPage.Caption := form.Caption;
-			
+
 			// Configure form for docking
 			form.BorderStyle := bsNone;
 			form.Align := alClient;
-			
+
 			// Dock the form to the tab page
 			form.ManualDock(tabPage);
 		end;
@@ -205,7 +205,7 @@ begin
 		// Autoscroll := true;
 		// VertScrollBar.Range := iMaxHeight;
 		PageControl1.TabIndex := 0;
-		
+
 	finally
 		Screen.Cursor := crDefault;
 	end;
@@ -247,7 +247,7 @@ procedure TConfigForm.FormShow(Sender : TObject);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TConfigForm.FormShow');
-	
+
 	// Show only the first form initially (lazy loading for others)
 	if FSettingsForms.Count > 0 then begin
 		var
@@ -260,7 +260,7 @@ begin
 				dbgMsg.Msg('Error showing first form: ' + firstForm.Name + ' - ' + E.Message);
 		end;
 	end;
-	
+
 	dbgMsg.Msg('ConfigForm shown - first form initialized, lazy loading for others');
 end;
 
@@ -276,7 +276,7 @@ procedure TConfigForm.PageControl1Change(Sender : TObject);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TConfigForm.PageControl1Change');
-	
+
 	// Show the form on the newly activated tab (lazy loading)
 	if (PageControl1.ActivePage <> nil) and (PageControl1.ActivePage.ControlCount > 0) then begin
 		var
