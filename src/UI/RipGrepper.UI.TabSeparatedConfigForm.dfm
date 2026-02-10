@@ -30,7 +30,7 @@ object TabSeparatedConfigForm: TTabSeparatedConfigForm
       50)
     object btn_Save: TButton
       AlignWithMargins = True
-      Left = 426
+      Left = 424
       Top = 16
       Width = 75
       Height = 25
@@ -44,7 +44,7 @@ object TabSeparatedConfigForm: TTabSeparatedConfigForm
     end
     object btn_Cancel: TButton
       AlignWithMargins = True
-      Left = 517
+      Left = 515
       Top = 16
       Width = 75
       Height = 25
@@ -114,8 +114,26 @@ object TabSeparatedConfigForm: TTabSeparatedConfigForm
       Width = 594
       Height = 316
       Align = alClient
+      Colors.BorderColor = 15987699
+      Colors.DisabledColor = clGray
+      Colors.DropMarkColor = 15385233
+      Colors.DropTargetColor = 15385233
+      Colors.DropTargetBorderColor = 15385233
+      Colors.FocusedSelectionColor = 15385233
+      Colors.FocusedSelectionBorderColor = 15385233
+      Colors.GridLineColor = 15987699
+      Colors.HeaderHotColor = clBlack
+      Colors.HotColor = clBlack
+      Colors.SelectionRectangleBlendColor = 15385233
+      Colors.SelectionRectangleBorderColor = 15385233
+      Colors.SelectionTextColor = clBlack
+      Colors.TreeLineColor = 9471874
+      Colors.UnfocusedColor = clGray
+      Colors.UnfocusedSelectionColor = clWhite
+      Colors.UnfocusedSelectionBorderColor = clWhite
       Header.AutoSizeIndex = 0
       Header.Height = 21
+      Header.MainColumn = -1
       Header.Options = [hoColumnResize, hoDrag, hoShowSortGlyphs, hoVisible]
       TabOrder = 1
       TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
@@ -124,6 +142,8 @@ object TabSeparatedConfigForm: TTabSeparatedConfigForm
       OnDblClick = VstDataDblClick
       OnFreeNode = VstDataFreeNode
       OnGetText = VstDataGetText
+      Touch.InteractiveGestures = [igPan, igPressAndTap]
+      Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
       Columns = <>
     end
   end

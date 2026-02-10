@@ -3,7 +3,7 @@ object TabSeparatedConfigTestMainForm: TTabSeparatedConfigTestMainForm
   Top = 0
   Caption = 'Tab Separated Config Form - Test Application'
   ClientHeight = 600
-  ClientWidth = 800
+  ClientWidth = 467
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,39 +16,39 @@ object TabSeparatedConfigTestMainForm: TTabSeparatedConfigTestMainForm
   object Label1: TLabel
     Left = 24
     Top = 24
-    Width = 124
+    Width = 143
     Height = 15
     Caption = 'Input Data (Tab-delimited):'
   end
   object Label2: TLabel
     Left = 24
     Top = 264
-    Width = 41
+    Width = 40
     Height = 15
     Caption = 'Results:'
   end
   object Label3: TLabel
     Left = 24
     Top = 192
-    Width = 153
+    Width = 200
     Height = 15
     Caption = 'Column Headers (comma-separated):'
   end
   object Label4: TLabel
     Left = 24
     Top = 500
-    Width = 740
-    Height = 45
+    Width = 331
+    Height = 60
     Caption = 
-      'Instructions:'#13#10'1. Enter tab-separated data in the input field (' +
-      'one row per line)'#13#10'2. Optionally enable Test Action to see the ' +
-      'test button in action'#13#10'3. Click "Open Tab Config Form" to test ' +
-      'the form'
+      'Instructions:'#13#10'1. Enter tab-separated data in the input field (o' +
+      'ne row per line)'#13#10'2. Optionally enable Test Action to see the te' +
+      'st button in action'#13#10'3. Click "Open Tab Config Form" to test the' +
+      ' form'
     WordWrap = True
   end
   object btnOpenForm: TButton
-    Left = 600
-    Top = 213
+    Left = 278
+    Top = 218
     Width = 176
     Height = 32
     Caption = 'Open Tab Config Form'
@@ -58,7 +58,7 @@ object TabSeparatedConfigTestMainForm: TTabSeparatedConfigTestMainForm
   object memoResults: TMemo
     Left = 24
     Top = 285
-    Width = 752
+    Width = 430
     Height = 192
     ReadOnly = True
     ScrollBars = ssVertical
@@ -67,7 +67,7 @@ object TabSeparatedConfigTestMainForm: TTabSeparatedConfigTestMainForm
   object memoInput: TMemo
     Left = 24
     Top = 45
-    Width = 752
+    Width = 430
     Height = 128
     ScrollBars = ssVertical
     TabOrder = 2
@@ -83,13 +83,13 @@ object TabSeparatedConfigTestMainForm: TTabSeparatedConfigTestMainForm
   object edtHeaders: TEdit
     Left = 200
     Top = 189
-    Width = 576
+    Width = 254
     Height = 23
     TabOrder = 4
     Text = 'Name,Email,Position'
   end
   object btnTestAction: TButton
-    Left = 208
+    Left = 152
     Top = 218
     Width = 120
     Height = 25

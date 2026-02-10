@@ -44,7 +44,8 @@ implementation
 uses
 	System.SysUtils,
 	RipGrepper.Settings.Persistable,
-	RipGrepper.UI.TabSeparatedConfigForm;
+	RipGrepper.UI.TabSeparatedConfigForm,
+	Vcl.Dialogs;
 
 {$R *.dfm}
 
@@ -83,7 +84,8 @@ begin
 	FResultStrings.Clear;
 
 	// parse headers
-	headers := edtHeaders.Text.Split([',']);
+	var headerText : string := edtHeaders.Text;
+	headers := headerText.Split([',']);
 
 	// prepare test action if checkbox is checked
 	if chkEnableTestAction.Checked then begin

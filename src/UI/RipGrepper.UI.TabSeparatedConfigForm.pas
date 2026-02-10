@@ -20,7 +20,8 @@ uses
 	Vcl.StdCtrls,
 	Vcl.ToolWin,
 	VirtualTrees,
-	VirtualTrees.Types;
+	VirtualTrees.Types,
+	Vcl.ImgList;
 
 type
 	TTabSeparatedData = record
@@ -66,7 +67,7 @@ type
 			procedure VstDataDblClick(Sender : TObject);
 			procedure VstDataFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
 			procedure VstDataGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType;
-				var CellText : string);
+					var CellText : string);
 
 		private
 			FColorTheme : string;
@@ -76,6 +77,7 @@ type
 			FThemeHandler : TThemeHandler;
 			procedure AddOrSetDataRow(const _data : TTabSeparatedData; _node : PVirtualNode = nil);
 			procedure ExchangeNodes(const i, j : Integer);
+			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
 			function GetThemeHandler : TThemeHandler;
 			procedure SetSelectedNode(const _idx : integer);
 			property ThemeHandler : TThemeHandler read GetThemeHandler;
@@ -83,7 +85,7 @@ type
 		protected
 		public
 			constructor Create(AOwner : TComponent; _settings : IPersistable; const _colorTheme : string; _resultStrings : TStrings;
-				_testAction : TAction = nil); reintroduce;
+					_testAction : TAction = nil); reintroduce;
 			destructor Destroy; override;
 			procedure LoadColumnHeaders(const _headers : TArray<string>);
 			procedure ReadSettings; override;
@@ -102,7 +104,9 @@ uses
 	System.SysUtils,
 	Vcl.Clipbrd,
 	Winapi.ShellAPI,
-	Winapi.Windows;
+	Winapi.Windows,
+	RipGrepper.OpenWith.Constants,
+	VirtualTrees.Header;
 
 {$R *.dfm}
 
@@ -112,7 +116,7 @@ begin
 end;
 
 constructor TTabSeparatedConfigForm.Create(AOwner : TComponent; _settings : IPersistable; const _colorTheme : string;
-	_resultStrings : TStrings; _testAction : TAction = nil);
+		_resultStrings : TStrings; _testAction : TAction = nil);
 begin
 	inherited Create(AOwner, _settings, _colorTheme);
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
@@ -150,7 +154,7 @@ begin
 	// create empty data with same column count
 	if VstData.Header.Columns.Count > 0 then begin
 		SetLength(data.Cells, VstData.Header.Columns.Count);
-		for i := 0 to High(data.Cells) do begin
+		for i := 0 to high(data.Cells) do begin
 			data.Cells[i] := '';
 		end;
 		AddOrSetDataRow(data, node);
@@ -227,7 +231,9 @@ end;
 procedure TTabSeparatedConfigForm.ActionRemoveUpdate(Sender : TObject);
 begin
 	inherited;
-	ActionRemove.Enabled := Assigned(VstData.GetFirstSelected);
+	var
+	node := VstData.GetFirstSelected;
+	ActionRemove.Enabled := Assigned(node);
 end;
 
 procedure TTabSeparatedConfigForm.ActionTestExecute(Sender : TObject);
@@ -241,7 +247,10 @@ end;
 procedure TTabSeparatedConfigForm.ActionTestUpdate(Sender : TObject);
 begin
 	inherited;
-	ActionTest.Enabled := Assigned(FTestAction) and Assigned(VstData.GetFirstSelected);
+	var
+	node := VstData.GetFirstSelected;
+	ActionTest.Enabled := Assigned(FTestAction) and
+	{ } Assigned(node);
 end;
 
 procedure TTabSeparatedConfigForm.AddOrSetDataRow(const _data : TTabSeparatedData; _node : PVirtualNode = nil);
@@ -320,7 +329,7 @@ begin
 		row := '';
 
 		if Length(nodeData^.Cells) > 0 then begin
-			for i := 0 to High(nodeData^.Cells) do begin
+			for i := 0 to high(nodeData^.Cells) do begin
 				if i > 0 then begin
 					row := row + SEPARATOR;
 				end;
@@ -353,7 +362,7 @@ begin
 end;
 
 procedure TTabSeparatedConfigForm.VstDataGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
-	TextType : TVSTTextType; var CellText : string);
+		TextType : TVSTTextType; var CellText : string);
 var
 	nodeData : PTabSeparatedData;
 begin
@@ -371,8 +380,8 @@ var
 	dataI, dataJ : PTabSeparatedData;
 	tempCells : TArray<string>;
 begin
-	nodeI := VstData.GetNodeByIndex(i);
-	nodeJ := VstData.GetNodeByIndex(j);
+	nodeI := GetNodeByIndex(VstData, i);
+	nodeJ := GetNodeByIndex(VstData, j);
 
 	if Assigned(nodeI) and Assigned(nodeJ) then begin
 		VstData.BeginUpdate;
@@ -393,11 +402,26 @@ begin
 	end;
 end;
 
+function TTabSeparatedConfigForm.GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
+var
+	node : PVirtualNode;
+begin
+	Result := nil;
+	node := Tree.GetFirstChildNoInit(nil);
+	while Assigned(node) do begin
+		if Integer(node.Index) = index then begin
+			Result := node;
+			Exit;
+		end;
+		node := Tree.GetNextNoInit(node);
+	end;
+end;
+
 procedure TTabSeparatedConfigForm.SetSelectedNode(const _idx : integer);
 var
 	node : PVirtualNode;
 begin
-	node := VstData.GetNodeByIndex(_idx);
+	node := GetNodeByIndex(VstData, _idx);
 	if Assigned(node) then begin
 		VstData.ClearSelection;
 		VstData.Selected[node] := True;
@@ -412,7 +436,7 @@ var
 begin
 	VstData.Header.Columns.Clear;
 
-	for i := 0 to High(_headers) do begin
+	for i := 0 to high(_headers) do begin
 		col := VstData.Header.Columns.Add;
 		col.Text := _headers[i];
 		col.Width := 150;
