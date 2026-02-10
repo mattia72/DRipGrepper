@@ -168,7 +168,7 @@ end;
 
 procedure TTestPersistableArray.Init;
 begin
-	FArraySetting := TArraySetting.Create('TestDataArray');
+	FArraySetting := TArraySetting.Create('TestData');
 	CreateSetting(FArraySetting.Name, ITEM_KEY_PREFIX, FArraySetting);
 end;
 
