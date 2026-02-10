@@ -21,7 +21,9 @@ uses
 	Vcl.ToolWin,
 	VirtualTrees,
 	VirtualTrees.Types,
-	Vcl.ImgList;
+	Vcl.ImgList,
+	RipGrepper.Settings.SettingVariant,
+	ArrayEx;
 
 type
 	TTabSeparatedData = record
@@ -67,12 +69,13 @@ type
 			procedure VstDataDblClick(Sender : TObject);
 			procedure VstDataFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
 			procedure VstDataGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType;
-					var CellText : string);
+				var CellText : string);
 
 		private
 			FColorTheme : string;
 			FDpiScaler : TRipGrepperDpiScaler;
-			FResultStrings : TStrings;
+			FResultStrings : TArrayEx<string>;
+			FSettings : IPersistableArray;
 			FTestAction : TAction;
 			FThemeHandler : TThemeHandler;
 			procedure AddOrSetDataRow(const _data : TTabSeparatedData; _node : PVirtualNode = nil);
@@ -84,19 +87,22 @@ type
 
 		protected
 		public
-			constructor Create(AOwner : TComponent; _settings : IPersistable; const _colorTheme : string; _resultStrings : TStrings;
-					_testAction : TAction = nil); reintroduce;
+			constructor Create(AOwner : TComponent; _settings : IPersistable; const _colorTheme : string; _testAction : TAction = nil);
+				reintroduce;
 			destructor Destroy; override;
 			procedure LoadColumnHeaders(const _headers : TArray<string>);
-			procedure ReadSettings; override;
+			/// ReadSettings: here you can transform FSettings to your needs
+			procedure ReadSettings(); override;
+			/// WriteSettings: here you can transform controls to FSettings
 			procedure WriteSettings(); override;
+			property ResultStrings : TArrayEx<string> read FResultStrings;
 
 	end;
 
 implementation
 
 uses
-	ArrayEx,
+
 	RipGrepper.Common.Constants,
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.DebugUtils,
@@ -116,11 +122,11 @@ begin
 end;
 
 constructor TTabSeparatedConfigForm.Create(AOwner : TComponent; _settings : IPersistable; const _colorTheme : string;
-		_resultStrings : TStrings; _testAction : TAction = nil);
+	_testAction : TAction = nil);
 begin
 	inherited Create(AOwner, _settings, _colorTheme);
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
-	FResultStrings := _resultStrings;
+	FSettings := _settings as IPersistableArray;
 	FTestAction := _testAction;
 	FColorTheme := _colorTheme;
 
@@ -285,6 +291,7 @@ end;
 procedure TTabSeparatedConfigForm.ReadSettings;
 var
 	arr : TArray<string>;
+	arrSetting : IArraySetting;
 	data : TTabSeparatedData;
 	i : Integer;
 	s : string;
@@ -295,9 +302,10 @@ begin
 	VstData.BeginUpdate;
 	try
 		VstData.Clear;
+		arrSetting := FSettings.GetArraySetting();
 
-		for i := 0 to FResultStrings.Count - 1 do begin
-			s := FResultStrings[i];
+		for i := 0 to arrSetting.Count - 1 do begin
+			s := arrSetting[i];
 			dbgMsg.MsgFmt('Row %d: %s', [i, s]);
 
 			arr := s.Split([SEPARATOR]); // TAB
@@ -313,6 +321,7 @@ end;
 
 procedure TTabSeparatedConfigForm.WriteSettings();
 var
+	arrSetting : IArraySetting;
 	node : PVirtualNode;
 	nodeData : PTabSeparatedData;
 	row : string;
@@ -322,6 +331,8 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TTabSeparatedConfigForm.WriteSettings');
 
 	FResultStrings.Clear;
+	arrSetting := FSettings.GetArraySetting();
+	arrSetting.Value.Clear();
 
 	node := VstData.GetFirst;
 	while Assigned(node) do begin
@@ -338,10 +349,13 @@ begin
 
 			dbgMsg.MsgFmt('Row: %s', [row]);
 			FResultStrings.Add(row);
+			arrSetting.Add(row);
 		end;
 
 		node := VstData.GetNext(node);
 	end;
+
+	FSettings.StoreToPersister();
 end;
 
 procedure TTabSeparatedConfigForm.VstDataDblClick(Sender : TObject);
@@ -362,7 +376,7 @@ begin
 end;
 
 procedure TTabSeparatedConfigForm.VstDataGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
-		TextType : TVSTTextType; var CellText : string);
+	TextType : TVSTTextType; var CellText : string);
 var
 	nodeData : PTabSeparatedData;
 begin

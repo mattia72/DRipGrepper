@@ -42,12 +42,26 @@ var
 implementation
 
 uses
-	System.SysUtils,
+	ArrayEx,
 	RipGrepper.Settings.Persistable,
+	RipGrepper.Settings.SettingVariant,
 	RipGrepper.UI.TabSeparatedConfigForm,
-	Vcl.Dialogs;
+	System.SysUtils,
+	Vcl.Dialogs,
+	RipGrepper.Common.Constants;
 
-{$R *.dfm}
+type
+	TTestPersistableArray = class(TPersistableSettings, IPersistableArray)
+		private
+			FArraySetting : IArraySetting;
+			function GetArraySetting() : IArraySetting;
+
+		public
+			constructor Create;
+			procedure Init; override;
+	end;
+
+	{$R *.dfm}
 
 procedure TTabSeparatedConfigTestMainForm.FormCreate(Sender : TObject);
 begin
@@ -76,6 +90,7 @@ procedure TTabSeparatedConfigTestMainForm.btnOpenFormClick(Sender : TObject);
 var
 	form : TTabSeparatedConfigForm;
 	headers : TArray<string>;
+	persistableArray : TTestPersistableArray;
 	testAction : TAction;
 	i : Integer;
 begin
@@ -83,47 +98,78 @@ begin
 	FInputStrings.Text := memoInput.Text;
 	FResultStrings.Clear;
 
-	// parse headers
-	var headerText : string := edtHeaders.Text;
-	headers := headerText.Split([',']);
-
-	// prepare test action if checkbox is checked
-	if chkEnableTestAction.Checked then begin
-		testAction := ActionTest;
-	end else begin
-		testAction := nil;
-	end;
-
-	// create and show form
-	form := TTabSeparatedConfigForm.Create(Self, nil, 'dark', FInputStrings, testAction);
+	// create persistable array and fill with input data
+	persistableArray := TTestPersistableArray.Create;
 	try
-		form.LoadColumnHeaders(headers);
+		for i := 0 to FInputStrings.Count - 1 do begin
+			persistableArray.GetArraySetting().Add(FInputStrings[i]);
+		end;
 
-		if form.ShowModal = mrOk then begin
-			// display results
-			memoResults.Lines.Clear;
-			memoResults.Lines.Add('=== RESULTS ===');
-			memoResults.Lines.Add('Total rows: ' + FInputStrings.Count.ToString);
-			memoResults.Lines.Add('');
+		// parse headers
+		var
+			headerText : string := edtHeaders.Text;
+		headers := headerText.Split([',']);
 
-			for i := 0 to FInputStrings.Count - 1 do begin
-				memoResults.Lines.Add(Format('Row %d: %s', [i + 1, FInputStrings[i]]));
-			end;
-
-			// update input memo with results
-			memoInput.Lines.Text := FInputStrings.Text;
+		// prepare test action if checkbox is checked
+		if chkEnableTestAction.Checked then begin
+			testAction := ActionTest;
 		end else begin
-			memoResults.Lines.Clear;
-			memoResults.Lines.Add('=== CANCELLED ===');
+			testAction := nil;
+		end;
+
+		// create and show form
+		form := TTabSeparatedConfigForm.Create(Self, persistableArray, 'dark', testAction);
+		try
+			form.LoadColumnHeaders(headers);
+
+			if form.ShowModal = mrOk then begin
+				// display results
+				FResultStrings.AddStrings(form.ResultStrings.Items);
+				memoResults.Lines.Clear;
+				memoResults.Lines.Add('=== RESULTS ===');
+				memoResults.Lines.Add('Total rows: ' + FResultStrings.Count.ToString);
+				memoResults.Lines.Add('');
+
+				for i := 0 to FResultStrings.Count - 1 do begin
+					memoResults.Lines.Add(Format('Row %d: %s', [i + 1, FResultStrings[i]]));
+				end;
+
+				// update input memo with results
+				memoInput.Lines.Text := FResultStrings.Text;
+			end else begin
+				memoResults.Lines.Clear;
+				memoResults.Lines.Add('=== CANCELLED ===');
+			end;
+		finally
+			form.Free;
 		end;
 	finally
-		form.Free;
+		persistableArray.Free;
 	end;
 end;
 
 procedure TTabSeparatedConfigTestMainForm.ActionTestExecute(Sender : TObject);
 begin
 	ShowMessage('Test Action executed!' + sLineBreak + 'This demonstrates the optional test functionality.');
+end;
+
+{ TTestPersistableArray }
+
+constructor TTestPersistableArray.Create;
+begin
+	IniSectionName := 'TestData';
+	inherited Create(nil);
+end;
+
+function TTestPersistableArray.GetArraySetting() : IArraySetting;
+begin
+	Result := FArraySetting;
+end;
+
+procedure TTestPersistableArray.Init;
+begin
+	FArraySetting := TArraySetting.Create('TestDataArray');
+	CreateSetting(FArraySetting.Name, ITEM_KEY_PREFIX, FArraySetting);
 end;
 
 end.

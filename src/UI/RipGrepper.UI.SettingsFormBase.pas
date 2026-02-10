@@ -31,8 +31,9 @@ type
 			FSettings : IPersistable;
 			procedure OnCancel; virtual;
 			procedure OnOk; virtual;
-			/// here you can transform persisted settings to your needs
+			/// ReadSettings: here you can transform FSettings to your needs
 			procedure ReadSettings(); virtual; abstract;
+			/// WriteSettings: here you can transform controls to FSettings
 			procedure WriteSettings(); virtual; abstract;
 			procedure OnSettingsUpdated(); virtual;
 

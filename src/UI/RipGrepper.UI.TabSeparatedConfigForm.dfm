@@ -2,8 +2,8 @@ object TabSeparatedConfigForm: TTabSeparatedConfigForm
   Left = 756
   Top = 291
   Caption = 'Configure Data'
-  ClientHeight = 400
-  ClientWidth = 600
+  ClientHeight = 303
+  ClientWidth = 397
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,8 +14,8 @@ object TabSeparatedConfigForm: TTabSeparatedConfigForm
   TextHeight = 15
   object pnlBottom: TPanel
     Left = 0
-    Top = 350
-    Width = 600
+    Top = 253
+    Width = 397
     Height = 50
     Margins.Left = 8
     Margins.Top = 8
@@ -26,11 +26,11 @@ object TabSeparatedConfigForm: TTabSeparatedConfigForm
     ParentBackground = False
     TabOrder = 0
     DesignSize = (
-      600
+      397
       50)
     object btn_Save: TButton
       AlignWithMargins = True
-      Left = 424
+      Left = 221
       Top = 16
       Width = 75
       Height = 25
@@ -44,7 +44,7 @@ object TabSeparatedConfigForm: TTabSeparatedConfigForm
     end
     object btn_Cancel: TButton
       AlignWithMargins = True
-      Left = 515
+      Left = 312
       Top = 16
       Width = 75
       Height = 25
@@ -60,8 +60,8 @@ object TabSeparatedConfigForm: TTabSeparatedConfigForm
   object pnlMain: TPanel
     Left = 0
     Top = 0
-    Width = 600
-    Height = 350
+    Width = 397
+    Height = 253
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -73,7 +73,7 @@ object TabSeparatedConfigForm: TTabSeparatedConfigForm
       AlignWithMargins = True
       Left = 8
       Top = 3
-      Width = 584
+      Width = 381
       Height = 22
       Margins.Left = 8
       Margins.Right = 8
@@ -111,8 +111,8 @@ object TabSeparatedConfigForm: TTabSeparatedConfigForm
       AlignWithMargins = True
       Left = 3
       Top = 31
-      Width = 594
-      Height = 316
+      Width = 391
+      Height = 219
       Align = alClient
       Colors.BorderColor = 15987699
       Colors.DisabledColor = clGray
