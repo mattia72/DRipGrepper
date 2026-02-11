@@ -54,10 +54,11 @@ type
 	TTestPersistableArray = class(TPersistableSettings, IPersistableArray)
 		private
 			FArraySetting : IArraySetting;
+			FArrValues: TArray<string>;
 			function GetArraySetting() : IArraySetting;
 
 		public
-			constructor Create;
+			constructor Create(const _arrValues: TArray<string>);
 			procedure Init; override;
 	end;
 
@@ -99,12 +100,8 @@ begin
 	FResultStrings.Clear;
 
 	// create persistable array and fill with input data
-	persistableArray := TTestPersistableArray.Create;
+	persistableArray := TTestPersistableArray.Create(FInputStrings.ToStringArray);
 	try
-		for i := 0 to FInputStrings.Count - 1 do begin
-			persistableArray.GetArraySetting().Add(FInputStrings[i]);
-		end;
-
 		// parse headers
 		headers := string(edtHeaders.Text).Split([',']);
 
@@ -152,9 +149,10 @@ end;
 
 { TTestPersistableArray }
 
-constructor TTestPersistableArray.Create;
+constructor TTestPersistableArray.Create(const _arrValues: TArray<string>);
 begin
 	IniSectionName := 'TestData';
+  FArrValues := _arrValues;
 	inherited Create(nil);
 end;
 
@@ -165,7 +163,7 @@ end;
 
 procedure TTestPersistableArray.Init;
 begin
-	FArraySetting := TArraySetting.Create('TestDataArray');
+	FArraySetting := TArraySetting.Create('TestData', FArrValues );
 	CreateSetting(FArraySetting.Name, ITEM_KEY_PREFIX, FArraySetting);
 end;
 

@@ -30,7 +30,7 @@ object TabSeparatedConfigForm: TTabSeparatedConfigForm
       50)
     object btn_Save: TButton
       AlignWithMargins = True
-      Left = 221
+      Left = 219
       Top = 16
       Width = 75
       Height = 25
@@ -44,7 +44,7 @@ object TabSeparatedConfigForm: TTabSeparatedConfigForm
     end
     object btn_Cancel: TButton
       AlignWithMargins = True
-      Left = 312
+      Left = 310
       Top = 16
       Width = 75
       Height = 25

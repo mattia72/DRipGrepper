@@ -27,6 +27,7 @@ uses
 
 type
 	TTabSeparatedData = record
+		Checked : Boolean;
 		Cells : TArray<string>;
 		class function New(const _cells : TArray<string>) : TTabSeparatedData; static;
 	end;
@@ -67,15 +68,17 @@ type
 			procedure ActionTestExecute(Sender : TObject);
 			procedure ActionTestUpdate(Sender : TObject);
 			procedure VstDataDblClick(Sender : TObject);
+			procedure VstDataChecked(Sender : TBaseVirtualTree; Node : PVirtualNode);
 			procedure VstDataFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
 			procedure VstDataGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType;
-				var CellText : string);
+					var CellText : string);
+			procedure VstDataNewText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; NewText : string);
 
 		private
 			FColorTheme : string;
 			FDpiScaler : TRipGrepperDpiScaler;
 			FResultStrings : TArrayEx<string>;
-			FSettings : IPersistableArray;
+			FArraySettings : IPersistableArray;
 			FTestAction : TAction;
 			FThemeHandler : TThemeHandler;
 			procedure AddOrSetDataRow(const _data : TTabSeparatedData; _node : PVirtualNode = nil);
@@ -88,12 +91,12 @@ type
 		protected
 		public
 			constructor Create(AOwner : TComponent; _settings : IPersistable; const _colorTheme : string; _testAction : TAction = nil);
-				reintroduce;
+					reintroduce;
 			destructor Destroy; override;
 			procedure LoadColumnHeaders(const _headers : TArray<string>);
-			/// ReadSettings: here you can transform FSettings to your needs
+			/// ReadSettings: here you can transform FArraySettings to your needs
 			procedure ReadSettings(); override;
-			/// WriteSettings: here you can transform controls to FSettings
+			/// WriteSettings: here you can transform controls to FArraySettings
 			procedure WriteSettings(); override;
 			property ResultStrings : TArrayEx<string> read FResultStrings;
 
@@ -105,28 +108,29 @@ uses
 
 	RipGrepper.Common.Constants,
 	RipGrepper.Helper.UI,
+	RipGrepper.OpenWith.Constants,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Tools.FileUtils,
 	System.SysUtils,
 	Vcl.Clipbrd,
+	VirtualTrees.Header,
 	Winapi.ShellAPI,
-	Winapi.Windows,
-	RipGrepper.OpenWith.Constants,
-	VirtualTrees.Header;
+	Winapi.Windows;
 
 {$R *.dfm}
 
 class function TTabSeparatedData.New(const _cells : TArray<string>) : TTabSeparatedData;
 begin
+	Result.Checked := False;
 	Result.Cells := _cells;
 end;
 
 constructor TTabSeparatedConfigForm.Create(AOwner : TComponent; _settings : IPersistable; const _colorTheme : string;
-	_testAction : TAction = nil);
+		_testAction : TAction = nil);
 begin
 	inherited Create(AOwner, _settings, _colorTheme);
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
-	FSettings := _settings as IPersistableArray;
+	FArraySettings := _settings as IPersistableArray;
 	FTestAction := _testAction;
 	FColorTheme := _colorTheme;
 
@@ -136,7 +140,10 @@ begin
 	// setup virtual string tree
 	VstData.NodeDataSize := SizeOf(TTabSeparatedData);
 	VstData.TreeOptions.SelectionOptions := VstData.TreeOptions.SelectionOptions + [toFullRowSelect];
-	VstData.TreeOptions.MiscOptions := VstData.TreeOptions.MiscOptions + [toEditable];
+	VstData.TreeOptions.MiscOptions := VstData.TreeOptions.MiscOptions + [toEditable, toCheckSupport];
+	VstData.CheckImageKind := ckSystemDefault;
+	VstData.OnChecked := VstDataChecked;
+	VstData.OnNewText := VstDataNewText;
 
 	ReadSettings;
 	ThemeHandler.Init(_colorTheme);
@@ -155,15 +162,21 @@ var
 	i : Integer;
 begin
 	inherited;
-	node := VstData.GetFirstSelected;
 
 	// create empty data with same column count
 	if VstData.Header.Columns.Count > 0 then begin
-		SetLength(data.Cells, VstData.Header.Columns.Count);
+		SetLength(data.Cells, VstData.Header.Columns.Count - 1);
 		for i := 0 to high(data.Cells) do begin
 			data.Cells[i] := '';
 		end;
-		AddOrSetDataRow(data, node);
+		data.Checked := False;
+		AddOrSetDataRow(data);
+		node := VstData.GetLast;
+		if Assigned(node) then begin
+			SetSelectedNode(node.Index);
+			VstData.FocusedColumn := 1;
+			VstData.EditNode(node, 1);
+		end;
 	end;
 end;
 
@@ -273,7 +286,14 @@ begin
 		end;
 
 		nodeData := VstData.GetNodeData(node);
+		node^.CheckType := ctCheckBox;
+		nodeData^.Checked := _data.Checked;
 		nodeData^.Cells := _data.Cells;
+		if nodeData^.Checked then begin
+			VstData.CheckState[node] := csCheckedNormal;
+		end else begin
+			VstData.CheckState[node] := csUncheckedNormal;
+		end;
 		VstData.InvalidateNode(node);
 	finally
 		VstData.EndUpdate;
@@ -302,7 +322,7 @@ begin
 	VstData.BeginUpdate;
 	try
 		VstData.Clear;
-		arrSetting := FSettings.GetArraySetting();
+		arrSetting := FArraySettings.GetArraySetting();
 
 		for i := 0 to arrSetting.Count - 1 do begin
 			s := arrSetting[i];
@@ -310,7 +330,18 @@ begin
 
 			arr := s.Split([SEPARATOR]); // TAB
 			if Length(arr) > 0 then begin
-				data := TTabSeparatedData.New(arr);
+				var
+				startIndex := 0;
+				data.Checked := False;
+				if SameText(arr[0], 'TRUE') or SameText(arr[0], 'FALSE') then begin
+					data.Checked := SameText(arr[0], 'TRUE');
+					startIndex := 1;
+				end;
+
+				SetLength(data.Cells, Length(arr) - startIndex);
+				for var j := startIndex to high(arr) do begin
+					data.Cells[j - startIndex] := arr[j];
+				end;
 				AddOrSetDataRow(data);
 			end;
 		end;
@@ -331,22 +362,21 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TTabSeparatedConfigForm.WriteSettings');
 
 	FResultStrings.Clear;
-	arrSetting := FSettings.GetArraySetting();
+	arrSetting := FArraySettings.GetArraySetting();
 	arrSetting.Value.Clear();
 
 	node := VstData.GetFirst;
 	while Assigned(node) do begin
 		nodeData := VstData.GetNodeData(node);
-		row := '';
+		var
+		allEmpty := True;
+		row := BoolToStr(nodeData^.Checked, True);
+		for i := 0 to high(nodeData^.Cells) do begin
+			row := row + SEPARATOR + nodeData^.Cells[i];
+			allEmpty := allEmpty and (Trim(nodeData^.Cells[i]) = '');
+		end;
 
-		if Length(nodeData^.Cells) > 0 then begin
-			for i := 0 to high(nodeData^.Cells) do begin
-				if i > 0 then begin
-					row := row + SEPARATOR;
-				end;
-				row := row + nodeData^.Cells[i];
-			end;
-
+		if (not allEmpty) or nodeData^.Checked then begin
 			dbgMsg.MsgFmt('Row: %s', [row]);
 			FResultStrings.Add(row);
 			arrSetting.Add(row);
@@ -355,14 +385,39 @@ begin
 		node := VstData.GetNext(node);
 	end;
 
-	FSettings.StoreToPersister();
+	FArraySettings.StoreToPersister();
+	if FArraySettings is TPersistableSettings then begin
+		TPersistableSettings(FArraySettings).UpdateFile(True);
+	end;
 end;
 
 procedure TTabSeparatedConfigForm.VstDataDblClick(Sender : TObject);
 begin
 	inherited;
-	// TODO: implement edit dialog
-	TDebugUtils.DebugMessage('TTabSeparatedConfigForm.VstDataDblClick - Edit functionality not implemented yet');
+	var
+	pt := VstData.ScreenToClient(Mouse.CursorPos);
+	var hit : THitInfo;
+	var col : TColumnIndex;
+	VstData.GetHitTestInfoAt(pt.X, pt.Y, True, hit);
+	if Assigned(hit.HitNode) then begin
+		col := hit.HitColumn;
+		if col < 1 then begin
+			col := 1;
+		end;
+		VstData.FocusedNode := hit.HitNode;
+		VstData.FocusedColumn := col;
+		VstData.EditNode(hit.HitNode, col);
+	end;
+end;
+
+procedure TTabSeparatedConfigForm.VstDataChecked(Sender : TBaseVirtualTree; Node : PVirtualNode);
+var
+	nodeData : PTabSeparatedData;
+begin
+	nodeData := Sender.GetNodeData(Node);
+	if Assigned(nodeData) then begin
+		nodeData^.Checked := Sender.CheckState[Node] in [csCheckedNormal, csCheckedPressed];
+	end;
 end;
 
 procedure TTabSeparatedConfigForm.VstDataFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
@@ -376,16 +431,50 @@ begin
 end;
 
 procedure TTabSeparatedConfigForm.VstDataGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
-	TextType : TVSTTextType; var CellText : string);
+		TextType : TVSTTextType; var CellText : string);
 var
 	nodeData : PTabSeparatedData;
+	cellIndex : Integer;
 begin
 	nodeData := Sender.GetNodeData(Node);
-	if Assigned(nodeData) and (Column >= 0) and (Column < Length(nodeData^.Cells)) then begin
-		CellText := nodeData^.Cells[Column];
+	if not Assigned(nodeData) then begin
+		CellText := '';
+		Exit;
+	end;
+
+	if Column = 0 then begin
+		CellText := '';
+		Exit;
+	end;
+
+	cellIndex := Column - 1;
+	if (cellIndex >= 0) and (cellIndex < Length(nodeData^.Cells)) then begin
+		CellText := nodeData^.Cells[cellIndex];
 	end else begin
 		CellText := '';
 	end;
+end;
+
+procedure TTabSeparatedConfigForm.VstDataNewText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; NewText : string);
+var
+	nodeData : PTabSeparatedData;
+	cellIndex : Integer;
+begin
+	if Column < 1 then begin
+		Exit;
+	end;
+
+	nodeData := Sender.GetNodeData(Node);
+	if not Assigned(nodeData) then begin
+		Exit;
+	end;
+
+	cellIndex := Column - 1;
+	if cellIndex >= Length(nodeData^.Cells) then begin
+		SetLength(nodeData^.Cells, cellIndex + 1);
+	end;
+
+	nodeData^.Cells[cellIndex] := NewText;
 end;
 
 procedure TTabSeparatedConfigForm.ExchangeNodes(const i, j : Integer);
@@ -449,6 +538,11 @@ var
 	i : Integer;
 begin
 	VstData.Header.Columns.Clear;
+
+	col := VstData.Header.Columns.Add;
+	col.Text := '';
+	col.Width := 28;
+	col.Options := col.Options + [coVisible];
 
 	for i := 0 to high(_headers) do begin
 		col := VstData.Header.Columns.Add;
