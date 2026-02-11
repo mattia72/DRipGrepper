@@ -108,14 +108,14 @@ uses
 
 	RipGrepper.Common.Constants,
 	RipGrepper.Helper.UI,
+	RipGrepper.OpenWith.Constants,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Tools.FileUtils,
 	System.SysUtils,
 	Vcl.Clipbrd,
+	VirtualTrees.Header,
 	Winapi.ShellAPI,
-	Winapi.Windows,
-	RipGrepper.OpenWith.Constants,
-	VirtualTrees.Header;
+	Winapi.Windows;
 
 {$R *.dfm}
 
@@ -162,7 +162,6 @@ var
 	i : Integer;
 begin
 	inherited;
-	node := VstData.GetFirstSelected;
 
 	// create empty data with same column count
 	if VstData.Header.Columns.Count > 0 then begin
@@ -387,6 +386,9 @@ begin
 	end;
 
 	FArraySettings.StoreToPersister();
+	if FArraySettings is TPersistableSettings then begin
+		TPersistableSettings(FArraySettings).UpdateFile(True);
+	end;
 end;
 
 procedure TTabSeparatedConfigForm.VstDataDblClick(Sender : TObject);
