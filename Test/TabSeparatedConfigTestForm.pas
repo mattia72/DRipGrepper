@@ -106,15 +106,12 @@ begin
 		end;
 
 		// parse headers
-		var
-			headerText : string := edtHeaders.Text;
-		headers := headerText.Split([',']);
+		headers := string(edtHeaders.Text).Split([',']);
 
 		// prepare test action if checkbox is checked
+		testAction := nil;
 		if chkEnableTestAction.Checked then begin
 			testAction := ActionTest;
-		end else begin
-			testAction := nil;
 		end;
 
 		// create and show form
