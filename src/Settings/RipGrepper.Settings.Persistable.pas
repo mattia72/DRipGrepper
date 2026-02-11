@@ -41,6 +41,9 @@ type
 	IPersistableArray = interface(IPersistable)
 		['{8FFC3DE1-C8DC-43F4-AEB6-EC9879B14F9D}']
 		function GetArraySetting():IArraySetting;
+		function GetItem(index : Integer): string;
+		procedure SetItem(index : Integer; const Value: string);
+		property Item[index : Integer]: string read GetItem write SetItem;
 	end;
 
 	ISettings = interface(IInterface)

@@ -54,12 +54,18 @@ type
 	TTestPersistableArray = class(TPersistableSettings, IPersistableArray)
 		private
 			FArraySetting : IArraySetting;
-			FArrValues: TArray<string>;
+			FArrValues : TArray<string>;
 			function GetArraySetting() : IArraySetting;
+			function GetItem(index : Integer): string;
+			procedure SetItem(index : Integer; const Value: string);
+
+		protected
+			procedure UpdateSettingsFromInternals(); override;
 
 		public
-			constructor Create(const _arrValues: TArray<string>);
+			constructor Create(const _arrValues : TArray<string>);
 			procedure Init; override;
+			property Item[index : Integer]: string read GetItem write SetItem;
 	end;
 
 	{$R *.dfm}
@@ -116,10 +122,10 @@ begin
 		try
 			form.LoadColumnHeaders(headers);
 
+			memoResults.Lines.Clear;
 			if form.ShowModal = mrOk then begin
 				// display results
 				FResultStrings.AddStrings(form.ResultStrings.Items);
-				memoResults.Lines.Clear;
 				memoResults.Lines.Add('=== RESULTS ===');
 				memoResults.Lines.Add('Total rows: ' + FResultStrings.Count.ToString);
 				memoResults.Lines.Add('');
@@ -131,7 +137,6 @@ begin
 				// update input memo with results
 				memoInput.Lines.Text := FResultStrings.Text;
 			end else begin
-				memoResults.Lines.Clear;
 				memoResults.Lines.Add('=== CANCELLED ===');
 			end;
 		finally
@@ -149,10 +154,10 @@ end;
 
 { TTestPersistableArray }
 
-constructor TTestPersistableArray.Create(const _arrValues: TArray<string>);
+constructor TTestPersistableArray.Create(const _arrValues : TArray<string>);
 begin
 	IniSectionName := 'TestData';
-  FArrValues := _arrValues;
+	FArrValues := _arrValues;
 	inherited Create(nil);
 end;
 
@@ -161,9 +166,45 @@ begin
 	Result := FArraySetting;
 end;
 
+function TTestPersistableArray.GetItem(index : Integer): string;
+begin
+	Result := '';
+	if TArraySetting(FArraySetting).Count > index then begin
+		Result := TArraySetting(FArraySetting)[index];
+	end;
+end;
+
 procedure TTestPersistableArray.Init;
 begin
-	FArraySetting := TArraySetting.Create('TestData', FArrValues );
+	FArraySetting := TArraySetting.Create('TestData', FArrValues);
+	FArraySetting.State := ssModified;
+	CreateSetting(FArraySetting.Name, ITEM_KEY_PREFIX, FArraySetting);
+end;
+
+procedure TTestPersistableArray.SetItem(index : Integer; const Value: string);
+var
+	arrCmds : TArrayEx<string>;
+begin
+	if Value.IsEmpty then
+		Exit;
+
+	if FArraySetting.Value.Count > index then begin
+		if (FArraySetting.Value[index] <> Value) then begin
+			FArraySetting.Value[index] := Value;
+			FIsModified := True;
+		end;
+	end else begin
+		arrCmds := FArraySetting.Value;
+		arrCmds.Add(Value);
+		FArraySetting.Value := arrCmds;
+		FIsModified := True;
+	end;
+end;
+
+procedure TTestPersistableArray.UpdateSettingsFromInternals();
+begin
+	inherited;
+	// Re-create the setting in SettingsDict to update individual string entries (Item_0, Item_1, etc.)
 	CreateSetting(FArraySetting.Name, ITEM_KEY_PREFIX, FArraySetting);
 end;
 

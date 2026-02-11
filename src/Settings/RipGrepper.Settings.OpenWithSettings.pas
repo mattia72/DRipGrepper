@@ -151,13 +151,8 @@ begin
 	resultList := DEFAULT_EDITORS;
 
 	vscodeItem := TFileUtils.GetVsCodeCommandItem();
-	if vscodeItem.IsActive then begin
-		vscodeString := 'TRUE' + SEPARATOR + vscodeItem.Caption + SEPARATOR +
+	vscodeString := BoolToStr(vscodeItem.IsActive, True) + SEPARATOR + vscodeItem.Caption + SEPARATOR +
 		{ } vscodeItem.CommandLine.AsString() + SEPARATOR + vscodeItem.Description;
-	end else begin
-		vscodeString := 'FALSE' + SEPARATOR + vscodeItem.Caption + SEPARATOR +
-		{ } vscodeItem.CommandLine.AsString() + SEPARATOR + vscodeItem.Description;
-	end;
 
 	resultList[resultList.IndexOf(VSCODE_EDITOR_SETTING)] := vscodeString;
 

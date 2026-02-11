@@ -363,7 +363,8 @@ begin
 
 	FResultStrings.Clear;
 	arrSetting := FArraySettings.GetArraySetting();
-	arrSetting.Value.Clear();
+	arrSetting.Clear();
+	arrSetting.State := ssModified; // State must be modified for StoreToPersister to work
 
 	node := VstData.GetFirst;
 	while Assigned(node) do begin
@@ -387,7 +388,7 @@ begin
 
 	FArraySettings.StoreToPersister();
 	if FArraySettings is TPersistableSettings then begin
-		TPersistableSettings(FArraySettings).UpdateFile(True);
+		(FArraySettings as TPersistableSettings).UpdateFile();
 	end;
 end;
 
