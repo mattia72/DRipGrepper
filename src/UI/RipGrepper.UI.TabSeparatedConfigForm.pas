@@ -364,7 +364,6 @@ begin
 	FResultStrings.Clear;
 	arrSetting := FArraySettings.GetArraySetting();
 	arrSetting.Clear();
-	arrSetting.State := ssModified; // State must be modified for StoreToPersister to work
 
 	node := VstData.GetFirst;
 	while Assigned(node) do begin
