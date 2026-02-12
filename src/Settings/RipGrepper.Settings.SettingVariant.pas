@@ -43,6 +43,8 @@ type
 		function Equals(_other : ISetting) : Boolean;
 
 		procedure Copy(_other : ISetting);
+
+		procedure Init();
 		procedure Clear();
 
 		function CompareTo(Value : ISetting) : Integer;
@@ -132,17 +134,22 @@ type
 			function AsBool() : Boolean;
 			function AsArray() : TArrayEx<string>;
 			function AsReversedArray() : TArrayEx<string>;
-			procedure Clear(); virtual;
+
+			procedure Clear; virtual;
+
 			function CompareTo(Value : ISetting) : Integer;
 			procedure Copy(_other : ISetting);
 			class procedure CopySettingFields(_from, _to : ISetting);
 			class procedure CopySettingValue(_from, _to : ISetting);
 			function Equals(_other : ISetting) : Boolean; reintroduce;
 			function GetSaveBehaviour() : TSettingStoreBehaviours;
+
+			procedure Init; virtual;
+
 			procedure SetDefaultValue();
 			procedure SetSaveBehaviour(const Value : TSettingStoreBehaviours);
 
-			property name : string read GetName;
+			property Name : string read GetName;
 			property State : TSettingState read GetState write SetState;
 			property SaveBehaviour : TSettingStoreBehaviours read GetSaveBehaviour write SetSaveBehaviour;
 			property Enabled : Boolean read GetEnabled write SetEnabled;
@@ -211,7 +218,7 @@ type
 		function GetSafeItem(index : Integer) : string;
 		procedure RemoveDuplicates();
 		procedure SetItem(Index : Integer; const Value : string);
-		procedure SetNewLength(const _len: Integer);
+		procedure SetNewLength(const _len : Integer);
 		procedure SetSafeItem(index : Integer; const Value : string);
 
 		property Count : Integer read GetCount;
@@ -237,7 +244,7 @@ type
 			function GetValueFromString(const _strValue : string) : TArrayEx<string>; override;
 
 			function GetSettingType() : TSettingType; override;
-			procedure SetNewLength(const _len: Integer);
+			procedure SetNewLength(const _len : Integer);
 			property Count : Integer read GetCount;
 			property Item[index : Integer] : string read GetItem write SetItem; default;
 			property SafeItem[index : Integer] : string read GetSafeItem write SetSafeItem;
@@ -267,8 +274,11 @@ end;
 
 procedure TSettingVariant<T>.Clear();
 begin
-	inherited;
-	FValue := default (T);
+	// inherited Clear sets ssModified
+	if FValue <> default(T) then begin
+		FValue := default (T);
+		FState := ssModified;
+	end;
 end;
 
 function TSettingVariant<T>.CompareTo(Value : ISettingVariant<T>) : Integer;
@@ -448,7 +458,12 @@ begin
 	Result := TStringSetting(self);
 end;
 
-procedure TSetting.Clear();
+procedure TSetting.Clear;
+begin
+	FState := ssModified;
+end;
+
+procedure TSetting.Init;
 begin
 	FName := '';
 	FState := ssInitialized;
@@ -599,14 +614,14 @@ end;
 
 procedure TArraySetting.Clear;
 begin
-	inherited;
+	inherited Clear;
 	FValue.Clear;
 end;
 
 procedure TArraySetting.Copy(_other : IArraySetting);
 begin
 	inherited Copy(_other);
- 	Assert(_other.Equals(self));
+	Assert(_other.Equals(self));
 end;
 
 function TArraySetting.Equals(_other : IArraySetting) : Boolean;
@@ -657,19 +672,26 @@ end;
 
 procedure TArraySetting.SetItem(Index : Integer; const Value : string);
 begin
-	self.Value[index] := Value;
+	if self.Value[index] <> Value then begin
+		self.Value[index] := Value;
+		self.FState := ssModified;
+	end;
 end;
 
-procedure TArraySetting.SetNewLength(const _len: Integer);
+procedure TArraySetting.SetNewLength(const _len : Integer);
 begin
-	var items := Value.Items;
+	var
+	items := Value.Items;
 	SetLength(items, _len);
 	Value := items;
 end;
 
 procedure TArraySetting.SetSafeItem(index : Integer; const Value : string);
 begin
-	self.Value.SafeItem[index] := Value;
+	if self.Value.SafeItem[index] <> Value then begin
+		self.Value.SafeItem[index] := Value;
+		self.FState := ssModified;
+	end;
 end;
 
 function TStringSetting.GetSettingType() : TSettingType;
