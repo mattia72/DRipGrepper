@@ -72,6 +72,7 @@ type
 			procedure VstDataFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
 			procedure VstDataGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType;
 					var CellText : string);
+			procedure VstDataKeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
 			procedure VstDataNewText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; NewText : string);
 
 		private
@@ -143,6 +144,7 @@ begin
 	VstData.TreeOptions.MiscOptions := VstData.TreeOptions.MiscOptions + [toEditable, toCheckSupport];
 	VstData.CheckImageKind := ckSystemDefault;
 	VstData.OnChecked := VstDataChecked;
+	VstData.OnKeyDown := VstDataKeyDown;
 	VstData.OnNewText := VstDataNewText;
 
 	ReadSettings;
@@ -452,6 +454,47 @@ begin
 		CellText := nodeData^.Cells[cellIndex];
 	end else begin
 		CellText := '';
+	end;
+end;
+
+procedure TTabSeparatedConfigForm.VstDataKeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
+var
+	nextColumn : TColumnIndex;
+	nextNode : PVirtualNode;
+begin
+	// handle right arrow key to move to next editable cell
+	if (Key = VK_RIGHT) and (Shift = []) then begin
+		if VstData.FocusedColumn < VstData.Header.Columns.Count - 1 then begin
+			// move to next column in same row
+			nextColumn := VstData.FocusedColumn + 1;
+			VstData.FocusedColumn := nextColumn;
+			Key := 0; // suppress default behavior
+		end else if Assigned(VstData.FocusedNode) then begin
+			// move to first editable column of next row
+			nextNode := VstData.GetNext(VstData.FocusedNode);
+			if Assigned(nextNode) then begin
+				VstData.FocusedNode := nextNode;
+				VstData.FocusedColumn := 1; // first editable column (skip checkbox)
+				Key := 0;
+			end;
+		end;
+	end
+	// handle left arrow key to move to previous editable cell
+	else if (Key = VK_LEFT) and (Shift = []) then begin
+		if VstData.FocusedColumn > 1 then begin
+			// move to previous column in same row
+			nextColumn := VstData.FocusedColumn - 1;
+			VstData.FocusedColumn := nextColumn;
+			Key := 0;
+		end else if Assigned(VstData.FocusedNode) then begin
+			// move to last column of previous row
+			nextNode := VstData.GetPrevious(VstData.FocusedNode);
+			if Assigned(nextNode) then begin
+				VstData.FocusedNode := nextNode;
+				VstData.FocusedColumn := VstData.Header.Columns.Count - 1; // last column
+				Key := 0;
+			end;
+		end;
 	end;
 end;
 
