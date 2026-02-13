@@ -19,10 +19,10 @@ type
 	TRegexTemplateManager = class
 		private
 			FTemplates : TArray<TRegexTemplate>;
-			procedure LoadTemplates(const _templatesSetting : IArraySetting);
 
 		public
 			constructor Create(const _templatesSetting : IArraySetting);
+			procedure LoadTemplates(const _templatesSetting : IArraySetting);
 			function GetTemplateCount : Integer;
 			function GetTemplate(const _index : Integer) : TRegexTemplate;
 			function ApplyTemplate(const _index : Integer; const _currentText : string) : string;
