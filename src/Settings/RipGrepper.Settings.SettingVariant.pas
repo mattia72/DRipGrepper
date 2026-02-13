@@ -277,7 +277,7 @@ begin
 	// inherited Clear sets ssModified
 	if FValue <> default(T) then begin
 		FValue := default (T);
-		FState := ssModified;
+		State := ssModified;
 	end;
 end;
 
@@ -319,8 +319,8 @@ procedure TSettingVariant<T>.SetValue(const Value : T);
 begin
 	if FValue <> Value then begin
 		FValue := Value;
-		FState := ssModified;
-		if ssbStoreAfterChangeImmediately in FSaveBehaviour then begin
+		State := ssModified;
+		if ( ssbStoreAfterChangeImmediately in FSaveBehaviour  )then begin
 			FPersister.StoreValue(FValue);
 		end;
 
@@ -350,7 +350,7 @@ procedure TSettingVariant<T>.LoadFromStreamReader(_sr : TStreamReader);
 begin
 	// FSettingType := TSettingType(_sr.ReadLine().ToInteger);
 	FSaveBehaviour := TSettingStoreBehavioursHelper.FromString(_sr.ReadLineAsString(false, 'SaveBehaviour'));
-	FState := TSettingState(_sr.ReadLineAsInteger(name));
+	SetState(TSettingState(_sr.ReadLineAsInteger(name)));
 	Value := GetValueFromString(_sr.ReadLineAsString(true, name)); // Values can be empty
 end;
 
@@ -460,13 +460,13 @@ end;
 
 procedure TSetting.Clear;
 begin
-	FState := ssModified;
+	State := ssModified;
 end;
 
 procedure TSetting.Init;
 begin
 	FName := '';
-	FState := ssInitialized;
+	State := ssInitialized;
 	FSaveBehaviour := [ssbStoreIfModified];
 end;
 
@@ -482,7 +482,8 @@ end;
 procedure TSetting.Copy(_other : ISetting);
 begin
 	FName := _other.Name;
-	FState := _other.State;
+	State := _other.State;
+	SaveBehaviour := _other.SaveBehaviour;
 end;
 
 class procedure TSetting.CopySettingFields(_from, _to : ISetting);
@@ -674,7 +675,7 @@ procedure TArraySetting.SetItem(Index : Integer; const Value : string);
 begin
 	if self.Value[index] <> Value then begin
 		self.Value[index] := Value;
-		self.FState := ssModified;
+		self.State := ssModified;
 	end;
 end;
 
@@ -690,7 +691,7 @@ procedure TArraySetting.SetSafeItem(index : Integer; const Value : string);
 begin
 	if self.Value.SafeItem[index] <> Value then begin
 		self.Value.SafeItem[index] := Value;
-		self.FState := ssModified;
+		self.State := ssModified;
 	end;
 end;
 
