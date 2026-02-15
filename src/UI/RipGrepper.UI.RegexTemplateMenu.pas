@@ -26,7 +26,7 @@ type
 			FOriginalText : string;
 			FBuiltPatterns : TArrayEx<string>;
 			FLastPreviewedIndex : Integer;
-			FSettings : IArraySetting;
+			FSettings : IPersistableArray;
 			FColorTheme : string;
 			procedure OnMenuItemClick(Sender : TObject);
 			procedure OnAsIsMenuItemClick(Sender : TObject);
@@ -35,8 +35,8 @@ type
 			procedure PopulateMenu;
 
 		public
-			constructor Create(_popupMenu : TPopupMenu; _templateManager : TRegexTemplateManager; _settings : IArraySetting;
-				const _colorTheme : string);
+			constructor Create(_popupMenu : TPopupMenu; { } _templateManager : TRegexTemplateManager; { } _settings : IPersistableArray;
+					{ } const _colorTheme : string);
 			procedure ShowAtControl(_control : TControl; const _originalText : string);
 			property OnTemplateSelected : TRegexTemplateSelectedEvent read FOnTemplateSelected write FOnTemplateSelected;
 	end;
@@ -50,7 +50,7 @@ uses
 
 constructor TRegexTemplateMenu.Create(_popupMenu : TPopupMenu;
 	{ } _templateManager : TRegexTemplateManager;
-	{ } _settings : IArraySetting;
+		{ } _settings : IPersistableArray;
 	{ } const _colorTheme : string);
 begin
 	inherited Create;
@@ -92,7 +92,7 @@ begin
 
 	// Add 'as is' menu item
 	menuItem := TMenuItem.Create(FPopupMenu);
-	menuItem.Caption := 'Set original text';
+	menuItem.Caption := 'Original Text';
 	menuItem.Tag := -1; // Special tag for 'as is'
 	menuItem.OnClick := OnAsIsMenuItemClick;
 	FPopupMenu.Items.Add(menuItem);
@@ -104,7 +104,7 @@ begin
 
 	// Add 'Settings...' menu item
 	menuItem := TMenuItem.Create(FPopupMenu);
-	menuItem.Caption := 'Settings...';
+	menuItem.Caption := 'Customize...';
 	menuItem.Tag := -2; // Special tag for 'Settings'
 	menuItem.OnClick := OnSettingsMenuItemClick;
 	FPopupMenu.Items.Add(menuItem);
@@ -178,7 +178,7 @@ procedure TRegexTemplateMenu.OnSettingsMenuItemClick(Sender : TObject);
 var
 	form : TTabSeparatedConfigForm;
 begin
-	form := TTabSeparatedConfigForm.Create(nil, FSettings as IPersistable, FColorTheme);
+	form := TTabSeparatedConfigForm.Create(nil, FSettings, FColorTheme);
 	try
 		form.LoadColumnHeaders(['Description', 'Pattern']);
 		if form.ShowModal = mrOk then begin

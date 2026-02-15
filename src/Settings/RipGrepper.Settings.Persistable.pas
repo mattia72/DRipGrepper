@@ -40,9 +40,13 @@ type
 
 	IPersistableArray = interface(IPersistable)
 		['{8FFC3DE1-C8DC-43F4-AEB6-EC9879B14F9D}']
+		procedure Copy(const _other : IPersistableArray);
 		function GetArraySetting():IArraySetting;
 		function GetItem(index : Integer): string;
+		procedure SetArraySetting(const Value: IArraySetting);
 		procedure SetItem(index : Integer; const Value: string);
+		property ArraySetting: IArraySetting read GetArraySetting write
+				SetArraySetting;
 		property Item[index : Integer]: string read GetItem write SetItem;
 	end;
 

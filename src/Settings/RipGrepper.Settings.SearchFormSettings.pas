@@ -15,7 +15,8 @@ uses
 	RipGrepper.Settings.AppSettings,
 	RipGrepper.Settings.ExtensionSettings,
 	RipGrepper.Settings.SettingVariant,
-	RipGrepper.Common.Interfaces.StreamPersistable;
+	RipGrepper.Common.Interfaces.StreamPersistable,
+	RipGrepper.Settings.PersistableArray;
 
 type
 
@@ -23,18 +24,18 @@ type
 		const
 			INI_SECTION = 'RipGrepperSearchSettings';
 			SEARCH_SETTING_NAMES : array [0 .. 5] of string = (
-				{ } 'Hidden',
-				{ } 'NoIgnore',
-				{ } 'Pretty',
-				{ } 'Context',
-				{ } 'Encoding',
-				{ } 'OutputFormat');
+					{ } 'Hidden',
+					{ } 'NoIgnore',
+					{ } 'Pretty',
+					{ } 'Context',
+					{ } 'Encoding',
+					{ } 'OutputFormat');
 
 			SEARCH_SETTING_NAMES_V2 : array [0 .. 3] of string = (
-				{ } 'FormLeft',
-				{ } 'FormTop',
-				{ } 'FormWidth',
-				{ } 'FormHeight');
+					{ } 'FormLeft',
+					{ } 'FormTop',
+					{ } 'FormWidth',
+					{ } 'FormHeight');
 
 		private
 			FContext : IIntegerSetting;
@@ -48,7 +49,7 @@ type
 			FFormTop : IIntegerSetting;
 			FFormWidth : IIntegerSetting;
 			FFormHeight : IIntegerSetting;
-			FRegexTemplates : IArraySetting;
+			FRegexTemplates : IPersistableArray;
 			function GetContext() : IIntegerSetting;
 			function GetEncoding() : IStringSetting;
 			function GetExtensionSettings : TRipGrepperExtensionSettings;
@@ -60,8 +61,8 @@ type
 			function GetFormTop() : IIntegerSetting;
 			function GetFormWidth() : IIntegerSetting;
 			function GetFormHeight() : IIntegerSetting;
-			function GetRegexTemplates() : IArraySetting;
-			procedure SetRegexTemplates(const Value : IArraySetting);
+			function GetRegexTemplates() : IPersistableArray;
+			procedure SetRegexTemplates(const _Value : IPersistableArray);
 
 		protected
 			procedure LoadVersionDependentSettings(_sr : TStreamReader); override;
@@ -92,7 +93,7 @@ type
 			property FormTop : IIntegerSetting read GetFormTop;
 			property FormWidth : IIntegerSetting read GetFormWidth;
 			property FormHeight : IIntegerSetting read GetFormHeight;
-			property RegexTemplates : IArraySetting read GetRegexTemplates write SetRegexTemplates;
+			property RegexTemplates : IPersistableArray read GetRegexTemplates write SetRegexTemplates;
 	end;
 
 implementation
@@ -209,17 +210,20 @@ begin
 	Result := FFormHeight;
 end;
 
-function TSearchFormSettings.GetRegexTemplates() : IArraySetting;
+function TSearchFormSettings.GetRegexTemplates() : IPersistableArray;
 begin
 	Result := FRegexTemplates;
 end;
 
-procedure TSearchFormSettings.SetRegexTemplates(const Value : IArraySetting);
+procedure TSearchFormSettings.SetRegexTemplates(const _Value : IPersistableArray);
 begin
 	if Assigned(FRegexTemplates) then begin
-		for var s in Value.Value do begin
-			FRegexTemplates.Value.InsertIfNotContains(0, s);
+		var
+			arrs : IArraySetting := FRegexTemplates.ArraySetting;
+		for var s in _Value.ArraySetting.Value do begin
+			arrs.AddIfNotContains(s);
 		end;
+		FRegexTemplates.ArraySetting := arrs;
 	end;
 end;
 
@@ -259,7 +263,9 @@ begin
 	FFormTop := TIntegerSetting.Create('FormTop', -1);
 	FFormWidth := TIntegerSetting.Create('FormWidth', -1);
 	FFormHeight := TIntegerSetting.Create('FormHeight', -1);
-	FRegexTemplates := TArraySetting.Create('RegexTemplates', ssInitialized, [ssbStoreOnceEvenIfNotModified]);
+
+	var arrSetting : IArraySetting :=
+		{ } TArraySetting.Create('RegexTemplates', ssInitialized, [ssbStoreOnceEvenIfNotModified]);
 
 	CreateSetting(FPretty);
 	CreateSetting(FHidden);
@@ -271,14 +277,16 @@ begin
 	CreateSetting(FFormTop);
 	CreateSetting(FFormWidth);
 	CreateSetting(FFormHeight);
-	CreateSetting(FRegexTemplates.Name, ITEM_KEY_PREFIX, FRegexTemplates);
+	CreateSetting(arrSetting.Name, ITEM_KEY_PREFIX, arrSetting);
 
 	// Set default regex templates
-	if FRegexTemplates.Count = 0 then begin
-		FRegexTemplates.Add('Search as Type|<text>\s*=\s*(class|record|interface)');
-		FRegexTemplates.Add('Search as Declaration|<text>\s*:\s\w+;');
-		FRegexTemplates.Add('Search as Function|(function|procedure)\s+<text>');
+	if arrSetting.Count = 0 then begin
+		arrSetting.Add('Search as Type' + SEPARATOR + '<text>\s*=\s*(class|record|interface)');
+		arrSetting.Add('Search as Declaration' + SEPARATOR + '<text>\s*:\s\w+;');
+		arrSetting.Add('Search as Function' + SEPARATOR + '(function|procedure)\s+<text>');
 	end;
+
+	FRegexTemplates := TPersistableArray.Create('RegexTemplates', arrSetting);
 end;
 
 procedure TSearchFormSettings.LoadFromStreamReader(_sr : TStreamReader);
@@ -296,7 +304,7 @@ begin
 	if not s.IsEmpty then begin
 		OutputFormat.Value := s;
 	end;
-	FRegexTemplates.LoadFromPersister;
+	FRegexTemplates.LoadFromDict();
 	ExtensionSettings.LoadFromStreamReader(_sr);
 end;
 
@@ -344,19 +352,19 @@ end;
 function TSearchFormSettings.ToLogString : string;
 begin
 	Result := Format
-		('Hidden=%s NoIgnore=%s Pretty=%s Context=%s Encoding=%s OutputFormat=%s FormLeft=%d FormTop=%d FormWidth=%d FormHeight=%d Extension:[%s]',
-		{ } [
-		{ } BoolToStr(Hidden.Value),
-		{ } BoolToStr(NoIgnore.Value),
-		{ } BoolToStr(Pretty.Value),
-		{ } Context.Value.ToString,
-		{ } Encoding.Value,
-		{ } OutputFormat.Value,
-		{ } FormLeft.Value,
-		{ } FormTop.Value,
-		{ } FormWidth.Value,
-		{ } FormHeight.Value,
-		{ } FExtensionSettings.ToLogString]);
+			('Hidden=%s NoIgnore=%s Pretty=%s Context=%s Encoding=%s OutputFormat=%s FormLeft=%d FormTop=%d FormWidth=%d FormHeight=%d Extension:[%s]',
+			{ } [
+			{ } BoolToStr(Hidden.Value),
+			{ } BoolToStr(NoIgnore.Value),
+			{ } BoolToStr(Pretty.Value),
+			{ } Context.Value.ToString,
+			{ } Encoding.Value,
+			{ } OutputFormat.Value,
+			{ } FormLeft.Value,
+			{ } FormTop.Value,
+			{ } FormWidth.Value,
+			{ } FormHeight.Value,
+			{ } FExtensionSettings.ToLogString]);
 end;
 
 end.

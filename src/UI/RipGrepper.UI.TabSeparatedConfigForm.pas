@@ -92,8 +92,8 @@ type
 
 		protected
 		public
-			constructor Create(AOwner : TComponent; _settings : IPersistable; const _colorTheme : string; _testAction : TAction = nil);
-					reintroduce;
+			constructor Create(AOwner : TComponent; _settings : IPersistableArray; const
+					_colorTheme : string; _testAction : TAction = nil); reintroduce;
 			destructor Destroy; override;
 			procedure LoadColumnHeaders(const _headers : TArray<string>);
 			/// ReadSettings: here you can transform FArraySettings to your needs
@@ -127,12 +127,12 @@ begin
 	Result.Cells := _cells;
 end;
 
-constructor TTabSeparatedConfigForm.Create(AOwner : TComponent; _settings : IPersistable; const _colorTheme : string;
+constructor TTabSeparatedConfigForm.Create(AOwner : TComponent; _settings : IPersistableArray; const _colorTheme : string;
 		_testAction : TAction = nil);
 begin
 	inherited Create(AOwner, _settings, _colorTheme);
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
-	FArraySettings := _settings as IPersistableArray;
+	FArraySettings := _settings;
 	FTestAction := _testAction;
 	FColorTheme := _colorTheme;
 

@@ -124,7 +124,9 @@ uses
   RipGrepper.UI.Components.CustomOptionsBase in '..\..\UI\Components\RipGrepper.UI.Components.CustomOptionsBase.pas',
   RipGrepper.UI.Components.Constants in '..\..\UI\Components\RipGrepper.UI.Components.Constants.pas',
   RipGrepper.UI.RegexTemplateMenu in '..\..\UI\RipGrepper.UI.RegexTemplateMenu.pas',
-  RipGrepper.Helper.RegexTemplates in '..\..\Helper\RipGrepper.Helper.RegexTemplates.pas';
+  RipGrepper.Helper.RegexTemplates in '..\..\Helper\RipGrepper.Helper.RegexTemplates.pas',
+  RipGrepper.UI.TabSeparatedConfigForm in '..\..\UI\RipGrepper.UI.TabSeparatedConfigForm.pas',
+  RipGrepper.Settings.PersistableArray in '..\..\Settings\RipGrepper.Settings.PersistableArray.pas';
 
 {$R *.res}
 
