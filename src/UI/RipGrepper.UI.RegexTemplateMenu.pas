@@ -11,7 +11,9 @@ uses
 	RipGrepper.Helper.RegexTemplates,
 	System.Types,
 	Winapi.Windows,
-	ArrayEx;
+	ArrayEx,
+	RipGrepper.Settings.SettingVariant,
+	RipGrepper.Settings.Persistable;
 
 type
 	TRegexTemplateSelectedEvent = procedure(const _pattern : string) of object;
@@ -24,26 +26,38 @@ type
 			FOriginalText : string;
 			FBuiltPatterns : TArrayEx<string>;
 			FLastPreviewedIndex : Integer;
+			FSettings : IArraySetting;
+			FColorTheme : string;
 			procedure OnMenuItemClick(Sender : TObject);
 			procedure OnAsIsMenuItemClick(Sender : TObject);
+			procedure OnSettingsMenuItemClick(Sender : TObject);
 			procedure OnMenuItemDrawItem(Sender : TObject; ACanvas : TCanvas; ARect : TRect; State : TOwnerDrawState);
 			procedure PopulateMenu;
 
 		public
-			constructor Create(_popupMenu : TPopupMenu; _templateManager : TRegexTemplateManager);
+			constructor Create(_popupMenu : TPopupMenu; _templateManager : TRegexTemplateManager; _settings : IArraySetting;
+				const _colorTheme : string);
 			procedure ShowAtControl(_control : TControl; const _originalText : string);
 			property OnTemplateSelected : TRegexTemplateSelectedEvent read FOnTemplateSelected write FOnTemplateSelected;
 	end;
 
 implementation
 
+uses
+	RipGrepper.UI.TabSeparatedConfigForm;
+
 { TRegexTemplateMenu }
 
-constructor TRegexTemplateMenu.Create(_popupMenu : TPopupMenu; _templateManager : TRegexTemplateManager);
+constructor TRegexTemplateMenu.Create(_popupMenu : TPopupMenu;
+	{ } _templateManager : TRegexTemplateManager;
+	{ } _settings : IArraySetting;
+	{ } const _colorTheme : string);
 begin
 	inherited Create;
 	FPopupMenu := _popupMenu;
 	FTemplateManager := _templateManager;
+	FSettings := _settings;
+	FColorTheme := _colorTheme;
 	FOriginalText := '';
 	FLastPreviewedIndex := -1;
 end;
@@ -78,10 +92,21 @@ begin
 
 	// Add 'as is' menu item
 	menuItem := TMenuItem.Create(FPopupMenu);
-	menuItem.Caption := 'as is';
+	menuItem.Caption := 'Set original text';
 	menuItem.Tag := -1; // Special tag for 'as is'
 	menuItem.OnClick := OnAsIsMenuItemClick;
-	menuItem.OnAdvancedDrawItem := OnMenuItemDrawItem;
+	FPopupMenu.Items.Add(menuItem);
+
+	// Add separator before Settings
+	menuItem := TMenuItem.Create(FPopupMenu);
+	menuItem.Caption := '-';
+	FPopupMenu.Items.Add(menuItem);
+
+	// Add 'Settings...' menu item
+	menuItem := TMenuItem.Create(FPopupMenu);
+	menuItem.Caption := 'Settings...';
+	menuItem.Tag := -2; // Special tag for 'Settings'
+	menuItem.OnClick := OnSettingsMenuItemClick;
 	FPopupMenu.Items.Add(menuItem);
 end;
 
@@ -146,6 +171,22 @@ procedure TRegexTemplateMenu.OnAsIsMenuItemClick(Sender : TObject);
 begin
 	if Assigned(FOnTemplateSelected) then begin
 		FOnTemplateSelected(FOriginalText);
+	end;
+end;
+
+procedure TRegexTemplateMenu.OnSettingsMenuItemClick(Sender : TObject);
+var
+	form : TTabSeparatedConfigForm;
+begin
+	form := TTabSeparatedConfigForm.Create(nil, FSettings as IPersistable, FColorTheme);
+	try
+		form.LoadColumnHeaders(['Description', 'Pattern']);
+		if form.ShowModal = mrOk then begin
+			// Reload templates from the updated settings
+			FTemplateManager.LoadTemplates(FSettings);
+		end;
+	finally
+		form.Free;
 	end;
 end;
 

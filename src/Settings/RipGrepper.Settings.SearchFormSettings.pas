@@ -275,9 +275,9 @@ begin
 
 	// Set default regex templates
 	if FRegexTemplates.Count = 0 then begin
-		FRegexTemplates.Add('search as type|<text>\s*=\s*(class|record|interface)');
-		FRegexTemplates.Add('search as declaration|<text>\s*:\s\w+;');
-		FRegexTemplates.Add('search as function|(function|procedure)\s+<text>');
+		FRegexTemplates.Add('Search as Type|<text>\s*=\s*(class|record|interface)');
+		FRegexTemplates.Add('Search as Declaration|<text>\s*:\s\w+;');
+		FRegexTemplates.Add('Search as Function|(function|procedure)\s+<text>');
 	end;
 end;
 

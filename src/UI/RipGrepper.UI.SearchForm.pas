@@ -2052,7 +2052,8 @@ begin
 	end;
 
 	if not Assigned(FRegexTemplateMenu) then begin
-		FRegexTemplateMenu := TRegexTemplateMenu.Create(PopupMenuRegexTemplates, FRegexTemplateManager);
+		FRegexTemplateMenu := TRegexTemplateMenu.Create(PopupMenuRegexTemplates, FRegexTemplateManager, 
+			FSettings.SearchFormSettings.RegexTemplates, FSettings.AppSettings.ColorTheme);
 		FRegexTemplateMenu.OnTemplateSelected := OnRegexTemplateSelected;
 	end;
 
