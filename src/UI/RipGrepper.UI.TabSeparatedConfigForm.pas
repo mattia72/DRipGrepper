@@ -1,4 +1,4 @@
-unit RipGrepper.UI.TabSeparatedConfigForm;
+﻿unit RipGrepper.UI.TabSeparatedConfigForm;
 
 interface
 
@@ -23,7 +23,8 @@ uses
 	VirtualTrees.Types,
 	Vcl.ImgList,
 	RipGrepper.Settings.SettingVariant,
-	ArrayEx;
+	ArrayEx,
+	VirtualTrees.EditLink;
 
 type
 	TTabSeparatedData = record
@@ -85,6 +86,7 @@ type
 			procedure ExchangeNodes(const i, j : Integer);
 			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
 			function GetThemeHandler : TThemeHandler;
+			procedure InitializeVst();
 			procedure SetSelectedNode(const _idx : integer);
 			property ThemeHandler : TThemeHandler read GetThemeHandler;
 
@@ -137,14 +139,7 @@ begin
 	// show test button only if test action is assigned
 	tbTestRun.Visible := Assigned(FTestAction);
 
-	// setup virtual string tree
-	VstData.NodeDataSize := SizeOf(TTabSeparatedData);
-	VstData.TreeOptions.SelectionOptions := VstData.TreeOptions.SelectionOptions + [toFullRowSelect];
-	VstData.TreeOptions.MiscOptions := VstData.TreeOptions.MiscOptions + [toEditable, toCheckSupport];
-	VstData.CheckImageKind := ckSystemDefault;
-	VstData.OnChecked := VstDataChecked;
-	VstData.OnKeyDown := VstDataKeyDown;
-	VstData.OnNewText := VstDataNewText;
+	InitializeVst();
 
 	ReadSettings;
 	ThemeHandler.Init(_colorTheme);
@@ -519,6 +514,24 @@ begin
 		end;
 		node := Tree.GetNextNoInit(node);
 	end;
+end;
+
+procedure TTabSeparatedConfigForm.InitializeVst();
+begin
+	VstData.NodeDataSize := SizeOf(TTabSeparatedData);
+	VstData.TreeOptions.SelectionOptions := VstData.TreeOptions.SelectionOptions +
+	{ } [toFullRowSelect, toExtendedFocus];
+	VstData.TreeOptions.MiscOptions := VstData.TreeOptions.MiscOptions +
+	{ } [toGridExtensions, toEditable, toCheckSupport];
+	VstData.TreeOptions.EditOptions := toHorizontalEdit;
+	VstData.TreeOptions.PaintOptions :=
+	{ } VstData.TreeOptions.PaintOptions - [toShowRoot];
+	VstData.CheckImageKind := ckSystemDefault;
+	VstData.OnChecked := VstDataChecked;
+
+	// VstData.OnCreateEditor := VstDataCreateEditor;
+	// VstData.OnKeyAction := VstDataKeyAction;
+	// VstData.OnNewText := VstDataNewText;
 end;
 
 procedure TTabSeparatedConfigForm.SetSelectedNode(const _idx : integer);

@@ -136,9 +136,6 @@ object TabSeparatedConfigForm: TTabSeparatedConfigForm
       Header.MainColumn = -1
       Header.Options = [hoColumnResize, hoDrag, hoShowSortGlyphs, hoVisible]
       TabOrder = 1
-      TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
-      TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages]
-      TreeOptions.SelectionOptions = [toFullRowSelect]
       OnDblClick = VstDataDblClick
       OnFreeNode = VstDataFreeNode
       OnGetText = VstDataGetText
