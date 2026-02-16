@@ -288,7 +288,9 @@ begin
 
 
 	FRegexTemplates := TPersistableArray.Create('RegexTemplates', arrSetting);
-	AddChildSettings(FRegexTemplates as TPersistableSettings); // Add to FChildren so it will be freed by parent destructor
+
+	// Add to FChildren so it will be freed by parent destructor
+	AddChildSettings(FRegexTemplates as TPersistableArray);
 end;
 
 procedure TSearchFormSettings.LoadFromStreamReader(_sr : TStreamReader);

@@ -35,9 +35,10 @@ implementation
 
 constructor TPersistableArray.Create(_section : string; const _arr : IArraySetting);
 begin
+	inherited Create(nil);
 	IniSectionName := _section;
 	FArraySetting := _arr;
-	inherited Create(nil);
+	FManagedByInterface := True; // Indicate this object is managed by an interface
 end;
 
 procedure TPersistableArray.Copy(const _other : IPersistableArray);

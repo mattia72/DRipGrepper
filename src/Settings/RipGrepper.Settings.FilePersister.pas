@@ -485,7 +485,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TMemIniPersister.Destroy');
 	dbgMsg.MsgFmt('[%s] %s', [FIniSection, FIniKey]);
-	FIniFile := nil; // Clean up the reference
+	// FIniFile := nil; // Clean up the reference
 	inherited;
 end;
 
@@ -564,7 +564,6 @@ initialization
 	TIniPersister.FIniFileLock := TCriticalSection.Create;
 
 finalization
-	TIniPersister.FIniFileSingleton := nil; // Release the singleton before freeing the lock
 	TIniPersister.FIniFileLock.Free;
 
 end.

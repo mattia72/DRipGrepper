@@ -37,25 +37,23 @@ type
 		function GetIniSectionName() : string;
 	end;
 
-
 	IPersistableArray = interface(IPersistable)
 		['{8FFC3DE1-C8DC-43F4-AEB6-EC9879B14F9D}']
 		procedure Copy(const _other : IPersistableArray);
-		function GetArraySetting():IArraySetting;
-		function GetItem(index : Integer): string;
-		procedure SetArraySetting(const Value: IArraySetting);
-		procedure SetItem(index : Integer; const Value: string);
-		property ArraySetting: IArraySetting read GetArraySetting write
-				SetArraySetting;
-		property Item[index : Integer]: string read GetItem write SetItem;
+		function GetArraySetting() : IArraySetting;
+		function GetItem(index : Integer) : string;
+		procedure SetArraySetting(const Value : IArraySetting);
+		procedure SetItem(index : Integer; const Value : string);
+		property ArraySetting : IArraySetting read GetArraySetting write SetArraySetting;
+		property Item[index : Integer] : string read GetItem write SetItem;
 	end;
 
 	ISettings = interface(IInterface)
 		['{372EC376-745A-459B-B946-A90EFA0A3FDE}']
 	end;
 
-
-	TPersistableSettings = class( { TInterfacedObject } TNoRefCountObject, ISettings, IPersistable, IIniPersistable, IStreamReaderWriterPersistable)
+	TPersistableSettings = class( { TInterfacedObject } TNoRefCountObject, ISettings, IPersistable, IIniPersistable,
+		IStreamReaderWriterPersistable)
 		const
 			STREAM_FORMAT_VERSION = 2;
 
@@ -86,6 +84,7 @@ type
 			FSettingsDict : IShared<TSettingsDictionary>;
 			FChildren : TArrayEx<TPersistableSettings>;
 			FIsModified : Boolean;
+			FManagedByInterface : Boolean;
 
 			procedure CreateSetting(_setting : ISetting); overload;
 			procedure CreateSetting(const _section, _key : string; _setting : ISetting); overload;
@@ -189,6 +188,7 @@ begin
 	FIsModified := False;
 	FIsAlreadyRead := False;
 	FbDefaultLoaded := False;
+	FManagedByInterface := False;
 	if not Assigned(FPersisterFactory) then begin
 		FPersisterFactory := TIniPersister.Create();
 		FIsOwnerOfPersisterFactory := True;
@@ -204,16 +204,20 @@ destructor TPersistableSettings.Destroy;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.Destroy', True);
+	dbgMsg.MsgFmt('Destroying settings for section: %s', [IniSectionName]);
+
 	for var s in FChildren do begin
-		s.Free;
-	end;
-	// FreeOwnIniFile;
-	dbgMsg.MsgFmt('Free FSettingsDict %p for section: %s', [Pointer(FSettingsDict()), IniSectionName]);
-	if FSettingsDict.ContainsSection(IniSectionName) then begin
-		FSettingsDict[IniSectionName].Clear;
+		if not s.FManagedByInterface then begin
+			s.Free;
+		end else begin
+			dbgMsg.MsgFmt('Section: %s free not necessary', [IniSectionName]);
+		end;
 	end;
 
-	inherited;
+	// FSettingsDict will be automatically cleaned up by IShared when reference count reaches zero
+	// No manual clearing needed
+
+	inherited Destroy();
 end;
 
 function TPersistableSettings.AddChildSettings(const _settings : TPersistableSettings) : TPersistableSettings;
