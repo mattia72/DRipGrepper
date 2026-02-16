@@ -100,8 +100,8 @@
     <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\22.0\bin\bds.exe</Debugger_HostApplication>
     <DCC_ShowGeneralMessages>true</DCC_ShowGeneralMessages>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.15.0.230;ProgramID=com.embarcadero.DRipExtensions.D11;ProductName=DRipExtensions;ProductVersion=4.15.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>230</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.15.0.231;ProgramID=com.embarcadero.DRipExtensions.D11;ProductName=DRipExtensions;ProductVersion=4.15.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>231</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <Manifest_File>..\Delphi12\(None)</Manifest_File>
     <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
@@ -119,8 +119,8 @@
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
     <VerInfo_Locale>1033</VerInfo_Locale>
-    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.15.0.227;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.15.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>227</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.15.0.236;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.15.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>236</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <DCC_Description>RipGrep Search within Delphi</DCC_Description>
     <VerInfo_MinorVer>15</VerInfo_MinorVer>
@@ -267,6 +267,9 @@
     <DCCReference Include="..\..\..\..\src\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas" />
     <DCCReference Include="..\..\..\..\src\UI\Components\RipGrepper.UI.Components.NotifyingControls.pas" />
     <DCCReference Include="..\..\..\..\src\UI\Components\RipGrepper.UI.Components.Constants.pas" />
+    <DCCReference Include="..\..\..\..\src\UI\Components\RipGrepper.UI.Components.CustomOptionsBase.pas" />
+    <DCCReference Include="..\..\..\..\src\Helper\RipGrepper.Helper.RegexTemplates.pas" />
+    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.RegexTemplateMenu.pas" />
     <RcItem Include="..\..\..\Resources\about_icon.bmp">
       <ResourceType>BITMAP</ResourceType>
       <ResourceId>about_icon</ResourceId>
