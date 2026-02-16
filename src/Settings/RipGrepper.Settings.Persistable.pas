@@ -553,7 +553,7 @@ begin
 
 	SettingsDict.LoadFromStreamReader(_sr);
 	LoadVersionDependentSettings(_sr);
-	LoadFromDict;
+	LoadFromDict();
 end;
 
 procedure TPersistableSettings.SaveToStreamWriter(_sw : TStreamWriter);

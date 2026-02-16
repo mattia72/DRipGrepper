@@ -129,9 +129,9 @@ var
 	i : Integer;
 begin
 	i := 0;
-	for var cmd in TArraySetting(_setting).AsArray do begin
+	for var item in TArraySetting(_setting).AsArray do begin
 		var
-			s : ISetting := TStringSetting.Create(_key, cmd);
+			s : ISetting := TStringSetting.Create(_key, item);
 		s.SaveBehaviour := _setting.SaveBehaviour;
 		s.State := _setting.State;
 		var
@@ -295,8 +295,12 @@ begin
 	autoLock := TAutoLock.Create(FDictionaryLock);
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.LoadFromPersister');
-
+  dbgMsg.MsgFmt('Section: %s', [SectionName]);
 	try
+    if not InnerDictionary.ContainsKey(SectionName) then begin
+       raise Exception.Create(Format('SectionName %s not found in InnerDictionary', [SectionName]));
+    end;
+
 		for var key in InnerDictionary[SectionName].Keys do begin
 			dbgMsg.MsgFmt('Get InnerDictionary[%s][%s]', [SectionName, key]);
 			var

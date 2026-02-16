@@ -264,9 +264,6 @@ begin
 	FFormWidth := TIntegerSetting.Create('FormWidth', -1);
 	FFormHeight := TIntegerSetting.Create('FormHeight', -1);
 
-	var arrSetting : IArraySetting :=
-		{ } TArraySetting.Create('RegexTemplates', ssInitialized, [ssbStoreOnceEvenIfNotModified]);
-
 	CreateSetting(FPretty);
 	CreateSetting(FHidden);
 	CreateSetting(FNoIgnore);
@@ -277,16 +274,21 @@ begin
 	CreateSetting(FFormTop);
 	CreateSetting(FFormWidth);
 	CreateSetting(FFormHeight);
-	CreateSetting(arrSetting.Name, ITEM_KEY_PREFIX, arrSetting);
 
-	// Set default regex templates
+	var arrSetting : IArraySetting :=
+		{ } TArraySetting.Create('RegexTemplates', ssInitialized, [ssbStoreOnceEvenIfNotModified]);
+
+		// Set default regex templates
 	if arrSetting.Count = 0 then begin
 		arrSetting.Add('Search as Type' + SEPARATOR + '<text>\s*=\s*(class|record|interface)');
 		arrSetting.Add('Search as Declaration' + SEPARATOR + '<text>\s*:\s\w+;');
 		arrSetting.Add('Search as Function' + SEPARATOR + '(function|procedure)\s+<text>');
 	end;
+	CreateSetting(arrSetting.Name, ITEM_KEY_PREFIX, arrSetting);
+
 
 	FRegexTemplates := TPersistableArray.Create('RegexTemplates', arrSetting);
+	AddChildSettings(FRegexTemplates as TPersistableSettings); // Add to FChildren so it will be freed by parent destructor
 end;
 
 procedure TSearchFormSettings.LoadFromStreamReader(_sr : TStreamReader);

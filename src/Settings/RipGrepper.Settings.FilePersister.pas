@@ -564,6 +564,7 @@ initialization
 	TIniPersister.FIniFileLock := TCriticalSection.Create;
 
 finalization
+	TIniPersister.FIniFileSingleton := nil; // Release the singleton before freeing the lock
 	TIniPersister.FIniFileLock.Free;
 
 end.

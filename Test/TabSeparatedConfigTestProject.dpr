@@ -12,7 +12,8 @@ uses
   RipGrepper.Helper.UI in '..\src\RipGrepper.Helper.UI.pas',
   RipGrepper.Tools.DebugUtils in '..\src\Tools\RipGrepper.Tools.DebugUtils.pas',
   RipGrepper.Tools.FileUtils in '..\src\Tools\RipGrepper.Tools.FileUtils.pas',
-  ArrayEx in '..\external\ArrayEx.pas';
+  ArrayEx in '..\external\ArrayEx.pas',
+  RipGrepper.Settings.PersistableArray in '..\src\Settings\RipGrepper.Settings.PersistableArray.pas';
 
 {$R *.res}
 
