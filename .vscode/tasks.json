@@ -89,7 +89,7 @@
         {
             "label": "DripGrepper: Build and run unittests",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig Release -BuildUnittest -RunUnittest",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig ${input:buildConfig} -BuildUnittest -RunUnittest",
             "problemMatcher": [],
             "group": {
                 "kind": "test"
@@ -98,7 +98,7 @@
         {
             "label": "DripGrepper: Build unittests only",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig Release -BuildUnittest",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig ${input:buildConfig} -BuildUnittest",
             "problemMatcher": [],
             "group": {
                 "kind": "build"
@@ -107,7 +107,7 @@
         {
             "label": "DripGrepper: Run unittests only",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig Release -RunUnittest",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig ${input:buildConfig} -RunUnittest",
             "problemMatcher": [],
             "group": {
                 "kind": "test"
