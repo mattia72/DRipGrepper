@@ -206,9 +206,9 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.Destroy', True);
 	dbgMsg.MsgFmt('Destroying settings for section: %s', [IniSectionName]);
 
-	for var s in FChildren do begin
-		if not s.FManagedByInterface then begin
-			s.Free;
+	for var childSetting : TPersistableSettings in FChildren do begin
+		if not childSetting.FManagedByInterface then begin
+			childSetting.Free;
 		end else begin
 			dbgMsg.MsgFmt('Section: %s free not necessary', [IniSectionName]);
 		end;
