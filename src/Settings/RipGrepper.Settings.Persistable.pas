@@ -207,10 +207,12 @@ begin
 	dbgMsg.MsgFmt('Destroying settings for section: %s', [IniSectionName]);
 
 	for var childSetting : TPersistableSettings in FChildren do begin
-		if not childSetting.FManagedByInterface then begin
-			childSetting.Free;
+		if Supports(childSetting, IPersistableArray) then begin
+			// do wee need free something?
+			dbgMsg.MsgFmt('Section: %s free is not necessary', [IniSectionName]);
 		end else begin
-			dbgMsg.MsgFmt('Section: %s free not necessary', [IniSectionName]);
+			childSetting.Free;
+			dbgMsg.MsgFmt('Section: %s free', [IniSectionName]);
 		end;
 	end;
 

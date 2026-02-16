@@ -25,7 +25,8 @@ type
 			FOwnerPersister : IPersisterFactory;
 			FDictionaryLock : TCriticalSection;
 			procedure AddNewSectionAndKey(const _key : string; _setting : ISetting);
-			procedure AddOrChangeStrArrSettings(const _key : string; _setting : ISetting; _factory : IPersisterFactory);
+			procedure AddOrChangeStrArrSettings(const _section, _key : string; _setting :
+				ISetting; _factory : IPersisterFactory);
 			function GetCount() : Integer;
 			function GetSections(index : string) : ISettingKeys; overload;
 			procedure StoreSectionToPersister(const _section : string);
@@ -36,7 +37,7 @@ type
 			constructor Create(const _section : string; _ownerPersister : IPersisterFactory); overload;
 			constructor Create; overload;
 			destructor Destroy; override;
-			procedure AddOrChange(const _key : string; _setting : ISetting);
+			procedure AddOrChange(const _section, _key : string; _setting : ISetting);
 			procedure ClearSection(const _section : string);
 			function ContainsSection(const _section : string) : Boolean;
 			procedure CopySection(const _section : string; _from : TSettingsDictionary);
@@ -107,7 +108,8 @@ begin
 	dbgMsg.MsgFmt('Add %s', [_key]);
 end;
 
-procedure TSettingsDictionary.AddOrChange(const _key : string; _setting : ISetting);
+procedure TSettingsDictionary.AddOrChange(const _section, _key : string;
+	_setting : ISetting);
 var
 	keys : ISettingKeys;
 begin
@@ -124,7 +126,7 @@ begin
 	end;
 end;
 
-procedure TSettingsDictionary.AddOrChangeStrArrSettings(const _key : string; _setting : ISetting; _factory : IPersisterFactory);
+procedure TSettingsDictionary.AddOrChangeStrArrSettings(const _section, _key : string; _setting : ISetting; _factory : IPersisterFactory);
 var
 	i : Integer;
 begin
@@ -136,8 +138,8 @@ begin
 		s.State := _setting.State;
 		var
 		key := Format('%s%d', [_key, i]);
-		TStringSetting(s).Persister := _factory.GetStringPersister(SectionName, key);
-		AddOrChange(key, s);
+		TStringSetting(s).Persister := _factory.GetStringPersister(_section, key);
+		AddOrChange(_section, key, s);
 		Inc(i);
 	end;
 end;
@@ -220,9 +222,9 @@ begin
 	end;
 
 	if _setting.SettingType = stStrArray then begin
-		AddOrChangeStrArrSettings(_key, _setting, _factory);
+		AddOrChangeStrArrSettings(_section, _key, _setting, _factory);
 	end else begin
-		AddOrChange(_key, _setting);
+		AddOrChange(_section, _key, _setting);
 	end;
 
 	dbgMsg.MsgFmt('TSettingsDictionary.CreateSetting [%s] %s', [_section, _key]);

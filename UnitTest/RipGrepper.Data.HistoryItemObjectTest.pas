@@ -399,15 +399,15 @@ begin
 		hio.RipGrepArguments.Assign(FRipGrepArguments);
 
 		AddUniqueSearchText(hio.RipGrepArguments, searchText);
+		var
+		section := hio.SearchFormSettings.IniSectionName;
 
 		var
 		dict := hio.SearchFormSettings.SettingsDict;
-		dict.AddOrChange(STR_SETTING_KEY, FStrSetting);
-		dict.AddOrChange(INT_SETTING_KEY, FIntSetting);
-		var
-		sec := hio.SearchFormSettings.IniSectionName;
-		Assert.AreEqual(dict()[sec][STR_SETTING_KEY], FStrSetting, Format('AddOrChange %d failed', [i]));
-		Assert.AreEqual(dict()[sec][INT_SETTING_KEY], FIntSetting, Format('AddOrChange %d failed', [i]));
+		dict.AddOrChange(section, STR_SETTING_KEY, FStrSetting);
+		dict.AddOrChange(section, INT_SETTING_KEY, FIntSetting);
+		Assert.AreEqual(dict()[section][STR_SETTING_KEY], FStrSetting, Format('AddOrChange %d failed', [i]));
+		Assert.AreEqual(dict()[section][INT_SETTING_KEY], FIntSetting, Format('AddOrChange %d failed', [i]));
 
 		hio.SaveToStreamWriter(sw);
 		FHistoryObjectList.Add(hio);

@@ -151,7 +151,7 @@ var
 begin
 	// Arrange
 	setting := TStringSetting.Create('TestKey', 'TestValue');
-	FSettingsDict.AddOrChange('TestKey', setting);
+	FSettingsDict.AddOrChange('TestSection', 'TestKey', setting);
 
 	// Act
 	FSettingsDict.SaveToStreamWriter(FStreamWriter);
