@@ -5,11 +5,13 @@
 **/*.delphilsp.json
 **/*.identcache
 **/*.res
+**/*.dcu
 **/*.dres
 **/*.dproj.local
 **/*.groupproj.local
 **/*.dsk
 **/*.dsv
+**/*.exe
 **/*.~dsk
 **/*.$manifest
 **/*.tvsconfig
@@ -31,4 +33,3 @@ RipGrepper.code-workspace
 deploy/TransferDrive.txt
 src/Project/Delphi12/DRipGrepper.dsv
 UnitTest/DRipGrepperUnittest.D12.dsv
-Test/*
