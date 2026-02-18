@@ -349,7 +349,12 @@ end;
 procedure TSettingVariant<T>.LoadFromStreamReader(_sr : TStreamReader);
 begin
 	// FSettingType := TSettingType(_sr.ReadLine().ToInteger);
-	FSaveBehaviour := TSettingStoreBehavioursHelper.FromString(_sr.ReadLineAsString(false, 'SaveBehaviour'));
+	var saveBehaviourStr := _sr.ReadLineAsString(true, 'SaveBehaviour'); // allow empty for backward compatibility
+	if saveBehaviourStr.IsEmpty then begin
+		FSaveBehaviour := [ssbStoreIfModified]; // default when not present in old streams
+	end else begin
+		FSaveBehaviour := TSettingStoreBehavioursHelper.FromString(saveBehaviourStr);
+	end;
 	SetState(TSettingState(_sr.ReadLineAsInteger(name)));
 	Value := GetValueFromString(_sr.ReadLineAsString(true, name)); // Values can be empty
 end;
@@ -378,6 +383,10 @@ begin
 		Persister.StoreValue(Value);
 		State := ssStored;
 		Exclude(FSaveBehaviour, ssbStoreOnceEvenIfNotModified);
+		// Ensure SaveBehaviour is never empty after removing ssbStoreOnceEvenIfNotModified
+		if FSaveBehaviour = [] then begin
+			Include(FSaveBehaviour, ssbStoreIfModified);
+		end;
 	end;
 end;
 

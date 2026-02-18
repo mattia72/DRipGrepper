@@ -207,13 +207,11 @@ begin
 	dbgMsg.MsgFmt('Destroying settings for section: %s', [IniSectionName]);
 
 	for var childSetting : TPersistableSettings in FChildren do begin
-		if Supports(childSetting, IPersistableArray) then begin
-			// do wee need free something?
-			dbgMsg.MsgFmt('Section: %s free is not necessary', [IniSectionName]);
-		end else begin
-			childSetting.Free;
-			dbgMsg.MsgFmt('Section: %s free', [IniSectionName]);
-		end;
+		// TPersistableSettings inherits from TNoRefCountObject, so interface reference counting
+		// is disabled. Children implementing IPersistableArray are NOT freed by interface
+		// finalization and must be freed explicitly here like any other child.
+		childSetting.Free;
+		dbgMsg.MsgFmt('Section: %s free', [IniSectionName]);
 	end;
 
 	// FSettingsDict will be automatically cleaned up by IShared when reference count reaches zero

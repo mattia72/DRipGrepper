@@ -564,6 +564,8 @@ initialization
 	TIniPersister.FIniFileLock := TCriticalSection.Create;
 
 finalization
+	// Release singleton before FastMM leak check - class vars are not auto-finalized
+	TIniPersister.FIniFileSingleton := nil;
 	TIniPersister.FIniFileLock.Free;
 
 end.

@@ -49,7 +49,7 @@ type
 			FFormTop : IIntegerSetting;
 			FFormWidth : IIntegerSetting;
 			FFormHeight : IIntegerSetting;
-			FRegexTemplates : IPersistableArray;
+			FRegexTemplates : TPersistableArray;
 			function GetContext() : IIntegerSetting;
 			function GetEncoding() : IStringSetting;
 			function GetExtensionSettings : TRipGrepperExtensionSettings;
@@ -248,6 +248,8 @@ begin
 end;
 
 procedure TSearchFormSettings.Init;
+var
+	arrSetting : IArraySetting;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.Init');
@@ -275,22 +277,23 @@ begin
 	CreateSetting(FFormWidth);
 	CreateSetting(FFormHeight);
 
-	var arrSetting : IArraySetting :=
+	if not Assigned(FRegexTemplates) then begin
+		arrSetting :=
 		{ } TArraySetting.Create('RegexTemplates', ssInitialized, [ssbStoreOnceEvenIfNotModified]);
 
 		// Set default regex templates
-	if arrSetting.Count = 0 then begin
-		arrSetting.Add('Search as Type' + SEPARATOR + '<text>\s*=\s*(class|record|interface)');
-		arrSetting.Add('Search as Declaration' + SEPARATOR + '<text>\s*:\s\w+;');
-		arrSetting.Add('Search as Function' + SEPARATOR + '(function|procedure)\s+<text>');
+		if arrSetting.Count = 0 then begin
+			arrSetting.Add('Search as Type' + SEPARATOR + '<text>\s*=\s*(class|record|interface)');
+			arrSetting.Add('Search as Declaration' + SEPARATOR + '<text>\s*:\s\w+;');
+			arrSetting.Add('Search as Function' + SEPARATOR + '(function|procedure)\s+<text>');
+		end;
+		CreateSetting(arrSetting.Name, ITEM_KEY_PREFIX, arrSetting);
+
+		FRegexTemplates := TPersistableArray.Create('RegexTemplates', arrSetting);
 	end;
-	CreateSetting(arrSetting.Name, ITEM_KEY_PREFIX, arrSetting);
-
-
-	FRegexTemplates := TPersistableArray.Create('RegexTemplates', arrSetting);
 
 	// Add to FChildren so it will be freed by parent destructor
-	AddChildSettings(FRegexTemplates as TPersistableArray);
+	AddChildSettings(FRegexTemplates);
 end;
 
 procedure TSearchFormSettings.LoadFromStreamReader(_sr : TStreamReader);

@@ -25,8 +25,7 @@ type
 			FOwnerPersister : IPersisterFactory;
 			FDictionaryLock : TCriticalSection;
 			procedure AddNewSectionAndKey(const _key : string; _setting : ISetting);
-			procedure AddOrChangeStrArrSettings(const _section, _key : string; _setting :
-				ISetting; _factory : IPersisterFactory);
+			procedure AddOrChangeStrArrSettings(const _section, _key : string; _setting : ISetting; _factory : IPersisterFactory);
 			function GetCount() : Integer;
 			function GetSections(index : string) : ISettingKeys; overload;
 			procedure StoreSectionToPersister(const _section : string);
@@ -103,13 +102,12 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.AddNewSectionAndKey', True);
 
 	FInnerDictionary.Add(SectionName,
-		{ } TCollections.CreateSortedDictionary<TSettingKey, ISetting>());
+			{ } TCollections.CreateSortedDictionary<TSettingKey, ISetting>());
 	FInnerDictionary[SectionName].Add(_key, _setting);
 	dbgMsg.MsgFmt('Add %s', [_key]);
 end;
 
-procedure TSettingsDictionary.AddOrChange(const _section, _key : string;
-	_setting : ISetting);
+procedure TSettingsDictionary.AddOrChange(const _section, _key : string; _setting : ISetting);
 var
 	keys : ISettingKeys;
 begin
@@ -297,30 +295,31 @@ begin
 	autoLock := TAutoLock.Create(FDictionaryLock);
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.LoadFromPersister');
-  dbgMsg.MsgFmt('Section: %s', [SectionName]);
+	dbgMsg.MsgFmt('Section: %s', [SectionName]);
 	try
-    if not InnerDictionary.ContainsKey(SectionName) then begin
-       raise Exception.Create(Format('SectionName %s not found in InnerDictionary', [SectionName]));
-    end;
+		if ((not SectionName.IsEmpty) and InnerDictionary.ContainsKey(SectionName)) then begin
 
-		for var key in InnerDictionary[SectionName].Keys do begin
-			dbgMsg.MsgFmt('Get InnerDictionary[%s][%s]', [SectionName, key]);
-			var
-			section := InnerDictionary[SectionName];
-			if InnerDictionary.TryGetValue(SectionName, section) then begin
+			for var key in InnerDictionary[SectionName].Keys do begin
+				dbgMsg.MsgFmt('Get InnerDictionary[%s][%s]', [SectionName, key]);
 				var
-					setting : ISetting;
-				if section.TryGetValue(key, setting) then begin
-					dbgMsg.MsgFmt('InnerDictionary[%s][%s] found', [SectionName, key]);
-					setting.LoadFromPersister();
+				section := InnerDictionary[SectionName];
+				if InnerDictionary.TryGetValue(SectionName, section) then begin
 					var
-					value := setting.AsString;
-					dbgMsg.MsgFmt('LoadFromPersister [%s] %s = %s', [SectionName, key, value]);
-				end else begin
-					dbgMsg.MsgFmt('InnerDictionary[%s][%s] not found', [SectionName, key]);
-					raise Exception.CreateFmt('InnerDictionary[%s][%s] not found', [SectionName, key]);
+						setting : ISetting;
+					if section.TryGetValue(key, setting) then begin
+						dbgMsg.MsgFmt('InnerDictionary[%s][%s] found', [SectionName, key]);
+						setting.LoadFromPersister();
+						var
+						value := setting.AsString;
+						dbgMsg.MsgFmt('LoadFromPersister [%s] %s = %s', [SectionName, key, value]);
+					end else begin
+						dbgMsg.MsgFmt('InnerDictionary[%s][%s] not found', [SectionName, key]);
+						raise Exception.CreateFmt('InnerDictionary[%s][%s] not found', [SectionName, key]);
+					end;
 				end;
-			end;
+			end
+		end else begin
+			dbgMsg.ErrorMsgFmt('SectionName %s not found in InnerDictionary', [SectionName]);
 		end;
 	except
 		on E : Exception do begin
@@ -343,9 +342,9 @@ begin
 		{$IFDEF DEBUG}
 		var
 		value := InnerDictionary[_section][keys.Key].AsString;
-		dbgMsg.MsgFmt('StoreToPersister [%s] %s = dic:''%s'' ? set:''%s''', [_section, keys.Key, value,  setting.AsString]);
+		dbgMsg.MsgFmt('StoreToPersister [%s] %s = dic:''%s'' ? set:''%s''', [_section, keys.Key, value, setting.AsString]);
 
-	    Assert(value = setting.AsString, Format('StoreToPersister [%s] %s %s <> %s', [_section, keys.Key, value, setting.AsString]));
+		Assert(value = setting.AsString, Format('StoreToPersister [%s] %s %s <> %s', [_section, keys.Key, value, setting.AsString]));
 		{$ENDIF}
 	end;
 end;
@@ -489,7 +488,7 @@ begin
 		_sw.WriteLineAsInteger(FInnerDictionary[section].Count, section + '.Count');
 		for var key in FInnerDictionary[section].Keys do begin
 			_sw.WriteLineAsString(key, false, Format('[%s]%s', [section, key]));
-			_sw.WriteLineAsInteger(Integer(FInnerDictionary[section][key].SettingType), Format('[%s]%s.SettingType',[section, key]));
+			_sw.WriteLineAsInteger(Integer(FInnerDictionary[section][key].SettingType), Format('[%s]%s.SettingType', [section, key]));
 			(FInnerDictionary[section][key] as IStreamReaderWriterPersistable).SaveToStreamWriter(_sw);
 		end;
 	end;
