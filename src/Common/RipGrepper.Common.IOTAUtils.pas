@@ -47,27 +47,11 @@ type
 			FProject : IOTAProject;
 
 		private
-			class procedure addProjectDefineMacros(var _defineValue : string; _macros : TStrings);
-			/// <summary>
-			/// Get all available _macros that can be used in ReplaceMacros including Platform, Config,
-			/// environment variables, IDE base paths, and preprocessor constants (defines)
-			/// @param _macros will contain all available _macros in "Name=Value" format
-			/// @param _project is the _project to get options from, if nil the current _project will be used </summary>
-			class procedure getAllAvailableMacros(_macros : TStrings; _project : IOTAProject = nil);
 			// Get the environment options interface.  Succeeds or raises an exception.
 			class function getEnvironmentOptions() : IOTAEnvironmentOptions;
-			class function getIdeRootDirectoryFromRegistry() : string;
-			// Returns IDE's base registry key, for instance
-			// Software\Borland\Delphi\4.0
-			// The returned string is guaranteed to NOT have a
-			// backslash appended and it does NOT have a leading
-			// backslash either (Windows 2000 is allergic to that).
-			class function getIdeBaseRegistryKey() : string;
 			// Return the IDE's environment string value that is
 			// associated with EnvironmentStringName
 			class function getIdeEnvironmentString(const _sEnvName : string) : string;
-			// Return all of the IDE's environment settings names
-			class procedure getIdeEnvironmentStrings(Settings : TStrings);
 			// Return the IDE's global library path
 			class function getIdeLibraryPath() : string;
 			/// <summary>
@@ -75,11 +59,6 @@ type
 			/// @params if _shouldDoProcessing is true, the paths are macro expanded and non-existing
 			/// paths removed. </summary>
 			function getIdeLibraryPathStrings() : TArrayEx<string>;
-			/// <summary>
-			/// Get all preprocessor constants (conditional _defines) for the given _project
-			/// @param _defines will contain all conditional _defines in "Name=Value" format
-			/// @param _project is the _project to get _defines from, if nil the current _project will be used </summary>
-			class procedure getPreprocessorConstants(_defines : TStrings; _project : IOTAProject = nil);
 			/// <summary>
 			/// Return _project specific search path, with the directory containing the _project
 			// file first.
@@ -90,7 +69,6 @@ type
 			class function isCurrentProjectNativeCpp() : Boolean;
 			class function IsProjectDelphiDotNet(Project : IOTAProject) : Boolean;
 			class function isProjectNativeCpp(Project : IOTAProject) : Boolean;
-			class function isStandAlone() : Boolean;
 			function processPaths(const _paths : TArrayEx<string>; var _nonExistsPaths : TArrayEx<string>; const _rootDir : string)
 				: TArrayEx<string>;
 			/// <summary>
@@ -99,6 +77,30 @@ type
 			/// @param Project is the project whose options to get, it nil the current project will be used
 			/// @returns True, if the options could be retrieved, False otherwise (e.g. if there is no active project) </summary>
 			function tryGetProjectOptions(out _ProjectOptions : IOTAProjectOptions) : Boolean;
+			{$REGION  usefull functions} { {
+			  /// <summary>
+			  /// Get all available _macros that can be used in ReplaceMacros including Platform, Config,
+			  /// environment variables, IDE base paths, and preprocessor constants (defines)
+			  /// @param _macros will contain all available _macros in "Name=Value" format
+			  /// @param _project is the _project to get options from, if nil the current _project will be used </summary>
+			  class procedure getAllAvailableMacros(_macros : TStrings; _project : IOTAProject = nil);
+			  // Return all of the IDE's environment settings names
+			  class procedure getIdeEnvironmentStrings(Settings : TStrings);
+			  /// <summary>
+			  /// Get all preprocessor constants (conditional _defines) for the given _project
+			  /// @param _defines will contain all conditional _defines in "Name=Value" format
+			  /// @param _project is the _project to get _defines from, if nil the current _project will be used </summary>
+			  class procedure getPreprocessorConstants(_defines : TStrings; _project : IOTAProject = nil);
+			  class procedure addProjectDefineMacros(var _defineValue : string; _macros : TStrings);
+			  class function getIdeRootDirectoryFromRegistry() : string;
+			  // Returns IDE's base registry key, for instance
+			  // Software\Borland\Delphi\4.0
+			  // The returned string is guaranteed to NOT have a
+			  // backslash appended and it does NOT have a leading
+			  // backslash either (Windows 2000 is allergic to that).
+			  class function getIdeBaseRegistryKey() : string;
+
+			}  {$ENDREGION  usefull functions}
 
 		public
 			constructor Create();
@@ -117,7 +119,7 @@ type
 			function GetCurrentSourceFile() : string;
 			function GetOpenedEditBuffers() : TArray<string>;
 			function GetProjectFiles() : TArray<string>;
-			function GetProjectFilesDirs(): TArray<string>;
+			function GetProjectFilesDirs() : TArray<string>;
 	end;
 
 	IOTAUtils = class(TObject)
@@ -1358,31 +1360,33 @@ begin
 	FProject := IOTAUtils.GxOtaGetCurrentProject;
 end;
 
-class procedure TIdeProjectPathHelper.addProjectDefineMacros(var _defineValue : string; _macros : TStrings);
-var
-	defineList : TStringList;
-begin
-	defineList := TStringList.Create;
-	try
-		defineList.Delimiter := ';';
-		defineList.DelimitedText := _defineValue;
-		for var i := 0 to defineList.Count - 1 do begin
-			var
-			Define := defineList[i];
-			var
-			EqualPos := Pos('=', Define);
-			if EqualPos > 0 then begin
-				// Define with value: SYMBOL=VALUE
-				_macros.Add(Define);
-			end else begin
-				// Define without value: SYMBOL (assume '1')
-				_macros.Add(Define + '=1');
-			end;
-		end;
-	finally
-		FreeAndNil(defineList);
-	end;
-end;
+{$REGION  usefull functions} {
+  class procedure TIdeProjectPathHelper.addProjectDefineMacros(var _defineValue : string; _macros : TStrings);
+  var
+  defineList : TStringList;
+  begin
+  defineList := TStringList.Create;
+  try
+  defineList.Delimiter := ';';
+  defineList.DelimitedText := _defineValue;
+  for var i := 0 to defineList.Count - 1 do begin
+  var
+  Define := defineList[i];
+  var
+  EqualPos := Pos('=', Define);
+  if EqualPos > 0 then begin
+  // Define with value: SYMBOL=VALUE
+  _macros.Add(Define);
+  end else begin
+  // Define without value: SYMBOL (assume '1')
+  _macros.Add(Define + '=1');
+  end;
+  end;
+  finally
+  FreeAndNil(defineList);
+  end;
+  end; }
+{$ENDREGION  usefull functions}
 
 function TIdeProjectPathHelper.GetActiveProjectDirectory() : string;
 begin
@@ -1401,90 +1405,94 @@ begin
 	dbgMsg.MsgFmt('Result = %s', [Result]);
 end;
 
-class procedure TIdeProjectPathHelper.getAllAvailableMacros(_macros : TStrings; _project : IOTAProject = nil);
-const
-	IDE_BASE_MACROS : array [0 .. 3] of string = ('BDS', 'DELPHI', 'BCB', 'CompilerVersion');
-var
-	pathProcessor : TPathProcessor;
-	i : Integer;
-	defineValue : string;
-	ideBasePath : string;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.getAllAvailableMacros');
+{$REGION  usefull functions}  {
+  class procedure TIdeProjectPathHelper.getAllAvailableMacros(_macros : TStrings; _project : IOTAProject = nil);
+  const
+  IDE_BASE_MACROS : array [0 .. 3] of string = ('BDS', 'DELPHI', 'BCB', 'CompilerVersion');
+  var
+  pathProcessor : TPathProcessor;
+  i : Integer;
+  defineValue : string;
+  ideBasePath : string;
+  begin
+  var
+  dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.getAllAvailableMacros');
 
-	_macros.Clear;
+  _macros.Clear;
 
-	pathProcessor := TPathProcessor.Create('', _project);
-	try
-		// Add IDE base paths
-		ideBasePath := TIdeProjectPathHelper.getIdeRootDirectoryFromRegistry;
-		if ideBasePath.IsEmpty then begin
-			ideBasePath := TIdeUtils.GetIdeRootDirectory;
-		end;
-		for i := low(IDE_BASE_MACROS) to high(IDE_BASE_MACROS) do begin
-			_macros.Add(IDE_BASE_MACROS[i] + '=' + ideBasePath);
-		end;
+  pathProcessor := TPathProcessor.Create('', _project);
+  try
+  // Add IDE base paths
+  ideBasePath := TIdeProjectPathHelper.getIdeRootDirectoryFromRegistry;
+  if ideBasePath.IsEmpty then begin
+  ideBasePath := TIdeUtils.GetIdeRootDirectory;
+  end;
+  for i := low(IDE_BASE_MACROS) to high(IDE_BASE_MACROS) do begin
+  _macros.Add(IDE_BASE_MACROS[i] + '=' + ideBasePath);
+  end;
 
-		// Add environment variables
-		pathProcessor.GetEnvironmentVariables(_macros);
+  // Add environment variables
+  pathProcessor.GetEnvironmentVariables(_macros);
 
-		// Add Platform and Config
-		if pathProcessor.PlatformName <> '' then begin
-			_macros.Add('Platform=' + pathProcessor.PlatformName);
-		end;
-		if pathProcessor.ConfigName <> '' then begin
-			_macros.Add('Config=' + pathProcessor.ConfigName);
-		end;
+  // Add Platform and Config
+  if pathProcessor.PlatformName <> '' then begin
+  _macros.Add('Platform=' + pathProcessor.PlatformName);
+  end;
+  if pathProcessor.ConfigName <> '' then begin
+  _macros.Add('Config=' + pathProcessor.ConfigName);
+  end;
 
-		// Add preprocessor constants (defines)
-		defineValue := pathProcessor.GetProjectOption('DCC_Define');
-		if defineValue <> '' then begin
-			addProjectDefineMacros(defineValue, _macros);
-		end;
-	finally
-		dbgMsg.MsgFmt('Macros: %s', [_macros.Text]);
-		FreeAndNil(pathProcessor);
-	end;
-end;
+  // Add preprocessor constants (defines)
+  defineValue := pathProcessor.GetProjectOption('DCC_Define');
+  if defineValue <> '' then begin
+  addProjectDefineMacros(defineValue, _macros);
+  end;
+  finally
+  dbgMsg.MsgFmt('Macros: %s', [_macros.Text]);
+  FreeAndNil(pathProcessor);
+  end;
+  end;
 
-class function TIdeProjectPathHelper.getIdeRootDirectoryFromRegistry() : string;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.getIdeRootDirectoryFromRegistry');
-	Result := '';
-	var
-	ideBaseReg := TIdeProjectPathHelper.getIdeBaseRegistryKey();
-	if TRegistryUtils.TryReadString(ideBaseReg, 'RootDir', Result, HKEY_LOCAL_MACHINE) or
-		TRegistryUtils.TryReadString(ideBaseReg, 'RootDir', Result, HKEY_CURRENT_USER) then begin
-		dbgMsg.MsgFmt('RootDir from registry: %s', [Result]);
-		if DirectoryExists(Result) then begin
-			Result := IncludeTrailingPathDelimiter(Result);
-			Exit;
-		end;
-	end;
-end;
+  class function TIdeProjectPathHelper.getIdeRootDirectoryFromRegistry() : string;
+  begin
+  var
+  dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.getIdeRootDirectoryFromRegistry');
+  Result := '';
+  var
+  ideBaseReg := TIdeProjectPathHelper.getIdeBaseRegistryKey();
+  if TRegistryUtils.TryReadString(ideBaseReg, 'RootDir', Result, HKEY_LOCAL_MACHINE) or
+  TRegistryUtils.TryReadString(ideBaseReg, 'RootDir', Result, HKEY_CURRENT_USER) then begin
+  dbgMsg.MsgFmt('RootDir from registry: %s', [Result]);
+  if DirectoryExists(Result) then begin
+  Result := IncludeTrailingPathDelimiter(Result);
+  Exit;
+  end;
+  end;
+  end;
 
-class function TIdeProjectPathHelper.getIdeBaseRegistryKey() : string;
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.getIdeBaseRegistryKey');
 
-	if isStandAlone then
-		Result := 'Software\' + CompilerDefinedProductRegistryKey
-	else
-		Result := (BorlandIDEServices as IOTAServices).GetBaseRegistryKey;
+  class function TIdeProjectPathHelper.getIdeBaseRegistryKey() : string;
+  begin
+  var
+  dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.getIdeBaseRegistryKey');
 
-	if Length(Result) > 0 then begin
-		// Windows 2000 is allergic to a leading backslash
-		// in the registry key - NT4, for instance, is not.
-		if Result[1] = '\' then
-			Delete(Result, 1, 1);
+  if isStandAlone then
+  Result := 'Software\' + CompilerDefinedProductRegistryKey
+  else
+  Result := (BorlandIDEServices as IOTAServices).GetBaseRegistryKey;
 
-		Assert(Result[Length(Result)] <> '\');
-	end;
-	dbgMsg.MsgFmt('Result: %s', [Result]);
-end;
+  if Length(Result) > 0 then begin
+  // Windows 2000 is allergic to a leading backslash
+  // in the registry key - NT4, for instance, is not.
+  if Result[1] = '\' then
+  Delete(Result, 1, 1);
+
+  Assert(Result[Length(Result)] <> '\');
+  end;
+  dbgMsg.MsgFmt('Result: %s', [Result]);
+  end;
+}
+{$ENDREGION}
 
 function TIdeProjectPathHelper.GetEffectiveLibraryPath(var _errDirList : TArrayEx<string>; const _shouldProcess : Boolean = True)
 	: TArrayEx<string>;
@@ -1517,19 +1525,21 @@ begin
 	Assert(Assigned(Result));
 end;
 
-class procedure TIdeProjectPathHelper.getIdeEnvironmentStrings(Settings : TStrings);
-var
-	EnvOptions : IOTAEnvironmentOptions;
-	i : Integer;
-	Options : TOTAOptionNameArray;
-begin
-	EnvOptions := getEnvironmentOptions;
+{$REGION  usefull functions} {
+  class procedure TIdeProjectPathHelper.getIdeEnvironmentStrings(Settings : TStrings);
+  var
+  EnvOptions : IOTAEnvironmentOptions;
+  i : Integer;
+  Options : TOTAOptionNameArray;
+  begin
+  EnvOptions := getEnvironmentOptions;
 
-	Settings.Clear;
-	Options := EnvOptions.GetOptionNames; // Broken in Delphi 2005
-	for i := 0 to Length(Options) - 1 do
-		Settings.Add(Options[i].Name);
-end;
+  Settings.Clear;
+  Options := EnvOptions.GetOptionNames; // Broken in Delphi 2005
+  for i := 0 to Length(Options) - 1 do
+  Settings.Add(Options[i].Name);
+  end;
+} {$ENDREGION}
 
 class function TIdeProjectPathHelper.isCurrentProjectNativeCpp() : Boolean;
 begin
@@ -1621,46 +1631,48 @@ begin
 	end;
 end;
 
-class procedure TIdeProjectPathHelper.getPreprocessorConstants(_defines : TStrings; _project : IOTAProject = nil);
-var
-	pathProcessor : TPathProcessor;
-	defineValue : string;
-	defineList : TStringList;
-	i : Integer;
-begin
-	Assert(Assigned(_defines));
-	_defines.Clear;
+{$REGION  usefull functions} {
+  class procedure TIdeProjectPathHelper.getPreprocessorConstants(_defines : TStrings; _project : IOTAProject = nil);
+  var
+  pathProcessor : TPathProcessor;
+  defineValue : string;
+  defineList : TStringList;
+  i : Integer;
+  begin
+  Assert(Assigned(_defines));
+  _defines.Clear;
 
-	pathProcessor := TPathProcessor.Create('', _project);
-	try
-		// Get preprocessor constants (_defines)
-		defineValue := pathProcessor.GetProjectOption('DCC_Define');
-		if defineValue <> '' then begin
-			defineList := TStringList.Create;
-			try
-				defineList.Delimiter := ';';
-				defineList.DelimitedText := defineValue;
-				for i := 0 to defineList.Count - 1 do begin
-					var
-					Define := defineList[i];
-					var
-					EqualPos := Pos('=', Define);
-					if EqualPos > 0 then begin
-						// Define with value: SYMBOL=VALUE
-						_defines.Add(Define);
-					end else begin
-						// Define without value: SYMBOL (assume '1')
-						_defines.Add(Define + '=1');
-					end;
-				end;
-			finally
-				FreeAndNil(defineList);
-			end;
-		end;
-	finally
-		FreeAndNil(pathProcessor);
-	end;
-end;
+  pathProcessor := TPathProcessor.Create('', _project);
+  try
+  // Get preprocessor constants (_defines)
+  defineValue := pathProcessor.GetProjectOption('DCC_Define');
+  if defineValue <> '' then begin
+  defineList := TStringList.Create;
+  try
+  defineList.Delimiter := ';';
+  defineList.DelimitedText := defineValue;
+  for i := 0 to defineList.Count - 1 do begin
+  var
+  Define := defineList[i];
+  var
+  EqualPos := Pos('=', Define);
+  if EqualPos > 0 then begin
+  // Define with value: SYMBOL=VALUE
+  _defines.Add(Define);
+  end else begin
+  // Define without value: SYMBOL (assume '1')
+  _defines.Add(Define + '=1');
+  end;
+  end;
+  finally
+  FreeAndNil(defineList);
+  end;
+  end;
+  finally
+  FreeAndNil(pathProcessor);
+  end;
+  end; }
+{$ENDREGION}
 
 function TIdeProjectPathHelper.GetProjectFiles() : TArray<string>;
 var
@@ -1681,7 +1693,7 @@ begin
 	end;
 end;
 
-function TIdeProjectPathHelper.GetProjectFilesDirs(): TArray<string>;
+function TIdeProjectPathHelper.GetProjectFilesDirs() : TArray<string>;
 var
 	fn : string;
 	arr : TArrayEx<string>;
@@ -1723,11 +1735,6 @@ end;
 class function TIdeProjectPathHelper.isCurrentProjectIsDelphiDotNet() : Boolean;
 begin
 	Result := IsProjectDelphiDotNet(IOTAUtils.GxOtaGetCurrentProject);
-end;
-
-class function TIdeProjectPathHelper.isStandAlone() : Boolean;
-begin
-	Result := IOTAUtils.IsStandAlone;
 end;
 
 function TIdeProjectPathHelper.processPaths(const _paths : TArrayEx<string>; var _nonExistsPaths : TArrayEx<string>;
