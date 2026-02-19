@@ -290,10 +290,9 @@ begin
 		CreateSetting(arrSetting.Name, ITEM_KEY_PREFIX, arrSetting);
 
 		FRegexTemplates := TPersistableArray.Create('RegexTemplates', arrSetting);
+		// Add to FChildren only once; calling Init() a second time must not re-add
+		AddChildSettings(FRegexTemplates);
 	end;
-
-	// Add to FChildren so it will be freed by parent destructor
-	AddChildSettings(FRegexTemplates);
 end;
 
 procedure TSearchFormSettings.LoadFromStreamReader(_sr : TStreamReader);
