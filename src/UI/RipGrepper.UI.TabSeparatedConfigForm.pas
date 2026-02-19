@@ -478,6 +478,8 @@ var
 	nodeI, nodeJ : PVirtualNode;
 	dataI, dataJ : PTabSeparatedData;
 	tempCells : TArray<string>;
+	tempChecked : Boolean;
+	tempCheckState : TCheckState;
 begin
 	nodeI := GetNodeByIndex(VstData, i);
 	nodeJ := GetNodeByIndex(VstData, j);
@@ -488,10 +490,19 @@ begin
 			dataI := VstData.GetNodeData(nodeI);
 			dataJ := VstData.GetNodeData(nodeJ);
 
-			// swap data
+			// swap cells
 			tempCells := dataI^.Cells;
 			dataI^.Cells := dataJ^.Cells;
 			dataJ^.Cells := tempCells;
+
+			// swap checked state
+			tempChecked := dataI^.Checked;
+			dataI^.Checked := dataJ^.Checked;
+			dataJ^.Checked := tempChecked;
+
+			tempCheckState := VstData.CheckState[nodeI];
+			VstData.CheckState[nodeI] := VstData.CheckState[nodeJ];
+			VstData.CheckState[nodeJ] := tempCheckState;
 
 			VstData.InvalidateNode(nodeI);
 			VstData.InvalidateNode(nodeJ);
