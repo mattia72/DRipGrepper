@@ -16,6 +16,7 @@ type
 
 		var
 			Description : string;
+			IsChecked : Boolean;
 			Pattern : string;
 			class function Parse(const _templateStr : string) : TRegexTemplate; static;
 			function ApplyToText(const _text : string) : string;
@@ -42,13 +43,29 @@ uses
 
 class function TRegexTemplate.Parse(const _templateStr : string) : TRegexTemplate;
 var
-	separatorPos : Integer;
+	parts : TArray<string>;
+	startIdx : Integer;
 begin
-	separatorPos := Pos(SEPARATOR, _templateStr);
+	Result.IsChecked := True; // default: visible in menu
 
-	if separatorPos > 0 then begin
-		Result.Description := Copy(_templateStr, 1, separatorPos - 1);
-		Result.Pattern := Copy(_templateStr, separatorPos + 1, Length(_templateStr));
+	// Handle checked prefix (TRUE/FALSE stored by TTabSeparatedConfigForm)
+	parts := _templateStr.Split([SEPARATOR]);
+	startIdx := 0;
+
+	if (Length(parts) > 0) and SameText(parts[0], 'TRUE') then begin
+		Result.IsChecked := True;
+		startIdx := 1;
+	end else if (Length(parts) > 0) and SameText(parts[0], 'FALSE') then begin
+		Result.IsChecked := False;
+		startIdx := 1;
+	end;
+
+	if Length(parts) >= startIdx + 2 then begin
+		Result.Description := parts[startIdx];
+		Result.Pattern := parts[startIdx + 1];
+	end else if Length(parts) = startIdx + 1 then begin
+		Result.Description := parts[startIdx];
+		Result.Pattern := parts[startIdx];
 	end else begin
 		Result.Description := _templateStr;
 		Result.Pattern := _templateStr;
@@ -77,11 +94,16 @@ procedure TRegexTemplateManager.LoadTemplates(const _templatesSetting : IPersist
 var
 	i : Integer;
 	count : Integer;
+	tmpl : TRegexTemplate;
 begin
+	FTemplates.Clear;
 	count := _templatesSetting.GetArraySetting().Count;
 
 	for i := 0 to count - 1 do begin
-		FTemplates.Add(TRegexTemplate.Parse(_templatesSetting.Item[i]));
+		tmpl := TRegexTemplate.Parse(_templatesSetting.Item[i]);
+		if tmpl.IsChecked then begin
+			FTemplates.Add(tmpl);
+		end;
 	end;
 end;
 

@@ -60,10 +60,10 @@ begin
 	FInputStrings := TStringList.Create;
 	FResultStrings := TStringList.Create;
 
-	// add some sample data (tab-separated)
-	memoInput.Lines.Add('John Doe'#9'john@example.com'#9'Developer');
-	memoInput.Lines.Add('Jane Smith'#9'jane@example.com'#9'Designer');
-	memoInput.Lines.Add('Bob Johnson'#9'bob@example.com'#9'Manager');
+	// add some sample data (tab-separated): Boolean prefix + data columns
+	memoInput.Lines.Add('FALSE'#9'John Doe'#9'john@example.com'#9'Developer');
+	memoInput.Lines.Add('TRUE'#9'Jane Smith'#9'jane@example.com'#9'Designer');
+	memoInput.Lines.Add('FALSE'#9'Bob Johnson'#9'bob@example.com'#9'Manager');
 
 	// default headers
 	edtHeaders.Text := 'Name,Email,Position';
