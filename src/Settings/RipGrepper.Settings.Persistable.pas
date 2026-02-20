@@ -25,6 +25,8 @@ type
 	IPersistable = interface(IInterface)
 		['{CAA3F298-BEFD-4419-A6DD-385D7A2660F8}']
 		procedure Init();
+		function GetOwner() : IPersistable;
+
 		procedure ReadFile();
 		procedure LoadFromDict();
 		procedure ReLoad;
@@ -109,7 +111,9 @@ type
 		public
 			constructor Create(const _Owner : TPersistableSettings); overload;
 			constructor Create; overload;
+
 			procedure Copy(const _other : TPersistableSettings); virtual;
+			function GetOwner: IPersistable;
 			procedure ReLoad; virtual;
 
 			property Count : Integer read GetCount;
@@ -539,6 +543,11 @@ begin
 		FLockObject := Shared.Make<TObject>();
 	end;
 	Result := FLockObject;
+end;
+
+function TPersistableSettings.GetOwner: IPersistable;
+begin
+	Result := FOwner;
 end;
 
 procedure TPersistableSettings.LoadFromDict();
