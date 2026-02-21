@@ -383,7 +383,7 @@ begin
 
 	FArraySettings.StoreToPersister();
 	if FArraySettings is TPersistableSettings then begin
-		(FArraySettings as TPersistableSettings).UpdateFile();
+		(FArraySettings as TPersistableSettings).UpdateFile(True {Force}, True {clean section});
 	end;
 end;
 

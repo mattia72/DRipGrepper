@@ -11,12 +11,30 @@ uses
 	RipGrepper.Helper.RegexTemplates,
 	System.Types,
 	Winapi.Windows,
-	ArrayEx,
 	RipGrepper.Settings.SettingVariant,
 	RipGrepper.Settings.Persistable;
 
 type
 	TRegexTemplateSelectedEvent = procedure(const _pattern : string) of object;
+
+	TRegexTemplateMenuItem = class(TMenuItem)
+		private
+			FPatternPreview : string;
+			FLastPreviewedIndex : PInteger;
+			FOnTemplateSelected : TRegexTemplateSelectedEvent;
+
+			procedure AdvancedDrawItemHandler(Sender : TObject; ACanvas : TCanvas; ARect : TRect; State : TOwnerDrawState);
+
+		protected
+			procedure AdvancedDrawItem(ACanvas : TCanvas; ARect : TRect; State : TOwnerDrawState; TopLevel : Boolean); override;
+
+		public
+			constructor Create(_owner : TComponent; const _caption, _patternPreview : string; { }
+					_lastPreviewedIndex : PInteger; { }
+					_onTemplateSelected : TRegexTemplateSelectedEvent); reintroduce;
+			procedure Click(); override;
+			property PatternPreview : string read FPatternPreview;
+	end;
 
 	TRegexTemplateMenu = class
 		private
@@ -24,14 +42,11 @@ type
 			FTemplateManager : TRegexTemplateManager;
 			FOnTemplateSelected : TRegexTemplateSelectedEvent;
 			FOriginalText : string;
-			FBuiltPatterns : TArrayEx<string>;
 			FLastPreviewedIndex : Integer;
 			FSettings : IPersistableArray;
 			FColorTheme : string;
-			procedure OnMenuItemClick(Sender : TObject);
 			procedure OnAsIsMenuItemClick(Sender : TObject);
 			procedure OnSettingsMenuItemClick(Sender : TObject);
-			procedure OnMenuItemDrawItem(Sender : TObject; ACanvas : TCanvas; ARect : TRect; State : TOwnerDrawState);
 			procedure PopulateMenu;
 
 		public
@@ -46,12 +61,58 @@ implementation
 uses
 	RipGrepper.UI.TabSeparatedConfigForm;
 
+{ TRegexTemplateMenuItem }
+
+constructor TRegexTemplateMenuItem.Create(_owner : TComponent; const _caption, _patternPreview : string; { }
+		_lastPreviewedIndex : PInteger; { }
+		_onTemplateSelected : TRegexTemplateSelectedEvent);
+begin
+	inherited Create(_owner);
+	Caption := _caption;
+	FPatternPreview := _patternPreview;
+	FLastPreviewedIndex := _lastPreviewedIndex;
+	FOnTemplateSelected := _onTemplateSelected;
+	OnAdvancedDrawItem := AdvancedDrawItemHandler;
+end;
+
+procedure TRegexTemplateMenuItem.Click();
+begin
+	if Assigned(FOnTemplateSelected) then begin
+		FOnTemplateSelected(FPatternPreview);
+	end;
+end;
+
+procedure TRegexTemplateMenuItem.AdvancedDrawItem(ACanvas : TCanvas; ARect : TRect; State : TOwnerDrawState; TopLevel : Boolean);
+begin
+	inherited;
+end;
+
+procedure TRegexTemplateMenuItem.AdvancedDrawItemHandler(Sender : TObject; ACanvas : TCanvas; ARect : TRect; State : TOwnerDrawState);
+var
+	isSelected : Boolean;
+begin
+	AdvancedDrawItem(ACanvas, ARect, State, False);
+
+	isSelected := odSelected in State;
+	// Handle selected state only: trigger preview when a different item is highlighted
+	if not isSelected then begin
+		Exit;
+	end;
+
+	if Tag <> FLastPreviewedIndex^ then begin
+		if Assigned(FOnTemplateSelected) then begin
+			FOnTemplateSelected(FPatternPreview);
+		end;
+		FLastPreviewedIndex^ := Tag;
+	end;
+end;
+
 { TRegexTemplateMenu }
 
 constructor TRegexTemplateMenu.Create(_popupMenu : TPopupMenu;
-	{ } _templateManager : TRegexTemplateManager;
+		{ } _templateManager : TRegexTemplateManager;
 		{ } _settings : IPersistableArray;
-	{ } const _colorTheme : string);
+		{ } const _colorTheme : string);
 begin
 	inherited Create;
 	FPopupMenu := _popupMenu;
@@ -69,18 +130,17 @@ var
 begin
 	FPopupMenu.Items.Clear;
 
-	// Build all patterns from original text
-	FBuiltPatterns.Clear;
+	// Load templates from settings in case they were updated eg. in a HistObj
+	FSettings.ReLoadFromFile();
+	FTemplateManager.LoadTemplates(FSettings);
+
 	for var i : Integer := 0 to FTemplateManager.GetTemplateCount - 1 do begin
 		template := FTemplateManager.GetTemplate(i);
-		FBuiltPatterns.Add(template.ApplyToText(FOriginalText));
-
-		menuItem := TMenuItem.Create(FPopupMenu);
-		menuItem.Caption := template.Description;
-		menuItem.Tag := i;
-		menuItem.OnClick := OnMenuItemClick;
-		menuItem.OnAdvancedDrawItem := OnMenuItemDrawItem;
-		FPopupMenu.Items.Add(menuItem);
+		var
+		templateItem := TRegexTemplateMenuItem.Create(FPopupMenu, template.Description, { }
+				template.ApplyToText(FOriginalText), @FLastPreviewedIndex, FOnTemplateSelected);
+		templateItem.Tag := i;
+		FPopupMenu.Items.Add(templateItem);
 	end;
 
 	// Add separator
@@ -108,63 +168,6 @@ begin
 	menuItem.Tag := -2; // Special tag for 'Settings'
 	menuItem.OnClick := OnSettingsMenuItemClick;
 	FPopupMenu.Items.Add(menuItem);
-end;
-
-procedure TRegexTemplateMenu.OnMenuItemClick(Sender : TObject);
-var
-	menuItem : TMenuItem;
-	pattern : string;
-begin
-	if not(Sender is TMenuItem) then begin
-		Exit;
-	end;
-
-	menuItem := TMenuItem(Sender);
-	pattern := FBuiltPatterns[menuItem.Tag];
-
-	if Assigned(FOnTemplateSelected) then begin
-		FOnTemplateSelected(pattern);
-	end;
-end;
-
-procedure TRegexTemplateMenu.OnMenuItemDrawItem(Sender : TObject; ACanvas : TCanvas; ARect : TRect; State : TOwnerDrawState);
-var
-	menuItem : TMenuItem;
-	currentIndex : Integer;
-	isSelected : Boolean;
-begin
-	if not(Sender is TMenuItem) then begin
-		Exit;
-	end;
-
-	menuItem := TMenuItem(Sender);
-	isSelected := odSelected in State;
-
-	// Draw the menu item
-	if isSelected then begin
-		ACanvas.Brush.Color := clHighlight;
-		ACanvas.Font.Color := clHighlightText;
-	end else begin
-		ACanvas.Brush.Color := clMenu;
-		ACanvas.Font.Color := clMenuText;
-	end;
-	ACanvas.FillRect(ARect);
-	DrawText(ACanvas.Handle, PChar(menuItem.Caption), -1, ARect, DT_LEFT or DT_VCENTER or DT_SINGLELINE or DT_NOCLIP);
-
-	// Show preview when highlighting different item
-	currentIndex := menuItem.Tag;
-	if isSelected and (currentIndex <> FLastPreviewedIndex) then begin
-		if Assigned(FOnTemplateSelected) then begin
-			if currentIndex = -1 then begin
-				// 'as is' menu item - show original text
-				FOnTemplateSelected(FOriginalText);
-			end else begin
-				// Template menu item - show built pattern
-				FOnTemplateSelected(FBuiltPatterns[currentIndex]);
-			end;
-		end;
-		FLastPreviewedIndex := currentIndex;
-	end;
 end;
 
 procedure TRegexTemplateMenu.OnAsIsMenuItemClick(Sender : TObject);

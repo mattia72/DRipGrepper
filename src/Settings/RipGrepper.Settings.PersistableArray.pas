@@ -6,6 +6,7 @@ uses
 	RipGrepper.Settings.Persistable,
 	RipGrepper.Settings.SettingVariant,
 	RipGrepper.Common.Constants,
+	RipGrepper.Tools.DebugUtils,
 	ArrayEx;
 
 type
@@ -24,6 +25,7 @@ type
 		public
 			constructor Create(_section : string; const _arr : IArraySetting);
 			procedure Copy(const _other : IPersistableArray); reintroduce;
+			procedure ReadFile(); override;
 			procedure Init; override;
 			property ArraySetting : IArraySetting read GetArraySetting write SetArraySetting;
 			property Item[index : Integer] : string read GetItem write SetItem;
@@ -35,8 +37,8 @@ implementation
 
 constructor TPersistableArray.Create(_section : string; const _arr : IArraySetting);
 begin
+	IniSectionName := _section; // must be set before inherited Create, so SettingsDict.FSectionName is initialized correctly
 	inherited Create(nil);
-	IniSectionName := _section;
 	FArraySetting := _arr;
 	FManagedByInterface := True; // Indicate this object is managed by an interface
 end;
@@ -88,6 +90,21 @@ begin
 		FArraySetting.Value := arrCmds;
 		FIsModified := True;
 	end;
+end;
+
+procedure TPersistableArray.ReadFile();
+begin
+	var dbgMsg := TDebugMsgBeginEnd.New('TPersistableArray.ReadFile');
+	if not Assigned(FArraySetting) then begin
+		dbgMsg.ErrorMsg('FArraySetting not assigned - cannot load from persister');
+		Exit;
+	end;
+	if not Assigned(FArraySetting.Persister) then begin
+		dbgMsg.ErrorMsg('FArraySetting.Persister not assigned for section: ' + IniSectionName);
+		Exit;
+	end;
+	FArraySetting.LoadFromPersister();
+	dbgMsg.MsgFmt('Loaded %d items from section [%s]', [FArraySetting.Count, IniSectionName]);
 end;
 
 procedure TPersistableArray.UpdateSettingsFromInternals();

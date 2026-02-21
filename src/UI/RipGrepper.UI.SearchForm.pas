@@ -365,7 +365,7 @@ begin
 
 	// Set Position to poDesigned if we have saved position to restore
 	if (FSettings.SearchFormSettings.FormLeft.Value >= 0) and
-		{ } (FSettings.SearchFormSettings.FormTop.Value >= 0) then begin
+	{ } (FSettings.SearchFormSettings.FormTop.Value >= 0) then begin
 		Position := poDesigned;
 	end;
 end;
@@ -593,14 +593,14 @@ begin
 
 		// Restore form size from settings (after scaling)
 		if (FSettings.SearchFormSettings.FormWidth.Value > 0) and
-			{ } (FSettings.SearchFormSettings.FormHeight.Value > 0) then begin
+		{ } (FSettings.SearchFormSettings.FormHeight.Value > 0) then begin
 			Width := FSettings.SearchFormSettings.FormWidth.Value;
 			Height := FSettings.SearchFormSettings.FormHeight.Value;
 		end;
 
 		// Restore form position from settings (after scaling and sizing)
 		if (FSettings.SearchFormSettings.FormLeft.Value >= 0) and
-			{ } (FSettings.SearchFormSettings.FormTop.Value >= 0) then begin
+		{ } (FSettings.SearchFormSettings.FormTop.Value >= 0) then begin
 			Left := FSettings.SearchFormSettings.FormLeft.Value;
 			Top := FSettings.SearchFormSettings.FormTop.Value;
 		end;
@@ -1857,7 +1857,7 @@ begin
 
 	// Update the layout flag based on new expert mode state
 	SetLayout(isExpert, sflExpert);
-	
+
 	UpdateExpertModeInOptionPanels();
 end;
 
@@ -2052,8 +2052,8 @@ begin
 	end;
 
 	if not Assigned(FRegexTemplateMenu) then begin
-		FRegexTemplateMenu := TRegexTemplateMenu.Create(PopupMenuRegexTemplates, FRegexTemplateManager, 
-			FSettings.SearchFormSettings.RegexTemplates, FSettings.AppSettings.ColorTheme);
+		FRegexTemplateMenu := TRegexTemplateMenu.Create(PopupMenuRegexTemplates, FRegexTemplateManager,
+				FSettings.SearchFormSettings.RegexTemplates, FSettings.AppSettings.ColorTheme);
 		FRegexTemplateMenu.OnTemplateSelected := OnRegexTemplateSelected;
 	end;
 
@@ -2078,6 +2078,5 @@ begin
 	// Set focus to search text
 	cmbSearchText.SetFocus;
 end;
-
 
 end.
