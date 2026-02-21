@@ -542,7 +542,7 @@ begin
 
 	// VstData.OnCreateEditor := VstDataCreateEditor;
 	// VstData.OnKeyAction := VstDataKeyAction;
-	// VstData.OnNewText := VstDataNewText;
+	VstData.OnNewText := VstDataNewText;
 end;
 
 procedure TTabSeparatedConfigForm.SetSelectedNode(const _idx : integer);
