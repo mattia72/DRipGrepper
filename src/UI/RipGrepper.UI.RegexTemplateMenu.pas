@@ -23,10 +23,8 @@ type
 			FLastPreviewedIndex : PInteger;
 			FOnTemplateSelected : TRegexTemplateSelectedEvent;
 
-			procedure AdvancedDrawItemHandler(Sender : TObject; ACanvas : TCanvas; ARect : TRect; State : TOwnerDrawState);
-
-		protected
-			procedure AdvancedDrawItem(ACanvas : TCanvas; ARect : TRect; State : TOwnerDrawState; TopLevel : Boolean); override;
+	protected
+		procedure AdvancedDrawItem(ACanvas : TCanvas; ARect : TRect; State : TOwnerDrawState; TopLevel : Boolean); override;
 
 		public
 			constructor Create(_owner : TComponent; const _caption, _patternPreview : string; { }
@@ -72,7 +70,6 @@ begin
 	FPatternPreview := _patternPreview;
 	FLastPreviewedIndex := _lastPreviewedIndex;
 	FOnTemplateSelected := _onTemplateSelected;
-	OnAdvancedDrawItem := AdvancedDrawItemHandler;
 end;
 
 procedure TRegexTemplateMenuItem.Click();
@@ -84,27 +81,14 @@ end;
 
 procedure TRegexTemplateMenuItem.AdvancedDrawItem(ACanvas : TCanvas; ARect : TRect; State : TOwnerDrawState; TopLevel : Boolean);
 begin
-	inherited;
-end;
-
-procedure TRegexTemplateMenuItem.AdvancedDrawItemHandler(Sender : TObject; ACanvas : TCanvas; ARect : TRect; State : TOwnerDrawState);
-var
-	isSelected : Boolean;
-begin
-	AdvancedDrawItem(ACanvas, ARect, State, False);
-
-	isSelected := odSelected in State;
-	// Handle selected state only: trigger preview when a different item is highlighted
-	if not isSelected then begin
-		Exit;
-	end;
-
-	if Tag <> FLastPreviewedIndex^ then begin
+	// Trigger preview when this item becomes highlighted
+	if (odSelected in State) and (Tag <> FLastPreviewedIndex^) then begin
 		if Assigned(FOnTemplateSelected) then begin
 			FOnTemplateSelected(FPatternPreview);
 		end;
 		FLastPreviewedIndex^ := Tag;
 	end;
+	inherited;
 end;
 
 { TRegexTemplateMenu }
@@ -121,6 +105,7 @@ begin
 	FColorTheme := _colorTheme;
 	FOriginalText := '';
 	FLastPreviewedIndex := -1;
+	FPopupMenu.OwnerDraw := True;
 end;
 
 procedure TRegexTemplateMenu.PopulateMenu;
