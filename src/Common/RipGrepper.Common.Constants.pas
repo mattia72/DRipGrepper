@@ -113,9 +113,9 @@ const
 	LV_IMG_IDX_X = 3;
 
 	DT_ALIGN : array [TAlignment] of TTextFormats = (
-		{ } tfLeft,
-		{ } tfRight,
-		{ } tfCenter);
+			{ } tfLeft,
+			{ } tfRight,
+			{ } tfCenter);
 	ALL_ALPHANUMERIC_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890';
 
 	RG_PROCESSING_LINE_COUNT_LIMIT = 1000; // Todo: put into settings
@@ -211,7 +211,6 @@ const
 	{ } '--follow',
 	{ } '--crlf'];
 
-
 	RG_PARAM_SHORT_INDEX = 0;
 	RG_PARAM_LONG_INDEX = 1;
 
@@ -276,6 +275,11 @@ const
 	RG_OUTPUT_OPTION_CONTEXT_CAPTION = '--context=';
 	RG_OUTPUT_OPTION_OUTPUT_FORMAT_CAPTION = 'Format:';
 
+	TEXT_PLACEHOLDER = '<TEXT>';
+	SEARCH_AS_FUNCTION = 'Search as Function' + TAB + '(function|procedure)\s+' + TEXT_PLACEHOLDER;
+	SEARCH_AS_DECLARATION = 'Search as Declaration' + TAB + TEXT_PLACEHOLDER + '\s*:\s\w+;';
+	SEARCH_AS_TYPE = 'Search as Type' + TAB + TEXT_PLACEHOLDER + '\s*=\s*(class|record|interface)';
+
 type
 
 	EColumnIndex = (ciFile, ciRow, ciColBegin, ciColEnd, ciText, ciMatchText, ciTextAfterMatch);
@@ -319,7 +323,7 @@ end;
 class function TDefaults.GetColumnIndex(Index : string) : integer;
 begin
 	Result := -1;
-	for var i := Low(TREEVIEW_COLUMN_TITLES) to High(TREEVIEW_COLUMN_TITLES) do begin
+	for var i := low(TREEVIEW_COLUMN_TITLES) to high(TREEVIEW_COLUMN_TITLES) do begin
 		if SameText(TREEVIEW_COLUMN_TITLES[i], index) then begin
 			Result := i;
 			Break;

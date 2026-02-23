@@ -2066,7 +2066,7 @@ var
 	newText : string;
 begin
 	// Apply template pattern to current search text
-	newText := StringReplace(_pattern, TRegexTemplate.TEXT_PLACEHOLDER, cmbSearchText.Text, [rfReplaceAll]);
+	newText := StringReplace(_pattern, TEXT_PLACEHOLDER, cmbSearchText.Text, [rfReplaceAll]);
 
 	cmbSearchText.Text := newText;
 

@@ -11,9 +11,6 @@ uses
 
 type
 	TRegexTemplate = record
-		const
-			TEXT_PLACEHOLDER = '<TEXT>';
-
 		var
 			Description : string;
 			IsChecked : Boolean;
@@ -38,7 +35,7 @@ type
 implementation
 
 uses
-	RipGrepper.OpenWith.Constants;
+	RipGrepper.Common.Constants;
 
 { TRegexTemplate }
 
@@ -50,7 +47,7 @@ begin
 	Result.IsChecked := True; // default: visible in menu
 
 	// Handle checked prefix (TRUE/FALSE stored by TTabSeparatedConfigForm)
-	parts := _templateStr.Split([SEPARATOR]);
+	parts := _templateStr.Split([TAB]);
 
 	if (Length(parts) > 0) and SameText(parts[0], 'TRUE') then begin
 		Result.IsChecked := True;
@@ -76,12 +73,12 @@ begin
 	Result.EndPattern := '';
 
 	var
-	patternParts := patternStr.Split([TRegexTemplate.TEXT_PLACEHOLDER]);
+	patternParts := patternStr.Split([TEXT_PLACEHOLDER]);
 	if Length(patternParts) >= 2 then begin
 		Result.StartPattern := patternParts[0];
 		Result.EndPattern := patternParts[1];
 	end else begin
-		if patternStr.StartsWith(TRegexTemplate.TEXT_PLACEHOLDER) then begin
+		if patternStr.StartsWith(TEXT_PLACEHOLDER) then begin
 			Result.EndPattern := patternStr;
 		end else begin
 			Result.StartPattern := patternStr;
