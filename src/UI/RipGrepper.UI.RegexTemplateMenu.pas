@@ -186,9 +186,11 @@ procedure TRegexTemplateMenu.validatePattern(const _columnIndex : Integer; const
 begin
 	// Column index 1 = Pattern (0 = Description)
 	if _columnIndex = 1 then begin
-		_isValid := _newText.Contains(TRegexTemplate.TEXT_PLACEHOLDER);
+		var placeholderCount := (_newText.Length - _newText.Replace(TRegexTemplate.TEXT_PLACEHOLDER, '').Length) 
+		{ }	div TRegexTemplate.TEXT_PLACEHOLDER.Length;
+		_isValid := placeholderCount = 1;
 		if not _isValid then begin
-			_errorMsg := Format('Pattern must contain the placeholder "%s".', [TRegexTemplate.TEXT_PLACEHOLDER]);
+			_errorMsg := Format('Pattern must contain the placeholder "%s" exactly once.', [TRegexTemplate.TEXT_PLACEHOLDER]);
 		end;
 	end;
 end;
