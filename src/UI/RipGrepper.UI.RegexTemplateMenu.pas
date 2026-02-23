@@ -49,6 +49,7 @@ type
 			procedure PopulateMenu;
 			procedure validatePattern(const _columnIndex : Integer; const _newText : string; { }
 					var _isValid : Boolean; var _errorMsg : string);
+			function extractOriginalText(const _text : string) : string;
 
 		public
 			constructor Create(_popupMenu : TPopupMenu; { } _templateManager : TRegexTemplateManager; { } _settings : IPersistableArray;
@@ -60,7 +61,8 @@ type
 implementation
 
 uses
-	RipGrepper.UI.TabSeparatedConfigForm, RipGrepper.Helper.Types;
+	RipGrepper.UI.TabSeparatedConfigForm,
+	RipGrepper.Helper.Types;
 
 { TRegexTemplateMenuItem }
 
@@ -113,7 +115,7 @@ end;
 
 procedure TRegexTemplateMenu.AddSeparator();
 var
-	menuItem: TMenuItem;
+	menuItem : TMenuItem;
 begin
 	menuItem := TMenuItem.Create(FPopupMenu);
 	menuItem.Caption := '-';
@@ -204,11 +206,30 @@ begin
 	end;
 end;
 
+function TRegexTemplateMenu.extractOriginalText(const _text : string) : string;
+var
+	template : TRegexTemplate;
+begin
+	Result := _text;
+	for var i := 0 to FTemplateManager.GetTemplateCount - 1 do begin
+		template := FTemplateManager.GetTemplate(i);
+		var
+		startLen := template.StartPattern.Length;
+		var
+		endLen := template.EndPattern.Length;
+		if (startLen + endLen > 0) and (startLen + endLen < _text.Length) and { }
+				_text.StartsWith(template.StartPattern) and _text.EndsWith(template.EndPattern) then begin
+			Result := _text.Substring(startLen, _text.Length - startLen - endLen);
+			Exit;
+		end;
+	end;
+end;
+
 procedure TRegexTemplateMenu.ShowAtControl(_control : TControl; const _originalText : string);
 var
 	pt : TPoint;
 begin
-	FOriginalText := _originalText;
+	FOriginalText := extractOriginalText(_originalText);
 	FLastPreviewedIndex := -1;
 	PopulateMenu;
 	pt := _control.ClientToScreen(Point(0, _control.Height));
