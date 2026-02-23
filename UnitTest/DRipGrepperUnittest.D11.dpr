@@ -90,7 +90,9 @@ uses
   RipGrepper.Tools.ReleaseUtils.Test in 'RipGrepper.Tools.ReleaseUtils.Test.pas',
   RipGrepper.Tools.Replacer in '..\src\Tools\RipGrepper.Tools.Replacer.pas',
   RipGrepper.Tools.Replacer.Test in 'RipGrepper.Tools.Replacer.Test.pas',
-  RootUnit in 'RootUnit.pas';
+  RootUnit in 'RootUnit.pas',
+  RipGrepper.Helper.RegexTemplates.Test in 'RipGrepper.Helper.RegexTemplates.Test.pas',
+  RipGrepper.Helper.RegexTemplates in '..\src\Helper\RipGrepper.Helper.RegexTemplates.pas';
 
 // This comment has to guard the following IFDEF, that may be delted by delphi, if new unit added to the project
 {$IFNDEF TESTINSIGHT}
