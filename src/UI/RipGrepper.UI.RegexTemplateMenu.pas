@@ -23,8 +23,8 @@ type
 			FLastPreviewedIndex : PInteger;
 			FOnTemplateSelected : TRegexTemplateSelectedEvent;
 
-	protected
-		procedure AdvancedDrawItem(ACanvas : TCanvas; ARect : TRect; State : TOwnerDrawState; TopLevel : Boolean); override;
+		protected
+			procedure AdvancedDrawItem(ACanvas : TCanvas; ARect : TRect; State : TOwnerDrawState; TopLevel : Boolean); override;
 
 		public
 			constructor Create(_owner : TComponent; const _caption, _patternPreview : string; { }
@@ -43,6 +43,7 @@ type
 			FLastPreviewedIndex : Integer;
 			FSettings : IPersistableArray;
 			FColorTheme : string;
+			procedure AddSeparator();
 			procedure OnOriginalTextMenuItemClick(Sender : TObject);
 			procedure OnSettingsMenuItemClick(Sender : TObject);
 			procedure PopulateMenu;
@@ -59,7 +60,7 @@ type
 implementation
 
 uses
-	RipGrepper.UI.TabSeparatedConfigForm;
+	RipGrepper.UI.TabSeparatedConfigForm, RipGrepper.Helper.Types;
 
 { TRegexTemplateMenuItem }
 
@@ -110,10 +111,20 @@ begin
 	FPopupMenu.OwnerDraw := True;
 end;
 
+procedure TRegexTemplateMenu.AddSeparator();
+var
+	menuItem: TMenuItem;
+begin
+	menuItem := TMenuItem.Create(FPopupMenu);
+	menuItem.Caption := '-';
+	FPopupMenu.Items.Add(menuItem);
+end;
+
 procedure TRegexTemplateMenu.PopulateMenu;
 var
 	menuItem : TMenuItem;
 	template : TRegexTemplate;
+	menuIdx : integer;
 begin
 	FPopupMenu.Items.Clear;
 
@@ -121,38 +132,35 @@ begin
 	FSettings.ReLoadFromFile();
 	FTemplateManager.LoadTemplates(FSettings);
 
-	for var i : Integer := 0 to FTemplateManager.GetTemplateCount - 1 do begin
-		template := FTemplateManager.GetTemplate(i);
+	for menuIdx := 0 to FTemplateManager.GetTemplateCount - 1 do begin
+		template := FTemplateManager.GetTemplate(menuIdx);
 		var
 		templateItem := TRegexTemplateMenuItem.Create(FPopupMenu, template.Description, { }
 				template.ApplyToText(FOriginalText), @FLastPreviewedIndex, FOnTemplateSelected);
-		templateItem.Tag := i;
+		templateItem.Tag := menuIdx;
 		FPopupMenu.Items.Add(templateItem);
 	end;
 
 	// Add separator
 	if FTemplateManager.GetTemplateCount > 0 then begin
-		menuItem := TMenuItem.Create(FPopupMenu);
-		menuItem.Caption := '-';
+		AddSeparator;
+		Inc(menuIdx);
+
+		// Add 'Original Text' menu item
+		menuItem := TRegexTemplateMenuItem.Create(FPopupMenu, 'Original Text',
+				{ } FOriginalText, @FLastPreviewedIndex, FOnTemplateSelected);
+		menuItem.OnClick := OnOriginalTextMenuItemClick;
+		menuItem.Tag := PreInc(menuIdx);
 		FPopupMenu.Items.Add(menuItem);
+
+		AddSeparator;
+		Inc(menuIdx);
 	end;
-
-	// Add 'as is' menu item
-	menuItem := TMenuItem.Create(FPopupMenu);
-	menuItem.Caption := 'Original Text';
-	menuItem.Tag := -1; // Special tag for 'as is'
-	menuItem.OnClick := OnOriginalTextMenuItemClick;
-	FPopupMenu.Items.Add(menuItem);
-
-	// Add separator before Settings
-	menuItem := TMenuItem.Create(FPopupMenu);
-	menuItem.Caption := '-';
-	FPopupMenu.Items.Add(menuItem);
 
 	// Add 'Settings...' menu item
 	menuItem := TMenuItem.Create(FPopupMenu);
 	menuItem.Caption := 'Customize...';
-	menuItem.Tag := -2; // Special tag for 'Settings'
+	menuItem.Tag := -1; // Special tag for 'Settings'
 	menuItem.OnClick := OnSettingsMenuItemClick;
 	FPopupMenu.Items.Add(menuItem);
 end;
@@ -186,8 +194,9 @@ procedure TRegexTemplateMenu.validatePattern(const _columnIndex : Integer; const
 begin
 	// Column index 1 = Pattern (0 = Description)
 	if _columnIndex = 1 then begin
-		var placeholderCount := (_newText.Length - _newText.Replace(TRegexTemplate.TEXT_PLACEHOLDER, '').Length) 
-		{ }	div TRegexTemplate.TEXT_PLACEHOLDER.Length;
+		var
+		placeholderCount := (_newText.Length - _newText.Replace(TRegexTemplate.TEXT_PLACEHOLDER, '').Length)
+		{ } div TRegexTemplate.TEXT_PLACEHOLDER.Length;
 		_isValid := placeholderCount = 1;
 		if not _isValid then begin
 			_errorMsg := Format('Pattern must contain the placeholder "%s" exactly once.', [TRegexTemplate.TEXT_PLACEHOLDER]);
