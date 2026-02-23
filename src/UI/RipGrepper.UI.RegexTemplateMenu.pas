@@ -43,7 +43,7 @@ type
 			FLastPreviewedIndex : Integer;
 			FSettings : IPersistableArray;
 			FColorTheme : string;
-			procedure OnAsIsMenuItemClick(Sender : TObject);
+			procedure OnOriginalTextMenuItemClick(Sender : TObject);
 			procedure OnSettingsMenuItemClick(Sender : TObject);
 			procedure PopulateMenu;
 			procedure validatePattern(const _columnIndex : Integer; const _newText : string; { }
@@ -141,7 +141,7 @@ begin
 	menuItem := TMenuItem.Create(FPopupMenu);
 	menuItem.Caption := 'Original Text';
 	menuItem.Tag := -1; // Special tag for 'as is'
-	menuItem.OnClick := OnAsIsMenuItemClick;
+	menuItem.OnClick := OnOriginalTextMenuItemClick;
 	FPopupMenu.Items.Add(menuItem);
 
 	// Add separator before Settings
@@ -157,7 +157,7 @@ begin
 	FPopupMenu.Items.Add(menuItem);
 end;
 
-procedure TRegexTemplateMenu.OnAsIsMenuItemClick(Sender : TObject);
+procedure TRegexTemplateMenu.OnOriginalTextMenuItemClick(Sender : TObject);
 begin
 	if Assigned(FOnTemplateSelected) then begin
 		FOnTemplateSelected(FOriginalText);
