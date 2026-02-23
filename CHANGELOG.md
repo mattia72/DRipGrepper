@@ -1,16 +1,17 @@
 # Changelog
 
-## [v4.15.0-beta] - 2025-10-14
+## [v4.15.0-beta] - 2026-02-23
 
 ### 💥 Added
 - Output format settings: json or vimgrep (BREAKING CHANGE: loading of history items saved by old version won't work)
 - Search form: 
   - Expert mode toggle to show/hide advanced options
   - Save/Load form size and position
-
+  - **Regex Template Menu**: Manage and apply regex search patterns from a dropdown menu in the search form
 
 ### 🔄 Changed
-- Output options use generalized OptionPanel 
+- Output options use generalized OptionPanel
+- Settings management refactored and cleaned up across multiple classes
 
 ### 🐞 Fixed
 - Faulty settings writing in the Ini file, caused by concurrent threads
