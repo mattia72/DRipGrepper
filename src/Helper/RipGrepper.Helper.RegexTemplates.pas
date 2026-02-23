@@ -12,12 +12,13 @@ uses
 type
 	TRegexTemplate = record
 		const
-			TEXT_PLACEHOLDER = '<text>';
+			TEXT_PLACEHOLDER = '<TEXT>';
 
 		var
 			Description : string;
 			IsChecked : Boolean;
-			Pattern : string;
+			StartPattern : string;
+			EndPattern : string;
 			class function Parse(const _templateStr : string) : TRegexTemplate; static;
 			function ApplyToText(const _text : string) : string;
 	end;
@@ -37,7 +38,7 @@ type
 implementation
 
 uses
-  RipGrepper.OpenWith.Constants;
+	RipGrepper.OpenWith.Constants;
 
 { TRegexTemplate }
 
@@ -50,36 +51,47 @@ begin
 
 	// Handle checked prefix (TRUE/FALSE stored by TTabSeparatedConfigForm)
 	parts := _templateStr.Split([SEPARATOR]);
-	startIdx := 0;
 
 	if (Length(parts) > 0) and SameText(parts[0], 'TRUE') then begin
 		Result.IsChecked := True;
-		startIdx := 1;
 	end else if (Length(parts) > 0) and SameText(parts[0], 'FALSE') then begin
 		Result.IsChecked := False;
-		startIdx := 1;
 	end;
+	startIdx := 1;
+
+	var patternStr : string;
 
 	if Length(parts) >= startIdx + 2 then begin
 		Result.Description := parts[startIdx];
-		Result.Pattern := parts[startIdx + 1];
+		patternStr := parts[startIdx + 1];
 	end else if Length(parts) = startIdx + 1 then begin
 		Result.Description := parts[startIdx];
-		Result.Pattern := parts[startIdx];
+		patternStr := parts[startIdx];
 	end else begin
 		Result.Description := _templateStr;
-		Result.Pattern := _templateStr;
+		patternStr := _templateStr;
+	end;
+
+	Result.StartPattern := '';
+	Result.EndPattern := '';
+
+	var
+	patternParts := patternStr.Split([TRegexTemplate.TEXT_PLACEHOLDER]);
+	if Length(patternParts) >= 2 then begin
+		Result.StartPattern := patternParts[0];
+		Result.EndPattern := patternParts[1];
+	end else begin
+		if patternStr.StartsWith(TRegexTemplate.TEXT_PLACEHOLDER) then begin
+			Result.EndPattern := patternStr;
+		end else begin
+			Result.StartPattern := patternStr;
+		end;
 	end;
 end;
 
 function TRegexTemplate.ApplyToText(const _text : string) : string;
 begin
-	Result := Pattern;
-
-	// Replace <text> placeholder with provided text
-	if Pos(TEXT_PLACEHOLDER, Result) > 0 then begin
-		Result := StringReplace(Result, TEXT_PLACEHOLDER, _text, [rfReplaceAll]);
-	end;
+	Result := StartPattern + _text + EndPattern;
 end;
 
 { TRegexTemplateManager }

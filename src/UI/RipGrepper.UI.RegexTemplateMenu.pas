@@ -46,6 +46,8 @@ type
 			procedure OnAsIsMenuItemClick(Sender : TObject);
 			procedure OnSettingsMenuItemClick(Sender : TObject);
 			procedure PopulateMenu;
+			procedure validatePattern(const _columnIndex : Integer; const _newText : string; { }
+					var _isValid : Boolean; var _errorMsg : string);
 
 		public
 			constructor Create(_popupMenu : TPopupMenu; { } _templateManager : TRegexTemplateManager; { } _settings : IPersistableArray;
@@ -169,12 +171,25 @@ begin
 	form := TTabSeparatedConfigForm.Create(nil, FSettings, FColorTheme);
 	try
 		form.LoadColumnHeaders(['Description', 'Pattern']);
+		form.OnValidate := validatePattern;
 		if form.ShowModal = mrOk then begin
 			// Reload templates from the updated settings
 			FTemplateManager.LoadTemplates(FSettings);
 		end;
 	finally
 		form.Free;
+	end;
+end;
+
+procedure TRegexTemplateMenu.validatePattern(const _columnIndex : Integer; const _newText : string; { }
+		var _isValid : Boolean; var _errorMsg : string);
+begin
+	// Column index 1 = Pattern (0 = Description)
+	if _columnIndex = 1 then begin
+		_isValid := _newText.Contains(TRegexTemplate.TEXT_PLACEHOLDER);
+		if not _isValid then begin
+			_errorMsg := Format('Pattern must contain the placeholder "%s".', [TRegexTemplate.TEXT_PLACEHOLDER]);
+		end;
 	end;
 end;
 

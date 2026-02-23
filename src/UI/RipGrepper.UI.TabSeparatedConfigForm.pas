@@ -35,6 +35,10 @@ type
 
 	PTabSeparatedData = ^TTabSeparatedData;
 
+	/// _columnIndex: 0-based cell index (0 = first non-checkbox column)
+	TValidateColumnEvent = procedure(const _columnIndex : Integer; const _newText : string; { }
+			var _isValid : Boolean; var _errorMsg : string) of object;
+
 	TTabSeparatedConfigForm = class(TSettingsBaseForm, ISettingsForm)
 		var
 			ActionListConfig : TActionList;
@@ -82,6 +86,7 @@ type
 			FArraySettings : IPersistableArray;
 			FTestAction : TAction;
 			FThemeHandler : TThemeHandler;
+			FOnValidate : TValidateColumnEvent;
 			procedure AddOrSetDataRow(const _data : TTabSeparatedData; _node : PVirtualNode = nil);
 			procedure ExchangeNodes(const i, j : Integer);
 			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
@@ -101,6 +106,7 @@ type
 			/// WriteSettings: here you can transform controls to FArraySettings
 			procedure WriteSettings(); override;
 			property ResultStrings : TArrayEx<string> read FResultStrings;
+			property OnValidate : TValidateColumnEvent read FOnValidate write FOnValidate;
 
 	end;
 
@@ -115,6 +121,7 @@ uses
 	RipGrepper.Tools.FileUtils,
 	System.SysUtils,
 	Vcl.Clipbrd,
+	Vcl.Dialogs,
 	VirtualTrees.Header,
 	Winapi.ShellAPI,
 	Winapi.Windows;
@@ -466,6 +473,18 @@ begin
 	end;
 
 	cellIndex := Column - 1;
+
+	if Assigned(FOnValidate) then begin
+		var isValid := True;
+		var errMsg := '';
+		FOnValidate(cellIndex, NewText, isValid, errMsg);
+		if not isValid then begin
+			TMsgBox.ShowError(errMsg);
+			Sender.InvalidateNode(Node);
+			Exit;
+		end;
+	end;
+
 	if cellIndex >= Length(nodeData^.Cells) then begin
 		SetLength(nodeData^.Cells, cellIndex + 1);
 	end;
