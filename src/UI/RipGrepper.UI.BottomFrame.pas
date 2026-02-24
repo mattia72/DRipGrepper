@@ -70,6 +70,7 @@ implementation
 
 uses
 	RipGrepper.Common.Constants,
+	RipGrepper.Helper.UI,
 	RipGrepper.UI.MiddleFrame,
 	System.StrUtils,
 	RipGrepper.Tools.DebugUtils,
@@ -212,26 +213,21 @@ end;
 
 procedure TRipGrepperBottomFrame.ShowAboutDialog;
 var
-	dlg : TTaskDialog;
+	mbp : TMsgBoxParams;
+	msgText : string;
 begin
-	dlg := TTaskDialog.Create(self);
-	try
-		dlg.Caption := 'About DRipGrepper';
-		dlg.Title := MainFrame.ModuleNameAndVersion;
+	msgText := '';
 	{$IFDEF STANDALONE}
-			dlg.Text := 'GUI for Windows';
+		msgText := 'GUI for Windows';
 	{$ELSE}
-			dlg.Text := 'Delphi IDE plugin';
+		msgText := 'Delphi IDE plugin';
 	{$ENDIF}
-		dlg.Text := dlg.Text + ' to parametrize ripgrep for superfast search.' + CRLF2 +
+	msgText := msgText + ' to parametrize ripgrep for superfast search.' + CRLF2 +
 		{ } '<A HREF="https://github.com/mattia72/DripGrepper">https://github.com/mattia72/DripGrepper</A>';
-		dlg.MainIcon := tdiInformation;
-		dlg.Flags := [tfEnableHyperlinks]; // Enable hyperlink support
-		dlg.CommonButtons := [tcbOk];
-		dlg.Execute();
-	finally
-		dlg.Free;
-	end;
+	mbp := TMsgBoxParams.Create(msgText, TMsgDlgType.mtInformation, MainFrame.ModuleNameAndVersion,
+		{ } '', '', [tfEnableHyperlinks]);
+	mbp.Btns := [mbOk];
+	TMsgBox.ShowMsgBox(mbp);
 end;
 
 procedure TRipGrepperBottomFrame.StatusBar1Click(Sender : TObject);

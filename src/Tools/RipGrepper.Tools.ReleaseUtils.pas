@@ -507,7 +507,7 @@ begin
 		try
 			mbp.CustomMainIcon := icon;
 			var
-			res := TMsgBox.CreateMsgDialog(mbp);
+			res := TMsgBox.ShowMsgBox(mbp);
 			if mrYes = res then begin
 				TUrlLinkHelper.OpenLink(LatestRelease.HtmlURL);
 			end;
