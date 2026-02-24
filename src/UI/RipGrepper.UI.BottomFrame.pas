@@ -201,8 +201,12 @@ procedure TRipGrepperBottomFrame.SetStatusBarMsgElapsedTime;
 var
 	msg : string;
 begin
-	msg := Format('Search took %s seconds', // with ' + FORMAT_VERSION_INFO_IN_STATUSBAR,
-		[MainFrame.HistItemObject.ElapsedTimeText]); // , MainFrame.ExeVersion]);
+	if (MainFrame.HistItemObject = nil) or (MainFrame.HistItemObject.ElapsedTimeText = '') then begin
+	  	msg := Format(FORMAT_VERSION_INFO_IN_STATUSBAR, [MainFrame.ModuleNameAndVersion]);
+	end else begin
+		msg := Format('Search took %s seconds', 
+		[MainFrame.HistItemObject.ElapsedTimeText]); 
+	end;
 	StatusBarMessage := msg;
 end;
 
@@ -214,7 +218,12 @@ begin
 	try
 		dlg.Caption := 'About DRipGrepper';
 		dlg.Title := MainFrame.ModuleNameAndVersion;
-		dlg.Text := 'A ripgrep GUI for Windows.' + CRLF2 +
+	{$IFDEF STANDALONE}
+			dlg.Text := 'GUI for Windows';
+	{$ELSE}
+			dlg.Text := 'Delphi IDE plugin';
+	{$ENDIF}
+		dlg.Text := dlg.Text + ' to parametrize ripgrep for superfast search.' + CRLF2 +
 		{ } '<A HREF="https://github.com/mattia72/DripGrepper">https://github.com/mattia72/DripGrepper</A>';
 		dlg.MainIcon := tdiInformation;
 		dlg.Flags := [tfEnableHyperlinks]; // Enable hyperlink support
