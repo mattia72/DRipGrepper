@@ -28,6 +28,7 @@ type
 		ActionStatusBar : TAction;
 		procedure ActionStatusBarUpdate(Sender : TObject);
 		procedure FrameResize(Sender : TObject);
+		procedure StatusBar1Click(Sender : TObject);
 
 		private
 			FIsInitialized : Boolean;
@@ -35,6 +36,8 @@ type
 			FStatusBarStatistic : string;
 			FStatusBarStatus : string;
 			function GetIsInitialized() : Boolean;
+			function IsPanelInfoClicked : Boolean;
+			procedure ShowAboutDialog;
 
 		public
 			constructor Create(AOwner : TComponent); override;
@@ -102,9 +105,11 @@ end;
 procedure TRipGrepperBottomFrame.FrameResize(Sender : TObject);
 begin
 	var
-	width := MainFrame.PanelHistory.Width;
-	StatusBar1.Panels[0].Width := width;
-	ActivityIndicator1.Left := width + 5
+	hisWidth := MainFrame.PanelHistory.Width;
+	StatusBar1.Panels[PNL_STATISTIC_IDX].Width := hisWidth;
+	StatusBar1.Panels[PNL_MESSAGE_IDX].Width := StatusBar1.Width - hisWidth - StatusBar1.Panels[PNL_STATUS_IDX].Width -
+		StatusBar1.Panels[PNL_INFO_IDX].Width;
+	ActivityIndicator1.Left := hisWidth + 5;
 end;
 
 function TRipGrepperBottomFrame.GetIsInitialized() : Boolean;
@@ -140,6 +145,29 @@ begin
 	FIsInitialized := True;
 end;
 
+function TRipGrepperBottomFrame.IsPanelInfoClicked : Boolean;
+var
+	pt : TPoint;
+	i : Integer;
+	xSum : Integer;
+	panelIdx : Integer;
+begin
+	Result := True;
+	pt := StatusBar1.ScreenToClient(Mouse.CursorPos);
+	xSum := 0;
+	panelIdx := -1;
+	for i := 0 to StatusBar1.Panels.Count - 1 do begin
+		xSum := xSum + StatusBar1.Panels[i].Width;
+		if pt.X < xSum then begin
+			panelIdx := i;
+			Break;
+		end;
+	end;
+	if panelIdx <> PNL_INFO_IDX then begin
+		Result := False;
+	end;
+end;
+
 procedure TRipGrepperBottomFrame.SetRunningStatus;
 begin
 	ActivityIndicator1.Animate := True;
@@ -160,6 +188,31 @@ begin
 		[MainFrame.HistItemObject.ElapsedTimeText]); // , MainFrame.ExeVersion]);
 	StatusBarStatus := IfThen(MainFrame.HistItemObject.RipGrepResult = RG_ERROR, 'ERROR', 'SUCCESS');
 	StatusBarMessage := msg;
+end;
+
+procedure TRipGrepperBottomFrame.ShowAboutDialog;
+var
+	dlg : TTaskDialog;
+begin
+	dlg := TTaskDialog.Create(self);
+	try
+		dlg.Caption := 'About DRipGrepper';
+		dlg.Title := MainFrame.ModuleNameAndVersion;
+		dlg.Text := 'A ripgrep GUI for Windows.' + CRLF2 +
+		{ } '<A HREF="https://github.com/mattia72/DripGrepper">https://github.com/mattia72/DripGrepper</A>';
+		dlg.MainIcon := tdiInformation;
+		dlg.Flags := [tfEnableHyperlinks]; // Enable hyperlink support
+		dlg.CommonButtons := [tcbOk];
+		dlg.Execute();
+	finally
+		dlg.Free;
+	end;
+end;
+
+procedure TRipGrepperBottomFrame.StatusBar1Click(Sender : TObject);
+begin
+	if IsPanelInfoClicked then
+		ShowAboutDialog;
 end;
 
 procedure TRipGrepperBottomFrame.UpdateUIStyle(_sNewStyle : string = '');

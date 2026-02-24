@@ -48,8 +48,14 @@ object RipGrepperBottomFrame: TRipGrepperBottomFrame
         item
           Alignment = taRightJustify
           Text = 'RipGrepper v1.0.0      '
-          Width = 375
+          Width = 345
+        end
+        item
+          Alignment = taCenter
+          Text = #8505
+          Width = 24
         end>
+      OnClick = StatusBar1Click
     end
     object ActivityIndicator1: TActivityIndicator
       Left = 314
