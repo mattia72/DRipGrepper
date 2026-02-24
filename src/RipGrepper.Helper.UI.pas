@@ -35,12 +35,14 @@ type
 			Btns : TMessageDialogButtons;
 			ExpandedCaption : string;
 			ExpandedText : string;
+			TaskDialogFlags : TTaskDialogFlags;
 			FooterIcon : TTaskDialogIcon;
 			FooterText : string;
 			constructor Create(const _msg : string; const _dlgType : TMsgDlgType;
 				{ } const _title : string = '';
 				{ } const _expandedCaption : string = '';
-				{ } _expandedText : string = '');
+				{ } _expandedText : string = '';
+				{ } const _taskDialogFlags : TTaskDialogFlags = []);
 
 	end;
 
@@ -81,7 +83,7 @@ type
 			class procedure CreateTaskMsgButtonsByType(taskMsgDlg : TTaskDialog; const _type : TMsgDlgType);
 
 		public
-			class function CreateMsgDialog(const _params : TMsgBoxParams) : Integer;
+			class function ShowMsgBox(const _params : TMsgBoxParams) : Integer;
 			class procedure ShowError(const _msg : string;
 				{ } const _title : string = '';
 				{ } const _expandedCaption : string = '';
@@ -217,13 +219,15 @@ uses
 
 constructor TMsgBoxParams.Create(const _msg : string; const _dlgType : TMsgDlgType;
 	{ } const _title : string = '';
-	{ } const _expandedCaption : string = ''; _expandedText : string = '');
+	{ } const _expandedCaption : string = ''; _expandedText : string = '';
+	{ } const _taskDialogFlags : TTaskDialogFlags = []);
 begin
 	Msg := _msg;
 	DlgType := _dlgType;
 	Title := _title;
 	ExpandedCaption := _expandedCaption;
 	ExpandedText := _expandedText;
+	TaskDialogFlags := _taskDialogFlags;
 end;
 
 procedure TCursorSaver.SetHourGlassCursor;
@@ -617,7 +621,7 @@ begin
 	end;
 end;
 
-class function TMsgBox.CreateMsgDialog(const _params : TMsgBoxParams) : Integer;
+class function TMsgBox.ShowMsgBox(const _params : TMsgBoxParams) : Integer;
 var
 	taskMsgDlg : TTaskDialog;
 begin
@@ -636,6 +640,8 @@ begin
 		end else begin
 			taskMsgDlg.MainIcon := TMsgBoxBase.GetIconByType(_params.DlgType);
 		end;
+
+		taskMsgDlg.Flags := taskMsgDlg.Flags + _params.TaskDialogFlags;
 
 		taskMsgDlg.Text := _params.Msg;
 
@@ -700,19 +706,19 @@ end;
 class procedure TMsgBox.ShowError(const _msg : string; { } const _title : string = ''; { } const _expandedCaption : string = ''; { }
 	_expandedText : string = '');
 begin
-	CreateMsgDialog(TMsgBoxParams.Create(_msg, TMsgDlgType.mtError, _title, _expandedCaption, _expandedText));
+	ShowMsgBox(TMsgBoxParams.Create(_msg, TMsgDlgType.mtError, _title, _expandedCaption, _expandedText));
 end;
 
 class procedure TMsgBox.ShowWarning(const _msg : string; { } const _title : string = ''; { } const _expandedCaption : string = ''; { }
 	_expandedText : string = '');
 begin
-	CreateMsgDialog(TMsgBoxParams.Create(_msg, TMsgDlgType.mtWarning, _title, _expandedCaption, _expandedText));
+	ShowMsgBox(TMsgBoxParams.Create(_msg, TMsgDlgType.mtWarning, _title, _expandedCaption, _expandedText));
 end;
 
 class procedure TMsgBox.ShowInfo(const _msg : string; { } const _title : string = ''; { } const _expandedCaption : string = ''; { }
 	_expandedText : string = '');
 begin
-	CreateMsgDialog(TMsgBoxParams.Create(_msg, TMsgDlgType.mtInformation, _title, _expandedCaption, _expandedText));
+	ShowMsgBox(TMsgBoxParams.Create(_msg, TMsgDlgType.mtInformation, _title, _expandedCaption, _expandedText));
 end;
 
 class function TMsgBox.ShowQuestion(const _msg : string;
@@ -735,7 +741,7 @@ begin
 	icon := Shared.Make<TIcon>();
 	icon.Handle := LoadIcon(0, IDI_QUESTION);
 	mbp.CustomMainIcon := icon;
-	Result := CreateMsgDialog(mbp);
+	Result := ShowMsgBox(mbp);
 end;
 
 class function TDrawParams.Save(const _canvas : TCanvas) : TDrawParams;

@@ -101,10 +101,6 @@ object ParentFrame: TParentFrame
         Width = 845
         Height = 27
       end
-      inherited ActivityIndicator1: TActivityIndicator
-        Left = 365
-        Top = 3
-      end
     end
   end
 end
