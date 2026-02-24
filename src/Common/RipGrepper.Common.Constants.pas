@@ -276,9 +276,12 @@ const
 	RG_OUTPUT_OPTION_OUTPUT_FORMAT_CAPTION = 'Format:';
 
 	TEXT_PLACEHOLDER = '<TEXT>';
-	SEARCH_AS_FUNCTION = 'Search as Function' + TAB + '(function|procedure)\s+' + TEXT_PLACEHOLDER;
-	SEARCH_AS_DECLARATION = 'Search as Declaration' + TAB + TEXT_PLACEHOLDER + '\s*:\s\w+;';
-	SEARCH_AS_TYPE = 'Search as Type' + TAB + TEXT_PLACEHOLDER + '\s*=\s*(class|record|interface)';
+	SEARCH_AS_FUNCTION = 'TRUE' + TAB + 'Search as Function' + TAB +
+	{ } '(class\s+)?(function|procedure|constructor|destructor)\s+(\w+\.)?' + TEXT_PLACEHOLDER;
+	SEARCH_AS_DECLARATION = 'TRUE' + TAB + 'Search as Declaration' + TAB + TEXT_PLACEHOLDER +
+	{ } '\s*:\s*[\w<>., ]+;';
+	SEARCH_AS_TYPE = 'TRUE' + TAB + 'Search as Type' + TAB + TEXT_PLACEHOLDER +
+	{ } '\s*=\s*((packed\s+)?(class|record|object|(disp)?interface|(array|set)(\s*\[|\s+of))|\(\w+|\^\w+|\w+)';
 
 type
 
