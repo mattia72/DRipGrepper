@@ -17,7 +17,7 @@ uses
 	Vcl.ExtCtrls,
 	System.Actions,
 	Vcl.ActnList,
-	RipGrepper.UI.IFrameEvents;
+	RipGrepper.UI.IFrameEvents, System.ImageList, Vcl.ImgList;
 
 type
 	TRipGrepperBottomFrame = class(TFrame, IFrameEvents)
@@ -26,9 +26,11 @@ type
 		ActivityIndicator1 : TActivityIndicator;
 		ActionList : TActionList;
 		ActionStatusBar : TAction;
+    ImageList1: TImageList;
 		procedure ActionStatusBarUpdate(Sender : TObject);
 		procedure FrameResize(Sender : TObject);
 		procedure StatusBar1Click(Sender : TObject);
+		procedure StatusBar1DrawPanel(StatusBar : TStatusBar; Panel : TStatusPanel; const Rect : TRect);
 
 		private
 			FIsInitialized : Boolean;
@@ -213,6 +215,16 @@ procedure TRipGrepperBottomFrame.StatusBar1Click(Sender : TObject);
 begin
 	if IsPanelInfoClicked then
 		ShowAboutDialog;
+end;
+
+procedure TRipGrepperBottomFrame.StatusBar1DrawPanel(StatusBar : TStatusBar; Panel : TStatusPanel; const Rect : TRect);
+begin
+	if Panel.Style = psOwnerDraw then begin
+		// Draw the first image from ImageList1 centered in the panel rect
+		var x := Rect.Left + (Rect.Width - ImageList1.Width) div 2;
+		var y := Rect.Top + (Rect.Height - ImageList1.Height) div 2;
+		ImageList1.Draw(StatusBar.Canvas, x, y, 1);
+	end;
 end;
 
 procedure TRipGrepperBottomFrame.UpdateUIStyle(_sNewStyle : string = '');
