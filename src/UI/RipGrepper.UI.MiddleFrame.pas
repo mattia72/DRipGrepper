@@ -901,7 +901,7 @@ begin
 	TThread.Synchronize(nil,
 		procedure
 		begin
-			BottomFrame.ActivityIndicator1.Animate := False;
+			BottomFrame.SetReadyStatus;
 			FIsParsingRunning := False;
 			ExpandNodes;
 			RefreshCounters;

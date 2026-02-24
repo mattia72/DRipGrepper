@@ -208,9 +208,6 @@ object RipGrepperForm: TRipGrepperForm
         inherited StatusBar1: TStatusBar
           Width = 720
         end
-        inherited ActivityIndicator1: TActivityIndicator
-          Left = 446
-        end
       end
     end
   end

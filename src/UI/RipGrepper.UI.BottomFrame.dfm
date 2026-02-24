@@ -42,7 +42,7 @@ object RipGrepperBottomFrame: TRipGrepperBottomFrame
         end
         item
           Alignment = taCenter
-          Text = 'READY'
+          Style = psOwnerDraw
           Width = 175
         end
         item
@@ -58,16 +58,13 @@ object RipGrepperBottomFrame: TRipGrepperBottomFrame
       OnClick = StatusBar1Click
       OnDrawPanel = StatusBar1DrawPanel
     end
-    object ActivityIndicator1: TActivityIndicator
-      Left = 314
-      Top = -1
-      Margins.Left = 0
-      Margins.Top = 0
-      Margins.Right = 0
-      Margins.Bottom = 0
-      Anchors = [akRight, akBottom]
-      IndicatorSize = aisSmall
-    end
+  end
+  object Timer1: TTimer
+    Enabled = False
+    Interval = 80
+    OnTimer = Timer1Timer
+    Left = 310
+    Top = 65531
   end
   object ActionList: TActionList
     Left = 227
@@ -80,7 +77,7 @@ object RipGrepperBottomFrame: TRipGrepperBottomFrame
     Left = 140
     Top = 65531
     Bitmap = {
-      494C010102000800040010001000FFFFFFFFFF00FFFFFFFFFFFFFFFF424D3600
+      494C010102000800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       0000D3D3D300707070002B2B2B000B0B0B000B0B0B002B2B2B0070707000D3D3
@@ -216,6 +213,7 @@ object RipGrepperBottomFrame: TRipGrepperBottomFrame
       C7E3F87F000000009FF9F87F000000001E78FC3F000000003E7CFC3F00000000
       3E7CFC3F000000003E7CFC3F000000003E7CFC1F000000003E7CF03F00000000
       3E7CFC7F000000001E78FFFF000000009FF9FF1F00000000C7E3FE0F00000000
-      E007FE0F00000000F00FFF1F00000000}
+      E007FE0F00000000F00FFF1F0000000000000000000000000000000000000000
+      000000000000}
   end
 end

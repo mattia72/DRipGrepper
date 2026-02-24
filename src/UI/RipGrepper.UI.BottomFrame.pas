@@ -12,34 +12,42 @@ uses
 	Vcl.Controls,
 	Vcl.Forms,
 	Vcl.Dialogs,
-	Vcl.WinXCtrls,
 	Vcl.ComCtrls,
 	Vcl.ExtCtrls,
 	System.Actions,
 	Vcl.ActnList,
-	RipGrepper.UI.IFrameEvents, System.ImageList, Vcl.ImgList;
+	RipGrepper.UI.IFrameEvents,
+	System.Math,
+	System.UITypes,
+	System.ImageList,
+	Vcl.ImgList;
 
 type
 	TRipGrepperBottomFrame = class(TFrame, IFrameEvents)
 		pnlBottom : TPanel;
 		StatusBar1 : TStatusBar;
-		ActivityIndicator1 : TActivityIndicator;
+		Timer1 : TTimer;
 		ActionList : TActionList;
 		ActionStatusBar : TAction;
-    ImageList1: TImageList;
+		ImageList1 : TImageList;
 		procedure ActionStatusBarUpdate(Sender : TObject);
 		procedure FrameResize(Sender : TObject);
 		procedure StatusBar1Click(Sender : TObject);
 		procedure StatusBar1DrawPanel(StatusBar : TStatusBar; Panel : TStatusPanel; const Rect : TRect);
+		procedure Timer1Timer(Sender : TObject);
 
 		private
 			FIsInitialized : Boolean;
+			FSpinnerFrame : Integer;
 			FStatusBarMessage : string;
 			FStatusBarStatistic : string;
 			FStatusBarStatus : string;
 			function GetIsInitialized() : Boolean;
 			function IsPanelInfoClicked : Boolean;
+			procedure DrawStatusPanel(ACanvas : TCanvas; const ARect : TRect);
 			procedure ShowAboutDialog;
+			procedure SetRunningStatus;
+			procedure SetStatusBarMsgElapsedTime;
 
 		public
 			constructor Create(AOwner : TComponent); override;
@@ -47,9 +55,7 @@ type
 			procedure Initialize();
 			procedure AfterSearch;
 			procedure BeforeSearch(var _bAbort : Boolean);
-			procedure SetRunningStatus;
 			procedure SetReadyStatus;
-			procedure SetStatusBarMessage;
 			procedure UpdateUIStyle(_sNewStyle : string = '');
 			property IsInitialized : Boolean read GetIsInitialized;
 			property StatusBarMessage : string read FStatusBarMessage write FStatusBarMessage;
@@ -87,12 +93,14 @@ end;
 
 procedure TRipGrepperBottomFrame.AfterHistObjChange;
 begin
-	SetStatusBarMessage();
+	SetStatusBarMsgElapsedTime();
+	SetReadyStatus();
 end;
 
 procedure TRipGrepperBottomFrame.AfterSearch;
 begin
-	// SetStatusBarMessage();
+	SetStatusBarMsgElapsedTime();
+	SetReadyStatus();
 end;
 
 procedure TRipGrepperBottomFrame.BeforeSearch(var _bAbort : Boolean);
@@ -100,7 +108,7 @@ begin
 	if _bAbort then begin
 		// StatusBarStatistic := 'ERROR';
 	end else begin;
-		StatusBarStatistic := 'Searching...';
+		SetRunningStatus();
 	end;
 end;
 
@@ -111,7 +119,6 @@ begin
 	StatusBar1.Panels[PNL_STATISTIC_IDX].Width := hisWidth;
 	StatusBar1.Panels[PNL_MESSAGE_IDX].Width := StatusBar1.Width - hisWidth - StatusBar1.Panels[PNL_STATUS_IDX].Width -
 		StatusBar1.Panels[PNL_INFO_IDX].Width;
-	ActivityIndicator1.Left := hisWidth + 5;
 end;
 
 function TRipGrepperBottomFrame.GetIsInitialized() : Boolean;
@@ -143,7 +150,7 @@ begin
 		Height := Height - 5;
 	end;
 	StatusBarMessage := Format(FORMAT_VERSION_INFO_IN_STATUSBAR, [MainFrame.ModuleNameAndVersion]);
-	SetReadyStatus;
+	SetReadyStatus();
 	FIsInitialized := True;
 end;
 
@@ -172,23 +179,30 @@ end;
 
 procedure TRipGrepperBottomFrame.SetRunningStatus;
 begin
-	ActivityIndicator1.Animate := True;
+	FSpinnerFrame := 0;
+	Timer1.Enabled := True;
 	FStatusBarStatus := 'RUNNING';
 end;
 
 procedure TRipGrepperBottomFrame.SetReadyStatus;
 begin
-	ActivityIndicator1.Animate := False;
+	Timer1.Enabled := False;
 	FStatusBarStatus := 'READY';
+	StatusBar1.Invalidate;
 end;
 
-procedure TRipGrepperBottomFrame.SetStatusBarMessage;
+procedure TRipGrepperBottomFrame.Timer1Timer(Sender : TObject);
+begin
+	FSpinnerFrame := (FSpinnerFrame + 1) mod 12;
+	StatusBar1.Invalidate;
+end;
+
+procedure TRipGrepperBottomFrame.SetStatusBarMsgElapsedTime;
 var
 	msg : string;
 begin
 	msg := Format('Search took %s seconds', // with ' + FORMAT_VERSION_INFO_IN_STATUSBAR,
 		[MainFrame.HistItemObject.ElapsedTimeText]); // , MainFrame.ExeVersion]);
-	StatusBarStatus := IfThen(MainFrame.HistItemObject.RipGrepResult = RG_ERROR, 'ERROR', 'SUCCESS');
 	StatusBarMessage := msg;
 end;
 
@@ -217,12 +231,88 @@ begin
 		ShowAboutDialog;
 end;
 
+procedure TRipGrepperBottomFrame.DrawStatusPanel(ACanvas : TCanvas; const ARect : TRect);
+const
+	SEGMENT_COUNT = 12;
+	TRAIL_LEN = 5;
+var
+	i, activeIdx, distFromActive : Integer;
+	angleRad : Double;
+	x1, y1, x2, y2, cx, cy, spinR : Integer;
+	ratio : Double;
+	fgR, fgG, fgB, bgR, bgG, bgB, segR, segG, segB : Byte;
+	fgColor, bgColor : TColorRef;
+	textLeft, textH, textY : Integer;
+begin
+	spinR := ARect.Height div 2 - 2;
+	if spinR < 3 then
+		spinR := 3;
+	cx := ARect.Left + spinR + 3;
+	cy := ARect.Top + ARect.Height div 2;
+
+	// Capture panel colors before changing brush
+	bgColor := ColorToRGB(ACanvas.Brush.Color);
+	fgColor := ColorToRGB(ACanvas.Font.Color);
+	fgR := GetRValue(fgColor);
+	fgG := GetGValue(fgColor);
+	fgB := GetBValue(fgColor);
+	bgR := GetRValue(bgColor);
+	bgG := GetGValue(bgColor);
+	bgB := GetBValue(bgColor);
+
+	// Fill background
+	ACanvas.Brush.Style := bsSolid;
+	ACanvas.FillRect(ARect);
+	ACanvas.Brush.Style := bsClear;
+
+	if Timer1.Enabled then begin
+		// Draw spinner segments
+		activeIdx := FSpinnerFrame;
+		for i := 0 to SEGMENT_COUNT - 1 do begin
+			angleRad := i * (2 * Pi / SEGMENT_COUNT);
+			x1 := cx + Round(spinR * 0.45 * Sin(angleRad));
+			y1 := cy - Round(spinR * 0.45 * Cos(angleRad));
+			x2 := cx + Round(spinR * Sin(angleRad));
+			y2 := cy - Round(spinR * Cos(angleRad));
+
+			distFromActive := (activeIdx - i + SEGMENT_COUNT) mod SEGMENT_COUNT;
+			if distFromActive < TRAIL_LEN then
+				ratio := 1.0 - (distFromActive / TRAIL_LEN)
+			else
+				ratio := 0.05;
+
+			segR := EnsureRange(Round(bgR + (fgR - bgR) * ratio), 0, 255);
+			segG := EnsureRange(Round(bgG + (fgG - bgG) * ratio), 0, 255);
+			segB := EnsureRange(Round(bgB + (fgB - bgB) * ratio), 0, 255);
+
+			ACanvas.Pen.Color := RGB(segR, segG, segB);
+			ACanvas.Pen.Width := 2;
+			ACanvas.MoveTo(x1, y1);
+			ACanvas.LineTo(x2, y2);
+		end;
+		textLeft := cx + spinR + 5;
+	end else begin
+		textLeft := ARect.Left + 4;
+	end;
+
+	// Draw status text
+	ACanvas.Pen.Width := 1;
+	ACanvas.Font.Color := fgColor;
+	textH := ACanvas.TextHeight('Wg');
+	textY := ARect.Top + (ARect.Height - textH) div 2;
+	ACanvas.TextOut(textLeft, textY, FStatusBarStatus);
+end;
+
 procedure TRipGrepperBottomFrame.StatusBar1DrawPanel(StatusBar : TStatusBar; Panel : TStatusPanel; const Rect : TRect);
 begin
-	if Panel.Style = psOwnerDraw then begin
-		// Draw the first image from ImageList1 centered in the panel rect
-		var x := Rect.Left + (Rect.Width - ImageList1.Width) div 2;
-		var y := Rect.Top + (Rect.Height - ImageList1.Height) div 2;
+	if Panel = StatusBar1.Panels[PNL_STATUS_IDX] then begin
+		DrawStatusPanel(StatusBar.Canvas, Rect);
+	end else if Panel = StatusBar1.Panels[PNL_INFO_IDX] then begin
+		// Draw the info icon centered in the panel rect
+		var
+		x := Rect.Left + (Rect.Width - ImageList1.Width) div 2;
+		var
+		y := Rect.Top + (Rect.Height - ImageList1.Height) div 2;
 		ImageList1.Draw(StatusBar.Canvas, x, y, 1);
 	end;
 end;
