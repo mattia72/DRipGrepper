@@ -110,6 +110,7 @@ begin
 	// tmpFile := GetTempFileName;
 	// dbgMsg.MsgFmt('Rename to temp file : %s', [tmpFile]);
 	// self.Rename(tmpFile, false);
+	dbgMsg.Msg('Clear ini file content');
 	self.Clear;
 	dbgMsg.MsgFmt('Rename to orig file : %s', [origIniFile]);
 	self.Rename(origIniFile, true);
