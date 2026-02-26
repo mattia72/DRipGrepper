@@ -17,7 +17,6 @@ uses
 	RipGrepper.Settings.SettingVariant,
 	RipGrepper.Common.Interfaces.StreamPersistable,
 	RipGrepper.Settings.PersistableArray;
-
 type
 
 	TSearchFormSettings = class(TPersistableSettings, IStreamReaderWriterPersistable)
@@ -283,9 +282,9 @@ begin
 
 		// Set default regex templates
 		if arrSetting.Count = 0 then begin
-			arrSetting.Add('Search as Type' + SEPARATOR + '<text>\s*=\s*(class|record|interface)');
-			arrSetting.Add('Search as Declaration' + SEPARATOR + '<text>\s*:\s\w+;');
-			arrSetting.Add('Search as Function' + SEPARATOR + '(function|procedure)\s+<text>');
+			arrSetting.Add(SEARCH_AS_TYPE);
+			arrSetting.Add(SEARCH_AS_DECLARATION);
+			arrSetting.Add(SEARCH_AS_FUNCTION);
 		end;
 		CreateSetting(arrSetting.Name, ITEM_KEY_PREFIX, arrSetting);
 

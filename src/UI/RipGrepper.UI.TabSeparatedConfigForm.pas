@@ -116,7 +116,6 @@ uses
 
 	RipGrepper.Common.Constants,
 	RipGrepper.Helper.UI,
-	RipGrepper.OpenWith.Constants,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Tools.FileUtils,
 	System.SysUtils,
@@ -331,7 +330,7 @@ begin
 			s := arrSetting[i];
 			dbgMsg.MsgFmt('Row %d: %s', [i, s]);
 
-			arr := s.Split([SEPARATOR]); // TAB
+			arr := s.Split([TAB]); // TAB
 			if Length(arr) > 0 then begin
 				var
 				startIndex := 0;
@@ -375,7 +374,7 @@ begin
 		allEmpty := True;
 		row := BoolToStr(nodeData^.Checked, True);
 		for i := 0 to high(nodeData^.Cells) do begin
-			row := row + SEPARATOR + nodeData^.Cells[i];
+			row := row + TAB + nodeData^.Cells[i];
 			allEmpty := allEmpty and (Trim(nodeData^.Cells[i]) = '');
 		end;
 

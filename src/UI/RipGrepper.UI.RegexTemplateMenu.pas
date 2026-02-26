@@ -62,6 +62,7 @@ implementation
 
 uses
 	RipGrepper.UI.TabSeparatedConfigForm,
+	RipGrepper.Common.Constants,
 	RipGrepper.Helper.Types;
 
 { TRegexTemplateMenuItem }
@@ -197,11 +198,11 @@ begin
 	// Column index 1 = Pattern (0 = Description)
 	if _columnIndex = 1 then begin
 		var
-		placeholderCount := (_newText.Length - _newText.Replace(TRegexTemplate.TEXT_PLACEHOLDER, '').Length)
-		{ } div TRegexTemplate.TEXT_PLACEHOLDER.Length;
+		placeholderCount := (_newText.Length - _newText.Replace(TEXT_PLACEHOLDER, '').Length)
+		{ } div TEXT_PLACEHOLDER.Length;
 		_isValid := placeholderCount = 1;
 		if not _isValid then begin
-			_errorMsg := Format('Pattern must contain the placeholder "%s" exactly once.', [TRegexTemplate.TEXT_PLACEHOLDER]);
+			_errorMsg := Format('Pattern must contain the placeholder "%s" exactly once.', [TEXT_PLACEHOLDER]);
 		end;
 	end;
 end;
