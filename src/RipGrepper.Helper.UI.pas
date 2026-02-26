@@ -627,6 +627,7 @@ var
 begin
 	taskMsgDlg := TTaskDialog.Create(FindControl(GetForegroundWindow));
 	try
+		// TDarkModeHelper.SetThemeByName(TDarkModeHelper.GetActualThemeName(), taskMsgDlg);
 		taskMsgDlg.Caption := APPNAME;
 		if _params.Title.IsEmpty then begin
 			taskMsgDlg.Title := TMsgBoxBase.GetTitleByType(_params.DlgType);
@@ -659,7 +660,6 @@ begin
 			taskMsgDlg.FooterIcon := tdiInformation;
 			taskMsgDlg.MainIcon := tdiNone;
 		end;
-		// TDarkModeHelper.SetAppropriateThemeMode(taskMsgDlg);
 		taskMsgDlg.Execute;
 		Result := taskMsgDlg.ModalResult;
 	finally
