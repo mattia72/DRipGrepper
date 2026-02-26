@@ -32,6 +32,10 @@ type
 			[Test]
 			procedure ReloadIniTest;
 			[Test]
+			procedure ReloadIniDiscardsInMemoryChangesTest;
+			[Test]
+			procedure ReloadIniReadsExternalFileChangesTest;
+			[Test]
 			procedure WriteTempSectionIniTest;
 			[Setup]
 			procedure Setup;
@@ -90,6 +94,37 @@ begin
 	FIniFile.EraseSection('section2');
 	FIniFile.ReloadIniFile;
 	AsserIniReads(FIniFile);
+end;
+
+procedure TMemIniFileHelperTest.ReloadIniDiscardsInMemoryChangesTest;
+begin
+	FIniFile.WriteString('section2', 'key1', 'changed_in_memory');
+	FIniFile.WriteString('section4', 'key1', 'added_in_memory');
+	FIniFile.EraseSection('section3');
+
+	FIniFile.ReloadIniFile;
+
+	Assert.AreEqual('val1', FIniFile.ReadString('section2', 'key1', ''));
+	Assert.AreEqual('val3', FIniFile.ReadString('section3', 'key3', ''));
+	Assert.IsFalse(FIniFile.SectionExists('section4'));
+end;
+
+procedure TMemIniFileHelperTest.ReloadIniReadsExternalFileChangesTest;
+begin
+	var
+	externalIni := TMemIniFile.Create(MEMINIFILEHELPERTEST_INI, TEncoding.UTF8);
+	try
+		externalIni.WriteString('section2', 'key2', 'changed_on_disk');
+		externalIni.WriteString('section4', 'key1', 'new_on_disk');
+		externalIni.UpdateFile;
+	finally
+		externalIni.Free;
+	end;
+
+	FIniFile.ReloadIniFile;
+
+	Assert.AreEqual('changed_on_disk', FIniFile.ReadString('section2', 'key2', ''));
+	Assert.AreEqual('new_on_disk', FIniFile.ReadString('section4', 'key1', ''));
 end;
 
 procedure TMemIniFileHelperTest.WriteTempSectionIniTest;

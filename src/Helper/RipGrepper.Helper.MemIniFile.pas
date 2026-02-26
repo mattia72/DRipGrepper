@@ -106,10 +106,11 @@ begin
 
 	var
 	origIniFile := self.FileName;
-	var
-	tmpFile := GetTempFileName;
-	dbgMsg.MsgFmt('Rename to temp file : %s', [tmpFile]);
-	self.Rename(tmpFile, false);
+	// var
+	// tmpFile := GetTempFileName;
+	// dbgMsg.MsgFmt('Rename to temp file : %s', [tmpFile]);
+	// self.Rename(tmpFile, false);
+	self.Clear;
 	dbgMsg.MsgFmt('Rename to orig file : %s', [origIniFile]);
 	self.Rename(origIniFile, true);
 end;
