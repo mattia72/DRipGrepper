@@ -282,7 +282,7 @@ const
 	SEARCH_AS_DECLARATION = 'TRUE' + TAB + 'Search as Declaration' + TAB + TEXT_PLACEHOLDER +
 	{ } '\s*:\s*[\w<>., ]+;';
 	SEARCH_AS_TYPE = 'TRUE' + TAB + 'Search as Type' + TAB + TEXT_PLACEHOLDER +
-	{ } '\s*=\s*((packed\s+)?(class|record|object|(disp)?interface|(array|set)(\s*\[|\s+of))|\(\w+|\^\w+|\w+)';
+	{ } '\s*(<[\w,]+>)?\s*=\s*((packed\s+)?(class|record|object|(disp)?interface|(array|set)(\s*\[|\s+of))|\(\w+|\^\w+|\w+)';
 
 type
 
