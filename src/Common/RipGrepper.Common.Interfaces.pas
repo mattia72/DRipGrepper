@@ -96,6 +96,7 @@ type
 		function GetErrorCounters : TErrorCounters;
 		function GetFileCount : integer;
 		function GetGuiSearchTextParams : IShared<TGuiSearchTextParams>;
+		function GetIsExpertMode(): Boolean;
 		function GetIsReplaceMode : Boolean;
 		function GetIsLoadedFromStream : Boolean;
 		function GetMatches() : TParsedObjectRowCollection;
@@ -122,6 +123,7 @@ type
 		procedure SetErrorCounters(const Value : TErrorCounters);
 		procedure SetFileCount(const Value : integer);
 		procedure SetGuiSearchTextParams(const Value : IShared<TGuiSearchTextParams>);
+		procedure SetIsExpertMode(const Value: Boolean);
 		procedure SetNoMatchFound(const Value : Boolean);
 		procedure SetParserType(const Value : TParserType);
 		procedure SetSearchFormSettings(const Value : TSearchFormSettings);
@@ -134,6 +136,7 @@ type
 		property RipGrepArguments : IShared<TRipGrepArguments> read GetRipGrepArguments write SetRipGrepArguments;
 		property FileCount : integer read GetFileCount write SetFileCount;
 		property GuiSearchTextParams : IShared<TGuiSearchTextParams> read GetGuiSearchTextParams write SetGuiSearchTextParams;
+		property IsExpertMode: Boolean read GetIsExpertMode write SetIsExpertMode;
 		property NoMatchFound : Boolean read GetNoMatchFound write SetNoMatchFound;
 		property ParserType : TParserType read GetParserType write SetParserType;
 		property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings write SetSearchFormSettings;
