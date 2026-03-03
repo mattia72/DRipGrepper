@@ -359,8 +359,14 @@ function Add-ToAssetsDir {
 
     $item = $(Get-Item $AssetItemPath)
     $appVersion = $($item.VersionInfo.FileVersion) # BPL is ok too :)
-    if (-not $(Test-YesAnswer "Release version: $global:Version. Version of $($item.Name)($($Win64 ? 'Win64': 'Win32')) appName: $appVersion. Ok?")) {
-        Write-Error "Search FileVersion=$appVersion in *.dproj and change it!`r`nDeploy stopped." -ErrorAction Stop
+    # Compare only Major.Minor.Patch – build number is allowed to differ
+    $appVersionBase    = ($appVersion -replace '^v', '') -replace '(\d+\.\d+\.\d+).*', '$1'
+    $changelogVersionBase = ($global:Version -replace '^v', '') -replace '(\d+\.\d+\.\d+).*', '$1'
+    if ($item.Extension -ne '.map' -and $appVersionBase -ne $changelogVersionBase) {
+        Write-Error "Version mismatch: CHANGELOG=$global:Version, $($item.Name) FileVersion=$appVersion. Update FileVersion in *.dproj!`r`nDeploy stopped." -ErrorAction Stop
+    }
+    if (-not $(Test-YesAnswer "Release version: $global:Version. Version of $($item.Name)($($Win64 ? 'Win64': 'Win32')) binary version: $appVersion. Ok?")) {
+        Write-Error "Deploy stopped by user." -ErrorAction Stop
     }
     if ($ReplaceContent -and (Test-Path $AssetDir)) {
         Remove-Item -Path $AssetDir -Recurse -Force -ErrorAction SilentlyContinue
@@ -403,6 +409,8 @@ function Format-FileSize {
 }
 function New-StandaloneZips {
     $projectPath = Split-Path -Parent $PSScriptRoot 
+    # Extract pre-release suffix from CHANGELOG version (e.g. '-beta' from 'v4.15.0-beta')
+    $versionSuffix = if ($global:Version -match '-([\w\.]+)$') { "-$($Matches[1])" } else { '' }
 
     "Win32" , "Win64" | ForEach-Object {
         $lastDelphiVer = Get-LastInstalledDelphiVersion
@@ -410,9 +418,12 @@ function New-StandaloneZips {
         $AssetDir = $(Join-Path $global:AssetsDirectory $_)
     
         $win64 = $($_ -eq 'Win64')
-        Add-ToAssetsDir -AssetDir $AssetDir -AssetItemPath $(Join-Path  $ZipDir $global:StandaloneAppName) -Win64:$win64 -ReplaceContent
-    
-        $dest = "$global:AssetsDirectory\$($global:AssetZipName -f $($win64 ? 'x64' : 'x86'), $global:Version)"
+        $assetObj = Add-ToAssetsDir -AssetDir $AssetDir -AssetItemPath $(Join-Path  $ZipDir $global:StandaloneAppName) -Win64:$win64 -ReplaceContent
+        # Output to pipeline so callers receive this object (ForEach-Object has its own scope)
+        $assetObj
+        # Use the full FileVersion (including build number) + pre-release suffix for the zip filename
+        $fileVersion = "v$($assetObj.Version.Trim())$versionSuffix"
+        $dest = "$global:AssetsDirectory\$($global:AssetZipName -f $($win64 ? 'x64' : 'x86'), $fileVersion)"
 
         $compress = @{
             Path             = "$AssetDir\*.*"
@@ -421,7 +432,7 @@ function New-StandaloneZips {
             Force            = $true
         }
         Compress-Archive @compress
-    } #| Format-Table -AutoSize -Property File, Version, LastWriteTime, Length, Dir
+    }
 }
 function New-ExtensionZip {
     # find bds.exe in running processes
@@ -461,17 +472,21 @@ function New-ExpertDllZip {
     $projectPath = Split-Path -Parent $PSScriptRoot 
     $ReleaseType = "Win32"
     $win64 = $($ReleaseType -eq 'Win64')
+    # Extract pre-release suffix from CHANGELOG version (e.g. '-beta' from 'v4.15.0-beta')
+    $versionSuffix = if ($global:Version -match '-([\w\.]+)$') { "-$($Matches[1])" } else { '' }
     Get-InstalledDelphiVersions | ForEach-Object {
         $ZipDir = $(Join-Path $projectPath "Extension\src\Project\Dll.$($_.Data.Dir)\$ReleaseType\$BuildConfig")
         $AssetDir = $(Join-Path $global:AssetsDirectory "$($_.Data.Dir).Dll")
 
         $dllName = "$global:DllNameWithoutExt.$($_.Data.Dir -replace "Delphi", "D").dll"
         $mapName = "$global:DllNameWithoutExt.$($_.Data.Dir -replace "Delphi", "D").map"
-        $returnArr = @()
-        $returnArr += Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $dllName) -Win64:$false -ReplaceContent
-        $returnArr += Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $mapName) -Win64:$false 
-
-        $dest = "$global:AssetsDirectory\$($global:AssetExpertZipName -f $($win64 ? 'x64' : 'x86'), $_.Data.Dir ,$global:Version)"
+        $dllAssetObj = Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $dllName) -Win64:$false -ReplaceContent
+        # Output to pipeline so callers receive these objects (ForEach-Object has its own scope)
+        $dllAssetObj
+        Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $mapName) -Win64:$false
+        # Use the full FileVersion (including build number) + pre-release suffix for the zip filename
+        $fileVersion = "v$($dllAssetObj.Version.Trim())$versionSuffix"
+        $dest = "$global:AssetsDirectory\$($global:AssetExpertZipName -f $($win64 ? 'x64' : 'x86'), $_.Data.Dir, $fileVersion)"
 
         # Write-Host "$AssetDir\*.* to`n $dest" 
 
@@ -482,9 +497,7 @@ function New-ExpertDllZip {
             Force            = $true
         }
         Compress-Archive @compress
-    } #| Format-Table -AutoSize -Property File, Version, LastWriteTime, Length, Dir
-
-    $returnArr
+    }
 }
 
 function List-Assets {
@@ -557,10 +570,13 @@ function New-ReleaseWithAsset {
         $assetArr += New-ExpertDllZip 
 
         # zip dll assets in directories not listed in $assetArr
+        $versionSuffix = if ($global:Version -match '-([\w\.]+)$') { "-$($Matches[1])" } else { '' }
         Get-ChildItem $global:AssetsDirectory -Directory | ForEach-Object {
             if ($($assetArr | Select-Object -ExpandProperty Dir) -notcontains "$global:AssetsDirectoryName\$($_.Name)") {
-                $zipPath = "$global:AssetsDirectory\$($global:AssetExpertZipName -f 'x86', $($_.Name -replace '.Dll') ,$global:Version)"
-                # $zipPath = Join-Path $global:AssetsDirectory "$global:DllNameWithoutExt.$($_.Name).zip"
+                # Derive version from the first binary in the directory; fall back to CHANGELOG version
+                $binaryInDir = Get-ChildItem $_.FullName -File | Where-Object { $_.Extension -in '.exe','.dll','.bpl' } | Select-Object -First 1
+                $fileVersion = if ($binaryInDir) { "v$($binaryInDir.VersionInfo.FileVersion.Trim())$versionSuffix" } else { $global:Version }
+                $zipPath = "$global:AssetsDirectory\$($global:AssetExpertZipName -f 'x86', $($_.Name -replace '\.Dll$'), $fileVersion)"
                 if (-not (Test-Path $zipPath)) {
                     Write-Host "Zipping extra directory: $($_.Name)" -ForegroundColor Yellow
                     Compress-Archive -Path "$($_.FullName)\*" -DestinationPath $zipPath -Force
