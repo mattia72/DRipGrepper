@@ -32,7 +32,6 @@ type
 			Encoding : string;
 			EncodingItems : TArrayEx<string>;
 			IsPrettyChecked : Boolean;
-			IsExpertMode : Boolean;
 			LineContext : Integer;
 			OutputFormat : string;
 			OutputFormatItems : TArrayEx<string>;

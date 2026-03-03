@@ -152,7 +152,6 @@ type
 			FExtensionContextPanel : TExtensionContexPanel;
 			FRgFilterOptionsPanel : TRgFilterOptionsPanel;
 			FRgOutputOptionsPanel : TRgOutputOptionsPanel;
-			FAppSettingsPanel : TAppOptionsPanel;
 			FRegexTemplateManager : TRegexTemplateManager;
 			FRegexTemplateMenu : TRegexTemplateMenu;
 			cbRgParamHidden : TCheckBox;
@@ -240,9 +239,6 @@ type
 			procedure OnRegexTemplateSelected(const _pattern : string);
 			procedure SetMinimumWidthFromOptionsPanels();
 			procedure CopyProxyToSearchFormSettings(const _ctrlProxy : TSearchFormCtrlValueProxy; const _settings : TSearchFormSettings);
-			procedure OnAppSettingsPanelItemSelect(Sender : TObject; Item : TCustomCheckItem);
-			procedure SetAppSettingsPanel(const _settings : TRipGrepperSettings);
-
 		private
 			FItemSelectEnabled : Boolean;
 			FIsExpertMode : Nullable<Boolean>;
@@ -329,7 +325,6 @@ begin
 	setExtensionContextPanel(_settings);
 	SetRgFilterOptionsPanel(_settings);
 	SetRgOutputOptionsPanel(_settings);
-	SetAppSettingsPanel(_settings);
 
 	// align buttons a bit lower
 	btnSearch.Top := btnSearch.Top + RG_OPTIONS_PADDING_TOP;
@@ -1130,7 +1125,6 @@ begin
 		_ctrlProxy.IsPrettyChecked := FHistItemObj.SearchFormSettings.Pretty.Value;
 		_ctrlProxy.LineContext := FHistItemObj.SearchFormSettings.Context.Value;
 		_ctrlProxy.AdditionalExpertOptions := FHistItemObj.GuiSearchTextParams.ExpertOptions.AsString;
-		_ctrlProxy.IsExpertMode := FHistItemObj.IsExpertMode;
 	end else begin
 		_ctrlProxy.SearchText := _ctrlProxy.SearchTextHist.SafeItem[0];
 		_ctrlProxy.ReplaceText := _ctrlProxy.ReplaceTextHist.SafeItem[0];
@@ -1148,7 +1142,6 @@ begin
 		_ctrlProxy.IsPrettyChecked := FSettings.SearchFormSettings.Pretty.Value;
 		_ctrlProxy.LineContext := FSettings.SearchFormSettings.Context.Value;
 		_ctrlProxy.AdditionalExpertOptions := _ctrlProxy.AdditionalExpertOptionsHist.SafeItem[0];
-		_ctrlProxy.IsExpertMode := FSettings.AppSettings.IsExpertMode;
 	end;
 	dbgMsg.MsgFmt('Proxy filled from Settings: %s', [_ctrlProxy.ToString]);
 end;
@@ -1844,36 +1837,6 @@ begin
 	UpdateCtrls(cmbRgParamEncoding);
 end;
 
-procedure TRipGrepperSearchDialogForm.OnAppSettingsPanelItemSelect(Sender : TObject; Item : TCustomCheckItem);
-begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.OnAppSettingsPanelItemSelect');
-
-	if not FItemSelectEnabled then begin
-		dbgMsg.Msg('Item select events are currently disabled - ignoring');
-		Exit;
-	end;
-
-	var
-	asr := TAutoSetReset.New(FItemSelectEnabled, False);
-	var
-		isExpert : Boolean := IsExpertMode;
-	dbgMsg.MsgFmt('isExpert=%s', [BoolToStr(isExpert, True)]);
-	if (not isExpert) and (not HasHistItemObjWithResult) and
-	{ } (mrYes <>
-			{ } TMsgBox.ShowQuestion('Switch to normal mode? ' + CRLF2 +
-			{ } 'All expert settings will be reset to defaults.')) then begin
-		// User answered "No" - restore checkbox to original state
-		Item.Checked := not Item.Checked;
-		Exit;
-	end;
-
-	// Update the layout flag based on new expert mode state
-	dbgMsg.MsgFmt('SetLayout for isExpert=%s', [BoolToStr(isExpert, True)]);
-	SetLayout(isExpert, sflExpert);
-	UpdateExpertModeInOptionPanels();
-end;
-
 procedure TRipGrepperSearchDialogForm.SetPrettyCheckboxHint();
 begin
 	var
@@ -1961,21 +1924,6 @@ begin
 		minWidth := minWidth + 50; // Add padding for form chrome
 		Constraints.MinWidth := minWidth;
 	end;
-end;
-
-procedure TRipGrepperSearchDialogForm.SetAppSettingsPanel(const _settings : TRipGrepperSettings);
-begin
-	// FAppSettingsPanel := TAppOptionsPanel.Create(self);
-	// FAppSettingsPanel.Settings := _settings;
-	// pnlBottom.Padding.Left := RG_OPTIONS_PADDING_LEFT;
-	// pnlBottom.Padding.Top := RG_OPTIONS_PADDING_TOP;
-	// FAppSettingsPanel.Parent := pnlBottom;
-	//
-	// FAppSettingsPanel.Align := alClient;
-	// FAppSettingsPanel.AddItems();
-	/// / OnOptionChange should be set after AddItems
-	// FAppSettingsPanel.OnOptionChange := OnAppSettingsPanelItemSelect;
-	// FAppSettingsPanel.SendToBack();
 end;
 
 function TRipGrepperSearchDialogForm.getExtensionContextPanelHeight(const _bIsExpert : Boolean) : integer;
