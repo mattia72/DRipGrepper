@@ -346,20 +346,12 @@ begin
 	// Reduce margins for tighter layout
 	pnlTop.Margins.Top := 2;
 	pnlTop.Margins.Bottom := 2;
-	// pnlTop.Margins.Left := 2;
-	// pnlTop.Margins.Right := 2;
 	pnlMiddle.Margins.Top := 2;
 	pnlMiddle.Margins.Bottom := 2;
-	// pnlMiddle.Margins.Left := 2;
-	// pnlMiddle.Margins.Right := 2;
 	pnlBottom.Margins.Top := 2;
 	pnlBottom.Margins.Bottom := 2;
-	// pnlBottom.Margins.Left := 2;
-	// pnlBottom.Margins.Right := 2;
 	gbOptionsFilters.Margins.Top := 2;
 	gbOptionsFilters.Margins.Bottom := 2;
-	// gbOptionsFilters.Margins.Left := 2;
-	// gbOptionsFilters.Margins.Right := 2;
 
 	FSearchFormLayout := []; // normal layout no replace, no expert
 
@@ -557,8 +549,8 @@ begin
 	end;
 	FSettings.StoreToPersister();
 
-//	var
-//	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
+	// var
+	// dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 
 	FSettings.UpdateFile();
 end;
@@ -1243,6 +1235,7 @@ begin
 
 	FSettingsProxy.Copy(FSettings.RipGrepParameters.GuiSearchTextParams());
 	FSettingsProxy.UpdateRgParamsByGuiOptions();
+
 	UpdateCheckBoxes();
 end;
 
@@ -1341,8 +1334,8 @@ begin
 		Result := FTopPanelFullHeight - replaceTextFullHeight;
 	end;
 
-	dbgMsg.MsgFmt('TopPanelHeight=%d (fullHeight=%d, replaceHeight=%d, ReplaceMode=%s)',
-		[Result, FTopPanelFullHeight, replaceTextFullHeight, BoolToStr(IsReplaceLayout(), True)]);
+	dbgMsg.MsgFmt('TopPanelHeight=%d (fullHeight=%d, replaceHeight=%d, ReplaceMode=%s)', [Result, FTopPanelFullHeight, replaceTextFullHeight,
+			BoolToStr(IsReplaceLayout(), True)]);
 end;
 
 function TRipGrepperSearchDialogForm.CalculateGbOptionsFiltersHeight(const _bIsExpert : Boolean) : Integer;
@@ -1525,8 +1518,7 @@ begin
 			_settings.LastSearchText := _histObj.SearchText;
 			TRipGrepperSearchDialogForm.SetReplaceText(_settings, _histObj.ReplaceText);
 			dbgMsg.MsgFmtIf(_histObj.SearchText <> _histObj.GuiSearchTextParams.GetSearchText,
-				{ } 'ERROR? _histObj.SearchText=%s <> GuiSearchTextParams=%s',
-				[_histObj.SearchText, _histObj.GuiSearchTextParams.GetSearchText]);
+					{ } 'ERROR? _histObj.SearchText=%s <> GuiSearchTextParams=%s', [_histObj.SearchText, _histObj.GuiSearchTextParams.GetSearchText]);
 		end;
 		dbgMsg.Msg('LastSearchText=' + _settings.LastSearchText);
 	finally
@@ -1566,8 +1558,7 @@ begin
 		dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange');
 		cmbSearchDir.Enabled := False;
 		if _icv.GetContextType() = dicNotSet then begin
-			dbgMsg.WarningMsgFmt('Extension IDE Context not supported :%d. fallback to custom locations:',
-				[Ord(FCtrlProxy.ExtensionContext)]);
+			dbgMsg.WarningMsgFmt('Extension IDE Context not supported :%d. fallback to custom locations:', [Ord(FCtrlProxy.ExtensionContext)]);
 			FCtrlProxy.ExtensionContext := EDelphiIDESearchContext.dicCustomLocation;
 		end else begin
 			FCtrlProxy.ExtensionContext := _icv.GetContextType();
@@ -1641,9 +1632,9 @@ procedure TRipGrepperSearchDialogForm.UpdateRbExtensionItemIndex(const _dic : ED
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateRbExtensionItemIndex');
+	var
+	asr := TAutoSetReset.New(FbExtensionOptionsSkipClick, True);
 
-	FbExtensionOptionsSkipClick := True;
-	try
 		FExtensionContextPanel.SetSelectedIDEContext(_dic);
 		dbgMsg.MsgFmt('ContextRadioGroup.ItemIndex = %d', [Integer(_dic)]);
 
@@ -1659,9 +1650,6 @@ begin
 		end;
 
 		UpdateCmbsOnIDEContextChange(icv);
-	finally
-		FbExtensionOptionsSkipClick := False;
-	end;
 end;
 
 function TRipGrepperSearchDialogForm.ValidateRegex : Boolean;
@@ -1704,33 +1692,6 @@ begin
 
 	// these assignings doesn't needed anymore, XxxxxOptionsPanel do it
 	// cbRgParamPretty.Checked := FCtrlProxy.IsPrettyChecked;
-	dbgMsg.MsgFmt('cbRgParamPretty.Checked %s', [BoolToStr(cbRgParamPretty.Checked)]);
-
-	// cbRgParamContext.Checked := FCtrlProxy.LineContext <> 0;
-	// seContextLineNum.Enabled := cbRgParamContext.Checked;
-	// seContextLineNum.Value := FCtrlProxy.LineContext;
-	dbgMsg.MsgFmt('seContextLineNum.Value=%d', [seContextLineNum.Value]);
-
-	// FRgFilterOptionsPanel.EventsEnabled := False;
-	try
-		dbgMsg.MsgFmt('FCtrlProxy.IsHiddenChecked=%s', [BoolToStr(FCtrlProxy.IsHiddenChecked, True)]);
-		// cbRgParamHidden.Checked := FCtrlProxy.IsHiddenChecked;
-		dbgMsg.MsgFmt('cbRgParamHidden.Checked=%s', [BoolToStr(cbRgParamHidden.Checked, True)]);
-
-		dbgMsg.MsgFmt('FCtrlProxy.IsNoIgnoreChecked=%s', [BoolToStr(FCtrlProxy.IsNoIgnoreChecked, True)]);
-		// cbRgParamNoIgnore.Checked := FCtrlProxy.IsNoIgnoreChecked;
-		dbgMsg.MsgFmt('cbRgParamNoIgnore.Checked=%s', [BoolToStr(cbRgParamNoIgnore.Checked, True)]);
-
-		// cbRgParamEncoding.Checked := FCtrlProxy.Encoding <> '';
-		// cmbRgParamEncoding.Enabled := cbRgParamEncoding.Checked;
-		// cmbRgParamEncoding.Text := FCtrlProxy.Encoding;
-		dbgMsg.Msg('cmbRgParamEncoding.Text=' + cmbRgParamEncoding.Text);
-
-		// cmbOutputFormat.Text := FCtrlProxy.OutputFormat;
-		dbgMsg.Msg('cmbOutputFormat.Text=' + cmbOutputFormat.Text);
-	finally
-		// FRgFilterOptionsPanel.EventsEnabled := True;
-	end;
 end;
 
 procedure TRipGrepperSearchDialogForm.CopyProxyToSearchFormSettings(const _ctrlProxy : TSearchFormCtrlValueProxy;
@@ -1784,6 +1745,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadOldHistorySearchSettings');
 
 	FSettingsProxy := FHistItemObj.GuiSearchTextParams;
+
 	if Assigned(FHistItemObj.SearchFormSettings) then begin
 		FOrigSearchFormSettings := TSearchFormSettings.Create;
 		dbgMsg.Msg('Hist: ' + FHistItemObj.SearchFormSettings.ToLogString);
@@ -1952,17 +1914,17 @@ end;
 
 procedure TRipGrepperSearchDialogForm.SetAppSettingsPanel(const _settings : TRipGrepperSettings);
 begin
-	FAppSettingsPanel := TAppOptionsPanel.Create(self);
-	FAppSettingsPanel.Settings := _settings;
-	pnlBottom.Padding.Left := RG_OPTIONS_PADDING_LEFT;
-	pnlBottom.Padding.Top := RG_OPTIONS_PADDING_TOP;
-	FAppSettingsPanel.Parent := pnlBottom;
-
-	FAppSettingsPanel.Align := alClient;
-	FAppSettingsPanel.AddItems();
-	// OnOptionChange should be set after AddItems
-	FAppSettingsPanel.OnOptionChange := OnAppSettingsPanelItemSelect;
-	FAppSettingsPanel.SendToBack();
+	// FAppSettingsPanel := TAppOptionsPanel.Create(self);
+	// FAppSettingsPanel.Settings := _settings;
+	// pnlBottom.Padding.Left := RG_OPTIONS_PADDING_LEFT;
+	// pnlBottom.Padding.Top := RG_OPTIONS_PADDING_TOP;
+	// FAppSettingsPanel.Parent := pnlBottom;
+	//
+	// FAppSettingsPanel.Align := alClient;
+	// FAppSettingsPanel.AddItems();
+	/// / OnOptionChange should be set after AddItems
+	// FAppSettingsPanel.OnOptionChange := OnAppSettingsPanelItemSelect;
+	// FAppSettingsPanel.SendToBack();
 end;
 
 function TRipGrepperSearchDialogForm.getExtensionContextPanelHeight(const _bIsExpert : Boolean) : integer;
