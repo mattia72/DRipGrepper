@@ -8,6 +8,7 @@
   - Expert mode toggle to show/hide advanced options
   - Save/Load form size and position
   - **Regex Template Menu**: Manage and apply regex search patterns from a dropdown menu in the search form
+  - Version info on click of "*i*" icon in bottom right corner of main form
 
 ### 🔄 Changed
 - Output options use generalized OptionPanel
