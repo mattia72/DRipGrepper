@@ -36,8 +36,7 @@ type
 			OutputFormat : string;
 			OutputFormatItems : TArrayEx<string>;
 			AdditionalExpertOptions : string;
-			AdditionalExpertOptionsHist : TArrayEx<string>;
-
+			AdditionalExpertOptionsHist : TArrayEx<string>;		
 			function IsEmpty() : Boolean;
 			function ToString() : string;
 			property SearchText : string read GetSearchText write SetSearchText;

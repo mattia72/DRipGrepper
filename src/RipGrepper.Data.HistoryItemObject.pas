@@ -67,7 +67,10 @@ type
 			procedure SetRipGrepResult(const Value : Integer);
 
 		private
+			FIsExpertMode: Boolean;
+			function GetIsExpertMode(): Boolean;
 			function GetShouldSaveResult() : Boolean;
+			procedure SetIsExpertMode(const Value: Boolean);
 			procedure SetShouldSaveResult(const Value : Boolean);
 
 		public
@@ -94,6 +97,7 @@ type
 			property TotalMatchCount : integer read GetTotalMatchCount;
 			property ElapsedTimeText : string read GetElapsedTimeText write SetElapsedTimeText;
 			property GuiSearchTextParams : IShared<TGuiSearchTextParams> read GetGuiSearchTextParams write SetGuiSearchTextParams;
+			property IsExpertMode: Boolean read GetIsExpertMode write SetIsExpertMode;
 			property IsLoadedFromStream : Boolean read GetIsLoadedFromStream;
 			property IsReplaceMode : Boolean read GetIsReplaceMode;
 			property NoMatchFound : Boolean read GetNoMatchFound write SetNoMatchFound;
@@ -238,6 +242,11 @@ begin
 	Result := FGuiSearchTextParams;
 end;
 
+function THistoryItemObject.GetIsExpertMode(): Boolean;
+begin
+  Result := FIsExpertMode;
+end;
+
 function THistoryItemObject.GetIsLoadedFromStream() : Boolean;
 begin
 	Result := FIsLoadedFromStream;
@@ -338,6 +347,8 @@ begin
 		dbgMsg.MsgFmt('RipGrepArguments = %s', [RipGrepArguments.Text]);
 
 		SearchFormSettings.LoadFromStreamReader(_sr);
+		FIsExpertMode := _sr.ReadLineAsBool('IsExpertMode');
+		dbgMsg.MsgFmt('IsExpertMode = %s', [BoolToStr(FIsExpertMode, True)]);
 		// Read the flag indicating whether matches data follows
 		FShouldSaveResult := _sr.ReadLineAsBool('ShouldSaveResult');
 		dbgMsg.MsgFmt('ShouldSaveResult = %s', [BoolToStr(FShouldSaveResult, True)]);
@@ -388,6 +399,8 @@ begin
 		_sw.WriteLineAsString(s, false, 'RipGrepArguments=''' + s + '''');
 	end;
 	SearchFormSettings.SaveToStreamWriter(_sw);
+	_sw.WriteLineAsBool(IsExpertMode, 'IsExpertMode');
+	dbgMsg.MsgFmt('IsExpertMode = %s', [BoolToStr(IsExpertMode, True)]);
 	// Always save a flag indicating whether matches data follows
 	_sw.WriteLineAsBool(ShouldSaveResult, 'ShouldSaveResult');
 	dbgMsg.MsgFmt('HasMatchesData = %s', [BoolToStr(ShouldSaveResult, True)]);
@@ -409,6 +422,11 @@ end;
 procedure THistoryItemObject.SetGuiSearchTextParams(const Value : IShared<TGuiSearchTextParams>);
 begin
 	FGuiSearchTextParams := Value;
+end;
+
+procedure THistoryItemObject.SetIsExpertMode(const Value: Boolean);
+begin
+    FIsExpertMode := Value;
 end;
 
 procedure THistoryItemObject.SetNoMatchFound(const Value : Boolean);

@@ -9,8 +9,8 @@ uses
 type
 	TMemIniFileHelper = class Helper for TMemIniFile
 		private
-			function GetTempFileName : string;
-
+		protected
+			function GetTempFileName(): string;
 		public
 			function GetDripGrepperIniTempDir : string;
 			function GetTempSectionFileName(_section : string) : string;
@@ -42,7 +42,7 @@ begin
 		{ } TPath.GetExtension(self.FileName));
 end;
 
-function TMemIniFileHelper.GetTempFileName : string;
+function TMemIniFileHelper.GetTempFileName(): string;
 begin
 	Result := TPath.Combine(GetDripGrepperIniTempDir,
 		{ } TPath.GetFileNameWithoutExtension(self.FileName) +
@@ -110,6 +110,7 @@ begin
 	// tmpFile := GetTempFileName;
 	// dbgMsg.MsgFmt('Rename to temp file : %s', [tmpFile]);
 	// self.Rename(tmpFile, false);
+	dbgMsg.Msg('Clear ini file content');
 	self.Clear;
 	dbgMsg.MsgFmt('Rename to orig file : %s', [origIniFile]);
 	self.Rename(origIniFile, true);

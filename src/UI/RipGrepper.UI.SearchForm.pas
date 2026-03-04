@@ -110,6 +110,8 @@ type
 		pnl2 : TPanel;
 		btnRegexTemplates : TButton;
 		PopupMenuRegexTemplates : TPopupMenu;
+		cbExpertMode : TCheckBox;
+		ActionShowExpertOptions : TAction;
 		procedure ActionAddParamMatchCaseExecute(Sender : TObject);
 		procedure ActionAddParamMatchCaseUpdate(Sender : TObject);
 		procedure ActionAddParamRegexExecute(Sender : TObject);
@@ -122,6 +124,7 @@ type
 		procedure ActionShowRipGrepOptionsFormExecute(Sender : TObject);
 		procedure ActionSearchExecute(Sender : TObject);
 		procedure ActionSearchFileExecute(Sender : TObject);
+		procedure ActionShowExpertOptionsExecute(Sender : TObject);
 		procedure ActionShowFileMaskHelpExecute(Sender : TObject);
 		procedure ActionShowInLinesExecute(Sender : TObject);
 		procedure ActionShowRGOptionsHelpExecute(Sender : TObject);
@@ -149,7 +152,6 @@ type
 			FExtensionContextPanel : TExtensionContexPanel;
 			FRgFilterOptionsPanel : TRgFilterOptionsPanel;
 			FRgOutputOptionsPanel : TRgOutputOptionsPanel;
-			FAppSettingsPanel : TAppOptionsPanel;
 			FRegexTemplateManager : TRegexTemplateManager;
 			FRegexTemplateMenu : TRegexTemplateMenu;
 			cbRgParamHidden : TCheckBox;
@@ -168,6 +170,7 @@ type
 			FSettings : TRipGrepperSettings;
 			FHistItemObj : IHistoryItemObject;
 
+			// TODO: This is just a FGuiSearchTextParams
 			FSettingsProxy : IShared<TGuiSearchTextParams>;
 
 			FbExtensionOptionsSkipClick : Boolean;
@@ -236,31 +239,33 @@ type
 			procedure OnRegexTemplateSelected(const _pattern : string);
 			procedure SetMinimumWidthFromOptionsPanels();
 			procedure CopyProxyToSearchFormSettings(const _ctrlProxy : TSearchFormCtrlValueProxy; const _settings : TSearchFormSettings);
-			procedure OnAppSettingsPanelItemSelect(Sender : TObject; Item : TCustomCheckItem);
-			procedure SetAppSettingsPanel(const _settings : TRipGrepperSettings);
-
 		private
+			FItemSelectEnabled : Boolean;
+			FIsExpertMode : Nullable<Boolean>;
 			FSearchFormLayout : TSearchFormLayout;
 			function getExtensionContextPanelHeight(const _bIsExpert : Boolean) : integer;
+			function GetIsExpertMode() : Nullable<Boolean>;
 			function GetTopPanelHeight() : Integer;
 			function IsStandaloneLayout() : Boolean;
 			procedure setExtensionContextPanel(const _settings : TRipGrepperSettings);
+			procedure SetIsExpertMode(const Value : Nullable<Boolean>);
 			procedure SetLayout(const _bSet : Boolean; _eVal : ESearchFormLayout);
 			procedure SetPrettyCheckboxHint();
 			procedure ShowExpertGroupCtrls(const _bShow : Boolean = True);
 			procedure UpdateExpertModeInOptionPanels;
+			property IsExpertMode : Nullable<Boolean> read GetIsExpertMode write SetIsExpertMode;
 
 		protected
 			procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;
 
 		public
 			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettings; const _histObj : IHistoryItemObject);
-				reintroduce; virtual;
+					reintroduce; virtual;
 			destructor Destroy; override;
 			procedure CopySettingsToCtrlProxy(var _ctrlProxy : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;
-				_settings : TRipGrepperSettings);
+					_settings : TRipGrepperSettings);
 			procedure CopyProxyToSettings(const _ctrlProxy : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;
-				_settings : TRipGrepperSettings);
+					_settings : TRipGrepperSettings);
 			function GetMaxCountHistoryItems(const _arr : TArrayEx<string>) : TArrayEx<string>;
 			function IsExpertLayout() : Boolean;
 			function IsReplaceLayout() : Boolean;
@@ -307,7 +312,7 @@ uses
 {$R *.dfm}
 
 constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _settings : TRipGrepperSettings;
-	const _histObj : IHistoryItemObject);
+		const _histObj : IHistoryItemObject);
 begin
 	FSettings := _settings;
 	inherited Create(AOwner);
@@ -320,7 +325,6 @@ begin
 	setExtensionContextPanel(_settings);
 	SetRgFilterOptionsPanel(_settings);
 	SetRgOutputOptionsPanel(_settings);
-	SetAppSettingsPanel(_settings);
 
 	// align buttons a bit lower
 	btnSearch.Top := btnSearch.Top + RG_OPTIONS_PADDING_TOP;
@@ -346,23 +350,15 @@ begin
 	// Reduce margins for tighter layout
 	pnlTop.Margins.Top := 2;
 	pnlTop.Margins.Bottom := 2;
-	// pnlTop.Margins.Left := 2;
-	// pnlTop.Margins.Right := 2;
 	pnlMiddle.Margins.Top := 2;
 	pnlMiddle.Margins.Bottom := 2;
-	// pnlMiddle.Margins.Left := 2;
-	// pnlMiddle.Margins.Right := 2;
 	pnlBottom.Margins.Top := 2;
 	pnlBottom.Margins.Bottom := 2;
-	// pnlBottom.Margins.Left := 2;
-	// pnlBottom.Margins.Right := 2;
 	gbOptionsFilters.Margins.Top := 2;
 	gbOptionsFilters.Margins.Bottom := 2;
-	// gbOptionsFilters.Margins.Left := 2;
-	// gbOptionsFilters.Margins.Right := 2;
 
 	FSearchFormLayout := []; // normal layout no replace, no expert
-
+	FItemSelectEnabled := True;
 	// Set Position to poDesigned if we have saved position to restore
 	if (FSettings.SearchFormSettings.FormLeft.Value >= 0) and
 	{ } (FSettings.SearchFormSettings.FormTop.Value >= 0) then begin
@@ -462,6 +458,16 @@ begin
 	end;
 end;
 
+procedure TRipGrepperSearchDialogForm.ActionShowExpertOptionsExecute(Sender : TObject);
+begin
+	if not FCbClickEventEnabled then
+		Exit;
+
+	IsExpertMode := cbExpertMode.Checked;
+	SetLayout(IsExpertMode, sflExpert);
+	UpdateExpertModeInOptionPanels();
+end;
+
 procedure TRipGrepperSearchDialogForm.ActionShowFileMaskHelpExecute(Sender : TObject);
 begin
 	TShellUtils.Run(WWW_LINK_GLOBBING_HELP);
@@ -513,7 +519,7 @@ begin
 	try
 		if (mrOk = frm.ShowModal) then begin
 			FSettings.RipGrepParameters.RgExeOptions.RemoveOptions(
-				{ } RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS);
+					{ } RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS);
 			cmbOptions.Text := FSettings.RipGrepParameters.RgExeOptions.AsString;
 			UpdateCtrls(cmbOptions);
 		end;
@@ -557,8 +563,8 @@ begin
 	end;
 	FSettings.StoreToPersister();
 
-//	var
-//	dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
+	// var
+	// dbgArr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 
 	FSettings.UpdateFile();
 end;
@@ -585,7 +591,17 @@ begin
 		// Scale by active Monitor
 		ScaleBy(TRipGrepperDpiScaler.GetActualDPI, self.PixelsPerInch);
 
+		// Sync cbExpertMode checkbox to the loaded IsExpertMode value
+		// (set from FHistItemObj.IsExpertMode or FSettings.AppSettings.IsExpertMode in the constructor)
+		var
+		ar := TAutoSetReset.New(FCbClickEventEnabled, False);
+		cbExpertMode.Checked := IsExpertMode;
+		dbgMsg.MsgFmt('cbExpertMode.Checked set to %s', [BoolToStr(IsExpertMode, True)]);
+
+		dbgMsg.Msg('SetLayout');
+		SetLayout(IsExpertMode, sflExpert);
 		// Apply the layout for the current mode
+		dbgMsg.Msg('UpdateExpertModeInOptionPanels');
 		UpdateExpertModeInOptionPanels();
 
 		// Restore form size from settings (after scaling)
@@ -750,7 +766,7 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.SetComboItemsFromOptions(_cmb : TComboBox; const _argMaskRegex : string;
-	const _items : TArrayEx<string>);
+		const _items : TArrayEx<string>);
 var
 	params : TArray<string>;
 begin
@@ -911,9 +927,9 @@ begin
 	cmbReplaceText.Text := TOptionStrings.MaybeDeQuoteIfQuoted(sVal);
 
 	dbgMsg.MsgFmt('Hidden %s NoIgnore %s Pretty %s',
-		{ } [BoolToStr(cbRgParamHidden.Checked),
-		{ } BoolToStr(cbRgParamNoIgnore.Checked),
-		{ } BoolToStr(cbRgParamPretty.Checked)]);
+			{ } [BoolToStr(cbRgParamHidden.Checked),
+			{ } BoolToStr(cbRgParamNoIgnore.Checked),
+			{ } BoolToStr(cbRgParamPretty.Checked)]);
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateCheckBoxes;
@@ -929,9 +945,9 @@ begin
 	CopyProxyToCtrls();
 
 	dbgMsg.MsgFmt('cbHidden %s cbNoIgnore %s cbPretty %s',
-		{ } [BoolToStr(cbRgParamHidden.Checked),
-		{ } BoolToStr(cbRgParamNoIgnore.Checked),
-		{ } BoolToStr(cbRgParamPretty.Checked)]);
+			{ } [BoolToStr(cbRgParamHidden.Checked),
+			{ } BoolToStr(cbRgParamNoIgnore.Checked),
+			{ } BoolToStr(cbRgParamPretty.Checked)]);
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateMemoCommandLine(const _bSkipReadCtrls : Boolean = False);
@@ -1054,9 +1070,9 @@ begin
 	_ctrlProxy.Encoding := cmbRgParamEncoding.Text;
 	_ctrlProxy.OutputFormat := cmbOutputFormat.Text;
 	_ctrlProxy.SearchOptions := TSearchTextWithOptions.GetAsSearchOptionSet(
-		{ } tbMatchCase.Down,
-		{ } tbMatchWord.Down,
-		{ } tbUseRegex.Down);
+			{ } tbMatchCase.Down,
+			{ } tbMatchWord.Down,
+			{ } tbUseRegex.Down);
 end;
 
 procedure TRipGrepperSearchDialogForm.CopyItemsToProxy(var _arr : TArrayEx<string>; _setting : IArraySetting);
@@ -1068,7 +1084,7 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.CopySettingsToCtrlProxy(var _ctrlProxy : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;
-	_settings : TRipGrepperSettings);
+		_settings : TRipGrepperSettings);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.CopySettingsToCtrlProxy');
@@ -1131,7 +1147,7 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.CopyProxyToSettings(const _ctrlProxy : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;
-	_settings : TRipGrepperSettings);
+		_settings : TRipGrepperSettings);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.CopyProxyToSettings');
@@ -1156,6 +1172,9 @@ begin
 	end else begin
 		FSettings.RipGrepParameters.GuiSearchTextParams.SetSearchOptions(_ctrlProxy.SearchOptions);
 		CopyProxyToSearchFormSettings(_ctrlProxy, FSettings.SearchFormSettings);
+		// Save expert mode so it can be restored when reopening this item from history
+		_histObj.IsExpertMode := FIsExpertMode;
+		dbgMsg.MsgFmt('New search: saved IsExpertMode=%s to history item', [BoolToStr(IsExpertMode, True)]);
 	end;
 end;
 
@@ -1204,7 +1223,7 @@ begin
 end;
 
 function TRipGrepperSearchDialogForm.GetValuesFromHistObjRipGrepArguments(const _argName : string; const _separator : string = ' ')
-	: string;
+		: string;
 begin
 	Result := string.Join(_separator, FHistItemObj.RipGrepArguments.GetValues(_argName));
 end;
@@ -1243,6 +1262,7 @@ begin
 
 	FSettingsProxy.Copy(FSettings.RipGrepParameters.GuiSearchTextParams());
 	FSettingsProxy.UpdateRgParamsByGuiOptions();
+
 	UpdateCheckBoxes();
 end;
 
@@ -1253,7 +1273,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadExtensionSearchSettings');
 	dbgMsg.MsgFmt('ExtensionSettings.IsAlreadyRead=%s', [
-		{ } BoolToStr(FSettings.SearchFormSettings.ExtensionSettings.IsAlreadyRead)]);
+			{ } BoolToStr(FSettings.SearchFormSettings.ExtensionSettings.IsAlreadyRead)]);
 	var
 	selectedText := GetInIDESelectedText;
 	if not HasHistItemObjWithResult then begin
@@ -1341,8 +1361,8 @@ begin
 		Result := FTopPanelFullHeight - replaceTextFullHeight;
 	end;
 
-	dbgMsg.MsgFmt('TopPanelHeight=%d (fullHeight=%d, replaceHeight=%d, ReplaceMode=%s)',
-		[Result, FTopPanelFullHeight, replaceTextFullHeight, BoolToStr(IsReplaceLayout(), True)]);
+	dbgMsg.MsgFmt('TopPanelHeight=%d (fullHeight=%d, replaceHeight=%d, ReplaceMode=%s)', [Result, FTopPanelFullHeight, replaceTextFullHeight,
+			BoolToStr(IsReplaceLayout(), True)]);
 end;
 
 function TRipGrepperSearchDialogForm.CalculateGbOptionsFiltersHeight(const _bIsExpert : Boolean) : Integer;
@@ -1389,11 +1409,11 @@ begin
 	if gbOptionsOutputHeight < MIN_GBOPTIONSOUTPUT_HEIGHT then begin
 		gbOptionsOutputHeight := MIN_GBOPTIONSOUTPUT_HEIGHT;
 		dbgMsg.MsgFmt('gbOptionsOutput height adjusted from %d to minimum %d', [
-			{ } GetFullHeight(gbOptionsOutput), MIN_GBOPTIONSOUTPUT_HEIGHT]);
+				{ } GetFullHeight(gbOptionsOutput), MIN_GBOPTIONSOUTPUT_HEIGHT]);
 	end;
 	dbgMsg.MsgFmt('gbOptionsOutput.Height=%d, Margins.Top=%d, Margins.Bottom=%d, GetFullHeight=%d',
-		[gbOptionsOutput.Height, gbOptionsOutput.Margins.Top,
-		{ } gbOptionsOutput.Margins.Bottom, gbOptionsOutputHeight]);
+			[gbOptionsOutput.Height, gbOptionsOutput.Margins.Top,
+			{ } gbOptionsOutput.Margins.Bottom, gbOptionsOutputHeight]);
 
 	var
 	bottomPanelHeight := GetFullHeight(pnlBottom);
@@ -1412,7 +1432,7 @@ begin
 		var
 		expertHeight := GB_EXPERT_DESIGNED_HEIGHT + gbExpert.Margins.Top + gbExpert.Margins.Bottom;
 		dbgMsg.MsgFmt('Adding gbExpert: DesignedHeight=%d, Margins.Top=%d, Margins.Bottom=%d, Total=%d',
-			[GB_EXPERT_DESIGNED_HEIGHT, gbExpert.Margins.Top, gbExpert.Margins.Bottom, expertHeight]);
+				[GB_EXPERT_DESIGNED_HEIGHT, gbExpert.Margins.Top, gbExpert.Margins.Bottom, expertHeight]);
 		pnlMiddleContentHeight := pnlMiddleContentHeight + expertHeight;
 	end;
 
@@ -1426,7 +1446,7 @@ begin
 	{ } bottomPanelHeight;
 
 	dbgMsg.MsgFmt('FormHeight=%d (top=%d, filters=%d, output=%d, bottom=%d, expert=%s)', [Result, topPanelHeight, gbOptionsFiltersHeight,
-		gbOptionsOutputHeight, bottomPanelHeight, BoolToStr(_bIsExpert, True)]);
+			gbOptionsOutputHeight, bottomPanelHeight, BoolToStr(_bIsExpert, True)]);
 end;
 
 procedure TRipGrepperSearchDialogForm.ApplyLayout(const _bIsExpert : Boolean);
@@ -1439,11 +1459,11 @@ begin
 	// Calculate heights dynamically
 	gbOptionsFilters.Height := CalculateGbOptionsFiltersHeight(_bIsExpert);
 	dbgMsg.MsgFmt('Set gbOptionsFilters.Height=%d (actual after set: %d)', [CalculateGbOptionsFiltersHeight(_bIsExpert),
-		gbOptionsFilters.Height]);
+			gbOptionsFilters.Height]);
 
 	// Check what happened to gbOptionsOutput
 	dbgMsg.MsgFmt('After setting gbOptionsFilters: gbOptionsOutput.Top=%d, gbOptionsOutput.Height=%d',
-		[gbOptionsOutput.Top, gbOptionsOutput.Height]);
+			[gbOptionsOutput.Top, gbOptionsOutput.Height]);
 
 	formHeight := CalculateFormHeight(_bIsExpert);
 	dbgMsg.MsgFmt('Calculated formHeight=%d', [formHeight]);
@@ -1451,7 +1471,7 @@ begin
 	// Show/hide expert controls
 	ShowExpertGroupCtrls(_bIsExpert);
 	dbgMsg.MsgFmt('After ShowExpertGroupCtrls, gbExpert.Visible=%s, gbExpert.Height=%d',
-		[BoolToStr(gbExpert.Visible, True), gbExpert.Height]);
+			[BoolToStr(gbExpert.Visible, True), gbExpert.Height]);
 
 	// Set form constraints and height based on mode
 	if _bIsExpert then begin
@@ -1471,10 +1491,10 @@ begin
 
 	// Final check of all control positions/heights
 	dbgMsg.MsgFmt('FINAL: gbOptionsFilters.Height=%d, gbOptionsOutput.Top=%d, gbOptionsOutput.Height=%d, pnlMiddle.Height=%d',
-		[gbOptionsFilters.Height, gbOptionsOutput.Top, gbOptionsOutput.Height, pnlMiddle.Height]);
+			[gbOptionsFilters.Height, gbOptionsOutput.Top, gbOptionsOutput.Height, pnlMiddle.Height]);
 
 	dbgMsg.MsgFmt('Layout applied: Expert=%s, gbOptionsFilters.Height=%d, Form.Height=%d',
-		[BoolToStr(_bIsExpert, True), gbOptionsFilters.Height, Height]);
+			[BoolToStr(_bIsExpert, True), gbOptionsFilters.Height, Height]);
 end;
 
 class procedure TRipGrepperSearchDialogForm.SetReplaceText(_settings : TRipGrepperSettings; const _replaceText : string);
@@ -1508,8 +1528,8 @@ begin
 end;
 
 class function TRipGrepperSearchDialogForm.ShowSearchForm(_owner : TComponent;
-	{ } _settings : TRipGrepperSettings;
-	{ } _histObj : IHistoryItemObject) : integer;
+		{ } _settings : TRipGrepperSettings;
+		{ } _histObj : IHistoryItemObject) : integer;
 var
 	frm : TRipGrepperSearchDialogForm;
 begin
@@ -1525,8 +1545,7 @@ begin
 			_settings.LastSearchText := _histObj.SearchText;
 			TRipGrepperSearchDialogForm.SetReplaceText(_settings, _histObj.ReplaceText);
 			dbgMsg.MsgFmtIf(_histObj.SearchText <> _histObj.GuiSearchTextParams.GetSearchText,
-				{ } 'ERROR? _histObj.SearchText=%s <> GuiSearchTextParams=%s',
-				[_histObj.SearchText, _histObj.GuiSearchTextParams.GetSearchText]);
+					{ } 'ERROR? _histObj.SearchText=%s <> GuiSearchTextParams=%s', [_histObj.SearchText, _histObj.GuiSearchTextParams.GetSearchText]);
 		end;
 		dbgMsg.Msg('LastSearchText=' + _settings.LastSearchText);
 	finally
@@ -1566,8 +1585,7 @@ begin
 		dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange');
 		cmbSearchDir.Enabled := False;
 		if _icv.GetContextType() = dicNotSet then begin
-			dbgMsg.WarningMsgFmt('Extension IDE Context not supported :%d. fallback to custom locations:',
-				[Ord(FCtrlProxy.ExtensionContext)]);
+			dbgMsg.WarningMsgFmt('Extension IDE Context not supported :%d. fallback to custom locations:', [Ord(FCtrlProxy.ExtensionContext)]);
 			FCtrlProxy.ExtensionContext := EDelphiIDESearchContext.dicCustomLocation;
 		end else begin
 			FCtrlProxy.ExtensionContext := _icv.GetContextType();
@@ -1634,6 +1652,7 @@ begin
 	// Determine current mode
 	bIsExpert := IsExpertLayout();
 	// Apply the layout for current mode (expert or normal)
+	dbgMsg.MsgFmt('Applying layout: Expert=%s', [BoolToStr(bIsExpert, True)]);
 	ApplyLayout(bIsExpert);
 end;
 
@@ -1641,27 +1660,24 @@ procedure TRipGrepperSearchDialogForm.UpdateRbExtensionItemIndex(const _dic : ED
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateRbExtensionItemIndex');
+	var
+	asr := TAutoSetReset.New(FbExtensionOptionsSkipClick, True);
 
-	FbExtensionOptionsSkipClick := True;
-	try
-		FExtensionContextPanel.SetSelectedIDEContext(_dic);
-		dbgMsg.MsgFmt('ContextRadioGroup.ItemIndex = %d', [Integer(_dic)]);
+	FExtensionContextPanel.SetSelectedIDEContext(_dic);
+	dbgMsg.MsgFmt('ContextRadioGroup.ItemIndex = %d', [Integer(_dic)]);
 
-		// Create the appropriate context values directly to ensure proper initialization
-		var
-			icv : IIDEContextValues;
-		case _dic of
-			{ } EDelphiIDESearchContext.dicCustomLocation : begin
-				icv := TIDEContextValues.Create(_dic, FCtrlProxy.SearchPath, False { isExpert } );
-			end;
-			else
-			icv := FExtensionContextPanel.ContextValues;
+	// Create the appropriate context values directly to ensure proper initialization
+	var
+		icv : IIDEContextValues;
+	case _dic of
+		{ } EDelphiIDESearchContext.dicCustomLocation : begin
+			icv := TIDEContextValues.Create(_dic, FCtrlProxy.SearchPath, False { isExpert } );
 		end;
-
-		UpdateCmbsOnIDEContextChange(icv);
-	finally
-		FbExtensionOptionsSkipClick := False;
+		else
+		icv := FExtensionContextPanel.ContextValues;
 	end;
+
+	UpdateCmbsOnIDEContextChange(icv);
 end;
 
 function TRipGrepperSearchDialogForm.ValidateRegex : Boolean;
@@ -1704,37 +1720,10 @@ begin
 
 	// these assignings doesn't needed anymore, XxxxxOptionsPanel do it
 	// cbRgParamPretty.Checked := FCtrlProxy.IsPrettyChecked;
-	dbgMsg.MsgFmt('cbRgParamPretty.Checked %s', [BoolToStr(cbRgParamPretty.Checked)]);
-
-	// cbRgParamContext.Checked := FCtrlProxy.LineContext <> 0;
-	// seContextLineNum.Enabled := cbRgParamContext.Checked;
-	// seContextLineNum.Value := FCtrlProxy.LineContext;
-	dbgMsg.MsgFmt('seContextLineNum.Value=%d', [seContextLineNum.Value]);
-
-	// FRgFilterOptionsPanel.EventsEnabled := False;
-	try
-		dbgMsg.MsgFmt('FCtrlProxy.IsHiddenChecked=%s', [BoolToStr(FCtrlProxy.IsHiddenChecked, True)]);
-		// cbRgParamHidden.Checked := FCtrlProxy.IsHiddenChecked;
-		dbgMsg.MsgFmt('cbRgParamHidden.Checked=%s', [BoolToStr(cbRgParamHidden.Checked, True)]);
-
-		dbgMsg.MsgFmt('FCtrlProxy.IsNoIgnoreChecked=%s', [BoolToStr(FCtrlProxy.IsNoIgnoreChecked, True)]);
-		// cbRgParamNoIgnore.Checked := FCtrlProxy.IsNoIgnoreChecked;
-		dbgMsg.MsgFmt('cbRgParamNoIgnore.Checked=%s', [BoolToStr(cbRgParamNoIgnore.Checked, True)]);
-
-		// cbRgParamEncoding.Checked := FCtrlProxy.Encoding <> '';
-		// cmbRgParamEncoding.Enabled := cbRgParamEncoding.Checked;
-		// cmbRgParamEncoding.Text := FCtrlProxy.Encoding;
-		dbgMsg.Msg('cmbRgParamEncoding.Text=' + cmbRgParamEncoding.Text);
-
-		// cmbOutputFormat.Text := FCtrlProxy.OutputFormat;
-		dbgMsg.Msg('cmbOutputFormat.Text=' + cmbOutputFormat.Text);
-	finally
-		// FRgFilterOptionsPanel.EventsEnabled := True;
-	end;
 end;
 
 procedure TRipGrepperSearchDialogForm.CopyProxyToSearchFormSettings(const _ctrlProxy : TSearchFormCtrlValueProxy;
-	const _settings : TSearchFormSettings);
+		const _settings : TSearchFormSettings);
 begin
 	_settings.Hidden.Value := _ctrlProxy.IsHiddenChecked;
 	_settings.NoIgnore.Value := _ctrlProxy.IsNoIgnoreChecked;
@@ -1746,6 +1735,8 @@ end;
 
 procedure TRipGrepperSearchDialogForm.CopySettingsToHistObj;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.CopySettingsToHistObj');
 	// FSettings.SearchFormSettings.StoreSearchSettings(False);
 	FHistItemObj.SearchFormSettings.Copy(FSettings.SearchFormSettings);
 	FHistItemObj.SearchFormSettings.LoadFromDict();
@@ -1754,6 +1745,12 @@ begin
 	args := FSettings.GetRipGrepArguments();
 	FHistItemObj.RipGrepArguments.Assign(args());
 	FHistItemObj.GuiSearchTextParams.Copy(FSettingsProxy);
+	FHistItemObj.IsExpertMode := FIsExpertMode;
+	dbgMsg.MsgFmt('Copied settings to HistObj: SearchFormSettings=%s, ' + CRLF +
+			{ } ' RipGrepArguments count=%d, ' + CRLF +
+			{ } ' GuiSearchTextParams=%s, ' + CRLF +
+			{ } ' IsExpertMode=%s', [FHistItemObj.SearchFormSettings.ToLogString, FHistItemObj.RipGrepArguments.Count,
+			{ } FHistItemObj.GuiSearchTextParams.ToString, BoolToStr(FHistItemObj.IsExpertMode, True)]);
 end;
 
 function TRipGrepperSearchDialogForm.GetMaxCountHistoryItems(const _arr : TArrayEx<string>) : TArrayEx<string>;
@@ -1775,7 +1772,7 @@ begin
 	{ } gbOptionsFilters.Padding.Bottom;
 
 	dbgMsg.MsgFmt('Base options height=%d (pnlPath=%d, pnlRgFilterOptions=%d)',
-		[Result, GetFullHeight(pnlPath), GetFullHeight(pnlRgFilterOptions)]);
+			[Result, GetFullHeight(pnlPath), GetFullHeight(pnlRgFilterOptions)]);
 end;
 
 procedure TRipGrepperSearchDialogForm.LoadOldHistorySearchSettings;
@@ -1784,6 +1781,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadOldHistorySearchSettings');
 
 	FSettingsProxy := FHistItemObj.GuiSearchTextParams;
+
 	if Assigned(FHistItemObj.SearchFormSettings) then begin
 		FOrigSearchFormSettings := TSearchFormSettings.Create;
 		dbgMsg.Msg('Hist: ' + FHistItemObj.SearchFormSettings.ToLogString);
@@ -1837,28 +1835,6 @@ begin
 	// Exit;
 
 	UpdateCtrls(cmbRgParamEncoding);
-end;
-
-procedure TRipGrepperSearchDialogForm.OnAppSettingsPanelItemSelect(Sender : TObject; Item : TCustomCheckItem);
-begin
-	if not FCbClickEventEnabled then begin
-		Exit;
-	end;
-
-	var
-	isExpert := FSettings.AppSettings.ExpertMode.Value;
-	if not isExpert and (mrYes <>
-		{ } TMsgBox.ShowQuestion('Switch to normal mode? ' + CRLF2 +
-		{ } 'All expert settings will be reset to defaults.')) then begin
-		// User answered "No" - restore checkbox to original state
-		Item.Checked := not Item.Checked;
-		Exit;
-	end;
-
-	// Update the layout flag based on new expert mode state
-	SetLayout(isExpert, sflExpert);
-
-	UpdateExpertModeInOptionPanels();
 end;
 
 procedure TRipGrepperSearchDialogForm.SetPrettyCheckboxHint();
@@ -1950,21 +1926,6 @@ begin
 	end;
 end;
 
-procedure TRipGrepperSearchDialogForm.SetAppSettingsPanel(const _settings : TRipGrepperSettings);
-begin
-	FAppSettingsPanel := TAppOptionsPanel.Create(self);
-	FAppSettingsPanel.Settings := _settings;
-	pnlBottom.Padding.Left := RG_OPTIONS_PADDING_LEFT;
-	pnlBottom.Padding.Top := RG_OPTIONS_PADDING_TOP;
-	FAppSettingsPanel.Parent := pnlBottom;
-
-	FAppSettingsPanel.Align := alClient;
-	FAppSettingsPanel.AddItems();
-	// OnOptionChange should be set after AddItems
-	FAppSettingsPanel.OnOptionChange := OnAppSettingsPanelItemSelect;
-	FAppSettingsPanel.SendToBack();
-end;
-
 function TRipGrepperSearchDialogForm.getExtensionContextPanelHeight(const _bIsExpert : Boolean) : integer;
 begin
 	var
@@ -1982,14 +1943,18 @@ begin
 		{ } FExtensionContextPanel.Margins.Bottom;
 
 		dbgMsg.MsgFmt('ExtensionPanel Height=%d (visible=%s, expert=%s)',
-			[FExtensionContextPanel.Height, BoolToStr(FExtensionContextPanel.Visible, True), BoolToStr(_bIsExpert, True)]);
+				[FExtensionContextPanel.Height, BoolToStr(FExtensionContextPanel.Visible, True), BoolToStr(_bIsExpert, True)]);
 	end;
 end;
 
 function TRipGrepperSearchDialogForm.IsExpertLayout() : Boolean;
 begin
-	SetLayout(FSettings.AppSettings.IsExpertMode, sflExpert);
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.IsExpertLayout');
+	// SetLayout(FCtrlProxy.IsExpertMode, sflExpert);
+	// SetLayout(FSettings.AppSettings.IsExpertMode, sflExpert);
 	Result := sflExpert in FSearchFormLayout;
+	dbgMsg.MsgFmt('IsExpertLayout=%s', [BoolToStr(Result, True)]);
 end;
 
 function TRipGrepperSearchDialogForm.IsStandaloneLayout() : Boolean;
@@ -2036,10 +2001,12 @@ end;
 
 procedure TRipGrepperSearchDialogForm.UpdateExpertModeInOptionPanels();
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateExpertModeInOptionPanels');
 	FExtensionContextPanel.UpdateExpertMode(FSearchFormLayout);
 	FRgFilterOptionsPanel.UpdateExpertMode(FSearchFormLayout);
 	FRgOutputOptionsPanel.UpdateExpertMode(FSearchFormLayout);
-	FAppSettingsPanel.UpdateExpertMode(FSearchFormLayout);
+	// FAppSettingsPanel.UpdateExpertMode(FSearchFormLayout);
 
 	// AdjustLayout will apply the appropriate layout mode
 	// The layout methods will handle extension panel sizing
@@ -2054,11 +2021,29 @@ begin
 
 	if not Assigned(FRegexTemplateMenu) then begin
 		FRegexTemplateMenu := TRegexTemplateMenu.Create(PopupMenuRegexTemplates, FRegexTemplateManager,
-			FSettings.SearchFormSettings.RegexTemplates, FSettings.AppSettings.ColorTheme);
+				FSettings.SearchFormSettings.RegexTemplates, FSettings.AppSettings.ColorTheme);
 		FRegexTemplateMenu.OnTemplateSelected := OnRegexTemplateSelected;
 	end;
 
 	FRegexTemplateMenu.ShowAtControl(btnRegexTemplates, cmbSearchText.Text);
+end;
+
+function TRipGrepperSearchDialogForm.GetIsExpertMode() : Nullable<Boolean>;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.GetIsExpertMode');
+	if (FIsExpertMode = nil) then begin
+		dbgMsg.Msg('Determining expert mode for the first time');
+		if HasHistItemObjWithResult then begin
+			dbgMsg.Msg('Using expert mode from history item');
+			FIsExpertMode := FHistItemObj.IsExpertMode;
+		end else begin
+			dbgMsg.Msg('Using expert mode from app settings');
+			FIsExpertMode := FSettings.AppSettings.IsExpertMode;
+		end;
+	end;
+	dbgMsg.MsgFmt('GetIsExpertMode=%s', [BoolToStr(FIsExpertMode.Value, True)]);
+	Result := FIsExpertMode;
 end;
 
 procedure TRipGrepperSearchDialogForm.OnRegexTemplateSelected(const _pattern : string);
@@ -2078,6 +2063,11 @@ begin
 
 	// Set focus to search text
 	cmbSearchText.SetFocus;
+end;
+
+procedure TRipGrepperSearchDialogForm.SetIsExpertMode(const Value : Nullable<Boolean>);
+begin
+	FIsExpertMode := Value;
 end;
 
 end.
