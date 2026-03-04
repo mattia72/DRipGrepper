@@ -2067,7 +2067,18 @@ end;
 
 procedure TRipGrepperSearchDialogForm.SetIsExpertMode(const Value : Nullable<Boolean>);
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetIsExpertMode');
 	FIsExpertMode := Value;
+	if (FIsExpertMode <> nil) then begin
+		if HasHistItemObjWithResult then begin
+			dbgMsg.Msg('Copy expert mode to history item');
+			FHistItemObj.IsExpertMode := FIsExpertMode;
+		end else begin
+			dbgMsg.Msg('Copy expert mode to app settings');
+			FSettings.AppSettings.ExpertMode.Value := FIsExpertMode;
+		end;
+	end;
 end;
 
 end.

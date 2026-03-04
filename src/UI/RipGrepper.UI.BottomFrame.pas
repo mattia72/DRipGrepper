@@ -74,6 +74,7 @@ uses
 	RipGrepper.UI.MiddleFrame,
 	System.StrUtils,
 	RipGrepper.Tools.DebugUtils,
+	RipGrepper.Tools.ReleaseUtils,
 	RipGrepper.Helper.UI.DarkMode;
 
 {$R *.dfm}
@@ -213,21 +214,10 @@ end;
 
 procedure TRipGrepperBottomFrame.ShowAboutDialog;
 var
-	mbp : TMsgBoxParams;
-	msgText : string;
+	releaseUtils : TReleaseUtils;
 begin
-	msgText := '';
-	{$IFDEF STANDALONE}
-		msgText := 'GUI for Windows';
-	{$ELSE}
-		msgText := 'Delphi IDE plugin';
-	{$ENDIF}
-	msgText := msgText + ' to parametrize ripgrep for superfast search.' + CRLF2 +
-		{ } '<A HREF="https://github.com/mattia72/DripGrepper">https://github.com/mattia72/DripGrepper</A>';
-	mbp := TMsgBoxParams.Create(msgText, TMsgDlgType.mtInformation, MainFrame.ModuleNameAndVersion,
-		{ } '', '', [tfEnableHyperlinks]);
-	mbp.Btns := [mbOk];
-	TMsgBox.ShowMsgBox(mbp);
+	releaseUtils.DownloadReleaseInfos();
+	releaseUtils.ShowNewVersionMsgBox();
 end;
 
 procedure TRipGrepperBottomFrame.StatusBar1Click(Sender : TObject);

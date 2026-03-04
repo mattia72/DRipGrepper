@@ -75,7 +75,8 @@ type
 			function GetLatestRelease : IReleaseInfo;
 			function GetLatestVersion : string;
 			class function GetModuleVersion(Instance : THandle; out iMajor, iMinor, iRelease, iBuild : Integer) : Boolean; static;
-			class function ParseVersionString(const _version : string; out _major, _minor, _patch, _build : Integer; out _suffix : string) : Boolean; static;
+			class function ParseVersionString(const _version : string; out _major, _minor, _patch, _build : Integer; out _suffix : string)
+				: Boolean; static;
 
 		public
 			class function CompareVersions(const _version1, _version2 : string) : Integer; static;
@@ -88,6 +89,7 @@ type
 			class function GetRunningModuleVersion() : string; static;
 			class function GetModuleNameAndVersion() : string; static;
 			class function GetRunningModulePath() : string; static;
+			function GetVersionStatusText() : string;
 			function IsCurrentTheLatest : Boolean;
 			class function IsSameVersion(_ri1, _ri2 : IReleaseInfo) : Boolean; static;
 			procedure ShowNewVersionMsgBox(const _bOnlyIfUpdateAvailable : Boolean = False);
@@ -117,7 +119,8 @@ uses
 	RipGrepper.Helper.UI,
 	System.UITypes,
 	RipGrepper.Helper.Types,
-	RipGrepper.Tools.WinHttpClient;
+	RipGrepper.Tools.WinHttpClient,
+	Vcl.Dialogs;
 
 function TReleaseInfo.GetDescription : string;
 begin
@@ -194,7 +197,7 @@ var
 	lines : TArrayEx<string>;
 begin
 	bIsComment := False;
-	for var l : string in _body.Split([CR,LF,CRLF]) do begin
+	for var l : string in _body.Split([CR, LF, CRLF]) do begin
 		if bIsComment or TRegEx.IsMatch(l, '^\s*<!--') then begin
 			bIsComment := True;
 		end;
@@ -463,6 +466,20 @@ begin
 	dbgMsg.Msg(Result);
 end;
 
+function TReleaseUtils.GetVersionStatusText() : string;
+var
+	statusLine : string;
+begin
+	if DownloadedReleaseInfos.IsEmpty or not LatestRelease.LoadOk then begin
+		statusLine := 'Update check not available.';
+	end else if IsCurrentTheLatest() then begin
+		statusLine := 'You are using the latest version.';
+	end else begin
+		statusLine := Format('New version %s published at %s', [LatestVersion, DateTimeToStr(LatestRelease.PublishedAt)]);
+	end;
+	Result := GetModuleNameAndVersion() + CRLF + statusLine;
+end;
+
 function TReleaseUtils.IsCurrentTheLatest : Boolean;
 begin
 	var
@@ -484,36 +501,41 @@ begin
 end;
 
 procedure TReleaseUtils.ShowNewVersionMsgBox(const _bOnlyIfUpdateAvailable : Boolean = False);
+var
+	versionStatus : string;
+	msgText : string;
 begin
+	versionStatus := GetVersionStatusText();
+	msgText := versionStatus + CRLF2 +
+	{ } '<A HREF="https://github.com/mattia72/DripGrepper">https://github.com/mattia72/DripGrepper</A>';
+
+	if not IsCurrentTheLatest then begin
+		msgText := msgText + CRLF +
+		{ } 'Do you want to go to the release page?';
+	end;
+
+	var
+	mbp := TMsgBoxParams.Create(msgText, TMsgDlgType.mtInformation, GetCurrentNameWithVersion,
+		{ } '', '', [tfEnableHyperlinks]);
+
 	if IsCurrentTheLatest then begin
-		if not _bOnlyIfUpdateAvailable then begin
-			if LatestRelease.LoadOk then begin
-				TMsgBox.ShowInfo('You are using the latest version.');
-			end; // else error msg already shown...
-		end;
+		mbp.Btns := [mbOk];
 	end else begin
+		mbp.Btns := [mbYes, mbNo];
+	end;
+	mbp.ExpandedCaption := 'What''s New?';
+	mbp.ExpandedText := LatestRelease.Description;
+	var
+	icon := TResourceHelper.CreateIconFromResource('MAINICON');
+	try
+		mbp.CustomMainIcon := icon;
 		var
-		msg := Format(
-			{ } 'You are using %s' + CRLF +
-			{ } 'New version %s published at %s' + CRLF2 +
-			{ } 'Do you wan''t to go to the release page?', [GetModuleNameAndVersion(),
-			{ } LatestVersion, DateTimeToStr(LatestRelease.PublishedAt)]);
-		var
-		mbp := TMsgBoxParams.Create(msg, TMsgDlgType.mtConfirmation, 'New Version');
-		mbp.ExpandedCaption := 'What''s New?';
-		mbp.ExpandedText := LatestRelease.Description;
-		var
-		icon := TResourceHelper.CreateIconFromResource('MAINICON');
-		try
-			mbp.CustomMainIcon := icon;
-			var
-			res := TMsgBox.ShowMsgBox(mbp);
-			if mrYes = res then begin
-				TUrlLinkHelper.OpenLink(LatestRelease.HtmlURL);
-			end;
-		finally
-			icon.Free;
+		res := TMsgBox.ShowMsgBox(mbp);
+		if mrYes = res then begin
+			TUrlLinkHelper.OpenLink(LatestRelease.HtmlURL);
 		end;
+	finally
+		icon.Free;
 	end;
 end;
 
@@ -529,7 +551,8 @@ begin
 	end;
 end;
 
-class function TReleaseUtils.ParseVersionString(const _version : string; out _major, _minor, _patch, _build : Integer; out _suffix : string) : Boolean;
+class function TReleaseUtils.ParseVersionString(const _version : string; out _major, _minor, _patch, _build : Integer; out _suffix : string)
+	: Boolean;
 var
 	cleanVersion : string;
 	versionParts : TArray<string>;
@@ -569,15 +592,15 @@ begin
 	try
 		_major := StrToInt(versionParts[0]);
 		_minor := StrToInt(versionParts[1]);
-		
+
 		if Length(versionParts) > 2 then begin
 			_patch := StrToInt(versionParts[2]);
 		end;
-		
+
 		if Length(versionParts) > 3 then begin
 			_build := StrToInt(versionParts[3]);
 		end;
-		
+
 		Result := True;
 	except
 		on E : EConvertError do begin
@@ -602,12 +625,12 @@ begin
 		Result := CompareStr(_version1, _version2); // Fallback to string comparison
 		Exit;
 	end;
-	
+
 	if not version1Valid then begin
 		Result := -1; // Invalid version is considered lower
 		Exit;
 	end;
-	
+
 	if not version2Valid then begin
 		Result := 1; // Valid version is higher than invalid
 		Exit;
@@ -639,7 +662,7 @@ begin
 		Result := 1; // No suffix is higher than with suffix (stable > pre-release)
 		Exit;
 	end;
-	
+
 	if not suffix1.IsEmpty and suffix2.IsEmpty then begin
 		Result := -1; // With suffix is lower than no suffix (pre-release < stable)
 		Exit;
