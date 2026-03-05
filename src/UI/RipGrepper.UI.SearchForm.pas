@@ -234,6 +234,7 @@ type
 			procedure SetCmbSearchTextAutoComplete(const _Value : Boolean);
 			procedure UpdateMemoTextFormat();
 			function getOptionsAndFiltersHeight(const _bWithLabel : Boolean) : integer;
+			function CalculateGbOptionsOutputHeight() : Integer;
 			procedure SetRgFilterOptionsPanel(const _settings : TRipGrepperSettings);
 			procedure SetRgOutputOptionsPanel(const _settings : TRipGrepperSettings);
 			procedure OnRegexTemplateSelected(const _pattern : string);
@@ -1387,6 +1388,30 @@ begin
 	dbgMsg.MsgFmt('GbOptionsFiltersHeight=%d (caption=%d, ext=%d, base=%d)', [Result, GB_CAPTION_HEIGHT, extensionPanelHeight, baseHeight]);
 end;
 
+function TRipGrepperSearchDialogForm.CalculateGbOptionsOutputHeight() : Integer;
+const
+	GB_CAPTION_HEIGHT = 18;
+	GB_BORDER_BOTTOM = 4; // GroupBox bottom border frame
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.CalculateGbOptionsOutputHeight');
+
+	var
+	contentHeight := 0;
+	if Assigned(FRgOutputOptionsPanel) then begin
+		contentHeight := FRgOutputOptionsPanel.Height;
+	end;
+
+	Result := GB_CAPTION_HEIGHT +
+	{ } gbOptionsOutput.Padding.Top +
+	{ } gbOptionsOutput.Padding.Bottom +
+	{ } GB_BORDER_BOTTOM +
+	{ } contentHeight;
+
+	dbgMsg.MsgFmt('GbOptionsOutputHeight=%d (caption=%d, padding=%d+%d, border=%d, content=%d)',
+		[Result, GB_CAPTION_HEIGHT, gbOptionsOutput.Padding.Top, gbOptionsOutput.Padding.Bottom, GB_BORDER_BOTTOM, contentHeight]);
+end;
+
 function TRipGrepperSearchDialogForm.CalculateFormHeight(const _bIsExpert : Boolean) : Integer;
 begin
 	var
@@ -1401,23 +1426,11 @@ begin
 	gbOptionsFiltersHeight := CalculateGbOptionsFiltersHeight(_bIsExpert);
 	dbgMsg.MsgFmt('gbOptionsFiltersHeight=%d', [gbOptionsFiltersHeight]);
 
-	// gbOptionsOutput should have a minimum reasonable height (not the current cut-off height)
-	const
-		MIN_GBOPTIONSOUTPUT_HEIGHT = 100; // Minimum height for output options
 	var
 	gbOptionsOutputHeight := GetFullHeight(gbOptionsOutput);
-	if gbOptionsOutputHeight < MIN_GBOPTIONSOUTPUT_HEIGHT then begin
-		gbOptionsOutputHeight := MIN_GBOPTIONSOUTPUT_HEIGHT;
-		dbgMsg.MsgFmt('gbOptionsOutput height adjusted from %d to minimum %d', [
-				{ } GetFullHeight(gbOptionsOutput), MIN_GBOPTIONSOUTPUT_HEIGHT]);
-	end;
 	dbgMsg.MsgFmt('gbOptionsOutput.Height=%d, Margins.Top=%d, Margins.Bottom=%d, GetFullHeight=%d',
 			[gbOptionsOutput.Height, gbOptionsOutput.Margins.Top,
 			{ } gbOptionsOutput.Margins.Bottom, gbOptionsOutputHeight]);
-
-	var
-	bottomPanelHeight := GetFullHeight(pnlBottom);
-	dbgMsg.MsgFmt('bottomPanelHeight=%d', [bottomPanelHeight]);
 
 	// Base form height (without expert group box)
 	// pnlMiddle uses alClient, so we calculate based on its contents
@@ -1438,15 +1451,21 @@ begin
 
 	dbgMsg.MsgFmt('pnlMiddle content height=%d', [pnlMiddleContentHeight]);
 
+	// Calculate non-client area (title bar + borders)
+	// pnlTop and pnlBottom use Align without AlignWithMargins, so their VCL margins are not applied
+	var
+	nonClientHeight := Height - ClientHeight;
+	dbgMsg.MsgFmt('nonClientHeight=%d (Height=%d, ClientHeight=%d)', [nonClientHeight, Height, ClientHeight]);
+
 	Result :=
 	{ } topPanelHeight +
-	{ } pnlMiddle.Margins.Top +
 	{ } pnlMiddleContentHeight +
-	{ } pnlMiddle.Margins.Bottom +
-	{ } bottomPanelHeight;
+	{ } pnlBottom.Height +
+	{ } nonClientHeight;
 
-	dbgMsg.MsgFmt('FormHeight=%d (top=%d, filters=%d, output=%d, bottom=%d, expert=%s)', [Result, topPanelHeight, gbOptionsFiltersHeight,
-			gbOptionsOutputHeight, bottomPanelHeight, BoolToStr(_bIsExpert, True)]);
+	dbgMsg.MsgFmt('FormHeight=%d (top=%d, filters=%d, output=%d, bottom=%d, nonClient=%d, expert=%s)',
+			[Result, topPanelHeight, gbOptionsFiltersHeight,
+			gbOptionsOutputHeight, pnlBottom.Height, nonClientHeight, BoolToStr(_bIsExpert, True)]);
 end;
 
 procedure TRipGrepperSearchDialogForm.ApplyLayout(const _bIsExpert : Boolean);
@@ -1461,9 +1480,9 @@ begin
 	dbgMsg.MsgFmt('Set gbOptionsFilters.Height=%d (actual after set: %d)', [CalculateGbOptionsFiltersHeight(_bIsExpert),
 			gbOptionsFilters.Height]);
 
-	// Check what happened to gbOptionsOutput
-	dbgMsg.MsgFmt('After setting gbOptionsFilters: gbOptionsOutput.Top=%d, gbOptionsOutput.Height=%d',
-			[gbOptionsOutput.Top, gbOptionsOutput.Height]);
+	// Set gbOptionsOutput height based on its content
+	gbOptionsOutput.Height := CalculateGbOptionsOutputHeight();
+	dbgMsg.MsgFmt('Set gbOptionsOutput.Height=%d', [gbOptionsOutput.Height]);
 
 	formHeight := CalculateFormHeight(_bIsExpert);
 	dbgMsg.MsgFmt('Calculated formHeight=%d', [formHeight]);
@@ -1892,6 +1911,9 @@ begin
 	FRgOutputOptionsPanel.AdjustHeight();
 	// Ensure parent panel height matches the output panel plus padding
 	pnlRgOutputOptions.Height := FRgOutputOptionsPanel.Height + pnlRgOutputOptions.Padding.Top + pnlRgOutputOptions.Padding.Bottom;
+
+	// Set gbOptionsOutput height to properly fit its content
+	gbOptionsOutput.Height := CalculateGbOptionsOutputHeight();
 
 	// Map checkbox controls for output options
 	cbRgParamPretty := optionsGroup.GetItemByCaption(RG_OUTPUT_OPTION_PRETTY_CAPTION).CheckBox;

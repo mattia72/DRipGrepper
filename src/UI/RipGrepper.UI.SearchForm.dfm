@@ -241,7 +241,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Left = 8
         Top = 87
         Width = 476
-        Height = 99
+        Height = 82
         Anchors = [akLeft, akTop, akRight, akBottom]
         Color = clInfoBk
         Lines.Strings = (
