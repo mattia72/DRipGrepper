@@ -128,7 +128,7 @@ begin
 	end;
 	tbcLicenceReleaseNotes.TabIndex := 2;
 
-	FReleaseUtils.ShowNewVersionMsgBox();
+	FReleaseUtils.ShowVersionInfoMsgBox();
 
 	if FReleaseUtils.LatestRelease.LoadOk then begin
 		lnkLatestUrl.Visible := True;

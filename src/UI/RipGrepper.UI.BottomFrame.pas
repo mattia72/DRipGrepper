@@ -206,8 +206,8 @@ begin
 	if (MainFrame.HistItemObject = nil) or (MainFrame.HistItemObject.ElapsedTimeText = '') then begin
 	  	msg := Format(FORMAT_VERSION_INFO_IN_STATUSBAR, [MainFrame.ModuleNameAndVersion]);
 	end else begin
-		msg := Format('Search took %s seconds', 
-		[MainFrame.HistItemObject.ElapsedTimeText]); 
+		msg := Format('Search took %s seconds',
+		[MainFrame.HistItemObject.ElapsedTimeText]);
 	end;
 	StatusBarMessage := msg;
 end;
@@ -217,7 +217,7 @@ var
 	releaseUtils : TReleaseUtils;
 begin
 	releaseUtils.DownloadReleaseInfos();
-	releaseUtils.ShowNewVersionMsgBox();
+	releaseUtils.ShowVersionInfoMsgBox();
 end;
 
 procedure TRipGrepperBottomFrame.StatusBar1Click(Sender : TObject);

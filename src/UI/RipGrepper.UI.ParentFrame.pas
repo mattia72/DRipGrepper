@@ -170,7 +170,7 @@ begin
 	if (not FbNewVersioMsgBoxAlreadyShown) and Settings.AppSettings.CheckNewVersionOnStartup then begin
 		var
 			ru : TReleaseUtils;
-		ru.ShowNewVersionMsgBox(True);
+		ru.ShowVersionInfoMsgBox(True);
 		FbNewVersioMsgBoxAlreadyShown := True;
 	end;
 end;

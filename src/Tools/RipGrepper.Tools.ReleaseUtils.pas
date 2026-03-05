@@ -76,7 +76,7 @@ type
 			function GetLatestVersion : string;
 			class function GetModuleVersion(Instance : THandle; out iMajor, iMinor, iRelease, iBuild : Integer) : Boolean; static;
 			class function ParseVersionString(const _version : string; out _major, _minor, _patch, _build : Integer; out _suffix : string)
-				: Boolean; static;
+					: Boolean; static;
 
 		public
 			class function CompareVersions(const _version1, _version2 : string) : Integer; static;
@@ -92,7 +92,7 @@ type
 			function GetVersionStatusText() : string;
 			function IsCurrentTheLatest : Boolean;
 			class function IsSameVersion(_ri1, _ri2 : IReleaseInfo) : Boolean; static;
-			procedure ShowNewVersionMsgBox(const _bOnlyIfUpdateAvailable : Boolean = False);
+			procedure ShowVersionInfoMsgBox(const _bOnlyIfUpdateAvailable : Boolean = False);
 			function TryGetCurrentRelInfo(var _curInfo : IReleaseInfo) : Boolean;
 			property CurrentNameWithVersion : string read GetCurrentNameWithVersion;
 			property CurrentName : string read GetCurrentName;
@@ -195,8 +195,10 @@ procedure TReleaseInfo.SetDescriptionFromBody(const _body : string);
 var
 	bIsComment : Boolean;
 	lines : TArrayEx<string>;
+	emptyLineCount : Integer;
 begin
 	bIsComment := False;
+	emptyLineCount := 0;
 	for var l : string in _body.Split([CR, LF, CRLF]) do begin
 		if bIsComment or TRegEx.IsMatch(l, '^\s*<!--') then begin
 			bIsComment := True;
@@ -206,7 +208,19 @@ begin
 			continue
 		end;
 		if not bIsComment then begin
-			lines.Add(l);
+			if l.Trim.IsEmpty then begin
+				Inc(emptyLineCount);
+				// if emptyLineCount > 1 then begin
+				continue;
+				// end;
+			end else begin
+				emptyLineCount := 0;
+			end;
+			if not (l.StartsWith('#') or l.StartsWith('*')) then begin
+				lines.Add('   ' + l);
+			end else begin
+				lines.Add(l);
+			end;
 		end;
 	end;
 
@@ -439,8 +453,8 @@ begin
 			if GetFileVersionInfo(PChar(_fullPath), wnd, infoSize, verBuf) then begin
 				VerQueryValue(verBuf, '\', Pointer(FixedFileInfo), verSize);
 
-				result := IntToStr(FixedFileInfo.dwFileVersionMS div $10000) + '.' + IntToStr(FixedFileInfo.dwFileVersionMS and $0FFFF) +
-					'.' + IntToStr(FixedFileInfo.dwFileVersionLS div $10000) + '.' + IntToStr(FixedFileInfo.dwFileVersionLS and $0FFFF);
+				result := IntToStr(FixedFileInfo.dwFileVersionMS div $10000) + '.' + IntToStr(FixedFileInfo.dwFileVersionMS and $0FFFF) + '.' +
+						IntToStr(FixedFileInfo.dwFileVersionLS div $10000) + '.' + IntToStr(FixedFileInfo.dwFileVersionLS and $0FFFF);
 			end;
 		finally
 			FreeMem(verBuf);
@@ -500,7 +514,7 @@ begin
 	end;
 end;
 
-procedure TReleaseUtils.ShowNewVersionMsgBox(const _bOnlyIfUpdateAvailable : Boolean = False);
+procedure TReleaseUtils.ShowVersionInfoMsgBox(const _bOnlyIfUpdateAvailable : Boolean = False);
 var
 	versionStatus : string;
 	msgText : string;
@@ -516,7 +530,7 @@ begin
 
 	var
 	mbp := TMsgBoxParams.Create(msgText, TMsgDlgType.mtInformation, GetCurrentNameWithVersion,
-		{ } '', '', [tfEnableHyperlinks]);
+			{ } '', '', [tfEnableHyperlinks]);
 
 	if IsCurrentTheLatest then begin
 		mbp.Btns := [mbOk];
@@ -552,7 +566,7 @@ begin
 end;
 
 class function TReleaseUtils.ParseVersionString(const _version : string; out _major, _minor, _patch, _build : Integer; out _suffix : string)
-	: Boolean;
+		: Boolean;
 var
 	cleanVersion : string;
 	versionParts : TArray<string>;
