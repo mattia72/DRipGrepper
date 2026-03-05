@@ -477,9 +477,9 @@ end;
 
 function TReleaseUtils.GetUpdateCheckStatus(var sStatusMsg : string) : EUpdateCheckStatus;
 begin
-	Result := ucsUnknown;
+	// Result := ucsUnknown;
 	if DownloadedReleaseInfos.IsEmpty or not LatestRelease.LoadOk then begin
-		sStatusMsg := 'Update check not available.';
+		sStatusMsg := 'Update check failed, latest release unknown.';
 		Result := ucsError;
 	end else if IsCurrentTheLatest() then begin
 		sStatusMsg := 'You are using the latest version.';
