@@ -284,6 +284,7 @@ implementation
 uses
 	RipGrepper.Helper.UI,
 	RipGrepper.Tools.ProcessUtils,
+	System.Types,
 	System.UITypes,
 	RipGrepper.UI.RipGrepOptionsForm,
 	System.SysUtils,
@@ -545,12 +546,6 @@ begin
 		FRegexTemplateManager := nil;
 	end;
 
-	// Save form position and size to settings
-	FSettings.SearchFormSettings.FormLeft.Value := Left;
-	FSettings.SearchFormSettings.FormTop.Value := Top;
-	FSettings.SearchFormSettings.FormWidth.Value := Width;
-	FSettings.SearchFormSettings.FormHeight.Value := Height;
-
 	if ModalResult <> mrCancel then begin
 		CopyCtrlsToProxy(FCtrlProxy); // FormClose
 		CopyProxyToSettings(FCtrlProxy, FHistItemObj, FSettings);
@@ -562,6 +557,11 @@ begin
 			FSettings.SearchFormSettings.LoadFromDict();
 		end;
 	end;
+
+	// Always save form position and size to settings (also on Cancel,
+	// and after Copy may have restored original settings)
+	FSettings.SearchFormSettings.FormRect := Rect(Left, Top, Left + Width, Top + Height);
+
 	FSettings.StoreToPersister();
 
 	// var
@@ -605,18 +605,16 @@ begin
 		dbgMsg.Msg('UpdateExpertModeInOptionPanels');
 		UpdateExpertModeInOptionPanels();
 
-		// Restore form size from settings (after scaling)
-		if (FSettings.SearchFormSettings.FormWidth.Value > 0) and
-		{ } (FSettings.SearchFormSettings.FormHeight.Value > 0) then begin
-			Width := FSettings.SearchFormSettings.FormWidth.Value;
-			Height := FSettings.SearchFormSettings.FormHeight.Value;
+		// Restore form size and position from settings (after scaling)
+		var
+		savedRect := FSettings.SearchFormSettings.FormRect;
+		if (savedRect.Width > 0) and (savedRect.Height > 0) then begin
+			Width := savedRect.Width;
+			Height := savedRect.Height;
 		end;
-
-		// Restore form position from settings (after scaling and sizing)
-		if (FSettings.SearchFormSettings.FormLeft.Value >= 0) and
-		{ } (FSettings.SearchFormSettings.FormTop.Value >= 0) then begin
-			Left := FSettings.SearchFormSettings.FormLeft.Value;
-			Top := FSettings.SearchFormSettings.FormTop.Value;
+		if (savedRect.Left >= 0) and (savedRect.Top >= 0) then begin
+			Left := savedRect.Left;
+			Top := savedRect.Top;
 		end;
 
 		ActiveControl := cmbSearchText;
@@ -1391,7 +1389,7 @@ end;
 function TRipGrepperSearchDialogForm.CalculateGbOptionsOutputHeight() : Integer;
 const
 	GB_CAPTION_HEIGHT = 18;
-	GB_BORDER_BOTTOM = 4; // GroupBox bottom border frame
+	GB_BORDER_BOTTOM = 5; // GroupBox bottom border frame
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.CalculateGbOptionsOutputHeight');
@@ -1805,9 +1803,15 @@ begin
 		FOrigSearchFormSettings := TSearchFormSettings.Create;
 		dbgMsg.Msg('Hist: ' + FHistItemObj.SearchFormSettings.ToLogString);
 
+		// Preserve current form position/size before Copy overwrites them
+		var savedRect := FSettings.SearchFormSettings.FormRect;
+
 		FOrigSearchFormSettings.Copy(FHistItemObj.SearchFormSettings);
 		FSettings.SearchFormSettings.Copy(FHistItemObj.SearchFormSettings);
 		FSettings.LoadFromDict();
+
+		// Restore form position/size (history items don't carry these)
+		FSettings.SearchFormSettings.FormRect := savedRect;
 	end;
 end;
 

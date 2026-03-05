@@ -7,6 +7,7 @@ uses
 	System.IniFiles,
 	System.Generics.Collections,
 	System.Generics.Defaults,
+	System.Types,
 	ArrayEx,
 	RipGrepper.OpenWith.Constants,
 	RipGrepper.Common.Constants,
@@ -60,6 +61,8 @@ type
 			function GetFormTop() : IIntegerSetting;
 			function GetFormWidth() : IIntegerSetting;
 			function GetFormHeight() : IIntegerSetting;
+			function GetFormRect() : TRect;
+			procedure SetFormRect(const _value : TRect);
 			function GetRegexTemplates() : IPersistableArray;
 			procedure SetRegexTemplates(const _Value : IPersistableArray);
 
@@ -92,6 +95,8 @@ type
 			property FormTop : IIntegerSetting read GetFormTop;
 			property FormWidth : IIntegerSetting read GetFormWidth;
 			property FormHeight : IIntegerSetting read GetFormHeight;
+			// Position (Left, Top) and Size (Width, Height) as TRect
+			property FormRect : TRect read GetFormRect write SetFormRect;
 			property RegexTemplates : IPersistableArray read GetRegexTemplates write SetRegexTemplates;
 	end;
 
@@ -207,6 +212,21 @@ end;
 function TSearchFormSettings.GetFormHeight() : IIntegerSetting;
 begin
 	Result := FFormHeight;
+end;
+
+function TSearchFormSettings.GetFormRect() : TRect;
+begin
+	Result := Rect(FFormLeft.Value, FFormTop.Value,
+		{ } FFormLeft.Value + FFormWidth.Value,
+		{ } FFormTop.Value + FFormHeight.Value);
+end;
+
+procedure TSearchFormSettings.SetFormRect(const _value : TRect);
+begin
+	FFormLeft.Value := _value.Left;
+	FFormTop.Value := _value.Top;
+	FFormWidth.Value := _value.Width;
+	FFormHeight.Value := _value.Height;
 end;
 
 function TSearchFormSettings.GetRegexTemplates() : IPersistableArray;
