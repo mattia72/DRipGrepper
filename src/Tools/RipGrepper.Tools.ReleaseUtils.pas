@@ -29,6 +29,8 @@ type
 		property LoadOk : Boolean read GetLoadOk write SetLoadOk;
 	end;
 
+	EUpdateCheckStatus = (ucsUnknown, ucsUpdateAvailable, ucsUpToDate, ucsError);
+
 	TReleaseInfo = class(TInterfacedObject, IReleaseInfo)
 		private
 			FDescription : string;
@@ -89,7 +91,7 @@ type
 			class function GetRunningModuleVersion() : string; static;
 			class function GetModuleNameAndVersion() : string; static;
 			class function GetRunningModulePath() : string; static;
-			function GetVersionStatusText() : string;
+			function GetUpdateCheckStatus(var sStatusMsg : string) : EUpdateCheckStatus;
 			function IsCurrentTheLatest : Boolean;
 			class function IsSameVersion(_ri1, _ri2 : IReleaseInfo) : Boolean; static;
 			procedure ShowVersionInfoMsgBox(const _bOnlyIfUpdateAvailable : Boolean = False);
@@ -195,10 +197,8 @@ procedure TReleaseInfo.SetDescriptionFromBody(const _body : string);
 var
 	bIsComment : Boolean;
 	lines : TArrayEx<string>;
-	emptyLineCount : Integer;
 begin
 	bIsComment := False;
-	emptyLineCount := 0;
 	for var l : string in _body.Split([CR, LF, CRLF]) do begin
 		if bIsComment or TRegEx.IsMatch(l, '^\s*<!--') then begin
 			bIsComment := True;
@@ -209,12 +209,7 @@ begin
 		end;
 		if not bIsComment then begin
 			if l.Trim.IsEmpty then begin
-				Inc(emptyLineCount);
-				// if emptyLineCount > 1 then begin
 				continue;
-				// end;
-			end else begin
-				emptyLineCount := 0;
 			end;
 			if not (l.StartsWith('#') or l.StartsWith('*')) then begin
 				lines.Add('   ' + l);
@@ -480,18 +475,20 @@ begin
 	dbgMsg.Msg(Result);
 end;
 
-function TReleaseUtils.GetVersionStatusText() : string;
-var
-	statusLine : string;
+function TReleaseUtils.GetUpdateCheckStatus(var sStatusMsg : string) : EUpdateCheckStatus;
 begin
+	Result := ucsUnknown;
 	if DownloadedReleaseInfos.IsEmpty or not LatestRelease.LoadOk then begin
-		statusLine := 'Update check not available.';
+		sStatusMsg := 'Update check not available.';
+		Result := ucsError;
 	end else if IsCurrentTheLatest() then begin
-		statusLine := 'You are using the latest version.';
+		sStatusMsg := 'You are using the latest version.';
+		Result := ucsUpToDate;
 	end else begin
-		statusLine := Format('New version %s published at %s', [LatestVersion, DateTimeToStr(LatestRelease.PublishedAt)]);
+		sStatusMsg := Format('New version %s published at %s', [LatestVersion, DateTimeToStr(LatestRelease.PublishedAt)]);
+		Result := ucsUpdateAvailable;
 	end;
-	Result := GetModuleNameAndVersion() + CRLF + statusLine;
+	sStatusMsg := GetModuleNameAndVersion() + CRLF + sStatusMsg;
 end;
 
 function TReleaseUtils.IsCurrentTheLatest : Boolean;
@@ -518,8 +515,14 @@ procedure TReleaseUtils.ShowVersionInfoMsgBox(const _bOnlyIfUpdateAvailable : Bo
 var
 	versionStatus : string;
 	msgText : string;
+	updateStatus : EUpdateCheckStatus;
 begin
-	versionStatus := GetVersionStatusText();
+	updateStatus := GetUpdateCheckStatus(versionStatus); // Download...
+
+	if _bOnlyIfUpdateAvailable and (updateStatus <> ucsUpdateAvailable) then begin
+		Exit;
+	end;
+
 	msgText := versionStatus + CRLF2 +
 	{ } '<A HREF="https://github.com/mattia72/DripGrepper">https://github.com/mattia72/DripGrepper</A>';
 
