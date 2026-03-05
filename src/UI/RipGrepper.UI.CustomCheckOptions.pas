@@ -1304,7 +1304,7 @@ begin
 
 		_item.SpinEdit.Top := CTRL_SPACE div 2;
 		_item.SpinEdit.Width := spinWidth;
-		_item.SpinEdit.Height := _item.ParentPanel.Height - 2;
+		_item.SpinEdit.Height := _item.ParentPanel.Height - _item.SpinEdit.Top - 2;
 		_item.SpinEdit.Tag := _itemIndex;
 	end;
 end;
