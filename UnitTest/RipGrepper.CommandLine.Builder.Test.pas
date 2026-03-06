@@ -62,6 +62,13 @@ type
 			[Testcase('Complex config', 'CONFIG_FILE=C:\config\app.ini', '|')]
 			[Testcase('URL with equals', 'http://example.com?param=value&other=test', '|')]
 			procedure TestReBuildArgumentsWithEqualsInSearchText(const _sSearchText : string);
+
+			[Test]
+			procedure TestReBuildArgumentsDefaultOutputFormatJson;
+			[Test]
+			procedure TestReBuildArgumentsKeepsExplicitVimgrep;
+			[Test]
+			procedure TestReBuildArgumentsKeepsExplicitJson;
 	end;
 
 implementation
@@ -229,6 +236,68 @@ begin
 		Assert.IsTrue(commandLine.Contains('"' + _sSearchText + '"') or commandLine.Contains('''' + _sSearchText + ''''),
 			'Search text:' + _sSearchText + ' with special characters should be quoted in command line');
 	end;
+end;
+
+procedure TCommandLineBuilderTest.TestReBuildArgumentsDefaultOutputFormatJson;
+var
+	v : TArrayEx<string>;
+begin
+	// Setup: no output format option in RgOptions
+	FParams.RgExeOptions := TOptionStrings.New('');
+	FParams.FileMasks := '';
+	FGuiParams.SetSearchText('test');
+	FGuiParams.SetSearchOptions([]);
+	FParams.GuiSearchTextParams := FGuiParams;
+
+	TCommandLineBuilder.RebuildArguments(FParams);
+	v := FParams.RipGrepArguments.GetOptions();
+
+	Assert.IsTrue(v.Contains(OUTPUT_FORMAT_JSON),
+		OUTPUT_FORMAT_JSON + ' should be added as default output format when none is set.');
+	Assert.IsFalse(v.Contains(OUTPUT_FORMAT_VIMGREP),
+		OUTPUT_FORMAT_VIMGREP + ' should not be present when --json is the default.');
+end;
+
+procedure TCommandLineBuilderTest.TestReBuildArgumentsKeepsExplicitVimgrep;
+var
+	v : TArrayEx<string>;
+begin
+	// Setup: explicitly set --vimgrep in RgOptions
+	FParams.RgExeOptions := TOptionStrings.New('');
+	FParams.FileMasks := '';
+	FGuiParams.SetSearchText('test');
+	FGuiParams.SetSearchOptions([]);
+	FGuiParams.SetRgOption(RG_PARAM_REGEX_VIMGREP_OUTPUT);
+	FParams.GuiSearchTextParams := FGuiParams;
+
+	TCommandLineBuilder.RebuildArguments(FParams);
+	v := FParams.RipGrepArguments.GetOptions();
+
+	Assert.IsTrue(v.Contains(OUTPUT_FORMAT_VIMGREP),
+		OUTPUT_FORMAT_VIMGREP + ' should be kept when explicitly set.');
+	Assert.IsFalse(v.Contains(OUTPUT_FORMAT_JSON),
+		OUTPUT_FORMAT_JSON + ' should not be added when --vimgrep is already present.');
+end;
+
+procedure TCommandLineBuilderTest.TestReBuildArgumentsKeepsExplicitJson;
+var
+	v : TArrayEx<string>;
+begin
+	// Setup: explicitly set --json in RgOptions
+	FParams.RgExeOptions := TOptionStrings.New('');
+	FParams.FileMasks := '';
+	FGuiParams.SetSearchText('test');
+	FGuiParams.SetSearchOptions([]);
+	FGuiParams.SetRgOption(RG_PARAM_REGEX_JSON_OUTPUT);
+	FParams.GuiSearchTextParams := FGuiParams;
+
+	TCommandLineBuilder.RebuildArguments(FParams);
+	v := FParams.RipGrepArguments.GetOptions();
+
+	Assert.IsTrue(v.Contains(OUTPUT_FORMAT_JSON),
+		OUTPUT_FORMAT_JSON + ' should be kept when explicitly set.');
+	Assert.AreEqual(1, v.CountOf(OUTPUT_FORMAT_JSON),
+		OUTPUT_FORMAT_JSON + ' should appear only once.');
 end;
 
 initialization

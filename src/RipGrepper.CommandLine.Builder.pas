@@ -178,6 +178,13 @@ begin
 		dbgMsg.Msg('add necessary param: ' + s);
 	end;
 
+	// Ensure output format is always set (default: --json)
+	if (not arrRgOptions.Contains(OUTPUT_FORMAT_JSON))
+		and (not arrRgOptions.Contains(OUTPUT_FORMAT_VIMGREP)) then begin
+		arrRgOptions.InsertIfNotContains(paramCount, OUTPUT_FORMAT_JSON);
+		dbgMsg.Msg('add default output format: ' + OUTPUT_FORMAT_JSON);
+	end;
+
 	arrRgOptions.AddRange(fileMaskParams);
 	dbgMsg.Msg('add all mask param: ' + _params.FileMasks);
 
