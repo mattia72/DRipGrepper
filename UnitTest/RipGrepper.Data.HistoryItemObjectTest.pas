@@ -154,6 +154,18 @@ type
 			[TestCase('Path with empty masks', 'D:\SomePath,')]
 			[TestCase('Both empty', ',')]
 			procedure TestRoundtripPersistence_PathAndMasks(const searchPath : string; const fileMasks : string);
+
+			// Stream version handling tests
+			[Test]
+			procedure TestStreamVersion_V2WritesVersionHeader;
+			[Test]
+			procedure TestStreamVersion_V2RoundtripPreservesResultsTruncated;
+			[Test]
+			procedure TestStreamVersion_V1LegacyStreamLoadsWithoutError;
+			[Test]
+			procedure TestStreamVersion_V1LegacyStreamDefaultsResultsTruncatedToFalse;
+			[Test]
+			procedure TestStreamVersion_V2RoundtripPreservesAllFields;
 	end;
 
 implementation
@@ -1852,6 +1864,245 @@ begin
 	// Verify the item is properly loaded and functional
 	Assert.IsTrue(loadedItem.IsLoadedFromStream, 'Item should be marked as loaded from stream');
 	Assert.AreEqual('roundtrip test', loadedItem.SearchText, 'Search text should be preserved in roundtrip');
+end;
+
+// --- Stream version handling tests ---
+
+procedure THistoryItemObjectTest.TestStreamVersion_V2WritesVersionHeader;
+var
+	historyItem : IHistoryItemObject;
+	stream : IShared<TMemoryStream>;
+	writer : IShared<TStreamWriter>;
+	reader : IShared<TStreamReader>;
+	firstLine : string;
+begin
+	// Arrange
+	historyItem := CreateSampleHistoryItemWithSearchAndMatches();
+	stream := Shared.Make<TMemoryStream>(TMemoryStream.Create());
+	writer := Shared.Make<TStreamWriter>(TStreamWriter.Create(stream, TEncoding.UTF8));
+
+	// Act
+	historyItem.SaveToStreamWriter(writer);
+	writer.Flush();
+
+	// Assert - first line should be the version header
+	stream.Position := 0;
+	reader := Shared.Make<TStreamReader>(TStreamReader.Create(stream, TEncoding.UTF8));
+	firstLine := reader.ReadLine();
+	Assert.AreEqual(THistoryItemObject.STREAM_VERSION_PREFIX + THistoryItemObject.STREAM_FORMAT_VERSION.ToString,
+		firstLine, 'First line of stream should be the version header HIO_V:2');
+end;
+
+procedure THistoryItemObjectTest.TestStreamVersion_V2RoundtripPreservesResultsTruncated;
+var
+	originalItem : IHistoryItemObject;
+	loadedItem : IHistoryItemObject;
+	stream : IShared<TMemoryStream>;
+	writer : IShared<TStreamWriter>;
+	reader : IShared<TStreamReader>;
+begin
+	// Arrange - create item with ResultsTruncated = True
+	originalItem := CreateSampleHistoryItemWithSearchAndMatches();
+	originalItem.ResultsTruncated := True;
+
+	stream := Shared.Make<TMemoryStream>(TMemoryStream.Create());
+	writer := Shared.Make<TStreamWriter>(TStreamWriter.Create(stream, TEncoding.UTF8));
+
+	// Act - save and load
+	originalItem.SaveToStreamWriter(writer);
+	writer.Flush();
+	stream.Position := 0;
+	reader := Shared.Make<TStreamReader>(TStreamReader.Create(stream, TEncoding.UTF8));
+	loadedItem := THistoryItemObject.Create();
+	loadedItem.LoadFromStreamReader(reader);
+
+	// Assert
+	Assert.IsTrue(loadedItem.ResultsTruncated, 'ResultsTruncated=True should survive V2 roundtrip');
+
+	// Also test with ResultsTruncated = False
+	originalItem.ResultsTruncated := False;
+	stream := Shared.Make<TMemoryStream>(TMemoryStream.Create());
+	writer := Shared.Make<TStreamWriter>(TStreamWriter.Create(stream, TEncoding.UTF8));
+	originalItem.SaveToStreamWriter(writer);
+	writer.Flush();
+	stream.Position := 0;
+	reader := Shared.Make<TStreamReader>(TStreamReader.Create(stream, TEncoding.UTF8));
+	loadedItem := THistoryItemObject.Create();
+	loadedItem.LoadFromStreamReader(reader);
+	Assert.IsFalse(loadedItem.ResultsTruncated, 'ResultsTruncated=False should survive V2 roundtrip');
+end;
+
+procedure THistoryItemObjectTest.TestStreamVersion_V1LegacyStreamLoadsWithoutError;
+var
+	stream : IShared<TMemoryStream>;
+	writer : IShared<TStreamWriter>;
+	reader : IShared<TStreamReader>;
+	loadedItem : IHistoryItemObject;
+	originalItem : IHistoryItemObject;
+	v2Stream : IShared<TMemoryStream>;
+	v2Writer : IShared<TStreamWriter>;
+	v2Reader : IShared<TStreamReader>;
+	lines : TArray<string>;
+	i : Integer;
+begin
+	// Build a V1-format stream by taking the V2 output and stripping the HIO_V: header line
+	originalItem := CreateSampleHistoryItemWithSearchAndMatches();
+	originalItem.IsExpertMode := True;
+
+	v2Stream := Shared.Make<TMemoryStream>(TMemoryStream.Create());
+	v2Writer := Shared.Make<TStreamWriter>(TStreamWriter.Create(v2Stream, TEncoding.UTF8));
+	originalItem.SaveToStreamWriter(v2Writer);
+	v2Writer.Flush();
+
+	// Read all lines from the V2 stream
+	v2Stream.Position := 0;
+	v2Reader := Shared.Make<TStreamReader>(TStreamReader.Create(v2Stream, TEncoding.UTF8));
+	SetLength(lines, 0);
+	while not v2Reader.EndOfStream do begin
+		SetLength(lines, Length(lines) + 1);
+		lines[High(lines)] := v2Reader.ReadLine();
+	end;
+
+	// Verify that the first line is the version header
+	Assert.IsTrue(lines[0].StartsWith(THistoryItemObject.STREAM_VERSION_PREFIX),
+		'V2 stream should start with version header');
+
+	// Write a V1 stream: skip the version header line (first line)
+	// and also skip the ResultsTruncated line (which is after IsExpertMode)
+	stream := Shared.Make<TMemoryStream>(TMemoryStream.Create());
+	writer := Shared.Make<TStreamWriter>(TStreamWriter.Create(stream, TEncoding.UTF8));
+
+	var
+	skipNext := False;
+	for i := 1 to High(lines) do begin // start at 1 to skip HIO_V: line
+		if skipNext then begin
+			skipNext := False;
+			Continue;
+		end;
+		// Find the IsExpertMode line (its value follows SearchFormSettings block) and skip the next line (ResultsTruncated)
+		if (i < High(lines)) and ((lines[i] = '-1') or (lines[i] = '0')) and (lines[i + 1] = '-1') then begin
+			// This heuristic is too fragile - use direct approach instead
+		end;
+		writer.WriteLine(lines[i]);
+	end;
+	writer.Flush();
+
+	// This won't work because we can't reliably strip ResultsTruncated from the middle.
+	// Instead, let's build the V1 stream from scratch using the same primitives.
+	stream := Shared.Make<TMemoryStream>(TMemoryStream.Create());
+	writer := Shared.Make<TStreamWriter>(TStreamWriter.Create(stream, TEncoding.UTF8));
+
+	// V1 format: no version header, starts directly with GuiSearchTextParams
+	originalItem.GuiSearchTextParams.SaveToStreamWriter(writer);
+	// RipGrepArguments
+	writer.WriteLineAsInteger(originalItem.RipGrepArguments.Count, 'RipGrepArguments.Count');
+	for var s in originalItem.RipGrepArguments() do begin
+		writer.WriteLineAsString(s, false, 'RipGrepArguments');
+	end;
+	// SearchFormSettings
+	originalItem.SearchFormSettings.SaveToStreamWriter(writer);
+	// IsExpertMode
+	writer.WriteLineAsBool(originalItem.IsExpertMode, 'IsExpertMode');
+	// NO ResultsTruncated in V1!
+	// ShouldSaveResult
+	writer.WriteLineAsBool(originalItem.ShouldSaveResult, 'ShouldSaveResult');
+	if originalItem.ShouldSaveResult then begin
+		originalItem.Matches.SaveToStreamWriter(writer);
+	end;
+	writer.Flush();
+
+	// Act - load from V1 stream
+	stream.Position := 0;
+	reader := Shared.Make<TStreamReader>(TStreamReader.Create(stream, TEncoding.UTF8));
+	loadedItem := THistoryItemObject.Create();
+
+	// Should not raise an exception
+	loadedItem.LoadFromStreamReader(reader);
+
+	// Assert
+	Assert.IsTrue(loadedItem.IsLoadedFromStream, 'V1 legacy stream should load successfully');
+	Assert.AreEqual('test pattern', loadedItem.SearchText, 'Search text should be preserved from V1 stream');
+	Assert.IsTrue(loadedItem.IsExpertMode, 'IsExpertMode should be preserved from V1 stream');
+end;
+
+procedure THistoryItemObjectTest.TestStreamVersion_V1LegacyStreamDefaultsResultsTruncatedToFalse;
+var
+	stream : IShared<TMemoryStream>;
+	writer : IShared<TStreamWriter>;
+	reader : IShared<TStreamReader>;
+	loadedItem : IHistoryItemObject;
+	originalItem : IHistoryItemObject;
+begin
+	// Build a V1-format stream (no version header, no ResultsTruncated)
+	originalItem := CreateSampleHistoryItemWithSearchAndMatches();
+	originalItem.ResultsTruncated := True; // Set to True, which should be lost in V1 format
+	originalItem.IsExpertMode := False;
+
+	stream := Shared.Make<TMemoryStream>(TMemoryStream.Create());
+	writer := Shared.Make<TStreamWriter>(TStreamWriter.Create(stream, TEncoding.UTF8));
+
+	// Write V1 format directly
+	originalItem.GuiSearchTextParams.SaveToStreamWriter(writer);
+	writer.WriteLineAsInteger(originalItem.RipGrepArguments.Count, 'RipGrepArguments.Count');
+	for var s in originalItem.RipGrepArguments() do begin
+		writer.WriteLineAsString(s, false, 'RipGrepArguments');
+	end;
+	originalItem.SearchFormSettings.SaveToStreamWriter(writer);
+	writer.WriteLineAsBool(originalItem.IsExpertMode, 'IsExpertMode');
+	// V1: NO ResultsTruncated line
+	writer.WriteLineAsBool(originalItem.ShouldSaveResult, 'ShouldSaveResult');
+	if originalItem.ShouldSaveResult then begin
+		originalItem.Matches.SaveToStreamWriter(writer);
+	end;
+	writer.Flush();
+
+	// Act
+	stream.Position := 0;
+	reader := Shared.Make<TStreamReader>(TStreamReader.Create(stream, TEncoding.UTF8));
+	loadedItem := THistoryItemObject.Create();
+	loadedItem.LoadFromStreamReader(reader);
+
+	// Assert - ResultsTruncated should default to False for V1 streams
+	Assert.IsFalse(loadedItem.ResultsTruncated,
+		'ResultsTruncated should default to False when loading from V1 legacy stream');
+	Assert.IsTrue(loadedItem.IsLoadedFromStream, 'Should be marked as loaded from stream');
+	Assert.AreEqual('test pattern', loadedItem.SearchText, 'Search text should be preserved');
+end;
+
+procedure THistoryItemObjectTest.TestStreamVersion_V2RoundtripPreservesAllFields;
+var
+	originalItem : IHistoryItemObject;
+	loadedItem : IHistoryItemObject;
+	stream : IShared<TMemoryStream>;
+	writer : IShared<TStreamWriter>;
+	reader : IShared<TStreamReader>;
+begin
+	// Arrange - create an item with all fields populated
+	originalItem := CreateSampleHistoryItemWithReplaceAndMatches();
+	originalItem.ResultsTruncated := True;
+	originalItem.IsExpertMode := True;
+
+	stream := Shared.Make<TMemoryStream>(TMemoryStream.Create());
+	writer := Shared.Make<TStreamWriter>(TStreamWriter.Create(stream, TEncoding.UTF8));
+
+	// Act - V2 save and load
+	originalItem.SaveToStreamWriter(writer);
+	writer.Flush();
+	stream.Position := 0;
+	reader := Shared.Make<TStreamReader>(TStreamReader.Create(stream, TEncoding.UTF8));
+	loadedItem := THistoryItemObject.Create();
+	loadedItem.LoadFromStreamReader(reader);
+
+	// Assert - all fields should be preserved
+	Assert.IsTrue(loadedItem.IsLoadedFromStream, 'Should be loaded from stream');
+	Assert.AreEqual(originalItem.SearchText, loadedItem.SearchText, 'SearchText should match');
+	Assert.AreEqual(originalItem.IsReplaceMode, loadedItem.IsReplaceMode, 'IsReplaceMode should match');
+	Assert.AreEqual(originalItem.ReplaceText, loadedItem.ReplaceText, 'ReplaceText should match');
+	Assert.AreEqual(originalItem.IsExpertMode, loadedItem.IsExpertMode, 'IsExpertMode should match');
+	Assert.AreEqual(originalItem.ResultsTruncated, loadedItem.ResultsTruncated, 'ResultsTruncated should match');
+	Assert.AreEqual(originalItem.ShouldSaveResult, loadedItem.ShouldSaveResult, 'ShouldSaveResult should match');
+	Assert.AreEqual(originalItem.RipGrepArguments.Count, loadedItem.RipGrepArguments.Count, 'RipGrepArguments count should match');
+	Assert.AreEqual(originalItem.Matches.Items.Count, loadedItem.Matches.Items.Count, 'Matches count should match');
 end;
 
 initialization

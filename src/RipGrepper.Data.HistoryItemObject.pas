@@ -23,6 +23,9 @@ uses
 type
 	// THistoryItemObject = class(TNoRefCountObject, IHistoryItemObject)
 	THistoryItemObject = class(TInterfacedObject, IHistoryItemObject, IStreamPersistable, IStreamReaderWriterPersistable)
+		const
+			STREAM_FORMAT_VERSION = 2;
+			STREAM_VERSION_PREFIX = 'HIO_V:';
 
 		strict private
 			FElapsedTimeText : string;
@@ -32,12 +35,14 @@ type
 			FMatches : TParsedObjectRowCollection;
 			FNoMatchFound : Boolean;
 			FParserType : TParserType;
+			FResultsTruncated : Boolean;
 			FRipGrepResult : Integer;
 			FTotalMatchCount : integer;
 
 			// saved setting items
 			FGuiSearchTextParams : IShared<TGuiSearchTextParams>;
 			FIsLoadedFromStream : Boolean;
+			FStreamFormatVersion : Integer;
 			FRipGrepArguments : IShared<TRipGrepArguments>;
 			FSearchFormSettings : TSearchFormSettings;
 			FShouldSaveResult : Boolean;
@@ -55,6 +60,7 @@ type
 			procedure SetMatches(const Value : TParsedObjectRowCollection);
 			procedure SetRipGrepArguments(const Value : IShared<TRipGrepArguments>);
 			function GetParserType : TParserType;
+			function GetResultsTruncated() : Boolean;
 			function GetSearchFormSettings : TSearchFormSettings;
 			function GetRipGrepResult : Integer;
 			procedure SetParserType(const Value : TParserType);
@@ -63,6 +69,7 @@ type
 			procedure SetElapsedTimeText(const Value : string);
 			procedure SetGuiSearchTextParams(const Value : IShared<TGuiSearchTextParams>);
 			procedure SetNoMatchFound(const Value : Boolean);
+			procedure SetResultsTruncated(const Value : Boolean);
 			procedure SetSearchFormSettings(const Value : TSearchFormSettings);
 			procedure SetRipGrepResult(const Value : Integer);
 
@@ -70,6 +77,7 @@ type
 			FIsExpertMode: Boolean;
 			function GetIsExpertMode(): Boolean;
 			function GetShouldSaveResult() : Boolean;
+			procedure loadGuiSearchTextParamsLegacy(_sr : TStreamReader; const _searchTextOfUser : string);
 			procedure SetIsExpertMode(const Value: Boolean);
 			procedure SetShouldSaveResult(const Value : Boolean);
 
@@ -101,6 +109,7 @@ type
 			property IsLoadedFromStream : Boolean read GetIsLoadedFromStream;
 			property IsReplaceMode : Boolean read GetIsReplaceMode;
 			property NoMatchFound : Boolean read GetNoMatchFound write SetNoMatchFound;
+			property ResultsTruncated : Boolean read GetResultsTruncated write SetResultsTruncated;
 			property RipGrepResult : Integer read GetRipGrepResult write SetRipGrepResult;
 			property ParserType : TParserType read GetParserType write SetParserType;
 			property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings write SetSearchFormSettings;
@@ -215,6 +224,7 @@ begin
 	FTotalMatchCount := 0;
 	FErrorCounters.Reset;
 	FNoMatchFound := False;
+	FResultsTruncated := False;
 	FMatches.Items.Clear;
 	FIsLoadedFromStream := False;
 end;
@@ -285,6 +295,11 @@ begin
 	Result := FRipGrepResult;
 end;
 
+function THistoryItemObject.GetResultsTruncated() : Boolean;
+begin
+	Result := FResultsTruncated;
+end;
+
 function THistoryItemObject.GetSearchText : string;
 begin
 	Result := GuiSearchTextParams.GetSearchText;
@@ -317,6 +332,7 @@ begin
 	end;
 	FGuiSearchTextParams := Shared.Make<TGuiSearchTextParams>(TGuiSearchTextParams.Create(TRipGrepParameterSettings.INI_SECTION));
 	FRipGrepArguments := Shared.Make<TRipGrepArguments>();
+	FStreamFormatVersion := STREAM_FORMAT_VERSION;
 	FParserType := ptEmpty;
 	ClearMatches;
 	FHasResult := False;
@@ -331,14 +347,55 @@ begin
 	LoadFromStreamReader(sr);
 end;
 
+procedure THistoryItemObject.loadGuiSearchTextParamsLegacy(_sr : TStreamReader; const _searchTextOfUser : string);
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('THistoryItemObject.loadGuiSearchTextParamsLegacy');
+
+	// _searchTextOfUser was already consumed from stream (it was the first line, before version header was introduced)
+	GuiSearchTextParams.SearchTextWithOptions.SearchTextOfUser := _searchTextOfUser;
+	dbgMsg.MsgFmt('SearchTextOfUser = %s', [_searchTextOfUser]);
+
+	// Read SearchOptions (from TSearchTextWithOptions)
+	var
+	searchOptsStr := _sr.ReadLineAsString(false, 'SearchOptions');
+	GuiSearchTextParams.SearchTextWithOptions.UpdateSearchOptions(searchOptsStr);
+	dbgMsg.MsgFmt('SearchOptions = %s', [searchOptsStr]);
+
+	// Read ExpertOptions (TOptionStrings record)
+	var
+	expertOpts := GuiSearchTextParams.ExpertOptions;
+	expertOpts.LoadFromStreamReader(_sr);
+	GuiSearchTextParams.ExpertOptions := expertOpts;
+
+	// Read IsReplaceMode and ReplaceText
+	GuiSearchTextParams.IsReplaceMode := _sr.ReadLineAsBool('IsReplaceMode');
+	GuiSearchTextParams.ReplaceText := _sr.ReadLineAsString(true, 'ReplaceText');
+	dbgMsg.MsgFmt('IsReplaceMode = %s, ReplaceText = %s', [BoolToStr(GuiSearchTextParams.IsReplaceMode, True), GuiSearchTextParams.ReplaceText]);
+end;
+
 procedure THistoryItemObject.LoadFromStreamReader(_sr : TStreamReader);
 var
 	count : integer;
+	firstLine : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('THistoryItemObject.LoadFromStreamReader');
 	try
-		GuiSearchTextParams.LoadFromStreamReader(_sr);
+		// Read first line to check for version header
+		firstLine := _sr.ReadLineAsString(false, 'VersionOrSearchText');
+
+		if firstLine.StartsWith(STREAM_VERSION_PREFIX) then begin
+			FStreamFormatVersion := StrToIntDef(firstLine.Substring(Length(STREAM_VERSION_PREFIX)), 1);
+			dbgMsg.MsgFmt('StreamFormatVersion = %d', [FStreamFormatVersion]);
+			GuiSearchTextParams.LoadFromStreamReader(_sr);
+		end else begin
+			// Legacy format (version 1): first line is SearchTextOfUser, no version header
+			FStreamFormatVersion := 1;
+			dbgMsg.Msg('Legacy stream format detected (version 1)');
+			loadGuiSearchTextParamsLegacy(_sr, firstLine);
+		end;
+
 		count := _sr.ReadLineAsInteger('RipGrepArguments.Count');
 		dbgMsg.MsgFmt('RipGrepArguments.Count = %d', [count]);
 		for var i := 0 to count - 1 do begin
@@ -349,6 +406,15 @@ begin
 		SearchFormSettings.LoadFromStreamReader(_sr);
 		FIsExpertMode := _sr.ReadLineAsBool('IsExpertMode');
 		dbgMsg.MsgFmt('IsExpertMode = %s', [BoolToStr(FIsExpertMode, True)]);
+
+		// ResultsTruncated was added in stream format version 2
+		if FStreamFormatVersion >= 2 then begin
+			FResultsTruncated := _sr.ReadLineAsBool('ResultsTruncated');
+			dbgMsg.MsgFmt('ResultsTruncated = %s', [BoolToStr(FResultsTruncated, True)]);
+		end else begin
+			FResultsTruncated := False;
+		end;
+
 		// Read the flag indicating whether matches data follows
 		FShouldSaveResult := _sr.ReadLineAsBool('ShouldSaveResult');
 		dbgMsg.MsgFmt('ShouldSaveResult = %s', [BoolToStr(FShouldSaveResult, True)]);
@@ -391,6 +457,10 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('THistoryItemObject.SaveToStreamWriter');
 
+	// Write stream format version header
+	_sw.WriteLineAsString(STREAM_VERSION_PREFIX + STREAM_FORMAT_VERSION.ToString, false, 'StreamFormatVersion');
+	dbgMsg.MsgFmt('StreamFormatVersion = %d', [STREAM_FORMAT_VERSION]);
+
 	GuiSearchTextParams.SaveToStreamWriter(_sw);
 	dbgmsg.MsgFmt('RipGrepArguments.Count = %d', [RipGrepArguments.Count]);
 	_sw.WriteLineAsInteger(RipgrepArguments.Count, 'RipgrepArguments.Count');
@@ -401,6 +471,8 @@ begin
 	SearchFormSettings.SaveToStreamWriter(_sw);
 	_sw.WriteLineAsBool(IsExpertMode, 'IsExpertMode');
 	dbgMsg.MsgFmt('IsExpertMode = %s', [BoolToStr(IsExpertMode, True)]);
+	_sw.WriteLineAsBool(ResultsTruncated, 'ResultsTruncated');
+	dbgMsg.MsgFmt('ResultsTruncated = %s', [BoolToStr(ResultsTruncated, True)]);
 	// Always save a flag indicating whether matches data follows
 	_sw.WriteLineAsBool(ShouldSaveResult, 'ShouldSaveResult');
 	dbgMsg.MsgFmt('HasMatchesData = %s', [BoolToStr(ShouldSaveResult, True)]);
@@ -432,6 +504,11 @@ end;
 procedure THistoryItemObject.SetNoMatchFound(const Value : Boolean);
 begin
 	FNoMatchFound := Value;
+end;
+
+procedure THistoryItemObject.SetResultsTruncated(const Value : Boolean);
+begin
+	FResultsTruncated := Value;
 end;
 
 procedure THistoryItemObject.SetParserType(const Value : TParserType);

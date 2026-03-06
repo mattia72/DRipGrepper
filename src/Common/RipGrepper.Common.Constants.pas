@@ -236,7 +236,8 @@ const
 	RG_HAS_NO_OUTPUT = ' has no output.';
 	RG_STATS_LINE = 'search statistics:';
 
-	MSG_FORMAT_TOO_MANY_RESULTS = 'Too many results.' + CRLF + 'The first %d will be shown. Try to be more specific.';
+	MSG_FORMAT_TOO_MANY_RESULTS = 'Too many results (>%d processed output lines).' + CRLF +
+	{ } 'The results are truncated. Try to be more specific.';
 
 	SHOW_CMD_IN_ONE_LINE = 'Show command in one line';
 	SHOW_CMD_IN_SEPARATE_LINES = 'Show command in lines';

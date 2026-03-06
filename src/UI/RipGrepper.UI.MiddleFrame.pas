@@ -519,6 +519,7 @@ begin
 
 	InitSearch();
 	FAbortSearch := False;
+	FHistItemObj.ResultsTruncated := False;
 	UpdateArgumentsAndSettings;
 	// hist object parser type should set before painting begins...
 	UpdateHistObjectAndGui;
@@ -722,6 +723,15 @@ begin
 		end;
 	end;
 
+	if _ho.ResultsTruncated then begin
+		for var i := 1 to Length(Result) do begin
+			if CharInSet(Result[i], ['0' .. '9']) then begin
+				Insert('>', Result, i);
+				Break;
+			end;
+		end;
+	end;
+
 end;
 
 function TRipGrepperMiddleFrame.GetData : TRipGrepperData;
@@ -918,9 +928,10 @@ begin
 	end;
 
 	if (_iLineNr >= RG_PROCESSING_LINE_COUNT_LIMIT) then begin
-		OnLastLine(_iLineNr);
+		FHistItemObj.ResultsTruncated := True;
+		// OnLastLine(_iLineNr);
 		if _iLineNr = RG_PROCESSING_LINE_COUNT_LIMIT then begin
-			TAsyncMsgBox.Show(Format(MSG_FORMAT_TOO_MANY_RESULTS, [_iLineNr, RG_PROCESSING_LINE_COUNT_LIMIT]), TMsgDlgType.mtWarning);
+			TAsyncMsgBox.Show(Format(MSG_FORMAT_TOO_MANY_RESULTS, [RG_PROCESSING_LINE_COUNT_LIMIT]), TMsgDlgType.mtWarning);
 		end else begin
 			Exit;
 		end;
