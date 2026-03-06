@@ -724,11 +724,9 @@ begin
 	end;
 
 	if _ho.ResultsTruncated then begin
-		for var i := 1 to Length(Result) do begin
-			if CharInSet(Result[i], ['0' .. '9']) then begin
-				Insert('>', Result, i);
-				Break;
-			end;
+		var pos := TRegEx.Match(Result, '\d').Index;
+		if pos > 0 then begin
+			Insert('>', Result, pos);
 		end;
 	end;
 
