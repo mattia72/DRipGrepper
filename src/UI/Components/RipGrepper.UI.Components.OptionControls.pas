@@ -388,6 +388,7 @@ begin
 	FComboBox.Top := 0;
 	FComboBox.Width := 100;
 	FComboBox.Height := 21;
+	FComboBox.Enabled := False;
 
 	FComboItems := TStringList.Create;
 end;
@@ -423,6 +424,7 @@ begin
 			FComboBox.Text := parts[1];
 		end;
 	end;
+	FComboBox.Enabled := FCheckBox.Checked;
 end;
 
 procedure TOptionCheckBoxCombo.onCheckBoxClick(_sender : TObject);
@@ -475,6 +477,7 @@ begin
 	FMaxValue := 100;
 	FSpinEdit.MinValue := FMinValue;
 	FSpinEdit.MaxValue := FMaxValue;
+	FSpinEdit.Enabled := False;
 end;
 
 destructor TOptionCheckBoxSpin.Destroy;
@@ -507,6 +510,7 @@ begin
 			FSpinEdit.Value := StrToIntDef(parts[1], FMinValue);
 		end;
 	end;
+	FSpinEdit.Enabled := FCheckBox.Checked;
 end;
 
 procedure TOptionCheckBoxSpin.onCheckBoxClick(_sender : TObject);

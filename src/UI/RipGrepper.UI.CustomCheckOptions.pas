@@ -1032,6 +1032,11 @@ begin
 		// Enable/disable spin based on whether the checkbox should be checked
 		checkBox.Checked := spinEdit.Value <> 0;
 	end;
+	// Sync spinedit enabled state with checkbox
+	spinEdit.Enabled := checkBox.Checked;
+	if not checkBox.Checked then begin
+		spinEdit.Value := _minValue;
+	end;
 
 	Result.FSubItems[Ord(siFirst)] := checkBox;
 	Result.FSubItems[Ord(siSecond)] := spinEdit;
@@ -1555,13 +1560,19 @@ begin
 	// Update the checked state in the item
 	if (itemIndex >= 0) and (itemIndex < FItems.Count) then begin
 		item := FItems[itemIndex];
-		if Assigned(item.CheckBox) and (not item.Checked) then begin
-			// Clear associated controls when checkbox is unchecked
+		if Assigned(item.CheckBox) then begin
+			// Sync enabled state of associated controls with checkbox
 			if Assigned(item.ComboBox) then begin
-				item.ComboBox.Text := '';
+				item.ComboBox.Enabled := item.Checked;
+				if not item.Checked then begin
+					item.ComboBox.Text := '';
+				end;
 			end;
 			if Assigned(item.SpinEdit) then begin
-				item.SpinEdit.Value := item.MinValue;
+				item.SpinEdit.Enabled := item.Checked;
+				if not item.Checked then begin
+					item.SpinEdit.Value := item.MinValue;
+				end;
 			end;
 		end;
 
@@ -1785,6 +1796,11 @@ begin
 				_checkBox.Checked := intSetting.Value <> 0;
 			end;
 		end;
+	end;
+	// Sync combobox enabled state with checkbox
+	_comboBox.Enabled := _checkBox.Checked;
+	if not _checkBox.Checked then begin
+		_comboBox.Text := '';
 	end;
 end;
 
