@@ -161,11 +161,12 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
           Columns = <
             item
-              Position = 0
+              Position = 1
               Text = 'File'
+              Width = 200
             end
             item
-              Position = 1
+              Position = 0
               Text = 'Date'
               Width = 130
             end

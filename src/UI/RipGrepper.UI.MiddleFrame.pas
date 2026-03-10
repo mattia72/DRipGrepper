@@ -1043,7 +1043,7 @@ end;
 
 procedure TRipGrepperMiddleFrame.SetColumnWidths;
 begin
-	VstResult.Header.Columns[COL_FILE].Width := IfThen(toCheckSupport in VstResult.TreeOptions.MiscOptions, 70, 50);
+	VstResult.Header.Columns[COL_FILE].Width := IfThen(toCheckSupport in VstResult.TreeOptions.MiscOptions, 220, 200);
 	FHeaderRowRect := VstResult.Header.Columns[COL_ROW_NUM].GetRect();
 	FHeaderColRect := VstResult.Header.Columns[COL_COL_NUM].GetRect();
 end;
