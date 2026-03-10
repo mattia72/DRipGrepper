@@ -38,6 +38,7 @@ uses
   RipGrepper.Common.Interfaces in '..\src\Common\RipGrepper.Common.Interfaces.pas',
   RipGrepper.Common.Interfaces.StreamPersistable in '..\src\Common\RipGrepper.Common.Interfaces.StreamPersistable.pas',
   RipGrepper.Common.LoadHistoryMode in '..\src\Common\RipGrepper.Common.LoadHistoryMode.pas',
+  RipGrepper.Common.NodeData.Test in 'RipGrepper.Common.NodeData.Test.pas',
   RipGrepper.Common.ParsedObject.Test in 'RipGrepper.Common.ParsedObject.Test.pas',
   RipGrepper.Common.SearchParamsWithOptionsTest in 'RipGrepper.Common.SearchParamsWithOptionsTest.pas',
   RipGrepper.Common.SearchTextWithOptions in '..\src\Common\RipGrepper.Common.SearchTextWithOptions.pas',

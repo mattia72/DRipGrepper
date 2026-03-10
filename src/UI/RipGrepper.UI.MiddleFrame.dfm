@@ -137,7 +137,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           Colors.UnfocusedColor = clGray
           Colors.UnfocusedSelectionColor = clWhite
           Colors.UnfocusedSelectionBorderColor = clWhite
-          Header.AutoSizeIndex = 3
+          Header.AutoSizeIndex = 4
           Header.Options = [hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible, hoAutoResizeInclCaption]
           Images = ImageListListView
           IncrementalSearch = isAll
@@ -166,14 +166,19 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
             end
             item
               Position = 1
-              Text = 'Row'
+              Text = 'Date'
+              Width = 130
             end
             item
               Position = 2
-              Text = 'Col'
+              Text = 'Row'
             end
             item
               Position = 3
+              Text = 'Col'
+            end
+            item
+              Position = 4
               Text = 'Text'
               Width = 436
             end>

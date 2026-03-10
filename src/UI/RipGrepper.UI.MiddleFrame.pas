@@ -130,9 +130,11 @@ type
 		private const
 			COL_HIDDEN = -1;
 			COL_FILE = 0;
-			COL_ROW_NUM = 1;
-			COL_COL_NUM = 2;
-			COL_MATCH_TEXT = 3;
+			COL_FILE_LAST_WRITE = 1;
+			COL_ROW_NUM = 2;
+			COL_COL_NUM = 3;
+			COL_MATCH_TEXT = 4;
+			DATE_FORMAT = 'yyyy-mm-dd hh:nn:ss';
 
 		var
 			FAbortSearch : Boolean;
@@ -1293,6 +1295,8 @@ var
 begin
 	Data1 := VstResult.GetNodeData(Node1);
 	Data2 := VstResult.GetNodeData(Node2);
+	Data1Parent := nil;
+	Data2Parent := nil;
 	s1 := '';
 	s2 := '';
 	if Assigned(Node1.Parent) and Assigned(Node2.Parent) then begin
@@ -1311,6 +1315,25 @@ begin
 		case Column of
 			COL_FILE :
 			Result := CompareText(Data1.FilePath, Data2.FilePath);
+			COL_FILE_LAST_WRITE : begin
+				// For child nodes, use parent's FileLastWriteTime
+				var d1, d2 : TDateTime;
+				if Node1.Parent = VstResult.RootNode then begin
+					d1 := Data1.FileLastWriteTime;
+				end else if Assigned(Data1Parent) then begin
+					d1 := Data1Parent.FileLastWriteTime;
+				end else begin
+					d1 := 0;
+				end;
+				if Node2.Parent = VstResult.RootNode then begin
+					d2 := Data2.FileLastWriteTime;
+				end else if Assigned(Data2Parent) then begin
+					d2 := Data2Parent.FileLastWriteTime;
+				end else begin
+					d2 := 0;
+				end;
+				Result := CompareValue(d1, d2);
+			end;
 			COL_ROW_NUM :
 			Result := { CompareText(s1, s2) + } CompareValue(Data1.MatchData.Row, Data2.MatchData.Row);
 			COL_COL_NUM :
@@ -1469,6 +1492,16 @@ begin
 				CellText := '';
 				if Node.Parent = VstResult.RootNode then begin
 					CellText := Format('[%d]', [Node.ChildCount]);
+				end;
+			end;
+		end;
+		COL_FILE_LAST_WRITE : begin
+			if(TextType = ttNormal) then begin
+				CellText := '';
+				if Node.Parent = VstResult.RootNode then begin
+					if NodeData^.FileLastWriteTime > 0 then begin
+						CellText := FormatDateTime(DATE_FORMAT, NodeData^.FileLastWriteTime);
+					end;
 				end;
 			end;
 		end;

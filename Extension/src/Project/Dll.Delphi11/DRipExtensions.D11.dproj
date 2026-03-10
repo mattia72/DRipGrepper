@@ -270,6 +270,10 @@
     <DCCReference Include="..\..\..\..\src\UI\Components\RipGrepper.UI.Components.CustomOptionsBase.pas" />
     <DCCReference Include="..\..\..\..\src\Helper\RipGrepper.Helper.RegexTemplates.pas" />
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.RegexTemplateMenu.pas" />
+    <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.PersistableArray.pas" />
+    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.TabSeparatedConfigForm.pas">
+      <FormType>dfm</FormType>
+    </DCCReference>
     <RcItem Include="..\..\..\Resources\about_icon.bmp">
       <ResourceType>BITMAP</ResourceType>
       <ResourceId>about_icon</ResourceId>
