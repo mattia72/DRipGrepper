@@ -112,6 +112,7 @@ type
 			CellPaintMode : TVTCellPaintMode; CellRect : TRect; var ContentRect : TRect);
 		procedure VstResultChecked(Sender : TBaseVirtualTree; Node : PVirtualNode);
 		procedure VstResultColumnResize(Sender : TVTHeader; Column : TColumnIndex);
+		procedure VstResultHeaderDragged(Sender : TVTHeader; Column : TColumnIndex; OldPosition : Integer);
 		procedure VstResultCompareNodes(Sender : TBaseVirtualTree; Node1, Node2 : PVirtualNode; Column : TColumnIndex;
 			var Result : Integer);
 		procedure VstResultDblClick(Sender : TObject);
@@ -1279,6 +1280,12 @@ begin
 end;
 
 procedure TRipGrepperMiddleFrame.VstResultColumnResize(Sender : TVTHeader; Column : TColumnIndex);
+begin
+	FHeaderRowRect := VstResult.Header.Columns[COL_ROW_NUM].GetRect();
+	FHeaderColRect := VstResult.Header.Columns[COL_COL_NUM].GetRect();
+end;
+
+procedure TRipGrepperMiddleFrame.VstResultHeaderDragged(Sender : TVTHeader; Column : TColumnIndex; OldPosition : Integer);
 begin
 	FHeaderRowRect := VstResult.Header.Columns[COL_ROW_NUM].GetRect();
 	FHeaderColRect := VstResult.Header.Columns[COL_COL_NUM].GetRect();

@@ -155,6 +155,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           OnGetText = VstResultGetText
           OnPaintText = VstResultPaintText
           OnGetImageIndex = VstResultGetImageIndex
+          OnHeaderDragged = VstResultHeaderDragged
           OnHeaderClick = VstResultHeaderClick
           OnNodeClick = VstResultNodeClick
           Touch.InteractiveGestures = [igPan, igPressAndTap]
