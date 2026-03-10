@@ -401,7 +401,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
             Top = 3
             Width = 523
             Height = 15
-            Hint = 'eg. src/**/include;!dev/*.exclude'
+            Hint = 'E.g. src/**/include;!dev/*.exclude'
             Margins.Left = 8
             Margins.Right = 8
             Margins.Bottom = 8
@@ -745,7 +745,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       OnUpdate = ActionAddParamRegexUpdate
     end
     object ActionCopyToClipboard: TAction
-      Hint = 'Copy to Clipboard.'
+      Hint = 'Copy to Clipboard'
       ImageIndex = 14
       ImageName = 'clipboard-outline'
       OnExecute = ActionCopyToClipboardExecute
@@ -758,8 +758,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     end
     object ActionShowRGReplaceOptionHelp: TAction
       Hint = 
-        'Neither this flag nor any other RipGrep flag will modify your fi' +
-        'les. '#13#10'Show RipGrep Man Page...'
+        'Neither This Flag Nor Any Other RipGrep Flag Will Modify Your Fi' +
+        'les '#13#10'Show RipGrep Man Page...'
       ImageIndex = 12
       ImageName = 'alert-outline'
       OnExecute = ActionShowRGReplaceOptionHelpExecute
@@ -771,14 +771,14 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       OnExecute = ActionShowRGOptionsHelpExecute
     end
     object ActionShowInLines: TAction
-      Hint = 'Show command in lines'
+      Hint = 'Show Command in Lines'
       ImageIndex = 15
       ImageName = 'format-text-wrapping-wrap'
       OnExecute = ActionShowInLinesExecute
     end
     object ActionShowExpertOptions: TAction
       Caption = 'Expert options*'
-      Hint = 'Show expert options.'
+      Hint = 'Show Expert Options'
       OnExecute = ActionShowExpertOptionsExecute
     end
   end

@@ -146,7 +146,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
         Top = 0
         Width = 121
         Height = 23
-        Hint = 'Replace Matches (right-click to change)'
+        Hint = 'Replace Matches (Right-Click to Change)'
         TabStop = False
         Images = SvgImgLstTopFrame
         ParentShowHint = False
@@ -348,9 +348,9 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     end
     object ActionShowFileIcons: TAction
       Category = 'View'
-      Caption = 'Show File  Icons'
+      Caption = 'Show File Icons'
       GroupIndex = 1
-      Hint = 'Show File  Icons'
+      Hint = 'Show File Icons'
       ImageIndex = 9
       ImageName = 'file-image-outline'
       OnExecute = ActionShowFileIconsExecute

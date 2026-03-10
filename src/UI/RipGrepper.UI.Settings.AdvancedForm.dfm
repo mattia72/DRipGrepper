@@ -47,7 +47,7 @@ object AdvancedForm: TAdvancedForm
         Top = 22
         Width = 97
         Height = 24
-        Hint = 'In expert mode, rg.exe can be freely parameterized.'
+        Hint = 'In Expert Mode, rg.exe Can Be Freely Parameterized'
         Caption = 'Expert mode'
         TabOrder = 0
       end
@@ -57,8 +57,8 @@ object AdvancedForm: TAdvancedForm
         Width = 483
         Height = 23
         Hint = 
-          'Full path to the settings file. It can be opened using the launc' +
-          'h icon.'
+          'Full Path to the Settings File. It Can Be Opened Using the Launc' +
+          'h Icon'
         Anchors = [akLeft, akTop, akRight]
         Color = clInfoBk
         Images = SVGIconImageList1
@@ -88,7 +88,7 @@ object AdvancedForm: TAdvancedForm
         Top = 52
         Width = 480
         Height = 68
-        Hint = 'Debug trace can be viewed in a debug viewer eg. DebugView++.'
+        Hint = 'Debug Trace Can Be Viewed in a Debug Viewer e.g. DebugView++'
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Debug trace filters'
         TabOrder = 1

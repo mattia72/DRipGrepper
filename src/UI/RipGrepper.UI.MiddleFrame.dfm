@@ -187,19 +187,19 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
     Top = 30
     object ActionCopyFileName: TAction
       Caption = 'Copy File Name'
-      Hint = 'Copy file name to clipboard'
+      Hint = 'Copy File Name to Clipboard'
       OnExecute = ActionCopyFileNameExecute
       OnUpdate = ActionCopyFileNameUpdate
     end
     object ActionCopyPathToClipboard: TAction
       Caption = 'Copy File Path'
-      Hint = 'Copy file path to clipboard'
+      Hint = 'Copy File Path to Clipboard'
       OnExecute = ActionCopyPathToClipboardExecute
       OnUpdate = ActionCopyPathToClipboardUpdate
     end
     object ActionOpenWith: TAction
       Caption = 'Open With...'
-      Hint = 'Open with...'
+      Hint = 'Open With...'
       ImageIndex = 1
       ImageName = 'rocket'
       OnExecute = ActionOpenWithExecute

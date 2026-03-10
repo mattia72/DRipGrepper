@@ -84,7 +84,7 @@ object ExtensionSettingsForm: TExtensionSettingsForm
         Top = 26
         Width = 145
         Height = 23
-        Hint = 'Select installed version...'
+        Hint = 'Select Installed Version...'
         TabOrder = 0
         Text = 'cmbDelphiVersions'
         OnChange = cmbDelphiVersionsChange
@@ -103,7 +103,7 @@ object ExtensionSettingsForm: TExtensionSettingsForm
         Top = 55
         Width = 520
         Height = 23
-        Hint = 'Full path to extension dll.'
+        Hint = 'Full Path to Extension DLL'
         Anchors = [akLeft, akTop, akRight]
         Color = clInfoBk
         Images = SVGIconImageList1

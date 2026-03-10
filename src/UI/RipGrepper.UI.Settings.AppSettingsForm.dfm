@@ -42,7 +42,7 @@ object AppSettingsForm: TAppSettingsForm
       Top = 27
       Width = 477
       Height = 23
-      Hint = 'Full path to rg.exe.'
+      Hint = 'Full Path to rg.exe'
       Anchors = [akLeft, akTop, akRight]
       Color = clInfoBk
       Images = SVGIconImageList1
@@ -70,7 +70,7 @@ object AppSettingsForm: TAppSettingsForm
       Top = 74
       Width = 477
       Height = 63
-      Hint = 'Output of "rg.exe --version".'
+      Hint = 'Output of "rg.exe --version"'
       Anchors = [akLeft, akTop, akRight]
       Color = clBlack
       Font.Charset = DEFAULT_CHARSET
@@ -118,8 +118,8 @@ object AppSettingsForm: TAppSettingsForm
         Width = 99
         Height = 23
         Hint = 
-          'Select shell format to copy the RipGrep command to the clipboard' +
-          '.'
+          'Select Shell Format to Copy the RipGrep Command to the Clipboard' +
+          ''
         ItemIndex = 0
         TabOrder = 0
         Text = 'PowerShell '
@@ -163,7 +163,7 @@ object AppSettingsForm: TAppSettingsForm
           Top = 105
           Width = 52
           Height = 24
-          Hint = 'Number of history length in search history panel.'
+          Hint = 'Maximum Number of Entries in Search History Panel'
           MaxValue = 500
           MinValue = 1
           TabOrder = 1
@@ -174,7 +174,7 @@ object AppSettingsForm: TAppSettingsForm
           Top = 142
           Width = 273
           Height = 17
-          Hint = 'Save results of ripgrep search'
+          Hint = 'Save Results of RipGrep Search'
           Caption = 'Load found files and matches from last session'
           TabOrder = 2
           OnClick = cbSaveResultsClick
@@ -184,7 +184,7 @@ object AppSettingsForm: TAppSettingsForm
           Top = 22
           Width = 222
           Height = 17
-          Hint = 'Automatically load saved search history items on startup.'
+          Hint = 'Automatically Load Saved Search History Items on Startup'
           Caption = 'Load search history from last session'
           TabOrder = 3
           OnClick = cbLoadLastSearchHistoriesClick
@@ -195,7 +195,7 @@ object AppSettingsForm: TAppSettingsForm
         Top = 49
         Width = 99
         Height = 24
-        Hint = 'Number of history length in combo boxes.'
+        Hint = 'Maximum Number of Entries in Combo Boxes'
         MaxValue = 100
         MinValue = 10
         TabOrder = 1
