@@ -726,7 +726,7 @@ begin
 	if _ho.ResultsTruncated then begin
 		var pos := TRegEx.Match(Result, '\d').Index;
 		if pos > 0 then begin
-			Insert('>', Result, pos);
+			Insert(TREEVIEW_HISTORY_MAX_LIMIT_REACHED, Result, pos);
 		end;
 	end;
 

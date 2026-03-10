@@ -236,9 +236,6 @@ const
 	RG_HAS_NO_OUTPUT = ' has no output.';
 	RG_STATS_LINE = 'search statistics:';
 
-	MSG_FORMAT_TOO_MANY_RESULTS = '>%d output lines of ' + RG_EXE + ' processed. The results are truncated.' + CRLF +
-	{ } 'Try to be more specific.';
-
 	SHOW_CMD_IN_ONE_LINE = 'Show command in one line';
 	SHOW_CMD_IN_SEPARATE_LINES = 'Show command in lines';
 	FORMAT_RIPGREP_EXE_NOT_FOUND = 'RipGrep executable (' + RG_EXE + ') not found.' + CRLF +
@@ -255,7 +252,11 @@ const
 	TREEVIEW_HISTORY_COUNTER_ERROR_PREFIX = '⚠';
 	TREEVIEW_HISTORY_COUNTER_OK_PREFIX = '✔';
 	TREEVIEW_HISTORY_LOADED_PREFIX = ' ↻'; // 🔄; ↻
+	TREEVIEW_HISTORY_MAX_LIMIT_REACHED = '≥';
 	TREEVIEW_HISTORY_COUNTER_NOTHING_FOUND_PREFIX = '⛒';
+
+	MSG_FORMAT_TOO_MANY_RESULTS = TREEVIEW_HISTORY_MAX_LIMIT_REACHED + '%d output lines of ' + RG_EXE + ' processed. The results are truncated.' + CRLF +
+	{ } 'Try to be more specific.';
 
 	DEFAULTS_INI_SECTION = 'RipGrepperSettingsDefaults';
 	ROOT_DUMMY_INI_SECTION = 'Root Dummy Section';
