@@ -137,7 +137,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           Colors.UnfocusedColor = clGray
           Colors.UnfocusedSelectionColor = clWhite
           Colors.UnfocusedSelectionBorderColor = clWhite
-          Header.AutoSizeIndex = 4
+          Header.AutoSizeIndex = 3
           Header.Options = [hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible, hoAutoResizeInclCaption]
           Images = ImageListListView
           IncrementalSearch = isAll
@@ -162,27 +162,27 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
           Columns = <
             item
-              Position = 1
+              Position = 0
               Text = 'File'
               Width = 200
             end
             item
-              Position = 0
-              Text = 'Date'
-              Width = 130
-            end
-            item
-              Position = 2
+              Position = 1
               Text = 'Row'
             end
             item
-              Position = 3
+              Position = 2
               Text = 'Col'
             end
             item
-              Position = 4
+              Position = 3
               Text = 'Text'
               Width = 436
+            end
+            item
+              Position = 4
+              Text = 'Date'
+              Width = 130
             end>
         end
       end

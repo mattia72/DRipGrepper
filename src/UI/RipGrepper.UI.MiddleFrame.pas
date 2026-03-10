@@ -131,10 +131,10 @@ type
 		private const
 			COL_HIDDEN = -1;
 			COL_FILE = 0;
-			COL_FILE_LAST_WRITE = 1;
-			COL_ROW_NUM = 2;
-			COL_COL_NUM = 3;
-			COL_MATCH_TEXT = 4;
+			COL_ROW_NUM = 1;
+			COL_COL_NUM = 2;
+			COL_MATCH_TEXT = 3;
+			COL_FILE_LAST_WRITE = 4;
 			DATE_FORMAT = 'yyyy-mm-dd hh:nn:ss';
 
 		var
