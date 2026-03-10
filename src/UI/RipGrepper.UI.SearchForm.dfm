@@ -428,7 +428,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
             Width = 470
             Height = 23
             Hint = 
-              'Include and exclude glob patterns separated by '#39';'#39#13#10'e.g:'#13#10'*.txt;' +
+              'Include and Exclude Glob Patterns Separated by '#39';'#39#13#10'E.g.:'#13#10'*.txt;' +
               #13#10'!*.bak;'#13#10'src/**/every_include_dir/;'#13#10'!exclude_dir/;'
             Margins.Left = 8
             Margins.Top = 8
