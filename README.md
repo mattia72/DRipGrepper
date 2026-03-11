@@ -63,3 +63,7 @@ scoop install dripgrepper
 -  [SVGIconImageList](https://github.com/EtheaDev/SVGIconImageList)
 -  [spring4d](https://bitbucket.org/sglienke/spring4d)
 -  [FastMM4](https://github.com/pleriche/FastMM4) 
+
+### In Memoriam
+This project is dedicated to the memory of **Richard**, whose first feedbacks helped shape DRipGrepper.
+Rest in peace.

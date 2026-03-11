@@ -2,6 +2,8 @@
 
 ## [v4.15.0-beta] - 2026-02-23
 
+In memory of Richard.
+
 ### 💥 Added
 - Output format settings: json or vimgrep (BREAKING CHANGE: loading of history items saved by old version won't work)
 - Search form: 
@@ -9,6 +11,7 @@
   - Save/Load form size and position
   - **Regex Template Menu**: Manage and apply regex search patterns from a dropdown menu in the search form
   - Version info on click of "*i*" icon in bottom right corner of main form
+  - New column for file modification date in search results, with sorting support
 
 ### 🔄 Changed
 - Output options use generalized OptionPanel
