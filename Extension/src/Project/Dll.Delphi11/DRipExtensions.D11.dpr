@@ -123,7 +123,9 @@ uses
   RipGrepper.UI.Components.Constants in '..\..\..\..\src\UI\Components\RipGrepper.UI.Components.Constants.pas',
   RipGrepper.UI.Components.CustomOptionsBase in '..\..\..\..\src\UI\Components\RipGrepper.UI.Components.CustomOptionsBase.pas',
   RipGrepper.Helper.RegexTemplates in '..\..\..\..\src\Helper\RipGrepper.Helper.RegexTemplates.pas',
-  RipGrepper.UI.RegexTemplateMenu in '..\..\..\..\src\UI\RipGrepper.UI.RegexTemplateMenu.pas';
+  RipGrepper.UI.RegexTemplateMenu in '..\..\..\..\src\UI\RipGrepper.UI.RegexTemplateMenu.pas',
+  RipGrepper.Settings.PersistableArray in '..\..\..\..\src\Settings\RipGrepper.Settings.PersistableArray.pas',
+  RipGrepper.UI.TabSeparatedConfigForm in '..\..\..\..\src\UI\RipGrepper.UI.TabSeparatedConfigForm.pas';
 
 {$R *.res}
 

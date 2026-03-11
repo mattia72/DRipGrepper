@@ -112,6 +112,7 @@ begin
 	nodeData := FVst.GetNodeData(Result);
 	// FVst.ValidateNode(Result, False);
 	nodeData^.FilePath := _rec.FilePath;
+	nodeData^.FileLastWriteTime := _rec.FileLastWriteTime;
 	nodeData^.MatchData := _rec.MatchData;
 end;
 
@@ -206,6 +207,9 @@ begin
 	idx := MatchFiles.IndexOf(_sNodeText);
 	if idx < 0 then begin
 		nodeData := TVSFileNodeData.New(_sNodeText);
+		if TFile.Exists(_sNodeText) then begin
+			nodeData.FileLastWriteTime := TFile.GetLastWriteTime(_sNodeText);
+		end;
 		Result := AddVSTStructure(nil, nodeData, _asFirst);
 		MatchFiles.AddObject(_sNodeText, TObject(Result));
 	end else begin

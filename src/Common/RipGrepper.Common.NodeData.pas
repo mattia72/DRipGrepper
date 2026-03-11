@@ -23,7 +23,7 @@ type
 
 	TVSFileNodeData = record
 		FilePath : string;
-		// Icon?
+		FileLastWriteTime : TDateTime;
 		MatchData : TVSMatchData;
 		function GetLineText(const _bTrimLeft : Boolean; var _iSpaceCount, _iTabCount : Integer) : string;
 
@@ -74,6 +74,7 @@ var
 	text : string;
 begin
 	Result.FilePath := _file;
+	Result.FileLastWriteTime := 0;
 	text := _textBefore + _matchText + _textAfter;
 	Result.MatchData := TVSMatchData.New(_row, _colBegin, _colEnd, text);
 end;
@@ -82,6 +83,7 @@ class function TVSFileNodeData.New(const _file : string; const _row : Integer = 
 	const _colEnd : Integer = -1; const _matchText : string = '') : TVSFileNodeData;
 begin
 	Result.FilePath := _file;
+	Result.FileLastWriteTime := 0;
 	Result.MatchData := TVSMatchData.New(_row, _colBegin, _colEnd, _matchText);
 end;
 

@@ -33,6 +33,7 @@ uses
   RipGrepper.Common.IOTAUtils in '..\src\Common\RipGrepper.Common.IOTAUtils.pas',
   RipGrepper.Common.IOTAUtils.TPathProcessor.Test in 'RipGrepper.Common.IOTAUtils.TPathProcessor.Test.pas',
   RipGrepper.Common.Interfaces in '..\src\Common\RipGrepper.Common.Interfaces.pas',
+  RipGrepper.Common.NodeData.Test in 'RipGrepper.Common.NodeData.Test.pas',
   RipGrepper.Common.ParsedObject in '..\src\Common\RipGrepper.Common.ParsedObject.pas',
   RipGrepper.Common.ParsedObject.Test in 'RipGrepper.Common.ParsedObject.Test.pas',
   RipGrepper.Common.SearchParamsWithOptionsTest in 'RipGrepper.Common.SearchParamsWithOptionsTest.pas',
