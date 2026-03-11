@@ -1,9 +1,9 @@
 object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
   Left = 756
   Top = 436
-  Width = 575
-  Height = 604
-  AutoScroll = True
+  ClientWidth = 559
+  ClientHeight = 565
+  AutoScroll = False
   Caption = 'DRipGrepper - Search...'
   Color = clBtnFace
   Constraints.MinWidth = 420
