@@ -119,6 +119,7 @@
         <DCCReference Include="..\src\Common\RipGrepper.Common.IOTAUtils.pas"/>
         <DCCReference Include="RipGrepper.Common.IOTAUtils.TPathProcessor.Test.pas"/>
         <DCCReference Include="..\src\Common\RipGrepper.Common.Interfaces.pas"/>
+        <DCCReference Include="RipGrepper.Common.NodeData.Test.pas"/>
         <DCCReference Include="..\src\Common\RipGrepper.Common.ParsedObject.pas"/>
         <DCCReference Include="RipGrepper.Common.ParsedObject.Test.pas"/>
         <DCCReference Include="RipGrepper.Common.SearchParamsWithOptionsTest.pas"/>
@@ -128,6 +129,8 @@
         <DCCReference Include="RipGrepper.Data.HistoryItemObjectTest.pas"/>
         <DCCReference Include="..\src\RipGrepper.Data.Matches.pas"/>
         <DCCReference Include="..\src\Helper\RipGrepper.Helper.MemIniFile.pas"/>
+        <DCCReference Include="..\src\Helper\RipGrepper.Helper.RegexTemplates.pas"/>
+        <DCCReference Include="RipGrepper.Helper.RegexTemplates.Test.pas"/>
         <DCCReference Include="..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas"/>
         <DCCReference Include="..\src\Helper\RipGrepper.Helper.StreamReaderWriter.pas"/>
         <DCCReference Include="RipGrepper.Helper.StreamReaderWriter.Test.pas"/>
