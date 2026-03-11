@@ -37,6 +37,8 @@ type
 			FLayoutInitialized : Boolean;
 			procedure SetSettings(const Value : TRipGrepperSettings);
 
+		private
+			FAllOptionsHidden: Boolean;
 		protected
 			FCheckOptionsGroup : TCustomCheckOptions;
 			procedure onCheckOptionSelect(_sender : TObject; _item : TCustomCheckItem); virtual;
@@ -47,7 +49,9 @@ type
 			constructor Create(_owner : TComponent); override;
 			procedure AddItems(); virtual;
 			procedure AdjustHeight();
+			function GetContentHeight() : Integer;
 			procedure UpdateExpertMode(const _layout : TSearchFormLayout); virtual;
+			property AllOptionsHidden: Boolean read FAllOptionsHidden;
 			property CheckOptionsGroup : TCustomCheckOptions read FCheckOptionsGroup;
 			property EventsEnabled : Boolean read FEventsEnabled write FEventsEnabled;
 			property Settings : TRipGrepperSettings read FSettings write SetSettings;
@@ -220,7 +224,8 @@ begin
 		{ } 'Number of context lines',
 		{ } 0, 20, 0,
 		{ } sfs.Context,
-		{ } False { start in new line } );
+		{ } False { start in new line },
+		{ } True { show in expert mode only } );
 
 	// Check if VSCode RipGrep and disable pretty option
 	if IsVsCodeRipGrep then begin
@@ -299,6 +304,13 @@ begin
 	FCheckOptionsGroup.AlignControlItems();
 end;
 
+function TOptionPanel.GetContentHeight() : Integer;
+begin
+	Result := FCheckOptionsGroup.Height +
+	{ } FCheckOptionsGroup.Margins.Top + FCheckOptionsGroup.Margins.Bottom +
+	{ } pnlMain.Padding.Top + pnlMain.Padding.Bottom;
+end;
+
 procedure TOptionPanel.AdjustHeight();
 begin
 	var
@@ -311,9 +323,7 @@ begin
 	// Make sure the check options group uses full available width
 	FCheckOptionsGroup.Width := Width - 8;
 	// Height should match the check options group height plus pnlMain padding
-	Height := FCheckOptionsGroup.Height +
-	{ } FCheckOptionsGroup.Margins.Top + FCheckOptionsGroup.Margins.Bottom +
-	{ } pnlMain.Padding.Top + pnlMain.Padding.Bottom;
+	Height := GetContentHeight();
 	dbgMsg.MsgFmt('Panel %s height: %d (CheckOptionsGroup: %d + padding: %d)', [name, Height, FCheckOptionsGroup.Height,
 		pnlMain.Padding.Top + pnlMain.Padding.Bottom]);
 end;
@@ -378,8 +388,6 @@ begin
 end;
 
 procedure TOptionPanel.UpdateExpertMode(const _layout : TSearchFormLayout);
-var
-	allHidden : Boolean;
 begin
 	var wasExpert := sflExpert in FSearchFormLayout;
 	var isExpert := sflExpert in _layout;
@@ -393,24 +401,24 @@ begin
 		CheckOptionsGroup.AlignControlItems();
 		
 		// Check if all items are hidden
-		allHidden := True;
+		FAllOptionsHidden := True;
 		for var item in CheckOptionsGroup.Items do begin
 			if Assigned(item.ParentPanel) and item.ParentPanel.Visible then begin
-				allHidden := False;
+				FAllOptionsHidden := False;
 				Break;
 			end;
 		end;
 		
 		// Hide parent panel if all items are hidden, show otherwise
 		if Assigned(Parent) then begin
-			Parent.Visible := not allHidden;
+			Parent.Visible := not FAllOptionsHidden;
 		end;
 		
 		// Only adjust height if panel is visible
-		if not allHidden then begin
+		if not FAllOptionsHidden then begin
 			AdjustHeight();
 		end;
-		
+
 		if wasExpert and isNormal then begin
 			CheckOptionsGroup.SetDefaultValues();
 		end;
