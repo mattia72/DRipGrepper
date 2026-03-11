@@ -42,6 +42,8 @@ uses
   RipGrepper.Data.HistoryItemObjectTest in 'RipGrepper.Data.HistoryItemObjectTest.pas',
   RipGrepper.Data.Matches in '..\src\RipGrepper.Data.Matches.pas',
   RipGrepper.Helper.MemIniFile in '..\src\Helper\RipGrepper.Helper.MemIniFile.pas',
+  RipGrepper.Helper.RegexTemplates in '..\src\Helper\RipGrepper.Helper.RegexTemplates.pas',
+  RipGrepper.Helper.RegexTemplates.Test in 'RipGrepper.Helper.RegexTemplates.Test.pas',
   RipGrepper.Helper.SettingStoreBehaviours in '..\src\Helper\RipGrepper.Helper.SettingStoreBehaviours.pas',
   RipGrepper.Helper.StreamReaderWriter in '..\src\Helper\RipGrepper.Helper.StreamReaderWriter.pas',
   RipGrepper.Helper.StreamReaderWriter.Test in 'RipGrepper.Helper.StreamReaderWriter.Test.pas',
