@@ -32,6 +32,7 @@ type
 				_matchText, _textAfter : string) : TVSFileNodeData; overload; static;
 			class function New(const _file : string; const _row : Integer = -1; const _colBegin : Integer = -1;
 				const _colEnd : Integer = -1; const _matchText : string = '') : TVSFileNodeData; overload; static;
+			procedure UpdateLastWriteTime;
 	end;
 
 	PVSMatchData = ^TVSMatchData;
@@ -41,6 +42,7 @@ implementation
 
 uses
 	System.SysUtils,
+	System.IOUtils,
 	RipGrepper.Helper.Types,
 	RipGrepper.Tools.DebugUtils;
 
@@ -85,6 +87,13 @@ begin
 	Result.FilePath := _file;
 	Result.FileLastWriteTime := 0;
 	Result.MatchData := TVSMatchData.New(_row, _colBegin, _colEnd, _matchText);
+end;
+
+procedure TVSFileNodeData.UpdateLastWriteTime;
+begin
+	if (FileLastWriteTime = 0) and TFile.Exists(FilePath) then begin
+		FileLastWriteTime := TFile.GetLastWriteTime(FilePath);
+	end;
 end;
 
 function TVSMatchData.GetMatchLength() : integer;

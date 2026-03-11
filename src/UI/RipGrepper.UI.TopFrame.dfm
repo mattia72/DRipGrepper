@@ -90,23 +90,35 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
         Top = 0
         Action = ActionShowRelativePath
       end
-      object tbAlternateRowColors: TToolButton
+      object tbShowLastModifiedDateColumn: TToolButton
         Left = 66
+        Top = 0
+        Action = ActionShowLastModifiedDateColumn
+      end
+      object ToolButton10: TToolButton
+        Left = 91
+        Top = 0
+        Width = 8
+        Caption = 'ToolButton10'
+        Style = tbsSeparator
+      end
+      object tbAlternateRowColors: TToolButton
+        Left = 99
         Top = 0
         Action = ActionAlternateRowColors
       end
       object tbShowFileIcon: TToolButton
-        Left = 91
+        Left = 124
         Top = 0
         Action = ActionShowFileIcons
       end
       object tbIndentLines: TToolButton
-        Left = 116
+        Left = 149
         Top = 0
         Action = ActionIndentLine
       end
       object ToolButton4: TToolButton
-        Left = 141
+        Left = 174
         Top = 0
         Width = 8
         Caption = 'ToolButton4'
@@ -142,7 +154,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
         Style = tbsSeparator
       end
       object edtReplace: THistoryButtonedEdit
-        Left = 278
+        Left = 311
         Top = 0
         Width = 121
         Height = 23
@@ -162,12 +174,12 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
         OnRightButtonClick = edtReplaceRightButtonClick
       end
       object tbSaveReplacement: TToolButton
-        Left = 399
+        Left = 242
         Top = 0
         Action = ActionSaveReplacement
       end
       object ToolButton6: TToolButton
-        Left = 424
+        Left = 267
         Top = 0
         Width = 8
         Caption = 'ToolButton6'
@@ -175,7 +187,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
         Style = tbsSeparator
       end
       object tbOpenWith: TToolButton
-        Left = 432
+        Left = 275
         Top = 0
         Action = ActionOpenWith
         ImageIndex = 17
@@ -372,6 +384,15 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       ImageIndex = 10
       ImageName = 'format-align-left'
       OnExecute = ActionIndentLineExecute
+    end
+    object ActionShowLastModifiedDateColumn: TAction
+      Category = 'View'
+      Caption = 'Show Modified Date'
+      GroupIndex = 1
+      Hint = 'Show/Hide Last Modified Date Column'
+      ImageIndex = 19
+      ImageName = 'calendar-clock'
+      OnExecute = ActionShowLastModifiedDateColumnExecute
     end
     object ActionOpenWith: TAction
       Caption = 'Open with...'
@@ -661,6 +682,18 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
           '14.43 8,12.5C8,10.57 9.57,9 11.5,9M11.5,10C10.12,10 9,11.12 9,12' +
           '.5C9,13.88 10.12,15 11.5,15C12.88,15 14,13.88 14,12.5C14,11.12 1' +
           '2.88,10 11.5,10Z" /></svg>'
+      end
+      item
+        IconName = 'calendar-clock'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><pat' +
+          'h d="M15,13H16.5V15.82L18.94,17.23L18.19,18.53L15,16.69V13M19,8H' +
+          '5V19H9.67C9.24,18.09 9,17.07 9,16A7,7 0 0,1 16,9C17.07,9 18.09,9' +
+          '.24 19,9.67V8M5,21C3.89,21 3,20.1 3,19V5C3,3.89 3.89,3 5,3H6V1H8' +
+          'V3H16V1H18V3H19A2,2 0 0,1 21,5V11.1C22.24,12.36 23,14.09 23,16A7' +
+          ',7 0 0,1 16,23C14.09,23 12.36,22.24 11.1,21H5M16,11.15A4.85,4.85' +
+          ' 0 0,0 11.15,16C11.15,18.68 13.32,20.85 16,20.85A4.85,4.85 0 0,0' +
+          ' 20.85,16C20.85,13.32 18.68,11.15 16,11.15Z" /></svg>'
       end>
     FixedColor = clGrayText
     AntiAliasColor = clBtnShadow

@@ -235,6 +235,7 @@ type
 			procedure ReloadColorSettings;
 			procedure SetReplaceModeOnGrid(const _bOn : Boolean);
 			procedure SetResultListViewDataToHistoryObj;
+			procedure UpdateColumnVisibility;
 			procedure UpdateHistObjectAndCopyToSettings;
 			procedure UpdateHistObjectAndGui;
 			procedure UpdateRipGrepArgumentsInHistObj;
@@ -739,6 +740,7 @@ function TRipGrepperMiddleFrame.GetData : TRipGrepperData;
 begin
 	if not Assigned(FData) then begin
 		FData := TRipGrepperData.Create(VstResult);
+		FData.ResolveFileLastWriteTime := Settings.NodeLookSettings.ShowLastModifiedDateColumn;
 		MiddleLeftFrame1.Data := FData;
 	end;
 	Result := FData;
@@ -867,6 +869,7 @@ begin
 	VstResult.NodeDataSize := SizeOf(TVSFileNodeData);
 
 	ReloadColorSettings;
+	UpdateColumnVisibility;
 	dbgMsg.Msg('MiddleLeftFrame1.Initialize');
 	MiddleLeftFrame1.Initialize;
 
@@ -896,6 +899,7 @@ end;
 procedure TRipGrepperMiddleFrame.LoadBeforeSearchSettings;
 begin
 	ReloadColorSettings;
+	Data.ResolveFileLastWriteTime := Settings.NodeLookSettings.ShowLastModifiedDateColumn;
 end;
 
 procedure TRipGrepperMiddleFrame.OnEOFProcess;
@@ -1047,6 +1051,33 @@ begin
 	VstResult.Header.Columns[COL_FILE].Width := IfThen(toCheckSupport in VstResult.TreeOptions.MiscOptions, 70, 50);
 	FHeaderRowRect := VstResult.Header.Columns[COL_ROW_NUM].GetRect();
 	FHeaderColRect := VstResult.Header.Columns[COL_COL_NUM].GetRect();
+end;
+
+procedure TRipGrepperMiddleFrame.UpdateColumnVisibility;
+var
+	col : TVirtualTreeColumn;
+	bShow : Boolean;
+	node : PVirtualNode;
+	nodeData : PVSFileNodeData;
+begin
+	bShow := Settings.NodeLookSettings.ShowLastModifiedDateColumn;
+	Data.ResolveFileLastWriteTime := bShow;
+
+	col := VstResult.Header.Columns[COL_FILE_LAST_WRITE];
+	if bShow then begin
+		col.Options := col.Options + [coVisible];
+		// Resolve missing dates for existing parent nodes
+		node := VstResult.GetFirst();
+		while Assigned(node) do begin
+			if node.Parent = VstResult.RootNode then begin
+				nodeData := VstResult.GetNodeData(node);
+				nodeData^.UpdateLastWriteTime;
+			end;
+			node := VstResult.GetNext(node);
+		end;
+	end else begin
+		col.Options := col.Options - [coVisible];
+	end;
 end;
 
 procedure TRipGrepperMiddleFrame.SetHistItemObject(const Value : IHistoryItemObject);

@@ -45,6 +45,7 @@ type
 
 		public
 			FErrorCounters : TErrorCounters;
+			ResolveFileLastWriteTime : Boolean;
 
 			constructor Create(_vst : TCustomVirtualStringTree);
 			destructor Destroy; override;
@@ -64,7 +65,6 @@ implementation
 
 uses
 	System.SysUtils,
-	System.IOUtils,
 	Vcl.Dialogs,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Helper.Types,
@@ -77,6 +77,7 @@ begin
 	MatchFiles := TStringList.Create(TDuplicates.dupIgnore, True, True);
 	FErrorCounters.Reset();
 	FVst := _vst;
+	ResolveFileLastWriteTime := True;
 end;
 
 destructor TRipGrepperData.Destroy;
@@ -207,8 +208,8 @@ begin
 	idx := MatchFiles.IndexOf(_sNodeText);
 	if idx < 0 then begin
 		nodeData := TVSFileNodeData.New(_sNodeText);
-		if TFile.Exists(_sNodeText) then begin
-			nodeData.FileLastWriteTime := TFile.GetLastWriteTime(_sNodeText);
+		if ResolveFileLastWriteTime then begin
+			nodeData.UpdateLastWriteTime;
 		end;
 		Result := AddVSTStructure(nil, nodeData, _asFirst);
 		MatchFiles.AddObject(_sNodeText, TObject(Result));

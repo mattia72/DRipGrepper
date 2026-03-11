@@ -15,7 +15,8 @@ const
 	{ } 'ShowFileIcon',
 	{ } 'AlternateRowColors',
 	{ } 'IndentLines',
-	{ } 'ExpandNodes'];
+	{ } 'ExpandNodes',
+	{ } 'ShowLastModifiedDateColumn'];
 
 type
 	TNodeLookSettings = class(TPersistableSettings)
@@ -29,17 +30,20 @@ type
 			FFilterSettings : TFilterSettings;
 			FIndentLines : IBoolSetting;
 			FShowFileIcon : IBoolSetting;
+			FShowLastModifiedDateColumn : IBoolSetting;
 			FShowRelativePath : IBoolSetting;
 			function GetAlternateRowColors() : Boolean;
 			function GetExpandNodes() : Boolean;
 			function GetIndentLines() : Boolean;
 			function GetShowFileIcon() : Boolean;
+			function GetShowLastModifiedDateColumn() : Boolean;
 			function GetShowRelativePath() : Boolean;
 			procedure SetAlternateRowColors(const Value : Boolean);
 			procedure SetExpandNodes(const Value : Boolean);
 			procedure SetFilterSettings(const Value : TFilterSettings);
 			procedure SetIndentLines(const Value : Boolean);
 			procedure SetShowFileIcon(const Value : Boolean);
+			procedure SetShowLastModifiedDateColumn(const Value : Boolean);
 			procedure SetShowRelativePath(const Value : Boolean);
 
 		public
@@ -54,6 +58,7 @@ type
 			property FilterSettings : TFilterSettings read FFilterSettings write SetFilterSettings;
 			property IndentLines : Boolean read GetIndentLines write SetIndentLines;
 			property ShowFileIcon : Boolean read GetShowFileIcon write SetShowFileIcon;
+			property ShowLastModifiedDateColumn : Boolean read GetShowLastModifiedDateColumn write SetShowLastModifiedDateColumn;
 			property ShowRelativePath : Boolean read GetShowRelativePath write SetShowRelativePath;
 	end;
 
@@ -106,6 +111,11 @@ begin
 	Result := FShowFileIcon.Value;
 end;
 
+function TNodeLookSettings.GetShowLastModifiedDateColumn() : Boolean;
+begin
+	Result := FShowLastModifiedDateColumn.Value;
+end;
+
 function TNodeLookSettings.GetShowRelativePath() : Boolean;
 begin
 	Result := FShowRelativePath.Value;
@@ -120,12 +130,14 @@ begin
 	FExpandNodes := TBoolSetting.Create('ExpandNodes', False, ssInitialized, ssb);
 	FIndentLines := TBoolSetting.Create('IndentLines', False, ssInitialized, ssb);
 	FShowFileIcon := TBoolSetting.Create('ShowFileIcon', False, ssInitialized, ssb);
+	FShowLastModifiedDateColumn := TBoolSetting.Create('ShowLastModifiedDateColumn', True, ssInitialized, ssb);
 
 	CreateSetting(FShowRelativePath);
 	CreateSetting(FShowFileIcon);
 	CreateSetting(FAlternateRowColors);
 	CreateSetting(FIndentLines);
 	CreateSetting(FExpandNodes);
+	CreateSetting(FShowLastModifiedDateColumn);
 	FFilterSettings.Init();
 end;
 
@@ -164,6 +176,11 @@ end;
 procedure TNodeLookSettings.SetShowFileIcon(const Value : Boolean);
 begin
 	FShowFileIcon.Value := Value;
+end;
+
+procedure TNodeLookSettings.SetShowLastModifiedDateColumn(const Value : Boolean);
+begin
+	FShowLastModifiedDateColumn.Value := Value;
 end;
 
 procedure TNodeLookSettings.SetShowRelativePath(const Value : Boolean);

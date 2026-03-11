@@ -75,6 +75,7 @@ begin
 	FSettings.IndentLines := True;
 	FSettings.ShowRelativePath := True;
 	FSettings.ExpandNodes := True;
+	FSettings.ShowLastModifiedDateColumn := True;
 end;
 
 procedure TNodeLookSettingsTest.Setup;
@@ -130,6 +131,10 @@ begin
 	fact.GetStringPersister(FSettings.IniSectionName, 'ExpandNodes').TryLoadValue(iniVal);
 	settingVal := FSettings.ExpandNodes;
 	Assert.AreEqual(settingVal, iniVal = '1', 'ExpandNodes should be equal');
+
+	fact.GetStringPersister(FSettings.IniSectionName, 'ShowLastModifiedDateColumn').TryLoadValue(iniVal);
+	settingVal := FSettings.ShowLastModifiedDateColumn;
+	Assert.AreEqual(settingVal, iniVal = '1', 'ShowLastModifiedDateColumn should be equal');
 
 	CheckNodeSettingsDict('after updateini');
 

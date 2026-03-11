@@ -48,6 +48,7 @@ type
 		ActionAbortSearch : TAction;
 		ActionRefreshSearch : TAction;
 		ActionIndentLine : TAction;
+		ActionShowLastModifiedDateColumn : TAction;
 		tbarSearch : TToolBar;
 		tbShowSearchForm : TToolButton;
 		tbRefreshSearch : TToolButton;
@@ -59,6 +60,7 @@ type
 		tbShowFileIcon : TToolButton;
 		tbShowRelativePath : TToolButton;
 		tbIndentLines : TToolButton;
+		tbShowLastModifiedDateColumn : TToolButton;
 		ToolButton4 : TToolButton;
 		tbOpenWith : TToolButton;
 		ToolButton6 : TToolButton;
@@ -96,6 +98,7 @@ type
 		ActionReplaceUseRegex : TAction;
 		SvgImgLstTopFrame : TSVGIconImageList;
 		pnlTop : TPanel;
+    ToolButton10: TToolButton;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAlignToolbarsExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsExecute(Sender : TObject);
@@ -123,6 +126,8 @@ type
 		procedure ActionSetTextFilterModeExecute(Sender : TObject);
 		procedure ActionShowFileIconsExecute(Sender : TObject);
 		procedure ActionShowFileIconsUpdate;
+		procedure ActionShowLastModifiedDateColumnExecute(Sender : TObject);
+		procedure ActionShowLastModifiedDateColumnUpdate;
 		procedure ActionShowRelativePathExecute(Sender : TObject);
 		procedure ActionShowRelativePathUpdate;
 		procedure ActionShowSearchFormExecute(Sender : TObject);
@@ -521,6 +526,20 @@ begin
 	tbShowFileIcon.Down := Settings.NodeLookSettings.ShowFileIcon;
 end;
 
+procedure TRipGrepperTopFrame.ActionShowLastModifiedDateColumnExecute(Sender : TObject);
+begin
+	Settings.NodeLookSettings.ShowLastModifiedDateColumn := not Settings.NodeLookSettings.ShowLastModifiedDateColumn;
+	Settings.StoreViewSettings('ShowLastModifiedDateColumn');
+	MainFrame.UpdateColumnVisibility;
+	MainFrame.VstResult.Repaint();
+	ActionShowLastModifiedDateColumnUpdate;
+end;
+
+procedure TRipGrepperTopFrame.ActionShowLastModifiedDateColumnUpdate;
+begin
+	tbShowLastModifiedDateColumn.Down := Settings.NodeLookSettings.ShowLastModifiedDateColumn;
+end;
+
 procedure TRipGrepperTopFrame.ActionShowRelativePathExecute(Sender : TObject);
 const
 	PARSER_TYPES : TArray<TFileNameType> = [ftAbsolute, ftRelative];
@@ -825,6 +844,7 @@ begin
 	ActionShowRelativePathUpdate();
 	ActionAlternateRowColorsUpdate();
 	ActionShowFileIconsUpdate();
+	ActionShowLastModifiedDateColumnUpdate();
 	ActionIndentLineUpdate();
 
 	ActionAbortSearch.Enabled := False;
