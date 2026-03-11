@@ -81,7 +81,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
                 item
                   Position = 0
                   Text = 'Search'
-                  Width = 185
+                  Width = 181
                 end
                 item
                   Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coSmartResize, coAllowFocus, coEditable, coStyleColor]
@@ -155,8 +155,8 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           OnGetText = VstResultGetText
           OnPaintText = VstResultPaintText
           OnGetImageIndex = VstResultGetImageIndex
-          OnHeaderDragged = VstResultHeaderDragged
           OnHeaderClick = VstResultHeaderClick
+          OnHeaderDragged = VstResultHeaderDragged
           OnNodeClick = VstResultNodeClick
           Touch.InteractiveGestures = [igPan, igPressAndTap]
           Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
@@ -164,7 +164,6 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
             item
               Position = 0
               Text = 'File'
-              Width = 200
             end
             item
               Position = 1
@@ -177,7 +176,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
             item
               Position = 3
               Text = 'Text'
-              Width = 436
+              Width = 310
             end
             item
               Position = 4
