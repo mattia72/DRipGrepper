@@ -258,11 +258,16 @@ begin
 				var
 					sVsDir : string := TFileUtils.GetVsCodeDir;
 				if not sVsDir.IsEmpty then begin
-					sVsDir := TFileUtils.ShortToLongPath(sVsDir.Remove(sVsDir.Length - '\bin'.Length));
-					vscodeRgPath := TFileUtils.FindFileInSubDirs(sVsDir, RG_EXE);
-					if not vscodeRgPath.IsEmpty then begin
-						rgPath := vscodeRgPath;
-						dbgMsg.MsgFmt('%s found in vscodeRgPath=%s', [RG_EXE, vscodeRgPath]);
+					if sVsDir.EndsWith('\bin', True) then begin
+						sVsDir := sVsDir.Remove(sVsDir.Length - '\bin'.Length);
+					end;
+					sVsDir := TFileUtils.ShortToLongPath(sVsDir);
+					if TDirectory.Exists(sVsDir) then begin
+						vscodeRgPath := TFileUtils.FindFileInSubDirs(sVsDir, RG_EXE);
+						if not vscodeRgPath.IsEmpty then begin
+							rgPath := vscodeRgPath;
+							dbgMsg.MsgFmt('%s found in vscodeRgPath=%s', [RG_EXE, vscodeRgPath]);
+						end;
 					end;
 				end;
 			end;
