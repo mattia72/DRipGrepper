@@ -125,6 +125,7 @@ uses
   RipGrepper.Helper.RegexTemplates in '..\..\..\..\src\Helper\RipGrepper.Helper.RegexTemplates.pas',
   RipGrepper.UI.RegexTemplateMenu in '..\..\..\..\src\UI\RipGrepper.UI.RegexTemplateMenu.pas',
   RipGrepper.Settings.PersistableArray in '..\..\..\..\src\Settings\RipGrepper.Settings.PersistableArray.pas',
+  RipGrepper.Settings.RegexTemplateSettings in '..\..\..\..\src\Settings\RipGrepper.Settings.RegexTemplateSettings.pas',
   RipGrepper.UI.TabSeparatedConfigForm in '..\..\..\..\src\UI\RipGrepper.UI.TabSeparatedConfigForm.pas';
 
 {$R *.res}

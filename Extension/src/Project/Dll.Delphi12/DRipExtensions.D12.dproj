@@ -121,8 +121,8 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.15.0.357;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.15.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>357</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.15.0.359;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.15.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>359</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <DCC_Description>RipGrep Search within Delphi</DCC_Description>
         <VerInfo_MinorVer>15</VerInfo_MinorVer>
@@ -270,6 +270,7 @@
         <DCCReference Include="..\..\..\..\src\Helper\RipGrepper.Helper.RegexTemplates.pas"/>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.RegexTemplateMenu.pas"/>
         <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.PersistableArray.pas"/>
+        <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.RegexTemplateSettings.pas"/>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.TabSeparatedConfigForm.pas">
             <FormType>dfm</FormType>
         </DCCReference>

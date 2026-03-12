@@ -43,6 +43,10 @@ type
 			procedure TestSaveToStreamWriter();
 			[Test]
 			procedure TestLoadFromStreamReader();
+			[Test]
+			procedure AddOrChangeWithExplicitSectionShouldUseThatSection();
+			[Test]
+			procedure AddOrChangeWithEmptySectionShouldUseSectionName();
 			[Setup]
 			procedure Setup();
 			[TearDown]
@@ -191,6 +195,48 @@ begin
 	Assert.AreEqual(Ord(TSettingState.ssModified), Ord(setting.State), 'Setting State mismatch');
 
 	Assert.AreEqual('TestValue', setting.AsString, 'Setting value mismatch');
+end;
+
+procedure TSettingsDictionaryTest.AddOrChangeWithExplicitSectionShouldUseThatSection();
+var
+	dict : TSettingsDictionary;
+	setting : ISetting;
+begin
+	dict := TSettingsDictionary.Create('DefaultSection', FPersisterFactory);
+	try
+		setting := TStringSetting.Create('Key1', 'Value1');
+		// Pass explicit section different from the dictionary SectionName
+		dict.AddOrChange('ExplicitSection', 'Key1', setting);
+
+		Assert.IsTrue(dict.ContainsSection('ExplicitSection'),
+			{ } 'Should contain the explicit section');
+		Assert.IsFalse(dict.ContainsSection('DefaultSection'),
+			{ } 'Should not fall back to default SectionName');
+		Assert.AreEqual('Value1', dict['ExplicitSection']['Key1'].AsString,
+			{ } 'Value should match');
+	finally
+		dict.Free;
+	end;
+end;
+
+procedure TSettingsDictionaryTest.AddOrChangeWithEmptySectionShouldUseSectionName();
+var
+	dict : TSettingsDictionary;
+	setting : ISetting;
+begin
+	dict := TSettingsDictionary.Create('DefaultSection', FPersisterFactory);
+	try
+		setting := TStringSetting.Create('Key1', 'Value1');
+		// Pass empty section - should fall back to SectionName
+		dict.AddOrChange('', 'Key1', setting);
+
+		Assert.IsTrue(dict.ContainsSection('DefaultSection'),
+			{ } 'Should use default SectionName when section is empty');
+		Assert.AreEqual('Value1', dict['DefaultSection']['Key1'].AsString,
+			{ } 'Value should match');
+	finally
+		dict.Free;
+	end;
 end;
 
 procedure TSettingsDictionaryTest.Setup();

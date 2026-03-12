@@ -337,6 +337,7 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="..\..\Settings\RipGrepper.Settings.PersistableArray.pas"/>
+        <DCCReference Include="..\..\Settings\RipGrepper.Settings.RegexTemplateSettings.pas"/>
         <RcItem Include="..\..\..\LICENSE">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>

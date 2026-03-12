@@ -128,9 +128,9 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.15.0.450;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.15.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.15.0.452;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.15.0;Comments=beta</VerInfo_Keys>
         <DCC_DebugInfoInTds>true</DCC_DebugInfoInTds>
-        <VerInfo_Build>450</VerInfo_Build>
+        <VerInfo_Build>452</VerInfo_Build>
         <VerInfo_MinorVer>15</VerInfo_MinorVer>
         <VerInfo_Release>0</VerInfo_Release>
         <Debugger_DebugSourcePath>C:\home\mata\dev\delphi\spring4d\Source\Base\;C:\home\mata\dev\delphi\spring4d\Source\Base\Collections\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
@@ -172,8 +172,8 @@
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.15.0.344;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.15.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>344</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=4.15.0.345;ProgramID=com.embarcadero.DRipGrepper;ProductName=$(MSBuildProjectName);ProductVersion=4.15.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>345</VerInfo_Build>
         <VerInfo_MinorVer>15</VerInfo_MinorVer>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
@@ -343,6 +343,7 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="..\..\Settings\RipGrepper.Settings.PersistableArray.pas"/>
+        <DCCReference Include="..\..\Settings\RipGrepper.Settings.RegexTemplateSettings.pas"/>
         <RcItem Include="..\..\..\LICENSE">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>
