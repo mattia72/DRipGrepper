@@ -210,4 +210,9 @@ begin
 	Assert.AreEqual(_expected, tmpl.ApplyToText(_text), 'ApplyToText word boundary mismatch');
 end;
 
+initialization
+
+TDUnitX.RegisterTestFixture(TRegexTemplateParseTest);
+TDUnitX.RegisterTestFixture(TRegexTemplateApplyToTextTest);
+
 end.

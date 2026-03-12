@@ -245,4 +245,8 @@ begin
 	Assert.AreEqual('No macros here', Result, 'ReplaceMacro should not change string without macros');
 end;
 
+initialization
+
+TDUnitX.RegisterTestFixture(TPathProcessorTest);
+
 end.

@@ -688,8 +688,12 @@ end;
 initialization
 
 TDUnitX.RegisterTestFixture(TStringsHelperTest);
+TDUnitX.RegisterTestFixture(TStringsHelperMoreTest);
 TDUnitX.RegisterTestFixture(TBitFieldTest);
 TDUnitX.RegisterTestFixture(TFileUtilsTest);
 TDUnitX.RegisterTestFixture(TMultiLineStringTest);
+TDUnitX.RegisterTestFixture(TLoadHistoryModesTest);
+TDUnitX.RegisterTestFixture(TConversionsTest);
+TDUnitX.RegisterTestFixture(TAutoDeleteTempFileTest);
 
 end.

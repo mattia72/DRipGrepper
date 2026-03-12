@@ -106,6 +106,8 @@ begin
 			Assert.AreEqual(arrSrc.Value[i], arrDst.Value[i],
 				{ } Format('Template at index %d should match', [i]));
 		end;
+		arrSrc := nil;
+		arrDst := nil;
 	finally
 		otherSettings.Free;
 	end;
