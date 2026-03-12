@@ -91,6 +91,7 @@ end;
 procedure TRegexTemplateSettingsTest.CopyShouldDuplicateTemplates;
 var
 	otherSettings : TRegexTemplateSettings;
+	paDst : IPersistableArray;
 begin
 	otherSettings := TRegexTemplateSettings.Create(FOwner);
 	try
@@ -98,8 +99,11 @@ begin
 
 		var
 			arrSrc := FSettings.PersistableArray.ArraySetting;
+		// Avoid chained call: compiler temp for IPersistableArray (TNoRefCountObject)
+		// would outlive otherSettings.Free and trigger FastMM4 CatchUseOfFreedInterfaces
+		paDst := otherSettings.PersistableArray;
 		var
-			arrDst := otherSettings.PersistableArray.ArraySetting;
+			arrDst := paDst.ArraySetting;
 
 		Assert.AreEqual(arrSrc.Count, arrDst.Count, 'Copied settings should have same template count');
 		for var i := 0 to arrSrc.Count - 1 do begin
@@ -108,6 +112,7 @@ begin
 		end;
 		arrSrc := nil;
 		arrDst := nil;
+		paDst := nil;
 	finally
 		otherSettings.Free;
 	end;
