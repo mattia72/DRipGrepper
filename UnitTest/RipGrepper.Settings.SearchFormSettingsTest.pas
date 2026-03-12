@@ -9,6 +9,7 @@ uses
 	RipGrepper.Settings.RipGrepParameterSettings,
 	RipGrepper.Settings.SearchFormSettings,
 	RipGrepper.Settings.Persistable,
+	RipGrepper.Settings.RegexTemplateSettings,
 	RipGrepper.Settings.TestOwnerSettings, Spring;
 
 type
@@ -38,6 +39,10 @@ type
 			procedure AfterCopyValuesValuesShouldBeEqual;
 			[Test]
 			procedure LoadDefaultsReadsIni;
+			[Test]
+			procedure RegexTemplateSettingsShouldBeAssigned;
+			[Test]
+			procedure RegexTemplatesShouldHaveDefaults;
 
 	end;
 
@@ -107,6 +112,21 @@ begin
 	FSettings.ReadFile;
 //  FSettings.LoadDefaultsFromDict;
 	Assert.IsTrue(FSettings.IsAlreadyRead);
+end;
+
+procedure TSearchFormSettingsTest.RegexTemplateSettingsShouldBeAssigned;
+begin
+	Assert.IsNotNull(FSettings.RegexTemplateSettings,
+		{ } 'RegexTemplateSettings should be assigned after construction');
+end;
+
+procedure TSearchFormSettingsTest.RegexTemplatesShouldHaveDefaults;
+begin
+	var
+		arr := FSettings.RegexTemplates;
+	Assert.IsNotNull(arr, 'RegexTemplates should not be nil');
+	Assert.IsTrue(arr.ArraySetting.Count > 0,
+		{ } 'RegexTemplates should have default entries');
 end;
 
 procedure TSearchFormSettingsTest.WriteDefaultsToIni();

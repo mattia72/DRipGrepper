@@ -286,12 +286,15 @@ var
 	settingOther : ISetting;
 	settingSelf : ISetting;
 	sdSelf : ISettingKeys;
+	keys : TArray<string>;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TPersistableSettings.CopySettingsDictSectionSettingValues');
-	for key in _sdFrom.Keys do begin
+	// Snapshot keys to avoid "Collection was modified" when _sdFrom and sdSelf are the same reference
+	keys := _sdFrom.Keys.ToArray;
+	sdSelf := SettingsDict[_section];
+	for key in keys do begin
 		settingOther := _sdFrom[key];
-		sdSelf := SettingsDict[_section];
 
 		if not sdSelf.TryGetValue(key, settingSelf) then begin
 			dbgMsg.MsgFmt('Copy non existing: [%s]%s=%s', [_section, key, settingOther.AsString], ETraceFilterType.tftVerbose);

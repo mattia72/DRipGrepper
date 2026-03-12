@@ -17,7 +17,7 @@ uses
 	RipGrepper.Settings.ExtensionSettings,
 	RipGrepper.Settings.SettingVariant,
 	RipGrepper.Common.Interfaces.StreamPersistable,
-	RipGrepper.Settings.PersistableArray;
+	RipGrepper.Settings.RegexTemplateSettings;
 type
 
 	TSearchFormSettings = class(TPersistableSettings, IStreamReaderWriterPersistable)
@@ -49,7 +49,7 @@ type
 			FFormTop : IIntegerSetting;
 			FFormWidth : IIntegerSetting;
 			FFormHeight : IIntegerSetting;
-			FRegexTemplates : TPersistableArray;
+			FRegexTemplateSettings : TRegexTemplateSettings;
 			function GetContext() : IIntegerSetting;
 			function GetEncoding() : IStringSetting;
 			function GetExtensionSettings : TRipGrepperExtensionSettings;
@@ -65,6 +65,7 @@ type
 			procedure SetFormRect(const _value : TRect);
 			function GetRegexTemplates() : IPersistableArray;
 			procedure SetRegexTemplates(const _Value : IPersistableArray);
+			function GetRegexTemplateSettings() : TRegexTemplateSettings;
 
 		protected
 			procedure LoadVersionDependentSettings(_sr : TStreamReader); override;
@@ -98,6 +99,7 @@ type
 			// Position (Left, Top) and Size (Width, Height) as TRect
 			property FormRect : TRect read GetFormRect write SetFormRect;
 			property RegexTemplates : IPersistableArray read GetRegexTemplates write SetRegexTemplates;
+			property RegexTemplateSettings : TRegexTemplateSettings read GetRegexTemplateSettings;
 	end;
 
 implementation
@@ -128,6 +130,8 @@ begin
 
 	FExtensionSettings := TRipGrepperExtensionSettings.Create(self);
 	AddChildSettings(FExtensionSettings);
+	FRegexTemplateSettings := TRegexTemplateSettings.Create(self);
+	AddChildSettings(FRegexTemplateSettings);
 end;
 
 constructor TSearchFormSettings.Create;
@@ -137,6 +141,8 @@ begin
 
 	FExtensionSettings := TRipGrepperExtensionSettings.Create();
 	AddChildSettings(FExtensionSettings);
+	FRegexTemplateSettings := TRegexTemplateSettings.Create();
+	AddChildSettings(FRegexTemplateSettings);
 end;
 
 destructor TSearchFormSettings.Destroy;
@@ -148,7 +154,7 @@ procedure TSearchFormSettings.Copy(const _other : TSearchFormSettings);
 begin
 	if Assigned(_other) then begin
 		inherited Copy(_other as TPersistableSettings);
-		FRegexTemplates.Copy(_other.RegexTemplates);
+		FRegexTemplateSettings.Copy(_other.RegexTemplateSettings);
 		FExtensionSettings.Copy(_other.ExtensionSettings);
 	end;
 end;
@@ -231,19 +237,24 @@ end;
 
 function TSearchFormSettings.GetRegexTemplates() : IPersistableArray;
 begin
-	Result := FRegexTemplates;
+	Result := FRegexTemplateSettings.PersistableArray;
 end;
 
 procedure TSearchFormSettings.SetRegexTemplates(const _Value : IPersistableArray);
 begin
-	if Assigned(FRegexTemplates) then begin
+	if Assigned(FRegexTemplateSettings) then begin
 		var
-			arrs : IArraySetting := FRegexTemplates.ArraySetting;
+			arrs : IArraySetting := FRegexTemplateSettings.PersistableArray.ArraySetting;
 		for var s in _Value.ArraySetting.Value do begin
 			arrs.AddIfNotContains(s);
 		end;
-		FRegexTemplates.ArraySetting := arrs;
+		FRegexTemplateSettings.PersistableArray.ArraySetting := arrs;
 	end;
+end;
+
+function TSearchFormSettings.GetRegexTemplateSettings() : TRegexTemplateSettings;
+begin
+	Result := FRegexTemplateSettings;
 end;
 
 procedure TSearchFormSettings.LoadVersionDependentSettings(_sr : TStreamReader);
@@ -267,8 +278,6 @@ begin
 end;
 
 procedure TSearchFormSettings.Init;
-var
-	arrSetting : IArraySetting;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSearchFormSettings.Init');
@@ -295,23 +304,6 @@ begin
 	CreateSetting(FFormTop);
 	CreateSetting(FFormWidth);
 	CreateSetting(FFormHeight);
-
-	if not Assigned(FRegexTemplates) then begin
-		arrSetting :=
-		{ } TArraySetting.Create('RegexTemplates', ssInitialized, [ssbStoreOnceEvenIfNotModified]);
-
-		// Set default regex templates
-		if arrSetting.Count = 0 then begin
-			arrSetting.Add(SEARCH_AS_TYPE);
-			arrSetting.Add(SEARCH_AS_DECLARATION);
-			arrSetting.Add(SEARCH_AS_FUNCTION);
-		end;
-		CreateSetting(arrSetting.Name, ITEM_KEY_PREFIX, arrSetting);
-
-		FRegexTemplates := TPersistableArray.Create('RegexTemplates', arrSetting);
-		// Add to FChildren only once; calling Init() a second time must not re-add
-		AddChildSettings(FRegexTemplates);
-	end;
 end;
 
 procedure TSearchFormSettings.LoadFromStreamReader(_sr : TStreamReader);
@@ -329,7 +321,7 @@ begin
 	if not s.IsEmpty then begin
 		OutputFormat.Value := s;
 	end;
-	FRegexTemplates.LoadFromDict();
+	FRegexTemplateSettings.PersistableArray.LoadFromDict();
 	ExtensionSettings.LoadFromStreamReader(_sr);
 end;
 
@@ -341,7 +333,7 @@ end;
 
 procedure TSearchFormSettings.StoreToPersister; // extension switch off if TESTINSIGHT
 begin
-	FRegexTemplates.StoreToPersister;
+	FRegexTemplateSettings.StoreToPersister;
 	FExtensionSettings.StoreToPersister;
 	inherited StoreToPersister();
 end;

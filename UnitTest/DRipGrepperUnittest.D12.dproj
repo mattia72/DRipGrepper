@@ -163,6 +163,8 @@
         <DCCReference Include="..\src\Settings\RipGrepper.Settings.RipGrepperSettings.pas"/>
         <DCCReference Include="RipGrepper.Settings.RipGrepperSettingsTest.pas"/>
         <DCCReference Include="RipGrepper.Settings.SearchFormSettingsTest.pas"/>
+        <DCCReference Include="..\src\Settings\RipGrepper.Settings.RegexTemplateSettings.pas"/>
+        <DCCReference Include="RipGrepper.Settings.RegexTemplateSettingsTest.pas"/>
         <DCCReference Include="..\src\Settings\RipGrepper.Settings.SettingVariant.pas"/>
         <DCCReference Include="RipGrepper.Settings.SettingVariantTest.pas"/>
         <DCCReference Include="..\src\Settings\RipGrepper.Settings.SettingsDictionary.pas"/>

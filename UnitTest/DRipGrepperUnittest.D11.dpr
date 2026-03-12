@@ -79,6 +79,8 @@ uses
   RipGrepper.Settings.RipGrepperSettings in '..\src\Settings\RipGrepper.Settings.RipGrepperSettings.pas',
   RipGrepper.Settings.RipGrepperSettingsTest in 'RipGrepper.Settings.RipGrepperSettingsTest.pas',
   RipGrepper.Settings.SearchFormSettings in '..\src\Settings\RipGrepper.Settings.SearchFormSettings.pas',
+  RipGrepper.Settings.RegexTemplateSettings in '..\src\Settings\RipGrepper.Settings.RegexTemplateSettings.pas',
+  RipGrepper.Settings.RegexTemplateSettingsTest in 'RipGrepper.Settings.RegexTemplateSettingsTest.pas',
   RipGrepper.Settings.SearchFormSettingsTest in 'RipGrepper.Settings.SearchFormSettingsTest.pas',
   RipGrepper.Settings.SettingVariant in '..\src\Settings\RipGrepper.Settings.SettingVariant.pas',
   RipGrepper.Settings.SettingVariantTest in 'RipGrepper.Settings.SettingVariantTest.pas',

@@ -45,6 +45,8 @@ type
 			procedure InitCreatesKeysInDict;
 			[Test]
 			procedure CopySettingsDictSectionShouldCopyCorrectly;
+			[Test]
+			procedure SelfCopyShouldNotRaiseCollectionModified;
 
 	end;
 
@@ -171,6 +173,25 @@ begin
 	FSettings1.LoadFromDict();
 	Assert.AreEqual(STRSETTING2,
 		{ } FSettings1.StrSetting, 'StrSetting should be copied correctly');
+end;
+
+procedure TPersistableSettingsTest.SelfCopyShouldNotRaiseCollectionModified;
+begin
+	// This tests the fix where CopySettingsDictSectionSettingValues snapshots keys
+	// to avoid "Collection was modified" when source and target share the same reference
+	FSettings1.StrSetting := 'self-copy-value';
+	FSettings1.StoreToPersister;
+
+	Assert.WillNotRaise(
+		procedure
+		begin
+			FSettings1.CopySettingsDictSection(FSettings1);
+		end, nil,
+		'Self-copy should not raise collection modified error');
+
+	FSettings1.LoadFromDict();
+	Assert.AreEqual('self-copy-value', FSettings1.StrSetting,
+		{ } 'Value should remain unchanged after self-copy');
 end;
 
 initialization

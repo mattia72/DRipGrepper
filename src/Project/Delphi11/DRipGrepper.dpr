@@ -127,7 +127,8 @@ uses
   RipGrepper.Helper.RegexTemplates in '..\..\Helper\RipGrepper.Helper.RegexTemplates.pas',
   RipGrepper.UI.RegexTemplateMenu in '..\..\UI\RipGrepper.UI.RegexTemplateMenu.pas',
   RipGrepper.UI.TabSeparatedConfigForm in '..\..\UI\RipGrepper.UI.TabSeparatedConfigForm.pas',
-  RipGrepper.Settings.PersistableArray in '..\..\Settings\RipGrepper.Settings.PersistableArray.pas';
+  RipGrepper.Settings.PersistableArray in '..\..\Settings\RipGrepper.Settings.PersistableArray.pas',
+  RipGrepper.Settings.RegexTemplateSettings in '..\..\Settings\RipGrepper.Settings.RegexTemplateSettings.pas';
 
 {$R *.res}
 

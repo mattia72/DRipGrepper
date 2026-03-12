@@ -271,6 +271,7 @@
     <DCCReference Include="..\..\..\..\src\Helper\RipGrepper.Helper.RegexTemplates.pas" />
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.RegexTemplateMenu.pas" />
     <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.PersistableArray.pas" />
+    <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.RegexTemplateSettings.pas" />
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.TabSeparatedConfigForm.pas">
       <FormType>dfm</FormType>
     </DCCReference>

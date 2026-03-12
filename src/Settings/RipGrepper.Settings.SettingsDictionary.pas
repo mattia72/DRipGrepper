@@ -24,7 +24,7 @@ type
 			FSectionName : string;
 			FOwnerPersister : IPersisterFactory;
 			FDictionaryLock : TCriticalSection;
-			procedure AddNewSectionAndKey(const _key : string; _setting : ISetting);
+			procedure AddNewSectionAndKey(const _section, _key : string; _setting : ISetting);
 			procedure AddOrChangeStrArrSettings(const _section, _key : string; _setting : ISetting; _factory : IPersisterFactory);
 			function GetCount() : Integer;
 			function GetSections(index : string) : ISettingKeys; overload;
@@ -96,31 +96,33 @@ begin
 	FDictionaryLock := TCriticalSection.Create;
 end;
 
-procedure TSettingsDictionary.AddNewSectionAndKey(const _key : string; _setting : ISetting);
+procedure TSettingsDictionary.AddNewSectionAndKey(const _section, _key : string; _setting : ISetting);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.AddNewSectionAndKey', True);
 
-	FInnerDictionary.Add(SectionName,
+	FInnerDictionary.Add(_section,
 			{ } TCollections.CreateSortedDictionary<TSettingKey, ISetting>());
-	FInnerDictionary[SectionName].Add(_key, _setting);
-	dbgMsg.MsgFmt('Add %s', [_key]);
+	FInnerDictionary[_section].Add(_key, _setting);
+	dbgMsg.MsgFmt('Add [%s] %s', [_section, _key]);
 end;
 
 procedure TSettingsDictionary.AddOrChange(const _section, _key : string; _setting : ISetting);
 var
 	keys : ISettingKeys;
+	section : string;
 begin
 	var
 	autoLock := TAutoLock.Create(FDictionaryLock);
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.AddOrChange');
 
-	if FInnerDictionary.TryGetValue(SectionName, keys) then begin
+	section := IfThen(_section.IsEmpty, SectionName, _section);
+	if FInnerDictionary.TryGetValue(section, keys) then begin
 		keys[_key] := _setting;
-		dbgMsg.MsgFmt('Update %s', [_key]);
+		dbgMsg.MsgFmt('Update [%s] %s', [section, _key]);
 	end else begin
-		AddNewSectionAndKey(_key, _setting);
+		AddNewSectionAndKey(section, _key, _setting);
 	end;
 end;
 
@@ -335,16 +337,18 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.StoreSectionToPersister');
 
-	for var keys in InnerDictionary[_section] do begin
-		setting := keys.Value;
+  var keys := InnerDictionary[_section];
+
+	for var key in keys do begin
+		setting := key.Value;
 		setting.StoreToPersister(_section);
 
 		{$IFDEF DEBUG}
 		var
-		value := InnerDictionary[_section][keys.Key].AsString;
-		dbgMsg.MsgFmt('StoreToPersister [%s] %s = dic:''%s'' ? set:''%s''', [_section, keys.Key, value, setting.AsString]);
+		value := keys[key.Key].AsString;
+		dbgMsg.MsgFmt('StoreToPersister [%s] %s = dic:''%s'' ? set:''%s''', [_section, key.Key, value, setting.AsString]);
 
-		Assert(value = setting.AsString, Format('StoreToPersister [%s] %s %s <> %s', [_section, keys.Key, value, setting.AsString]));
+		Assert(value = setting.AsString, Format('StoreToPersister [%s] %s %s <> %s', [_section, key.Key, value, setting.AsString]));
 		{$ENDIF}
 	end;
 end;
