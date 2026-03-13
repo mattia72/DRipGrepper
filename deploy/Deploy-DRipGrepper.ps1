@@ -409,8 +409,6 @@ function Format-FileSize {
 }
 function New-StandaloneZips {
     $projectPath = Split-Path -Parent $PSScriptRoot 
-    # Extract pre-release suffix from CHANGELOG version (e.g. '-beta' from 'v4.15.0-beta')
-    $versionSuffix = if ($global:Version -match '-([\w\.]+)$') { "-$($Matches[1])" } else { '' }
 
     "Win32" , "Win64" | ForEach-Object {
         $lastDelphiVer = Get-LastInstalledDelphiVersion
@@ -421,9 +419,7 @@ function New-StandaloneZips {
         $assetObj = Add-ToAssetsDir -AssetDir $AssetDir -AssetItemPath $(Join-Path  $ZipDir $global:StandaloneAppName) -Win64:$win64 -ReplaceContent
         # Output to pipeline so callers receive this object (ForEach-Object has its own scope)
         $assetObj
-        # Use the full FileVersion (including build number) + pre-release suffix for the zip filename
-        $fileVersion = "v$($assetObj.Version.Trim())$versionSuffix"
-        $dest = "$global:AssetsDirectory\$($global:AssetZipName -f $($win64 ? 'x64' : 'x86'), $fileVersion)"
+        $dest = "$global:AssetsDirectory\$($global:AssetZipName -f $($win64 ? 'x64' : 'x86'), $global:AssetVersion)"
 
         $compress = @{
             Path             = "$AssetDir\*.*"
@@ -454,7 +450,7 @@ function New-ExtensionZip {
                 
         Add-ToAssetsDir -AssetDir $AssetDir $extensionPath -Empty -ReplaceContent
     
-        $dest = "$global:AssetsDirectory\$($global:AssetExtensionZipName  -f $($win64 ? 'x64' : 'x86'), $_.Data.Dir ,$global:Version)"
+        $dest = "$global:AssetsDirectory\$($global:AssetExtensionZipName  -f $($win64 ? 'x64' : 'x86'), $_.Data.Dir ,$global:AssetVersion)"
         # Write-Host "$AssetDir\*.* to`n $dest" 
 
         $compress = @{
@@ -472,8 +468,6 @@ function New-ExpertDllZip {
     $projectPath = Split-Path -Parent $PSScriptRoot 
     $ReleaseType = "Win32"
     $win64 = $($ReleaseType -eq 'Win64')
-    # Extract pre-release suffix from CHANGELOG version (e.g. '-beta' from 'v4.15.0-beta')
-    $versionSuffix = if ($global:Version -match '-([\w\.]+)$') { "-$($Matches[1])" } else { '' }
     Get-InstalledDelphiVersions | ForEach-Object {
         $ZipDir = $(Join-Path $projectPath "Extension\src\Project\Dll.$($_.Data.Dir)\$ReleaseType\$BuildConfig")
         $AssetDir = $(Join-Path $global:AssetsDirectory "$($_.Data.Dir).Dll")
@@ -484,9 +478,7 @@ function New-ExpertDllZip {
         # Output to pipeline so callers receive these objects (ForEach-Object has its own scope)
         $dllAssetObj
         Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $mapName) -Win64:$false
-        # Use the full FileVersion (including build number) + pre-release suffix for the zip filename
-        $fileVersion = "v$($dllAssetObj.Version.Trim())$versionSuffix"
-        $dest = "$global:AssetsDirectory\$($global:AssetExpertZipName -f $($win64 ? 'x64' : 'x86'), $_.Data.Dir, $fileVersion)"
+        $dest = "$global:AssetsDirectory\$($global:AssetExpertZipName -f $($win64 ? 'x64' : 'x86'), $_.Data.Dir, $global:AssetVersion)"
 
         # Write-Host "$AssetDir\*.* to`n $dest" 
 
@@ -557,6 +549,27 @@ function New-ReleaseWithAsset {
     }
 
     if ($DeployToGitHub -or $LocalDeploy -or $DeployToTransferDrive) {
+        # Determine asset version: include build number for local deploys, use CHANGELOG version for GitHub
+        if ($DeployToGitHub) {
+            $global:AssetVersion = $global:Version
+        } else {
+            $projPath = Split-Path -Parent $PSScriptRoot
+            $lastDV = Get-LastInstalledDelphiVersion
+            $exePath = Join-Path $projPath "src\Project\$($lastDV.Data.Dir)\Win64\$BuildConfig\$global:StandaloneAppName"
+            if (Test-Path $exePath) {
+                $fileVer = (Get-Item $exePath).VersionInfo.FileVersion
+                $buildNum = ($fileVer -split '\.')[-1]
+                if ($global:Version -match '^(v?\d+\.\d+\.\d+)(.*)$') {
+                    $global:AssetVersion = "$($matches[1]).$buildNum$($matches[2])"
+                } else {
+                    $global:AssetVersion = "v$fileVer"
+                }
+            } else {
+                $global:AssetVersion = $global:Version
+            }
+        }
+        Write-Host "Asset version: $global:AssetVersion" -ForegroundColor Cyan
+
         # Remove items recursively from the AssetsDirectory
         if ($LocalDeploy -or $DeployToTransferDrive) {
             $Force = $true
@@ -570,13 +583,9 @@ function New-ReleaseWithAsset {
         $assetArr += New-ExpertDllZip 
 
         # zip dll assets in directories not listed in $assetArr
-        $versionSuffix = if ($global:Version -match '-([\w\.]+)$') { "-$($Matches[1])" } else { '' }
         Get-ChildItem $global:AssetsDirectory -Directory | ForEach-Object {
             if ($($assetArr | Select-Object -ExpandProperty Dir) -notcontains "$global:AssetsDirectoryName\$($_.Name)") {
-                # Derive version from the first binary in the directory; fall back to CHANGELOG version
-                $binaryInDir = Get-ChildItem $_.FullName -File | Where-Object { $_.Extension -in '.exe','.dll','.bpl' } | Select-Object -First 1
-                $fileVersion = if ($binaryInDir) { "v$($binaryInDir.VersionInfo.FileVersion.Trim())$versionSuffix" } else { $global:Version }
-                $zipPath = "$global:AssetsDirectory\$($global:AssetExpertZipName -f 'x86', $($_.Name -replace '\.Dll$'), $fileVersion)"
+                $zipPath = "$global:AssetsDirectory\$($global:AssetExpertZipName -f 'x86', $($_.Name -replace '\.Dll$'), $global:AssetVersion)"
                 if (-not (Test-Path $zipPath)) {
                     Write-Host "Zipping extra directory: $($_.Name)" -ForegroundColor Yellow
                     Compress-Archive -Path "$($_.FullName)\*" -DestinationPath $zipPath -Force
