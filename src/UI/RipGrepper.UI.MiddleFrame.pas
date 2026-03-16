@@ -1065,6 +1065,7 @@ begin
 	col := VstResult.Header.Columns[COL_FILE_LAST_WRITE];
 	if bShow then begin
 		col.Options := col.Options + [coVisible];
+		VstResult.Header.AutoSizeIndex := COL_FILE_LAST_WRITE;
 		// Resolve missing dates for existing parent nodes
 		node := VstResult.GetFirst();
 		while Assigned(node) do begin
@@ -1076,6 +1077,7 @@ begin
 		end;
 	end else begin
 		col.Options := col.Options - [coVisible];
+		VstResult.Header.AutoSizeIndex := COL_MATCH_TEXT;
 	end;
 end;
 

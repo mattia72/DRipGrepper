@@ -137,8 +137,8 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           Colors.UnfocusedColor = clGray
           Colors.UnfocusedSelectionColor = clWhite
           Colors.UnfocusedSelectionBorderColor = clWhite
-          Header.AutoSizeIndex = 3
-          Header.Options = [hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible, hoAutoResizeInclCaption]
+          Header.AutoSizeIndex = 4
+          Header.Options = [hoAutoResize, hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible, hoAutoResizeInclCaption]
           Images = ImageListListView
           IncrementalSearch = isAll
           PopupMenu = PopupMenuResult
