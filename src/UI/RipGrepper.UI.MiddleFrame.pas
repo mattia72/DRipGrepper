@@ -192,6 +192,7 @@ type
 				var Ghosted : Boolean; var ImageIndex : TImageIndex);
 			procedure SetHistItemObject(const Value : IHistoryItemObject);
 			function SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
+			function GetLastVisibleColumnIndex() : Integer;
 			procedure UpdateArgumentsAndSettings;
 			procedure UpdateGui;
 			property IsGuiReplaceMode : Boolean read GetIsGuiReplaceMode;
@@ -1065,7 +1066,16 @@ begin
 	col := VstResult.Header.Columns[COL_FILE_LAST_WRITE];
 	if bShow then begin
 		col.Options := col.Options + [coVisible];
-		VstResult.Header.AutoSizeIndex := COL_FILE_LAST_WRITE;
+	end else begin
+		col.Options := col.Options - [coVisible];
+	end;
+
+	var lastVisibleIdx := GetLastVisibleColumnIndex();
+	if lastVisibleIdx >= 0 then begin
+		VstResult.Header.AutoSizeIndex := lastVisibleIdx;
+	end;
+
+	if bShow then begin
 		// Resolve missing dates for existing parent nodes
 		node := VstResult.GetFirst();
 		while Assigned(node) do begin
@@ -1075,9 +1085,16 @@ begin
 			end;
 			node := VstResult.GetNext(node);
 		end;
-	end else begin
-		col.Options := col.Options - [coVisible];
-		VstResult.Header.AutoSizeIndex := COL_MATCH_TEXT;
+	end;
+end;
+
+function TRipGrepperMiddleFrame.GetLastVisibleColumnIndex() : Integer;
+begin
+	Result := -1;
+	for var i := 0 to VstResult.Header.Columns.Count - 1 do begin
+		if coVisible in VstResult.Header.Columns[i].Options then begin
+			Result := i;
+		end;
 	end;
 end;
 
