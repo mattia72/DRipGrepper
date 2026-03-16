@@ -91,13 +91,13 @@ object AppSettingsForm: TAppSettingsForm
       Left = 11
       Top = 143
       Width = 482
-      Height = 252
+      Height = 282
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Settings'
       TabOrder = 2
       DesignSize = (
         482
-        252)
+        282)
       object Label2: TLabel
         Left = 19
         Top = 24
@@ -111,6 +111,13 @@ object AppSettingsForm: TAppSettingsForm
         Width = 116
         Height = 15
         Caption = 'Combo history count:'
+      end
+      object lblDateFormat: TLabel
+        Left = 19
+        Top = 78
+        Width = 80
+        Height = 15
+        Caption = 'Date format:'
       end
       object cmbCopyCmdShell: TComboBox
         Left = 142
@@ -129,7 +136,7 @@ object AppSettingsForm: TAppSettingsForm
       end
       object grpSaveLoad: TGroupBox
         Left = 16
-        Top = 79
+        Top = 109
         Width = 454
         Height = 162
         Anchors = [akLeft, akTop, akRight]
@@ -200,6 +207,21 @@ object AppSettingsForm: TAppSettingsForm
         MinValue = 10
         TabOrder = 1
         Value = 10
+      end
+      object cmbDateFormat: TComboBox
+        Left = 142
+        Top = 75
+        Width = 200
+        Height = 23
+        Hint = 'Date format for the "Modified" column. Uses Delphi FormatDateTime syntax.'
+        TabOrder = 3
+        Items.Strings = (
+          'yyyy-mm-dd hh:nn:ss'
+          'dd.mm.yyyy hh:nn:ss'
+          'mm/dd/yyyy hh:nn:ss'
+          'yyyy-mm-dd'
+          'dd.mm.yyyy'
+          'dd/mm/yyyy hh:nn')
       end
     end
   end

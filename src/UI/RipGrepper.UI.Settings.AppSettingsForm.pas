@@ -23,6 +23,7 @@ uses
 	RTTI,
 	Vcl.Mask,
 	RipGrepper.Settings.RipGrepParameterSettings,
+	RipGrepper.Settings.NodeLookSettings,
 	System.ImageList,
 	Vcl.ImgList,
 	System.Actions,
@@ -58,6 +59,8 @@ type
 		seSearchHistoryCount : TSpinEdit;
 		cbSaveResults : TCheckBox;
 		grpSaveLoad : TGroupBox;
+		lblDateFormat : TLabel;
+		cmbDateFormat : TComboBox;
 		procedure btnedtRgExePathEnter(Sender : TObject);
 		procedure btnedtRgExePathExit(Sender : TObject);
 		procedure btnedtRgExePathLeftButtonClick(Sender : TObject);
@@ -71,9 +74,11 @@ type
 
 			FRefocusing : TObject;
 			FAppSettings : TAppSettings;
+			FNodeLookSettings : TNodeLookSettings;
 			FRipGrepSettings : TRipGrepParameterSettings;
 			FSkipClickEvents : Boolean;
 			function IsRgExeValid(const filePath : string) : Boolean;
+			function IsValidDateFormat(const _format : string) : Boolean;
 			procedure UpdateModeLoadSearchesGroup();
 			{ User-defined message handler }
 			procedure ValidateInput(var M : TMessage); message USERMESSAGE_VALIDATE_INPUT;
@@ -117,6 +122,7 @@ begin
 	Caption := 'General';
 	FAppSettings := (FSettings as TRipGrepperSettings).AppSettings;
 	FRipGrepSettings := (FSettings as TRipGrepperSettings).RipGrepParameters;
+	FNodeLookSettings := (FSettings as TRipGrepperSettings).NodeLookSettings;
 end;
 
 procedure TAppSettingsForm.btnedtRgExePathEnter(Sender : TObject);
@@ -202,6 +208,18 @@ begin
 	Result := LowerCase(name) = LowerCase(RG_EXE);
 end;
 
+function TAppSettingsForm.IsValidDateFormat(const _format : string) : Boolean;
+begin
+	Result := False;
+	try
+		FormatDateTime(_format, Now());
+		Result := True;
+	except
+		on E : Exception do
+			; // invalid format
+	end;
+end;
+
 procedure TAppSettingsForm.OnSettingsUpdated();
 begin
 	// here you can update things depending on changed settings
@@ -215,12 +233,14 @@ begin
 
 	FAppSettings.LoadFromDict;
 	FRipGrepSettings.LoadFromDict;
+	FNodeLookSettings.LoadFromDict;
 
 	FSkipClickEvents := True;
 	try
 		cmbCopyCmdShell.ItemIndex := Integer(FAppSettings.CopyToClipBoardShell);
 		seCmbHistoryCount.Value := FAppSettings.ComboHistoryCount;
 		seSearchHistoryCount.Value := FAppSettings.SearchHistoryCount;
+		cmbDateFormat.Text := FNodeLookSettings.DateFormat;
 
 		FAppSettings.UpdateInternalsFromSettings();
 		cbLoadLastSearchHistories.Checked := FAppSettings.LoadHistoryMode.IsSet(lhmLoadLastSearchHistories);
@@ -304,6 +324,12 @@ begin
 	rgPath := btnedtRgExePath.Text;
 	if IsRgExeValid(rgPath) then begin
 		FRipGrepSettings.RipGrepPath := rgPath;
+	end;
+
+	var
+	fmt := cmbDateFormat.Text;
+	if IsValidDateFormat(fmt) then begin
+		FNodeLookSettings.DateFormat := fmt;
 	end;
 end;
 

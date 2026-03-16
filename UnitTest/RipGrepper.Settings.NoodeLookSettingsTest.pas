@@ -42,6 +42,10 @@ type
 			procedure StoreViewSettingsTest;
 			[Test]
 			procedure SetViewSettingsToDictTest;
+			[Test]
+			procedure TestDateFormatDefault;
+			[Test]
+			procedure TestDateFormatCustomValue;
 	end;
 
 implementation
@@ -63,8 +67,10 @@ procedure TNodeLookSettingsTest.CheckNodeSettingsDict(const _id : string);
 begin
 	for var s in VIEW_SETTINGS_TYPES do begin
 		var
-			b : Boolean := FSettings.SettingsDict()['NodeLookSettings'][s].AsBool;
-		Assert.IsTrue(b, _id + ' NodeLookSettings|' + s + ' should be true');
+			setting := FSettings.SettingsDict()['NodeLookSettings'][s];
+		if setting.SettingType = stBool then begin
+			Assert.IsTrue(setting.AsBool, _id + ' NodeLookSettings|' + s + ' should be true');
+		end;
 	end;
 end;
 
@@ -147,23 +153,37 @@ begin
 	FSettings.ReadFile;
 	for var s in VIEW_SETTINGS_TYPES do begin
 		var
-		b := FSettings.SettingsDict()['NodeLookSettings'][s].AsBool;
-		Assert.IsTrue(b, 'NodeLookSettings|' + s + ' should be true');
+		setting := FSettings.SettingsDict()['NodeLookSettings'][s];
+		if setting.SettingType = stBool then begin
+			Assert.IsTrue(setting.AsBool, 'NodeLookSettings|' + s + ' should be true');
+		end;
 	end;
 end;
 
 procedure TNodeLookSettingsTest.SetViewSettingsToDictTest;
-// var
-// arr : TArray<TArray<string>>;
 begin
 	SetTestDefaultAndActualValues;
 	var sectionDict := FSettings.SettingsDict()['NodeLookSettings'];
-    //arr := TSettingsDictionary.DictToStringArray(FSettings.SettingsDict());
 	for var s in VIEW_SETTINGS_TYPES do begin
 		var
-		b := sectionDict[s].AsBool;
-		Assert.IsTrue(b, 'NodeLookSettings|' + s + ' should be true');
+		setting := sectionDict[s];
+		if setting.SettingType = stBool then begin
+			Assert.IsTrue(setting.AsBool, 'NodeLookSettings|' + s + ' should be true');
+		end;
 	end;
+end;
+
+procedure TNodeLookSettingsTest.TestDateFormatDefault;
+begin
+	Assert.AreEqual('yyyy-mm-dd hh:nn:ss', FSettings.DateFormat);
+end;
+
+procedure TNodeLookSettingsTest.TestDateFormatCustomValue;
+begin
+	FSettings.DateFormat := 'dd.mm.yyyy';
+	FSettings.UpdateFile(True);
+	FSettings.ReadFile();
+	Assert.AreEqual('dd.mm.yyyy', FSettings.DateFormat);
 end;
 
 initialization

@@ -135,7 +135,6 @@ type
 			COL_COL_NUM = 2;
 			COL_MATCH_TEXT = 3;
 			COL_FILE_LAST_WRITE = 4;
-			DATE_FORMAT = 'yyyy-mm-dd hh:nn:ss';
 
 		var
 			FAbortSearch : Boolean;
@@ -1538,7 +1537,7 @@ begin
 				CellText := '';
 				if Node.Parent = VstResult.RootNode then begin
 					if NodeData^.FileLastWriteTime > 0 then begin
-						CellText := FormatDateTime(DATE_FORMAT, NodeData^.FileLastWriteTime);
+						CellText := FormatDateTime(Settings.NodeLookSettings.DateFormat, NodeData^.FileLastWriteTime);
 					end;
 				end;
 			end;

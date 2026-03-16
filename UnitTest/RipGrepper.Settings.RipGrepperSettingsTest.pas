@@ -103,6 +103,7 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Settings.ExtensionSettings,
 	RipGrepper.Settings.NodeLookSettings,
+	RipGrepper.Settings.SettingVariant,
 	RipGrepper.Tools.FileUtils,
 	System.StrUtils,
 	RipGrepper.Settings.SettingsDictionary,
@@ -212,8 +213,12 @@ begin
 	var
 		b : Boolean;
 	for var s in VIEW_SETTINGS_TYPES do begin
-		b := FSettings.NodeLookSettings.SettingsDict.InnerDictionary['NodeLookSettings'][s].AsBoolSetting.Value;
-		Assert.IsTrue(b, 'NodeLookSettings|' + s + ' should be true');
+		var
+			setting := FSettings.NodeLookSettings.SettingsDict.InnerDictionary['NodeLookSettings'][s];
+		if setting.SettingType = stBool then begin
+			b := setting.AsBoolSetting.Value;
+			Assert.IsTrue(b, 'NodeLookSettings|' + s + ' should be true');
+		end;
 	end;
 
 	// { 2 } FSettings.NodeLookSettings.UpdateFile();
