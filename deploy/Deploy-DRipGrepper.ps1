@@ -478,7 +478,14 @@ function New-ExpertDllZip {
         # Output to pipeline so callers receive these objects (ForEach-Object has its own scope)
         $dllAssetObj
         Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $mapName) -Win64:$false
-        $dest = "$global:AssetsDirectory\$($global:AssetExpertZipName -f $($win64 ? 'x64' : 'x86'), $_.Data.Dir, $global:AssetVersion)"
+        # Derive zip version from the DLL's own FileVersion to avoid mismatch with the EXE-based AssetVersion
+        $dllBuildNum = ($dllAssetObj.Version -split '\.')[-1]
+        if ($global:Version -match '^(v?\d+\.\d+\.\d+)(.*)$') {
+            $dllAssetVersion = "$($matches[1]).$dllBuildNum$($matches[2])"
+        } else {
+            $dllAssetVersion = "v$($dllAssetObj.Version)"
+        }
+        $dest = "$global:AssetsDirectory\$($global:AssetExpertZipName -f $($win64 ? 'x64' : 'x86'), $_.Data.Dir, $dllAssetVersion)"
 
         # Write-Host "$AssetDir\*.* to`n $dest" 
 
