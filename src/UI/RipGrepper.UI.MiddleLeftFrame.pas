@@ -29,6 +29,7 @@ uses
 	SVGIconImageListBase,
 	SVGIconImageList,
 	RipGrepper.UI.IFrameEvents,
+	Winapi.ActiveX,
 	System.UITypes; // this should be the last uses
 
 type
@@ -78,6 +79,11 @@ type
 		procedure VstHistoryLoadTree(Sender : TBaseVirtualTree; Stream : TStream);
 		procedure VstHistoryNodeClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
 		procedure VstHistoryNodeDblClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
+		procedure VstHistoryDragAllowed(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; var Allowed : Boolean);
+		procedure VstHistoryDragOver(Sender : TBaseVirtualTree; Source : TObject; Shift : TShiftState; State : TDragState;
+			Pt : TPoint; Mode : TDropMode; var Effect : Integer; var Accept : Boolean);
+		procedure VstHistoryDragDrop(Sender : TBaseVirtualTree; Source : TObject; DataObject : IDataObject;
+			Formats : TFormatArray; Shift : TShiftState; Pt : TPoint; var Effect : Integer; Mode : TDropMode);
 		procedure VstHistoryPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
 			TextType : TVSTTextType);
 		procedure VstHistorySaveTree(Sender : TBaseVirtualTree; Stream : TStream);
@@ -541,6 +547,7 @@ begin
 	VstHistory.TreeOptions.MiscOptions := VstHistory.TreeOptions.MiscOptions + [TVTMiscOption.toVariablenodeHeight];
 
 	VstHistory.NodeDataSize := SizeOf(TVSHistoryNodeData);
+	VstHistory.DragType := dtVCL;
 
 	VstHistory.Header.Columns[COL_SEARCH_TEXT].MinWidth := 50;
 	SetReplaceMode();
@@ -672,6 +679,90 @@ begin
 		end;
 		TargetCanvas.FillRect(R);
 	end;
+end;
+
+procedure TMiddleLeftFrame.VstHistoryDragAllowed(Sender : TBaseVirtualTree; Node : PVirtualNode;
+	Column : TColumnIndex; var Allowed : Boolean);
+begin
+	// Only allow dragging root-level history items, not child replace nodes
+	Allowed := Node.Parent = VstHistory.RootNode;
+end;
+
+procedure TMiddleLeftFrame.VstHistoryDragOver(Sender : TBaseVirtualTree; Source : TObject;
+	Shift : TShiftState; State : TDragState; Pt : TPoint; Mode : TDropMode;
+	var Effect : Integer; var Accept : Boolean);
+var
+	targetNode : PVirtualNode;
+begin
+	Accept := False;
+	if Source = VstHistory then begin
+		targetNode := Sender.GetNodeAt(Pt.X, Pt.Y);
+		if Assigned(targetNode) then begin
+			// Navigate to root node if hovering over a child
+			if targetNode.Parent <> VstHistory.RootNode then begin
+				targetNode := targetNode.Parent;
+			end;
+			Accept := Assigned(targetNode) and (Mode <> dmNowhere);
+		end;
+	end;
+end;
+
+procedure TMiddleLeftFrame.VstHistoryDragDrop(Sender : TBaseVirtualTree; Source : TObject;
+	DataObject : IDataObject; Formats : TFormatArray; Shift : TShiftState; Pt : TPoint;
+	var Effect : Integer; Mode : TDropMode);
+var
+	sourceNode, targetNode : PVirtualNode;
+	sourceIdx, newIdx : Integer;
+	item : IHistoryItemObject;
+	attachMode : TVTNodeAttachMode;
+begin
+	if Source <> VstHistory then begin
+		Exit;
+	end;
+
+	sourceNode := VstHistory.FocusedNode;
+	targetNode := Sender.DropTargetNode;
+
+	if not Assigned(sourceNode) or not Assigned(targetNode) then begin
+		Exit;
+	end;
+
+	// If dropped on a child node, treat as drop-below its parent
+	if targetNode.Parent <> VstHistory.RootNode then begin
+		Mode := dmBelow;
+		targetNode := targetNode.Parent;
+	end;
+
+	if (sourceNode = targetNode) or (sourceNode.Parent <> VstHistory.RootNode) then begin
+		Exit;
+	end;
+
+	sourceIdx := Integer(sourceNode.Index);
+
+	case Mode of
+		dmAbove :
+			attachMode := amInsertBefore;
+		dmOnNode, dmBelow :
+			attachMode := amInsertAfter;
+	else
+		Exit;
+	end;
+
+	// Prevent VT from auto-deleting the source node
+	Effect := DROPEFFECT_NONE;
+
+	// Move node in the tree
+	VstHistory.MoveTo(sourceNode, targetNode, attachMode, False);
+
+	// Sync the history object list
+	item := FHistoryObjectList[sourceIdx];
+	FHistoryObjectList.Delete(sourceIdx);
+	newIdx := Integer(sourceNode.Index);
+	FHistoryObjectList.Insert(newIdx, item);
+
+	// Update current history index and selection
+	CurrentHistoryItemIndex := newIdx;
+	VstHistory.Selected[sourceNode] := True;
 end;
 
 procedure TMiddleLeftFrame.VstHistoryFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);

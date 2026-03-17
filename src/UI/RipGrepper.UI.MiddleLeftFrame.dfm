@@ -29,6 +29,7 @@ object MiddleLeftFrame: TMiddleLeftFrame
       Width = 603
       Height = 205
       Align = alClient
+      DragMode = dmAutomatic
       Colors.BorderColor = 15987699
       Colors.DisabledColor = clGray
       Colors.DropMarkColor = 15385233
@@ -57,6 +58,9 @@ object MiddleLeftFrame: TMiddleLeftFrame
       TreeOptions.PaintOptions = [toShowBackground, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages]
       TreeOptions.SelectionOptions = [toFullRowSelect, toSiblingSelectConstraint, toAlwaysSelectNode]
       OnBeforeCellPaint = VstHistoryBeforeCellPaint
+      OnDragAllowed = VstHistoryDragAllowed
+      OnDragDrop = VstHistoryDragDrop
+      OnDragOver = VstHistoryDragOver
       OnFreeNode = VstHistoryFreeNode
       OnGetText = VstHistoryGetText
       OnPaintText = VstHistoryPaintText
