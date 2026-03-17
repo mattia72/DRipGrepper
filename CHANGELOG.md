@@ -1,4 +1,19 @@
-# Changelog
+﻿# Changelog
+
+## [v4.16.0-beta] - 2026-03-17
+
+In memory of Richard.
+
+### 💥 Added
+- Date format can be set in settings form.
+- Drag and drop for history items in the search form, allowing users to easily reorder their search history by dragging and dropping items within the history list.
+
+### 🔄 Changed
+- Visible columns are aligned automatically on startup.
+- Version updated to 4.16.0
+
+### 🐞 Fixed
+- Update version script. 
 
 ## [v4.15.0-beta] - 2026-03-12
 
