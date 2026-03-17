@@ -289,70 +289,46 @@ function Update-ProjectFile {
     Write-Verbose "Processing file: $FilePath"
     
     try {
-        # Load XML document
-        $xmlDoc = New-Object System.Xml.XmlDocument
-        $xmlDoc.PreserveWhitespace = $true
-        $xmlDoc.Load($FilePath)
+        # Detect BOM to preserve original file encoding
+        $fileBytes = [System.IO.File]::ReadAllBytes($FilePath)
+        $hasBom = $fileBytes.Length -ge 3 -and $fileBytes[0] -eq 0xEF -and $fileBytes[1] -eq 0xBB -and $fileBytes[2] -eq 0xBF
+        $encoding = New-Object System.Text.UTF8Encoding($hasBom)
         
-        $updated = $false
+        # Use text-based replacement to preserve original file formatting
+        $content = $encoding.GetString($fileBytes)
+        if ($hasBom) { $content = $content.Substring(1) }  # Remove BOM char from string
+        $originalContent = $content
         
-        # Find all PropertyGroups that contain version information
-        $propertyGroups = @()
+        $versionString = "$($NewVersion.Major).$($NewVersion.Minor).$($NewVersion.Release)"
         
-        foreach ($group in $xmlDoc.Project.PropertyGroup) {
-            if ($group -and ($group.GetElementsByTagName("VerInfo_MajorVer").Count -gt 0 -or 
-                            $group.GetElementsByTagName("VerInfo_MinorVer").Count -gt 0 -or 
-                            $group.GetElementsByTagName("VerInfo_Release").Count -gt 0 -or 
-                            $group.GetElementsByTagName("VerInfo_Build").Count -gt 0 -or
-                            $group.GetElementsByTagName("VerInfo_Keys").Count -gt 0)) {
-                $propertyGroups += $group
-            }
+        # Update VerInfo_MajorVer, VerInfo_MinorVer, VerInfo_Release in all PropertyGroups
+        $content = $content -replace '(<VerInfo_MajorVer>)\d+(</VerInfo_MajorVer>)', "`${1}$($NewVersion.Major)`${2}"
+        $content = $content -replace '(<VerInfo_MinorVer>)\d+(</VerInfo_MinorVer>)', "`${1}$($NewVersion.Minor)`${2}"
+        $content = $content -replace '(<VerInfo_Release>)\d+(</VerInfo_Release>)', "`${1}$($NewVersion.Release)`${2}"
+        
+        # Update VerInfo_Build if ResetBuild is specified, or if setting a specific version with 4 parts
+        $shouldUpdateBuild = $ResetBuild -or ($Version -and $Version.Split('.').Length -gt 3)
+        if ($shouldUpdateBuild) {
+            $content = $content -replace '(<VerInfo_Build>)\d+(</VerInfo_Build>)', "`${1}$($NewVersion.Build)`${2}"
         }
         
-        Write-Verbose "  Found $($propertyGroups.Count) PropertyGroups with version information"
+        # Update FileVersion in VerInfo_Keys (preserve existing build number per configuration)
+        $content = $content -replace '(FileVersion=)\d+\.\d+\.\d+\.', "`${1}$versionString."
         
-        foreach ($propertyGroup in $propertyGroups) {
-            Write-Verbose "  Processing PropertyGroup with condition: $($propertyGroup.Condition)"
-            
-            # Update individual version properties
-            if (Update-VersionProperty $propertyGroup "VerInfo_MajorVer" $NewVersion.Major.ToString()) {
-                Write-Verbose "  Updated VerInfo_MajorVer to $($NewVersion.Major)"
-                $updated = $true
-            }
-            
-            if (Update-VersionProperty $propertyGroup "VerInfo_MinorVer" $NewVersion.Minor.ToString()) {
-                Write-Verbose "  Updated VerInfo_MinorVer to $($NewVersion.Minor)"
-                $updated = $true
-            }
-            
-            if (Update-VersionProperty $propertyGroup "VerInfo_Release" $NewVersion.Release.ToString()) {
-                Write-Verbose "  Updated VerInfo_Release to $($NewVersion.Release)"
-                $updated = $true
-            }
-            
-            # Update build number if ResetBuild is specified, or if we're setting a specific version with 4 parts
-            $shouldUpdateBuild = $ResetBuild -or ($Version -and $Version.Split('.').Length -gt 3)
-            if ($shouldUpdateBuild -and (Update-VersionProperty $propertyGroup "VerInfo_Build" $NewVersion.Build.ToString())) {
-                Write-Verbose "  Updated VerInfo_Build to $($NewVersion.Build)"
-                $updated = $true
-            }
-            
-            # Update version keys
-            if (Update-VersionKeysProperty $propertyGroup $NewVersion) {
-                Write-Verbose "  Updated VerInfo_Keys with new version strings"
-                $updated = $true
-            }
-        }
+        # Update ProductVersion in VerInfo_Keys
+        $content = $content -replace '(ProductVersion=)\d+[\d\.]*', "`${1}$versionString"
+        
+        $updated = $content -ne $originalContent
         
         if ($updated) {
             if ($PSCmdlet.ShouldProcess($FilePath, "Update version information")) {
-                $xmlDoc.Save($FilePath)
+                [System.IO.File]::WriteAllText($FilePath, $content, $encoding)
                 Write-Host "Updated: $FilePath" -ForegroundColor Green
-                Write-Host "  Version: $($NewVersion.Major).$($NewVersion.Minor).$($NewVersion.Release).$($NewVersion.Build)" -ForegroundColor Cyan
+                Write-Host "  Version: $versionString" -ForegroundColor Cyan
             }
             else {
                 Write-Host "Would update: $FilePath" -ForegroundColor Yellow
-                Write-Host "  New version would be: $($NewVersion.Major).$($NewVersion.Minor).$($NewVersion.Release).$($NewVersion.Build)" -ForegroundColor Cyan
+                Write-Host "  New version would be: $versionString" -ForegroundColor Cyan
             }
             return $true
         }

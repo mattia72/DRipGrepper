@@ -178,7 +178,7 @@ function Update-ChangelogVersion {
     }
     
     if ($PSCmdlet.ShouldProcess($Script:ChangelogPath, "Update version to $($NewVersion.FullVersion)")) {
-        Set-Content -Path $Script:ChangelogPath -Value $updatedContent -Encoding UTF8
+        [System.IO.File]::WriteAllText($Script:ChangelogPath, $updatedContent, [System.Text.Encoding]::UTF8)
         Write-ColoredMessage "✓ Updated CHANGELOG.md with version $($NewVersion.FullVersion)" "Green"
     }
 }
@@ -198,7 +198,12 @@ function Update-ProjectFileVersion {
     }
     
     try {
-        $content = Get-Content $fullPath -Raw
+        # Detect BOM to preserve original file encoding
+        $fileBytes = [System.IO.File]::ReadAllBytes($fullPath)
+        $hasBom = $fileBytes.Length -ge 3 -and $fileBytes[0] -eq 0xEF -and $fileBytes[1] -eq 0xBB -and $fileBytes[2] -eq 0xBF
+        $encoding = New-Object System.Text.UTF8Encoding($hasBom)
+        $content = $encoding.GetString($fileBytes)
+        if ($hasBom) { $content = $content.Substring(1) }  # Remove BOM char from string
         $modified = $false
         
         # Update all version components
@@ -229,7 +234,7 @@ function Update-ProjectFileVersion {
         $content = $content -replace '(<VerInfo_Keys>[^<>]*Comments=)[^;<>]*', "`${1}$suffixComment"
         
         if ($modified -and $PSCmdlet.ShouldProcess($fullPath, "Update version numbers")) {
-            Set-Content -Path $fullPath -Value $content -Encoding UTF8
+            [System.IO.File]::WriteAllText($fullPath, $content, $encoding)
             Write-ColoredMessage "✓ Updated $ProjectFile" "Green"
         }
         elseif (-not $modified) {
@@ -254,20 +259,11 @@ function Update-ProjectFilesWithVersionInfo {
     }
     
     try {
-        # Determine which parameters to use based on the original user input
-        if ($Major) {
-            $versionType = "Major"
-            Write-ColoredMessage "Using Update-VersionInfoInProjects.ps1 to increment MAJOR version..." "White"
-        } elseif ($Minor) {
-            $versionType = "Minor" 
-            Write-ColoredMessage "Using Update-VersionInfoInProjects.ps1 to increment MINOR version..." "White"
-        } elseif ($Release) {
-            $versionType = "Release"
-            Write-ColoredMessage "Using Update-VersionInfoInProjects.ps1 to increment RELEASE version..." "White"
-        }
+        $versionString = "$($NewVersion.Major).$($NewVersion.Minor).$($NewVersion.Release)"
+        Write-ColoredMessage "Using Update-VersionInfoInProjects.ps1 to set version $versionString..." "White"
 
         if ($PSCmdlet.ShouldProcess("Project files", "Update version using Update-VersionInfo.ps1")) {
-            & $updateVersionInfoPath -ProjectFiles $ProjectFile -VersionType $versionType
+            & $updateVersionInfoPath -ProjectFiles $ProjectFile -Version $versionString
 
             if ($LASTEXITCODE -eq 0) {
                 Write-ColoredMessage "✓ Successfully updated project files using Update-VersionInfoInProjects.ps1" "Green"
