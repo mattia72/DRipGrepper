@@ -6,6 +6,7 @@ In memory of Richard.
 
 ### 💥 Added
 - Date format can be set in settings form.
+- Support for changing last write time color and font in the UI
 - Drag and drop for history items in the search form, allowing users to easily reorder their search history by dragging and dropping items within the history list.
 
 ### 🔄 Changed
