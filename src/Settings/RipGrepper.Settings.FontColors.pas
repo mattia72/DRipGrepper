@@ -42,7 +42,7 @@ type
 			RG_OPTIONS_TREEVIEW_SECTION_TITLE_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clPurple; BgColor : clNone;
 				Style : [fsBold];);
 
-			DEFAULT_COLORS : array [0 .. 13] of TNameColorDef = (
+			DEFAULT_COLORS : array [0 .. 14] of TNameColorDef = (
 				{ } (name : 'MatchText'; ColorDef : 'Segoe UI|9|clMaroon|clNone|fsBold|fsUnderline'),
 				{ } (name : 'SearchTextInHistory'; ColorDef : 'Segoe UI|9|clMaroon|clNone|fsBold'),
 				{ } (name : 'ReplacedTextInHistory'; ColorDef : 'Segoe UI|9|clMaroon|clNone|fsBold|fsStrikeOut'),
@@ -56,9 +56,10 @@ type
 				{ } (name : 'ReplaceTextInHistory'; ColorDef : 'Segoe UI|9|clGreen|clNone|fsBold'),
 				{ } (name : 'LineNumText'; ColorDef : 'Segoe UI|9|clGrayText|clNone'),
 				{ } (name : 'ColNumText'; ColorDef : 'Segoe UI|9|clGrayText|clNone'),
+				{ } (name : 'FileLastWriteText'; ColorDef : 'Segoe UI|9|clGrayText|clNone'),
 				{ } (name : 'AlternateRow'; ColorDef : 'Segoe UI|9|clNone|cl3DLight'));
 
-			DEFAULT_DARK_COLORS : array [0 .. 13] of TNameColorDef = (
+			DEFAULT_DARK_COLORS : array [0 .. 14] of TNameColorDef = (
 				{ } (name : 'MatchText'; ColorDef : 'Segoe UI|9|$00558CFF|clNone|fsBold|fsUnderline'),
 				{ } (name : 'SearchTextInHistory'; ColorDef : 'Segoe UI|9|$004080FF|clNone|fsBold'),
 				{ } (name : 'ReplacedTextInHistory'; ColorDef : 'Segoe UI|9|clMaroon|clNone|fsBold|fsStrikeOut'),
@@ -72,6 +73,7 @@ type
 				{ } (name : 'ReplaceTextInHistory'; ColorDef : 'Segoe UI|9|clGreen|clNone|fsBold'),
 				{ } (name : 'LineNumText'; ColorDef : 'Segoe UI|9|clGray|clNone'),
 				{ } (name : 'ColNumText'; ColorDef : 'Segoe UI|9|clGray|clNone'),
+				{ } (name : 'FileLastWriteText'; ColorDef : 'Segoe UI|9|clGray|clNone'),
 				{$IFDEF STANDALONE}
 				{ } (name : 'AlternateRow'; ColorDef : 'Segoe UI|9|clNone|$002B2B2B'));
 			{$ELSE}
@@ -100,6 +102,7 @@ type
 			TREEVIEW_ERROR_TEXT : TFontAttributes;
 			TREEVIEW_STATS_TEXT : TFontAttributes;
 			TREEVIEW_STAT_TEXT : TFontAttributes; //
+			TREEVIEW_FILE_LAST_WRITE_TEXT : TFontAttributes;
 			TREEVIEW_ALTERNATE_ROW : TFontAttributes;
 
 			constructor Create(const _theme : EThemeMode = EThemeMode.tmLight);
@@ -111,6 +114,7 @@ type
 			FileText : TFontAttributes; // <-- First in config form
 			LineNumText : TFontAttributes;
 			ColNumText : TFontAttributes;
+			FileLastWriteText : TFontAttributes;
 			NormalText : TFontAttributes;
 			MatchText : TFontAttributes;
 			CounterText : TFontAttributes;
@@ -377,6 +381,8 @@ begin
 		LineNumText := _fa
 	else if _name = 'ColNumText' then
 		ColNumText := _fa
+	else if _name = 'FileLastWriteText' then
+		FileLastWriteText := _fa
 	else if _name = 'AlternateRow' then
 		AlternateRow := _fa
 	else
@@ -413,6 +419,8 @@ begin
 		Result := LineNumText
 	else if _name = 'ColNumText' then
 		Result := ColNumText
+	else if _name = 'FileLastWriteText' then
+		Result := FileLastWriteText
 	else if _name = 'AlternateRow' then
 		Result := AlternateRow
 	else
@@ -435,6 +443,7 @@ begin
 	self.ReplacedTextInHistory.FromString(_df.HIST_TREEVIEW_REPLACED_TEXT.ToString());
 	self.SearchTextInHistory.FromString(_df.HIST_TREEVIEW_SEARCH_TEXT.ToString());
 	self.StatisticsText.FromString(_df.TREEVIEW_STATS_TEXT.ToString());
+	self.FileLastWriteText.FromString(_df.TREEVIEW_FILE_LAST_WRITE_TEXT.ToString());
 end;
 
 constructor TDefaultFontColors.Create(const _theme : EThemeMode = EThemeMode.tmLight);
@@ -454,6 +463,7 @@ begin
 	SetDefault('ColNumText', TREEVIEW_COL_NUM_TEXT);
 	SetDefault('LineNumText', TREEVIEW_LINE_NUM_TEXT);
 	SetDefault('FileText', TREEVIEW_FILE_TEXT);
+	SetDefault('FileLastWriteText', TREEVIEW_FILE_LAST_WRITE_TEXT);
 	SetDefault('AlternateRow', TREEVIEW_ALTERNATE_ROW);
 end;
 

@@ -1602,6 +1602,9 @@ begin
 			COL_FILE : begin
 				TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileText, false);
 			end;
+			COL_FILE_LAST_WRITE : begin
+				TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileLastWriteText, false);
+			end;
 		end;
 	end else begin // ttStatic
 		TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.CounterText, false); // Not shown on MultiLine
