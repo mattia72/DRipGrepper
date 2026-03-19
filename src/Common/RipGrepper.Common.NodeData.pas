@@ -2,6 +2,9 @@ unit RipGrepper.Common.NodeData;
 
 interface
 
+uses
+	RipGrepper.Common.SimpleTypes;
+
 type
 	TVSMatchData = record
 		Row : integer;
@@ -24,6 +27,8 @@ type
 	TVSFileNodeData = record
 		FilePath : string;
 		FileLastWriteTime : TDateTime;
+		FileCreationTime : TDateTime;
+		FileLastAccessTime : TDateTime;
 		MatchData : TVSMatchData;
 		function GetLineText(const _bTrimLeft : Boolean; var _iSpaceCount, _iTabCount : Integer) : string;
 
@@ -32,7 +37,8 @@ type
 				_matchText, _textAfter : string) : TVSFileNodeData; overload; static;
 			class function New(const _file : string; const _row : Integer = -1; const _colBegin : Integer = -1;
 				const _colEnd : Integer = -1; const _matchText : string = '') : TVSFileNodeData; overload; static;
-			procedure UpdateLastWriteTime;
+			function GetFileTime(_dateTimeType : EDateTimeType) : TDateTime;
+			procedure UpdateFileTime(_dateTimeType : EDateTimeType);
 	end;
 
 	PVSMatchData = ^TVSMatchData;
@@ -77,6 +83,8 @@ var
 begin
 	Result.FilePath := _file;
 	Result.FileLastWriteTime := 0;
+	Result.FileCreationTime := 0;
+	Result.FileLastAccessTime := 0;
 	text := _textBefore + _matchText + _textAfter;
 	Result.MatchData := TVSMatchData.New(_row, _colBegin, _colEnd, text);
 end;
@@ -86,13 +94,43 @@ class function TVSFileNodeData.New(const _file : string; const _row : Integer = 
 begin
 	Result.FilePath := _file;
 	Result.FileLastWriteTime := 0;
+	Result.FileCreationTime := 0;
+	Result.FileLastAccessTime := 0;
 	Result.MatchData := TVSMatchData.New(_row, _colBegin, _colEnd, _matchText);
 end;
 
-procedure TVSFileNodeData.UpdateLastWriteTime;
+function TVSFileNodeData.GetFileTime(_dateTimeType : EDateTimeType) : TDateTime;
 begin
-	if (FileLastWriteTime = 0) and TFile.Exists(FilePath) then begin
-		FileLastWriteTime := TFile.GetLastWriteTime(FilePath);
+	case _dateTimeType of
+		dttLastWrite : Result := FileLastWriteTime;
+		dttCreation : Result := FileCreationTime;
+		dttLastAccess : Result := FileLastAccessTime;
+	else
+		Result := 0;
+	end;
+end;
+
+procedure TVSFileNodeData.UpdateFileTime(_dateTimeType : EDateTimeType);
+begin
+	if not TFile.Exists(FilePath) then begin
+		Exit;
+	end;
+	case _dateTimeType of
+		dttLastWrite : begin
+			if FileLastWriteTime = 0 then begin
+				FileLastWriteTime := TFile.GetLastWriteTime(FilePath);
+			end;
+		end;
+		dttCreation : begin
+			if FileCreationTime = 0 then begin
+				FileCreationTime := TFile.GetCreationTime(FilePath);
+			end;
+		end;
+		dttLastAccess : begin
+			if FileLastAccessTime = 0 then begin
+				FileLastAccessTime := TFile.GetLastAccessTime(FilePath);
+			end;
+		end;
 	end;
 end;
 

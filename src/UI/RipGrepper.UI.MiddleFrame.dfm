@@ -180,7 +180,19 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
             end
             item
               Position = 4
-              Text = 'Date'
+              Text = 'Modified'
+              Width = 130
+            end
+            item
+              Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coAllowFocus, coEditable]
+              Position = 5
+              Text = 'Created'
+              Width = 130
+            end
+            item
+              Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coAllowFocus, coEditable]
+              Position = 6
+              Text = 'Accessed'
               Width = 130
             end>
         end

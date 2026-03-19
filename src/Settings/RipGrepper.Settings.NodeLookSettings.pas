@@ -17,6 +17,8 @@ const
 	{ } 'IndentLines',
 	{ } 'ExpandNodes',
 	{ } 'ShowLastModifiedDateColumn',
+	{ } 'ShowCreationDateColumn',
+	{ } 'ShowLastAccessDateColumn',
 	{ } 'DateFormat'];
 
 type
@@ -33,6 +35,8 @@ type
 			FIndentLines : IBoolSetting;
 			FShowFileIcon : IBoolSetting;
 			FShowLastModifiedDateColumn : IBoolSetting;
+			FShowCreationDateColumn : IBoolSetting;
+			FShowLastAccessDateColumn : IBoolSetting;
 			FShowRelativePath : IBoolSetting;
 			function GetAlternateRowColors() : Boolean;
 			function GetDateFormat() : string;
@@ -40,6 +44,8 @@ type
 			function GetIndentLines() : Boolean;
 			function GetShowFileIcon() : Boolean;
 			function GetShowLastModifiedDateColumn() : Boolean;
+			function GetShowCreationDateColumn() : Boolean;
+			function GetShowLastAccessDateColumn() : Boolean;
 			function GetShowRelativePath() : Boolean;
 			procedure SetAlternateRowColors(const Value : Boolean);
 			procedure SetDateFormat(const Value : string);
@@ -48,6 +54,8 @@ type
 			procedure SetIndentLines(const Value : Boolean);
 			procedure SetShowFileIcon(const Value : Boolean);
 			procedure SetShowLastModifiedDateColumn(const Value : Boolean);
+			procedure SetShowCreationDateColumn(const Value : Boolean);
+			procedure SetShowLastAccessDateColumn(const Value : Boolean);
 			procedure SetShowRelativePath(const Value : Boolean);
 
 		public
@@ -64,6 +72,8 @@ type
 			property IndentLines : Boolean read GetIndentLines write SetIndentLines;
 			property ShowFileIcon : Boolean read GetShowFileIcon write SetShowFileIcon;
 			property ShowLastModifiedDateColumn : Boolean read GetShowLastModifiedDateColumn write SetShowLastModifiedDateColumn;
+			property ShowCreationDateColumn : Boolean read GetShowCreationDateColumn write SetShowCreationDateColumn;
+			property ShowLastAccessDateColumn : Boolean read GetShowLastAccessDateColumn write SetShowLastAccessDateColumn;
 			property ShowRelativePath : Boolean read GetShowRelativePath write SetShowRelativePath;
 	end;
 
@@ -126,6 +136,16 @@ begin
 	Result := FShowLastModifiedDateColumn.Value;
 end;
 
+function TNodeLookSettings.GetShowCreationDateColumn() : Boolean;
+begin
+	Result := FShowCreationDateColumn.Value;
+end;
+
+function TNodeLookSettings.GetShowLastAccessDateColumn() : Boolean;
+begin
+	Result := FShowLastAccessDateColumn.Value;
+end;
+
 function TNodeLookSettings.GetShowRelativePath() : Boolean;
 begin
 	Result := FShowRelativePath.Value;
@@ -141,6 +161,8 @@ begin
 	FIndentLines := TBoolSetting.Create('IndentLines', False, ssInitialized, ssb);
 	FShowFileIcon := TBoolSetting.Create('ShowFileIcon', False, ssInitialized, ssb);
 	FShowLastModifiedDateColumn := TBoolSetting.Create('ShowLastModifiedDateColumn', True, ssInitialized, ssb);
+	FShowCreationDateColumn := TBoolSetting.Create('ShowCreationDateColumn', False, ssInitialized, ssb);
+	FShowLastAccessDateColumn := TBoolSetting.Create('ShowLastAccessDateColumn', False, ssInitialized, ssb);
 	FDateFormat := TStringSetting.Create('DateFormat', 'yyyy-mm-dd hh:nn:ss', ssInitialized, ssb);
 
 	CreateSetting(FShowRelativePath);
@@ -149,6 +171,8 @@ begin
 	CreateSetting(FIndentLines);
 	CreateSetting(FExpandNodes);
 	CreateSetting(FShowLastModifiedDateColumn);
+	CreateSetting(FShowCreationDateColumn);
+	CreateSetting(FShowLastAccessDateColumn);
 	CreateSetting(FDateFormat);
 	FFilterSettings.Init();
 end;
@@ -198,6 +222,16 @@ end;
 procedure TNodeLookSettings.SetShowLastModifiedDateColumn(const Value : Boolean);
 begin
 	FShowLastModifiedDateColumn.Value := Value;
+end;
+
+procedure TNodeLookSettings.SetShowCreationDateColumn(const Value : Boolean);
+begin
+	FShowCreationDateColumn.Value := Value;
+end;
+
+procedure TNodeLookSettings.SetShowLastAccessDateColumn(const Value : Boolean);
+begin
+	FShowLastAccessDateColumn.Value := Value;
 end;
 
 procedure TNodeLookSettings.SetShowRelativePath(const Value : Boolean);

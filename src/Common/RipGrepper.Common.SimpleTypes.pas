@@ -18,6 +18,8 @@ type
 
 	TFileNameType = (ftAbsolute, ftRelative);
 
+	EDateTimeType = (dttLastWrite, dttCreation, dttLastAccess);
+
 	{$SCOPEDENUMS ON}
 	EGuiReplaceMode = (grmRGReplace, grmRgJson, grmEditEnabled, grmActive { GuiReplaceModeActive } ,
 		{ } grmSaveEnabled,
@@ -75,6 +77,9 @@ type
 	TSearchFormLayout = set of ESearchFormLayout;
 
 const
+	DATE_TIME_TYPE_NAMES : array [EDateTimeType] of string = ('Modified', 'Created', 'Accessed');
+	DATE_TIME_TYPE_KEYS : array [EDateTimeType] of string = ('LastWrite', 'Creation', 'LastAccess');
+
 	GUI_SEARCH_PARAMS : TArray<EGuiOption> = [
 	{ } EGuiOption.soMatchCase,
 	{ } EGuiOption.soMatchWord,

@@ -167,6 +167,7 @@ begin
 	Settings.LoadInitialSettings;
 	TopFrame.Initialize();
 	BottomFrame.Initialize();
+	MainFrame.UpdateColumnVisibility;
 	if (not FbNewVersioMsgBoxAlreadyShown) and Settings.AppSettings.CheckNewVersionOnStartup then begin
 		var
 			ru : TReleaseUtils;

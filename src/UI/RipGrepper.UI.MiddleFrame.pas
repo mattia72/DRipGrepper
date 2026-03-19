@@ -135,6 +135,8 @@ type
 			COL_COL_NUM = 2;
 			COL_MATCH_TEXT = 3;
 			COL_FILE_LAST_WRITE = 4;
+			COL_FILE_CREATION = 5;
+			COL_FILE_LAST_ACCESS = 6;
 
 		var
 			FAbortSearch : Boolean;
@@ -741,6 +743,8 @@ begin
 	if not Assigned(FData) then begin
 		FData := TRipGrepperData.Create(VstResult);
 		FData.ResolveFileLastWriteTime := Settings.NodeLookSettings.ShowLastModifiedDateColumn;
+		FData.ResolveFileCreationTime := Settings.NodeLookSettings.ShowCreationDateColumn;
+		FData.ResolveFileLastAccessTime := Settings.NodeLookSettings.ShowLastAccessDateColumn;
 		MiddleLeftFrame1.Data := FData;
 	end;
 	Result := FData;
@@ -900,6 +904,8 @@ procedure TRipGrepperMiddleFrame.LoadBeforeSearchSettings;
 begin
 	ReloadColorSettings;
 	Data.ResolveFileLastWriteTime := Settings.NodeLookSettings.ShowLastModifiedDateColumn;
+	Data.ResolveFileCreationTime := Settings.NodeLookSettings.ShowCreationDateColumn;
+	Data.ResolveFileLastAccessTime := Settings.NodeLookSettings.ShowLastAccessDateColumn;
 end;
 
 procedure TRipGrepperMiddleFrame.OnEOFProcess;
@@ -1059,12 +1065,33 @@ var
 	bShow : Boolean;
 	node : PVirtualNode;
 	nodeData : PVSFileNodeData;
+	bShowCreation : Boolean;
+	bShowLastAccess : Boolean;
 begin
 	bShow := Settings.NodeLookSettings.ShowLastModifiedDateColumn;
+	bShowCreation := Settings.NodeLookSettings.ShowCreationDateColumn;
+	bShowLastAccess := Settings.NodeLookSettings.ShowLastAccessDateColumn;
+
 	Data.ResolveFileLastWriteTime := bShow;
+	Data.ResolveFileCreationTime := bShowCreation;
+	Data.ResolveFileLastAccessTime := bShowLastAccess;
 
 	col := VstResult.Header.Columns[COL_FILE_LAST_WRITE];
 	if bShow then begin
+		col.Options := col.Options + [coVisible];
+	end else begin
+		col.Options := col.Options - [coVisible];
+	end;
+
+	col := VstResult.Header.Columns[COL_FILE_CREATION];
+	if bShowCreation then begin
+		col.Options := col.Options + [coVisible];
+	end else begin
+		col.Options := col.Options - [coVisible];
+	end;
+
+	col := VstResult.Header.Columns[COL_FILE_LAST_ACCESS];
+	if bShowLastAccess then begin
 		col.Options := col.Options + [coVisible];
 	end else begin
 		col.Options := col.Options - [coVisible];
@@ -1075,13 +1102,21 @@ begin
 		VstResult.Header.AutoSizeIndex := lastVisibleIdx;
 	end;
 
-	if bShow then begin
-		// Resolve missing dates for existing parent nodes
+	// Resolve missing dates for existing parent nodes
+	if bShow or bShowCreation or bShowLastAccess then begin
 		node := VstResult.GetFirst();
 		while Assigned(node) do begin
 			if node.Parent = VstResult.RootNode then begin
 				nodeData := VstResult.GetNodeData(node);
-				nodeData^.UpdateLastWriteTime;
+				if bShow then begin
+					nodeData^.UpdateFileTime(dttLastWrite);
+				end;
+				if bShowCreation then begin
+					nodeData^.UpdateFileTime(dttCreation);
+				end;
+				if bShowLastAccess then begin
+					nodeData^.UpdateFileTime(dttLastAccess);
+				end;
 			end;
 			node := VstResult.GetNext(node);
 		end;
@@ -1390,6 +1425,42 @@ begin
 				end;
 				Result := CompareValue(d1, d2);
 			end;
+			COL_FILE_CREATION : begin
+				var dc1, dc2 : TDateTime;
+				if Node1.Parent = VstResult.RootNode then begin
+					dc1 := Data1.FileCreationTime;
+				end else if Assigned(Data1Parent) then begin
+					dc1 := Data1Parent.FileCreationTime;
+				end else begin
+					dc1 := 0;
+				end;
+				if Node2.Parent = VstResult.RootNode then begin
+					dc2 := Data2.FileCreationTime;
+				end else if Assigned(Data2Parent) then begin
+					dc2 := Data2Parent.FileCreationTime;
+				end else begin
+					dc2 := 0;
+				end;
+				Result := CompareValue(dc1, dc2);
+			end;
+			COL_FILE_LAST_ACCESS : begin
+				var da1, da2 : TDateTime;
+				if Node1.Parent = VstResult.RootNode then begin
+					da1 := Data1.FileLastAccessTime;
+				end else if Assigned(Data1Parent) then begin
+					da1 := Data1Parent.FileLastAccessTime;
+				end else begin
+					da1 := 0;
+				end;
+				if Node2.Parent = VstResult.RootNode then begin
+					da2 := Data2.FileLastAccessTime;
+				end else if Assigned(Data2Parent) then begin
+					da2 := Data2Parent.FileLastAccessTime;
+				end else begin
+					da2 := 0;
+				end;
+				Result := CompareValue(da1, da2);
+			end;
 			COL_ROW_NUM :
 			Result := { CompareText(s1, s2) + } CompareValue(Data1.MatchData.Row, Data2.MatchData.Row);
 			COL_COL_NUM :
@@ -1557,6 +1628,26 @@ begin
 				if Node.Parent = VstResult.RootNode then begin
 					if NodeData^.FileLastWriteTime > 0 then begin
 						CellText := FormatDateTime(Settings.NodeLookSettings.DateFormat, NodeData^.FileLastWriteTime);
+					end;
+				end;
+			end;
+		end;
+		COL_FILE_CREATION : begin
+			if (TextType = ttNormal) then begin
+				CellText := '';
+				if Node.Parent = VstResult.RootNode then begin
+					if NodeData^.FileCreationTime > 0 then begin
+						CellText := FormatDateTime(Settings.NodeLookSettings.DateFormat, NodeData^.FileCreationTime);
+					end;
+				end;
+			end;
+		end;
+		COL_FILE_LAST_ACCESS : begin
+			if (TextType = ttNormal) then begin
+				CellText := '';
+				if Node.Parent = VstResult.RootNode then begin
+					if NodeData^.FileLastAccessTime > 0 then begin
+						CellText := FormatDateTime(Settings.NodeLookSettings.DateFormat, NodeData^.FileLastAccessTime);
 					end;
 				end;
 			end;

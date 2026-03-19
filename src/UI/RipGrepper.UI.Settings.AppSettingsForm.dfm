@@ -91,13 +91,13 @@ object AppSettingsForm: TAppSettingsForm
       Left = 11
       Top = 143
       Width = 482
-      Height = 282
+      Height = 346
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Settings'
       TabOrder = 2
       DesignSize = (
         482
-        282)
+        346)
       object Label2: TLabel
         Left = 19
         Top = 24
@@ -136,7 +136,7 @@ object AppSettingsForm: TAppSettingsForm
       end
       object grpSaveLoad: TGroupBox
         Left = 16
-        Top = 109
+        Top = 173
         Width = 454
         Height = 162
         Anchors = [akLeft, akTop, akRight]
@@ -213,7 +213,7 @@ object AppSettingsForm: TAppSettingsForm
         Top = 75
         Width = 200
         Height = 23
-        Hint = 'Date format for the "Modified" column. Uses Delphi FormatDateTime syntax.'
+        Hint = 'Date format for the timestamp columns. Uses Delphi FormatDateTime syntax.'
         TabOrder = 3
         Items.Strings = (
           'yyyy-mm-dd hh:nn:ss'
@@ -222,6 +222,35 @@ object AppSettingsForm: TAppSettingsForm
           'yyyy-mm-dd'
           'dd.mm.yyyy'
           'dd/mm/yyyy hh:nn')
+      end
+      object cbShowModifiedDateColumn: TCheckBox
+        Left = 19
+        Top = 106
+        Width = 200
+        Height = 17
+        Hint = 'Show the "Modified" timestamp column in the result tree'
+        Caption = 'Show "Modified" column'
+        Checked = True
+        State = cbChecked
+        TabOrder = 4
+      end
+      object cbShowCreationDateColumn: TCheckBox
+        Left = 19
+        Top = 127
+        Width = 200
+        Height = 17
+        Hint = 'Show the "Created" timestamp column in the result tree'
+        Caption = 'Show "Created" column'
+        TabOrder = 5
+      end
+      object cbShowLastAccessDateColumn: TCheckBox
+        Left = 19
+        Top = 148
+        Width = 200
+        Height = 17
+        Hint = 'Show the "Accessed" timestamp column in the result tree'
+        Caption = 'Show "Accessed" column'
+        TabOrder = 6
       end
     end
   end

@@ -48,7 +48,7 @@ type
 		ActionAbortSearch : TAction;
 		ActionRefreshSearch : TAction;
 		ActionIndentLine : TAction;
-		ActionShowLastModifiedDateColumn : TAction;
+		ActionShowDateColumns : TAction;
 		tbarSearch : TToolBar;
 		tbShowSearchForm : TToolButton;
 		tbRefreshSearch : TToolButton;
@@ -60,7 +60,7 @@ type
 		tbShowFileIcon : TToolButton;
 		tbShowRelativePath : TToolButton;
 		tbIndentLines : TToolButton;
-		tbShowLastModifiedDateColumn : TToolButton;
+		tbShowDateColumns : TToolButton;
 		ToolButton4 : TToolButton;
 		tbOpenWith : TToolButton;
 		ToolButton6 : TToolButton;
@@ -72,6 +72,10 @@ type
 		tbarConfig : TToolBar;
 		PopupMenuToolBar : TPopupMenu;
 		AlignToolbar1 : TMenuItem;
+		PopupMenuDateColumns : TPopupMenu;
+		miShowModifiedDate : TMenuItem;
+		miShowCreationDate : TMenuItem;
+		miShowLastAccessDate : TMenuItem;
 		ToolButton2 : TToolButton;
 		ToolButton5 : TToolButton;
 		ToolButton8 : TToolButton;
@@ -126,8 +130,12 @@ type
 		procedure ActionSetTextFilterModeExecute(Sender : TObject);
 		procedure ActionShowFileIconsExecute(Sender : TObject);
 		procedure ActionShowFileIconsUpdate;
-		procedure ActionShowLastModifiedDateColumnExecute(Sender : TObject);
-		procedure ActionShowLastModifiedDateColumnUpdate;
+		procedure ActionShowDateColumnsExecute(Sender : TObject);
+		procedure ActionShowDateColumnsUpdate;
+		procedure miShowModifiedDateClick(Sender : TObject);
+		procedure miShowCreationDateClick(Sender : TObject);
+		procedure miShowLastAccessDateClick(Sender : TObject);
+		procedure UpdateDateColumnsUI;
 		procedure ActionShowRelativePathExecute(Sender : TObject);
 		procedure ActionShowRelativePathUpdate;
 		procedure ActionShowSearchFormExecute(Sender : TObject);
@@ -526,18 +534,73 @@ begin
 	tbShowFileIcon.Down := Settings.NodeLookSettings.ShowFileIcon;
 end;
 
-procedure TRipGrepperTopFrame.ActionShowLastModifiedDateColumnExecute(Sender : TObject);
+procedure TRipGrepperTopFrame.ActionShowDateColumnsExecute(Sender : TObject);
+var
+	bAnyVisible : Boolean;
+begin
+	bAnyVisible := Settings.NodeLookSettings.ShowLastModifiedDateColumn
+		or Settings.NodeLookSettings.ShowCreationDateColumn
+		or Settings.NodeLookSettings.ShowLastAccessDateColumn;
+
+	if bAnyVisible then begin
+		// Hide all date columns
+		Settings.NodeLookSettings.ShowLastModifiedDateColumn := False;
+		Settings.NodeLookSettings.ShowCreationDateColumn := False;
+		Settings.NodeLookSettings.ShowLastAccessDateColumn := False;
+	end else begin
+		// Show all date columns
+		Settings.NodeLookSettings.ShowLastModifiedDateColumn := True;
+		Settings.NodeLookSettings.ShowCreationDateColumn := True;
+		Settings.NodeLookSettings.ShowLastAccessDateColumn := True;
+	end;
+	Settings.StoreViewSettings('ShowLastModifiedDateColumn');
+	Settings.StoreViewSettings('ShowCreationDateColumn');
+	Settings.StoreViewSettings('ShowLastAccessDateColumn');
+	MainFrame.UpdateColumnVisibility;
+	MainFrame.VstResult.Repaint();
+	UpdateDateColumnsUI;
+end;
+
+procedure TRipGrepperTopFrame.ActionShowDateColumnsUpdate;
+begin
+	UpdateDateColumnsUI;
+end;
+
+procedure TRipGrepperTopFrame.miShowModifiedDateClick(Sender : TObject);
 begin
 	Settings.NodeLookSettings.ShowLastModifiedDateColumn := not Settings.NodeLookSettings.ShowLastModifiedDateColumn;
 	Settings.StoreViewSettings('ShowLastModifiedDateColumn');
 	MainFrame.UpdateColumnVisibility;
 	MainFrame.VstResult.Repaint();
-	ActionShowLastModifiedDateColumnUpdate;
+	UpdateDateColumnsUI;
 end;
 
-procedure TRipGrepperTopFrame.ActionShowLastModifiedDateColumnUpdate;
+procedure TRipGrepperTopFrame.miShowCreationDateClick(Sender : TObject);
 begin
-	tbShowLastModifiedDateColumn.Down := Settings.NodeLookSettings.ShowLastModifiedDateColumn;
+	Settings.NodeLookSettings.ShowCreationDateColumn := not Settings.NodeLookSettings.ShowCreationDateColumn;
+	Settings.StoreViewSettings('ShowCreationDateColumn');
+	MainFrame.UpdateColumnVisibility;
+	MainFrame.VstResult.Repaint();
+	UpdateDateColumnsUI;
+end;
+
+procedure TRipGrepperTopFrame.miShowLastAccessDateClick(Sender : TObject);
+begin
+	Settings.NodeLookSettings.ShowLastAccessDateColumn := not Settings.NodeLookSettings.ShowLastAccessDateColumn;
+	Settings.StoreViewSettings('ShowLastAccessDateColumn');
+	MainFrame.UpdateColumnVisibility;
+	MainFrame.VstResult.Repaint();
+	UpdateDateColumnsUI;
+end;
+
+procedure TRipGrepperTopFrame.UpdateDateColumnsUI;
+begin
+	ActionShowDateColumns.Checked := Settings.NodeLookSettings.ShowLastModifiedDateColumn
+		or Settings.NodeLookSettings.ShowCreationDateColumn
+		or Settings.NodeLookSettings.ShowLastAccessDateColumn;
+	miShowModifiedDate.Checked := Settings.NodeLookSettings.ShowLastModifiedDateColumn;
+	miShowCreationDate.Checked := Settings.NodeLookSettings.ShowCreationDateColumn;
+	miShowLastAccessDate.Checked := Settings.NodeLookSettings.ShowLastAccessDateColumn;
 end;
 
 procedure TRipGrepperTopFrame.ActionShowRelativePathExecute(Sender : TObject);
@@ -844,7 +907,7 @@ begin
 	ActionShowRelativePathUpdate();
 	ActionAlternateRowColorsUpdate();
 	ActionShowFileIconsUpdate();
-	ActionShowLastModifiedDateColumnUpdate();
+	ActionShowDateColumnsUpdate();
 	ActionIndentLineUpdate();
 
 	ActionAbortSearch.Enabled := False;

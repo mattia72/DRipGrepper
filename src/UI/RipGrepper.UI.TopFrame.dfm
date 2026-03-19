@@ -90,10 +90,12 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
         Top = 0
         Action = ActionShowRelativePath
       end
-      object tbShowLastModifiedDateColumn: TToolButton
+      object tbShowDateColumns: TToolButton
         Left = 66
         Top = 0
-        Action = ActionShowLastModifiedDateColumn
+        Action = ActionShowDateColumns
+        Style = tbsDropDown
+        DropdownMenu = PopupMenuDateColumns
       end
       object ToolButton10: TToolButton
         Left = 91
@@ -385,14 +387,14 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       ImageName = 'format-align-left'
       OnExecute = ActionIndentLineExecute
     end
-    object ActionShowLastModifiedDateColumn: TAction
+    object ActionShowDateColumns: TAction
       Category = 'View'
-      Caption = 'Show Modified Date'
+      Caption = 'Show Date Columns'
       GroupIndex = 1
-      Hint = 'Show/Hide Last Modified Date Column'
+      Hint = 'Show/Hide Date Columns'
       ImageIndex = 19
       ImageName = 'calendar-clock'
-      OnExecute = ActionShowLastModifiedDateColumnExecute
+      OnExecute = ActionShowDateColumnsExecute
     end
     object ActionOpenWith: TAction
       Caption = 'Open with...'
@@ -436,6 +438,23 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     Top = 65534
     object AlignToolbar1: TMenuItem
       Action = ActionAlignToolbars
+    end
+  end
+  object PopupMenuDateColumns: TPopupMenu
+    Left = 696
+    Top = 65534
+    object miShowModifiedDate: TMenuItem
+      Caption = 'Modified'
+      Checked = True
+      OnClick = miShowModifiedDateClick
+    end
+    object miShowCreationDate: TMenuItem
+      Caption = 'Created'
+      OnClick = miShowCreationDateClick
+    end
+    object miShowLastAccessDate: TMenuItem
+      Caption = 'Accessed'
+      OnClick = miShowLastAccessDateClick
     end
   end
   object PopupMenuFilterMode: TPopupMenu

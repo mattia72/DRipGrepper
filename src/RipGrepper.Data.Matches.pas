@@ -46,6 +46,8 @@ type
 		public
 			FErrorCounters : TErrorCounters;
 			ResolveFileLastWriteTime : Boolean;
+			ResolveFileCreationTime : Boolean;
+			ResolveFileLastAccessTime : Boolean;
 
 			constructor Create(_vst : TCustomVirtualStringTree);
 			destructor Destroy; override;
@@ -78,6 +80,8 @@ begin
 	FErrorCounters.Reset();
 	FVst := _vst;
 	ResolveFileLastWriteTime := True;
+	ResolveFileCreationTime := False;
+	ResolveFileLastAccessTime := False;
 end;
 
 destructor TRipGrepperData.Destroy;
@@ -209,7 +213,13 @@ begin
 	if idx < 0 then begin
 		nodeData := TVSFileNodeData.New(_sNodeText);
 		if ResolveFileLastWriteTime then begin
-			nodeData.UpdateLastWriteTime;
+			nodeData.UpdateFileTime(dttLastWrite);
+		end;
+		if ResolveFileCreationTime then begin
+			nodeData.UpdateFileTime(dttCreation);
+		end;
+		if ResolveFileLastAccessTime then begin
+			nodeData.UpdateFileTime(dttLastAccess);
 		end;
 		Result := AddVSTStructure(nil, nodeData, _asFirst);
 		MatchFiles.AddObject(_sNodeText, TObject(Result));

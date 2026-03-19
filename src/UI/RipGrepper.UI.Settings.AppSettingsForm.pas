@@ -61,6 +61,9 @@ type
 		grpSaveLoad : TGroupBox;
 		lblDateFormat : TLabel;
 		cmbDateFormat : TComboBox;
+		cbShowModifiedDateColumn : TCheckBox;
+		cbShowCreationDateColumn : TCheckBox;
+		cbShowLastAccessDateColumn : TCheckBox;
 		procedure btnedtRgExePathEnter(Sender : TObject);
 		procedure btnedtRgExePathExit(Sender : TObject);
 		procedure btnedtRgExePathLeftButtonClick(Sender : TObject);
@@ -112,7 +115,8 @@ uses
 	System.StrUtils,
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Helper.Types,
-	RipGrepper.Common.LoadHistoryMode;
+	RipGrepper.Common.LoadHistoryMode,
+	RipGrepper.UI.MiddleFrame;
 
 {$R *.dfm}
 
@@ -224,6 +228,8 @@ procedure TAppSettingsForm.OnSettingsUpdated();
 begin
 	// here you can update things depending on changed settings
 	TDebugUtils.UpdateTraceActive;
+	MainFrame.UpdateColumnVisibility;
+	MainFrame.VstResult.Repaint();
 end;
 
 procedure TAppSettingsForm.ReadSettings;
@@ -241,6 +247,9 @@ begin
 		seCmbHistoryCount.Value := FAppSettings.ComboHistoryCount;
 		seSearchHistoryCount.Value := FAppSettings.SearchHistoryCount;
 		cmbDateFormat.Text := FNodeLookSettings.DateFormat;
+		cbShowModifiedDateColumn.Checked := FNodeLookSettings.ShowLastModifiedDateColumn;
+		cbShowCreationDateColumn.Checked := FNodeLookSettings.ShowCreationDateColumn;
+		cbShowLastAccessDateColumn.Checked := FNodeLookSettings.ShowLastAccessDateColumn;
 
 		FAppSettings.UpdateInternalsFromSettings();
 		cbLoadLastSearchHistories.Checked := FAppSettings.LoadHistoryMode.IsSet(lhmLoadLastSearchHistories);
@@ -331,6 +340,10 @@ begin
 	if IsValidDateFormat(fmt) then begin
 		FNodeLookSettings.DateFormat := fmt;
 	end;
+
+	FNodeLookSettings.ShowLastModifiedDateColumn := cbShowModifiedDateColumn.Checked;
+	FNodeLookSettings.ShowCreationDateColumn := cbShowCreationDateColumn.Checked;
+	FNodeLookSettings.ShowLastAccessDateColumn := cbShowLastAccessDateColumn.Checked;
 end;
 
 end.
