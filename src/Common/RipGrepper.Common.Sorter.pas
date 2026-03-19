@@ -26,7 +26,7 @@ type
 	end;
 
 	TSortDirectionType = (stUnsorted, stAscending, stDescending);
-	TSortByType = (sbtFile, sbtRow, sbtCol, sbtText, sbtLineNr, sbtFileLastWriteTime);
+	TSortByType = (sbtFile, sbtRow, sbtCol, sbtText, sbtLineNr, sbtFileModifiedTime);
 
 	TSortColumnDirection = record
 		Column : TSortByType;

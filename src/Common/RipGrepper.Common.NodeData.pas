@@ -26,9 +26,9 @@ type
 
 	TVSFileNodeData = record
 		FilePath : string;
-		FileLastWriteTime : TDateTime;
-		FileCreationTime : TDateTime;
-		FileLastAccessTime : TDateTime;
+		FileModifiedTime : TDateTime;
+		FileCreatedTime : TDateTime;
+		FileAccessedTime: TDateTime;
 		MatchData : TVSMatchData;
 		function GetLineText(const _bTrimLeft : Boolean; var _iSpaceCount, _iTabCount : Integer) : string;
 
@@ -82,9 +82,9 @@ var
 	text : string;
 begin
 	Result.FilePath := _file;
-	Result.FileLastWriteTime := 0;
-	Result.FileCreationTime := 0;
-	Result.FileLastAccessTime := 0;
+	Result.FileModifiedTime := 0;
+	Result.FileCreatedTime := 0;
+	Result.FileAccessedTime:= 0;
 	text := _textBefore + _matchText + _textAfter;
 	Result.MatchData := TVSMatchData.New(_row, _colBegin, _colEnd, text);
 end;
@@ -93,18 +93,18 @@ class function TVSFileNodeData.New(const _file : string; const _row : Integer = 
 	const _colEnd : Integer = -1; const _matchText : string = '') : TVSFileNodeData;
 begin
 	Result.FilePath := _file;
-	Result.FileLastWriteTime := 0;
-	Result.FileCreationTime := 0;
-	Result.FileLastAccessTime := 0;
+	Result.FileModifiedTime := 0;
+	Result.FileCreatedTime := 0;
+	Result.FileAccessedTime:= 0;
 	Result.MatchData := TVSMatchData.New(_row, _colBegin, _colEnd, _matchText);
 end;
 
 function TVSFileNodeData.GetFileTime(_dateTimeType : EDateTimeType) : TDateTime;
 begin
 	case _dateTimeType of
-		dttLastWrite : Result := FileLastWriteTime;
-		dttCreation : Result := FileCreationTime;
-		dttLastAccess : Result := FileLastAccessTime;
+		dttLastWrite : Result := FileModifiedTime;
+		dttCreation : Result := FileCreatedTime;
+		dttLastAccess : Result := FileAccessedTime;
 	else
 		Result := 0;
 	end;
@@ -117,18 +117,18 @@ begin
 	end;
 	case _dateTimeType of
 		dttLastWrite : begin
-			if FileLastWriteTime = 0 then begin
-				FileLastWriteTime := TFile.GetLastWriteTime(FilePath);
+			if FileModifiedTime = 0 then begin
+				FileModifiedTime := TFile.GetLastWriteTime(FilePath);
 			end;
 		end;
 		dttCreation : begin
-			if FileCreationTime = 0 then begin
-				FileCreationTime := TFile.GetCreationTime(FilePath);
+			if FileCreatedTime = 0 then begin
+				FileCreatedTime := TFile.GetCreationTime(FilePath);
 			end;
 		end;
 		dttLastAccess : begin
-			if FileLastAccessTime = 0 then begin
-				FileLastAccessTime := TFile.GetLastAccessTime(FilePath);
+			if FileAccessedTime= 0 then begin
+				FileAccessedTime:= TFile.GetLastAccessTime(FilePath);
 			end;
 		end;
 	end;

@@ -81,7 +81,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
                 item
                   Position = 0
                   Text = 'Search'
-                  Width = 181
+                  Width = 185
                 end
                 item
                   Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coSmartResize, coAllowFocus, coEditable, coStyleColor]
@@ -181,7 +181,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
             item
               Position = 4
               Text = 'Modified'
-              Width = 130
+              Width = 134
             end
             item
               Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coAllowFocus, coEditable]

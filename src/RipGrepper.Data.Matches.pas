@@ -45,9 +45,9 @@ type
 
 		public
 			FErrorCounters : TErrorCounters;
-			ResolveFileLastWriteTime : Boolean;
-			ResolveFileCreationTime : Boolean;
-			ResolveFileLastAccessTime : Boolean;
+			ResolveFileModifiedTime : Boolean;
+			ResolveFileCreatedTime : Boolean;
+			ResolveFileAccessedTime: Boolean;
 
 			constructor Create(_vst : TCustomVirtualStringTree);
 			destructor Destroy; override;
@@ -79,9 +79,9 @@ begin
 	MatchFiles := TStringList.Create(TDuplicates.dupIgnore, True, True);
 	FErrorCounters.Reset();
 	FVst := _vst;
-	ResolveFileLastWriteTime := True;
-	ResolveFileCreationTime := False;
-	ResolveFileLastAccessTime := False;
+	ResolveFileModifiedTime := True;
+	ResolveFileCreatedTime := False;
+	ResolveFileAccessedTime:= False;
 end;
 
 destructor TRipGrepperData.Destroy;
@@ -117,7 +117,9 @@ begin
 	nodeData := FVst.GetNodeData(Result);
 	// FVst.ValidateNode(Result, False);
 	nodeData^.FilePath := _rec.FilePath;
-	nodeData^.FileLastWriteTime := _rec.FileLastWriteTime;
+	nodeData^.FileModifiedTime := _rec.FileModifiedTime;
+	nodeData^.FileCreatedTime := _rec.FileCreatedTime;
+	nodeData^.FileAccessedTime:= _rec.FileAccessedTime;
 	nodeData^.MatchData := _rec.MatchData;
 end;
 
@@ -212,13 +214,13 @@ begin
 	idx := MatchFiles.IndexOf(_sNodeText);
 	if idx < 0 then begin
 		nodeData := TVSFileNodeData.New(_sNodeText);
-		if ResolveFileLastWriteTime then begin
+		if ResolveFileModifiedTime then begin
 			nodeData.UpdateFileTime(dttLastWrite);
 		end;
-		if ResolveFileCreationTime then begin
+		if ResolveFileCreatedTime then begin
 			nodeData.UpdateFileTime(dttCreation);
 		end;
-		if ResolveFileLastAccessTime then begin
+		if ResolveFileAccessedTime then begin
 			nodeData.UpdateFileTime(dttLastAccess);
 		end;
 		Result := AddVSTStructure(nil, nodeData, _asFirst);
