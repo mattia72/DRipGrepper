@@ -91,13 +91,13 @@ object AppSettingsForm: TAppSettingsForm
       Left = 11
       Top = 143
       Width = 482
-      Height = 346
+      Height = 256
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Settings'
       TabOrder = 2
       DesignSize = (
         482
-        346)
+        256)
       object Label2: TLabel
         Left = 19
         Top = 24
@@ -111,13 +111,6 @@ object AppSettingsForm: TAppSettingsForm
         Width = 116
         Height = 15
         Caption = 'Combo history count:'
-      end
-      object lblDateFormat: TLabel
-        Left = 19
-        Top = 78
-        Width = 80
-        Height = 15
-        Caption = 'Date format:'
       end
       object cmbCopyCmdShell: TComboBox
         Left = 142
@@ -136,7 +129,7 @@ object AppSettingsForm: TAppSettingsForm
       end
       object grpSaveLoad: TGroupBox
         Left = 16
-        Top = 173
+        Top = 83
         Width = 454
         Height = 162
         Anchors = [akLeft, akTop, akRight]
@@ -207,50 +200,6 @@ object AppSettingsForm: TAppSettingsForm
         MinValue = 10
         TabOrder = 1
         Value = 10
-      end
-      object cmbDateFormat: TComboBox
-        Left = 142
-        Top = 75
-        Width = 200
-        Height = 23
-        Hint = 'Date format for the timestamp columns. Uses Delphi FormatDateTime syntax.'
-        TabOrder = 3
-        Items.Strings = (
-          'yyyy-mm-dd hh:nn:ss'
-          'dd.mm.yyyy hh:nn:ss'
-          'mm/dd/yyyy hh:nn:ss'
-          'yyyy-mm-dd'
-          'dd.mm.yyyy'
-          'dd/mm/yyyy hh:nn')
-      end
-      object cbShowModifiedDateColumn: TCheckBox
-        Left = 19
-        Top = 106
-        Width = 200
-        Height = 17
-        Hint = 'Show the "Modified" timestamp column in the result tree'
-        Caption = 'Show "Modified" column'
-        Checked = True
-        State = cbChecked
-        TabOrder = 4
-      end
-      object cbShowCreationDateColumn: TCheckBox
-        Left = 19
-        Top = 127
-        Width = 200
-        Height = 17
-        Hint = 'Show the "Created" timestamp column in the result tree'
-        Caption = 'Show "Created" column'
-        TabOrder = 5
-      end
-      object cbShowLastAccessDateColumn: TCheckBox
-        Left = 19
-        Top = 148
-        Width = 200
-        Height = 17
-        Hint = 'Show the "Accessed" timestamp column in the result tree'
-        Caption = 'Show "Accessed" column'
-        TabOrder = 6
       end
     end
   end

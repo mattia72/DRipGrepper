@@ -18,7 +18,8 @@ uses
 	Vcl.ExtCtrls,
 	Spring,
 	RipGrepper.Settings.RipGrepperSettings,
-	RipGrepper.Settings.AppSettings;
+	RipGrepper.Settings.AppSettings,
+	RipGrepper.Settings.NodeLookSettings;
 
 type
 	TColorSettingsForm = class(TSettingsBaseForm)
@@ -28,6 +29,13 @@ type
 		pnlTop : TPanel;
 		ScrollBox1 : TScrollBox;
 		rgTheme : TRadioGroup;
+		pnlThemeRow : TPanel;
+		grpDateColumns : TGroupBox;
+		lblDateFormat : TLabel;
+		cmbDateFormat : TComboBox;
+		cbShowModifiedDateColumn : TCheckBox;
+		cbShowCreationDateColumn : TCheckBox;
+		cbShowLastAccessDateColumn : TCheckBox;
 		procedure btnLoadDefaultsClick(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 		procedure rgThemeClick(Sender : TObject);
@@ -37,12 +45,15 @@ type
 			FAppSettings : TAppSettings;
 			FbSkipClickEvent : Boolean;
 			FFontColorSettings : TColorSettings;
+			FNodeLookSettings : TNodeLookSettings;
 			FOnThemeChanged : Event<TNotifyEvent>;
 			function GetOnThemeChanged() : IInvokableEvent<TNotifyEvent>;
+			function IsValidDateFormat(const _format : string) : Boolean;
 			procedure SetFontAttribsForFrames();
 			procedure RefreshColorSelectorFrames();
 
 		protected
+			procedure OnSettingsUpdated(); override;
 			procedure ReadSettings; override;
 			procedure ThemeChanged();
 			procedure WriteSettings; override;
@@ -69,7 +80,8 @@ uses
 	System.StrUtils,
 	Vcl.Themes,
 	RipGrepper.Helper.UI,
-	RipGrepper.UI.MainForm;
+	RipGrepper.UI.MainForm,
+	RipGrepper.UI.MiddleFrame;
 
 {$R *.dfm}
 
@@ -82,6 +94,7 @@ begin
 	Caption := FONTS_AND_COLORS_CAPTION;
 	FFontColorSettings := _settings.FontColorSettings;
 	FAppSettings := _settings.AppSettings;
+	FNodeLookSettings := _settings.NodeLookSettings;
 	ReadSettings;
 
 	// setting theme is necessary here, if you don't want to get exception on close
@@ -130,6 +143,18 @@ begin
 	Result := FOnThemeChanged;
 end;
 
+function TColorSettingsForm.IsValidDateFormat(const _format : string) : Boolean;
+begin
+	Result := False;
+	try
+		FormatDateTime(_format, Now());
+		Result := True;
+	except
+		on E : Exception do
+			; // invalid format
+	end;
+end;
+
 procedure TColorSettingsForm.LoadDefaultColorsForTheme(Sender : TObject);
 var
 	themeName : string;
@@ -145,17 +170,29 @@ begin
 		end);
 end;
 
+procedure TColorSettingsForm.OnSettingsUpdated();
+begin
+	MainFrame.UpdateColumnVisibility;
+	MainFrame.VstResult.Repaint();
+end;
+
 procedure TColorSettingsForm.ReadSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TColorSettingsForm.ReadSettings');
 	FAppSettings.LoadFromDict;
+	FNodeLookSettings.LoadFromDict;
 
 	if FFontColorSettings.FontColors.IsEmpty then begin
 		FFontColorSettings.LoadDefaultColors(TDarkModeHelper.GetActualThemeMode);
 		FFontColorSettings.StoreToPersister();
 	end;
 	FFontColorSettings.LoadFromDict;
+
+	cmbDateFormat.Text := FNodeLookSettings.DateFormat;
+	cbShowModifiedDateColumn.Checked := FNodeLookSettings.ShowLastModifiedDateColumn;
+	cbShowCreationDateColumn.Checked := FNodeLookSettings.ShowCreationDateColumn;
+	cbShowLastAccessDateColumn.Checked := FNodeLookSettings.ShowLastAccessDateColumn;
 end;
 
 procedure TColorSettingsForm.SetFontAttribsForFrames();
@@ -227,6 +264,16 @@ begin
 
 	FAppSettings.ColorTheme := theme;
 	dbgMsg.Msg('set FAppSettings.ColorTheme: ' + FAppSettings.ColorTheme);
+
+	var
+	fmt := cmbDateFormat.Text;
+	if IsValidDateFormat(fmt) then begin
+		FNodeLookSettings.DateFormat := fmt;
+	end;
+
+	FNodeLookSettings.ShowLastModifiedDateColumn := cbShowModifiedDateColumn.Checked;
+	FNodeLookSettings.ShowCreationDateColumn := cbShowCreationDateColumn.Checked;
+	FNodeLookSettings.ShowLastAccessDateColumn := cbShowLastAccessDateColumn.Checked;
 end;
 
 end.
