@@ -162,6 +162,7 @@ type
 			procedure FilterAllFileNode();
 			procedure FilterTextMode(const Node : PVirtualNode; const _sFilterPattern : string; const _filterModes : TFilterModes);
 			procedure FilterFileMode(const Node : PVirtualNode; const _sFilterPattern : string; const _filterModes : TFilterModes);
+			procedure FilterDateMode(const Node : PVirtualNode);
 			function GetAbsOrRelativePath(const _sFullPath : string) : string;
 			function GetData : TRipGrepperData;
 			function GetHistItemObject : IHistoryItemObject;
@@ -611,6 +612,8 @@ begin
 				FilterFileMode(Node, _sFilterPattern, _filterModes);
 			end else if EFilterMode.fmFilterText in _filterModes then begin
 				FilterTextMode(Node, _sFilterPattern, _filterModes);
+			end else if EFilterMode.fmFilterDate in _filterModes then begin
+				FilterDateMode(Node);
 			end;
 		end;
 	finally
@@ -659,6 +662,38 @@ begin
 		VstResult.IsFiltered[Node] := VstResult.IsFiltered[Node.Parent];
 	end;
 	dbgMsg.MsgFmt('IsFiltered: %s %s', [BoolToStr(bIsFiltered, TRUE), nodeData.FilePath]);
+end;
+
+procedure TRipGrepperMiddleFrame.FilterDateMode(const Node : PVirtualNode);
+var
+	nodeData : PVSFileNodeData;
+	dateFrom, dateTo, fileTime : TDateTime;
+	dateTimeType : EDateTimeType;
+	bIsFiltered : Boolean;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.FilterDateMode');
+	nodeData := VstResult.GetNodeData(Node);
+	if (Node.Parent = VstResult.RootNode) then begin
+		// File-level node: compare timestamp
+		dateFrom := Settings.NodeLookSettings.FilterSettings.DateFrom;
+		dateTo := Settings.NodeLookSettings.FilterSettings.DateTo;
+		dateTimeType := Settings.NodeLookSettings.FilterSettings.DateTimeType;
+		nodeData.UpdateFileTime(dateTimeType);
+		fileTime := nodeData.GetFileTime(dateTimeType);
+		bIsFiltered := False;
+		if (dateFrom > 0) and (fileTime < dateFrom) then begin
+			bIsFiltered := True;
+		end;
+		if (dateTo > 0) and (fileTime > dateTo) then begin
+			bIsFiltered := True;
+		end;
+		VstResult.IsFiltered[Node] := bIsFiltered;
+		dbgMsg.MsgFmt('IsFiltered: %s %s', [BoolToStr(bIsFiltered, TRUE), nodeData.FilePath]);
+	end else begin
+		// Child match node: inherit parent's filtered state
+		VstResult.IsFiltered[Node] := VstResult.IsFiltered[Node.Parent];
+	end;
 end;
 
 procedure TRipGrepperMiddleFrame.FrameResize(Sender : TObject);

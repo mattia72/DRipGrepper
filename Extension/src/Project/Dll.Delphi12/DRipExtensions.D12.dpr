@@ -46,6 +46,7 @@ uses
   RipGrepper.CommandLine.OptionStrings in '..\..\..\..\src\RipGrepper.CommandLine.OptionStrings.pas',
   RipGrepper.UI.BottomFrame in '..\..\..\..\src\UI\RipGrepper.UI.BottomFrame.pas' {RipGrepperBottomFrame: TFrame},
   RipGrepper.UI.Settings.ConfigForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ConfigForm.pas' {ConfigForm},
+  RipGrepper.UI.DateFilterForm in '..\..\..\..\src\UI\RipGrepper.UI.DateFilterForm.pas' {DateFilterForm},
   RipGrepper.UI.DpiScaler in '..\..\..\..\src\UI\RipGrepper.UI.DpiScaler.pas',
   RipGrepper.UI.MainForm in '..\..\..\..\src\UI\RipGrepper.UI.MainForm.pas' {RipGrepperForm},
   RipGrepper.UI.MiddleFrame in '..\..\..\..\src\UI\RipGrepper.UI.MiddleFrame.pas' {RipGrepperMiddleFrame: TFrame},
