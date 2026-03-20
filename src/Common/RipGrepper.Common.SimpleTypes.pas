@@ -24,7 +24,7 @@ type
 	EGuiReplaceMode = (grmRGReplace, grmRgJson, grmEditEnabled, grmActive { GuiReplaceModeActive } ,
 		{ } grmSaveEnabled,
 		{ } grmCaseSensitive, grmUseRegex);
-	EFilterMode = (fmFilterFile, fmFilterText, fmCaseSensitive, fmUseRegex);
+	EFilterMode = (fmFilterFile, fmFilterText, fmFilterDate, fmCaseSensitive, fmUseRegex);
 
 	TGuiReplaceModes = set of EGuiReplaceMode;
 	TFilterModes = set of EFilterMode;

@@ -273,6 +273,11 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Caption = 'Filter Text'
       OnExecute = ActionSetTextFilterModeExecute
     end
+    object ActionSetDateFilterMode: TAction
+      Category = 'Filter'
+      Caption = 'Filter Date'
+      OnExecute = ActionSetDateFilterModeExecute
+    end
     object ActionSetFilterModeCaseSensitive: TAction
       Category = 'Filter'
       Caption = 'Match &Case'
@@ -466,6 +471,10 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     end
     object miSetTextFilterMode: TMenuItem
       Action = ActionSetTextFilterMode
+      RadioItem = True
+    end
+    object miSetDateFilterMode: TMenuItem
+      Action = ActionSetDateFilterMode
       RadioItem = True
     end
     object N1: TMenuItem

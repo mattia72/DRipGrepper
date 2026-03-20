@@ -88,10 +88,12 @@ type
 		ActionSaveAllReplacement : TAction;
 		ActionSetFileFilterMode : TAction;
 		ActionSetTextFilterMode : TAction;
+		ActionSetDateFilterMode : TAction;
 		ActionSetFilterModeCaseSensitive : TAction;
 		ActionSetFilterModeRegex : TAction;
 		miSetFileFilterMode : TMenuItem;
 		miSetTextFilterMode : TMenuItem;
+		miSetDateFilterMode : TMenuItem;
 		N1 : TMenuItem;
 		miFilterModeCaseSensitive : TMenuItem;
 		miFilterModeUseRegex : TMenuItem;
@@ -128,6 +130,7 @@ type
 		procedure ActionSetFilterModeCaseSensitiveExecute(Sender : TObject);
 		procedure ActionSetFilterModeRegexExecute(Sender : TObject);
 		procedure ActionSetTextFilterModeExecute(Sender : TObject);
+		procedure ActionSetDateFilterModeExecute(Sender : TObject);
 		procedure ActionShowFileIconsExecute(Sender : TObject);
 		procedure ActionShowFileIconsUpdate;
 		procedure ActionShowDateColumnsExecute(Sender : TObject);
@@ -178,6 +181,8 @@ type
 			procedure ToggleFilterMode(const _fm : EFilterMode);
 			procedure ToggleGuiReplaceMode(const _grm : EGuiReplaceMode);
 			procedure UpdateFilterEditMenuAndHint;
+			procedure UpdateFilterEditForDateMode;
+			function GetDateFilterDisplayText() : string;
 			procedure UpdateReplaceMenu;
 			procedure WMSettingChange(var Message : TWMSettingChange); message WM_SETTINGCHANGE;
 			property Settings : TRipGrepperSettings read GetSettings write FSettings;
@@ -239,6 +244,7 @@ uses
 	RipGrepper.Common.IOTAFileUtils,
 	{$ENDIF}
 	RipGrepper.Settings.NodeLook.FilterSettings,
+	RipGrepper.UI.DateFilterForm,
 	RipGrepper.Helper.UI.DarkMode,
 	Winapi.UxTheme,
 	System.TypInfo,
@@ -493,7 +499,14 @@ end;
 
 procedure TRipGrepperTopFrame.ActionSetFileFilterModeExecute(Sender : TObject);
 begin
+	// If switching from date mode, clear the filter text and deactivate filter
+	if EFilterMode.fmFilterDate in FFilterMode then begin
+		ChangeButtonedEditTextButSkipChangeEvent(edtFilter, '');
+		SetFilterBtnImage(False);
+		MainFrame.ClearFilter();
+	end;
 	SetFilterMode(EFilterMode.fmFilterText, True);
+	SetFilterMode(EFilterMode.fmFilterDate, True);
 	SetFilterMode(EFilterMode.fmFilterFile);
 	UpdateFilterEditMenuAndHint;
 	Settings.StoreViewSettings(TFilterSettings.SETTING_FILTERMODE);
@@ -515,8 +528,46 @@ end;
 
 procedure TRipGrepperTopFrame.ActionSetTextFilterModeExecute(Sender : TObject);
 begin
+	// If switching from date mode, clear the filter text and deactivate filter
+	if EFilterMode.fmFilterDate in FFilterMode then begin
+		ChangeButtonedEditTextButSkipChangeEvent(edtFilter, '');
+		SetFilterBtnImage(False);
+		MainFrame.ClearFilter();
+	end;
 	SetFilterMode(EFilterMode.fmFilterFile, True);
+	SetFilterMode(EFilterMode.fmFilterDate, True);
 	SetFilterMode(EFilterMode.fmFilterText);
+	UpdateFilterEditMenuAndHint;
+	Settings.StoreViewSettings(TFilterSettings.SETTING_FILTERMODE);
+end;
+
+procedure TRipGrepperTopFrame.ActionSetDateFilterModeExecute(Sender : TObject);
+var
+	form : TDateFilterForm;
+begin
+	// Switch to date filter mode (exclusive with File/Text)
+	SetFilterMode(EFilterMode.fmFilterFile, True);
+	SetFilterMode(EFilterMode.fmFilterText, True);
+	SetFilterMode(EFilterMode.fmFilterDate);
+
+	form := TDateFilterForm.Create(Settings.NodeLookSettings.FilterSettings);
+	try
+		if form.ShowModal = mrOk then begin
+			if form.ClearRequested then begin
+				// Clear filter was clicked — deactivate date filter
+				SetFilterBtnImage(False);
+				MainFrame.ClearFilter();
+			end else begin
+				// Apply date filter
+				UpdateFilterEditForDateMode();
+				SetFilterBtnImage(True);
+				MainFrame.FilterNodes(edtFilter.Text, FFilterMode);
+			end;
+		end;
+	finally
+		form.Free;
+	end;
+
 	UpdateFilterEditMenuAndHint;
 	Settings.StoreViewSettings(TFilterSettings.SETTING_FILTERMODE);
 end;
@@ -731,8 +782,27 @@ begin
 end;
 
 procedure TRipGrepperTopFrame.edtFilterRightButtonClick(Sender : TObject);
+var
+	form : TDateFilterForm;
 begin
-	if IsFilterOn then begin
+	if EFilterMode.fmFilterDate in FFilterMode then begin
+		// In date mode, right-click re-opens the date filter dialog
+		form := TDateFilterForm.Create(Settings.NodeLookSettings.FilterSettings);
+		try
+			if form.ShowModal = mrOk then begin
+				if form.ClearRequested then begin
+					SetFilterBtnImage(False);
+					MainFrame.ClearFilter();
+				end else begin
+					UpdateFilterEditForDateMode();
+					SetFilterBtnImage(True);
+					MainFrame.FilterNodes(edtFilter.Text, FFilterMode);
+				end;
+			end;
+		finally
+			form.Free;
+		end;
+	end else if IsFilterOn then begin
 		SetFilterBtnImage(False);
 		MainFrame.ClearFilter();
 	end else begin
@@ -903,6 +973,10 @@ begin
 	end;
 	FFilterMode := Settings.NodeLookSettings.FilterSettings.FilterModes;
 	UpdateFilterEditMenuAndHint();
+	// If date mode was persisted, restore the display text
+	if EFilterMode.fmFilterDate in FFilterMode then begin
+		UpdateFilterEditForDateMode();
+	end;
 	ActionExpandCollapseUpdate();
 	ActionShowRelativePathUpdate();
 	ActionAlternateRowColorsUpdate();
@@ -1117,26 +1191,78 @@ begin
 end;
 
 procedure TRipGrepperTopFrame.UpdateFilterEditMenuAndHint;
+var
+	bIsDateMode : Boolean;
+	sDateRange : string;
 begin
-	edtFilter.Enabled := Assigned(MainFrame.HistItemObject) and MainFrame.HistItemObject.HasResult;
-	if (not edtFilter.Enabled) and (edtFilter.Text = '') then begin
-		ChangeButtonedEditTextButSkipChangeEvent(edtFilter, edtFilter.TextHint);
-	end else if edtFilter.Enabled and (edtFilter.Text = edtFilter.TextHint) then begin
-		ChangeButtonedEditTextButSkipChangeEvent(edtFilter, '');
+	bIsDateMode := EFilterMode.fmFilterDate in FFilterMode;
+
+	if bIsDateMode then begin
+		edtFilter.ReadOnly := True;
+		edtFilter.Color := clBtnFace;
+		edtFilter.TextHint := 'Date Filter';
+		sDateRange := GetDateFilterDisplayText();
+		if sDateRange <> '' then begin
+			edtFilter.Hint := 'Date Filter: ' + sDateRange + ' (right-click to change)';
+		end else begin
+			edtFilter.Hint := 'Date Filter (right-click to change)';
+		end;
+	end else begin
+		edtFilter.ReadOnly := False;
+		edtFilter.Color := clWindow;
+		edtFilter.TextHint := 'Filter...';
+		edtFilter.Enabled := Assigned(MainFrame.HistItemObject) and MainFrame.HistItemObject.HasResult;
+		if (not edtFilter.Enabled) and (edtFilter.Text = '') then begin
+			ChangeButtonedEditTextButSkipChangeEvent(edtFilter, edtFilter.TextHint);
+		end else if edtFilter.Enabled and (edtFilter.Text = edtFilter.TextHint) then begin
+			ChangeButtonedEditTextButSkipChangeEvent(edtFilter, '');
+		end;
+		if (ActionSetFileFilterMode.Checked) then begin
+			edtFilter.Hint := 'File Filter';
+		end else if ActionSetTextFilterMode.Checked then begin
+			edtFilter.Hint := 'Text Filter';
+		end;
+		edtFilter.Hint := edtFilter.Hint + ' (right-click to change)';
 	end;
 
 	ActionSetFileFilterMode.Checked := EFilterMode.fmFilterFile in FFilterMode;
 	ActionSetTextFilterMode.Checked := EFilterMode.fmFilterText in FFilterMode;
+	ActionSetDateFilterMode.Checked := bIsDateMode;
 	ActionSetFilterModeCaseSensitive.Checked := EFilterMode.fmCaseSensitive in FFilterMode;
 	ActionSetFilterModeRegex.Checked := EFilterMode.fmUseRegex in FFilterMode;
 
-	if (ActionSetFileFilterMode.Checked) then begin
-		edtFilter.Hint := 'File Filter';
-	end else if ActionSetTextFilterMode.Checked then begin
-		edtFilter.Hint := 'Text Filter';
-	end;
+	// Disable case/regex options in date mode (irrelevant for dates)
+	ActionSetFilterModeCaseSensitive.Enabled := not bIsDateMode;
+	ActionSetFilterModeRegex.Enabled := not bIsDateMode;
+end;
 
-	edtFilter.Hint := edtFilter.Hint + ' (right-click to change)';
+function TRipGrepperTopFrame.GetDateFilterDisplayText() : string;
+var
+	dateFrom, dateTo : TDateTime;
+	dtt : EDateTimeType;
+	sPrefix : string;
+begin
+	dateFrom := Settings.NodeLookSettings.FilterSettings.DateFrom;
+	dateTo := Settings.NodeLookSettings.FilterSettings.DateTo;
+	dtt := Settings.NodeLookSettings.FilterSettings.DateTimeType;
+
+	sPrefix := '[' + DATE_TIME_TYPE_NAMES[dtt] + ']';
+
+	if (dateFrom > 0) and (dateTo > 0) then begin
+		Result := sPrefix + ' ' + FormatDateTime('yyyy-mm-dd hh:nn', dateFrom)
+			+ ' - ' + FormatDateTime('yyyy-mm-dd hh:nn', dateTo);
+	end else if (dateFrom > 0) then begin
+		Result := sPrefix + ' >= ' + FormatDateTime('yyyy-mm-dd hh:nn', dateFrom);
+	end else if (dateTo > 0) then begin
+		Result := sPrefix + ' <= ' + FormatDateTime('yyyy-mm-dd hh:nn', dateTo);
+	end else begin
+		Result := '';
+	end;
+end;
+
+procedure TRipGrepperTopFrame.UpdateFilterEditForDateMode;
+begin
+	ChangeButtonedEditTextButSkipChangeEvent(edtFilter, GetDateFilterDisplayText());
 end;
 
 procedure TRipGrepperTopFrame.UpdateReplaceMenu;
