@@ -122,11 +122,11 @@ object MiddleLeftFrame: TMiddleLeftFrame
       OnExecute = ActionOpenSearchFormExecute
     end
     object ActionSave: TAction
-      Caption = 'Save...'
+      Caption = 'Save History List...'
       OnExecute = ActionSaveExecute
     end
     object ActionLoad: TAction
-      Caption = 'Load...'
+      Caption = 'Load History List...'
       OnExecute = ActionLoadExecute
     end
   end
