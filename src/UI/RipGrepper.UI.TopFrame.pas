@@ -1242,6 +1242,7 @@ var
 	dtt : EDateTimeType;
 	sPrefix : string;
 begin
+	Result := '';
 	dateFrom := Settings.NodeLookSettings.FilterSettings.DateFrom;
 	dateTo := Settings.NodeLookSettings.FilterSettings.DateTo;
 	dtt := Settings.NodeLookSettings.FilterSettings.DateTimeType;
@@ -1249,14 +1250,12 @@ begin
 	sPrefix := '[' + DATE_TIME_TYPE_NAMES[dtt] + ']';
 
 	if (dateFrom > 0) and (dateTo > 0) then begin
-		Result := sPrefix + ' ' + FormatDateTime('yyyy-mm-dd hh:nn', dateFrom)
-			+ ' - ' + FormatDateTime('yyyy-mm-dd hh:nn', dateTo);
+		Result := sPrefix + ' ' + FormatDateTime(Settings.NodeLookSettings.DateFormat, dateFrom)
+			+ ' - ' + FormatDateTime(Settings.NodeLookSettings.DateFormat, dateTo);
 	end else if (dateFrom > 0) then begin
-		Result := sPrefix + ' >= ' + FormatDateTime('yyyy-mm-dd hh:nn', dateFrom);
+		Result := sPrefix + ' >= ' + FormatDateTime(Settings.NodeLookSettings.DateFormat, dateFrom);
 	end else if (dateTo > 0) then begin
-		Result := sPrefix + ' <= ' + FormatDateTime('yyyy-mm-dd hh:nn', dateTo);
-	end else begin
-		Result := '';
+		Result := sPrefix + ' <= ' + FormatDateTime(Settings.NodeLookSettings.DateFormat, dateTo);
 	end;
 end;
 
