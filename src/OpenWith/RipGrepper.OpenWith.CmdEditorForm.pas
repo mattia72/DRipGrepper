@@ -22,18 +22,17 @@ uses
 	Vcl.ActnList,
 	RipGrepper.Tools.FileUtils,
 	RipGrepper.Helper.UI.DarkMode,
+	RipGrepper.UI.BaseForm,
 	Vcl.ComCtrls;
 
 type
 
-	TOpenWithCommandEditor = class(TForm)
+	TOpenWithCommandEditor = class(TBaseForm)
 		SVGIconImageList1 : TSVGIconImageList;
 		Panel1 : TPanel;
 		Label1 : TLabel;
 		edtCmdPath : TEdit;
 		btnOpenFile : TButton;
-		btn_Save : TButton;
-		btn_Cancel : TButton;
 		Label2 : TLabel;
 		edtLabel : TEdit;
 		ActionList1 : TActionList;

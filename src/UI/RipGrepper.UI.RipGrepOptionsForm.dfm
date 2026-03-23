@@ -1,15 +1,9 @@
-object RipGrepOptionsForm: TRipGrepOptionsForm
+inherited RipGrepOptionsForm: TRipGrepOptionsForm
   Left = 952
   Top = 341
   Caption = 'DRipGrepper - RipGrep Options Help'
   ClientHeight = 473
   ClientWidth = 807
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -12
-  Font.Name = 'Segoe UI'
-  Font.Style = []
   Icon.Data = {
     0000010001002020000001002000A81000001600000028000000200000004000
     0000010020000000000000100000130B0000130B000000000000000000000000
@@ -185,8 +179,7 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
       Columns = <>
     end
   end
-  object PanelBottom: TPanel
-    Left = 0
+  inherited PanelBottom: TPanel
     Top = 423
     Width = 807
     Height = 50
@@ -200,7 +193,7 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
     DesignSize = (
       807
       50)
-    object btnOk: TButton
+    inherited btnOk: TButton
       AlignWithMargins = True
       Left = 644
       Top = 16
@@ -215,7 +208,7 @@ object RipGrepOptionsForm: TRipGrepOptionsForm
       Default = True
       TabOrder = 0
     end
-    object btnCancel: TButton
+    inherited btnCancel: TButton
       AlignWithMargins = True
       Left = 724
       Top = 16

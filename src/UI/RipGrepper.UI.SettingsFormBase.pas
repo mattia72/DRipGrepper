@@ -6,6 +6,7 @@ uses
 	RipGrepper.Settings.Persistable,
 	System.Classes,
 	Vcl.Forms,
+	RipGrepper.UI.BaseForm,
 	RipGrepper.UI.DpiScaler,
 	RipGrepper.Helper.UI.DarkMode;
 
@@ -20,7 +21,7 @@ type
 
 	end;
 
-	TSettingsBaseForm = class(TForm, ISettingsForm)
+	TSettingsBaseForm = class(TBaseForm, ISettingsForm)
 		private
 			FDpiScaler : TRipGrepperDpiScaler;
 			FThemeHandler : TThemeHandler;
@@ -52,6 +53,7 @@ uses
 constructor TSettingsBaseForm.Create(_Owner : TComponent; _settings : IPersistable; _themeName : string = '');
 begin
 	inherited Create(_Owner);
+	PanelBottom.Visible := False;
 	FSettings := _settings;
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 	ThemeHandler.Init(_themeName);

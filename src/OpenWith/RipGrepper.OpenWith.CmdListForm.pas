@@ -23,16 +23,14 @@ uses
 	RipGrepper.UI.DpiScaler,
 	RipGrepper.Settings.OpenWithSettings,
 	RipGrepper.Helper.UI.DarkMode,
+	RipGrepper.UI.BaseForm,
 	SVGIconImageListBase,
 	SVGIconImageList,
 	RipGrepper.Tools.FileUtils;
 
 type
-	TOpenWithCmdList = class(TForm)
+	TOpenWithCmdList = class(TBaseForm)
 		lbCommands : TListView;
-		pnl_Bottom : TPanel;
-		btn_Save : TButton;
-		btn_Cancel : TButton;
 		alActions : TActionList;
 		ActionOk : TAction;
 		ActionCancel : TAction;

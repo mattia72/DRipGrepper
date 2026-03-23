@@ -29,14 +29,12 @@ uses
 	RipGrepper.UI.Settings.ColorSettingsForm,
 	RipGrepper.UI.Settings.AboutForm,
 	RipGrepper.Helper.UI.DarkMode,
+	RipGrepper.UI.BaseForm,
 	Spring.Collections;
 
 type
-	TConfigForm = class(TForm)
+	TConfigForm = class(TBaseForm)
 		PageControl1 : TPageControl;
-		pnlBottom : TPanel;
-		btn_Save : TButton;
-		btn_Cancel : TButton;
 		ActionList1 : TActionList;
 		ActionOk : TAction;
 		ActionCancel : TAction;
@@ -199,8 +197,7 @@ begin
 			// Dock the form to the tab page
 			form.ManualDock(tabPage);
 		end;
-		FOpenWithConfigForm.pnlBottom.Visible := False;
-		self.Height := iMaxHeight + PageControl1.TabHeight + pnlBottom.Height;
+		self.Height := iMaxHeight + PageControl1.TabHeight + PanelBottom.Height;
 		self.Width := iMaxWidth;
 		// Autoscroll := true;
 		// VertScrollBar.Range := iMaxHeight;

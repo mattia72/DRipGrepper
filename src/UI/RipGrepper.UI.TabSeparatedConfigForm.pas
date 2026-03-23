@@ -49,9 +49,6 @@ type
 			ActionOk : TAction;
 			ActionRemove : TAction;
 			ActionTest : TAction;
-			btn_Cancel : TButton;
-			btn_Save : TButton;
-			pnlBottom : TPanel;
 			pnlMain : TPanel;
 			SVGIconImageList1 : TSVGIconImageList;
 			tbDown : TToolButton;
@@ -137,6 +134,7 @@ constructor TTabSeparatedConfigForm.Create(AOwner : TComponent; _settings : IPer
 		_testAction : TAction = nil);
 begin
 	inherited Create(AOwner, _settings, _colorTheme);
+	PanelBottom.Visible := True;
 	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 	FArraySettings := _settings;
 	FTestAction := _testAction;

@@ -46,6 +46,7 @@ uses
 	RipGrepper.UI.CustomCheckOptions,
 	RipGrepper.UI.RgOptionsPanel,
 	RipGrepper.Helper.RegexTemplates,
+	RipGrepper.UI.BaseForm,
 	RipGrepper.UI.RegexTemplateMenu;
 
 const
@@ -54,7 +55,7 @@ const
 	GB_EXPERT_DESIGNED_HEIGHT = 175; // Designed height from .dfm file
 
 type
-	TRipGrepperSearchDialogForm = class(TForm)
+	TRipGrepperSearchDialogForm = class(TBaseForm)
 		pnlMiddle : TPanel;
 		lblParams : TLabel;
 		lblPaths : TLabel;
@@ -63,7 +64,7 @@ type
 		cmbSearchText : TComboBox;
 		btnConfig : TButton;
 		btnSearch : TButton;
-		btnCancel : TButton;
+		btnDismiss : TButton;
 		ActionList : TActionList;
 		ActionSearch : TAction;
 		ActionCancel : TAction;
@@ -331,7 +332,7 @@ begin
 
 	// align buttons a bit lower
 	btnSearch.Top := btnSearch.Top + RG_OPTIONS_PADDING_TOP;
-	btnCancel.Top := btnCancel.Top + RG_OPTIONS_PADDING_TOP;
+	btnDismiss.Top := btnDismiss.Top + RG_OPTIONS_PADDING_TOP;
 
 	// Set minimum width based on widest options panel
 	SetMinimumWidthFromOptionsPanels();

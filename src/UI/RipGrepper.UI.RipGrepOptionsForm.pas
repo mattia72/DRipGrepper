@@ -22,6 +22,7 @@ uses
 	System.RegularExpressions,
 	RipGrepper.UI.DpiScaler,
 	RipGrepper.Settings.RipGrepParameterSettings,
+	RipGrepper.UI.BaseForm,
 	VirtualTrees,
 	VirtualTrees.Types,
 	Vcl.WinXCtrls;
@@ -57,15 +58,12 @@ type
 
 	PHelpOptionsGroup = ^THelpOptionsGroup;
 
-	TRipGrepOptionsForm = class(TForm)
+	TRipGrepOptionsForm = class(TBaseForm)
 		PanelMain : TPanel;
-		btnOk : TButton;
-		btnCancel : TButton;
 		ActionList1 : TActionList;
 		ActionOk : TAction;
 		ActionCancel : TAction;
 		ActionAdd : TAction;
-		PanelBottom : TPanel;
 		PanelTop : TPanel;
 		Label2 : TLabel;
 		llblHelp : TLinkLabel;

@@ -1,4 +1,4 @@
-object ColorSettingsForm: TColorSettingsForm
+inherited ColorSettingsForm: TColorSettingsForm
   Left = 0
   Top = 0
   Caption = 'Fonts and Colors'

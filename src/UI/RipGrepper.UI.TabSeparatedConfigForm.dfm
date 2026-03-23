@@ -1,60 +1,17 @@
-object TabSeparatedConfigForm: TTabSeparatedConfigForm
+inherited TabSeparatedConfigForm: TTabSeparatedConfigForm
   Left = 756
   Top = 291
   Caption = 'Configure Data'
   ClientHeight = 303
   ClientWidth = 397
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -12
-  Font.Name = 'Segoe UI'
-  Font.Style = []
   Position = poDesigned
   TextHeight = 15
-  object pnlBottom: TPanel
-    Left = 0
-    Top = 253
-    Width = 397
-    Height = 50
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
-    Align = alBottom
-    BevelOuter = bvNone
-    ParentBackground = False
-    TabOrder = 0
-    DesignSize = (
-      397
-      50)
-    object btn_Save: TButton
-      AlignWithMargins = True
-      Left = 219
-      Top = 16
-      Width = 75
-      Height = 25
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
+  inherited PanelBottom: TPanel
+    inherited btnOk: TButton
       Action = ActionOk
-      Anchors = [akRight, akBottom]
-      TabOrder = 0
     end
-    object btn_Cancel: TButton
-      AlignWithMargins = True
-      Left = 310
-      Top = 16
-      Width = 75
-      Height = 25
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
+    inherited btnCancel: TButton
       Action = ActionCancel
-      Anchors = [akRight, akBottom]
-      TabOrder = 1
     end
   end
   object pnlMain: TPanel

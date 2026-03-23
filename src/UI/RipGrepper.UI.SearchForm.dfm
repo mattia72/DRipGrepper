@@ -1,16 +1,10 @@
-object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
+inherited RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
   Left = 756
   Top = 436
   Caption = 'DRipGrepper - Search...'
   ClientHeight = 565
   ClientWidth = 559
-  Color = clBtnFace
   Constraints.MinWidth = 420
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -12
-  Font.Name = 'Segoe UI'
-  Font.Style = []
   Icon.Data = {
     0000010001002020000001002000A81000001600000028000000200000004000
     0000010020000000000000100000130B0000130B000000000000000000000000
@@ -156,22 +150,25 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     Left = 0
     Top = 106
     Width = 559
-    Height = 425
+    Height = 414
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
     Margins.Bottom = 8
     Align = alClient
     BevelOuter = bvNone
+    Color = clBtnHighlight
+    ParentBackground = False
     TabOrder = 1
     object gbExpert: TGroupBox
       AlignWithMargins = True
       Left = 8
       Top = 247
       Width = 543
-      Height = 175
+      Height = 159
       Margins.Left = 8
       Margins.Right = 8
+      Margins.Bottom = 8
       Align = alClient
       Caption = 'Expert *'
       Padding.Top = 3
@@ -181,7 +178,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       TabOrder = 2
       DesignSize = (
         543
-        175)
+        159)
       object lblParams: TLabel
         AlignWithMargins = True
         Left = 8
@@ -241,7 +238,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Left = 8
         Top = 87
         Width = 474
-        Height = 82
+        Height = 69
         Anchors = [akLeft, akTop, akRight, akBottom]
         Color = clInfoBk
         Lines.Strings = (
@@ -314,6 +311,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Margins.Top = 0
         Align = alTop
         BevelOuter = bvNone
+        Color = clBtnHighlight
         ParentBackground = False
         TabOrder = 1
         object pnl1: TPanel
@@ -323,6 +321,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
           Height = 52
           Align = alTop
           BevelOuter = bvNone
+          Color = clBtnHighlight
+          ParentBackground = False
           TabOrder = 0
           DesignSize = (
             539
@@ -390,6 +390,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
           Height = 53
           Align = alTop
           BevelOuter = bvNone
+          Color = clBtnHighlight
           ParentBackground = False
           TabOrder = 1
           DesignSize = (
@@ -454,6 +455,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Align = alTop
         BevelOuter = bvNone
         Caption = 'Filter Options'
+        Color = clBtnHighlight
+        ParentBackground = False
         TabOrder = 0
       end
     end
@@ -478,19 +481,24 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
         Align = alClient
         BevelOuter = bvNone
         Caption = 'Output Options'
+        Color = clBtnHighlight
+        ParentBackground = False
         TabOrder = 0
       end
     end
   end
+  inherited PanelBottom: TPanel
+    Visible = False
+  end
   object pnlBottom: TPanel
     Left = 0
-    Top = 531
+    Top = 520
     Width = 559
-    Height = 34
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
+    Height = 42
+    Margins.Left = 0
+    Margins.Top = 0
+    Margins.Right = 0
+    Margins.Bottom = 0
     Align = alBottom
     BevelOuter = bvNone
     UseDockManager = False
@@ -498,11 +506,11 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     TabOrder = 2
     DesignSize = (
       559
-      34)
+      42)
     object btnSearch: TButton
       AlignWithMargins = True
       Left = 395
-      Top = 3
+      Top = 11
       Width = 75
       Height = 26
       Action = ActionSearch
@@ -511,10 +519,10 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       Images = SVGIconImageList1
       TabOrder = 0
     end
-    object btnCancel: TButton
+    object btnDismiss: TButton
       AlignWithMargins = True
       Left = 476
-      Top = 3
+      Top = 11
       Width = 75
       Height = 26
       Action = ActionCancel
@@ -526,7 +534,7 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     object cbExpertMode: TCheckBox
       Left = 16
       Top = 11
-      Width = 97
+      Width = 103
       Height = 17
       Action = ActionShowExpertOptions
       TabOrder = 2
@@ -539,6 +547,8 @@ object RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     Height = 106
     Align = alTop
     BevelOuter = bvNone
+    Color = clBtnHighlight
+    ParentBackground = False
     TabOrder = 0
     object TabControl1: TTabControl
       AlignWithMargins = True

@@ -1,57 +1,18 @@
-object OpenWithCommandEditor: TOpenWithCommandEditor
-  Left = 0
-  Top = 0
+inherited OpenWithCommandEditor: TOpenWithCommandEditor
   Caption = 'OpenWithCommandEditor'
   ClientHeight = 429
   ClientWidth = 468
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -12
-  Font.Name = 'Segoe UI'
-  Font.Style = []
   OnShow = FormShow
   TextHeight = 15
   object Panel1: TPanel
     Left = 0
     Top = 0
     Width = 468
-    Height = 429
+    Height = 384
     Align = alClient
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 0
-    DesignSize = (
-      468
-      429)
-    object btn_Save: TButton
-      AlignWithMargins = True
-      Left = 293
-      Top = 394
-      Width = 75
-      Height = 25
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Action = ActionOk
-      Anchors = [akRight, akBottom]
-      TabOrder = 0
-    end
-    object btn_Cancel: TButton
-      AlignWithMargins = True
-      Left = 384
-      Top = 394
-      Width = 75
-      Height = 25
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Action = ActionCancel
-      Anchors = [akRight, akBottom]
-      TabOrder = 1
-    end
     object GroupBox1: TGroupBox
       AlignWithMargins = True
       Left = 4
@@ -192,7 +153,7 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
       Top = 247
       Width = 460
       Height = 141
-      Margins.Bottom = 40
+      Margins.Bottom = 4
       Align = alBottom
       Anchors = [akLeft, akTop, akRight, akBottom]
       Caption = 'Help'
@@ -231,6 +192,14 @@ object OpenWithCommandEditor: TOpenWithCommandEditor
         WantTabs = True
         WordWrap = False
       end
+    end
+  end
+  inherited PanelBottom: TPanel
+    inherited btnOk: TButton
+      Action = ActionOk
+    end
+    inherited btnCancel: TButton
+      Action = ActionCancel
     end
   end
   object SVGIconImageList1: TSVGIconImageList

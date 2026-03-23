@@ -1,4 +1,4 @@
-object AdvancedForm: TAdvancedForm
+inherited AdvancedForm: TAdvancedForm
   Left = 0
   Top = 0
   Caption = 'Advanced'

@@ -1,4 +1,4 @@
-object AppSettingsForm: TAppSettingsForm
+inherited AppSettingsForm: TAppSettingsForm
   Left = 0
   Top = 0
   Caption = 'AppSettingsForm'

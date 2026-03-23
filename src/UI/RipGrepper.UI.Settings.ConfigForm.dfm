@@ -1,23 +1,14 @@
-object ConfigForm: TConfigForm
-  Left = 0
-  Top = 0
+inherited ConfigForm: TConfigForm
   VertScrollBar.Visible = False
   Caption = 'DRipGrepper Config'
   ClientHeight = 258
   ClientWidth = 410
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -12
-  Font.Name = 'Segoe UI'
-  Font.Style = []
   Position = poOwnerFormCenter
   ShowHint = True
   OnCreate = FormCreate
   OnShow = FormShow
   TextHeight = 15
-  object pnlBottom: TPanel
-    Left = 0
+  inherited PanelBottom: TPanel
     Top = 210
     Width = 410
     Height = 48
@@ -25,40 +16,29 @@ object ConfigForm: TConfigForm
     Margins.Top = 8
     Margins.Right = 8
     Margins.Bottom = 8
-    Align = alBottom
-    BevelOuter = bvNone
-    ParentBackground = False
     TabOrder = 1
     DesignSize = (
       410
       48)
-    object btn_Save: TButton
+    inherited btnOk: TButton
       AlignWithMargins = True
-      Left = 224
-      Top = 14
-      Width = 75
-      Height = 25
+      Left = 249
+      Top = 11
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
       Margins.Bottom = 8
       Action = ActionOk
-      Anchors = [akRight, akBottom]
-      TabOrder = 0
     end
-    object btn_Cancel: TButton
+    inherited btnCancel: TButton
       AlignWithMargins = True
-      Left = 315
-      Top = 14
-      Width = 75
-      Height = 25
+      Left = 330
+      Top = 11
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
       Margins.Bottom = 8
       Action = ActionCancel
-      Anchors = [akRight, akBottom]
-      TabOrder = 1
     end
   end
   object pnlTop: TPanel

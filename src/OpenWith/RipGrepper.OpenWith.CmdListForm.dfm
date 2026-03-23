@@ -1,15 +1,9 @@
-object OpenWithCmdList: TOpenWithCmdList
+inherited OpenWithCmdList: TOpenWithCmdList
   Left = 738
   Top = 170
   Caption = 'Open With...'
   ClientHeight = 277
   ClientWidth = 360
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -12
-  Font.Name = 'Tahoma'
-  Font.Style = []
   Icon.Data = {
     0000010001002020000001002000A81000001600000028000000200000004000
     0000010020000000000000100000130B0000130B000000000000000000000000
@@ -149,54 +143,12 @@ object OpenWithCmdList: TOpenWithCmdList
   OnResize = FormResize
   OnShow = FormShow
   TextHeight = 14
-  object pnl_Bottom: TPanel
-    Left = 0
-    Top = 243
-    Width = 360
-    Height = 34
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
-    Align = alBottom
-    BevelOuter = bvNone
-    UseDockManager = False
-    ParentBackground = False
-    ShowCaption = False
-    TabOrder = 2
-    DesignSize = (
-      360
-      34)
-    object btn_Save: TButton
-      Left = 161
-      Top = 4
-      Width = 75
-      Height = 25
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
+  inherited PanelBottom: TPanel
+    inherited btnOk: TButton
       Action = ActionOk
-      Anchors = [akTop, akRight]
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 0
     end
-    object btn_Cancel: TButton
-      Left = 253
-      Top = 3
-      Width = 75
-      Height = 26
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
+    inherited btnCancel: TButton
       Action = ActionCancel
-      Anchors = [akTop, akRight]
-      Cancel = True
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 1
     end
   end
   object pnlMain: TPanel

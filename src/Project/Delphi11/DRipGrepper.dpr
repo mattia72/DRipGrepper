@@ -91,6 +91,7 @@ uses
   RipGrepper.Common.EncodedStringList in '..\..\Common\RipGrepper.Common.EncodedStringList.pas',
   RipGrepper.UI.IFrameEvents in '..\..\UI\RipGrepper.UI.IFrameEvents.pas',
   RipGrepper.UI.Settings.AppSettingsForm in '..\..\UI\RipGrepper.UI.Settings.AppSettingsForm.pas' {AppSettingsForm},
+  RipGrepper.UI.BaseForm in '..\..\UI\RipGrepper.UI.BaseForm.pas' {BaseForm},
   RipGrepper.UI.SettingsFormBase in '..\..\UI\RipGrepper.UI.SettingsFormBase.pas',
   RipGrepper.Settings.FontColors in '..\..\Settings\RipGrepper.Settings.FontColors.pas',
   RipGrepper.UI.ColorSelectorFrame in '..\..\UI\RipGrepper.UI.ColorSelectorFrame.pas' {ColorSelectorFrame: TFrame},

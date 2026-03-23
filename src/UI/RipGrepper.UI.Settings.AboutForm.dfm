@@ -1,4 +1,4 @@
-object AboutForm: TAboutForm
+inherited AboutForm: TAboutForm
   Left = 0
   Top = 0
   Caption = 'Fonts and Colors'
@@ -48,7 +48,7 @@ object AboutForm: TAboutForm
       Left = 262
       Top = 3
       Width = 456
-      Height = 415
+      Height = 407
       Align = alRight
       Anchors = [akLeft, akTop, akRight, akBottom]
       Font.Charset = DEFAULT_CHARSET
@@ -85,7 +85,7 @@ object AboutForm: TAboutForm
         end
         object lblVersion: TLabel
           Left = 1
-          Top = 34
+          Top = 37
           Width = 452
           Height = 19
           Margins.Top = 10
@@ -105,7 +105,7 @@ object AboutForm: TAboutForm
         Left = 1
         Top = 66
         Width = 454
-        Height = 348
+        Height = 340
         Align = alClient
         TabOrder = 1
         Tabs.Strings = (
@@ -118,7 +118,7 @@ object AboutForm: TAboutForm
           AlignWithMargins = True
           Left = 14
           Top = 29
-          Width = 414
+          Width = 416
           Height = 297
           Margins.Left = 10
           Margins.Right = 20

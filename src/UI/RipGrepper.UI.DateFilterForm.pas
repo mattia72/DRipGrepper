@@ -10,10 +10,11 @@ uses
 	Vcl.Controls,
 	System.Classes,
 	RipGrepper.Settings.NodeLook.FilterSettings,
-	RipGrepper.Common.SimpleTypes;
+	RipGrepper.Common.SimpleTypes,
+	RipGrepper.UI.BaseForm;
 
 type
-	TDateFilterForm = class(TForm)
+	TDateFilterForm = class(TBaseForm)
 		rgDateTimeType : TRadioGroup;
 		chkDateFrom : TCheckBox;
 		dtpDateFrom : TDateTimePicker;
@@ -22,9 +23,7 @@ type
 		dtpDateTo : TDateTimePicker;
 		dtpTimeTo : TDateTimePicker;
 		lblHint : TLabel;
-		btnOk : TButton;
-		btnCancel : TButton;
-		btnClear : TButton;
+		Panel1: TPanel;
 		procedure chkDateFromClick(Sender : TObject);
 		procedure chkDateToClick(Sender : TObject);
 		procedure btnClearClick(Sender : TObject);

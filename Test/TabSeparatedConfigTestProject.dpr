@@ -4,6 +4,7 @@ uses
   Vcl.Forms,
   TabSeparatedConfigTestForm in 'TabSeparatedConfigTestForm.pas' {TabSeparatedConfigTestMainForm},
   RipGrepper.UI.TabSeparatedConfigForm in '..\src\UI\RipGrepper.UI.TabSeparatedConfigForm.pas' {TabSeparatedConfigForm},
+  RipGrepper.UI.BaseForm in '..\src\UI\RipGrepper.UI.BaseForm.pas' {BaseForm},
   RipGrepper.UI.SettingsFormBase in '..\src\UI\RipGrepper.UI.SettingsFormBase.pas' {SettingsBaseForm},
   RipGrepper.Settings.Persistable in '..\src\Settings\RipGrepper.Settings.Persistable.pas',
   RipGrepper.UI.DpiScaler in '..\src\UI\RipGrepper.UI.DpiScaler.pas',

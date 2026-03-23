@@ -23,6 +23,7 @@ uses
   System.Classes,
   ToolsAPI,
   RipGrepper.Tools.DebugUtils in '..\..\..\..\src\Tools\RipGrepper.Tools.DebugUtils.pas',
+  RipGrepper.UI.BaseForm in '..\..\..\..\src\UI\RipGrepper.UI.BaseForm.pas' {BaseForm},
   RipGrepper.UI.SettingsFormBase in '..\..\..\..\src\UI\RipGrepper.UI.SettingsFormBase.pas',
   RipGrepper.CommandLine.Builder in '..\..\..\..\src\RipGrepper.CommandLine.Builder.pas',
   RipGrepper.CommandLine.OptionHelper in '..\..\..\..\src\RipGrepper.CommandLine.OptionHelper.pas',

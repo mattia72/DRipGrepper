@@ -1,15 +1,9 @@
-object OpenWithConfigForm: TOpenWithConfigForm
+inherited OpenWithConfigForm: TOpenWithConfigForm
   Left = 756
   Top = 291
   Caption = 'Configure Open With... '
   ClientHeight = 277
   ClientWidth = 355
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -12
-  Font.Name = 'Segoe UI'
-  Font.Style = []
   Icon.Data = {
     0000010001002020000001002000A81000001600000028000000200000004000
     0000010020000000000000100000130B0000130B000000000000000000000000
@@ -147,49 +141,12 @@ object OpenWithConfigForm: TOpenWithConfigForm
     FFFFE003FFFFE007FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
   Position = poDesigned
   TextHeight = 15
-  object pnlBottom: TPanel
-    Left = 0
-    Top = 227
-    Width = 355
-    Height = 50
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
-    Align = alBottom
-    BevelOuter = bvNone
-    ParentBackground = False
-    TabOrder = 0
-    DesignSize = (
-      355
-      50)
-    object btn_Save: TButton
-      AlignWithMargins = True
-      Left = 181
-      Top = 16
-      Width = 75
-      Height = 25
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
+  inherited PanelBottom: TPanel
+    inherited btnOk: TButton
       Action = ActionOk
-      Anchors = [akRight, akBottom]
-      TabOrder = 0
     end
-    object btn_Cancel: TButton
-      AlignWithMargins = True
-      Left = 272
-      Top = 16
-      Width = 75
-      Height = 25
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
+    inherited btnCancel: TButton
       Action = ActionCancel
-      Anchors = [akRight, akBottom]
-      TabOrder = 1
     end
   end
   object pnlMain: TPanel

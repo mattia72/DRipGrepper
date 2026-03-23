@@ -37,7 +37,6 @@ type
 
 		var
 			ActionListConfig : TActionList;
-			pnlBottom : TPanel;
 			ActionMoveUp : TAction;
 			ActionMoveDown : TAction;
 			ActionTest : TAction;
@@ -57,8 +56,6 @@ type
 			tbTestRun : TToolButton;
 			SVGIconImageList1 : TSVGIconImageList;
 			lvCommands : TListView;
-			btn_Save : TButton;
-			btn_Cancel : TButton;
 			procedure ActionAddExecute(Sender : TObject);
 			procedure ActionCancelExecute(Sender : TObject);
 			procedure ActionModifyExecute(Sender : TObject);
@@ -260,6 +257,7 @@ begin
 	var
 	form := TOpenWithConfigForm.Create(_owner, _settings, _colorTheme);
 	try
+		form.PanelBottom.Visible := True;
 		form.ShowModal;
 	finally
 		form.Free;
