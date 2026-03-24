@@ -82,6 +82,8 @@ begin
 	FSettings.ShowRelativePath := True;
 	FSettings.ExpandNodes := True;
 	FSettings.ShowLastModifiedDateColumn := True;
+	FSettings.ShowCreationDateColumn := True;
+	FSettings.ShowLastAccessDateColumn := True;
 end;
 
 procedure TNodeLookSettingsTest.Setup;

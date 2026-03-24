@@ -499,6 +499,9 @@ begin
 	FSettings.NodeLookSettings.IndentLines := True;
 	FSettings.NodeLookSettings.ShowRelativePath := True;
 	FSettings.NodeLookSettings.ExpandNodes := True;
+	FSettings.NodeLookSettings.ShowLastModifiedDateColumn := True;
+	FSettings.NodeLookSettings.ShowCreationDateColumn := True;
+	FSettings.NodeLookSettings.ShowLastAccessDateColumn := True;
 
 	FSettings.SearchFormSettings.ExtensionSettings.OpenWithShortcut := SC_OPEN_WITH;
 	FSettings.SearchFormSettings.ExtensionSettings.SearchSelectedShortcut := SC_SEARCH;
