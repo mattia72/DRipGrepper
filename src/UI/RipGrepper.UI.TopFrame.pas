@@ -104,7 +104,7 @@ type
 		ActionReplaceUseRegex : TAction;
 		SvgImgLstTopFrame : TSVGIconImageList;
 		pnlTop : TPanel;
-    ToolButton10: TToolButton;
+		ToolButton10 : TToolButton;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAlignToolbarsExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsExecute(Sender : TObject);
@@ -180,6 +180,8 @@ type
 			procedure StartNewSearch;
 			procedure ToggleFilterMode(const _fm : EFilterMode);
 			procedure ToggleGuiReplaceMode(const _grm : EGuiReplaceMode);
+			procedure updateFilterEditHint(const _bIsDateMode : Boolean; const _sDateRange : string);
+			procedure updateFilterEditTextHint(const _bIsDateMode : Boolean; const _sDateRange : string);
 			procedure UpdateFilterEditMenuAndHint;
 			procedure UpdateFilterEditForDateMode;
 			function GetDateFilterDisplayText() : string;
@@ -555,6 +557,7 @@ begin
 		if form.ShowModal = mrOk then begin
 			if form.ClearRequested then begin
 				// Clear filter was clicked — deactivate date filter
+				Exclude(FFilterMode, EFilterMode.fmFilterDate);
 				SetFilterBtnImage(False);
 				MainFrame.ClearFilter();
 			end else begin
@@ -590,8 +593,8 @@ var
 	bAnyVisible : Boolean;
 begin
 	bAnyVisible := Settings.NodeLookSettings.ShowLastModifiedDateColumn
-		or Settings.NodeLookSettings.ShowCreationDateColumn
-		or Settings.NodeLookSettings.ShowLastAccessDateColumn;
+	{ } or Settings.NodeLookSettings.ShowCreationDateColumn
+	{ } or Settings.NodeLookSettings.ShowLastAccessDateColumn;
 
 	if bAnyVisible then begin
 		// Hide all date columns
@@ -646,9 +649,8 @@ end;
 
 procedure TRipGrepperTopFrame.UpdateDateColumnsUI;
 begin
-	ActionShowDateColumns.Checked := Settings.NodeLookSettings.ShowLastModifiedDateColumn
-		or Settings.NodeLookSettings.ShowCreationDateColumn
-		or Settings.NodeLookSettings.ShowLastAccessDateColumn;
+	ActionShowDateColumns.Checked := Settings.NodeLookSettings.ShowLastModifiedDateColumn or
+		Settings.NodeLookSettings.ShowCreationDateColumn or Settings.NodeLookSettings.ShowLastAccessDateColumn;
 	miShowModifiedDate.Checked := Settings.NodeLookSettings.ShowLastModifiedDateColumn;
 	miShowCreationDate.Checked := Settings.NodeLookSettings.ShowCreationDateColumn;
 	miShowLastAccessDate.Checked := Settings.NodeLookSettings.ShowLastAccessDateColumn;
@@ -1190,23 +1192,28 @@ begin
 	// Settings.NodeLookSettings. := FFilterMode;
 end;
 
-procedure TRipGrepperTopFrame.UpdateFilterEditMenuAndHint;
-var
-	bIsDateMode : Boolean;
-	sDateRange : string;
+procedure TRipGrepperTopFrame.updateFilterEditHint(const _bIsDateMode : Boolean; const _sDateRange : string);
 begin
-	bIsDateMode := EFilterMode.fmFilterDate in FFilterMode;
+	if _bIsDateMode then begin
+		edtFilter.Hint := 'Date Filter: ' + _sDateRange + ' (right-click to change)';
+	end else begin
+		if (ActionSetFileFilterMode.Checked) then begin
+			edtFilter.Hint := 'File Filter';
+		end else if ActionSetTextFilterMode.Checked then begin
+			edtFilter.Hint := 'Text Filter';
+		end else begin
+			edtFilter.Hint := 'Filter';
+		end;
+		edtFilter.Hint := edtFilter.Hint + ' (right-click to change)';
+	end;
+end;
 
-	if bIsDateMode then begin
+procedure TRipGrepperTopFrame.updateFilterEditTextHint(const _bIsDateMode : Boolean; const _sDateRange : string);
+begin
+	if _bIsDateMode then begin
 		edtFilter.ReadOnly := True;
 		edtFilter.Color := clBtnFace;
 		edtFilter.TextHint := 'Date Filter';
-		sDateRange := GetDateFilterDisplayText();
-		if sDateRange <> '' then begin
-			edtFilter.Hint := 'Date Filter: ' + sDateRange + ' (right-click to change)';
-		end else begin
-			edtFilter.Hint := 'Date Filter (right-click to change)';
-		end;
 	end else begin
 		edtFilter.ReadOnly := False;
 		edtFilter.Color := clWindow;
@@ -1217,12 +1224,20 @@ begin
 		end else if edtFilter.Enabled and (edtFilter.Text = edtFilter.TextHint) then begin
 			ChangeButtonedEditTextButSkipChangeEvent(edtFilter, '');
 		end;
-		if (ActionSetFileFilterMode.Checked) then begin
-			edtFilter.Hint := 'File Filter';
-		end else if ActionSetTextFilterMode.Checked then begin
-			edtFilter.Hint := 'Text Filter';
-		end;
-		edtFilter.Hint := edtFilter.Hint + ' (right-click to change)';
+	end;
+end;
+
+procedure TRipGrepperTopFrame.UpdateFilterEditMenuAndHint;
+var
+	bIsDateMode : Boolean;
+	sDateRange : string;
+begin
+	bIsDateMode := EFilterMode.fmFilterDate in FFilterMode;
+	sDateRange := GetDateFilterDisplayText();
+
+	if bIsDateMode and sDateRange.IsEmpty then begin
+		Exclude(FFilterMode, EFilterMode.fmFilterDate);
+		bIsDateMode := False;
 	end;
 
 	ActionSetFileFilterMode.Checked := EFilterMode.fmFilterFile in FFilterMode;
@@ -1230,6 +1245,9 @@ begin
 	ActionSetDateFilterMode.Checked := bIsDateMode;
 	ActionSetFilterModeCaseSensitive.Checked := EFilterMode.fmCaseSensitive in FFilterMode;
 	ActionSetFilterModeRegex.Checked := EFilterMode.fmUseRegex in FFilterMode;
+
+	updateFilterEditTextHint(bIsDateMode, sDateRange);
+	updateFilterEditHint(bIsDateMode, sDateRange);
 
 	// Disable case/regex options in date mode (irrelevant for dates)
 	ActionSetFilterModeCaseSensitive.Enabled := not bIsDateMode;
@@ -1250,8 +1268,8 @@ begin
 	sPrefix := '[' + DATE_TIME_TYPE_NAMES[dtt] + ']';
 
 	if (dateFrom > 0) and (dateTo > 0) then begin
-		Result := sPrefix + ' ' + FormatDateTime(Settings.NodeLookSettings.DateFormat, dateFrom)
-			+ ' - ' + FormatDateTime(Settings.NodeLookSettings.DateFormat, dateTo);
+		Result := sPrefix + ' ' + FormatDateTime(Settings.NodeLookSettings.DateFormat, dateFrom) + ' - ' +
+			FormatDateTime(Settings.NodeLookSettings.DateFormat, dateTo);
 	end else if (dateFrom > 0) then begin
 		Result := sPrefix + ' >= ' + FormatDateTime(Settings.NodeLookSettings.DateFormat, dateFrom);
 	end else if (dateTo > 0) then begin
