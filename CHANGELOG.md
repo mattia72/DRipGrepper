@@ -2,14 +2,16 @@
 
 ## [v4.16.0-beta] - 2026-03-17
 
-In memory of Richard.
+*In memory of Richard.*
 
 ### 💥 Added
 - Date format can be set in settings form.
-- Support for changing last write time color and font in the UI
+- Add support for modified, creation and last access timestamps in results tree
+- Support for changing date column color and font in the UI
 - Drag and drop for history items in the search form, allowing users to easily reorder their search history by dragging and dropping items within the history list.
 
 ### 🔄 Changed
+- One base form to get nice Ok/Cancel buttons. 
 - Visible columns are aligned automatically on startup.
 - Version updated to 4.16.0
 
@@ -18,7 +20,7 @@ In memory of Richard.
 
 ## [v4.15.0-beta] - 2026-03-12
 
-In memory of Richard.
+*In memory of Richard.*
 
 ### 💥 Added
 - Output format settings: json or vimgrep (BREAKING CHANGE: loading of history items saved by old version won't work)
