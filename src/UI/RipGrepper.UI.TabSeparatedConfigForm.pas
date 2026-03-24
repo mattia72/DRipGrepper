@@ -6,9 +6,7 @@ uses
 	System.Actions,
 	System.Classes,
 	System.ImageList,
-	RipGrepper.Helper.UI.DarkMode,
 	RipGrepper.Settings.Persistable,
-	RipGrepper.UI.DpiScaler,
 	RipGrepper.UI.SettingsFormBase,
 	SVGIconImageList,
 	SVGIconImageListBase,
@@ -78,19 +76,15 @@ type
 
 		private
 			FColorTheme : string;
-			FDpiScaler : TRipGrepperDpiScaler;
 			FResultStrings : TArrayEx<string>;
 			FArraySettings : IPersistableArray;
 			FTestAction : TAction;
-			FThemeHandler : TThemeHandler;
 			FOnValidate : TValidateColumnEvent;
 			procedure AddOrSetDataRow(const _data : TTabSeparatedData; _node : PVirtualNode = nil);
 			procedure ExchangeNodes(const i, j : Integer);
 			function GetNodeByIndex(Tree : TVirtualStringTree; Index : Integer) : PVirtualNode;
-			function GetThemeHandler : TThemeHandler;
 			procedure InitializeVst();
 			procedure SetSelectedNode(const _idx : integer);
-			property ThemeHandler : TThemeHandler read GetThemeHandler;
 
 		protected
 		public
@@ -135,7 +129,6 @@ constructor TTabSeparatedConfigForm.Create(AOwner : TComponent; _settings : IPer
 begin
 	inherited Create(AOwner, _settings, _colorTheme);
 	PanelBottom.Visible := True;
-	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 	FArraySettings := _settings;
 	FTestAction := _testAction;
 	FColorTheme := _colorTheme;
@@ -146,12 +139,10 @@ begin
 	InitializeVst();
 
 	ReadSettings;
-	ThemeHandler.Init(_colorTheme);
 end;
 
 destructor TTabSeparatedConfigForm.Destroy;
 begin
-	FDpiScaler.Free;
 	inherited;
 end;
 
@@ -298,14 +289,6 @@ begin
 	finally
 		VstData.EndUpdate;
 	end;
-end;
-
-function TTabSeparatedConfigForm.GetThemeHandler : TThemeHandler;
-begin
-	if not Assigned(FThemeHandler) then begin
-		FThemeHandler := TThemeHandler.Create(self);
-	end;
-	Result := FThemeHandler;
 end;
 
 procedure TTabSeparatedConfigForm.ReadSettings;

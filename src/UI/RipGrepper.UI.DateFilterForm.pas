@@ -37,7 +37,7 @@ type
 			procedure SaveToSettings;
 
 		public
-			constructor Create(_filterSettings : TFilterSettings); reintroduce;
+			constructor Create(_filterSettings : TFilterSettings; const _themeName : string = ''); reintroduce;
 			// True if the user clicked "Clear" to reset the date filter
 			property ClearRequested : Boolean read FClearRequested;
 	end;
@@ -50,9 +50,9 @@ uses
 	System.SysUtils,
 	System.DateUtils;
 
-constructor TDateFilterForm.Create(_filterSettings : TFilterSettings);
+constructor TDateFilterForm.Create(_filterSettings : TFilterSettings; const _themeName : string = '');
 begin
-	inherited Create(nil);
+	inherited Create(nil, _themeName);
 	FFilterSettings := _filterSettings;
 	FClearRequested := False;
 	LoadFromSettings;

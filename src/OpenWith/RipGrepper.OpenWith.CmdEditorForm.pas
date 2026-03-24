@@ -21,7 +21,6 @@ uses
 	System.Actions,
 	Vcl.ActnList,
 	RipGrepper.Tools.FileUtils,
-	RipGrepper.Helper.UI.DarkMode,
 	RipGrepper.UI.BaseForm,
 	Vcl.ComCtrls;
 
@@ -54,9 +53,6 @@ type
 
 		private
 			FCommandItem : TCommandItem;
-			FThemeHandler : TThemeHandler;
-			function GetThemeHandler() : TThemeHandler;
-			property ThemeHandler : TThemeHandler read GetThemeHandler;
 
 		public
 			constructor Create(AOwner : TComponent; const _themeName : string); reintroduce;
@@ -79,8 +75,7 @@ uses
 
 constructor TOpenWithCommandEditor.Create(AOwner : TComponent; const _themeName : string);
 begin
-	inherited Create(AOwner);
-	ThemeHandler.Init(_themeName);
+	inherited Create(AOwner, _themeName);
 end;
 
 procedure TOpenWithCommandEditor.ActionCancelExecute(Sender : TObject);
@@ -163,14 +158,6 @@ begin
 	edtCmdPath.Text := FCommandItem.CommandLine.ExePath;
 	edtParameters.Text := FCommandItem.CommandLine.ParametersAsString;
 	edtDescr.Text := FCommandItem.Description;
-end;
-
-function TOpenWithCommandEditor.GetThemeHandler() : TThemeHandler;
-begin
-	if not Assigned(FThemeHandler) then begin
-		FThemeHandler := TThemeHandler.Create(self);
-	end;
-	Result := FThemeHandler;
 end;
 
 end.

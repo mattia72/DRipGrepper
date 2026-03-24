@@ -20,7 +20,6 @@ uses
 	ArrayEx,
 	Vcl.ComCtrls,
 	System.RegularExpressions,
-	RipGrepper.UI.DpiScaler,
 	RipGrepper.Settings.RipGrepParameterSettings,
 	RipGrepper.UI.BaseForm,
 	VirtualTrees,
@@ -88,7 +87,6 @@ type
 			TextType : TVSTTextType);
 
 		private
-			FDpiScaler : TRipGrepperDpiScaler;
 			FFoundNode : PVirtualNode;
 			FGroupNode : PVirtualNode;
 			FGroupIngLineRegex : TRegex;
@@ -145,14 +143,12 @@ begin
 	FRGParamHelpRegex := TRegex.Create(RG_HELP_LINE_REGEX);
 	FRGLongParamHelpRegex := TRegex.Create(RG_HELP_LONG_PARAM_REGEX);
 	FGroupIngLineRegex := TRegex.Create('^([A-Z][ A-Z]+):');
-	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 	llblHelp.Caption := '<a href="' + WWW_LINK_RG_MAN_PAGE + '">' + WWW_LINK_RG_MAN_PAGE + '</a>';
 end;
 
 destructor TRipGrepOptionsForm.Destroy;
 begin
 	FOptionList.Free;
-	FDpiScaler.Free;
 	inherited Destroy;
 end;
 

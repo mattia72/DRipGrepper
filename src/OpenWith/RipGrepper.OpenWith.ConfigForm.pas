@@ -15,7 +15,6 @@ uses
 	Vcl.Forms,
 	System.ImageList,
 	RipGrepper.Settings.AppSettings,
-	RipGrepper.UI.DpiScaler,
 	RipGrepper.Settings.OpenWithSettings,
 	System.IniFiles,
 	Vcl.ComCtrls,
@@ -23,7 +22,6 @@ uses
 	RipGrepper.UI.SettingsFormBase,
 	SVGIconImageListBase,
 	SVGIconImageList,
-	RipGrepper.Helper.UI.DarkMode,
 	RipGrepper.Tools.FileUtils,
 	ArrayEx;
 
@@ -72,14 +70,10 @@ type
 
 		private
 			FColorTheme : string;
-			FDpiScaler : TRipGrepperDpiScaler;
 			FOpenWithSettings : TOpenWithSettings;
-			FThemeHandler : TThemeHandler;
 			procedure AddOrSetCommandItem(const _ci : TCommandItem; _li : TListItem = nil);
 			procedure ExchangeItems(_lv : TListView; const i, j : Integer);
-			function GetThemeHandler : TThemeHandler;
 			procedure SetSelectedItem(const _idx : integer);
-			property ThemeHandler : TThemeHandler read GetThemeHandler;
 
 		protected
 		public
@@ -115,18 +109,15 @@ uses
 constructor TOpenWithConfigForm.Create(AOwner : TComponent; const _settings : TOpenWithSettings; const _colorTheme : string);
 begin
 	inherited Create(AOwner, _settings, _colorTheme);
-	FDpiScaler := TRipGrepperDpiScaler.Create(self);
 	lvCommands.MultiSelect := True; // we need this for working SelCount
 	FOpenWithSettings := _settings;
 	FOpenWithSettings.ReadFile; // we should read ini every time, it can be overwritten by another instance...
 	ReadSettings;
 	FColorTheme := _colorTheme;
-	ThemeHandler.Init(_colorTheme);
 end;
 
 destructor TOpenWithConfigForm.Destroy;
 begin
-	FDpiScaler.Free;
 	inherited;
 end;
 
@@ -264,14 +255,6 @@ begin
 		// re read content
 		_settings.ReLoadFromFile();
 	end;
-end;
-
-function TOpenWithConfigForm.GetThemeHandler : TThemeHandler;
-begin
-	if not Assigned(FThemeHandler) then begin
-		FThemeHandler := TThemeHandler.Create(self);
-	end;
-	Result := FThemeHandler;
 end;
 
 procedure TOpenWithConfigForm.ReadSettings;

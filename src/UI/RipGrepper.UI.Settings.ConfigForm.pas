@@ -28,7 +28,6 @@ uses
 	RipGrepper.UI.Settings.ExtensionSettingsForm,
 	RipGrepper.UI.Settings.ColorSettingsForm,
 	RipGrepper.UI.Settings.AboutForm,
-	RipGrepper.Helper.UI.DarkMode,
 	RipGrepper.UI.BaseForm,
 	Spring.Collections;
 
@@ -55,13 +54,9 @@ type
 			FOpenWithConfigForm : TOpenWithConfigForm;
 			FSettings : TRipGrepperSettings;
 			FSettingsForms : IList<TForm>;
-			FThemeHandler : TThemeHandler;
-			FThemeName : string;
 			procedure AddSettingTabs;
 			procedure CallFormsOnOk();
 			procedure CallFormsOnSettingsUpdated();
-			function GetThemeHandler : TThemeHandler;
-			property ThemeHandler : TThemeHandler read GetThemeHandler;
 
 		public
 			constructor Create(_settings : TRipGrepperSettings); reintroduce;
@@ -77,6 +72,7 @@ implementation
 uses
 	System.Math,
 	RipGrepper.Common.Constants,
+	RipGrepper.Helper.UI.DarkMode,
 	RipGrepper.Tools.DebugUtils,
 	Vcl.Themes;
 
@@ -259,14 +255,6 @@ begin
 	end;
 
 	dbgMsg.Msg('ConfigForm shown - first form initialized, lazy loading for others');
-end;
-
-function TConfigForm.GetThemeHandler : TThemeHandler;
-begin
-	if not Assigned(FThemeHandler) then begin
-		FThemeHandler := TThemeHandler.Create(self, FThemeName);
-	end;
-	Result := FThemeHandler;
 end;
 
 procedure TConfigForm.PageControl1Change(Sender : TObject);

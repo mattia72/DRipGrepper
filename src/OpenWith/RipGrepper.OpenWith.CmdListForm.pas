@@ -22,7 +22,6 @@ uses
 	RipGrepper.Settings.AppSettings,
 	RipGrepper.UI.DpiScaler,
 	RipGrepper.Settings.OpenWithSettings,
-	RipGrepper.Helper.UI.DarkMode,
 	RipGrepper.UI.BaseForm,
 	SVGIconImageListBase,
 	SVGIconImageList,
@@ -59,27 +58,22 @@ type
 		private
 			FColorTheme : string;
 			FScaledIcons : TCustomImageList;
-			FDpiScaler : TRipGrepperDpiScaler;
 			FMemoLineMargin : Integer;
 			FOrigMemoHeight : Integer;
 			FOrigTopPanelHeight : Integer;
 			FSettings : TOpenWithSettings;
-			FThemeHandler : TThemeHandler;
 			FViewStyleIndex : Integer;
 
 			procedure CreateScaledIcons(const bUpdateScaler : Boolean = False);
 			class function GetEnabledCmds(const _settings : TOpenWithSettings) : TArray<TCommandItem>;
 			function GetFileNameFromCfg(const _ci : TCommandItem): string;
-			function GetThemeHandler : TThemeHandler;
 			function GetViewStyleIndex : Integer;
 			procedure SaveOrigHeights;
 			procedure SetMemoHeightByLineCount;
-			property ThemeHandler : TThemeHandler read GetThemeHandler;
 			property ViewStyleIndex : Integer read GetViewStyleIndex;
 
 		public
 			constructor Create(_owner : TComponent; const _settings : TOpenWithSettings; const _colorTheme : string); reintroduce;
-			destructor Destroy(); override;
 			class function CreateAndShow(const _settings : TOpenWithSettings; const _colorTheme : string) : string;
 			procedure InitCtrlsTexts;
 			procedure LoadEnbledCmds;
@@ -105,8 +99,7 @@ constructor TOpenWithCmdList.Create(_owner : TComponent; const _settings : TOpen
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithCmdList.Create');
-	inherited Create(_owner);
-	FDpiScaler := TRipGrepperDpiScaler.Create(self);
+	inherited Create(_owner, _colorTheme);
 	lbCommands.items.Clear;
 
 	ImageListIcons.ColorDepth := TColorDepth.cd32Bit;
@@ -119,14 +112,6 @@ begin
 
 	SaveOrigHeights;
 	InitCtrlsTexts;
-
-    ThemeHandler.Init(_colorTheme);
-end;
-
-destructor TOpenWithCmdList.Destroy();
-begin
-	FDpiScaler.Free;
-	inherited Destroy();
 end;
 
 procedure TOpenWithCmdList.ActionCancelExecute(Sender : TObject);
@@ -253,14 +238,6 @@ begin
 		sFileName := sPath;
 	end;
 	Result := sFileName;
-end;
-
-function TOpenWithCmdList.GetThemeHandler : TThemeHandler;
-begin
-	if not Assigned(FThemeHandler) then begin
-		FThemeHandler := TThemeHandler.Create(self);
-	end;
-	Result := FThemeHandler;
 end;
 
 function TOpenWithCmdList.GetViewStyleIndex : Integer;

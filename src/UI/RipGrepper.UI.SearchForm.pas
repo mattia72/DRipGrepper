@@ -21,7 +21,6 @@ uses
 	Vcl.StdActns,
 	Vcl.Dialogs,
 	RipGrepper.Common.Constants,
-	RipGrepper.UI.DpiScaler,
 	Vcl.ButtonGroup,
 	Vcl.Buttons,
 	Vcl.ToolWin,
@@ -35,7 +34,6 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	SVGIconImageListBase,
 	SVGIconImageList,
-	RipGrepper.Helper.UI.DarkMode,
 	Spring,
 	ArrayEx,
 	RipGrepper.Settings.SettingVariant,
@@ -177,7 +175,6 @@ type
 
 			FOrigSearchFormSettings : TSearchFormSettings;
 			FShowing : Boolean;
-			FThemeHandler : TThemeHandler;
 			// Design-time height of pnlTop (with replace text visible) - captured once, DPI-scaled
 			FTopPanelFullHeight : Integer;
 
@@ -310,6 +307,7 @@ uses
 	RipGrepper.Helper.MemIniFile,
 	RipGrepper.Settings.SettingsDictionary,
 	RipGrepper.Common.SearchTextWithOptions,
+	RipGrepper.UI.DpiScaler,
 	Spring.DesignPatterns;
 
 {$R *.dfm}
@@ -341,10 +339,9 @@ begin
 	dbgMsg.Msg(FSettings.SearchFormSettings.ToLogString);
 	dbgMsg.Msg('gui params=' + FSettingsProxy.ToLogString);
 
-	// FDpiScaler := TRipGrepperDpiScaler.Create(self);
 	var
 	mainSettingInstance := Spring.DesignPatterns.TSingleton.GetInstance<TRipGrepperSettings>();
-	FThemeHandler := TThemeHandler.Create(self, mainSettingInstance.AppSettings.ColorTheme);
+	ThemeHandler.Init(mainSettingInstance.AppSettings.ColorTheme);
 
 	FIsKeyboardInput := False;
 	toolbarSearchTextOptions.AutoSize := False; // else shrinked as extension
@@ -372,8 +369,6 @@ end;
 destructor TRipGrepperSearchDialogForm.Destroy;
 begin
 	FOrigSearchFormSettings.Free;
-
-	// FDpiScaler.Free;
 	inherited Destroy;
 end;
 

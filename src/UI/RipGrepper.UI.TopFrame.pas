@@ -552,7 +552,7 @@ begin
 	SetFilterMode(EFilterMode.fmFilterText, True);
 	SetFilterMode(EFilterMode.fmFilterDate);
 
-	form := TDateFilterForm.Create(Settings.NodeLookSettings.FilterSettings);
+	form := TDateFilterForm.Create(Settings.NodeLookSettings.FilterSettings, Settings.AppSettings.ColorTheme);
 	try
 		if form.ShowModal = mrOk then begin
 			if form.ClearRequested then begin
@@ -789,7 +789,7 @@ var
 begin
 	if EFilterMode.fmFilterDate in FFilterMode then begin
 		// In date mode, right-click re-opens the date filter dialog
-		form := TDateFilterForm.Create(Settings.NodeLookSettings.FilterSettings);
+		form := TDateFilterForm.Create(Settings.NodeLookSettings.FilterSettings, Settings.AppSettings.ColorTheme);
 		try
 			if form.ShowModal = mrOk then begin
 				if form.ClearRequested then begin
