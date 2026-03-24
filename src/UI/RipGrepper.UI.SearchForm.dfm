@@ -488,48 +488,27 @@ inherited RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     end
   end
   inherited PanelBottom: TPanel
-    Visible = False
-  end
-  object pnlBottom: TPanel
-    Left = 0
-    Top = 520
-    Width = 559
     Height = 42
-    Margins.Left = 0
-    Margins.Top = 0
-    Margins.Right = 0
-    Margins.Bottom = 0
-    Align = alBottom
-    BevelOuter = bvNone
-    UseDockManager = False
-    ParentBackground = False
-    TabOrder = 2
     DesignSize = (
       559
       42)
-    object btnSearch: TButton
+    inherited btnOk: TButton
       AlignWithMargins = True
       Left = 395
       Top = 11
       Width = 75
       Height = 26
-      Action = ActionSearch
       Anchors = [akRight, akBottom]
-      Default = True
       Images = SVGIconImageList1
-      TabOrder = 0
     end
-    object btnDismiss: TButton
+    inherited btnCancel: TButton
       AlignWithMargins = True
       Left = 476
       Top = 11
       Width = 75
       Height = 26
-      Action = ActionCancel
       Anchors = [akRight, akBottom]
-      Cancel = True
       Images = SVGIconImageList1
-      TabOrder = 1
     end
     object cbExpertMode: TCheckBox
       Left = 16

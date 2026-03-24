@@ -63,8 +63,6 @@ type
 		cmbSearchDir : TComboBox;
 		cmbSearchText : TComboBox;
 		btnConfig : TButton;
-		btnSearch : TButton;
-		btnDismiss : TButton;
 		ActionList : TActionList;
 		ActionSearch : TAction;
 		ActionCancel : TAction;
@@ -73,7 +71,6 @@ type
 		ActionSearchFolder : TAction;
 		btnSearchFile : TButton;
 		ActionSearchFile : TAction;
-		pnlBottom : TPanel;
 		ActionAddParamMatchCase : TAction;
 		ActionAddParamWord : TAction;
 		ActionAddParamRegex : TAction;
@@ -260,6 +257,8 @@ type
 
 		protected
 			procedure ChangeScale(M, D : Integer; isDpiChange : Boolean); override;
+			procedure UpdateOkButton; override;
+			procedure UpdateCancelButton; override;
 
 		public
 			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettings; const _histObj : IHistoryItemObject);
@@ -331,8 +330,8 @@ begin
 	SetRgOutputOptionsPanel(_settings);
 
 	// align buttons a bit lower
-	btnSearch.Top := btnSearch.Top + RG_OPTIONS_PADDING_TOP;
-	btnDismiss.Top := btnDismiss.Top + RG_OPTIONS_PADDING_TOP;
+	btnOk.Top := btnOk.Top + RG_OPTIONS_PADDING_TOP;
+	btnCancel.Top := btnCancel.Top + RG_OPTIONS_PADDING_TOP;
 
 	// Set minimum width based on widest options panel
 	SetMinimumWidthFromOptionsPanels();
@@ -356,8 +355,8 @@ begin
 	pnlTop.Margins.Bottom := 2;
 	pnlMiddle.Margins.Top := 2;
 	pnlMiddle.Margins.Bottom := 2;
-	pnlBottom.Margins.Top := 2;
-	pnlBottom.Margins.Bottom := 2;
+	PanelBottom.Margins.Top := 2;
+	PanelBottom.Margins.Bottom := 2;
 	gbOptionsFilters.Margins.Top := 2;
 	gbOptionsFilters.Margins.Bottom := 2;
 
@@ -376,6 +375,24 @@ begin
 
 	// FDpiScaler.Free;
 	inherited Destroy;
+end;
+
+procedure TRipGrepperSearchDialogForm.UpdateOkButton;
+begin
+	btnOk.Caption := 'Search';
+	btnOk.ImageIndex := 3;
+	btnOk.ImageName := 'magnify';
+	btnOk.Images := SVGIconImageList1;
+	btnOk.Action := ActionSearch;
+end;
+
+procedure TRipGrepperSearchDialogForm.UpdateCancelButton;
+begin
+	btnCancel.Caption := 'Cancel';
+	btnCancel.ImageIndex := 13;
+	btnCancel.ImageName := 'close';
+	btnCancel.Images := SVGIconImageList1;
+	btnCancel.Action := ActionCancel;
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionAddParamMatchCaseExecute(Sender : TObject);
@@ -1461,7 +1478,7 @@ begin
 	dbgMsg.MsgFmt('pnlMiddle content height=%d', [pnlMiddleContentHeight]);
 
 	// Calculate non-client area (title bar + borders)
-	// pnlTop and pnlBottom use Align without AlignWithMargins, so their VCL margins are not applied
+	// pnlTop and PanelBottom use Align without AlignWithMargins, so their VCL margins are not applied
 	var
 	nonClientHeight := Height - ClientHeight;
 	dbgMsg.MsgFmt('nonClientHeight=%d (Height=%d, ClientHeight=%d)', [nonClientHeight, Height, ClientHeight]);
@@ -1469,11 +1486,11 @@ begin
 	Result :=
 	{ } topPanelHeight +
 	{ } pnlMiddleContentHeight +
-	{ } pnlBottom.Height +
+	{ } PanelBottom.Height +
 	{ } nonClientHeight;
 
 	dbgMsg.MsgFmt('FormHeight=%d (top=%d, filters=%d, output=%d, bottom=%d, nonClient=%d, expert=%s)',
-		[Result, topPanelHeight, gbOptionsFiltersHeight, gbOptionsOutputHeight, pnlBottom.Height, nonClientHeight,
+		[Result, topPanelHeight, gbOptionsFiltersHeight, gbOptionsOutputHeight, PanelBottom.Height, nonClientHeight,
 		BoolToStr(_bIsExpert, True)]);
 end;
 
