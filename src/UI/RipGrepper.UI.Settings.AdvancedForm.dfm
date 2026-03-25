@@ -19,6 +19,8 @@ inherited AdvancedForm: TAdvancedForm
     Width = 524
     Height = 221
     Align = alClient
+    BevelOuter = bvNone
+    BorderStyle = bsNone
     TabOrder = 0
     DesignSize = (
       520

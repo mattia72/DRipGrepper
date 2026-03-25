@@ -19,6 +19,8 @@ inherited AppSettingsForm: TAppSettingsForm
     Width = 514
     Height = 413
     Align = alClient
+    BevelOuter = bvNone
+    BorderStyle = bsNone
     TabOrder = 0
     DesignSize = (
       510

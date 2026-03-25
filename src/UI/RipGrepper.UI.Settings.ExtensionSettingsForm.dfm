@@ -19,6 +19,7 @@ inherited ExtensionSettingsForm: TExtensionSettingsForm
     Width = 636
     Height = 362
     Align = alClient
+    BevelOuter = bvNone
     TabOrder = 0
     object grpShortcuts: TGroupBox
       Left = 1
