@@ -140,7 +140,6 @@ inherited RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     8F8FC7FF8F8BC7FF8F8BC7FF8703C7FFC003C7FFC003C7FFF023C7FFFFE3C7FF
     FFE3C7FFFFE3C7FFFFE3C7FFFFE3C7FFFFE3C7FC0003C7F80007C7F0000FC000
     FFFFE003FFFFE007FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
-  Padding.Bottom = 3
   Position = poOwnerFormCenter
   OnClose = FormClose
   OnResize = FormResize
@@ -488,27 +487,13 @@ inherited RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     end
   end
   inherited PanelBottom: TPanel
-    Height = 42
-    DesignSize = (
-      559
-      42)
     inherited btnOk: TButton
-      AlignWithMargins = True
       Left = 395
-      Top = 11
-      Width = 75
-      Height = 26
-      Anchors = [akRight, akBottom]
-      Images = SVGIconImageList1
+      Top = 10
     end
     inherited btnCancel: TButton
-      AlignWithMargins = True
       Left = 476
-      Top = 11
-      Width = 75
-      Height = 26
-      Anchors = [akRight, akBottom]
-      Images = SVGIconImageList1
+      Top = 10
     end
     object cbExpertMode: TCheckBox
       Left = 16

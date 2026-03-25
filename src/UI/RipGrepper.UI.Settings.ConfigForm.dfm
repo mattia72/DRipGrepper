@@ -9,35 +9,10 @@ inherited ConfigForm: TConfigForm
   OnShow = FormShow
   TextHeight = 15
   inherited PanelBottom: TPanel
-    Top = 210
-    Width = 410
-    Height = 48
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
-    TabOrder = 1
-    DesignSize = (
-      410
-      48)
     inherited btnOk: TButton
-      AlignWithMargins = True
-      Left = 249
-      Top = 11
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
       Action = ActionOk
     end
     inherited btnCancel: TButton
-      AlignWithMargins = True
-      Left = 330
-      Top = 11
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
       Action = ActionCancel
     end
   end

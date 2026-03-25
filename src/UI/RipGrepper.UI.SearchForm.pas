@@ -352,8 +352,6 @@ begin
 	pnlTop.Margins.Bottom := 2;
 	pnlMiddle.Margins.Top := 2;
 	pnlMiddle.Margins.Bottom := 2;
-	PanelBottom.Margins.Top := 2;
-	PanelBottom.Margins.Bottom := 2;
 	gbOptionsFilters.Margins.Top := 2;
 	gbOptionsFilters.Margins.Bottom := 2;
 
