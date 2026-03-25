@@ -180,48 +180,11 @@ inherited RipGrepOptionsForm: TRipGrepOptionsForm
     end
   end
   inherited PanelBottom: TPanel
-    Top = 423
-    Width = 807
-    Height = 50
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
-    Align = alBottom
-    BevelOuter = bvNone
-    TabOrder = 1
-    DesignSize = (
-      807
-      50)
     inherited btnOk: TButton
-      AlignWithMargins = True
-      Left = 644
-      Top = 16
-      Width = 75
-      Height = 25
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
       Action = ActionOk
-      Anchors = [akTop, akRight]
-      Default = True
-      TabOrder = 0
     end
     inherited btnCancel: TButton
-      AlignWithMargins = True
-      Left = 724
-      Top = 16
-      Width = 75
-      Height = 25
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
       Action = ActionCancel
-      Anchors = [akTop, akRight]
-      Cancel = True
-      TabOrder = 1
     end
   end
   object PanelTop: TPanel
