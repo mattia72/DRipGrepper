@@ -19,6 +19,8 @@ param (
 # Stop script execution on any error
 $ErrorActionPreference = "Stop"
 
+Update-SessionEnvironment
+
 Import-Module -Name "$PSScriptRoot\GitHubReleaseUtils.ps1" -Force
     
 # - Update Readme.md 
@@ -55,7 +57,11 @@ if ($DryRun) {
 }
 
 $global:Url = "https://api.github.com/repos/$global:Owner/$global:Repo/releases"
-$global:Token = $(Get-Content $PSScriptRoot\SECRET_TOKEN)[0]
+$global:Token = $env:GITHUB_TOKEN
+if (-not $global:Token) {
+    Write-Error "FATAL: GITHUB_TOKEN environment variable is not set. Please set it with a personal access token."
+    exit 1
+}
 
 $global:PadRightValue = 45
 $global:InstalledDelphiVersions = @()
