@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param (
     $BuildConfig = "Release",
+    $BuildPlatform = "",            # Build platform (Win32, Win64, or empty for all)
     [switch] $BuildStandalone,      # Build the standalone DripGrepper application
     [switch] $BuildExtension,       # Build the Delphi IDE extension
     [switch] $BuildUIComponents,    # Build the DRipGrepperComponents package
@@ -253,10 +254,11 @@ function Build-StandaloneRelease {
     Import-Module -Name PSDelphi -Force
     $projectPath = Get-ProjectPath "src\Project" ""
     $result = $null
-    Build-DelphiProject -ProjectPath $projectPath\DRipGrepper.dproj -BuildConfig $BuildConfig -Platform "Win32" -StopOnFirstFailure -CountResult -Result ([ref]$result)
-    Test-BuildResult -Result $result
-    Build-DelphiProject -ProjectPath $projectPath\DRipGrepper.dproj -BuildConfig $BuildConfig -Platform "Win64" -StopOnFirstFailure -CountResult -Result ([ref]$result)
-    Test-BuildResult -Result $result    
+    $platforms = if ($BuildPlatform -ne "") { @($BuildPlatform) } else { @("Win32", "Win64") }
+    foreach ($platform in $platforms) {
+        Build-DelphiProject -ProjectPath $projectPath\DRipGrepper.dproj -BuildConfig $BuildConfig -Platform $platform -StopOnFirstFailure -CountResult -Result ([ref]$result)
+        Test-BuildResult -Result $result
+    }
 }
 
 function Build-Unittest {

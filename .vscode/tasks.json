@@ -81,7 +81,7 @@
         {
             "label": "DripGrepper: Build and run DripGrepper",
             "type": "shell",
-            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig ${input:buildConfig} -BuildStandalone; & src\\Project\\${input:delphiVersion}\\${input:buildPlatform}\\${input:buildConfig}\\DripGrepper.exe",
+            "command": "deploy\\Deploy-DripGrepper.ps1 -BuildConfig ${input:buildConfig} -BuildPlatform ${input:buildPlatform} -BuildStandalone; & src\\Project\\${input:delphiVersion}\\${input:buildPlatform}\\${input:buildConfig}\\DripGrepper.exe",
             "group": {
                 "kind": "build"
             }
