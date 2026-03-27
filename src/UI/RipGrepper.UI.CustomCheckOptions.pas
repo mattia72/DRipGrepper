@@ -194,6 +194,7 @@ type
 			function CreateSpinEdit(const _parent : TWinControl; const _hint : string;
 				const _minValue, _maxValue, _defaultValue, _height : Integer; _setting : ISetting) : TNotifyingSpinEdit;
 			function GetFirstControlWidth(const _item : TCustomCheckItem) : Integer;
+			function GetItemsMaxHeight : Integer;
 			procedure InitCheckBoxAndComboValue(_checkBox : TNotifyingCheckBox; _comboBox : TNotifyingComboBox; _setting : ISetting);
 			procedure SetCaption(var _newCaption : string; const _caption : string; _showInExpertModeOnly : Boolean = False);
 
@@ -258,7 +259,6 @@ implementation
 uses
 	Math,
 	RipGrepper.Common.IDEContextValues,
-
 	Spring,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Common.Constants,
@@ -1434,29 +1434,7 @@ begin
 	colCount := 0;
 
 	// Get max height
-	itemHeight := 0;
-	for i := 0 to FItems.Count - 1 do begin
-		item := FItems[i];
-		// Skip hidden items
-		if Assigned(item.ParentPanel) and not item.ParentPanel.Visible then begin
-			Continue;
-		end;
-
-		var iHeight := 0;
-		if Assigned(item.ComboBox) then begin
-			iHeight := item.ComboBox.Height;
-		end else if Assigned(item.SpinEdit) then begin
-			iHeight := item.SpinEdit.Height;
-		end else if Assigned(item.CheckBox) then begin
-			iHeight := item.CheckBox.Height;
-		end else begin
-			iHeight := item.ParentPanel.GetTextHeight('Tg');
-		end;
-		if iHeight > itemHeight then begin
-		  itemHeight := iHeight;
-		end;
-	end;
-	itemHeight := itemHeight + CTRL_SPACE;
+	itemHeight := GetItemsMaxHeight() + CTRL_SPACE;
 
 	for i := 0 to FItems.Count - 1 do begin
 		item := FItems[i];
@@ -1808,6 +1786,7 @@ function TCustomCheckOptions.GetRowHeight() : Integer;
 var
 	i : Integer;
 	item : TCustomCheckItem;
+	iHeight : Integer;
 begin
 	Result := 0;
 
@@ -1818,7 +1797,6 @@ begin
 			Continue;
 		end;
 
-		var iHeight := 0;
 		if Assigned(item.ComboBox) then begin
 			iHeight := item.ComboBox.Height;
 		end else if Assigned(item.SpinEdit) then begin
@@ -1860,6 +1838,35 @@ begin
 	Result.ShowHint := True;
 	Result.OnChange := onItemChangeEventHandler;
 	Result.Height := _height;
+end;
+
+function TCustomCheckOptions.GetItemsMaxHeight : Integer;
+var
+	i : Integer;
+	item : TCustomCheckItem;
+	iHeight : integer;
+begin
+	Result := 0;
+	for i := 0 to FItems.Count - 1 do begin
+		item := FItems[i];
+		// Skip hidden items
+		if Assigned(item.ParentPanel) and not item.ParentPanel.Visible then begin
+			Continue;
+		end;
+
+		if Assigned(item.ComboBox) then begin
+			iHeight := item.ComboBox.Height;
+		end else if Assigned(item.SpinEdit) then begin
+			iHeight := item.SpinEdit.Height;
+		end else if Assigned(item.CheckBox) then begin
+			iHeight := item.CheckBox.Height;
+		end else begin
+			iHeight := item.ParentPanel.GetTextHeight('Tg');
+		end;
+		if iHeight > Result then begin
+			Result := iHeight;
+		end;
+	end;
 end;
 
 procedure TCustomCheckOptions.InitCheckBoxAndComboValue(_checkBox : TNotifyingCheckBox; _comboBox : TNotifyingComboBox;
