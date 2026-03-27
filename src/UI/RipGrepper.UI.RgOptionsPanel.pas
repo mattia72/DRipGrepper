@@ -305,8 +305,12 @@ begin
 end;
 
 function TOptionPanel.GetContentHeight() : Integer;
+var
+	rowCount, rowHeight : Integer;
 begin
-	Result := FCheckOptionsGroup.Height +
+	rowCount := FCheckOptionsGroup.GetVisibleRowCount();
+	rowHeight := FCheckOptionsGroup.GetRowHeight();
+	Result := rowCount * (rowHeight + (FCheckOptionsGroup.CTRL_SPACE div 2)) +
 	{ } FCheckOptionsGroup.Margins.Top + FCheckOptionsGroup.Margins.Bottom +
 	{ } pnlMain.Padding.Top + pnlMain.Padding.Bottom;
 end;

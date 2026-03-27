@@ -240,6 +240,8 @@ type
 			function GetItemByCaption(const _caption : string) : TCustomCheckItem;
 			procedure SetItemControlEnabled(_itemIdx : Integer; _controlIdx : ESubItemIndex; _enabled : Boolean);
 			function GetMinimumWidth() : Integer;
+			function GetVisibleRowCount() : Integer;
+			function GetRowHeight() : Integer;
 			procedure UpdateLayout(const _layout : TSearchFormLayout);
 			procedure SetDefaultValues();
 			property EventsEnabled : Boolean read FEventsEnabled write FEventsEnabled;
@@ -1768,6 +1770,69 @@ begin
 
 	// Add some padding for borders and margins
 	Result := totalWidth + 16; // 16px for panel margins and borders
+end;
+
+function TCustomCheckOptions.GetVisibleRowCount() : Integer;
+var
+	i, colCount : Integer;
+	item : TCustomCheckItem;
+begin
+	Result := 0;
+	colCount := 0;
+
+	for i := 0 to FItems.Count - 1 do begin
+		item := FItems[i];
+		// Skip hidden items
+		if Assigned(item.ParentPanel) and not item.ParentPanel.Visible then begin
+			Continue;
+		end;
+
+		if item.StartNewRow and (colCount > 0) then begin
+			Inc(Result);
+			colCount := 1;
+		end else if (colCount > 0) and (colCount mod Columns = 0) then begin
+			Inc(Result);
+			colCount := 1;
+		end else begin
+			Inc(colCount);
+		end;
+	end;
+
+	// Count the last row if it has items
+	if colCount > 0 then begin
+		Inc(Result);
+	end;
+end;
+
+function TCustomCheckOptions.GetRowHeight() : Integer;
+var
+	i : Integer;
+	item : TCustomCheckItem;
+begin
+	Result := 0;
+
+	for i := 0 to FItems.Count - 1 do begin
+		item := FItems[i];
+		// Skip hidden items
+		if Assigned(item.ParentPanel) and not item.ParentPanel.Visible then begin
+			Continue;
+		end;
+
+		var iHeight := 0;
+		if Assigned(item.ComboBox) then begin
+			iHeight := item.ComboBox.Height;
+		end else if Assigned(item.SpinEdit) then begin
+			iHeight := item.SpinEdit.Height;
+		end else if Assigned(item.CheckBox) then begin
+			iHeight := item.CheckBox.Height;
+		end else if Assigned(item.ParentPanel) then begin
+			iHeight := item.ParentPanel.GetTextHeight('Tg');
+		end;
+		if iHeight > Result then begin
+			Result := iHeight;
+		end;
+	end;
+	Result := Result + CTRL_SPACE;
 end;
 
 function TCustomCheckOptions.CreateComboBox(const _name, _hint : string; _parent : TPanel) : TComboBox;
