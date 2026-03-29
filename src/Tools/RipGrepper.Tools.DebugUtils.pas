@@ -2,10 +2,17 @@ unit RipGrepper.Tools.DebugUtils;
 
 interface
 
+uses
+	System.Classes,
+	System.SyncObjs;
+
 type
 
 	ETraceFilterType = (tftError, tftWarning, tftInfo, tftBegin, tftEnd, tftVerbose, tftRegex, tftNone);
 	TTraceFilterTypes = set of ETraceFilterType;
+
+	ELogDestination = (ldOutputDebugString, ldFile);
+	TLogDestinations = set of ELogDestination;
 
 	TTraceFilterTypeRec = record
 		Name : string;
@@ -31,9 +38,18 @@ type
 			FTraceFilerTypes : TTraceFilterTypes;
 			FDebugTraceInactiveMsgShown : Boolean;
 			FTraceFilterRegex : string;
+			FLogDestinations : TLogDestinations;
+			FLogFilePath : string;
+			FLogFileWriter : TStreamWriter;
+			FLogLock : TCriticalSection;
 
 			class constructor Create;
+			class destructor Destroy;
 			class procedure InnerOutputDebugString(const _s : string; const _type : ETraceFilterType);
+			class function FormatLogLine(const _s : string) : string;
+			class procedure writeToLogFile(const _s : string);
+			class procedure openLogFile();
+			class procedure closeLogFile();
 
 		public
 			class procedure DebugMessage(const _s : string; const _type : ETraceFilterType = tftInfo);
@@ -46,6 +62,8 @@ type
 
 			class procedure UpdateTraceActive;
 			class property TraceFilterRegex : string read FTraceFilterRegex write FTraceFilterRegex;
+			class property LogDestinations : TLogDestinations read FLogDestinations write FLogDestinations;
+			class property LogFilePath : string read FLogFilePath write FLogFilePath;
 	end;
 
 	TDebugMsgBeginEnd = record
@@ -72,6 +90,7 @@ implementation
 
 uses
 	Winapi.Windows,
+	System.IOUtils,
 	System.SysUtils,
 	RipGrepper.Settings.RipGrepperSettings,
 	System.RegularExpressions,
@@ -80,6 +99,10 @@ uses
 
 class constructor TDebugUtils.Create;
 begin
+	FLogLock := TCriticalSection.Create;
+	FLogDestinations := [ldFile];
+	FLogFilePath := TPath.Combine(TPath.GetDirectoryName(ParamStr(0)), APPNAME + '.log');
+	FLogFileWriter := nil;
 	{$IFDEF DEBUG}
 	FTraceFilerTypes := [tftBegin, tftEnd, tftError, tftWarning, tftInfo, tftVerbose];
 	{$ENDIF}
@@ -90,6 +113,57 @@ begin
 	FTraceFilerTypes := [tftError];
 	{$ENDIF}
 	UpdateTraceActive;
+end;
+
+class destructor TDebugUtils.Destroy;
+begin
+	closeLogFile();
+	FLogLock.Free;
+end;
+
+class function TDebugUtils.FormatLogLine(const _s : string) : string;
+begin
+	Result := Format('%s [%5d] %s', [FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now), GetCurrentThreadId, _s]);
+end;
+
+class procedure TDebugUtils.openLogFile();
+var
+	fs : TFileStream;
+begin
+	if Assigned(FLogFileWriter) then begin
+		Exit;
+	end;
+	if FileExists(FLogFilePath) then begin
+		fs := TFileStream.Create(FLogFilePath, fmOpenWrite or fmShareDenyNone);
+		fs.Seek(0, soEnd);
+	end else begin
+		fs := TFileStream.Create(FLogFilePath, fmCreate or fmShareDenyNone);
+	end;
+	FLogFileWriter := TStreamWriter.Create(fs, TEncoding.UTF8);
+	FLogFileWriter.OwnStream;
+	FLogFileWriter.AutoFlush := True;
+end;
+
+class procedure TDebugUtils.closeLogFile();
+begin
+	FreeAndNil(FLogFileWriter);
+end;
+
+class procedure TDebugUtils.writeToLogFile(const _s : string);
+begin
+	FLogLock.Enter;
+	try
+		try
+			openLogFile();
+			FLogFileWriter.WriteLine(_s);
+		except
+			on E : Exception do begin
+				OutputDebugString(PChar('Log file write error: ' + E.Message));
+			end;
+		end;
+	finally
+		FLogLock.Leave;
+	end;
 end;
 
 class procedure TDebugUtils.DebugMessage(const _s : string; const _type : ETraceFilterType = tftInfo);
@@ -125,19 +199,31 @@ begin
 end;
 
 class procedure TDebugUtils.InnerOutputDebugString(const _s : string; const _type : ETraceFilterType);
+var
+	shallLog : Boolean;
+	logLine : string;
 begin
+	shallLog := False;
+
 	if (tftRegex in FTraceFilerTypes) and (not FTraceFilterRegex.IsEmpty) and
 	{ } TRegEx.IsMatch(_s, FTraceFilterRegex) then begin
-		OutputDebugString(PChar(_s));
-		Exit;
-	end;
-
-	if _type in FTraceFilerTypes then begin
-		OutputDebugString(PChar(_s));
+		shallLog := True;
+	end else if _type in FTraceFilerTypes then begin
+		shallLog := True;
 	end else begin
 		if not FDebugTraceInactiveMsgShown and (FTraceFilerTypes = []) then begin
 			FDebugTraceInactiveMsgShown := True;
 			OutputDebugString(PChar(APPNAME + ' DebugTrace off'));
+		end;
+	end;
+
+	if shallLog then begin
+		logLine := FormatLogLine(_s);
+		if ldOutputDebugString in FLogDestinations then begin
+			OutputDebugString(PChar(logLine));
+		end;
+		if ldFile in FLogDestinations then begin
+			writeToLogFile(logLine);
 		end;
 	end;
 end;
@@ -246,6 +332,7 @@ OutputDebugString(PChar('DebugTrace initialized.'));
 
 finalization
 
+TDebugUtils.closeLogFile();
 OutputDebugString(PChar('DebugTrace finalized.'));
 
 end.
