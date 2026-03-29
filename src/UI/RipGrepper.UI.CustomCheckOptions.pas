@@ -147,8 +147,7 @@ type
 			constructor Create(_owner : TControl);
 			function Add : TCustomCheckItem;
 			function AddItem(_cb : TCheckBox; const _caption : string; _setting : ISetting) : TCustomCheckItem; overload;
-			function AddItem(_cb : TCheckBox; _combo : TComboBox; const _caption : string; _setting : ISetting) : TCustomCheckItem;
-				overload;
+			function AddItem(_cb : TCheckBox; _combo : TComboBox; const _caption : string; _setting : ISetting) : TCustomCheckItem; overload;
 			function AddItem(_cb : TCheckBox; _spin : TSpinEdit; const _caption : string; _setting : ISetting) : TCustomCheckItem; overload;
 			function AddItem(_lbl : TLabel; _combo : TComboBox; const _caption : string; _setting : ISetting) : TCustomCheckItem; overload;
 			function GetEnumerator : TCustomCheckItemsEnumerator;
@@ -192,7 +191,7 @@ type
 			FiCheckBoxSquareWidth : Integer;
 			function CreateComboBox(const _name, _hint : string; _parent : TPanel) : TComboBox;
 			function CreateSpinEdit(const _parent : TWinControl; const _hint : string;
-				const _minValue, _maxValue, _defaultValue, _height : Integer; _setting : ISetting) : TNotifyingSpinEdit;
+					const _minValue, _maxValue, _defaultValue, _height : Integer; _setting : ISetting) : TNotifyingSpinEdit;
 			function GetFirstControlWidth(const _item : TCustomCheckItem) : Integer;
 			function GetItemsMaxHeight : Integer;
 			procedure InitCheckBoxAndComboValue(_checkBox : TNotifyingCheckBox; _comboBox : TNotifyingComboBox; _setting : ISetting);
@@ -203,19 +202,17 @@ type
 			function HasTwoControlItems : Boolean;
 			function CalculateItemWidth(const _firstControlWidth : Integer; const _hasTwoControls : Boolean) : Integer;
 			function GetItemWidth(const _item : TCustomCheckItem; const _baseWidth : Integer) : Integer;
-			procedure CalculateActualWidths(const _itemWidth, _firstControlWidth : Integer;
-				out _actualFirstWidth, _actualSecondWidth : Integer);
+			procedure CalculateActualWidths(const _itemWidth, _firstControlWidth : Integer; out _actualFirstWidth, _actualSecondWidth : Integer);
 			procedure PositionItemPanel(const _item : TCustomCheckItem; const _itemIndex, _itemWidth, _itemHeight : Integer);
-			procedure PositionItemControls(const _item : TCustomCheckItem;
-				const _itemIndex, _actualFirstWidth, _actualSecondWidth : Integer);
+			procedure PositionItemControls(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth, _actualSecondWidth : Integer);
 			// Helper methods for positioning different control types
 			procedure PositionCheckBoxOnly(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth, _itemHeight : Integer);
 			procedure PositionCheckBoxWithCombo(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth, _actualSecondWidth,
-				_itemHeight : Integer);
+					_itemHeight : Integer);
 			procedure PositionCheckBoxWithSpin(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth, _actualSecondWidth,
-				_itemHeight : Integer);
+					_itemHeight : Integer);
 			procedure PositionLabelWithCombo(const _item : TCustomCheckItem; const _itemIndex, _actualFirstWidth, _actualSecondWidth,
-				_itemHeight : Integer);
+					_itemHeight : Integer);
 			function CreateItemWithPanel(const _caption : string; _itemType : ECustomItemType; _setting : ISetting) : TCustomCheckItem;
 			function CreateCheckBox(const _parent : TWinControl; const _caption, _hint, _settingName : string) : TCheckBox;
 			procedure AdjustParentHeights;
@@ -225,13 +222,13 @@ type
 			destructor Destroy; override;
 			procedure Clear; override;
 			function AddCheckboxItem(const _caption, _hint : string; _setting : ISetting; _startNewRow : Boolean = False;
-				_showInExpertModeOnly : Boolean = False) : TCustomCheckItem; overload;
+					_showInExpertModeOnly : Boolean = False) : TCustomCheckItem; overload;
 			function AddCheckboxComboItem(const _caption, _hint : string; _comboItems : TArray<string>; _setting : ISetting;
-				_startNewRow : Boolean = False; _showInExpertModeOnly : Boolean = False) : TCustomCheckItem; overload;
+					_startNewRow : Boolean = False; _showInExpertModeOnly : Boolean = False) : TCustomCheckItem; overload;
 			function AddCheckboxSpinItem(const _caption, _hint : string; _minValue, _maxValue, _defaultValue : Integer; _setting : ISetting;
-				_startNewRow : Boolean = False; _showInExpertModeOnly : Boolean = False) : TCustomCheckItem;
+					_startNewRow : Boolean = False; _showInExpertModeOnly : Boolean = False) : TCustomCheckItem;
 			function AddLabelComboItem(const _caption, _hint : string; _comboItems : TArray<string>; _setting : ISetting;
-				_startNewRow : Boolean = False; _showInExpertModeOnly : Boolean = False) : TCustomCheckItem;
+					_startNewRow : Boolean = False; _showInExpertModeOnly : Boolean = False) : TCustomCheckItem;
 			procedure AlignControlItems(); override;
 			// Getter functions for specific items by order index
 			function GetItemChecked(_idx : Integer) : Boolean;
@@ -690,7 +687,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TCustomCheckItem.OnSubItemEnabledChanged');
 	dbgMsg.MsgFmt('Control %s enabled state changed to: %s for item %s',
-		{ } [_sender.ClassName, BoolToStr(TWinControl(_sender).Enabled, True), Setting.Name]);
+			{ } [_sender.ClassName, BoolToStr(TWinControl(_sender).Enabled, True), Setting.Name]);
 
 	// Update hint helper when control enabled state changes externally
 	updateHintHelperVisibility();
@@ -915,7 +912,7 @@ begin
 end;
 
 function TCustomCheckOptions.CreateItemWithPanel(const _caption : string; _itemType : ECustomItemType; _setting : ISetting)
-	: TCustomCheckItem;
+		: TCustomCheckItem;
 begin
 	var
 	ar := TAutoSetReset.New(FEventsEnabled, False);
@@ -943,7 +940,7 @@ begin
 end;
 
 function TCustomCheckOptions.AddCheckboxItem(const _caption, _hint : string; _setting : ISetting; _startNewRow : Boolean = False;
-	_showInExpertModeOnly : Boolean = False) : TCustomCheckItem;
+		_showInExpertModeOnly : Boolean = False) : TCustomCheckItem;
 var
 	checkBox : TNotifyingCheckBox;
 	caption : string;
@@ -978,7 +975,7 @@ begin
 end;
 
 function TCustomCheckOptions.AddCheckboxComboItem(const _caption, _hint : string; _comboItems : TArray<string>; _setting : ISetting;
-	_startNewRow : Boolean = False; _showInExpertModeOnly : Boolean = False) : TCustomCheckItem;
+		_startNewRow : Boolean = False; _showInExpertModeOnly : Boolean = False) : TCustomCheckItem;
 var
 	checkBox : TNotifyingCheckBox;
 	comboBox : TNotifyingComboBox;
@@ -1012,7 +1009,7 @@ begin
 end;
 
 function TCustomCheckOptions.AddCheckboxSpinItem(const _caption, _hint : string; _minValue, _maxValue, _defaultValue : Integer;
-	_setting : ISetting; _startNewRow : Boolean = False; _showInExpertModeOnly : Boolean = False) : TCustomCheckItem;
+		_setting : ISetting; _startNewRow : Boolean = False; _showInExpertModeOnly : Boolean = False) : TCustomCheckItem;
 var
 	checkBox : TNotifyingCheckBox;
 	spinEdit : TNotifyingSpinEdit;
@@ -1033,7 +1030,7 @@ begin
 
 	// Create the spin edit
 	spinEdit := CreateSpinEdit(Result.ParentPanel, _hint,
-		{ } _minValue, _maxValue, _defaultValue, checkBox.Height, _setting);
+			{ } _minValue, _maxValue, _defaultValue, checkBox.Height, _setting);
 	spinEdit.OwnerItem := Result;
 
 	// Initialize spin value from setting
@@ -1055,7 +1052,7 @@ begin
 end;
 
 function TCustomCheckOptions.AddLabelComboItem(const _caption, _hint : string; _comboItems : TArray<string>; _setting : ISetting;
-	_startNewRow : Boolean = False; _showInExpertModeOnly : Boolean = False) : TCustomCheckItem;
+		_startNewRow : Boolean = False; _showInExpertModeOnly : Boolean = False) : TCustomCheckItem;
 var
 	labelControl : TLabel;
 	comboBox : TNotifyingComboBox;
@@ -1163,7 +1160,7 @@ begin
 end;
 
 procedure TCustomCheckOptions.CalculateActualWidths(const _itemWidth, _firstControlWidth : Integer;
-	out _actualFirstWidth, _actualSecondWidth : Integer);
+		out _actualFirstWidth, _actualSecondWidth : Integer);
 var
 	availableForControls : Integer;
 begin
@@ -1222,7 +1219,7 @@ begin
 end;
 
 procedure TCustomCheckOptions.PositionCheckBoxOnly(const _item : TCustomCheckItem;
-	const _itemIndex, _actualFirstWidth, _itemHeight : Integer);
+		const _itemIndex, _actualFirstWidth, _itemHeight : Integer);
 var
 	iTextWidth : integer;
 begin
@@ -1249,7 +1246,7 @@ begin
 end;
 
 procedure TCustomCheckOptions.PositionCheckBoxWithCombo(const _item : TCustomCheckItem;
-	const _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight : Integer);
+		const _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight : Integer);
 begin
 	if Assigned(_item.CheckBox) then begin
 		_item.CheckBox.Left := CTRL_SPACE;
@@ -1283,7 +1280,7 @@ begin
 end;
 
 procedure TCustomCheckOptions.PositionCheckBoxWithSpin(const _item : TCustomCheckItem;
-	const _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight : Integer);
+		const _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight : Integer);
 var
 	spinWidth : Integer;
 begin
@@ -1322,7 +1319,7 @@ begin
 end;
 
 procedure TCustomCheckOptions.PositionLabelWithCombo(const _item : TCustomCheckItem;
-	const _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight : Integer);
+		const _itemIndex, _actualFirstWidth, _actualSecondWidth, _itemHeight : Integer);
 const
 	CTRL_SPACE = 8;
 begin
@@ -1359,7 +1356,7 @@ begin
 end;
 
 procedure TCustomCheckOptions.PositionItemControls(const _item : TCustomCheckItem;
-	const _itemIndex, _actualFirstWidth, _actualSecondWidth : Integer);
+		const _itemIndex, _actualFirstWidth, _actualSecondWidth : Integer);
 begin
 	// Position controls within the panel (relative to panel) - delegate to specific helper methods
 	case _item.ItemType of
@@ -1797,6 +1794,7 @@ begin
 			Continue;
 		end;
 
+		iHeight := 0;
 		if Assigned(item.ComboBox) then begin
 			iHeight := item.ComboBox.Height;
 		end else if Assigned(item.SpinEdit) then begin
@@ -1826,7 +1824,7 @@ begin
 end;
 
 function TCustomCheckOptions.CreateSpinEdit(const _parent : TWinControl; const _hint : string;
-	const _minValue, _maxValue, _defaultValue, _height : Integer; _setting : ISetting) : TNotifyingSpinEdit;
+		const _minValue, _maxValue, _defaultValue, _height : Integer; _setting : ISetting) : TNotifyingSpinEdit;
 begin
 	Result := TNotifyingSpinEdit.Create(Self);
 	Result.Name := 'spin' + _setting.Name;
@@ -1870,7 +1868,7 @@ begin
 end;
 
 procedure TCustomCheckOptions.InitCheckBoxAndComboValue(_checkBox : TNotifyingCheckBox; _comboBox : TNotifyingComboBox;
-	_setting : ISetting);
+		_setting : ISetting);
 begin
 	if Assigned(_setting) then begin
 		case _setting.SettingType of

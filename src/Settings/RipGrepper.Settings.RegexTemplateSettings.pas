@@ -17,6 +17,9 @@ type
 			FPersistableArray : TPersistableArray;
 			function GetPersistableArray() : IPersistableArray;
 
+		protected
+			procedure UpdateSettingsFromInternals(); override;
+
 		public
 			constructor Create(const _owner : TPersistableSettings); overload;
 			constructor Create; overload;
@@ -77,6 +80,16 @@ end;
 function TRegexTemplateSettings.GetPersistableArray() : IPersistableArray;
 begin
 	Result := FPersistableArray;
+end;
+
+procedure TRegexTemplateSettings.UpdateSettingsFromInternals();
+begin
+	inherited;
+	// Re-create items from FPersistableArray's current array data,
+	// so that changes made via TTabSeparatedConfigForm are reflected
+	if Assigned(FPersistableArray) then begin
+		CreateSetting(FPersistableArray.ArraySetting.Name, ITEM_KEY_PREFIX, FPersistableArray.ArraySetting);
+	end;
 end;
 
 end.

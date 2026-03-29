@@ -273,6 +273,11 @@ begin
 			end else begin
 				SettingsDict[section] := sd.Value;
 			end;
+			// Mark non-own sections as child array so ROOT_DUMMY iteration skips them
+			if section <> IniSectionName then
+				SettingsDict.SetSectionType(section, sstChildArray)
+			else
+				SettingsDict.SetSectionType(section, _from.SettingsDict.GetSectionType(section));
 		end;
 	end else begin
 		CopySettingsDictSectionSettingValues(IniSectionName, sdFrom, _bForceCopySettingObj);

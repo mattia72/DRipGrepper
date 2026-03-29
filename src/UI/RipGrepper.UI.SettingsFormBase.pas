@@ -22,6 +22,7 @@ type
 	TSettingsBaseForm = class(TBaseForm, ISettingsForm)
 		protected
 			FSettings : IPersistable;
+			FReadSettingsCalled : Boolean;
 			procedure OnCancel; virtual;
 			procedure OnOk; virtual;
 			/// ReadSettings: here you can transform FSettings to your needs
@@ -46,6 +47,7 @@ begin
 	inherited Create(_Owner, _themeName);
 	PanelBottom.Visible := False;
 	FSettings := _settings;
+	FReadSettingsCalled := False;
 end;
 
 procedure TSettingsBaseForm.OnCancel;
@@ -55,7 +57,9 @@ end;
 
 procedure TSettingsBaseForm.OnOk;
 begin
-	WriteSettings;
+	// Skip WriteSettings if ReadSettings was never called (tab was never visited)
+	if FReadSettingsCalled then
+		WriteSettings;
 	ModalResult := mrOk;
 end;
 

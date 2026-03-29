@@ -211,6 +211,7 @@ procedure TAppSettingsForm.ReadSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TAppSettingsForm.ReadSettings');
+	FReadSettingsCalled := True;
 
 	FAppSettings.LoadFromDict;
 	FRipGrepSettings.LoadFromDict;

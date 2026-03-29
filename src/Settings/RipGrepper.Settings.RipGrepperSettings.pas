@@ -368,7 +368,11 @@ procedure TRipGrepperSettings.StoreToPersister;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSettings.StoreToPersister');
-	SearchFormSettings.StoreToPersister;
+	// Store all children explicitly because the root dict iteration
+	// skips child sections (marked sstChildArray)
+	for var child in FChildren do begin
+		child.StoreToPersister();
+	end;
 	inherited StoreToPersister();
 	StoreHistories();
 end;

@@ -198,6 +198,7 @@ procedure TAdvancedForm.ReadSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TAdvancedForm.ReadSettings');
+	FReadSettingsCalled := True;
 
 	FAppSettings.LoadFromDict;
 	FRipGrepSettings.LoadFromDict;

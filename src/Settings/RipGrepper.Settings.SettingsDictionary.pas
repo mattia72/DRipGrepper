@@ -18,9 +18,12 @@ type
 	ISettingKeys = IDictionary<TSettingKey, ISetting>;
 	ISettingSections = IDictionary<TSettingSection, ISettingKeys>;
 
+	TSectionType = (sstOwn, sstChildArray);
+
 	TSettingsDictionary = class(TNoRefCountObject, IStreamReaderWriterPersistable)
 		private
 			FInnerDictionary : ISettingSections;
+			FSectionTypes : IDictionary<TSettingSection, TSectionType>;
 			FSectionName : string;
 			FOwnerPersister : IPersisterFactory;
 			FDictionaryLock : TCriticalSection;
@@ -52,9 +55,12 @@ type
 			procedure LoadFromStreamReader(_sr : TStreamReader);
 			procedure SaveToStreamWriter(_sw : TStreamWriter);
 			procedure StoreToPersister(const _section : string);
+			function GetSectionType(const _section : string) : TSectionType;
+			procedure SetSectionType(const _section : string; _type : TSectionType);
 
 			property Count : Integer read GetCount;
 			property InnerDictionary : ISettingSections read FInnerDictionary;
+			property SectionTypes : IDictionary<TSettingSection, TSectionType> read FSectionTypes;
 			property Sections[index : string] : ISettingKeys read GetSections write SetSections; default;
 	end;
 
@@ -93,6 +99,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.Create', True);
 	dbgMsg.MsgFmt('Create %p for section: ???', [Pointer(self)]);
 	FInnerDictionary := TCollections.CreateSortedDictionary<TSettingSection, ISettingKeys>();
+	FSectionTypes := TCollections.CreateDictionary<TSettingSection, TSectionType>();
 	FDictionaryLock := TCriticalSection.Create;
 end;
 
@@ -104,6 +111,9 @@ begin
 	FInnerDictionary.Add(_section,
 			{ } TCollections.CreateSortedDictionary<TSettingKey, ISetting>());
 	FInnerDictionary[_section].Add(_key, _setting);
+	if not FSectionTypes.ContainsKey(_section) then begin
+		FSectionTypes[_section] := sstOwn;
+	end;
 	dbgMsg.MsgFmt('Add [%s] %s', [_section, _key]);
 end;
 
@@ -131,6 +141,9 @@ var
 	i : Integer;
 begin
 	i := 0;
+	// Only mark as child array if section differs from our own section
+	if _section <> FSectionName then
+		FSectionTypes[_section] := sstChildArray;
 	for var item in TArraySetting(_setting).AsArray do begin
 		var
 			s : ISetting := TStringSetting.Create(_key, item);
@@ -169,6 +182,7 @@ procedure TSettingsDictionary.CopySection(const _section : string; _from : TSett
 var
 	sdSelf : ISettingKeys;
 	sdFrom : ISettingKeys;
+	srcType : TSectionType;
 begin
 	var
 	autoLock := TAutoLock.Create(FDictionaryLock);
@@ -190,6 +204,11 @@ begin
 	end else begin
 		dbgMsg.ErrorMsgFmt('Section not exists, add [%s]', [_section]);
 		FInnerDictionary.Add(_section, _from[_section]);
+	end;
+
+	// Propagate section type from source
+	if _from.FSectionTypes.TryGetValue(_section, srcType) then begin
+		FSectionTypes[_section] := srcType;
 	end;
 end;
 
@@ -337,7 +356,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TSettingsDictionary.StoreSectionToPersister');
 
-  var keys := InnerDictionary[_section];
+	var keys := InnerDictionary[_section];
 
 	for var key in keys do begin
 		setting := key.Value;
@@ -356,6 +375,7 @@ end;
 procedure TSettingsDictionary.StoreToPersister(const _section : string);
 var
 	section : string;
+	sectionType : TSectionType;
 begin
 	var
 	autoLock := TAutoLock.Create(FDictionaryLock);
@@ -366,6 +386,10 @@ begin
 
 	if (ROOT_DUMMY_INI_SECTION = section) then begin
 		for section in InnerDictionary.Keys do begin
+			if FSectionTypes.TryGetValue(section, sectionType) and (sectionType = sstChildArray) then begin
+				dbgMsg.MsgFmt('Skip child array section [%s]', [section]);
+				Continue;
+			end;
 			StoreSectionToPersister(section);
 		end;
 	end else begin
@@ -385,6 +409,9 @@ begin
 	var
 	autoLock := TAutoLock.Create(FDictionaryLock);
 	FInnerDictionary[index] := Value;
+	if not FSectionTypes.ContainsKey(index) then begin
+		FSectionTypes[index] := sstOwn;
+	end;
 end;
 
 procedure TSettingsDictionary.SetState(const _from, _to : TSettingState; const _section : string = '');
@@ -496,6 +523,18 @@ begin
 			(FInnerDictionary[section][key] as IStreamReaderWriterPersistable).SaveToStreamWriter(_sw);
 		end;
 	end;
+end;
+
+function TSettingsDictionary.GetSectionType(const _section : string) : TSectionType;
+begin
+	if not FSectionTypes.TryGetValue(_section, Result) then begin
+		Result := sstOwn;
+	end;
+end;
+
+procedure TSettingsDictionary.SetSectionType(const _section : string; _type : TSectionType);
+begin
+	FSectionTypes[_section] := _type;
 end;
 
 end.

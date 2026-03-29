@@ -10,7 +10,8 @@ uses
 	Spring,
 	System.IniFiles,
 	RipGrepper.Settings.FilePersister,
-	RipGrepper.Settings.Persister.Interfaces;
+	RipGrepper.Settings.Persister.Interfaces,
+	RipGrepper.Common.Constants;
 
 type
 
@@ -47,6 +48,20 @@ type
 			procedure AddOrChangeWithExplicitSectionShouldUseThatSection();
 			[Test]
 			procedure AddOrChangeWithEmptySectionShouldUseSectionName();
+			[Test]
+			procedure NewSectionShouldDefaultToSstOwn();
+			[Test]
+			procedure CreateSettingWithStrArrayShouldMarkSectionAsChildArray();
+			[Test]
+			procedure StoreToPersisterShouldSkipChildArraySection();
+			[Test]
+			procedure StoreToPersisterShouldStoreOwnSection();
+			[Test]
+			procedure CopySectionShouldPropagateSectionType();
+			[Test]
+			procedure SetSectionTypeShouldOverrideDefault();
+			[Test]
+			procedure GetSectionTypeForUnknownSectionShouldReturnSstOwn();
 			[Setup]
 			procedure Setup();
 			[TearDown]
@@ -234,6 +249,162 @@ begin
 			{ } 'Should use default SectionName when section is empty');
 		Assert.AreEqual('Value1', dict['DefaultSection']['Key1'].AsString,
 			{ } 'Value should match');
+	finally
+		dict.Free;
+	end;
+end;
+
+procedure TSettingsDictionaryTest.NewSectionShouldDefaultToSstOwn();
+var
+	dict : TSettingsDictionary;
+	setting : ISetting;
+begin
+	dict := TSettingsDictionary.Create('MySection', FPersisterFactory);
+	try
+		setting := TStringSetting.Create('Key1', 'Value1');
+		dict.AddOrChange('MySection', 'Key1', setting);
+
+		Assert.AreEqual(Ord(sstOwn), Ord(dict.GetSectionType('MySection')),
+			{ } 'New section should default to sstOwn');
+	finally
+		dict.Free;
+	end;
+end;
+
+procedure TSettingsDictionaryTest.CreateSettingWithStrArrayShouldMarkSectionAsChildArray();
+var
+	dict : TSettingsDictionary;
+	arrSetting : IArraySetting;
+begin
+	dict := TSettingsDictionary.Create('ParentSection', FPersisterFactory);
+	try
+		arrSetting := TArraySetting.Create('ArraySection');
+		arrSetting.Add('item1');
+		arrSetting.Add('item2');
+
+		dict.CreateSetting('ArraySection', 'Item_', arrSetting, FPersisterFactory);
+
+		Assert.AreEqual(Ord(sstChildArray), Ord(dict.GetSectionType('ArraySection')),
+			{ } 'Section created via str array should be marked as sstChildArray');
+	finally
+		dict.Free;
+	end;
+end;
+
+procedure TSettingsDictionaryTest.StoreToPersisterShouldSkipChildArraySection();
+var
+	dict : TSettingsDictionary;
+	arrSetting : IArraySetting;
+	iniVal : string;
+begin
+	// Use ROOT_DUMMY_INI_SECTION as SectionName to trigger the root iteration path
+	dict := TSettingsDictionary.Create(ROOT_DUMMY_INI_SECTION, FPersisterFactory);
+	try
+		// Add an array section that should be skipped during root iteration
+		arrSetting := TArraySetting.Create('ChildArraySection');
+		arrSetting.Add('item1');
+		arrSetting.State := ssModified;
+		dict.CreateSetting('ChildArraySection', 'Item_', arrSetting, FPersisterFactory);
+
+		// Verify section type is sstChildArray
+		Assert.AreEqual(Ord(sstChildArray), Ord(dict.GetSectionType('ChildArraySection')),
+			{ } 'Array section should be sstChildArray');
+
+		// StoreToPersister with ROOT_DUMMY should skip child array sections
+		dict.StoreToPersister(ROOT_DUMMY_INI_SECTION);
+
+		// Verify that item was NOT stored to persister
+		iniVal := FPersisterFactory.GetStringPersister().LoadValue('ChildArraySection', 'Item_0');
+		Assert.AreEqual('', iniVal,
+			{ } 'Child array items should not be stored by root dict during ROOT_DUMMY iteration');
+	finally
+		dict.Free;
+	end;
+end;
+
+procedure TSettingsDictionaryTest.StoreToPersisterShouldStoreOwnSection();
+var
+	dict : TSettingsDictionary;
+	iniVal : string;
+begin
+	dict := TSettingsDictionary.Create('OwnSection', FPersisterFactory);
+	try
+		var
+		setting : ISetting := TStringSetting.Create('Key1', 'StoredValue');
+		setting.State := ssModified;
+		dict.CreateSetting('OwnSection', 'Key1', setting, FPersisterFactory);
+
+		Assert.AreEqual(Ord(sstOwn), Ord(dict.GetSectionType('OwnSection')),
+			{ } 'Regular section should be sstOwn');
+
+		dict.StoreToPersister('OwnSection');
+
+		iniVal := FPersisterFactory.GetStringPersister().LoadValue('OwnSection', 'Key1');
+		Assert.AreEqual('StoredValue', iniVal,
+			{ } 'Own section settings should be stored to persister');
+	finally
+		dict.Free;
+	end;
+end;
+
+procedure TSettingsDictionaryTest.CopySectionShouldPropagateSectionType();
+var
+	dictFrom : TSettingsDictionary;
+	dictTo : TSettingsDictionary;
+	arrSetting : IArraySetting;
+begin
+	dictFrom := TSettingsDictionary.Create('FromSection', FPersisterFactory);
+	dictTo := TSettingsDictionary.Create('ToSection', FPersisterFactory);
+	try
+		// Create an array section in source
+		arrSetting := TArraySetting.Create('SharedArray');
+		arrSetting.Add('item1');
+		dictFrom.CreateSetting('SharedArray', 'Item_', arrSetting, FPersisterFactory);
+
+		Assert.AreEqual(Ord(sstChildArray), Ord(dictFrom.GetSectionType('SharedArray')),
+			{ } 'Source should have sstChildArray');
+
+		// Copy section to target
+		dictTo.CopySection('SharedArray', dictFrom);
+
+		Assert.AreEqual(Ord(sstChildArray), Ord(dictTo.GetSectionType('SharedArray')),
+			{ } 'Section type should be propagated to target after CopySection');
+	finally
+		dictFrom.Free;
+		dictTo.Free;
+	end;
+end;
+
+procedure TSettingsDictionaryTest.SetSectionTypeShouldOverrideDefault();
+var
+	dict : TSettingsDictionary;
+	setting : ISetting;
+begin
+	dict := TSettingsDictionary.Create('TestSection', FPersisterFactory);
+	try
+		setting := TStringSetting.Create('Key1', 'Value1');
+		dict.AddOrChange('TestSection', 'Key1', setting);
+
+		Assert.AreEqual(Ord(sstOwn), Ord(dict.GetSectionType('TestSection')),
+			{ } 'Should default to sstOwn');
+
+		dict.SetSectionType('TestSection', sstChildArray);
+
+		Assert.AreEqual(Ord(sstChildArray), Ord(dict.GetSectionType('TestSection')),
+			{ } 'SetSectionType should override the default');
+	finally
+		dict.Free;
+	end;
+end;
+
+procedure TSettingsDictionaryTest.GetSectionTypeForUnknownSectionShouldReturnSstOwn();
+var
+	dict : TSettingsDictionary;
+begin
+	dict := TSettingsDictionary.Create('MySection', FPersisterFactory);
+	try
+		Assert.AreEqual(Ord(sstOwn), Ord(dict.GetSectionType('NonExistentSection')),
+			{ } 'Unknown section should default to sstOwn');
 	finally
 		dict.Free;
 	end;

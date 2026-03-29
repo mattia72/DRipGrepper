@@ -199,6 +199,7 @@ procedure TAboutForm.ReadSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TAboutForm.ReadSettings');
+	FReadSettingsCalled := True;
 	FAppSettings.LoadFromDict;
 	cbCheckNewReleaseOnStartup.Checked := FAppSettings.CheckNewVersionOnStartup;
 end;

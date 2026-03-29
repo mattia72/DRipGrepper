@@ -298,6 +298,7 @@ procedure TExtensionSettingsForm.ReadSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TExtensionSettingsForm.ReadSettings');
+	FReadSettingsCalled := True;
 
 	FExtensionSettings.LoadFromDict;
 	{$IF IS_GUITEST OR IS_EXTENSION}

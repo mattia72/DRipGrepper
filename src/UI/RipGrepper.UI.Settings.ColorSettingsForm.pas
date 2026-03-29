@@ -180,6 +180,7 @@ procedure TColorSettingsForm.ReadSettings;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TColorSettingsForm.ReadSettings');
+	FReadSettingsCalled := True;
 	FAppSettings.LoadFromDict;
 	FNodeLookSettings.LoadFromDict;
 
@@ -188,6 +189,22 @@ begin
 		FFontColorSettings.StoreToPersister();
 	end;
 	FFontColorSettings.LoadFromDict;
+
+	// Populate rgTheme from saved ColorTheme so WriteSettings won't
+	// overwrite the theme when the Colors tab is never visited
+	FbSkipClickEvent := True;
+	try
+		var
+		colorTheme := FAppSettings.ColorTheme;
+		if colorTheme = TDarkModeHelper.GetThemeNameByMode(tmDark) then
+			rgTheme.ItemIndex := Integer(tmDark)
+		else if colorTheme = TDarkModeHelper.GetThemeNameByMode(tmLight) then
+			rgTheme.ItemIndex := Integer(tmLight)
+		else
+			rgTheme.ItemIndex := Integer(tmSystem);
+	finally
+		FbSkipClickEvent := False;
+	end;
 
 	cmbDateFormat.Text := FNodeLookSettings.DateFormat;
 	cbShowModifiedDateColumn.Checked := FNodeLookSettings.ShowLastModifiedDateColumn;
@@ -256,14 +273,17 @@ begin
 	// it is needed to store FontColorToSettings
 	FFontColorSettings.StoreToPersister;
 
-	var
-	tm := EThemeMode(rgTheme.ItemIndex);
-	var
-	theme := TDarkModeHelper.GetThemeNameByMode(tm);
-	dbgMsg.Msg('GetThemeNameByMode: ' + theme);
+	// Only write ColorTheme when the radio group is enabled (standalone mode)
+	if rgTheme.Enabled then begin
+		var
+		tm := EThemeMode(rgTheme.ItemIndex);
+		var
+		theme := TDarkModeHelper.GetThemeNameByMode(tm);
+		dbgMsg.Msg('GetThemeNameByMode: ' + theme);
 
-	FAppSettings.ColorTheme := theme;
-	dbgMsg.Msg('set FAppSettings.ColorTheme: ' + FAppSettings.ColorTheme);
+		FAppSettings.ColorTheme := theme;
+		dbgMsg.Msg('set FAppSettings.ColorTheme: ' + FAppSettings.ColorTheme);
+	end;
 
 	var
 	fmt := cmbDateFormat.Text;
