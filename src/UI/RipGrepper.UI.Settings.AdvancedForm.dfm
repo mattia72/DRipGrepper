@@ -1,13 +1,13 @@
 inherited AdvancedForm: TAdvancedForm
   Caption = 'Advanced'
-  ClientHeight = 336
+  ClientHeight = 355
   ClientWidth = 559
   Color = clBtnFace
   ShowHint = True
   OnShow = FormShow
   TextHeight = 15
   inherited PanelBottom: TPanel
-    Top = 291
+    Top = 310
     Width = 559
     TabOrder = 1
     inherited btnOk: TButton
@@ -21,36 +21,36 @@ inherited AdvancedForm: TAdvancedForm
     Left = 0
     Top = 0
     Width = 559
-    Height = 291
+    Height = 310
     Align = alClient
     BevelOuter = bvNone
     BorderStyle = bsNone
     TabOrder = 0
     DesignSize = (
       559
-      291)
+      310)
     object grpAdvanced: TGroupBox
       AlignWithMargins = True
       Left = 3
       Top = 3
       Width = 560
-      Height = 273
+      Height = 293
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Advanced'
       TabOrder = 0
       DesignSize = (
         560
-        273)
+        293)
       object Label1: TLabel
         Left = 16
-        Top = 22
+        Top = 27
         Width = 123
         Height = 15
         Caption = 'Configuration file path:'
       end
       object chExpertMode: TCheckBox
         Left = 16
-        Top = 72
+        Top = 77
         Width = 220
         Height = 24
         Hint = 
@@ -62,7 +62,7 @@ inherited AdvancedForm: TAdvancedForm
       end
       object btnedtIniFilePath: TButtonedEdit
         Left = 16
-        Top = 43
+        Top = 48
         Width = 532
         Height = 23
         Hint = 
@@ -95,40 +95,40 @@ inherited AdvancedForm: TAdvancedForm
       object gbTrace: TGroupBox
         AlignWithMargins = True
         Left = 16
-        Top = 102
+        Top = 107
         Width = 532
-        Height = 152
+        Height = 174
         Hint = 'Debug Trace Can Be Viewed in a Debug Viewer e.g. DebugView++'
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Debug trace'
         TabOrder = 1
         DesignSize = (
           532
-          152)
+          174)
         object lblTraceOutput: TLabel
           Left = 19
-          Top = 74
+          Top = 84
           Width = 45
           Height = 15
           Caption = 'Trace to:'
         end
         object lblLogFilePath: TLabel
           Left = 19
-          Top = 100
+          Top = 110
           Width = 69
           Height = 15
           Caption = 'Log file path:'
         end
         object lblLogCreation: TLabel
           Left = 19
-          Top = 129
+          Top = 139
           Width = 82
           Height = 15
           Caption = 'Creation mode:'
         end
         object chEnd: TCheckBox
           Left = 402
-          Top = 20
+          Top = 30
           Width = 75
           Height = 17
           Caption = 'End'
@@ -136,7 +136,7 @@ inherited AdvancedForm: TAdvancedForm
         end
         object chBegin: TCheckBox
           Left = 325
-          Top = 20
+          Top = 30
           Width = 75
           Height = 17
           Caption = 'Begin'
@@ -144,7 +144,7 @@ inherited AdvancedForm: TAdvancedForm
         end
         object chError: TCheckBox
           Left = 20
-          Top = 20
+          Top = 30
           Width = 75
           Height = 17
           Caption = 'Error'
@@ -152,7 +152,7 @@ inherited AdvancedForm: TAdvancedForm
         end
         object chWarning: TCheckBox
           Left = 96
-          Top = 20
+          Top = 30
           Width = 75
           Height = 17
           Caption = 'Warning'
@@ -160,24 +160,24 @@ inherited AdvancedForm: TAdvancedForm
         end
         object chInfo: TCheckBox
           Left = 172
-          Top = 20
+          Top = 30
           Width = 75
           Height = 17
           Caption = 'Info'
           TabOrder = 2
         end
         object chRegex: TCheckBox
-          Left = 19
-          Top = 45
+          Left = 20
+          Top = 53
           Width = 75
-          Height = 17
+          Height = 23
           Caption = 'Regex'
           TabOrder = 7
           OnClick = chRegexClick
         end
         object edtRegex: TEdit
-          Left = 96
-          Top = 43
+          Left = 110
+          Top = 53
           Width = 121
           Height = 23
           TabOrder = 6
@@ -185,7 +185,7 @@ inherited AdvancedForm: TAdvancedForm
         end
         object chVerbose: TCheckBox
           Left = 249
-          Top = 20
+          Top = 30
           Width = 75
           Height = 17
           Caption = 'Verbose'
@@ -193,7 +193,7 @@ inherited AdvancedForm: TAdvancedForm
         end
         object chTraceToDebugView: TCheckBox
           Left = 110
-          Top = 73
+          Top = 83
           Width = 110
           Height = 17
           Hint = 
@@ -204,7 +204,7 @@ inherited AdvancedForm: TAdvancedForm
         end
         object chTraceToFile: TCheckBox
           Left = 226
-          Top = 73
+          Top = 83
           Width = 50
           Height = 17
           Hint = 'Write trace messages to a log file'
@@ -214,7 +214,7 @@ inherited AdvancedForm: TAdvancedForm
         end
         object edtLogFilePath: TButtonedEdit
           Left = 110
-          Top = 96
+          Top = 106
           Width = 411
           Height = 23
           Hint = 'Full path to the log file'
@@ -230,7 +230,7 @@ inherited AdvancedForm: TAdvancedForm
         end
         object cmbLogCreation: TComboBox
           Left = 110
-          Top = 126
+          Top = 136
           Width = 180
           Height = 23
           Hint = 'How the log file is created on application start'
