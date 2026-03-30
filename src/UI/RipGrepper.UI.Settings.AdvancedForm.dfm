@@ -42,15 +42,18 @@ inherited AdvancedForm: TAdvancedForm
         Top = 126
         Width = 129
         Height = 15
-        Caption = 'Configuaration file path:'
+        Caption = 'Configuration file path:'
       end
       object chExpertMode: TCheckBox
         Left = 16
         Top = 22
-        Width = 97
+        Width = 220
         Height = 24
-        Hint = 'In Expert Mode, rg.exe Can Be Freely Parameterized'
-        Caption = 'Expert mode'
+        Hint = 
+          'In Expert mode, rg.exe can be freely parameterized.'#13#10'Applies t' +
+          'o new searches only. History items use their own stored setting' +
+          '.'#13#10'Can also be toggled in the Search Form.'
+        Caption = 'Expert mode (for new searches)'
         TabOrder = 0
       end
       object btnedtIniFilePath: TButtonedEdit
