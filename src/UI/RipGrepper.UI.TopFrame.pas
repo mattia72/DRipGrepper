@@ -325,6 +325,7 @@ begin
 
 	owSettings.TestFile := default (TOpenWithParams);
 	MainFrame.ReloadColorSettings;
+	UpdateDateColumnsUI;
 
 	{$IFDEF STANDALONE}
 	UpdateUIStyle;
