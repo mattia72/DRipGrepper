@@ -92,7 +92,7 @@ uses
   RipGrepper.UI.IFrameEvents in '..\..\UI\RipGrepper.UI.IFrameEvents.pas',
   RipGrepper.UI.Settings.AppSettingsForm in '..\..\UI\RipGrepper.UI.Settings.AppSettingsForm.pas' {AppSettingsForm},
   RipGrepper.UI.BaseForm in '..\..\UI\RipGrepper.UI.BaseForm.pas' {BaseForm},
-  RipGrepper.UI.SettingsFormBase in '..\..\UI\RipGrepper.UI.SettingsFormBase.pas',
+  RipGrepper.UI.SettingsFormBase in '..\..\UI\RipGrepper.UI.SettingsFormBase.pas' {SettingsBaseForm},
   RipGrepper.Settings.FontColors in '..\..\Settings\RipGrepper.Settings.FontColors.pas',
   RipGrepper.UI.ColorSelectorFrame in '..\..\UI\RipGrepper.UI.ColorSelectorFrame.pas' {ColorSelectorFrame: TFrame},
   RipGrepper.Tools.LockGuard in '..\..\Tools\RipGrepper.Tools.LockGuard.pas',

@@ -35,6 +35,8 @@ type
 			constructor Create(_Owner : TComponent; _settings : IPersistable; _themeName : string = ''); reintroduce;
 	end;
 
+{$R *.dfm}
+
 implementation
 
 uses
