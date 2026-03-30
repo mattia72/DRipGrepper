@@ -33,7 +33,8 @@ uses
 	SVGIconImageList,
 	Spring,
 	Vcl.Samples.Spin,
-	Vcl.ControlList;
+	Vcl.ControlList,
+	RipGrepper.Common.SimpleTypes;
 
 type
 	EValidateCtrls = (vcRgExePath, vcIniFilePath);
@@ -57,11 +58,20 @@ type
 		SVGIconImageList1 : TSVGIconImageList;
 		chVerbose : TCheckBox;
 		ScrollBox1 : TScrollBox;
+		lblTraceOutput : TLabel;
+		chTraceToDebugView : TCheckBox;
+		chTraceToFile : TCheckBox;
+		lblLogFilePath : TLabel;
+		lblLogCreation : TLabel;
+		edtLogFilePath : TButtonedEdit;
+		cmbLogCreation : TComboBox;
 		procedure btnedtIniFilePathEnter(Sender : TObject);
 		procedure btnedtIniFilePathExit(Sender : TObject);
 		procedure btnedtIniFilePathLeftButtonClick(Sender : TObject);
 		procedure btnedtIniFilePathRightButtonClick(Sender : TObject);
 		procedure chRegexClick(Sender : TObject);
+		procedure chTraceToFileClick(Sender : TObject);
+		procedure edtLogFilePathRightButtonClick(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 
 		private
@@ -70,6 +80,7 @@ type
 			FAppSettings : TAppSettings;
 			FRipGrepSettings : TRipGrepParameterSettings;
 			function GetTraceTypeFilters : TTraceFilterTypes;
+			procedure UpdateLogFileControlsState();
 			{ User-defined message handler }
 			procedure ValidateInput(var M : TMessage); message USERMESSAGE_VALIDATE_INPUT;
 
@@ -99,7 +110,6 @@ uses
 	RipGrepper.OpenWith,
 	RipGrepper.Helper.UI.DarkMode,
 	System.StrUtils,
-	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Helper.Types,
 	RipGrepper.Common.LoadHistoryMode;
 
@@ -157,7 +167,47 @@ procedure TAdvancedForm.FormShow(Sender : TObject);
 begin
 	btnedtIniFilePath.LeftButton.Hint := 'Reload settings from disk';
 	btnedtIniFilePath.RightButton.Hint := 'Open with...';
+
+	cmbLogCreation.Items.Clear;
+	for var mode := Low(ELogFileCreationMode) to High(ELogFileCreationMode) do begin
+		cmbLogCreation.Items.Add(LOG_FILE_CREATION_MODE_NAMES[mode]);
+	end;
+
 	ReadSettings;
+end;
+
+procedure TAdvancedForm.chTraceToFileClick(Sender : TObject);
+begin
+	UpdateLogFileControlsState();
+end;
+
+procedure TAdvancedForm.UpdateLogFileControlsState();
+begin
+	edtLogFilePath.Enabled := chTraceToFile.Checked;
+	cmbLogCreation.Enabled := chTraceToFile.Checked;
+	lblLogFilePath.Enabled := chTraceToFile.Checked;
+	lblLogCreation.Enabled := chTraceToFile.Checked;
+end;
+
+procedure TAdvancedForm.edtLogFilePathRightButtonClick(Sender : TObject);
+var
+	dlg : TSaveDialog;
+begin
+	dlg := TSaveDialog.Create(nil);
+	try
+		dlg.Title := 'Select log file path';
+		dlg.Filter := 'Log files (*.log)|*.log|All files (*.*)|*.*';
+		dlg.DefaultExt := 'log';
+		if edtLogFilePath.Text <> '' then begin
+			dlg.FileName := edtLogFilePath.Text;
+		end;
+		dlg.Options := dlg.Options + [ofOverwritePrompt];
+		if dlg.Execute then begin
+			edtLogFilePath.Text := dlg.FileName;
+		end;
+	finally
+		dlg.Free;
+	end;
 end;
 
 function TAdvancedForm.GetTraceTypeFilters : TTraceFilterTypes;
@@ -218,6 +268,19 @@ begin
 	chExpertMode.Checked := FAppSettings.IsExpertMode;
 	btnedtIniFilePath.Text := FAppSettings.PersisterFactory.FilePath;
 
+	var
+	logDestinations := FAppSettings.LogDestinations;
+	chTraceToDebugView.Checked := ldOutputDebugString in logDestinations;
+	chTraceToFile.Checked := ldFile in logDestinations;
+
+	edtLogFilePath.Text := FAppSettings.LogFilePath;
+	if edtLogFilePath.Text = '' then begin
+		edtLogFilePath.Text := TDebugUtils.LogFilePath;
+	end;
+	cmbLogCreation.ItemIndex := Ord(FAppSettings.LogFileCreationMode);
+
+	UpdateLogFileControlsState();
+
 	FAppSettings.UpdateInternalsFromSettings();
 end;
 
@@ -240,6 +303,18 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TAdvancedForm.WriteSettings');
 	FAppSettings.DebugTrace := TDebugUtils.TraceTypesToStr(GetTraceTypeFilters());
 	FAppSettings.ExpertMode.Value := chExpertMode.Checked;
+	FAppSettings.LogFilePath := edtLogFilePath.Text;
+	FAppSettings.LogFileCreationMode := ELogFileCreationMode(cmbLogCreation.ItemIndex);
+
+	var
+	logDestinations : TLogDestinations := [];
+	if chTraceToDebugView.Checked then begin
+		logDestinations := logDestinations + [ldOutputDebugString];
+	end;
+	if chTraceToFile.Checked then begin
+		logDestinations := logDestinations + [ldFile];
+	end;
+	FAppSettings.LogDestinations := logDestinations;
 
 	FAppSettings.UpdateSettingsFromInternals;
 end;

@@ -4,15 +4,13 @@ interface
 
 uses
 	System.Classes,
-	System.SyncObjs;
+	System.SyncObjs,
+	RipGrepper.Common.SimpleTypes;
 
 type
 
 	ETraceFilterType = (tftError, tftWarning, tftInfo, tftBegin, tftEnd, tftVerbose, tftRegex, tftNone);
 	TTraceFilterTypes = set of ETraceFilterType;
-
-	ELogDestination = (ldOutputDebugString, ldFile);
-	TLogDestinations = set of ELogDestination;
 
 	TTraceFilterTypeRec = record
 		Name : string;
@@ -42,6 +40,9 @@ type
 			FLogFilePath : string;
 			FLogFileWriter : TStreamWriter;
 			FLogLock : TCriticalSection;
+			FLogFileCreationMode : ELogFileCreationMode;
+			FLogFileSettingsApplied : Boolean;
+			FIsFinalized : Boolean;
 
 			class constructor Create;
 			class destructor Destroy;
@@ -50,6 +51,8 @@ type
 			class procedure writeToLogFile(const _s : string);
 			class procedure openLogFile();
 			class procedure closeLogFile();
+			class function GetTimestampedLogFilePath(const _basePath : string) : string;
+			class procedure ApplyLogFileSettings();
 
 		public
 			class procedure DebugMessage(const _s : string; const _type : ETraceFilterType = tftInfo);
@@ -64,6 +67,7 @@ type
 			class property TraceFilterRegex : string read FTraceFilterRegex write FTraceFilterRegex;
 			class property LogDestinations : TLogDestinations read FLogDestinations write FLogDestinations;
 			class property LogFilePath : string read FLogFilePath write FLogFilePath;
+			class property LogFileCreationMode : ELogFileCreationMode read FLogFileCreationMode write FLogFileCreationMode;
 	end;
 
 	TDebugMsgBeginEnd = record
@@ -93,6 +97,7 @@ uses
 	System.IOUtils,
 	System.SysUtils,
 	RipGrepper.Settings.RipGrepperSettings,
+	RipGrepper.Settings.AppSettings,
 	System.RegularExpressions,
 	RipGrepper.Common.Constants,
 	Spring.DesignPatterns;
@@ -103,6 +108,8 @@ begin
 	FLogDestinations := [ldFile];
 	FLogFilePath := TPath.Combine(TPath.GetDirectoryName(ParamStr(0)), APPNAME + '.log');
 	FLogFileWriter := nil;
+	FLogFileCreationMode := lfcmRecreateOnStart;
+	FLogFileSettingsApplied := False;
 	{$IFDEF DEBUG}
 	FTraceFilerTypes := [tftBegin, tftEnd, tftError, tftWarning, tftInfo, tftVerbose];
 	{$ENDIF}
@@ -116,9 +123,14 @@ begin
 end;
 
 class destructor TDebugUtils.Destroy;
+var
+	tmp : TCriticalSection;
 begin
+	FIsFinalized := True;
 	closeLogFile();
-	FLogLock.Free;
+	tmp := FLogLock;
+	FLogLock := nil;
+	tmp.Free;
 end;
 
 class function TDebugUtils.FormatLogLine(const _s : string) : string;
@@ -151,6 +163,8 @@ end;
 
 class procedure TDebugUtils.writeToLogFile(const _s : string);
 begin
+	if not Assigned(FLogLock) then
+		Exit;
 	FLogLock.Enter;
 	try
 		try
@@ -168,6 +182,8 @@ end;
 
 class procedure TDebugUtils.DebugMessage(const _s : string; const _type : ETraceFilterType = tftInfo);
 begin
+	if FIsFinalized then
+		Exit;
 	InnerOutputDebugString(_s, _type);
 end;
 
@@ -178,6 +194,8 @@ end;
 
 class procedure TDebugUtils.DebugMessageFormat(const _s : string; const _args : array of const; const _type : ETraceFilterType = tftInfo);
 begin
+	if FIsFinalized then
+		Exit;
 	InnerOutputDebugString(Format(_s, _args), _type);
 end;
 
@@ -262,9 +280,57 @@ begin
 	if ( { Assigned(GSettings) and } Assigned(appSettings)) then begin
 		FTraceFilerTypes := StrToTraceTypes(appSettings.DebugTrace);
 		FTraceFilterRegex := appSettings.DebugTraceRegexFilter;
+		ApplyLogFileSettings();
 	end;
 	OutputDebugString(PChar(APPNAME + ' DebugTraceActive [' +
 		{ } TraceTypesToStr(FTraceFilerTypes) + '] RegEx: "' + FTraceFilterRegex + '"'));
+end;
+
+class function TDebugUtils.GetTimestampedLogFilePath(const _basePath : string) : string;
+var
+	dir, baseName, ext : string;
+begin
+	dir := TPath.GetDirectoryName(_basePath);
+	baseName := TPath.GetFileNameWithoutExtension(_basePath);
+	ext := TPath.GetExtension(_basePath);
+	Result := TPath.Combine(dir, baseName + '_' + FormatDateTime('yyyymmdd_HHnnss', Now) + ext);
+end;
+
+class procedure TDebugUtils.ApplyLogFileSettings();
+var
+	appSettings : TAppSettings;
+	configuredPath : string;
+begin
+	appSettings := TSingleton.GetInstance<TRipGrepperSettings>().AppSettings;
+	if not Assigned(appSettings) then begin
+		Exit;
+	end;
+
+	configuredPath := appSettings.LogFilePath;
+	if not configuredPath.IsEmpty then begin
+		FLogFilePath := configuredPath;
+	end;
+
+	FLogFileCreationMode := appSettings.LogFileCreationMode;
+	FLogDestinations := appSettings.LogDestinations;
+
+	if FLogFileSettingsApplied then begin
+		Exit;
+	end;
+	FLogFileSettingsApplied := True;
+
+	case FLogFileCreationMode of
+		lfcmRecreateOnStart : begin
+			closeLogFile();
+			if FileExists(FLogFilePath) then begin
+				DeleteFile(FLogFilePath);
+			end;
+		end;
+		lfcmTimestamped : begin
+			closeLogFile();
+			FLogFilePath := GetTimestampedLogFilePath(FLogFilePath);
+		end;
+	end;
 end;
 
 procedure TDebugMsgBeginEnd.Msg(const _sMsg : string; const _type : ETraceFilterType = tftInfo);

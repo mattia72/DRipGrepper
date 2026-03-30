@@ -76,7 +76,17 @@ type
 
 	TSearchFormLayout = set of ESearchFormLayout;
 
+	ELogFileCreationMode = (lfcmAppend, lfcmRecreateOnStart, lfcmTimestamped);
+
+	ELogDestination = (ldOutputDebugString, ldFile);
+	TLogDestinations = set of ELogDestination;
+
 const
+	LOG_DEST_OUTPUT_DEBUG_STRING = 1;
+	LOG_DEST_FILE = 2;
+
+	LOG_FILE_CREATION_MODE_NAMES : array [ELogFileCreationMode] of string = ('Append', 'Recreate on start', 'Timestamped');
+
 	DATE_TIME_TYPE_NAMES : array [EDateTimeType] of string = ('Modified', 'Created', 'Accessed');
 	DATE_TIME_TYPE_KEYS : array [EDateTimeType] of string = ('LastWrite', 'Creation', 'LastAccess');
 
