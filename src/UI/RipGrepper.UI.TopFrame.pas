@@ -49,6 +49,7 @@ type
 		ActionRefreshSearch : TAction;
 		ActionIndentLine : TAction;
 		ActionShowDateColumns : TAction;
+		ActionOpenWith : TAction;
 		tbarSearch : TToolBar;
 		tbShowSearchForm : TToolButton;
 		tbRefreshSearch : TToolButton;
@@ -118,6 +119,7 @@ type
 		procedure ActionIndentLineExecute(Sender : TObject);
 		procedure ActionIndentLineUpdate;
 		procedure ActionOpenWithExecute(Sender : TObject);
+		procedure ActionOpenWithUpdate(Sender : TObject);
 		procedure ActionRefreshSearchExecute(Sender : TObject);
 		procedure ActionRefreshSearchUpdate(Sender : TObject);
 		procedure ActionReplaceCaseSensitiveExecute(Sender : TObject);
@@ -379,6 +381,11 @@ end;
 procedure TRipGrepperTopFrame.ActionOpenWithExecute(Sender : TObject);
 begin
 	MainFrame.ActionOpenWithExecute(Sender);
+end;
+
+procedure TRipGrepperTopFrame.ActionOpenWithUpdate(Sender : TObject);
+begin
+	ActionOpenWith.Enabled := MainFrame.VstResult.SelectedCount > 0;
 end;
 
 procedure TRipGrepperTopFrame.ActionRefreshSearchExecute(Sender : TObject);
