@@ -1,30 +1,28 @@
 inherited AppSettingsForm: TAppSettingsForm
-  Left = 0
-  Top = 0
   Caption = 'AppSettingsForm'
-  ClientHeight = 413
+  ClientHeight = 476
   ClientWidth = 514
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -12
-  Font.Name = 'Segoe UI'
-  Font.Style = []
   ShowHint = True
   OnShow = FormShow
   TextHeight = 15
-  object ScrollBox1: TScrollBox
+  inherited PanelBottom: TPanel
+    Top = 431
+    Width = 514
+    TabOrder = 1
+  end
+  object ScrollBox1: TScrollBox [1]
     Left = 0
     Top = 0
     Width = 514
-    Height = 413
+    Height = 431
     Align = alClient
     BevelOuter = bvNone
     BorderStyle = bsNone
     TabOrder = 0
     DesignSize = (
-      510
-      409)
+      514
+      431)
     object lblRgExePath: TLabel
       Left = 16
       Top = 9
@@ -42,7 +40,7 @@ inherited AppSettingsForm: TAppSettingsForm
     object btnedtRgExePath: TButtonedEdit
       Left = 16
       Top = 27
-      Width = 477
+      Width = 494
       Height = 23
       Hint = 'Full Path to rg.exe'
       Anchors = [akLeft, akTop, akRight]
@@ -70,7 +68,7 @@ inherited AppSettingsForm: TAppSettingsForm
     object Memo1: TMemo
       Left = 16
       Top = 74
-      Width = 477
+      Width = 494
       Height = 63
       Hint = 'Output of "rg.exe --version"'
       Anchors = [akLeft, akTop, akRight]
@@ -92,17 +90,17 @@ inherited AppSettingsForm: TAppSettingsForm
     object grpSettings: TGroupBox
       Left = 11
       Top = 143
-      Width = 482
-      Height = 256
+      Width = 499
+      Height = 263
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Settings'
       TabOrder = 2
       DesignSize = (
-        482
-        256)
+        499
+        263)
       object Label2: TLabel
-        Left = 19
-        Top = 24
+        Left = 20
+        Top = 23
         Width = 116
         Height = 15
         Caption = 'Copy command shell:'
@@ -119,9 +117,7 @@ inherited AppSettingsForm: TAppSettingsForm
         Top = 20
         Width = 99
         Height = 23
-        Hint = 
-          'Select Shell Format to Copy the RipGrep Command to the Clipboard' +
-          ''
+        Hint = 'Select Shell Format to Copy the RipGrep Command to the Clipboard'
         ItemIndex = 0
         TabOrder = 0
         Text = 'PowerShell '
@@ -130,21 +126,23 @@ inherited AppSettingsForm: TAppSettingsForm
           'DOS')
       end
       object grpSaveLoad: TGroupBox
+        AlignWithMargins = True
         Left = 16
         Top = 83
         Width = 454
-        Height = 162
+        Height = 168
+        Margins.Left = 20
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Startup behaviour'
         TabOrder = 2
         DesignSize = (
           454
-          162)
+          168)
         object rgModeLoadSeraches: TRadioGroup
           AlignWithMargins = True
-          Left = 3
+          Left = 15
           Top = 45
-          Width = 448
+          Width = 418
           Height = 91
           Hint = 
             'All searches '#8211' Loads all previously saved searches.'#10#10#13#10'Only (re)' +
@@ -161,7 +159,7 @@ inherited AppSettingsForm: TAppSettingsForm
           OnClick = rgModeLoadSerachesClick
         end
         object seSearchHistoryCount: TSpinEdit
-          Left = 56
+          Left = 68
           Top = 105
           Width = 52
           Height = 24
@@ -172,7 +170,7 @@ inherited AppSettingsForm: TAppSettingsForm
           Value = 10
         end
         object cbSaveResults: TCheckBox
-          Left = 3
+          Left = 15
           Top = 142
           Width = 273
           Height = 17
@@ -182,7 +180,7 @@ inherited AppSettingsForm: TAppSettingsForm
           OnClick = cbSaveResultsClick
         end
         object cbLoadLastSearchHistories: TCheckBox
-          Left = 3
+          Left = 15
           Top = 22
           Width = 222
           Height = 17
