@@ -266,7 +266,7 @@ var
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TOpenWithConfigForm.ReadSettings');
-	FSettingsReady := True;
+	FReadSettingsCalled := True;
 
 	listCmdsFromSettings := TStringList.Create;
 	try
