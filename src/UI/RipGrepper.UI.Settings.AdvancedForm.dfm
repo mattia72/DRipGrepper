@@ -1,62 +1,69 @@
 inherited AdvancedForm: TAdvancedForm
-  Left = 0
-  Top = 0
   Caption = 'Advanced'
-  ClientHeight = 221
-  ClientWidth = 524
+  ClientHeight = 355
+  ClientWidth = 559
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -12
-  Font.Name = 'Segoe UI'
-  Font.Style = []
   ShowHint = True
   OnShow = FormShow
   TextHeight = 15
-  object ScrollBox1: TScrollBox
+  inherited PanelBottom: TPanel
+    Top = 310
+    Width = 559
+    TabOrder = 1
+    inherited btnOk: TButton
+      Left = 269
+    end
+    inherited btnCancel: TButton
+      Left = 350
+    end
+  end
+  object ScrollBox1: TScrollBox [1]
     Left = 0
     Top = 0
-    Width = 524
-    Height = 221
+    Width = 559
+    Height = 310
     Align = alClient
     BevelOuter = bvNone
     BorderStyle = bsNone
     TabOrder = 0
     DesignSize = (
-      520
-      217)
+      559
+      310)
     object grpAdvanced: TGroupBox
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 508
-      Height = 178
+      Width = 560
+      Height = 293
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Advanced'
       TabOrder = 0
       DesignSize = (
-        508
-        178)
+        560
+        293)
       object Label1: TLabel
         Left = 16
-        Top = 126
-        Width = 129
+        Top = 27
+        Width = 123
         Height = 15
-        Caption = 'Configuaration file path:'
+        Caption = 'Configuration file path:'
       end
       object chExpertMode: TCheckBox
         Left = 16
-        Top = 22
-        Width = 97
+        Top = 77
+        Width = 220
         Height = 24
-        Hint = 'In Expert Mode, rg.exe Can Be Freely Parameterized'
-        Caption = 'Expert mode'
+        Hint = 
+          'In Expert mode, rg.exe can be freely parameterized.'#13#10'Applies to ' +
+          'new searches only. History items use their own stored setting.'#13#10 +
+          'Can also be toggled in the Search Form.'
+        Caption = 'Expert mode (for new searches)'
         TabOrder = 0
       end
       object btnedtIniFilePath: TButtonedEdit
         Left = 16
-        Top = 147
-        Width = 483
+        Top = 48
+        Width = 532
         Height = 23
         Hint = 
           'Full Path to the Settings File. It Can Be Opened Using the Launc' +
@@ -86,89 +93,164 @@ inherited AdvancedForm: TAdvancedForm
         OnRightButtonClick = btnedtIniFilePathRightButtonClick
       end
       object gbTrace: TGroupBox
+        AlignWithMargins = True
         Left = 16
-        Top = 52
-        Width = 480
-        Height = 68
+        Top = 107
+        Width = 532
+        Height = 174
         Hint = 'Debug Trace Can Be Viewed in a Debug Viewer e.g. DebugView++'
         Anchors = [akLeft, akTop, akRight]
-        Caption = 'Debug trace filters'
+        Caption = 'Debug trace'
         TabOrder = 1
+        DesignSize = (
+          532
+          174)
+        object lblTraceOutput: TLabel
+          Left = 19
+          Top = 84
+          Width = 45
+          Height = 15
+          Caption = 'Trace to:'
+        end
+        object lblLogFilePath: TLabel
+          Left = 19
+          Top = 110
+          Width = 69
+          Height = 15
+          Caption = 'Log file path:'
+        end
+        object lblLogCreation: TLabel
+          Left = 19
+          Top = 139
+          Width = 82
+          Height = 15
+          Caption = 'Creation mode:'
+        end
         object chEnd: TCheckBox
-          Left = 385
-          Top = 20
+          Left = 402
+          Top = 30
           Width = 75
           Height = 17
           Caption = 'End'
           TabOrder = 5
         end
         object chBegin: TCheckBox
-          Left = 308
-          Top = 20
+          Left = 325
+          Top = 30
           Width = 75
           Height = 17
           Caption = 'Begin'
           TabOrder = 4
         end
         object chError: TCheckBox
-          Left = 3
-          Top = 20
+          Left = 20
+          Top = 30
           Width = 75
           Height = 17
           Caption = 'Error'
           TabOrder = 0
         end
         object chWarning: TCheckBox
-          Left = 79
-          Top = 20
+          Left = 96
+          Top = 30
           Width = 75
           Height = 17
           Caption = 'Warning'
           TabOrder = 1
         end
         object chInfo: TCheckBox
-          Left = 155
-          Top = 20
+          Left = 172
+          Top = 30
           Width = 75
           Height = 17
           Caption = 'Info'
           TabOrder = 2
         end
         object chRegex: TCheckBox
-          Left = 3
-          Top = 43
+          Left = 20
+          Top = 53
           Width = 75
-          Height = 17
+          Height = 23
           Caption = 'Regex'
           TabOrder = 7
           OnClick = chRegexClick
         end
         object edtRegex: TEdit
-          Left = 79
-          Top = 42
+          Left = 110
+          Top = 53
           Width = 121
           Height = 23
           TabOrder = 6
           TextHint = 'Regex'
         end
         object chVerbose: TCheckBox
-          Left = 232
-          Top = 20
+          Left = 249
+          Top = 30
           Width = 75
           Height = 17
           Caption = 'Verbose'
           TabOrder = 3
         end
+        object chTraceToDebugView: TCheckBox
+          Left = 110
+          Top = 83
+          Width = 110
+          Height = 17
+          Hint = 
+            'Output trace messages via OutputDebugString (use DebugView++ to ' +
+            'see them)'
+          Caption = 'Debug Viewer'
+          TabOrder = 8
+        end
+        object chTraceToFile: TCheckBox
+          Left = 226
+          Top = 83
+          Width = 50
+          Height = 17
+          Hint = 'Write trace messages to a log file'
+          Caption = 'File'
+          TabOrder = 9
+          OnClick = chTraceToFileClick
+        end
+        object edtLogFilePath: TButtonedEdit
+          Left = 110
+          Top = 106
+          Width = 411
+          Height = 23
+          Hint = 'Full path to the log file'
+          Anchors = [akLeft, akTop, akRight]
+          Images = SVGIconImageList1
+          RightButton.Hint = 'Browse...'
+          RightButton.ImageIndex = 0
+          RightButton.ImageName = 'folder-opened'
+          RightButton.Visible = True
+          TabOrder = 10
+          TextHint = 'Default: application directory'
+          OnRightButtonClick = edtLogFilePathRightButtonClick
+        end
+        object cmbLogCreation: TComboBox
+          Left = 110
+          Top = 136
+          Width = 180
+          Height = 23
+          Hint = 'How the log file is created on application start'
+          Style = csDropDownList
+          TabOrder = 11
+        end
       end
     end
   end
+  inherited SVGImageListBottomPanel: TSVGIconImageList
+    Left = 370
+    Top = 3
+  end
   object OpenDialog1: TOpenDialog
-    Left = 250
-    Top = 112
+    Left = 290
+    Top = 65533
   end
   object ActionList1: TActionList
-    Left = 316
-    Top = 116
+    Left = 436
+    Top = 1
     object ActionOpenFileDialog: TAction
       Caption = 'ActionOpenFileDialog'
       ImageIndex = 2
@@ -233,7 +315,7 @@ inherited AdvancedForm: TAdvancedForm
           '67 10.5832 7.57941 10.7478 7.33284Z" fill="#424242"/>'#13#10'</svg>'#13#10
       end>
     Scaled = True
-    Left = 384
-    Top = 108
+    Left = 499
+    Top = 8
   end
 end

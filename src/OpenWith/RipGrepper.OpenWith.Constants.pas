@@ -17,7 +17,7 @@ const
 	{ } 'TRUE' + SEPARATOR +  'Explorer' + SEPARATOR + 'explorer.exe /select,"<FILE>"' + SEPARATOR + 'Show in Explorer',
 	VSCODE_EDITOR_SETTING,
 	{ } 'FALSE' + SEPARATOR + 'Notepad++' + SEPARATOR + 'notepad++.exe "<FILE>" -n<LINE> -c<COL>' + SEPARATOR + 'Open in Notepad++',
-	{ } 'FALSE' + SEPARATOR + 'Neovim' + SEPARATOR + 'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"' + SEPARATOR + 'Open in Neovim'
+	{ } 'FALSE' + SEPARATOR + 'Neovim' + SEPARATOR + 'nvim-qt.exe -c "+normal <LINE>G<COL>l" -- "<FILE>"' + SEPARATOR + 'Open in Neovim'
 	];
 
 implementation

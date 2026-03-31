@@ -406,6 +406,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       Hint = 'Open With...'
       ImageName = 'rocket-launch-outline'
       OnExecute = ActionOpenWithExecute
+      OnUpdate = ActionOpenWithUpdate
     end
     object ActionAlignToolbars: TAction
       Caption = 'Align Toolbars'

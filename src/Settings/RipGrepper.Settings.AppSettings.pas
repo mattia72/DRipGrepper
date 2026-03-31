@@ -34,6 +34,9 @@ type
 			KEY_CHECK_NEW_VERSION_ON_STARTUP = 'CheckNewVersionOnStartup';
 			KEY_LOAD_LAST_HISTORIES_ON_STARTUP = 'LoadLastSearchesOnStartup';
 			KEY_LOAD_LAST_HISTORY_MODE = 'LoadLastSearchesOnStartupMode';
+			KEY_LOGFILEPATH = 'LogFilePath';
+			KEY_LOGFILECREATIONMODE = 'LogFileCreationMode';
+			KEY_LOGDESTINATIONS = 'LogDestinations';
 
 		private
 			FColorTheme : IStringSetting;
@@ -48,6 +51,9 @@ type
 			FEncodingItems : IStringSetting;
 			FInternalLoadHistoryMode : IShared<TLoadHistoryModes>;
 			FLoadHistoryMode : IStringSetting;
+			FLogFilePath : IStringSetting;
+			FLogFileCreationMode : IIntegerSetting;
+			FLogDestinations : IIntegerSetting;
 			function GetColorTheme() : string;
 			function GetComboHistoryCount() : Integer;
 			function GetSearchHistoryCount() : Integer;
@@ -57,6 +63,9 @@ type
 			function GetEncodingItems() : TArray<string>;
 			function GetExpertMode(): IBoolSetting;
 			function GetLoadHistoryMode(): IShared<TLoadHistoryModes>;
+			function GetLogFilePath() : string;
+			function GetLogFileCreationMode() : ELogFileCreationMode;
+			function GetLogDestinations() : TLogDestinations;
 			function GetCheckNewVersionOnStartup : Boolean;
 			procedure SetColorTheme(const Value : string);
 			procedure SetComboHistoryCount(const Value : Integer);
@@ -66,6 +75,9 @@ type
 			procedure SetDebugTraceRegexFilter(const Value : string);
 			procedure SetEncodingItems(const Value : TArray<string>);
 			procedure SetLoadHistoryMode(const Value: IShared<TLoadHistoryModes>);
+			procedure SetLogFilePath(const Value : string);
+			procedure SetLogFileCreationMode(const Value : ELogFileCreationMode);
+			procedure SetLogDestinations(const Value : TLogDestinations);
 			procedure SetCheckNewVersionOnStartup(const Value : Boolean);
 
 		protected
@@ -88,6 +100,9 @@ type
 			property LoadHistoryMode: IShared<TLoadHistoryModes> read GetLoadHistoryMode
 				write SetLoadHistoryMode;
 			property CheckNewVersionOnStartup : Boolean read GetCheckNewVersionOnStartup write SetCheckNewVersionOnStartup;
+			property LogFilePath : string read GetLogFilePath write SetLogFilePath;
+			property LogFileCreationMode : ELogFileCreationMode read GetLogFileCreationMode write SetLogFileCreationMode;
+			property LogDestinations : TLogDestinations read GetLogDestinations write SetLogDestinations;
 	end;
 
 implementation
@@ -174,6 +189,30 @@ begin
 	Result := FCheckNewVersionOnStartup.Value;
 end;
 
+function TAppSettings.GetLogFilePath() : string;
+begin
+	Result := FLogFilePath.Value;
+end;
+
+function TAppSettings.GetLogFileCreationMode() : ELogFileCreationMode;
+begin
+	Result := ELogFileCreationMode(FLogFileCreationMode.Value);
+end;
+
+function TAppSettings.GetLogDestinations() : TLogDestinations;
+var
+	v : Integer;
+begin
+	v := FLogDestinations.Value;
+	Result := [];
+	if (v and LOG_DEST_OUTPUT_DEBUG_STRING) <> 0 then begin
+		Include(Result, ldOutputDebugString);
+	end;
+	if (v and LOG_DEST_FILE) <> 0 then begin
+		Include(Result, ldFile);
+	end;
+end;
+
 procedure TAppSettings.Init;
 begin
 	var
@@ -191,6 +230,9 @@ begin
 	FDebugTraceRegexFilter := TStringSetting.Create(KEY_DEBUGTRACEREGEXFILTER, '');
 	FEncodingItems := TStringSetting.Create(KEY_ENCODING_ITEMS, string.join(ARRAY_SEPARATOR, TDefaults.RG_PARAM_ENCODING_VALUES));
 	FExpertMode := TBoolSetting.Create(KEY_EXPERTMODE, False);
+	FLogFilePath := TStringSetting.Create(KEY_LOGFILEPATH, '');
+	FLogFileCreationMode := TIntegerSetting.Create(KEY_LOGFILECREATIONMODE, Integer(lfcmAppend));
+	FLogDestinations := TIntegerSetting.Create(KEY_LOGDESTINATIONS, LOG_DEST_FILE);
 
 	CreateSetting(FColorTheme);
 	CreateSetting(FCopyToClipBoardShell);
@@ -203,6 +245,9 @@ begin
 	CreateSetting(FDebugTraceRegexFilter);
 	CreateSetting(FEncodingItems);
 	CreateSetting(FExpertMode);
+	CreateSetting(FLogFilePath);
+	CreateSetting(FLogFileCreationMode);
+	CreateSetting(FLogDestinations);
 end;
 
 function TAppSettings.IsExpertMode(): Boolean;
@@ -255,6 +300,30 @@ end;
 procedure TAppSettings.SetCheckNewVersionOnStartup(const Value : Boolean);
 begin
 	FCheckNewVersionOnStartup.Value := Value;
+end;
+
+procedure TAppSettings.SetLogFilePath(const Value : string);
+begin
+	FLogFilePath.Value := Value;
+end;
+
+procedure TAppSettings.SetLogFileCreationMode(const Value : ELogFileCreationMode);
+begin
+	FLogFileCreationMode.Value := Integer(Value);
+end;
+
+procedure TAppSettings.SetLogDestinations(const Value : TLogDestinations);
+var
+	v : Integer;
+begin
+	v := 0;
+	if ldOutputDebugString in Value then begin
+		v := v or LOG_DEST_OUTPUT_DEBUG_STRING;
+	end;
+	if ldFile in Value then begin
+		v := v or LOG_DEST_FILE;
+	end;
+	FLogDestinations.Value := v;
 end;
 
 procedure TAppSettings.UpdateSettingsFromInternals();

@@ -258,6 +258,7 @@ end;
 procedure TAppSettingsForm.UpdateModeLoadSearchesGroup();
 begin
 	rgModeLoadSeraches.Enabled := cbLoadLastSearchHistories.Checked;
+	cbSaveResults.Enabled := cbLoadLastSearchHistories.Checked;
 end;
 
 procedure TAppSettingsForm.ValidateInput(var M : TMessage);

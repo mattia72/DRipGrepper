@@ -183,7 +183,7 @@ inherited OpenWithCommandEditor: TOpenWithCommandEditor
           'code.exe --reuse-window "<DIR>" --goto "<FILE>:<LINE>:<COL>"'
           'notepad++.exe "<FILE>" -n<LINE> -c<COL>'
           'explorer.exe /select,"<FILE>"'
-          'nvim-qt.exe "<FILE>" -- -c "+normal <LINE>G<COL>l"'
+          'nvim-qt.exe -c "+normal <LINE>G<COL>l" -- "<FILE>"'
           '')
         ParentFont = False
         ReadOnly = True
