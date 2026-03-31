@@ -861,15 +861,10 @@ begin
 		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_CONTEXT, True);
 	end;
 
-	if cbRgParamEncoding.Checked then begin
-		// if cmbRgParamEncoding.Text = '' then begin
-		// cmbRgParamEncoding.Text := cmbRgParamEncoding.Items[0];
-		// end;
-		// FSettings.SearchFormSettings.Encoding.Value := cmbRgParamEncoding.Text;
+	if cbRgParamEncoding.Checked and (cmbRgParamEncoding.Text <> '') then begin
 		FSettingsProxy.SetRgOptionWithValue(RG_PARAM_REGEX_ENCODING, cmbRgParamEncoding.Text, { bUnique } True);
 	end else begin
 		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_ENCODING, { bReset } True);
-		// FSettings.SearchFormSettings.Encoding.Value := '';
 	end;
 
 	FSettings.SearchFormSettings.OutputFormat.Value := cmbOutputFormat.Text;
