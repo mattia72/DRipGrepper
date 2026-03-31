@@ -473,9 +473,19 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.ActionShowExpertOptionsExecute(Sender : TObject);
+var
+	wasExpertMode : Boolean;
+	isSwitchingToNormalMode : Boolean;
 begin
 	if not FCbClickEventEnabled then
 		Exit;
+
+	wasExpertMode := IsExpertLayout();
+	isSwitchingToNormalMode := wasExpertMode and not cbExpertMode.Checked;
+	if isSwitchingToNormalMode then begin
+		TMsgBox.ShowInfo('Switching to normal mode resets expert options to their default values.');
+		cbExpertMode.SetFocus;
+	end;
 
 	IsExpertMode := cbExpertMode.Checked;
 	SetLayout(IsExpertMode, sflExpert);
