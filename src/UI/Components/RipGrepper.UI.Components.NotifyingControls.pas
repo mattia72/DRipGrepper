@@ -32,12 +32,15 @@ type
 	TNotifyingComboBox = class(TComboBox)
 		private
 			FOwnerItem : INotifyingControlOwner;
+			FOnBeforeChange : TNotifyEvent;
 
 		protected
 			procedure CMEnabledChanged(var Message : TMessage); message CM_ENABLEDCHANGED;
+			procedure Change; override;
 
 		public
 			property OwnerItem : INotifyingControlOwner read FOwnerItem write FOwnerItem;
+			property OnBeforeChange : TNotifyEvent read FOnBeforeChange write FOnBeforeChange;
 	end;
 
 	// Custom CheckBox that notifies parent about enabled state changes
@@ -74,6 +77,13 @@ begin
 end;
 
 { TNotifyingComboBox }
+
+procedure TNotifyingComboBox.Change;
+begin
+	if Assigned(FOnBeforeChange) then
+		FOnBeforeChange(Self);
+	inherited;
+end;
 
 procedure TNotifyingComboBox.CMEnabledChanged(var Message : TMessage);
 begin

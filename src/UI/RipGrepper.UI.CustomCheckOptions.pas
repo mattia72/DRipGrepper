@@ -184,6 +184,7 @@ type
 			FOnItemChange : TItemChangedEvent;
 			FSettings : TRipGrepperSettings;
 			procedure onItemChangeEventHandler(_sender : TObject);
+			procedure onComboBeforeChange(_sender : TObject);
 			function getSelectedItems : TArray<TCustomCheckItem>;
 			procedure SetSettings(const Value : TRipGrepperSettings);
 
@@ -423,7 +424,15 @@ end;
 procedure TCustomCheckItem.setChecked(const _value : Boolean);
 begin
 	if Assigned(CheckBox) and (CheckBox.Checked <> _value) then begin
+		var
+		dbgMsg := TDebugMsgBeginEnd.New('TCustomCheckItem.setChecked');
+		dbgMsg.MsgFmt('caption=%s, value=%s', [FCaption, BoolToStr(_value, True)]);
 		CheckBox.Checked := _value;
+		if (FItemType = citCheckBoxWithCombo) and Assigned(ComboBox) then begin
+			ComboBox.Enabled := _value;
+			if not _value then
+				ComboBox.Text := '';
+		end;
 	end;
 end;
 
@@ -444,7 +453,16 @@ end;
 procedure TCustomCheckItem.setComboText(const _value : string);
 begin
 	if Assigned(ComboBox) then begin
+		var
+		dbgMsg := TDebugMsgBeginEnd.New('TCustomCheckItem.setComboText');
+		dbgMsg.MsgFmt('caption=%s, value=%s, oldText=%s', [FCaption, _value, ComboBox.Text]);
 		ComboBox.Text := _value;
+		if (FItemType = citCheckBoxWithCombo) and Assigned(CheckBox) then begin
+			CheckBox.Checked := _value <> '';
+			ComboBox.Enabled := _value <> '';
+			dbgMsg.MsgFmt('synced: checked=%s, enabled=%s',
+				[BoolToStr(CheckBox.Checked, True), BoolToStr(ComboBox.Enabled, True)]);
+		end;
 	end;
 end;
 
@@ -1579,6 +1597,30 @@ begin
 	end;
 end;
 
+procedure TCustomCheckOptions.onComboBeforeChange(_sender : TObject);
+var
+	combo : TComboBox;
+	itemIndex : Integer;
+	item : TCustomCheckItem;
+begin
+	if not (_sender is TComboBox) then
+		Exit;
+
+	combo := _sender as TComboBox;
+	itemIndex := combo.Tag;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TCustomCheckOptions.onComboBeforeChange');
+	dbgMsg.MsgFmt('tag=%d, text=%s', [itemIndex, combo.Text]);
+
+	if (itemIndex >= 0) and (itemIndex < FItems.Count) then begin
+		item := FItems[itemIndex];
+		if (item.ItemType = citCheckBoxWithCombo) and Assigned(item.CheckBox) then begin
+			item.CheckBox.Checked := combo.Text <> '';
+			combo.Enabled := combo.Text <> '';
+		end;
+	end;
+end;
+
 function TCustomCheckOptions.getSelectedItems : TArray<TCustomCheckItem>;
 var
 	i : Integer;
@@ -1821,6 +1863,7 @@ begin
 	Result.Style := csDropDown;
 	Result.AutoDropDownWidth := True;
 	Result.OnChange := onItemChangeEventHandler;
+	(Result as TNotifyingComboBox).OnBeforeChange := onComboBeforeChange;
 end;
 
 function TCustomCheckOptions.CreateSpinEdit(const _parent : TWinControl; const _hint : string;

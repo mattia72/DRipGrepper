@@ -690,6 +690,14 @@ begin
 	SetComboItemsAndText(cmbReplaceText, FCtrlProxy.ReplaceText, FCtrlProxy.ReplaceTextHist);
 	SetComboItemsFromOptions(cmbFileMasks, FCtrlProxy.FileMasks, FCtrlProxy.FileMasksHist);
 	SetComboItemsAndText(cmbRgParamEncoding, FCtrlProxy.Encoding, FCtrlProxy.EncodingItems);
+	dbgMsg.MsgFmt('Encoding: proxy=%s, cbChecked=%s, cmbText=%s, cmbEnabled=%s',
+		[FCtrlProxy.Encoding, BoolToStr(cbRgParamEncoding.Checked, True),
+		cmbRgParamEncoding.Text, BoolToStr(cmbRgParamEncoding.Enabled, True)]);
+	// Sync checkbox with combobox text via TCustomCheckItem
+	FRgFilterOptionsPanel.CheckOptionsGroup.GetItemByCaption(RG_FILTER_OPTION_ENCODING_CAPTION).ComboText := FCtrlProxy.Encoding;
+	dbgMsg.MsgFmt('After sync: cbChecked=%s, cmbText=%s, cmbEnabled=%s',
+		[BoolToStr(cbRgParamEncoding.Checked, True),
+		cmbRgParamEncoding.Text, BoolToStr(cmbRgParamEncoding.Enabled, True)]);
 	SetComboItemsAndText(cmbOutputFormat, FCtrlProxy.OutputFormat, FCtrlProxy.OutputFormatItems);
 
 	UpdateSearchOptionsBtns;
@@ -872,8 +880,12 @@ begin
 	end;
 
 	if cbRgParamEncoding.Checked and (cmbRgParamEncoding.Text <> '') then begin
+		dbgMsg.MsgFmt('Encoding SET: cbChecked=%s, cmbText=%s',
+			[BoolToStr(cbRgParamEncoding.Checked, True), cmbRgParamEncoding.Text]);
 		FSettingsProxy.SetRgOptionWithValue(RG_PARAM_REGEX_ENCODING, cmbRgParamEncoding.Text, { bUnique } True);
 	end else begin
+		dbgMsg.MsgFmt('Encoding RESET: cbChecked=%s, cmbText=%s',
+			[BoolToStr(cbRgParamEncoding.Checked, True), cmbRgParamEncoding.Text]);
 		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_ENCODING, { bReset } True);
 	end;
 
@@ -1883,8 +1895,10 @@ end;
 
 procedure TRipGrepperSearchDialogForm.OnEncodingComboBoxChange(Sender : TObject);
 begin
-	// if FShowing then
-	// Exit;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.OnEncodingComboBoxChange');
+	dbgMsg.MsgFmt('FShowing=%s, cbChecked=%s, cmbText=%s',
+		[BoolToStr(FShowing, True), BoolToStr(cbRgParamEncoding.Checked, True), cmbRgParamEncoding.Text]);
 
 	UpdateCtrls(cmbRgParamEncoding);
 end;
