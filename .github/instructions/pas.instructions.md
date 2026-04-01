@@ -65,3 +65,7 @@ applyTo: "*.pas"
 ## Quality Assurance
 * Build all relevant projects after changes to ensure compilation
 * Ensure code follows these standards before submission
+
+## Project specific guidelines
+### DRipGrepper
+* For new message boxes use TMsgBox from RipGrepper.Helper.UI unit.
