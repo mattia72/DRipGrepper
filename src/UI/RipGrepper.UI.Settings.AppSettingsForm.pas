@@ -73,6 +73,7 @@ type
 			FRipGrepSettings : TRipGrepParameterSettings;
 			FSkipClickEvents : Boolean;
 			function IsRgExeValid(const filePath : string) : Boolean;
+			function openRgExeFileDialog(var _path : string) : Boolean;
 			function PromptForRgExePath(var _path : string) : Boolean;
 			procedure UpdateModeLoadSearchesGroup();
 			{ User-defined message handler }
@@ -202,6 +203,16 @@ begin
 	Result := LowerCase(name) = LowerCase(RG_EXE);
 end;
 
+function TAppSettingsForm.openRgExeFileDialog(var _path : string) : Boolean;
+begin
+	Result := False;
+	OpenDialog1.Filter := 'Executable files (*.exe)|*.exe';
+	if OpenDialog1.Execute(Self.Handle) then begin
+		_path := OpenDialog1.FileName;
+		Result := True;
+	end;
+end;
+
 function TAppSettingsForm.PromptForRgExePath(var _path : string) : Boolean;
 var
 	dlgResult : Integer;
@@ -225,19 +236,11 @@ begin
 			end else begin
 				TMsgBox.ShowWarning('Could not find rg.exe automatically.' + CRLF +
 					'Please select it manually.');
-				OpenDialog1.Filter := 'Executable files (*.exe)|*.exe';
-				if OpenDialog1.Execute(Self.Handle) then begin
-					_path := OpenDialog1.FileName;
-					Result := True;
-				end;
+				Result := openRgExeFileDialog(_path);
 			end;
 		end;
 		mrNo : begin
-			OpenDialog1.Filter := 'Executable files (*.exe)|*.exe';
-			if OpenDialog1.Execute(Self.Handle) then begin
-				_path := OpenDialog1.FileName;
-				Result := True;
-			end;
+			Result := openRgExeFileDialog(_path);
 		end;
 	end;
 end;
