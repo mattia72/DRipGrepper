@@ -73,6 +73,7 @@ type
 			FRipGrepSettings : TRipGrepParameterSettings;
 			FSkipClickEvents : Boolean;
 			function IsRgExeValid(const filePath : string) : Boolean;
+			function PromptForRgExePath(var _path : string) : Boolean;
 			procedure UpdateModeLoadSearchesGroup();
 			{ User-defined message handler }
 			procedure ValidateInput(var M : TMessage); message USERMESSAGE_VALIDATE_INPUT;
@@ -201,6 +202,46 @@ begin
 	Result := LowerCase(name) = LowerCase(RG_EXE);
 end;
 
+function TAppSettingsForm.PromptForRgExePath(var _path : string) : Boolean;
+var
+	dlgResult : Integer;
+	foundPath : string;
+begin
+	Result := False;
+	dlgResult := TMsgBox.ShowQuestion(
+		'The rg.exe path is invalid or not found.' + CRLF + CRLF +
+		'Would you like the program to search for rg.exe automatically?' + CRLF +
+		'Press "No" to browse for rg.exe manually.',
+		'RipGrep not found',
+		[mbYes, mbNo, mbCancel]);
+
+	case dlgResult of
+		mrYes : begin
+			FRipGrepSettings.RipGrepPathInitResult := rgpiNotSet;
+			FRipGrepSettings.TryGetRipGrepPath(foundPath);
+			if FileExists(foundPath) then begin
+				_path := foundPath;
+				Result := True;
+			end else begin
+				TMsgBox.ShowWarning('Could not find rg.exe automatically.' + CRLF +
+					'Please select it manually.');
+				OpenDialog1.Filter := 'Executable files (*.exe)|*.exe';
+				if OpenDialog1.Execute(Self.Handle) then begin
+					_path := OpenDialog1.FileName;
+					Result := True;
+				end;
+			end;
+		end;
+		mrNo : begin
+			OpenDialog1.Filter := 'Executable files (*.exe)|*.exe';
+			if OpenDialog1.Execute(Self.Handle) then begin
+				_path := OpenDialog1.FileName;
+				Result := True;
+			end;
+		end;
+	end;
+end;
+
 procedure TAppSettingsForm.OnSettingsUpdated();
 begin
 	// here you can update things depending on changed settings
@@ -237,6 +278,9 @@ begin
 		path := FRipGrepSettings.RipGrepPath;
 		if path.IsEmpty then begin
 			FRipGrepSettings.TryGetRipGrepPath(path);
+		end;
+		if (not FileExists(path)) then begin
+			PromptForRgExePath(path);
 		end;
 		btnedtRgExePath.Text := path;
 		btnedtRgExePath.LeftButton.Hint := 'Refresh version info';
