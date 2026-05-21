@@ -172,8 +172,10 @@ end;
 
 procedure TColorSettingsForm.OnSettingsUpdated();
 begin
-	MainFrame.UpdateColumnVisibility;
-	MainFrame.VstResult.Repaint();
+	if Assigned(MainFrame) then begin
+		MainFrame.UpdateColumnVisibility;
+		MainFrame.VstResult.Repaint();
+	end;
 end;
 
 procedure TColorSettingsForm.ReadSettings;
