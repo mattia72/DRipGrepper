@@ -1529,6 +1529,9 @@ var
 	s, ss0, ss1, ss1_repl, ss2 : string;
 	iTrimmedSpaces, iTrimmedTabs, matchBegin : Integer;
 begin
+	if not Assigned(FHistItemObj) then
+		Exit;
+
 	case Column of
 		COL_FILE : begin
 			if MatchStr(Text, [RG_ERROR_MSG_PREFIX, RG_PARSE_ERROR]) then begin
@@ -1550,12 +1553,14 @@ begin
 		COL_MATCH_TEXT : begin
 			case FHistItemObj.ParserType of
 				ptRipGrepSearch, ptRipGrepPrettySearch, ptRipGrepJson : begin
+					nodeData := VstResult.GetNodeData(Node);
+					if (not Assigned(nodeData)) or nodeData.MatchData.IsEmpty then
+						Exit;
+
 					DefaultDraw := False;
 					// First, store the default font size and color number
 					var
 					backup := TDrawParams.Save(TargetCanvas);
-
-					nodeData := VstResult.GetNodeData(Node);
 					s := nodeData.GetLineText(not Settings.NodeLookSettings.IndentLines, iTrimmedSpaces, iTrimmedTabs);
 					{ }
 					// If Col is in the trimmed content (e.g., Col = 1), IndentLines should be ignored
