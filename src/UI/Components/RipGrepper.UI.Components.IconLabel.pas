@@ -6,7 +6,8 @@ uses
 	System.Classes,
 	Vcl.Controls,
 	Vcl.Graphics,
-	Vcl.StdCtrls;
+	Vcl.StdCtrls,
+	Winapi.Windows;
 
 type
 	TIconLabelType = (iltNone, iltWarning, iltError, iltInfo, iltQuestion);
@@ -75,30 +76,30 @@ end;
 
 procedure TIconLabel.Paint;
 var
-	textToDraw : string;
 	iconStr : string;
 	origWidth : Integer;
+	R : TRect;
 begin
 	if FIconType <> iltNone then begin
-		iconStr := GetIconChar(FIconType);
-		textToDraw := FOrigCaption + ' ' + iconStr;
-		if not FIconText.IsEmpty then begin
-			textToDraw := textToDraw + ' ' + FIconText;
-		end;
 
 		Canvas.Font.Assign(Font);
 		Canvas.Brush.Style := bsClear;
 
-		// Draw original caption in normal style
+		// Draw original caption in normal style (DrawText handles '&' as accelerator prefix)
 		Canvas.Font.Color := Font.Color;
 		Canvas.Font.Style := [];
-		origWidth := Canvas.TextWidth(FOrigCaption + ' ');
-		Canvas.TextOut(0, 0, FOrigCaption + ' ');
+		R := Rect(0, 0, MaxInt, Height);
+		DrawText(Canvas.Handle, PChar(FOrigCaption + ' '), -1, R, DT_LEFT or DT_CALCRECT);
+		origWidth := R.Right;
+		R := Rect(0, 0, origWidth, Height);
+		DrawText(Canvas.Handle, PChar(FOrigCaption + ' '), -1, R, DT_LEFT);
 
 		// Draw icon + text in colored bold style
 		Canvas.Font.Color := FIconColor;
 		Canvas.Font.Style := [fsBold];
-		Canvas.TextOut(origWidth, 0, iconStr + IfThen(not FIconText.IsEmpty, ' ' + FIconText));
+		R := Rect(origWidth, 0, Width, Height);
+		iconStr := GetIconChar(FIconType);
+		DrawText(Canvas.Handle, PChar(IfThen(not FIconText.IsEmpty, ' ' + FIconText) + iconStr), -1, R, DT_LEFT);
 	end else begin
 		inherited;
 	end;
