@@ -53,10 +53,23 @@ const
 	GB_EXPERT_DESIGNED_HEIGHT = 175; // Designed height from .dfm file
 
 type
+	TWarningLabel = class(TLabel)
+	strict private
+		FWarningText : string;
+		FIsWarning : Boolean;
+		FOrigCaption : string;
+		procedure SetIsWarning(const _value : Boolean);
+	protected
+		procedure Paint; override;
+		procedure Loaded; override;
+	public
+		property WarningText : string read FWarningText write FWarningText;
+		property IsWarning : Boolean read FIsWarning write SetIsWarning;
+	end;
 	TRipGrepperSearchDialogForm = class(TBaseForm)
 		pnlMiddle : TPanel;
 		lblParams : TLabel;
-		lblPaths : TLabel;
+		lblPaths : TWarningLabel;
 		cmbOptions : TComboBox;
 		cmbSearchDir : TComboBox;
 		cmbSearchText : TComboBox;
@@ -212,6 +225,7 @@ type
 			class procedure SetReplaceText(_settings : TRipGrepperSettings; const _replaceText : string);
 			procedure SetReplaceTextSetting(const _replaceText : string);
 			procedure UpdateExtensionOptionsHint(const _paths : string);
+			procedure UpdateSearchPathWarning;
 			procedure ShowReplaceCtrls(const _bShow : Boolean);
 			procedure UpdateSearchOptionsBtns;
 			procedure UpdateCmbsOnIDEContextChange(_icv : IIDEContextValues);
@@ -312,6 +326,36 @@ uses
 
 {$R *.dfm}
 
+{ TWarningLabel }
+
+procedure TWarningLabel.SetIsWarning(const _value : Boolean);
+begin
+	FIsWarning := _value;
+	Invalidate();
+end;
+
+procedure TWarningLabel.Loaded;
+begin
+	inherited;
+	FOrigCaption := Caption;
+end;
+
+procedure TWarningLabel.Paint;
+var
+	textToDraw : string;
+begin
+	if FIsWarning then begin
+		textToDraw := FOrigCaption + ' ' + FWarningText;
+		Canvas.Font.Assign(Font);
+		Canvas.Font.Color := clRed;
+		Canvas.Font.Style := [fsBold];
+		Canvas.Brush.Style := bsClear;
+		Canvas.TextOut(0, 0, textToDraw);
+	end else begin
+		inherited;
+	end;
+end;
+
 constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _settings : TRipGrepperSettings;
 	const _histObj : IHistoryItemObject);
 begin
@@ -326,6 +370,9 @@ begin
 	setExtensionContextPanel(_settings);
 	SetRgFilterOptionsPanel(_settings);
 	SetRgOutputOptionsPanel(_settings);
+
+	// Disable theme font painting so Font.Color works on cmbSearchDir
+	cmbSearchDir.StyleElements := cmbSearchDir.StyleElements - [seFont];
 
 	// align buttons a bit lower
 	btnOk.Top := btnOk.Top + RG_OPTIONS_PADDING_TOP;
@@ -610,6 +657,7 @@ begin
 
 		ActionShowInLines.Hint := SHOW_CMD_IN_SEPARATE_LINES;
 		UpdateCmbOptionsAndMemoCommandLine;
+		UpdateSearchPathWarning;
 
 		// Scale by active Monitor
 		ScaleBy(TRipGrepperDpiScaler.GetActualDPI, self.PixelsPerInch);
@@ -1012,6 +1060,7 @@ begin
 		UpdateMemoCommandLine(); // UpdateCtrls
 	end else if cmbSearchDir = _ctrlChanged then begin
 		UpdateMemoCommandLine(); // UpdateCtrls
+		UpdateSearchPathWarning;
 	end else if cmbFileMasks = _ctrlChanged then begin
 		UpdateFileMasksInHistObjRgOptions();
 		UpdateMemoCommandLine(); // UpdateCtrls
@@ -1231,6 +1280,7 @@ begin
 	UpdateCmbsOnIDEContextChange(_icv);
 	WriteCtrlsToRipGrepParametersSettings(); // OnContextChange
 	UpdateCmbOptionsAndMemoCommandLine();
+	UpdateSearchPathWarning;
 end;
 
 function TRipGrepperSearchDialogForm.GetInIDESelectedText : string;
@@ -1364,6 +1414,50 @@ begin
 		Exit;
 	end;
 	FExtensionContextPanel.SelectedItem.RadioButton.Hint := TExtensionContexPanel.GetAsHint(_paths);
+end;
+
+procedure TRipGrepperSearchDialogForm.UpdateSearchPathWarning;
+var
+	isOutside : Boolean;
+begin
+	isOutside := False;
+	{$IF IS_EXTENSION}
+	var projectDir : string;
+	var searchPath : string := string(cmbSearchDir.Text).Trim();
+	if not searchPath.IsEmpty then begin
+		var
+		projPathHelper : IIdeProjectPathHelper := TIdeProjectPathHelper.Create();
+		projectDir := projPathHelper.GetActiveProjectDirectory();
+		if not projectDir.IsEmpty then begin
+			var projectDirLower := projectDir.ToLower();
+			// Check each path (semicolon-separated)
+			for var p in searchPath.Split([';']) do begin
+				var
+				trimmedPath := p.Trim();
+				if trimmedPath.IsEmpty then begin
+					Continue;
+				end;
+				var pathLower := trimmedPath.ToLower();
+				// Path is related if it contains or is contained by the project dir
+				if (not pathLower.StartsWith(projectDirLower)) and
+					{ } (not projectDirLower.StartsWith(pathLower)) then begin
+					isOutside := True;
+					Break;
+				end;
+			end;
+		end;
+	end;
+	{$ENDIF}
+
+	if isOutside then begin
+		lblPaths.WarningText := ' outside project';
+		lblPaths.IsWarning := True;
+		cmbSearchDir.Font.Color := clRed;
+	end else begin
+		lblPaths.IsWarning := False;
+		cmbSearchDir.Font.Color := clWindowText;
+	end;
+	cmbSearchDir.Invalidate();
 end;
 
 function TRipGrepperSearchDialogForm.GetTopPanelHeight() : Integer;
@@ -2149,5 +2243,8 @@ begin
 		end;
 	end;
 end;
+
+initialization
+	System.Classes.RegisterClass(TWarningLabel);
 
 end.
