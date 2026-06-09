@@ -26,6 +26,7 @@ type
 		FImageIndexInfo : TImageIndex;
 		FImageIndexQuestion : TImageIndex;
 		procedure SetIconType(const _value : TIconLabelType);
+		procedure SetIconText(const _value : string);
 		procedure SetImages(const _value : TCustomImageList);
 		function GetIconChar(const _iconType : TIconLabelType) : string;
 		function GetIconColor(const _iconType : TIconLabelType) : TColor;
@@ -38,8 +39,10 @@ type
 	public
 		constructor Create(_owner : TComponent); override;
 		property IconType : TIconLabelType read FIconType write SetIconType;
-		property IconText : string read FIconText write FIconText;
+		property IconText : string read FIconText write SetIconText;
 		property Images : TCustomImageList read FImages write SetImages;
+        // Image indexes for different icon types (if Images is assigned)
+        // Image names should have 'icon-' prefix followed by the icon type (e.g. 'icon-warning', 'icon-error', etc.)
 		property ImageIndexWarning : TImageIndex read FImageIndexWarning write FImageIndexWarning;
 		property ImageIndexError : TImageIndex read FImageIndexError write FImageIndexError;
 		property ImageIndexInfo : TImageIndex read FImageIndexInfo write FImageIndexInfo;
@@ -49,8 +52,7 @@ type
 implementation
 
 uses
-	System.SysUtils,
-	System.StrUtils;
+	System.SysUtils;
 
 { TIconLabel }
 
@@ -68,6 +70,13 @@ begin
 	FIconType := _value;
 	FIconColor := GetIconColor(_value);
 	Invalidate();
+end;
+
+procedure TIconLabel.SetIconText(const _value : string);
+begin
+	FIconText := _value;
+	Hint := _value;
+	ShowHint := not _value.IsEmpty;
 end;
 
 function TIconLabel.GetIconChar(const _iconType : TIconLabelType) : string;
@@ -162,14 +171,11 @@ begin
 		Canvas.Font.Style := [fsBold];
 
 		if Assigned(FImages) and (GetImageIndex(FIconType) >= 0) then begin
-			// Draw text first, then image
-			if not FIconText.IsEmpty then
-				origWidth := DrawTextMeasured(' ' + FIconText + ' ', origWidth);
 			var imgY := (Height - FImages.Height) div 2;
 			FImages.Draw(Canvas, origWidth, imgY, GetImageIndex(FIconType));
 		end else begin
 			// Fallback to unicode icon character
-			DrawTextMeasured(IfThen(not FIconText.IsEmpty, ' ' + FIconText) + GetIconChar(FIconType), origWidth);
+			DrawTextMeasured(GetIconChar(FIconType), origWidth);
 		end;
 	end else begin
 		inherited;
