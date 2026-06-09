@@ -326,7 +326,7 @@ inherited RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
           DesignSize = (
             539
             52)
-          object lblPaths: TWarningLabel
+          object lblPaths: TIconLabel
             AlignWithMargins = True
             Left = 8
             Top = 3

@@ -45,7 +45,8 @@ uses
 	RipGrepper.UI.RgOptionsPanel,
 	RipGrepper.Helper.RegexTemplates,
 	RipGrepper.UI.BaseForm,
-	RipGrepper.UI.RegexTemplateMenu;
+	RipGrepper.UI.RegexTemplateMenu,
+	RipGrepper.UI.Components.IconLabel;
 
 const
 	RG_OPTIONS_PADDING_LEFT = 4;
@@ -53,23 +54,10 @@ const
 	GB_EXPERT_DESIGNED_HEIGHT = 175; // Designed height from .dfm file
 
 type
-	TWarningLabel = class(TLabel)
-	strict private
-		FWarningText : string;
-		FIsWarning : Boolean;
-		FOrigCaption : string;
-		procedure SetIsWarning(const _value : Boolean);
-	protected
-		procedure Paint; override;
-		procedure Loaded; override;
-	public
-		property WarningText : string read FWarningText write FWarningText;
-		property IsWarning : Boolean read FIsWarning write SetIsWarning;
-	end;
 	TRipGrepperSearchDialogForm = class(TBaseForm)
 		pnlMiddle : TPanel;
 		lblParams : TLabel;
-		lblPaths : TWarningLabel;
+		lblPaths : TIconLabel;
 		cmbOptions : TComboBox;
 		cmbSearchDir : TComboBox;
 		cmbSearchText : TComboBox;
@@ -325,36 +313,6 @@ uses
 	Spring.DesignPatterns;
 
 {$R *.dfm}
-
-{ TWarningLabel }
-
-procedure TWarningLabel.SetIsWarning(const _value : Boolean);
-begin
-	FIsWarning := _value;
-	Invalidate();
-end;
-
-procedure TWarningLabel.Loaded;
-begin
-	inherited;
-	FOrigCaption := Caption;
-end;
-
-procedure TWarningLabel.Paint;
-var
-	textToDraw : string;
-begin
-	if FIsWarning then begin
-		textToDraw := FOrigCaption + ' ' + FWarningText;
-		Canvas.Font.Assign(Font);
-		Canvas.Font.Color := clRed;
-		Canvas.Font.Style := [fsBold];
-		Canvas.Brush.Style := bsClear;
-		Canvas.TextOut(0, 0, textToDraw);
-	end else begin
-		inherited;
-	end;
-end;
 
 constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _settings : TRipGrepperSettings;
 	const _histObj : IHistoryItemObject);
@@ -1450,11 +1408,11 @@ begin
 	{$ENDIF}
 
 	if isOutside then begin
-		lblPaths.WarningText := ' outside project';
-		lblPaths.IsWarning := True;
+		lblPaths.IconText := 'outside project';
+		lblPaths.IconType := iltWarning;
 		cmbSearchDir.Font.Color := clRed;
 	end else begin
-		lblPaths.IsWarning := False;
+		lblPaths.IconType := iltNone;
 		cmbSearchDir.Font.Color := clWindowText;
 	end;
 	cmbSearchDir.Invalidate();
@@ -2243,8 +2201,5 @@ begin
 		end;
 	end;
 end;
-
-initialization
-	System.Classes.RegisterClass(TWarningLabel);
 
 end.
