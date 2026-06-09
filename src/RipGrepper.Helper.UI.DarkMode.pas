@@ -254,9 +254,13 @@ begin
 		subCmp := _ctrl.Components[i];
 		if subCmp is TSVGIconImageList then begin
 			subImgList := subCmp as TSVGIconImageList;
-			subImgList.FixedColor := _color;
+			subImgList.FixedColor := clDefault;
 			for var j := 0 to subImgList.Count - 1 do begin
-				subImgList.SVGIconItems[j].FixedColor := _color;
+				if subImgList.SVGIconItems[j].IconName.StartsWith('icon-') then begin
+					subImgList.SVGIconItems[j].FixedColor := clDefault;
+				end else begin
+					subImgList.SVGIconItems[j].FixedColor := _color;
+				end;
 				subImgList.SVGIconItems[j].GrayScale := False;
 			end;
 		end else if subCmp is TWinControl then begin
