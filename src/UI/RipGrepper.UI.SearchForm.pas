@@ -1468,7 +1468,7 @@ begin
 	{$ENDIF}
 
 	if isOutside then begin
-		lblPaths.IconText := 'outside project';
+		lblPaths.IconHint := 'One or more search paths are outside the active project directory.';
 		lblPaths.IconType := iltWarning;
 		cmbSearchDir.Font.Color := clRed;
 	end else begin

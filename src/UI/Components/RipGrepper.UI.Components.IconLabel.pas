@@ -17,7 +17,7 @@ type
 	TIconLabel = class(TLabel)
 	strict private
 		FIconType : TIconLabelType;
-		FIconText : string;
+		FIconHint : string;
 		FOrigCaption : string;
 		FIconColor : TColor;
 		FImages : TCustomImageList;
@@ -26,7 +26,7 @@ type
 		FImageIndexInfo : TImageIndex;
 		FImageIndexQuestion : TImageIndex;
 		procedure SetIconType(const _value : TIconLabelType);
-		procedure SetIconText(const _value : string);
+		procedure SetIconHint(const _value : string);
 		procedure SetImages(const _value : TCustomImageList);
 		function GetIconChar(const _iconType : TIconLabelType) : string;
 		function GetIconColor(const _iconType : TIconLabelType) : TColor;
@@ -39,7 +39,7 @@ type
 	public
 		constructor Create(_owner : TComponent); override;
 		property IconType : TIconLabelType read FIconType write SetIconType;
-		property IconText : string read FIconText write SetIconText;
+		property IconHint : string read FIconText write SetIconText;
 		property Images : TCustomImageList read FImages write SetImages;
         // Image indexes for different icon types (if Images is assigned)
         // Image names should have 'icon-' prefix followed by the icon type (e.g. 'icon-warning', 'icon-error', etc.)
@@ -72,9 +72,9 @@ begin
 	Invalidate();
 end;
 
-procedure TIconLabel.SetIconText(const _value : string);
+procedure TIconLabel.SetIconHint(const _value : string);
 begin
-	FIconText := _value;
+	FIconHint := _value;
 	Hint := _value;
 	ShowHint := not _value.IsEmpty;
 end;
