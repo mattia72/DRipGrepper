@@ -19,7 +19,7 @@ uses
 	Spring,
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.Settings.AppSettings,
-	RipGrepper.Settings.NodeLookSettings;
+	RipGrepper.Settings.NodeLookSettings, System.ImageList, Vcl.ImgList, SVGIconImageListBase, SVGIconImageList;
 
 type
 	TColorSettingsForm = class(TSettingsBaseForm)
@@ -36,6 +36,9 @@ type
 		cbShowModifiedDateColumn : TCheckBox;
 		cbShowCreationDateColumn : TCheckBox;
 		cbShowLastAccessDateColumn : TCheckBox;
+		grpFileColors : TGroupBox;
+		cbShowFileErrorColor : TCheckBox;
+		cbShowFileWarningColor : TCheckBox;
 		procedure btnLoadDefaultsClick(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 		procedure rgThemeClick(Sender : TObject);
@@ -132,6 +135,11 @@ begin
 		rgTheme.ItemIndex := Integer(tmSystem);
 		rgTheme.Hint := 'Theme can be changed only in IDE';
 		{$ENDIF}
+
+		{$IFDEF STANDALONE}
+		cbShowFileWarningColor.Enabled := False;
+		cbShowFileWarningColor.Hint := 'Only available in Extension mode (requires project context)';
+		{$ENDIF}
 	finally
 		FbSkipClickEvent := False;
 	end;
@@ -212,6 +220,8 @@ begin
 	cbShowModifiedDateColumn.Checked := FNodeLookSettings.ShowLastModifiedDateColumn;
 	cbShowCreationDateColumn.Checked := FNodeLookSettings.ShowCreationDateColumn;
 	cbShowLastAccessDateColumn.Checked := FNodeLookSettings.ShowLastAccessDateColumn;
+	cbShowFileErrorColor.Checked := FNodeLookSettings.ShowFileErrorColor;
+	cbShowFileWarningColor.Checked := FNodeLookSettings.ShowFileWarningColor;
 end;
 
 procedure TColorSettingsForm.SetFontAttribsForFrames();
@@ -296,6 +306,8 @@ begin
 	FNodeLookSettings.ShowLastModifiedDateColumn := cbShowModifiedDateColumn.Checked;
 	FNodeLookSettings.ShowCreationDateColumn := cbShowCreationDateColumn.Checked;
 	FNodeLookSettings.ShowLastAccessDateColumn := cbShowLastAccessDateColumn.Checked;
+	FNodeLookSettings.ShowFileErrorColor := cbShowFileErrorColor.Checked;
+	FNodeLookSettings.ShowFileWarningColor := cbShowFileWarningColor.Checked;
 end;
 
 end.

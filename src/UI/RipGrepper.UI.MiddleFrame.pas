@@ -1727,11 +1727,35 @@ end;
 
 procedure TRipGrepperMiddleFrame.VstResultPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode;
 Column : TColumnIndex; TextType : TVSTTextType);
+var
+	nodeData : PVSFileNodeData;
+	filePath : string;
 begin
 	if TextType = ttNormal then begin
 		case Column of
 			COL_FILE : begin
-				TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileText, false);
+				if (Node.Parent = VstResult.RootNode) then begin
+					nodeData := VstResult.GetNodeData(Node);
+					filePath := nodeData.FilePath;
+					if Settings.NodeLookSettings.ShowFileErrorColor and (not FileExists(filePath)) then begin
+						TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileErrorText, false);
+					end else
+					{$IFNDEF STANDALONE}
+					if Settings.NodeLookSettings.ShowFileWarningColor then begin
+						var projectDir := TPath.GetDirectoryName(GetActiveProject());
+						if (not projectDir.IsEmpty) and (not filePath.ToUpper.StartsWith(projectDir.ToUpper)) then begin
+							TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileWarningText, false);
+						end else begin
+							TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileText, false);
+						end;
+					end else
+					{$ENDIF}
+					begin
+						TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileText, false);
+					end;
+				end else begin
+					TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileText, false);
+				end;
 			end;
 			COL_FILE_MODIFIED : begin
 				TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileModifiedText, false);
