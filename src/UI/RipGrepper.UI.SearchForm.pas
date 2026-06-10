@@ -5,6 +5,7 @@ interface
 uses
 
 	Winapi.Messages,
+	Winapi.Windows,
 	System.Variants,
 	System.Classes,
 	Vcl.Graphics,
@@ -52,8 +53,20 @@ const
 	RG_OPTIONS_PADDING_LEFT = 4;
 	RG_OPTIONS_PADDING_TOP = 4;
 	GB_EXPERT_DESIGNED_HEIGHT = 175; // Designed height from .dfm file
+	WM_DESELECT_COMBO = WM_APP + 100;
 
 type
+	// Interposer: suppresses auto-selection on focus when AutoSelectOnFocus is False
+	TComboBox = class(Vcl.StdCtrls.TComboBox)
+	private
+		FAutoSelectOnFocus : Boolean;
+	protected
+		procedure WndProc(var Message : TMessage); override;
+	public
+		constructor Create(AOwner : TComponent); override;
+		property AutoSelectOnFocus : Boolean read FAutoSelectOnFocus write FAutoSelectOnFocus;
+	end;
+
 	TRipGrepperSearchDialogForm = class(TBaseForm)
 		pnlMiddle : TPanel;
 		lblParams : TLabel;
@@ -154,12 +167,12 @@ type
 			cbRgParamHidden : TCheckBox;
 			cbRgParamNoIgnore : TCheckBox;
 			cbRgParamEncoding : TCheckBox;
-			cmbRgParamEncoding : TComboBox;
+			cmbRgParamEncoding : Vcl.StdCtrls.TComboBox;
 			// Output options panel controls
 			cbRgParamPretty : TCheckBox;
 			cbRgParamContext : TCheckBox;
 			seContextLineNum : TSpinEdit;
-			cmbOutputFormat : TComboBox;
+			cmbOutputFormat : Vcl.StdCtrls.TComboBox;
 
 			FIsKeyboardInput : Boolean;
 			// proxy between settings and ctrls
@@ -178,8 +191,6 @@ type
 			FShowing : Boolean;
 			// Design-time height of pnlTop (with replace text visible) - captured once, DPI-scaled
 			FTopPanelFullHeight : Integer;
-			FDeselectTimer : TTimer;
-			procedure OnDeselectTimer(Sender : TObject);
 
 			procedure ApplyLayout(const _bIsExpert : Boolean);
 			function CalculateFormHeight(const _bIsExpert : Boolean) : Integer;
@@ -192,8 +203,8 @@ type
 			function IsOptionSet(const _sParamRegex : string; const _sParamValue : string = '') : Boolean;
 			procedure ProcessControl(_ctrl : TControl; _imgList : TImageList);
 			procedure RemoveNecessaryOptionsFromCmbOptionsText;
-			procedure SetComboItemsAndText(_cmb : TComboBox; _txt : string; const _lst : TArrayEx<string>);
-			procedure SetComboItemsFromOptions(_cmb : TComboBox; const _argMaskRegex : string; const _items : TArrayEx<string>);
+			procedure SetComboItemsAndText(_cmb : Vcl.StdCtrls.TComboBox; _txt : string; const _lst : TArrayEx<string>);
+			procedure SetComboItemsFromOptions(_cmb : Vcl.StdCtrls.TComboBox; const _argMaskRegex : string; const _items : TArrayEx<string>);
 			procedure UpdateCmbOptionsAndMemoCommandLine;
 			procedure StoreCmbHistorieItems();
 			procedure WriteCtrlsToRipGrepParametersSettings;
@@ -304,7 +315,6 @@ uses
 	{$ENDIF}
 	RipGrepper.Tools.FileUtils,
 	System.IOUtils,
-	Winapi.Windows,
 	RipGrepper.Settings.AppSettings,
 	RipGrepper.Settings.ExtensionSettings,
 	RipGrepper.CommandLine.OptionStrings,
@@ -359,6 +369,12 @@ begin
 	FIsKeyboardInput := False;
 	toolbarSearchTextOptions.AutoSize := False; // else shrinked as extension
 	cmbOptions.AutoComplete := False; // so we know the old value after change
+
+	// Disable auto-selection on focus for all comboboxes except the search text
+	cmbSearchDir.AutoSelectOnFocus := False;
+	cmbReplaceText.AutoSelectOnFocus := False;
+	cmbFileMasks.AutoSelectOnFocus := False;
+	cmbOptions.AutoSelectOnFocus := False;
 
 	// Reduce margins for tighter layout
 	pnlTop.Margins.Top := 2;
@@ -655,37 +671,46 @@ begin
 
 		ActiveControl := cmbSearchText;
 		cmbSearchText.SelectAll;
-
-		// Use a one-shot timer to deselect comboboxes after form is fully shown
-		// (in DLL/extension context, focus messages arrive after FormShow returns)
-		FDeselectTimer := TTimer.Create(Self);
-		FDeselectTimer.Interval := 50;
-		FDeselectTimer.OnTimer := OnDeselectTimer;
-		FDeselectTimer.Enabled := True;
 	finally
 		FShowing := False;
 	end;
 end;
 
-procedure TRipGrepperSearchDialogForm.OnDeselectTimer(Sender : TObject);
+{ TComboBox interposer }
+
+constructor TComboBox.Create(AOwner : TComponent);
 begin
-	FDeselectTimer.Enabled := False;
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.OnDeselectTimer');
-
-	dbgMsg.MsgFmt('cmbSearchDir: SelStart=%d, SelLength=%d', [cmbSearchDir.SelStart, cmbSearchDir.SelLength]);
-	dbgMsg.MsgFmt('cmbReplaceText: SelStart=%d, SelLength=%d', [cmbReplaceText.SelStart, cmbReplaceText.SelLength]);
-	dbgMsg.MsgFmt('cmbFileMasks: SelStart=%d, SelLength=%d', [cmbFileMasks.SelStart, cmbFileMasks.SelLength]);
-	dbgMsg.MsgFmt('cmbOptions: SelStart=%d, SelLength=%d', [cmbOptions.SelStart, cmbOptions.SelLength]);
-
-	cmbSearchDir.SelLength := 0;
-	cmbReplaceText.SelLength := 0;
-	cmbFileMasks.SelLength := 0;
-	cmbOptions.SelLength := 0;
-
-	dbgMsg.MsgFmt('After deselect - cmbSearchDir: SelStart=%d, SelLength=%d', [cmbSearchDir.SelStart, cmbSearchDir.SelLength]);
-	dbgMsg.Msg('Timer fired and deselected all non-search comboboxes');
+	inherited Create(AOwner);
+	FAutoSelectOnFocus := True; // default: standard Windows behavior
 end;
+
+procedure TComboBox.WndProc(var Message : TMessage);
+var
+	EditWnd : HWND;
+begin
+	// Handle our deferred deselect message
+	if (Message.Msg = WM_DESELECT_COMBO) and (not FAutoSelectOnFocus) then begin
+		EditWnd := FindWindowEx(Handle, 0, 'Edit', nil);
+		if EditWnd <> 0 then begin
+			SendMessage(EditWnd, EM_SETSEL, WPARAM(-1), 0);
+			TDebugUtils.DebugMessageFormat('TComboBox.WndProc WM_DESELECT_COMBO: Name=%s, deselected via EditWnd', [Name]);
+		end;
+		Exit;
+	end;
+	inherited;
+	// After inherited processes text-changing messages, post a deferred deselect
+	if not FAutoSelectOnFocus then begin
+		case Message.Msg of
+			WM_SETTEXT, CB_SETCURSEL, CB_SELECTSTRING : begin
+				TDebugUtils.DebugMessageFormat('TComboBox.WndProc posting deselect: Name=%s, Msg=$%x, Text=%s',
+					[Name, Message.Msg, Text]);
+				PostMessage(Handle, WM_DESELECT_COMBO, 0, 0);
+			end;
+		end;
+	end;
+end;
+
+{ TRipGrepperSearchDialogForm }
 
 function TRipGrepperSearchDialogForm.GetSelectedPaths(const _initialDir : string; const _fdo : TFileDialogOptions) : string;
 var
@@ -826,7 +851,7 @@ begin
 	dbgMsg.Msg('ExpertOptions=' + FSettingsProxy.ExpertOptions.AsString);
 end;
 
-procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; _txt : string; const _lst : TArrayEx<string>);
+procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : Vcl.StdCtrls.TComboBox; _txt : string; const _lst : TArrayEx<string>);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetComboItemsAndText');
@@ -836,7 +861,7 @@ begin
 	dbgMsg.MsgFmt('idx:%d, %s.Text = %s', [_cmb.ItemIndex, _cmb.Name, _cmb.Text]);
 end;
 
-procedure TRipGrepperSearchDialogForm.SetComboItemsFromOptions(_cmb : TComboBox; const _argMaskRegex : string;
+procedure TRipGrepperSearchDialogForm.SetComboItemsFromOptions(_cmb : Vcl.StdCtrls.TComboBox; const _argMaskRegex : string;
 	const _items : TArrayEx<string>);
 var
 	params : TArray<string>;
@@ -849,7 +874,6 @@ begin
 	end else begin
 		_cmb.Text := _cmb.Items[0];
 	end;
-	TDebugUtils.DebugMessageFormat('TRipGrepperSearchDialogForm.SetComboItemsFromOptions: %s - %s', [_cmb.Name, _cmb.Text]);
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateCmbOptionsAndMemoCommandLine;

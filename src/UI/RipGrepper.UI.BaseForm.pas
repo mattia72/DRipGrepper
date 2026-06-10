@@ -21,22 +21,22 @@ type
 		btnCancel : TButton;
 		SVGImageListBottomPanel : TSVGIconImageList;
 
-	private
-		FThemeHandler : TThemeHandler;
-		function GetThemeHandler : TThemeHandler;
+		private
+			FThemeHandler : TThemeHandler;
+			function GetThemeHandler : TThemeHandler;
 
-	protected
-		FDpiScaler : TRipGrepperDpiScaler;
-		property ThemeHandler : TThemeHandler read GetThemeHandler;
-		// Override to customize Ok button caption, image and action
-		procedure UpdateOkButton; virtual;
-		// Override to customize Cancel button caption, image and action
-		procedure UpdateCancelButton; virtual;
+		protected
+			FDpiScaler : TRipGrepperDpiScaler;
+			property ThemeHandler : TThemeHandler read GetThemeHandler;
+			// Override to customize Ok button caption, image and action
+			procedure UpdateOkButton; virtual;
+			// Override to customize Cancel button caption, image and action
+			procedure UpdateCancelButton; virtual;
 
-	public
-		constructor Create(_Owner : TComponent; _themeName : string = ''); reintroduce; virtual;
-		destructor Destroy; override;
-		procedure AfterConstruction; override;
+		public
+			constructor Create(_Owner : TComponent; _themeName : string = ''); reintroduce; virtual;
+			destructor Destroy; override;
+			procedure AfterConstruction; override;
 	end;
 
 var
