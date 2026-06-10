@@ -178,6 +178,8 @@ type
 			FShowing : Boolean;
 			// Design-time height of pnlTop (with replace text visible) - captured once, DPI-scaled
 			FTopPanelFullHeight : Integer;
+			FDeselectTimer : TTimer;
+			procedure OnDeselectTimer(Sender : TObject);
 
 			procedure ApplyLayout(const _bIsExpert : Boolean);
 			function CalculateFormHeight(const _bIsExpert : Boolean) : Integer;
@@ -334,7 +336,7 @@ begin
 	lblPaths.ImageIndexError := 17;
 	lblPaths.ImageIndexInfo := 18;
 	lblPaths.ImageIndexQuestion := 19;
-	
+
 	// Disable theme font painting so Font.Color works on cmbSearchDir
 	cmbSearchDir.StyleElements := cmbSearchDir.StyleElements - [seFont];
 
@@ -652,9 +654,37 @@ begin
 		end;
 
 		ActiveControl := cmbSearchText;
+		cmbSearchText.SelectAll;
+
+		// Use a one-shot timer to deselect comboboxes after form is fully shown
+		// (in DLL/extension context, focus messages arrive after FormShow returns)
+		FDeselectTimer := TTimer.Create(Self);
+		FDeselectTimer.Interval := 50;
+		FDeselectTimer.OnTimer := OnDeselectTimer;
+		FDeselectTimer.Enabled := True;
 	finally
 		FShowing := False;
 	end;
+end;
+
+procedure TRipGrepperSearchDialogForm.OnDeselectTimer(Sender : TObject);
+begin
+	FDeselectTimer.Enabled := False;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.OnDeselectTimer');
+
+	dbgMsg.MsgFmt('cmbSearchDir: SelStart=%d, SelLength=%d', [cmbSearchDir.SelStart, cmbSearchDir.SelLength]);
+	dbgMsg.MsgFmt('cmbReplaceText: SelStart=%d, SelLength=%d', [cmbReplaceText.SelStart, cmbReplaceText.SelLength]);
+	dbgMsg.MsgFmt('cmbFileMasks: SelStart=%d, SelLength=%d', [cmbFileMasks.SelStart, cmbFileMasks.SelLength]);
+	dbgMsg.MsgFmt('cmbOptions: SelStart=%d, SelLength=%d', [cmbOptions.SelStart, cmbOptions.SelLength]);
+
+	cmbSearchDir.SelLength := 0;
+	cmbReplaceText.SelLength := 0;
+	cmbFileMasks.SelLength := 0;
+	cmbOptions.SelLength := 0;
+
+	dbgMsg.MsgFmt('After deselect - cmbSearchDir: SelStart=%d, SelLength=%d', [cmbSearchDir.SelStart, cmbSearchDir.SelLength]);
+	dbgMsg.Msg('Timer fired and deselected all non-search comboboxes');
 end;
 
 function TRipGrepperSearchDialogForm.GetSelectedPaths(const _initialDir : string; const _fdo : TFileDialogOptions) : string;
