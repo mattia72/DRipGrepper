@@ -61,6 +61,7 @@ type
 			class function GetActualThemeMode : EThemeMode;
 			class function GetIdeSystemColor(const _color : TColor) : TColor;
 			class function GetIdeStyleColor(const _styleColor : TStyleColor) : TColor;
+			class function GetThemedTextColor : TColor;
 			class function GetThemeNameByMode(const _tm : EThemeMode) : string;
 			// Checks the Windows registry to see if Windows Dark Mode is enabled
 			class function IsSystemDark : Boolean;
@@ -229,6 +230,25 @@ begin
 		themingServices : IOTAIDEThemingServices;
 	if Supports(BorlandIDEServices, IOTAIDEThemingServices, ThemingServices) then begin
 		Result := ThemingServices.StyleServices.GetStyleColor(_styleColor);
+	end;
+	{$ENDIF}
+end;
+
+class function TDarkModeHelper.GetThemedTextColor : TColor;
+begin
+	{$IFDEF STANDALONE}
+	if TStyleManager.IsCustomStyleActive then begin
+		Result := TStyleManager.ActiveStyle.GetSystemColor(clWindowText)
+	end else begin
+		Result := clWindowText;
+	end;
+	{$ELSE}
+	var
+		themingServices : IOTAIDEThemingServices;
+	if Supports(BorlandIDEServices, IOTAIDEThemingServices, ThemingServices) then begin
+		Result := ThemingServices.StyleServices.GetSystemColor(clWindowText);
+	end else begin
+		Result := clWindowText;
 	end;
 	{$ENDIF}
 end;

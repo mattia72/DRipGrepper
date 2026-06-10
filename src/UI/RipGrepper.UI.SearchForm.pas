@@ -67,7 +67,6 @@ type
 		procedure WndProc(var Message : TMessage); override;
 	public
 		constructor Create(AOwner : TComponent); override;
-		function GetThemedTextColor : TColor;
 		procedure SetDefaultFontColor;
 		property AutoSelectOnFocus : Boolean read FAutoSelectOnFocus write FAutoSelectOnFocus;
 		property IsCustomFontColor : Boolean read FIsCustomFontColor write FIsCustomFontColor;
@@ -329,7 +328,8 @@ uses
 	RipGrepper.Common.SearchTextWithOptions,
 	RipGrepper.UI.DpiScaler,
 	Spring.DesignPatterns,
-	Vcl.Themes;
+	Vcl.Themes,
+	RipGrepper.Helper.UI.DarkMode;
 
 {$R *.dfm}
 
@@ -693,18 +693,10 @@ begin
 	FIsCustomFontColor := False;
 end;
 
-function TComboBox.GetThemedTextColor : TColor;
-begin
-	if TStyleManager.IsCustomStyleActive then
-		Result := TStyleManager.ActiveStyle.GetSystemColor(clWindowText)
-	else
-		Result := clWindowText;
-end;
-
 procedure TComboBox.SetDefaultFontColor;
 begin
 	FIsCustomFontColor := False;
-	Font.Color := GetThemedTextColor;
+	Font.Color := TDarkModeHelper.GetThemedTextColor;
 end;
 
 procedure TComboBox.CMStyleChanged(var Message : TMessage);
@@ -712,7 +704,7 @@ begin
 	inherited;
 	// Update font color to match new theme when seFont is excluded from StyleElements
 	if (not (seFont in StyleElements)) and (not FIsCustomFontColor) then begin
-		Font.Color := GetThemedTextColor;
+		Font.Color := TDarkModeHelper.GetThemedTextColor;
 	end;
 end;
 

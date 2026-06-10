@@ -55,7 +55,8 @@ type
 implementation
 
 uses
-	System.SysUtils;
+	System.SysUtils,
+	RipGrepper.Tools.DebugUtils;
 
 { TIconLabel }
 
@@ -102,7 +103,10 @@ function TIconLabel.GetIconColor(const _iconType : TIconLabelType) : TColor;
 var
 	isDark : Boolean;
 begin
+	var dbgMsg := TDebugMsgBeginEnd.New('TIconLabel.GetIconColor');
 	isDark := TDarkModeHelper.GetActualThemeMode = tmDark;
+	dbgMsg.MsgFmt('IsDarkMode: %s iconType: %d', [BoolToStr(isDark, True), Ord(_iconType)]);
+
 	case _iconType of
 		iltWarning :
 		if isDark then
@@ -125,8 +129,9 @@ begin
 		else
 			Result := clNavy;
 		else
-		Result := clWindowText;
+		Result := TDarkModeHelper.GetThemedTextColor;
 	end;
+	dbgMsg.MsgFmt('Resulting color: %d', [Result]);
 end;
 
 function TIconLabel.GetImageIndex(const _iconType : TIconLabelType) : TImageIndex;
@@ -191,8 +196,8 @@ begin
 		Canvas.Font.Assign(Font);
 		Canvas.Brush.Style := bsClear;
 
-		// Draw original caption in normal style (DrawText handles '&' as accelerator prefix)
-		Canvas.Font.Color := Font.Color;
+		// Draw original caption in themed style (DrawText handles '&' as accelerator prefix)
+		Canvas.Font.Color := TDarkModeHelper.GetThemedTextColor;
 		Canvas.Font.Style := [];
 		origWidth := DrawTextMeasured(FOrigCaption + ' ', 0);
 
