@@ -9,7 +9,8 @@ uses
 	Vcl.ImgList,
 	Vcl.StdCtrls,
 	System.UITypes,
-	Winapi.Windows;
+	Winapi.Windows,
+	RipGrepper.Helper.UI.DarkMode;
 
 type
 	TIconLabelType = (iltNone, iltWarning, iltError, iltInfo, iltQuestion);
@@ -98,16 +99,31 @@ begin
 end;
 
 function TIconLabel.GetIconColor(const _iconType : TIconLabelType) : TColor;
+var
+	isDark : Boolean;
 begin
+	isDark := TDarkModeHelper.GetActualThemeMode = tmDark;
 	case _iconType of
 		iltWarning :
-		Result := $0080FF; // orange
+		if isDark then
+			Result := $00AEFF // light orange
+		else
+			Result := $0080FF; // orange
 		iltError :
-		Result := clRed;
+		if isDark then
+			Result := $7070FF // light red
+		else
+			Result := clRed;
 		iltInfo :
-		Result := clBlue;
+		if isDark then
+			Result := $FFCC66 // light blue
+		else
+			Result := clBlue;
 		iltQuestion :
-		Result := clNavy;
+		if isDark then
+			Result := $FF9966 // light navy
+		else
+			Result := clNavy;
 		else
 		Result := clWindowText;
 	end;

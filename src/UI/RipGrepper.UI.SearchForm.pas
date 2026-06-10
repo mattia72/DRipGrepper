@@ -57,14 +57,20 @@ const
 
 type
 	// Interposer: suppresses auto-selection on focus when AutoSelectOnFocus is False
+	// and handles themed font color when seFont is excluded from StyleElements
 	TComboBox = class(Vcl.StdCtrls.TComboBox)
 	private
 		FAutoSelectOnFocus : Boolean;
+		FIsCustomFontColor : Boolean;
+		procedure CMStyleChanged(var Message : TMessage); message CM_STYLECHANGED;
 	protected
 		procedure WndProc(var Message : TMessage); override;
 	public
 		constructor Create(AOwner : TComponent); override;
+		function GetThemedTextColor : TColor;
+		procedure SetDefaultFontColor;
 		property AutoSelectOnFocus : Boolean read FAutoSelectOnFocus write FAutoSelectOnFocus;
+		property IsCustomFontColor : Boolean read FIsCustomFontColor write FIsCustomFontColor;
 	end;
 
 	TRipGrepperSearchDialogForm = class(TBaseForm)
@@ -322,7 +328,8 @@ uses
 	RipGrepper.Settings.SettingsDictionary,
 	RipGrepper.Common.SearchTextWithOptions,
 	RipGrepper.UI.DpiScaler,
-	Spring.DesignPatterns;
+	Spring.DesignPatterns,
+	Vcl.Themes;
 
 {$R *.dfm}
 
@@ -349,6 +356,7 @@ begin
 
 	// Disable theme font painting so Font.Color works on cmbSearchDir
 	cmbSearchDir.StyleElements := cmbSearchDir.StyleElements - [seFont];
+	cmbSearchDir.SetDefaultFontColor;
 
 	// align buttons a bit lower
 	btnOk.Top := btnOk.Top + RG_OPTIONS_PADDING_TOP;
@@ -682,6 +690,30 @@ constructor TComboBox.Create(AOwner : TComponent);
 begin
 	inherited Create(AOwner);
 	FAutoSelectOnFocus := True; // default: standard Windows behavior
+	FIsCustomFontColor := False;
+end;
+
+function TComboBox.GetThemedTextColor : TColor;
+begin
+	if TStyleManager.IsCustomStyleActive then
+		Result := TStyleManager.ActiveStyle.GetSystemColor(clWindowText)
+	else
+		Result := clWindowText;
+end;
+
+procedure TComboBox.SetDefaultFontColor;
+begin
+	FIsCustomFontColor := False;
+	Font.Color := GetThemedTextColor;
+end;
+
+procedure TComboBox.CMStyleChanged(var Message : TMessage);
+begin
+	inherited;
+	// Update font color to match new theme when seFont is excluded from StyleElements
+	if (not (seFont in StyleElements)) and (not FIsCustomFontColor) then begin
+		Font.Color := GetThemedTextColor;
+	end;
 end;
 
 procedure TComboBox.WndProc(var Message : TMessage);
@@ -1471,9 +1503,10 @@ begin
 		lblPaths.IconHint := 'One or more search paths are outside the active project directory.';
 		lblPaths.IconType := iltWarning;
 		cmbSearchDir.Font.Color := clRed;
+		cmbSearchDir.IsCustomFontColor := True;
 	end else begin
 		lblPaths.IconType := iltNone;
-		cmbSearchDir.Font.Color := clWindowText;
+		cmbSearchDir.SetDefaultFontColor;
 	end;
 	cmbSearchDir.Invalidate();
 end;
