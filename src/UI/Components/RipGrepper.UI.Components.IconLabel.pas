@@ -15,38 +15,40 @@ type
 	TIconLabelType = (iltNone, iltWarning, iltError, iltInfo, iltQuestion);
 
 	TIconLabel = class(TLabel)
-	strict private
-		FIconType : TIconLabelType;
-		FIconHint : string;
-		FOrigCaption : string;
-		FIconColor : TColor;
-		FImages : TCustomImageList;
-		FImageIndexWarning : TImageIndex;
-		FImageIndexError : TImageIndex;
-		FImageIndexInfo : TImageIndex;
-		FImageIndexQuestion : TImageIndex;
-		procedure SetIconType(const _value : TIconLabelType);
-		procedure SetIconHint(const _value : string);
-		procedure SetImages(const _value : TCustomImageList);
-		function GetIconChar(const _iconType : TIconLabelType) : string;
-		function GetIconColor(const _iconType : TIconLabelType) : TColor;
-		function GetImageIndex(const _iconType : TIconLabelType) : TImageIndex;
-		function DrawTextMeasured(const _text : string; _left : Integer) : Integer;
-	protected
-		procedure Notification(_component : TComponent; _operation : TOperation); override;
-		procedure Paint; override;
-		procedure Loaded; override;
-	public
-		constructor Create(_owner : TComponent); override;
-		property IconType : TIconLabelType read FIconType write SetIconType;
-		property IconHint : string read FIconText write SetIconText;
-		property Images : TCustomImageList read FImages write SetImages;
-        // Image indexes for different icon types (if Images is assigned)
-        // Image names should have 'icon-' prefix followed by the icon type (e.g. 'icon-warning', 'icon-error', etc.)
-		property ImageIndexWarning : TImageIndex read FImageIndexWarning write FImageIndexWarning;
-		property ImageIndexError : TImageIndex read FImageIndexError write FImageIndexError;
-		property ImageIndexInfo : TImageIndex read FImageIndexInfo write FImageIndexInfo;
-		property ImageIndexQuestion : TImageIndex read FImageIndexQuestion write FImageIndexQuestion;
+		strict private
+			FIconType : TIconLabelType;
+			FIconHint : string;
+			FOrigCaption : string;
+			FIconColor : TColor;
+			FImages : TCustomImageList;
+			FImageIndexWarning : TImageIndex;
+			FImageIndexError : TImageIndex;
+			FImageIndexInfo : TImageIndex;
+			FImageIndexQuestion : TImageIndex;
+			procedure SetIconType(const _value : TIconLabelType);
+			procedure SetIconHint(const _value : string);
+			procedure SetImages(const _value : TCustomImageList);
+			function GetIconChar(const _iconType : TIconLabelType) : string;
+			function GetIconColor(const _iconType : TIconLabelType) : TColor;
+			function GetImageIndex(const _iconType : TIconLabelType) : TImageIndex;
+			function DrawTextMeasured(const _text : string; _left : Integer) : Integer;
+
+		protected
+			procedure Notification(_component : TComponent; _operation : TOperation); override;
+			procedure Paint; override;
+			procedure Loaded; override;
+
+		public
+			constructor Create(_owner : TComponent); override;
+			property IconType : TIconLabelType read FIconType write SetIconType;
+			property IconHint : string read FIconHint write SetIconHint;
+			property Images : TCustomImageList read FImages write SetImages;
+			// Image indexes for different icon types (if Images is assigned)
+			// Image names should have 'icon-' prefix followed by the icon type (e.g. 'icon-warning', 'icon-error', etc.)
+			property ImageIndexWarning : TImageIndex read FImageIndexWarning write FImageIndexWarning;
+			property ImageIndexError : TImageIndex read FImageIndexError write FImageIndexError;
+			property ImageIndexInfo : TImageIndex read FImageIndexInfo write FImageIndexInfo;
+			property ImageIndexQuestion : TImageIndex read FImageIndexQuestion write FImageIndexQuestion;
 	end;
 
 implementation
@@ -82,11 +84,15 @@ end;
 function TIconLabel.GetIconChar(const _iconType : TIconLabelType) : string;
 begin
 	case _iconType of
-		iltWarning : Result := #$26A0;
-		iltError : Result := #$2716;
-		iltInfo : Result := #$2139;
-		iltQuestion : Result := #$2753;
-	else
+		iltWarning :
+		Result := #$26A0;
+		iltError :
+		Result := #$2716;
+		iltInfo :
+		Result := #$2139;
+		iltQuestion :
+		Result := #$2753;
+		else
 		Result := '';
 	end;
 end;
@@ -94,11 +100,15 @@ end;
 function TIconLabel.GetIconColor(const _iconType : TIconLabelType) : TColor;
 begin
 	case _iconType of
-		iltWarning : Result := $0080FF; // orange
-		iltError : Result := clRed;
-		iltInfo : Result := clBlue;
-		iltQuestion : Result := clNavy;
-	else
+		iltWarning :
+		Result := $0080FF; // orange
+		iltError :
+		Result := clRed;
+		iltInfo :
+		Result := clBlue;
+		iltQuestion :
+		Result := clNavy;
+		else
 		Result := clWindowText;
 	end;
 end;
@@ -106,11 +116,15 @@ end;
 function TIconLabel.GetImageIndex(const _iconType : TIconLabelType) : TImageIndex;
 begin
 	case _iconType of
-		iltWarning : Result := FImageIndexWarning;
-		iltError : Result := FImageIndexError;
-		iltInfo : Result := FImageIndexInfo;
-		iltQuestion : Result := FImageIndexQuestion;
-	else
+		iltWarning :
+		Result := FImageIndexWarning;
+		iltError :
+		Result := FImageIndexError;
+		iltInfo :
+		Result := FImageIndexInfo;
+		iltQuestion :
+		Result := FImageIndexQuestion;
+		else
 		Result := -1;
 	end;
 end;
@@ -171,7 +185,8 @@ begin
 		Canvas.Font.Style := [fsBold];
 
 		if Assigned(FImages) and (GetImageIndex(FIconType) >= 0) then begin
-			var imgY := (Height - FImages.Height) div 2;
+			var
+			imgY := (Height - FImages.Height) div 2;
 			FImages.Draw(Canvas, origWidth, imgY, GetImageIndex(FIconType));
 		end else begin
 			// Fallback to unicode icon character
@@ -183,6 +198,6 @@ begin
 end;
 
 // initialization
-// 	System.Classes.RegisterClass(TIconLabel);
+// System.Classes.RegisterClass(TIconLabel);
 
 end.
