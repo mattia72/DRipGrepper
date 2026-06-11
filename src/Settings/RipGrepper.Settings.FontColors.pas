@@ -59,8 +59,8 @@ type
 				{ } (name : 'FileModifiedText'; ColorDef : 'Segoe UI|9|clGrayText|clNone'),
 				{ } (name : 'FileCreatedText'; ColorDef : 'Segoe UI|9|clGrayText|clNone'),
 				{ } (name : 'FileAccessedText'; ColorDef : 'Segoe UI|9|clGrayText|clNone'),
-				{ } (name : 'FileWarningText'; ColorDef : 'Segoe UI|9|$000080FF|clNone'),
-				{ } (name : 'FileErrorText'; ColorDef : 'Segoe UI|9|clRed|clNone'),
+				{ } (name : 'FileWarningText'; ColorDef : 'Segoe UI|9|$000080FF|clNone|fsBold'),
+				{ } (name : 'FileErrorText'; ColorDef : 'Segoe UI|9|clRed|clNone|fsBold'),
 				{ } (name : 'AlternateRow'; ColorDef : 'Segoe UI|9|clNone|cl3DLight'));
 
 			DEFAULT_DARK_COLORS : array [0 .. 18] of TNameColorDef = (
@@ -80,8 +80,8 @@ type
 				{ } (name : 'FileModifiedText'; ColorDef : 'Segoe UI|9|clGray|clNone'),
 				{ } (name : 'FileCreatedText'; ColorDef : 'Segoe UI|9|clGray|clNone'),
 				{ } (name : 'FileAccessedText'; ColorDef : 'Segoe UI|9|clGray|clNone'),
-				{ } (name : 'FileWarningText'; ColorDef : 'Segoe UI|9|$0080BFFF|clNone'),
-				{ } (name : 'FileErrorText'; ColorDef : 'Segoe UI|9|$008080FF|clNone'),
+				{ } (name : 'FileWarningText'; ColorDef : 'Segoe UI|9|$0080BFFF|clNone|fsBold'),
+				{ } (name : 'FileErrorText'; ColorDef : 'Segoe UI|9|$008080FF|clNone|fsBold'),
 				{$IFDEF STANDALONE}
 				{ } (name : 'AlternateRow'; ColorDef : 'Segoe UI|9|clNone|$002B2B2B'));
 			{$ELSE}
