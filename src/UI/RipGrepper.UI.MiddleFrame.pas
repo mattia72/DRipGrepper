@@ -174,7 +174,9 @@ type
 			function AddParallelParser(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean) : TParallelParser;
 			procedure DeleteResultNode(const node : PVirtualNode);
 			function GetActiveProject() : string;
+			{$IF IS_EXTENSION}
 			function IsInProject(const _filePath : string) : Boolean;
+			{$ENDIF}
 			function GetIsInitialized() : Boolean;
 			function GetOpenWithRelativeBaseDirPath(const _nodeData : PVSFileNodeData) : string;
 			function GetResultSelectedFilePath : string;
@@ -1755,7 +1757,7 @@ begin
 	end else begin
 		{$IF IS_EXTENSION}
 		if Settings.NodeLookSettings.ShowFileWarningColor and (not IsInProject(filePath)) then begin
-			HintText := 'File is outside project directory';
+			HintText := 'File is outside of project scope: ' + GetActiveProject();
 		end;
 		{$ENDIF}
 	end;
@@ -1771,7 +1773,7 @@ begin
 		case Column of
 			COL_FILE : begin
 				if (Node.Parent = VstResult.RootNode) // Only file-level nodes need error/warning colors (child match nodes have no valid FilePath in this column)
-					and (not IsSearchRunning) // only if hist object is opened
+					and (not IsSearchRunning) // don't slower down painting with file existence checks while search is running
 					and (Settings.NodeLookSettings.ShowFileErrorColor
 					{$IF IS_EXTENSION} or Settings.NodeLookSettings.ShowFileWarningColor {$ENDIF}) then begin
 					nodeData := VstResult.GetNodeData(Node);
@@ -1885,8 +1887,8 @@ begin
 	Result := extSettings.CurrentIDEContext.ActiveProject;
 end;
 
-function TRipGrepperMiddleFrame.IsInProject(const _filePath : string) : Boolean;
 {$IF IS_EXTENSION}
+function TRipGrepperMiddleFrame.IsInProject(const _filePath : string) : Boolean;
 var
 	projectDir : string;
 	filePathUpper : string;
@@ -1914,11 +1916,8 @@ begin
 	end;
 
 	Result := False;
-{$ELSE}
-begin
-	Result := True;
-{$ENDIF}
 end;
+{$ENDIF}
 
 function TRipGrepperMiddleFrame.GetIsInitialized() : Boolean;
 begin
