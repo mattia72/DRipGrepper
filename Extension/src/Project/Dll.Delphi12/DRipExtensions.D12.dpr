@@ -49,6 +49,7 @@ uses
   RipGrepper.UI.Settings.ConfigForm in '..\..\..\..\src\UI\RipGrepper.UI.Settings.ConfigForm.pas' {ConfigForm},
   RipGrepper.UI.DateFilterForm in '..\..\..\..\src\UI\RipGrepper.UI.DateFilterForm.pas' {DateFilterForm},
   RipGrepper.UI.DpiScaler in '..\..\..\..\src\UI\RipGrepper.UI.DpiScaler.pas',
+  RipGrepper.UI.HintBuilder in '..\..\..\..\src\UI\RipGrepper.UI.HintBuilder.pas',
   RipGrepper.UI.MainForm in '..\..\..\..\src\UI\RipGrepper.UI.MainForm.pas' {RipGrepperForm},
   RipGrepper.UI.MiddleFrame in '..\..\..\..\src\UI\RipGrepper.UI.MiddleFrame.pas' {RipGrepperMiddleFrame: TFrame},
   RipGrepper.UI.MiddleLeftFrame in '..\..\..\..\src\UI\RipGrepper.UI.MiddleLeftFrame.pas' {MiddleLeftFrame: TFrame},

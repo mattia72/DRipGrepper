@@ -288,7 +288,8 @@ uses
 	RipGrepper.UI.SearchForm,
 	System.RegularExpressions,
 	RipGrepper.Tools.Replacer,
-	RipGrepper.Tools.ReleaseUtils;
+	RipGrepper.Tools.ReleaseUtils,
+	RipGrepper.UI.HintBuilder;
 
 {$R *.dfm}
 
@@ -1745,21 +1746,45 @@ var
 	filePath : string;
 begin
 	HintText := '';
-	if (Column <> COL_FILE) or (Node.Parent <> VstResult.RootNode) or IsSearchRunning then begin
+	if IsSearchRunning then begin
 		Exit;
 	end;
 
+	LineBreakStyle := hlbForceMultiLine;
 	nodeData := VstResult.GetNodeData(Node);
 	filePath := nodeData.FilePath;
 
-	if Settings.NodeLookSettings.ShowFileErrorColor and (not FileExists(filePath)) then begin
-		HintText := 'File not found: ' + filePath;
-	end else begin
-		{$IF IS_EXTENSION}
-		if Settings.NodeLookSettings.ShowFileWarningColor and (not IsInProject(filePath)) then begin
-			HintText := 'File is outside of project scope: ' + GetActiveProject();
+	if Node.Parent = VstResult.RootNode then begin
+		// File node
+		case Column of
+			COL_FILE : begin
+				if Settings.NodeLookSettings.ShowFileErrorColor and (not FileExists(filePath)) then begin
+					HintText := 'File not found: ' + filePath;
+				end else begin
+					{$IF IS_EXTENSION}
+					if Settings.NodeLookSettings.ShowFileWarningColor and (not IsInProject(filePath)) then begin
+						HintText := 'File is outside of project scope: ' + GetActiveProject();
+					end else
+					{$ENDIF}
+					begin
+						HintText := TFileHintBuilder.BuildFileNodeHint(filePath, Settings.NodeLookSettings.ShowRelativePath);
+					end;
+				end;
+			end;
+			COL_MATCH_TEXT : begin
+				HintText := nodeData.MatchData.LineText;
+			end;
 		end;
-		{$ENDIF}
+	end else begin
+		// Match node
+		case Column of
+			COL_FILE, COL_ROW_NUM, COL_COL_NUM : begin
+				HintText := TFileHintBuilder.BuildMatchNodeHint(nodeData);
+			end;
+			COL_MATCH_TEXT : begin
+				HintText := nodeData.MatchData.LineText;
+			end;
+		end;
 	end;
 end;
 

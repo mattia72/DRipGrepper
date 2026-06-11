@@ -257,6 +257,7 @@
             <Form>ConfigForm</Form>
         </DCCReference>
         <DCCReference Include="..\..\UI\RipGrepper.UI.DpiScaler.pas"/>
+        <DCCReference Include="..\..\UI\RipGrepper.UI.HintBuilder.pas"/>
         <DCCReference Include="..\..\UI\RipGrepper.UI.MiddleLeftFrame.pas">
             <Form>MiddleLeftFrame</Form>
             <DesignClass>TFrame</DesignClass>
