@@ -141,7 +141,10 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           Header.Options = [hoAutoResize, hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible, hoAutoResizeInclCaption]
           Images = ImageListListView
           IncrementalSearch = isAll
+          HintMode = hmHint
+          ParentShowHint = False
           PopupMenu = PopupMenuResult
+          ShowHint = True
           TabOrder = 0
           TreeOptions.AutoOptions = [toAutoDropExpand, toAutoExpand, toAutoScrollOnExpand, toAutoSort, toAutoSpanColumns, toAutoTristateTracking, toAutoHideButtons, toAutoDeleteMovedNodes, toAutoChangeScale]
           TreeOptions.SelectionOptions = [toFullRowSelect]
@@ -152,6 +155,8 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           OnDblClick = VstResultDblClick
           OnDrawText = VstResultDrawText
           OnFreeNode = VstResultFreeNode
+          OnGetHint = VstResultGetHint
+          OnGetHintKind = VstResultGetHintKind
           OnGetText = VstResultGetText
           OnPaintText = VstResultPaintText
           OnGetImageIndex = VstResultGetImageIndex

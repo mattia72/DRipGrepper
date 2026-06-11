@@ -121,6 +121,9 @@ type
 		procedure VstResultFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
 		procedure VstResultGetImageIndex(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind; Column : TColumnIndex;
 			var Ghosted : Boolean; var ImageIndex : TImageIndex);
+		procedure VstResultGetHint(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
+			var LineBreakStyle : TVTTooltipLineBreakStyle; var HintText : string);
+		procedure VstResultGetHintKind(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; var Kind : TVTHintKind);
 		procedure VstResultGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType;
 			var CellText : string);
 		procedure VstResultHeaderClick(Sender : TVTHeader; HitInfo : TVTHeaderHitInfo);
@@ -171,6 +174,7 @@ type
 			function AddParallelParser(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean) : TParallelParser;
 			procedure DeleteResultNode(const node : PVirtualNode);
 			function GetActiveProject() : string;
+			function IsInProject(const _filePath : string) : Boolean;
 			function GetIsInitialized() : Boolean;
 			function GetOpenWithRelativeBaseDirPath(const _nodeData : PVSFileNodeData) : string;
 			function GetResultSelectedFilePath : string;
@@ -276,6 +280,7 @@ uses
 	RipGrepper.UI.TopFrame,
 	{$IFNDEF STANDALONE} RipGrepper.Common.IOTAUtils,
 	GX_UsesManager,
+	RipGrepper.Settings.ExtensionSettings,
 	{$ENDIF}
 	System.Generics.Defaults,
 	RipGrepper.UI.SearchForm,
@@ -1725,6 +1730,37 @@ begin
 		Sender.SortDirection := sdAscending;
 end;
 
+procedure TRipGrepperMiddleFrame.VstResultGetHintKind(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
+	var Kind : TVTHintKind);
+begin
+	Kind := TVTHintKind.vhkText;
+end;
+
+procedure TRipGrepperMiddleFrame.VstResultGetHint(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
+	var LineBreakStyle : TVTTooltipLineBreakStyle; var HintText : string);
+var
+	nodeData : PVSFileNodeData;
+	filePath : string;
+begin
+	HintText := '';
+	if (Column <> COL_FILE) or (Node.Parent <> VstResult.RootNode) or IsSearchRunning then begin
+		Exit;
+	end;
+
+	nodeData := VstResult.GetNodeData(Node);
+	filePath := nodeData.FilePath;
+
+	if Settings.NodeLookSettings.ShowFileErrorColor and (not FileExists(filePath)) then begin
+		HintText := 'File not found: ' + filePath;
+	end else begin
+		{$IF IS_EXTENSION}
+		if Settings.NodeLookSettings.ShowFileWarningColor and (not IsInProject(filePath)) then begin
+			HintText := 'File is outside project directory';
+		end;
+		{$ENDIF}
+	end;
+end;
+
 procedure TRipGrepperMiddleFrame.VstResultPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode;
 Column : TColumnIndex; TextType : TVSTTextType);
 var
@@ -1734,20 +1770,18 @@ begin
 	if TextType = ttNormal then begin
 		case Column of
 			COL_FILE : begin
-				if (Node.Parent = VstResult.RootNode) then begin
+				if (Node.Parent = VstResult.RootNode) // Only file-level nodes need error/warning colors (child match nodes have no valid FilePath in this column)
+					and (not IsSearchRunning) // only if hist object is opened
+					and (Settings.NodeLookSettings.ShowFileErrorColor
+					{$IF IS_EXTENSION} or Settings.NodeLookSettings.ShowFileWarningColor {$ENDIF}) then begin
 					nodeData := VstResult.GetNodeData(Node);
 					filePath := nodeData.FilePath;
 					if Settings.NodeLookSettings.ShowFileErrorColor and (not FileExists(filePath)) then begin
 						TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileErrorText, false);
 					end else
-					{$IFNDEF STANDALONE}
-					if Settings.NodeLookSettings.ShowFileWarningColor then begin
-						var projectDir := TPath.GetDirectoryName(GetActiveProject());
-						if (not projectDir.IsEmpty) and (not filePath.ToUpper.StartsWith(projectDir.ToUpper)) then begin
-							TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileWarningText, false);
-						end else begin
-							TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileText, false);
-						end;
+					{$IF IS_EXTENSION}
+					if Settings.NodeLookSettings.ShowFileWarningColor and (not IsInProject(filePath)) then begin
+						TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileWarningText, false);
 					end else
 					{$ENDIF}
 					begin
@@ -1849,6 +1883,41 @@ begin
 	var
 	extSettings := Settings.SearchFormSettings.ExtensionSettings;
 	Result := extSettings.CurrentIDEContext.ActiveProject;
+end;
+
+function TRipGrepperMiddleFrame.IsInProject(const _filePath : string) : Boolean;
+{$IF IS_EXTENSION}
+var
+	projectDir : string;
+	filePathUpper : string;
+	ideContext : TDelphiIDEContext;
+begin
+	Result := True;
+	ideContext := Settings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
+	projectDir := TPath.GetDirectoryName(ideContext.ActiveProject);
+	filePathUpper := _filePath.ToUpper;
+
+	if projectDir.IsEmpty then begin
+		Exit;
+	end;
+
+	// Check project directory
+	if filePathUpper.StartsWith(projectDir.ToUpper) then begin
+		Exit;
+	end;
+
+	// Check library paths
+	for var libPath in ideContext.ProjectLibraryPath do begin
+		if (not libPath.IsEmpty) and filePathUpper.StartsWith(libPath.ToUpper) then begin
+			Exit;
+		end;
+	end;
+
+	Result := False;
+{$ELSE}
+begin
+	Result := True;
+{$ENDIF}
 end;
 
 function TRipGrepperMiddleFrame.GetIsInitialized() : Boolean;
