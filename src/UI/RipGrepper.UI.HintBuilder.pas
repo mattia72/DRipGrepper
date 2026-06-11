@@ -281,6 +281,8 @@ var
 	sSize : string;
 	sAttrs : string;
 	sSC : string;
+	dtModified : TDateTime;
+	dtCreated : TDateTime;
 begin
 	Result := '';
 	if not FileExists(_filePath) then begin
@@ -299,6 +301,16 @@ begin
 		lines := lines + ['Size: ' + sSize];
 	end;
 
+	// File times
+	dtModified := TFile.GetLastWriteTime(_filePath);
+	if dtModified > 0 then begin
+		lines := lines + ['Modified: ' + FormatDateTime('yyyy-mm-dd hh:nn:ss', dtModified)];
+	end;
+	dtCreated := TFile.GetCreationTime(_filePath);
+	if dtCreated > 0 then begin
+		lines := lines + ['Created: ' + FormatDateTime('yyyy-mm-dd hh:nn:ss', dtCreated)];
+	end;
+
 	sAttrs := GetFileAttributes(_filePath);
 	if not sAttrs.IsEmpty then begin
 		lines := lines + ['Attr: ' + sAttrs];
@@ -306,7 +318,7 @@ begin
 
 	sSC := GetSourceControlInfo(_filePath);
 	if not sSC.IsEmpty then begin
-		lines := lines + ['SC: ' + sSC];
+		lines := lines + [sSC];
 	end;
 
 	Result := string.Join(#13#10, lines);

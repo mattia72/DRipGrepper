@@ -9,7 +9,7 @@
 - Add support for modified, creation and last access timestamps in results tree
 - Support for changing date column color and font in the UI
 - Drag and drop for history items in the search form, allowing users to easily reorder their search history by dragging and dropping items within the history list.
-- If Path is outside of the IDE project, a warning icon is shown in the search form, to avoid confusion about the search results.
+- **extension** If Path is outside of the IDE project, a warning icon is shown in the search form, to avoid confusion about the search results.
 
 ### 🔄 Changed
 - One base form to get nice Ok/Cancel buttons. 
@@ -18,7 +18,7 @@
 
 ### 🐞 Fixed
 - Update version script. 
-- On showing of search form in Delphi IDE, all text in every combo box was selected, now only the active combo box text is selected, so typing will delete the whole entry immediately. 
+- **extension** On showing of search form in Delphi IDE, all text in every combo box was selected, now only the active combo box text is selected, so typing will delete the whole entry immediately. 
 
 ## [v4.15.0-beta] - 2026-03-12
 
