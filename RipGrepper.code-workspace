@@ -2,13 +2,11 @@
 	"folders": [
 		{
 			"path": "."
-		},
-		{
-			"path": "../../node.js/vscode-extension/openindelphi"
 		}
 	],
 	"settings": {
-		"delphiLsp.settingsFile": "file:///c%3A/home/mata/dev/delphi/RipGrepper/UnitTest/DripGrepperUnittest.delphilsp.json",
+		"delphiLsp.settingsFile": "file:///c%3A/home/mata/dev/delphi/RipGrepper/src/Project/Delphi11/DRipGrepperComponents.delphilsp.json",
+		"files.encoding": "utf8bom",
 		"files.autoGuessEncoding": true,
 		"files.candidateGuessEncodings": [
 			"windows1252",

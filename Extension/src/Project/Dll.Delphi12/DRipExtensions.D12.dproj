@@ -121,8 +121,8 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.16.0.359;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>359</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.16.0.362;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>362</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <DCC_Description>RipGrep Search within Delphi</DCC_Description>
         <VerInfo_MinorVer>16</VerInfo_MinorVer>
@@ -137,7 +137,12 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.DebugUtils.pas"/>
-        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.SettingsFormBase.pas"/>
+        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.BaseForm.pas">
+            <Form>BaseForm</Form>
+        </DCCReference>
+        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.SettingsFormBase.pas">
+            <Form>SettingsBaseForm</Form>
+        </DCCReference>
         <DCCReference Include="..\..\..\..\src\RipGrepper.CommandLine.Builder.pas"/>
         <DCCReference Include="..\..\..\..\src\RipGrepper.CommandLine.OptionHelper.pas"/>
         <DCCReference Include="..\..\..\..\src\RipGrepper.Data.HistoryItemObject.pas"/>
@@ -168,6 +173,9 @@
         </DCCReference>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.ConfigForm.pas">
             <Form>ConfigForm</Form>
+        </DCCReference>
+        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.DateFilterForm.pas">
+            <Form>DateFilterForm</Form>
         </DCCReference>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.DpiScaler.pas"/>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.MainForm.pas">
