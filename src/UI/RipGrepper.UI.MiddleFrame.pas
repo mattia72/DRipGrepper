@@ -1766,7 +1766,7 @@ begin
 					{$IF IS_EXTENSION}
 					if Settings.NodeLookSettings.ShowFileWarningColor and (not IsInProject(filePath)) then begin
 						HintText := 'File is outside of project scope: ' + GetActiveProject();
-					end else
+					end;
 					{$ENDIF}
 					begin
 						if Settings.AppSettings.ShowFileHint then begin
