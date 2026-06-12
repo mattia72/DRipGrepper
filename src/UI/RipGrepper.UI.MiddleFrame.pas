@@ -298,6 +298,8 @@ begin
 	inherited;
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.Create');
+	Screen.HintFont.Name := 'Consolas';
+	Screen.HintFont.Size := 9;
 	FIconImgList := TIconImageList.Create(Handle, ImageListListView);
 	MainFrame := self;
 	{$IFDEF STANDALONE}
@@ -1767,7 +1769,7 @@ begin
 					end else
 					{$ENDIF}
 					begin
-						HintText := TFileHintBuilder.BuildFileNodeHint(filePath, Settings.NodeLookSettings.ShowRelativePath);
+						HintText := TFileHintBuilder.BuildFileNodeHint(filePath, Settings.NodeLookSettings.ShowRelativePath, Settings.NodeLookSettings.DateFormat);
 					end;
 				end;
 			end;

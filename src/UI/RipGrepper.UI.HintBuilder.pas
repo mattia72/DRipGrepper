@@ -24,7 +24,7 @@ type
 
 		public
 			// Build the hint text for file-level nodes (full path, size, attributes, SC info)
-			class function BuildFileNodeHint(const _filePath : string; const _showRelativePath : Boolean) : string;
+			class function BuildFileNodeHint(const _filePath : string; const _showRelativePath : Boolean; const _dateFormat : string) : string;
 			// Build the hint text for match-level nodes (file:row:col summary + full line)
 			class function BuildMatchNodeHint(const _nodeData : PVSFileNodeData) : string;
 	end;
@@ -35,6 +35,7 @@ uses
 	System.IOUtils,
 	System.Classes,
 	Winapi.Windows,
+	System.StrUtils,
 	u_dzConvertUtils,
 	RipGrepper.Tools.ProcessUtils,
 	RipGrepper.Tools.FileUtils;
@@ -183,22 +184,27 @@ begin
 	end;
 
 	if scType = 'Git' then begin
-		if not FGitAvailable.HasValue then
+		if not FGitAvailable.HasValue then begin
 			FGitAvailable := TFileUtils.IsExeInPath('git');
-		if not FGitAvailable.Value then
+		end;
+		if not FGitAvailable.Value then begin
 			Exit;
+		end;
 		status := GetGitFileStatus(scRoot, _filePath);
 	end else begin
-		if not FSvnAvailable.HasValue then
+		if not FSvnAvailable.HasValue then begin
 			FSvnAvailable := TFileUtils.IsExeInPath('svn');
-		if not FSvnAvailable.Value then
+		end;
+		if not FSvnAvailable.Value then begin
 			Exit;
+		end;
 		status := GetSvnFileStatus(_filePath);
 	end;
 
-	Result := scType;
 	if not status.IsEmpty then begin
-		Result := Result + ' (' + status + ')';
+		Result := Format('%-12s%s', [scType + ':', status]);
+	end else begin
+		Result := scType;
 	end;
 end;
 
@@ -217,7 +223,6 @@ end;
 class function TFileHintBuilder.GetFileAttributes(const _filePath : string) : string;
 var
 	attrs : DWORD;
-	parts : TArray<string>;
 begin
 	Result := '';
 	attrs := Winapi.Windows.GetFileAttributes(PChar(_filePath));
@@ -225,26 +230,18 @@ begin
 		Exit;
 	end;
 
-	parts := [];
-	if (attrs and FILE_ATTRIBUTE_READONLY) <> 0 then begin
-		parts := parts + ['ReadOnly'];
-	end;
-	if (attrs and FILE_ATTRIBUTE_HIDDEN) <> 0 then begin
-		parts := parts + ['Hidden'];
-	end;
-	if (attrs and FILE_ATTRIBUTE_SYSTEM) <> 0 then begin
-		parts := parts + ['System'];
-	end;
-	if (attrs and FILE_ATTRIBUTE_ARCHIVE) <> 0 then begin
-		parts := parts + ['Archive'];
-	end;
-
-	if Length(parts) > 0 then begin
-		Result := string.Join(', ', parts);
-	end;
+	// Double Commander style: d r a h s c e
+	Result :=
+		IfThen((attrs and FILE_ATTRIBUTE_DIRECTORY) <> 0, 'd', '-') +
+		IfThen((attrs and FILE_ATTRIBUTE_READONLY) <> 0, 'r', '-') +
+		IfThen((attrs and FILE_ATTRIBUTE_ARCHIVE) <> 0, 'a', '-') +
+		IfThen((attrs and FILE_ATTRIBUTE_HIDDEN) <> 0, 'h', '-') +
+		IfThen((attrs and FILE_ATTRIBUTE_SYSTEM) <> 0, 's', '-') +
+		IfThen((attrs and FILE_ATTRIBUTE_COMPRESSED) <> 0, 'c', '-') +
+		IfThen((attrs and FILE_ATTRIBUTE_ENCRYPTED) <> 0, 'e', '-');
 end;
 
-class function TFileHintBuilder.BuildFileNodeHint(const _filePath : string; const _showRelativePath : Boolean) : string;
+class function TFileHintBuilder.BuildFileNodeHint(const _filePath : string; const _showRelativePath : Boolean; const _dateFormat : string) : string;
 var
 	lines : TArray<string>;
 	sSize : string;
@@ -267,22 +264,22 @@ begin
 
 	sSize := GetFileSize(_filePath);
 	if not sSize.IsEmpty then begin
-		lines := lines + ['Size: ' + sSize];
+		lines := lines + [Format('%-12s%s', ['Size:', sSize])];
 	end;
 
 	// File times
 	dtModified := TFile.GetLastWriteTime(_filePath);
 	if dtModified > 0 then begin
-		lines := lines + ['Modified: ' + FormatDateTime('yyyy-mm-dd hh:nn:ss', dtModified)];
+		lines := lines + [Format('%-12s%s', ['Modified:', FormatDateTime(_dateFormat, dtModified)])];
 	end;
 	dtCreated := TFile.GetCreationTime(_filePath);
 	if dtCreated > 0 then begin
-		lines := lines + ['Created: ' + FormatDateTime('yyyy-mm-dd hh:nn:ss', dtCreated)];
+		lines := lines + [Format('%-12s%s', ['Created:', FormatDateTime(_dateFormat, dtCreated)])];
 	end;
 
 	sAttrs := GetFileAttributes(_filePath);
 	if not sAttrs.IsEmpty then begin
-		lines := lines + ['Attr: ' + sAttrs];
+		lines := lines + [Format('%-12s%s', ['Attrib:', sAttrs])];
 	end;
 
 	sSC := GetSourceControlInfo(_filePath);
