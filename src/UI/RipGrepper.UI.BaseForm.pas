@@ -12,7 +12,8 @@ uses
 	SVGIconImageListBase,
 	SVGIconImageList,
 	RipGrepper.UI.DpiScaler,
-	RipGrepper.Helper.UI.DarkMode;
+	RipGrepper.Helper.UI.DarkMode, 
+	Vcl.Controls;
 
 type
 	TBaseForm = class(TForm)

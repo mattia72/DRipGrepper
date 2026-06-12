@@ -25,6 +25,7 @@ type
 		InvalidProjectSourcePath : TArrayEx<string>;
 		ActiveProject : string;
 		function IsEmpty() : Boolean;
+		function IsFileInProject(const _filePath : string) : Boolean;
 
 		public
 			function ToLogString : string;
@@ -200,6 +201,39 @@ end;
 function TDelphiIDEContext.IsEmpty() : Boolean;
 begin
 	Result := ActiveProject.IsEmpty;
+end;
+
+function TDelphiIDEContext.IsFileInProject(const _filePath : string) : Boolean;
+var
+	projectDir : string;
+	filePathUpper : string;
+begin
+	Result := True;
+
+	if ActiveProject.IsEmpty then begin
+		Exit;
+	end;
+
+	projectDir := TPath.GetDirectoryName(ActiveProject);
+	filePathUpper := _filePath.ToUpper;
+
+	if projectDir.IsEmpty then begin
+		Exit;
+	end;
+
+	// Check project directory
+	if filePathUpper.StartsWith(projectDir.ToUpper) then begin
+		Exit;
+	end;
+
+	// Check library paths
+	for var libPath in ProjectLibraryPath do begin
+		if (not libPath.IsEmpty) and filePathUpper.StartsWith(libPath.ToUpper) then begin
+			Exit;
+		end;
+	end;
+
+	Result := False;
 end;
 
 function TDelphiIDEContext.GetValueByContext() : string;

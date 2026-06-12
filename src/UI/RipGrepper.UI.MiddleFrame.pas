@@ -1768,15 +1768,18 @@ begin
 						HintText := 'File is outside of project scope: ' + GetActiveProject();
 					end;
 					{$ENDIF}
-					begin
-						if Settings.AppSettings.ShowFileHint then begin
-							HintText := TFileHintBuilder.BuildFileNodeHint(filePath, Settings.NodeLookSettings.ShowRelativePath, Settings.NodeLookSettings.DateFormat);
+					if Settings.AppSettings.ShowFileHint then begin
+						var fileHint := TFileHintBuilder.BuildFileNodeHint(filePath, Settings.NodeLookSettings.ShowRelativePath, Settings.NodeLookSettings.DateFormat);
+						if HintText <> '' then begin
+							HintText := fileHint + CRLF2 + HintText;
+						end else begin
+							HintText := fileHint;
 						end;
 					end;
 				end;
 			end;
 			COL_MATCH_TEXT : begin
-				HintText := nodeData.MatchData.LineText;
+				HintText := nodeData.MatchData.LineText.Trim;
 			end;
 		end;
 	end else begin
@@ -1788,7 +1791,7 @@ begin
 				end;
 			end;
 			COL_MATCH_TEXT : begin
-				HintText := nodeData.MatchData.LineText;
+				HintText := nodeData.MatchData.LineText.Trim;
 			end;
 		end;
 	end;
@@ -1921,32 +1924,10 @@ end;
 {$IF IS_EXTENSION}
 function TRipGrepperMiddleFrame.IsInProject(const _filePath : string) : Boolean;
 var
-	projectDir : string;
-	filePathUpper : string;
 	ideContext : TDelphiIDEContext;
 begin
-	Result := True;
 	ideContext := Settings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
-	projectDir := TPath.GetDirectoryName(ideContext.ActiveProject);
-	filePathUpper := _filePath.ToUpper;
-
-	if projectDir.IsEmpty then begin
-		Exit;
-	end;
-
-	// Check project directory
-	if filePathUpper.StartsWith(projectDir.ToUpper) then begin
-		Exit;
-	end;
-
-	// Check library paths
-	for var libPath in ideContext.ProjectLibraryPath do begin
-		if (not libPath.IsEmpty) and filePathUpper.StartsWith(libPath.ToUpper) then begin
-			Exit;
-		end;
-	end;
-
-	Result := False;
+	Result := ideContext.IsFileInProject(_filePath);
 end;
 {$ENDIF}
 
