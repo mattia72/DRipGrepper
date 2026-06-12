@@ -36,7 +36,8 @@ type
 		cbShowModifiedDateColumn : TCheckBox;
 		cbShowCreationDateColumn : TCheckBox;
 		cbShowLastAccessDateColumn : TCheckBox;
-		grpFileColors : TGroupBox;
+		grpFileColumn : TGroupBox;
+		cbShowFileHint : TCheckBox;
 		cbShowFileErrorColor : TCheckBox;
 		cbShowFileWarningColor : TCheckBox;
 		procedure btnLoadDefaultsClick(Sender : TObject);
@@ -222,6 +223,7 @@ begin
 	cbShowLastAccessDateColumn.Checked := FNodeLookSettings.ShowLastAccessDateColumn;
 	cbShowFileErrorColor.Checked := FNodeLookSettings.ShowFileErrorColor;
 	cbShowFileWarningColor.Checked := FNodeLookSettings.ShowFileWarningColor;
+	cbShowFileHint.Checked := FAppSettings.ShowFileHint;
 end;
 
 procedure TColorSettingsForm.SetFontAttribsForFrames();
@@ -308,6 +310,7 @@ begin
 	FNodeLookSettings.ShowLastAccessDateColumn := cbShowLastAccessDateColumn.Checked;
 	FNodeLookSettings.ShowFileErrorColor := cbShowFileErrorColor.Checked;
 	FNodeLookSettings.ShowFileWarningColor := cbShowFileWarningColor.Checked;
+	FAppSettings.ShowFileHint := cbShowFileHint.Checked;
 end;
 
 end.

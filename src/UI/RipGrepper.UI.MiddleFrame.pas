@@ -1769,7 +1769,9 @@ begin
 					end else
 					{$ENDIF}
 					begin
-						HintText := TFileHintBuilder.BuildFileNodeHint(filePath, Settings.NodeLookSettings.ShowRelativePath, Settings.NodeLookSettings.DateFormat);
+						if Settings.AppSettings.ShowFileHint then begin
+							HintText := TFileHintBuilder.BuildFileNodeHint(filePath, Settings.NodeLookSettings.ShowRelativePath, Settings.NodeLookSettings.DateFormat);
+						end;
 					end;
 				end;
 			end;
@@ -1781,7 +1783,9 @@ begin
 		// Match node
 		case Column of
 			COL_FILE, COL_ROW_NUM, COL_COL_NUM : begin
-				HintText := TFileHintBuilder.BuildMatchNodeHint(nodeData);
+				if Settings.AppSettings.ShowFileHint then begin
+					HintText := TFileHintBuilder.BuildMatchNodeHint(nodeData);
+				end;
 			end;
 			COL_MATCH_TEXT : begin
 				HintText := nodeData.MatchData.LineText;

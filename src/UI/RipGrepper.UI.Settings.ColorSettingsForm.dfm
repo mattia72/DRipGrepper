@@ -32,9 +32,9 @@ inherited ColorSettingsForm: TColorSettingsForm
   end
   object pnlTop: TPanel [2]
     Left = 0
-    Top = 266
+    Top = 280
     Width = 660
-    Height = 156
+    Height = 142
     Align = alClient
     BevelOuter = bvNone
     ShowCaption = False
@@ -45,7 +45,7 @@ inherited ColorSettingsForm: TColorSettingsForm
       Left = 3
       Top = 3
       Width = 654
-      Height = 150
+      Height = 136
       Align = alClient
       Caption = 'Fonts && Colors'
       TabOrder = 0
@@ -53,7 +53,7 @@ inherited ColorSettingsForm: TColorSettingsForm
         Left = 2
         Top = 17
         Width = 650
-        Height = 131
+        Height = 117
         Align = alClient
         BevelInner = bvNone
         BevelOuter = bvNone
@@ -66,7 +66,7 @@ inherited ColorSettingsForm: TColorSettingsForm
     Left = 0
     Top = 0
     Width = 660
-    Height = 266
+    Height = 280
     Align = alTop
     BevelOuter = bvNone
     ShowCaption = False
@@ -89,22 +89,22 @@ inherited ColorSettingsForm: TColorSettingsForm
     object grpDateColumns: TGroupBox
       AlignWithMargins = True
       Left = 3
-      Top = 152
+      Top = 167
       Width = 654
-      Height = 109
+      Height = 110
       Align = alTop
-      Caption = 'Date Columns'
+      Caption = 'Date'
       TabOrder = 1
       object lblDateFormat: TLabel
         Left = 16
-        Top = 24
+        Top = 29
         Width = 66
         Height = 15
         Caption = 'Date format:'
       end
       object cmbDateFormat: TComboBox
         Left = 105
-        Top = 20
+        Top = 25
         Width = 200
         Height = 23
         Hint = 
@@ -121,7 +121,7 @@ inherited ColorSettingsForm: TColorSettingsForm
       end
       object cbShowModifiedDateColumn: TCheckBox
         Left = 16
-        Top = 49
+        Top = 54
         Width = 200
         Height = 17
         Hint = 'Show the "Modified" timestamp column in the result tree'
@@ -132,7 +132,7 @@ inherited ColorSettingsForm: TColorSettingsForm
       end
       object cbShowCreationDateColumn: TCheckBox
         Left = 16
-        Top = 65
+        Top = 70
         Width = 200
         Height = 17
         Hint = 'Show the "Created" timestamp column in the result tree'
@@ -141,7 +141,7 @@ inherited ColorSettingsForm: TColorSettingsForm
       end
       object cbShowLastAccessDateColumn: TCheckBox
         Left = 16
-        Top = 82
+        Top = 87
         Width = 200
         Height = 17
         Hint = 'Show the "Accessed" timestamp column in the result tree'
@@ -149,34 +149,45 @@ inherited ColorSettingsForm: TColorSettingsForm
         TabOrder = 3
       end
     end
-    object grpFileColors: TGroupBox
+    object grpFileColumn: TGroupBox
       AlignWithMargins = True
       Left = 3
       Top = 87
       Width = 654
-      Height = 59
+      Height = 74
       Align = alTop
-      Caption = 'File Colors'
+      Caption = 'File'
       TabOrder = 2
-      object cbShowFileErrorColor: TCheckBox
+      object cbShowFileHint: TCheckBox
         Left = 16
         Top = 19
         Width = 280
         Height = 17
+        Hint = 'Show file details (size, dates, attributes) as hint on hover'
+        Caption = 'Show file hint'
+        Checked = True
+        State = cbChecked
+        TabOrder = 0
+      end
+      object cbShowFileErrorColor: TCheckBox
+        Left = 16
+        Top = 35
+        Width = 280
+        Height = 17
         Hint = 'Use error color for files that do not exist'
         Caption = 'Error color for missing files'
-        TabOrder = 0
+        TabOrder = 1
       end
       object cbShowFileWarningColor: TCheckBox
         Left = 16
-        Top = 35
+        Top = 51
         Width = 280
         Height = 17
         Hint = 
           'Use warning color for files outside the project path (Extension ' +
           'only)'
         Caption = 'Warning color for files outside project'
-        TabOrder = 1
+        TabOrder = 2
       end
     end
   end
