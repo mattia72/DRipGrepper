@@ -4,11 +4,14 @@ interface
 
 uses
 	System.SysUtils,
+	Spring,
 	RipGrepper.Common.NodeData;
 
 type
 	TFileHintBuilder = class
 		private
+			class var FGitAvailable : Nullable<Boolean>;
+			class var FSvnAvailable : Nullable<Boolean>;
 			class function GetFileAttributes(const _filePath : string) : string;
 			class function GetFileSize(const _filePath : string) : string;
 			class function GetSourceControlInfo(const _filePath : string) : string;
@@ -32,67 +35,25 @@ uses
 	System.IOUtils,
 	System.Classes,
 	Winapi.Windows,
-	u_dzConvertUtils;
+	u_dzConvertUtils,
+	RipGrepper.Tools.ProcessUtils,
+	RipGrepper.Tools.FileUtils;
 
 class function TFileHintBuilder.RunCommand(const _exe, _args, _workDir : string) : string;
 var
-	si : TStartupInfo;
-	pi : TProcessInformation;
-	sa : TSecurityAttributes;
-	hReadPipe, hWritePipe : THandle;
-	cmdLine : string;
-	bytesRead : DWORD;
-	buffer : array [0 .. 4095] of AnsiChar;
-	exitCode : DWORD;
+	sl : TStringList;
+	stdOut : TStrings;
 begin
 	Result := '';
-
-	sa.nLength := SizeOf(TSecurityAttributes);
-	sa.bInheritHandle := True;
-	sa.lpSecurityDescriptor := nil;
-
-	if not CreatePipe(hReadPipe, hWritePipe, @sa, 0) then begin
-		Exit;
-	end;
-
+	sl := TStringList.Create;
+	stdOut := TStringList.Create;
 	try
-		SetHandleInformation(hReadPipe, HANDLE_FLAG_INHERIT, 0);
-
-		ZeroMemory(@si, SizeOf(si));
-		si.cb := SizeOf(si);
-		si.dwFlags := STARTF_USESHOWWINDOW or STARTF_USESTDHANDLES;
-		si.wShowWindow := SW_HIDE;
-		si.hStdOutput := hWritePipe;
-		si.hStdError := hWritePipe;
-
-		cmdLine := _exe + ' ' + _args;
-		UniqueString(cmdLine);
-
-		if not CreateProcess(nil, PChar(cmdLine), nil, nil, True,
-			CREATE_NO_WINDOW, nil, PChar(_workDir), si, pi) then begin
-			Exit;
-		end;
-
-		CloseHandle(hWritePipe);
-		hWritePipe := 0;
-
-		WaitForSingleObject(pi.hProcess, 3000);
-
-		while ReadFile(hReadPipe, buffer, SizeOf(buffer) - 1, bytesRead, nil) and (bytesRead > 0) do begin
-			buffer[bytesRead] := #0;
-			Result := Result + string(AnsiString(buffer));
-		end;
-
-		GetExitCodeProcess(pi.hProcess, exitCode);
-		CloseHandle(pi.hProcess);
-		CloseHandle(pi.hThread);
-
-		Result := Result.Trim;
+		sl.Add(_args);
+		TSimpleProcessOutputStringReader.RunProcess(_exe, sl, _workDir, stdOut);
+		Result := stdOut.Text.Trim;
 	finally
-		if hWritePipe <> 0 then begin
-			CloseHandle(hWritePipe);
-		end;
-		CloseHandle(hReadPipe);
+		sl.Free;
+		stdOut.Free;
 	end;
 end;
 
@@ -222,8 +183,16 @@ begin
 	end;
 
 	if scType = 'Git' then begin
+		if not FGitAvailable.HasValue then
+			FGitAvailable := TFileUtils.IsExeInPath('git');
+		if not FGitAvailable.Value then
+			Exit;
 		status := GetGitFileStatus(scRoot, _filePath);
 	end else begin
+		if not FSvnAvailable.HasValue then
+			FSvnAvailable := TFileUtils.IsExeInPath('svn');
+		if not FSvnAvailable.Value then
+			Exit;
 		status := GetSvnFileStatus(_filePath);
 	end;
 
@@ -341,5 +310,9 @@ begin
 		Result := _nodeData.MatchData.LineText;
 	end;
 end;
+
+initialization
+	TFileHintBuilder.FGitAvailable := nil;
+	TFileHintBuilder.FSvnAvailable := nil;
 
 end.
