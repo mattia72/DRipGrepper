@@ -178,6 +178,7 @@
             <Form>DateFilterForm</Form>
         </DCCReference>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.DpiScaler.pas"/>
+        <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.HintBuilder.pas"/>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.MainForm.pas">
             <Form>RipGrepperForm</Form>
         </DCCReference>

@@ -67,6 +67,7 @@ uses
   RipGrepper.UI.Settings.ConfigForm in '..\..\UI\RipGrepper.UI.Settings.ConfigForm.pas' {ConfigForm},
   RipGrepper.UI.DateFilterForm in '..\..\UI\RipGrepper.UI.DateFilterForm.pas' {DateFilterForm},
   RipGrepper.UI.DpiScaler in '..\..\UI\RipGrepper.UI.DpiScaler.pas',
+  RipGrepper.UI.HintBuilder in '..\..\UI\RipGrepper.UI.HintBuilder.pas',
   RipGrepper.UI.MiddleLeftFrame in '..\..\UI\RipGrepper.UI.MiddleLeftFrame.pas' {MiddleLeftFrame: TFrame},
   RipGrepper.UI.ParentFrame in '..\..\UI\RipGrepper.UI.ParentFrame.pas' {ParentFrame: TFrame},
   RipGrepper.UI.RipGrepOptionsForm in '..\..\UI\RipGrepper.UI.RipGrepOptionsForm.pas' {RipGrepOptionsForm},

@@ -51,6 +51,7 @@ type
 			class function ExpandFileNameRelBaseDir(const _Filename, _BaseDir : string) : string;
 			class function FindExecutable(sFileName : string; out sOutpuPath : string) : Boolean;
 			class function FindFileInSubDirs(const _dir : string; const _file : string) : string;
+			class function IsExeInPath(const _exeName : string) : Boolean;
 			class function GetVsCodeDir : string;
 			class function GetVsCodeCommandItem : TCommandItem;
 			// Determine if a passed in path/file is absolute or relative
@@ -151,6 +152,13 @@ begin
 
 	TDebugUtils.DebugMessage('TFileUtils.FindExecutable: ' + sFileName + ' path:' + sOutpuPath);
 	// WriteDebugMessage(sOutpuPath);
+end;
+
+class function TFileUtils.IsExeInPath(const _exeName : string) : Boolean;
+var
+	buffer : array [0 .. MAX_PATH] of Char;
+begin
+	Result := SearchPath(nil, PChar(_exeName), '.exe', MAX_PATH + 1, @buffer[0], PChar(nil^)) > 0;
 end;
 
 class function TFileUtils.FindFileInSubDirs(const _dir : string; const _file : string) : string;

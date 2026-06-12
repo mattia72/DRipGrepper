@@ -145,7 +145,26 @@ inherited RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
   OnResize = FormResize
   OnShow = FormShow
   TextHeight = 15
-  object pnlMiddle: TPanel
+  inherited PanelBottom: TPanel
+    Top = 520
+    Width = 559
+    TabOrder = 2
+    inherited btnOk: TButton
+      Left = 395
+    end
+    inherited btnCancel: TButton
+      Left = 476
+    end
+    object cbExpertMode: TCheckBox
+      Left = 16
+      Top = 11
+      Width = 103
+      Height = 17
+      Action = ActionShowExpertOptions
+      TabOrder = 2
+    end
+  end
+  object pnlMiddle: TPanel [1]
     Left = 0
     Top = 106
     Width = 559
@@ -326,7 +345,7 @@ inherited RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
           DesignSize = (
             539
             52)
-          object lblPaths: TLabel
+          object lblPaths: TIconLabel
             AlignWithMargins = True
             Left = 8
             Top = 3
@@ -486,25 +505,7 @@ inherited RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
       end
     end
   end
-  inherited PanelBottom: TPanel
-    inherited btnOk: TButton
-      Left = 395
-      Top = 10
-    end
-    inherited btnCancel: TButton
-      Left = 476
-      Top = 10
-    end
-    object cbExpertMode: TCheckBox
-      Left = 16
-      Top = 11
-      Width = 103
-      Height = 17
-      Action = ActionShowExpertOptions
-      TabOrder = 2
-    end
-  end
-  object pnlTop: TPanel
+  object pnlTop: TPanel [2]
     Left = 0
     Top = 0
     Width = 559
@@ -979,6 +980,53 @@ inherited RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
           'h d="M7,21H5V3H7V21M19,3H17V21H19V3M13,8H9V10H12.97C13.14,10 14,' +
           '10.16 14,12C14,13.84 13.14,14 13,14H11V12L8,15L11,18V16H13C14.04' +
           ',16 16,15.16 16,12C16,8.84 14.04,8 13,8Z" /></svg>'
+      end
+      item
+        IconName = 'icon-warning'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"' +
+          ' viewBox="0 0 28 28"><g fill="none"><path fill="#212121" d="M11.' +
+          '593 4.17c1.045-1.894 3.768-1.895 4.815 0l9.25 16.75c1.012 1.833-' +
+          '.314 4.08-2.407 4.08H4.757c-2.093 0-3.42-2.246-2.408-4.079z"/><p' +
+          'ath fill="url(#SVGLZCHacMA)" d="M11.593 4.17c1.045-1.894 3.768-1' +
+          '.895 4.815 0l9.25 16.75c1.012 1.833-.314 4.08-2.407 4.08H4.757c-' +
+          '2.093 0-3.42-2.246-2.408-4.079z"/><path fill="url(#SVGYctZDcfA)"' +
+          ' d="M15 20a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-1.75-3.25a.75.75 0 0 0 1' +
+          '.5 0v-6.5a.75.75 0 0 0-1.5 0z"/><defs><linearGradient id="SVGLZC' +
+          'HacMA" x1="5.753" x2="19.714" y1="-.728" y2="27.957" gradientUni' +
+          'ts="userSpaceOnUse"><stop stop-color="#ffcd0f"/><stop offset="1"' +
+          ' stop-color="#fe8401"/></linearGradient><linearGradient id="SVGY' +
+          'ctZDcfA" x1="11.333" x2="17.338" y1="9.5" y2="20.638" gradientUn' +
+          'its="userSpaceOnUse"><stop stop-color="#4a4a4a"/><stop offset="1' +
+          '" stop-color="#242424"/></linearGradient></defs></g></svg>'
+      end
+      item
+        IconName = 'icon-error'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><pat' +
+          'h fill="#FF0000" d="M12,2C17.53,2 22,6.47 22,12C22,17.53 17.53,2' +
+          '2 12,22C6.47,22 2,17.53 2,12C2,6.47 6.47,2 12,2M15.59,7L12,10.59' +
+          'L8.41,7L7,8.41L10.59,12L7,15.59L8.41,17L12,13.41L15.59,17L17,15.' +
+          '59L13.41,12L17,8.41L15.59,7Z" /></svg>'
+      end
+      item
+        IconName = 'icon-info'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><pat' +
+          'h fill="#0000FF" d="M13,9H11V7H13M13,17H11V11H13M12,2A10,10 0 0,' +
+          '0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" />' +
+          '</svg>'
+      end
+      item
+        IconName = 'icon-question'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><pat' +
+          'h fill="#000080" d="M15.07,11.25L14.17,12.17C13.45,12.89 13,13.5' +
+          ' 13,15H11V14.5C11,13.39 11.45,12.39 12.17,11.67L13.41,10.41C13.7' +
+          '8,10.05 14,9.55 14,9C14,7.89 13.1,7 12,7A2,2 0 0,0 10,9H8A4,4 0 ' +
+          '0,1 12,5A4,4 0 0,1 16,9C16,9.88 15.64,10.67 15.07,11.25M13,19H11' +
+          'V17H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12' +
+          'A10,10 0 0,0 12,2Z" /></svg>'
       end>
     Scaled = True
     Left = 400

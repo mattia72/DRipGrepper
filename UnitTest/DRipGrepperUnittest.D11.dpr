@@ -63,6 +63,7 @@ uses
   RipGrepper.ProcessUtils.Test in 'RipGrepper.ProcessUtils.Test.pas',
   RipGrepper.Settings.AppSettings in '..\src\Settings\RipGrepper.Settings.AppSettings.pas',
   RipGrepper.Settings.ExtensionSettings in '..\src\Settings\RipGrepper.Settings.ExtensionSettings.pas',
+  RipGrepper.Settings.ExtensionSettings.Test in 'RipGrepper.Settings.ExtensionSettings.Test.pas',
   RipGrepper.Settings.FilePersister in '..\src\Settings\RipGrepper.Settings.FilePersister.pas',
   RipGrepper.Settings.FontColors in '..\src\Settings\RipGrepper.Settings.FontColors.pas',
   RipGrepper.Settings.FontColorsTest in 'RipGrepper.Settings.FontColorsTest.pas',

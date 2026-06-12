@@ -139,9 +139,12 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           Colors.UnfocusedSelectionBorderColor = clWhite
           Header.AutoSizeIndex = 4
           Header.Options = [hoAutoResize, hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible, hoAutoResizeInclCaption]
+          HintMode = hmHint
           Images = ImageListListView
           IncrementalSearch = isAll
+          ParentShowHint = False
           PopupMenu = PopupMenuResult
+          ShowHint = True
           TabOrder = 0
           TreeOptions.AutoOptions = [toAutoDropExpand, toAutoExpand, toAutoScrollOnExpand, toAutoSort, toAutoSpanColumns, toAutoTristateTracking, toAutoHideButtons, toAutoDeleteMovedNodes, toAutoChangeScale]
           TreeOptions.SelectionOptions = [toFullRowSelect]
@@ -154,7 +157,9 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           OnFreeNode = VstResultFreeNode
           OnGetText = VstResultGetText
           OnPaintText = VstResultPaintText
+          OnGetHintKind = VstResultGetHintKind
           OnGetImageIndex = VstResultGetImageIndex
+          OnGetHint = VstResultGetHint
           OnHeaderClick = VstResultHeaderClick
           OnHeaderDragged = VstResultHeaderDragged
           OnNodeClick = VstResultNodeClick

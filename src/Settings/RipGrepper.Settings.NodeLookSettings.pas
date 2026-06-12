@@ -19,6 +19,8 @@ const
 	{ } 'ShowLastModifiedDateColumn',
 	{ } 'ShowCreationDateColumn',
 	{ } 'ShowLastAccessDateColumn',
+	{ } 'ShowFileErrorColor',
+	{ } 'ShowFileWarningColor',
 	{ } 'DateFormat'];
 
 type
@@ -34,6 +36,8 @@ type
 			FFilterSettings : TFilterSettings;
 			FIndentLines : IBoolSetting;
 			FShowFileIcon : IBoolSetting;
+			FShowFileErrorColor : IBoolSetting;
+			FShowFileWarningColor : IBoolSetting;
 			FShowLastModifiedDateColumn : IBoolSetting;
 			FShowCreationDateColumn : IBoolSetting;
 			FShowLastAccessDateColumn : IBoolSetting;
@@ -43,6 +47,8 @@ type
 			function GetExpandNodes() : Boolean;
 			function GetIndentLines() : Boolean;
 			function GetShowFileIcon() : Boolean;
+			function GetShowFileErrorColor() : Boolean;
+			function GetShowFileWarningColor() : Boolean;
 			function GetShowLastModifiedDateColumn() : Boolean;
 			function GetShowCreationDateColumn() : Boolean;
 			function GetShowLastAccessDateColumn() : Boolean;
@@ -53,6 +59,8 @@ type
 			procedure SetFilterSettings(const Value : TFilterSettings);
 			procedure SetIndentLines(const Value : Boolean);
 			procedure SetShowFileIcon(const Value : Boolean);
+			procedure SetShowFileErrorColor(const Value : Boolean);
+			procedure SetShowFileWarningColor(const Value : Boolean);
 			procedure SetShowLastModifiedDateColumn(const Value : Boolean);
 			procedure SetShowCreationDateColumn(const Value : Boolean);
 			procedure SetShowLastAccessDateColumn(const Value : Boolean);
@@ -71,6 +79,8 @@ type
 			property FilterSettings : TFilterSettings read FFilterSettings write SetFilterSettings;
 			property IndentLines : Boolean read GetIndentLines write SetIndentLines;
 			property ShowFileIcon : Boolean read GetShowFileIcon write SetShowFileIcon;
+			property ShowFileErrorColor : Boolean read GetShowFileErrorColor write SetShowFileErrorColor;
+			property ShowFileWarningColor : Boolean read GetShowFileWarningColor write SetShowFileWarningColor;
 			property ShowLastModifiedDateColumn : Boolean read GetShowLastModifiedDateColumn write SetShowLastModifiedDateColumn;
 			property ShowCreationDateColumn : Boolean read GetShowCreationDateColumn write SetShowCreationDateColumn;
 			property ShowLastAccessDateColumn : Boolean read GetShowLastAccessDateColumn write SetShowLastAccessDateColumn;
@@ -131,6 +141,16 @@ begin
 	Result := FShowFileIcon.Value;
 end;
 
+function TNodeLookSettings.GetShowFileErrorColor() : Boolean;
+begin
+	Result := FShowFileErrorColor.Value;
+end;
+
+function TNodeLookSettings.GetShowFileWarningColor() : Boolean;
+begin
+	Result := FShowFileWarningColor.Value;
+end;
+
 function TNodeLookSettings.GetShowLastModifiedDateColumn() : Boolean;
 begin
 	Result := FShowLastModifiedDateColumn.Value;
@@ -160,6 +180,8 @@ begin
 	FExpandNodes := TBoolSetting.Create('ExpandNodes', False, ssInitialized, ssb);
 	FIndentLines := TBoolSetting.Create('IndentLines', False, ssInitialized, ssb);
 	FShowFileIcon := TBoolSetting.Create('ShowFileIcon', False, ssInitialized, ssb);
+	FShowFileErrorColor := TBoolSetting.Create('ShowFileErrorColor', False, ssInitialized, ssb);
+	FShowFileWarningColor := TBoolSetting.Create('ShowFileWarningColor', False, ssInitialized, ssb);
 	FShowLastModifiedDateColumn := TBoolSetting.Create('ShowLastModifiedDateColumn', True, ssInitialized, ssb);
 	FShowCreationDateColumn := TBoolSetting.Create('ShowCreationDateColumn', False, ssInitialized, ssb);
 	FShowLastAccessDateColumn := TBoolSetting.Create('ShowLastAccessDateColumn', False, ssInitialized, ssb);
@@ -167,6 +189,8 @@ begin
 
 	CreateSetting(FShowRelativePath);
 	CreateSetting(FShowFileIcon);
+	CreateSetting(FShowFileErrorColor);
+	CreateSetting(FShowFileWarningColor);
 	CreateSetting(FAlternateRowColors);
 	CreateSetting(FIndentLines);
 	CreateSetting(FExpandNodes);
@@ -217,6 +241,16 @@ end;
 procedure TNodeLookSettings.SetShowFileIcon(const Value : Boolean);
 begin
 	FShowFileIcon.Value := Value;
+end;
+
+procedure TNodeLookSettings.SetShowFileErrorColor(const Value : Boolean);
+begin
+	FShowFileErrorColor.Value := Value;
+end;
+
+procedure TNodeLookSettings.SetShowFileWarningColor(const Value : Boolean);
+begin
+	FShowFileWarningColor.Value := Value;
 end;
 
 procedure TNodeLookSettings.SetShowLastModifiedDateColumn(const Value : Boolean);

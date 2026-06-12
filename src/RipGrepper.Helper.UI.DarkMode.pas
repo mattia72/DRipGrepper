@@ -61,6 +61,7 @@ type
 			class function GetActualThemeMode : EThemeMode;
 			class function GetIdeSystemColor(const _color : TColor) : TColor;
 			class function GetIdeStyleColor(const _styleColor : TStyleColor) : TColor;
+			class function GetThemedTextColor : TColor;
 			class function GetThemeNameByMode(const _tm : EThemeMode) : string;
 			// Checks the Windows registry to see if Windows Dark Mode is enabled
 			class function IsSystemDark : Boolean;
@@ -233,6 +234,25 @@ begin
 	{$ENDIF}
 end;
 
+class function TDarkModeHelper.GetThemedTextColor : TColor;
+begin
+	{$IFDEF STANDALONE}
+	if TStyleManager.IsCustomStyleActive then begin
+		Result := TStyleManager.ActiveStyle.GetSystemColor(clWindowText)
+	end else begin
+		Result := clWindowText;
+	end;
+	{$ELSE}
+	var
+		themingServices : IOTAIDEThemingServices;
+	if Supports(BorlandIDEServices, IOTAIDEThemingServices, ThemingServices) then begin
+		Result := ThemingServices.StyleServices.GetSystemColor(clWindowText);
+	end else begin
+		Result := clWindowText;
+	end;
+	{$ENDIF}
+end;
+
 class function TDarkModeHelper.GetThemeNameByMode(const _tm : EThemeMode) : string;
 begin
 	case _tm of
@@ -254,9 +274,13 @@ begin
 		subCmp := _ctrl.Components[i];
 		if subCmp is TSVGIconImageList then begin
 			subImgList := subCmp as TSVGIconImageList;
-			subImgList.FixedColor := _color;
+			subImgList.FixedColor := clDefault;
 			for var j := 0 to subImgList.Count - 1 do begin
-				subImgList.SVGIconItems[j].FixedColor := _color;
+				if subImgList.SVGIconItems[j].IconName.StartsWith('icon-') then begin
+					subImgList.SVGIconItems[j].FixedColor := clDefault;
+				end else begin
+					subImgList.SVGIconItems[j].FixedColor := _color;
+				end;
 				subImgList.SVGIconItems[j].GrayScale := False;
 			end;
 		end else if subCmp is TWinControl then begin

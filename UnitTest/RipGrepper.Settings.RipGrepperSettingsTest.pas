@@ -502,6 +502,8 @@ begin
 	FSettings.NodeLookSettings.ShowLastModifiedDateColumn := True;
 	FSettings.NodeLookSettings.ShowCreationDateColumn := True;
 	FSettings.NodeLookSettings.ShowLastAccessDateColumn := True;
+	FSettings.NodeLookSettings.ShowFileErrorColor := True;
+	FSettings.NodeLookSettings.ShowFileWarningColor := True;
 
 	FSettings.SearchFormSettings.ExtensionSettings.OpenWithShortcut := SC_OPEN_WITH;
 	FSettings.SearchFormSettings.ExtensionSettings.SearchSelectedShortcut := SC_SEARCH;

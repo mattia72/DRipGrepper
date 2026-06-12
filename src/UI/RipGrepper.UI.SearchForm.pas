@@ -5,6 +5,7 @@ interface
 uses
 
 	Winapi.Messages,
+	Winapi.Windows,
 	System.Variants,
 	System.Classes,
 	Vcl.Graphics,
@@ -45,18 +46,36 @@ uses
 	RipGrepper.UI.RgOptionsPanel,
 	RipGrepper.Helper.RegexTemplates,
 	RipGrepper.UI.BaseForm,
-	RipGrepper.UI.RegexTemplateMenu;
+	RipGrepper.UI.RegexTemplateMenu,
+	RipGrepper.UI.Components.IconLabel;
 
 const
 	RG_OPTIONS_PADDING_LEFT = 4;
 	RG_OPTIONS_PADDING_TOP = 4;
 	GB_EXPERT_DESIGNED_HEIGHT = 175; // Designed height from .dfm file
+	WM_DESELECT_COMBO = WM_APP + 100;
 
 type
+	// Interposer: suppresses auto-selection on focus when AutoSelectOnFocus is False
+	// and handles themed font color when seFont is excluded from StyleElements
+	TComboBox = class(Vcl.StdCtrls.TComboBox)
+	private
+		FAutoSelectOnFocus : Boolean;
+		FIsCustomFontColor : Boolean;
+		procedure CMStyleChanged(var Message : TMessage); message CM_STYLECHANGED;
+	protected
+		procedure WndProc(var Message : TMessage); override;
+	public
+		constructor Create(AOwner : TComponent); override;
+		procedure SetDefaultFontColor;
+		property AutoSelectOnFocus : Boolean read FAutoSelectOnFocus write FAutoSelectOnFocus;
+		property IsCustomFontColor : Boolean read FIsCustomFontColor write FIsCustomFontColor;
+	end;
+
 	TRipGrepperSearchDialogForm = class(TBaseForm)
 		pnlMiddle : TPanel;
 		lblParams : TLabel;
-		lblPaths : TLabel;
+		lblPaths : TIconLabel;
 		cmbOptions : TComboBox;
 		cmbSearchDir : TComboBox;
 		cmbSearchText : TComboBox;
@@ -153,12 +172,12 @@ type
 			cbRgParamHidden : TCheckBox;
 			cbRgParamNoIgnore : TCheckBox;
 			cbRgParamEncoding : TCheckBox;
-			cmbRgParamEncoding : TComboBox;
+			cmbRgParamEncoding : Vcl.StdCtrls.TComboBox;
 			// Output options panel controls
 			cbRgParamPretty : TCheckBox;
 			cbRgParamContext : TCheckBox;
 			seContextLineNum : TSpinEdit;
-			cmbOutputFormat : TComboBox;
+			cmbOutputFormat : Vcl.StdCtrls.TComboBox;
 
 			FIsKeyboardInput : Boolean;
 			// proxy between settings and ctrls
@@ -189,8 +208,8 @@ type
 			function IsOptionSet(const _sParamRegex : string; const _sParamValue : string = '') : Boolean;
 			procedure ProcessControl(_ctrl : TControl; _imgList : TImageList);
 			procedure RemoveNecessaryOptionsFromCmbOptionsText;
-			procedure SetComboItemsAndText(_cmb : TComboBox; _txt : string; const _lst : TArrayEx<string>);
-			procedure SetComboItemsFromOptions(_cmb : TComboBox; const _argMaskRegex : string; const _items : TArrayEx<string>);
+			procedure SetComboItemsAndText(_cmb : Vcl.StdCtrls.TComboBox; _txt : string; const _lst : TArrayEx<string>);
+			procedure SetComboItemsFromOptions(_cmb : Vcl.StdCtrls.TComboBox; const _argMaskRegex : string; const _items : TArrayEx<string>);
 			procedure UpdateCmbOptionsAndMemoCommandLine;
 			procedure StoreCmbHistorieItems();
 			procedure WriteCtrlsToRipGrepParametersSettings;
@@ -212,6 +231,7 @@ type
 			class procedure SetReplaceText(_settings : TRipGrepperSettings; const _replaceText : string);
 			procedure SetReplaceTextSetting(const _replaceText : string);
 			procedure UpdateExtensionOptionsHint(const _paths : string);
+			procedure UpdateSearchPathWarning;
 			procedure ShowReplaceCtrls(const _bShow : Boolean);
 			procedure UpdateSearchOptionsBtns;
 			procedure UpdateCmbsOnIDEContextChange(_icv : IIDEContextValues);
@@ -300,7 +320,6 @@ uses
 	{$ENDIF}
 	RipGrepper.Tools.FileUtils,
 	System.IOUtils,
-	Winapi.Windows,
 	RipGrepper.Settings.AppSettings,
 	RipGrepper.Settings.ExtensionSettings,
 	RipGrepper.CommandLine.OptionStrings,
@@ -308,7 +327,9 @@ uses
 	RipGrepper.Settings.SettingsDictionary,
 	RipGrepper.Common.SearchTextWithOptions,
 	RipGrepper.UI.DpiScaler,
-	Spring.DesignPatterns;
+	Spring.DesignPatterns,
+	Vcl.Themes,
+	RipGrepper.Helper.UI.DarkMode;
 
 {$R *.dfm}
 
@@ -326,6 +347,16 @@ begin
 	setExtensionContextPanel(_settings);
 	SetRgFilterOptionsPanel(_settings);
 	SetRgOutputOptionsPanel(_settings);
+
+	lblPaths.Images := SVGIconImageList1;
+	lblPaths.ImageIndexWarning := 16;
+	lblPaths.ImageIndexError := 17;
+	lblPaths.ImageIndexInfo := 18;
+	lblPaths.ImageIndexQuestion := 19;
+
+	// Disable theme font painting so Font.Color works on cmbSearchDir
+	cmbSearchDir.StyleElements := cmbSearchDir.StyleElements - [seFont];
+	cmbSearchDir.SetDefaultFontColor;
 
 	// align buttons a bit lower
 	btnOk.Top := btnOk.Top + RG_OPTIONS_PADDING_TOP;
@@ -346,6 +377,12 @@ begin
 	FIsKeyboardInput := False;
 	toolbarSearchTextOptions.AutoSize := False; // else shrinked as extension
 	cmbOptions.AutoComplete := False; // so we know the old value after change
+
+	// Disable auto-selection on focus for all comboboxes except the search text
+	cmbSearchDir.AutoSelectOnFocus := False;
+	cmbReplaceText.AutoSelectOnFocus := False;
+	cmbFileMasks.AutoSelectOnFocus := False;
+	cmbOptions.AutoSelectOnFocus := False;
 
 	// Reduce margins for tighter layout
 	pnlTop.Margins.Top := 2;
@@ -610,6 +647,7 @@ begin
 
 		ActionShowInLines.Hint := SHOW_CMD_IN_SEPARATE_LINES;
 		UpdateCmbOptionsAndMemoCommandLine;
+		UpdateSearchPathWarning;
 
 		// Scale by active Monitor
 		ScaleBy(TRipGrepperDpiScaler.GetActualDPI, self.PixelsPerInch);
@@ -640,10 +678,63 @@ begin
 		end;
 
 		ActiveControl := cmbSearchText;
+		cmbSearchText.SelectAll;
 	finally
 		FShowing := False;
 	end;
 end;
+
+{ TComboBox interposer }
+
+constructor TComboBox.Create(AOwner : TComponent);
+begin
+	inherited Create(AOwner);
+	FAutoSelectOnFocus := True; // default: standard Windows behavior
+	FIsCustomFontColor := False;
+end;
+
+procedure TComboBox.SetDefaultFontColor;
+begin
+	FIsCustomFontColor := False;
+	Font.Color := TDarkModeHelper.GetThemedTextColor;
+end;
+
+procedure TComboBox.CMStyleChanged(var Message : TMessage);
+begin
+	inherited;
+	// Update font color to match new theme when seFont is excluded from StyleElements
+	if (not (seFont in StyleElements)) and (not FIsCustomFontColor) then begin
+		Font.Color := TDarkModeHelper.GetThemedTextColor;
+	end;
+end;
+
+procedure TComboBox.WndProc(var Message : TMessage);
+var
+	EditWnd : HWND;
+begin
+	// Handle our deferred deselect message
+	if (Message.Msg = WM_DESELECT_COMBO) and (not FAutoSelectOnFocus) then begin
+		EditWnd := FindWindowEx(Handle, 0, 'Edit', nil);
+		if EditWnd <> 0 then begin
+			SendMessage(EditWnd, EM_SETSEL, WPARAM(-1), 0);
+			TDebugUtils.DebugMessageFormat('TComboBox.WndProc WM_DESELECT_COMBO: Name=%s, deselected via EditWnd', [Name]);
+		end;
+		Exit;
+	end;
+	inherited;
+	// After inherited processes text-changing messages, post a deferred deselect
+	if not FAutoSelectOnFocus then begin
+		case Message.Msg of
+			WM_SETTEXT, CB_SETCURSEL, CB_SELECTSTRING : begin
+				TDebugUtils.DebugMessageFormat('TComboBox.WndProc posting deselect: Name=%s, Msg=$%x, Text=%s',
+					[Name, Message.Msg, Text]);
+				PostMessage(Handle, WM_DESELECT_COMBO, 0, 0);
+			end;
+		end;
+	end;
+end;
+
+{ TRipGrepperSearchDialogForm }
 
 function TRipGrepperSearchDialogForm.GetSelectedPaths(const _initialDir : string; const _fdo : TFileDialogOptions) : string;
 var
@@ -784,7 +875,7 @@ begin
 	dbgMsg.Msg('ExpertOptions=' + FSettingsProxy.ExpertOptions.AsString);
 end;
 
-procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : TComboBox; _txt : string; const _lst : TArrayEx<string>);
+procedure TRipGrepperSearchDialogForm.SetComboItemsAndText(_cmb : Vcl.StdCtrls.TComboBox; _txt : string; const _lst : TArrayEx<string>);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetComboItemsAndText');
@@ -794,7 +885,7 @@ begin
 	dbgMsg.MsgFmt('idx:%d, %s.Text = %s', [_cmb.ItemIndex, _cmb.Name, _cmb.Text]);
 end;
 
-procedure TRipGrepperSearchDialogForm.SetComboItemsFromOptions(_cmb : TComboBox; const _argMaskRegex : string;
+procedure TRipGrepperSearchDialogForm.SetComboItemsFromOptions(_cmb : Vcl.StdCtrls.TComboBox; const _argMaskRegex : string;
 	const _items : TArrayEx<string>);
 var
 	params : TArray<string>;
@@ -807,7 +898,6 @@ begin
 	end else begin
 		_cmb.Text := _cmb.Items[0];
 	end;
-	TDebugUtils.DebugMessageFormat('TRipGrepperSearchDialogForm.SetComboItemsFromOptions: %s - %s', [_cmb.Name, _cmb.Text]);
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateCmbOptionsAndMemoCommandLine;
@@ -1012,6 +1102,7 @@ begin
 		UpdateMemoCommandLine(); // UpdateCtrls
 	end else if cmbSearchDir = _ctrlChanged then begin
 		UpdateMemoCommandLine(); // UpdateCtrls
+		UpdateSearchPathWarning;
 	end else if cmbFileMasks = _ctrlChanged then begin
 		UpdateFileMasksInHistObjRgOptions();
 		UpdateMemoCommandLine(); // UpdateCtrls
@@ -1231,6 +1322,7 @@ begin
 	UpdateCmbsOnIDEContextChange(_icv);
 	WriteCtrlsToRipGrepParametersSettings(); // OnContextChange
 	UpdateCmbOptionsAndMemoCommandLine();
+	UpdateSearchPathWarning;
 end;
 
 function TRipGrepperSearchDialogForm.GetInIDESelectedText : string;
@@ -1364,6 +1456,51 @@ begin
 		Exit;
 	end;
 	FExtensionContextPanel.SelectedItem.RadioButton.Hint := TExtensionContexPanel.GetAsHint(_paths);
+end;
+
+procedure TRipGrepperSearchDialogForm.UpdateSearchPathWarning;
+var
+	isOutside : Boolean;
+begin
+	isOutside := False;
+	{$IF IS_EXTENSION}
+	var projectDir : string;
+	var searchPath : string := string(cmbSearchDir.Text).Trim();
+	if not searchPath.IsEmpty then begin
+		var
+		projPathHelper : IIdeProjectPathHelper := TIdeProjectPathHelper.Create();
+		projectDir := projPathHelper.GetActiveProjectDirectory();
+		if not projectDir.IsEmpty then begin
+			var projectDirLower := projectDir.ToLower();
+			// Check each path (semicolon-separated)
+			for var p in searchPath.Split([';']) do begin
+				var
+				trimmedPath := p.Trim();
+				if trimmedPath.IsEmpty then begin
+					Continue;
+				end;
+				var pathLower := trimmedPath.ToLower();
+				// Path is related if it contains or is contained by the project dir
+				if (not pathLower.StartsWith(projectDirLower)) and
+					{ } (not projectDirLower.StartsWith(pathLower)) then begin
+					isOutside := True;
+					Break;
+				end;
+			end;
+		end;
+	end;
+	{$ENDIF}
+
+	if isOutside then begin
+		lblPaths.IconHint := 'One or more search paths are outside the active project directory.';
+		lblPaths.IconType := iltWarning;
+		cmbSearchDir.Font.Color := clRed;
+		cmbSearchDir.IsCustomFontColor := True;
+	end else begin
+		lblPaths.IconType := iltNone;
+		cmbSearchDir.SetDefaultFontColor;
+	end;
+	cmbSearchDir.Invalidate();
 end;
 
 function TRipGrepperSearchDialogForm.GetTopPanelHeight() : Integer;

@@ -42,7 +42,7 @@ type
 			RG_OPTIONS_TREEVIEW_SECTION_TITLE_TEXT : TFontAttributes = (name : 'Segoe UI'; Size : 9; Color : clPurple; BgColor : clNone;
 				Style : [fsBold];);
 
-			DEFAULT_COLORS : array [0 .. 16] of TNameColorDef = (
+			DEFAULT_COLORS : array [0 .. 18] of TNameColorDef = (
 				{ } (name : 'MatchText'; ColorDef : 'Segoe UI|9|clMaroon|clNone|fsBold|fsUnderline'),
 				{ } (name : 'SearchTextInHistory'; ColorDef : 'Segoe UI|9|clMaroon|clNone|fsBold'),
 				{ } (name : 'ReplacedTextInHistory'; ColorDef : 'Segoe UI|9|clMaroon|clNone|fsBold|fsStrikeOut'),
@@ -59,9 +59,11 @@ type
 				{ } (name : 'FileModifiedText'; ColorDef : 'Segoe UI|9|clGrayText|clNone'),
 				{ } (name : 'FileCreatedText'; ColorDef : 'Segoe UI|9|clGrayText|clNone'),
 				{ } (name : 'FileAccessedText'; ColorDef : 'Segoe UI|9|clGrayText|clNone'),
+				{ } (name : 'FileWarningText'; ColorDef : 'Segoe UI|9|$000080FF|clNone|fsBold'),
+				{ } (name : 'FileErrorText'; ColorDef : 'Segoe UI|9|clRed|clNone|fsBold|fsStrikeOut'),
 				{ } (name : 'AlternateRow'; ColorDef : 'Segoe UI|9|clNone|cl3DLight'));
 
-			DEFAULT_DARK_COLORS : array [0 .. 16] of TNameColorDef = (
+			DEFAULT_DARK_COLORS : array [0 .. 18] of TNameColorDef = (
 				{ } (name : 'MatchText'; ColorDef : 'Segoe UI|9|$00558CFF|clNone|fsBold|fsUnderline'),
 				{ } (name : 'SearchTextInHistory'; ColorDef : 'Segoe UI|9|$004080FF|clNone|fsBold'),
 				{ } (name : 'ReplacedTextInHistory'; ColorDef : 'Segoe UI|9|clMaroon|clNone|fsBold|fsStrikeOut'),
@@ -78,6 +80,8 @@ type
 				{ } (name : 'FileModifiedText'; ColorDef : 'Segoe UI|9|clGray|clNone'),
 				{ } (name : 'FileCreatedText'; ColorDef : 'Segoe UI|9|clGray|clNone'),
 				{ } (name : 'FileAccessedText'; ColorDef : 'Segoe UI|9|clGray|clNone'),
+				{ } (name : 'FileWarningText'; ColorDef : 'Segoe UI|9|$0080BFFF|clNone|fsBold'),
+				{ } (name : 'FileErrorText'; ColorDef : 'Segoe UI|9|$008080FF|clNone|fsBold|fsStrikeOut'),
 				{$IFDEF STANDALONE}
 				{ } (name : 'AlternateRow'; ColorDef : 'Segoe UI|9|clNone|$002B2B2B'));
 			{$ELSE}
@@ -109,6 +113,8 @@ type
 			TREEVIEW_FILE_LAST_WRITE_TEXT : TFontAttributes;
 			TREEVIEW_FILE_CREATION_TEXT : TFontAttributes;
 			TREEVIEW_FILE_LAST_ACCESS_TEXT : TFontAttributes;
+			TREEVIEW_FILE_WARNING_TEXT : TFontAttributes;
+			TREEVIEW_FILE_ERROR_TEXT : TFontAttributes;
 			TREEVIEW_ALTERNATE_ROW : TFontAttributes;
 
 			constructor Create(const _theme : EThemeMode = EThemeMode.tmLight);
@@ -123,6 +129,8 @@ type
 			FileModifiedText : TFontAttributes;
 			FileCreatedText : TFontAttributes;
 			FileAccessedText : TFontAttributes;
+			FileWarningText : TFontAttributes;
+			FileErrorText : TFontAttributes;
 			NormalText : TFontAttributes;
 			MatchText : TFontAttributes;
 			CounterText : TFontAttributes;
@@ -395,6 +403,10 @@ begin
 		FileCreatedText := _fa
 	else if _name = 'FileAccessedText' then
 		FileAccessedText := _fa
+	else if _name = 'FileWarningText' then
+		FileWarningText := _fa
+	else if _name = 'FileErrorText' then
+		FileErrorText := _fa
 	else if _name = 'AlternateRow' then
 		AlternateRow := _fa
 	else
@@ -437,6 +449,10 @@ begin
 		Result := FileCreatedText
 	else if _name = 'FileAccessedText' then
 		Result := FileAccessedText
+	else if _name = 'FileWarningText' then
+		Result := FileWarningText
+	else if _name = 'FileErrorText' then
+		Result := FileErrorText
 	else if _name = 'AlternateRow' then
 		Result := AlternateRow
 	else
@@ -462,6 +478,8 @@ begin
 	self.FileModifiedText.FromString(_df.TREEVIEW_FILE_LAST_WRITE_TEXT.ToString());
 	self.FileCreatedText.FromString(_df.TREEVIEW_FILE_CREATION_TEXT.ToString());
 	self.FileAccessedText.FromString(_df.TREEVIEW_FILE_LAST_ACCESS_TEXT.ToString());
+	self.FileWarningText.FromString(_df.TREEVIEW_FILE_WARNING_TEXT.ToString());
+	self.FileErrorText.FromString(_df.TREEVIEW_FILE_ERROR_TEXT.ToString());
 end;
 
 constructor TDefaultFontColors.Create(const _theme : EThemeMode = EThemeMode.tmLight);
@@ -484,6 +502,8 @@ begin
 	SetDefault('FileModifiedText', TREEVIEW_FILE_LAST_WRITE_TEXT);
 	SetDefault('FileCreatedText', TREEVIEW_FILE_CREATION_TEXT);
 	SetDefault('FileAccessedText', TREEVIEW_FILE_LAST_ACCESS_TEXT);
+	SetDefault('FileWarningText', TREEVIEW_FILE_WARNING_TEXT);
+	SetDefault('FileErrorText', TREEVIEW_FILE_ERROR_TEXT);
 	SetDefault('AlternateRow', TREEVIEW_ALTERNATE_ROW);
 end;
 

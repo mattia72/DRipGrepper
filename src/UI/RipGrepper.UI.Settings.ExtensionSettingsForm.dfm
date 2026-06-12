@@ -1,30 +1,28 @@
 inherited ExtensionSettingsForm: TExtensionSettingsForm
-  Left = 0
-  Top = 0
   Caption = 'ExtensionSettingsForm'
   ClientHeight = 362
   ClientWidth = 636
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -12
-  Font.Name = 'Segoe UI'
-  Font.Style = []
   ShowHint = True
   OnShow = FormShow
   TextHeight = 15
-  object pnlMiddle: TPanel
+  inherited PanelBottom: TPanel
+    Top = 317
+    Width = 636
+    TabOrder = 1
+  end
+  object pnlMiddle: TPanel [1]
     Left = 0
     Top = 0
     Width = 636
-    Height = 362
+    Height = 317
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
     object grpShortcuts: TGroupBox
-      Left = 1
-      Top = 119
-      Width = 634
+      Left = 0
+      Top = 118
+      Width = 636
       Height = 100
       Align = alTop
       Caption = 'Shortcuts'
@@ -46,7 +44,7 @@ inherited ExtensionSettingsForm: TExtensionSettingsForm
       object hkedtOpenWidth: THotKey
         Left = 114
         Top = 22
-        Width = 121
+        Width = 152
         Height = 23
         HotKey = 32833
         TabOrder = 0
@@ -54,16 +52,16 @@ inherited ExtensionSettingsForm: TExtensionSettingsForm
       object hkedtSearchSelected: THotKey
         Left = 114
         Top = 51
-        Width = 121
+        Width = 152
         Height = 23
         HotKey = 32833
         TabOrder = 1
       end
     end
     object grpInstallation: TGroupBox
-      Left = 1
-      Top = 1
-      Width = 634
+      Left = 0
+      Top = 0
+      Width = 636
       Height = 118
       Align = alTop
       Caption = 'Install as Delphi IDE Extension'
@@ -71,7 +69,7 @@ inherited ExtensionSettingsForm: TExtensionSettingsForm
       ShowHint = True
       TabOrder = 0
       DesignSize = (
-        634
+        636
         118)
       object lblVersionInfo: TLabel
         Left = 16
@@ -124,15 +122,15 @@ inherited ExtensionSettingsForm: TExtensionSettingsForm
       end
     end
     object grpVsCodeIntegration: TGroupBox
-      Left = 1
-      Top = 219
-      Width = 634
+      Left = 0
+      Top = 218
+      Width = 636
       Height = 67
       Align = alTop
       Caption = 'Visual Studio Code Integration'
       TabOrder = 2
       object sbtnOpenInDelphiLnk: TSpeedButton
-        Left = 223
+        Left = 244
         Top = 23
         Width = 22
         Height = 22
@@ -144,7 +142,7 @@ inherited ExtensionSettingsForm: TExtensionSettingsForm
         Top = 25
         Width = 211
         Height = 17
-        Caption = 'Handle Open in Delphi commands'
+        Caption = 'Handle '#39'Open in Delphi'#39' commands'
         TabOrder = 0
       end
     end

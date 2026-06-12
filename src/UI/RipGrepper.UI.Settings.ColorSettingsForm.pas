@@ -19,7 +19,7 @@ uses
 	Spring,
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.Settings.AppSettings,
-	RipGrepper.Settings.NodeLookSettings;
+	RipGrepper.Settings.NodeLookSettings, System.ImageList, Vcl.ImgList, SVGIconImageListBase, SVGIconImageList;
 
 type
 	TColorSettingsForm = class(TSettingsBaseForm)
@@ -36,6 +36,10 @@ type
 		cbShowModifiedDateColumn : TCheckBox;
 		cbShowCreationDateColumn : TCheckBox;
 		cbShowLastAccessDateColumn : TCheckBox;
+		grpFileColumn : TGroupBox;
+		cbShowFileHint : TCheckBox;
+		cbShowFileErrorColor : TCheckBox;
+		cbShowFileWarningColor : TCheckBox;
 		procedure btnLoadDefaultsClick(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 		procedure rgThemeClick(Sender : TObject);
@@ -132,6 +136,11 @@ begin
 		rgTheme.ItemIndex := Integer(tmSystem);
 		rgTheme.Hint := 'Theme can be changed only in IDE';
 		{$ENDIF}
+
+		{$IFDEF STANDALONE}
+		cbShowFileWarningColor.Enabled := False;
+		cbShowFileWarningColor.Hint := 'Only available in Extension mode (requires project context)';
+		{$ENDIF}
 	finally
 		FbSkipClickEvent := False;
 	end;
@@ -172,8 +181,10 @@ end;
 
 procedure TColorSettingsForm.OnSettingsUpdated();
 begin
-	MainFrame.UpdateColumnVisibility;
-	MainFrame.VstResult.Repaint();
+	if Assigned(MainFrame) then begin
+		MainFrame.UpdateColumnVisibility;
+		MainFrame.VstResult.Repaint();
+	end;
 end;
 
 procedure TColorSettingsForm.ReadSettings;
@@ -210,6 +221,9 @@ begin
 	cbShowModifiedDateColumn.Checked := FNodeLookSettings.ShowLastModifiedDateColumn;
 	cbShowCreationDateColumn.Checked := FNodeLookSettings.ShowCreationDateColumn;
 	cbShowLastAccessDateColumn.Checked := FNodeLookSettings.ShowLastAccessDateColumn;
+	cbShowFileErrorColor.Checked := FNodeLookSettings.ShowFileErrorColor;
+	cbShowFileWarningColor.Checked := FNodeLookSettings.ShowFileWarningColor;
+	cbShowFileHint.Checked := FAppSettings.ShowFileHint;
 end;
 
 procedure TColorSettingsForm.SetFontAttribsForFrames();
@@ -294,6 +308,9 @@ begin
 	FNodeLookSettings.ShowLastModifiedDateColumn := cbShowModifiedDateColumn.Checked;
 	FNodeLookSettings.ShowCreationDateColumn := cbShowCreationDateColumn.Checked;
 	FNodeLookSettings.ShowLastAccessDateColumn := cbShowLastAccessDateColumn.Checked;
+	FNodeLookSettings.ShowFileErrorColor := cbShowFileErrorColor.Checked;
+	FNodeLookSettings.ShowFileWarningColor := cbShowFileWarningColor.Checked;
+	FAppSettings.ShowFileHint := cbShowFileHint.Checked;
 end;
 
 end.
