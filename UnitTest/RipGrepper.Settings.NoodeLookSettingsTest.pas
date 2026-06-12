@@ -84,6 +84,8 @@ begin
 	FSettings.ShowLastModifiedDateColumn := True;
 	FSettings.ShowCreationDateColumn := True;
 	FSettings.ShowLastAccessDateColumn := True;
+	FSettings.ShowFileErrorColor := True;
+	FSettings.ShowFileWarningColor := True;
 end;
 
 procedure TNodeLookSettingsTest.Setup;
