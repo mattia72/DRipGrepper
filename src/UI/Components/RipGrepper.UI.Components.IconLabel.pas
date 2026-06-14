@@ -55,8 +55,7 @@ type
 implementation
 
 uses
-	System.SysUtils,
-	RipGrepper.Tools.DebugUtils;
+	System.SysUtils;
 
 { TIconLabel }
 
@@ -100,12 +99,14 @@ begin
 end;
 
 function TIconLabel.GetIconColor(const _iconType : TIconLabelType) : TColor;
+const
+	FNAME = 'TIconLabel.GetIconColor';
 var
 	isDark : Boolean;
 begin
-	var dbgMsg := TDebugMsgBeginEnd.New('TIconLabel.GetIconColor');
 	isDark := TDarkModeHelper.GetActualThemeMode = tmDark;
-	dbgMsg.MsgFmt('IsDarkMode: %s iconType: %d', [BoolToStr(isDark, True), Ord(_iconType)]);
+	// Keep logging lightweight: this unit is part of GUI components, so avoid DebugUtils dependency.
+	OutputDebugString(PChar(Format('%s: IsDarkMode: %s iconType: %d', [FNAME, BoolToStr(isDark, True), Ord(_iconType)])));
 
 	case _iconType of
 		iltWarning :
@@ -131,7 +132,7 @@ begin
 		else
 		Result := TDarkModeHelper.GetThemedTextColor;
 	end;
-	dbgMsg.MsgFmt('Resulting color: %d', [Result]);
+	OutputDebugString(PChar(Format('%s: Resulting color: %d', [FNAME, Result])));
 end;
 
 function TIconLabel.GetImageIndex(const _iconType : TIconLabelType) : TImageIndex;

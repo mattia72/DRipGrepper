@@ -108,7 +108,6 @@ uses
 	Winapi.UxTheme,
 	Winapi.Messages,
 	System.StrUtils,
-	RipGrepper.Tools.DebugUtils,
 	System.SysUtils,
 	Vcl.Graphics,
 	SVGIconImageList;
@@ -119,10 +118,11 @@ begin
 end;
 
 class procedure TDarkModeHelper.applyTheme(const _style : string; _component : TComponent);
+const
+	FNAME = 'TDarkModeHelper.applyTheme';
 begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.applyTheme');
-	dbgMsg.Msg('Applying theme: ' + _style);
+	// Keep logging lightweight: this unit is used by GUI components, so avoid DebugUtils dependency.
+	OutputDebugString(PChar(FNAME + ': Applying theme: ' + _style));
 	{$IFDEF STANDALONE}
 	if (not _style.IsEmpty) and TStyleManager.TrySetStyle(_style) then begin
 		TStyleManager.FormBorderStyle := fbsCurrentStyle;
@@ -131,7 +131,7 @@ begin
 	if Assigned(_component) then begin
 		TIDEThemeHelper.ApplyTheme(_component);
 	end else begin
-		dbgMsg.ErrorMsg('_component is nil');
+		OutputDebugString(PChar(FNAME + ': _component is nil'));
 	end;
 	{$ENDIF}
 end;
@@ -165,9 +165,9 @@ begin
 end;
 
 class function TDarkModeHelper.GetActualThemeName : string;
+const
+	FNAME = 'TDarkModeHelper.GetActualThemeName';
 begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.GetActualThemeName');
 	{$IFDEF STANDALONE}
 	Result := '';
 	if Assigned(TStyleManager.ActiveStyle) then begin
@@ -181,7 +181,7 @@ begin
 		Result := themingServices.ActiveTheme;
 	end;
 	{$ENDIF}
-	dbgMsg.Msg('Thema: ' + Result);
+	OutputDebugString(PChar(FNAME + ': Thema: ' + Result));
 end;
 
 class procedure TDarkModeHelper.BroadcastThemeChanged(_handle : HWND);
@@ -192,21 +192,20 @@ begin
 end;
 
 class function TDarkModeHelper.GetActualThemeMode : EThemeMode;
+const
+	FNAME = 'TDarkModeHelper.GetActualThemeMode';
 begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.GetActualThemeMode');
-
 	Result := tmSystem;
 	var
 	themeName := GetActualThemeName;
 	if (MatchStr(themeName, DARK_THEME_NAMES)) then begin
 		Result := tmDark;
-		dbgMsg.Msg('Mode: Dark');
+		OutputDebugString(PChar(FNAME + ': Mode: Dark'));
 	end else if (MatchStr(themeName, LIGHT_THEME_NAMES)) then begin
 		Result := tmLight;
-		dbgMsg.Msg('Mode: Light');
+		OutputDebugString(PChar(FNAME + ': Mode: Light'));
 	end else begin
-		dbgMsg.Msg('Mode: System');
+		OutputDebugString(PChar(FNAME + ': Mode: System'));
 	end;;
 end;
 
@@ -310,9 +309,10 @@ begin
 end;
 
 class procedure TDarkModeHelper.SetThemeByMode(const _mode : EThemeMode; _component : TComponent);
+const
+	FNAME = 'TDarkModeHelper.SetThemeByMode';
 begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.SetThemeByMode');
+	OutputDebugString(PChar(FNAME));
 	case _mode of
 		tmDark : begin
 			setDarkThemeMode(_component);
@@ -327,11 +327,12 @@ begin
 end;
 
 class procedure TDarkModeHelper.SetThemeByName(const _themeName : string; _component : TComponent);
+const
+	FNAME = 'TDarkModeHelper.SetThemeByName';
 var
 	mode : EThemeMode;
 begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.SetThemeByName');
+	OutputDebugString(PChar(FNAME));
 
 	if (_themeName = getDarkThemeName()) then begin
 		mode := tmDark;
@@ -344,14 +345,14 @@ begin
 end;
 
 class procedure TDarkModeHelper.applyThemeByName(const _themeName : string; _component : TComponent);
+const
+	FNAME = 'TDarkModeHelper.applyThemeByName';
 begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TDarkModeHelper.applyThemeByName');
-	dbgMsg.MsgFmt('Theme name: %s', [_themeName]);
+	OutputDebugString(PChar(Format('%s: Theme name: %s', [FNAME, _themeName])));
 	if Assigned(_component) then begin
-		dbgMsg.MsgFmt('Component name: %s', [_component.Name]);
+		OutputDebugString(PChar(Format('%s: Component name: %s', [FNAME, _component.Name])));
 	end else begin
-		dbgMsg.Msg('Component is nil');
+		OutputDebugString(PChar(FNAME + ': Component is nil'));
 	end;
 	TDarkModeHelper.applyTheme(_themeName, _component);
 end;
@@ -388,15 +389,14 @@ begin
 end;
 
 class procedure TIDEThemeHelper.ApplyTheme(_component : TComponent);
+const
+	FNAME = 'TIDEThemeHelper.ApplyTheme';
 var
 	themingServices : IOTAIDEThemingServices;
 begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TIDEThemeHelper.ApplyTheme');
-
 	if Supports(BorlandIDEServices, IOTAIDEThemingServices, ThemingServices) then begin
 		if Assigned(_component) then begin
-			dbgMsg.MsgFmt('Component name: %s', [_component.Name]);
+			OutputDebugString(PChar(Format('%s: Component name: %s', [FNAME, _component.Name])));
 			themingServices.ApplyTheme(_component);
 		end else begin
 			raise Exception.Create('TIDEThemeHelper.ApplyTheme on component nil')
@@ -425,16 +425,17 @@ begin
 end;
 
 procedure TThemeHandler.FormCreate(Sender : TObject);
+const
+	FNAME = 'TThemeHandler.FormCreate';
 begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TThemeHandler.FormCreate');
+	OutputDebugString(PChar(FNAME));
 	if Assigned(FOnFormCreate) then begin
 		FOnFormCreate(Self);
 	end;
 	{$IFNDEF STANDALONE}
 	var
 		formType : TCustomFormClass := PPointer(FForm)^; // see TObject.ClassType implementation
-	dbgMsg.Msg('AllowThemes: ' + formType.ClassName);
+	OutputDebugString(PChar(FNAME + ': AllowThemes: ' + formType.ClassName));
 	TIDEThemeHelper.AllowThemes(formType);
 	{$ELSE}
 	TDarkModeHelper.AllowThemes();
@@ -443,25 +444,25 @@ begin
 end;
 
 procedure TThemeHandler.HandleThemes(const _theme : string);
+const
+	FNAME = 'TThemeHandler.HandleThemes';
 begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TThemeHandler.HandleThemes');
-	dbgMsg.Msg('Theme: ' + _theme);
+	OutputDebugString(PChar(FNAME + ': Theme: ' + _theme));
 	var
 	theme := _theme;
 	if _theme.IsEmpty then begin
 		theme := TDarkModeHelper.GetThemeNameByMode(tmLight);
 	end;
-	dbgMsg.MsgFmt('SetThemeByName: %s on %s', [theme, FForm.Name]);
+	OutputDebugString(PChar(Format('%s: SetThemeByName: %s on %s', [FNAME, theme, FForm.Name])));
 	TDarkModeHelper.SetThemeByName(theme, FForm);
 	TDarkModeHelper.SetIconTheme(FForm);
 end;
 
 procedure TThemeHandler.Init(_themeName : string);
+const
+	FNAME = 'TThemeHandler.Init';
 begin
-	var
-	dbgMsg := TDebugMsgBeginEnd.New('TThemeHandler.Init');
-	dbgMsg.MsgFmt('themeName: %s', [_themeName]);
+	OutputDebugString(PChar(Format('%s: themeName: %s', [FNAME, _themeName])));
 	FThemeName := _themeName;
 end;
 
