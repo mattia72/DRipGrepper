@@ -36,7 +36,7 @@ begin
 	editPosition := IOTAUTils.GetEditPosition;
 	if Assigned(editPosition) then begin
 		var
-			projPathGetter : IIdeProjectPathHelper := TIdeProjectPathHelper.Create();
+			projPathGetter : IDelphiIDEContext := TDelphiIDEContextProvider.Create();
 		Result.FilePath := projPathGetter.GetCurrentSourceFile;
 		var
 			sProjPath : string := projPathGetter.GetActiveProjectFilePath;

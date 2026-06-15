@@ -266,7 +266,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TDelphiIDEContext.LoadFromIOTA');
 	{$IF IS_EXTENSION}
 	var
-		projPathGetter : IIdeProjectPathHelper := TIdeProjectPathHelper.Create();
+		projPathGetter : IDelphiIDEContext := TDelphiIDEContextProvider.Create();
 	ActiveFile := projPathGetter.GetCurrentSourceFile();
 	ProjectFiles := projPathGetter.GetProjectFiles();
 	ProjectFilesDirs := projPathGetter.GetProjectFilesDirs();

@@ -221,7 +221,7 @@ begin
 	ParentFrame.Initialize();
 	if (ParentFrame.Settings.RipGrepParameters.SearchPath.IsEmpty) then begin
 		var
-			projPathGetter : IIdeProjectPathHelper := TIdeProjectPathHelper.Create();
+			projPathGetter : IDelphiIDEContext := TDelphiIDEContextProvider.Create();
 		ParentFrame.Settings.RipGrepParameters.SearchPath := projPathGetter.GetActiveProjectDirectory;
 		TDebugUtils.DebugMessage('TRipGrepperDockableForm.FrameCreated SearchPath:' +
 			{ } ParentFrame.Settings.RipGrepParameters.SearchPath);

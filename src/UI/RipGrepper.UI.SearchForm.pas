@@ -1464,35 +1464,60 @@ var
 begin
 	isOutside := False;
 	{$IF IS_EXTENSION}
-	var projectDir : string;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateSearchPathWarning');
 	var searchPath : string := string(cmbSearchDir.Text).Trim();
+	dbgMsg.MsgFmt('searchPath=%s', [searchPath]);
 	if not searchPath.IsEmpty then begin
 		var
-		projPathHelper : IIdeProjectPathHelper := TIdeProjectPathHelper.Create();
-		projectDir := projPathHelper.GetActiveProjectDirectory();
-		if not projectDir.IsEmpty then begin
-			var projectDirLower := projectDir.ToLower();
-			// Check each path (semicolon-separated)
+		ideContext := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
+		// Collect all known project paths: project file dirs + unit search paths
+		var knownPaths : TArrayEx<string>;
+		knownPaths.AddRange(ideContext.ProjectFilesDirs);
+		knownPaths.AddRange(ideContext.ProjectLibraryPath);
+		knownPaths.Unique();
+		dbgMsg.MsgFmt('knownPaths.Count=%d', [knownPaths.Count]);
+		dbgMsg.MsgFmt('knownPaths=%s', [string.Join(';', knownPaths.Items)]);
+
+		if knownPaths.Count > 0 then begin
+			// Check each user-entered path (semicolon-separated)
 			for var p in searchPath.Split([';']) do begin
 				var
 				trimmedPath := p.Trim();
 				if trimmedPath.IsEmpty then begin
 					Continue;
 				end;
-				var pathLower := trimmedPath.ToLower();
-				// Path is related if it contains or is contained by the project dir
-				if (not pathLower.StartsWith(projectDirLower)) and
-					{ } (not projectDirLower.StartsWith(pathLower)) then begin
+				// If the path is a file, use its parent directory
+				var checkPath := trimmedPath;
+				if TFile.Exists(checkPath) then begin
+					checkPath := TPath.GetDirectoryName(checkPath);
+					dbgMsg.MsgFmt('Path is file, using parent dir: %s -> %s', [trimmedPath, checkPath]);
+				end;
+				// Normalize: ensure trailing backslash for proper boundary matching
+				var pathLower := IncludeTrailingPathDelimiter(checkPath).ToLower();
+				var found := False;
+				for var knownPath in knownPaths.Items do begin
+					var knownLower := IncludeTrailingPathDelimiter(knownPath).ToLower();
+					// Path is valid if it is inside a known dir or a known dir is inside it
+					if pathLower.StartsWith(knownLower) or knownLower.StartsWith(pathLower) then begin
+						found := True;
+						dbgMsg.MsgFmt('Match found: "%s" matches known path "%s"', [checkPath, knownPath]);
+						Break;
+					end;
+				end;
+				if not found then begin
 					isOutside := True;
+					dbgMsg.MsgFmt('No match for path: "%s"', [checkPath]);
 					Break;
 				end;
 			end;
 		end;
 	end;
+	dbgMsg.MsgFmt('isOutside=%s', [BoolToStr(isOutside, True)]);
 	{$ENDIF}
 
 	if isOutside then begin
-		lblPaths.IconHint := 'One or more search paths are outside the active project directory.';
+		lblPaths.IconHint := 'One or more search paths are not part of the project files or unit search paths.';
 		lblPaths.IconType := iltWarning;
 		cmbSearchDir.Font.Color := clRed;
 		cmbSearchDir.IsCustomFontColor := True;

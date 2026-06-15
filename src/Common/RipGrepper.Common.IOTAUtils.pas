@@ -1,4 +1,4 @@
-﻿unit RipGrepper.Common.IOTAUtils;
+unit RipGrepper.Common.IOTAUtils;
 {$IFNDEF STANDALONE}
 
 interface
@@ -20,7 +20,7 @@ uses
 
 type
 
-	IIdeProjectPathHelper = interface(IInterface)
+	IDelphiIDEContext = interface(IInterface)
 		['{200BE41D-8762-43FB-929D-877236B4FBC4}']
 		function GetActiveProjectDirectory() : string;
 		function GetActiveProjectFilePath() : string;
@@ -38,7 +38,7 @@ type
 
 	end;
 
-	TIdeProjectPathHelper = class(TInterfacedObject, IIdeProjectPathHelper)
+	TDelphiIDEContextProvider = class(TInterfacedObject, IDelphiIDEContext)
 		const
 			// 'DCC_UnitSearchPath'
 			OPTION_NAME_UNIT_SEARCH_PATH = 'SrcDir';
@@ -1354,14 +1354,14 @@ begin
 	end;
 end;
 
-constructor TIdeProjectPathHelper.Create();
+constructor TDelphiIDEContextProvider.Create();
 begin
 	inherited;
 	FProject := IOTAUtils.GxOtaGetCurrentProject;
 end;
 
 {$REGION  usefull functions} {
-  class procedure TIdeProjectPathHelper.addProjectDefineMacros(var _defineValue : string; _macros : TStrings);
+  class procedure TDelphiIDEContextProvider.addProjectDefineMacros(var _defineValue : string; _macros : TStrings);
   var
   defineList : TStringList;
   begin
@@ -1388,15 +1388,15 @@ end;
   end; }
 {$ENDREGION  usefull functions}
 
-function TIdeProjectPathHelper.GetActiveProjectDirectory() : string;
+function TDelphiIDEContextProvider.GetActiveProjectDirectory() : string;
 begin
 	Result := ExtractFileDir(GetActiveProjectFilePath());
 end;
 
-function TIdeProjectPathHelper.GetActiveProjectFilePath() : string;
+function TDelphiIDEContextProvider.GetActiveProjectFilePath() : string;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.GetActiveProjectFilePath');
+	dbgMsg := TDebugMsgBeginEnd.New('TDelphiIDEContextProvider.GetActiveProjectFilePath');
 
 	Result := '';
 	if Assigned(FProject) then begin
@@ -1406,7 +1406,7 @@ begin
 end;
 
 {$REGION  usefull functions}  {
-  class procedure TIdeProjectPathHelper.getAllAvailableMacros(_macros : TStrings; _project : IOTAProject = nil);
+  class procedure TDelphiIDEContextProvider.getAllAvailableMacros(_macros : TStrings; _project : IOTAProject = nil);
   const
   IDE_BASE_MACROS : array [0 .. 3] of string = ('BDS', 'DELPHI', 'BCB', 'CompilerVersion');
   var
@@ -1416,14 +1416,14 @@ end;
   ideBasePath : string;
   begin
   var
-  dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.getAllAvailableMacros');
+  dbgMsg := TDebugMsgBeginEnd.New('TDelphiIDEContextProvider.getAllAvailableMacros');
 
   _macros.Clear;
 
   pathProcessor := TPathProcessor.Create('', _project);
   try
   // Add IDE base paths
-  ideBasePath := TIdeProjectPathHelper.getIdeRootDirectoryFromRegistry;
+  ideBasePath := TDelphiIDEContextProvider.getIdeRootDirectoryFromRegistry;
   if ideBasePath.IsEmpty then begin
   ideBasePath := TIdeUtils.GetIdeRootDirectory;
   end;
@@ -1453,13 +1453,13 @@ end;
   end;
   end;
 
-  class function TIdeProjectPathHelper.getIdeRootDirectoryFromRegistry() : string;
+  class function TDelphiIDEContextProvider.getIdeRootDirectoryFromRegistry() : string;
   begin
   var
-  dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.getIdeRootDirectoryFromRegistry');
+  dbgMsg := TDebugMsgBeginEnd.New('TDelphiIDEContextProvider.getIdeRootDirectoryFromRegistry');
   Result := '';
   var
-  ideBaseReg := TIdeProjectPathHelper.getIdeBaseRegistryKey();
+  ideBaseReg := TDelphiIDEContextProvider.getIdeBaseRegistryKey();
   if TRegistryUtils.TryReadString(ideBaseReg, 'RootDir', Result, HKEY_LOCAL_MACHINE) or
   TRegistryUtils.TryReadString(ideBaseReg, 'RootDir', Result, HKEY_CURRENT_USER) then begin
   dbgMsg.MsgFmt('RootDir from registry: %s', [Result]);
@@ -1471,10 +1471,10 @@ end;
   end;
 
 
-  class function TIdeProjectPathHelper.getIdeBaseRegistryKey() : string;
+  class function TDelphiIDEContextProvider.getIdeBaseRegistryKey() : string;
   begin
   var
-  dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.getIdeBaseRegistryKey');
+  dbgMsg := TDebugMsgBeginEnd.New('TDelphiIDEContextProvider.getIdeBaseRegistryKey');
 
   if isStandAlone then
   Result := 'Software\' + CompilerDefinedProductRegistryKey
@@ -1494,14 +1494,14 @@ end;
 }
 {$ENDREGION}
 
-function TIdeProjectPathHelper.GetEffectiveLibraryPath(var _errDirList : TArrayEx<string>; const _shouldProcess : Boolean = True)
+function TDelphiIDEContextProvider.GetEffectiveLibraryPath(var _errDirList : TArrayEx<string>; const _shouldProcess : Boolean = True)
 	: TArrayEx<string>;
 var
 	pathList : TArrayEx<string>;
 	pathList2 : TArrayEx<string>;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.GetEffectiveLibraryPath');
+	dbgMsg := TDebugMsgBeginEnd.New('TDelphiIDEContextProvider.GetEffectiveLibraryPath');
 	// _shouldProcess = True uses the _project file's directory as the base to expand relative paths
 	pathList := getProjectSourcePathStrings();
 	pathList2 := getIdeLibraryPathStrings();
@@ -1512,12 +1512,12 @@ begin
 	end;
 end;
 
-class function TIdeProjectPathHelper.getIdeEnvironmentString(const _sEnvName : string) : string;
+class function TDelphiIDEContextProvider.getIdeEnvironmentString(const _sEnvName : string) : string;
 begin
 	Result := getEnvironmentOptions.Values[_sEnvName];
 end;
 
-class function TIdeProjectPathHelper.getEnvironmentOptions() : IOTAEnvironmentOptions;
+class function TDelphiIDEContextProvider.getEnvironmentOptions() : IOTAEnvironmentOptions;
 begin
 	var
 	services := BorlandIDEServices as IOTAServices;
@@ -1526,7 +1526,7 @@ begin
 end;
 
 {$REGION  usefull functions} {
-  class procedure TIdeProjectPathHelper.getIdeEnvironmentStrings(Settings : TStrings);
+  class procedure TDelphiIDEContextProvider.getIdeEnvironmentStrings(Settings : TStrings);
   var
   EnvOptions : IOTAEnvironmentOptions;
   i : Integer;
@@ -1541,12 +1541,12 @@ end;
   end;
 } {$ENDREGION}
 
-class function TIdeProjectPathHelper.isCurrentProjectNativeCpp() : Boolean;
+class function TDelphiIDEContextProvider.isCurrentProjectNativeCpp() : Boolean;
 begin
 	Result := isProjectNativeCpp(IOTAUtils.GxOtaGetCurrentProject);
 end;
 
-class function TIdeProjectPathHelper.getIdeLibraryPath() : string;
+class function TDelphiIDEContextProvider.getIdeLibraryPath() : string;
 begin
 	// Do not localize.
 	var
@@ -1560,25 +1560,25 @@ begin
 		Result := getIdeEnvironmentString('LibraryPath');
 end;
 
-function TIdeProjectPathHelper.getIdeLibraryPathStrings() : TArrayEx<string>;
+function TDelphiIDEContextProvider.getIdeLibraryPathStrings() : TArrayEx<string>;
 var
 	idePathString : string;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.getIdeLibraryPathStrings');
+	dbgMsg := TDebugMsgBeginEnd.New('TDelphiIDEContextProvider.getIdeLibraryPathStrings');
 	idePathString := getIdeLibraryPath;
 	Result := idePathString.Split([';']);
 	dbgMsg.MsgFmt('Result: %s', [string.Join(CRLF + TAB, Result.Items)]);
 end;
 
-function TIdeProjectPathHelper.getProjectSourcePathStrings() : TArrayEx<string>;
+function TDelphiIDEContextProvider.getProjectSourcePathStrings() : TArrayEx<string>;
 var
 	idePathString : string;
 	projectOptions : IOTAProjectOptions;
 	projectDir : string;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.getProjectSourcePathStrings');
+	dbgMsg := TDebugMsgBeginEnd.New('TDelphiIDEContextProvider.getProjectSourcePathStrings');
 	if Assigned(FProject) then begin
 		projectDir := GetActiveProjectDirectory();
 		// Add the current _project directory first
@@ -1592,7 +1592,7 @@ begin
 	dbgMsg.MsgFmt('Result: %s', [string.Join(CRLF + TAB, Result.Items)]);
 end;
 
-function TIdeProjectPathHelper.GetCurrentSourceFile() : string;
+function TDelphiIDEContextProvider.GetCurrentSourceFile() : string;
 var
 	Module : IOTAModule;
 	Editor : IOTAEditor;
@@ -1609,7 +1609,7 @@ begin
 	end;
 end;
 
-function TIdeProjectPathHelper.GetOpenedEditBuffers() : TArray<string>;
+function TDelphiIDEContextProvider.GetOpenedEditBuffers() : TArray<string>;
 var
 	service : IOTAEditorServices;
 	it : IOTAEditBufferIterator;
@@ -1621,7 +1621,7 @@ begin
 		if (service.GetEditBufferIterator(it)) then begin
 			for var i := 0 to it.Count - 1 do begin
 				buffer := it.EditBuffers[i];
-				TDebugUtils.DebugMessage('TIdeProjectPathHelper.GetOpenedEditBuffers FileName=' + buffer.FileName + ' ViewCount=' +
+				TDebugUtils.DebugMessage('TDelphiIDEContextProvider.GetOpenedEditBuffers FileName=' + buffer.FileName + ' ViewCount=' +
 					buffer.EditViewCount.ToString);
 				if buffer.EditViewCount > 0 then begin
 					Result := Result + [buffer.FileName];
@@ -1632,7 +1632,7 @@ begin
 end;
 
 {$REGION  usefull functions} {
-  class procedure TIdeProjectPathHelper.getPreprocessorConstants(_defines : TStrings; _project : IOTAProject = nil);
+  class procedure TDelphiIDEContextProvider.getPreprocessorConstants(_defines : TStrings; _project : IOTAProject = nil);
   var
   pathProcessor : TPathProcessor;
   defineValue : string;
@@ -1674,12 +1674,12 @@ end;
   end; }
 {$ENDREGION}
 
-function TIdeProjectPathHelper.GetProjectFiles() : TArray<string>;
+function TDelphiIDEContextProvider.GetProjectFiles() : TArray<string>;
 var
 	fn : string;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.GetProjectFiles');
+	dbgMsg := TDebugMsgBeginEnd.New('TDelphiIDEContextProvider.GetProjectFiles');
 
 	Result := [];
 	if not Assigned(FProject) then
@@ -1693,13 +1693,13 @@ begin
 	end;
 end;
 
-function TIdeProjectPathHelper.GetProjectFilesDirs() : TArray<string>;
+function TDelphiIDEContextProvider.GetProjectFilesDirs() : TArray<string>;
 var
 	fn : string;
 	arr : TArrayEx<string>;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.GetProjectFilesDirs');
+	dbgMsg := TDebugMsgBeginEnd.New('TDelphiIDEContextProvider.GetProjectFilesDirs');
 
 	if not Assigned(FProject) then
 		Exit;
@@ -1715,29 +1715,29 @@ begin
 	Result := arr.Items;
 end;
 
-class function TIdeProjectPathHelper.IsProjectDelphiDotNet(Project : IOTAProject) : Boolean;
+class function TDelphiIDEContextProvider.IsProjectDelphiDotNet(Project : IOTAProject) : Boolean;
 begin
 	Result := SameText(IOTAUtils.GxOtaGetProjectPersonality(Project), sDelphiDotNetPersonality);
 end;
 
-function TIdeProjectPathHelper.tryGetProjectOptions(out _ProjectOptions : IOTAProjectOptions) : Boolean;
+function TDelphiIDEContextProvider.tryGetProjectOptions(out _ProjectOptions : IOTAProjectOptions) : Boolean;
 begin
 	if Assigned(FProject) then
 		_ProjectOptions := FProject.GetProjectOptions;
 	Result := Assigned(_ProjectOptions);
 end;
 
-class function TIdeProjectPathHelper.isProjectNativeCpp(Project : IOTAProject) : Boolean;
+class function TDelphiIDEContextProvider.isProjectNativeCpp(Project : IOTAProject) : Boolean;
 begin
 	Result := SameText(IOTAUtils.GxOtaGetProjectPersonality(Project), sCBuilderPersonality);
 end;
 
-class function TIdeProjectPathHelper.isCurrentProjectIsDelphiDotNet() : Boolean;
+class function TDelphiIDEContextProvider.isCurrentProjectIsDelphiDotNet() : Boolean;
 begin
 	Result := IsProjectDelphiDotNet(IOTAUtils.GxOtaGetCurrentProject);
 end;
 
-function TIdeProjectPathHelper.processPaths(const _paths : TArrayEx<string>; var _nonExistsPaths : TArrayEx<string>;
+function TDelphiIDEContextProvider.processPaths(const _paths : TArrayEx<string>; var _nonExistsPaths : TArrayEx<string>;
 	const _rootDir : string) : TArrayEx<string>;
 var
 	i : Integer;
@@ -1745,7 +1745,7 @@ var
 	pathProcessor : IShared<TPathProcessor>;
 begin
 	var
-	dbgMsg := TDebugMsgBeginEnd.New('TIdeProjectPathHelper.processPaths');
+	dbgMsg := TDebugMsgBeginEnd.New('TDelphiIDEContextProvider.processPaths');
 	pathProcessor := Shared.Make<TPathProcessor>(TPathProcessor.Create(_rootDir, FProject));
 
 	for i := 0 to _paths.Count - 1 do begin

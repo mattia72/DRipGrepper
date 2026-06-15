@@ -200,14 +200,14 @@ end;
 
 class procedure TDripExtensionMenu.dripMenuClick(Sender : TObject);
 var
-	projPathGetter : IIdeProjectPathHelper;
+	projPathGetter : IDelphiIDEContext;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDripExtensionMenu.dripMenuClick');
 
 	enableMenuItem(DRIP_MENUITEM_DRIPGREPPER_NAME, Assigned(IOTAUtils.GxOtaGetCurrentProject()));
 
-	projPathGetter := TIdeProjectPathHelper.Create();
+	projPathGetter := TDelphiIDEContextProvider.Create();
 	enableMenuItem(DRIP_MENUITEM_OPENWITH_NAME, not projPathGetter.GetCurrentSourceFile.IsEmpty);
 
 	// Settings menu item is always enabled
