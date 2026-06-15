@@ -1688,7 +1688,11 @@ begin
 		fn := FProject.GetModule(i).GetFileName;
 		if not fn.IsEmpty then begin
 			TDebugUtils.DebugMessage('Add FileName=' + fn);
-			Result := Result + [fn]
+			if FileExists(fn) then begin
+				Result := Result + [fn]
+			end else begin
+				TDebugUtils.DebugMessage('File does not exist: ' + fn);
+			end
 		end;
 	end;
 end;
@@ -1709,7 +1713,11 @@ begin
 			var
 			dir := TPath.GetDirectoryName(fn);
 			TDebugUtils.DebugMessage('Add DirName=' + dir);
-			arr.AddIfNotContains(dir);
+			if DirectoryExists(dir) then begin
+				arr.AddIfNotContains(dir);
+			end else begin
+				TDebugUtils.DebugMessage('Directory does not exist: ' + dir);
+			end;
 		end;
 	end;
 	Result := arr.Items;
@@ -1751,7 +1759,11 @@ begin
 	for i := 0 to _paths.Count - 1 do begin
 		pathItem := pathProcessor.Process(_paths[i]);
 		if not pathItem.IsEmpty then begin
-			Result.AddIfNotContains(pathItem);
+			if DirectoryExists(pathItem) then begin
+				Result.AddIfNotContains(pathItem);
+			end else begin
+				_nonExistsPaths.AddIfNotContains(pathItem);
+			end;
 		end;
 		dbgMsg.MsgFmt('Original path: %s', [_paths[i]], tftVerbose);
 		dbgMsg.MsgFmt('Processed path: %s', [pathItem], tftVerbose);
