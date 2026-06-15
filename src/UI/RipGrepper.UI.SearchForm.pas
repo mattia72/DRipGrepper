@@ -53,6 +53,8 @@ const
 	RG_OPTIONS_PADDING_LEFT = 4;
 	RG_OPTIONS_PADDING_TOP = 4;
 	GB_EXPERT_DESIGNED_HEIGHT = 175; // Designed height from .dfm file
+	MAX_COMBO_DISPLAY_LENGTH = 1024; // Max chars to display in combo; longer paths get summarized
+	MAX_HINT_PATHS = 30; // Max number of paths to show in a hint tooltip
 	WM_DESELECT_COMBO = WM_APP + 100;
 
 type
@@ -191,6 +193,8 @@ type
 			FbExtensionOptionsSkipClick : Boolean;
 			FCbClickEventEnabled : Boolean;
 			FMemoTextFormat : EMemoTextFormat;
+			// Full search path for context-driven (non-editable) modes that may exceed combo text limit
+			FContextSearchPath : string;
 
 			FOrigSearchFormSettings : TSearchFormSettings;
 			FShowing : Boolean;
@@ -228,6 +232,7 @@ type
 			procedure LoadOldHistorySearchSettings;
 			procedure LoadInitialSearchSettings();
 			procedure SetCmbSearchPathText(const _sPath : string);
+			function GetTruncatedHint(const _paths : TArray<string>) : string;
 			class procedure SetReplaceText(_settings : TRipGrepperSettings; const _replaceText : string);
 			procedure SetReplaceTextSetting(const _replaceText : string);
 			procedure UpdateExtensionOptionsHint(const _paths : string);
@@ -950,8 +955,11 @@ begin
 
 	ShowReplaceCtrls(IsReplaceLayout());
 
-	FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
-	dbgMsg.Msg('SearchPath=' + cmbSearchDir.Text);
+	if (not cmbSearchDir.Enabled) and (not FContextSearchPath.IsEmpty) then
+		FSettings.RipGrepParameters.SearchPath := FContextSearchPath
+	else
+		FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
+	dbgMsg.Msg('SearchPath=' + FSettings.RipGrepParameters.SearchPath);
 
 	FSettings.RipGrepParameters.FileMasks := cmbFileMasks.Text;
 	dbgMsg.Msg('FileMasks=' + cmbFileMasks.Text);
@@ -1445,9 +1453,38 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.SetCmbSearchPathText(const _sPath : string);
+var
+	displayText : string;
+	paths : TArray<string>;
 begin
-	cmbSearchDir.Text := _sPath;
+	FContextSearchPath := _sPath;
+	if _sPath.Length > MAX_COMBO_DISPLAY_LENGTH then begin
+		paths := _sPath.Split([';']);
+		displayText := Format('%d paths (e.g. %s)', [Length(paths), paths[0]]);
+		cmbSearchDir.Text := displayText;
+		cmbSearchDir.Hint := GetTruncatedHint(paths);
+	end else begin
+		cmbSearchDir.Text := _sPath;
+		cmbSearchDir.Hint := _sPath.Replace(';', sLineBreak);
+	end;
 	TDebugUtils.Msg('cmbSearchDir.Text=' + cmbSearchDir.Text);
+end;
+
+function TRipGrepperSearchDialogForm.GetTruncatedHint(const _paths : TArray<string>) : string;
+var
+	i, count : Integer;
+begin
+	count := Length(_paths);
+	if count <= MAX_HINT_PATHS then begin
+		Result := string.Join(sLineBreak, _paths);
+	end else begin
+		var lines : TArray<string>;
+		SetLength(lines, MAX_HINT_PATHS + 1);
+		for i := 0 to MAX_HINT_PATHS - 1 do
+			lines[i] := _paths[i];
+		lines[MAX_HINT_PATHS] := Format('... and %d more', [count - MAX_HINT_PATHS]);
+		Result := string.Join(sLineBreak, lines);
+	end;
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateExtensionOptionsHint(const _paths : string);
@@ -1466,7 +1503,11 @@ begin
 	{$IF IS_EXTENSION}
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateSearchPathWarning');
-	var searchPath : string := string(cmbSearchDir.Text).Trim();
+	var searchPath : string;
+	if (not cmbSearchDir.Enabled) and (not FContextSearchPath.IsEmpty) then
+		searchPath := FContextSearchPath.Trim()
+	else
+		searchPath := string(cmbSearchDir.Text).Trim();
 	dbgMsg.MsgFmt('searchPath=%s', [searchPath]);
 	if not searchPath.IsEmpty then begin
 		var
@@ -1822,13 +1863,17 @@ begin
 			end;
 			EDelphiIDESearchContext.dicCustomLocation : begin
 				cmbSearchDir.Enabled := True;
+				FContextSearchPath := '';
 				dbgMsg.MsgFmt('SearchPath=%s', [FCtrlProxy.SearchPath]);
 				SetComboItemsAndText(cmbSearchDir, FCtrlProxy.SearchPath, FSettings.SearchPathsHistory.Value);
 				UpdateExtensionOptionsHint(FCtrlProxy.SearchPath);
 			end
 		end;
 
-		FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
+		if (not cmbSearchDir.Enabled) and (not FContextSearchPath.IsEmpty) then
+			FSettings.RipGrepParameters.SearchPath := FContextSearchPath
+		else
+			FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
 		var
 			dic : TDelphiIDEContext;
 		dic.IDESearchContext := FCtrlProxy.ExtensionContext;

@@ -166,9 +166,22 @@ begin
 end;
 
 class function TExtensionContexPanel.GetAsHint(var _paths : TArray<string>) : string;
+const
+	MAX_HINT_PATHS = 30;
+var
+	count : Integer;
 begin
-	// TArray.Sort<string>(_paths);
-	Result := string.Join(CRLF, _paths);
+	count := Length(_paths);
+	if count <= MAX_HINT_PATHS then begin
+		Result := string.Join(CRLF, _paths);
+	end else begin
+		var lines : TArray<string>;
+		SetLength(lines, MAX_HINT_PATHS + 1);
+		for var i := 0 to MAX_HINT_PATHS - 1 do
+			lines[i] := _paths[i];
+		lines[MAX_HINT_PATHS] := Format('... and %d more', [count - MAX_HINT_PATHS]);
+		Result := string.Join(CRLF, lines);
+	end;
 end;
 
 function TExtensionContexPanel.getContextValues() : IIDEContextValues;
