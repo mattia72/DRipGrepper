@@ -157,6 +157,7 @@ type
 			FswSearchStart : TStopwatch;
 			FIconImgList : TIconImageList;
 			FIsInitialized : Boolean;
+			FIsMultiSliceRun : Boolean;
 			FParsingThreads : TArrayEx<TParallelParser>;
 			procedure AddAsUsing(_bToImpl : Boolean);
 			procedure DoSearch;
@@ -507,12 +508,18 @@ end;
 procedure TRipGrepperMiddleFrame.AfterSearch;
 var
 	ec : TErrorCounters;
+	dbgMsg : TDebugMsgBeginEnd;
 begin
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.AfterSearch');
 	ec := HistItemObject.GetErrorCounters();
+	dbgMsg.MsgFmt('ParserErrors=%d, IsNoOutput=%s, IsRGError=%s, MultiSlice=%s, TotalMatch=%d',
+		[ec.FParserErrors, BoolToStr(ec.FIsNoOutputError, True), BoolToStr(ec.FIsRGReportedError, True),
+		BoolToStr(FIsMultiSliceRun, True), Data.TotalMatchCount]);
 	if ec.FParserErrors > 0 then begin
 		TAsyncMsgBox.ShowWarning(RG_PARSE_ERROR_MSG); // , false, self);
 	end;
-	if ec.FIsNoOutputError then begin
+	if ec.FIsNoOutputError and (not (FIsMultiSliceRun and (Data.TotalMatchCount > 0))) then begin
+		dbgMsg.Msg('showing NoOutput warning');
 		TAsyncMsgBox.ShowWarning(RG_PRODUCED_NO_OUTPUT_MSG);
 	end;
 	if ec.FIsRGReportedError then begin
@@ -935,6 +942,7 @@ begin
 	VstResult.Clear;
 	Data.ClearMatchFiles;
 	// ClearData;
+	FIsMultiSliceRun := False;
 	FswSearchStart := TStopwatch.Create();
 	FMeassureFirstDrawEvent := True;
 	LoadBeforeSearchSettings();
@@ -1042,6 +1050,8 @@ var
 	args : TStrings;
 	argsArrs : TStringsArrayEx;
 	rgPath : string;
+	sliceResult : Integer;
+	bestResult : Integer;
 begin
 	rgPath := Settings.RipGrepParameters.RipGrepPath;
 	if not FileExists(rgPath) then begin
@@ -1051,23 +1061,27 @@ begin
 
 	FRipGrepTask := TTask.Create(
 		procedure()
+		var
+			dbgMsg : TDebugMsgBeginEnd;
 		begin
+			dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.RunRipGrep.TTaskCreate');
 			workDir := TDirectory.GetCurrentDirectory();
-			TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.RunRipGrep: run: ' + rgPath + ' '
-				{ } + Settings.RipGrepParameters.RipGrepArguments.DelimitedText);
+			dbgMsg.Msg('run: ' + rgPath + ' ' + Settings.RipGrepParameters.RipGrepArguments.DelimitedText);
 			FswSearchStart := TStopwatch.StartNew;
 			args := TStringList.Create;
 			try
 				argsArrs := SliceArgs(Settings.RipGrepParameters);
-				TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.RunRipGrep: %d slice(s) to process', [argsArrs.Count]));
+				FIsMultiSliceRun := argsArrs.Count > 1;
+				dbgMsg.MsgFmt('%d slice(s) to process', [argsArrs.Count]);
+				bestResult := RG_NO_MATCH;
 				for var i := 0 to argsArrs.MaxIndex do begin
 					args.Clear;
 					args.AddStrings(argsArrs[i]);
-					TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.RunRipGrep: slice %d/%d, args count=%d, cmdLen=%d',
-						[i + 1, argsArrs.Count, args.Count, TProcessUtils.GetCommandLineLength(rgPath, args)]));
+					dbgMsg.MsgFmt('slice %d/%d, args count=%d, cmdLen=%d',
+						[i + 1, argsArrs.Count, args.Count, TProcessUtils.GetCommandLineLength(rgPath, args)]);
 					if i < argsArrs.MaxIndex then begin
 						// Command line was too long, run in separate processes (xargs-like)
-						FHistItemObj.RipGrepResult := TProcessUtils.RunProcess(
+						sliceResult := TProcessUtils.RunProcess(
 							{ } rgPath,
 							{ } args,
 							{ } workDir,
@@ -1075,7 +1089,7 @@ begin
 							{ } self as ITerminateEventProducer,
 							{ } nil);
 					end else begin
-						FHistItemObj.RipGrepResult := TProcessUtils.RunProcess(
+						sliceResult := TProcessUtils.RunProcess(
 							{ } rgPath,
 							{ } args,
 							{ } workDir,
@@ -1083,7 +1097,13 @@ begin
 							{ } self as ITerminateEventProducer,
 							{ } self as IEOFProcessEventHandler);
 					end;
+					dbgMsg.MsgFmt('slice %d/%d result=%d', [i + 1, argsArrs.Count, sliceResult]);
+					if sliceResult < bestResult then begin
+						bestResult := sliceResult;
+					end;
 				end;
+				dbgMsg.MsgFmt('bestResult=%d, slices=%d', [bestResult, argsArrs.Count]);
+				FHistItemObj.RipGrepResult := bestResult;
 
 			finally
 				args.Free;
@@ -1095,7 +1115,7 @@ begin
 			TopFrame.AfterHistObjChange;
 			BottomFrame.AfterHistObjChange;
 
-			TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.RunRipGrep: rg.exe ended in %s sec.', [FHistItemObj.ElapsedTimeText]));
+			dbgMsg.MsgFmt('rg.exe ended in %s sec.', [FHistItemObj.ElapsedTimeText]);
 		end);
 	FRipGrepTask.Start;
 end;
