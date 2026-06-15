@@ -38,6 +38,7 @@ type
 
 			class procedure NewLineEventHandler(_obj : INewLineEventHandler; const _s : string; const _bIsLast : Boolean = False);
 			class procedure EOFProcessingEventHandler(_obj : IEOFProcessEventHandler);
+			class procedure TraceErrorOutput(const _process : TProcess);
 			class function GetDefaultEncodingName : string;
 			class function GetDefaultEncodingCodePage : Integer;
 			class function GetEncodingName(Encoding : TEncoding) : string;
@@ -167,6 +168,25 @@ begin
 	end;
 end;
 
+class procedure TProcessUtils.TraceErrorOutput(const _process : TProcess);
+var
+	byteBuff : TBytes;
+	iRead : integer;
+	sErr : string;
+begin
+	if (not Assigned(_process.Stderr)) or (_process.Stderr = _process.Output) then
+		Exit;
+	SetLength(byteBuff, BUFF_LENGTH);
+	sErr := '';
+	repeat
+		iRead := _process.Stderr.Read(Pointer(byteBuff)^, Length(byteBuff));
+		if iRead > 0 then
+			sErr := sErr + TEncoding.UTF8.GetString(byteBuff, 0, iRead);
+	until iRead = 0;
+	if sErr <> '' then
+		TDebugUtils.DebugMessage('rg.exe stderr: ' + sErr);
+end;
+
 class function TProcessUtils.GoTillCRLF(var P : PChar; const PEndVal : PChar) : Integer;
 begin
 	Result := 0;
@@ -279,7 +299,7 @@ begin
 		p.Parameters.Assign(_args);
 		// p.ShowWindow := swoShowNormal; // Is this needed?
 		p.ShowWindow := swoHIDE;
-		p.Options := p.Options + [poNewConsole, poUsePipes, poStdErrToOutPut];
+		p.Options := p.Options + [poNewConsole, poUsePipes];
 		p.CurrentDirectory := _workDir;
 
 		cmdLineLength := GetCommandLineLength(_exe, _args);
@@ -303,6 +323,9 @@ begin
 				p.WaitOnExit;
 			end;
 			Result := p.ExitStatus;
+
+			TraceErrorOutput(p);
+
 			case Result of
 				RG_SUCCESS :
 				;
