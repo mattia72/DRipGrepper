@@ -812,8 +812,9 @@ end;
 
 class procedure TAsyncMsgBox.SetModalResultAndClose(const _mr : Integer);
 begin
-	FMsgDlg.ModalResult := _mr;
-	FMsgDlg.Close;
+	if Assigned(FMsgDlg) then begin
+		FMsgDlg.ModalResult := _mr;
+	end;
 end;
 
 class procedure TAsyncMsgBox.ShowError(const _msg : string);
@@ -840,22 +841,22 @@ end;
 class function TAsyncMsgBox.ThreadShowDlg() : TModalResult;
 begin
 	var
-	btnOk := (FMsgDlg.FindComponent('OK') as TButton);
-	if Assigned(btnOk) then begin
-		btnOk.OnClick := TAsyncMsgBox.OnOkClick;
+	btnOk := FMsgDlg.FindComponent('OK');
+	if (btnOk is TButton) then begin
+		TButton(btnOk).OnClick := TAsyncMsgBox.OnOkClick;
 	end else begin
 		var
-		btnYes := (FMsgDlg.FindComponent('Yes') as TButton);
-		if Assigned(btnYes) then begin
-			btnYes.OnClick := TAsyncMsgBox.OnYesClick;
+		btnYes := FMsgDlg.FindComponent('Yes');
+		if (btnYes is TButton) then begin
+			TButton(btnYes).OnClick := TAsyncMsgBox.OnYesClick;
 		end;
 		var
-		btnNo := (FMsgDlg.FindComponent('No') as TButton);
-		if Assigned(btnNo) then begin
-			btnNo.OnClick := TAsyncMsgBox.OnNoClick;
+		btnNo := FMsgDlg.FindComponent('No');
+		if (btnNo is TButton) then begin
+			TButton(btnNo).OnClick := TAsyncMsgBox.OnNoClick;
 		end;
 	end;
-	Result := FMsgDlg.ShowModal; // TODO : test appropriate result
+	Result := FMsgDlg.ShowModal;
 end;
 
 class function TMsgBoxBase.GetButtonsByType(const _type : TMsgDlgType) : TMessageDialogButtons;
