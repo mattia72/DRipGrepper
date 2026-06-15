@@ -1059,11 +1059,14 @@ begin
 			args := TStringList.Create;
 			try
 				argsArrs := SliceArgs(Settings.RipGrepParameters);
+				TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.RunRipGrep: %d slice(s) to process', [argsArrs.Count]));
 				for var i := 0 to argsArrs.MaxIndex do begin
 					args.Clear;
 					args.AddStrings(argsArrs[i]);
+					TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.RunRipGrep: slice %d/%d, args count=%d, cmdLen=%d',
+						[i + 1, argsArrs.Count, args.Count, TProcessUtils.GetCommandLineLength(rgPath, args)]));
 					if i < argsArrs.MaxIndex then begin
-						// if cmd line is too long, we slice it and run in separate processes...
+						// Command line was too long, run in separate processes (xargs-like)
 						FHistItemObj.RipGrepResult := TProcessUtils.RunProcess(
 							{ } rgPath,
 							{ } args,
@@ -1308,24 +1311,31 @@ var
 	op_args : TArray<string>;
 	path_args : TArray<string>;
 	exe : string;
-	options : string;
 	strsArr : TStringsArrayEx;
 	fullCmdLen : integer;
 begin
-	options := _rgp.RgExeOptions.AsString;
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.SliceArgs');
+
 	args := TStringList.Create;
 	try
 		args.Delimiter := ' ';
 		args.AddStrings(_rgp.RipGrepArguments.GetValues());
 		exe := _rgp.RipGrepPath;
 		fullCmdLen := TProcessUtils.GetCommandLineLength(exe, args);
+		dbgMsg.MsgFmt('fullCmdLen=%d, MAX=%d', [fullCmdLen, MAX_COMMAND_LINE_LENGTH]);
 		if (MAX_COMMAND_LINE_LENGTH > fullCmdLen) then begin
+			dbgMsg.Msg('Command line fits, using direct args');
 			Result.Add(args.ToStringArray);
 		end else begin
+			// Command line too long - split paths into multiple rg invocations (xargs-like)
+			dbgMsg.MsgFmt('Command line too long (%d), splitting into multiple invocations', [fullCmdLen]);
 			args.Clear;
 			path_args := _rgp.SearchPath.Split([SEARCH_PATH_SEPARATOR]);
+			dbgMsg.MsgFmt('path_args count=%d', [Length(path_args)]);
 			args.AddStrings(path_args);
 			strsArr := args.SliceMaxLength(MAX_COMMAND_LINE_LENGTH - (fullCmdLen - args.Text.Length));
+			dbgMsg.MsgFmt('Sliced into %d batches', [strsArr.Count]);
 			op_args := _rgp.RipGrepArguments.GetOptions();
 			for var arrPath in strsArr do begin
 				Result.Add(op_args + [_rgp.GuiSearchTextParams.GetSearchText] + arrPath);
