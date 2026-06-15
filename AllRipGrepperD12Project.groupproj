@@ -12,7 +12,13 @@
         <Projects Include="Extension\src\Project\Dll.Delphi12\DRipExtensions.D12.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="..\spring4d\Tests\Spring.Tests.Delphi12.dproj">
+        <Projects Include="src\Project\Delphi12\DRipGrepperComponents.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="src\Project\Delphi12\ComponentTestApp.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Test\TabSeparatedConfigTestProject.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -50,40 +56,70 @@
     <Target Name="DRipExtensions_D12:Make">
         <MSBuild Projects="Extension\src\Project\Dll.Delphi12\DRipExtensions.D12.dproj" Targets="Make"/>
     </Target>
-    <Target Name="Spring_Tests_Delphi12">
-        <MSBuild Projects="..\spring4d\Tests\Spring.Tests.Delphi12.dproj"/>
+    <Target Name="DRipGrepperComponents">
+        <MSBuild Projects="src\Project\Delphi12\DRipGrepperComponents.dproj"/>
     </Target>
-    <Target Name="Spring_Tests_Delphi12:Clean">
-        <MSBuild Projects="..\spring4d\Tests\Spring.Tests.Delphi12.dproj" Targets="Clean"/>
+    <Target Name="DRipGrepperComponents:Clean">
+        <MSBuild Projects="src\Project\Delphi12\DRipGrepperComponents.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="Spring_Tests_Delphi12:Make">
-        <MSBuild Projects="..\spring4d\Tests\Spring.Tests.Delphi12.dproj" Targets="Make"/>
+    <Target Name="DRipGrepperComponents:Make">
+        <MSBuild Projects="src\Project\Delphi12\DRipGrepperComponents.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ComponentTestApp">
+        <MSBuild Projects="src\Project\Delphi12\ComponentTestApp.dproj"/>
+    </Target>
+    <Target Name="ComponentTestApp:Clean">
+        <MSBuild Projects="src\Project\Delphi12\ComponentTestApp.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ComponentTestApp:Make">
+        <MSBuild Projects="src\Project\Delphi12\ComponentTestApp.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="TabSeparatedConfigTestProject">
+        <MSBuild Projects="Test\TabSeparatedConfigTestProject.dproj"/>
+    </Target>
+    <Target Name="TabSeparatedConfigTestProject:Clean">
+        <MSBuild Projects="Test\TabSeparatedConfigTestProject.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="TabSeparatedConfigTestProject:Make">
+        <MSBuild Projects="Test\TabSeparatedConfigTestProject.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="DRipGrepper;DRipGrepperUnittest_D12;DRipExtensions_D12;Spring_Tests_Delphi12"/>
+        <CallTarget Targets="DRipGrepper;DRipGrepperUnittest_D12;DRipExtensions_D12;DRipGrepperComponents;ComponentTestApp;TabSeparatedConfigTestProject"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="DRipGrepper:Clean;DRipGrepperUnittest_D12:Clean;DRipExtensions_D12:Clean;Spring_Tests_Delphi12:Clean"/>
+        <CallTarget Targets="DRipGrepper:Clean;DRipGrepperUnittest_D12:Clean;DRipExtensions_D12:Clean;DRipGrepperComponents:Clean;ComponentTestApp:Clean;TabSeparatedConfigTestProject:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="DRipGrepper:Make;DRipGrepperUnittest_D12:Make;DRipExtensions_D12:Make;Spring_Tests_Delphi12:Make"/>
+        <CallTarget Targets="DRipGrepper:Make;DRipGrepperUnittest_D12:Make;DRipExtensions_D12:Make;DRipGrepperComponents:Make;ComponentTestApp:Make;TabSeparatedConfigTestProject:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
     <ItemGroup Condition="'$(BuildGroup)'=='Release'">
-        <BuildGroupProject Include="Extension\src\Project\Dll.Delphi12\DRipExtensions.D12.dproj">
-            <ProjectGuid>{61FA8D59-16BA-4F6D-96E6-6AF82C96C442}</ProjectGuid>
-            <Configurations>Release</Configurations>
-            <Platforms>Win32</Platforms>
-            <Enabled>True</Enabled>
+        <BuildGroupProject Include="src\Project\Delphi12\DRipGrepperComponents.dproj">
+            <ProjectGuid>{8EDFA053-8216-46FA-92EB-5747CF13C11F}</ProjectGuid>
+            <Configurations/>
+            <Platforms/>
+            <Enabled>False</Enabled>
         </BuildGroupProject>
-        <BuildGroupProject Include="..\spring4d\Tests\Spring.Tests.Delphi12.dproj">
-            <ProjectGuid>{83F94C88-615C-458E-9455-6593952E7EA0}</ProjectGuid>
-            <Configurations>Release</Configurations>
+        <BuildGroupProject Include="src\Project\Delphi12\ComponentTestApp.dproj">
+            <ProjectGuid>{3A5F8C21-D4E7-4B2A-9F61-C8E3D5A1B2F4}</ProjectGuid>
+            <Configurations>Debug</Configurations>
             <Platforms>Win32</Platforms>
             <Enabled>False</Enabled>
         </BuildGroupProject>
         <BuildGroupProject Include="src\Project\Delphi12\DRipGrepper.dproj">
             <ProjectGuid>{690C375C-03A1-4C11-8B81-E628EF382F2C}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32;Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Test\TabSeparatedConfigTestProject.dproj">
+            <ProjectGuid>{B4C5E3A2-7F91-4D8E-9B2C-1A3F5D7E8C9B}</ProjectGuid>
+            <Configurations>Debug</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Extension\src\Project\Dll.Delphi12\DRipExtensions.D12.dproj">
+            <ProjectGuid>{61FA8D59-16BA-4F6D-96E6-6AF82C96C442}</ProjectGuid>
             <Configurations>Release</Configurations>
             <Platforms>Win32</Platforms>
             <Enabled>True</Enabled>
@@ -92,32 +128,44 @@
             <ProjectGuid>{04615F54-46E4-466F-BD6A-656F9935C01F}</ProjectGuid>
             <Configurations>Release</Configurations>
             <Platforms>Win32</Platforms>
-            <Enabled>False</Enabled>
+            <Enabled>True</Enabled>
         </BuildGroupProject>
     </ItemGroup>
     <ItemGroup Condition="'$(BuildGroup)'=='Release x64'">
-        <BuildGroupProject Include="Extension\src\Project\Dll.Delphi12\DRipExtensions.D12.dproj">
-            <ProjectGuid>{61FA8D59-16BA-4F6D-96E6-6AF82C96C442}</ProjectGuid>
-            <Configurations>Release</Configurations>
-            <Platforms>Win32</Platforms>
+        <BuildGroupProject Include="src\Project\Delphi12\DRipGrepperComponents.dproj">
+            <ProjectGuid>{8EDFA053-8216-46FA-92EB-5747CF13C11F}</ProjectGuid>
+            <Configurations/>
+            <Platforms/>
             <Enabled>False</Enabled>
         </BuildGroupProject>
-        <BuildGroupProject Include="..\spring4d\Tests\Spring.Tests.Delphi12.dproj">
-            <ProjectGuid>{83F94C88-615C-458E-9455-6593952E7EA0}</ProjectGuid>
-            <Configurations>Release</Configurations>
-            <Platforms>Win64</Platforms>
+        <BuildGroupProject Include="src\Project\Delphi12\ComponentTestApp.dproj">
+            <ProjectGuid>{3A5F8C21-D4E7-4B2A-9F61-C8E3D5A1B2F4}</ProjectGuid>
+            <Configurations>Debug</Configurations>
+            <Platforms>Win32</Platforms>
             <Enabled>False</Enabled>
         </BuildGroupProject>
         <BuildGroupProject Include="src\Project\Delphi12\DRipGrepper.dproj">
             <ProjectGuid>{690C375C-03A1-4C11-8B81-E628EF382F2C}</ProjectGuid>
+            <Configurations/>
+            <Platforms/>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Test\TabSeparatedConfigTestProject.dproj">
+            <ProjectGuid>{B4C5E3A2-7F91-4D8E-9B2C-1A3F5D7E8C9B}</ProjectGuid>
+            <Configurations>Debug</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Extension\src\Project\Dll.Delphi12\DRipExtensions.D12.dproj">
+            <ProjectGuid>{61FA8D59-16BA-4F6D-96E6-6AF82C96C442}</ProjectGuid>
             <Configurations>Release</Configurations>
-            <Platforms>Win64</Platforms>
+            <Platforms/>
             <Enabled>True</Enabled>
         </BuildGroupProject>
         <BuildGroupProject Include="UnitTest\DRipGrepperUnittest.D12.dproj">
             <ProjectGuid>{04615F54-46E4-466F-BD6A-656F9935C01F}</ProjectGuid>
             <Configurations>Release</Configurations>
-            <Platforms>Win32</Platforms>
+            <Platforms/>
             <Enabled>False</Enabled>
         </BuildGroupProject>
     </ItemGroup>

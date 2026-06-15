@@ -20,6 +20,8 @@ param (
 # Stop script execution on any error
 $ErrorActionPreference = "Stop"
 
+# Refresh environment variables from registry
+Import-Module PSEnv
 Update-SessionEnvironment
 
 Import-Module -Name "$PSScriptRoot\GitHubReleaseUtils.ps1" -Force
@@ -59,10 +61,6 @@ if ($DryRun) {
 
 $global:Url = "https://api.github.com/repos/$global:Owner/$global:Repo/releases"
 $global:Token = $env:GITHUB_TOKEN
-if (-not $global:Token) {
-    Write-Error "FATAL: GITHUB_TOKEN environment variable is not set. Please set it with a personal access token."
-    exit 1
-}
 
 $global:PadRightValue = 45
 $global:InstalledDelphiVersions = @()
@@ -681,6 +679,12 @@ function New-Deploy {
         Exit 1
     }
     $global:PrevVersion = $versionInfo.PreviousVersion
+
+    # Check for GitHub token only if GitHub operations are requested
+    if (($DeployToGitHub -or $AddMissingAsset) -and -not $global:Token) {
+        Write-Error "FATAL: GITHUB_TOKEN environment variable is not set. Please set it with a personal access token for GitHub operations."
+        exit 1
+    }
 
     if ($LocalDeploy -or $DeployToGitHub -or $BuildStandalone -or $BuildExtension -or $BuildUIComponents -or $BuildUnittest -or $RunUnittest -or $DeployToTransferDrive) {
         #New-ReleaseNotes

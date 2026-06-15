@@ -130,7 +130,8 @@ uses
   RipGrepper.Helper.RegexTemplates in '..\..\Helper\RipGrepper.Helper.RegexTemplates.pas',
   RipGrepper.UI.TabSeparatedConfigForm in '..\..\UI\RipGrepper.UI.TabSeparatedConfigForm.pas',
   RipGrepper.Settings.PersistableArray in '..\..\Settings\RipGrepper.Settings.PersistableArray.pas',
-  RipGrepper.Settings.RegexTemplateSettings in '..\..\Settings\RipGrepper.Settings.RegexTemplateSettings.pas';
+  RipGrepper.Settings.RegexTemplateSettings in '..\..\Settings\RipGrepper.Settings.RegexTemplateSettings.pas',
+  RipGrepper.UI.Components.IconLabel in '..\..\UI\Components\RipGrepper.UI.Components.IconLabel.pas';
 
 {$R *.res}
 
