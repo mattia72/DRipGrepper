@@ -289,6 +289,8 @@ begin
 end;
 
 function TRipGrepperData.ErrorOrStatsLinesHandling(const _sFileColumnText : string; _item : IParsedObjectRow) : PVirtualNode;
+const 
+	FNAME='TRipGrepperData.ErrorOrStatsLinesHandling';
 var
 	node : PVirtualNode;
 	nodeData : TVSFileNodeData;
@@ -297,6 +299,7 @@ begin
 	if _item.IsError then begin
 		if _item.ErrorText = RG_PARSE_ERROR then begin
 			if TRegEx.IsMatch(_sFileColumnText, '(^' + RG_ERROR_MSG_PREFIX + '|' + RG_ENDED_ERROR + ')') then begin
+				TDebugUtils.MsgFmt('%s: RG reported error: %s', [FNAME, _sFileColumnText], tftError);
 				NoMatchFound := True;
 				FErrorCounters.FIsRGReportedError := TRegEx.IsMatch(_sFileColumnText, RG_ENDED_ERROR);
 				node := GetParentNode(RG_ERROR_MSG_PREFIX, True);
@@ -304,12 +307,15 @@ begin
 				AddVSTStructure(node, nodeData, true);
 				Exit;
 			end else if _sFileColumnText.EndsWith(RG_HAS_NO_OUTPUT) then begin
+				TDebugUtils.MsgFmt('%s: No output error: %s', [FNAME, _sFileColumnText], tftError);
 				FErrorCounters.FIsNoOutputError := True;
 				NoMatchFound := True;
 				Exit;
 			end;
+			TDebugUtils.MsgFmt('%s: Parser error: %s', [FNAME, _sFileColumnText], tftError);
 			Inc(FErrorCounters.FParserErrors);
 		end;
+		TDebugUtils.MsgFmt('%s: Error [%s]: %s', [FNAME, _item.ErrorText, _sFileColumnText], tftError);
 		Inc(FErrorCounters.FSumOfErrors);
 		Result := GetParentNode(_item.ErrorText, True);
 	end else if _item.IsStatsLine then begin
