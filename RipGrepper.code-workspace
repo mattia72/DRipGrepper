@@ -18,7 +18,9 @@
 		"svn.ignoreMissingSvnWarning": true,
 		"powershell.cwd": "RipGrepper",
 		"chat.tools.terminal.autoApprove": {
-			"deploy\\Deploy-DripGrepper.ps1": true
+			"deploy\\Deploy-DripGrepper.ps1": true,
+			".\\Win32\\Release\\DRipGrepperUnittest.D11.exe": true,
+			"Out-Null": true
 		}
 	}
 }
