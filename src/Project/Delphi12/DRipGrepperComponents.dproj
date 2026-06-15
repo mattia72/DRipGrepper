@@ -45,6 +45,12 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+        <Cfg_2_Win32>true</Cfg_2_Win32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
         <DCC_DcuOutput>.\$(Platform)\$(Config)</DCC_DcuOutput>
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
@@ -56,8 +62,9 @@
         <GenDll>true</GenDll>
         <GenPackage>true</GenPackage>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-        <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
-        <DCC_UnitSearchPath>C:\home\mata\dev\delphi\RipGrepper\src\UI\Components;C:\home\mata\dev\delphi\RipGrepper\src\Common;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_CBuilderOutput>None</DCC_CBuilderOutput>
+        <DCC_UnitSearchPath>$(HOME)\dev\delphi\RipGrepper\src\UI\Components;$(HOME)\dev\delphi\RipGrepper\src\Common;$(HOME)\dev\delphi\spring4d\Source;$(HOME)\dev\delphi\spring4d\Source\Base;$(HOME)\dev\delphi\spring4d\Source\Base\Collections;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_IncludePath>$(HOME)\dev\delphi\spring4d\Source;$(HOME)\dev\delphi\spring4d\Source\Base;$(DCC_IncludePath)</DCC_IncludePath>
         <AppFileExt>bpl</AppFileExt>
         <BRCC_CompilerToUse>rc</BRCC_CompilerToUse>
         <VerInfo_Locale>1033</VerInfo_Locale>
@@ -70,13 +77,13 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <DCC_UsePackage>vcl;rtl;xmlrtl;vclactnband;vclx;VclSmp;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UsePackage>vcl;rtl;xmlrtl;vclactnband;vclx;VclSmp;Spring.Base;SVGIconImageList;SVGImage32Package;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <DCC_UsePackage>vcl;rtl;xmlrtl;vclactnband;vclx;VclSmp;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UsePackage>vcl;rtl;xmlrtl;vclactnband;vclx;VclSmp;Spring.Base;SVGIconImageList;SVGImage32Package;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64x)'!=''">
-        <DCC_UsePackage>vcl;rtl;xmlrtl;vclactnband;vclx;VclSmp;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UsePackage>vcl;rtl;xmlrtl;vclactnband;vclx;VclSmp;Spring.Base;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -99,17 +106,23 @@
         <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
         <DCC_DebugInformation>0</DCC_DebugInformation>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+    </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="rtl.dcp"/>
+        <DCCReference Include="Spring.Base.dcp"/>
         <DCCReference Include="designide.dcp"/>
         <DCCReference Include="vcl.dcp"/>
         <DCCReference Include="vclactnband.dcp"/>
         <DCCReference Include="vclx.dcp"/>
         <DCCReference Include="xmlrtl.dcp"/>
         <DCCReference Include="VclSmp.dcp"/>
+        <DCCReference Include="SVGIconImageList.dcp"/>
+        <DCCReference Include="SVGImage32Package.dcp"/>
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas"/>
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.NotifyingControls.pas"/>
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.CustomOptionsBase.pas"/>
@@ -119,6 +132,8 @@
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.CheckBoxComboBox.pas"/>
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.CheckBoxSpinEdit.pas"/>
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.BoundCheckBox.pas"/>
+        <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.IconLabel.pas"/>
+        <DCCReference Include="..\..\RipGrepper.Helper.UI.DarkMode.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

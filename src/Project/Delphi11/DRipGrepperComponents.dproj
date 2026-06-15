@@ -50,7 +50,7 @@
         <GenDll>true</GenDll>
         <GenPackage>true</GenPackage>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-        <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
+        <DCC_CBuilderOutput>None</DCC_CBuilderOutput>
         <DCC_UnitSearchPath>C:\Home\mata\dev\delphi\RipGrepper\src\UI;C:\Home\mata\dev\delphi\RipGrepper\src\Common;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <AppFileExt>bpl</AppFileExt>
         <SanitizedProjectName>DRipGrepperComponents</SanitizedProjectName>

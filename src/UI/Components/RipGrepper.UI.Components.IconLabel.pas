@@ -52,10 +52,13 @@ type
 			property ImageIndexQuestion : TImageIndex read FImageIndexQuestion write FImageIndexQuestion;
 	end;
 
+procedure Register;
+
 implementation
 
 uses
-	System.SysUtils;
+	System.SysUtils,
+	RipGrepper.UI.Components.Constants;
 
 { TIconLabel }
 
@@ -219,7 +222,9 @@ begin
 	end;
 end;
 
-// initialization
-// System.Classes.RegisterClass(TIconLabel);
+procedure Register;
+begin
+	RegisterComponents(SECTION_NAME, [TIconLabel]);
+end;
 
 end.

@@ -29,12 +29,15 @@
 
 requires
   rtl,
+  Spring.Base,
   designide,
   vcl,
   vclactnband,
   vclx,
   xmlrtl,
-  VclSmp;
+  VclSmp,
+  SVGIconImageList,
+  SVGImage32Package;
 
 contains
   RipGrepper.UI.Components.HistoryButtonedEdit in '..\..\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas',
@@ -45,6 +48,8 @@ contains
   RipGrepper.UI.Components.LabeledComboBox in '..\..\UI\Components\RipGrepper.UI.Components.LabeledComboBox.pas',
   RipGrepper.UI.Components.CheckBoxComboBox in '..\..\UI\Components\RipGrepper.UI.Components.CheckBoxComboBox.pas',
   RipGrepper.UI.Components.CheckBoxSpinEdit in '..\..\UI\Components\RipGrepper.UI.Components.CheckBoxSpinEdit.pas',
-  RipGrepper.UI.Components.BoundCheckBox in '..\..\UI\Components\RipGrepper.UI.Components.BoundCheckBox.pas';
+  RipGrepper.UI.Components.BoundCheckBox in '..\..\UI\Components\RipGrepper.UI.Components.BoundCheckBox.pas',
+  RipGrepper.UI.Components.IconLabel in '..\..\UI\Components\RipGrepper.UI.Components.IconLabel.pas',
+  RipGrepper.Helper.UI.DarkMode in '..\..\RipGrepper.Helper.UI.DarkMode.pas';
 
 end.
