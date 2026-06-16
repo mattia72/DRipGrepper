@@ -33,7 +33,6 @@ type
 			FFileCount : integer;
 			FHasResult : Boolean;
 			FMatches : TParsedObjectRowCollection;
-			FNoMatchFound : Boolean;
 			FParserType : TParserType;
 			FResultsTruncated : Boolean;
 			FRipGrepResult : Integer;
@@ -68,7 +67,6 @@ type
 			procedure Initialize();
 			procedure SetElapsedTimeText(const Value : string);
 			procedure SetGuiSearchTextParams(const Value : IShared<TGuiSearchTextParams>);
-			procedure SetNoMatchFound(const Value : Boolean);
 			procedure SetResultsTruncated(const Value : Boolean);
 			procedure SetSearchFormSettings(const Value : TSearchFormSettings);
 			procedure SetRipGrepResult(const Value : Integer);
@@ -108,7 +106,7 @@ type
 			property IsExpertMode: Boolean read GetIsExpertMode write SetIsExpertMode;
 			property IsLoadedFromStream : Boolean read GetIsLoadedFromStream;
 			property IsReplaceMode : Boolean read GetIsReplaceMode;
-			property NoMatchFound : Boolean read GetNoMatchFound write SetNoMatchFound;
+			property NoMatchFound : Boolean read GetNoMatchFound;
 			property ResultsTruncated : Boolean read GetResultsTruncated write SetResultsTruncated;
 			property RipGrepResult : Integer read GetRipGrepResult write SetRipGrepResult;
 			property ParserType : TParserType read GetParserType write SetParserType;
@@ -223,7 +221,6 @@ begin
 	FFileCount := 0;
 	FTotalMatchCount := 0;
 	FErrorCounters.Reset;
-	FNoMatchFound := False;
 	FResultsTruncated := False;
 	FMatches.Items.Clear;
 	FIsLoadedFromStream := False;
@@ -269,7 +266,7 @@ end;
 
 function THistoryItemObject.GetNoMatchFound : Boolean;
 begin
-	Result := FNoMatchFound;
+	Result := (FMatches.Items.Count = 0) or (GetTotalMatchCount = 0);
 end;
 
 function THistoryItemObject.GetParserType : TParserType;
@@ -499,11 +496,6 @@ end;
 procedure THistoryItemObject.SetIsExpertMode(const Value: Boolean);
 begin
     FIsExpertMode := Value;
-end;
-
-procedure THistoryItemObject.SetNoMatchFound(const Value : Boolean);
-begin
-	FNoMatchFound := Value;
 end;
 
 procedure THistoryItemObject.SetResultsTruncated(const Value : Boolean);

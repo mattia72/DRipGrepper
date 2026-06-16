@@ -49,7 +49,7 @@ type
 		FSumOfErrors : Integer;
 		FParserErrors : Integer;
 		FStatLineCount : Integer;
-		FIsNoOutputError : Boolean;
+		FNoOutputSliceCount : Integer;
 		FIsRGReportedError : Boolean;
 		procedure Reset;
 	end;
@@ -130,7 +130,7 @@ begin
 	FSumOfErrors := 0;
 	FParserErrors := 0;
 	FStatLineCount := 0;
-	FIsNoOutputError := False;
+	FNoOutputSliceCount := 0;
 	FIsRGReportedError := False;
 end;
 

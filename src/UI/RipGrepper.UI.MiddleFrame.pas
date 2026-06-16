@@ -157,7 +157,8 @@ type
 			FswSearchStart : TStopwatch;
 			FIconImgList : TIconImageList;
 			FIsInitialized : Boolean;
-			FIsMultiSliceRun : Boolean;
+			FSliceCount : Integer;
+			FSliceNum : Integer;
 			FParsingThreads : TArrayEx<TParallelParser>;
 			procedure AddAsUsing(_bToImpl : Boolean);
 			procedure DoSearch;
@@ -511,19 +512,23 @@ var
 	dbgMsg : TDebugMsgBeginEnd;
 begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.AfterSearch');
+	Inc(FSliceNum);
 	ec := HistItemObject.GetErrorCounters();
-	dbgMsg.MsgFmt('ParserErrors=%d, IsNoOutput=%s, IsRGError=%s, MultiSlice=%s, TotalMatch=%d',
-		[ec.FParserErrors, BoolToStr(ec.FIsNoOutputError, True), BoolToStr(ec.FIsRGReportedError, True),
-		BoolToStr(FIsMultiSliceRun, True), Data.TotalMatchCount]);
-	if ec.FParserErrors > 0 then begin
-		TAsyncMsgBox.ShowWarning(RG_PARSE_ERROR_MSG); // , false, self);
-	end;
-	if ec.FIsNoOutputError and (not (FIsMultiSliceRun and (Data.TotalMatchCount > 0))) then begin
-		dbgMsg.Msg('showing NoOutput warning');
-		TAsyncMsgBox.ShowWarning(RG_PRODUCED_NO_OUTPUT_MSG);
-	end;
-	if ec.FIsRGReportedError then begin
-		TAsyncMsgBox.ShowWarning(RG_REPORTED_ERROR_MSG);
+	dbgMsg.MsgFmt('Slice=%d/%d, ParserErrors=%d, NoOutputSlices=%d, IsRGError=%s, TotalMatch=%d, FileCount=%d',
+		[FSliceNum, FSliceCount, ec.FParserErrors, ec.FNoOutputSliceCount, BoolToStr(ec.FIsRGReportedError, True),
+		Data.TotalMatchCount, Data.FileCount]);
+	if FSliceNum = FSliceCount then begin
+		if ec.FParserErrors > 0 then begin
+			TAsyncMsgBox.ShowWarning(RG_PARSE_ERROR_MSG);
+		end;
+		if (ec.FNoOutputSliceCount > 0) and (Data.TotalMatchCount = 0) then begin
+			dbgMsg.Msg('showing NoOutput warning');
+			TAsyncMsgBox.ShowWarning(RG_PRODUCED_NO_OUTPUT_MSG);
+		end;
+		if ec.FIsRGReportedError then begin
+			dbgMsg.Msg('rg reported error');
+			TAsyncMsgBox.ShowWarning(RG_REPORTED_ERROR_MSG);
+		end;
 	end;
 	FreeAndCleanParserList();
 end;
@@ -942,7 +947,8 @@ begin
 	VstResult.Clear;
 	Data.ClearMatchFiles;
 	// ClearData;
-	FIsMultiSliceRun := False;
+	FSliceCount := 0;
+	FSliceNum := 0;
 	FswSearchStart := TStopwatch.Create();
 	FMeassureFirstDrawEvent := True;
 	LoadBeforeSearchSettings();
@@ -1071,7 +1077,7 @@ begin
 			args := TStringList.Create;
 			try
 				argsArrs := SliceArgs(Settings.RipGrepParameters);
-				FIsMultiSliceRun := argsArrs.Count > 1;
+				FSliceCount := argsArrs.Count;
 				dbgMsg.MsgFmt('%d slice(s) to process', [argsArrs.Count]);
 				bestResult := RG_NO_MATCH;
 				for var i := 0 to argsArrs.MaxIndex do begin

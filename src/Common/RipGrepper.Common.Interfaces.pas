@@ -125,7 +125,6 @@ type
 		procedure SetFileCount(const Value : integer);
 		procedure SetGuiSearchTextParams(const Value : IShared<TGuiSearchTextParams>);
 		procedure SetIsExpertMode(const Value: Boolean);
-		procedure SetNoMatchFound(const Value : Boolean);
 		procedure SetResultsTruncated(const Value : Boolean);
 		procedure SetParserType(const Value : TParserType);
 		procedure SetSearchFormSettings(const Value : TSearchFormSettings);
@@ -139,7 +138,7 @@ type
 		property FileCount : integer read GetFileCount write SetFileCount;
 		property GuiSearchTextParams : IShared<TGuiSearchTextParams> read GetGuiSearchTextParams write SetGuiSearchTextParams;
 		property IsExpertMode: Boolean read GetIsExpertMode write SetIsExpertMode;
-		property NoMatchFound : Boolean read GetNoMatchFound write SetNoMatchFound;
+		property NoMatchFound : Boolean read GetNoMatchFound;
 		property ResultsTruncated : Boolean read GetResultsTruncated write SetResultsTruncated;
 		property ParserType : TParserType read GetParserType write SetParserType;
 		property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings write SetSearchFormSettings;
