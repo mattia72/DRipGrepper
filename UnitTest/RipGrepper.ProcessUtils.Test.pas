@@ -135,6 +135,7 @@ var
 	s : string;
 	callCount : Integer;
 	processedLineCount : Integer;
+	sLastLine : string;
 begin
 	callCount := BuildLines(_line, CRLF, s);
 
@@ -142,11 +143,14 @@ begin
 
 	st := TStringStream.Create(s);
 	try
-		processedLineCount := TProcessUtils.ProcessOutput(st, FEventHandlerMock, FTerminateEventProducer, nil);
+		processedLineCount := TProcessUtils.ProcessOutput(st, FEventHandlerMock, FTerminateEventProducer, sLastLine);
 	finally
 		st.Free;
 	end;
-	Assert.IsTrue(processedLineCount > 0, 'processedLineCount should be > 0.');
+	if _line.IsEmpty then
+		Assert.IsTrue(processedLineCount = 0, 'processedLineCount should be 0 for empty lines.')
+	else
+		Assert.IsTrue(processedLineCount > 0, 'processedLineCount should be > 0.');
 	FEventHandlerMock.VerifyAll();
 end;
 
@@ -156,6 +160,7 @@ var
 	s : string;
 	callCount : Integer;
 	processedLineCount : Integer;
+	sLine : string;
 begin
 	callCount := BuildLines('', LF, s);
 
@@ -163,11 +168,11 @@ begin
 
 	st := TStringStream.Create(s);
 	try
-		processedLineCount := TProcessUtils.ProcessOutput(st, FEventHandlerMock, FTerminateEventProducer, nil);
+		processedLineCount := TProcessUtils.ProcessOutput(st, FEventHandlerMock, FTerminateEventProducer, sLine);
 	finally
 		st.Free;
 	end;
-	Assert.IsTrue(processedLineCount > 0, 'processedLineCount should be > 0.');
+	Assert.IsTrue(processedLineCount = 0, 'processedLineCount should be 0 for empty lines.');
 	FEventHandlerMock.VerifyAll();
 end;
 
@@ -200,6 +205,7 @@ var
 	s : string;
 	callCount : Integer;
 	processedLineCount : Integer;
+	sLastLine : string;
 begin
 	callCount := 0;
 	for var i := 0 to 3 do begin
@@ -213,11 +219,14 @@ begin
 
 	st := TStringStream.Create(s);
 	try
-		processedLineCount := TProcessUtils.ProcessOutput(st, FEventHandlerMock, FTerminateEventProducer, nil);
+		processedLineCount := TProcessUtils.ProcessOutput(st, FEventHandlerMock, FTerminateEventProducer, sLastLine);
 	finally
 		st.Free;
 	end;
-	Assert.IsTrue(processedLineCount > 0, 'processedLineCount should be > 0.');
+	if _line.IsEmpty then
+		Assert.IsTrue(processedLineCount = 0, 'processedLineCount should be 0 for empty lines.')
+	else
+		Assert.IsTrue(processedLineCount > 0, 'processedLineCount should be > 0.');
 	FEventHandlerMock.VerifyAll();
 end;
 
