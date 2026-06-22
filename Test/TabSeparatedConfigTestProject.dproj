@@ -107,6 +107,9 @@
         <DCCReference Include="..\src\UI\RipGrepper.UI.TabSeparatedConfigForm.pas">
             <Form>TabSeparatedConfigForm</Form>
         </DCCReference>
+        <DCCReference Include="..\src\UI\RipGrepper.UI.BaseForm.pas">
+            <Form>BaseForm</Form>
+        </DCCReference>
         <DCCReference Include="..\src\UI\RipGrepper.UI.SettingsFormBase.pas">
             <Form>SettingsBaseForm</Form>
         </DCCReference>
