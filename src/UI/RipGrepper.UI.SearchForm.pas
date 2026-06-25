@@ -782,7 +782,10 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.WriteCtrlProxyToCtrls');
 
 	SetComboItemsAndText(cmbSearchText, FCtrlProxy.SearchText, FCtrlProxy.SearchTextHist);
-	SetComboItemsAndText(cmbSearchDir, FCtrlProxy.SearchPath, FCtrlProxy.SearchPathHist);
+	// Use SetCmbSearchPathText to handle long paths (truncation + FContextSearchPath)
+	cmbSearchDir.Items.Clear;
+	cmbSearchDir.Items.AddStrings(FCtrlProxy.SearchPathHist.Items);
+	SetCmbSearchPathText(FCtrlProxy.SearchPath);
 	SetComboItemsAndText(cmbReplaceText, FCtrlProxy.ReplaceText, FCtrlProxy.ReplaceTextHist);
 	SetComboItemsFromOptions(cmbFileMasks, FCtrlProxy.FileMasks, FCtrlProxy.FileMasksHist);
 	SetComboItemsAndText(cmbRgParamEncoding, FCtrlProxy.Encoding, FCtrlProxy.EncodingItems);
@@ -924,7 +927,12 @@ end;
 procedure TRipGrepperSearchDialogForm.StoreCmbHistorieItems();
 begin
 	ChangeHistoryItems(cmbSearchText, FCtrlProxy.SearchTextHist);
-	ChangeHistoryItems(cmbSearchDir, FCtrlProxy.SearchPathHist);
+	// Save actual search path (not truncated display text) when context-driven
+	if (not FContextSearchPath.IsEmpty) then begin
+		FCtrlProxy.SearchPathHist.InsertUnique(0, FContextSearchPath);
+	end else begin
+		ChangeHistoryItems(cmbSearchDir, FCtrlProxy.SearchPathHist);
+	end;
 	ChangeHistoryItems(cmbReplaceText, FCtrlProxy.ReplaceTextHist);
 	ChangeHistoryItems(cmbFileMasks, FCtrlProxy.FileMasksHist);
 	ChangeHistoryItems(cmbOptions, FCtrlProxy.AdditionalExpertOptionsHist);
