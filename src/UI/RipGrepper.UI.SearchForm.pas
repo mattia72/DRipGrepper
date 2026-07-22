@@ -942,7 +942,12 @@ begin
 		if not FShowing then begin
 			SetReplaceTextSetting(cmbReplaceText.Text);
 		end;
-		FSettingsProxy.SetRgOptionWithValue(RG_PARAM_REGEX_REPLACE, FSettingsProxy.ReplaceText, True);
+		var
+		replaceTextValue := FSettingsProxy.ReplaceText;
+		if replaceTextValue.IsEmpty then begin
+			replaceTextValue := QuotedStr('');
+		end;
+		FSettingsProxy.SetRgOptionWithValue(RG_PARAM_REGEX_REPLACE, replaceTextValue, True);
 	end else begin
 		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_REPLACE, True);
 		FSettingsProxy.ReplaceText := '';
@@ -1696,9 +1701,6 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetReplaceText');
 
 	_settings.LastReplaceText := _replaceText;
-	if _settings.IsReplaceMode and _replaceText.IsEmpty then begin
-		_settings.LastReplaceText := QuotedStr('');
-	end;
 	dbgMsg.Msg('LastReplaceText=' + _settings.LastReplaceText);
 end;
 
@@ -1708,9 +1710,6 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetReplaceText');
 
 	FSettingsProxy.ReplaceText := _replaceText;
-	if FSettingsProxy.IsReplaceMode and _replaceText.IsEmpty then begin
-		FSettingsProxy.ReplaceText := QuotedStr('');
-	end;
 	dbgMsg.Msg('LastReplaceText=' + FSettingsProxy.ReplaceText);
 end;
 
