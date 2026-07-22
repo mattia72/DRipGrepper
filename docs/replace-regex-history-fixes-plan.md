@@ -1,11 +1,12 @@
 ﻿# Replace Regex And History Fix Plan
 
-Date: 2026-07-21
+Date: 2026-07-22
 
 ## Status
 
 - Replace-layout restore fixed in `src/UI/RipGrepper.UI.SearchForm.pas`.
-- Remaining open items from this plan: replace-text normalization and history-tree replace-text ownership.
+- Replace-text normalization for empty replace value fixed in `src/UI/RipGrepper.UI.SearchForm.pas`.
+- Remaining open items from this plan: history-tree replace-text ownership and focused regression coverage.
 
 ## Scope
 
@@ -19,17 +20,22 @@ This plan covers three user-visible defects around replace mode:
 
 ### 1. Empty replace text is intentionally converted to `''`
 
+Status:
+
+- Fixed.
+
 Relevant code paths:
 
 - `TRipGrepperSearchDialogForm.SetReplaceText` in `src/UI/RipGrepper.UI.SearchForm.pas`
 - `TRipGrepperSearchDialogForm.SetReplaceTextSetting` in `src/UI/RipGrepper.UI.SearchForm.pas`
+- `TRipGrepperSearchDialogForm.WriteCtrlsToRipGrepParametersSettings` in `src/UI/RipGrepper.UI.SearchForm.pas`
 - `TRipGrepperSearchDialogForm.UpdateCheckBoxesByGuiSearchParams` in `src/UI/RipGrepper.UI.SearchForm.pas`
 
-Observation:
+Implementation:
 
-- The dialog currently stores an empty replacement as `QuotedStr('')` when replace mode is active.
-- Some UI paths dequote that value again, but tree/history paths use the stored value directly.
-- That makes the persistence/command-line representation leak into the UI.
+- Removed `QuotedStr('')` conversion from `SetReplaceText` and `SetReplaceTextSetting` so UI/settings keep plain user text (including empty string).
+- Kept intentional empty-replacement encoding only at the command-line boundary in `WriteCtrlsToRipGrepParametersSettings` before writing `RG_PARAM_REGEX_REPLACE`.
+- This preserves ripgrep argument semantics while preventing command-line encoding from leaking into UI state.
 
 ### 2. History tree replace text is sourced from global settings instead of the history item/node
 
@@ -76,6 +82,10 @@ Status:
 
 ### 1. Normalize replace-text representation
 
+Status:
+
+- Completed.
+
 Goal:
 
 - Keep UI/model state as plain text, including the empty string.
@@ -87,6 +97,12 @@ Steps:
 2. Remove the `QuotedStr('')` special case from UI-facing state, or isolate it behind a dedicated encode/decode helper.
 3. Keep `TGuiSearchTextParams.ReplaceText`, `THistoryItemObject.ReplaceText`, `TRipGrepperSettings.LastReplaceText`, and `TVSHistoryNodeData.ReplaceData.ReplaceText` as the user-entered value.
 4. If ripgrep still needs a special encoded empty replacement, perform that translation only where `RG_PARAM_REGEX_REPLACE` is written to the command-line options.
+
+Completion notes:
+
+- Implemented in `src/UI/RipGrepper.UI.SearchForm.pas`.
+- Empty text is now preserved in UI/model state.
+- Encoding to `''` happens only when generating the replace option value.
 
 Expected outcome:
 
@@ -169,10 +185,8 @@ Note:
 
 ## Suggested Implementation Order
 
-1. Fix replace-text normalization at the model/UI boundary.
-2. Fix history-tree node population to stop using global settings.
-3. Fix form-open layout synchronization for replace mode.
-4. Add regression tests and run the narrowest available checks.
+1. Fix history-tree node population to stop using global settings.
+2. Add regression tests and run the narrowest available checks.
 
 ## Risk Notes
 
