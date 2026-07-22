@@ -109,27 +109,26 @@ type
 		procedure Splitter1Moved(Sender : TObject);
 		procedure SplitView1Resize(Sender : TObject);
 		procedure VstResultBeforeCellPaint(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
-			CellPaintMode : TVTCellPaintMode; CellRect : TRect; var ContentRect : TRect);
+				CellPaintMode : TVTCellPaintMode; CellRect : TRect; var ContentRect : TRect);
 		procedure VstResultChecked(Sender : TBaseVirtualTree; Node : PVirtualNode);
 		procedure VstResultColumnResize(Sender : TVTHeader; Column : TColumnIndex);
 		procedure VstResultHeaderDragged(Sender : TVTHeader; Column : TColumnIndex; OldPosition : Integer);
-		procedure VstResultCompareNodes(Sender : TBaseVirtualTree; Node1, Node2 : PVirtualNode; Column : TColumnIndex;
-			var Result : Integer);
+		procedure VstResultCompareNodes(Sender : TBaseVirtualTree; Node1, Node2 : PVirtualNode; Column : TColumnIndex; var Result : Integer);
 		procedure VstResultDblClick(Sender : TObject);
 		procedure VstResultDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
-			const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
+				const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
 		procedure VstResultFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
 		procedure VstResultGetImageIndex(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind; Column : TColumnIndex;
-			var Ghosted : Boolean; var ImageIndex : TImageIndex);
+				var Ghosted : Boolean; var ImageIndex : TImageIndex);
 		procedure VstResultGetHint(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
-			var LineBreakStyle : TVTTooltipLineBreakStyle; var HintText : string);
+				var LineBreakStyle : TVTTooltipLineBreakStyle; var HintText : string);
 		procedure VstResultGetHintKind(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; var Kind : TVTHintKind);
 		procedure VstResultGetText(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; TextType : TVSTTextType;
-			var CellText : string);
+				var CellText : string);
 		procedure VstResultHeaderClick(Sender : TVTHeader; HitInfo : TVTHeaderHitInfo);
 		procedure VstResultNodeClick(Sender : TBaseVirtualTree; const HitInfo : THitInfo);
 		procedure VstResultPaintText(Sender : TBaseVirtualTree; const TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
-			TextType : TVSTTextType);
+				TextType : TVSTTextType);
 
 		private const
 			COL_HIDDEN = -1;
@@ -196,9 +195,9 @@ type
 			procedure SetCheckedAllSubNode(ANode : PVirtualNode);
 			procedure SetColumnWidths;
 			procedure SetDeleteIconOnHotNodeForColumn(const _colNum : Integer; Sender : TBaseVirtualTree; Node : PVirtualNode;
-				Column : TColumnIndex; var Ghosted : Boolean; var ImageIndex : TImageIndex);
+					Column : TColumnIndex; var Ghosted : Boolean; var ImageIndex : TImageIndex);
 			procedure SetFileIconImgIdx(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind; Column : TColumnIndex;
-				var Ghosted : Boolean; var ImageIndex : TImageIndex);
+					var Ghosted : Boolean; var ImageIndex : TImageIndex);
 			procedure SetHistItemObject(const Value : IHistoryItemObject);
 			function SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
 			function GetLastVisibleColumnIndex() : Integer;
@@ -230,8 +229,7 @@ type
 			function GetOpenWithParamsFromSelected : TOpenWithParams;
 			function GetRowColText(_i : Integer; _type : TVSTTextType) : string;
 			procedure Initialize();
-			function IsNodeFiltered(const _nodeData : PVSFileNodeData; const _sFilterText : string; const _filterModes : TFilterModes)
-				: Boolean;
+			function IsNodeFiltered(const _nodeData : PVSFileNodeData; const _sFilterText : string; const _filterModes : TFilterModes) : Boolean;
 			function IsSearchRunning : Boolean;
 			// IEOFProcessEventHandler
 			procedure OnEOFProcess;
@@ -358,7 +356,7 @@ begin
 	formResult := TRipGrepperSearchDialogForm.ShowSearchForm(self, Settings, FHistItemObj);
 	if mrOK = formResult then begin
 		TDebugUtils.DebugMessage('TRipGrepperTopFrame.VstHistoryNodeDblClick: after ShowSearchForm cmdline: ' +
-			Settings.RipGrepParameters.GetCommandLine(Settings.AppSettings.CopyToClipBoardShell));
+				Settings.RipGrepParameters.GetCommandLine(Settings.AppSettings.CopyToClipBoardShell));
 		PrepareAndDoSearch();
 	end else begin
 		TDebugUtils.DebugMessage('TRipGrepperTopFrame.VstHistoryNodeDblClick: ShowSearchForm cancel');
@@ -632,7 +630,7 @@ begin
 end;
 
 procedure TRipGrepperMiddleFrame.FilterTextMode(const Node : PVirtualNode; const _sFilterPattern : string;
-	const _filterModes : TFilterModes);
+		const _filterModes : TFilterModes);
 var
 	bIsFiltered : Boolean;
 	nodeData : PVSFileNodeData;
@@ -656,7 +654,7 @@ begin
 end;
 
 procedure TRipGrepperMiddleFrame.FilterFileMode(const Node : PVirtualNode; const _sFilterPattern : string;
-	const _filterModes : TFilterModes);
+		const _filterModes : TFilterModes);
 var
 	bIsFiltered : Boolean;
 	nodeData : PVSFileNodeData;
@@ -761,8 +759,7 @@ begin
 		var
 		ec := _ho.GetErrorCounters;
 		if ec.FSumOfErrors > 0 then begin
-			Result := Format('%s %d in %d(%d!)', [TREEVIEW_HISTORY_COUNTER_ERROR_PREFIX, _ho.TotalMatchCount, _ho.FileCount,
-				ec.FSumOfErrors]);
+			Result := Format('%s %d in %d(%d!)', [TREEVIEW_HISTORY_COUNTER_ERROR_PREFIX, _ho.TotalMatchCount, _ho.FileCount, ec.FSumOfErrors]);
 		end else if _ho.IsReplaceMode then begin
 			Result := Format('%s %d in %d', [TREEVIEW_HISTORY_REPLACE_PREFIX, _ho.TotalMatchCount, _ho.FileCount]);
 		end else begin
@@ -775,7 +772,8 @@ begin
 	end;
 
 	if _ho.ResultsTruncated then begin
-		var pos := TRegEx.Match(Result, '\d').Index;
+		var
+		pos := TRegEx.Match(Result, '\d').Index;
 		if pos > 0 then begin
 			Insert(TREEVIEW_HISTORY_MAX_LIMIT_REACHED, Result, pos);
 		end;
@@ -789,7 +787,7 @@ begin
 		FData := TRipGrepperData.Create(VstResult);
 		FData.ResolveFileModifiedTime := Settings.NodeLookSettings.ShowLastModifiedDateColumn;
 		FData.ResolveFileCreatedTime := Settings.NodeLookSettings.ShowCreationDateColumn;
-		FData.ResolveFileAccessedTime:= Settings.NodeLookSettings.ShowLastAccessDateColumn;
+		FData.ResolveFileAccessedTime := Settings.NodeLookSettings.ShowLastAccessDateColumn;
 		MiddleLeftFrame1.Data := FData;
 	end;
 	Result := FData;
@@ -857,7 +855,7 @@ begin
 end;
 
 function TRipGrepperMiddleFrame.AddParallelParser(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean)
-	: TParallelParser;
+		: TParallelParser;
 begin
 	Result := TParallelParser.Create(FData, FHistItemObj);
 	Result.OnLastLine := OnLastLine;
@@ -950,19 +948,19 @@ begin
 	ReloadColorSettings;
 	Data.ResolveFileModifiedTime := Settings.NodeLookSettings.ShowLastModifiedDateColumn;
 	Data.ResolveFileCreatedTime := Settings.NodeLookSettings.ShowCreationDateColumn;
-	Data.ResolveFileAccessedTime:= Settings.NodeLookSettings.ShowLastAccessDateColumn;
+	Data.ResolveFileAccessedTime := Settings.NodeLookSettings.ShowLastAccessDateColumn;
 end;
 
 procedure TRipGrepperMiddleFrame.OnEOFProcess;
 begin
 	TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.OnEOFProcess: End of processing rg.exe output in %s sec.',
-		[GetElapsedTime(FswSearchStart)]));
+			[GetElapsedTime(FswSearchStart)]));
 end;
 
 procedure TRipGrepperMiddleFrame.OnLastLine(const _iLineNr : Integer);
 begin
 	TDebugUtils.DebugMessage(Format('TRipGrepperMiddleFrame.OnLastLine: Last line (%d) received in %s sec.',
-		[_iLineNr, GetElapsedTime(FswSearchStart)]));
+			[_iLineNr, GetElapsedTime(FswSearchStart)]));
 
 	TThread.Synchronize(nil,
 		procedure
@@ -1054,7 +1052,7 @@ begin
 		begin
 			workDir := TDirectory.GetCurrentDirectory();
 			TDebugUtils.DebugMessage('TRipGrepperMiddleFrame.RunRipGrep: run: ' + rgPath + ' '
-				{ } + Settings.RipGrepParameters.RipGrepArguments.DelimitedText);
+					{ } + Settings.RipGrepParameters.RipGrepArguments.DelimitedText);
 			FswSearchStart := TStopwatch.StartNew;
 			args := TStringList.Create;
 			try
@@ -1065,20 +1063,20 @@ begin
 					if i < argsArrs.MaxIndex then begin
 						// if cmd line is too long, we slice it and run in separate processes...
 						FHistItemObj.RipGrepResult := TProcessUtils.RunProcess(
-							{ } rgPath,
-							{ } args,
-							{ } workDir,
-							{ } self as INewLineEventHandler,
-							{ } self as ITerminateEventProducer,
-							{ } nil);
+								{ } rgPath,
+								{ } args,
+								{ } workDir,
+								{ } self as INewLineEventHandler,
+								{ } self as ITerminateEventProducer,
+								{ } nil);
 					end else begin
 						FHistItemObj.RipGrepResult := TProcessUtils.RunProcess(
-							{ } rgPath,
-							{ } args,
-							{ } workDir,
-							{ } self as INewLineEventHandler,
-							{ } self as ITerminateEventProducer,
-							{ } self as IEOFProcessEventHandler);
+								{ } rgPath,
+								{ } args,
+								{ } workDir,
+								{ } self as INewLineEventHandler,
+								{ } self as ITerminateEventProducer,
+								{ } self as IEOFProcessEventHandler);
 					end;
 				end;
 
@@ -1119,7 +1117,7 @@ begin
 
 	Data.ResolveFileModifiedTime := bShow;
 	Data.ResolveFileCreatedTime := bShowCreation;
-	Data.ResolveFileAccessedTime:= bShowLastAccess;
+	Data.ResolveFileAccessedTime := bShowLastAccess;
 
 	col := VstResult.Header.Columns[COL_FILE_MODIFIED];
 	if bShow then begin
@@ -1142,7 +1140,8 @@ begin
 		col.Options := col.Options - [coVisible];
 	end;
 
-	var lastVisibleIdx := GetLastVisibleColumnIndex();
+	var
+	lastVisibleIdx := GetLastVisibleColumnIndex();
 	if lastVisibleIdx >= 0 then begin
 		VstResult.Header.AutoSizeIndex := lastVisibleIdx;
 	end;
@@ -1589,12 +1588,18 @@ begin
 					ss1 := s.Substring(matchBegin, nodeData.MatchData.GetMatchLength);
 
 					TDebugUtils.MsgFmt('%s', [nodeData.MatchData.ToString], tftVerbose);
-					TDebugUtils.MsgFmt('Line: "%s" (s:%d,t:%d) match at %d: "%s"', [s, iTrimmedSpaces, iTrimmedTabs, matchBegin, ss1],
-						tftVerbose);
+					TDebugUtils.MsgFmt('Line: "%s" (s:%d,t:%d) match at %d: "%s"', [s, iTrimmedSpaces, iTrimmedTabs, matchBegin, ss1], tftVerbose);
 
-					if IsGuiReplaceMode and (not Settings.LastSearchText.IsEmpty) then begin
-						ss1_repl := TReplaceHelper.ReplaceString(ss1, Settings.LastSearchText,
-						{ } Settings.RipGrepParameters.ReplaceText, 1, TopFrame.GetReplaceMode());
+					if not Settings.LastSearchText.IsEmpty then begin
+						if IsRgReplaceMode then begin
+							var
+							searchOpts := FHistItemObj.GuiSearchTextParams.GetSearchOptions;
+							ss1_repl := TReplaceHelper.ReplaceString(ss1, Settings.LastSearchText,
+							{ } Settings.RipGrepParameters.ReplaceText, 1, searchOpts);
+						end else if IsGuiReplaceMode then begin
+							ss1_repl := TReplaceHelper.ReplaceString(ss1, Settings.LastSearchText,
+							{ } Settings.RipGrepParameters.ReplaceText, 1, TopFrame.GetReplaceMode());
+						end;
 					end;
 					ss2 := s.Substring(matchBegin + nodeData.MatchData.GetMatchLength);
 
@@ -1603,10 +1608,10 @@ begin
 					end else begin
 						TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.MatchText);
 					end;
-//                  if not IsRgReplaceMode then begin
-						TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1);
-						pos := pos + TargetCanvas.TextWidth(ss1);
-//                  end;
+					// if not IsRgReplaceMode then begin
+					TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1);
+					pos := pos + TargetCanvas.TextWidth(ss1);
+					// end;
 					if IsGuiReplaceMode or IsRgReplaceMode then begin
 						TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.ReplaceText);
 						TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1_repl);
@@ -1673,7 +1678,7 @@ begin
 			end;
 		end;
 		COL_FILE_MODIFIED : begin
-			if(TextType = ttNormal) then begin
+			if (TextType = ttNormal) then begin
 				CellText := '';
 				if Node.Parent = VstResult.RootNode then begin
 					if NodeData^.FileModifiedTime > 0 then begin
@@ -1696,7 +1701,7 @@ begin
 			if (TextType = ttNormal) then begin
 				CellText := '';
 				if Node.Parent = VstResult.RootNode then begin
-					if NodeData^.FileAccessedTime> 0 then begin
+					if NodeData^.FileAccessedTime > 0 then begin
 						CellText := FormatDateTime(Settings.NodeLookSettings.DateFormat, NodeData^.FileAccessedTime);
 					end;
 				end;
@@ -1736,13 +1741,13 @@ begin
 end;
 
 procedure TRipGrepperMiddleFrame.VstResultGetHintKind(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
-	var Kind : TVTHintKind);
+var Kind : TVTHintKind);
 begin
 	Kind := TVTHintKind.vhkText;
 end;
 
 procedure TRipGrepperMiddleFrame.VstResultGetHint(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
-	var LineBreakStyle : TVTTooltipLineBreakStyle; var HintText : string);
+var LineBreakStyle : TVTTooltipLineBreakStyle; var HintText : string);
 var
 	nodeData : PVSFileNodeData;
 	filePath : string;
@@ -1769,7 +1774,9 @@ begin
 					end;
 					{$ENDIF}
 					if Settings.AppSettings.ShowFileHint then begin
-						var fileHint := TFileHintBuilder.BuildFileNodeHint(filePath, Settings.NodeLookSettings.ShowRelativePath, Settings.NodeLookSettings.DateFormat);
+						var
+						fileHint := TFileHintBuilder.BuildFileNodeHint(filePath, Settings.NodeLookSettings.ShowRelativePath,
+								Settings.NodeLookSettings.DateFormat);
 						if HintText <> '' then begin
 							HintText := fileHint + CRLF2 + HintText;
 						end else begin
@@ -1806,23 +1813,26 @@ begin
 	if TextType = ttNormal then begin
 		case Column of
 			COL_FILE : begin
-				if (Node.Parent = VstResult.RootNode) // Only file-level nodes need error/warning colors (child match nodes have no valid FilePath in this column)
-					and (not IsSearchRunning) // don't slower down painting with file existence checks while search is running
-					and (Settings.NodeLookSettings.ShowFileErrorColor
-					{$IF IS_EXTENSION} or Settings.NodeLookSettings.ShowFileWarningColor {$ENDIF}) then begin
+				if (Node.Parent = VstResult.RootNode)
+				// Only file-level nodes need error/warning colors (child match nodes have no valid FilePath in this column)
+						and (not IsSearchRunning) // don't slower down painting with file existence checks while search is running
+						and (Settings.NodeLookSettings.ShowFileErrorColor
+				{$IF IS_EXTENSION} or Settings.NodeLookSettings.ShowFileWarningColor {$ENDIF}) then begin
 					nodeData := VstResult.GetNodeData(Node);
 					filePath := nodeData.FilePath;
 					if Settings.NodeLookSettings.ShowFileErrorColor and (not FileExists(filePath)) then begin
 						TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileErrorText, false);
-					end else
-					{$IF IS_EXTENSION}
-					if Settings.NodeLookSettings.ShowFileWarningColor and (not IsInProject(filePath)) then begin
-						TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileWarningText, false);
-					end else
-					{$ENDIF}
-					begin
-						TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileText, false);
-					end;
+					end
+					else
+						{$IF IS_EXTENSION}
+						if Settings.NodeLookSettings.ShowFileWarningColor and (not IsInProject(filePath)) then begin
+							TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileWarningText, false);
+						end
+						else
+						{$ENDIF}
+						begin
+							TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileText, false);
+						end;
 				end else begin
 					TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileText, false);
 				end;
@@ -1922,6 +1932,7 @@ begin
 end;
 
 {$IF IS_EXTENSION}
+
 function TRipGrepperMiddleFrame.IsInProject(const _filePath : string) : Boolean;
 var
 	ideContext : TDelphiIDEContext;

@@ -6,7 +6,8 @@ Date: 2026-07-22
 
 - Replace-layout restore fixed in `src/UI/RipGrepper.UI.SearchForm.pas`.
 - Replace-text normalization for empty replace value fixed in `src/UI/RipGrepper.UI.SearchForm.pas`.
-- Remaining open items from this plan: history-tree replace-text ownership and focused regression coverage.
+- History-tree replace-text ownership fixed in `src/UI/RipGrepper.UI.MiddleLeftFrame.pas`.
+- Remaining open item from this plan: focused regression coverage.
 
 ## Scope
 
@@ -39,6 +40,10 @@ Implementation:
 
 ### 2. History tree replace text is sourced from global settings instead of the history item/node
 
+Status:
+
+- Fixed.
+
 Relevant code paths:
 
 - `TMiddleLeftFrame.AddOrUpdateHistoryItem` in `src/UI/RipGrepper.UI.MiddleLeftFrame.pas`
@@ -48,11 +53,11 @@ Relevant code paths:
 - `TMiddleLeftFrame.ChangeVstReplaceNode` in `src/UI/RipGrepper.UI.MiddleLeftFrame.pas`
 - `TMiddleLeftFrame.NodeDataFromStream` in `src/UI/RipGrepper.UI.MiddleLeftFrame.pas`
 
-Observation:
+Previous observation:
 
-- `AddVstReplaceNode` fills the child node from `Settings.LastReplaceText` instead of from the node/history item that is being rendered.
-- That can show stale text, the wrong text from another search, or the encoded `''` sentinel.
-- This is the strongest local explanation for both:
+- `AddVstReplaceNode` filled the child node from `Settings.LastReplaceText` instead of from the node/history item that is being rendered.
+- That could show stale text, the wrong text from another search, or the encoded `''` sentinel.
+- This was the strongest local explanation for both:
   - empty replacements being shown as `''`
   - non-empty replacements showing the wrong text in the tree
 
@@ -111,9 +116,19 @@ Expected outcome:
 
 ### 2. Fix tree-node text ownership
 
+Status:
+
+- Completed.
+
 Goal:
 
-- Render each replace node from the history item/node it represents, never from the global current settings.
+- Render each replace node from the history item/node it represents, never from global current settings.
+
+Completion notes:
+
+- `TMiddleLeftFrame.AddVstReplaceNode` now copies child replace text from parent node data.
+- `TMiddleLeftFrame.ChangeHistoryNodeText` now refreshes node search/replace text from the current history object when available.
+- `TMiddleLeftFrame.ChangeVstReplaceNode` now honors node-level replace mode instead of overwriting from global settings.
 
 Steps:
 

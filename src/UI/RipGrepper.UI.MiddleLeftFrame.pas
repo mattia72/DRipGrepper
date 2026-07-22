@@ -298,9 +298,9 @@ begin
 	if not(Result.HasResult or Result.IsLoadedFromStream) then begin
 		var
 			nodeData : TVSHistoryNodeData;
-		nodeData.SearchText := Settings.LastSearchText;
-		nodeData.ReplaceData.IsReplaceMode := Settings.IsReplaceMode;
-		nodeData.ReplaceData.ReplaceText := Settings.LastReplaceText;
+		nodeData.SearchText := Result.SearchText;
+		nodeData.ReplaceData.IsReplaceMode := Result.IsReplaceMode;
+		nodeData.ReplaceData.ReplaceText := Result.ReplaceText;
 
 		AddVstHistItem(@nodeData);
 	end else begin
@@ -352,7 +352,7 @@ begin
 	childData := VstHistory.GetNodeData(childNode);
 	childData^.SearchText := '';
 	childData^.ReplaceData.IsReplaceMode := True;
-	childData^.ReplaceData.ReplaceText := Settings.LastReplaceText;
+	childData^.ReplaceData.ReplaceText := NodeData^.ReplaceData.ReplaceText;
 	dbgMsg.MsgFmt('ReplaceText: %s', [childData^.ReplaceData.ReplaceText]);
 	NodeData^.ReplaceData.ReplaceText := ''; // only child should be filled
 end;
@@ -385,19 +385,28 @@ function TMiddleLeftFrame.ChangeHistoryNodeText() : PVirtualNode;
 var
 	node : PVirtualNode;
 	nodeData : PVSHistoryNodeData;
+	hio : IHistoryItemObject;
 begin
 	TDebugUtils.DebugMessage('TMiddleLeftFrame.ChangeHistoryNodeText: idx = ' + CurrentHistoryItemIndex.ToString);
 
 	node := GetNodeByIndex(VstHistory, CurrentHistoryItemIndex);
 	nodeData := VstHistory.GetNodeData(node);
+	hio := GetCurrentValidHistoryObject();
 	TDebugUtils.DebugMessageFormat('TMiddleLeftFrame.ChangeHistoryNodeText: SearchText orig=''%s'' new=''%''',
 		[nodeData^.SearchText, Settings.LastSearchText]);
-	if not Settings.LastSearchText.IsEmpty then begin
+	if Assigned(hio) then begin
+		nodeData^.SearchText := hio.SearchText;
+		nodeData^.ReplaceData.IsReplaceMode := hio.IsReplaceMode;
+		nodeData^.ReplaceData.ReplaceText := hio.ReplaceText;
+	end else if not Settings.LastSearchText.IsEmpty then begin
 		nodeData^.SearchText := Settings.LastSearchText;
-		if nodeData^.ReplaceData.IsReplaceMode then begin
-			ChangeVstReplaceNode(node, nodeData);
-			ExpandIfHasChild(node);
-		end;
+		nodeData^.ReplaceData.IsReplaceMode := Settings.IsReplaceMode;
+		nodeData^.ReplaceData.ReplaceText := Settings.LastReplaceText;
+	end;
+
+	if nodeData^.ReplaceData.IsReplaceMode or (node.ChildCount > 0) then begin
+		ChangeVstReplaceNode(node, nodeData);
+		ExpandIfHasChild(node);
 	end;
 	VstHistory.Repaint;
 	Result := node;
@@ -415,8 +424,7 @@ begin
 		nodeData := VstHistory.GetNodeData(Node);
 	end;
 
-	nodeData^.ReplaceData.IsReplaceMode := Settings.IsReplaceMode;
-	dbgMsg.MsgFmt('IsReplaceMode: %s, ChildCount: %d', [BoolToStr(Settings.IsReplaceMode), Node.ChildCount]);
+	dbgMsg.MsgFmt('IsReplaceMode: %s, ChildCount: %d', [BoolToStr(nodeData^.ReplaceData.IsReplaceMode), Node.ChildCount]);
 
 	if nodeData^.ReplaceData.IsReplaceMode then begin
 		if Node.ChildCount = 0 then begin
