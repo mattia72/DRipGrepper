@@ -314,6 +314,8 @@ begin
 	end;
 	if not Result.IsLoadedFromStream then begin
 		MainFrame.UpdateRipGrepArgumentsInHistObj;
+		// Ensure the freshly created history node gets populated on first search.
+		ChangeHistoryNodeText;
 		ClearMatchesInHistoryObject();
 	end;
 
