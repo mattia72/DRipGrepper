@@ -245,6 +245,7 @@ type
 			procedure OnEncodingComboBoxChange(Sender : TObject);
 			procedure UpdateFileMasksInHistObjRgOptions; overload;
 			procedure AdjustLayout();
+			procedure SyncReplaceLayout(const _bIsReplaceMode : Boolean);
 			procedure UpdateRbExtensionItemIndex(const _dic : EDelphiIDESearchContext);
 			function ValidateRegex : Boolean;
 			procedure WriteOptionCtrlToProxy;
@@ -954,7 +955,12 @@ begin
 		if not FShowing then begin
 			SetReplaceTextSetting(cmbReplaceText.Text);
 		end;
-		FSettingsProxy.SetRgOptionWithValue(RG_PARAM_REGEX_REPLACE, FSettingsProxy.ReplaceText, True);
+		var
+		replaceTextValue := FSettingsProxy.ReplaceText;
+		if replaceTextValue.IsEmpty then begin
+			replaceTextValue := QuotedStr('');
+		end;
+		FSettingsProxy.SetRgOptionWithValue(RG_PARAM_REGEX_REPLACE, replaceTextValue, True);
 	end else begin
 		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_REPLACE, True);
 		FSettingsProxy.ReplaceText := '';
@@ -1057,7 +1063,7 @@ begin
 	sVal := '';
 	var
 	bReplaceMode := FSettingsProxy.RgOptions.GetOptionValue(RG_PARAM_REGEX_REPLACE, sVal);
-	TabControl1.TabIndex := IfThen(bReplaceMode, 1, 0);
+	SyncReplaceLayout(bReplaceMode);
 	cmbReplaceText.Text := TOptionStrings.MaybeDeQuoteIfQuoted(sVal);
 
 	dbgMsg.MsgFmt('Hidden %s NoIgnore %s Pretty %s',
@@ -1769,9 +1775,6 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetReplaceText');
 
 	_settings.LastReplaceText := _replaceText;
-	if _settings.IsReplaceMode and _replaceText.IsEmpty then begin
-		_settings.LastReplaceText := QuotedStr('');
-	end;
 	dbgMsg.Msg('LastReplaceText=' + _settings.LastReplaceText);
 end;
 
@@ -1781,9 +1784,6 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetReplaceText');
 
 	FSettingsProxy.ReplaceText := _replaceText;
-	if FSettingsProxy.IsReplaceMode and _replaceText.IsEmpty then begin
-		FSettingsProxy.ReplaceText := QuotedStr('');
-	end;
 	dbgMsg.Msg('LastReplaceText=' + FSettingsProxy.ReplaceText);
 end;
 
@@ -1822,9 +1822,15 @@ end;
 
 procedure TRipGrepperSearchDialogForm.TabControl1Change(Sender : TObject);
 begin
-	SetLayout((TabControl1.TabIndex = 1), sflReplace);
-	AdjustLayout();
+	SyncReplaceLayout(TabControl1.TabIndex = 1);
 	UpdateCtrls(TabControl1);
+end;
+
+procedure TRipGrepperSearchDialogForm.SyncReplaceLayout(const _bIsReplaceMode : Boolean);
+begin
+	TabControl1.TabIndex := IfThen(_bIsReplaceMode, 1, 0);
+	SetLayout(_bIsReplaceMode, sflReplace);
+	AdjustLayout();
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateSearchOptionsBtns;
@@ -1986,7 +1992,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.CopyProxyToCtrls');
 
-	TabControl1.TabIndex := IfThen(FCtrlProxy.IsReplaceMode, 1, 0);
+	SyncReplaceLayout(FCtrlProxy.IsReplaceMode);
 	cmbReplaceText.Text := FCtrlProxy.ReplaceText;
 	dbgMsg.MsgFmt('cmbReplaceText.Text %s', [cmbReplaceText.Text]);
 

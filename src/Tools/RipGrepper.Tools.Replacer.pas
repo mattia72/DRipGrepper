@@ -59,11 +59,13 @@ type
 
 		public
 			class function ReplaceLineInFile(const _fileName : string; const _row, _col : Integer; const _origLine, _replaceLine : string;
-				const _bCreateBackup, _bSkipOrigCheck : Boolean) : Boolean;
+					const _bCreateBackup, _bSkipOrigCheck : Boolean) : Boolean;
 			class procedure ReplaceLineInFiles(_list : TReplaceList; var _failed : TFailedReplaceData;
-				const _bCreateBackup, _bSkipOrigCheck : Boolean);
+					const _bCreateBackup, _bSkipOrigCheck : Boolean);
+			class function ReplaceString(const _input, _pattern, _replacement : string; const _fromCol : Integer; const _mode : TReplaceModes)
+					: string; overload;
 			class function ReplaceString(const _input, _pattern, _replacement : string; const _fromCol : Integer;
-				const _mode : TReplaceModes) : string;
+					const searchOpts : TSearchOptionSet) : string; overload;
 	end;
 
 implementation
@@ -109,7 +111,7 @@ begin
 end;
 
 class function TReplaceHelper.ReplaceLineInFile(const _fileName : string; const _row, _col : Integer;
-	const _origLine, _replaceLine : string; const _bCreateBackup, _bSkipOrigCheck : Boolean) : Boolean;
+		const _origLine, _replaceLine : string; const _bCreateBackup, _bSkipOrigCheck : Boolean) : Boolean;
 var
 	failReplaceData : TFailedReplaceData;
 	list : TReplaceList;
@@ -125,7 +127,7 @@ begin
 end;
 
 class procedure TReplaceHelper.ReplaceLineInFiles(_list : TReplaceList; var _failed : TFailedReplaceData;
-	const _bCreateBackup, _bSkipOrigCheck : Boolean);
+		const _bCreateBackup, _bSkipOrigCheck : Boolean);
 var
 	actLine, origLine : string;
 	bFileMismatch : Boolean;
@@ -157,7 +159,7 @@ begin
 				if (rd.Row >= 0) and (rd.Row <= fileLines.Count) then begin
 					dbgMsg.MsgIf(_bSkipOrigCheck, 'Orig check skipped.');
 					fileLine := fileLines[rd.Row - 1];
-					origLine := string(rd.OrigLine).TrimRight([CR,LF]);
+					origLine := string(rd.OrigLine).TrimRight([CR, LF]);
 					if (iCheckedRow <> rd.Row) and
 					{ } (origLine <> fileLine) then begin
 						if (not _bSkipOrigCheck) then begin
@@ -183,7 +185,7 @@ begin
 						origLine := fileLine;
 						replacedLine := rd.ReplacedLine;
 					end;
-					fileLines[rd.Row - 1] := replacedLine.TrimRight([CR,LF]);
+					fileLines[rd.Row - 1] := replacedLine.TrimRight([CR, LF]);
 				end;
 				prevRow := rd;
 			end;
@@ -202,7 +204,7 @@ begin
 end;
 
 class function TReplaceHelper.ReplaceString(const _input, _pattern, _replacement : string; const _fromCol : Integer;
-	const _mode : TReplaceModes) : string;
+		const _mode : TReplaceModes) : string;
 var
 	postfixStr : string;
 	prefixStr : string;
@@ -230,6 +232,21 @@ begin
 		on E : Exception do
 			dbgMsg.ErrorMsgFmt(E.Message + CRLF + 'in:%s, pattern:%s, repl: %s', [postfixStr, _pattern, _replacement]);
 	end;
+end;
+
+class function TReplaceHelper.ReplaceString(const _input, _pattern, _replacement : string; const _fromCol : Integer;
+		const searchOpts : TSearchOptionSet) : string;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TReplaceHelper.ReplaceString', True);
+	var rgReplaceMode : TReplaceModes := [];
+	if EGuiOption.soUseRegex in searchOpts then begin
+		Include(rgReplaceMode, EReplaceMode.rmUseRegex);
+	end;
+	if not(EGuiOption.soMatchCase in searchOpts) then begin
+		Include(rgReplaceMode, EReplaceMode.rmIgnoreCase);
+	end;
+	Result := TReplaceHelper.ReplaceString(_input, _pattern, _replacement, _fromCol, rgReplaceMode);
 end;
 
 class function TReplaceData.New(const _row, _col : Integer; const _origLine, _replacedLine : string) : TReplaceData;

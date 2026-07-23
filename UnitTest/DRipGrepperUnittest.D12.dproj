@@ -148,6 +148,7 @@
         <DCCReference Include="RipGrepper.ProcessUtils.Test.pas"/>
         <DCCReference Include="..\src\Settings\RipGrepper.Settings.AppSettings.pas"/>
         <DCCReference Include="..\src\Settings\RipGrepper.Settings.ExtensionSettings.pas"/>
+        <DCCReference Include="RipGrepper.Settings.ExtensionSettings.Test.pas"/>
         <DCCReference Include="..\src\Settings\RipGrepper.Settings.FilePersister.pas"/>
         <DCCReference Include="..\src\Settings\RipGrepper.Settings.FontColors.pas"/>
         <DCCReference Include="RipGrepper.Settings.FontColorsTest.pas"/>
