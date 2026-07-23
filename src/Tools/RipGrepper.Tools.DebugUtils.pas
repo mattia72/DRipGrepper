@@ -19,19 +19,21 @@ type
 
 const
 	TRACE_TYPES : array [0 .. 7] of TTraceFilterTypeRec = (
-		{ } (name : 'tftError'; Value : tftError),
-		{ } (name : 'tftWarning'; Value : tftWarning),
-		{ } (name : 'tftInfo'; Value : tftInfo),
-		{ } (name : 'tftBegin'; Value : tftBegin),
-		{ } (name : 'tftEnd'; Value : tftEnd),
-		{ } (name : 'tftVerbose'; Value : tftVerbose),
-		{ } (name : 'tftRegex'; Value : tftRegex),
-		{ } (name : 'tftNone'; Value : tftNone)
-		{ } );
+			{ } (name : 'tftError'; Value : tftError),
+			{ } (name : 'tftWarning'; Value : tftWarning),
+			{ } (name : 'tftInfo'; Value : tftInfo),
+			{ } (name : 'tftBegin'; Value : tftBegin),
+			{ } (name : 'tftEnd'; Value : tftEnd),
+			{ } (name : 'tftVerbose'; Value : tftVerbose),
+			{ } (name : 'tftRegex'; Value : tftRegex),
+			{ } (name : 'tftNone'; Value : tftNone)
+			{ } );
 
 type
 	TDebugUtils = class(TObject)
-		private
+		private const
+			MAX_LOG_FILE_ERROR_COUNT = 10;
+
 		class var
 			FTraceFilerTypes : TTraceFilterTypes;
 			FDebugTraceInactiveMsgShown : Boolean;
@@ -42,6 +44,9 @@ type
 			FLogLock : TCriticalSection;
 			FLogFileCreationMode : ELogFileCreationMode;
 			FLogFileSettingsApplied : Boolean;
+			FLogFileErrorMsgShown : Boolean;
+			FLogFileErrorCount : Integer;
+			FLogFileWriteDisabled : Boolean;
 			FIsFinalized : Boolean;
 
 			class constructor Create;
@@ -51,6 +56,7 @@ type
 			class procedure writeToLogFile(const _s : string);
 			class procedure openLogFile();
 			class procedure closeLogFile();
+			class procedure showLogFileErrorMsgOnce(const _errorMsg : string);
 			class function GetTimestampedLogFilePath(const _basePath : string) : string;
 			class procedure ApplyLogFileSettings();
 
@@ -85,7 +91,7 @@ type
 			procedure MsgIf(const _bCondition : Boolean; const _sMsg : string; const _type : ETraceFilterType = tftInfo);
 			procedure MsgFmt(const _s : string; const _args : array of const; const _type : ETraceFilterType = tftInfo);
 			procedure MsgFmtIf(const _bCondition : Boolean; const _s : string; const _args : array of const;
-				const _type : ETraceFilterType = tftInfo);
+					const _type : ETraceFilterType = tftInfo);
 			class function New(const _sProcName : string; const _bSilent : Boolean = False) : TDebugMsgBeginEnd; static;
 			class operator Finalize(var Dest : TDebugMsgBeginEnd);
 	end;
@@ -98,6 +104,7 @@ uses
 	System.SysUtils,
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.Settings.AppSettings,
+	RipGrepper.Helper.UI,
 	System.RegularExpressions,
 	RipGrepper.Common.Constants,
 	Spring.DesignPatterns;
@@ -110,6 +117,9 @@ begin
 	FLogFileWriter := nil;
 	FLogFileCreationMode := lfcmRecreateOnStart;
 	FLogFileSettingsApplied := False;
+	FLogFileErrorMsgShown := False;
+	FLogFileErrorCount := 0;
+	FLogFileWriteDisabled := False;
 	{$IFDEF DEBUG}
 	FTraceFilerTypes := [tftBegin, tftEnd, tftError, tftWarning, tftInfo, tftVerbose];
 	{$ENDIF}
@@ -161,10 +171,33 @@ begin
 	FreeAndNil(FLogFileWriter);
 end;
 
-class procedure TDebugUtils.writeToLogFile(const _s : string);
+class procedure TDebugUtils.showLogFileErrorMsgOnce(const _errorMsg : string);
 begin
-	if not Assigned(FLogLock) then
+	if FLogFileErrorMsgShown then begin
 		Exit;
+	end;
+	FLogFileErrorMsgShown := True;
+
+	TThread.Queue(nil,
+		procedure
+		begin
+			TMsgBox.ShowError('Cannot write debug log file.' + sLineBreak + sLineBreak + 'Path: ' + FLogFilePath, 'Log File Error',
+					'Detailed error', _errorMsg);
+		end);
+end;
+
+class procedure TDebugUtils.writeToLogFile(const _s : string);
+const
+	FNAME = 'TDebugUtils.writeToLogFile';
+begin
+	if FLogFileWriteDisabled then begin
+		OutputDebugString(PChar(FNAME + ': FLogFileWriteDisabled'));
+		Exit;
+	end;
+	if not Assigned(FLogLock) then begin
+		OutputDebugString(PChar(FNAME + ': not Assigned(FLogLock)'));
+		Exit;
+	end;
 	FLogLock.Enter;
 	try
 		try
@@ -172,7 +205,16 @@ begin
 			FLogFileWriter.WriteLine(_s);
 		except
 			on E : Exception do begin
-				OutputDebugString(PChar('Log file write error: ' + E.Message));
+				Inc(FLogFileErrorCount);
+				if FLogFileErrorCount >= MAX_LOG_FILE_ERROR_COUNT then begin
+					FLogFileWriteDisabled := True;
+					closeLogFile();
+				end;
+				OutputDebugString(PChar(FNAME + ': Log file write error: ' + E.Message));
+				if FLogFileWriteDisabled then begin
+					OutputDebugString(PChar(FNAME + ': Log file writing disabled after ' + IntToStr(MAX_LOG_FILE_ERROR_COUNT) + ' errors.'));
+				end;
+				showLogFileErrorMsgOnce(E.Message);
 			end;
 		end;
 	finally
@@ -283,7 +325,7 @@ begin
 		ApplyLogFileSettings();
 	end;
 	OutputDebugString(PChar(APPNAME + ' DebugTraceActive [' +
-		{ } TraceTypesToStr(FTraceFilerTypes) + '] RegEx: "' + FTraceFilterRegex + '"'));
+			{ } TraceTypesToStr(FTraceFilerTypes) + '] RegEx: "' + FTraceFilterRegex + '"'));
 end;
 
 class function TDebugUtils.GetTimestampedLogFilePath(const _basePath : string) : string;
@@ -370,7 +412,7 @@ begin
 end;
 
 procedure TDebugMsgBeginEnd.MsgFmtIf(const _bCondition : Boolean; const _s : string; const _args : array of const;
-	const _type : ETraceFilterType = tftInfo);
+const _type : ETraceFilterType = tftInfo);
 begin
 	if _bCondition then
 		TDebugUtils.MsgFmt(FProcName + ' - ' + _s, _args, _type);
