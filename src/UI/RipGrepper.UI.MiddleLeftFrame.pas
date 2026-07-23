@@ -608,6 +608,10 @@ begin
 
 	mode := [];
 	if Assigned(hio) then begin
+		if EGuiOption.soUseRegex in hio.GuiSearchTextParams.GetSearchOptions then begin
+			Include(mode, EGuiReplaceMode.grmUseRegex);
+		end;
+
 		if hio.IsReplaceMode then begin
 			Include(mode, EGuiReplaceMode.grmActive);
 			Include(mode, EGuiReplaceMode.grmSaveEnabled);
