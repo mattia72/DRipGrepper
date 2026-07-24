@@ -118,6 +118,7 @@ uses
   RipGrepper.UI.Settings.ExtensionContexPanel in '..\..\UI\RipGrepper.UI.Settings.ExtensionContexPanel.pas',
   RipGrepper.Common.IDEContextValues in '..\..\Common\RipGrepper.Common.IDEContextValues.pas',
   RipGrepper.UI.SearchForm.CtrlValueProxy in '..\..\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas',
+  RipGrepper.UI.SearchPathHistoryByContext in '..\..\UI\RipGrepper.UI.SearchPathHistoryByContext.pas',
   RipGrepper.UI.CustomRadioOptions in '..\..\UI\RipGrepper.UI.CustomRadioOptions.pas',
   RipGrepper.UI.CustomCheckOptions in '..\..\UI\RipGrepper.UI.CustomCheckOptions.pas',
   RipGrepper.UI.RgOptionsPanel in '..\..\UI\RipGrepper.UI.RgOptionsPanel.pas',

@@ -233,6 +233,7 @@ type
 			procedure LoadExtensionSearchSettings(var _ctrlProxy : TSearchFormCtrlValueProxy);
 			procedure LoadOldHistorySearchSettings;
 			procedure LoadInitialSearchSettings();
+			procedure SeedSearchPathHistoryByContext();
 			procedure SetCmbSearchPathText(const _sPath : string);
 			function GetTruncatedHint(const _paths : TArray<string>) : string;
 			class procedure SetReplaceText(_settings : TRipGrepperSettings; const _replaceText : string);
@@ -1459,7 +1460,24 @@ begin
 		SetCmbSearchTextAutoComplete(True);
 	end;
 	CopySettingsToCtrlProxy(FCtrlProxy, FHistItemObj, FSettings);
+	SeedSearchPathHistoryByContext();
 	LoadExtensionSearchSettings(FCtrlProxy);
+end;
+
+procedure TRipGrepperSearchDialogForm.SeedSearchPathHistoryByContext();
+var
+	emptyItems : TArrayEx<string>;
+begin
+	// Custom location keeps persisted history; IDE contexts start empty for this session.
+	FSearchPathHistByContext.SetForContext(EDelphiIDESearchContext.dicCustomLocation, FCtrlProxy.SearchPathHist);
+
+	emptyItems.Clear;
+	FSearchPathHistByContext.SetForContext(EDelphiIDESearchContext.dicActiveFile, emptyItems);
+	FSearchPathHistByContext.SetForContext(EDelphiIDESearchContext.dicOpenFiles, emptyItems);
+	FSearchPathHistByContext.SetForContext(EDelphiIDESearchContext.dicProjectFiles, emptyItems);
+	FSearchPathHistByContext.SetForContext(EDelphiIDESearchContext.dicProjectLibraryPath, emptyItems);
+	FSearchPathHistByContext.SetForContext(EDelphiIDESearchContext.dicProjectRootDirectory, emptyItems);
+	FSearchPathHistByContext.SetForContext(EDelphiIDESearchContext.dicProjectFilesDirs, emptyItems);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetCmbSearchTextAutoComplete(const _Value : Boolean);
