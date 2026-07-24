@@ -42,6 +42,7 @@ uses
 	RipGrepper.UI.Settings.ExtensionContexPanel,
 	RipGrepper.Common.IDEContextValues,
 	RipGrepper.UI.SearchForm.CtrlValueProxy,
+	RipGrepper.UI.SearchPathHistoryByContext,
 	RipGrepper.UI.CustomCheckOptions,
 	RipGrepper.UI.RgOptionsPanel,
 	RipGrepper.Helper.RegexTemplates,
@@ -195,6 +196,7 @@ type
 			FMemoTextFormat : EMemoTextFormat;
 			// Full search path for context-driven (non-editable) modes that may exceed combo text limit
 			FContextSearchPath : string;
+			FSearchPathHistByContext : TSearchPathHistoryByContext;
 
 			FOrigSearchFormSettings : TSearchFormSettings;
 			FShowing : Boolean;
@@ -343,6 +345,7 @@ constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _setti
 	const _histObj : IHistoryItemObject);
 begin
 	FSettings := _settings;
+	FSearchPathHistByContext := TSearchPathHistoryByContext.Create();
 	inherited Create(AOwner);
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.Create');
@@ -409,6 +412,7 @@ end;
 
 destructor TRipGrepperSearchDialogForm.Destroy;
 begin
+	FreeAndNil(FSearchPathHistByContext);
 	FOrigSearchFormSettings.Free;
 	inherited Destroy;
 end;
