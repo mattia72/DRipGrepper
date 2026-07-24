@@ -1946,6 +1946,19 @@ begin
 			{ } EDelphiIDESearchContext.dicOpenFiles,
 			{ } EDelphiIDESearchContext.dicProjectLibraryPath,
 			{ } EDelphiIDESearchContext.dicProjectFilesDirs : begin
+				// Store incoming raw context value into the new context's in-memory history
+				if not contextValue.IsEmpty then begin
+					FSearchPathHistByContext.StorePathForContext(FCtrlProxy.ExtensionContext, contextValue);
+				end;
+				// Load context-specific items for this IDE context into the dropdown
+				var
+				ideContextItems := FSearchPathHistByContext.GetForContext(FCtrlProxy.ExtensionContext);
+				cmbSearchDir.Items.Clear;
+				cmbSearchDir.Items.AddStrings(ideContextItems.Items);
+				dbgMsg.MsgFmt('Loaded %d items from IDE context %d',
+					[ideContextItems.Count, Ord(FCtrlProxy.ExtensionContext)]);
+				// SetCmbSearchPathText sets FContextSearchPath := contextValue (full raw path)
+				// and applies truncated display text if needed
 				SetCmbSearchPathText(contextValue);
 			end;
 			EDelphiIDESearchContext.dicCustomLocation : begin
