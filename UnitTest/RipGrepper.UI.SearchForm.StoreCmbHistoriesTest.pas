@@ -6,6 +6,7 @@ uses
 	DUnitX.TestFramework,
 	System.Classes,
 	RipGrepper.Common.IDEContextValues,
+	RipGrepper.UI.SearchPathDisplayLabel,
 	RipGrepper.UI.SearchPathHistoryByContext,
 	RipGrepper.UI.SearchForm.CtrlValueProxy;
 
@@ -48,6 +49,10 @@ type
 			procedure EmptyPathNotStoredTest;
 			[Test]
 			procedure UniquePathEnforcedInContextTest;
+			[Test]
+			procedure IsSearchPathDisplayLabelMatchesExpectedPatternTest;
+			[Test]
+			procedure IsSearchPathDisplayLabelRejectsNormalPathsAndEdgeCasesTest;
 
 	end;
 
@@ -164,8 +169,6 @@ begin
 	// Simulate a long path being truncated for display
 	var
 	fullPath := 'C:\Path1;C:\Path2;C:\Path3;C:\Path4;C:\Path5';
-	var
-	displayLabel := '5 paths (e.g. C:\Path1)';
 
 	// Only the actual path should be stored, not the display label
 	SimulateStorePath(fullPath, EDelphiIDESearchContext.dicProjectLibraryPath, True);
@@ -251,6 +254,28 @@ begin
 	contextHist := FHistoryByContext.GetForContext(EDelphiIDESearchContext.dicCustomLocation);
 	Assert.AreEqual(1, contextHist.Count, 'Duplicate path should not be added');
 	Assert.AreEqual('C:\Path1', contextHist[0], 'Path should exist only once');
+end;
+
+procedure TStoreCmbHistoriesTest.IsSearchPathDisplayLabelMatchesExpectedPatternTest;
+begin
+	Assert.IsTrue(IsSearchPathDisplayLabel('5 paths (e.g. C:\Path1)'),
+		'Expected canonical truncated label to be detected');
+	Assert.IsTrue(IsSearchPathDisplayLabel('85 paths (e.g. C:\src;C:\lib)'),
+		'Expected label with multiple path fragments to be detected');
+	Assert.IsTrue(IsSearchPathDisplayLabel('   12 paths (e.g. D:\Workspace)   '),
+		'Expected trimmed label to be detected');
+end;
+
+procedure TStoreCmbHistoriesTest.IsSearchPathDisplayLabelRejectsNormalPathsAndEdgeCasesTest;
+begin
+	Assert.IsFalse(IsSearchPathDisplayLabel('C:\Real\Path'),
+		'Normal file system path must not be detected as display label');
+	Assert.IsFalse(IsSearchPathDisplayLabel('5 path (e.g. C:\Path1)'),
+		'Singular "path" should not match the expected display label pattern');
+	Assert.IsFalse(IsSearchPathDisplayLabel('paths (e.g. C:\Path1)'),
+		'Missing numeric prefix should not match the expected display label pattern');
+	Assert.IsFalse(IsSearchPathDisplayLabel(''),
+		'Empty text should never be detected as display label');
 end;
 
 initialization

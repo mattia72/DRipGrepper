@@ -4,6 +4,7 @@ interface
 
 uses
 	System.SysUtils,
+	System.RegularExpressions,
 	ArrayEx,
 	RipGrepper.Common.IDEContextValues,
 	Spring.Collections;
@@ -15,6 +16,7 @@ type
 
 	public
 		constructor Create();
+		class function IsSearchPathDisplayLabel(const _text : string) : Boolean;
 		function GetForContext(const _context : EDelphiIDESearchContext) : TArrayEx<string>;
 		procedure SetForContext(const _context : EDelphiIDESearchContext; const _items : TArrayEx<string>);
 		procedure StorePathForContext(const _context : EDelphiIDESearchContext; const _searchPath : string);
@@ -26,6 +28,11 @@ constructor TSearchPathHistoryByContext.Create();
 begin
 	inherited Create;
 	FItemsByContext := TCollections.CreateDictionary<Integer, TArrayEx<string>>();
+end;
+
+class function TSearchPathHistoryByContext.IsSearchPathDisplayLabel(const _text : string) : Boolean;
+begin
+	Result := TRegEx.IsMatch(Trim(_text), '^\d+ paths \(e\.g\. ');
 end;
 
 function TSearchPathHistoryByContext.GetForContext(const _context : EDelphiIDESearchContext) : TArrayEx<string>;

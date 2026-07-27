@@ -235,7 +235,6 @@ type
 			procedure LoadInitialSearchSettings();
 			procedure SeedSearchPathHistoryByContext();
 			procedure SetCmbSearchPathText(const _sPath : string);
-			class function IsSearchPathDisplayLabel(const _text : string) : Boolean; static;
 			function GetTruncatedHint(const _paths : TArray<string>) : string;
 			class procedure SetReplaceText(_settings : TRipGrepperSettings; const _replaceText : string);
 			procedure SetReplaceTextSetting(const _replaceText : string);
@@ -347,11 +346,11 @@ constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _setti
 	const _histObj : IHistoryItemObject);
 begin
 	FSettings := _settings;
-	FSearchPathHistByContext := TSearchPathHistoryByContext.Create();
 	inherited Create(AOwner);
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.Create');
 
+	FSearchPathHistByContext := TSearchPathHistoryByContext.Create();
 	FHistItemObj := _histObj;
 
 	// Create extension context panel first so it appears at the top
@@ -957,7 +956,7 @@ begin
 	end;
 
 	// Guard: never persist the truncated display label (e.g. "85 paths (e.g. ...)") as a real path
-	if IsSearchPathDisplayLabel(searchPathToStore) then begin
+	if TSearchPathHistoryByContext.IsSearchPathDisplayLabel(searchPathToStore) then begin
 		dbgMsg.MsgFmt('Skipping display label as search path: %s', [searchPathToStore]);
 		searchPathToStore := '';
 	end;
@@ -1014,7 +1013,7 @@ begin
 
 	if (not cmbSearchDir.Enabled) and (not FContextSearchPath.IsEmpty) then
 		FSettings.RipGrepParameters.SearchPath := FContextSearchPath
-	else if IsSearchPathDisplayLabel(cmbSearchDir.Text) then
+	else if TSearchPathHistoryByContext.IsSearchPathDisplayLabel(cmbSearchDir.Text) then
 		// Never use the truncated display label as a real path; fall back to the full context path
 		FSettings.RipGrepParameters.SearchPath := FContextSearchPath
 	else
@@ -1553,13 +1552,6 @@ begin
 	TDebugUtils.Msg('cmbSearchDir.Text=' + cmbSearchDir.Text);
 end;
 
-class function TRipGrepperSearchDialogForm.IsSearchPathDisplayLabel(const _text : string) : Boolean;
-// Detects the truncated display label produced by SetCmbSearchPathText,
-// e.g. "85 paths (e.g. C:\...)". Such a label must never be persisted as a real path.
-begin
-	Result := TRegEx.IsMatch(_text.Trim(), '^\d+ paths \(e\.g\. ');
-end;
-
 function TRipGrepperSearchDialogForm.GetTruncatedHint(const _paths : TArray<string>) : string;
 var
 	i, count : Integer;
@@ -1941,7 +1933,7 @@ begin
 		end else if cmbSearchDir.Enabled then begin
 			currentPathToSave := cmbSearchDir.Text;
 		end;
-		if IsSearchPathDisplayLabel(currentPathToSave) then begin
+		if TSearchPathHistoryByContext.IsSearchPathDisplayLabel(currentPathToSave) then begin
 			dbgMsg.MsgFmt('Skipping display label as search path: %s', [currentPathToSave]);
 			currentPathToSave := '';
 		end;

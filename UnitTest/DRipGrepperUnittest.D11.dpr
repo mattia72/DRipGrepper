@@ -98,6 +98,7 @@ uses
   RipGrepper.Helper.RegexTemplates.Test in 'RipGrepper.Helper.RegexTemplates.Test.pas',
   RipGrepper.Helper.RegexTemplates in '..\src\Helper\RipGrepper.Helper.RegexTemplates.pas',
   RipGrepper.Common.IDEContextValues in '..\src\Common\RipGrepper.Common.IDEContextValues.pas',
+  RipGrepper.UI.SearchPathDisplayLabel in '..\src\UI\RipGrepper.UI.SearchPathDisplayLabel.pas',
   RipGrepper.UI.SearchForm.CtrlValueProxy in '..\src\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas',
   RipGrepper.UI.SearchPathHistoryByContext in '..\src\UI\RipGrepper.UI.SearchPathHistoryByContext.pas',
   RipGrepper.UI.SearchPathHistoryByContextTest in 'RipGrepper.UI.SearchPathHistoryByContextTest.pas',

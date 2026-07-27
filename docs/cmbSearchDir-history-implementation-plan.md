@@ -71,7 +71,7 @@ IDE-Kontext-Historien bleiben nur in der Session.
   - SearchPathsHistory in Settings nur aus dicCustomLocation schreiben.
   - Keine IDE-Kontextpfade in persistente SearchPathsHistory uebernehmen.
 
-7. Absicherung gegen Anzeige-Label als Pfad
+7. Absicherung gegen Anzeige-Label als Pfad (Fertig)
 - SetCmbSearchPathText pruefen:
   - FContextSearchPath muss immer den vollen Rohpfad enthalten.
   - Gekuerzter Text bleibt rein visuell (nur Combo.Text/Hint).
