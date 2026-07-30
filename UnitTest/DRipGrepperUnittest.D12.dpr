@@ -93,7 +93,6 @@ uses
   RipGrepper.Tools.Replacer.Test in 'RipGrepper.Tools.Replacer.Test.pas',
   RootUnit in 'RootUnit.pas',
   RipGrepper.Common.IDEContextValues in '..\src\Common\RipGrepper.Common.IDEContextValues.pas',
-  RipGrepper.UI.SearchPathDisplayLabel in '..\src\UI\RipGrepper.UI.SearchPathDisplayLabel.pas',
   RipGrepper.UI.SearchForm.CtrlValueProxy in '..\src\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas',
   RipGrepper.UI.SearchPathHistoryByContext in '..\src\UI\RipGrepper.UI.SearchPathHistoryByContext.pas',
   RipGrepper.UI.SearchPathHistoryByContextTest in 'RipGrepper.UI.SearchPathHistoryByContextTest.pas',

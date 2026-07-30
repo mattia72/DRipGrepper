@@ -6,7 +6,6 @@ uses
 	DUnitX.TestFramework,
 	System.Classes,
 	RipGrepper.Common.IDEContextValues,
-	RipGrepper.UI.SearchPathDisplayLabel,
 	RipGrepper.UI.SearchPathHistoryByContext,
 	RipGrepper.UI.SearchForm.CtrlValueProxy;
 
@@ -258,23 +257,23 @@ end;
 
 procedure TStoreCmbHistoriesTest.IsSearchPathDisplayLabelMatchesExpectedPatternTest;
 begin
-	Assert.IsTrue(IsSearchPathDisplayLabel('5 paths (e.g. C:\Path1)'),
+	Assert.IsTrue(TSearchPathHistoryByContext.IsSearchPathDisplayLabel('5 paths (e.g. C:\Path1)'),
 		'Expected canonical truncated label to be detected');
-	Assert.IsTrue(IsSearchPathDisplayLabel('85 paths (e.g. C:\src;C:\lib)'),
+	Assert.IsTrue(TSearchPathHistoryByContext.IsSearchPathDisplayLabel('85 paths (e.g. C:\src;C:\lib)'),
 		'Expected label with multiple path fragments to be detected');
-	Assert.IsTrue(IsSearchPathDisplayLabel('   12 paths (e.g. D:\Workspace)   '),
+	Assert.IsTrue(TSearchPathHistoryByContext.IsSearchPathDisplayLabel('   12 paths (e.g. D:\Workspace)   '),
 		'Expected trimmed label to be detected');
 end;
 
 procedure TStoreCmbHistoriesTest.IsSearchPathDisplayLabelRejectsNormalPathsAndEdgeCasesTest;
 begin
-	Assert.IsFalse(IsSearchPathDisplayLabel('C:\Real\Path'),
+	Assert.IsFalse(TSearchPathHistoryByContext.IsSearchPathDisplayLabel('C:\Real\Path'),
 		'Normal file system path must not be detected as display label');
-	Assert.IsFalse(IsSearchPathDisplayLabel('5 path (e.g. C:\Path1)'),
+	Assert.IsFalse(TSearchPathHistoryByContext.IsSearchPathDisplayLabel('5 path (e.g. C:\Path1)'),
 		'Singular "path" should not match the expected display label pattern');
-	Assert.IsFalse(IsSearchPathDisplayLabel('paths (e.g. C:\Path1)'),
+	Assert.IsFalse(TSearchPathHistoryByContext.IsSearchPathDisplayLabel('paths (e.g. C:\Path1)'),
 		'Missing numeric prefix should not match the expected display label pattern');
-	Assert.IsFalse(IsSearchPathDisplayLabel(''),
+	Assert.IsFalse(TSearchPathHistoryByContext.IsSearchPathDisplayLabel(''),
 		'Empty text should never be detected as display label');
 end;
 

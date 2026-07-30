@@ -795,8 +795,21 @@ begin
 	cmbSearchDir.Items.Clear;
 	cmbSearchDir.Items.AddStrings(contextSearchPathItems.Items);
 	dbgMsg.MsgFmt('Loaded %d items from context %d', [contextSearchPathItems.Count, Ord(FCtrlProxy.ExtensionContext)]);
-	
-	SetCmbSearchPathText(FCtrlProxy.SearchPath);
+
+	// In IDE-context-driven modes (non-Custom Location), cmbSearchDir.Text and
+	// FContextSearchPath were already populated correctly by UpdateCmbsOnIDEContextChange.
+	// FCtrlProxy.SearchPath at this point holds SearchPathHist[0] which is a Custom
+	// Location path and would clobber the correct context path (e.g. "N paths (e.g. ...)"
+	// display label + raw multi-path FContextSearchPath). Only refresh from the proxy
+	// when we are in dicCustomLocation (or the context is unknown/uninitialised).
+	if (FCtrlProxy.ExtensionContext = EDelphiIDESearchContext.dicCustomLocation)
+		or (FCtrlProxy.ExtensionContext = EDelphiIDESearchContext.dicNotSet)
+		or FContextSearchPath.IsEmpty then begin
+		SetCmbSearchPathText(FCtrlProxy.SearchPath);
+	end else begin
+		dbgMsg.MsgFmt('Preserving context-set cmbSearchDir="%s" for context %d (FContextSearchPath length=%d); ignoring proxy SearchPath="%s"',
+			[cmbSearchDir.Text, Ord(FCtrlProxy.ExtensionContext), Length(FContextSearchPath), FCtrlProxy.SearchPath]);
+	end;
 	SetComboItemsAndText(cmbReplaceText, FCtrlProxy.ReplaceText, FCtrlProxy.ReplaceTextHist);
 	SetComboItemsFromOptions(cmbFileMasks, FCtrlProxy.FileMasks, FCtrlProxy.FileMasksHist);
 	SetComboItemsAndText(cmbRgParamEncoding, FCtrlProxy.Encoding, FCtrlProxy.EncodingItems);
