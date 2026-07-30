@@ -10,6 +10,10 @@
 - Support for changing date column color and font in the UI
 - Drag and drop for history items in the search form, allowing users to easily reorder their search history by dragging and dropping items within the history list.
 - **extension** If Path is outside of the IDE project, a warning icon is shown in the search form, to avoid confusion about the search results.
+- **extension** Error and warning can be indicated with different colors.
+- File hint can be shown, when hovering over a file in the results tree, to provide additional information about the file, such as its full path or other relevant details. 
+- **extension** If we have too many search path entries, instead of the list of entries, we show a summary.
+e.g. `86 paths (e.g. C:\...)`
 
 ### 🔄 Changed
 - One base form to get nice Ok/Cancel buttons. 
@@ -19,6 +23,7 @@
 ### 🐞 Fixed
 - Update version script. 
 - **extension** On showing of search form in Delphi IDE, all text in every combo box was selected, now only the active combo box text is selected, so typing will delete the whole entry immediately. 
+- **extension** Search directory was reset to the previous Custom Location path when opening the search form a second time in a non-Custom IDE context (e.g. *All open files*, *Project files*), causing rg.exe to run against the wrong path. The context-driven search path is now preserved on form show.
 
 ## [v4.15.0-beta] - 2026-03-12
 
