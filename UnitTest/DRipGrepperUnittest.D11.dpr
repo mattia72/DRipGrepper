@@ -96,7 +96,12 @@ uses
   RipGrepper.Tools.Replacer.Test in 'RipGrepper.Tools.Replacer.Test.pas',
   RootUnit in 'RootUnit.pas',
   RipGrepper.Helper.RegexTemplates.Test in 'RipGrepper.Helper.RegexTemplates.Test.pas',
-  RipGrepper.Helper.RegexTemplates in '..\src\Helper\RipGrepper.Helper.RegexTemplates.pas';
+  RipGrepper.Helper.RegexTemplates in '..\src\Helper\RipGrepper.Helper.RegexTemplates.pas',
+  RipGrepper.Common.IDEContextValues in '..\src\Common\RipGrepper.Common.IDEContextValues.pas',
+  RipGrepper.UI.SearchForm.CtrlValueProxy in '..\src\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas',
+  RipGrepper.UI.SearchPathHistoryByContext in '..\src\UI\RipGrepper.UI.SearchPathHistoryByContext.pas',
+  RipGrepper.UI.SearchPathHistoryByContextTest in 'RipGrepper.UI.SearchPathHistoryByContextTest.pas',
+  RipGrepper.UI.SearchForm.StoreCmbHistoriesTest in 'RipGrepper.UI.SearchForm.StoreCmbHistoriesTest.pas';
 
 // This comment has to guard the following IFDEF, that may be delted by delphi, if new unit added to the project
 {$IFNDEF TESTINSIGHT}

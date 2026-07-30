@@ -18,7 +18,10 @@
 		"chat.tools.terminal.autoApprove": {
 			"deploy\\Deploy-DripGrepper.ps1": true,
 			".\\Win32\\Release\\DRipGrepperUnittest.D11.exe": true,
-			"Out-Null": true
+			"/^pwsh -NoProfile -File \\.\\\\deploy\\\\Deploy-DripGrepper\\.ps1 -BuildConfig Debug -BuildStandalone -BuildExtension -BuildUnittest -RunUnittest -LocalDeploy -Force$/": {
+				"approve": true,
+				"matchCommandLine": true
+			}
 		}
 	}
 }

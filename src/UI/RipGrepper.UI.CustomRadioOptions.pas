@@ -266,6 +266,10 @@ begin
 		if not Assigned(item.RadioButton) then begin
 			continue;
 		end;
+		// Tag must reflect the collection index for ALL items (visible or not),
+		// because programmatic selection via ItemIndex may target hidden items
+		// (e.g. expert-only contexts), and OnClick reads Tag to update FItemIndex.
+		item.RadioButton.Tag := i;
 		if Item.RadioButton.Visible then begin
 			col := visibleCount mod Columns;
 			row := visibleCount div Columns;
@@ -274,7 +278,6 @@ begin
 			item.RadioButton.Top := (row * ITEM_HEIGHT) + CTRL_SPACE;
 			item.RadioButton.Width := itemWidth - (2 * CTRL_SPACE);
 			item.RadioButton.Height := ITEM_HEIGHT - 2;
-			item.RadioButton.Tag := i;
 
 			Inc(visibleCount);
 		end else begin

@@ -42,6 +42,7 @@ uses
 	RipGrepper.UI.Settings.ExtensionContexPanel,
 	RipGrepper.Common.IDEContextValues,
 	RipGrepper.UI.SearchForm.CtrlValueProxy,
+	RipGrepper.UI.SearchPathHistoryByContext,
 	RipGrepper.UI.CustomCheckOptions,
 	RipGrepper.UI.RgOptionsPanel,
 	RipGrepper.Helper.RegexTemplates,
@@ -195,6 +196,7 @@ type
 			FMemoTextFormat : EMemoTextFormat;
 			// Full search path for context-driven (non-editable) modes that may exceed combo text limit
 			FContextSearchPath : string;
+			FSearchPathHistByContext : TSearchPathHistoryByContext;
 
 			FOrigSearchFormSettings : TSearchFormSettings;
 			FShowing : Boolean;
@@ -231,6 +233,7 @@ type
 			procedure LoadExtensionSearchSettings(var _ctrlProxy : TSearchFormCtrlValueProxy);
 			procedure LoadOldHistorySearchSettings;
 			procedure LoadInitialSearchSettings();
+			procedure SeedSearchPathHistoryByContext();
 			procedure SetCmbSearchPathText(const _sPath : string);
 			function GetTruncatedHint(const _paths : TArray<string>) : string;
 			class procedure SetReplaceText(_settings : TRipGrepperSettings; const _replaceText : string);
@@ -347,6 +350,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.Create');
 
+	FSearchPathHistByContext := TSearchPathHistoryByContext.Create();
 	FHistItemObj := _histObj;
 
 	// Create extension context panel first so it appears at the top
@@ -409,6 +413,7 @@ end;
 
 destructor TRipGrepperSearchDialogForm.Destroy;
 begin
+	FreeAndNil(FSearchPathHistByContext);
 	FOrigSearchFormSettings.Free;
 	inherited Destroy;
 end;
@@ -783,7 +788,28 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.WriteCtrlProxyToCtrls');
 
 	SetComboItemsAndText(cmbSearchText, FCtrlProxy.SearchText, FCtrlProxy.SearchTextHist);
-	SetComboItemsAndText(cmbSearchDir, FCtrlProxy.SearchPath, FCtrlProxy.SearchPathHist);
+	
+	// Load context-specific search path items
+	var
+	contextSearchPathItems := FSearchPathHistByContext.GetForContext(FCtrlProxy.ExtensionContext);
+	cmbSearchDir.Items.Clear;
+	cmbSearchDir.Items.AddStrings(contextSearchPathItems.Items);
+	dbgMsg.MsgFmt('Loaded %d items from context %d', [contextSearchPathItems.Count, Ord(FCtrlProxy.ExtensionContext)]);
+
+	// In IDE-context-driven modes (non-Custom Location), cmbSearchDir.Text and
+	// FContextSearchPath were already populated correctly by UpdateCmbsOnIDEContextChange.
+	// FCtrlProxy.SearchPath at this point holds SearchPathHist[0] which is a Custom
+	// Location path and would clobber the correct context path (e.g. "N paths (e.g. ...)"
+	// display label + raw multi-path FContextSearchPath). Only refresh from the proxy
+	// when we are in dicCustomLocation (or the context is unknown/uninitialised).
+	if (FCtrlProxy.ExtensionContext = EDelphiIDESearchContext.dicCustomLocation)
+		or (FCtrlProxy.ExtensionContext = EDelphiIDESearchContext.dicNotSet)
+		or FContextSearchPath.IsEmpty then begin
+		SetCmbSearchPathText(FCtrlProxy.SearchPath);
+	end else begin
+		dbgMsg.MsgFmt('Preserving context-set cmbSearchDir="%s" for context %d (FContextSearchPath length=%d); ignoring proxy SearchPath="%s"',
+			[cmbSearchDir.Text, Ord(FCtrlProxy.ExtensionContext), Length(FContextSearchPath), FCtrlProxy.SearchPath]);
+	end;
 	SetComboItemsAndText(cmbReplaceText, FCtrlProxy.ReplaceText, FCtrlProxy.ReplaceTextHist);
 	SetComboItemsFromOptions(cmbFileMasks, FCtrlProxy.FileMasks, FCtrlProxy.FileMasksHist);
 	SetComboItemsAndText(cmbRgParamEncoding, FCtrlProxy.Encoding, FCtrlProxy.EncodingItems);
@@ -924,8 +950,45 @@ end;
 
 procedure TRipGrepperSearchDialogForm.StoreCmbHistorieItems();
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.StoreCmbHistorieItems');
+	var
+	currentContext := FCtrlProxy.ExtensionContext;
+
 	ChangeHistoryItems(cmbSearchText, FCtrlProxy.SearchTextHist);
-	ChangeHistoryItems(cmbSearchDir, FCtrlProxy.SearchPathHist);
+
+	// Handle search path history per context
+	var
+	searchPathToStore : string;
+	if (not FContextSearchPath.IsEmpty) then begin
+		// cmbSearchDir is disabled, use the real path from context
+		searchPathToStore := FContextSearchPath;
+	end else if cmbSearchDir.Enabled then begin
+		// cmbSearchDir is enabled, use its text (custom location)
+		searchPathToStore := cmbSearchDir.Text;
+	end;
+
+	// Guard: never persist the truncated display label (e.g. "85 paths (e.g. ...)") as a real path
+	if TSearchPathHistoryByContext.IsSearchPathDisplayLabel(searchPathToStore) then begin
+		dbgMsg.MsgFmt('Skipping display label as search path: %s', [searchPathToStore]);
+		searchPathToStore := '';
+	end;
+
+	if not searchPathToStore.IsEmpty then begin
+		// Always store in context-specific dictionary
+		dbgMsg.MsgFmt('Storing path for context %d: %s', [Ord(currentContext), searchPathToStore]);
+		FSearchPathHistByContext.StorePathForContext(currentContext, searchPathToStore);
+
+		// Only update persistent history for custom location context
+		if currentContext = EDelphiIDESearchContext.dicCustomLocation then begin
+			dbgMsg.Msg('Updating persistent history for dicCustomLocation');
+			FCtrlProxy.SearchPathHist.InsertUnique(0, searchPathToStore);
+		end else begin
+			// For non-custom contexts, don't update the persistent history
+			dbgMsg.MsgFmt('Skipping persistent history update for context %d (non-custom)', [Ord(currentContext)]);
+		end;
+	end;
+
 	ChangeHistoryItems(cmbReplaceText, FCtrlProxy.ReplaceTextHist);
 	ChangeHistoryItems(cmbFileMasks, FCtrlProxy.FileMasksHist);
 	ChangeHistoryItems(cmbOptions, FCtrlProxy.AdditionalExpertOptionsHist);
@@ -962,6 +1025,9 @@ begin
 	ShowReplaceCtrls(IsReplaceLayout());
 
 	if (not cmbSearchDir.Enabled) and (not FContextSearchPath.IsEmpty) then
+		FSettings.RipGrepParameters.SearchPath := FContextSearchPath
+	else if TSearchPathHistoryByContext.IsSearchPathDisplayLabel(cmbSearchDir.Text) then
+		// Never use the truncated display label as a real path; fall back to the full context path
 		FSettings.RipGrepParameters.SearchPath := FContextSearchPath
 	else
 		FSettings.RipGrepParameters.SearchPath := cmbSearchDir.Text;
@@ -1287,7 +1353,13 @@ begin
 
 	FSettings.SearchTextsHistory.Value := GetMaxCountHistoryItems(_ctrlProxy.SearchTextHist);
 	FSettings.ReplaceTextsHistory.Value := GetMaxCountHistoryItems(_ctrlProxy.ReplaceTextHist);
-	FSettings.SearchPathsHistory.Value := GetMaxCountHistoryItems(_ctrlProxy.SearchPathHist);
+	
+	// Only save Custom Location search paths to persistent history
+	var
+	customLocationPaths := FSearchPathHistByContext.GetForContext(EDelphiIDESearchContext.dicCustomLocation);
+	FSettings.SearchPathsHistory.Value := GetMaxCountHistoryItems(customLocationPaths);
+	dbgMsg.MsgFmt('Saved %d Custom Location paths to persistent history', [customLocationPaths.Count]);
+
 	FSettings.FileMasksHistory.Value := GetMaxCountHistoryItems(_ctrlProxy.FileMasksHist);
 	FSettings.ExpertOptionHistory.Value := GetMaxCountHistoryItems(_ctrlProxy.AdditionalExpertOptionsHist);
 	var
@@ -1447,7 +1519,24 @@ begin
 		SetCmbSearchTextAutoComplete(True);
 	end;
 	CopySettingsToCtrlProxy(FCtrlProxy, FHistItemObj, FSettings);
+	SeedSearchPathHistoryByContext();
 	LoadExtensionSearchSettings(FCtrlProxy);
+end;
+
+procedure TRipGrepperSearchDialogForm.SeedSearchPathHistoryByContext();
+var
+	emptyItems : TArrayEx<string>;
+begin
+	// Custom location keeps persisted history; IDE contexts start empty for this session.
+	FSearchPathHistByContext.SetForContext(EDelphiIDESearchContext.dicCustomLocation, FCtrlProxy.SearchPathHist);
+
+	emptyItems.Clear;
+	FSearchPathHistByContext.SetForContext(EDelphiIDESearchContext.dicActiveFile, emptyItems);
+	FSearchPathHistByContext.SetForContext(EDelphiIDESearchContext.dicOpenFiles, emptyItems);
+	FSearchPathHistByContext.SetForContext(EDelphiIDESearchContext.dicProjectFiles, emptyItems);
+	FSearchPathHistByContext.SetForContext(EDelphiIDESearchContext.dicProjectLibraryPath, emptyItems);
+	FSearchPathHistByContext.SetForContext(EDelphiIDESearchContext.dicProjectRootDirectory, emptyItems);
+	FSearchPathHistByContext.SetForContext(EDelphiIDESearchContext.dicProjectFilesDirs, emptyItems);
 end;
 
 procedure TRipGrepperSearchDialogForm.SetCmbSearchTextAutoComplete(const _Value : Boolean);
@@ -1848,6 +1937,24 @@ begin
 	if not bSkipp then begin
 		var
 		dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange');
+		
+		// Save current path to the old context's in-memory history before switching
+		var
+		currentPathToSave : string;
+		if (not FContextSearchPath.IsEmpty) then begin
+			currentPathToSave := FContextSearchPath;
+		end else if cmbSearchDir.Enabled then begin
+			currentPathToSave := cmbSearchDir.Text;
+		end;
+		if TSearchPathHistoryByContext.IsSearchPathDisplayLabel(currentPathToSave) then begin
+			dbgMsg.MsgFmt('Skipping display label as search path: %s', [currentPathToSave]);
+			currentPathToSave := '';
+		end;
+		if not currentPathToSave.IsEmpty then begin
+			dbgMsg.MsgFmt('Saving path for old context %d before switch: %s', [Ord(FCtrlProxy.ExtensionContext), currentPathToSave]);
+			FSearchPathHistByContext.StorePathForContext(FCtrlProxy.ExtensionContext, currentPathToSave);
+		end;
+		
 		cmbSearchDir.Enabled := False;
 		if _icv.GetContextType() = dicNotSet then begin
 			dbgMsg.WarningMsgFmt('Extension IDE Context not supported :%d. fallback to custom locations:',
@@ -1865,13 +1972,29 @@ begin
 			{ } EDelphiIDESearchContext.dicOpenFiles,
 			{ } EDelphiIDESearchContext.dicProjectLibraryPath,
 			{ } EDelphiIDESearchContext.dicProjectFilesDirs : begin
+				// Store incoming raw context value into the new context's in-memory history
+				if not contextValue.IsEmpty then begin
+					FSearchPathHistByContext.StorePathForContext(FCtrlProxy.ExtensionContext, contextValue);
+				end;
+				// Load context-specific items for this IDE context into the dropdown
+				var
+				ideContextItems := FSearchPathHistByContext.GetForContext(FCtrlProxy.ExtensionContext);
+				cmbSearchDir.Items.Clear;
+				cmbSearchDir.Items.AddStrings(ideContextItems.Items);
+				dbgMsg.MsgFmt('Loaded %d items from IDE context %d',
+					[ideContextItems.Count, Ord(FCtrlProxy.ExtensionContext)]);
+				// SetCmbSearchPathText sets FContextSearchPath := contextValue (full raw path)
+				// and applies truncated display text if needed
 				SetCmbSearchPathText(contextValue);
 			end;
 			EDelphiIDESearchContext.dicCustomLocation : begin
 				cmbSearchDir.Enabled := True;
 				FContextSearchPath := '';
 				dbgMsg.MsgFmt('SearchPath=%s', [FCtrlProxy.SearchPath]);
-				SetComboItemsAndText(cmbSearchDir, FCtrlProxy.SearchPath, FSettings.SearchPathsHistory.Value);
+				// Load context-specific items for Custom Location
+				var
+				customLocationItems := FSearchPathHistByContext.GetForContext(EDelphiIDESearchContext.dicCustomLocation);
+				SetComboItemsAndText(cmbSearchDir, FCtrlProxy.SearchPath, customLocationItems);
 				UpdateExtensionOptionsHint(FCtrlProxy.SearchPath);
 			end
 		end;

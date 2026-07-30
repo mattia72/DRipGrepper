@@ -51,7 +51,7 @@ type
 			class function ProcessOutput(const _s : TStream;
 				{ } _newLineHandler : INewLineEventHandler;
 				{ } _terminateEventProducer : ITerminateEventProducer;
-				{ } _eofProcHandler : IEOFProcessEventHandler) : integer;
+				{ } out _sLastLine : string) : integer;
 			class function RunProcess(const _exe : string; _args : TStrings; _workDir : string;
 				{ } _newLineHandler : INewLineEventHandler;
 				{ } _terminateEventProducer : ITerminateEventProducer;
@@ -188,7 +188,7 @@ end;
 class function TProcessUtils.ProcessOutput(const _s : TStream;
 	{ } _newLineHandler : INewLineEventHandler;
 	{ } _terminateEventProducer : ITerminateEventProducer;
-	{ } _eofProcHandler : IEOFProcessEventHandler) : integer;
+	{ } out _sLastLine : string) : integer;
 var
 	byteBuff : TBytes;
 	sBuff : string;
@@ -200,6 +200,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TProcessUtils.ProcessOutput');
 
 	FProcessedLineCount := 0;
+	sLineOut := '';
 	{ Now process the output }
 	SetLength(byteBuff, BUFF_LENGTH);
 	try
@@ -220,13 +221,14 @@ begin
 			BuffToLine(sBuff, sBuff.Length, sLineOut, _newLineHandler);
 		until (iBuffLength = 0) or (FProcessedLineCount > RG_PROCESSING_LINE_COUNT_LIMIT);
 
-		ProcessLastLine(sLineOut, _newLineHandler, _eofProcHandler);
+		_sLastLine := sLineOut;
 	except
 		on E : Exception do begin
 			var
 			msg := Format('%d: %s' + CRLF + 'Exception: %s', [FProcessedLineCount, sLineOut, E.Message]);
 			TAsyncMsgBox.Show(msg, TMsgDlgType.mtError);
 			dbgMsg.Msg(msg);
+			_sLastLine := sLineOut;
 			raise;
 		end;
 	end;
@@ -273,6 +275,7 @@ var
 	p : TProcess;
 	cmdLineLength : integer;
 begin
+	var dbgMsg := TDebugMsgBeginEnd.New('TProcessUtils.RunProcess');
 	p := TProcess.Create(nil);
 	try
 		p.Executable := MaybeQuoteIfNotQuoted(_exe);
@@ -288,17 +291,18 @@ begin
 			Result := RG_ERROR;
 			Exit;
 		end;
-		TDebugUtils.DebugMessage('Running command ' + p.Executable);
-		TDebugUtils.DebugMessage('arguments: ' + p.Parameters.Text);
+		dbgMsg.Msg('Running command ' + p.Executable);
+		dbgMsg.Msg('arguments: ' + p.Parameters.Text);
 		try
+			var sLastLine : string;
 			p.Execute;
 
-			ProcessOutput(p.Output, _newLineHandler, _terminateEventProducer, _eofProcHandler);
+			ProcessOutput(p.Output, _newLineHandler, _terminateEventProducer, sLastLine);
 
 			if ((FProcessedLineCount > RG_PROCESSING_LINE_COUNT_LIMIT) or (Assigned(_terminateEventProducer) and
 				_terminateEventProducer.ProcessShouldTerminate())) then begin
 				Result := IfThen(p.Terminate(PROCESS_TERMINATE), ERROR_CANCELLED, 1);
-				TDebugUtils.DebugMessage(Format('Process should terminate returned: %s', [Result.ToString, True]));
+				dbgMsg.Msg(Format('Process should terminate returned: %s', [Result.ToString, True]));
 			end else begin
 				p.WaitOnExit;
 			end;
@@ -306,13 +310,21 @@ begin
 			case Result of
 				RG_SUCCESS :
 				;
-				RG_NO_MATCH :
-				NewLineEventHandler(_newLineHandler, p.Executable + RG_HAS_NO_OUTPUT);
-				RG_ERROR :
-				NewLineEventHandler(_newLineHandler, p.Executable + RG_ENDED_ERROR + p.ExitStatus.ToString);
+				RG_NO_MATCH : begin
+					dbgMsg.Msg('No match found');
+					NewLineEventHandler(_newLineHandler, p.Executable + RG_HAS_NO_OUTPUT);
+				end;
+				RG_ERROR : begin
+					dbgMsg.Msg('Process ended with error');
+					NewLineEventHandler(_newLineHandler, p.Executable + RG_ENDED_ERROR + p.ExitStatus.ToString);
+				end;
 			end;
+			// Send last-line signal AFTER synthetic error lines to ensure error state
+			// is set before AfterSearch is triggered
+			ProcessLastLine(sLastLine, _newLineHandler, _eofProcHandler);
 		except
 			on E : Exception do begin
+				dbgMsg.ErrorMsgFmt('Exception while running process: %s', [E.Message]);
 				ProcessLastLine(E.Message, _newLineHandler, _eofProcHandler);
 				Result := RG_ERROR;
 			end;
