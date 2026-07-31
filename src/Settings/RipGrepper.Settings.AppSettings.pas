@@ -38,6 +38,7 @@ type
 			KEY_LOGFILECREATIONMODE = 'LogFileCreationMode';
 			KEY_LOGDESTINATIONS = 'LogDestinations';
 			KEY_SHOW_FILE_HINT = 'ShowFileHint';
+			KEY_SHOW_LINE_HINT = 'ShowLineHint';
 
 		private
 			FColorTheme : IStringSetting;
@@ -55,8 +56,9 @@ type
 			FLogFilePath : IStringSetting;
 			FLogFileCreationMode : IIntegerSetting;
 			FLogDestinations : IIntegerSetting;
-			FShowFileHint : IBoolSetting;
-			function GetColorTheme() : string;
+		FShowFileHint : IBoolSetting;
+		FShowLineHint : IIntegerSetting;
+		function GetColorTheme() : string;
 			function GetComboHistoryCount() : Integer;
 			function GetSearchHistoryCount() : Integer;
 			function GetCopyToClipBoardShell() : TShellType;
@@ -69,7 +71,8 @@ type
 			function GetLogFileCreationMode() : ELogFileCreationMode;
 			function GetLogDestinations() : TLogDestinations;
 			function GetShowFileHint() : Boolean;
-			function GetCheckNewVersionOnStartup : Boolean;
+		function GetShowLineHint() : Integer;
+		function GetCheckNewVersionOnStartup : Boolean;
 			procedure SetColorTheme(const Value : string);
 			procedure SetComboHistoryCount(const Value : Integer);
 			procedure SetSearchHistoryCount(const Value : Integer);
@@ -82,7 +85,7 @@ type
 			procedure SetLogFileCreationMode(const Value : ELogFileCreationMode);
 			procedure SetLogDestinations(const Value : TLogDestinations);
 			procedure SetShowFileHint(const Value : Boolean);
-			procedure SetCheckNewVersionOnStartup(const Value : Boolean);
+		procedure SetShowLineHint(const Value : Integer);
 
 		protected
 			procedure Init; override;
@@ -108,6 +111,7 @@ type
 			property LogFileCreationMode : ELogFileCreationMode read GetLogFileCreationMode write SetLogFileCreationMode;
 			property LogDestinations : TLogDestinations read GetLogDestinations write SetLogDestinations;
 			property ShowFileHint : Boolean read GetShowFileHint write SetShowFileHint;
+			property ShowLineHint : Integer read GetShowLineHint write SetShowLineHint;
 	end;
 
 implementation
@@ -223,6 +227,11 @@ begin
 	Result := FShowFileHint.Value;
 end;
 
+function TAppSettings.GetShowLineHint() : Integer;
+begin
+	Result := FShowLineHint.Value;
+end;
+
 procedure TAppSettings.Init;
 begin
 	var
@@ -244,6 +253,7 @@ begin
 	FLogFileCreationMode := TIntegerSetting.Create(KEY_LOGFILECREATIONMODE, Integer(lfcmAppend));
 	FLogDestinations := TIntegerSetting.Create(KEY_LOGDESTINATIONS, LOG_DEST_FILE);
 	FShowFileHint := TBoolSetting.Create(KEY_SHOW_FILE_HINT, True);
+	FShowLineHint := TIntegerSetting.Create(KEY_SHOW_LINE_HINT, 0);
 
 	CreateSetting(FColorTheme);
 	CreateSetting(FCopyToClipBoardShell);
@@ -260,6 +270,7 @@ begin
 	CreateSetting(FLogFileCreationMode);
 	CreateSetting(FLogDestinations);
 	CreateSetting(FShowFileHint);
+	CreateSetting(FShowLineHint);
 end;
 
 function TAppSettings.IsExpertMode(): Boolean;
@@ -341,6 +352,11 @@ end;
 procedure TAppSettings.SetShowFileHint(const Value : Boolean);
 begin
 	FShowFileHint.Value := Value;
+end;
+
+procedure TAppSettings.SetShowLineHint(const Value : Integer);
+begin
+	FShowLineHint.Value := Value;
 end;
 
 procedure TAppSettings.UpdateSettingsFromInternals();
