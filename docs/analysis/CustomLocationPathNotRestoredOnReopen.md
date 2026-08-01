@@ -2,7 +2,7 @@
 
 **Status:** Analysis phase — awaiting fresh log for confirmation.
 **Reported:** 2026-07-31
-**Scope:** Extension (`DRipExtensions.D11.dll`) — Delphi 11 / Delphi 12 IDE.
+**Scope:** Extension (`DRipExtensions.D11.dll`, `DRipExtensions.D12.dll`) — Delphi 11 / Delphi 12 IDE.
 **Related fix:** [SearchDirContextResetBug.md](SearchDirContextResetBug.md) (non-Custom context regression, already fixed).
 
 ## Symptom
