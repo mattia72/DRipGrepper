@@ -178,6 +178,11 @@
         <DCCReference Include="..\src\Tools\RipGrepper.Tools.Replacer.pas"/>
         <DCCReference Include="RipGrepper.Tools.Replacer.Test.pas"/>
         <DCCReference Include="RootUnit.pas"/>
+        <DCCReference Include="..\src\Common\RipGrepper.Common.IDEContextValues.pas"/>
+        <DCCReference Include="..\src\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas"/>
+        <DCCReference Include="..\src\UI\RipGrepper.UI.SearchPathHistoryByContext.pas"/>
+        <DCCReference Include="RipGrepper.UI.SearchPathHistoryByContextTest.pas"/>
+        <DCCReference Include="RipGrepper.UI.SearchForm.StoreCmbHistoriesTest.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
