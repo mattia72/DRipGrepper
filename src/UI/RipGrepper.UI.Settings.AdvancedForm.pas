@@ -65,6 +65,7 @@ type
 		lblLogCreation : TLabel;
 		edtLogFilePath : TButtonedEdit;
 		cmbLogCreation : TComboBox;
+		btnClearLogFile : TButton;
 		procedure btnedtIniFilePathEnter(Sender : TObject);
 		procedure btnedtIniFilePathExit(Sender : TObject);
 		procedure btnedtIniFilePathLeftButtonClick(Sender : TObject);
@@ -72,6 +73,7 @@ type
 		procedure chRegexClick(Sender : TObject);
 		procedure chTraceToFileClick(Sender : TObject);
 		procedure edtLogFilePathRightButtonClick(Sender : TObject);
+		procedure btnClearLogFileClick(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 
 		private
@@ -104,7 +106,6 @@ uses
 
 	RipGrepper.Tools.FileUtils,
 	RipGrepper.Helper.UI,
-	System.IOUtils,
 	RipGrepper.Tools.ProcessUtils,
 	RipGrepper.OpenWith.Params,
 	RipGrepper.OpenWith,
@@ -169,7 +170,7 @@ begin
 	btnedtIniFilePath.RightButton.Hint := 'Open with...';
 
 	cmbLogCreation.Items.Clear;
-	for var mode := Low(ELogFileCreationMode) to High(ELogFileCreationMode) do begin
+	for var mode := low(ELogFileCreationMode) to high(ELogFileCreationMode) do begin
 		cmbLogCreation.Items.Add(LOG_FILE_CREATION_MODE_NAMES[mode]);
 	end;
 
@@ -187,6 +188,25 @@ begin
 	cmbLogCreation.Enabled := chTraceToFile.Checked;
 	lblLogFilePath.Enabled := chTraceToFile.Checked;
 	lblLogCreation.Enabled := chTraceToFile.Checked;
+	btnClearLogFile.Enabled := chTraceToFile.Checked;
+end;
+
+procedure TAdvancedForm.btnClearLogFileClick(Sender : TObject);
+var
+	logFilePath : string;
+begin
+	logFilePath := edtLogFilePath.Text;
+	if logFilePath = '' then begin
+		logFilePath := TDebugUtils.LogFilePath;
+	end;
+	if not FileExists(logFilePath) then begin
+		TMsgBox.ShowInfo('Log file does not exist: ' + logFilePath);
+		Exit;
+	end;
+	if TMsgBox.ShowQuestion('Are you sure you want to clear the log file?' + sLineBreak + logFilePath) = mrYes then begin
+		TDebugUtils.ClearLogFile();
+		TMsgBox.ShowInfo('Log file cleared.');
+	end;
 end;
 
 procedure TAdvancedForm.edtLogFilePathRightButtonClick(Sender : TObject);
@@ -307,7 +327,7 @@ begin
 	FAppSettings.LogFileCreationMode := ELogFileCreationMode(cmbLogCreation.ItemIndex);
 
 	var
-	logDestinations : TLogDestinations := [];
+		logDestinations : TLogDestinations := [];
 	if chTraceToDebugView.Checked then begin
 		logDestinations := logDestinations + [ldOutputDebugString];
 	end;

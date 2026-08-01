@@ -70,7 +70,7 @@ type
 			class function TraceTypesToStr(const _tt : TTraceFilterTypes) : string; static;
 
 			class procedure UpdateTraceActive;
-			class property TraceFilterRegex : string read FTraceFilterRegex write FTraceFilterRegex;
+			class procedure ClearLogFile();
 			class property LogDestinations : TLogDestinations read FLogDestinations write FLogDestinations;
 			class property LogFilePath : string read FLogFilePath write FLogFilePath;
 			class property LogFileCreationMode : ELogFileCreationMode read FLogFileCreationMode write FLogFileCreationMode;
@@ -169,6 +169,22 @@ end;
 class procedure TDebugUtils.closeLogFile();
 begin
 	FreeAndNil(FLogFileWriter);
+end;
+
+class procedure TDebugUtils.ClearLogFile();
+begin
+	if not Assigned(FLogLock) then begin
+		Exit;
+	end;
+	FLogLock.Enter;
+	try
+		closeLogFile();
+		if FileExists(FLogFilePath) then begin
+			TFile.WriteAllText(FLogFilePath, '', TEncoding.UTF8);
+		end;
+	finally
+		FLogLock.Leave;
+	end;
 end;
 
 class procedure TDebugUtils.showLogFileErrorMsgOnce(const _errorMsg : string);

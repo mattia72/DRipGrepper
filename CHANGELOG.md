@@ -14,6 +14,7 @@
 - File hint can be shown, when hovering over a file in the results tree, to provide additional information about the file, such as its full path or other relevant details. 
 - **extension** If we have too many search path entries, instead of the list of entries, we show a summary.
 e.g. `86 paths (e.g. C:\...)`
+- Clear log file button in settings form, to allow users to easily clear the log file.
 
 ### 🔄 Changed
 - One base form to get nice Ok/Cancel buttons. 
