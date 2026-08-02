@@ -163,8 +163,8 @@
         <UWP_DelphiLogo150>icons\DripGrepperLogo.png</UWP_DelphiLogo150>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.16.0.369;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>369</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.16.0.370;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>370</VerInfo_Build>
         <Icon_MainIcon>..\..\..\images\icons\DripGrepper.ico</Icon_MainIcon>
         <VerInfo_MinorVer>16</VerInfo_MinorVer>
         <VerInfo_Release>0</VerInfo_Release>
@@ -172,8 +172,8 @@
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.16.0.370;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>370</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.16.0.371;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>371</VerInfo_Build>
         <VerInfo_MinorVer>16</VerInfo_MinorVer>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>

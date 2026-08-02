@@ -1455,13 +1455,10 @@ begin
 	// TODO set only if it was saved before!
 	SetCmbSearchPathText(IfThen(FSettings.RipGrepParameters.SearchPath.IsEmpty, cmbSearchDir.Text, FSettings.RipGrepParameters.SearchPath));
 	dbgMsg.Msg('cmbSearchDir=' + cmbSearchDir.Text);
-	// {$IFNDEF STANDALONE}
-	var
-	cic := FSettings.SearchFormSettings.ExtensionSettings.CurrentIDEContext;
-	dbgMsg.Msg('IDESearchContext=' + cic.ToLogString);
-	UpdateRbExtensionItemIndex(cic.IDESearchContext);
-	dbgMsg.Msg('cmbSearchDir=' + cmbSearchDir.Text);
-	// {$ENDIF}
+	// UpdateRbExtensionItemIndex is intentionally omitted here: FCtrlProxy is not yet populated
+	// (CopySettingsToCtrlProxy runs after this), so calling it now would pass an empty SearchPath
+	// to UpdateCmbsOnIDEContextChange and write a half-populated TDelphiIDEContext.
+	// LoadExtensionSearchSettings (called after CopySettingsToCtrlProxy) handles this correctly.
 	cmbFileMasks.Text := IfThen(FSettings.RipGrepParameters.FileMasks.IsEmpty, cmbFileMasks.Text, FSettings.RipGrepParameters.FileMasks);
 	dbgMsg.Msg('cmbFileMasks.Text=' + cmbFileMasks.Text);
 
