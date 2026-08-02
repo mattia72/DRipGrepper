@@ -62,17 +62,19 @@ type
 	// Interposer: suppresses auto-selection on focus when AutoSelectOnFocus is False
 	// and handles themed font color when seFont is excluded from StyleElements
 	TComboBox = class(Vcl.StdCtrls.TComboBox)
-	private
-		FAutoSelectOnFocus : Boolean;
-		FIsCustomFontColor : Boolean;
-		procedure CMStyleChanged(var Message : TMessage); message CM_STYLECHANGED;
-	protected
-		procedure WndProc(var Message : TMessage); override;
-	public
-		constructor Create(AOwner : TComponent); override;
-		procedure SetDefaultFontColor;
-		property AutoSelectOnFocus : Boolean read FAutoSelectOnFocus write FAutoSelectOnFocus;
-		property IsCustomFontColor : Boolean read FIsCustomFontColor write FIsCustomFontColor;
+		private
+			FAutoSelectOnFocus : Boolean;
+			FIsCustomFontColor : Boolean;
+			procedure CMStyleChanged(var Message : TMessage); message CM_STYLECHANGED;
+
+		protected
+			procedure WndProc(var Message : TMessage); override;
+
+		public
+			constructor Create(AOwner : TComponent); override;
+			procedure SetDefaultFontColor;
+			property AutoSelectOnFocus : Boolean read FAutoSelectOnFocus write FAutoSelectOnFocus;
+			property IsCustomFontColor : Boolean read FIsCustomFontColor write FIsCustomFontColor;
 	end;
 
 	TRipGrepperSearchDialogForm = class(TBaseForm)
@@ -288,12 +290,12 @@ type
 
 		public
 			constructor Create(AOwner : TComponent; const _settings : TRipGrepperSettings; const _histObj : IHistoryItemObject);
-				reintroduce; virtual;
+					reintroduce; virtual;
 			destructor Destroy; override;
 			procedure CopySettingsToCtrlProxy(var _ctrlProxy : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;
-				_settings : TRipGrepperSettings);
+					_settings : TRipGrepperSettings);
 			procedure CopyProxyToSettings(const _ctrlProxy : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;
-				_settings : TRipGrepperSettings);
+					_settings : TRipGrepperSettings);
 			function GetMaxCountHistoryItems(const _arr : TArrayEx<string>) : TArrayEx<string>;
 			function IsExpertLayout() : Boolean;
 			function IsReplaceLayout() : Boolean;
@@ -343,7 +345,7 @@ uses
 {$R *.dfm}
 
 constructor TRipGrepperSearchDialogForm.Create(AOwner : TComponent; const _settings : TRipGrepperSettings;
-	const _histObj : IHistoryItemObject);
+		const _histObj : IHistoryItemObject);
 begin
 	FSettings := _settings;
 	inherited Create(AOwner);
@@ -591,7 +593,7 @@ begin
 	try
 		if (mrOk = frm.ShowModal) then begin
 			FSettings.RipGrepParameters.RgExeOptions.RemoveOptions(
-				{ } RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS);
+					{ } RG_NECESSARY_PARAMS + RG_GUI_SET_PARAMS);
 			cmbOptions.Text := FSettings.RipGrepParameters.RgExeOptions.AsString;
 			UpdateCtrls(cmbOptions);
 		end;
@@ -714,7 +716,7 @@ procedure TComboBox.CMStyleChanged(var Message : TMessage);
 begin
 	inherited;
 	// Update font color to match new theme when seFont is excluded from StyleElements
-	if (not (seFont in StyleElements)) and (not FIsCustomFontColor) then begin
+	if (not(seFont in StyleElements)) and (not FIsCustomFontColor) then begin
 		Font.Color := TDarkModeHelper.GetThemedTextColor;
 	end;
 end;
@@ -724,21 +726,20 @@ var
 	EditWnd : HWND;
 begin
 	// Handle our deferred deselect message
-	if (Message.Msg = WM_DESELECT_COMBO) and (not FAutoSelectOnFocus) then begin
+	if (message.Msg = WM_DESELECT_COMBO) and (not FAutoSelectOnFocus) then begin
 		EditWnd := FindWindowEx(Handle, 0, 'Edit', nil);
 		if EditWnd <> 0 then begin
 			SendMessage(EditWnd, EM_SETSEL, WPARAM(-1), 0);
-			TDebugUtils.DebugMessageFormat('TComboBox.WndProc WM_DESELECT_COMBO: Name=%s, deselected via EditWnd', [Name]);
+			TDebugUtils.DebugMessageFormat('TComboBox.WndProc WM_DESELECT_COMBO: Name=%s, deselected via EditWnd', [name]);
 		end;
 		Exit;
 	end;
 	inherited;
 	// After inherited processes text-changing messages, post a deferred deselect
 	if not FAutoSelectOnFocus then begin
-		case Message.Msg of
+		case message.Msg of
 			WM_SETTEXT, CB_SETCURSEL, CB_SELECTSTRING : begin
-				TDebugUtils.DebugMessageFormat('TComboBox.WndProc posting deselect: Name=%s, Msg=$%x, Text=%s',
-					[Name, Message.Msg, Text]);
+				TDebugUtils.DebugMessageFormat('TComboBox.WndProc posting deselect: Name=%s, Msg=$%x, Text=%s', [name, message.Msg, Text]);
 				PostMessage(Handle, WM_DESELECT_COMBO, 0, 0);
 			end;
 		end;
@@ -788,7 +789,7 @@ begin
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.WriteCtrlProxyToCtrls');
 
 	SetComboItemsAndText(cmbSearchText, FCtrlProxy.SearchText, FCtrlProxy.SearchTextHist);
-	
+
 	// Load context-specific search path items
 	var
 	contextSearchPathItems := FSearchPathHistByContext.GetForContext(FCtrlProxy.ExtensionContext);
@@ -802,25 +803,24 @@ begin
 	// Location path and would clobber the correct context path (e.g. "N paths (e.g. ...)"
 	// display label + raw multi-path FContextSearchPath). Only refresh from the proxy
 	// when we are in dicCustomLocation (or the context is unknown/uninitialised).
-	if (FCtrlProxy.ExtensionContext = EDelphiIDESearchContext.dicCustomLocation)
-		or (FCtrlProxy.ExtensionContext = EDelphiIDESearchContext.dicNotSet)
-		or FContextSearchPath.IsEmpty then begin
+	if (FCtrlProxy.ExtensionContext = EDelphiIDESearchContext.dicCustomLocation) or
+	{ } (FCtrlProxy.ExtensionContext = EDelphiIDESearchContext.dicNotSet) or
+	{ } FContextSearchPath.IsEmpty then begin
 		SetCmbSearchPathText(FCtrlProxy.SearchPath);
 	end else begin
 		dbgMsg.MsgFmt('Preserving context-set cmbSearchDir="%s" for context %d (FContextSearchPath length=%d); ignoring proxy SearchPath="%s"',
-			[cmbSearchDir.Text, Ord(FCtrlProxy.ExtensionContext), Length(FContextSearchPath), FCtrlProxy.SearchPath]);
+				[cmbSearchDir.Text, Ord(FCtrlProxy.ExtensionContext), Length(FContextSearchPath), FCtrlProxy.SearchPath]);
 	end;
 	SetComboItemsAndText(cmbReplaceText, FCtrlProxy.ReplaceText, FCtrlProxy.ReplaceTextHist);
 	SetComboItemsFromOptions(cmbFileMasks, FCtrlProxy.FileMasks, FCtrlProxy.FileMasksHist);
 	SetComboItemsAndText(cmbRgParamEncoding, FCtrlProxy.Encoding, FCtrlProxy.EncodingItems);
 	dbgMsg.MsgFmt('Encoding: proxy=%s, cbChecked=%s, cmbText=%s, cmbEnabled=%s',
-		[FCtrlProxy.Encoding, BoolToStr(cbRgParamEncoding.Checked, True),
-		cmbRgParamEncoding.Text, BoolToStr(cmbRgParamEncoding.Enabled, True)]);
+			[FCtrlProxy.Encoding, BoolToStr(cbRgParamEncoding.Checked, True),
+			{ } cmbRgParamEncoding.Text, BoolToStr(cmbRgParamEncoding.Enabled, True)]);
 	// Sync checkbox with combobox text via TCustomCheckItem
 	FRgFilterOptionsPanel.CheckOptionsGroup.GetItemByCaption(RG_FILTER_OPTION_ENCODING_CAPTION).ComboText := FCtrlProxy.Encoding;
-	dbgMsg.MsgFmt('After sync: cbChecked=%s, cmbText=%s, cmbEnabled=%s',
-		[BoolToStr(cbRgParamEncoding.Checked, True),
-		cmbRgParamEncoding.Text, BoolToStr(cmbRgParamEncoding.Enabled, True)]);
+	dbgMsg.MsgFmt('After sync: cbChecked=%s, cmbText=%s, cmbEnabled=%s', [BoolToStr(cbRgParamEncoding.Checked, True), cmbRgParamEncoding.Text,
+			BoolToStr(cmbRgParamEncoding.Enabled, True)]);
 	SetComboItemsAndText(cmbOutputFormat, FCtrlProxy.OutputFormat, FCtrlProxy.OutputFormatItems);
 
 	UpdateSearchOptionsBtns;
@@ -918,7 +918,7 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.SetComboItemsFromOptions(_cmb : Vcl.StdCtrls.TComboBox; const _argMaskRegex : string;
-	const _items : TArrayEx<string>);
+		const _items : TArrayEx<string>);
 var
 	params : TArray<string>;
 begin
@@ -949,23 +949,24 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.StoreCmbHistorieItems();
+var
+	searchPathToStore : string;
+	currentContext : EDelphiIDESearchContext;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.StoreCmbHistorieItems');
-	var
+
 	currentContext := FCtrlProxy.ExtensionContext;
 
 	ChangeHistoryItems(cmbSearchText, FCtrlProxy.SearchTextHist);
 
 	// Handle search path history per context
-	var
-	searchPathToStore : string;
-	if (not FContextSearchPath.IsEmpty) then begin
-		// cmbSearchDir is disabled, use the real path from context
-		searchPathToStore := FContextSearchPath;
-	end else if cmbSearchDir.Enabled then begin
-		// cmbSearchDir is enabled, use its text (custom location)
+	if cmbSearchDir.Enabled then begin
+		// dicCustomLocation: user may have typed a new path; FContextSearchPath may be stale
 		searchPathToStore := cmbSearchDir.Text;
+	end else if (not FContextSearchPath.IsEmpty) then begin
+		// IDE-context-driven path (disabled combo): use the full raw path from context
+		searchPathToStore := FContextSearchPath;
 	end;
 
 	// Guard: never persist the truncated display label (e.g. "85 paths (e.g. ...)") as a real path
@@ -1051,11 +1052,11 @@ begin
 
 	if cbRgParamEncoding.Checked and (cmbRgParamEncoding.Text <> '') then begin
 		dbgMsg.MsgFmt('Encoding SET: cbChecked=%s, cmbText=%s',
-			[BoolToStr(cbRgParamEncoding.Checked, True), cmbRgParamEncoding.Text]);
+				{ } [BoolToStr(cbRgParamEncoding.Checked, True), cmbRgParamEncoding.Text]);
 		FSettingsProxy.SetRgOptionWithValue(RG_PARAM_REGEX_ENCODING, cmbRgParamEncoding.Text, { bUnique } True);
 	end else begin
 		dbgMsg.MsgFmt('Encoding RESET: cbChecked=%s, cmbText=%s',
-			[BoolToStr(cbRgParamEncoding.Checked, True), cmbRgParamEncoding.Text]);
+				{ } [BoolToStr(cbRgParamEncoding.Checked, True), cmbRgParamEncoding.Text]);
 		FSettingsProxy.SetRgOption(RG_PARAM_REGEX_ENCODING, { bReset } True);
 	end;
 
@@ -1125,9 +1126,9 @@ begin
 	cmbReplaceText.Text := TOptionStrings.MaybeDeQuoteIfQuoted(sVal);
 
 	dbgMsg.MsgFmt('Hidden %s NoIgnore %s Pretty %s',
-		{ } [BoolToStr(cbRgParamHidden.Checked),
-		{ } BoolToStr(cbRgParamNoIgnore.Checked),
-		{ } BoolToStr(cbRgParamPretty.Checked)]);
+			{ } [BoolToStr(cbRgParamHidden.Checked),
+			{ } BoolToStr(cbRgParamNoIgnore.Checked),
+			{ } BoolToStr(cbRgParamPretty.Checked)]);
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateCheckBoxes;
@@ -1143,9 +1144,9 @@ begin
 	CopyProxyToCtrls();
 
 	dbgMsg.MsgFmt('cbHidden %s cbNoIgnore %s cbPretty %s',
-		{ } [BoolToStr(cbRgParamHidden.Checked),
-		{ } BoolToStr(cbRgParamNoIgnore.Checked),
-		{ } BoolToStr(cbRgParamPretty.Checked)]);
+			{ } [BoolToStr(cbRgParamHidden.Checked),
+			{ } BoolToStr(cbRgParamNoIgnore.Checked),
+			{ } BoolToStr(cbRgParamPretty.Checked)]);
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateMemoCommandLine(const _bSkipReadCtrls : Boolean = False);
@@ -1269,9 +1270,9 @@ begin
 	_ctrlProxy.Encoding := cmbRgParamEncoding.Text;
 	_ctrlProxy.OutputFormat := cmbOutputFormat.Text;
 	_ctrlProxy.SearchOptions := TSearchTextWithOptions.GetAsSearchOptionSet(
-		{ } tbMatchCase.Down,
-		{ } tbMatchWord.Down,
-		{ } tbUseRegex.Down);
+			{ } tbMatchCase.Down,
+			{ } tbMatchWord.Down,
+			{ } tbUseRegex.Down);
 end;
 
 procedure TRipGrepperSearchDialogForm.CopyItemsToProxy(var _arr : TArrayEx<string>; _setting : IArraySetting);
@@ -1283,7 +1284,7 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.CopySettingsToCtrlProxy(var _ctrlProxy : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;
-	_settings : TRipGrepperSettings);
+		_settings : TRipGrepperSettings);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.CopySettingsToCtrlProxy');
@@ -1331,6 +1332,8 @@ begin
 		_ctrlProxy.IsReplaceMode := FSettings.IsReplaceMode;
 
 		_ctrlProxy.SearchPath := _ctrlProxy.SearchPathHist.SafeItem[0];
+		dbgMsg.Msg('SearchPath: from history: ' + _ctrlProxy.SearchPath);
+
 		_ctrlProxy.FileMasks := _ctrlProxy.FileMasksHist.SafeItem[0];
 
 		_ctrlProxy.IsHiddenChecked := FSettings.SearchFormSettings.Hidden.Value;
@@ -1346,14 +1349,14 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.CopyProxyToSettings(const _ctrlProxy : TSearchFormCtrlValueProxy; _histObj : IHistoryItemObject;
-	_settings : TRipGrepperSettings);
+		_settings : TRipGrepperSettings);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.CopyProxyToSettings');
 
 	FSettings.SearchTextsHistory.Value := GetMaxCountHistoryItems(_ctrlProxy.SearchTextHist);
 	FSettings.ReplaceTextsHistory.Value := GetMaxCountHistoryItems(_ctrlProxy.ReplaceTextHist);
-	
+
 	// Only save Custom Location search paths to persistent history
 	var
 	customLocationPaths := FSearchPathHistByContext.GetForContext(EDelphiIDESearchContext.dicCustomLocation);
@@ -1429,7 +1432,7 @@ begin
 end;
 
 function TRipGrepperSearchDialogForm.GetValuesFromHistObjRipGrepArguments(const _argName : string; const _separator : string = ' ')
-	: string;
+		: string;
 begin
 	Result := string.Join(_separator, FHistItemObj.RipGrepArguments.GetValues(_argName));
 end;
@@ -1479,7 +1482,7 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.LoadExtensionSearchSettings');
 	dbgMsg.MsgFmt('ExtensionSettings.IsAlreadyRead=%s', [
-		{ } BoolToStr(FSettings.SearchFormSettings.ExtensionSettings.IsAlreadyRead)]);
+			{ } BoolToStr(FSettings.SearchFormSettings.ExtensionSettings.IsAlreadyRead)]);
 	var
 	selectedText := GetInIDESelectedText;
 	if not HasHistItemObjWithResult then begin
@@ -1552,17 +1555,23 @@ var
 	displayText : string;
 	paths : TArray<string>;
 begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.SetCmbSearchPathText');
 	FContextSearchPath := _sPath;
+	dbgMsg.Msg('FContextSearchPath=' + FContextSearchPath);
+
 	if _sPath.Length > MAX_COMBO_DISPLAY_LENGTH then begin
 		paths := _sPath.Split([';']);
 		displayText := Format('%d paths (e.g. %s)', [Length(paths), paths[0]]);
 		cmbSearchDir.Text := displayText;
 		cmbSearchDir.Hint := GetTruncatedHint(paths);
+		dbgMsg.MsgFmt('Truncated display: %s, Hint: %s', [displayText, cmbSearchDir.Hint]);
 	end else begin
 		cmbSearchDir.Text := _sPath;
 		cmbSearchDir.Hint := _sPath.Replace(';', sLineBreak);
+		dbgMsg.MsgFmt('Full display: %s, Hint: %s', [cmbSearchDir.Text, cmbSearchDir.Hint]);
 	end;
-	TDebugUtils.Msg('cmbSearchDir.Text=' + cmbSearchDir.Text);
+	dbgMsg.Msg('cmbSearchDir.Text=' + cmbSearchDir.Text);
 end;
 
 function TRipGrepperSearchDialogForm.GetTruncatedHint(const _paths : TArray<string>) : string;
@@ -1624,16 +1633,20 @@ begin
 					Continue;
 				end;
 				// If the path is a file, use its parent directory
-				var checkPath := trimmedPath;
+				var
+				checkPath := trimmedPath;
 				if TFile.Exists(checkPath) then begin
 					checkPath := TPath.GetDirectoryName(checkPath);
 					dbgMsg.MsgFmt('Path is file, using parent dir: %s -> %s', [trimmedPath, checkPath]);
 				end;
 				// Normalize: ensure trailing backslash for proper boundary matching
-				var pathLower := IncludeTrailingPathDelimiter(checkPath).ToLower();
-				var found := False;
+				var
+				pathLower := IncludeTrailingPathDelimiter(checkPath).ToLower();
+				var
+				found := False;
 				for var knownPath in knownPaths.Items do begin
-					var knownLower := IncludeTrailingPathDelimiter(knownPath).ToLower();
+					var
+					knownLower := IncludeTrailingPathDelimiter(knownPath).ToLower();
 					// Path is valid if it is inside a known dir or a known dir is inside it
 					if pathLower.StartsWith(knownLower) or knownLower.StartsWith(pathLower) then begin
 						found := True;
@@ -1651,7 +1664,6 @@ begin
 	end;
 	dbgMsg.MsgFmt('isOutside=%s', [BoolToStr(isOutside, True)]);
 	{$ENDIF}
-
 	if isOutside then begin
 		lblPaths.IconHint := 'One or more search paths are not part of the project files or unit search paths.';
 		lblPaths.IconType := iltWarning;
@@ -1688,7 +1700,7 @@ begin
 	end;
 
 	dbgMsg.MsgFmt('TopPanelHeight=%d (fullHeight=%d, replaceHeight=%d, ReplaceMode=%s)',
-		[Result, FTopPanelFullHeight, replaceTextFullHeight, BoolToStr(IsReplaceLayout(), True)]);
+			{ } [Result, FTopPanelFullHeight, replaceTextFullHeight, BoolToStr(IsReplaceLayout(), True)]);
 end;
 
 function TRipGrepperSearchDialogForm.CalculateGbOptionsFiltersHeight(const _bIsExpert : Boolean) : Integer;
@@ -1743,7 +1755,7 @@ begin
 	end;
 
 	dbgMsg.MsgFmt('GbOptionsOutputHeight=%d (caption=%d, padding=%d+%d, border=%d, content=%d)',
-		[Result, GB_CAPTION_HEIGHT, gbOptionsOutput.Padding.Top, gbOptionsOutput.Padding.Bottom, GB_BORDER_BOTTOM, contentHeight]);
+			[Result, GB_CAPTION_HEIGHT, gbOptionsOutput.Padding.Top, gbOptionsOutput.Padding.Bottom, GB_BORDER_BOTTOM, contentHeight]);
 end;
 
 function TRipGrepperSearchDialogForm.CalculateFormHeight(const _bIsExpert : Boolean) : Integer;
@@ -1763,8 +1775,8 @@ begin
 	var
 	gbOptionsOutputHeight := GetFullHeight(gbOptionsOutput);
 	dbgMsg.MsgFmt('gbOptionsOutput.Height=%d, Margins.Top=%d, Margins.Bottom=%d, GetFullHeight=%d',
-		[gbOptionsOutput.Height, gbOptionsOutput.Margins.Top,
-		{ } gbOptionsOutput.Margins.Bottom, gbOptionsOutputHeight]);
+			[gbOptionsOutput.Height, gbOptionsOutput.Margins.Top,
+			{ } gbOptionsOutput.Margins.Bottom, gbOptionsOutputHeight]);
 
 	// Base form height (without expert group box)
 	// pnlMiddle uses alClient, so we calculate based on its contents
@@ -1779,7 +1791,7 @@ begin
 		var
 		expertHeight := GB_EXPERT_DESIGNED_HEIGHT + gbExpert.Margins.Top + gbExpert.Margins.Bottom;
 		dbgMsg.MsgFmt('Adding gbExpert: DesignedHeight=%d, Margins.Top=%d, Margins.Bottom=%d, Total=%d',
-			[GB_EXPERT_DESIGNED_HEIGHT, gbExpert.Margins.Top, gbExpert.Margins.Bottom, expertHeight]);
+				[GB_EXPERT_DESIGNED_HEIGHT, gbExpert.Margins.Top, gbExpert.Margins.Bottom, expertHeight]);
 		pnlMiddleContentHeight := pnlMiddleContentHeight + expertHeight;
 	end;
 
@@ -1798,8 +1810,8 @@ begin
 	{ } nonClientHeight;
 
 	dbgMsg.MsgFmt('FormHeight=%d (top=%d, filters=%d, output=%d, bottom=%d, nonClient=%d, expert=%s)',
-		[Result, topPanelHeight, gbOptionsFiltersHeight, gbOptionsOutputHeight, PanelBottom.Height, nonClientHeight,
-		BoolToStr(_bIsExpert, True)]);
+			[Result, topPanelHeight, gbOptionsFiltersHeight, gbOptionsOutputHeight, PanelBottom.Height, nonClientHeight,
+			BoolToStr(_bIsExpert, True)]);
 end;
 
 procedure TRipGrepperSearchDialogForm.ApplyLayout(const _bIsExpert : Boolean);
@@ -1812,7 +1824,7 @@ begin
 	// Calculate heights dynamically
 	gbOptionsFilters.Height := CalculateGbOptionsFiltersHeight(_bIsExpert);
 	dbgMsg.MsgFmt('Set gbOptionsFilters.Height=%d (actual after set: %d)', [CalculateGbOptionsFiltersHeight(_bIsExpert),
-		gbOptionsFilters.Height]);
+			gbOptionsFilters.Height]);
 
 	// Set gbOptionsOutput height based on its content
 	gbOptionsOutput.Height := CalculateGbOptionsOutputHeight();
@@ -1824,7 +1836,7 @@ begin
 	// Show/hide expert controls
 	ShowExpertGroupCtrls(_bIsExpert);
 	dbgMsg.MsgFmt('After ShowExpertGroupCtrls, gbExpert.Visible=%s, gbExpert.Height=%d',
-		[BoolToStr(gbExpert.Visible, True), gbExpert.Height]);
+			[BoolToStr(gbExpert.Visible, True), gbExpert.Height]);
 
 	// Set form constraints and height based on mode
 	if _bIsExpert then begin
@@ -1844,10 +1856,10 @@ begin
 
 	// Final check of all control positions/heights
 	dbgMsg.MsgFmt('FINAL: gbOptionsFilters.Height=%d, gbOptionsOutput.Top=%d, gbOptionsOutput.Height=%d, pnlMiddle.Height=%d',
-		[gbOptionsFilters.Height, gbOptionsOutput.Top, gbOptionsOutput.Height, pnlMiddle.Height]);
+			[gbOptionsFilters.Height, gbOptionsOutput.Top, gbOptionsOutput.Height, pnlMiddle.Height]);
 
 	dbgMsg.MsgFmt('Layout applied: Expert=%s, gbOptionsFilters.Height=%d, Form.Height=%d',
-		[BoolToStr(_bIsExpert, True), gbOptionsFilters.Height, Height]);
+			[BoolToStr(_bIsExpert, True), gbOptionsFilters.Height, Height]);
 end;
 
 class procedure TRipGrepperSearchDialogForm.SetReplaceText(_settings : TRipGrepperSettings; const _replaceText : string);
@@ -1875,8 +1887,8 @@ begin
 end;
 
 class function TRipGrepperSearchDialogForm.ShowSearchForm(_owner : TComponent;
-	{ } _settings : TRipGrepperSettings;
-	{ } _histObj : IHistoryItemObject) : integer;
+		{ } _settings : TRipGrepperSettings;
+		{ } _histObj : IHistoryItemObject) : integer;
 var
 	frm : TRipGrepperSearchDialogForm;
 begin
@@ -1892,8 +1904,7 @@ begin
 			_settings.LastSearchText := _histObj.SearchText;
 			TRipGrepperSearchDialogForm.SetReplaceText(_settings, _histObj.ReplaceText);
 			dbgMsg.MsgFmtIf(_histObj.SearchText <> _histObj.GuiSearchTextParams.GetSearchText,
-				{ } 'ERROR? _histObj.SearchText=%s <> GuiSearchTextParams=%s',
-				[_histObj.SearchText, _histObj.GuiSearchTextParams.GetSearchText]);
+					{ } 'ERROR? _histObj.SearchText=%s <> GuiSearchTextParams=%s', [_histObj.SearchText, _histObj.GuiSearchTextParams.GetSearchText]);
 		end;
 		dbgMsg.Msg('LastSearchText=' + _settings.LastSearchText);
 	finally
@@ -1937,10 +1948,10 @@ begin
 	if not bSkipp then begin
 		var
 		dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.UpdateCmbsOnIDEContextChange');
-		
+
 		// Save current path to the old context's in-memory history before switching
 		var
-		currentPathToSave : string;
+			currentPathToSave : string;
 		if (not FContextSearchPath.IsEmpty) then begin
 			currentPathToSave := FContextSearchPath;
 		end else if cmbSearchDir.Enabled then begin
@@ -1954,11 +1965,10 @@ begin
 			dbgMsg.MsgFmt('Saving path for old context %d before switch: %s', [Ord(FCtrlProxy.ExtensionContext), currentPathToSave]);
 			FSearchPathHistByContext.StorePathForContext(FCtrlProxy.ExtensionContext, currentPathToSave);
 		end;
-		
+
 		cmbSearchDir.Enabled := False;
 		if _icv.GetContextType() = dicNotSet then begin
-			dbgMsg.WarningMsgFmt('Extension IDE Context not supported :%d. fallback to custom locations:',
-				[Ord(FCtrlProxy.ExtensionContext)]);
+			dbgMsg.WarningMsgFmt('Extension IDE Context not supported :%d. fallback to custom locations:', [Ord(FCtrlProxy.ExtensionContext)]);
 			FCtrlProxy.ExtensionContext := EDelphiIDESearchContext.dicCustomLocation;
 		end else begin
 			FCtrlProxy.ExtensionContext := _icv.GetContextType();
@@ -1981,8 +1991,7 @@ begin
 				ideContextItems := FSearchPathHistByContext.GetForContext(FCtrlProxy.ExtensionContext);
 				cmbSearchDir.Items.Clear;
 				cmbSearchDir.Items.AddStrings(ideContextItems.Items);
-				dbgMsg.MsgFmt('Loaded %d items from IDE context %d',
-					[ideContextItems.Count, Ord(FCtrlProxy.ExtensionContext)]);
+				dbgMsg.MsgFmt('Loaded %d items from IDE context %d', [ideContextItems.Count, Ord(FCtrlProxy.ExtensionContext)]);
 				// SetCmbSearchPathText sets FContextSearchPath := contextValue (full raw path)
 				// and applies truncated display text if needed
 				SetCmbSearchPathText(contextValue);
@@ -2116,7 +2125,7 @@ begin
 end;
 
 procedure TRipGrepperSearchDialogForm.CopyProxyToSearchFormSettings(const _ctrlProxy : TSearchFormCtrlValueProxy;
-	const _settings : TSearchFormSettings);
+		const _settings : TSearchFormSettings);
 begin
 	_settings.Hidden.Value := _ctrlProxy.IsHiddenChecked;
 	_settings.NoIgnore.Value := _ctrlProxy.IsNoIgnoreChecked;
@@ -2140,10 +2149,10 @@ begin
 	FHistItemObj.GuiSearchTextParams.Copy(FSettingsProxy);
 	FHistItemObj.IsExpertMode := FIsExpertMode;
 	dbgMsg.MsgFmt('Copied settings to HistObj: SearchFormSettings=%s, ' + CRLF +
-		{ } ' RipGrepArguments count=%d, ' + CRLF +
-		{ } ' GuiSearchTextParams=%s, ' + CRLF +
-		{ } ' IsExpertMode=%s', [FHistItemObj.SearchFormSettings.ToLogString, FHistItemObj.RipGrepArguments.Count,
-		{ } FHistItemObj.GuiSearchTextParams.ToString, BoolToStr(FHistItemObj.IsExpertMode, True)]);
+			{ } ' RipGrepArguments count=%d, ' + CRLF +
+			{ } ' GuiSearchTextParams=%s, ' + CRLF +
+			{ } ' IsExpertMode=%s', [FHistItemObj.SearchFormSettings.ToLogString, FHistItemObj.RipGrepArguments.Count,
+			{ } FHistItemObj.GuiSearchTextParams.ToString, BoolToStr(FHistItemObj.IsExpertMode, True)]);
 end;
 
 function TRipGrepperSearchDialogForm.GetMaxCountHistoryItems(const _arr : TArrayEx<string>) : TArrayEx<string>;
@@ -2165,7 +2174,7 @@ begin
 	{ } gbOptionsFilters.Padding.Bottom;
 
 	dbgMsg.MsgFmt('Base options height=%d (pnlPath=%d, pnlRgFilterOptions=%d)',
-		[Result, GetFullHeight(pnlPath), GetFullHeight(pnlRgFilterOptions)]);
+			[Result, GetFullHeight(pnlPath), GetFullHeight(pnlRgFilterOptions)]);
 end;
 
 procedure TRipGrepperSearchDialogForm.LoadOldHistorySearchSettings;
@@ -2233,8 +2242,8 @@ procedure TRipGrepperSearchDialogForm.OnEncodingComboBoxChange(Sender : TObject)
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperSearchDialogForm.OnEncodingComboBoxChange');
-	dbgMsg.MsgFmt('FShowing=%s, cbChecked=%s, cmbText=%s',
-		[BoolToStr(FShowing, True), BoolToStr(cbRgParamEncoding.Checked, True), cmbRgParamEncoding.Text]);
+	dbgMsg.MsgFmt('FShowing=%s, cbChecked=%s, cmbText=%s', [BoolToStr(FShowing, True), BoolToStr(cbRgParamEncoding.Checked, True),
+			cmbRgParamEncoding.Text]);
 
 	UpdateCtrls(cmbRgParamEncoding);
 end;
@@ -2348,7 +2357,7 @@ begin
 		{ } FExtensionContextPanel.Margins.Bottom;
 
 		dbgMsg.MsgFmt('ExtensionPanel Height=%d (visible=%s, expert=%s)',
-			[FExtensionContextPanel.Height, BoolToStr(FExtensionContextPanel.Visible, True), BoolToStr(_bIsExpert, True)]);
+				[FExtensionContextPanel.Height, BoolToStr(FExtensionContextPanel.Visible, True), BoolToStr(_bIsExpert, True)]);
 	end;
 end;
 
@@ -2426,7 +2435,7 @@ begin
 
 	if not Assigned(FRegexTemplateMenu) then begin
 		FRegexTemplateMenu := TRegexTemplateMenu.Create(PopupMenuRegexTemplates, FRegexTemplateManager,
-			FSettings.SearchFormSettings.RegexTemplates, FSettings.AppSettings.ColorTheme);
+				FSettings.SearchFormSettings.RegexTemplates, FSettings.AppSettings.ColorTheme);
 		FRegexTemplateMenu.OnTemplateSelected := OnRegexTemplateSelected;
 	end;
 
