@@ -1,18 +1,18 @@
 inherited ColorSettingsForm: TColorSettingsForm
   Caption = 'Fonts and Colors'
-  ClientHeight = 508
+  ClientHeight = 567
   ClientWidth = 660
   Color = clBtnFace
   OnShow = FormShow
   TextHeight = 15
   inherited PanelBottom: TPanel
-    Top = 463
+    Top = 522
     Width = 660
     TabOrder = 3
   end
   object pnlBottom: TPanel [1]
     Left = 0
-    Top = 422
+    Top = 481
     Width = 660
     Height = 41
     Align = alBottom
@@ -32,9 +32,9 @@ inherited ColorSettingsForm: TColorSettingsForm
   end
   object pnlTop: TPanel [2]
     Left = 0
-    Top = 280
+    Top = 310
     Width = 660
-    Height = 142
+    Height = 171
     Align = alClient
     BevelOuter = bvNone
     ShowCaption = False
@@ -45,7 +45,7 @@ inherited ColorSettingsForm: TColorSettingsForm
       Left = 3
       Top = 3
       Width = 654
-      Height = 136
+      Height = 165
       Align = alClient
       Caption = 'Fonts && Colors'
       TabOrder = 0
@@ -53,7 +53,7 @@ inherited ColorSettingsForm: TColorSettingsForm
         Left = 2
         Top = 17
         Width = 650
-        Height = 117
+        Height = 146
         Align = alClient
         BevelInner = bvNone
         BevelOuter = bvNone
@@ -66,7 +66,7 @@ inherited ColorSettingsForm: TColorSettingsForm
     Left = 0
     Top = 0
     Width = 660
-    Height = 280
+    Height = 310
     Align = alTop
     BevelOuter = bvNone
     ShowCaption = False
@@ -89,7 +89,7 @@ inherited ColorSettingsForm: TColorSettingsForm
     object grpDateColumns: TGroupBox
       AlignWithMargins = True
       Left = 3
-      Top = 167
+      Top = 196
       Width = 654
       Height = 110
       Align = alTop
@@ -154,10 +154,17 @@ inherited ColorSettingsForm: TColorSettingsForm
       Left = 3
       Top = 87
       Width = 654
-      Height = 74
+      Height = 103
       Align = alTop
       Caption = 'File'
       TabOrder = 2
+      object lblLineHint: TLabel
+        Left = 16
+        Top = 39
+        Width = 120
+        Height = 15
+        Caption = 'Show line context hint:'
+      end
       object cbShowFileHint: TCheckBox
         Left = 16
         Top = 19
@@ -169,25 +176,38 @@ inherited ColorSettingsForm: TColorSettingsForm
         State = cbChecked
         TabOrder = 0
       end
+      object seShowLineHint: TSpinEdit
+        Left = 142
+        Top = 35
+        Width = 73
+        Height = 24
+        Hint = 
+          'Number of context lines shown for match hints. 0 disables contex' +
+          't, 1 shows one line before and after the match.'
+        MaxValue = 50
+        MinValue = 0
+        TabOrder = 1
+        Value = 0
+      end
       object cbShowFileErrorColor: TCheckBox
         Left = 16
-        Top = 35
+        Top = 60
         Width = 280
         Height = 17
         Hint = 'Use error color for files that do not exist'
         Caption = 'Error color for missing files'
-        TabOrder = 1
+        TabOrder = 2
       end
       object cbShowFileWarningColor: TCheckBox
         Left = 16
-        Top = 51
+        Top = 81
         Width = 280
         Height = 17
         Hint = 
           'Use warning color for files outside the project path (Extension ' +
           'only)'
         Caption = 'Warning color for files outside project'
-        TabOrder = 2
+        TabOrder = 3
       end
     end
   end

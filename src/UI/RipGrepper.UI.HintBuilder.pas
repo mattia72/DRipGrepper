@@ -26,7 +26,10 @@ type
 			// Build the hint text for file-level nodes (full path, size, attributes, SC info)
 			class function BuildFileNodeHint(const _filePath : string; const _showRelativePath : Boolean; const _dateFormat : string) : string;
 			// Build the hint text for match-level nodes (file:row:col summary + full line)
-			class function BuildMatchNodeHint(const _nodeData : PVSFileNodeData) : string;
+			class function BuildMatchNodeHint(const _nodeData : PVSFileNodeData; const _filePath : string = '') : string;
+			// Build the hint text for match-level nodes with optional context around the match line
+			class function BuildMatchNodeHintWithContext(const _nodeData : PVSFileNodeData; const _contextLines : Integer;
+				const _filePath : string = '') : string;
 	end;
 
 implementation
@@ -34,6 +37,7 @@ implementation
 uses
 	System.IOUtils,
 	System.Classes,
+	System.Math,
 	Winapi.Windows,
 	System.StrUtils,
 	u_dzConvertUtils,
@@ -290,21 +294,106 @@ begin
 	Result := string.Join(#13#10, lines);
 end;
 
-class function TFileHintBuilder.BuildMatchNodeHint(const _nodeData : PVSFileNodeData) : string;
+class function TFileHintBuilder.BuildMatchNodeHint(const _nodeData : PVSFileNodeData; const _filePath : string = '') : string;
+var
+	effectiveFilePath : string;
 begin
 	Result := '';
 	if _nodeData = nil then begin
 		Exit;
 	end;
 
+	effectiveFilePath := _filePath;
+	if effectiveFilePath.IsEmpty then begin
+		effectiveFilePath := _nodeData.FilePath;
+	end;
+
 	// Show full location: file:row:col and the full line text
-	if (not _nodeData.FilePath.IsEmpty) and (_nodeData.MatchData.Row > 0) then begin
-		Result := Format('%s:%d:%d', [_nodeData.FilePath, _nodeData.MatchData.Row, _nodeData.MatchData.ColBegin]);
+	if (not effectiveFilePath.IsEmpty) and (_nodeData.MatchData.Row > 0) then begin
+		Result := Format('%s:%d:%d', [effectiveFilePath, _nodeData.MatchData.Row, _nodeData.MatchData.ColBegin]);
 		if not _nodeData.MatchData.LineText.IsEmpty then begin
 			Result := Result + #13#10 + _nodeData.MatchData.LineText;
 		end;
 	end else if not _nodeData.MatchData.LineText.IsEmpty then begin
 		Result := _nodeData.MatchData.LineText;
+	end;
+end;
+
+class function TFileHintBuilder.BuildMatchNodeHintWithContext(const _nodeData : PVSFileNodeData; const _contextLines : Integer;
+	const _filePath : string = '') : string;
+var
+	contextLines : Integer;
+	lines : TStringList;
+	startLine, endLine, lineNumber : Integer;
+	lineText : string;
+	fileLines : TArray<string>;
+	effectiveFilePath : string;
+begin
+	Result := '';
+	if _nodeData = nil then begin
+		Exit;
+	end;
+
+	effectiveFilePath := _filePath;
+	if effectiveFilePath.IsEmpty then begin
+		effectiveFilePath := _nodeData.FilePath;
+	end;
+
+	if _contextLines <= 0 then begin
+		Result := BuildMatchNodeHint(_nodeData, effectiveFilePath);
+		Exit;
+	end;
+
+	if effectiveFilePath.IsEmpty or (_nodeData.MatchData.Row <= 0) then begin
+		Result := BuildMatchNodeHint(_nodeData, effectiveFilePath);
+		Exit;
+	end;
+
+	contextLines := _contextLines;
+	if contextLines > 50 then begin
+		contextLines := 50;
+	end;
+
+	try
+		if not FileExists(effectiveFilePath) then begin
+			Result := BuildMatchNodeHint(_nodeData, effectiveFilePath);
+			Exit;
+		end;
+
+		fileLines := TFile.ReadAllLines(effectiveFilePath);
+		if Length(fileLines) = 0 then begin
+			Result := BuildMatchNodeHint(_nodeData, effectiveFilePath);
+			Exit;
+		end;
+
+		if _nodeData.MatchData.Row > Length(fileLines) then begin
+			Result := BuildMatchNodeHint(_nodeData, effectiveFilePath);
+			Exit;
+		end;
+
+		lines := TStringList.Create;
+		try
+			lines.Add(Format('%s:%d:%d', [effectiveFilePath, _nodeData.MatchData.Row, _nodeData.MatchData.ColBegin]));
+			startLine := Max(1, _nodeData.MatchData.Row - contextLines);
+			endLine := Min(Length(fileLines), _nodeData.MatchData.Row + contextLines);
+			for lineNumber := startLine to endLine do begin
+				lineText := '';
+				if lineNumber <= Length(fileLines) then begin
+					lineText := fileLines[lineNumber - 1];
+				end;
+				if lineNumber = _nodeData.MatchData.Row then begin
+					lines.Add(Format('> %5d: %s', [lineNumber, lineText]));
+				end else begin
+					lines.Add(Format('  %5d: %s', [lineNumber, lineText]));
+				end;
+			end;
+			Result := lines.Text;
+		finally
+			lines.Free;
+		end;
+	except
+		on E : Exception do
+			Result := BuildMatchNodeHint(_nodeData, effectiveFilePath);
 	end;
 end;
 

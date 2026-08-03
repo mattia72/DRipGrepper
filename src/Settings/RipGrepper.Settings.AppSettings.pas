@@ -85,6 +85,7 @@ type
 			procedure SetLogFileCreationMode(const Value : ELogFileCreationMode);
 			procedure SetLogDestinations(const Value : TLogDestinations);
 			procedure SetShowFileHint(const Value : Boolean);
+      procedure SetCheckNewVersionOnStartup(const Value : Boolean);
 		procedure SetShowLineHint(const Value : Integer);
 
 		protected
