@@ -7,6 +7,9 @@ uses
 	Spring,
 	RipGrepper.Common.NodeData;
 
+const
+	MAX_CONTEXT = 10;
+
 type
 	TFileHintBuilder = class
 		private
@@ -26,10 +29,11 @@ type
 			// Build the hint text for file-level nodes (full path, size, attributes, SC info)
 			class function BuildFileNodeHint(const _filePath : string; const _showRelativePath : Boolean; const _dateFormat : string) : string;
 			// Build the hint text for match-level nodes (file:row:col summary + full line)
-			class function BuildMatchNodeHint(const _nodeData : PVSFileNodeData; const _filePath : string = '') : string;
+			class function BuildMatchNodeHint(const _nodeData: PVSFileNodeData; const
+					_filePath: string): string;
 			// Build the hint text for match-level nodes with optional context around the match line
-			class function BuildMatchNodeHintWithContext(const _nodeData : PVSFileNodeData; const _contextLines : Integer;
-				const _filePath : string = '') : string;
+			class function BuildMatchNodeHintWithContext(const _nodeData: PVSFileNodeData;
+					const _contextLines: Integer; const _filePath: string): string;
 	end;
 
 implementation
@@ -294,7 +298,8 @@ begin
 	Result := string.Join(#13#10, lines);
 end;
 
-class function TFileHintBuilder.BuildMatchNodeHint(const _nodeData : PVSFileNodeData; const _filePath : string = '') : string;
+class function TFileHintBuilder.BuildMatchNodeHint(const _nodeData:
+		PVSFileNodeData; const _filePath: string): string;
 var
 	effectiveFilePath : string;
 begin
@@ -319,61 +324,51 @@ begin
 	end;
 end;
 
-class function TFileHintBuilder.BuildMatchNodeHintWithContext(const _nodeData : PVSFileNodeData; const _contextLines : Integer;
-	const _filePath : string = '') : string;
+class function TFileHintBuilder.BuildMatchNodeHintWithContext(const _nodeData:
+		PVSFileNodeData; const _contextLines: Integer; const _filePath: string):
+		string;
 var
 	contextLines : Integer;
 	lines : TStringList;
 	startLine, endLine, lineNumber : Integer;
 	lineText : string;
 	fileLines : TArray<string>;
-	effectiveFilePath : string;
 begin
 	Result := '';
 	if _nodeData = nil then begin
 		Exit;
 	end;
 
-	effectiveFilePath := _filePath;
-	if effectiveFilePath.IsEmpty then begin
-		effectiveFilePath := _nodeData.FilePath;
-	end;
-
 	if _contextLines <= 0 then begin
-		Result := BuildMatchNodeHint(_nodeData, effectiveFilePath);
-		Exit;
-	end;
-
-	if effectiveFilePath.IsEmpty or (_nodeData.MatchData.Row <= 0) then begin
-		Result := BuildMatchNodeHint(_nodeData, effectiveFilePath);
+		Result := BuildMatchNodeHint(_nodeData, _filePath);
 		Exit;
 	end;
 
 	contextLines := _contextLines;
-	if contextLines > 50 then begin
-		contextLines := 50;
+	if contextLines > MAX_CONTEXT then begin
+		contextLines := MAX_CONTEXT;
 	end;
 
 	try
-		if not FileExists(effectiveFilePath) then begin
-			Result := BuildMatchNodeHint(_nodeData, effectiveFilePath);
+		if not FileExists(_filePath) then begin
+			Result := BuildMatchNodeHint(_nodeData, _filePath);
 			Exit;
 		end;
 
-		fileLines := TFile.ReadAllLines(effectiveFilePath);
+		fileLines := TFile.ReadAllLines(_filePath);
 		if Length(fileLines) = 0 then begin
-			Result := BuildMatchNodeHint(_nodeData, effectiveFilePath);
+			Result := BuildMatchNodeHint(_nodeData, _filePath);
 			Exit;
 		end;
 
 		if _nodeData.MatchData.Row > Length(fileLines) then begin
-			Result := BuildMatchNodeHint(_nodeData, effectiveFilePath);
+			Result := BuildMatchNodeHint(_nodeData, _filePath);
 			Exit;
 		end;
 
 		lines := TStringList.Create;
 		try
-			lines.Add(Format('%s:%d:%d', [effectiveFilePath, _nodeData.MatchData.Row, _nodeData.MatchData.ColBegin]));
+			lines.Add(Format('%s:%d:%d', [_filePath, _nodeData.MatchData.Row, _nodeData.MatchData.ColBegin]));
 			startLine := Max(1, _nodeData.MatchData.Row - contextLines);
 			endLine := Min(Length(fileLines), _nodeData.MatchData.Row + contextLines);
 			for lineNumber := startLine to endLine do begin
@@ -393,7 +388,7 @@ begin
 		end;
 	except
 		on E : Exception do
-			Result := BuildMatchNodeHint(_nodeData, effectiveFilePath);
+			Result := BuildMatchNodeHint(_nodeData, _filePath);
 	end;
 end;
 

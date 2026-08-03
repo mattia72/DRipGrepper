@@ -513,8 +513,8 @@ begin
 	Inc(FSliceNum);
 	ec := HistItemObject.GetErrorCounters();
 	dbgMsg.MsgFmt('Slice=%d/%d, ParserErrors=%d, NoOutputSlices=%d, IsRGError=%s, TotalMatch=%d, FileCount=%d',
-		[FSliceNum, FSliceCount, ec.FParserErrors, ec.FNoOutputSliceCount, BoolToStr(ec.FIsRGReportedError, True),
-		Data.TotalMatchCount, Data.FileCount]);
+			[FSliceNum, FSliceCount, ec.FParserErrors, ec.FNoOutputSliceCount, BoolToStr(ec.FIsRGReportedError, True), Data.TotalMatchCount,
+			Data.FileCount]);
 	if FSliceNum = FSliceCount then begin
 		if ec.FParserErrors > 0 then begin
 			TAsyncMsgBox.ShowWarning(RG_PARSE_ERROR_MSG);
@@ -1081,8 +1081,8 @@ begin
 				for var i := 0 to argsArrs.MaxIndex do begin
 					args.Clear;
 					args.AddStrings(argsArrs[i]);
-					dbgMsg.MsgFmt('slice %d/%d, args count=%d, cmdLen=%d',
-						[i + 1, argsArrs.Count, args.Count, TProcessUtils.GetCommandLineLength(rgPath, args)]);
+					dbgMsg.MsgFmt('slice %d/%d, args count=%d, cmdLen=%d', [i + 1, argsArrs.Count, args.Count,
+							TProcessUtils.GetCommandLineLength(rgPath, args)]);
 					if i < argsArrs.MaxIndex then begin
 						// Command line was too long, run in separate processes (xargs-like)
 						sliceResult := TProcessUtils.RunProcess(
@@ -1795,7 +1795,7 @@ begin
 
 	LineBreakStyle := hlbForceMultiLine;
 	nodeData := VstResult.GetNodeData(Node);
-	filePath := nodeData.FilePath;
+	filePath := GetFilePathFromNode(Node);
 
 	if Node.Parent = VstResult.RootNode then begin
 		// File node
@@ -1821,20 +1821,12 @@ begin
 					end;
 				end;
 			end;
-			COL_MATCH_TEXT : begin
-				HintText := nodeData.MatchData.LineText.Trim;
-			end;
 		end;
 	end else begin
-		// Match node
+		// Matching text node
 		case Column of
-			COL_FILE, COL_ROW_NUM, COL_COL_NUM : begin
-				if Settings.AppSettings.ShowFileHint then begin
-					HintText := TFileHintBuilder.BuildMatchNodeHint(nodeData);
-				end;
-			end;
-			COL_MATCH_TEXT : begin
-				HintText := nodeData.MatchData.LineText.Trim;
+			COL_FILE, COL_ROW_NUM, COL_COL_NUM, COL_MATCH_TEXT : begin
+				HintText := TFileHintBuilder.BuildMatchNodeHintWithContext(nodeData, Settings.AppSettings.ShowLineHint, filePath);
 			end;
 		end;
 	end;
@@ -1858,11 +1850,13 @@ begin
 					filePath := nodeData.FilePath;
 					if Settings.NodeLookSettings.ShowFileErrorColor and (not FileExists(filePath)) then begin
 						TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileErrorText, false);
-					end else
+					end
+					else
 						{$IF IS_EXTENSION}
 						if Settings.NodeLookSettings.ShowFileWarningColor and (not IsInProject(filePath)) then begin
 							TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileWarningText, false);
-					end else
+						end
+						else
 						{$ENDIF}
 						begin
 							TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.FileText, false);
