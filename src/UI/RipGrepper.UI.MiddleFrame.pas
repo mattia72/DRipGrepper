@@ -1826,7 +1826,7 @@ begin
 			end;
 		end;
 	end else begin
-		// Match node
+		// Matching line node
 		case Column of
 			COL_FILE, COL_ROW_NUM, COL_COL_NUM : begin
 				if Settings.AppSettings.ShowFileHint then begin
@@ -1834,7 +1834,11 @@ begin
 				end;
 			end;
 			COL_MATCH_TEXT : begin
-				HintText := nodeData.MatchData.LineText.Trim;
+				if Settings.AppSettings.ShowFileHint then begin
+					HintText := TFileHintBuilder.BuildMatchNodeHint(nodeData);
+				end else begin
+					HintText := nodeData.MatchData.LineText.Trim;
+				end;
 			end;
 		end;
 	end;
