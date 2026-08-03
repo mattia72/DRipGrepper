@@ -13,6 +13,7 @@ uses
 	Vcl.Forms,
 	Vcl.Dialogs,
 	Vcl.StdCtrls,
+	Vcl.Samples.Spin,
 	RipGrepper.Settings.FontColors,
 	RipGrepper.UI.SettingsFormBase,
 	Vcl.ExtCtrls,
@@ -38,6 +39,8 @@ type
 		cbShowLastAccessDateColumn : TCheckBox;
 		grpFileColumn : TGroupBox;
 		cbShowFileHint : TCheckBox;
+		lblLineHint : TLabel;
+		seShowLineHint : TSpinEdit;
 		cbShowFileErrorColor : TCheckBox;
 		cbShowFileWarningColor : TCheckBox;
 		procedure btnLoadDefaultsClick(Sender : TObject);
@@ -80,6 +83,7 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Common.Constants,
 	System.RegularExpressions,
+	System.Math,
 	RipGrepper.Helper.UI.DarkMode,
 	System.StrUtils,
 	Vcl.Themes,
@@ -224,6 +228,7 @@ begin
 	cbShowFileErrorColor.Checked := FNodeLookSettings.ShowFileErrorColor;
 	cbShowFileWarningColor.Checked := FNodeLookSettings.ShowFileWarningColor;
 	cbShowFileHint.Checked := FAppSettings.ShowFileHint;
+	seShowLineHint.Value := FAppSettings.ShowLineHint;
 end;
 
 procedure TColorSettingsForm.SetFontAttribsForFrames();
@@ -311,6 +316,7 @@ begin
 	FNodeLookSettings.ShowFileErrorColor := cbShowFileErrorColor.Checked;
 	FNodeLookSettings.ShowFileWarningColor := cbShowFileWarningColor.Checked;
 	FAppSettings.ShowFileHint := cbShowFileHint.Checked;
+	FAppSettings.ShowLineHint := Max(0, Min(50, seShowLineHint.Value));
 end;
 
 end.
