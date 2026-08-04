@@ -1795,6 +1795,7 @@ begin
 
 	LineBreakStyle := hlbForceMultiLine;
 	nodeData := VstResult.GetNodeData(Node);
+
 	filePath := GetFilePathFromNode(Node);
 
 	if Node.Parent = VstResult.RootNode then begin
@@ -1827,6 +1828,7 @@ begin
 		case Column of
 			COL_FILE, COL_ROW_NUM, COL_COL_NUM, COL_MATCH_TEXT : begin
 				HintText := TFileHintBuilder.BuildMatchNodeHintWithContext(nodeData, Settings.AppSettings.ShowLineHint, filePath);
+				end;
 			end;
 		end;
 	end;

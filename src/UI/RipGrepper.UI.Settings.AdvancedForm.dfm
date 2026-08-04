@@ -11,10 +11,10 @@ inherited AdvancedForm: TAdvancedForm
     Width = 559
     TabOrder = 1
     inherited btnOk: TButton
-      Left = 269
+      Left = 267
     end
     inherited btnCancel: TButton
-      Left = 350
+      Left = 348
     end
   end
   object ScrollBox1: TScrollBox [1]
@@ -33,13 +33,13 @@ inherited AdvancedForm: TAdvancedForm
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 560
+      Width = 558
       Height = 293
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Advanced'
       TabOrder = 0
       DesignSize = (
-        560
+        558
         293)
       object Label1: TLabel
         Left = 16
@@ -63,7 +63,7 @@ inherited AdvancedForm: TAdvancedForm
       object btnedtIniFilePath: TButtonedEdit
         Left = 16
         Top = 48
-        Width = 532
+        Width = 530
         Height = 23
         Hint = 
           'Full Path to the Settings File. It Can Be Opened Using the Launc' +
@@ -96,14 +96,14 @@ inherited AdvancedForm: TAdvancedForm
         AlignWithMargins = True
         Left = 16
         Top = 107
-        Width = 532
+        Width = 530
         Height = 174
         Hint = 'Debug Trace Can Be Viewed in a Debug Viewer e.g. DebugView++'
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Debug trace'
         TabOrder = 1
         DesignSize = (
-          532
+          530
           174)
         object lblTraceOutput: TLabel
           Left = 19
@@ -215,7 +215,7 @@ inherited AdvancedForm: TAdvancedForm
         object edtLogFilePath: TButtonedEdit
           Left = 110
           Top = 106
-          Width = 411
+          Width = 409
           Height = 23
           Hint = 'Full path to the log file'
           Anchors = [akLeft, akTop, akRight]
@@ -236,6 +236,19 @@ inherited AdvancedForm: TAdvancedForm
           Hint = 'How the log file is created on application start'
           Style = csDropDownList
           TabOrder = 11
+        end
+        object btnClearLogFile: TButton
+          Left = 298
+          Top = 134
+          Width = 110
+          Height = 25
+          Hint = 'Clear the log file (delete all content)'
+          Caption = 'Clear log file'
+          ImageIndex = 3
+          ImageName = 'outline-restore-from-trash'
+          Images = SVGIconImageList1
+          TabOrder = 12
+          OnClick = btnClearLogFileClick
         end
       end
     end
@@ -313,6 +326,14 @@ inherited AdvancedForm: TAdvancedForm
           '314 8.44135 7.56242C8.65133 7.7717 8.91861 7.91407 9.20944 7.971' +
           '54C9.50028 8.02902 9.80162 7.99902 10.0754 7.88534C10.3492 7.771' +
           '67 10.5832 7.57941 10.7478 7.33284Z" fill="#424242"/>'#13#10'</svg>'#13#10
+      end
+      item
+        IconName = 'outline-restore-from-trash'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"' +
+          ' viewBox="0 0 24 24"><path fill="currentColor" d="m15.5 4l-1-1h-' +
+          '5l-1 1H5v2h14V4zM6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6zm2-5V9h' +
+          '8v10H8zm2 4h4v-4h2l-4-4l-4 4h2z"/></svg>'
       end>
     Scaled = True
     Left = 499

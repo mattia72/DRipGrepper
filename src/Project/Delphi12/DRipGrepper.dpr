@@ -131,7 +131,8 @@ uses
   RipGrepper.UI.TabSeparatedConfigForm in '..\..\UI\RipGrepper.UI.TabSeparatedConfigForm.pas',
   RipGrepper.Settings.PersistableArray in '..\..\Settings\RipGrepper.Settings.PersistableArray.pas',
   RipGrepper.Settings.RegexTemplateSettings in '..\..\Settings\RipGrepper.Settings.RegexTemplateSettings.pas',
-  RipGrepper.UI.Components.IconLabel in '..\..\UI\Components\RipGrepper.UI.Components.IconLabel.pas';
+  RipGrepper.UI.Components.IconLabel in '..\..\UI\Components\RipGrepper.UI.Components.IconLabel.pas',
+  RipGrepper.UI.SearchPathHistoryByContext in '..\..\UI\RipGrepper.UI.SearchPathHistoryByContext.pas';
 
 {$R *.res}
 
