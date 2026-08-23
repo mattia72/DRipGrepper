@@ -24,16 +24,17 @@ type
 			class function RunCommand(const _exe, _args, _workDir : string) : string;
 			class function ParseGitStatusCode(const _code : string) : string;
 			class function ParseSvnStatusCode(_code : Char) : string;
+			class function BuildMatchContextHint(const _nodeData : PVSFileNodeData; const _contextLines : Integer; const _filePath : string;
+					const _fileLines : TArray<string>) : string;
 
 		public
 			// Build the hint text for file-level nodes (full path, size, attributes, SC info)
 			class function BuildFileNodeHint(const _filePath : string; const _showRelativePath : Boolean; const _dateFormat : string) : string;
 			// Build the hint text for match-level nodes (file:row:col summary + full line)
-			class function BuildMatchNodeHint(const _nodeData: PVSFileNodeData; const
-					_filePath: string): string;
+			class function BuildMatchLineHint(const _nodeData : PVSFileNodeData; const _filePath : string) : string;
 			// Build the hint text for match-level nodes with optional context around the match line
-			class function BuildMatchNodeHintWithContext(const _nodeData: PVSFileNodeData;
-					const _contextLines: Integer; const _filePath: string): string;
+			class function BuildMatchLineHintWithContext(const _nodeData : PVSFileNodeData; const _contextLines : Integer;
+					const _filePath : string) : string;
 	end;
 
 implementation
@@ -46,7 +47,8 @@ uses
 	System.StrUtils,
 	u_dzConvertUtils,
 	RipGrepper.Tools.ProcessUtils,
-	RipGrepper.Tools.FileUtils;
+	RipGrepper.Tools.FileUtils,
+	RipGrepper.Common.Constants;
 
 class function TFileHintBuilder.RunCommand(const _exe, _args, _workDir : string) : string;
 var
@@ -130,18 +132,29 @@ end;
 class function TFileHintBuilder.ParseSvnStatusCode(_code : Char) : string;
 begin
 	case _code of
-		' ' : Result := '';
-		'M' : Result := 'Modified';
-		'A' : Result := 'Added';
-		'D' : Result := 'Deleted';
-		'R' : Result := 'Replaced';
-		'C' : Result := 'Conflicted';
-		'X' : Result := 'External';
-		'I' : Result := 'Ignored';
-		'?' : Result := 'Untracked';
-		'!' : Result := 'Missing';
-		'~' : Result := 'Type changed';
-	else
+		' ' :
+		Result := '';
+		'M' :
+		Result := 'Modified';
+		'A' :
+		Result := 'Added';
+		'D' :
+		Result := 'Deleted';
+		'R' :
+		Result := 'Replaced';
+		'C' :
+		Result := 'Conflicted';
+		'X' :
+		Result := 'External';
+		'I' :
+		Result := 'Ignored';
+		'?' :
+		Result := 'Untracked';
+		'!' :
+		Result := 'Missing';
+		'~' :
+		Result := 'Type changed';
+		else
 		Result := 'Status: ' + _code;
 	end;
 end;
@@ -239,17 +252,14 @@ begin
 	end;
 
 	// Double Commander style: d r a h s c e
-	Result :=
-		IfThen((attrs and FILE_ATTRIBUTE_DIRECTORY) <> 0, 'd', '-') +
-		IfThen((attrs and FILE_ATTRIBUTE_READONLY) <> 0, 'r', '-') +
-		IfThen((attrs and FILE_ATTRIBUTE_ARCHIVE) <> 0, 'a', '-') +
-		IfThen((attrs and FILE_ATTRIBUTE_HIDDEN) <> 0, 'h', '-') +
-		IfThen((attrs and FILE_ATTRIBUTE_SYSTEM) <> 0, 's', '-') +
-		IfThen((attrs and FILE_ATTRIBUTE_COMPRESSED) <> 0, 'c', '-') +
-		IfThen((attrs and FILE_ATTRIBUTE_ENCRYPTED) <> 0, 'e', '-');
+	Result := IfThen((attrs and FILE_ATTRIBUTE_DIRECTORY) <> 0, 'd', '-') + IfThen((attrs and FILE_ATTRIBUTE_READONLY) <> 0, 'r', '-') +
+			IfThen((attrs and FILE_ATTRIBUTE_ARCHIVE) <> 0, 'a', '-') + IfThen((attrs and FILE_ATTRIBUTE_HIDDEN) <> 0, 'h', '-') +
+			IfThen((attrs and FILE_ATTRIBUTE_SYSTEM) <> 0, 's', '-') + IfThen((attrs and FILE_ATTRIBUTE_COMPRESSED) <> 0, 'c', '-') +
+			IfThen((attrs and FILE_ATTRIBUTE_ENCRYPTED) <> 0, 'e', '-');
 end;
 
-class function TFileHintBuilder.BuildFileNodeHint(const _filePath : string; const _showRelativePath : Boolean; const _dateFormat : string) : string;
+class function TFileHintBuilder.BuildFileNodeHint(const _filePath : string; const _showRelativePath : Boolean;
+		const _dateFormat : string) : string;
 var
 	lines : TArray<string>;
 	sSize : string;
@@ -295,11 +305,10 @@ begin
 		lines := lines + [sSC];
 	end;
 
-	Result := string.Join(#13#10, lines);
+	Result := string.Join(CRLF, lines);
 end;
 
-class function TFileHintBuilder.BuildMatchNodeHint(const _nodeData:
-		PVSFileNodeData; const _filePath: string): string;
+class function TFileHintBuilder.BuildMatchLineHint(const _nodeData : PVSFileNodeData; const _filePath : string) : string;
 var
 	effectiveFilePath : string;
 begin
@@ -315,23 +324,45 @@ begin
 
 	// Show full location: file:row:col and the full line text
 	if (not effectiveFilePath.IsEmpty) and (_nodeData.MatchData.Row > 0) then begin
-		Result := Format('%s:%d:%d', [effectiveFilePath, _nodeData.MatchData.Row, _nodeData.MatchData.ColBegin]);
+		// Result := Format('%s:%d:%d', [effectiveFilePath, _nodeData.MatchData.Row, _nodeData.MatchData.ColBegin]);
 		if not _nodeData.MatchData.LineText.IsEmpty then begin
-			Result := Result + #13#10 + _nodeData.MatchData.LineText;
+			Result := Result + CRLF + _nodeData.MatchData.LineText.TrimRight;
 		end;
 	end else if not _nodeData.MatchData.LineText.IsEmpty then begin
-		Result := _nodeData.MatchData.LineText;
+		Result := _nodeData.MatchData.LineText.TrimRight;
 	end;
 end;
 
-class function TFileHintBuilder.BuildMatchNodeHintWithContext(const _nodeData:
-		PVSFileNodeData; const _contextLines: Integer; const _filePath: string):
-		string;
+class function TFileHintBuilder.BuildMatchContextHint(const _nodeData : PVSFileNodeData; const _contextLines : Integer;
+		const _filePath : string; const _fileLines : TArray<string>) : string;
 var
-	contextLines : Integer;
 	lines : TStringList;
 	startLine, endLine, lineNumber : Integer;
 	lineText : string;
+begin
+	lines := TStringList.Create;
+	try
+		startLine := Max(1, _nodeData.MatchData.Row - _contextLines);
+		endLine := Min(Length(_fileLines), _nodeData.MatchData.Row + _contextLines);
+		// lines.Add(Format('%s:%d-%d', [_filePath, startLine, endLine]));
+		for lineNumber := startLine to endLine do begin
+			lineText := _fileLines[lineNumber - 1];
+			if lineNumber = _nodeData.MatchData.Row then begin
+				lines.Add(Format('> %5d: %s', [lineNumber, lineText]));
+			end else begin
+				lines.Add(Format('  %5d: %s', [lineNumber, lineText]));
+			end;
+		end;
+		Result := string.Join(CRLF, lines.ToStringArray);
+	finally
+		lines.Free;
+	end;
+end;
+
+class function TFileHintBuilder.BuildMatchLineHintWithContext(const _nodeData : PVSFileNodeData; const _contextLines : Integer;
+		const _filePath : string) : string;
+var
+	contextLines : Integer;
 	fileLines : TArray<string>;
 begin
 	Result := '';
@@ -340,60 +371,34 @@ begin
 	end;
 
 	if _contextLines <= 0 then begin
-		Result := BuildMatchNodeHint(_nodeData, _filePath);
+		Result := BuildMatchLineHint(_nodeData, _filePath);
 		Exit;
 	end;
 
-	contextLines := _contextLines;
-	if contextLines > MAX_CONTEXT then begin
-		contextLines := MAX_CONTEXT;
-	end;
 
 	try
 		if not FileExists(_filePath) then begin
-			Result := BuildMatchNodeHint(_nodeData, _filePath);
+			Result := BuildMatchLineHint(_nodeData, _filePath);
 			Exit;
 		end;
 
 		fileLines := TFile.ReadAllLines(_filePath);
-		if Length(fileLines) = 0 then begin
-			Result := BuildMatchNodeHint(_nodeData, _filePath);
+		if (Length(fileLines) = 0) or (_nodeData.MatchData.Row > Length(fileLines)) then begin
+			Result := BuildMatchLineHint(_nodeData, _filePath);
 			Exit;
 		end;
 
-		if _nodeData.MatchData.Row > Length(fileLines) then begin
-			Result := BuildMatchNodeHint(_nodeData, _filePath);
-			Exit;
-		end;
-
-		lines := TStringList.Create;
-		try
-			lines.Add(Format('%s:%d:%d', [_filePath, _nodeData.MatchData.Row, _nodeData.MatchData.ColBegin]));
-			startLine := Max(1, _nodeData.MatchData.Row - contextLines);
-			endLine := Min(Length(fileLines), _nodeData.MatchData.Row + contextLines);
-			for lineNumber := startLine to endLine do begin
-				lineText := '';
-				if lineNumber <= Length(fileLines) then begin
-					lineText := fileLines[lineNumber - 1];
-				end;
-				if lineNumber = _nodeData.MatchData.Row then begin
-					lines.Add(Format('> %5d: %s', [lineNumber, lineText]));
-				end else begin
-					lines.Add(Format('  %5d: %s', [lineNumber, lineText]));
-				end;
-			end;
-			Result := lines.Text;
-		finally
-			lines.Free;
-		end;
+		contextLines := IfThen(_contextLines > MAX_CONTEXT, MAX_CONTEXT, _contextLines);
+		Result := BuildMatchContextHint(_nodeData, contextLines, _filePath, fileLines);
 	except
 		on E : Exception do
-			Result := BuildMatchNodeHint(_nodeData, _filePath);
+			Result := BuildMatchLineHint(_nodeData, _filePath);
 	end;
 end;
 
 initialization
-	TFileHintBuilder.FGitAvailable := nil;
-	TFileHintBuilder.FSvnAvailable := nil;
+
+TFileHintBuilder.FGitAvailable := nil;
+TFileHintBuilder.FSvnAvailable := nil;
 
 end.
