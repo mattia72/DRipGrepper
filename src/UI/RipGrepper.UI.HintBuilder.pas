@@ -333,7 +333,7 @@ begin
 		endLine := Min(Length(_fileLines), _nodeData.MatchData.Row + _contextLines);
 		// lines.Add(Format('%s:%d-%d', [_filePath, startLine, endLine]));
 		for lineNumber := startLine to endLine do begin
-			lineText := _fileLines[lineNumber - 1];
+			lineText := _fileLines[lineNumber - 1].Replace(TAB,SPACE);
 			if lineNumber = _nodeData.MatchData.Row then begin
 				lines.Add(Format('> %5d: %s', [lineNumber, lineText]));
 			end else begin
