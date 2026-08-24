@@ -20,7 +20,11 @@ uses
 	Spring,
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.Settings.AppSettings,
-	RipGrepper.Settings.NodeLookSettings, System.ImageList, Vcl.ImgList, SVGIconImageListBase, SVGIconImageList;
+	RipGrepper.Settings.NodeLookSettings,
+	System.ImageList,
+	Vcl.ImgList,
+	SVGIconImageListBase,
+	SVGIconImageList;
 
 type
 	TColorSettingsForm = class(TSettingsBaseForm)
@@ -43,7 +47,9 @@ type
 		seShowLineHint : TSpinEdit;
 		cbShowFileErrorColor : TCheckBox;
 		cbShowFileWarningColor : TCheckBox;
+		cbShowLineContextHint : TCheckBox;
 		procedure btnLoadDefaultsClick(Sender : TObject);
+		procedure cbShowLineContextHintClick(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 		procedure rgThemeClick(Sender : TObject);
 
@@ -126,6 +132,13 @@ begin
 	SetFontAttribsForFrames;
 end;
 
+procedure TColorSettingsForm.cbShowLineContextHintClick(Sender : TObject);
+begin
+	inherited;
+	seShowLineHint.Enabled := cbShowLineContextHint.Checked;
+	lblLineHint.Enabled := cbShowLineContextHint.Checked;
+end;
+
 procedure TColorSettingsForm.FormShow(Sender : TObject);
 
 begin
@@ -140,7 +153,6 @@ begin
 		rgTheme.ItemIndex := Integer(tmSystem);
 		rgTheme.Hint := 'Theme can be changed only in IDE';
 		{$ENDIF}
-
 		{$IFDEF STANDALONE}
 		cbShowFileWarningColor.Enabled := False;
 		cbShowFileWarningColor.Hint := 'Only available in Extension mode (requires project context)';
@@ -163,8 +175,7 @@ begin
 		FormatDateTime(_format, Now());
 		Result := True;
 	except
-		on E : Exception do
-			; // invalid format
+		on E : Exception do; // invalid format
 	end;
 end;
 
@@ -176,7 +187,7 @@ begin
 	tm := EThemeMode(rgTheme.ItemIndex);
 	themeName := TDarkModeHelper.GetThemeNameByMode(tm);
 	TAsyncMsgBox.ShowQuestion(
-		{ } Format('Would you like to load default fonts and color settings for ''%s'' theme?', [themeName]),
+			{ } Format('Would you like to load default fonts and color settings for ''%s'' theme?', [themeName]),
 		procedure()
 		begin
 			btnLoadDefaultsClick(Sender);
@@ -228,7 +239,12 @@ begin
 	cbShowFileErrorColor.Checked := FNodeLookSettings.ShowFileErrorColor;
 	cbShowFileWarningColor.Checked := FNodeLookSettings.ShowFileWarningColor;
 	cbShowFileHint.Checked := FAppSettings.ShowFileHint;
-	seShowLineHint.Value := FAppSettings.ShowLineHint;
+	cbShowLineContextHint.Checked := FAppSettings.ShowLineHint >= 0;
+	if cbShowLineContextHint.Checked then begin
+		seShowLineHint.Value := FAppSettings.ShowLineHint;
+	end else begin
+		seShowLineHint.Value := 0;
+	end;
 end;
 
 procedure TColorSettingsForm.SetFontAttribsForFrames();
@@ -316,7 +332,10 @@ begin
 	FNodeLookSettings.ShowFileErrorColor := cbShowFileErrorColor.Checked;
 	FNodeLookSettings.ShowFileWarningColor := cbShowFileWarningColor.Checked;
 	FAppSettings.ShowFileHint := cbShowFileHint.Checked;
-	FAppSettings.ShowLineHint := Max(0, Min(50, seShowLineHint.Value));
+	FAppSettings.ShowLineHint := -1;
+	if cbShowLineContextHint.Checked then begin
+		FAppSettings.ShowLineHint := Max(0, Min(50, seShowLineHint.Value));
+	end;
 end;
 
 end.

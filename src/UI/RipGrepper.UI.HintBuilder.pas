@@ -309,26 +309,13 @@ begin
 end;
 
 class function TFileHintBuilder.BuildMatchLineHint(const _nodeData : PVSFileNodeData; const _filePath : string) : string;
-var
-	effectiveFilePath : string;
 begin
 	Result := '';
 	if _nodeData = nil then begin
 		Exit;
 	end;
 
-	effectiveFilePath := _filePath;
-	if effectiveFilePath.IsEmpty then begin
-		effectiveFilePath := _nodeData.FilePath;
-	end;
-
-	// Show full location: file:row:col and the full line text
-	if (not effectiveFilePath.IsEmpty) and (_nodeData.MatchData.Row > 0) then begin
-		// Result := Format('%s:%d:%d', [effectiveFilePath, _nodeData.MatchData.Row, _nodeData.MatchData.ColBegin]);
-		if not _nodeData.MatchData.LineText.IsEmpty then begin
-			Result := Result + CRLF + _nodeData.MatchData.LineText.TrimRight;
-		end;
-	end else if not _nodeData.MatchData.LineText.IsEmpty then begin
+	if not _nodeData.MatchData.LineText.IsEmpty then begin
 		Result := _nodeData.MatchData.LineText.TrimRight;
 	end;
 end;
@@ -366,15 +353,9 @@ var
 	fileLines : TArray<string>;
 begin
 	Result := '';
-	if _nodeData = nil then begin
+	if (_nodeData = nil) or (_contextLines <= 0) then begin
 		Exit;
 	end;
-
-	if _contextLines <= 0 then begin
-		Result := BuildMatchLineHint(_nodeData, _filePath);
-		Exit;
-	end;
-
 
 	try
 		if not FileExists(_filePath) then begin
