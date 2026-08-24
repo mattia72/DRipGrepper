@@ -1,6 +1,6 @@
 ﻿# Changelog
 
-## [v4.16.0-beta] - 2026-03-17
+## [v4.16.0-beta] - 2026-08-24
 
 *In memory of Richard.*
 
@@ -12,6 +12,7 @@
 - **extension** If Path is outside of the IDE project, a warning icon is shown in the search form, to avoid confusion about the search results.
 - **extension** Error and warning can be indicated with different colors.
 - File hint can be shown, when hovering over a file in the results tree, to provide additional information about the file, such as its full path or other relevant details. 
+- Matching line hint can be shown, when hovering over a matching line in the results tree, to provide additional context.
 - **extension** If we have too many search path entries, instead of the list of entries, we show a summary.
 e.g. `86 paths (e.g. C:\...)`
 - Clear log file button in settings form, to allow users to easily clear the log file.
