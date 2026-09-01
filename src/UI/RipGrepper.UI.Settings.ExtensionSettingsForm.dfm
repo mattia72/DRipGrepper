@@ -1,28 +1,34 @@
 inherited ExtensionSettingsForm: TExtensionSettingsForm
   Caption = 'ExtensionSettingsForm'
-  ClientHeight = 512
-  ClientWidth = 636
+  ClientHeight = 447
+  ClientWidth = 496
   Color = clBtnFace
   ShowHint = True
   OnShow = FormShow
   TextHeight = 15
   inherited PanelBottom: TPanel
-    Top = 467
-    Width = 636
+    Top = 402
+    Width = 496
     TabOrder = 1
+    inherited btnOk: TButton
+      Left = 94
+    end
+    inherited btnCancel: TButton
+      Left = 175
+    end
   end
   object pnlMiddle: TPanel [1]
     Left = 0
     Top = 0
-    Width = 636
-    Height = 467
+    Width = 496
+    Height = 402
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
     object grpShortcuts: TGroupBox
       Left = 0
       Top = 118
-      Width = 636
+      Width = 496
       Height = 100
       Align = alTop
       Caption = 'Shortcuts'
@@ -61,7 +67,7 @@ inherited ExtensionSettingsForm: TExtensionSettingsForm
     object grpInstallation: TGroupBox
       Left = 0
       Top = 0
-      Width = 636
+      Width = 496
       Height = 118
       Align = alTop
       Caption = 'Install as Delphi IDE Extension'
@@ -69,7 +75,7 @@ inherited ExtensionSettingsForm: TExtensionSettingsForm
       ShowHint = True
       TabOrder = 0
       DesignSize = (
-        636
+        496
         118)
       object lblVersionInfo: TLabel
         Left = 16
@@ -89,7 +95,7 @@ inherited ExtensionSettingsForm: TExtensionSettingsForm
         OnChange = cmbDelphiVersionsChange
       end
       object btnInstallPackage: TButton
-        Left = 542
+        Left = 402
         Top = 55
         Width = 78
         Height = 21
@@ -100,7 +106,7 @@ inherited ExtensionSettingsForm: TExtensionSettingsForm
       object btnedtDllPath: TButtonedEdit
         Left = 16
         Top = 55
-        Width = 520
+        Width = 380
         Height = 23
         Hint = 'Full Path to Extension DLL'
         Anchors = [akLeft, akTop, akRight]
@@ -124,8 +130,8 @@ inherited ExtensionSettingsForm: TExtensionSettingsForm
     object grpVsCodeIntegration: TGroupBox
       Left = 0
       Top = 218
-      Width = 636
-      Height = 198
+      Width = 496
+      Height = 183
       Align = alTop
       Caption = 'Visual Studio Code Integration'
       TabOrder = 2
@@ -137,7 +143,6 @@ inherited ExtensionSettingsForm: TExtensionSettingsForm
         Cursor = crHandPoint
         Hint = 'Open in Delphi VS Code Extension'
         Center = True
-        OnClick = imgOpenInDelphiClick
         Picture.Data = {
           0954506E67496D61676589504E470D0A1A0A0000000D49484452000000800000
           00800806000000C33E61CB000000097048597300000EC400000EC401952B0E1B
@@ -716,6 +721,7 @@ inherited ExtensionSettingsForm: TExtensionSettingsForm
           399354E5ECD96BA6B95F0FFA0F00FF72FA0F00FF72FA0F00FF72FA0F00FF72FA
           3FBC515F0ECF1B58880000000049454E44AE426082}
         Proportional = True
+        OnClick = imgOpenInDelphiClick
       end
       object chkHandleOpenInDelphiCommands: TCheckBox
         Left = 16
