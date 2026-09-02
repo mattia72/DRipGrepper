@@ -418,10 +418,10 @@ begin
 	{ } Assigned(VstResult.GetFirst());
 
 	if GetCheckAllResultsState(sCaption, sHint) then begin
-		ActionCheckAllResults.ImageIndex := 6;
+		ActionCheckAllResults.ImageIndex := IMG_IDX_RESULT_MENU_UNCHECK_ALL;
 		ActionCheckAllResults.ImageName := 'checkbox-multiple-blank-outline';
 	end else begin
-		ActionCheckAllResults.ImageIndex := 5;
+		ActionCheckAllResults.ImageIndex := IMG_IDX_RESULT_MENU_CHECK_ALL;
 		ActionCheckAllResults.ImageName := 'checkbox-multiple-marked-outline';
 	end;
 	ActionCheckAllResults.Caption := sCaption;

@@ -510,10 +510,10 @@ begin
 	ActionCheckAllResults.Enabled := (EGuiReplaceMode.grmActive in FGuiReplaceModes) or IsRgReplaceMode;
 
 	if MainFrame.GetCheckAllResultsState(sCaption, sHint) then begin
-		ActionCheckAllResults.ImageIndex := 21;
+		ActionCheckAllResults.ImageIndex := IMG_IDX_UNCHECK_ALL_RESULTS;
 		ActionCheckAllResults.ImageName := 'checkbox-multiple-blank-outline';
 	end else begin
-		ActionCheckAllResults.ImageIndex := 20;
+		ActionCheckAllResults.ImageIndex := IMG_IDX_CHECK_ALL_RESULTS;
 		ActionCheckAllResults.ImageName := 'checkbox-multiple-marked-outline';
 	end;
 	ActionCheckAllResults.Caption := sCaption;
