@@ -504,8 +504,20 @@ begin
 end;
 
 procedure TRipGrepperTopFrame.ActionCheckAllResultsUpdate(Sender : TObject);
+var
+	sCaption, sHint : string;
 begin
 	ActionCheckAllResults.Enabled := (EGuiReplaceMode.grmActive in FGuiReplaceModes) or IsRgReplaceMode;
+
+	if MainFrame.GetCheckAllResultsState(sCaption, sHint) then begin
+		ActionCheckAllResults.ImageIndex := 21;
+		ActionCheckAllResults.ImageName := 'checkbox-multiple-blank-outline';
+	end else begin
+		ActionCheckAllResults.ImageIndex := 20;
+		ActionCheckAllResults.ImageName := 'checkbox-multiple-marked-outline';
+	end;
+	ActionCheckAllResults.Caption := sCaption;
+	ActionCheckAllResults.Hint := sHint;
 end;
 
 procedure TRipGrepperTopFrame.ActionSearchExecute(Sender : TObject);

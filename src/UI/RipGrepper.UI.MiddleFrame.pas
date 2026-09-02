@@ -221,6 +221,8 @@ type
 		public
 			constructor Create(AOwner : TComponent); override;
 			destructor Destroy; override;
+			function AreAllResultsChecked : Boolean;
+			function GetCheckAllResultsState(out _caption, _hint : string) : Boolean;
 			procedure AfterHistObjChange;
 			procedure AfterSearch;
 			procedure AlignToolBars;
@@ -352,39 +354,78 @@ begin
 	EnableActionIfResultSelected(ActionAddUsingInterface);
 end;
 
-procedure TRipGrepperMiddleFrame.ActionCheckAllResultsExecute(Sender : TObject);
+function TRipGrepperMiddleFrame.AreAllResultsChecked : Boolean;
 var
 	node : PVirtualNode;
-	bAllChecked : Boolean;
 begin
-	var
-	beu := TBeginEndUpdater.New(VstResult);
-
-	bAllChecked := True;
+	Result := False;
+	if not(toCheckSupport in VstResult.TreeOptions.MiscOptions) then begin
+		{ } // no checkboxes shown (not in replace mode) -> always report "Check All" state
+		Exit;
+	end;
 	node := VstResult.GetFirstChild(VstResult.RootNode);
+	if not Assigned(node) then begin
+		Exit;
+	end;
+
+	Result := True;
 	while Assigned(node) do begin
 		if node.CheckState <> csCheckedNormal then begin
-			bAllChecked := False;
+			Result := False;
 			Break;
 		end;
 		node := VstResult.GetNextSibling(node);
 	end;
+end;
 
+function TRipGrepperMiddleFrame.GetCheckAllResultsState(out _caption, _hint : string) : Boolean;
+begin
+	Result := AreAllResultsChecked();
+	if Result then begin
+		_caption := 'Uncheck All';
+		_hint := 'Uncheck All Result Rows';
+	end else begin
+		_caption := 'Check All';
+		_hint := 'Check All Result Rows for Replace';
+	end;
+end;
+
+procedure TRipGrepperMiddleFrame.ActionCheckAllResultsExecute(Sender : TObject);
+var
+	node : PVirtualNode;
+	bCheck : Boolean;
+begin
+	var
+	beu := TBeginEndUpdater.New(VstResult);
+
+	bCheck := not AreAllResultsChecked();
 	node := VstResult.GetFirstChild(VstResult.RootNode);
 	while Assigned(node) do begin
-		if bAllChecked then begin
-			VstResult.CheckState[node] := csUncheckedNormal;
-		end else begin
+		if bCheck then begin
 			VstResult.CheckState[node] := csCheckedNormal;
+		end else begin
+			VstResult.CheckState[node] := csUncheckedNormal;
 		end;
 		node := VstResult.GetNextSibling(node);
 	end;
 end;
 
 procedure TRipGrepperMiddleFrame.ActionCheckAllResultsUpdate(Sender : TObject);
+var
+	sCaption, sHint : string;
 begin
 	ActionCheckAllResults.Enabled := (toCheckSupport in VstResult.TreeOptions.MiscOptions) and
 	{ } Assigned(VstResult.GetFirst());
+
+	if GetCheckAllResultsState(sCaption, sHint) then begin
+		ActionCheckAllResults.ImageIndex := 6;
+		ActionCheckAllResults.ImageName := 'checkbox-multiple-blank-outline';
+	end else begin
+		ActionCheckAllResults.ImageIndex := 5;
+		ActionCheckAllResults.ImageName := 'checkbox-multiple-marked-outline';
+	end;
+	ActionCheckAllResults.Caption := sCaption;
+	ActionCheckAllResults.Hint := sHint;
 end;
 
 procedure TRipGrepperMiddleFrame.ActionCopyCmdLineToClipboardExecute(Sender : TObject);
