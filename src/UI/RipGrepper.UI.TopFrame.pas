@@ -106,10 +106,14 @@ type
 		SvgImgLstTopFrame : TSVGIconImageList;
 		pnlTop : TPanel;
 		ToolButton10 : TToolButton;
+		ActionCheckAllResults : TAction;
+		tbCheckAllResults : TToolButton;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAlignToolbarsExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsUpdate;
+		procedure ActionCheckAllResultsExecute(Sender : TObject);
+		procedure ActionCheckAllResultsUpdate(Sender : TObject);
 		procedure ActionCmdLineCopyExecute(Sender : TObject);
 		procedure ActionConfigExecute(Sender : TObject);
 		procedure ActionCopyFileNameExecute(Sender : TObject);
@@ -492,6 +496,16 @@ procedure TRipGrepperTopFrame.ActionSaveReplacementUpdate(Sender : TObject);
 begin
 	ActionSaveReplacement.Enabled := (EGuiReplaceMode.grmSaveEnabled in FGuiReplaceModes)
 	{ } and (MainFrame.VstResult.CheckedCount > 0);
+end;
+
+procedure TRipGrepperTopFrame.ActionCheckAllResultsExecute(Sender : TObject);
+begin
+	MainFrame.ActionCheckAllResultsExecute(Sender);
+end;
+
+procedure TRipGrepperTopFrame.ActionCheckAllResultsUpdate(Sender : TObject);
+begin
+	ActionCheckAllResults.Enabled := (EGuiReplaceMode.grmActive in FGuiReplaceModes) or IsRgReplaceMode;
 end;
 
 procedure TRipGrepperTopFrame.ActionSearchExecute(Sender : TObject);

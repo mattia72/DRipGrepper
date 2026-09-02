@@ -175,8 +175,13 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
         OnKeyDown = edtReplaceKeyDown
         OnRightButtonClick = edtReplaceRightButtonClick
       end
-      object tbSaveReplacement: TToolButton
+      object tbCheckAllResults: TToolButton
         Left = 242
+        Top = 0
+        Action = ActionCheckAllResults
+      end
+      object tbSaveReplacement: TToolButton
+        Left = 251
         Top = 0
         Action = ActionSaveReplacement
       end
@@ -429,6 +434,15 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       ShortCut = 16467
       OnExecute = ActionSaveReplacementExecute
       OnUpdate = ActionSaveReplacementUpdate
+    end
+    object ActionCheckAllResults: TAction
+      Caption = 'Check All'
+      Hint = 'Check/Uncheck All Result Rows for Replace (Ctrl+Shift+A)'
+      ImageIndex = 20
+      ImageName = 'checkbox-multiple-marked-outline'
+      ShortCut = 49217
+      OnExecute = ActionCheckAllResultsExecute
+      OnUpdate = ActionCheckAllResultsUpdate
     end
     object ActionReplaceCaseSensitive: TAction
       Caption = 'Match &Case'
@@ -723,6 +737,15 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
           ',7 0 0,1 16,23C14.09,23 12.36,22.24 11.1,21H5M16,11.15A4.85,4.85' +
           ' 0 0,0 11.15,16C11.15,18.68 13.32,20.85 16,20.85A4.85,4.85 0 0,0' +
           ' 20.85,16C20.85,13.32 18.68,11.15 16,11.15Z" /></svg>'
+      end
+      item
+        IconName = 'checkbox-multiple-marked-outline'
+        SVGText =
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><pat' +
+          'h d="M20,16V10H22V16A2,2 0 0,1 20,18H8C6.89,18 6,17.1 6,16V4C6,2.' +
+          '89 6.89,2 8,2H16V4H8V16H20M10.91,7.08L14,10.17L20.59,3.58L22,5L14' +
+          ',13L9.5,8.5L10.91,7.08M16,20V22H4A2,2 0 0,1 2,20V7H4V20H16Z" /></' +
+          'svg>'
       end>
     FixedColor = clGrayText
     AntiAliasColor = clBtnShadow

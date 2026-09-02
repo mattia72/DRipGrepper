@@ -85,7 +85,12 @@ type
 		ActionDeleteResultNode : TAction;
 		N4 : TMenuItem;
 		miDeleteResultNode : TMenuItem;
+		ActionCheckAllResults : TAction;
+		N5 : TMenuItem;
+		miCheckAllResults : TMenuItem;
 		procedure ActionAddUsingImplementationExecute(Sender : TObject);
+		procedure ActionCheckAllResultsExecute(Sender : TObject);
+		procedure ActionCheckAllResultsUpdate(Sender : TObject);
 		procedure ActionAddUsingImplementationUpdate(Sender : TObject);
 		procedure ActionAddUsingInterfaceExecute(Sender : TObject);
 		procedure ActionAddUsingInterfaceUpdate(Sender : TObject);
@@ -345,6 +350,41 @@ end;
 procedure TRipGrepperMiddleFrame.ActionAddUsingInterfaceUpdate(Sender : TObject);
 begin
 	EnableActionIfResultSelected(ActionAddUsingInterface);
+end;
+
+procedure TRipGrepperMiddleFrame.ActionCheckAllResultsExecute(Sender : TObject);
+var
+	node : PVirtualNode;
+	bAllChecked : Boolean;
+begin
+	var
+	beu := TBeginEndUpdater.New(VstResult);
+
+	bAllChecked := True;
+	node := VstResult.GetFirstChild(VstResult.RootNode);
+	while Assigned(node) do begin
+		if node.CheckState <> csCheckedNormal then begin
+			bAllChecked := False;
+			Break;
+		end;
+		node := VstResult.GetNextSibling(node);
+	end;
+
+	node := VstResult.GetFirstChild(VstResult.RootNode);
+	while Assigned(node) do begin
+		if bAllChecked then begin
+			VstResult.CheckState[node] := csUncheckedNormal;
+		end else begin
+			VstResult.CheckState[node] := csCheckedNormal;
+		end;
+		node := VstResult.GetNextSibling(node);
+	end;
+end;
+
+procedure TRipGrepperMiddleFrame.ActionCheckAllResultsUpdate(Sender : TObject);
+begin
+	ActionCheckAllResults.Enabled := (toCheckSupport in VstResult.TreeOptions.MiscOptions) and
+	{ } Assigned(VstResult.GetFirst());
 end;
 
 procedure TRipGrepperMiddleFrame.ActionCopyCmdLineToClipboardExecute(Sender : TObject);

@@ -274,6 +274,14 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
       OnExecute = ActionDeleteResultNodeExecute
       OnUpdate = ActionDeleteResultNodeUpdate
     end
+    object ActionCheckAllResults: TAction
+      Caption = 'Check/Uncheck All'
+      Hint = 'Check or Uncheck All Result Rows for Replace'
+      ImageIndex = 5
+      ImageName = 'checkbox-multiple-marked-outline'
+      OnExecute = ActionCheckAllResultsExecute
+      OnUpdate = ActionCheckAllResultsUpdate
+    end
   end
   object PopupMenuResult: TPopupMenu
     Images = SVGIconImageList1
@@ -322,6 +330,12 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
     end
     object miDeleteResultNode: TMenuItem
       Action = ActionDeleteResultNode
+    end
+    object N5: TMenuItem
+      Caption = '-'
+    end
+    object miCheckAllResults: TMenuItem
+      Action = ActionCheckAllResults
     end
   end
   object ImageListListView: TImageList
@@ -719,6 +733,15 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           ' viewBox="0 0 24 24"><path fill="none" stroke="currentColor" str' +
           'oke-linecap="round" stroke-linejoin="round" stroke-width="2" d="' +
           'M18 6L6 18M6 6l12 12"/></svg>'
+      end
+      item
+        IconName = 'checkbox-multiple-marked-outline'
+        SVGText =
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><pat' +
+          'h d="M20,16V10H22V16A2,2 0 0,1 20,18H8C6.89,18 6,17.1 6,16V4C6,2.' +
+          '89 6.89,2 8,2H16V4H8V16H20M10.91,7.08L14,10.17L20.59,3.58L22,5L14' +
+          ',13L9.5,8.5L10.91,7.08M16,20V22H4A2,2 0 0,1 2,20V7H4V20H16Z" /></' +
+          'svg>'
       end>
     Scaled = True
     Left = 544
