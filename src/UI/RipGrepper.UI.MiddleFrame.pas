@@ -413,9 +413,16 @@ end;
 procedure TRipGrepperMiddleFrame.ActionCheckAllResultsUpdate(Sender : TObject);
 var
 	sCaption, sHint : string;
+	bIsCheckboxVisible : Boolean;
 begin
-	ActionCheckAllResults.Enabled := (toCheckSupport in VstResult.TreeOptions.MiscOptions) and
-	{ } Assigned(VstResult.GetFirst());
+	bIsCheckboxVisible := toCheckSupport in VstResult.TreeOptions.MiscOptions;
+	ActionCheckAllResults.Visible := bIsCheckboxVisible;
+	N5.Visible := bIsCheckboxVisible;
+	ActionCheckAllResults.Enabled := bIsCheckboxVisible and Assigned(VstResult.GetFirst());
+
+	if not bIsCheckboxVisible then begin
+		Exit;
+	end;
 
 	if GetCheckAllResultsState(sCaption, sHint) then begin
 		ActionCheckAllResults.ImageIndex := IMG_IDX_RESULT_MENU_UNCHECK_ALL;
