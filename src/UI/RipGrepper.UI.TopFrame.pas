@@ -494,6 +494,7 @@ end;
 
 procedure TRipGrepperTopFrame.ActionSaveReplacementUpdate(Sender : TObject);
 begin
+	ActionSaveReplacement.Visible := (EGuiReplaceMode.grmActive in FGuiReplaceModes) or IsRgReplaceMode;
 	ActionSaveReplacement.Enabled := (EGuiReplaceMode.grmSaveEnabled in FGuiReplaceModes)
 	{ } and (MainFrame.VstResult.CheckedCount > 0);
 end;
@@ -506,8 +507,15 @@ end;
 procedure TRipGrepperTopFrame.ActionCheckAllResultsUpdate(Sender : TObject);
 var
 	sCaption, sHint : string;
+	bIsReplaceModeActive : Boolean;
 begin
-	ActionCheckAllResults.Enabled := (EGuiReplaceMode.grmActive in FGuiReplaceModes) or IsRgReplaceMode;
+	bIsReplaceModeActive := (EGuiReplaceMode.grmActive in FGuiReplaceModes) or IsRgReplaceMode;
+	ActionCheckAllResults.Visible := bIsReplaceModeActive;
+	ActionCheckAllResults.Enabled := bIsReplaceModeActive;
+
+	if not bIsReplaceModeActive then begin
+		Exit;
+	end;
 
 	if MainFrame.GetCheckAllResultsState(sCaption, sHint) then begin
 		ActionCheckAllResults.ImageIndex := IMG_IDX_UNCHECK_ALL_RESULTS;
@@ -1151,8 +1159,9 @@ end;
 procedure TRipGrepperTopFrame.SetReplaceModeOnToolBar;
 
 begin
-	ActionSaveReplacement.Enabled := EGuiReplaceMode.grmSaveEnabled in FGuiReplaceModes;
+	ActionSaveReplacementUpdate(self);
 	// ActionSaveAllReplacement.Enabled := EGuiReplaceMode.grmSaveEnabled in FGuiReplaceModes;
+	ActionCheckAllResultsUpdate(self);
 	edtReplace.Enabled := EGuiReplaceMode.grmEditEnabled in FGuiReplaceModes;
 	edtReplace.RightButton.ImageIndex := IfThen(
 		{ } (EGuiReplaceMode.grmActive in FGuiReplaceModes), IMG_IDX_REPLACE_ON, IMG_IDX_REPLACE_OFF);
@@ -1161,6 +1170,7 @@ begin
 		ChangeButtonedEditTextButSkipChangeEvent(edtReplace, edtReplace.TextHint);
 	end;
 
+	MainFrame.AlignToolBars();
 end;
 
 procedure TRipGrepperTopFrame.SetReplaceTextInSettings(const _sReplText : string);
