@@ -167,6 +167,8 @@ type
 			FSkipButtonEditChange : Boolean;
 			FViewStyleIndex : integer;
 			FReplaceList : IShared<TReplaceList>;
+			procedure AddDisabledIconVariant(const _sIconName : string);
+			function GetDisabledIconName(const _sIconName : string) : string;
 			procedure ChangeButtonedEditTextButSkipChangeEvent(_edt : TButtonedEdit; const _txt : string);
 			procedure GetCheckedReplaceList();
 			function GetIsGuiReplaceMode : Boolean;
@@ -258,6 +260,9 @@ uses
 	System.TypInfo,
 	Vcl.Themes,
 	ArrayEx;
+
+const
+	DISABLED_ICON_SUFFIX = '-disabled';
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -497,6 +502,10 @@ begin
 	ActionSaveReplacement.Visible := (EGuiReplaceMode.grmActive in FGuiReplaceModes) or IsRgReplaceMode;
 	ActionSaveReplacement.Enabled := (EGuiReplaceMode.grmSaveEnabled in FGuiReplaceModes)
 	{ } and (MainFrame.VstResult.CheckedCount > 0);
+
+	ActionSaveReplacement.ImageName :=
+	{ } IfThen(ActionSaveReplacement.Enabled, 'content-save-all-outline',
+	{ } GetDisabledIconName('content-save-all-outline'));
 end;
 
 procedure TRipGrepperTopFrame.ActionCheckAllResultsExecute(Sender : TObject);
@@ -1015,6 +1024,8 @@ begin
 		dbgMsg.Msg('Already initialized');
 		Exit;
 	end;
+	AddDisabledIconVariant('content-save-all-outline');
+
 	FFilterMode := Settings.NodeLookSettings.FilterSettings.FilterModes;
 	UpdateFilterEditMenuAndHint();
 	// If date mode was persisted, restore the display text
@@ -1120,6 +1131,35 @@ procedure TRipGrepperTopFrame.SetFilterBtnImage(const _bOn : Boolean = True);
 begin
 	edtFilter.RightButton.ImageIndex :=
 	{ } IfThen(_bOn and (edtFilter.Text <> ''), IMG_IDX_FILTER_ON, IMG_IDX_FILTER_OFF);
+end;
+
+procedure TRipGrepperTopFrame.AddDisabledIconVariant(const _sIconName : string);
+begin
+	{ Both the style-hook-based ToolBar.DisabledImages and the SVGIconImageList's own }
+	{ DisabledOpacity/DisabledGrayScale blending depend on the VCL style hook actually }
+	{ painting this toolbar - which it does not here, since StyleServices(tbarResult) }
+	{ resolves to the system style while hosted as an IDE extension. So instead, add a }
+	{ pre-colored "disabled" clone of the icon right into SvgImgLstTopFrame and switch }
+	{ ImageName to it manually - the same pattern ActionCheckAllResultsUpdate already }
+	{ uses, which is known to render correctly regardless of styling. }
+	var
+	srcItem := SvgImgLstTopFrame.SVGIconItems.GetIconByName(_sIconName);
+	if not Assigned(srcItem) then begin
+		Exit;
+	end;
+	var
+	newItem := SvgImgLstTopFrame.SVGIconItems.Add();
+	newItem.Assign(srcItem);
+	{ TDarkModeHelper.setFixedColorInSVGImgLists re-stamps every icon's FixedColor to the }
+	{ current theme color on theme changes, except ones whose IconName starts with 'icon-' - }
+	{ that prefix is required here so our own FixedColor below survives future theme changes. }
+	newItem.IconName := GetDisabledIconName(_sIconName);
+	newItem.FixedColor := clGrayText;
+end;
+
+function TRipGrepperTopFrame.GetDisabledIconName(const _sIconName : string) : string;
+begin
+	Result := 'icon-' + _sIconName + DISABLED_ICON_SUFFIX;
 end;
 
 procedure TRipGrepperTopFrame.SetFilterMode(const _fm : EFilterMode; const _bReset : Boolean = False);
