@@ -110,9 +110,9 @@ uses
 	System.StrUtils,
 	System.SysUtils,
 	Vcl.Graphics,
+	SVGIconImageCollection,
 	SVGIconImageList,
-	SVGIconVirtualImageList,
-	SVGIconImageCollection;
+	SVGIconVirtualImageList;
 
 class procedure TDarkModeHelper.AllowThemes;
 begin
@@ -290,12 +290,13 @@ begin
 			{ collection once - harmless if reached again through another virtual image list. }
 			collection := TSVGIconImageCollection(TSVGIconVirtualImageList(subCmp).ImageCollection);
 			for var j := 0 to collection.SVGIconItems.Count - 1 do begin
-				if collection.SVGIconItems[j].IconName.StartsWith('icon-') then begin
-					collection.SVGIconItems[j].FixedColor := clDefault;
-				end else begin
+				{ Items prefixed with 'icon-' (e.g. the disabled icon variants added by }
+				{ TRipGrepperTopFrame.AddDisabledIconVariant) keep their own FixedColor across }
+				{ theme changes, so leave them untouched here. }
+				if not collection.SVGIconItems[j].IconName.StartsWith('icon-') then begin
 					collection.SVGIconItems[j].FixedColor := _color;
+					collection.SVGIconItems[j].GrayScale := False;
 				end;
-				collection.SVGIconItems[j].GrayScale := False;
 			end;
 		end else if subCmp is TWinControl then begin
 			setFixedColorInSVGImgLists(TWinControl(subCmp), _color);

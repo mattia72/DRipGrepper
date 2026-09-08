@@ -29,9 +29,9 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Tools.Replacer,
 	RipGrepper.UI.IFrameEvents,
-	SVGIconVirtualImageList,
-	RipGrepper.UI.SVGIconDataModule,
 	RipGrepper.UI.Components.HistoryButtonedEdit,
+	RipGrepper.UI.SVGIconDataModule,
+	SVGIconVirtualImageList,
 	Spring;
 
 type
@@ -1148,29 +1148,37 @@ begin
 		Exit;
 	end;
 	var
-	newItem := SVGIconDataModule.SVGIconImageCollection1.SVGIconItems.Add();
-	newItem.Assign(srcItem);
-	{ TDarkModeHelper.setFixedColorInSVGImgLists re-stamps every icon's FixedColor to the }
-	{ current theme color on theme changes, except ones whose IconName starts with 'icon-' - }
-	{ that prefix is required here so our own FixedColor below survives future theme changes. }
-	newItem.IconName := GetDisabledIconName(_sIconName);
-	{ Derive the disabled shade from the icon's actual current enabled color rather than }
-	{ TDarkModeHelper.GetActualThemeMode - the IDE's active style name ("Mountain_Mist" etc.) }
-	{ does not match the hardcoded 'Carbon'/'Dark'/'Windows'/'Light' names that function looks }
-	{ for, so it does not reliably reflect what color TDarkModeHelper actually applied here. }
+	disabledIconName := GetDisabledIconName(_sIconName);
+	{ The collection is shared via SVGIconDataModule, so a previously created TopFrame instance }
+	{ (e.g. before the dockable IDE window was closed and reopened) may have already added this }
+	{ item - reuse it instead of appending a duplicate every time Initialize() runs again. }
 	var
-	enabledColor := srcItem.FixedColor;
-	if enabledColor = clDefault then begin
-		enabledColor := SvgImgLstTopFrame.FixedColor;
-	end;
-	var
-	enabledRGB := ColorToRGB(enabledColor);
-	var
-	luminance := (GetRValue(enabledRGB) * 299 + GetGValue(enabledRGB) * 587 + GetBValue(enabledRGB) * 114) div 1000;
-	if luminance < 128 then begin
-		newItem.FixedColor := TColor($00D4D4D4); // enabled is dark (light theme) - fade toward a pale gray
-	end else begin
-		newItem.FixedColor := TColor($00404040); // enabled is light (dark theme) - fade toward a dark gray
+	newItem := SVGIconDataModule.SVGIconImageCollection1.SVGIconItems.GetIconByName(disabledIconName);
+	if not Assigned(newItem) then begin
+		newItem := SVGIconDataModule.SVGIconImageCollection1.SVGIconItems.Add();
+		newItem.Assign(srcItem);
+		{ TDarkModeHelper.setFixedColorInSVGImgLists re-stamps every icon's FixedColor to the }
+		{ current theme color on theme changes, except ones whose IconName starts with 'icon-' - }
+		{ that prefix is required here so our own FixedColor below survives future theme changes. }
+		newItem.IconName := disabledIconName;
+		{ Derive the disabled shade from the icon's actual current enabled color rather than }
+		{ TDarkModeHelper.GetActualThemeMode - the IDE's active style name ("Mountain_Mist" etc.) }
+		{ does not match the hardcoded 'Carbon'/'Dark'/'Windows'/'Light' names that function looks }
+		{ for, so it does not reliably reflect what color TDarkModeHelper actually applied here. }
+		var
+		enabledColor := srcItem.FixedColor;
+		if enabledColor = clDefault then begin
+			enabledColor := SvgImgLstTopFrame.FixedColor;
+		end;
+		var
+		enabledRGB := ColorToRGB(enabledColor);
+		var
+		luminance := (GetRValue(enabledRGB) * 299 + GetGValue(enabledRGB) * 587 + GetBValue(enabledRGB) * 114) div 1000;
+		if luminance < 128 then begin
+			newItem.FixedColor := TColor($00D4D4D4); // enabled is dark (light theme) - fade toward a pale gray
+		end else begin
+			newItem.FixedColor := TColor($00404040); // enabled is light (dark theme) - fade toward a dark gray
+		end;
 	end;
 	{ Register the new collection item as a named entry in the local virtual image list, }
 	{ so Action.ImageName can resolve it - CollectionName-only items aren't auto-visible. }
