@@ -29,8 +29,8 @@ uses
 	Vcl.ActnList,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Common.Constants,
-	SVGIconImageListBase,
-	SVGIconImageList,
+	RipGrepper.UI.SVGIconDataModule,
+	SVGIconVirtualImageList,
 	Spring,
 	Vcl.Samples.Spin,
 	Vcl.ControlList;
@@ -45,7 +45,7 @@ type
 		ActionOpenFileDialog : TAction;
 		lblVersion : TLabel;
 		Memo1 : TMemo;
-		SVGIconImageList1 : TSVGIconImageList;
+		SVGIconImageList1 : TSVGIconVirtualImageList;
 		ScrollBox1 : TScrollBox;
 		grpSettings : TGroupBox;
 		Label2 : TLabel;

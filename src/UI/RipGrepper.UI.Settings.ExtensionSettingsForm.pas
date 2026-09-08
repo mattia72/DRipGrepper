@@ -24,8 +24,8 @@ uses
 	Vcl.ActnList,
 	System.ImageList,
 	Vcl.ImgList,
-	SVGIconImageListBase,
-	SVGIconImageList,
+	RipGrepper.UI.SVGIconDataModule,
+	SVGIconVirtualImageList,
 	Vcl.Imaging.pngimage;
 
 type
@@ -43,7 +43,7 @@ type
 		grpInstallation : TGroupBox;
 		OpenDialog1 : TOpenDialog;
 		btnedtDllPath : TButtonedEdit;
-		SVGIconImageList1 : TSVGIconImageList;
+		SVGIconImageList1 : TSVGIconVirtualImageList;
 		lblVersionInfo : TLabel;
 		grpVsCodeIntegration : TGroupBox;
 		chkHandleOpenInDelphiCommands : TCheckBox;
