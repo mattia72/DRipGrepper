@@ -46,8 +46,8 @@ uses
 	RipGrepper.Common.NodeData,
 	RipGrepper.UI.IFrameEvents,
 	RipGrepper.Settings.FontColors,
-	SVGIconImageListBase,
-	SVGIconImageList;
+	RipGrepper.UI.SVGIconDataModule,
+	SVGIconVirtualImageList;
 
 type
 	TRipGrepperMiddleFrame = class(TFrame, IFrameEvents, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
@@ -81,7 +81,7 @@ type
 		miOpenInIde : TMenuItem;
 		ActionCopyCmdLineToClipboard : TAction;
 		MiddleLeftFrame1 : TMiddleLeftFrame;
-		SVGIconImageList1 : TSVGIconImageList;
+		SVGIconImageList1 : TSVGIconVirtualImageList;
 		ActionDeleteResultNode : TAction;
 		N4 : TMenuItem;
 		miDeleteResultNode : TMenuItem;
