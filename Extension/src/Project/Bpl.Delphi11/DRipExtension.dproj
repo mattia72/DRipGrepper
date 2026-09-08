@@ -192,6 +192,9 @@
       <FormType>dfm</FormType>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.SVGIconDataModule.pas">
+      <FormType>dfm</FormType>
+    </DCCReference>
     <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.Constants.pas" />
     <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.GuiSearchParams.pas" />
     <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.Interfaces.pas" />
