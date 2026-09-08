@@ -23,4 +23,12 @@ implementation
 
 {$R *.dfm}
 
+initialization
+
+SVGIconDataModule := TSVGIconDataModule.Create(nil);
+
+finalization
+
+FreeAndNil(SVGIconDataModule);
+
 end.

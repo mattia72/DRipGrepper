@@ -110,7 +110,9 @@ uses
 	System.StrUtils,
 	System.SysUtils,
 	Vcl.Graphics,
-	SVGIconImageList;
+	SVGIconImageList,
+	SVGIconVirtualImageList,
+	SVGIconImageCollection;
 
 class procedure TDarkModeHelper.AllowThemes;
 begin
@@ -267,6 +269,7 @@ end;
 class procedure TDarkModeHelper.setFixedColorInSVGImgLists(_ctrl : TWinControl; const _color : TColor);
 var
 	subImgList : TSVGIconImageList;
+	collection : TSVGIconImageCollection;
 begin
 	for var i := 0 to _ctrl.ComponentCount - 1 do begin
 		var
@@ -281,6 +284,18 @@ begin
 					subImgList.SVGIconItems[j].FixedColor := _color;
 				end;
 				subImgList.SVGIconItems[j].GrayScale := False;
+			end;
+		end else if (subCmp is TSVGIconVirtualImageList) and (TSVGIconVirtualImageList(subCmp).ImageCollection is TSVGIconImageCollection) then begin
+			{ Icons are shared via SVGIconDataModule.SVGIconImageCollection1, so this recolors that }
+			{ collection once - harmless if reached again through another virtual image list. }
+			collection := TSVGIconImageCollection(TSVGIconVirtualImageList(subCmp).ImageCollection);
+			for var j := 0 to collection.SVGIconItems.Count - 1 do begin
+				if collection.SVGIconItems[j].IconName.StartsWith('icon-') then begin
+					collection.SVGIconItems[j].FixedColor := clDefault;
+				end else begin
+					collection.SVGIconItems[j].FixedColor := _color;
+				end;
+				collection.SVGIconItems[j].GrayScale := False;
 			end;
 		end else if subCmp is TWinControl then begin
 			setFixedColorInSVGImgLists(TWinControl(subCmp), _color);

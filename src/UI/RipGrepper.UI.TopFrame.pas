@@ -29,8 +29,8 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Tools.Replacer,
 	RipGrepper.UI.IFrameEvents,
-	SVGIconImageListBase,
-	SVGIconImageList,
+	SVGIconVirtualImageList,
+	RipGrepper.UI.SVGIconDataModule,
 	RipGrepper.UI.Components.HistoryButtonedEdit,
 	Spring;
 
@@ -103,7 +103,7 @@ type
 		mniUseRegex : TMenuItem;
 		ActionReplaceCaseSensitive : TAction;
 		ActionReplaceUseRegex : TAction;
-		SvgImgLstTopFrame : TSVGIconImageList;
+		SvgImgLstTopFrame : TSVGIconVirtualImageList;
 		pnlTop : TPanel;
 		ToolButton10 : TToolButton;
 		ActionCheckAllResults : TAction;
@@ -1139,22 +1139,42 @@ begin
 	{ DisabledOpacity/DisabledGrayScale blending depend on the VCL style hook actually }
 	{ painting this toolbar - which it does not here, since StyleServices(tbarResult) }
 	{ resolves to the system style while hosted as an IDE extension. So instead, add a }
-	{ pre-colored "disabled" clone of the icon right into SvgImgLstTopFrame and switch }
-	{ ImageName to it manually - the same pattern ActionCheckAllResultsUpdate already }
-	{ uses, which is known to render correctly regardless of styling. }
+	{ pre-colored "disabled" clone of the icon right into the central SVG icon collection }
+	{ and switch ImageName to it manually - the same pattern ActionCheckAllResultsUpdate }
+	{ already uses, which is known to render correctly regardless of styling. }
 	var
-	srcItem := SvgImgLstTopFrame.SVGIconItems.GetIconByName(_sIconName);
+	srcItem := SVGIconDataModule.SVGIconImageCollection1.SVGIconItems.GetIconByName(_sIconName);
 	if not Assigned(srcItem) then begin
 		Exit;
 	end;
 	var
-	newItem := SvgImgLstTopFrame.SVGIconItems.Add();
+	newItem := SVGIconDataModule.SVGIconImageCollection1.SVGIconItems.Add();
 	newItem.Assign(srcItem);
 	{ TDarkModeHelper.setFixedColorInSVGImgLists re-stamps every icon's FixedColor to the }
 	{ current theme color on theme changes, except ones whose IconName starts with 'icon-' - }
 	{ that prefix is required here so our own FixedColor below survives future theme changes. }
 	newItem.IconName := GetDisabledIconName(_sIconName);
-	newItem.FixedColor := clGrayText;
+	{ Derive the disabled shade from the icon's actual current enabled color rather than }
+	{ TDarkModeHelper.GetActualThemeMode - the IDE's active style name ("Mountain_Mist" etc.) }
+	{ does not match the hardcoded 'Carbon'/'Dark'/'Windows'/'Light' names that function looks }
+	{ for, so it does not reliably reflect what color TDarkModeHelper actually applied here. }
+	var
+	enabledColor := srcItem.FixedColor;
+	if enabledColor = clDefault then begin
+		enabledColor := SvgImgLstTopFrame.FixedColor;
+	end;
+	var
+	enabledRGB := ColorToRGB(enabledColor);
+	var
+	luminance := (GetRValue(enabledRGB) * 299 + GetGValue(enabledRGB) * 587 + GetBValue(enabledRGB) * 114) div 1000;
+	if luminance < 128 then begin
+		newItem.FixedColor := TColor($00D4D4D4); // enabled is dark (light theme) - fade toward a pale gray
+	end else begin
+		newItem.FixedColor := TColor($00404040); // enabled is light (dark theme) - fade toward a dark gray
+	end;
+	{ Register the new collection item as a named entry in the local virtual image list, }
+	{ so Action.ImageName can resolve it - CollectionName-only items aren't auto-visible. }
+	SvgImgLstTopFrame.Add(newItem.IconName, newItem.IconName);
 end;
 
 function TRipGrepperTopFrame.GetDisabledIconName(const _sIconName : string) : string;
