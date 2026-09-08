@@ -26,9 +26,9 @@ uses
 	Vcl.ImgList,
 	RipGrepper.Settings.FontColors,
 	Vcl.ExtCtrls,
-	SVGIconImageListBase,
-	SVGIconImageList,
 	RipGrepper.UI.IFrameEvents,
+	RipGrepper.UI.SVGIconDataModule,
+	SVGIconVirtualImageList,
 	Winapi.ActiveX,
 	System.UITypes; // this should be the last uses
 
@@ -49,7 +49,7 @@ type
 		pmHistoryDelete : TMenuItem;
 		pmHistoryDeleteAll : TMenuItem;
 		Panel1 : TPanel;
-		SVGIconImageList1 : TSVGIconImageList;
+		SVGIconImageList1 : TSVGIconVirtualImageList;
 		pmSave : TMenuItem;
 		N1 : TMenuItem;
 		ActionSave : TAction;
