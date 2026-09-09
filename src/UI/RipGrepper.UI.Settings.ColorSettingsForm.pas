@@ -22,9 +22,7 @@ uses
 	RipGrepper.Settings.AppSettings,
 	RipGrepper.Settings.NodeLookSettings,
 	System.ImageList,
-	Vcl.ImgList,
-	SVGIconImageListBase,
-	SVGIconImageList;
+	Vcl.ImgList;
 
 type
 	TColorSettingsForm = class(TSettingsBaseForm)
