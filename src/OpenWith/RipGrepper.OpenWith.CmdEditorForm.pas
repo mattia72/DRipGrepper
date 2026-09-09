@@ -22,12 +22,14 @@ uses
 	Vcl.ActnList,
 	RipGrepper.Tools.FileUtils,
 	RipGrepper.UI.BaseForm,
-	Vcl.ComCtrls;
+	Vcl.ComCtrls,
+	RipGrepper.UI.SVGIconDataModule,
+	SVGIconVirtualImageList;
 
 type
 
 	TOpenWithCommandEditor = class(TBaseForm)
-		SVGIconImageList1 : TSVGIconImageList;
+		SVGIconImageList1 : TSVGIconVirtualImageList;
 		Panel1 : TPanel;
 		Label1 : TLabel;
 		edtCmdPath : TEdit;

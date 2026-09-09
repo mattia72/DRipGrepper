@@ -20,8 +20,8 @@ uses
 	Vcl.ComCtrls,
 	Vcl.ToolWin,
 	RipGrepper.UI.SettingsFormBase,
-	SVGIconImageListBase,
-	SVGIconImageList,
+	RipGrepper.UI.SVGIconDataModule,
+	SVGIconVirtualImageList,
 	RipGrepper.Tools.FileUtils,
 	ArrayEx;
 
@@ -52,7 +52,7 @@ type
 			tbUp : TToolButton;
 			tbDown : TToolButton;
 			tbTestRun : TToolButton;
-			SVGIconImageList1 : TSVGIconImageList;
+			SVGIconImageList1 : TSVGIconVirtualImageList;
 			lvCommands : TListView;
 			procedure ActionAddExecute(Sender : TObject);
 			procedure ActionCancelExecute(Sender : TObject);

@@ -23,8 +23,8 @@ uses
 	RipGrepper.UI.DpiScaler,
 	RipGrepper.Settings.OpenWithSettings,
 	RipGrepper.UI.BaseForm,
-	SVGIconImageListBase,
-	SVGIconImageList,
+	RipGrepper.UI.SVGIconDataModule,
+	SVGIconVirtualImageList,
 	RipGrepper.Tools.FileUtils;
 
 type
@@ -44,7 +44,7 @@ type
 		lblHint1 : TLabel;
 		pnl_Right : TPanel;
 		pnl_Top : TPanel;
-		SVGIconImageList1 : TSVGIconImageList;
+		SVGIconImageList1 : TSVGIconVirtualImageList;
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionShowConfigExecute(Sender : TObject);
 		procedure ActionOkExecute(Sender : TObject);
