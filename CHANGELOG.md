@@ -26,6 +26,8 @@ e.g. `86 paths (e.g. C:\...)`
 - Update version script. 
 - **extension** On showing of search form in Delphi IDE, all text in every combo box was selected, now only the active combo box text is selected, so typing will delete the whole entry immediately. 
 - **extension** Search directory was reset to the previous Custom Location path when opening the search form a second time in a non-Custom IDE context (e.g. *All open files*, *Project files*), causing rg.exe to run against the wrong path. The context-driven search path is now preserved on form show.
+- CRLF line endings are now used consistently in all source files.
+- Datamodul is introduced as a centralized module for managing image resources.
 
 ## [v4.15.0-beta] - 2026-03-12
 
