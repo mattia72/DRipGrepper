@@ -9,10 +9,10 @@ uses
 	Vcl.StdCtrls,
 	System.ImageList,
 	Vcl.ImgList,
-	SVGIconImageListBase,
-	SVGIconImageList,
 	RipGrepper.UI.DpiScaler,
-	RipGrepper.Helper.UI.DarkMode, 
+	RipGrepper.Helper.UI.DarkMode,
+	RipGrepper.UI.SVGIconDataModule,
+	SVGIconVirtualImageList,
 	Vcl.Controls;
 
 type
@@ -20,7 +20,7 @@ type
 		PanelBottom : TPanel;
 		btnOk : TButton;
 		btnCancel : TButton;
-		SVGImageListBottomPanel : TSVGIconImageList;
+		SVGImageListBottomPanel : TSVGIconVirtualImageList;
 
 		private
 			FThemeHandler : TThemeHandler;

@@ -8,8 +8,8 @@ uses
 	System.ImageList,
 	RipGrepper.Settings.Persistable,
 	RipGrepper.UI.SettingsFormBase,
-	SVGIconImageList,
-	SVGIconImageListBase,
+	RipGrepper.UI.SVGIconDataModule,
+	SVGIconVirtualImageList,
 	Vcl.ActnList,
 	Vcl.ComCtrls,
 	Vcl.Controls,
@@ -48,7 +48,7 @@ type
 			ActionRemove : TAction;
 			ActionTest : TAction;
 			pnlMain : TPanel;
-			SVGIconImageList1 : TSVGIconImageList;
+			SVGIconImageList1 : TSVGIconVirtualImageList;
 			tbDown : TToolButton;
 			tbMinus : TToolButton;
 			tbPlus : TToolButton;

@@ -33,8 +33,8 @@ uses
 	RipGrepper.Settings.SearchFormSettings,
 	RipGrepper.Common.Interfaces,
 	RipGrepper.Common.SimpleTypes,
-	SVGIconImageListBase,
-	SVGIconImageList,
+	RipGrepper.UI.SVGIconDataModule,
+	SVGIconVirtualImageList,
 	Spring,
 	ArrayEx,
 	RipGrepper.Settings.SettingVariant,
@@ -121,7 +121,7 @@ type
 		cmbReplaceText : TComboBox;
 		btnRGReplaceHelp : TButton;
 		ActionShowRGReplaceOptionHelp : TAction;
-		SVGIconImageList1 : TSVGIconImageList;
+		SVGIconImageList1 : TSVGIconVirtualImageList;
 		ToolButton1 : TToolButton;
 		ToolButton2 : TToolButton;
 		pnlRgFilterOptions : TPanel;

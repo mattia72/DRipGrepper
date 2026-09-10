@@ -110,7 +110,9 @@ uses
 	System.StrUtils,
 	System.SysUtils,
 	Vcl.Graphics,
-	SVGIconImageList;
+	SVGIconImageCollection,
+	SVGIconImageList,
+	SVGIconVirtualImageList;
 
 class procedure TDarkModeHelper.AllowThemes;
 begin
@@ -267,6 +269,7 @@ end;
 class procedure TDarkModeHelper.setFixedColorInSVGImgLists(_ctrl : TWinControl; const _color : TColor);
 var
 	subImgList : TSVGIconImageList;
+	collection : TSVGIconImageCollection;
 begin
 	for var i := 0 to _ctrl.ComponentCount - 1 do begin
 		var
@@ -281,6 +284,19 @@ begin
 					subImgList.SVGIconItems[j].FixedColor := _color;
 				end;
 				subImgList.SVGIconItems[j].GrayScale := False;
+			end;
+		end else if (subCmp is TSVGIconVirtualImageList) and (TSVGIconVirtualImageList(subCmp).ImageCollection is TSVGIconImageCollection) then begin
+			{ Icons are shared via SVGIconDataModule.SVGIconImageCollection1, so this recolors that }
+			{ collection once - harmless if reached again through another virtual image list. }
+			collection := TSVGIconImageCollection(TSVGIconVirtualImageList(subCmp).ImageCollection);
+			for var j := 0 to collection.SVGIconItems.Count - 1 do begin
+				{ Items prefixed with 'icon-' (e.g. the disabled icon variants added by }
+				{ TRipGrepperTopFrame.AddDisabledIconVariant) keep their own FixedColor across }
+				{ theme changes, so leave them untouched here. }
+				if not collection.SVGIconItems[j].IconName.StartsWith('icon-') then begin
+					collection.SVGIconItems[j].FixedColor := _color;
+					collection.SVGIconItems[j].GrayScale := False;
+				end;
 			end;
 		end else if subCmp is TWinControl then begin
 			setFixedColorInSVGImgLists(TWinControl(subCmp), _color);

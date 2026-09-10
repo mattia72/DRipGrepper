@@ -4,6 +4,7 @@ interface
 
 uses
 	RipGrepper.Settings.Persistable,
+	System.Diagnostics,
 	System.IniFiles,
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.IDEContextValues,
@@ -26,6 +27,11 @@ type
 		ActiveProject : string;
 		function IsEmpty() : Boolean;
 		function IsFileInProject(const _filePath : string) : Boolean;
+		function IsStaleFor(const _activeProject : string) : Boolean;
+
+		private
+			class function isUnderDir(const _normalizedFilePath, _normalizedDir : string) : Boolean; static;
+			class function normalizePath(const _path : string; const _baseDir : string = '') : string; static;
 
 		public
 			function ToLogString : string;
@@ -43,14 +49,26 @@ type
 			KEY_SHORTCUT_OPENWITH = 'OpenWithShortcut';
 			KEY_SHORTCUT_SETTINGS = 'SettingsShortcut';
 			KEY_HANDLE_OPEN_WITH_DELPHI_COMMANDS = 'HandleOpenWithDelphiCommands';
+			{$IF IS_EXTENSION}
+			{ Minimal delay between two active project comparisons with the IDE. Without the throttle
+			  every result tree node would ask IOTA for the active project while painting. }
+			ACTIVE_PROJECT_CHECK_INTERVAL_MS = 1000;
+			{$ENDIF}
 
 		private
 			FSearchSelectedShortcut : IStringSetting;
 			FCurrentIDEContext : TDelphiIDEContext;
+			FIsIDEContextInvalidated : Boolean;
+			{$IF IS_EXTENSION}
+			FswActiveProjectCheck : TStopwatch;
+			{$ENDIF}
 			FIDEContext : IIntegerSetting;
 			FOpenWithShortCut : IStringSetting;
 			FSettingsShortCut : IStringSetting;
 			FHandleOpenWithDelphiCommands : IBoolSetting;
+			{$IF IS_EXTENSION}
+			function isIDEContextReloadNeeded() : Boolean;
+			{$ENDIF}
 			function GetCurrentIDEContext() : TDelphiIDEContext;
 			function GetHandleOpenWithDelphiCommands() : Boolean;
 			function GetOpenWithShortcut() : string;
@@ -66,6 +84,7 @@ type
 			constructor Create(const _Owner : TPersistableSettings); overload;
 			constructor Create; overload;
 			procedure Init; override;
+			procedure InvalidateIDEContext();
 			function ToLogString : string; override;
 			property SearchSelectedShortcut : string read GetSearchSelectedShortcut write SetSearchSelectedShortcut;
 			property OpenWithShortcut : string read GetOpenWithShortcut write SetOpenWithShortcut;
@@ -103,13 +122,67 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.GetCurrentIDEContext', True);
 
-	if FCurrentIDEContext.IsEmpty then begin
-		dbgMsg.Msg('CurrentIDEContext is empty. Load from IOTA...');
+	if isIDEContextReloadNeeded() then begin
+		dbgMsg.Msg('Load CurrentIDEContext from IOTA...');
 		FCurrentIDEContext.LoadFromIOTA();
+		FIsIDEContextInvalidated := False;
+		FswActiveProjectCheck := TStopwatch.StartNew;
+		dbgMsg.Msg('CurrentIDEContext: ' + FCurrentIDEContext.ToLogString);
 	end;
 	{$ENDIF}
 	FCurrentIDEContext.IDESearchContext := EDelphiIDESearchContext(FIDEContext.Value);
 	Result := FCurrentIDEContext;
+end;
+
+{$IF IS_EXTENSION}
+
+{ True, if the cached IDE context has to be (re)loaded from IOTA: it was invalidated by the IDE
+  notifier, it was never loaded, or - as a safety net for changes the IDE doesn't notify us about -
+  the active project of the IDE has changed meanwhile. The comparison with the IDE is throttled,
+  because this is also called while painting the result tree, once per node. }
+function TRipGrepperExtensionSettings.isIDEContextReloadNeeded() : Boolean;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.isIDEContextReloadNeeded', True);
+
+	Result := True;
+	if FIsIDEContextInvalidated then begin
+		dbgMsg.Msg('CurrentIDEContext was invalidated');
+		Exit;
+	end;
+
+	if FCurrentIDEContext.IsEmpty then begin
+		dbgMsg.Msg('CurrentIDEContext is empty');
+		Exit;
+	end;
+
+	if FswActiveProjectCheck.IsRunning and
+	{ } (FswActiveProjectCheck.ElapsedMilliseconds < ACTIVE_PROJECT_CHECK_INTERVAL_MS) then begin
+		// checked a moment ago, don't ask IOTA again
+		Result := False;
+		Exit;
+	end;
+	FswActiveProjectCheck := TStopwatch.StartNew;
+
+	var
+		projPathGetter : IDelphiIDEContext := TDelphiIDEContextProvider.Create();
+	var
+	activeProject := projPathGetter.GetActiveProjectFilePath();
+	Result := FCurrentIDEContext.IsStaleFor(activeProject);
+	dbgMsg.MsgFmtIf(Result, 'ActiveProject changed: %s -> %s', [FCurrentIDEContext.ActiveProject, activeProject]);
+end;
+{$ENDIF}
+
+{ Marks the cached IDE context as outdated, so it is reloaded from IOTA on the next read. The
+  reload itself is left to the getter, because collecting the library path is expensive and the
+  context may not be needed at all. }
+procedure TRipGrepperExtensionSettings.InvalidateIDEContext();
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.InvalidateIDEContext');
+	dbgMsg.Msg('Cached CurrentIDEContext: ' + FCurrentIDEContext.ToLogString);
+
+	FIsIDEContextInvalidated := True;
 end;
 
 function TRipGrepperExtensionSettings.GetHandleOpenWithDelphiCommands() : Boolean;
@@ -203,37 +276,97 @@ begin
 	Result := ActiveProject.IsEmpty;
 end;
 
+{ Normalizes a path for comparison: unifies the path delimiters, resolves '..' and '.' parts and
+  converts it to upper case. A relative _path is resolved against _baseDir, if one is given. }
+class function TDelphiIDEContext.normalizePath(const _path : string; const _baseDir : string = '') : string;
+begin
+	Result := _path.Trim();
+	if Result.IsEmpty then begin
+		Exit;
+	end;
+
+	Result := Result.Replace('/', '\', [rfReplaceAll]);
+	if (not _baseDir.IsEmpty) and TPath.IsRelativePath(Result) then begin
+		Result := IncludeTrailingPathDelimiter(_baseDir) + Result;
+	end;
+
+	try
+		Result := TPath.GetFullPath(Result);
+	except
+		on E : Exception do begin
+			// paths which can't be expanded (e.g. invalid chars) are compared as they are
+			TDebugUtils.DebugMessage('TDelphiIDEContext.normalizePath: ' + E.Message + ' - ' + _path);
+		end;
+	end;
+	Result := Result.ToUpper;
+end;
+
+{ Checks if _normalizedFilePath is located in _normalizedDir or in one of its sub directories.
+  Both parameters have to be normalized by normalizePath() beforehand. }
+class function TDelphiIDEContext.isUnderDir(const _normalizedFilePath, _normalizedDir : string) : Boolean;
+begin
+	Result := (not _normalizedDir.IsEmpty) and _normalizedFilePath.StartsWith(IncludeTrailingPathDelimiter(_normalizedDir));
+end;
+
 function TDelphiIDEContext.IsFileInProject(const _filePath : string) : Boolean;
 var
+	normalizedFilePath : string;
 	projectDir : string;
-	filePathUpper : string;
 begin
 	Result := True;
 
-	if ActiveProject.IsEmpty then begin
+	if ActiveProject.IsEmpty or _filePath.Trim().IsEmpty then begin
+		Exit;
+	end;
+
+	{ ripgrep reports relative paths if it was called with a relative search path. The base directory
+	  of the search isn't part of the IDE context, so such a path can't be resolved here. Don't report
+	  it as outside of the project to avoid a false warning. }
+	if TPath.IsRelativePath(_filePath.Trim().Replace('/', '\', [rfReplaceAll])) then begin
 		Exit;
 	end;
 
 	projectDir := TPath.GetDirectoryName(ActiveProject);
-	filePathUpper := _filePath.ToUpper;
-
 	if projectDir.IsEmpty then begin
 		Exit;
 	end;
 
+	normalizedFilePath := normalizePath(_filePath);
+
 	// Check project directory
-	if filePathUpper.StartsWith(projectDir.ToUpper) then begin
+	if isUnderDir(normalizedFilePath, normalizePath(projectDir)) then begin
 		Exit;
+	end;
+
+	// Units of the project may be stored outside of the project directory
+	for var projFile in ProjectFiles do begin
+		if normalizePath(projFile, projectDir) = normalizedFilePath then begin
+			Exit;
+		end;
+	end;
+
+	// Check directories of the project units
+	for var projFilesDir in ProjectFilesDirs do begin
+		if isUnderDir(normalizedFilePath, normalizePath(projFilesDir, projectDir)) then begin
+			Exit;
+		end;
 	end;
 
 	// Check library paths
 	for var libPath in ProjectLibraryPath do begin
-		if (not libPath.IsEmpty) and filePathUpper.StartsWith(libPath.ToUpper) then begin
+		if isUnderDir(normalizedFilePath, normalizePath(libPath, projectDir)) then begin
 			Exit;
 		end;
 	end;
 
 	Result := False;
+end;
+
+{ True, if this context doesn't describe _activeProject any more, e.g. because the user has changed
+  the active project in the IDE. Both project paths are empty, if no project is open at all. }
+function TDelphiIDEContext.IsStaleFor(const _activeProject : string) : Boolean;
+begin
+	Result := normalizePath(ActiveProject) <> normalizePath(_activeProject);
 end;
 
 function TDelphiIDEContext.GetValueByContext() : string;

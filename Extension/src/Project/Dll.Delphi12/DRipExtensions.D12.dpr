@@ -57,6 +57,7 @@ uses
   RipGrepper.UI.RipGrepOptionsForm in '..\..\..\..\src\UI\RipGrepper.UI.RipGrepOptionsForm.pas' {RipGrepOptionsForm},
   RipGrepper.UI.SearchForm in '..\..\..\..\src\UI\RipGrepper.UI.SearchForm.pas' {RipGrepperSearchDialogForm},
   RipGrepper.UI.TopFrame in '..\..\..\..\src\UI\RipGrepper.UI.TopFrame.pas' {RipGrepperTopFrame: TFrame},
+  RipGrepper.UI.SVGIconDataModule in '..\..\..\..\src\UI\RipGrepper.UI.SVGIconDataModule.pas' {SVGIconDataModule: TDataModule},
   RipGrepper.Common.Constants in '..\..\..\..\src\Common\RipGrepper.Common.Constants.pas',
   RipGrepper.Common.GuiSearchParams in '..\..\..\..\src\Common\RipGrepper.Common.GuiSearchParams.pas',
   RipGrepper.Common.Interfaces in '..\..\..\..\src\Common\RipGrepper.Common.Interfaces.pas',

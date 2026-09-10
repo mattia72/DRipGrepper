@@ -24,8 +24,8 @@ type
 			class function RunCommand(const _exe, _args, _workDir : string) : string;
 			class function ParseGitStatusCode(const _code : string) : string;
 			class function ParseSvnStatusCode(_code : Char) : string;
-			class function BuildMatchContextHint(const _nodeData : PVSFileNodeData; const _contextLines : Integer; const _filePath : string;
-					const _fileLines : TArray<string>) : string;
+			class function BuildMatchContextHint(const _nodeData : PVSFileNodeData; const _contextLines : Integer;
+					const _filePath : string) : string;
 
 		public
 			// Build the hint text for file-level nodes (full path, size, attributes, SC info)
@@ -321,27 +321,49 @@ begin
 end;
 
 class function TFileHintBuilder.BuildMatchContextHint(const _nodeData : PVSFileNodeData; const _contextLines : Integer;
-		const _filePath : string; const _fileLines : TArray<string>) : string;
+		const _filePath : string) : string;
 var
+	reader : TStreamReader;
 	lines : TStringList;
 	startLine, endLine, lineNumber : Integer;
 	lineText : string;
+	matchLineSeen : Boolean;
 begin
+	Result := '';
+	startLine := Max(1, _nodeData.MatchData.Row - _contextLines);
+	endLine := _nodeData.MatchData.Row + _contextLines;
+	matchLineSeen := False;
+
 	lines := TStringList.Create;
+	reader := TStreamReader.Create(_filePath, TEncoding.UTF8, True);
 	try
-		startLine := Max(1, _nodeData.MatchData.Row - _contextLines);
-		endLine := Min(Length(_fileLines), _nodeData.MatchData.Row + _contextLines);
-		// lines.Add(Format('%s:%d-%d', [_filePath, startLine, endLine]));
-		for lineNumber := startLine to endLine do begin
-			lineText := _fileLines[lineNumber - 1].Replace(TAB,SPACE);
+		lineNumber := 0;
+		while not reader.EndOfStream do begin
+			Inc(lineNumber);
+			if lineNumber > endLine then begin
+				Break; // don't read past what we need
+			end;
+			lineText := reader.ReadLine;
+			if lineNumber < startLine then begin
+				Continue; // skip, don't store
+			end;
+			lineText := lineText.Replace(TAB, SPACE);
 			if lineNumber = _nodeData.MatchData.Row then begin
+				matchLineSeen := True;
 				lines.Add(Format('> %5d: %s', [lineNumber, lineText]));
 			end else begin
 				lines.Add(Format('  %5d: %s', [lineNumber, lineText]));
 			end;
 		end;
+
+		if not matchLineSeen then begin
+			// Row is beyond EOF - caller falls back to plain line hint
+			Result := '';
+			Exit;
+		end;
 		Result := string.Join(CRLF, lines.ToStringArray);
 	finally
+		reader.Free;
 		lines.Free;
 	end;
 end;
@@ -350,7 +372,6 @@ class function TFileHintBuilder.BuildMatchLineHintWithContext(const _nodeData : 
 		const _filePath : string) : string;
 var
 	contextLines : Integer;
-	fileLines : TArray<string>;
 begin
 	Result := '';
 	if (_nodeData = nil) or (_contextLines <= 0) then begin
@@ -363,14 +384,11 @@ begin
 			Exit;
 		end;
 
-		fileLines := TFile.ReadAllLines(_filePath);
-		if (Length(fileLines) = 0) or (_nodeData.MatchData.Row > Length(fileLines)) then begin
-			Result := BuildMatchLineHint(_nodeData, _filePath);
-			Exit;
-		end;
-
 		contextLines := IfThen(_contextLines > MAX_CONTEXT, MAX_CONTEXT, _contextLines);
-		Result := BuildMatchContextHint(_nodeData, contextLines, _filePath, fileLines);
+		Result := BuildMatchContextHint(_nodeData, contextLines, _filePath);
+		if Result.IsEmpty then begin
+			Result := BuildMatchLineHint(_nodeData, _filePath);
+		end;
 	except
 		on E : Exception do
 			Result := BuildMatchLineHint(_nodeData, _filePath);

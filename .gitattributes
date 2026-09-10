@@ -1,0 +1,39 @@
+# Line endings
+#
+# The repository stores LF; working trees get the platform-native ending
+# (CRLF on Windows). The Delphi IDE always writes CRLF, so without this the
+# normalization would depend on each clone's core.autocrlf setting and any
+# file the IDE re-saved would show up in diffs as a full-file rewrite.
+* text=auto
+
+# Delphi / Pascal sources - always text, never guessed
+*.pas        text
+*.dfm        text
+*.dpr        text
+*.dpk        text
+*.dproj      text
+*.groupproj  text
+*.inc        text
+*.rc         text
+
+# Scripts, config and docs - always text
+*.ps1        text
+*.psd1       text
+*.md         text
+*.json       text
+*.yml        text
+*.txt        text
+*.config     text
+*.tpl        text
+
+# Binary - never convert, never diff as text
+*.png        binary
+*.PNG        binary
+*.jpg        binary
+*.bmp        binary
+*.ico        binary
+*.dcr        binary
+*.dcu        binary
+*.dres       binary
+*.otares     binary
+*.exe        binary

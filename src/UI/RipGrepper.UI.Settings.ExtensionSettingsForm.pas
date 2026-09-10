@@ -24,9 +24,9 @@ uses
 	Vcl.ActnList,
 	System.ImageList,
 	Vcl.ImgList,
-	SVGIconImageListBase,
-	SVGIconImageList,
-	Vcl.Buttons;
+	RipGrepper.UI.SVGIconDataModule,
+	SVGIconVirtualImageList,
+	Vcl.Imaging.pngimage;
 
 type
 	TExtensionSettingsForm = class(TSettingsBaseForm)
@@ -43,14 +43,13 @@ type
 		grpInstallation : TGroupBox;
 		OpenDialog1 : TOpenDialog;
 		btnedtDllPath : TButtonedEdit;
-		SVGIconImageList1 : TSVGIconImageList;
+		SVGIconImageList1 : TSVGIconVirtualImageList;
 		lblVersionInfo : TLabel;
 		grpVsCodeIntegration : TGroupBox;
 		chkHandleOpenInDelphiCommands : TCheckBox;
-		sbtnOpenInDelphiLnk : TSpeedButton;
-		ActionOpenLinkVsCodeExtension : TAction;
+		imgOpenInDelphi : TImage;
 		procedure ActionExtensionInstallExecute(Sender : TObject);
-		procedure ActionOpenLinkVsCodeExtensionExecute(Sender : TObject);
+		procedure imgOpenInDelphiClick(Sender : TObject);
 		procedure btnedtDllPathLeftButtonClick(Sender : TObject);
 		procedure btnedtDllPathRightButtonClick(Sender : TObject);
 		procedure cmbDelphiVersionsChange(Sender : TObject);
@@ -161,7 +160,7 @@ begin
 	end;
 end;
 
-procedure TExtensionSettingsForm.ActionOpenLinkVsCodeExtensionExecute(Sender : TObject);
+procedure TExtensionSettingsForm.imgOpenInDelphiClick(Sender : TObject);
 begin
 	TShellUtils.Run(WWW_LINK_OPEN_IN_DELPHI);
 end;

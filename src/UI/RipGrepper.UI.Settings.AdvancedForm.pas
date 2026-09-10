@@ -29,8 +29,8 @@ uses
 	Vcl.ActnList,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Common.Constants,
-	SVGIconImageListBase,
-	SVGIconImageList,
+	RipGrepper.UI.SVGIconDataModule,
+	SVGIconVirtualImageList,
 	Spring,
 	Vcl.Samples.Spin,
 	Vcl.ControlList,
@@ -55,7 +55,7 @@ type
 		chInfo : TCheckBox;
 		chRegex : TCheckBox;
 		edtRegex : TEdit;
-		SVGIconImageList1 : TSVGIconImageList;
+		SVGIconImageList1 : TSVGIconVirtualImageList;
 		chVerbose : TCheckBox;
 		ScrollBox1 : TScrollBox;
 		lblTraceOutput : TLabel;

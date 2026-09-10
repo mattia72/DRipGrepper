@@ -29,9 +29,9 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	RipGrepper.Tools.Replacer,
 	RipGrepper.UI.IFrameEvents,
-	SVGIconImageListBase,
-	SVGIconImageList,
 	RipGrepper.UI.Components.HistoryButtonedEdit,
+	RipGrepper.UI.SVGIconDataModule,
+	SVGIconVirtualImageList,
 	Spring;
 
 type
@@ -103,13 +103,17 @@ type
 		mniUseRegex : TMenuItem;
 		ActionReplaceCaseSensitive : TAction;
 		ActionReplaceUseRegex : TAction;
-		SvgImgLstTopFrame : TSVGIconImageList;
+		SvgImgLstTopFrame : TSVGIconVirtualImageList;
 		pnlTop : TPanel;
 		ToolButton10 : TToolButton;
+		ActionCheckAllResults : TAction;
+		tbCheckAllResults : TToolButton;
 		procedure ActionAbortSearchExecute(Sender : TObject);
 		procedure ActionAlignToolbarsExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsExecute(Sender : TObject);
 		procedure ActionAlternateRowColorsUpdate;
+		procedure ActionCheckAllResultsExecute(Sender : TObject);
+		procedure ActionCheckAllResultsUpdate(Sender : TObject);
 		procedure ActionCmdLineCopyExecute(Sender : TObject);
 		procedure ActionConfigExecute(Sender : TObject);
 		procedure ActionCopyFileNameExecute(Sender : TObject);
@@ -163,6 +167,8 @@ type
 			FSkipButtonEditChange : Boolean;
 			FViewStyleIndex : integer;
 			FReplaceList : IShared<TReplaceList>;
+			procedure AddDisabledIconVariant(const _sIconName : string);
+			function GetDisabledIconName(const _sIconName : string) : string;
 			procedure ChangeButtonedEditTextButSkipChangeEvent(_edt : TButtonedEdit; const _txt : string);
 			procedure GetCheckedReplaceList();
 			function GetIsGuiReplaceMode : Boolean;
@@ -254,6 +260,9 @@ uses
 	System.TypInfo,
 	Vcl.Themes,
 	ArrayEx;
+
+const
+	DISABLED_ICON_SUFFIX = '-disabled';
 
 constructor TRipGrepperTopFrame.Create(AOwner : TComponent);
 begin
@@ -490,8 +499,42 @@ end;
 
 procedure TRipGrepperTopFrame.ActionSaveReplacementUpdate(Sender : TObject);
 begin
+	ActionSaveReplacement.Visible := (EGuiReplaceMode.grmActive in FGuiReplaceModes) or IsRgReplaceMode;
 	ActionSaveReplacement.Enabled := (EGuiReplaceMode.grmSaveEnabled in FGuiReplaceModes)
 	{ } and (MainFrame.VstResult.CheckedCount > 0);
+
+	ActionSaveReplacement.ImageName :=
+	{ } IfThen(ActionSaveReplacement.Enabled, 'content-save-all-outline',
+	{ } GetDisabledIconName('content-save-all-outline'));
+end;
+
+procedure TRipGrepperTopFrame.ActionCheckAllResultsExecute(Sender : TObject);
+begin
+	MainFrame.ActionCheckAllResultsExecute(Sender);
+end;
+
+procedure TRipGrepperTopFrame.ActionCheckAllResultsUpdate(Sender : TObject);
+var
+	sCaption, sHint : string;
+	bIsReplaceModeActive : Boolean;
+begin
+	bIsReplaceModeActive := (EGuiReplaceMode.grmActive in FGuiReplaceModes) or IsRgReplaceMode;
+	ActionCheckAllResults.Visible := bIsReplaceModeActive;
+	ActionCheckAllResults.Enabled := bIsReplaceModeActive;
+
+	if not bIsReplaceModeActive then begin
+		Exit;
+	end;
+
+	if MainFrame.GetCheckAllResultsState(sCaption, sHint) then begin
+		ActionCheckAllResults.ImageIndex := IMG_IDX_UNCHECK_ALL_RESULTS;
+		ActionCheckAllResults.ImageName := 'checkbox-multiple-blank-outline';
+	end else begin
+		ActionCheckAllResults.ImageIndex := IMG_IDX_CHECK_ALL_RESULTS;
+		ActionCheckAllResults.ImageName := 'checkbox-multiple-marked-outline';
+	end;
+	ActionCheckAllResults.Caption := sCaption;
+	ActionCheckAllResults.Hint := sHint;
 end;
 
 procedure TRipGrepperTopFrame.ActionSearchExecute(Sender : TObject);
@@ -981,6 +1024,8 @@ begin
 		dbgMsg.Msg('Already initialized');
 		Exit;
 	end;
+	AddDisabledIconVariant('content-save-all-outline');
+
 	FFilterMode := Settings.NodeLookSettings.FilterSettings.FilterModes;
 	UpdateFilterEditMenuAndHint();
 	// If date mode was persisted, restore the display text
@@ -1088,6 +1133,63 @@ begin
 	{ } IfThen(_bOn and (edtFilter.Text <> ''), IMG_IDX_FILTER_ON, IMG_IDX_FILTER_OFF);
 end;
 
+procedure TRipGrepperTopFrame.AddDisabledIconVariant(const _sIconName : string);
+begin
+	{ Both the style-hook-based ToolBar.DisabledImages and the SVGIconImageList's own }
+	{ DisabledOpacity/DisabledGrayScale blending depend on the VCL style hook actually }
+	{ painting this toolbar - which it does not here, since StyleServices(tbarResult) }
+	{ resolves to the system style while hosted as an IDE extension. So instead, add a }
+	{ pre-colored "disabled" clone of the icon right into the central SVG icon collection }
+	{ and switch ImageName to it manually - the same pattern ActionCheckAllResultsUpdate }
+	{ already uses, which is known to render correctly regardless of styling. }
+	var
+	srcItem := SVGIconDataModule.SVGIconImageCollection1.SVGIconItems.GetIconByName(_sIconName);
+	if not Assigned(srcItem) then begin
+		Exit;
+	end;
+	var
+	disabledIconName := GetDisabledIconName(_sIconName);
+	{ The collection is shared via SVGIconDataModule, so a previously created TopFrame instance }
+	{ (e.g. before the dockable IDE window was closed and reopened) may have already added this }
+	{ item - reuse it instead of appending a duplicate every time Initialize() runs again. }
+	var
+	newItem := SVGIconDataModule.SVGIconImageCollection1.SVGIconItems.GetIconByName(disabledIconName);
+	if not Assigned(newItem) then begin
+		newItem := SVGIconDataModule.SVGIconImageCollection1.SVGIconItems.Add();
+		newItem.Assign(srcItem);
+		{ TDarkModeHelper.setFixedColorInSVGImgLists re-stamps every icon's FixedColor to the }
+		{ current theme color on theme changes, except ones whose IconName starts with 'icon-' - }
+		{ that prefix is required here so our own FixedColor below survives future theme changes. }
+		newItem.IconName := disabledIconName;
+		{ Derive the disabled shade from the icon's actual current enabled color rather than }
+		{ TDarkModeHelper.GetActualThemeMode - the IDE's active style name ("Mountain_Mist" etc.) }
+		{ does not match the hardcoded 'Carbon'/'Dark'/'Windows'/'Light' names that function looks }
+		{ for, so it does not reliably reflect what color TDarkModeHelper actually applied here. }
+		var
+		enabledColor := srcItem.FixedColor;
+		if enabledColor = clDefault then begin
+			enabledColor := SvgImgLstTopFrame.FixedColor;
+		end;
+		var
+		enabledRGB := ColorToRGB(enabledColor);
+		var
+		luminance := (GetRValue(enabledRGB) * 299 + GetGValue(enabledRGB) * 587 + GetBValue(enabledRGB) * 114) div 1000;
+		if luminance < 128 then begin
+			newItem.FixedColor := TColor($00D4D4D4); // enabled is dark (light theme) - fade toward a pale gray
+		end else begin
+			newItem.FixedColor := TColor($00404040); // enabled is light (dark theme) - fade toward a dark gray
+		end;
+	end;
+	{ Register the new collection item as a named entry in the local virtual image list, }
+	{ so Action.ImageName can resolve it - CollectionName-only items aren't auto-visible. }
+	SvgImgLstTopFrame.Add(newItem.IconName, newItem.IconName);
+end;
+
+function TRipGrepperTopFrame.GetDisabledIconName(const _sIconName : string) : string;
+begin
+	Result := 'icon-' + _sIconName + DISABLED_ICON_SUFFIX;
+end;
+
 procedure TRipGrepperTopFrame.SetFilterMode(const _fm : EFilterMode; const _bReset : Boolean = False);
 begin
 	if _bReset then begin
@@ -1125,8 +1227,9 @@ end;
 procedure TRipGrepperTopFrame.SetReplaceModeOnToolBar;
 
 begin
-	ActionSaveReplacement.Enabled := EGuiReplaceMode.grmSaveEnabled in FGuiReplaceModes;
+	ActionSaveReplacementUpdate(self);
 	// ActionSaveAllReplacement.Enabled := EGuiReplaceMode.grmSaveEnabled in FGuiReplaceModes;
+	ActionCheckAllResultsUpdate(self);
 	edtReplace.Enabled := EGuiReplaceMode.grmEditEnabled in FGuiReplaceModes;
 	edtReplace.RightButton.ImageIndex := IfThen(
 		{ } (EGuiReplaceMode.grmActive in FGuiReplaceModes), IMG_IDX_REPLACE_ON, IMG_IDX_REPLACE_OFF);
@@ -1135,6 +1238,7 @@ begin
 		ChangeButtonedEditTextButSkipChangeEvent(edtReplace, edtReplace.TextHint);
 	end;
 
+	MainFrame.AlignToolBars();
 end;
 
 procedure TRipGrepperTopFrame.SetReplaceTextInSettings(const _sReplText : string);

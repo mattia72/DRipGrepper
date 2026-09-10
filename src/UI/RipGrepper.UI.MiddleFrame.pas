@@ -46,8 +46,8 @@ uses
 	RipGrepper.Common.NodeData,
 	RipGrepper.UI.IFrameEvents,
 	RipGrepper.Settings.FontColors,
-	SVGIconImageListBase,
-	SVGIconImageList;
+	RipGrepper.UI.SVGIconDataModule,
+	SVGIconVirtualImageList;
 
 type
 	TRipGrepperMiddleFrame = class(TFrame, IFrameEvents, INewLineEventHandler, ITerminateEventProducer, IEOFProcessEventHandler)
@@ -81,11 +81,16 @@ type
 		miOpenInIde : TMenuItem;
 		ActionCopyCmdLineToClipboard : TAction;
 		MiddleLeftFrame1 : TMiddleLeftFrame;
-		SVGIconImageList1 : TSVGIconImageList;
+		SVGIconImageList1 : TSVGIconVirtualImageList;
 		ActionDeleteResultNode : TAction;
 		N4 : TMenuItem;
 		miDeleteResultNode : TMenuItem;
+		ActionCheckAllResults : TAction;
+		N5 : TMenuItem;
+		miCheckAllResults : TMenuItem;
 		procedure ActionAddUsingImplementationExecute(Sender : TObject);
+		procedure ActionCheckAllResultsExecute(Sender : TObject);
+		procedure ActionCheckAllResultsUpdate(Sender : TObject);
 		procedure ActionAddUsingImplementationUpdate(Sender : TObject);
 		procedure ActionAddUsingInterfaceExecute(Sender : TObject);
 		procedure ActionAddUsingInterfaceUpdate(Sender : TObject);
@@ -216,6 +221,8 @@ type
 		public
 			constructor Create(AOwner : TComponent); override;
 			destructor Destroy; override;
+			function AreAllResultsChecked : Boolean;
+			function GetCheckAllResultsState(out _caption, _hint : string) : Boolean;
 			procedure AfterHistObjChange;
 			procedure AfterSearch;
 			procedure AlignToolBars;
@@ -240,6 +247,7 @@ type
 			procedure PrepareAndDoSearch;
 			// ITerminateEventProducer
 			function ProcessShouldTerminate : Boolean;
+			procedure RefreshFileNodeIndicators();
 			procedure RefreshSearch;
 			procedure ReloadColorSettings;
 			procedure SetReplaceModeOnGrid(const _bOn : Boolean);
@@ -345,6 +353,87 @@ end;
 procedure TRipGrepperMiddleFrame.ActionAddUsingInterfaceUpdate(Sender : TObject);
 begin
 	EnableActionIfResultSelected(ActionAddUsingInterface);
+end;
+
+function TRipGrepperMiddleFrame.AreAllResultsChecked : Boolean;
+var
+	node : PVirtualNode;
+begin
+	Result := False;
+	if not(toCheckSupport in VstResult.TreeOptions.MiscOptions) then begin
+		{ } // no checkboxes shown (not in replace mode) -> always report "Check All" state
+		Exit;
+	end;
+	node := VstResult.GetFirstChild(VstResult.RootNode);
+	if not Assigned(node) then begin
+		Exit;
+	end;
+
+	Result := True;
+	while Assigned(node) do begin
+		if node.CheckState <> csCheckedNormal then begin
+			Result := False;
+			Break;
+		end;
+		node := VstResult.GetNextSibling(node);
+	end;
+end;
+
+function TRipGrepperMiddleFrame.GetCheckAllResultsState(out _caption, _hint : string) : Boolean;
+begin
+	Result := AreAllResultsChecked();
+	if Result then begin
+		_caption := 'Uncheck All';
+		_hint := 'Uncheck All Result Rows';
+	end else begin
+		_caption := 'Check All';
+		_hint := 'Check All Result Rows for Replace';
+	end;
+end;
+
+procedure TRipGrepperMiddleFrame.ActionCheckAllResultsExecute(Sender : TObject);
+var
+	node : PVirtualNode;
+	bCheck : Boolean;
+begin
+	var
+	beu := TBeginEndUpdater.New(VstResult);
+
+	bCheck := not AreAllResultsChecked();
+	node := VstResult.GetFirstChild(VstResult.RootNode);
+	while Assigned(node) do begin
+		if bCheck then begin
+			VstResult.CheckState[node] := csCheckedNormal;
+		end else begin
+			VstResult.CheckState[node] := csUncheckedNormal;
+		end;
+		node := VstResult.GetNextSibling(node);
+	end;
+end;
+
+procedure TRipGrepperMiddleFrame.ActionCheckAllResultsUpdate(Sender : TObject);
+var
+	sCaption, sHint : string;
+	bIsCheckboxVisible : Boolean;
+begin
+	bIsCheckboxVisible := toCheckSupport in VstResult.TreeOptions.MiscOptions;
+	ActionCheckAllResults.Visible := bIsCheckboxVisible;
+	N5.Visible := bIsCheckboxVisible;
+	ActionCheckAllResults.Enabled := bIsCheckboxVisible and Assigned(VstResult.GetFirst());
+
+	if not bIsCheckboxVisible then begin
+		Exit;
+	end;
+
+	if GetCheckAllResultsState(sCaption, sHint) then begin
+		ActionCheckAllResults.ImageIndex := IMG_IDX_RESULT_MENU_UNCHECK_ALL;
+		ActionCheckAllResults.ImageName := 'checkbox-multiple-blank-outline';
+	end else begin
+		ActionCheckAllResults.ImageIndex := IMG_IDX_RESULT_MENU_CHECK_ALL;
+		ActionCheckAllResults.ImageName := 'checkbox-multiple-marked-outline';
+	end;
+	ActionCheckAllResults.Caption := sCaption;
+	ActionCheckAllResults.Hint := sHint;
 end;
 
 procedure TRipGrepperMiddleFrame.ActionCopyCmdLineToClipboardExecute(Sender : TObject);
@@ -2010,6 +2099,23 @@ begin
 	end;
 	dbgMsg.MsgFmt('DeleteNode of idx = %d', [_node.Index]);
 	VstResult.DeleteNode(_node);
+end;
+
+{ Recalculates the error/warning indicators of the file nodes, e.g. after the active project of the
+  IDE has changed. A repaint is enough, because "file not found" and "file outside of project scope"
+  are evaluated while painting. }
+procedure TRipGrepperMiddleFrame.RefreshFileNodeIndicators();
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.RefreshFileNodeIndicators');
+
+	if IsSearchRunning then begin
+		dbgMsg.Msg('Search is running, the indicators are painted anyway');
+		Exit;
+	end;
+
+	dbgMsg.MsgFmt('Repaint %d file nodes', [VstResult.RootNode.ChildCount]);
+	VstResult.Repaint;
 end;
 
 procedure TRipGrepperMiddleFrame.ReloadColorSettings;
