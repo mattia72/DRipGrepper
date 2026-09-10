@@ -247,6 +247,7 @@ type
 			procedure PrepareAndDoSearch;
 			// ITerminateEventProducer
 			function ProcessShouldTerminate : Boolean;
+			procedure RefreshFileNodeIndicators();
 			procedure RefreshSearch;
 			procedure ReloadColorSettings;
 			procedure SetReplaceModeOnGrid(const _bOn : Boolean);
@@ -2098,6 +2099,23 @@ begin
 	end;
 	dbgMsg.MsgFmt('DeleteNode of idx = %d', [_node.Index]);
 	VstResult.DeleteNode(_node);
+end;
+
+{ Recalculates the error/warning indicators of the file nodes, e.g. after the active project of the
+  IDE has changed. A repaint is enough, because "file not found" and "file outside of project scope"
+  are evaluated while painting. }
+procedure TRipGrepperMiddleFrame.RefreshFileNodeIndicators();
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.RefreshFileNodeIndicators');
+
+	if IsSearchRunning then begin
+		dbgMsg.Msg('Search is running, the indicators are painted anyway');
+		Exit;
+	end;
+
+	dbgMsg.MsgFmt('Repaint %d file nodes', [VstResult.RootNode.ChildCount]);
+	VstResult.Repaint;
 end;
 
 procedure TRipGrepperMiddleFrame.ReloadColorSettings;

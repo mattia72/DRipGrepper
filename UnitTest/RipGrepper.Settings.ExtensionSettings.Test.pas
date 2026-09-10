@@ -58,6 +58,34 @@ type
 			procedure UncPathInLibraryPathShouldReturnTrue;
 	end;
 
+	[TestFixture]
+	TDelphiIDEContextIsStaleForTest = class
+
+		private
+			FContext : TDelphiIDEContext;
+
+		public
+			[Setup]
+			procedure Setup;
+
+			[Test]
+			procedure SameProjectShouldNotBeStale;
+			[Test]
+			procedure OtherProjectShouldBeStale;
+			[Test]
+			procedure SameProjectInOtherCaseShouldNotBeStale;
+			[Test]
+			procedure SameProjectWithForwardSlashesShouldNotBeStale;
+			[Test]
+			procedure SameProjectWithUnnormalizedPathShouldNotBeStale;
+			[Test]
+			procedure ClosedProjectShouldBeStale;
+			[Test]
+			procedure OpenedProjectShouldBeStale;
+			[Test]
+			procedure NoProjectAtAllShouldNotBeStale;
+	end;
+
 implementation
 
 uses
@@ -218,8 +246,66 @@ begin
 	Assert.IsTrue(result);
 end;
 
+procedure TDelphiIDEContextIsStaleForTest.Setup;
+begin
+	FContext.ActiveProject := 'C:\Projects\MyApp\MyApp.dproj';
+end;
+
+procedure TDelphiIDEContextIsStaleForTest.SameProjectShouldNotBeStale;
+begin
+	var result := FContext.IsStaleFor('C:\Projects\MyApp\MyApp.dproj');
+	Assert.IsFalse(result);
+end;
+
+procedure TDelphiIDEContextIsStaleForTest.OtherProjectShouldBeStale;
+begin
+	var result := FContext.IsStaleFor('C:\Projects\OtherApp\OtherApp.dproj');
+	Assert.IsTrue(result);
+end;
+
+procedure TDelphiIDEContextIsStaleForTest.SameProjectInOtherCaseShouldNotBeStale;
+begin
+	var result := FContext.IsStaleFor('c:\projects\myapp\myapp.dproj');
+	Assert.IsFalse(result, 'Path comparison has to be case insensitive');
+end;
+
+procedure TDelphiIDEContextIsStaleForTest.SameProjectWithForwardSlashesShouldNotBeStale;
+begin
+	var result := FContext.IsStaleFor('C:/Projects/MyApp/MyApp.dproj');
+	Assert.IsFalse(result);
+end;
+
+procedure TDelphiIDEContextIsStaleForTest.SameProjectWithUnnormalizedPathShouldNotBeStale;
+begin
+	var result := FContext.IsStaleFor('C:\Projects\Other\..\MyApp\MyApp.dproj');
+	Assert.IsFalse(result);
+end;
+
+procedure TDelphiIDEContextIsStaleForTest.ClosedProjectShouldBeStale;
+begin
+	var result := FContext.IsStaleFor('');
+	Assert.IsTrue(result, 'The project of the cached context isn''t open any more');
+end;
+
+procedure TDelphiIDEContextIsStaleForTest.OpenedProjectShouldBeStale;
+var
+	emptyContext : TDelphiIDEContext;
+begin
+	var result := emptyContext.IsStaleFor('C:\Projects\MyApp\MyApp.dproj');
+	Assert.IsTrue(result, 'A project was opened, but nothing is cached yet');
+end;
+
+procedure TDelphiIDEContextIsStaleForTest.NoProjectAtAllShouldNotBeStale;
+var
+	emptyContext : TDelphiIDEContext;
+begin
+	var result := emptyContext.IsStaleFor('');
+	Assert.IsFalse(result, 'Without a project there is nothing to reload');
+end;
+
 initialization
 
 TDUnitX.RegisterTestFixture(TDelphiIDEContextIsFileInProjectTest);
+TDUnitX.RegisterTestFixture(TDelphiIDEContextIsStaleForTest);
 
 end.

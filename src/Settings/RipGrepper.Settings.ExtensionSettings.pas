@@ -4,6 +4,7 @@ interface
 
 uses
 	RipGrepper.Settings.Persistable,
+	System.Diagnostics,
 	System.IniFiles,
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.IDEContextValues,
@@ -26,6 +27,7 @@ type
 		ActiveProject : string;
 		function IsEmpty() : Boolean;
 		function IsFileInProject(const _filePath : string) : Boolean;
+		function IsStaleFor(const _activeProject : string) : Boolean;
 
 		private
 			class function isUnderDir(const _normalizedFilePath, _normalizedDir : string) : Boolean; static;
@@ -47,14 +49,20 @@ type
 			KEY_SHORTCUT_OPENWITH = 'OpenWithShortcut';
 			KEY_SHORTCUT_SETTINGS = 'SettingsShortcut';
 			KEY_HANDLE_OPEN_WITH_DELPHI_COMMANDS = 'HandleOpenWithDelphiCommands';
+			{ Minimal delay between two active project comparisons with the IDE. Without the throttle
+			  every result tree node would ask IOTA for the active project while painting. }
+			ACTIVE_PROJECT_CHECK_INTERVAL_MS = 1000;
 
 		private
 			FSearchSelectedShortcut : IStringSetting;
 			FCurrentIDEContext : TDelphiIDEContext;
+			FIsIDEContextInvalidated : Boolean;
+			FswActiveProjectCheck : TStopwatch;
 			FIDEContext : IIntegerSetting;
 			FOpenWithShortCut : IStringSetting;
 			FSettingsShortCut : IStringSetting;
 			FHandleOpenWithDelphiCommands : IBoolSetting;
+			function isIDEContextReloadNeeded() : Boolean;
 			function GetCurrentIDEContext() : TDelphiIDEContext;
 			function GetHandleOpenWithDelphiCommands() : Boolean;
 			function GetOpenWithShortcut() : string;
@@ -70,6 +78,7 @@ type
 			constructor Create(const _Owner : TPersistableSettings); overload;
 			constructor Create; overload;
 			procedure Init; override;
+			procedure InvalidateIDEContext();
 			function ToLogString : string; override;
 			property SearchSelectedShortcut : string read GetSearchSelectedShortcut write SetSearchSelectedShortcut;
 			property OpenWithShortcut : string read GetOpenWithShortcut write SetOpenWithShortcut;
@@ -107,13 +116,68 @@ begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.GetCurrentIDEContext', True);
 
-	if FCurrentIDEContext.IsEmpty then begin
-		dbgMsg.Msg('CurrentIDEContext is empty. Load from IOTA...');
+	if isIDEContextReloadNeeded() then begin
+		dbgMsg.Msg('Load CurrentIDEContext from IOTA...');
 		FCurrentIDEContext.LoadFromIOTA();
+		FIsIDEContextInvalidated := False;
+		FswActiveProjectCheck := TStopwatch.StartNew;
+		dbgMsg.Msg('CurrentIDEContext: ' + FCurrentIDEContext.ToLogString);
 	end;
 	{$ENDIF}
 	FCurrentIDEContext.IDESearchContext := EDelphiIDESearchContext(FIDEContext.Value);
 	Result := FCurrentIDEContext;
+end;
+
+{ True, if the cached IDE context has to be (re)loaded from IOTA: it was invalidated by the IDE
+  notifier, it was never loaded, or - as a safety net for changes the IDE doesn't notify us about -
+  the active project of the IDE has changed meanwhile. The comparison with the IDE is throttled,
+  because this is also called while painting the result tree, once per node. }
+function TRipGrepperExtensionSettings.isIDEContextReloadNeeded() : Boolean;
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.isIDEContextReloadNeeded', True);
+
+	Result := True;
+	if FIsIDEContextInvalidated then begin
+		dbgMsg.Msg('CurrentIDEContext was invalidated');
+		Exit;
+	end;
+
+	if FCurrentIDEContext.IsEmpty then begin
+		dbgMsg.Msg('CurrentIDEContext is empty');
+		Exit;
+	end;
+
+	if FswActiveProjectCheck.IsRunning and
+	{ } (FswActiveProjectCheck.ElapsedMilliseconds < ACTIVE_PROJECT_CHECK_INTERVAL_MS) then begin
+		// checked a moment ago, don't ask IOTA again
+		Result := False;
+		Exit;
+	end;
+	FswActiveProjectCheck := TStopwatch.StartNew;
+
+	{$IF IS_EXTENSION}
+	var
+		projPathGetter : IDelphiIDEContext := TDelphiIDEContextProvider.Create();
+	var
+	activeProject := projPathGetter.GetActiveProjectFilePath();
+	Result := FCurrentIDEContext.IsStaleFor(activeProject);
+	dbgMsg.MsgFmtIf(Result, 'ActiveProject changed: %s -> %s', [FCurrentIDEContext.ActiveProject, activeProject]);
+	{$ELSE}
+	Result := False;
+	{$ENDIF}
+end;
+
+{ Marks the cached IDE context as outdated, so it is reloaded from IOTA on the next read. The
+  reload itself is left to the getter, because collecting the library path is expensive and the
+  context may not be needed at all. }
+procedure TRipGrepperExtensionSettings.InvalidateIDEContext();
+begin
+	var
+	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperExtensionSettings.InvalidateIDEContext');
+	dbgMsg.Msg('Cached CurrentIDEContext: ' + FCurrentIDEContext.ToLogString);
+
+	FIsIDEContextInvalidated := True;
 end;
 
 function TRipGrepperExtensionSettings.GetHandleOpenWithDelphiCommands() : Boolean;
@@ -291,6 +355,13 @@ begin
 	end;
 
 	Result := False;
+end;
+
+{ True, if this context doesn't describe _activeProject any more, e.g. because the user has changed
+  the active project in the IDE. Both project paths are empty, if no project is open at all. }
+function TDelphiIDEContext.IsStaleFor(const _activeProject : string) : Boolean;
+begin
+	Result := normalizePath(ActiveProject) <> normalizePath(_activeProject);
 end;
 
 function TDelphiIDEContext.GetValueByContext() : string;

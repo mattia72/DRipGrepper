@@ -14,6 +14,7 @@ uses
 	System.Classes,
 	DRipExtension.VSCodeBridge,
 	DRipExtension.CompileNotifier,
+	DRipExtension.IDEContextNotifier,
 	DRipExtension.MessageNotifier;
 
 type
@@ -111,6 +112,8 @@ begin
 	searchFormSetting := settings.SearchFormSettings;
 	FExtensionSettings := searchFormSetting.ExtensionSettings;
 	TDripExtensionMenu.CreateMenu(GetMenuText, settings);
+	// keeps the cached IDE context up to date, if the user changes the active project
+	TIDEContextNotifier.RegisterNotifier();
 	UpdateVSCodeBridgeState;
 end;
 
@@ -124,6 +127,7 @@ begin
 
 	// TMessageHookNotifier.UnregisterNotifier();
 	// TCompileNotifier.UnregisterNotifier();
+	TIDEContextNotifier.UnregisterNotifier();
 	RemovePluginInfo;
 	TRipGrepperDockableForm.DestroyInstance;
 	inherited;
