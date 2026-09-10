@@ -23,6 +23,7 @@ e.g. `86 paths (e.g. C:\...)`
 - Version updated to 4.16.0
 
 ### 🐞 Fixed
+- **extension** Files were wrongly reported as *outside of project scope*. Paths are now normalized (relative, `/`-separated and unnormalized paths) before the comparison, project directories are matched on directory boundaries only, and the units of the project (`ProjectFiles`, `ProjectFilesDirs`) are taken into account, not only the project directory and the library path.
 - Update version script. 
 - **extension** On showing of search form in Delphi IDE, all text in every combo box was selected, now only the active combo box text is selected, so typing will delete the whole entry immediately. 
 - **extension** Search directory was reset to the previous Custom Location path when opening the search form a second time in a non-Custom IDE context (e.g. *All open files*, *Project files*), causing rg.exe to run against the wrong path. The context-driven search path is now preserved on form show.

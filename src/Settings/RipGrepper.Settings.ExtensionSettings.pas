@@ -27,6 +27,10 @@ type
 		function IsEmpty() : Boolean;
 		function IsFileInProject(const _filePath : string) : Boolean;
 
+		private
+			class function isUnderDir(const _normalizedFilePath, _normalizedDir : string) : Boolean; static;
+			class function normalizePath(const _path : string; const _baseDir : string = '') : string; static;
+
 		public
 			function ToLogString : string;
 			function GetValueByContext() : string;
@@ -203,32 +207,85 @@ begin
 	Result := ActiveProject.IsEmpty;
 end;
 
+{ Normalizes a path for comparison: unifies the path delimiters, resolves '..' and '.' parts and
+  converts it to upper case. A relative _path is resolved against _baseDir, if one is given. }
+class function TDelphiIDEContext.normalizePath(const _path : string; const _baseDir : string = '') : string;
+begin
+	Result := _path.Trim();
+	if Result.IsEmpty then begin
+		Exit;
+	end;
+
+	Result := Result.Replace('/', '\', [rfReplaceAll]);
+	if (not _baseDir.IsEmpty) and TPath.IsRelativePath(Result) then begin
+		Result := IncludeTrailingPathDelimiter(_baseDir) + Result;
+	end;
+
+	try
+		Result := TPath.GetFullPath(Result);
+	except
+		on E : Exception do begin
+			// paths which can't be expanded (e.g. invalid chars) are compared as they are
+			TDebugUtils.DebugMessage('TDelphiIDEContext.normalizePath: ' + E.Message + ' - ' + _path);
+		end;
+	end;
+	Result := Result.ToUpper;
+end;
+
+{ Checks if _normalizedFilePath is located in _normalizedDir or in one of its sub directories.
+  Both parameters have to be normalized by normalizePath() beforehand. }
+class function TDelphiIDEContext.isUnderDir(const _normalizedFilePath, _normalizedDir : string) : Boolean;
+begin
+	Result := (not _normalizedDir.IsEmpty) and _normalizedFilePath.StartsWith(IncludeTrailingPathDelimiter(_normalizedDir));
+end;
+
 function TDelphiIDEContext.IsFileInProject(const _filePath : string) : Boolean;
 var
+	normalizedFilePath : string;
 	projectDir : string;
-	filePathUpper : string;
 begin
 	Result := True;
 
-	if ActiveProject.IsEmpty then begin
+	if ActiveProject.IsEmpty or _filePath.Trim().IsEmpty then begin
+		Exit;
+	end;
+
+	{ ripgrep reports relative paths if it was called with a relative search path. The base directory
+	  of the search isn't part of the IDE context, so such a path can't be resolved here. Don't report
+	  it as outside of the project to avoid a false warning. }
+	if TPath.IsRelativePath(_filePath.Trim().Replace('/', '\', [rfReplaceAll])) then begin
 		Exit;
 	end;
 
 	projectDir := TPath.GetDirectoryName(ActiveProject);
-	filePathUpper := _filePath.ToUpper;
-
 	if projectDir.IsEmpty then begin
 		Exit;
 	end;
 
+	normalizedFilePath := normalizePath(_filePath);
+
 	// Check project directory
-	if filePathUpper.StartsWith(projectDir.ToUpper) then begin
+	if isUnderDir(normalizedFilePath, normalizePath(projectDir)) then begin
 		Exit;
+	end;
+
+	// Units of the project may be stored outside of the project directory
+	for var projFile in ProjectFiles do begin
+		if normalizePath(projFile, projectDir) = normalizedFilePath then begin
+			Exit;
+		end;
+	end;
+
+	// Check directories of the project units
+	for var projFilesDir in ProjectFilesDirs do begin
+		if isUnderDir(normalizedFilePath, normalizePath(projFilesDir, projectDir)) then begin
+			Exit;
+		end;
 	end;
 
 	// Check library paths
 	for var libPath in ProjectLibraryPath do begin
-		if (not libPath.IsEmpty) and filePathUpper.StartsWith(libPath.ToUpper) then begin
+		if isUnderDir(normalizedFilePath, normalizePath(libPath, projectDir)) then begin
 			Exit;
 		end;
 	end;
