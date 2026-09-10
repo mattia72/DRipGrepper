@@ -9,12 +9,12 @@ uses
 
 type
 	{ Keeps the cached Delphi IDE context of the settings in sync with the IDE. If the user switches
-	  the active project, opens or closes a project group or (un)installs a package, the cached
-	  project directory and library path become outdated. They are invalidated here and the result
-	  view is repainted, so the "file is outside of project scope" indicators are recalculated. }
+	  the active project, the cached project directory and library path become outdated. They are
+	  invalidated here and the result view is repainted, so the "file is outside of project scope"
+	  indicators are recalculated. }
 	TIDEContextNotifier = class(TNotifierObject, IOTAIDENotifier)
 		private
-			procedure invalidateIDEContext(const _notifyCode : TOTAFileNotification; const _fileName : string);
+			procedure invalidateIDEContext(const _activeProject : string);
 
 		public
 			procedure FileNotification(NotifyCode : TOTAFileNotification; const FileName : string; var Cancel : Boolean);
@@ -31,8 +31,7 @@ uses
 	RipGrepper.Settings.RipGrepperSettings,
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.UI.ParentFrame,
-	Spring.DesignPatterns,
-	System.TypInfo;
+	Spring.DesignPatterns;
 
 var
 	{ The notifier is held as an interface reference, so it is destroyed by the reference counting
@@ -43,12 +42,12 @@ var
 procedure TIDEContextNotifier.FileNotification(NotifyCode : TOTAFileNotification; const FileName : string; var Cancel : Boolean);
 begin
 	{ No begin/end debug message here: this is called for every file operation of the IDE. Only the
-	  notifications which may change the project directory or the library path are logged. }
-	case NotifyCode of
-		ofnActiveProjectChanged, ofnEndProjectGroupOpen, ofnEndProjectGroupClose, ofnPackageInstalled,
-		{ } ofnPackageUninstalled : begin
-			invalidateIDEContext(NotifyCode, FileName);
-		end;
+	  notification which changes the project directory and the library path is handled. Closing the
+	  whole project group isn't notified reliably, but the settings compare the cached active project
+	  with the one of the IDE anyway. }
+	if NotifyCode = ofnActiveProjectChanged then begin
+		// on this notification FileName is the project file of the new active project
+		invalidateIDEContext(FileName);
 	end;
 end;
 
@@ -62,12 +61,11 @@ begin
 	// The IDE context doesn't change by compiling
 end;
 
-procedure TIDEContextNotifier.invalidateIDEContext(const _notifyCode : TOTAFileNotification; const _fileName : string);
+procedure TIDEContextNotifier.invalidateIDEContext(const _activeProject : string);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TIDEContextNotifier.invalidateIDEContext');
-	dbgMsg.MsgFmt('NotifyCode = %s, FileName = %s',
-	{ } [GetEnumName(TypeInfo(TOTAFileNotification), Integer(_notifyCode)), _fileName]);
+	dbgMsg.Msg('New ActiveProject = ' + _activeProject);
 
 	try
 		var
