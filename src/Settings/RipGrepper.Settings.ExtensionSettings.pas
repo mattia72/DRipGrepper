@@ -49,20 +49,26 @@ type
 			KEY_SHORTCUT_OPENWITH = 'OpenWithShortcut';
 			KEY_SHORTCUT_SETTINGS = 'SettingsShortcut';
 			KEY_HANDLE_OPEN_WITH_DELPHI_COMMANDS = 'HandleOpenWithDelphiCommands';
+			{$IF IS_EXTENSION}
 			{ Minimal delay between two active project comparisons with the IDE. Without the throttle
 			  every result tree node would ask IOTA for the active project while painting. }
 			ACTIVE_PROJECT_CHECK_INTERVAL_MS = 1000;
+			{$ENDIF}
 
 		private
 			FSearchSelectedShortcut : IStringSetting;
 			FCurrentIDEContext : TDelphiIDEContext;
 			FIsIDEContextInvalidated : Boolean;
+			{$IF IS_EXTENSION}
 			FswActiveProjectCheck : TStopwatch;
+			{$ENDIF}
 			FIDEContext : IIntegerSetting;
 			FOpenWithShortCut : IStringSetting;
 			FSettingsShortCut : IStringSetting;
 			FHandleOpenWithDelphiCommands : IBoolSetting;
+			{$IF IS_EXTENSION}
 			function isIDEContextReloadNeeded() : Boolean;
+			{$ENDIF}
 			function GetCurrentIDEContext() : TDelphiIDEContext;
 			function GetHandleOpenWithDelphiCommands() : Boolean;
 			function GetOpenWithShortcut() : string;
@@ -128,6 +134,8 @@ begin
 	Result := FCurrentIDEContext;
 end;
 
+{$IF IS_EXTENSION}
+
 { True, if the cached IDE context has to be (re)loaded from IOTA: it was invalidated by the IDE
   notifier, it was never loaded, or - as a safety net for changes the IDE doesn't notify us about -
   the active project of the IDE has changed meanwhile. The comparison with the IDE is throttled,
@@ -156,17 +164,14 @@ begin
 	end;
 	FswActiveProjectCheck := TStopwatch.StartNew;
 
-	{$IF IS_EXTENSION}
 	var
 		projPathGetter : IDelphiIDEContext := TDelphiIDEContextProvider.Create();
 	var
 	activeProject := projPathGetter.GetActiveProjectFilePath();
 	Result := FCurrentIDEContext.IsStaleFor(activeProject);
 	dbgMsg.MsgFmtIf(Result, 'ActiveProject changed: %s -> %s', [FCurrentIDEContext.ActiveProject, activeProject]);
-	{$ELSE}
-	Result := False;
-	{$ENDIF}
 end;
+{$ENDIF}
 
 { Marks the cached IDE context as outdated, so it is reloaded from IOTA on the next read. The
   reload itself is left to the getter, because collecting the library path is expensive and the
