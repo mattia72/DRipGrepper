@@ -14,7 +14,7 @@ type
 	  view is repainted, so the "file is outside of project scope" indicators are recalculated. }
 	TIDEContextNotifier = class(TNotifierObject, IOTAIDENotifier)
 		private
-			procedure invalidateIDEContext(const _notifyCode : TOTAFileNotification);
+			procedure invalidateIDEContext(const _notifyCode : TOTAFileNotification; const _fileName : string);
 
 		public
 			procedure FileNotification(NotifyCode : TOTAFileNotification; const FileName : string; var Cancel : Boolean);
@@ -47,7 +47,7 @@ begin
 	case NotifyCode of
 		ofnActiveProjectChanged, ofnEndProjectGroupOpen, ofnEndProjectGroupClose, ofnPackageInstalled,
 		{ } ofnPackageUninstalled : begin
-			invalidateIDEContext(NotifyCode);
+			invalidateIDEContext(NotifyCode, FileName);
 		end;
 	end;
 end;
@@ -62,11 +62,12 @@ begin
 	// The IDE context doesn't change by compiling
 end;
 
-procedure TIDEContextNotifier.invalidateIDEContext(const _notifyCode : TOTAFileNotification);
+procedure TIDEContextNotifier.invalidateIDEContext(const _notifyCode : TOTAFileNotification; const _fileName : string);
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TIDEContextNotifier.invalidateIDEContext');
-	dbgMsg.Msg('NotifyCode = ' + GetEnumName(TypeInfo(TOTAFileNotification), Integer(_notifyCode)));
+	dbgMsg.MsgFmt('NotifyCode = %s, FileName = %s',
+	{ } [GetEnumName(TypeInfo(TOTAFileNotification), Integer(_notifyCode)), _fileName]);
 
 	try
 		var
